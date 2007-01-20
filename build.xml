@@ -1,0 +1,177 @@
+<?xml version="1.0"?>
+<project name="jamocha" basedir="." default="all">
+    
+    <target name="init">
+        <property name="lib.home" value="lib"/>
+        <property name="app.name" value="jamocha"/>
+        <property name="src" value="${basedir}/src"/>
+        <property name="bin" value="${basedir}/bin"/>
+        <property name="bin-dbg" value="${basedir}/bin-dbg" />
+        <property name="reports.tests" value="${basedir}/test-reports" />
+        <mkdir dir="${bin}" />
+        <mkdir dir="${bin-dbg}" />
+        <mkdir dir="${reports.tests}" />
+    </target>
+
+    <target name="parser" depends="init" description="Generate parser description for javacc">
+        <!-- Find javacc. Here's a list of known places to search-->
+        <available file="/usr/share/java/" property="javacc.home" value="/usr/share/java/"/>
+        <available file="/sw/share/java/javacc/" property="javacc.home" value="/sw/share/java/javacc/"/>
+        <!--Fail if we haven't found it-->
+        <fail message="No javaCC found. Please update the build.xml.">
+                <condition>
+                        <not>
+                                <isset property="javacc.home"/>
+                        </not>
+                </condition>
+        </fail>
+        
+        <!-- sl parser -->
+	    <jjtree
+	       javacchome="${javacc.home}"
+	       target="${src}/main/org/jamocha/parser/sl/SL.jjt" 
+	       outputdirectory="${src}/main/org/jamocha/parser/sl/"
+	       nodeusesparser="true"
+	     />
+        
+        <javacc target="${src}/main/org/jamocha/parser/sl/SL.jj"
+            outputdirectory="${src}/main/org/jamocha/parser/sl/"
+           javacchome="${javacc.home}"
+        />
+
+        <!-- clips parser -->
+        
+    	<javacc target="${src}/main/org/jamocha/parser/clips/clips.jj"
+ 	       javacchome="${javacc.home}"
+	       outputdirectory="${src}/main/org/jamocha/parser/clips/"
+    	/>
+        
+        <!-- cool parser -->
+        
+        <jjtree
+           javacchome="${javacc.home}"
+           target="${src}/main/org/jamocha/parser/cool/COOL.jjt" 
+           outputdirectory="${src}/main/org/jamocha/parser/cool/"
+           nodeusesparser="true"
+         />
+        
+        <javacc
+            target="${src}/main/org/jamocha/parser/cool/COOL.jj"
+            outputdirectory="${src}/main/org/jamocha/parser/cool/"
+            javacchome="${javacc.home}"
+        />
+        
+    </target>
+    
+    <target name="compile" depends="init" description="Compile the jamocha main sources">
+        <javac     srcdir="${src}/main"
+        destdir="${bin}"
+        encoding="UTF-8">
+            <classpath>
+                <pathelement path="${bin}" />
+                <fileset dir="${lib.home}">
+                    <include name="**/*.jar" />
+                </fileset>
+            </classpath>
+        </javac>
+    <copy todir="${bin}">
+            <fileset dir="${src}/main" includes="**/*.properties" />
+        </copy>
+    </target>
+ 
+    <target name="compile-tests" depends="compile" description="Compile the jamocha tests">
+        <javac     srcdir="${src}/test"
+        destdir="${bin}"
+        encoding="UTF-8">
+            <classpath>
+                <pathelement path="${bin}" />
+                <fileset dir="${lib.home}">
+                    <include name="**/*.jar" />
+                    <include name="**/*.zip" />
+                </fileset>
+            </classpath>
+        </javac>
+    <copy todir="${bin}">
+            <fileset dir="${src}/test" includes="**/*.properties" />
+        </copy>
+    </target>
+
+    <target name="run-tests" depends="compile-tests" description="Run the junit test for jamocha">
+            <junit printsummary="yes" fork="yes" haltonfailure="no">
+                <classpath>
+                    <pathelement path="${bin}"/>
+                </classpath>
+                <formatter type="plain"/>
+                <batchtest fork="yes" todir="${reports.tests}">
+                    <fileset dir="${src}/test">
+                        <include name="**/*Test.java"/>
+                    </fileset>
+                </batchtest>
+            </junit>
+    </target>
+
+    <target name="compile-debug" depends="init,clean" description="Clean and compile with debug symbols and extra checks">
+        <javac srcdir="${src}" 
+               destdir="${bin-dbg}"
+               encoding="UTF-8"
+               debug="on"
+               deprecation="on">
+            <compilerarg value="-Xlint" />
+            <classpath>
+                <pathelement path="${bin-dbg}" />
+            </classpath>
+        </javac>
+    </target>
+
+    <target name="run" depends="jars">
+        <java jar="jamocha.jar" fork="true"/>
+    </target>
+    
+    <target name="jars" depends="compile" description="Generate the jar files">
+        <pathconvert property="libs.project" pathsep=" ">
+            <mapper>
+                <chainedmapper>
+                    <!-- remove absolute path -->
+                    <flattenmapper />
+                    <!-- add lib/ prefix -->
+                    <globmapper from="*" to="lib/*" />
+                </chainedmapper>
+            </mapper>
+            
+            <path>
+                <!-- lib.home contains all jar files, in several subdirectories -->
+                <fileset dir="${lib.home}">
+                    <include name="**/*.jar" />
+                </fileset>
+            </path>
+        </pathconvert>
+
+        <jar jarfile="jamocha.jar" basedir="${bin}">
+            <manifest>
+                <attribute name="Built-By" value="${user.name}" />
+                <attribute name="Main-Class" value="org.jamocha.Jamocha" />
+                <attribute name="Class-Path" value="${libs.project}" />
+            </manifest>
+        </jar>
+   </target>
+    
+    <target name="all" depends="compile-tests,jars" description="Build everything.">
+        <echo message="Application ${app.name} built!" />
+    </target>
+    
+    <target name="clean" depends="init" description="Clean the binary output directories.">
+        <delete dir="bin" />
+        <delete dir="bin-dbg" />
+    </target>
+
+    <target name="distclean" depends="init" description="Clean the binary output directories, the created jars and the junit report directory.">
+        <delete dir="${bin}" />
+        <delete dir="${bin-dbg}" />
+        <delete dir="${reports.tests}" />
+    <delete>
+        <fileset dir=".">
+            <include name="jamocha*.jar"/>
+        </fileset>
+    </delete>
+    </target>
+</project>

@@ -1,0 +1,25 @@
+(deftemplate transaction
+  (slot accountId)
+  (slot buyPrice)
+  (slot countryCode)
+  (slot currentPrice)
+  (slot cusip)
+  (slot exchange)
+  (slot industryGroupID)
+  (slot industryID)
+  (slot issuer)
+  (slot lastPrice)
+  (slot purchaseDate)
+  (slot sectorID)
+  (slot shares)
+  (slot subIndustryID)
+)
+(defrule rule1
+  (transaction
+    (accountId ?acc)
+    (buyPrice ?bp&:(< ?bp 55.30) )
+  )
+=>
+  (printout t "rule1")
+)
+(assert (transaction (accountId "1") (buyPrice 97.23) (countryCode "FR") (currentPrice 58.95) (cusip 776465086) (exchange "TKYO") (industryGroupID 2530) (industryID 253010) (issuer "EEE") (lastPrice 50.12) (sectorID 25) (shares 100) (subIndustryID 25301020) ) )

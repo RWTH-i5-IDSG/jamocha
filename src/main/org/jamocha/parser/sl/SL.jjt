@@ -1,0 +1,419 @@
+/**
+ * Copyright 2007 Karl-Heinz Krempels, Alexander Wilden
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://jamocha.sourceforge.net/
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ **/
+
+/**
+ * Further information regarding the FIPA SL Content Language described 
+ * in this file at http://fipa.org/specs/fipa00008/index.html
+ **/
+
+
+options {
+    MULTI = true;
+    NODE_PREFIX = "SL";
+    VISITOR = true;
+    FORCE_LA_CHECK = true;
+    JAVA_UNICODE_ESCAPE = true;
+    BUILD_PARSER = true;
+    BUILD_TOKEN_MANAGER = true;
+    ERROR_REPORTING = true;
+    CACHE_TOKENS = true;
+//  DEBUG_TOKEN_MANAGER=true;
+    CHOICE_AMBIGUITY_CHECK = 2;
+    OTHER_AMBIGUITY_CHECK = 2;
+    LOOKAHEAD=2;
+	STATIC = false;
+}
+
+PARSER_BEGIN(SLParser)
+package org.jamocha.parser.sl;
+
+public class SLParser {
+	public static void main(String args[]){
+        try{
+		System.out.println("Reading from standard input...");
+        	SLParser parser = new SLParser(System.in);
+        	SimpleNode content = parser.Content();
+            content.dump("");
+            System.out.println("Thank you.");
+        }
+        catch(ParseException e){
+            System.out.println("parse(): an invalid expression!");
+            System.out.println(e.getMessage());
+            e.printStackTrace();
+        }
+        catch (TokenMgrError e){
+            System.out.println("a Token Manager error!");
+            System.out.println(e.getMessage());
+            e.printStackTrace();
+        }
+    }
+}
+
+PARSER_END(SLParser)
+
+
+/* WHITE SPACE */
+SKIP :
+{
+  " "
+| "\t"
+| "\n"
+| "\r"
+| "\f"
+}
+
+
+/* Content syntax follows */
+SimpleNode Content() :
+{}
+{
+	"(" ( ContentExpression() )+ ")"
+    {
+        return jjtThis;
+    }
+}
+
+
+void ContentExpression() :
+{}
+{
+	IdentifyingExpression()
+ 	|
+  	ActionExpression()
+ 	|
+  	Wff()
+}
+
+
+void Wff() #Wff :
+{}
+{
+	AtomicFormula()
+	|
+  	"(" "not" Wff() #Not(1)")"
+ 	|
+  	"(" "and" Wff() Wff() #And(2) ")"
+ 	|
+  	"(" "or" Wff() Wff() #Or(2) ")"
+ 	|
+  	"(" "implies" Wff() Wff() #Implies(2) ")"
+ 	|
+  	"(" "equiv" Wff() Wff() #Equiv(2) ")"
+ 	|
+  	"(" "forall" Variable() Wff() #ForAll(2) ")"
+ 	|
+  	"(" "exists" Variable() Wff() #Exists(2) ")"
+ 	|
+  	"(" "B" Agent() Wff() #B(2) ")"
+ 	|
+  	"(" "U" Agent() Wff() #U(2) ")"
+ 	|
+	"(" "PG" Agent() Wff() #PG(2) ")"
+ 	|
+	"(" "I" Agent() Wff() #I(2) ")"
+ 	|
+  	ActionOp() 
+}
+
+void ActionOp() :
+{}
+{
+  	"(" "feasible" ActionExpression() ")" #Feasible
+ 	|
+  	"(" "done" #Done ActionExpression()  ")" 
+	|
+  	"(" "feasible" ActionExpression() Wff() ")" #Feasible
+ 	|
+  	"(" "done" #Done ActionExpression() Wff() ")" 
+
+}
+
+void AtomicFormula() :
+{}
+{
+  	PropositionSymbol()
+ 	|
+  	BinaryTermOp()
+	|
+  	"(" PredicateSymbol() ( TermOrIE() )+ ")"
+ 	|
+	"true" #True
+ 	|
+  	"false" #False
+}
+
+void BinaryTermOp() :
+{}
+{
+   	"(" "=" TermOrIE() TermOrIE() ")" #Equal(2)
+ 	| 
+   	"(" "result" TermOrIE() TermOrIE() ")" #Result(2)
+}
+
+
+void TermOrIE() :
+{}
+{
+	Term()
+	|
+	IdentifyingExpression()
+}
+
+
+void Term() #Term :
+{}
+{
+	Variable()
+ 	|
+  	FunctionalTerm()
+ 	|
+  	ActionExpression()
+ 	|
+  	Constant()
+ 	|
+  	Sequence()
+ 	|
+  	Set()
+}
+
+
+void IdentifyingExpression() #IdentifyingExpression :
+{}
+{
+	"(" "iota" TermOrIE() Wff() ")" #Iota(2)
+ 	|
+  	"(" "any" TermOrIE() Wff() ")"  #Any(2)
+ 	|
+  	"(" "all" TermOrIE() Wff() ")" #All(2)
+}
+
+
+void FunctionalTerm() :
+{}
+{
+	"(" FunctionSymbol() ( TermOrIE() )* ")" #FunctionalTerm(>1)
+	|
+ 	"(" FunctionSymbol() ( Parameter() )* ")" #FunctionalTerm(>1)
+}
+
+
+void Constant() :
+{}
+{
+  NumericalConstant()
+  |
+  String()
+  |
+  DateTime()
+}
+
+
+void NumericalConstant() #NumericalConstant :
+{}
+{
+    Integer()
+    |
+    Float()
+}
+
+
+void Variable() :
+{
+    Token t;
+}
+{
+	t = <VARIABLE_IDENTIFIER>
+    {
+        jjtThis.setText(t.image);
+    }
+}
+
+
+void ActionExpression() :
+{}
+{
+  	"(" "action" Agent() TermOrIE() ")" #Action(2)
+ 	|
+  	"(" "|" ActionExpression() ActionExpression() ")"
+ 	|
+  	"(" ";" ActionExpression() ActionExpression() ")"
+}
+
+
+void PropositionSymbol() :
+{
+	Token t;
+}
+{
+	t = <STRING>
+    {
+        jjtThis.setText(t.image);
+    }
+}
+
+void PredicateSymbol() :
+{
+    Token t;
+}
+{
+    t = <STRING>
+    {
+        jjtThis.setText(t.image);
+    }
+}
+
+
+void FunctionSymbol() :
+{
+	Token t;
+}
+{
+    t = <STRING>
+    {
+        jjtThis.setText(t.image);
+    }
+}
+
+
+void Agent() :
+{}
+{
+	TermOrIE()
+}
+
+
+void Sequence() #Sequence : 
+{}
+{
+  "(" "sequence" ( TermOrIE() )* ")"
+}
+
+
+void Set() #Set :
+{}
+{
+  "(" "set" ( TermOrIE() )* ")"
+}
+
+
+void Parameter() :
+{}
+{
+    ParameterName() ParameterValue()
+}
+
+
+void ParameterValue() :
+{}
+{
+    TermOrIE()
+}
+
+
+void ParameterName() :
+{
+	Token t;
+}
+{
+    t = <PARAMETER_NAME>
+    {
+        jjtThis.setText(t.image);
+    }
+}
+
+
+void String():
+{
+	Token t;
+}
+{
+	t = <STRING>
+    {
+        jjtThis.setText(t.image);
+    }
+}
+
+
+void Integer() #Integer :
+{
+	Token t;
+}
+{
+	t = <INTEGER>
+    {
+        jjtThis.setText(t.image);
+    }
+}
+
+
+void Float() #Float :
+{
+    Token t;
+}
+{
+    t = <FLOAT>
+    {
+        jjtThis.setText(t.image);
+    }
+}
+
+
+void DateTime() #DateTime :
+{
+	Token t;
+}
+{
+    t = <DATETIME>
+    {
+        jjtThis.setText(t.image);
+    }
+}
+
+
+
+/* IDENTIFIERS */
+TOKEN :
+{
+	< STRING: <WORD> | <STRING_LITERAL> >
+	|
+	< WORD: (~["\u0000"-"\u0020","(",")","#","0"-"9",":","-","?"]) (~["\u0000"-"\u0020","(",")"])* >
+	|
+	< PARAMETER_NAME: ":" <STRING> >
+	|
+	< VARIABLE_IDENTIFIER: "?" <STRING> >
+	|
+ 	< #SIGN: ["+", "-"]>
+	|
+	< INTEGER: ( <SIGN> )?  ( <DIGIT> )+ | ( <SIGN> )?  "0" ["x", "X"] ( <HEXDIGIT> )+ >
+	|
+	< FLOAT: ( <SIGN> )? <FLOATMANTISSA> ( <FLOATEXPONENT> )? |  ( <SIGN> )? ( <DIGIT> )+ ( <FLOATEXPONENT> ) >
+	|
+ 	< FLOATMANTISSA: ( <DIGIT> )+ "." ( <DIGIT> )* | ( <DIGIT> )* "." ( <DIGIT> )+ >
+	|
+ 	< FLOATEXPONENT: ["e", "E"] ( <SIGN> )? ( <DIGIT> )+ >
+	|
+	< #DIGIT: ["0"-"9"] >
+	|
+	< #HEXDIGIT: ["0"-"9", "A"-"F", "a"-"f"]>
+	|
+	< STRING_LITERAL: "\"" ( (~["\""]) | "\\\"" )* "\"" >
+	|
+	< DATETIME :	( <SIGN> )? (["0"-"9"]) (["0"-"9"]) (["0"-"9"]) (["0"-"9"])
+              		(["0"-"9"]) (["0"-"9"]) (["0"-"9"]) (["0"-"9"]) ["t","T"]
+              		(["0"-"9"]) (["0"-"9"]) (["0"-"9"]) (["0"-"9"])
+              		(["0"-"9"]) (["0"-"9"]) (["0"-"9"]) (["0"-"9"]) (["0"-"9"]) (["a"-"z","A"-"Z"])? >
+}

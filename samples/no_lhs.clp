@@ -1,0 +1,26 @@
+(deftemplate transaction
+  (slot accountId)
+  (slot buyPrice)
+  (slot countryCode)
+  (slot currentPrice)
+  (slot cusip)
+  (slot exchange)
+  (slot industryGroupID)
+  (slot industryID)
+  (slot issuer)
+  (slot lastPrice)
+  (slot purchaseDate)
+  (slot sectorID)
+  (slot shares)
+  (slot subIndustryID)
+)
+(defrule no_conditions
+=>
+  (printout t "no_conditions was fired" )
+  (assert (transaction
+    (issuer "BBB")
+    (exchange "NYSE")
+    (countryCode "US")
+    (subIndustryID 25201010)
+   ))
+)

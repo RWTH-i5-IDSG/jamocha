@@ -1,0 +1,291 @@
+/*
+ * Copyright 2002-2006 Peter Lin
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://ruleml-dev.sourceforge.net/
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ */
+package org.jamocha.rule;
+
+import java.util.Iterator;
+import java.util.List;
+import java.util.ArrayList;
+
+import org.jamocha.rete.BaseAlpha;
+import org.jamocha.rete.BaseNode;
+import org.jamocha.rete.Constants;
+import org.jamocha.rete.*;
+
+
+/**
+ * @author Peter Lin
+ *
+ * ObjectCondition is equivalent to RuleML 0.83 resourceType. ObjectCondition
+ * matches on the fields of an object. The patterns may be simple value
+ * comparisons, or joins against other objects.
+ */
+public class ObjectCondition implements Condition {
+
+    protected String templateName = null;
+    protected String varname = null;
+    protected List propConditions = new ArrayList();
+    /**
+     * In the case the object pattern is negated, the boolean
+     * would be set to true.
+     */
+    protected boolean negated = false;
+    
+    /**
+     * a list for the RETE nodes created by RuleCompiler
+     */
+    protected List nodes = new ArrayList();
+    
+    protected Deftemplate template = null;
+    
+	/**
+	 * 
+	 */
+	public ObjectCondition() {
+		super();
+	}
+
+    public String getTemplateName() {
+        return this.templateName;
+    }
+    
+    public void setTemplateName(String name) {
+        this.templateName = name;
+    }
+    
+    public Deftemplate getDeftemplate() {
+    	return this.template;
+    }
+    
+    public void setDeftemplate(Deftemplate tmpl) {
+    	this.template = tmpl;
+    }
+    
+    public String getVariableName() {
+        return this.varname;
+    }
+    
+    public void setVariableName(String name) {
+        this.varname = name;
+    }
+    
+    /**
+     * set whether or not the pattern is negated
+     * @param negate
+     */
+    public void setNegated(boolean negate) {
+    	this.negated = negate;
+    }
+    
+    /**
+     * by default patterns are not negated. Negated Conditional Elements
+     * (aka object patterns) are expensive, so they should be used with 
+     * care.
+     * @return
+     */
+    public boolean getNegated() {
+    	return this.negated;
+    }
+    
+    public Constraint[] getConstraints() {
+        Constraint[] con = new Constraint[propConditions.size()];
+        return (Constraint[])propConditions.toArray(con);
+    }
+    
+    public void addConstraint(Constraint con) {
+        this.propConditions.add(con);
+    }
+    
+    public void addConstraint(Constraint con, int position) {
+    	this.propConditions.add(0,con);
+    }
+    
+    public void removeConstraint(Constraint con) {
+        this.propConditions.remove(con);
+    }
+    
+	/* (non-Javadoc)
+	 * @see woolfel.engine.rule.Condition#compare(woolfel.engine.rule.Condition)
+	 */
+	public boolean compare(Condition cond) {
+		return false;
+	}
+
+    /**
+     * Return the List of the RETE nodes for the ObjectCondition
+     */
+    public List getNodes() {
+        return this.nodes;
+    }
+    
+    /**
+     * Add a node to an ObjectCondition. the node should only be
+     * AlphaNodes and not join nodes.
+     */
+    public void addNode(BaseNode node) {
+    	if (!this.nodes.contains(node)) {
+            this.nodes.add(node);
+    	}
+    }
+    
+    /**
+     * Return the last alphaNode for the object pattern
+     */
+    public BaseNode getLastNode() {
+    	if (this.nodes.size() > 0) {
+            return getLast((BaseAlpha)this.nodes.get(nodes.size() -1));
+    	} else {
+    		return null;
+    	}
+    }
+    
+    /**
+     * protected method actually does the work of getting the last alphaNode
+     * @param node
+     * @return
+     */
+    protected BaseNode getLast(BaseAlpha node) {
+		int ncount = node.successorCount();
+		if (node != null && ncount > 0) {
+            // there should only be 1 successor, so we always get the item
+            // at index zero. If the AlphaNode at index zero is wrong, it
+            // means there's some other bug
+			if (node.getSuccessorNodes()[0] instanceof BaseAlpha) {
+				return getLast((BaseAlpha) node.getSuccessorNodes()[ncount - 1]);
+			} else {
+				return node;
+			}
+		} else {
+			return node;
+		}
+	}
+    
+    public BaseNode getFirstNode() {
+    	if (this.nodes.size() > 0) {
+            return (BaseNode)this.nodes.get(0);
+    	} else {
+    		return null;
+    	}
+    }
+    
+    /**
+     * if the ObjectCondition
+     */
+    public boolean hasBindings() {
+        Iterator itr = propConditions.iterator();
+        while (itr.hasNext()) {
+        	Object ob = itr.next();
+            if (ob instanceof BoundConstraint) {
+                return true;
+            } else if (ob instanceof PredicateConstraint) {
+            	return ((PredicateConstraint)ob).isPredicateJoin();
+            }
+        }
+        return false;
+    }
+    
+    /**
+     * Method will return a list of all the BoundConstraints
+     */
+    public List getAllBindings() {
+        ArrayList binds = new ArrayList();
+        Iterator itr = propConditions.iterator();
+        while (itr.hasNext()) {
+            Object c = itr.next();
+            if (c instanceof BoundConstraint) {
+            	BoundConstraint bc = (BoundConstraint)c;
+            	if (!bc.firstDeclaration()) {
+                    binds.add(c);
+            	}
+            } else if (c instanceof PredicateConstraint) {
+            	if (((PredicateConstraint)c).isPredicateJoin()) {
+                	binds.add(c);
+            	}
+            }
+        }
+        return binds;
+    }
+
+    public List getBindings() {
+        ArrayList binds = new ArrayList();
+        Iterator itr = propConditions.iterator();
+        while (itr.hasNext()) {
+            Object c = itr.next();
+            if (c instanceof BoundConstraint) {
+                BoundConstraint bc = (BoundConstraint)c;
+                if (!bc.firstDeclaration() && !bc.getIsObjectBinding()) {
+                    binds.add(c);
+                }
+            }
+        }
+        return binds;
+    }
+    
+    /**
+     * clears the RETE nodes
+     */
+    public void clear() {
+    	nodes.clear();
+    }
+    
+    /**
+     * The current implementation expects the deffact or object binding
+     * constriant to be first.
+     */
+    public String toPPString() {
+    	StringBuffer buf = new StringBuffer();
+    	int start = 0;
+    	// this is a hack, but it keeps the code simple for spacing
+    	// default indent for CE is 2 spaces
+    	String pad = "  ";
+        boolean obind = false;
+    	Constraint cn = (Constraint)this.propConditions.get(0);
+    	if (cn instanceof BoundConstraint) {
+    		BoundConstraint bc = (BoundConstraint)cn;
+    		if (bc.getIsObjectBinding()) {
+    			start = 1;
+    			buf.append(bc.toFactBindingPPString());
+    			// since the first Constraint is a fact binding we
+    			// change the padding to 1 space
+    			pad = " ";
+                obind = true;
+    		}
+    	}
+        if (this.negated) {
+            buf.append(pad + "(not" + Constants.LINEBREAK);
+            pad = "    ";
+        }
+    	buf.append(pad + "(" + this.templateName + Constants.LINEBREAK);
+    	for (int idx=start; idx < this.propConditions.size(); idx++) {
+    		Constraint cnstr = (Constraint)this.propConditions.get(idx);
+            if (this.negated) {
+                buf.append("  " + cnstr.toPPString());
+            } else {
+                buf.append(cnstr.toPPString());
+            }
+    	}
+        if (this.negated) {
+            buf.append(pad + ")" + Constants.LINEBREAK);
+            pad = "  ";
+        }
+        if (obind && !this.negated) {
+            buf.append(pad + " )" + Constants.LINEBREAK);
+        } else {
+            buf.append(pad + ")" + Constants.LINEBREAK);
+        }
+    	return buf.toString();
+    }
+}

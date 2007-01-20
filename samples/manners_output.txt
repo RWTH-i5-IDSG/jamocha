@@ -1,0 +1,64 @@
+Sumatra> (batch ./benchmark_files/manners4.clp)
+first seat seat1=1 name=8 name2=8 seat2=1 id=1 pid=0 path_done TRUE
+seat1=1 : name1=8 : seat2=2 : name2=7 : id=3 : pid=1 : path_done=FALSE
+make_path - id=2 name=8 seat=1
+path is done 
+assign seats again
+seat1=2 : name1=7 : seat2=3 : name2=3 : id=4 : pid=2 : path_done=FALSE
+make_path - id=3 name=8 seat=1
+make_path - id=3 name=7 seat=2
+path is done 
+assign seats again
+seat1=3 : name1=3 : seat2=4 : name2=6 : id=5 : pid=3 : path_done=FALSE
+make_path - id=4 name=7 seat=2
+make_path - id=4 name=8 seat=1
+make_path - id=4 name=3 seat=3
+path is done 
+assign seats again
+seat1=4 : name1=6 : seat2=5 : name2=2 : id=6 : pid=4 : path_done=FALSE
+make_path - id=5 name=3 seat=3
+make_path - id=5 name=8 seat=1
+make_path - id=5 name=7 seat=2
+make_path - id=5 name=6 seat=4
+path is done 
+assign seats again
+seat1=5 : name1=2 : seat2=6 : name2=5 : id=7 : pid=5 : path_done=FALSE
+make_path - id=6 name=6 seat=4
+make_path - id=6 name=7 seat=2
+make_path - id=6 name=8 seat=1
+make_path - id=6 name=3 seat=3
+make_path - id=6 name=2 seat=5
+path is done 
+assign seats again
+seat1=6 : name1=5 : seat2=7 : name2=1 : id=8 : pid=6 : path_done=FALSE
+make_path - id=7 name=2 seat=5
+make_path - id=7 name=3 seat=3
+make_path - id=7 name=8 seat=1
+make_path - id=7 name=7 seat=2
+make_path - id=7 name=6 seat=4
+make_path - id=7 name=5 seat=6
+path is done 
+assign seats again
+seat1=7 : name1=1 : seat2=8 : name2=4 : id=9 : pid=7 : path_done=FALSE
+make_path - id=8 name=5 seat=6
+make_path - id=8 name=6 seat=4
+make_path - id=8 name=7 seat=2
+make_path - id=8 name=8 seat=1
+make_path - id=8 name=3 seat=3
+make_path - id=8 name=2 seat=5
+make_path - id=8 name=1 seat=7
+path is done 
+Yes, we are done:  Print Results!!
+
+rule all done: Condition context print_results
+name=1 seat=7
+name=2 seat=5
+name=3 seat=3
+name=8 seat=1
+name=7 seat=2
+name=6 seat=4
+name=5 seat=6
+name=4 seat=8
+elpasedTime=140
+true
+Sumatra> (exit)
