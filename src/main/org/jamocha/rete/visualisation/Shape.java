@@ -14,6 +14,9 @@ public abstract class Shape extends Primitive{
 	protected int width;
 	protected int height;
 	protected String text;
+	protected String longDescription;
+	String getLongDescription() {return longDescription;}
+	void setLongDescription(String val) {longDescription=val;}
 	void setBgcolor(Color bgcolor) {this.bgcolor=bgcolor;}
 	void setBordercolor(Color bordercolor) {this.bordercolor=bordercolor;}
 	Color getBgcolor() {return bgcolor;}

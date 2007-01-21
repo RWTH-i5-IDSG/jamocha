@@ -17,20 +17,25 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
-import javax.swing.JTextArea;
+import javax.swing.JTextPane;
 import javax.swing.JToggleButton;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Document;
+import javax.swing.text.SimpleAttributeSet;
+import javax.swing.text.StyleConstants;
 
 import org.jamocha.gui.icons.IconLoader;
 import org.jamocha.rete.AlphaNodePredConstr;
 import org.jamocha.rete.BaseAlpha2;
 import org.jamocha.rete.BaseJoin;
+import org.jamocha.rete.BaseNode;
 import org.jamocha.rete.EngineEvent;
 import org.jamocha.rete.EngineEventListener;
 import org.jamocha.rete.LIANode;
 import org.jamocha.rete.ObjectTypeNode;
+import org.jamocha.rete.Rete;
 import org.jamocha.rete.RootNode;
 import org.jamocha.rete.TerminalNode;
-import org.jamocha.rete.Rete;
 import org.jamocha.rete.WorkingMemoryImpl;
 
 public class Visualiser implements ActionListener, MouseListener, EngineEventListener{
@@ -38,13 +43,16 @@ public class Visualiser implements ActionListener, MouseListener, EngineEventLis
 	protected JMiniRadarShapeContainer radar;
 	protected ViewGraphNode root;
 	protected JButton zoomInButton, zoomOutButton, reloadButton;
+	protected JScrollPane scrollPane;
 	protected JToggleButton autoReloadButton;
-	protected JTextArea dump;
+	protected JTextPane dump;
 	protected Rete engine;
+	protected boolean dumpEmpty=true;
 	protected final int spaceHorizontal=10;
 	protected final int spaceVertical=15;
 	protected final int nodeHorizontal=45;
 	protected final int nodeVertical=16;
+	protected SimpleAttributeSet even,odd,actAttributes;
 	
 	Color getBackgroundColorForNode(ViewGraphNode node) {
 		Color bg=Color.black;
@@ -70,15 +78,16 @@ public class Visualiser implements ActionListener, MouseListener, EngineEventLis
 		Color bg=getBackgroundColorForNode(act);
 		Color border=getBorderColorForNode(act);
 		String desc="";
-		if (act.getReteNode()!=null) desc=String.valueOf(act.getReteNode().getNodeId());
+		BaseNode reteNode=act.getReteNode();
+		if (reteNode!=null) desc=String.valueOf(reteNode.getNodeId());
 		Shape s;
-		if (act.getReteNode()==null) { // ROOT NODE
+		if (reteNode==null) { // ROOT NODE
 			s=new Ellipse();
-		} else if (act.getReteNode() instanceof BaseJoin || act.getReteNode() instanceof BaseAlpha2) {
+		} else if (reteNode instanceof BaseJoin || act.getReteNode() instanceof BaseAlpha2) {
 			s=new Trapezoid();
-		} else if (act.getReteNode() instanceof TerminalNode) {
+		} else if (reteNode instanceof TerminalNode) {
 			s=new RoundedRectangle();
-		} else if (act.getReteNode() instanceof LIANode) {
+		} else if (reteNode instanceof LIANode) {
 			s=new Circle();
 		} else{
 			s=new Rectangle();
@@ -90,6 +99,16 @@ public class Visualiser implements ActionListener, MouseListener, EngineEventLis
 		s.setY((spaceVertical/2)+act.getY()*(spaceVertical+nodeVertical));
 		s.setWidth(nodeHorizontal);
 		s.setHeight(nodeVertical);
+		if (reteNode==null) {
+			s.setLongDescription("Root Node");	
+		} else {
+			
+			String longdesc;
+			longdesc="ID:"+reteNode.getNodeId()+"  NodeType:"+reteNode.getClass().getSimpleName();
+			longdesc+="  Details:"+reteNode.toPPString();
+			s.setLongDescription(longdesc);
+		}
+		
 		if (s instanceof Circle) s.incHeight(10);
 		s.setText(desc);
 		act.setShape(s);
@@ -131,10 +150,15 @@ public class Visualiser implements ActionListener, MouseListener, EngineEventLis
 		this.engine=engine;
 		container = new JZoomableShapeContainer();
 		container.addMouseListener(this);
-		dump=new JTextArea();
+		dump=new JTextPane();
 	    radar=new JMiniRadarShapeContainer();
 		radar.setMasterShapeContainer(container);
 		container.setRadarShapeContainer(radar);
+		even=new SimpleAttributeSet();
+		odd=new SimpleAttributeSet();
+		StyleConstants.setForeground(even, Color.blue);
+		StyleConstants.setForeground(odd, Color.green.darker());
+		actAttributes=even;
 		reloadView();
 	}
 	
@@ -160,15 +184,17 @@ public class Visualiser implements ActionListener, MouseListener, EngineEventLis
 		sideBar.add(toolBox,BorderLayout.WEST);
 		
 
-	    JScrollPane scrollPane = new JScrollPane(dump);
+	    scrollPane = new JScrollPane(dump);
+		scrollPane.setAutoscrolls(true);
 	    JPanel dumpPanel = new JPanel(new BorderLayout());
         dumpPanel.add(scrollPane);
 		
 		sideBar.add(dumpPanel,BorderLayout.CENTER);
 		
 		
-		dump.setText("This is the node dump area. Click on a node and you will get some information here\n--------------------\n");
 		
+		dump.setText("This is the node dump area. Click on a node and you will get some information here\n--------------------\n");
+
 		
 		
 		// Main Window with two Splitters (between radar, sidebar and main)
@@ -262,9 +288,20 @@ public class Visualiser implements ActionListener, MouseListener, EngineEventLis
 
 	public void mousePressed(MouseEvent event) {
 		Shape shape=container.getShapeAtPosition(event.getX(), event.getY());
+		if (dumpEmpty) {
+			dump.setText("");
+			dumpEmpty=false;
+		}
 		if (shape==null) return;
-		String nodeInfo=shape.getText();
-		dump.setText(dump.getText()+nodeInfo+"\n");
+		try {
+			dump.getDocument().insertString(dump.getDocument().getLength(),shape.getLongDescription()+"\n", actAttributes);
+			if (actAttributes==even) {actAttributes=odd;} else {actAttributes=even;}
+
+
+		} catch (BadLocationException e) {
+			
+		};
+
 	}
 
 	public void mouseReleased(MouseEvent arg0) {
