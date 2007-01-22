@@ -7,8 +7,6 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.List;
@@ -21,6 +19,8 @@ import javax.swing.JSplitPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.ListSelectionModel;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
@@ -32,14 +32,15 @@ import org.jamocha.messagerouter.MessageEvent;
 import org.jamocha.messagerouter.StringChannel;
 import org.jamocha.rete.Function;
 
-public class LogPanel extends AbstractJamochaPanel implements ActionListener {
+public class LogPanel extends AbstractJamochaPanel implements ActionListener,
+		ListSelectionListener {
 
 	private static final long serialVersionUID = 4811690181744862051L;
 
 	private JTextArea detailView;
 
 	private JTable logTable;
-	
+
 	private JButton clearButton;
 
 	private LogTableModel dataModel = new LogTableModel();
@@ -68,33 +69,7 @@ public class LogPanel extends AbstractJamochaPanel implements ActionListener {
 			}
 		};
 		logTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		logTable.addMouseListener(new MouseAdapter() {
-			public void mouseReleased(MouseEvent me) {
-				if (logTable.getSelectedRow() > -1) {
-					LogMessageEvent event = dataModel.getRow(logTable
-							.getSelectedRow());
-					detailView.setText("Date-Time:    "
-							+ event.getDatetimeFormatted() + "\nChannel:      "
-							+ event.getChannelId() + "\nMessage-Type: "
-							+ event.getTypeFormatted()
-							+ "\n\nMessage:\n========\n");
-					Object message = event.getMessage();
-					if (message instanceof Exception) {
-						StackTraceElement[] str = ((Exception) message)
-								.getStackTrace();
-						detailView.append(((Exception) message).getMessage());
-						for (StackTraceElement strelem : str) {
-							detailView.append("\n" + strelem);
-						}
-					} else if (message instanceof Function) {
-						detailView.append("(" + ((Function) message).getName()
-								+ ")");
-					} else {
-						detailView.append(message.toString());
-					}
-				}
-			}
-		});
+		logTable.getSelectionModel().addListSelectionListener(this);
 		JSplitPane pane = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
 				new JScrollPane(logTable), new JScrollPane(detailView));
 		pane.setDividerLocation(300);
@@ -256,6 +231,8 @@ public class LogPanel extends AbstractJamochaPanel implements ActionListener {
 
 	private final class LogTableCellRenderer extends DefaultTableCellRenderer {
 
+		private static final long serialVersionUID = -6649805279420707106L;
+
 		private Color colorError = Color.RED;
 
 		private Color colorWarning = Color.ORANGE;
@@ -292,7 +269,7 @@ public class LogPanel extends AbstractJamochaPanel implements ActionListener {
 		private List<LogMessageEvent> events = new LinkedList<LogMessageEvent>();
 
 		private int maxEventCount = 1000;
-		
+
 		private void addEvents(List<MessageEvent> events) {
 
 			logTable.getColumnModel().getColumn(0).setPreferredWidth(180);
@@ -302,7 +279,7 @@ public class LogPanel extends AbstractJamochaPanel implements ActionListener {
 			for (MessageEvent event : events) {
 				this.events.add(new LogMessageEvent(event));
 			}
-			while(this.events.size() > maxEventCount) {
+			while (this.events.size() > maxEventCount) {
 				this.events.remove(0);
 			}
 			fireTableDataChanged();
@@ -365,9 +342,38 @@ public class LogPanel extends AbstractJamochaPanel implements ActionListener {
 	}
 
 	public void actionPerformed(ActionEvent event) {
-		if(event.getSource() == clearButton) {
+		if (event.getSource() == clearButton) {
 			dataModel.clearEvents();
 			detailView.setText("");
+		}
+	}
+
+	public void valueChanged(ListSelectionEvent arg0) {
+		if (arg0.getSource() == logTable.getSelectionModel()) {
+			if (logTable.getSelectedRow() > -1) {
+				LogMessageEvent event = dataModel.getRow(logTable
+						.getSelectedRow());
+				detailView
+						.setText("Date-Time:    "
+								+ event.getDatetimeFormatted()
+								+ "\nChannel:      " + event.getChannelId()
+								+ "\nMessage-Type: " + event.getTypeFormatted()
+								+ "\n\nMessage:\n========\n");
+				Object message = event.getMessage();
+				if (message instanceof Exception) {
+					StackTraceElement[] str = ((Exception) message)
+							.getStackTrace();
+					detailView.append(((Exception) message).getMessage());
+					for (StackTraceElement strelem : str) {
+						detailView.append("\n" + strelem);
+					}
+				} else if (message instanceof Function) {
+					detailView.append("(" + ((Function) message).getName()
+							+ ")");
+				} else {
+					detailView.append(message.toString());
+				}
+			}
 		}
 	}
 

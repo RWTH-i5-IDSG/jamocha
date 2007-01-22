@@ -356,7 +356,7 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 					history_offset += delta;
 					if (history_offset <= 0) {
 						history_offset = 0;
-						System.out.println(lastPromptIndex + " " + getOffset());
+						//System.out.println(lastPromptIndex + " " + getOffset());
 						if ((lastPromptIndex - 1) < getOffset()) {
 							outputArea.replaceRange("", lastPromptIndex - 1,
 									getOffset());
