@@ -175,7 +175,7 @@ public class FactEditor extends AbstractJamochaEditor implements
 	}
 
 	private void initFactEditPanel() {
-		// (deftemplate wurst(slot name)(slot size)(multislot KŠufer))
+		// (deftemplate wurst(slot name)(slot size)(multislot clients))
 		GridBagLayout gridbag = new GridBagLayout();
 		GridBagConstraints c = new GridBagConstraints();
 		JPanel factEditPanel = new JPanel(new BorderLayout());
@@ -202,9 +202,10 @@ public class FactEditor extends AbstractJamochaEditor implements
 				c.gridx = 1;
 				c.anchor = GridBagConstraints.WEST;
 				if (slots[i] instanceof MultiSlot) {
-					JList multislotEditor = new JList();
-					gridbag.setConstraints(multislotEditor, c);
-					innerPanel.add(multislotEditor);
+					MultiSlotEditor multislotEditor = new MultiSlotEditor();
+					JScrollPane scrollPane = new JScrollPane(multislotEditor.getList());
+					gridbag.setConstraints(scrollPane, c);
+					innerPanel.add(scrollPane);
 				} else {
 					JTextField textField = new JTextField();
 					gridbag.setConstraints(textField, c);
@@ -290,5 +291,20 @@ public class FactEditor extends AbstractJamochaEditor implements
 				nextButton.setEnabled(false);
 			}
 		}
+	}
+	
+	private final class MultiSlotEditor {
+		
+		private JList list;
+		
+		private MultiSlotEditor() {
+			list = new JList();
+			list.setVisibleRowCount(4);
+		}
+		
+		private JList getList() {
+			return list;
+		}
+		
 	}
 }
