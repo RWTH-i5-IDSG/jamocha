@@ -41,8 +41,8 @@ public class ConnectorLine extends Primitive{
 		pto=to.calculateIntersection(angle2);
 		
 		
-		Point parrow1=new Point((int)(6*Math.cos(angle2+0.6)),(int)(6*Math.sin(angle2+0.6)));
-		Point parrow2=new Point((int) (6*Math.cos(angle2-0.6)), (int)(6*Math.sin(angle2-0.6)));
+		Point parrow1=new Point((int) Math.round(6*Math.cos(angle2+Math.PI/4.0)),(int)Math.round(6*Math.sin(angle2+Math.PI/4.0)));
+		Point parrow2=new Point((int) Math.round(6*Math.cos(angle2-Math.PI/4.0)), (int)Math.round(6*Math.sin(angle2-Math.PI/4.0)));
 		
 		
 		pfrom.x-=offsetX;

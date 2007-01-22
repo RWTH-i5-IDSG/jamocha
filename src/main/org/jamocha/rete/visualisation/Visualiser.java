@@ -8,6 +8,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.text.DateFormat;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -20,7 +21,6 @@ import javax.swing.JSplitPane;
 import javax.swing.JTextPane;
 import javax.swing.JToggleButton;
 import javax.swing.text.BadLocationException;
-import javax.swing.text.Document;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 
@@ -46,6 +46,7 @@ public class Visualiser implements ActionListener, MouseListener, EngineEventLis
 	protected JScrollPane scrollPane;
 	protected JToggleButton autoReloadButton;
 	protected JTextPane dump;
+	protected JFrame myFrame;
 	protected Rete engine;
 	protected boolean dumpEmpty=true;
 	protected final int spaceHorizontal=10;
@@ -72,6 +73,10 @@ public class Visualiser implements ActionListener, MouseListener, EngineEventLis
 	protected void addPrimitive(Primitive p){
 		container.addPrimitive(p);
 		radar.addPrimitive(p);
+	}
+	
+	protected void setMyFrame(JFrame frame){
+		myFrame=frame;
 	}
 
 	protected Shape makeShapeFromNode(ViewGraphNode act, LinkedList<ViewGraphNode> queue){
@@ -193,7 +198,7 @@ public class Visualiser implements ActionListener, MouseListener, EngineEventLis
 		
 		
 		
-		dump.setText("This is the node dump area. Click on a node and you will get some information here\n--------------------\n");
+		dump.setText("This is the node dump area. Click on a node and you will get some information here\n");
 
 		
 		
@@ -233,12 +238,13 @@ public class Visualiser implements ActionListener, MouseListener, EngineEventLis
 	}
 
 	public void show(){
-		JFrame frame = new JFrame("Sumatra - Rete Network - "+new Date());
+		JFrame frame = new JFrame(getCaption(new Date()));
 		frame.getContentPane().add(getVisualiserPanel(),BorderLayout.CENTER);
 		frame.pack();
 		frame.setLocationByPlatform(true);
         frame.setVisible(true);
 		frame.setSize(700,500);
+		this.setMyFrame(frame);
 	}
 
 	public void actionPerformed(ActionEvent arg0) {
@@ -260,6 +266,10 @@ public class Visualiser implements ActionListener, MouseListener, EngineEventLis
 		
 	}
 
+	protected String getCaption(Date date){
+		return "Jamocha - Rete Network - "+DateFormat.getInstance().format(date);
+	}
+	
 	private void reloadView() {
 		RootNode root=((WorkingMemoryImpl)engine.getWorkingMemory()).getRootNode();
 		ViewGraphNode t=ViewGraphNode.buildFromRete(root);
@@ -267,6 +277,9 @@ public class Visualiser implements ActionListener, MouseListener, EngineEventLis
 		container.removeAllPrimitives();
 		radar.removeAllPrimitives();
 		createPrimitives(t);
+		if (myFrame!=null) {
+			myFrame.setTitle(getCaption(new Date()));
+		}
 
 	}
 	
