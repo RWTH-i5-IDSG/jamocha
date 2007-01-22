@@ -157,7 +157,7 @@ public class ModifyFunction implements Function, Serializable {
 			buf.append(" )");
 			return buf.toString();
 		} else {
-			return "(modivy [binding] [deffact])\n" +
+			return "(modify [binding] [deffact])\n" +
 					"Function description:\n" +
 					"\tAllows the user to modify template facts on the fact-list.";
 		}
