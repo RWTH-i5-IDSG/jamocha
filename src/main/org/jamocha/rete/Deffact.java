@@ -30,18 +30,18 @@ import org.jamocha.rule.Rule;
  */
 public class Deffact implements Fact {
 
-	private Deftemplate deftemplate = null;
+	protected Deftemplate deftemplate = null;
 
-	private Object objInstance;
+    protected Object objInstance;
 
-	private Slot[] slots = null;
+    protected Slot[] slots = null;
 
-	private Slot[] boundSlots = null;
+    protected Slot[] boundSlots = null;
 
 	/**
 	 * the Fact id must be unique, since we use it for the indexes
 	 */
-	private long id;
+    protected long id;
 
 	private long timeStamp = 0;
 

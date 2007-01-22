@@ -140,6 +140,7 @@ TOKEN :
 | < BINDING: "bind" >
 | < BOOLEAN: "BOOLEAN" >
 | < ASSERT: "assert" >
+| < ASSERTTEMPORAL: "assert-temporal" >
 | < AUTOFOCUS: "auto-focus" >
 | < CHAININGDIRECTION: "chaining-direction" >
 | < COMMAND: "command" >
@@ -355,6 +356,20 @@ Object expr() :
 }
 {
   exp = <ASSERT> <LBRACE> exp2 = <IDENTIFIER>
+  (assertContents(list))+ <RBRACE>
+  {
+    func = new ShellFunction();
+    func.setName(exp.image);
+    pms = new ValueParam[2];
+    pms[0] = new ValueParam(Constants.STRING_TYPE,exp2.image);
+    pms[1] = new ValueParam(Constants.OBJECT_TYPE,list.toArray());
+    func.setParameters(pms);
+    exp.clear();
+    exp = null;
+    return func;
+  }
+|
+  exp = <ASSERTTEMPORAL> <LBRACE> exp2 = <IDENTIFIER>
   (assertContents(list))+ <RBRACE>
   {
     func = new ShellFunction();

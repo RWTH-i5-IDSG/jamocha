@@ -17,6 +17,7 @@
 package org.jamocha.rete;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.Iterator;
 import java.util.List;
 
@@ -292,6 +293,64 @@ public class Deftemplate implements Template, Serializable {
 		return newfact;
 	}
 
+    public Fact createTemporalFact(Object[] data, long id) {
+        Slot[] values = cloneAllSlots();
+        long expire = 0;
+        String source = "";
+        String service = "";
+        int valid = 0;
+        for (int idz=0; idz < data.length; idz++) {
+            Slot s = (Slot) data[idz];
+            // check to see if the slot is a temporal fact attribute
+            if (isTemporalAttribute(s)) {
+                if (s.getName().equals(TemporalFact.EXPIRATION)) {
+                    expire = ((BigDecimal)s.getValue()).longValue();
+                } else if (s.getName().equals(TemporalFact.SERVICE_TYPE)) {
+                    service = (String)s.getValue();
+                } else if (s.getName().equals(TemporalFact.SOURCE)) {
+                    source = (String)s.getValue();
+                } else if (s.getName().equals(TemporalFact.VALIDITY)) {
+                    valid = ((BigDecimal)s.getValue()).intValue();
+                }
+            } else {
+                for (int idx = 0; idx < values.length; idx++) {
+                    if (values[idx].getName().equals(s.getName())) {
+                        if (s.value == null) {
+                            values[idx].value = Constants.NIL_SYMBOL;
+                        } else
+                        if (values[idx].getValueType() == Constants.STRING_TYPE
+                                && !(s.value instanceof BoundParam)) {
+                            values[idx].value = s.value.toString();
+                        } else if (s.value instanceof BoundParam) {
+                            values[idx].value = s.value;
+                        } else {
+                            values[idx].value = s.value;
+                        }
+                    }
+                }
+            }
+        }
+        TemporalDeffact newfact = new TemporalDeffact(this, null, values, id);
+        // we call this to create the string used to map the fact.
+        newfact.setExpirationTime(expire);
+        newfact.setServiceType(service);
+        newfact.setSource(source);
+        newfact.setValidity(valid);
+        newfact.equalityIndex();
+        return newfact;
+    }
+    
+    public static boolean isTemporalAttribute(Slot s) {
+        if (s.getName().equals(TemporalFact.EXPIRATION)
+                || s.getName().equals(TemporalFact.SERVICE_TYPE)
+                || s.getName().equals(TemporalFact.SOURCE)
+                || s.getName().equals(TemporalFact.VALIDITY)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    
 	/**
 	 * clone the slots
 	 * 

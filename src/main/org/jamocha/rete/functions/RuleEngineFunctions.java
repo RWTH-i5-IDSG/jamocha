@@ -46,6 +46,9 @@ public class RuleEngineFunctions implements FunctionGroup, Serializable {
 		AssertFunction assrt = new AssertFunction();
 		engine.declareFunction(assrt);
 		funcs.add(assrt);
+        AssertTemporalFunction assertemp = new AssertTemporalFunction();
+        engine.declareFunction(assertemp);
+        funcs.add(assertemp);
 		AnyEqFunction anyeq = new AnyEqFunction();
 		engine.declareFunction(anyeq);
 		funcs.add(anyeq);

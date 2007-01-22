@@ -29,6 +29,10 @@ package org.jamocha.rete;
  *
  */
 public interface TemporalFact extends Fact {
+    public static final String EXPIRATION = "expiration-time";
+    public static final String SOURCE = "source";
+    public static final String SERVICE_TYPE = "service-type";
+    public static final String VALIDITY = "validity";
     void setExpirationTime(long time);
     long getExpirationTime();
     void setSource(String url);
