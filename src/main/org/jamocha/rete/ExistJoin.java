@@ -111,7 +111,7 @@ public class ExistJoin extends BaseJoin {
 			}
 			// if the previous count was zero and now the match 
 			// count is 1, we propogate
-			if (prevCount == 0 && this.currentMem.matchCount() == 1) {
+			if (prevCount == 0 && this.currentMem.matchCount() > 0) {
 				// there should only be one match, so we get the item
 				// at index zero. if the previous count was 1 or greater,
 				// we don't propogate
