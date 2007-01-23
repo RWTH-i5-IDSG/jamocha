@@ -9,14 +9,24 @@ import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
@@ -24,9 +34,14 @@ import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.event.PopupMenuEvent;
+import javax.swing.event.PopupMenuListener;
 
 import org.jamocha.gui.icons.IconLoader;
+import org.jamocha.messagerouter.MessageEvent;
 import org.jamocha.messagerouter.StringChannel;
+import org.jamocha.rete.Constants;
+import org.jamocha.rete.Function;
 import org.jamocha.rete.Module;
 import org.jamocha.rete.MultiSlot;
 import org.jamocha.rete.Rete;
@@ -38,6 +53,8 @@ public class FactEditor extends AbstractJamochaEditor implements
 
 	private static final long serialVersionUID = 6037731034903564707L;
 
+	private int step = 0;
+
 	private JPanel contentPanel;
 
 	private JButton cancelButton;
@@ -48,19 +65,23 @@ public class FactEditor extends AbstractJamochaEditor implements
 
 	private JButton nextButton;
 
-	private int step = 0;
+	private JButton reloadButtondumpAreaFact;
 
 	private JList moduleList;
 
 	private JList templateList;
 
-	private JTextArea dumpArea = new JTextArea();
+	private JTextArea dumpAreaTemplate = new JTextArea();
+
+	private JTextArea dumpAreaFact = new JTextArea();
 
 	private DefaultListModel moduleListModel = new DefaultListModel();
 
 	private DefaultListModel templateListModel = new DefaultListModel();
 
 	private StringChannel channel;
+
+	private Map<Slot, JComponent> factComponents = new HashMap<Slot, JComponent>();
 
 	public FactEditor(Rete engine) {
 		super(engine);
@@ -89,6 +110,14 @@ public class FactEditor extends AbstractJamochaEditor implements
 		buttonPanel.add(nextButton);
 		buttonPanel.add(assertButton);
 		add(buttonPanel, BorderLayout.PAGE_END);
+
+		dumpAreaTemplate.setEditable(false);
+		dumpAreaTemplate.setFont(new Font("Courier", Font.PLAIN, 12));
+		dumpAreaTemplate.setRows(5);
+		dumpAreaFact.setEditable(false);
+		dumpAreaFact.setFont(new Font("Courier", Font.PLAIN, 12));
+		dumpAreaFact.setRows(5);
+
 	}
 
 	public void setStringChannel(StringChannel channel) {
@@ -141,12 +170,10 @@ public class FactEditor extends AbstractJamochaEditor implements
 		c.gridx = 1;
 		gridbag.setConstraints(templatePanel, c);
 		preselectionPanel.add(templatePanel);
-		dumpArea.setEditable(false);
-		dumpArea.setFont(new Font("Courier", Font.PLAIN, 12));
 		JPanel dumpAreaPanel = new JPanel();
 		dumpAreaPanel.setLayout(new BoxLayout(dumpAreaPanel, BoxLayout.Y_AXIS));
 		dumpAreaPanel.add(new JLabel("Template Definition:"));
-		dumpAreaPanel.add(new JScrollPane(dumpArea));
+		dumpAreaPanel.add(new JScrollPane(dumpAreaTemplate));
 		c.weightx = 0.0;
 		c.gridwidth = 2;
 		c.gridy = 1;
@@ -176,6 +203,9 @@ public class FactEditor extends AbstractJamochaEditor implements
 
 	private void initFactEditPanel() {
 		// (deftemplate wurst(slot name)(slot size)(multislot clients))
+		// (deftemplate bla(slot x1(slot x2)(slot x3)(slot x4)(slot x5)(slot
+		// x6)(slot x7)(slot x8)(slot x9)(multislot x10))
+		factComponents.clear();
 		GridBagLayout gridbag = new GridBagLayout();
 		GridBagConstraints c = new GridBagConstraints();
 		JPanel factEditPanel = new JPanel(new BorderLayout());
@@ -189,31 +219,55 @@ public class FactEditor extends AbstractJamochaEditor implements
 			Template tmp = module.getTemplate(String.valueOf(templateList
 					.getSelectedValue()));
 
-			c.fill = GridBagConstraints.BOTH;
 			c.weightx = 1.0;
 			Slot[] slots = tmp.getAllSlots();
 			for (int i = 0; i < slots.length; ++i) {
 				c.gridx = 0;
 				c.gridy = i;
+				c.fill = GridBagConstraints.VERTICAL;
 				c.anchor = GridBagConstraints.EAST;
-				JLabel label = new JLabel(slots[i].getName());
+				JLabel label = new JLabel(slots[i].getName() + ": ");
 				gridbag.setConstraints(label, c);
 				innerPanel.add(label);
 				c.gridx = 1;
+				c.fill = GridBagConstraints.BOTH;
 				c.anchor = GridBagConstraints.WEST;
 				if (slots[i] instanceof MultiSlot) {
 					MultiSlotEditor multislotEditor = new MultiSlotEditor();
-					JScrollPane scrollPane = new JScrollPane(multislotEditor.getList());
+					JScrollPane scrollPane = new JScrollPane(multislotEditor
+							.getList());
 					gridbag.setConstraints(scrollPane, c);
 					innerPanel.add(scrollPane);
+					factComponents.put(slots[i], multislotEditor.getList());
+				} else if (slots[i].getValueType() == Constants.FACT_TYPE) {
+					// TODO Fact-Selector
+
+					JComboBox factBox = new JComboBox();
+					factComponents.put(slots[i], factBox);
 				} else {
 					JTextField textField = new JTextField();
 					gridbag.setConstraints(textField, c);
 					innerPanel.add(textField);
+					factComponents.put(slots[i], textField);
 				}
 			}
 		}
 		factEditPanel.add(new JScrollPane(innerPanel), BorderLayout.CENTER);
+		JPanel dumpAreaPanel = new JPanel();
+		dumpAreaPanel.setLayout(new BoxLayout(dumpAreaPanel, BoxLayout.Y_AXIS));
+		dumpAreaPanel.add(new JLabel("Fact Preview:"));
+		dumpAreaPanel.add(new JScrollPane(dumpAreaFact));
+		reloadButtondumpAreaFact = new JButton("Reload Fact Preview",
+				IconLoader.getImageIcon("arrow_refresh"));
+		reloadButtondumpAreaFact.addActionListener(this);
+		dumpAreaPanel.add(reloadButtondumpAreaFact);
+		c.weightx = 0.0;
+		c.gridwidth = 2;
+		c.gridy = 1;
+		c.gridx = 0;
+		c.fill = GridBagConstraints.BOTH;
+		gridbag.setConstraints(dumpAreaPanel, c);
+		factEditPanel.add(dumpAreaPanel, BorderLayout.SOUTH);
 		contentPanel.add("factEdit", factEditPanel);
 	}
 
@@ -245,22 +299,40 @@ public class FactEditor extends AbstractJamochaEditor implements
 	}
 
 	public void actionPerformed(ActionEvent event) {
-		if (event.getSource().equals(assertButton)) {
-			// TODO do assertion
+		if (event.getSource() == assertButton) {
+			channel.executeCommand(getCurrentFactAssertionString(false), true);
+			List<MessageEvent> results = new LinkedList<MessageEvent>();
+			channel.fillEventList(results);
 			StringBuilder buffer = new StringBuilder();
-			channel.executeCommand(buffer.toString(), true);
-		} else if (event.getSource().equals(backButton)) {
+			for (MessageEvent mevent : results) {
+				if (mevent.getMessage() instanceof Function) {
+					buffer.append(((Function) mevent.getMessage()).getName()
+							+ System.getProperty("line.separator"));
+				} else
+					buffer.append(mevent.getMessage()
+							+ System.getProperty("line.separator"));
+			}
+			JDialog dialog = new JDialog(this, "Result:");
+			dialog.setSize(400, 300);
+			dialog.setLocationByPlatform(true);
+			JTextArea area = new JTextArea(buffer.toString());
+			area.setEditable(false);
+			dialog.add(new JScrollPane(area));
+			dialog.setVisible(true);
+		} else if (event.getSource() == backButton) {
 			if (step > 0) {
 				step--;
 				showCurrentStep();
 			}
-		} else if (event.getSource().equals(nextButton)) {
+		} else if (event.getSource() == nextButton) {
 			if (step < 1) {
 				step++;
 				showCurrentStep();
 			}
-		} else if (event.getSource().equals(cancelButton)) {
+		} else if (event.getSource() == cancelButton) {
 			close();
+		} else if (event.getSource() == reloadButtondumpAreaFact) {
+			dumpAreaFact.setText(getCurrentFactAssertionString(true));
 		}
 	}
 
@@ -275,36 +347,137 @@ public class FactEditor extends AbstractJamochaEditor implements
 				Template tmp = module.getTemplate(String.valueOf(templateList
 						.getSelectedValue()));
 
-				dumpArea.setText("(deftemplate " + tmp.getName() + "\n");
+				dumpAreaTemplate
+						.setText("(deftemplate " + tmp.getName() + "\n");
 				Slot[] slots = tmp.getAllSlots();
 				for (Slot slot : slots) {
-					dumpArea.append("    (");
+					dumpAreaTemplate.append("    (");
 					if (slot instanceof MultiSlot) {
-						dumpArea.append("multislot");
+						dumpAreaTemplate.append("multislot");
 					} else {
-						dumpArea.append("slot");
+						dumpAreaTemplate.append("slot");
 					}
-					dumpArea.append(" " + slot.getName() + ")\n");
+					dumpAreaTemplate.append(" " + slot.getName() + ")\n");
 				}
-				dumpArea.append(")");
+				dumpAreaTemplate.append(")");
 			} else {
 				nextButton.setEnabled(false);
 			}
 		}
 	}
-	
-	private final class MultiSlotEditor {
-		
-		private JList list;
-		
-		private MultiSlotEditor() {
-			list = new JList();
-			list.setVisibleRowCount(4);
+
+	private String getCurrentFactAssertionString(boolean print) {
+		Module module = engine.getAgenda().findModule(
+				String.valueOf(moduleList.getSelectedValue()));
+		Template tmp = module.getTemplate(String.valueOf(templateList
+				.getSelectedValue()));
+		StringBuilder res = new StringBuilder("(assert (" + tmp.getName());
+		JComponent currComponent;
+		for (Slot slot : factComponents.keySet()) {
+			currComponent = factComponents.get(slot);
+			if (print)
+				res.append("\n\t");
+			res.append("(" + slot.getName() + " ");
+			if (slot instanceof MultiSlot) {
+				Object[] values = ((DefaultListModel) ((JList) currComponent)
+						.getModel()).toArray();
+				for (int i = 0; i < values.length; ++i) {
+					if (i > 0)
+						res.append(" ");
+					res.append("\"" + values[i].toString() + "\"");
+				}
+			} else if (slot.getValueType() == Constants.FACT_TYPE) {
+				// TODO Fact-Selector
+			} else {
+				res
+						.append("\"" + ((JTextField) currComponent).getText()
+								+ "\"");
+			}
+			res.append(")");
 		}
-		
+		if (print)
+			res.append("\n");
+		res.append("))");
+		return res.toString();
+	}
+
+	private final class MultiSlotEditor implements ActionListener,
+			PopupMenuListener {
+
+		private JList list;
+
+		private DefaultListModel listModel = new DefaultListModel();
+
+		private JPopupMenu popupMenu;
+
+		private JMenuItem addMenuItem;
+
+		private JMenuItem editMenuItem;
+
+		private JMenuItem deleteMenuItem;
+
+		private MultiSlotEditor() {
+			popupMenu = new JPopupMenu();
+			addMenuItem = new JMenuItem("add value", IconLoader
+					.getImageIcon("add"));
+			addMenuItem.addActionListener(this);
+			editMenuItem = new JMenuItem("edit value", IconLoader
+					.getImageIcon("pencil"));
+			editMenuItem.addActionListener(this);
+			deleteMenuItem = new JMenuItem("remove value", IconLoader
+					.getImageIcon("delete"));
+			deleteMenuItem.addActionListener(this);
+			popupMenu.add(addMenuItem);
+			popupMenu.add(editMenuItem);
+			popupMenu.add(deleteMenuItem);
+			popupMenu.addPopupMenuListener(this);
+			list = new JList(listModel);
+			list.setVisibleRowCount(4);
+			list.setComponentPopupMenu(popupMenu);
+		}
+
 		private JList getList() {
 			return list;
 		}
-		
+
+		public void actionPerformed(ActionEvent event) {
+			if (event.getSource() == addMenuItem) {
+				String value = JOptionPane.showInputDialog("Enter the value:");
+				listModel.addElement(value);
+			} else if (event.getSource() == editMenuItem) {
+				String value = JOptionPane.showInputDialog("Enter the value:",
+						list.getSelectedValue());
+				listModel.set(list.getSelectedIndex(), value);
+			} else if (event.getSource() == deleteMenuItem) {
+				int[] indices = list.getSelectedIndices();
+				// run backwards to delete the right indices
+				for (int i = indices.length - 1; i >= 0; --i) {
+					listModel.remove(indices[i]);
+				}
+			}
+		}
+
+		public void popupMenuCanceled(PopupMenuEvent arg0) {
+
+		}
+
+		public void popupMenuWillBecomeInvisible(PopupMenuEvent arg0) {
+
+		}
+
+		public void popupMenuWillBecomeVisible(PopupMenuEvent arg0) {
+			addMenuItem.setVisible(true);
+			if (list.getSelectedIndices().length > 1) {
+				editMenuItem.setVisible(false);
+				deleteMenuItem.setVisible(true);
+			} else if (list.getSelectedIndices().length == 1) {
+				editMenuItem.setVisible(true);
+				deleteMenuItem.setVisible(true);
+			} else {
+				editMenuItem.setVisible(false);
+				deleteMenuItem.setVisible(false);
+			}
+		}
+
 	}
 }
