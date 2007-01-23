@@ -6,13 +6,11 @@ import org.jamocha.rete.Shell;
 
 public class Jamocha {
 
-	private static boolean guiStarted = false;
+	private JamochaGui jamochaGui;
 
-	private static boolean shellStarted = false;
-	
-	private static JamochaGui jamochaGui;
+	private Shell shell;
 
-	private static Rete engine;
+	private Rete engine;
 
 	/**
 	 * @param args
@@ -22,57 +20,62 @@ public class Jamocha {
 	 *            tabs and nice, included Shell.
 	 */
 	public static void main(String[] args) {
-		engine = new Rete();
+		boolean guiStarted = false;
+		boolean shellStarted = false;
+		Jamocha jamocha = new Jamocha(new Rete());
 		if (null != args) {
 			for (int i = 0; i < args.length; ++i) {
 				if (args[i].equalsIgnoreCase("-gui")) {
-					if (!guiStarted) {
-						startGui();
-					}
+					jamocha.startGui();
+					guiStarted = true;
 				} else if (args[i].equalsIgnoreCase("-shell")) {
-					if (!shellStarted) {
-						startShell();
-					}
+					jamocha.startShell();
+					shellStarted = true;
 				}
 			}
 		}
 		// if no arguments were given or by another cause neither gui nor shell
-		// was started, we show a usage guide.
+		// were started, we show a usage guide.
 		if (!shellStarted && !guiStarted) {
-			showUsage();
+			jamocha.showUsage();
+		} else if (guiStarted) {
+			jamocha.getJamochaGui().setExitOnClose(true);
 		}
-		else if(!shellStarted) {
-			jamochaGui.setExitOnClose(true);
+	}
+
+	Jamocha(Rete engine) {
+		this.engine = engine;
+	}
+
+	public void startShell() {
+		if (shell == null) {
+			Thread shellThread = new Thread() {
+
+				public void run() {
+					shell = new Shell(engine);
+					shell.run();
+				}
+
+			};
+			shellThread.start();
 		}
 	}
 
-	private static void startShell() {
-		Thread shellThread = new Thread() {
+	public void startGui() {
+		if (jamochaGui == null) {
+			jamochaGui = new JamochaGui(engine);
+			Thread guiThread = new Thread() {
 
-			public void run() {
-				Shell shell = new Shell(engine);
-				shell.run();
-			}
+				public void run() {
+					jamochaGui.showGui();
+				}
 
-		};
-		shellThread.start();
-		shellStarted = true;
+			};
+			guiThread.start();
+		}
 	}
 
-	private static void startGui() {
-		Thread guiThread = new Thread() {
-
-			public void run() {
-				jamochaGui = new JamochaGui(engine);
-				jamochaGui.showGui();
-			}
-
-		};
-		guiThread.start();
-		guiStarted = true;
-	}
-
-	private static void showUsage() {
+	public void showUsage() {
 		String sep = System.getProperty("line.separator");
 		System.out
 				.println("You have to pass one or more of the following arguments:"
@@ -82,5 +85,13 @@ public class Jamocha {
 						+ sep
 						+ "-shell: starts a simple Shell.");
 		System.exit(0);
+	}
+
+	public JamochaGui getJamochaGui() {
+		return jamochaGui;
+	}
+
+	public Shell getShell() {
+		return shell;
 	}
 }

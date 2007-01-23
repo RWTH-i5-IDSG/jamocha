@@ -70,7 +70,10 @@ public class SettingsPanel extends AbstractJamochaPanel implements
 	}
 
 	public void close() {
-		super.close();
+	}
+	
+	public void settingsChanged() {
+		
 	}
 	
 	public void actionPerformed(ActionEvent event) {
@@ -78,6 +81,7 @@ public class SettingsPanel extends AbstractJamochaPanel implements
 			for (AbstractSettingsPanel panel : panels) {
 				panel.save();
 			}
+			gui.settingsChanged();
 			try {
 				gui.getPreferences().flush();
 			} catch (BackingStoreException e) {

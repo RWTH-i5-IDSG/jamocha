@@ -49,19 +49,18 @@ import org.jamocha.rete.Rete;
 public class JamochaGui extends JFrame implements ChangeListener {
 
 	static final long serialVersionUID = 1L;
-	
-	static final Preferences preferences = Preferences.userRoot().node("org.jamocha.gui");
 
-	// pointer to the engine and the shell
+	static final Preferences preferences = Preferences.userRoot().node(
+			"org.jamocha.gui");
+
 	private Rete engine;
 
-	// the tabbed pane
 	private JTabbedPane tabbedPane;
-	
+
 	private List<AbstractJamochaPanel> panels = new LinkedList<AbstractJamochaPanel>();
 
 	private boolean exitOnClose = false;
-	
+
 	/**
 	 * Create a GUI-Instance for Jamocha.
 	 * 
@@ -119,7 +118,14 @@ public class JamochaGui extends JFrame implements ChangeListener {
 			}
 		});
 	}
-	
+
+	/**
+	 * This sets if only the Gui is closed on exit or also the engine. By
+	 * default only the Gui will be closed.
+	 * 
+	 * @param exitOnClose
+	 *            If false, only the gui will be closed
+	 */
 	public void setExitOnClose(boolean exitOnClose) {
 		this.exitOnClose = exitOnClose;
 	}
@@ -153,16 +159,26 @@ public class JamochaGui extends JFrame implements ChangeListener {
 	}
 
 	/**
-	 * Closes the GUI.
+	 * Informs all Panels, that some Settings might have changed.
+	 * 
+	 */
+	public void settingsChanged() {
+		for (AbstractJamochaPanel panel : panels) {
+			panel.settingsChanged();
+		}
+	}
+
+	/**
+	 * Closes the GUI and informs all Panels.
 	 * 
 	 */
 	public void close() {
-		for(AbstractJamochaPanel panel : panels) {
+		for (AbstractJamochaPanel panel : panels) {
 			panel.close();
 		}
 		setVisible(false);
 		dispose();
-		if( exitOnClose ) {
+		if (exitOnClose) {
 			engine.close();
 			System.exit(0);
 		}

@@ -22,9 +22,6 @@ import java.awt.CardLayout;
 import javax.swing.JPanel;
 
 import org.jamocha.gui.JamochaGui;
-import org.jamocha.rete.RootNode;
-import org.jamocha.rete.WorkingMemoryImpl;
-import org.jamocha.rete.visualisation.ViewGraphNode;
 import org.jamocha.rete.visualisation.Visualiser;
 
 /**
@@ -41,12 +38,12 @@ public class RetePanel extends AbstractJamochaPanel {
 	 * The Visualiser Object.
 	 */
 	private Visualiser visualiser = null;
-	
+
 	/**
 	 * The Panel containing the Visualiser.
 	 */
 	private JPanel visualiserPanel;
-	
+
 	/**
 	 * The main constructor for a RetePanel.
 	 * 
@@ -55,9 +52,9 @@ public class RetePanel extends AbstractJamochaPanel {
 	 */
 	public RetePanel(JamochaGui gui) {
 		super(gui);
-		
+
 		setLayout(new BorderLayout());
-		
+
 		visualiserPanel = new JPanel();
 		visualiserPanel.setLayout(new CardLayout());
 		add(visualiserPanel, BorderLayout.CENTER);
@@ -70,23 +67,23 @@ public class RetePanel extends AbstractJamochaPanel {
 	 */
 	@Override
 	public void close() {
-		super.close();
 		visualiser = null;
+	}
+
+	public void settingsChanged() {
+
 	}
 
 	/**
 	 * Initializes the Visualiser with the current Rete-network.
-	 *
+	 * 
 	 */
 	private void initVisualiser() {
-		//RootNode root = ((WorkingMemoryImpl) gui.getEngine().getWorkingMemory())
-		//		.getRootNode();
-		//ViewGraphNode t = ViewGraphNode.buildFromRete(root);
 		visualiser = new Visualiser(gui.getEngine());
 		JPanel panel = visualiser.getVisualiserPanel();
 		visualiserPanel.removeAll();
 		visualiserPanel.add("view", panel);
-		((CardLayout)visualiserPanel.getLayout()).last(visualiserPanel);
+		((CardLayout) visualiserPanel.getLayout()).last(visualiserPanel);
 	}
 
 }

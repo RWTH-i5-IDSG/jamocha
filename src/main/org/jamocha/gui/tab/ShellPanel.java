@@ -592,9 +592,20 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 	 */
 	@Override
 	public void close() {
-		super.close();
 		promptEndTimer.stop();
 		running = false;
+	}
+
+	public void settingsChanged() {
+		outputArea
+				.setFont(new Font(gui.getPreferences().get("shell.font",
+						"Courier"), gui.getPreferences().getInt(
+						"shell.fontstyle", Font.PLAIN), gui.getPreferences()
+						.getInt("shell.fontsize", 12)));
+		outputArea.setBackground(new Color(gui.getPreferences().getInt(
+				"shell.backgroundcolor", Color.BLACK.getRGB())));
+		outputArea.setForeground(new Color(gui.getPreferences().getInt(
+				"shell.fontcolor", Color.WHITE.getRGB())));
 	}
 
 	/**

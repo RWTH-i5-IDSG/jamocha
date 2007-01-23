@@ -57,13 +57,17 @@ public abstract class AbstractJamochaPanel extends JPanel {
 	}
 
 	/**
-	 * This function is called when the gui is closed and should be implemented by
+	 * This function is called when the gui is closed and must be implemented by
 	 * every class that extends this class. Here all the necessary cleanup should be done
 	 * when closing the gui.
 	 * 
 	 */
-	public void close() {
-		
-	}
+	public abstract void close();
+	
+	/**
+	 * This function will be called by the gui whenever settings are changed in the SettingsPanel.
+	 *
+	 */
+	public abstract void settingsChanged();
 
 }

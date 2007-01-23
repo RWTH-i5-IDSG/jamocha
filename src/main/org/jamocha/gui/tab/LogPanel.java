@@ -91,7 +91,8 @@ public class LogPanel extends AbstractJamochaPanel implements ActionListener,
 						}
 					}
 				}
-				LogPanel.this.gui.getEngine().getMessageRouter().closeChannel(logChannel);
+				LogPanel.this.gui.getEngine().getMessageRouter().closeChannel(
+						logChannel);
 			}
 		};
 		logThread.start();
@@ -105,8 +106,11 @@ public class LogPanel extends AbstractJamochaPanel implements ActionListener,
 	}
 
 	public void close() {
-		super.close();
 		running = false;
+	}
+
+	public void settingsChanged() {
+
 	}
 
 	private final class LogMessageEvent extends MessageEvent {

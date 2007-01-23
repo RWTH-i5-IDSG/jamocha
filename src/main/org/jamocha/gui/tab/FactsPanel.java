@@ -155,9 +155,12 @@ public class FactsPanel extends AbstractJamochaPanel implements ActionListener,
 	}
 
 	public void close() {
-		super.close();
 		if (editorChannel != null)
 			gui.getEngine().getMessageRouter().closeChannel(editorChannel);
+	}
+
+	public void settingsChanged() {
+
 	}
 
 	public void actionPerformed(ActionEvent event) {
