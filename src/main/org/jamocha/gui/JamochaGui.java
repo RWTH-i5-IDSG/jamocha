@@ -72,14 +72,14 @@ public class JamochaGui extends JFrame implements ChangeListener {
 		// set up the frame
 		this.setLayout(new BorderLayout());
 		this.setTitle("Jamocha");
-		this.setSize(750, 550);
+		setSizeAndLocation();
 
 		// create a tabbed pane
 		tabbedPane = new JTabbedPane();
-		this.setMinimumSize(new Dimension(600, 400));
 		this.add(tabbedPane, BorderLayout.CENTER);
+
+		// add MenuBar
 		this.setJMenuBar(new JamochaMenuBar(this));
-		this.setLocationByPlatform(true);
 
 		// create a rete engine
 		this.engine = engine;
@@ -117,6 +117,25 @@ public class JamochaGui extends JFrame implements ChangeListener {
 				close();
 			}
 		});
+	}
+
+	private void setSizeAndLocation() {
+		// TODO Auto-generated method stub
+		int width = preferences.getInt("gui.width", 0);
+		int height = preferences.getInt("gui.height", 0);
+		int locx = preferences.getInt("gui.locx", -1);
+		int locy = preferences.getInt("gui.locy", -1);
+		if (locx == -1 || locy == -1) {
+			this.setLocationByPlatform(true);
+		} else {
+			this.setLocation(locx, locy);
+		}
+		if( width <= 0 || height <= 0 ){
+			this.setSize(750, 550);
+		}
+		else {
+			this.setSize(width, height);
+		}
 	}
 
 	/**
@@ -173,6 +192,13 @@ public class JamochaGui extends JFrame implements ChangeListener {
 	 * 
 	 */
 	public void close() {
+		// save position and size
+		preferences.putInt("gui.width", getWidth());
+		preferences.putInt("gui.height", getHeight());
+		preferences.putInt("gui.locx", getX());
+		preferences.putInt("gui.locy", getY());
+		
+		// inform other panels
 		for (AbstractJamochaPanel panel : panels) {
 			panel.close();
 		}

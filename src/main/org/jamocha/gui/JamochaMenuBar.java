@@ -67,7 +67,7 @@ public class JamochaMenuBar extends JMenuBar implements ActionListener {
 		fileMenu = new JMenu("File");
 		fileMenuBatch = new JMenuItem("Batch File ...",IconLoader.getImageIcon("cog"));
 		fileMenuBatch.addActionListener(this);
-		fileMenuCloseGui = new JMenuItem("Close Gui",IconLoader.getImageIcon("application_delete"));
+		fileMenuCloseGui = new JMenuItem("Close Gui",IconLoader.getImageIcon("disconnect"));
 		fileMenuCloseGui.addActionListener(this);
 		fileMenuQuit = new JMenuItem("Quit",IconLoader.getImageIcon("door_in"));
 		fileMenuQuit.addActionListener(this);

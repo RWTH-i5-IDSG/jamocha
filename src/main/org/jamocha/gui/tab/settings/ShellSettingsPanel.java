@@ -96,7 +96,7 @@ public class ShellSettingsPanel extends AbstractSettingsPanel implements
 		// Fontcolor
 		addLabel(this, new JLabel("Fontcolor:"), gridbag, c, 2);
 		JPanel fontColorChooserPanel = new JPanel(new FlowLayout());
-		fontColorChooserPreview = new JTextField(20);
+		fontColorChooserPreview = new JTextField(5);
 		fontColorChooserPreview.setEditable(false);
 		fontColorChooserPreview.setBackground(new Color(gui.getPreferences()
 				.getInt("shell.fontcolor", Color.WHITE.getRGB())));
@@ -110,7 +110,7 @@ public class ShellSettingsPanel extends AbstractSettingsPanel implements
 		// Backgroundcolor
 		addLabel(this, new JLabel("Backgroundcolor:"), gridbag, c, 3);
 		JPanel backgroundColorChooserPanel = new JPanel(new FlowLayout());
-		backgroundColorChooserPreview = new JTextField(20);
+		backgroundColorChooserPreview = new JTextField(5);
 		backgroundColorChooserPreview.setEditable(false);
 		backgroundColorChooserPreview.setBackground(new Color(gui.getPreferences()
 				.getInt("shell.backgroundcolor", Color.BLACK.getRGB())));
