@@ -16,16 +16,11 @@
  */
 package org.jamocha.rete;
 
-import java.util.Map;
-import java.util.Collection;
 import java.util.Iterator;
-
-import org.jamocha.rete.util.CollectionsFactory;
-
 
 /**
  * @author Peter Lin
- *
+ * 
  * BetaMemory stores the matches
  */
 public class BetaMemoryImpl2 implements BetaMemory {
@@ -42,6 +37,7 @@ public class BetaMemoryImpl2 implements BetaMemory {
 
 	/**
 	 * Return the index of the beta memory
+	 * 
 	 * @return
 	 */
 	public Index getIndex() {
@@ -50,6 +46,7 @@ public class BetaMemoryImpl2 implements BetaMemory {
 
 	/**
 	 * Get the array of facts
+	 * 
 	 * @return
 	 */
 	public Fact[] getLeftFacts() {
@@ -58,15 +55,30 @@ public class BetaMemoryImpl2 implements BetaMemory {
 
 	/**
 	 * this version doesn't store the right matches, so it returns null
+	 * 
 	 * @return
 	 */
 	public Iterator iterateRightFacts() {
-		return null;
+		return new Iterator() {
+
+			public boolean hasNext() {
+				return false;
+			}
+
+			public Object next() {
+				return null;
+			}
+
+			public void remove() {
+			}
+
+		};
 	}
 
 	/**
-	 * method is not implemented for this version, since it does not store
-	 * the matching facts from the right
+	 * method is not implemented for this version, since it does not store the
+	 * matching facts from the right
+	 * 
 	 * @param rightfacts
 	 * @return
 	 */
@@ -75,16 +87,17 @@ public class BetaMemoryImpl2 implements BetaMemory {
 	}
 
 	/**
-	 * method is not implemented for this version, since it does not store
-	 * the matching facts from the right
+	 * method is not implemented for this version, since it does not store the
+	 * matching facts from the right
+	 * 
 	 * @param rightfacts
 	 */
 	public void addMatch(Fact rightfact) {
 	}
 
 	/**
-	 * method is not implemented for this version, since it does not store
-	 * the matching facts from the right
+	 * method is not implemented for this version, since it does not store the
+	 * matching facts from the right
 	 */
 	public void removeMatch(Fact rightfact) {
 	}
@@ -105,8 +118,8 @@ public class BetaMemoryImpl2 implements BetaMemory {
 	}
 
 	/**
-	 * The implementation will append the facts for the left followed
-	 * by double colon "::" and then the matches from the right
+	 * The implementation will append the facts for the left followed by double
+	 * colon "::" and then the matches from the right
 	 */
 	public String toPPString() {
 		StringBuffer buf = new StringBuffer();
