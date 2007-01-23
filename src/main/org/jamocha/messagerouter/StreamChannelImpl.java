@@ -16,6 +16,7 @@
  */
 package org.jamocha.messagerouter;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -26,6 +27,8 @@ import org.jamocha.parser.clips.TokenMgrError;
 
 class StreamChannelImpl extends AbstractCommunicationChannel implements
 		StreamChannel {
+
+	private Reader reader;
 
 	private class StreamChannelThread extends Thread {
 
@@ -50,14 +53,12 @@ class StreamChannelImpl extends AbstractCommunicationChannel implements
 				}
 			}
 		}
-
-		public void setStopped() {
+		
+		private void setStopped() {
 			stopped = true;
 		}
 
 	}
-
-	private Reader reader;
 
 	public void init(InputStream inputStream) {
 		init(new InputStreamReader(inputStream));
@@ -69,6 +70,16 @@ class StreamChannelImpl extends AbstractCommunicationChannel implements
 		streamChannelThread = new StreamChannelThread();
 		parser.ReInit(reader);
 		streamChannelThread.start();
+	}
+	
+	void close() {
+		streamChannelThread.setStopped();
+		try {
+			reader.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	public boolean isAvailable() {

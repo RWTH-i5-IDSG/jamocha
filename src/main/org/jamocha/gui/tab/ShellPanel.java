@@ -18,7 +18,6 @@ package org.jamocha.gui.tab;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
@@ -152,21 +151,25 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 		// GUI construction
 		// create the output area
 		outputArea = new JTextArea();
-		outputArea.setSize(600, 400);
 		outputArea.setEditable(false);
 		outputArea.setLineWrap(true);
 		outputArea.setWrapStyleWord(true);
-		outputArea.setMinimumSize(new Dimension(600, 400));
-		outputArea.setFont(new Font("Courier", Font.PLAIN, 12));
-		outputArea.setBackground(Color.BLACK);
-		outputArea.setForeground(Color.WHITE);
-		outputArea.setBorder(BorderFactory.createLineBorder(outputArea.getBackground(),2));
+		outputArea
+				.setFont(new Font(gui.getPreferences().get("shell.font",
+						"Courier"), gui.getPreferences().getInt(
+						"shell.fontstyle", Font.PLAIN), gui.getPreferences()
+						.getInt("shell.fontsize", 12)));
+		outputArea.setBackground(new Color(gui.getPreferences().getInt(
+				"shell.backgroundcolor", Color.BLACK.getRGB())));
+		outputArea.setForeground(new Color(gui.getPreferences().getInt(
+				"shell.fontcolor", Color.WHITE.getRGB())));
+		outputArea.setBorder(BorderFactory.createLineBorder(outputArea
+				.getBackground(), 2));
 		this.addFocusListener(this);
 		// create a scroll pane to embedd the output area
 		JScrollPane scrollPane = new JScrollPane(outputArea,
 				JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
 				JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-		scrollPane.setBackground(Color.white);
 
 		// Assemble the GUI
 		setLayout(new BorderLayout());
@@ -356,7 +359,8 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 					history_offset += delta;
 					if (history_offset <= 0) {
 						history_offset = 0;
-						//System.out.println(lastPromptIndex + " " + getOffset());
+						// System.out.println(lastPromptIndex + " " +
+						// getOffset());
 						if ((lastPromptIndex - 1) < getOffset()) {
 							outputArea.replaceRange("", lastPromptIndex - 1,
 									getOffset());
@@ -583,11 +587,13 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 	}
 
 	/**
-	 * Close this Panel. Here we stop the ChannelListener.
+	 * Close this Panel.
 	 * 
 	 */
 	@Override
 	public void close() {
+		super.close();
+		promptEndTimer.stop();
 		running = false;
 	}
 
@@ -595,11 +601,12 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 	 * Catches events for Buttons and the Timer in this Panel.
 	 */
 	public void actionPerformed(ActionEvent event) {
-		//System.out.println(event);
+		// System.out.println(event);
 		if (event.getSource().equals(clearButton)) {
 			clearArea();
 		} else if (event.getSource().equals(promptEndTimer)) {
-			//System.out.println(outputArea.getCaretPosition() + "|" + getOffset());
+			// System.out.println(outputArea.getCaretPosition() + "|" +
+			// getOffset());
 			nextPromptEnd();
 		}
 	}

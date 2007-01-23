@@ -9,6 +9,8 @@ public class Jamocha {
 	private static boolean guiStarted = false;
 
 	private static boolean shellStarted = false;
+	
+	private static JamochaGui jamochaGui;
 
 	private static Rete engine;
 
@@ -39,6 +41,9 @@ public class Jamocha {
 		if (!shellStarted && !guiStarted) {
 			showUsage();
 		}
+		else if(!shellStarted) {
+			jamochaGui.setExitOnClose(true);
+		}
 	}
 
 	private static void startShell() {
@@ -58,8 +63,8 @@ public class Jamocha {
 		Thread guiThread = new Thread() {
 
 			public void run() {
-				JamochaGui jamocha = new JamochaGui(engine);
-				jamocha.showGui();
+				jamochaGui = new JamochaGui(engine);
+				jamochaGui.showGui();
 			}
 
 		};

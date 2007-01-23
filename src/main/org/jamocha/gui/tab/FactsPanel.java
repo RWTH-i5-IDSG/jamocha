@@ -154,6 +154,12 @@ public class FactsPanel extends AbstractJamochaPanel implements ActionListener,
 		initFactsList();
 	}
 
+	public void close() {
+		super.close();
+		if (editorChannel != null)
+			gui.getEngine().getMessageRouter().closeChannel(editorChannel);
+	}
+
 	public void actionPerformed(ActionEvent event) {
 		if (event.getSource().equals(reloadButton)) {
 			initFactsList();

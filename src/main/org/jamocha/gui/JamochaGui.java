@@ -20,6 +20,9 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.prefs.Preferences;
 
 import javax.swing.JFrame;
 import javax.swing.JTabbedPane;
@@ -45,30 +48,20 @@ import org.jamocha.rete.Rete;
  */
 public class JamochaGui extends JFrame implements ChangeListener {
 
-	//
 	static final long serialVersionUID = 1L;
+	
+	static final Preferences preferences = Preferences.userRoot().node("org.jamocha.gui");
 
 	// pointer to the engine and the shell
 	private Rete engine;
 
-	// the shell panel
-	private AbstractJamochaPanel shellPanel;
-
-	// the facts panel
-	private AbstractJamochaPanel factsPanel;
-
-	// the rete panel
-	private AbstractJamochaPanel retePanel;
-
-	// the settings panel
-	private AbstractJamochaPanel settingsPanel;
-
-	// the log panel
-	private AbstractJamochaPanel logPanel;
-
 	// the tabbed pane
 	private JTabbedPane tabbedPane;
+	
+	private List<AbstractJamochaPanel> panels = new LinkedList<AbstractJamochaPanel>();
 
+	private boolean exitOnClose = false;
+	
 	/**
 	 * Create a GUI-Instance for Jamocha.
 	 * 
@@ -78,6 +71,7 @@ public class JamochaGui extends JFrame implements ChangeListener {
 	public JamochaGui(Rete engine) {
 
 		// set up the frame
+		this.setLayout(new BorderLayout());
 		this.setTitle("Jamocha");
 		this.setSize(750, 550);
 
@@ -92,22 +86,27 @@ public class JamochaGui extends JFrame implements ChangeListener {
 		this.engine = engine;
 
 		// create a shell tab and add it to the tabbed pane
-		shellPanel = new ShellPanel(this);
+		ShellPanel shellPanel = new ShellPanel(this);
 		tabbedPane.addTab("Shell", IconLoader
 				.getImageIcon("application_osx_terminal"), shellPanel,
 				"Jamocha Shell");
-		factsPanel = new FactsPanel(this);
+		panels.add(shellPanel);
+		FactsPanel factsPanel = new FactsPanel(this);
 		tabbedPane.addTab("Facts", IconLoader.getImageIcon("database"),
 				factsPanel, "View or modify Facts");
-		retePanel = new RetePanel(this);
+		panels.add(factsPanel);
+		RetePanel retePanel = new RetePanel(this);
 		tabbedPane.addTab("Rete", IconLoader.getImageIcon("eye"), retePanel,
 				"View the Rete-network");
-		settingsPanel = new SettingsPanel(this);
-		tabbedPane.addTab("Settings", IconLoader.getImageIcon("wrench"),
-				settingsPanel, "Settings for Jamocha");
-		logPanel = new LogPanel(this);
+		panels.add(retePanel);
+		LogPanel logPanel = new LogPanel(this);
 		tabbedPane.addTab("Log", IconLoader.getImageIcon("monitor"), logPanel,
 				"View alle messages from or to the Rete-engine");
+		panels.add(logPanel);
+		SettingsPanel settingsPanel = new SettingsPanel(this);
+		tabbedPane.addTab("Settings", IconLoader.getImageIcon("wrench"),
+				settingsPanel, "Settings for Jamocha");
+		panels.add(settingsPanel);
 
 		// add the tab pane to the frame
 		add(tabbedPane, BorderLayout.CENTER);
@@ -119,6 +118,10 @@ public class JamochaGui extends JFrame implements ChangeListener {
 				close();
 			}
 		});
+	}
+	
+	public void setExitOnClose(boolean exitOnClose) {
+		this.exitOnClose = exitOnClose;
 	}
 
 	/**
@@ -137,7 +140,16 @@ public class JamochaGui extends JFrame implements ChangeListener {
 	public void showGui() {
 		setMinimumSize(new Dimension(600, 400));
 		setVisible(true);
-		shellPanel.setFocus();
+		panels.get(0).setFocus();
+	}
+
+	/**
+	 * Returns the preferences for the JamochaGui
+	 * 
+	 * @return The Preferences-Node
+	 */
+	public Preferences getPreferences() {
+		return preferences;
 	}
 
 	/**
@@ -145,13 +157,15 @@ public class JamochaGui extends JFrame implements ChangeListener {
 	 * 
 	 */
 	public void close() {
-		shellPanel.close();
-		engine.close();
-		/*
-		 * TODO just for developement exit all! Later we'll perhaps just hide
-		 * the gui and leave the engine running.
-		 */
-		System.exit(0);
+		for(AbstractJamochaPanel panel : panels) {
+			panel.close();
+		}
+		setVisible(false);
+		dispose();
+		if( exitOnClose ) {
+			engine.close();
+			System.exit(0);
+		}
 	}
 
 	/**

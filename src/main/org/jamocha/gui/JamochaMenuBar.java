@@ -55,6 +55,8 @@ public class JamochaMenuBar extends JMenuBar implements ActionListener {
 
 	private JMenuItem fileMenuBatch;
 
+	private JMenuItem fileMenuCloseGui;
+	
 	private JMenuItem fileMenuQuit;
 
 	public JamochaMenuBar(JamochaGui gui) {
@@ -65,18 +67,24 @@ public class JamochaMenuBar extends JMenuBar implements ActionListener {
 		fileMenu = new JMenu("File");
 		fileMenuBatch = new JMenuItem("Batch File ...",IconLoader.getImageIcon("cog"));
 		fileMenuBatch.addActionListener(this);
+		fileMenuCloseGui = new JMenuItem("Close Gui",IconLoader.getImageIcon("application_delete"));
+		fileMenuCloseGui.addActionListener(this);
 		fileMenuQuit = new JMenuItem("Quit",IconLoader.getImageIcon("door_in"));
 		fileMenuQuit.addActionListener(this);
 		fileMenu.add(fileMenuBatch);
 		fileMenu.addSeparator();
+		fileMenu.add(fileMenuCloseGui);
 		fileMenu.add(fileMenuQuit);
 		add(fileMenu);
 	}
 
 	public void actionPerformed(ActionEvent event) {
-		if (event.getSource().equals(fileMenuQuit)) {
+		if (event.getSource() == fileMenuQuit ) {
+			gui.setExitOnClose(true);
 			gui.close();
-		} else if (event.getSource().equals(fileMenuBatch)) {
+		} else if(event.getSource() == fileMenuCloseGui) {
+			gui.close();
+		} else if (event.getSource() == fileMenuBatch ) {
 			JFileChooser chooser = new JFileChooser();
 			chooser.setMultiSelectionEnabled(false);
 			if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {

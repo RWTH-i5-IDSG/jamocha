@@ -70,6 +70,7 @@ public class RetePanel extends AbstractJamochaPanel {
 	 */
 	@Override
 	public void close() {
+		super.close();
 		visualiser = null;
 	}
 

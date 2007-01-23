@@ -210,22 +210,27 @@ public class MessageRouter implements Serializable {
 		synchronized (idToChannel) {
 			idToChannel.remove(channel.getChannelId());
 			idToMessages.remove(channel.getChannelId());
+			// If it's a StreamChannel, stop the Parser-Thread
+			if(channel instanceof StreamChannelImpl) {
+				((StreamChannelImpl)channel).close();
+			}
 		}
 	}
 
 	private void registerChannel(CommunicationChannel channel) {
 		synchronized (idToChannel) {
 			idToChannel.put(channel.getChannelId(), channel);
-			idToMessages.put(channel.getChannelId(),
-					new ArrayList<MessageEvent>());
+			idToMessages.put(channel.getChannelId(), new ArrayList<MessageEvent>());
 		}
 	}
 
 	void fillMessageList(String channelId, List<MessageEvent> destinationList) {
-		List<MessageEvent> storedMessages = idToMessages.get(channelId);
-		if (storedMessages != null && destinationList != null) {
-			destinationList.addAll(storedMessages);
-			storedMessages.clear();
+		synchronized (idToChannel) {
+			List<MessageEvent> storedMessages = idToMessages.get(channelId);
+			if (storedMessages != null && destinationList != null) {
+				destinationList.addAll(storedMessages);
+				storedMessages.clear();
+			}
 		}
 	}
 
