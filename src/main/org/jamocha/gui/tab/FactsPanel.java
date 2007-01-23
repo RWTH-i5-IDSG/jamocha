@@ -18,6 +18,7 @@ package org.jamocha.gui.tab;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -30,7 +31,11 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
 import javax.swing.JTable;
+import javax.swing.JTextArea;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
 
 import org.jamocha.gui.JamochaGui;
@@ -40,6 +45,8 @@ import org.jamocha.gui.editor.FactEditor;
 import org.jamocha.gui.icons.IconLoader;
 import org.jamocha.messagerouter.StringChannel;
 import org.jamocha.rete.Fact;
+import org.jamocha.rete.MultiSlot;
+import org.jamocha.rete.Slot;
 import org.jamocha.rete.exception.RetractException;
 
 /**
@@ -49,7 +56,8 @@ import org.jamocha.rete.exception.RetractException;
  * @author Karl-Heinz Krempels <krempels@cs.rwth-aachen.de>
  * @author Alexander Wilden <october.rust@gmx.de>
  */
-public class FactsPanel extends AbstractJamochaPanel implements ActionListener {
+public class FactsPanel extends AbstractJamochaPanel implements ActionListener,
+		ListSelectionListener {
 
 	private static final long serialVersionUID = -5732131176258158968L;
 
@@ -60,6 +68,8 @@ public class FactsPanel extends AbstractJamochaPanel implements ActionListener {
 	private JButton reloadButton;
 
 	private JButton assertButton;
+
+	private JTextArea dumpArea;
 
 	private StringChannel editorChannel;
 
@@ -80,11 +90,17 @@ public class FactsPanel extends AbstractJamochaPanel implements ActionListener {
 				.getTableHeader()
 				.setToolTipText(
 						"Click to sort ascending. Click while pressing the shift-key down to sort descending");
-		JScrollPane scrollPane = new JScrollPane(factsTable,
-				JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
-				JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-		add(scrollPane, BorderLayout.CENTER);
+		factsTable.getSelectionModel().addListSelectionListener(this);
+		dumpArea = new JTextArea();
+		dumpArea.setLineWrap(true);
+		dumpArea.setWrapStyleWord(true);
+		dumpArea.setEditable(false);
+		dumpArea.setFont(new Font("Courier", Font.PLAIN, 12));
 
+		JSplitPane pane = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
+				new JScrollPane(factsTable), new JScrollPane(dumpArea));
+		add(pane, BorderLayout.CENTER);
+		pane.setDividerLocation(300);
 		reloadButton = new JButton("Reload Facts", IconLoader
 				.getImageIcon("database_refresh"));
 		reloadButton.addActionListener(this);
@@ -196,8 +212,12 @@ public class FactsPanel extends AbstractJamochaPanel implements ActionListener {
 			return facts.size();
 		}
 
+		public Fact getRow(int row) {
+			return facts.get(row);
+		}
+
 		public Object getValueAt(int row, int column) {
-			Fact fact = facts.get(row);
+			Fact fact = getRow(row);
 			switch (column) {
 			case 0:
 				return fact.getFactId();
@@ -205,6 +225,48 @@ public class FactsPanel extends AbstractJamochaPanel implements ActionListener {
 				return fact.toFactString();
 			}
 			return null;
+		}
+	}
+
+	public void valueChanged(ListSelectionEvent arg0) {
+		if (arg0.getSource() == factsTable.getSelectionModel()) {
+			if (factsTable.getSelectedColumnCount() == 1
+					&& factsTable.getSelectedRow() > -1) {
+				Fact fact = dataModel.getRow(factsTable.getSelectedRow());
+				if (fact != null) {
+					dumpArea.setText("f-" + fact.getFactId() + "("
+							+ fact.getDeftemplate().getName());
+					Slot[] slots = fact.getDeftemplate().getAllSlots();
+					for (Slot slot : slots) {
+						dumpArea.append("\n    (" + slot.getName() + " ");
+						if (slot instanceof MultiSlot) {
+							Object[] values = null;
+							if (fact.getSlotValue(slot.getId()) instanceof Object[]) {
+								values = (Object[]) fact.getSlotValue(slot
+										.getId());
+							}
+							if (values != null) {
+								for (int i = 0; i < values.length; ++i) {
+									if (i > 0)
+										dumpArea.append(" ");
+									dumpArea.append("\"" + values[i] + "\"");
+								}
+							}
+						} else {
+							String value = fact.getSlotValue(slot.getId())
+									.toString();
+							if (!value.equals(""))
+								dumpArea.append("\"" + value + "\"");
+						}
+						dumpArea.append(")");
+					}
+					dumpArea.append("\n)");
+				} else {
+					dumpArea.setText("");
+				}
+			} else {
+				dumpArea.setText("");
+			}
 		}
 	}
 
