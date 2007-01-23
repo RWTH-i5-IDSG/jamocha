@@ -154,17 +154,8 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 		outputArea.setEditable(false);
 		outputArea.setLineWrap(true);
 		outputArea.setWrapStyleWord(true);
-		outputArea
-				.setFont(new Font(gui.getPreferences().get("shell.font",
-						"Courier"), gui.getPreferences().getInt(
-						"shell.fontstyle", Font.PLAIN), gui.getPreferences()
-						.getInt("shell.fontsize", 12)));
-		outputArea.setBackground(new Color(gui.getPreferences().getInt(
-				"shell.backgroundcolor", Color.BLACK.getRGB())));
-		outputArea.setForeground(new Color(gui.getPreferences().getInt(
-				"shell.fontcolor", Color.WHITE.getRGB())));
-		outputArea.setBorder(BorderFactory.createLineBorder(outputArea
-				.getBackground(), 2));
+		// set the font and the colors
+		settingsChanged();
 		this.addFocusListener(this);
 		// create a scroll pane to embedd the output area
 		JScrollPane scrollPane = new JScrollPane(outputArea,
@@ -606,6 +597,8 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 				"shell.backgroundcolor", Color.BLACK.getRGB())));
 		outputArea.setForeground(new Color(gui.getPreferences().getInt(
 				"shell.fontcolor", Color.WHITE.getRGB())));
+		outputArea.setBorder(BorderFactory.createLineBorder(outputArea
+				.getBackground(), 2));
 	}
 
 	/**
