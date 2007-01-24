@@ -66,7 +66,7 @@ public class RoundedRectangle extends Shape {
 		canvas.fillRect(x+(height/2), y, width-height+1, height+1);
 		canvas.setColor(bordercolor);
 		canvas.drawLine(x+(height/2), y, x+width-height/2, y);
-		canvas.drawLine(x+(height/2), y+height, x+width-height/2, y+height);
+		canvas.drawLine(x+(height/2), y+height+1, x+width-height/2, y+height+1);
 		
 		// draw the text	
 		canvas.setColor(Color.black);
