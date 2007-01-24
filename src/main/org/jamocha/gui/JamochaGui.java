@@ -22,6 +22,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
 import javax.swing.JFrame;
@@ -55,6 +56,8 @@ public class JamochaGui extends JFrame implements ChangeListener {
 
 	private Rete engine;
 
+	private JamochaMenuBar menuBar;
+	
 	private JTabbedPane tabbedPane;
 
 	private List<AbstractJamochaPanel> panels = new LinkedList<AbstractJamochaPanel>();
@@ -79,7 +82,8 @@ public class JamochaGui extends JFrame implements ChangeListener {
 		this.add(tabbedPane, BorderLayout.CENTER);
 
 		// add MenuBar
-		this.setJMenuBar(new JamochaMenuBar(this));
+		menuBar = new JamochaMenuBar(this);
+		this.setJMenuBar(menuBar);
 
 		// create a rete engine
 		this.engine = engine;
@@ -147,6 +151,7 @@ public class JamochaGui extends JFrame implements ChangeListener {
 	 */
 	public void setExitOnClose(boolean exitOnClose) {
 		this.exitOnClose = exitOnClose;
+		menuBar.showCloseGui(!exitOnClose);
 	}
 
 	/**
@@ -201,6 +206,11 @@ public class JamochaGui extends JFrame implements ChangeListener {
 		// inform other panels
 		for (AbstractJamochaPanel panel : panels) {
 			panel.close();
+		}
+		try {
+			preferences.flush();
+		} catch (BackingStoreException e) {
+			e.printStackTrace();
 		}
 		setVisible(false);
 		dispose();

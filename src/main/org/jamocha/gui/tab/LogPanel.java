@@ -37,6 +37,8 @@ public class LogPanel extends AbstractJamochaPanel implements ActionListener,
 
 	private static final long serialVersionUID = 4811690181744862051L;
 
+	private JSplitPane pane;
+	
 	private JTextArea detailView;
 
 	private JTable logTable;
@@ -70,9 +72,9 @@ public class LogPanel extends AbstractJamochaPanel implements ActionListener,
 		};
 		logTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		logTable.getSelectionModel().addListSelectionListener(this);
-		JSplitPane pane = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
+		pane = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
 				new JScrollPane(logTable), new JScrollPane(detailView));
-		pane.setDividerLocation(300);
+		pane.setDividerLocation(gui.getPreferences().getInt("log.dividerlocation", 300));
 		add(pane, BorderLayout.CENTER);
 
 		Thread logThread = new Thread() {
@@ -107,6 +109,7 @@ public class LogPanel extends AbstractJamochaPanel implements ActionListener,
 
 	public void close() {
 		running = false;
+		gui.getPreferences().putInt("log.dividerlocation", pane.getDividerLocation());
 	}
 
 	public void settingsChanged() {

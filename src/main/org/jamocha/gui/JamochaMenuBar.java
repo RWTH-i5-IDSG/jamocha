@@ -56,7 +56,7 @@ public class JamochaMenuBar extends JMenuBar implements ActionListener {
 	private JMenuItem fileMenuBatch;
 
 	private JMenuItem fileMenuCloseGui;
-	
+
 	private JMenuItem fileMenuQuit;
 
 	public JamochaMenuBar(JamochaGui gui) {
@@ -65,11 +65,13 @@ public class JamochaMenuBar extends JMenuBar implements ActionListener {
 
 		// adding the file menu
 		fileMenu = new JMenu("File");
-		fileMenuBatch = new JMenuItem("Batch File ...",IconLoader.getImageIcon("cog"));
+		fileMenuBatch = new JMenuItem("Batch File ...", IconLoader
+				.getImageIcon("cog"));
 		fileMenuBatch.addActionListener(this);
-		fileMenuCloseGui = new JMenuItem("Close Gui",IconLoader.getImageIcon("disconnect"));
+		fileMenuCloseGui = new JMenuItem("Close Gui", IconLoader
+				.getImageIcon("disconnect"));
 		fileMenuCloseGui.addActionListener(this);
-		fileMenuQuit = new JMenuItem("Quit",IconLoader.getImageIcon("door_in"));
+		fileMenuQuit = new JMenuItem("Quit", IconLoader.getImageIcon("door_in"));
 		fileMenuQuit.addActionListener(this);
 		fileMenu.add(fileMenuBatch);
 		fileMenu.addSeparator();
@@ -78,13 +80,17 @@ public class JamochaMenuBar extends JMenuBar implements ActionListener {
 		add(fileMenu);
 	}
 
+	public void showCloseGui(boolean show) {
+		fileMenuCloseGui.setVisible(show);
+	}
+
 	public void actionPerformed(ActionEvent event) {
-		if (event.getSource() == fileMenuQuit ) {
+		if (event.getSource() == fileMenuQuit) {
 			gui.setExitOnClose(true);
 			gui.close();
-		} else if(event.getSource() == fileMenuCloseGui) {
+		} else if (event.getSource() == fileMenuCloseGui) {
 			gui.close();
-		} else if (event.getSource() == fileMenuBatch ) {
+		} else if (event.getSource() == fileMenuBatch) {
 			JFileChooser chooser = new JFileChooser();
 			chooser.setMultiSelectionEnabled(false);
 			if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
@@ -92,8 +98,8 @@ public class JamochaMenuBar extends JMenuBar implements ActionListener {
 				try {
 					BufferedReader reader = new BufferedReader(new FileReader(
 							file));
-					StringChannel batchChannel = gui.getEngine().getMessageRouter().openChannel(
-							"gui_batchchannel");
+					StringChannel batchChannel = gui.getEngine()
+							.getMessageRouter().openChannel("gui_batchchannel");
 					StringBuilder buffer = new StringBuilder();
 					while (reader.ready()) {
 						buffer.append(reader.readLine());
@@ -105,18 +111,21 @@ public class JamochaMenuBar extends JMenuBar implements ActionListener {
 					for (MessageEvent mevent : events) {
 						if (mevent.getMessage() instanceof Function) {
 							buffer.append(((Function) mevent.getMessage())
-									.getName() + System.getProperty("line.separator"));
+									.getName()
+									+ System.getProperty("line.separator"));
 						} else
-							buffer.append(mevent.getMessage() + System.getProperty("line.separator"));
+							buffer.append(mevent.getMessage()
+									+ System.getProperty("line.separator"));
 					}
-					JDialog dialog = new JDialog(gui,"Result:");
+					JDialog dialog = new JDialog(gui, "Result:");
 					dialog.setSize(400, 300);
 					dialog.setLocationByPlatform(true);
 					JTextArea area = new JTextArea(buffer.toString());
 					area.setEditable(false);
 					dialog.add(new JScrollPane(area));
 					dialog.setVisible(true);
-					gui.getEngine().getMessageRouter().closeChannel(batchChannel);
+					gui.getEngine().getMessageRouter().closeChannel(
+							batchChannel);
 				} catch (FileNotFoundException e) {
 					e.printStackTrace();
 				} catch (IOException e) {

@@ -38,7 +38,7 @@ public class Jamocha {
 		// were started, we show a usage guide.
 		if (!shellStarted && !guiStarted) {
 			jamocha.showUsage();
-		} else if (guiStarted) {
+		} else if (!shellStarted) {
 			jamocha.getJamochaGui().setExitOnClose(true);
 		}
 	}

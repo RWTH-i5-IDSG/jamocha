@@ -61,6 +61,8 @@ public class FactsPanel extends AbstractJamochaPanel implements ActionListener,
 
 	private static final long serialVersionUID = -5732131176258158968L;
 
+	private JSplitPane pane;
+	
 	private JTable factsTable;
 
 	private FactsTableModel dataModel;
@@ -97,10 +99,10 @@ public class FactsPanel extends AbstractJamochaPanel implements ActionListener,
 		dumpArea.setEditable(false);
 		dumpArea.setFont(new Font("Courier", Font.PLAIN, 12));
 
-		JSplitPane pane = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
+		pane = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
 				new JScrollPane(factsTable), new JScrollPane(dumpArea));
 		add(pane, BorderLayout.CENTER);
-		pane.setDividerLocation(300);
+		pane.setDividerLocation(gui.getPreferences().getInt("facts.dividerlocation", 300));
 		reloadButton = new JButton("Reload Facts", IconLoader
 				.getImageIcon("database_refresh"));
 		reloadButton.addActionListener(this);
@@ -157,6 +159,7 @@ public class FactsPanel extends AbstractJamochaPanel implements ActionListener,
 	public void close() {
 		if (editorChannel != null)
 			gui.getEngine().getMessageRouter().closeChannel(editorChannel);
+		gui.getPreferences().putInt("facts.dividerlocation", pane.getDividerLocation());
 	}
 
 	public void settingsChanged() {
