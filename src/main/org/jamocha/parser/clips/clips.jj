@@ -48,6 +48,7 @@ import org.jamocha.rule.OrLiteralConstraint;
 import org.jamocha.rule.PredicateConstraint;
 import org.jamocha.rule.RuleProperty;
 import org.jamocha.rule.TestCondition;
+import org.jamocha.rete.functions.Deffunction;
 
 public class CLIPSParser {
 
@@ -351,8 +352,10 @@ Object expr() :
   Deftemplate templ;
   Defrule rule;
   ShellFunction func;
+  Deffunction dffunc;
   ArrayList list = new ArrayList();
   ValueParam[] pms;
+  Object infunc = null;
 }
 {
   exp = <ASSERT> <LBRACE> exp2 = <IDENTIFIER>
@@ -459,6 +462,19 @@ Object expr() :
     return func;
   }
 |
+  exp = <DEFFUNCTION>
+  exp2 = <IDENTIFIER> <LBRACE>
+  ((bindingParams(list))+)? <RBRACE> <LBRACE>
+  (infunc = expr())? <RBRACE>
+  {
+    dffunc = new Deffunction();
+    dffunc.setName(exp2.image);
+    dffunc.setParameters(ParameterUtils.convertParameters(list));
+    dffunc.setFunctions((Function)infunc);
+    list.clear();
+    return dffunc;
+  }
+|
   // example: (bind ?*x* 9)
   <BINDING> exp = getBindType() (valueParams(list))+
   {
@@ -558,6 +574,29 @@ void valueParams(List list) :
   }
 |
   // in some cases, the parameters may be a binding to a variable
+  tok = getBindType()
+  {
+    BoundParam bp = new BoundParam();
+    if (tok.kind == CLIPSParserConstants.BIND4) {
+      bp.setVariableName(tok.image.substring(2));
+      bp.setIsMultislot(true);
+    } else {
+      bp.setVariableName(tok.image);
+    }
+    list.add(bp);
+  }
+}
+
+/**
+ * bindingParams is meant to parse the params for a deffunction
+ */
+void bindingParams(List list) :
+{
+  Object exp;
+  Token tok;
+  ValueParam vp = null;
+}
+{
   tok = getBindType()
   {
     BoundParam bp = new BoundParam();

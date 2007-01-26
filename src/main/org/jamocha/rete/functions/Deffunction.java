@@ -16,6 +16,7 @@
  */
 package org.jamocha.rete.functions;
 
+import org.jamocha.rete.DefaultReturnVector;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
@@ -45,7 +46,8 @@ public class Deffunction implements Function {
     }
 
     public ReturnVector executeFunction(Rete engine, Parameter[] params) {
-        return null;
+        DefaultReturnVector ret = new DefaultReturnVector();
+        return ret;
     }
 
     public void setName(String name) {
@@ -70,6 +72,22 @@ public class Deffunction implements Function {
     
     public String toPPString(Parameter[] params, int indents) {
         return this.ppString;
+    }
+
+    public Function getFunctions() {
+        return functions;
+    }
+
+    public void setFunctions(Function functions) {
+        this.functions = functions;
+    }
+
+    public Parameter[] getParameters() {
+        return parameters;
+    }
+
+    public void setParameters(Parameter[] parameters) {
+        this.parameters = parameters;
     }
 
 }

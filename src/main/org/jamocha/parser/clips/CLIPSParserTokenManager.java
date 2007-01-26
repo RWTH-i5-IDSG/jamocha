@@ -38,6 +38,7 @@ import org.jamocha.rule.OrLiteralConstraint;
 import org.jamocha.rule.PredicateConstraint;
 import org.jamocha.rule.RuleProperty;
 import org.jamocha.rule.TestCondition;
+import org.jamocha.rete.functions.Deffunction;
 
 public class CLIPSParserTokenManager implements CLIPSParserConstants
 {
