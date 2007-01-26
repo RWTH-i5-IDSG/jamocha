@@ -8,3 +8,7 @@
 		)
 	)
 )
+(deffunction is-hello
+  (?x1)
+  (eq "hello" ?x1)
+)
