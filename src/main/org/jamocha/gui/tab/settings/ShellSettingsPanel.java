@@ -128,6 +128,10 @@ public class ShellSettingsPanel extends AbstractSettingsPanel implements
 				((Font) fonts.getSelectedItem()).getFontName());
 		gui.getPreferences().putInt("shell.fontsize",
 				(Integer) fontsizes.getSelectedItem());
+		gui.getPreferences().putInt("shell.fontcolor",
+				(Integer) fontColorChooserPreview.getBackground().getRGB());
+		gui.getPreferences().putInt("shell.backgroundcolor",
+				(Integer) backgroundColorChooserPreview.getBackground().getRGB());
 	}
 
 	private class FontListCellRenderer extends DefaultListCellRenderer {
@@ -154,8 +158,6 @@ public class ShellSettingsPanel extends AbstractSettingsPanel implements
 					"Choose a Fontcolor", new Color(gui.getPreferences()
 							.getInt("shell.fontcolor", Color.WHITE.getRGB())));
 			if (newColor != null) {
-				gui.getPreferences().putInt("shell.fontcolor",
-						(Integer) newColor.getRGB());
 				fontColorChooserPreview.setBackground(newColor);
 			}
 		}
@@ -164,8 +166,6 @@ public class ShellSettingsPanel extends AbstractSettingsPanel implements
 					"Choose a Backgroundcolor", new Color(gui.getPreferences()
 							.getInt("shell.backgroundcolor", Color.BLACK.getRGB())));
 			if (newColor != null) {
-				gui.getPreferences().putInt("shell.backgroundcolor",
-						(Integer) newColor.getRGB());
 				backgroundColorChooserPreview.setBackground(newColor);
 			}
 		}
