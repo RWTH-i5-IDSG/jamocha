@@ -117,8 +117,10 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 
 	private int lastPromptIndex = 0;
 
-	private static final String SHELL_CURSOR = "\u220E";
+	//private static final String SHELL_CURSOR = "\u220E";
 
+	private static final String SHELL_CURSOR = "_";
+	
 	private int cursorPosition = 0;
 
 	private String cursorSubString = "";
@@ -197,7 +199,7 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 				inStream);
 
 		printPrompt();
-		printCursorAtEnd();
+		moveCursorToEnd();
 		startTimer();
 
 		// initialize the channellistener for outputs from the engine
@@ -232,11 +234,11 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 		}
 	}
 
-	private synchronized void printCursorAtEnd() {
-		printCursorAt(getOffset());
+	private synchronized void moveCursorToEnd() {
+		moveCursorTo(getOffset());
 	}
 
-	private synchronized void printCursorAt(int newPosition) {
+	private synchronized void moveCursorTo(int newPosition) {
 		hideCursor();
 		cursorPosition = newPosition;
 		showCursor();
@@ -354,7 +356,7 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 						printMessage(buffer.toString().trim(), true);
 						if (printPrompt) {
 							printPrompt();
-							printCursorAt(lastPromptIndex);
+							moveCursorTo(lastPromptIndex);
 						}
 						showCursor();
 						ignoreScrollEvent = true;
@@ -445,7 +447,7 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 									printMessage(tmp, false);
 								}
 							}
-							printCursorAtEnd();
+							moveCursorToEnd();
 							startTimer();
 							break;
 						case KeyEvent.VK_ENTER:
@@ -475,7 +477,7 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 								}
 							}
 							printMessage("", true);
-							printCursorAtEnd();
+							moveCursorToEnd();
 							startTimer();
 							break;
 						case KeyEvent.VK_BACK_SPACE:
@@ -490,7 +492,7 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 								stopTimer();
 								hideCursor();
 								if (cursorPosition < getOffset()) {
-									printCursorAt(cursorPosition + 1);
+									moveCursorTo(cursorPosition + 1);
 								}
 								showCursor();
 								startTimer();
@@ -503,7 +505,7 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 								stopTimer();
 								hideCursor();
 								if (cursorPosition > lastPromptIndex) {
-									printCursorAt(cursorPosition - 1);
+									moveCursorTo(cursorPosition - 1);
 								}
 								showCursor();
 								startTimer();
@@ -614,7 +616,7 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 		JMenuItem selectCommandMenu = new JMenuItem("Select current line");
 		selectCommandMenu.addMouseListener(new MouseAdapter() {
 			public void mouseReleased(MouseEvent event) {
-				outputArea.setSelectionStart(lastPromptIndex - 1);
+				outputArea.setSelectionStart(lastPromptIndex);
 				outputArea.setSelectionEnd(getOffset());
 			}
 		});
@@ -651,7 +653,7 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 			printMessage(lastIncompleteCommand.toString().trim(), true);
 		} else
 			printPrompt();
-		printCursorAtEnd();
+		moveCursorToEnd();
 		setFocus();
 		startTimer();
 	}
