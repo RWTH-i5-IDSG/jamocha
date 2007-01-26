@@ -17,6 +17,7 @@
 package org.jamocha.gui.tab;
 
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 
 import org.jamocha.gui.JamochaGui;
 
@@ -53,20 +54,27 @@ public abstract class AbstractJamochaPanel extends JPanel {
 	 * 
 	 */
 	public void setFocus() {
-		requestFocus();
+		SwingUtilities.invokeLater(new Runnable() {
+
+			public void run() {
+				AbstractJamochaPanel.this.requestFocus();
+			}
+
+		});
 	}
 
 	/**
 	 * This function is called when the gui is closed and must be implemented by
-	 * every class that extends this class. Here all the necessary cleanup should be done
-	 * when closing the gui.
+	 * every class that extends this class. Here all the necessary cleanup
+	 * should be done when closing the gui.
 	 * 
 	 */
 	public abstract void close();
-	
+
 	/**
-	 * This function will be called by the gui whenever settings are changed in the SettingsPanel.
-	 *
+	 * This function will be called by the gui whenever settings are changed in
+	 * the SettingsPanel.
+	 * 
 	 */
 	public abstract void settingsChanged();
 

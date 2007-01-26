@@ -22,6 +22,8 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.AdjustmentEvent;
+import java.awt.event.AdjustmentListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.KeyAdapter;
@@ -36,6 +38,8 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -62,19 +66,33 @@ import org.jamocha.rete.Constants;
  * @author Alexander Wilden <october.rust@gmx.de>
  */
 public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
-		FocusListener {
+		FocusListener, AdjustmentListener {
 
 	private static final long serialVersionUID = 1777454004380892575L;
 
 	/**
-	 * Flag for the ChannelListener to know if it should be running.
+	 * Flag for the ChannelListener and the eventThread to know if they should
+	 * go on working.
 	 */
 	private boolean running = true;
+
+	/**
+	 * The Queue for incoming KeyEvents. We process them in an own Thread to
+	 * prevent strange, concurrent behaviours.
+	 */
+	private Queue<KeyEvent> keyEventQueue = new ConcurrentLinkedQueue<KeyEvent>();
 
 	/**
 	 * The Area to display our keypresses and results from the engine.
 	 */
 	private JTextArea outputArea;
+
+	/**
+	 * The scrollpane for the outputArea.
+	 */
+	private JScrollPane scrollPane;
+
+	private boolean ignoreScrollEvent = false;
 
 	/**
 	 * The Button that clears the console window.
@@ -97,23 +115,17 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 	 */
 	private List<String> history = new LinkedList<String>();
 
-	/**
-	 * This is the position to where it is possible to delete characters. This
-	 * could either be the prompt itself or the beginning of a new line. Lines
-	 * above the current line cannot be edited anymore because they are
-	 * immediately send to the Rete engine.
-	 */
 	private int lastPromptIndex = 0;
 
-	private final String[] promptEnds = { "|", "" };
+	private static final String SHELL_CURSOR = "\u220E";
 
-	private final int promptDelay = 500;
+	private int cursorPosition = 0;
 
-	private Timer promptEndTimer;
+	private String cursorSubString = "";
 
-	private int promptEndIndex = 0;
+	private Timer cursorTimer = new Timer(500, this);
 
-	private boolean hasFocus = false;
+	private boolean cursorShowing = false;
 
 	/**
 	 * The Shells channel to the Rete engine.
@@ -124,11 +136,6 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 	 * The Writer we use to write to the channel via a PipedIn(Out)putStream.
 	 */
 	private Writer outWriter;
-
-	/**
-	 * Buffer for the current line content.
-	 */
-	private StringBuilder buffer = new StringBuilder();
 
 	/**
 	 * A Buffer for the last command, that wasn't send to the engine in total.
@@ -154,14 +161,15 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 		outputArea.setEditable(false);
 		outputArea.setLineWrap(true);
 		outputArea.setWrapStyleWord(true);
+		outputArea.addFocusListener(this);
 		// set the font and the colors
 		settingsChanged();
 		this.addFocusListener(this);
 		// create a scroll pane to embedd the output area
-		JScrollPane scrollPane = new JScrollPane(outputArea,
+		scrollPane = new JScrollPane(outputArea,
 				JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
 				JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-
+		scrollPane.getVerticalScrollBar().addAdjustmentListener(this);
 		// Assemble the GUI
 		setLayout(new BorderLayout());
 		add(scrollPane, BorderLayout.CENTER);
@@ -188,6 +196,10 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 		channel = gui.getEngine().getMessageRouter().openChannel("JamochaGui",
 				inStream);
 
+		printPrompt();
+		printCursorAtEnd();
+		startTimer();
+
 		// initialize the channellistener for outputs from the engine
 		initChannelListener();
 
@@ -196,48 +208,104 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 
 		// initialize the mouselistener for the context menu
 		initPopupMenu();
-
-		promptEndTimer = new Timer(promptDelay, this);
 	}
 
 	/**
 	 * Prints the prompt in the outputArea.
 	 * 
 	 */
-	private void printPrompt() {
+	private synchronized void printPrompt() {
 		outputArea.append(Constants.SHELL_PROMPT);
 		lastPromptIndex = getOffset();
 		outputArea.setCaretPosition(outputArea.getDocument().getLength());
 	}
 
-	private synchronized void printPromptEnd() {
-		outputArea.append(promptEnds[promptEndIndex]);
-	}
-
-	private synchronized void nextPromptEnd() {
-		promptEndTimer.stop();
-		removePromptEnd();
-		promptEndIndex = (promptEndIndex + 1) % promptEnds.length;
-		printPromptEnd();
-		promptEndTimer.start();
-	}
-
-	private synchronized void removePromptEnd() {
-		outputArea.replaceRange("", getOffsetWithoutPromptEnd(), getOffset());
-	}
-
-	/**
-	 * Prints a new line in the outputArea using the systemspecific line
-	 * separator.
-	 * 
-	 */
-	private void printNewLine(boolean printPromptEnd) {
-		outputArea.append(System.getProperty("line.separator"));
-		if (printPromptEnd) {
-			printPromptEnd();
+	private synchronized void printMessage(String message, boolean lineBreak) {
+		if (lineBreak) {
+			message += System.getProperty("line.separator");
 		}
-		lastPromptIndex = getOffset();
-		outputArea.setCaretPosition(outputArea.getDocument().getLength());
+		outputArea.insert(message, cursorPosition);
+
+		cursorPosition = cursorPosition + message.length();
+		if (lineBreak) {
+			lastPromptIndex = getOffset();
+		}
+	}
+
+	private synchronized void printCursorAtEnd() {
+		printCursorAt(getOffset());
+	}
+
+	private synchronized void printCursorAt(int newPosition) {
+		hideCursor();
+		cursorPosition = newPosition;
+		showCursor();
+	}
+
+	private synchronized void showCursor() {
+		if (!cursorShowing) {
+			int currOffset = getOffset();
+			if (currOffset >= (cursorPosition + SHELL_CURSOR.length())) {
+				try {
+					cursorSubString = outputArea.getText(cursorPosition,
+							SHELL_CURSOR.length());
+				} catch (BadLocationException e) {
+					// Shouldn't happen
+					e.printStackTrace();
+				}
+				outputArea.replaceRange(SHELL_CURSOR, cursorPosition,
+						cursorPosition + cursorSubString.length());
+			} else {
+				int offset = currOffset - cursorPosition;
+				if (offset < 0)
+					offset = 0;
+				try {
+					cursorSubString = outputArea
+							.getText(cursorPosition, offset);
+				} catch (BadLocationException e) {
+					// Shouldn't happen
+					e.printStackTrace();
+				}
+				outputArea.replaceRange(SHELL_CURSOR, cursorPosition,
+						cursorPosition + offset);
+			}
+		}
+		cursorShowing = true;
+	}
+
+	private synchronized void hideCursor() {
+		if (cursorShowing) {
+			try {
+				outputArea.replaceRange(cursorSubString, cursorPosition,
+						cursorPosition + SHELL_CURSOR.length());
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		cursorShowing = false;
+	}
+
+	private synchronized void removeChar() {
+		stopTimer();
+		hideCursor();
+		outputArea.replaceRange("", cursorPosition - 1, cursorPosition);
+		cursorPosition--;
+		showCursor();
+		startTimer();
+	}
+
+	private synchronized void removeLine() {
+		outputArea.replaceRange("", lastPromptIndex, getOffset());
+		cursorPosition = getOffset();
+	}
+
+	private synchronized void startTimer() {
+		if (!cursorTimer.isRunning())
+			cursorTimer.start();
+	}
+
+	private synchronized void stopTimer() {
+		cursorTimer.stop();
 	}
 
 	/**
@@ -254,18 +322,12 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 			public void run() {
 				List<MessageEvent> msgEvents = new ArrayList<MessageEvent>();
 				boolean printPrompt = false;
-				boolean firstEvent = true;
-				printPrompt();
 
 				while (running) {
 					channel.fillEventList(msgEvents);
 					if (!msgEvents.isEmpty()) {
-						// delete the old promptEnd
-						if (firstEvent) {
-							outputArea.replaceRange("",
-									getOffsetWithoutPromptEnd(), getOffset());
-							firstEvent = false;
-						}
+						stopTimer();
+						StringBuilder buffer = new StringBuilder();
 						for (MessageEvent event : msgEvents) {
 							if (event.getType() == MessageEvent.PARSE_ERROR
 									|| event.getType() == MessageEvent.ERROR
@@ -275,25 +337,29 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 								lastIncompleteCommand = new StringBuilder();
 							}
 							if (event.getType() == MessageEvent.ERROR) {
-								outputArea.append(exceptionToString(
-										(Exception) event.getMessage()).trim());
-								printNewLine(false);
+								buffer.append(exceptionToString(
+										(Exception) event.getMessage()).trim()
+										+ System.getProperty("line.separator"));
 							}
 							if (event.getType() != MessageEvent.COMMAND
 									&& !event.getMessage().toString()
 											.equals("")) {
-								outputArea.append(event.getMessage().toString()
-										.trim());
-								printNewLine(false);
+								buffer.append(event.getMessage().toString()
+										.trim()
+										+ System.getProperty("line.separator"));
 							}
 						}
 						msgEvents.clear();
+						hideCursor();
+						printMessage(buffer.toString().trim(), true);
 						if (printPrompt) {
 							printPrompt();
-							printPromptEnd();
-							firstEvent = true;
+							printCursorAt(lastPromptIndex);
 						}
+						showCursor();
+						ignoreScrollEvent = true;
 						printPrompt = false;
+						startTimer();
 					} else {
 						try {
 							Thread.sleep(10);
@@ -305,7 +371,7 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 				try {
 					outWriter.close();
 				} catch (IOException e) {
-					// we silently ignore it bec
+					// we silently ignore it
 					e.printStackTrace();
 				}
 				gui.getEngine().getMessageRouter().closeChannel(channel);
@@ -338,139 +404,185 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 	private void initKeyListener() {
 		KeyAdapter adapter = new KeyAdapter() {
 			public void keyPressed(KeyEvent e) {
-				int delta = 1;
-				switch (e.getKeyCode()) {
-				case KeyEvent.VK_DOWN:
-				case KeyEvent.VK_KP_DOWN:
-					delta = -1;
-				case KeyEvent.VK_UP:
-				case KeyEvent.VK_KP_UP:
-					promptEndTimer.stop();
-					// Here we walk through the history
-					history_offset += delta;
-					if (history_offset <= 0) {
-						history_offset = 0;
-						// System.out.println(lastPromptIndex + " " +
-						// getOffset());
-						if ((lastPromptIndex - 1) < getOffset()) {
-							outputArea.replaceRange("", lastPromptIndex - 1,
-									getOffset());
-						}
-						buffer = new StringBuilder();
-					} else {
-						if (history_offset > history.size()) {
-							history_offset = history.size();
-						}
-						if ((lastPromptIndex - 1) < getOffset()) {
-							outputArea.replaceRange("", lastPromptIndex - 1,
-									getOffset());
-						}
-						int index = history.size() - history_offset;
-						if (index >= 0 && history.size() > 0) {
-							buffer = new StringBuilder(history.get(index));
-							outputArea.insert(buffer.toString(), getOffset());
-							printPromptEnd();
-						}
-					}
-					promptEndTimer.start();
-					break;
-				case KeyEvent.VK_ENTER:
-					// we don't add empty lines to the history
-					if (buffer.length() > 0) {
-						try {
-							lastIncompleteCommand.append(buffer.toString()
-									+ System.getProperty("line.separator"));
-							outWriter.write(buffer.toString());
-							outWriter.flush();
-						} catch (IOException e1) {
-							e1.printStackTrace();
-						}
-						addToHistory(buffer.toString());
-						// delete the old promptEnd
-						removePromptEnd();
-						printNewLine(true);
-						buffer = new StringBuilder();
-					}
-					break;
-				case KeyEvent.VK_BACK_SPACE:
-					if (getOffsetWithoutPromptEnd() > lastPromptIndex) {
-						// move the offset because of the promptEnd
-						int offset = getOffsetWithoutPromptEnd();
-						outputArea.replaceRange("", offset - 1, offset);
-						buffer.deleteCharAt(buffer.length() - 1);
-					}
-					break;
-				// ignore special keys
-				case KeyEvent.VK_RIGHT:
-				case KeyEvent.VK_KP_RIGHT:
-				case KeyEvent.VK_LEFT:
-				case KeyEvent.VK_KP_LEFT:
-				case KeyEvent.VK_ALT:
-				case KeyEvent.VK_CONTROL:
-				case KeyEvent.VK_META:
-				case KeyEvent.VK_SHIFT:
-					break;
-				default:
-					if (!e.isControlDown() && !e.isMetaDown()) {
-						// simple character
-						outputArea.insert("" + e.getKeyChar(),
-								getOffsetWithoutPromptEnd());
-						buffer.append(e.getKeyChar());
-					} else {
-						// paste from clipboard
-						if (e.getKeyChar() == 'v'
-								|| e.getKeyCode() == KeyEvent.VK_V) {
-							String clipContent = ClipboardUtil.getInstance()
-									.getClipboardContents();
-							if (clipContent != null) {
-								outputArea.insert(clipContent,
-										getOffsetWithoutPromptEnd());
-								buffer.append(clipContent);
-							}
-						}
-						// copy to clipboard
-						else if (e.getKeyChar() == 'c'
-								|| e.getKeyCode() == KeyEvent.VK_C) {
-							ClipboardUtil.getInstance().setClipboardContents(
-									outputArea.getSelectedText());
-						}
-					}
-					break;
-				}
-				e.consume();
-			}
-
-			/**
-			 * A function that safely adds single lines to the history. If a
-			 * String contains more than one line it will be splitted line by
-			 * line.
-			 * 
-			 * If the history size is greater than history_max_size we remove
-			 * elements that are old and too much.
-			 * 
-			 * @param historyString
-			 *            The String that should be added to the history.
-			 */
-			private void addToHistory(String historyString) {
-				String[] lines = historyString.split(System
-						.getProperty("line.separator"));
-				for (int i = 0; i < lines.length; ++i) {
-					if (!lines[i].equals("")) {
-						history.add(lines[i]);
-					}
-				}
-				// remove items as long as there are too much of them
-				// and a valid history_max_size is set
-				while (history.size() > history_max_size
-						&& history_max_size >= 0) {
-					history.remove(0);
-				}
-				// reset the history index after a command
-				history_offset = 0;
+				keyEventQueue.offer(e);
 			}
 		};
 		addKeyListener(adapter);
 		outputArea.addKeyListener(adapter);
+
+		Thread eventThread = new Thread() {
+
+			public void run() {
+				while (running) {
+					if (!keyEventQueue.isEmpty()) {
+						KeyEvent e = keyEventQueue.poll();
+						int delta = 1;
+						switch (e.getKeyCode()) {
+						case KeyEvent.VK_DOWN:
+						case KeyEvent.VK_KP_DOWN:
+							delta = -1;
+						case KeyEvent.VK_UP:
+						case KeyEvent.VK_KP_UP:
+							stopTimer();
+							hideCursor();
+							// Here we walk through the history
+							history_offset += delta;
+							if (history_offset <= 0) {
+								history_offset = 0;
+								if (lastPromptIndex < getOffset()) {
+									removeLine();
+								}
+							} else {
+								if (history_offset > history.size()) {
+									history_offset = history.size();
+								}
+								if (lastPromptIndex < getOffset()) {
+									removeLine();
+								}
+								int index = history.size() - history_offset;
+								if (index >= 0 && history.size() > 0) {
+									String tmp = history.get(index);
+									printMessage(tmp, false);
+								}
+							}
+							printCursorAtEnd();
+							startTimer();
+							break;
+						case KeyEvent.VK_ENTER:
+							stopTimer();
+							hideCursor();
+							if (lastPromptIndex < getOffset()) {
+								String currLine = "";
+								try {
+									try {
+										currLine = outputArea.getText(
+												lastPromptIndex, getOffset()
+														- lastPromptIndex);
+									} catch (BadLocationException e1) {
+										e1.printStackTrace();
+									}
+									lastIncompleteCommand
+											.append(currLine
+													+ System
+															.getProperty("line.separator"));
+									if (currLine.length() > 0) {
+										addToHistory(currLine);
+										outWriter.write(currLine);
+										outWriter.flush();
+									}
+								} catch (IOException e1) {
+									e1.printStackTrace();
+								}
+							}
+							printMessage("", true);
+							printCursorAtEnd();
+							startTimer();
+							break;
+						case KeyEvent.VK_BACK_SPACE:
+							if (cursorPosition > lastPromptIndex) {
+								removeChar();
+							}
+							break;
+						// Moving the Cursor in the current line
+						case KeyEvent.VK_RIGHT:
+						case KeyEvent.VK_KP_RIGHT:
+							if (!e.isShiftDown()) {
+								stopTimer();
+								hideCursor();
+								if (cursorPosition < getOffset()) {
+									printCursorAt(cursorPosition + 1);
+								}
+								showCursor();
+								startTimer();
+							}
+							break;
+
+						case KeyEvent.VK_LEFT:
+						case KeyEvent.VK_KP_LEFT:
+							if (!e.isShiftDown()) {
+								stopTimer();
+								hideCursor();
+								if (cursorPosition > lastPromptIndex) {
+									printCursorAt(cursorPosition - 1);
+								}
+								showCursor();
+								startTimer();
+							}
+							break;
+						// ignore special keys
+						case KeyEvent.VK_ALT:
+						case KeyEvent.VK_CONTROL:
+						case KeyEvent.VK_META:
+						case KeyEvent.VK_SHIFT:
+							break;
+						default:
+							if (!e.isControlDown() && !e.isMetaDown()) {
+								// simple character
+								printMessage(String.valueOf(e.getKeyChar()),
+										false);
+							} else {
+								// paste from clipboard
+								if (e.getKeyChar() == 'v'
+										|| e.getKeyCode() == KeyEvent.VK_V) {
+									String clipContent = ClipboardUtil
+											.getInstance()
+											.getClipboardContents();
+									if (clipContent != null) {
+										printMessage(clipContent, false);
+									}
+								}
+								// copy to clipboard
+								else if (e.getKeyChar() == 'c'
+										|| e.getKeyCode() == KeyEvent.VK_C) {
+									ClipboardUtil.getInstance()
+											.setClipboardContents(
+													outputArea
+															.getSelectedText());
+								}
+							}
+							break;
+						}
+						e.consume();
+						ignoreScrollEvent = true;
+						startTimer();
+					} else {
+						try {
+							Thread.sleep(20);
+						} catch (InterruptedException e) {
+							// ignored
+						}
+					}
+				}
+			}
+		};
+		eventThread.start();
+	}
+
+	/**
+	 * A function that safely adds single lines to the history. If a String
+	 * contains more than one line it will be splitted line by line.
+	 * 
+	 * If the history size is greater than history_max_size we remove elements
+	 * that are old and too much.
+	 * 
+	 * @param historyString
+	 *            The String that should be added to the history.
+	 */
+	private void addToHistory(String historyString) {
+		String[] lines = historyString.split(System
+				.getProperty("line.separator"));
+		for (int i = 0; i < lines.length; ++i) {
+			if (!lines[i].equals("")) {
+				history.add(lines[i]);
+			}
+		}
+		// remove items as long as there are too much of them
+		// and a valid history_max_size is set
+		while (history.size() > history_max_size && history_max_size >= 0) {
+			history.remove(0);
+		}
+		// reset the history index after a command
+		history_offset = 0;
 	}
 
 	/**
@@ -495,8 +607,7 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 				String clipContent = ClipboardUtil.getInstance()
 						.getClipboardContents();
 				if (clipContent != null) {
-					outputArea.insert(clipContent, getOffsetWithoutPromptEnd());
-					buffer.append(clipContent);
+					printMessage(clipContent, false);
 				}
 			}
 		});
@@ -504,7 +615,7 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 		selectCommandMenu.addMouseListener(new MouseAdapter() {
 			public void mouseReleased(MouseEvent event) {
 				outputArea.setSelectionStart(lastPromptIndex - 1);
-				outputArea.setSelectionEnd(getOffsetWithoutPromptEnd());
+				outputArea.setSelectionEnd(getOffset());
 			}
 		});
 		JMenuItem selectAllMenu = new JMenuItem("Select all");
@@ -528,19 +639,21 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 	 * already in the channel these commandparts will be printed again.
 	 * 
 	 */
-	private void clearArea() {
-		outputArea.replaceRange("", 0, getOffset());
-		buffer = new StringBuilder();
-		printPrompt();
-		setFocus();
+	private synchronized void clearArea() {
+		stopTimer();
+		hideCursor();
+		outputArea.setText("");
+		lastPromptIndex = 0;
+		cursorPosition = 0;
 		if (lastIncompleteCommand.length() > 0) {
-			// delete the old promptEnd
-			outputArea.replaceRange("", getOffsetWithoutPromptEnd(),
-					getOffset());
-			outputArea.append(lastIncompleteCommand.toString().trim());
-			printNewLine(false);
 			printPrompt();
-		}
+			cursorPosition = getOffset();
+			printMessage(lastIncompleteCommand.toString().trim(), true);
+		} else
+			printPrompt();
+		printCursorAtEnd();
+		setFocus();
+		startTimer();
 	}
 
 	/**
@@ -557,10 +670,6 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 		return 0;
 	}
 
-	private synchronized int getOffsetWithoutPromptEnd() {
-		return getOffset() - promptEnds[promptEndIndex].length();
-	}
-
 	/**
 	 * Sets the focus of this panel and by this sets the focus to the outputArea
 	 * so that the user doesn't have to click on it before he can start typing.
@@ -568,13 +677,8 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 	 */
 	@Override
 	public void setFocus() {
-		SwingUtilities.invokeLater(new Runnable() {
-
-			public void run() {
-				ShellPanel.this.requestFocus();
-			}
-
-		});
+		super.setFocus();
+		ignoreScrollEvent = true;
 	}
 
 	/**
@@ -583,7 +687,7 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 	 */
 	@Override
 	public void close() {
-		promptEndTimer.stop();
+		stopTimer();
 		running = false;
 	}
 
@@ -605,30 +709,43 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 	 * Catches events for Buttons and the Timer in this Panel.
 	 */
 	public void actionPerformed(ActionEvent event) {
-		// System.out.println(event);
 		if (event.getSource().equals(clearButton)) {
 			clearArea();
-		} else if (event.getSource().equals(promptEndTimer)) {
-			// System.out.println(outputArea.getCaretPosition() + "|" +
-			// getOffset());
-			nextPromptEnd();
+		} else if (event.getSource().equals(cursorTimer)) {
+			if (cursorShowing) {
+				hideCursor();
+			} else {
+				showCursor();
+			}
 		}
 	}
 
 	public void focusGained(FocusEvent event) {
-		if (!hasFocus) {
-			printPromptEnd();
-			promptEndTimer.start();
-			hasFocus = true;
+		if (event.getSource() == this || event.getSource() == outputArea) {
+			SwingUtilities.invokeLater(new Runnable() {
+				public void run() {
+					showCursor();
+					startTimer();
+				}
+			});
 		}
 	}
 
 	public void focusLost(FocusEvent event) {
-		if (hasFocus) {
-			promptEndTimer.stop();
-			removePromptEnd();
-			hasFocus = false;
+		if (event.getSource() == this || event.getSource() == outputArea) {
+			SwingUtilities.invokeLater(new Runnable() {
+				public void run() {
+					stopTimer();
+					hideCursor();
+				}
+			});
 		}
+	}
+
+	public void adjustmentValueChanged(AdjustmentEvent event) {
+		if (!ignoreScrollEvent)
+			stopTimer();
+		ignoreScrollEvent = false;
 	}
 
 }
