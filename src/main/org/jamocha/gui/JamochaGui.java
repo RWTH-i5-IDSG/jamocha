@@ -26,6 +26,8 @@ import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
 import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -77,6 +79,11 @@ public class JamochaGui extends JFrame implements ChangeListener {
 		this.setTitle("Jamocha");
 		setSizeAndLocation();
 
+		// show logo
+		JPanel logoPanel = new JPanel(new BorderLayout());
+		logoPanel.add(new JLabel(IconLoader.getImageIcon("jamocha")),BorderLayout.EAST);
+		this.add(logoPanel, BorderLayout.NORTH);
+		
 		// create a tabbed pane
 		tabbedPane = new JTabbedPane();
 		this.add(tabbedPane, BorderLayout.CENTER);

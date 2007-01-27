@@ -43,6 +43,7 @@ import org.jamocha.gui.TableMap;
 import org.jamocha.gui.TableSorter;
 import org.jamocha.gui.editor.FactEditor;
 import org.jamocha.gui.icons.IconLoader;
+import org.jamocha.messagerouter.InterestType;
 import org.jamocha.messagerouter.StringChannel;
 import org.jamocha.rete.Fact;
 import org.jamocha.rete.MultiSlot;
@@ -173,7 +174,7 @@ public class FactsPanel extends AbstractJamochaPanel implements ActionListener,
 			FactEditor editor = new FactEditor(gui.getEngine());
 			if (editorChannel == null)
 				editorChannel = gui.getEngine().getMessageRouter().openChannel(
-						"facteditor_channel");
+						"facteditor_channel", InterestType.NONE);
 			editor.setStringChannel(editorChannel);
 			editor.init();
 		}

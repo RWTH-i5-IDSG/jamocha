@@ -202,9 +202,6 @@ public class FactEditor extends AbstractJamochaEditor implements
 	}
 
 	private void initFactEditPanel() {
-		// (deftemplate wurst(slot name)(slot size)(multislot clients))
-		// (deftemplate bla(slot x1(slot x2)(slot x3)(slot x4)(slot x5)(slot
-		// x6)(slot x7)(slot x8)(slot x9)(multislot x10))
 		factComponents.clear();
 		GridBagLayout gridbag = new GridBagLayout();
 		GridBagConstraints c = new GridBagConstraints();
@@ -300,25 +297,8 @@ public class FactEditor extends AbstractJamochaEditor implements
 
 	public void actionPerformed(ActionEvent event) {
 		if (event.getSource() == assertButton) {
-			channel.executeCommand(getCurrentFactAssertionString(false), true);
-			List<MessageEvent> results = new LinkedList<MessageEvent>();
-			channel.fillEventList(results);
-			StringBuilder buffer = new StringBuilder();
-			for (MessageEvent mevent : results) {
-				if (mevent.getMessage() instanceof Function) {
-					buffer.append(((Function) mevent.getMessage()).getName()
-							+ System.getProperty("line.separator"));
-				} else
-					buffer.append(mevent.getMessage()
-							+ System.getProperty("line.separator"));
-			}
-			JDialog dialog = new JDialog(this, "Result:");
-			dialog.setSize(400, 300);
-			dialog.setLocationByPlatform(true);
-			JTextArea area = new JTextArea(buffer.toString());
-			area.setEditable(false);
-			dialog.add(new JScrollPane(area));
-			dialog.setVisible(true);
+			channel.executeCommand(getCurrentFactAssertionString(false));
+			JOptionPane.showMessageDialog(this, "Assertion done.\nPlease check the log for Messages.");
 		} else if (event.getSource() == backButton) {
 			if (step > 0) {
 				step--;
