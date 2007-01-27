@@ -433,7 +433,7 @@ public class CLIPSParser implements CLIPSParserConstants {
     dffunc = new Deffunction();
     dffunc.setName(exp2.image);
     dffunc.setParameters(ParameterUtils.convertParameters(list));
-    dffunc.setFunctions((Function)infunc);
+    dffunc.setFunction((Function)infunc);
     list.clear();
     {if (true) return dffunc;}
       break;

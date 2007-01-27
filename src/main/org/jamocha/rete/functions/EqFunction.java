@@ -51,7 +51,7 @@ public class EqFunction implements Function, Serializable {
 
 	public ReturnVector executeFunction(Rete engine, Parameter[] params) {
 		DefaultReturnVector ret = new DefaultReturnVector();
-		boolean eq = true;
+		boolean eq = false;
 		if (params != null && params.length > 1) {
 			Object first = null;
 			if (params[0] instanceof ValueParam) {
@@ -67,30 +67,32 @@ public class EqFunction implements Function, Serializable {
 				ReturnVector rval = (ReturnVector) n.getValue();
 				first = rval.firstReturnValue().getValue();
 			}
+            boolean eval = true;
 			for (int idx = 1; idx < params.length; idx++) {
-				Object other = null;
+				Object right = null;
 				if (params[idx] instanceof ValueParam) {
 					ValueParam n = (ValueParam) params[idx];
-					other = n.getValue();
+                    right = n.getValue();
 				} else if (params[idx] instanceof BoundParam) {
 					BoundParam bp = (BoundParam) params[idx];
-					other = (BigDecimal) engine
+                    right = engine
 							.getBinding(bp.getVariableName());
 				} else if (params[idx] instanceof FunctionParam2) {
 					FunctionParam2 n = (FunctionParam2) params[idx];
 					n.setEngine(engine);
 					n.lookUpFunction();
 					ReturnVector rval = (ReturnVector) n.getValue();
-					other = rval.firstReturnValue().getValue();
+                    right = rval.firstReturnValue().getValue();
 				}
-				if (! //
-						((first == null && other == null)
-						|| // 
-						(first != null && first.equals(other)))) {
-					eq = false;
+				if (first == null && right != null) {
+                    eval = false;
+                    break;
+                } else if (first != null && !first.equals(right)) {
+					eval = false;
 					break;
 				}
 			}
+            eq = eval;
 		}
 		DefaultReturnValue rv = new DefaultReturnValue(
 				Constants.BOOLEAN_OBJECT, new Boolean(eq));

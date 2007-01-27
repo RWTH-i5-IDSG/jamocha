@@ -16,6 +16,8 @@
  */
 package org.jamocha.rete.functions;
 
+import org.jamocha.rete.Constants;
+import org.jamocha.rete.DefaultReturnValue;
 import org.jamocha.rete.DefaultReturnVector;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
@@ -35,7 +37,7 @@ public class Deffunction implements Function {
     protected String name = null;
     protected String ppString = null;
     protected Parameter[] parameters = null;
-    protected Function functions = null;
+    protected Function function = null;
     protected Class[] functionParams = null;
     protected int returnType;
     
@@ -47,6 +49,21 @@ public class Deffunction implements Function {
 
     public ReturnVector executeFunction(Rete engine, Parameter[] params) {
         DefaultReturnVector ret = new DefaultReturnVector();
+        boolean add = false;
+        if (engine.findFunction(this.name) == null) {
+            // first we get the actual function from the shell function
+            ShellFunction sf = (ShellFunction)this.function;
+            Function f = engine.findFunction(sf.getName());
+            InterpretedFunction intrfunc = new InterpretedFunction(this.name,
+                    this.parameters, f, sf.getParameters());
+            intrfunc.configureFunction(engine);
+            engine.declareFunction(intrfunc);
+            add = true;
+        }
+        
+        DefaultReturnValue rv = new DefaultReturnValue(
+                Constants.BOOLEAN_OBJECT, new Boolean(add));
+        ret.addReturnValue(rv);
         return ret;
     }
 
@@ -74,12 +91,12 @@ public class Deffunction implements Function {
         return this.ppString;
     }
 
-    public Function getFunctions() {
-        return functions;
+    public Function getFunction() {
+        return function;
     }
 
-    public void setFunctions(Function functions) {
-        this.functions = functions;
+    public void setFunction(Function functions) {
+        this.function = functions;
     }
 
     public Parameter[] getParameters() {
@@ -89,5 +106,4 @@ public class Deffunction implements Function {
     public void setParameters(Parameter[] parameters) {
         this.parameters = parameters;
     }
-
 }

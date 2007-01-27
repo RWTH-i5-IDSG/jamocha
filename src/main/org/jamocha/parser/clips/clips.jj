@@ -470,7 +470,7 @@ Object expr() :
     dffunc = new Deffunction();
     dffunc.setName(exp2.image);
     dffunc.setParameters(ParameterUtils.convertParameters(list));
-    dffunc.setFunctions((Function)infunc);
+    dffunc.setFunction((Function)infunc);
     list.clear();
     return dffunc;
   }

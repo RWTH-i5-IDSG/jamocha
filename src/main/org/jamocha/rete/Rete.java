@@ -40,6 +40,7 @@ import org.jamocha.rete.functions.BatchFunction;
 import org.jamocha.rete.functions.BooleanFunctions;
 import org.jamocha.rete.functions.IOFunctions;
 import org.jamocha.rete.functions.IfFunction;
+import org.jamocha.rete.functions.InterpretedFunction;
 import org.jamocha.rete.functions.MathFunctions;
 import org.jamocha.rete.functions.RuleEngineFunctions;
 import org.jamocha.rete.functions.StringFunctions;
@@ -164,6 +165,8 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 	private boolean debug = false;
 
 	private Rule activeRule = null;
+    
+    private InterpretedFunction intrFunction = null;
 
 	private boolean watchFact = false;
 
@@ -808,6 +811,8 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 	public Object getBinding(String name) {
 		if (this.activeRule != null && !name.startsWith("*")) {
 			return this.activeRule.getBindingValue(name);
+        } else if (this.intrFunction != null) {
+            return this.intrFunction.getBinding(name);
 		} else {
 			return getDefglobalValue(name);
 		}
@@ -831,6 +836,10 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 		}
 	}
 
+    public void setInterpretedFunction(InterpretedFunction f) {
+        this.intrFunction = f;
+    }
+    
 	/**
 	 * set the focus to a different module
 	 * 
