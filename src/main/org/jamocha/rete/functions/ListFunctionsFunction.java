@@ -49,7 +49,7 @@ public class ListFunctionsFunction implements Function, Serializable {
 			// we iterate over the function groups and print out the
 			// functions in each group
 			FunctionGroup fg = (FunctionGroup) itr.next();
-			engine.writeMessage(fg.getName() + Constants.LINEBREAK, "t");
+			engine.writeMessage("++++ " + fg.getName() + " ++++" + Constants.LINEBREAK, "t");
 			Iterator listitr = fg.listFunctions().iterator();
 			while (listitr.hasNext()) {
 				Function f = (Function) listitr.next();
