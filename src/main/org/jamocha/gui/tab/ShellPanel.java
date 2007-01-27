@@ -287,13 +287,13 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 		cursorShowing = false;
 	}
 
-	private synchronized void removeChar() {
-		stopTimer();
-		hideCursor();
+	private synchronized void removeCharLeft() {
 		outputArea.replaceRange("", cursorPosition - 1, cursorPosition);
 		cursorPosition--;
-		showCursor();
-		startTimer();
+	}
+	
+	private synchronized void removeCharRight() {
+		outputArea.replaceRange("", cursorPosition, cursorPosition + 1);
 	}
 
 	private synchronized void removeLine() {
@@ -480,10 +480,25 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 							moveCursorToEnd();
 							startTimer();
 							break;
+						// delete a char on the left side of the cursor
 						case KeyEvent.VK_BACK_SPACE:
+							stopTimer();
+							hideCursor();
 							if (cursorPosition > lastPromptIndex) {
-								removeChar();
+								removeCharLeft();
 							}
+							showCursor();
+							startTimer();
+							break;
+						// delete a char on the right side of the cursor
+						case KeyEvent.VK_DELETE:
+							stopTimer();
+							hideCursor();
+							if (cursorPosition < getOffset()) {
+								removeCharRight();
+							}
+							showCursor();
+							startTimer();
 							break;
 						// Moving the Cursor in the current line
 						case KeyEvent.VK_RIGHT:
