@@ -90,7 +90,14 @@ public class FunctionParam2 extends AbstractParam {
      * for now just getting it to work.
      */
     public Object getValue(Rete engine, int valueType) {
-        return this.func.executeFunction(engine, this.params);
+        if (this.params != null) {
+            this.engine = engine;
+            lookUpFunction();
+            ReturnVector rval = this.func.executeFunction(engine,this.params);
+            return rval.firstReturnValue().getBigDecimalValue();
+        } else {
+            return null;
+        }
     }
     
 	public void reset() {

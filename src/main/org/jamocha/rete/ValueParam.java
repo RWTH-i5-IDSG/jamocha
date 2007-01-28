@@ -16,6 +16,8 @@
  */
 package org.jamocha.rete;
 
+import java.math.BigDecimal;
+
 /**
  * @author Peter Lin
  *
@@ -70,7 +72,11 @@ public class ValueParam extends AbstractParam {
      * returns it.
      */
     public Object getValue(Rete engine, int valueType) {
-        return this.value;
+        if (this.valueType == Constants.STRING_TYPE) {
+            return new BigDecimal((String)this.value);
+        } else {
+            return this.value;
+        }
     }
     
 	/**

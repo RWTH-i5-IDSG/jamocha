@@ -55,6 +55,10 @@ public class Add implements Function, Serializable {
 		BigDecimal bdval = new BigDecimal(0);
 		if (params != null) {
 			for (int idx = 0; idx < params.length; idx++) {
+                BigDecimal bd = (BigDecimal) params[idx].getValue(engine,
+                        Constants.BIG_DECIMAL);
+                bdval = bdval.add(bd);
+                /**
 				if (params[idx] instanceof ValueParam) {
 					ValueParam n = (ValueParam) params[idx];
 					BigDecimal bd = n.getBigDecimalValue();
@@ -71,7 +75,7 @@ public class Add implements Function, Serializable {
 					ReturnVector rval = (ReturnVector) n.getValue();
 					BigDecimal bd = rval.firstReturnValue().getBigDecimalValue();
 					bdval = bdval.add(bd);
-				}
+				}**/
 			}
 		}
 		DefaultReturnVector ret = new DefaultReturnVector();
