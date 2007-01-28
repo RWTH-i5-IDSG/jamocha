@@ -53,6 +53,14 @@ public class StringParam extends AbstractParam {
 		return this.value;
 	}
 
+    /**
+     * String parameters do not need to do any lookup, so it just
+     * returns the value.
+     */
+    public Object getValue(Rete engine, int valueType) {
+        return this.value;
+    }
+    
 	/**
 	 * implementation sets the value to null and the type to Object
 	 */

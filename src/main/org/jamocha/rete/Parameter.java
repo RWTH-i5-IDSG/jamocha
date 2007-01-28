@@ -34,4 +34,14 @@ public interface Parameter extends ReturnValue {
      * @return
      */
     boolean isObjectBinding();
+    /**
+     * Functions should use this method to get the value from the parameter.
+     * Each parameter type will have logic to return the correct value
+     * or throw an exception if the class can't implicitly cast the value
+     * to the target value type.
+     * @param engine
+     * @param valueType
+     * @return
+     */
+    Object getValue(Rete engine, int valueType);
 }

@@ -68,7 +68,14 @@ public class ShellBoundParam extends AbstractParam {
 		return this.value;
 	}
 
-	/**
+    /**
+     * the class will resolve the variable with the engine
+     */
+    public Object getValue(Rete engine, int valueType) {
+        return this.value = engine.getDefglobalValue(this.globalVarName);
+    }
+
+    /**
 	 * if the value was null, the method returns a message "defglobal
 	 * not found".
 	 */

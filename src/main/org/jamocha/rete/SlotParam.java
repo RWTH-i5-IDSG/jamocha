@@ -56,7 +56,15 @@ public class SlotParam extends AbstractParam {
 		return this.slot;
 	}
 
-	/* (non-Javadoc)
+    /**
+     * Slot parameter is only used internally, so normal user functions
+     * should not need to deal with slot parameters.
+     */
+    public Object getValue(Rete engine, int valueType) {
+        return this.slot;
+    }
+
+    /* (non-Javadoc)
 	 * @see woolfel.engine.rete.Parameter#reset()
 	 */
 	public void reset() {

@@ -65,6 +65,14 @@ public class ValueParam extends AbstractParam {
 		return this.value;
 	}
 
+    /**
+     * Value parameter don't need to resolve the value, so it just
+     * returns it.
+     */
+    public Object getValue(Rete engine, int valueType) {
+        return this.value;
+    }
+    
 	/**
 	 * implementation sets the value to null and the type to Object
 	 */

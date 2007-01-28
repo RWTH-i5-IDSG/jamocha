@@ -85,6 +85,14 @@ public class FunctionParam2 extends AbstractParam {
         }
 	}
 
+    /**
+     * TODO we may want to check the value type and throw and exception
+     * for now just getting it to work.
+     */
+    public Object getValue(Rete engine, int valueType) {
+        return this.func.executeFunction(engine, this.params);
+    }
+    
 	public void reset() {
 		this.engine = null;
 		this.params = null;

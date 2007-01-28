@@ -126,6 +126,17 @@ public class BoundParam extends AbstractParam {
 			return this.resolvedVal;
 		}
 	}
+    
+    /**
+     * method will try to resolve the variable and return the value.
+     */
+    public Object getValue(Rete engine, int valueType) {
+        if (fact != null) {
+            return this.fact.getSlotValue(this.column);
+        } else {
+            return engine.getBinding(this.variableName);
+        }
+    }
 	
 	public void setResolvedValue(Object val) {
 		this.resolvedVal = val;

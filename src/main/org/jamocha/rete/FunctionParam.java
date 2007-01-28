@@ -67,6 +67,12 @@ public class FunctionParam extends AbstractParam {
 		return this.value;
 	}
 
+    public Object getValue(Rete engine, int valueType) {
+        initParams();
+        value = this.func.executeFunction(engine,this.params);
+        return this.value;
+    }
+    
     /**
      * 
      * @param facts
