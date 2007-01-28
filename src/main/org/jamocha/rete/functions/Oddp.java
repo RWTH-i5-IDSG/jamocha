@@ -58,20 +58,7 @@ public class Oddp implements Function, Serializable {
 		BigDecimal bdval = new BigDecimal(0);
 		boolean eval = false;
 		if (params.length == 1) {
-			if (params[0] instanceof ValueParam) {
-				ValueParam n = (ValueParam) params[0];
-				bdval = n.getBigDecimalValue();
-			} else if (params[0] instanceof BoundParam) {
-				BoundParam bp = (BoundParam) params[0];
-				bdval = (BigDecimal) engine.getBinding(bp
-						.getVariableName());
-			} else if (params[0] instanceof FunctionParam2) {
-				FunctionParam2 n = (FunctionParam2) params[0];
-				n.setEngine(engine);
-				n.lookUpFunction();
-				ReturnVector rval = (ReturnVector) n.getValue();
-				bdval = rval.firstReturnValue().getBigDecimalValue();
-			}
+            bdval = (BigDecimal)params[0].getValue(engine, Constants.BIG_DECIMAL);
 			double bdh = bdval.doubleValue();
 			if (bdh % 2 == 1){
 				eval = true;
