@@ -55,35 +55,11 @@ public class Subtract implements Function, Serializable {
 	public ReturnVector executeFunction(Rete engine, Parameter[] params) {
 		BigDecimal bdval = null;
 		if (params != null) {
-			if (params[0] instanceof ValueParam) {
-				bdval = params[0].getBigDecimalValue();
-			} else if (params[0] instanceof BoundParam) {
-				BoundParam bp = (BoundParam)params[0];
-				bdval = (BigDecimal)engine.getBinding(bp.getVariableName());
-			} else if (params[0] instanceof FunctionParam2) {
-				FunctionParam2 n = (FunctionParam2) params[0];
-				n.setEngine(engine);
-				n.lookUpFunction();
-				ReturnVector rval = (ReturnVector)n.getValue();
-				bdval = rval.firstReturnValue().getBigDecimalValue();
-			} 
+            bdval = (BigDecimal)params[0].getValue(engine, Constants.BIG_DECIMAL);
 			for (int idx=1; idx < params.length; idx++) {
-				if (params[idx] instanceof ValueParam) {
-					ValueParam n = (ValueParam) params[idx];
-					BigDecimal bd = n.getBigDecimalValue();
-					bdval = bdval.subtract(bd);
-				} else if (params[idx] instanceof FunctionParam2) {
-					FunctionParam2 n = (FunctionParam2) params[idx];
-					n.setEngine(engine);
-					n.lookUpFunction();
-					ReturnVector rval = (ReturnVector)n.getValue();
-					BigDecimal bd = rval.firstReturnValue().getBigDecimalValue();
-					bdval = bdval.subtract(bd);
-				} else if (params[idx] instanceof BoundParam) {
-					BoundParam bp = (BoundParam)params[idx];
-					BigDecimal bd = (BigDecimal)engine.getBinding(bp.getVariableName());
-					bdval = bdval.subtract(bd);
-				}
+                BigDecimal bd = (BigDecimal) params[idx].getValue(engine,
+                        Constants.BIG_DECIMAL);
+                bdval = bdval.subtract(bd);
 			}
 		}
 		DefaultReturnVector ret = new DefaultReturnVector();

@@ -69,8 +69,8 @@ public class FunctionParam extends AbstractParam {
 
     public Object getValue(Rete engine, int valueType) {
         initParams();
-        value = this.func.executeFunction(engine,this.params);
-        return this.value;
+        ReturnVector rval = this.func.executeFunction(engine,this.params);
+        return rval.firstReturnValue().getBigDecimalValue();
     }
     
     /**

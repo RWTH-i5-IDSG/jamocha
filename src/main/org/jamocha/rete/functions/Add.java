@@ -58,24 +58,6 @@ public class Add implements Function, Serializable {
                 BigDecimal bd = (BigDecimal) params[idx].getValue(engine,
                         Constants.BIG_DECIMAL);
                 bdval = bdval.add(bd);
-                /**
-				if (params[idx] instanceof ValueParam) {
-					ValueParam n = (ValueParam) params[idx];
-					BigDecimal bd = n.getBigDecimalValue();
-					bdval = bdval.add(bd);
-				} else if (params[idx] instanceof BoundParam) {
-					BoundParam bp = (BoundParam) params[idx];
-					BigDecimal bd = (BigDecimal) engine.getBinding(bp
-							.getVariableName());
-					bdval = bdval.add(bd);
-				} else if (params[idx] instanceof FunctionParam2) {
-					FunctionParam2 n = (FunctionParam2) params[idx];
-					n.setEngine(engine);
-					n.lookUpFunction();
-					ReturnVector rval = (ReturnVector) n.getValue();
-					BigDecimal bd = rval.firstReturnValue().getBigDecimalValue();
-					bdval = bdval.add(bd);
-				}**/
 			}
 		}
 		DefaultReturnVector ret = new DefaultReturnVector();
