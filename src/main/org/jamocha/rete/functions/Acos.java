@@ -17,6 +17,7 @@
 package org.jamocha.rete.functions;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 
 import org.jamocha.rete.BoundParam;
 import org.jamocha.rete.Constants;
@@ -54,22 +55,9 @@ public class Acos implements Function, Serializable {
 		double dval = 0;
 		if (params != null) {
 			if (params.length == 1) {
-				if (params[0] instanceof ValueParam) {
-					ValueParam n = (ValueParam) params[0];
-					dval = n.getDoubleValue();
-					dval = java.lang.Math.acos(dval);
-				} else if (params[0] instanceof BoundParam) {
-					BoundParam bp = (BoundParam) params[0];
-					dval = bp.getDoubleValue();
-					dval = java.lang.Math.acos(dval);
-				} else if (params[0] instanceof FunctionParam2) {
-					FunctionParam2 n = (FunctionParam2) params[0];
-					n.setEngine(engine);
-					n.lookUpFunction();
-					ReturnVector rval = (ReturnVector) n.getValue();
-					dval = rval.firstReturnValue().getDoubleValue();
-					dval = java.lang.Math.acos(dval);
-				}
+                dval = ((BigDecimal) params[0].getValue(engine,
+                        Constants.BIG_DECIMAL)).doubleValue();
+                dval = java.lang.Math.acos(dval);
 			}
 		}
 		DefaultReturnVector ret = new DefaultReturnVector();
