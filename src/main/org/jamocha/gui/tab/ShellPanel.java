@@ -92,8 +92,6 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 	 */
 	private JScrollPane scrollPane;
 
-	private boolean ignoreScrollEvent = false;
-
 	/**
 	 * The Button that clears the console window.
 	 */
@@ -115,19 +113,40 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 	 */
 	private List<String> history = new LinkedList<String>();
 
+	/**
+	 * The last position of the Prompt or in case of a new line the position of
+	 * the beginning of the new line.
+	 */
 	private int lastPromptIndex = 0;
 
-	//private static final String SHELL_CURSOR = "\u220E";
-
+	/**
+	 * The Symbol for the blinking Cursor.
+	 */
 	private static final String SHELL_CURSOR = "_";
-	
+
+	/**
+	 * The current position of the Cursor inside of the outputArea.
+	 */
 	private int cursorPosition = 0;
 
+	/**
+	 * The String "below" the Cursor at the current Position.
+	 */
 	private String cursorSubString = "";
 
-	private Timer cursorTimer = new Timer(500, this);
+	/**
+	 * The Timer that makes the Cursor blinking. Set a smaller delay (first
+	 * parameter) to let it blink faster.
+	 */
+	private Timer cursorTimer = new Timer(400, this);
 
+	/**
+	 * A Flag indicating if the Shell currently shows the Cursor or the
+	 * cursorSubString.
+	 */
 	private boolean cursorShowing = false;
+
+	private int lastScrollBarPosition = 0;
 
 	/**
 	 * The Shells channel to the Rete engine.
@@ -222,6 +241,14 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 		outputArea.setCaretPosition(outputArea.getDocument().getLength());
 	}
 
+	/**
+	 * Prints a messge at the current cursorPosition in the outputArea.
+	 * 
+	 * @param message
+	 *            The message to print.
+	 * @param lineBreak
+	 *            If true a linebreak is added at the end.
+	 */
 	private synchronized void printMessage(String message, boolean lineBreak) {
 		if (lineBreak) {
 			message += System.getProperty("line.separator");
@@ -234,16 +261,30 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 		}
 	}
 
+	/**
+	 * Moves the Cursor to the End of the outputArea.
+	 * 
+	 */
 	private synchronized void moveCursorToEnd() {
 		moveCursorTo(getOffset());
 	}
 
+	/**
+	 * Moves the Cursor to the specified Position.
+	 * 
+	 * @param newPosition
+	 *            The new Position for the Cursor.s
+	 */
 	private synchronized void moveCursorTo(int newPosition) {
 		hideCursor();
 		cursorPosition = newPosition;
 		showCursor();
 	}
 
+	/**
+	 * Shows the Cursor if it was previously hiding and otherwise does nothing.
+	 * 
+	 */
 	private synchronized void showCursor() {
 		if (!cursorShowing) {
 			int currOffset = getOffset();
@@ -275,6 +316,10 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 		cursorShowing = true;
 	}
 
+	/**
+	 * Hide the Cursor if it was previously visible and otherwise does nothing.
+	 * 
+	 */
 	private synchronized void hideCursor() {
 		if (cursorShowing) {
 			try {
@@ -287,25 +332,45 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 		cursorShowing = false;
 	}
 
+	/**
+	 * Removes a Character on the left side of the Cursor.
+	 * 
+	 */
 	private synchronized void removeCharLeft() {
 		outputArea.replaceRange("", cursorPosition - 1, cursorPosition);
 		cursorPosition--;
 	}
-	
+
+	/**
+	 * Removes a Character on the right side (below) of the Cursor.
+	 * 
+	 */
 	private synchronized void removeCharRight() {
 		outputArea.replaceRange("", cursorPosition, cursorPosition + 1);
 	}
 
+	/**
+	 * Removes the current line completely.
+	 * 
+	 */
 	private synchronized void removeLine() {
 		outputArea.replaceRange("", lastPromptIndex, getOffset());
 		cursorPosition = getOffset();
 	}
 
+	/**
+	 * Starts the cursorTimer.
+	 * 
+	 */
 	private synchronized void startTimer() {
 		if (!cursorTimer.isRunning())
 			cursorTimer.start();
 	}
 
+	/**
+	 * Pauses the cursorTimer.
+	 * 
+	 */
 	private synchronized void stopTimer() {
 		cursorTimer.stop();
 	}
@@ -359,7 +424,6 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 							moveCursorTo(lastPromptIndex);
 						}
 						showCursor();
-						ignoreScrollEvent = true;
 						printPrompt = false;
 						startTimer();
 					} else {
@@ -560,7 +624,6 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 							break;
 						}
 						e.consume();
-						ignoreScrollEvent = true;
 						startTimer();
 					} else {
 						try {
@@ -662,6 +725,7 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 		outputArea.setText("");
 		lastPromptIndex = 0;
 		cursorPosition = 0;
+		lastScrollBarPosition = 0;
 		if (lastIncompleteCommand.length() > 0) {
 			printPrompt();
 			cursorPosition = getOffset();
@@ -695,7 +759,6 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 	@Override
 	public void setFocus() {
 		super.setFocus();
-		ignoreScrollEvent = true;
 	}
 
 	/**
@@ -760,9 +823,12 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 	}
 
 	public void adjustmentValueChanged(AdjustmentEvent event) {
-		if (!ignoreScrollEvent)
+		if (event.getValue() < lastScrollBarPosition)
 			stopTimer();
-		ignoreScrollEvent = false;
+		else {
+			lastScrollBarPosition = event.getValue();
+			startTimer();
+		}
 	}
 
 }
