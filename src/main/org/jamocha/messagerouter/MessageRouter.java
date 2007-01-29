@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 
+import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.ReturnVector;
 
@@ -60,7 +61,7 @@ public class MessageRouter implements Serializable {
 							messageQueue.offer(new MessageEvent(
 									MessageEvent.COMMAND, schabau.command,
 									currentChannelId));
-							ReturnVector result = interpreter
+							JamochaValue result = interpreter
 									.executeCommand(schabau.command);
 							messageQueue.offer(new MessageEvent(
 									MessageEvent.RESULT, result,

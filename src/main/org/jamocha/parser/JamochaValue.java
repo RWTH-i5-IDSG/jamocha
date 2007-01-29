@@ -10,6 +10,10 @@ public class JamochaValue {
 
 	public static final JamochaValue NIL = new JamochaValue(JamochaType.NIL,
 			null);
+	
+	public static final JamochaValue TRUE = new JamochaValue(JamochaType.BOOLEAN, Boolean.valueOf(true));
+
+	public static final JamochaValue FALSE = new JamochaValue(JamochaType.BOOLEAN, Boolean.valueOf(false));
 
 	public static final JamochaValue EMPTY_LIST = new JamochaValue(
 			JamochaType.LIST, new JamochaValue[] {});

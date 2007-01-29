@@ -16,7 +16,10 @@
  */
 package org.jamocha.messagerouter;
 
+import org.jamocha.parser.EvaluationException;
+import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Function;
+import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.ReturnVector;
 
@@ -28,11 +31,16 @@ public class CLIPSInterpreter {
 		this.engine = engine;
 	}
 
-	public ReturnVector executeCommand(Object command) {
-		ReturnVector result = null;
-		if (command instanceof Function) {
-			result = ((Function) command)
-					.executeFunction(engine, null);
+	public JamochaValue executeCommand(Object command) {
+		JamochaValue result = null;
+		if (command instanceof Parameter) {
+			try {
+				result = ((Parameter) command)
+						.getValue(engine);
+			} catch (EvaluationException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		} else {
 			throw new RuntimeException("Illegal command.");
 		}
