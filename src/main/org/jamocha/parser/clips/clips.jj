@@ -310,7 +310,7 @@ void loadAllExpr(List list) :
   }
 }
 
-// typeExpr is only responsible for parsing string and bigdecimal types
+// typeExpr is only responsible for parsing string and numeric types
 Object typeExpr() :
 {
   Token exp;
@@ -325,14 +325,14 @@ Object typeExpr() :
 |
   exp = <INTEGER_LITERAL>
   {
-    // we use BigDecimal
-    return new BigDecimal(exp.image);
+    // we use Long
+    return new Long(exp.image);
   }
 |
   exp = <FLOATING_POINT_LITERAL>
   {
     // we use float, double
-    return new BigDecimal(exp.image);
+    return new Double(exp.image);
   }
 |
   exp = <PATH_LITERAL>
@@ -396,7 +396,7 @@ Object expr() :
       bp.setVariableName(exp2.image);
       rpms[0] = bp;
     } else {
-      ValueParam vp = new ValueParam(Constants.BIG_DECIMAL, new BigDecimal(exp2.image));
+      ValueParam vp = new ValueParam(Constants.BIG_DECIMAL, new Long(exp2.image));
       rpms[0] = vp;
     }
     func.setParameters(rpms);
@@ -537,39 +537,25 @@ void valueParams(List list) :
 |
   exp = typeExpr()
   {
-    vp = new ValueParam();
-      vp.setValue(exp);
-    if (exp instanceof BigDecimal) {
-      vp.setValueType(Constants.BIG_DECIMAL);
-    } else if (exp instanceof String) {
-      vp.setValueType(Constants.STRING_TYPE);
-    }
+    vp = new ValueParam(exp);
     list.add(vp);
   }
 |
   exp = <IDENTIFIER>
   {
-    vp = new ValueParam();
-    vp.setValueType(Constants.STRING_TYPE);
-    if (exp instanceof Token) {
-      vp.setValue( ((Token)exp).image );
-    } else {
-      vp.setValue(exp);
-    }
+    vp = new ValueParam(((Token)exp).image);
     list.add(vp);
   }
 |
   exp = <TRUE>
   {
-    vp = new ValueParam();
-    vp.setValue(new Boolean(true));
+    vp = new ValueParam(new Boolean(true));
     list.add(vp);
   }
 |
   exp = <FALSE>
   {
-    vp = new ValueParam();
-    vp.setValue(new Boolean(false));
+    vp = new ValueParam(new Boolean(false));
     list.add(vp);
   }
 |
@@ -1544,18 +1530,10 @@ void actionParams(List list) :
 |
   exp = typeExpr()
   {
-    vp = new ValueParam();
     if (exp instanceof Token) {
-      vp.setValue( ((Token)exp).image );
+      vp = new ValueParam( ((Token)exp).image );
     } else {
-      vp.setValue(exp);
-    }
-    if (exp instanceof Long) {
-      vp.setValueType(Constants.LONG_PRIM_TYPE);
-    } else if (exp instanceof Float) {
-      vp.setValueType(Constants.DOUBLE_PRIM_TYPE);
-    } else if (exp instanceof String) {
-      vp.setValueType(Constants.STRING_TYPE);
+      vp = new ValueParam(exp);
     }
     list.add(vp);
   }

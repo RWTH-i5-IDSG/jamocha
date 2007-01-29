@@ -144,7 +144,7 @@ public class CLIPSParser implements CLIPSParserConstants {
     list.add(param);
   }
 
-// typeExpr is only responsible for parsing string and bigdecimal types
+// typeExpr is only responsible for parsing string and numeric types
   final public Object typeExpr() throws ParseException {
   Token exp;
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
@@ -156,13 +156,13 @@ public class CLIPSParser implements CLIPSParserConstants {
       break;
     case INTEGER_LITERAL:
       exp = jj_consume_token(INTEGER_LITERAL);
-    // we use BigDecimal
-    {if (true) return new BigDecimal(exp.image);}
+    // we use Long
+    {if (true) return new Long(exp.image);}
       break;
     case FLOATING_POINT_LITERAL:
       exp = jj_consume_token(FLOATING_POINT_LITERAL);
     // we use float, double
-    {if (true) return new BigDecimal(exp.image);}
+    {if (true) return new Double(exp.image);}
       break;
     case PATH_LITERAL:
       exp = jj_consume_token(PATH_LITERAL);
@@ -267,7 +267,7 @@ public class CLIPSParser implements CLIPSParserConstants {
       bp.setVariableName(exp2.image);
       rpms[0] = bp;
     } else {
-      ValueParam vp = new ValueParam(Constants.BIG_DECIMAL, new BigDecimal(exp2.image));
+      ValueParam vp = new ValueParam(Constants.BIG_DECIMAL, new Long(exp2.image));
       rpms[0] = vp;
     }
     func.setParameters(rpms);
@@ -635,36 +635,22 @@ public class CLIPSParser implements CLIPSParserConstants {
       case STRING_LITERAL:
       case PATH_LITERAL:
         exp = typeExpr();
-    vp = new ValueParam();
-      vp.setValue(exp);
-    if (exp instanceof BigDecimal) {
-      vp.setValueType(Constants.BIG_DECIMAL);
-    } else if (exp instanceof String) {
-      vp.setValueType(Constants.STRING_TYPE);
-    }
+    vp = new ValueParam(exp);
     list.add(vp);
         break;
       case IDENTIFIER:
         exp = jj_consume_token(IDENTIFIER);
-    vp = new ValueParam();
-    vp.setValueType(Constants.STRING_TYPE);
-    if (exp instanceof Token) {
-      vp.setValue( ((Token)exp).image );
-    } else {
-      vp.setValue(exp);
-    }
+    vp = new ValueParam(((Token)exp).image);
     list.add(vp);
         break;
       case TRUE:
         exp = jj_consume_token(TRUE);
-    vp = new ValueParam();
-    vp.setValue(new Boolean(true));
+    vp = new ValueParam(new Boolean(true));
     list.add(vp);
         break;
       case FALSE:
         exp = jj_consume_token(FALSE);
-    vp = new ValueParam();
-    vp.setValue(new Boolean(false));
+    vp = new ValueParam(new Boolean(false));
     list.add(vp);
         break;
       case BIND:
@@ -1895,18 +1881,10 @@ public class CLIPSParser implements CLIPSParserConstants {
     case STRING_LITERAL:
     case PATH_LITERAL:
       exp = typeExpr();
-    vp = new ValueParam();
     if (exp instanceof Token) {
-      vp.setValue( ((Token)exp).image );
+      vp = new ValueParam( ((Token)exp).image );
     } else {
-      vp.setValue(exp);
-    }
-    if (exp instanceof Long) {
-      vp.setValueType(Constants.LONG_PRIM_TYPE);
-    } else if (exp instanceof Float) {
-      vp.setValueType(Constants.DOUBLE_PRIM_TYPE);
-    } else if (exp instanceof String) {
-      vp.setValueType(Constants.STRING_TYPE);
+      vp = new ValueParam(exp);
     }
     list.add(vp);
       break;
@@ -2152,6 +2130,68 @@ public class CLIPSParser implements CLIPSParserConstants {
     finally { jj_save(31, xla); }
   }
 
+  final private boolean jj_3_4() {
+    if (jj_scan_token(LBRACE)) return true;
+    if (jj_scan_token(SLOT)) return true;
+    return false;
+  }
+
+  final private boolean jj_3_14() {
+    if (jj_scan_token(LBRACE)) return true;
+    if (jj_scan_token(CHAININGDIRECTION)) return true;
+    return false;
+  }
+
+  final private boolean jj_3_3() {
+    if (jj_scan_token(STRING_LITERAL)) return true;
+    if (jj_scan_token(STRING_LITERAL)) return true;
+    return false;
+  }
+
+  final private boolean jj_3_25() {
+    if (jj_scan_token(TILDA)) return true;
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_scan_token(14)) {
+    jj_scanpos = xsp;
+    if (jj_scan_token(11)) {
+    jj_scanpos = xsp;
+    if (jj_scan_token(12)) return true;
+    }
+    }
+    if (jj_scan_token(AND2)) return true;
+    return false;
+  }
+
+  final private boolean jj_3_13() {
+    if (jj_scan_token(LBRACE)) return true;
+    if (jj_scan_token(EXPIRATION)) return true;
+    return false;
+  }
+
+  final private boolean jj_3_16() {
+    if (jj_scan_token(BIND)) return true;
+    return false;
+  }
+
+  final private boolean jj_3_2() {
+    if (jj_scan_token(IDENTIFIER)) return true;
+    if (jj_scan_token(IDENTIFIER)) return true;
+    return false;
+  }
+
+  final private boolean jj_3_21() {
+    if (jj_scan_token(TILDA)) return true;
+    if (jj_scan_token(BIND)) return true;
+    return false;
+  }
+
+  final private boolean jj_3_12() {
+    if (jj_scan_token(LBRACE)) return true;
+    if (jj_scan_token(EFFECTIVE)) return true;
+    return false;
+  }
+
   final private boolean jj_3_11() {
     if (jj_scan_token(LBRACE)) return true;
     if (jj_scan_token(REMEMBERMATCH)) return true;
@@ -2200,6 +2240,11 @@ public class CLIPSParser implements CLIPSParserConstants {
   final private boolean jj_3_10() {
     if (jj_scan_token(LBRACE)) return true;
     if (jj_scan_token(RULEVERSION)) return true;
+    return false;
+  }
+
+  final private boolean jj_3_1() {
+    if (jj_scan_token(LBRACE)) return true;
     return false;
   }
 
@@ -2277,11 +2322,6 @@ public class CLIPSParser implements CLIPSParserConstants {
     return false;
   }
 
-  final private boolean jj_3_1() {
-    if (jj_scan_token(LBRACE)) return true;
-    return false;
-  }
-
   final private boolean jj_3_5() {
     if (jj_scan_token(LBRACE)) return true;
     if (jj_scan_token(MULTISLOT)) return true;
@@ -2330,68 +2370,6 @@ public class CLIPSParser implements CLIPSParserConstants {
     }
     }
     if (jj_scan_token(OR2)) return true;
-    return false;
-  }
-
-  final private boolean jj_3_4() {
-    if (jj_scan_token(LBRACE)) return true;
-    if (jj_scan_token(SLOT)) return true;
-    return false;
-  }
-
-  final private boolean jj_3_14() {
-    if (jj_scan_token(LBRACE)) return true;
-    if (jj_scan_token(CHAININGDIRECTION)) return true;
-    return false;
-  }
-
-  final private boolean jj_3_3() {
-    if (jj_scan_token(STRING_LITERAL)) return true;
-    if (jj_scan_token(STRING_LITERAL)) return true;
-    return false;
-  }
-
-  final private boolean jj_3_25() {
-    if (jj_scan_token(TILDA)) return true;
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_scan_token(14)) {
-    jj_scanpos = xsp;
-    if (jj_scan_token(11)) {
-    jj_scanpos = xsp;
-    if (jj_scan_token(12)) return true;
-    }
-    }
-    if (jj_scan_token(AND2)) return true;
-    return false;
-  }
-
-  final private boolean jj_3_13() {
-    if (jj_scan_token(LBRACE)) return true;
-    if (jj_scan_token(EXPIRATION)) return true;
-    return false;
-  }
-
-  final private boolean jj_3_16() {
-    if (jj_scan_token(BIND)) return true;
-    return false;
-  }
-
-  final private boolean jj_3_2() {
-    if (jj_scan_token(IDENTIFIER)) return true;
-    if (jj_scan_token(IDENTIFIER)) return true;
-    return false;
-  }
-
-  final private boolean jj_3_21() {
-    if (jj_scan_token(TILDA)) return true;
-    if (jj_scan_token(BIND)) return true;
-    return false;
-  }
-
-  final private boolean jj_3_12() {
-    if (jj_scan_token(LBRACE)) return true;
-    if (jj_scan_token(EFFECTIVE)) return true;
     return false;
   }
 

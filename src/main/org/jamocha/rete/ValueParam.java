@@ -35,6 +35,12 @@ public class ValueParam extends AbstractParam {
 		super();
 	}
 
+    public ValueParam(Object value) {
+        super();
+        this.value = value;
+        this.checkType();
+    }
+    
 	/**
 	 * 
 	 */
@@ -93,4 +99,18 @@ public class ValueParam extends AbstractParam {
 		vp.valueType = this.valueType;
 		return vp;
 	}
+    
+    protected void checkType() {
+        if (this.value instanceof Long) {
+            this.valueType = Constants.LONG_OBJECT;
+        } else if (this.value instanceof Double) {
+            this.valueType = Constants.DOUBLE_OBJECT;
+        } else if (this.value instanceof String) {
+            this.valueType = Constants.STRING_TYPE;
+        } else if (this.value instanceof Boolean) {
+            this.valueType = Constants.BOOLEAN_OBJECT;
+        } else {
+            this.valueType = Constants.OBJECT_TYPE;
+        }
+    }
 }
