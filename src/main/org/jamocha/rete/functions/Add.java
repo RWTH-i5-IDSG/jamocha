@@ -52,12 +52,12 @@ public class Add implements Function, Serializable {
 	}
 
 	public ReturnVector executeFunction(Rete engine, Parameter[] params) {
-		BigDecimal bdval = new BigDecimal(0);
+        Double bdval = new Double(0);
 		if (params != null) {
 			for (int idx = 0; idx < params.length; idx++) {
-                BigDecimal bd = (BigDecimal) params[idx].getValue(engine,
-                        Constants.BIG_DECIMAL);
-                bdval = bdval.add(bd);
+                Double bd = (Double) params[idx].getValue(engine,
+                        Constants.DOUBLE_OBJECT);
+                bdval = bdval.doubleValue() + bd.doubleValue();
 			}
 		}
 		DefaultReturnVector ret = new DefaultReturnVector();

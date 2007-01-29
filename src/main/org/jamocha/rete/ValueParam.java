@@ -78,8 +78,18 @@ public class ValueParam extends AbstractParam {
      * returns it.
      */
     public Object getValue(Rete engine, int valueType) {
-        if (this.valueType == Constants.STRING_TYPE) {
-            return new BigDecimal((String)this.value);
+        if (valueType == Constants.LONG_OBJECT) {
+            return this.getLongValue();
+        } else if (valueType == Constants.INTEGER_OBJECT) {
+            return this.getIntValue();
+        } else if (valueType == Constants.SHORT_OBJECT) {
+            return this.getShortValue();
+        } else if (valueType == Constants.FLOAT_OBJECT) {
+            return this.getFloatValue();
+        } else if (valueType == Constants.DOUBLE_OBJECT) {
+            return this.getDoubleValue();
+        } else if (valueType == Constants.STRING_TYPE) {
+            return this.getStringValue();
         } else {
             return this.value;
         }

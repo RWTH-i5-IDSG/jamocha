@@ -73,7 +73,8 @@ public abstract class AbstractParam implements Parameter, Serializable {
 
 	public int getIntValue() throws NumberFormatException {
 		if (getValue() != null && !(getValue() instanceof Number)) {
-			throw new NumberFormatException("Value is not a number");
+            Integer i = new Integer(this.getStringValue());
+			return i.intValue();
 		} else {
 			return ((Number) getValue()).intValue();
 		}
@@ -81,7 +82,8 @@ public abstract class AbstractParam implements Parameter, Serializable {
 
 	public short getShortValue() throws NumberFormatException {
 		if (getValue() != null && !(getValue() instanceof Number)) {
-			throw new NumberFormatException("Value is not a number");
+            Short s = new Short(this.getStringValue());
+            return s.shortValue();
 		} else {
 			return ((Number) getValue()).shortValue();
 		}
@@ -89,7 +91,8 @@ public abstract class AbstractParam implements Parameter, Serializable {
 
 	public long getLongValue() throws NumberFormatException {
 		if (getValue() != null && !(getValue() instanceof Number)) {
-			throw new NumberFormatException("Value is not a number");
+            Long l =  new Long(this.getStringValue());
+            return l.longValue();
 		} else {
 			return ((Number) getValue()).longValue();
 		}
@@ -97,7 +100,8 @@ public abstract class AbstractParam implements Parameter, Serializable {
 
 	public float getFloatValue() throws NumberFormatException {
 		if (getValue() != null && !(getValue() instanceof Number)) {
-			throw new NumberFormatException("Value is not a number");
+            Float f = new Float(this.getStringValue());
+            return f.floatValue();
 		} else {
 			return ((Number) getValue()).floatValue();
 		}
@@ -105,7 +109,8 @@ public abstract class AbstractParam implements Parameter, Serializable {
 
 	public double getDoubleValue() throws NumberFormatException {
 		if (getValue() != null && !(getValue() instanceof Number)) {
-			throw new NumberFormatException("Value is not a number");
+            Double d = new Double(this.getStringValue());
+            return d.doubleValue();
 		} else {
 			return ((Number) getValue()).doubleValue();
 		}
