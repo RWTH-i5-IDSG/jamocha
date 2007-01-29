@@ -21,14 +21,16 @@ import java.math.BigDecimal;
 import java.util.Iterator;
 import java.util.List;
 
+import org.jamocha.parser.JamochaValue;
+
 /**
  * @author Peter Lin Deftemplate is equivalent to CLIPS deftemplate<br/>
  * 
  * Deftemplate contains an array of slots that represent un-ordered facts.
- * Currently, deftemplate does not have a reference to the corresponding Defclass,
- * since many objects in java.beans and java.lang.reflect are not serializable.
- * This means when ever we need to lookup the defclass from the deftemplate, we
- * have to use the String form and do the lookup.
+ * Currently, deftemplate does not have a reference to the corresponding
+ * Defclass, since many objects in java.beans and java.lang.reflect are not
+ * serializable. This means when ever we need to lookup the defclass from the
+ * deftemplate, we have to use the String form and do the lookup.
  * 
  * Some general design notes about the current implementation. In the case where
  * a class is declared to create the deftemplate, the order of the slots are
@@ -52,9 +54,9 @@ public class Deftemplate implements Template, Serializable {
 	private Template parent = null;
 
 	/**
-	 * Defclass and Deftemplate are decoupled, so it uses a string
-	 * to look up the Defclass rather than have a link to it. This
-	 * is because the reflection classes are not serializable.
+	 * Defclass and Deftemplate are decoupled, so it uses a string to look up
+	 * the Defclass rather than have a link to it. This is because the
+	 * reflection classes are not serializable.
 	 */
 	private String defclass = null;
 
@@ -203,6 +205,7 @@ public class Deftemplate implements Template, Serializable {
 
 	/**
 	 * convienance method for incrementing the column's use count.
+	 * 
 	 * @param name
 	 */
 	public void incrementColumnUseCount(String name) {
@@ -212,7 +215,7 @@ public class Deftemplate implements Template, Serializable {
 			}
 		}
 	}
-	
+
 	/**
 	 * Method will create a Fact from the given object instance
 	 * 
@@ -226,9 +229,9 @@ public class Deftemplate implements Template, Serializable {
 		for (int idx = 0; idx < values.length; idx++) {
 			Object val = clazz.getSlotValue(idx, data);
 			if (val == null) {
-				values[idx].value = Constants.NIL_SYMBOL;
+				values[idx].value = JamochaValue.NIL;
 			} else {
-				values[idx].value = val;
+				values[idx].value = new JamochaValue(val);
 			}
 		}
 		Deffact newfact = new Deffact(this, data, values, id);
@@ -250,37 +253,7 @@ public class Deftemplate implements Template, Serializable {
 			for (int idx = 0; idx < values.length; idx++) {
 				if (values[idx].getName().equals(s.getName())) {
 					if (s.value == null) {
-						values[idx].value = Constants.NIL_SYMBOL;
-					} else
-					if (values[idx].getValueType() == Constants.STRING_TYPE
-							&& !(s.value instanceof BoundParam)) {
-						values[idx].value = s.value.toString();
-					} else {
-						values[idx].value = s.value;
-					}
-				}
-			}
-		}
-		Deffact newfact = new Deffact(this, null, values, id);
-		// we call this to create the string used to map the fact.
-		newfact.equalityIndex();
-		return newfact;
-	}
-	
-	public Fact createFact(Object[] data, long id) {
-		Slot[] values = cloneAllSlots();
-		for (int idz=0; idz < data.length; idz++) {
-			Slot s = (Slot) data[idz];
-			for (int idx = 0; idx < values.length; idx++) {
-				if (values[idx].getName().equals(s.getName())) {
-					if (s.value == null) {
-						values[idx].value = Constants.NIL_SYMBOL;
-					} else
-					if (values[idx].getValueType() == Constants.STRING_TYPE
-							&& !(s.value instanceof BoundParam)) {
-						values[idx].value = s.value.toString();
-					} else if (s.value instanceof BoundParam) {
-						values[idx].value = s.value;
+						values[idx].value = JamochaValue.NIL;
 					} else {
 						values[idx].value = s.value;
 					}
@@ -293,64 +266,78 @@ public class Deftemplate implements Template, Serializable {
 		return newfact;
 	}
 
-    public Fact createTemporalFact(Object[] data, long id) {
-        Slot[] values = cloneAllSlots();
-        long expire = 0;
-        String source = "";
-        String service = "";
-        int valid = 0;
-        for (int idz=0; idz < data.length; idz++) {
-            Slot s = (Slot) data[idz];
-            // check to see if the slot is a temporal fact attribute
-            if (isTemporalAttribute(s)) {
-                if (s.getName().equals(TemporalFact.EXPIRATION)) {
-                    expire = ((BigDecimal)s.getValue()).longValue();
-                } else if (s.getName().equals(TemporalFact.SERVICE_TYPE)) {
-                    service = (String)s.getValue();
-                } else if (s.getName().equals(TemporalFact.SOURCE)) {
-                    source = (String)s.getValue();
-                } else if (s.getName().equals(TemporalFact.VALIDITY)) {
-                    valid = ((BigDecimal)s.getValue()).intValue();
-                }
-            } else {
-                for (int idx = 0; idx < values.length; idx++) {
-                    if (values[idx].getName().equals(s.getName())) {
-                        if (s.value == null) {
-                            values[idx].value = Constants.NIL_SYMBOL;
-                        } else
-                        if (values[idx].getValueType() == Constants.STRING_TYPE
-                                && !(s.value instanceof BoundParam)) {
-                            values[idx].value = s.value.toString();
-                        } else if (s.value instanceof BoundParam) {
-                            values[idx].value = s.value;
-                        } else {
-                            values[idx].value = s.value;
-                        }
-                    }
-                }
-            }
-        }
-        TemporalDeffact newfact = new TemporalDeffact(this, null, values, id);
-        // we call this to create the string used to map the fact.
-        newfact.setExpirationTime(expire);
-        newfact.setServiceType(service);
-        newfact.setSource(source);
-        newfact.setValidity(valid);
-        newfact.equalityIndex();
-        return newfact;
-    }
-    
-    public static boolean isTemporalAttribute(Slot s) {
-        if (s.getName().equals(TemporalFact.EXPIRATION)
-                || s.getName().equals(TemporalFact.SERVICE_TYPE)
-                || s.getName().equals(TemporalFact.SOURCE)
-                || s.getName().equals(TemporalFact.VALIDITY)) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-    
+	public Fact createFact(Object[] data, long id) {
+		Slot[] values = cloneAllSlots();
+		for (int idz = 0; idz < data.length; idz++) {
+			Slot s = (Slot) data[idz];
+			for (int idx = 0; idx < values.length; idx++) {
+				if (values[idx].getName().equals(s.getName())) {
+					if (s.value == null) {
+						values[idx].value = JamochaValue.NIL;
+					} else {
+						values[idx].value = s.value;
+					}
+				}
+			}
+		}
+		Deffact newfact = new Deffact(this, null, values, id);
+		// we call this to create the string used to map the fact.
+		newfact.equalityIndex();
+		return newfact;
+	}
+
+	public Fact createTemporalFact(Object[] data, long id) {
+		Slot[] values = cloneAllSlots();
+		long expire = 0;
+		String source = "";
+		String service = "";
+		long valid = 0;
+		for (int idz = 0; idz < data.length; idz++) {
+			Slot s = (Slot) data[idz];
+			// check to see if the slot is a temporal fact attribute
+			if (isTemporalAttribute(s)) {
+				if (s.getName().equals(TemporalFact.EXPIRATION)) {
+					expire = s.getValue().getLongValue();
+				} else if (s.getName().equals(TemporalFact.SERVICE_TYPE)) {
+					service = s.getValue().getStringValue();
+				} else if (s.getName().equals(TemporalFact.SOURCE)) {
+					source = s.getValue().getStringValue();
+				} else if (s.getName().equals(TemporalFact.VALIDITY)) {
+					valid = s.getValue().getLongValue();
+				}
+			} else {
+				for (int idx = 0; idx < values.length; idx++) {
+					if (values[idx].getName().equals(s.getName())) {
+						if (s.value == null) {
+							values[idx].value = JamochaValue.NIL;
+						} else {
+							values[idx].value = s.value;
+						}
+					}
+				}
+			}
+		}
+		TemporalDeffact newfact = new TemporalDeffact(this, null, values, id);
+		// we call this to create the string used to map the fact.
+		newfact.setExpirationTime(expire);
+		newfact.setServiceType(service);
+		newfact.setSource(source);
+		newfact.setValidity((int) valid);
+		newfact.equalityIndex();
+		return newfact;
+	}
+
+	public static boolean isTemporalAttribute(Slot s) {
+		if (s.getName().equals(TemporalFact.EXPIRATION)
+				|| s.getName().equals(TemporalFact.SERVICE_TYPE)
+				|| s.getName().equals(TemporalFact.SOURCE)
+				|| s.getName().equals(TemporalFact.VALIDITY)) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
 	/**
 	 * clone the slots
 	 * 
@@ -368,14 +355,14 @@ public class Deftemplate implements Template, Serializable {
 	 * If any slot has a usecount greater than 0, we return true.
 	 */
 	public boolean inUse() {
-		for (int idx=0; idx < this.slots.length; idx++) {
+		for (int idx = 0; idx < this.slots.length; idx++) {
 			if (this.slots[idx].getNodeCount() > 0) {
 				return true;
 			}
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Method will return a string format with the int type code for the slot
 	 * type
@@ -384,11 +371,8 @@ public class Deftemplate implements Template, Serializable {
 		StringBuffer buf = new StringBuffer();
 		buf.append("(" + this.templateName + " ");
 		for (int idx = 0; idx < this.slots.length; idx++) {
-			buf.append("("
-					+ this.slots[idx].getName()
-					+ " (type "
-					+ ConversionUtils.getTypeName(this.slots[idx]
-							.getValueType()) + ") ) ");
+			buf.append("(" + this.slots[idx].getName() + " (type "
+					+ this.slots[idx].getValueType() + ") ) ");
 		}
 		if (this.defclass != null) {
 			buf.append("[" + this.defclass + "] ");
@@ -406,11 +390,9 @@ public class Deftemplate implements Template, Serializable {
 		StringBuffer buf = new StringBuffer();
 		buf.append("(" + this.templateName + Constants.LINEBREAK);
 		for (int idx = 0; idx < this.slots.length; idx++) {
-			buf.append("  ("
-					+ this.slots[idx].getName()
-					+ " (type "
-					+ ConversionUtils.getTypeName(this.slots[idx]
-							.getValueType()) + ") )" + Constants.LINEBREAK);
+			buf.append("  (" + this.slots[idx].getName() + " (type "
+					+ this.slots[idx].getValueType() + ") )"
+					+ Constants.LINEBREAK);
 		}
 		if (this.defclass != null) {
 			buf.append("[" + this.defclass + "] ");

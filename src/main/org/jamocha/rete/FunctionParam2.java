@@ -16,6 +16,9 @@
  */
 package org.jamocha.rete;
 
+import org.jamocha.parser.EvaluationException;
+import org.jamocha.parser.JamochaType;
+import org.jamocha.parser.JamochaValue;
 import org.jamocha.rule.Rule;
 
 /**
@@ -73,28 +76,19 @@ public class FunctionParam2 extends AbstractParam {
         this.func = engine.findFunction(this.funcName);
     }
 
-    public int getValueType() {
+    public JamochaType getValueType() {
 		return this.func.getReturnType();
-	}
-
-	public Object getValue() {
-        if (this.params != null) {
-            return this.func.executeFunction(engine,this.params);
-        } else {
-            return null;
-        }
 	}
 
     /**
      * TODO we may want to check the value type and throw and exception
      * for now just getting it to work.
      */
-    public Object getValue(Rete engine, int valueType) {
+    public JamochaValue getValue(Rete engine) throws EvaluationException {
         if (this.params != null) {
             this.engine = engine;
             lookUpFunction();
-            ReturnVector rval = this.func.executeFunction(engine,this.params);
-            return rval.firstReturnValue().getBigDecimalValue();
+            return this.func.executeFunction(engine,this.params);
         } else {
             return null;
         }

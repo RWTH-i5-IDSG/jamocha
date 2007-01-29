@@ -18,6 +18,8 @@ package org.jamocha.rete;
 
 import java.io.Serializable;
 
+import org.jamocha.parser.JamochaValue;
+
 /**
  * @author Peter Lin
  *
@@ -67,7 +69,7 @@ public class NSFact implements Fact, Serializable {
      * objectInstance to invoke the read method.
 	 * @see org.jamocha.rete.Fact#getSlotValue(int)
 	 */
-	public Object getSlotValue(int id) {
+	public JamochaValue getSlotValue(int id) {
         return dclazz.getSlotValue(id,objInstance);
 	}
 

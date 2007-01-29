@@ -16,6 +16,9 @@
  */
 package org.jamocha.rete;
 
+import org.jamocha.parser.EvaluationException;
+import org.jamocha.parser.JamochaValue;
+
 /**
  * @author Peter Lin
  *
@@ -71,8 +74,8 @@ public class ShellBoundParam extends AbstractParam {
     /**
      * the class will resolve the variable with the engine
      */
-    public Object getValue(Rete engine, int valueType) {
-        return this.value = engine.getDefglobalValue(this.globalVarName);
+    public JamochaValue getValue(Rete engine) throws EvaluationException {
+        return engine.getDefglobalValue(this.globalVarName);
     }
 
     /**

@@ -19,6 +19,8 @@ package org.jamocha.rule.util;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 
+import org.jamocha.parser.JamochaType;
+import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Defclass;
 import org.jamocha.rete.Deftemplate;
 import org.jamocha.rete.Fact;
@@ -124,7 +126,7 @@ public class GenerateFacts {
 			} else if (cn instanceof BoundConstraint) {
 				// for now we do the simple thing and just set
 				// any bound slots to 1
-				Slot s = new Slot(cn.getName(),new Integer(1));
+				Slot s = new Slot(cn.getName(),new JamochaValue(JamochaType.LONG, Integer.valueOf(1)));
 				list.add(s);
 			}
 		}

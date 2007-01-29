@@ -1,5 +1,7 @@
 package org.jamocha.rete;
 
+import org.jamocha.parser.JamochaType;
+
 public class TemporalDeffact extends Deffact implements TemporalFact {
 
     protected long expirationTime = 0;
@@ -75,8 +77,8 @@ public class TemporalDeffact extends Deffact implements TemporalFact {
             buf.append(" ");
         }
         for (int idx = 0; idx < this.slots.length; idx++) {
-            if (this.slots[idx].value instanceof BoundParam) {
-                BoundParam bp = (BoundParam) this.slots[idx].value;
+            if (this.slots[idx].value.getType().equals(JamochaType.BINDING)) {
+                BoundParam bp = (BoundParam) this.slots[idx].value.getObjectValue();
                 buf.append("(" + this.slots[idx].getName() + " ?"
                         + bp.getVariableName() + ") ");
             } else {

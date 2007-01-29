@@ -18,6 +18,7 @@ package org.jamocha.rule;
 
 import java.io.Serializable;
 
+import org.jamocha.parser.EvaluationException;
 import org.jamocha.rete.Fact;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.exception.ExecuteException;
@@ -43,7 +44,7 @@ public interface Action extends Serializable {
      * which means when the rule is added to the rule engine, the
      * lookup needs to occur.
      */
-    void configure(Rete engine, Rule util);
+    void configure(Rete engine, Rule util) throws EvaluationException;
     /**
      * When an action is executed, we pass the facts and the Rete
      * instance.

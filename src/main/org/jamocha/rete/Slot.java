@@ -16,99 +16,99 @@
  */
 package org.jamocha.rete;
 
+import org.jamocha.parser.JamochaType;
+import org.jamocha.parser.JamochaValue;
+
+import sun.rmi.runtime.GetThreadPoolAction;
+
 /**
  * @author Peter Lin
- *
+ * 
  * Slot is similar to CLIPS slots, though slightly different.
  * 
  */
 public class Slot extends AbstractSlot {
 
-    protected Object value = Constants.NIL_SYMBOL;
+	protected JamochaValue value = JamochaValue.NIL;
 
-    public Slot(){
-    }
-    
-    /**
-     * Create a new instance with a given name
-     * @param name
-     */
-    public Slot(String name){
-        this.setName(name);
-    }
-    
-    /**
-     * For convenience you can create here a slot with a given value directly
-     */
-    public Slot( String name, Object value ) {
-    	this(name);
-    	this.value = value;
-    }
-    
-    /**
-     * get the value of the slot
-     * @return
-     */
-    public Object getValue(){
-        return this.value;
-    }
+	public Slot() {
+	}
 
-    /**
-     * set the value of the slot
-     * @param val
-     */
-    public void setValue(Object val){
-        this.value = val;
-        if (this.getValueType() < 0) {
-            inspectType();
-        }
-    }
-    
-    /**
-     * In some cases, a deftemplate can be define with a
-     * default value.
-     * @param value
-     */
-    public void setDefaultValue(Object value){
-        this.value = value;
-    }
-    
-    /**
-     * method will look at the value and set the int type
-     */
-    protected void inspectType() {
-        if (this.value instanceof Double) {
-            this.setValueType(Constants.DOUBLE_PRIM_TYPE);
-        } else if (this.value instanceof Long) {
-            this.setValueType(Constants.LONG_PRIM_TYPE);
-        } else if (this.value instanceof Float) {
-            this.setValueType(Constants.FLOAT_PRIM_TYPE);
-        } else if (this.value instanceof Short) {
-            this.setValueType(Constants.SHORT_PRIM_TYPE);
-        } else if (this.value instanceof Integer) {
-            this.setValueType(Constants.INT_PRIM_TYPE);
-        } else {
-            this.setValueType(Constants.OBJECT_TYPE);
-        }
-    }
-    
-    /**
-     * A convienance method to clone slots
-     */
-    public Object clone(){
-        Slot newslot = new Slot();
-        newslot.setId(this.getId());
-        newslot.setName(this.getName());
-        newslot.value = this.value;
-        newslot.setValueType(this.getValueType());
-        return newslot;
-    }
-    
-	public String valueToString() {
-		if (this.getValueType() == Constants.STRING_TYPE) {
-			return "\"" + this.value.toString() + "\"";
-		} else {
-			return this.value.toString();
+	/**
+	 * Create a new instance with a given name
+	 * 
+	 * @param name
+	 */
+	public Slot(String name) {
+		this.setName(name);
+	}
+
+	/**
+	 * For convenience you can create here a slot with a given value directly
+	 */
+	public Slot(String name, JamochaValue value) {
+		this(name);
+		this.value = value;
+	}
+
+	/**
+	 * get the value of the slot
+	 * 
+	 * @return
+	 */
+	public JamochaValue getValue() {
+		return this.value;
+	}
+
+	/**
+	 * set the value of the slot
+	 * 
+	 * @param val
+	 */
+	public void setValue(JamochaValue val) {
+		if (inspectType(val)) {
+			this.value = val;
 		}
+	}
+
+	/**
+	 * In some cases, a deftemplate can be define with a default value.
+	 * 
+	 * @param value
+	 */
+	public void setDefaultValue(JamochaValue value) {
+		this.value = value;
+	}
+
+	/**
+	 * method will check the type of the value and the type of the slot
+	 * 
+	 * @param value
+	 *            value, which is checked, if it has the same type as the slot
+	 * @return <code>true</code> if value has a compatible type, otherwise
+	 *         <code>false</code>
+	 */
+	protected boolean inspectType(JamochaValue value) {
+		if (getValueType().equals(JamochaType.UNDEFINED)
+				|| getValueType().equals(value.getType())) {
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * A convienance method to clone slots
+	 */
+	public Object clone() {
+		Slot newslot = new Slot();
+		newslot.setId(this.getId());
+		newslot.setName(this.getName());
+		newslot.value = this.value;
+		newslot.setValueType(this.getValueType());
+		return newslot;
+	}
+
+	public String valueToString() {
+		return this.value.toString();
 	}
 }

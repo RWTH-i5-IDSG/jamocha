@@ -20,6 +20,9 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.jamocha.parser.EvaluationException;
+import org.jamocha.parser.JamochaType;
+import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.BoundParam;
 import org.jamocha.rete.Constants;
 import org.jamocha.rete.Parameter;
@@ -48,7 +51,7 @@ public class PredicateConstraint implements Constraint {
      */
     protected String functionName = null;
 
-    protected Object value = null;
+    protected JamochaValue value = JamochaValue.NIL;
     
     protected ArrayList parameters = new ArrayList();
     
@@ -78,14 +81,14 @@ public class PredicateConstraint implements Constraint {
 	/* (non-Javadoc)
 	 * @see woolfel.engine.rule.Constraint#getValue()
 	 */
-	public Object getValue() {
+	public JamochaValue getValue() {
 		return this.value;
 	}
 
 	/* (non-Javadoc)
 	 * @see woolfel.engine.rule.Constraint#setValue(java.lang.Object)
 	 */
-	public void setValue(Object val) {
+	public void setValue(JamochaValue val) {
         this.value = val;
 	}
     
@@ -118,12 +121,16 @@ public class PredicateConstraint implements Constraint {
             Object p = itr.next();
             // for now, a simple implementation
             if (p instanceof ValueParam) {
-                this.setValue( ((ValueParam)p).getValue() );
+                try {
+					this.setValue( ((ValueParam)p).getValue(null) );
+				} catch (EvaluationException e) {
+					/* shouldn't happen in a ValueParam */
+				}
                 break;
             } else if (p instanceof BoundParam) {
             	BoundParam bp = (BoundParam)p;
             	if (!bp.getVariableName().equals(this.varName)) {
-                	this.setValue(p);
+                	this.setValue(new JamochaValue(JamochaType.BINDING, bp));
             	}
             	bcount++;
             }
@@ -136,7 +143,11 @@ public class PredicateConstraint implements Constraint {
     public void addParameter(Parameter param) {
         this.parameters.add(param);
         if (param instanceof ValueParam) {
-            this.setValue( ((ValueParam)param).getValue());
+            try {
+				this.setValue( ((ValueParam)param).getValue(null) );
+			} catch (EvaluationException e) {
+				/* shouldn't happen in a ValueParam */
+			}
         } else if (param instanceof BoundParam && this.varName == null) {
             this.varName = ((BoundParam)param).getVariableName();
         }

@@ -2,6 +2,9 @@ package org.jamocha.rete.functions;
 
 import java.io.Serializable;
 
+import org.jamocha.parser.EvaluationException;
+import org.jamocha.parser.JamochaType;
+import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.BoundParam;
 import org.jamocha.rete.Constants;
 import org.jamocha.rete.DefaultReturnValue;
@@ -31,7 +34,7 @@ public class LoadPackageFunction implements Function, Serializable {
 		this.classnameResolver = classnameResolver;
 	}
 
-	public ReturnVector executeFunction(Rete engine, Parameter[] params) {
+	public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
 		Object o = null;
 		String classname = null;
 		if (params != null && params.length == 1) {
@@ -86,7 +89,7 @@ public class LoadPackageFunction implements Function, Serializable {
 		return new Class[] { ValueParam[].class };
 	}
 
-	public int getReturnType() {
+	public JamochaType getReturnType() {
 		return Constants.OBJECT_TYPE;
 	}
 

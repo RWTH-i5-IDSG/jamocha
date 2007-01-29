@@ -20,6 +20,7 @@ import java.io.Serializable;
 import java.util.Iterator;
 import java.util.List;
 
+import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.BaseJoin;
 import org.jamocha.rete.BaseNode;
 import org.jamocha.rete.Binding;
@@ -212,13 +213,13 @@ public interface Rule extends Serializable {
      * @param key
      * @param value
      */
-    void setBindingValue(Object key, Object value);
+    void setBindingValue(Object key, JamochaValue value);
     /**
      * Return the value of the for the binding
      * @param key is the name of the variable
      * @return
      */
-    Object getBindingValue(Object key);
+    JamochaValue getBindingValue(Object key);
     /**
      * Add a new binding to the rule with the variable as the key
      * @param key

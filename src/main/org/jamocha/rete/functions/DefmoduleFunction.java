@@ -18,6 +18,9 @@ package org.jamocha.rete.functions;
 
 import java.io.Serializable;
 
+import org.jamocha.parser.EvaluationException;
+import org.jamocha.parser.JamochaType;
+import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Constants;
 import org.jamocha.rete.DefaultReturnValue;
 import org.jamocha.rete.DefaultReturnVector;
@@ -26,7 +29,6 @@ import org.jamocha.rete.Function;
 import org.jamocha.rete.Module;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.ReturnVector;
 import org.jamocha.rete.ValueParam;
 import org.jamocha.rete.exception.CompileRuleException;
 
@@ -43,11 +45,11 @@ public class DefmoduleFunction implements Function, Serializable {
 		super();
 	}
 
-	public int getReturnType() {
+	public JamochaType getReturnType() {
 		return Constants.BOOLEAN_OBJECT;
 	}
 
-	public ReturnVector executeFunction(Rete engine, Parameter[] params) {
+	public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
 		boolean add = true;
 		if (params.length == 1) {
 			engine.addModule(params[0].getStringValue());

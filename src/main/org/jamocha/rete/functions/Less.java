@@ -18,6 +18,9 @@ package org.jamocha.rete.functions;
 
 import java.io.Serializable;
 
+import org.jamocha.parser.EvaluationException;
+import org.jamocha.parser.JamochaType;
+import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.BoundParam;
 import org.jamocha.rete.Constants;
 import org.jamocha.rete.DefaultReturnValue;
@@ -47,11 +50,11 @@ public class Less implements Function, Serializable {
 		super();
 	}
 
-	public int getReturnType() {
+	public JamochaType getReturnType() {
 		return Constants.BOOLEAN_OBJECT;
 	}
 
-	public ReturnVector executeFunction(Rete engine, Parameter[] params) {
+	public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
 		boolean eval = false;
 		double left = 0;
 		double right = 0;

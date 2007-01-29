@@ -21,13 +21,15 @@ import java.util.Collection;
 import java.util.Hashtable;
 import java.util.Iterator;
 
+import org.jamocha.parser.EvaluationException;
+import org.jamocha.parser.JamochaType;
+import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.BaseNode;
 import org.jamocha.rete.Constants;
 import org.jamocha.rete.DefaultReturnVector;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.ReturnVector;
 import org.jamocha.rete.RootNode;
 import org.jamocha.rete.WorkingMemoryImpl;
 import org.jamocha.rete.visualisation.ViewGraphNode;
@@ -51,7 +53,7 @@ public class ViewFunction implements Function, Serializable {
 		super();
 	}
 
-	public int getReturnType() {
+	public JamochaType getReturnType() {
 		return Constants.RETURN_VOID_TYPE;
 	}
 
@@ -62,7 +64,7 @@ public class ViewFunction implements Function, Serializable {
 	}
 	
 	
-	public ReturnVector executeFunction(Rete engine, Parameter[] params) {
+	public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
 		RootNode root=((WorkingMemoryImpl)engine.getWorkingMemory()).getRootNode();
 
 		/*Collection firstLevel=root.getObjectTypeNodes().values();

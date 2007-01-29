@@ -33,6 +33,9 @@ import java.util.Set;
 import org.jamocha.logging.DefaultLogger;
 import org.jamocha.messagerouter.MessageEvent;
 import org.jamocha.messagerouter.MessageRouter;
+import org.jamocha.parser.EvaluationException;
+import org.jamocha.parser.JamochaType;
+import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.exception.AssertException;
 import org.jamocha.rete.exception.ExecuteException;
 import org.jamocha.rete.exception.RetractException;
@@ -750,12 +753,13 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 	 * to load the file.
 	 * 
 	 * @param filename
+	 * @throws EvaluationException 
 	 */
-	public void loadRuleset(String filename) {
+	public void loadRuleset(String filename) throws EvaluationException {
 		BatchFunction bf = (BatchFunction) this.functions
 				.get(BatchFunction.BATCH);
 		Parameter[] params = new Parameter[] { new ValueParam(
-				Constants.STRING_TYPE, filename) };
+				new JamochaValue(JamochaType.STRING, filename)) };
 		bf.executeFunction(this, params);
 	}
 
@@ -794,8 +798,8 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 		this.defglobals.declareDefglobal(name, value);
 	}
 
-	public Object getDefglobalValue(String name) {
-		return this.defglobals.getValue(name);
+	public JamochaValue getDefglobalValue(String name) {
+		return (JamochaValue) this.defglobals.getValue(name);
 	}
 
 	// -------------- Get / Set methods --------------------- //
@@ -808,7 +812,7 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 	 * @param name
 	 * @return
 	 */
-	public Object getBinding(String name) {
+	public JamochaValue getBinding(String name) {
 		if (this.activeRule != null && !name.startsWith("*")) {
 			return this.activeRule.getBindingValue(name);
         } else if (this.intrFunction != null) {
@@ -828,7 +832,7 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 	 * @param key
 	 * @param value
 	 */
-	public void setBinding(String key, Object value) {
+	public void setBinding(String key, JamochaValue value) {
 		if (this.activeRule != null && !key.startsWith("*")) {
 			this.activeRule.setBindingValue(key, value);
 		} else {

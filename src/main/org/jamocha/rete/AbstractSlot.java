@@ -18,6 +18,8 @@ package org.jamocha.rete;
 
 import java.io.Serializable;
 
+import org.jamocha.parser.JamochaType;
+
 /**
  * @author Peter Lin
  *
@@ -43,7 +45,7 @@ public abstract class AbstractSlot implements Serializable, Cloneable {
 	/**
 	 * The type of the value
 	 */
-	private int type = -1;
+	private JamochaType type = JamochaType.UNDEFINED;
 
 	/**
 	 * depth is a place holder for ordered facts, which is a list
@@ -85,11 +87,11 @@ public abstract class AbstractSlot implements Serializable, Cloneable {
 		this.name = text;
 	}
 
-	public int getValueType() {
+	public JamochaType getValueType() {
 		return this.type;
 	}
 
-	public void setValueType(int type) {
+	public void setValueType(JamochaType type) {
 		this.type = type;
 	}
 

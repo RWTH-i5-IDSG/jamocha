@@ -19,6 +19,9 @@ package org.jamocha.rete.functions;
 import java.io.Serializable;
 import java.math.BigDecimal;
 
+import org.jamocha.parser.EvaluationException;
+import org.jamocha.parser.JamochaType;
+import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.BoundParam;
 import org.jamocha.rete.Constants;
 import org.jamocha.rete.DefaultReturnValue;
@@ -27,7 +30,6 @@ import org.jamocha.rete.Deffact;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.ReturnVector;
 import org.jamocha.rete.SlotParam;
 import org.jamocha.rete.ValueParam;
 import org.jamocha.rete.exception.RetractException;
@@ -41,11 +43,11 @@ public class RetractFunction implements Function, Serializable {
 		super();
 	}
 
-	public int getReturnType() {
+	public JamochaType getReturnType() {
 		return Constants.RETURN_VOID_TYPE;
 	}
 
-	public ReturnVector executeFunction(Rete engine, Parameter[] params) {
+	public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
 		DefaultReturnVector rv = new DefaultReturnVector();
 		if (params != null && params.length >= 1) {
 			for (int idx=0; idx < params.length; idx++) {

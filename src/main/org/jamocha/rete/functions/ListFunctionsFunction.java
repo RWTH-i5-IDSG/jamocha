@@ -20,13 +20,15 @@ import java.io.Serializable;
 import java.util.Iterator;
 import java.util.List;
 
+import org.jamocha.parser.EvaluationException;
+import org.jamocha.parser.JamochaType;
+import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Constants;
 import org.jamocha.rete.DefaultReturnVector;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.FunctionGroup;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.ReturnVector;
 
 
 public class ListFunctionsFunction implements Function, Serializable {
@@ -37,11 +39,11 @@ public class ListFunctionsFunction implements Function, Serializable {
 		super();
 	}
 
-	public int getReturnType() {
+	public JamochaType getReturnType() {
 		return Constants.RETURN_VOID_TYPE;
 	}
 
-	public ReturnVector executeFunction(Rete engine, Parameter[] params) {
+	public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
 		List fgroups = engine.getFunctionGroups();
 		Iterator itr = fgroups.iterator();
 		int counter = 0;

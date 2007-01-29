@@ -17,13 +17,14 @@
 package org.jamocha.rule;
 
 import java.io.Serializable;
-import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.jamocha.parser.JamochaType;
+import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.BaseJoin;
 import org.jamocha.rete.BaseNode;
 import org.jamocha.rete.Binding;
@@ -33,7 +34,6 @@ import org.jamocha.rete.Deftemplate;
 import org.jamocha.rete.Fact;
 import org.jamocha.rete.Module;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.Slot;
 import org.jamocha.rete.util.CollectionsFactory;
 
 /**
@@ -290,21 +290,21 @@ public class Defrule implements Rule, Serializable {
      * the current implementation simply replaces the existing
      * value if one already exists.
      */
-    public void setBindingValue(Object key, Object value) {
+    public void setBindingValue(Object key, JamochaValue value) {
     	this.bindValues.put(key,value);
     }
 
     /**
      * return the value associated with the binding
      */
-    public Object getBindingValue(Object key) {
-    	Object val = this.bindValues.get(key);
+    public JamochaValue getBindingValue(Object key) {
+    	JamochaValue val = (JamochaValue) this.bindValues.get(key);
     	if (val == null) {
     		Binding bd = (Binding)this.bindings.get(key);
     		if (bd != null) {
     			Fact left = this.triggerFacts[bd.getLeftRow()];
     			if (bd.getIsObjectVar()) {
-    				val = left;
+    				val = new JamochaValue(JamochaType.FACT, left);
     			} else {
         			val = left.getSlotValue(bd.getLeftIndex());
     			}

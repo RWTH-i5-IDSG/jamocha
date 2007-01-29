@@ -16,6 +16,9 @@
  */
 package org.jamocha.rete;
 
+import org.jamocha.parser.EvaluationException;
+import org.jamocha.parser.JamochaValue;
+
 /**
  * @author Peter Lin
  *
@@ -36,7 +39,6 @@ public class FunctionParam extends AbstractParam {
      */
     protected Function func = null;
     protected int valueType = -1;
-    protected Object value = null;
     protected Fact[] facts;
     protected BoundParam[] params = null;
     protected Rete engine = null;
@@ -57,20 +59,9 @@ public class FunctionParam extends AbstractParam {
 		return this.valueType;
 	}
 
-	/**
-     * getValue() should trigger the function 
-	 */
-	public Object getValue() {
-        // execute the function and return the value
+    public JamochaValue getValue(Rete engine) throws EvaluationException {
         initParams();
-        value = this.func.executeFunction(this.engine,this.params);
-		return this.value;
-	}
-
-    public Object getValue(Rete engine, int valueType) {
-        initParams();
-        ReturnVector rval = this.func.executeFunction(engine,this.params);
-        return rval.firstReturnValue().getBigDecimalValue();
+        return this.func.executeFunction(engine,this.params);
     }
     
     /**
@@ -104,6 +95,5 @@ public class FunctionParam extends AbstractParam {
      */
     public void reset(){
         this.facts = null;
-        this.value = null;
     }
 }

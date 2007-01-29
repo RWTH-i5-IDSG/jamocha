@@ -18,12 +18,14 @@ package org.jamocha.rete.functions;
 
 import java.io.Serializable;
 
+import org.jamocha.parser.EvaluationException;
+import org.jamocha.parser.JamochaType;
+import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Constants;
 import org.jamocha.rete.DefaultReturnVector;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.ReturnVector;
 
 
 /**
@@ -45,7 +47,7 @@ public class ResetFactsFunction implements Function, Serializable {
 	/**
 	 * the function does not return anything
 	 */
-	public int getReturnType() {
+	public JamochaType getReturnType() {
         return Constants.RETURN_VOID_TYPE;
 	}
 
@@ -53,7 +55,7 @@ public class ResetFactsFunction implements Function, Serializable {
 	 * current implementation will call Rete.resetAll. This means it
 	 * will reset all objects and deffacts.
 	 */
-	public ReturnVector executeFunction(Rete engine, Parameter[] params) {
+	public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
 		engine.resetFacts();
 		return new DefaultReturnVector();
 	}

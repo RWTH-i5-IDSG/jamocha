@@ -18,6 +18,9 @@ package org.jamocha.rete.functions;
 
 import java.io.Serializable;
 
+import org.jamocha.parser.EvaluationException;
+import org.jamocha.parser.JamochaType;
+import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.BoundParam;
 import org.jamocha.rete.Constants;
 import org.jamocha.rete.DefaultReturnValue;
@@ -49,11 +52,11 @@ public class UsageFunction implements Function, Serializable {
 	}
 
 	
-	public int getReturnType() {
+	public JamochaType getReturnType() {
 		return Constants.STRING_TYPE;
 	}
 
-	public ReturnVector executeFunction(Rete engine, Parameter[] params) {
+	public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
 		String sval = new String();
 		if (params != null) {
 			if (params.length == 1) {

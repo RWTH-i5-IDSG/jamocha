@@ -16,6 +16,9 @@
  */
 package org.jamocha.rule;
 
+import org.jamocha.parser.EvaluationException;
+import org.jamocha.parser.JamochaType;
+import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Binding;
 import org.jamocha.rete.BoundParam;
 import org.jamocha.rete.Constants;
@@ -85,8 +88,9 @@ public class FunctionAction implements Action {
     
     /**
      * Configure will lookup the function and set it
+     * @throws EvaluationException 
      */
-    public void configure(Rete engine, Rule util) {
+    public void configure(Rete engine, Rule util) throws EvaluationException {
         if (this.functionName != null && 
                 engine.findFunction(this.functionName) != null) {
             this.faction = engine.findFunction(this.functionName);
@@ -107,20 +111,23 @@ public class FunctionAction implements Action {
         		ValueParam vp = (ValueParam)this.parameters[idx];
         		// if the value is a deffact, we need to check and make sure
         		// the slots with BoundParam value are compiled properly
-        		if (vp.getValue() instanceof Deffact) {
-        			((Deffact)vp.getValue()).compileBinding(util);
+        		JamochaValue value = vp.getValue(engine); 
+        		if (value.getType().equals(JamochaType.FACT)) {
+        			((Deffact)value.getFactValue()).compileBinding(util);
         		}
         	}
         }
         // in the case of Assert, we do further compilation
         if (this.faction instanceof AssertFunction) {
-			Deftemplate tmpl = (Deftemplate) engine.getCurrentFocus()
-			.getTemplate(this.parameters[0].getStringValue());
+        	JamochaValue tmplName = this.parameters[0].getValue(engine);
+        	Deftemplate tmpl = (Deftemplate) engine.getCurrentFocus()
+			.getTemplate(tmplName.getIdentifierValue());
+        	JamochaValue values = this.parameters[1].getValue(engine); 
 			Deffact	fact = (Deffact) tmpl.createFact(
-					(Object[])this.parameters[1].getValue(),-1);
+					(Object[])values.getObjectValue(),-1);
 			fact.compileBinding(util);
 			this.parameters = new ValueParam[1];
-			this.parameters[0] = new ValueParam(Constants.OBJECT_TYPE,fact);
+			this.parameters[0] = new ValueParam(new JamochaValue(JamochaType.FACT, fact));
         }
     }
     
@@ -147,7 +154,11 @@ public class FunctionAction implements Action {
         	((ModifyFunction)this.faction).setTriggerFacts(facts);
         }
         // now we find the function
-        this.faction.executeFunction(engine,this.parameters);
+        try {
+			this.faction.executeFunction(engine,this.parameters);
+		} catch (EvaluationException e) {
+			throw new ExecuteException(e);
+		}
 	}
 
 	/**

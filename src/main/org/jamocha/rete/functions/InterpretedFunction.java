@@ -18,6 +18,9 @@ package org.jamocha.rete.functions;
 
 import java.util.HashMap;
 
+import org.jamocha.parser.EvaluationException;
+import org.jamocha.parser.JamochaType;
+import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.BoundParam;
 import org.jamocha.rete.Constants;
 import org.jamocha.rete.DefaultReturnValue;
@@ -25,7 +28,6 @@ import org.jamocha.rete.DefaultReturnVector;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.ReturnVector;
 
 /**
  * 
@@ -63,7 +65,7 @@ public class InterpretedFunction implements Function {
     /* (non-Javadoc)
      * @see org.jamocha.rete.Function#executeFunction(org.jamocha.rete.Rete, org.jamocha.rete.Parameter[])
      */
-    public ReturnVector executeFunction(Rete engine, Parameter[] params) {
+    public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
         // the first thing we do is set the values
         DefaultReturnVector ret = new DefaultReturnVector();
         if (params.length == this.inputParams.length) {
@@ -94,7 +96,7 @@ public class InterpretedFunction implements Function {
         return new Class[]{BoundParam.class};
     }
 
-    public int getReturnType() {
+    public JamochaType getReturnType() {
         return this.internalFunction.getReturnType();
     }
 
@@ -114,7 +116,7 @@ public class InterpretedFunction implements Function {
         this.functionParams = functionParams;
     }
 
-    public Object getBinding(String var) {
-        return this.bindings.get(var);
+    public JamochaValue getBinding(String var) {
+        return (JamochaValue) this.bindings.get(var);
     }
 }

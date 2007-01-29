@@ -16,6 +16,8 @@
  */
 package org.jamocha.rete;
 
+import org.jamocha.parser.JamochaValue;
+
 /**
  * @author Peter Lin
  * 
@@ -36,7 +38,7 @@ public class DefaultReturnValue extends ValueParam {
 	/**
 	 * 
 	 */
-	public DefaultReturnValue(int vtype, Object value) {
-		super(vtype, value);
+	public DefaultReturnValue(JamochaValue value) {
+		super(value);
 	}
 }

@@ -16,13 +16,15 @@
  */
 package org.jamocha.rete.functions;
 
+import org.jamocha.parser.EvaluationException;
+import org.jamocha.parser.JamochaType;
+import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Constants;
 import org.jamocha.rete.DefaultReturnValue;
 import org.jamocha.rete.DefaultReturnVector;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.ReturnVector;
 
 /**
  * Deffunction is used for functions that are declared in the
@@ -47,7 +49,7 @@ public class Deffunction implements Function {
     public Deffunction() {
     }
 
-    public ReturnVector executeFunction(Rete engine, Parameter[] params) {
+    public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
         DefaultReturnVector ret = new DefaultReturnVector();
         boolean add = false;
         if (engine.findFunction(this.name) == null) {
@@ -79,7 +81,7 @@ public class Deffunction implements Function {
         return this.functionParams;
     }
 
-    public int getReturnType() {
+    public JamochaType getReturnType() {
         return this.returnType;
     }
 

@@ -18,12 +18,14 @@ package org.jamocha.rete.functions;
 
 import java.io.Serializable;
 
+import org.jamocha.parser.EvaluationException;
+import org.jamocha.parser.JamochaType;
+import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Constants;
 import org.jamocha.rete.DefaultReturnVector;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.ReturnVector;
 import org.jamocha.rete.ValueParam;
 import org.jamocha.rule.Defrule;
 import org.jamocha.rule.Rule;
@@ -47,7 +49,7 @@ public class PPrintNodeFunction implements Function, Serializable {
 		super();
 	}
 
-	public int getReturnType() {
+	public JamochaType getReturnType() {
 		return Constants.RETURN_VOID_TYPE;
 	}
 
@@ -55,7 +57,7 @@ public class PPrintNodeFunction implements Function, Serializable {
 	 * TODO - I need to finish this, so it can print out a node
 	 * in a pretty format
 	 */
-	public ReturnVector executeFunction(Rete engine, Parameter[] params) {
+	public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
 		if (params != null && params.length > 0) {
 			for (int idx=0; idx < params.length; idx++) {
 			}

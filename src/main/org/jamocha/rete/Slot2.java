@@ -21,6 +21,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+import org.jamocha.parser.JamochaValue;
 import org.jamocha.rule.MultiValue;
 
 
@@ -69,7 +70,7 @@ public class Slot2 extends Slot {
     /**
      * the method doesn't apply to slot2
      */
-    public Object getValue() {
+    public JamochaValue getValue() {
     	return null;
     }
     

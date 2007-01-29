@@ -19,6 +19,9 @@ package org.jamocha.rete.functions;
 import java.io.Serializable;
 import java.math.BigDecimal;
 
+import org.jamocha.parser.EvaluationException;
+import org.jamocha.parser.JamochaType;
+import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.BoundParam;
 import org.jamocha.rete.Constants;
 import org.jamocha.rete.DefaultReturnValue;
@@ -27,7 +30,6 @@ import org.jamocha.rete.Function;
 import org.jamocha.rete.FunctionParam2;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.ReturnVector;
 import org.jamocha.rete.ValueParam;
 
 
@@ -48,17 +50,16 @@ public class Subtract implements Function, Serializable {
 		super();
 	}
 
-	public int getReturnType() {
+	public JamochaType getReturnType() {
         return Constants.BIG_DECIMAL;
 	}
 
-	public ReturnVector executeFunction(Rete engine, Parameter[] params) {
+	public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
 		BigDecimal bdval = null;
 		if (params != null) {
-            bdval = (BigDecimal)params[0].getValue(engine, Constants.BIG_DECIMAL);
+            bdval = (BigDecimal)params[0].getValue(engine);
 			for (int idx=1; idx < params.length; idx++) {
-                BigDecimal bd = (BigDecimal) params[idx].getValue(engine,
-                        Constants.BIG_DECIMAL);
+                BigDecimal bd = (BigDecimal) params[idx].getValue(engine);
                 bdval = bdval.subtract(bd);
 			}
 		}

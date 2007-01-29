@@ -16,6 +16,9 @@
  */
 package org.jamocha.rete;
 
+import org.jamocha.parser.EvaluationException;
+import org.jamocha.parser.JamochaValue;
+
 /**
  * @author Peter Lin
  *
@@ -130,7 +133,7 @@ public class BoundParam extends AbstractParam {
     /**
      * method will try to resolve the variable and return the value.
      */
-    public Object getValue(Rete engine, int valueType) {
+    public JamochaValue getValue(Rete engine) throws EvaluationException {
         if (fact != null) {
             return this.fact.getSlotValue(this.column);
         } else {

@@ -16,32 +16,33 @@
  */
 package org.jamocha.rete;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 
+import org.jamocha.parser.EvaluationException;
+import org.jamocha.parser.JamochaType;
+import org.jamocha.parser.JamochaValue;
 import org.jamocha.rule.Rule;
-
 
 /**
  * @author Peter Lin
  * 
- * Deffact is a concrete implementation of Fact interface. It is
- * equivalent to deffact in CLIPS.
+ * Deffact is a concrete implementation of Fact interface. It is equivalent to
+ * deffact in CLIPS.
  */
 public class Deffact implements Fact {
 
 	protected Deftemplate deftemplate = null;
 
-    protected Object objInstance;
+	protected Object objInstance;
 
-    protected Slot[] slots = null;
+	protected Slot[] slots = null;
 
-    protected Slot[] boundSlots = null;
+	protected Slot[] boundSlots = null;
 
 	/**
 	 * the Fact id must be unique, since we use it for the indexes
 	 */
-    protected long id;
+	protected long id;
 
 	private long timeStamp = 0;
 
@@ -51,6 +52,7 @@ public class Deffact implements Fact {
 
 	/**
 	 * this is the default constructor
+	 * 
 	 * @param instance
 	 * @param values
 	 */
@@ -69,10 +71,11 @@ public class Deffact implements Fact {
 	public void compileBinding(Rule util) {
 		ArrayList list = new ArrayList();
 		for (int idx = 0; idx < this.slots.length; idx++) {
-			if (this.slots[idx].value instanceof BoundParam) {
+			if (this.slots[idx].value.getType().equals(JamochaType.BINDING)) {
 				this.hasBinding = true;
 				list.add(this.slots[idx]);
-				BoundParam bp = (BoundParam) this.slots[idx].value;
+				BoundParam bp = (BoundParam) this.slots[idx].value
+						.getObjectValue();
 				Binding bd = util.getBinding(bp.getVariableName());
 				if (bd != null) {
 					bp.rowId = bd.getLeftRow();
@@ -89,6 +92,7 @@ public class Deffact implements Fact {
 	 * In some cases, a deffact may have bindings. This is a design choice. When
 	 * rules are parsed and compiled, actions that assert facts are converted to
 	 * Deffact instances with BoundParam for the slot value.
+	 * 
 	 * @return
 	 */
 	public boolean hasBinding() {
@@ -97,8 +101,10 @@ public class Deffact implements Fact {
 
 	public void resolveValues(Rete engine, Fact[] triggerFacts) {
 		for (int idx = 0; idx < this.boundSlots.length; idx++) {
-			if (this.boundSlots[idx].value instanceof BoundParam) {
-				BoundParam bp = (BoundParam) this.boundSlots[idx].value;
+			if (this.boundSlots[idx].value.getType()
+					.equals(JamochaType.BINDING)) {
+				BoundParam bp = (BoundParam) this.boundSlots[idx].value
+						.getObjectValue();
 				if (bp.column > -1) {
 					bp.setFact(triggerFacts);
 				} else {
@@ -111,18 +117,18 @@ public class Deffact implements Fact {
 	}
 
 	/**
-	 * Method returns the value of the given slot at the
-	 * id.
+	 * Method returns the value of the given slot at the id.
+	 * 
 	 * @param id
 	 * @return
 	 */
-	public Object getSlotValue(int id) {
+	public JamochaValue getSlotValue(int id) {
 		return this.slots[id].value;
 	}
 
 	/**
-	 * Method will iterate over the slots until finds the match.
-	 * If no match is found, it return -1.
+	 * Method will iterate over the slots until finds the match. If no match is
+	 * found, it return -1.
 	 */
 	public int getSlotId(String name) {
 		int col = -1;
@@ -136,9 +142,9 @@ public class Deffact implements Fact {
 	}
 
 	/**
-	 * If the fact is a shadow fact, it will return the
-	 * object instance. If the fact is just a deffact
-	 * and isn't a shadow fact, it return null.
+	 * If the fact is a shadow fact, it will return the object instance. If the
+	 * fact is just a deffact and isn't a shadow fact, it return null.
+	 * 
 	 * @return
 	 */
 	public Object getObjectInstance() {
@@ -147,6 +153,7 @@ public class Deffact implements Fact {
 
 	/**
 	 * Method will return the fact in a string format.
+	 * 
 	 * @return
 	 */
 	public String toFactString() {
@@ -157,8 +164,7 @@ public class Deffact implements Fact {
 		}
 		for (int idx = 0; idx < this.slots.length; idx++) {
 			buf.append("(" + this.slots[idx].getName() + " "
-					+ ConversionUtils.formatSlot(this.slots[idx].value)
-					+ ") ");
+					+ ConversionUtils.formatSlot(this.slots[idx].value) + ") ");
 		}
 		buf.append(")");
 		return buf.toString();
@@ -171,16 +177,15 @@ public class Deffact implements Fact {
 			buf.append(" ");
 		}
 		for (int idx = 0; idx < this.slots.length; idx++) {
-			if (this.slots[idx].value instanceof BoundParam) {
-				BoundParam bp = (BoundParam) this.slots[idx].value;
+			if (this.slots[idx].value.getType().equals(JamochaType.BINDING)) {
+				BoundParam bp = (BoundParam) this.slots[idx].value
+						.getObjectValue();
 				buf.append("(" + this.slots[idx].getName() + " ?"
 						+ bp.getVariableName() + ") ");
 			} else {
-				buf.append("("
-						+ this.slots[idx].getName()
-						+ " "
-						+ ConversionUtils
-								.formatSlot(this.slots[idx].value) + ") ");
+				buf.append("(" + this.slots[idx].getName() + " "
+						+ ConversionUtils.formatSlot(this.slots[idx].value)
+						+ ") ");
 			}
 		}
 		buf.append(")");
@@ -191,6 +196,7 @@ public class Deffact implements Fact {
 	 * Returns the string format for the fact without the fact-id. this is used
 	 * to make sure that if an user asserts an equivalent fact, we can easily
 	 * check it.
+	 * 
 	 * @return
 	 */
 	protected EqualityIndex equalityIndex() {
@@ -202,6 +208,7 @@ public class Deffact implements Fact {
 
 	/**
 	 * this is used by the EqualityIndex class
+	 * 
 	 * @return
 	 */
 	protected int slotHash() {
@@ -221,8 +228,9 @@ public class Deffact implements Fact {
 	}
 
 	/**
-	 * if the factId is -1, the fact will get will the next fact id
-	 * from Rete and set it. Otherwise, the fact will use the same one.
+	 * if the factId is -1, the fact will get will the next fact id from Rete
+	 * and set it. Otherwise, the fact will use the same one.
+	 * 
 	 * @param engine
 	 */
 	public void setFactId(Rete engine) {
@@ -232,8 +240,9 @@ public class Deffact implements Fact {
 	}
 
 	/**
-	 * this is used to reset the id, in the event an user tries to
-	 * assert the same fact again, we reset the id to the existing one.
+	 * this is used to reset the id, in the event an user tries to assert the
+	 * same fact again, we reset the id to the existing one.
+	 * 
 	 * @param fact
 	 */
 	protected void resetID(Deffact fact) {
@@ -246,9 +255,9 @@ public class Deffact implements Fact {
 	public void updateSlots(Rete engine, Slot[] updates) {
 		for (int idx = 0; idx < updates.length; idx++) {
 			Slot uslot = updates[idx];
-			if (uslot.value instanceof BoundParam) {
-				BoundParam bp = (BoundParam) uslot.value;
-				Object val = engine.getBinding(bp.getVariableName());
+			if (uslot.value.getType().equals(JamochaType.BINDING)) {
+				BoundParam bp = (BoundParam) uslot.value.getObjectValue();
+				JamochaValue val = engine.getBinding(bp.getVariableName());
 				this.slots[uslot.getId()].value = val;
 			} else {
 				this.slots[uslot.getId()].value = uslot.value;
@@ -271,13 +280,14 @@ public class Deffact implements Fact {
 	}
 
 	/**
-	 * the current implementation only compares the values, since the slot
-	 * names are equal. It would be a waste of time to compare the slot
-	 * names. The exception to the case is when a deftemplate is changed.
-	 * Since that feature isn't supported yet, it's currently not an issue.
-	 * Even if updating deftemplates is added in the future, the deffacts
-	 * need to be updated. If the deffacts weren't updated, it could lead
-	 * to NullPointerExceptions.
+	 * the current implementation only compares the values, since the slot names
+	 * are equal. It would be a waste of time to compare the slot names. The
+	 * exception to the case is when a deftemplate is changed. Since that
+	 * feature isn't supported yet, it's currently not an issue. Even if
+	 * updating deftemplates is added in the future, the deffacts need to be
+	 * updated. If the deffacts weren't updated, it could lead to
+	 * NullPointerExceptions.
+	 * 
 	 * @param fact
 	 * @return
 	 */
@@ -296,21 +306,22 @@ public class Deffact implements Fact {
 	/**
 	 * Convienance method for cloning a fact. If a slot's value is a BounParam,
 	 * the cloned fact uses the value of the BoundParam.
+	 * 
 	 * @return
 	 */
-	public Deffact cloneFact() {
+	public Deffact cloneFact(Rete engine) {
 		Deffact newfact = new Deffact(this.deftemplate, this.objInstance,
 				this.deftemplate.cloneAllSlots(), -1);
 		Slot[] slts = newfact.slots;
 		for (int idx = 0; idx < slts.length; idx++) {
 			// probably need to revisit this and make sure
-			if (this.slots[idx].value instanceof BoundParam) {
-				if (slts[idx].getValueType() == Constants.STRING_TYPE) {
-					slts[idx].value = ((BoundParam) this.slots[idx].value)
-							.getValue().toString();
-				} else {
-					slts[idx].value = ((BoundParam) this.slots[idx].value)
-							.getValue();
+			if (this.slots[idx].value.getType().equals(JamochaType.BINDING)) {
+				try {
+					slts[idx].value = ((BoundParam) this.slots[idx].value.getObjectValue())
+							.getValue(engine);
+				} catch (EvaluationException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
 				}
 			} else {
 				slts[idx].value = this.slots[idx].value;

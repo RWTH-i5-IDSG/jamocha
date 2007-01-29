@@ -23,6 +23,9 @@ import java.math.MathContext;
 
 import java.lang.Math;
 
+import org.jamocha.parser.EvaluationException;
+import org.jamocha.parser.JamochaType;
+import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.BoundParam;
 import org.jamocha.rete.Constants;
 import org.jamocha.rete.DefaultReturnValue;
@@ -50,11 +53,11 @@ public class Rint implements Function, Serializable {
 		super();
 	}
 
-	public int getReturnType() {
+	public JamochaType getReturnType() {
 		return Constants.BIG_DECIMAL;
 	}
 
-	public ReturnVector executeFunction(Rete engine, Parameter[] params) {
+	public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
 		BigDecimal bdval = new BigDecimal(0);
 		BigDecimal bd = new BigDecimal(0);
 		if (params.length == 1) {

@@ -19,13 +19,15 @@ package org.jamocha.rete.functions;
 import java.io.Serializable;
 import java.util.HashMap;
 
+import org.jamocha.parser.EvaluationException;
+import org.jamocha.parser.JamochaType;
+import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.BoundParam;
 import org.jamocha.rete.Constants;
 import org.jamocha.rete.DefaultReturnVector;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.ReturnVector;
 import org.jamocha.rete.ValueParam;
 
 
@@ -46,7 +48,7 @@ public class MatchesFunction implements Function, Serializable {
 		super();
 	}
 
-	public int getReturnType() {
+	public JamochaType getReturnType() {
         return Constants.RETURN_VOID_TYPE;
 	}
 
@@ -55,7 +57,7 @@ public class MatchesFunction implements Function, Serializable {
 	 * all the memories. if parameters are passed, the output will be
 	 * filtered.
 	 */
-	public ReturnVector executeFunction(Rete engine, Parameter[] params) {
+	public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
 		HashMap filter = new HashMap();
 		if (params != null && params.length > 0) {
 			// now we populate the filter

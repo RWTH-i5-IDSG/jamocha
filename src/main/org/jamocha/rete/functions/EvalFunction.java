@@ -20,6 +20,9 @@ import java.io.Serializable;
 import java.io.StringReader;
 
 import org.jamocha.messagerouter.CLIPSInterpreter;
+import org.jamocha.parser.EvaluationException;
+import org.jamocha.parser.JamochaType;
+import org.jamocha.parser.JamochaValue;
 import org.jamocha.parser.clips.CLIPSParser;
 import org.jamocha.parser.clips.ParseException;
 import org.jamocha.rete.BoundParam;
@@ -52,11 +55,11 @@ public class EvalFunction implements Function, Serializable {
 		super();
 	}
 
-	public int getReturnType() {
+	public JamochaType getReturnType() {
 		return Constants.OBJECT_TYPE;
 	}
 
-	public ReturnVector executeFunction(Rete engine, Parameter[] params) {
+	public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
 		ReturnVector result = null;
 		if (params != null && params.length > 0) {
 			String command = null;

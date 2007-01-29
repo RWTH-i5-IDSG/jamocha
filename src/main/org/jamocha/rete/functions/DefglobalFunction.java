@@ -18,10 +18,12 @@ package org.jamocha.rete.functions;
 
 import java.io.Serializable;
 
+import org.jamocha.parser.EvaluationException;
+import org.jamocha.parser.JamochaType;
+import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.ReturnVector;
 
 
 /**
@@ -41,7 +43,7 @@ public class DefglobalFunction implements Serializable, Function {
 	/* (non-Javadoc)
 	 * @see woolfel.engine.rete.Function#getReturnType()
 	 */
-	public int getReturnType() {
+	public JamochaType getReturnType() {
 		// TODO Auto-generated method stub
 		return 0;
 	}
@@ -49,7 +51,7 @@ public class DefglobalFunction implements Serializable, Function {
 	/* (non-Javadoc)
 	 * @see woolfel.engine.rete.Function#executeFunction(woolfel.engine.rete.Rete, woolfel.engine.rete.Parameter[])
 	 */
-	public ReturnVector executeFunction(Rete engine, Parameter[] params) {
+	public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
 		// TODO Auto-generated method stub
 		return null;
 	}

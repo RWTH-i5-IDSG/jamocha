@@ -19,18 +19,19 @@ package org.jamocha.rete;
 import java.util.Map;
 import java.util.Iterator;
 
+import org.jamocha.parser.EvaluationException;
+import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.exception.AssertException;
 import org.jamocha.rete.exception.RetractException;
 import org.jamocha.rete.functions.ShellFunction;
 
-
 /**
  * @author Peter Lin
- *
- * TestNode extends BaseJoin. TestNode is used to evaluate functions.
- * It may use values or bindings as parameters for the functions. The
- * left input is where the facts would enter. The right input is a
- * dummy input, since no facts actually enter.
+ * 
+ * TestNode extends BaseJoin. TestNode is used to evaluate functions. It may use
+ * values or bindings as parameters for the functions. The left input is where
+ * the facts would enter. The right input is a dummy input, since no facts
+ * actually enter.
  */
 public class TestNode extends BaseJoin {
 
@@ -45,8 +46,7 @@ public class TestNode extends BaseJoin {
 	protected Parameter[] params = null;
 
 	/**
-	 * by default the string is null, until the first time
-	 * toPPString is called.
+	 * by default the string is null, until the first time toPPString is called.
 	 */
 	private String ppstring = null;
 
@@ -70,8 +70,8 @@ public class TestNode extends BaseJoin {
 	}
 
 	/**
-	 * Assert will first pass the facts to the parameters. Once the
-	 * parameters are set, it should call execute to get the result.
+	 * Assert will first pass the facts to the parameters. Once the parameters
+	 * are set, it should call execute to get the result.
 	 */
 	public void assertLeft(Fact[] lfacts, Rete engine, WorkingMemory mem)
 			throws AssertException {
@@ -79,8 +79,13 @@ public class TestNode extends BaseJoin {
 		Map leftmem = (Map) mem.getBetaLeftMemory(this);
 		if (!leftmem.containsKey(inx)) {
 			this.setParameters(lfacts);
-			ReturnVector rv = this.func.executeFunction(engine, this.params);
-			if (rv.firstReturnValue().getBooleanValue()) {
+			JamochaValue value;
+			try {
+				value = this.func.executeFunction(engine, this.params);
+			} catch (EvaluationException e) {
+				throw new AssertException(e);
+			}
+			if (value.getBooleanValue()) {
 				BetaMemory bmem = new BetaMemoryImpl(inx);
 				leftmem.put(bmem.getIndex(), bmem);
 				propogateAssert(lfacts, engine, mem);
@@ -138,8 +143,7 @@ public class TestNode extends BaseJoin {
 	}
 
 	/**
-	 * Still need to implement the method to return string
-	 * format of the node
+	 * Still need to implement the method to return string format of the node
 	 */
 	public String toString() {
 		return "(test (" + this.func.getName() + ") )";
@@ -151,14 +155,20 @@ public class TestNode extends BaseJoin {
 	public String toPPString() {
 		if (ppstring == null) {
 			StringBuffer buf = new StringBuffer();
-			buf.append("TestNode-" + this.nodeID + "> (test (" + this.func.getName());
+			buf.append("TestNode-" + this.nodeID + "> (test ("
+					+ this.func.getName());
 			for (int idx = 0; idx < this.params.length; idx++) {
 				if (params[idx] instanceof BoundParam) {
 					BoundParam bp = (BoundParam) params[idx];
 					buf.append(" ?" + bp.getVariableName());
 				} else if (params[idx] instanceof ValueParam) {
 					ValueParam vp = (ValueParam) params[idx];
-					buf.append(" " + vp.getStringValue());
+					try {
+						buf.append(" " + vp.getValue(null).toString());
+					} catch (EvaluationException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 				}
 			}
 			buf.append(") )");

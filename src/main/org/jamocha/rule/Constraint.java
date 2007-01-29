@@ -18,6 +18,8 @@ package org.jamocha.rule;
 
 import java.io.Serializable;
 
+import org.jamocha.parser.JamochaValue;
+
 /**
  * @author Peter Lin
  *
@@ -46,13 +48,13 @@ public interface Constraint extends Serializable {
      * Integer.
      * @return
      */
-    Object getValue();
+    JamochaValue getValue();
     /**
      * Set the value of the constraint. In the case of a binding,
      * the value is the variable name
      * @param val
      */
-    void setValue(Object val);
+    void setValue(JamochaValue val);
     /**
      * A convienance method to return pretty print format.
      * @return

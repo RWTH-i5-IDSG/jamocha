@@ -19,7 +19,10 @@ package org.jamocha.rule;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 
+import org.jamocha.parser.JamochaType;
+import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Constants;
 import org.jamocha.rete.ConversionUtils;
 
@@ -37,7 +40,7 @@ import org.jamocha.rete.ConversionUtils;
 public class OrLiteralConstraint implements Constraint {
 
     protected String name;
-    protected ArrayList value = new ArrayList();
+    protected JamochaValue value = new JamochaValue(JamochaType.OBJECT, new ArrayList());
     protected boolean negated = false;
     
 	/**
@@ -64,7 +67,7 @@ public class OrLiteralConstraint implements Constraint {
 	/* (non-Javadoc)
 	 * @see woolfel.engine.rule.Constraint#getValue()
 	 */
-	public Object getValue() {
+	public JamochaValue getValue() {
 		return value;
 	}
 
@@ -72,20 +75,20 @@ public class OrLiteralConstraint implements Constraint {
      * Set the value of the constraint. It should be a concrete value and
      * not a binding.
 	 */
-	public void setValue(Object val) {
-		if (val instanceof ArrayList) {
-	        this.value = (ArrayList)val;
+	public void setValue(JamochaValue val) {
+		if (val.getType().equals(JamochaType.OBJECT) && val.getObjectValue() instanceof List) {
+	        this.value = val;
 		}
 	}
 	
 	public void addValue(MultiValue mv) {
-		this.value.add(mv);
+		((List)this.value.getObjectValue()).add(mv);
 	}
 	
 	public void addValues(Collection list) {
-		this.value.addAll(list);
+		((List)this.value.getObjectValue()).addAll(list);
 	}
-	
+
 	/**
 	 * if the literal constraint is negated with a "~" tilda, call
 	 * the method pass true.
@@ -105,7 +108,7 @@ public class OrLiteralConstraint implements Constraint {
 	
 	public String toPPString() {
 		StringBuffer buf = new StringBuffer();
-		Iterator itr = this.value.iterator();
+		Iterator itr = ((List)this.value.getObjectValue()).iterator();
 		buf.append("    (" + this.name + " ");
 		int count = 0;
 		while (itr.hasNext()) {

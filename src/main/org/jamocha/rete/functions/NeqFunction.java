@@ -19,6 +19,9 @@ package org.jamocha.rete.functions;
 import java.io.Serializable;
 import java.math.BigDecimal;
 
+import org.jamocha.parser.EvaluationException;
+import org.jamocha.parser.JamochaType;
+import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.BoundParam;
 import org.jamocha.rete.Constants;
 import org.jamocha.rete.DefaultReturnValue;
@@ -45,11 +48,11 @@ public class NeqFunction implements Function, Serializable {
 		super();
 	}
 
-	public int getReturnType() {
+	public JamochaType getReturnType() {
 		return Constants.BOOLEAN_OBJECT;
 	}
 
-	public ReturnVector executeFunction(Rete engine, Parameter[] params) {
+	public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
 		DefaultReturnVector ret = new DefaultReturnVector();
 		boolean eq = true;
 		if (params != null && params.length > 1) {

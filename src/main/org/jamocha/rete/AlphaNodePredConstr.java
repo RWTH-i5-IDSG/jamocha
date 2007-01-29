@@ -18,6 +18,8 @@ package org.jamocha.rete;
 
 import java.util.Iterator;
 
+import org.jamocha.parser.EvaluationException;
+import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.exception.AssertException;
 import org.jamocha.rete.exception.RetractException;
 
@@ -65,9 +67,13 @@ public class AlphaNodePredConstr extends BaseAlpha {
 	public void assertFact(Fact fact, Rete engine, WorkingMemory mem)
 			throws AssertException {
 		AlphaMemory alpha = (AlphaMemory) mem.getAlphaMemory(this);
-		if (evaluate(fact, engine)) {
-			alpha.addPartialMatch(fact);
-			propogateAssert(fact, engine, mem);
+		try {
+			if (evaluate(fact, engine)) {
+				alpha.addPartialMatch(fact);
+				propogateAssert(fact, engine, mem);
+			}
+		} catch (EvaluationException e) {
+			throw new AssertException(e);
 		}
 	}
 
@@ -90,16 +96,16 @@ public class AlphaNodePredConstr extends BaseAlpha {
 	 * The method uses the function to evaluate the fact
 	 * @param factInstance
 	 * @return
+	 * @throws EvaluationException 
 	 */
-	public boolean evaluate(Fact factInstance, Rete engine) {
+	public boolean evaluate(Fact factInstance, Rete engine) throws EvaluationException {
 		for (int idx=0; idx < params.length; idx++) {
 			if (params[idx] instanceof BoundParam) {
 				((BoundParam)params[idx]).setFact(new Fact[] {factInstance});
 			}
 		}
-		ReturnVector rv = this.function.executeFunction(engine, this.params);
-		ReturnValue rval = rv.firstReturnValue();
-		return rval.getBooleanValue();
+		JamochaValue rv = this.function.executeFunction(engine, this.params);
+		return rv.getBooleanValue();
 	}
 
 	public CompositeIndex getHashIndex() {

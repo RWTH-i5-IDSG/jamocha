@@ -16,19 +16,16 @@
  */
 package org.jamocha.rete;
 
+import org.jamocha.parser.EvaluationException;
+import org.jamocha.parser.JamochaValue;
+
 /**
  * @author Peter Lin
  *
  * Parameter can be a value, a bound variable or the result of a function.
  * It is up to the implementing class to provide the necessary logic.
  */
-public interface Parameter extends ReturnValue {
-    /**
-     * In some cases, we may need to reset the parameter. For example,
-     * function and bound parameters may need to be reset, so the
-     * instance can be reused.
-     */
-    void reset();
+public interface Parameter {
     /**
      * If the parameter is an object binding, the method should return true
      * @return
@@ -40,8 +37,8 @@ public interface Parameter extends ReturnValue {
      * or throw an exception if the class can't implicitly cast the value
      * to the target value type.
      * @param engine
-     * @param valueType
      * @return
+     * @throws EvaluationException TODO
      */
-    Object getValue(Rete engine, int valueType);
+    JamochaValue getValue(Rete engine) throws EvaluationException;
 }

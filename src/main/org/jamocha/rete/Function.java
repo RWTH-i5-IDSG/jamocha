@@ -18,6 +18,10 @@ package org.jamocha.rete;
 
 import java.io.Serializable;
 
+import org.jamocha.parser.EvaluationException;
+import org.jamocha.parser.JamochaType;
+import org.jamocha.parser.JamochaValue;
+
 /**
  * @author Peter Lin
  *
@@ -31,7 +35,7 @@ public interface Function extends Serializable {
 	 * every function needs to declare what the return type is.
 	 * @return
 	 */
-	int getReturnType();
+	JamochaType getReturnType();
 
 	/**
 	 * Functions must implement concrete logic for the function.
@@ -45,28 +49,15 @@ public interface Function extends Serializable {
 	 * @param engine
 	 * @param params
 	 * @return
+	 * @throws EvaluationException TODO
 	 */
-	ReturnVector executeFunction(Rete engine, Parameter[] params);
+	JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException;
 
 	/**
 	 * Every function must declare the name
 	 * @return
 	 */
 	String getName();
-
-	/**
-	 * Functions should declare what kind of parameters it takes.
-	 * If a function doesn't take any parameters, the method should return
-	 * null.
-	 * For example, set-member function returns 
-	 * BoundParam.class,StringParam.class,ValueParam.class. This means
-	 * the first parameter is a binding, the second is a slotname and the
-	 * third is the value.
-	 * Another example is Add function. It returns ValueParam[].class, since
-	 * it can take one or more numbers and add them.
-	 * @return
-	 */
-	Class[] getParameter();
 
 	/**
 	 * A convienance method to get a pretty printer formatted string

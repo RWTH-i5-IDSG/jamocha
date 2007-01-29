@@ -20,6 +20,9 @@ import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.lang.reflect.InvocationTargetException;
 
+import org.jamocha.parser.EvaluationException;
+import org.jamocha.parser.JamochaType;
+import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.BoundParam;
 import org.jamocha.rete.Constants;
 import org.jamocha.rete.DefaultReturnValue;
@@ -28,7 +31,6 @@ import org.jamocha.rete.Defclass;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.ReturnVector;
 import org.jamocha.rete.StringParam;
 import org.jamocha.rete.ValueParam;
 
@@ -58,14 +60,14 @@ public class GetMembertFunction implements Function, Serializable {
 	 * all primitives in their object equivalent, returning Object type
 	 * makes the most sense.
 	 */
-	public int getReturnType() {
-		return Constants.OBJECT_TYPE;
+	public JamochaType getReturnType() {
+		return JamochaType.UNDEFINED;
 	}
 
 	/* (non-Javadoc)
 	 * @see woolfel.engine.rete.Function#executeFunction(woolfel.engine.rete.Rete, woolfel.engine.rete.Parameter[])
 	 */
-	public ReturnVector executeFunction(Rete engine, Parameter[] params) {
+	public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
 		Object rtn = null;
 		DefaultReturnVector drv = new DefaultReturnVector();
 		if (engine != null && params != null && params.length == 3) {

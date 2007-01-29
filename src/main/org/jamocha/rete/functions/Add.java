@@ -19,6 +19,9 @@ package org.jamocha.rete.functions;
 import java.io.Serializable;
 import java.math.BigDecimal;
 
+import org.jamocha.parser.EvaluationException;
+import org.jamocha.parser.JamochaType;
+import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.BoundParam;
 import org.jamocha.rete.Constants;
 import org.jamocha.rete.DefaultReturnValue;
@@ -27,7 +30,6 @@ import org.jamocha.rete.Function;
 import org.jamocha.rete.FunctionParam2;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.ReturnVector;
 import org.jamocha.rete.ValueParam;
 
 
@@ -47,16 +49,15 @@ public class Add implements Function, Serializable {
 		super();
 	}
 
-	public int getReturnType() {
+	public JamochaType getReturnType() {
 		return Constants.BIG_DECIMAL;
 	}
 
-	public ReturnVector executeFunction(Rete engine, Parameter[] params) {
+	public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
         Double bdval = new Double(0);
 		if (params != null) {
 			for (int idx = 0; idx < params.length; idx++) {
-                Double bd = (Double) params[idx].getValue(engine,
-                        Constants.DOUBLE_OBJECT);
+                Double bd = (Double) params[idx].getValue(engine);
                 bdval = bdval.doubleValue() + bd.doubleValue();
 			}
 		}

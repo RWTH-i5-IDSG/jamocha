@@ -16,6 +16,7 @@
  */
 package org.jamocha.rule;
 
+import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Constants;
 
 /**
@@ -35,7 +36,7 @@ public class BoundConstraint implements Constraint {
      * In the case of BoundConstraints, the value is the name of
      * the variable given my the user
      */
-    protected Object value;
+    protected JamochaValue value;
     
     protected boolean isObjectBinding = false;
     protected boolean negated = false;
@@ -82,7 +83,7 @@ public class BoundConstraint implements Constraint {
      * if the rule as "?name", the value returned is "name" without
      * the question mark prefix.
 	 */
-	public Object getValue() {
+	public JamochaValue getValue() {
 		return value;
 	}
 
@@ -91,12 +92,12 @@ public class BoundConstraint implements Constraint {
      * the name of the variable. Make sure to parse out the
      * prefix. For example, CLIPS uses "?" to denote a variable.
 	 */
-	public void setValue(Object val) {
+	public void setValue(JamochaValue val) {
 		this.value = val;
 	}
     
     public String getVariableName() {
-        return (String)this.value;
+        return this.value.getIdentifierValue();
     }
     
     /**

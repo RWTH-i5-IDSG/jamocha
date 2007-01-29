@@ -16,6 +16,7 @@
  */
 package org.jamocha.rule;
 
+import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Constants;
 
 /**
@@ -31,7 +32,7 @@ import org.jamocha.rete.Constants;
 public class LiteralConstraint implements Constraint {
 
     protected String name;
-    protected Object value;
+    protected JamochaValue value;
     protected boolean negated = false;
     
 	/**
@@ -58,7 +59,7 @@ public class LiteralConstraint implements Constraint {
 	/* (non-Javadoc)
 	 * @see woolfel.engine.rule.Constraint#getValue()
 	 */
-	public Object getValue() {
+	public JamochaValue getValue() {
 		return value;
 	}
 
@@ -66,7 +67,7 @@ public class LiteralConstraint implements Constraint {
      * Set the value of the constraint. It should be a concrete value and
      * not a binding.
 	 */
-	public void setValue(Object val) {
+	public void setValue(JamochaValue val) {
         this.value = val;
 	}
 	

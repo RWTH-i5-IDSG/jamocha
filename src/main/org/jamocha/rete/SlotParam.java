@@ -16,6 +16,10 @@
  */
 package org.jamocha.rete;
 
+import org.jamocha.parser.EvaluationException;
+import org.jamocha.parser.JamochaType;
+import org.jamocha.parser.JamochaValue;
+
 /**
  * @author Peter Lin
  *
@@ -60,8 +64,8 @@ public class SlotParam extends AbstractParam {
      * Slot parameter is only used internally, so normal user functions
      * should not need to deal with slot parameters.
      */
-    public Object getValue(Rete engine, int valueType) {
-        return this.slot;
+    public JamochaValue getValue(Rete engine) throws EvaluationException {
+        return new JamochaValue(JamochaType.SLOT, this.slot);
     }
 
     /* (non-Javadoc)

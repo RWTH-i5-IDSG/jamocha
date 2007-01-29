@@ -19,6 +19,8 @@ package org.jamocha.rule;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.jamocha.parser.EvaluationException;
+import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.BaseNode;
 import org.jamocha.rete.BoundParam;
 import org.jamocha.rete.Constants;
@@ -64,10 +66,9 @@ public class TestCondition implements Condition {
         this.func = function;
     }
     
-    public boolean executeFunction(Rete engine, Parameter[] params) {
-        ReturnVector rv = func.executeFunction(engine,params);
-        // we return the first ReturnValue
-        return rv.firstReturnValue().getBooleanValue();
+    public boolean executeFunction(Rete engine, Parameter[] params) throws EvaluationException{
+        JamochaValue rv = func.executeFunction(engine,params);
+        return rv.getBooleanValue();
     }
     
     public boolean compare(Condition cond) {
@@ -112,21 +113,24 @@ public class TestCondition implements Condition {
      * the function and see if it takes BoundParam
      */
     public boolean hasBindings() {
-        if (this.func.getParameter() != null) {
-            Class[] pms = func.getParameter();
-            for (int idx=0; idx < pms.length; idx++) {
-                if (pms[idx] == BoundParam.class) {
-                    binds.add(pms[idx]);
-                }
-            }
-            if (binds.size() > 0) {
-                return true;
-            } else {
-                return true;
-            }
-        } else {
-            return false;
-        }
+//        if (this.func.getParameter() != null) {
+//            Class[] pms = func.getParameter();
+//            for (int idx=0; idx < pms.length; idx++) {
+//                if (pms[idx] == BoundParam.class) {
+//                    binds.add(pms[idx]);
+//                }
+//            }
+//            if (binds.size() > 0) {
+//                return true;
+//            } else {
+//                return true;
+//            }
+//        } else {
+//            return false;
+//        }
+    	// TODO first we just return true. We don't know here, if any of the 
+    	// parameter for the function are BoundParams
+    	return true;
     }
     
     /**
@@ -163,7 +167,12 @@ public class TestCondition implements Condition {
         		if (p[idx] instanceof BoundParam) {
             		buf.append(" ?" + ((BoundParam)p[idx]).getVariableName() );
         		} else {
-            		buf.append(" " + ConversionUtils.formatSlot(p[idx].getValue()));
+            		try {
+						buf.append(" " + p[idx].getValue(null).toString());
+					} catch (EvaluationException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
         		}
         	}
     	}

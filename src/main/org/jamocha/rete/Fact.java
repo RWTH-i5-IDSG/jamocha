@@ -18,6 +18,8 @@ package org.jamocha.rete;
 
 import java.io.Serializable;
 
+import org.jamocha.parser.JamochaValue;
+
 /**
  * @author Peter Lin
  * 
@@ -30,7 +32,7 @@ public interface Fact extends Serializable {
      * @param id
      * @return
      */
-    Object getSlotValue(int id);
+    JamochaValue getSlotValue(int id);
     /**
      * Return id of the given slot name
      * @param name

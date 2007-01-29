@@ -44,14 +44,6 @@ public class MultiSlot extends Slot {
 		this.value = value;
 	}
 
-	public void setValue(Object[] val) {
-		this.value = val;
-	}
-
-	public Object[] getValue() {
-		return this.value;
-	}
-
 	/**
 	 * In some cases, a deftemplate can be define with a default value.
 	 * 
@@ -79,7 +71,7 @@ public class MultiSlot extends Slot {
 		MultiSlot newms = new MultiSlot();
 		newms.setId(this.getId());
 		newms.setName(this.getName());
-		newms.setValue((Object[]) this.getValue());
+		newms.setValue(this.getValue());
 		return newms;
 	}
 

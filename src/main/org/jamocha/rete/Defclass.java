@@ -28,6 +28,8 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Map;
 
+import org.jamocha.parser.JamochaType;
+import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.util.CollectionsFactory;
 
 
@@ -205,9 +207,9 @@ public class Defclass implements Serializable {
 	 * @param data
 	 * @return
 	 */
-	public Object getSlotValue(int col, Object data) {
+	public JamochaValue getSlotValue(int col, Object data) {
 		try {
-			return this.PROPS[col].getReadMethod().invoke(data, null);
+			return new JamochaValue(this.PROPS[col].getReadMethod().invoke(data, null));
 		} catch (IllegalAccessException e) {
 			return null;
 		} catch (IllegalArgumentException e) {
@@ -230,7 +232,7 @@ public class Defclass implements Serializable {
 				st[idx].setId(idx);
 			} else {
 				st[idx] = new Slot(this.PROPS[idx].getName());
-				st[idx].setValueType(ConversionUtils.getTypeCode(this.PROPS[idx]
+				st[idx].setValueType(JamochaType.getMappingType(this.PROPS[idx]
 						.getPropertyType()));
 				// set the column id for the slot
 				st[idx].setId(idx);
