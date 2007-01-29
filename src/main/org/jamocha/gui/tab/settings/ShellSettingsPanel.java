@@ -16,6 +16,7 @@
  */
 package org.jamocha.gui.tab.settings;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.FlowLayout;
@@ -80,7 +81,9 @@ public class ShellSettingsPanel extends AbstractSettingsPanel implements
 			fonts.setSelectedItem(selFont);
 		}
 		fonts.setRenderer(new FontListCellRenderer());
-		addInputComponent(this, fonts, gridbag, c, 0);
+		JPanel fontsPanel = new JPanel(new BorderLayout());
+		fontsPanel.add(fonts,BorderLayout.WEST);
+		addInputComponent(this, fontsPanel, gridbag, c, 0);
 
 		// Fontsize
 		addLabel(this, new JLabel("Fontsize:"), gridbag, c, 1);
@@ -91,11 +94,13 @@ public class ShellSettingsPanel extends AbstractSettingsPanel implements
 		fontsizes = new JComboBox(sizes);
 		fontsizes.setSelectedItem(gui.getPreferences().getInt("shell.fontsize",
 				12));
-		addInputComponent(this, fontsizes, gridbag, c, 1);
+		JPanel fontsizesPanel = new JPanel(new BorderLayout());
+		fontsizesPanel.add(fontsizes,BorderLayout.WEST);
+		addInputComponent(this, fontsizesPanel, gridbag, c, 1);
 
 		// Fontcolor
 		addLabel(this, new JLabel("Fontcolor:"), gridbag, c, 2);
-		JPanel fontColorChooserPanel = new JPanel(new FlowLayout());
+		JPanel fontColorChooserPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		fontColorChooserPreview = new JTextField(5);
 		fontColorChooserPreview.setEditable(false);
 		fontColorChooserPreview.setBackground(new Color(gui.getPreferences()
@@ -109,7 +114,7 @@ public class ShellSettingsPanel extends AbstractSettingsPanel implements
 
 		// Backgroundcolor
 		addLabel(this, new JLabel("Backgroundcolor:"), gridbag, c, 3);
-		JPanel backgroundColorChooserPanel = new JPanel(new FlowLayout());
+		JPanel backgroundColorChooserPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		backgroundColorChooserPreview = new JTextField(5);
 		backgroundColorChooserPreview.setEditable(false);
 		backgroundColorChooserPreview.setBackground(new Color(gui.getPreferences()
