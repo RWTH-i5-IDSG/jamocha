@@ -36,9 +36,8 @@ import javax.swing.event.PopupMenuListener;
 
 import org.jamocha.gui.icons.IconLoader;
 import org.jamocha.messagerouter.StringChannel;
-import org.jamocha.rete.Constants;
+import org.jamocha.parser.JamochaType;
 import org.jamocha.rete.Module;
-import org.jamocha.rete.MultiSlot;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.Slot;
 import org.jamocha.rete.Template;
@@ -224,14 +223,14 @@ public class FactEditor extends AbstractJamochaEditor implements
 				c.gridx = 1;
 				c.fill = GridBagConstraints.BOTH;
 				c.anchor = GridBagConstraints.WEST;
-				if (slots[i] instanceof MultiSlot) {
+				if (slots[i].getValueType() == JamochaType.LIST) {
 					MultiSlotEditor multislotEditor = new MultiSlotEditor();
 					JScrollPane scrollPane = new JScrollPane(multislotEditor
 							.getList());
 					gridbag.setConstraints(scrollPane, c);
 					innerPanel.add(scrollPane);
 					factComponents.put(slots[i], multislotEditor.getList());
-				} else if (slots[i].getValueType() == Constants.FACT_TYPE) {
+				} else if (slots[i].getValueType() == JamochaType.FACT) {
 					// TODO Fact-Selector
 
 					JComboBox factBox = new JComboBox();
@@ -327,7 +326,7 @@ public class FactEditor extends AbstractJamochaEditor implements
 				Slot[] slots = tmp.getAllSlots();
 				for (Slot slot : slots) {
 					dumpAreaTemplate.append("    (");
-					if (slot instanceof MultiSlot) {
+					if (slot.getValueType() == JamochaType.LIST) {
 						dumpAreaTemplate.append("multislot");
 					} else {
 						dumpAreaTemplate.append("slot");
@@ -353,7 +352,7 @@ public class FactEditor extends AbstractJamochaEditor implements
 			if (print)
 				res.append("\n\t");
 			res.append("(" + slot.getName() + " ");
-			if (slot instanceof MultiSlot) {
+			if (slot.getValueType() == JamochaType.LIST) {
 				Object[] values = ((DefaultListModel) ((JList) currComponent)
 						.getModel()).toArray();
 				for (int i = 0; i < values.length; ++i) {
@@ -361,7 +360,7 @@ public class FactEditor extends AbstractJamochaEditor implements
 						res.append(" ");
 					res.append("\"" + values[i].toString() + "\"");
 				}
-			} else if (slot.getValueType() == Constants.FACT_TYPE) {
+			} else if (slot.getValueType() == JamochaType.FACT) {
 				// TODO Fact-Selector
 			} else {
 				res

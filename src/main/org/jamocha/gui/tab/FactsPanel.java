@@ -45,8 +45,8 @@ import org.jamocha.gui.editor.FactEditor;
 import org.jamocha.gui.icons.IconLoader;
 import org.jamocha.messagerouter.InterestType;
 import org.jamocha.messagerouter.StringChannel;
+import org.jamocha.parser.JamochaType;
 import org.jamocha.rete.Fact;
-import org.jamocha.rete.MultiSlot;
 import org.jamocha.rete.Slot;
 import org.jamocha.rete.exception.RetractException;
 
@@ -252,19 +252,12 @@ public class FactsPanel extends AbstractJamochaPanel implements ActionListener,
 					Slot[] slots = fact.getDeftemplate().getAllSlots();
 					for (Slot slot : slots) {
 						dumpArea.append("\n    (" + slot.getName() + " ");
-						if (slot instanceof MultiSlot) {
-							Object[] values = null;
-							if (fact.getSlotValue(slot.getId()) instanceof Object[]) {
-								values = (Object[]) fact.getSlotValue(slot
-										.getId());
-							}
-							if (values != null) {
-								for (int i = 0; i < values.length; ++i) {
+						if (slot.getValueType() == JamochaType.LIST) {
+							for (int i = 0; i < slot.getValue().getListCount(); ++i) {
 									if (i > 0)
 										dumpArea.append(" ");
-									dumpArea.append("\"" + values[i] + "\"");
+									dumpArea.append("\"" + slot.getValue().getListValue(i) + "\"");
 								}
-							}
 						} else {
 							String value = fact.getSlotValue(slot.getId())
 									.toString();
