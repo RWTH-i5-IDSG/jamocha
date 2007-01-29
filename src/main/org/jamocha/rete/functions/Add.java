@@ -17,21 +17,16 @@
 package org.jamocha.rete.functions;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
 
 import org.jamocha.parser.EvaluationException;
+import org.jamocha.parser.IllegalParameterException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.BoundParam;
-import org.jamocha.rete.Constants;
-import org.jamocha.rete.DefaultReturnValue;
-import org.jamocha.rete.DefaultReturnVector;
 import org.jamocha.rete.Function;
-import org.jamocha.rete.FunctionParam2;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.ValueParam;
-
 
 /**
  * @author Peter Lin
@@ -39,6 +34,8 @@ import org.jamocha.rete.ValueParam;
  * Add will add one or more numbers and return the result.
  */
 public class Add implements Function, Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	public static final String ADD = "add";
 
@@ -50,22 +47,50 @@ public class Add implements Function, Serializable {
 	}
 
 	public JamochaType getReturnType() {
-		return Constants.BIG_DECIMAL;
+		return JamochaType.UNDEFINED;
 	}
 
-	public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
-        Double bdval = new Double(0);
+	public JamochaValue executeFunction(Rete engine, Parameter[] params)
+			throws EvaluationException {
+		JamochaValue result = JamochaValue.NIL;
 		if (params != null) {
-			for (int idx = 0; idx < params.length; idx++) {
-                Double bd = (Double) params[idx].getValue(engine);
-                bdval = bdval.doubleValue() + bd.doubleValue();
+			if (params.length > 0) {
+				JamochaType type = JamochaType.LONG;
+				for (int idx = 0; idx < params.length; idx++) {
+					if (params[idx].getValue(engine).getType().equals(
+							JamochaType.DOUBLE)) {
+						type = JamochaType.DOUBLE;
+						break;
+					}
+				}
+				result = new JamochaValue(type, 0);
+				for (int idx = 0; idx < params.length; idx++) {
+					JamochaValue value = params[idx].getValue(engine);
+					if (value.getType().equals(JamochaType.DOUBLE)) {
+						result = new JamochaValue(type, (result
+								.getDoubleValue() + value.getDoubleValue()));
+					} else if (value.getType().equals(JamochaType.LONG)) {
+						if (type.equals(JamochaType.LONG)) {
+							result = new JamochaValue(type, (result
+									.getLongValue() + value.getLongValue()));
+						} else {
+							result = new JamochaValue(type, (result
+									.getDoubleValue() + value.getLongValue()));
+						}
+					} else {
+						if (type.equals(JamochaType.LONG)) {
+							result = new JamochaValue(type, (result
+									.getLongValue() + value.implicitCast(type).getLongValue()));
+						} else {
+							result = new JamochaValue(type, (result
+									.getDoubleValue() + value.implicitCast(type).getDoubleValue()));
+						}
+					}
+				}
+				return result;
 			}
 		}
-		DefaultReturnVector ret = new DefaultReturnVector();
-		DefaultReturnValue rv = new DefaultReturnValue(Constants.BIG_DECIMAL,
-				bdval);
-		ret.addReturnValue(rv);
-		return ret;
+		throw new IllegalParameterException(1,true);
 	}
 
 	public String getName() {
@@ -85,17 +110,16 @@ public class Add implements Function, Serializable {
 					BoundParam bp = (BoundParam) params[idx];
 					buf.append(" ?" + bp.getVariableName());
 				} else if (params[idx] instanceof ValueParam) {
-					buf.append(" " + params[idx].getStringValue());
+					buf.append(" " + params[idx].getParameterString());
 				} else {
-					buf.append(" " + params[idx].getStringValue());
+					buf.append(" " + params[idx].getParameterString());
 				}
 			}
 			buf.append(")");
 			return buf.toString();
 		} else {
-			return "(+ (<literal> | <binding>)+)\n" +
-			"Function description:\n" +
-			"\tCalculates the sum of the arguments."; 
+			return "(+ (<literal> | <binding>)+)\n" + "Function description:\n"
+					+ "\tCalculates the sum of the arguments.";
 		}
 	}
 }

@@ -17,21 +17,16 @@
 package org.jamocha.rete.functions;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
 
 import org.jamocha.parser.EvaluationException;
+import org.jamocha.parser.IllegalParameterException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.BoundParam;
-import org.jamocha.rete.Constants;
-import org.jamocha.rete.DefaultReturnValue;
-import org.jamocha.rete.DefaultReturnVector;
 import org.jamocha.rete.Function;
-import org.jamocha.rete.FunctionParam2;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.ValueParam;
-
 
 /**
  * @author Christian Ebert
@@ -39,6 +34,8 @@ import org.jamocha.rete.ValueParam;
  * Returns the trigonometric arc cosine of an angle.
  */
 public class Acos implements Function, Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	public static final String ACOS = "acos";
 
@@ -50,22 +47,30 @@ public class Acos implements Function, Serializable {
 	}
 
 	public JamochaType getReturnType() {
-		return Constants.DOUBLE_PRIM_TYPE;
+		return JamochaType.UNDEFINED;
 	}
 
-	public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
-		double dval = 0;
+	public JamochaValue executeFunction(Rete engine, Parameter[] params)
+			throws EvaluationException {
+		JamochaValue result = JamochaValue.NIL;
 		if (params != null) {
 			if (params.length == 1) {
-                dval = ((BigDecimal) params[0].getValue(engine)).doubleValue();
-                dval = java.lang.Math.acos(dval);
+				JamochaValue value = params[0].getValue(engine);
+				if (!value.getType().equals(JamochaType.DOUBLE)
+						&& !value.getType().equals(JamochaType.LONG)) {
+					value = value.implicitCast(JamochaType.DOUBLE);
+				}
+				if (value.getType().equals(JamochaType.DOUBLE)) {
+					result = new JamochaValue(JamochaType.DOUBLE, Math
+							.acos(value.getDoubleValue()));
+				} else if (value.getType().equals(JamochaType.LONG)) {
+					result = new JamochaValue(JamochaType.LONG, Math.acos(value
+							.getLongValue()));
+				}
+				return result;
 			}
 		}
-		DefaultReturnVector ret = new DefaultReturnVector();
-		DefaultReturnValue rv = new DefaultReturnValue(Constants.DOUBLE_PRIM_TYPE,
-				dval);
-		ret.addReturnValue(rv);
-		return ret;
+		throw new IllegalParameterException(1);
 	}
 
 	public String getName() {
@@ -80,22 +85,22 @@ public class Acos implements Function, Serializable {
 		if (params != null && params.length >= 0) {
 			StringBuffer buf = new StringBuffer();
 			buf.append("(acos");
-				int idx = 0;
-				if (params[idx] instanceof BoundParam) {
-					BoundParam bp = (BoundParam) params[idx];
-					buf.append(" ?" + bp.getVariableName());
-				} else if (params[idx] instanceof ValueParam) {
-					buf.append(" " + params[idx].getStringValue());
-				} else {
-					buf.append(" " + params[idx].getStringValue());
-				}
+			int idx = 0;
+			if (params[idx] instanceof BoundParam) {
+				BoundParam bp = (BoundParam) params[idx];
+				buf.append(" ?" + bp.getVariableName());
+			} else if (params[idx] instanceof ValueParam) {
+				buf.append(" " + params[idx].getParameterString());
+			} else {
+				buf.append(" " + params[idx].getParameterString());
+			}
 			buf.append(")");
 			return buf.toString();
 		} else {
-			return "(acos <literal> | <binding>)\n" +
-			"Function description:\n" +
-			"\tCalculates the inverse cosine of the numeric argument.\n" + 
-			"\tThe argument is expected to be in radians.";
+			return "(acos <literal> | <binding>)\n"
+					+ "Function description:\n"
+					+ "\tCalculates the inverse cosine of the numeric argument.\n"
+					+ "\tThe argument is expected to be in radians.";
 		}
 	}
 }
