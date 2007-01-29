@@ -41,4 +41,6 @@ public interface Parameter {
      * @throws EvaluationException TODO
      */
     JamochaValue getValue(Rete engine) throws EvaluationException;
+    
+    String getParameterString();
 }

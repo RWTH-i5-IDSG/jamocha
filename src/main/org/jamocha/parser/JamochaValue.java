@@ -208,7 +208,7 @@ public class JamochaValue {
 		}
 	}
 
-	public JamochaValue implicitCast(JamochaType type) {
+	public JamochaValue implicitCast(JamochaType type) throws IllegalConversionException {
 		switch (this.type) {
 		case BOOLEAN:
 			switch (type) {
