@@ -23,22 +23,25 @@ import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Constants;
-import org.jamocha.rete.DefaultReturnVector;
 import org.jamocha.rete.Fact;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.util.FactUtils;
 
-
 /**
  * @author Peter Lin
  * 
- * Facts function will printout all the facts, not including any
- * initial facts which are internal to the rule engine.
+ * Facts function will printout all the facts, not including any initial facts
+ * which are internal to the rule engine.
  */
 public class FactsFunction implements Function, Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
 	public static final String FACTS = "facts";
 
 	/**
@@ -49,19 +52,21 @@ public class FactsFunction implements Function, Serializable {
 	}
 
 	public JamochaType getReturnType() {
-		return Constants.RETURN_VOID_TYPE;
+		return JamochaType.STRING;
 	}
 
-	public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
+	public JamochaValue executeFunction(Rete engine, Parameter[] params)
+			throws EvaluationException {
 		List facts = engine.getAllFacts();
 		Object[] sorted = FactUtils.sortFacts(facts);
+		StringBuilder sb = new StringBuilder();
 		for (int idx = 0; idx < sorted.length; idx++) {
 			Fact ft = (Fact) sorted[idx];
-			engine.writeMessage(ft.toFactString() + Constants.LINEBREAK);
+			sb.append(ft.toFactString()).append(Constants.LINEBREAK);
 		}
-		engine.writeMessage("for a total of " + sorted.length +
-				Constants.LINEBREAK,Constants.DEFAULT_OUTPUT);
-		return new DefaultReturnVector();
+		sb.append("for a total of ").append(sorted.length).append(
+				Constants.LINEBREAK);
+		return new JamochaValue(JamochaType.STRING, sb.toString());
 	}
 
 	public String getName() {
@@ -73,8 +78,7 @@ public class FactsFunction implements Function, Serializable {
 	}
 
 	public String toPPString(Parameter[] params, int indents) {
-		return "(facts)\n" +
-			"Function description:\n" +
-			"\tPrints all facts except the initial facts.";
+		return "(facts)\n" + "Function description:\n"
+				+ "\tPrints all facts except the initial facts.";
 	}
 }

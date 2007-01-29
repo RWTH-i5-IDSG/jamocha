@@ -32,6 +32,11 @@ import org.jamocha.rete.Rete;
  */
 public class RuleEngineFunctions implements FunctionGroup, Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
 	private ArrayList funcs = new ArrayList();
 	
 	public RuleEngineFunctions() {

@@ -19,11 +19,10 @@ package org.jamocha.rete.functions;
 import java.io.Serializable;
 
 import org.jamocha.parser.EvaluationException;
+import org.jamocha.parser.IllegalParameterException;
+import org.jamocha.parser.IllegalTypeException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.rete.Constants;
-import org.jamocha.rete.DefaultReturnValue;
-import org.jamocha.rete.DefaultReturnVector;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
@@ -36,6 +35,11 @@ import org.jamocha.rete.Rete;
  */
 public class ClearFunction implements Function, Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
 	public static final String CLEAR = "clear";
 
 	/**
@@ -46,24 +50,32 @@ public class ClearFunction implements Function, Serializable {
 	}
 
 	public JamochaType getReturnType() {
-		return Constants.BOOLEAN_OBJECT;
+		return JamochaType.BOOLEAN;
 	}
 
 	public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
-		DefaultReturnVector ret = new DefaultReturnVector();
-		if (params != null && params.length == 1) {
-			if (params[0].getStringValue().equals("objects")) {
-				engine.clearObjects();
-			} else if (params[0].getStringValue().equals("deffacts")) {
-				engine.clearFacts();
-			}
-		} else {
-			engine.clearAll();
+		
+		if (params != null) {
+			if(params.length == 1) {
+				JamochaValue param = params[0].getValue(engine);
+				if(param.getType().equals(JamochaType.IDENTIFIER)) {
+					if (param.getIdentifierValue().equals("objects")) {
+						engine.clearObjects();
+					} else if (param.getIdentifierValue().equals("deffacts")) {
+						engine.clearFacts();
+					} else {
+						throw new EvaluationException("Unknown argument "+param.getIdentifierValue());
+					}
+	 				return JamochaValue.TRUE;
+				} else {
+					throw new IllegalTypeException(JamochaType.IDENTIFIERS, param.getType());
+				}
+ 			} else if(params.length == 0) {
+ 				engine.clearAll();
+ 				return JamochaValue.TRUE;
+ 			}
 		}
-		DefaultReturnValue rv = new DefaultReturnValue(
-				Constants.BOOLEAN_OBJECT, new Boolean(true));
-		ret.addReturnValue(rv);
-		return ret;
+		throw new IllegalParameterException(0);
 	}
 
 	public String getName() {

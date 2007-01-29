@@ -19,28 +19,29 @@ package org.jamocha.rete.functions;
 import java.io.Serializable;
 
 import org.jamocha.parser.EvaluationException;
+import org.jamocha.parser.IllegalParameterException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.BoundParam;
-import org.jamocha.rete.Constants;
-import org.jamocha.rete.DefaultReturnValue;
-import org.jamocha.rete.DefaultReturnVector;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.ValueParam;
 
-
 /**
- * @author Peter Lin
- * Any equal is used to compare a literal value against one or more
- * bindings. If any of the bindings is equal to the constant value,
- * the function returns true.
+ * @author Peter Lin Any equal is used to compare a literal value against one or
+ *         more bindings. If any of the bindings is equal to the constant value,
+ *         the function returns true.
  */
 public class AnyEqFunction implements Function, Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	public static final String ANYEQUAL = "any-eq";
-	
+
 	/**
 	 * 
 	 */
@@ -49,25 +50,24 @@ public class AnyEqFunction implements Function, Serializable {
 	}
 
 	public JamochaType getReturnType() {
-		return Constants.BOOLEAN_OBJECT;
+		return JamochaType.BOOLEAN;
 	}
 
-	public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
-		DefaultReturnVector ret = new DefaultReturnVector();
-		boolean eq = false;
+	public JamochaValue executeFunction(Rete engine, Parameter[] params)
+			throws EvaluationException {
+		JamochaValue result = JamochaValue.FALSE;
 		if (params != null && params.length > 1) {
-			Object constant = params[0].getValue();
-			for (int idx=1; idx < params.length; idx++) {
-				if (constant.equals(params[idx].getValue())) {
-					eq = true;
+			JamochaValue constant = params[0].getValue(engine);
+			for (int idx = 1; idx < params.length; idx++) {
+				if (constant.equals(params[idx].getValue(engine))) {
+					result = JamochaValue.FALSE;
 					break;
 				}
 			}
+		} else {
+			throw new IllegalParameterException(1);
 		}
-		DefaultReturnValue rv = new DefaultReturnValue(Constants.BOOLEAN_OBJECT,
-				new Boolean(eq));
-		ret.addReturnValue(rv);
-		return ret;
+		return result;
 	}
 
 	public String getName() {
@@ -75,15 +75,15 @@ public class AnyEqFunction implements Function, Serializable {
 	}
 
 	public Class[] getParameter() {
-		return new Class[]{ValueParam.class,BoundParam.class};
+		return new Class[] { ValueParam.class, BoundParam.class };
 	}
 
 	public String toPPString(Parameter[] params, int indents) {
-		return "(any-eq (<literal> | <binding>)+)\n" +
-			"Function description:\n" +
-			"\tCompares a literal value against one or more" +
-			"bindings. \n\tIf any of the bindings is equal to the constant value," +
-			"\n\tthe function returns true.";
+		return "(any-eq (<literal> | <binding>)+)\n"
+				+ "Function description:\n"
+				+ "\tCompares a literal value against one or more"
+				+ "bindings. \n\tIf any of the bindings is equal to the constant value,"
+				+ "\n\tthe function returns true.";
 	}
 
 }

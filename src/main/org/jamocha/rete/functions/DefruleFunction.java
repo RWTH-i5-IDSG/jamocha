@@ -19,25 +19,26 @@ package org.jamocha.rete.functions;
 import java.io.Serializable;
 
 import org.jamocha.parser.EvaluationException;
+import org.jamocha.parser.IllegalParameterException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.rete.Constants;
-import org.jamocha.rete.DefaultReturnValue;
-import org.jamocha.rete.DefaultReturnVector;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.ValueParam;
-import org.jamocha.rete.exception.CompileRuleException;
 import org.jamocha.rule.Defrule;
-
 
 /**
  * @author Peter Lin
- *
+ * 
  */
 public class DefruleFunction implements Function, Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
 	public static final String DEFRULE = "defrule";
 
 	public DefruleFunction() {
@@ -45,24 +46,28 @@ public class DefruleFunction implements Function, Serializable {
 	}
 
 	public JamochaType getReturnType() {
-		return Constants.BOOLEAN_OBJECT;
+		return JamochaType.BOOLEAN;
 	}
 
-	public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
-		boolean add = true;
-		if (params.length == 1 && params[0].getValue() instanceof Defrule) {
-			Defrule rl = (Defrule) params[0].getValue();
-			if (!engine.getCurrentFocus().containsRule(rl)) {
-				add = engine.getRuleCompiler().addRule(rl);
+	public JamochaValue executeFunction(Rete engine, Parameter[] params)
+			throws EvaluationException {
+		JamochaValue result = JamochaValue.FALSE;
+		if (params != null && params.length == 1) {
+			JamochaValue firstParam = params[0].getValue(engine);
+			if (firstParam.getObjectValue() instanceof Defrule) {
+				Defrule rl = (Defrule) firstParam.getObjectValue();
+				if (!engine.getCurrentFocus().containsRule(rl)) {
+					if (engine.getRuleCompiler().addRule(rl)) {
+						result = JamochaValue.TRUE;
+					}
+				}
+			} else {
+				throw new EvaluationException("Parameter 1 is no defrule.");
 			}
 		} else {
-			add = false;
+			throw new IllegalParameterException(1);
 		}
-		DefaultReturnVector ret = new DefaultReturnVector();
-		DefaultReturnValue rv = new DefaultReturnValue(
-				Constants.BOOLEAN_OBJECT, new Boolean(add));
-		ret.addReturnValue(rv);
-		return ret;
+		return result;
 	}
 
 	public String getName() {
@@ -70,8 +75,7 @@ public class DefruleFunction implements Function, Serializable {
 	}
 
 	/**
-	 * the input parameter is a single ValueParam containing a Defrule
-	 * instance.
+	 * the input parameter is a single ValueParam containing a Defrule instance.
 	 */
 	public Class[] getParameter() {
 		return new Class[] { ValueParam.class };
@@ -82,25 +86,25 @@ public class DefruleFunction implements Function, Serializable {
 			StringBuffer buf = new StringBuffer();
 			return buf.toString();
 		} else {
-			return "(defrule <rule-name> (declare (properties)+?) (CE)+ => ([function]))" +
-					"" +
-					"(defrule <rule-name> \"optional_comment\" "+  
-					"	(pattern_1) 		; Left-Hand Side (LHS)" + 
-					"	(pattern_2) 		; of the rule consisting of elements" +
-					"	...					; before the \"=>\"" + 
-					"	...					" + 
-					"	...					" + 
-					"	(pattern_N)" +
-					"	=>" +
-					"	(action_1) 			; Right-Hand Side (RHS)" + 
-					"	(action_2) 			; of the rule consisting of elements" + 
-					"	...					; after the \"=>\"" + 
-					"	...					" + 
-					"	...					" + 
-					"	(action_M)) 		; The last \")\" balances the opening" + 
-					"						; \")\" to the left of \"defrule\"." + 
-					"" +
-					"Be sure all your parentheses balance or you will get error messages!";
+			return "(defrule <rule-name> (declare (properties)+?) (CE)+ => ([function]))"
+					+ ""
+					+ "(defrule <rule-name> \"optional_comment\" "
+					+ "	(pattern_1) 		; Left-Hand Side (LHS)"
+					+ "	(pattern_2) 		; of the rule consisting of elements"
+					+ "	...					; before the \"=>\""
+					+ "	...					"
+					+ "	...					"
+					+ "	(pattern_N)"
+					+ "	=>"
+					+ "	(action_1) 			; Right-Hand Side (RHS)"
+					+ "	(action_2) 			; of the rule consisting of elements"
+					+ "	...					; after the \"=>\""
+					+ "	...					"
+					+ "	...					"
+					+ "	(action_M)) 		; The last \")\" balances the opening"
+					+ "						; \")\" to the left of \"defrule\"."
+					+ ""
+					+ "Be sure all your parentheses balance or you will get error messages!";
 		}
 	}
 }

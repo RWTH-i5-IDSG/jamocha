@@ -21,20 +21,21 @@ import java.io.Serializable;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.rete.Constants;
-import org.jamocha.rete.DefaultReturnValue;
-import org.jamocha.rete.DefaultReturnVector;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.exception.ExecuteException;
-
 
 /**
  * @author Peter Lin
  * 
  */
 public class FireFunction implements Function, Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
 	public static final String FIRE = "fire";
 
@@ -46,27 +47,24 @@ public class FireFunction implements Function, Serializable {
 	}
 
 	public JamochaType getReturnType() {
-		return Constants.INTEGER_OBJECT;
+		return JamochaType.LONG;
 	}
 
-	public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
-		int count = 0;
+	public JamochaValue executeFunction(Rete engine, Parameter[] params)
+			throws EvaluationException {
+		long count = 0;
 		if (params != null && params.length == 1) {
-			int fc = params[0].getIntValue();
+			long fc = params[0].getValue(engine).implicitCast(JamochaType.LONG)
+					.getLongValue();
 			try {
-				count = engine.fire(fc);
+				count = engine.fire((int) fc);
 			} catch (ExecuteException e) {
-				e.printStackTrace();
+				throw new EvaluationException(e);
 			}
 		} else {
 			count = engine.fire();
 		}
-		// engine.writeMessage(String.valueOf(count) + Constants.LINEBREAK,"t");
-		DefaultReturnVector ret = new DefaultReturnVector();
-		DefaultReturnValue rv = new DefaultReturnValue(
-				Constants.INTEGER_OBJECT, new Integer(count));
-		ret.addReturnValue(rv);
-		return ret;
+		return new JamochaValue(JamochaType.LONG, count);
 	}
 
 	public String getName() {

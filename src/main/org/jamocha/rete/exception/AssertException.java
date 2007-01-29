@@ -16,6 +16,8 @@
  */
 package org.jamocha.rete.exception;
 
+import org.jamocha.parser.EvaluationException;
+
 /**
  * @author Peter Lin
  * 
@@ -23,14 +25,7 @@ package org.jamocha.rete.exception;
  * Normally, this should not occur. If it does, it generally means there's a bug
  * in the core RETE nodes.
  */
-public class AssertException extends Exception {
-
-	/**
-	 * 
-	 */
-	public AssertException() {
-		super();
-	}
+public class AssertException extends EvaluationException {
 
 	/**
 	 * @param message

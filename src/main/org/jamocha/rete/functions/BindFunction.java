@@ -19,13 +19,11 @@ package org.jamocha.rete.functions;
 import java.io.Serializable;
 
 import org.jamocha.parser.EvaluationException;
+import org.jamocha.parser.IllegalParameterException;
+import org.jamocha.parser.IllegalTypeException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.rete.Constants;
-import org.jamocha.rete.DefaultReturnValue;
-import org.jamocha.rete.DefaultReturnVector;
 import org.jamocha.rete.Function;
-import org.jamocha.rete.FunctionParam2;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.ValueParam;
@@ -39,6 +37,11 @@ import org.jamocha.rete.ValueParam;
  */
 public class BindFunction implements Function, Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
 	public static final String BIND = "bind";
 
 	/**
@@ -53,31 +56,23 @@ public class BindFunction implements Function, Serializable {
 	 * true. Otherwise it returns false.
 	 */
 	public JamochaType getReturnType() {
-		return Constants.BOOLEAN_OBJECT;
+		return JamochaType.BOOLEAN;
 	}
 
 	public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
-		boolean bound = false;
+		JamochaValue result = JamochaValue.FALSE;
 		if (params.length == 2) {
-			String name = params[0].getStringValue();
-			Object val = null;
-			if (params[1] instanceof ValueParam) {
-				val = params[1].getValue();
-			} else if (params[1] instanceof FunctionParam2) {
-				FunctionParam2 fp2 = (FunctionParam2) params[1];
-				fp2.setEngine(engine);
-				fp2.lookUpFunction();
-				DefaultReturnVector drv = (DefaultReturnVector) fp2.getValue();
-				val = drv.firstReturnValue().getValue();
+			JamochaValue identifier = params[0].getValue(engine);
+			if(!identifier.getType().equals(JamochaType.IDENTIFIER)) {
+				throw new IllegalTypeException(JamochaType.IDENTIFIERS, identifier.getType());
 			}
-			engine.setBinding(name, val);
-			bound = true;
+			JamochaValue value = params[1].getValue(engine);
+			engine.setBinding(identifier.getIdentifierValue(), value);
+			result = JamochaValue.TRUE;
+		} else {
+			throw new IllegalParameterException(2);
 		}
-		DefaultReturnVector ret = new DefaultReturnVector();
-		DefaultReturnValue rv = new DefaultReturnValue(
-				Constants.BOOLEAN_OBJECT, new Boolean(bound));
-		ret.addReturnValue(rv);
-		return ret;
+		return result;
 	}
 
 	public String getName() {
@@ -95,14 +90,9 @@ public class BindFunction implements Function, Serializable {
 	public String toPPString(Parameter[] params, int indents) {
 		if (params != null && params.length > 0) {
 			StringBuffer buf = new StringBuffer();
-			buf.append("(bind ?" + params[0].getStringValue());
+			buf.append("(bind ?" + params[0].getParameterString());
 			for (int idx = 1; idx < params.length; idx++) {
-				if (params[idx] instanceof ValueParam) {
-					buf.append(" " + params[idx].getStringValue());
-				} else if (params[idx] instanceof FunctionParam2) {
-					FunctionParam2 fp2 = (FunctionParam2) params[idx];
-					buf.append(" " + fp2.toPPString());
-				}
+					buf.append(" ").append(params[idx].getParameterString());
 			}
 			buf.append(" )");
 			return buf.toString();

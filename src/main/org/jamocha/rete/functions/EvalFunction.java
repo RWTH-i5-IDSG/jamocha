@@ -21,17 +21,15 @@ import java.io.StringReader;
 
 import org.jamocha.messagerouter.CLIPSInterpreter;
 import org.jamocha.parser.EvaluationException;
+import org.jamocha.parser.IllegalParameterException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.parser.clips.CLIPSParser;
 import org.jamocha.parser.clips.ParseException;
 import org.jamocha.rete.BoundParam;
-import org.jamocha.rete.Constants;
 import org.jamocha.rete.Function;
-import org.jamocha.rete.FunctionParam2;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.ReturnVector;
 import org.jamocha.rete.ValueParam;
 
 /**
@@ -56,35 +54,23 @@ public class EvalFunction implements Function, Serializable {
 	}
 
 	public JamochaType getReturnType() {
-		return Constants.OBJECT_TYPE;
+		return JamochaType.UNDEFINED;
 	}
 
-	public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
-		ReturnVector result = null;
-		if (params != null && params.length > 0) {
-			String command = null;
-			if (params[0] instanceof ValueParam) {
-				ValueParam n = (ValueParam) params[0];
-				command = n.getStringValue();
-			} else if (params[0] instanceof BoundParam) {
-				BoundParam bp = (BoundParam) params[0];
-				command = engine.getBinding(bp.getVariableName()).toString();
-			} else if (params[0] instanceof FunctionParam2) {
-				FunctionParam2 n = (FunctionParam2) params[0];
-				n.setEngine(engine);
-				n.lookUpFunction();
-				ReturnVector rval = (ReturnVector) n.getValue();
-				command = rval.firstReturnValue().getStringValue();
-			}
-			if (command != null) {
-				result = eval(engine, command);
-			}
+	public JamochaValue executeFunction(Rete engine, Parameter[] params)
+			throws EvaluationException {
+		JamochaValue result;
+		if (params != null && params.length == 1) {
+			String command = params[0].getValue(engine).getStringValue();
+			result = eval(engine, command);
+		} else {
+			throw new IllegalParameterException(1);
 		}
 		return result;
 	}
 
-	public ReturnVector eval(Rete engine, String command) {
-		ReturnVector result = null;
+	public JamochaValue eval(Rete engine, String command) {
+		JamochaValue result = null;
 		try {
 			CLIPSParser parser = new CLIPSParser(engine, new StringReader(
 					command));
@@ -115,9 +101,10 @@ public class EvalFunction implements Function, Serializable {
 			for (int idx = 0; idx < params.length; idx++) {
 				if (params[idx] instanceof BoundParam) {
 					BoundParam bp = (BoundParam) params[idx];
-					buf.append(" ?" + bp.getVariableName());
+					buf.append(" ?").append(bp.getVariableName());
 				} else if (params[idx] instanceof ValueParam) {
-					buf.append(" \"" + params[idx].getStringValue() + "\"");
+					buf.append(" \"").append(params[idx].getParameterString())
+							.append("\"");
 				}
 			}
 			buf.append(")");

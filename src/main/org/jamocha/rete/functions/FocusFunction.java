@@ -21,41 +21,37 @@ import java.io.Serializable;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.rete.Constants;
-import org.jamocha.rete.DefaultReturnValue;
-import org.jamocha.rete.DefaultReturnVector;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.ValueParam;
 
-
 /**
  * @author Sebastian Reinartz
- *
+ * 
  */
 public class FocusFunction implements Function, Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	public static final String FOCUS = "focus";
-	
+
 	public FocusFunction() {
 		super();
 	}
 
 	public JamochaType getReturnType() {
-		return Constants.STRING_TYPE;
+		return JamochaType.IDENTIFIER;
 	}
 
-	public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
-		String focus = null;
-		if (params.length == 0) {
-			focus = engine.getCurrentFocus().getModuleName();
-		}
-		DefaultReturnVector ret = new DefaultReturnVector();
-		DefaultReturnValue rv = new DefaultReturnValue(
-				Constants.STRING_TYPE, focus);
-		ret.addReturnValue(rv);
-		return ret;
+	public JamochaValue executeFunction(Rete engine, Parameter[] params)
+			throws EvaluationException {
+		JamochaValue result = new JamochaValue(JamochaType.IDENTIFIER, engine
+				.getCurrentFocus().getModuleName());
+		return result;
 	}
 
 	public String getName() {
@@ -63,7 +59,7 @@ public class FocusFunction implements Function, Serializable {
 	}
 
 	public Class[] getParameter() {
-		return new Class[]{ValueParam.class};
+		return new Class[] { ValueParam.class };
 	}
 
 	public String toPPString(Parameter[] params, int indents) {

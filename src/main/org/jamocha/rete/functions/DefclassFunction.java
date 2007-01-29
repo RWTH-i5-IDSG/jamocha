@@ -19,16 +19,13 @@ package org.jamocha.rete.functions;
 import java.io.Serializable;
 
 import org.jamocha.parser.EvaluationException;
+import org.jamocha.parser.IllegalParameterException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.rete.Constants;
-import org.jamocha.rete.DefaultReturnValue;
-import org.jamocha.rete.DefaultReturnVector;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.ValueParam;
-
 
 /**
  * @author Peter Lin
@@ -36,6 +33,11 @@ import org.jamocha.rete.ValueParam;
  */
 public class DefclassFunction implements Function, Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	 
 	public static final String DEFCLASS = "defclass";
 
 	public DefclassFunction() {
@@ -43,34 +45,34 @@ public class DefclassFunction implements Function, Serializable {
 	}
 
 	public JamochaType getReturnType() {
-		return Constants.BOOLEAN_OBJECT;
+		return JamochaType.BOOLEAN;
 	}
 
-	public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
-		boolean def = true;
+	public JamochaValue executeFunction(Rete engine, Parameter[] params)
+			throws EvaluationException {
+		JamochaValue result = JamochaValue.FALSE;
 		if (params.length >= 0) {
-			String clazz = params[0].getStringValue();
+			String clazz = params[0].getValue(engine).implicitCast(
+					JamochaType.IDENTIFIER).getIdentifierValue();
 			String template = null;
-            if (params[1] != null) {
-                template = params[1].getStringValue();
-            }
+			if (params[1] != null) {
+				template = params[1].getValue(engine).implicitCast(
+						JamochaType.IDENTIFIER).getIdentifierValue();
+			}
 			String parent = null;
 			if (params.length == 3) {
-				parent = params[2].getStringValue();
+				parent = params[2].getValue(engine).implicitCast(
+						JamochaType.IDENTIFIER).getIdentifierValue();
 			}
-            try {
-                engine.declareObject(clazz, template, parent);
-            } catch (ClassNotFoundException e) {
-                def = false;
-            }
+			try {
+				engine.declareObject(clazz, template, parent);
+				result = JamochaValue.TRUE;
+			} catch (ClassNotFoundException e) {
+			}
 		} else {
-			def = false;
+			throw new IllegalParameterException(1);
 		}
-		DefaultReturnVector ret = new DefaultReturnVector();
-		DefaultReturnValue rv = new DefaultReturnValue(
-				Constants.BOOLEAN_OBJECT, new Boolean(def));
-		ret.addReturnValue(rv);
-		return ret;
+		return result;
 	}
 
 	public String getName() {
@@ -91,7 +93,7 @@ public class DefclassFunction implements Function, Serializable {
 			StringBuffer buf = new StringBuffer();
 			buf.append("(defclass");
 			for (int idx = 0; idx < params.length; idx++) {
-				buf.append(" " + params[idx].getStringValue());
+				buf.append(" ").append(params[idx].getParameterString());
 			}
 			buf.append(")");
 			return buf.toString();

@@ -19,25 +19,26 @@ package org.jamocha.rete.functions;
 import java.io.Serializable;
 
 import org.jamocha.parser.EvaluationException;
+import org.jamocha.parser.IllegalParameterException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.rete.Constants;
-import org.jamocha.rete.DefaultReturnValue;
-import org.jamocha.rete.DefaultReturnVector;
 import org.jamocha.rete.Deftemplate;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Module;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.ValueParam;
-import org.jamocha.rete.exception.CompileRuleException;
-
 
 /**
  * @author Peter Lin
- *
+ * 
  */
 public class DeftemplateFunction implements Function, Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
 	public static final String DEFTEMPLATE = "deftemplate";
 
@@ -46,26 +47,27 @@ public class DeftemplateFunction implements Function, Serializable {
 	}
 
 	public JamochaType getReturnType() {
-		return Constants.BOOLEAN_OBJECT;
+		return JamochaType.BOOLEAN;
 	}
 
-	public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
-		boolean add = true;
-		if (params.length == 1 && params[0].getValue() instanceof Deftemplate) {
-			Deftemplate tpl = (Deftemplate) params[0].getValue();
-			Module mod = tpl.checkName(engine);
-			if (mod == null) {
-				mod = engine.getCurrentFocus();
+	public JamochaValue executeFunction(Rete engine, Parameter[] params)
+			throws EvaluationException {
+		JamochaValue result = JamochaValue.FALSE;
+		if (params != null && params.length == 1) {
+			JamochaValue firstParam = params[0].getValue(engine);
+			if (firstParam.getObjectValue() instanceof Deftemplate) {
+				Deftemplate tpl = (Deftemplate) firstParam.getObjectValue();
+				Module mod = tpl.checkName(engine);
+				if (mod == null) {
+					mod = engine.getCurrentFocus();
+				}
+				mod.addTemplate(tpl, engine, engine.getWorkingMemory());
+				result = JamochaValue.TRUE;
 			}
-			mod.addTemplate(tpl,engine,engine.getWorkingMemory());
 		} else {
-			add = false;
+			throw new IllegalParameterException(1);
 		}
-		DefaultReturnVector ret = new DefaultReturnVector();
-		DefaultReturnValue rv = new DefaultReturnValue(
-				Constants.BOOLEAN_OBJECT, new Boolean(add));
-		ret.addReturnValue(rv);
-		return ret;
+		return result;
 	}
 
 	public String getName() {

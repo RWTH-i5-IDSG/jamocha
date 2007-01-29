@@ -23,8 +23,6 @@ import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.BoundParam;
 import org.jamocha.rete.Constants;
-import org.jamocha.rete.DefaultReturnValue;
-import org.jamocha.rete.DefaultReturnVector;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
@@ -38,6 +36,11 @@ import org.jamocha.rete.ShellBoundParam;
  */
 public class EchoFunction implements Function, Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
 	public static final String ECHO = "echo";
 
 	/**
@@ -48,7 +51,7 @@ public class EchoFunction implements Function, Serializable {
 	}
 
 	public JamochaType getReturnType() {
-		return Constants.STRING_TYPE;
+		return JamochaType.UNDEFINED;
 	}
 
 	/**
@@ -57,19 +60,15 @@ public class EchoFunction implements Function, Serializable {
 	 * line.
 	 */
 	public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
-		StringBuffer buf = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		for (int idx = 0; idx < params.length; idx++) {
 			if (params[idx] instanceof ShellBoundParam) {
 				ShellBoundParam bp = (ShellBoundParam) params[idx];
 				bp.resolveBinding(engine);
-				buf.append(bp.getStringValue() + Constants.LINEBREAK);
+				sb.append(bp.getStringValue()).append(Constants.LINEBREAK);
 			}
 		}
-		DefaultReturnVector ret = new DefaultReturnVector();
-		DefaultReturnValue rv = new DefaultReturnValue(Constants.STRING_TYPE,
-				buf.toString());
-		ret.addReturnValue(rv);
-		return ret;
+		return new JamochaValue(JamochaType.STRING, sb.toString());
 	}
 
 	public String getName() {
@@ -87,9 +86,9 @@ public class EchoFunction implements Function, Serializable {
 			for (int idx = 0; idx < params.length; idx++) {
 				if (params[idx] instanceof BoundParam) {
 					BoundParam bp = (BoundParam) params[idx];
-					buf.append(" ?" + bp.getVariableName());
+					buf.append(" ?").append(bp.getVariableName());
 				} else {
-					buf.append(" \"" + params[idx].getStringValue() + "\"");
+					buf.append(" \"").append(params[idx].getParameterString()).append("\"");
 				}
 			}
 			buf.append(")");

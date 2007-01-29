@@ -17,14 +17,12 @@
 package org.jamocha.rete.functions;
 
 import java.io.Serializable;
-import java.util.List;
 
 import org.jamocha.parser.EvaluationException;
+import org.jamocha.parser.IllegalParameterException;
+import org.jamocha.parser.IllegalTypeException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.rete.Constants;
-import org.jamocha.rete.DefaultReturnValue;
-import org.jamocha.rete.DefaultReturnVector;
 import org.jamocha.rete.Deffact;
 import org.jamocha.rete.Deftemplate;
 import org.jamocha.rete.Fact;
@@ -32,64 +30,64 @@ import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.ValueParam;
-import org.jamocha.rete.exception.AssertException;
-
 
 /**
  * @author Peter Lin
- *
+ * 
  */
 public class AssertFunction implements Function, Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
 	public static final String ASSERT = "assert";
 
 	protected Fact[] triggerFacts = null;
 
 	public JamochaType getReturnType() {
-		return Constants.STRING_TYPE;
+		return JamochaType.FACT_ID;
 	}
 
 	public void setTriggerFacts(Fact[] facts) {
 		this.triggerFacts = facts;
 	}
 
-	public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
-		String asrt = "";
+	public JamochaValue executeFunction(Rete engine, Parameter[] params)
+			throws EvaluationException {
+		JamochaValue result = JamochaValue.FALSE;
 		if (params.length > 0) {
 			Deffact fact = null;
-			if (params[0].getValue() instanceof Deffact) {
-				fact = (Deffact) params[0].getValue();
-			} else {
+			JamochaValue firstParam = params[0].getValue(engine);
+			JamochaValue secondParam = params[1].getValue(engine);
+			if (firstParam.getType().equals(JamochaType.IDENTIFIER)) {
 				Deftemplate tmpl = (Deftemplate) engine.getCurrentFocus()
-						.getTemplate(params[0].getStringValue());
-				fact = (Deffact) tmpl.createFact((Object[])params[1].getValue(),-1);
+						.getTemplate(firstParam.getIdentifierValue());
+				fact = (Deffact) tmpl.createFact((Object[]) secondParam
+						.getObjectValue(), -1);
+			} else if (firstParam.getType().equals(JamochaType.FACT)) {
+				fact = (Deffact) firstParam.getFactValue();
+			} else {
+				throw new IllegalTypeException(new JamochaType[] {
+						JamochaType.FACT, JamochaType.IDENTIFIER }, firstParam
+						.getType());
 			}
 			if (fact.hasBinding()) {
 				fact.resolveValues(engine, this.triggerFacts);
-				fact = fact.cloneFact();
+				fact = fact.cloneFact(engine);
 			}
-			try {
-				engine.assertFact(fact);
-				// if the fact id is still -1, it means it wasn't asserted
-				// if it was asserted, we return the fact id, otherwise
-				// we return "false".
-				if (fact.getFactId() > 0) {
-					asrt = String.valueOf(fact.getFactId());
-				} else {
-					asrt = "false";
-				}
-			} catch (AssertException e) {
-				// we should log this and output an error
-				asrt = "false";
+			engine.assertFact(fact);
+			// if the fact id is still -1, it means it wasn't asserted
+			// if it was asserted, we return the fact id, otherwise
+			// we return "false".
+			if (fact.getFactId() > 0) {
+				result = new JamochaValue(JamochaType.FACT_ID, fact.getFactId());
 			}
 		} else {
-			asrt = "false";
+			throw new IllegalParameterException(1);
 		}
-		DefaultReturnVector ret = new DefaultReturnVector();
-		DefaultReturnValue rv = new DefaultReturnValue(Constants.STRING_TYPE,
-				asrt);
-		ret.addReturnValue(rv);
-		return ret;
+		return result;
 	}
 
 	public String getName() {
@@ -97,9 +95,9 @@ public class AssertFunction implements Function, Serializable {
 	}
 
 	/**
-	 * The expected parameter is a deffact instance. According to CLIPS
-	 * beginner guide, assert only takes facts and returns the id of the
-	 * fact. For objects, there's (assert-object ?binding).
+	 * The expected parameter is a deffact instance. According to CLIPS beginner
+	 * guide, assert only takes facts and returns the id of the fact. For
+	 * objects, there's (assert-object ?binding).
 	 */
 	public Class[] getParameter() {
 		return new Class[] { ValueParam.class };
@@ -111,8 +109,7 @@ public class AssertFunction implements Function, Serializable {
 			buf.append("(assert ");
 			for (int idx = 0; idx < params.length; idx++) {
 				// the parameter should be a deffact
-				Deffact fact = (Deffact) params[idx].getValue();
-				buf.append(fact.toPPString());
+				buf.append(params[idx].getParameterString());
 			}
 			buf.append(" )");
 			return buf.toString();

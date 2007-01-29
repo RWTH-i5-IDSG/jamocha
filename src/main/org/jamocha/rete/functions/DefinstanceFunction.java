@@ -19,26 +19,26 @@ package org.jamocha.rete.functions;
 import java.io.Serializable;
 
 import org.jamocha.parser.EvaluationException;
+import org.jamocha.parser.IllegalParameterException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.BoundParam;
-import org.jamocha.rete.Constants;
-import org.jamocha.rete.DefaultReturnValue;
-import org.jamocha.rete.DefaultReturnVector;
-import org.jamocha.rete.Fact;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.ValueParam;
-import org.jamocha.rete.exception.AssertException;
-
 
 /**
  * @author Peter Lin
- *
+ * 
  * Definstance will assert an object instance using Rete.assert(Object).
  */
 public class DefinstanceFunction implements Function, Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
 	public static final String DEFINSTANCE = "definstance";
 
@@ -47,32 +47,27 @@ public class DefinstanceFunction implements Function, Serializable {
 	}
 
 	public JamochaType getReturnType() {
-		return Constants.STRING_TYPE;
+		return JamochaType.BOOLEAN;
 	}
 
-	public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
-		String asrt = "";
-		if (params.length >= 1 && params[0].getValue() != null) {
-			Object obj = params[0].getValue();
+	public JamochaValue executeFunction(Rete engine, Parameter[] params)
+			throws EvaluationException {
+		JamochaValue result = JamochaValue.FALSE;
+		if (params != null && params.length >= 1) {
+
+			JamochaValue firstParam = params[0].getValue(engine);
 			String template = "";
-			if (params.length == 2 && params[1].getStringValue() != null) {
-				template = params[1].getStringValue();
+			if (params.length == 2) {
+				template = params[1].getValue(engine).implicitCast(
+						JamochaType.IDENTIFIER).getIdentifierValue();
 			}
-			try {
-				engine.assertObject(obj, template, false, true);
-				asrt = "true";
-			} catch (AssertException e) {
-				// we should log this and output an error
-				asrt = "false";
-			}
+			engine.assertObject(firstParam.getObjectValue(), template, false,
+					true);
+			result = JamochaValue.TRUE;
 		} else {
-			asrt = "false";
+			throw new IllegalParameterException(1, true);
 		}
-		DefaultReturnVector ret = new DefaultReturnVector();
-		DefaultReturnValue rv = new DefaultReturnValue(Constants.STRING_TYPE,
-				asrt);
-		ret.addReturnValue(rv);
-		return ret;
+		return result;
 	}
 
 	public String getName() {
