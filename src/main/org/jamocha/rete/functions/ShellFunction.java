@@ -21,54 +21,51 @@ import java.io.Serializable;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.rete.Constants;
-import org.jamocha.rete.DefaultReturnValue;
-import org.jamocha.rete.DefaultReturnVector;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-
+import org.jamocha.rete.ValueParam;
 
 /**
  * @author Peter Lin
- *
+ * 
  * The purpose of Shell function is to make it easy to parse text in the shell
- * and execute the real function. ShellFunction expects the parser to pass
- * the name of the real function and parameter values.
+ * and execute the real function. ShellFunction expects the parser to pass the
+ * name of the real function and parameter values.
  */
 public class ShellFunction implements Function, Serializable {
 
-    public String funcName = null;
-    
-    private Function actualFunction = null;
-    private Parameter[] params = null;
-    
+	private static final long serialVersionUID = 1L;
+
+	public String funcName = null;
+
+	private Function actualFunction = null;
+
+	private Parameter[] params = null;
+
 	/**
 	 * 
 	 */
 	public ShellFunction() {
 		super();
 	}
-    
-    public void lookUpFunction(Rete engine) {
-        this.actualFunction = engine.findFunction(this.funcName);
-    }
+
+	public void lookUpFunction(Rete engine) {
+		this.actualFunction = engine.findFunction(this.funcName);
+	}
 
 	public JamochaType getReturnType() {
 		return this.actualFunction.getReturnType();
 	}
 
-	public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
-        this.lookUpFunction(engine);
-        if (this.params != null && this.actualFunction != null) {
-            return this.actualFunction.executeFunction(engine,this.params);
-        } else {
-        	DefaultReturnVector rv = new DefaultReturnVector();
-    		DefaultReturnValue rval = 
-    			new DefaultReturnValue(Constants.BOOLEAN_OBJECT,new Boolean(false));
-    		rv.addReturnValue(rval);
-            return rv;
-        }
+	public JamochaValue executeFunction(Rete engine, Parameter[] params)
+			throws EvaluationException {
+		this.lookUpFunction(engine);
+		if (this.params != null && this.actualFunction != null) {
+			return this.actualFunction.executeFunction(engine, this.params);
+		} else {
+			return JamochaValue.FALSE;
+		}
 	}
 
 	public String getName() {
@@ -76,32 +73,33 @@ public class ShellFunction implements Function, Serializable {
 	}
 
 	public Class[] getParameter() {
-		return this.actualFunction.getParameter();
+		return new Class[] { ValueParam.class };
 	}
 
-    /**
-     * The name of the function to call
-     * @param name
-     */
-    public void setName(String name) {
-        this.funcName = name;
-    }
-    
-    public Parameter[] getParameters() {
-        return this.params;
-    }
-    
-    public void setParameters(Parameter[] params) {
-        this.params = params;
-    }
-    
-    public void setFunction(Function func) {
-        this.actualFunction = func;
-    }
-    
-    public Function getFunction() {
-    	return this.actualFunction;
-    }
+	/**
+	 * The name of the function to call
+	 * 
+	 * @param name
+	 */
+	public void setName(String name) {
+		this.funcName = name;
+	}
+
+	public Parameter[] getParameters() {
+		return this.params;
+	}
+
+	public void setParameters(Parameter[] params) {
+		this.params = params;
+	}
+
+	public void setFunction(Function func) {
+		this.actualFunction = func;
+	}
+
+	public Function getFunction() {
+		return this.actualFunction;
+	}
 
 	public String toPPString(Parameter[] params, int indents) {
 		StringBuffer buf = new StringBuffer();

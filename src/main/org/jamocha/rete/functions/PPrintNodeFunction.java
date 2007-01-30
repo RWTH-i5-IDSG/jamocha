@@ -21,27 +21,24 @@ import java.io.Serializable;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.rete.Constants;
-import org.jamocha.rete.DefaultReturnVector;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.ValueParam;
-import org.jamocha.rule.Defrule;
-import org.jamocha.rule.Rule;
-
 
 /**
  * @author Peter Lin
  * 
- * The function will print out the rule in a pretty format. Note the
- * format may not be identicle to what the user wrote. It is a normalized
- * and cleaned up format.
+ * The function will print out the rule in a pretty format. Note the format may
+ * not be identicle to what the user wrote. It is a normalized and cleaned up
+ * format.
  */
 public class PPrintNodeFunction implements Function, Serializable {
 
+	private static final long serialVersionUID = 1L;
+
 	public static final String PPNODE = "ppnode";
-	
+
 	/**
 	 * 
 	 */
@@ -50,20 +47,20 @@ public class PPrintNodeFunction implements Function, Serializable {
 	}
 
 	public JamochaType getReturnType() {
-		return Constants.RETURN_VOID_TYPE;
+		return JamochaType.NIL;
 	}
 
 	/**
-	 * TODO - I need to finish this, so it can print out a node
-	 * in a pretty format
+	 * TODO - I need to finish this, so it can print out a node in a pretty
+	 * format
 	 */
-	public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
+	public JamochaValue executeFunction(Rete engine, Parameter[] params)
+			throws EvaluationException {
 		if (params != null && params.length > 0) {
-			for (int idx=0; idx < params.length; idx++) {
+			for (int idx = 0; idx < params.length; idx++) {
 			}
 		}
-		DefaultReturnVector rv = new DefaultReturnVector();
-		return rv;
+		return JamochaValue.NIL;
 	}
 
 	public String getName() {
@@ -71,7 +68,7 @@ public class PPrintNodeFunction implements Function, Serializable {
 	}
 
 	public Class[] getParameter() {
-		return new Class[]{ValueParam.class};
+		return new Class[] { ValueParam.class };
 	}
 
 	public String toPPString(Parameter[] params, int indents) {

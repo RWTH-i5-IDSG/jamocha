@@ -5,17 +5,13 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
 import org.jamocha.parser.EvaluationException;
+import org.jamocha.parser.IllegalParameterException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.BoundParam;
-import org.jamocha.rete.Constants;
-import org.jamocha.rete.DefaultReturnValue;
-import org.jamocha.rete.DefaultReturnVector;
 import org.jamocha.rete.Function;
-import org.jamocha.rete.FunctionParam2;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.ReturnVector;
 import org.jamocha.rete.ValueParam;
 
 /**
@@ -24,99 +20,82 @@ import org.jamocha.rete.ValueParam;
  * Creates a Java Object and returns it.
  */
 
-
 public class NewFunction implements Function, Serializable {
-	
+
+	private static final long serialVersionUID = 1L;
+
 	public static final String NEW = "new";
-	
+
 	private ClassnameResolver classnameResolver;
-	
-	public NewFunction(ClassnameResolver classnameResolver){
+
+	public NewFunction(ClassnameResolver classnameResolver) {
 		super();
 		this.classnameResolver = classnameResolver;
 	}
 
-	public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
+	public JamochaType getReturnType() {
+		return JamochaType.OBJECT;
+	}
+
+	public JamochaValue executeFunction(Rete engine, Parameter[] params)
+			throws EvaluationException {
 		Object o = null;
 		String classname = null;
-		Class [] argsclass = null;
-		Object [] args = null;
+		Object[] args = null;
 		if (params != null) {
-			if (params[0] instanceof ValueParam) {
-				ValueParam n = (ValueParam) params[0];
-				classname = n.getStringValue();
-			}
-			else if (params[0] instanceof BoundParam) {
-				BoundParam bp = (BoundParam) params[0];
-				classname = (String) engine.getBinding(bp
-						.getVariableName());
-			} else if (params[0] instanceof FunctionParam2) {
-				FunctionParam2 n = (FunctionParam2) params[0];
-				n.setEngine(engine);
-				n.lookUpFunction();
-				ReturnVector rval = (ReturnVector) n.getValue();
-				classname = rval.firstReturnValue().getStringValue();
-			}
-			args = new Object[params.length-1];
-			for (int idx = 1; idx < params.length; idx++) {
-				if (params[idx] instanceof ValueParam) {
-					ValueParam n = (ValueParam) params[idx];
-					args[idx-1] = n.getValue();
-				} else if (params[idx] instanceof BoundParam) {
-					BoundParam bp = (BoundParam) params[idx];
-					args[idx-1] = engine.getBinding(bp.getVariableName());
-				} else if (params[idx] instanceof FunctionParam2) {
-					FunctionParam2 n = (FunctionParam2) params[idx];
-					n.setEngine(engine);
-					n.lookUpFunction();
-					ReturnVector rval = (ReturnVector) n.getValue();
-					args[idx-1] = rval.firstReturnValue().getValue();
+			if (params.length > 0) {
+				classname = params[0].getValue(engine).getStringValue();
+				args = new Object[params.length - 1];
+				for (int idx = 1; idx < params.length; idx++) {
+					args[idx - 1] = params[idx].getValue(engine)
+							.getObjectValue();
 				}
-			} 
-			try {
-				Class classDefinition = classnameResolver.resolveClass(classname);
-				Constructor foundConstructor = null;
-				for(Constructor constructor : classDefinition.getConstructors() ) {
-					Class[] parameterClasses = constructor.getParameterTypes();
-					if(parameterClasses.length == args.length) {
-						boolean match = true;
-						for(int i=0; i<parameterClasses.length; ++i) {
-							match &= (parameterClasses[i].isInstance(args[i]) || args[i] == null); 
-						}
-						if(match) {
-							foundConstructor = constructor;
-							break;
+				try {
+					Class classDefinition = classnameResolver
+							.resolveClass(classname);
+					Constructor foundConstructor = null;
+					for (Constructor constructor : classDefinition
+							.getConstructors()) {
+						Class[] parameterClasses = constructor
+								.getParameterTypes();
+						if (parameterClasses.length == args.length) {
+							boolean match = true;
+							for (int i = 0; i < parameterClasses.length; ++i) {
+								match &= (parameterClasses[i]
+										.isInstance(args[i]) || args[i] == null);
+							}
+							if (match) {
+								foundConstructor = constructor;
+								break;
+							}
 						}
 					}
+					if (foundConstructor != null) {
+						o = foundConstructor.newInstance(args);
+					}
+					return new JamochaValue(JamochaType.OBJECT, o);
+				} catch (ClassNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (InstantiationException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IllegalAccessException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (SecurityException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IllegalArgumentException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (InvocationTargetException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
 				}
-				if(foundConstructor != null) {
-					o = foundConstructor.newInstance(args);
-				}
-			} catch (ClassNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (InstantiationException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IllegalAccessException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (SecurityException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IllegalArgumentException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (InvocationTargetException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			}
 		}
-		DefaultReturnVector ret = new DefaultReturnVector();
-		DefaultReturnValue rv = new DefaultReturnValue(Constants.OBJECT_TYPE,
-				o);
-		ret.addReturnValue(rv);
-		return ret;
+		throw new IllegalParameterException(1, true);
 	}
 
 	public String getName() {
@@ -125,10 +104,6 @@ public class NewFunction implements Function, Serializable {
 
 	public Class[] getParameter() {
 		return new Class[] { ValueParam[].class };
-	}
-
-	public JamochaType getReturnType() {
-		return Constants.OBJECT_TYPE;
 	}
 
 	public String toPPString(Parameter[] params, int indents) {
@@ -140,9 +115,9 @@ public class NewFunction implements Function, Serializable {
 					BoundParam bp = (BoundParam) params[idx];
 					buf.append(" ?" + bp.getVariableName());
 				} else if (params[idx] instanceof ValueParam) {
-					buf.append(" " + params[idx].getStringValue());
+					buf.append(" " + params[idx].getParameterString());
 				} else {
-					buf.append(" " + params[idx].getStringValue());
+					buf.append(" " + params[idx].getParameterString());
 				}
 			}
 			buf.append(")");
