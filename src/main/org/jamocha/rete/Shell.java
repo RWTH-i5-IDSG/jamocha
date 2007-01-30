@@ -59,7 +59,7 @@ public class Shell {
 					if (event.getType() != MessageEvent.COMMAND) {
 						if (!event.getMessage().toString().equals("")
 								&& !event.getMessage().equals(JamochaValue.NIL)) {
-							System.out.print(event.getMessage().toString());
+							System.out.println(event.getMessage().toString().trim());
 						}
 					}
 				}

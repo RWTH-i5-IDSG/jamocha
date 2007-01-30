@@ -64,8 +64,7 @@ public class FactsFunction implements Function, Serializable {
 			Fact ft = (Fact) sorted[idx];
 			sb.append(ft.toFactString()).append(Constants.LINEBREAK);
 		}
-		sb.append("for a total of ").append(sorted.length).append(
-				Constants.LINEBREAK);
+		sb.append("for a total of ").append(sorted.length);
 		return new JamochaValue(JamochaType.STRING, sb.toString());
 	}
 
