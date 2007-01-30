@@ -17,35 +17,38 @@
 package org.jamocha.rete.functions;
 
 import java.io.Serializable;
-import java.lang.reflect.Method;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 import org.jamocha.parser.EvaluationException;
+import org.jamocha.parser.IllegalParameterException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.BoundParam;
-import org.jamocha.rete.Constants;
-import org.jamocha.rete.DefaultReturnVector;
 import org.jamocha.rete.Defclass;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.StringParam;
 import org.jamocha.rete.ValueParam;
-
 
 /**
  * @author Peter Lin
- *
- * SetMemberFunction is equivalent to JESS set-member function. This is a completely
- * clean implementation from scratch. The name and function signature are similar,
- * but the design and implementation are different. The design of the function is
- * strongly influenced by CLIPS, since the primary goal is full CLIPS compatability.
+ * 
+ * SetMemberFunction is equivalent to JESS set-member function. This is a
+ * completely clean implementation from scratch. The name and function signature
+ * are similar, but the design and implementation are different. The design of
+ * the function is strongly influenced by CLIPS, since the primary goal is full
+ * CLIPS compatability.
  */
 public class SetMembertFunction implements Function, Serializable {
 
-    public static final String SET_MEMBER = "set-member";
-    
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
+	public static final String SET_MEMBER = "set-member";
+
 	/**
 	 * 
 	 */
@@ -53,39 +56,48 @@ public class SetMembertFunction implements Function, Serializable {
 		super();
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see woolfel.engine.rete.Function#getReturnType()
 	 */
 	public JamochaType getReturnType() {
-		return Constants.RETURN_VOID_TYPE;
+		return JamochaType.NIL;
 	}
 
-	/* (non-Javadoc)
-	 * @see woolfel.engine.rete.Function#executeFunction(woolfel.engine.rete.Rete, woolfel.engine.rete.Parameter[])
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see woolfel.engine.rete.Function#executeFunction(woolfel.engine.rete.Rete,
+	 *      woolfel.engine.rete.Parameter[])
 	 */
-	public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
-        if (engine != null && params != null && params.length == 3) {
-            BoundParam bp = (BoundParam)params[0];
-            StringParam slot = (StringParam)params[1];
-            ValueParam val = (ValueParam)params[2];
-            Object instance = bp.getObjectRef();
-            Defclass dc = engine.findDefclass(instance);
-            // we check to make sure the Defclass exists
-            if (dc != null) {
-                Method setm = dc.getWriteMethod(slot.getStringValue());
-                try {
-                    setm.invoke(instance,new Object[]{val});
-                } catch (IllegalAccessException e) {
-                    
-                } catch (InvocationTargetException e) {
-                    
-                }
-            }
-        }
-		return new DefaultReturnVector();
+	public JamochaValue executeFunction(Rete engine, Parameter[] params)
+			throws EvaluationException {
+		if (engine != null && params != null && params.length == 3) {
+			Object instance = params[0].getValue(engine).getObjectValue();
+			String slot = params[1].getValue(engine).getIdentifierValue();
+			Object val = params[2].getValue(engine).getObjectValue();
+			Defclass dc = engine.findDefclass(instance);
+			// we check to make sure the Defclass exists
+			if (dc != null) {
+				Method setm = dc.getWriteMethod(slot);
+				try {
+					setm.invoke(instance, new Object[] { val });
+				} catch (IllegalAccessException e) {
+
+				} catch (InvocationTargetException e) {
+
+				}
+			}
+		} else {
+			throw new IllegalParameterException(3);
+		}
+		return JamochaValue.NIL;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see woolfel.engine.rete.Function#getName()
 	 */
 	public String getName() {
@@ -93,16 +105,12 @@ public class SetMembertFunction implements Function, Serializable {
 	}
 
 	/**
-     * The current implementation expects 3 parameters in the following
-     * sequence:<br/>
-     * BoundParam
-     * StringParam
-     * ValueParam
-	 * <br/>
-     * Example: (set-member ?objectVariable slotName value)
+	 * The current implementation expects 3 parameters in the following
+	 * sequence:<br/> BoundParam StringParam ValueParam <br/> Example:
+	 * (set-member ?objectVariable slotName value)
 	 */
 	public Class[] getParameter() {
-		return new Class[] {BoundParam.class,StringParam.class,ValueParam.class};
+		return new Class[] { BoundParam.class, ValueParam.class };
 	}
 
 	public String toPPString(Parameter[] params, int indents) {

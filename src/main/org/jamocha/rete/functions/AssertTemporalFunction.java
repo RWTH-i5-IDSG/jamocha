@@ -17,14 +17,11 @@
 package org.jamocha.rete.functions;
 
 import java.io.Serializable;
-import java.util.List;
 
 import org.jamocha.parser.EvaluationException;
+import org.jamocha.parser.IllegalParameterException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.rete.Constants;
-import org.jamocha.rete.DefaultReturnValue;
-import org.jamocha.rete.DefaultReturnVector;
 import org.jamocha.rete.Deffact;
 import org.jamocha.rete.Deftemplate;
 import org.jamocha.rete.Fact;
@@ -41,12 +38,17 @@ import org.jamocha.rete.exception.AssertException;
  */
 public class AssertTemporalFunction implements Function, Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	public static final String ASSERT_TEMPORAL = "assert-temporal";
 
 	protected Fact[] triggerFacts = null;
 
 	public JamochaType getReturnType() {
-		return Constants.STRING_TYPE;
+		return JamochaType.UNDEFINED;
 	}
 
 	public void setTriggerFacts(Fact[] facts) {
@@ -54,22 +56,23 @@ public class AssertTemporalFunction implements Function, Serializable {
 	}
 
 	public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
-		String asrt = "";
+		JamochaValue result = JamochaValue.FALSE;
 		if (params.length > 0) {
 			Deffact fact = null;
-			if (params[0].getValue() instanceof Deffact) {
-				fact = (Deffact) params[0].getValue();
+			JamochaValue firstParam = params[0].getValue(engine);
+			if (firstParam.getType().equals(JamochaType.FACT)) {
+				fact = (Deffact) firstParam.getFactValue();
 			} else {
 				Deftemplate tmpl = (Deftemplate) engine.getCurrentFocus()
-						.getTemplate(params[0].getStringValue());
+						.getTemplate(firstParam.getIdentifierValue());
                 // before we create the fact, we need to remove the four
                 // slots for temporal facts
 				fact = (Deffact) tmpl.createTemporalFact(
-                        (Object[])params[1].getValue(),-1);
+                        (Object[])params[1].getValue(engine).getObjectValue(),-1);
 			}
 			if (fact.hasBinding()) {
 				fact.resolveValues(engine, this.triggerFacts);
-				fact = fact.cloneFact();
+				fact = fact.cloneFact(engine);
 			}
 			try {
 				engine.assertFact(fact);
@@ -77,22 +80,16 @@ public class AssertTemporalFunction implements Function, Serializable {
 				// if it was asserted, we return the fact id, otherwise
 				// we return "false".
 				if (fact.getFactId() > 0) {
-					asrt = String.valueOf(fact.getFactId());
-				} else {
-					asrt = "false";
+					result = new JamochaValue(JamochaType.FACT_ID, fact.getFactId());
 				}
 			} catch (AssertException e) {
 				// we should log this and output an error
-				asrt = "false";
+				throw new EvaluationException(e);
 			}
 		} else {
-			asrt = "false";
+			throw new IllegalParameterException(1, true);
 		}
-		DefaultReturnVector ret = new DefaultReturnVector();
-		DefaultReturnValue rv = new DefaultReturnValue(Constants.STRING_TYPE,
-				asrt);
-		ret.addReturnValue(rv);
-		return ret;
+		return result;
 	}
 
 	public String getName() {
@@ -114,8 +111,7 @@ public class AssertTemporalFunction implements Function, Serializable {
 			buf.append("(assert-temporal ");
 			for (int idx = 0; idx < params.length; idx++) {
 				// the parameter should be a deffact
-				Deffact fact = (Deffact) params[idx].getValue();
-				buf.append(fact.toPPString());
+				buf.append(params[idx].getParameterString());
 			}
 			buf.append(" )");
 			return buf.toString();

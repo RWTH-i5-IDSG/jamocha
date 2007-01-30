@@ -35,6 +35,11 @@ public class DefglobalFunction implements Serializable, Function {
 	/**
 	 * 
 	 */
+	private static final long serialVersionUID = 1L;
+
+	/**
+	 * 
+	 */
 	public DefglobalFunction() {
 		super();
 		// TODO Auto-generated constructor stub
@@ -44,8 +49,7 @@ public class DefglobalFunction implements Serializable, Function {
 	 * @see woolfel.engine.rete.Function#getReturnType()
 	 */
 	public JamochaType getReturnType() {
-		// TODO Auto-generated method stub
-		return 0;
+		return JamochaType.UNDEFINED;
 	}
 
 	/* (non-Javadoc)

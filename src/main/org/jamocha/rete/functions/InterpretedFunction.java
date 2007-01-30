@@ -19,12 +19,10 @@ package org.jamocha.rete.functions;
 import java.util.HashMap;
 
 import org.jamocha.parser.EvaluationException;
+import org.jamocha.parser.IllegalParameterException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.BoundParam;
-import org.jamocha.rete.Constants;
-import org.jamocha.rete.DefaultReturnValue;
-import org.jamocha.rete.DefaultReturnVector;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
@@ -35,7 +33,12 @@ import org.jamocha.rete.Rete;
  */
 public class InterpretedFunction implements Function {
 
-    private String name = null;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
+	private String name = null;
     protected String ppString = null;
     protected Parameter[] inputParams = null;
     private Function internalFunction = null;
@@ -67,25 +70,19 @@ public class InterpretedFunction implements Function {
      */
     public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
         // the first thing we do is set the values
-        DefaultReturnVector ret = new DefaultReturnVector();
+        JamochaValue result;
         if (params.length == this.inputParams.length) {
             for (int idx=0; idx < this.inputParams.length; idx++) {
                 BoundParam bp = (BoundParam)this.inputParams[idx];
-                this.bindings.put(bp.getVariableName(), params[idx].getValue());
+                this.bindings.put(bp.getVariableName(), params[idx].getValue(engine));
             }
             engine.setInterpretedFunction(this);
-            ret =  (DefaultReturnVector)this.internalFunction.executeFunction(engine, this.functionParams);
+            result =  this.internalFunction.executeFunction(engine, this.functionParams);
             engine.setInterpretedFunction(null);
-            return ret;
         } else {
-            DefaultReturnValue rv = new DefaultReturnValue(
-                    Constants.BOOLEAN_OBJECT, new Boolean(false));
-            ret.addReturnValue(rv);
-            DefaultReturnValue rv2 = new DefaultReturnValue(
-                    Constants.STRING_TYPE, "incorrect number of parameters");
-            ret.addReturnValue(rv2);
-            return ret;
+        	throw new IllegalParameterException(this.inputParams.length);
         }
+        return result;
     }
 
     public String getName() {

@@ -19,9 +19,6 @@ package org.jamocha.rete.functions;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.rete.Constants;
-import org.jamocha.rete.DefaultReturnValue;
-import org.jamocha.rete.DefaultReturnVector;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
@@ -36,12 +33,17 @@ import org.jamocha.rete.Rete;
  */
 public class Deffunction implements Function {
 
-    protected String name = null;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
+	protected String name = null;
     protected String ppString = null;
     protected Parameter[] parameters = null;
     protected Function function = null;
     protected Class[] functionParams = null;
-    protected int returnType;
+    protected JamochaType returnType;
     
     /**
      * 
@@ -50,8 +52,7 @@ public class Deffunction implements Function {
     }
 
     public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
-        DefaultReturnVector ret = new DefaultReturnVector();
-        boolean add = false;
+        JamochaValue result = JamochaValue.FALSE;
         if (engine.findFunction(this.name) == null) {
             // first we get the actual function from the shell function
             ShellFunction sf = (ShellFunction)this.function;
@@ -60,13 +61,9 @@ public class Deffunction implements Function {
                     this.parameters, f, sf.getParameters());
             intrfunc.configureFunction(engine);
             engine.declareFunction(intrfunc);
-            add = true;
+            result = JamochaValue.TRUE;
         }
-        
-        DefaultReturnValue rv = new DefaultReturnValue(
-                Constants.BOOLEAN_OBJECT, new Boolean(add));
-        ret.addReturnValue(rv);
-        return ret;
+        return result;
     }
 
     public void setName(String name) {

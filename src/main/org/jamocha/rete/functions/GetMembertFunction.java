@@ -17,21 +17,19 @@
 package org.jamocha.rete.functions;
 
 import java.io.Serializable;
-import java.lang.reflect.Method;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 import org.jamocha.parser.EvaluationException;
+import org.jamocha.parser.IllegalParameterException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.BoundParam;
 import org.jamocha.rete.Constants;
-import org.jamocha.rete.DefaultReturnValue;
-import org.jamocha.rete.DefaultReturnVector;
 import org.jamocha.rete.Defclass;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.StringParam;
 import org.jamocha.rete.ValueParam;
 
 
@@ -45,6 +43,11 @@ import org.jamocha.rete.ValueParam;
  */
 public class GetMembertFunction implements Function, Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
 	public static final String GET_MEMBER = "get-member";
 
 	/**
@@ -68,31 +71,27 @@ public class GetMembertFunction implements Function, Serializable {
 	 * @see woolfel.engine.rete.Function#executeFunction(woolfel.engine.rete.Rete, woolfel.engine.rete.Parameter[])
 	 */
 	public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
-		Object rtn = null;
-		DefaultReturnVector drv = new DefaultReturnVector();
-		if (engine != null && params != null && params.length == 3) {
-			BoundParam bp = (BoundParam) params[0];
-			StringParam slot = (StringParam) params[1];
-			ValueParam val = (ValueParam) params[2];
-			Object instance = bp.getObjectRef();
-			Defclass dc = engine.findDefclass(instance);
+		JamochaValue result = JamochaValue.NIL;
+		if (engine != null && params != null && params.length == 2) {
+			Object object = params[0].getValue(engine).getObjectValue();
+			String slot =  params[1].getValue(engine).getIdentifierValue();
+			Defclass dc = engine.findDefclass(object);
 			// we check to make sure the Defclass exists
 			if (dc != null) {
-				Method getm = dc.getWriteMethod(slot.getStringValue());
+				Method getm = dc.getReadMethod(slot);
 				try {
-					rtn = getm.invoke(instance, new Object[] { val });
-					int rtype = getMethodReturnType(getm);
-					DefaultReturnValue rvalue = new DefaultReturnValue(rtype,
-							rtn);
-					drv.addReturnValue(rvalue);
+					Object rtn = getm.invoke(object, new Object[] {});
+					result = new JamochaValue(rtn);
 				} catch (IllegalAccessException e) {
 					// TODO we should handle error, for now not implemented
 				} catch (InvocationTargetException e) {
 					// TODO we should handle error, for now not implemented
 				}
 			}
+		} else {
+			throw new IllegalParameterException(2);
 		}
-		return drv;
+		return result;
 	}
 
 	/* (non-Javadoc)
@@ -112,7 +111,7 @@ public class GetMembertFunction implements Function, Serializable {
 	 * Example: (set-member ?objectVariable slotName value)
 	 */
 	public Class[] getParameter() {
-		return new Class[] { BoundParam.class, StringParam.class,
+		return new Class[] { BoundParam.class, 
 				ValueParam.class };
 	}
 

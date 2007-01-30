@@ -35,12 +35,17 @@ public class GetCurrentModuleFunction implements Function, Serializable {
 	/**
 	 * 
 	 */
+	private static final long serialVersionUID = 1L;
+
+	/**
+	 * 
+	 */
 	public GetCurrentModuleFunction() {
 		super();
 	}
 
 	public JamochaType getReturnType() {
-		return 0;
+		return JamochaType.UNDEFINED;
 	}
 
 	public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
