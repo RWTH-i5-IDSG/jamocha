@@ -30,6 +30,11 @@ import org.jamocha.parser.JamochaValue;
 public class ShellBoundParam extends AbstractParam {
 
     /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
+	/**
      * the int value defining the valueType
      */
     protected int valueType = -1;
@@ -97,6 +102,11 @@ public class ShellBoundParam extends AbstractParam {
     public void reset() {
 		this.valueType = -1;
 		this.globalVarName = "";
+	}
+
+	public String getParameterString() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

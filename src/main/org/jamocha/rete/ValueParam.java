@@ -50,4 +50,8 @@ public class ValueParam extends AbstractParam {
 	public ValueParam cloneParameter() {
 		return new ValueParam(this.value);
 	}
+
+	public String getParameterString() {
+		return this.value.toString();
+	}
 }

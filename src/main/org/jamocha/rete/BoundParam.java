@@ -28,6 +28,11 @@ import org.jamocha.parser.JamochaValue;
 public class BoundParam extends AbstractParam {
 
     /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	/**
      * The fact
      */
     protected Fact fact = null;
@@ -250,4 +255,8 @@ public class BoundParam extends AbstractParam {
         	return "?" + this.variableName;
     	}
     }
+
+	public String getParameterString() {
+		return toPPString();
+	}
 }

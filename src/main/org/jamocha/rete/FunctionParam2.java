@@ -28,7 +28,12 @@ import org.jamocha.rule.Rule;
  */
 public class FunctionParam2 extends AbstractParam {
 
-    protected Function func = null;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
+	protected Function func = null;
     protected String funcName = null;
     private Parameter[] params = null;
     private Rete engine = null;
@@ -102,5 +107,9 @@ public class FunctionParam2 extends AbstractParam {
 	public String toPPString() {
 		this.lookUpFunction();
 		return this.func.toPPString(this.params,1);
+	}
+
+	public String getParameterString() {
+		return toPPString();
 	}
 }

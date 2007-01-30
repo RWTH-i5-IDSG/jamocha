@@ -28,6 +28,11 @@ import org.jamocha.parser.JamochaValue;
  */
 public class SlotParam extends AbstractParam {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	protected int valueType = Constants.SLOT_TYPE;
 
 	protected Slot slot = null;
@@ -73,6 +78,10 @@ public class SlotParam extends AbstractParam {
 	 */
 	public void reset() {
 		this.slot = null;
+	}
+
+	public String getParameterString() {
+		return slot.toString();
 	}
 
 }

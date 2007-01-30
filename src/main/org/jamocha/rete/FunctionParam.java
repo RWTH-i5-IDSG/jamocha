@@ -35,6 +35,11 @@ import org.jamocha.parser.JamochaValue;
 public class FunctionParam extends AbstractParam {
 
     /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
+	/**
      * The function to call
      */
     protected Function func = null;
@@ -96,4 +101,8 @@ public class FunctionParam extends AbstractParam {
     public void reset(){
         this.facts = null;
     }
+
+	public String getParameterString() {
+		return null;
+	}
 }

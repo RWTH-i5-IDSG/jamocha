@@ -23,11 +23,13 @@ import java.util.Map;
 
 import org.jamocha.logging.DefaultLogger;
 import org.jamocha.parser.EvaluationException;
+import org.jamocha.parser.IllegalConversionException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.exception.AssertException;
 import org.jamocha.rete.functions.ShellFunction;
 import org.jamocha.rule.Action;
+import org.jamocha.rule.Analysis;
 import org.jamocha.rule.AndCondition;
 import org.jamocha.rule.AndLiteralConstraint;
 import org.jamocha.rule.BoundConstraint;
@@ -40,9 +42,9 @@ import org.jamocha.rule.ObjectCondition;
 import org.jamocha.rule.OrLiteralConstraint;
 import org.jamocha.rule.PredicateConstraint;
 import org.jamocha.rule.Rule;
+import org.jamocha.rule.Summary;
+import org.jamocha.rule.TemplateValidation;
 import org.jamocha.rule.TestCondition;
-import org.jamocha.rete.functions.*;
-import org.jamocha.rule.*;
 
 /**
  * @author Peter Lin
@@ -320,8 +322,15 @@ public class BasicRuleCompiler implements RuleCompiler {
 					// we create alphaNodes from LiteralConstraints
 					if (templ.getSlot(cnstr.getName()) != null) {
 						Slot sl = (Slot) templ.getSlot(cnstr.getName()).clone();
-						JamochaValue sval = cnstr.getValue().implicitCast(
-								sl.getValueType());
+						JamochaValue sval;
+						try {
+							sval = cnstr.getValue().implicitCast(
+									sl.getValueType());
+						} catch (IllegalConversionException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+							return;
+						}
 						sl.value = sval;
 						if (util.getRememberMatch()) {
 							current = new AlphaNode(engine.nextNodeId());
@@ -417,8 +426,15 @@ public class BasicRuleCompiler implements RuleCompiler {
 									.getFunctionName());
 							Slot sl = (Slot) templ.getSlot(pc.getName())
 									.clone();
-							JamochaValue sval = cnstr.getValue().implicitCast(
-									sl.getValueType());
+							JamochaValue sval;
+							try {
+								sval = cnstr.getValue().implicitCast(
+										sl.getValueType());
+							} catch (IllegalConversionException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+								return;
+							}
 							sl.value = sval;
 							// create the alphaNode
 							if (util.getRememberMatch()) {
