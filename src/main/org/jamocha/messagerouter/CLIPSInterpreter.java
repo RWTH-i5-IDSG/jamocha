@@ -19,9 +19,8 @@ package org.jamocha.messagerouter;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Function;
-import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.ReturnVector;
+import org.jamocha.rete.functions.ShellFunction;
 
 public class CLIPSInterpreter {
 
@@ -33,10 +32,9 @@ public class CLIPSInterpreter {
 
 	public JamochaValue executeCommand(Object command) {
 		JamochaValue result = null;
-		if (command instanceof Parameter) {
+		if (command instanceof ShellFunction) {
 			try {
-				result = ((Parameter) command)
-						.getValue(engine);
+				result = ((ShellFunction) command).executeFunction(engine, null);
 			} catch (EvaluationException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
