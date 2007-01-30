@@ -52,42 +52,30 @@ public class Add implements Function, Serializable {
 
 	public JamochaValue executeFunction(Rete engine, Parameter[] params)
 			throws EvaluationException {
-		JamochaValue result = JamochaValue.NIL;
 		if (params != null) {
 			if (params.length > 0) {
-				JamochaType type = JamochaType.LONG;
+				boolean isDouble = false;
 				for (int idx = 0; idx < params.length; idx++) {
 					if (params[idx].getValue(engine).getType().equals(
 							JamochaType.DOUBLE)) {
-						type = JamochaType.DOUBLE;
+						isDouble = true;
 						break;
 					}
 				}
-				result = new JamochaValue(type, 0);
-				for (int idx = 0; idx < params.length; idx++) {
-					JamochaValue value = params[idx].getValue(engine);
-					if (value.getType().equals(JamochaType.DOUBLE)) {
-						result = new JamochaValue(type, (result
-								.getDoubleValue() + value.getDoubleValue()));
-					} else if (value.getType().equals(JamochaType.LONG)) {
-						if (type.equals(JamochaType.LONG)) {
-							result = new JamochaValue(type, (result
-									.getLongValue() + value.getLongValue()));
-						} else {
-							result = new JamochaValue(type, (result
-									.getDoubleValue() + value.getLongValue()));
-						}
-					} else {
-						if (type.equals(JamochaType.LONG)) {
-							result = new JamochaValue(type, (result
-									.getLongValue() + value.implicitCast(type).getLongValue()));
-						} else {
-							result = new JamochaValue(type, (result
-									.getDoubleValue() + value.implicitCast(type).getDoubleValue()));
-						}
+				if(isDouble) {
+					double result = 0.0;
+					for (int i=0; i<params.length; ++i) {
+						result += params[i].getValue(engine).implicitCast(JamochaType.DOUBLE).getDoubleValue();
 					}
+					return new JamochaValue(JamochaType.DOUBLE, result);
 				}
-				return result;
+				else {
+					long result = 0;
+					for (int i=0; i<params.length; ++i) {
+						result += params[i].getValue(engine).implicitCast(JamochaType.LONG).getLongValue();
+					}
+					return new JamochaValue(JamochaType.LONG, result);
+				}
 			}
 		}
 		throw new IllegalParameterException(1,true);

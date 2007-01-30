@@ -47,12 +47,11 @@ public class Acos implements Function, Serializable {
 	}
 
 	public JamochaType getReturnType() {
-		return JamochaType.UNDEFINED;
+		return JamochaType.DOUBLE;
 	}
 
 	public JamochaValue executeFunction(Rete engine, Parameter[] params)
 			throws EvaluationException {
-		JamochaValue result = JamochaValue.NIL;
 		if (params != null) {
 			if (params.length == 1) {
 				JamochaValue value = params[0].getValue(engine);
@@ -61,13 +60,12 @@ public class Acos implements Function, Serializable {
 					value = value.implicitCast(JamochaType.DOUBLE);
 				}
 				if (value.getType().equals(JamochaType.DOUBLE)) {
-					result = new JamochaValue(JamochaType.DOUBLE, Math
-							.acos(value.getDoubleValue()));
+					return new JamochaValue(JamochaType.DOUBLE, Math.acos(value
+							.getDoubleValue()));
 				} else if (value.getType().equals(JamochaType.LONG)) {
-					result = new JamochaValue(JamochaType.LONG, Math.acos(value
+					return new JamochaValue(JamochaType.DOUBLE, Math.acos(value
 							.getLongValue()));
 				}
-				return result;
 			}
 		}
 		throw new IllegalParameterException(1);

@@ -17,21 +17,13 @@
 package org.jamocha.rete.functions;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.math.MathContext;
-
-import java.lang.Math;
 
 import org.jamocha.parser.EvaluationException;
+import org.jamocha.parser.IllegalParameterException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.BoundParam;
-import org.jamocha.rete.Constants;
-import org.jamocha.rete.DefaultReturnValue;
-import org.jamocha.rete.DefaultReturnVector;
 import org.jamocha.rete.Function;
-import org.jamocha.rete.FunctionParam2;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.ValueParam;
@@ -43,6 +35,8 @@ import org.jamocha.rete.ValueParam;
  */
 public class Oddp implements Function, Serializable {
 
+	private static final long serialVersionUID = 1L;
+
 	public static final String ODDP = "oddp";
 
 	/**
@@ -53,25 +47,29 @@ public class Oddp implements Function, Serializable {
 	}
 
 	public JamochaType getReturnType() {
-		return Constants.BIG_DECIMAL;
+		return JamochaType.BOOLEAN;
 	}
 
-	public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
-		BigDecimal bdval = new BigDecimal(0);
-		boolean eval = false;
-		if (params.length == 1) {
-            bdval = (BigDecimal)params[0].getValue(engine);
-			double bdh = bdval.doubleValue();
-			if (bdh % 2 == 1){
-				eval = true;
+	public JamochaValue executeFunction(Rete engine, Parameter[] params)
+			throws EvaluationException {
+		if (params != null) {
+			if (params.length == 1) {
+				JamochaValue value = params[0].getValue(engine);
+				if (!value.getType().equals(JamochaType.DOUBLE)
+						&& !value.getType().equals(JamochaType.LONG)) {
+					value = value.implicitCast(JamochaType.DOUBLE);
+				}
+				if (value.getType().equals(JamochaType.DOUBLE)) {
+					return new JamochaValue(JamochaType.BOOLEAN, ((value
+							.getDoubleValue() % 2) != 0.0));
+				}
+				if (value.getType().equals(JamochaType.LONG)) {
+					return new JamochaValue(JamochaType.BOOLEAN, ((value
+							.getLongValue() % 2) != 0));
+				}
 			}
-
 		}
-		DefaultReturnVector ret = new DefaultReturnVector();
-		DefaultReturnValue rv = new DefaultReturnValue(
-				Constants.BOOLEAN_OBJECT, new Boolean(eval));
-		ret.addReturnValue(rv);
-		return ret;
+		throw new IllegalParameterException(1);
 	}
 
 	public String getName() {
@@ -86,21 +84,20 @@ public class Oddp implements Function, Serializable {
 		if (params != null && params.length >= 0) {
 			StringBuffer buf = new StringBuffer();
 			buf.append("(oddp");
-				int idx = 0;
-				if (params[idx] instanceof BoundParam) {
-					BoundParam bp = (BoundParam) params[idx];
-					buf.append(" ?" + bp.getVariableName());
-				} else if (params[idx] instanceof ValueParam) {
-					buf.append(" " + params[idx].getStringValue());
-				} else {
-					buf.append(" " + params[idx].getStringValue());
-				}
+			int idx = 0;
+			if (params[idx] instanceof BoundParam) {
+				BoundParam bp = (BoundParam) params[idx];
+				buf.append(" ?" + bp.getVariableName());
+			} else if (params[idx] instanceof ValueParam) {
+				buf.append(" " + params[idx].getParameterString());
+			} else {
+				buf.append(" " + params[idx].getParameterString());
+			}
 			buf.append(")");
 			return buf.toString();
 		} else {
-			return "(oddp <expression>)\n" +
-			"Function description:\n" +
-			"\tReturns true, if its only argument is odd.";
+			return "(oddp <expression>)\n" + "Function description:\n"
+					+ "\tReturns true, if its only argument is odd.";
 		}
 	}
 }

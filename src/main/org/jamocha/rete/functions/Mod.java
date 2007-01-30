@@ -17,29 +17,25 @@
 package org.jamocha.rete.functions;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
 
 import org.jamocha.parser.EvaluationException;
+import org.jamocha.parser.IllegalParameterException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.BoundParam;
-import org.jamocha.rete.Constants;
-import org.jamocha.rete.DefaultReturnValue;
-import org.jamocha.rete.DefaultReturnVector;
 import org.jamocha.rete.Function;
-import org.jamocha.rete.FunctionParam2;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.ReturnVector;
 import org.jamocha.rete.ValueParam;
-
 
 /**
  * @author Nikolaus Koemm
  * 
- * Mod returns 
+ * Mod returns
  */
 public class Mod implements Function, Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	public static final String MOD = "mod";
 
@@ -51,45 +47,38 @@ public class Mod implements Function, Serializable {
 	}
 
 	public JamochaType getReturnType() {
-		return Constants.BIG_DECIMAL;
+		return JamochaType.UNDEFINED;
 	}
 
-	public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
-		BigDecimal right = new BigDecimal(0);
-		BigDecimal bdval = new BigDecimal(0);
-		if (params.length == 2) {
-			if (params[0] instanceof ValueParam) 
-				bdval = params[0].getBigDecimalValue();
-			else if (params[0] instanceof BoundParam) {
-				BoundParam bp = (BoundParam) params[0];
-				bdval = (BigDecimal)engine.getBinding(bp.getVariableName());
-			}else if (params[0] instanceof FunctionParam2) { 
-				FunctionParam2 n = (FunctionParam2) params[0];
-				n.setEngine(engine);
-				n.lookUpFunction();
-				ReturnVector rval = (ReturnVector)n.getValue();
-				bdval = rval.firstReturnValue().getBigDecimalValue();
+	public JamochaValue executeFunction(Rete engine, Parameter[] params)
+			throws EvaluationException {
+		if (params != null) {
+			if (params.length == 2) {
+				boolean isDouble = false;
+				for (int idx = 0; idx < params.length; idx++) {
+					if (params[idx].getValue(engine).getType().equals(
+							JamochaType.DOUBLE)) {
+						isDouble = true;
+						break;
+					}
+				}
+				if (isDouble) {
+					double first = params[0].getValue(engine).implicitCast(
+							JamochaType.DOUBLE).getDoubleValue();
+					double second = params[1].getValue(engine).implicitCast(
+							JamochaType.DOUBLE).getDoubleValue();
+					return new JamochaValue(JamochaType.DOUBLE,
+							(first % second));
+				} else {
+					long first = params[0].getValue(engine).implicitCast(
+							JamochaType.LONG).getLongValue();
+					long second = params[1].getValue(engine).implicitCast(
+							JamochaType.LONG).getLongValue();
+					return new JamochaValue(JamochaType.LONG, (first % second));
+				}
 			}
-			if (params[1] instanceof ValueParam) 
-				right = params[1].getBigDecimalValue();
-			else if (params[1] instanceof BoundParam) {
-				BoundParam bp = (BoundParam) params[1];
-				bdval = (BigDecimal)engine.getBinding(bp.getVariableName());
-			}else if (params[1] instanceof FunctionParam2) { 
-				FunctionParam2 n = (FunctionParam2) params[1];
-				n.setEngine(engine);
-				n.lookUpFunction();
-				ReturnVector rval = (ReturnVector)n.getValue();
-				bdval = rval.firstReturnValue().getBigDecimalValue();
-			}
-			bdval = bdval.remainder(right);
-			bdval = bdval.abs();
 		}
-		DefaultReturnVector ret = new DefaultReturnVector();
-		DefaultReturnValue rv = 
-			new DefaultReturnValue(Constants.BIG_DECIMAL,bdval);
-		ret.addReturnValue(rv);
-		return ret;
+		throw new IllegalParameterException(1, true);
 	}
 
 	public String getName() {
@@ -109,18 +98,18 @@ public class Mod implements Function, Serializable {
 					BoundParam bp = (BoundParam) params[idx];
 					buf.append(" ?" + bp.getVariableName());
 				} else if (params[idx] instanceof ValueParam) {
-					buf.append(" " + params[idx].getStringValue());
+					buf.append(" " + params[idx].getParameterString());
 				} else {
-					buf.append(" " + params[idx].getStringValue());
+					buf.append(" " + params[idx].getParameterString());
 				}
 			}
 			buf.append(")");
 			return buf.toString();
 		} else {
-			return "(mod (<literal> | <binding>)+)\n" +
-			"Function description:\n" +
-			"\tReturns the remainder of the result of dividing\n" +
-			"\tits first argument by its second argument.";
+			return "(mod (<literal> | <binding>) (<literal> | <binding>))\n"
+					+ "Function description:\n"
+					+ "\tReturns the remainder of the result of dividing\n"
+					+ "\tits first argument by its second argument.";
 		}
 	}
 }

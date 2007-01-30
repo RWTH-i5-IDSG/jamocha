@@ -17,20 +17,14 @@
 package org.jamocha.rete.functions;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
 
 import org.jamocha.parser.EvaluationException;
+import org.jamocha.parser.IllegalParameterException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.rete.BoundParam;
-import org.jamocha.rete.Constants;
-import org.jamocha.rete.DefaultReturnValue;
-import org.jamocha.rete.DefaultReturnVector;
 import org.jamocha.rete.Function;
-import org.jamocha.rete.FunctionParam2;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.ReturnVector;
 import org.jamocha.rete.ValueParam;
 
 /**
@@ -38,6 +32,8 @@ import org.jamocha.rete.ValueParam;
  * 
  */
 public class NeqFunction implements Function, Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	public static final String NEQUAL = "neq";
 
@@ -49,54 +45,25 @@ public class NeqFunction implements Function, Serializable {
 	}
 
 	public JamochaType getReturnType() {
-		return Constants.BOOLEAN_OBJECT;
+		return JamochaType.BOOLEAN;
 	}
 
-	public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
-		DefaultReturnVector ret = new DefaultReturnVector();
-		boolean eq = true;
+	public JamochaValue executeFunction(Rete engine, Parameter[] params)
+			throws EvaluationException {
+		JamochaValue result = JamochaValue.TRUE;
 		if (params != null && params.length > 1) {
-			Object first = null;
-			if (params[0] instanceof ValueParam) {
-				ValueParam n = (ValueParam) params[0];
-				first = n.getValue();
-			} else if (params[0] instanceof BoundParam) {
-				BoundParam bp = (BoundParam) params[0];
-				first = (BigDecimal) engine.getBinding(bp.getVariableName());
-			} else if (params[0] instanceof FunctionParam2) {
-				FunctionParam2 n = (FunctionParam2) params[0];
-				n.setEngine(engine);
-				n.lookUpFunction();
-				ReturnVector rval = (ReturnVector) n.getValue();
-				first = rval.firstReturnValue().getValue();
-			}
+			JamochaValue first = params[0].getValue(engine);
 			for (int idx = 1; idx < params.length; idx++) {
-				Object other = null;
-				if (params[idx] instanceof ValueParam) {
-					ValueParam n = (ValueParam) params[idx];
-					other = n.getValue();
-				} else if (params[idx] instanceof BoundParam) {
-					BoundParam bp = (BoundParam) params[idx];
-					other = (BigDecimal) engine
-							.getBinding(bp.getVariableName());
-				} else if (params[idx] instanceof FunctionParam2) {
-					FunctionParam2 n = (FunctionParam2) params[idx];
-					n.setEngine(engine);
-					n.lookUpFunction();
-					ReturnVector rval = (ReturnVector) n.getValue();
-					other = rval.firstReturnValue().getValue();
-				}
-				if ( (  (first == null && other == null)     ||  
-						(first != null && first.equals(other))  ) ) {
-					eq = false;
+				JamochaValue right = params[idx].getValue(engine);
+				if (first.equals(right)) {
+					result = JamochaValue.FALSE;
 					break;
 				}
 			}
+		} else {
+			throw new IllegalParameterException(1, true);
 		}
-		DefaultReturnValue rv = new DefaultReturnValue(
-				Constants.BOOLEAN_OBJECT, new Boolean(eq));
-		ret.addReturnValue(rv);
-		return ret;
+		return result;
 	}
 
 	public String getName() {
@@ -108,11 +75,11 @@ public class NeqFunction implements Function, Serializable {
 	}
 
 	public String toPPString(Parameter[] params, int indents) {
-		return "(neq (<literal> | <binding>)+)\n" +
-			"Function description:\n" +
-			"\tCompares a literal value against one or more" +
-			"bindings. \n\tIf all of the bindings are equal to the constant value," +
-			"\n\tthe function returns true.";
+		return "(neq (<literal> | <binding>)+)\n"
+				+ "Function description:\n"
+				+ "\tCompares a literal value against one or more"
+				+ "bindings. \n\tIf all of the bindings are equal to the constant value,"
+				+ "\n\tthe function returns true.";
 	}
 
 }

@@ -17,24 +17,15 @@
 package org.jamocha.rete.functions;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.math.MathContext;
-
-import java.lang.Math;
 
 import org.jamocha.parser.EvaluationException;
+import org.jamocha.parser.IllegalParameterException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.BoundParam;
-import org.jamocha.rete.Constants;
-import org.jamocha.rete.DefaultReturnValue;
-import org.jamocha.rete.DefaultReturnVector;
 import org.jamocha.rete.Function;
-import org.jamocha.rete.FunctionParam2;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.ReturnVector;
 import org.jamocha.rete.ValueParam;
 
 /**
@@ -43,6 +34,8 @@ import org.jamocha.rete.ValueParam;
  * Round returns the closest int to the argument.
  */
 public class Round implements Function, Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	public static final String ROUND = "round";
 
@@ -54,35 +47,27 @@ public class Round implements Function, Serializable {
 	}
 
 	public JamochaType getReturnType() {
-		return Constants.BIG_DECIMAL;
+		return JamochaType.LONG;
 	}
 
-	public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
-		BigDecimal bdval = new BigDecimal(0);
-		BigDecimal bd = new BigDecimal(0);
-		if (params.length == 1) {
-			if (params[0] instanceof ValueParam) {
-				ValueParam n = (ValueParam) params[0];
-				bdval = n.getBigDecimalValue();
-			} else if (params[0] instanceof BoundParam) {
-				BoundParam bp = (BoundParam) params[0];
-				bdval = (BigDecimal) engine.getBinding(bp
-						.getVariableName());
-			} else if (params[0] instanceof FunctionParam2) {
-				FunctionParam2 n = (FunctionParam2) params[0];
-				n.setEngine(engine);
-				n.lookUpFunction();
-				ReturnVector rval = (ReturnVector) n.getValue();
-				bdval = rval.firstReturnValue().getBigDecimalValue();
+	public JamochaValue executeFunction(Rete engine, Parameter[] params)
+			throws EvaluationException {
+		if (params != null) {
+			if (params.length == 1) {
+				JamochaValue value = params[0].getValue(engine);
+				if (!value.getType().equals(JamochaType.DOUBLE)
+						&& !value.getType().equals(JamochaType.LONG)) {
+					value = value.implicitCast(JamochaType.DOUBLE);
+				}
+				if (value.getType().equals(JamochaType.DOUBLE)) {
+					return new JamochaValue(JamochaType.LONG, Math.floor(value
+							.getDoubleValue()));
+				} else if (value.getType().equals(JamochaType.LONG)) {
+					return value;
+				}
 			}
-			int bdh = bdval.intValue();
-			bdval = bdval.valueOf(bdh);
 		}
-		DefaultReturnVector ret = new DefaultReturnVector();
-		DefaultReturnValue rv = new DefaultReturnValue(Constants.BIG_DECIMAL,
-				bdval);
-		ret.addReturnValue(rv);
-		return ret;
+		throw new IllegalParameterException(1);
 	}
 
 	public String getName() {
@@ -97,21 +82,21 @@ public class Round implements Function, Serializable {
 		if (params != null && params.length >= 0) {
 			StringBuffer buf = new StringBuffer();
 			buf.append("(round");
-				int idx = 0;
-				if (params[idx] instanceof BoundParam) {
-					BoundParam bp = (BoundParam) params[idx];
-					buf.append(" ?" + bp.getVariableName());
-				} else if (params[idx] instanceof ValueParam) {
-					buf.append(" " + params[idx].getStringValue());
-				} else {
-					buf.append(" " + params[idx].getStringValue());
-				}
+			int idx = 0;
+			if (params[idx] instanceof BoundParam) {
+				BoundParam bp = (BoundParam) params[idx];
+				buf.append(" ?" + bp.getVariableName());
+			} else if (params[idx] instanceof ValueParam) {
+				buf.append(" " + params[idx].getParameterString());
+			} else {
+				buf.append(" " + params[idx].getParameterString());
+			}
 			buf.append(")");
 			return buf.toString();
 		} else {
-			return "(round (<literal> | <binding>))\n" +
-			"Function description:\n" +
-			"\tRounds its only argument toward the closest integer.";
+			return "(round (<literal> | <binding>))\n"
+					+ "Function description:\n"
+					+ "\tRounds its only argument toward the closest integer.";
 		}
 	}
 }

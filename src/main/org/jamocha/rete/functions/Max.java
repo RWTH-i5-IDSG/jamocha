@@ -17,24 +17,15 @@
 package org.jamocha.rete.functions;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.math.MathContext;
-
-import java.lang.Math;
 
 import org.jamocha.parser.EvaluationException;
+import org.jamocha.parser.IllegalParameterException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.BoundParam;
-import org.jamocha.rete.Constants;
-import org.jamocha.rete.DefaultReturnValue;
-import org.jamocha.rete.DefaultReturnVector;
 import org.jamocha.rete.Function;
-import org.jamocha.rete.FunctionParam2;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.ReturnVector;
 import org.jamocha.rete.ValueParam;
 
 /**
@@ -43,6 +34,8 @@ import org.jamocha.rete.ValueParam;
  * Max returns the greatest of two or more values.
  */
 public class Max implements Function, Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	public static final String MAX = "max";
 
@@ -54,36 +47,42 @@ public class Max implements Function, Serializable {
 	}
 
 	public JamochaType getReturnType() {
-		return Constants.BIG_DECIMAL;
+		return JamochaType.DOUBLE;
 	}
 
-	public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
-		BigDecimal bdval = new BigDecimal(0);
-		BigDecimal bd = new BigDecimal(0);
+	public JamochaValue executeFunction(Rete engine, Parameter[] params)
+			throws EvaluationException {
 		if (params != null) {
-			for (int idx = 0; idx < params.length; idx++) {
-				if (params[idx] instanceof ValueParam) {
-					ValueParam n = (ValueParam) params[idx];
-					bd = n.getBigDecimalValue();
-				} else if (params[idx] instanceof BoundParam) {
-					BoundParam bp = (BoundParam) params[idx];
-					bd = (BigDecimal) engine.getBinding(bp.getVariableName());
-				} else if (params[idx] instanceof FunctionParam2) {
-					FunctionParam2 n = (FunctionParam2) params[idx];
-					n.setEngine(engine);
-					n.lookUpFunction();
-					ReturnVector rval = (ReturnVector) n.getValue();
-					bd = rval.firstReturnValue().getBigDecimalValue();
+			if (params.length > 0) {
+				boolean isDouble = false;
+				for (int idx = 0; idx < params.length; idx++) {
+					if (params[idx].getValue(engine).getType().equals(
+							JamochaType.DOUBLE)) {
+						isDouble = true;
+						break;
+					}
 				}
-				if (idx == 0) bdval = bdval.add(bd);
-				else bdval = bdval.max(bd);
+				if (isDouble) {
+					double result = params[0].getValue(engine).implicitCast(
+							JamochaType.DOUBLE).getDoubleValue();
+					for (int i = 1; i < params.length; ++i) {
+						result = Math.max(result, params[i].getValue(engine)
+								.implicitCast(JamochaType.DOUBLE)
+								.getDoubleValue());
+					}
+					return new JamochaValue(JamochaType.DOUBLE, result);
+				} else {
+					long result = params[0].getValue(engine).implicitCast(
+							JamochaType.LONG).getLongValue();
+					for (int i = 1; i < params.length; ++i) {
+						result = Math.max(result, params[i].getValue(engine)
+								.implicitCast(JamochaType.LONG).getLongValue());
+					}
+					return new JamochaValue(JamochaType.LONG, result);
+				}
 			}
 		}
-		DefaultReturnVector ret = new DefaultReturnVector();
-		DefaultReturnValue rv = new DefaultReturnValue(Constants.BIG_DECIMAL,
-				bdval);
-		ret.addReturnValue(rv);
-		return ret;
+		throw new IllegalParameterException(1, true);
 	}
 
 	public String getName() {
@@ -98,21 +97,21 @@ public class Max implements Function, Serializable {
 		if (params != null && params.length >= 0) {
 			StringBuffer buf = new StringBuffer();
 			buf.append("(max");
-				int idx = 0;
-				if (params[idx] instanceof BoundParam) {
-					BoundParam bp = (BoundParam) params[idx];
-					buf.append(" ?" + bp.getVariableName());
-				} else if (params[idx] instanceof ValueParam) {
-					buf.append(" " + params[idx].getStringValue());
-				} else {
-					buf.append(" " + params[idx].getStringValue());
-				}
+			int idx = 0;
+			if (params[idx] instanceof BoundParam) {
+				BoundParam bp = (BoundParam) params[idx];
+				buf.append(" ?" + bp.getVariableName());
+			} else if (params[idx] instanceof ValueParam) {
+				buf.append(" " + params[idx].getParameterString());
+			} else {
+				buf.append(" " + params[idx].getParameterString());
+			}
 			buf.append(")");
 			return buf.toString();
 		} else {
-			return "(max (<literal> | <binding>)+)\n" +
-			"Function description:\n" +
-			"\tReturns the value of its largest numeric argument.";
+			return "(max (<literal> | <binding>)+)\n"
+					+ "Function description:\n"
+					+ "\tReturns the value of its largest numeric argument.";
 		}
 	}
 }

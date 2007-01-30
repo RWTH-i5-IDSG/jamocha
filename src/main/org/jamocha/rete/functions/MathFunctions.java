@@ -19,18 +19,20 @@ package org.jamocha.rete.functions;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.jamocha.rete.Function;
 import org.jamocha.rete.FunctionGroup;
 import org.jamocha.rete.Rete;
 
-
 public class MathFunctions implements FunctionGroup {
 
-	private ArrayList funcs = new ArrayList();
+	private static final long serialVersionUID = 1L;
+
+	private ArrayList<Function> funcs = new ArrayList<Function>();
 
 	public MathFunctions() {
 		super();
 	}
-	
+
 	public String getName() {
 		return (MathFunctions.class.getSimpleName());
 	}
@@ -151,16 +153,16 @@ public class MathFunctions implements FunctionGroup {
 		engine.declareFunction(tanh);
 		funcs.add(tanh);
 		// now we add the functions under alias
-		engine.declareFunction("+",add);
-		engine.declareFunction("-",sub);
-		engine.declareFunction("*",mul);
-		engine.declareFunction("/",div);
-		engine.declareFunction("**",pow);
-		engine.declareFunction(">",gr);
-		engine.declareFunction(">=",gre);
-		engine.declareFunction("<",le);
-		engine.declareFunction("<=",leoe);
-		
+		engine.declareFunction("+", add);
+		engine.declareFunction("-", sub);
+		engine.declareFunction("*", mul);
+		engine.declareFunction("/", div);
+		engine.declareFunction("**", pow);
+		engine.declareFunction(">", gr);
+		engine.declareFunction(">=", gre);
+		engine.declareFunction("<", le);
+		engine.declareFunction("<=", leoe);
+
 	}
 
 	public List listFunctions() {

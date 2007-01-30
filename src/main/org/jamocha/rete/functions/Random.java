@@ -22,24 +22,21 @@ import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.BoundParam;
-import org.jamocha.rete.Constants;
-import org.jamocha.rete.DefaultReturnValue;
-import org.jamocha.rete.DefaultReturnVector;
 import org.jamocha.rete.Function;
-import org.jamocha.rete.FunctionParam2;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.ValueParam;
 
-
 /**
  * @author Christian Ebert
  * 
- * Returns a double value with a positive sign, greater than or equal to 0.0 and less 
- * than 1.0. Returned values are chosen pseudorandomly with (approximately)
+ * Returns a double value with a positive sign, greater than or equal to 0.0 and
+ * less than 1.0. Returned values are chosen pseudorandomly with (approximately)
  * uniform distribution from that range.
  */
 public class Random implements Function, Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	public static final String RANDOM = "random";
 
@@ -51,16 +48,12 @@ public class Random implements Function, Serializable {
 	}
 
 	public JamochaType getReturnType() {
-		return Constants.DOUBLE_PRIM_TYPE;
+		return JamochaType.DOUBLE;
 	}
 
-	public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
-		double dval = java.lang.Math.random();	
-		DefaultReturnVector ret = new DefaultReturnVector();
-		DefaultReturnValue rv = new DefaultReturnValue(Constants.DOUBLE_PRIM_TYPE,
-				dval); 
-		ret.addReturnValue(rv);
-		return ret;
+	public JamochaValue executeFunction(Rete engine, Parameter[] params)
+			throws EvaluationException {
+		return new JamochaValue(JamochaType.DOUBLE, Math.random());
 	}
 
 	public String getName() {
@@ -75,21 +68,20 @@ public class Random implements Function, Serializable {
 		if (params != null && params.length >= 0) {
 			StringBuffer buf = new StringBuffer();
 			buf.append("(random");
-				int idx = 0;
-				if (params[idx] instanceof BoundParam) {
-					BoundParam bp = (BoundParam) params[idx];
-					buf.append(" ?" + bp.getVariableName());
-				} else if (params[idx] instanceof ValueParam) {
-					buf.append(" " + params[idx].getStringValue());
-				} else {
-					buf.append(" " + params[idx].getStringValue());
-				}
+			int idx = 0;
+			if (params[idx] instanceof BoundParam) {
+				BoundParam bp = (BoundParam) params[idx];
+				buf.append(" ?" + bp.getVariableName());
+			} else if (params[idx] instanceof ValueParam) {
+				buf.append(" " + params[idx].getParameterString());
+			} else {
+				buf.append(" " + params[idx].getParameterString());
+			}
 			buf.append(")");
 			return buf.toString();
 		} else {
-			return "(random)\n" +
-			"Function description:\n" +
-			"\tReturns a random value between 0.0 and 1.0.";
+			return "(random)\n" + "Function description:\n"
+					+ "\tReturns a random value between 0.0 and 1.0.";
 		}
 	}
 }

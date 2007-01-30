@@ -19,19 +19,14 @@ package org.jamocha.rete.functions;
 import java.io.Serializable;
 
 import org.jamocha.parser.EvaluationException;
+import org.jamocha.parser.IllegalParameterException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.BoundParam;
-import org.jamocha.rete.Constants;
-import org.jamocha.rete.DefaultReturnValue;
-import org.jamocha.rete.DefaultReturnVector;
 import org.jamocha.rete.Function;
-import org.jamocha.rete.FunctionParam2;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.ReturnVector;
 import org.jamocha.rete.ValueParam;
-
 
 /**
  * @author Christian Ebert
@@ -39,6 +34,8 @@ import org.jamocha.rete.ValueParam;
  * Returns the trigonometric cosine of an angle.
  */
 public class Cos implements Function, Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	public static final String COS = "cos";
 
@@ -50,36 +47,28 @@ public class Cos implements Function, Serializable {
 	}
 
 	public JamochaType getReturnType() {
-		return Constants.DOUBLE_PRIM_TYPE;
+		return JamochaType.DOUBLE;
 	}
 
-	public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
-		double dval = 0;
+	public JamochaValue executeFunction(Rete engine, Parameter[] params)
+			throws EvaluationException {
 		if (params != null) {
 			if (params.length == 1) {
-				if (params[0] instanceof ValueParam) {
-					ValueParam n = (ValueParam) params[0];
-					dval = n.getDoubleValue();
-					dval = java.lang.Math.cos(dval);
-				} else if (params[0] instanceof BoundParam) {
-					BoundParam bp = (BoundParam) params[0];
-					dval = bp.getDoubleValue();
-					dval = java.lang.Math.cos(dval);
-				} else if (params[0] instanceof FunctionParam2) {
-					FunctionParam2 n = (FunctionParam2) params[0];
-					n.setEngine(engine);
-					n.lookUpFunction();
-					ReturnVector rval = (ReturnVector) n.getValue();
-					dval = rval.firstReturnValue().getDoubleValue();
-					dval = java.lang.Math.cos(dval);
+				JamochaValue value = params[0].getValue(engine);
+				if (!value.getType().equals(JamochaType.DOUBLE)
+						&& !value.getType().equals(JamochaType.LONG)) {
+					value = value.implicitCast(JamochaType.DOUBLE);
+				}
+				if (value.getType().equals(JamochaType.DOUBLE)) {
+					return new JamochaValue(JamochaType.DOUBLE, Math.cos(value
+							.getDoubleValue()));
+				} else if (value.getType().equals(JamochaType.LONG)) {
+					return new JamochaValue(JamochaType.DOUBLE, Math.cos(value
+							.getLongValue()));
 				}
 			}
 		}
-		DefaultReturnVector ret = new DefaultReturnVector();
-		DefaultReturnValue rv = new DefaultReturnValue(Constants.DOUBLE_PRIM_TYPE,
-				dval);
-		ret.addReturnValue(rv);
-		return ret;
+		throw new IllegalParameterException(1);
 	}
 
 	public String getName() {
@@ -94,22 +83,21 @@ public class Cos implements Function, Serializable {
 		if (params != null && params.length >= 0) {
 			StringBuffer buf = new StringBuffer();
 			buf.append("(cos");
-				int idx = 0;
-				if (params[idx] instanceof BoundParam) {
-					BoundParam bp = (BoundParam) params[idx];
-					buf.append(" ?" + bp.getVariableName());
-				} else if (params[idx] instanceof ValueParam) {
-					buf.append(" " + params[idx].getStringValue());
-				} else {
-					buf.append(" " + params[idx].getStringValue());
-				}
+			int idx = 0;
+			if (params[idx] instanceof BoundParam) {
+				BoundParam bp = (BoundParam) params[idx];
+				buf.append(" ?" + bp.getVariableName());
+			} else if (params[idx] instanceof ValueParam) {
+				buf.append(" " + params[idx].getParameterString());
+			} else {
+				buf.append(" " + params[idx].getParameterString());
+			}
 			buf.append(")");
 			return buf.toString();
 		} else {
-			return "(cos <literal> | <binding>)\n" +
-			"Function description:\n" +
-			"\tCalculates the cosine of the numeric argument.\n" + 
-			"\tThe argument is expected to be in radians.";
+			return "(cos <literal> | <binding>)\n" + "Function description:\n"
+					+ "\tCalculates the cosine of the numeric argument.\n"
+					+ "\tThe argument is expected to be in radians.";
 		}
 	}
 }

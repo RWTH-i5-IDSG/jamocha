@@ -19,25 +19,24 @@ package org.jamocha.rete.functions;
 import java.io.Serializable;
 
 import org.jamocha.parser.EvaluationException;
+import org.jamocha.parser.IllegalParameterException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.rete.Constants;
-import org.jamocha.rete.DefaultReturnValue;
-import org.jamocha.rete.DefaultReturnVector;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.ValueParam;
 
-
 /**
  * @author Nikolaus Koemm
- *
+ * 
  */
 public class Const implements Function, Serializable {
 
+	private static final long serialVersionUID = 1L;
+
 	public static final String CONST = "const";
-	
+
 	/**
 	 * 
 	 */
@@ -46,41 +45,39 @@ public class Const implements Function, Serializable {
 	}
 
 	public JamochaType getReturnType() {
-		return Constants.BIG_DECIMAL;
+		return JamochaType.DOUBLE;
 	}
 
-	public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
-		double eq = 0;
+	public JamochaValue executeFunction(Rete engine, Parameter[] params)
+			throws EvaluationException {
 		if (params[0] != null) {
-			String val = params[0].getStringValue();
-			if (val.compareTo("pi") == 0){
-				eq = java.lang.Math.PI;
-			}
-			else if (val.compareTo("e") == 0){
-				eq = java.lang.Math.E;
+			if (params.length == 1) {
+
+				String val = params[0].getValue(engine).getStringValue();
+				if (val.compareToIgnoreCase("pi") == 0) {
+					return new JamochaValue(JamochaType.DOUBLE,
+							java.lang.Math.PI);
+				} else if (val.compareToIgnoreCase("e") == 0) {
+					return new JamochaValue(JamochaType.DOUBLE,
+							java.lang.Math.E);
+				}
 			}
 		}
-		DefaultReturnVector ret = new DefaultReturnVector();
-		DefaultReturnValue rv = new DefaultReturnValue(
-				Constants.BIG_DECIMAL, new Double(eq));
-		ret.addReturnValue(rv);
-		return ret;
+		throw new IllegalParameterException(1);
 	}
-	
 
 	public String getName() {
 		return CONST;
 	}
 
 	public Class[] getParameter() {
-		return new Class[]{ValueParam.class,ValueParam.class};
+		return new Class[] { ValueParam.class, ValueParam.class };
 	}
 
 	public String toPPString(Parameter[] params, int indents) {
-		return "(const e|pi)\n" +
-		"Function description:\n" +
-		"\te  return the value of the Euler constant,\n" +
-		"\tpi returns the value of Pi.";
+		return "(const e|pi)\n" + "Function description:\n"
+				+ "\te  return the value of the Euler constant,\n"
+				+ "\tpi returns the value of Pi.";
 	}
 
 }

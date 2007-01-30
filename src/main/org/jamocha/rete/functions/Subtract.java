@@ -17,33 +17,30 @@
 package org.jamocha.rete.functions;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
 
 import org.jamocha.parser.EvaluationException;
+import org.jamocha.parser.IllegalParameterException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.BoundParam;
-import org.jamocha.rete.Constants;
-import org.jamocha.rete.DefaultReturnValue;
-import org.jamocha.rete.DefaultReturnVector;
 import org.jamocha.rete.Function;
-import org.jamocha.rete.FunctionParam2;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.ValueParam;
 
-
 /**
  * @author Peter Lin
- *
- * Subtract will subtract one or more numeric values. for example:
- * (- 100 12 4 32)
+ * 
+ * Subtract will subtract one or more numeric values. for example: (- 100 12 4
+ * 32)
  */
 public class Subtract implements Function, Serializable {
 
-    public static final String SUBTRACT = "subtract";
+	private static final long serialVersionUID = 1L;
 
-    /**
+	public static final String SUBTRACT = "subtract";
+
+	/**
 	 * 
 	 */
 	public Subtract() {
@@ -51,23 +48,41 @@ public class Subtract implements Function, Serializable {
 	}
 
 	public JamochaType getReturnType() {
-        return Constants.BIG_DECIMAL;
+		return JamochaType.UNDEFINED;
 	}
 
-	public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
-		BigDecimal bdval = null;
+	public JamochaValue executeFunction(Rete engine, Parameter[] params)
+			throws EvaluationException {
 		if (params != null) {
-            bdval = (BigDecimal)params[0].getValue(engine);
-			for (int idx=1; idx < params.length; idx++) {
-                BigDecimal bd = (BigDecimal) params[idx].getValue(engine);
-                bdval = bdval.subtract(bd);
+			if (params.length > 0) {
+				boolean isDouble = false;
+				for (int idx = 0; idx < params.length; idx++) {
+					if (params[idx].getValue(engine).getType().equals(
+							JamochaType.DOUBLE)) {
+						isDouble = true;
+						break;
+					}
+				}
+				if (isDouble) {
+					double result = params[0].getValue(engine).implicitCast(
+							JamochaType.DOUBLE).getDoubleValue();
+					for (int i = 1; i < params.length; ++i) {
+						result -= params[i].getValue(engine).implicitCast(
+								JamochaType.DOUBLE).getDoubleValue();
+					}
+					return new JamochaValue(JamochaType.DOUBLE, result);
+				} else {
+					long result = params[0].getValue(engine).implicitCast(
+							JamochaType.LONG).getLongValue();
+					for (int i = 1; i < params.length; ++i) {
+						result -= params[i].getValue(engine).implicitCast(
+								JamochaType.LONG).getLongValue();
+					}
+					return new JamochaValue(JamochaType.LONG, result);
+				}
 			}
 		}
-		DefaultReturnVector ret = new DefaultReturnVector();
-		DefaultReturnValue rv = 
-			new DefaultReturnValue(Constants.BIG_DECIMAL,bdval);
-		ret.addReturnValue(rv);
-		return ret;
+		throw new IllegalParameterException(1, true);
 	}
 
 	public String getName() {
@@ -75,30 +90,29 @@ public class Subtract implements Function, Serializable {
 	}
 
 	public Class[] getParameter() {
-        return new Class[] {ValueParam[].class};
+		return new Class[] { ValueParam[].class };
 	}
 
 	public String toPPString(Parameter[] params, int indents) {
 		if (params != null && params.length > 0) {
 			StringBuffer buf = new StringBuffer();
 			buf.append("(-");
-			for (int idx=0; idx < params.length; idx++) {
+			for (int idx = 0; idx < params.length; idx++) {
 				if (params[idx] instanceof BoundParam) {
-					BoundParam bp = (BoundParam)params[idx];
+					BoundParam bp = (BoundParam) params[idx];
 					buf.append(" ?" + bp.getVariableName());
 				} else if (params[idx] instanceof ValueParam) {
-					buf.append(" " + params[idx].getStringValue());
+					buf.append(" " + params[idx].getParameterString());
 				} else {
-					buf.append(" " + params[idx].getStringValue());
+					buf.append(" " + params[idx].getParameterString());
 				}
 			}
 			buf.append(")");
 			return buf.toString();
 		} else {
-			return "(- (<literal> | <binding>)+)\n" +
-					"Function description:\n" +
-					"\t Returns the value of the first argument minus the " +
-					"sum of all subsequent arguments.";
+			return "(- (<literal> | <binding>)+)\n" + "Function description:\n"
+					+ "\t Returns the value of the first argument minus the "
+					+ "sum of all subsequent arguments.";
 		}
 	}
 }
