@@ -209,6 +209,9 @@ public class JamochaValue {
 	}
 
 	public JamochaValue implicitCast(JamochaType type) throws IllegalConversionException {
+		if( type.equals(JamochaType.UNDEFINED)) {
+			return this;
+		}
 		switch (this.type) {
 		case BOOLEAN:
 			switch (type) {

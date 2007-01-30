@@ -2,6 +2,8 @@ package org.jamocha.parser;
 
 public class EvaluationException extends Exception {
 
+	private static final long serialVersionUID = 1L;
+
 	public EvaluationException(String message) {
 		super(message);
 	}

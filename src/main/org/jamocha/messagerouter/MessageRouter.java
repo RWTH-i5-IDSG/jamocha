@@ -28,7 +28,6 @@ import java.util.Queue;
 
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.ReturnVector;
 
 /**
  * A MessageRouter is responsible for sending messages to the Rete-engine and
