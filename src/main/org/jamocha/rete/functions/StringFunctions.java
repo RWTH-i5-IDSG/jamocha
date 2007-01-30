@@ -19,13 +19,19 @@ package org.jamocha.rete.functions;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.jamocha.rete.Function;
 import org.jamocha.rete.FunctionGroup;
 import org.jamocha.rete.Rete;
 
 
 public class StringFunctions implements FunctionGroup {
 
-	private ArrayList funcs = new ArrayList();
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
+	private List<Function> funcs = new ArrayList<Function>();
 
 	public StringFunctions() {
 		super();

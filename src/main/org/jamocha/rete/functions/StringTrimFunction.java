@@ -19,25 +19,27 @@ package org.jamocha.rete.functions;
 import java.io.Serializable;
 
 import org.jamocha.parser.EvaluationException;
+import org.jamocha.parser.IllegalParameterException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.rete.Constants;
-import org.jamocha.rete.DefaultReturnValue;
-import org.jamocha.rete.DefaultReturnVector;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.ValueParam;
 
-
 /**
  * @author Peter Lin
- *
+ * 
  */
 public class StringTrimFunction implements Function, Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	public static final String STRING_TRIM = "str-trim";
-	
+
 	/**
 	 * 
 	 */
@@ -46,20 +48,19 @@ public class StringTrimFunction implements Function, Serializable {
 	}
 
 	public JamochaType getReturnType() {
-		return Constants.STRING_TYPE;
+		return JamochaType.STRING;
 	}
 
-	public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
+	public JamochaValue executeFunction(Rete engine, Parameter[] params)
+			throws EvaluationException {
 		String txt = null;
 		if (params != null && params.length == 1) {
-			txt = params[0].getStringValue();
+			txt = params[0].getValue(engine).getStringValue();
 			txt = txt.trim();
+		} else {
+			throw new IllegalParameterException(1);
 		}
-		DefaultReturnVector ret = new DefaultReturnVector();
-		DefaultReturnValue rv = new DefaultReturnValue(
-				Constants.STRING_TYPE, txt);
-		ret.addReturnValue(rv);
-		return ret;
+		return new JamochaValue(JamochaType.STRING, txt);
 	}
 
 	public String getName() {
@@ -67,7 +68,7 @@ public class StringTrimFunction implements Function, Serializable {
 	}
 
 	public Class[] getParameter() {
-		return new Class[]{ValueParam.class};
+		return new Class[] { ValueParam.class };
 	}
 
 	public String toPPString(Parameter[] params, int indents) {

@@ -20,6 +20,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.jamocha.rete.Function;
 import org.jamocha.rete.FunctionGroup;
 import org.jamocha.rete.Rete;
 
@@ -32,7 +33,12 @@ import org.jamocha.rete.Rete;
  */
 public class BooleanFunctions implements FunctionGroup, Serializable {
 
-	private ArrayList funcs = new ArrayList();
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
+	private List<Function> funcs = new ArrayList<Function>();
 	
 	public BooleanFunctions() {
 		super();

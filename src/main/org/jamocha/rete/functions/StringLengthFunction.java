@@ -19,11 +19,9 @@ package org.jamocha.rete.functions;
 import java.io.Serializable;
 
 import org.jamocha.parser.EvaluationException;
+import org.jamocha.parser.IllegalParameterException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.rete.Constants;
-import org.jamocha.rete.DefaultReturnValue;
-import org.jamocha.rete.DefaultReturnVector;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
@@ -36,6 +34,11 @@ import org.jamocha.rete.ValueParam;
  */
 public class StringLengthFunction implements Function, Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
 	public static final String STRING_LENGTH = "str-length";
 	
 	/**
@@ -46,20 +49,18 @@ public class StringLengthFunction implements Function, Serializable {
 	}
 
 	public JamochaType getReturnType() {
-		return Constants.INTEGER_OBJECT;
+		return JamochaType.LONG;
 	}
 
 	public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
-		int len = 0;
+		int len;
 		if (params != null && params.length == 1) {
-			String txt = params[0].getStringValue();
+			String txt = params[0].getValue(engine).getStringValue();
 			len = txt.length();
+		} else {
+			throw new IllegalParameterException(1);
 		}
-		DefaultReturnVector ret = new DefaultReturnVector();
-		DefaultReturnValue rv = new DefaultReturnValue(
-				Constants.INTEGER_OBJECT, new Integer(len));
-		ret.addReturnValue(rv);
-		return ret;
+		return new JamochaValue(JamochaType.LONG, len);
 	}
 
 	public String getName() {

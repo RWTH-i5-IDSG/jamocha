@@ -21,10 +21,6 @@ import java.io.Serializable;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.rete.BoundParam;
-import org.jamocha.rete.Constants;
-import org.jamocha.rete.DefaultReturnValue;
-import org.jamocha.rete.DefaultReturnVector;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
@@ -37,6 +33,11 @@ import org.jamocha.rete.ValueParam;
  */
 public class FalseFunction implements Function, Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
 	public static final String FALSE = "false";
 
 	/**
@@ -47,15 +48,11 @@ public class FalseFunction implements Function, Serializable {
 	}
 
 	public JamochaType getReturnType() {
-		return Constants.BOOLEAN_OBJECT;
+		return JamochaType.BOOLEAN;
 	}
 
 	public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
-		DefaultReturnVector ret = new DefaultReturnVector();
-		DefaultReturnValue rv = new DefaultReturnValue(Constants.BOOLEAN_OBJECT,
-				Boolean.FALSE);
-		ret.addReturnValue(rv);
-		return ret;
+		return JamochaValue.FALSE;
 	}
 
 	public String getName() {
@@ -69,16 +66,7 @@ public class FalseFunction implements Function, Serializable {
 	public String toPPString(Parameter[] params, int indents) {
 		if (params != null && params.length >= 0) {
 			StringBuffer buf = new StringBuffer();
-			buf.append("("+FALSE);
-				int idx = 0;
-				if (params[idx] instanceof BoundParam) {
-					BoundParam bp = (BoundParam) params[idx];
-					buf.append(" ?" + bp.getVariableName());
-				} else if (params[idx] instanceof ValueParam) {
-					buf.append(" " + params[idx].getStringValue());
-				} else {
-					buf.append(" " + params[idx].getStringValue());
-				}
+			buf.append("(").append(FALSE);
 			buf.append(")");
 			return buf.toString();
 		} else {

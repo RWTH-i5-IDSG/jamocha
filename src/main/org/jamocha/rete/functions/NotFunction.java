@@ -19,17 +19,12 @@ package org.jamocha.rete.functions;
 import java.io.Serializable;
 
 import org.jamocha.parser.EvaluationException;
+import org.jamocha.parser.IllegalParameterException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.rete.BoundParam;
-import org.jamocha.rete.Constants;
-import org.jamocha.rete.DefaultReturnValue;
-import org.jamocha.rete.DefaultReturnVector;
 import org.jamocha.rete.Function;
-import org.jamocha.rete.FunctionParam2;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.ReturnVector;
 import org.jamocha.rete.ValueParam;
 
 /**
@@ -39,6 +34,11 @@ import org.jamocha.rete.ValueParam;
  */
 public class NotFunction implements Function, Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
 	public static final String NOT = "NOT";
 
 	/**
@@ -49,34 +49,20 @@ public class NotFunction implements Function, Serializable {
 	}
 
 	public JamochaType getReturnType() {
-		return Constants.BOOLEAN_OBJECT;
+		return JamochaType.BOOLEAN;
 	}
 
-	public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
-		boolean boolVal = true;
-		if (params != null) {
-			if(params.length==1) {
-				if (params[0] instanceof ValueParam) {
-					ValueParam n = (ValueParam) params[0];
-					boolVal = n.getBooleanValue();
-				} else if (params[0] instanceof BoundParam) {
-					BoundParam bp = (BoundParam) params[0];
-					boolVal = (Boolean)engine.getBinding(bp.getVariableName());
-				} else if (params[0] instanceof FunctionParam2) {
-					FunctionParam2 n = (FunctionParam2) params[0];
-					n.setEngine(engine);
-					n.lookUpFunction();
-					ReturnVector rval = (ReturnVector) n.getValue();
-					boolVal = rval.firstReturnValue().getBooleanValue();
-				}
-				boolVal = (boolVal == false);
-			}
+	public JamochaValue executeFunction(Rete engine, Parameter[] params)
+			throws EvaluationException {
+		JamochaValue result;
+		if (params != null && params.length == 1) {
+			JamochaValue param = params[0].getValue(engine);
+			result = param.getBooleanValue() ? JamochaValue.FALSE
+					: JamochaValue.TRUE;
+		} else {
+			throw new IllegalParameterException(1);
 		}
-		DefaultReturnVector ret = new DefaultReturnVector();
-		DefaultReturnValue rv = new DefaultReturnValue(Constants.BOOLEAN_OBJECT,
-				new Boolean(boolVal));
-		ret.addReturnValue(rv);
-		return ret;
+		return result;
 	}
 
 	public String getName() {
@@ -90,22 +76,14 @@ public class NotFunction implements Function, Serializable {
 	public String toPPString(Parameter[] params, int indents) {
 		if (params != null && params.length >= 0) {
 			StringBuffer buf = new StringBuffer();
-			buf.append("("+NOT);
-				int idx = 0;
-				if (params[idx] instanceof BoundParam) {
-					BoundParam bp = (BoundParam) params[idx];
-					buf.append(" ?" + bp.getVariableName());
-				} else if (params[idx] instanceof ValueParam) {
-					buf.append(" " + params[idx].getStringValue());
-				} else {
-					buf.append(" " + params[idx].getStringValue());
-				}
+			buf.append("(" + NOT);
+				buf.append(" ").append(params[0].getParameterString());
 			buf.append(")");
 			return buf.toString();
 		} else {
-			return "(NOT <booleanexpression>)\n" +
-			"Function description:\n" +
-			"\tReturns the boolean not of any boolean expression argument.";
+			return "(NOT <booleanexpression>)\n"
+					+ "Function description:\n"
+					+ "\tReturns the boolean not of any boolean expression argument.";
 		}
 	}
 }

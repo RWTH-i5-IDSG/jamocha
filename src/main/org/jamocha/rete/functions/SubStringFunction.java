@@ -19,11 +19,9 @@ package org.jamocha.rete.functions;
 import java.io.Serializable;
 
 import org.jamocha.parser.EvaluationException;
+import org.jamocha.parser.IllegalParameterException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.rete.Constants;
-import org.jamocha.rete.DefaultReturnValue;
-import org.jamocha.rete.DefaultReturnVector;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
@@ -36,6 +34,11 @@ import org.jamocha.rete.ValueParam;
  */
 public class SubStringFunction implements Function, Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
 	public static final String SUBSTRING = "sub-string";
 	
 	/**
@@ -46,22 +49,20 @@ public class SubStringFunction implements Function, Serializable {
 	}
 
 	public JamochaType getReturnType() {
-		return Constants.STRING_TYPE;
+		return JamochaType.STRING;
 	}
 
 	public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
 		String sub = null;
 		if (params != null && params.length == 3) {
-			int begin = params[0].getIntValue();
-			int end = params[1].getIntValue();
-			String txt = params[2].getStringValue();
-			sub = txt.substring(begin,end);
+			long begin = params[0].getValue(engine).getLongValue();
+			long end = params[1].getValue(engine).getLongValue();
+			String txt = params[2].getValue(engine).getStringValue();
+			sub = txt.substring((int)begin,(int)end);
+		} else {
+			throw new IllegalParameterException(3);
 		}
-		DefaultReturnVector ret = new DefaultReturnVector();
-		DefaultReturnValue rv = new DefaultReturnValue(
-				Constants.STRING_TYPE, sub);
-		ret.addReturnValue(rv);
-		return ret;
+		return new JamochaValue(JamochaType.STRING, sub);
 	}
 
 	public String getName() {
