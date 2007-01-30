@@ -60,8 +60,8 @@ public class AssertFunction implements Function, Serializable {
 		if (params.length > 0) {
 			Deffact fact = null;
 			JamochaValue firstParam = params[0].getValue(engine);
-			JamochaValue secondParam = params[1].getValue(engine);
 			if (firstParam.getType().equals(JamochaType.IDENTIFIER)) {
+				JamochaValue secondParam = params[1].getValue(engine);
 				Deftemplate tmpl = (Deftemplate) engine.getCurrentFocus()
 						.getTemplate(firstParam.getIdentifierValue());
 				fact = (Deffact) tmpl.createFact((Object[]) secondParam

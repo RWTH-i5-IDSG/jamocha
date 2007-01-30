@@ -65,7 +65,8 @@ public class PrintFunction implements Function, Serializable {
 			String output = params[0].getValue(engine).getStringValue();
 			for (int idx = 1; idx < params.length; idx++) {
 				JamochaValue value = params[idx].getValue(engine);
-				if (value.getIdentifierValue().equals(Constants.CRLF)) {
+				if (value.getType().equals(JamochaType.IDENTIFIER)
+						&& value.getIdentifierValue().equals(Constants.CRLF)) {
 					engine.writeMessage(Constants.LINEBREAK, output);
 				} else {
 					engine.writeMessage(value.toString(), output);
@@ -120,7 +121,7 @@ public class PrintFunction implements Function, Serializable {
 			buf.append("(print ");
 			buf.append(params[0].getParameterString());
 			for (int idx = 1; idx < params.length; idx++) {
-					buf.append(" ").append(params[idx].getParameterString());
+				buf.append(" ").append(params[idx].getParameterString());
 			}
 			buf.append(" )");
 			return buf.toString();
