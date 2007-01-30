@@ -10,10 +10,12 @@ public class JamochaValue {
 
 	public static final JamochaValue NIL = new JamochaValue(JamochaType.NIL,
 			null);
-	
-	public static final JamochaValue TRUE = new JamochaValue(JamochaType.BOOLEAN, Boolean.valueOf(true));
 
-	public static final JamochaValue FALSE = new JamochaValue(JamochaType.BOOLEAN, Boolean.valueOf(false));
+	public static final JamochaValue TRUE = new JamochaValue(
+			JamochaType.BOOLEAN, Boolean.valueOf(true));
+
+	public static final JamochaValue FALSE = new JamochaValue(
+			JamochaType.BOOLEAN, Boolean.valueOf(false));
 
 	public static final JamochaValue EMPTY_LIST = new JamochaValue(
 			JamochaType.LIST, new JamochaValue[] {});
@@ -208,8 +210,9 @@ public class JamochaValue {
 		}
 	}
 
-	public JamochaValue implicitCast(JamochaType type) throws IllegalConversionException {
-		if( type.equals(JamochaType.UNDEFINED)) {
+	public JamochaValue implicitCast(JamochaType type)
+			throws IllegalConversionException {
+		if (type.equals(JamochaType.UNDEFINED) || type.equals(this.type)) {
 			return this;
 		}
 		switch (this.type) {
@@ -273,9 +276,9 @@ public class JamochaValue {
 		throw new IllegalConversionException("Unable to cast " + this.type
 				+ " to type " + type + ".");
 	}
-	
+
 	public boolean is(JamochaType type) {
-		if(this.type.equals(type)) {
+		if (this.type.equals(type)) {
 			return true;
 		}
 		return false;
