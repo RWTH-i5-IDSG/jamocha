@@ -134,6 +134,9 @@ public class MathFunctions implements FunctionGroup {
 		Round round = new Round();
 		engine.declareFunction(round);
 		funcs.add(round);
+		Signum signum = new Signum();
+		engine.declareFunction(signum);
+		funcs.add(signum);
 		Sin sin = new Sin();
 		engine.declareFunction(sin);
 		funcs.add(sin);

@@ -96,7 +96,7 @@ public class Radians implements Function, Serializable {
 			buf.append(")");
 			return buf.toString();
 		} else {
-			return "(radians (<literal> | <binding>)+)\n"
+			return "(radians (<literal> | <binding>))\n"
 					+ "Function description:\n"
 					+ "\t Converts its only argument from units of degrees"
 					+ "to units of radians.";
