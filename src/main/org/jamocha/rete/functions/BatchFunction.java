@@ -18,8 +18,8 @@ package org.jamocha.rete.functions;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.InputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.Serializable;
 
 import org.jamocha.parser.EvaluationException;
@@ -27,25 +27,24 @@ import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.parser.clips.CLIPSParser;
 import org.jamocha.parser.clips.ParseException;
-import org.jamocha.rete.BoundParam;
-import org.jamocha.rete.Constants;
-import org.jamocha.rete.DefaultReturnValue;
-import org.jamocha.rete.DefaultReturnVector;
 import org.jamocha.rete.Deftemplate;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.ValueParam;
-import org.jamocha.rete.exception.CompileRuleException;
-import org.jamocha.rule.*;
-
+import org.jamocha.rule.Defrule;
 
 /**
  * @author Peter Lin
- *
+ * 
  * Functional equivalent of (batch file.clp) in CLIPS and JESS.
  */
 public class BatchFunction implements Function, Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
 	public static final String BATCH = "batch";
 
@@ -57,44 +56,45 @@ public class BatchFunction implements Function, Serializable {
 	}
 
 	public JamochaType getReturnType() {
-		return Constants.BOOLEAN_OBJECT;
+		return JamochaType.BOOLEAN;
 	}
 
 	/**
 	 * method will attempt to load one or more files. If batch is called without
-	 * any parameters, the function does nothing and just returns.
-	 * TODO - finish implementing the method, once the parser wrapper is done
-	 * I can finish this method
+	 * any parameters, the function does nothing and just returns. TODO - finish
+	 * implementing the method, once the parser wrapper is done I can finish
+	 * this method
 	 */
-	public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
-		DefaultReturnVector rv = new DefaultReturnVector();
+	public JamochaValue executeFunction(Rete engine, Parameter[] params)
+			throws EvaluationException {
+		JamochaValue result = JamochaValue.FALSE;
 		if (params != null && params.length > 0) {
 			for (int idx = 0; idx < params.length; idx++) {
 				try {
-					InputStream ins = new FileInputStream(params[idx]
-							.getStringValue());
-					this.parse(engine, ins, rv);
-                    ins.close();
+					InputStream ins = new FileInputStream(params[idx].getValue(
+							engine).getStringValue());
+					result = this.parse(engine, ins);
+					ins.close();
 				} catch (FileNotFoundException e) {
-					// we should report the error
-					rv.addReturnValue(new DefaultReturnValue(
-							Constants.BOOLEAN_OBJECT, new Boolean(false)));
-                } catch (IOException e) {
-                    
+				} catch (IOException e) {
+					throw new EvaluationException(e);
 				}
 			}
 		}
-		return rv;
+		return result;
 	}
 
 	/**
-	 * method does the actual work of creating a CLIPSParser and parsing
-	 * the file.
+	 * method does the actual work of creating a CLIPSParser and parsing the
+	 * file.
+	 * 
 	 * @param engine
 	 * @param ins
 	 * @param rv
+	 * @throws EvaluationException
 	 */
-	public void parse(Rete engine, InputStream ins, DefaultReturnVector rv) {
+	public JamochaValue parse(Rete engine, InputStream ins)
+			throws EvaluationException {
 		try {
 			CLIPSParser parser = new CLIPSParser(engine, ins);
 			Object expr = null;
@@ -111,18 +111,12 @@ public class BatchFunction implements Function, Serializable {
 					fnc.executeFunction(engine, null);
 				}
 			}
-			if (rv != null) {
-				rv.addReturnValue(new DefaultReturnValue(
-						Constants.BOOLEAN_OBJECT, new Boolean(true)));
-			}
+			return JamochaValue.TRUE;
 		} catch (ParseException e) {
 			// we should report the error
-            e.printStackTrace();
-			if (rv != null) {
-				rv.addReturnValue(new DefaultReturnValue(
-						Constants.BOOLEAN_OBJECT, new Boolean(false)));
-			}
+			e.printStackTrace();
 		}
+		return JamochaValue.FALSE;
 	}
 
 	public String getName() {
@@ -138,19 +132,13 @@ public class BatchFunction implements Function, Serializable {
 			StringBuffer buf = new StringBuffer();
 			buf.append("(batch");
 			for (int idx = 0; idx < params.length; idx++) {
-				if (params[idx] instanceof BoundParam) {
-					BoundParam bp = (BoundParam) params[idx];
-					buf.append(" ?" + bp.getVariableName());
-				} else if (params[idx] instanceof ValueParam) {
-					buf.append(" \"" + params[idx].getStringValue() + "\"");
-				}
+				buf.append(" ").append(params[idx].getParameterString());
 			}
 			buf.append(")");
 			return buf.toString();
 		} else {
-			return "(batch <filename>)\n" +
-					"Command description:\n" +
-					"\tLoads and executes the file <filename>.";
+			return "(batch <filename>)\n" + "Command description:\n"
+					+ "\tLoads and executes the file <filename>.";
 		}
 	}
 }

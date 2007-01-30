@@ -16,6 +16,7 @@
  */
 package org.jamocha.rete.functions;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.Serializable;
@@ -27,10 +28,6 @@ import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.parser.clips.CLIPSParser;
 import org.jamocha.parser.clips.ParseException;
-import org.jamocha.rete.BoundParam;
-import org.jamocha.rete.Constants;
-import org.jamocha.rete.DefaultReturnValue;
-import org.jamocha.rete.DefaultReturnVector;
 import org.jamocha.rete.Deffact;
 import org.jamocha.rete.Deftemplate;
 import org.jamocha.rete.Function;
@@ -39,13 +36,16 @@ import org.jamocha.rete.Rete;
 import org.jamocha.rete.ValueParam;
 import org.jamocha.rete.exception.AssertException;
 
-
 /**
- * @author Peter Lin
- * LoadFunction will create a new instance of CLIPSParser and load the
- * facts in the data file.
+ * @author Peter Lin LoadFunction will create a new instance of CLIPSParser and
+ *         load the facts in the data file.
  */
 public class LoadFunction implements Function, Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
 	public static final String LOAD = "load";
 
@@ -57,63 +57,45 @@ public class LoadFunction implements Function, Serializable {
 	}
 
 	public JamochaType getReturnType() {
-		return Constants.BOOLEAN_OBJECT;
+		return JamochaType.BOOLEAN;
 	}
 
-	public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
-		DefaultReturnVector rv = new DefaultReturnVector();
-		boolean loaded = true;
+	public JamochaValue executeFunction(Rete engine, Parameter[] params)
+			throws EvaluationException {
+		JamochaValue result = JamochaValue.FALSE;
 		if (params != null && params.length > 0) {
 			for (int idx = 0; idx < params.length; idx++) {
-				String input = null;
-				if (params[idx] instanceof ValueParam) {
-					input = ((ValueParam) params[idx]).getStringValue();
-				} else if (params[idx] instanceof BoundParam) {
+				String input = params[idx].getValue(engine).getStringValue();
 
-				}
-				if (input.indexOf('\\') > -1) {
-					input.replaceAll("\\", "/");
-				}
-				// check to see if the path is an absolute windows path
-				// or absolute unix path
-				if (input.indexOf(":") < 0 && !input.startsWith("/")
-						&& !input.startsWith("./")) {
-					input = "./" + input;
-				}
 				try {
-					FileInputStream fis = new FileInputStream(input);
+					FileInputStream fis = new FileInputStream(new File(input));
 					CLIPSParser parser = new CLIPSParser(engine, fis);
 					List data = parser.loadExpr();
 					Iterator itr = data.iterator();
 					while (itr.hasNext()) {
 						Object val = itr.next();
-						ValueParam[] vp = (ValueParam[])val;
+						ValueParam[] vp = (ValueParam[]) val;
 						Deftemplate tmpl = (Deftemplate) engine
-								.getCurrentFocus().getTemplate(
-										vp[0].getStringValue());
+								.getCurrentFocus()
+								.getTemplate(
+										vp[0].getValue(engine).getStringValue());
 						Deffact fact = (Deffact) tmpl.createFact(
-								(Object[]) vp[1].getValue(), -1);
+								(Object[]) vp[1].getValue(engine)
+										.getObjectValue(), -1);
 
 						engine.assertFact(fact);
 					}
+					result = JamochaValue.TRUE;
 				} catch (FileNotFoundException e) {
-					loaded = false;
 					engine.writeMessage(e.getMessage(), "t");
 				} catch (ParseException e) {
-					loaded = false;
 					engine.writeMessage(e.getMessage(), "t");
 				} catch (AssertException e) {
-					loaded = false;
 					engine.writeMessage(e.getMessage(), "t");
 				}
 			}
-		} else {
-			loaded = false;
 		}
-		DefaultReturnValue drv = new DefaultReturnValue(
-				Constants.BOOLEAN_OBJECT, new Boolean(loaded));
-		rv.addReturnValue(drv);
-		return rv;
+		return result;
 	}
 
 	public String getName() {
@@ -129,19 +111,13 @@ public class LoadFunction implements Function, Serializable {
 			StringBuffer buf = new StringBuffer();
 			buf.append("(load");
 			for (int idx = 0; idx < params.length; idx++) {
-				if (params[idx] instanceof BoundParam) {
-					BoundParam bp = (BoundParam) params[idx];
-					buf.append(" ?" + bp.getVariableName());
-				} else if (params[idx] instanceof ValueParam) {
-					buf.append(" \"" + params[idx].getStringValue() + "\"");
-				}
+				buf.append(" ").append(params[idx].getParameterString());
 			}
 			buf.append(")");
 			return buf.toString();
 		} else {
-			return "(load <filename>)\n" +
-			"Command description:\n" +
-			"\tLoad the file <filename>.";
+			return "(load <filename>)\n" + "Command description:\n"
+					+ "\tLoad the file <filename>.";
 		}
 	}
 }

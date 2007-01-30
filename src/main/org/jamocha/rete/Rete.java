@@ -772,7 +772,12 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 	public void loadRuleset(InputStream ins) {
 		BatchFunction bf = (BatchFunction) this.functions
 				.get(BatchFunction.BATCH);
-		bf.parse(this, ins, null);
+		try {
+			bf.parse(this, ins);
+		} catch (EvaluationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	/**
