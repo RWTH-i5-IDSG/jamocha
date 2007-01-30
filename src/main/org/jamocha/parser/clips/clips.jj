@@ -123,12 +123,12 @@ TOKEN :
 {
   < LBRACE: "(" >
 | < RBRACE: ")" >
-| < INTEGER_LITERAL: ["0"-"9"] (["0"-"9"])* >
+| < INTEGER_LITERAL: ("-")? ["0"-"9"] (["0"-"9"])* >
 |
   < FLOATING_POINT_LITERAL:
-        (["0"-"9"])+ "." (["0"-"9"])* (<EXPONENT>)?
-      | "." (["0"-"9"])+ (<EXPONENT>)?
-      | (["0"-"9"])+ <EXPONENT>
+        ("-")? (["0"-"9"])+ "." (["0"-"9"])* (<EXPONENT>)?
+      | ("-")? "." (["0"-"9"])+ (<EXPONENT>)?
+      | ("-")? (["0"-"9"])+ <EXPONENT>
   >
 | < #EXPONENT: ["e","E"] (["+","-"])? (["0"-"9"])+ >
 |
@@ -212,7 +212,7 @@ TOKEN :
 | < OR1: "or" >
 | < OR2: "|" >
 | < TILDA: "~" >
-| < IDENTIFIER: (<LETTER>|<DIGIT>|["_",":","-","$","."])+ >
+| < IDENTIFIER: (<LETTER>|"_") (<LETTER>|<DIGIT>|["_",":","-","$","."])* >
 |
   < LETTER:
       [
