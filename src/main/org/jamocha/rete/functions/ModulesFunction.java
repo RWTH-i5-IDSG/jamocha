@@ -24,13 +24,10 @@ import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Constants;
-import org.jamocha.rete.DefaultReturnValue;
-import org.jamocha.rete.DefaultReturnVector;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Module;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.Template;
 import org.jamocha.rete.ValueParam;
 
 /**
@@ -39,6 +36,11 @@ import org.jamocha.rete.ValueParam;
  */
 public class ModulesFunction implements Function, Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
 	public static final String MODULES = "modules";
 
 	public ModulesFunction() {
@@ -46,21 +48,20 @@ public class ModulesFunction implements Function, Serializable {
 	}
 
 	public JamochaType getReturnType() {
-		return Constants.STRING_TYPE;
+		return JamochaType.STRING;
 	}
 
 	public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
 		Collection modules = engine.getAgenda().getModules();
 		int count = modules.size();
 		Iterator itr = modules.iterator();
+		StringBuilder sb = new StringBuilder();
 		while (itr.hasNext()) {
 			Module r = (Module) itr.next();
-			engine.writeMessage(r.getModuleName() + Constants.LINEBREAK, "t");
+			sb.append(r.getModuleName()).append(Constants.LINEBREAK);
 		}
-		engine.writeMessage("for a total of " + count + Constants.LINEBREAK,
-				"t");
-		DefaultReturnVector rv = new DefaultReturnVector();
-		return rv;
+		sb.append("for a total of ").append(count).append(Constants.LINEBREAK);
+		return new JamochaValue(JamochaType.STRING, sb.toString());
 	}
 
 	public String getName() {

@@ -25,24 +25,25 @@ import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Constants;
-import org.jamocha.rete.DefaultReturnValue;
-import org.jamocha.rete.DefaultReturnVector;
 import org.jamocha.rete.Deffact;
-import org.jamocha.rete.Fact;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.ValueParam;
 import org.jamocha.rete.util.FactUtils;
 
-
 /**
  * @author Peter Lin
  * 
- * Facts function will printout all the facts, not including any
- * initial facts which are internal to the rule engine.
+ * Facts function will printout all the facts, not including any initial facts
+ * which are internal to the rule engine.
  */
 public class SaveFactsFunction implements Function, Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
 	public static final String SAVE_FACTS = "save-facts";
 
@@ -54,20 +55,22 @@ public class SaveFactsFunction implements Function, Serializable {
 	}
 
 	public JamochaType getReturnType() {
-		return Constants.BOOLEAN_OBJECT;
+		return JamochaType.BOOLEAN;
 	}
 
-	public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
-		boolean saved = false;
+	public JamochaValue executeFunction(Rete engine, Parameter[] params)
+			throws EvaluationException {
+		JamochaValue result = JamochaValue.FALSE;
 		boolean sortid = true;
-		DefaultReturnVector rv = new DefaultReturnVector();
 		if (params != null && params.length >= 1) {
-			if (params[1] != null && 
-					params[1].getStringValue().equals("template")) {
+			JamochaValue firstParam = params[0].getValue(engine);
+			if (params.length > 1
+					&& params[1].getValue(engine).getIdentifierValue().equals(
+							"template")) {
 				sortid = false;
 			}
 			try {
-				FileWriter writer = new FileWriter(params[0].getStringValue());
+				FileWriter writer = new FileWriter(firstParam.getStringValue());
 				List facts = engine.getAllFacts();
 				Object[] sorted = null;
 				if (sortid) {
@@ -80,15 +83,12 @@ public class SaveFactsFunction implements Function, Serializable {
 					writer.write(ft.toPPString() + Constants.LINEBREAK);
 				}
 				writer.close();
-				saved = true;
+				result = JamochaValue.TRUE;
 			} catch (IOException e) {
-				// we should log this
+				throw new EvaluationException(e);
 			}
 		}
-		DefaultReturnValue drv = new DefaultReturnValue(
-				Constants.BOOLEAN_OBJECT, new Boolean(saved));
-		rv.addReturnValue(drv);
-		return rv;
+		return result;
 	}
 
 	public String getName() {
@@ -96,7 +96,7 @@ public class SaveFactsFunction implements Function, Serializable {
 	}
 
 	public Class[] getParameter() {
-		return new Class[]{ValueParam.class,ValueParam.class};
+		return new Class[] { ValueParam.class, ValueParam.class };
 	}
 
 	public String toPPString(Parameter[] params, int indents) {

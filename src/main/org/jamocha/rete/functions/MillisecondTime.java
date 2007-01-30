@@ -17,18 +17,13 @@
 package org.jamocha.rete.functions;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
 
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.rete.Constants;
-import org.jamocha.rete.DefaultReturnValue;
-import org.jamocha.rete.DefaultReturnVector;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.ShellBoundParam;
 
 
 /**
@@ -38,7 +33,12 @@ import org.jamocha.rete.ShellBoundParam;
  */
 public class MillisecondTime implements Function, Serializable {
 
-    public static final String MSTIME = "ms-time";
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
+	public static final String MSTIME = "ms-time";
 
     /**
 	 * 
@@ -48,7 +48,7 @@ public class MillisecondTime implements Function, Serializable {
 	}
 
 	public JamochaType getReturnType() {
-		return Constants.LONG_OBJECT;
+		return JamochaType.LONG;
 	}
 
 	/**
@@ -57,12 +57,7 @@ public class MillisecondTime implements Function, Serializable {
 	 * line.
 	 */
 	public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
-		BigDecimal time = new BigDecimal(System.currentTimeMillis());
-		DefaultReturnVector ret = new DefaultReturnVector();
-		DefaultReturnValue rv = 
-			new DefaultReturnValue(Constants.BIG_DECIMAL,time);
-		ret.addReturnValue(rv);
-		return ret;
+		return new JamochaValue(JamochaType.LONG, System.currentTimeMillis());
 	}
 
 	public String getName() {

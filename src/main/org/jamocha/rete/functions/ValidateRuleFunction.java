@@ -21,14 +21,10 @@ import java.io.Serializable;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.rete.Constants;
-import org.jamocha.rete.DefaultReturnValue;
-import org.jamocha.rete.DefaultReturnVector;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.ValueParam;
-
 
 /**
  * @author Peter Lin
@@ -38,8 +34,13 @@ import org.jamocha.rete.ValueParam;
  */
 public class ValidateRuleFunction implements Function, Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	protected static final String VALIDATE_RULE = "validate-rule";
-	
+
 	/**
 	 * 
 	 */
@@ -48,33 +49,26 @@ public class ValidateRuleFunction implements Function, Serializable {
 	}
 
 	public JamochaType getReturnType() {
-		return Constants.RETURN_VOID_TYPE;
+		return JamochaType.BOOLEAN;
 	}
 
-	public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
-        DefaultReturnVector ret = new DefaultReturnVector();
-        boolean val = false;
-        if (params != null && params.length == 1) {
-        	if (params[0].getBooleanValue()) {
-        		engine.setValidateRules(true);
-        		val = true;
-        	} else if (!params[0].getBooleanValue()) {
-        		engine.setValidateRules(false);
-        		val = true;
-        	}
-        }
-		DefaultReturnValue rv = 
-			new DefaultReturnValue(Constants.BOOLEAN_OBJECT,val);
-		ret.addReturnValue(rv);
-        return ret;
+	public JamochaValue executeFunction(Rete engine, Parameter[] params)
+			throws EvaluationException {
+		JamochaValue result = JamochaValue.FALSE;
+		if (params != null && params.length == 1) {
+			JamochaValue param = params[0].getValue(engine);
+			engine.setValidateRules(param.getBooleanValue());
+			result = JamochaValue.TRUE;
+		}
+		return result;
 	}
-    
+
 	public String getName() {
 		return VALIDATE_RULE;
 	}
 
 	public Class[] getParameter() {
-		return new Class[]{ValueParam.class};
+		return new Class[] { ValueParam.class };
 	}
 
 	public String toPPString(Parameter[] params, int indents) {

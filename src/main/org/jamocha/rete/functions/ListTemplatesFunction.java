@@ -24,7 +24,6 @@ import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Constants;
-import org.jamocha.rete.DefaultReturnVector;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
@@ -38,6 +37,11 @@ import org.jamocha.rete.Template;
  */
 public class ListTemplatesFunction implements Function, Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
 	public static final String LISTTEMPLATES = "list-deftemplates";
 
 	/**
@@ -48,7 +52,7 @@ public class ListTemplatesFunction implements Function, Serializable {
 	}
 
 	public JamochaType getReturnType() {
-		return Constants.RETURN_VOID_TYPE;
+		return JamochaType.NIL;
 	}
 
 	/**
@@ -61,9 +65,9 @@ public class ListTemplatesFunction implements Function, Serializable {
 		Iterator itr = templ.iterator();
 		while (itr.hasNext()) {
 			Template tp = (Template) itr.next();
-			engine.writeMessage(tp.toPPString() + "\r\n", "t");
+			engine.writeMessage(tp.toPPString() + Constants.LINEBREAK, "t");
 		}
-		return new DefaultReturnVector();
+		return JamochaValue.NIL;
 	}
 
 	public String getName() {

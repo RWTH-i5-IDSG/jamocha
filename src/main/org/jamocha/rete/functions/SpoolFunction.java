@@ -17,7 +17,6 @@
 package org.jamocha.rete.functions;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -26,26 +25,27 @@ import java.io.Serializable;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.rete.Constants;
-import org.jamocha.rete.DefaultReturnValue;
-import org.jamocha.rete.DefaultReturnVector;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.ValueParam;
 
-
 /**
  * @author Peter Lin
  * 
- * The purpose of spool function is to capture the output to a file,
- * and make it easier to record what happens. This is inspired by
- * Oracle SqlPlus spool function.
+ * The purpose of spool function is to capture the output to a file, and make it
+ * easier to record what happens. This is inspired by Oracle SqlPlus spool
+ * function.
  */
 public class SpoolFunction implements Function, Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	public static final String SPOOL = "spool";
-	
+
 	/**
 	 * 
 	 */
@@ -54,17 +54,18 @@ public class SpoolFunction implements Function, Serializable {
 	}
 
 	public JamochaType getReturnType() {
-		return Constants.BOOLEAN_OBJECT;
+		return JamochaType.BOOLEAN;
 	}
 
-	public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
-		boolean sp = true;
+	public JamochaValue executeFunction(Rete engine, Parameter[] params)
+			throws EvaluationException {
+		JamochaValue result = JamochaValue.FALSE;
 		if (params != null && params.length >= 2) {
-			String val = params[0].getStringValue();
-			if (val.equals("off")) {
+			String name = params[0].getValue(engine).getStringValue();
+			String file = params[1].getValue(engine).getStringValue();
+			if (name.equals("off")) {
 				// turn off spooling
-				String name = params[1].getStringValue();
-				PrintWriter writer = engine.removePrintWriter(name);
+				PrintWriter writer = engine.removePrintWriter(file);
 				if (writer != null) {
 					writer.flush();
 					writer.close();
@@ -72,29 +73,19 @@ public class SpoolFunction implements Function, Serializable {
 			} else {
 				// turn on spooling
 				// we expected a file name
-				String spname = params[0].getStringValue();
-				String fname = params[1].getStringValue();
 				try {
-					File nfile = new File(fname);
+					File nfile = new File(file);
 					nfile.createNewFile();
 					FileOutputStream fos = new FileOutputStream(nfile);
 					PrintWriter writer = new PrintWriter(fos);
-					engine.addPrintWriter(spname,writer);
-				} catch (FileNotFoundException e) {
-					// we should report it
-					sp = false;
+					engine.addPrintWriter(name, writer);
+					result = JamochaValue.TRUE;
 				} catch (IOException e) {
-					sp = false;
+					throw new EvaluationException(e);
 				}
 			}
-		} else {
-			sp = false;
 		}
-		DefaultReturnVector ret = new DefaultReturnVector();
-		DefaultReturnValue rv = 
-			new DefaultReturnValue(Constants.BOOLEAN_OBJECT,new Boolean(sp));
-		ret.addReturnValue(rv);
-		return ret;
+		return result;
 	}
 
 	public String getName() {
@@ -102,7 +93,7 @@ public class SpoolFunction implements Function, Serializable {
 	}
 
 	public Class[] getParameter() {
-		return new Class[]{ValueParam.class};
+		return new Class[] { ValueParam.class };
 	}
 
 	public String toPPString(Parameter[] params, int indents) {

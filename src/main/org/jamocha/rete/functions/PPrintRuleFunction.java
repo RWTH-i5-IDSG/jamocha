@@ -19,13 +19,10 @@ package org.jamocha.rete.functions;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.rete.Constants;
-import org.jamocha.rete.DefaultReturnVector;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.ValueParam;
-import org.jamocha.rule.Defrule;
 import org.jamocha.rule.Rule;
 
 
@@ -38,6 +35,11 @@ import org.jamocha.rule.Rule;
  */
 public class PPrintRuleFunction implements Function {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
 	public static final String PPRULES = "ppdefrule";
 	
 	/**
@@ -48,19 +50,18 @@ public class PPrintRuleFunction implements Function {
 	}
 
 	public JamochaType getReturnType() {
-		return Constants.RETURN_VOID_TYPE;
+		return JamochaType.NIL;
 	}
 
 	public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
 		if (params != null && params.length > 0) {
 			for (int idx=0; idx < params.length; idx++) {
 				Rule rls = 
-					engine.getCurrentFocus().findRule(params[idx].getStringValue());
+					engine.getCurrentFocus().findRule(params[idx].getValue(engine).getIdentifierValue());
 				engine.writeMessage(rls.toPPString(),"t");
 			}
 		}
-		DefaultReturnVector rv = new DefaultReturnVector();
-		return rv;
+		return JamochaValue.NIL;
 	}
 
 	public String getName() {

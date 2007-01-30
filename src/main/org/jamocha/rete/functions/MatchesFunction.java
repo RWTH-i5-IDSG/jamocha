@@ -22,13 +22,9 @@ import java.util.HashMap;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.rete.BoundParam;
-import org.jamocha.rete.Constants;
-import org.jamocha.rete.DefaultReturnVector;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.ValueParam;
 
 
 /**
@@ -39,7 +35,12 @@ import org.jamocha.rete.ValueParam;
  */
 public class MatchesFunction implements Function, Serializable {
 
-    public static final String MATCHES = "matches";
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
+	public static final String MATCHES = "matches";
     
 	/**
 	 * 
@@ -49,7 +50,7 @@ public class MatchesFunction implements Function, Serializable {
 	}
 
 	public JamochaType getReturnType() {
-        return Constants.RETURN_VOID_TYPE;
+        return JamochaType.NIL;
 	}
 
 	/**
@@ -62,15 +63,11 @@ public class MatchesFunction implements Function, Serializable {
 		if (params != null && params.length > 0) {
 			// now we populate the filter
 			for (int idx=0; idx < params.length; idx++) {
-				if (params[idx] instanceof ValueParam) {
-					filter.put( ((ValueParam)params[idx]).getStringValue(),null);
-				} else if (params[idx] instanceof BoundParam) {
-					// for now, BoundParam is not supported
-				}
+				filter.put( params[idx].getValue(engine).getStringValue(),null);
 			}
 		}
 		engine.getWorkingMemory().printWorkingMemory(filter);
-		return new DefaultReturnVector();
+		return JamochaValue.NIL;
 	}
 
 	public String getName() {

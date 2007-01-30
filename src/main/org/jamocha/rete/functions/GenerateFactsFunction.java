@@ -17,16 +17,13 @@
 package org.jamocha.rete.functions;
 
 import java.io.Serializable;
-
 import java.util.ArrayList;
 import java.util.Iterator;
 
 import org.jamocha.parser.EvaluationException;
+import org.jamocha.parser.IllegalParameterException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.rete.Constants;
-import org.jamocha.rete.DefaultReturnValue;
-import org.jamocha.rete.DefaultReturnVector;
 import org.jamocha.rete.Deffact;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
@@ -45,6 +42,11 @@ import org.jamocha.rule.util.GenerateFacts;
  */
 public class GenerateFactsFunction implements Function, Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
 	public static final String GENERATEFACTS = "generate-facts";
 
 	/**
@@ -55,18 +57,19 @@ public class GenerateFactsFunction implements Function, Serializable {
 	}
 
 	public JamochaType getReturnType() {
-		return Constants.OBJECT_TYPE;
+		return JamochaType.OBJECT;
 	}
 
 	public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
-		DefaultReturnVector ret = new DefaultReturnVector();
+		JamochaValue result = JamochaValue.FALSE;
 		boolean echo = false;
 		ArrayList facts = null;
 		if (params != null && params.length >= 1) {
+			JamochaValue firstParam = params[0].getValue(engine);
 			Defrule r = (Defrule)engine.getCurrentFocus().findRule(
-					params[0].getStringValue());
+					firstParam.getIdentifierValue());
 			if (params.length == 2) {
-				if (params[1].getBooleanValue()) {
+				if (params[1].getValue(engine).getBooleanValue()) {
 					echo = true;
 				}
 			}
@@ -84,16 +87,12 @@ public class GenerateFactsFunction implements Function, Serializable {
 						}
 					}
 				}
-				DefaultReturnValue rv = new DefaultReturnValue(
-						Constants.OBJECT_TYPE, facts.toArray());
-				ret.addReturnValue(rv);
-			} else {
-				DefaultReturnValue rv = new DefaultReturnValue(
-						Constants.BOOLEAN_OBJECT, new Boolean(false));
-				ret.addReturnValue(rv);
+				result = new JamochaValue(JamochaType.OBJECT, facts.toArray());
 			}
+		} else {
+			throw new IllegalParameterException(1);
 		}
-		return ret;
+		return result;
 	}
 
 	public String getName() {

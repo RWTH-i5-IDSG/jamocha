@@ -21,17 +21,11 @@ import java.io.Serializable;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.rete.Constants;
-import org.jamocha.rete.DefaultReturnValue;
-import org.jamocha.rete.DefaultReturnVector;
-import org.jamocha.rete.Deftemplate;
 import org.jamocha.rete.Function;
-import org.jamocha.rete.Module;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.Template;
 import org.jamocha.rete.ValueParam;
-import org.jamocha.rete.exception.CompileRuleException;
 
 
 /**
@@ -40,6 +34,11 @@ import org.jamocha.rete.exception.CompileRuleException;
  */
 public class UnDeftemplateFunction implements Function, Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
 	public static final String UNDEFTEMPLATE = "undeftemplate";
 
 	public UnDeftemplateFunction() {
@@ -47,27 +46,20 @@ public class UnDeftemplateFunction implements Function, Serializable {
 	}
 
 	public JamochaType getReturnType() {
-		return Constants.BOOLEAN_OBJECT;
+		return JamochaType.BOOLEAN;
 	}
 
 	public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
-		boolean removed = true;
+		JamochaValue result = JamochaValue.FALSE;
 		if (params.length == 1) {
-			String template = params[0].getStringValue();
+			String template = params[0].getValue(engine).getStringValue();
 			Template t = engine.getCurrentFocus().getTemplate(template);
 			if (!t.inUse()) {
 				engine.getCurrentFocus().removeTemplate(t,engine,engine.getWorkingMemory());
-			} else {
-				removed = false;
+				result = JamochaValue.TRUE;
 			}
-		} else {
-			removed = false;
 		}
-		DefaultReturnVector ret = new DefaultReturnVector();
-		DefaultReturnValue rv = new DefaultReturnValue(
-				Constants.BOOLEAN_OBJECT, new Boolean(removed));
-		ret.addReturnValue(rv);
-		return ret;
+		return result;
 	}
 
 	public String getName() {

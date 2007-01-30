@@ -23,8 +23,6 @@ import java.util.Iterator;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.rete.Constants;
-import org.jamocha.rete.DefaultReturnVector;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
@@ -39,6 +37,11 @@ import org.jamocha.rule.Rule;
  */
 public class RulesFunction implements Function, Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
 	public static final String RULES = "rules";
 	public static final String LISTRULES = "list-defrules";
 	
@@ -47,7 +50,7 @@ public class RulesFunction implements Function, Serializable {
 	}
 
 	public JamochaType getReturnType() {
-		return Constants.RETURN_VOID_TYPE;
+		return JamochaType.NIL;
 	}
 
 	public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
@@ -62,8 +65,7 @@ public class RulesFunction implements Function, Serializable {
 					" no-agenda:" + r.getNoAgenda() + "\r\n", "t");
 		}
 		engine.writeMessage("for a total of " + count +"\r\n","t");
-		DefaultReturnVector rv = new DefaultReturnVector();
-		return rv;
+		return JamochaValue.NIL;
 	}
 
 	public String getName() {

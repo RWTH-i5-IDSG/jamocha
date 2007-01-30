@@ -24,8 +24,6 @@ import java.util.Iterator;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.rete.Constants;
-import org.jamocha.rete.DefaultReturnVector;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
@@ -41,6 +39,11 @@ import org.jamocha.rete.ValueParam;
  */
 public class PPrintTemplateFunction implements Function, Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
 	public static final String PPTEMPLATES = "ppdeftemplate";
 	
 	/**
@@ -51,7 +54,7 @@ public class PPrintTemplateFunction implements Function, Serializable {
 	}
 
 	public JamochaType getReturnType() {
-        return Constants.RETURN_VOID_TYPE;
+        return JamochaType.NIL;
 	}
 
 	/**
@@ -64,10 +67,8 @@ public class PPrintTemplateFunction implements Function, Serializable {
 		HashMap filter = new HashMap();
 		if (params != null && params.length > 0) {
 			for (int idx=0; idx < params.length; idx++) {
-				if (params[idx] instanceof ValueParam) {
-					Object df = ((ValueParam)params[idx]).getValue();
+					Object df = ((ValueParam)params[idx]).getValue(engine).getIdentifierValue();
 					filter.put(df,df);
-				}
 			}
 		}
 		Collection templ = engine.getCurrentFocus().getTemplates();
@@ -78,7 +79,7 @@ public class PPrintTemplateFunction implements Function, Serializable {
 				engine.writeMessage(tp.toPPString() + "\r\n","t");
 			}
 		}
-		return new DefaultReturnVector();
+		return JamochaValue.NIL;
 	}
 
 	public String getName() {

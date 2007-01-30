@@ -21,9 +21,6 @@ import java.io.Serializable;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.rete.Constants;
-import org.jamocha.rete.DefaultReturnValue;
-import org.jamocha.rete.DefaultReturnVector;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
@@ -39,6 +36,11 @@ import org.jamocha.rete.ValueParam;
  */
 public class LazyAgendaFunction implements Function, Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
 	public static final String LAZY_AGENDA = "lazy-agenda";
 
 	/**
@@ -49,27 +51,19 @@ public class LazyAgendaFunction implements Function, Serializable {
 	}
 
 	public JamochaType getReturnType() {
-		return Constants.RETURN_VOID_TYPE;
+		return JamochaType.NIL;
 	}
 
 	public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
-		boolean exec = false;
-		String mode = "normal";
-		DefaultReturnVector rv = new DefaultReturnVector();
 		if (params != null && params.length == 1) {
-			exec = true;
-			ValueParam vp = (ValueParam) params[0];
-			if (vp.getStringValue().equals("true")) {
+			JamochaValue firstParam = params[0].getValue(engine);
+			if (firstParam.getBooleanValue()) {
 				engine.getCurrentFocus().setLazy(true);
-				mode = "lazy";
-			} else if (vp.getStringValue().equals("false")) {
+			} else {
 				engine.getCurrentFocus().setLazy(false);
 			}
 		}
-		DefaultReturnValue drv = new DefaultReturnValue(Constants.STRING_TYPE,
-				mode);
-		rv.addReturnValue(drv);
-		return rv;
+		return JamochaValue.NIL;
 	}
 
 	public String getName() {
@@ -81,7 +75,7 @@ public class LazyAgendaFunction implements Function, Serializable {
 	}
 
 	public String toPPString(Parameter[] params, int indents) {
-		return "(lazy-agenda [on|off])";
+		return "(lazy-agenda [TRUE|FALSE])";
 	}
 
 }

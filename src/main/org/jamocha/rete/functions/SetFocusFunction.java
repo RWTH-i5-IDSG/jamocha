@@ -21,9 +21,6 @@ import java.io.Serializable;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.rete.Constants;
-import org.jamocha.rete.DefaultReturnValue;
-import org.jamocha.rete.DefaultReturnVector;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
@@ -36,6 +33,11 @@ import org.jamocha.rete.ValueParam;
  */
 public class SetFocusFunction implements Function, Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
 	public static final String SET_FOCUS = "set-focus";
 	
 	public SetFocusFunction() {
@@ -43,23 +45,19 @@ public class SetFocusFunction implements Function, Serializable {
 	}
 
 	public JamochaType getReturnType() {
-		return Constants.STRING_TYPE;
+		return JamochaType.STRING;
 	}
 
 	public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
 		String focus = null;
 		if (params != null && params.length == 1) {
-			focus = params[0].getStringValue();
+			focus = params[0].getValue(engine).getIdentifierValue();
 			engine.setFocus(focus);
 			focus = engine.getCurrentFocus().getModuleName();
 		} else {
 			focus = engine.getCurrentFocus().getModuleName();
 		}
-		DefaultReturnVector ret = new DefaultReturnVector();
-		DefaultReturnValue rv = new DefaultReturnValue(
-				Constants.STRING_TYPE, focus);
-		ret.addReturnValue(rv);
-		return ret;
+		return new JamochaValue(JamochaType.IDENTIFIER, focus);
 	}
 
 	public String getName() {

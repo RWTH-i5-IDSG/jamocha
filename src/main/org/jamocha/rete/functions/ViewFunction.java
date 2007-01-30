@@ -17,16 +17,11 @@
 package org.jamocha.rete.functions;
 
 import java.io.Serializable;
-import java.util.Collection;
-import java.util.Hashtable;
-import java.util.Iterator;
 
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.BaseNode;
-import org.jamocha.rete.Constants;
-import org.jamocha.rete.DefaultReturnVector;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
@@ -44,6 +39,11 @@ import org.jamocha.rete.visualisation.Visualiser;
  */
 public class ViewFunction implements Function, Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
 	public static final String VIEW = "view";
 
 	/**
@@ -54,7 +54,7 @@ public class ViewFunction implements Function, Serializable {
 	}
 
 	public JamochaType getReturnType() {
-		return Constants.RETURN_VOID_TYPE;
+		return JamochaType.NIL;
 	}
 
 	void traverse(int indent, BaseNode b){
@@ -77,7 +77,7 @@ public class ViewFunction implements Function, Serializable {
 		ViewGraphNode t=ViewGraphNode.buildFromRete(root);
 		Visualiser visualiser=new Visualiser(engine);
 		visualiser.show();
-		return new DefaultReturnVector();
+		return JamochaValue.NIL;
 	}
 
 	public String getName() {

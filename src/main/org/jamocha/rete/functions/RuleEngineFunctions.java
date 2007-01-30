@@ -20,6 +20,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.jamocha.rete.Function;
 import org.jamocha.rete.FunctionGroup;
 import org.jamocha.rete.Rete;
 
@@ -37,7 +38,7 @@ public class RuleEngineFunctions implements FunctionGroup, Serializable {
 	 */
 	private static final long serialVersionUID = 1L;
 	
-	private ArrayList funcs = new ArrayList();
+	private List<Function> funcs = new ArrayList<Function>();
 	
 	public RuleEngineFunctions() {
 		super();
@@ -190,7 +191,7 @@ public class RuleEngineFunctions implements FunctionGroup, Serializable {
 		funcs.add(spool);
 		TemplatesFunction tempf = new TemplatesFunction();
 		engine.declareFunction(tempf);
-		engine.declareFunction(tempf.LISTTEMPLATES,tempf);
+		engine.declareFunction(TemplatesFunction.LISTTEMPLATES,tempf);
 		funcs.add(tempf);
 		TestRuleFunction trfunc = new TestRuleFunction();
 		engine.declareFunction(trfunc);

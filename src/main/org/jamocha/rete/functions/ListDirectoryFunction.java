@@ -18,16 +18,12 @@ package org.jamocha.rete.functions;
 
 import java.io.File;
 import java.io.Serializable;
-import java.util.Iterator;
-import java.util.List;
 
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Constants;
-import org.jamocha.rete.DefaultReturnVector;
 import org.jamocha.rete.Function;
-import org.jamocha.rete.FunctionGroup;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 
@@ -39,6 +35,11 @@ import org.jamocha.rete.Rete;
  */
 public class ListDirectoryFunction implements Function, Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
 	public static final String LIST_DIR = "list-dir";
 
 	public ListDirectoryFunction() {
@@ -46,12 +47,12 @@ public class ListDirectoryFunction implements Function, Serializable {
 	}
 
 	public JamochaType getReturnType() {
-		return Constants.RETURN_VOID_TYPE;
+		return JamochaType.STRING;
 	}
 
 	public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
 		if (params != null && params.length > 0) {
-			File dir = new File(params[0].getStringValue());
+			File dir = new File(params[0].getValue(engine).getStringValue());
 			if (dir.isDirectory()) {
 				File[] files = dir.listFiles();
 				for (int idx=0; idx < files.length; idx++) {
@@ -67,8 +68,7 @@ public class ListDirectoryFunction implements Function, Serializable {
 				
 			}
 		}
-		DefaultReturnVector ret = new DefaultReturnVector();
-		return ret;
+		return JamochaValue.NIL;
 	}
 
 	public String getName() {

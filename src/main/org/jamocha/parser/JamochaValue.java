@@ -267,8 +267,15 @@ public class JamochaValue {
 						.getFactId());
 			}
 		}
-		throw new IllegalArgumentException("Unable to cast " + this.type
+		throw new IllegalConversionException("Unable to cast " + this.type
 				+ " to type " + type + ".");
+	}
+	
+	public boolean is(JamochaType type) {
+		if(this.type.equals(type)) {
+			return true;
+		}
+		return false;
 	}
 
 	@Override

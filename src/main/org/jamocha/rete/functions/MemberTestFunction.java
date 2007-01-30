@@ -19,16 +19,13 @@ package org.jamocha.rete.functions;
 import java.io.Serializable;
 
 import org.jamocha.parser.EvaluationException;
+import org.jamocha.parser.IllegalTypeException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.BoundParam;
-import org.jamocha.rete.Constants;
-import org.jamocha.rete.DefaultReturnValue;
-import org.jamocha.rete.DefaultReturnVector;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.ValueParam;
 
 
 /**
@@ -39,6 +36,11 @@ import org.jamocha.rete.ValueParam;
  */
 public class MemberTestFunction implements Function, Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
 	public static final String MEMBERTEST = "member$";
 	
 	/**
@@ -49,32 +51,25 @@ public class MemberTestFunction implements Function, Serializable {
 	}
 
 	public JamochaType getReturnType() {
-		return Constants.INTEGER_OBJECT;
+		return JamochaType.UNDEFINED;
 	}
 
 	public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
-		DefaultReturnVector ret = new DefaultReturnVector();
-		int index = -1;
+		JamochaValue result = JamochaValue.FALSE;
 		if (params != null && params.length == 2) {
-			Object first = params[0].getValue();
-            Object[] second = (Object[])params[1].getValue();
-			for (int idx=0; idx < second.length; idx++) {
-				if (first.equals(second[idx])) {
-					index = idx;
+			JamochaValue first = params[0].getValue(engine);
+            JamochaValue second = params[1].getValue(engine);
+            if(!second.getType().equals(JamochaType.LIST)) {
+            	throw new IllegalTypeException(JamochaType.LISTS, second.getType());
+            }
+			for (int idx=0; idx < second.getListCount(); idx++) {
+				if (first.equals(second.getListValue(idx))) {
+					result = new JamochaValue(JamochaType.LONG,++idx);
 					break;
 				}
 			}
 		}
-        if (index > -1) {
-            DefaultReturnValue rv = new DefaultReturnValue(Constants.INTEGER_OBJECT,
-                    new Integer(index));
-            ret.addReturnValue(rv);
-        } else {
-            DefaultReturnValue rv = new DefaultReturnValue(Constants.BOOLEAN_OBJECT,
-                    new Boolean(false));
-            ret.addReturnValue(rv);
-        }
-		return ret;
+		return result;
 	}
 
 	public String getName() {

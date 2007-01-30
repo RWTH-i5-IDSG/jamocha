@@ -17,77 +17,65 @@
 package org.jamocha.rete.functions;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
 
 import org.jamocha.parser.EvaluationException;
+import org.jamocha.parser.IllegalParameterException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.BoundParam;
-import org.jamocha.rete.Constants;
-import org.jamocha.rete.DefaultReturnValue;
-import org.jamocha.rete.DefaultReturnVector;
 import org.jamocha.rete.Deffact;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.SlotParam;
-import org.jamocha.rete.ValueParam;
 import org.jamocha.rete.exception.RetractException;
-
 
 public class RetractFunction implements Function, Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	public static final String RETRACT = "retract";
-	
+
 	public RetractFunction() {
 		super();
 	}
 
 	public JamochaType getReturnType() {
-		return Constants.RETURN_VOID_TYPE;
+		return JamochaType.BOOLEAN;
 	}
 
-	public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
-		DefaultReturnVector rv = new DefaultReturnVector();
+	public JamochaValue executeFunction(Rete engine, Parameter[] params)
+			throws EvaluationException {
+		JamochaValue result = JamochaValue.FALSE;
 		if (params != null && params.length >= 1) {
-			for (int idx=0; idx < params.length; idx++) {
-				if (params[idx] instanceof BoundParam) {
-					BoundParam bp = (BoundParam)params[idx];
-					Deffact fact = (Deffact)bp.getFact();
+			for (int idx = 0; idx < params.length; idx++) {
+				JamochaValue param = params[idx].getValue(engine);
+				if (param.is(JamochaType.FACT_ID)) {
+					long factId = param.getFactIdValue();
 					try {
-						if (bp.isObjectBinding()) {
+						engine.retractById(factId);
+						result = JamochaValue.TRUE;
+					} catch (RetractException e) {
+					}
+				} else if (param.getType().equals(JamochaType.FACT)) {
+					Deffact fact = (Deffact) param.getFactValue();
+					try {
+						if (params[idx].isObjectBinding()) {
 							engine.retractObject(fact.getObjectInstance());
 						} else {
 							engine.retractFact(fact);
 						}
-						DefaultReturnValue rval = 
-							new DefaultReturnValue(
-									Constants.BOOLEAN_OBJECT,new Boolean(true));
-						rv.addReturnValue(rval);
+						result = JamochaValue.TRUE;
 					} catch (RetractException e) {
-						DefaultReturnValue rval = 
-							new DefaultReturnValue(
-									Constants.BOOLEAN_OBJECT,new Boolean(false));
-						rv.addReturnValue(rval);
-					}
-				} else if (params[idx] instanceof ValueParam) {
-					BigDecimal bi = params[idx].getBigDecimalValue();
-					try {
-						engine.retractById(bi.longValue());
-						DefaultReturnValue rval = 
-							new DefaultReturnValue(
-									Constants.BOOLEAN_OBJECT,new Boolean(true));
-						rv.addReturnValue(rval);
-					} catch (RetractException e) {
-						DefaultReturnValue rval = 
-							new DefaultReturnValue(
-									Constants.BOOLEAN_OBJECT,new Boolean(false));
-						rv.addReturnValue(rval);
 					}
 				}
 			}
+		} else {
+			throw new IllegalParameterException(1, true);
 		}
-		return rv;
+		return result;
 	}
 
 	public String getName() {
@@ -95,13 +83,12 @@ public class RetractFunction implements Function, Serializable {
 	}
 
 	public Class[] getParameter() {
-		return new Class[] {BoundParam.class};
+		return new Class[] { BoundParam.class };
 	}
 
 	public String toPPString(Parameter[] params, int indents) {
-		return "(retract [?binding|fact-id])\n" +
-				"Function description:\n" +
-				"\tAllows the user to remove facts from the fact-list.";
+		return "(retract [?binding|fact-id])\n" + "Function description:\n"
+				+ "\tAllows the user to remove facts from the fact-list.";
 	}
 
 }

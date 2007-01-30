@@ -24,6 +24,8 @@ public enum JamochaType {
 	public static final JamochaType[] PRIMITIVES = new JamochaType[] { BOOLEAN,
 			LONG, DOUBLE, STRING };
 
+	public static final JamochaType[] LISTS = new JamochaType[] { LIST };
+
 	public static JamochaType getMappingType(Class clzz) {
 		if (clzz.isArray()) {
 			return LIST;

@@ -22,7 +22,6 @@ import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Constants;
-import org.jamocha.rete.DefaultReturnVector;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
@@ -30,6 +29,11 @@ import org.jamocha.rete.Rete;
 
 public class MemoryUsedFunction implements Function, Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
 	public static final String MEMORY_FREE = "mem-used";
 	
 	public MemoryUsedFunction() {
@@ -37,7 +41,7 @@ public class MemoryUsedFunction implements Function, Serializable {
 	}
 
 	public JamochaType getReturnType() {
-		return Constants.RETURN_VOID_TYPE;
+		return JamochaType.NIL;
 	}
 
 	public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
@@ -51,8 +55,7 @@ public class MemoryUsedFunction implements Function, Serializable {
 		engine.writeMessage(String.valueOf(used) + "Mb used of " +
 				String.valueOf(mbtotal) + "Mb " + 
 				Constants.LINEBREAK,"t");
-		DefaultReturnVector ret = new DefaultReturnVector();
-		return ret;
+		return JamochaValue.NIL;
 	}
 
 	public String getName() {

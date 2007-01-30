@@ -23,9 +23,6 @@ import java.util.Iterator;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.rete.Constants;
-import org.jamocha.rete.DefaultReturnValue;
-import org.jamocha.rete.DefaultReturnVector;
 import org.jamocha.rete.Deffact;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
@@ -42,6 +39,11 @@ import org.jamocha.rule.util.GenerateFacts;
  */
 public class TestRuleFunction implements Function, Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
 	public static final String TESTRULE = "test-rule";
 
 	/**
@@ -52,15 +54,14 @@ public class TestRuleFunction implements Function, Serializable {
 	}
 
 	public JamochaType getReturnType() {
-		return Constants.BOOLEAN_OBJECT;
+		return JamochaType.BOOLEAN;
 	}
 
 	public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
-		DefaultReturnVector ret = new DefaultReturnVector();
+		JamochaValue result = JamochaValue.FALSE;
 		if (params != null && params.length == 1) {
-			String rlz = params[0].getStringValue();
-			Defrule r = (Defrule)engine.getCurrentFocus().findRule(
-					params[0].getStringValue());
+			String rlz = params[0].getValue(engine).getStringValue();
+			Defrule r = (Defrule)engine.getCurrentFocus().findRule(rlz);
 			ArrayList facts = GenerateFacts.generateFacts(r,engine);
 			if (facts.size() > 0) {
 				try {
@@ -76,15 +77,13 @@ public class TestRuleFunction implements Function, Serializable {
 					}
 					engine.fire();
 					engine.setUnWatch(Rete.WATCH_ALL);
+					result = JamochaValue.TRUE;
 				} catch (AssertException e) {
 					e.printStackTrace();
 				}
 			}
 		}
-		DefaultReturnValue rv = new DefaultReturnValue(
-				Constants.BOOLEAN_OBJECT, new Boolean(true));
-		ret.addReturnValue(rv);
-		return ret;
+		return result;
 	}
 
 	public String getName() {

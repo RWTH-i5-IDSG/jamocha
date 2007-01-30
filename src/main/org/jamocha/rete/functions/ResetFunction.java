@@ -21,8 +21,6 @@ import java.io.Serializable;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.rete.Constants;
-import org.jamocha.rete.DefaultReturnVector;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
@@ -36,6 +34,11 @@ import org.jamocha.rete.Rete;
  */
 public class ResetFunction implements Function, Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
 	public static final String RESET = "reset";
 	
 	/**
@@ -49,7 +52,7 @@ public class ResetFunction implements Function, Serializable {
 	 * the function does not return anything
 	 */
 	public JamochaType getReturnType() {
-        return Constants.RETURN_VOID_TYPE;
+        return JamochaType.NIL;
 	}
 
 	/**
@@ -58,7 +61,7 @@ public class ResetFunction implements Function, Serializable {
 	 */
 	public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
 		engine.resetAll();
-		return new DefaultReturnVector();
+		return JamochaValue.NIL;
 	}
 
 	public String getName() {

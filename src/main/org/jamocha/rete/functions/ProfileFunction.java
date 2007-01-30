@@ -21,8 +21,6 @@ import java.io.Serializable;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.rete.Constants;
-import org.jamocha.rete.DefaultReturnVector;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
@@ -38,7 +36,12 @@ import org.jamocha.rete.ValueParam;
  */
 public class ProfileFunction implements Function, Serializable {
 
-    public static final String PROFILE = "profile";
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
+	public static final String PROFILE = "profile";
     
 	/**
 	 * 
@@ -48,29 +51,29 @@ public class ProfileFunction implements Function, Serializable {
 	}
 
 	public JamochaType getReturnType() {
-		return Constants.RETURN_VOID_TYPE;
+		return JamochaType.NIL;
 	}
 
 	public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
         if (params != null && params.length > 0) {
             for (int idx=0; idx < params.length; idx++) {
-                if (params[idx].getStringValue().equals("all")) {
+            	JamochaValue param = params[idx].getValue(engine);
+                if (param.getIdentifierValue().equals("all")) {
                     engine.setProfile(Rete.PROFILE_ALL);
-                } else if (params[idx].getStringValue().equals("assert-fact")) {
+                } else if (param.getIdentifierValue().equals("assert-fact")) {
                     engine.setProfile(Rete.PROFILE_ASSERT);
-                } else if (params[idx].getStringValue().equals("add-activation")) {
+                } else if (param.getIdentifierValue().equals("add-activation")) {
                     engine.setProfile(Rete.PROFILE_ADD_ACTIVATION);
-                } else if (params[idx].getStringValue().equals("fire")) {
+                } else if (param.getIdentifierValue().equals("fire")) {
                     engine.setProfile(Rete.PROFILE_FIRE);
-                } else if (params[idx].getStringValue().equals("retract-fact")) {
+                } else if (param.getIdentifierValue().equals("retract-fact")) {
                     engine.setProfile(Rete.PROFILE_RETRACT);
-                } else if (params[idx].getStringValue().equals("remove-activation")) {
+                } else if (param.getIdentifierValue().equals("remove-activation")) {
                     engine.setProfile(Rete.PROFILE_RM_ACTIVATION);
                 }
             }
         }
-        DefaultReturnVector ret = new DefaultReturnVector();
-        return ret;
+        return JamochaValue.NIL;
 	}
 
 	public String getName() {

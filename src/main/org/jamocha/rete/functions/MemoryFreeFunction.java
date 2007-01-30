@@ -22,7 +22,6 @@ import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Constants;
-import org.jamocha.rete.DefaultReturnVector;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
@@ -30,6 +29,11 @@ import org.jamocha.rete.Rete;
 
 public class MemoryFreeFunction implements Function, Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
 	public static final String MEMORY_FREE = "mem-free";
 	
 	public MemoryFreeFunction() {
@@ -37,7 +41,7 @@ public class MemoryFreeFunction implements Function, Serializable {
 	}
 
 	public JamochaType getReturnType() {
-		return Constants.RETURN_VOID_TYPE;
+		return JamochaType.NIL;
 	}
 
 	public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
@@ -53,8 +57,7 @@ public class MemoryFreeFunction implements Function, Serializable {
 				freestr + "% free of " +
 				String.valueOf(mbtotal) + "Mb / " + String.valueOf(total) + "Kb " + 
 				Constants.LINEBREAK,"t");
-		DefaultReturnVector ret = new DefaultReturnVector();
-		return ret;
+		return JamochaValue.NIL;
 	}
 
 	public String getName() {

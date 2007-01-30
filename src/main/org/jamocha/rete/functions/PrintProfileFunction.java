@@ -22,7 +22,6 @@ import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Constants;
-import org.jamocha.rete.DefaultReturnVector;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
@@ -36,7 +35,12 @@ import org.jamocha.rete.util.ProfileStats;
  */
 public class PrintProfileFunction implements Function, Serializable {
 
-    public static final String PRINT_PROFILE = "print-profile";
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
+	public static final String PRINT_PROFILE = "print-profile";
     
 	/**
 	 * 
@@ -46,7 +50,7 @@ public class PrintProfileFunction implements Function, Serializable {
 	}
 
 	public JamochaType getReturnType() {
-		return Constants.RETURN_VOID_TYPE;
+		return JamochaType.NIL;
 	}
 
 	public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
@@ -64,8 +68,7 @@ public class PrintProfileFunction implements Function, Serializable {
                 Constants.LINEBREAK,"t");
         engine.writeMessage("Activation removed=" + ProfileStats.rmcount +
                 Constants.LINEBREAK,"t");
-        DefaultReturnVector ret = new DefaultReturnVector();
-        return ret;
+        return JamochaValue.NIL;
 	}
 
 	public String getName() {

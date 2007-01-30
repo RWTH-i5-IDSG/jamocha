@@ -21,9 +21,6 @@ import java.io.Serializable;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.rete.Constants;
-import org.jamocha.rete.DefaultReturnValue;
-import org.jamocha.rete.DefaultReturnVector;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
@@ -36,6 +33,11 @@ import org.jamocha.rete.ValueParam;
  */
 public class LoadFunctionsFunction implements Function, Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
 	public static final String LOAD_FUNCTION = "load-function";
 	
 	public LoadFunctionsFunction() {
@@ -43,27 +45,22 @@ public class LoadFunctionsFunction implements Function, Serializable {
 	}
 
 	public JamochaType getReturnType() {
-		return Constants.BOOLEAN_OBJECT;
+		return JamochaType.BOOLEAN;
 	}
 
 	public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
-		boolean load = false;
+		JamochaValue result = JamochaValue.FALSE;
 		if (params != null && params.length > 0) {
 			for (int idx=0; idx < params.length; idx++) {
-				String func = params[idx].getStringValue();
+				String func = params[idx].getValue(engine).getStringValue();
                 try {
                     engine.declareFunction(func);
-                    load = true;
+                    result = JamochaValue.TRUE;
                 } catch (ClassNotFoundException e) {
-                    load = false;
                 }
 			}
 		}
-		DefaultReturnVector ret = new DefaultReturnVector();
-		DefaultReturnValue rv = new DefaultReturnValue(
-				Constants.BOOLEAN_OBJECT, new Boolean(load));
-		ret.addReturnValue(rv);
-		return ret;
+		return result;
 	}
 
 	public String getName() {
