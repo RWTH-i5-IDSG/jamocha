@@ -57,6 +57,7 @@ import org.jamocha.gui.JamochaGui;
 import org.jamocha.gui.icons.IconLoader;
 import org.jamocha.messagerouter.MessageEvent;
 import org.jamocha.messagerouter.StreamChannel;
+import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Constants;
 
 /**
@@ -410,7 +411,7 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 							}
 							if (event.getType() != MessageEvent.COMMAND
 									&& !event.getMessage().toString()
-											.equals("")) {
+											.equals("") && !event.getMessage().equals(JamochaValue.NIL)) {
 								buffer.append(event.getMessage().toString()
 										.trim()
 										+ System.getProperty("line.separator"));

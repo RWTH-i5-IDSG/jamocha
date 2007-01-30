@@ -22,6 +22,7 @@ import java.util.List;
 import org.jamocha.messagerouter.MessageEvent;
 import org.jamocha.messagerouter.MessageRouter;
 import org.jamocha.messagerouter.StreamChannel;
+import org.jamocha.parser.JamochaValue;
 
 public class Shell {
 
@@ -51,11 +52,15 @@ public class Shell {
 							|| event.getType() == MessageEvent.RESULT) {
 						printPrompt = true;
 					}
-					if( event.getType() == MessageEvent.ERROR) {
-						System.out.println(exceptionToString((Exception)event.getMessage()).trim());
+					if (event.getType() == MessageEvent.ERROR) {
+						System.out.println(exceptionToString(
+								(Exception) event.getMessage()).trim());
 					}
-					if (event.getType() != MessageEvent.COMMAND && !event.getMessage().toString().equals("")) {
-						System.out.print(event.getMessage().toString());
+					if (event.getType() != MessageEvent.COMMAND) {
+						if (!event.getMessage().toString().equals("")
+								&& !event.getMessage().equals(JamochaValue.NIL)) {
+							System.out.print(event.getMessage().toString());
+						}
 					}
 				}
 				msgEvents.clear();
@@ -73,10 +78,10 @@ public class Shell {
 			}
 		}
 	}
-	
+
 	/**
-	 * Converts an Exception to a String namely turns the StackTrace to
-	 * a String.
+	 * Converts an Exception to a String namely turns the StackTrace to a
+	 * String.
 	 * 
 	 * @param exception
 	 *            The Exception
