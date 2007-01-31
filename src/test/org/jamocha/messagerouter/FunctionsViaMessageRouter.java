@@ -14,7 +14,7 @@
  * limitations under the License.
  * 
  */
-package org.jamocha.messagerouter;
+package test.org.jamocha.messagerouter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -275,7 +275,7 @@ public class FunctionsViaMessageRouter extends TestCase{
 		StringChannel stringChannel = router.openChannel("TestChannel");
 		List<MessageEvent> messages = new ArrayList<MessageEvent>();
 		
-		int loop = 10;
+		int loop = 2;
 		for (int i = 1; i <= loop; ++i) {
 			stringChannel.executeCommand("(deftemplate ass_tst" + i + "(slot name)(slot size))");
 					
@@ -304,7 +304,6 @@ public class FunctionsViaMessageRouter extends TestCase{
 			}
 		} while (!messages.isEmpty());
 
-		loop = 10;
 		for (int i = 1; i <= loop; ++i) {
 			stringChannel.executeCommand("(assert(ass_tst" + i + "(name tst" + i
 					+ ")(size " + i + ")))");
