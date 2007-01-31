@@ -139,8 +139,10 @@ public class BoundParam extends AbstractParam {
      * method will try to resolve the variable and return the value.
      */
     public JamochaValue getValue(Rete engine) throws EvaluationException {
-        if (fact != null) {
+        if (fact != null && !this.objBinding) {
             return this.fact.getSlotValue(this.column);
+        } else if (fact != null) {
+            return new JamochaValue(this.fact);
         } else {
             return engine.getBinding(this.variableName);
         }
