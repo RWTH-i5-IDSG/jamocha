@@ -172,8 +172,9 @@ public abstract class Shape extends Primitive{
 	protected Point calculateTextPosition(String text, Graphics g, int width, int height) {
 		int stringHeight=(int)g.getFontMetrics().getLineMetrics(text,g).getHeight();
 		int stringWidth=g.getFontMetrics().stringWidth(text);
-		int xpos=(width-stringWidth)/2;
-		int ypos=(height+stringHeight)/2;
+		int xpos=(int)Math.round((width-stringWidth)*0.5);
+		int ypos=(int)Math.round((height+stringHeight)*0.5*0.845);
+		
 		return new Point(xpos,ypos);
 	}
 

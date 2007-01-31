@@ -84,17 +84,14 @@ public class Ellipse extends Shape {
 		//TODO: That calculation is NOT correct! That leads to wrong angles
 		//      in the visualiser. looks not sooo good, but not that problem
 		//      for now ;)
-		double t1=1.0/( Math.pow(width/2.0,2) );
-		double t2=  Math.pow( Math.tan(angle) ,2)  / Math.pow(height/2.0, 2);
-		double t3=1/(t1+t2);
-		double t4=Math.sqrt(t3); // this is x (relative to centre)
-		double t5=Math.pow(t4, 2) /Math.pow(width/2.0,2);
-		double t6=1.0-t5;
-		double t7=t6/Math.pow(height/2.0, 2);
-		double t8=Math.sqrt(t7);  // this is y (relative to centre)
+		//double r=Math.atan( Math.tan(angle) * ((double)width/(double)height));
+		double r=Math.atan2( Math.sin(angle)*width, Math.cos(angle)*height   );
+		double xrel=Math.cos(r)*width/2.0;
+		double yrel=Math.sin(r)*height/2.0;
 		
-		result.x=(int)Math.round( t4+x+(width*0.5)    );
-		result.y=(int)Math.round( -t8+y+(height*0.5)  );
+		
+		result.x=(int)Math.round( xrel+x+(width*0.5)    );
+		result.y=(int)Math.round( -yrel+y+(height*0.5)  );
 		return result;
 	}
 }
