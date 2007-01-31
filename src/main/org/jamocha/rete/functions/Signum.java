@@ -1,5 +1,5 @@
 /*
- * Copyright 2006 Nikolaus Koemm
+ * Copyright 2006 Alexander Wilden
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,10 +29,10 @@ import org.jamocha.rete.Rete;
 import org.jamocha.rete.ValueParam;
 
 /**
- * @author Nikolaus Koemm
+ * @author Alexander Wilden
  * 
- * Radians converts an angle measured in degrees to an approximately equivalent
- * angle measured in radians.
+ * Signum returns -1.0 if the argument is negativ, 1.0 if the argument is
+ * positive and 0 if the argument is 0.
  */
 public class Signum implements Function, Serializable {
 
