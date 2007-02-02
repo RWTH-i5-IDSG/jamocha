@@ -293,16 +293,8 @@ public class HashedNotEqBNode extends BaseJoin {
      * @return
      */
     public boolean evaluate(Fact left, int leftId, Fact right, int rightId, int op){
-    	if (op == Constants.EQUAL) {
-            return Evaluate.evaluateEqual(left.getSlotValue(leftId),
-                    right.getSlotValue(rightId));
-    	} else if (op == Constants.NOTEQUAL) {
-            return Evaluate.evaluateNotEqual(left.getSlotValue(leftId),
-                    right.getSlotValue(rightId));
-    	} else {
-            return Evaluate.evaluate(op,left.getSlotValue(leftId),
-                    right.getSlotValue(rightId));
-    	}
+        return Evaluate.evaluate(op, left.getSlotValue(leftId), right
+                .getSlotValue(rightId));
     }
     
     /**

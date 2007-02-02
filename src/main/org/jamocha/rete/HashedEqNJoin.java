@@ -277,14 +277,9 @@ public class HashedEqNJoin extends BaseJoin {
      * @param rightId
      * @return
      */
-    public boolean evaluate(Fact left, int leftId, Fact right, int rightId, int opr){
-        if (opr == Constants.NOTEQUAL) {
-            return Evaluate.evaluateNotEqual(left.getSlotValue(leftId),
-                    right.getSlotValue(rightId));
-        } else {
-            return Evaluate.evaluateEqual(left.getSlotValue(leftId),
-                    right.getSlotValue(rightId));
-        }
+    public boolean evaluate(Fact left, int leftId, Fact right, int rightId, int op){
+        return Evaluate.evaluate(op, left.getSlotValue(leftId), right
+                .getSlotValue(rightId));
     }
     
     /**
