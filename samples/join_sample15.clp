@@ -41,8 +41,8 @@
 =>
   (printout t "joinrule2 was fired" )
 )
-(assert (transaction (accountId "acc1")(countryCode "US")(total 1298.00)(cusip 10101015)(issuer "MSFT") ) )
 (assert (rating (cusip 10101025)(issuer "MSFT") ) )
-(assert (transaction (accountId "acc1")(countryCode "US")(total 1298.00)(cusip 10101010)(issuer "IBM") ) )
 (assert (rating (cusip 10101020)(issuer "IBM") ) )
+(assert (transaction (accountId "acc1")(countryCode "US")(total 1298.00)(cusip 10101015)(issuer "MSFT") ) )
+(assert (transaction (accountId "acc1")(countryCode "US")(total 1298.00)(cusip 10101010)(issuer "IBM") ) )
 (assert (account (accountId "acc1")(cash 1200000) ) )
