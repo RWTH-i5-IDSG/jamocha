@@ -48,10 +48,10 @@ public class LinkedActivation implements Activation {
 	/**
 	 * 
 	 */
-	public LinkedActivation(Rule rule, Index index) {
+	public LinkedActivation(Rule rule, Index inx) {
 		super();
 		this.theRule = rule;
-		this.index = index;
+		this.index = inx;
 		this.timetag = System.nanoTime();
         calculateTime(index.getFacts());
 	}

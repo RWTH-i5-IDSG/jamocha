@@ -53,8 +53,8 @@ public class TerminalNode2 extends TerminalNode {
 	 * @param facts
 	 * @param engine
 	 */
-	public void assertFacts(Index facts, Rete engine, WorkingMemory mem) {
-		LinkedActivation act = new LinkedActivation(this.theRule, facts);
+	public void assertFacts(Index inx, Rete engine, WorkingMemory mem) {
+		LinkedActivation act = new LinkedActivation(this.theRule, inx);
 		act.setTerminalNode(this);
 		Map tmem = (Map) mem.getTerminalMemory(this);
 		tmem.put(act.getIndex(), act);

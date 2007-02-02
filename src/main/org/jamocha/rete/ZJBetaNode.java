@@ -101,23 +101,22 @@ public class ZJBetaNode extends BaseJoin {
 	public void assertRight(Fact rfact, Rete engine, WorkingMemory mem)
 			throws AssertException {
 		Map rightmem = (Map) mem.getBetaRightMemory(this);
-		Index inx = new Index(new Fact[] { rfact });
-			rightmem.put(inx, rfact);
-			// now that we've added the facts to the list, we
-			// proceed with evaluating the fact
-			// else we compare the fact to all facts in the left
-			Map leftmem = (Map) mem.getBetaLeftMemory(this);
-			// since there may be key collisions, we iterate over the
-			// values of the HashMap. If we used keySet to iterate,
-			// we could encounter a ClassCastException in the case of
-			// key collision.
-			Iterator itr = leftmem.values().iterator();
-			while (itr.hasNext()) {
-				BetaMemory bmem = (BetaMemory) itr.next();
-				// now we propogate
-				this.propogateAssert(bmem.getIndex().add(rfact), engine, mem);
-			}
-
+        Index inx = new Index(new Fact[] { rfact });
+        rightmem.put(inx, rfact);
+        // now that we've added the facts to the list, we
+        // proceed with evaluating the fact
+        // else we compare the fact to all facts in the left
+        Map leftmem = (Map) mem.getBetaLeftMemory(this);
+        // since there may be key collisions, we iterate over the
+        // values of the HashMap. If we used keySet to iterate,
+        // we could encounter a ClassCastException in the case of
+        // key collision.
+        Iterator itr = leftmem.values().iterator();
+        while (itr.hasNext()) {
+            BetaMemory bmem = (BetaMemory) itr.next();
+            // now we propogate
+            this.propogateAssert(bmem.getIndex().add(rfact), engine, mem);
+        }
 	}
 
 	/**

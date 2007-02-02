@@ -55,9 +55,8 @@ public class TerminalNode extends BaseNode {
 	 * @param idx
 	 * @param engine
 	 */
-	public void assertFacts(Index idx, Rete engine, WorkingMemory mem) {
-		engine.assertEvent(this, idx.getFacts());
-		Activation act = new BasicActivation(this.theRule, idx);
+	public void assertFacts(Index inx, Rete engine, WorkingMemory mem) {
+		Activation act = new BasicActivation(this.theRule, inx);
 		engine.getAgenda().addActivation(act);
 	}
 
@@ -68,8 +67,8 @@ public class TerminalNode extends BaseNode {
 	 * @param idx
 	 * @param engine
 	 */
-	public void retractFacts(Index idx, Rete engine, WorkingMemory mem) {
-		Activation act = new BasicActivation(this.theRule, idx);
+	public void retractFacts(Index inx, Rete engine, WorkingMemory mem) {
+		Activation act = new BasicActivation(this.theRule, inx);
 		engine.getAgenda().removeActivation(act);
 	}
 

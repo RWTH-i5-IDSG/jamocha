@@ -150,8 +150,7 @@ public class HashedEqNJoin extends BaseJoin {
 		Iterator itr = leftmem.values().iterator();
 		while (itr.hasNext()) {
 			BetaMemory bmem = (BetaMemory) itr.next();
-			Fact[] lfcts = bmem.getLeftFacts();
-			if (this.evaluate(lfcts, rfact)) {
+			if (this.evaluate(bmem.getLeftFacts(), rfact)) {
 				if (prevCount == 0 && after != 0) {
 					// we have to retract
 					try {

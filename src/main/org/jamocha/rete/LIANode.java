@@ -60,7 +60,7 @@ public class LIANode extends BaseAlpha {
     throws AssertException
     {
         for (int idx=0; idx < this.successorNodes.length; idx++) {
-            Object nNode = this.successorNodes[idx];
+            BaseNode nNode = this.successorNodes[idx];
             if (nNode instanceof BaseJoin) {
             	BaseJoin next = (BaseJoin) nNode;
                 Fact[] newf = {fact};
@@ -96,7 +96,7 @@ public class LIANode extends BaseAlpha {
     throws RetractException
     {
         for (int idx=0; idx < this.successorNodes.length; idx++) {
-            Object nNode = this.successorNodes[idx];
+            BaseNode nNode = this.successorNodes[idx];
             if (nNode instanceof BaseJoin) {
             	BaseJoin next = (BaseJoin) nNode;
                 Fact[] newf = {fact};
