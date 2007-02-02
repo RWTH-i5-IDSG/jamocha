@@ -198,8 +198,8 @@ public class ConversionUtils {
      * @param nobj
      * @return
      */
-    public static Object[] add(Object[] list, Object nobj) {
-    	Object[] newlist = new Object[list.length + 1];
+    public static BaseNode[] add(BaseNode[] list, BaseNode nobj) {
+        BaseNode[] newlist = new BaseNode[list.length + 1];
     	System.arraycopy(list,0,newlist,0,list.length);
     	newlist[list.length] = nobj;
     	return newlist;
@@ -211,8 +211,8 @@ public class ConversionUtils {
      * @param nobj
      * @return
      */
-    public static Object[] remove(Object[] list, Object nobj) {
-    	Object[] newlist = new Object[list.length - 1];
+    public static BaseNode[] remove(BaseNode[] list, BaseNode nobj) {
+        BaseNode[] newlist = new BaseNode[list.length - 1];
     	int pos = 0;
     	for (int idx=0; idx < list.length; idx++) {
     		if (list[idx] != nobj) {

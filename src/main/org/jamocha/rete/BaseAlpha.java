@@ -108,7 +108,7 @@ public abstract class BaseAlpha extends BaseNode {
     throws RetractException
     {
         for (int idx=0; idx < this.successorNodes.length; idx++) {
-            Object nNode = this.successorNodes[idx];
+            BaseNode nNode = this.successorNodes[idx];
             if (nNode instanceof BaseAlpha) {
                 BaseAlpha next = (BaseAlpha) nNode;
                 next.retractFact(fact,engine,mem);
@@ -133,7 +133,7 @@ public abstract class BaseAlpha extends BaseNode {
     throws AssertException
     {
         for (int idx=0; idx < this.successorNodes.length; idx++) {
-            Object nNode = this.successorNodes[idx];
+            BaseNode nNode = this.successorNodes[idx];
             if (nNode instanceof BaseAlpha) {
                 BaseAlpha next = (BaseAlpha) nNode;
                 next.assertFact(fact, engine, mem);

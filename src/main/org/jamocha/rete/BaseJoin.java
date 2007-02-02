@@ -164,7 +164,7 @@ public abstract class BaseJoin extends BaseNode {
 	protected void propogateAssert(Fact[] facts, Rete engine, WorkingMemory mem)
 			throws AssertException {
         for (int idx=0; idx < this.successorNodes.length; idx++) {
-			Object node = this.successorNodes[idx];
+            BaseNode node = this.successorNodes[idx];
 			if (node instanceof BaseJoin) {
 				((BaseJoin) node).assertLeft(facts, engine, mem);
 			} else if (node instanceof TerminalNode) {
@@ -181,7 +181,7 @@ public abstract class BaseJoin extends BaseNode {
 	protected void propogateRetract(Fact[] facts, Rete engine, WorkingMemory mem)
 			throws RetractException {
         for (int idx=0; idx < this.successorNodes.length; idx++) {
-            Object node = this.successorNodes[idx];
+            BaseNode node = this.successorNodes[idx];
 			if (node instanceof BaseJoin) {
 				((BaseJoin) node).retractLeft(facts, engine, mem);
 			} else if (node instanceof TerminalNode) {

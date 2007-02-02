@@ -31,7 +31,7 @@ public abstract class BaseNode implements Serializable {
     /**
      * We use an object Array to keep things efficient
      */
-    protected Object[] successorNodes = new Object[0];
+    protected BaseNode[] successorNodes = new BaseNode[0];
     
 	/**
 	 * The useCount is used to keep track of how many times
