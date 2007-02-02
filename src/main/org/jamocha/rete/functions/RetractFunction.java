@@ -52,7 +52,7 @@ public class RetractFunction implements Function, Serializable {
 		if (params != null && params.length >= 1) {
 			for (int idx = 0; idx < params.length; idx++) {
 				JamochaValue param = params[idx].getValue(engine);
-				if (param.is(JamochaType.FACT_ID)) {
+				if (param.is(JamochaType.FACT_ID) || param.is(JamochaType.LONG)) {
 					long factId = param.getFactIdValue();
 					try {
 						engine.retractById(factId);
