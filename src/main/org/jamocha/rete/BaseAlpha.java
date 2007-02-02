@@ -119,7 +119,7 @@ public abstract class BaseAlpha extends BaseNode {
                 next.retractRight(fact,engine,mem);
             } else if (nNode instanceof TerminalNode) {
             	Fact[] facts = new Fact[]{fact};
-            	((TerminalNode)nNode).retractFacts(facts,engine,mem);
+            	((TerminalNode)nNode).retractFacts(new Index(facts),engine,mem);
             }
         }
     }
@@ -142,7 +142,7 @@ public abstract class BaseAlpha extends BaseNode {
                 next.assertRight(fact,engine,mem);
             } else if (nNode instanceof TerminalNode) {
                 TerminalNode next = (TerminalNode)nNode;
-                next.assertFacts(new Fact[]{fact},engine,mem);
+                next.assertFacts(new Index(new Fact[]{fact}),engine,mem);
             }
         }
     }
@@ -170,7 +170,7 @@ public abstract class BaseAlpha extends BaseNode {
                         next.assertRight((Fact)itr.next(),engine,mem);
                     } else if (node instanceof TerminalNode) {
                     	TerminalNode next = (TerminalNode)node;
-                    	next.assertFacts(new Fact[]{(Fact)itr.next()},engine,mem);
+                    	next.assertFacts(new Index(new Fact[]{(Fact)itr.next()}),engine,mem);
                     }
                 }
             }

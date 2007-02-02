@@ -74,10 +74,9 @@ public class ZJBetaNode extends BaseJoin {
 	 * @param factInstance
 	 * @param engine
 	 */
-	public void assertLeft(Fact[] lfacts, Rete engine, WorkingMemory mem)
+	public void assertLeft(Index inx, Rete engine, WorkingMemory mem)
 			throws AssertException {
 		Map leftmem = (Map) mem.getBetaLeftMemory(this);
-		Index inx = new Index(lfacts);
 
 		// we create a new list for storing the matches.
 		// any fact that isn't in the list will be evaluated.
@@ -88,8 +87,7 @@ public class ZJBetaNode extends BaseJoin {
 		while (itr.hasNext()) {
 			Fact rfcts = (Fact) itr.next();
 			// now we propogate
-			Fact[] merged = ConversionUtils.mergeFacts(lfacts, rfcts);
-			this.propogateAssert(merged, engine, mem);
+			this.propogateAssert(inx.add(rfcts), engine, mem);
 		}
 
 	}
@@ -116,10 +114,8 @@ public class ZJBetaNode extends BaseJoin {
 			Iterator itr = leftmem.values().iterator();
 			while (itr.hasNext()) {
 				BetaMemory bmem = (BetaMemory) itr.next();
-				Fact[] lfcts = bmem.getLeftFacts();
 				// now we propogate
-				Fact[] merged = ConversionUtils.mergeFacts(lfcts, rfact);
-				this.propogateAssert(merged, engine, mem);
+				this.propogateAssert(bmem.getIndex().add(rfact), engine, mem);
 			}
 
 	}
@@ -129,9 +125,8 @@ public class ZJBetaNode extends BaseJoin {
 	 * @param factInstance
 	 * @param engine
 	 */
-	public void retractLeft(Fact[] lfacts, Rete engine, WorkingMemory mem)
+	public void retractLeft(Index linx, Rete engine, WorkingMemory mem)
 			throws RetractException {
-		Index linx = new Index(lfacts);
 		Map leftmem = (Map) mem.getBetaLeftMemory(this);
 		if (leftmem.containsKey(linx)) {
 			// the left memory contains the fact array, so we 
@@ -140,15 +135,10 @@ public class ZJBetaNode extends BaseJoin {
 			Map rightmem = (Map) mem.getBetaRightMemory(this);
 			Iterator itr = rightmem.values().iterator();
 			while (itr.hasNext()) {
-				Fact[] merged = ConversionUtils.mergeFacts(lfacts, (Fact) itr
-						.next());
-				propogateRetract(merged, engine, mem);
+				propogateRetract(linx.add((Fact) itr
+						.next()), engine, mem);
 			}
 			bmem.clear();
-			bmem = null;
-			linx.clear();
-		} else {
-			linx.clear();
 		}
 	}
 
@@ -172,14 +162,9 @@ public class ZJBetaNode extends BaseJoin {
 			Iterator itr = leftmem.values().iterator();
 			while (itr.hasNext()) {
 				BetaMemory bmem = (BetaMemory) itr.next();
-				Fact[] lfcts = bmem.getLeftFacts();
 				// now we propogate
-				Fact[] merged = ConversionUtils.mergeFacts(lfcts, rfact);
-				propogateRetract(merged, engine, mem);
+				propogateRetract(bmem.getIndex().add(rfact), engine, mem);
 			}
-			inx.clear();
-		} else {
-			inx.clear();
 		}
 	}
 

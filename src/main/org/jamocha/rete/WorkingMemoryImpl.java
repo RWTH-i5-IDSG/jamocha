@@ -388,7 +388,6 @@ public class WorkingMemoryImpl implements WorkingMemory {
 					Index indx = (Index) bmitr.next();
 					BetaMemory betamem = (BetaMemory) lmem.get(indx);
 					betamem.clear();
-					indx.clear();
 				}
 				lmem.clear();
 			}
@@ -401,11 +400,6 @@ public class WorkingMemoryImpl implements WorkingMemory {
 				((HashedAlphaMemoryImpl) val).clear();
 			} else {
 				Map mem = (Map) val;
-				Iterator kitr = mem.keySet().iterator();
-				while (kitr.hasNext()) {
-					Index indx = (Index) kitr.next();
-					indx.clear();
-				}
 				mem.clear();
 			}
 		}

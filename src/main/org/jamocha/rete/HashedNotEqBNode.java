@@ -114,17 +114,16 @@ public class HashedNotEqBNode extends BaseJoin {
      * @param factInstance
      * @param engine
      */
-    public void assertLeft(Fact[] lfacts, Rete engine, WorkingMemory mem) 
+    public void assertLeft(Index linx, Rete engine, WorkingMemory mem) 
     throws AssertException
     {
         Map leftmem = (Map) mem.getBetaLeftMemory(this);
-		Index linx = new Index(lfacts);
 
 		BetaMemory bmem = new BetaMemoryImpl2(linx);
 		leftmem.put(bmem.getIndex(), bmem);
 		// need to think the getLeftValues through better to
 		// account for cases when a join has no bindings
-		NotEqHashIndex2 inx = new NotEqHashIndex2(getLeftValues(lfacts));
+		NotEqHashIndex2 inx = new NotEqHashIndex2(getLeftValues(linx.getFacts()));
 		HashedAlphaMemory2 rightmem = (HashedAlphaMemory2) mem
 				.getBetaRightMemory(this);
 		Object[] objs = rightmem.iterator(inx);
@@ -132,8 +131,7 @@ public class HashedNotEqBNode extends BaseJoin {
 			for (int idx = 0; idx < objs.length; idx++) {
 				Fact rfcts = (Fact) objs[idx];
 				// now we propogate
-				Fact[] merged = ConversionUtils.mergeFacts(lfacts, rfcts);
-				this.propogateAssert(merged, engine, mem);
+				this.propogateAssert(linx.add(rfcts), engine, mem);
 			}
 		}
     }
@@ -167,8 +165,7 @@ public class HashedNotEqBNode extends BaseJoin {
 			Fact[] lfcts = bmem.getLeftFacts();
 			if (this.evaluate(lfcts, rfact)) {
 				// now we propogate
-				Fact[] merged = ConversionUtils.mergeFacts(lfcts, rfact);
-				this.propogateAssert(merged, engine, mem);
+				this.propogateAssert(bmem.getIndex().add(rfact), engine, mem);
 			}
 		}
     }
@@ -179,23 +176,18 @@ public class HashedNotEqBNode extends BaseJoin {
 	 * @param factInstance
 	 * @param engine
 	 */
-    public void retractLeft(Fact[] lfacts, Rete engine, WorkingMemory mem)
+    public void retractLeft(Index linx, Rete engine, WorkingMemory mem)
     throws RetractException
     {
-        Index linx = new Index(lfacts);
         Map leftmem = (Map)mem.getBetaLeftMemory(this);
         if (leftmem.containsKey(linx)){
-    		NotEqHashIndex2 eqinx = new NotEqHashIndex2(getLeftValues(lfacts));
+    		NotEqHashIndex2 eqinx = new NotEqHashIndex2(getLeftValues(linx.getFacts()));
     		HashedAlphaMemory2 rightmem = (HashedAlphaMemory2) mem
     				.getBetaRightMemory(this);
     		Object[] objs = rightmem.iterator(eqinx);
             for (int idx=0; idx < objs.length; idx++){
-                Fact[] merged = ConversionUtils.mergeFacts(lfacts,(Fact)objs[idx]);
-                propogateRetract(merged,engine,mem);
+                propogateRetract(linx.add((Fact)objs[idx]),engine,mem);
             }
-            linx.clear();
-        } else {
-        	linx.clear();
         }
     }
     
@@ -223,9 +215,7 @@ public class HashedNotEqBNode extends BaseJoin {
                 if (this.evaluate(bmem.getLeftFacts(), rfact)){
                     // it matched, so we need to retract it from
                     // succeeding nodes
-                    Fact[] merged = 
-                        ConversionUtils.mergeFacts(bmem.getLeftFacts(),rfact);
-                    propogateRetract(merged,engine,mem);
+                    propogateRetract(bmem.getIndex().add(rfact),engine,mem);
                 }
             }
         } else {

@@ -28,5 +28,4 @@ import java.io.Serializable;
 public interface HashIndex extends Serializable {
 	boolean equals(Object obj);
 	int hashCode();
-	void clear();
 }

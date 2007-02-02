@@ -111,17 +111,16 @@ public class HashedEqBNode extends BaseJoin {
      * @param factInstance
      * @param engine
      */
-    public void assertLeft(Fact[] lfacts, Rete engine, WorkingMemory mem)
+    public void assertLeft(Index linx, Rete engine, WorkingMemory mem)
             throws AssertException {
         Map leftmem = (Map) mem.getBetaLeftMemory(this);
-        Index linx = new Index(lfacts);
         BetaMemory bmem = new BetaMemoryImpl2(linx);
         // we expect the fact hasn't already entered the node
         // and the RETE network is generated correctly. If it
         // isn't, it could cause the same facts to enter the
         // node multiple times and have negative effects.
         leftmem.put(bmem.getIndex(), bmem);
-        EqHashIndex inx = new EqHashIndex(getLeftValues(lfacts));
+        EqHashIndex inx = new EqHashIndex(getLeftValues(linx.getFacts()));
         HashedAlphaMemoryImpl rightmem = (HashedAlphaMemoryImpl) mem
                 .getBetaRightMemory(this);
         Iterator itr = rightmem.iterator(inx);
@@ -129,8 +128,7 @@ public class HashedEqBNode extends BaseJoin {
             while (itr.hasNext()) {
                 Fact vl = (Fact) itr.next();
                 if (vl != null) {
-                    Fact[] merged = ConversionUtils.mergeFacts(lfacts, vl);
-                    this.propogateAssert(merged, engine, mem);
+                    this.propogateAssert(linx.add(vl), engine, mem);
                 }
             }
         }
@@ -163,8 +161,7 @@ public class HashedEqBNode extends BaseJoin {
             Fact[] lfcts = bmem.getLeftFacts();
             if (this.evaluate(lfcts, rfact)) {
                 // now we propogate
-                Fact[] merged = ConversionUtils.mergeFacts(lfcts, rfact);
-                this.propogateAssert(merged, engine, mem);
+                this.propogateAssert(bmem.getIndex().add(rfact), engine, mem);
             }
         }
 
@@ -176,16 +173,15 @@ public class HashedEqBNode extends BaseJoin {
      * @param factInstance
      * @param engine
      */
-    public void retractLeft(Fact[] lfacts, Rete engine, WorkingMemory mem)
+    public void retractLeft(Index linx, Rete engine, WorkingMemory mem)
             throws RetractException {
-        Index linx = new Index(lfacts);
         Map leftmem = (Map) mem.getBetaLeftMemory(this);
         if (leftmem.containsKey(linx)) {
             // the left memory contains the fact array, so we
             // retract it.
             BetaMemory bmem = (BetaMemory) leftmem.remove(linx);
 
-            EqHashIndex eqinx = new EqHashIndex(getLeftValues(lfacts));
+            EqHashIndex eqinx = new EqHashIndex(getLeftValues(linx.getFacts()));
             HashedAlphaMemoryImpl rightmem = (HashedAlphaMemoryImpl) mem
                     .getBetaRightMemory(this);
 
@@ -195,16 +191,11 @@ public class HashedEqBNode extends BaseJoin {
             Iterator itr = rightmem.iterator(eqinx);
             if (itr != null) {
                 while (itr.hasNext()) {
-                    Fact[] merged = ConversionUtils.mergeFacts(lfacts,
-                            (Fact) itr.next());
-                    propogateRetract(merged, engine, mem);
+                    propogateRetract(linx.add((Fact)itr.next()), engine, mem);
                 }
             }
             bmem.clear();
             bmem = null;
-            linx.clear();
-        } else {
-            linx.clear();
         }
     }
 
@@ -232,9 +223,7 @@ public class HashedEqBNode extends BaseJoin {
                 if (this.evaluate(bmem.getLeftFacts(), rfact)) {
                     // it matched, so we need to retract it from
                     // succeeding nodes
-                    Fact[] merged = ConversionUtils.mergeFacts(bmem
-                            .getLeftFacts(), rfact);
-                    propogateRetract(merged, engine, mem);
+                    propogateRetract(bmem.getIndex().add(rfact), engine, mem);
                 }
             }
         } else {

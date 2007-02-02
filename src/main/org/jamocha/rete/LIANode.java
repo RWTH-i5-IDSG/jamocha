@@ -64,11 +64,11 @@ public class LIANode extends BaseAlpha {
             if (nNode instanceof BaseJoin) {
             	BaseJoin next = (BaseJoin) nNode;
                 Fact[] newf = {fact};
-                next.assertLeft(newf,engine,mem);
+                next.assertLeft(new Index(newf),engine,mem);
             } else if (nNode instanceof TerminalNode) {
             	Fact[] newf = {fact};
             	TerminalNode tn = (TerminalNode)nNode;
-            	tn.assertFacts(newf,engine,mem);
+            	tn.assertFacts(new Index(newf),engine,mem);
             }
         }
     }
@@ -100,11 +100,11 @@ public class LIANode extends BaseAlpha {
             if (nNode instanceof BaseJoin) {
             	BaseJoin next = (BaseJoin) nNode;
                 Fact[] newf = {fact};
-                next.retractLeft(newf,engine,mem);
+                next.retractLeft(new Index(newf),engine,mem);
             } else if (nNode instanceof TerminalNode) {
             	TerminalNode next = (TerminalNode)nNode;
                 Fact[] newf = {fact};
-            	next.retractFacts(newf, engine, mem);
+            	next.retractFacts(new Index(newf), engine, mem);
            }
         }
     }
@@ -130,7 +130,7 @@ public class LIANode extends BaseAlpha {
                     } else if (node instanceof BaseJoin) {
                         BaseJoin next = (BaseJoin) node;
                         Fact[] lfcts = new Fact[]{(Fact)itr.next()};
-                        next.assertLeft(lfcts,engine,mem);
+                        next.assertLeft(new Index(lfcts),engine,mem);
                     }
                 }
             }

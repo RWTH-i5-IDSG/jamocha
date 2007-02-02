@@ -55,12 +55,12 @@ public class BasicActivation implements Activation, Serializable {
 	/**
 	 * 
 	 */
-	public BasicActivation(Rule rule, Fact[] facts) {
+	public BasicActivation(Rule rule, Index index) {
 		super();
 		this.theRule = rule;
-		this.index = new Index(facts);
+		this.index = index;
 		this.timetag = System.nanoTime();
-		calculateTime(facts);
+		calculateTime(index.getFacts());
 	}
 
 	protected void calculateTime(Fact[] facts) {
@@ -176,7 +176,6 @@ public class BasicActivation implements Activation, Serializable {
 	 * clear will set the rule to null and call Index.clear
 	 */
 	public void clear() {
-		this.index.clear();
 		this.theRule = null;
 	}
 

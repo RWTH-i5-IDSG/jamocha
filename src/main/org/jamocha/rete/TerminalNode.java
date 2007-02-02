@@ -52,12 +52,12 @@ public class TerminalNode extends BaseNode {
 	 * to the activationList of the correct module. Note: we may want to change
 	 * the design so that we don't create a new Activation object.
 	 * 
-	 * @param facts
+	 * @param idx
 	 * @param engine
 	 */
-	public void assertFacts(Fact[] facts, Rete engine, WorkingMemory mem) {
-		engine.assertEvent(this, facts);
-		Activation act = new BasicActivation(this.theRule, facts);
+	public void assertFacts(Index idx, Rete engine, WorkingMemory mem) {
+		engine.assertEvent(this, idx.getFacts());
+		Activation act = new BasicActivation(this.theRule, idx);
 		engine.getAgenda().addActivation(act);
 	}
 
@@ -65,11 +65,11 @@ public class TerminalNode extends BaseNode {
 	 * Retract means we need to remove the activation from the correct module
 	 * agenda.
 	 * 
-	 * @param facts
+	 * @param idx
 	 * @param engine
 	 */
-	public void retractFacts(Fact[] facts, Rete engine, WorkingMemory mem) {
-		Activation act = new BasicActivation(this.theRule, facts);
+	public void retractFacts(Index idx, Rete engine, WorkingMemory mem) {
+		Activation act = new BasicActivation(this.theRule, idx);
 		engine.getAgenda().removeActivation(act);
 	}
 

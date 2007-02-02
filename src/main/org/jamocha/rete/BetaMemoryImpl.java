@@ -94,7 +94,6 @@ public class BetaMemoryImpl implements BetaMemory {
 	 */
 	public void clear() {
 		this.matches.clear();
-		this.index.clear();
 		this.index = null;
 	}
 

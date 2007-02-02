@@ -111,20 +111,19 @@ public class HashedEqNJoin extends BaseJoin {
      * @param factInstance
      * @param engine
      */
-    public void assertLeft(Fact[] lfacts, Rete engine, WorkingMemory mem) 
+    public void assertLeft(Index linx, Rete engine, WorkingMemory mem) 
     throws AssertException
     {
         Map leftmem = (Map) mem.getBetaLeftMemory(this);
-		Index linx = new Index(lfacts);
 		BetaMemory bmem = new BetaMemoryImpl2(linx);
 		leftmem.put(bmem.getIndex(), bmem);
-		EqHashIndex inx = new EqHashIndex(getLeftValues(lfacts));
+		EqHashIndex inx = new EqHashIndex(getLeftValues(linx.getFacts()));
 		HashedAlphaMemoryImpl rightmem = (HashedAlphaMemoryImpl) mem
 				.getBetaRightMemory(this);
 		// we don't bother adding the right fact to the left, since
 		// the right side is already Hashed
 		if (rightmem.count(inx) == 0) {
-			this.propogateAssert(lfacts, engine, mem);
+			this.propogateAssert(linx, engine, mem);
 		}
     }
 
@@ -156,7 +155,7 @@ public class HashedEqNJoin extends BaseJoin {
 				if (prevCount == 0 && after != 0) {
 					// we have to retract
 					try {
-						this.propogateRetract(lfcts, engine, mem);
+						this.propogateRetract(bmem.getIndex(), engine, mem);
 					} catch (RetractException e) {
 						throw new AssertException("NotJion - " + e.getMessage());
 					}
@@ -177,22 +176,18 @@ public class HashedEqNJoin extends BaseJoin {
 	 * @param factInstance
 	 * @param engine
 	 */
-    public void retractLeft(Fact[] lfacts, Rete engine, WorkingMemory mem)
+    public void retractLeft(Index inx, Rete engine, WorkingMemory mem)
     throws RetractException
     {
         Map leftmem = (Map)mem.getBetaLeftMemory(this);
-        Index inx = new Index(lfacts);
         // the left memory contains the fact array, so we 
         // retract it.
         if (leftmem.containsKey(inx)){
             BetaMemory bmem = (BetaMemory)leftmem.remove(inx);
             // if watch is turned on, we send an event
-            this.propogateRetract(lfacts,engine,mem);
+            this.propogateRetract(inx,engine,mem);
             bmem.clear();
             bmem = null;
-            inx.clear();
-        } else {
-        	inx.clear();
         }
     }
     
@@ -225,7 +220,7 @@ public class HashedEqNJoin extends BaseJoin {
                 if (this.evaluate(bmem.getLeftFacts(), rfact)){
                     if (prevCount != 0 && after == 0 ) {
                         try {
-                            propogateAssert(bmem.getLeftFacts(),engine,mem);
+                            propogateAssert(bmem.getIndex(),engine,mem);
                         } catch (AssertException e) {
                             throw new RetractException("NotJion - " + e.getMessage());
                         }
@@ -308,10 +303,9 @@ public class HashedEqNJoin extends BaseJoin {
                 if (omem instanceof BetaMemory) {
                     BetaMemory bmem = (BetaMemory) omem;
                     // get the Fact[] array for the left
-                    Fact[] left = bmem.getLeftFacts();
                     // iterate over the matches
                     if (bmem.matchCount() == 0) {
-                        node.assertFacts(left, engine, mem);
+                        node.assertFacts(bmem.getIndex(), engine, mem);
                     }
                 }
             }

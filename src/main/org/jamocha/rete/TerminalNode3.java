@@ -48,7 +48,7 @@ public class TerminalNode3 extends TerminalNode2 {
 	 * @param facts
 	 * @param engine
 	 */
-	public void assertFacts(Fact[] facts, Rete engine, WorkingMemory mem) {
+	public void assertFacts(Index facts, Rete engine, WorkingMemory mem) {
 		long time = System.currentTimeMillis();
 		if (this.theRule.getExpirationDate() > 0
 				&& time > this.theRule.getEffectiveDate()
@@ -68,16 +68,16 @@ public class TerminalNode3 extends TerminalNode2 {
 	 * 1. is the expiration date greater than zero
 	 * 2. is the current time > the effective date
 	 * 3. is the current time < the expiration date
-	 * @param facts
+	 * @param idx
 	 * @param engine
 	 */
-	public void retractFacts(Fact[] facts, Rete engine, WorkingMemory mem) {
+	public void retractFacts(Index idx, Rete engine, WorkingMemory mem) {
 		long time = System.currentTimeMillis();
 		if (this.theRule.getExpirationDate() > 0
 				&& time > this.theRule.getEffectiveDate()
 				&& time < this.theRule.getExpirationDate()) {
 			Map tmem = (Map) mem.getTerminalMemory(this);
-			LinkedActivation act = new LinkedActivation(this.theRule, facts);
+			LinkedActivation act = new LinkedActivation(this.theRule, idx);
 			if (tmem.containsKey(act.getIndex())) {
 				act = (LinkedActivation) tmem.remove(act.getIndex());
 				engine.getAgenda().removeActivation(act);

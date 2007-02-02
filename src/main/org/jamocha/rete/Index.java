@@ -46,7 +46,12 @@ public class Index implements Serializable, HashIndex {
 		this.facts = facts;
 		calculateHash();
 	}
-
+	
+	public Index(Fact[] facts, int hashCode) {
+		super();
+		this.facts = facts;
+		this.hashCode = hashCode;
+	}
 	/**
 	 * This is a very simple implementation that basically adds the hashCodes
 	 * of the Facts in the array.
@@ -90,8 +95,19 @@ public class Index implements Serializable, HashIndex {
 		return this.hashCode;
 	}
 
-	public void clear() {
-		this.facts = null;
-		this.hashCode = 0;
+	public Index add(Fact fact) {
+		Fact[] facts = new Fact[this.facts.length+1];
+		System.arraycopy(this.facts, 0, facts, 0, this.facts.length);
+		facts[this.facts.length] = fact;
+		return new Index(facts, this.hashCode+fact.hashCode());
+	}
+
+	
+	public Index addAll(Index index) {
+		Fact[] facts = new Fact[this.facts.length+index.facts.length];
+		System.arraycopy(this.facts, 0, facts, 0, this.facts.length);
+		System.arraycopy(index.facts, 0, facts, this.facts.length, index.facts.length);
+		return new Index(facts, this.hashCode+index.hashCode);
+
 	}
 }

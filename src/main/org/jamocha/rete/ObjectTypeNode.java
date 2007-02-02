@@ -159,7 +159,7 @@ public class ObjectTypeNode extends BaseAlpha implements Serializable {
                             ((BaseJoin)node).assertRight(fact,engine,mem);
                         } else if (node instanceof TerminalNode) {
                         	Fact[] facts = new Fact[]{fact};
-                        	((TerminalNode)node).assertFacts(facts,engine,mem);
+                        	((TerminalNode)node).assertFacts(new Index(facts),engine,mem);
                         }
                     }
                 }
@@ -188,7 +188,7 @@ public class ObjectTypeNode extends BaseAlpha implements Serializable {
                 ((BaseJoin)node).assertRight(fact,engine,mem);
             } else if (node instanceof TerminalNode) {
             	Fact[] facts = new Fact[]{fact};
-            	((TerminalNode)node).assertFacts(facts,engine,mem);
+            	((TerminalNode)node).assertFacts(new Index(facts),engine,mem);
             }
         }
         assertSecondSuccessors(fact,engine,mem);
@@ -206,7 +206,7 @@ public class ObjectTypeNode extends BaseAlpha implements Serializable {
                 ((BaseJoin)node).assertRight(fact,engine,mem);
             } else if (node instanceof TerminalNode) {
             	Fact[] facts = new Fact[]{fact};
-            	((TerminalNode)node).assertFacts(facts,engine,mem);
+            	((TerminalNode)node).assertFacts(new Index(facts),engine,mem);
             }
         }
     }
@@ -240,7 +240,7 @@ public class ObjectTypeNode extends BaseAlpha implements Serializable {
                     ((BaseJoin)node).retractRight(fact,engine,mem);
                 } else if (node instanceof TerminalNode) {
                 	Fact[] facts = new Fact[]{fact};
-                	((TerminalNode)node).retractFacts(facts,engine,mem);
+                	((TerminalNode)node).retractFacts(new Index(facts),engine,mem);
                 }
             }
         }
@@ -300,7 +300,7 @@ public class ObjectTypeNode extends BaseAlpha implements Serializable {
                         next.assertRight(f,engine,mem);
                     } else if (node instanceof TerminalNode) {
                         TerminalNode t = (TerminalNode)node;
-                        t.assertFacts(new Fact[]{f}, engine, mem);
+                        t.assertFacts(new Index(new Fact[]{f}), engine, mem);
                     }
                 }
             }

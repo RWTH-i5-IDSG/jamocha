@@ -53,7 +53,7 @@ public class TerminalNode2 extends TerminalNode {
 	 * @param facts
 	 * @param engine
 	 */
-	public void assertFacts(Fact[] facts, Rete engine, WorkingMemory mem) {
+	public void assertFacts(Index facts, Rete engine, WorkingMemory mem) {
 		LinkedActivation act = new LinkedActivation(this.theRule, facts);
 		act.setTerminalNode(this);
 		Map tmem = (Map) mem.getTerminalMemory(this);
@@ -63,12 +63,12 @@ public class TerminalNode2 extends TerminalNode {
 	}
 
 	/**
-	 * @param facts
+	 * @param idx
 	 * @param engine
 	 */
-	public void retractFacts(Fact[] facts, Rete engine, WorkingMemory mem) {
+	public void retractFacts(Index idx, Rete engine, WorkingMemory mem) {
 		Map tmem = (Map) mem.getTerminalMemory(this);
-		LinkedActivation act = new LinkedActivation(this.theRule, facts);
+		LinkedActivation act = new LinkedActivation(this.theRule, idx);
 		if (tmem.containsKey(act.getIndex())) {
 			act = (LinkedActivation) tmem.remove(act.getIndex());
 			engine.getAgenda().removeActivation(act);

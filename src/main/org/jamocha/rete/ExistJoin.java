@@ -89,9 +89,8 @@ public class ExistJoin extends BaseJoin {
 	 * @param factInstance
 	 * @param engine
 	 */
-	public void assertLeft(Fact[] lfacts, Rete engine, WorkingMemory mem)
+	public void assertLeft(Index linx, Rete engine, WorkingMemory mem)
 			throws AssertException {
-		Index linx = new Index(lfacts);
 		Map leftmem = (Map) mem.getBetaLeftMemory(this);
 		if (!leftmem.containsKey(linx)) {
 			// we create a new list for storing the matches.
@@ -104,7 +103,7 @@ public class ExistJoin extends BaseJoin {
 			Iterator itr = rightmem.values().iterator();
 			while (itr.hasNext()) {
 				Fact rfcts = (Fact) itr.next();
-				if (this.evaluate(lfacts, rfcts)) {
+				if (this.evaluate(linx.getFacts(), rfcts)) {
 					// it matched, so we add it to the beta memory
 					this.currentMem.addMatch(rfcts);
 				}
@@ -115,7 +114,7 @@ public class ExistJoin extends BaseJoin {
 				// there should only be one match, so we get the item
 				// at index zero. if the previous count was 1 or greater,
 				// we don't propogate
-				this.propogateAssert(lfacts, engine, mem);
+				this.propogateAssert(linx, engine, mem);
 			}
 		}
 	}
@@ -148,7 +147,7 @@ public class ExistJoin extends BaseJoin {
 				// if the previous count was zero and now the match 
 				// count is 1, we propogate
 				if (prevCount == 0 && bmem.matchCount() == 1) {
-					this.propogateAssert(lfcts, engine, mem);
+					this.propogateAssert(bmem.getIndex(), engine, mem);
 				}
 			}
 		}
@@ -164,20 +163,16 @@ public class ExistJoin extends BaseJoin {
 	 * @param factInstance
 	 * @param engine
 	 */
-	public void retractLeft(Fact[] lfacts, Rete engine, WorkingMemory mem)
+	public void retractLeft(Index inx, Rete engine, WorkingMemory mem)
 			throws RetractException {
-		Index inx = new Index(lfacts);
 		Map leftmem = (Map) mem.getBetaLeftMemory(this);
 		if (leftmem.containsKey(inx)) {
 			// the left memory contains the fact array, so we 
 			// retract it.
 			BetaMemory bmem = (BetaMemory) leftmem.remove(inx);
-			propogateRetract(lfacts, engine, mem);
+			propogateRetract(inx, engine, mem);
 			bmem.clear();
 			bmem = null;
-			inx.clear();
-		} else {
-			inx.clear();
 		}
 	}
 
@@ -204,12 +199,10 @@ public class ExistJoin extends BaseJoin {
 				if (bmem.matched(rfact)) {
 					bmem.removeMatch(rfact);
 					if (previous != 0 && bmem.matchCount() == 0) {
-						propogateRetract(bmem.getLeftFacts(), engine, mem);
+						propogateRetract(bmem.getIndex(), engine, mem);
 					}
 				}
 			}
-		} else {
-			inx.clear();
 		}
 	}
 

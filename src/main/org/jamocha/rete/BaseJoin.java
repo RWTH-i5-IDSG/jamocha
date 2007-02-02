@@ -16,9 +16,8 @@
  */
 package org.jamocha.rete;
 
-import java.util.ArrayList;
-import java.util.Map;
 import java.util.Iterator;
+import java.util.Map;
 
 import org.jamocha.rete.exception.AssertException;
 import org.jamocha.rete.exception.RetractException;
@@ -43,7 +42,7 @@ public abstract class BaseJoin extends BaseNode {
 	 * @param lfacts
 	 * @param engine
 	 */
-	public abstract void assertLeft(Fact[] lfacts, Rete engine,
+	public abstract void assertLeft(Index lfacts, Rete engine,
 			WorkingMemory mem) throws AssertException;
 
 	/**
@@ -61,7 +60,7 @@ public abstract class BaseJoin extends BaseNode {
 	 * @param lfacts
 	 * @param engine
 	 */
-	public abstract void retractLeft(Fact[] lfacts, Rete engine,
+	public abstract void retractLeft(Index lfacts, Rete engine,
 			WorkingMemory mem) throws RetractException;
 
 	/**
@@ -93,15 +92,17 @@ public abstract class BaseJoin extends BaseNode {
 			while (itr.hasNext()) {
 				BetaMemory bmem = (BetaMemory) itr.next();
 				// get the Fact[] array for the left
-				Fact[] left = bmem.getLeftFacts();
+//				Fact[] left = bmem.getLeftFacts();
+				Index idx = bmem.getIndex();
 				// iterate over the matches
 				Iterator ritr = bmem.iterateRightFacts();
 				while (ritr.hasNext()) {
 					Fact rfcts = (Fact) ritr.next();
 					// merge the left and right fact into a new Array
-					Fact[] merged = ConversionUtils.mergeFacts(left, rfcts);
+//					Fact[] merged = ConversionUtils.mergeFacts(left, rfcts);
 					// now assert in the new join node
-					node.assertLeft(merged, engine, mem);
+//					node.assertLeft(merged, engine, mem);
+					node.assertLeft(idx.add(rfcts), engine, mem);
 				}
 			}
 		}
@@ -129,15 +130,13 @@ public abstract class BaseJoin extends BaseNode {
 				if (omem instanceof BetaMemory) {
 					BetaMemory bmem = (BetaMemory) omem;
 					// get the Fact[] array for the left
-					Fact[] left = bmem.getLeftFacts();
 					// iterate over the matches
 					Iterator ritr = bmem.iterateRightFacts();
 					while (ritr.hasNext()) {
 						Fact rfcts = (Fact) ritr.next();
 						// merge the left and right fact into a new Array
-						Fact[] merged = ConversionUtils.mergeFacts(left, rfcts);
 						// now assert in the new join node
-						node.assertFacts(merged, engine, mem);
+						node.assertFacts(bmem.getIndex().add(rfcts), engine, mem);
 					}
 				}
 			}
@@ -161,14 +160,14 @@ public abstract class BaseJoin extends BaseNode {
 	 * @param fact
 	 * @param engine
 	 */
-	protected void propogateAssert(Fact[] facts, Rete engine, WorkingMemory mem)
+	protected void propogateAssert(Index index, Rete engine, WorkingMemory mem)
 			throws AssertException {
         for (int idx=0; idx < this.successorNodes.length; idx++) {
             BaseNode node = this.successorNodes[idx];
 			if (node instanceof BaseJoin) {
-				((BaseJoin) node).assertLeft(facts, engine, mem);
+				((BaseJoin) node).assertLeft(index, engine, mem);
 			} else if (node instanceof TerminalNode) {
-				((TerminalNode) node).assertFacts(facts, engine, mem);
+				((TerminalNode) node).assertFacts(index, engine, mem);
 			}
 		}
 	}
@@ -178,14 +177,14 @@ public abstract class BaseJoin extends BaseNode {
 	 * @param fact
 	 * @param engine
 	 */
-	protected void propogateRetract(Fact[] facts, Rete engine, WorkingMemory mem)
+	protected void propogateRetract(Index index, Rete engine, WorkingMemory mem)
 			throws RetractException {
         for (int idx=0; idx < this.successorNodes.length; idx++) {
             BaseNode node = this.successorNodes[idx];
 			if (node instanceof BaseJoin) {
-				((BaseJoin) node).retractLeft(facts, engine, mem);
+				((BaseJoin) node).retractLeft(index, engine, mem);
 			} else if (node instanceof TerminalNode) {
-				((TerminalNode) node).retractFacts(facts, engine, mem);
+				((TerminalNode) node).retractFacts(index, engine, mem);
 			}
 		}
 	}

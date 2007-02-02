@@ -88,7 +88,7 @@ public class ExistJoinFrst extends BaseJoin {
 	 * @param factInstance
 	 * @param engine
 	 */
-	public void assertLeft(Fact[] lfacts, Rete engine, WorkingMemory mem)
+	public void assertLeft(Index lfacts, Rete engine, WorkingMemory mem)
 			throws AssertException {
 	}
 
@@ -111,7 +111,7 @@ public class ExistJoinFrst extends BaseJoin {
 			// proceed with evaluating the fact
 			if (count == 0 && rightmem.size() == 1) {
 				Fact[] lfcts = new Fact[]{rfact};
-				this.propogateAssert(lfcts, engine, mem);
+				this.propogateAssert(inx, engine, mem);
 			}
 		}
 	}
@@ -121,20 +121,16 @@ public class ExistJoinFrst extends BaseJoin {
 	 * @param factInstance
 	 * @param engine
 	 */
-	public void retractLeft(Fact[] lfacts, Rete engine, WorkingMemory mem)
+	public void retractLeft(Index inx, Rete engine, WorkingMemory mem)
 			throws RetractException {
-		Index inx = new Index(lfacts);
 		Map leftmem = (Map) mem.getBetaLeftMemory(this);
 		if (leftmem.containsKey(inx)) {
 			// the left memory contains the fact array, so we 
 			// retract it.
 			BetaMemory bmem = (BetaMemory) leftmem.remove(inx);
-			propogateRetract(lfacts, engine, mem);
+			propogateRetract(inx, engine, mem);
 			bmem.clear();
 			bmem = null;
-			inx.clear();
-		} else {
-			inx.clear();
 		}
 	}
 
@@ -154,11 +150,8 @@ public class ExistJoinFrst extends BaseJoin {
 			int count = rightmem.size();
 			rightmem.remove(inx);
 			if (count == 1 && rightmem.size() == 0) {
-				Fact[] lfcts = new Fact[]{rfact};
-				propogateRetract(lfcts, engine, mem);
+				propogateRetract(inx, engine, mem);
 			}
-		} else {
-			inx.clear();
 		}
 	}
 

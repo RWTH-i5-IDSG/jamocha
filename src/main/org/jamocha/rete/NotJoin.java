@@ -85,10 +85,9 @@ public class NotJoin extends BaseJoin {
      * @param factInstance
      * @param engine
      */
-    public void assertLeft(Fact[] lfacts, Rete engine, WorkingMemory mem) 
+    public void assertLeft(Index linx, Rete engine, WorkingMemory mem) 
     throws AssertException
     {
-        Index linx = new Index(lfacts);
         Map leftmem = (Map)mem.getBetaLeftMemory(this);
         if (!leftmem.containsKey(linx)){
             // we create a new list for storing the matches.
@@ -100,7 +99,7 @@ public class NotJoin extends BaseJoin {
             Iterator itr = rightmem.values().iterator();
             while (itr.hasNext()){
                 Fact rfcts = (Fact)itr.next();
-                if (this.evaluate(lfacts,rfcts)){
+                if (this.evaluate(linx.getFacts(),rfcts)){
                     // it matched, so we add it to the beta memory
                     bmem.addMatch(rfcts);
                 }
@@ -108,10 +107,8 @@ public class NotJoin extends BaseJoin {
     		// since the Fact[] is entering the left for the first time,
     		// if there are no matches, we merged the facts propogate. 
             if (bmem.matchCount() == 0){
-                this.propogateAssert(lfacts,engine,mem);
+                this.propogateAssert(linx,engine,mem);
             }
-        } else {
-        	linx.clear();
         }
     }
 
@@ -147,14 +144,12 @@ public class NotJoin extends BaseJoin {
                 if (prevCount == 0 && bmem.matchCount() != 0){
                     // we have to retract
                     try {
-                        this.propogateRetract(lfcts,engine,mem);
+                        this.propogateRetract(bmem.getIndex(),engine,mem);
                     } catch (RetractException e) {
                         throw new AssertException("NotJion - " + e.getMessage());
                     }
                 }
             }
-        } else {
-        	inx.clear();
         }
     }
 
@@ -168,22 +163,17 @@ public class NotJoin extends BaseJoin {
      * @param factInstance
      * @param engine
      */
-    public void retractLeft(Fact[] lfacts, Rete engine, WorkingMemory mem)
+    public void retractLeft(Index inx, Rete engine, WorkingMemory mem)
     throws RetractException
     {
-        Index inx = new Index(lfacts);
         Map leftmem = (Map)mem.getBetaLeftMemory(this);
         // the left memory contains the fact array, so we 
         // retract it.
         if (leftmem.containsKey(inx)){
             BetaMemory bmem = (BetaMemory)leftmem.remove(inx);
             // if watch is turned on, we send an event
-            this.propogateRetract(lfacts,engine,mem);
+            this.propogateRetract(inx,engine,mem);
             bmem.clear();
-            bmem = null;
-            inx.clear();
-        } else {
-        	inx.clear();
         }
     }
     
@@ -218,16 +208,13 @@ public class NotJoin extends BaseJoin {
                     // assert
                     if (prevCount != 0 && bmem.matchCount() == 0 ) {
                         try {
-                            propogateAssert(bmem.getLeftFacts(),engine,mem);
+                            propogateAssert(bmem.getIndex(),engine,mem);
                         } catch (AssertException e) {
                             throw new RetractException("NotJion - " + e.getMessage());
                         }
                     }
                 }
             }
-            inx.clear();
-        } else {
-        	inx.clear();
         }
     }
 
@@ -301,10 +288,9 @@ public class NotJoin extends BaseJoin {
                 if (omem instanceof BetaMemory) {
                     BetaMemory bmem = (BetaMemory) omem;
                     // get the Fact[] array for the left
-                    Fact[] left = bmem.getLeftFacts();
                     // iterate over the matches
                     if (bmem.matchCount() == 0) {
-                        node.assertFacts(left, engine, mem);
+                        node.assertFacts(bmem.getIndex(), engine, mem);
                     }
                 }
             }

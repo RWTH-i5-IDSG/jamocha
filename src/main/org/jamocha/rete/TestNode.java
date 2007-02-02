@@ -73,12 +73,11 @@ public class TestNode extends BaseJoin {
 	 * Assert will first pass the facts to the parameters. Once the parameters
 	 * are set, it should call execute to get the result.
 	 */
-	public void assertLeft(Fact[] lfacts, Rete engine, WorkingMemory mem)
+	public void assertLeft(Index inx, Rete engine, WorkingMemory mem)
 			throws AssertException {
-		Index inx = new Index(lfacts);
 		Map leftmem = (Map) mem.getBetaLeftMemory(this);
 		if (!leftmem.containsKey(inx)) {
-			this.setParameters(lfacts);
+			this.setParameters(inx.getFacts());
 			JamochaValue value;
 			try {
 				value = this.func.executeFunction(engine, this.params);
@@ -88,7 +87,7 @@ public class TestNode extends BaseJoin {
 			if (value.getBooleanValue()) {
 				BetaMemory bmem = new BetaMemoryImpl(inx);
 				leftmem.put(bmem.getIndex(), bmem);
-				propogateAssert(lfacts, engine, mem);
+				propogateAssert(inx, engine, mem);
 			}
 		}
 	}
@@ -102,14 +101,13 @@ public class TestNode extends BaseJoin {
 	/**
 	 * 
 	 */
-	public void retractLeft(Fact[] lfacts, Rete engine, WorkingMemory mem)
+	public void retractLeft(Index inx, Rete engine, WorkingMemory mem)
 			throws RetractException {
-		Index inx = new Index(lfacts);
 		Map leftmem = (Map) mem.getBetaLeftMemory(this);
 		if (leftmem.containsKey(inx)) {
 			// the memory contains the key, so we retract and propogate
 			leftmem.remove(inx);
-			propogateRetract(lfacts, engine, mem);
+			propogateRetract(inx, engine, mem);
 		}
 	}
 

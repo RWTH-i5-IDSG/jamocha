@@ -106,7 +106,6 @@ public class BetaMemoryImpl2 implements BetaMemory {
 	 * clear will clear the memory
 	 */
 	public void clear() {
-		this.index.clear();
 		this.index = null;
 	}
 

@@ -41,7 +41,7 @@ public class NoAgendaTNode2 extends NoAgendaTNode {
      * @param facts
      * @param engine
      */
-    public void assertFacts(Fact[] facts, Rete engine, WorkingMemory mem){
+    public void assertFacts(Index facts, Rete engine, WorkingMemory mem){
 		long time = System.currentTimeMillis();
 		if (this.theRule.getExpirationDate() > 0
 				&& time > this.theRule.getEffectiveDate()

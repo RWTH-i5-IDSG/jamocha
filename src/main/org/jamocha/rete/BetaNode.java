@@ -93,23 +93,21 @@ public class BetaNode extends BaseJoin {
 	 * @param factInstance
 	 * @param engine
 	 */
-	public void assertLeft(Fact[] lfacts, Rete engine, WorkingMemory mem)
+	public void assertLeft(Index index, Rete engine, WorkingMemory mem)
 			throws AssertException {
 		Map leftmem = (Map) mem.getBetaLeftMemory(this);
-		Index inx = new Index(lfacts);
 
-		BetaMemory bmem = new BetaMemoryImpl(inx);
+		BetaMemory bmem = new BetaMemoryImpl(index);
 		leftmem.put(bmem.getIndex(), bmem);
 		Map rightmem = (Map) mem.getBetaRightMemory(this);
 		Iterator itr = rightmem.values().iterator();
 		while (itr.hasNext()) {
 			Fact rfcts = (Fact) itr.next();
-			if (this.evaluate(lfacts, rfcts)) {
+			if (this.evaluate(index.getFacts(), rfcts)) {
 				// it matched, so we add it to the beta memory
 				bmem.addMatch(rfcts);
 				// now we propogate
-				Fact[] merged = ConversionUtils.mergeFacts(lfacts, rfcts);
-				this.propogateAssert(merged, engine, mem);
+				this.propogateAssert(index.add(rfcts), engine, mem);
 			}
 		}
 
@@ -124,9 +122,9 @@ public class BetaNode extends BaseJoin {
 	public void assertRight(Fact rfact, Rete engine, WorkingMemory mem)
 			throws AssertException {
 		Map rightmem = (Map) mem.getBetaRightMemory(this);
-		Index inx = new Index(new Fact[] { rfact });
+		Index index = new Index(new Fact[] { rfact });
 
-		rightmem.put(inx, rfact);
+		rightmem.put(index, rfact);
 		// now that we've added the facts to the list, we
 		// proceed with evaluating the fact
 		// else we compare the fact to all facts in the left
@@ -143,7 +141,7 @@ public class BetaNode extends BaseJoin {
 				bmem.addMatch(rfact);
 				// now we propogate
 				Fact[] merged = ConversionUtils.mergeFacts(lfcts, rfact);
-				this.propogateAssert(merged, engine, mem);
+				this.propogateAssert(index.add(rfact), engine, mem);
 			}
 		}
 	}
@@ -153,9 +151,8 @@ public class BetaNode extends BaseJoin {
 	 * @param factInstance
 	 * @param engine
 	 */
-	public void retractLeft(Fact[] lfacts, Rete engine, WorkingMemory mem)
+	public void retractLeft(Index inx, Rete engine, WorkingMemory mem)
 			throws RetractException {
-		Index inx = new Index(lfacts);
 		Map leftmem = (Map) mem.getBetaLeftMemory(this);
 		if (leftmem.containsKey(inx)) {
 			// the left memory contains the fact array, so we 
@@ -166,9 +163,7 @@ public class BetaNode extends BaseJoin {
 			// and call retract in the successor nodes
 			Iterator itr = bmem.iterateRightFacts();
 			while (itr.hasNext()) {
-				Fact[] merged = ConversionUtils.mergeFacts(lfacts, (Fact) itr
-						.next());
-				propogateRetract(merged, engine, mem);
+				propogateRetract(inx.add((Fact) itr.next()), engine, mem);
 			}
 			bmem.clear();
 			bmem = null;
@@ -198,9 +193,7 @@ public class BetaNode extends BaseJoin {
 					bmem.removeMatch(rfact);
 					// it matched, so we need to retract it from
 					// succeeding nodes
-					Fact[] merged = ConversionUtils.mergeFacts(bmem
-							.getLeftFacts(), rfact);
-					propogateRetract(merged, engine, mem);
+					propogateRetract(bmem.getIndex().add(rfact), engine, mem);
 				}
 			}
 		}

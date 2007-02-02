@@ -51,7 +51,7 @@ public class NoAgendaTNode extends TerminalNode2 {
      * @param facts
      * @param engine
      */
-    public void assertFacts(Fact[] facts, Rete engine, WorkingMemory mem){
+    public void assertFacts(Index facts, Rete engine, WorkingMemory mem){
         LinkedActivation act = new LinkedActivation(this.theRule,facts);
         act.setTerminalNode(this);
         // fire the activation immediately
@@ -61,10 +61,10 @@ public class NoAgendaTNode extends TerminalNode2 {
     /**
      * method does not apply, since the activation fires immediately,
      * there's nothing to remove from the agenda
-     * @param facts
+     * @param idx
      * @param engine
      */
-    public void retractFacts(Fact[] facts, Rete engine, WorkingMemory mem){
+    public void retractFacts(Index idx, Rete engine, WorkingMemory mem){
     }
     
     /**

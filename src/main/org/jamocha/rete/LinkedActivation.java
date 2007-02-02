@@ -48,12 +48,12 @@ public class LinkedActivation implements Activation {
 	/**
 	 * 
 	 */
-	public LinkedActivation(Rule rule, Fact[] facts) {
+	public LinkedActivation(Rule rule, Index index) {
 		super();
 		this.theRule = rule;
-		this.index = new Index(facts);
+		this.index = index;
 		this.timetag = System.nanoTime();
-        calculateTime(facts);
+        calculateTime(index.getFacts());
 	}
 
     protected void calculateTime(Fact[] facts) {
@@ -196,7 +196,6 @@ public class LinkedActivation implements Activation {
 	}
     
     public void clear() {
-        this.index.clear();
         this.theRule = null;
         this.tnode = null;
     }
