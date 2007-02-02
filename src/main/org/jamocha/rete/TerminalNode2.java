@@ -66,9 +66,9 @@ public class TerminalNode2 extends TerminalNode {
 	 * @param idx
 	 * @param engine
 	 */
-	public void retractFacts(Index idx, Rete engine, WorkingMemory mem) {
+	public void retractFacts(Index inx, Rete engine, WorkingMemory mem) {
 		Map tmem = (Map) mem.getTerminalMemory(this);
-		LinkedActivation act = new LinkedActivation(this.theRule, idx);
+		LinkedActivation act = new LinkedActivation(this.theRule, inx);
 		if (tmem.containsKey(act.getIndex())) {
 			act = (LinkedActivation) tmem.remove(act.getIndex());
 			engine.getAgenda().removeActivation(act);

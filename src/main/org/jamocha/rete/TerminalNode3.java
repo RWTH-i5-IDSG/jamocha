@@ -48,12 +48,12 @@ public class TerminalNode3 extends TerminalNode2 {
 	 * @param facts
 	 * @param engine
 	 */
-	public void assertFacts(Index facts, Rete engine, WorkingMemory mem) {
+	public void assertFacts(Index inx, Rete engine, WorkingMemory mem) {
 		long time = System.currentTimeMillis();
 		if (this.theRule.getExpirationDate() > 0
 				&& time > this.theRule.getEffectiveDate()
 				&& time < this.theRule.getExpirationDate()) {
-			LinkedActivation act = new LinkedActivation(this.theRule, facts);
+			LinkedActivation act = new LinkedActivation(this.theRule, inx);
 			act.setTerminalNode(this);
 			Map tmem = (Map) mem.getTerminalMemory(this);
 			tmem.put(act.getIndex(), act);
@@ -71,13 +71,13 @@ public class TerminalNode3 extends TerminalNode2 {
 	 * @param idx
 	 * @param engine
 	 */
-	public void retractFacts(Index idx, Rete engine, WorkingMemory mem) {
+	public void retractFacts(Index inx, Rete engine, WorkingMemory mem) {
 		long time = System.currentTimeMillis();
 		if (this.theRule.getExpirationDate() > 0
 				&& time > this.theRule.getEffectiveDate()
 				&& time < this.theRule.getExpirationDate()) {
 			Map tmem = (Map) mem.getTerminalMemory(this);
-			LinkedActivation act = new LinkedActivation(this.theRule, idx);
+			LinkedActivation act = new LinkedActivation(this.theRule, inx);
 			if (tmem.containsKey(act.getIndex())) {
 				act = (LinkedActivation) tmem.remove(act.getIndex());
 				engine.getAgenda().removeActivation(act);

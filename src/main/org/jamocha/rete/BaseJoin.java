@@ -91,17 +91,11 @@ public abstract class BaseJoin extends BaseNode {
 			Iterator itr = leftmem.entrySet().iterator();
 			while (itr.hasNext()) {
 				BetaMemory bmem = (BetaMemory) itr.next();
-				// get the Fact[] array for the left
-//				Fact[] left = bmem.getLeftFacts();
 				Index idx = bmem.getIndex();
 				// iterate over the matches
 				Iterator ritr = bmem.iterateRightFacts();
 				while (ritr.hasNext()) {
 					Fact rfcts = (Fact) ritr.next();
-					// merge the left and right fact into a new Array
-//					Fact[] merged = ConversionUtils.mergeFacts(left, rfcts);
-					// now assert in the new join node
-//					node.assertLeft(merged, engine, mem);
 					node.assertLeft(idx.add(rfcts), engine, mem);
 				}
 			}
@@ -129,12 +123,9 @@ public abstract class BaseJoin extends BaseNode {
 				Object omem = itr.next();
 				if (omem instanceof BetaMemory) {
 					BetaMemory bmem = (BetaMemory) omem;
-					// get the Fact[] array for the left
-					// iterate over the matches
 					Iterator ritr = bmem.iterateRightFacts();
 					while (ritr.hasNext()) {
 						Fact rfcts = (Fact) ritr.next();
-						// merge the left and right fact into a new Array
 						// now assert in the new join node
 						node.assertFacts(bmem.getIndex().add(rfcts), engine, mem);
 					}
