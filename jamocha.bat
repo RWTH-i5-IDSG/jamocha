@@ -14,8 +14,10 @@ set LOG4J=lib/log4j-1.2.14.jar
 rem JLine - line editing
 set JLINE=lib/jline-0.9.9.jar
 
+set JAVOLUTION=lib/javolution.jar
+
 rem Putting the things together ...
-set CLASSPATH=%JAMOCHA_HOME%/%LOG4J%;%JAMOCHA_HOME%/%JAMOCHA_LIB%;%JAMOCHA_HOME%/%JLINE%
+set CLASSPATH=%JAMOCHA_HOME%/%LOG4J%;%JAMOCHA_HOME%/%JAMOCHA_LIB%;%JAMOCHA_HOME%/%JLINE%;%JAMOCHA_HOME%/%JAVOLUTION%
 
 set JAVA_OPTS=-server
 
