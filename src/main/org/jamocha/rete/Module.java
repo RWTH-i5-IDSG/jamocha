@@ -83,7 +83,7 @@ public interface Module extends Serializable {
      * Return a list of all the activation
      * @return
      */
-    Collection getAllActivations();
+    ActivationList getAllActivations();
     /**
      * Return the name of the module. The interface doesn't provide
      * any guidelines for the format, but it is a good idea to restrict

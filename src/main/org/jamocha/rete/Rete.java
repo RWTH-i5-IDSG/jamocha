@@ -1585,7 +1585,7 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 		return this.theStrat;
 	}
 
-	public Collection getActivationList() {
+	public ActivationList getActivationList() {
 		return this.currentModule.getAllActivations();
 	}
 

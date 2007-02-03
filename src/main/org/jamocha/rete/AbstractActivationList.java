@@ -39,8 +39,6 @@ public abstract class AbstractActivationList implements ActivationList,
 
 	public abstract Activation removeActivation(Activation act);
 
-	public abstract List getList();
-
 	public abstract boolean isAscendingOrder();
 
 	public void setStrategy(Strategy strat) {

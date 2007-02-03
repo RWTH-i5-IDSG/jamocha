@@ -85,8 +85,8 @@ public class Defmodule implements Module, Serializable {
 	/**
 	 * Return all the activations within the module
 	 */
-	public Collection getAllActivations() {
-		return this.activations.getList();
+	public ActivationList getAllActivations() {
+		return this.activations;
 	}
 
 	/**
@@ -95,7 +95,7 @@ public class Defmodule implements Module, Serializable {
 	 * processed.
 	 */
 	public synchronized int getActivationCount() {
-		return this.activations.getList().size();
+		return this.activations.size();
 	}
 
 	/**
@@ -151,7 +151,7 @@ public class Defmodule implements Module, Serializable {
 	 * for rules and activations. The handle to Rete should not be nulled.
 	 */
 	public void clear() {
-		this.activations.getList().clear();
+		this.activations.clear();
 		Iterator itr = this.rules.values().iterator();
 		while (itr.hasNext()) {
 			Defrule rl = (Defrule) itr.next();

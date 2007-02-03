@@ -32,64 +32,56 @@ import java.util.List;
  * one that works the better.
  */
 public interface ActivationList extends Serializable {
-	/**
-	 * Depending on whether lazy is set or not, the activation list may
-	 * assume the activations are ordered by priority and should just
-	 * return the first or last activation. in the case where the agenda
-	 * is lazy, it will need to compare the evaluations.
-	 * @return
-	 */
-	Activation nextActivation();
+    /**
+     * Depending on whether lazy is set or not, the activation list may
+     * assume the activations are ordered by priority and should just
+     * return the first or last activation. in the case where the agenda
+     * is lazy, it will need to compare the evaluations.
+     * @return
+     */
+    Activation nextActivation();
 
-	/**
-	 * Add a new activation to the list
-	 * @param act
-	 */
-	void addActivation(Activation act);
+    /**
+     * Add a new activation to the list
+     * @param act
+     */
+    void addActivation(Activation act);
 
-	/**
-	 * Remove a given activation from the list
-	 * @param act
-	 * @return
-	 */
-	Activation removeActivation(Activation act);
+    /**
+     * Remove a given activation from the list
+     * @param act
+     * @return
+     */
+    Activation removeActivation(Activation act);
 
-	/**
-	 * In order for strategies to prioritize the activations, we have
-	 * to expose the underlying list.
-	 * @return
-	 */
-	List getList();
+    /**
+     * In order for strategies to prioritize the activations, we have
+     * to expose the underlying list.
+     * @return
+     */
+    void clear();
 
-	/**
-	 * Every module will have a strategy. when the module creates an
-	 * activation list, it should set the strategy.
-	 * @param strat
-	 */
-	void setStrategy(Strategy strat);
+    /**
+     * Every module will have a strategy. when the module creates an
+     * activation list, it should set the strategy.
+     * @param strat
+     */
+    void setStrategy(Strategy strat);
 
-	/**
-	 * Concrete implementations need to implement the method. When lazy
-	 * compare is on, the activation list should add new activation to
-	 * the end or the beginning.
-	 * Ascending order - means oldest activations are the beginning
-	 * Descending order - means the newest activations are the beginning
-	 * @return
-	 */
-	boolean isAscendingOrder();
+    /**
+     * If an activation list is lazy, it will delay the compare until
+     * nextActivation is called.
+     * @param lazy
+     */
+    void setLazy(boolean lazy);
 
-	/**
-	 * If an activation list is lazy, it will delay the compare until
-	 * nextActivation is called.
-	 * @param lazy
-	 */
-	void setLazy(boolean lazy);
-
-	/**
-	 * In some cases, if most of the activations will be removed, it makes
-	 * sense to do lazy comparison. This means that any strategy could
-	 * potentially work lazily
-	 * @return
-	 */
-	boolean isLazy();
+    /**
+     * In some cases, if most of the activations will be removed, it makes
+     * sense to do lazy comparison. This means that any strategy could
+     * potentially work lazily
+     * @return
+     */
+    boolean isLazy();
+    
+    int size();
 }

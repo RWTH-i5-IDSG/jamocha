@@ -57,11 +57,7 @@ public class DepthStrategy implements Strategy, Serializable {
 	 * the appropriate method
 	 */
 	public void addActivation(ActivationList thelist, Activation newActivation) {
-		if (thelist.isAscendingOrder()) {
-			addAscending(thelist, newActivation);
-		} else {
-			addDescending(thelist, newActivation);
-		}
+        thelist.addActivation(newActivation);
 	}
 
 	/**
@@ -69,124 +65,7 @@ public class DepthStrategy implements Strategy, Serializable {
 	 * the appropriate method
 	 */
 	public Activation nextActivation(ActivationList thelist) {
-		if (thelist.isAscendingOrder()) {
-			return this.nextAscending(thelist);
-		} else {
-			return this.nextDescending(thelist);
-		}
-	}
-
-	/**
-	 * @param thelist
-	 * @param newActivation
-	 */
-	protected void addDescending(ActivationList thelist,
-			Activation newActivation) {
-		// start from the bottom and start comparing the activations
-		List l = thelist.getList();
-		boolean added = false;
-		for (int idx = 0; idx < l.size(); idx++) {
-			Activation right = (Activation) l.get(idx);
-			// if the new activation is equal or less than, we add the activation
-			// at position + 1
-			if (this.compare(newActivation, right) >= 0) {
-				l.add(idx, newActivation);
-				added = true;
-				break;
-			}
-		}
-		if (!added) {
-			l.add(l.size(), newActivation);
-		}
-	}
-
-	/**
-	 * @param thelist
-	 * @param newActivation
-	 */
-	protected void addAscending(ActivationList thelist, Activation newActivation) {
-		List l = thelist.getList();
-		int start = l.size() - 1;
-		boolean added = false;
-		for (int idx = start; idx > -1; idx--) {
-			Activation right = (Activation) l.get(idx);
-			// if the new activation is greater or less than,
-			// we add the activation at position + 1
-			if (this.compare(newActivation, right) >= 0) {
-				l.add(idx + 1, newActivation);
-				added = true;
-				break;
-			}
-		}
-		// the activation was not added, so we add it at index 0
-		if (!added) {
-			l.add(0, newActivation);
-		}
-	}
-
-	/**
-	 * Get the next next activation for lists that are ascending order. The
-	 * basic idea is to start at the bottom of the list, and compare the
-	 * bottom 2 activations. Which ever is greater is compared to the next
-	 * activation, which would be the third from the bottom. Since this
-	 * method would only be called in lazy mode, we have to iterate over
-	 * the entire list to make sure we get the right activation.
-	 * @param thelist
-	 * @return
-	 */
-	protected Activation nextDescending(ActivationList thelist) {
-		List l = thelist.getList();
-		if (l.size() == 1) {
-			return (Activation) l.remove(0);
-		} else if (l.size() == 0) {
-			return null;
-		} else {
-			// first we get the last item in the list
-			Activation left = (Activation) l.get(0);
-			for (int idx = 1; idx < l.size(); idx++) {
-				Activation right = (Activation) l.get(idx);
-				// if the left is less than the right, we set left to the right
-				if (this.compare(left, right) < 0) {
-					left = right;
-				}
-			}
-			// we remove the Activation from the List
-			l.remove(left);
-			return left;
-		}
-	}
-
-	/**
-	 * Get the next activation for lists that are descending order.
-	 * the basic goal is to return the activation with the highest
-	 * salience and aggregate time.
-	 * @param thelist
-	 * @return
-	 */
-	protected Activation nextAscending(ActivationList thelist) {
-		List l = thelist.getList();
-		// if the size is greater than 1 we iterate over it
-		// otherwise we just return the 
-		if (l.size() == 1) {
-			return (Activation) l.remove(0);
-		} else if (l.size() == 0) {
-			return null;
-		} else {
-			// the starting point is the second last item
-			int start = l.size() - 2;
-			// first we get the last item in the list
-			Activation left = (Activation) l.get(l.size() - 1);
-			for (int idx = start; idx > -1; idx--) {
-				Activation right = (Activation) l.get(idx);
-				// if the left is less than the right, we set left to the right
-				if (this.compare(left, right) < 0) {
-					left = right;
-				}
-			}
-			// we remove the Activation from the List
-			l.remove(left);
-			return left;
-		}
+        return thelist.nextActivation();
 	}
 
 	/**
