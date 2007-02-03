@@ -46,7 +46,7 @@ public class NoAgendaTNode2 extends NoAgendaTNode {
 		if (this.theRule.getExpirationDate() > 0
 				&& time > this.theRule.getEffectiveDate()
 				&& time < this.theRule.getExpirationDate()) {
-			LinkedActivation act = new LinkedActivation(this.theRule, facts);
+			LinkedActivation act = LinkedActivation.acquire(this.theRule, facts);
 			act.setTerminalNode(this);
 			// fire the activation immediately
 			engine.fireActivation(act);

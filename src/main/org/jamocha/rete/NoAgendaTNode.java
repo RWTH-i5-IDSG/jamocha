@@ -52,7 +52,7 @@ public class NoAgendaTNode extends TerminalNode2 {
      * @param engine
      */
     public void assertFacts(Index facts, Rete engine, WorkingMemory mem){
-        LinkedActivation act = new LinkedActivation(this.theRule,facts);
+        LinkedActivation act = LinkedActivation.acquire(this.theRule,facts);
         act.setTerminalNode(this);
         // fire the activation immediately
         engine.fireActivation(act);

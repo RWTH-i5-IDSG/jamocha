@@ -20,14 +20,12 @@ import java.util.Map;
 
 import org.jamocha.rule.Rule;
 
-
 /**
  * @author Peter Lin
- *
- * TerminalNode3 is for rules that have an effective and expiration date.
- * When rules do not have it set, we don't bother checking. If it does, we
- * make sure a new activation is added only if the rule is within the
- * the two dates.
+ * 
+ * TerminalNode3 is for rules that have an effective and expiration date. When
+ * rules do not have it set, we don't bother checking. If it does, we make sure
+ * a new activation is added only if the rule is within the the two dates.
  */
 public class TerminalNode3 extends TerminalNode2 {
 
@@ -41,10 +39,10 @@ public class TerminalNode3 extends TerminalNode2 {
 
 	/**
 	 * The implementation checks to see if the rule is active before it tries to
-	 * assert the fact. It checks in the following order.
-	 * 1. is the expiration date greater than zero
-	 * 2. is the current time > the effective date
-	 * 3. is the current time < the expiration date
+	 * assert the fact. It checks in the following order. 1. is the expiration
+	 * date greater than zero 2. is the current time > the effective date 3. is
+	 * the current time < the expiration date
+	 * 
 	 * @param facts
 	 * @param engine
 	 */
@@ -53,7 +51,8 @@ public class TerminalNode3 extends TerminalNode2 {
 		if (this.theRule.getExpirationDate() > 0
 				&& time > this.theRule.getEffectiveDate()
 				&& time < this.theRule.getExpirationDate()) {
-			LinkedActivation act = new LinkedActivation(this.theRule, inx);
+			LinkedActivation act = LinkedActivation
+					.acquire(this.theRule, inx);
 			act.setTerminalNode(this);
 			Map tmem = (Map) mem.getTerminalMemory(this);
 			tmem.put(act.getIndex(), act);
@@ -64,10 +63,10 @@ public class TerminalNode3 extends TerminalNode2 {
 
 	/**
 	 * The implementation checks to see if the rule is active before it tries to
-	 * retract the fact. It checks in the following order.
-	 * 1. is the expiration date greater than zero
-	 * 2. is the current time > the effective date
-	 * 3. is the current time < the expiration date
+	 * retract the fact. It checks in the following order. 1. is the expiration
+	 * date greater than zero 2. is the current time > the effective date 3. is
+	 * the current time < the expiration date
+	 * 
 	 * @param idx
 	 * @param engine
 	 */
@@ -77,12 +76,11 @@ public class TerminalNode3 extends TerminalNode2 {
 				&& time > this.theRule.getEffectiveDate()
 				&& time < this.theRule.getExpirationDate()) {
 			Map tmem = (Map) mem.getTerminalMemory(this);
-			LinkedActivation act = new LinkedActivation(this.theRule, inx);
-			if (tmem.containsKey(act.getIndex())) {
-				act = (LinkedActivation) tmem.remove(act.getIndex());
+			if (tmem.containsKey(inx)) {
+				LinkedActivation act = (LinkedActivation) tmem.remove(inx);
 				engine.getAgenda().removeActivation(act);
+				act.clear();
 			}
-			act.clear();
 		}
 	}
 }

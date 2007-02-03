@@ -19,6 +19,8 @@ package org.jamocha.rete.util;
 import java.util.HashMap;
 import java.util.Map;
 
+import javolution.util.FastMap;
+
 import org.jamocha.rete.Messages;
 
 // import com.tangosol.net.*;
@@ -51,23 +53,23 @@ public class CollectionsFactory {
     public static Map newAlphaMemoryMap(String name) {
     	if (cluster) {
     		// return CacheFactory.getCache(name);
-    		return new HashMap();
+    		return new FastMap();
     	} else {
-            return new HashMap();
+            return new FastMap();
     	}
     }
     
     public static Map newBetaMemoryMap(String name) {
     	if (cluster) {
     		// return CacheFactory.getCache(name);
-    		return new HashMap();
+    		return new FastMap();
     	} else {
-            return new HashMap();
+            return new FastMap();
     	}
     }
     
     public static Map newTerminalMap() {
-    	return new HashMap();
+    	return new FastMap();
     }
     
     public static Map newClusterableMap(String name) {
@@ -84,7 +86,7 @@ public class CollectionsFactory {
     }
     
     public static Map newHashMap() {
-    	return new HashMap();
+    	return new FastMap();
     }
     
     public static Map newNodeMap(String name) {

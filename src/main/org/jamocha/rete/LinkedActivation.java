@@ -31,6 +31,8 @@ import org.jamocha.rule.Rule;
  */
 public class LinkedActivation implements Activation {
 
+	private static final int MAX_POOL_SIZE = 10000;
+
 	private LinkedActivation prev = null;
 
 	private LinkedActivation next = null;
@@ -44,19 +46,48 @@ public class LinkedActivation implements Activation {
 	private long aggreTime = 0;
 
 	private TerminalNode2 tnode = null;
-
+	
 	/**
 	 * 
 	 */
-	public LinkedActivation(Rule rule, Index inx) {
-		super();
+	private LinkedActivation() {
+	}
+
+	private void init(Rule rule, Index inx) {
 		this.theRule = rule;
 		this.index = inx;
 		this.timetag = System.nanoTime();
         calculateTime(index.getFacts());
 	}
+	
+	private static int instances = 0;
 
-    protected void calculateTime(Fact[] facts) {
+	private static int maxInstances = 0;
+	
+	private static final LinkedActivation[] instancePool = new LinkedActivation[MAX_POOL_SIZE];
+	
+	public static LinkedActivation acquire(Rule rule, Index index) {
+		LinkedActivation result;
+		if(instances == 0) {
+			result = new LinkedActivation();
+		} else {
+			result = instancePool[--instances];
+			instancePool[instances] = null;
+		}
+		result.init(rule, index);
+		return result;
+	}
+	
+	public static void release(LinkedActivation activation) {
+		if(instances < maxInstances || maxInstances < MAX_POOL_SIZE-1) {
+			instancePool[instances++] = activation;
+			if(maxInstances<instances) {
+				++maxInstances;
+			}
+		}
+	}
+
+	protected void calculateTime(Fact[] facts) {
         for (int idx=0; idx < facts.length; idx++) {
             this.aggreTime += facts[idx].timeStamp();
         }
@@ -197,7 +228,10 @@ public class LinkedActivation implements Activation {
     
     public void clear() {
         this.theRule = null;
+        this.index = null;
         this.tnode = null;
+        this.aggreTime = 0;
+        release(this);
     }
 
     public String toPPString() {
