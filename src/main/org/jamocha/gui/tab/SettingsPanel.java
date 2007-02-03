@@ -31,6 +31,7 @@ import javax.swing.JTabbedPane;
 import org.jamocha.gui.JamochaGui;
 import org.jamocha.gui.icons.IconLoader;
 import org.jamocha.gui.tab.settings.AbstractSettingsPanel;
+import org.jamocha.gui.tab.settings.EngineSettingsPanel;
 import org.jamocha.gui.tab.settings.ShellSettingsPanel;
 
 /**
@@ -55,6 +56,10 @@ public class SettingsPanel extends AbstractJamochaPanel implements
 		setLayout(new BorderLayout());
 		tabbedPane = new JTabbedPane();
 
+		EngineSettingsPanel engineSettingsPanel = new EngineSettingsPanel(gui);
+		tabbedPane.addTab("Engine", null, engineSettingsPanel, "Engine Settings");
+		panels.add(engineSettingsPanel);
+		
 		ShellSettingsPanel shellSettingsPanel = new ShellSettingsPanel(gui);
 		tabbedPane.addTab("Shell", null, shellSettingsPanel, "Shell Settings");
 		panels.add(shellSettingsPanel);
