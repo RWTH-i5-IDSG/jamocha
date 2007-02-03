@@ -37,12 +37,13 @@ import org.jamocha.rete.Messages;
 public class CollectionsFactory {
     
 	protected static boolean cluster = false;
-	
+	protected static boolean useJavolution = true;
 	protected static CollectionsFactory factory = null;
 	
 	protected CollectionsFactory() {
 		// we should look a the properties and set the cluster setting
 		cluster = Messages.getBooleanProperty("Cluster.enabled");
+        useJavolution = Messages.getBooleanProperty("javolution.util.FastMap");
 		// System.out.println("coherence is enabled " + cluster);
 	}
 	
@@ -51,34 +52,35 @@ public class CollectionsFactory {
 	}
 	
     public static Map newAlphaMemoryMap(String name) {
-    	if (cluster) {
-    		// return CacheFactory.getCache(name);
+    	if (useJavolution) {
     		return new FastMap();
     	} else {
-            return new FastMap();
+            return new HashMap();
     	}
     }
     
     public static Map newBetaMemoryMap(String name) {
-    	if (cluster) {
-    		// return CacheFactory.getCache(name);
-    		return new FastMap();
-    	} else {
+        if (useJavolution) {
             return new FastMap();
-    	}
+        } else {
+            return new HashMap();
+        }
     }
     
     public static Map newTerminalMap() {
-    	return new FastMap();
+        if (useJavolution) {
+            return new FastMap();
+        } else {
+            return new HashMap();
+        }
     }
     
     public static Map newClusterableMap(String name) {
-    	if (cluster) {
-    		// return CacheFactory.getCache(name);
-    		return new HashMap();
-    	} else {
+        if (useJavolution) {
+            return new FastMap();
+        } else {
             return new HashMap();
-    	}
+        }
     }
     
     public static Map newMap() {
@@ -86,16 +88,19 @@ public class CollectionsFactory {
     }
     
     public static Map newHashMap() {
-    	return new FastMap();
+        if (useJavolution) {
+            return new FastMap();
+        } else {
+            return new HashMap();
+        }
     }
     
     public static Map newNodeMap(String name) {
-    	if (cluster) {
-    		// return CacheFactory.getCache(name);
-    		return new HashMap();
-    	} else {
+        if (useJavolution) {
+            return new FastMap();
+        } else {
             return new HashMap();
-    	}
+        }
     }
     
     /**
