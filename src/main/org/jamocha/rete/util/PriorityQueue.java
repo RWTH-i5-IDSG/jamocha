@@ -20,6 +20,7 @@ import java.nio.BufferUnderflowException;
 import java.util.NoSuchElementException;
 
 import org.jamocha.rete.Activation;
+import org.jamocha.rete.QueueActivation;
 import org.jamocha.rete.Strategy;
 
 /**
@@ -30,7 +31,7 @@ import org.jamocha.rete.Strategy;
  * @author pete
  *
  */
-public final class PriorityQueue {
+public class PriorityQueue {
 
     private final static int DEFAULT_CAPACITY = 13;
     protected int size;
@@ -99,7 +100,7 @@ public final class PriorityQueue {
         }
     }
 
-    public Object peek(){
+    public Activation peek(){
         if (isEmpty()) {
             throw new NoSuchElementException();
         } else {
@@ -107,8 +108,8 @@ public final class PriorityQueue {
         }
     }
 
-    public Object pop() throws NoSuchElementException {
-        final Object result = peek();
+    public Activation pop() throws NoSuchElementException {
+        final Activation result = peek();
         elements[1] = elements[size--];
 
         elements[size + 1] = null;
@@ -211,6 +212,9 @@ public final class PriorityQueue {
      */
     protected void percolateUpMinHeap(final Activation element) {
         elements[++size] = element;
+        if (element instanceof QueueActivation) {
+            ((QueueActivation)element).setQueueIndex(size);
+        }
         percolateUpMinHeap(size);
     }
 
@@ -245,6 +249,9 @@ public final class PriorityQueue {
      */
     protected void percolateUpMaxHeap(final Activation element) {
         elements[++size] = element;
+        if (element instanceof QueueActivation) {
+            ((QueueActivation)element).setQueueIndex(size);
+        }
         percolateUpMaxHeap(size);
     }
     
@@ -308,7 +315,7 @@ public final class PriorityQueue {
                 return index <= size;
             }
 
-            public Object next() {
+            public Activation next() {
                 if (!hasNext()) throw new NoSuchElementException();
                 lastReturnedIndex = index;
                 index++;
@@ -351,8 +358,7 @@ public final class PriorityQueue {
 
 
     /**
-     * Adds an object to this heap. Same as {@link #insert(Object)}.
-     *
+     * Adds an object to this heap.
      * @param object  the object to add
      * @return true, always
      */
@@ -362,12 +368,11 @@ public final class PriorityQueue {
     }
 
     /**
-     * Returns the priority element. Same as {@link #peek()}.
-     *
+     * Returns the priority element.
      * @return the priority element
      * @throws BufferUnderflowException if this heap is empty
      */
-    public Object get() {
+    public Activation get() {
         try {
             return peek();
         } catch (NoSuchElementException e) {
@@ -381,14 +386,18 @@ public final class PriorityQueue {
      * @return the removed priority element
      * @throws BufferUnderflowException if this heap is empty
      */
-    public Object remove() {
+    public Activation remove() {
         try {
             return pop();
         } catch (NoSuchElementException e) {
             throw new BufferUnderflowException();
         }
     }
-
+    
+    public Activation remove(int index) {
+        return null;
+    }
+    
     /**
      * Returns the number of elements in this heap.
      *
