@@ -83,5 +83,16 @@ public interface ActivationList extends Serializable {
      */
     boolean isLazy();
     
+    /**
+     * number of activation in the list
+     * @return
+     */
     int size();
+    
+    /**
+     * sometimes we need to clone the list, so that users can see what is
+     * in the activation list or print it out.
+     * @return
+     */
+    ActivationList clone();
 }

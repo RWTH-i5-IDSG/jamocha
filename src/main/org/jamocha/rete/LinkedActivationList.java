@@ -237,4 +237,21 @@ public class LinkedActivationList extends AbstractActivationList {
         }
     }
 
+    /**
+     * method will clone the list and make a copy of the activations
+     */
+    public ActivationList clone() {
+        final LinkedActivationList la = new LinkedActivationList(this.theStrategy);
+        la.count = this.count;
+        la.first = this.first.clone();
+        la.lazy = this.lazy;
+        LinkedActivation current = this.first;
+        LinkedActivation newcurr = la.first;
+        while (current != null) {
+            newcurr.setNext( current.getNext().clone());
+            current = current.getNext();
+            newcurr = newcurr.getNext();
+        }
+        return la;
+    }
 }

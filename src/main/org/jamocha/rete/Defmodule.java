@@ -86,7 +86,7 @@ public class Defmodule implements Module, Serializable {
 	 * Return all the activations within the module
 	 */
 	public ActivationList getAllActivations() {
-		return this.activations;
+		return this.activations.clone();
 	}
 
 	/**

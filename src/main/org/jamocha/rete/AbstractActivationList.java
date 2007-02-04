@@ -53,4 +53,5 @@ public abstract class AbstractActivationList implements ActivationList,
 		return this.lazy;
 	}
 
+    public abstract ActivationList clone();
 }

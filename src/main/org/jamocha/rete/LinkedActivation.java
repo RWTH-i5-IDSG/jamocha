@@ -244,4 +244,9 @@ public class LinkedActivation implements Activation {
     	buf.append(" AggrTime-" + this.aggreTime);
     	return buf.toString();
     }
+    
+    public LinkedActivation clone() {
+        LinkedActivation la = LinkedActivation.acquire(this.theRule,this.index);
+        return la;
+    }
 }
