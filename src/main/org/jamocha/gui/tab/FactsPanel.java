@@ -243,36 +243,34 @@ public class FactsPanel extends AbstractJamochaPanel implements ActionListener,
 
 	public void valueChanged(ListSelectionEvent arg0) {
 		if (arg0.getSource() == factsTable.getSelectionModel()) {
+			StringBuilder buffer = new StringBuilder();
 			if (factsTable.getSelectedColumnCount() == 1
 					&& factsTable.getSelectedRow() > -1) {
 				Fact fact = dataModel.getRow(factsTable.getSelectedRow());
 				if (fact != null) {
-					dumpArea.setText("f-" + fact.getFactId() + "("
+					buffer.append("f-" + fact.getFactId() + "("
 							+ fact.getDeftemplate().getName());
 					Slot[] slots = fact.getDeftemplate().getAllSlots();
 					for (Slot slot : slots) {
-						dumpArea.append("\n    (" + slot.getName() + " ");
+						buffer.append("\n    (" + slot.getName() + " ");
 						if (slot.getValueType() == JamochaType.LIST) {
 							for (int i = 0; i < slot.getValue().getListCount(); ++i) {
 									if (i > 0)
-										dumpArea.append(" ");
-									dumpArea.append("\"" + slot.getValue().getListValue(i) + "\"");
+										buffer.append(" ");
+									buffer.append(slot.getValue().getListValue(i).getStringValue());
 								}
 						} else {
 							String value = fact.getSlotValue(slot.getId())
 									.toString();
 							if (!value.equals(""))
-								dumpArea.append("\"" + value + "\"");
+								buffer.append(value);
 						}
-						dumpArea.append(")");
+						buffer.append(")");
 					}
-					dumpArea.append("\n)");
-				} else {
-					dumpArea.setText("");
+					buffer.append("\n)");
 				}
-			} else {
-				dumpArea.setText("");
 			}
+			dumpArea.setText(buffer.toString());
 		}
 	}
 

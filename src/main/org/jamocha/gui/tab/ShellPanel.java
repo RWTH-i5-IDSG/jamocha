@@ -472,6 +472,7 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 		KeyAdapter adapter = new KeyAdapter() {
 			public void keyPressed(KeyEvent e) {
 				keyEventQueue.offer(e);
+				e.consume();
 			}
 		};
 		addKeyListener(adapter);
@@ -624,7 +625,7 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 							}
 							break;
 						}
-						e.consume();
+						//e.consume();
 						startTimer();
 					} else {
 						try {

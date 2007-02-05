@@ -368,9 +368,9 @@ public class LogPanel extends AbstractJamochaPanel implements ActionListener,
 								+ "\n\nMessage:\n========\n");
 				Object message = event.getMessage();
 				if (message instanceof Exception) {
-					StackTraceElement[] str = ((Exception) message)
-							.getStackTrace();
-					detailView.append(((Exception) message).getMessage());
+					Exception ex = (Exception) message;
+					StackTraceElement[] str = ex.getStackTrace();
+					detailView.append(ex.getClass().getName()+": "+ex.getMessage());
 					for (StackTraceElement strelem : str) {
 						detailView.append("\n" + strelem);
 					}
