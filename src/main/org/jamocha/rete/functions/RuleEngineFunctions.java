@@ -55,6 +55,9 @@ public class RuleEngineFunctions implements FunctionGroup, Serializable {
 		AnyEqFunction anyeq = new AnyEqFunction();
 		engine.declareFunction(anyeq);
 		funcs.add(anyeq);
+		ApplyFunction apply = new ApplyFunction();
+		engine.declareFunction(apply);
+		funcs.add(apply);
 		BindFunction bindf = new BindFunction();
 		engine.declareFunction(bindf);
 		funcs.add(bindf);
@@ -91,6 +94,9 @@ public class RuleEngineFunctions implements FunctionGroup, Serializable {
         FactsFunction ffun = new FactsFunction();
         engine.declareFunction(ffun);
         funcs.add(ffun);
+        FactSlotValueFunction fsv = new FactSlotValueFunction();
+        engine.declareFunction(fsv);
+        funcs.add(fsv);
 		FireFunction fire = new FireFunction();
 		engine.declareFunction(fire);
 		funcs.add(fire);
