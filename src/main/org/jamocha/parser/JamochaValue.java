@@ -22,7 +22,7 @@ public class JamochaValue {
 			JamochaType.LIST, new JamochaValue[] {});
 
 	public static JamochaValue singletonList(JamochaValue value) {
-		if (value == null) {
+		if (value == null || value.equals(NIL)) {
 			return EMPTY_LIST;
 		}
 		return new JamochaValue(JamochaType.LIST, new JamochaValue[] { value });
