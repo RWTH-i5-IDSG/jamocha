@@ -126,7 +126,7 @@ public class GenerateFacts {
 			} else if (cn instanceof BoundConstraint) {
 				// for now we do the simple thing and just set
 				// any bound slots to 1
-				Slot s = new Slot(cn.getName(),new JamochaValue(JamochaType.LONG, Integer.valueOf(1)));
+				Slot s = new Slot(cn.getName(),JamochaValue.newLong(Integer.valueOf(1)));
 				list.add(s);
 			}
 		}

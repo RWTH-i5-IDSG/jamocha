@@ -53,7 +53,7 @@ public class Random implements Function, Serializable {
 
 	public JamochaValue executeFunction(Rete engine, Parameter[] params)
 			throws EvaluationException {
-		return new JamochaValue(JamochaType.DOUBLE, Math.random());
+		return JamochaValue.newDouble(Math.random());
 	}
 
 	public String getName() {

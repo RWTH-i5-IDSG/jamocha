@@ -322,24 +322,24 @@ JamochaValue typeExpr() :
   {
     String strlit = exp.image;
     strlit = ParserUtils.getStringLiteral(strlit);
-    return new JamochaValue(JamochaType.STRING, strlit);
+    return JamochaValue.newString(strlit);
   }
 |
   exp = <INTEGER_LITERAL>
   {
     // we use Long
-    return new JamochaValue(JamochaType.LONG, Long.valueOf(exp.image));
+    return JamochaValue.newLong(Long.parseLong(exp.image));
   }
 |
   exp = <FLOATING_POINT_LITERAL>
   {
     // we use float, double
-    return new JamochaValue(JamochaType.DOUBLE, Double.valueOf(exp.image));
+    return JamochaValue.newDouble(Double.parseDouble(exp.image));
   }
 |
   exp = <PATH_LITERAL>
   {
-    return new JamochaValue(JamochaType.STRING, exp.image);
+    return JamochaValue.newString(exp.image);
   }
 }
 
@@ -366,8 +366,8 @@ Object expr() :
     func = new ShellFunction();
     func.setName(exp.image);
     pms = new ValueParam[2];
-    pms[0] = new ValueParam(new JamochaValue(JamochaType.IDENTIFIER,exp2.image));
-    pms[1] = new ValueParam(new JamochaValue(JamochaType.OBJECT,list.toArray()));
+    pms[0] = new ValueParam(JamochaValue.newIdentifier(exp2.image));
+    pms[1] = new ValueParam(JamochaValue.newObject(list.toArray()));
     func.setParameters(pms);
     exp.clear();
     exp = null;
@@ -380,8 +380,8 @@ Object expr() :
     func = new ShellFunction();
     func.setName(exp.image);
     pms = new ValueParam[2];
-    pms[0] = new ValueParam(new JamochaValue(JamochaType.IDENTIFIER,exp2.image));
-    pms[1] = new ValueParam(new JamochaValue(JamochaType.OBJECT,list.toArray()));
+    pms[0] = new ValueParam(JamochaValue.newIdentifier(exp2.image));
+    pms[1] = new ValueParam(JamochaValue.newObject(list.toArray()));
     func.setParameters(pms);
     exp.clear();
     exp = null;
@@ -398,7 +398,7 @@ Object expr() :
       bp.setVariableName(exp2.image);
       rpms[0] = bp;
     } else {
-      ValueParam vp = new ValueParam(new JamochaValue(JamochaType.LONG, new Long(exp2.image)));
+      ValueParam vp = new ValueParam(JamochaValue.newLong(Long.parseLong(exp2.image)));
       rpms[0] = vp;
     }
     func.setParameters(rpms);
@@ -428,7 +428,7 @@ Object expr() :
     func = new ShellFunction();
     func.setName(exp.image);
     pms = new ValueParam[1];
-    pms[0] = new ValueParam(new JamochaValue(JamochaType.OBJECT,templ));
+    pms[0] = new ValueParam(JamochaValue.newObject(templ));
     func.setParameters(pms);
     return func;
   }
@@ -439,7 +439,7 @@ Object expr() :
     func = new ShellFunction();
     func.setName(exp.image);
     pms = new ValueParam[1];
-    pms[0] = new ValueParam(new JamochaValue(JamochaType.IDENTIFIER,body));
+    pms[0] = new ValueParam(JamochaValue.newIdentifier(body));
     func.setParameters(pms);
     return func;
   }
@@ -450,7 +450,7 @@ Object expr() :
     func = new ShellFunction();
     func.setName(exp.image);
     pms = new ValueParam[1];
-    pms[0] = new ValueParam(new JamochaValue(JamochaType.OBJECT,rule));
+    pms[0] = new ValueParam(JamochaValue.newObject(rule));
     func.setParameters(pms);
     return func;
   }
@@ -482,7 +482,7 @@ Object expr() :
   {
     func = new ShellFunction();
     func.setName("bind");
-    list.add(0,new ValueParam(new JamochaValue(JamochaType.IDENTIFIER,exp.image.substring(1))));
+    list.add(0,new ValueParam(JamochaValue.newIdentifier(exp.image.substring(1))));
     func.setParameters(ParameterUtils.convertParameters(list));
     list.clear();
     return func;
@@ -545,19 +545,19 @@ void valueParams(List list) :
 |
   exp = <IDENTIFIER>
   {
-    vp = new ValueParam(new JamochaValue(JamochaType.IDENTIFIER, ((Token)exp).image));
+    vp = new ValueParam(JamochaValue.newIdentifier(((Token)exp).image));
     list.add(vp);
   }
 |
   exp = <TRUE>
   {
-    vp = new ValueParam(new JamochaValue(JamochaType.BOOLEAN, Boolean.TRUE));
+    vp = new ValueParam(JamochaValue.TRUE);
     list.add(vp);
   }
 |
   exp = <FALSE>
   {
-    vp = new ValueParam(new JamochaValue(JamochaType.BOOLEAN, Boolean.FALSE));
+    vp = new ValueParam(JamochaValue.FALSE);
     list.add(vp);
   }
 |
@@ -643,8 +643,8 @@ ValueParam[] assertBody() :
   <LBRACE> exp = <IDENTIFIER> (assertContents(tokens))+ <RBRACE>
   {
     param = new ValueParam[2];
-    param[0] = new ValueParam(new JamochaValue(JamochaType.IDENTIFIER,exp.image));
-    param[1] = new ValueParam(new JamochaValue(JamochaType.OBJECT,tokens.toArray()));
+    param[0] = new ValueParam(JamochaValue.newIdentifier(exp.image));
+    param[1] = new ValueParam(JamochaValue.newObject(tokens.toArray()));
     tokens.clear();
     exp = null;
     return param;
@@ -689,7 +689,7 @@ JamochaValue checkMultiSlot() :
     for(int i=0; i<artokens.size(); ++i) {
       values[i] = (JamochaValue) artokens.get(i);
     }
-    return new JamochaValue(JamochaType.LIST, values);
+    return JamochaValue.newList(values);
   }
 |
   LOOKAHEAD(<STRING_LITERAL><STRING_LITERAL>) (arrayType(artokens))+
@@ -698,7 +698,7 @@ JamochaValue checkMultiSlot() :
     for(int i=0; i<artokens.size(); ++i) {
       values[i] = (JamochaValue) artokens.get(i);
     }
-    return new JamochaValue(JamochaType.LIST, values);
+    return JamochaValue.newList(values);
   }
 |
   body = slotValueType()
@@ -718,7 +718,7 @@ JamochaValue slotValueType() :
   {
       BoundParam bp = new BoundParam();
       bp.setVariableName(btoken.image);
-      return new JamochaValue(JamochaType.BINDING, bp);
+      return JamochaValue.newBinding(bp);
   }
 |
   body = typeExpr()
@@ -733,7 +733,7 @@ JamochaValue slotValueType() :
 |
   btoken = <IDENTIFIER>
   {
-    return new JamochaValue(JamochaType.IDENTIFIER, btoken.image);
+    return JamochaValue.newIdentifier(btoken.image);
   }
 }
 
@@ -1113,7 +1113,7 @@ void conditionElement(List list) :
   {
     ObjectCondition oc = (ObjectCondition)list.get(list.size() -1);
     BoundConstraint bc = new BoundConstraint(oc.getTemplateName(),true);
-    bc.setValue(new JamochaValue(JamochaType.IDENTIFIER,exp.image.substring(1)));
+    bc.setValue(JamochaValue.newIdentifier(exp.image.substring(1)));
     oc.addConstraint(bc,0);
   }
 |
@@ -1230,7 +1230,7 @@ void propertyType(List list, Token identifier) :
     if (body2 != null) {
       bc = new BoundConstraint();
       bc.setName(identifier.image);
-      bc.setValue(new JamochaValue(JamochaType.IDENTIFIER,body2.image.substring(2)));
+      bc.setValue(JamochaValue.newIdentifier(body2.image.substring(2)));
       bc.setIsMultislot(true);
       list.add(bc);
     }
@@ -1241,7 +1241,7 @@ void propertyType(List list, Token identifier) :
     if (body2 != null) {
       bc = new BoundConstraint();
       bc.setName(identifier.image);
-      bc.setValue(new JamochaValue(JamochaType.IDENTIFIER,body2.image.substring(1)));
+      bc.setValue(JamochaValue.newIdentifier(body2.image.substring(1)));
       list.add(bc);
     }
   }
@@ -1251,7 +1251,7 @@ void propertyType(List list, Token identifier) :
     if (body2 != null) {
       bc = new BoundConstraint();
       bc.setName(identifier.image);
-      bc.setValue(new JamochaValue(JamochaType.IDENTIFIER, body2.image.substring(1)));
+      bc.setValue(JamochaValue.newIdentifier(body2.image.substring(1)));
       bc.setNegated(true);
       list.add(bc);
     }
@@ -1327,7 +1327,7 @@ void propertyType(List list, Token identifier) :
     if (id != null) {
       vc = new LiteralConstraint();
       vc.setName(identifier.image);
-      vc.setValue(new JamochaValue(JamochaType.IDENTIFIER, id.image));
+      vc.setValue(JamochaValue.newIdentifier(id.image));
       list.add(vc);
     }
   }
@@ -1337,7 +1337,7 @@ void propertyType(List list, Token identifier) :
     if (id != null) {
       vc = new LiteralConstraint();
       vc.setName(identifier.image);
-      vc.setValue(new JamochaValue(JamochaType.IDENTIFIER, id.image));
+      vc.setValue(JamochaValue.newIdentifier(id.image));
       vc.setNegated(true);
       list.add(vc);
     }
@@ -1542,9 +1542,9 @@ void actionParams(List list) :
   exp = <IDENTIFIER>
   {
     if (exp instanceof Token) {
-      value = new JamochaValue(JamochaType.IDENTIFIER, ((Token)exp).image );
+      value = JamochaValue.newIdentifier(((Token)exp).image );
     } else {
-      value = new JamochaValue(JamochaType.IDENTIFIER, exp );
+      value = JamochaValue.newIdentifier((String)exp);
     }
     vp = new ValueParam(value);
     list.add(vp);

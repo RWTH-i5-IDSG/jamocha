@@ -130,7 +130,7 @@ public class PredicateConstraint implements Constraint {
             } else if (p instanceof BoundParam) {
             	BoundParam bp = (BoundParam)p;
             	if (!bp.getVariableName().equals(this.varName)) {
-                	this.setValue(new JamochaValue(JamochaType.BINDING, bp));
+                	this.setValue(JamochaValue.newBinding(bp));
             	}
             	bcount++;
             }

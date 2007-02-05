@@ -87,7 +87,7 @@ public class GenerateFactsFunction implements Function, Serializable {
 						}
 					}
 				}
-				result = new JamochaValue(JamochaType.OBJECT, facts.toArray());
+				result = JamochaValue.newObject(facts.toArray());
 			}
 		} else {
 			throw new IllegalParameterException(1);

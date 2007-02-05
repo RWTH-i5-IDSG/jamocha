@@ -80,7 +80,7 @@ public class AssertTemporalFunction implements Function, Serializable {
 				// if it was asserted, we return the fact id, otherwise
 				// we return "false".
 				if (fact.getFactId() > 0) {
-					result = new JamochaValue(JamochaType.FACT_ID, fact.getFactId());
+					result = JamochaValue.newFactId(fact.getFactId());
 				}
 			} catch (AssertException e) {
 				// we should log this and output an error

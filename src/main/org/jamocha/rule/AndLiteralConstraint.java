@@ -40,7 +40,7 @@ import org.jamocha.rete.ConversionUtils;
 public class AndLiteralConstraint implements Constraint {
 
     protected String name;
-    protected JamochaValue value = new JamochaValue(JamochaType.OBJECT, new ArrayList());
+    protected JamochaValue value = JamochaValue.newObject(new ArrayList());
     protected boolean negated = false;
     
 	/**

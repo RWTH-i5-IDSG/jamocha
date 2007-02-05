@@ -67,14 +67,14 @@ public class Add implements Function, Serializable {
 					for (int i=0; i<params.length; ++i) {
 						result += params[i].getValue(engine).implicitCast(JamochaType.DOUBLE).getDoubleValue();
 					}
-					return new JamochaValue(JamochaType.DOUBLE, result);
+					return JamochaValue.newDouble(result);
 				}
 				else {
 					long result = 0;
 					for (int i=0; i<params.length; ++i) {
 						result += params[i].getValue(engine).implicitCast(JamochaType.LONG).getLongValue();
 					}
-					return new JamochaValue(JamochaType.LONG, result);
+					return JamochaValue.newLong(result);
 				}
 			}
 		}

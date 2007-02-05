@@ -60,10 +60,10 @@ public class Tanh implements Function, Serializable {
 					value = value.implicitCast(JamochaType.DOUBLE);
 				}
 				if (value.getType().equals(JamochaType.DOUBLE)) {
-					return new JamochaValue(JamochaType.DOUBLE, Math.tanh(value
+					return JamochaValue.newDouble(Math.tanh(value
 							.getDoubleValue()));
 				} else if (value.getType().equals(JamochaType.LONG)) {
-					return new JamochaValue(JamochaType.DOUBLE, Math.tanh(value
+					return JamochaValue.newDouble(Math.tanh(value
 							.getLongValue()));
 				}
 			}

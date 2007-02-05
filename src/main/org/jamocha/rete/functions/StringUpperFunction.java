@@ -60,7 +60,7 @@ public class StringUpperFunction implements Function, Serializable {
 		} else {
 			throw new IllegalParameterException(1);
 		}
-		return new JamochaValue(JamochaType.STRING, txt);
+		return JamochaValue.newString(txt);
 	}
 
 	public String getName() {

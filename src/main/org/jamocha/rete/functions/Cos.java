@@ -60,10 +60,10 @@ public class Cos implements Function, Serializable {
 					value = value.implicitCast(JamochaType.DOUBLE);
 				}
 				if (value.getType().equals(JamochaType.DOUBLE)) {
-					return new JamochaValue(JamochaType.DOUBLE, Math.cos(value
+					return JamochaValue.newDouble(Math.cos(value
 							.getDoubleValue()));
 				} else if (value.getType().equals(JamochaType.LONG)) {
-					return new JamochaValue(JamochaType.DOUBLE, Math.cos(value
+					return JamochaValue.newDouble(Math.cos(value
 							.getLongValue()));
 				}
 			}

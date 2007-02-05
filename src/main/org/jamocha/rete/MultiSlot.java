@@ -16,6 +16,8 @@
  */
 package org.jamocha.rete;
 
+import org.jamocha.parser.JamochaType;
+
 /**
  * @author Peter Lin
  * 
@@ -26,13 +28,12 @@ public class MultiSlot extends Slot {
 
 	protected Object[] value = {};
 
-	protected int type = Constants.ARRAY_TYPE;
-
 	/**
 	 * 
 	 */
 	public MultiSlot() {
 		super();
+		super.setValueType(JamochaType.LIST);
 	}
 
 	public MultiSlot(String name) {
@@ -57,7 +58,7 @@ public class MultiSlot extends Slot {
 	 * We override the base implementation and do nothing, since a multislot is
 	 * an object array. That means it is an array type
 	 */
-	public void setValueType(int type) {
+	public void setValueType(JamochaType type) {
 	}
 
 	public String valueToString() {
@@ -71,7 +72,7 @@ public class MultiSlot extends Slot {
 		MultiSlot newms = new MultiSlot();
 		newms.setId(this.getId());
 		newms.setName(this.getName());
-		newms.setValue(this.getValue());
+		newms.value = this.value;
 		return newms;
 	}
 

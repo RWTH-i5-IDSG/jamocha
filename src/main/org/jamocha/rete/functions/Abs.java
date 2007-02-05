@@ -61,10 +61,10 @@ public class Abs implements Function, Serializable {
 					value = value.implicitCast(JamochaType.DOUBLE);
 				}
 				if (value.getType().equals(JamochaType.DOUBLE)) {
-					result = new JamochaValue(JamochaType.DOUBLE, Math
+					result = JamochaValue.newDouble(Math
 							.abs(value.getDoubleValue()));
 				} else if (value.getType().equals(JamochaType.LONG)) {
-					result = new JamochaValue(JamochaType.LONG, Math.abs(value
+					result = JamochaValue.newLong(Math.abs(value
 							.getLongValue()));
 				}
 				return result;

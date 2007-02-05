@@ -304,7 +304,7 @@ public class Defrule implements Rule, Serializable {
     		if (bd != null) {
     			Fact left = this.triggerFacts[bd.getLeftRow()];
     			if (bd.getIsObjectVar()) {
-    				val = new JamochaValue(JamochaType.FACT, left);
+    				val = JamochaValue.newFact(left);
     			} else {
         			val = left.getSlotValue(bd.getLeftIndex());
     			}

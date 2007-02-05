@@ -56,14 +56,14 @@ public class UsageFunction implements Function, Serializable {
 
 	public JamochaValue executeFunction(Rete engine, Parameter[] params)
 			throws EvaluationException {
-		JamochaValue result = new JamochaValue(JamochaType.STRING, this
+		JamochaValue result = JamochaValue.newString(this
 				.toPPString(null, 0));
 		if (params != null && params.length == 1) {
 			JamochaValue firstParam = params[0].getValue(engine);
 			String function = firstParam.getStringValue();
 			Function aFunction = engine.findFunction(function);
 			if (aFunction != null) {
-				result = new JamochaValue(JamochaType.STRING, aFunction
+				result = JamochaValue.newString(aFunction
 						.toPPString(null, 0));
 			}
 		}

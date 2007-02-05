@@ -61,7 +61,7 @@ public class ModulesFunction implements Function, Serializable {
 			sb.append(r.getModuleName()).append(Constants.LINEBREAK);
 		}
 		sb.append("for a total of ").append(count).append(Constants.LINEBREAK);
-		return new JamochaValue(JamochaType.STRING, sb.toString());
+		return JamochaValue.newString(sb.toString());
 	}
 
 	public String getName() {

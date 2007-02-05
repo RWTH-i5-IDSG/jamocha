@@ -60,11 +60,11 @@ public class Evenp implements Function, Serializable {
 					value = value.implicitCast(JamochaType.DOUBLE);
 				}
 				if (value.getType().equals(JamochaType.DOUBLE)) {
-					return new JamochaValue(JamochaType.BOOLEAN, ((value
+					return JamochaValue.newBoolean(((value
 							.getDoubleValue() % 2) == 0.0));
 				}
 				if (value.getType().equals(JamochaType.LONG)) {
-					return new JamochaValue(JamochaType.BOOLEAN, ((value
+					return JamochaValue.newBoolean(((value
 							.getLongValue() % 2) == 0));
 				}
 			}

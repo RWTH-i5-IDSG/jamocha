@@ -64,7 +64,7 @@ public class FireFunction implements Function, Serializable {
 		} else {
 			count = engine.fire();
 		}
-		return new JamochaValue(JamochaType.LONG, count);
+		return JamochaValue.newLong(count);
 	}
 
 	public String getName() {

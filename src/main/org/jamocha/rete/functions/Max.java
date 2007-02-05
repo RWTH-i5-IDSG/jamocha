@@ -70,7 +70,7 @@ public class Max implements Function, Serializable {
 								.implicitCast(JamochaType.DOUBLE)
 								.getDoubleValue());
 					}
-					return new JamochaValue(JamochaType.DOUBLE, result);
+					return JamochaValue.newDouble(result);
 				} else {
 					long result = params[0].getValue(engine).implicitCast(
 							JamochaType.LONG).getLongValue();
@@ -78,7 +78,7 @@ public class Max implements Function, Serializable {
 						result = Math.max(result, params[i].getValue(engine)
 								.implicitCast(JamochaType.LONG).getLongValue());
 					}
-					return new JamochaValue(JamochaType.LONG, result);
+					return JamochaValue.newLong(result);
 				}
 			}
 		}

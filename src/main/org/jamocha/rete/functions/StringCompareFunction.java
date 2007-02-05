@@ -61,7 +61,7 @@ public class StringCompareFunction implements Function, Serializable {
 		} else {
 			throw new IllegalParameterException(2);
 		}
-		return new JamochaValue(JamochaType.LONG, eq);
+		return JamochaValue.newLong(eq);
 	}
 
 	public String getName() {

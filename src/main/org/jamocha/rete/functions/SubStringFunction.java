@@ -62,7 +62,7 @@ public class SubStringFunction implements Function, Serializable {
 		} else {
 			throw new IllegalParameterException(3);
 		}
-		return new JamochaValue(JamochaType.STRING, sub);
+		return JamochaValue.newString(sub);
 	}
 
 	public String getName() {

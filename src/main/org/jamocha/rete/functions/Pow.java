@@ -77,7 +77,7 @@ public class Pow implements Function, Serializable {
 								.implicitCast(JamochaType.LONG).getLongValue());
 					}
 				}
-				return new JamochaValue(JamochaType.DOUBLE, result);
+				return JamochaValue.newDouble(result);
 			}
 		}
 		throw new IllegalParameterException(1, true);

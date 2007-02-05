@@ -3,6 +3,7 @@ package org.jamocha.parser;
 import java.util.Collection;
 import java.util.Iterator;
 
+import org.jamocha.rete.BoundParam;
 import org.jamocha.rete.Fact;
 import org.jamocha.rete.Slot;
 
@@ -27,11 +28,55 @@ public class JamochaValue {
 		return new JamochaValue(JamochaType.LIST, new JamochaValue[] { value });
 	}
 
+	public static JamochaValue newBoolean(boolean value) {
+		return value ? TRUE : FALSE;
+	}
+
+	public static JamochaValue newLong(long value) {
+		return new JamochaValue(JamochaType.LONG, value);
+	}
+
+	public static JamochaValue newDouble(double value) {
+		return new JamochaValue(JamochaType.DOUBLE, value);
+	}
+
+	public static JamochaValue newString(String value) {
+		return new JamochaValue(JamochaType.STRING, value);
+	}
+
+	public static JamochaValue newObject(Object value) {
+		return new JamochaValue(JamochaType.OBJECT, value);
+	}
+
+	public static JamochaValue newIdentifier(String value) {
+		return new JamochaValue(JamochaType.IDENTIFIER, value);
+	}
+
+	public static JamochaValue newFact(Fact value) {
+		return new JamochaValue(JamochaType.FACT, value);
+	}
+
+	public static JamochaValue newFactId(long value) {
+		return new JamochaValue(JamochaType.FACT_ID, value);
+	}
+
+	public static JamochaValue newList(JamochaValue[] values) {
+		return new JamochaValue(JamochaType.LIST, values);
+	}
+
+	public static JamochaValue newBinding(BoundParam value) {
+		return new JamochaValue(JamochaType.BINDING, value);
+	}
+
+	public static JamochaValue newSlot(Slot value) {
+		return new JamochaValue(JamochaType.SLOT, value);
+	}
+
 	private JamochaType type;
 
 	private Object value;
 
-	public JamochaValue(JamochaType type, Object value) {
+	private JamochaValue(JamochaType type, Object value) {
 		if (type == null) {
 			throw new IllegalArgumentException("type of a value can't be null.");
 		}
@@ -215,53 +260,53 @@ public class JamochaValue {
 		if (type.equals(JamochaType.UNDEFINED) || type.equals(this.type)) {
 			return this;
 		}
+		if (type.equals(JamochaType.LIST)) {
+			return singletonList(this);
+		}
 		switch (this.type) {
 		case BOOLEAN:
 			switch (type) {
 			case BOOLEAN:
 				return this;
 			case DOUBLE:
-				return new JamochaValue(JamochaType.DOUBLE, ((Boolean) value)
-						.booleanValue() ? 1.0 : 0.0);
+				return JamochaValue
+						.newDouble(((Boolean) value).booleanValue() ? 1.0 : 0.0);
 			case LONG:
-				return new JamochaValue(JamochaType.LONG, ((Boolean) value)
-						.booleanValue() ? 1 : 0);
+				return JamochaValue
+						.newLong(((Boolean) value).booleanValue() ? 1 : 0);
 			}
 		case DOUBLE:
 			switch (type) {
 			case BOOLEAN:
-				return new JamochaValue(JamochaType.BOOLEAN, ((Number) value)
-						.doubleValue() != 0.0);
+				return JamochaValue
+						.newBoolean(((Number) value).doubleValue() != 0.0);
 			case DOUBLE:
 				return this;
 			case LONG:
-				return new JamochaValue(JamochaType.LONG, ((Number) value)
-						.longValue());
+				return JamochaValue.newLong(((Number) value).longValue());
 			}
 		case LONG:
 			switch (type) {
 			case BOOLEAN:
-				return new JamochaValue(JamochaType.BOOLEAN, ((Number) value)
-						.longValue() != 0);
+				return JamochaValue
+						.newBoolean(((Number) value).longValue() != 0);
 			case DOUBLE:
-				return new JamochaValue(JamochaType.DOUBLE, ((Number) value)
-						.doubleValue());
+				return JamochaValue.newDouble(((Number) value).doubleValue());
 			case LONG:
 				return this;
 			case FACT_ID:
-				return new JamochaValue(JamochaType.FACT_ID, value);
+				return JamochaValue.newFactId((Long)value);
 			}
 			break;
 		case FACT_ID:
 			switch (type) {
 			case BOOLEAN:
-				return new JamochaValue(JamochaType.BOOLEAN, ((Number) value)
-						.longValue() != 0);
+				return JamochaValue
+						.newBoolean(((Number) value).longValue() != 0);
 			case DOUBLE:
-				return new JamochaValue(JamochaType.DOUBLE, ((Number) value)
-						.doubleValue());
+				return JamochaValue.newDouble(((Number) value).doubleValue());
 			case LONG:
-				return new JamochaValue(JamochaType.LONG, value);
+				return JamochaValue.newLong((Long)value);
 			case FACT_ID:
 				return this;
 			}
@@ -269,8 +314,7 @@ public class JamochaValue {
 		case FACT:
 			switch (type) {
 			case FACT_ID:
-				return new JamochaValue(JamochaType.FACT_ID, ((Fact) value)
-						.getFactId());
+				return JamochaValue.newFactId(((Fact) value).getFactId());
 			}
 		}
 		throw new IllegalConversionException("Unable to cast " + this.type
@@ -296,15 +340,15 @@ public class JamochaValue {
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        final JamochaValue other = (JamochaValue) obj;
-        if (value == null) {
-            if (other.value != null)
-                return false;
-        } else if (!value.equals(other.value))
-            return false;
-        return true;
+			return true;
+		if (obj == null)
+			return false;
+		final JamochaValue other = (JamochaValue) obj;
+		if (value == null) {
+			if (other.value != null)
+				return false;
+		} else if (!value.equals(other.value))
+			return false;
+		return true;
 	}
 }

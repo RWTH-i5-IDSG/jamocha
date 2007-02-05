@@ -64,7 +64,7 @@ public class MemberTestFunction implements Function, Serializable {
             }
 			for (int idx=0; idx < second.getListCount(); idx++) {
 				if (first.equals(second.getListValue(idx))) {
-					result = new JamochaValue(JamochaType.LONG,++idx);
+					result = JamochaValue.newLong(++idx);
 					break;
 				}
 			}

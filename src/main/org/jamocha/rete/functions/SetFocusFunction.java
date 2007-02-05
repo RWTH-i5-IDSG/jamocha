@@ -57,7 +57,7 @@ public class SetFocusFunction implements Function, Serializable {
 		} else {
 			focus = engine.getCurrentFocus().getModuleName();
 		}
-		return new JamochaValue(JamochaType.IDENTIFIER, focus);
+		return JamochaValue.newIdentifier(focus);
 	}
 
 	public String getName() {

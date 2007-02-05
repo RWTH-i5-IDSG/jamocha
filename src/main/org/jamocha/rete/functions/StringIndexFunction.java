@@ -60,7 +60,7 @@ public class StringIndexFunction implements Function, Serializable {
 		} else {
 			throw new IllegalParameterException(2);
 		}
-		return new JamochaValue(JamochaType.LONG, index);
+		return JamochaValue.newLong(index);
 	}
 
 	public String getName() {

@@ -73,7 +73,7 @@ public class NewFunction implements Function, Serializable {
 					if (foundConstructor != null) {
 						o = foundConstructor.newInstance(args);
 					}
-					return new JamochaValue(JamochaType.OBJECT, o);
+					return JamochaValue.newObject(o);
 				} catch (ClassNotFoundException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();

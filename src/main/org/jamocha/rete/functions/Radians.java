@@ -61,10 +61,10 @@ public class Radians implements Function, Serializable {
 					value = value.implicitCast(JamochaType.DOUBLE);
 				}
 				if (value.getType().equals(JamochaType.DOUBLE)) {
-					return new JamochaValue(JamochaType.DOUBLE, Math
+					return JamochaValue.newDouble(Math
 							.toRadians(value.getDoubleValue()));
 				} else if (value.getType().equals(JamochaType.LONG)) {
-					return new JamochaValue(JamochaType.DOUBLE, Math
+					return JamochaValue.newDouble(Math
 							.toRadians(value.getLongValue()));
 				}
 			}

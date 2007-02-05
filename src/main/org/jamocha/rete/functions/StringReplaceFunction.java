@@ -62,7 +62,7 @@ public class StringReplaceFunction implements Function, Serializable {
 		} else {
 			throw new IllegalParameterException(3);
 		}
-		return new JamochaValue(JamochaType.STRING, retstr);
+		return JamochaValue.newString(retstr);
 	}
 
 	public String getName() {

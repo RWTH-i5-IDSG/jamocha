@@ -55,7 +55,7 @@ public class MemberFunction implements Function, Serializable {
 								compatible &= parameterTypes[j].isInstance(args[j]);
 							}
 							if(compatible) {
-								return new JamochaValue(JamochaType.OBJECT, method.invoke(o, args));
+								return JamochaValue.newObject(method.invoke(o, args));
 							}
 						}
 					}

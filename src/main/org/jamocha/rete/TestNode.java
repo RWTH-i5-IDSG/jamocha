@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.Iterator;
 
 import org.jamocha.parser.EvaluationException;
+import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.exception.AssertException;
 import org.jamocha.rete.exception.RetractException;
@@ -81,13 +82,13 @@ public class TestNode extends BaseJoin {
 			JamochaValue value;
 			try {
 				value = this.func.executeFunction(engine, this.params);
+				if (value.implicitCast(JamochaType.BOOLEAN).getBooleanValue()) {
+					BetaMemory bmem = new BetaMemoryImpl(inx);
+					leftmem.put(bmem.getIndex(), bmem);
+					propogateAssert(inx, engine, mem);
+				}
 			} catch (EvaluationException e) {
 				throw new AssertException(e);
-			}
-			if (value.getBooleanValue()) {
-				BetaMemory bmem = new BetaMemoryImpl(inx);
-				leftmem.put(bmem.getIndex(), bmem);
-				propogateAssert(inx, engine, mem);
 			}
 		}
 	}

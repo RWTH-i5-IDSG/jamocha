@@ -55,11 +55,9 @@ public class Const implements Function, Serializable {
 
 				String val = params[0].getValue(engine).getStringValue();
 				if (val.compareToIgnoreCase("pi") == 0) {
-					return new JamochaValue(JamochaType.DOUBLE,
-							java.lang.Math.PI);
+					return JamochaValue.newDouble(java.lang.Math.PI);
 				} else if (val.compareToIgnoreCase("e") == 0) {
-					return new JamochaValue(JamochaType.DOUBLE,
-							java.lang.Math.E);
+					return JamochaValue.newDouble(java.lang.Math.E);
 				}
 			}
 		}

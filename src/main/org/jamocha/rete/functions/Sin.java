@@ -60,10 +60,10 @@ public class Sin implements Function, Serializable {
 					value = value.implicitCast(JamochaType.DOUBLE);
 				}
 				if (value.getType().equals(JamochaType.DOUBLE)) {
-					return new JamochaValue(JamochaType.DOUBLE, Math.sin(value
+					return JamochaValue.newDouble(Math.sin(value
 							.getDoubleValue()));
 				} else if (value.getType().equals(JamochaType.LONG)) {
-					return new JamochaValue(JamochaType.DOUBLE, Math.sin(value
+					return JamochaValue.newDouble(Math.sin(value
 							.getLongValue()));
 				}
 			}

@@ -68,7 +68,7 @@ public class EchoFunction implements Function, Serializable {
 				sb.append(bp.getStringValue()).append(Constants.LINEBREAK);
 			}
 		}
-		return new JamochaValue(JamochaType.STRING, sb.toString());
+		return JamochaValue.newString(sb.toString());
 	}
 
 	public String getName() {

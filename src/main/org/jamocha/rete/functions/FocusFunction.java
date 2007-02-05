@@ -49,7 +49,7 @@ public class FocusFunction implements Function, Serializable {
 
 	public JamochaValue executeFunction(Rete engine, Parameter[] params)
 			throws EvaluationException {
-		JamochaValue result = new JamochaValue(JamochaType.IDENTIFIER, engine
+		JamochaValue result = JamochaValue.newIdentifier(engine
 				.getCurrentFocus().getModuleName());
 		return result;
 	}

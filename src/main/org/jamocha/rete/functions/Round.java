@@ -60,7 +60,7 @@ public class Round implements Function, Serializable {
 					value = value.implicitCast(JamochaType.DOUBLE);
 				}
 				if (value.getType().equals(JamochaType.DOUBLE)) {
-					return new JamochaValue(JamochaType.LONG, Math.floor(value
+					return JamochaValue.newDouble(Math.floor(value
 							.getDoubleValue()));
 				} else if (value.getType().equals(JamochaType.LONG)) {
 					return value;

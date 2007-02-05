@@ -57,7 +57,7 @@ public class MillisecondTime implements Function, Serializable {
 	 * line.
 	 */
 	public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
-		return new JamochaValue(JamochaType.LONG, System.currentTimeMillis());
+		return JamochaValue.newLong(System.currentTimeMillis());
 	}
 
 	public String getName() {

@@ -67,14 +67,13 @@ public class Mod implements Function, Serializable {
 							JamochaType.DOUBLE).getDoubleValue();
 					double second = params[1].getValue(engine).implicitCast(
 							JamochaType.DOUBLE).getDoubleValue();
-					return new JamochaValue(JamochaType.DOUBLE,
-							(first % second));
+					return JamochaValue.newDouble((first % second));
 				} else {
 					long first = params[0].getValue(engine).implicitCast(
 							JamochaType.LONG).getLongValue();
 					long second = params[1].getValue(engine).implicitCast(
 							JamochaType.LONG).getLongValue();
-					return new JamochaValue(JamochaType.LONG, (first % second));
+					return JamochaValue.newLong((first % second));
 				}
 			}
 		}

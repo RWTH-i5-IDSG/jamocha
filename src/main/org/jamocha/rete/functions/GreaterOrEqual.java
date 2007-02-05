@@ -71,7 +71,7 @@ public class GreaterOrEqual implements Function, Serializable {
 						right = params[i].getValue(engine).implicitCast(
 								JamochaType.DOUBLE).getDoubleValue();
 						if (right > left) {
-							return new JamochaValue(JamochaType.BOOLEAN, false);
+							return JamochaValue.newBoolean(false);
 						}
 						left = right;
 					}
@@ -83,12 +83,12 @@ public class GreaterOrEqual implements Function, Serializable {
 						right = params[i].getValue(engine).implicitCast(
 								JamochaType.LONG).getLongValue();
 						if (right > left) {
-							return new JamochaValue(JamochaType.BOOLEAN, false);
+							return JamochaValue.newBoolean(false);
 						}
 						left = right;
 					}
 				}
-				return new JamochaValue(JamochaType.BOOLEAN, true);
+				return JamochaValue.newBoolean(true);
 			}
 		}
 		throw new IllegalParameterException(1, true);

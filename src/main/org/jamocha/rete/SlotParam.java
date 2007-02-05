@@ -70,7 +70,7 @@ public class SlotParam extends AbstractParam {
      * should not need to deal with slot parameters.
      */
     public JamochaValue getValue(Rete engine) throws EvaluationException {
-        return new JamochaValue(JamochaType.SLOT, this.slot);
+        return JamochaValue.newSlot(this.slot);
     }
 
     /* (non-Javadoc)

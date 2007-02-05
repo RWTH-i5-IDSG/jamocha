@@ -21,6 +21,7 @@ import java.math.BigDecimal;
 import java.util.Iterator;
 import java.util.List;
 
+import org.jamocha.parser.IllegalConversionException;
 import org.jamocha.parser.JamochaValue;
 
 /**
@@ -273,9 +274,9 @@ public class Deftemplate implements Template, Serializable {
 			for (int idx = 0; idx < values.length; idx++) {
 				if (values[idx].getName().equals(s.getName())) {
 					if (s.value == null) {
-						values[idx].value = JamochaValue.NIL;
+						values[idx].setValue(JamochaValue.NIL);
 					} else {
-						values[idx].value = s.value;
+						values[idx].setValue(s.value);
 					}
 				}
 			}

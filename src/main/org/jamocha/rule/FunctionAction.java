@@ -127,7 +127,7 @@ public class FunctionAction implements Action {
 					(Object[])values.getObjectValue(),-1);
 			fact.compileBinding(util);
 			this.parameters = new ValueParam[1];
-			this.parameters[0] = new ValueParam(new JamochaValue(JamochaType.FACT, fact));
+			this.parameters[0] = new ValueParam(JamochaValue.newFact(fact));
         }
     }
     

@@ -759,7 +759,7 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 		BatchFunction bf = (BatchFunction) this.functions
 				.get(BatchFunction.BATCH);
 		Parameter[] params = new Parameter[] { new ValueParam(
-				new JamochaValue(JamochaType.STRING, filename)) };
+				JamochaValue.newString(filename)) };
 		bf.executeFunction(this, params);
 	}
 

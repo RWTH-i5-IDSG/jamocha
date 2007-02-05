@@ -16,10 +16,9 @@
  */
 package org.jamocha.rete;
 
+import org.jamocha.parser.IllegalConversionException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
-
-import sun.rmi.runtime.GetThreadPoolAction;
 
 /**
  * @author Peter Lin
@@ -64,10 +63,18 @@ public class Slot extends AbstractSlot {
 	 * set the value of the slot
 	 * 
 	 * @param val
+	 * @throws IllegalConversionException
 	 */
 	public void setValue(JamochaValue val) {
 		if (inspectType(val)) {
 			this.value = val;
+		} else {
+			try {
+				this.value = val.implicitCast(this.getValueType());
+			} catch (IllegalConversionException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 	}
 
@@ -90,6 +97,7 @@ public class Slot extends AbstractSlot {
 	 */
 	protected boolean inspectType(JamochaValue value) {
 		if (getValueType().equals(JamochaType.UNDEFINED)
+				|| value.getType().equals(JamochaType.BINDING)
 				|| getValueType().equals(value.getType())) {
 			return true;
 		}

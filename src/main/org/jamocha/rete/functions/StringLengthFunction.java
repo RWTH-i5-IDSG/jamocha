@@ -60,7 +60,7 @@ public class StringLengthFunction implements Function, Serializable {
 		} else {
 			throw new IllegalParameterException(1);
 		}
-		return new JamochaValue(JamochaType.LONG, len);
+		return JamochaValue.newLong(len);
 	}
 
 	public String getName() {
