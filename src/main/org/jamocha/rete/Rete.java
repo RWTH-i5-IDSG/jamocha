@@ -44,6 +44,7 @@ import org.jamocha.rete.functions.BooleanFunctions;
 import org.jamocha.rete.functions.IOFunctions;
 import org.jamocha.rete.functions.IfFunction;
 import org.jamocha.rete.functions.InterpretedFunction;
+import org.jamocha.rete.functions.JavaFunctions;
 import org.jamocha.rete.functions.MathFunctions;
 import org.jamocha.rete.functions.RuleEngineFunctions;
 import org.jamocha.rete.functions.StringFunctions;
@@ -236,7 +237,12 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 		BooleanFunctions boolfs = new BooleanFunctions();
 		functionGroups.add(boolfs);
 		boolfs.loadFunctions(this);
+		// load java functions
+		JavaFunctions javafs = new JavaFunctions();
+		functionGroups.add(javafs);
+		javafs.loadFunctions(this);
 		declareFunction(new IfFunction());
+		
 	}
 
 	protected void clearBuiltInFunctions() {
