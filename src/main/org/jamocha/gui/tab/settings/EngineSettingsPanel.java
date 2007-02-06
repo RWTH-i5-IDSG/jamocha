@@ -36,7 +36,15 @@ public class EngineSettingsPanel extends AbstractSettingsPanel implements
 
 	private JCheckBox evaluationCheckBox;
 	
-	private JCheckBox profileCheckBox;
+	private JCheckBox profileAssertCheckBox;
+	
+	private JCheckBox profileRetractCheckBox;
+	
+	private JCheckBox profileFireCheckBox;
+	
+	private JCheckBox profileAddActivationCheckBox;
+	
+	private JCheckBox profileRemoveActivationCheckBox;
 	
 	private JCheckBox watchActivationsCheckBox;
 	
@@ -61,53 +69,100 @@ public class EngineSettingsPanel extends AbstractSettingsPanel implements
 		evaluationPanel.add(evaluationCheckBox,BorderLayout.WEST);
 		addInputComponent(this, evaluationPanel, gridbag, c, 0);
 
-		// Profiling
-		addLabel(this, new JLabel("Profiling:"), gridbag, c, 1);
-		JPanel profilingPanel = new JPanel(new BorderLayout());
+		// Profile Assert
+		addLabel(this, new JLabel("Profile Assert:"), gridbag, c, 1);
+		JPanel profileAssertPanel = new JPanel(new BorderLayout());
 
-		profileCheckBox = new JCheckBox();
-		profileCheckBox.setEnabled(true);
-		profileCheckBox.addActionListener(this);
-		profilingPanel.add(profileCheckBox,BorderLayout.WEST);
-		addInputComponent(this, profilingPanel, gridbag, c, 1);
+		profileAssertCheckBox = new JCheckBox();
+		profileAssertCheckBox.setEnabled(true);
+		profileAssertCheckBox.addActionListener(this);
+		profileAssertPanel.add(profileAssertCheckBox,BorderLayout.WEST);
+		addInputComponent(this, profileAssertPanel, gridbag, c, 1);
 		
+		// Profile Retract
+		addLabel(this, new JLabel("Profile Retract:"), gridbag, c, 2);
+		JPanel profileRetractPanel = new JPanel(new BorderLayout());
+
+		profileRetractCheckBox = new JCheckBox();
+		profileRetractCheckBox.setEnabled(true);
+		profileRetractCheckBox.addActionListener(this);
+		profileRetractPanel.add(profileRetractCheckBox,BorderLayout.WEST);
+		addInputComponent(this, profileRetractPanel, gridbag, c, 2);
+		
+		// Profile Fire
+		addLabel(this, new JLabel("Profile Fire:"), gridbag, c, 3);
+		JPanel profileFirePanel = new JPanel(new BorderLayout());
+
+		profileFireCheckBox = new JCheckBox();
+		profileFireCheckBox.setEnabled(true);
+		profileFireCheckBox.addActionListener(this);
+		profileFirePanel.add(profileFireCheckBox,BorderLayout.WEST);
+		addInputComponent(this, profileFirePanel, gridbag, c, 3);
+		
+		// Profile Add Activation
+		addLabel(this, new JLabel("Profile Add Activation:"), gridbag, c, 4);
+		JPanel profileAddActivationPanel = new JPanel(new BorderLayout());
+
+		profileAddActivationCheckBox = new JCheckBox();
+		profileAddActivationCheckBox.setEnabled(true);
+		profileAddActivationCheckBox.addActionListener(this);
+		profileAddActivationPanel.add(profileAddActivationCheckBox,BorderLayout.WEST);
+		addInputComponent(this, profileAddActivationPanel, gridbag, c, 4);
+		
+		// Profile Remove Activation
+		addLabel(this, new JLabel("Profile Remove Activation:"), gridbag, c, 5);
+		JPanel profileRemoveActivationPanel = new JPanel(new BorderLayout());
+
+		profileRemoveActivationCheckBox = new JCheckBox();
+		profileRemoveActivationCheckBox.setEnabled(true);
+		profileRemoveActivationCheckBox.addActionListener(this);
+		profileRemoveActivationPanel.add(profileRemoveActivationCheckBox,BorderLayout.WEST);
+		addInputComponent(this, profileRemoveActivationPanel, gridbag, c, 5);
 		
 		// Activations
-		addLabel(this, new JLabel(" Watch Activations:"), gridbag, c, 3);
+		addLabel(this, new JLabel(" Watch Activations:"), gridbag, c, 6);
 		JPanel watchActivationsPanel = new JPanel(new BorderLayout());
 
 		watchActivationsCheckBox = new JCheckBox();
 		watchActivationsCheckBox.setEnabled(true);
 		watchActivationsCheckBox.addActionListener(this);
 		watchActivationsPanel.add(watchActivationsCheckBox,BorderLayout.WEST);
-		addInputComponent(this, watchActivationsPanel, gridbag, c, 3);
+		addInputComponent(this, watchActivationsPanel, gridbag, c, 6);
 		
 		// Facts 
-		addLabel(this, new JLabel("Watch Facts:"), gridbag, c, 4);
+		addLabel(this, new JLabel("Watch Facts:"), gridbag, c, 7);
 		JPanel watchFactsPanel = new JPanel(new BorderLayout());
 
 		watchFactsCheckBox = new JCheckBox();
 		watchFactsCheckBox.setEnabled(true);
 		watchFactsCheckBox.addActionListener(this);
 		watchFactsPanel.add(watchFactsCheckBox,BorderLayout.WEST);
-		addInputComponent(this, watchFactsPanel, gridbag, c, 4);
+		addInputComponent(this, watchFactsPanel, gridbag, c, 7);
 		
 		// Rules 
-		addLabel(this, new JLabel("Watch Rules:"), gridbag, c, 5);
+		addLabel(this, new JLabel("Watch Rules:"), gridbag, c, 8);
 		JPanel watchRulesPanel = new JPanel(new BorderLayout());
 
 		watchRulesCheckBox = new JCheckBox();
 		watchRulesCheckBox.setEnabled(true);
 		watchRulesCheckBox.addActionListener(this);
 		watchRulesPanel.add(watchRulesCheckBox,BorderLayout.WEST);
-		addInputComponent(this, watchRulesPanel, gridbag, c, 5);
+		addInputComponent(this, watchRulesPanel, gridbag, c, 8);
 	}
 
 	@Override
 	public void save() {
 		gui.getPreferences().put("engine.evaluation", 
 				new Boolean(false).toString());
-		gui.getPreferences().put("engine.profiling",
+		gui.getPreferences().put("engine.profileAssert",
+				new Boolean(false).toString());
+		gui.getPreferences().put("engine.profileRetract",
+				new Boolean(false).toString());
+		gui.getPreferences().put("engine.profileFire",
+				new Boolean(false).toString());
+		gui.getPreferences().put("engine.profileAddActivation",
+				new Boolean(false).toString());
+		gui.getPreferences().put("engine.profileRemoveActivation",
 				new Boolean(false).toString());
 		gui.getPreferences().put("engine.watchActivations",
 				new Boolean(false).toString());
@@ -120,13 +175,27 @@ public class EngineSettingsPanel extends AbstractSettingsPanel implements
 
 
 	public void actionPerformed(ActionEvent event) {
+
 		Boolean checkBoxSelection;
+
 		if (event.getSource() == evaluationCheckBox) {
 			checkBoxSelection = evaluationCheckBox.isSelected();
 			System.out.println("Evaluation:" + checkBoxSelection.toString());
-		} else if(event.getSource() == profileCheckBox) {
-			checkBoxSelection = profileCheckBox.isSelected();
-			System.out.println("Profile:" + checkBoxSelection.toString());
+		} else if(event.getSource() == profileAssertCheckBox) {
+			checkBoxSelection = profileAssertCheckBox.isSelected();
+			System.out.println("Profile Assert:" + checkBoxSelection.toString());
+		} else if(event.getSource() == profileRetractCheckBox) {
+			checkBoxSelection = profileRetractCheckBox.isSelected();
+			System.out.println("Profile Retract:" + checkBoxSelection.toString());
+		} else if(event.getSource() == profileFireCheckBox) {
+			checkBoxSelection = profileFireCheckBox.isSelected();
+			System.out.println("Profile Fire:" + checkBoxSelection.toString());
+		} else if(event.getSource() == profileAddActivationCheckBox) {
+			checkBoxSelection = profileAddActivationCheckBox.isSelected();
+			System.out.println("Profile Add Activation:" + checkBoxSelection.toString());
+		} else if(event.getSource() == profileRemoveActivationCheckBox) {
+			checkBoxSelection = profileRemoveActivationCheckBox.isSelected();
+			System.out.println("Profile Remove Activation:" + checkBoxSelection.toString());
 		} else if(event.getSource() == watchActivationsCheckBox) {
 			checkBoxSelection = watchActivationsCheckBox.isSelected();
 			System.out.println("Watch Actiations:" + checkBoxSelection.toString());
