@@ -682,8 +682,11 @@ public class BasicRuleCompiler implements RuleCompiler {
 							pms[ipm] = newpm;
 						}
 					}
-					bn = new TestNode(engine.nextNodeId(), fn.getFunction(),
-							pms);
+                    if (tc.isNegated()) {
+                        bn = new NTestNode(engine.nextNodeId(),fn.getFunction(),pms);
+                    } else {
+                        bn = new TestNode(engine.nextNodeId(),fn.getFunction(),pms);
+                    }
 					((TestNode) bn).lookUpFunction(engine);
 					if (prevJoin != null) {
 						attachJoinNode(prevJoin, (BaseJoin) bn);
