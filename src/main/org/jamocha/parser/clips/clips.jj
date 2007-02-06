@@ -1460,27 +1460,20 @@ String functionName() :
     return fname.image;
   }
 |
-  fname = ">"
-  {
-    return fname.image;
-  }
-|
-  fname = "<"
-  {
-    return fname.image;
-  }
-|
-  fname = "+"
-  {
-    return fname.image;
-  }
-|
-  fname = "*"
-  {
-    return fname.image;
-  }
-|
-  fname = "/"
+  (fname = <PLUS>|
+   fname = <MINUS>|
+   fname = <MULTIPLY>|
+   fname = <DIVIDE>|
+   fname = <GT1>|
+   fname = <GT2>|
+   fname = <LT1>|
+   fname = <LT2>|
+   fname = <EQ1>|
+   fname = <EQ2>|
+   fname = <LE1>|
+   fname = <LE2>|
+   fname = <GE1>|
+   fname = <GE2>)
   {
     return fname.image;
   }

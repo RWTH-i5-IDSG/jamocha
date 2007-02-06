@@ -1803,28 +1803,72 @@ public class CLIPSParser implements CLIPSParserConstants {
       fname = jj_consume_token(IDENTIFIER);
     {if (true) return fname.image;}
       break;
-    case GT1:
-      fname = jj_consume_token(GT1);
-    {if (true) return fname.image;}
-      break;
-    case LT1:
-      fname = jj_consume_token(LT1);
-    {if (true) return fname.image;}
-      break;
     case PLUS:
-      fname = jj_consume_token(PLUS);
-    {if (true) return fname.image;}
-      break;
+    case MINUS:
     case MULTIPLY:
-      fname = jj_consume_token(MULTIPLY);
-    {if (true) return fname.image;}
-      break;
     case DIVIDE:
-      fname = jj_consume_token(DIVIDE);
+    case GT1:
+    case GT2:
+    case LT1:
+    case LT2:
+    case EQ1:
+    case EQ2:
+    case LE1:
+    case LE2:
+    case GE1:
+    case GE2:
+      switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+      case PLUS:
+        fname = jj_consume_token(PLUS);
+        break;
+      case MINUS:
+        fname = jj_consume_token(MINUS);
+        break;
+      case MULTIPLY:
+        fname = jj_consume_token(MULTIPLY);
+        break;
+      case DIVIDE:
+        fname = jj_consume_token(DIVIDE);
+        break;
+      case GT1:
+        fname = jj_consume_token(GT1);
+        break;
+      case GT2:
+        fname = jj_consume_token(GT2);
+        break;
+      case LT1:
+        fname = jj_consume_token(LT1);
+        break;
+      case LT2:
+        fname = jj_consume_token(LT2);
+        break;
+      case EQ1:
+        fname = jj_consume_token(EQ1);
+        break;
+      case EQ2:
+        fname = jj_consume_token(EQ2);
+        break;
+      case LE1:
+        fname = jj_consume_token(LE1);
+        break;
+      case LE2:
+        fname = jj_consume_token(LE2);
+        break;
+      case GE1:
+        fname = jj_consume_token(GE1);
+        break;
+      case GE2:
+        fname = jj_consume_token(GE2);
+        break;
+      default:
+        jj_la1[47] = jj_gen;
+        jj_consume_token(-1);
+        throw new ParseException();
+      }
     {if (true) return fname.image;}
       break;
     default:
-      jj_la1[47] = jj_gen;
+      jj_la1[48] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -1850,13 +1894,13 @@ public class CLIPSParser implements CLIPSParserConstants {
           ;
           break;
         default:
-          jj_la1[48] = jj_gen;
+          jj_la1[49] = jj_gen;
           break label_22;
         }
       }
       break;
     default:
-      jj_la1[49] = jj_gen;
+      jj_la1[50] = jj_gen;
       ;
     }
 
@@ -1900,7 +1944,7 @@ public class CLIPSParser implements CLIPSParserConstants {
     list.add(vp);
       break;
     default:
-      jj_la1[50] = jj_gen;
+      jj_la1[51] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -2382,7 +2426,7 @@ public class CLIPSParser implements CLIPSParserConstants {
   public boolean lookingAhead = false;
   private boolean jj_semLA;
   private int jj_gen;
-  final private int[] jj_la1 = new int[51];
+  final private int[] jj_la1 = new int[52];
   static private int[] jj_la1_0;
   static private int[] jj_la1_1;
   static private int[] jj_la1_2;
@@ -2392,13 +2436,13 @@ public class CLIPSParser implements CLIPSParserConstants {
       jj_la1_2();
    }
    private static void jj_la1_0() {
-      jj_la1_0 = new int[] {0x68201,0x200,0x5800,0x200,0x200,0x8800,0x6da00,0x6da00,0x68000,0x68000,0x28680000,0x6da00,0x0,0x6da00,0x6da00,0x6da00,0x28680000,0x6d800,0x68000,0x200,0x6d800,0x5800,0x5800,0x6d800,0x6d800,0x5800,0x200,0x200,0x100000,0x8200,0x8200,0x0,0x200,0x200,0x200,0x200,0x200,0x200,0x200,0x0,0x0,0x0,0x0,0x0,0x5800,0x5800,0x5800,0x0,0x200,0x200,0xd800,};
+      jj_la1_0 = new int[] {0x68201,0x200,0x5800,0x200,0x200,0x8800,0x6da00,0x6da00,0x68000,0x68000,0x28680000,0x6da00,0x0,0x6da00,0x6da00,0x6da00,0x28680000,0x6d800,0x68000,0x200,0x6d800,0x5800,0x5800,0x6d800,0x6d800,0x5800,0x200,0x200,0x100000,0x8200,0x8200,0x0,0x200,0x200,0x200,0x200,0x200,0x200,0x200,0x0,0x0,0x0,0x0,0x0,0x5800,0x5800,0x5800,0x0,0x0,0x200,0x200,0xd800,};
    }
    private static void jj_la1_1() {
-      jj_la1_1 = new int[] {0x0,0x0,0x0,0x0,0x0,0x0,0x80000000,0x80000000,0x0,0x0,0x40801c,0x80000000,0x0,0x80000000,0x80000000,0x80000000,0x40801c,0x80000000,0x0,0x0,0x80000000,0x0,0x0,0x80000000,0x80000000,0x0,0x0,0x0,0x34005840,0x0,0x0,0x80000000,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x40100080,0x0,0x0,0x0,0x0,0x80000000,0x0,0x0,0x0,0x0,0x0,0x0,};
+      jj_la1_1 = new int[] {0x0,0x0,0x0,0x0,0x0,0x0,0x80000000,0x80000000,0x0,0x0,0x40801c,0x80000000,0x0,0x80000000,0x80000000,0x80000000,0x40801c,0x80000000,0x0,0x0,0x80000000,0x0,0x0,0x80000000,0x80000000,0x0,0x0,0x0,0x34005840,0x0,0x0,0x80000000,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x40100080,0x0,0x0,0x0,0x0,0x80000000,0x0,0x0,0x0,0x0,0x0,0x0,0x0,};
    }
    private static void jj_la1_2() {
-      jj_la1_2 = new int[] {0x0,0x0,0x40000000,0x0,0x0,0x0,0x48000002,0x48000002,0x0,0x0,0x80fffc0,0x48000002,0xfffc0,0x48000002,0x48000002,0x48000002,0x80fffc0,0x48000002,0x0,0x0,0x48000002,0x48000000,0x48000000,0x48000002,0x48000002,0x48000000,0x0,0x0,0x0,0x0,0x0,0x2,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x8400000,0x2000000,0x2000000,0x800000,0x800000,0x40000002,0x40000000,0x40000000,0x8001740,0x0,0x0,0x48000000,};
+      jj_la1_2 = new int[] {0x0,0x0,0x40000000,0x0,0x0,0x0,0x48000002,0x48000002,0x0,0x0,0x80fffc0,0x48000002,0xfffc0,0x48000002,0x48000002,0x48000002,0x80fffc0,0x48000002,0x0,0x0,0x48000002,0x48000000,0x48000000,0x48000002,0x48000002,0x48000000,0x0,0x0,0x0,0x0,0x0,0x2,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x8400000,0x2000000,0x2000000,0x800000,0x800000,0x40000002,0x40000000,0x40000000,0xfffc0,0x80fffc0,0x0,0x0,0x48000000,};
    }
   final private JJCalls[] jj_2_rtns = new JJCalls[32];
   private boolean jj_rescan = false;
@@ -2410,7 +2454,7 @@ public class CLIPSParser implements CLIPSParserConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 51; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 52; i++) jj_la1[i] = -1;
     for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -2420,7 +2464,7 @@ public class CLIPSParser implements CLIPSParserConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 51; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 52; i++) jj_la1[i] = -1;
     for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -2430,7 +2474,7 @@ public class CLIPSParser implements CLIPSParserConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 51; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 52; i++) jj_la1[i] = -1;
     for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -2440,7 +2484,7 @@ public class CLIPSParser implements CLIPSParserConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 51; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 52; i++) jj_la1[i] = -1;
     for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -2449,7 +2493,7 @@ public class CLIPSParser implements CLIPSParserConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 51; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 52; i++) jj_la1[i] = -1;
     for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -2458,7 +2502,7 @@ public class CLIPSParser implements CLIPSParserConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 51; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 52; i++) jj_la1[i] = -1;
     for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -2577,7 +2621,7 @@ public class CLIPSParser implements CLIPSParserConstants {
       la1tokens[jj_kind] = true;
       jj_kind = -1;
     }
-    for (int i = 0; i < 51; i++) {
+    for (int i = 0; i < 52; i++) {
       if (jj_la1[i] == jj_gen) {
         for (int j = 0; j < 32; j++) {
           if ((jj_la1_0[i] & (1<<j)) != 0) {
