@@ -32,4 +32,4 @@
 =>
   (printout t "joinrule1 was fired" crlf)
 )
-(generate-facts "joinrule1" true)
+(generate-facts "joinrule1" TRUE)
