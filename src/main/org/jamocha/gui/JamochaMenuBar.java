@@ -18,26 +18,15 @@ package org.jamocha.gui;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.LinkedList;
-import java.util.List;
 
-import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
+import javax.swing.JOptionPane;
 
 import org.jamocha.gui.icons.IconLoader;
-import org.jamocha.messagerouter.MessageEvent;
-import org.jamocha.messagerouter.StringChannel;
-import org.jamocha.rete.Function;
 
 /**
  * This class provides the Mainmenubar for the whole gui.
@@ -95,41 +84,11 @@ public class JamochaMenuBar extends JMenuBar implements ActionListener {
 			chooser.setMultiSelectionEnabled(false);
 			if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
 				File file = chooser.getSelectedFile();
-				try {
-					BufferedReader reader = new BufferedReader(new FileReader(
-							file));
-					StringChannel batchChannel = gui.getEngine()
-							.getMessageRouter().openChannel("gui_batchchannel");
-					StringBuilder buffer = new StringBuilder();
-					while (reader.ready()) {
-						buffer.append(reader.readLine());
-					}
-					batchChannel.executeCommand(buffer.toString(), true);
-					List<MessageEvent> events = new LinkedList<MessageEvent>();
-					batchChannel.fillEventList(events);
-					buffer = new StringBuilder();
-					for (MessageEvent mevent : events) {
-						if (mevent.getMessage() instanceof Function) {
-							buffer.append(((Function) mevent.getMessage())
-									.getName()
-									+ System.getProperty("line.separator"));
-						} else
-							buffer.append(mevent.getMessage()
-									+ System.getProperty("line.separator"));
-					}
-					JDialog dialog = new JDialog(gui, "Result:");
-					dialog.setSize(400, 300);
-					dialog.setLocationByPlatform(true);
-					JTextArea area = new JTextArea(buffer.toString());
-					area.setEditable(false);
-					dialog.add(new JScrollPane(area));
-					dialog.setVisible(true);
-					gui.getEngine().getMessageRouter().closeChannel(
-							batchChannel);
-				} catch (FileNotFoundException e) {
-					e.printStackTrace();
-				} catch (IOException e) {
-					e.printStackTrace();
+				if (file != null && file.isFile()) {
+					String path = file.getAbsolutePath();
+					gui.getStringChannel().executeCommand(
+							"(batch " + path + ")");
+					JOptionPane.showMessageDialog(this, "Batch process started.\nPlease check the log for Messages.\nThe process might be running in the background for a while.");
 				}
 			}
 		}

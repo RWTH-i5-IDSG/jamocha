@@ -131,8 +131,6 @@ public class FactEditor extends AbstractJamochaEditor implements
 		GridBagLayout gridbag = new GridBagLayout();
 		GridBagConstraints c = new GridBagConstraints();
 		JPanel preselectionPanel = new JPanel(gridbag);
-		preselectionPanel.setBorder(BorderFactory
-				.createTitledBorder("Module and Template Selection"));
 		c.fill = GridBagConstraints.BOTH;
 		moduleList = new JList(moduleListModel);
 		moduleList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -166,7 +164,8 @@ public class FactEditor extends AbstractJamochaEditor implements
 		preselectionPanel.add(templatePanel);
 		JPanel dumpAreaPanel = new JPanel();
 		dumpAreaPanel.setLayout(new BoxLayout(dumpAreaPanel, BoxLayout.Y_AXIS));
-		dumpAreaPanel.add(new JLabel("Template Definition:"));
+		dumpAreaPanel.setBorder(BorderFactory
+				.createTitledBorder("Template Definition"));
 		dumpAreaPanel.add(new JScrollPane(dumpAreaTemplate));
 		c.weightx = 0.0;
 		c.gridwidth = 2;
@@ -246,7 +245,8 @@ public class FactEditor extends AbstractJamochaEditor implements
 		factEditPanel.add(new JScrollPane(innerPanel), BorderLayout.CENTER);
 		JPanel dumpAreaPanel = new JPanel();
 		dumpAreaPanel.setLayout(new BoxLayout(dumpAreaPanel, BoxLayout.Y_AXIS));
-		dumpAreaPanel.add(new JLabel("Fact Preview:"));
+		dumpAreaPanel.setBorder(BorderFactory
+				.createTitledBorder("Fact Preview"));
 		dumpAreaPanel.add(new JScrollPane(dumpAreaFact));
 		reloadButtondumpAreaFact = new JButton("Reload Fact Preview",
 				IconLoader.getImageIcon("arrow_refresh"));

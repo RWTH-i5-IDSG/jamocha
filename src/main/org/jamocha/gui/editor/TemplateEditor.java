@@ -10,6 +10,8 @@ import java.awt.event.ActionListener;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -46,8 +48,6 @@ public class TemplateEditor extends AbstractJamochaEditor implements
 
 	private StringChannel channel;
 
-	private int slotCount = 0;
-
 	private GridBagLayout gridbag;
 
 	private GridBagConstraints gridbagConstraints;
@@ -81,7 +81,18 @@ public class TemplateEditor extends AbstractJamochaEditor implements
 		dumpAreaTemplate.setEditable(false);
 		dumpAreaTemplate.setFont(new Font("Courier", Font.PLAIN, 12));
 		dumpAreaTemplate.setRows(5);
+		
+		JPanel dumpAreaPanel = new JPanel();
+		dumpAreaPanel.setLayout(new BoxLayout(dumpAreaPanel, BoxLayout.Y_AXIS));
+		dumpAreaPanel.setBorder(BorderFactory
+				.createTitledBorder("Template Preview"));
+		dumpAreaPanel.add(new JScrollPane(dumpAreaTemplate));
+		reloadButtonDumpAreaTemplate = new JButton("Reload Template Preview",
+				IconLoader.getImageIcon("arrow_refresh"));
+		reloadButtonDumpAreaTemplate.addActionListener(this);
+		dumpAreaPanel.add(reloadButtonDumpAreaTemplate);
 
+		contentPanel.add(dumpAreaPanel, BorderLayout.SOUTH);
 	}
 
 	public void setStringChannel(StringChannel channel) {
@@ -90,15 +101,15 @@ public class TemplateEditor extends AbstractJamochaEditor implements
 
 	public void init() {
 		// initialize the Panels
+		templatePanel = new JPanel();
+		templatePanel.setBorder(BorderFactory
+				.createTitledBorder("Set the Slots for the Template"));
+		contentPanel.add(new JScrollPane(templatePanel), BorderLayout.CENTER);
 		initTemplatePanel();
 		setVisible(true);
 	}
 
 	private void initTemplatePanel() {
-		templatePanel = new JPanel();
-		contentPanel.add(new JScrollPane(templatePanel), BorderLayout.CENTER);
-
-		contentPanel.add(dumpAreaTemplate, BorderLayout.SOUTH);
 
 		gridbag = new GridBagLayout();
 		gridbagConstraints = new GridBagConstraints();
@@ -127,37 +138,39 @@ public class TemplateEditor extends AbstractJamochaEditor implements
 			dumpAreaTemplate.setText(getCurrentDeftemplateString(true));
 		} else if (event.getSource() == addSlotButton) {
 			EditorRow row = new EditorRow(new DeleteButton(IconLoader
-					.getImageIcon("delete"),slotCount), new JLabel("Slot "
-					+ (slotCount + 1)), getNewTypesCombo(), new JTextField());
+					.getImageIcon("delete"),rows.size()), new JLabel("Slot "
+					+ (rows.size()+1)), getNewTypesCombo(), new JTextField());
 			row.deleteButton.addActionListener(this);
-			++slotCount;
 			addRemoveButton(templatePanel, row.deleteButton, gridbag,
-					gridbagConstraints, slotCount);
+					gridbagConstraints, (rows.size()+1));
 			addLabel(templatePanel, row.rowLabel, gridbag, gridbagConstraints,
-					slotCount);
+					(rows.size()+1));
 			addTypesCombo(templatePanel, row.typeBox, gridbag,
-					gridbagConstraints, slotCount);
+					gridbagConstraints, (rows.size()+1));
 			addNameField(templatePanel, row.nameField, gridbag,
-					gridbagConstraints, slotCount);
+					gridbagConstraints, (rows.size()+1));
 			rows.add(row);
 			templatePanel.revalidate();
 		}
 		else if( event.getSource() instanceof DeleteButton) {
 			DeleteButton deleteButton = (DeleteButton) event.getSource();
-			int row = deleteButton.getRow() + 1;
-			int rowStart = (row*4);
-			int rowEnd = rowStart + 4;
-			System.out.println(row+" "+rowStart+" "+rowEnd);
-			for(int i = rowEnd-1; i >= rowStart; --i) {
-				templatePanel.remove(i);
-			}
 			rows.remove(deleteButton.getRow());
-			for(int i = deleteButton.getRow(); i < rows.size(); ++i) {
+			templatePanel.removeAll();
+			initTemplatePanel();
+			for(int i = 0; i < rows.size(); ++i) {
 				EditorRow editorRow = rows.get(i);
 				editorRow.deleteButton.setRow(i);
 				editorRow.rowLabel.setText("Slot "+(i+1));
+				addRemoveButton(templatePanel, editorRow.deleteButton, gridbag,
+						gridbagConstraints, i+1);
+				addLabel(templatePanel, editorRow.rowLabel, gridbag, gridbagConstraints,
+						i+1);
+				addTypesCombo(templatePanel, editorRow.typeBox, gridbag,
+						gridbagConstraints, i+1);
+				addNameField(templatePanel, editorRow.nameField, gridbag,
+						gridbagConstraints, i+1);
 			}
-			--slotCount;
+			templatePanel.repaint();
 			templatePanel.revalidate();
 		}
 	}
