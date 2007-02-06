@@ -35,6 +35,7 @@ import javax.swing.event.ChangeListener;
 import org.jamocha.gui.icons.IconLoader;
 import org.jamocha.gui.tab.AbstractJamochaPanel;
 import org.jamocha.gui.tab.FactsPanel;
+import org.jamocha.gui.tab.FunctionsPanel;
 import org.jamocha.gui.tab.LogPanel;
 import org.jamocha.gui.tab.RetePanel;
 import org.jamocha.gui.tab.SettingsPanel;
@@ -115,6 +116,10 @@ public class JamochaGui extends JFrame implements ChangeListener {
 		tabbedPane.addTab("Templates", IconLoader.getImageIcon("table"),
 				templatesPanel, "View or modify Templates");
 		panels.add(templatesPanel);
+		FunctionsPanel functionsPanel = new FunctionsPanel(this);
+		tabbedPane.addTab("Functions", IconLoader.getImageIcon("database"),
+				functionsPanel, "View Functions");
+		panels.add(functionsPanel);
 		RetePanel retePanel = new RetePanel(this);
 		tabbedPane.addTab("Rete", IconLoader.getImageIcon("eye"), retePanel,
 				"View the Rete-network");
@@ -127,7 +132,7 @@ public class JamochaGui extends JFrame implements ChangeListener {
 		tabbedPane.addTab("Settings", IconLoader.getImageIcon("wrench"),
 				settingsPanel, "Settings for Jamocha");
 		panels.add(settingsPanel);
-
+		
 		// add the tab pane to the frame
 		add(tabbedPane, BorderLayout.CENTER);
 
