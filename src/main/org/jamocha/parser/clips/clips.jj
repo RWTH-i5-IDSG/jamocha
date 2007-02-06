@@ -357,7 +357,7 @@ Object expr() :
   Deffunction dffunc;
   ArrayList list = new ArrayList();
   ValueParam[] pms;
-  Object infunc = null;
+  List infunc = new ArrayList();
 }
 {
   exp = <ASSERT> <LBRACE> exp2 = <IDENTIFIER>
@@ -466,13 +466,13 @@ Object expr() :
 |
   exp = <DEFFUNCTION>
   exp2 = <IDENTIFIER> <LBRACE>
-  ((bindingParams(list))+)? <RBRACE> <LBRACE>
-  (infunc = expr())? <RBRACE>
+  ((bindingParams(list))+)? <RBRACE> (<LBRACE>
+  (ruleAction(infunc))? <RBRACE>)+
   {
     dffunc = new Deffunction();
     dffunc.setName(exp2.image);
     dffunc.setParameters(ParameterUtils.convertParameters(list));
-    dffunc.setFunction((Function)infunc);
+    dffunc.setFunctions(infunc);
     list.clear();
     return dffunc;
   }

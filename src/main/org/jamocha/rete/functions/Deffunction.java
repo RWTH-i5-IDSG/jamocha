@@ -16,6 +16,8 @@
  */
 package org.jamocha.rete.functions;
 
+import java.util.List;
+
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
@@ -24,85 +26,95 @@ import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 
 /**
- * Deffunction is used for functions that are declared in the
- * shell. It is different than a function written in java.
- * Deffunction run interpreted and are mapped to existing
- * functions.
+ * Deffunction is used for functions that are declared in the shell. It is
+ * different than a function written in java. Deffunction run interpreted and
+ * are mapped to existing functions.
  * 
  * @author Peter Lin
  */
 public class Deffunction implements Function {
 
-    /**
+	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	
+
 	protected String name = null;
-    protected String ppString = null;
-    protected Parameter[] parameters = null;
-    protected Function function = null;
-    protected Class[] functionParams = null;
-    protected JamochaType returnType;
-    
-    /**
-     * 
-     */
-    public Deffunction() {
-    }
 
-    public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
-        JamochaValue result = JamochaValue.FALSE;
-        if (engine.findFunction(this.name) == null) {
-            // first we get the actual function from the shell function
-            ShellFunction sf = (ShellFunction)this.function;
-            Function f = engine.findFunction(sf.getName());
-            InterpretedFunction intrfunc = new InterpretedFunction(this.name,
-                    this.parameters, f, sf.getParameters());
-            intrfunc.configureFunction(engine);
-            engine.declareFunction(intrfunc);
-            result = JamochaValue.TRUE;
-        }
-        return result;
-    }
+	protected String ppString = null;
 
-    public void setName(String name) {
-        this.name = name;
-    }
-    
-    public String getName() {
-        return this.name;
-    }
+	protected Parameter[] parameters = null;
 
-    public Class[] getParameter() {
-        return this.functionParams;
-    }
+	protected List functions = null;
 
-    public JamochaType getReturnType() {
-        return this.returnType;
-    }
+	protected Class[] functionParams = null;
 
-    public void setPPString(String text) {
-        this.ppString = text;
-    }
-    
-    public String toPPString(Parameter[] params, int indents) {
-        return this.ppString;
-    }
+	protected JamochaType returnType;
 
-    public Function getFunction() {
-        return function;
-    }
+	/**
+	 * 
+	 */
+	public Deffunction() {
+	}
 
-    public void setFunction(Function functions) {
-        this.function = functions;
-    }
+	public JamochaValue executeFunction(Rete engine, Parameter[] params)
+			throws EvaluationException {
+		JamochaValue result = JamochaValue.FALSE;
+		if (engine.findFunction(this.name) == null) {
+			// first we get the actual function from the shell function
+			Function[] functions = new Function[this.functions.size()];
+			Parameter[][] parameters = new Parameter[this.functions.size()][];
+			for (int i = 0; i < functions.length; ++i) {
+				ShellFunction sf = (ShellFunction) this.functions.get(i);
+				functions[i] = engine.findFunction(sf.getName());
+				parameters[i] = sf.getParameters();
+			}
+			InterpretedFunction intrfunc = new InterpretedFunction(this.name,
+					this.parameters, functions, parameters);
+			intrfunc.configureFunction(engine);
+			engine.declareFunction(intrfunc);
+			result = JamochaValue.TRUE;
+		}
+		return result;
+	}
 
-    public Parameter[] getParameters() {
-        return parameters;
-    }
+	public void setName(String name) {
+		this.name = name;
+	}
 
-    public void setParameters(Parameter[] parameters) {
-        this.parameters = parameters;
-    }
+	public String getName() {
+		return this.name;
+	}
+
+	public Class[] getParameter() {
+		return this.functionParams;
+	}
+
+	public JamochaType getReturnType() {
+		return this.returnType;
+	}
+
+	public void setPPString(String text) {
+		this.ppString = text;
+	}
+
+	public String toPPString(Parameter[] params, int indents) {
+		return this.ppString;
+	}
+
+	public List getFunctions() {
+		return functions;
+	}
+
+	public void setFunctions(List functions) {
+		this.functions = functions;
+	}
+
+	public Parameter[] getParameters() {
+		return parameters;
+	}
+
+	public void setParameters(Parameter[] parameters) {
+		this.parameters = parameters;
+	}
 }

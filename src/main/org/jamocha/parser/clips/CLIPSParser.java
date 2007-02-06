@@ -191,7 +191,7 @@ public class CLIPSParser implements CLIPSParserConstants {
   Deffunction dffunc;
   ArrayList list = new ArrayList();
   ValueParam[] pms;
-  Object infunc = null;
+  List infunc = new ArrayList();
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case ASSERT:
       exp = jj_consume_token(ASSERT);
@@ -398,51 +398,62 @@ public class CLIPSParser implements CLIPSParserConstants {
         ;
       }
       jj_consume_token(RBRACE);
-      jj_consume_token(LBRACE);
-      switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-      case BINDING:
-      case ASSERT:
-      case ASSERTTEMPORAL:
-      case DEFCLASS:
-      case DEFFUNCTION:
-      case DEFMODULE:
-      case DEFRULE:
-      case DEFTEMPLATE:
-      case MODIFY:
-      case RETRACT:
-      case PLUS:
-      case MINUS:
-      case MULTIPLY:
-      case DIVIDE:
-      case GT1:
-      case GT2:
-      case LT1:
-      case LT2:
-      case EQ1:
-      case EQ2:
-      case LE1:
-      case LE2:
-      case GE1:
-      case GE2:
-      case IDENTIFIER:
-        infunc = expr();
-        break;
-      default:
-        jj_la1[10] = jj_gen;
-        ;
+      label_6:
+      while (true) {
+        jj_consume_token(LBRACE);
+        switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+        case BINDING:
+        case ASSERT:
+        case ASSERTTEMPORAL:
+        case DEFCLASS:
+        case DEFFUNCTION:
+        case DEFMODULE:
+        case DEFRULE:
+        case DEFTEMPLATE:
+        case MODIFY:
+        case RETRACT:
+        case PLUS:
+        case MINUS:
+        case MULTIPLY:
+        case DIVIDE:
+        case GT1:
+        case GT2:
+        case LT1:
+        case LT2:
+        case EQ1:
+        case EQ2:
+        case LE1:
+        case LE2:
+        case GE1:
+        case GE2:
+        case IDENTIFIER:
+          ruleAction(infunc);
+          break;
+        default:
+          jj_la1[10] = jj_gen;
+          ;
+        }
+        jj_consume_token(RBRACE);
+        switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+        case LBRACE:
+          ;
+          break;
+        default:
+          jj_la1[11] = jj_gen;
+          break label_6;
+        }
       }
-      jj_consume_token(RBRACE);
     dffunc = new Deffunction();
     dffunc.setName(exp2.image);
     dffunc.setParameters(ParameterUtils.convertParameters(list));
-    dffunc.setFunction((Function)infunc);
+    dffunc.setFunctions(infunc);
     list.clear();
     {if (true) return dffunc;}
       break;
     case BINDING:
       jj_consume_token(BINDING);
       exp = getBindType();
-      label_6:
+      label_7:
       while (true) {
         valueParams(list);
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
@@ -460,8 +471,8 @@ public class CLIPSParser implements CLIPSParserConstants {
           ;
           break;
         default:
-          jj_la1[11] = jj_gen;
-          break label_6;
+          jj_la1[12] = jj_gen;
+          break label_7;
         }
       }
     func = new ShellFunction();
@@ -529,11 +540,11 @@ public class CLIPSParser implements CLIPSParserConstants {
         exp = jj_consume_token(GE2);
         break;
       default:
-        jj_la1[12] = jj_gen;
+        jj_la1[13] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
-      label_7:
+      label_8:
       while (true) {
         valueParams(list);
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
@@ -551,8 +562,8 @@ public class CLIPSParser implements CLIPSParserConstants {
           ;
           break;
         default:
-          jj_la1[13] = jj_gen;
-          break label_7;
+          jj_la1[14] = jj_gen;
+          break label_8;
         }
       }
     func = new ShellFunction();
@@ -575,7 +586,7 @@ public class CLIPSParser implements CLIPSParserConstants {
       case FALSE:
       case IDENTIFIER:
       case PATH_LITERAL:
-        label_8:
+        label_9:
         while (true) {
           valueParams(list);
           switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
@@ -593,13 +604,13 @@ public class CLIPSParser implements CLIPSParserConstants {
             ;
             break;
           default:
-            jj_la1[14] = jj_gen;
-            break label_8;
+            jj_la1[15] = jj_gen;
+            break label_9;
           }
         }
         break;
       default:
-        jj_la1[15] = jj_gen;
+        jj_la1[16] = jj_gen;
         ;
       }
     func = new ShellFunction();
@@ -609,7 +620,7 @@ public class CLIPSParser implements CLIPSParserConstants {
     {if (true) return func;}
       break;
     default:
-      jj_la1[16] = jj_gen;
+      jj_la1[17] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -670,7 +681,7 @@ public class CLIPSParser implements CLIPSParserConstants {
     list.add(bp);
         break;
       default:
-        jj_la1[17] = jj_gen;
+        jj_la1[18] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
@@ -711,7 +722,7 @@ public class CLIPSParser implements CLIPSParserConstants {
     {if (true) return exp;}
       break;
     default:
-      jj_la1[18] = jj_gen;
+      jj_la1[19] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -734,7 +745,7 @@ public class CLIPSParser implements CLIPSParserConstants {
   ValueParam[] param = null;
     jj_consume_token(LBRACE);
     exp = jj_consume_token(IDENTIFIER);
-    label_9:
+    label_10:
     while (true) {
       assertContents(tokens);
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
@@ -742,8 +753,8 @@ public class CLIPSParser implements CLIPSParserConstants {
         ;
         break;
       default:
-        jj_la1[19] = jj_gen;
-        break label_9;
+        jj_la1[20] = jj_gen;
+        break label_10;
       }
     }
     jj_consume_token(RBRACE);
@@ -776,7 +787,7 @@ public class CLIPSParser implements CLIPSParserConstants {
       body = checkMultiSlot();
       break;
     default:
-      jj_la1[20] = jj_gen;
+      jj_la1[21] = jj_gen;
       ;
     }
     jj_consume_token(RBRACE);
@@ -800,28 +811,6 @@ public class CLIPSParser implements CLIPSParserConstants {
   Object body;
   ArrayList artokens = new ArrayList();
     if (jj_2_2(2147483647)) {
-      label_10:
-      while (true) {
-        arrayType(artokens);
-        switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-        case INTEGER_LITERAL:
-        case FLOATING_POINT_LITERAL:
-        case STRING_LITERAL:
-        case IDENTIFIER:
-        case PATH_LITERAL:
-          ;
-          break;
-        default:
-          jj_la1[21] = jj_gen;
-          break label_10;
-        }
-      }
-    JamochaValue[] values = new JamochaValue[artokens.size()];
-    for(int i=0; i<artokens.size(); ++i) {
-      values[i] = (JamochaValue) artokens.get(i);
-    }
-    {if (true) return JamochaValue.newList(values);}
-    } else if (jj_2_3(2147483647)) {
       label_11:
       while (true) {
         arrayType(artokens);
@@ -836,6 +825,28 @@ public class CLIPSParser implements CLIPSParserConstants {
         default:
           jj_la1[22] = jj_gen;
           break label_11;
+        }
+      }
+    JamochaValue[] values = new JamochaValue[artokens.size()];
+    for(int i=0; i<artokens.size(); ++i) {
+      values[i] = (JamochaValue) artokens.get(i);
+    }
+    {if (true) return JamochaValue.newList(values);}
+    } else if (jj_2_3(2147483647)) {
+      label_12:
+      while (true) {
+        arrayType(artokens);
+        switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+        case INTEGER_LITERAL:
+        case FLOATING_POINT_LITERAL:
+        case STRING_LITERAL:
+        case IDENTIFIER:
+        case PATH_LITERAL:
+          ;
+          break;
+        default:
+          jj_la1[23] = jj_gen;
+          break label_12;
         }
       }
     JamochaValue[] values = new JamochaValue[artokens.size()];
@@ -859,7 +870,7 @@ public class CLIPSParser implements CLIPSParserConstants {
     {if (true) return (JamochaValue)body;}
         break;
       default:
-        jj_la1[23] = jj_gen;
+        jj_la1[24] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
@@ -897,7 +908,7 @@ public class CLIPSParser implements CLIPSParserConstants {
     {if (true) return JamochaValue.newIdentifier(btoken.image);}
       break;
     default:
-      jj_la1[24] = jj_gen;
+      jj_la1[25] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -921,7 +932,7 @@ public class CLIPSParser implements CLIPSParserConstants {
     tokens.add(val);
       break;
     default:
-      jj_la1[25] = jj_gen;
+      jj_la1[26] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -934,7 +945,7 @@ public class CLIPSParser implements CLIPSParserConstants {
   List slots = new ArrayList();
     /* javacc gives a warning for this, but not sure how to do it better */
       exp = jj_consume_token(IDENTIFIER);
-    label_12:
+    label_13:
     while (true) {
       templateBody(slots);
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
@@ -942,8 +953,8 @@ public class CLIPSParser implements CLIPSParserConstants {
         ;
         break;
       default:
-        jj_la1[26] = jj_gen;
-        break label_12;
+        jj_la1[27] = jj_gen;
+        break label_13;
       }
     }
     Slot[] s = new Slot[slots.size()];
@@ -1001,7 +1012,7 @@ public class CLIPSParser implements CLIPSParserConstants {
       jj_consume_token(RBRACE);
       break;
     default:
-      jj_la1[27] = jj_gen;
+      jj_la1[28] = jj_gen;
       ;
     }
     if (!stype.equals(JamochaType.UNDEFINED)) {
@@ -1055,7 +1066,7 @@ public class CLIPSParser implements CLIPSParserConstants {
     {if (true) return JamochaType.BOOLEAN;}
       break;
     default:
-      jj_la1[28] = jj_gen;
+      jj_la1[29] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -1083,7 +1094,7 @@ public class CLIPSParser implements CLIPSParserConstants {
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case LBRACE:
     case BIND:
-      label_13:
+      label_14:
       while (true) {
         conditionElement(conditions);
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
@@ -1092,13 +1103,13 @@ public class CLIPSParser implements CLIPSParserConstants {
           ;
           break;
         default:
-          jj_la1[29] = jj_gen;
-          break label_13;
+          jj_la1[30] = jj_gen;
+          break label_14;
         }
       }
       break;
     default:
-      jj_la1[30] = jj_gen;
+      jj_la1[31] = jj_gen;
       ;
     }
     arrow();
@@ -1316,7 +1327,7 @@ public class CLIPSParser implements CLIPSParserConstants {
     {if (true) return false;}
       break;
     default:
-      jj_la1[31] = jj_gen;
+      jj_la1[32] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -1344,7 +1355,7 @@ public class CLIPSParser implements CLIPSParserConstants {
 
         break;
       default:
-        jj_la1[32] = jj_gen;
+        jj_la1[33] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
@@ -1362,7 +1373,7 @@ public class CLIPSParser implements CLIPSParserConstants {
       exp = jj_consume_token(IDENTIFIER);
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case LBRACE:
-        label_14:
+        label_15:
         while (true) {
           templatePatterns(alpha);
           switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
@@ -1370,13 +1381,13 @@ public class CLIPSParser implements CLIPSParserConstants {
             ;
             break;
           default:
-            jj_la1[33] = jj_gen;
-            break label_14;
+            jj_la1[34] = jj_gen;
+            break label_15;
           }
         }
         break;
       default:
-        jj_la1[34] = jj_gen;
+        jj_la1[35] = jj_gen;
         ;
       }
       jj_consume_token(RBRACE);
@@ -1417,30 +1428,10 @@ public class CLIPSParser implements CLIPSParserConstants {
         break;
       case AND1:
         jj_consume_token(AND1);
-        label_15:
-        while (true) {
-          jj_consume_token(LBRACE);
-          nested = expr();
-          jj_consume_token(RBRACE);
-          switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-          case LBRACE:
-            ;
-            break;
-          default:
-            jj_la1[35] = jj_gen;
-            break label_15;
-          }
-        }
-    AndCondition ac = new AndCondition();
-    ac.addNestedConditionElement(nested);
-    list.add(ac);
-        break;
-      case EXISTS:
-        jj_consume_token(EXISTS);
         label_16:
         while (true) {
           jj_consume_token(LBRACE);
-          CEType(alpha);
+          nested = expr();
           jj_consume_token(RBRACE);
           switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
           case LBRACE:
@@ -1451,6 +1442,26 @@ public class CLIPSParser implements CLIPSParserConstants {
             break label_16;
           }
         }
+    AndCondition ac = new AndCondition();
+    ac.addNestedConditionElement(nested);
+    list.add(ac);
+        break;
+      case EXISTS:
+        jj_consume_token(EXISTS);
+        label_17:
+        while (true) {
+          jj_consume_token(LBRACE);
+          CEType(alpha);
+          jj_consume_token(RBRACE);
+          switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+          case LBRACE:
+            ;
+            break;
+          default:
+            jj_la1[37] = jj_gen;
+            break label_17;
+          }
+        }
     ExistCondition exc = new ExistCondition();
     exc.addNestedConditionElement(alpha);
     list.add(exc);
@@ -1459,7 +1470,7 @@ public class CLIPSParser implements CLIPSParserConstants {
         exp = jj_consume_token(IDENTIFIER);
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case LBRACE:
-          label_17:
+          label_18:
           while (true) {
             templatePatterns(alpha);
             switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
@@ -1467,13 +1478,13 @@ public class CLIPSParser implements CLIPSParserConstants {
               ;
               break;
             default:
-              jj_la1[37] = jj_gen;
-              break label_17;
+              jj_la1[38] = jj_gen;
+              break label_18;
             }
           }
           break;
         default:
-          jj_la1[38] = jj_gen;
+          jj_la1[39] = jj_gen;
           ;
         }
     oc = new ObjectCondition();
@@ -1487,7 +1498,7 @@ public class CLIPSParser implements CLIPSParserConstants {
     exp = null;
         break;
       default:
-        jj_la1[39] = jj_gen;
+        jj_la1[40] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
@@ -1546,30 +1557,6 @@ public class CLIPSParser implements CLIPSParserConstants {
     }
     } else if (jj_2_22(2147483647)) {
       body = typeExpr();
-      label_18:
-      while (true) {
-        jj_consume_token(OR2);
-        orType(andor);
-        switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-        case OR2:
-          ;
-          break;
-        default:
-          jj_la1[40] = jj_gen;
-          break label_18;
-        }
-      }
-    if (body != null) {
-      orc = new OrLiteralConstraint();
-      orc.setName(identifier.image);
-      mv = new MultiValue(body);
-      orc.addValue(mv);
-      orc.addValues(andor);
-      list.add(orc);
-    }
-    } else if (jj_2_23(2147483647)) {
-      jj_consume_token(TILDA);
-      body = typeExpr();
       label_19:
       while (true) {
         jj_consume_token(OR2);
@@ -1587,6 +1574,30 @@ public class CLIPSParser implements CLIPSParserConstants {
       orc = new OrLiteralConstraint();
       orc.setName(identifier.image);
       mv = new MultiValue(body);
+      orc.addValue(mv);
+      orc.addValues(andor);
+      list.add(orc);
+    }
+    } else if (jj_2_23(2147483647)) {
+      jj_consume_token(TILDA);
+      body = typeExpr();
+      label_20:
+      while (true) {
+        jj_consume_token(OR2);
+        orType(andor);
+        switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+        case OR2:
+          ;
+          break;
+        default:
+          jj_la1[42] = jj_gen;
+          break label_20;
+        }
+      }
+    if (body != null) {
+      orc = new OrLiteralConstraint();
+      orc.setName(identifier.image);
+      mv = new MultiValue(body);
       mv.setNegated(true);
       orc.addValue(mv);
       orc.addValues(andor);
@@ -1594,7 +1605,7 @@ public class CLIPSParser implements CLIPSParserConstants {
     }
     } else if (jj_2_24(2147483647)) {
       body = typeExpr();
-      label_20:
+      label_21:
       while (true) {
         jj_consume_token(AND2);
         andType(andor);
@@ -1603,8 +1614,8 @@ public class CLIPSParser implements CLIPSParserConstants {
           ;
           break;
         default:
-          jj_la1[42] = jj_gen;
-          break label_20;
+          jj_la1[43] = jj_gen;
+          break label_21;
         }
       }
     if (body != null) {
@@ -1618,7 +1629,7 @@ public class CLIPSParser implements CLIPSParserConstants {
     } else if (jj_2_25(2147483647)) {
       jj_consume_token(TILDA);
       body = typeExpr();
-      label_21:
+      label_22:
       while (true) {
         jj_consume_token(AND2);
         andType(andor);
@@ -1627,8 +1638,8 @@ public class CLIPSParser implements CLIPSParserConstants {
           ;
           break;
         default:
-          jj_la1[43] = jj_gen;
-          break label_21;
+          jj_la1[44] = jj_gen;
+          break label_22;
         }
       }
     if (body != null) {
@@ -1691,7 +1702,7 @@ public class CLIPSParser implements CLIPSParserConstants {
       list.add(vc);
         break;
       default:
-        jj_la1[44] = jj_gen;
+        jj_la1[45] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
@@ -1728,7 +1739,7 @@ public class CLIPSParser implements CLIPSParserConstants {
     }
         break;
       default:
-        jj_la1[45] = jj_gen;
+        jj_la1[46] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
@@ -1765,7 +1776,7 @@ public class CLIPSParser implements CLIPSParserConstants {
     }
         break;
       default:
-        jj_la1[46] = jj_gen;
+        jj_la1[47] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
@@ -1861,14 +1872,14 @@ public class CLIPSParser implements CLIPSParserConstants {
         fname = jj_consume_token(GE2);
         break;
       default:
-        jj_la1[47] = jj_gen;
+        jj_la1[48] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
     {if (true) return fname.image;}
       break;
     default:
-      jj_la1[48] = jj_gen;
+      jj_la1[49] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -1884,7 +1895,7 @@ public class CLIPSParser implements CLIPSParserConstants {
   final public void ruleActions(List list) throws ParseException {
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case LBRACE:
-      label_22:
+      label_23:
       while (true) {
         jj_consume_token(LBRACE);
         ruleAction(list);
@@ -1894,13 +1905,13 @@ public class CLIPSParser implements CLIPSParserConstants {
           ;
           break;
         default:
-          jj_la1[49] = jj_gen;
-          break label_22;
+          jj_la1[50] = jj_gen;
+          break label_23;
         }
       }
       break;
     default:
-      jj_la1[50] = jj_gen;
+      jj_la1[51] = jj_gen;
       ;
     }
 
@@ -1944,7 +1955,7 @@ public class CLIPSParser implements CLIPSParserConstants {
     list.add(vp);
       break;
     default:
-      jj_la1[51] = jj_gen;
+      jj_la1[52] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -2426,7 +2437,7 @@ public class CLIPSParser implements CLIPSParserConstants {
   public boolean lookingAhead = false;
   private boolean jj_semLA;
   private int jj_gen;
-  final private int[] jj_la1 = new int[52];
+  final private int[] jj_la1 = new int[53];
   static private int[] jj_la1_0;
   static private int[] jj_la1_1;
   static private int[] jj_la1_2;
@@ -2436,13 +2447,13 @@ public class CLIPSParser implements CLIPSParserConstants {
       jj_la1_2();
    }
    private static void jj_la1_0() {
-      jj_la1_0 = new int[] {0x68201,0x200,0x5800,0x200,0x200,0x8800,0x6da00,0x6da00,0x68000,0x68000,0x28680000,0x6da00,0x0,0x6da00,0x6da00,0x6da00,0x28680000,0x6d800,0x68000,0x200,0x6d800,0x5800,0x5800,0x6d800,0x6d800,0x5800,0x200,0x200,0x100000,0x8200,0x8200,0x0,0x200,0x200,0x200,0x200,0x200,0x200,0x200,0x0,0x0,0x0,0x0,0x0,0x5800,0x5800,0x5800,0x0,0x0,0x200,0x200,0xd800,};
+      jj_la1_0 = new int[] {0x68201,0x200,0x5800,0x200,0x200,0x8800,0x6da00,0x6da00,0x68000,0x68000,0x28680000,0x200,0x6da00,0x0,0x6da00,0x6da00,0x6da00,0x28680000,0x6d800,0x68000,0x200,0x6d800,0x5800,0x5800,0x6d800,0x6d800,0x5800,0x200,0x200,0x100000,0x8200,0x8200,0x0,0x200,0x200,0x200,0x200,0x200,0x200,0x200,0x0,0x0,0x0,0x0,0x0,0x5800,0x5800,0x5800,0x0,0x0,0x200,0x200,0xd800,};
    }
    private static void jj_la1_1() {
-      jj_la1_1 = new int[] {0x0,0x0,0x0,0x0,0x0,0x0,0x80000000,0x80000000,0x0,0x0,0x40801c,0x80000000,0x0,0x80000000,0x80000000,0x80000000,0x40801c,0x80000000,0x0,0x0,0x80000000,0x0,0x0,0x80000000,0x80000000,0x0,0x0,0x0,0x34005840,0x0,0x0,0x80000000,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x40100080,0x0,0x0,0x0,0x0,0x80000000,0x0,0x0,0x0,0x0,0x0,0x0,0x0,};
+      jj_la1_1 = new int[] {0x0,0x0,0x0,0x0,0x0,0x0,0x80000000,0x80000000,0x0,0x0,0x40801c,0x0,0x80000000,0x0,0x80000000,0x80000000,0x80000000,0x40801c,0x80000000,0x0,0x0,0x80000000,0x0,0x0,0x80000000,0x80000000,0x0,0x0,0x0,0x34005840,0x0,0x0,0x80000000,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x40100080,0x0,0x0,0x0,0x0,0x80000000,0x0,0x0,0x0,0x0,0x0,0x0,0x0,};
    }
    private static void jj_la1_2() {
-      jj_la1_2 = new int[] {0x0,0x0,0x40000000,0x0,0x0,0x0,0x48000002,0x48000002,0x0,0x0,0x80fffc0,0x48000002,0xfffc0,0x48000002,0x48000002,0x48000002,0x80fffc0,0x48000002,0x0,0x0,0x48000002,0x48000000,0x48000000,0x48000002,0x48000002,0x48000000,0x0,0x0,0x0,0x0,0x0,0x2,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x8400000,0x2000000,0x2000000,0x800000,0x800000,0x40000002,0x40000000,0x40000000,0xfffc0,0x80fffc0,0x0,0x0,0x48000000,};
+      jj_la1_2 = new int[] {0x0,0x0,0x40000000,0x0,0x0,0x0,0x48000002,0x48000002,0x0,0x0,0x80fffc0,0x0,0x48000002,0xfffc0,0x48000002,0x48000002,0x48000002,0x80fffc0,0x48000002,0x0,0x0,0x48000002,0x48000000,0x48000000,0x48000002,0x48000002,0x48000000,0x0,0x0,0x0,0x0,0x0,0x2,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x8400000,0x2000000,0x2000000,0x800000,0x800000,0x40000002,0x40000000,0x40000000,0xfffc0,0x80fffc0,0x0,0x0,0x48000000,};
    }
   final private JJCalls[] jj_2_rtns = new JJCalls[32];
   private boolean jj_rescan = false;
@@ -2454,7 +2465,7 @@ public class CLIPSParser implements CLIPSParserConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 52; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 53; i++) jj_la1[i] = -1;
     for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -2464,7 +2475,7 @@ public class CLIPSParser implements CLIPSParserConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 52; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 53; i++) jj_la1[i] = -1;
     for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -2474,7 +2485,7 @@ public class CLIPSParser implements CLIPSParserConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 52; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 53; i++) jj_la1[i] = -1;
     for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -2484,7 +2495,7 @@ public class CLIPSParser implements CLIPSParserConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 52; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 53; i++) jj_la1[i] = -1;
     for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -2493,7 +2504,7 @@ public class CLIPSParser implements CLIPSParserConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 52; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 53; i++) jj_la1[i] = -1;
     for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -2502,7 +2513,7 @@ public class CLIPSParser implements CLIPSParserConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 52; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 53; i++) jj_la1[i] = -1;
     for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -2621,7 +2632,7 @@ public class CLIPSParser implements CLIPSParserConstants {
       la1tokens[jj_kind] = true;
       jj_kind = -1;
     }
-    for (int i = 0; i < 52; i++) {
+    for (int i = 0; i < 53; i++) {
       if (jj_la1[i] == jj_gen) {
         for (int j = 0; j < 32; j++) {
           if ((jj_la1_0[i] & (1<<j)) != 0) {

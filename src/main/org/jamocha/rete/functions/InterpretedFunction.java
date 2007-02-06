@@ -17,7 +17,6 @@
 package org.jamocha.rete.functions;
 
 import java.util.HashMap;
-import java.util.Map;
 
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.IllegalParameterException;
@@ -29,7 +28,6 @@ import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.Scope;
-import org.jamocha.rete.util.CollectionsFactory;
 
 /**
  * 
@@ -48,25 +46,25 @@ public class InterpretedFunction implements Function {
 
 	protected Parameter[] inputParams = null;
 
-	private Function internalFunction = null;
+	private Function[] internalFunctions = null;
 
 	/**
 	 * these are the functions we pass to the top level function. they may be
 	 * different than the input parameters for the function.
 	 */
-	private Parameter[] functionParams = null;
+	private Parameter[][] functionParams = null;
 
 	private HashMap bindings = new HashMap();
 
 	/**
 	 * 
 	 */
-	public InterpretedFunction(String name, Parameter[] params, Function func,
-			Parameter[] functionParams) {
+	public InterpretedFunction(String name, Parameter[] params,
+			Function[] functions, Parameter[][] parameters) {
 		this.name = name;
 		this.inputParams = params;
-		this.internalFunction = func;
-		this.functionParams = functionParams;
+		this.internalFunctions = functions;
+		this.functionParams = parameters;
 	}
 
 	public void configureFunction(Rete engine) {
@@ -82,18 +80,20 @@ public class InterpretedFunction implements Function {
 	public JamochaValue executeFunction(Rete engine, Parameter[] params)
 			throws EvaluationException {
 		// the first thing we do is set the values
-		JamochaValue result;
+		JamochaValue result = JamochaValue.NIL;
 		if (params.length == this.inputParams.length) {
 			Scope parameterValues = new DefaultScope();
 			for (int idx = 0; idx < this.inputParams.length; idx++) {
 				BoundParam bp = (BoundParam) this.inputParams[idx];
-				parameterValues.setBindingValue(bp.getVariableName(), params[idx]
-						.getValue(engine));
+				parameterValues.setBindingValue(bp.getVariableName(),
+						params[idx].getValue(engine));
 			}
 			engine.pushScope(parameterValues);
 			try {
-				result = this.internalFunction.executeFunction(engine,
-						this.functionParams);
+				for (int i = 0; i < this.internalFunctions.length; ++i) {
+					result = this.internalFunctions[i].executeFunction(engine,
+							this.functionParams[i]);
+				}
 			} finally {
 				engine.popScope();
 			}
@@ -112,7 +112,7 @@ public class InterpretedFunction implements Function {
 	}
 
 	public JamochaType getReturnType() {
-		return this.internalFunction.getReturnType();
+		return JamochaType.UNDEFINED;
 	}
 
 	public String toPPString(Parameter[] params, int indents) {
@@ -121,14 +121,6 @@ public class InterpretedFunction implements Function {
 
 	public Parameter[] getInputParameters() {
 		return inputParams;
-	}
-
-	public Parameter[] getFunctionParams() {
-		return functionParams;
-	}
-
-	public void setFunctionParams(Parameter[] functionParams) {
-		this.functionParams = functionParams;
 	}
 
 	public JamochaValue getBinding(String var) {
