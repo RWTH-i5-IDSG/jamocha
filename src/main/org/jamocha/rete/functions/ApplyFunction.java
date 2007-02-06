@@ -56,7 +56,7 @@ public class ApplyFunction implements Function, Serializable {
 			throws EvaluationException {
 		JamochaValue result;
 		if (params != null && params.length >= 1) {
-			String functionName = params[0].getValue(engine).getIdentifierValue();
+			String functionName = params[0].getValue(engine).getStringValue();
 			Function function = engine.findFunction(functionName);
 			if(function == null) {
 				throw new EvaluationException("Error function "+functionName+" could not be found.");

@@ -29,12 +29,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Stack;
 
 import org.jamocha.logging.DefaultLogger;
 import org.jamocha.messagerouter.MessageEvent;
 import org.jamocha.messagerouter.MessageRouter;
 import org.jamocha.parser.EvaluationException;
-import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.exception.AssertException;
 import org.jamocha.rete.exception.ExecuteException;
@@ -43,7 +43,6 @@ import org.jamocha.rete.functions.BatchFunction;
 import org.jamocha.rete.functions.BooleanFunctions;
 import org.jamocha.rete.functions.IOFunctions;
 import org.jamocha.rete.functions.IfFunction;
-import org.jamocha.rete.functions.InterpretedFunction;
 import org.jamocha.rete.functions.JavaFunctions;
 import org.jamocha.rete.functions.MathFunctions;
 import org.jamocha.rete.functions.RuleEngineFunctions;
@@ -51,7 +50,6 @@ import org.jamocha.rete.functions.StringFunctions;
 import org.jamocha.rete.strategies.DepthStrategy;
 import org.jamocha.rete.util.CollectionsFactory;
 import org.jamocha.rete.util.ProfileStats;
-import org.jamocha.rule.Rule;
 
 /**
  * @author Peter Lin
@@ -141,7 +139,9 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 	 */
 	protected DefglobalMap defglobals = new DefglobalMap();
 
-	/**
+	private Stack<Scope> scopes = new Stack<Scope>();
+
+	/*
 	 * an ArrayList for the listeners
 	 */
 	protected ArrayList listeners = new ArrayList();
@@ -168,10 +168,6 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 
 	private boolean debug = false;
 
-	private Rule activeRule = null;
-    
-    private InterpretedFunction intrFunction = null;
-
 	private boolean watchFact = false;
 
 	private boolean watchRules = false;
@@ -185,7 +181,7 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 	private DefaultLogger log = new DefaultLogger(Rete.class);
 
 	private MessageRouter router = new MessageRouter(this);
-	
+
 	protected Deftemplate initFact = new InitialFact();
 
 	/**
@@ -216,7 +212,7 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 		this.currentModule = this.main;
 		this.theAgenda.addModule(this.main);
 	}
-	
+
 	protected void loadBuiltInFunctions() {
 		IOFunctions iof = new IOFunctions();
 		functionGroups.add(iof);
@@ -242,13 +238,13 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 		functionGroups.add(javafs);
 		javafs.loadFunctions(this);
 		declareFunction(new IfFunction());
-		
+
 	}
 
 	protected void clearBuiltInFunctions() {
 		this.functions.clear();
 	}
-	
+
 	protected void startLog() {
 		log.info("Sumatra started");
 	}
@@ -393,9 +389,13 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 						this.writeMessage("==> fire: " + actv.toPPString()
 								+ "\r\n", "t");
 					}
-					this.activeRule = actv.getRule();
-					actv.executeActivation(this);
-					actv.clear();
+					pushScope(actv.getRule());
+					try {
+						actv.executeActivation(this);
+						actv.clear();
+					} finally {
+						popScope();
+					}
 					counter++;
 				} catch (ExecuteException e) {
 					// we need to report the exception
@@ -434,9 +434,13 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 					}
 					// we set the active rule, this means only one rule
 					// can be active at a time.
-					this.activeRule = actv.getRule();
-					actv.executeActivation(this);
-					actv.clear();
+					pushScope(actv.getRule());
+					try {
+						actv.executeActivation(this);
+						actv.clear();
+					} finally {
+						popScope();
+					}
 				} catch (ExecuteException e) {
 					log.debug(e);
 				}
@@ -459,9 +463,13 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 		if (act != null) {
 			this.firingcount++;
 			try {
-				this.activeRule = act.getRule();
-				act.executeActivation(this);
-				act.clear();
+				pushScope(act.getRule());
+				try {
+					act.executeActivation(this);
+					act.clear();
+				} finally {
+					popScope();
+				}
 			} catch (ExecuteException e) {
 				log.debug(e);
 			}
@@ -486,10 +494,10 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 			Defmodule mod = new Defmodule(name, theStrat);
 			this.currentModule = mod;
 			this.theAgenda.addModule(mod);
-            return true;
+			return true;
 		} else {
-            return false;
-        }
+			return false;
+		}
 	}
 
 	public Module addModule(String name, boolean setfocus) {
@@ -506,7 +514,7 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 	}
 
 	public Module removeModule(String name) {
-        return this.theAgenda.removeModule(name);
+		return this.theAgenda.removeModule(name);
 	}
 
 	public Module findModule(String name) {
@@ -583,7 +591,7 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 		} catch (ClassNotFoundException e) {
 			// for now do nothing, but we should report the error for real
 			log.debug(e);
-            throw e;
+			throw e;
 		}
 	}
 
@@ -717,7 +725,7 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 			declareFunction(func);
 		} catch (ClassNotFoundException e) {
 			log.debug(e);
-            throw e;
+			throw e;
 		} catch (IllegalAccessException e) {
 			log.debug(e);
 		} catch (InstantiationException e) {
@@ -748,10 +756,11 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 	/**
 	 * Method will register the function of the FunctionGroup .
 	 * 
-	 * @param functionGroup FunctionGroup with the functions to register.
+	 * @param functionGroup
+	 *            FunctionGroup with the functions to register.
 	 */
 	public void declareFunctionGroup(FunctionGroup functionGroup) {
-			functionGroup.loadFunctions(this);
+		functionGroup.loadFunctions(this);
 	}
 
 	/**
@@ -759,13 +768,13 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 	 * to load the file.
 	 * 
 	 * @param filename
-	 * @throws EvaluationException 
+	 * @throws EvaluationException
 	 */
 	public void loadRuleset(String filename) throws EvaluationException {
 		BatchFunction bf = (BatchFunction) this.functions
 				.get(BatchFunction.BATCH);
-		Parameter[] params = new Parameter[] { new ValueParam(
-				JamochaValue.newString(filename)) };
+		Parameter[] params = new Parameter[] { new ValueParam(JamochaValue
+				.newString(filename)) };
 		bf.executeFunction(this, params);
 	}
 
@@ -824,13 +833,13 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 	 * @return
 	 */
 	public JamochaValue getBinding(String name) {
-		if (this.activeRule != null && !name.startsWith("*")) {
-			return this.activeRule.getBindingValue(name);
-        } else if (this.intrFunction != null) {
-            return this.intrFunction.getBinding(name);
-		} else {
-			return getDefglobalValue(name);
+		if (!scopes.isEmpty() && !name.startsWith("*")) {
+			JamochaValue result = scopes.peek().getBindingValue(name);
+			if (result != null) {
+				return result;
+			}
 		}
+		return getDefglobalValue(name);
 	}
 
 	/**
@@ -844,17 +853,13 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 	 * @param value
 	 */
 	public void setBinding(String key, JamochaValue value) {
-		if (this.activeRule != null && !key.startsWith("*")) {
-			this.activeRule.setBindingValue(key, value);
+		if (!scopes.isEmpty() && !key.startsWith("*")) {
+			scopes.peek().setBindingValue(key, value);
 		} else {
 			this.declareDefglobal(key, value);
 		}
 	}
 
-    public void setInterpretedFunction(InterpretedFunction f) {
-        this.intrFunction = f;
-    }
-    
 	/**
 	 * set the focus to a different module
 	 * 
@@ -1010,19 +1015,21 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 		return objects;
 	}
 
-    /**
-     * return just the number of deffacts
-     * @return
-     */
+	/**
+	 * return just the number of deffacts
+	 * 
+	 * @return
+	 */
 	public int getDeffactCount() {
 		return this.deffactMap.size();
 	}
 
-    /**
-     * get the shadow for the object
-     * @param key
-     * @return
-     */
+	/**
+	 * get the shadow for the object
+	 * 
+	 * @param key
+	 * @return
+	 */
 	public Fact getShadowFact(Object key) {
 		Fact f = (Fact) this.dynamicFacts.get(key);
 		if (f == null) {
@@ -1031,64 +1038,65 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 		return f;
 	}
 
-    /**
-     * changed the implementation so it searches for the fact by id.
-     * Starting with the HashMap for deffact, dynamic facts and finally
-     * static facts.
-     * @param id
-     * @return
-     */
-    public Fact getFactById(long id) {
-        Fact df = null;
-        Iterator itr = this.deffactMap.values().iterator();
-        while (itr.hasNext()) {
-            df = (Deffact)itr.next();
-            if (df.getFactId() == id) {
-                return df;
-            }
-        }
-        // now search the object facts
-        if (df == null) {
-            // check dynamic facts
-            Iterator itr2 = this.dynamicFacts.values().iterator();
-            while (itr2.hasNext()) {
-                df = (Fact)itr2.next();
-                if (df.getFactId() == id) {
-                    return df;
-                }
-            }
-            if (df == null) {
-                itr2 = this.staticFacts.values().iterator();
-                while (itr2.hasNext()) {
-                    df = (Fact)itr2.next();
-                    if (df.getFactId() == id) {
-                        return df;
-                    }
-                }
-            }
-        }
-        return null;
-    }
-    
+	/**
+	 * changed the implementation so it searches for the fact by id. Starting
+	 * with the HashMap for deffact, dynamic facts and finally static facts.
+	 * 
+	 * @param id
+	 * @return
+	 */
+	public Fact getFactById(long id) {
+		Fact df = null;
+		Iterator itr = this.deffactMap.values().iterator();
+		while (itr.hasNext()) {
+			df = (Deffact) itr.next();
+			if (df.getFactId() == id) {
+				return df;
+			}
+		}
+		// now search the object facts
+		if (df == null) {
+			// check dynamic facts
+			Iterator itr2 = this.dynamicFacts.values().iterator();
+			while (itr2.hasNext()) {
+				df = (Fact) itr2.next();
+				if (df.getFactId() == id) {
+					return df;
+				}
+			}
+			if (df == null) {
+				itr2 = this.staticFacts.values().iterator();
+				while (itr2.hasNext()) {
+					df = (Fact) itr2.next();
+					if (df.getFactId() == id) {
+						return df;
+					}
+				}
+			}
+		}
+		return null;
+	}
+
 	// ----- method for adding output streams for spools ----- //
 	/**
-	 * this method is for adding printwriters for spools. the purpose of
-	 * the spool function is to dump everything out to a file.
+	 * this method is for adding printwriters for spools. the purpose of the
+	 * spool function is to dump everything out to a file.
 	 */
 	public void addPrintWriter(String name, PrintWriter writer) {
-		this.outputStreams.put(name,writer);
+		this.outputStreams.put(name, writer);
 	}
-	
+
 	/**
-	 * It is up to spool function to make sure it removes the printer
-	 * writer and closes it properly.
+	 * It is up to spool function to make sure it removes the printer writer and
+	 * closes it properly.
+	 * 
 	 * @param name
 	 * @return
 	 */
 	public PrintWriter removePrintWriter(String name) {
-		return (PrintWriter)this.outputStreams.remove(name);
+		return (PrintWriter) this.outputStreams.remove(name);
 	}
-	
+
 	// ----- method for writing messages out ----- //
 	/**
 	 * The method is called by classes to write watch, profiling and other
@@ -1103,8 +1111,9 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 	/**
 	 * writeMessage will create a MessageEvent and pass it along to any
 	 * channels. It will also write out all messages to all registered
-	 * PrintWriters. For example, if there's a spool setup, it will write
-	 * the messages to the printwriter.
+	 * PrintWriters. For example, if there's a spool setup, it will write the
+	 * messages to the printwriter.
+	 * 
 	 * @param msg
 	 * @param output
 	 */
@@ -1115,7 +1124,7 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 		if (this.outputStreams.size() > 0) {
 			Iterator itr = this.outputStreams.values().iterator();
 			while (itr.hasNext()) {
-				PrintWriter wr = (PrintWriter)itr.next();
+				PrintWriter wr = (PrintWriter) itr.next();
 				wr.write(msg);
 				wr.flush();
 			}
@@ -1125,8 +1134,8 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 	/**
 	 * The method will print out the node. It is up to the method to check if
 	 * pretty printer is true and call the appropriate node method to get the
-	 * string.
-	 * TODO - need to implement this
+	 * string. TODO - need to implement this
+	 * 
 	 * @param node
 	 */
 	public void writeMessage(BaseNode node) {
@@ -1595,10 +1604,6 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 		return this.currentModule.getAllActivations();
 	}
 
-	public Rule getActiveRule() {
-		return this.activeRule;
-	}
-
 	public int getObjectCount() {
 		return this.dynamicFacts.size() + this.staticFacts.size();
 	}
@@ -1606,11 +1611,11 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 	public void setValidateRules(boolean val) {
 		this.workingMem.getRuleCompiler().setValidateRule(val);
 	}
-	
+
 	public boolean getValidateRules() {
 		return this.workingMem.getRuleCompiler().getValidateRule();
 	}
-	
+
 	/**
 	 * not implemented yet
 	 * 
@@ -1676,5 +1681,18 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 
 	public MessageRouter getMessageRouter() {
 		return router;
+	}
+
+	public void pushScope() {
+		pushScope(new DefaultScope());
+
+	}
+
+	public void popScope() {
+		scopes.pop();
+	}
+
+	public void pushScope(Scope scope) {
+		scopes.push(scope);
 	}
 }

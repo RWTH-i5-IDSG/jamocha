@@ -18,8 +18,12 @@ package org.jamocha.messagerouter;
 
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaValue;
+import org.jamocha.rete.Deftemplate;
+import org.jamocha.rete.Function;
 import org.jamocha.rete.Rete;
+import org.jamocha.rete.functions.Deffunction;
 import org.jamocha.rete.functions.ShellFunction;
+import org.jamocha.rule.Defrule;
 
 public class CLIPSInterpreter {
 
@@ -29,16 +33,18 @@ public class CLIPSInterpreter {
 		this.engine = engine;
 	}
 
-	public JamochaValue executeCommand(Object command) {
+	public JamochaValue executeCommand(Object expr) throws EvaluationException {
 		JamochaValue result = null;
-		if (command instanceof ShellFunction) {
-			try {
-				result = ((ShellFunction) command)
-						.executeFunction(engine, null);
-			} catch (EvaluationException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+		if (expr instanceof Defrule) {
+			Defrule rl = (Defrule) expr;
+			engine.getRuleCompiler().addRule(rl);
+		} else if (expr instanceof Deftemplate) {
+			Deftemplate dft = (Deftemplate) expr;
+			engine.getCurrentFocus().addTemplate(dft, engine,
+					engine.getWorkingMemory());
+		} else if (expr instanceof Function) {
+			Function fnc = (Function) expr;
+			result = fnc.executeFunction(engine, null);
 		} else {
 			throw new RuntimeException("Illegal command.");
 		}

@@ -23,7 +23,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.BaseJoin;
 import org.jamocha.rete.BaseNode;
@@ -34,6 +33,7 @@ import org.jamocha.rete.Deftemplate;
 import org.jamocha.rete.Fact;
 import org.jamocha.rete.Module;
 import org.jamocha.rete.Rete;
+import org.jamocha.rete.Scope;
 import org.jamocha.rete.util.CollectionsFactory;
 
 /**
@@ -41,7 +41,7 @@ import org.jamocha.rete.util.CollectionsFactory;
  *
  * A basic implementation of the Rule interface
  */
-public class Defrule implements Rule, Serializable {
+public class Defrule implements Rule, Scope, Serializable {
 
     protected String name = null;
     protected ArrayList conditions = null;
@@ -290,14 +290,14 @@ public class Defrule implements Rule, Serializable {
      * the current implementation simply replaces the existing
      * value if one already exists.
      */
-    public void setBindingValue(Object key, JamochaValue value) {
+    public void setBindingValue(String key, JamochaValue value) {
     	this.bindValues.put(key,value);
     }
 
     /**
      * return the value associated with the binding
      */
-    public JamochaValue getBindingValue(Object key) {
+    public JamochaValue getBindingValue(String key) {
     	JamochaValue val = (JamochaValue) this.bindValues.get(key);
     	if (val == null) {
     		Binding bd = (Binding)this.bindings.get(key);

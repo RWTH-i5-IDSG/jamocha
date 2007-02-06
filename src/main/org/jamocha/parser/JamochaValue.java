@@ -165,6 +165,9 @@ public class JamochaValue {
 			for (int i = 0; i < collection.size() && it.hasNext(); ++i) {
 				array[i] = new JamochaValue(it.next());
 			}
+		} else if (object instanceof Fact) {
+			value = object;
+			type = JamochaType.FACT;
 		} else {
 			value = object;
 			type = JamochaType.OBJECT;

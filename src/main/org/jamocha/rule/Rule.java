@@ -27,6 +27,7 @@ import org.jamocha.rete.Binding;
 import org.jamocha.rete.Fact;
 import org.jamocha.rete.Module;
 import org.jamocha.rete.Rete;
+import org.jamocha.rete.Scope;
 
 
 /**
@@ -42,7 +43,7 @@ import org.jamocha.rete.Rete;
  * method are present to make it easier to write rule parsers and
  * compilers.
  */
-public interface Rule extends Serializable {
+public interface Rule extends Scope, Serializable {
 	/**
 	 * if the rule is set to autofocus, it returns true
 	 * @return
@@ -213,13 +214,13 @@ public interface Rule extends Serializable {
      * @param key
      * @param value
      */
-    void setBindingValue(Object key, JamochaValue value);
+    void setBindingValue(String key, JamochaValue value);
     /**
      * Return the value of the for the binding
      * @param key is the name of the variable
      * @return
      */
-    JamochaValue getBindingValue(Object key);
+    JamochaValue getBindingValue(String key);
     /**
      * Add a new binding to the rule with the variable as the key
      * @param key

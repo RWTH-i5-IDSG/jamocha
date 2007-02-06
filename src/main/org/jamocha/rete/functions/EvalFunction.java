@@ -69,7 +69,7 @@ public class EvalFunction implements Function, Serializable {
 		return result;
 	}
 
-	public JamochaValue eval(Rete engine, String command) {
+	public JamochaValue eval(Rete engine, String command) throws EvaluationException {
 		JamochaValue result = null;
 		try {
 			CLIPSParser parser = new CLIPSParser(engine, new StringReader(
