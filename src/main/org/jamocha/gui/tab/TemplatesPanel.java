@@ -42,10 +42,8 @@ import javax.swing.table.AbstractTableModel;
 import org.jamocha.gui.JamochaGui;
 import org.jamocha.gui.TableMap;
 import org.jamocha.gui.TableSorter;
-import org.jamocha.gui.editor.FactEditor;
+import org.jamocha.gui.editor.TemplateEditor;
 import org.jamocha.gui.icons.IconLoader;
-import org.jamocha.messagerouter.InterestType;
-import org.jamocha.messagerouter.StringChannel;
 import org.jamocha.rete.Module;
 import org.jamocha.rete.MultiSlot;
 import org.jamocha.rete.Slot;
@@ -75,8 +73,6 @@ public class TemplatesPanel extends AbstractJamochaPanel implements
 	private JButton createNewButton;
 
 	private JTextArea dumpArea;
-
-	private StringChannel editorChannel;
 
 	public TemplatesPanel(JamochaGui gui) {
 		super(gui);
@@ -165,8 +161,6 @@ public class TemplatesPanel extends AbstractJamochaPanel implements
 	}
 
 	public void close() {
-		if (editorChannel != null)
-			gui.getEngine().getMessageRouter().closeChannel(editorChannel);
 		gui.getPreferences().putInt("templates.dividerlocation",
 				pane.getDividerLocation());
 	}
@@ -179,11 +173,8 @@ public class TemplatesPanel extends AbstractJamochaPanel implements
 		if (event.getSource().equals(reloadButton)) {
 			initTemplatesList();
 		} else if (event.getSource().equals(createNewButton)) {
-			FactEditor editor = new FactEditor(gui.getEngine());
-			if (editorChannel == null)
-				editorChannel = gui.getEngine().getMessageRouter().openChannel(
-						"facteditor_channel", InterestType.NONE);
-			editor.setStringChannel(editorChannel);
+			TemplateEditor editor = new TemplateEditor(gui.getEngine());
+			editor.setStringChannel(gui.getStringChannel());
 			editor.init();
 		}
 	}
@@ -294,8 +285,11 @@ public class TemplatesPanel extends AbstractJamochaPanel implements
 						if (slot instanceof MultiSlot)
 							buffer.append("multislot " + slot.getName() + ")");
 						else {
-							buffer.append("slot " + slot.getName()+"\n        (type "+slot.getValueType().toString()+")\n    )");
-							
+							buffer.append("slot " + slot.getName()
+									+ "\n        (type "
+									+ slot.getValueType().toString()
+									+ ")\n    )");
+
 						}
 					}
 					buffer.append("\n)");

@@ -40,6 +40,8 @@ import org.jamocha.gui.tab.RetePanel;
 import org.jamocha.gui.tab.SettingsPanel;
 import org.jamocha.gui.tab.ShellPanel;
 import org.jamocha.gui.tab.TemplatesPanel;
+import org.jamocha.messagerouter.InterestType;
+import org.jamocha.messagerouter.StringChannel;
 import org.jamocha.rete.Rete;
 
 /**
@@ -60,12 +62,14 @@ public class JamochaGui extends JFrame implements ChangeListener {
 	private Rete engine;
 
 	private JamochaMenuBar menuBar;
-	
+
 	private JTabbedPane tabbedPane;
 
 	private List<AbstractJamochaPanel> panels = new LinkedList<AbstractJamochaPanel>();
 
 	private boolean exitOnClose = false;
+
+	private StringChannel stringChannel;
 
 	/**
 	 * Create a GUI-Instance for Jamocha.
@@ -82,9 +86,10 @@ public class JamochaGui extends JFrame implements ChangeListener {
 
 		// show logo
 		JPanel logoPanel = new JPanel(new BorderLayout());
-		logoPanel.add(new JLabel(IconLoader.getImageIcon("jamocha")),BorderLayout.EAST);
+		logoPanel.add(new JLabel(IconLoader.getImageIcon("jamocha")),
+				BorderLayout.EAST);
 		this.add(logoPanel, BorderLayout.NORTH);
-		
+
 		// create a tabbed pane
 		tabbedPane = new JTabbedPane();
 		this.add(tabbedPane, BorderLayout.CENTER);
@@ -146,10 +151,9 @@ public class JamochaGui extends JFrame implements ChangeListener {
 		} else {
 			this.setLocation(locx, locy);
 		}
-		if( width <= 0 || height <= 0 ){
+		if (width <= 0 || height <= 0) {
 			this.setSize(750, 550);
-		}
-		else {
+		} else {
 			this.setSize(width, height);
 		}
 	}
@@ -173,6 +177,13 @@ public class JamochaGui extends JFrame implements ChangeListener {
 	 */
 	public Rete getEngine() {
 		return engine;
+	}
+
+	public StringChannel getStringChannel() {
+		if (stringChannel == null)
+			stringChannel = getEngine().getMessageRouter().openChannel(
+					"gui_string_channel", InterestType.NONE);
+		return stringChannel;
 	}
 
 	/**
@@ -209,12 +220,14 @@ public class JamochaGui extends JFrame implements ChangeListener {
 	 * 
 	 */
 	public void close() {
+		if (stringChannel != null)
+			getEngine().getMessageRouter().closeChannel(stringChannel);
 		// save position and size
 		preferences.putInt("gui.width", getWidth());
 		preferences.putInt("gui.height", getHeight());
 		preferences.putInt("gui.locx", getX());
 		preferences.putInt("gui.locy", getY());
-		
+
 		// inform other panels
 		for (AbstractJamochaPanel panel : panels) {
 			panel.close();

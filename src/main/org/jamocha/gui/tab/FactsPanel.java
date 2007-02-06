@@ -43,8 +43,6 @@ import org.jamocha.gui.TableMap;
 import org.jamocha.gui.TableSorter;
 import org.jamocha.gui.editor.FactEditor;
 import org.jamocha.gui.icons.IconLoader;
-import org.jamocha.messagerouter.InterestType;
-import org.jamocha.messagerouter.StringChannel;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.rete.Fact;
 import org.jamocha.rete.Slot;
@@ -73,8 +71,6 @@ public class FactsPanel extends AbstractJamochaPanel implements ActionListener,
 	private JButton assertButton;
 
 	private JTextArea dumpArea;
-
-	private StringChannel editorChannel;
 
 	public FactsPanel(JamochaGui gui) {
 		super(gui);
@@ -158,8 +154,6 @@ public class FactsPanel extends AbstractJamochaPanel implements ActionListener,
 	}
 
 	public void close() {
-		if (editorChannel != null)
-			gui.getEngine().getMessageRouter().closeChannel(editorChannel);
 		gui.getPreferences().putInt("facts.dividerlocation", pane.getDividerLocation());
 	}
 
@@ -172,10 +166,7 @@ public class FactsPanel extends AbstractJamochaPanel implements ActionListener,
 			initFactsList();
 		} else if (event.getSource().equals(assertButton)) {
 			FactEditor editor = new FactEditor(gui.getEngine());
-			if (editorChannel == null)
-				editorChannel = gui.getEngine().getMessageRouter().openChannel(
-						"facteditor_channel", InterestType.NONE);
-			editor.setStringChannel(editorChannel);
+			editor.setStringChannel(gui.getStringChannel());
 			editor.init();
 		}
 	}
