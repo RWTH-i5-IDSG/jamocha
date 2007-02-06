@@ -26,8 +26,8 @@ import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-
 import org.jamocha.gui.JamochaGui;
+import org.jamocha.messagerouter.StringChannel;
 
 public class EngineSettingsPanel extends AbstractSettingsPanel implements
 		ActionListener {
@@ -176,35 +176,53 @@ public class EngineSettingsPanel extends AbstractSettingsPanel implements
 
 	public void actionPerformed(ActionEvent event) {
 
-		Boolean checkBoxSelection;
+		StringChannel guiStringChannel = gui.getStringChannel();
 
 		if (event.getSource() == evaluationCheckBox) {
-			checkBoxSelection = evaluationCheckBox.isSelected();
-			System.out.println("Evaluation:" + checkBoxSelection.toString());
+			if (evaluationCheckBox.isSelected())
+				guiStringChannel.executeCommand("(watch evaluation)");
+			else 
+				guiStringChannel.executeCommand("(unwatch evaluation)");		
 		} else if(event.getSource() == profileAssertCheckBox) {
-			checkBoxSelection = profileAssertCheckBox.isSelected();
-			System.out.println("Profile Assert:" + checkBoxSelection.toString());
+			if (profileAssertCheckBox.isSelected())
+				guiStringChannel.executeCommand("(profile assert)");
+			else 
+				guiStringChannel.executeCommand("(unprofile assert)");
 		} else if(event.getSource() == profileRetractCheckBox) {
-			checkBoxSelection = profileRetractCheckBox.isSelected();
-			System.out.println("Profile Retract:" + checkBoxSelection.toString());
+			if (profileRetractCheckBox.isSelected())
+				guiStringChannel.executeCommand("(profile retract)");
+			else 
+				guiStringChannel.executeCommand("(unprofile retract)");
 		} else if(event.getSource() == profileFireCheckBox) {
-			checkBoxSelection = profileFireCheckBox.isSelected();
-			System.out.println("Profile Fire:" + checkBoxSelection.toString());
+			if (profileFireCheckBox.isSelected())
+				guiStringChannel.executeCommand("(profile fire)");
+			else 
+				guiStringChannel.executeCommand("(unprofile fire)");
 		} else if(event.getSource() == profileAddActivationCheckBox) {
-			checkBoxSelection = profileAddActivationCheckBox.isSelected();
-			System.out.println("Profile Add Activation:" + checkBoxSelection.toString());
+			if (profileAddActivationCheckBox.isSelected())
+				guiStringChannel.executeCommand("(profile add-activation)");
+			else 
+				guiStringChannel.executeCommand("(unprofile add-activation)");
 		} else if(event.getSource() == profileRemoveActivationCheckBox) {
-			checkBoxSelection = profileRemoveActivationCheckBox.isSelected();
-			System.out.println("Profile Remove Activation:" + checkBoxSelection.toString());
+			if (profileRemoveActivationCheckBox.isSelected())
+				guiStringChannel.executeCommand("(profile remove-activation)");
+			else 
+				guiStringChannel.executeCommand("(unprofile remove-activation)");
 		} else if(event.getSource() == watchActivationsCheckBox) {
-			checkBoxSelection = watchActivationsCheckBox.isSelected();
-			System.out.println("Watch Actiations:" + checkBoxSelection.toString());
+			if (profileRemoveActivationCheckBox.isSelected())
+				guiStringChannel.executeCommand("(watch activations)");
+			else 
+				guiStringChannel.executeCommand("(unwatch activations)");
 		} else if(event.getSource() == watchFactsCheckBox) {
-			checkBoxSelection = watchFactsCheckBox.isSelected();
-			System.out.println("Watch Facts:" + checkBoxSelection.toString());
+			if (profileRemoveActivationCheckBox.isSelected())
+				guiStringChannel.executeCommand("(watch facts)");
+			else 
+				guiStringChannel.executeCommand("(unwatch facts)");
 		} else if(event.getSource() == watchRulesCheckBox) {
-			checkBoxSelection = watchRulesCheckBox.isSelected();
-			System.out.println("Watch Rules:" + checkBoxSelection.toString());
+			if (profileRemoveActivationCheckBox.isSelected())
+				guiStringChannel.executeCommand("(watch rules)");
+			else 
+				guiStringChannel.executeCommand("(unwatch rules)");
 		}
 	}
 }
