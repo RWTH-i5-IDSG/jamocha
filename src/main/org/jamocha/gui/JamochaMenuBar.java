@@ -80,11 +80,12 @@ public class JamochaMenuBar extends JMenuBar implements ActionListener {
 		} else if (event.getSource() == fileMenuCloseGui) {
 			gui.close();
 		} else if (event.getSource() == fileMenuBatch) {
-			JFileChooser chooser = new JFileChooser();
+			JFileChooser chooser = new JFileChooser(gui.getPreferences().get("menubar.batchLastPath", ""));
 			chooser.setMultiSelectionEnabled(false);
 			if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
 				File file = chooser.getSelectedFile();
 				if (file != null && file.isFile()) {
+					gui.getPreferences().put("menubar.batchLastPath", file.getAbsolutePath());
 					String path = file.getAbsolutePath();
 					gui.getStringChannel().executeCommand(
 							"(batch " + path + ")");
