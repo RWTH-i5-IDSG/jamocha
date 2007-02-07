@@ -55,7 +55,7 @@ public class JamochaMenuBar extends JMenuBar implements ActionListener {
 		// adding the file menu
 		fileMenu = new JMenu("File");
 		fileMenuBatch = new JMenuItem("Batch File ...", IconLoader
-				.getImageIcon("cog"));
+				.getImageIcon("lorry"));
 		fileMenuBatch.addActionListener(this);
 		fileMenuCloseGui = new JMenuItem("Close Gui", IconLoader
 				.getImageIcon("disconnect"));
@@ -78,6 +78,7 @@ public class JamochaMenuBar extends JMenuBar implements ActionListener {
 			gui.setExitOnClose(true);
 			gui.close();
 		} else if (event.getSource() == fileMenuCloseGui) {
+			gui.setExitOnClose(false);
 			gui.close();
 		} else if (event.getSource() == fileMenuBatch) {
 			JFileChooser chooser = new JFileChooser(gui.getPreferences().get("menubar.batchLastPath", ""));
@@ -86,9 +87,8 @@ public class JamochaMenuBar extends JMenuBar implements ActionListener {
 				File file = chooser.getSelectedFile();
 				if (file != null && file.isFile()) {
 					gui.getPreferences().put("menubar.batchLastPath", file.getAbsolutePath());
-					String path = file.getAbsolutePath();
 					gui.getStringChannel().executeCommand(
-							"(batch " + path + ")");
+							"(batch " + file.getAbsolutePath() + ")");
 					JOptionPane.showMessageDialog(this, "Batch process started.\nPlease check the log for Messages.\nThe process might be running in the background for a while.");
 				}
 			}

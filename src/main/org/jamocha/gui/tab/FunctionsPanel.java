@@ -98,7 +98,7 @@ public class FunctionsPanel extends AbstractJamochaPanel implements ActionListen
 		pane.setDividerLocation(gui.getPreferences().getInt("functions.dividerlocation", 300));
 		
 		reloadButton = new JButton("Reload Functions", IconLoader
-				.getImageIcon("database_refresh"));
+				.getImageIcon("arrow_refresh"));
 		reloadButton.addActionListener(this);
 		JPanel buttonPanel = new JPanel();
 		buttonPanel.setLayout(new FlowLayout(FlowLayout.RIGHT, 5, 1));

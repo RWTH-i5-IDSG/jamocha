@@ -104,10 +104,10 @@ public class TemplatesPanel extends AbstractJamochaPanel implements
 		pane.setDividerLocation(gui.getPreferences().getInt(
 				"facts.dividerlocation", 300));
 		reloadButton = new JButton("Reload Templates", IconLoader
-				.getImageIcon("table_refresh"));
+				.getImageIcon("arrow_refresh"));
 		reloadButton.addActionListener(this);
 		createNewButton = new JButton("Create new Template", IconLoader
-				.getImageIcon("table_add"));
+				.getImageIcon("brick_add"));
 		createNewButton.addActionListener(this);
 		JPanel buttonPanel = new JPanel();
 		buttonPanel.setLayout(new FlowLayout(FlowLayout.RIGHT, 5, 1));
@@ -135,7 +135,7 @@ public class TemplatesPanel extends AbstractJamochaPanel implements
 	private void initPopupMenu() {
 		JPopupMenu menu = new JPopupMenu();
 		JMenuItem removeItem = new JMenuItem("Remove selected Template(s)",
-				IconLoader.getImageIcon("table_delete"));
+				IconLoader.getImageIcon("brick_delete"));
 		removeItem.addMouseListener(new MouseAdapter() {
 			public void mouseReleased(MouseEvent event) {
 				int[] selCols = templatesTable.getSelectedRows();

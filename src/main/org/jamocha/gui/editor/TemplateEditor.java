@@ -63,7 +63,7 @@ public class TemplateEditor extends AbstractJamochaEditor implements
 		cancelButton = new JButton("Cancel", IconLoader.getImageIcon("cancel"));
 		cancelButton.addActionListener(this);
 		assertButton = new JButton("Create Template", IconLoader
-				.getImageIcon("table_add"));
+				.getImageIcon("brick_add"));
 		assertButton.addActionListener(this);
 		JPanel buttonPanel = new JPanel();
 		buttonPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 1));

@@ -113,11 +113,11 @@ public class JamochaGui extends JFrame implements ChangeListener {
 				factsPanel, "View or modify Facts");
 		panels.add(factsPanel);
 		TemplatesPanel templatesPanel = new TemplatesPanel(this);
-		tabbedPane.addTab("Templates", IconLoader.getImageIcon("table"),
+		tabbedPane.addTab("Templates", IconLoader.getImageIcon("brick"),
 				templatesPanel, "View or modify Templates");
 		panels.add(templatesPanel);
 		FunctionsPanel functionsPanel = new FunctionsPanel(this);
-		tabbedPane.addTab("Functions", IconLoader.getImageIcon("database"),
+		tabbedPane.addTab("Functions", IconLoader.getImageIcon("cog"),
 				functionsPanel, "View Functions");
 		panels.add(functionsPanel);
 		RetePanel retePanel = new RetePanel(this);

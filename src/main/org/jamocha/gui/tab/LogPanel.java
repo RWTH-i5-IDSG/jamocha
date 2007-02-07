@@ -38,7 +38,7 @@ public class LogPanel extends AbstractJamochaPanel implements ActionListener,
 	private static final long serialVersionUID = 4811690181744862051L;
 
 	private JSplitPane pane;
-	
+
 	private JTextArea detailView;
 
 	private JTable logTable;
@@ -72,9 +72,10 @@ public class LogPanel extends AbstractJamochaPanel implements ActionListener,
 		};
 		logTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		logTable.getSelectionModel().addListSelectionListener(this);
-		pane = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
-				new JScrollPane(logTable), new JScrollPane(detailView));
-		pane.setDividerLocation(gui.getPreferences().getInt("log.dividerlocation", 300));
+		pane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, new JScrollPane(
+				logTable), new JScrollPane(detailView));
+		pane.setDividerLocation(gui.getPreferences().getInt(
+				"log.dividerlocation", 300));
 		add(pane, BorderLayout.CENTER);
 
 		Thread logThread = new Thread() {
@@ -109,7 +110,8 @@ public class LogPanel extends AbstractJamochaPanel implements ActionListener,
 
 	public void close() {
 		running = false;
-		gui.getPreferences().putInt("log.dividerlocation", pane.getDividerLocation());
+		gui.getPreferences().putInt("log.dividerlocation",
+				pane.getDividerLocation());
 	}
 
 	public void settingsChanged() {
@@ -357,30 +359,30 @@ public class LogPanel extends AbstractJamochaPanel implements ActionListener,
 
 	public void valueChanged(ListSelectionEvent arg0) {
 		if (arg0.getSource() == logTable.getSelectionModel()) {
+			StringBuilder buffer = new StringBuilder();
 			if (logTable.getSelectedRow() > -1) {
 				LogMessageEvent event = dataModel.getRow(logTable
 						.getSelectedRow());
-				detailView
-						.setText("Date-Time:    "
-								+ event.getDatetimeFormatted()
-								+ "\nChannel:      " + event.getChannelId()
-								+ "\nMessage-Type: " + event.getTypeFormatted()
-								+ "\n\nMessage:\n========\n");
+				buffer.append("Date-Time:    " + event.getDatetimeFormatted()
+						+ "\nChannel:      " + event.getChannelId()
+						+ "\nMessage-Type: " + event.getTypeFormatted()
+						+ "\n\nMessage:\n========\n");
 				Object message = event.getMessage();
 				if (message instanceof Exception) {
 					Exception ex = (Exception) message;
 					StackTraceElement[] str = ex.getStackTrace();
-					detailView.append(ex.getClass().getName()+": "+ex.getMessage());
+					buffer.append(ex.getClass().getName() + ": "
+							+ ex.getMessage());
 					for (StackTraceElement strelem : str) {
-						detailView.append("\n" + strelem);
+						buffer.append("\n" + strelem);
 					}
 				} else if (message instanceof Function) {
-					detailView.append("(" + ((Function) message).getName()
-							+ ")");
+					buffer.append("(" + ((Function) message).getName() + ")");
 				} else {
-					detailView.append(message.toString());
+					buffer.append(message.toString());
 				}
 			}
+			detailView.setText(buffer.toString());
 		}
 	}
 
