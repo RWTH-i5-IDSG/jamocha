@@ -53,8 +53,8 @@ public class MemoryUsedFunction implements Function, Serializable {
 		total = total/1024;
 		long mbtotal = total/1024;
 		engine.writeMessage(String.valueOf(used) + "Mb used of " +
-				String.valueOf(mbtotal) + "Mb " + 
-				Constants.LINEBREAK,"t");
+				String.valueOf(mbtotal) + "Mb " + String.valueOf(total) +
+				"Kb " + Constants.LINEBREAK,"t");
 		return JamochaValue.NIL;
 	}
 
@@ -67,7 +67,7 @@ public class MemoryUsedFunction implements Function, Serializable {
 	}
 
 	public String toPPString(Parameter[] params, int indents) {
-		return "(mem-free)";
+		return "(mem-used)";
 	}
 
 }
