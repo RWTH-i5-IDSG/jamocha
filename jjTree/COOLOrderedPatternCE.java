@@ -8,5 +8,20 @@ public class COOLOrderedPatternCE extends SimpleNode {
   public COOLOrderedPatternCE(COOL p, int id) {
     super(p, id);
   }
-
-}
+	public String toString() 
+	{
+		return COOLTreeConstants.jjtNodeName[id]+" "+name;
+	};
+	
+	public void dump(String prefix) {
+		System.out.println(prefix+COOLTreeConstants.jjtNodeName[id]);
+		System.out.println(prefix+" "+name+"\t<<");
+		if (children != null) {
+		for (int i = 0; i < children.length; ++i) {
+			SimpleNode n = (SimpleNode)children[i];
+			if (n != null) {
+					n.dump(prefix + " ");
+				}
+			}
+		}
+	}}

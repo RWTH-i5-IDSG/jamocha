@@ -4,6 +4,9 @@
 	@author Ory Chowaw-Liebman
 */
 
+import org.jamocha.parser.*;
+import org.jamocha.rete.*;
+
 public class COOLFunctionCall extends SimpleNode {
 
 	public COOLFunctionCall(int id) {
@@ -18,20 +21,22 @@ public class COOLFunctionCall extends SimpleNode {
 		return "Function \"" + name + "\"";
 	}
 
-	public CLIPSData execute() {
-		// if function name is not known, we should throw an exception
-		CLIPSFunction func=parser.getFunction(name);
-		if (func==null) return new CLIPSBool(false);
-		int i,numkids=jjtGetNumChildren();
-		CLIPSData [] params = new CLIPSData[numkids];
-		
-		// Get Subtree results
-		for (i=0;i<numkids;i++)
+	public JamochaValue execute() throws EvaluationException {
+		int i;
+		JamochaValue ret;
+		COOLParameter params[]=new COOLParameter[jjtGetNumChildren()];
+		Function func=parser.getFunction(name);
+		// Throw exception if func==null
+		if (func==null)
 		{
-			Node n=jjtGetChild(i);
-			params[i]=n.execute();
+			System.out.println("No Function");
 		}
-		// Call Function
-		return func.execute(params);
+		// Translate Parameters to
+		if (parser ==null) System.out.println("No Parser");
+
+		for (i=0;i<jjtGetNumChildren();i++)
+			params[i].setValue(jjtGetChild(i).execute());
+		ret=func.executeFunction(parser.getRete(),params);
+		return ret;
 	}
 }

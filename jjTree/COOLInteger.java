@@ -3,8 +3,10 @@
 	@author jjTree
 	@author Ory Chowaw-Liebman
 */
+import org.jamocha.parser.*;
 
-public class COOLInteger extends SimpleNode {
+public class COOLInteger extends SimpleNode 
+{
 
 	private long value;
 
@@ -33,12 +35,12 @@ public class COOLInteger extends SimpleNode {
 		// Do both nodes have the same id?
 		if (id!=n.getId()) return false;
 		// Do both nodes have the same contents?
-		if (execute().toInteger()!=n.execute().toInteger()) return false;
+		if (value!=((COOLInteger)n).value) return false;
 		// Yes, they do
 		return true;
 	}
 	
-	public CLIPSData execute() {
-		return new CLIPSInteger(value); 
+	public JamochaValue execute() throws EvaluationException {
+		return new JamochaValue(JamochaType.LONG, value);
 	}
 }

@@ -18,100 +18,109 @@ public interface COOLConstants {
   int GLOBALVAR = 20;
   int DEFFACTS = 21;
   int DEFTEMPLATE = 22;
-  int DEFRULE = 23;
-  int DEFFUNCTION = 24;
-  int DEFGENERIC = 25;
-  int DEFMETHOD = 26;
-  int DEFCLASS = 27;
-  int DEFGLOBAL = 28;
-  int DEFAULT_ATR = 29;
-  int DYNAMIC_ATR = 30;
-  int ATR_DEFAULT = 31;
-  int ATR_DERIVE = 32;
-  int ATR_NONE = 33;
-  int SLOT = 34;
-  int SINGLE_SLOT = 35;
-  int MULTISLOT = 36;
-  int ARROW = 37;
-  int DECLARE = 38;
-  int SALIENCE = 39;
-  int AUTOFOCUS = 40;
-  int TYPE = 41;
-  int TRUE = 42;
-  int FALSE = 43;
-  int NOT = 44;
-  int AND = 45;
-  int OR = 46;
-  int LOGICAL = 47;
-  int TEST = 48;
-  int EXISTS = 49;
-  int FORALL = 50;
-  int OBJECT = 51;
-  int IS_A = 52;
-  int NAME = 53;
-  int ASSIGN = 54;
-  int SFWILDCARD = 55;
-  int MFWILDCARD = 56;
-  int TILDE = 57;
-  int AMPERSAND = 58;
-  int LINE = 59;
-  int COLON = 60;
-  int EQUALS = 61;
-  int VARIABLE_TYPE = 62;
-  int SYMBOL_TYPE = 63;
-  int STRING_TYPE = 64;
-  int LEXEME_TYPE = 65;
-  int INTEGER_TYPE = 66;
-  int FLOAT_TYPE = 67;
-  int NUMBER_TYPE = 68;
-  int INSTANCE_NAME_TYPE = 69;
-  int INSTANCE_ADDRESS_TYPE = 70;
-  int INSTANCE_TYPE = 71;
-  int EXTERNAL_ADDRESS_TYPE = 72;
-  int FACT_ADDRESS_TYPE = 73;
-  int ALLOWED_SYMBOLS = 74;
-  int ALLOWED_STRINGS = 75;
-  int ALLOWED_LEXEMES = 76;
-  int ALLOWED_INTEGERS = 77;
-  int ALLOWED_FLOATS = 78;
-  int ALLOWED_NUMBERS = 79;
-  int ALLOWED_INSTANCES = 80;
-  int ALLOWED_CLASSES = 81;
-  int ALLOWED_VALUES = 82;
-  int RANGE = 83;
-  int CARDINALITY = 84;
-  int ROLE = 85;
-  int CONCRETE = 86;
-  int ABSTRACT = 87;
-  int PATTERN_MATCH = 88;
-  int REACTIVE = 89;
-  int NON_REACTIVE = 90;
-  int STORAGE = 91;
-  int LOCAL = 92;
-  int SHARED = 93;
-  int ACCESS = 94;
-  int READ_WRITE = 95;
-  int READ_ONLY = 96;
-  int READ = 97;
-  int WRITE = 98;
-  int INITIALIZE_ONLY = 99;
-  int PROPAGATION = 100;
-  int INHERIT = 101;
-  int NO_INHERIT = 102;
-  int SOURCE = 103;
-  int EXCLUSIVE = 104;
-  int COMPOSITE = 105;
-  int VISIBILITY = 106;
-  int PRIVATE = 107;
-  int PUBLIC = 108;
-  int CREATE_ACCESSOR = 109;
-  int OVERRIDE_MESSAGE = 110;
-  int MESSAGE_HANDLER = 111;
-  int PRIMARY = 112;
-  int AROUND = 113;
-  int BEFORE = 114;
-  int AFTER = 115;
-  int SYMBOL = 116;
+  int DEFTEMPLATE_CONSTRUCT = 23;
+  int DEFRULE = 24;
+  int DEFFUNCTION = 25;
+  int DEFGENERIC = 26;
+  int DEFMETHOD = 27;
+  int DEFCLASS = 28;
+  int DEFMESSAGEHANDLER = 29;
+  int DEFINSTANCES = 30;
+  int DEFMODULE = 31;
+  int DEFGLOBAL = 32;
+  int DEFAULT_ATR = 33;
+  int DYNAMIC_ATR = 34;
+  int ATR_DEFAULT = 35;
+  int ATR_DERIVE = 36;
+  int ATR_NONE = 37;
+  int ATR_ALL = 38;
+  int SLOT = 39;
+  int SINGLE_SLOT = 40;
+  int MULTISLOT = 41;
+  int ARROW = 42;
+  int DECLARE = 43;
+  int SALIENCE = 44;
+  int AUTOFOCUS = 45;
+  int EXPORT = 46;
+  int IMPORT = 47;
+  int TYPE = 48;
+  int TRUE = 49;
+  int FALSE = 50;
+  int NOT = 51;
+  int AND = 52;
+  int OR = 53;
+  int OF = 54;
+  int LOGICAL = 55;
+  int TEST = 56;
+  int EXISTS = 57;
+  int FORALL = 58;
+  int OBJECT = 59;
+  int IS_A = 60;
+  int NAME = 61;
+  int ASSIGN = 62;
+  int SFWILDCARD = 63;
+  int MFWILDCARD = 64;
+  int TILDE = 65;
+  int AMPERSAND = 66;
+  int LINE = 67;
+  int COLON = 68;
+  int EQUALS = 69;
+  int VARIABLE_TYPE = 70;
+  int SYMBOL_TYPE = 71;
+  int STRING_TYPE = 72;
+  int LEXEME_TYPE = 73;
+  int INTEGER_TYPE = 74;
+  int FLOAT_TYPE = 75;
+  int NUMBER_TYPE = 76;
+  int INSTANCE_NAME_TYPE = 77;
+  int INSTANCE_ADDRESS_TYPE = 78;
+  int INSTANCE_TYPE = 79;
+  int EXTERNAL_ADDRESS_TYPE = 80;
+  int FACT_ADDRESS_TYPE = 81;
+  int ALLOWED_SYMBOLS = 82;
+  int ALLOWED_STRINGS = 83;
+  int ALLOWED_LEXEMES = 84;
+  int ALLOWED_INTEGERS = 85;
+  int ALLOWED_FLOATS = 86;
+  int ALLOWED_NUMBERS = 87;
+  int ALLOWED_INSTANCES = 88;
+  int ALLOWED_CLASSES = 89;
+  int ALLOWED_VALUES = 90;
+  int RANGE = 91;
+  int CARDINALITY = 92;
+  int ROLE = 93;
+  int CONCRETE = 94;
+  int ABSTRACT = 95;
+  int PATTERN_MATCH = 96;
+  int REACTIVE = 97;
+  int NON_REACTIVE = 98;
+  int ACTIVE = 99;
+  int STORAGE = 100;
+  int LOCAL = 101;
+  int SHARED = 102;
+  int ACCESS = 103;
+  int READ_WRITE = 104;
+  int READ_ONLY = 105;
+  int READ = 106;
+  int WRITE = 107;
+  int INITIALIZE_ONLY = 108;
+  int PROPAGATION = 109;
+  int INHERIT = 110;
+  int NO_INHERIT = 111;
+  int SOURCE = 112;
+  int EXCLUSIVE = 113;
+  int COMPOSITE = 114;
+  int VISIBILITY = 115;
+  int PRIVATE = 116;
+  int PUBLIC = 117;
+  int CREATE_ACCESSOR = 118;
+  int OVERRIDE_MESSAGE = 119;
+  int MESSAGE_HANDLER = 120;
+  int PRIMARY = 121;
+  int AROUND = 122;
+  int BEFORE = 123;
+  int AFTER = 124;
+  int SYMBOL = 125;
 
   int DEFAULT = 0;
   int IN_COMMENT = 1;
@@ -122,7 +131,7 @@ public interface COOLConstants {
     "\"\\t\"",
     "\"\\n\"",
     "\"\\r\"",
-    "\";;\"",
+    "\";\"",
     "<token of kind 6>",
     "<COMMENT_TEXT>",
     "<END_COMMENT>",
@@ -140,17 +149,22 @@ public interface COOLConstants {
     "<GLOBALVAR>",
     "\"deffacts\"",
     "\"deftemplate\"",
+    "\"deftemplate_construct\"",
     "\"defrule\"",
     "\"deffunction\"",
     "\"defgeneric\"",
     "\"defmethod\"",
     "\"defclass\"",
+    "\"defmessage-handler\"",
+    "\"definstances\"",
+    "\"defmodule\"",
     "\"defglobal\"",
     "\"default\"",
     "\"default-dynamic\"",
     "\"?DEFAULT\"",
     "\"?DERIVE\"",
     "\"?NONE\"",
+    "\"?ALL\"",
     "\"slot\"",
     "\"single-slot\"",
     "\"multislot\"",
@@ -158,12 +172,15 @@ public interface COOLConstants {
     "\"declare\"",
     "\"salience\"",
     "\"auto-focus\"",
+    "\"export\"",
+    "\"import\"",
     "\"type\"",
     "<TRUE>",
     "<FALSE>",
     "\"not\"",
     "\"and\"",
     "\"or\"",
+    "\"of\"",
     "\"logical\"",
     "\"test\"",
     "\"exists\"",
@@ -208,6 +225,7 @@ public interface COOLConstants {
     "\"pattern-match\"",
     "\"reactive\"",
     "\"non-reactive\"",
+    "\"active\"",
     "\"storage\"",
     "\"local\"",
     "\"shared\"",

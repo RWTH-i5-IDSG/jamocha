@@ -1,0 +1,1 @@
+java -cp .;.\jamocha.jar;..\lib\log4j-1.2.14.jar Main

@@ -4,6 +4,8 @@
 	@author Ory Chowaw-Liebman
 */
 
+import org.jamocha.parser.*;
+
 public class COOLString extends SimpleNode {
 
 	public COOLString(int id) {
@@ -24,13 +26,13 @@ public class COOLString extends SimpleNode {
 		// Do both nodes have the same id?
 		if (id!=n.getId()) return false;
 		// Do both nodes have the same contents?
-		if (execute().toString()!=n.execute().toString()) return false;
+		if (name!=n.getName()) return false;
 		// Yes, they do
 		return true;
 	}
 
-	public CLIPSData execute()
+	public JamochaValue execute() throws EvaluationException
 	{
-		return new CLIPSString(name);
+		return new JamochaValue(JamochaType.STRING,name);
 	}
 }

@@ -10,33 +10,57 @@ public class COOLConnectedConstraint extends SimpleNode {
 
 	public COOLConnectedConstraint(int id) {
 		super(id);
-		setType(T_UNDEF);
-	}
+		setTypeSingle();
+	};
 	
 	public COOLConnectedConstraint(COOL p, int id) {
 		super(p, id);
-	}
+		setTypeSingle();
+	};
 	
-	public void setType(int t)
+	public void setTypeAnd()
 	{
-		switch(t)
-		{
-		case T_SINGLE: 
-			name="single";
-			type=t;
-			break;
-		case T_AND: 
 			name="&";
-			type=t;
-			break;
-		case T_OR: 
+			type=T_AND;
+	};
+	
+	public void setTypeOr()
+	{
 			name="|";
-			type=t;
-			break;
-		default: 
-			name="undef";
-			type=T_UNDEF;
-			break;
+			type=T_OR;
+	};	
+
+	public void setTypeSingle()
+	{
+		name="";
+		type=T_SINGLE;
+	};
+	public String toString() 
+	{
+		return COOLTreeConstants.jjtNodeName[id]+name+Long.toString((long)children.length);
+	};
+	
+	public void dump(String prefix) {
+		System.out.print(prefix);
+		if (children != null) {
+			if (type==T_SINGLE) 
+			{	
+				children[0].dump("");
+				System.out.println("");
+			}
+			else if (children[0].getId()==id)
+			{
+				//System.out.print(children[1].toString()+name);
+				children[1].dump("");
+				System.out.print(name);
+				children[0].dump("");
+			} else
+			{
+				//System.out.print(children[0].toString()+name);
+				children[0].dump("");
+				System.out.print(name);
+				children[1].dump("");
+			}
 		}
-	}
+	};
 }

@@ -3,8 +3,11 @@
 	@author jjTree
 	@author Ory Chowaw-Liebman
 */
+import org.jamocha.parser.JamochaType;
+import org.jamocha.parser.JamochaValue;
 
-public class COOLInstance extends SimpleNode {
+public class COOLInstance extends SimpleNode 
+{
 
 	public COOLInstance(int id) {
 		super(id);
@@ -29,7 +32,7 @@ public class COOLInstance extends SimpleNode {
 		return true;
 	}
 
-	public CLIPSData execute() {
-		return (CLIPSData) parser.globals.get(name);
+	public JamochaValue execute() {
+		return parser.getGlobalVar(name);
 	}
 }

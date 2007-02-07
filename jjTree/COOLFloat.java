@@ -4,7 +4,10 @@
 	@author Ory Chowaw-Liebman
 */
 
-public class COOLFloat extends SimpleNode {
+import org.jamocha.parser.*;
+
+public class COOLFloat extends SimpleNode 
+{
 	private double value;
 
 	public COOLFloat(int id) {
@@ -32,12 +35,12 @@ public class COOLFloat extends SimpleNode {
 		// Do both nodes have the same id?
 		if (id!=n.getId()) return false;
 		// Do both nodes have the same contents?
-		if (execute().toFloat()!=n.execute().toFloat()) return false;
+		if (value!=((COOLFloat)n).value) return false;
 		// Yes, they do
 		return true;
 	}
 
-	public CLIPSData execute() {
-		return new CLIPSFloat(value); 
+	public JamochaValue execute() throws EvaluationException {
+		return new JamochaValue(JamochaType.DOUBLE, value);
 	}
 }

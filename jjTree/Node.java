@@ -7,8 +7,10 @@
    @author: Ory Chowaw-Liebman*/
 
 import java.lang.String;
+import org.jamocha.parser.*;
 
-public interface Node {
+public interface Node 
+{
 
 	/** This method is called after the node has been made the current
 		node.  It indicates that child nodes can now be added to it. */
@@ -34,9 +36,10 @@ public interface Node {
   /** Return the number of children the node has. */
 	public int jjtGetNumChildren();
 
+	public void dump(String prefix);
 	public boolean compareTree(Node n);
-	public CLIPSData execute();
-	public CLIPSData getLocal(String name);
+	public JamochaValue execute() throws EvaluationException;
+	public JamochaValue getLocal(String name);
 	public String getName();
 	public void setName(String n);
 	public int getId();

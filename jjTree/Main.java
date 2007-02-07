@@ -1,37 +1,27 @@
-/** Main class for COOL grammar based parser: A test program for the parser just
- *	dumping all the nodes to stdout.
- *@author Ory Chowaw-Liebman
- *@author Ulrich Loup
- *@version 01-12-2007
- */
+/** Main class for CLIPS-SL grammar based parser.
+*/
+
+import java.io.*;
+import org.jamocha.parser.*;
 
 public class Main
 {
-	public static void main(String args[])
-	{
-		boolean verbose = (args != null && args.length == 1 && "verbose".equals(args[0]));
-		System.out.println("+-----------------------------------+");
-		System.out.println("|Simple COOL Parser Test Environment|");
-		System.out.println("+-----------------------------------+\n");
-		if(!verbose)System.out.println("Note: For verbose output type \"java Main verbose\".\n");
-		System.out.print("COOL> ");
+	public static void main(String args[]) {
+		System.out.println("Reading from standard input...");
 		COOL p = new COOL(System.in);
-		p.initFunctions();
-		try
-		{
+//		p.initialize();
+		try {
 			while (true)
 			{
 				COOLStart n = p.Start();
-				System.out.println("Parsed! Dumping Syntax-Tree:");
-				n.dump("> ");
-				System.out.print("\nCOOL> ");
+				if (n==null) System.exit(0);
+				n.dump("");
 				//System.out.println(n.execute().toString());
 			}
-		}
-		catch (Exception e)
-		{
-			System.err.println("ERROR: " + e.getMessage());
-			if(verbose)e.printStackTrace();
-		}
-	}
+		} catch (Exception e) {
+		System.err.println("Oops.");
+		System.err.println(e.getMessage());
+		e.printStackTrace();
+    }
+  }
 }

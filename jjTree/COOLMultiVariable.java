@@ -4,7 +4,11 @@
 	@author Ory Chowaw-Liebman
 */
 
-public class COOLMultiVariable extends SimpleNode {
+import org.jamocha.parser.JamochaType;
+import org.jamocha.parser.JamochaValue;
+
+public class COOLMultiVariable extends SimpleNode 
+{
 
 	public COOLMultiVariable(int id) {
 		super(id);
@@ -29,8 +33,8 @@ public class COOLMultiVariable extends SimpleNode {
 		return true;
 	}
 
-	public CLIPSData execute() {
+	public JamochaValue execute() {
 		// ???
-		return null;
+		return JamochaValue.NIL;
 	}
 }

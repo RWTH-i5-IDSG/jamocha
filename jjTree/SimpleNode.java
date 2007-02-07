@@ -4,6 +4,8 @@
 	@author Ory Chowaw-Liebman
 */
 
+import org.jamocha.parser.*;
+
 public class SimpleNode implements Node {
 	protected Node parent;
 	protected Node[] children;
@@ -80,7 +82,7 @@ public class SimpleNode implements Node {
 	}
 	
 	// Some nodes may have local data (e.g. classes and functions)
-	public CLIPSData getLocal(java.lang.String name)
+	public JamochaValue getLocal(java.lang.String name)
 	{
 		if (parent==null) return null;
 		return parent.getLocal(name);
@@ -114,10 +116,10 @@ public class SimpleNode implements Node {
 		return true;
 	}
 		 
-	public CLIPSData execute()
+	public JamochaValue execute() throws EvaluationException
 	{
 		// Just execute first child. More comples Nodes have to override this anyways.
-		return jjtGetChild(0).execute();
+		return JamochaValue.FALSE;		
 	};
 	
 }
