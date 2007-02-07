@@ -212,9 +212,8 @@ public class TemplateEditor extends AbstractJamochaEditor implements
 			res.append("    (");
 			if (row.typeBox.getSelectedItem().toString().equals(
 					JamochaType.LIST.toString())) {
-				res.append("multislot " + row.nameField.getText());
-				if (print)
-					res.append("\n");
+				res.append("multislot " + row.nameField.getText()+")");
+				
 			} else {
 				res.append("slot " + row.nameField.getText());
 				if (print)
@@ -223,12 +222,11 @@ public class TemplateEditor extends AbstractJamochaEditor implements
 						+ ")");
 				if (print)
 					res.append("\n");
+				res.append("    )");
 			}
-			res.append("    )");
 			if (print)
 				res.append("\n");
 		}
-
 		res.append(")");
 		return res.toString();
 	}

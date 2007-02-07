@@ -35,5 +35,16 @@ public class ParserUtils {
         }
         return buf.toString();
     }
+    
+    public static String escapeStringLiteral(String text) {
+    	StringBuilder buffer = new StringBuilder();
+    	for(char chr : text.toCharArray()) {
+    		if(chr == '"' || chr == '\\') {
+    			buffer.append('\\');
+    		}
+    		buffer.append(chr);
+    	}
+    	return buffer.toString();
+    }
 
 }
