@@ -41,8 +41,10 @@ import org.jamocha.rete.exception.ExecuteException;
 import org.jamocha.rete.exception.RetractException;
 import org.jamocha.rete.functions.BatchFunction;
 import org.jamocha.rete.functions.BooleanFunctions;
+import org.jamocha.rete.functions.DeffunctionGroup;
 import org.jamocha.rete.functions.IOFunctions;
 import org.jamocha.rete.functions.IfFunction;
+import org.jamocha.rete.functions.InterpretedFunction;
 import org.jamocha.rete.functions.JavaFunctions;
 import org.jamocha.rete.functions.MathFunctions;
 import org.jamocha.rete.functions.RuleEngineFunctions;
@@ -183,6 +185,8 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 	private MessageRouter router = new MessageRouter(this);
 
 	protected Deftemplate initFact = new InitialFact();
+    
+    private DeffunctionGroup deffunctions = new DeffunctionGroup();
 
 	/**
 	 * 
@@ -238,7 +242,8 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 		functionGroups.add(javafs);
 		javafs.loadFunctions(this);
 		declareFunction(new IfFunction());
-
+        // add the group for deffunctions
+        functionGroups.add(deffunctions);
 	}
 
 	protected void clearBuiltInFunctions() {
@@ -698,6 +703,9 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 	 */
 	public void declareFunction(Function func) {
 		this.functions.put(func.getName(), func);
+        if (func instanceof InterpretedFunction) {
+            this.deffunctions.addFunction(func);
+        }
 	}
 
 	/**
