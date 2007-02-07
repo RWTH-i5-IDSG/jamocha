@@ -22,9 +22,9 @@ import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Collection;
 
 import javax.swing.JButton;
 import javax.swing.JPanel;
@@ -40,9 +40,7 @@ import org.jamocha.gui.JamochaGui;
 import org.jamocha.gui.TableMap;
 import org.jamocha.gui.TableSorter;
 import org.jamocha.gui.icons.IconLoader;
-import org.jamocha.messagerouter.InterestType;
 import org.jamocha.messagerouter.StringChannel;
-import org.jamocha.parser.JamochaType;
 import org.jamocha.rete.Function;
 
 
