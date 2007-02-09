@@ -83,7 +83,7 @@ public class ApplyFunction implements Function, Serializable {
 			StringBuffer buf = new StringBuffer();
 			buf.append("(apply");
 			for (int idx = 0; idx < params.length; idx++) {
-				buf.append(' ').append(params[idx].getParameterString());
+				buf.append(' ').append(params[idx].getExpressionString());
 			}
 			buf.append(")");
 			return buf.toString();

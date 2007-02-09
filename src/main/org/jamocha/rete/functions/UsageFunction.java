@@ -84,7 +84,7 @@ public class UsageFunction implements Function, Serializable {
 
 			buf.append("(usage ");
 			int idx = 0;
-			buf.append(" ").append(params[idx].getParameterString());
+			buf.append(" ").append(params[idx].getExpressionString());
 			buf.append(")");
 			return buf.toString();
 		} else {

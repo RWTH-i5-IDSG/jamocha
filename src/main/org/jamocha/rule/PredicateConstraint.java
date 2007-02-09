@@ -21,11 +21,11 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.jamocha.parser.EvaluationException;
+import org.jamocha.parser.Expression;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.BoundParam;
 import org.jamocha.rete.Constants;
-import org.jamocha.rete.Parameter;
 import org.jamocha.rete.ValueParam;
 
 
@@ -140,7 +140,7 @@ public class PredicateConstraint implements Constraint {
         }
     }
     
-    public void addParameter(Parameter param) {
+    public void addParameter(Expression param) {
         this.parameters.add(param);
         if (param instanceof ValueParam) {
             try {

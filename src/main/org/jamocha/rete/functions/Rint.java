@@ -88,9 +88,9 @@ public class Rint implements Function, Serializable {
 				BoundParam bp = (BoundParam) params[idx];
 				buf.append(" ?" + bp.getVariableName());
 			} else if (params[idx] instanceof ValueParam) {
-				buf.append(" " + params[idx].getParameterString());
+				buf.append(" " + params[idx].getExpressionString());
 			} else {
-				buf.append(" " + params[idx].getParameterString());
+				buf.append(" " + params[idx].getExpressionString());
 			}
 			buf.append(")");
 			return buf.toString();

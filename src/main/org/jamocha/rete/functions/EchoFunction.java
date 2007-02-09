@@ -88,7 +88,7 @@ public class EchoFunction implements Function, Serializable {
 					BoundParam bp = (BoundParam) params[idx];
 					buf.append(" ?").append(bp.getVariableName());
 				} else {
-					buf.append(" \"").append(params[idx].getParameterString()).append("\"");
+					buf.append(" \"").append(params[idx].getExpressionString()).append("\"");
 				}
 			}
 			buf.append(")");

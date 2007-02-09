@@ -69,7 +69,7 @@ public class LoadFunction implements Function, Serializable {
 
 				try {
 					FileInputStream fis = new FileInputStream(new File(input));
-					CLIPSParser parser = new CLIPSParser(engine, fis);
+					CLIPSParser parser = new CLIPSParser(fis);
 					List data = parser.loadExpr();
 					Iterator itr = data.iterator();
 					while (itr.hasNext()) {
@@ -111,7 +111,7 @@ public class LoadFunction implements Function, Serializable {
 			StringBuffer buf = new StringBuffer();
 			buf.append("(load");
 			for (int idx = 0; idx < params.length; idx++) {
-				buf.append(" ").append(params[idx].getParameterString());
+				buf.append(" ").append(params[idx].getExpressionString());
 			}
 			buf.append(")");
 			return buf.toString();

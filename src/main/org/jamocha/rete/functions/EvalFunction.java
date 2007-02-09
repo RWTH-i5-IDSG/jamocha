@@ -69,11 +69,11 @@ public class EvalFunction implements Function, Serializable {
 		return result;
 	}
 
-	public JamochaValue eval(Rete engine, String command) throws EvaluationException {
+	public JamochaValue eval(Rete engine, String command)
+			throws EvaluationException {
 		JamochaValue result = null;
 		try {
-			CLIPSParser parser = new CLIPSParser(engine, new StringReader(
-					command));
+			CLIPSParser parser = new CLIPSParser(new StringReader(command));
 			CLIPSInterpreter interpreter = new CLIPSInterpreter(engine);
 			Object expr = null;
 			while ((expr = parser.basicExpr()) != null) {
@@ -103,7 +103,7 @@ public class EvalFunction implements Function, Serializable {
 					BoundParam bp = (BoundParam) params[idx];
 					buf.append(" ?").append(bp.getVariableName());
 				} else if (params[idx] instanceof ValueParam) {
-					buf.append(" \"").append(params[idx].getParameterString())
+					buf.append(" \"").append(params[idx].getExpressionString())
 							.append("\"");
 				}
 			}

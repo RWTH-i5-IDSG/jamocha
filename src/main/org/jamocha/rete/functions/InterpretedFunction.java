@@ -19,6 +19,7 @@ package org.jamocha.rete.functions;
 import java.util.HashMap;
 
 import org.jamocha.parser.EvaluationException;
+import org.jamocha.parser.Expression;
 import org.jamocha.parser.IllegalParameterException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
@@ -44,7 +45,7 @@ public class InterpretedFunction implements Function {
 
 	protected String ppString = null;
 
-	protected Parameter[] inputParams = null;
+	protected Expression[] inputParams = null;
 
 	private Function[] internalFunctions = null;
 
@@ -59,7 +60,7 @@ public class InterpretedFunction implements Function {
 	/**
 	 * 
 	 */
-	public InterpretedFunction(String name, Parameter[] params,
+	public InterpretedFunction(String name, Expression[] params,
 			Function[] functions, Parameter[][] parameters) {
 		this.name = name;
 		this.inputParams = params;
@@ -119,7 +120,7 @@ public class InterpretedFunction implements Function {
 		return ppString;
 	}
 
-	public Parameter[] getInputParameters() {
+	public Expression[] getInputParameters() {
 		return inputParams;
 	}
 

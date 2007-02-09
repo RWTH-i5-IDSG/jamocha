@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.jamocha.parser.EvaluationException;
+import org.jamocha.parser.Expression;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.BaseNode;
 import org.jamocha.rete.BoundParam;
@@ -162,7 +163,7 @@ public class TestCondition implements Condition {
     	String pad = "  ";
     	buf.append(pad + "(" + this.func.getName());
     	if (this.func instanceof ShellFunction) {
-        	Parameter[] p = ((ShellFunction)this.func).getParameters();
+        	Expression[] p = ((ShellFunction)this.func).getParameters();
         	for (int idx=0; idx < p.length; idx++) {
         		if (p[idx] instanceof BoundParam) {
             		buf.append(" ?" + ((BoundParam)p[idx]).getVariableName() );

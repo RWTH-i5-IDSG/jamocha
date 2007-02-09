@@ -19,6 +19,7 @@ package org.jamocha.rete.functions;
 import java.util.List;
 
 import org.jamocha.parser.EvaluationException;
+import org.jamocha.parser.Expression;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Function;
@@ -43,7 +44,7 @@ public class Deffunction implements Function {
 
 	protected String ppString = null;
 
-	protected Parameter[] parameters = null;
+	protected Expression[] parameters = null;
 
 	protected List functions = null;
 
@@ -110,11 +111,11 @@ public class Deffunction implements Function {
 		this.functions = functions;
 	}
 
-	public Parameter[] getParameters() {
+	public Expression[] getParameters() {
 		return parameters;
 	}
 
-	public void setParameters(Parameter[] parameters) {
+	public void setParameters(Expression[] parameters) {
 		this.parameters = parameters;
 	}
 }

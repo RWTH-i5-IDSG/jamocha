@@ -258,7 +258,7 @@ public class BoundParam extends AbstractParam {
     	}
     }
 
-	public String getParameterString() {
+	public String getExpressionString() {
 		return toPPString();
 	}
 }

@@ -90,9 +90,9 @@ public class BindFunction implements Function, Serializable {
 	public String toPPString(Parameter[] params, int indents) {
 		if (params != null && params.length > 0) {
 			StringBuffer buf = new StringBuffer();
-			buf.append("(bind ?" + params[0].getParameterString());
+			buf.append("(bind ?" + params[0].getExpressionString());
 			for (int idx = 1; idx < params.length; idx++) {
-					buf.append(" ").append(params[idx].getParameterString());
+					buf.append(" ").append(params[idx].getExpressionString());
 			}
 			buf.append(" )");
 			return buf.toString();

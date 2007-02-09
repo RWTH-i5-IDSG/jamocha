@@ -93,7 +93,7 @@ class StreamChannelImpl extends AbstractCommunicationChannel implements
 	public StreamChannelImpl(String channelId, MessageRouter router,
 			InterestType interest) {
 		super(channelId, router, interest);
-		this.parser = new CLIPSParser(router.getReteEngine(), (Reader) null);
+		this.parser = new CLIPSParser((Reader) null);
 		streamChannelThread = new StreamChannelThread();
 	}
 

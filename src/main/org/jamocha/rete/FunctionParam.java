@@ -102,7 +102,7 @@ public class FunctionParam extends AbstractParam {
         this.facts = null;
     }
 
-	public String getParameterString() {
+	public String getExpressionString() {
 		return null;
 	}
 }

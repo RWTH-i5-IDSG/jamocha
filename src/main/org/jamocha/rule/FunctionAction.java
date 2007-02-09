@@ -17,6 +17,7 @@
 package org.jamocha.rule;
 
 import org.jamocha.parser.EvaluationException;
+import org.jamocha.parser.Expression;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Binding;
@@ -78,7 +79,7 @@ public class FunctionAction implements Action {
         this.functionName = name;
     }
     
-    public Parameter[] getParameters() {
+    public Expression[] getParameters() {
         return this.parameters;
     }
     

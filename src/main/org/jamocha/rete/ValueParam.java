@@ -51,7 +51,7 @@ public class ValueParam extends AbstractParam {
 		return new ValueParam(this.value);
 	}
 
-	public String getParameterString() {
+	public String getExpressionString() {
 		return this.value.toString();
 	}
 }

@@ -77,7 +77,7 @@ public class NotFunction implements Function, Serializable {
 		if (params != null && params.length >= 0) {
 			StringBuffer buf = new StringBuffer();
 			buf.append("(" + NOT);
-				buf.append(" ").append(params[0].getParameterString());
+				buf.append(" ").append(params[0].getExpressionString());
 			buf.append(")");
 			return buf.toString();
 		} else {

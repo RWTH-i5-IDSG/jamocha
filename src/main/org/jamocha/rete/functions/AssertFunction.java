@@ -109,7 +109,7 @@ public class AssertFunction implements Function, Serializable {
 			buf.append("(assert ");
 			for (int idx = 0; idx < params.length; idx++) {
 				// the parameter should be a deffact
-				buf.append(params[idx].getParameterString());
+				buf.append(params[idx].getExpressionString());
 			}
 			buf.append(" )");
 			return buf.toString();

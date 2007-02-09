@@ -109,7 +109,7 @@ public class FunctionParam2 extends AbstractParam {
 		return this.func.toPPString(this.params,1);
 	}
 
-	public String getParameterString() {
+	public String getExpressionString() {
 		return toPPString();
 	}
 }

@@ -119,9 +119,9 @@ public class PrintFunction implements Function, Serializable {
 		if (params != null && params.length > 0) {
 			StringBuffer buf = new StringBuffer();
 			buf.append("(print ");
-			buf.append(params[0].getParameterString());
+			buf.append(params[0].getExpressionString());
 			for (int idx = 1; idx < params.length; idx++) {
-				buf.append(" ").append(params[idx].getParameterString());
+				buf.append(" ").append(params[idx].getExpressionString());
 			}
 			buf.append(" )");
 			return buf.toString();

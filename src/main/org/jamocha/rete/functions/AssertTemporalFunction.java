@@ -111,7 +111,7 @@ public class AssertTemporalFunction implements Function, Serializable {
 			buf.append("(assert-temporal ");
 			for (int idx = 0; idx < params.length; idx++) {
 				// the parameter should be a deffact
-				buf.append(params[idx].getParameterString());
+				buf.append(params[idx].getExpressionString());
 			}
 			buf.append(" )");
 			return buf.toString();

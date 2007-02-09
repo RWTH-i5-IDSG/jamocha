@@ -10,10 +10,6 @@ PARSER_BEGIN(CLIPSParser)
 package org.jamocha.parser.clips;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -21,7 +17,6 @@ import java.util.List;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.rete.BoundParam;
-import org.jamocha.rete.Constants;
 import org.jamocha.rete.Deffact;
 import org.jamocha.rete.Deftemplate;
 import org.jamocha.rete.Function;
@@ -29,7 +24,6 @@ import org.jamocha.rete.FunctionParam2;
 import org.jamocha.rete.MultiSlot;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.ParameterUtils;
-import org.jamocha.rete.Rete;
 import org.jamocha.rete.ShellBoundParam;
 import org.jamocha.rete.Slot;
 import org.jamocha.rete.ValueParam;
@@ -54,20 +48,7 @@ import org.jamocha.rete.functions.Deffunction;
 
 public class CLIPSParser {
 
-    protected Rete engine = null;
-
-    public CLIPSParser(Rete eng, Reader stream) {
-        this(stream);
-        engine = eng;
-    }
-
-    public CLIPSParser(Rete eng, InputStream stream) {
-        this(new InputStreamReader(stream));
-        engine = eng;
-    }
-
     public void close() {
-        engine = null;
         if (token != null) {
             token.clear();
             token = null;
@@ -532,7 +513,6 @@ void valueParams(List list) :
     ShellFunction subfunc = (ShellFunction)exp;
     FunctionParam2 fp2 = new FunctionParam2();
     fp2.setFunctionName(subfunc.getName());
-    fp2.setEngine(engine);
     fp2.setParameters(subfunc.getParameters());
     list.add(fp2);
   }

@@ -17,25 +17,31 @@
 package org.jamocha.parser;
 
 /**
- * Generic exception to signal an error during evaluation of an expression.
+ * Generic exception which should be subclassed and thrown by the different
+ * parsers, to signal an error during parsing input.
  * 
  * @author Christoph Emonds
  * 
  */
-public class EvaluationException extends Exception {
+public class ParseException extends Exception {
 
+	/**
+	 * 
+	 */
 	private static final long serialVersionUID = 1L;
 
-	public EvaluationException(String message) {
+	public ParseException() {
+	}
+
+	public ParseException(String message) {
 		super(message);
 	}
 
-	public EvaluationException(String message, Throwable cause) {
-		super(message, cause);
-	}
-
-	public EvaluationException(Throwable cause) {
+	public ParseException(Throwable cause) {
 		super(cause);
 	}
 
+	public ParseException(String message, Throwable cause) {
+		super(message, cause);
+	}
 }

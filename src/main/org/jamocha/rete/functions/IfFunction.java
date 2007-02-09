@@ -58,13 +58,13 @@ public class IfFunction implements Function, Serializable {
 		if (params != null && params.length >= 3) {
 			JamochaValue condition = params[0].getValue(engine);
 			boolean conditionValue = condition.getBooleanValue();
-			if (!params[1].getParameterString().equals("then")) {
+			if (!params[1].getExpressionString().equals("then")) {
 				throw new EvaluationException("Error, expected then, found "
-						+ params[1].getParameterString());
+						+ params[1].getExpressionString());
 			}
 			boolean elseExpressions = false;
 			for (int i = 2; i < params.length; ++i) {
-				if (params[i].getParameterString().equals("else")) {
+				if (params[i].getExpressionString().equals("else")) {
 					elseExpressions = true;
 				} else {
 					if ((conditionValue && !elseExpressions)
@@ -92,7 +92,7 @@ public class IfFunction implements Function, Serializable {
 			StringBuffer buf = new StringBuffer();
 			buf.append("(if");
 			int idx = 0;
-				buf.append(" ").append(params[idx].getParameterString());
+				buf.append(" ").append(params[idx].getExpressionString());
 			buf.append(")");
 			return buf.toString();
 		} else {

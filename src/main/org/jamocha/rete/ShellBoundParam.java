@@ -104,7 +104,7 @@ public class ShellBoundParam extends AbstractParam {
 		this.globalVarName = "";
 	}
 
-	public String getParameterString() {
+	public String getExpressionString() {
 		// TODO Auto-generated method stub
 		return null;
 	}

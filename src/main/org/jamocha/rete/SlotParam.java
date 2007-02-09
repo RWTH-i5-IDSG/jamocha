@@ -80,7 +80,7 @@ public class SlotParam extends AbstractParam {
 		this.slot = null;
 	}
 
-	public String getParameterString() {
+	public String getExpressionString() {
 		return slot.toString();
 	}
 

@@ -19,6 +19,7 @@ package org.jamocha.rete.functions;
 import java.io.Serializable;
 
 import org.jamocha.parser.EvaluationException;
+import org.jamocha.parser.Expression;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.BoundParam;
@@ -77,7 +78,7 @@ public class ModifyFunction implements Function, Serializable {
 				// now modify the fact
 				SlotParam[] sp = new SlotParam[params.length - 1];
 				for (int idx = 0; idx < sp.length; idx++) {
-					Parameter p = params[idx + 1];
+					Expression p = params[idx + 1];
 					if (p instanceof SlotParam) {
 						sp[idx] = (SlotParam) p;
 					}
@@ -125,7 +126,7 @@ public class ModifyFunction implements Function, Serializable {
 	 * @param params
 	 * @return
 	 */
-	public Slot[] convertToSlots(Parameter[] params, Deftemplate templ) {
+	public Slot[] convertToSlots(Expression[] params, Deftemplate templ) {
 		Slot[] slts = new Slot[params.length];
 		for (int idx = 0; idx < params.length; idx++) {
 			slts[idx] = ((SlotParam) params[idx]).getSlotValue();
@@ -141,10 +142,10 @@ public class ModifyFunction implements Function, Serializable {
 		if (params != null && params.length > 0) {
 			StringBuffer buf = new StringBuffer();
 			buf.append("(modify ");
-			buf.append(params[0].getParameterString()).append(" ");
+			buf.append(params[0].getExpressionString()).append(" ");
 			for (int idx = 1; idx < params.length; idx++) {
 				// the parameter should be a deffact
-				buf.append("(").append(params[idx].getParameterString())
+				buf.append("(").append(params[idx].getExpressionString())
 						.append(")");
 			}
 			buf.append(" )");

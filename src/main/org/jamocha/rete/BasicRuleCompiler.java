@@ -23,6 +23,7 @@ import java.util.Map;
 
 import org.jamocha.logging.DefaultLogger;
 import org.jamocha.parser.EvaluationException;
+import org.jamocha.parser.Expression;
 import org.jamocha.parser.IllegalConversionException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
@@ -666,7 +667,7 @@ public class BasicRuleCompiler implements RuleCompiler {
 					TestCondition tc = (TestCondition) cdt;
 					ShellFunction fn = (ShellFunction) tc.getFunction();
 					fn.lookUpFunction(engine);
-					Parameter[] oldpm = fn.getParameters();
+					Expression[] oldpm = fn.getParameters();
 					Parameter[] pms = new Parameter[oldpm.length];
 					for (int ipm = 0; ipm < pms.length; ipm++) {
 						if (oldpm[ipm] instanceof ValueParam) {

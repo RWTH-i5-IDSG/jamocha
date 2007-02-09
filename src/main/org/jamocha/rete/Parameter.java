@@ -16,8 +16,8 @@
  */
 package org.jamocha.rete;
 
-import org.jamocha.parser.EvaluationException;
-import org.jamocha.parser.JamochaValue;
+import org.jamocha.parser.Expression;
+
 
 /**
  * @author Peter Lin
@@ -25,22 +25,11 @@ import org.jamocha.parser.JamochaValue;
  * Parameter can be a value, a bound variable or the result of a function.
  * It is up to the implementing class to provide the necessary logic.
  */
-public interface Parameter {
+public interface Parameter extends Expression {
+	
     /**
      * If the parameter is an object binding, the method should return true
      * @return
      */
     boolean isObjectBinding();
-    /**
-     * Functions should use this method to get the value from the parameter.
-     * Each parameter type will have logic to return the correct value
-     * or throw an exception if the class can't implicitly cast the value
-     * to the target value type.
-     * @param engine
-     * @return
-     * @throws EvaluationException TODO
-     */
-    JamochaValue getValue(Rete engine) throws EvaluationException;
-    
-    String getParameterString();
 }

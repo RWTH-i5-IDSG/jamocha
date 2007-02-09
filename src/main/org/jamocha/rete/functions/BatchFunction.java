@@ -96,7 +96,7 @@ public class BatchFunction implements Function, Serializable {
 	public JamochaValue parse(Rete engine, InputStream ins)
 			throws EvaluationException {
 		try {
-			CLIPSParser parser = new CLIPSParser(engine, ins);
+			CLIPSParser parser = new CLIPSParser(ins);
 			Object expr = null;
 			while ((expr = parser.basicExpr()) != null) {
 				if (expr instanceof Defrule) {
@@ -132,7 +132,7 @@ public class BatchFunction implements Function, Serializable {
 			StringBuffer buf = new StringBuffer();
 			buf.append("(batch");
 			for (int idx = 0; idx < params.length; idx++) {
-				buf.append(" ").append(params[idx].getParameterString());
+				buf.append(" ").append(params[idx].getExpressionString());
 			}
 			buf.append(")");
 			return buf.toString();
