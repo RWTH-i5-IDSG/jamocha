@@ -19,8 +19,8 @@ package org.jamocha.rete.functions;
 import java.io.Serializable;
 import java.io.StringReader;
 
-import org.jamocha.messagerouter.CLIPSInterpreter;
 import org.jamocha.parser.EvaluationException;
+import org.jamocha.parser.Expression;
 import org.jamocha.parser.IllegalParameterException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
@@ -74,14 +74,12 @@ public class EvalFunction implements Function, Serializable {
 		JamochaValue result = null;
 		try {
 			CLIPSParser parser = new CLIPSParser(new StringReader(command));
-			CLIPSInterpreter interpreter = new CLIPSInterpreter(engine);
-			Object expr = null;
-			while ((expr = parser.basicExpr()) != null) {
-				result = interpreter.executeCommand(expr);
+			Expression expr = null;
+			while ((expr = parser.nextExpression()) != null) {
+				result = expr.getValue(engine);
 			}
 		} catch (ParseException e) {
-			// we should report the error
-			e.printStackTrace();
+			throw new EvaluationException(e);
 		}
 		return result;
 	}

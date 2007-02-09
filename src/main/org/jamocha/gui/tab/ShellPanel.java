@@ -410,6 +410,7 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 										+ System.getProperty("line.separator"));
 							}
 							if (event.getType() != MessageEvent.COMMAND
+									&& event.getMessage() != null
 									&& !event.getMessage().toString()
 											.equals("") && !event.getMessage().equals(JamochaValue.NIL)) {
 								buffer.append(event.getMessage().toString()

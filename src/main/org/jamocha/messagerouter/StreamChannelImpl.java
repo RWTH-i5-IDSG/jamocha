@@ -21,8 +21,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 
+import org.jamocha.parser.Expression;
+import org.jamocha.parser.ParseException;
 import org.jamocha.parser.clips.CLIPSParser;
-import org.jamocha.parser.clips.ParseException;
 import org.jamocha.parser.clips.TokenMgrError;
 
 class StreamChannelImpl extends AbstractCommunicationChannel implements
@@ -37,9 +38,9 @@ class StreamChannelImpl extends AbstractCommunicationChannel implements
 		@Override
 		public void run() {
 			while (!stopped) {
-				Object command = null;
+				Expression command = null;
 				try {
-					while (!stopped && (command = parser.basicExpr()) != null) {
+					while (!stopped && (command = parser.nextExpression()) != null) {
 						router.enqueueCommand(command, getChannelId());
 					}
 				} catch (ParseException e) {
@@ -98,9 +99,9 @@ class StreamChannelImpl extends AbstractCommunicationChannel implements
 	}
 
 	public void executeCommand(String commandString) {
-		Object command = null;
+		Expression command = null;
 		try {
-			while ((command = parser.basicExpr()) != null) {
+			while ((command = parser.nextExpression()) != null) {
 				router.enqueueCommand(command, getChannelId());
 			}
 		} catch (ParseException e) {

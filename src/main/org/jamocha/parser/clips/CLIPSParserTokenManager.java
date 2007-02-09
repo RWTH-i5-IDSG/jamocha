@@ -4,17 +4,16 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import org.jamocha.parser.Expression;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.rete.BoundParam;
-import org.jamocha.rete.Deffact;
 import org.jamocha.rete.Deftemplate;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.FunctionParam2;
 import org.jamocha.rete.MultiSlot;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.ParameterUtils;
-import org.jamocha.rete.ShellBoundParam;
 import org.jamocha.rete.Slot;
 import org.jamocha.rete.ValueParam;
 import org.jamocha.rete.functions.ShellFunction;
@@ -34,7 +33,6 @@ import org.jamocha.rule.OrLiteralConstraint;
 import org.jamocha.rule.PredicateConstraint;
 import org.jamocha.rule.RuleProperty;
 import org.jamocha.rule.TestCondition;
-import org.jamocha.rete.functions.Deffunction;
 
 public class CLIPSParserTokenManager implements CLIPSParserConstants
 {

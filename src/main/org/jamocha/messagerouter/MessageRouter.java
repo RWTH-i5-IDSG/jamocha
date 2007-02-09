@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 
+import org.jamocha.parser.Expression;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Rete;
 
@@ -60,8 +61,7 @@ public class MessageRouter implements Serializable {
 							messageQueue.offer(new MessageEvent(
 									MessageEvent.COMMAND, schabau.command,
 									currentChannelId));
-							JamochaValue result = interpreter
-									.executeCommand(schabau.command);
+							JamochaValue result = schabau.command.getValue(engine);
 							messageQueue.offer(new MessageEvent(
 									MessageEvent.RESULT, result,
 									currentChannelId));
@@ -101,11 +101,11 @@ public class MessageRouter implements Serializable {
 
 	private static final class CommandObject {
 
-		private Object command;
+		private Expression command;
 
 		private String channelId;
 
-		private CommandObject(Object command, String channelId) {
+		private CommandObject(Expression command, String channelId) {
 			super();
 			this.command = command;
 			this.channelId = channelId;
@@ -132,8 +132,6 @@ public class MessageRouter implements Serializable {
 
 	private Queue<MessageEvent> messageQueue = new LinkedList<MessageEvent>();
 
-	private CLIPSInterpreter interpreter;
-
 	private int idCounter = 0;
 
 	private CommandThread commandThread;
@@ -146,7 +144,6 @@ public class MessageRouter implements Serializable {
 	 */
 	public MessageRouter(Rete engine) {
 		this.engine = engine;
-		this.interpreter = new CLIPSInterpreter(engine);
 		commandThread = new CommandThread();
 		commandThread.start();
 	}
@@ -164,7 +161,7 @@ public class MessageRouter implements Serializable {
 		messageQueue.offer(event);
 	}
 
-	public void enqueueCommand(Object command, String channelId) {
+	public void enqueueCommand(Expression command, String channelId) {
 		commandQueue.add(new CommandObject(command, channelId));
 	}
 

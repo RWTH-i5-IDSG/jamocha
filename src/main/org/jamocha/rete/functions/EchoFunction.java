@@ -26,8 +26,6 @@ import org.jamocha.rete.Constants;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.ShellBoundParam;
-
 
 /**
  * @author Peter Lin
@@ -40,7 +38,7 @@ public class EchoFunction implements Function, Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	
+
 	public static final String ECHO = "echo";
 
 	/**
@@ -51,22 +49,19 @@ public class EchoFunction implements Function, Serializable {
 	}
 
 	public JamochaType getReturnType() {
-		return JamochaType.UNDEFINED;
+		return JamochaType.STRING;
 	}
 
 	/**
 	 * The method expects an array of ShellBoundParam. The method will use
-	 * StringBuffer to resolve the binding and print out 1 binding per
-	 * line.
+	 * StringBuffer to resolve the binding and print out 1 binding per line.
 	 */
-	public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
+	public JamochaValue executeFunction(Rete engine, Parameter[] params)
+			throws EvaluationException {
 		StringBuilder sb = new StringBuilder();
 		for (int idx = 0; idx < params.length; idx++) {
-			if (params[idx] instanceof ShellBoundParam) {
-				ShellBoundParam bp = (ShellBoundParam) params[idx];
-				bp.resolveBinding(engine);
-				sb.append(bp.getStringValue()).append(Constants.LINEBREAK);
-			}
+			sb.append(params[idx].getValue(engine).toString()).append(
+					Constants.LINEBREAK);
 		}
 		return JamochaValue.newString(sb.toString());
 	}
@@ -76,7 +71,7 @@ public class EchoFunction implements Function, Serializable {
 	}
 
 	public Class[] getParameter() {
-		return new Class[] { ShellBoundParam[].class };
+		return new Class[] { BoundParam[].class };
 	}
 
 	public String toPPString(Parameter[] params, int indents) {
@@ -88,7 +83,8 @@ public class EchoFunction implements Function, Serializable {
 					BoundParam bp = (BoundParam) params[idx];
 					buf.append(" ?").append(bp.getVariableName());
 				} else {
-					buf.append(" \"").append(params[idx].getExpressionString()).append("\"");
+					buf.append(" \"").append(params[idx].getExpressionString())
+							.append("\"");
 				}
 			}
 			buf.append(")");

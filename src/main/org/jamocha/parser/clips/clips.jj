@@ -14,17 +14,16 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.jamocha.parser.Expression;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.rete.BoundParam;
-import org.jamocha.rete.Deffact;
 import org.jamocha.rete.Deftemplate;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.FunctionParam2;
 import org.jamocha.rete.MultiSlot;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.ParameterUtils;
-import org.jamocha.rete.ShellBoundParam;
 import org.jamocha.rete.Slot;
 import org.jamocha.rete.ValueParam;
 import org.jamocha.rete.functions.ShellFunction;
@@ -44,7 +43,6 @@ import org.jamocha.rule.OrLiteralConstraint;
 import org.jamocha.rule.PredicateConstraint;
 import org.jamocha.rule.RuleProperty;
 import org.jamocha.rule.TestCondition;
-import org.jamocha.rete.functions.Deffunction;
 
 public class CLIPSParser {
 
@@ -238,34 +236,39 @@ TOKEN :
   >
 }
 
-Object basicExpr() :
+Expression nextExpression() :
 {
-  Object exp = null;
+  Expression exp = null;
   Token obj = null;
+  BoundParam bp = null;
   ShellFunction func = null;
-  Parameter[] pms = null;
-  ShellBoundParam sbp = null;
+  FunctionParam2 functionParam = null;
 }
 {
   obj = getBindType()
   {
-    func = new ShellFunction();
-    func.setName("echo");
-    sbp = new ShellBoundParam();
-    sbp.setDefglobalName(obj.image);
-    pms = new ShellBoundParam[]{sbp};
-    func.setParameters(pms);
-    return func;
+    bp = new BoundParam();
+    bp.setVariableName(obj.image);
+    return bp;
   }
 |
-  (<LBRACE> exp = expr() <RBRACE>)
+  (<LBRACE> func = expr() <RBRACE>)
   {
-    return exp;
+    functionParam = new FunctionParam2();
+    functionParam.setFunctionName(func.getName());
+    functionParam.setParameters(func.getParameters());
+    return functionParam;
   }
 |
   <EOF>
   {
     return null;
+  }
+|
+  LOOKAHEAD(<STRING_LITERAL>|<INTEGER_LITERAL>|<FLOATING_POINT_LITERAL>)
+  {
+    exp = new ValueParam(typeExpr());
+    return exp;
   }
 }
 
@@ -324,18 +327,15 @@ JamochaValue typeExpr() :
   }
 }
 
-Object expr() :
+ShellFunction expr() :
 {
   Token exp = null;
   Token exp2 = null;
   Token exp3 = null;
   String body;
-  ValueParam param;
-  Deffact fact;
   Deftemplate templ;
   Defrule rule;
   ShellFunction func;
-  Deffunction dffunc;
   ArrayList list = new ArrayList();
   ValueParam[] pms;
   List infunc = new ArrayList();
@@ -447,15 +447,20 @@ Object expr() :
 |
   exp = <DEFFUNCTION>
   exp2 = <IDENTIFIER> <LBRACE>
-  ((bindingParams(list))+)? <RBRACE> (<LBRACE>
+  ((bindingParams(list))+)? <RBRACE> (exp3 = <STRING_LITERAL>)? (<LBRACE>
   (ruleAction(infunc))? <RBRACE>)+
   {
-    dffunc = new Deffunction();
-    dffunc.setName(exp2.image);
-    dffunc.setParameters(ParameterUtils.convertParameters(list));
-    dffunc.setFunctions(infunc);
-    list.clear();
-    return dffunc;
+    func = new ShellFunction();
+    func.setName(exp.image);
+    List parameters = new ArrayList();
+    parameters.add(new ValueParam(JamochaValue.newIdentifier(exp2.image)));
+    parameters.add(new ValueParam(JamochaValue.newObject(ParameterUtils.convertParameters(list))));
+    if(exp3 != null) {
+      parameters.add(new ValueParam(JamochaValue.newString(ParserUtils.getStringLiteral(exp3.image))));
+    }
+    parameters.add(new ValueParam(JamochaValue.newObject(infunc)));
+    func.setParameters(ParameterUtils.convertParameters(parameters));
+    return func;
   }
 |
   // example: (bind ?*x* 9)
@@ -560,9 +565,7 @@ void valueParams(List list) :
  */
 void bindingParams(List list) :
 {
-  Object exp;
   Token tok;
-  ValueParam vp = null;
 }
 {
   tok = getBindType()
@@ -803,54 +806,45 @@ JamochaType slotType() :
 
 JamochaType getType() :
 {
-  Token exp = null;
 }
 {
-  exp = <INTEGER>
+  <INTEGER>
   {
-    exp = null;
     return JamochaType.LONG;
   }
 |
-  exp = <SHORT>
+  <SHORT>
   {
-    exp = null;
     return JamochaType.LONG;
   }
 |
-  exp = <LONG>
+  <LONG>
   {
-    exp = null;
     return JamochaType.LONG;
   }
 |
-  exp = <FLOAT>
+  <FLOAT>
   {
-    exp = null;
     return JamochaType.DOUBLE;
   }
 |
-  exp = <DOUBLE>
+  <DOUBLE>
   {
-    exp = null;
     return JamochaType.DOUBLE;
   }
 |
-  exp = <SYMBOL>
+  <SYMBOL>
   {
-    exp = null;
     return JamochaType.IDENTIFIER;
   }
 |
-  exp = <STRING>
+  <STRING>
   {
-    exp = null;
     return JamochaType.STRING;
   }
 |
-  exp = <BOOLEAN>
+  <BOOLEAN>
   {
-    exp = null;
     return JamochaType.BOOLEAN;
   }
 }
@@ -901,10 +895,9 @@ Defrule ruleBody() :
 
 void ruleDeclaration(List list) :
 {
-  Token exp;
 }
 {
-  <LBRACE> exp = <DECLARE> (ruleProperty(list)) <RBRACE>
+  <LBRACE> <DECLARE> (ruleProperty(list)) <RBRACE>
   {
   }
 }
@@ -966,13 +959,11 @@ void ruleProperty(List list) :
 
 Object salience() :
 {
-  Token exp = null;
   Object val = null;
 }
 {
-  <LBRACE> exp = <SALIENCE> val = <INTEGER_LITERAL> <RBRACE>
+  <LBRACE> <SALIENCE> val = <INTEGER_LITERAL> <RBRACE>
   {
-    exp = null;
     if (val != null) {
       return val;
     } else {
@@ -983,11 +974,10 @@ Object salience() :
 
 boolean autoFocus() :
 {
-  Token exp;
   boolean tf = false;
 }
 {
-  <LBRACE> exp = <AUTOFOCUS> tf = trueFalse() <RBRACE>
+  <LBRACE> <AUTOFOCUS> tf = trueFalse() <RBRACE>
   {
     return tf;
   }
@@ -1006,11 +996,10 @@ String ruleVersion() :
 
 boolean remember() :
 {
-  Token exp;
   boolean tf = false;
 }
 {
-  <LBRACE> exp = <REMEMBERMATCH> tf = trueFalse() <RBRACE>
+  <LBRACE> <REMEMBERMATCH> tf = trueFalse() <RBRACE>
   {
     return tf;
   }
@@ -1034,11 +1023,10 @@ String direction() :
 
 boolean noAgenda() :
 {
-  Token exp;
   boolean tf = false;
 }
 {
-  <LBRACE> exp = <NOAGENDA> tf = trueFalse() <RBRACE>
+  <LBRACE> <NOAGENDA> tf = trueFalse() <RBRACE>
   {
     return tf;
   }
@@ -1046,11 +1034,10 @@ boolean noAgenda() :
 
 String effectiveDate() :
 {
-  Token exp;
   Token date;
 }
 {
-  <LBRACE> exp = <EFFECTIVE> date = <STRING_LITERAL> <RBRACE>
+  <LBRACE> <EFFECTIVE> date = <STRING_LITERAL> <RBRACE>
   {
     return date.image.substring(1,date.image.length() - 1);
   }
@@ -1058,11 +1045,10 @@ String effectiveDate() :
 
 String expirationDate() :
 {
-  Token exp;
   Token date;
 }
 {
-  <LBRACE> exp = <EXPIRATION> date = <STRING_LITERAL> <RBRACE>
+  <LBRACE> <EXPIRATION> date = <STRING_LITERAL> <RBRACE>
   {
     return date.image.substring(1,date.image.length() - 1);
   }
@@ -1412,7 +1398,6 @@ void predicateFunc(List list, Token identifier) :
   String func = null;
   List params = new ArrayList();
   Token bind = null;
-  Token val = null;
 }
 {
   varname = <BIND2> <LBRACE> func = functionName() bind = <BIND> actionParams(params) <RBRACE>
@@ -1461,12 +1446,10 @@ String functionName() :
 
 void arrow() :
 {
-  Token exp;
 }
 {
-  exp = <ARROW>
+  <ARROW>
   {
-    exp = null;
   }
 }
 

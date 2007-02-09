@@ -16,7 +16,7 @@
  */
 package org.jamocha.rete.functions;
 
-import java.util.HashMap;
+import java.util.List;
 
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.Expression;
@@ -42,34 +42,22 @@ public class InterpretedFunction implements Function {
 	private static final long serialVersionUID = 1L;
 
 	private String name = null;
-
-	protected String ppString = null;
+	
+	private String description = null;
 
 	protected Expression[] inputParams = null;
 
-	private Function[] internalFunctions = null;
-
-	/**
-	 * these are the functions we pass to the top level function. they may be
-	 * different than the input parameters for the function.
-	 */
-	private Parameter[][] functionParams = null;
-
-	private HashMap bindings = new HashMap();
+	private List<ShellFunction> actions = null;
 
 	/**
 	 * 
 	 */
-	public InterpretedFunction(String name, Expression[] params,
-			Function[] functions, Parameter[][] parameters) {
+	public InterpretedFunction(String name, String description, Expression[] params,
+			List<ShellFunction> actions) {
 		this.name = name;
+		this.description = description;
 		this.inputParams = params;
-		this.internalFunctions = functions;
-		this.functionParams = parameters;
-	}
-
-	public void configureFunction(Rete engine) {
-
+		this.actions = actions;
 	}
 
 	/*
@@ -91,9 +79,10 @@ public class InterpretedFunction implements Function {
 			}
 			engine.pushScope(parameterValues);
 			try {
-				for (int i = 0; i < this.internalFunctions.length; ++i) {
-					result = this.internalFunctions[i].executeFunction(engine,
-							this.functionParams[i]);
+				for (int i = 0; i < this.actions.size(); ++i) {
+					ShellFunction sf = this.actions.get(i);
+					sf.lookUpFunction(engine);
+					result = sf.executeFunction(engine, sf.getParameters());
 				}
 			} finally {
 				engine.popScope();
@@ -117,14 +106,10 @@ public class InterpretedFunction implements Function {
 	}
 
 	public String toPPString(Parameter[] params, int indents) {
-		return ppString;
+		return description;
 	}
 
 	public Expression[] getInputParameters() {
 		return inputParams;
-	}
-
-	public JamochaValue getBinding(String var) {
-		return (JamochaValue) this.bindings.get(var);
 	}
 }

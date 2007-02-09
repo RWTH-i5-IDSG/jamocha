@@ -23,16 +23,15 @@ import java.io.InputStream;
 import java.io.Serializable;
 
 import org.jamocha.parser.EvaluationException;
+import org.jamocha.parser.Expression;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.parser.clips.CLIPSParser;
 import org.jamocha.parser.clips.ParseException;
-import org.jamocha.rete.Deftemplate;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.ValueParam;
-import org.jamocha.rule.Defrule;
 
 /**
  * @author Peter Lin
@@ -97,19 +96,9 @@ public class BatchFunction implements Function, Serializable {
 			throws EvaluationException {
 		try {
 			CLIPSParser parser = new CLIPSParser(ins);
-			Object expr = null;
-			while ((expr = parser.basicExpr()) != null) {
-				if (expr instanceof Defrule) {
-					Defrule rl = (Defrule) expr;
-					engine.getRuleCompiler().addRule(rl);
-				} else if (expr instanceof Deftemplate) {
-					Deftemplate dft = (Deftemplate) expr;
-					engine.getCurrentFocus().addTemplate(dft, engine,
-							engine.getWorkingMemory());
-				} else if (expr instanceof Function) {
-					Function fnc = (Function) expr;
-					fnc.executeFunction(engine, null);
-				}
+			Expression expr = null;
+			while ((expr = parser.nextExpression()) != null) {
+				expr.getValue(engine);
 			}
 			return JamochaValue.TRUE;
 		} catch (ParseException e) {

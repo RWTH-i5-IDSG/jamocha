@@ -21,8 +21,9 @@ import java.io.StringReader;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.jamocha.parser.Expression;
+import org.jamocha.parser.ParseException;
 import org.jamocha.parser.clips.CLIPSParser;
-import org.jamocha.parser.clips.ParseException;
 import org.jamocha.parser.clips.TokenMgrError;
 
 class StringChannelImpl extends AbstractCommunicationChannel implements
@@ -47,10 +48,10 @@ class StringChannelImpl extends AbstractCommunicationChannel implements
 		List<MessageEvent> commandMessages = blocked ? new LinkedList<MessageEvent>()
 				: null;
 		parser.ReInit(reader);
-		Object command = null;
+		Expression command = null;
 		try {
 			alreadyReceived.clear();
-			while ((command = parser.basicExpr()) != null) {
+			while ((command = parser.nextExpression()) != null) {
 				router.enqueueCommand(command, getChannelId());
 				if (blocked) {
 					try {
