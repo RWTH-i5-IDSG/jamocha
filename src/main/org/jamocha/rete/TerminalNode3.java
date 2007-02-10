@@ -76,11 +76,11 @@ public class TerminalNode3 extends TerminalNode2 {
 				&& time > this.theRule.getEffectiveDate()
 				&& time < this.theRule.getExpirationDate()) {
 			Map tmem = (Map) mem.getTerminalMemory(this);
-			if (tmem.containsKey(inx)) {
-				LinkedActivation act = (LinkedActivation) tmem.remove(inx);
-				engine.getAgenda().removeActivation(act);
-				act.clear();
-			}
+            LinkedActivation act = (LinkedActivation) tmem.remove(inx);
+            if (act != null) {
+                engine.getAgenda().removeActivation(act);
+                act.clear();
+            }
 		}
 	}
 }
