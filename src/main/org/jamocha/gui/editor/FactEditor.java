@@ -292,7 +292,8 @@ public class FactEditor extends AbstractJamochaEditor implements
 	public void actionPerformed(ActionEvent event) {
 		if (event.getSource() == assertButton) {
 			channel.executeCommand(getCurrentFactAssertionString(false));
-			JOptionPane.showMessageDialog(this, "Assertion done.\nPlease check the log for Messages.");
+			JOptionPane.showMessageDialog(this,
+					"Assertion done.\nPlease check the log for Messages.");
 		} else if (event.getSource() == backButton) {
 			if (step > 0) {
 				step--;
@@ -327,11 +328,19 @@ public class FactEditor extends AbstractJamochaEditor implements
 				for (Slot slot : slots) {
 					dumpAreaTemplate.append("    (");
 					if (slot.getValueType() == JamochaType.LIST) {
-						dumpAreaTemplate.append("multislot");
+						dumpAreaTemplate.append("multislot " + slot.getName()
+								+ ")");
 					} else {
-						dumpAreaTemplate.append("slot");
+						dumpAreaTemplate.append("slot " + slot.getName());
+						if (slot.getValueType() != JamochaType.UNDEFINED) {
+							dumpAreaTemplate.append("\n");
+							dumpAreaTemplate.append("        (type "
+									+ slot.getValueType().toString() + ")");
+							dumpAreaTemplate.append("\n    ");
+						}
+						dumpAreaTemplate.append(")");
 					}
-					dumpAreaTemplate.append(" " + slot.getName() + ")\n");
+					dumpAreaTemplate.append("\n");
 				}
 				dumpAreaTemplate.append(")");
 			} else {
@@ -361,11 +370,13 @@ public class FactEditor extends AbstractJamochaEditor implements
 					res.append("\"" + values[i].toString() + "\"");
 				}
 			} else if (slot.getValueType() == JamochaType.FACT) {
-				// TODO Fact-Selector
-			} else {
+				// TODO Fact-Selector ?
+			} else if (slot.getValueType() == JamochaType.STRING) {
 				res
 						.append("\"" + ((JTextField) currComponent).getText()
 								+ "\"");
+			} else {
+				res.append(((JTextField) currComponent).getText());
 			}
 			res.append(")");
 		}

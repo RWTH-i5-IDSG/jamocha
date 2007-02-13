@@ -89,15 +89,14 @@ public class TemplateEditor extends AbstractJamochaEditor implements
 		}
 		moduleBox = new JComboBox(moduleNames);
 
-
 		addSlotButton = new JButton("Add Slot", IconLoader.getImageIcon("add"));
 		addSlotButton.addActionListener(this);
 		addSlotButton.setAlignmentX(Component.RIGHT_ALIGNMENT);
-		
+
 		JPanel topPanel = new JPanel();
 		topPanel.setBorder(BorderFactory
 				.createTitledBorder("General Template Settings"));
-		topPanel.setLayout(new FlowLayout(FlowLayout.LEFT,20,1));
+		topPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 20, 1));
 		JPanel innerTopPanel = new JPanel(new GridLayout(2, 2));
 		innerTopPanel.add(new JLabel("Template-name:"));
 		innerTopPanel.add(nameField);
@@ -212,17 +211,18 @@ public class TemplateEditor extends AbstractJamochaEditor implements
 			res.append("    (");
 			if (row.typeBox.getSelectedItem().toString().equals(
 					JamochaType.LIST.toString())) {
-				res.append("multislot " + row.nameField.getText()+")");
-				
+				res.append("multislot " + row.nameField.getText() + ")");
 			} else {
 				res.append("slot " + row.nameField.getText());
-				if (print)
-					res.append("\n");
-				res.append("        (type " + row.typeBox.getSelectedItem().toString()
-						+ ")");
-				if (print)
-					res.append("\n");
-				res.append("    )");
+				if (!row.typeBox.getSelectedItem().equals("UNDEFINED")) {
+					if (print)
+						res.append("\n");
+					res.append("        (type "
+							+ row.typeBox.getSelectedItem().toString() + ")");
+					if (print)
+						res.append("\n    ");
+				}
+				res.append(")");
 			}
 			if (print)
 				res.append("\n");
@@ -273,7 +273,8 @@ public class TemplateEditor extends AbstractJamochaEditor implements
 	}
 
 	private JComboBox getNewTypesCombo() {
-		JamochaType[] types = JamochaType.values();
+		String[] types = { "UNDEFINED", "STRING", "BOOLEAN", "LONG", "DOUBLE",
+				"LIST", "OBJECT", "FACT" };
 		JComboBox box = new JComboBox(types);
 		return box;
 	}

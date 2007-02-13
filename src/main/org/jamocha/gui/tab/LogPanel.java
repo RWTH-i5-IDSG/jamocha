@@ -282,9 +282,9 @@ public class LogPanel extends AbstractJamochaPanel implements ActionListener,
 		private void addEvents(List<MessageEvent> events) {
 
 			logTable.getColumnModel().getColumn(0).setPreferredWidth(180);
-			logTable.getColumnModel().getColumn(1).setPreferredWidth(100);
+			logTable.getColumnModel().getColumn(1).setPreferredWidth(180);
 			logTable.getColumnModel().getColumn(2).setPreferredWidth(
-					logTable.getWidth() - 280);
+					logTable.getWidth() - 360);
 			for (MessageEvent event : events) {
 				this.events.add(new LogMessageEvent(event));
 			}
