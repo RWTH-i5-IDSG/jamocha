@@ -17,7 +17,10 @@
 package org.jamocha.gui;
 
 import java.awt.BorderLayout;
+import java.awt.Cursor;
 import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.LinkedList;
@@ -25,8 +28,9 @@ import java.util.List;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.event.ChangeEvent;
@@ -53,7 +57,7 @@ import org.jamocha.rete.Rete;
  * @author Alexander Wilden <october.rust@gmx.de>
  * @version 0.01
  */
-public class JamochaGui extends JFrame implements ChangeListener {
+public class JamochaGui extends JFrame implements ChangeListener, ActionListener {
 
 	static final long serialVersionUID = 1L;
 
@@ -63,6 +67,10 @@ public class JamochaGui extends JFrame implements ChangeListener {
 	private Rete engine;
 
 	private JamochaMenuBar menuBar;
+
+	private JButton batchResults;
+	
+	private JButton logoButton;
 
 	private JTabbedPane tabbedPane;
 
@@ -87,8 +95,20 @@ public class JamochaGui extends JFrame implements ChangeListener {
 
 		// show logo
 		JPanel logoPanel = new JPanel(new BorderLayout());
-		logoPanel.add(new JLabel(IconLoader.getImageIcon("jamocha")),
-				BorderLayout.EAST);
+		logoButton = new JButton(IconLoader.getImageIcon("jamocha"));
+		logoButton.setBorder(BorderFactory.createEmptyBorder());
+		logoButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+		logoButton.setToolTipText("visit www.jamocha.org");
+		logoButton.addActionListener(this);
+		logoPanel.add(logoButton,BorderLayout.EAST);
+
+		// adding the button that indicates batch results
+		JPanel batchResultsPanel = new JPanel();
+		batchResults = new JButton(IconLoader.getImageIcon("lorry_error"));
+		batchResults.setToolTipText("Batch results are available!");
+		batchResults.setVisible(false);
+		batchResultsPanel.add(batchResults);
+		logoPanel.add(batchResultsPanel, BorderLayout.WEST);
 		this.add(logoPanel, BorderLayout.NORTH);
 
 		// create a tabbed pane
@@ -132,7 +152,7 @@ public class JamochaGui extends JFrame implements ChangeListener {
 		tabbedPane.addTab("Settings", IconLoader.getImageIcon("wrench"),
 				settingsPanel, "Settings for Jamocha");
 		panels.add(settingsPanel);
-		
+
 		// add the tab pane to the frame
 		add(tabbedPane, BorderLayout.CENTER);
 
@@ -255,5 +275,11 @@ public class JamochaGui extends JFrame implements ChangeListener {
 	 */
 	public void stateChanged(ChangeEvent event) {
 		((AbstractJamochaPanel) tabbedPane.getSelectedComponent()).setFocus();
+	}
+
+	public void actionPerformed(ActionEvent event) {
+		if(event.getSource() == logoButton) {
+			BrowserControl.displayURL("http://www.jamocha.org");
+		}
 	}
 }
