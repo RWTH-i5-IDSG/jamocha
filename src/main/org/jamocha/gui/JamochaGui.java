@@ -100,6 +100,7 @@ public class JamochaGui extends JFrame implements ChangeListener, ActionListener
 		logoButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
 		logoButton.setToolTipText("visit www.jamocha.org");
 		logoButton.addActionListener(this);
+		logoButton.setBackground(this.getBackground());
 		logoPanel.add(logoButton,BorderLayout.EAST);
 
 		// adding the button that indicates batch results
