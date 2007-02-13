@@ -2,10 +2,12 @@
 
 import org.jamocha.parser.*;
 import org.jamocha.rete.*;
+import java.util.ArrayList;
 
 public class COOLDeffunctionConstruct extends ConstructNode {
 
 	private DefFunctionTree deffunc=new DefFunctionTree();
+	private boolean varargs;
 	
 	public COOLDeffunctionConstruct(int id) {
 		super(id);
@@ -33,6 +35,18 @@ public class COOLDeffunctionConstruct extends ConstructNode {
 	
 	public void setFunctionActions(Node n)
 	{	deffunc.setAction(n);	};
+	
+	public void SetFunctionParams(ArrayList<String> list)
+	{
+		String names[]=new String[list.size()];
+		//int i;
+		//for (i=0;i<list.size();i++) names[i]=list.get(i);
+		list.toArray(names);
+		deffunc.setLocals(names,varargs);
+	}
+	
+	public void hasMultiVars(boolean has)
+	{ varargs=true; }
 	
 	public JamochaValue execute() //throws EvaluationException
 	{

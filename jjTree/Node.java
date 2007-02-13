@@ -9,6 +9,11 @@
 import java.lang.String;
 import org.jamocha.parser.*;
 
+/** The minimal interface any Abstract syntax tree node must implement.
+	 Class SimpleNode provides implementations for most of these functions, 
+	 see there for information on Syntax Trees
+*/
+
 public interface Node 
 {
 
@@ -39,7 +44,8 @@ public interface Node
 	public void dump(String prefix);
 	public boolean compareTree(Node n);
 	public JamochaValue execute() throws EvaluationException;
-	public JamochaValue getLocal(String name);
+	/** Bind the local varibles to function/method/etc parametres */
+	public void bindLocals(DeffunctionParams locals[]);
 	public String getName();
 	public void setName(String n);
 	public int getId();

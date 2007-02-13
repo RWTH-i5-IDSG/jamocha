@@ -15,8 +15,11 @@ public class COOLDefglobalConstruct extends ConstructNode {
 		return "defglobal \"" + name + "\"" + "(" + doc + ")";
 	}
 
-	public JamochaValue execute() //throws EvaluationException
+	public JamochaValue execute() throws EvaluationException
 	{
+		int i;
+		if (jjtGetNumChildren()==0) return JamochaValue.FALSE;
+		for (i=0;i<jjtGetNumChildren();i++) jjtGetChild(i).execute();		
 		return JamochaValue.TRUE;
 	};
 }

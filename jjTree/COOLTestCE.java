@@ -18,18 +18,24 @@ public class COOLTestCE extends SimpleNode {
 	public void setCondition(TestCondition test)
 	{ ce=test; }
 	
+	// This just sets the function in the CE, since the function may not exist at parse time
 	public JamochaValue execute() throws EvaluationException {
 		int i;
-		JamochaValue ret;
-		COOLParameter params[]=new COOLParameter[jjtGetNumChildren()];
+		JamochaValue ret=null;
+		ValueParam params[] = new ValueParam[jjtGetNumChildren()];
 		Function func=parser.getFunction(name);
-		// Throw exception if func==null
+		// Return false if function not found (CLIPS does not throw exceptions here)
 		if (func==null)
 		{
-			System.out.println("No Function");
+			//System.out.println("No Function");
 			return JamochaValue.FALSE;
 		}
-		// Set function for test before execution.
+//		for (i=0;i<jjtGetNumChildren();i++)
+//		{
+//			//ret=jjtGetChild(i).execute();
+//			params[i]=new ValueParam(jjtGetChild(i).execute());
+//		}
+//		ret=func.executeFunction(parser.getRete(),params);
 		ce.setFunction(func);
 		return JamochaValue.TRUE;
 	}

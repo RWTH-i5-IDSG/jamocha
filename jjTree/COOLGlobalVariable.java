@@ -33,6 +33,9 @@ public class COOLGlobalVariable extends SimpleNode
 	}
 
 	public JamochaValue execute() {
-		return parser.getGlobalVar(name);
+		//return parser.getGlobalVar(name);
+		JamochaValue v=parser.getGlobalVar(name);
+		if (v==null) return JamochaValue.NIL;
+		else return v;
 	}
 }

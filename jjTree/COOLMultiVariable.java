@@ -9,6 +9,7 @@ import org.jamocha.parser.JamochaValue;
 
 public class COOLMultiVariable extends SimpleNode 
 {
+	DeffunctionParams value;
 
 	public COOLMultiVariable(int id) {
 		super(id);
@@ -32,9 +33,15 @@ public class COOLMultiVariable extends SimpleNode
 		// Yes, they do
 		return true;
 	}
+	// Some nodes may have local data (e.g. classes and functions)
+	public void bindLocals(DeffunctionParams [] locals)
+	{
+		int i;
+		for (i=0;i<locals.length;i++)
+			if (locals[i].name.equals(name)) { value=locals[i]; return; };
+	}
 
 	public JamochaValue execute() {
-		// ???
-		return JamochaValue.NIL;
+		return value.value;
 	}
 }

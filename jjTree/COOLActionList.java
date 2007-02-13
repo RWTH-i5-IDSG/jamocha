@@ -15,8 +15,9 @@ public class COOLActionList extends SimpleNode {
 	{
 		int i;
 		if (jjtGetNumChildren()==0) return JamochaValue.FALSE;
+		if (jjtGetNumChildren()==1) return  jjtGetChild(0).execute();
 		for (i=0;i<jjtGetNumChildren();i++) jjtGetChild(i).execute();		
 		return JamochaValue.TRUE;
-	}
+	};
 
 }

@@ -29,6 +29,6 @@ public class COOLSymbol extends SimpleNode {
 
 	public JamochaValue execute() throws EvaluationException
 	{
-		return new JamochaValue(JamochaType.STRING,name);
+		return new JamochaValue(JamochaType.IDENTIFIER,name);
 	}
 }

@@ -9,6 +9,7 @@ import org.jamocha.parser.JamochaValue;
 
 public class COOLSingleVariable extends SimpleNode 
 {
+	DeffunctionParams value=null;
 
 	public COOLSingleVariable(int id) {
 		super(id);
@@ -33,7 +34,22 @@ public class COOLSingleVariable extends SimpleNode
 		return true;
 	}
 
+	// Some nodes may have local data (e.g. classes and functions)
+	public void bindLocals(DeffunctionParams [] locals)
+	{
+		int i;
+		System.out.println("Trying to bind: "+name);
+		for (i=0;i<locals.length;i++)
+		{
+			if (locals[i].name.equals(name))
+			{
+				value=locals[i];
+				return;
+			}
+		}
+	}
+
 	public JamochaValue execute() {
-		return (JamochaValue) parser.getGlobalVar(name);
+		return value.value;
 	}
 }

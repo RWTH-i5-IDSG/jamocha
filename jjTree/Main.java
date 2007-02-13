@@ -16,11 +16,11 @@ public class Main
 				COOLStart n = p.Start();
 				if (n==null) System.exit(0);
 				n.dump("");
-				//System.out.println(n.execute().toString());
+				System.out.println(n.execute().toString());
 			}
 		} catch (Exception e) {
 		System.err.println("Oops.");
-		System.err.println(e.getMessage());
+		//System.err.println(e.getMessage());
 		e.printStackTrace();
     }
   }

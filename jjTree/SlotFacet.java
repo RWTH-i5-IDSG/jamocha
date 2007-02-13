@@ -29,21 +29,22 @@ public class SlotFacet
 
 	// Functions to Set/Get Default Attributes
 	public void setDefaultAction(Node n)
-	{	deftype=ACTION; actions=n;	};
+	{	dynamic=false; deftype=ACTION; actions=n;	};
 	
 	public void setDefaultNone()
-	{	deftype=NONE;	};
+	{	dynamic=false; deftype=NONE;	};
 	
 	public void setDefaultDerive()
-	{	deftype=DERIVE;	};
+	{	dynamic=false; deftype=DERIVE;	};
 
 	public int getDefault()
 	{	return deftype;	};
 	
-	public void setDynamic(boolean dyn)
+	public void setDynamic(Node n)
 	{
-		dynamic=dyn;	
-		if (dynamic) deftype=ACTION;
+		dynamic=true;	
+		deftype=ACTION;
+		actions=n;
 	};
 	
 	public boolean getDynamic()
