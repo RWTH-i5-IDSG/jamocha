@@ -19,8 +19,8 @@ package org.jamocha.gui;
 import java.awt.BorderLayout;
 import java.awt.Cursor;
 import java.awt.Dimension;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.LinkedList;
@@ -28,9 +28,9 @@ import java.util.List;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
-import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.event.ChangeEvent;
@@ -57,7 +57,7 @@ import org.jamocha.rete.Rete;
  * @author Alexander Wilden <october.rust@gmx.de>
  * @version 0.01
  */
-public class JamochaGui extends JFrame implements ChangeListener, ActionListener {
+public class JamochaGui extends JFrame implements ChangeListener {
 
 	static final long serialVersionUID = 1L;
 
@@ -69,8 +69,8 @@ public class JamochaGui extends JFrame implements ChangeListener, ActionListener
 	private JamochaMenuBar menuBar;
 
 	private JButton batchResults;
-	
-	private JButton logoButton;
+
+	private JLabel logoLabel;
 
 	private JTabbedPane tabbedPane;
 
@@ -95,13 +95,15 @@ public class JamochaGui extends JFrame implements ChangeListener, ActionListener
 
 		// show logo
 		JPanel logoPanel = new JPanel(new BorderLayout());
-		logoButton = new JButton(IconLoader.getImageIcon("jamocha"));
-		logoButton.setBorder(BorderFactory.createEmptyBorder());
-		logoButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
-		logoButton.setToolTipText("visit www.jamocha.org");
-		logoButton.addActionListener(this);
-		logoButton.setBackground(this.getBackground());
-		logoPanel.add(logoButton,BorderLayout.EAST);
+		logoLabel = new JLabel(IconLoader.getImageIcon("jamocha"));
+		logoLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
+		logoLabel.setToolTipText("visit www.jamocha.org");
+		logoLabel.addMouseListener(new MouseAdapter() {
+			public void mouseReleased(MouseEvent e) {
+				BrowserControl.displayURL("http://www.jamocha.org");
+			}
+		});
+		logoPanel.add(logoLabel, BorderLayout.EAST);
 
 		// adding the button that indicates batch results
 		JPanel batchResultsPanel = new JPanel();
@@ -276,11 +278,5 @@ public class JamochaGui extends JFrame implements ChangeListener, ActionListener
 	 */
 	public void stateChanged(ChangeEvent event) {
 		((AbstractJamochaPanel) tabbedPane.getSelectedComponent()).setFocus();
-	}
-
-	public void actionPerformed(ActionEvent event) {
-		if(event.getSource() == logoButton) {
-			BrowserControl.displayURL("http://www.jamocha.org");
-		}
 	}
 }
