@@ -76,7 +76,7 @@ public class JamochaValue {
 
 	private Object value;
 
-	private JamochaValue(JamochaType type, Object value) {
+	public JamochaValue(JamochaType type, Object value) {
 		if (type == null) {
 			throw new IllegalArgumentException("type of a value can't be null.");
 		}
