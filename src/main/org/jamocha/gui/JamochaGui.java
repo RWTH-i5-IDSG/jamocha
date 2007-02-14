@@ -33,6 +33,8 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -91,6 +93,7 @@ public class JamochaGui extends JFrame implements ChangeListener {
 		// set up the frame
 		this.setLayout(new BorderLayout());
 		this.setTitle("Jamocha");
+		setLookAndFeel(SYSTEM_LOOK_AND_FEEL);
 		setSizeAndLocation();
 
 		// show logo
@@ -270,6 +273,42 @@ public class JamochaGui extends JFrame implements ChangeListener {
 		if (exitOnClose) {
 			engine.close();
 			System.exit(0);
+		}
+	}
+
+	public final static String CROSS_PLATFORM_LOOK_AND_FEEL = "crossplatform";
+
+	public final static String SYSTEM_LOOK_AND_FEEL = "system";
+
+	public final static String METAL_LOOK_AND_FEEL = "javax.swing.plaf.metal.MetalLookAndFeel";
+
+	public final static String WINDOWS_LOOK_AND_FEEL = "com.sun.java.swing.plaf.windows.WindowsLookAndFeel";
+
+	public final static String GTK_LOOK_AND_FEEL = "com.sun.java.swing.plaf.gtk.GTKLookAndFeel";
+
+	public final static String MOTIF_LOOK_AND_FEEL = "com.sun.java.swing.plaf.motif.MotifLookAndFeel";
+
+	public void setLookAndFeel(String lookAndFeelClassName) {
+		try {
+			if (lookAndFeelClassName.equals(CROSS_PLATFORM_LOOK_AND_FEEL))
+				lookAndFeelClassName = UIManager
+						.getCrossPlatformLookAndFeelClassName();
+			else if (lookAndFeelClassName.equals(SYSTEM_LOOK_AND_FEEL))
+				lookAndFeelClassName = UIManager
+						.getSystemLookAndFeelClassName();
+
+			UIManager.setLookAndFeel(lookAndFeelClassName);
+			SwingUtilities.updateComponentTreeUI(this);
+		} catch (Exception exc) {
+			// look & feel not found, use the cross-platform look and feel
+			try {
+				UIManager.setLookAndFeel(UIManager
+						.getCrossPlatformLookAndFeelClassName());
+			} catch (Exception exc2) {
+				// even the platform look and feel is not available, something
+				// must be wrong with the
+				// installation of the java-runtime-environment
+			}
 		}
 	}
 
