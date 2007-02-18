@@ -119,8 +119,7 @@ public class HashedNotEqBNode extends BaseJoin {
     {
         Map leftmem = (Map) mem.getBetaLeftMemory(this);
 
-		BetaMemory bmem = new BetaMemoryImpl2(linx);
-		leftmem.put(bmem.getIndex(), bmem);
+		leftmem.put(linx,linx);
 		// need to think the getLeftValues through better to
 		// account for cases when a join has no bindings
 		NotEqHashIndex2 inx = new NotEqHashIndex2(getLeftValues(linx.getFacts()));
@@ -161,11 +160,11 @@ public class HashedNotEqBNode extends BaseJoin {
 		// key collision.
 		Iterator itr = leftmem.values().iterator();
 		while (itr.hasNext()) {
-			BetaMemory bmem = (BetaMemory) itr.next();
-			Fact[] lfcts = bmem.getLeftFacts();
+			Index linx = (Index) itr.next();
+			Fact[] lfcts = linx.getFacts();
 			if (this.evaluate(lfcts, rfact)) {
 				// now we propogate
-				this.propogateAssert(bmem.getIndex().add(rfact), engine, mem);
+				this.propogateAssert(linx.add(rfact), engine, mem);
 			}
 		}
     }
@@ -211,11 +210,11 @@ public class HashedNotEqBNode extends BaseJoin {
             Map leftmem = (Map)mem.getBetaLeftMemory(this);
             Iterator itr = leftmem.values().iterator();
             while (itr.hasNext()){
-                BetaMemory bmem = (BetaMemory)itr.next();
-                if (this.evaluate(bmem.getLeftFacts(), rfact)){
+                Index linx = (Index)itr.next();
+                if (this.evaluate(linx.getFacts(), rfact)){
                     // it matched, so we need to retract it from
                     // succeeding nodes
-                    propogateRetract(bmem.getIndex().add(rfact),engine,mem);
+                    propogateRetract(linx.add(rfact),engine,mem);
                 }
             }
         } else {

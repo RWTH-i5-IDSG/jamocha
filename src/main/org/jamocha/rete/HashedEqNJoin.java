@@ -115,8 +115,7 @@ public class HashedEqNJoin extends BaseJoin {
     throws AssertException
     {
         Map leftmem = (Map) mem.getBetaLeftMemory(this);
-		BetaMemory bmem = new BetaMemoryImpl2(linx);
-		leftmem.put(bmem.getIndex(), bmem);
+		leftmem.put(linx,linx);
 		EqHashIndex inx = new EqHashIndex(getLeftValues(linx.getFacts()));
 		HashedAlphaMemoryImpl rightmem = (HashedAlphaMemoryImpl) mem
 				.getBetaRightMemory(this);
@@ -149,12 +148,12 @@ public class HashedEqNJoin extends BaseJoin {
 		Map leftmem = (Map) mem.getBetaLeftMemory(this);
 		Iterator itr = leftmem.values().iterator();
 		while (itr.hasNext()) {
-			BetaMemory bmem = (BetaMemory) itr.next();
-			if (this.evaluate(bmem.getLeftFacts(), rfact)) {
+			Index linx = (Index) itr.next();
+			if (this.evaluate(linx.getFacts(), rfact)) {
 				if (prevCount == 0 && after != 0) {
 					// we have to retract
 					try {
-						this.propogateRetract(bmem.getIndex(), engine, mem);
+						this.propogateRetract(linx, engine, mem);
 					} catch (RetractException e) {
 						throw new AssertException("NotJion - " + e.getMessage());
 					}
@@ -182,11 +181,8 @@ public class HashedEqNJoin extends BaseJoin {
         // the left memory contains the fact array, so we 
         // retract it.
         if (leftmem.containsKey(inx)){
-            BetaMemory bmem = (BetaMemory)leftmem.remove(inx);
             // if watch is turned on, we send an event
             this.propogateRetract(inx,engine,mem);
-            bmem.clear();
-            bmem = null;
         }
     }
     
@@ -215,11 +211,11 @@ public class HashedEqNJoin extends BaseJoin {
             Map leftmem = (Map)mem.getBetaLeftMemory(this);
             Iterator itr = leftmem.values().iterator();
             while (itr.hasNext()){
-                BetaMemory bmem = (BetaMemory)itr.next();
-                if (this.evaluate(bmem.getLeftFacts(), rfact)){
+                Index linx = (Index)itr.next();
+                if (this.evaluate(linx.getFacts(), rfact)){
                     if (prevCount != 0 && after == 0 ) {
                         try {
-                            propogateAssert(bmem.getIndex(),engine,mem);
+                            propogateAssert(linx,engine,mem);
                         } catch (AssertException e) {
                             throw new RetractException("NotJion - " + e.getMessage());
                         }

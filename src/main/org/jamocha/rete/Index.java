@@ -88,6 +88,11 @@ public class Index implements Serializable, HashIndex {
 		return Arrays.equals(this.facts, ((Index) val).facts);
 	}
 
+    public void clear() {
+        this.facts = null;
+        this.hashCode = 0;
+    }
+    
 	/**
 	 * Method simply returns the cached hashCode.
 	 */

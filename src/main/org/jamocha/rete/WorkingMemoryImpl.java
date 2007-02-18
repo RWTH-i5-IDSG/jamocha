@@ -226,17 +226,17 @@ public class WorkingMemoryImpl implements WorkingMemory {
 			// we iterate over the keys in the HashMap
 			Iterator bitr = bm.keySet().iterator();
 			while (bitr.hasNext()) {
-				BetaMemory bmm = (BetaMemory) bm.get(bitr.next());
+				Index bmm = (Index) bm.get(bitr.next());
 				if (detailed) {
 					engine.writeMessage(bjoin.toPPString(),Constants.DEFAULT_OUTPUT);
 					HashedAlphaMemoryImpl rightmem = (HashedAlphaMemoryImpl)
 							this.getBetaRightMemory(hebj);
 
-					EqHashIndex eqinx = new EqHashIndex(hebj.getLeftValues(bmm.getLeftFacts()));
+					EqHashIndex eqinx = new EqHashIndex(hebj.getLeftValues(bmm.getFacts()));
 					// add to the total count
 					betaTotal += rightmem.count(eqinx);
-					engine.writeMessage(" count=" + betaTotal + " " +
-							bmm.toPPString(), Constants.DEFAULT_OUTPUT);
+					engine.writeMessage(" count=" + betaTotal,
+                            Constants.DEFAULT_OUTPUT);
 					Iterator ritr = rightmem.iterator(eqinx);
 					if (ritr != null) {
 						StringBuffer buf = new StringBuffer();
@@ -254,17 +254,17 @@ public class WorkingMemoryImpl implements WorkingMemory {
 			// we iterate over the keys in the HashMap
 			Iterator bitr = bm.keySet().iterator();
 			while (bitr.hasNext()) {
-				BetaMemory bmm = (BetaMemory) bm.get(bitr.next());
+				Index bmm = (Index) bm.get(bitr.next());
 				if (detailed) {
 					engine.writeMessage(bjoin.toPPString(),Constants.DEFAULT_OUTPUT);
 					HashedAlphaMemoryImpl rightmem = (HashedAlphaMemoryImpl)
 							this.getBetaRightMemory(henj);
 
-					EqHashIndex eqinx = new EqHashIndex(henj.getLeftValues(bmm.getLeftFacts()));
+					EqHashIndex eqinx = new EqHashIndex(henj.getLeftValues(bmm.getFacts()));
 					// add to the total count
 					betaTotal += rightmem.count(eqinx);
-					engine.writeMessage(" count=" + betaTotal + " " +
-							bmm.toPPString(), Constants.DEFAULT_OUTPUT);
+					engine.writeMessage(" count=" + betaTotal
+                            , Constants.DEFAULT_OUTPUT);
 					Iterator ritr = rightmem.iterator(eqinx);
 					if (ritr != null) {
 						StringBuffer buf = new StringBuffer();
@@ -376,33 +376,31 @@ public class WorkingMemoryImpl implements WorkingMemory {
 			am.clear();
 		}
 		this.alphaMemories.clear();
-		// aggressivley clear the memories
-		Iterator blitr = this.betaLeftMemories.values().iterator();
-		while (blitr.hasNext()) {
-			Object bval = blitr.next();
-			if (bval instanceof Map) {
-				Map lmem = (Map) bval;
-				// now iterate over the betamemories
-				Iterator bmitr = lmem.keySet().iterator();
-				while (bmitr.hasNext()) {
-					Index indx = (Index) bmitr.next();
-					BetaMemory betamem = (BetaMemory) lmem.get(indx);
-					betamem.clear();
-				}
-				lmem.clear();
-			}
-		}
-		this.betaLeftMemories.clear();
-		Iterator britr = this.betaRightMemories.values().iterator();
-		while (britr.hasNext()) {
-			Object val = britr.next();
-			if (val instanceof HashedAlphaMemoryImpl) {
-				((HashedAlphaMemoryImpl) val).clear();
-			} else {
-				Map mem = (Map) val;
-				mem.clear();
-			}
-		}
+        Iterator blitr = this.betaLeftMemories.values().iterator();
+        while (blitr.hasNext()) {
+            Object bval = blitr.next();
+            if (bval instanceof Map) {
+                Map lmem = (Map) bval;
+                // now iterate over the betamemories
+                Iterator bmitr = lmem.keySet().iterator();
+                while (bmitr.hasNext()) {
+                    Index indx = (Index) bmitr.next();
+                    indx.clear();
+                }
+                lmem.clear();
+            }
+        }
+        this.betaLeftMemories.clear();
+        Iterator britr = this.betaRightMemories.values().iterator();
+        while (britr.hasNext()) {
+            Object val = britr.next();
+            if (val instanceof HashedAlphaMemoryImpl) {
+                ((HashedAlphaMemoryImpl) val).clear();
+            } else {
+                Map mem = (Map) val;
+                mem.clear();
+            }
+        }
 		this.betaRightMemories.clear();
 		this.terminalMemories.clear();
 		this.root.clear();

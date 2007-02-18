@@ -74,20 +74,16 @@ public class ZJBetaNode extends BaseJoin {
 	 * @param factInstance
 	 * @param engine
 	 */
-	public void assertLeft(Index inx, Rete engine, WorkingMemory mem)
+	public void assertLeft(Index linx, Rete engine, WorkingMemory mem)
 			throws AssertException {
 		Map leftmem = (Map) mem.getBetaLeftMemory(this);
-
-		// we create a new list for storing the matches.
-		// any fact that isn't in the list will be evaluated.
-		BetaMemory bmem = new BetaMemoryImpl2(inx);
-		leftmem.put(bmem.getIndex(), bmem);
+		leftmem.put(linx,linx);
 		Map rightmem = (Map) mem.getBetaRightMemory(this);
 		Iterator itr = rightmem.values().iterator();
 		while (itr.hasNext()) {
 			Fact rfcts = (Fact) itr.next();
 			// now we propogate
-			this.propogateAssert(inx.add(rfcts), engine, mem);
+			this.propogateAssert(linx.add(rfcts), engine, mem);
 		}
 
 	}
@@ -113,9 +109,9 @@ public class ZJBetaNode extends BaseJoin {
         // key collision.
         Iterator itr = leftmem.values().iterator();
         while (itr.hasNext()) {
-            BetaMemory bmem = (BetaMemory) itr.next();
+            Index linx = (Index) itr.next();
             // now we propogate
-            this.propogateAssert(bmem.getIndex().add(rfact), engine, mem);
+            this.propogateAssert(linx.add(rfact), engine, mem);
         }
 	}
 
@@ -127,17 +123,13 @@ public class ZJBetaNode extends BaseJoin {
 	public void retractLeft(Index linx, Rete engine, WorkingMemory mem)
 			throws RetractException {
 		Map leftmem = (Map) mem.getBetaLeftMemory(this);
-		if (leftmem.containsKey(linx)) {
-			// the left memory contains the fact array, so we 
-			// retract it.
-			BetaMemory bmem = (BetaMemory) leftmem.remove(linx);
+		if (leftmem.remove(linx) != null) {
 			Map rightmem = (Map) mem.getBetaRightMemory(this);
 			Iterator itr = rightmem.values().iterator();
 			while (itr.hasNext()) {
 				propogateRetract(linx.add((Fact) itr
 						.next()), engine, mem);
 			}
-			bmem.clear();
 		}
 	}
 
@@ -160,9 +152,9 @@ public class ZJBetaNode extends BaseJoin {
 			Map leftmem = (Map) mem.getBetaLeftMemory(this);
 			Iterator itr = leftmem.values().iterator();
 			while (itr.hasNext()) {
-				BetaMemory bmem = (BetaMemory) itr.next();
+				Index linx = (Index) itr.next();
 				// now we propogate
-				propogateRetract(bmem.getIndex().add(rfact), engine, mem);
+				propogateRetract(linx.add(rfact), engine, mem);
 			}
 		}
 	}

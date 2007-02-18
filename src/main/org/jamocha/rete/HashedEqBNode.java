@@ -114,12 +114,11 @@ public class HashedEqBNode extends BaseJoin {
     public void assertLeft(Index linx, Rete engine, WorkingMemory mem)
             throws AssertException {
         Map leftmem = (Map) mem.getBetaLeftMemory(this);
-        BetaMemory bmem = new BetaMemoryImpl2(linx);
         // we expect the fact hasn't already entered the node
         // and the RETE network is generated correctly. If it
         // isn't, it could cause the same facts to enter the
         // node multiple times and have negative effects.
-        leftmem.put(bmem.getIndex(), bmem);
+        leftmem.put(linx, linx);
         EqHashIndex inx = new EqHashIndex(getLeftValues(linx.getFacts()));
         HashedAlphaMemoryImpl rightmem = (HashedAlphaMemoryImpl) mem
                 .getBetaRightMemory(this);
@@ -157,11 +156,11 @@ public class HashedEqBNode extends BaseJoin {
         // key collision.
         Iterator itr = leftmem.values().iterator();
         while (itr.hasNext()) {
-            BetaMemory bmem = (BetaMemory) itr.next();
-            Fact[] lfcts = bmem.getLeftFacts();
+            Index linx = (Index) itr.next();
+            Fact[] lfcts = linx.getFacts();
             if (this.evaluate(lfcts, rfact)) {
                 // now we propogate
-                this.propogateAssert(bmem.getIndex().add(rfact), engine, mem);
+                this.propogateAssert(linx.add(rfact), engine, mem);
             }
         }
 
@@ -177,9 +176,6 @@ public class HashedEqBNode extends BaseJoin {
             throws RetractException {
         Map leftmem = (Map) mem.getBetaLeftMemory(this);
         if (leftmem.containsKey(linx)) {
-            // the left memory contains the fact array, so we
-            // retract it.
-            BetaMemory bmem = (BetaMemory) leftmem.remove(linx);
 
             EqHashIndex eqinx = new EqHashIndex(getLeftValues(linx.getFacts()));
             HashedAlphaMemoryImpl rightmem = (HashedAlphaMemoryImpl) mem
@@ -194,8 +190,6 @@ public class HashedEqBNode extends BaseJoin {
                     propogateRetract(linx.add((Fact)itr.next()), engine, mem);
                 }
             }
-            bmem.clear();
-            bmem = null;
         }
     }
 
@@ -219,11 +213,11 @@ public class HashedEqBNode extends BaseJoin {
             Map leftmem = (Map) mem.getBetaLeftMemory(this);
             Iterator itr = leftmem.values().iterator();
             while (itr.hasNext()) {
-                BetaMemory bmem = (BetaMemory) itr.next();
-                if (this.evaluate(bmem.getLeftFacts(), rfact)) {
+                Index linx = (Index) itr.next();
+                if (this.evaluate(linx.getFacts(), rfact)) {
                     // it matched, so we need to retract it from
                     // succeeding nodes
-                    propogateRetract(bmem.getIndex().add(rfact), engine, mem);
+                    propogateRetract(linx.add(rfact), engine, mem);
                 }
             }
         } else {
