@@ -840,7 +840,7 @@ public class BasicRuleCompiler implements RuleCompiler {
 						} else {
 
 							if (binds.length == 0 || hasNotEqual) {
-								bn = new NotJoin(engine.nextNodeId());
+								bn = new HashedNotEqNJoin(engine.nextNodeId());
 							} else {
 								bn = new HashedEqNJoin(engine.nextNodeId());
 							}

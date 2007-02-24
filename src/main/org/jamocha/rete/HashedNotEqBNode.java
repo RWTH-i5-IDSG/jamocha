@@ -38,11 +38,6 @@ public class HashedNotEqBNode extends BaseJoin {
      */
     protected int operator = Constants.EQUAL;
     
-    /**
-     * binding for the join
-     */
-    protected Binding[] binds = null;
-
     public HashedNotEqBNode(int id){
         super(id);
     }

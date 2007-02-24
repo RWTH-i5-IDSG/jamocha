@@ -29,6 +29,11 @@ import org.jamocha.rete.exception.RetractException;
  */
 public abstract class BaseJoin extends BaseNode {
 
+    /**
+     * binding for the join
+     */
+    protected Binding[] binds = null;
+
 	/**
 	 * @param id
 	 */

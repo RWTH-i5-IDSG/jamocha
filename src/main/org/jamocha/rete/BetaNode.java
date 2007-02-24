@@ -50,11 +50,6 @@ public class BetaNode extends BaseJoin {
 	 */
 	protected int operator = Constants.EQUAL;
 
-	/**
-	 * binding for the join
-	 */
-	protected Binding[] binds = null;
-
 	public BetaNode(int id) {
 		super(id);
 	}

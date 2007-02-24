@@ -41,11 +41,6 @@ public class ExistJoinFrst extends BaseJoin {
 	protected int operator = Constants.EQUAL;
 
 	/**
-	 * binding for the join
-	 */
-	protected Binding[] binds = null;
-
-	/**
 	 * for convienance, we have a field for the current BetaMemory
 	 * being evaluated.
 	 */

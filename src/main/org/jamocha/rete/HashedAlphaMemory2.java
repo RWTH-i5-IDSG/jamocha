@@ -170,6 +170,36 @@ public class HashedAlphaMemory2 extends HashedAlphaMemoryImpl {
     }
     
     /**
+     * if there are zero matches for the NotEqHashIndex2, the method
+     * return true. If there are matches, the method returns false.
+     * False means there's 1 or more matches
+     * @param index
+     * @return
+     */
+    public boolean zeroMatch(NotEqHashIndex2 index) {
+        Map matches = (Map)this.memory.get(index);
+        int idz = 0;
+        if (matches != null) {
+            Iterator itr = matches.keySet().iterator();
+            while (itr.hasNext()) {
+                Object key = itr.next();
+                // if the key doesn't match the subindex, add it to the
+                // counter.
+                if (!index.getSubIndex().equals(key)) {
+                    Map submatch = (Map)matches.get(key);
+                    idz += submatch.size();
+                }
+                if (idz > 0) {
+                    break;
+                }
+            }
+            return false;
+        } else {
+            return true;
+        }
+    }
+    
+    /**
      * return an arraylist with all the facts
      * @return
      */

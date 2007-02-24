@@ -42,11 +42,6 @@ public class NotJoin extends BaseJoin {
      */
     protected int operator = Constants.EQUAL;
     
-    /**
-     * binding for the join
-     */
-    protected Binding[] binds = null;
-
     public NotJoin(int id){
         super(id);
     }
