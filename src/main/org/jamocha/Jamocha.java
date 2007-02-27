@@ -39,6 +39,9 @@ public class Jamocha {
 		if (!shellStarted && !guiStarted) {
 			jamocha.showUsage();
 		} else if (!shellStarted) {
+			// we only show the quit-button
+			jamocha.getJamochaGui().showCloseGuiMenuItem(false);
+			// a click on the x on windows or red dot on mac quits everything
 			jamocha.getJamochaGui().setExitOnClose(true);
 		}
 	}

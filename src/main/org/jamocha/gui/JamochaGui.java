@@ -19,16 +19,23 @@ package org.jamocha.gui;
 import java.awt.BorderLayout;
 import java.awt.Cursor;
 import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Queue;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -48,7 +55,9 @@ import org.jamocha.gui.tab.SettingsPanel;
 import org.jamocha.gui.tab.ShellPanel;
 import org.jamocha.gui.tab.TemplatesPanel;
 import org.jamocha.messagerouter.InterestType;
+import org.jamocha.messagerouter.MessageEvent;
 import org.jamocha.messagerouter.StringChannel;
+import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Rete;
 
 /**
@@ -59,7 +68,8 @@ import org.jamocha.rete.Rete;
  * @author Alexander Wilden <october.rust@gmx.de>
  * @version 0.01
  */
-public class JamochaGui extends JFrame implements ChangeListener {
+public class JamochaGui extends JFrame implements ChangeListener,
+		ActionListener {
 
 	static final long serialVersionUID = 1L;
 
@@ -68,9 +78,11 @@ public class JamochaGui extends JFrame implements ChangeListener {
 
 	private Rete engine;
 
+	private boolean running = true;
+
 	private JamochaMenuBar menuBar;
 
-	private JButton batchResults;
+	private JButton batchResultsButton;
 
 	private JLabel logoLabel;
 
@@ -81,6 +93,14 @@ public class JamochaGui extends JFrame implements ChangeListener {
 	private boolean exitOnClose = false;
 
 	private StringChannel stringChannel;
+
+	private StringChannel batchChannel;
+
+	Queue<String> batchFiles = new LinkedList<String>();
+
+	private Map<String, String> batchResults = new HashMap<String, String>();
+
+	private Thread batchThread;
 
 	/**
 	 * Create a GUI-Instance for Jamocha.
@@ -110,10 +130,11 @@ public class JamochaGui extends JFrame implements ChangeListener {
 
 		// adding the button that indicates batch results
 		JPanel batchResultsPanel = new JPanel();
-		batchResults = new JButton(IconLoader.getImageIcon("lorry_error"));
-		batchResults.setToolTipText("Batch results are available!");
-		batchResults.setVisible(false);
-		batchResultsPanel.add(batchResults);
+		batchResultsButton = new JButton(IconLoader.getImageIcon("lorry_error"));
+		batchResultsButton.setToolTipText("Click here to view batch results.");
+		batchResultsButton.setVisible(false);
+		batchResultsButton.addActionListener(this);
+		batchResultsPanel.add(batchResultsButton);
 		logoPanel.add(batchResultsPanel, BorderLayout.WEST);
 		this.add(logoPanel, BorderLayout.NORTH);
 
@@ -169,10 +190,54 @@ public class JamochaGui extends JFrame implements ChangeListener {
 				close();
 			}
 		});
+
+		batchThread = new Thread() {
+			public void run() {
+				StringBuilder buffer = new StringBuilder();
+				while (running) {
+					List<MessageEvent> messages = new ArrayList<MessageEvent>();
+					batchChannel.fillEventList(messages);
+					if (!messages.isEmpty()) {
+						for (MessageEvent event : messages) {
+							if (event.getType() == MessageEvent.ERROR) {
+								buffer.append(exceptionToString(
+										(Exception) event.getMessage()).trim()
+										+ System.getProperty("line.separator"));
+							}
+							if (event.getType() != MessageEvent.COMMAND
+									&& event.getMessage() != null
+									&& !event.getMessage().toString()
+											.equals("")
+									&& !event.getMessage().equals(
+											JamochaValue.NIL)) {
+								buffer.append(event.getMessage().toString()
+										.trim()
+										+ System.getProperty("line.separator"));
+							}
+							if (event.getType() == MessageEvent.PARSE_ERROR
+									|| event.getType() == MessageEvent.ERROR
+									|| event.getType() == MessageEvent.RESULT) {
+								batchResults.put(batchFiles.poll(), buffer
+										.toString());
+								buffer = new StringBuilder();
+								batchResultsButton.setVisible(true);
+								batchResultsButton.setIcon(IconLoader
+										.getImageIcon("lorry_error"));
+							}
+						}
+					} else {
+						try {
+							Thread.sleep(2000);
+						} catch (InterruptedException e) {
+							// silently ignore it
+						}
+					}
+				}
+			}
+		};
 	}
 
 	private void setSizeAndLocation() {
-		// TODO Auto-generated method stub
 		int width = preferences.getInt("gui.width", 0);
 		int height = preferences.getInt("gui.height", 0);
 		int locx = preferences.getInt("gui.locx", -1);
@@ -198,7 +263,14 @@ public class JamochaGui extends JFrame implements ChangeListener {
 	 */
 	public void setExitOnClose(boolean exitOnClose) {
 		this.exitOnClose = exitOnClose;
-		menuBar.showCloseGui(!exitOnClose);
+	}
+
+	public void showCloseGuiMenuItem(boolean show) {
+		menuBar.showCloseGui(show);
+	}
+
+	public void showQuitMenuItem(boolean show) {
+		menuBar.showQuit(show);
 	}
 
 	/**
@@ -210,11 +282,32 @@ public class JamochaGui extends JFrame implements ChangeListener {
 		return engine;
 	}
 
+	/**
+	 * Returns a StringChannel used for all Editors. Output will only go to the
+	 * Log.
+	 * 
+	 * @return A StringChannel for the editors.
+	 */
 	public StringChannel getStringChannel() {
 		if (stringChannel == null)
 			stringChannel = getEngine().getMessageRouter().openChannel(
 					"gui_string_channel", InterestType.NONE);
 		return stringChannel;
+	}
+
+	/**
+	 * Returns a StringChannel for File-Menu -> Batch entry. Output will be
+	 * collected and a symbol at the top will indicate incoming results.
+	 * 
+	 * @return A StringChannel for the batch process.
+	 */
+	public StringChannel getBatchChannel() {
+		if (batchChannel == null) {
+			batchChannel = getEngine().getMessageRouter().openChannel(
+					"gui_batch_channel");
+			batchThread.start();
+		}
+		return batchChannel;
 	}
 
 	/**
@@ -237,6 +330,23 @@ public class JamochaGui extends JFrame implements ChangeListener {
 	}
 
 	/**
+	 * Converts an Exception to a String namely turns the StackTrace to a
+	 * String.
+	 * 
+	 * @param exception
+	 *            The Exception
+	 * @return A nice String representation of the Exception
+	 */
+	public String exceptionToString(Exception exception) {
+		StringBuilder res = new StringBuilder();
+		StackTraceElement[] str = exception.getStackTrace();
+		for (int i = 0; i < str.length; ++i) {
+			res.append(str[i] + System.getProperty("line.separator"));
+		}
+		return res.toString();
+	}
+
+	/**
 	 * Informs all Panels, that some Settings might have changed.
 	 * 
 	 */
@@ -251,8 +361,11 @@ public class JamochaGui extends JFrame implements ChangeListener {
 	 * 
 	 */
 	public void close() {
+		running = false;
 		if (stringChannel != null)
 			getEngine().getMessageRouter().closeChannel(stringChannel);
+		if (batchChannel != null)
+			getEngine().getMessageRouter().closeChannel(batchChannel);
 		// save position and size
 		preferences.putInt("gui.width", getWidth());
 		preferences.putInt("gui.height", getHeight());
@@ -317,5 +430,13 @@ public class JamochaGui extends JFrame implements ChangeListener {
 	 */
 	public void stateChanged(ChangeEvent event) {
 		((AbstractJamochaPanel) tabbedPane.getSelectedComponent()).setFocus();
+	}
+
+	public void actionPerformed(ActionEvent event) {
+		if (event.getSource() == batchResultsButton) {
+			BatchResultBrowser browser = new BatchResultBrowser(batchResultsButton);
+			browser.setResults(batchResults);
+			browser.setVisible(true);
+		}
 	}
 }

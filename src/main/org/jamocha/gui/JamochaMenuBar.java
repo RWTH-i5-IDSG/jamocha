@@ -16,15 +16,25 @@
  */
 package org.jamocha.gui;
 
+import java.awt.BorderLayout;
+import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.util.Calendar;
 
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JFileChooser;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 
 import org.jamocha.gui.icons.IconLoader;
 
@@ -48,6 +58,12 @@ public class JamochaMenuBar extends JMenuBar implements ActionListener {
 
 	private JMenuItem fileMenuQuit;
 
+	private JMenu helpMenu;
+
+	private JMenuItem helpMenuAbout;
+
+	private JDialog aboutDialog;
+
 	public JamochaMenuBar(JamochaGui gui) {
 		super();
 		this.gui = gui;
@@ -67,10 +83,22 @@ public class JamochaMenuBar extends JMenuBar implements ActionListener {
 		fileMenu.add(fileMenuCloseGui);
 		fileMenu.add(fileMenuQuit);
 		add(fileMenu);
+
+		// adding the help menu
+		helpMenu = new JMenu("Help");
+		helpMenuAbout = new JMenuItem("About", IconLoader
+				.getImageIcon("comment"));
+		helpMenuAbout.addActionListener(this);
+		helpMenu.add(helpMenuAbout);
+		add(helpMenu);
 	}
 
 	public void showCloseGui(boolean show) {
 		fileMenuCloseGui.setVisible(show);
+	}
+
+	public void showQuit(boolean show) {
+		fileMenuQuit.setVisible(show);
 	}
 
 	public void actionPerformed(ActionEvent event) {
@@ -81,17 +109,76 @@ public class JamochaMenuBar extends JMenuBar implements ActionListener {
 			gui.setExitOnClose(false);
 			gui.close();
 		} else if (event.getSource() == fileMenuBatch) {
-			JFileChooser chooser = new JFileChooser(gui.getPreferences().get("menubar.batchLastPath", ""));
+			JFileChooser chooser = new JFileChooser(gui.getPreferences().get(
+					"menubar.batchLastPath", ""));
 			chooser.setMultiSelectionEnabled(false);
 			if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
 				File file = chooser.getSelectedFile();
 				if (file != null && file.isFile()) {
-					gui.getPreferences().put("menubar.batchLastPath", file.getAbsolutePath());
-					gui.getStringChannel().executeCommand(
+					gui.getPreferences().put("menubar.batchLastPath",
+							file.getAbsolutePath());
+					gui.getBatchChannel().executeCommand(
 							"(batch " + file.getAbsolutePath() + ")");
-					JOptionPane.showMessageDialog(this, "Batch process started.\nPlease check the log for Messages.\nThe process might be running in the background for a while.");
+					gui.batchFiles.offer(file.getName() + " ("
+							+ getDatetimeFormatted() + ")");
+					JOptionPane
+							.showMessageDialog(
+									this,
+									"Batch process started.\nPlease check the log for Messages.\nThe process might be running in the background for a while.");
 				}
 			}
+		} else if (event.getSource() == helpMenuAbout) {
+			String aboutText = "\u00A9 2003 - 2007 by Peter Lin.\n\n"
+					+ "Jamocha is an open source rule engine released under the Apache Software License.\n\n"
+					+ "For more information visit http://www.jamocha.org\n\n"
+					+ "Credits for the Icons used in the GUI go to Marc James (http://www.famfamfam.com/lab/icons/silk/). They are released under a Creative Commons Attribution 2.5 License.\n\n"
+					+ "Credits for the Jamocha-Logo go to Frank RŸttgers (http://www.xele.de).";
+			aboutDialog = new JDialog(gui, "About Jamocha", true);
+			aboutDialog.setLocationByPlatform(true);
+			aboutDialog.setSize(500, 400);
+			aboutDialog.setLayout(new BorderLayout());
+			JPanel logoPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+			logoPanel.add(new JLabel(IconLoader.getImageIcon("jamocha")));
+			logoPanel.add(new JLabel("one engine for all your rules"));
+			aboutDialog.add(logoPanel, BorderLayout.NORTH);
+			JTextArea aboutArea = new JTextArea(aboutText);
+			aboutArea.setBorder(BorderFactory.createEmptyBorder());
+			aboutArea.setLineWrap(true);
+			aboutArea.setWrapStyleWord(true);
+			aboutArea.setEditable(false);
+			aboutDialog.add(new JScrollPane(aboutArea,
+					JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
+					JScrollPane.HORIZONTAL_SCROLLBAR_NEVER),
+					BorderLayout.CENTER);
+			JPanel closePanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+			JButton closeButton = new JButton("close");
+			closeButton.addActionListener(new ActionListener() {
+
+				public void actionPerformed(ActionEvent arg0) {
+					aboutDialog.dispose();
+				}
+
+			});
+			closePanel.add(closeButton);
+			aboutDialog.add(closePanel, BorderLayout.SOUTH);
+			aboutDialog.setVisible(true);
 		}
+	}
+
+	public String getDatetimeFormatted() {
+		StringBuilder res = new StringBuilder();
+		Calendar datetime = Calendar.getInstance();
+		res.append(datetime.get(Calendar.YEAR) + "/");
+		res.append(((datetime.get(Calendar.MONTH) + 1 > 9) ? "" : "0")
+				+ (datetime.get(Calendar.MONTH) + 1) + "/");
+		res.append(((datetime.get(Calendar.DAY_OF_MONTH) > 9) ? "" : "0")
+				+ datetime.get(Calendar.DAY_OF_MONTH) + " - ");
+		res.append(((datetime.get(Calendar.HOUR_OF_DAY) > 9) ? "" : "0")
+				+ datetime.get(Calendar.HOUR_OF_DAY) + ":");
+		res.append(((datetime.get(Calendar.MINUTE) > 9) ? "" : "0")
+				+ datetime.get(Calendar.MINUTE) + ":");
+		res.append(((datetime.get(Calendar.SECOND) > 9) ? "" : "0")
+				+ datetime.get(Calendar.SECOND));
+		return res.toString();
 	}
 }

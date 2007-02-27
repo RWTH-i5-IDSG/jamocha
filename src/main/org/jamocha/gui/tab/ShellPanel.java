@@ -405,7 +405,7 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 								lastIncompleteCommand = new StringBuilder();
 							}
 							if (event.getType() == MessageEvent.ERROR) {
-								buffer.append(exceptionToString(
+								buffer.append(gui.exceptionToString(
 										(Exception) event.getMessage()).trim()
 										+ System.getProperty("line.separator"));
 							}
@@ -445,22 +445,7 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 				gui.getEngine().getMessageRouter().closeChannel(channel);
 			}
 
-			/**
-			 * Converts an Exception to a String namely turns the StackTrace to
-			 * a String.
-			 * 
-			 * @param exception
-			 *            The Exception
-			 * @return A nice String representation of the Exception
-			 */
-			private String exceptionToString(Exception exception) {
-				StringBuilder res = new StringBuilder();
-				StackTraceElement[] str = exception.getStackTrace();
-				for (int i = 0; i < str.length; ++i) {
-					res.append(str[i] + System.getProperty("line.separator"));
-				}
-				return res.toString();
-			}
+			
 		};
 		channelListener.start();
 	}
