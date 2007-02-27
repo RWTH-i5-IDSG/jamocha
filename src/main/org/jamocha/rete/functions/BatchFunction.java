@@ -72,11 +72,15 @@ public class BatchFunction implements Function, Serializable {
 		if (params != null && params.length > 0) {
 			for (int idx = 0; idx < params.length; idx++) {
 				try {
-					String input = params[idx].getValue(engine).getStringValue();
+					String input = params[idx].getValue(engine)
+							.getStringValue();
 					InputStream inStream;
-					if (input.startsWith("http://")) {
+					// Check for a protocol indicator at the beginning of the
+					// String. If we have one use a URL.
+					if (input.matches("^[a-zA-Z]+://.*")) {
 						URL url = new URL(input);
 						inStream = url.openConnection().getInputStream();
+						// Otherwise tread it as normal file on the Filesystem
 					} else {
 						inStream = new FileInputStream(new File(input));
 					}
