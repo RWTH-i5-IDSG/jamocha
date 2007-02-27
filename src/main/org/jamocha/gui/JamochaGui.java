@@ -18,7 +18,6 @@ package org.jamocha.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Cursor;
-import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -26,11 +25,13 @@ import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
@@ -80,7 +81,7 @@ public class JamochaGui extends JFrame implements ChangeListener,
 	private boolean running = true;
 
 	private JamochaMenuBar menuBar;
-	
+
 	private JButton batchResultsButton;
 
 	private JLabel logoLabel;
@@ -95,7 +96,7 @@ public class JamochaGui extends JFrame implements ChangeListener,
 
 	private StringChannel batchChannel;
 
-	Queue<String> batchFiles = new LinkedList<String>();
+	Queue<String> batchFiles = new ConcurrentLinkedQueue<String>();
 
 	private Map<String, String> batchResults = new HashMap<String, String>();
 
@@ -235,7 +236,19 @@ public class JamochaGui extends JFrame implements ChangeListener,
 			}
 		};
 	}
-	
+
+	public void processBatchFiles(List<String> files) {
+		if (files != null) {
+			if (!files.isEmpty()) {
+				for (String file : files) {
+					getBatchChannel().executeCommand("(batch " + file + ")");
+					batchFiles.offer(file + " ("
+							+ getDatetimeFormatted() + ")");
+				}
+			}
+		}
+	}
+
 	private void setSizeAndLocation() {
 		int width = preferences.getInt("gui.width", 0);
 		int height = preferences.getInt("gui.height", 0);
@@ -314,7 +327,6 @@ public class JamochaGui extends JFrame implements ChangeListener,
 	 * 
 	 */
 	public void showGui() {
-		setMinimumSize(new Dimension(600, 400));
 		setVisible(true);
 		panels.get(0).setFocus();
 	}
@@ -433,9 +445,27 @@ public class JamochaGui extends JFrame implements ChangeListener,
 
 	public void actionPerformed(ActionEvent event) {
 		if (event.getSource() == batchResultsButton) {
-			BatchResultBrowser browser = new BatchResultBrowser(batchResultsButton);
+			BatchResultBrowser browser = new BatchResultBrowser(
+					batchResultsButton);
 			browser.setResults(batchResults);
 			browser.setVisible(true);
 		}
+	}
+
+	public String getDatetimeFormatted() {
+		StringBuilder res = new StringBuilder();
+		Calendar datetime = Calendar.getInstance();
+		res.append(datetime.get(Calendar.YEAR) + "/");
+		res.append(((datetime.get(Calendar.MONTH) + 1 > 9) ? "" : "0")
+				+ (datetime.get(Calendar.MONTH) + 1) + "/");
+		res.append(((datetime.get(Calendar.DAY_OF_MONTH) > 9) ? "" : "0")
+				+ datetime.get(Calendar.DAY_OF_MONTH) + " - ");
+		res.append(((datetime.get(Calendar.HOUR_OF_DAY) > 9) ? "" : "0")
+				+ datetime.get(Calendar.HOUR_OF_DAY) + ":");
+		res.append(((datetime.get(Calendar.MINUTE) > 9) ? "" : "0")
+				+ datetime.get(Calendar.MINUTE) + ":");
+		res.append(((datetime.get(Calendar.SECOND) > 9) ? "" : "0")
+				+ datetime.get(Calendar.SECOND));
+		return res.toString();
 	}
 }

@@ -21,7 +21,6 @@ import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-import java.util.Calendar;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -120,7 +119,7 @@ public class JamochaMenuBar extends JMenuBar implements ActionListener {
 					gui.getBatchChannel().executeCommand(
 							"(batch " + file.getAbsolutePath() + ")");
 					gui.batchFiles.offer(file.getName() + " ("
-							+ getDatetimeFormatted() + ")");
+							+ gui.getDatetimeFormatted() + ")");
 					JOptionPane
 							.showMessageDialog(
 									this,
@@ -175,22 +174,5 @@ public class JamochaMenuBar extends JMenuBar implements ActionListener {
 			aboutDialog.add(closePanel, BorderLayout.SOUTH);
 			aboutDialog.setVisible(true);
 		}
-	}
-
-	public String getDatetimeFormatted() {
-		StringBuilder res = new StringBuilder();
-		Calendar datetime = Calendar.getInstance();
-		res.append(datetime.get(Calendar.YEAR) + "/");
-		res.append(((datetime.get(Calendar.MONTH) + 1 > 9) ? "" : "0")
-				+ (datetime.get(Calendar.MONTH) + 1) + "/");
-		res.append(((datetime.get(Calendar.DAY_OF_MONTH) > 9) ? "" : "0")
-				+ datetime.get(Calendar.DAY_OF_MONTH) + " - ");
-		res.append(((datetime.get(Calendar.HOUR_OF_DAY) > 9) ? "" : "0")
-				+ datetime.get(Calendar.HOUR_OF_DAY) + ":");
-		res.append(((datetime.get(Calendar.MINUTE) > 9) ? "" : "0")
-				+ datetime.get(Calendar.MINUTE) + ":");
-		res.append(((datetime.get(Calendar.SECOND) > 9) ? "" : "0")
-				+ datetime.get(Calendar.SECOND));
-		return res.toString();
 	}
 }

@@ -54,7 +54,8 @@ public class BatchResultBrowser extends JFrame implements ActionListener {
 		removeButton.setToolTipText("Remove this batch result");
 		reloadButton = new JButton(IconLoader.getImageIcon("arrow_refresh"));
 		reloadButton.addActionListener(this);
-		reloadButton.setToolTipText("Reload the list of available batch results");
+		reloadButton
+				.setToolTipText("Reload the list of available batch results");
 
 		topPanel.add(resultsBox);
 		topPanel.add(removeButton);
@@ -97,6 +98,10 @@ public class BatchResultBrowser extends JFrame implements ActionListener {
 				batchResults.remove(item);
 				aboutArea.setText("");
 				resultsBox.setSelectedIndex(-1);
+				// if we removed the last result we hide the indicator button
+				if (batchResults.isEmpty()) {
+					batchResultsButton.setVisible(false);
+				}
 			}
 		} else if (event.getSource().equals(reloadButton)) {
 			resultsBoxModel.setItems(batchResults.keySet().toArray());

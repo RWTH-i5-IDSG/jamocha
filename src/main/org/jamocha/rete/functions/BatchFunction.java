@@ -80,7 +80,7 @@ public class BatchFunction implements Function, Serializable {
 					if (input.matches("^[a-zA-Z]+://.*")) {
 						URL url = new URL(input);
 						inStream = url.openConnection().getInputStream();
-						// Otherwise tread it as normal file on the Filesystem
+						// Otherwise treat it as normal file on the Filesystem
 					} else {
 						inStream = new FileInputStream(new File(input));
 					}

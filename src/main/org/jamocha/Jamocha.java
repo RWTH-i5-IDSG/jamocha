@@ -1,5 +1,8 @@
 package org.jamocha;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import org.jamocha.gui.JamochaGui;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.Shell;
@@ -23,14 +26,25 @@ public class Jamocha {
 		boolean guiStarted = false;
 		boolean shellStarted = false;
 		Jamocha jamocha = new Jamocha(new Rete());
+		List<String> batchFiles = new LinkedList<String>();
 		if (null != args) {
+			boolean inBatchFiles = false;
 			for (int i = 0; i < args.length; ++i) {
-				if (args[i].equalsIgnoreCase("-gui")) {
-					jamocha.startGui();
-					guiStarted = true;
-				} else if (args[i].equalsIgnoreCase("-shell")) {
-					jamocha.startShell();
-					shellStarted = true;
+				if (args[i].startsWith("-")) {
+					inBatchFiles = false;
+				}
+				if (!inBatchFiles) {
+					if (args[i].equalsIgnoreCase("-gui")) {
+						jamocha.startGui();
+						guiStarted = true;
+					} else if (args[i].equalsIgnoreCase("-shell")) {
+						jamocha.startShell();
+						shellStarted = true;
+					} else if (args[i].equals("-batch")) {
+						inBatchFiles = true;
+					}
+				} else {
+					batchFiles.add(args[i]);
 				}
 			}
 		}
@@ -38,11 +52,18 @@ public class Jamocha {
 		// were started, we show a usage guide.
 		if (!shellStarted && !guiStarted) {
 			jamocha.showUsage();
+			return;
 		} else if (!shellStarted) {
 			// we only show the quit-button
 			jamocha.getJamochaGui().showCloseGuiMenuItem(false);
 			// a click on the x on windows or red dot on mac quits everything
 			jamocha.getJamochaGui().setExitOnClose(true);
+		}
+		if (guiStarted) {
+			// When the GUI is started we can process possible batch files
+			if (!batchFiles.isEmpty()) {
+				jamocha.getJamochaGui().processBatchFiles(batchFiles);
+			}
 		}
 	}
 
@@ -86,7 +107,11 @@ public class Jamocha {
 						+ sep
 						+ "-gui:   starts a graphical user interface."
 						+ sep
-						+ "-shell: starts a simple Shell.");
+						+ "-shell: starts a simple Shell."
+						+ sep
+						+ "-batch: processes a list of given files (separated by blanks) as batch-files."
+						+ sep
+						+ "        Attention: This only works when a GUI is started.");
 		System.exit(0);
 	}
 
