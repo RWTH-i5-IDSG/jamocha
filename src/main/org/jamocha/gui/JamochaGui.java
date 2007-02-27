@@ -35,7 +35,6 @@ import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
 import javax.swing.JButton;
-import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -81,7 +80,7 @@ public class JamochaGui extends JFrame implements ChangeListener,
 	private boolean running = true;
 
 	private JamochaMenuBar menuBar;
-
+	
 	private JButton batchResultsButton;
 
 	private JLabel logoLabel;
@@ -111,8 +110,8 @@ public class JamochaGui extends JFrame implements ChangeListener,
 	public JamochaGui(Rete engine) {
 
 		// set up the frame
-		this.setLayout(new BorderLayout());
-		this.setTitle("Jamocha");
+		setLayout(new BorderLayout());
+		setTitle("Jamocha");
 		setLookAndFeel(SYSTEM_LOOK_AND_FEEL);
 		setSizeAndLocation();
 
@@ -236,7 +235,7 @@ public class JamochaGui extends JFrame implements ChangeListener,
 			}
 		};
 	}
-
+	
 	private void setSizeAndLocation() {
 		int width = preferences.getInt("gui.width", 0);
 		int height = preferences.getInt("gui.height", 0);

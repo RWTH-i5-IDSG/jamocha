@@ -16,11 +16,13 @@
  */
 package org.jamocha.rete.functions;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
+import java.net.URL;
 
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.Expression;
@@ -70,10 +72,16 @@ public class BatchFunction implements Function, Serializable {
 		if (params != null && params.length > 0) {
 			for (int idx = 0; idx < params.length; idx++) {
 				try {
-					InputStream ins = new FileInputStream(params[idx].getValue(
-							engine).getStringValue());
-					result = this.parse(engine, ins);
-					ins.close();
+					String input = params[idx].getValue(engine).getStringValue();
+					InputStream inStream;
+					if (input.startsWith("http://")) {
+						URL url = new URL(input);
+						inStream = url.openConnection().getInputStream();
+					} else {
+						inStream = new FileInputStream(new File(input));
+					}
+					result = this.parse(engine, inStream);
+					inStream.close();
 				} catch (FileNotFoundException e) {
 				} catch (IOException e) {
 					throw new EvaluationException(e);

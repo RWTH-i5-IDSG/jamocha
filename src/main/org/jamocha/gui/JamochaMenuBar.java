@@ -132,7 +132,19 @@ public class JamochaMenuBar extends JMenuBar implements ActionListener {
 					+ "Jamocha is an open source rule engine released under the Apache Software License.\n\n"
 					+ "For more information visit http://www.jamocha.org\n\n"
 					+ "Credits for the Icons used in the GUI go to Marc James (http://www.famfamfam.com/lab/icons/silk/). They are released under a Creative Commons Attribution 2.5 License.\n\n"
-					+ "Credits for the Jamocha-Logo go to Frank RŸttgers (http://www.xele.de).";
+					+ "Credits for the Jamocha-Logo go to Frank RŸttgers (http://www.xele.de).\n\n"
+					+ "Developers (in alphabetical order):\n"
+					+ "- Alexander Wilden\n"
+					+ "- Ananda Sumadha Markus Widyadharma\n"
+					+ "- Andreas Eberhart\n" + "- Benjamin Zimmermann\n"
+					+ "- Christian Ebert\n" + "- Christoph Emonds\n"
+					+ "- Emmanuel Bonnet\n" + "- Josef-Alexander Hahn\n"
+					+ "- Karl-Heinz Krempels\n" + "- Martin Krebs\n"
+					+ "- Michael Neale\n" + "- Nikolaus Koemm\n"
+					+ "- Ory Chowaw-Liebman\n" + "- Peter Lin\n"
+					+ "- Sebastian Reinartz\n" + "- Sven Lilienthal\n"
+					+ "- Tim Niemueller\n" + "- Ulrich Loup\n"
+					+ "- Volker Wetzelaer";
 			aboutDialog = new JDialog(gui, "About Jamocha", true);
 			aboutDialog.setLocationByPlatform(true);
 			aboutDialog.setSize(500, 400);

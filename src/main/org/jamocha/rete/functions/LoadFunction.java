@@ -19,7 +19,11 @@ package org.jamocha.rete.functions;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.Serializable;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Iterator;
 import java.util.List;
 
@@ -68,8 +72,14 @@ public class LoadFunction implements Function, Serializable {
 				String input = params[idx].getValue(engine).getStringValue();
 
 				try {
-					FileInputStream fis = new FileInputStream(new File(input));
-					CLIPSParser parser = new CLIPSParser(fis);
+					InputStream inStream;
+					if (input.startsWith("http://")) {
+						URL url = new URL(input);
+						inStream = url.openConnection().getInputStream();
+					} else {
+						inStream = new FileInputStream(new File(input));
+					}
+					CLIPSParser parser = new CLIPSParser(inStream);
 					List data = parser.loadExpr();
 					Iterator itr = data.iterator();
 					while (itr.hasNext()) {
@@ -85,12 +95,17 @@ public class LoadFunction implements Function, Serializable {
 
 						engine.assertFact(fact);
 					}
+					inStream.close();
 					result = JamochaValue.TRUE;
 				} catch (FileNotFoundException e) {
 					engine.writeMessage(e.getMessage(), "t");
 				} catch (ParseException e) {
 					engine.writeMessage(e.getMessage(), "t");
 				} catch (AssertException e) {
+					engine.writeMessage(e.getMessage(), "t");
+				} catch (MalformedURLException e) {
+					engine.writeMessage(e.getMessage(), "t");
+				} catch (IOException e) {
 					engine.writeMessage(e.getMessage(), "t");
 				}
 			}
