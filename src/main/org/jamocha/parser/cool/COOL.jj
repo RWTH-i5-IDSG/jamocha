@@ -77,53 +77,17 @@ public class COOLParser/*@bgen(jjtree)*/implements Parser, COOLParserTreeConstan
 		that is a symbol which is typed, and the type is used to 
 	*/
 	private Set deftemplates = new HashSet();
-	private Rete engine = new Rete();
 	
 	public Expression nextExpression() throws ParseException {
 		return Start();
 	}
-
-	/// Get the Value of a gobal Variable
-	public JamochaValue getGlobalVar(String name)
-	{
-		return  engine.getDefglobalValue(name);
-	}
-	
-	// Set a Global Variable
-	public void setGlobalVar(String name,JamochaValue value)
-	{
-		engine.declareDefglobal(name,value);
-	}
-
-	/// Get a Function for calling from AST
-	public Function getFunction(String name)
-	{ 
-		return engine.findFunction(name); 
-	}
-
-	/// Set a Function for calling from AST
-	public void setFunction(Function func)
-	{ 
-		engine.declareFunction(func); 
-	}
-
-	public boolean addRule(Rule r)
-	{
-		if (!engine.getCurrentFocus().containsRule(r)) 
-			if (engine.getRuleCompiler().addRule(r)) 
-						return true;
-		return false;
-	}
-
-	/// Forced by engine
-	public Rete getRete()
-	{ return engine; }
 
 	public static void main(String args[])
 	{
 		boolean verbose = (args != null && args.length == 1 && "verbose".equals(args[0]));
 		if(!verbose)System.out.println("Note: For verbose output type \"java Main verbose\".\n");
 		System.out.print("COOL> ");
+		Rete engine = new Rete();
 		COOLParser p = new COOLParser(System.in);
 		try
 		{
@@ -132,7 +96,7 @@ public class COOLParser/*@bgen(jjtree)*/implements Parser, COOLParserTreeConstan
 				COOLStart n = p.Start();
 				if (n==null) System.exit(0);
 				n.dump("");
-				System.out.println(n.getValue(p.getRete()).toString());
+				System.out.println(n.getValue(engine).toString());
 			}
 		}
 		catch (Exception e)

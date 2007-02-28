@@ -52,7 +52,7 @@ public class COOLDeffunctionConstruct extends ConstructNode {
 	
 	public JamochaValue getValue(Rete engine) //throws EvaluationException
 	{
-		parser.setFunction(deffunc);
+		engine.declareFunction(deffunc);
 		return JamochaValue.TRUE;
 	};
 	

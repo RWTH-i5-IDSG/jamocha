@@ -26,7 +26,7 @@ public class COOLAnyFunction extends SimpleNode {
 		int i;
 		JamochaValue ret=null;
 		ValueParam params[] = new ValueParam[jjtGetNumChildren()];
-		Function func=parser.getFunction(name);
+		Function func=engine.findFunction(name);
 		// Return false if function not found (CLIPS does not throw exceptions here)
 		if (func==null)
 		{
@@ -39,7 +39,7 @@ public class COOLAnyFunction extends SimpleNode {
 			//ret=jjtGetChild(i).execute();
 			params[i]=new ValueParam(jjtGetChild(i).getValue(engine));
 		}
-		ret=func.executeFunction(parser.getRete(),params);
+		ret=func.executeFunction(engine,params);
 		return ret;
 	}
 }

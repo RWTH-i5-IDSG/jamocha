@@ -24,7 +24,7 @@ public class COOLTestCE extends SimpleNode {
 		int i;
 		JamochaValue ret=null;
 		ValueParam params[] = new ValueParam[jjtGetNumChildren()];
-		Function func=parser.getFunction(name);
+		Function func=engine.findFunction(name);
 		// Return false if function not found (CLIPS does not throw exceptions here)
 		if (func==null)
 		{

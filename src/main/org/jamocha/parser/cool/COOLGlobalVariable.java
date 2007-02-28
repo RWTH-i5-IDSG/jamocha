@@ -37,7 +37,7 @@ public class COOLGlobalVariable extends SimpleNode
 
 	public JamochaValue getValue(Rete engine) {
 		//return parser.getGlobalVar(name);
-		JamochaValue v=parser.getGlobalVar(name);
+		JamochaValue v=engine.getDefglobalValue(name);
 		if (v==null) return JamochaValue.NIL;
 		else return v;
 	}

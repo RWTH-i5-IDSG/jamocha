@@ -36,6 +36,6 @@ public class COOLInstance extends SimpleNode
 	}
 
 	public JamochaValue getValue(Rete engine) {
-		return parser.getGlobalVar(name);
+		return engine.getDefglobalValue(name);
 	}
 }

@@ -22,7 +22,7 @@ public class COOLGlobalAssignment extends SimpleNode {
 		int i;
 		// Global assignments have exactly one subtree with one expression
 		if (jjtGetNumChildren()==0) return JamochaValue.FALSE;
-		else  parser.setGlobalVar(name,jjtGetChild(0).getValue(engine));
+		else  engine.declareDefglobal(name,jjtGetChild(0).getValue(engine));
 		return JamochaValue.TRUE;
 	};
 
