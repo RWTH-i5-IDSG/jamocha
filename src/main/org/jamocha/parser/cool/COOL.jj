@@ -42,6 +42,7 @@ import java.util.ArrayList;
 
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.parser.JamochaType;
+import org.jamocha.parser.Parser;
 
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.Slot;
@@ -65,7 +66,7 @@ import org.jamocha.rule.*;
 	Note that productions like lists of floats or sets of types should directly produce
 	engine compatible classes or java lists, EnumSets and such.
 */
-public class COOLParser/*@bgen(jjtree)*/implements COOLParserTreeConstants/*@egen*/ {/*@bgen(jjtree)*/
+public class COOLParser/*@bgen(jjtree)*/implements Parser, COOLParserTreeConstants/*@egen*/ {/*@bgen(jjtree)*/
   protected JJTCOOLParserState jjtree = new JJTCOOLParserState();
 
 /*@egen*/

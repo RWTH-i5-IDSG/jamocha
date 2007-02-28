@@ -9,6 +9,7 @@ import java.util.List;
 import org.jamocha.parser.Expression;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.parser.JamochaType;
+import org.jamocha.parser.Parser;
 import org.jamocha.rete.BoundParam;
 import org.jamocha.rete.Deftemplate;
 import org.jamocha.rete.Function;
@@ -36,7 +37,7 @@ import org.jamocha.rule.PredicateConstraint;
 import org.jamocha.rule.RuleProperty;
 import org.jamocha.rule.TestCondition;
 
-public class CLIPSParser implements CLIPSParserConstants {
+public class CLIPSParser implements Parser, CLIPSParserConstants {
 
     public void close() {
         if (token != null) {
@@ -2163,19 +2164,6 @@ public class CLIPSParser implements CLIPSParserConstants {
     finally { jj_save(32, xla); }
   }
 
-  final private boolean jj_3_1() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_scan_token(14)) {
-    jj_scanpos = xsp;
-    if (jj_scan_token(11)) {
-    jj_scanpos = xsp;
-    if (jj_scan_token(12)) return true;
-    }
-    }
-    return false;
-  }
-
   final private boolean jj_3_29() {
     if (jj_scan_token(TILDA)) return true;
     if (jj_scan_token(IDENTIFIER)) return true;
@@ -2408,14 +2396,27 @@ public class CLIPSParser implements CLIPSParserConstants {
     return false;
   }
 
+  final private boolean jj_3_11() {
+    if (jj_scan_token(LBRACE)) return true;
+    if (jj_scan_token(RULEVERSION)) return true;
+    return false;
+  }
+
   final private boolean jj_3_7() {
     if (jj_scan_token(STRING_LITERAL)) return true;
     return false;
   }
 
-  final private boolean jj_3_11() {
-    if (jj_scan_token(LBRACE)) return true;
-    if (jj_scan_token(RULEVERSION)) return true;
+  final private boolean jj_3_1() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_scan_token(14)) {
+    jj_scanpos = xsp;
+    if (jj_scan_token(11)) {
+    jj_scanpos = xsp;
+    if (jj_scan_token(12)) return true;
+    }
+    }
     return false;
   }
 

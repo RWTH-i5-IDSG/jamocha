@@ -28,6 +28,7 @@ import java.util.Queue;
 
 import org.jamocha.parser.Expression;
 import org.jamocha.parser.JamochaValue;
+import org.jamocha.parser.ParserNotFoundException;
 import org.jamocha.rete.Rete;
 
 /**
@@ -61,7 +62,8 @@ public class MessageRouter implements Serializable {
 							messageQueue.offer(new MessageEvent(
 									MessageEvent.COMMAND, schabau.command,
 									currentChannelId));
-							JamochaValue result = schabau.command.getValue(engine);
+							JamochaValue result = schabau.command
+									.getValue(engine);
 							messageQueue.offer(new MessageEvent(
 									MessageEvent.RESULT, result,
 									currentChannelId));
@@ -170,10 +172,28 @@ public class MessageRouter implements Serializable {
 	}
 
 	public StreamChannel openChannel(String channelName,
+			InputStream inputStream, String parserName)
+			throws ParserNotFoundException {
+		return openChannel(channelName, inputStream, InterestType.MINE,
+				parserName);
+	}
+
+	public StreamChannel openChannel(String channelName,
 			InputStream inputStream, InterestType interestType) {
+		try {
+			return openChannel(channelName, inputStream, interestType, "clips");
+		} catch (ParserNotFoundException e) {
+			// ignore it here, because the default parser is always available
+		}
+		return null;
+	}
+
+	public StreamChannel openChannel(String channelName,
+			InputStream inputStream, InterestType interestType,
+			String parserName) throws ParserNotFoundException {
 		StreamChannel channel = new StreamChannelImpl(channelName + "_"
 				+ idCounter++, this, interestType);
-		channel.init(inputStream);
+		channel.init(inputStream, parserName);
 		registerChannel(channel);
 		return channel;
 	}
@@ -183,10 +203,26 @@ public class MessageRouter implements Serializable {
 	}
 
 	public StreamChannel openChannel(String channelName, Reader reader,
+			String parserName) throws ParserNotFoundException {
+		return openChannel(channelName, reader, InterestType.MINE, parserName);
+	}
+
+	public StreamChannel openChannel(String channelName, Reader reader,
 			InterestType interestType) {
+		try {
+			return openChannel(channelName, reader, interestType, "clips");
+		} catch (ParserNotFoundException e) {
+			// ignore it here, because the default parser is always available
+		}
+		return null;
+	}
+
+	public StreamChannel openChannel(String channelName, Reader reader,
+			InterestType interestType, String parserName)
+			throws ParserNotFoundException {
 		StreamChannel channel = new StreamChannelImpl(channelName + "_"
 				+ idCounter++, this, interestType);
-		channel.init(reader);
+		channel.init(reader, parserName);
 		registerChannel(channel);
 		return channel;
 	}
@@ -195,10 +231,26 @@ public class MessageRouter implements Serializable {
 		return openChannel(channelName, InterestType.MINE);
 	}
 
+	public StringChannel openChannel(String channelName, String parserName)
+			throws ParserNotFoundException {
+		return openChannel(channelName, InterestType.MINE, parserName);
+	}
+
 	public StringChannel openChannel(String channelName,
 			InterestType interestType) {
+		try {
+			return openChannel(channelName, interestType, "clips");
+		} catch (ParserNotFoundException e) {
+			// ignore it here, because the default parser is always available
+		}
+		return null;
+	}
+
+	public StringChannel openChannel(String channelName,
+			InterestType interestType, String parserName)
+			throws ParserNotFoundException {
 		StringChannel channel = new StringChannelImpl(channelName + "_"
-				+ idCounter++, this, interestType);
+				+ idCounter++, this, interestType, parserName);
 		registerChannel(channel);
 		return channel;
 	}
@@ -208,8 +260,8 @@ public class MessageRouter implements Serializable {
 			idToChannel.remove(channel.getChannelId());
 			idToMessages.remove(channel.getChannelId());
 			// If it's a StreamChannel, stop the Parser-Thread
-			if(channel instanceof StreamChannelImpl) {
-				((StreamChannelImpl)channel).close();
+			if (channel instanceof StreamChannelImpl) {
+				((StreamChannelImpl) channel).close();
 			}
 		}
 	}
@@ -217,7 +269,8 @@ public class MessageRouter implements Serializable {
 	private void registerChannel(CommunicationChannel channel) {
 		synchronized (idToChannel) {
 			idToChannel.put(channel.getChannelId(), channel);
-			idToMessages.put(channel.getChannelId(), new ArrayList<MessageEvent>());
+			idToMessages.put(channel.getChannelId(),
+					new ArrayList<MessageEvent>());
 		}
 	}
 

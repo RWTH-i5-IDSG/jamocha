@@ -7,6 +7,7 @@ import java.util.List;
 import org.jamocha.parser.Expression;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.parser.JamochaType;
+import org.jamocha.parser.Parser;
 import org.jamocha.rete.BoundParam;
 import org.jamocha.rete.Deftemplate;
 import org.jamocha.rete.Function;

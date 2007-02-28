@@ -9,6 +9,7 @@ import java.util.ArrayList;
 
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.parser.JamochaType;
+import org.jamocha.parser.Parser;
 
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.Slot;
@@ -32,7 +33,7 @@ import org.jamocha.rule.*;
 	Note that productions like lists of floats or sets of types should directly produce
 	engine compatible classes or java lists, EnumSets and such.
 */
-public class COOLParser/*@bgen(jjtree)*/implements COOLParserTreeConstants, COOLParserConstants {/*@bgen(jjtree)*/
+public class COOLParser/*@bgen(jjtree)*/implements Parser, COOLParserTreeConstants, COOLParserConstants {/*@bgen(jjtree)*/
   protected JJTCOOLParserState jjtree = new JJTCOOLParserState();
         /** Hash Table for the names known entities (rules, templates,...)
 		Clips BNF uses different tokens for semantically different symbols,
@@ -4193,16 +4194,6 @@ void WildcardParameter()  #void : {}
     finally { jj_save(19, xla); }
   }
 
-  final private boolean jj_3R_87() {
-    if (jj_3R_113()) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_94() {
-    if (jj_scan_token(DEFGLOBAL)) return true;
-    return false;
-  }
-
   final private boolean jj_3R_65() {
     if (jj_scan_token(TYPE)) return true;
     if (jj_3R_92()) return true;
@@ -4967,6 +4958,16 @@ void WildcardParameter()  #void : {}
     return false;
   }
 
+  final private boolean jj_3R_87() {
+    if (jj_3R_113()) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_94() {
+    if (jj_scan_token(DEFGLOBAL)) return true;
+    return false;
+  }
+
   public COOLParserTokenManager token_source;
   SimpleCharStream jj_input_stream;
   public Token token, jj_nt;
@@ -5279,5 +5280,10 @@ void WildcardParameter()  #void : {}
     int arg;
     JJCalls next;
   }
+
+public org.jamocha.parser.Expression nextExpression() throws org.jamocha.parser.ParseException {
+	// TODO Auto-generated method stub
+	return null;
+}
 
 }

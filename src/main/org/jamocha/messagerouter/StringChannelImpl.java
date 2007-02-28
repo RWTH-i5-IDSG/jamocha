@@ -23,20 +23,26 @@ import java.util.List;
 
 import org.jamocha.parser.Expression;
 import org.jamocha.parser.ParseException;
-import org.jamocha.parser.clips.CLIPSParser;
+import org.jamocha.parser.Parser;
+import org.jamocha.parser.ParserFactory;
+import org.jamocha.parser.ParserNotFoundException;
 import org.jamocha.parser.clips.TokenMgrError;
 
 class StringChannelImpl extends AbstractCommunicationChannel implements
 		StringChannel {
 
-	private CLIPSParser parser;
+	private String parserName;
+
+	private Parser parser;
 
 	private List<MessageEvent> alreadyReceived = new LinkedList<MessageEvent>();
 
 	public StringChannelImpl(String channelId, MessageRouter router,
-			InterestType interest) {
+			InterestType interest, String parserName)
+			throws ParserNotFoundException {
 		super(channelId, router, interest);
-		this.parser = new CLIPSParser((Reader) null);
+		this.parserName = parserName;
+		parser = ParserFactory.getParser(parserName, (Reader) null);
 	}
 
 	public void executeCommand(String commandString) {
@@ -47,7 +53,13 @@ class StringChannelImpl extends AbstractCommunicationChannel implements
 		StringReader reader = new StringReader(commandString);
 		List<MessageEvent> commandMessages = blocked ? new LinkedList<MessageEvent>()
 				: null;
-		parser.ReInit(reader);
+		try {
+			parser = ParserFactory.getParser(parserName, reader);
+		} catch (ParserNotFoundException e1) {
+			// we ignore this Exception here, because if the Parser
+			// didn't exist the constructor would already have thrown an
+			// Exception.
+		}
 		Expression command = null;
 		try {
 			alreadyReceived.clear();
@@ -85,7 +97,6 @@ class StringChannelImpl extends AbstractCommunicationChannel implements
 		} catch (TokenMgrError e) {
 			router.postMessageEvent(new MessageEvent(MessageEvent.PARSE_ERROR,
 					e, getChannelId()));
-			parser.ReInit(reader);
 		}
 	}
 

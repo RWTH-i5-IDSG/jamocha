@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.ArrayList;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.parser.JamochaType;
+import org.jamocha.parser.Parser;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.Slot;
 import org.jamocha.rete.MultiSlot;

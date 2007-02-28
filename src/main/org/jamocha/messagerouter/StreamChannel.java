@@ -19,13 +19,15 @@ package org.jamocha.messagerouter;
 import java.io.InputStream;
 import java.io.Reader;
 
-
+import org.jamocha.parser.ParserNotFoundException;
 
 public interface StreamChannel extends CommunicationChannel {
-	
-	public void init(InputStream inputStream);
-	
-	public void init(Reader reader);
-	
+
+	public void init(InputStream inputStream, String parserName)
+			throws ParserNotFoundException;
+
+	public void init(Reader reader, String parserName)
+			throws ParserNotFoundException;
+
 	public boolean isAvailable();
 }
