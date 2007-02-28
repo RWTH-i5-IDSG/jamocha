@@ -58,6 +58,7 @@ import org.jamocha.gui.icons.IconLoader;
 import org.jamocha.messagerouter.MessageEvent;
 import org.jamocha.messagerouter.StreamChannel;
 import org.jamocha.parser.JamochaValue;
+import org.jamocha.parser.ParserNotFoundException;
 import org.jamocha.rete.Constants;
 
 /**
@@ -215,8 +216,13 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 			e.printStackTrace();
 			System.exit(1);
 		}
-		channel = gui.getEngine().getMessageRouter().openChannel("JamochaGui",
-				inStream);
+		try {
+			channel = gui.getEngine().getMessageRouter().openChannel(
+					"JamochaGui", inStream, gui.getParserName());
+		} catch (ParserNotFoundException e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
 
 		printPrompt();
 		moveCursorToEnd();
@@ -412,7 +418,9 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 							if (event.getType() != MessageEvent.COMMAND
 									&& event.getMessage() != null
 									&& !event.getMessage().toString()
-											.equals("") && !event.getMessage().equals(JamochaValue.NIL)) {
+											.equals("")
+									&& !event.getMessage().equals(
+											JamochaValue.NIL)) {
 								buffer.append(event.getMessage().toString()
 										.trim()
 										+ System.getProperty("line.separator"));
@@ -445,7 +453,6 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 				gui.getEngine().getMessageRouter().closeChannel(channel);
 			}
 
-			
 		};
 		channelListener.start();
 	}
@@ -611,7 +618,7 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 							}
 							break;
 						}
-						//e.consume();
+						// e.consume();
 						startTimer();
 					} else {
 						try {

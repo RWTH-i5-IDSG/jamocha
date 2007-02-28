@@ -23,6 +23,7 @@ import org.jamocha.messagerouter.MessageEvent;
 import org.jamocha.messagerouter.MessageRouter;
 import org.jamocha.messagerouter.StreamChannel;
 import org.jamocha.parser.JamochaValue;
+import org.jamocha.parser.ParserNotFoundException;
 
 public class Shell {
 
@@ -32,9 +33,13 @@ public class Shell {
 
 	private StreamChannel channel;
 
-	public Shell(Rete engine) {
+	public Shell(Rete engine) throws ParserNotFoundException {
+		this(engine, "clips");
+	}
+
+	public Shell(Rete engine, String parserName) throws ParserNotFoundException {
 		router = engine.getMessageRouter();
-		channel = router.openChannel(CHANNELNAME, System.in);
+		channel = router.openChannel(CHANNELNAME, System.in, parserName);
 	}
 
 	public void run() {
@@ -59,7 +64,8 @@ public class Shell {
 					if (event.getType() != MessageEvent.COMMAND) {
 						if (!event.getMessage().toString().equals("")
 								&& !event.getMessage().equals(JamochaValue.NIL)) {
-							System.out.println(event.getMessage().toString().trim());
+							System.out.println(event.getMessage().toString()
+									.trim());
 						}
 					}
 				}

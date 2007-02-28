@@ -58,6 +58,7 @@ import org.jamocha.messagerouter.InterestType;
 import org.jamocha.messagerouter.MessageEvent;
 import org.jamocha.messagerouter.StringChannel;
 import org.jamocha.parser.JamochaValue;
+import org.jamocha.parser.ParserNotFoundException;
 import org.jamocha.rete.Rete;
 
 /**
@@ -77,6 +78,8 @@ public class JamochaGui extends JFrame implements ChangeListener,
 			"org.jamocha.gui");
 
 	private Rete engine;
+
+	private String parserName;
 
 	private boolean running = true;
 
@@ -102,14 +105,18 @@ public class JamochaGui extends JFrame implements ChangeListener,
 
 	private Thread batchThread;
 
+	public JamochaGui(Rete engine) {
+		this(engine, "clips");
+	}
+
 	/**
 	 * Create a GUI-Instance for Jamocha.
 	 * 
 	 * @param engine
 	 *            The Jamocha-engine that will be used in the GUI.
 	 */
-	public JamochaGui(Rete engine) {
-
+	public JamochaGui(Rete engine, String parserName) {
+		this.parserName = parserName;
 		// set up the frame
 		setLayout(new BorderLayout());
 		setTitle("Jamocha");
@@ -242,8 +249,8 @@ public class JamochaGui extends JFrame implements ChangeListener,
 			if (!files.isEmpty()) {
 				for (String file : files) {
 					getBatchChannel().executeCommand("(batch " + file + ")");
-					batchFiles.offer(file + " ("
-							+ getDatetimeFormatted() + ")");
+					batchFiles
+							.offer(file + " (" + getDatetimeFormatted() + ")");
 				}
 			}
 		}
@@ -295,6 +302,15 @@ public class JamochaGui extends JFrame implements ChangeListener,
 	}
 
 	/**
+	 * Returns the name of the Parser that should be used to parse the input.
+	 * 
+	 * @return Name of the Parser.
+	 */
+	public String getParserName() {
+		return parserName;
+	}
+
+	/**
 	 * Returns a StringChannel used for all Editors. Output will only go to the
 	 * Log.
 	 * 
@@ -302,8 +318,13 @@ public class JamochaGui extends JFrame implements ChangeListener,
 	 */
 	public StringChannel getStringChannel() {
 		if (stringChannel == null)
-			stringChannel = getEngine().getMessageRouter().openChannel(
-					"gui_string_channel", InterestType.NONE);
+			try {
+				stringChannel = getEngine().getMessageRouter().openChannel(
+						"gui_string_channel", InterestType.NONE, parserName);
+			} catch (ParserNotFoundException e) {
+				e.printStackTrace();
+				System.exit(1);
+			}
 		return stringChannel;
 	}
 
@@ -315,8 +336,13 @@ public class JamochaGui extends JFrame implements ChangeListener,
 	 */
 	public StringChannel getBatchChannel() {
 		if (batchChannel == null) {
-			batchChannel = getEngine().getMessageRouter().openChannel(
-					"gui_batch_channel");
+			try {
+				batchChannel = getEngine().getMessageRouter().openChannel(
+						"gui_batch_channel", parserName);
+			} catch (ParserNotFoundException e) {
+				e.printStackTrace();
+				System.exit(1);
+			}
 			batchThread.start();
 		}
 		return batchChannel;
