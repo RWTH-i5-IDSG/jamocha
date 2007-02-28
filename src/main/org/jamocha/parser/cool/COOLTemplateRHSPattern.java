@@ -13,14 +13,13 @@ public class COOLTemplateRHSPattern extends SimpleNode {
 	public COOLTemplateRHSPattern(COOLParser p, int id) {
 		super(p, id);
 	}
-	public JamochaValue execute() throws EvaluationException
+	public JamochaValue getValue(Rete engine) throws EvaluationException
 	{
 		Deffact fact;
-		Rete engine=parser.getRete();
 		int i;
 		Slot [] slots = new Slot[jjtGetNumChildren()];
 		// Execute children, build fact from return values (RHSPatterns return slots!!)
-		for (i=0;i<jjtGetNumChildren();i++)	slots[i]=jjtGetChild(i).execute().getSlotValue();
+		for (i=0;i<jjtGetNumChildren();i++)	slots[i]=jjtGetChild(i).getValue(engine).getSlotValue();
 		Deftemplate tmpl = (Deftemplate) engine.getCurrentFocus().getTemplate(name);
 		fact = (Deffact) tmpl.createFact(slots, -1);
 		return JamochaValue.newFact(fact);

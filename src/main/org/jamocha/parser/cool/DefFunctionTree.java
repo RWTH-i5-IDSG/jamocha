@@ -36,7 +36,7 @@ public class DefFunctionTree implements Function
 		// Multifield variables seem to by tricky in Jamocha
 		if (params.length!=myparams.length) return JamochaValue.FALSE;
 		for (i=0;i<myparams.length;i++) myparams[i].value=params[i].getValue(engine);
-		if (actions!=null) return actions.execute();
+		if (actions!=null) return actions.getValue(engine);
 		else return JamochaValue.NIL;
 	}
 

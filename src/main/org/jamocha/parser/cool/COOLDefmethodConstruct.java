@@ -2,6 +2,7 @@
 package org.jamocha.parser.cool;
 
 import org.jamocha.parser.*;
+import org.jamocha.rete.Rete;
 
 public class COOLDefmethodConstruct extends ConstructNode {
 	private long index=0;
@@ -23,7 +24,7 @@ public class COOLDefmethodConstruct extends ConstructNode {
 	};
 	public long getIndex() { return index; };
 
-	public JamochaValue execute() //throws EvaluationException
+	public JamochaValue getValue(Rete engine) //throws EvaluationException
 	{
 		return JamochaValue.TRUE;
 	};

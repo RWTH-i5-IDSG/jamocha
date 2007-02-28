@@ -6,6 +6,7 @@
 package org.jamocha.parser.cool;
 
 import org.jamocha.parser.*;
+import org.jamocha.rete.Rete;
 
 public class COOLFloat extends SimpleNode 
 {
@@ -41,7 +42,7 @@ public class COOLFloat extends SimpleNode
 		return true;
 	}
 
-	public JamochaValue execute() throws EvaluationException {
+	public JamochaValue getValue(Rete engine) throws EvaluationException {
 		return new JamochaValue(JamochaType.DOUBLE, value);
 	}
 }

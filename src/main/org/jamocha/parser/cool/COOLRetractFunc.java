@@ -2,6 +2,7 @@
 package org.jamocha.parser.cool;
 
 import org.jamocha.parser.*;
+import org.jamocha.rete.Rete;
 
 public class COOLRetractFunc extends SimpleNode {
   public COOLRetractFunc(int id) {
@@ -12,7 +13,7 @@ public class COOLRetractFunc extends SimpleNode {
     super(p, id);
   }
 
-	public JamochaValue execute() throws EvaluationException
+	public JamochaValue getValue(Rete engine) throws EvaluationException
 	{
 		return JamochaValue.FALSE;		
 	};

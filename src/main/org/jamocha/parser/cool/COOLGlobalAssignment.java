@@ -2,6 +2,7 @@
 package org.jamocha.parser.cool;
 
 import org.jamocha.parser.*;
+import org.jamocha.rete.Rete;
 
 public class COOLGlobalAssignment extends SimpleNode {
 	public COOLGlobalAssignment(int id) {
@@ -16,12 +17,12 @@ public class COOLGlobalAssignment extends SimpleNode {
 		return "Global Assignment: " + name +" =";
 	}
 
-	public JamochaValue execute() throws EvaluationException
+	public JamochaValue getValue(Rete engine) throws EvaluationException
 	{
 		int i;
 		// Global assignments have exactly one subtree with one expression
 		if (jjtGetNumChildren()==0) return JamochaValue.FALSE;
-		else  parser.setGlobalVar(name,jjtGetChild(0).execute());
+		else  parser.setGlobalVar(name,jjtGetChild(0).getValue(engine));
 		return JamochaValue.TRUE;
 	};
 

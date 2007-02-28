@@ -20,7 +20,7 @@ public class COOLTestCE extends SimpleNode {
 	{ ce=test; }
 	
 	// This just sets the function in the CE, since the function may not exist at parse time
-	public JamochaValue execute() throws EvaluationException {
+	public JamochaValue getValue(Rete engine) throws EvaluationException {
 		int i;
 		JamochaValue ret=null;
 		ValueParam params[] = new ValueParam[jjtGetNumChildren()];

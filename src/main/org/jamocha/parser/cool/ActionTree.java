@@ -18,7 +18,7 @@ public class ActionTree implements Action
 	public void executeAction(Rete engine, Fact[] facts)  
 	{
 		try
-		{ actions.execute(); 
+		{ actions.getValue(engine); 
 		} catch (Exception e){
 			System.err.println(e.getMessage());
 			e.printStackTrace();

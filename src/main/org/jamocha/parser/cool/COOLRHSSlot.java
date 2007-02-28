@@ -14,16 +14,16 @@ public class COOLRHSSlot extends SimpleNode {
 	}
 
 	// Build slots and return.
-	public JamochaValue execute() throws EvaluationException
+	public JamochaValue getValue(Rete engine) throws EvaluationException
 	{
 		if (jjtGetNumChildren()==1)
 		{	// Single Field Slot
-			return JamochaValue.newSlot(new Slot(name,jjtGetChild(0).execute()));
+			return JamochaValue.newSlot(new Slot(name,jjtGetChild(0).getValue(engine)));
 		} else
 		{	// Multifield slot
 			int i;
 			JamochaValue [] v = new JamochaValue[jjtGetNumChildren()];
-			for (i=0;i<jjtGetNumChildren();i++)	v[i]=jjtGetChild(i).execute();
+			for (i=0;i<jjtGetNumChildren();i++)	v[i]=jjtGetChild(i).getValue(engine);
 			return JamochaValue.newSlot(new MultiSlot(name,v));
 		}
 		//return JamochaValue.FALSE;		

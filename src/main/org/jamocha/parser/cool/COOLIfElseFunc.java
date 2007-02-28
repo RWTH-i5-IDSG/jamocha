@@ -15,7 +15,7 @@ public class COOLIfElseFunc extends SimpleNode {
 		super(p, id);
 	}
 
-	public JamochaValue execute() throws EvaluationException
+	public JamochaValue getValue(Rete engine) throws EvaluationException
 	{
 		// Just execute first child. More comples Nodes have to override this anyways.
 		return JamochaValue.FALSE;		

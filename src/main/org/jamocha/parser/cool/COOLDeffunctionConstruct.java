@@ -3,6 +3,7 @@ package org.jamocha.parser.cool;
 
 import org.jamocha.parser.*;
 import org.jamocha.rete.*;
+
 import java.util.ArrayList;
 
 public class COOLDeffunctionConstruct extends ConstructNode {
@@ -49,7 +50,7 @@ public class COOLDeffunctionConstruct extends ConstructNode {
 	public void hasMultiVars(boolean has)
 	{ varargs=true; }
 	
-	public JamochaValue execute() //throws EvaluationException
+	public JamochaValue getValue(Rete engine) //throws EvaluationException
 	{
 		parser.setFunction(deffunc);
 		return JamochaValue.TRUE;

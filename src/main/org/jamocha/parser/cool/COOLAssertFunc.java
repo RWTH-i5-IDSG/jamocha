@@ -14,7 +14,7 @@ public class COOLAssertFunc extends SimpleNode {
 		super(p, id);
 	}
 
-	public JamochaValue execute() throws EvaluationException
+	public JamochaValue getValue(Rete engine) throws EvaluationException
 	{
 		int i;
 		JamochaValue ret=JamochaValue.FALSE;
@@ -22,10 +22,10 @@ public class COOLAssertFunc extends SimpleNode {
 		// Children will create appropriate pattern fact (ordered or template)
 		for (i=0;i<jjtGetNumChildren();i++)	
 		{
-			ret=jjtGetChild(i).execute(); 	// Return only data for last fact, acording to CLIPS BPG
+			ret=jjtGetChild(i).getValue(engine); 	// Return only data for last fact, acording to CLIPS BPG
 			if (ret.is(JamochaType.FACT)) fact=ret.getFactValue();
 			else continue;
-			parser.getRete().assertFact((Deffact)fact);
+			engine.assertFact((Deffact)fact);
 			
 		}
 		if (fact.getFactId() > 0) return JamochaValue.newFactId(fact.getFactId());

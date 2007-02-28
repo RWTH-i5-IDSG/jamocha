@@ -2,6 +2,7 @@
 package org.jamocha.parser.cool;
 
 import org.jamocha.parser.*;
+import org.jamocha.rete.Rete;
 
 public class COOLDefglobalConstruct extends ConstructNode {
   public COOLDefglobalConstruct(int id) {
@@ -16,11 +17,11 @@ public class COOLDefglobalConstruct extends ConstructNode {
 		return "defglobal \"" + name + "\"" + "(" + doc + ")";
 	}
 
-	public JamochaValue execute() throws EvaluationException
+	public JamochaValue getValue(Rete engine) throws EvaluationException
 	{
 		int i;
 		if (jjtGetNumChildren()==0) return JamochaValue.FALSE;
-		for (i=0;i<jjtGetNumChildren();i++) jjtGetChild(i).execute();		
+		for (i=0;i<jjtGetNumChildren();i++) jjtGetChild(i).getValue(engine);		
 		return JamochaValue.TRUE;
 	};
 }

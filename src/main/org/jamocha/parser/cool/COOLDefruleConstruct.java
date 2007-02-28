@@ -58,11 +58,11 @@ public class COOLDefruleConstruct extends ConstructNode {
 	public void addCondition(Condition ce)
 	{ rule.addCondition(ce); }
 	
-	public JamochaValue execute() throws EvaluationException
+	public JamochaValue getValue(Rete engine) throws EvaluationException
 	{
 		int i;
 		for (i=0;i<jjtGetNumChildren();i++)
-			jjtGetChild(i).execute();	// Initialize Test CEs and such
+			jjtGetChild(i).getValue(engine);	// Initialize Test CEs and such
 		if (parser.addRule(rule)) return JamochaValue.TRUE;
 		else return JamochaValue.FALSE;
 	};

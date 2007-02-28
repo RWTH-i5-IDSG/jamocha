@@ -2,6 +2,7 @@
 package org.jamocha.parser.cool;
 
 import org.jamocha.parser.*;
+import org.jamocha.rete.Rete;
 
 public class COOLDefgenericConstruct extends ConstructNode {
   public COOLDefgenericConstruct(int id) {
@@ -15,7 +16,7 @@ public class COOLDefgenericConstruct extends ConstructNode {
 	public String toString() {
 		return "defgeneric \"" + name + "\"" + "(" + doc + ")";
 	}
-	public JamochaValue execute() //throws EvaluationException
+	public JamochaValue getValue(Rete engine) //throws EvaluationException
 	{
 		return JamochaValue.TRUE;
 	};

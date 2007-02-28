@@ -6,6 +6,7 @@
 package org.jamocha.parser.cool;
 
 import org.jamocha.parser.*;
+import org.jamocha.rete.Rete;
 
 public class COOLString extends SimpleNode {
 
@@ -32,7 +33,7 @@ public class COOLString extends SimpleNode {
 		return true;
 	}
 
-	public JamochaValue execute() throws EvaluationException
+	public JamochaValue getValue(Rete engine) throws EvaluationException
 	{
 		return new JamochaValue(JamochaType.STRING,name);
 	}

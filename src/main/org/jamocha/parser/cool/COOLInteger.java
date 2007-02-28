@@ -6,6 +6,7 @@
 package org.jamocha.parser.cool;
 
 import org.jamocha.parser.*;
+import org.jamocha.rete.Rete;
 
 
 public class COOLInteger extends SimpleNode 
@@ -43,7 +44,7 @@ public class COOLInteger extends SimpleNode
 		return true;
 	}
 	
-	public JamochaValue execute() throws EvaluationException {
+	public JamochaValue getValue(Rete engine) throws EvaluationException {
 		return new JamochaValue(JamochaType.LONG, value);
 	}
 }

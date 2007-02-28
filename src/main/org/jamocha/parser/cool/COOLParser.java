@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.Parser;
+import org.jamocha.parser.Expression;
 
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.Slot;
@@ -41,6 +42,10 @@ public class COOLParser/*@bgen(jjtree)*/implements Parser, COOLParserTreeConstan
 	*/
         private Set deftemplates = new HashSet();
         private Rete engine = new Rete();
+
+        public Expression nextExpression() throws ParseException {
+                return Start();
+        }
 
         /// Get the Value of a gobal Variable
         public JamochaValue getGlobalVar(String name)
@@ -91,7 +96,7 @@ public class COOLParser/*@bgen(jjtree)*/implements Parser, COOLParserTreeConstan
                                 COOLStart n = p.Start();
                                 if (n==null) System.exit(0);
                                 n.dump("");
-                                System.out.println(n.execute().toString());
+                                System.out.println(n.getValue(p.getRete()).toString());
                         }
                 }
                 catch (Exception e)
@@ -4194,23 +4199,6 @@ void WildcardParameter()  #void : {}
     finally { jj_save(19, xla); }
   }
 
-  final private boolean jj_3R_65() {
-    if (jj_scan_token(TYPE)) return true;
-    if (jj_3R_92()) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_99() {
-    if (jj_scan_token(DEFCLASS)) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_62() {
-    if (jj_scan_token(MESSAGE_HANDLER)) return true;
-    if (jj_scan_token(SYMBOL)) return true;
-    return false;
-  }
-
   final private boolean jj_3R_105() {
     if (jj_scan_token(INTEGER)) return true;
     return false;
@@ -4968,6 +4956,23 @@ void WildcardParameter()  #void : {}
     return false;
   }
 
+  final private boolean jj_3R_65() {
+    if (jj_scan_token(TYPE)) return true;
+    if (jj_3R_92()) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_99() {
+    if (jj_scan_token(DEFCLASS)) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_62() {
+    if (jj_scan_token(MESSAGE_HANDLER)) return true;
+    if (jj_scan_token(SYMBOL)) return true;
+    return false;
+  }
+
   public COOLParserTokenManager token_source;
   SimpleCharStream jj_input_stream;
   public Token token, jj_nt;
@@ -5280,10 +5285,5 @@ void WildcardParameter()  #void : {}
     int arg;
     JJCalls next;
   }
-
-public org.jamocha.parser.Expression nextExpression() throws org.jamocha.parser.ParseException {
-	// TODO Auto-generated method stub
-	return null;
-}
 
 }

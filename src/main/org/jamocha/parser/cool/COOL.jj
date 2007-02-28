@@ -43,6 +43,7 @@ import java.util.ArrayList;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.Parser;
+import org.jamocha.parser.Expression;
 
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.Slot;
@@ -78,6 +79,10 @@ public class COOLParser/*@bgen(jjtree)*/implements Parser, COOLParserTreeConstan
 	private Set deftemplates = new HashSet();
 	private Rete engine = new Rete();
 	
+	public Expression nextExpression() throws ParseException {
+		return Start();
+	}
+
 	/// Get the Value of a gobal Variable
 	public JamochaValue getGlobalVar(String name)
 	{
@@ -127,7 +132,7 @@ public class COOLParser/*@bgen(jjtree)*/implements Parser, COOLParserTreeConstan
 				COOLStart n = p.Start();
 				if (n==null) System.exit(0);
 				n.dump("");
-				System.out.println(n.execute().toString());
+				System.out.println(n.getValue(p.getRete()).toString());
 			}
 		}
 		catch (Exception e)

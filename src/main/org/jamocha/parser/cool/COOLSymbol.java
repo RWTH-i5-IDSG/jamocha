@@ -2,6 +2,7 @@
 package org.jamocha.parser.cool;
 
 import org.jamocha.parser.*;
+import org.jamocha.rete.Rete;
 
 public class COOLSymbol extends SimpleNode {
 
@@ -28,7 +29,7 @@ public class COOLSymbol extends SimpleNode {
 		return true;
 	}
 
-	public JamochaValue execute() throws EvaluationException
+	public JamochaValue getValue(Rete engine) throws EvaluationException
 	{
 		return new JamochaValue(JamochaType.IDENTIFIER,name);
 	}

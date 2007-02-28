@@ -2,6 +2,7 @@
 package org.jamocha.parser.cool;
 
 import org.jamocha.parser.*;
+import org.jamocha.rete.Rete;
 
 public class COOLActionList extends SimpleNode {
 	public COOLActionList(int id) {
@@ -12,12 +13,12 @@ public class COOLActionList extends SimpleNode {
 		super(p, id);
 	}
 
-	public JamochaValue execute() throws EvaluationException
+	public JamochaValue getValue(Rete engine) throws EvaluationException
 	{
 		int i;
 		if (jjtGetNumChildren()==0) return JamochaValue.FALSE;
-		if (jjtGetNumChildren()==1) return  jjtGetChild(0).execute();
-		for (i=0;i<jjtGetNumChildren();i++) jjtGetChild(i).execute();		
+		if (jjtGetNumChildren()==1) return  jjtGetChild(0).getValue(engine);
+		for (i=0;i<jjtGetNumChildren();i++) jjtGetChild(i).getValue(engine);		
 		return JamochaValue.TRUE;
 	};
 

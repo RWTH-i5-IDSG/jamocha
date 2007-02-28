@@ -7,6 +7,7 @@ package org.jamocha.parser.cool;
 
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
+import org.jamocha.rete.Rete;
 
 public class COOLGlobalVariable extends SimpleNode 
 {
@@ -34,7 +35,7 @@ public class COOLGlobalVariable extends SimpleNode
 		return true;
 	}
 
-	public JamochaValue execute() {
+	public JamochaValue getValue(Rete engine) {
 		//return parser.getGlobalVar(name);
 		JamochaValue v=parser.getGlobalVar(name);
 		if (v==null) return JamochaValue.NIL;

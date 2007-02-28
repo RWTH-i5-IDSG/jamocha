@@ -17,7 +17,7 @@ public class COOLOrderedRHSPattern extends SimpleNode {
 		super(p, id);
 	}
 
-	public JamochaValue execute() throws EvaluationException
+	public JamochaValue getValue(Rete engine) throws EvaluationException
 	{
 		// Not implemented in Jamocha, use Template Facts for now!
 		return JamochaValue.FALSE;		

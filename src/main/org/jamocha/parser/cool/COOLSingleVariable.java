@@ -7,6 +7,7 @@ package org.jamocha.parser.cool;
 
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
+import org.jamocha.rete.Rete;
 
 public class COOLSingleVariable extends SimpleNode 
 {
@@ -50,7 +51,7 @@ public class COOLSingleVariable extends SimpleNode
 		}
 	}
 
-	public JamochaValue execute() {
+	public JamochaValue getValue(Rete engine) {
 		return value.value;
 	}
 }

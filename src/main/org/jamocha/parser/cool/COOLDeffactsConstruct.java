@@ -3,6 +3,7 @@
 package org.jamocha.parser.cool;
 
 import org.jamocha.parser.*;
+import org.jamocha.rete.Rete;
 
 public class COOLDeffactsConstruct extends ConstructNode {
   public COOLDeffactsConstruct(int id) {
@@ -17,7 +18,7 @@ public class COOLDeffactsConstruct extends ConstructNode {
 		return "deffact \"" + name + "\"" + " (" + doc + ")";
 	}
 
-	public JamochaValue execute() //throws EvaluationException
+	public JamochaValue getValue(Rete engine) //throws EvaluationException
 	{
 		return JamochaValue.TRUE;
 	};

@@ -7,6 +7,7 @@ package org.jamocha.parser.cool;
 
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
+import org.jamocha.rete.Rete;
 
 public class COOLMultiVariable extends SimpleNode 
 {
@@ -42,7 +43,7 @@ public class COOLMultiVariable extends SimpleNode
 			if (locals[i].name.equals(name)) { value=locals[i]; return; };
 	}
 
-	public JamochaValue execute() {
+	public JamochaValue getValue(Rete engine) {
 		return value.value;
 	}
 }

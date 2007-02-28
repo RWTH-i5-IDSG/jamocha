@@ -3,6 +3,7 @@
 package org.jamocha.parser.cool;
 
 import org.jamocha.parser.*;
+import org.jamocha.rete.Rete;
 
 public class COOLBooleanSymbol extends SimpleNode 
 {
@@ -36,7 +37,7 @@ public class COOLBooleanSymbol extends SimpleNode
 		return true;
 	}
 	
-	public JamochaValue execute()
+	public JamochaValue getValue(Rete engine)
 	{
 		return new JamochaValue(JamochaType.BOOLEAN, Boolean.valueOf(value));
 	}

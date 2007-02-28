@@ -22,7 +22,7 @@ public class COOLAnyFunction extends SimpleNode {
 		return "Function \"" + name + "\"";
 	}
 
-	public JamochaValue execute() throws EvaluationException {
+	public JamochaValue getValue(Rete engine) throws EvaluationException {
 		int i;
 		JamochaValue ret=null;
 		ValueParam params[] = new ValueParam[jjtGetNumChildren()];
@@ -37,7 +37,7 @@ public class COOLAnyFunction extends SimpleNode {
 		for (i=0;i<jjtGetNumChildren();i++)
 		{
 			//ret=jjtGetChild(i).execute();
-			params[i]=new ValueParam(jjtGetChild(i).execute());
+			params[i]=new ValueParam(jjtGetChild(i).getValue(engine));
 		}
 		ret=func.executeFunction(parser.getRete(),params);
 		return ret;

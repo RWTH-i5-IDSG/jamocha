@@ -30,12 +30,11 @@ public class COOLDeftemplateConstruct extends ConstructNode {
 		s.setId(slots.size());
 		slots.add(s);
 	}
-	public JamochaValue execute() //throws EvaluationException
+	public JamochaValue getValue(Rete engine) //throws EvaluationException
 	{
 	    Slot [] s = new Slot[slots.size()];
 		slots.toArray(s);
 		Deftemplate tpl = new Deftemplate(name,null,s);
-		Rete engine=parser.getRete();
 		Module mod = tpl.checkName(engine);
 		if (mod == null) mod = engine.getCurrentFocus();
 		mod.addTemplate(tpl, engine, engine.getWorkingMemory());
