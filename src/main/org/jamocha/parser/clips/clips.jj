@@ -165,8 +165,10 @@ TOKEN :
 | < SYMBOL: "symbol" >
 | < TEST: "test" >
 | < TRUE: "TRUE" >
+| < TRUE2: "true" >
 | < TYPEDEF: "type" >
 | < FALSE: "FALSE" >
+| < FALSE2: "false" >
 | < NIL: "nil" >
 | < ARROW: "=>" >
 | < ASSIGN: "<-" >
@@ -192,7 +194,7 @@ TOKEN :
 | < OR1: "or" >
 | < OR2: "|" >
 | < TILDA: "~" >
-| < IDENTIFIER: (<LETTER>|"_") (<LETTER>|<DIGIT>|["_",":","-","$","."])* >
+| < IDENTIFIER: (<LETTER>|"_") (<LETTER>|<DIGIT>|["_",":","-","$",".","@","~"])* >
 |
   < LETTER:
       [
@@ -541,7 +543,19 @@ void valueParams(List list) :
     list.add(vp);
   }
 |
+  exp = <TRUE2>
+  {
+    vp = new ValueParam(JamochaValue.TRUE);
+    list.add(vp);
+  }
+|
   exp = <FALSE>
+  {
+    vp = new ValueParam(JamochaValue.FALSE);
+    list.add(vp);
+  }
+|
+  exp = <FALSE2>
   {
     vp = new ValueParam(JamochaValue.FALSE);
     list.add(vp);
@@ -1064,7 +1078,17 @@ boolean trueFalse() :
     return true;
   }
 |
+  <TRUE2>
+  {
+    return true;
+  }
+|
   <FALSE>
+  {
+    return false;
+  }
+|
+  <FALSE2>
   {
     return false;
   }

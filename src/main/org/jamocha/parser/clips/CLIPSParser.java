@@ -315,7 +315,9 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
       case BIND3:
       case BIND4:
       case TRUE:
+      case TRUE2:
       case FALSE:
+      case FALSE2:
       case IDENTIFIER:
       case PATH_LITERAL:
         label_4:
@@ -330,7 +332,9 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
           case BIND3:
           case BIND4:
           case TRUE:
+          case TRUE2:
           case FALSE:
+          case FALSE2:
           case IDENTIFIER:
           case PATH_LITERAL:
             ;
@@ -459,7 +463,9 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
         case BIND3:
         case BIND4:
         case TRUE:
+        case TRUE2:
         case FALSE:
+        case FALSE2:
         case IDENTIFIER:
         case PATH_LITERAL:
           ;
@@ -550,7 +556,9 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
         case BIND3:
         case BIND4:
         case TRUE:
+        case TRUE2:
         case FALSE:
+        case FALSE2:
         case IDENTIFIER:
         case PATH_LITERAL:
           ;
@@ -577,7 +585,9 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
       case BIND3:
       case BIND4:
       case TRUE:
+      case TRUE2:
       case FALSE:
+      case FALSE2:
       case IDENTIFIER:
       case PATH_LITERAL:
         label_9:
@@ -592,7 +602,9 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
           case BIND3:
           case BIND4:
           case TRUE:
+          case TRUE2:
           case FALSE:
+          case FALSE2:
           case IDENTIFIER:
           case PATH_LITERAL:
             ;
@@ -654,8 +666,18 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
     vp = new ValueParam(JamochaValue.TRUE);
     list.add(vp);
         break;
+      case TRUE2:
+        exp = jj_consume_token(TRUE2);
+    vp = new ValueParam(JamochaValue.TRUE);
+    list.add(vp);
+        break;
       case FALSE:
         exp = jj_consume_token(FALSE);
+    vp = new ValueParam(JamochaValue.FALSE);
+    list.add(vp);
+        break;
+      case FALSE2:
+        exp = jj_consume_token(FALSE2);
     vp = new ValueParam(JamochaValue.FALSE);
     list.add(vp);
         break;
@@ -772,7 +794,9 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
     case BIND3:
     case BIND4:
     case TRUE:
+    case TRUE2:
     case FALSE:
+    case FALSE2:
     case IDENTIFIER:
     case PATH_LITERAL:
       body = checkMultiSlot();
@@ -854,7 +878,9 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
       case BIND3:
       case BIND4:
       case TRUE:
+      case TRUE2:
       case FALSE:
+      case FALSE2:
       case IDENTIFIER:
       case PATH_LITERAL:
         body = slotValueType();
@@ -890,7 +916,9 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
     {if (true) return body;}
       break;
     case TRUE:
+    case TRUE2:
     case FALSE:
+    case FALSE2:
       bval = trueFalse();
     {if (true) return bval?JamochaValue.TRUE:JamochaValue.FALSE;}
       break;
@@ -1296,8 +1324,16 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
       jj_consume_token(TRUE);
     {if (true) return true;}
       break;
+    case TRUE2:
+      jj_consume_token(TRUE2);
+    {if (true) return true;}
+      break;
     case FALSE:
       jj_consume_token(FALSE);
+    {if (true) return false;}
+      break;
+    case FALSE2:
+      jj_consume_token(FALSE2);
     {if (true) return false;}
       break;
     default:
@@ -1668,7 +1704,9 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
     }
         break;
       case TRUE:
+      case TRUE2:
       case FALSE:
+      case FALSE2:
         bval = trueFalse();
     vc = new LiteralConstraint();
       vc.setName(identifier.image);
@@ -2164,6 +2202,87 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
     finally { jj_save(32, xla); }
   }
 
+  final private boolean jj_3_8() {
+    if (jj_scan_token(LBRACE)) return true;
+    if (jj_scan_token(DECLARE)) return true;
+    return false;
+  }
+
+  final private boolean jj_3_32() {
+    if (jj_scan_token(IDENTIFIER)) return true;
+    return false;
+  }
+
+  final private boolean jj_3_23() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_scan_token(14)) {
+    jj_scanpos = xsp;
+    if (jj_scan_token(11)) {
+    jj_scanpos = xsp;
+    if (jj_scan_token(12)) return true;
+    }
+    }
+    if (jj_scan_token(OR2)) return true;
+    return false;
+  }
+
+  final private boolean jj_3_16() {
+    if (jj_scan_token(LBRACE)) return true;
+    if (jj_scan_token(NOAGENDA)) return true;
+    return false;
+  }
+
+  final private boolean jj_3_3() {
+    if (jj_scan_token(IDENTIFIER)) return true;
+    if (jj_scan_token(IDENTIFIER)) return true;
+    return false;
+  }
+
+  final private boolean jj_3_15() {
+    if (jj_scan_token(LBRACE)) return true;
+    if (jj_scan_token(CHAININGDIRECTION)) return true;
+    return false;
+  }
+
+  final private boolean jj_3_26() {
+    if (jj_scan_token(TILDA)) return true;
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_scan_token(14)) {
+    jj_scanpos = xsp;
+    if (jj_scan_token(11)) {
+    jj_scanpos = xsp;
+    if (jj_scan_token(12)) return true;
+    }
+    }
+    if (jj_scan_token(AND2)) return true;
+    return false;
+  }
+
+  final private boolean jj_3_17() {
+    if (jj_scan_token(BIND)) return true;
+    return false;
+  }
+
+  final private boolean jj_3_14() {
+    if (jj_scan_token(LBRACE)) return true;
+    if (jj_scan_token(EXPIRATION)) return true;
+    return false;
+  }
+
+  final private boolean jj_3_22() {
+    if (jj_scan_token(TILDA)) return true;
+    if (jj_scan_token(BIND)) return true;
+    return false;
+  }
+
+  final private boolean jj_3_13() {
+    if (jj_scan_token(LBRACE)) return true;
+    if (jj_scan_token(EFFECTIVE)) return true;
+    return false;
+  }
+
   final private boolean jj_3_29() {
     if (jj_scan_token(TILDA)) return true;
     if (jj_scan_token(IDENTIFIER)) return true;
@@ -2184,9 +2303,9 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
     return false;
   }
 
-  final private boolean jj_3_10() {
+  final private boolean jj_3_12() {
     if (jj_scan_token(LBRACE)) return true;
-    if (jj_scan_token(AUTOFOCUS)) return true;
+    if (jj_scan_token(REMEMBERMATCH)) return true;
     return false;
   }
 
@@ -2209,15 +2328,19 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
     return false;
   }
 
-  final private boolean jj_3_6() {
-    if (jj_scan_token(LBRACE)) return true;
-    if (jj_scan_token(MULTISLOT)) return true;
+  final private boolean jj_3_7() {
+    if (jj_scan_token(STRING_LITERAL)) return true;
     return false;
   }
 
-  final private boolean jj_3_9() {
+  final private boolean jj_3_11() {
     if (jj_scan_token(LBRACE)) return true;
-    if (jj_scan_token(SALIENCE)) return true;
+    if (jj_scan_token(RULEVERSION)) return true;
+    return false;
+  }
+
+  final private boolean jj_3_2() {
+    if (jj_scan_token(LBRACE)) return true;
     return false;
   }
 
@@ -2231,9 +2354,9 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
     return false;
   }
 
-  final private boolean jj_3_4() {
-    if (jj_scan_token(STRING_LITERAL)) return true;
-    if (jj_scan_token(STRING_LITERAL)) return true;
+  final private boolean jj_3_10() {
+    if (jj_scan_token(LBRACE)) return true;
+    if (jj_scan_token(AUTOFOCUS)) return true;
     return false;
   }
 
@@ -2250,15 +2373,9 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
     return false;
   }
 
-  final private boolean jj_3_5() {
+  final private boolean jj_3_6() {
     if (jj_scan_token(LBRACE)) return true;
-    if (jj_scan_token(SLOT)) return true;
-    return false;
-  }
-
-  final private boolean jj_3_8() {
-    if (jj_scan_token(LBRACE)) return true;
-    if (jj_scan_token(DECLARE)) return true;
+    if (jj_scan_token(MULTISLOT)) return true;
     return false;
   }
 
@@ -2296,9 +2413,9 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
     return false;
   }
 
-  final private boolean jj_3_16() {
+  final private boolean jj_3_9() {
     if (jj_scan_token(LBRACE)) return true;
-    if (jj_scan_token(NOAGENDA)) return true;
+    if (jj_scan_token(SALIENCE)) return true;
     return false;
   }
 
@@ -2316,97 +2433,6 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
     return false;
   }
 
-  final private boolean jj_3_3() {
-    if (jj_scan_token(IDENTIFIER)) return true;
-    if (jj_scan_token(IDENTIFIER)) return true;
-    return false;
-  }
-
-  final private boolean jj_3_15() {
-    if (jj_scan_token(LBRACE)) return true;
-    if (jj_scan_token(CHAININGDIRECTION)) return true;
-    return false;
-  }
-
-  final private boolean jj_3_32() {
-    if (jj_scan_token(IDENTIFIER)) return true;
-    return false;
-  }
-
-  final private boolean jj_3_23() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_scan_token(14)) {
-    jj_scanpos = xsp;
-    if (jj_scan_token(11)) {
-    jj_scanpos = xsp;
-    if (jj_scan_token(12)) return true;
-    }
-    }
-    if (jj_scan_token(OR2)) return true;
-    return false;
-  }
-
-  final private boolean jj_3_14() {
-    if (jj_scan_token(LBRACE)) return true;
-    if (jj_scan_token(EXPIRATION)) return true;
-    return false;
-  }
-
-  final private boolean jj_3_2() {
-    if (jj_scan_token(LBRACE)) return true;
-    return false;
-  }
-
-  final private boolean jj_3_13() {
-    if (jj_scan_token(LBRACE)) return true;
-    if (jj_scan_token(EFFECTIVE)) return true;
-    return false;
-  }
-
-  final private boolean jj_3_26() {
-    if (jj_scan_token(TILDA)) return true;
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_scan_token(14)) {
-    jj_scanpos = xsp;
-    if (jj_scan_token(11)) {
-    jj_scanpos = xsp;
-    if (jj_scan_token(12)) return true;
-    }
-    }
-    if (jj_scan_token(AND2)) return true;
-    return false;
-  }
-
-  final private boolean jj_3_17() {
-    if (jj_scan_token(BIND)) return true;
-    return false;
-  }
-
-  final private boolean jj_3_12() {
-    if (jj_scan_token(LBRACE)) return true;
-    if (jj_scan_token(REMEMBERMATCH)) return true;
-    return false;
-  }
-
-  final private boolean jj_3_22() {
-    if (jj_scan_token(TILDA)) return true;
-    if (jj_scan_token(BIND)) return true;
-    return false;
-  }
-
-  final private boolean jj_3_11() {
-    if (jj_scan_token(LBRACE)) return true;
-    if (jj_scan_token(RULEVERSION)) return true;
-    return false;
-  }
-
-  final private boolean jj_3_7() {
-    if (jj_scan_token(STRING_LITERAL)) return true;
-    return false;
-  }
-
   final private boolean jj_3_1() {
     Token xsp;
     xsp = jj_scanpos;
@@ -2417,6 +2443,18 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
     if (jj_scan_token(12)) return true;
     }
     }
+    return false;
+  }
+
+  final private boolean jj_3_4() {
+    if (jj_scan_token(STRING_LITERAL)) return true;
+    if (jj_scan_token(STRING_LITERAL)) return true;
+    return false;
+  }
+
+  final private boolean jj_3_5() {
+    if (jj_scan_token(LBRACE)) return true;
+    if (jj_scan_token(SLOT)) return true;
     return false;
   }
 
@@ -2433,10 +2471,12 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
   static private int[] jj_la1_0;
   static private int[] jj_la1_1;
   static private int[] jj_la1_2;
+  static private int[] jj_la1_3;
   static {
       jj_la1_0();
       jj_la1_1();
       jj_la1_2();
+      jj_la1_3();
    }
    private static void jj_la1_0() {
       jj_la1_0 = new int[] {0x68201,0x200,0x5800,0x200,0x200,0x8800,0x6da00,0x6da00,0x68000,0x68000,0x4000,0x28680000,0x200,0x6da00,0x0,0x6da00,0x6da00,0x6da00,0x28680000,0x6d800,0x68000,0x200,0x6d800,0x5800,0x5800,0x6d800,0x6d800,0x5800,0x200,0x200,0x100000,0x8200,0x8200,0x0,0x200,0x200,0x200,0x200,0x200,0x200,0x200,0x0,0x0,0x0,0x0,0x0,0x5800,0x5800,0x5800,0x0,0x0,0x200,0x200,0xd800,};
@@ -2445,7 +2485,10 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
       jj_la1_1 = new int[] {0x0,0x0,0x0,0x0,0x0,0x0,0x80000000,0x80000000,0x0,0x0,0x0,0x40801c,0x0,0x80000000,0x0,0x80000000,0x80000000,0x80000000,0x40801c,0x80000000,0x0,0x0,0x80000000,0x0,0x0,0x80000000,0x80000000,0x0,0x0,0x0,0x34005840,0x0,0x0,0x80000000,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x40100080,0x0,0x0,0x0,0x0,0x80000000,0x0,0x0,0x0,0x0,0x0,0x0,0x0,};
    }
    private static void jj_la1_2() {
-      jj_la1_2 = new int[] {0x0,0x0,0x40000000,0x0,0x0,0x0,0x48000002,0x48000002,0x0,0x0,0x0,0x80fffc0,0x0,0x48000002,0xfffc0,0x48000002,0x48000002,0x48000002,0x80fffc0,0x48000002,0x0,0x0,0x48000002,0x48000000,0x48000000,0x48000002,0x48000002,0x48000000,0x0,0x0,0x0,0x0,0x0,0x2,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x8400000,0x2000000,0x2000000,0x800000,0x800000,0x40000002,0x40000000,0x40000000,0xfffc0,0x80fffc0,0x0,0x0,0x48000000,};
+      jj_la1_2 = new int[] {0x0,0x0,0x0,0x0,0x0,0x0,0x2000000d,0x2000000d,0x0,0x0,0x0,0x203fff00,0x0,0x2000000d,0x3fff00,0x2000000d,0x2000000d,0x2000000d,0x203fff00,0x2000000d,0x0,0x0,0x2000000d,0x20000000,0x20000000,0x2000000d,0x2000000d,0x20000000,0x0,0x0,0x0,0x0,0x0,0xd,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x21000000,0x8000000,0x8000000,0x2000000,0x2000000,0xd,0x0,0x0,0x3fff00,0x203fff00,0x0,0x0,0x20000000,};
+   }
+   private static void jj_la1_3() {
+      jj_la1_3 = new int[] {0x0,0x0,0x1,0x0,0x0,0x0,0x1,0x1,0x0,0x0,0x0,0x0,0x0,0x1,0x0,0x1,0x1,0x1,0x0,0x1,0x0,0x0,0x1,0x1,0x1,0x1,0x1,0x1,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x1,0x1,0x1,0x0,0x0,0x0,0x0,0x1,};
    }
   final private JJCalls[] jj_2_rtns = new JJCalls[33];
   private boolean jj_rescan = false;
@@ -2616,8 +2659,8 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
 
   public ParseException generateParseException() {
     jj_expentries.removeAllElements();
-    boolean[] la1tokens = new boolean[95];
-    for (int i = 0; i < 95; i++) {
+    boolean[] la1tokens = new boolean[97];
+    for (int i = 0; i < 97; i++) {
       la1tokens[i] = false;
     }
     if (jj_kind >= 0) {
@@ -2636,10 +2679,13 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
           if ((jj_la1_2[i] & (1<<j)) != 0) {
             la1tokens[64+j] = true;
           }
+          if ((jj_la1_3[i] & (1<<j)) != 0) {
+            la1tokens[96+j] = true;
+          }
         }
       }
     }
-    for (int i = 0; i < 95; i++) {
+    for (int i = 0; i < 97; i++) {
       if (la1tokens[i]) {
         jj_expentry = new int[1];
         jj_expentry[0] = i;

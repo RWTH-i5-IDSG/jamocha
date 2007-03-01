@@ -61,37 +61,39 @@ public interface CLIPSParserConstants {
   int SYMBOL = 61;
   int TEST = 62;
   int TRUE = 63;
-  int TYPEDEF = 64;
-  int FALSE = 65;
-  int NIL = 66;
-  int ARROW = 67;
-  int ASSIGN = 68;
-  int SEMICOLON = 69;
-  int PLUS = 70;
-  int MINUS = 71;
-  int MULTIPLY = 72;
-  int DIVIDE = 73;
-  int GT1 = 74;
-  int GT2 = 75;
-  int LT1 = 76;
-  int LT2 = 77;
-  int EQ1 = 78;
-  int EQ2 = 79;
-  int LE1 = 80;
-  int LE2 = 81;
-  int GE1 = 82;
-  int GE2 = 83;
-  int NE1 = 84;
-  int NE2 = 85;
-  int AND1 = 86;
-  int AND2 = 87;
-  int OR1 = 88;
-  int OR2 = 89;
-  int TILDA = 90;
-  int IDENTIFIER = 91;
-  int LETTER = 92;
-  int DIGIT = 93;
-  int PATH_LITERAL = 94;
+  int TRUE2 = 64;
+  int TYPEDEF = 65;
+  int FALSE = 66;
+  int FALSE2 = 67;
+  int NIL = 68;
+  int ARROW = 69;
+  int ASSIGN = 70;
+  int SEMICOLON = 71;
+  int PLUS = 72;
+  int MINUS = 73;
+  int MULTIPLY = 74;
+  int DIVIDE = 75;
+  int GT1 = 76;
+  int GT2 = 77;
+  int LT1 = 78;
+  int LT2 = 79;
+  int EQ1 = 80;
+  int EQ2 = 81;
+  int LE1 = 82;
+  int LE2 = 83;
+  int GE1 = 84;
+  int GE2 = 85;
+  int NE1 = 86;
+  int NE2 = 87;
+  int AND1 = 88;
+  int AND2 = 89;
+  int OR1 = 90;
+  int OR2 = 91;
+  int TILDA = 92;
+  int IDENTIFIER = 93;
+  int LETTER = 94;
+  int DIGIT = 95;
+  int PATH_LITERAL = 96;
 
   int DEFAULT = 0;
   int IN_COMMENT = 1;
@@ -161,8 +163,10 @@ public interface CLIPSParserConstants {
     "\"symbol\"",
     "\"test\"",
     "\"TRUE\"",
+    "\"true\"",
     "\"type\"",
     "\"FALSE\"",
+    "\"false\"",
     "\"nil\"",
     "\"=>\"",
     "\"<-\"",
