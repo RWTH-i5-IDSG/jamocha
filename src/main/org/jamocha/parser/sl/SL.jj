@@ -32,7 +32,7 @@ options {
 //  DEBUG_TOKEN_MANAGER=true;
     CHOICE_AMBIGUITY_CHECK = 2;
     OTHER_AMBIGUITY_CHECK = 2;
-    LOOKAHEAD=2;
+    LOOKAHEAD=3;
 	STATIC = false;
 }
 
