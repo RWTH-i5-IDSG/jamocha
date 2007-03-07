@@ -5,7 +5,7 @@
 	of the source code, while the grammar is as close as possible to the specifications.
 	This uses lots of rules which do not create nodes...
 	
-	The Actions of the grammar productions make certain assumptions about the nodes created.
+	The Actions  the grammar productions make certain assumptions about the nodes created.
 	The following methods should be required by the SimpleNode interface:
 		-setName
 		-getName
@@ -29,7 +29,6 @@ options {
 	STATIC=false;
 	NODE_PREFIX="COOL";
 	NODE_USES_PARSER=true;
-	
 }
 
 /* Java code used for the Parser. */
@@ -133,14 +132,19 @@ TOKEN :
 {
   < LBRACE: "(" >
 | < RBRACE: ")" >| < GE1: ">=" >
-| < INTEGER: ["0"-"9"] (["0"-"9"])* >
+| < #DIGIT: ["0"-"9"] >
+| < INTEGER: (<DIGIT>)+ >
 |
   < FLOAT:
-        (["0"-"9"])+ "." (["0"-"9"])* (<EXPONENT>)?
-      | "." (["0"-"9"])+ (<EXPONENT>)?
-      | (["0"-"9"])+ <EXPONENT>
+        (<DIGIT>)+ "." (<DIGIT>)* (<EXPONENT>)?
+      | "." (<DIGIT>)+ (<EXPONENT>)?
+      | (<DIGIT>)+ <EXPONENT>
   >
-| < #EXPONENT: ["e","E"] (["+","-"])? (["0"-"9"])+ >
+| < #EXPONENT: ["e","E"] (["+","-"])? (<DIGIT>)+ >
+| < #GMT_OFFSET: ("+"|"-")? <DIGIT> (<DIGIT>)? >
+| < #DATE: <DIGIT> <DIGIT> <DIGIT> <DIGIT> "-" <DIGIT> <DIGIT> "-" <DIGIT> <DIGIT> >
+| < #TIME: <DIGIT> <DIGIT> ":" <DIGIT> <DIGIT> ( ":" <DIGIT> <DIGIT>)? >
+| < DATETIME: <DATE> ( <TIME> (<GMT_OFFSET>)? )? >
 |
   < STRING:
       ("\"" ((~["\"","\\"]) | ("\\" ( ["\\","\""] )))* "\"") |
@@ -200,6 +204,7 @@ TOKEN :
 | < VARIABLE_TYPE: "?VARIABLE" >
 | < SYMBOL_TYPE: "SYMBOL" >
 | < STRING_TYPE: "STRING" >
+| < DATETIME_TYPE: "DATETIME" >
 | < LEXEME_TYPE: "LEXEME" >
 | < INTEGER_TYPE: "INTEGER" >
 | < FLOAT_TYPE: "FLOAT" >
@@ -320,8 +325,9 @@ COOLStart Start() : {}
 /*
 <number> ::= <float> | <integer> 
 <lexeme> ::= <symbol> | <string>
-<constant> ::= <symbol> | <string> | <integer> | <float> | <instance-name>
+<constant> ::= <datetime> | <symbol> | <string> | <integer> | <float> | <instance-name>
 */
+
 
 Node Float() : { Token t; }
 {
@@ -332,7 +338,6 @@ Node Float() : { Token t; }
 	}
 }
 
-
 Node Integer() : { Token t; }
 {
 	t=<INTEGER>
@@ -341,6 +346,16 @@ Node Integer() : { Token t; }
 		return jjtThis;
 	}
 }
+
+Node DateTime() : { Token t; }
+{
+	t=<DATETIME>
+	{
+		jjtThis.setName(t.image);
+		return jjtThis;
+	}
+}
+
 
 Node Number() #void : { Node n; }
 {	
@@ -368,6 +383,7 @@ Node String() : { Token t; }
 
 }
 
+
 Node Lexeme() #void : { Node n; }
 {	
 	(	n=String()
@@ -386,7 +402,9 @@ Node Instance() : { Token t; }
 
 Node Constant() #void:{ Node n; }
 { 	
-	(	n=Symbol()
+	(
+		n=DateTime()
+	|   n=Symbol()
 	|	n=String()
 	|	n=Integer()
 	|	n=Float()
@@ -1697,6 +1715,7 @@ void AllowedType()  #void : {}
 {
 	(	<SYMBOL_TYPE>
 	|	<STRING_TYPE>
+	|	<DATETIME_TYPE>	
 	|	<LEXEME_TYPE>
 	| 	<INTEGER_TYPE>
 	| 	<FLOAT_TYPE>
