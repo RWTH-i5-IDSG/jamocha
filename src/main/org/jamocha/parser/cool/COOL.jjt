@@ -19,7 +19,7 @@
 	
 	Created Nov. 8th, 2006, at the Agent Technologies Practical 2006 at Aachen Technical University.
 	
-	@author Ory Chowaw-Liebman
+	@author Ory Chowaw-Liebman 
 	@author Ulrich Loup
 	@todo Can probably be optimized a bit
 */
@@ -44,6 +44,8 @@ import java.util.ArrayList;
 
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.parser.JamochaType;
+import org.jamocha.parser.Parser;
+import org.jamocha.parser.Expression;
 
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.Slot;
@@ -67,73 +69,43 @@ import org.jamocha.rule.*;
 	Note that productions like lists of floats or sets of types should directly produce
 	engine compatible classes or java lists, EnumSets and such.
 */
-public class COOLParser {
+public class COOLParser implements Parser{
 
 	/** Hash Table for the names known entities (rules, templates,...)
 		Clips BNF uses different tokens for semantically different symbols,
 		that is a symbol which is typed, and the type is used to 
 	*/
-	private Set deftemplates = new HashSet();
-	private Rete engine = new Rete();
-	
-	/// Get the Value of a gobal Variable
-	public JamochaValue getGlobalVar(String name)
-	{
-		return  engine.getDefglobalValue(name);
-	}
-	
-	// Set a Global Variable
-	public void setGlobalVar(String name,JamochaValue value)
-	{
-		engine.declareDefglobal(name,value);
-	}
+        private Set deftemplates = new HashSet();
 
-	/// Get a Function for calling from AST
-	public Function getFunction(String name)
-	{ 
-		return engine.findFunction(name); 
-	}
+        public Expression nextExpression() throws ParseException {
+                return Start();
+        }
 
-	/// Set a Function for calling from AST
-	public void setFunction(Function func)
-	{ 
-		engine.declareFunction(func); 
-	}
+        public static void main(String args[])
+        {
+                boolean verbose = (args != null && args.length == 1 && "verbose".equals(args[0]));
+                if(!verbose)System.out.println("Note: For verbose output type \"java Main verbose\".\n");
+                System.out.print("COOL> ");
+                Rete engine = new Rete();
+                COOLParser p = new COOLParser(System.in);
+                try
+                {
+                while (true)
+                        {
+                                COOLStart n = p.Start();
+                                if (n==null) System.exit(0);
+                                n.dump("");
+                                System.out.println(n.getValue(engine).toString());
+                        }
+                }
+                catch (Exception e)
+                {
+                        System.err.println("ERROR: " + e.getMessage());
+                        if(verbose)e.printStackTrace();
+                }
+        }
 
-	public boolean addRule(Rule r)
-	{
-		if (!engine.getCurrentFocus().containsRule(r)) 
-			if (engine.getRuleCompiler().addRule(r)) 
-						return true;
-		return false;
-	}
 
-	/// Forced by engine
-	public Rete getRete()
-	{ return engine; }
-
-	public static void main(String args[])
-	{
-		boolean verbose = (args != null && args.length == 1 && "verbose".equals(args[0]));
-		if(!verbose)System.out.println("Note: For verbose output type \"java Main verbose\".\n");
-		System.out.print("COOL> ");
-		COOLParser p = new COOLParser(System.in);
-		try
-		{
-		while (true)
-			{
-				COOLStart n = p.Start();
-				if (n==null) System.exit(0);
-				n.dump("");
-				System.out.println(n.execute().toString());
-			}
-		}
-		catch (Exception e)
-		{
-			System.err.println("ERROR: " + e.getMessage());
-			if(verbose)e.printStackTrace();
-		}
-	}
 
 }
 

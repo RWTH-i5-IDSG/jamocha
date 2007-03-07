@@ -34,7 +34,7 @@ import org.jamocha.rule.*;
 	Note that productions like lists of floats or sets of types should directly produce
 	engine compatible classes or java lists, EnumSets and such.
 */
-public class COOLParser/*@bgen(jjtree)*/implements Parser, COOLParserTreeConstants, COOLParserConstants {/*@bgen(jjtree)*/
+public class COOLParser implements/*@bgen(jjtree)*/ COOLParserTreeConstants,Parser, COOLParserConstants {/*@bgen(jjtree)*/
   protected JJTCOOLParserState jjtree = new JJTCOOLParserState();
         /** Hash Table for the names known entities (rules, templates,...)
 		Clips BNF uses different tokens for semantically different symbols,
@@ -4163,11 +4163,6 @@ void WildcardParameter()  #void : {}
     finally { jj_save(19, xla); }
   }
 
-  final private boolean jj_3R_100() {
-    if (jj_scan_token(DEFMESSAGEHANDLER)) return true;
-    return false;
-  }
-
   final private boolean jj_3R_50() {
     if (jj_scan_token(LBRACE)) return true;
     Token xsp;
@@ -4934,6 +4929,11 @@ void WildcardParameter()  #void : {}
 
   final private boolean jj_3_4() {
     if (jj_3R_53()) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_100() {
+    if (jj_scan_token(DEFMESSAGEHANDLER)) return true;
     return false;
   }
 
