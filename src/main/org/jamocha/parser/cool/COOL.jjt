@@ -144,7 +144,7 @@ TOKEN :
 | < #GMT_OFFSET: ("+"|"-")? <DIGIT> (<DIGIT>)? >
 | < #DATE: <DIGIT> <DIGIT> <DIGIT> <DIGIT> "-" <DIGIT> <DIGIT> "-" <DIGIT> <DIGIT> >
 | < #TIME: <DIGIT> <DIGIT> ":" <DIGIT> <DIGIT> ( ":" <DIGIT> <DIGIT>)? >
-| < DATETIME: <DATE> ( <TIME> (<GMT_OFFSET>)? )? >
+| < DATETIME: "\"" <DATE> ( " " <TIME> (<GMT_OFFSET>)? )? "\"" > 
 |
   < STRING:
       ("\"" ((~["\"","\\"]) | ("\\" ( ["\\","\""] )))* "\"") |
