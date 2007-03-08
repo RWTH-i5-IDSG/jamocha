@@ -58,7 +58,7 @@ public class Between implements Function, Serializable {
 	public JamochaValue executeFunction(Rete engine, Parameter[] params)
 			throws EvaluationException {
 		if (params != null) {
-			if (params.length > 2) {
+			if (params.length == 3) {
 				long p1 = params[0].getValue(engine).getDateValue().getTimeInMillis();
 				long p2 = params[1].getValue(engine).getDateValue().getTimeInMillis();
 				long p3 = params[2].getValue(engine).getDateValue().getTimeInMillis();
@@ -78,9 +78,9 @@ public class Between implements Function, Serializable {
 	}
 
 	public String toPPString(Parameter[] params, int indents) {
-		if (params != null && params.length > 0) {
+		if (params != null && params.length == 3) {
 			StringBuffer buf = new StringBuffer();
-			buf.append("(>");
+			buf.append("(between");
 			for (int idx = 0; idx < params.length; idx++) {
 				if (params[idx] instanceof BoundParam) {
 					BoundParam bp = (BoundParam) params[idx];
@@ -94,9 +94,10 @@ public class Between implements Function, Serializable {
 			buf.append(")");
 			return buf.toString();
 		} else {
-			return "(> (<literal> | <binding>)+)\n" + "Function description:\n"
+			return "(between (<datetime> | <binding>) (<datetime> | <binding>) (<datetime> | <binding>) )\n" 
+					+ "Function description:\n"
 					+ "\t Returns the symbol TRUE if the three given dates are" +
-					"in chronological order";
+					"in increasing chronological order";
 		}
 	}
 }
