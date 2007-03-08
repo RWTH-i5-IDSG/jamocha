@@ -5,6 +5,7 @@ package org.jamocha.parser.cool;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
+
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
@@ -12,7 +13,7 @@ import org.jamocha.rete.Rete;
 
 public class COOLDateTime extends SimpleNode {
 	
-	private long value;
+	private Calendar value;
 	
 	public COOLDateTime(int id) {
 		super(id);
@@ -21,18 +22,11 @@ public class COOLDateTime extends SimpleNode {
 	public COOLDateTime(COOLParser p, int id) {
 		super(p, id);
 	}
-
-	private int GMToffsetString2int(String gmtoffset) {
-		if (gmtoffset.charAt(0)=='+') {
-			return Integer.parseInt(gmtoffset.substring(1));
-		}
-		return Integer.parseInt(gmtoffset);
-	}
-	
 	public void setName(String n) 
 	{ 
 		name = n;
-		int day=0,month=0,year=0,hours=0,minutes=0,seconds=0,gmtoffset=0;
+		int day=0,month=0,year=0,hours=0,minutes=0,seconds=0;
+		String gmtoffset="+0";
 		
 		day=Integer.parseInt(n.substring(9, 11));
 		month=Integer.parseInt(n.substring(6, 8));
@@ -45,18 +39,18 @@ public class COOLDateTime extends SimpleNode {
 				if (n.charAt(17)==':') {
 					seconds=Integer.parseInt(n.substring(18, 20));
 					if (n.length() > 21) {
-						gmtoffset=GMToffsetString2int(n.substring(20,n.length()-1));
+						gmtoffset=(n.substring(20,n.length()-1));
 					}
 				} else /* if (n.charAt(17)=='+' || n.charAt(17)=='-') */ {
-					gmtoffset=GMToffsetString2int(n.substring(17,n.length()-1));
+					gmtoffset=(n.substring(17,n.length()-1));
 				}
 			}
  		}
 			
-		hours-=gmtoffset;
-		Calendar cal = new GregorianCalendar(year,month-1,day);
-		cal.setTimeZone(TimeZone.getTimeZone("UTC"));
-		value = (cal.getTimeInMillis()/1000)+seconds+minutes*60+hours*3600;
+		Calendar cal = new GregorianCalendar(year,month-1,day,hours,minutes,seconds);
+		cal.setTimeZone(TimeZone.getTimeZone("GMT"+gmtoffset+":00"));
+		value=cal;
+		//value = (cal.getTimeInMillis()/1000)+seconds+minutes*60+hours*3600;
 	}
 	public String getName() { return name; }
 
@@ -76,7 +70,7 @@ public class COOLDateTime extends SimpleNode {
 	}
 
 	public JamochaValue getValue(Rete engine) throws EvaluationException {
-		return new JamochaValue(JamochaType.LONG, value);
+		return new JamochaValue(JamochaType.DATETIME, value);
 	}
 
 }

@@ -1,6 +1,8 @@
 package org.jamocha.parser;
 
+import java.util.Calendar;
 import java.util.Collection;
+import java.util.GregorianCalendar;
 import java.util.Iterator;
 
 import org.jamocha.rete.BoundParam;
@@ -32,6 +34,10 @@ public class JamochaValue {
 		return value ? TRUE : FALSE;
 	}
 
+	public static JamochaValue newDate(GregorianCalendar value) {
+		return new JamochaValue(JamochaType.DATETIME, value);
+	}
+	
 	public static JamochaValue newLong(long value) {
 		return new JamochaValue(JamochaType.LONG, value);
 	}
@@ -102,6 +108,14 @@ public class JamochaValue {
 						+ " must be of type java.lang.Number.");
 			}
 			break;
+		case DATETIME:
+			if (value instanceof GregorianCalendar) {
+				this.value = value;
+			} else {
+				throw new IllegalArgumentException("the value for type " + type
+						+ " must be of type java.util.GregorianCalendar.");
+			}
+			break;
 		case STRING:
 			if (value instanceof String) {
 				this.value = value;
@@ -155,6 +169,9 @@ public class JamochaValue {
 		} else if (object instanceof String) {
 			value = object;
 			type = JamochaType.STRING;
+		} else if (object instanceof GregorianCalendar) {
+			value = object;
+			type = JamochaType.DATETIME;
 		} else if (object instanceof Boolean) {
 			value = object;
 			type = JamochaType.BOOLEAN;
@@ -206,7 +223,12 @@ public class JamochaValue {
 		assert (type.equals(JamochaType.STRING));
 		return (String) value;
 	}
-
+	
+	public GregorianCalendar getDateValue() {
+		assert (type.equals(JamochaType.DATETIME));
+		return (GregorianCalendar) value;
+	}
+	
 	public String getIdentifierValue() {
 		assert (type.equals(JamochaType.IDENTIFIER));
 		return (String) value;
@@ -231,6 +253,20 @@ public class JamochaValue {
 		assert (type.equals(JamochaType.LIST));
 		return ((JamochaValue[]) value).length;
 	}
+	
+	private String fillToFixedLength(String val, String fill, int length) {
+		String res=val;
+		while (res.length() < length)
+			res=fill+res;
+		return res;
+	}
+	
+	private String fillToFixedLength(int val, String fill, int length) {
+		String res=String.valueOf(val);
+		while (res.length() < length)
+			res=fill+res;
+		return res;
+	}
 
 	@Override
 	public String toString() {
@@ -241,6 +277,21 @@ public class JamochaValue {
 			return "\"" + value + "\"";
 		case FACT_ID:
 			return "f-" + value.toString();
+		case DATETIME:
+			GregorianCalendar c=(GregorianCalendar)value;
+			String gmtOffsetString;
+			int gmtOffsetMillis=c.get(Calendar.ZONE_OFFSET);
+			gmtOffsetString = ( gmtOffsetMillis>=0 ? "+" : "-");
+			int gmtOffsetHours=gmtOffsetMillis/(1000*60*60); //hopefully ;)
+			gmtOffsetString+=fillToFixedLength(gmtOffsetHours, "0", 2);
+			return
+				"\"" + fillToFixedLength( c.get(Calendar.YEAR),"0",4 ) + "-" +
+				fillToFixedLength( c.get(Calendar.MONTH)+1,"0",2 ) + "-" +
+				fillToFixedLength( c.get(Calendar.DAY_OF_MONTH),"0",2 ) + " " +
+				fillToFixedLength( c.get(Calendar.HOUR_OF_DAY),"0",2 ) + ":" +
+				fillToFixedLength( c.get(Calendar.MINUTE),"0",2 ) + ":" +
+				fillToFixedLength( c.get(Calendar.SECOND),"0",2 ) +
+				gmtOffsetString + "\"";
 		case LIST:
 			StringBuilder sb = new StringBuilder();
 			sb.append('[');
@@ -277,6 +328,13 @@ public class JamochaValue {
 			case LONG:
 				return JamochaValue
 						.newLong(((Boolean) value).booleanValue() ? 1 : 0);
+			}
+		case DATETIME:
+			switch (type) {
+				case LONG:
+					return JamochaValue
+							.newLong( ((Calendar) value).getTimeInMillis()/1000 );
+				
 			}
 		case DOUBLE:
 			switch (type) {

@@ -41,6 +41,7 @@ import org.jamocha.rete.exception.ExecuteException;
 import org.jamocha.rete.exception.RetractException;
 import org.jamocha.rete.functions.BatchFunction;
 import org.jamocha.rete.functions.BooleanFunctions;
+import org.jamocha.rete.functions.DateTimeFunctions;
 import org.jamocha.rete.functions.DeffunctionGroup;
 import org.jamocha.rete.functions.IOFunctions;
 import org.jamocha.rete.functions.IfFunction;
@@ -225,6 +226,10 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 		MathFunctions mathf = new MathFunctions();
 		functionGroups.add(mathf);
 		mathf.loadFunctions(this);
+		// load the date/time functions
+		DateTimeFunctions datetimef = new DateTimeFunctions();
+		functionGroups.add(datetimef);
+		datetimef.loadFunctions(this);
 		// load the engine relate functions like declaring rules, templates, etc
 		RuleEngineFunctions rulefs = new RuleEngineFunctions();
 		functionGroups.add(rulefs);

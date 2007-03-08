@@ -1,8 +1,10 @@
 package org.jamocha.parser;
 
+import java.util.GregorianCalendar;
+
 
 public enum JamochaType {
-	UNDEFINED, NIL, BOOLEAN, LONG, DOUBLE, STRING, LIST, OBJECT, IDENTIFIER, FACT, FACT_ID, SLOT, BINDING;
+	UNDEFINED, NIL, BOOLEAN, LONG, DOUBLE, DATETIME, STRING, LIST, OBJECT, IDENTIFIER, FACT, FACT_ID, SLOT, BINDING;
 
 	public static final JamochaType[] NONE = new JamochaType[] {};
 
@@ -18,6 +20,8 @@ public enum JamochaType {
 	public static final JamochaType[] LONGS = new JamochaType[] { LONG };
 
 	public static final JamochaType[] DOUBLES = new JamochaType[] { DOUBLE };
+	
+	public static final JamochaType[] DATETIMES = new JamochaType[] { DATETIME };
 
 	public static final JamochaType[] STRINGS = new JamochaType[] { STRING };
 
@@ -47,6 +51,8 @@ public enum JamochaType {
 			}
 		} else if (clzz == String.class) {
 			return STRING;
+		} else if (clzz == GregorianCalendar.class) {
+			return DATETIME;
 		}
 		return OBJECT;
 
