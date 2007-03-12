@@ -102,7 +102,7 @@ public class TemplatesPanel extends AbstractJamochaPanel implements
 				templatesTable), new JScrollPane(dumpArea));
 		add(pane, BorderLayout.CENTER);
 		pane.setDividerLocation(gui.getPreferences().getInt(
-				"facts.dividerlocation", 300));
+				"templates.dividerlocation", 300));
 		reloadButton = new JButton("Reload Templates", IconLoader
 				.getImageIcon("arrow_refresh"));
 		reloadButton.addActionListener(this);
@@ -176,6 +176,36 @@ public class TemplatesPanel extends AbstractJamochaPanel implements
 			TemplateEditor editor = new TemplateEditor(gui.getEngine());
 			editor.setStringChannel(gui.getStringChannel());
 			editor.init();
+		}
+	}
+
+	public void valueChanged(ListSelectionEvent arg0) {
+		if (arg0.getSource() == templatesTable.getSelectionModel()) {
+			StringBuilder buffer = new StringBuilder();
+			if (templatesTable.getSelectedColumnCount() == 1
+					&& templatesTable.getSelectedRow() > -1) {
+				ExtTemplate template = dataModel.getRow(templatesTable
+						.getSelectedRow());
+				if (template != null) {
+					buffer.append("(" + template.getModule().getModuleName()
+							+ "::" + template.getTemplate().getName());
+					Slot[] slots = template.getTemplate().getAllSlots();
+					for (Slot slot : slots) {
+						buffer.append("\n    (");
+						if (slot instanceof MultiSlot)
+							buffer.append("multislot " + slot.getName() + ")");
+						else {
+							buffer.append("slot " + slot.getName()
+									+ "\n        (type "
+									+ slot.getValueType().toString()
+									+ ")\n    )");
+
+						}
+					}
+					buffer.append("\n)");
+				}
+			}
+			dumpArea.setText(buffer.toString());
 		}
 	}
 
@@ -267,36 +297,6 @@ public class TemplatesPanel extends AbstractJamochaPanel implements
 			return module;
 		}
 
-	}
-
-	public void valueChanged(ListSelectionEvent arg0) {
-		if (arg0.getSource() == templatesTable.getSelectionModel()) {
-			StringBuilder buffer = new StringBuilder();
-			if (templatesTable.getSelectedColumnCount() == 1
-					&& templatesTable.getSelectedRow() > -1) {
-				ExtTemplate template = dataModel.getRow(templatesTable
-						.getSelectedRow());
-				if (template != null) {
-					buffer.append("(" + template.getModule().getModuleName()
-							+ "::" + template.getTemplate().getName());
-					Slot[] slots = template.getTemplate().getAllSlots();
-					for (Slot slot : slots) {
-						buffer.append("\n    (");
-						if (slot instanceof MultiSlot)
-							buffer.append("multislot " + slot.getName() + ")");
-						else {
-							buffer.append("slot " + slot.getName()
-									+ "\n        (type "
-									+ slot.getValueType().toString()
-									+ ")\n    )");
-
-						}
-					}
-					buffer.append("\n)");
-				}
-			}
-			dumpArea.setText(buffer.toString());
-		}
 	}
 
 }

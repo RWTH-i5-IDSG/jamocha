@@ -171,6 +171,39 @@ public class FactsPanel extends AbstractJamochaPanel implements ActionListener,
 		}
 	}
 
+	public void valueChanged(ListSelectionEvent arg0) {
+		if (arg0.getSource() == factsTable.getSelectionModel()) {
+			StringBuilder buffer = new StringBuilder();
+			if (factsTable.getSelectedColumnCount() == 1
+					&& factsTable.getSelectedRow() > -1) {
+				Fact fact = dataModel.getRow(factsTable.getSelectedRow());
+				if (fact != null) {
+					buffer.append("f-" + fact.getFactId() + "("
+							+ fact.getDeftemplate().getName());
+					Slot[] slots = fact.getDeftemplate().getAllSlots();
+					for (Slot slot : slots) {
+						buffer.append("\n    (" + slot.getName() + " ");
+						if (slot.getValueType() == JamochaType.LIST) {
+							for (int i = 0; i < slot.getValue().getListCount(); ++i) {
+									if (i > 0)
+										buffer.append(" ");
+									buffer.append(slot.getValue().getListValue(i).getStringValue());
+								}
+						} else {
+							String value = fact.getSlotValue(slot.getId())
+									.toString();
+							if (!value.equals(""))
+								buffer.append(value);
+						}
+						buffer.append(")");
+					}
+					buffer.append("\n)");
+				}
+			}
+			dumpArea.setText(buffer.toString());
+		}
+	}
+
 	private final class FactsTableModel extends AbstractTableModel {
 
 		private static final long serialVersionUID = 1L;
@@ -229,39 +262,6 @@ public class FactsPanel extends AbstractJamochaPanel implements ActionListener,
 				return fact.toFactString();
 			}
 			return null;
-		}
-	}
-
-	public void valueChanged(ListSelectionEvent arg0) {
-		if (arg0.getSource() == factsTable.getSelectionModel()) {
-			StringBuilder buffer = new StringBuilder();
-			if (factsTable.getSelectedColumnCount() == 1
-					&& factsTable.getSelectedRow() > -1) {
-				Fact fact = dataModel.getRow(factsTable.getSelectedRow());
-				if (fact != null) {
-					buffer.append("f-" + fact.getFactId() + "("
-							+ fact.getDeftemplate().getName());
-					Slot[] slots = fact.getDeftemplate().getAllSlots();
-					for (Slot slot : slots) {
-						buffer.append("\n    (" + slot.getName() + " ");
-						if (slot.getValueType() == JamochaType.LIST) {
-							for (int i = 0; i < slot.getValue().getListCount(); ++i) {
-									if (i > 0)
-										buffer.append(" ");
-									buffer.append(slot.getValue().getListValue(i).getStringValue());
-								}
-						} else {
-							String value = fact.getSlotValue(slot.getId())
-									.toString();
-							if (!value.equals(""))
-								buffer.append(value);
-						}
-						buffer.append(")");
-					}
-					buffer.append("\n)");
-				}
-			}
-			dumpArea.setText(buffer.toString());
 		}
 	}
 

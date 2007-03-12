@@ -51,6 +51,7 @@ import org.jamocha.gui.tab.FactsPanel;
 import org.jamocha.gui.tab.FunctionsPanel;
 import org.jamocha.gui.tab.LogPanel;
 import org.jamocha.gui.tab.RetePanel;
+import org.jamocha.gui.tab.RulesPanel;
 import org.jamocha.gui.tab.SettingsPanel;
 import org.jamocha.gui.tab.ShellPanel;
 import org.jamocha.gui.tab.TemplatesPanel;
@@ -170,6 +171,10 @@ public class JamochaGui extends JFrame implements ChangeListener,
 		tabbedPane.addTab("Templates", IconLoader.getImageIcon("brick"),
 				templatesPanel, "View or modify Templates");
 		panels.add(templatesPanel);
+		RulesPanel rulesPanel = new RulesPanel(this);
+		tabbedPane.addTab("Rules", IconLoader.getImageIcon("car"),
+				rulesPanel, "View or modify Rules");
+		panels.add(rulesPanel);
 		FunctionsPanel functionsPanel = new FunctionsPanel(this);
 		tabbedPane.addTab("Functions", IconLoader.getImageIcon("cog"),
 				functionsPanel, "View Functions");
