@@ -1,3 +1,19 @@
+/**
+ * Copyright 2007 Alexander Wilden
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://jamocha.sourceforge.net/
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ */
 package org.jamocha;
 
 import java.util.LinkedList;
@@ -8,6 +24,12 @@ import org.jamocha.parser.ParserNotFoundException;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.Shell;
 
+/**
+ * This is the main entry point when using Jamocha as standalone application.
+ * Depending on the arguments this Class starts the GUI and / or the Shell.
+ * 
+ * @author Alexander Wilden <october.rust@gmx.de>
+ */
 public class Jamocha {
 
 	private JamochaGui jamochaGui;
@@ -18,15 +40,11 @@ public class Jamocha {
 
 	/**
 	 * @param args
-	 *            In args can be one or more of the following Strings: -shell:
-	 *            start the normal Shell with System.in and System.out -gui :
-	 *            start the graphical user interface for Jamocha with different
-	 *            tabs and nice, included Shell.
+	 *            For possible Arguments have a look at showUsage().
 	 */
 	public static void main(String[] args) {
 		boolean startGui = false;
 		boolean startShell = false;
-		Jamocha jamocha = new Jamocha(new Rete());
 		List<String> batchFiles = new LinkedList<String>();
 		String parser = "";
 		if (null != args) {
@@ -52,20 +70,8 @@ public class Jamocha {
 				}
 			}
 		}
-		if (startShell) {
-			try {
-				jamocha.startShell(parser);
-			} catch (ParserNotFoundException e) {
-				e.printStackTrace();
-				System.exit(1);
-			}
-		}
-		if (startGui) {
-			jamocha.startGui(parser);
-			if (!batchFiles.isEmpty()) {
-				jamocha.getJamochaGui().processBatchFiles(batchFiles);
-			}
-		}
+		Jamocha jamocha = new Jamocha(new Rete(), startGui, startShell, parser,
+				batchFiles);
 		// if no arguments were given or by another cause neither gui nor shell
 		// were started, we show a usage guide.
 		if (!startShell && !startGui) {
@@ -79,8 +85,29 @@ public class Jamocha {
 		}
 	}
 
-	Jamocha(Rete engine) {
+	Jamocha(Rete engine, boolean startGui, boolean startShell, String parserName) {
+		this(engine, startGui, startShell, parserName, null);
+	}
+
+	Jamocha(Rete engine, boolean startGui, boolean startShell,
+			String parserName, List<String> batchFiles) {
 		this.engine = engine;
+		if (startShell) {
+			try {
+				startShell(parserName);
+			} catch (ParserNotFoundException e) {
+				e.printStackTrace();
+				System.exit(1);
+			}
+		}
+		if (startGui) {
+			startGui(parserName);
+			if (batchFiles != null) {
+				if (!batchFiles.isEmpty()) {
+					getJamochaGui().processBatchFiles(batchFiles);
+				}
+			}
+		}
 	}
 
 	public void startShell(String parserName) throws ParserNotFoundException {
