@@ -17,6 +17,8 @@
 package org.jamocha.rete.functions;
 
 import java.io.Serializable;
+import java.util.GregorianCalendar;
+import java.util.TimeZone;
 
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.IllegalParameterException;
@@ -32,16 +34,16 @@ import org.jamocha.rete.ValueParam;
  * @author Josef Alexander Hahn
  * 
  */
-public class Between implements Function, Serializable {
+public class Timestamp2Datetime implements Function, Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	public static final String BETWEEN = "between";
+	public static final String TIMESTAMP2DATETIME = "timestamp2datetime";
 
 	/**
 	 * 
 	 */
-	public Between() {
+	public Timestamp2Datetime() {
 		super();
 	}
 
@@ -51,27 +53,27 @@ public class Between implements Function, Serializable {
 	 * @see woolfel.engine.rete.Function#getReturnType()
 	 */
 	public JamochaType getReturnType() {
-		return JamochaType.BOOLEAN;
+		return JamochaType.DATETIME;
 	}
 
 	public JamochaValue executeFunction(Rete engine, Parameter[] params)
 			throws EvaluationException {
 		if (params != null) {
-			if (params.length >= 1) {
+			if (params.length == 1) {
 				
-				for (int i = 0 ; i < params.length-1 ; i++ ) {
-					long p1 = params[i]  .getValue(engine).getDateValue().getTimeInMillis();
-					long p2 = params[i+1].getValue(engine).getDateValue().getTimeInMillis();
-					if (p1 > p2) return JamochaValue.newBoolean(false);	
-				}
-				return JamochaValue.newBoolean(true);
+				long p1 = params[0]  .getValue(engine).getLongValue();
+				GregorianCalendar foo = new GregorianCalendar();
+				foo.setTimeZone(TimeZone.getTimeZone("UTC"));
+				foo.setTimeInMillis(p1);
+				return JamochaValue.newDate(foo);
+				
 			}
 		}
-		throw new IllegalParameterException(2, true);
+		throw new IllegalParameterException(1, false);
 	}
 
 	public String getName() {
-		return BETWEEN;
+		return TIMESTAMP2DATETIME;
 	}
 
 	public Class[] getParameter() {
@@ -81,7 +83,7 @@ public class Between implements Function, Serializable {
 	public String toPPString(Parameter[] params, int indents) {
 		if (params != null && params.length == 3) {
 			StringBuffer buf = new StringBuffer();
-			buf.append("(between");
+			buf.append("(timestamp2datetime");
 			for (int idx = 0; idx < params.length; idx++) {
 				if (params[idx] instanceof BoundParam) {
 					BoundParam bp = (BoundParam) params[idx];
@@ -95,10 +97,10 @@ public class Between implements Function, Serializable {
 			buf.append(")");
 			return buf.toString();
 		} else {
-			return "(between (<datetime> | <binding>)+ )\n" 
+			return "(timestamp2datetime (<long> | <binding>) )\n" 
 					+ "Function description:\n"
-					+ "\t Returns the symbol TRUE if the given dates are" +
-					"in increasing chronological order";
+					+ "\t Returns the DateTime-Object from the"
+					+ "given Timestamp";
 		}
 	}
 }

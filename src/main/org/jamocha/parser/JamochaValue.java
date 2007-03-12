@@ -4,6 +4,7 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.GregorianCalendar;
 import java.util.Iterator;
+import java.util.TimeZone;
 
 import org.jamocha.rete.BoundParam;
 import org.jamocha.rete.Fact;
@@ -254,13 +255,6 @@ public class JamochaValue {
 		return ((JamochaValue[]) value).length;
 	}
 	
-	private String fillToFixedLength(String val, String fill, int length) {
-		String res=val;
-		while (res.length() < length)
-			res=fill+res;
-		return res;
-	}
-	
 	private String fillToFixedLength(int val, String fill, int length) {
 		String res=String.valueOf(val);
 		while (res.length() < length)
@@ -334,6 +328,8 @@ public class JamochaValue {
 				case LONG:
 					return JamochaValue
 							.newLong( ((Calendar) value).getTimeInMillis()/1000 );
+				case DATETIME:
+					return this;
 				
 			}
 		case DOUBLE:
@@ -357,6 +353,11 @@ public class JamochaValue {
 				return this;
 			case FACT_ID:
 				return JamochaValue.newFactId((Long)value);
+			case DATETIME:
+				GregorianCalendar foo = new GregorianCalendar();
+				foo.setTimeZone(TimeZone.getTimeZone("UTC"));
+				foo.setTimeInMillis((Long)value);
+				return JamochaValue.newDate(foo);
 			}
 			break;
 		case FACT_ID:
