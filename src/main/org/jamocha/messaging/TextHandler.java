@@ -28,14 +28,17 @@ import org.jamocha.rete.Rete;
  */
 public class TextHandler implements ContentHandler {
 
-    protected DefaultLogger log = new DefaultLogger(TextHandler.class);
+	private static final long serialVersionUID = 1L;
 
-    /**
-     * TODO - the class needs to declare the type of content it
-     * should handle
-     */
+	protected DefaultLogger log = new DefaultLogger(TextHandler.class);
+
+	/**
+	 * TODO - the class needs to declare the type of content it should handle
+	 */
 	protected String[] TYPES = null;
+
 	protected Message LAST = null;
+
 	/**
 	 * 
 	 */
@@ -48,8 +51,8 @@ public class TextHandler implements ContentHandler {
 	}
 
 	/**
-	 * TODO - the method needs to extract the message and pass the
-	 * text message to the engine properly
+	 * TODO - the method needs to extract the message and pass the text message
+	 * to the engine properly
 	 */
 	public void processMessage(Message msg, Rete engine, MessageClient client) {
 

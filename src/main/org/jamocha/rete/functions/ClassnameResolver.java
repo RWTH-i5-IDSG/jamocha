@@ -18,8 +18,6 @@ public class ClassnameResolver {
 
 	private static final Pattern packagePattern = Pattern
 			.compile("([\\w_][\\w_\\d]*\\.)+\\*");
-	
-	private Rete engine;
 
 	public ClassnameResolver(Rete engine) {
 		packages.add("java.lang.*");

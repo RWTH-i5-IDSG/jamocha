@@ -59,7 +59,7 @@ public class MatchesFunction implements Function, Serializable {
 	 * filtered.
 	 */
 	public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
-		HashMap filter = new HashMap();
+		HashMap<String,Object> filter = new HashMap<String,Object>();
 		if (params != null && params.length > 0) {
 			// now we populate the filter
 			for (int idx=0; idx < params.length; idx++) {

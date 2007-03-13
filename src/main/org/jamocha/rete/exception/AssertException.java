@@ -27,6 +27,8 @@ import org.jamocha.parser.EvaluationException;
  */
 public class AssertException extends EvaluationException {
 
+	private static final long serialVersionUID = 1L;
+
 	/**
 	 * @param message
 	 */

@@ -18,7 +18,6 @@ package org.jamocha.rete.functions;
 
 import java.io.Serializable;
 import java.util.GregorianCalendar;
-import java.util.TimeZone;
 
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.IllegalParameterException;

@@ -19,16 +19,20 @@ package org.jamocha.rule.util;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 
-import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Defclass;
 import org.jamocha.rete.Deftemplate;
 import org.jamocha.rete.Fact;
-import org.jamocha.rete.Module;
-import org.jamocha.rete.MultiSlot;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.Slot;
-import org.jamocha.rule.*;
+import org.jamocha.rule.BoundConstraint;
+import org.jamocha.rule.Condition;
+import org.jamocha.rule.Constraint;
+import org.jamocha.rule.LiteralConstraint;
+import org.jamocha.rule.ObjectCondition;
+import org.jamocha.rule.PredicateConstraint;
+import org.jamocha.rule.Rule;
+import org.jamocha.rule.TestCondition;
 
 /**
  * @author Peter Lin
@@ -43,7 +47,7 @@ public class GenerateFacts {
 	}
 	
 	public static ArrayList generateFacts(Rule rule, Rete engine) {
-		ArrayList facts = new ArrayList();
+		ArrayList<Object> facts = new ArrayList<Object>();
 		if (rule != null) {
 			Condition[] conditions = rule.getConditions();
 			for (int idx=0; idx < conditions.length; idx++) {
@@ -114,7 +118,7 @@ public class GenerateFacts {
 	 * @return
 	 */
 	public static Object generateDeffact(ObjectCondition cond, Deftemplate templ, Rete engine) {
-		ArrayList list = new ArrayList();
+		ArrayList<Slot> list = new ArrayList<Slot>();
 		Constraint[] cnstr = cond.getConstraints();
 		for (int idx=0; idx < cnstr.length; idx++) {
 			Constraint cn = cnstr[idx];

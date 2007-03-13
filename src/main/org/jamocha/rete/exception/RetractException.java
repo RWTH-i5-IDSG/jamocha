@@ -24,6 +24,8 @@ package org.jamocha.rete.exception;
  */
 public class RetractException extends Exception {
 
+	private static final long serialVersionUID = 1L;
+
 	/**
 	 * 
 	 */

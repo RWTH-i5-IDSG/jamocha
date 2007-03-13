@@ -64,7 +64,7 @@ public class PPrintTemplateFunction implements Function, Serializable {
 	 * function does the following: (ppdeftemplate &lt;deftemplate-name>)
 	 */
 	public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
-		HashMap filter = new HashMap();
+		HashMap<Object,Object> filter = new HashMap<Object,Object>();
 		if (params != null && params.length > 0) {
 			for (int idx=0; idx < params.length; idx++) {
 					Object df = ((ValueParam)params[idx]).getValue(engine).getIdentifierValue();

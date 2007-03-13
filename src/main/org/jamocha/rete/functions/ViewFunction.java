@@ -74,6 +74,7 @@ public class ViewFunction implements Function, Serializable {
 		}*/
 		
 		
+		@SuppressWarnings("unused")
 		ViewGraphNode t=ViewGraphNode.buildFromRete(root);
 		Visualiser visualiser=new Visualiser(engine);
 		visualiser.show();

@@ -25,6 +25,7 @@ package org.jamocha.rete.exception;
  */
 public class ExecuteException extends Exception {
 
+	private static final long serialVersionUID = 1L;
 	public static final String NULL_ACTION = "Could not execute the action. "
 			+ "The action was NULL";
 

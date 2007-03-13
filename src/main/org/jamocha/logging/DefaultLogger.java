@@ -20,7 +20,6 @@ import java.io.Serializable;
 
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
-import org.apache.log4j.NDC;
 
 /**
  * @author Peter Lin
@@ -29,7 +28,8 @@ import org.apache.log4j.NDC;
  * log and not have to import log4j stuff. 
  */
 public class DefaultLogger implements Serializable {
-
+	
+	private static final long serialVersionUID = 1L;
 	protected Logger log = null;
 	/**
 	 * 

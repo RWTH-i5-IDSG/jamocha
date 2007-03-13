@@ -17,7 +17,6 @@
 package org.jamocha.messaging;
 
 import java.io.Serializable;
-import java.lang.Thread;
 import java.util.Properties;
 
 import javax.jms.JMSException;
@@ -35,7 +34,6 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
 import org.jamocha.logging.DefaultLogger;
-import org.jamocha.rete.BasicRuleCompiler;
 import org.jamocha.rete.Rete;
 
 /**
@@ -44,6 +42,7 @@ import org.jamocha.rete.Rete;
  */
 public class BasicClient implements MessageClient {
 
+	private static final long serialVersionUID = 1L;
 	private Rete ENGINE = null;
 	private Context CTX = null;
 	private TopicConnection CONN = null;

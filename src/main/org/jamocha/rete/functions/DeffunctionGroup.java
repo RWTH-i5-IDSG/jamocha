@@ -29,7 +29,9 @@ import org.jamocha.rete.Rete;
  */
 public class DeffunctionGroup implements FunctionGroup {
 
-    private List<Function> funcs = new ArrayList<Function>();
+	private static final long serialVersionUID = 1L;
+	
+	private List<Function> funcs = new ArrayList<Function>();
     
     /**
      * 

@@ -28,8 +28,9 @@ import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.Expression;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.parser.clips.CLIPSParser;
-import org.jamocha.parser.clips.ParseException;
+import org.jamocha.parser.ParseException;
+import org.jamocha.parser.Parser;
+import org.jamocha.parser.ParserFactory;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
@@ -57,7 +58,7 @@ public class BatchFunction implements Function, Serializable {
 	}
 
 	public JamochaType getReturnType() {
-		return JamochaType.BOOLEAN;
+		return JamochaType.UNDEFINED;
 	}
 
 	/**
@@ -107,17 +108,15 @@ public class BatchFunction implements Function, Serializable {
 	public JamochaValue parse(Rete engine, InputStream ins)
 			throws EvaluationException {
 		try {
-			CLIPSParser parser = new CLIPSParser(ins);
+			Parser parser = ParserFactory.getParser(ins);
 			Expression expr = null;
 			while ((expr = parser.nextExpression()) != null) {
 				expr.getValue(engine);
 			}
 			return JamochaValue.TRUE;
 		} catch (ParseException e) {
-			// we should report the error
-			e.printStackTrace();
+			return new JamochaValue(JamochaType.STRING, e.getMessage());
 		}
-		return JamochaValue.FALSE;
 	}
 
 	public String getName() {

@@ -24,7 +24,8 @@ package org.jamocha.rete.exception;
  */
 public class CompileRuleException extends Exception {
 
-    public static final String ADD_FAILURE = "Unable to add the rule, due to compilation.";
+	private static final long serialVersionUID = 1L;
+	public static final String ADD_FAILURE = "Unable to add the rule, due to compilation.";
     public static final String INVALID_RULE = "The rule was not added because it is invalid";
     
 	/**
