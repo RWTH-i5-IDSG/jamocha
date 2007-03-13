@@ -127,7 +127,7 @@ public class JamochaMenuBar extends JMenuBar implements ActionListener {
 				}
 			}
 		} else if (event.getSource() == helpMenuAbout) {
-			String aboutText = "\u00A9 2003 - 2007 by Peter Lin.\n\n"
+			String aboutText = "\u00A9 2007 by Jamocha Developer Group.\n\n"
 					+ "Jamocha is an open source rule engine released under the Apache Software License.\n\n"
 					+ "For more information visit http://www.jamocha.org\n\n"
 					+ "Credits for the Icons used in the GUI go to Marc James (http://www.famfamfam.com/lab/icons/silk/). They are released under a Creative Commons Attribution 2.5 License.\n\n"

@@ -18,6 +18,7 @@ package org.jamocha.parser;
 
 import java.io.InputStream;
 import java.io.Reader;
+import java.io.StringReader;
 
 import org.jamocha.parser.clips.CLIPSParser;
 import org.jamocha.parser.cool.COOLParser;
@@ -29,6 +30,45 @@ import org.jamocha.parser.cool.COOLParser;
  * @author Alexander Wilden <october.rust@gmx.de>
  */
 public class ParserFactory {
+
+	private static String defaultParser = "clips";
+
+	public static void setDefaultParser(String parserName)
+			throws ParserNotFoundException {
+		if (parserName != null && parserName.length() > 0) {
+			defaultParser = parserName;
+			// This is just to test if the specified Parser exists. If not we
+			// can
+			// throw an exception.
+			getParser(parserName, new StringReader(""));
+		}
+	}
+
+	public static String getDefaultParser() {
+		return defaultParser;
+	}
+
+	public static Parser getParser(Reader reader) {
+		try {
+			return getParser(defaultParser, reader);
+		} catch (ParserNotFoundException e) {
+			// This shouldn't happen because the exception is thrown already
+			// before when setting the default parser.
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	public static Parser getParser(InputStream stream) {
+		try {
+			return getParser(defaultParser, stream);
+		} catch (ParserNotFoundException e) {
+			// This shouldn't happen because the exception is thrown already
+			// before when setting the default parser.
+			e.printStackTrace();
+		}
+		return null;
+	}
 
 	public static Parser getParser(String parserName, Reader reader)
 			throws ParserNotFoundException {

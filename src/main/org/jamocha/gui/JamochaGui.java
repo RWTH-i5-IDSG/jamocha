@@ -59,7 +59,6 @@ import org.jamocha.messagerouter.InterestType;
 import org.jamocha.messagerouter.MessageEvent;
 import org.jamocha.messagerouter.StringChannel;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.parser.ParserNotFoundException;
 import org.jamocha.rete.Rete;
 
 /**
@@ -79,8 +78,6 @@ public class JamochaGui extends JFrame implements ChangeListener,
 			"org.jamocha.gui");
 
 	private Rete engine;
-
-	private String parserName;
 
 	private boolean running = true;
 
@@ -106,18 +103,13 @@ public class JamochaGui extends JFrame implements ChangeListener,
 
 	private Thread batchThread;
 
-	public JamochaGui(Rete engine) {
-		this(engine, "clips");
-	}
-
 	/**
 	 * Create a GUI-Instance for Jamocha.
 	 * 
 	 * @param engine
 	 *            The Jamocha-engine that will be used in the GUI.
 	 */
-	public JamochaGui(Rete engine, String parserName) {
-		this.parserName = parserName;
+	public JamochaGui(Rete engine) {
 		// set up the frame
 		setLayout(new BorderLayout());
 		setTitle("Jamocha");
@@ -172,8 +164,8 @@ public class JamochaGui extends JFrame implements ChangeListener,
 				templatesPanel, "View or modify Templates");
 		panels.add(templatesPanel);
 		RulesPanel rulesPanel = new RulesPanel(this);
-		tabbedPane.addTab("Rules", IconLoader.getImageIcon("car"),
-				rulesPanel, "View or modify Rules");
+		tabbedPane.addTab("Rules", IconLoader.getImageIcon("car"), rulesPanel,
+				"View or modify Rules");
 		panels.add(rulesPanel);
 		FunctionsPanel functionsPanel = new FunctionsPanel(this);
 		tabbedPane.addTab("Functions", IconLoader.getImageIcon("cog"),
@@ -307,15 +299,6 @@ public class JamochaGui extends JFrame implements ChangeListener,
 	}
 
 	/**
-	 * Returns the name of the Parser that should be used to parse the input.
-	 * 
-	 * @return Name of the Parser.
-	 */
-	public String getParserName() {
-		return parserName;
-	}
-
-	/**
 	 * Returns a StringChannel used for all Editors. Output will only go to the
 	 * Log.
 	 * 
@@ -323,13 +306,8 @@ public class JamochaGui extends JFrame implements ChangeListener,
 	 */
 	public StringChannel getStringChannel() {
 		if (stringChannel == null)
-			try {
-				stringChannel = getEngine().getMessageRouter().openChannel(
-						"gui_string_channel", InterestType.NONE, parserName);
-			} catch (ParserNotFoundException e) {
-				e.printStackTrace();
-				System.exit(1);
-			}
+			stringChannel = getEngine().getMessageRouter().openChannel(
+					"gui_string_channel", InterestType.NONE);
 		return stringChannel;
 	}
 
@@ -341,13 +319,8 @@ public class JamochaGui extends JFrame implements ChangeListener,
 	 */
 	public StringChannel getBatchChannel() {
 		if (batchChannel == null) {
-			try {
-				batchChannel = getEngine().getMessageRouter().openChannel(
-						"gui_batch_channel", parserName);
-			} catch (ParserNotFoundException e) {
-				e.printStackTrace();
-				System.exit(1);
-			}
+			batchChannel = getEngine().getMessageRouter().openChannel(
+					"gui_batch_channel");
 			batchThread.start();
 		}
 		return batchChannel;

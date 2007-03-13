@@ -58,7 +58,6 @@ import org.jamocha.gui.icons.IconLoader;
 import org.jamocha.messagerouter.MessageEvent;
 import org.jamocha.messagerouter.StreamChannel;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.parser.ParserNotFoundException;
 import org.jamocha.rete.Constants;
 
 /**
@@ -216,13 +215,8 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 			e.printStackTrace();
 			System.exit(1);
 		}
-		try {
-			channel = gui.getEngine().getMessageRouter().openChannel(
-					"JamochaGui", inStream, gui.getParserName());
-		} catch (ParserNotFoundException e) {
-			e.printStackTrace();
-			System.exit(1);
-		}
+		channel = gui.getEngine().getMessageRouter().openChannel("JamochaGui",
+				inStream);
 
 		printPrompt();
 		moveCursorToEnd();

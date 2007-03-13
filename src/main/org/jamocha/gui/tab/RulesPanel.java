@@ -43,6 +43,7 @@ import javax.swing.table.AbstractTableModel;
 import org.jamocha.gui.JamochaGui;
 import org.jamocha.gui.TableMap;
 import org.jamocha.gui.TableSorter;
+import org.jamocha.gui.editor.RuleEditor;
 import org.jamocha.gui.icons.IconLoader;
 import org.jamocha.rete.Module;
 import org.jamocha.rule.Rule;
@@ -170,7 +171,9 @@ public class RulesPanel extends AbstractJamochaPanel implements ActionListener,
 		if (event.getSource().equals(reloadButton)) {
 			initRulesList();
 		} else if (event.getSource().equals(addRuleButton)) {
-			
+			RuleEditor editor = new RuleEditor(gui.getEngine());
+			editor.setStringChannel(gui.getStringChannel());
+			editor.init();
 		}
 	}
 
@@ -181,7 +184,6 @@ public class RulesPanel extends AbstractJamochaPanel implements ActionListener,
 					&& rulesTable.getSelectedRow() > -1) {
 				Rule rule = dataModel.getRow(rulesTable.getSelectedRow());
 				if (rule != null) {
-					
 					buffer.append(rule.toPPString());
 				}
 			}

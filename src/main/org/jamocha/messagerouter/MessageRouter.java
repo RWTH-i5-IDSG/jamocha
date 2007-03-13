@@ -28,6 +28,7 @@ import java.util.Queue;
 
 import org.jamocha.parser.Expression;
 import org.jamocha.parser.JamochaValue;
+import org.jamocha.parser.ParserFactory;
 import org.jamocha.parser.ParserNotFoundException;
 import org.jamocha.rete.Rete;
 
@@ -51,8 +52,7 @@ public class MessageRouter implements Serializable {
 					try {
 						sleep(10);
 					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+						// we ignore it
 					}
 				} else {
 					CommandObject schabau = commandQueue.poll();
@@ -163,7 +163,7 @@ public class MessageRouter implements Serializable {
 		messageQueue.offer(event);
 	}
 
-	public void enqueueCommand(Expression command, String channelId) {
+	void enqueueCommand(Expression command, String channelId) {
 		commandQueue.add(new CommandObject(command, channelId));
 	}
 
@@ -181,7 +181,8 @@ public class MessageRouter implements Serializable {
 	public StreamChannel openChannel(String channelName,
 			InputStream inputStream, InterestType interestType) {
 		try {
-			return openChannel(channelName, inputStream, interestType, "clips");
+			return openChannel(channelName, inputStream, interestType,
+					ParserFactory.getDefaultParser());
 		} catch (ParserNotFoundException e) {
 			// ignore it here, because the default parser is always available
 		}
@@ -210,7 +211,8 @@ public class MessageRouter implements Serializable {
 	public StreamChannel openChannel(String channelName, Reader reader,
 			InterestType interestType) {
 		try {
-			return openChannel(channelName, reader, interestType, "clips");
+			return openChannel(channelName, reader, interestType, ParserFactory
+					.getDefaultParser());
 		} catch (ParserNotFoundException e) {
 			// ignore it here, because the default parser is always available
 		}
@@ -239,7 +241,8 @@ public class MessageRouter implements Serializable {
 	public StringChannel openChannel(String channelName,
 			InterestType interestType) {
 		try {
-			return openChannel(channelName, interestType, "clips");
+			return openChannel(channelName, interestType, ParserFactory
+					.getDefaultParser());
 		} catch (ParserNotFoundException e) {
 			// ignore it here, because the default parser is always available
 		}

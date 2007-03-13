@@ -20,6 +20,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.jamocha.gui.JamochaGui;
+import org.jamocha.parser.ParserFactory;
 import org.jamocha.parser.ParserNotFoundException;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.Shell;
@@ -70,8 +71,14 @@ public class Jamocha {
 				}
 			}
 		}
-		Jamocha jamocha = new Jamocha(new Rete(), startGui, startShell, parser,
-				batchFiles);
+		Jamocha jamocha = null;
+		try {
+			jamocha = new Jamocha(new Rete(), startGui, startShell, parser,
+					batchFiles);
+		} catch (ParserNotFoundException e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
 		// if no arguments were given or by another cause neither gui nor shell
 		// were started, we show a usage guide.
 		if (!startShell && !startGui) {
@@ -85,23 +92,28 @@ public class Jamocha {
 		}
 	}
 
-	Jamocha(Rete engine, boolean startGui, boolean startShell, String parserName) {
+	Jamocha(Rete engine, boolean startGui, boolean startShell, String parserName)
+			throws ParserNotFoundException {
 		this(engine, startGui, startShell, parserName, null);
 	}
 
 	Jamocha(Rete engine, boolean startGui, boolean startShell,
-			String parserName, List<String> batchFiles) {
+			String parserName, List<String> batchFiles)
+			throws ParserNotFoundException {
 		this.engine = engine;
+		if (parserName != null && parserName.length() > 0) {
+			ParserFactory.setDefaultParser(parserName);
+		}
 		if (startShell) {
 			try {
-				startShell(parserName);
+				startShell();
 			} catch (ParserNotFoundException e) {
 				e.printStackTrace();
 				System.exit(1);
 			}
 		}
 		if (startGui) {
-			startGui(parserName);
+			startGui();
 			if (batchFiles != null) {
 				if (!batchFiles.isEmpty()) {
 					getJamochaGui().processBatchFiles(batchFiles);
@@ -110,13 +122,10 @@ public class Jamocha {
 		}
 	}
 
-	public void startShell(String parserName) throws ParserNotFoundException {
+	public void startShell() throws ParserNotFoundException {
 		if (shell == null) {
-			if (parserName.length() > 0) {
-				shell = new Shell(engine, parserName);
-			} else {
-				shell = new Shell(engine);
-			}
+			shell = new Shell(engine);
+
 			Thread shellThread = new Thread() {
 
 				public void run() {
@@ -128,13 +137,9 @@ public class Jamocha {
 		}
 	}
 
-	public void startGui(String parserName) {
+	public void startGui() {
 		if (jamochaGui == null) {
-			if (parserName.length() > 0) {
-				jamochaGui = new JamochaGui(engine, parserName);
-			} else {
-				jamochaGui = new JamochaGui(engine);
-			}
+			jamochaGui = new JamochaGui(engine);
 			Thread guiThread = new Thread() {
 
 				public void run() {
