@@ -11,6 +11,7 @@ import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
@@ -125,8 +126,9 @@ public class RuleEditor extends AbstractJamochaEditor implements ActionListener 
 			}
 			buffer.append("\n" + ruleLhs + "\n => \n" + ruleRhs + "\n");
 			buffer.append(")");
-			System.out.println(buffer);
 			channel.executeCommand(buffer.toString());
+			JOptionPane.showMessageDialog(this,
+			"Rule defined.\nPlease check the log for Messages.");
 		} else if (event.getSource() == cancelButton) {
 			close();
 		}
