@@ -55,7 +55,7 @@ public class IOFunctions implements FunctionGroup, Serializable {
 		BatchFunction b = new BatchFunction();
 		engine.declareFunction(b);
 		funcs.add(b);
-		LoadFunction load = new LoadFunction();
+		LoadFactsFunction load = new LoadFactsFunction();
 		engine.declareFunction(load);
 		funcs.add(load);
 		PrintFunction pf = new PrintFunction();
