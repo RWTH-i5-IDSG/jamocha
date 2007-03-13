@@ -131,7 +131,7 @@ public class JamochaMenuBar extends JMenuBar implements ActionListener {
 					+ "Jamocha is an open source rule engine released under the Apache Software License.\n\n"
 					+ "For more information visit http://www.jamocha.org\n\n"
 					+ "Credits for the Icons used in the GUI go to Marc James (http://www.famfamfam.com/lab/icons/silk/). They are released under a Creative Commons Attribution 2.5 License.\n\n"
-					+ "Credits for the Jamocha-Logo go to Frank RŸttgers (http://www.xele.de).\n\n"
+					+ "Credits for the Jamocha-Logo go to Frank R\u00FCttgers (http://www.xele.de).\n\n"
 					+ "Developers (in alphabetical order):\n"
 					+ "- Alexander Wilden\n"
 					+ "- Ananda Sumadha Markus Widyadharma\n"
