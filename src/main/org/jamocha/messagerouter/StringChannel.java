@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2006 Alexander Wilden, Christoph Emonds, Sebastian Reinartz
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,10 +16,38 @@
  */
 package org.jamocha.messagerouter;
 
-
+/**
+ * Interface for Channels parsing single Strings as input.
+ * 
+ * @author Alexander Wilden
+ * @author Christoph Emonds
+ * @author Sebastian Reinartz
+ * 
+ */
 public interface StringChannel extends CommunicationChannel {
 
+	/**
+	 * Parses the given command and send the Expression to the
+	 * <code>MessageRouter</code>.
+	 * <p>
+	 * This channel calls <code>executeCommand(command, false)</code> and
+	 * therefore doesn't wait until results are available.
+	 * 
+	 * @param command
+	 *            The <code>String</code> that should be parsed.
+	 */
 	public void executeCommand(String command);
 
+	/**
+	 * Parses the given command and send the Expression to the
+	 * <code>MessageRouter</code>.
+	 * 
+	 * @param command
+	 *            The <code>String</code> that should be parsed.
+	 * @param blocked
+	 *            Set this to <code>true</code> if this method should be
+	 *            blocked until results are available. These results are still
+	 *            not returned immediatly.
+	 */
 	public void executeCommand(String command, boolean blocked);
 }

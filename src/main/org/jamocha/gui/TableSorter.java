@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2007 Karl-Heinz Krempels, Alexander Wilden
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -30,7 +30,7 @@ import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumnModel;
 
 /**
- * This class enables a JTable do be sortable.
+ * This class enables a JTable to be sortable.
  * 
  * @author Karl-Heinz Krempels <krempels@cs.rwth-aachen.de>
  * @author Alexander Wilden <october.rust@gmx.de>

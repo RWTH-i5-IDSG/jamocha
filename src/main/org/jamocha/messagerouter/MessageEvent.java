@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2006 Alexander Wilden, Christoph Emonds, Sebastian Reinartz
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,40 +21,58 @@ import org.jamocha.rete.AbstractEvent;
 /**
  * The Class for MessageEvents.
  * 
- * @author Alexander Wilden, Christoph Emonds, Sebastian Reinartz
+ * @author Alexander Wilden
+ * @author Christoph Emonds
+ * @author Sebastian Reinartz
  * 
  */
 public class MessageEvent extends AbstractEvent {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 
+	/**
+	 * Message type for an incoming command (e.g. via the Shell).
+	 */
 	public static final int COMMAND = 101;
-	
+
+	/**
+	 * Message type for a result coming from the engine.
+	 */
 	public static final int RESULT = 102;
-	
+
+	/**
+	 * Message type for some message (e.g. error message) from the engine.
+	 */
 	public static final int ENGINE = 103;
-	
+
+	/**
+	 * Message type for an error.
+	 */
 	public static final int ERROR = -1;
 
 	/**
 	 * The message that was send.
 	 */
 	private Object message;
-	
+
+	/**
+	 * Type of this message.
+	 */
 	private int type;
 
 	/**
-	 * The constructor for a new MessageEvent. Uses CLIPS as standard-language.
+	 * Constructor for a new <code>MessageEvent</code>. Sets all important
+	 * attributes.
 	 * 
+	 * @param type
+	 *            Type of this message.
 	 * @param message
-	 *            The message that was send.
+	 *            Content of this message.
 	 * @param channelId
-	 *            The id of the sender of this message.
-	 * @param receiver
-	 *            The id of the receiver of this message.
+	 *            The ID of the channel this message was caused by. Also if this
+	 *            is an engine message some channel message triggered this event
+	 *            and therefore its ID is filled in (and not some ID of the
+	 *            engine).
 	 */
 	public MessageEvent(int type, Object message, String channelId) {
 		super(channelId);
@@ -72,22 +90,40 @@ public class MessageEvent extends AbstractEvent {
 	}
 
 	/**
-	 * Returns the id of the sender of the message.
+	 * Returns the ID of the channel that caused this message.
 	 * 
-	 * @return The sender-id
+	 * @return The channel ID.
 	 */
 	public String getChannelId() {
 		return (String) getSource();
 	}
 
+	/**
+	 * Returns the type of this message.
+	 * 
+	 * @return The type of this message.
+	 */
 	public int getType() {
 		return type;
 	}
-	
+
+	/**
+	 * Returns <code>true</code> if the message clearly is an error and
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return <code>true</code> if the message is an error.
+	 */
 	public boolean isError() {
-		return type < 0;
+		return (type < 0);
 	}
 
+	/**
+	 * Sets the ID of the channel. Only the <code>MessageRouter</code> may
+	 * change / set it.
+	 * 
+	 * @param channelId
+	 *            The new channel ID.
+	 */
 	void setChannelId(String channelId) {
 		this.source = channelId;
 	}

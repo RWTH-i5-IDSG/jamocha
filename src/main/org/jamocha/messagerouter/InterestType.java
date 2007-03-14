@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2006 Alexander Wilden, Christoph Emonds, Sebastian Reinartz
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,16 @@
  */
 package org.jamocha.messagerouter;
 
+/**
+ * Possible types of interest for the CommunicationChannels.
+ * 
+ * @author Alexander Wilden
+ * @author Christoph Emonds
+ * @author Sebastian Reinartz
+ * 
+ */
 public enum InterestType {
+
 	/**
 	 * used for channels which aren't interested in any message output.
 	 */
@@ -24,7 +33,7 @@ public enum InterestType {
 
 	/**
 	 * used for channels which are only interested in the message output, which
-	 * is in response for their to their own input.
+	 * is in response to their own input.
 	 */
 	MINE,
 

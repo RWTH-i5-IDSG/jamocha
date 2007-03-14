@@ -1,5 +1,5 @@
-/**
- * Copyright 2007 Karl-Heinz Krempels, Alexander Wilden
+/*
+ * Copyright 2007 Alexander Wilden
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,9 +23,8 @@ import org.jamocha.gui.JamochaGui;
 
 /**
  * This is an abstract panel that covers all common functions of the panels in
- * jamocha. Every panel in the tabbedPane should inherit from this class.
+ * jamocha. Every panel in the tabbedPane must inherit from this class.
  * 
- * @author Karl-Heinz Krempels <krempels@cs.rwth-aachen.de>
  * @author Alexander Wilden <october.rust@gmx.de>
  */
 public abstract class AbstractJamochaPanel extends JPanel {

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2006 Alexander Wilden, Christoph Emonds, Sebastian Reinartz
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -28,13 +28,32 @@ import org.jamocha.parser.ParserFactory;
 import org.jamocha.parser.ParserNotFoundException;
 import org.jamocha.parser.clips.TokenMgrError;
 
+/**
+ * Implementation of a <code>StringChannel</code>.
+ * 
+ * @author Alexander Wilden
+ * @author Christoph Emonds
+ * @author Sebastian Reinartz
+ * 
+ */
 class StringChannelImpl extends AbstractCommunicationChannel implements
 		StringChannel {
 
+	/**
+	 * Name of the <code>Parser</code> we use. We need it when we restart the
+	 * <code>Parser</code>.
+	 */
 	private String parserName;
 
+	/**
+	 * The <code>Parser</code> used to parse the input.
+	 */
 	private Parser parser;
 
+	/**
+	 * If blocked we collect all received message in this list to see when our
+	 * command is fully processed in the engine.
+	 */
 	private List<MessageEvent> alreadyReceived = new LinkedList<MessageEvent>();
 
 	public StringChannelImpl(String channelId, MessageRouter router,

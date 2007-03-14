@@ -1,5 +1,5 @@
-/**
- * Copyright 2007 Karl-Heinz Krempels, Alexander Wilden
+/*
+ * Copyright 2007 Alexander Wilden
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,9 +29,7 @@ import java.io.IOException;
  * 
  * A Class for Clipboard access.
  * 
- * @author Karl-Heinz Krempels <krempels@cs.rwth-aachen.de>
  * @author Alexander Wilden <october.rust@gmx.de>
- * @version 0.01
  */
 public class ClipboardUtil implements ClipboardOwner {
 
@@ -79,7 +77,8 @@ public class ClipboardUtil implements ClipboardOwner {
 	/**
 	 * Get the String residing on the clipboard.
 	 * 
-	 * @return any text found on the Clipboard. If none found, return null.
+	 * @return any text found on the Clipboard. If none found, return the empty
+	 *         String.
 	 */
 	public String getClipboardContents() {
 		String result = "";

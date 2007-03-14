@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2007 Karl-Heinz Krempels, Alexander Wilden
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -39,6 +39,12 @@ import javax.swing.JTextField;
 import org.jamocha.gui.JamochaGui;
 import org.jamocha.gui.icons.IconLoader;
 
+/**
+ * With this Panel the User can change the look of the Shell.
+ * 
+ * @author Karl-Heinz Krempels <krempels@cs.rwth-aachen.de>
+ * @author Alexander Wilden <october.rust@gmx.de>
+ */
 public class ShellSettingsPanel extends AbstractSettingsPanel implements
 		ActionListener {
 
@@ -62,7 +68,7 @@ public class ShellSettingsPanel extends AbstractSettingsPanel implements
 		GridBagConstraints c = new GridBagConstraints();
 		c.weightx = 1.0;
 		setLayout(gridbag);
-		
+
 		// Font
 		addLabel(this, new JLabel("Font:"), gridbag, c, 0);
 		GraphicsEnvironment ge = GraphicsEnvironment
@@ -82,7 +88,7 @@ public class ShellSettingsPanel extends AbstractSettingsPanel implements
 		}
 		fonts.setRenderer(new FontListCellRenderer());
 		JPanel fontsPanel = new JPanel(new BorderLayout());
-		fontsPanel.add(fonts,BorderLayout.WEST);
+		fontsPanel.add(fonts, BorderLayout.WEST);
 		addInputComponent(this, fontsPanel, gridbag, c, 0);
 
 		// Fontsize
@@ -95,12 +101,13 @@ public class ShellSettingsPanel extends AbstractSettingsPanel implements
 		fontsizes.setSelectedItem(gui.getPreferences().getInt("shell.fontsize",
 				12));
 		JPanel fontsizesPanel = new JPanel(new BorderLayout());
-		fontsizesPanel.add(fontsizes,BorderLayout.WEST);
+		fontsizesPanel.add(fontsizes, BorderLayout.WEST);
 		addInputComponent(this, fontsizesPanel, gridbag, c, 1);
 
 		// Fontcolor
 		addLabel(this, new JLabel("Fontcolor:"), gridbag, c, 2);
-		JPanel fontColorChooserPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		JPanel fontColorChooserPanel = new JPanel(new FlowLayout(
+				FlowLayout.LEFT));
 		fontColorChooserPreview = new JTextField(5);
 		fontColorChooserPreview.setEditable(false);
 		fontColorChooserPreview.setBackground(new Color(gui.getPreferences()
@@ -114,11 +121,13 @@ public class ShellSettingsPanel extends AbstractSettingsPanel implements
 
 		// Backgroundcolor
 		addLabel(this, new JLabel("Backgroundcolor:"), gridbag, c, 3);
-		JPanel backgroundColorChooserPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		JPanel backgroundColorChooserPanel = new JPanel(new FlowLayout(
+				FlowLayout.LEFT));
 		backgroundColorChooserPreview = new JTextField(5);
 		backgroundColorChooserPreview.setEditable(false);
-		backgroundColorChooserPreview.setBackground(new Color(gui.getPreferences()
-				.getInt("shell.backgroundcolor", Color.BLACK.getRGB())));
+		backgroundColorChooserPreview.setBackground(new Color(gui
+				.getPreferences().getInt("shell.backgroundcolor",
+						Color.BLACK.getRGB())));
 		backgroundColorChooserButton = new JButton("Choose Color", IconLoader
 				.getImageIcon("color_swatch"));
 		backgroundColorChooserButton.addActionListener(this);
@@ -135,8 +144,10 @@ public class ShellSettingsPanel extends AbstractSettingsPanel implements
 				(Integer) fontsizes.getSelectedItem());
 		gui.getPreferences().putInt("shell.fontcolor",
 				(Integer) fontColorChooserPreview.getBackground().getRGB());
-		gui.getPreferences().putInt("shell.backgroundcolor",
-				(Integer) backgroundColorChooserPreview.getBackground().getRGB());
+		gui.getPreferences().putInt(
+				"shell.backgroundcolor",
+				(Integer) backgroundColorChooserPreview.getBackground()
+						.getRGB());
 	}
 
 	private class FontListCellRenderer extends DefaultListCellRenderer {
@@ -165,11 +176,11 @@ public class ShellSettingsPanel extends AbstractSettingsPanel implements
 			if (newColor != null) {
 				fontColorChooserPreview.setBackground(newColor);
 			}
-		}
-		else if(event.getSource() == backgroundColorChooserButton) {
+		} else if (event.getSource() == backgroundColorChooserButton) {
 			Color newColor = JColorChooser.showDialog(this,
 					"Choose a Backgroundcolor", new Color(gui.getPreferences()
-							.getInt("shell.backgroundcolor", Color.BLACK.getRGB())));
+							.getInt("shell.backgroundcolor",
+									Color.BLACK.getRGB())));
 			if (newColor != null) {
 				backgroundColorChooserPreview.setBackground(newColor);
 			}

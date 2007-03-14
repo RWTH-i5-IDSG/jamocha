@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2007 Nikolaus Koemm
  *
  * Licensed under the Apache License, Version 2.0 (the "License");

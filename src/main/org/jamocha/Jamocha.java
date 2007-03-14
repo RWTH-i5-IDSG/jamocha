@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2007 Alexander Wilden
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -33,15 +33,25 @@ import org.jamocha.rete.Shell;
  */
 public class Jamocha {
 
+	/**
+	 * The GUI (if started).
+	 */
 	private JamochaGui jamochaGui;
 
+	/**
+	 * The Shell (if started).
+	 */
 	private Shell shell;
 
+	/**
+	 * The Rete-engine used for this Jamocha instance.
+	 */
 	private Rete engine;
 
 	/**
 	 * @param args
-	 *            For possible Arguments have a look at showUsage().
+	 *            For possible Arguments have a look at {@link #showUsage()}
+	 * @see #showUsage()
 	 */
 	public static void main(String[] args) {
 		boolean startGui = false;
@@ -92,11 +102,54 @@ public class Jamocha {
 		}
 	}
 
+	/**
+	 * Constructor for a new Jamocha-Object. A Jamocha-Object encapsulates the
+	 * Rete engine and a possible Shell / GUI.
+	 * 
+	 * @param engine
+	 *            The engine that should be used for the Shell / GUI.
+	 * @param startGui
+	 *            If <code>true</code> a GUI will be started.
+	 * @param startShell
+	 *            If <code>true</code> a simple commandline Shell working on
+	 *            System.in and System.out will be started.
+	 * @param parserName
+	 *            Name of the Parser to use. If none is given the default one
+	 *            will be used. If the Parser is unknown a
+	 *            <code>ParserNotFoundException</code> will be thrown.
+	 * @throws ParserNotFoundException
+	 *             if the specified Parser in <code>parserName</code> was not
+	 *             found.
+	 */
 	Jamocha(Rete engine, boolean startGui, boolean startShell, String parserName)
 			throws ParserNotFoundException {
 		this(engine, startGui, startShell, parserName, null);
 	}
 
+	/**
+	 * Constructor for a new Jamocha-Object. A Jamocha-Object encapsulates the
+	 * Rete engine and a possible Shell / GUI.
+	 * <p>
+	 * Additionally accepts a List of files that should be batch-processed at
+	 * startup. This only works with the GUI!
+	 * 
+	 * @param engine
+	 *            The engine that should be used for the Shell / GUI.
+	 * @param startGui
+	 *            If <code>true</code> a GUI will be started.
+	 * @param startShell
+	 *            If <code>true</code> a simple commandline Shell working on
+	 *            System.in and System.out will be started.
+	 * @param parserName
+	 *            Name of the Parser to use. If none is given the default one
+	 *            will be used. If the Parser is unknown a
+	 *            <code>ParserNotFoundException</code> will be thrown.
+	 * @param batchFiles
+	 *            List of files that should be batch-processed at startup.
+	 * @throws ParserNotFoundException
+	 *             if the specified Parser in <code>parserName</code> was not
+	 *             found.
+	 */
 	Jamocha(Rete engine, boolean startGui, boolean startShell,
 			String parserName, List<String> batchFiles)
 			throws ParserNotFoundException {
@@ -122,6 +175,13 @@ public class Jamocha {
 		}
 	}
 
+	/**
+	 * Starts a single command line shell using <code>System.in</code> and
+	 * <code>System.out</code>.
+	 * 
+	 * @throws ParserNotFoundException
+	 *             if the specified Parser was not found
+	 */
 	public void startShell() throws ParserNotFoundException {
 		if (shell == null) {
 			shell = new Shell(engine);
@@ -137,6 +197,10 @@ public class Jamocha {
 		}
 	}
 
+	/**
+	 * Starts a single GUI.
+	 * 
+	 */
 	public void startGui() {
 		if (jamochaGui == null) {
 			jamochaGui = new JamochaGui(engine);
@@ -151,6 +215,35 @@ public class Jamocha {
 		}
 	}
 
+	/**
+	 * Prints out usage information on <code>System.out</code>, if invalid or
+	 * no arguments where given.
+	 * <p>
+	 * Give at least one of these:<table>
+	 * <tr>
+	 * <td>-gui:</td>
+	 * <td>Starts a graphical user interface.</td>
+	 * </tr>
+	 * <tr>
+	 * <td>-shell:</td>
+	 * <td>Starts a simple Shell.</td>
+	 * </tr>
+	 * </table>
+	 * <p>
+	 * Optional arguments:<table>
+	 * <tr>
+	 * <td>-batch [batchfile...]:</td>
+	 * <td>Processes a list of given files (separated by blanks) as
+	 * batch-files. Attention: This only works when a GUI is started.</td>
+	 * </tr>
+	 * <tr>
+	 * <td>-parser [parsername]:</td>
+	 * <td>Uses the given parser to parse the input. Default (at the moment) is
+	 * clips.</td>
+	 * </tr>
+	 * </table>
+	 * 
+	 */
 	public void showUsage() {
 		String sep = System.getProperty("line.separator");
 		System.out
@@ -181,10 +274,20 @@ public class Jamocha {
 		System.exit(0);
 	}
 
+	/**
+	 * Returns the one and only GUI (if started).
+	 * 
+	 * @return The Jamocha GUI.
+	 */
 	public JamochaGui getJamochaGui() {
 		return jamochaGui;
 	}
 
+	/**
+	 * Returns the one and only Shell (if started).
+	 * 
+	 * @return The Jamocha Shell.
+	 */
 	public Shell getShell() {
 		return shell;
 	}

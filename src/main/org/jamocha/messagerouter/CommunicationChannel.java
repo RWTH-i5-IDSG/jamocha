@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2006 Alexander Wilden, Christoph Emonds, Sebastian Reinartz
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,11 +18,37 @@ package org.jamocha.messagerouter;
 
 import java.util.List;
 
+/**
+ * Interface for all possible Communication Channels used in the
+ * {@link MessageRouter}.
+ * 
+ * @author Alexander Wilden
+ * @author Christoph Emonds
+ * @author Sebastian Reinartz
+ * 
+ */
 public interface CommunicationChannel {
 
+	/**
+	 * Fills the given List with all MessageEvents currently available.
+	 * 
+	 * @param eventList
+	 *            The List that should be filled with available events.
+	 */
 	public void fillEventList(List<MessageEvent> eventList);
 
+	/**
+	 * Returns the ID of the Channel.
+	 * 
+	 * @return ID of the Channel.
+	 */
 	public String getChannelId();
-	
+
+	/**
+	 * Returns the <code>InterestType</code> of the Channel.
+	 * 
+	 * @return <code>InterestType</code> of the Channel.
+	 * @see InterestType
+	 */
 	public InterestType getInterest();
 }

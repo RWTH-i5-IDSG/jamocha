@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2007 Karl-Heinz Krempels, Alexander Wilden
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -55,7 +55,6 @@ import org.jamocha.rete.Template;
  * 
  * @author Karl-Heinz Krempels <krempels@cs.rwth-aachen.de>
  * @author Alexander Wilden <october.rust@gmx.de>
- * @version 0.01
  */
 public class TemplatesPanel extends AbstractJamochaPanel implements
 		ListSelectionListener, ActionListener {

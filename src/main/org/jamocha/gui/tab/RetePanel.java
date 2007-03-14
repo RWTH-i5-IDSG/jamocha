@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2007 Karl-Heinz Krempels, Alexander Wilden
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -29,6 +29,7 @@ import org.jamocha.rete.visualisation.Visualiser;
  * 
  * @author Karl-Heinz Krempels <krempels@cs.rwth-aachen.de>
  * @author Alexander Wilden <october.rust@gmx.de>
+ * @see org.jamocha.rete.visualisation.Visualiser
  */
 public class RetePanel extends AbstractJamochaPanel {
 
@@ -70,6 +71,7 @@ public class RetePanel extends AbstractJamochaPanel {
 		visualiser = null;
 	}
 
+	@Override
 	public void settingsChanged() {
 
 	}
