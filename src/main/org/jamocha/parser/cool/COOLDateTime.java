@@ -28,6 +28,8 @@ public class COOLDateTime extends SimpleNode {
 		int day=0,month=0,year=0,hours=0,minutes=0,seconds=0;
 		String gmtoffset="+0";
 		
+		n="\""+n+"\""; // dirty hack; later, we should fix the indices in the substring calls
+		
 		day=Integer.parseInt(n.substring(9, 11));
 		month=Integer.parseInt(n.substring(6, 8));
 		year=Integer.parseInt(n.substring(1, 5));

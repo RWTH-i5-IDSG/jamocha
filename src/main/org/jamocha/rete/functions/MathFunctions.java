@@ -165,7 +165,8 @@ public class MathFunctions implements FunctionGroup {
 		engine.declareFunction(">=", gre);
 		engine.declareFunction("<", le);
 		engine.declareFunction("<=", leoe);
-
+		engine.declareFunction("afterdate", gr);
+		engine.declareFunction("beforedate", le);
 	}
 
 	public List listFunctions() {

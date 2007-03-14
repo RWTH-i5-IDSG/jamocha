@@ -31,6 +31,7 @@ options {
 	NODE_USES_PARSER=true;
 }
 
+
 /* Java code used for the Parser. */
 PARSER_BEGIN(COOLParser)
 package org.jamocha.parser.cool;
@@ -141,10 +142,10 @@ TOKEN :
       | (<DIGIT>)+ <EXPONENT>
   >
 | < #EXPONENT: ["e","E"] (["+","-"])? (<DIGIT>)+ >
-| < #GMT_OFFSET: ("+"|"-")? <DIGIT> (<DIGIT>)? >
+| < #GMT_OFFSET: ("+"|"-") ( <DIGIT> )? <DIGIT> >
 | < #DATE: <DIGIT> <DIGIT> <DIGIT> <DIGIT> "-" <DIGIT> <DIGIT> "-" <DIGIT> <DIGIT> >
 | < #TIME: <DIGIT> <DIGIT> ":" <DIGIT> <DIGIT> ( ":" <DIGIT> <DIGIT>)? >
-| < DATETIME: "\"" <DATE> ( " " <TIME> (<GMT_OFFSET>)? )? "\"" > 
+| < DATETIME:  <DATE> ( " " <TIME> (<GMT_OFFSET>)? )? > 
 |
   < STRING:
       ("\"" ((~["\"","\\"]) | ("\\" ( ["\\","\""] )))* "\"") |
