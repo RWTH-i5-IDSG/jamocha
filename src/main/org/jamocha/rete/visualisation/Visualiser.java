@@ -2,6 +2,7 @@ package org.jamocha.rete.visualisation;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
@@ -214,6 +215,9 @@ public class Visualiser implements ActionListener, MouseListener, EngineEventLis
 	 */
 	public JPanel getVisualiserPanel() {
 		JPanel panel = new JPanel();
+        // we set the preferred size so that when (view) command is executed, the
+        // window displays correct without having to resize the window
+        panel.setPreferredSize(new Dimension(700,450));
 		JPanel toolBox=new JPanel();
 		GridLayout toolBoxLayout=new GridLayout(2,1);
 		toolBox.setLayout(toolBoxLayout);
