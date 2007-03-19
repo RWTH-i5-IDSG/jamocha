@@ -34,6 +34,12 @@ public interface Fact extends Serializable {
      */
     JamochaValue getSlotValue(int id);
     /**
+     * Return the value at the given slot id
+     * @param id
+     * @return
+     */
+    JamochaValue getSlotValue(String name);
+    /**
      * Return id of the given slot name
      * @param name
      * @return

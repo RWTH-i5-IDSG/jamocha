@@ -74,6 +74,22 @@ public class NSFact implements Fact, Serializable {
 	}
 
 	/**
+	 * Method returns the value of the given slotname.
+	 * 
+	 * @param SlotName
+	 * @return
+	 */
+	public JamochaValue getSlotValue(String name) {
+	    	int col = getSlotId(name);
+	    	if (col!= -1 ){
+	    	    	return getSlotValue(col);
+	    	}else{
+	    	    	return null;
+	    	}
+	 }
+	
+	
+	/**
      * 
 	 * @see org.jamocha.rete.Fact#getSlotId(java.lang.String)
 	 */

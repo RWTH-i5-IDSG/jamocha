@@ -125,6 +125,21 @@ public class Deffact implements Fact {
 	public JamochaValue getSlotValue(int id) {
 		return this.slots[id].value;
 	}
+	
+	/**
+	 * Method returns the value of the given slotname.
+	 * 
+	 * @param SlotName
+	 * @return
+	 */
+	public JamochaValue getSlotValue(String name) {
+	    	int col = getSlotId(name);
+	    	if (col!= -1 ){
+	    	    	return getSlotValue(col);
+	    	}else{
+	    	    	return null;
+	    	}
+	 }
 
 	/**
 	 * Method will iterate over the slots until finds the match. If no match is
