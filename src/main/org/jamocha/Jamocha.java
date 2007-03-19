@@ -121,7 +121,7 @@ public class Jamocha {
 	 *             if the specified Parser in <code>parserName</code> was not
 	 *             found.
 	 */
-	Jamocha(Rete engine, boolean startGui, boolean startShell, String parserName)
+	public Jamocha(Rete engine, boolean startGui, boolean startShell, String parserName)
 			throws ParserNotFoundException {
 		this(engine, startGui, startShell, parserName, null);
 	}
@@ -150,7 +150,7 @@ public class Jamocha {
 	 *             if the specified Parser in <code>parserName</code> was not
 	 *             found.
 	 */
-	Jamocha(Rete engine, boolean startGui, boolean startShell,
+	public Jamocha(Rete engine, boolean startGui, boolean startShell,
 			String parserName, List<String> batchFiles)
 			throws ParserNotFoundException {
 		this.engine = engine;
