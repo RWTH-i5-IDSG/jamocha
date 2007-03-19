@@ -24,12 +24,11 @@ import org.jamocha.rete.Function;
 import org.jamocha.rete.FunctionGroup;
 import org.jamocha.rete.Rete;
 
-
 /**
  * @author Peter Lin
  * 
- * RuleEngineFunction is responsible for loading all the rule functions
- * related to engine operation.
+ * RuleEngineFunction is responsible for loading all the rule functions related
+ * to engine operation.
  */
 public class RuleEngineFunctions implements FunctionGroup, Serializable {
 
@@ -37,17 +36,17 @@ public class RuleEngineFunctions implements FunctionGroup, Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	
+
 	private List<Function> funcs = new ArrayList<Function>();
-	
+
 	public RuleEngineFunctions() {
 		super();
 	}
-	
+
 	public String getName() {
 		return (RuleEngineFunctions.class.getSimpleName());
 	}
-	
+
 	public void loadFunctions(Rete engine) {
 		AssertFunction assrt = new AssertFunction();
 		engine.declareFunction(assrt);
@@ -91,15 +90,15 @@ public class RuleEngineFunctions implements FunctionGroup, Serializable {
 		EvalFunction eval = new EvalFunction();
 		engine.declareFunction(eval);
 		funcs.add(eval);
-        ExitFunction ext = new ExitFunction();
-        engine.declareFunction(ext);
-        funcs.add(ext);
-        FactsFunction ffun = new FactsFunction();
-        engine.declareFunction(ffun);
-        funcs.add(ffun);
-        FactSlotValueFunction fsv = new FactSlotValueFunction();
-        engine.declareFunction(fsv);
-        funcs.add(fsv);
+		ExitFunction ext = new ExitFunction();
+		engine.declareFunction(ext);
+		funcs.add(ext);
+		FactsFunction ffun = new FactsFunction();
+		engine.declareFunction(ffun);
+		funcs.add(ffun);
+		FactSlotValueFunction fsv = new FactSlotValueFunction();
+		engine.declareFunction(fsv);
+		funcs.add(fsv);
 		FireFunction fire = new FireFunction();
 		engine.declareFunction(fire);
 		funcs.add(fire);
@@ -123,11 +122,14 @@ public class RuleEngineFunctions implements FunctionGroup, Serializable {
 		funcs.add(ldir);
 		ListFunctionsFunction lffnc = new ListFunctionsFunction();
 		engine.declareFunction(lffnc);
-		engine.declareFunction("functions",lffnc);
+		engine.declareFunction("functions", lffnc);
 		funcs.add(lffnc);
 		ListTemplatesFunction listTemp = new ListTemplatesFunction();
 		engine.declareFunction(listTemp);
 		funcs.add(listTemp);
+		LoadFactsFunction loadFactsFunction = new LoadFactsFunction();
+		engine.declareFunction(loadFactsFunction);
+		funcs.add(loadFactsFunction);
 		LoadFunctionsFunction loadfunc = new LoadFunctionsFunction();
 		engine.declareFunction(loadfunc);
 		funcs.add(loadfunc);
@@ -140,9 +142,9 @@ public class RuleEngineFunctions implements FunctionGroup, Serializable {
 		MatchesFunction mf = new MatchesFunction();
 		engine.declareFunction(mf);
 		funcs.add(mf);
-        MemberTestFunction mtestf = new MemberTestFunction();
-        engine.declareFunction(mtestf);
-        funcs.add(mtestf);
+		MemberTestFunction mtestf = new MemberTestFunction();
+		engine.declareFunction(mtestf);
+		funcs.add(mtestf);
 		MemoryFreeFunction mff = new MemoryFreeFunction();
 		engine.declareFunction(mff);
 		funcs.add(mff);
@@ -164,30 +166,30 @@ public class RuleEngineFunctions implements FunctionGroup, Serializable {
 		PPrintTemplateFunction pptemp = new PPrintTemplateFunction();
 		engine.declareFunction(pptemp);
 		funcs.add(pptemp);
-        PrintProfileFunction pproff = new PrintProfileFunction();
-        engine.declareFunction(pproff);
-        funcs.add(pproff);
-        ProfileFunction proff = new ProfileFunction();
-        engine.declareFunction(proff);
-        funcs.add(proff);
-        ResetFunction resetf = new ResetFunction();
-        engine.declareFunction(resetf);
-        funcs.add(resetf);
-        ResetFactsFunction resetff = new ResetFactsFunction();
-        engine.declareFunction(resetff);
-        funcs.add(resetff);
-        ResetObjectsFunction resetof = new ResetObjectsFunction();
-        engine.declareFunction(resetof);
-        funcs.add(resetof);
-        RetractFunction rtract = new RetractFunction();
-        engine.declareFunction(rtract);
-        funcs.add(rtract);
-        RightMatchesFunction rmfunc = new RightMatchesFunction();
-        engine.declareFunction(rmfunc);
-        funcs.add(rmfunc);
+		PrintProfileFunction pproff = new PrintProfileFunction();
+		engine.declareFunction(pproff);
+		funcs.add(pproff);
+		ProfileFunction proff = new ProfileFunction();
+		engine.declareFunction(proff);
+		funcs.add(proff);
+		ResetFunction resetf = new ResetFunction();
+		engine.declareFunction(resetf);
+		funcs.add(resetf);
+		ResetFactsFunction resetff = new ResetFactsFunction();
+		engine.declareFunction(resetff);
+		funcs.add(resetff);
+		ResetObjectsFunction resetof = new ResetObjectsFunction();
+		engine.declareFunction(resetof);
+		funcs.add(resetof);
+		RetractFunction rtract = new RetractFunction();
+		engine.declareFunction(rtract);
+		funcs.add(rtract);
+		RightMatchesFunction rmfunc = new RightMatchesFunction();
+		engine.declareFunction(rmfunc);
+		funcs.add(rmfunc);
 		RulesFunction rf = new RulesFunction();
 		engine.declareFunction(rf);
-		engine.declareFunction(RulesFunction.LISTRULES,rf);
+		engine.declareFunction(RulesFunction.LISTRULES, rf);
 		funcs.add(rf);
 		SaveFactsFunction savefacts = new SaveFactsFunction();
 		engine.declareFunction(savefacts);
@@ -195,12 +197,15 @@ public class RuleEngineFunctions implements FunctionGroup, Serializable {
 		SetFocusFunction setfoc = new SetFocusFunction();
 		engine.declareFunction(setfoc);
 		funcs.add(setfoc);
+		SetParserFunction setParserFunction = new SetParserFunction();
+		engine.declareFunction(setParserFunction);
+		funcs.add(setParserFunction);
 		SpoolFunction spool = new SpoolFunction();
 		engine.declareFunction(spool);
 		funcs.add(spool);
 		TemplatesFunction tempf = new TemplatesFunction();
 		engine.declareFunction(tempf);
-		engine.declareFunction(TemplatesFunction.LISTTEMPLATES,tempf);
+		engine.declareFunction(TemplatesFunction.LISTTEMPLATES, tempf);
 		funcs.add(tempf);
 		TestRuleFunction trfunc = new TestRuleFunction();
 		engine.declareFunction(trfunc);
@@ -213,22 +218,22 @@ public class RuleEngineFunctions implements FunctionGroup, Serializable {
 		funcs.add(udt);
 		UnWatchFunction uwatchf = new UnWatchFunction();
 		engine.declareFunction(uwatchf);
-        funcs.add(uwatchf);
-        UnProfileFunction uproff = new UnProfileFunction();
-        engine.declareFunction(uproff);
-        funcs.add(uproff);
-        ValidateRuleFunction vrf = new ValidateRuleFunction();
-        engine.declareFunction(vrf);
-        funcs.add(vrf);
-        VersionFunction ver = new VersionFunction();
-        engine.declareFunction(ver);
-        funcs.add(ver);
-        ViewFunction view = new ViewFunction();
-        engine.declareFunction(view);
-        funcs.add(view);
+		funcs.add(uwatchf);
+		UnProfileFunction uproff = new UnProfileFunction();
+		engine.declareFunction(uproff);
+		funcs.add(uproff);
+		ValidateRuleFunction vrf = new ValidateRuleFunction();
+		engine.declareFunction(vrf);
+		funcs.add(vrf);
+		VersionFunction ver = new VersionFunction();
+		engine.declareFunction(ver);
+		funcs.add(ver);
+		ViewFunction view = new ViewFunction();
+		engine.declareFunction(view);
+		funcs.add(view);
 		WatchFunction watchf = new WatchFunction();
 		engine.declareFunction(watchf);
-        funcs.add(watchf);
+		funcs.add(watchf);
 	}
 
 	public List listFunctions() {

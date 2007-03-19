@@ -30,8 +30,8 @@ import java.util.List;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
+import org.jamocha.parser.ParseException;
 import org.jamocha.parser.clips.CLIPSParser;
-import org.jamocha.parser.clips.ParseException;
 import org.jamocha.rete.Deffact;
 import org.jamocha.rete.Deftemplate;
 import org.jamocha.rete.Function;
@@ -41,17 +41,16 @@ import org.jamocha.rete.ValueParam;
 import org.jamocha.rete.exception.AssertException;
 
 /**
- * @author Peter Lin LoadFunction will create a new instance of CLIPSParser and
- *         load the facts in the data file.
+ * LoadFunction will create a new instance of CLIPSParser and load the facts in
+ * the data file.
+ * 
+ * @author Peter Lin
  */
 public class LoadFactsFunction implements Function, Serializable {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 
-	public static final String LOAD = "load-facts";
+	public static final String LOADFACTS = "load-facts";
 
 	/**
 	 * 
@@ -82,6 +81,13 @@ public class LoadFactsFunction implements Function, Serializable {
 					} else {
 						inStream = new FileInputStream(new File(input));
 					}
+					// Parser parser = ParserFactory.getParser(inStream);
+					// Expression expr = null;
+					// JamochaValue value = null;
+					// while ((expr = parser.nextExpression()) != null) {
+					// value = expr.getValue(engine);
+					// System.out.println(value.getType());
+					//										}
 					CLIPSParser parser = new CLIPSParser(inStream);
 					List data = parser.loadExpr();
 					Iterator itr = data.iterator();
@@ -117,7 +123,7 @@ public class LoadFactsFunction implements Function, Serializable {
 	}
 
 	public String getName() {
-		return LOAD;
+		return LOADFACTS;
 	}
 
 	public Class[] getParameter() {
@@ -134,7 +140,7 @@ public class LoadFactsFunction implements Function, Serializable {
 			buf.append(")");
 			return buf.toString();
 		} else {
-			return "(load <filename>)\n" + "Command description:\n"
+			return "(load-facts <filename>)\n" + "Command description:\n"
 					+ "\tLoad the file <filename>.";
 		}
 	}
