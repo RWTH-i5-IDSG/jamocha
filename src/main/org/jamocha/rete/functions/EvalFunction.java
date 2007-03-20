@@ -24,8 +24,9 @@ import org.jamocha.parser.Expression;
 import org.jamocha.parser.IllegalParameterException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.parser.clips.CLIPSParser;
-import org.jamocha.parser.clips.ParseException;
+import org.jamocha.parser.ParseException;
+import org.jamocha.parser.Parser;
+import org.jamocha.parser.ParserFactory;
 import org.jamocha.rete.BoundParam;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
@@ -73,7 +74,7 @@ public class EvalFunction implements Function, Serializable {
 			throws EvaluationException {
 		JamochaValue result = null;
 		try {
-			CLIPSParser parser = new CLIPSParser(new StringReader(command));
+			Parser parser = ParserFactory.getParser(new StringReader(command));
 			Expression expr = null;
 			while ((expr = parser.nextExpression()) != null) {
 				result = expr.getValue(engine);
