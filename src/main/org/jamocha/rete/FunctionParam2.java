@@ -23,45 +23,48 @@ import org.jamocha.rule.Rule;
 
 /**
  * @author Peter Lin
- *
+ * 
  * Describe difference between the Function parameters
  */
 public class FunctionParam2 extends AbstractParam {
 
-    /**
+	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	
+
 	protected Function func = null;
-    protected String funcName = null;
-    private Parameter[] params = null;
-    private Rete engine = null;
+
+	protected String funcName = null;
+
+	private Parameter[] params = null;
+
+	private Rete engine = null;
 
 	public FunctionParam2() {
 		super();
 	}
-	
+
 	public void setFunctionName(String name) {
 		this.funcName = name;
 	}
-	
+
 	public String getFunctionName() {
 		return this.funcName;
 	}
-	
+
 	public void setEngine(Rete engine) {
 		this.engine = engine;
 	}
-	
+
 	public void configure(Rete engine, Rule util) {
 		if (this.engine == null) {
 			this.engine = engine;
 		}
-		for (int idx=0; idx < this.params.length; idx++) {
+		for (int idx = 0; idx < this.params.length; idx++) {
 			if (this.params[idx] instanceof BoundParam) {
 				// we need to set the row value if the binding is a slot or fact
-				BoundParam bp = (BoundParam)this.params[idx];
+				BoundParam bp = (BoundParam) this.params[idx];
 				Binding b1 = util.getBinding(bp.getVariableName());
 				if (b1 != null) {
 					bp.setRow(b1.getLeftRow());
@@ -72,33 +75,33 @@ public class FunctionParam2 extends AbstractParam {
 			}
 		}
 	}
-	
+
 	public void setParameters(Parameter[] params) {
 		this.params = params;
 	}
-	
-    public void lookUpFunction() {
-        this.func = engine.findFunction(this.funcName);
-    }
 
-    public JamochaType getValueType() {
+	public void lookUpFunction() {
+		this.func = engine.findFunction(this.funcName);
+	}
+
+	public JamochaType getValueType() {
 		return this.func.getReturnType();
 	}
 
-    /**
-     * TODO we may want to check the value type and throw and exception
-     * for now just getting it to work.
-     */
-    public JamochaValue getValue(Rete engine) throws EvaluationException {
-        if (this.params != null) {
-            this.engine = engine;
-            lookUpFunction();
-            return this.func.executeFunction(engine,this.params);
-        } else {
-            return null;
-        }
-    }
-    
+	/**
+	 * TODO we may want to check the value type and throw and exception for now
+	 * just getting it to work.
+	 */
+	public JamochaValue getValue(Rete engine) throws EvaluationException {
+		if (this.params != null) {
+			this.engine = engine;
+			lookUpFunction();
+			return this.func.executeFunction(engine, this.params);
+		} else {
+			return null;
+		}
+	}
+
 	public void reset() {
 		this.engine = null;
 		this.params = null;
@@ -106,10 +109,17 @@ public class FunctionParam2 extends AbstractParam {
 
 	public String toPPString() {
 		this.lookUpFunction();
-		return this.func.toPPString(this.params,1);
+		return this.func.toPPString(this.params, 1);
 	}
 
 	public String getExpressionString() {
-		return toPPString();
+		StringBuilder res = new StringBuilder("(" + funcName);
+		if (params != null) {
+			for (Parameter param : params) {
+				res.append(" " + param.getExpressionString());
+			}
+		}
+		res.append(")");
+		return res.toString();
 	}
 }

@@ -1,11 +1,11 @@
 /*
- * Copyright 2006 Nikolaus Koemm, Christian Ebert 
+ * Copyright 2006 Christoph Emonds, Alexander Wilden, Sebastian Reinartz
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://ruleml-dev.sourceforge.net/
+ *   http://jamocha.sourceforge.net/
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
