@@ -19,6 +19,7 @@ package org.jamocha.rete.functions;
 import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -72,7 +73,7 @@ public class JDBClink implements Function, Serializable {
 				
 				long jdbclink = params[0].getValue(engine).getFactIdValue();
 				String action = params[1].getValue(engine).getStringValue();
-				Object thirdParam = params[2].getValue(engine);
+				JamochaValue thirdParam = params[2].getValue(engine);
 				
 				try {
 					Class.forName  ("com.mysql.jdbc.Driver");
@@ -89,20 +90,17 @@ public class JDBClink implements Function, Serializable {
 				String table =    configFact.getSlotValue("TableName").getStringValue();
 				
 				Deftemplate template = (Deftemplate) engine.findTemplate(tmplt);
-				
+				Slot[] slots = template.getAllSlots();
 				Connection conn = null;
 				try{
 					conn = DriverManager.getConnection(jdbcurl,username,password);
 					Statement s = conn.createStatement();
 					
 					if (action.equals("import")) {
-						Slot[] slots = template.getAllSlots();
 						String sqlStatement = "SELECT "+slots[0].getName();
-						
-						for( int i=0 ; i<slots.length ; i++ ){
+						for( int i=1 ; i<slots.length ; i++ ){
 							sqlStatement += "," + slots[i].getName();
 						}
-						
 						sqlStatement += " FROM " + table;
 						ResultSet rs = s.executeQuery(sqlStatement);
 						while (rs.next()) {
@@ -120,7 +118,29 @@ public class JDBClink implements Function, Serializable {
 						
 						
 					} else if (action.equals("export")) {
+						String[] exportFacts = (thirdParam.getStringValue()).split(",");
 						
+						String sqlStatement = "INSERT INTO " + table + " (" + slots[0].getName();
+						for( int i=1 ; i<slots.length ; i++){
+							sqlStatement += "," + slots[i].getName();
+						}
+						sqlStatement += ") VALUES (?";
+						for( int i=1 ; i<slots.length ; i++){
+							sqlStatement += ",?";
+						}
+						sqlStatement += ")";
+						
+						PreparedStatement inserter = conn.prepareStatement(sqlStatement);
+						
+						for( int i=0 ; i<exportFacts.length ; i++ ) {
+							Deffact actFact = (Deffact) engine.getFactById(Integer.parseInt(exportFacts[i]));
+							// TODO: Check for the right deftemplate
+							for( int j=1 ; j<=slots.length ; j++ ){
+								inserter.setObject(j, actFact.getSlotValue(slots[j-1].getName()).getObjectValue());
+							}
+							inserter.execute();
+						}
+						return JamochaValue.newBoolean(true);
 						
 					} else {
 						throw new EvaluationException("Unknown action '"+action+"'");
@@ -130,7 +150,9 @@ public class JDBClink implements Function, Serializable {
 					
 				
 				} catch(SQLException e) {
-					System.out.println(e.toString());
+					//System.err.println(e.toString());
+					e.printStackTrace();
+					return JamochaValue.newBoolean(false);
 				} finally {
 					if (conn != null) {
 						/* yippie, exception hell ;) */
@@ -140,7 +162,7 @@ public class JDBClink implements Function, Serializable {
 
 				
 				
-				return JamochaValue.newBoolean(true);
+				
 			
 				
 			}
