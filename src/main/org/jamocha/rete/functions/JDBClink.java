@@ -76,6 +76,7 @@ public class JDBClink implements Function, Serializable {
 				JamochaValue thirdParam = params[2].getValue(engine);
 				
 				try {
+					// TODO: Only MySQL... Thats shit :( Is there a mechanism to auto-load the needed driver?
 					Class.forName  ("com.mysql.jdbc.Driver");
 				} catch (Exception e){
 					System.out.println(e.toString());
@@ -107,17 +108,21 @@ public class JDBClink implements Function, Serializable {
 							
 							Slot[] rowValues = new Slot[slots.length];
 							for( int i=0 ; i<slots.length ; i++ ){
+								// TODO: Typechecking?!
+								// TODO: Does it work with Datetime?
+								// TODO: Why cant Orys' parser assert facts wrt the jdbclink-template?
 								Object o = rs.getObject(slots[i].getName());
 								JamochaValue val = new JamochaValue(o);
 								rowValues[i] = new Slot( slots[i].getName() , val);
 							}
-							
+							// TODO: What is meant by the filter-fact (see feature request)
 							Deffact rowFact = new Deffact(template,null,rowValues,engine.nextFactId());
 							engine.assertFact(rowFact);
 						}
 						
 						
 					} else if (action.equals("export")) {
+						// TODO: For now, we assume the third parameter to be a csv-list of facts. dirty thing :(
 						String[] exportFacts = (thirdParam.getStringValue()).split(",");
 						
 						String sqlStatement = "INSERT INTO " + table + " (" + slots[0].getName();
@@ -136,6 +141,7 @@ public class JDBClink implements Function, Serializable {
 							Deffact actFact = (Deffact) engine.getFactById(Integer.parseInt(exportFacts[i]));
 							// TODO: Check for the right deftemplate
 							for( int j=1 ; j<=slots.length ; j++ ){
+								// TODO: Typechecking?!
 								inserter.setObject(j, actFact.getSlotValue(slots[j-1].getName()).getObjectValue());
 							}
 							inserter.execute();
@@ -150,7 +156,7 @@ public class JDBClink implements Function, Serializable {
 					
 				
 				} catch(SQLException e) {
-					//System.err.println(e.toString());
+					//TODO: better handling than print stack trace to stderr
 					e.printStackTrace();
 					return JamochaValue.newBoolean(false);
 				} finally {
@@ -159,12 +165,6 @@ public class JDBClink implements Function, Serializable {
 						try {conn.close();} catch (SQLException e) {}
 					}
 				}
-
-				
-				
-				
-			
-				
 			}
 		}
 		throw new IllegalParameterException(3, false);
