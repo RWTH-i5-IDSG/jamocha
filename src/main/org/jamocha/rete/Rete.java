@@ -41,6 +41,7 @@ import org.jamocha.rete.exception.ExecuteException;
 import org.jamocha.rete.exception.RetractException;
 import org.jamocha.rete.functions.BatchFunction;
 import org.jamocha.rete.functions.BooleanFunctions;
+import org.jamocha.rete.functions.DatabaseFunctions;
 import org.jamocha.rete.functions.DateTimeFunctions;
 import org.jamocha.rete.functions.DeffunctionGroup;
 import org.jamocha.rete.functions.IOFunctions;
@@ -101,7 +102,7 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 	protected WorkingMemoryImpl workingMem = null;
 
 	/**
-	 * the key is the Class object. The value is the defclass. the defclass is
+	 * the keySystem.out.println(rs.getString(1)); is the Class object. The value is the defclass. the defclass is
 	 * then used to lookup the deftemplate in the current Module.
 	 */
 	protected Map defclass = CollectionsFactory.localMap();
@@ -230,6 +231,10 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 		DateTimeFunctions datetimef = new DateTimeFunctions();
 		functionGroups.add(datetimef);
 		datetimef.loadFunctions(this);
+		// load the database functions
+		DatabaseFunctions databasef = new DatabaseFunctions();
+		functionGroups.add(databasef);
+		databasef.loadFunctions(this);
 		// load the engine relate functions like declaring rules, templates, etc
 		RuleEngineFunctions rulefs = new RuleEngineFunctions();
 		functionGroups.add(rulefs);
