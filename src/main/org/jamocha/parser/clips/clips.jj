@@ -699,6 +699,42 @@ JamochaValue checkMultiSlot() :
     return JamochaValue.newList(values);
   }
 |
+  LOOKAHEAD(<INTEGER_LITERAL><INTEGER_LITERAL>) (arrayType(artokens))+
+  {
+    JamochaValue[] values = new JamochaValue[artokens.size()];
+    for(int i=0; i<artokens.size(); ++i) {
+      values[i] = (JamochaValue) artokens.get(i);
+    }
+    return JamochaValue.newList(values);
+  }
+|
+  LOOKAHEAD(<FLOATING_POINT_LITERAL><FLOATING_POINT_LITERAL>) (arrayType(artokens))+
+  {
+    JamochaValue[] values = new JamochaValue[artokens.size()];
+    for(int i=0; i<artokens.size(); ++i) {
+      values[i] = (JamochaValue) artokens.get(i);
+    }
+    return JamochaValue.newList(values);
+  }
+|
+  LOOKAHEAD(<BIND><BIND>) (arrayType(artokens))+
+  {
+    JamochaValue[] values = new JamochaValue[artokens.size()];
+    for(int i=0; i<artokens.size(); ++i) {
+      values[i] = (JamochaValue) artokens.get(i);
+    }
+    return JamochaValue.newList(values);
+  }
+|
+  LOOKAHEAD(<BIND3><BIND3>) (arrayType(artokens))+
+  {
+    JamochaValue[] values = new JamochaValue[artokens.size()];
+    for(int i=0; i<artokens.size(); ++i) {
+      values[i] = (JamochaValue) artokens.get(i);
+    }
+    return JamochaValue.newList(values);
+  }
+|
   body = slotValueType()
   {
     return (JamochaValue)body;
@@ -740,11 +776,26 @@ void arrayType(List tokens) :
 {
   Token tval;
   Object val;
+  BoundParam bp;
 }
 {
   tval = <IDENTIFIER>
   {
     tokens.add(tval.image);
+  }
+|
+  tval = <BIND>
+  {
+    bp = new BoundParam();
+    bp.setVariableName(tval.image);
+    tokens.add(bp);
+  }
+|
+  tval = <BIND3>
+  {
+    bp = new BoundParam();
+    bp.setVariableName(tval.image);
+    tokens.add(bp);
   }
 |
   val = typeExpr()

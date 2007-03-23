@@ -833,6 +833,8 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
         case INTEGER_LITERAL:
         case FLOATING_POINT_LITERAL:
         case STRING_LITERAL:
+        case BIND:
+        case BIND3:
         case IDENTIFIER:
         case PATH_LITERAL:
           ;
@@ -855,6 +857,8 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
         case INTEGER_LITERAL:
         case FLOATING_POINT_LITERAL:
         case STRING_LITERAL:
+        case BIND:
+        case BIND3:
         case IDENTIFIER:
         case PATH_LITERAL:
           ;
@@ -862,6 +866,102 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
         default:
           jj_la1[24] = jj_gen;
           break label_12;
+        }
+      }
+    JamochaValue[] values = new JamochaValue[artokens.size()];
+    for(int i=0; i<artokens.size(); ++i) {
+      values[i] = (JamochaValue) artokens.get(i);
+    }
+    {if (true) return JamochaValue.newList(values);}
+    } else if (jj_2_5(2147483647)) {
+      label_13:
+      while (true) {
+        arrayType(artokens);
+        switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+        case INTEGER_LITERAL:
+        case FLOATING_POINT_LITERAL:
+        case STRING_LITERAL:
+        case BIND:
+        case BIND3:
+        case IDENTIFIER:
+        case PATH_LITERAL:
+          ;
+          break;
+        default:
+          jj_la1[25] = jj_gen;
+          break label_13;
+        }
+      }
+    JamochaValue[] values = new JamochaValue[artokens.size()];
+    for(int i=0; i<artokens.size(); ++i) {
+      values[i] = (JamochaValue) artokens.get(i);
+    }
+    {if (true) return JamochaValue.newList(values);}
+    } else if (jj_2_6(2147483647)) {
+      label_14:
+      while (true) {
+        arrayType(artokens);
+        switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+        case INTEGER_LITERAL:
+        case FLOATING_POINT_LITERAL:
+        case STRING_LITERAL:
+        case BIND:
+        case BIND3:
+        case IDENTIFIER:
+        case PATH_LITERAL:
+          ;
+          break;
+        default:
+          jj_la1[26] = jj_gen;
+          break label_14;
+        }
+      }
+    JamochaValue[] values = new JamochaValue[artokens.size()];
+    for(int i=0; i<artokens.size(); ++i) {
+      values[i] = (JamochaValue) artokens.get(i);
+    }
+    {if (true) return JamochaValue.newList(values);}
+    } else if (jj_2_7(2147483647)) {
+      label_15:
+      while (true) {
+        arrayType(artokens);
+        switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+        case INTEGER_LITERAL:
+        case FLOATING_POINT_LITERAL:
+        case STRING_LITERAL:
+        case BIND:
+        case BIND3:
+        case IDENTIFIER:
+        case PATH_LITERAL:
+          ;
+          break;
+        default:
+          jj_la1[27] = jj_gen;
+          break label_15;
+        }
+      }
+    JamochaValue[] values = new JamochaValue[artokens.size()];
+    for(int i=0; i<artokens.size(); ++i) {
+      values[i] = (JamochaValue) artokens.get(i);
+    }
+    {if (true) return JamochaValue.newList(values);}
+    } else if (jj_2_8(2147483647)) {
+      label_16:
+      while (true) {
+        arrayType(artokens);
+        switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+        case INTEGER_LITERAL:
+        case FLOATING_POINT_LITERAL:
+        case STRING_LITERAL:
+        case BIND:
+        case BIND3:
+        case IDENTIFIER:
+        case PATH_LITERAL:
+          ;
+          break;
+        default:
+          jj_la1[28] = jj_gen;
+          break label_16;
         }
       }
     JamochaValue[] values = new JamochaValue[artokens.size()];
@@ -887,7 +987,7 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
     {if (true) return (JamochaValue)body;}
         break;
       default:
-        jj_la1[25] = jj_gen;
+        jj_la1[29] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
@@ -927,7 +1027,7 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
     {if (true) return JamochaValue.newIdentifier(btoken.image);}
       break;
     default:
-      jj_la1[26] = jj_gen;
+      jj_la1[30] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -938,10 +1038,23 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
   final public void arrayType(List tokens) throws ParseException {
   Token tval;
   Object val;
+  BoundParam bp;
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case IDENTIFIER:
       tval = jj_consume_token(IDENTIFIER);
     tokens.add(tval.image);
+      break;
+    case BIND:
+      tval = jj_consume_token(BIND);
+    bp = new BoundParam();
+    bp.setVariableName(tval.image);
+    tokens.add(bp);
+      break;
+    case BIND3:
+      tval = jj_consume_token(BIND3);
+    bp = new BoundParam();
+    bp.setVariableName(tval.image);
+    tokens.add(bp);
       break;
     case INTEGER_LITERAL:
     case FLOATING_POINT_LITERAL:
@@ -951,7 +1064,7 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
     tokens.add(val);
       break;
     default:
-      jj_la1[27] = jj_gen;
+      jj_la1[31] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -964,7 +1077,7 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
   List slots = new ArrayList();
     /* javacc gives a warning for this, but not sure how to do it better */
       exp = jj_consume_token(IDENTIFIER);
-    label_13:
+    label_17:
     while (true) {
       templateBody(slots);
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
@@ -972,8 +1085,8 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
         ;
         break;
       default:
-        jj_la1[28] = jj_gen;
-        break label_13;
+        jj_la1[32] = jj_gen;
+        break label_17;
       }
     }
     Slot[] s = new Slot[slots.size()];
@@ -992,7 +1105,7 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
   int sid;
   Slot sl;
   MultiSlot msl;
-    if (jj_2_5(2147483647)) {
+    if (jj_2_9(2147483647)) {
       jj_consume_token(LBRACE);
       jj_consume_token(SLOT);
       sname = jj_consume_token(IDENTIFIER);
@@ -1004,7 +1117,7 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
     sl.setValueType(stype);
     slots.add(sl);
     sname = null;
-    } else if (jj_2_6(2147483647)) {
+    } else if (jj_2_10(2147483647)) {
       jj_consume_token(LBRACE);
       jj_consume_token(MULTISLOT);
       sname = jj_consume_token(IDENTIFIER);
@@ -1031,7 +1144,7 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
       jj_consume_token(RBRACE);
       break;
     default:
-      jj_la1[29] = jj_gen;
+      jj_la1[33] = jj_gen;
       ;
     }
     if (!stype.equals(JamochaType.UNDEFINED)) {
@@ -1076,7 +1189,7 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
     {if (true) return JamochaType.BOOLEAN;}
       break;
     default:
-      jj_la1[30] = jj_gen;
+      jj_la1[34] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -1091,12 +1204,12 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
   List conditions = new ArrayList();
   List actions = new ArrayList();
     exp = jj_consume_token(IDENTIFIER);
-    if (jj_2_7(2147483647)) {
+    if (jj_2_11(2147483647)) {
       rulecomment = jj_consume_token(STRING_LITERAL);
     } else {
       ;
     }
-    if (jj_2_8(2147483647)) {
+    if (jj_2_12(2147483647)) {
       ruleDeclaration(dec);
     } else {
       ;
@@ -1104,7 +1217,7 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case LBRACE:
     case BIND:
-      label_14:
+      label_18:
       while (true) {
         conditionElement(conditions);
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
@@ -1113,13 +1226,13 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
           ;
           break;
         default:
-          jj_la1[31] = jj_gen;
-          break label_14;
+          jj_la1[35] = jj_gen;
+          break label_18;
         }
       }
       break;
     default:
-      jj_la1[32] = jj_gen;
+      jj_la1[36] = jj_gen;
       ;
     }
     arrow();
@@ -1168,7 +1281,7 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
   boolean remember = true;
   String direction = null;
   String date = null;
-    if (jj_2_9(2147483647)) {
+    if (jj_2_13(2147483647)) {
       exp = salience();
     } else {
       ;
@@ -1178,49 +1291,49 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
       RuleProperty sal = new RuleProperty(RuleProperty.SALIENCE,intsal.intValue());
       list.add(sal);
     }
-    if (jj_2_10(2147483647)) {
+    if (jj_2_14(2147483647)) {
       tf = autoFocus();
     } else {
       ;
     }
     RuleProperty auto = new RuleProperty(RuleProperty.AUTO_FOCUS,tf);
     list.add(auto);
-    if (jj_2_11(2147483647)) {
+    if (jj_2_15(2147483647)) {
       ver = ruleVersion();
     } else {
       ;
     }
     RuleProperty rp = new RuleProperty(RuleProperty.VERSION,ver);
     list.add(rp);
-    if (jj_2_12(2147483647)) {
+    if (jj_2_16(2147483647)) {
       remember = remember();
     } else {
       ;
     }
     RuleProperty rmem = new RuleProperty(RuleProperty.REMEMBER_MATCH,remember);
     list.add(rmem);
-    if (jj_2_13(2147483647)) {
+    if (jj_2_17(2147483647)) {
       date = effectiveDate();
     } else {
       ;
     }
     RuleProperty eff = new RuleProperty(RuleProperty.EFFECTIVE_DATE,date);
     list.add(eff);
-    if (jj_2_14(2147483647)) {
+    if (jj_2_18(2147483647)) {
       date = expirationDate();
     } else {
       ;
     }
     RuleProperty expr = new RuleProperty(RuleProperty.EXPIRATION_DATE,date);
     list.add(expr);
-    if (jj_2_15(2147483647)) {
+    if (jj_2_19(2147483647)) {
       direction = direction();
     } else {
       ;
     }
     RuleProperty dir = new RuleProperty(RuleProperty.DIRECTION,direction);
     list.add(dir);
-    if (jj_2_16(2147483647)) {
+    if (jj_2_20(2147483647)) {
       remember = noAgenda();
     } else {
       ;
@@ -1337,7 +1450,7 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
     {if (true) return false;}
       break;
     default:
-      jj_la1[33] = jj_gen;
+      jj_la1[37] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -1346,7 +1459,7 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
 
   final public void conditionElement(List list) throws ParseException {
   Token exp;
-    if (jj_2_17(2147483647)) {
+    if (jj_2_21(2147483647)) {
       exp = jj_consume_token(BIND);
       jj_consume_token(ASSIGN);
       jj_consume_token(LBRACE);
@@ -1365,7 +1478,7 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
 
         break;
       default:
-        jj_la1[34] = jj_gen;
+        jj_la1[38] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
@@ -1377,13 +1490,13 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
   Object nested = null;
   List alpha = new ArrayList();
   ObjectCondition oc = null;
-    if (jj_2_18(2147483647)) {
+    if (jj_2_22(2147483647)) {
       jj_consume_token(NOTCE);
       jj_consume_token(LBRACE);
       exp = jj_consume_token(IDENTIFIER);
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case LBRACE:
-        label_15:
+        label_19:
         while (true) {
           templatePatterns(alpha);
           switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
@@ -1391,13 +1504,13 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
             ;
             break;
           default:
-            jj_la1[35] = jj_gen;
-            break label_15;
+            jj_la1[39] = jj_gen;
+            break label_19;
           }
         }
         break;
       default:
-        jj_la1[36] = jj_gen;
+        jj_la1[40] = jj_gen;
         ;
       }
       jj_consume_token(RBRACE);
@@ -1438,7 +1551,7 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
         break;
       case AND1:
         jj_consume_token(AND1);
-        label_16:
+        label_20:
         while (true) {
           jj_consume_token(LBRACE);
           nested = expr();
@@ -1448,8 +1561,8 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
             ;
             break;
           default:
-            jj_la1[37] = jj_gen;
-            break label_16;
+            jj_la1[41] = jj_gen;
+            break label_20;
           }
         }
     AndCondition ac = new AndCondition();
@@ -1458,7 +1571,7 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
         break;
       case EXISTS:
         jj_consume_token(EXISTS);
-        label_17:
+        label_21:
         while (true) {
           jj_consume_token(LBRACE);
           CEType(alpha);
@@ -1468,8 +1581,8 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
             ;
             break;
           default:
-            jj_la1[38] = jj_gen;
-            break label_17;
+            jj_la1[42] = jj_gen;
+            break label_21;
           }
         }
     ExistCondition exc = new ExistCondition();
@@ -1480,7 +1593,7 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
         exp = jj_consume_token(IDENTIFIER);
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case LBRACE:
-          label_18:
+          label_22:
           while (true) {
             templatePatterns(alpha);
             switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
@@ -1488,13 +1601,13 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
               ;
               break;
             default:
-              jj_la1[39] = jj_gen;
-              break label_18;
+              jj_la1[43] = jj_gen;
+              break label_22;
             }
           }
           break;
         default:
-          jj_la1[40] = jj_gen;
+          jj_la1[44] = jj_gen;
           ;
         }
     oc = new ObjectCondition();
@@ -1508,7 +1621,7 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
     exp = null;
         break;
       default:
-        jj_la1[41] = jj_gen;
+        jj_la1[45] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
@@ -1535,10 +1648,10 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
   AndLiteralConstraint andc;
   List andor = new java.util.ArrayList();
   MultiValue mv = null;
-    if (jj_2_19(2147483647)) {
+    if (jj_2_23(2147483647)) {
       predicateFunc(list,identifier);
 
-    } else if (jj_2_20(2147483647)) {
+    } else if (jj_2_24(2147483647)) {
       body2 = jj_consume_token(BIND4);
     if (body2 != null) {
       bc = new BoundConstraint();
@@ -1547,7 +1660,7 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
       bc.setIsMultislot(true);
       list.add(bc);
     }
-    } else if (jj_2_21(2147483647)) {
+    } else if (jj_2_25(2147483647)) {
       body2 = jj_consume_token(BIND);
     if (body2 != null) {
       bc = new BoundConstraint();
@@ -1555,7 +1668,7 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
       bc.setValue(JamochaValue.newIdentifier(body2.image.substring(1)));
       list.add(bc);
     }
-    } else if (jj_2_22(2147483647)) {
+    } else if (jj_2_26(2147483647)) {
       jj_consume_token(TILDA);
       body2 = jj_consume_token(BIND);
     if (body2 != null) {
@@ -1565,103 +1678,103 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
       bc.setNegated(true);
       list.add(bc);
     }
-    } else if (jj_2_23(2147483647)) {
-      body = typeExpr();
-      label_19:
-      while (true) {
-        jj_consume_token(OR2);
-        orType(andor);
-        switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-        case OR2:
-          ;
-          break;
-        default:
-          jj_la1[42] = jj_gen;
-          break label_19;
-        }
-      }
-    if (body != null) {
-      orc = new OrLiteralConstraint();
-      orc.setName(identifier.image);
-      mv = new MultiValue(body);
-      orc.addValue(mv);
-      orc.addValues(andor);
-      list.add(orc);
-    }
-    } else if (jj_2_24(2147483647)) {
-      jj_consume_token(TILDA);
-      body = typeExpr();
-      label_20:
-      while (true) {
-        jj_consume_token(OR2);
-        orType(andor);
-        switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-        case OR2:
-          ;
-          break;
-        default:
-          jj_la1[43] = jj_gen;
-          break label_20;
-        }
-      }
-    if (body != null) {
-      orc = new OrLiteralConstraint();
-      orc.setName(identifier.image);
-      mv = new MultiValue(body);
-      mv.setNegated(true);
-      orc.addValue(mv);
-      orc.addValues(andor);
-      list.add(orc);
-    }
-    } else if (jj_2_25(2147483647)) {
-      body = typeExpr();
-      label_21:
-      while (true) {
-        jj_consume_token(AND2);
-        andType(andor);
-        switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-        case AND2:
-          ;
-          break;
-        default:
-          jj_la1[44] = jj_gen;
-          break label_21;
-        }
-      }
-    if (body != null) {
-      andc = new AndLiteralConstraint();
-      andc.setName(identifier.image);
-      mv = new MultiValue(body);
-      andc.addValue(mv);
-      andc.addValues(andor);
-      list.add(andc);
-    }
-    } else if (jj_2_26(2147483647)) {
-      jj_consume_token(TILDA);
-      body = typeExpr();
-      label_22:
-      while (true) {
-        jj_consume_token(AND2);
-        andType(andor);
-        switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-        case AND2:
-          ;
-          break;
-        default:
-          jj_la1[45] = jj_gen;
-          break label_22;
-        }
-      }
-    if (body != null) {
-      andc = new AndLiteralConstraint();
-      andc.setName(identifier.image);
-      mv = new MultiValue(body);
-      mv.setNegated(true);
-      andc.addValue(mv);
-      andc.addValues(andor);
-      list.add(andc);
-    }
     } else if (jj_2_27(2147483647)) {
+      body = typeExpr();
+      label_23:
+      while (true) {
+        jj_consume_token(OR2);
+        orType(andor);
+        switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+        case OR2:
+          ;
+          break;
+        default:
+          jj_la1[46] = jj_gen;
+          break label_23;
+        }
+      }
+    if (body != null) {
+      orc = new OrLiteralConstraint();
+      orc.setName(identifier.image);
+      mv = new MultiValue(body);
+      orc.addValue(mv);
+      orc.addValues(andor);
+      list.add(orc);
+    }
+    } else if (jj_2_28(2147483647)) {
+      jj_consume_token(TILDA);
+      body = typeExpr();
+      label_24:
+      while (true) {
+        jj_consume_token(OR2);
+        orType(andor);
+        switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+        case OR2:
+          ;
+          break;
+        default:
+          jj_la1[47] = jj_gen;
+          break label_24;
+        }
+      }
+    if (body != null) {
+      orc = new OrLiteralConstraint();
+      orc.setName(identifier.image);
+      mv = new MultiValue(body);
+      mv.setNegated(true);
+      orc.addValue(mv);
+      orc.addValues(andor);
+      list.add(orc);
+    }
+    } else if (jj_2_29(2147483647)) {
+      body = typeExpr();
+      label_25:
+      while (true) {
+        jj_consume_token(AND2);
+        andType(andor);
+        switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+        case AND2:
+          ;
+          break;
+        default:
+          jj_la1[48] = jj_gen;
+          break label_25;
+        }
+      }
+    if (body != null) {
+      andc = new AndLiteralConstraint();
+      andc.setName(identifier.image);
+      mv = new MultiValue(body);
+      andc.addValue(mv);
+      andc.addValues(andor);
+      list.add(andc);
+    }
+    } else if (jj_2_30(2147483647)) {
+      jj_consume_token(TILDA);
+      body = typeExpr();
+      label_26:
+      while (true) {
+        jj_consume_token(AND2);
+        andType(andor);
+        switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+        case AND2:
+          ;
+          break;
+        default:
+          jj_la1[49] = jj_gen;
+          break label_26;
+        }
+      }
+    if (body != null) {
+      andc = new AndLiteralConstraint();
+      andc.setName(identifier.image);
+      mv = new MultiValue(body);
+      mv.setNegated(true);
+      andc.addValue(mv);
+      andc.addValues(andor);
+      list.add(andc);
+    }
+    } else if (jj_2_31(2147483647)) {
       jj_consume_token(TILDA);
       body = typeExpr();
     if (body != null) {
@@ -1671,7 +1784,7 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
       vc.setNegated(true);
       list.add(vc);
     }
-    } else if (jj_2_28(2147483647)) {
+    } else if (jj_2_32(2147483647)) {
       id = jj_consume_token(IDENTIFIER);
     if (id != null) {
       vc = new LiteralConstraint();
@@ -1679,7 +1792,7 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
       vc.setValue(JamochaValue.newIdentifier(id.image));
       list.add(vc);
     }
-    } else if (jj_2_29(2147483647)) {
+    } else if (jj_2_33(2147483647)) {
       jj_consume_token(TILDA);
       id = jj_consume_token(IDENTIFIER);
     if (id != null) {
@@ -1714,7 +1827,7 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
       list.add(vc);
         break;
       default:
-        jj_la1[46] = jj_gen;
+        jj_la1[50] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
@@ -1725,13 +1838,13 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
   Token body = null;
   Object val = null;
   MultiValue mv = null;
-    if (jj_2_30(2147483647)) {
+    if (jj_2_34(2147483647)) {
       body = jj_consume_token(IDENTIFIER);
     if (body != null) {
       mv = new MultiValue(body.image);
       list.add(mv);
     }
-    } else if (jj_2_31(2147483647)) {
+    } else if (jj_2_35(2147483647)) {
       jj_consume_token(TILDA);
       val = typeExpr();
     if (val != null) {
@@ -1751,7 +1864,7 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
     }
         break;
       default:
-        jj_la1[47] = jj_gen;
+        jj_la1[51] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
@@ -1762,13 +1875,13 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
   Token body = null;
   Object val = null;
   MultiValue mv = null;
-    if (jj_2_32(2147483647)) {
+    if (jj_2_36(2147483647)) {
       body = jj_consume_token(IDENTIFIER);
     if (body != null) {
       mv = new MultiValue(body.image);
       list.add(mv);
     }
-    } else if (jj_2_33(2147483647)) {
+    } else if (jj_2_37(2147483647)) {
       jj_consume_token(TILDA);
       val = typeExpr();
     if (val != null) {
@@ -1788,7 +1901,7 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
     }
         break;
       default:
-        jj_la1[48] = jj_gen;
+        jj_la1[52] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
@@ -1883,14 +1996,14 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
         fname = jj_consume_token(GE2);
         break;
       default:
-        jj_la1[49] = jj_gen;
+        jj_la1[53] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
     {if (true) return fname.image;}
       break;
     default:
-      jj_la1[50] = jj_gen;
+      jj_la1[54] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -1905,7 +2018,7 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
   final public void ruleActions(List list) throws ParseException {
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case LBRACE:
-      label_23:
+      label_27:
       while (true) {
         jj_consume_token(LBRACE);
         ruleAction(list);
@@ -1915,13 +2028,13 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
           ;
           break;
         default:
-          jj_la1[51] = jj_gen;
-          break label_23;
+          jj_la1[55] = jj_gen;
+          break label_27;
         }
       }
       break;
     default:
-      jj_la1[52] = jj_gen;
+      jj_la1[56] = jj_gen;
       ;
     }
 
@@ -1965,7 +2078,7 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
     list.add(vp);
       break;
     default:
-      jj_la1[53] = jj_gen;
+      jj_la1[57] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -2202,18 +2315,49 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
     finally { jj_save(32, xla); }
   }
 
-  final private boolean jj_3_8() {
-    if (jj_scan_token(LBRACE)) return true;
-    if (jj_scan_token(DECLARE)) return true;
+  final private boolean jj_2_34(int xla) {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_34(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(33, xla); }
+  }
+
+  final private boolean jj_2_35(int xla) {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_35(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(34, xla); }
+  }
+
+  final private boolean jj_2_36(int xla) {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_36(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(35, xla); }
+  }
+
+  final private boolean jj_2_37(int xla) {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_37(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(36, xla); }
+  }
+
+  final private boolean jj_3_1() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_scan_token(14)) {
+    jj_scanpos = xsp;
+    if (jj_scan_token(11)) {
+    jj_scanpos = xsp;
+    if (jj_scan_token(12)) return true;
+    }
+    }
     return false;
   }
 
-  final private boolean jj_3_32() {
-    if (jj_scan_token(IDENTIFIER)) return true;
-    return false;
-  }
-
-  final private boolean jj_3_23() {
+  final private boolean jj_3_28() {
+    if (jj_scan_token(TILDA)) return true;
     Token xsp;
     xsp = jj_scanpos;
     if (jj_scan_token(14)) {
@@ -2227,90 +2371,25 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
     return false;
   }
 
-  final private boolean jj_3_16() {
+  final private boolean jj_3_9() {
     if (jj_scan_token(LBRACE)) return true;
-    if (jj_scan_token(NOAGENDA)) return true;
-    return false;
-  }
-
-  final private boolean jj_3_3() {
-    if (jj_scan_token(IDENTIFIER)) return true;
-    if (jj_scan_token(IDENTIFIER)) return true;
-    return false;
-  }
-
-  final private boolean jj_3_15() {
-    if (jj_scan_token(LBRACE)) return true;
-    if (jj_scan_token(CHAININGDIRECTION)) return true;
-    return false;
-  }
-
-  final private boolean jj_3_26() {
-    if (jj_scan_token(TILDA)) return true;
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_scan_token(14)) {
-    jj_scanpos = xsp;
-    if (jj_scan_token(11)) {
-    jj_scanpos = xsp;
-    if (jj_scan_token(12)) return true;
-    }
-    }
-    if (jj_scan_token(AND2)) return true;
-    return false;
-  }
-
-  final private boolean jj_3_17() {
-    if (jj_scan_token(BIND)) return true;
-    return false;
-  }
-
-  final private boolean jj_3_14() {
-    if (jj_scan_token(LBRACE)) return true;
-    if (jj_scan_token(EXPIRATION)) return true;
-    return false;
-  }
-
-  final private boolean jj_3_22() {
-    if (jj_scan_token(TILDA)) return true;
-    if (jj_scan_token(BIND)) return true;
-    return false;
-  }
-
-  final private boolean jj_3_13() {
-    if (jj_scan_token(LBRACE)) return true;
-    if (jj_scan_token(EFFECTIVE)) return true;
-    return false;
-  }
-
-  final private boolean jj_3_29() {
-    if (jj_scan_token(TILDA)) return true;
-    if (jj_scan_token(IDENTIFIER)) return true;
-    return false;
-  }
-
-  final private boolean jj_3_25() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_scan_token(14)) {
-    jj_scanpos = xsp;
-    if (jj_scan_token(11)) {
-    jj_scanpos = xsp;
-    if (jj_scan_token(12)) return true;
-    }
-    }
-    if (jj_scan_token(AND2)) return true;
+    if (jj_scan_token(SLOT)) return true;
     return false;
   }
 
   final private boolean jj_3_12() {
     if (jj_scan_token(LBRACE)) return true;
-    if (jj_scan_token(REMEMBERMATCH)) return true;
+    if (jj_scan_token(DECLARE)) return true;
     return false;
   }
 
-  final private boolean jj_3_31() {
-    if (jj_scan_token(TILDA)) return true;
+  final private boolean jj_3_20() {
+    if (jj_scan_token(LBRACE)) return true;
+    if (jj_scan_token(NOAGENDA)) return true;
+    return false;
+  }
+
+  final private boolean jj_3_27() {
     Token xsp;
     xsp = jj_scanpos;
     if (jj_scan_token(14)) {
@@ -2320,20 +2399,70 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
     if (jj_scan_token(12)) return true;
     }
     }
+    if (jj_scan_token(OR2)) return true;
     return false;
   }
 
-  final private boolean jj_3_21() {
+  final private boolean jj_3_19() {
+    if (jj_scan_token(LBRACE)) return true;
+    if (jj_scan_token(CHAININGDIRECTION)) return true;
+    return false;
+  }
+
+  final private boolean jj_3_8() {
+    if (jj_scan_token(BIND3)) return true;
+    if (jj_scan_token(BIND3)) return true;
+    return false;
+  }
+
+  final private boolean jj_3_18() {
+    if (jj_scan_token(LBRACE)) return true;
+    if (jj_scan_token(EXPIRATION)) return true;
+    return false;
+  }
+
+  final private boolean jj_3_26() {
+    if (jj_scan_token(TILDA)) return true;
     if (jj_scan_token(BIND)) return true;
     return false;
   }
 
   final private boolean jj_3_7() {
-    if (jj_scan_token(STRING_LITERAL)) return true;
+    if (jj_scan_token(BIND)) return true;
+    if (jj_scan_token(BIND)) return true;
     return false;
   }
 
-  final private boolean jj_3_11() {
+  final private boolean jj_3_17() {
+    if (jj_scan_token(LBRACE)) return true;
+    if (jj_scan_token(EFFECTIVE)) return true;
+    return false;
+  }
+
+  final private boolean jj_3_16() {
+    if (jj_scan_token(LBRACE)) return true;
+    if (jj_scan_token(REMEMBERMATCH)) return true;
+    return false;
+  }
+
+  final private boolean jj_3_33() {
+    if (jj_scan_token(TILDA)) return true;
+    if (jj_scan_token(IDENTIFIER)) return true;
+    return false;
+  }
+
+  final private boolean jj_3_6() {
+    if (jj_scan_token(FLOATING_POINT_LITERAL)) return true;
+    if (jj_scan_token(FLOATING_POINT_LITERAL)) return true;
+    return false;
+  }
+
+  final private boolean jj_3_25() {
+    if (jj_scan_token(BIND)) return true;
+    return false;
+  }
+
+  final private boolean jj_3_15() {
     if (jj_scan_token(LBRACE)) return true;
     if (jj_scan_token(RULEVERSION)) return true;
     return false;
@@ -2344,28 +2473,24 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
     return false;
   }
 
-  final private boolean jj_3_30() {
-    if (jj_scan_token(IDENTIFIER)) return true;
-    return false;
-  }
-
-  final private boolean jj_3_28() {
-    if (jj_scan_token(IDENTIFIER)) return true;
-    return false;
-  }
-
-  final private boolean jj_3_10() {
+  final private boolean jj_3_14() {
     if (jj_scan_token(LBRACE)) return true;
     if (jj_scan_token(AUTOFOCUS)) return true;
     return false;
   }
 
-  final private boolean jj_3_20() {
-    if (jj_scan_token(BIND4)) return true;
+  final private boolean jj_3_5() {
+    if (jj_scan_token(INTEGER_LITERAL)) return true;
+    if (jj_scan_token(INTEGER_LITERAL)) return true;
     return false;
   }
 
-  final private boolean jj_3_18() {
+  final private boolean jj_3_32() {
+    if (jj_scan_token(IDENTIFIER)) return true;
+    return false;
+  }
+
+  final private boolean jj_3_22() {
     if (jj_scan_token(NOTCE)) return true;
     if (jj_scan_token(LBRACE)) return true;
     if (jj_scan_token(IDENTIFIER)) return true;
@@ -2373,67 +2498,24 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
     return false;
   }
 
-  final private boolean jj_3_6() {
-    if (jj_scan_token(LBRACE)) return true;
-    if (jj_scan_token(MULTISLOT)) return true;
-    return false;
-  }
-
   final private boolean jj_3_24() {
-    if (jj_scan_token(TILDA)) return true;
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_scan_token(14)) {
-    jj_scanpos = xsp;
-    if (jj_scan_token(11)) {
-    jj_scanpos = xsp;
-    if (jj_scan_token(12)) return true;
-    }
-    }
-    if (jj_scan_token(OR2)) return true;
+    if (jj_scan_token(BIND4)) return true;
     return false;
   }
 
-  final private boolean jj_3_33() {
-    if (jj_scan_token(TILDA)) return true;
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_scan_token(14)) {
-    jj_scanpos = xsp;
-    if (jj_scan_token(11)) {
-    jj_scanpos = xsp;
-    if (jj_scan_token(12)) return true;
-    }
-    }
-    return false;
-  }
-
-  final private boolean jj_3_19() {
-    if (jj_scan_token(BIND2)) return true;
-    return false;
-  }
-
-  final private boolean jj_3_9() {
+  final private boolean jj_3_13() {
     if (jj_scan_token(LBRACE)) return true;
     if (jj_scan_token(SALIENCE)) return true;
     return false;
   }
 
-  final private boolean jj_3_27() {
-    if (jj_scan_token(TILDA)) return true;
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_scan_token(14)) {
-    jj_scanpos = xsp;
-    if (jj_scan_token(11)) {
-    jj_scanpos = xsp;
-    if (jj_scan_token(12)) return true;
-    }
-    }
+  final private boolean jj_3_23() {
+    if (jj_scan_token(BIND2)) return true;
     return false;
   }
 
-  final private boolean jj_3_1() {
+  final private boolean jj_3_37() {
+    if (jj_scan_token(TILDA)) return true;
     Token xsp;
     xsp = jj_scanpos;
     if (jj_scan_token(14)) {
@@ -2452,9 +2534,92 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
     return false;
   }
 
-  final private boolean jj_3_5() {
+  final private boolean jj_3_31() {
+    if (jj_scan_token(TILDA)) return true;
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_scan_token(14)) {
+    jj_scanpos = xsp;
+    if (jj_scan_token(11)) {
+    jj_scanpos = xsp;
+    if (jj_scan_token(12)) return true;
+    }
+    }
+    return false;
+  }
+
+  final private boolean jj_3_36() {
+    if (jj_scan_token(IDENTIFIER)) return true;
+    return false;
+  }
+
+  final private boolean jj_3_3() {
+    if (jj_scan_token(IDENTIFIER)) return true;
+    if (jj_scan_token(IDENTIFIER)) return true;
+    return false;
+  }
+
+  final private boolean jj_3_21() {
+    if (jj_scan_token(BIND)) return true;
+    return false;
+  }
+
+  final private boolean jj_3_30() {
+    if (jj_scan_token(TILDA)) return true;
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_scan_token(14)) {
+    jj_scanpos = xsp;
+    if (jj_scan_token(11)) {
+    jj_scanpos = xsp;
+    if (jj_scan_token(12)) return true;
+    }
+    }
+    if (jj_scan_token(AND2)) return true;
+    return false;
+  }
+
+  final private boolean jj_3_29() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_scan_token(14)) {
+    jj_scanpos = xsp;
+    if (jj_scan_token(11)) {
+    jj_scanpos = xsp;
+    if (jj_scan_token(12)) return true;
+    }
+    }
+    if (jj_scan_token(AND2)) return true;
+    return false;
+  }
+
+  final private boolean jj_3_11() {
+    if (jj_scan_token(STRING_LITERAL)) return true;
+    return false;
+  }
+
+  final private boolean jj_3_35() {
+    if (jj_scan_token(TILDA)) return true;
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_scan_token(14)) {
+    jj_scanpos = xsp;
+    if (jj_scan_token(11)) {
+    jj_scanpos = xsp;
+    if (jj_scan_token(12)) return true;
+    }
+    }
+    return false;
+  }
+
+  final private boolean jj_3_10() {
     if (jj_scan_token(LBRACE)) return true;
-    if (jj_scan_token(SLOT)) return true;
+    if (jj_scan_token(MULTISLOT)) return true;
+    return false;
+  }
+
+  final private boolean jj_3_34() {
+    if (jj_scan_token(IDENTIFIER)) return true;
     return false;
   }
 
@@ -2467,7 +2632,7 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
   public boolean lookingAhead = false;
   private boolean jj_semLA;
   private int jj_gen;
-  final private int[] jj_la1 = new int[54];
+  final private int[] jj_la1 = new int[58];
   static private int[] jj_la1_0;
   static private int[] jj_la1_1;
   static private int[] jj_la1_2;
@@ -2479,18 +2644,18 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
       jj_la1_3();
    }
    private static void jj_la1_0() {
-      jj_la1_0 = new int[] {0x68201,0x200,0x5800,0x200,0x200,0x8800,0x6da00,0x6da00,0x68000,0x68000,0x4000,0x28680000,0x200,0x6da00,0x0,0x6da00,0x6da00,0x6da00,0x28680000,0x6d800,0x68000,0x200,0x6d800,0x5800,0x5800,0x6d800,0x6d800,0x5800,0x200,0x200,0x100000,0x8200,0x8200,0x0,0x200,0x200,0x200,0x200,0x200,0x200,0x200,0x0,0x0,0x0,0x0,0x0,0x5800,0x5800,0x5800,0x0,0x0,0x200,0x200,0xd800,};
+      jj_la1_0 = new int[] {0x68201,0x200,0x5800,0x200,0x200,0x8800,0x6da00,0x6da00,0x68000,0x68000,0x4000,0x28680000,0x200,0x6da00,0x0,0x6da00,0x6da00,0x6da00,0x28680000,0x6d800,0x68000,0x200,0x6d800,0x2d800,0x2d800,0x2d800,0x2d800,0x2d800,0x2d800,0x6d800,0x6d800,0x2d800,0x200,0x200,0x100000,0x8200,0x8200,0x0,0x200,0x200,0x200,0x200,0x200,0x200,0x200,0x0,0x0,0x0,0x0,0x0,0x5800,0x5800,0x5800,0x0,0x0,0x200,0x200,0xd800,};
    }
    private static void jj_la1_1() {
-      jj_la1_1 = new int[] {0x0,0x0,0x0,0x0,0x0,0x0,0x80000000,0x80000000,0x0,0x0,0x0,0x40801c,0x0,0x80000000,0x0,0x80000000,0x80000000,0x80000000,0x40801c,0x80000000,0x0,0x0,0x80000000,0x0,0x0,0x80000000,0x80000000,0x0,0x0,0x0,0x34005840,0x0,0x0,0x80000000,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x40100080,0x0,0x0,0x0,0x0,0x80000000,0x0,0x0,0x0,0x0,0x0,0x0,0x0,};
+      jj_la1_1 = new int[] {0x0,0x0,0x0,0x0,0x0,0x0,0x80000000,0x80000000,0x0,0x0,0x0,0x40801c,0x0,0x80000000,0x0,0x80000000,0x80000000,0x80000000,0x40801c,0x80000000,0x0,0x0,0x80000000,0x0,0x0,0x0,0x0,0x0,0x0,0x80000000,0x80000000,0x0,0x0,0x0,0x34005840,0x0,0x0,0x80000000,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x40100080,0x0,0x0,0x0,0x0,0x80000000,0x0,0x0,0x0,0x0,0x0,0x0,0x0,};
    }
    private static void jj_la1_2() {
-      jj_la1_2 = new int[] {0x0,0x0,0x0,0x0,0x0,0x0,0x2000000d,0x2000000d,0x0,0x0,0x0,0x203fff00,0x0,0x2000000d,0x3fff00,0x2000000d,0x2000000d,0x2000000d,0x203fff00,0x2000000d,0x0,0x0,0x2000000d,0x20000000,0x20000000,0x2000000d,0x2000000d,0x20000000,0x0,0x0,0x0,0x0,0x0,0xd,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x21000000,0x8000000,0x8000000,0x2000000,0x2000000,0xd,0x0,0x0,0x3fff00,0x203fff00,0x0,0x0,0x20000000,};
+      jj_la1_2 = new int[] {0x0,0x0,0x0,0x0,0x0,0x0,0x2000000d,0x2000000d,0x0,0x0,0x0,0x203fff00,0x0,0x2000000d,0x3fff00,0x2000000d,0x2000000d,0x2000000d,0x203fff00,0x2000000d,0x0,0x0,0x2000000d,0x20000000,0x20000000,0x20000000,0x20000000,0x20000000,0x20000000,0x2000000d,0x2000000d,0x20000000,0x0,0x0,0x0,0x0,0x0,0xd,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x21000000,0x8000000,0x8000000,0x2000000,0x2000000,0xd,0x0,0x0,0x3fff00,0x203fff00,0x0,0x0,0x20000000,};
    }
    private static void jj_la1_3() {
-      jj_la1_3 = new int[] {0x0,0x0,0x1,0x0,0x0,0x0,0x1,0x1,0x0,0x0,0x0,0x0,0x0,0x1,0x0,0x1,0x1,0x1,0x0,0x1,0x0,0x0,0x1,0x1,0x1,0x1,0x1,0x1,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x1,0x1,0x1,0x0,0x0,0x0,0x0,0x1,};
+      jj_la1_3 = new int[] {0x0,0x0,0x1,0x0,0x0,0x0,0x1,0x1,0x0,0x0,0x0,0x0,0x0,0x1,0x0,0x1,0x1,0x1,0x0,0x1,0x0,0x0,0x1,0x1,0x1,0x1,0x1,0x1,0x1,0x1,0x1,0x1,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x1,0x1,0x1,0x0,0x0,0x0,0x0,0x1,};
    }
-  final private JJCalls[] jj_2_rtns = new JJCalls[33];
+  final private JJCalls[] jj_2_rtns = new JJCalls[37];
   private boolean jj_rescan = false;
   private int jj_gc = 0;
 
@@ -2500,7 +2665,7 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 54; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 58; i++) jj_la1[i] = -1;
     for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -2510,7 +2675,7 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 54; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 58; i++) jj_la1[i] = -1;
     for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -2520,7 +2685,7 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 54; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 58; i++) jj_la1[i] = -1;
     for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -2530,7 +2695,7 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 54; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 58; i++) jj_la1[i] = -1;
     for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -2539,7 +2704,7 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 54; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 58; i++) jj_la1[i] = -1;
     for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -2548,7 +2713,7 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 54; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 58; i++) jj_la1[i] = -1;
     for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -2667,7 +2832,7 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
       la1tokens[jj_kind] = true;
       jj_kind = -1;
     }
-    for (int i = 0; i < 54; i++) {
+    for (int i = 0; i < 58; i++) {
       if (jj_la1[i] == jj_gen) {
         for (int j = 0; j < 32; j++) {
           if ((jj_la1_0[i] & (1<<j)) != 0) {
@@ -2710,7 +2875,7 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
 
   final private void jj_rescan_token() {
     jj_rescan = true;
-    for (int i = 0; i < 33; i++) {
+    for (int i = 0; i < 37; i++) {
       JJCalls p = jj_2_rtns[i];
       do {
         if (p.gen > jj_gen) {
@@ -2749,6 +2914,10 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
             case 30: jj_3_31(); break;
             case 31: jj_3_32(); break;
             case 32: jj_3_33(); break;
+            case 33: jj_3_34(); break;
+            case 34: jj_3_35(); break;
+            case 35: jj_3_36(); break;
+            case 36: jj_3_37(); break;
           }
         }
         p = p.next;
