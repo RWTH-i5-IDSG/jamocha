@@ -18,10 +18,12 @@ package org.jamocha.rete;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 import org.jamocha.parser.IllegalConversionException;
+import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 
 /**
@@ -269,19 +271,30 @@ public class Deftemplate implements Template, Serializable {
 
 	public Fact createFact(Object[] data, long id) {
 		Slot[] values = cloneAllSlots();
+        ArrayList bslots = new ArrayList();
+        boolean hasbinding = false;
 		for (int idz = 0; idz < data.length; idz++) {
 			Slot s = (Slot) data[idz];
 			for (int idx = 0; idx < values.length; idx++) {
 				if (values[idx].getName().equals(s.getName())) {
 					if (s.value == null) {
 						values[idx].setValue(JamochaValue.NIL);
-					} else {
+					} else if (s.getValue().getType() == JamochaType.BINDING) {
+                        values[idx].setValue(s.value);
+                        bslots.add((Slot)s.clone());
+                        hasbinding = true;
+                    } else {
 						values[idx].setValue(s.value);
 					}
 				}
 			}
 		}
 		Deffact newfact = new Deffact(this, null, values, id);
+        if (hasbinding) {
+            Slot[] slts2 = new Slot[bslots.size()];
+            newfact.boundSlots = (Slot[])bslots.toArray(slts2);
+            newfact.hasBinding = true;
+        }
 		// we call this to create the string used to map the fact.
 		newfact.equalityIndex();
 		return newfact;

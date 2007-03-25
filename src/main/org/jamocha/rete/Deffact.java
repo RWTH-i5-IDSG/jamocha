@@ -46,7 +46,7 @@ public class Deffact implements Fact {
 
 	private long timeStamp = 0;
 
-	private boolean hasBinding = false;
+	protected boolean hasBinding = false;
 
 	private EqualityIndex Eindex = null;
 
