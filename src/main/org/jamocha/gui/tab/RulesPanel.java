@@ -21,6 +21,7 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.InputEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.Collection;
@@ -39,10 +40,11 @@ import javax.swing.JTextArea;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
+import javax.swing.table.TableColumnModel;
 
 import org.jamocha.gui.JamochaGui;
-import org.jamocha.gui.TableMap;
-import org.jamocha.gui.TableSorter;
+import org.jamocha.gui.TableModelQuickSort;
+import org.jamocha.gui.TableRowModel;
 import org.jamocha.gui.editor.RuleEditor;
 import org.jamocha.gui.icons.IconLoader;
 import org.jamocha.rete.Module;
@@ -76,10 +78,19 @@ public class RulesPanel extends AbstractJamochaPanel implements ActionListener,
 		setLayout(new BorderLayout());
 
 		dataModel = new RulesTableModel();
-		TableSorter sorter = new TableSorter(new TableMap());
-		((TableMap) sorter.getModel()).setModel(dataModel);
-		rulesTable = new JTable(sorter);
-		sorter.addMouseListenerToHeaderInTable(rulesTable);
+		rulesTable = new JTable(dataModel);
+		rulesTable.getTableHeader().addMouseListener(new MouseAdapter() {
+			public void mouseClicked(MouseEvent e) {
+				TableColumnModel columnModel = rulesTable.getColumnModel();
+				int viewColumn = columnModel.getColumnIndexAtX(e.getX());
+				int column = rulesTable.convertColumnIndexToModel(viewColumn);
+				if (e.getClickCount() == 1 && column != -1) {
+					int shiftPressed = e.getModifiers() & InputEvent.SHIFT_MASK;
+					boolean ascending = (shiftPressed == 0);
+					TableModelQuickSort.sort(dataModel, ascending, column);
+				}
+			}
+		});
 
 		rulesTable.setShowHorizontalLines(true);
 		rulesTable.setRowSelectionAllowed(true);
@@ -137,7 +148,7 @@ public class RulesPanel extends AbstractJamochaPanel implements ActionListener,
 			public void mouseReleased(MouseEvent event) {
 				int[] selCols = rulesTable.getSelectedRows();
 				for (int i = 0; i < selCols.length; ++i) {
-					Rule rule = dataModel.getRow(selCols[i]);
+					Rule rule = (Rule) dataModel.getRowAt(selCols[i]);
 					if (rule != null) {
 						Module module = rule.getModule();
 						if (module != null) {
@@ -182,7 +193,8 @@ public class RulesPanel extends AbstractJamochaPanel implements ActionListener,
 			StringBuilder buffer = new StringBuilder();
 			if (rulesTable.getSelectedColumnCount() == 1
 					&& rulesTable.getSelectedRow() > -1) {
-				Rule rule = dataModel.getRow(rulesTable.getSelectedRow());
+				Rule rule = (Rule) dataModel.getRowAt(rulesTable
+						.getSelectedRow());
 				if (rule != null) {
 					buffer.append(rule.toPPString());
 				}
@@ -191,7 +203,8 @@ public class RulesPanel extends AbstractJamochaPanel implements ActionListener,
 		}
 	}
 
-	private final class RulesTableModel extends AbstractTableModel {
+	private final class RulesTableModel extends AbstractTableModel implements
+			TableRowModel {
 
 		private static final long serialVersionUID = 1L;
 
@@ -240,12 +253,8 @@ public class RulesPanel extends AbstractJamochaPanel implements ActionListener,
 			return rules.size();
 		}
 
-		public Rule getRow(int row) {
-			return rules.get(row);
-		}
-
 		public Object getValueAt(int row, int column) {
-			Rule rule = getRow(row);
+			Rule rule = (Rule) getRowAt(row);
 			switch (column) {
 			case 0:
 				return rule.getModule().getModuleName();
@@ -255,6 +264,14 @@ public class RulesPanel extends AbstractJamochaPanel implements ActionListener,
 				return rule.getComment();
 			}
 			return null;
+		}
+
+		public Object getRowAt(int row) {
+			return rules.get(row);
+		}
+
+		public void setRowAt(Object value, int row) {
+			rules.set(row, (Rule) value);
 		}
 	}
 

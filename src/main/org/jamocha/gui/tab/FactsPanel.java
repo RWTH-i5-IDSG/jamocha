@@ -21,6 +21,7 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.InputEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.Collections;
@@ -37,10 +38,11 @@ import javax.swing.JTextArea;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
+import javax.swing.table.TableColumnModel;
 
 import org.jamocha.gui.JamochaGui;
-import org.jamocha.gui.TableMap;
-import org.jamocha.gui.TableSorter;
+import org.jamocha.gui.TableModelQuickSort;
+import org.jamocha.gui.TableRowModel;
 import org.jamocha.gui.editor.FactEditor;
 import org.jamocha.gui.icons.IconLoader;
 import org.jamocha.parser.JamochaType;
@@ -61,7 +63,7 @@ public class FactsPanel extends AbstractJamochaPanel implements ActionListener,
 	private static final long serialVersionUID = -5732131176258158968L;
 
 	private JSplitPane pane;
-	
+
 	private JTable factsTable;
 
 	private FactsTableModel dataModel;
@@ -77,10 +79,19 @@ public class FactsPanel extends AbstractJamochaPanel implements ActionListener,
 		setLayout(new BorderLayout());
 
 		dataModel = new FactsTableModel();
-		TableSorter sorter = new TableSorter(new TableMap());
-		((TableMap) sorter.getModel()).setModel(dataModel);
-		factsTable = new JTable(sorter);
-		sorter.addMouseListenerToHeaderInTable(factsTable);
+		factsTable = new JTable(dataModel);
+		factsTable.getTableHeader().addMouseListener(new MouseAdapter() {
+			public void mouseClicked(MouseEvent e) {
+				TableColumnModel columnModel = factsTable.getColumnModel();
+				int viewColumn = columnModel.getColumnIndexAtX(e.getX());
+				int column = factsTable.convertColumnIndexToModel(viewColumn);
+				if (e.getClickCount() == 1 && column != -1) {
+					int shiftPressed = e.getModifiers() & InputEvent.SHIFT_MASK;
+					boolean ascending = (shiftPressed == 0);
+					TableModelQuickSort.sort(dataModel, ascending, column);
+				}
+			}
+		});
 
 		factsTable.setShowHorizontalLines(true);
 		factsTable.setRowSelectionAllowed(true);
@@ -96,10 +107,11 @@ public class FactsPanel extends AbstractJamochaPanel implements ActionListener,
 		dumpArea.setEditable(false);
 		dumpArea.setFont(new Font("Courier", Font.PLAIN, 12));
 
-		pane = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
-				new JScrollPane(factsTable), new JScrollPane(dumpArea));
+		pane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, new JScrollPane(
+				factsTable), new JScrollPane(dumpArea));
 		add(pane, BorderLayout.CENTER);
-		pane.setDividerLocation(gui.getPreferences().getInt("facts.dividerlocation", 300));
+		pane.setDividerLocation(gui.getPreferences().getInt(
+				"facts.dividerlocation", 300));
 		reloadButton = new JButton("Reload Facts", IconLoader
 				.getImageIcon("database_refresh"));
 		reloadButton.addActionListener(this);
@@ -154,7 +166,8 @@ public class FactsPanel extends AbstractJamochaPanel implements ActionListener,
 	}
 
 	public void close() {
-		gui.getPreferences().putInt("facts.dividerlocation", pane.getDividerLocation());
+		gui.getPreferences().putInt("facts.dividerlocation",
+				pane.getDividerLocation());
 	}
 
 	public void settingsChanged() {
@@ -176,7 +189,8 @@ public class FactsPanel extends AbstractJamochaPanel implements ActionListener,
 			StringBuilder buffer = new StringBuilder();
 			if (factsTable.getSelectedColumnCount() == 1
 					&& factsTable.getSelectedRow() > -1) {
-				Fact fact = dataModel.getRow(factsTable.getSelectedRow());
+				Fact fact = (Fact) dataModel.getRowAt(factsTable
+						.getSelectedRow());
 				if (fact != null) {
 					buffer.append("f-" + fact.getFactId() + "("
 							+ fact.getDeftemplate().getName());
@@ -185,10 +199,11 @@ public class FactsPanel extends AbstractJamochaPanel implements ActionListener,
 						buffer.append("\n    (" + slot.getName() + " ");
 						if (slot.getValueType() == JamochaType.LIST) {
 							for (int i = 0; i < slot.getValue().getListCount(); ++i) {
-									if (i > 0)
-										buffer.append(" ");
-									buffer.append(slot.getValue().getListValue(i).getStringValue());
-								}
+								if (i > 0)
+									buffer.append(" ");
+								buffer.append(slot.getValue().getListValue(i)
+										.getStringValue());
+							}
 						} else {
 							String value = fact.getSlotValue(slot.getId())
 									.toString();
@@ -204,7 +219,8 @@ public class FactsPanel extends AbstractJamochaPanel implements ActionListener,
 		}
 	}
 
-	private final class FactsTableModel extends AbstractTableModel {
+	private final class FactsTableModel extends AbstractTableModel implements
+			TableRowModel {
 
 		private static final long serialVersionUID = 1L;
 
@@ -213,6 +229,15 @@ public class FactsPanel extends AbstractJamochaPanel implements ActionListener,
 		private void setFacts(List<Fact> facts) {
 			this.facts = facts;
 			fireTableDataChanged();
+		}
+
+		public void sortByColumn(int column, boolean ascending) {
+			switch (column) {
+			case 0:
+				for (int i = 0; i < facts.size(); ++i) {
+
+				}
+			}
 		}
 
 		@Override
@@ -238,7 +263,7 @@ public class FactsPanel extends AbstractJamochaPanel implements ActionListener,
 		@SuppressWarnings("unchecked")
 		public Class getColumnClass(int aColumn) {
 			if (aColumn == 0)
-				return java.lang.Number.class;
+				return java.lang.Long.class;
 			else if (aColumn == 1)
 				return java.lang.String.class;
 			else
@@ -249,12 +274,8 @@ public class FactsPanel extends AbstractJamochaPanel implements ActionListener,
 			return facts.size();
 		}
 
-		public Fact getRow(int row) {
-			return facts.get(row);
-		}
-
 		public Object getValueAt(int row, int column) {
-			Fact fact = getRow(row);
+			Fact fact = (Fact) getRowAt(row);
 			switch (column) {
 			case 0:
 				return fact.getFactId();
@@ -262,6 +283,19 @@ public class FactsPanel extends AbstractJamochaPanel implements ActionListener,
 				return fact.toFactString();
 			}
 			return null;
+		}
+
+		public void setValueAt(Object aValue, int row, int column) {
+			// we can't change fact values!
+		}
+
+		public Object getRowAt(int row) {
+			return facts.get(row);
+		}
+
+		public void setRowAt(Object value, int row) {
+			facts.set(row, (Fact) value);
+
 		}
 	}
 

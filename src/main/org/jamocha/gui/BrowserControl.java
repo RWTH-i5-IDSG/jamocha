@@ -36,10 +36,11 @@ public class BrowserControl {
 				Method openURL = fileMgr.getDeclaredMethod("openURL",
 						new Class[] { String.class });
 				openURL.invoke(null, new Object[] { url });
-			} else if (osName.startsWith("Windows"))
+			} else if (osName.startsWith("Windows")) {
 				Runtime.getRuntime().exec(
 						"rundll32 url.dll,FileProtocolHandler " + url);
-			else { // assume Unix or Linux
+			} else {
+				// assume Unix or Linux
 				String[] browsers = { "firefox", "opera", "konqueror",
 						"epiphany", "mozilla", "netscape" };
 				String browser = null;

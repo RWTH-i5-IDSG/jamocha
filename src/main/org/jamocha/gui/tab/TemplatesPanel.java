@@ -21,6 +21,7 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.InputEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.Collection;
@@ -38,10 +39,11 @@ import javax.swing.JTextArea;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
+import javax.swing.table.TableColumnModel;
 
 import org.jamocha.gui.JamochaGui;
-import org.jamocha.gui.TableMap;
-import org.jamocha.gui.TableSorter;
+import org.jamocha.gui.TableModelQuickSort;
+import org.jamocha.gui.TableRowModel;
 import org.jamocha.gui.editor.TemplateEditor;
 import org.jamocha.gui.icons.IconLoader;
 import org.jamocha.rete.Module;
@@ -78,10 +80,20 @@ public class TemplatesPanel extends AbstractJamochaPanel implements
 		setLayout(new BorderLayout());
 
 		dataModel = new TemplatesTableModel();
-		TableSorter sorter = new TableSorter(new TableMap());
-		((TableMap) sorter.getModel()).setModel(dataModel);
-		templatesTable = new JTable(sorter);
-		sorter.addMouseListenerToHeaderInTable(templatesTable);
+		templatesTable = new JTable(dataModel);
+		templatesTable.getTableHeader().addMouseListener(new MouseAdapter() {
+			public void mouseClicked(MouseEvent e) {
+				TableColumnModel columnModel = templatesTable.getColumnModel();
+				int viewColumn = columnModel.getColumnIndexAtX(e.getX());
+				int column = templatesTable
+						.convertColumnIndexToModel(viewColumn);
+				if (e.getClickCount() == 1 && column != -1) {
+					int shiftPressed = e.getModifiers() & InputEvent.SHIFT_MASK;
+					boolean ascending = (shiftPressed == 0);
+					TableModelQuickSort.sort(dataModel, ascending, column);
+				}
+			}
+		});
 
 		templatesTable.setShowHorizontalLines(true);
 		templatesTable.setRowSelectionAllowed(true);
@@ -143,8 +155,9 @@ public class TemplatesPanel extends AbstractJamochaPanel implements
 							0);
 					gui.getEngine().getAgenda().findModule(modName)
 							.removeTemplate(
-									dataModel.getRow(selCols[i]).getTemplate(),
-									gui.getEngine(),
+									((ExtTemplate) dataModel
+											.getRowAt(selCols[i]))
+											.getTemplate(), gui.getEngine(),
 									gui.getEngine().getWorkingMemory());
 				}
 				initTemplatesList();
@@ -183,8 +196,8 @@ public class TemplatesPanel extends AbstractJamochaPanel implements
 			StringBuilder buffer = new StringBuilder();
 			if (templatesTable.getSelectedColumnCount() == 1
 					&& templatesTable.getSelectedRow() > -1) {
-				ExtTemplate template = dataModel.getRow(templatesTable
-						.getSelectedRow());
+				ExtTemplate template = (ExtTemplate) dataModel
+						.getRowAt(templatesTable.getSelectedRow());
 				if (template != null) {
 					buffer.append("(" + template.getModule().getModuleName()
 							+ "::" + template.getTemplate().getName());
@@ -208,7 +221,8 @@ public class TemplatesPanel extends AbstractJamochaPanel implements
 		}
 	}
 
-	private final class TemplatesTableModel extends AbstractTableModel {
+	private final class TemplatesTableModel extends AbstractTableModel
+			implements TableRowModel {
 
 		private static final long serialVersionUID = 1L;
 
@@ -261,12 +275,8 @@ public class TemplatesPanel extends AbstractJamochaPanel implements
 			return templates.size();
 		}
 
-		public ExtTemplate getRow(int row) {
-			return templates.get(row);
-		}
-
 		public Object getValueAt(int row, int column) {
-			ExtTemplate template = getRow(row);
+			ExtTemplate template = (ExtTemplate) getRowAt(row);
 			switch (column) {
 			case 0:
 				return template.getModule().getModuleName();
@@ -274,6 +284,14 @@ public class TemplatesPanel extends AbstractJamochaPanel implements
 				return template.getTemplate().getName();
 			}
 			return null;
+		}
+
+		public Object getRowAt(int row) {
+			return templates.get(row);
+		}
+
+		public void setRowAt(Object value, int row) {
+			templates.set(row, (ExtTemplate) value);
 		}
 	}
 
