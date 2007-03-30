@@ -109,7 +109,7 @@
 )
 (assert (context (name "startup") ) )
 (assert (count (c 1) ) )
-(load ./benchmark/manners/128guest.dat)
+(load-facts ./benchmark/manners/128guest.dat)
 (bind ?*start* (ms-time) )
 (fire)
 (bind ?*end* (ms-time) )

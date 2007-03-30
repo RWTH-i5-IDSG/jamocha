@@ -109,7 +109,7 @@
 )
 (assert (context (name "startup") ) )
 (assert (count (c 1) ) )
-(load ./benchmark_files/128guest.dat)
+(load-facts ./benchmark_files/128guest.dat)
 (profile all)
 (fire)
 (print-profile)
