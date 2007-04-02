@@ -27,9 +27,9 @@ import org.jamocha.parser.JamochaValue;
  * 
  */
 public class Slot extends AbstractSlot {
-
+    
 	protected JamochaValue value = JamochaValue.NIL;
-
+	
 	public Slot() {
 	}
 
@@ -76,15 +76,6 @@ public class Slot extends AbstractSlot {
 				e.printStackTrace();
 			}
 		}
-	}
-
-	/**
-	 * In some cases, a deftemplate can be define with a default value.
-	 * 
-	 * @param value
-	 */
-	public void setDefaultValue(JamochaValue value) {
-		this.value = value;
 	}
 
 	/**

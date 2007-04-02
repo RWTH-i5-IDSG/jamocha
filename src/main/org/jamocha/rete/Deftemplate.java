@@ -48,7 +48,7 @@ import org.jamocha.parser.JamochaValue;
  */
 public class Deftemplate implements Template, Serializable {
 
-	protected Slot[] slots;
+	protected TemplateSlot[] slots;
 
 	private boolean watch = false;
 
@@ -63,13 +63,13 @@ public class Deftemplate implements Template, Serializable {
 	 */
 	private String defclass = null;
 
-	public Deftemplate(String name, String defclass, Slot[] slots) {
+	public Deftemplate(String name, String defclass, TemplateSlot[] slots) {
 		this.templateName = name;
 		this.defclass = defclass;
 		this.slots = slots;
 	}
 
-	public Deftemplate(String name, String defclass, Slot[] slots,
+	public Deftemplate(String name, String defclass, TemplateSlot[] slots,
 			Template parent) {
 		this(name, defclass, slots);
 		this.parent = parent;
@@ -162,7 +162,7 @@ public class Deftemplate implements Template, Serializable {
 	 * 
 	 * @return
 	 */
-	public Slot[] getAllSlots() {
+	public TemplateSlot[] getAllSlots() {
 		return this.slots;
 	}
 
@@ -172,7 +172,7 @@ public class Deftemplate implements Template, Serializable {
 	 * @param name
 	 * @return
 	 */
-	public Slot getSlot(String name) {
+	public TemplateSlot getSlot(String name) {
 		for (int idx = 0; idx < this.slots.length; idx++) {
 			if (this.slots[idx].getName().equals(name)) {
 				return this.slots[idx];
@@ -187,7 +187,7 @@ public class Deftemplate implements Template, Serializable {
 	 * @param id
 	 * @return
 	 */
-	public Slot getSlot(int id) {
+	public TemplateSlot getSlot(int id) {
 		return this.slots[id];
 	}
 
@@ -227,7 +227,7 @@ public class Deftemplate implements Template, Serializable {
 	 */
 	public Fact createFact(Object data, Defclass clazz, long id) {
 		// first we clone the slots
-		Slot[] values = cloneAllSlots();
+		Slot[] values = createFactSlots();
 		// now we set the values
 		for (int idx = 0; idx < values.length; idx++) {
 			Object val = clazz.getSlotValue(idx, data);
@@ -249,7 +249,7 @@ public class Deftemplate implements Template, Serializable {
 	 * @return
 	 */
 	public Fact createFact(List data, long id) {
-		Slot[] values = cloneAllSlots();
+		Slot[] values = createFactSlots();
 		Iterator itr = data.iterator();
 		while (itr.hasNext()) {
 			Slot s = (Slot) itr.next();
@@ -269,8 +269,8 @@ public class Deftemplate implements Template, Serializable {
 		return newfact;
 	}
 
-	public Fact createFact(Object[] data, long id) {
-		Slot[] values = cloneAllSlots();
+	public Fact createFact(Object[] data, long id, Rete engine) {
+		Slot[] values = createFactSlots();
         ArrayList bslots = new ArrayList();
         boolean hasbinding = false;
 		for (int idz = 0; idz < data.length; idz++) {
@@ -301,7 +301,7 @@ public class Deftemplate implements Template, Serializable {
 	}
 
 	public Fact createTemporalFact(Object[] data, long id) {
-		Slot[] values = cloneAllSlots();
+		Slot[] values = createFactSlots();
 		long expire = 0;
 		String source = "";
 		String service = "";
@@ -353,11 +353,11 @@ public class Deftemplate implements Template, Serializable {
 	}
 
 	/**
-	 * clone the slots
+	 * Create the facts for the slots
 	 * 
 	 * @return
 	 */
-	public Slot[] cloneAllSlots() {
+	private Slot[] createFactSlots() {
 		Slot[] cloned = new Slot[this.slots.length];
 		for (int idx = 0; idx < cloned.length; idx++) {
 			cloned[idx] = (Slot) this.slots[idx].clone();

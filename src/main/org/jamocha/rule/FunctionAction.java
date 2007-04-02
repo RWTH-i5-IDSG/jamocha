@@ -125,7 +125,7 @@ public class FunctionAction implements Action {
 			.getTemplate(tmplName.getIdentifierValue());
         	JamochaValue values = this.parameters[1].getValue(engine); 
 			Deffact	fact = (Deffact) tmpl.createFact(
-					(Object[])values.getObjectValue(),-1);
+					(Object[])values.getObjectValue(),-1, engine);
 			fact.compileBinding(util);
 			this.parameters = new ValueParam[1];
 			this.parameters[0] = new ValueParam(JamochaValue.newFact(fact));

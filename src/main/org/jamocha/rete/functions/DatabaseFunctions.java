@@ -26,6 +26,7 @@ import org.jamocha.rete.FunctionGroup;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.Slot;
 import org.jamocha.rete.Template;
+import org.jamocha.rete.TemplateSlot;
 
 public class DatabaseFunctions implements FunctionGroup {
 
@@ -46,13 +47,13 @@ public class DatabaseFunctions implements FunctionGroup {
 		/* Defining configuration template */
 		String templateName="jdbclink";
 		String defclass=null;
-		Slot[] slots = new Slot[6];
-		slots[0] = new Slot("ConnectionName");
-		slots[1] = new Slot("TableName");
-		slots[2] = new Slot("TemplateName");
-		slots[3] = new Slot("Username");
-		slots[4] = new Slot("Password");
-		slots[5] = new Slot("JDBCurl");
+		TemplateSlot[] slots = new TemplateSlot[6];
+		slots[0] = new TemplateSlot("ConnectionName");
+		slots[1] = new TemplateSlot("TableName");
+		slots[2] = new TemplateSlot("TemplateName");
+		slots[3] = new TemplateSlot("Username");
+		slots[4] = new TemplateSlot("Password");
+		slots[5] = new TemplateSlot("JDBCurl");
 		for( int i=0 ; i<6 ; i++ ) slots[i].setValueType( JamochaType.STRING );
 		Template jdbcConfigTemplate = new Deftemplate(templateName,defclass,slots);
 		

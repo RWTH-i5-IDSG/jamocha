@@ -139,7 +139,7 @@ public class ObjectTypeNode extends BaseAlpha implements Serializable {
     public void assertFactWithMap(Fact fact, Rete engine, WorkingMemory mem) 
     throws AssertException
     {
-        Slot[] slots = fact.getDeftemplate().getAllSlots();
+	TemplateSlot[] slots = fact.getDeftemplate().getAllSlots();
         // iterate over the slots
         for (int idx=0; idx < slots.length; idx++) {
             // only if the slot's node count is greater than zero 

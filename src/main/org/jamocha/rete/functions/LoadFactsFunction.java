@@ -100,7 +100,7 @@ public class LoadFactsFunction implements Function, Serializable {
 										vp[0].getValue(engine).getStringValue());
 						Deffact fact = (Deffact) tmpl.createFact(
 								(Object[]) vp[1].getValue(engine)
-										.getObjectValue(), -1);
+										.getObjectValue(), -1, engine);
 
 						engine.assertFact(fact);
 					}

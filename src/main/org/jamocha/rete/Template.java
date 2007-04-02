@@ -44,20 +44,20 @@ public interface Template extends Serializable {
 	 * Return an array of all the slots.
 	 * @return
 	 */
-	Slot[] getAllSlots();
+	TemplateSlot[] getAllSlots();
 
 	/**
 	 * Return the slot with the String name
 	 * @return
 	 */
-	Slot getSlot(String name);
+	TemplateSlot getSlot(String name);
 
 	/**
 	 * Get the Slot at the given column id
 	 * @param column
 	 * @return
 	 */
-	Slot getSlot(int column);
+	TemplateSlot getSlot(int column);
 
 	/**
 	 * Get the column index with the given name

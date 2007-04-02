@@ -225,17 +225,15 @@ public class Defclass implements Serializable {
 	 * @return
 	 */
 	public Deftemplate createDeftemplate(String tempName) {
-		Slot[] st = new Slot[this.PROPS.length];
+	    TemplateSlot[] st = new TemplateSlot[this.PROPS.length];
 		for (int idx = 0; idx < st.length; idx++) {
+			st[idx] = new TemplateSlot(this.PROPS[idx].getName());
+			st[idx].setValueType(JamochaType.getMappingType(this.PROPS[idx]
+					.getPropertyType()));
+			// set the column id for the slot
+			st[idx].setId(idx);
 			if (this.PROPS[idx].getPropertyType().isArray()) {
-				st[idx] = new MultiSlot(this.PROPS[idx].getName());
-				st[idx].setId(idx);
-			} else {
-				st[idx] = new Slot(this.PROPS[idx].getName());
-				st[idx].setValueType(JamochaType.getMappingType(this.PROPS[idx]
-						.getPropertyType()));
-				// set the column id for the slot
-				st[idx].setId(idx);
+			    st[idx].setMultiSlot(true);
 			}
 		}
 		Deftemplate temp = new Deftemplate(tempName, this.OBJECT_CLASS

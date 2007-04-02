@@ -326,7 +326,7 @@ public class Deffact implements Fact {
 	 */
 	public Deffact cloneFact(Rete engine) {
 		Deffact newfact = new Deffact(this.deftemplate, this.objInstance,
-				this.deftemplate.cloneAllSlots(), -1);
+				cloneAllSlots(), -1);
 		Slot[] slts = newfact.slots;
 		for (int idx = 0; idx < slts.length; idx++) {
 			// probably need to revisit this and make sure
@@ -344,6 +344,21 @@ public class Deffact implements Fact {
 		}
 		return newfact;
 	}
+	
+	/**
+	 * clone the slots
+	 * 
+	 * @return
+	 */
+	private Slot[] cloneAllSlots() {
+		Slot[] cloned = new Slot[this.slots.length];
+		for (int idx = 0; idx < cloned.length; idx++) {
+			cloned[idx] = (Slot) this.slots[idx].clone();
+		}
+		return cloned;
+	}
+
+
 
 	/**
 	 * this will make sure the fact is GC immediately

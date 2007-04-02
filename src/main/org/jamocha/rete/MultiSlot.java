@@ -17,6 +17,7 @@
 package org.jamocha.rete;
 
 import org.jamocha.parser.JamochaType;
+import org.jamocha.parser.JamochaValue;
 
 /**
  * @author Peter Lin
@@ -75,5 +76,4 @@ public class MultiSlot extends Slot {
 		newms.value = this.value;
 		return newms;
 	}
-
 }

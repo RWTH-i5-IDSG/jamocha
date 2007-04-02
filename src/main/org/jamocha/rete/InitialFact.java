@@ -29,7 +29,7 @@ public class InitialFact extends Deftemplate {
 	 */
 	public InitialFact() {
 		super(Constants.INITIAL_FACT);
-		this.slots = new Slot[0];
+		this.slots = new TemplateSlot[0];
 	}
 
 }

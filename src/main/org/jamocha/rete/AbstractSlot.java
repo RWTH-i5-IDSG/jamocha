@@ -56,22 +56,6 @@ public abstract class AbstractSlot implements Serializable, Cloneable {
 	private int depth;
 
 	/**
-	 * in some cases, users may want a template to have a default value
-	 */
-	private boolean hasDefault = false;
-
-	/**
-	 * node count is used to keep track of how many nodes use the given
-	 * slot. This is done for statistical purposes, which serve 3 main
-	 * functions.
-	 * 1. provide a way to calculate the relative importance of a slot
-	 * with regard to the entire RETE network
-	 * 2. provide a way to optimize runtime execution
-	 * 3. provide valuable information for engine management
-	 */
-	private int nodeCount = 1;
-
-	/**
 	 * Get the name of the slot
 	 * @return
 	 */
@@ -111,31 +95,6 @@ public abstract class AbstractSlot implements Serializable, Cloneable {
 	 */
 	public void setId(int id) {
 		this.id = id;
-	}
-
-	/**
-	 * return the number of nodes the given slot participates
-	 * in. It may not be a complete count. In some cases, it
-	 * may only count the direct successors of ObjectTypeNode
-	 * @return
-	 */
-	public int getNodeCount() {
-		return this.nodeCount;
-	}
-
-	/**
-	 * Increment the node count
-	 */
-	public void incrementNodeCount() {
-		this.nodeCount++;
-	}
-
-	/**
-	 * decrement the node count
-	 *
-	 */
-	public void decrementNodeCount() {
-		--this.nodeCount;
 	}
 
 	/**
