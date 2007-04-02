@@ -25,34 +25,35 @@ public interface COOLParserTreeConstants
   public int JJTCASESTATEMENT = 18;
   public int JJTDEFFACTSCONSTRUCT = 19;
   public int JJTDEFTEMPLATECONSTRUCT = 20;
-  public int JJTORDEREDRHSPATTERN = 21;
-  public int JJTTEMPLATERHSPATTERN = 22;
-  public int JJTRHSSLOT = 23;
-  public int JJTDEFRULECONSTRUCT = 24;
-  public int JJTACTIONLIST = 25;
-  public int JJTBOOLEANSYMBOL = 26;
-  public int JJTTESTCE = 27;
-  public int JJTLHSSLOT = 28;
-  public int JJTSINGLEFIELDWILDCARD = 29;
-  public int JJTMULTIFIELDWILDCARD = 30;
-  public int JJTCONNECTEDCONSTRAINT = 31;
-  public int JJTTERM = 32;
-  public int JJTDEFGLOBALCONSTRUCT = 33;
-  public int JJTGLOBALASSIGNMENT = 34;
-  public int JJTDEFFUNCTIONCONSTRUCT = 35;
-  public int JJTDEFGENERICCONSTRUCT = 36;
-  public int JJTDEFMETHODCONSTRUCT = 37;
-  public int JJTPARAMETERRESTRICTION = 38;
-  public int JJTWILDCARDPARAMETERRESTRICTION = 39;
-  public int JJTTYPE = 40;
-  public int JJTQUERY = 41;
-  public int JJTDEFCLASSCONSTRUCT = 42;
-  public int JJTDEFMESSAGEHANDLERCONSTRUCT = 43;
-  public int JJTDEFINSTANCESCONSTRUCT = 44;
-  public int JJTDEFMODULECONSTRUCT = 45;
-  public int JJTPORTSPECIFICATION = 46;
-  public int JJTPORTITEM = 47;
-  public int JJTCONSTRUCTNAME = 48;
+  public int JJTATTRIBUTES = 21;
+  public int JJTORDEREDRHSPATTERN = 22;
+  public int JJTTEMPLATERHSPATTERN = 23;
+  public int JJTRHSSLOT = 24;
+  public int JJTDEFRULECONSTRUCT = 25;
+  public int JJTACTIONLIST = 26;
+  public int JJTBOOLEANSYMBOL = 27;
+  public int JJTTESTCE = 28;
+  public int JJTLHSSLOT = 29;
+  public int JJTSINGLEFIELDWILDCARD = 30;
+  public int JJTMULTIFIELDWILDCARD = 31;
+  public int JJTCONNECTEDCONSTRAINT = 32;
+  public int JJTTERM = 33;
+  public int JJTDEFGLOBALCONSTRUCT = 34;
+  public int JJTGLOBALASSIGNMENT = 35;
+  public int JJTDEFFUNCTIONCONSTRUCT = 36;
+  public int JJTDEFGENERICCONSTRUCT = 37;
+  public int JJTDEFMETHODCONSTRUCT = 38;
+  public int JJTPARAMETERRESTRICTION = 39;
+  public int JJTWILDCARDPARAMETERRESTRICTION = 40;
+  public int JJTTYPE = 41;
+  public int JJTQUERY = 42;
+  public int JJTDEFCLASSCONSTRUCT = 43;
+  public int JJTDEFMESSAGEHANDLERCONSTRUCT = 44;
+  public int JJTDEFINSTANCESCONSTRUCT = 45;
+  public int JJTDEFMODULECONSTRUCT = 46;
+  public int JJTPORTSPECIFICATION = 47;
+  public int JJTPORTITEM = 48;
+  public int JJTCONSTRUCTNAME = 49;
 
 
   public String[] jjtNodeName = {
@@ -77,6 +78,7 @@ public interface COOLParserTreeConstants
     "CaseStatement",
     "DeffactsConstruct",
     "DeftemplateConstruct",
+    "Attributes",
     "OrderedRHSPattern",
     "TemplateRHSPattern",
     "RHSSlot",

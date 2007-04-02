@@ -32,7 +32,7 @@ public class COOLDeftemplateConstruct extends ConstructNode {
 	}
 	public JamochaValue getValue(Rete engine) //throws EvaluationException
 	{
-	    Slot [] s = new Slot[slots.size()];
+		TemplateSlot [] s = new TemplateSlot[slots.size()];
 		slots.toArray(s);
 		Deftemplate tpl = new Deftemplate(name,null,s);
 		Module mod = tpl.checkName(engine);

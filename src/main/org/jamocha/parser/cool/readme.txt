@@ -17,7 +17,7 @@ DO NOT DELETE FILES FROM THIS DIRECTORY!!!
 The grammar is complete, but likely contains some bugs (Note JavaCC
 sometimes produces strange parsers for poorly parenthesized EBNF).
 Interpretation is rudemantary at the moment:
--Expression can be executed (functions and constants)
+-Expressions can be executed (functions and constants)
 -Deffunction, Deftemplate and Defrule can be executed, though Defrule 
 	(in COOLDefruleConstruct.java) may be buggy...
 	Others have 'fine tuning' rules which are currently ignored,
@@ -45,7 +45,7 @@ specialized classes. This is usually done inside constructs rules.
 These specialized classes are sometimes native to the  into the 
 Rete engine, e.g Defrule construct directly creates a 
 org.jamocha.rule.Defrule which finalized and fed into the engine by
-the execute funciton (and Deffunction has a specialzied defined 
+the execute function (and Deffunction has a specialzied defined 
 function class for itself). Some details have not been tested 
 (e.g. multislots support)
 
