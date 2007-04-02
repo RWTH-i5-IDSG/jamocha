@@ -280,15 +280,30 @@ public class Deftemplate implements Template, Serializable {
 			Slot s = (Slot) data[idz];
 			for (int idx = 0; idx < values.length; idx++) {
 				if (values[idx].getName().equals(s.getName())) {
-					if (s.value == null) {
-						values[idx].setValue(JamochaValue.NIL);
-					} else if (s.getValue().getType() == JamochaType.BINDING) {
-                        values[idx].setValue(s.value);
-                        bslots.add((Slot)s.clone());
-                        hasbinding = true;
+                    if (s.getValue().getType() == JamochaType.LIST) {
+                        JamochaValue mval = s.getValue();
+                        // check the list to see if there's any bindings
+                        for (int mdx=0; mdx < mval.getListCount(); mdx++) {
+                            JamochaValue v2 = mval.getListValue(mdx);
+                            if (v2.getType() == JamochaType.BINDING) {
+                                values[idx].setValue(s.value);
+                                bslots.add((Slot)s.clone());
+                                hasbinding = true;
+                                break;
+                            }
+                        }
                     } else {
-						values[idx].setValue(s.value);
-					}
+                        if (s.value == null) {
+                            values[idx].setValue(JamochaValue.NIL);
+                        } else if (s.getValue().getType() == JamochaType.BINDING) {
+                            values[idx].setValue(s.value);
+                            bslots.add((Slot)s.clone());
+                            hasbinding = true;
+                        } else {
+                            values[idx].setValue(s.value);
+                        }
+                    }
+                    break;
 				}
 			}
 		}

@@ -1043,13 +1043,13 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
       tval = jj_consume_token(BIND);
     bp = new BoundParam();
     bp.setVariableName(tval.image);
-    tokens.add(bp);
+    tokens.add(JamochaValue.newBinding(bp));
       break;
     case BIND3:
       tval = jj_consume_token(BIND3);
     bp = new BoundParam();
     bp.setVariableName(tval.image);
-    tokens.add(bp);
+    tokens.add(JamochaValue.newBinding(bp));
       break;
     case INTEGER_LITERAL:
     case FLOATING_POINT_LITERAL:

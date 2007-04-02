@@ -783,14 +783,14 @@ void arrayType(List tokens) :
   {
     bp = new BoundParam();
     bp.setVariableName(tval.image);
-    tokens.add(bp);
+    tokens.add(JamochaValue.newBinding(bp));
   }
 |
   tval = <BIND3>
   {
     bp = new BoundParam();
     bp.setVariableName(tval.image);
-    tokens.add(bp);
+    tokens.add(JamochaValue.newBinding(bp));
   }
 |
   val = typeExpr()

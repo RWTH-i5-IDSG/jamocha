@@ -101,7 +101,15 @@ public class Deffact implements Fact {
 
 	public void resolveValues(Rete engine, Fact[] triggerFacts) {
 		for (int idx = 0; idx < this.boundSlots.length; idx++) {
-			if (this.boundSlots[idx].value.getType()
+            if (this.boundSlots[idx].getValue().getType() == JamochaType.LIST) {
+                JamochaValue mvals = this.boundSlots[idx].getValue();
+                for (int mdx=0; mdx < mvals.getListCount(); mdx++) {
+                    JamochaValue jv = mvals.getListValue(mdx);
+                    BoundParam bp = (BoundParam)jv.getObjectValue();
+                    bp.setResolvedValue(engine.getBinding(bp
+                                    .getVariableName()));
+                }
+            } else if (this.boundSlots[idx].value.getType()
 					.equals(JamochaType.BINDING)) {
 				BoundParam bp = (BoundParam) this.boundSlots[idx].value
 						.getObjectValue();
@@ -330,7 +338,22 @@ public class Deffact implements Fact {
 		Slot[] slts = newfact.slots;
 		for (int idx = 0; idx < slts.length; idx++) {
 			// probably need to revisit this and make sure
-			if (this.slots[idx].value.getType().equals(JamochaType.BINDING)) {
+            if (this.slots[idx].getValue().getType() == JamochaType.LIST) {
+                JamochaValue mval = this.slots[idx].getValue();
+                // check the list to see if there's any bindings
+                JamochaValue[] rvals = new JamochaValue[mval.getListCount()];
+                for (int mdx = 0; mdx < mval.getListCount(); mdx++) {
+                    JamochaValue v2 = mval.getListValue(mdx);
+                    try {
+                        rvals[mdx] = JamochaValue.newObject(((BoundParam) v2
+                                .getObjectValue()).getValue(engine));
+                    } catch (EvaluationException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
+                }
+                slts[idx].value = JamochaValue.newList(rvals);
+            } else if (this.slots[idx].value.getType().equals(JamochaType.BINDING)) {
 				try {
 					slts[idx].value = ((BoundParam) this.slots[idx].value.getObjectValue())
 							.getValue(engine);
