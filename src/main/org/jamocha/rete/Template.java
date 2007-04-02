@@ -18,6 +18,8 @@ package org.jamocha.rete;
 
 import java.io.Serializable;
 
+import org.jamocha.parser.EvaluationException;
+
 /**
  * @author Peter Lin
  *
@@ -85,7 +87,7 @@ public interface Template extends Serializable {
 	 * @param id
 	 * @return
 	 */
-	Fact createFact(Object data, Defclass clazz, long id);
+	Fact createFact(Object data, Defclass clazz, long id, Rete engine) throws EvaluationException;
 
 	/**
 	 * If a template has a parent, the method should

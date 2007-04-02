@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.IllegalConversionException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
@@ -224,10 +225,11 @@ public class Deftemplate implements Template, Serializable {
 	 * 
 	 * @param data
 	 * @return
+	 * @throws EvaluationException 
 	 */
-	public Fact createFact(Object data, Defclass clazz, long id) {
+	public Fact createFact(Object data, Defclass clazz, long id, Rete engine) throws EvaluationException {
 		// first we clone the slots
-		Slot[] values = createFactSlots();
+		Slot[] values = createFactSlots(engine);
 		// now we set the values
 		for (int idx = 0; idx < values.length; idx++) {
 			Object val = clazz.getSlotValue(idx, data);
@@ -247,9 +249,10 @@ public class Deftemplate implements Template, Serializable {
 	 * @param data
 	 * @param id
 	 * @return
+	 * @throws EvaluationException 
 	 */
-	public Fact createFact(List data, long id) {
-		Slot[] values = createFactSlots();
+	public Fact createFact(List data, long id, Rete engine) throws EvaluationException {
+		Slot[] values = createFactSlots(engine);
 		Iterator itr = data.iterator();
 		while (itr.hasNext()) {
 			Slot s = (Slot) itr.next();
@@ -269,8 +272,8 @@ public class Deftemplate implements Template, Serializable {
 		return newfact;
 	}
 
-	public Fact createFact(Object[] data, long id, Rete engine) {
-		Slot[] values = createFactSlots();
+	public Fact createFact(Object[] data, long id, Rete engine) throws EvaluationException {
+		Slot[] values = createFactSlots(engine);
         ArrayList bslots = new ArrayList();
         boolean hasbinding = false;
 		for (int idz = 0; idz < data.length; idz++) {
@@ -300,8 +303,8 @@ public class Deftemplate implements Template, Serializable {
 		return newfact;
 	}
 
-	public Fact createTemporalFact(Object[] data, long id) {
-		Slot[] values = createFactSlots();
+	public Fact createTemporalFact(Object[] data, long id, Rete engine) throws EvaluationException {
+		Slot[] values = createFactSlots(engine);
 		long expire = 0;
 		String source = "";
 		String service = "";
@@ -356,13 +359,14 @@ public class Deftemplate implements Template, Serializable {
 	 * Create the facts for the slots
 	 * 
 	 * @return
+	 * @throws EvaluationException 
 	 */
-	private Slot[] createFactSlots() {
-		Slot[] cloned = new Slot[this.slots.length];
-		for (int idx = 0; idx < cloned.length; idx++) {
-			cloned[idx] = (Slot) this.slots[idx].clone();
+	private Slot[] createFactSlots(Rete engine) throws EvaluationException {
+		Slot[] factSlots = new Slot[this.slots.length];
+		for (int idx = 0; idx < factSlots.length; idx++) {
+			factSlots[idx] = (Slot) this.slots[idx].createSlot(engine);
 		}
-		return cloned;
+		return factSlots;
 	}
 
 	/**

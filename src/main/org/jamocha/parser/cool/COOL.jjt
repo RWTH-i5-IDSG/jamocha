@@ -1416,7 +1416,7 @@ void Facet(TemplateSlot ts) #void : {}
 void DefaultFacet(TemplateSlot ts) #void : { Node n; }
 {
 	( 	<DEFAULT_ATR>
-		(	<ATR_DERIVE> // { ts.setDefaultDerive(); }
+		(	<ATR_DERIVE> { ts.setDefaultDerive(); }
 		|	<ATR_NONE> // { ts.setDefaultNone(); }
 		|   n=Attributes() { ts.setStaticDefaultExpression(n); }
 		) 

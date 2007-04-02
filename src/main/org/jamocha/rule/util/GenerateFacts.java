@@ -19,6 +19,7 @@ package org.jamocha.rule.util;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 
+import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Defclass;
 import org.jamocha.rete.Deftemplate;
@@ -134,7 +135,13 @@ public class GenerateFacts {
 				list.add(s);
 			}
 		}
-		Fact f = templ.createFact(list,engine.nextFactId());
+		Fact f = null;
+		try {
+		    f = templ.createFact(list,engine.nextFactId(), engine);
+		} catch (EvaluationException e) {
+		    // TODO Auto-generated catch block
+		    e.printStackTrace();
+		}
 		return f;
 	}
     

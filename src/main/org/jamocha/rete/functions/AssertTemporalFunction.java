@@ -68,7 +68,7 @@ public class AssertTemporalFunction implements Function, Serializable {
                 // before we create the fact, we need to remove the four
                 // slots for temporal facts
 				fact = (Deffact) tmpl.createTemporalFact(
-                        (Object[])params[1].getValue(engine).getObjectValue(),-1);
+                        (Object[])params[1].getValue(engine).getObjectValue(),-1, engine);
 			}
 			if (fact.hasBinding()) {
 				fact.resolveValues(engine, this.triggerFacts);
