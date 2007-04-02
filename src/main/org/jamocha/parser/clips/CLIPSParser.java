@@ -10,11 +10,12 @@ import org.jamocha.parser.Expression;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.Parser;
+import org.jamocha.parser.ParserUtils;
 import org.jamocha.rete.BoundParam;
 import org.jamocha.rete.Deftemplate;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.FunctionParam2;
-import org.jamocha.rete.MultiSlot;
+import org.jamocha.rete.TemplateSlot;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.ParameterUtils;
 import org.jamocha.rete.Slot;
@@ -807,15 +808,9 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
     }
     jj_consume_token(RBRACE);
     if (body != null) {
-      if (body.getType().equals(JamochaType.LIST)) {
-        MultiSlot msl = new MultiSlot(exp.image);
-        msl.setValue(body);
-        tokens.add(msl);
-      } else {
-        Slot s = new Slot(exp.image);
-        s.setValue(body);
-        tokens.add(s);
-      }
+      Slot s = new Slot(exp.image);
+      s.setValue(body);
+      tokens.add(s);
     }
     exp.clear();
     exp = null;
@@ -1089,7 +1084,7 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
         break label_17;
       }
     }
-    Slot[] s = new Slot[slots.size()];
+    TemplateSlot[] s = new TemplateSlot[slots.size()];
     slots.toArray(s);
     template = new Deftemplate(exp.image,null,s);
     slots.clear();
@@ -1103,8 +1098,7 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
   Token sname;
   JamochaType stype;
   int sid;
-  Slot sl;
-  MultiSlot msl;
+  TemplateSlot sl;
     if (jj_2_9(2147483647)) {
       jj_consume_token(LBRACE);
       jj_consume_token(SLOT);
@@ -1112,7 +1106,7 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
       stype = slotType();
       jj_consume_token(RBRACE);
     sid = slots.size();
-    sl = new Slot(sname.image);
+    sl = new TemplateSlot(sname.image);
     sl.setId(sid);
     sl.setValueType(stype);
     slots.add(sl);
@@ -1123,9 +1117,10 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
       sname = jj_consume_token(IDENTIFIER);
       jj_consume_token(RBRACE);
     sid = slots.size();
-    msl = new MultiSlot(sname.image);
-    msl.setId(sid);
-    slots.add(msl);
+    sl = new TemplateSlot(sname.image);
+    sl.setMultiSlot(true);
+    sl.setId(sid);
+    slots.add(sl);
     sname = null;
     } else {
       jj_consume_token(-1);
@@ -2343,16 +2338,14 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
     finally { jj_save(36, xla); }
   }
 
-  final private boolean jj_3_1() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_scan_token(14)) {
-    jj_scanpos = xsp;
-    if (jj_scan_token(11)) {
-    jj_scanpos = xsp;
-    if (jj_scan_token(12)) return true;
-    }
-    }
+  final private boolean jj_3_10() {
+    if (jj_scan_token(LBRACE)) return true;
+    if (jj_scan_token(MULTISLOT)) return true;
+    return false;
+  }
+
+  final private boolean jj_3_34() {
+    if (jj_scan_token(IDENTIFIER)) return true;
     return false;
   }
 
@@ -2439,6 +2432,11 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
     return false;
   }
 
+  final private boolean jj_3_2() {
+    if (jj_scan_token(LBRACE)) return true;
+    return false;
+  }
+
   final private boolean jj_3_16() {
     if (jj_scan_token(LBRACE)) return true;
     if (jj_scan_token(REMEMBERMATCH)) return true;
@@ -2465,11 +2463,6 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
   final private boolean jj_3_15() {
     if (jj_scan_token(LBRACE)) return true;
     if (jj_scan_token(RULEVERSION)) return true;
-    return false;
-  }
-
-  final private boolean jj_3_2() {
-    if (jj_scan_token(LBRACE)) return true;
     return false;
   }
 
@@ -2612,14 +2605,16 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
     return false;
   }
 
-  final private boolean jj_3_10() {
-    if (jj_scan_token(LBRACE)) return true;
-    if (jj_scan_token(MULTISLOT)) return true;
-    return false;
-  }
-
-  final private boolean jj_3_34() {
-    if (jj_scan_token(IDENTIFIER)) return true;
+  final private boolean jj_3_1() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_scan_token(14)) {
+    jj_scanpos = xsp;
+    if (jj_scan_token(11)) {
+    jj_scanpos = xsp;
+    if (jj_scan_token(12)) return true;
+    }
+    }
     return false;
   }
 

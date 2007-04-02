@@ -24,6 +24,10 @@ public class TemplateSlot extends Slot {
     private boolean multiSlot = false;
     
     private Expression defaultExpression;
+    
+    public TemplateSlot() {
+	super();
+    }
 
     public TemplateSlot(String name) {
 	super(name);
