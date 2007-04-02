@@ -18,7 +18,6 @@ package org.jamocha.adapter.sl;
 
 import java.io.Serializable;
 
-import org.jamocha.adapter.AdapterTranslationException;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.IllegalParameterException;
 import org.jamocha.parser.JamochaType;
@@ -30,20 +29,20 @@ import org.jamocha.rete.Rete;
 import org.jamocha.rete.ValueParam;
 
 /**
- * Translates SL-Code to CLIPS-Code
+ * Translates CLIPS-Code resp. JamochaValues to SL.
  * 
  * @author Alexander Wilden
  */
-public class SL2CLIPSFunction implements Function, Serializable {
+public class CLIPS2SLFunction implements Function, Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	public static final String SL_2_CLIPS = "sl2clips";
+	public static final String CLIPS_2_SL = "clips2sl";
 
 	/**
 	 * 
 	 */
-	public SL2CLIPSFunction() {
+	public CLIPS2SLFunction() {
 		super();
 	}
 
@@ -54,25 +53,18 @@ public class SL2CLIPSFunction implements Function, Serializable {
 	public JamochaValue executeFunction(Rete engine, Parameter[] params)
 			throws EvaluationException {
 		JamochaValue result = JamochaValue.newString("");
-		if (params != null && params.length == 2) {
-			//long performative = params[0].getValue(engine).getLongValue();
-			String slCode = params[1].getValue(engine).getStringValue();
-			try {
-				// TODO check if performative is a request
-				String clipsCode = SL2CLIPS.getCLIPSFromRequest(slCode);
-				result = JamochaValue.newString(clipsCode);
-			} catch (AdapterTranslationException e) {
-				throw new EvaluationException(
-						"Error while translating from SL to CLIPS.", e);
-			}
+		if (params != null && params.length == 1) {
+			JamochaValue value = params[0].getValue(engine);
+			String slCode = CLIPS2SL.getSL(value);
+			result = JamochaValue.newString(slCode);
 		} else {
-			throw new IllegalParameterException(2);
+			throw new IllegalParameterException(1);
 		}
 		return result;
 	}
 
 	public String getName() {
-		return SL_2_CLIPS;
+		return CLIPS_2_SL;
 	}
 
 	public Class[] getParameter() {
@@ -82,7 +74,7 @@ public class SL2CLIPSFunction implements Function, Serializable {
 	public String toPPString(Parameter[] params, int indents) {
 		if (params != null && params.length > 0) {
 			StringBuffer buf = new StringBuffer();
-			buf.append("(sl2clips");
+			buf.append("(clips2sl");
 			for (int idx = 0; idx < params.length; idx++) {
 				if (params[idx] instanceof BoundParam) {
 					BoundParam bp = (BoundParam) params[idx];
@@ -95,9 +87,9 @@ public class SL2CLIPSFunction implements Function, Serializable {
 			buf.append(")");
 			return buf.toString();
 		} else {
-			return "(sl2clips <string expression>)\n"
+			return "(clips2sl <string expression>)\n"
 					+ "Command description:\n"
-					+ "\tTranslates a string in SL to CLIPS.";
+					+ "\tTranslates a string in CLIPS to SL.";
 		}
 	}
 }
