@@ -45,6 +45,9 @@ public class StringFunctions implements FunctionGroup {
 		StringCompareFunction compare = new StringCompareFunction();
 		engine.declareFunction(compare);
 		funcs.add(compare);
+		StringCatFunction cat = new StringCatFunction();
+		engine.declareFunction(cat);
+		funcs.add(cat);
 		StringIndexFunction indx = new StringIndexFunction();
 		engine.declareFunction(indx);
 		funcs.add(indx);

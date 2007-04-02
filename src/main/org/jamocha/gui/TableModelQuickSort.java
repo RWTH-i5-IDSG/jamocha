@@ -20,7 +20,6 @@ package org.jamocha.gui;
  * This is a {@link TableRowModel} sorter. As most TableModels have their own
  * way to hold the data, this is the right way to avoid inconsistencies.
  * 
- * @author Karl-Heinz Krempels <krempels@cs.rwth-aachen.de>
  * @author Alexander Wilden <october.rust@gmx.de>
  */
 public class TableModelQuickSort {
