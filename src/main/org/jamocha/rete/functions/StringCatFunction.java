@@ -22,6 +22,7 @@ import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.IllegalParameterException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
+import org.jamocha.rete.Constants;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
@@ -58,7 +59,15 @@ public class StringCatFunction implements Function, Serializable {
 		StringBuilder txt = new StringBuilder();
 		if (params != null) {
 			for (Parameter param : params) {
-				txt.append(param.getValue(engine).getStringValue());
+				JamochaValue value = param.getValue(engine);
+				if (value.getType().equals(JamochaType.IDENTIFIER)
+						&& value.getIdentifierValue().equals(Constants.CRLF)) {
+					txt.append("\n");
+				} else if (value.getType().equals(JamochaType.STRING)) {
+					txt.append(value.getStringValue());
+				} else {
+					txt.append(value.toString());
+				}
 			}
 		} else {
 			throw new IllegalParameterException(1);
