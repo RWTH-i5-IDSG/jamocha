@@ -653,47 +653,45 @@ AbstractSlot SlotDefinition() #void : { AbstractSlot ret;}
 AbstractSlot SingleSlotDefinition() #void :
 { 
 	Token t;
-	Slot s=new Slot();
-	TemplateSlot ts;
+	TemplateSlot ts = new TemplateSlot();
 }
 {
 	<SLOT>
 	t = <SYMBOL>
 	{ 
-		s.setName(t.image); //<slot-name>
+		ts.setName(t.image); //<slot-name>
 	}
 	(
-		sf=TemplateAttribute()
-		{ if (sf!=null) s.addAttribute(sf); }
+		TemplateAttribute(ts)
 	)*
-	{ return s; }
+	{ return ts; }
 }
 
 //<multislot-definition> ::= (multislot <slot-name> <template-attribute>*)
 AbstractSlot MultislotDefinition() #void :
 { 
 	Token t; 
-	MultiSlot s=new MultiSlot();
-	TemplateSlot ts;
+	TemplateSlot ts = new TemplateSlot();
+	ts.setMultiSlot(true);
 }
 {
         <MULTISLOT>
         t = <SYMBOL>
-        { s.setName(t.image); }//<slot-name>
+        { ts.setName(t.image); }//<slot-name>
         (
-			sf=TemplateAttribute()
-//			{ if (sf!=null) s.addAttribute(sf); };
+			TemplateAttribute(ts)
 		)*
-		{ return s; }
+		{return ts;}
 }
 
 //<template-attribute> ::= <default-attribute> | <constraint-attribute>
-TemplateSlot TemplateAttribute() #void : { TemplateSlot ts=new TemplateSlot();}
+void TemplateAttribute(TemplateSlot ts) #void : { }
 {
 	(	DefaultAttribute(ts) 
 	| 	DynamicAttribute(ts)
 	|	ConstraintAttribute(ts)
-	) { return ts; }
+	) {
+	 }
 }
 
 // Create a dummy node to have a list of attributes
@@ -1386,7 +1384,6 @@ TemplateSlot Slot() #void : { Token t; TemplateSlot ts=new TemplateSlot();}
 		)
 		t = <SYMBOL>
 		{ 
-			jjtThis.setName(t.image); 
 		 	ts.setName(t.image);
 		}
 		( Facet(ts) )*

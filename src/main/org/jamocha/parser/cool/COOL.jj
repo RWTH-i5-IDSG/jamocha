@@ -27,6 +27,7 @@
 
 options {              
 	STATIC=false;                                               
+    ERROR_REPORTING = true;
 }
 
 
@@ -51,7 +52,7 @@ import org.jamocha.rete.MultiSlot;
 import org.jamocha.rete.AbstractSlot;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Fact;
-
+import org.jamocha.rete.TemplateSlot;
 import org.jamocha.rule.*;
 
 /** This is the jjTree Parser Class. Use Start() to parse an expression or construct of the 
@@ -95,7 +96,7 @@ public class COOLParser implements/*@bgen(jjtree)*/ COOLParserTreeConstants, /*@
                         {
                                 COOLStart n = p.Start();
                                 if (n==null) System.exit(0);
-                                n.dump("");
+                                n.dump(" ");
                                 System.out.println(n.getValue(engine).toString());
                         }
                 }
@@ -135,13 +136,14 @@ TOKEN :
   < LBRACE: "(" >
 | < RBRACE: ")" >| < GE1: ">=" >
 | < #DIGIT: ["0"-"9"] >
-| < INTEGER: (<DIGIT>)+ >
+| < INTEGER: (["+","-"])? (<DIGIT>)+ >
 |
   < FLOAT:
         (<DIGIT>)+ "." (<DIGIT>)* (<EXPONENT>)?
       | "." (<DIGIT>)+ (<EXPONENT>)?
       | (<DIGIT>)+ <EXPONENT>
   >
+  
 | < #EXPONENT: ["e","E"] (["+","-"])? (<DIGIT>)+ >
 | < #GMT_OFFSET: ("+"|"-") ( <DIGIT> )? <DIGIT> >
 | < #DATE: <DIGIT> <DIGIT> <DIGIT> <DIGIT> "-" <DIGIT> <DIGIT> "-" <DIGIT> <DIGIT> >
@@ -1136,64 +1138,104 @@ AbstractSlot SlotDefinition()       : { AbstractSlot ret;}
 AbstractSlot SingleSlotDefinition()       :
 { 
 	Token t;
-	Slot s=new Slot();
-	SlotFacet sf;
+	TemplateSlot ts = new TemplateSlot();
 }
 {
 	<SLOT>
 	t = <SYMBOL>
 	{ 
-		s.setName(t.image); //<slot-name>
+		ts.setName(t.image); //<slot-name>
 	}
 	(
-		sf=TemplateAttribute()
-//		{ if (a!=null) s.addAttribue(a); };
+		TemplateAttribute(ts)
 	)*
-	{ return s; }
+	{ return ts; }
 }
 
 //<multislot-definition> ::= (multislot <slot-name> <template-attribute>*)
 AbstractSlot MultislotDefinition()       :
 { 
 	Token t; 
-	MultiSlot s=new MultiSlot();
-	SlotFacet sf;
+	TemplateSlot ts = new TemplateSlot();
+	ts.setMultiSlot(true);
 }
 {
         <MULTISLOT>
         t = <SYMBOL>
-        { s.setName(t.image); }//<slot-name>
+        { ts.setName(t.image); }//<slot-name>
         (
-			sf=TemplateAttribute()
-//			{ if (sf!=null) s.addAttribue(sf); };
+			TemplateAttribute(ts)
 		)*
-		{ return s; }
+		{return ts;}
 }
 
 //<template-attribute> ::= <default-attribute> | <constraint-attribute>
-SlotFacet TemplateAttribute()       : { SlotFacet s=new SlotFacet();}
+void TemplateAttribute(TemplateSlot ts)       : { }
 {
-	(	DefaultAttribute(s) 
-	| 	DynamicAttribute(s)
-	|	ConstraintAttribute(s)
-	) { return s; }
+	(	DefaultAttribute(ts) 
+	| 	DynamicAttribute(ts)
+	|	ConstraintAttribute(ts)
+	) {
+	 }
+}
+
+// Create a dummy node to have a list of attributes
+Node Attributes():{/*@bgen(jjtree) Attributes */
+  COOLAttributes jjtn000 = new COOLAttributes(this, JJTATTRIBUTES);
+  boolean jjtc000 = true;
+  jjtree.openNodeScope(jjtn000);
+/*@egen*/} 
+{/*@bgen(jjtree) Attributes */
+        try {
+/*@egen*/ 
+	(	LOOKAHEAD(2)
+		Expression()
+	)*/*@bgen(jjtree)*/
+        {
+          jjtree.closeNodeScope(jjtn000, true);
+          jjtc000 = false;
+        }
+/*@egen*/ 
+	{ return jjtn000; }/*@bgen(jjtree)*/
+        } catch (Throwable jjte000) {
+          if (jjtc000) {
+            jjtree.clearNodeScope(jjtn000);
+            jjtc000 = false;
+          } else {
+            jjtree.popNode();
+          }
+          if (jjte000 instanceof RuntimeException) {
+            throw (RuntimeException)jjte000;
+          }
+          if (jjte000 instanceof ParseException) {
+            throw (ParseException)jjte000;
+          }
+          throw (Error)jjte000;
+        } finally {
+          if (jjtc000) {
+            jjtree.closeNodeScope(jjtn000, true);
+          }
+        }
+/*@egen*/
 }
 
 //<default-attribute> ::= (default ?DERIVE | ?NONE | <expression>*) | (default-dynamic <expression>*)
-void DefaultAttribute(SlotFacet s)       : { Node n;}
+void DefaultAttribute(TemplateSlot ts)       : { Node n;}
 {
 	<DEFAULT_ATR>
 	(	
-		<ATR_DERIVE> { s.setDefaultDerive(); }
-	|	<ATR_NONE> { s.setDefaultNone(); }
-	|	n=ActionList() { s.setDefaultAction(n); }
+		<ATR_DERIVE> { ts.setDefaultDerive(); }
+	|	<ATR_NONE> // { ts.setDefaultNone(); }
+	|	n=Attributes() { ts.setStaticDefaultExpression(n); }
 	)
 }
 
-void DynamicAttribute(SlotFacet s)       : { Node n;}
+
+
+void DynamicAttribute(TemplateSlot ts)       : { Node n;}
 {	
 	(	<DYNAMIC_ATR> 
-		n=ActionList() { s.setDynamic(n); }
+		n=Attributes() { ts.setDynamicDefaultExpression(n); }
 	)
 	
 }
@@ -1376,6 +1418,7 @@ void DefruleConstruct() :{/*@bgen(jjtree) DefruleConstruct */
 			Declaration(jjtn000)
 			(
 				ce=ConditionalElement()
+								{  jjtn000.addCondition(ce); }
 			)* 
 		) |
 		(
@@ -1427,7 +1470,7 @@ void DefruleConstruct() :{/*@bgen(jjtree) DefruleConstruct */
 }
 */
 
-// Create Dummy node to have fixed number of chlidren in Defrule
+// Create Dummy node to have fixed number of children in Defrule
 Node ActionList():{/*@bgen(jjtree) ActionList */
   COOLActionList jjtn000 = new COOLActionList(this, JJTACTIONLIST);
   boolean jjtc000 = true;
@@ -1467,8 +1510,9 @@ Node ActionList():{/*@bgen(jjtree) ActionList */
 /*@egen*/
 }
 
+
 /*
-// Create Dummy node to have fixed number of chlidren later
+// Create Dummy node to have fixed number of children later
 Node CEList2():{} 
 { 
 	(ConditionalElement())+ 
@@ -2394,96 +2438,98 @@ void PatternMatchRole(COOLDefclassConstruct c)       : {}
 
 // JUST SET RULE ATTRIBUTE?
 //<slot> ::= (slot <name> <facet>*) | (single-slot <name> <facet>*) | (multislot <name> <facet>*)
-SlotFacet Slot()       : { Token t; SlotFacet cf=new SlotFacet();}
+TemplateSlot Slot()       : { Token t; TemplateSlot ts=new TemplateSlot();}
 {
 	<LBRACE>
 		(
-			<SLOT> 
-		|	<SINGLE_SLOT>
-		|	<MULTISLOT>
+			<SLOT> { ts.setMultiSlot(false); }
+		|	<SINGLE_SLOT> { ts.setMultiSlot(false); }
+		|	<MULTISLOT> { ts.setMultiSlot(true); }
 		)
 		t = <SYMBOL>
-//		{ jjtThis.setName(t.image); }
-		( Facet(cf) )*
+		{ 
+		 	ts.setName(t.image);
+		}
+		( Facet(ts) )*
 	<RBRACE>
-	{ return cf; }
+	{ return ts; }
 }
 
 //<facet> ::= <default-facet> | <storage-facet> | <access-facet> | <propagation-facet> | 
 //	<source-facet> | <pattern-match-facet> | <visibility-facet> | 
 //	<create-accessor-facet> <override-message-facet> | <constraint-attribute>
-void Facet(SlotFacet sf)       : {}
+void Facet(TemplateSlot ts)       : {}
 {
 	<LBRACE> //facets all have brackets
 		( LOOKAHEAD(2)
-			DefaultFacet(sf)
-		| 	StorageFacet(sf)
-		|	AccessFacet(sf)
-		|	PropagationFacet(sf)
-		|	SourceFacet(sf)
-		|	PatternMatchFacet(sf)
-		|	VisibilityFacet(sf)
-		|	CreateAccessorFacet(sf)
-		|	OverrideMessageFacet(sf)
-		|	ConstraintAttribute(sf)
+			DefaultFacet(ts)
+		| 	StorageFacet(ts)
+		|	AccessFacet(ts)
+		|	PropagationFacet(ts)
+		|	SourceFacet(ts)
+		|	PatternMatchFacet(ts)
+		|	VisibilityFacet(ts)
+		|	CreateAccessorFacet(ts)
+		|	OverrideMessageFacet(ts)
+		|	ConstraintAttribute(ts)
 		)
 	<RBRACE>
 }
 
 //<default-facet> ::= (default ?DERIVE | ?NONE | <expression>*) | (default-dynamic <expression>*)
-void DefaultFacet(SlotFacet sf)       : { Node n; }
+void DefaultFacet(TemplateSlot ts)       : { Node n; }
 {
 	( 	<DEFAULT_ATR>
-		(	<ATR_DERIVE> { sf.setDefaultDerive(); }
-		|	<ATR_NONE> { sf.setDefaultNone(); }
-		|	n=ActionList() { sf.setDefaultAction(n); }
+		(	<ATR_DERIVE> // { ts.setDefaultDerive(); }
+		|	<ATR_NONE> // { ts.setDefaultNone(); }
+		|   n=Attributes() { ts.setStaticDefaultExpression(n); }
 		) 
 	) 
 	|	
 	( 	
 		<DYNAMIC_ATR> 
-		n=ActionList() { sf.setDynamic(n); }
+		n=Attributes() { ts.setDynamicDefaultExpression(n); }
 	)
 }
 
 
 // JUST SET RULE ATTRIBUTE
 //<storage-facet> ::= (storage local | shared)
-void StorageFacet(SlotFacet cf)        : {}
+void StorageFacet(TemplateSlot ts)        : {}
 {
 	<STORAGE> 
-	(	<LOCAL> { cf.setStorageLocal(true); }
-	|	<SHARED> { cf.setStorageLocal(false); }
+	(	<LOCAL>  			// { ts.setStorageLocal(true); }
+	|	<SHARED> 			// { ts.setStorageLocal(false); }
 	)
 }
 	
 
 // JUST SET RULE ATTRIBUTE
 //<access-facet> ::= (access read-write | read-only | initialize-only)
-void AccessFacet(SlotFacet cf)       : {}
+void AccessFacet(TemplateSlot ts)       : {}
 {
 	<ACCESS> 
-	(	<READ_WRITE> { cf.setAccessReadWrite(); }
-	|	<READ_ONLY>	{ cf.setAccessRead(); }
-	|	<INITIALIZE_ONLY> { cf.setAccessInitialize(); }
+	(	<READ_WRITE>		// { ts.setAccessReadWrite(); }
+	|	<READ_ONLY>			// { ts.setAccessRead(); }
+	|	<INITIALIZE_ONLY> 	// { ts.setAccessInitialize(); }
 	)
 }
 
 
 // JUST SET ATTRIBUTE
 //<propagation-facet> ::= (propagation inherit | no-inherit)
-void PropagationFacet(SlotFacet cf)       : {}
+void PropagationFacet(TemplateSlot ts)       : {}
 {
 	<PROPAGATION> 
-	(	<INHERIT> { cf.setInherit(true); }
-	| 	<NO_INHERIT> { cf.setInherit(false); }
+	(	<INHERIT> 			// { ts.setInherit(true); }
+	| 	<NO_INHERIT> 		// { ts.setInherit(false); }
 	)
 }
 
 
 // JUST SET ATTRIBUTE
 //<source-facet> ::= (source exclusive | composite)
-void SourceFacet(SlotFacet cf)       : {}
+void SourceFacet(TemplateSlot ts)       : {}
 {
 	<SOURCE> <EXCLUSIVE> | <COMPOSITE>
 }
@@ -2491,29 +2537,29 @@ void SourceFacet(SlotFacet cf)       : {}
 
 // JUST SET ATTRIBUTE
 //<pattern-match-facet> ::= (pattern-match reactive | non-reactive)
-void PatternMatchFacet(SlotFacet cf)        : {}
+void PatternMatchFacet(TemplateSlot ts)        : {}
 {
 	<PATTERN_MATCH> 
-	(	<REACTIVE>	{ cf.setMatchReactive(true); }
-	|	<NON_REACTIVE> { cf.setMatchReactive(false); }
+	(	<REACTIVE> 				// { ts.setMatchReactive(true); }
+	|	<NON_REACTIVE> 			// { ts.setMatchReactive(false); }
 	)
 }
 
 
 // JUST SET RULE ATTRIBUTE
 //<visibility-facet> ::= (visibility private | public)
-void VisibilityFacet(SlotFacet cf)       : {}
+void VisibilityFacet(TemplateSlot ts)       : {}
 {
 	<VISIBILITY> 
-	(	<PRIVATE> { cf.setPublic(false); }
-	|	<PUBLIC> { cf.setPublic(true); }
+	(	<PRIVATE> 				// { ts.setPublic(false); }
+	|	<PUBLIC> 				// { ts.setPublic(true); }
 	)
 }
 
 
 // JUST SET RULE ATTRIBUTE
 //<create-accessor-facet> ::= (create-accessor ?NONE | read | write | read-write)
-void CreateAccessorFacet(SlotFacet cf)       : {}
+void CreateAccessorFacet(TemplateSlot ts)       : {}
 {
 	<CREATE_ACCESSOR> 
 	(	<ATR_NONE> 
@@ -2526,11 +2572,11 @@ void CreateAccessorFacet(SlotFacet cf)       : {}
 
 // JUST SET RULE ATTRIBUTE
 //<override-message-facet> ::= (override-message ?DEFAULT | <message-name>)
-void OverrideMessageFacet(SlotFacet cf)       : { Token t; }
+void OverrideMessageFacet(TemplateSlot ts)       : { Token t; }
 {
 	<OVERRIDE_MESSAGE> 
-	(	<ATR_DEFAULT> { cf.setMessageDefault(); }
-	|	t = <STRING> { cf.setMessageName(t.image); }
+	(	<ATR_DEFAULT> 			// { ts.setMessageDefault(); }
+	|	t = <STRING> 			// { ts.setMessageName(t.image); }
 	)
 }
 
@@ -2863,7 +2909,7 @@ void PortConstruct()       : {}
 
 //<constraint-attribute> ::= <type-attribute> | <allowed-constant-attribute> | 
 //	<range-attribute> | <cardinality-attribute>
-void ConstraintAttribute(SlotFacet sf)       : { }
+void ConstraintAttribute(TemplateSlot ts)       : { }
 {
 	<LBRACE> //brackets for all productions below
 	( LOOKAHEAD(2)
@@ -2906,6 +2952,7 @@ void AllowedType()        : {}
 	|	<INSTANCE_TYPE>
 	|	<EXTERNAL_ADDRESS_TYPE>
 	|	<FACT_ADDRESS_TYPE>
+	|   <DATETIME>
 	)
 }
 
