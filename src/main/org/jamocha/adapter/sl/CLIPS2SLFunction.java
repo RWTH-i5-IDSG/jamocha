@@ -22,11 +22,9 @@ import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.IllegalParameterException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.rete.BoundParam;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.ValueParam;
 
 /**
  * Translates CLIPS-Code resp. JamochaValues to SL.
@@ -35,61 +33,49 @@ import org.jamocha.rete.ValueParam;
  */
 public class CLIPS2SLFunction implements Function, Serializable {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	public static final String CLIPS_2_SL = "clips2sl";
+    public static final String CLIPS_2_SL = "clips2sl";
 
-	/**
-	 * 
-	 */
-	public CLIPS2SLFunction() {
-		super();
+    /**
+         * 
+         */
+    public CLIPS2SLFunction() {
+	super();
+    }
+
+    public JamochaType getReturnType() {
+	return JamochaType.STRING;
+    }
+
+    public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
+	JamochaValue result = JamochaValue.newString("");
+	if (params != null && params.length == 1) {
+	    JamochaValue value = params[0].getValue(engine);
+	    String slCode = CLIPS2SL.getSL(value);
+	    result = JamochaValue.newString(slCode);
+	} else {
+	    throw new IllegalParameterException(1);
 	}
+	return result;
+    }
 
-	public JamochaType getReturnType() {
-		return JamochaType.STRING;
-	}
+    public String getName() {
+	return CLIPS_2_SL;
+    }
 
-	public JamochaValue executeFunction(Rete engine, Parameter[] params)
-			throws EvaluationException {
-		JamochaValue result = JamochaValue.newString("");
-		if (params != null && params.length == 1) {
-			JamochaValue value = params[0].getValue(engine);
-			String slCode = CLIPS2SL.getSL(value);
-			result = JamochaValue.newString(slCode);
-		} else {
-			throw new IllegalParameterException(1);
-		}
-		return result;
+    public String toPPString(Parameter[] params, int indents) {
+	if (params != null && params.length > 0) {
+	    StringBuffer buf = new StringBuffer();
+	    buf.append("(clips2sl");
+	    for (int idx = 0; idx < params.length; idx++) {
+		buf.append(" ").append(params[idx].getExpressionString());
+	    }
+	    buf.append(")");
+	    return buf.toString();
+	} else {
+	    return "(clips2sl <string expression>)\n" + "Command description:\n"
+		    + "\tTranslates a string in CLIPS to SL.";
 	}
-
-	public String getName() {
-		return CLIPS_2_SL;
-	}
-
-	public Class[] getParameter() {
-		return new Class[] { ValueParam.class };
-	}
-
-	public String toPPString(Parameter[] params, int indents) {
-		if (params != null && params.length > 0) {
-			StringBuffer buf = new StringBuffer();
-			buf.append("(clips2sl");
-			for (int idx = 0; idx < params.length; idx++) {
-				if (params[idx] instanceof BoundParam) {
-					BoundParam bp = (BoundParam) params[idx];
-					buf.append(" ?").append(bp.getVariableName());
-				} else if (params[idx] instanceof ValueParam) {
-					buf.append(" \"").append(params[idx].getExpressionString())
-							.append("\"");
-				}
-			}
-			buf.append(")");
-			return buf.toString();
-		} else {
-			return "(clips2sl <string expression>)\n"
-					+ "Command description:\n"
-					+ "\tTranslates a string in CLIPS to SL.";
-		}
-	}
+    }
 }

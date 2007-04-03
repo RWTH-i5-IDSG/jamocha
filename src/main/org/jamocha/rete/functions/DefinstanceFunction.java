@@ -22,11 +22,9 @@ import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.IllegalParameterException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.rete.BoundParam;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.ValueParam;
 
 /**
  * @author Peter Lin
@@ -35,58 +33,48 @@ import org.jamocha.rete.ValueParam;
  */
 public class DefinstanceFunction implements Function, Serializable {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
+    /**
+         * 
+         */
+    private static final long serialVersionUID = 1L;
 
-	public static final String DEFINSTANCE = "definstance";
+    public static final String NAME = "definstance";
 
-	public DefinstanceFunction() {
-		super();
+    public DefinstanceFunction() {
+	super();
+    }
+
+    public JamochaType getReturnType() {
+	return JamochaType.BOOLEAN;
+    }
+
+    public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
+	JamochaValue result = JamochaValue.FALSE;
+	if (params != null && params.length >= 1) {
+
+	    JamochaValue firstParam = params[0].getValue(engine);
+	    String template = "";
+	    if (params.length == 2) {
+		template = params[1].getValue(engine).implicitCast(JamochaType.IDENTIFIER).getIdentifierValue();
+	    }
+	    engine.assertObject(firstParam.getObjectValue(), template, false, true);
+	    result = JamochaValue.TRUE;
+	} else {
+	    throw new IllegalParameterException(1, true);
 	}
+	return result;
+    }
 
-	public JamochaType getReturnType() {
-		return JamochaType.BOOLEAN;
+    public String getName() {
+	return NAME;
+    }
+
+    public String toPPString(Parameter[] params, int indents) {
+	if (params != null && params.length > 0) {
+	    StringBuffer buf = new StringBuffer();
+	    return buf.toString();
+	} else {
+	    return "(definstance )";
 	}
-
-	public JamochaValue executeFunction(Rete engine, Parameter[] params)
-			throws EvaluationException {
-		JamochaValue result = JamochaValue.FALSE;
-		if (params != null && params.length >= 1) {
-
-			JamochaValue firstParam = params[0].getValue(engine);
-			String template = "";
-			if (params.length == 2) {
-				template = params[1].getValue(engine).implicitCast(
-						JamochaType.IDENTIFIER).getIdentifierValue();
-			}
-			engine.assertObject(firstParam.getObjectValue(), template, false,
-					true);
-			result = JamochaValue.TRUE;
-		} else {
-			throw new IllegalParameterException(1, true);
-		}
-		return result;
-	}
-
-	public String getName() {
-		return DEFINSTANCE;
-	}
-
-	/**
-	 * The function expects a single BoundParam that is an object binding
-	 */
-	public Class[] getParameter() {
-		return new Class[] { BoundParam.class, ValueParam.class };
-	}
-
-	public String toPPString(Parameter[] params, int indents) {
-		if (params != null && params.length > 0) {
-			StringBuffer buf = new StringBuffer();
-			return buf.toString();
-		} else {
-			return "(definstance )";
-		}
-	}
+    }
 }

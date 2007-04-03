@@ -37,7 +37,6 @@ import org.jamocha.rete.Deftemplate;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.ValueParam;
 import org.jamocha.rete.exception.AssertException;
 
 /**
@@ -51,7 +50,7 @@ public class LoadFunction implements Function, Serializable {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	public static final String LOAD = "load";
+	public static final String NAME = "load";
 
 	/**
 	 * 
@@ -87,7 +86,7 @@ public class LoadFunction implements Function, Serializable {
 					Iterator itr = data.iterator();
 					while (itr.hasNext()) {
 						Object val = itr.next();
-						ValueParam[] vp = (ValueParam[]) val;
+						JamochaValue[] vp = (JamochaValue[]) val;
 						Deftemplate tmpl = (Deftemplate) engine
 								.getCurrentFocus()
 								.getTemplate(
@@ -117,11 +116,7 @@ public class LoadFunction implements Function, Serializable {
 	}
 
 	public String getName() {
-		return LOAD;
-	}
-
-	public Class[] getParameter() {
-		return new Class[] { ValueParam.class };
+		return NAME;
 	}
 
 	public String toPPString(Parameter[] params, int indents) {

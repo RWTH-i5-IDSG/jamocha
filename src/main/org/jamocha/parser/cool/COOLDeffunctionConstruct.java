@@ -8,7 +8,6 @@ import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.BoundParam;
 import org.jamocha.rete.FunctionParam2;
 import org.jamocha.rete.Parameter;
-import org.jamocha.rete.ValueParam;
 import org.jamocha.rete.functions.DeffunctionFunction;
 
 public class COOLDeffunctionConstruct extends ConstructNode {
@@ -16,7 +15,7 @@ public class COOLDeffunctionConstruct extends ConstructNode {
     private boolean varargs;
 
     private Parameter[] parameters;
-    
+
     private Expression functionActions;
 
     public COOLDeffunctionConstruct(int id) {
@@ -57,10 +56,10 @@ public class COOLDeffunctionConstruct extends ConstructNode {
     public Parameter getExpression() // throws EvaluationException
     {
 	Parameter[] params = new Parameter[3];
-	params[0] = new ValueParam(JamochaValue.newIdentifier(name));
+	params[0] = JamochaValue.newIdentifier(name);
 	// params[1] = new ValueParam(JamochaValue.newString(getDocString()));
-	params[1] = new ValueParam(JamochaValue.newObject(parameters));
-	params[2] = new ValueParam(JamochaValue.newObject(functionActions));
+	params[1] = JamochaValue.newObject(parameters);
+	params[2] = JamochaValue.newObject(functionActions);
 	FunctionParam2 functionParam = new FunctionParam2();
 	functionParam.setParameters(params);
 	functionParam.setFunctionName(DeffunctionFunction.NAME);

@@ -4,7 +4,6 @@ package org.jamocha.parser.cool;
 
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Parameter;
-import org.jamocha.rete.ValueParam;
 
 public class COOLBooleanSymbol extends SimpleNode {
     protected boolean value;
@@ -28,6 +27,6 @@ public class COOLBooleanSymbol extends SimpleNode {
     }
 
     public Parameter getExpression() {
-	return new ValueParam(value ? JamochaValue.TRUE : JamochaValue.FALSE);
+	return value ? JamochaValue.TRUE : JamochaValue.FALSE;
     }
 }

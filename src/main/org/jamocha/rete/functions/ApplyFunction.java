@@ -25,71 +25,66 @@ import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.ValueParam;
 
 /**
  * @author Christoph Emonds
  * 
- * Functional equivalent of (apply <function name> <function parameters>*) in JESS.
+ * Functional equivalent of (apply <function name> <function parameters>*) in
+ * JESS.
  */
 public class ApplyFunction implements Function, Serializable {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
+    /**
+         * 
+         */
+    private static final long serialVersionUID = 1L;
 
-	public static final String NAME = "apply";
+    public static final String NAME = "apply";
 
-	/**
-	 * 
-	 */
-	public ApplyFunction() {
-		super();
+    /**
+         * 
+         */
+    public ApplyFunction() {
+	super();
+    }
+
+    public JamochaType getReturnType() {
+	return JamochaType.UNDEFINED;
+    }
+
+    public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
+	JamochaValue result;
+	if (params != null && params.length >= 1) {
+	    String functionName = params[0].getValue(engine).getStringValue();
+	    Function function = engine.findFunction(functionName);
+	    if (function == null) {
+		throw new EvaluationException("Error function " + functionName + " could not be found.");
+	    }
+	    Parameter[] functionParams = new Parameter[params.length - 1];
+	    System.arraycopy(params, 1, functionParams, 0, functionParams.length);
+	    result = function.executeFunction(engine, functionParams);
+	} else {
+	    throw new IllegalParameterException(1);
 	}
+	return result;
+    }
 
-	public JamochaType getReturnType() {
-		return JamochaType.UNDEFINED;
-	}
+    public String getName() {
+	return NAME;
+    }
 
-	public JamochaValue executeFunction(Rete engine, Parameter[] params)
-			throws EvaluationException {
-		JamochaValue result;
-		if (params != null && params.length >= 1) {
-			String functionName = params[0].getValue(engine).getStringValue();
-			Function function = engine.findFunction(functionName);
-			if(function == null) {
-				throw new EvaluationException("Error function "+functionName+" could not be found.");
-			}
-			Parameter[] functionParams = new Parameter[params.length-1];
-			System.arraycopy(params, 1, functionParams, 0, functionParams.length);
-			result = function.executeFunction(engine, functionParams);
-		} else {
-			throw new IllegalParameterException(1);
-		}
-		return result;
+    public String toPPString(Parameter[] params, int indents) {
+	if (params != null && params.length > 0) {
+	    StringBuffer buf = new StringBuffer();
+	    buf.append("(apply");
+	    for (int idx = 0; idx < params.length; idx++) {
+		buf.append(' ').append(params[idx].getExpressionString());
+	    }
+	    buf.append(")");
+	    return buf.toString();
+	} else {
+	    return "(apply <function name> <function parameter>*)\n" + "Command description:\n"
+		    + "\tCalls the function <function name> with the <function parameters> .";
 	}
-
-	public String getName() {
-		return NAME;
-	}
-
-	public Class[] getParameter() {
-		return new Class[] { ValueParam.class };
-	}
-
-	public String toPPString(Parameter[] params, int indents) {
-		if (params != null && params.length > 0) {
-			StringBuffer buf = new StringBuffer();
-			buf.append("(apply");
-			for (int idx = 0; idx < params.length; idx++) {
-				buf.append(' ').append(params[idx].getExpressionString());
-			}
-			buf.append(")");
-			return buf.toString();
-		} else {
-			return "(apply <function name> <function parameter>*)\n" + "Command description:\n"
-					+ "\tCalls the function <function name> with the <function parameters> .";
-		}
-	}
+    }
 }

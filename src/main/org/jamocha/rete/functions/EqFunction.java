@@ -25,7 +25,6 @@ import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.ValueParam;
 
 /**
  * @author Peter Lin
@@ -33,55 +32,50 @@ import org.jamocha.rete.ValueParam;
  */
 public class EqFunction implements Function, Serializable {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-	
-	public static final String EQUAL = "eq";
+    /**
+         * 
+         */
+    private static final long serialVersionUID = 1L;
 
-	/**
-	 * 
-	 */
-	public EqFunction() {
-		super();
-	}
+    public static final String NAME = "eq";
 
-	public JamochaType getReturnType() {
-		return JamochaType.BOOLEAN;
-	}
+    /**
+         * 
+         */
+    public EqFunction() {
+	super();
+    }
 
-	public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
-		JamochaValue result = JamochaValue.TRUE;
-		if (params != null && params.length > 1) {
-			JamochaValue first = params[0].getValue(engine);
-			for (int idx = 1; idx < params.length; idx++) {
-				JamochaValue right = params[idx].getValue(engine);
-				if (!first.equals(right)) {
-                    result = JamochaValue.FALSE;
-                    break;
-				}
-			}
-		} else {
-			throw new IllegalParameterException(1, true);
+    public JamochaType getReturnType() {
+	return JamochaType.BOOLEAN;
+    }
+
+    public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
+	JamochaValue result = JamochaValue.TRUE;
+	if (params != null && params.length > 1) {
+	    JamochaValue first = params[0].getValue(engine);
+	    for (int idx = 1; idx < params.length; idx++) {
+		JamochaValue right = params[idx].getValue(engine);
+		if (!first.equals(right)) {
+		    result = JamochaValue.FALSE;
+		    break;
 		}
-		return result;
+	    }
+	} else {
+	    throw new IllegalParameterException(1, true);
 	}
+	return result;
+    }
 
-	public String getName() {
-		return EQUAL;
-	}
+    public String getName() {
+	return NAME;
+    }
 
-	public Class[] getParameter() {
-		return new Class[] { ValueParam[].class };
-	}
-
-	public String toPPString(Parameter[] params, int indents) {
-		return "(eq (<literal> | <binding>)+)\n" +
-			"Function description:\n" +
-			"\tCompares a literal value against one or more" +
-			"bindings. \n\tIf all of the bindings are equal to the constant value," +
-			"\n\tthe function returns true.";
-	}
+    public String toPPString(Parameter[] params, int indents) {
+	return "(eq (<literal> | <binding>)+)\n" + "Function description:\n"
+		+ "\tCompares a literal value against one or more"
+		+ "bindings. \n\tIf all of the bindings are equal to the constant value,"
+		+ "\n\tthe function returns true.";
+    }
 
 }

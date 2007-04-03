@@ -49,7 +49,7 @@ public class ParameterUtils {
 	Parameter[] pms = new Parameter[list.size()];
 	for (int idx = 0; idx < list.size(); idx++) {
 	    if (list.get(idx) instanceof Slot) {
-		pms[idx] = new ValueParam(JamochaValue.newSlot((Slot) list.get(idx)));
+		pms[idx] = JamochaValue.newSlot((Slot) list.get(idx));
 	    } else {
 		pms[idx] = (Parameter) list.get(idx);
 	    }

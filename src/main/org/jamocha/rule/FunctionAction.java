@@ -31,164 +31,160 @@ import org.jamocha.rete.FunctionParam;
 import org.jamocha.rete.FunctionParam2;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.ValueParam;
 import org.jamocha.rete.exception.ExecuteException;
-import org.jamocha.rete.functions.*;
+import org.jamocha.rete.functions.AssertFunction;
+import org.jamocha.rete.functions.ModifyFunction;
+import org.jamocha.rete.functions.ShellFunction;
 
 /**
  * @author Peter Lin
- *
- * A FunctionAction is responsible for executing a function in the action
- * of the rule. It uses built-in or user written functions. When the rule
- * is loaded, the engine looks up the functions. At run time, the rule
- * simply executes it.
+ * 
+ * A FunctionAction is responsible for executing a function in the action of the
+ * rule. It uses built-in or user written functions. When the rule is loaded,
+ * the engine looks up the functions. At run time, the rule simply executes it.
  */
 public class FunctionAction implements Action {
 
     /**
-     * 
-     */
+         * 
+         */
     private static final long serialVersionUID = 1L;
-    
+
     protected Function faction = null;
+
     protected String functionName = null;
+
     protected Parameter[] parameters = null;
-    
-	/**
-	 * 
-	 */
-	public FunctionAction() {
-		super();
-	}
-    
-    public Function getFunction() {
-        return this.faction;
+
+    /**
+         * 
+         */
+    public FunctionAction() {
+	super();
     }
-    
+
+    public Function getFunction() {
+	return this.faction;
+    }
+
     public void setFunction(Function func) {
-        if (func instanceof ShellFunction) {
-            ShellFunction sf = (ShellFunction)func;
-            this.functionName = sf.getName();
-            this.parameters = sf.getParameters();
-        } else {
-            this.faction = func;
-            this.functionName = func.getName();
-        }
+	if (func instanceof ShellFunction) {
+	    ShellFunction sf = (ShellFunction) func;
+	    this.functionName = sf.getName();
+	    this.parameters = sf.getParameters();
+	} else {
+	    this.faction = func;
+	    this.functionName = func.getName();
+	}
     }
 
     public String getFunctionName() {
-        return this.functionName;
+	return this.functionName;
     }
-    
-    public void setFunctionName(String name) {
-        this.functionName = name;
-    }
-    
-    public Expression[] getParameters() {
-        return this.parameters;
-    }
-    
-    public void setParameters(Parameter[] params) {
-        this.parameters = params;
-    }
-    
-    /**
-     * Configure will lookup the function and set it
-     * @throws EvaluationException 
-     */
-    public void configure(Rete engine, Rule util) throws EvaluationException {
-        if (this.functionName != null && 
-                engine.findFunction(this.functionName) != null) {
-            this.faction = engine.findFunction(this.functionName);
-        }
-        // now setup the BoundParameters if there are any
-        for (int idx=0; idx < this.parameters.length; idx++) {
-        	if (this.parameters[idx] instanceof BoundParam) {
-        		BoundParam bp = (BoundParam)this.parameters[idx];
-        		Binding bd = util.getBinding(bp.getVariableName());
-        		if (bd != null) {
-        			bp.setRow(bd.getLeftRow());
-        			bp.setColumn(bd.getLeftIndex());
-        		}
-        	} else if (this.parameters[idx] instanceof FunctionParam2) {
-        		FunctionParam2 fp2 = (FunctionParam2)this.parameters[idx];
-        		fp2.configure(engine,util);
-        	} else if (this.parameters[idx] instanceof ValueParam) {
-        		ValueParam vp = (ValueParam)this.parameters[idx];
-        		// if the value is a deffact, we need to check and make sure
-        		// the slots with BoundParam value are compiled properly
-        		JamochaValue value = vp.getValue(engine); 
-        		if (value.getType().equals(JamochaType.FACT)) {
-        			((Deffact)value.getFactValue()).compileBinding(util);
-        		}
-        	}
-        }
-        // in the case of Assert, we do further compilation
-        if (this.faction instanceof AssertFunction) {
-        	JamochaValue tmplName = this.parameters[0].getValue(engine);
-        	Deftemplate tmpl = (Deftemplate) engine.getCurrentFocus()
-			.getTemplate(tmplName.getIdentifierValue());
-        	JamochaValue values = this.parameters[1].getValue(engine); 
-			Deffact	fact = (Deffact) tmpl.createFact(
-					(Object[])values.getObjectValue(),-1, engine);
-			fact.compileBinding(util);
-			this.parameters = new ValueParam[1];
-			this.parameters[0] = new ValueParam(JamochaValue.newFact(fact));
-        }
-    }
-    
-	/* (non-Javadoc)
-	 * @see woolfel.engine.rule.Action#executeAction(woolfel.engine.rete.Rete, woolfel.engine.rete.Fact[])
-	 */
-	public void executeAction(Rete engine, Fact[] facts)    
-			throws ExecuteException {
-        // first we iterate over the parameters and pass the facts
-        // to the BoundParams.
-        for (int idx=0; idx < this.parameters.length; idx++) {
-            if (this.parameters[idx] instanceof BoundParam) {
-                ((BoundParam)this.parameters[idx]).setFact(facts);
-            } else if (this.parameters[idx] instanceof FunctionParam) {
-                ((FunctionParam)this.parameters[idx]).setFacts(facts);
-            }
-        }
-        // we treat AssertFunction a little different
-        if (this.faction instanceof AssertFunction) {
-        	((AssertFunction)this.faction).setTriggerFacts(facts);
-        } else if (this.faction instanceof ModifyFunction) {
-        	((ModifyFunction)this.faction).setTriggerFacts(facts);
-        }
-        // now we find the function
-        try {
-			this.faction.executeFunction(engine,this.parameters);
-		} catch (EvaluationException e) {
-			throw new ExecuteException(e);
-		}
-	}
 
-	/**
-	 * method implements the necessary logic to print out the action
-	 */
-	public String toPPString() {
-		StringBuffer buf = new StringBuffer();
-		/**
-		buf.append("  (" + this.functionName);
-		for (int idx=0; idx < this.parameters.length; idx++) {
-			if (parameters[idx] instanceof BoundParam) {
-				BoundParam bp = (BoundParam)this.parameters[idx];
-				buf.append(bp.toPPString());
-			} else if (parameters[idx] instanceof ValueParam) {
-				buf.append(" " + this.parameters[idx].getStringValue());
-			} else if (parameters[idx] instanceof FunctionParam) {
-				FunctionParam fp = (FunctionParam)parameters[idx];
-				buf.append(fp.toString());
-			} else if (parameters[idx] instanceof FunctionParam2) {
-				FunctionParam2 fp2 = (FunctionParam2)parameters[idx];
-				buf.append(fp2.getFunctionName());
-			}
-		}
-		buf.append(")" + Constants.LINEBREAK);
-		**/
-		buf.append("  " + faction.toPPString(this.parameters,1) + Constants.LINEBREAK);
-		return buf.toString();
+    public void setFunctionName(String name) {
+	this.functionName = name;
+    }
+
+    public Expression[] getParameters() {
+	return this.parameters;
+    }
+
+    public void setParameters(Parameter[] params) {
+	this.parameters = params;
+    }
+
+    /**
+         * Configure will lookup the function and set it
+         * 
+         * @throws EvaluationException
+         */
+    public void configure(Rete engine, Rule util) throws EvaluationException {
+	if (this.functionName != null && engine.findFunction(this.functionName) != null) {
+	    this.faction = engine.findFunction(this.functionName);
 	}
+	// now setup the BoundParameters if there are any
+	for (int idx = 0; idx < this.parameters.length; idx++) {
+	    if (this.parameters[idx] instanceof BoundParam) {
+		BoundParam bp = (BoundParam) this.parameters[idx];
+		Binding bd = util.getBinding(bp.getVariableName());
+		if (bd != null) {
+		    bp.setRow(bd.getLeftRow());
+		    bp.setColumn(bd.getLeftIndex());
+		}
+	    } else if (this.parameters[idx] instanceof FunctionParam2) {
+		FunctionParam2 fp2 = (FunctionParam2) this.parameters[idx];
+		fp2.configure(engine, util);
+	    } else if (this.parameters[idx] instanceof JamochaValue) {
+		// if the value is a deffact, we need to check and make sure
+		// the slots with BoundParam value are compiled properly
+		JamochaValue value = (JamochaValue) this.parameters[idx];
+		if (value.getType().equals(JamochaType.FACT)) {
+		    ((Deffact) value.getFactValue()).compileBinding(util);
+		}
+	    }
+	}
+	// in the case of Assert, we do further compilation
+	if (this.faction instanceof AssertFunction) {
+	    JamochaValue tmplName = this.parameters[0].getValue(engine);
+	    Deftemplate tmpl = (Deftemplate) engine.getCurrentFocus().getTemplate(tmplName.getIdentifierValue());
+	    JamochaValue values = this.parameters[1].getValue(engine);
+	    Deffact fact = (Deffact) tmpl.createFact((Object[]) values.getObjectValue(), -1, engine);
+	    fact.compileBinding(util);
+	    this.parameters = new JamochaValue[1];
+	    this.parameters[0] = JamochaValue.newFact(fact);
+	}
+    }
+
+    /*
+         * (non-Javadoc)
+         * 
+         * @see woolfel.engine.rule.Action#executeAction(woolfel.engine.rete.Rete,
+         *      woolfel.engine.rete.Fact[])
+         */
+    public void executeAction(Rete engine, Fact[] facts) throws ExecuteException {
+	// first we iterate over the parameters and pass the facts
+	// to the BoundParams.
+	for (int idx = 0; idx < this.parameters.length; idx++) {
+	    if (this.parameters[idx] instanceof BoundParam) {
+		((BoundParam) this.parameters[idx]).setFact(facts);
+	    } else if (this.parameters[idx] instanceof FunctionParam) {
+		((FunctionParam) this.parameters[idx]).setFacts(facts);
+	    }
+	}
+	// we treat AssertFunction a little different
+	if (this.faction instanceof AssertFunction) {
+	    ((AssertFunction) this.faction).setTriggerFacts(facts);
+	} else if (this.faction instanceof ModifyFunction) {
+	    ((ModifyFunction) this.faction).setTriggerFacts(facts);
+	}
+	// now we find the function
+	try {
+	    this.faction.executeFunction(engine, this.parameters);
+	} catch (EvaluationException e) {
+	    throw new ExecuteException(e);
+	}
+    }
+
+    /**
+         * method implements the necessary logic to print out the action
+         */
+    public String toPPString() {
+	StringBuffer buf = new StringBuffer();
+	/**
+         * buf.append(" (" + this.functionName); for (int idx=0; idx <
+         * this.parameters.length; idx++) { if (parameters[idx] instanceof
+         * BoundParam) { BoundParam bp = (BoundParam)this.parameters[idx];
+         * buf.append(bp.toPPString()); } else if (parameters[idx] instanceof
+         * ValueParam) { buf.append(" " +
+         * this.parameters[idx].getStringValue()); } else if (parameters[idx]
+         * instanceof FunctionParam) { FunctionParam fp =
+         * (FunctionParam)parameters[idx]; buf.append(fp.toString()); } else if
+         * (parameters[idx] instanceof FunctionParam2) { FunctionParam2 fp2 =
+         * (FunctionParam2)parameters[idx]; buf.append(fp2.getFunctionName()); } }
+         * buf.append(")" + Constants.LINEBREAK);
+         */
+	buf.append("  " + faction.toPPString(this.parameters, 1) + Constants.LINEBREAK);
+	return buf.toString();
+    }
 }

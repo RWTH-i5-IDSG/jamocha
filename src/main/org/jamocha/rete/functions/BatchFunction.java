@@ -34,7 +34,6 @@ import org.jamocha.parser.ParserFactory;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.ValueParam;
 
 /**
  * @author Peter Lin
@@ -48,7 +47,7 @@ public class BatchFunction implements Function, Serializable {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	public static final String BATCH = "batch";
+	public static final String NAME = "batch";
 
 	/**
 	 * 
@@ -120,11 +119,7 @@ public class BatchFunction implements Function, Serializable {
 	}
 
 	public String getName() {
-		return BATCH;
-	}
-
-	public Class[] getParameter() {
-		return new Class[] { ValueParam.class };
+		return NAME;
 	}
 
 	public String toPPString(Parameter[] params, int indents) {

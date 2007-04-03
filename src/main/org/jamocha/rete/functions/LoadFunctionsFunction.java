@@ -24,7 +24,6 @@ import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.ValueParam;
 
 
 /**
@@ -38,7 +37,7 @@ public class LoadFunctionsFunction implements Function, Serializable {
 	 */
 	private static final long serialVersionUID = 1L;
 	
-	public static final String LOAD_FUNCTION = "load-function";
+	public static final String NAME = "load-function";
 	
 	public LoadFunctionsFunction() {
 		super();
@@ -64,13 +63,8 @@ public class LoadFunctionsFunction implements Function, Serializable {
 	}
 
 	public String getName() {
-		return LOAD_FUNCTION;
+		return NAME;
 	}
-
-	public Class[] getParameter() {
-		return new Class[]{ValueParam.class};
-	}
-
 	/* (non-Javadoc)
 	 * @see woolfel.engine.rete.Function#toPPString(woolfel.engine.rete.Parameter[], int)
 	 */

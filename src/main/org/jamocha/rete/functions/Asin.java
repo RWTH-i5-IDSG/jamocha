@@ -22,11 +22,9 @@ import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.IllegalParameterException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.rete.BoundParam;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.ValueParam;
 
 /**
  * @author Christian Ebert
@@ -35,70 +33,54 @@ import org.jamocha.rete.ValueParam;
  */
 public class Asin implements Function, Serializable {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	public static final String ASIN = "asin";
+    public static final String NAME = "asin";
 
-	/**
-	 * 
-	 */
-	public Asin() {
-		super();
-	}
+    /**
+         * 
+         */
+    public Asin() {
+	super();
+    }
 
-	public JamochaType getReturnType() {
-		return JamochaType.DOUBLE;
-	}
+    public JamochaType getReturnType() {
+	return JamochaType.DOUBLE;
+    }
 
-	public JamochaValue executeFunction(Rete engine, Parameter[] params)
-			throws EvaluationException {
-		if (params != null) {
-			if (params.length == 1) {
-				JamochaValue value = params[0].getValue(engine);
-				if (!value.getType().equals(JamochaType.DOUBLE)
-						&& !value.getType().equals(JamochaType.LONG)) {
-					value = value.implicitCast(JamochaType.DOUBLE);
-				}
-				if (value.getType().equals(JamochaType.DOUBLE)) {
-					return JamochaValue.newDouble(Math.asin(value
-							.getDoubleValue()));
-				} else if (value.getType().equals(JamochaType.LONG)) {
-					return JamochaValue.newDouble(Math.asin(value
-							.getLongValue()));
-				}
-			}
+    public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
+	if (params != null) {
+	    if (params.length == 1) {
+		JamochaValue value = params[0].getValue(engine);
+		if (!value.getType().equals(JamochaType.DOUBLE) && !value.getType().equals(JamochaType.LONG)) {
+		    value = value.implicitCast(JamochaType.DOUBLE);
 		}
-		throw new IllegalParameterException(1);
-	}
-
-	public String getName() {
-		return ASIN;
-	}
-
-	public Class[] getParameter() {
-		return new Class[] { ValueParam[].class };
-	}
-
-	public String toPPString(Parameter[] params, int indents) {
-		if (params != null && params.length >= 0) {
-			StringBuffer buf = new StringBuffer();
-			buf.append("(asin");
-			int idx = 0;
-			if (params[idx] instanceof BoundParam) {
-				BoundParam bp = (BoundParam) params[idx];
-				buf.append(" ?" + bp.getVariableName());
-			} else if (params[idx] instanceof ValueParam) {
-				buf.append(" " + params[idx].getExpressionString());
-			} else {
-				buf.append(" " + params[idx].getExpressionString());
-			}
-			buf.append(")");
-			return buf.toString();
-		} else {
-			return "(asin <literal> | <binding>)\n"
-					+ "Function description:\n"
-					+ "\tCalculates the inverse sine of the numeric argument.\n"
-					+ "\tThe argument is expected to be in radians.";
+		if (value.getType().equals(JamochaType.DOUBLE)) {
+		    return JamochaValue.newDouble(Math.asin(value.getDoubleValue()));
+		} else if (value.getType().equals(JamochaType.LONG)) {
+		    return JamochaValue.newDouble(Math.asin(value.getLongValue()));
 		}
+	    }
 	}
+	throw new IllegalParameterException(1);
+    }
+
+    public String getName() {
+	return NAME;
+    }
+
+    public String toPPString(Parameter[] params, int indents) {
+	if (params != null && params.length >= 0) {
+	    StringBuffer buf = new StringBuffer();
+	    buf.append("(asin");
+	    int idx = 0;
+	    buf.append(" ").append(params[idx].getExpressionString());
+	    buf.append(")");
+	    return buf.toString();
+	} else {
+	    return "(asin <literal> | <binding>)\n" + "Function description:\n"
+		    + "\tCalculates the inverse sine of the numeric argument.\n"
+		    + "\tThe argument is expected to be in radians.";
+	}
+    }
 }

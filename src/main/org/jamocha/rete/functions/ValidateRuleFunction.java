@@ -24,7 +24,6 @@ import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.ValueParam;
 
 /**
  * @author Peter Lin
@@ -39,7 +38,7 @@ public class ValidateRuleFunction implements Function, Serializable {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	protected static final String VALIDATE_RULE = "validate-rule";
+	protected static final String NAME = "validate-rule";
 
 	/**
 	 * 
@@ -64,11 +63,7 @@ public class ValidateRuleFunction implements Function, Serializable {
 	}
 
 	public String getName() {
-		return VALIDATE_RULE;
-	}
-
-	public Class[] getParameter() {
-		return new Class[] { ValueParam.class };
+		return NAME;
 	}
 
 	public String toPPString(Parameter[] params, int indents) {

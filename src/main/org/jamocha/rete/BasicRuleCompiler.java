@@ -670,9 +670,8 @@ public class BasicRuleCompiler implements RuleCompiler {
 					Expression[] oldpm = fn.getParameters();
 					Parameter[] pms = new Parameter[oldpm.length];
 					for (int ipm = 0; ipm < pms.length; ipm++) {
-						if (oldpm[ipm] instanceof ValueParam) {
-							pms[ipm] = ((ValueParam) oldpm[ipm])
-									.cloneParameter();
+						if (oldpm[ipm] instanceof JamochaValue) {
+							pms[ipm] = (Parameter) oldpm[ipm];
 						} else if (oldpm[ipm] instanceof BoundParam) {
 							BoundParam bpm = (BoundParam) oldpm[ipm];
 							// now we need to resolve and setup the BoundParam

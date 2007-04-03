@@ -24,7 +24,6 @@ import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.ValueParam;
 import org.jamocha.rule.Defrule;
 
 /**
@@ -38,7 +37,7 @@ public class UnDefruleFunction implements Function, Serializable {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	public static final String UNDEFRULE = "undefrule";
+	public static final String NAME = "undefrule";
 
 	public UnDefruleFunction() {
 		super();
@@ -64,15 +63,7 @@ public class UnDefruleFunction implements Function, Serializable {
 	}
 
 	public String getName() {
-		return UNDEFRULE;
-	}
-
-	/**
-	 * The expected parameter is a single ValueParam containing a deftemplate
-	 * instance. The function gets the deftemplate using Parameter.getValue().
-	 */
-	public Class[] getParameter() {
-		return new Class[] { ValueParam.class };
+		return NAME;
 	}
 
 	public String toPPString(Parameter[] params, int indents) {

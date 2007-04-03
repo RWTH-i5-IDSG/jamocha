@@ -26,7 +26,6 @@ import org.jamocha.rete.Constants;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.ValueParam;
 
 /**
  * This function concatenates two or more Strings.
@@ -41,7 +40,7 @@ public class StringCatFunction implements Function, Serializable {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	public static final String STRING_CAT = "str-cat";
+	public static final String NAME = "str-cat";
 
 	/**
 	 * 
@@ -76,11 +75,7 @@ public class StringCatFunction implements Function, Serializable {
 	}
 
 	public String getName() {
-		return STRING_CAT;
-	}
-
-	public Class[] getParameter() {
-		return new Class[] { ValueParam.class };
+		return NAME;
 	}
 
 	public String toPPString(Parameter[] params, int indents) {

@@ -28,7 +28,6 @@ import org.jamocha.rete.Deffact;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.ValueParam;
 import org.jamocha.rule.Defrule;
 import org.jamocha.rule.util.GenerateFacts;
 
@@ -47,7 +46,7 @@ public class GenerateFactsFunction implements Function, Serializable {
 	 */
 	private static final long serialVersionUID = 1L;
 	
-	public static final String GENERATEFACTS = "generate-facts";
+	public static final String NAME = "generate-facts";
 
 	/**
 	 * 
@@ -96,14 +95,7 @@ public class GenerateFactsFunction implements Function, Serializable {
 	}
 
 	public String getName() {
-		return GENERATEFACTS;
-	}
-
-	/**
-	 * The function does not take any parameters
-	 */
-	public Class[] getParameter() {
-		return new Class[]{ValueParam.class};
+		return NAME;
 	}
 
 	public String toPPString(Parameter[] params, int indents) {

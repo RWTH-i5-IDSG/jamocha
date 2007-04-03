@@ -26,7 +26,6 @@ import org.jamocha.rete.Fact;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.ValueParam;
 
 /**
  * @author Peter Lin
@@ -40,7 +39,7 @@ public class PrintFunction implements Function, Serializable {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	public static final String PRINTOUT = "printout";
+	public static final String NAME = "printout";
 
 	/**
 	 * 
@@ -99,17 +98,7 @@ public class PrintFunction implements Function, Serializable {
 	 * @see woolfel.engine.rete.Function#getName()
 	 */
 	public String getName() {
-		return PRINTOUT;
-	}
-
-	/**
-	 * The implementation returns an array of size 1 with Parameter.class as the
-	 * only entry. Any function that can take an unlimited number of Parameters
-	 * should return new Class[] {Parameter.class}. If a function doesn't take
-	 * any parameters, the method should return null instead.
-	 */
-	public Class[] getParameter() {
-		return new Class[] { ValueParam[].class };
+		return NAME;
 	}
 
 	/**

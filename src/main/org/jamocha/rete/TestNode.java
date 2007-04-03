@@ -17,7 +17,6 @@
 package org.jamocha.rete;
 
 import java.util.Map;
-import java.util.Iterator;
 
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaType;
@@ -157,18 +156,7 @@ public class TestNode extends BaseJoin {
 			buf.append("TestNode-" + this.nodeID + "> (test ("
 					+ this.func.getName());
 			for (int idx = 0; idx < this.params.length; idx++) {
-				if (params[idx] instanceof BoundParam) {
-					BoundParam bp = (BoundParam) params[idx];
-					buf.append(" ?" + bp.getVariableName());
-				} else if (params[idx] instanceof ValueParam) {
-					ValueParam vp = (ValueParam) params[idx];
-					try {
-						buf.append(" " + vp.getValue(null).toString());
-					} catch (EvaluationException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				}
+				buf.append(" " + params[idx].getExpressionString());
 			}
 			buf.append(") )");
 			ppstring = buf.toString();

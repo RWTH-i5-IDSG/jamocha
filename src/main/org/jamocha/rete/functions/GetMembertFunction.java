@@ -24,13 +24,11 @@ import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.IllegalParameterException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.rete.BoundParam;
 import org.jamocha.rete.Constants;
 import org.jamocha.rete.Defclass;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.ValueParam;
 
 
 /**
@@ -48,7 +46,7 @@ public class GetMembertFunction implements Function, Serializable {
 	 */
 	private static final long serialVersionUID = 1L;
 	
-	public static final String GET_MEMBER = "get-member";
+	public static final String NAME = "get-member";
 
 	/**
 	 * 
@@ -98,21 +96,7 @@ public class GetMembertFunction implements Function, Serializable {
 	 * @see woolfel.engine.rete.Function#getName()
 	 */
 	public String getName() {
-		return GET_MEMBER;
-	}
-
-	/**
-	 * The current implementation expects 3 parameters in the following
-	 * sequence:<br/>
-	 * BoundParam - the bound object
-	 * StringParam - the slot name
-	 * ValueParam - the value to set the field
-	 * <br/>
-	 * Example: (set-member ?objectVariable slotName value)
-	 */
-	public Class[] getParameter() {
-		return new Class[] { BoundParam.class, 
-				ValueParam.class };
+		return NAME;
 	}
 
 	/**

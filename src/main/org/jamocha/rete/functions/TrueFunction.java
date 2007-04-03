@@ -24,7 +24,6 @@ import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.ValueParam;
 
 /**
  * @author Nikolaus Koemm
@@ -38,7 +37,7 @@ public class TrueFunction implements Function, Serializable {
 	 */
 	private static final long serialVersionUID = 1L;
 	
-	public static final String TRUE = "true";
+	public static final String NAME = "true";
 
 	/**
 	 * 
@@ -56,17 +55,13 @@ public class TrueFunction implements Function, Serializable {
 	}
 
 	public String getName() {
-		return TRUE;
-	}
-
-	public Class[] getParameter() {
-		return new Class[] { ValueParam[].class };
+		return NAME;
 	}
 
 	public String toPPString(Parameter[] params, int indents) {
 		if (params != null && params.length >= 0) {
 			StringBuffer buf = new StringBuffer();
-			buf.append("("+TRUE);
+			buf.append("("+NAME);
 			buf.append(")");
 			return buf.toString();
 		} else {

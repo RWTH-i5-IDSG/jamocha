@@ -25,7 +25,6 @@ import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.ValueParam;
 
 
 /**
@@ -39,7 +38,7 @@ public class StringCompareFunction implements Function, Serializable {
 	 */
 	private static final long serialVersionUID = 1L;
 	
-	public static final String STRING_COMPARE = "str-compare";
+	public static final String NAME = "str-compare";
 	
 	/**
 	 * 
@@ -65,11 +64,7 @@ public class StringCompareFunction implements Function, Serializable {
 	}
 
 	public String getName() {
-		return STRING_COMPARE;
-	}
-
-	public Class[] getParameter() {
-		return new Class[]{ValueParam.class,ValueParam.class};
+		return NAME;
 	}
 
 	public String toPPString(Parameter[] params, int indents) {

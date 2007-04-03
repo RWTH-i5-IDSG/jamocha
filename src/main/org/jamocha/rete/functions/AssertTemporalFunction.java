@@ -28,7 +28,6 @@ import org.jamocha.rete.Fact;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.ValueParam;
 import org.jamocha.rete.exception.AssertException;
 
 
@@ -43,7 +42,7 @@ public class AssertTemporalFunction implements Function, Serializable {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	public static final String ASSERT_TEMPORAL = "assert-temporal";
+	public static final String NAME = "assert-temporal";
 
 	protected Fact[] triggerFacts = null;
 
@@ -93,16 +92,7 @@ public class AssertTemporalFunction implements Function, Serializable {
 	}
 
 	public String getName() {
-		return ASSERT_TEMPORAL;
-	}
-
-	/**
-	 * The expected parameter is a deffact instance. According to CLIPS
-	 * beginner guide, assert only takes facts and returns the id of the
-	 * fact. For objects, there's (assert-object ?binding).
-	 */
-	public Class[] getParameter() {
-		return new Class[] { ValueParam.class };
+		return NAME;
 	}
 
 	public String toPPString(Parameter[] params, int indents) {

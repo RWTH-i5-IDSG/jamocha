@@ -25,7 +25,6 @@ import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.ValueParam;
 
 /**
  * @author Peter Lin
@@ -33,72 +32,59 @@ import org.jamocha.rete.ValueParam;
  */
 public class DefclassFunction implements Function, Serializable {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-	 
-	public static final String DEFCLASS = "defclass";
+    /**
+         * 
+         */
+    private static final long serialVersionUID = 1L;
 
-	public DefclassFunction() {
-		super();
-	}
+    public static final String NAME = "defclass";
 
-	public JamochaType getReturnType() {
-		return JamochaType.BOOLEAN;
-	}
+    public DefclassFunction() {
+	super();
+    }
 
-	public JamochaValue executeFunction(Rete engine, Parameter[] params)
-			throws EvaluationException {
-		JamochaValue result = JamochaValue.FALSE;
-		if (params.length >= 0) {
-			String clazz = params[0].getValue(engine).implicitCast(
-					JamochaType.IDENTIFIER).getIdentifierValue();
-			String template = null;
-			if (params[1] != null) {
-				template = params[1].getValue(engine).implicitCast(
-						JamochaType.IDENTIFIER).getIdentifierValue();
-			}
-			String parent = null;
-			if (params.length == 3) {
-				parent = params[2].getValue(engine).implicitCast(
-						JamochaType.IDENTIFIER).getIdentifierValue();
-			}
-			try {
-				engine.declareObject(clazz, template, parent);
-				result = JamochaValue.TRUE;
-			} catch (ClassNotFoundException e) {
-			}
-		} else {
-			throw new IllegalParameterException(1);
-		}
-		return result;
-	}
+    public JamochaType getReturnType() {
+	return JamochaType.BOOLEAN;
+    }
 
-	public String getName() {
-		return DEFCLASS;
+    public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
+	JamochaValue result = JamochaValue.FALSE;
+	if (params.length >= 0) {
+	    String clazz = params[0].getValue(engine).implicitCast(JamochaType.IDENTIFIER).getIdentifierValue();
+	    String template = null;
+	    if (params[1] != null) {
+		template = params[1].getValue(engine).implicitCast(JamochaType.IDENTIFIER).getIdentifierValue();
+	    }
+	    String parent = null;
+	    if (params.length == 3) {
+		parent = params[2].getValue(engine).implicitCast(JamochaType.IDENTIFIER).getIdentifierValue();
+	    }
+	    try {
+		engine.declareObject(clazz, template, parent);
+		result = JamochaValue.TRUE;
+	    } catch (ClassNotFoundException e) {
+	    }
+	} else {
+	    throw new IllegalParameterException(1);
 	}
+	return result;
+    }
 
-	/**
-	 * defclass function expects 3 parameters. (defclass classname,
-	 * templatename, parenttemplate) parent template name is optional.
-	 */
-	public Class[] getParameter() {
-		return new Class[] { ValueParam.class, ValueParam.class,
-				ValueParam.class };
-	}
+    public String getName() {
+	return NAME;
+    }
 
-	public String toPPString(Parameter[] params, int indents) {
-		if (params != null && params.length > 0) {
-			StringBuffer buf = new StringBuffer();
-			buf.append("(defclass");
-			for (int idx = 0; idx < params.length; idx++) {
-				buf.append(" ").append(params[idx].getExpressionString());
-			}
-			buf.append(")");
-			return buf.toString();
-		} else {
-			return "(defclass [new classname] [template] [parent template])";
-		}
+    public String toPPString(Parameter[] params, int indents) {
+	if (params != null && params.length > 0) {
+	    StringBuffer buf = new StringBuffer();
+	    buf.append("(defclass");
+	    for (int idx = 0; idx < params.length; idx++) {
+		buf.append(" ").append(params[idx].getExpressionString());
+	    }
+	    buf.append(")");
+	    return buf.toString();
+	} else {
+	    return "(defclass [new classname] [template] [parent template])";
 	}
+    }
 }

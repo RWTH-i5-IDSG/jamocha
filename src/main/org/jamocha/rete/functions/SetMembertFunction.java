@@ -24,12 +24,10 @@ import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.IllegalParameterException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.rete.BoundParam;
 import org.jamocha.rete.Defclass;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.ValueParam;
 
 /**
  * @author Peter Lin
@@ -104,14 +102,6 @@ public class SetMembertFunction implements Function, Serializable {
 		return SET_MEMBER;
 	}
 
-	/**
-	 * The current implementation expects 3 parameters in the following
-	 * sequence:<br/> BoundParam StringParam ValueParam <br/> Example:
-	 * (set-member ?objectVariable slotName value)
-	 */
-	public Class[] getParameter() {
-		return new Class[] { BoundParam.class, ValueParam.class };
-	}
 
 	public String toPPString(Parameter[] params, int indents) {
 		StringBuffer buf = new StringBuffer();

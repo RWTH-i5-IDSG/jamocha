@@ -9,7 +9,6 @@ import org.jamocha.rete.Deftemplate;
 import org.jamocha.rete.FunctionParam2;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.TemplateSlot;
-import org.jamocha.rete.ValueParam;
 import org.jamocha.rete.functions.DeftemplateFunction;
 
 public class COOLDeftemplateConstruct extends ConstructNode {
@@ -45,7 +44,7 @@ public class COOLDeftemplateConstruct extends ConstructNode {
 	Deftemplate tpl = new Deftemplate(name, null, s);
 	FunctionParam2 defTemplate = new FunctionParam2();
 	defTemplate.setFunctionName(DeftemplateFunction.NAME);
-	defTemplate.setParameters(new Parameter[] { new ValueParam(JamochaValue.newObject(tpl)) });
+	defTemplate.setParameters(new Parameter[] { JamochaValue.newObject(tpl) });
 	return defTemplate;
     }
 }

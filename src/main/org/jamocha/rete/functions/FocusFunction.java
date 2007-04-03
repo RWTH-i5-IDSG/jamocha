@@ -24,7 +24,6 @@ import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.ValueParam;
 
 /**
  * @author Sebastian Reinartz
@@ -32,38 +31,32 @@ import org.jamocha.rete.ValueParam;
  */
 public class FocusFunction implements Function, Serializable {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
+    /**
+         * 
+         */
+    private static final long serialVersionUID = 1L;
 
-	public static final String FOCUS = "focus";
+    public static final String NAME = "focus";
 
-	public FocusFunction() {
-		super();
-	}
+    public FocusFunction() {
+	super();
+    }
 
-	public JamochaType getReturnType() {
-		return JamochaType.IDENTIFIER;
-	}
+    public JamochaType getReturnType() {
+	return JamochaType.IDENTIFIER;
+    }
 
-	public JamochaValue executeFunction(Rete engine, Parameter[] params)
-			throws EvaluationException {
-		JamochaValue result = JamochaValue.newIdentifier(engine
-				.getCurrentFocus().getModuleName());
-		return result;
-	}
+    public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
+	JamochaValue result = JamochaValue.newIdentifier(engine.getCurrentFocus().getModuleName());
+	return result;
+    }
 
-	public String getName() {
-		return FOCUS;
-	}
+    public String getName() {
+	return NAME;
+    }
 
-	public Class[] getParameter() {
-		return new Class[] { ValueParam.class };
-	}
-
-	public String toPPString(Parameter[] params, int indents) {
-		return "(set-focus)";
-	}
+    public String toPPString(Parameter[] params, int indents) {
+	return "(set-focus)";
+    }
 
 }

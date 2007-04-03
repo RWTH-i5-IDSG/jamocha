@@ -25,59 +25,49 @@ import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.ValueParam;
-
 
 /**
  * @author Peter Lin
- *
+ * 
  */
 public class DefmoduleFunction implements Function, Serializable {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-	
-	public static final String DEFMODULE = "defmodule";
+    /**
+         * 
+         */
+    private static final long serialVersionUID = 1L;
 
-	public DefmoduleFunction() {
-		super();
-	}
+    public static final String NAME = "defmodule";
 
-	public JamochaType getReturnType() {
-		return JamochaType.BOOLEAN;
-	}
+    public DefmoduleFunction() {
+	super();
+    }
 
-	public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
-		JamochaValue result = JamochaValue.FALSE;
-		if (params != null && params.length == 1) {
-			engine.addModule(params[0].getValue(engine).implicitCast(JamochaType.IDENTIFIER).getIdentifierValue());
-			result = JamochaValue.TRUE;
-		} else {
-			throw new IllegalParameterException(1);
-		}
-		return result;
-	}
+    public JamochaType getReturnType() {
+	return JamochaType.BOOLEAN;
+    }
 
-	public String getName() {
-		return DEFMODULE;
+    public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
+	JamochaValue result = JamochaValue.FALSE;
+	if (params != null && params.length == 1) {
+	    engine.addModule(params[0].getValue(engine).implicitCast(JamochaType.IDENTIFIER).getIdentifierValue());
+	    result = JamochaValue.TRUE;
+	} else {
+	    throw new IllegalParameterException(1);
 	}
+	return result;
+    }
 
-	/**
-	 * The expected parameter is a single ValueParam containing a deftemplate
-	 * instance. The function gets the deftemplate using Parameter.getValue().
-	 */
-	public Class[] getParameter() {
-		return new Class[] { ValueParam.class };
-	}
+    public String getName() {
+	return NAME;
+    }
 
-	public String toPPString(Parameter[] params, int indents) {
-		if (params != null) {
-			StringBuffer buf = new StringBuffer();
-			return buf.toString();
-		} else {
-			return "(defmodule name)";
-		}
+    public String toPPString(Parameter[] params, int indents) {
+	if (params != null) {
+	    StringBuffer buf = new StringBuffer();
+	    return buf.toString();
+	} else {
+	    return "(defmodule name)";
 	}
+    }
 }

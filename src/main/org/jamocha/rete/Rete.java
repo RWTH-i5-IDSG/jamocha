@@ -790,8 +790,8 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
          * @throws EvaluationException
          */
     public void loadRuleset(String filename) throws EvaluationException {
-	BatchFunction bf = (BatchFunction) this.functions.get(BatchFunction.BATCH);
-	Parameter[] params = new Parameter[] { new ValueParam(JamochaValue.newString(filename)) };
+	BatchFunction bf = (BatchFunction) this.functions.get(BatchFunction.NAME);
+	Parameter[] params = new Parameter[] { JamochaValue.newString(filename) };
 	bf.executeFunction(this, params);
     }
 
@@ -802,7 +802,7 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
          * @param ins
          */
     public void loadRuleset(InputStream ins) {
-	BatchFunction bf = (BatchFunction) this.functions.get(BatchFunction.BATCH);
+	BatchFunction bf = (BatchFunction) this.functions.get(BatchFunction.NAME);
 	try {
 	    bf.parse(this, ins);
 	} catch (EvaluationException e) {

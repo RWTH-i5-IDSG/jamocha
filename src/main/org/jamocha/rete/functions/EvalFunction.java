@@ -27,11 +27,9 @@ import org.jamocha.parser.JamochaValue;
 import org.jamocha.parser.ParseException;
 import org.jamocha.parser.Parser;
 import org.jamocha.parser.ParserFactory;
-import org.jamocha.rete.BoundParam;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.ValueParam;
 
 /**
  * @author Sebastian Reinartz
@@ -40,77 +38,64 @@ import org.jamocha.rete.ValueParam;
  */
 public class EvalFunction implements Function, Serializable {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
+    /**
+         * 
+         */
+    private static final long serialVersionUID = 1L;
 
-	public static final String EVAL = "eval";
+    public static final String NAME = "eval";
 
-	/**
-	 * 
-	 */
-	public EvalFunction() {
-		super();
+    /**
+         * 
+         */
+    public EvalFunction() {
+	super();
+    }
+
+    public JamochaType getReturnType() {
+	return JamochaType.UNDEFINED;
+    }
+
+    public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
+	JamochaValue result;
+	if (params != null && params.length == 1) {
+	    String command = params[0].getValue(engine).getStringValue();
+	    result = eval(engine, command);
+	} else {
+	    throw new IllegalParameterException(1);
 	}
+	return result;
+    }
 
-	public JamochaType getReturnType() {
-		return JamochaType.UNDEFINED;
+    public JamochaValue eval(Rete engine, String command) throws EvaluationException {
+	JamochaValue result = null;
+	try {
+	    Parser parser = ParserFactory.getParser(new StringReader(command));
+	    Expression expr = null;
+	    while ((expr = parser.nextExpression()) != null) {
+		result = expr.getValue(engine);
+	    }
+	} catch (ParseException e) {
+	    throw new EvaluationException(e);
 	}
+	return result;
+    }
 
-	public JamochaValue executeFunction(Rete engine, Parameter[] params)
-			throws EvaluationException {
-		JamochaValue result;
-		if (params != null && params.length == 1) {
-			String command = params[0].getValue(engine).getStringValue();
-			result = eval(engine, command);
-		} else {
-			throw new IllegalParameterException(1);
-		}
-		return result;
-	}
+    public String getName() {
+	return NAME;
+    }
 
-	public JamochaValue eval(Rete engine, String command)
-			throws EvaluationException {
-		JamochaValue result = null;
-		try {
-			Parser parser = ParserFactory.getParser(new StringReader(command));
-			Expression expr = null;
-			while ((expr = parser.nextExpression()) != null) {
-				result = expr.getValue(engine);
-			}
-		} catch (ParseException e) {
-			throw new EvaluationException(e);
-		}
-		return result;
+    public String toPPString(Parameter[] params, int indents) {
+	if (params != null && params.length > 0) {
+	    StringBuffer buf = new StringBuffer();
+	    buf.append("(eval");
+	    for (int idx = 0; idx < params.length; idx++) {
+		buf.append(" ").append(params[idx].getExpressionString());
+	    }
+	    buf.append(")");
+	    return buf.toString();
+	} else {
+	    return "(eval <string expressions>)\n" + "Command description:\n" + "\tEvaluates the content of a string.";
 	}
-
-	public String getName() {
-		return EVAL;
-	}
-
-	public Class[] getParameter() {
-		return new Class[] { ValueParam.class };
-	}
-
-	public String toPPString(Parameter[] params, int indents) {
-		if (params != null && params.length > 0) {
-			StringBuffer buf = new StringBuffer();
-			buf.append("(eval");
-			for (int idx = 0; idx < params.length; idx++) {
-				if (params[idx] instanceof BoundParam) {
-					BoundParam bp = (BoundParam) params[idx];
-					buf.append(" ?").append(bp.getVariableName());
-				} else if (params[idx] instanceof ValueParam) {
-					buf.append(" \"").append(params[idx].getExpressionString())
-							.append("\"");
-				}
-			}
-			buf.append(")");
-			return buf.toString();
-		} else {
-			return "(eval <string expressions>)\n" + "Command description:\n"
-					+ "\tEvaluates the content of a string.";
-		}
-	}
+    }
 }

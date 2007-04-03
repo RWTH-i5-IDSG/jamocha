@@ -26,7 +26,6 @@ import org.jamocha.parser.ParserNotFoundException;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.ValueParam;
 
 /**
  * This function either sets the default arser to the given one or prints out
@@ -38,7 +37,7 @@ public class SetParserFunction implements Function, Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	public static final String SETPARSER = "set-parser";
+	public static final String NAME = "set-parser";
 
 	/**
 	 * 
@@ -67,11 +66,7 @@ public class SetParserFunction implements Function, Serializable {
 	}
 
 	public String getName() {
-		return SETPARSER;
-	}
-
-	public Class[] getParameter() {
-		return new Class[] { ValueParam[].class };
+		return NAME;
 	}
 
 	public String toPPString(Parameter[] params, int indents) {

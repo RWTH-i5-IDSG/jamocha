@@ -22,11 +22,9 @@ import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.IllegalParameterException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.rete.BoundParam;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.ValueParam;
 
 /**
  * @author Peter Lin Any equal is used to compare a literal value against one or
@@ -72,10 +70,6 @@ public class AnyEqFunction implements Function, Serializable {
 
 	public String getName() {
 		return ANYEQUAL;
-	}
-
-	public Class[] getParameter() {
-		return new Class[] { ValueParam.class, BoundParam.class };
 	}
 
 	public String toPPString(Parameter[] params, int indents) {

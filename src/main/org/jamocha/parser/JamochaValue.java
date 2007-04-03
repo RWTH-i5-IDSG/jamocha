@@ -8,9 +8,11 @@ import java.util.TimeZone;
 
 import org.jamocha.rete.BoundParam;
 import org.jamocha.rete.Fact;
+import org.jamocha.rete.Parameter;
+import org.jamocha.rete.Rete;
 import org.jamocha.rete.Slot;
 
-public class JamochaValue {
+public class JamochaValue implements Parameter {
 
 	public static final JamochaValue NIL = new JamochaValue(JamochaType.NIL,
 			null);
@@ -412,5 +414,17 @@ public class JamochaValue {
 		} else if (!value.equals(other.value))
 			return false;
 		return true;
+	}
+
+	public boolean isObjectBinding() {
+	    return false;
+	}
+
+	public String getExpressionString() {
+	    return null;
+	}
+
+	public JamochaValue getValue(Rete engine) throws EvaluationException {
+	    return this;
 	}
 }

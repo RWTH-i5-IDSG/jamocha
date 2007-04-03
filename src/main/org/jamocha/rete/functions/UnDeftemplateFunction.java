@@ -25,7 +25,6 @@ import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.Template;
-import org.jamocha.rete.ValueParam;
 
 
 /**
@@ -39,7 +38,7 @@ public class UnDeftemplateFunction implements Function, Serializable {
 	 */
 	private static final long serialVersionUID = 1L;
 	
-	public static final String UNDEFTEMPLATE = "undeftemplate";
+	public static final String NAME = "undeftemplate";
 
 	public UnDeftemplateFunction() {
 		super();
@@ -63,16 +62,9 @@ public class UnDeftemplateFunction implements Function, Serializable {
 	}
 
 	public String getName() {
-		return UNDEFTEMPLATE;
+		return NAME;
 	}
 
-	/**
-	 * The expected parameter is a single ValueParam containing a deftemplate
-	 * instance. The function gets the deftemplate using Parameter.getValue().
-	 */
-	public Class[] getParameter() {
-		return new Class[] { ValueParam.class };
-	}
 
 	public String toPPString(Parameter[] params, int indents) {
 		if (params != null) {

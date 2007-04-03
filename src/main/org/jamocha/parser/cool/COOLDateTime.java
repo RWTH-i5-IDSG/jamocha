@@ -7,7 +7,6 @@ import java.util.TimeZone;
 
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Parameter;
-import org.jamocha.rete.ValueParam;
 
 public class COOLDateTime extends SimpleNode {
 
@@ -27,7 +26,7 @@ public class COOLDateTime extends SimpleNode {
 	String gmtoffset = "+0";
 
 	n = "\"" + n + "\""; // dirty hack; later, we should fix the indices
-                                // in the substring calls
+	// in the substring calls
 
 	day = Integer.parseInt(n.substring(9, 11));
 	month = Integer.parseInt(n.substring(6, 8));
@@ -59,7 +58,7 @@ public class COOLDateTime extends SimpleNode {
     }
 
     public Parameter getExpression() {
-	return new ValueParam(JamochaValue.newDate(value));
+	return JamochaValue.newDate(value);
     }
 
 }

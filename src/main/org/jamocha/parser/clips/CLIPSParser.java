@@ -19,7 +19,6 @@ import org.jamocha.rete.TemplateSlot;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.ParameterUtils;
 import org.jamocha.rete.Slot;
-import org.jamocha.rete.ValueParam;
 import org.jamocha.rete.functions.ShellFunction;
 import org.jamocha.rule.Action;
 import org.jamocha.rule.AndCondition;
@@ -95,7 +94,7 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
     default:
       jj_la1[0] = jj_gen;
       if (jj_2_1(2147483647)) {
-    exp = new ValueParam(typeExpr());
+    exp = typeExpr();
     {if (true) return exp;}
       } else {
         jj_consume_token(-1);
@@ -126,7 +125,7 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
 
 // this method is used to load data
   final public void loadAllExpr(List list) throws ParseException {
-  ValueParam[] param = null;
+  JamochaValue[] param = null;
     param = assertBody();
     list.add(param);
   }
@@ -172,7 +171,7 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
   Defrule rule;
   ShellFunction func;
   ArrayList list = new ArrayList();
-  ValueParam[] pms;
+  JamochaValue[] pms;
   List infunc = new ArrayList();
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case ASSERT:
@@ -194,9 +193,9 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
       jj_consume_token(RBRACE);
     func = new ShellFunction();
     func.setName(exp.image);
-    pms = new ValueParam[2];
-    pms[0] = new ValueParam(JamochaValue.newIdentifier(exp2.image));
-    pms[1] = new ValueParam(JamochaValue.newObject(list.toArray()));
+    pms = new JamochaValue[2];
+    pms[0] = JamochaValue.newIdentifier(exp2.image);
+    pms[1] = JamochaValue.newObject(list.toArray());
     func.setParameters(pms);
     exp.clear();
     exp = null;
@@ -221,9 +220,9 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
       jj_consume_token(RBRACE);
     func = new ShellFunction();
     func.setName(exp.image);
-    pms = new ValueParam[2];
-    pms[0] = new ValueParam(JamochaValue.newIdentifier(exp2.image));
-    pms[1] = new ValueParam(JamochaValue.newObject(list.toArray()));
+    pms = new JamochaValue[2];
+    pms[0] = JamochaValue.newIdentifier(exp2.image);
+    pms[1] = JamochaValue.newObject(list.toArray());
     func.setParameters(pms);
     exp.clear();
     exp = null;
@@ -251,7 +250,7 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
       bp.setVariableName(exp2.image);
       rpms[0] = bp;
     } else {
-      ValueParam vp = new ValueParam(JamochaValue.newLong(Long.parseLong(exp2.image)));
+      JamochaValue vp = JamochaValue.newLong(Long.parseLong(exp2.image));
       rpms[0] = vp;
     }
     func.setParameters(rpms);
@@ -280,8 +279,8 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
       templ = templateExpr();
     func = new ShellFunction();
     func.setName(exp.image);
-    pms = new ValueParam[1];
-    pms[0] = new ValueParam(JamochaValue.newObject(templ));
+    pms = new JamochaValue[1];
+    pms[0] = JamochaValue.newObject(templ);
     func.setParameters(pms);
     {if (true) return func;}
       break;
@@ -290,8 +289,8 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
       body = getIdentifier();
     func = new ShellFunction();
     func.setName(exp.image);
-    pms = new ValueParam[1];
-    pms[0] = new ValueParam(JamochaValue.newIdentifier(body));
+    pms = new JamochaValue[1];
+    pms[0] = JamochaValue.newIdentifier(body);
     func.setParameters(pms);
     {if (true) return func;}
       break;
@@ -300,8 +299,8 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
       rule = ruleBody();
     func = new ShellFunction();
     func.setName(exp.image);
-    pms = new ValueParam[1];
-    pms[0] = new ValueParam(JamochaValue.newObject(rule));
+    pms = new JamochaValue[1];
+    pms[0] = JamochaValue.newObject(rule);
     func.setParameters(pms);
     {if (true) return func;}
       break;
@@ -440,12 +439,12 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
     func = new ShellFunction();
     func.setName(exp.image);
     List parameters = new ArrayList();
-    parameters.add(new ValueParam(JamochaValue.newIdentifier(exp2.image)));
-    parameters.add(new ValueParam(JamochaValue.newObject(ParameterUtils.convertParameters(list))));
+    parameters.add(JamochaValue.newIdentifier(exp2.image));
+    parameters.add(JamochaValue.newObject(ParameterUtils.convertParameters(list)));
     if(exp3 != null) {
-      parameters.add(new ValueParam(JamochaValue.newString(ParserUtils.getStringLiteral(exp3.image))));
+      parameters.add(JamochaValue.newString(ParserUtils.getStringLiteral(exp3.image)));
     }
-    parameters.add(new ValueParam(JamochaValue.newObject(infunc)));
+    parameters.add(JamochaValue.newObject(infunc));
     func.setParameters(ParameterUtils.convertParameters(parameters));
     {if (true) return func;}
       break;
@@ -478,7 +477,7 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
       }
     func = new ShellFunction();
     func.setName("bind");
-    list.add(0,new ValueParam(JamochaValue.newIdentifier(exp.image.substring(1))));
+    list.add(0,JamochaValue.newIdentifier(exp.image.substring(1)));
     func.setParameters(ParameterUtils.convertParameters(list));
     list.clear();
     {if (true) return func;}
@@ -637,7 +636,7 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
   final public void valueParams(List list) throws ParseException {
   Object exp;
   Token tok;
-  ValueParam vp = null;
+  JamochaValue vp = null;
     if (jj_2_2(2147483647)) {
       jj_consume_token(LBRACE);
       exp = expr();
@@ -654,32 +653,32 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
       case STRING_LITERAL:
       case PATH_LITERAL:
         exp = typeExpr();
-    vp = new ValueParam((JamochaValue)exp);
+    vp = (JamochaValue)exp;
     list.add(vp);
         break;
       case IDENTIFIER:
         exp = jj_consume_token(IDENTIFIER);
-    vp = new ValueParam(JamochaValue.newIdentifier(((Token)exp).image));
+    vp = JamochaValue.newIdentifier(((Token)exp).image);
     list.add(vp);
         break;
       case TRUE:
         exp = jj_consume_token(TRUE);
-    vp = new ValueParam(JamochaValue.TRUE);
+    vp = JamochaValue.TRUE;
     list.add(vp);
         break;
       case TRUE2:
         exp = jj_consume_token(TRUE2);
-    vp = new ValueParam(JamochaValue.TRUE);
+    vp = JamochaValue.TRUE;
     list.add(vp);
         break;
       case FALSE:
         exp = jj_consume_token(FALSE);
-    vp = new ValueParam(JamochaValue.FALSE);
+    vp = JamochaValue.FALSE;
     list.add(vp);
         break;
       case FALSE2:
         exp = jj_consume_token(FALSE2);
-    vp = new ValueParam(JamochaValue.FALSE);
+    vp = JamochaValue.FALSE;
     list.add(vp);
         break;
       case BIND:
@@ -753,10 +752,10 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
     throw new Error("Missing return statement in function");
   }
 
-  final public ValueParam[] assertBody() throws ParseException {
+  final public JamochaValue[] assertBody() throws ParseException {
   Token exp;
   List tokens = new ArrayList();
-  ValueParam[] param = null;
+  JamochaValue[] param = null;
     jj_consume_token(LBRACE);
     exp = jj_consume_token(IDENTIFIER);
     label_10:
@@ -772,9 +771,9 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
       }
     }
     jj_consume_token(RBRACE);
-    param = new ValueParam[2];
-    param[0] = new ValueParam(JamochaValue.newIdentifier(exp.image));
-    param[1] = new ValueParam(JamochaValue.newObject(tokens.toArray()));
+    param = new JamochaValue[2];
+    param[0] = JamochaValue.newIdentifier(exp.image);
+    param[1] = JamochaValue.newObject(tokens.toArray());
     tokens.clear();
     exp = null;
     {if (true) return param;}
@@ -2042,7 +2041,7 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
 
   final public void actionParams(List list) throws ParseException {
   Object exp;
-  ValueParam vp = null;
+  JamochaValue vp = null;
   JamochaValue value;
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case BIND:
@@ -2058,7 +2057,7 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
     case STRING_LITERAL:
     case PATH_LITERAL:
       exp = typeExpr();
-    vp = new ValueParam((JamochaValue)exp);
+    vp = (JamochaValue)exp;
     list.add(vp);
       break;
     case IDENTIFIER:
@@ -2068,7 +2067,7 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
     } else {
       value = JamochaValue.newIdentifier((String)exp);
     }
-    vp = new ValueParam(value);
+    vp = value;
     list.add(vp);
       break;
     default:
@@ -2337,6 +2336,19 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
     finally { jj_save(36, xla); }
   }
 
+  final private boolean jj_3_1() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_scan_token(14)) {
+    jj_scanpos = xsp;
+    if (jj_scan_token(11)) {
+    jj_scanpos = xsp;
+    if (jj_scan_token(12)) return true;
+    }
+    }
+    return false;
+  }
+
   final private boolean jj_3_10() {
     if (jj_scan_token(LBRACE)) return true;
     if (jj_scan_token(MULTISLOT)) return true;
@@ -2592,19 +2604,6 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
 
   final private boolean jj_3_35() {
     if (jj_scan_token(TILDA)) return true;
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_scan_token(14)) {
-    jj_scanpos = xsp;
-    if (jj_scan_token(11)) {
-    jj_scanpos = xsp;
-    if (jj_scan_token(12)) return true;
-    }
-    }
-    return false;
-  }
-
-  final private boolean jj_3_1() {
     Token xsp;
     xsp = jj_scanpos;
     if (jj_scan_token(14)) {

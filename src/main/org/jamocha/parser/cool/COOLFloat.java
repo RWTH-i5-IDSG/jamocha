@@ -7,7 +7,6 @@ package org.jamocha.parser.cool;
 
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Parameter;
-import org.jamocha.rete.ValueParam;
 
 public class COOLFloat extends SimpleNode {
     private double value;
@@ -30,6 +29,6 @@ public class COOLFloat extends SimpleNode {
     }
 
     public Parameter getExpression() {
-	return new ValueParam(JamochaValue.newDouble(value));
+	return JamochaValue.newDouble(value);
     }
 }

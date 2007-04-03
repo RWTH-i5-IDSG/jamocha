@@ -21,11 +21,9 @@ import java.io.Serializable;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.rete.BoundParam;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.ValueParam;
 
 /**
  * @author Christian Ebert
@@ -38,7 +36,7 @@ public class Random implements Function, Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	public static final String RANDOM = "random";
+	public static final String NAME = "random";
 
 	/**
 	 * 
@@ -57,26 +55,17 @@ public class Random implements Function, Serializable {
 	}
 
 	public String getName() {
-		return RANDOM;
+		return NAME;
 	}
 
-	public Class[] getParameter() {
-		return new Class[] {};
-	}
 
 	public String toPPString(Parameter[] params, int indents) {
 		if (params != null && params.length >= 0) {
 			StringBuffer buf = new StringBuffer();
 			buf.append("(random");
 			int idx = 0;
-			if (params[idx] instanceof BoundParam) {
-				BoundParam bp = (BoundParam) params[idx];
-				buf.append(" ?" + bp.getVariableName());
-			} else if (params[idx] instanceof ValueParam) {
-				buf.append(" " + params[idx].getExpressionString());
-			} else {
-				buf.append(" " + params[idx].getExpressionString());
-			}
+			buf.append(" " + params[idx].getExpressionString());
+
 			buf.append(")");
 			return buf.toString();
 		} else {

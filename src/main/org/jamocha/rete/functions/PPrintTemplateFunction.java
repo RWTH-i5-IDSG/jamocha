@@ -28,70 +28,68 @@ import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.Template;
-import org.jamocha.rete.ValueParam;
-
 
 /**
  * @author Peter Lin
  * 
- * PPrintTemplate stands for Pretty Print deftemplate. It does the same
- * thing as (ppdeftemplate <deftemplate-name>) in CLIPS.
+ * PPrintTemplate stands for Pretty Print deftemplate. It does the same thing as
+ * (ppdeftemplate <deftemplate-name>) in CLIPS.
  */
 public class PPrintTemplateFunction implements Function, Serializable {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-	
-	public static final String PPTEMPLATES = "ppdeftemplate";
-	
-	/**
-	 * 
-	 */
-	public PPrintTemplateFunction() {
-		super();
-	}
+    /**
+         * 
+         */
+    private static final long serialVersionUID = 1L;
 
-	public JamochaType getReturnType() {
-        return JamochaType.NIL;
-	}
+    public static final String PPTEMPLATES = "ppdeftemplate";
 
-	/**
-	 * the function will printout one or more templates. This implementation
-	 * is slightly different than CLIPS in that it can take one or more
-	 * template names. The definition in CLIPS beginners guide states the 
-	 * function does the following: (ppdeftemplate &lt;deftemplate-name>)
-	 */
-	public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
-		HashMap<Object,Object> filter = new HashMap<Object,Object>();
-		if (params != null && params.length > 0) {
-			for (int idx=0; idx < params.length; idx++) {
-					Object df = ((ValueParam)params[idx]).getValue(engine).getIdentifierValue();
-					filter.put(df,df);
-			}
-		}
-		Collection templ = engine.getCurrentFocus().getTemplates();
-		Iterator itr = templ.iterator();
-		while (itr.hasNext()) {
-			Template tp = (Template)itr.next();
-			if (filter.get(tp.getName()) != null) {
-				engine.writeMessage(tp.toPPString() + "\r\n","t");
-			}
-		}
-		return JamochaValue.NIL;
-	}
+    /**
+         * 
+         */
+    public PPrintTemplateFunction() {
+	super();
+    }
 
-	public String getName() {
-		return PPTEMPLATES;
-	}
+    public JamochaType getReturnType() {
+	return JamochaType.NIL;
+    }
 
-	public Class[] getParameter() {
-		return new Class[]{String.class};
+    /**
+         * the function will printout one or more templates. This implementation
+         * is slightly different than CLIPS in that it can take one or more
+         * template names. The definition in CLIPS beginners guide states the
+         * function does the following: (ppdeftemplate &lt;deftemplate-name>)
+         */
+    public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
+	HashMap<Object, Object> filter = new HashMap<Object, Object>();
+	if (params != null && params.length > 0) {
+	    for (int idx = 0; idx < params.length; idx++) {
+		Object df = (params[idx]).getValue(engine).getIdentifierValue();
+		filter.put(df, df);
+	    }
 	}
+	Collection templ = engine.getCurrentFocus().getTemplates();
+	Iterator itr = templ.iterator();
+	while (itr.hasNext()) {
+	    Template tp = (Template) itr.next();
+	    if (filter.get(tp.getName()) != null) {
+		engine.writeMessage(tp.toPPString() + "\r\n", "t");
+	    }
+	}
+	return JamochaValue.NIL;
+    }
 
-	public String toPPString(Parameter[] params, int indents) {
-		StringBuffer buf = new StringBuffer();
-		return buf.toString();
-	}
+    public String getName() {
+	return PPTEMPLATES;
+    }
+
+    public Class[] getParameter() {
+	return new Class[] { String.class };
+    }
+
+    public String toPPString(Parameter[] params, int indents) {
+	StringBuffer buf = new StringBuffer();
+	return buf.toString();
+    }
 }

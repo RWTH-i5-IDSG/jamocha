@@ -3,7 +3,6 @@ package org.jamocha.parser.cool;
 
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Parameter;
-import org.jamocha.rete.ValueParam;
 
 public class COOLSymbol extends SimpleNode {
 
@@ -20,6 +19,6 @@ public class COOLSymbol extends SimpleNode {
     }
 
     public Parameter getExpression() {
-	return new ValueParam(JamochaValue.newIdentifier(name));
+	return JamochaValue.newIdentifier(name);
     }
 }

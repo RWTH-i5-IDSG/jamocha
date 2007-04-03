@@ -27,7 +27,6 @@ import org.jamocha.rete.TemplateSlot;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.ParameterUtils;
 import org.jamocha.rete.Slot;
-import org.jamocha.rete.ValueParam;
 import org.jamocha.rete.functions.ShellFunction;
 import org.jamocha.rule.Action;
 import org.jamocha.rule.AndCondition;
@@ -271,7 +270,7 @@ Expression nextExpression() :
 |
   LOOKAHEAD(<STRING_LITERAL>|<INTEGER_LITERAL>|<FLOATING_POINT_LITERAL>)
   {
-    exp = new ValueParam(typeExpr());
+    exp = typeExpr();
     return exp;
   }
 }
@@ -291,7 +290,7 @@ List loadExpr() :
 // this method is used to load data
 void loadAllExpr(List list) :
 {
-  ValueParam[] param = null;
+  JamochaValue[] param = null;
 }
 {
   param = assertBody()
@@ -341,7 +340,7 @@ ShellFunction expr() :
   Defrule rule;
   ShellFunction func;
   ArrayList list = new ArrayList();
-  ValueParam[] pms;
+  JamochaValue[] pms;
   List infunc = new ArrayList();
 }
 {
@@ -350,9 +349,9 @@ ShellFunction expr() :
   {
     func = new ShellFunction();
     func.setName(exp.image);
-    pms = new ValueParam[2];
-    pms[0] = new ValueParam(JamochaValue.newIdentifier(exp2.image));
-    pms[1] = new ValueParam(JamochaValue.newObject(list.toArray()));
+    pms = new JamochaValue[2];
+    pms[0] = JamochaValue.newIdentifier(exp2.image);
+    pms[1] = JamochaValue.newObject(list.toArray());
     func.setParameters(pms);
     exp.clear();
     exp = null;
@@ -364,9 +363,9 @@ ShellFunction expr() :
   {
     func = new ShellFunction();
     func.setName(exp.image);
-    pms = new ValueParam[2];
-    pms[0] = new ValueParam(JamochaValue.newIdentifier(exp2.image));
-    pms[1] = new ValueParam(JamochaValue.newObject(list.toArray()));
+    pms = new JamochaValue[2];
+    pms[0] = JamochaValue.newIdentifier(exp2.image);
+    pms[1] = JamochaValue.newObject(list.toArray());
     func.setParameters(pms);
     exp.clear();
     exp = null;
@@ -383,7 +382,7 @@ ShellFunction expr() :
       bp.setVariableName(exp2.image);
       rpms[0] = bp;
     } else {
-      ValueParam vp = new ValueParam(JamochaValue.newLong(Long.parseLong(exp2.image)));
+      JamochaValue vp = JamochaValue.newLong(Long.parseLong(exp2.image));
       rpms[0] = vp;
     }
     func.setParameters(rpms);
@@ -412,8 +411,8 @@ ShellFunction expr() :
   {
     func = new ShellFunction();
     func.setName(exp.image);
-    pms = new ValueParam[1];
-    pms[0] = new ValueParam(JamochaValue.newObject(templ));
+    pms = new JamochaValue[1];
+    pms[0] = JamochaValue.newObject(templ);
     func.setParameters(pms);
     return func;
   }
@@ -423,8 +422,8 @@ ShellFunction expr() :
   {
     func = new ShellFunction();
     func.setName(exp.image);
-    pms = new ValueParam[1];
-    pms[0] = new ValueParam(JamochaValue.newIdentifier(body));
+    pms = new JamochaValue[1];
+    pms[0] = JamochaValue.newIdentifier(body);
     func.setParameters(pms);
     return func;
   }
@@ -434,8 +433,8 @@ ShellFunction expr() :
   {
     func = new ShellFunction();
     func.setName(exp.image);
-    pms = new ValueParam[1];
-    pms[0] = new ValueParam(JamochaValue.newObject(rule));
+    pms = new JamochaValue[1];
+    pms[0] = JamochaValue.newObject(rule);
     func.setParameters(pms);
     return func;
   }
@@ -457,12 +456,12 @@ ShellFunction expr() :
     func = new ShellFunction();
     func.setName(exp.image);
     List parameters = new ArrayList();
-    parameters.add(new ValueParam(JamochaValue.newIdentifier(exp2.image)));
-    parameters.add(new ValueParam(JamochaValue.newObject(ParameterUtils.convertParameters(list))));
+    parameters.add(JamochaValue.newIdentifier(exp2.image));
+    parameters.add(JamochaValue.newObject(ParameterUtils.convertParameters(list)));
     if(exp3 != null) {
-      parameters.add(new ValueParam(JamochaValue.newString(ParserUtils.getStringLiteral(exp3.image))));
+      parameters.add(JamochaValue.newString(ParserUtils.getStringLiteral(exp3.image)));
     }
-    parameters.add(new ValueParam(JamochaValue.newObject(infunc)));
+    parameters.add(JamochaValue.newObject(infunc));
     func.setParameters(ParameterUtils.convertParameters(parameters));
     return func;
   }
@@ -472,7 +471,7 @@ ShellFunction expr() :
   {
     func = new ShellFunction();
     func.setName("bind");
-    list.add(0,new ValueParam(JamochaValue.newIdentifier(exp.image.substring(1))));
+    list.add(0,JamochaValue.newIdentifier(exp.image.substring(1)));
     func.setParameters(ParameterUtils.convertParameters(list));
     list.clear();
     return func;
@@ -514,7 +513,7 @@ void valueParams(List list) :
 {
   Object exp;
   Token tok;
-  ValueParam vp = null;
+  JamochaValue vp = null;
 }
 {
   LOOKAHEAD(<LBRACE>)<LBRACE>exp = expr()<RBRACE>
@@ -528,37 +527,37 @@ void valueParams(List list) :
 |
   exp = typeExpr()
   {
-    vp = new ValueParam((JamochaValue)exp);
+    vp = (JamochaValue)exp;
     list.add(vp);
   }
 |
   exp = <IDENTIFIER>
   {
-    vp = new ValueParam(JamochaValue.newIdentifier(((Token)exp).image));
+    vp = JamochaValue.newIdentifier(((Token)exp).image);
     list.add(vp);
   }
 |
   exp = <TRUE>
   {
-    vp = new ValueParam(JamochaValue.TRUE);
+    vp = JamochaValue.TRUE;
     list.add(vp);
   }
 |
   exp = <TRUE2>
   {
-    vp = new ValueParam(JamochaValue.TRUE);
+    vp = JamochaValue.TRUE;
     list.add(vp);
   }
 |
   exp = <FALSE>
   {
-    vp = new ValueParam(JamochaValue.FALSE);
+    vp = JamochaValue.FALSE;
     list.add(vp);
   }
 |
   exp = <FALSE2>
   {
-    vp = new ValueParam(JamochaValue.FALSE);
+    vp = JamochaValue.FALSE;
     list.add(vp);
   }
 |
@@ -632,18 +631,18 @@ String getIdentifier() :
   }
 }
 
-ValueParam[] assertBody() :
+JamochaValue[] assertBody() :
 {
   Token exp;
   List tokens = new ArrayList();
-  ValueParam[] param = null;
+  JamochaValue[] param = null;
 }
 {
   <LBRACE> exp = <IDENTIFIER> (assertContents(tokens))+ <RBRACE>
   {
-    param = new ValueParam[2];
-    param[0] = new ValueParam(JamochaValue.newIdentifier(exp.image));
-    param[1] = new ValueParam(JamochaValue.newObject(tokens.toArray()));
+    param = new JamochaValue[2];
+    param[0] = JamochaValue.newIdentifier(exp.image);
+    param[1] = JamochaValue.newObject(tokens.toArray());
     tokens.clear();
     exp = null;
     return param;
@@ -1546,7 +1545,7 @@ void ruleAction(List list) :
 void actionParams(List list) :
 {
   Object exp;
-  ValueParam vp = null;
+  JamochaValue vp = null;
   JamochaValue value;
 }
 {
@@ -1561,7 +1560,7 @@ void actionParams(List list) :
 |
   exp = typeExpr()
   {
-    vp = new ValueParam((JamochaValue)exp);
+    vp = (JamochaValue)exp;
     list.add(vp);
   }
 |
@@ -1572,7 +1571,7 @@ void actionParams(List list) :
     } else {
       value = JamochaValue.newIdentifier((String)exp);
     }
-    vp = new ValueParam(value);
+    vp = value;
     list.add(vp);
   }
 }

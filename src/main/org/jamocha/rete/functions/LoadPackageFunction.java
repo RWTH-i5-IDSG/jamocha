@@ -9,7 +9,6 @@ import org.jamocha.rete.Function;
 import org.jamocha.rete.FunctionGroup;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.ValueParam;
 
 /**
  * @author Christian Ebert
@@ -24,7 +23,7 @@ public class LoadPackageFunction implements Function, Serializable {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	public static final String FUNCTION_NAME = "load-package";
+	public static final String NAME = "load-package";
 
 	private ClassnameResolver classnameResolver;
 
@@ -69,11 +68,7 @@ public class LoadPackageFunction implements Function, Serializable {
 	}
 
 	public String getName() {
-		return FUNCTION_NAME;
-	}
-
-	public Class[] getParameter() {
-		return new Class[] { ValueParam[].class };
+		return NAME;
 	}
 
 	public JamochaType getReturnType() {

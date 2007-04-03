@@ -7,7 +7,6 @@ package org.jamocha.parser.cool;
 
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Parameter;
-import org.jamocha.rete.ValueParam;
 
 public class COOLInteger extends SimpleNode {
 
@@ -35,6 +34,6 @@ public class COOLInteger extends SimpleNode {
     }
 
     public Parameter getExpression() {
-	return new ValueParam(JamochaValue.newLong(value));
+	return JamochaValue.newLong(value);
     }
 }

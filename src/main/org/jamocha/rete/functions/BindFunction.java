@@ -26,7 +26,6 @@ import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.ValueParam;
 
 
 /**
@@ -42,7 +41,7 @@ public class BindFunction implements Function, Serializable {
 	 */
 	private static final long serialVersionUID = 1L;
 	
-	public static final String BIND = "bind";
+	public static final String NAME = "bind";
 
 	/**
 	 * 
@@ -76,15 +75,7 @@ public class BindFunction implements Function, Serializable {
 	}
 
 	public String getName() {
-		return BIND;
-	}
-
-	/**
-	 * The function takes 2 parameters. The first is the name of the variable
-	 * and the second is some value. At the moment, the function does not hand
-	 */
-	public Class[] getParameter() {
-		return new Class[] { ValueParam.class, ValueParam.class };
+		return NAME;
 	}
 
 	public String toPPString(Parameter[] params, int indents) {

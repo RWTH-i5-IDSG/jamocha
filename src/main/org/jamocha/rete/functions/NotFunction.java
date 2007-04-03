@@ -25,7 +25,6 @@ import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.ValueParam;
 
 /**
  * @author Nikolaus Koemm
@@ -39,7 +38,7 @@ public class NotFunction implements Function, Serializable {
 	 */
 	private static final long serialVersionUID = 1L;
 	
-	public static final String NOT = "NOT";
+	public static final String NAME = "NOT";
 
 	/**
 	 * 
@@ -66,17 +65,13 @@ public class NotFunction implements Function, Serializable {
 	}
 
 	public String getName() {
-		return NOT;
-	}
-
-	public Class[] getParameter() {
-		return new Class[] { ValueParam[].class };
+		return NAME;
 	}
 
 	public String toPPString(Parameter[] params, int indents) {
 		if (params != null && params.length >= 0) {
 			StringBuffer buf = new StringBuffer();
-			buf.append("(" + NOT);
+			buf.append("(" + NAME);
 				buf.append(" ").append(params[0].getExpressionString());
 			buf.append(")");
 			return buf.toString();

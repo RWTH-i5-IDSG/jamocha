@@ -24,11 +24,9 @@ import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.IllegalParameterException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.rete.BoundParam;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.ValueParam;
 
 /**
  * @author Josef Alexander Hahn
@@ -36,67 +34,53 @@ import org.jamocha.rete.ValueParam;
  */
 public class GetGMToffset implements Function, Serializable {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	public static final String GETGMTOFFSET = "getgmtoffset";
+    public static final String NAME = "getgmtoffset";
 
-	/**
-	 * 
-	 */
-	public GetGMToffset() {
-		super();
+    /**
+         * 
+         */
+    public GetGMToffset() {
+	super();
+    }
+
+    /*
+         * (non-Javadoc)
+         * 
+         * @see woolfel.engine.rete.Function#getReturnType()
+         */
+    public JamochaType getReturnType() {
+	return JamochaType.DATETIME;
+    }
+
+    public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
+	if (params != null) {
+	    if (params.length == 1) {
+
+		GregorianCalendar p1 = params[0].getValue(engine).getDateValue();
+		return JamochaValue.newLong(p1.get(Calendar.ZONE_OFFSET) / (1000 * 60 * 60));
+	    }
 	}
+	throw new IllegalParameterException(1, false);
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see woolfel.engine.rete.Function#getReturnType()
-	 */
-	public JamochaType getReturnType() {
-		return JamochaType.DATETIME;
-	}
+    public String getName() {
+	return NAME;
+    }
 
-	public JamochaValue executeFunction(Rete engine, Parameter[] params)
-			throws EvaluationException {
-		if (params != null) {
-			if (params.length == 1) {
-				
-				GregorianCalendar p1 = params[0]  .getValue(engine).getDateValue();
-				return JamochaValue.newLong(p1.get(Calendar.ZONE_OFFSET)/(1000*60*60));
-			}
-		}
-		throw new IllegalParameterException(1, false);
+    public String toPPString(Parameter[] params, int indents) {
+	if (params != null && params.length == 3) {
+	    StringBuffer buf = new StringBuffer();
+	    buf.append("(getgmtoffset");
+	    for (int idx = 0; idx < params.length; idx++) {
+		buf.append(" " + params[idx].getExpressionString());
+	    }
+	    buf.append(")");
+	    return buf.toString();
+	} else {
+	    return "(getgmtoffset (<datetime> | <binding>) )\n" + "Function description:\n"
+		    + "\t Returns the GMT-Offset from the given" + "DateTime-Object";
 	}
-
-	public String getName() {
-		return GETGMTOFFSET;
-	}
-
-	public Class[] getParameter() {
-		return new Class[] { ValueParam.class, ValueParam.class };
-	}
-
-	public String toPPString(Parameter[] params, int indents) {
-		if (params != null && params.length == 3) {
-			StringBuffer buf = new StringBuffer();
-			buf.append("(getgmtoffset");
-			for (int idx = 0; idx < params.length; idx++) {
-				if (params[idx] instanceof BoundParam) {
-					BoundParam bp = (BoundParam) params[idx];
-					buf.append(" ?" + bp.getVariableName());
-				} else if (params[idx] instanceof ValueParam) {
-					buf.append(" " + params[idx].getExpressionString());
-				} else {
-					buf.append(" " + params[idx].getExpressionString());
-				}
-			}
-			buf.append(")");
-			return buf.toString();
-		} else {
-			return "(getgmtoffset (<datetime> | <binding>) )\n" 
-					+ "Function description:\n"
-					+ "\t Returns the GMT-Offset from the given"
-					+ "DateTime-Object";
-		}
-	}
+    }
 }

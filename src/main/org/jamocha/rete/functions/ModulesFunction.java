@@ -28,7 +28,6 @@ import org.jamocha.rete.Function;
 import org.jamocha.rete.Module;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.ValueParam;
 
 /**
  * @author Sebastian Reinartz
@@ -36,44 +35,40 @@ import org.jamocha.rete.ValueParam;
  */
 public class ModulesFunction implements Function, Serializable {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-	
-	public static final String MODULES = "modules";
+    /**
+         * 
+         */
+    private static final long serialVersionUID = 1L;
 
-	public ModulesFunction() {
-		super();
-	}
+    public static final String NAME = "modules";
 
-	public JamochaType getReturnType() {
-		return JamochaType.STRING;
-	}
+    public ModulesFunction() {
+	super();
+    }
 
-	public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
-		Collection modules = engine.getAgenda().getModules();
-		int count = modules.size();
-		Iterator itr = modules.iterator();
-		StringBuilder sb = new StringBuilder();
-		while (itr.hasNext()) {
-			Module r = (Module) itr.next();
-			sb.append(r.getModuleName()).append(Constants.LINEBREAK);
-		}
-		sb.append("for a total of ").append(count).append(Constants.LINEBREAK);
-		return JamochaValue.newString(sb.toString());
-	}
+    public JamochaType getReturnType() {
+	return JamochaType.STRING;
+    }
 
-	public String getName() {
-		return MODULES;
+    public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
+	Collection modules = engine.getAgenda().getModules();
+	int count = modules.size();
+	Iterator itr = modules.iterator();
+	StringBuilder sb = new StringBuilder();
+	while (itr.hasNext()) {
+	    Module r = (Module) itr.next();
+	    sb.append(r.getModuleName()).append(Constants.LINEBREAK);
 	}
+	sb.append("for a total of ").append(count).append(Constants.LINEBREAK);
+	return JamochaValue.newString(sb.toString());
+    }
 
-	public Class[] getParameter() {
-		return new Class[] { ValueParam.class };
-	}
+    public String getName() {
+	return NAME;
+    }
 
-	public String toPPString(Parameter[] params, int indents) {
-		return "(set-focus)";
-	}
+    public String toPPString(Parameter[] params, int indents) {
+	return "(set-focus)";
+    }
 
 }

@@ -24,7 +24,6 @@ import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.ValueParam;
 
 
 /**
@@ -70,9 +69,6 @@ public class LazyAgendaFunction implements Function, Serializable {
 		return LAZY_AGENDA;
 	}
 
-	public Class[] getParameter() {
-		return new Class[] { ValueParam.class };
-	}
 
 	public String toPPString(Parameter[] params, int indents) {
 		return "(lazy-agenda [TRUE|FALSE])";
