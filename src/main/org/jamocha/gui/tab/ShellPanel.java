@@ -405,9 +405,12 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 								lastIncompleteCommand = new StringBuilder();
 							}
 							if (event.getType() == MessageEvent.ERROR) {
-								buffer.append(gui.exceptionToString(
-										(Exception) event.getMessage()).trim()
+								buffer.append(((Exception) event.getMessage())
+										.getMessage().trim()
 										+ System.getProperty("line.separator"));
+								// buffer.append(gui.exceptionToString(
+								// (Exception) event.getMessage()).trim()
+								// + System.getProperty("line.separator"));
 							}
 							if (event.getType() != MessageEvent.COMMAND
 									&& event.getMessage() != null
