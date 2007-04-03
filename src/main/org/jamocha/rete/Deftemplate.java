@@ -290,6 +290,8 @@ public class Deftemplate implements Template, Serializable {
                                 bslots.add((Slot)s.clone());
                                 hasbinding = true;
                                 break;
+                            } else {
+                                values[idx].setValue(s.value);
                             }
                         }
                     } else {
