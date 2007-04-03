@@ -18,11 +18,14 @@ package org.jamocha.rete.functions;
 
 import java.io.Serializable;
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.IllegalParameterException;
@@ -127,28 +130,85 @@ public class JDBClink implements Function, Serializable {
 						
 					} else if (action.equals("export")) {
 						// TODO: For now, we assume the third parameter to be a csv-list of facts. dirty thing :(
-						String[] exportFacts = (thirdParam.getStringValue()).split(",");
 						
-						String sqlStatement = "INSERT INTO " + table + " (" + slots[0].getName();
+						// get primary keys from our table
+						DatabaseMetaData meta = conn.getMetaData();
+					    ResultSet rs = meta.getPrimaryKeys(null, null, table);
+					    List<String> keys = new ArrayList<String>();
+					    while (rs.next()) {
+					    	keys.add( rs.getString("COLUMN_NAME") );
+					    }
+					    	
+					    // generate some prepared statements
+						String insertStatement = "INSERT INTO " + table + " (" + slots[0].getName();
 						for( int i=1 ; i<slots.length ; i++){
-							sqlStatement += "," + slots[i].getName();
+							insertStatement += "," + slots[i].getName();
 						}
-						sqlStatement += ") VALUES (?";
+						insertStatement += ") VALUES (?";
 						for( int i=1 ; i<slots.length ; i++){
-							sqlStatement += ",?";
+							insertStatement += ",?";
 						}
-						sqlStatement += ")";
+						insertStatement += ")";
 						
-						PreparedStatement inserter = conn.prepareStatement(sqlStatement);
+						String updateStatement = "UPDATE " + table + " SET " + slots[0].getName() + "=?";
+						for( int i=1 ; i<slots.length ; i++){
+							updateStatement += "," + slots[i].getName() + "=?";
+						}
+						updateStatement += " WHERE ";
+						boolean firstKey = true;
+						for (String key : keys) {
+							if (!firstKey) {
+								updateStatement += " AND ";
+							}
+							firstKey = false;
+							updateStatement += key + "=?";
+						} 
+						String lookupStatement = "SELECT * FROM " + table + " WHERE ";
+						firstKey = true;
+						for ( String key : keys ) {
+							if (!firstKey) {
+								lookupStatement += " AND ";
+							}
+							firstKey = false;
+							lookupStatement += key + "=?";
+						}
+						PreparedStatement inserter = conn.prepareStatement(insertStatement);
+						PreparedStatement updater  = conn.prepareStatement(updateStatement);
+						PreparedStatement lookuper = conn.prepareStatement(lookupStatement); // any better name ;) ?
+					
+						// iterate over our facts
 						
-						for( int i=0 ; i<exportFacts.length ; i++ ) {
-							Deffact actFact = (Deffact) engine.getFactById(Integer.parseInt(exportFacts[i]));
+						// for( int i=0 ; i < thirdParam.getListCount() ; i++ ) {
+						
+						String[] ids = thirdParam.getStringValue().split(",");
+						for( int i=0 ; i < ids.length ; i++ ) {
+							// Deffact actFact = (Deffact) (thirdParam.getListValue(i).getFactValue());
+							Deffact actFact = (Deffact) engine.getFactById( (long) Integer.parseInt(ids[i]));
+							
+							// check whether to update or to insert
+							boolean insert = true;
+							if ( keys.size() > 0 ) {
+								int keyindex=1;
+								for( String key : keys ) {
+									lookuper.setObject(keyindex++, actFact.getSlotValue(key).getObjectValue());
+								}
+								insert = !lookuper.executeQuery().next();
+							}
+							
+							PreparedStatement actor = insert ? inserter : updater;
+							
 							// TODO: Check for the right deftemplate
 							for( int j=1 ; j<=slots.length ; j++ ){
 								// TODO: Typechecking?!
-								inserter.setObject(j, actFact.getSlotValue(slots[j-1].getName()).getObjectValue());
+								actor.setObject(j, actFact.getSlotValue(slots[j-1].getName()).getObjectValue());
 							}
-							inserter.execute();
+							if (!insert) {
+								int j = slots.length + 1;
+								for( String key : keys ) {
+									actor.setObject(j++, actFact.getSlotValue(key).getObjectValue());
+								}
+							}
+							actor.execute();
 						}
 						return JamochaValue.newBoolean(true);
 						

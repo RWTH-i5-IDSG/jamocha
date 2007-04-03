@@ -14,4 +14,6 @@
 	)
 )
 
-(jdbclink ?mylink "import" "foo") 
+(assert (templ (a 99) (b 99) (c "neunviermal")) )
+
+(jdbclink ?mylink "export" "3"  ) 
