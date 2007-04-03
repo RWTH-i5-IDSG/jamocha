@@ -22,10 +22,11 @@ public class COOLDeftemplateConstruct extends ConstructNode {
     }
 
     public String toString() {
-	String str = "deftemplate \"" + name + "\"" + "(" + doc + "): ";
+	String str = "(deftemplate " + name + " \"" + doc + "\" ";
 	int i;
 	for (i = 0; i < slots.size(); i++)
-	    str = str + slots.get(i).getName() + " ";
+	    str = str + "(slot " + slots.get(i).getName() + ") ";
+	str = str + ")";
 	return str;
     }
 
