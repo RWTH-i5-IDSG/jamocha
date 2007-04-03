@@ -66,7 +66,7 @@ import org.jamocha.rule.*;
 public class COOLParser implements Parser{
 
         public Expression nextExpression() throws ParseException {
-                return Start();
+                return Start().getExpression();
         }
 
         public static void main(String args[])
@@ -83,7 +83,7 @@ public class COOLParser implements Parser{
                                 COOLStart n = p.Start();
                                 if (n==null) System.exit(0);
                                 n.dump(" ");
-                                System.out.println(n.getValue(engine).toString());
+                                System.out.println(n.getExpression().getValue(engine).toString());
                         }
                 }
                 catch (Exception e)
@@ -710,7 +710,7 @@ void DefaultAttribute(TemplateSlot ts) #void : { Node n;}
 		(	
 			<ATR_DERIVE> { ts.setDefaultDerive(); }
 		|	<ATR_NONE> // { ts.setDefaultNone(); }
-		|	n=Attributes() { ts.setStaticDefaultExpression(n); }
+		|	n=Attributes() { ts.setStaticDefaultExpression(n.getExpression()); }
 		)
 }
 
@@ -720,7 +720,7 @@ void DynamicAttribute(TemplateSlot ts) #void : { Node n;}
 {
 	<DYNAMIC_ATR> 
 	(	
-		n=Attributes() { ts.setDynamicDefaultExpression(n); }
+		n=Attributes() { ts.setDynamicDefaultExpression(n.getExpression()); }
 	)
 }
 
@@ -1192,8 +1192,8 @@ void DeffunctionConstruct()  :
         ")"
         n=ActionList()
         { 
-			jjtThis.SetFunctionParams(list);
-			jjtThis.setFunctionActions(n); 
+			jjtThis.setFunctionParams(list);
+			jjtThis.setFunctionActions(n.getExpression()); 
 		}
 }
 
@@ -1419,13 +1419,13 @@ void DefaultFacet(TemplateSlot ts) #void : { Node n; }
 	( 	<DEFAULT_ATR>
 		(	<ATR_DERIVE> { ts.setDefaultDerive(); }
 		|	<ATR_NONE> // { ts.setDefaultNone(); }
-		|   n=Attributes() { ts.setStaticDefaultExpression(n); }
+		|   n=Attributes() { ts.setStaticDefaultExpression(n.getExpression()); }
 		) 
 	) 
 	|	
 	( 	
 		<DYNAMIC_ATR> 
-		n=Attributes() { ts.setDynamicDefaultExpression(n); }
+		n=Attributes() { ts.setDynamicDefaultExpression(n.getExpression()); }
 	)
 }
 
