@@ -2,77 +2,64 @@
 
 package org.jamocha.parser.cool;
 
-import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
 
-import org.jamocha.parser.EvaluationException;
-import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.rete.Rete;
+import org.jamocha.rete.Parameter;
+import org.jamocha.rete.ValueParam;
 
 public class COOLDateTime extends SimpleNode {
-	
-	private Calendar value;
-	
-	public COOLDateTime(int id) {
-		super(id);
+
+    private GregorianCalendar value;
+
+    public COOLDateTime(int id) {
+	super(id);
+    }
+
+    public COOLDateTime(COOLParser p, int id) {
+	super(p, id);
+    }
+
+    public void setName(String n) {
+	name = n;
+	int day = 0, month = 0, year = 0, hours = 0, minutes = 0, seconds = 0;
+	String gmtoffset = "+0";
+
+	n = "\"" + n + "\""; // dirty hack; later, we should fix the indices
+                                // in the substring calls
+
+	day = Integer.parseInt(n.substring(9, 11));
+	month = Integer.parseInt(n.substring(6, 8));
+	year = Integer.parseInt(n.substring(1, 5));
+
+	if (n.length() > 12) {
+	    hours = Integer.parseInt(n.substring(12, 14));
+	    minutes = Integer.parseInt(n.substring(15, 17));
+	    if (n.length() > 18) {
+		if (n.charAt(17) == ':') {
+		    seconds = Integer.parseInt(n.substring(18, 20));
+		    if (n.length() > 21) {
+			gmtoffset = (n.substring(20, n.length() - 1));
+		    }
+		} else /* if (n.charAt(17)=='+' || n.charAt(17)=='-') */{
+		    gmtoffset = (n.substring(17, n.length() - 1));
+		}
+	    }
 	}
 
-	public COOLDateTime(COOLParser p, int id) {
-		super(p, id);
-	}
-	public void setName(String n) 
-	{ 
-		name = n;
-		int day=0,month=0,year=0,hours=0,minutes=0,seconds=0;
-		String gmtoffset="+0";
-		
-		n="\""+n+"\""; // dirty hack; later, we should fix the indices in the substring calls
-		
-		day=Integer.parseInt(n.substring(9, 11));
-		month=Integer.parseInt(n.substring(6, 8));
-		year=Integer.parseInt(n.substring(1, 5));
-		
-		if (n.length() > 12) {
-			hours=Integer.parseInt(n.substring(12, 14));
-			minutes=Integer.parseInt(n.substring(15, 17));
-			if (n.length() > 18) {
-				if (n.charAt(17)==':') {
-					seconds=Integer.parseInt(n.substring(18, 20));
-					if (n.length() > 21) {
-						gmtoffset=(n.substring(20,n.length()-1));
-					}
-				} else /* if (n.charAt(17)=='+' || n.charAt(17)=='-') */ {
-					gmtoffset=(n.substring(17,n.length()-1));
-				}
-			}
- 		}
-			
-		Calendar cal = new GregorianCalendar(year,month-1,day,hours,minutes,seconds);
-		cal.setTimeZone(TimeZone.getTimeZone("GMT"+gmtoffset+":00"));
-		value=cal;
-		//value = (cal.getTimeInMillis()/1000)+seconds+minutes*60+hours*3600;
-	}
-	public String getName() { return name; }
+	GregorianCalendar cal = new GregorianCalendar(year, month - 1, day, hours, minutes, seconds);
+	cal.setTimeZone(TimeZone.getTimeZone("GMT" + gmtoffset + ":00"));
+	value = cal;
+	// value = (cal.getTimeInMillis()/1000)+seconds+minutes*60+hours*3600;
+    }
 
-	public String toString() {
-		return "DateTime: " + name + " (" + value + ")";
-	}
+    public String toString() {
+	return "DateTime: " + name + " (" + value + ")";
+    }
 
-	public boolean compareTree(SimpleNode n)
-	{
-		int i;
-		// Do both nodes have the same id?
-		if (id!=n.getId()) return false;
-		// Do both nodes have the same contents?
-		if (value!=((COOLDateTime)n).value) return false;
-		// Yes, they do
-		return true;
-	}
-
-	public JamochaValue getValue(Rete engine) throws EvaluationException {
-		return new JamochaValue(JamochaType.DATETIME, value);
-	}
+    public Parameter getExpression() {
+	return new ValueParam(JamochaValue.newDate(value));
+    }
 
 }

@@ -17,7 +17,7 @@ public class Main
 				COOLStart n = p.Start();
 				if (n==null) System.exit(0);
 				n.dump("");
-				System.out.println(n.getValue(null).toString());
+				System.out.println(n.getExpression().toString());
 			}
 		} catch (Exception e) {
 		System.err.println("Oops.");

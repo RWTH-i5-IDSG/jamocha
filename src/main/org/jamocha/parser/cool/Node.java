@@ -9,14 +9,14 @@ package org.jamocha.parser.cool;
 
 import java.lang.String;
 import org.jamocha.parser.*;
-import org.jamocha.rete.Rete;
+import org.jamocha.rete.Parameter;
 
 /** The minimal interface any Abstract syntax tree node must implement.
 	 Class SimpleNode provides implementations for most of these functions, 
 	 see there for information on Syntax Trees
 */
 
-public interface Node extends Expression
+public interface Node
 {
 
 	/** This method is called after the node has been made the current
@@ -45,9 +45,7 @@ public interface Node extends Expression
 
 	public void dump(String prefix);
 	public boolean compareTree(Node n);
-	public JamochaValue getValue(Rete engine) throws EvaluationException;
-	/** Bind the local varibles to function/method/etc parametres */
-	public void bindLocals(DeffunctionParams locals[]);
+	public Parameter getExpression();
 	public String getName();
 	public void setName(String n);
 	public int getId();

@@ -5,8 +5,9 @@
 */
 package org.jamocha.parser.cool;
 
-import org.jamocha.parser.*;
-import org.jamocha.rete.Rete;
+import org.jamocha.parser.JamochaValue;
+import org.jamocha.rete.Parameter;
+import org.jamocha.rete.ValueParam;
 
 public class COOLString extends SimpleNode {
 
@@ -22,19 +23,8 @@ public class COOLString extends SimpleNode {
 		return "String: " + name;
 	}
 
-	public boolean compareTree(SimpleNode n)
+	public Parameter getExpression()
 	{
-		int i;
-		// Do both nodes have the same id?
-		if (id!=n.getId()) return false;
-		// Do both nodes have the same contents?
-		if (name!=n.getName()) return false;
-		// Yes, they do
-		return true;
-	}
-
-	public JamochaValue getValue(Rete engine) throws EvaluationException
-	{
-		return new JamochaValue(JamochaType.STRING,name);
+	 return new   ValueParam(JamochaValue.newString(name));
 	}
 }

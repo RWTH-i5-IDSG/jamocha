@@ -39,7 +39,7 @@ public class IfFunction implements Function, Serializable {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	public static final String IF = "if";
+	public static final String NAME = "if";
 
 	/**
 	 * 
@@ -80,7 +80,7 @@ public class IfFunction implements Function, Serializable {
 	}
 
 	public String getName() {
-		return IF;
+		return NAME;
 	}
 
 	public Class[] getParameter() {

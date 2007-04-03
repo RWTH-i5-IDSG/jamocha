@@ -14,17 +14,14 @@
  * limitations under the License.
  * 
  */
-package org.jamocha.rete.functions;
+package org.jamocha.rete.functions.rete;
 
 import java.io.Serializable;
 
 import org.jamocha.parser.EvaluationException;
-import org.jamocha.parser.IllegalParameterException;
 import org.jamocha.parser.IllegalTypeException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.rete.Deffact;
-import org.jamocha.rete.Deftemplate;
 import org.jamocha.rete.Fact;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
@@ -35,14 +32,14 @@ import org.jamocha.rete.ValueParam;
  * @author Peter Lin
  * 
  */
-public class AssertFunction implements Function, Serializable {
+public class FindFactByFact implements Function, Serializable {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 
-	public static final String NAME = "assert";
+	public static final String NAME = "find-fact-by-fact";
 
 	protected Fact[] triggerFacts = null;
 
@@ -56,38 +53,17 @@ public class AssertFunction implements Function, Serializable {
 
 	public JamochaValue executeFunction(Rete engine, Parameter[] params)
 			throws EvaluationException {
-		JamochaValue result = JamochaValue.FALSE;
-		if (params.length > 0) {
-			Deffact fact = null;
-			JamochaValue firstParam = params[0].getValue(engine);
-			if (firstParam.getType().equals(JamochaType.IDENTIFIER)) {
-				JamochaValue secondParam = params[1].getValue(engine);
-				Deftemplate tmpl = (Deftemplate) engine.getCurrentFocus()
-						.getTemplate(firstParam.getIdentifierValue());
-				fact = (Deffact) tmpl.createFact((Object[]) secondParam
-						.getObjectValue(), -1, engine);
-			} else if (firstParam.getType().equals(JamochaType.FACT)) {
-				fact = (Deffact) firstParam.getFactValue();
-			} else {
-				throw new IllegalTypeException(new JamochaType[] {
-						JamochaType.FACT, JamochaType.IDENTIFIER }, firstParam
-						.getType());
-			}
-			if (fact.hasBinding()) {
-				fact.resolveValues(engine, this.triggerFacts);
-				fact = fact.cloneFact(engine);
-			}
-			engine.assertFact(fact);
-			// if the fact id is still -1, it means it wasn't asserted
-			// if it was asserted, we return the fact id, otherwise
-			// we return "false".
-			if (fact.getFactId() > 0) {
-				result = JamochaValue.newFactId(fact.getFactId());
-			}
-		} else {
-			throw new IllegalParameterException(1);
+		JamochaValue factValue = params[0].getValue(engine);
+		if (factValue.is(JamochaType.FACT))  {
+		    Fact templateFact =factValue.getFactValue();
+		    Fact existingFact = engine.getFact(templateFact);
+		    if(existingFact == null) {
+			return JamochaValue.NIL;
+		    } else {
+			return JamochaValue.newFactId(existingFact.getFactId());
+		    }
 		}
-		return result;
+		throw new IllegalTypeException(JamochaType.FACTS, factValue.getType());
 	}
 
 	public String getName() {

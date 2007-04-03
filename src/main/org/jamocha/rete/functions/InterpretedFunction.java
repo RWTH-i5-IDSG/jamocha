@@ -16,8 +16,6 @@
  */
 package org.jamocha.rete.functions;
 
-import java.util.List;
-
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.Expression;
 import org.jamocha.parser.IllegalParameterException;
@@ -25,6 +23,7 @@ import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.BoundParam;
 import org.jamocha.rete.DefaultScope;
+import org.jamocha.rete.ExpressionSequence;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
@@ -47,13 +46,13 @@ public class InterpretedFunction implements Function {
 
 	protected Expression[] inputParams = null;
 
-	private List<ShellFunction> actions = null;
+	private ExpressionSequence actions = null;
 
 	/**
 	 * 
 	 */
 	public InterpretedFunction(String name, String description, Expression[] params,
-			List<ShellFunction> actions) {
+		ExpressionSequence actions) {
 		this.name = name;
 		this.description = description;
 		this.inputParams = params;
@@ -79,11 +78,7 @@ public class InterpretedFunction implements Function {
 			}
 			engine.pushScope(parameterValues);
 			try {
-				for (int i = 0; i < this.actions.size(); ++i) {
-					ShellFunction sf = this.actions.get(i);
-					sf.lookUpFunction(engine);
-					result = sf.executeFunction(engine, sf.getParameters());
-				}
+			    result = actions.getValue(engine);
 			} finally {
 				engine.popScope();
 			}

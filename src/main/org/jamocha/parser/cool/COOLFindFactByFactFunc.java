@@ -2,37 +2,16 @@
 
 package org.jamocha.parser.cool;
 
-import org.jamocha.parser.EvaluationException;
-import org.jamocha.parser.IllegalTypeException;
-import org.jamocha.parser.JamochaType;
-import org.jamocha.parser.JamochaValue;
-import org.jamocha.rete.Fact;
-import org.jamocha.rete.Rete;
+import org.jamocha.rete.functions.rete.FindFactByFact;
 
-public class COOLFindFactByFactFunc extends SimpleNode {
+public class COOLFindFactByFactFunc extends COOLAnyFunction {
     public COOLFindFactByFactFunc(int id) {
 	super(id);
+	setName(FindFactByFact.NAME);
     }
 
     public COOLFindFactByFactFunc(COOLParser p, int id) {
 	super(p, id);
+	setName(FindFactByFact.NAME);
     }
-
-    @Override
-    public JamochaValue getValue(Rete engine) throws EvaluationException {
-	JamochaValue factValue=jjtGetChild(0).getValue(engine);
-	if (factValue.is(JamochaType.FACT))  {
-	    Fact templateFact =factValue.getFactValue();
-	    Fact existingFact = engine.getFact(templateFact);
-	    if(existingFact == null) {
-		return JamochaValue.NIL;
-	    } else {
-		return JamochaValue.newFactId(existingFact.getFactId());
-	    }
-	}
-	throw new IllegalTypeException(JamochaType.FACTS, factValue.getType());
-    }
-    
-    
-
 }

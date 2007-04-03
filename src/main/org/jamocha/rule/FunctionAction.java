@@ -45,6 +45,11 @@ import org.jamocha.rete.functions.*;
  */
 public class FunctionAction implements Action {
 
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
+    
     protected Function faction = null;
     protected String functionName = null;
     protected Parameter[] parameters = null;
@@ -144,8 +149,6 @@ public class FunctionAction implements Action {
                 ((BoundParam)this.parameters[idx]).setFact(facts);
             } else if (this.parameters[idx] instanceof FunctionParam) {
                 ((FunctionParam)this.parameters[idx]).setFacts(facts);
-            } else if (this.parameters[idx] instanceof FunctionParam2) {
-            	((FunctionParam2)this.parameters[idx]).setEngine(engine);
             }
         }
         // we treat AssertFunction a little different

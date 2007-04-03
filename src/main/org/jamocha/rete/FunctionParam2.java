@@ -28,98 +28,85 @@ import org.jamocha.rule.Rule;
  */
 public class FunctionParam2 extends AbstractParam {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
+    /**
+         * 
+         */
+    private static final long serialVersionUID = 1L;
 
-	protected Function func = null;
+    protected String funcName = null;
 
-	protected String funcName = null;
+    private Parameter[] params = null;
 
-	private Parameter[] params = null;
+    public FunctionParam2() {
+	super();
+    }
 
-	private Rete engine = null;
+    public void setFunctionName(String name) {
+	this.funcName = name;
+    }
 
-	public FunctionParam2() {
-		super();
-	}
+    public String getFunctionName() {
+	return this.funcName;
+    }
 
-	public void setFunctionName(String name) {
-		this.funcName = name;
-	}
-
-	public String getFunctionName() {
-		return this.funcName;
-	}
-
-	public void setEngine(Rete engine) {
-		this.engine = engine;
-	}
-
-	public void configure(Rete engine, Rule util) {
-		if (this.engine == null) {
-			this.engine = engine;
+    public void configure(Rete engine, Rule util) {
+	for (int idx = 0; idx < this.params.length; idx++) {
+	    if (this.params[idx] instanceof BoundParam) {
+		// we need to set the row value if the binding is a slot or fact
+		BoundParam bp = (BoundParam) this.params[idx];
+		Binding b1 = util.getBinding(bp.getVariableName());
+		if (b1 != null) {
+		    bp.setRow(b1.getLeftRow());
+		    if (b1.getLeftIndex() == -1) {
+			bp.setObjectBinding(true);
+		    }
 		}
-		for (int idx = 0; idx < this.params.length; idx++) {
-			if (this.params[idx] instanceof BoundParam) {
-				// we need to set the row value if the binding is a slot or fact
-				BoundParam bp = (BoundParam) this.params[idx];
-				Binding b1 = util.getBinding(bp.getVariableName());
-				if (b1 != null) {
-					bp.setRow(b1.getLeftRow());
-					if (b1.getLeftIndex() == -1) {
-						bp.setObjectBinding(true);
-					}
-				}
-			}
-		}
+	    }
 	}
+    }
 
-	public void setParameters(Parameter[] params) {
-		this.params = params;
-	}
+    public void setParameters(Parameter[] params) {
+	this.params = params;
+    }
 
-	public void lookUpFunction() {
-		this.func = engine.findFunction(this.funcName);
-	}
+    public Function lookUpFunction(Rete engine) {
+	return engine.findFunction(this.funcName);
+    }
 
-	public JamochaType getValueType() {
-		return this.func.getReturnType();
-	}
+    public JamochaType getValueType() {
+	return JamochaType.UNDEFINED;
+    }
 
-	/**
-	 * TODO we may want to check the value type and throw and exception for now
-	 * just getting it to work.
-	 */
-	public JamochaValue getValue(Rete engine) throws EvaluationException {
-		if (this.params != null) {
-			this.engine = engine;
-			lookUpFunction();
-			return this.func.executeFunction(engine, this.params);
-		} else {
-			return null;
-		}
+    /**
+         * TODO we may want to check the value type and throw and exception for
+         * now just getting it to work.
+         */
+    public JamochaValue getValue(Rete engine) throws EvaluationException {
+	if (this.params != null) {
+	    Function func = lookUpFunction(engine);
+	    if (func != null) {
+		return func.executeFunction(engine, this.params);
+	    }
 	}
+	return null;
+    }
 
-	public void reset() {
-		this.engine = null;
-		this.params = null;
-	}
+    public void reset() {
+	this.params = null;
+    }
 
-	public String toPPString() {
-		this.lookUpFunction();
-		return this.func.toPPString(this.params, 1);
-	}
+    public String toPPString() {
+	return getExpressionString();
+    }
 
-	public String getExpressionString() {
-		StringBuilder res = new StringBuilder("(" + funcName);
-		if (params != null) {
-			for (Parameter param : params) {
-				res.append(" " + param.getExpressionString());
-			}
-		}
-		res.append(")");
-		return res.toString();
+    public String getExpressionString() {
+	StringBuilder res = new StringBuilder("(" + funcName);
+	if (params != null) {
+	    for (Parameter param : params) {
+		res.append(" " + param.getExpressionString());
+	    }
 	}
+	res.append(")");
+	return res.toString();
+    }
 }

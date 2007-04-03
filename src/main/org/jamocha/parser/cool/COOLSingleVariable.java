@@ -5,8 +5,9 @@
 */
 package org.jamocha.parser.cool;
 
-import org.jamocha.parser.JamochaValue;
-import org.jamocha.rete.Rete;
+import org.jamocha.rete.BoundParam;
+import org.jamocha.rete.Parameter;
+
 
 public class COOLSingleVariable extends SimpleNode 
 {
@@ -25,7 +26,9 @@ public class COOLSingleVariable extends SimpleNode
 	}
 
 
-	public JamochaValue getValue(Rete engine) {
-		return engine.getBinding(name);
+	public Parameter getExpression() {
+	    BoundParam boundParam = new BoundParam();
+	    boundParam.setVariableName(name);
+	    return boundParam;
 	}
 }

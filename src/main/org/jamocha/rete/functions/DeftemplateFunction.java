@@ -39,7 +39,7 @@ public class DeftemplateFunction implements Function, Serializable {
          */
     private static final long serialVersionUID = 1L;
 
-    public static final String DEFTEMPLATE = "deftemplate";
+    public static final String NAME = "deftemplate";
 
     public DeftemplateFunction() {
 	super();
@@ -64,7 +64,7 @@ public class DeftemplateFunction implements Function, Serializable {
     }
 
     public String getName() {
-	return DEFTEMPLATE;
+	return NAME;
     }
 
     /**

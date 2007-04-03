@@ -105,6 +105,10 @@ public class BoundParam extends AbstractParam {
         this.valueType = Constants.FACT_TYPE;
     }
     
+    public BoundParam(String variableName) {
+	this.variableName = variableName;
+    }
+
     public String getVariableName() {
         return this.variableName;
     }

@@ -2,23 +2,17 @@
 
 package org.jamocha.parser.cool;
 
-import org.jamocha.parser.*;
-import org.jamocha.rete.*;
-import org.jamocha.rule.*;
+import org.jamocha.rete.functions.IfFunction;
 
-public class COOLIfElseFunc extends SimpleNode {
-	public COOLIfElseFunc(int id) {
-		super(id);
-	}
+public class COOLIfElseFunc extends COOLAnyFunction {
 
-	public COOLIfElseFunc(COOLParser p, int id) {
-		super(p, id);
-	}
+    public COOLIfElseFunc(int id) {
+	super(id);
+	setName(IfFunction.NAME);
+    }
 
-	public JamochaValue getValue(Rete engine) throws EvaluationException
-	{
-		// Just execute first child. More comples Nodes have to override this anyways.
-		return JamochaValue.FALSE;		
-	};
-
+    public COOLIfElseFunc(COOLParser p, int id) {
+	super(p, id);
+	setName(IfFunction.NAME);
+    }
 }

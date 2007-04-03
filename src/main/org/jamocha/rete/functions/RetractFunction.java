@@ -36,7 +36,7 @@ public class RetractFunction implements Function, Serializable {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	public static final String RETRACT = "retract";
+	public static final String NAME = "retract";
 
 	public RetractFunction() {
 		super();
@@ -79,7 +79,7 @@ public class RetractFunction implements Function, Serializable {
 	}
 
 	public String getName() {
-		return RETRACT;
+		return NAME;
 	}
 
 	public Class[] getParameter() {

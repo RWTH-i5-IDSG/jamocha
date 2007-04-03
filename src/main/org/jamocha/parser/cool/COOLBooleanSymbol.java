@@ -2,43 +2,32 @@
 
 package org.jamocha.parser.cool;
 
-import org.jamocha.parser.*;
-import org.jamocha.rete.Rete;
+import org.jamocha.parser.JamochaValue;
+import org.jamocha.rete.Parameter;
+import org.jamocha.rete.ValueParam;
 
-public class COOLBooleanSymbol extends SimpleNode 
-{
-	protected boolean value;
-	
-	public COOLBooleanSymbol(int id) {
-		super(id);
-		value=false;
-	}
-	
-	public COOLBooleanSymbol(COOLParser p, int id) {
-		super(p, id);
-		value=false;
-	}
+public class COOLBooleanSymbol extends SimpleNode {
+    protected boolean value;
 
-	public void setToTrue() 
-	{ value=true; }
+    public COOLBooleanSymbol(int id) {
+	super(id);
+	value = false;
+    }
 
-	public void setToFalse() 
-	{ value=false; }
+    public COOLBooleanSymbol(COOLParser p, int id) {
+	super(p, id);
+	value = false;
+    }
 
-	// Gets speacial treatment because lexer accepts multiple representation of boolean values
-	public boolean compareTree(SimpleNode n)
-	{
-		int i;
-		// Do both nodes have the same id?
-		if (id!=n.getId()) return false;
-		// Do both nodes represent the same boolean?
-		if (((COOLBooleanSymbol)n).value!=value) return false;
-		// Yes, they do
-		return true;
-	}
-	
-	public JamochaValue getValue(Rete engine)
-	{
-		return new JamochaValue(JamochaType.BOOLEAN, Boolean.valueOf(value));
-	}
+    public void setToTrue() {
+	value = true;
+    }
+
+    public void setToFalse() {
+	value = false;
+    }
+
+    public Parameter getExpression() {
+	return new ValueParam(value ? JamochaValue.TRUE : JamochaValue.FALSE);
+    }
 }

@@ -17,6 +17,7 @@
 package org.jamocha.rete;
 
 import org.jamocha.parser.EvaluationException;
+import org.jamocha.parser.Expression;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 
@@ -32,37 +33,16 @@ public class SlotParam extends AbstractParam {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+	
+	protected String name;
+	protected Expression values;
 
-	protected int valueType = Constants.SLOT_TYPE;
 
-	protected Slot slot = null;
 
-	/**
-	 * 
-	 * @param type
-	 * @param slot
-	 */
-	public SlotParam(Slot slot) {
-		super();
-		this.slot = slot;
-	}
-
-	/* (non-Javadoc)
-	 * @see woolfel.engine.rete.ReturnValue#getValueType()
-	 */
-	public int getValueType() {
-		return this.valueType;
-	}
-
-	/* (non-Javadoc)
-	 * @see woolfel.engine.rete.ReturnValue#getValue()
-	 */
-	public Object getValue() {
-		return this.slot;
-	}
-
-	public Slot getSlotValue() {
-		return this.slot;
+	public SlotParam(String name, Expression values) {
+	    super();
+	    this.name = name;
+	    this.values = values;
 	}
 
     /**
@@ -70,18 +50,14 @@ public class SlotParam extends AbstractParam {
      * should not need to deal with slot parameters.
      */
     public JamochaValue getValue(Rete engine) throws EvaluationException {
-        return JamochaValue.newSlot(this.slot);
+	Slot slot = new Slot(name);
+	slot.setValue(values.getValue(engine));
+        return JamochaValue.newSlot(slot);
     }
 
-    /* (non-Javadoc)
-	 * @see woolfel.engine.rete.Parameter#reset()
-	 */
-	public void reset() {
-		this.slot = null;
-	}
 
 	public String getExpressionString() {
-		return slot.toString();
+		return "(" + name + " " + values.getExpressionString()+ ")";
 	}
 
 }

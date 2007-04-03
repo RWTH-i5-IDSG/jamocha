@@ -21,6 +21,7 @@ import java.util.List;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
+import org.jamocha.rete.ExpressionSequence;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
@@ -39,7 +40,7 @@ public class DeffunctionFunction implements Function {
 	 */
 	private static final long serialVersionUID = 1L;
 	
-	private static final String NAME = "deffunction";
+	public static final String NAME = "deffunction";
 
 	protected Class[] functionParams = null;
 
@@ -61,16 +62,23 @@ public class DeffunctionFunction implements Function {
 			JamochaValue secondParam = params[1].getValue(engine);
 			Parameter[] functionParameters = (Parameter[]) secondParam.getObjectValue();
 			JamochaValue thirdParam = params[2].getValue(engine);
-			List<ShellFunction> functionList;
+			ExpressionSequence functionList;
 			String description = "";
-			if(thirdParam.getType().equals(JamochaType.STRING)) {
-				description = thirdParam.getStringValue();
-				JamochaValue fourthParam = params[3].getValue(engine);
-				functionList = (List) fourthParam.getObjectValue();
+			/* TODO description/comment for user defined functions */
+//			if(thirdParam.getType().equals(JamochaType.STRING)) {
+//				description = thirdParam.getStringValue();
+//				JamochaValue fourthParam = params[3].getValue(engine);
+//				functionList = (List) fourthParam.getObjectValue();
+//			} else {
+			if(thirdParam.getObjectValue() instanceof ExpressionSequence) {
+				functionList = (ExpressionSequence) thirdParam.getObjectValue();
 			} else {
-				functionList = (List) thirdParam.getObjectValue();
+			    List<ShellFunction> actions = (List) thirdParam.getObjectValue();
+			    functionList = new ExpressionSequence();
+			    for(int i=0; i<actions.size(); ++i) {
+				functionList.add(actions.get(i));
+			    }
 			}
-			
 			InterpretedFunction intrfunc = new InterpretedFunction(name, description,
 					functionParameters, functionList);
 			engine.declareFunction(intrfunc);

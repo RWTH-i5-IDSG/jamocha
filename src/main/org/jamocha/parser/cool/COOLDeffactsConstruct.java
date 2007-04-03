@@ -2,24 +2,22 @@
 
 package org.jamocha.parser.cool;
 
-import org.jamocha.parser.*;
-import org.jamocha.rete.Rete;
+import org.jamocha.rete.Parameter;
 
 public class COOLDeffactsConstruct extends ConstructNode {
-  public COOLDeffactsConstruct(int id) {
-    super(id);
-  }
+    public COOLDeffactsConstruct(int id) {
+	super(id);
+    }
 
-  public COOLDeffactsConstruct(COOLParser p, int id) {
-    super(p, id);
-  }
+    public COOLDeffactsConstruct(COOLParser p, int id) {
+	super(p, id);
+    }
 
-	public String toString() {
-		return "deffact \"" + name + "\"" + " (" + doc + ")";
-	}
+    public String toString() {
+	return "deffact \"" + name + "\"" + " (" + doc + ")";
+    }
 
-	public JamochaValue getValue(Rete engine) //throws EvaluationException
-	{
-		return JamochaValue.TRUE;
-	};
+    public Parameter getExpression() {
+	return null;
+    }
 }

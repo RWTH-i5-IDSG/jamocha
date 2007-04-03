@@ -43,6 +43,7 @@ import org.jamocha.rete.util.CollectionsFactory;
  */
 public class Defrule implements Rule, Scope, Serializable {
 
+    private static final long serialVersionUID = 1L;
     protected String name = null;
     protected ArrayList conditions = null;
     protected ArrayList actions = null;

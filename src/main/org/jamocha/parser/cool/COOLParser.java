@@ -30,7 +30,7 @@ import org.jamocha.rule.*;
 public class COOLParser implements/*@bgen(jjtree)*/ COOLParserTreeConstants,Parser, COOLParserConstants {/*@bgen(jjtree)*/
   protected JJTCOOLParserState jjtree = new JJTCOOLParserState();
         public Expression nextExpression() throws ParseException {
-                return Start();
+                return Start().getExpression();
         }
 
         public static void main(String args[])
@@ -47,7 +47,7 @@ public class COOLParser implements/*@bgen(jjtree)*/ COOLParserTreeConstants,Pars
                                 COOLStart n = p.Start();
                                 if (n==null) System.exit(0);
                                 n.dump(" ");
-                                System.out.println(n.getValue(engine).toString());
+                                System.out.println(n.getExpression().toString());
                         }
                 }
                 catch (Exception e)
@@ -1266,7 +1266,7 @@ Data Types:
     default:
       jj_la1[28] = jj_gen;
       n = Attributes();
-                                         ts.setStaticDefaultExpression(n);
+                                         ts.setStaticDefaultExpression(n.getExpression());
     }
   }
 
@@ -1274,7 +1274,7 @@ Data Types:
                                                  Node n;
     jj_consume_token(DYNAMIC_ATR);
     n = Attributes();
-                                 ts.setDynamicDefaultExpression(n);
+                                 ts.setDynamicDefaultExpression(n.getExpression());
   }
 
 /* Fact Specification
@@ -2422,8 +2422,8 @@ Node CEList2():{}
       n = ActionList();
           jjtree.closeNodeScope(jjtn000, true);
           jjtc000 = false;
-                        jjtn000.SetFunctionParams(list);
-                        jjtn000.setFunctionActions(n);
+                        jjtn000.setFunctionParams(list);
+                        jjtn000.setFunctionActions(n.getExpression());
     } catch (Throwable jjte000) {
           if (jjtc000) {
             jjtree.clearNodeScope(jjtn000);
@@ -3011,13 +3011,13 @@ void WildcardParameter()  #void : {}
       default:
         jj_la1[80] = jj_gen;
         n = Attributes();
-                                     ts.setStaticDefaultExpression(n);
+                                     ts.setStaticDefaultExpression(n.getExpression());
       }
       break;
     case DYNAMIC_ATR:
       jj_consume_token(DYNAMIC_ATR);
       n = Attributes();
-                                 ts.setDynamicDefaultExpression(n);
+                                 ts.setDynamicDefaultExpression(n.getExpression());
       break;
     default:
       jj_la1[81] = jj_gen;

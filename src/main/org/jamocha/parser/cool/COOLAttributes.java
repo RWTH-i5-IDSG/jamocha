@@ -2,9 +2,8 @@
 
 package org.jamocha.parser.cool;
 
-import org.jamocha.parser.EvaluationException;
-import org.jamocha.parser.JamochaValue;
-import org.jamocha.rete.Rete;
+import org.jamocha.rete.ExpressionList;
+import org.jamocha.rete.Parameter;
 
 public class COOLAttributes extends SimpleNode {
     public COOLAttributes(int id) {
@@ -15,19 +14,12 @@ public class COOLAttributes extends SimpleNode {
 	super(p, id);
     }
 
-    public JamochaValue getValue(Rete engine) throws EvaluationException {
-	int i;
-	if (jjtGetNumChildren() == 0) {
-	    return JamochaValue.NIL;
+    public Parameter getExpression() {
+	ExpressionList expressionList = new ExpressionList();
+	for (int i = 0; i < jjtGetNumChildren(); ++i) {
+	    expressionList.add(jjtGetChild(i).getExpression());
 	}
-	if (jjtGetNumChildren() == 1) {
-	    return jjtGetChild(0).getValue(engine);
-	}
-	JamochaValue[] values = new JamochaValue[jjtGetNumChildren()];
-	for (i = 0; i < jjtGetNumChildren(); i++) {
-	    values[i] = jjtGetChild(i).getValue(engine);
-	}
-	return JamochaValue.newList(values);
+	return expressionList;
     };
 
 }

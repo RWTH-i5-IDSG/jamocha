@@ -33,7 +33,7 @@ import org.jamocha.rete.ValueParam;
  * and execute the real function. ShellFunction expects the parser to pass the
  * name of the real function and parameter values.
  */
-public class ShellFunction implements Function, Serializable {
+public class ShellFunction implements Parameter, Function, Serializable {
 
 	private static final long serialVersionUID = 1L;
 
@@ -104,5 +104,17 @@ public class ShellFunction implements Function, Serializable {
 	public String toPPString(Parameter[] params, int indents) {
 		StringBuffer buf = new StringBuffer();
 		return buf.toString();
+	}
+
+	public boolean isObjectBinding() {
+	    return false;
+	}
+
+	public String getExpressionString() {
+	    return toPPString(getParameters(), 0);
+	}
+
+	public JamochaValue getValue(Rete engine) throws EvaluationException {
+	    return executeFunction(engine, getParameters());
 	}
 }
