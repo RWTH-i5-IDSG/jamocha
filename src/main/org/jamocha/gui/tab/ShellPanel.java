@@ -115,6 +115,11 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 	private List<String> history = new LinkedList<String>();
 
 	/**
+	 * The line the user currently wrote something to.
+	 */
+	private String history_activeline = "";
+
+	/**
 	 * The last position of the Prompt or in case of a new line the position of
 	 * the beginning of the new line.
 	 */
@@ -407,15 +412,11 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 							if (event.getType() == MessageEvent.ERROR) {
 								String msg = ((Exception) event.getMessage())
 										.getMessage();
-								if (msg != null) {
-									buffer
-											.append(msg.trim()
-													+ System
-															.getProperty("line.separator"));
+								if (msg == null) {
+									msg = "An unknown error occured. Please check the Log.";
 								}
-								// buffer.append(gui.exceptionToString(
-								// (Exception) event.getMessage()).trim()
-								// + System.getProperty("line.separator"));
+								buffer.append(msg.trim()
+										+ System.getProperty("line.separator"));
 							}
 							if (event.getType() != MessageEvent.COMMAND
 									&& event.getMessage() != null
@@ -489,25 +490,41 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 							stopTimer();
 							hideCursor();
 							// Here we walk through the history
-							//current_offset = history_offset;
+							int old_offset = history_offset;
 							history_offset += delta;
 							if (history_offset <= 0) {
 								history_offset = 0;
 								if (lastPromptIndex < getOffset()) {
 									removeLine();
 								}
+								printMessage(history_activeline, false);
 							} else {
 								if (history_offset > history.size()) {
 									history_offset = history.size();
 								}
-								if (lastPromptIndex < getOffset()) {
+								// save the currently typed stuff
+								if (delta == 1 && old_offset < 1) {
+									String currLine = "";
+									try {
+										currLine = outputArea.getText(
+												lastPromptIndex, getOffset()
+														- lastPromptIndex);
+									} catch (BadLocationException e1) {
+										e1.printStackTrace();
+									}
+									history_activeline = currLine;
+								}
+								if (lastPromptIndex < getOffset()
+										&& history.size() > 0) {
 									removeLine();
 								}
 								int index = history.size() - history_offset;
 								if (index >= 0 && history.size() > 0) {
+
 									String tmp = history.get(index);
 									printMessage(tmp, false);
 								}
+
 							}
 							moveCursorToEnd();
 							startTimer();
@@ -538,6 +555,7 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 									e1.printStackTrace();
 								}
 							}
+							history_activeline = "";
 							printMessage("", true);
 							moveCursorToEnd();
 							startTimer();
