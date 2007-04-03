@@ -721,11 +721,26 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 				outputArea.setSelectionEnd(getOffset());
 			}
 		});
+		JMenuItem clearLineMenu = new JMenuItem("Clear Line");
+		clearLineMenu.addMouseListener(new MouseAdapter() {
+			public void mouseReleased(MouseEvent event) {
+				removeLine();
+			}
+		});
+		JMenuItem clearShellMenu = new JMenuItem("Clear Shell");
+		clearShellMenu.addMouseListener(new MouseAdapter() {
+			public void mouseReleased(MouseEvent event) {
+				clearArea();
+			}
+		});
 		menu.add(copyMenu);
 		menu.add(pasteMenu);
 		menu.addSeparator();
 		menu.add(selectCommandMenu);
 		menu.add(selectAllMenu);
+		menu.addSeparator();
+		menu.add(clearLineMenu);
+		menu.add(clearShellMenu);
 		outputArea.setComponentPopupMenu(menu);
 
 	}

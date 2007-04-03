@@ -1,11 +1,11 @@
-/**
+/*
  * Copyright 2006 Alexander Wilden, Christoph Emonds, Sebastian Reinartz
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://ruleml-dev.sourceforge.net/
+ *   http://jamocha.sourceforge.net/
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -25,6 +25,12 @@ import org.jamocha.messagerouter.StreamChannel;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.parser.ParserNotFoundException;
 
+/**
+ * This class represents a simple command line shell on System.in / System.out.
+ * 
+ * @author Alexander Wilden
+ * 
+ */
 public class Shell {
 
 	public static final String CHANNELNAME = "Shell";
@@ -79,28 +85,10 @@ public class Shell {
 				try {
 					Thread.sleep(10);
 				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					// ignore an interruption
 				}
 			}
 		}
-	}
-
-	/**
-	 * Converts an Exception to a String namely turns the StackTrace to a
-	 * String.
-	 * 
-	 * @param exception
-	 *            The Exception
-	 * @return A nice String representation of the Exception
-	 */
-	private String exceptionToString(Exception exception) {
-		StringBuilder res = new StringBuilder();
-		StackTraceElement[] str = exception.getStackTrace();
-		for (int i = 0; i < str.length; ++i) {
-			res.append(str[i] + System.getProperty("line.separator"));
-		}
-		return res.toString();
 	}
 
 }

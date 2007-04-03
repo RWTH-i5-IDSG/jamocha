@@ -351,7 +351,7 @@ public class JamochaGui extends JFrame implements ChangeListener,
 	 *            The Exception
 	 * @return A nice String representation of the Exception
 	 */
-	public String exceptionToString(Exception exception) {
+	public static String exceptionToString(Exception exception) {
 		StringBuilder res = new StringBuilder();
 		StackTraceElement[] str = exception.getStackTrace();
 		for (int i = 0; i < str.length; ++i) {

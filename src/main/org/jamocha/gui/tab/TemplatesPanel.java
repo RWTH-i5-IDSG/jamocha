@@ -47,9 +47,8 @@ import org.jamocha.gui.TableRowModel;
 import org.jamocha.gui.editor.TemplateEditor;
 import org.jamocha.gui.icons.IconLoader;
 import org.jamocha.rete.Module;
-import org.jamocha.rete.MultiSlot;
-import org.jamocha.rete.Slot;
 import org.jamocha.rete.Template;
+import org.jamocha.rete.TemplateSlot;
 
 /**
  * This Panel shows all Templates of all Modules currently in the Engine. You
@@ -201,10 +200,10 @@ public class TemplatesPanel extends AbstractJamochaPanel implements
 				if (template != null) {
 					buffer.append("(" + template.getModule().getModuleName()
 							+ "::" + template.getTemplate().getName());
-					Slot[] slots = template.getTemplate().getAllSlots();
-					for (Slot slot : slots) {
+					TemplateSlot[] slots = template.getTemplate().getAllSlots();
+					for (TemplateSlot slot : slots) {
 						buffer.append("\n    (");
-						if (slot instanceof MultiSlot)
+						if (slot.isMultiSlot())
 							buffer.append("multislot " + slot.getName() + ")");
 						else {
 							buffer.append("slot " + slot.getName()

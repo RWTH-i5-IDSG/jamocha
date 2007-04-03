@@ -55,8 +55,8 @@ import org.jamocha.messagerouter.StringChannel;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.rete.Module;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.Slot;
 import org.jamocha.rete.Template;
+import org.jamocha.rete.TemplateSlot;
 
 /**
  * Editor for Facts. First the user selects the module, then a template and
@@ -97,7 +97,7 @@ public class FactEditor extends AbstractJamochaEditor implements
 
 	private StringChannel channel;
 
-	private Map<Slot, JComponent> factComponents = new HashMap<Slot, JComponent>();
+	private Map<TemplateSlot, JComponent> factComponents = new HashMap<TemplateSlot, JComponent>();
 
 	public FactEditor(Rete engine) {
 		super(engine);
@@ -232,7 +232,7 @@ public class FactEditor extends AbstractJamochaEditor implements
 					.getSelectedValue()));
 
 			c.weightx = 1.0;
-			Slot[] slots = tmp.getAllSlots();
+			TemplateSlot[] slots = tmp.getAllSlots();
 			for (int i = 0; i < slots.length; ++i) {
 				c.gridx = 0;
 				c.gridy = i;
@@ -244,7 +244,7 @@ public class FactEditor extends AbstractJamochaEditor implements
 				c.gridx = 1;
 				c.fill = GridBagConstraints.BOTH;
 				c.anchor = GridBagConstraints.WEST;
-				if (slots[i].getValueType() == JamochaType.LIST) {
+				if (slots[i].isMultiSlot()) {
 					MultiSlotEditor multislotEditor = new MultiSlotEditor();
 					JScrollPane scrollPane = new JScrollPane(multislotEditor
 							.getList());
@@ -346,10 +346,10 @@ public class FactEditor extends AbstractJamochaEditor implements
 
 				dumpAreaTemplate
 						.setText("(deftemplate " + tmp.getName() + "\n");
-				Slot[] slots = tmp.getAllSlots();
-				for (Slot slot : slots) {
+				TemplateSlot[] slots = tmp.getAllSlots();
+				for (TemplateSlot slot : slots) {
 					dumpAreaTemplate.append("    (");
-					if (slot.getValueType() == JamochaType.LIST) {
+					if (slot.isMultiSlot()) {
 						dumpAreaTemplate.append("multislot " + slot.getName()
 								+ ")");
 					} else {
@@ -378,12 +378,12 @@ public class FactEditor extends AbstractJamochaEditor implements
 				.getSelectedValue()));
 		StringBuilder res = new StringBuilder("(assert (" + tmp.getName());
 		JComponent currComponent;
-		for (Slot slot : factComponents.keySet()) {
+		for (TemplateSlot slot : factComponents.keySet()) {
 			currComponent = factComponents.get(slot);
 			if (print)
 				res.append("\n\t");
 			res.append("(" + slot.getName() + " ");
-			if (slot.getValueType() == JamochaType.LIST) {
+			if (slot.isMultiSlot()) {
 				Object[] values = ((DefaultListModel) ((JList) currComponent)
 						.getModel()).toArray();
 				for (int i = 0; i < values.length; ++i) {
