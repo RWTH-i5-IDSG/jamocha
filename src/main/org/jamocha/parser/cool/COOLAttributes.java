@@ -2,13 +2,32 @@
 
 package org.jamocha.parser.cool;
 
-public class COOLAttributes extends SimpleNode {
-  public COOLAttributes(int id) {
-    super(id);
-  }
+import org.jamocha.parser.EvaluationException;
+import org.jamocha.parser.JamochaValue;
+import org.jamocha.rete.Rete;
 
-  public COOLAttributes(COOLParser p, int id) {
-    super(p, id);
-  }
+public class COOLAttributes extends SimpleNode {
+    public COOLAttributes(int id) {
+	super(id);
+    }
+
+    public COOLAttributes(COOLParser p, int id) {
+	super(p, id);
+    }
+
+    public JamochaValue getValue(Rete engine) throws EvaluationException {
+	int i;
+	if (jjtGetNumChildren() == 0) {
+	    return JamochaValue.NIL;
+	}
+	if (jjtGetNumChildren() == 1) {
+	    return jjtGetChild(0).getValue(engine);
+	}
+	JamochaValue[] values = new JamochaValue[jjtGetNumChildren()];
+	for (i = 0; i < jjtGetNumChildren(); i++) {
+	    values[i] = jjtGetChild(i).getValue(engine);
+	}
+	return JamochaValue.newList(values);
+    };
 
 }

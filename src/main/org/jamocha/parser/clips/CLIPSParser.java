@@ -808,8 +808,7 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
     }
     jj_consume_token(RBRACE);
     if (body != null) {
-      Slot s = new Slot(exp.image);
-      s.setValue(body);
+      Slot s = new Slot(exp.image, body);
       tokens.add(s);
     }
     exp.clear();

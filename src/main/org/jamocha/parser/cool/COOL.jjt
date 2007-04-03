@@ -46,6 +46,7 @@ import java.util.ArrayList;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.Parser;
+import org.jamocha.parser.ParserUtils;
 import org.jamocha.parser.Expression;
 
 import org.jamocha.rete.Rete;
@@ -380,7 +381,7 @@ Node String() : { Token t; }
 {
 	t=<STRING>
 	{
-		jjtThis.setName(t.image); 
+		jjtThis.setName(ParserUtils.getStringLiteral(t.image)); 
 		return jjtThis;
 	}
 
@@ -611,7 +612,7 @@ void DeffactsConstruct() :{ Token t; }
       { jjtThis.setName(t.image); }
       [
 		t=<STRING>
-		{ jjtThis.setDocString(t.image); }
+		{ jjtThis.setDocString(ParserUtils.getStringLiteral(t.image)); }
 	  ]
       (RHSPattern())*
 }
@@ -634,7 +635,7 @@ void DeftemplateConstruct() :{ Token t; AbstractSlot s;}
 		}
 	    [
 			t=<STRING>
-			{ jjtThis.setDocString(t.image); }
+			{ jjtThis.setDocString(ParserUtils.getStringLiteral(t.image)); }
 		]
         (
 			s=SlotDefinition() { jjtThis.addSlot(s); }
@@ -687,7 +688,8 @@ AbstractSlot MultislotDefinition() #void :
 //<template-attribute> ::= <default-attribute> | <constraint-attribute>
 void TemplateAttribute(TemplateSlot ts) #void : { }
 {
-	(	DefaultAttribute(ts) 
+	(	LOOKAHEAD(2)
+	    DefaultAttribute(ts) 
 	| 	DynamicAttribute(ts)
 	|	ConstraintAttribute(ts)
 	) {
@@ -699,19 +701,21 @@ Node Attributes():{}
 { 
 	(	LOOKAHEAD(3)
 		Expression()
-	)* 
+	)+ 
 	{ return jjtThis; }
 }
 
 //<default-attribute> ::= (default ?DERIVE | ?NONE | <expression>*) | (default-dynamic <expression>*)
 void DefaultAttribute(TemplateSlot ts) #void : { Node n;}
 {
-	<DEFAULT_ATR>
-	(	
-		<ATR_DERIVE> { ts.setDefaultDerive(); }
-	|	<ATR_NONE> // { ts.setDefaultNone(); }
-	|	n=Attributes() { ts.setStaticDefaultExpression(n); }
-	)
+	"("
+		<DEFAULT_ATR>
+		(	
+			<ATR_DERIVE> { ts.setDefaultDerive(); }
+		|	<ATR_NONE> // { ts.setDefaultNone(); }
+		|	n=Attributes() { ts.setStaticDefaultExpression(n); }
+		)
+	")"
 }
 
 
@@ -812,7 +816,7 @@ void DefruleConstruct() :{ Token t; Node n; Condition ce; }
   ( <DEFRULE>
 	t=<SYMBOL>
 	{ jjtThis.setName(t.image); }//name
-	[ t=<STRING> { jjtThis.setDocString(t.image); }	]
+	[ t=<STRING> { jjtThis.setDocString(ParserUtils.getStringLiteral(t.image)); }	]
 	( LOOKAHEAD(3)
 		(
 			Declaration(jjtThis)
@@ -1177,7 +1181,7 @@ void DeffunctionConstruct()  :
         t=<SYMBOL>
         { jjtThis.setName(t.image); jjtThis.hasMultiVars(false);}//name
         [ t=<STRING> 
-			{ jjtThis.setDocString(t.image); }
+			{ jjtThis.setDocString(ParserUtils.getStringLiteral(t.image)); }
         ]
         "(" 
             (
@@ -1214,7 +1218,7 @@ void DefgenericConstruct()  :{ Token t; }
         t=<SYMBOL>
         { jjtThis.setName(t.image); }	//name
         [ t=<STRING>
-			{ jjtThis.setDocString(t.image); }
+			{ jjtThis.setDocString(ParserUtils.getStringLiteral(t.image)); }
         ]
 }
 
@@ -1240,7 +1244,7 @@ void DefmethodConstruct() : { Token t; }
 	])
 	([
 		t = <STRING>
-		{ jjtThis.setDocString(t.image); }//comment
+		{ jjtThis.setDocString(ParserUtils.getStringLiteral(t.image)); }//comment
 	])
 	(
 		<LBRACE>
@@ -1332,7 +1336,7 @@ void DefclassConstruct() : { Token t; }
 	{ jjtThis.setName(t.image); }//name
 	[
 		t = <STRING>
-		{ jjtThis.setDocString(t.image); }//comment
+		{ jjtThis.setDocString(ParserUtils.getStringLiteral(t.image)); }//comment
 	]
 	<LBRACE>
 		<IS_A>
@@ -1512,7 +1516,7 @@ void OverrideMessageFacet(TemplateSlot ts) #void : { Token t; }
 {
 	<OVERRIDE_MESSAGE> 
 	(	<ATR_DEFAULT> 			// { ts.setMessageDefault(); }
-	|	t = <STRING> 			// { ts.setMessageName(t.image); }
+	|	t = <STRING> 			// { ts.setMessageName(ParserUtils.getStringLiteral(t.image)); }
 	)
 }
 
@@ -1562,7 +1566,7 @@ void DefmessageHandlerConstruct() : { Token t; }
 	[ HandlerType() ]
 	[
 		t = <STRING>
-		{ jjtThis.setDocString(t.image); }//comment
+		{ jjtThis.setDocString(ParserUtils.getStringLiteral(t.image)); }//comment
 	]
 	<LBRACE>
 		(SingleVariable())* //parameter
@@ -1587,7 +1591,7 @@ void DefinstancesConstruct() : { Token t; }
 	[ <ACTIVE> ]
 	[
 		t = <STRING>
-		{ jjtThis.setDocString(t.image); }//comment
+		{ jjtThis.setDocString(ParserUtils.getStringLiteral(t.image)); }//comment
 	]
 	(LOOKAHEAD(2) InstanceTemplate())*
 }
@@ -1702,7 +1706,7 @@ void ConstraintAttribute(TemplateSlot ts) #void : { }
 {
 	<LBRACE> //brackets for all productions below
 	( LOOKAHEAD(2)
-		TypeAttribute()
+		TypeAttribute(ts)
 	|	AllowedConstantAttribute()
 	|	RangeAttribute()
 	|	CardinalityAttribute()
@@ -1711,37 +1715,37 @@ void ConstraintAttribute(TemplateSlot ts) #void : { }
 }
 
 //<type-attribute> ::= (type <type-specification>)
-void TypeAttribute() #void : { }
+void TypeAttribute(TemplateSlot ts) #void : { }
 {
-	<TYPE> TypeSpecification()
+	<TYPE> TypeSpecification(ts)
 }
 
 ///////////////////
 // Use EnumSets here
 
 //<type-specification> ::= <allowed-type>+ | ?VARIABLE
-void TypeSpecification()  #void : {}
+void TypeSpecification(TemplateSlot ts)  #void : {}
 {
-	(AllowedType())+ | <VARIABLE_TYPE>
+	(AllowedType(ts))+ | <VARIABLE_TYPE>
 }
 
 //<allowed-type> ::= SYMBOL | STRING | LEXEME | INTEGER | FLOAT | NUMBER |
 //	INSTANCE-NAME | INSTANCE-ADDRESS | INSTANCE | EXTERNAL-ADDRESS | FACT-ADDRESS | DATETIME
-void AllowedType()  #void : {}
+void AllowedType(TemplateSlot ts)  #void : {}
 {
-	(	<SYMBOL_TYPE>
-	|	<STRING_TYPE>
-	|	<DATETIME_TYPE>	
-	|	<LEXEME_TYPE>
-	| 	<INTEGER_TYPE>
-	| 	<FLOAT_TYPE>
-	|	<NUMBER_TYPE> 
-	|	<INSTANCE_NAME_TYPE>
-	| 	<INSTANCE_ADDRESS_TYPE>
-	|	<INSTANCE_TYPE>
-	|	<EXTERNAL_ADDRESS_TYPE>
-	|	<FACT_ADDRESS_TYPE>
-	|   <DATETIME>
+	(	<SYMBOL_TYPE> { ts.setValueType(JamochaType.IDENTIFIER); }
+	|	<STRING_TYPE> { ts.setValueType(JamochaType.STRING); }
+	|	<DATETIME_TYPE>	{ ts.setValueType(JamochaType.DATETIME); }
+	|	<LEXEME_TYPE> { ts.setValueType(JamochaType.IDENTIFIER); }
+	| 	<INTEGER_TYPE> { ts.setValueType(JamochaType.LONG); }
+	| 	<FLOAT_TYPE> { ts.setValueType(JamochaType.DOUBLE); }
+	|	<NUMBER_TYPE> { ts.setValueType(JamochaType.DOUBLE); }
+	|	<INSTANCE_NAME_TYPE> { ts.setValueType(JamochaType.UNDEFINED); }
+	| 	<INSTANCE_ADDRESS_TYPE> { ts.setValueType(JamochaType.UNDEFINED); }
+	|	<INSTANCE_TYPE> { ts.setValueType(JamochaType.UNDEFINED); }
+	|	<EXTERNAL_ADDRESS_TYPE> { ts.setValueType(JamochaType.UNDEFINED); }
+	|	<FACT_ADDRESS_TYPE> { ts.setValueType(JamochaType.FACT_ID); }
+	|   <DATETIME> { ts.setValueType(JamochaType.DATETIME); }
 	)
 }
 

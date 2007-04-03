@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.Parser;
+import org.jamocha.parser.ParserUtils;
 import org.jamocha.parser.Expression;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.Slot;

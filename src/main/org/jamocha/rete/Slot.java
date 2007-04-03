@@ -19,6 +19,7 @@ package org.jamocha.rete;
 import org.jamocha.parser.IllegalConversionException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
+import org.jamocha.rete.exception.ConstraintViolationException;
 
 /**
  * @author Peter Lin
@@ -27,87 +28,88 @@ import org.jamocha.parser.JamochaValue;
  * 
  */
 public class Slot extends AbstractSlot {
-    
-	protected JamochaValue value = JamochaValue.NIL;
-	
-	public Slot() {
-	}
 
-	/**
-	 * Create a new instance with a given name
-	 * 
-	 * @param name
-	 */
-	public Slot(String name) {
-		this.setName(name);
-	}
+    protected JamochaValue value = JamochaValue.NIL;
 
-	/**
-	 * For convenience you can create here a slot with a given value directly
-	 */
-	public Slot(String name, JamochaValue value) {
-		this(name);
-		this.value = value;
-	}
+    public Slot() {
+    }
 
-	/**
-	 * get the value of the slot
-	 * 
-	 * @return
-	 */
-	public JamochaValue getValue() {
-		return this.value;
-	}
+    /**
+         * Create a new instance with a given name
+         * 
+         * @param name
+         */
+    public Slot(String name) {
+	this.setName(name);
+    }
 
-	/**
-	 * set the value of the slot
-	 * 
-	 * @param val
-	 * @throws IllegalConversionException
-	 */
-	public void setValue(JamochaValue val) {
-		if (inspectType(val)) {
-			this.value = val;
-		} else {
-			try {
-				this.value = val.implicitCast(this.getValueType());
-			} catch (IllegalConversionException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-	}
+    /**
+         * For convenience you can create here a slot with a given value
+         * directly
+         */
+    public Slot(String name, JamochaValue value) {
+	this(name);
+	this.value = value;
+    }
 
-	/**
-	 * method will check the type of the value and the type of the slot
-	 * 
-	 * @param value
-	 *            value, which is checked, if it has the same type as the slot
-	 * @return <code>true</code> if value has a compatible type, otherwise
-	 *         <code>false</code>
-	 */
-	protected boolean inspectType(JamochaValue value) {
-		if (getValueType().equals(JamochaType.UNDEFINED)
-				|| value.getType().equals(JamochaType.BINDING)
-				|| getValueType().equals(value.getType())) {
-			return true;
-		}
-		return false;
-	}
+    /**
+         * get the value of the slot
+         * 
+         * @return
+         */
+    public JamochaValue getValue() {
+	return this.value;
+    }
 
-	/**
-	 * A convienance method to clone slots
-	 */
-	public Object clone() {
-		Slot newslot = new Slot();
-		newslot.setId(this.getId());
-		newslot.setName(this.getName());
-		newslot.value = this.value;
-		newslot.setValueType(this.getValueType());
-		return newslot;
+    /**
+         * set the value of the slot
+         * 
+         * @param val
+         * @throws IllegalConversionException
+         */
+    public void setValue(JamochaValue val) throws ConstraintViolationException {
+	if (inspectType(val)) {
+	    this.value = val;
+	} else {
+	    try {
+		this.value = val.implicitCast(this.getValueType());
+	    } catch (IllegalConversionException e) {
+		throw new ConstraintViolationException("Could not cast value " + val + " to type " + getValueType()
+			+ ".");
+	    }
 	}
+    }
 
-	public String valueToString() {
-		return this.value.toString();
+    /**
+         * method will check the type of the value and the type of the slot
+         * 
+         * @param value
+         *                value, which is checked, if it has the same type as
+         *                the slot
+         * @return <code>true</code> if value has a compatible type, otherwise
+         *         <code>false</code>
+         */
+    protected boolean inspectType(JamochaValue value) {
+	if (getValueType().equals(JamochaType.UNDEFINED) || value.getType().equals(JamochaType.BINDING)
+		|| getValueType().equals(value.getType())) {
+	    return true;
 	}
+	return false;
+    }
+
+    /**
+         * A convienance method to clone slots
+         */
+    public Object clone() {
+	Slot newslot = new Slot();
+	newslot.setId(this.getId());
+	newslot.setName(this.getName());
+	newslot.value = this.value;
+	newslot.setValueType(this.getValueType());
+	return newslot;
+    }
+
+    public String valueToString() {
+	return this.value.toString();
+    }
 }
