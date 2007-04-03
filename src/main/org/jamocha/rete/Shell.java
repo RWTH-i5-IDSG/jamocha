@@ -54,8 +54,13 @@ public class Shell {
 						printPrompt = true;
 					}
 					if (event.getType() == MessageEvent.ERROR) {
-						System.out.println(exceptionToString(
-								(Exception) event.getMessage()).trim());
+						// System.out.println(exceptionToString(
+						// (Exception) event.getMessage()).trim());
+						String msg = ((Exception) event.getMessage())
+								.getMessage();
+						if (msg != null) {
+							System.out.println(msg.trim());
+						}
 					}
 					if (event.getType() != MessageEvent.COMMAND) {
 						if (!event.getMessage().toString().equals("")

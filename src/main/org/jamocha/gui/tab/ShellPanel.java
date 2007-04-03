@@ -405,9 +405,14 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 								lastIncompleteCommand = new StringBuilder();
 							}
 							if (event.getType() == MessageEvent.ERROR) {
-								buffer.append(((Exception) event.getMessage())
-										.getMessage().trim()
-										+ System.getProperty("line.separator"));
+								String msg = ((Exception) event.getMessage())
+										.getMessage();
+								if (msg != null) {
+									buffer
+											.append(msg.trim()
+													+ System
+															.getProperty("line.separator"));
+								}
 								// buffer.append(gui.exceptionToString(
 								// (Exception) event.getMessage()).trim()
 								// + System.getProperty("line.separator"));
@@ -484,6 +489,7 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 							stopTimer();
 							hideCursor();
 							// Here we walk through the history
+							//current_offset = history_offset;
 							history_offset += delta;
 							if (history_offset <= 0) {
 								history_offset = 0;
