@@ -75,26 +75,30 @@ public class JDBClink implements Function, Serializable {
 				String action = params[1].getValue(engine).getStringValue();
 				JamochaValue thirdParam = params[2].getValue(engine);
 				
+                                // Get configuration fact
+				Fact configFact = engine.getFactById(jdbclink);
+				
+                                String jdbc_driver = configFact.getSlotValue("JDBCdriver").getStringValue();
+				String jdbc_url    = configFact.getSlotValue("JDBCurl").getStringValue();
+				String username    = configFact.getSlotValue("Username").getStringValue();
+				String password    = configFact.getSlotValue("Password").getStringValue();
+				String tmplt       = configFact.getSlotValue("TemplateName").getStringValue();
+				String table       = configFact.getSlotValue("TableName").getStringValue();
+				
+                                // Load JDBC database-specific driver
 				try {
-					// TODO: Only MySQL... Thats shit :( Is there a mechanism to auto-load the needed driver?
-					Class.forName  ("com.mysql.jdbc.Driver");
+                                    // Call newInstance() that gets wasted and collected by GC as recommended in
+                                    // http://java.sun.com/developer/onlineTraining/Database/JDBC20Intro/JDBC20.html
+                                    Class.forName(jdbc_driver).newInstance();
 				} catch (Exception e){
 					System.out.println(e.toString());
 				}
-				
-				Fact configFact = engine.getFactById(jdbclink);
-				
-				String jdbcurl =  configFact.getSlotValue("JDBCurl").getStringValue();
-				String username = configFact.getSlotValue("Username").getStringValue();
-				String password = configFact.getSlotValue("Password").getStringValue();
-				String tmplt =    configFact.getSlotValue("TemplateName").getStringValue();
-				String table =    configFact.getSlotValue("TableName").getStringValue();
 				
 				Deftemplate template = (Deftemplate) engine.findTemplate(tmplt);
 				Slot[] slots = template.getAllSlots();
 				Connection conn = null;
 				try{
-					conn = DriverManager.getConnection(jdbcurl,username,password);
+					conn = DriverManager.getConnection(jdbc_url,username,password);
 					Statement s = conn.createStatement();
 					
 					if (action.equals("import")) {
