@@ -41,7 +41,7 @@ import org.jamocha.rete.exception.ExecuteException;
 import org.jamocha.rete.exception.RetractException;
 import org.jamocha.rete.functions.BatchFunction;
 import org.jamocha.rete.functions.BooleanFunctions;
-import org.jamocha.rete.functions.DatabaseFunctions;
+import org.jamocha.rete.functions.AdaptorFunctions;
 import org.jamocha.rete.functions.DateTimeFunctions;
 import org.jamocha.rete.functions.DeffunctionGroup;
 import org.jamocha.rete.functions.IOFunctions;
@@ -237,7 +237,7 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 	functionGroups.add(listf);
 	listf.loadFunctions(this);
 	// load the database functions
-	DatabaseFunctions databasef = new DatabaseFunctions();
+	AdaptorFunctions databasef = new AdaptorFunctions();
 	functionGroups.add(databasef);
 	databasef.loadFunctions(this);
 	// load the engine relate functions like declaring rules, templates, etc
