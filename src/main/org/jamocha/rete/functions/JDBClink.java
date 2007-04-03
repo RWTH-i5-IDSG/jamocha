@@ -123,7 +123,7 @@ public class JDBClink implements Function, Serializable {
 							Deffact rowFact = new Deffact(template,null,rowValues,engine.nextFactId());
 							engine.assertFact(rowFact);
 						}
-						
+						return JamochaValue.newBoolean(true);
 						
 					} else if (action.equals("export")) {
 						// TODO: For now, we assume the third parameter to be a csv-list of facts. dirty thing :(
