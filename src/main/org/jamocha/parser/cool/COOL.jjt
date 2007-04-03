@@ -697,7 +697,7 @@ void TemplateAttribute(TemplateSlot ts) #void : { }
 // Create a dummy node to have a list of attributes
 Node Attributes():{} 
 { 
-	(	LOOKAHEAD(2)
+	(	LOOKAHEAD(3)
 		Expression()
 	)* 
 	{ return jjtThis; }
@@ -764,7 +764,7 @@ void RHSSlot() : { Token t; }
 {
     "(" 
         t = <SYMBOL>
-        { jjtThis.setName(t.image); }//slot-name
+        { jjtThis.setName(t.image); }	// slot-name
         (Expression())*
     ")"
 }
@@ -1396,7 +1396,7 @@ TemplateSlot Slot() #void : { Token t; TemplateSlot ts=new TemplateSlot();}
 //	<create-accessor-facet> <override-message-facet> | <constraint-attribute>
 void Facet(TemplateSlot ts) #void : {}
 {
-	<LBRACE> //facets all have brackets
+	<LBRACE> 			// facets all have brackets
 		( LOOKAHEAD(2)
 			DefaultFacet(ts)
 		| 	StorageFacet(ts)
@@ -1726,7 +1726,7 @@ void TypeSpecification()  #void : {}
 }
 
 //<allowed-type> ::= SYMBOL | STRING | LEXEME | INTEGER | FLOAT | NUMBER |
-//	INSTANCE-NAME | INSTANCE-ADDRESS | INSTANCE | EXTERNAL-ADDRESS | FACT-ADDRESS
+//	INSTANCE-NAME | INSTANCE-ADDRESS | INSTANCE | EXTERNAL-ADDRESS | FACT-ADDRESS | DATETIME
 void AllowedType()  #void : {}
 {
 	(	<SYMBOL_TYPE>
