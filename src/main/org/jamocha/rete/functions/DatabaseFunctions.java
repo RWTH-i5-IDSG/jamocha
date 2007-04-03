@@ -54,6 +54,7 @@ public class DatabaseFunctions implements FunctionGroup {
 		slots[3] = new TemplateSlot("Username");
 		slots[4] = new TemplateSlot("Password");
 		slots[5] = new TemplateSlot("JDBCurl");
+		slots[0] = new TemplateSlot("JDBCdriver");
 		for( int i=0 ; i<6 ; i++ ) slots[i].setValueType( JamochaType.STRING );
 		Template jdbcConfigTemplate = new Deftemplate(templateName,defclass,slots);
 		

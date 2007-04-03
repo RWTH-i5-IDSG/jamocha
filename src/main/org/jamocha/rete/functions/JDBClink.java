@@ -78,7 +78,7 @@ public class JDBClink implements Function, Serializable {
                                 // Get configuration fact
 				Fact configFact = engine.getFactById(jdbclink);
 				
-                                String jdbc_driver = configFact.getSlotValue("JDBCdriver").getStringValue();
+                String jdbc_driver = configFact.getSlotValue("JDBCdriver").getStringValue();
 				String jdbc_url    = configFact.getSlotValue("JDBCurl").getStringValue();
 				String username    = configFact.getSlotValue("Username").getStringValue();
 				String password    = configFact.getSlotValue("Password").getStringValue();
