@@ -37,23 +37,15 @@ options {
 PARSER_BEGIN(COOLParser)
 package org.jamocha.parser.cool;
 
-import java.util.Hashtable;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.Iterator;
 import java.util.ArrayList;
 
-import org.jamocha.parser.JamochaValue;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.Parser;
 import org.jamocha.parser.ParserUtils;
 import org.jamocha.parser.Expression;
 
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.Slot;
-import org.jamocha.rete.MultiSlot;
 import org.jamocha.rete.AbstractSlot;
-import org.jamocha.rete.Function;
 import org.jamocha.rete.Fact;
 import org.jamocha.rete.TemplateSlot;
 import org.jamocha.rule.*;
@@ -72,12 +64,6 @@ import org.jamocha.rule.*;
 	engine compatible classes or java lists, EnumSets and such.
 */
 public class COOLParser implements Parser{
-
-	/** Hash Table for the names known entities (rules, templates,...)
-		Clips BNF uses different tokens for semantically different symbols,
-		that is a symbol which is typed, and the type is used to 
-	*/
-        private Set deftemplates = new HashSet();
 
         public Expression nextExpression() throws ParseException {
                 return Start();
@@ -631,7 +617,6 @@ void DeftemplateConstruct() :{ Token t; AbstractSlot s;}
         t = <SYMBOL>
         { 
 			jjtThis.setName(t.image); 
-			deftemplates.add(t.image);
 		}
 	    [
 			t=<STRING>
@@ -702,7 +687,7 @@ Node Attributes():{}
 { 
 	(	LOOKAHEAD(3)
 		Expression()
-	)+ 
+	)*
 	{ return jjtThis; }
 }
 
@@ -741,8 +726,9 @@ void RHSPattern() #void : { Token t; }
 	"("
 	t = <SYMBOL>
 	{
-		if (deftemplates.contains(t.image)) TemplateRHSPattern(t.image);
-		else OrderedRHSPattern(t.image);
+		TemplateRHSPattern(t.image);
+	//	else OrderedRHSPattern(t.image);
+	// currently ordered RHS aren't implemented
 	}
     ")" 
     

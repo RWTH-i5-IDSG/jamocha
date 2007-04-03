@@ -288,7 +288,7 @@ public class Defmodule implements Module, Serializable {
 	 * template name for the key. The templates are stored in
 	 * a HashMap.
 	 */
-	public void addTemplate(Template temp, Rete engine, WorkingMemory mem) {
+	public boolean addTemplate(Template temp, Rete engine, WorkingMemory mem) {
 		if (!this.deftemplates.containsKey(temp.getName())) {
 			// we have to set the template's module
 			if (temp.getClassName() != null) {
@@ -301,7 +301,9 @@ public class Defmodule implements Module, Serializable {
 			}
 			ObjectTypeNode otn = new ObjectTypeNode(engine.nextNodeId(), temp);
 			mem.getRuleCompiler().addObjectTypeNode(otn);
+			return true;
 		}
+		return false;
 	}
 
 	/**

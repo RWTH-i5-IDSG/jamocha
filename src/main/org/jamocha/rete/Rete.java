@@ -1701,12 +1701,12 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 	scopes.push(scope);
     }
 
-    public void addTemplate(Deftemplate tpl) throws EvaluationException {
+    public boolean addTemplate(Deftemplate tpl) throws EvaluationException {
         tpl.evaluateStaticDefaults(this);
         Module mod = tpl.checkName(this);
         if (mod == null) {
             mod = getCurrentFocus();
         }
-        mod.addTemplate(tpl, this, getWorkingMemory());
+        return mod.addTemplate(tpl, this, getWorkingMemory());
     }
 }

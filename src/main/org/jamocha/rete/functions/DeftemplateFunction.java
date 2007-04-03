@@ -55,8 +55,7 @@ public class DeftemplateFunction implements Function, Serializable {
 	    JamochaValue firstParam = params[0].getValue(engine);
 	    if (firstParam.getObjectValue() instanceof Deftemplate) {
 		Deftemplate tpl = (Deftemplate) firstParam.getObjectValue();
-		engine.addTemplate(tpl);
-		result = JamochaValue.TRUE;
+		result = engine.addTemplate(tpl) ? JamochaValue.TRUE : JamochaValue.FALSE;
 	    }
 	} else {
 	    throw new IllegalParameterException(1);

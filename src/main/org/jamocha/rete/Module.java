@@ -52,7 +52,7 @@ public interface Module extends Serializable {
      * Add a new template to the module
      * @param temp
      */
-    void addTemplate(Template temp, Rete engine, WorkingMemory mem);
+    boolean addTemplate(Template temp, Rete engine, WorkingMemory mem);
     /**
      * Clear will remove all the rules, activations, and templates
      * from the module.

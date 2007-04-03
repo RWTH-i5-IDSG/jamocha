@@ -4,6 +4,7 @@ import org.jamocha.parser.ConstantExpression;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.Expression;
 import org.jamocha.parser.JamochaType;
+import org.jamocha.parser.JamochaValue;
 
 public class TemplateSlot extends Slot {
 
@@ -61,7 +62,15 @@ public class TemplateSlot extends Slot {
 	Slot result = new Slot(getName());
 	result.setValueType(getValueType());
 	if (defaultExpression != null) {
-	    result.setValue(defaultExpression.getValue(engine));
+	    JamochaValue value = defaultExpression.getValue(engine);
+	    if (value.getType().equals(JamochaType.LIST) && !isMultiSlot()) {
+		if (value.getListCount() > 0) {
+		    value = value.getListValue(0);
+		} else {
+		    value = JamochaValue.NIL;
+		}
+	    }
+	    result.setValue(value);
 	}
 	return result;
     }
