@@ -688,12 +688,13 @@ AbstractSlot MultislotDefinition() #void :
 //<template-attribute> ::= <default-attribute> | <constraint-attribute>
 void TemplateAttribute(TemplateSlot ts) #void : { }
 {
+	<LBRACE>
 	(	LOOKAHEAD(2)
 	    DefaultAttribute(ts) 
 	| 	DynamicAttribute(ts)
 	|	ConstraintAttribute(ts)
-	) {
-	 }
+	) 
+	<RBRACE>
 }
 
 // Create a dummy node to have a list of attributes
@@ -708,24 +709,22 @@ Node Attributes():{}
 //<default-attribute> ::= (default ?DERIVE | ?NONE | <expression>*) | (default-dynamic <expression>*)
 void DefaultAttribute(TemplateSlot ts) #void : { Node n;}
 {
-	"("
 		<DEFAULT_ATR>
 		(	
 			<ATR_DERIVE> { ts.setDefaultDerive(); }
 		|	<ATR_NONE> // { ts.setDefaultNone(); }
 		|	n=Attributes() { ts.setStaticDefaultExpression(n); }
 		)
-	")"
 }
 
 
 
 void DynamicAttribute(TemplateSlot ts) #void : { Node n;}
-{	
-	(	<DYNAMIC_ATR> 
+{
+	<DYNAMIC_ATR> 
+	(	
 		n=Attributes() { ts.setDynamicDefaultExpression(n); }
 	)
-	
 }
 
 /* Fact Specification
@@ -1704,14 +1703,12 @@ void PortConstruct() #void : {}
 //	<range-attribute> | <cardinality-attribute>
 void ConstraintAttribute(TemplateSlot ts) #void : { }
 {
-	<LBRACE> //brackets for all productions below
 	( LOOKAHEAD(2)
 		TypeAttribute(ts)
 	|	AllowedConstantAttribute()
 	|	RangeAttribute()
 	|	CardinalityAttribute()
 	)
-	<RBRACE>//
 }
 
 //<type-attribute> ::= (type <type-specification>)

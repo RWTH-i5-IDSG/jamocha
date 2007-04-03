@@ -24,7 +24,6 @@ import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Deftemplate;
 import org.jamocha.rete.Function;
-import org.jamocha.rete.Module;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.ValueParam;
@@ -35,59 +34,55 @@ import org.jamocha.rete.ValueParam;
  */
 public class DeftemplateFunction implements Function, Serializable {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
+    /**
+         * 
+         */
+    private static final long serialVersionUID = 1L;
 
-	public static final String DEFTEMPLATE = "deftemplate";
+    public static final String DEFTEMPLATE = "deftemplate";
 
-	public DeftemplateFunction() {
-		super();
+    public DeftemplateFunction() {
+	super();
+    }
+
+    public JamochaType getReturnType() {
+	return JamochaType.BOOLEAN;
+    }
+
+    public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
+	JamochaValue result = JamochaValue.FALSE;
+	if (params != null && params.length == 1) {
+	    JamochaValue firstParam = params[0].getValue(engine);
+	    if (firstParam.getObjectValue() instanceof Deftemplate) {
+		Deftemplate tpl = (Deftemplate) firstParam.getObjectValue();
+		engine.addTemplate(tpl);
+		result = JamochaValue.TRUE;
+	    }
+	} else {
+	    throw new IllegalParameterException(1);
 	}
+	return result;
+    }
 
-	public JamochaType getReturnType() {
-		return JamochaType.BOOLEAN;
-	}
+    public String getName() {
+	return DEFTEMPLATE;
+    }
 
-	public JamochaValue executeFunction(Rete engine, Parameter[] params)
-			throws EvaluationException {
-		JamochaValue result = JamochaValue.FALSE;
-		if (params != null && params.length == 1) {
-			JamochaValue firstParam = params[0].getValue(engine);
-			if (firstParam.getObjectValue() instanceof Deftemplate) {
-				Deftemplate tpl = (Deftemplate) firstParam.getObjectValue();
-				Module mod = tpl.checkName(engine);
-				if (mod == null) {
-					mod = engine.getCurrentFocus();
-				}
-				mod.addTemplate(tpl, engine, engine.getWorkingMemory());
-				result = JamochaValue.TRUE;
-			}
-		} else {
-			throw new IllegalParameterException(1);
-		}
-		return result;
-	}
+    /**
+         * The expected parameter is a single ValueParam containing a
+         * deftemplate instance. The function gets the deftemplate using
+         * Parameter.getValue().
+         */
+    public Class[] getParameter() {
+	return new Class[] { ValueParam.class };
+    }
 
-	public String getName() {
-		return DEFTEMPLATE;
+    public String toPPString(Parameter[] params, int indents) {
+	if (params != null) {
+	    StringBuffer buf = new StringBuffer();
+	    return buf.toString();
+	} else {
+	    return "(deftemplate name (slot name (type [type]))+?)";
 	}
-
-	/**
-	 * The expected parameter is a single ValueParam containing a deftemplate
-	 * instance. The function gets the deftemplate using Parameter.getValue().
-	 */
-	public Class[] getParameter() {
-		return new Class[] { ValueParam.class };
-	}
-
-	public String toPPString(Parameter[] params, int indents) {
-		if (params != null) {
-			StringBuffer buf = new StringBuffer();
-			return buf.toString();
-		} else {
-			return "(deftemplate name (slot name (type [type]))+?)";
-		}
-	}
+    }
 }

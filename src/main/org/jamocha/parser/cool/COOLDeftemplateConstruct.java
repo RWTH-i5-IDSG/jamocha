@@ -2,11 +2,14 @@
 package org.jamocha.parser.cool;
 
 import org.jamocha.rete.*;
+import org.jamocha.rete.functions.DeftemplateFunction;
 import org.jamocha.parser.*;
 import java.util.ArrayList;
 
 public class COOLDeftemplateConstruct extends ConstructNode {
 	private ArrayList<AbstractSlot> slots;
+	
+	private final static DeftemplateFunction deftemplateFunction = new DeftemplateFunction();
 		
 	public COOLDeftemplateConstruct(int id) {
 		super(id);
@@ -30,14 +33,12 @@ public class COOLDeftemplateConstruct extends ConstructNode {
 		s.setId(slots.size());
 		slots.add(s);
 	}
-	public JamochaValue getValue(Rete engine) //throws EvaluationException
+	public JamochaValue getValue(Rete engine) throws EvaluationException
 	{
 		TemplateSlot [] s = new TemplateSlot[slots.size()];
 		slots.toArray(s);
 		Deftemplate tpl = new Deftemplate(name,null,s);
-		Module mod = tpl.checkName(engine);
-		if (mod == null) mod = engine.getCurrentFocus();
-		mod.addTemplate(tpl, engine, engine.getWorkingMemory());
+		engine.addTemplate(tpl);
 		return JamochaValue.TRUE;
 	};
 }

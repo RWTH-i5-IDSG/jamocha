@@ -24,7 +24,7 @@ public class TemplateSlot extends Slot {
 
     private boolean multiSlot = false;
 
-    private boolean dynamicDefault;
+    private boolean staticDefault;
 
     private Expression defaultExpression;
 
@@ -92,22 +92,22 @@ public class TemplateSlot extends Slot {
 	--this.nodeCount;
     }
 
-    public boolean isDynamicDefault() {
-	return dynamicDefault;
+    public boolean isStaticDefault() {
+	return staticDefault;
     }
 
     public void setStaticDefaultExpression(Expression expression) {
-	dynamicDefault = false;
+	staticDefault = true;
 	defaultExpression = expression;
     }
 
     public void setDynamicDefaultExpression(Expression expression) {
-	dynamicDefault = true;
+	staticDefault = false;
 	defaultExpression = expression;
     }
 
     public void setDefaultDerive() {
-	dynamicDefault = false;
+	staticDefault = true;
 	defaultExpression = new ConstantExpression(JamochaType.getDefaultValue(getValueType()));
     }
 
