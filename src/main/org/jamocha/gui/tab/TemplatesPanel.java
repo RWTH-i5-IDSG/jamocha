@@ -206,17 +206,15 @@ public class TemplatesPanel extends AbstractJamochaPanel implements
 						if (slot.isMultiSlot())
 							buffer.append("multislot " + slot.getName() + ")");
 						else {
-							buffer
-									.append("slot "
-											+ slot.getName()
-											+ "\n        (type "
-											+ slot.getValueType().toString()
-											+ ")\n        (default "
-											+ ((slot.getDefaultExpression() != null) ? slot
-													.getDefaultExpression()
-													.toString()
-													: "NIL") + ")\n    )");
-
+							buffer.append("slot " + slot.getName()
+									+ "\n        (type "
+									+ slot.getValueType().toString() + ")");
+							if (slot.getDefaultExpression() != null) {
+								buffer.append("\n        (default "
+										+ slot.getDefaultExpression()
+												.getExpressionString()+")");
+							}
+							buffer.append("\n    )");
 						}
 					}
 					buffer.append("\n)");
