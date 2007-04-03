@@ -48,6 +48,8 @@ public class Jamocha {
 	 */
 	private Rete engine;
 
+	private BatchThread batchThread;
+
 	/**
 	 * @param args
 	 *            For possible Arguments have a look at {@link #showUsage()}
@@ -121,8 +123,8 @@ public class Jamocha {
 	 *             if the specified Parser in <code>parserName</code> was not
 	 *             found.
 	 */
-	public Jamocha(Rete engine, boolean startGui, boolean startShell, String parserName)
-			throws ParserNotFoundException {
+	public Jamocha(Rete engine, boolean startGui, boolean startShell,
+			String parserName) throws ParserNotFoundException {
 		this(engine, startGui, startShell, parserName, null);
 	}
 
@@ -154,6 +156,8 @@ public class Jamocha {
 			String parserName, List<String> batchFiles)
 			throws ParserNotFoundException {
 		this.engine = engine;
+		batchThread = new BatchThread(engine);
+		batchThread.start();
 		if (parserName != null && parserName.length() > 0) {
 			ParserFactory.setDefaultParser(parserName);
 		}
@@ -167,10 +171,11 @@ public class Jamocha {
 		}
 		if (startGui) {
 			startGui();
-			if (batchFiles != null) {
-				if (!batchFiles.isEmpty()) {
-					getJamochaGui().processBatchFiles(batchFiles);
-				}
+			batchThread.setGui(getJamochaGui());
+		}
+		if (batchFiles != null) {
+			if (!batchFiles.isEmpty()) {
+				batchThread.processBatchFiles(batchFiles);
 			}
 		}
 	}
@@ -203,7 +208,7 @@ public class Jamocha {
 	 */
 	public void startGui() {
 		if (jamochaGui == null) {
-			jamochaGui = new JamochaGui(engine);
+			jamochaGui = new JamochaGui(engine, batchThread);
 			Thread guiThread = new Thread() {
 
 				public void run() {
@@ -234,7 +239,7 @@ public class Jamocha {
 	 * <tr>
 	 * <td>-batch [batchfile...]:</td>
 	 * <td>Processes a list of given files (separated by blanks) as
-	 * batch-files. Attention: This only works when a GUI is started.</td>
+	 * batch-files.</td>
 	 * </tr>
 	 * <tr>
 	 * <td>-parser [parsername]:</td>
@@ -265,8 +270,6 @@ public class Jamocha {
 						+ "-batch [batchfile...]:"
 						+ sep
 						+ "     Processes a list of given files (separated by blanks) as batch-files."
-						+ sep
-						+ "     Attention: This only works when a GUI is started."
 						+ sep
 						+ "-parser [parsername]:"
 						+ sep

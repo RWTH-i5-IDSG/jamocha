@@ -1,0 +1,121 @@
+package org.jamocha;
+
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
+
+import org.jamocha.gui.JamochaGui;
+import org.jamocha.messagerouter.MessageEvent;
+import org.jamocha.messagerouter.StringChannel;
+import org.jamocha.parser.JamochaValue;
+import org.jamocha.rete.Rete;
+
+public class BatchThread extends Thread {
+
+	private Rete engine;
+	
+	private JamochaGui gui = null;
+
+	private boolean running = true;
+
+	private StringChannel batchChannel;
+
+	Queue<String> batchFiles = new ConcurrentLinkedQueue<String>();
+
+	private Map<String, String> batchResults = new HashMap<String, String>();
+
+	public BatchThread(Rete engine) {
+		this.engine = engine;
+		batchChannel = engine.getMessageRouter().openChannel(
+				"batch_channel");
+	}
+	
+	public void run() {
+		StringBuilder buffer = new StringBuilder();
+		while (running) {
+			List<MessageEvent> messages = new ArrayList<MessageEvent>();
+			getBatchChannel().fillEventList(messages);
+			if (!messages.isEmpty()) {
+				for (MessageEvent event : messages) {
+					if (event.getType() == MessageEvent.ERROR) {
+						buffer.append(JamochaGui.exceptionToString(
+								(Exception) event.getMessage()).trim()
+								+ System.getProperty("line.separator"));
+					}
+					if (event.getType() != MessageEvent.COMMAND
+							&& event.getMessage() != null
+							&& !event.getMessage().toString().equals("")
+							&& !event.getMessage().equals(JamochaValue.NIL)) {
+						buffer.append(event.getMessage().toString().trim()
+								+ System.getProperty("line.separator"));
+					}
+					if (event.getType() == MessageEvent.PARSE_ERROR
+							|| event.getType() == MessageEvent.ERROR
+							|| event.getType() == MessageEvent.RESULT) {
+						batchResults.put(batchFiles.poll(), buffer.toString());
+						buffer = new StringBuilder();
+						if (gui != null)
+							gui.informOfNewBatchResults();
+					}
+				}
+			} else {
+				try {
+					Thread.sleep(2000);
+				} catch (InterruptedException e) {
+					// silently ignore it
+				}
+			}
+		}
+		engine.getMessageRouter().closeChannel(batchChannel);
+	}
+
+	public void setGui(JamochaGui gui) {
+		this.gui = gui;
+	}
+
+	public void stopThread() {
+		running = false;
+	}
+
+	public Map<String, String> getBatchResults() {
+		return batchResults;
+	}
+
+	public StringChannel getBatchChannel() {
+		return batchChannel;
+	}
+
+	public void processBatchFiles(List<String> files) {
+		if (files != null) {
+			if (!files.isEmpty()) {
+				for (String file : files) {
+					getBatchChannel().executeCommand("(batch " + file + ")");
+					batchFiles
+							.offer(file + " (" + getDatetimeFormatted() + ")");
+				}
+			}
+		}
+	}
+
+	public String getDatetimeFormatted() {
+		StringBuilder res = new StringBuilder();
+		Calendar datetime = Calendar.getInstance();
+		res.append(datetime.get(Calendar.YEAR) + "/");
+		res.append(((datetime.get(Calendar.MONTH) + 1 > 9) ? "" : "0")
+				+ (datetime.get(Calendar.MONTH) + 1) + "/");
+		res.append(((datetime.get(Calendar.DAY_OF_MONTH) > 9) ? "" : "0")
+				+ datetime.get(Calendar.DAY_OF_MONTH) + " - ");
+		res.append(((datetime.get(Calendar.HOUR_OF_DAY) > 9) ? "" : "0")
+				+ datetime.get(Calendar.HOUR_OF_DAY) + ":");
+		res.append(((datetime.get(Calendar.MINUTE) > 9) ? "" : "0")
+				+ datetime.get(Calendar.MINUTE) + ":");
+		res.append(((datetime.get(Calendar.SECOND) > 9) ? "" : "0")
+				+ datetime.get(Calendar.SECOND));
+		return res.toString();
+	}
+
+}

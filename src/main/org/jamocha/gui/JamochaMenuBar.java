@@ -21,6 +21,8 @@ import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -116,10 +118,10 @@ public class JamochaMenuBar extends JMenuBar implements ActionListener {
 				if (file != null && file.isFile()) {
 					gui.getPreferences().put("menubar.batchLastPath",
 							file.getAbsolutePath());
-					gui.getBatchChannel().executeCommand(
-							"(batch " + file.getAbsolutePath() + ")");
-					gui.batchFiles.offer(file.getName() + " ("
-							+ gui.getDatetimeFormatted() + ")");
+					
+					List<String> files = new ArrayList<String>(1);
+					files.add(file.getPath());
+					gui.processBatchFiles(files);
 					JOptionPane
 							.showMessageDialog(
 									this,

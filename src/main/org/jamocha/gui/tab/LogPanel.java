@@ -400,7 +400,7 @@ public class LogPanel extends AbstractJamochaPanel implements ActionListener,
 					}
 				} else if (message instanceof Function) {
 					buffer.append("(" + ((Function) message).getName() + ")");
-				} else {
+				} else if (message != null) {
 					buffer.append(message.toString());
 				}
 			}

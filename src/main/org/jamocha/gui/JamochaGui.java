@@ -24,14 +24,8 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
@@ -45,6 +39,7 @@ import javax.swing.UIManager;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import org.jamocha.BatchThread;
 import org.jamocha.gui.icons.IconLoader;
 import org.jamocha.gui.tab.AbstractJamochaPanel;
 import org.jamocha.gui.tab.FactsPanel;
@@ -56,9 +51,7 @@ import org.jamocha.gui.tab.SettingsPanel;
 import org.jamocha.gui.tab.ShellPanel;
 import org.jamocha.gui.tab.TemplatesPanel;
 import org.jamocha.messagerouter.InterestType;
-import org.jamocha.messagerouter.MessageEvent;
 import org.jamocha.messagerouter.StringChannel;
-import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Rete;
 
 /**
@@ -78,8 +71,6 @@ public class JamochaGui extends JFrame implements ChangeListener,
 
 	private Rete engine;
 
-	private boolean running = true;
-
 	private JamochaMenuBar menuBar;
 
 	private JButton batchResultsButton;
@@ -94,13 +85,7 @@ public class JamochaGui extends JFrame implements ChangeListener,
 
 	private StringChannel stringChannel;
 
-	private StringChannel batchChannel;
-
-	Queue<String> batchFiles = new ConcurrentLinkedQueue<String>();
-
-	private Map<String, String> batchResults = new HashMap<String, String>();
-
-	private Thread batchThread;
+	private BatchThread batchThread;
 
 	/**
 	 * Create a GUI-Instance for Jamocha.
@@ -108,7 +93,7 @@ public class JamochaGui extends JFrame implements ChangeListener,
 	 * @param engine
 	 *            The Jamocha-engine that will be used in the GUI.
 	 */
-	public JamochaGui(Rete engine) {
+	public JamochaGui(Rete engine, BatchThread batchThread) {
 		// set up the frame
 		setLayout(new BorderLayout());
 		setTitle("Jamocha");
@@ -193,63 +178,16 @@ public class JamochaGui extends JFrame implements ChangeListener,
 				close();
 			}
 		});
-
-		batchThread = new Thread() {
-			public void run() {
-				StringBuilder buffer = new StringBuilder();
-				while (running) {
-					List<MessageEvent> messages = new ArrayList<MessageEvent>();
-					batchChannel.fillEventList(messages);
-					if (!messages.isEmpty()) {
-						for (MessageEvent event : messages) {
-							if (event.getType() == MessageEvent.ERROR) {
-								buffer.append(exceptionToString(
-										(Exception) event.getMessage()).trim()
-										+ System.getProperty("line.separator"));
-							}
-							if (event.getType() != MessageEvent.COMMAND
-									&& event.getMessage() != null
-									&& !event.getMessage().toString()
-											.equals("")
-									&& !event.getMessage().equals(
-											JamochaValue.NIL)) {
-								buffer.append(event.getMessage().toString()
-										.trim()
-										+ System.getProperty("line.separator"));
-							}
-							if (event.getType() == MessageEvent.PARSE_ERROR
-									|| event.getType() == MessageEvent.ERROR
-									|| event.getType() == MessageEvent.RESULT) {
-								batchResults.put(batchFiles.poll(), buffer
-										.toString());
-								buffer = new StringBuilder();
-								batchResultsButton.setVisible(true);
-								batchResultsButton.setIcon(IconLoader
-										.getImageIcon("lorry_error"));
-							}
-						}
-					} else {
-						try {
-							Thread.sleep(2000);
-						} catch (InterruptedException e) {
-							// silently ignore it
-						}
-					}
-				}
-			}
-		};
+		this.batchThread = batchThread;
 	}
 
+	public void informOfNewBatchResults() {
+		batchResultsButton.setVisible(true);
+		batchResultsButton.setIcon(IconLoader.getImageIcon("lorry_error"));
+	}
+	
 	public void processBatchFiles(List<String> files) {
-		if (files != null) {
-			if (!files.isEmpty()) {
-				for (String file : files) {
-					getBatchChannel().executeCommand("(batch " + file + ")");
-					batchFiles
-							.offer(file + " (" + getDatetimeFormatted() + ")");
-				}
-			}
-		}
+		batchThread.processBatchFiles(files);
 	}
 
 	private void setSizeAndLocation() {
@@ -317,12 +255,7 @@ public class JamochaGui extends JFrame implements ChangeListener,
 	 * @return A StringChannel for the batch process.
 	 */
 	public StringChannel getBatchChannel() {
-		if (batchChannel == null) {
-			batchChannel = getEngine().getMessageRouter().openChannel(
-					"gui_batch_channel");
-			batchThread.start();
-		}
-		return batchChannel;
+		return batchThread.getBatchChannel();
 	}
 
 	/**
@@ -375,11 +308,8 @@ public class JamochaGui extends JFrame implements ChangeListener,
 	 * 
 	 */
 	public void close() {
-		running = false;
 		if (stringChannel != null)
 			getEngine().getMessageRouter().closeChannel(stringChannel);
-		if (batchChannel != null)
-			getEngine().getMessageRouter().closeChannel(batchChannel);
 		// save position and size
 		preferences.putInt("gui.width", getWidth());
 		preferences.putInt("gui.height", getHeight());
@@ -398,6 +328,7 @@ public class JamochaGui extends JFrame implements ChangeListener,
 		setVisible(false);
 		dispose();
 		if (exitOnClose) {
+			batchThread.stopThread();
 			engine.close();
 			System.exit(0);
 		}
@@ -450,25 +381,10 @@ public class JamochaGui extends JFrame implements ChangeListener,
 		if (event.getSource() == batchResultsButton) {
 			BatchResultBrowser browser = new BatchResultBrowser(
 					batchResultsButton);
-			browser.setResults(batchResults);
+			browser.setResults(batchThread.getBatchResults());
 			browser.setVisible(true);
 		}
 	}
 
-	public String getDatetimeFormatted() {
-		StringBuilder res = new StringBuilder();
-		Calendar datetime = Calendar.getInstance();
-		res.append(datetime.get(Calendar.YEAR) + "/");
-		res.append(((datetime.get(Calendar.MONTH) + 1 > 9) ? "" : "0")
-				+ (datetime.get(Calendar.MONTH) + 1) + "/");
-		res.append(((datetime.get(Calendar.DAY_OF_MONTH) > 9) ? "" : "0")
-				+ datetime.get(Calendar.DAY_OF_MONTH) + " - ");
-		res.append(((datetime.get(Calendar.HOUR_OF_DAY) > 9) ? "" : "0")
-				+ datetime.get(Calendar.HOUR_OF_DAY) + ":");
-		res.append(((datetime.get(Calendar.MINUTE) > 9) ? "" : "0")
-				+ datetime.get(Calendar.MINUTE) + ":");
-		res.append(((datetime.get(Calendar.SECOND) > 9) ? "" : "0")
-				+ datetime.get(Calendar.SECOND));
-		return res.toString();
-	}
+	
 }
