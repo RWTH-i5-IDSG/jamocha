@@ -268,8 +268,8 @@ public class Deffact implements Fact {
 	 * 
 	 * @param fact
 	 */
-	protected void resetID(Deffact fact) {
-		this.id = fact.id;
+	protected void resetID(Fact fact) {
+		this.id = fact.getFactId();
 	}
 
 	/**

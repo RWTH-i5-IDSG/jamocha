@@ -250,6 +250,7 @@ TOKEN :
 	// Special functions
 | < ASSERT: "assert" >
 | < RETRACT: "retract" >
+| < FIND_FACT_BY_FACT: "find-fact-by-fact" >
 | < MODIFY: "modify" >
 | < DUPLICATE: "duplicate" >
 | < FACT_RELATION: "fact-relation" >
@@ -455,6 +456,7 @@ Node FunctionCall() #void : { Token t; Node n;}
 	"(" (
 		( n=AssertFunc() )
 	|	( n=RetractFunc() )
+	|   ( n=FindFactByFactFunc() )
 	|	( n=IfElseFunc() )
 	|	( n=AnyFunction() )
 	) ")" { return n; }
@@ -484,6 +486,16 @@ Node AssertFunc() : {}
 {
 	<ASSERT>
 	(RHSPattern())+
+	{ return jjtThis; }
+}
+
+////////////////////////////////////////////////////
+// Special functions wich are defined by CLIPS to have
+// a non-standart syntax (e.g. not all parameters are expressions)
+Node FindFactByFactFunc() : {}
+{
+	<FIND_FACT_BY_FACT>
+	(RHSPattern())
 	{ return jjtThis; }
 }
 

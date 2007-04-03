@@ -251,6 +251,7 @@ TOKEN :
 	// Special functions
 | < ASSERT: "assert" >
 | < RETRACT: "retract" >
+| < FIND_FACT_BY_FACT: "find-fact-by-fact" >
 | < MODIFY: "modify" >
 | < DUPLICATE: "duplicate" >
 | < FACT_RELATION: "fact-relation" >
@@ -645,6 +646,7 @@ Node FunctionCall()       : { Token t; Node n;}
 	"(" (
 		( n=AssertFunc() )
 	|	( n=RetractFunc() )
+	|   ( n=FindFactByFactFunc() )
 	|	( n=IfElseFunc() )
 	|	( n=AnyFunction() )
 	) ")" { return n; }
@@ -710,6 +712,47 @@ Node AssertFunc() : {/*@bgen(jjtree) AssertFunc */
         try {
 /*@egen*/
 	<ASSERT>
+	(RHSPattern())+/*@bgen(jjtree)*/
+        {
+          jjtree.closeNodeScope(jjtn000, true);
+          jjtc000 = false;
+        }
+/*@egen*/
+	{ return jjtn000; }/*@bgen(jjtree)*/
+        } catch (Throwable jjte000) {
+          if (jjtc000) {
+            jjtree.clearNodeScope(jjtn000);
+            jjtc000 = false;
+          } else {
+            jjtree.popNode();
+          }
+          if (jjte000 instanceof RuntimeException) {
+            throw (RuntimeException)jjte000;
+          }
+          if (jjte000 instanceof ParseException) {
+            throw (ParseException)jjte000;
+          }
+          throw (Error)jjte000;
+        } finally {
+          if (jjtc000) {
+            jjtree.closeNodeScope(jjtn000, true);
+          }
+        }
+/*@egen*/
+}
+
+////////////////////////////////////////////////////
+// Special functions wich are defined by CLIPS to have
+// a non-standart syntax (e.g. not all parameters are expressions)
+Node FindFactByFactFunc() : {/*@bgen(jjtree) FindFactByFactFunc */
+  COOLFindFactByFactFunc jjtn000 = new COOLFindFactByFactFunc(this, JJTFINDFACTBYFACTFUNC);
+  boolean jjtc000 = true;
+  jjtree.openNodeScope(jjtn000);
+/*@egen*/}
+{/*@bgen(jjtree) FindFactByFactFunc */
+        try {
+/*@egen*/
+	<FIND_FACT_BY_FACT>
 	(RHSPattern())+/*@bgen(jjtree)*/
         {
           jjtree.closeNodeScope(jjtn000, true);

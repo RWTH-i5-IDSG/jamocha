@@ -125,23 +125,24 @@ public interface COOLParserConstants {
   int AFTER = 123;
   int ASSERT = 124;
   int RETRACT = 125;
-  int MODIFY = 126;
-  int DUPLICATE = 127;
-  int FACT_RELATION = 128;
-  int FACT_SLOT_VALUE = 129;
-  int IF = 130;
-  int THEN = 131;
-  int ELSE = 132;
-  int WHILE = 133;
-  int DO = 134;
-  int LOOP_FOR_COUNT = 135;
-  int SWITCH = 136;
-  int CASE = 137;
-  int STAR = 138;
-  int VARSYMBOL = 139;
-  int SINGLEVAR = 140;
-  int MULTIVAR = 141;
-  int SYMBOL = 142;
+  int FIND_FACT_BY_FACT = 126;
+  int MODIFY = 127;
+  int DUPLICATE = 128;
+  int FACT_RELATION = 129;
+  int FACT_SLOT_VALUE = 130;
+  int IF = 131;
+  int THEN = 132;
+  int ELSE = 133;
+  int WHILE = 134;
+  int DO = 135;
+  int LOOP_FOR_COUNT = 136;
+  int SWITCH = 137;
+  int CASE = 138;
+  int STAR = 139;
+  int VARSYMBOL = 140;
+  int SINGLEVAR = 141;
+  int MULTIVAR = 142;
+  int SYMBOL = 143;
 
   int DEFAULT = 0;
 
@@ -272,6 +273,7 @@ public interface COOLParserConstants {
     "\"after\"",
     "\"assert\"",
     "\"retract\"",
+    "\"find-fact-by-fact\"",
     "\"modify\"",
     "\"duplicate\"",
     "\"fact-relation\"",

@@ -51,6 +51,7 @@ import org.jamocha.rete.functions.JavaFunctions;
 import org.jamocha.rete.functions.MathFunctions;
 import org.jamocha.rete.functions.RuleEngineFunctions;
 import org.jamocha.rete.functions.StringFunctions;
+import org.jamocha.rete.functions.list.ListFunctions;
 import org.jamocha.rete.strategies.DepthStrategy;
 import org.jamocha.rete.util.CollectionsFactory;
 import org.jamocha.rete.util.ProfileStats;
@@ -231,6 +232,10 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 	DateTimeFunctions datetimef = new DateTimeFunctions();
 	functionGroups.add(datetimef);
 	datetimef.loadFunctions(this);
+	// load the list functions
+	ListFunctions listf = new ListFunctions();
+	functionGroups.add(listf);
+	listf.loadFunctions(this);
 	// load the database functions
 	DatabaseFunctions databasef = new DatabaseFunctions();
 	functionGroups.add(databasef);
@@ -1341,7 +1346,8 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
     public void assertFact(Deffact fact) throws AssertException {
 	// we need to check if there's already a fact with the
 	// same values
-	if (!this.deffactMap.containsKey(fact.equalityIndex())) {
+	Fact oldFact = getFact(fact);
+	if (oldFact == null) {
 	    fact.setFactId(this);
 	    this.deffactMap.put(fact.equalityIndex(), fact);
 	    if (this.profileAssert) {
@@ -1353,8 +1359,13 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 		this.workingMem.assertObject(fact);
 	    }
 	} else {
-	    fact.resetID((Deffact) this.deffactMap.get(fact.equalityIndex()));
+	    fact.resetID(oldFact);
 	}
+    }
+
+    public Fact getFact(Fact fact) {
+	Fact result = (Fact) this.deffactMap.get(((Deffact) fact).equalityIndex());
+	return result;
     }
 
     /**
@@ -1702,11 +1713,11 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
     }
 
     public boolean addTemplate(Deftemplate tpl) throws EvaluationException {
-        tpl.evaluateStaticDefaults(this);
-        Module mod = tpl.checkName(this);
-        if (mod == null) {
-            mod = getCurrentFocus();
-        }
-        return mod.addTemplate(tpl, this, getWorkingMemory());
+	tpl.evaluateStaticDefaults(this);
+	Module mod = tpl.checkName(this);
+	if (mod == null) {
+	    mod = getCurrentFocus();
+	}
+	return mod.addTemplate(tpl, this, getWorkingMemory());
     }
 }

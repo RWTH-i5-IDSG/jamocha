@@ -17,43 +17,44 @@ public interface COOLParserTreeConstants
   public int JJTMULTIVARIABLE = 10;
   public int JJTANYFUNCTION = 11;
   public int JJTASSERTFUNC = 12;
-  public int JJTRETRACTFUNC = 13;
-  public int JJTIFELSEFUNC = 14;
-  public int JJTWHILEFUNC = 15;
-  public int JJTLOOPFORCNTFUNC = 16;
-  public int JJTSWITCHCASEFUNC = 17;
-  public int JJTCASESTATEMENT = 18;
-  public int JJTDEFFACTSCONSTRUCT = 19;
-  public int JJTDEFTEMPLATECONSTRUCT = 20;
-  public int JJTATTRIBUTES = 21;
-  public int JJTORDEREDRHSPATTERN = 22;
-  public int JJTTEMPLATERHSPATTERN = 23;
-  public int JJTRHSSLOT = 24;
-  public int JJTDEFRULECONSTRUCT = 25;
-  public int JJTACTIONLIST = 26;
-  public int JJTBOOLEANSYMBOL = 27;
-  public int JJTTESTCE = 28;
-  public int JJTLHSSLOT = 29;
-  public int JJTSINGLEFIELDWILDCARD = 30;
-  public int JJTMULTIFIELDWILDCARD = 31;
-  public int JJTCONNECTEDCONSTRAINT = 32;
-  public int JJTTERM = 33;
-  public int JJTDEFGLOBALCONSTRUCT = 34;
-  public int JJTGLOBALASSIGNMENT = 35;
-  public int JJTDEFFUNCTIONCONSTRUCT = 36;
-  public int JJTDEFGENERICCONSTRUCT = 37;
-  public int JJTDEFMETHODCONSTRUCT = 38;
-  public int JJTPARAMETERRESTRICTION = 39;
-  public int JJTWILDCARDPARAMETERRESTRICTION = 40;
-  public int JJTTYPE = 41;
-  public int JJTQUERY = 42;
-  public int JJTDEFCLASSCONSTRUCT = 43;
-  public int JJTDEFMESSAGEHANDLERCONSTRUCT = 44;
-  public int JJTDEFINSTANCESCONSTRUCT = 45;
-  public int JJTDEFMODULECONSTRUCT = 46;
-  public int JJTPORTSPECIFICATION = 47;
-  public int JJTPORTITEM = 48;
-  public int JJTCONSTRUCTNAME = 49;
+  public int JJTFINDFACTBYFACTFUNC = 13;
+  public int JJTRETRACTFUNC = 14;
+  public int JJTIFELSEFUNC = 15;
+  public int JJTWHILEFUNC = 16;
+  public int JJTLOOPFORCNTFUNC = 17;
+  public int JJTSWITCHCASEFUNC = 18;
+  public int JJTCASESTATEMENT = 19;
+  public int JJTDEFFACTSCONSTRUCT = 20;
+  public int JJTDEFTEMPLATECONSTRUCT = 21;
+  public int JJTATTRIBUTES = 22;
+  public int JJTORDEREDRHSPATTERN = 23;
+  public int JJTTEMPLATERHSPATTERN = 24;
+  public int JJTRHSSLOT = 25;
+  public int JJTDEFRULECONSTRUCT = 26;
+  public int JJTACTIONLIST = 27;
+  public int JJTBOOLEANSYMBOL = 28;
+  public int JJTTESTCE = 29;
+  public int JJTLHSSLOT = 30;
+  public int JJTSINGLEFIELDWILDCARD = 31;
+  public int JJTMULTIFIELDWILDCARD = 32;
+  public int JJTCONNECTEDCONSTRAINT = 33;
+  public int JJTTERM = 34;
+  public int JJTDEFGLOBALCONSTRUCT = 35;
+  public int JJTGLOBALASSIGNMENT = 36;
+  public int JJTDEFFUNCTIONCONSTRUCT = 37;
+  public int JJTDEFGENERICCONSTRUCT = 38;
+  public int JJTDEFMETHODCONSTRUCT = 39;
+  public int JJTPARAMETERRESTRICTION = 40;
+  public int JJTWILDCARDPARAMETERRESTRICTION = 41;
+  public int JJTTYPE = 42;
+  public int JJTQUERY = 43;
+  public int JJTDEFCLASSCONSTRUCT = 44;
+  public int JJTDEFMESSAGEHANDLERCONSTRUCT = 45;
+  public int JJTDEFINSTANCESCONSTRUCT = 46;
+  public int JJTDEFMODULECONSTRUCT = 47;
+  public int JJTPORTSPECIFICATION = 48;
+  public int JJTPORTITEM = 49;
+  public int JJTCONSTRUCTNAME = 50;
 
 
   public String[] jjtNodeName = {
@@ -70,6 +71,7 @@ public interface COOLParserTreeConstants
     "MultiVariable",
     "AnyFunction",
     "AssertFunc",
+    "FindFactByFactFunc",
     "RetractFunc",
     "IfElseFunc",
     "WhileFunc",

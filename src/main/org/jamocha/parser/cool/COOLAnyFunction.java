@@ -23,9 +23,11 @@ public class COOLAnyFunction extends SimpleNode {
 	}
 
 	public JamochaValue getValue(Rete engine) throws EvaluationException {
-		int i;
 		JamochaValue ret=null;
-		ValueParam params[] = new ValueParam[jjtGetNumChildren()];
+		Parameter params[] = new Parameter[jjtGetNumChildren()];
+		for(int i=0; i<jjtGetNumChildren(); i++){
+		    params[i]= (Parameter)jjtGetChild(i);
+		}
 		Function func=engine.findFunction(name);
 		// Return false if function not found (CLIPS does not throw exceptions here)
 		if (func==null)
@@ -34,11 +36,6 @@ public class COOLAnyFunction extends SimpleNode {
 			return JamochaValue.FALSE;
 		}
 
-		for (i=0;i<jjtGetNumChildren();i++)
-		{
-			//ret=jjtGetChild(i).execute();
-			params[i]=new ValueParam(jjtGetChild(i).getValue(engine));
-		}
 		ret=func.executeFunction(engine,params);
 		return ret;
 	}
