@@ -18,14 +18,13 @@ package org.jamocha.rete;
 
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.Expression;
-import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 
 /**
  * @author Peter Lin
- *
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
+ * 
+ * TODO To change the template for this generated type comment go to Window -
+ * Preferences - Java - Code Style - Code Templates
  */
 public class SlotParam extends AbstractParam {
 
@@ -33,31 +32,32 @@ public class SlotParam extends AbstractParam {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	
+
 	protected String name;
-	protected Expression values;
 
-
+	protected Expression valueExpression;
 
 	public SlotParam(String name, Expression values) {
-	    super();
-	    this.name = name;
-	    this.values = values;
+		super();
+		this.name = name;
+		this.valueExpression = values;
 	}
 
-    /**
-     * Slot parameter is only used internally, so normal user functions
-     * should not need to deal with slot parameters.
-     */
-    public JamochaValue getValue(Rete engine) throws EvaluationException {
-	Slot slot = new Slot(name);
-	slot.setValue(values.getValue(engine));
-        return JamochaValue.newSlot(slot);
-    }
-
-
-	public String getExpressionString() {
-		return "(" + name + " " + values.getExpressionString()+ ")";
+	/**
+	 * Slot parameter is only used internally, so normal user functions should
+	 * not need to deal with slot parameters.
+	 */
+	public JamochaValue getValue(Rete engine) throws EvaluationException {
+		Slot slot = new Slot(name);
+		slot.setValue(valueExpression.getValue(engine));
+		return JamochaValue.newSlot(slot);
 	}
 
+	public String getName() {
+		return name;
+	}
+
+	public Expression getValueExpression() {
+		return valueExpression;
+	}
 }
