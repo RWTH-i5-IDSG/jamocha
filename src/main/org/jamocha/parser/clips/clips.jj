@@ -29,7 +29,6 @@ import org.jamocha.rete.TemplateSlot;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.ParameterUtils;
 import org.jamocha.rete.Slot;
-import org.jamocha.rete.functions.ShellFunction;
 import org.jamocha.rule.Action;
 import org.jamocha.rule.AndCondition;
 import org.jamocha.rule.AndLiteralConstraint;
@@ -246,7 +245,7 @@ Expression nextExpression() :
   Expression exp = null;
   Token obj = null;
   BoundParam bp = null;
-  ShellFunction func = null;
+  FunctionParam2 func = null;
   FunctionParam2 functionParam = null;
 }
 {
@@ -259,10 +258,7 @@ Expression nextExpression() :
 |
   (<LBRACE> func = expr() <RBRACE>)
   {
-    functionParam = new FunctionParam2();
-    functionParam.setFunctionName(func.getName());
-    functionParam.setParameters(func.getParameters());
-    return functionParam;
+    return func;
   }
 |
   <EOF>
@@ -332,7 +328,7 @@ JamochaValue typeExpr() :
   }
 }
 
-ShellFunction expr() :
+FunctionParam2 expr() :
 {
   Token exp = null;
   Token exp2 = null;
@@ -340,7 +336,7 @@ ShellFunction expr() :
   String body;
   Deftemplate templ;
   Defrule rule;
-  ShellFunction func;
+  FunctionParam2 func;
   ArrayList list = new ArrayList();
   JamochaValue[] pms;
   ExpressionSequence infunc = new ExpressionSequence();
@@ -349,8 +345,7 @@ ShellFunction expr() :
   exp = <ASSERT> <LBRACE> exp2 = <IDENTIFIER>
   (assertContents(list))+ <RBRACE>
   {
-    func = new ShellFunction();
-    func.setName(exp.image);
+    func = new FunctionParam2(exp.image);
     pms = new JamochaValue[2];
     pms[0] = JamochaValue.newIdentifier(exp2.image);
     pms[1] = JamochaValue.newObject(list.toArray());
@@ -363,8 +358,7 @@ ShellFunction expr() :
   exp = <ASSERTTEMPORAL> <LBRACE> exp2 = <IDENTIFIER>
   (assertContents(list))+ <RBRACE>
   {
-    func = new ShellFunction();
-    func.setName(exp.image);
+    func = new FunctionParam2(exp.image);
     pms = new JamochaValue[2];
     pms[0] = JamochaValue.newIdentifier(exp2.image);
     pms[1] = JamochaValue.newObject(list.toArray());
@@ -376,8 +370,7 @@ ShellFunction expr() :
 |
   exp = <RETRACT> (exp2 = <BIND> | exp2 = <INTEGER_LITERAL>)
   {
-    func = new ShellFunction();
-    func.setName(exp.image);
+    func = new FunctionParam2(exp.image);
     Parameter[] rpms = new Parameter[1];
     if (exp2.image.startsWith("?")) {
       BoundParam bp = new BoundParam();
@@ -397,8 +390,7 @@ ShellFunction expr() :
 |
   exp = <MODIFY> exp2 = <BIND> assertContents(list)
   {
-    func = new ShellFunction();
-    func.setName(exp.image);
+    func = new FunctionParam2(exp.image);
     BoundParam bp = new BoundParam();
     bp.setVariableName(exp2.image);
     list.add(0,bp);
@@ -411,8 +403,7 @@ ShellFunction expr() :
   exp = <DEFTEMPLATE>
   templ = templateExpr()
   {
-    func = new ShellFunction();
-    func.setName(exp.image);
+    func = new FunctionParam2(exp.image);
     pms = new JamochaValue[1];
     pms[0] = JamochaValue.newObject(templ);
     func.setParameters(pms);
@@ -422,8 +413,7 @@ ShellFunction expr() :
   exp = <DEFMODULE>
   body = getIdentifier()
   {
-    func = new ShellFunction();
-    func.setName(exp.image);
+    func = new FunctionParam2(exp.image);
     pms = new JamochaValue[1];
     pms[0] = JamochaValue.newIdentifier(body);
     func.setParameters(pms);
@@ -433,8 +423,7 @@ ShellFunction expr() :
   exp = <DEFRULE>
   rule = ruleBody() 
   {
-    func = new ShellFunction();
-    func.setName(exp.image);
+    func = new FunctionParam2(exp.image);
     pms = new JamochaValue[1];
     pms[0] = JamochaValue.newObject(rule);
     func.setParameters(pms);
@@ -443,8 +432,7 @@ ShellFunction expr() :
 |
   exp = <DEFCLASS> ((valueParams(list))+)?
   {
-    func = new ShellFunction();
-    func.setName(exp.image);
+    func = new FunctionParam2(exp.image);
     func.setParameters(ParameterUtils.convertParameters(list));
     list.clear();
     return func;
@@ -455,8 +443,7 @@ ShellFunction expr() :
   ((bindingParams(list))+)? <RBRACE> (exp3 = <STRING_LITERAL>)? (<LBRACE>
   (ruleAction(infunc))? <RBRACE>)+
   {
-    func = new ShellFunction();
-    func.setName(exp.image);
+    func = new FunctionParam2(exp.image);
     List parameters = new ArrayList();
     parameters.add(JamochaValue.newIdentifier(exp2.image));
     parameters.add(JamochaValue.newObject(ParameterUtils.convertParameters(list)));
@@ -471,8 +458,7 @@ ShellFunction expr() :
   // example: (bind ?*x* 9)
   <BINDING> exp = getBindType() (valueParams(list))+
   {
-    func = new ShellFunction();
-    func.setName("bind");
+    func = new FunctionParam2("bind");
     list.add(0,JamochaValue.newIdentifier(exp.image.substring(1)));
     func.setParameters(ParameterUtils.convertParameters(list));
     list.clear();
@@ -494,8 +480,7 @@ ShellFunction expr() :
    exp = <GE1>|
    exp = <GE2>) (valueParams(list))+
   {
-    func = new ShellFunction();
-    func.setName(exp.image);
+    func = new FunctionParam2(exp.image);
     func.setParameters(ParameterUtils.convertParameters(list));
     list.clear();
     return func;
@@ -503,8 +488,7 @@ ShellFunction expr() :
 |
   exp = <IDENTIFIER> ((valueParams(list))+)?
   {
-    func = new ShellFunction();
-    func.setName(exp.image);
+    func = new FunctionParam2(exp.image);
     func.setParameters(ParameterUtils.convertParameters(list));
     list.clear();
     return func;
@@ -520,11 +504,8 @@ void valueParams(List list) :
 {
   LOOKAHEAD(<LBRACE>)<LBRACE>exp = expr()<RBRACE>
   {
-    ShellFunction subfunc = (ShellFunction)exp;
-    FunctionParam2 fp2 = new FunctionParam2();
-    fp2.setFunctionName(subfunc.getName());
-    fp2.setParameters(subfunc.getParameters());
-    list.add(fp2);
+    FunctionParam2 subfunc = (FunctionParam2)exp;
+    list.add(subfunc);
   }
 |
   exp = typeExpr()
@@ -937,9 +918,9 @@ Defrule ruleBody() :
     
     for(int i=0;i<actions.size();++i){
       Expression acn = actions.get(i);
-      if (acn instanceof Function) {
+      if (acn instanceof FunctionParam2) {
         FunctionAction faction = new FunctionAction();
-        faction.setFunction((Function)acn);
+        faction.setFunction((FunctionParam2)acn);
         rule.addAction(faction);
       } else if (acn instanceof Action) {
         rule.addAction( (Action)acn );
@@ -1160,7 +1141,7 @@ void conditionElement(List list) :
 void CEType(List list) :
 {
   Token exp;
-  Object nested = null;
+  FunctionParam2 nested = null;
   List alpha = new ArrayList();
   ObjectCondition oc = null;
 }
@@ -1185,9 +1166,7 @@ void CEType(List list) :
   {
     TestCondition tc = new TestCondition();
     tc.setNegated(true);
-    if (nested instanceof Function) {
-      tc.setFunction((Function)nested);
-    }
+    tc.setFunction(nested);
     list.add(tc);
   }
 |
@@ -1195,9 +1174,7 @@ void CEType(List list) :
   <TEST> <LBRACE> nested = expr() <RBRACE>
   {
     tc = new TestCondition();
-    if (nested instanceof Function) {
-      tc.setFunction((Function)nested);
-    }
+    tc.setFunction(nested);
     list.add(tc);
   }
 |

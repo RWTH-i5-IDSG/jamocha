@@ -28,7 +28,6 @@ import org.jamocha.parser.IllegalConversionException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.exception.AssertException;
-import org.jamocha.rete.functions.ShellFunction;
 import org.jamocha.rule.Action;
 import org.jamocha.rule.Analysis;
 import org.jamocha.rule.AndCondition;
@@ -665,8 +664,7 @@ public class BasicRuleCompiler implements RuleCompiler {
 				if (cdt instanceof TestCondition) {
 
 					TestCondition tc = (TestCondition) cdt;
-					ShellFunction fn = (ShellFunction) tc.getFunction();
-					fn.lookUpFunction(engine);
+					FunctionParam2 fn = (FunctionParam2) tc.getFunction();
 					Expression[] oldpm = fn.getParameters();
 					Parameter[] pms = new Parameter[oldpm.length];
 					for (int ipm = 0; ipm < pms.length; ipm++) {
@@ -683,11 +681,10 @@ public class BasicRuleCompiler implements RuleCompiler {
 						}
 					}
                     if (tc.isNegated()) {
-                        bn = new NTestNode(engine.nextNodeId(),fn.getFunction(),pms);
+                        bn = new NTestNode(engine.nextNodeId(),fn.lookUpFunction(engine),pms);
                     } else {
-                        bn = new TestNode(engine.nextNodeId(),fn.getFunction(),pms);
+                        bn = new TestNode(engine.nextNodeId(),fn.lookUpFunction(engine),pms);
                     }
-					((TestNode) bn).lookUpFunction(engine);
 					if (prevJoin != null) {
 						attachJoinNode(prevJoin, (BaseJoin) bn);
 					} else {

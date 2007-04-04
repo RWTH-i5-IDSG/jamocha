@@ -42,6 +42,11 @@ public class FunctionParam2 extends AbstractParam {
 		super();
 	}
 
+	public FunctionParam2(String functionName) {
+		super();
+		this.funcName = functionName;
+	}
+
 	public void setFunctionName(String name) {
 		this.funcName = name;
 	}

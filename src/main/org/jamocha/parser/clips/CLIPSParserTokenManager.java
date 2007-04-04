@@ -19,7 +19,6 @@ import org.jamocha.rete.TemplateSlot;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.ParameterUtils;
 import org.jamocha.rete.Slot;
-import org.jamocha.rete.functions.ShellFunction;
 import org.jamocha.rule.Action;
 import org.jamocha.rule.AndCondition;
 import org.jamocha.rule.AndLiteralConstraint;

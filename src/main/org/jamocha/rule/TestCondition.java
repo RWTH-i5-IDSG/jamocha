@@ -20,18 +20,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.jamocha.parser.EvaluationException;
-import org.jamocha.parser.Expression;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.BaseNode;
-import org.jamocha.rete.BoundParam;
-import org.jamocha.rete.Constants;
-import org.jamocha.rete.ConversionUtils;
-import org.jamocha.rete.Function;
+import org.jamocha.rete.FunctionParam2;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.ReturnVector;
 import org.jamocha.rete.TestNode;
-import org.jamocha.rete.functions.ShellFunction;
 
 
 
@@ -43,7 +37,7 @@ import org.jamocha.rete.functions.ShellFunction;
  */
 public class TestCondition implements Condition {
 
-    protected Function func = null;
+    protected FunctionParam2 func = null;
     protected TestNode node = null;
     protected ArrayList binds = new ArrayList();
     protected boolean negated = false;
@@ -55,20 +49,21 @@ public class TestCondition implements Condition {
 		super();
 	}
 
-    public TestCondition(Function function) {
+    public TestCondition(FunctionParam2 function) {
         this.func = function;
     }
     
-    public Function getFunction() {
+    public FunctionParam2 getFunction() {
         return this.func;
     }
     
-    public void setFunction(Function function) {
+    public void setFunction(FunctionParam2 function) {
         this.func = function;
     }
     
     public boolean executeFunction(Rete engine, Parameter[] params) throws EvaluationException{
-        JamochaValue rv = func.executeFunction(engine,params);
+    	func.setParameters(params);
+        JamochaValue rv = func.getValue(engine);
         return rv.getBooleanValue();
     }
     

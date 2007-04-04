@@ -23,7 +23,6 @@ import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.exception.AssertException;
 import org.jamocha.rete.exception.RetractException;
-import org.jamocha.rete.functions.ShellFunction;
 
 
 /**
@@ -35,6 +34,11 @@ import org.jamocha.rete.functions.ShellFunction;
  * dummy input, since no facts actually enter.
  */
 public class NTestNode extends BaseJoin {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
 	/**
 	 * TestNode can only have 1 top level function
@@ -59,16 +63,6 @@ public class NTestNode extends BaseJoin {
 		super(id);
 		this.func = func;
 		this.params = parameters;
-	}
-
-	public void lookUpFunction(Rete engine) {
-		if (func instanceof ShellFunction) {
-			ShellFunction sf = (ShellFunction) func;
-			sf.lookUpFunction(engine);
-			if (sf.getFunction() != null) {
-				this.func = sf.getFunction();
-			}
-		}
 	}
 
 	/**

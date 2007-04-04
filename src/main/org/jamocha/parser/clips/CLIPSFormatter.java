@@ -20,7 +20,6 @@ import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Slot;
 import org.jamocha.rete.SlotParam;
 import org.jamocha.rete.TemplateSlot;
-import org.jamocha.rete.functions.ShellFunction;
 import org.jamocha.rule.Action;
 import org.jamocha.rule.AndCondition;
 import org.jamocha.rule.AndLiteralConstraint;
@@ -437,14 +436,8 @@ public class CLIPSFormatter implements Formatter {
 	private String formatTestCondition(TestCondition condition) {
 		StringBuffer buf = new StringBuffer();
 		String pad = "  ";
-		buf.append(pad).append('(').append(condition.getFunction().getName());
-		if (condition.getFunction() instanceof ShellFunction) {
-			Expression[] p = ((ShellFunction) condition.getFunction())
-					.getParameters();
-			for (int idx = 0; idx < p.length; idx++) {
-				buf.append(' ').append(formatExpression(p[idx]));
-			}
-		}
+		buf.append(pad).append('(').append("test");
+		buf.append(' ').append(formatExpression(condition.getFunction()));
 		buf.append(')').append(Constants.LINEBREAK);
 		return buf.toString();
 	}

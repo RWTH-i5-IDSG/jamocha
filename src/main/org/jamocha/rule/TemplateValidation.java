@@ -18,6 +18,7 @@ package org.jamocha.rule;
 
 import org.jamocha.rete.Deftemplate;
 import org.jamocha.rete.Function;
+import org.jamocha.rete.FunctionParam2;
 import org.jamocha.rete.Messages;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.Slot;
@@ -33,6 +34,11 @@ import org.jamocha.rule.util.GenerateFacts;
  */
 public class TemplateValidation implements Analysis {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
 	private Rete engine = null;
 	private ErrorSummary error = null;
 	private WarningSummary warning = null;
@@ -119,9 +125,9 @@ public class TemplateValidation implements Analysis {
                     this.error.addMessage(NO_FUNCTION);
                     result = Analysis.VALIDATION_FAILED;
                 } else {
-                    Function f = tc.getFunction();
-                    if (engine.findFunction(f.getName()) == null) {
-                        addInvalidFunctionError(f.getName());
+                    FunctionParam2 f = tc.getFunction();
+                    if (f.lookUpFunction(engine) == null) {
+                        addInvalidFunctionError(f.getFunctionName());
                         result = Analysis.VALIDATION_FAILED;
                     }
                 }

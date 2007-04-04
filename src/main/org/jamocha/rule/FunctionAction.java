@@ -22,7 +22,6 @@ import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Binding;
 import org.jamocha.rete.BoundParam;
-import org.jamocha.rete.Constants;
 import org.jamocha.rete.Deffact;
 import org.jamocha.rete.Deftemplate;
 import org.jamocha.rete.Fact;
@@ -33,7 +32,6 @@ import org.jamocha.rete.Rete;
 import org.jamocha.rete.exception.ExecuteException;
 import org.jamocha.rete.functions.AssertFunction;
 import org.jamocha.rete.functions.ModifyFunction;
-import org.jamocha.rete.functions.ShellFunction;
 
 /**
  * @author Peter Lin
@@ -66,15 +64,9 @@ public class FunctionAction implements Action {
 		return this.faction;
 	}
 
-	public void setFunction(Function func) {
-		if (func instanceof ShellFunction) {
-			ShellFunction sf = (ShellFunction) func;
-			this.functionName = sf.getName();
-			this.parameters = sf.getParameters();
-		} else {
-			this.faction = func;
-			this.functionName = func.getName();
-		}
+	public void setFunction(FunctionParam2 func) {
+		this.functionName = func.getFunctionName();
+		this.parameters = func.getParameters();
 	}
 
 	public String getFunctionName() {
