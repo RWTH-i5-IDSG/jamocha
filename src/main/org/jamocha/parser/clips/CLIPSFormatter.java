@@ -2,13 +2,15 @@ package org.jamocha.parser.clips;
 
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.Iterator;
+import java.util.List;
 
-import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.Expression;
 import org.jamocha.parser.Formatter;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.BoundParam;
 import org.jamocha.rete.Constants;
+import org.jamocha.rete.ConversionUtils;
 import org.jamocha.rete.ExpressionCollection;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.FunctionParam2;
@@ -18,7 +20,16 @@ import org.jamocha.rete.SlotParam;
 import org.jamocha.rete.functions.ShellFunction;
 import org.jamocha.rule.Action;
 import org.jamocha.rule.AndCondition;
+import org.jamocha.rule.AndLiteralConstraint;
+import org.jamocha.rule.BoundConstraint;
 import org.jamocha.rule.Condition;
+import org.jamocha.rule.Constraint;
+import org.jamocha.rule.ExistCondition;
+import org.jamocha.rule.LiteralConstraint;
+import org.jamocha.rule.MultiValue;
+import org.jamocha.rule.ObjectCondition;
+import org.jamocha.rule.OrLiteralConstraint;
+import org.jamocha.rule.PredicateConstraint;
 import org.jamocha.rule.Rule;
 import org.jamocha.rule.TestCondition;
 
@@ -198,36 +209,180 @@ public class CLIPSFormatter implements Formatter {
 		buf.append(")" + Constants.LINEBREAK);
 		return buf.toString();
 	}
-	
+
 	private StringBuffer formatAction(Action action) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	private String formatCondition(Condition condition) {
-		if(condition instanceof TestCondition) {
+		if (condition instanceof TestCondition) {
 			return formatTestCondition((TestCondition) condition);
-		} else if(condition instanceof AndCondition) {
-			return formatAndCondition((AndCondition)condition);
+		} else if (condition instanceof AndCondition) {
+			return formatAndCondition((AndCondition) condition);
+		} else if (condition instanceof ExistCondition) {
+			return formatExistCondition((ExistCondition) condition);
+		} else if (condition instanceof ObjectCondition) {
+			return formatObjectCondition((ObjectCondition) condition);
 		}
 		return null;
 	}
 
+	private String formatObjectCondition(ObjectCondition condition) {
+		StringBuffer buf = new StringBuffer();
+		int start = 0;
+		// this is a hack, but it keeps the code simple for spacing
+		// default indent for CE is 2 spaces
+		String pad = "  ";
+		boolean obind = false;
+		Constraint[] constraints = condition.getConstraints();
+		Constraint cn = constraints[0];
+		if (cn instanceof BoundConstraint) {
+			BoundConstraint bc = (BoundConstraint) cn;
+			if (bc.getIsObjectBinding()) {
+				start = 1;
+				buf.append(bc.toFactBindingPPString());
+				// since the first Constraint is a fact binding we
+				// change the padding to 1 space
+				pad = " ";
+				obind = true;
+			}
+		}
+		if (condition.getNegated()) {
+			buf.append(pad).append("(not").append(Constants.LINEBREAK);
+			pad = "    ";
+		}
+		buf.append(pad).append(')').append(condition.getTemplateName()).append(
+				Constants.LINEBREAK);
+		for (int idx = start; idx < constraints.length; idx++) {
+			Constraint cnstr = constraints[idx];
+			if (condition.getNegated()) {
+				buf.append("  ");
+			}
+			buf.append(formatConstraint(cnstr));
+		}
+		if (condition.getNegated()) {
+			buf.append(pad).append(')').append(Constants.LINEBREAK);
+			pad = "  ";
+		}
+		buf.append(pad);
+		if (obind && !condition.getNegated()) {
+			buf.append(' ');
+		}
+		buf.append(')').append(Constants.LINEBREAK);
+		return buf.toString();
+	}
+
+	private String formatConstraint(Constraint constraint) {
+		if (constraint instanceof AndLiteralConstraint) {
+			return formatAndLiteralConstraint((AndLiteralConstraint) constraint);
+		} else if (constraint instanceof BoundConstraint) {
+			return formatBoundConstraint((BoundConstraint) constraint);
+		} else if (constraint instanceof LiteralConstraint) {
+			return formatLiteralConstraint((LiteralConstraint) constraint);
+		} else if (constraint instanceof OrLiteralConstraint) {
+			return formatOrLiteralConstraint((OrLiteralConstraint) constraint);
+		} else if (constraint instanceof PredicateConstraint) {
+			return formatPredicateConstraint((PredicateConstraint) constraint);
+		}
+		return "";
+	}
+
+	private String formatPredicateConstraint(PredicateConstraint constraint) {
+		return "    (" + constraint.getName() + " "
+				+ formatJamochaValue(constraint.getValue()) + ")"
+				+ Constants.LINEBREAK;
+	}
+
+	private String formatOrLiteralConstraint(OrLiteralConstraint constraint) {
+		StringBuffer buf = new StringBuffer();
+		Iterator itr = ((List) constraint.getValue().getObjectValue())
+				.iterator();
+		buf.append("    (").append(constraint.getName()).append(' ');
+		int count = 0;
+		while (itr.hasNext()) {
+			MultiValue mv = (MultiValue) itr.next();
+			if (count > 0) {
+				buf.append("|");
+			}
+			if (mv.getNegated()) {
+				buf.append("~").append(
+						ConversionUtils.formatSlot(mv.getValue()));
+			} else {
+				buf.append(ConversionUtils.formatSlot(mv.getValue()));
+			}
+			count++;
+		}
+		buf.append(")").append(Constants.LINEBREAK);
+		return buf.toString();
+	}
+
+	private String formatLiteralConstraint(LiteralConstraint constraint) {
+		StringBuilder sb = new StringBuilder();
+		sb.append("    (").append(constraint.getName()).append(' ');
+		if (constraint.getNegated()) {
+			sb.append('~');
+		}
+		sb.append(formatJamochaValue(constraint.getValue())).append(')')
+				.append(Constants.LINEBREAK);
+		return sb.toString();
+	}
+
+	private String formatBoundConstraint(BoundConstraint constraint) {
+		StringBuilder sb = new StringBuilder();
+		sb.append("    (").append(constraint.getName()).append(' ');
+		if (constraint.isMultislot()) {
+			sb.append('$');
+		}
+		sb.append('?').append(formatJamochaValue(constraint.getValue()))
+				.append(')').append(Constants.LINEBREAK);
+		return sb.toString();
+	}
+
+	private String formatAndLiteralConstraint(AndLiteralConstraint constraint) {
+		StringBuffer buf = new StringBuffer();
+		Iterator itr = ((List) constraint.getValue().getObjectValue())
+				.iterator();
+		buf.append("    (").append(constraint.getName()).append(" ");
+		int count = 0;
+		while (itr.hasNext()) {
+			MultiValue mv = (MultiValue) itr.next();
+			if (count > 0) {
+				buf.append("&");
+			}
+			if (mv.getNegated()) {
+				buf.append("~").append(
+						ConversionUtils.formatSlot(mv.getValue()));
+			} else {
+				buf.append(ConversionUtils.formatSlot(mv.getValue()));
+			}
+			count++;
+		}
+		buf.append(")").append(Constants.LINEBREAK);
+		return buf.toString();
+
+	}
+
+	private String formatExistCondition(ExistCondition condition) {
+		return "";
+	}
+
 	private String formatAndCondition(AndCondition condition) {
-		return null;
+		return "";
 	}
 
 	private String formatTestCondition(TestCondition condition) {
-    	StringBuffer buf = new StringBuffer();
-    	String pad = "  ";
-    	buf.append(pad).append('(').append(condition.getFunction().getName());
-    	if (condition.getFunction() instanceof ShellFunction) {
-        	Expression[] p = ((ShellFunction)condition.getFunction()).getParameters();
-        	for (int idx=0; idx < p.length; idx++) {
-        		buf.append(' ').append(formatExpression(p[idx]));
-        	}
-    	}
-    	buf.append(')').append(Constants.LINEBREAK);
-    	return buf.toString();
+		StringBuffer buf = new StringBuffer();
+		String pad = "  ";
+		buf.append(pad).append('(').append(condition.getFunction().getName());
+		if (condition.getFunction() instanceof ShellFunction) {
+			Expression[] p = ((ShellFunction) condition.getFunction())
+					.getParameters();
+			for (int idx = 0; idx < p.length; idx++) {
+				buf.append(' ').append(formatExpression(p[idx]));
+			}
+		}
+		buf.append(')').append(Constants.LINEBREAK);
+		return buf.toString();
 	}
 }

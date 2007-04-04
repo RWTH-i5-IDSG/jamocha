@@ -168,8 +168,4 @@ public class PredicateConstraint implements Constraint {
     public void normalize() {
 
     }
-
-    public String toPPString() {
-	return "    (" + this.name + " " + this.value.toString() + ")" + Constants.LINEBREAK;
-    }
 }

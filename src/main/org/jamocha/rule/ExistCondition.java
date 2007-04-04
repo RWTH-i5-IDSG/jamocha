@@ -161,8 +161,4 @@ public class ExistCondition implements Condition {
     public void clear() {
     	nodes.clear();
     }
-    
-	public String toPPString() {
-		return "";
-	}
 }

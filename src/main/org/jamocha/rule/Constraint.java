@@ -55,9 +55,4 @@ public interface Constraint extends Serializable {
      * @param val
      */
     void setValue(JamochaValue val);
-    /**
-     * A convienance method to return pretty print format.
-     * @return
-     */
-    String toPPString();
 }

@@ -105,25 +105,4 @@ public class OrLiteralConstraint implements Constraint {
 	public boolean getNegated() {
 		return this.negated;
 	}
-	
-	public String toPPString() {
-		StringBuffer buf = new StringBuffer();
-		Iterator itr = ((List)this.value.getObjectValue()).iterator();
-		buf.append("    (" + this.name + " ");
-		int count = 0;
-		while (itr.hasNext()) {
-			MultiValue mv = (MultiValue)itr.next();
-			if (count > 0) {
-				buf.append("|");
-			}
-			if (mv.getNegated()) {
-				buf.append("~" + ConversionUtils.formatSlot(mv.getValue()));
-			} else {
-				buf.append( ConversionUtils.formatSlot(mv.getValue()));
-			}
-			count++;
-		}
-		buf.append(")" + Constants.LINEBREAK);
-		return buf.toString();
-	}
 }

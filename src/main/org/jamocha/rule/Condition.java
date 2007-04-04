@@ -73,9 +73,4 @@ public interface Condition extends Serializable {
      * clear the condition
      */
     void clear();
-    /**
-     * Return a pretty print formatted String.
-     * @return
-     */
-    String toPPString();
 }

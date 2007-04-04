@@ -82,8 +82,4 @@ public class AndCondition implements Condition {
     public void clear() {
     	reteNode = null;
     }
-    
-	public String toPPString() {
-		return "";
-	}
 }

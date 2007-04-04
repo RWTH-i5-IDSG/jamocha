@@ -165,19 +165,6 @@ public class BoundConstraint implements Constraint {
 		return this.firstDeclaration;
 	}
 	
-	/**
-	 * returns the constriant in a pretty printer format
-	 */
-	public String toPPString() {
-		if (this.isMultislot) {
-			return "    (" + this.name + " $?" + this.value.toString() +
-			")" + Constants.LINEBREAK;
-		} else {
-			return "    (" + this.name + " ?" + this.value.toString() +
-			")" + Constants.LINEBREAK;
-		}
-	}
-	
 	public String toFactBindingPPString() {
 		return "  ?" + this.value.toString() + " <-";
 	}

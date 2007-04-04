@@ -157,27 +157,4 @@ public class TestCondition implements Condition {
     public void clear() {
     	node = null;
     }
-    
-    public String toPPString() {
-    	StringBuffer buf = new StringBuffer();
-    	String pad = "  ";
-    	buf.append(pad + "(" + this.func.getName());
-    	if (this.func instanceof ShellFunction) {
-        	Expression[] p = ((ShellFunction)this.func).getParameters();
-        	for (int idx=0; idx < p.length; idx++) {
-        		if (p[idx] instanceof BoundParam) {
-            		buf.append(" ?" + ((BoundParam)p[idx]).getVariableName() );
-        		} else {
-            		try {
-						buf.append(" " + p[idx].getValue(null).toString());
-					} catch (EvaluationException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-        		}
-        	}
-    	}
-    	buf.append(")" + Constants.LINEBREAK);
-    	return buf.toString();
-    }
 }

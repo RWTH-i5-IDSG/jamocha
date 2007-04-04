@@ -87,14 +87,4 @@ public class LiteralConstraint implements Constraint {
 	public boolean getNegated() {
 		return this.negated;
 	}
-	
-	public String toPPString() {
-		if (this.negated) {
-			return "    (" + this.name + " ~" + this.value.toString() +
-			")" + Constants.LINEBREAK;
-		} else {
-			return "    (" + this.name + " " + this.value.toString() +
-			")" + Constants.LINEBREAK;
-		}
-	}
 }
