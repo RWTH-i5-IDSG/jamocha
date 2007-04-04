@@ -16,7 +16,12 @@
  */
 package org.jamocha.messagerouter;
 
+import java.io.Reader;
 import java.util.List;
+
+import org.jamocha.parser.Parser;
+import org.jamocha.parser.ParserFactory;
+import org.jamocha.parser.ParserNotFoundException;
 
 /**
  * Abstract implementation of the {@link CommunicationChannel} Interface. All
@@ -29,6 +34,19 @@ import java.util.List;
  */
 abstract class AbstractCommunicationChannel implements CommunicationChannel {
 
+    
+	/**
+	 * The <code>Parser</code> used to parse the input we get from the
+	 * <code>reader</code>.
+	 */
+	protected Parser parser;
+
+	/**
+	 * Name of the <code>Parser</code> we use. We need it when we restart the
+	 * <code>Parser</code>.
+	 */
+	protected String parserName;
+    
 	/**
 	 * Unique ID of this channel.
 	 */
@@ -90,4 +108,14 @@ abstract class AbstractCommunicationChannel implements CommunicationChannel {
 	public InterestType getInterest() {
 		return interest;
 	}
+	
+	protected void restartParser(Reader reader){
+		try {
+			parser = ParserFactory.getParser(parserName, reader);
+		} catch (ParserNotFoundException e1) {
+			// we ignore this Exception here, because if the Parser
+			// didn't exist init() would already have thrown an
+			// Exception.
+		}    
+	    }
 }

@@ -23,7 +23,6 @@ import java.io.Reader;
 
 import org.jamocha.parser.Expression;
 import org.jamocha.parser.ParseException;
-import org.jamocha.parser.Parser;
 import org.jamocha.parser.ParserFactory;
 import org.jamocha.parser.ParserNotFoundException;
 import org.jamocha.parser.clips.TokenMgrError;
@@ -36,127 +35,86 @@ import org.jamocha.parser.clips.TokenMgrError;
  * @author Sebastian Reinartz
  * 
  */
-class StreamChannelImpl extends AbstractCommunicationChannel implements
-		StreamChannel {
+class StreamChannelImpl extends AbstractCommunicationChannel implements StreamChannel {
 
-	/**
-	 * The <code>Reader</code> we read from.
-	 */
-	private Reader reader;
+    /**
+         * The <code>Reader</code> we read from.
+         */
+    private Reader reader;
 
-	/**
-	 * The <code>Parser</code> used to parse the input we get from the
-	 * <code>reader</code>.
-	 */
-	private Parser parser;
+    /**
+         * Thread reading from the <code>reader</code>, parsing the content
+         * and sending the Expressions to the <code>MessageRouter</code>.
+         */
+    private StreamChannelThread streamChannelThread;
 
-	/**
-	 * Name of the <code>Parser</code> we use. We need it when we restart the
-	 * <code>Parser</code>.
-	 */
-	private String parserName;
+    /**
+         * Flag indicating if the initialzation phase is done.
+         */
+    private boolean initDone = false;
 
-	/**
-	 * Thread reading from the <code>reader</code>, parsing the content and
-	 * sending the Expressions to the <code>MessageRouter</code>.
-	 */
-	private StreamChannelThread streamChannelThread;
+    public StreamChannelImpl(String channelId, MessageRouter router, InterestType interest) {
+	super(channelId, router, interest);
+	// parser = new CLIPSParser((Reader) null);
+	streamChannelThread = new StreamChannelThread();
+    }
 
-	/**
-	 * Flag indicating if the initialzation phase is done.
-	 */
-	private boolean initDone = false;
+    public void init(InputStream inputStream, String parserName) throws ParserNotFoundException {
+	init(new InputStreamReader(inputStream), parserName);
+    }
 
-	public StreamChannelImpl(String channelId, MessageRouter router,
-			InterestType interest) {
-		super(channelId, router, interest);
-		// parser = new CLIPSParser((Reader) null);
-		streamChannelThread = new StreamChannelThread();
+    public void init(Reader reader, String parserName) throws ParserNotFoundException {
+	this.reader = reader;
+	this.parserName = parserName;
+	streamChannelThread.setStopped();
+	streamChannelThread = new StreamChannelThread();
+	parser = ParserFactory.getParser(parserName, reader);
+	streamChannelThread.start();
+	initDone = true;
+    }
+
+    void close() {
+	streamChannelThread.setStopped();
+	try {
+	    reader.close();
+	} catch (IOException e) {
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
 	}
+    }
 
-	public void init(InputStream inputStream, String parserName)
-			throws ParserNotFoundException {
-		init(new InputStreamReader(inputStream), parserName);
-	}
+    public boolean isAvailable() {
+	return initDone;
+    }
 
-	public void init(Reader reader, String parserName)
-			throws ParserNotFoundException {
-		this.reader = reader;
-		this.parserName = parserName;
-		streamChannelThread.setStopped();
-		streamChannelThread = new StreamChannelThread();
-		parser = ParserFactory.getParser(parserName, reader);
-		streamChannelThread.start();
-		initDone = true;
-	}
+    private class StreamChannelThread extends Thread {
 
-	void close() {
-		streamChannelThread.setStopped();
-		try {
-			reader.close();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
+	private boolean stopped = false;
 
-	public boolean isAvailable() {
-		return initDone;
-	}
-
-	public void executeCommand(String commandString) {
+	@Override
+	public void run() {
+	    while (!stopped) {
 		Expression command = null;
 		try {
-			while ((command = parser.nextExpression()) != null) {
-				router.enqueueCommand(command, getChannelId());
-			}
+		    while (!stopped && (command = parser.nextExpression()) != null) {
+			router.enqueueCommand(command, getChannelId());
+		    }
 		} catch (ParseException e) {
-			router.postMessageEvent(new MessageEvent(MessageEvent.PARSE_ERROR,
-					e, getChannelId()));
+		    router.postMessageEvent(new MessageEvent(MessageEvent.PARSE_ERROR, e,
+			    getChannelId()));
+		    restartParser(reader);
+		} catch (TokenMgrError e) {
+		    router.postMessageEvent(new MessageEvent(MessageEvent.PARSE_ERROR, e,
+			    getChannelId()));
+		    restartParser(reader);
 		}
+	    }
 	}
 
-	private class StreamChannelThread extends Thread {
-
-		private boolean stopped = false;
-
-		@Override
-		public void run() {
-			while (!stopped) {
-				Expression command = null;
-				try {
-					while (!stopped
-							&& (command = parser.nextExpression()) != null) {
-						router.enqueueCommand(command, getChannelId());
-					}
-				} catch (ParseException e) {
-					router.postMessageEvent(new MessageEvent(
-							MessageEvent.PARSE_ERROR, e, getChannelId()));
-					try {
-						parser = ParserFactory.getParser(parserName, reader);
-					} catch (ParserNotFoundException e1) {
-						// we ignore this Exception here, because if the Parser
-						// didn't exist init() would already have thrown an
-						// Exception.
-					}
-				} catch (TokenMgrError e) {
-					router.postMessageEvent(new MessageEvent(
-							MessageEvent.PARSE_ERROR, e, getChannelId()));
-					try {
-						parser = ParserFactory.getParser(parserName, reader);
-					} catch (ParserNotFoundException e1) {
-						// we ignore this Exception here, because if the Parser
-						// didn't exist init() would already have thrown an
-						// Exception.
-					}
-				}
-			}
-		}
-
-		private void setStopped() {
-			stopped = true;
-		}
-
+	private void setStopped() {
+	    stopped = true;
 	}
+
+    }
 
 }
