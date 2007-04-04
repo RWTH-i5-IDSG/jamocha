@@ -46,6 +46,7 @@ import org.jamocha.gui.TableModelQuickSort;
 import org.jamocha.gui.TableRowModel;
 import org.jamocha.gui.editor.TemplateEditor;
 import org.jamocha.gui.icons.IconLoader;
+import org.jamocha.parser.ParserFactory;
 import org.jamocha.rete.Module;
 import org.jamocha.rete.Template;
 import org.jamocha.rete.TemplateSlot;
@@ -210,9 +211,11 @@ public class TemplatesPanel extends AbstractJamochaPanel implements
 									+ "\n        (type "
 									+ slot.getValueType().toString() + ")");
 							if (slot.getDefaultExpression() != null) {
-								buffer.append("\n        (default "
-										+ slot.getDefaultExpression()
-												.getExpressionString()+")");
+								buffer.append("\n        (default ");
+								buffer.append(ParserFactory.getFormatter()
+										.formatExpression(
+												slot.getDefaultExpression()));
+								buffer.append(")");
 							}
 							buffer.append("\n    )");
 						}

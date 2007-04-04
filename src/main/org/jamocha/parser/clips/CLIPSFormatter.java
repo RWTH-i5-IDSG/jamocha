@@ -8,15 +8,18 @@ import java.util.List;
 import org.jamocha.parser.Expression;
 import org.jamocha.parser.Formatter;
 import org.jamocha.parser.JamochaValue;
+import org.jamocha.parser.ParserFactory;
 import org.jamocha.rete.BoundParam;
 import org.jamocha.rete.Constants;
 import org.jamocha.rete.ConversionUtils;
+import org.jamocha.rete.Deftemplate;
 import org.jamocha.rete.ExpressionCollection;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.FunctionParam2;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Slot;
 import org.jamocha.rete.SlotParam;
+import org.jamocha.rete.TemplateSlot;
 import org.jamocha.rete.functions.ShellFunction;
 import org.jamocha.rule.Action;
 import org.jamocha.rule.AndCondition;
@@ -91,6 +94,8 @@ public class CLIPSFormatter implements Formatter {
 	private String formatFunctionParam(FunctionParam2 funcParam) {
 		if (funcParam.getFunctionName().equalsIgnoreCase("deffunction"))
 			return formatFunctionParamDeffunction(funcParam);
+		if (funcParam.getFunctionName().equalsIgnoreCase("deftemplate"))
+			return formatFunctionParamDeftemplate(funcParam);
 		else
 			return formatFunctionParamDefault(funcParam);
 	}
@@ -110,13 +115,45 @@ public class CLIPSFormatter implements Formatter {
 		res.append(")");
 		String oldPrefix = prefix;
 		prefix += "\n    ";
-		res
-				.append(" "
-						+ formatExpression((ExpressionCollection) ((JamochaValue) params[2])
-								.getObjectValue()));
+		res.append(" ");
+		res.append(formatExpression((ExpressionCollection) params[2]));
 		prefix = oldPrefix;
-		if (indentation) 
+		if (indentation)
 			res.append("\n");
+		res.append(")");
+		return res.toString();
+	}
+
+	private String formatFunctionParamDeftemplate(FunctionParam2 funcParam) {
+		StringBuilder res = new StringBuilder("(" + funcParam.getFunctionName());
+		Deftemplate template = (Deftemplate) ((JamochaValue) funcParam
+				.getParameters()[0]).getObjectValue();
+		res.append(" ");
+		res.append(template.getName());
+		TemplateSlot[] slots = template.getAllSlots();
+		for (TemplateSlot slot : slots) {
+			if (indentation)
+				res.append("\n    ");
+			res.append("(");
+			if (slot.isMultiSlot()) {
+				res.append("multislot ");
+				res.append(slot.getName());
+				res.append(")");
+			} else {
+				res.append("slot ");
+				res.append(slot.getName());
+				res.append("\n        (type ");
+				res.append(slot.getValueType().toString());
+				res.append(")");
+				if (slot.getDefaultExpression() != null) {
+					res.append("\n        (default ");
+					res.append(ParserFactory.getFormatter().formatExpression(
+							slot.getDefaultExpression()));
+					res.append(")");
+				}
+				res.append("\n    )");
+			}
+		}
 		res.append(")");
 		return res.toString();
 	}
