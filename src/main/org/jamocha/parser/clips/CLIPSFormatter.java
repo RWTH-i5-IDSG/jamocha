@@ -9,6 +9,7 @@ import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.BoundParam;
 import org.jamocha.rete.ExpressionCollection;
 import org.jamocha.rete.FunctionParam2;
+import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Slot;
 import org.jamocha.rete.SlotParam;
 
@@ -18,13 +19,13 @@ public class CLIPSFormatter implements Formatter {
 		if (expression instanceof JamochaValue) {
 			return formatJamochaValue((JamochaValue) expression);
 		} else if (expression instanceof FunctionParam2) {
-			return formatFunctionParam(expression);
+			return formatFunctionParam((FunctionParam2) expression);
 		} else if (expression instanceof BoundParam) {
-			return formatBoundParam((BoundParam) expression);
+			return formatBoundParam((BoundParam)expression);
 		} else if (expression instanceof SlotParam) {
-			return formatSlotParam((SlotParam) expression);
+			return formatSlotParam((SlotParam)expression);
 		} else if (expression instanceof ExpressionCollection) {
-			return formatExpressionCollection((ExpressionCollection) expression);
+			return formatExpressionCollection((ExpressionCollection)expression);
 		}
 		return "";
 	}
@@ -37,7 +38,7 @@ public class CLIPSFormatter implements Formatter {
 		}
 		return sb.toString();
 	}
-
+	
 	private String formatSlotParam(SlotParam slotParam) {
 		StringBuilder sb = new StringBuilder();
 		sb.append('(');
@@ -55,10 +56,17 @@ public class CLIPSFormatter implements Formatter {
 			return "?" + boundParam.getVariableName();
 		}
 	}
-
-	private String formatFunctionParam(Expression expression) {
-		// TODO Auto-generated method stub
-
+	
+	private String formatFunctionParam(FunctionParam2 funcParam) {
+		StringBuilder res = new StringBuilder("(" + funcParam.getFunctionName());
+		Parameter[] params = funcParam.getParameters();
+		if (params != null) {
+			for (Parameter param : params) {
+				res.append(" " + formatExpression(param));
+			}
+		}
+		res.append(")");
+		return res.toString();
 	}
 
 	private String formatJamochaValue(JamochaValue jamochaValue) {

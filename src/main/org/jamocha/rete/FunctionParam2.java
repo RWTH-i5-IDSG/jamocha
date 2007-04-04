@@ -64,6 +64,10 @@ public class FunctionParam2 extends AbstractParam {
 			}
 		}
 	}
+	
+	public Parameter[] getParameters() {
+		return params;
+	}
 
 	public void setParameters(Parameter[] params) {
 		this.params = params;
