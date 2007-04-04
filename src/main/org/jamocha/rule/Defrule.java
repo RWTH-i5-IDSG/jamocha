@@ -468,29 +468,6 @@ public class Defrule implements Rule, Scope, Serializable {
 		}
 	}
 	
-	public String toPPString() {
-		StringBuffer buf = new StringBuffer();
-		buf.append("(defrule " + this.name + Constants.LINEBREAK);
-		// now print out the rule properties
-		buf.append("  (declare (salience " + this.salience + ") (rule-version " +
-				this.version + ") (remember-match " + this.rememberMatch + 
-				") (effective-date " + this.effectiveDate + ") (expiration-date " +
-				this.expirationDate +") )" +
-				Constants.LINEBREAK);
-		for (int idx=0; idx < this.conditions.size(); idx++) {
-			Condition c = (Condition)this.conditions.get(idx);
-			buf.append(c.toPPString());
-		}
-		buf.append("=>" + Constants.LINEBREAK);
-		// now append the actions
-		for (int idx=0; idx < this.actions.size(); idx++) {
-			Action ac = (Action)this.actions.get(idx);
-			buf.append(ac.toPPString());
-		}
-		buf.append(")" + Constants.LINEBREAK);
-		return buf.toString();
-	}
-
 	public void clear() {
 		Iterator itr = this.conditions.iterator();
 		while (itr.hasNext()) {

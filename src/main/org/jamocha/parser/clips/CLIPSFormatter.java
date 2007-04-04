@@ -3,15 +3,24 @@ package org.jamocha.parser.clips;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
+import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.Expression;
 import org.jamocha.parser.Formatter;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.BoundParam;
+import org.jamocha.rete.Constants;
 import org.jamocha.rete.ExpressionCollection;
+import org.jamocha.rete.Function;
 import org.jamocha.rete.FunctionParam2;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Slot;
 import org.jamocha.rete.SlotParam;
+import org.jamocha.rete.functions.ShellFunction;
+import org.jamocha.rule.Action;
+import org.jamocha.rule.AndCondition;
+import org.jamocha.rule.Condition;
+import org.jamocha.rule.Rule;
+import org.jamocha.rule.TestCondition;
 
 public class CLIPSFormatter implements Formatter {
 
@@ -159,5 +168,66 @@ public class CLIPSFormatter implements Formatter {
 		while (res.length() < length)
 			res = fill + res;
 		return res;
+	}
+
+	public String formatFunction(Function function) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public String formatRule(Rule rule) {
+		StringBuffer buf = new StringBuffer();
+		buf.append("(defrule " + rule.getName() + Constants.LINEBREAK);
+		// now print out the rule properties
+		buf.append("  (declare (salience " + rule.getSalience()
+				+ ") (rule-version " + rule.getVersion() + ") (remember-match "
+				+ rule.getRememberMatch() + ") (effective-date "
+				+ rule.getEffectiveDate() + ") (expiration-date "
+				+ rule.getExpirationDate() + ") )" + Constants.LINEBREAK);
+		Condition[] conditions = rule.getConditions();
+		for (int idx = 0; idx < conditions.length; idx++) {
+			Condition c = conditions[idx];
+			buf.append(formatCondition(c));
+		}
+		buf.append("=>" + Constants.LINEBREAK);
+		// now append the actions
+		Action[] actions = rule.getActions();
+		for (int idx = 0; idx < actions.length; idx++) {
+			buf.append(formatAction(actions[idx]));
+		}
+		buf.append(")" + Constants.LINEBREAK);
+		return buf.toString();
+	}
+	
+	private StringBuffer formatAction(Action action) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	private String formatCondition(Condition condition) {
+		if(condition instanceof TestCondition) {
+			return formatTestCondition((TestCondition) condition);
+		} else if(condition instanceof AndCondition) {
+			return formatAndCondition((AndCondition)condition);
+		}
+		return null;
+	}
+
+	private String formatAndCondition(AndCondition condition) {
+		return null;
+	}
+
+	private String formatTestCondition(TestCondition condition) {
+    	StringBuffer buf = new StringBuffer();
+    	String pad = "  ";
+    	buf.append(pad).append('(').append(condition.getFunction().getName());
+    	if (condition.getFunction() instanceof ShellFunction) {
+        	Expression[] p = ((ShellFunction)condition.getFunction()).getParameters();
+        	for (int idx=0; idx < p.length; idx++) {
+        		buf.append(' ').append(formatExpression(p[idx]));
+        	}
+    	}
+    	buf.append(')').append(Constants.LINEBREAK);
+    	return buf.toString();
 	}
 }
