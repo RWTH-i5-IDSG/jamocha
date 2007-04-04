@@ -378,7 +378,7 @@ public class JamochaValue implements Parameter {
 	}
 
 	public String getExpressionString() {
-		return toString();
+		return ParserFactory.getFormatter().formatExpression(this);
 	}
 
 	public JamochaValue getValue(Rete engine) throws EvaluationException {

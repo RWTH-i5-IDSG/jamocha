@@ -59,11 +59,4 @@ public interface Function extends Serializable {
 	 */
 	String getName();
 
-	/**
-	 * A convienance method to get a pretty printer formatted string
-	 * for the function.
-	 * @return
-	 */
-	String toPPString(Parameter[] params, int indents);
-
 }

@@ -19,6 +19,7 @@ package org.jamocha.rete;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.Expression;
 import org.jamocha.parser.JamochaValue;
+import org.jamocha.parser.ParserFactory;
 
 /**
  * @author Peter Lin
@@ -59,5 +60,9 @@ public class SlotParam extends AbstractParam {
 
 	public Expression getValueExpression() {
 		return valueExpression;
+	}
+
+	public String getExpressionString() {
+		return ParserFactory.getFormatter().formatExpression(this);
 	}
 }

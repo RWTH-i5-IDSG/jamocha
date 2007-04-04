@@ -18,6 +18,7 @@ package org.jamocha.rete;
 
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaValue;
+import org.jamocha.parser.ParserFactory;
 
 /**
  * @author Peter Lin
@@ -254,15 +255,7 @@ public class BoundParam extends AbstractParam {
         this.fact = null;
     }
     
-    public String toPPString() {
-    	if (this.isMultislot) {
-        	return "$?" + this.variableName;
-    	} else {
-        	return "?" + this.variableName;
-    	}
-    }
-
 	public String getExpressionString() {
-		return toPPString();
+		return ParserFactory.getFormatter().formatExpression(this);
 	}
 }

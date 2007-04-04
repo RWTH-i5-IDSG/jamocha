@@ -279,9 +279,4 @@ public interface Rule extends Scope, Serializable {
      * @param engine
      */
     void resolveTemplates(Rete engine);
-    /**
-     * Return a pretty print formatted string for the rule.
-     * @return
-     */
-    String toPPString();
 }

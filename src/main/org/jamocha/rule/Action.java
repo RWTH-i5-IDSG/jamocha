@@ -53,9 +53,4 @@ public interface Action extends Serializable {
      * @throws ExecuteException
      */
     void executeAction(Rete engine, Fact[] facts) throws ExecuteException;
-    /**
-     * return a pretty printer format for the action
-     * @return
-     */
-    String toPPString();
 }

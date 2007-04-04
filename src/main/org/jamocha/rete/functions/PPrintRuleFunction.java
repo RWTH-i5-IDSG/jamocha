@@ -19,6 +19,7 @@ package org.jamocha.rete.functions;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
+import org.jamocha.parser.ParserFactory;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
@@ -57,7 +58,7 @@ public class PPrintRuleFunction implements Function {
 			for (int idx=0; idx < params.length; idx++) {
 				Rule rls = 
 					engine.getCurrentFocus().findRule(params[idx].getValue(engine).getIdentifierValue());
-				engine.writeMessage(rls.toPPString(),"t");
+				engine.writeMessage(ParserFactory.getFormatter().formatRule(rls),"t");
 			}
 		}
 		return JamochaValue.NIL;

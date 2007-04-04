@@ -166,27 +166,4 @@ public class FunctionAction implements Action {
 			throw new ExecuteException(e);
 		}
 	}
-
-	/**
-	 * method implements the necessary logic to print out the action
-	 */
-	public String toPPString() {
-		StringBuffer buf = new StringBuffer();
-		/**
-		 * buf.append(" (" + this.functionName); for (int idx=0; idx <
-		 * this.parameters.length; idx++) { if (parameters[idx] instanceof
-		 * BoundParam) { BoundParam bp = (BoundParam)this.parameters[idx];
-		 * buf.append(bp.toPPString()); } else if (parameters[idx] instanceof
-		 * ValueParam) { buf.append(" " +
-		 * this.parameters[idx].getStringValue()); } else if (parameters[idx]
-		 * instanceof FunctionParam) { FunctionParam fp =
-		 * (FunctionParam)parameters[idx]; buf.append(fp.toString()); } else if
-		 * (parameters[idx] instanceof FunctionParam2) { FunctionParam2 fp2 =
-		 * (FunctionParam2)parameters[idx]; buf.append(fp2.getFunctionName()); } }
-		 * buf.append(")" + Constants.LINEBREAK);
-		 */
-		buf.append("  " + faction.toPPString(this.parameters, 1)
-				+ Constants.LINEBREAK);
-		return buf.toString();
-	}
 }

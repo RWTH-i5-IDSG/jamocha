@@ -21,6 +21,7 @@ import java.io.Serializable;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
+import org.jamocha.parser.ParserFactory;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
@@ -96,17 +97,12 @@ public class ShellFunction implements Parameter, Function, Serializable {
 		return this.actualFunction;
 	}
 
-	public String toPPString(Parameter[] params, int indents) {
-		StringBuffer buf = new StringBuffer();
-		return buf.toString();
-	}
-
 	public boolean isObjectBinding() {
 	    return false;
 	}
 
 	public String getExpressionString() {
-	    return toPPString(getParameters(), 0);
+	    return ParserFactory.getFormatter().formatExpression(this);
 	}
 
 	public JamochaValue getValue(Rete engine) throws EvaluationException {

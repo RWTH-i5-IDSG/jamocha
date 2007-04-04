@@ -45,6 +45,7 @@ public interface Expression {
 	 * 
 	 * @return String definition of this expression.
 	 */
+	@Deprecated
 	String getExpressionString();
 
 }

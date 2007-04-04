@@ -21,6 +21,7 @@ import java.io.Serializable;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
+import org.jamocha.parser.ParserFactory;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
@@ -55,15 +56,14 @@ public class UsageFunction implements Function, Serializable {
 
 	public JamochaValue executeFunction(Rete engine, Parameter[] params)
 			throws EvaluationException {
-		JamochaValue result = JamochaValue.newString(this
-				.toPPString(null, 0));
+		JamochaValue result = JamochaValue.newString(this.toPPString(null, 0));
 		if (params != null && params.length == 1) {
 			JamochaValue firstParam = params[0].getValue(engine);
 			String function = firstParam.getStringValue();
 			Function aFunction = engine.findFunction(function);
 			if (aFunction != null) {
-				result = JamochaValue.newString(aFunction
-						.toPPString(null, 0));
+				result = JamochaValue.newString(ParserFactory.getFormatter()
+						.formatFunction(aFunction));
 			}
 		}
 		return result;

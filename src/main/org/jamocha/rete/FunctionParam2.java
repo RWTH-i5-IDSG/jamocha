@@ -19,6 +19,7 @@ package org.jamocha.rete;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
+import org.jamocha.parser.ParserFactory;
 import org.jamocha.rule.Rule;
 
 /**
@@ -64,7 +65,7 @@ public class FunctionParam2 extends AbstractParam {
 			}
 		}
 	}
-	
+
 	public Parameter[] getParameters() {
 		return params;
 	}
@@ -99,18 +100,7 @@ public class FunctionParam2 extends AbstractParam {
 		this.params = null;
 	}
 
-	public String toPPString() {
-		return getExpressionString();
-	}
-
 	public String getExpressionString() {
-		StringBuilder res = new StringBuilder("(" + funcName);
-		if (params != null) {
-			for (Parameter param : params) {
-				res.append(" " + param.getExpressionString());
-			}
-		}
-		res.append(")");
-		return res.toString();
+		return ParserFactory.getFormatter().formatExpression(this);
 	}
 }
