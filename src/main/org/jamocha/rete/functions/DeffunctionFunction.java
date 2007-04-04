@@ -16,8 +16,6 @@
  */
 package org.jamocha.rete.functions;
 
-import java.util.List;
-
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
@@ -39,7 +37,7 @@ public class DeffunctionFunction implements Function {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	
+
 	public static final String NAME = "deffunction";
 
 	protected Class[] functionParams = null;
@@ -60,29 +58,17 @@ public class DeffunctionFunction implements Function {
 		String name = firstParam.getIdentifierValue();
 		if (engine.findFunction(name) == null) {
 			JamochaValue secondParam = params[1].getValue(engine);
-			Parameter[] functionParameters = (Parameter[]) secondParam.getObjectValue();
-			JamochaValue thirdParam = params[2].getValue(engine);
+			Parameter[] functionParameters = (Parameter[]) secondParam
+					.getObjectValue();
 			ExpressionSequence functionList;
 			String description = "";
-			/* TODO description/comment for user defined functions */
-//			if(thirdParam.getType().equals(JamochaType.STRING)) {
-//				description = thirdParam.getStringValue();
-//				JamochaValue fourthParam = params[3].getValue(engine);
-//				functionList = (List) fourthParam.getObjectValue();
-//			} else {
-			if(thirdParam.getObjectValue() instanceof ExpressionSequence) {
-				functionList = (ExpressionSequence) thirdParam.getObjectValue();
-			} else {
-			    List<ShellFunction> actions = (List) thirdParam.getObjectValue();
-			    functionList = new ExpressionSequence();
-			    for(int i=0; i<actions.size(); ++i) {
-				functionList.add(actions.get(i));
-			    }
+			if (params[2] instanceof ExpressionSequence) {
+				functionList = (ExpressionSequence) params[2];
+				InterpretedFunction intrfunc = new InterpretedFunction(name,
+						description, functionParameters, functionList);
+				engine.declareFunction(intrfunc);
+				result = JamochaValue.TRUE;
 			}
-			InterpretedFunction intrfunc = new InterpretedFunction(name, description,
-					functionParameters, functionList);
-			engine.declareFunction(intrfunc);
-			result = JamochaValue.TRUE;
 		}
 		return result;
 	}

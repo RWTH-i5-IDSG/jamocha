@@ -21,6 +21,8 @@ import org.jamocha.parser.Parser;
 import org.jamocha.parser.ParserUtils;
 import org.jamocha.rete.BoundParam;
 import org.jamocha.rete.Deftemplate;
+import org.jamocha.rete.ExpressionCollection;
+import org.jamocha.rete.ExpressionSequence;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.FunctionParam2;
 import org.jamocha.rete.TemplateSlot;
@@ -341,7 +343,7 @@ ShellFunction expr() :
   ShellFunction func;
   ArrayList list = new ArrayList();
   JamochaValue[] pms;
-  List infunc = new ArrayList();
+  ExpressionSequence infunc = new ExpressionSequence();
 }
 {
   exp = <ASSERT> <LBRACE> exp2 = <IDENTIFIER>
@@ -461,7 +463,7 @@ ShellFunction expr() :
     if(exp3 != null) {
       parameters.add(JamochaValue.newString(ParserUtils.getStringLiteral(exp3.image)));
     }
-    parameters.add(JamochaValue.newObject(infunc));
+    parameters.add(infunc);
     func.setParameters(ParameterUtils.convertParameters(parameters));
     return func;
   }
@@ -915,7 +917,7 @@ Defrule ruleBody() :
   Defrule rule;
   List dec = new ArrayList();
   List conditions = new ArrayList();
-  List actions = new ArrayList();
+  ExpressionSequence actions = new ExpressionSequence();
 }
 {
   exp = <IDENTIFIER> (LOOKAHEAD(<STRING_LITERAL>)rulecomment=<STRING_LITERAL>)?
@@ -933,9 +935,8 @@ Defrule ruleBody() :
       rule.addCondition( (Condition)itr.next() );
     }
     
-    itr = actions.iterator();
-    while (itr.hasNext()) {
-      Object acn = itr.next();
+    for(int i=0;i<actions.size();++i){
+      Expression acn = actions.get(i);
       if (acn instanceof Function) {
         FunctionAction faction = new FunctionAction();
         faction.setFunction((Function)acn);
@@ -946,7 +947,6 @@ Defrule ruleBody() :
     }
     dec.clear();
     conditions.clear();
-    actions.clear();
     exp = null;
     return rule;
   }
@@ -1522,7 +1522,7 @@ void arrow() :
   }
 }
 
-void ruleActions(List list) :
+void ruleActions(ExpressionCollection list) :
 {
 }
 {
@@ -1531,9 +1531,9 @@ void ruleActions(List list) :
   }
 }
 
-void ruleAction(List list) :
+void ruleAction(ExpressionCollection list) :
 {
-  Object exp;
+  Parameter exp;
 }
 {
   exp = expr()

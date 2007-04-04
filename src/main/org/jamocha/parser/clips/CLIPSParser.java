@@ -7,18 +7,20 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.jamocha.parser.Expression;
-import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
+import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.Parser;
 import org.jamocha.parser.ParserUtils;
 import org.jamocha.rete.BoundParam;
 import org.jamocha.rete.Deftemplate;
+import org.jamocha.rete.ExpressionCollection;
+import org.jamocha.rete.ExpressionSequence;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.FunctionParam2;
+import org.jamocha.rete.TemplateSlot;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.ParameterUtils;
 import org.jamocha.rete.Slot;
-import org.jamocha.rete.TemplateSlot;
 import org.jamocha.rete.functions.ShellFunction;
 import org.jamocha.rule.Action;
 import org.jamocha.rule.AndCondition;
@@ -172,7 +174,7 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
   ShellFunction func;
   ArrayList list = new ArrayList();
   JamochaValue[] pms;
-  List infunc = new ArrayList();
+  ExpressionSequence infunc = new ExpressionSequence();
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case ASSERT:
       exp = jj_consume_token(ASSERT);
@@ -444,7 +446,7 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
     if(exp3 != null) {
       parameters.add(JamochaValue.newString(ParserUtils.getStringLiteral(exp3.image)));
     }
-    parameters.add(JamochaValue.newObject(infunc));
+    parameters.add(infunc);
     func.setParameters(ParameterUtils.convertParameters(parameters));
     {if (true) return func;}
       break;
@@ -1195,7 +1197,7 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
   Defrule rule;
   List dec = new ArrayList();
   List conditions = new ArrayList();
-  List actions = new ArrayList();
+  ExpressionSequence actions = new ExpressionSequence();
     exp = jj_consume_token(IDENTIFIER);
     if (jj_2_11(2147483647)) {
       rulecomment = jj_consume_token(STRING_LITERAL);
@@ -1240,9 +1242,8 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
       rule.addCondition( (Condition)itr.next() );
     }
 
-    itr = actions.iterator();
-    while (itr.hasNext()) {
-      Object acn = itr.next();
+    for(int i=0;i<actions.size();++i){
+      Expression acn = actions.get(i);
       if (acn instanceof Function) {
         FunctionAction faction = new FunctionAction();
         faction.setFunction((Function)acn);
@@ -1253,7 +1254,6 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
     }
     dec.clear();
     conditions.clear();
-    actions.clear();
     exp = null;
     {if (true) return rule;}
     throw new Error("Missing return statement in function");
@@ -2008,7 +2008,7 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
 
   }
 
-  final public void ruleActions(List list) throws ParseException {
+  final public void ruleActions(ExpressionCollection list) throws ParseException {
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case LBRACE:
       label_27:
@@ -2033,8 +2033,8 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
 
   }
 
-  final public void ruleAction(List list) throws ParseException {
-  Object exp;
+  final public void ruleAction(ExpressionCollection list) throws ParseException {
+  Parameter exp;
     exp = expr();
     list.add(exp);
   }
@@ -2336,19 +2336,6 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
     finally { jj_save(36, xla); }
   }
 
-  final private boolean jj_3_1() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_scan_token(14)) {
-    jj_scanpos = xsp;
-    if (jj_scan_token(11)) {
-    jj_scanpos = xsp;
-    if (jj_scan_token(12)) return true;
-    }
-    }
-    return false;
-  }
-
   final private boolean jj_3_10() {
     if (jj_scan_token(LBRACE)) return true;
     if (jj_scan_token(MULTISLOT)) return true;
@@ -2407,15 +2394,15 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
     return false;
   }
 
-  final private boolean jj_3_19() {
-    if (jj_scan_token(LBRACE)) return true;
-    if (jj_scan_token(CHAININGDIRECTION)) return true;
-    return false;
-  }
-
   final private boolean jj_3_8() {
     if (jj_scan_token(BIND3)) return true;
     if (jj_scan_token(BIND3)) return true;
+    return false;
+  }
+
+  final private boolean jj_3_19() {
+    if (jj_scan_token(LBRACE)) return true;
+    if (jj_scan_token(CHAININGDIRECTION)) return true;
     return false;
   }
 
@@ -2425,14 +2412,14 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
     return false;
   }
 
-  final private boolean jj_3_26() {
-    if (jj_scan_token(TILDA)) return true;
+  final private boolean jj_3_7() {
+    if (jj_scan_token(BIND)) return true;
     if (jj_scan_token(BIND)) return true;
     return false;
   }
 
-  final private boolean jj_3_7() {
-    if (jj_scan_token(BIND)) return true;
+  final private boolean jj_3_26() {
+    if (jj_scan_token(TILDA)) return true;
     if (jj_scan_token(BIND)) return true;
     return false;
   }
@@ -2454,15 +2441,15 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
     return false;
   }
 
-  final private boolean jj_3_33() {
-    if (jj_scan_token(TILDA)) return true;
-    if (jj_scan_token(IDENTIFIER)) return true;
-    return false;
-  }
-
   final private boolean jj_3_6() {
     if (jj_scan_token(FLOATING_POINT_LITERAL)) return true;
     if (jj_scan_token(FLOATING_POINT_LITERAL)) return true;
+    return false;
+  }
+
+  final private boolean jj_3_33() {
+    if (jj_scan_token(TILDA)) return true;
+    if (jj_scan_token(IDENTIFIER)) return true;
     return false;
   }
 
@@ -2518,6 +2505,12 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
     return false;
   }
 
+  final private boolean jj_3_4() {
+    if (jj_scan_token(STRING_LITERAL)) return true;
+    if (jj_scan_token(STRING_LITERAL)) return true;
+    return false;
+  }
+
   final private boolean jj_3_37() {
     if (jj_scan_token(TILDA)) return true;
     Token xsp;
@@ -2529,12 +2522,6 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
     if (jj_scan_token(12)) return true;
     }
     }
-    return false;
-  }
-
-  final private boolean jj_3_4() {
-    if (jj_scan_token(STRING_LITERAL)) return true;
-    if (jj_scan_token(STRING_LITERAL)) return true;
     return false;
   }
 
@@ -2583,6 +2570,11 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
     return false;
   }
 
+  final private boolean jj_3_11() {
+    if (jj_scan_token(STRING_LITERAL)) return true;
+    return false;
+  }
+
   final private boolean jj_3_29() {
     Token xsp;
     xsp = jj_scanpos;
@@ -2597,13 +2589,21 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
     return false;
   }
 
-  final private boolean jj_3_11() {
-    if (jj_scan_token(STRING_LITERAL)) return true;
+  final private boolean jj_3_35() {
+    if (jj_scan_token(TILDA)) return true;
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_scan_token(14)) {
+    jj_scanpos = xsp;
+    if (jj_scan_token(11)) {
+    jj_scanpos = xsp;
+    if (jj_scan_token(12)) return true;
+    }
+    }
     return false;
   }
 
-  final private boolean jj_3_35() {
-    if (jj_scan_token(TILDA)) return true;
+  final private boolean jj_3_1() {
     Token xsp;
     xsp = jj_scanpos;
     if (jj_scan_token(14)) {
