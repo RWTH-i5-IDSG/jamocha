@@ -40,7 +40,7 @@ public class JamochaValue implements Parameter {
 	public static JamochaValue newDate(GregorianCalendar value) {
 		return new JamochaValue(JamochaType.DATETIME, value);
 	}
-	
+
 	public static JamochaValue newLong(long value) {
 		return new JamochaValue(JamochaType.LONG, value);
 	}
@@ -226,12 +226,12 @@ public class JamochaValue implements Parameter {
 		assert (type.equals(JamochaType.STRING));
 		return (String) value;
 	}
-	
+
 	public GregorianCalendar getDateValue() {
 		assert (type.equals(JamochaType.DATETIME));
 		return (GregorianCalendar) value;
 	}
-	
+
 	public String getIdentifierValue() {
 		assert (type.equals(JamochaType.IDENTIFIER));
 		return (String) value;
@@ -256,53 +256,10 @@ public class JamochaValue implements Parameter {
 		assert (type.equals(JamochaType.LIST));
 		return ((JamochaValue[]) value).length;
 	}
-	
-	private String fillToFixedLength(int val, String fill, int length) {
-		String res=String.valueOf(val);
-		while (res.length() < length)
-			res=fill+res;
-		return res;
-	}
 
 	@Override
 	public String toString() {
-		switch (type) {
-		case NIL:
-			return "NIL";
-		case STRING:
-			return "\"" + value + "\"";
-		case FACT_ID:
-			return "f-" + value.toString();
-		case DATETIME:
-			GregorianCalendar c=(GregorianCalendar)value;
-			String gmtOffsetString;
-			int gmtOffsetMillis=c.get(Calendar.ZONE_OFFSET);
-			gmtOffsetString = ( gmtOffsetMillis>=0 ? "+" : "-");
-			int gmtOffsetHours=gmtOffsetMillis/(1000*60*60); //hopefully ;)
-			gmtOffsetString+=fillToFixedLength(gmtOffsetHours, "0", 2);
-			return
-				"\"" + fillToFixedLength( c.get(Calendar.YEAR),"0",4 ) + "-" +
-				fillToFixedLength( c.get(Calendar.MONTH)+1,"0",2 ) + "-" +
-				fillToFixedLength( c.get(Calendar.DAY_OF_MONTH),"0",2 ) + " " +
-				fillToFixedLength( c.get(Calendar.HOUR_OF_DAY),"0",2 ) + ":" +
-				fillToFixedLength( c.get(Calendar.MINUTE),"0",2 ) + ":" +
-				fillToFixedLength( c.get(Calendar.SECOND),"0",2 ) +
-				gmtOffsetString + "\"";
-		case LIST:
-			StringBuilder sb = new StringBuilder();
-			sb.append('[');
-			JamochaValue[] list = (JamochaValue[]) value;
-			for (int i = 0; i < list.length; ++i) {
-				sb.append(list[i].toString());
-				if (i < list.length - 1) {
-					sb.append(", ");
-				}
-			}
-			sb.append(']');
-			return sb.toString();
-		default:
-			return value.toString();
-		}
+		return ParserFactory.getFormatter().formatExpression(this);
 	}
 
 	public JamochaValue implicitCast(JamochaType type)
@@ -327,12 +284,12 @@ public class JamochaValue implements Parameter {
 			}
 		case DATETIME:
 			switch (type) {
-				case LONG:
-					return JamochaValue
-							.newLong( ((Calendar) value).getTimeInMillis()/1000 );
-				case DATETIME:
-					return this;
-				
+			case LONG:
+				return JamochaValue.newLong(((Calendar) value)
+						.getTimeInMillis() / 1000);
+			case DATETIME:
+				return this;
+
 			}
 		case DOUBLE:
 			switch (type) {
@@ -354,11 +311,11 @@ public class JamochaValue implements Parameter {
 			case LONG:
 				return this;
 			case FACT_ID:
-				return JamochaValue.newFactId((Long)value);
+				return JamochaValue.newFactId((Long) value);
 			case DATETIME:
 				GregorianCalendar foo = new GregorianCalendar();
 				foo.setTimeZone(TimeZone.getTimeZone("UTC"));
-				foo.setTimeInMillis((Long)value);
+				foo.setTimeInMillis((Long) value);
 				return JamochaValue.newDate(foo);
 			}
 			break;
@@ -370,7 +327,7 @@ public class JamochaValue implements Parameter {
 			case DOUBLE:
 				return JamochaValue.newDouble(((Number) value).doubleValue());
 			case LONG:
-				return JamochaValue.newLong((Long)value);
+				return JamochaValue.newLong((Long) value);
 			case FACT_ID:
 				return this;
 			}
@@ -417,14 +374,14 @@ public class JamochaValue implements Parameter {
 	}
 
 	public boolean isObjectBinding() {
-	    return false;
+		return false;
 	}
 
 	public String getExpressionString() {
-	    return toString();
+		return toString();
 	}
 
 	public JamochaValue getValue(Rete engine) throws EvaluationException {
-	    return this;
+		return this;
 	}
 }

@@ -20,6 +20,7 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
 
+import org.jamocha.parser.clips.CLIPSFormatter;
 import org.jamocha.parser.clips.CLIPSParser;
 import org.jamocha.parser.cool.COOLParser;
 
@@ -88,6 +89,38 @@ public class ParserFactory {
 			return new COOLParser(stream);
 		} else if (parserName.equalsIgnoreCase("clips")) {
 			return new CLIPSParser(stream);
+		} else {
+			throw new ParserNotFoundException("The Parser with the name \""
+					+ parserName + "\" could not be found.");
+		}
+	}
+
+	/**
+	 * Returns the Formatter belonging to the default Parser.
+	 * 
+	 * @return The Formatter of the default parser.
+	 */
+	public static Formatter getFormatter() {
+		try {
+			return getFormatter(defaultParser);
+		} catch (ParserNotFoundException e) {
+			// Should never happen
+		}
+		return null;
+	}
+	
+	/**
+	 * Returns the Formatter belonging to a specified Parser.
+	 * 
+	 * @return The Formatter of the parser.
+	 * @throws ParserNotFoundException 
+	 */
+	public static Formatter getFormatter(String parserName) throws ParserNotFoundException {
+		if (parserName.equalsIgnoreCase("cool")) {
+			return new CLIPSFormatter();
+			// return new COOLFormatter();
+		} else if (parserName.equalsIgnoreCase("clips")) {
+			return new CLIPSFormatter();
 		} else {
 			throw new ParserNotFoundException("The Parser with the name \""
 					+ parserName + "\" could not be found.");
