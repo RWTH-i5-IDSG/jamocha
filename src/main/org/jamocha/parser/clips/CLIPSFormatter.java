@@ -67,7 +67,8 @@ public class CLIPSFormatter implements Formatter {
 			ExpressionCollection expressionCollection) {
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < expressionCollection.size(); ++i) {
-			sb.append(prefix + formatExpression(expressionCollection.get(i)));
+			sb.append(prefix).append(
+					formatExpression(expressionCollection.get(i)));
 		}
 		return sb.toString();
 	}
@@ -91,16 +92,44 @@ public class CLIPSFormatter implements Formatter {
 	}
 
 	private String formatFunctionParam(FunctionParam2 funcParam) {
-		if (funcParam.getFunctionName().equalsIgnoreCase("deffunction"))
+		if (funcParam.getFunctionName().equalsIgnoreCase("assert"))
+			return formatFunctionParamAssert(funcParam);
+		else if (funcParam.getFunctionName().equalsIgnoreCase("deffunction"))
 			return formatFunctionParamDeffunction(funcParam);
-		if (funcParam.getFunctionName().equalsIgnoreCase("deftemplate"))
+		else if (funcParam.getFunctionName().equalsIgnoreCase("deftemplate"))
 			return formatFunctionParamDeftemplate(funcParam);
 		else
 			return formatFunctionParamDefault(funcParam);
 	}
 
+	private String formatFunctionParamAssert(FunctionParam2 funcParam) {
+		StringBuilder res = new StringBuilder("(");
+		res.append(funcParam.getFunctionName());
+		res.append(" (");
+		res.append(formatExpression(funcParam.getParameters()[0]));
+		Object[] slots = (Object[]) ((JamochaValue) funcParam.getParameters()[1])
+				.getObjectValue();
+		for (Object obj : slots) {
+			Slot slot = (Slot) obj;
+			if (indentation)
+				res.append("\n    ");
+			res.append("(");
+			res.append(slot.getName());
+			res.append(" ");
+			res.append(formatExpression(slot.getValue()));
+			res.append(")");
+
+		}
+
+		if (indentation)
+			res.append("\n");
+		res.append(") )");
+		return res.toString();
+	}
+
 	private String formatFunctionParamDeffunction(FunctionParam2 funcParam) {
-		StringBuilder res = new StringBuilder("(" + funcParam.getFunctionName());
+		StringBuilder res = new StringBuilder("(");
+		res.append(funcParam.getFunctionName());
 		Parameter[] params = funcParam.getParameters();
 		res.append(" " + formatExpression(params[0]));
 		Parameter[] defFuncParams = (Parameter[]) ((JamochaValue) params[1])
@@ -124,7 +153,8 @@ public class CLIPSFormatter implements Formatter {
 	}
 
 	private String formatFunctionParamDeftemplate(FunctionParam2 funcParam) {
-		StringBuilder res = new StringBuilder("(" + funcParam.getFunctionName());
+		StringBuilder res = new StringBuilder("(");
+		res.append(funcParam.getFunctionName());
 		Deftemplate template = (Deftemplate) ((JamochaValue) funcParam
 				.getParameters()[0]).getObjectValue();
 		res.append(" ");
@@ -141,24 +171,33 @@ public class CLIPSFormatter implements Formatter {
 			} else {
 				res.append("slot ");
 				res.append(slot.getName());
-				res.append("\n        (type ");
+				if (indentation)
+					res.append("\n        ");
+				res.append("(type ");
 				res.append(slot.getValueType().toString());
 				res.append(")");
 				if (slot.getDefaultExpression() != null) {
-					res.append("\n        (default ");
+					if (indentation)
+						res.append("\n        ");
+					res.append("(default ");
 					res.append(ParserFactory.getFormatter().formatExpression(
 							slot.getDefaultExpression()));
 					res.append(")");
 				}
-				res.append("\n    )");
+				if (indentation)
+					res.append("\n    ");
+				res.append(")");
 			}
 		}
+		if (indentation)
+			res.append("\n");
 		res.append(")");
 		return res.toString();
 	}
 
 	private String formatFunctionParamDefault(FunctionParam2 funcParam) {
-		StringBuilder res = new StringBuilder("(" + funcParam.getFunctionName());
+		StringBuilder res = new StringBuilder("(");
+		res.append(funcParam.getFunctionName());
 		Parameter[] params = funcParam.getParameters();
 		int lineLength = res.length();
 		if (params != null) {
