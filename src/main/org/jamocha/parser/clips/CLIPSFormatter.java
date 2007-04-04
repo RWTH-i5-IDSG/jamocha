@@ -35,8 +35,15 @@ import org.jamocha.rule.TestCondition;
 
 public class CLIPSFormatter implements Formatter {
 
-	public CLIPSFormatter(boolean indentation) {
+	private boolean indentation = false;
 
+	private String prefix = "";
+
+	public CLIPSFormatter() {
+	}
+
+	public CLIPSFormatter(boolean indentation) {
+		this.indentation = indentation;
 	}
 
 	public String formatExpression(Expression expression) {
@@ -58,7 +65,7 @@ public class CLIPSFormatter implements Formatter {
 			ExpressionCollection expressionCollection) {
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < expressionCollection.size(); ++i) {
-			sb.append(formatExpression(expressionCollection.get(i)));
+			sb.append(prefix + formatExpression(expressionCollection.get(i)));
 		}
 		return sb.toString();
 	}
@@ -92,12 +99,24 @@ public class CLIPSFormatter implements Formatter {
 		StringBuilder res = new StringBuilder("(" + funcParam.getFunctionName());
 		Parameter[] params = funcParam.getParameters();
 		res.append(" " + formatExpression(params[0]));
-		res.append(" (" + formatExpression(params[1]) + ")");
-		if (params != null) {
-			for (Parameter param : params) {
-				res.append(" " + formatExpression(param));
-			}
+		Parameter[] defFuncParams = (Parameter[]) ((JamochaValue) params[1])
+				.getObjectValue();
+		res.append(" (");
+		for (int i = 0; i < defFuncParams.length; ++i) {
+			if (i > 0)
+				res.append(" ");
+			res.append(formatExpression(defFuncParams[i]));
 		}
+		res.append(")");
+		String oldPrefix = prefix;
+		prefix += "\n    ";
+		res
+				.append(" "
+						+ formatExpression((ExpressionCollection) ((JamochaValue) params[2])
+								.getObjectValue()));
+		prefix = oldPrefix;
+		if (indentation) 
+			res.append("\n");
 		res.append(")");
 		return res.toString();
 	}
@@ -105,9 +124,16 @@ public class CLIPSFormatter implements Formatter {
 	private String formatFunctionParamDefault(FunctionParam2 funcParam) {
 		StringBuilder res = new StringBuilder("(" + funcParam.getFunctionName());
 		Parameter[] params = funcParam.getParameters();
+		int lineLength = res.length();
 		if (params != null) {
 			for (Parameter param : params) {
-				res.append(" " + formatExpression(param));
+				String exp = formatExpression(param);
+				lineLength += exp.length();
+				if (indentation && lineLength > 80) {
+					res.append("\n");
+					lineLength = exp.length();
+				}
+				res.append(" " + exp);
 			}
 		}
 		res.append(")");

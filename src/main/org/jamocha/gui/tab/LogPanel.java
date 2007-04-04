@@ -400,7 +400,7 @@ public class LogPanel extends AbstractJamochaPanel implements ActionListener,
 						buffer.append("\n" + strelem);
 					}
 				} else if (message instanceof Expression) {
-					buffer.append(ParserFactory.getFormatter().formatExpression((Expression)message));
+					buffer.append(ParserFactory.getFormatter(true).formatExpression((Expression)message));
 				} else if (message != null) {
 					buffer.append(message.toString());
 				}
