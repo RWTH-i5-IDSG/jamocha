@@ -421,7 +421,7 @@ public class JamochaValue implements Parameter {
 	}
 
 	public String getExpressionString() {
-	    return null;
+	    return toString();
 	}
 
 	public JamochaValue getValue(Rete engine) throws EvaluationException {

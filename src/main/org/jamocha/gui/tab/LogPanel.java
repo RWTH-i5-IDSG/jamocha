@@ -46,6 +46,7 @@ import org.jamocha.gui.icons.IconLoader;
 import org.jamocha.messagerouter.InterestType;
 import org.jamocha.messagerouter.MessageEvent;
 import org.jamocha.messagerouter.StringChannel;
+import org.jamocha.parser.Expression;
 import org.jamocha.rete.Function;
 
 /**
@@ -398,6 +399,8 @@ public class LogPanel extends AbstractJamochaPanel implements ActionListener,
 					for (StackTraceElement strelem : str) {
 						buffer.append("\n" + strelem);
 					}
+				} else if (message instanceof Expression) {
+					buffer.append(((Expression) message).getExpressionString());
 				} else if (message instanceof Function) {
 					buffer.append("(" + ((Function) message).getName() + ")");
 				} else if (message != null) {

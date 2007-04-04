@@ -327,6 +327,7 @@ public class JamochaGui extends JFrame implements ChangeListener,
 		}
 		setVisible(false);
 		dispose();
+		batchThread.setGui(null);
 		if (exitOnClose) {
 			batchThread.stopThread();
 			engine.close();

@@ -134,8 +134,6 @@ public class TestNode extends BaseJoin {
 		for (int idx = 0; idx < this.params.length; idx++) {
 			if (params[idx] instanceof BoundParam) {
 				((BoundParam) params[idx]).setFact(facts);
-			} else if (params[idx] instanceof FunctionParam) {
-				((FunctionParam) params[idx]).setFacts(facts);
 			}
 		}
 	}

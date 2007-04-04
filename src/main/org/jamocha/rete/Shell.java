@@ -46,7 +46,6 @@ public class Shell {
 
 	public void run() {
 		List<MessageEvent> msgEvents = new ArrayList<MessageEvent>();
-		;
 		boolean printPrompt = false;
 		System.out.print(Constants.SHELL_PROMPT);
 
