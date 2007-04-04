@@ -1,0 +1,28 @@
+package org.jamocha.sampleimplementations;
+
+import java.util.Iterator;
+import java.util.Map;
+
+import org.jamocha.rete.Deffact;
+import org.jamocha.rete.util.ExportHandler;
+
+public class SampleExportHandler implements ExportHandler {
+
+	public long export(Iterator<Deffact> iterator, Map<String, String> config) {
+		int deleted = 0;
+		while (iterator.hasNext()) {
+			Deffact a = iterator.next();
+			
+			if (a.getSlotValue( config.get("removeSlot") ) != null) {
+				iterator.remove();
+				deleted++;
+			} else {
+				System.out.println("fact :" + a.toPPString().toUpperCase());
+			}
+			
+		}
+		
+		return deleted;
+	}
+
+}

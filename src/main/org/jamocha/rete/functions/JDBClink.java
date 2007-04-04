@@ -174,13 +174,8 @@ public class JDBClink implements Function, Serializable {
 						PreparedStatement lookuper = conn.prepareStatement(lookupStatement); // any better name ;) ?
 					
 						// iterate over our facts
-						
-						// for( int i=0 ; i < thirdParam.getListCount() ; i++ ) {
-						
-						String[] ids = thirdParam.getStringValue().split(",");
-						for( int i=0 ; i < ids.length ; i++ ) {
-							// Deffact actFact = (Deffact) (thirdParam.getListValue(i).getFactValue());
-							Deffact actFact = (Deffact) engine.getFactById( (long) Integer.parseInt(ids[i]));
+						for( int i=0 ; i < thirdParam.getListCount() ; i++ ) {
+							Fact actFact = (Fact) engine.getFactById( (thirdParam.getListValue(i).getFactIdValue()));
 							
 							// check whether to update or to insert
 							boolean insert = true;
@@ -246,12 +241,12 @@ public class JDBClink implements Function, Serializable {
 			buf.append(")");
 			return buf.toString();
 		} else {
-			return "(jdbclink <fact-id> (\"import\"|\"export\")) (<fact-id>|<binding>)\n" 
+			return "(jdbclink <fact-id> (\"import\"|\"export\")) (<fact-id>|<binding>)\n" 
 					+ "Function description:\n"
 					+ "\t first parameter is a jdbclink-fact\n"
-					+ "\t second parameter specified whether to export to or to import from the given jdbclink"
-					+ "\t third parameter [later]"
-					+ "\t it returns true in the case of success.";
+					+ "\t second parameter specified whether to export to or to import from the given jdbclink\n"
+					+ "\t third parameter [later]\n"
+					+ "\t it returns true in the case of success.\n";
 		}
 	}
 }

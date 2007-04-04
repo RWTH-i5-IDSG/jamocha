@@ -17,36 +17,38 @@
 package org.jamocha.rete.functions;
 
 import java.io.Serializable;
-import java.lang.reflect.Constructor;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.IllegalParameterException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
+import org.jamocha.rete.Deffact;
 import org.jamocha.rete.Deftemplate;
 import org.jamocha.rete.Fact;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.Slot;
-import org.jamocha.rete.util.DeffactIterator;
+import org.jamocha.rete.util.ExportHandler;
+import org.jamocha.rete.util.ExportIterator;
 
 /**
  * @author Josef Alexander Hahn
  * 
  */
-public class IteratorImporter implements Function, Serializable {
+public class IteratorExporter implements Function, Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	public static final String ITERATORIMPORTER = "iteratorimporter";
+	public static final String ITERATOREXPORTER = "iteratorexporter";
 
 	/**
 	 * 
 	 */
-	public IteratorImporter() {
+	public IteratorExporter() {
 		super();
 	}
 
@@ -56,21 +58,22 @@ public class IteratorImporter implements Function, Serializable {
 	 * @see woolfel.engine.rete.Function#getReturnType()
 	 */
 	public JamochaType getReturnType() {
-		return JamochaType.BOOLEAN;
+		return JamochaType.LONG;
 	}
 
 	public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
 
 		if (params != null) {
-			if (params.length == 2) {
+			if (params.length == 3) {
 				
 				/* try to load the class given by first parameter and
 				 * return false in case of failure */
-				Class iteratorclass = null;
+				Class handlerclass = null;
+				
 				try {
-					iteratorclass = Class.forName(params[0].getValue(engine).getStringValue());
+					handlerclass = Class.forName(params[0].getValue(engine).getStringValue());
 				} catch (ClassNotFoundException e1) {
-					return new JamochaValue(JamochaType.BOOLEAN, Boolean.FALSE);
+					return new JamochaValue(JamochaType.LONG, new Long(-1));
 				}
 				
 				/* load the configure fact and generate a hashmap (name/value pairs)
@@ -83,60 +86,49 @@ public class IteratorImporter implements Function, Serializable {
 					configMap.put( key.getName() , configFact.getSlotValue(key.getName()).getStringValue() );
 				}
 				
-				/* ...and now for something completely different ;) try to get the right constructor from
-				 * our iteratorclass (this one with only one map<string,string> parameter) */
-				Constructor<DeffactIterator> ourConstructor = null;
-				for ( Constructor<DeffactIterator> c : iteratorclass.getConstructors() ) {
-					if (c.getParameterTypes().length == 1){
-						if (c.getParameterTypes()[0].isAssignableFrom(Map.class)) {
-							ourConstructor = c;
-						}
-					}
-				}
-				/* no good constructor found => return false */
-				if (ourConstructor == null) return new JamochaValue(JamochaType.BOOLEAN, Boolean.FALSE);
-				
-				/* well, now we have an iteratorclass, a constructor and a map. lets put
-				 * it together to get an iterator
-				 * and assert the facts returned by the iterator... */
-				Object[] constructorparams = new Object[1];
-				constructorparams[0] = configMap;
-				DeffactIterator ourIterator = null;
+				/* instantiate the given ExportHandler class */
+				ExportHandler handler = null;
 				try {
-					ourIterator = ourConstructor.newInstance(constructorparams);
-					while (ourIterator.hasNext()  ) {
-						engine.assertFact(ourIterator.next());
-					}
-				} catch (Exception e) {
-					return new JamochaValue(JamochaType.BOOLEAN, Boolean.FALSE);
+					handler = (ExportHandler) handlerclass.newInstance();
+				} catch (Exception e1) {
+					return new JamochaValue(JamochaType.LONG, new Long(-1));
 				}
-				/* if we have reached this point of code, everything is fine */
-				return new JamochaValue(JamochaType.BOOLEAN, Boolean.TRUE);
+				
+				JamochaValue forExport = params[2].getValue(engine);
+				long[] facts = new long[forExport.getListCount()];
+				for ( int i=0 ; i<forExport.getListCount() ; i++ ){
+					facts[i] = forExport.getListValue(i).getFactIdValue();
+				}
+				
+	
+				Iterator<Deffact> iterator = new ExportIterator(engine, facts);
+				
+				/* well, now we have an ExportHandler, an iterator and a map. lets put
+				 * it together in the ExportHandler */
+			
+				long result = handler.export(iterator, configMap);
+				return new JamochaValue(JamochaType.LONG, new Long(result));
 			}
 		}
-		throw new IllegalParameterException(2, false);
+		throw new IllegalParameterException(3, false);
 	}
 
 	public String getName() {
-		return ITERATORIMPORTER;
+		return ITERATOREXPORTER;
 	}
 
 	public String toPPString(Parameter[] params, int indents) {
 		if (params != null && params.length == 3) {
 			StringBuffer buf = new StringBuffer();
-			buf.append("(iteratorimporter");
+			buf.append("(iteratorexporter");
 			for (int idx = 0; idx < params.length; idx++) {
 				buf.append(" " + params[idx].getExpressionString());
 			}
 			buf.append(")");
 			return buf.toString();
 		} else {
-			return "(iteratorimporter <string> <fact-id>)\n" 
-					+ "Function description:\n"
-					+ "\t first parameter is a class name of a subclass of DeffactIterator\n"
-					+ "\t second parameter is a fact-id from a configuration-fact for the iterator\n"
-					+ "\t it iterates over a new instance of the given iterator-class and generates\n"
-					+ "\t facts of them. it returns true iff everything was successful.\n";
+			return "(iteratorexporter blah)\n" 
+					+ "See jamocha wiki\n";
 		}
 	}
 }

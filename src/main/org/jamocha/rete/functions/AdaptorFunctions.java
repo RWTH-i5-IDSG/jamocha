@@ -56,16 +56,19 @@ public class AdaptorFunctions implements FunctionGroup {
 		for( int i=0 ; i<6 ; i++ ) slots[i].setValueType( JamochaType.STRING );
 		Template jdbcConfigTemplate = new Deftemplate(templateName,defclass,slots);
 		
+		/* give it to the engine */
 		engine.findModule("MAIN").addTemplate(jdbcConfigTemplate, engine, engine.getWorkingMemory());
 		
+		/* generate the functions */
 		JDBClink jdbclink = new JDBClink();
 		engine.declareFunction(jdbclink);
 		funcs.add(jdbclink);
-		
 		IteratorImporter iteratorimporter = new IteratorImporter();
 		engine.declareFunction(iteratorimporter);
 		funcs.add(iteratorimporter);
-		
+		IteratorExporter iteratorexporter = new IteratorExporter();
+		engine.declareFunction(iteratorexporter);
+		funcs.add(iteratorexporter);		
 		
 	}
 
