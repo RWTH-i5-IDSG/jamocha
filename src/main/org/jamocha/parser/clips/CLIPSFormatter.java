@@ -96,6 +96,8 @@ public class CLIPSFormatter implements Formatter {
 			return formatFunctionParamAssert(funcParam);
 		else if (funcParam.getFunctionName().equalsIgnoreCase("deffunction"))
 			return formatFunctionParamDeffunction(funcParam);
+		else if (funcParam.getFunctionName().equalsIgnoreCase("defrule"))
+			return formatFunctionParamDefrule(funcParam);
 		else if (funcParam.getFunctionName().equalsIgnoreCase("deftemplate"))
 			return formatFunctionParamDeftemplate(funcParam);
 		else
@@ -150,6 +152,11 @@ public class CLIPSFormatter implements Formatter {
 			res.append("\n");
 		res.append(")");
 		return res.toString();
+	}
+
+	private String formatFunctionParamDefrule(FunctionParam2 funcParam) {
+		return formatRule((Rule) ((JamochaValue) funcParam.getParameters()[0])
+				.getObjectValue());
 	}
 
 	private String formatFunctionParamDeftemplate(FunctionParam2 funcParam) {
