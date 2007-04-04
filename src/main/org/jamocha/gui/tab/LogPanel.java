@@ -47,7 +47,7 @@ import org.jamocha.messagerouter.InterestType;
 import org.jamocha.messagerouter.MessageEvent;
 import org.jamocha.messagerouter.StringChannel;
 import org.jamocha.parser.Expression;
-import org.jamocha.rete.Function;
+import org.jamocha.parser.ParserFactory;
 
 /**
  * The LogPanel uses an own Channel listing to all other channels to collect and
@@ -400,9 +400,7 @@ public class LogPanel extends AbstractJamochaPanel implements ActionListener,
 						buffer.append("\n" + strelem);
 					}
 				} else if (message instanceof Expression) {
-					buffer.append(((Expression) message).getExpressionString());
-				} else if (message instanceof Function) {
-					buffer.append("(" + ((Function) message).getName() + ")");
+					buffer.append(ParserFactory.getFormatter().formatExpression((Expression)message));
 				} else if (message != null) {
 					buffer.append(message.toString());
 				}
@@ -410,5 +408,4 @@ public class LogPanel extends AbstractJamochaPanel implements ActionListener,
 			detailView.setText(buffer.toString());
 		}
 	}
-
 }

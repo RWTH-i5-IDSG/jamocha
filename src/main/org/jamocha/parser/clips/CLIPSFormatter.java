@@ -15,17 +15,21 @@ import org.jamocha.rete.SlotParam;
 
 public class CLIPSFormatter implements Formatter {
 
+	public CLIPSFormatter(boolean indentation) {
+
+	}
+
 	public String formatExpression(Expression expression) {
 		if (expression instanceof JamochaValue) {
 			return formatJamochaValue((JamochaValue) expression);
 		} else if (expression instanceof FunctionParam2) {
 			return formatFunctionParam((FunctionParam2) expression);
 		} else if (expression instanceof BoundParam) {
-			return formatBoundParam((BoundParam)expression);
+			return formatBoundParam((BoundParam) expression);
 		} else if (expression instanceof SlotParam) {
-			return formatSlotParam((SlotParam)expression);
+			return formatSlotParam((SlotParam) expression);
 		} else if (expression instanceof ExpressionCollection) {
-			return formatExpressionCollection((ExpressionCollection)expression);
+			return formatExpressionCollection((ExpressionCollection) expression);
 		}
 		return "";
 	}
@@ -38,7 +42,7 @@ public class CLIPSFormatter implements Formatter {
 		}
 		return sb.toString();
 	}
-	
+
 	private String formatSlotParam(SlotParam slotParam) {
 		StringBuilder sb = new StringBuilder();
 		sb.append('(');
@@ -56,8 +60,29 @@ public class CLIPSFormatter implements Formatter {
 			return "?" + boundParam.getVariableName();
 		}
 	}
-	
+
 	private String formatFunctionParam(FunctionParam2 funcParam) {
+		if (funcParam.getFunctionName().equalsIgnoreCase("deffunction"))
+			return formatFunctionParamDeffunction(funcParam);
+		else
+			return formatFunctionParamDefault(funcParam);
+	}
+
+	private String formatFunctionParamDeffunction(FunctionParam2 funcParam) {
+		StringBuilder res = new StringBuilder("(" + funcParam.getFunctionName());
+		Parameter[] params = funcParam.getParameters();
+		res.append(" " + formatExpression(params[0]));
+		res.append(" (" + formatExpression(params[1]) + ")");
+		if (params != null) {
+			for (Parameter param : params) {
+				res.append(" " + formatExpression(param));
+			}
+		}
+		res.append(")");
+		return res.toString();
+	}
+
+	private String formatFunctionParamDefault(FunctionParam2 funcParam) {
 		StringBuilder res = new StringBuilder("(" + funcParam.getFunctionName());
 		Parameter[] params = funcParam.getParameters();
 		if (params != null) {

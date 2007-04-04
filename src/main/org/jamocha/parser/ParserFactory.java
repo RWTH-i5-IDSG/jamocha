@@ -96,31 +96,62 @@ public class ParserFactory {
 	}
 
 	/**
-	 * Returns the Formatter belonging to the default Parser.
+	 * Returns the Formatter without indentation belonging to the default
+	 * Parser.
 	 * 
 	 * @return The Formatter of the default parser.
 	 */
 	public static Formatter getFormatter() {
+		return getFormatter(false);
+	}
+
+	/**
+	 * Returns the Formatter belonging to the default Parser.
+	 * 
+	 * @param indentation
+	 *            if <code>true</code> the Formatter uses indentation.
+	 * @return The Formatter of the default parser.
+	 */
+	public static Formatter getFormatter(boolean indentation) {
 		try {
-			return getFormatter(defaultParser);
+			return getFormatter(defaultParser, indentation);
 		} catch (ParserNotFoundException e) {
 			// Should never happen
 		}
 		return null;
 	}
-	
+
+	/**
+	 * Returns the Formatter without indentation belonging to a specified
+	 * Parser. Parser.
+	 * 
+	 * @param parserName
+	 *            Name of the spcecific Parser.
+	 * @return The Formatter of the default parser.
+	 * @throws ParserNotFoundException
+	 */
+	public static Formatter getFormatter(String parserName)
+			throws ParserNotFoundException {
+		return getFormatter(parserName, false);
+	}
+
 	/**
 	 * Returns the Formatter belonging to a specified Parser.
 	 * 
+	 * @param parserName
+	 *            Name of the spcecific Parser.
+	 * @param indentation
+	 *            if <code>true</code> the Formatter uses indentation.
 	 * @return The Formatter of the parser.
-	 * @throws ParserNotFoundException 
+	 * @throws ParserNotFoundException
 	 */
-	public static Formatter getFormatter(String parserName) throws ParserNotFoundException {
+	public static Formatter getFormatter(String parserName, boolean indentation)
+			throws ParserNotFoundException {
 		if (parserName.equalsIgnoreCase("cool")) {
-			return new CLIPSFormatter();
+			return new CLIPSFormatter(indentation);
 			// return new COOLFormatter();
 		} else if (parserName.equalsIgnoreCase("clips")) {
-			return new CLIPSFormatter();
+			return new CLIPSFormatter(indentation);
 		} else {
 			throw new ParserNotFoundException("The Parser with the name \""
 					+ parserName + "\" could not be found.");
