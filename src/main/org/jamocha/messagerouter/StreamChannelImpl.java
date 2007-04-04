@@ -96,7 +96,7 @@ class StreamChannelImpl extends AbstractCommunicationChannel implements StreamCh
 	    while (!stopped) {
 		Expression command = null;
 		try {
-		    while (!stopped && (command = parser.nextExpression()) != null) {
+		    while (!stopped && (parser != null) && (command = parser.nextExpression()) != null) {
 			router.enqueueCommand(command, getChannelId());
 		    }
 		} catch (ParseException e) {
