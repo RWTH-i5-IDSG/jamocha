@@ -175,7 +175,7 @@ public class AlphaNode extends BaseAlpha2 {
 	 * @return
 	 */
 	public String toPPString() {
-		return "node-" + this.nodeID + "> slot(" + this.slot.getName() + ") "	+ 
+		return "AlphaNode-" + this.nodeID + "> slot(" + this.slot.getName() + ") "	+ 
                 ConversionUtils.getPPOperator(this.operator) + " "
 				+ ConversionUtils.formatSlot(this.slot.value) + 
 				" - useCount=" + this.useCount;

@@ -246,14 +246,12 @@ public class Binding implements Serializable, Cloneable {
     
     public String toPPString() {
         StringBuffer buf = new StringBuffer();
-        buf.append("?" + varName + " (" + this.leftrow + ")(");
+        buf.append("?" + varName + " left(");
         buf.append(this.leftIndex);
         if (this.negated) {
-            buf.append(") " + Constants.NOTEQUAL_STRING + " (" +
-                    this.rightrow + ")(");
+            buf.append(") " + Constants.NOTEQUAL_STRING + " right(");
         } else {
-            buf.append(") " + Constants.EQUAL_STRING + " (" +
-                    this.rightrow + ")(");
+            buf.append(") " + Constants.EQUAL_STRING + " right(");
         }
         buf.append(this.rightIndex);
         buf.append(")");

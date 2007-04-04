@@ -152,6 +152,6 @@ public class LIANode extends BaseAlpha {
      * the Left input Adapter Node returns zero length string
      */
     public String toPPString(){
-        return "";
+        return "LIANode-" + this.nodeID + ">";
     }
 }

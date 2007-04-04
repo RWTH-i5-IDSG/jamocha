@@ -81,15 +81,9 @@ public class Ellipse extends Shape {
 
 	public Point calculateIntersection(double angle) {
 		Point result=new Point();
-		//TODO: That calculation is NOT correct! That leads to wrong angles
-		//      in the visualiser. looks not sooo good, but not that problem
-		//      for now ;)
-		//double r=Math.atan( Math.tan(angle) * ((double)width/(double)height));
 		double r=Math.atan2( Math.sin(angle)*width, Math.cos(angle)*height   );
 		double xrel=Math.cos(r)*width/2.0;
 		double yrel=Math.sin(r)*height/2.0;
-		
-		
 		result.x=(int)Math.round( xrel+x+(width*0.5)    );
 		result.y=(int)Math.round( -yrel+y+(height*0.5)  );
 		return result;

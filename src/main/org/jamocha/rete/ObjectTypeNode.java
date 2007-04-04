@@ -334,7 +334,7 @@ public class ObjectTypeNode extends BaseAlpha implements Serializable {
      * this returns name of the deftemplate
      */
     public String toPPString(){
-        return "InputNode for Template(" + this.deftemplate.getName() + ")";
+        return "ObjectTypeNode-" + this.nodeID + "> for Template(" + this.deftemplate.getName() + ")";
     }
     
     public Object[] getSuccessorNodes() {

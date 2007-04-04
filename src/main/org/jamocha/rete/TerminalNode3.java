@@ -62,6 +62,13 @@ public class TerminalNode3 extends TerminalNode2 {
 	}
 
 	/**
+	 * return a descriptive string
+	 */
+	public String toPPString() {
+		return "TerminalNode3-" + nodeID + ">";
+	}
+	
+	/**
 	 * The implementation checks to see if the rule is active before it tries to
 	 * retract the fact. It checks in the following order. 1. is the expiration
 	 * date greater than zero 2. is the current time > the effective date 3. is

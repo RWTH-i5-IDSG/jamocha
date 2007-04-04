@@ -84,10 +84,10 @@ public class TerminalNode extends BaseNode {
 	}
 
 	/**
-	 * return the name of the rule
+	 * return a descriptive string
 	 */
 	public String toPPString() {
-		return this.theRule.getName();
+		return "TerminalNode-" + nodeID + ">";
 	}
 
 	/**

@@ -94,16 +94,16 @@ public class TerminalNode2 extends TerminalNode {
 	}
 
 	/**
-	 * return the name of the rule
+	 * return a descriptive string
 	 */
-	public String toString() {
-		return this.theRule.getName();
+	public String toPPString() {
+		return "TerminalNode2-" + nodeID + ">";
 	}
 
 	/**
 	 * return the name of the rule
 	 */
-	public String toPPString() {
+	public String toString() {
 		return this.theRule.getName();
 	}
 }

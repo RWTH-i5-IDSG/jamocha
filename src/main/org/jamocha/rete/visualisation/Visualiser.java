@@ -136,10 +136,9 @@ public class Visualiser implements ActionListener, MouseListener, EngineEventLis
 		if (reteNode==null) {
 			longdesc="Root Node";	
 		} else {
-			longdesc="ID:"+reteNode.getNodeId()+"  NodeType:"+reteNode.getClass().getSimpleName();
-			longdesc+="  Details:"+reteNode.toPPString();
+			longdesc = reteNode.toPPString();
 		}
-		longdesc+="  Rules:";
+		longdesc+=" | Rules:";
 		Iterator iter=terminalNodes.iterator();
 		while (iter.hasNext()) {
 			TerminalNode t=(TerminalNode) iter.next();
@@ -148,7 +147,6 @@ public class Visualiser implements ActionListener, MouseListener, EngineEventLis
 			if (iter.hasNext()) longdesc+=";";
 		}
 		s.setLongDescription(longdesc);
-		if (reteNode instanceof LIANode) s.incWidth(-nodeHorizontal/3);
 		s.setText(desc);
 		act.setShape(s);
 		addPrimitive(s);
@@ -160,7 +158,33 @@ public class Visualiser implements ActionListener, MouseListener, EngineEventLis
 	}
 	
 	protected void createPrimitives(ViewGraphNode root){
+		/* increase the y coordinate of some nodes until no node has parents with higher y coordinate*/
+		boolean needCheck = true;
 		LinkedList<ViewGraphNode> queue=new LinkedList<ViewGraphNode>();
+		while (needCheck) {
+			needCheck = false;
+			
+			queue.offer(root);
+			while (!queue.isEmpty()) {
+				ViewGraphNode act=queue.poll();
+				for (Iterator<ViewGraphNode> it=act.getSuccessors().iterator();it.hasNext();) {
+					ViewGraphNode succ=it.next();
+					queue.add(succ);
+				}
+				for (Iterator<ViewGraphNode> it=act.getParents().iterator();it.hasNext();) {
+					ViewGraphNode parent=it.next();
+					if (parent.getY() >= act.getY()) {
+						act.y = parent.y + 1;
+						needCheck = true;
+					}
+				}
+			}
+		}
+
+		/* make shapes from the ViewGraphNodes */
+
+		// reuse our old queue
+		queue.clear();
 		queue.offer(root);
 		while (!queue.isEmpty()) {
 			ViewGraphNode act=queue.poll();
@@ -179,9 +203,12 @@ public class Visualiser implements ActionListener, MouseListener, EngineEventLis
 				ConnectorLine line=new ConnectorLine(s1,s);
 				line.setColor(Color.blue);
 				if (n.getReteNode() instanceof BaseJoin) line.setColor(Color.red);
+				if (n.getReteNode() instanceof LIANode) line.setColor(Color.red);
 				addPrimitive(line);
 			}
 		}
+		
+		
 	}
 
 	/**
