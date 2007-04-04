@@ -1,6 +1,5 @@
 package org.jamocha.rete;
 
-import org.jamocha.parser.ConstantExpression;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.Expression;
 import org.jamocha.parser.JamochaType;
@@ -117,7 +116,7 @@ public class TemplateSlot extends Slot {
 
     public void setDefaultDerive() {
 	staticDefault = true;
-	defaultExpression = new ConstantExpression(JamochaType.getDefaultValue(getValueType()));
+	defaultExpression = JamochaType.getDefaultValue(getValueType());
     }
 
 }
