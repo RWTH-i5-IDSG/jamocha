@@ -27,6 +27,7 @@ import org.jamocha.rule.BoundConstraint;
 import org.jamocha.rule.Condition;
 import org.jamocha.rule.Constraint;
 import org.jamocha.rule.ExistCondition;
+import org.jamocha.rule.FunctionAction;
 import org.jamocha.rule.LiteralConstraint;
 import org.jamocha.rule.MultiValue;
 import org.jamocha.rule.ObjectCondition;
@@ -37,9 +38,11 @@ import org.jamocha.rule.TestCondition;
 
 public class CLIPSFormatter implements Formatter {
 
-	private boolean indentation = false;
+	private static final int INDENT_WIDTH = 4;
 
-	private String prefix = "";
+	private boolean indentation = true;
+
+	private StringBuilder prefix = new StringBuilder();
 
 	public CLIPSFormatter() {
 	}
@@ -70,16 +73,6 @@ public class CLIPSFormatter implements Formatter {
 			sb.append(prefix).append(
 					formatExpression(expressionCollection.get(i)));
 		}
-		return sb.toString();
-	}
-
-	private String formatSlotParam(SlotParam slotParam) {
-		StringBuilder sb = new StringBuilder();
-		sb.append('(');
-		sb.append(slotParam.getName());
-		sb.append(' ');
-		sb.append(formatExpression(slotParam.getValueExpression()));
-		sb.append(')');
 		return sb.toString();
 	}
 
@@ -143,11 +136,8 @@ public class CLIPSFormatter implements Formatter {
 			res.append(formatExpression(defFuncParams[i]));
 		}
 		res.append(")");
-		String oldPrefix = prefix;
-		prefix += "\n    ";
 		res.append(" ");
 		res.append(formatExpression((ExpressionCollection) params[2]));
-		prefix = oldPrefix;
 		if (indentation)
 			res.append("\n");
 		res.append(")");
@@ -289,38 +279,93 @@ public class CLIPSFormatter implements Formatter {
 		return res;
 	}
 
+	private String formatSlotParam(SlotParam slotParam) {
+		StringBuilder sb = new StringBuilder();
+		sb.append('(');
+		sb.append(slotParam.getName());
+		sb.append(' ');
+		sb.append(formatExpression(slotParam.getValueExpression()));
+		sb.append(')');
+		return sb.toString();
+	}
+
 	public String formatFunction(Function function) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	public String formatRule(Rule rule) {
-		StringBuffer buf = new StringBuffer();
-		buf.append("(defrule " + rule.getName() + Constants.LINEBREAK);
+		StringBuilder buf = new StringBuilder();
+		buf.append("(defrule ").append(rule.getName());
 		// now print out the rule properties
-		buf.append("  (declare (salience " + rule.getSalience()
-				+ ") (rule-version " + rule.getVersion() + ") (remember-match "
-				+ rule.getRememberMatch() + ") (effective-date "
-				+ rule.getEffectiveDate() + ") (expiration-date "
-				+ rule.getExpirationDate() + ") )" + Constants.LINEBREAK);
+		increaseIndent();
+		newLine(buf);
+		buf.append("(declare ");
+		increaseIndent();
+		newLine(buf);
+		buf.append("(salience ").append(rule.getSalience()).append(") ");
+		newLine(buf);
+		buf.append("(rule-version ").append(rule.getVersion()).append(") ");
+		newLine(buf);
+		buf.append("(remember-match ").append(rule.getRememberMatch()).append(") ");
+		newLine(buf);
+		buf.append("(effective-date ").append(rule.getEffectiveDate()).append(") ");
+		newLine(buf);
+		buf.append("(expiration-date ").append(rule.getExpirationDate()).append(") ");
+		decreaseIndent();
+		newLine(buf);
+		buf.append(") ");
+		newLine(buf);
 		Condition[] conditions = rule.getConditions();
 		for (int idx = 0; idx < conditions.length; idx++) {
 			Condition c = conditions[idx];
 			buf.append(formatCondition(c));
+			if(idx == conditions.length-1) {
+				decreaseIndent();
+			}
+			newLine(buf);
 		}
-		buf.append("=>" + Constants.LINEBREAK);
+		buf.append("=>");
+		increaseIndent();
+		newLine(buf);
 		// now append the actions
 		Action[] actions = rule.getActions();
 		for (int idx = 0; idx < actions.length; idx++) {
 			buf.append(formatAction(actions[idx]));
+			if(idx == actions.length-1) {
+				decreaseIndent();
+			}
+			newLine(buf);
 		}
-		buf.append(")" + Constants.LINEBREAK);
+		buf.append(")");
 		return buf.toString();
 	}
 
-	private StringBuffer formatAction(Action action) {
-		// TODO Auto-generated method stub
-		return null;
+	private String formatAction(Action action) {
+		if (action instanceof FunctionAction) {
+			return formatFunctionAction((FunctionAction) action);
+		}
+		return "<Unknown action>";
+	}
+
+	private String formatFunctionAction(FunctionAction action) {
+		StringBuilder sb = new StringBuilder();
+		sb.append(prefix).append('(').append(action.getFunctionName());
+		Expression[] parameters = action.getParameters();
+		if (indentation) {
+			sb.append(Constants.LINEBREAK);
+		}
+		for (int i = 0; i < parameters.length; ++i) {
+			sb.append(prefix).append(formatExpression(parameters[i]));
+			if (indentation) {
+				sb.append(Constants.LINEBREAK);
+			}
+		}
+		sb.append(')');
+		if (indentation) {
+			sb.append(Constants.LINEBREAK);
+		}
+		return sb.toString();
 	}
 
 	private String formatCondition(Condition condition) {
@@ -337,7 +382,7 @@ public class CLIPSFormatter implements Formatter {
 	}
 
 	private String formatObjectCondition(ObjectCondition condition) {
-		StringBuffer buf = new StringBuffer();
+		StringBuilder buf = new StringBuilder();
 		int start = 0;
 		// this is a hack, but it keeps the code simple for spacing
 		// default indent for CE is 2 spaces
@@ -360,7 +405,7 @@ public class CLIPSFormatter implements Formatter {
 			buf.append(pad).append("(not").append(Constants.LINEBREAK);
 			pad = "    ";
 		}
-		buf.append(pad).append(')').append(condition.getTemplateName()).append(
+		buf.append(pad).append('(').append(condition.getTemplateName()).append(
 				Constants.LINEBREAK);
 		for (int idx = start; idx < constraints.length; idx++) {
 			Constraint cnstr = constraints[idx];
@@ -403,7 +448,7 @@ public class CLIPSFormatter implements Formatter {
 	}
 
 	private String formatOrLiteralConstraint(OrLiteralConstraint constraint) {
-		StringBuffer buf = new StringBuffer();
+		StringBuilder buf = new StringBuilder();
 		Iterator itr = ((List) constraint.getValue().getObjectValue())
 				.iterator();
 		buf.append("    (").append(constraint.getName()).append(' ');
@@ -448,7 +493,7 @@ public class CLIPSFormatter implements Formatter {
 	}
 
 	private String formatAndLiteralConstraint(AndLiteralConstraint constraint) {
-		StringBuffer buf = new StringBuffer();
+		StringBuilder buf = new StringBuilder();
 		Iterator itr = ((List) constraint.getValue().getObjectValue())
 				.iterator();
 		buf.append("    (").append(constraint.getName()).append(" ");
@@ -480,11 +525,27 @@ public class CLIPSFormatter implements Formatter {
 	}
 
 	private String formatTestCondition(TestCondition condition) {
-		StringBuffer buf = new StringBuffer();
+		StringBuilder buf = new StringBuilder();
 		String pad = "  ";
 		buf.append(pad).append('(').append("test");
 		buf.append(' ').append(formatExpression(condition.getFunction()));
 		buf.append(')').append(Constants.LINEBREAK);
 		return buf.toString();
+	}
+
+	private void increaseIndent() {
+		for (int i = 0; i < INDENT_WIDTH; ++i) {
+			prefix.append(' ');
+		}
+	}
+
+	private void newLine(StringBuilder sb) {
+		if (indentation) {
+			sb.append(Constants.LINEBREAK).append(prefix);
+		}
+	}
+
+	private void decreaseIndent() {
+		prefix.setLength(Math.max(0, prefix.length() - INDENT_WIDTH));
 	}
 }
