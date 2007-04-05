@@ -13,6 +13,7 @@ import java.awt.event.MouseListener;
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Set;
@@ -66,6 +67,7 @@ public class Visualiser implements ActionListener, MouseListener, EngineEventLis
 	protected final int nodeHorizontal=45;
 	protected final int nodeVertical=16;
 	protected SimpleAttributeSet even,odd,actAttributes;
+    protected Hashtable coordinates = new Hashtable();
 	
 	protected Color getBackgroundColorForNode(ViewGraphNode node) {
 		Color bg=Color.black;
@@ -128,8 +130,17 @@ public class Visualiser implements ActionListener, MouseListener, EngineEventLis
 		}
 		s.setBgcolor(bg);
 		s.setBordercolor(border);
-		s.setX((spaceHorizontal/2)+ (int)((float)(act.getX()*(spaceHorizontal+nodeHorizontal))/2.0));
-		s.setY((spaceVertical/2)+act.getY()*(spaceVertical+nodeVertical));
+        int x = (spaceHorizontal/2)+ (int)((float)(act.getX()*(spaceHorizontal+nodeHorizontal))/2.0);
+        int y = (spaceVertical/2)+act.getY()*(spaceVertical+nodeVertical);
+        String key = x + "," + y;
+        // if there is already a node at the given location, we shift it right
+        while (this.coordinates.containsKey(key)) {
+            x = x + ((spaceHorizontal + nodeHorizontal) * 2);
+            key = x + "," + y;
+        }
+        coordinates.put(key, s);
+		s.setX(x);
+		s.setY(y);
 		s.setWidth(nodeHorizontal);
 		s.setHeight(nodeVertical);
 		String longdesc="";
@@ -336,6 +347,7 @@ public class Visualiser implements ActionListener, MouseListener, EngineEventLis
 	}
 	
 	protected void reloadView() {
+        this.coordinates.clear();
 		RootNode root=((WorkingMemoryImpl)engine.getWorkingMemory()).getRootNode();
 		ViewGraphNode t=ViewGraphNode.buildFromRete(root);
 		this.root=t;
