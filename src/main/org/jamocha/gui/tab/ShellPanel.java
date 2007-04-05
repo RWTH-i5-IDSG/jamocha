@@ -225,6 +225,7 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 
 		printPrompt();
 		moveCursorToEnd();
+		showCursor();
 		startTimer();
 
 		// initialize the channellistener for outputs from the engine
@@ -272,7 +273,8 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 	 * 
 	 */
 	private synchronized void moveCursorToEnd() {
-		moveCursorTo(getOffset());
+		if (cursorPosition != getOffset())
+			moveCursorTo(getOffset());
 	}
 
 	/**
@@ -282,9 +284,7 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 	 *            The new Position for the Cursor.s
 	 */
 	private synchronized void moveCursorTo(int newPosition) {
-		hideCursor();
 		cursorPosition = newPosition;
-		showCursor();
 	}
 
 	/**
@@ -527,13 +527,14 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 
 							}
 							moveCursorToEnd();
+							showCursor();
 							startTimer();
 							break;
 						case KeyEvent.VK_ENTER:
 							stopTimer();
-							moveCursorToEnd();
 							hideCursor();
-							
+							moveCursorToEnd();
+
 							if (lastPromptIndex < getOffset()) {
 								String currLine = "";
 								try {
@@ -560,6 +561,7 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 							history_activeline = "";
 							printMessage("", true);
 							moveCursorToEnd();
+							showCursor();
 							startTimer();
 							break;
 						// delete a char on the left side of the cursor
@@ -767,6 +769,7 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 			printPrompt();
 		moveCursorToEnd();
 		setFocus();
+		showCursor();
 		startTimer();
 	}
 
