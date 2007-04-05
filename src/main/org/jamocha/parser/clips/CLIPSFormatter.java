@@ -8,7 +8,6 @@ import java.util.List;
 import org.jamocha.parser.Expression;
 import org.jamocha.parser.Formatter;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.parser.ParserFactory;
 import org.jamocha.rete.BoundParam;
 import org.jamocha.rete.Constants;
 import org.jamocha.rete.ConversionUtils;
@@ -70,8 +69,9 @@ public class CLIPSFormatter implements Formatter {
 			ExpressionCollection expressionCollection) {
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < expressionCollection.size(); ++i) {
-			sb.append(prefix).append(
-					formatExpression(expressionCollection.get(i)));
+			if (i > 0)
+				newLine(sb);
+			sb.append(formatExpression(expressionCollection.get(i)));
 		}
 		return sb.toString();
 	}
@@ -104,10 +104,10 @@ public class CLIPSFormatter implements Formatter {
 		res.append(formatExpression(funcParam.getParameters()[0]));
 		Object[] slots = (Object[]) ((JamochaValue) funcParam.getParameters()[1])
 				.getObjectValue();
+		increaseIndent();
 		for (Object obj : slots) {
 			Slot slot = (Slot) obj;
-			if (indentation)
-				res.append("\n    ");
+			newLine(res);
 			res.append("(");
 			res.append(slot.getName());
 			res.append(" ");
@@ -115,9 +115,8 @@ public class CLIPSFormatter implements Formatter {
 			res.append(")");
 
 		}
-
-		if (indentation)
-			res.append("\n");
+		decreaseIndent();
+		newLine(res);
 		res.append(") )");
 		return res.toString();
 	}
@@ -137,9 +136,11 @@ public class CLIPSFormatter implements Formatter {
 		}
 		res.append(")");
 		res.append(" ");
+		increaseIndent();
+		newLine(res);
 		res.append(formatExpression((ExpressionCollection) params[2]));
-		if (indentation)
-			res.append("\n");
+		decreaseIndent();
+		newLine(res);
 		res.append(")");
 		return res.toString();
 	}
@@ -157,9 +158,9 @@ public class CLIPSFormatter implements Formatter {
 		res.append(" ");
 		res.append(template.getName());
 		TemplateSlot[] slots = template.getAllSlots();
+		increaseIndent();
 		for (TemplateSlot slot : slots) {
-			if (indentation)
-				res.append("\n    ");
+			newLine(res);
 			res.append("(");
 			if (slot.isMultiSlot()) {
 				res.append("multislot ");
@@ -168,26 +169,24 @@ public class CLIPSFormatter implements Formatter {
 			} else {
 				res.append("slot ");
 				res.append(slot.getName());
-				if (indentation)
-					res.append("\n        ");
+				increaseIndent();
+				newLine(res);
 				res.append("(type ");
 				res.append(slot.getValueType().toString());
 				res.append(")");
 				if (slot.getDefaultExpression() != null) {
-					if (indentation)
-						res.append("\n        ");
+					newLine(res);
 					res.append("(default ");
-					res.append(ParserFactory.getFormatter().formatExpression(
-							slot.getDefaultExpression()));
+					res.append(formatExpression(slot.getDefaultExpression()));
 					res.append(")");
 				}
-				if (indentation)
-					res.append("\n    ");
+				decreaseIndent();
+				newLine(res);
 				res.append(")");
 			}
 		}
-		if (indentation)
-			res.append("\n");
+		decreaseIndent();
+		newLine(res);
 		res.append(")");
 		return res.toString();
 	}
@@ -202,7 +201,7 @@ public class CLIPSFormatter implements Formatter {
 				String exp = formatExpression(param);
 				lineLength += exp.length();
 				if (indentation && lineLength > 80) {
-					res.append("\n");
+					newLine(res);
 					lineLength = exp.length();
 				}
 				res.append(" " + exp);
@@ -307,11 +306,14 @@ public class CLIPSFormatter implements Formatter {
 		newLine(buf);
 		buf.append("(rule-version ").append(rule.getVersion()).append(") ");
 		newLine(buf);
-		buf.append("(remember-match ").append(rule.getRememberMatch()).append(") ");
+		buf.append("(remember-match ").append(rule.getRememberMatch()).append(
+				") ");
 		newLine(buf);
-		buf.append("(effective-date ").append(rule.getEffectiveDate()).append(") ");
+		buf.append("(effective-date ").append(rule.getEffectiveDate()).append(
+				") ");
 		newLine(buf);
-		buf.append("(expiration-date ").append(rule.getExpirationDate()).append(") ");
+		buf.append("(expiration-date ").append(rule.getExpirationDate())
+				.append(") ");
 		decreaseIndent();
 		newLine(buf);
 		buf.append(") ");
@@ -320,7 +322,7 @@ public class CLIPSFormatter implements Formatter {
 		for (int idx = 0; idx < conditions.length; idx++) {
 			Condition c = conditions[idx];
 			buf.append(formatCondition(c));
-			if(idx == conditions.length-1) {
+			if (idx == conditions.length - 1) {
 				decreaseIndent();
 			}
 			newLine(buf);
@@ -332,7 +334,7 @@ public class CLIPSFormatter implements Formatter {
 		Action[] actions = rule.getActions();
 		for (int idx = 0; idx < actions.length; idx++) {
 			buf.append(formatAction(actions[idx]));
-			if(idx == actions.length-1) {
+			if (idx == actions.length - 1) {
 				decreaseIndent();
 			}
 			newLine(buf);
@@ -534,6 +536,7 @@ public class CLIPSFormatter implements Formatter {
 	}
 
 	private void increaseIndent() {
+		System.out.println("inc");
 		for (int i = 0; i < INDENT_WIDTH; ++i) {
 			prefix.append(' ');
 		}
@@ -546,6 +549,7 @@ public class CLIPSFormatter implements Formatter {
 	}
 
 	private void decreaseIndent() {
+		System.out.println("dec");
 		prefix.setLength(Math.max(0, prefix.length() - INDENT_WIDTH));
 	}
 }

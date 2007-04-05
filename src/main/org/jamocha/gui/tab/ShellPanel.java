@@ -332,7 +332,7 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 				outputArea.replaceRange(cursorSubString, cursorPosition,
 						cursorPosition + SHELL_CURSOR.length());
 			} catch (Exception e) {
-				e.printStackTrace();
+				// ignore it
 			}
 		}
 		cursorShowing = false;
@@ -531,7 +531,9 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 							break;
 						case KeyEvent.VK_ENTER:
 							stopTimer();
+							moveCursorToEnd();
 							hideCursor();
+							
 							if (lastPromptIndex < getOffset()) {
 								String currLine = "";
 								try {

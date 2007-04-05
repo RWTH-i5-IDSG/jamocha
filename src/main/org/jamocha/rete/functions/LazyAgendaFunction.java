@@ -21,6 +21,7 @@ import java.io.Serializable;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
+import org.jamocha.rete.Constants;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
@@ -58,8 +59,10 @@ public class LazyAgendaFunction implements Function, Serializable {
 			JamochaValue firstParam = params[0].getValue(engine);
 			if (firstParam.getBooleanValue()) {
 				engine.getCurrentFocus().setLazy(true);
+				engine.writeMessage("TRUE");
 			} else {
 				engine.getCurrentFocus().setLazy(false);
+				engine.writeMessage("FALSE");
 			}
 		}
 		return JamochaValue.NIL;
