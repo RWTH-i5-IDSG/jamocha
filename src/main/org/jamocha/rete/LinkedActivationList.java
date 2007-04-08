@@ -102,27 +102,7 @@ public class LinkedActivationList extends AbstractActivationList {
                 this.count++;
             } else {
                 if (this.count > 0) {
-                    LinkedActivation cur = this.last;
-                    LinkedActivation prev = this.last;
-                    boolean added = false;
-                    while (cur != null) {
-                        if (this.theStrategy.compare(newact, cur) >= 0) {
-                            cur.setNext(newact);
-                            if (this.last == cur) {
-                                this.last = newact;
-                            } else {
-                                newact.setNext(prev);
-                            }
-                            added = true;
-                            break;
-                        }
-                        prev = cur;
-                        cur = cur.getPrevious();
-                    }
-                    if (!added) {
-                        newact.setNext(this.first);
-                        this.first = newact;
-                    }
+                    this.quickSort(newact);
                 } else if (count == 0){
                     this.first = newact;
                     this.last = newact;
@@ -132,6 +112,102 @@ public class LinkedActivationList extends AbstractActivationList {
         }
     }
 
+    /**
+     * the sort method uses binary search to find the correct insertion
+     * point for the new activation. It's much faster than the brute
+     * force method.
+     * @param newact
+     */
+    public void quickSort(LinkedActivation newact) {
+        if (this.theStrategy.compare(newact, this.last) > 0) {
+            // the new activation has a higher salience than the last, which means
+            // it should become the bottom activation
+            this.last.setNext(newact);
+            this.last = newact;
+        } else if (this.theStrategy.compare(newact, this.first) < 0) {
+            // the new activation has a salience lower than the first, which means
+            // it should become the top activation
+            newact.setNext(this.first);
+            this.first = newact;
+        } else {
+            // this means the new activation goes in the middle some where
+            int counter = this.count/2;
+            LinkedActivation cur = goUp(counter,this.last);
+            boolean added = false;
+            while (!added) {
+                if (counter <= 1) {
+                    // add the activation
+                    if (this.theStrategy.compare(newact,cur) < 0) {
+                        // if the new activation is lower sailence than the current,
+                        // we add it before the current (aka above)
+                        newact.setPrevious(cur.getPrevious());
+                        newact.setNext(cur);
+                    } else {
+                        // the new activation is higher salience than the current
+                        // therefore we add it after (aka below)
+                        newact.setNext(cur.getNext());
+                        newact.setPrevious(cur);
+                    }
+                    added = true;
+                } else if (this.theStrategy.compare(newact,cur) >= 0) {
+                    // the new activation is of greater salience down half again
+                    counter = counter/2;
+                    cur = goDown(counter,cur);
+                } else {
+                    // the new activation is of lower salience, up half again
+                    counter = counter/2;
+                    cur = goUp(counter,cur);
+                }
+            }
+        }
+    }
+
+    /**
+     * method will loop for the given count and return the item before it.
+     * for example:
+     * 1
+     * 2
+     * 3
+     * 4
+     * 5
+     * 6
+     * If I pass a count of 2 and item #6. it will return #4.
+     * 
+     * @param count
+     * @param start
+     * @return
+     */
+    protected LinkedActivation goUp(int count, LinkedActivation start) {
+        LinkedActivation rt = start;
+        for (int idx=0; idx < count; idx++) {
+            rt = rt.getPrevious();
+        }
+        return rt;
+    }
+    
+    /**
+     * method will loop for the given count and return the item after it.
+     * for example:
+     * 1
+     * 2
+     * 3
+     * 4
+     * 5
+     * 6
+     * If I pass a count of 2 and item #1. it will return #3.
+     * 
+     * @param count
+     * @param start
+     * @return
+     */
+    protected LinkedActivation goDown(int count, LinkedActivation start) {
+        LinkedActivation rt = start;
+        for (int idx=0; idx < count; idx++) {
+            rt = rt.getNext();
+        }
+        return rt;
+    }
+    
     /**
      * removeActivation will check to see if the activation is
      * the first or last before removing it.
