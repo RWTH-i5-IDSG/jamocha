@@ -26,6 +26,11 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.JButton;
@@ -74,7 +79,7 @@ public class ShellSettingsPanel extends AbstractSettingsPanel implements
 		GraphicsEnvironment ge = GraphicsEnvironment
 				.getLocalGraphicsEnvironment();
 		Font allFonts[] = ge.getAllFonts();
-		fonts = new JComboBox(allFonts);
+		fonts = new JComboBox(filterFonts(allFonts));
 		Font selFont = null;
 		String selFontName = gui.getPreferences().get("shell.font", "Courier");
 		for (Font curFont : allFonts) {
@@ -185,6 +190,26 @@ public class ShellSettingsPanel extends AbstractSettingsPanel implements
 				backgroundColorChooserPreview.setBackground(newColor);
 			}
 		}
+	}
+
+	private Font[] filterFonts(Font[] fonts) {
+		List<Font> res = new LinkedList<Font>();
+		for (Font font : fonts) {
+			if (font.getName().matches("(.*)[M|m]ono(.*)")
+					|| font.getFamily().matches("(.*)[M|m]ono(.*)")
+					|| font.getName().matches("Monaco")
+					|| font.getName().matches("(.*)[C|c]ourier(.*)")) {
+				System.out
+						.println(font.getFontName() + ", " + font.getFamily());
+				res.add(font);
+			}
+
+		}
+		fonts = new Font[res.size()];
+		for (int i = 0; i < fonts.length; ++i) {
+			fonts[i] = res.get(i);
+		}
+		return fonts;
 	}
 
 }
