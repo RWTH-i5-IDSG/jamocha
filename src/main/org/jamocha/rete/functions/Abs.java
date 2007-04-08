@@ -32,6 +32,43 @@ import org.jamocha.rete.Rete;
  * Returns the absolute value of a double value.
  */
 public class Abs implements Function, Serializable {
+	
+	private static final class AbsDescription implements FunctionDescription {
+
+		public String getDescription() {
+			return "Returns the absolute value af a number.";
+		}
+		
+		public int getParameterCount() {
+			return 1;
+		}
+
+		public String getParameterDescription(int parameter) {
+			return "number, whose absolute value will be returned";
+		}
+
+		public String getParameterName(int parameter) {
+			return "number";
+		}
+
+		public JamochaType[] getParameterTypes(int parameter) {
+			return JamochaType.NUMBERS;
+		}
+
+		public JamochaType[] getReturnType() {
+			return JamochaType.NUMBERS;
+		}
+
+		public boolean isParameterCountFixed() {
+			return true;
+		}
+
+		public boolean isParameterOptional(int parameter) {
+			return false;
+		}		
+	}
+	
+	private static final FunctionDescription DESCRIPTION = new AbsDescription();
 
 	private static final long serialVersionUID = 1L;
 	
@@ -42,6 +79,10 @@ public class Abs implements Function, Serializable {
 	 */
 	public Abs() {
 		super();
+	}
+	
+	public FunctionDescription getDescription() {
+		return DESCRIPTION;
 	}
 
 	public JamochaType getReturnType() {
