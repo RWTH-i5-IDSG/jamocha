@@ -25,12 +25,12 @@ import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.IllegalParameterException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.rete.Deftemplate;
 import org.jamocha.rete.Fact;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.Slot;
+import org.jamocha.rete.Template;
 import org.jamocha.rete.util.DeffactIterator;
 
 /**
@@ -76,7 +76,7 @@ public class IteratorImporter implements Function, Serializable {
 				/* load the configure fact and generate a hashmap (name/value pairs)
 				 * from the slots */
 				Fact configFact = engine.getFactById(params[1].getValue(engine).getFactIdValue());
-				Deftemplate configtemplate = configFact.getDeftemplate();
+				Template configtemplate = configFact.getTemplate();
 				Slot[] keys = configtemplate.getAllSlots();
 				Map<String,String> configMap = new HashMap<String,String>();
 				for ( Slot key : keys) {

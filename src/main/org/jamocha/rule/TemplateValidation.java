@@ -16,12 +16,12 @@
  */
 package org.jamocha.rule;
 
-import org.jamocha.rete.Deftemplate;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.FunctionParam2;
 import org.jamocha.rete.Messages;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.Slot;
+import org.jamocha.rete.Template;
 import org.jamocha.rule.util.GenerateFacts;
 
 /**
@@ -84,7 +84,7 @@ public class TemplateValidation implements Analysis {
 			Condition cnd = cnds[idx];
 			if (cnd instanceof ObjectCondition) {
 				ObjectCondition oc = (ObjectCondition)cnd;
-				Deftemplate dft = oc.getDeftemplate();
+				Template dft = oc.getTemplate();
 				if (dft != null) {
 					Constraint[] cntrs = oc.getConstraints();
 					for (int idy=0; idy < cntrs.length; idy++) {

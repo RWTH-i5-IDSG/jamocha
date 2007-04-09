@@ -16,14 +16,13 @@
  */
 package org.jamocha.rule;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.ArrayList;
 
 import org.jamocha.rete.BaseAlpha;
 import org.jamocha.rete.BaseNode;
-import org.jamocha.rete.Constants;
-import org.jamocha.rete.*;
+import org.jamocha.rete.Template;
 
 
 /**
@@ -35,7 +34,12 @@ import org.jamocha.rete.*;
  */
 public class ObjectCondition implements Condition {
 
-    protected String templateName = null;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
+	protected String templateName = null;
     protected String varname = null;
     protected List propConditions = new ArrayList();
     /**
@@ -49,7 +53,7 @@ public class ObjectCondition implements Condition {
      */
     protected List nodes = new ArrayList();
     
-    protected Deftemplate template = null;
+    protected Template template = null;
     
 	/**
 	 * 
@@ -66,11 +70,11 @@ public class ObjectCondition implements Condition {
         this.templateName = name;
     }
     
-    public Deftemplate getDeftemplate() {
+    public Template getTemplate() {
     	return this.template;
     }
     
-    public void setDeftemplate(Deftemplate tmpl) {
+    public void setTemplate(Template tmpl) {
     	this.template = tmpl;
     }
     

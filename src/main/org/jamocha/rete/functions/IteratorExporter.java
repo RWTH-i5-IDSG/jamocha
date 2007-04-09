@@ -32,6 +32,7 @@ import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.Slot;
+import org.jamocha.rete.Template;
 import org.jamocha.rete.util.ExportHandler;
 import org.jamocha.rete.util.ExportIterator;
 
@@ -79,7 +80,7 @@ public class IteratorExporter implements Function, Serializable {
 				/* load the configure fact and generate a hashmap (name/value pairs)
 				 * from the slots */
 				Fact configFact = engine.getFactById(params[1].getValue(engine).getFactIdValue());
-				Deftemplate configtemplate = configFact.getDeftemplate();
+				Template configtemplate = configFact.getTemplate();
 				Slot[] keys = configtemplate.getAllSlots();
 				Map<String,String> configMap = new HashMap<String,String>();
 				for ( Slot key : keys) {

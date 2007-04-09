@@ -19,6 +19,7 @@ import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Deftemplate;
 import org.jamocha.rete.Fact;
+import org.jamocha.rete.Template;
 
 /**
  * This class translates CLIPS-Code resp. JamochaValues to SL.
@@ -58,7 +59,7 @@ public class CLIPS2SL {
 			res.append(")");
 		} else if (value.getType().equals(JamochaType.FACT)) {
 			Fact fact = value.getFactValue();
-			Deftemplate tmpl = fact.getDeftemplate();
+			Template tmpl = fact.getTemplate();
 			res.append("(" + tmpl.getName() + "\n");
 			for (int i = 0; i < tmpl.getNumberOfSlots(); i++) {
 				res.append("		:" + tmpl.getSlot(i).getName() + " "

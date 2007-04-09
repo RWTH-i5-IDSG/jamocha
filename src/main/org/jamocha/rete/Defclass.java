@@ -42,6 +42,11 @@ import org.jamocha.rete.util.CollectionsFactory;
  */
 public class Defclass implements Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	private Class OBJECT_CLASS = null;
 
 	private BeanInfo INFO = null;
@@ -224,7 +229,7 @@ public class Defclass implements Serializable {
 	 * @param tempName
 	 * @return
 	 */
-	public Deftemplate createDeftemplate(String tempName) {
+	public Template createDeftemplate(String tempName) {
 	    TemplateSlot[] st = new TemplateSlot[this.PROPS.length];
 		for (int idx = 0; idx < st.length; idx++) {
 			st[idx] = new TemplateSlot(this.PROPS[idx].getName());
@@ -236,7 +241,7 @@ public class Defclass implements Serializable {
 			    st[idx].setMultiSlot(true);
 			}
 		}
-		Deftemplate temp = new Deftemplate(tempName, this.OBJECT_CLASS
+		Template temp = new Deftemplate(tempName, this.OBJECT_CLASS
 				.getName(), st);
 		return temp;
 	}
@@ -249,7 +254,7 @@ public class Defclass implements Serializable {
 	 * @param parent
 	 * @return
 	 */
-	public Deftemplate createDeftemplate(String tempName, Template parent) {
+	public Template createDeftemplate(String tempName, Template parent) {
 		reOrderDescriptors(parent);
 		return createDeftemplate(tempName);
 	}

@@ -13,8 +13,8 @@ public class FactTemplateComparator implements Comparator {
 	public int compare(Object left, Object right) {
 		Fact lf = (Fact)left;
 		Fact rf = (Fact)right;
-		return lf.getDeftemplate().getName().compareTo(
-				rf.getDeftemplate().getName());
+		return lf.getTemplate().getName().compareTo(
+				rf.getTemplate().getName());
 	}
 
 }

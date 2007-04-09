@@ -27,6 +27,11 @@ public class InitialFact extends Deftemplate {
 	/**
 	 * 
 	 */
+	private static final long serialVersionUID = 1L;
+
+	/**
+	 * 
+	 */
 	public InitialFact() {
 		super(Constants.INITIAL_FACT);
 		this.slots = new TemplateSlot[0];

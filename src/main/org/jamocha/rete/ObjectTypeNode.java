@@ -120,8 +120,8 @@ public class ObjectTypeNode extends BaseAlpha implements Serializable {
         // ObjectTypeNode doesn't bother checking the deftemplate.
         ((AlphaMemory) mem.getAlphaMemory(this)).addPartialMatch(fact);
 		// if the number of succesor nodes is less than (slot count * opCount)
-		if (this.gauranteeUnique && fact.getDeftemplate().getAllSlots().length > 0
-				&& this.successorNodes.length > (fact.getDeftemplate()
+		if (this.gauranteeUnique && fact.getTemplate().getAllSlots().length > 0
+				&& this.successorNodes.length > (fact.getTemplate()
 						.getAllSlots().length * opCount)) {
 			this.assertFactWithMap(fact, engine, mem);
 		} else {
@@ -139,7 +139,7 @@ public class ObjectTypeNode extends BaseAlpha implements Serializable {
     public void assertFactWithMap(Fact fact, Rete engine, WorkingMemory mem) 
     throws AssertException
     {
-	TemplateSlot[] slots = fact.getDeftemplate().getAllSlots();
+	TemplateSlot[] slots = fact.getTemplate().getAllSlots();
         // iterate over the slots
         for (int idx=0; idx < slots.length; idx++) {
             // only if the slot's node count is greater than zero 
@@ -221,7 +221,7 @@ public class ObjectTypeNode extends BaseAlpha implements Serializable {
     public void retractFact(Fact fact, Rete engine, WorkingMemory mem)
     throws RetractException
     {
-        if (fact.getDeftemplate() == this.deftemplate){
+        if (fact.getTemplate() == this.deftemplate){
             ((AlphaMemory)mem.getAlphaMemory(this)).removePartialMatch(fact);
             for (int idx=0; idx < this.successorNodes.length; idx++) {
                 Object node = this.successorNodes[idx];

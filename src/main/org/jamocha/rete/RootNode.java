@@ -94,12 +94,12 @@ public class RootNode implements Serializable {
         // has been added to the working memory, so we just assert.
         // we need to lookup the defclass and deftemplate to assert
         // the object to the network
-        ObjectTypeNode otn = (ObjectTypeNode)this.inputNodes.get(fact.getDeftemplate());
+        ObjectTypeNode otn = (ObjectTypeNode)this.inputNodes.get(fact.getTemplate());
         if (otn != null) {
             otn.assertFact(fact,engine,mem);
         }
-        if (fact.getDeftemplate().getParent() != null) {
-            assertObjectParent(fact,fact.getDeftemplate().getParent(),engine,mem);
+        if (fact.getTemplate().getParent() != null) {
+            assertObjectParent(fact,fact.getTemplate().getParent(),engine,mem);
         }
     }
     
@@ -129,12 +129,12 @@ public class RootNode implements Serializable {
     public synchronized void retractObject(Fact fact, Rete engine, WorkingMemory mem)
     throws RetractException
     {
-        ObjectTypeNode otn = (ObjectTypeNode)this.inputNodes.get(fact.getDeftemplate());
+        ObjectTypeNode otn = (ObjectTypeNode)this.inputNodes.get(fact.getTemplate());
         if (otn != null) {
             otn.retractFact(fact,engine,mem);
         }
-        if (fact.getDeftemplate().getParent() != null) {
-            retractObjectParent(fact,fact.getDeftemplate().getParent(),engine,mem);
+        if (fact.getTemplate().getParent() != null) {
+            retractObjectParent(fact,fact.getTemplate().getParent(),engine,mem);
         }
     }
     

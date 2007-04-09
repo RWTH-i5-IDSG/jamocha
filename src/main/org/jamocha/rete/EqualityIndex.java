@@ -26,13 +26,18 @@ import java.io.Serializable;
  */
 public class EqualityIndex implements Serializable {
 
-    private Deffact fact = null;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
+	private Fact fact = null;
     private int hashCode;
     
 	/**
 	 * 
 	 */
-	public EqualityIndex(Deffact facts) {
+	public EqualityIndex(Fact facts) {
 		super();
         this.fact = facts;
         calculateHash();
@@ -43,7 +48,7 @@ public class EqualityIndex implements Serializable {
      * the deffact.
      */
     private void calculateHash() {
-        this.hashCode = ((Deffact)this.fact).slotHash();
+        this.hashCode = this.fact.hashCode();
     }
     
     /**
@@ -57,10 +62,10 @@ public class EqualityIndex implements Serializable {
             return false;
         }
         EqualityIndex eval = (EqualityIndex)val;
-        if (eval.fact.getDeftemplate() != this.fact.getDeftemplate()) {
+        if (eval.fact.getTemplate() != this.fact.getTemplate()) {
         	return false;
         }
-        return eval.fact.slotEquals(this.fact);
+        return eval.fact.equals(this.fact);
     }
     
     /**

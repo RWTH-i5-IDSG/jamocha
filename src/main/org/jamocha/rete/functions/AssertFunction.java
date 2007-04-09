@@ -29,6 +29,7 @@ import org.jamocha.rete.Fact;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
+import org.jamocha.rete.Template;
 
 /**
  * @author Peter Lin
@@ -61,7 +62,7 @@ public class AssertFunction implements Function, Serializable {
 			JamochaValue firstParam = params[0].getValue(engine);
 			if (firstParam.getType().equals(JamochaType.IDENTIFIER)) {
 				JamochaValue secondParam = params[1].getValue(engine);
-				Deftemplate tmpl = (Deftemplate) engine.getCurrentFocus()
+				Template tmpl = (Template) engine.getCurrentFocus()
 						.getTemplate(firstParam.getIdentifierValue());
 				fact = (Deffact) tmpl.createFact((Object[]) secondParam
 						.getObjectValue(), -1, engine);
@@ -76,11 +77,11 @@ public class AssertFunction implements Function, Serializable {
 				fact.resolveValues(engine, this.triggerFacts);
 				fact = fact.cloneFact(engine);
 			}
-			engine.assertFact(fact);
+			Fact assertedFact = engine.assertFact(fact);
 			// if the fact id is still -1, it means it wasn't asserted
 			// if it was asserted, we return the fact id, otherwise
 			// we return "false".
-			if (fact.getFactId() > 0) {
+			if (assertedFact == fact) {
 				result = JamochaValue.newFactId(fact.getFactId());
 			}
 		} else {

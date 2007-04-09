@@ -19,58 +19,70 @@ package org.jamocha.rete;
 import java.io.Serializable;
 
 import org.jamocha.parser.JamochaValue;
+import org.jamocha.rule.Rule;
 
 /**
  * @author Peter Lin
- *
- * NSFact stands for Non-Shadow Fact. NSFact is different than
- * Deffact which is a shadow fact for an object instance. NSFact
- * should only be used for cases where fact modification isn't
- * needed. In all cases where the application expects to modify
- * facts in the reasoning cycle, Deffacts should be used. Using
- * NSFact for situations where facts are modified or asserted
- * during the reasoning cycle will produce unreliable results.
- * It will violate the principle of truth maintenance, which
- * means the final result is true and accurate.
  * 
- * Cases where NSFact is useful are routing scenarios where the
- * facts are filtered to determien where they should go. In
- * cases like that, the consequence produces results which are
- * used by the application, but aren't used by the rule engine
- * for reasoning.
+ * NSFact stands for Non-Shadow Fact. NSFact is different than Deffact which is
+ * a shadow fact for an object instance. NSFact should only be used for cases
+ * where fact modification isn't needed. In all cases where the application
+ * expects to modify facts in the reasoning cycle, Deffacts should be used.
+ * Using NSFact for situations where facts are modified or asserted during the
+ * reasoning cycle will produce unreliable results. It will violate the
+ * principle of truth maintenance, which means the final result is true and
+ * accurate.
+ * 
+ * Cases where NSFact is useful are routing scenarios where the facts are
+ * filtered to determien where they should go. In cases like that, the
+ * consequence produces results which are used by the application, but aren't
+ * used by the rule engine for reasoning.
  */
 public class NSFact implements Fact, Serializable {
 
-    private Deftemplate deftemplate = null;
-    private Defclass dclazz = null;
-    private Object objInstance;
-    private Slot[] slots = null;
-    /**
-     * the Fact id must be unique, since we use it for the indexes
-     */
-    private long id;
-    private long timeStamp = 0;
-
-    /**
+	/**
 	 * 
 	 */
-	public NSFact(Deftemplate template, Defclass clazz,
-			Object instance, Slot[] values, long id) {
-        this.deftemplate = template;
-        this.dclazz = clazz;
-        this.objInstance = instance;
-        this.slots = values;
-        this.id = id;
-        this.timeStamp = System.nanoTime();
+	private static final long serialVersionUID = 1L;
+
+	private Template deftemplate = null;
+
+	private Defclass dclazz = null;
+
+	private Object objInstance;
+
+	private Slot[] slots = null;
+
+	/**
+	 * the Fact id must be unique, since we use it for the indexes
+	 */
+	private long id;
+
+	private long timeStamp = 0;
+	
+	private EqualityIndex equalityIndex = null;
+
+	/**
+	 * 
+	 */
+	public NSFact(Template template, Defclass clazz, Object instance,
+			Slot[] values, long id) {
+		this.deftemplate = template;
+		this.dclazz = clazz;
+		this.objInstance = instance;
+		this.slots = values;
+		this.id = id;
+		this.timeStamp = System.nanoTime();
 	}
 
 	/**
-     * The implementation gets the Defclass and passes the 
-     * objectInstance to invoke the read method.
+	 * The implementation gets the Defclass and passes the objectInstance to
+	 * invoke the read method.
+	 * 
 	 * @see org.jamocha.rete.Fact#getSlotValue(int)
 	 */
 	public JamochaValue getSlotValue(int id) {
-        return dclazz.getSlotValue(id,objInstance);
+		return dclazz.getSlotValue(id, objInstance);
 	}
 
 	/**
@@ -80,28 +92,27 @@ public class NSFact implements Fact, Serializable {
 	 * @return
 	 */
 	public JamochaValue getSlotValue(String name) {
-	    	int col = getSlotId(name);
-	    	if (col!= -1 ){
-	    	    	return getSlotValue(col);
-	    	}else{
-	    	    	return null;
-	    	}
-	 }
-	
-	
+		int col = getSlotId(name);
+		if (col != -1) {
+			return getSlotValue(col);
+		} else {
+			return null;
+		}
+	}
+
 	/**
-     * 
+	 * 
 	 * @see org.jamocha.rete.Fact#getSlotId(java.lang.String)
 	 */
 	public int getSlotId(String name) {
-        int col = -1;
-        for (int idx=0; idx < slots.length; idx++){
-            if (slots[idx].getName().equals(name)){
-                col = idx;
-                break;
-            }
-        }
-        return col;
+		int col = -1;
+		for (int idx = 0; idx < slots.length; idx++) {
+			if (slots[idx].getName().equals(name)) {
+				col = idx;
+				break;
+			}
+		}
+		return col;
 	}
 
 	/**
@@ -112,18 +123,18 @@ public class NSFact implements Fact, Serializable {
 	}
 
 	/**
-     * The method will return the Fact as a string
+	 * The method will return the Fact as a string
 	 */
 	public String toFactString() {
-        StringBuffer buf = new StringBuffer();
-        buf.append("(" + this.deftemplate.getName() + " ");
-        for (int idx=0; idx < this.slots.length; idx++){
-            buf.append("(" + this.slots[idx].getName() + " " +
-            		dclazz.getSlotValue(idx,this.objInstance).
-                    toString() + ") ");
-        }
-        buf.append(")");
-        return buf.toString();
+		StringBuffer buf = new StringBuffer();
+		buf.append("(" + this.deftemplate.getName() + " ");
+		for (int idx = 0; idx < this.slots.length; idx++) {
+			buf.append("(" + this.slots[idx].getName() + " "
+					+ dclazz.getSlotValue(idx, this.objInstance).toString()
+					+ ") ");
+		}
+		buf.append(")");
+		return buf.toString();
 	}
 
 	/**
@@ -133,35 +144,60 @@ public class NSFact implements Fact, Serializable {
 		return this.id;
 	}
 
-    /**
-     * Non-Shadow Fact does not implement this, since this method
-     * doesn't apply to facts derived from objects.
-     */
-    public void updateSlots(Rete engine, Slot[] updates) {}
-    
+	/**
+	 * Non-Shadow Fact does not implement this, since this method doesn't apply
+	 * to facts derived from objects.
+	 */
+	public void updateSlots(Rete engine, Slot[] updates) {
+	}
+
 	/**
 	 * Return the deftemplate for the fact
 	 */
-	public Deftemplate getDeftemplate() {
+	public Template getTemplate() {
 		return this.deftemplate;
 	}
 
-    /**
-     * the implementation returns nano time
-     */
-    public long timeStamp() {
-        return this.timeStamp;
-    }
-    
 	/**
-     * clear will set all the references to null. this makes sure
-     * objects are GC.
+	 * the implementation returns nano time
 	 */
-	public void clear() {
-        this.slots = null;
-        this.objInstance = null;
-        this.deftemplate = null;
-        this.id = 0;
+	public long timeStamp() {
+		return this.timeStamp;
 	}
 
+	/**
+	 * clear will set all the references to null. this makes sure objects are
+	 * GC.
+	 */
+	public void clear() {
+		this.slots = null;
+		this.objInstance = null;
+		this.deftemplate = null;
+		this.id = 0;
+	}
+
+	public void compileBinding(Rule util) {
+		// I think, we doesn't need to do anything here since
+		// objects can't have bindings as field values
+		// TODO check if doing nothing is ok here
+	}
+
+	public EqualityIndex equalityIndex() {
+		if(equalityIndex == null) {
+			equalityIndex = new EqualityIndex(this);
+		}
+		return equalityIndex;
+	}
+
+	public void setFactId(long id) {
+		this.id = id;
+	}
+
+	public int hashCode() {
+		return objInstance.hashCode();
+	}
+
+	public boolean equals(Object obj) {
+		return objInstance.equals(obj);
+	}
 }

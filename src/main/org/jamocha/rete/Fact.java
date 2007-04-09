@@ -19,6 +19,7 @@ package org.jamocha.rete;
 import java.io.Serializable;
 
 import org.jamocha.parser.JamochaValue;
+import org.jamocha.rule.Rule;
 
 /**
  * @author Peter Lin
@@ -69,7 +70,10 @@ public interface Fact extends Serializable {
      * Return the Deftemplate for the fact
      * @return
      */
-    Deftemplate getDeftemplate();
+    Template getTemplate();
+    
+	void compileBinding(Rule util);
+
     /**
      * finalize the object and make it ready for GC
      */
@@ -79,4 +83,10 @@ public interface Fact extends Serializable {
      * @return
      */
     long timeStamp();
+    /**
+     * 
+     */
+    EqualityIndex equalityIndex();
+    
+	void setFactId(long id);
 }

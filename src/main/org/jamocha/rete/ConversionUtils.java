@@ -152,10 +152,10 @@ public class ConversionUtils {
      * @param facts
      * @return
      */
-    public static Fact findFact(Deftemplate temp, Fact[] facts){
+    public static Fact findFact(Template temp, Fact[] facts){
         Fact ft = null;
         for (int idx=0; idx < facts.length; idx++){
-            if (facts[idx].getDeftemplate() == temp){
+            if (facts[idx].getTemplate() == temp){
                 ft = facts[idx];
             }
         }

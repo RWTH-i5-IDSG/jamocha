@@ -57,6 +57,11 @@ import org.jamocha.rule.TestCondition;
  */
 public class BasicRuleCompiler implements RuleCompiler {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	private WorkingMemory memory = null;
 
 	private Rete engine = null;
@@ -313,7 +318,7 @@ public class BasicRuleCompiler implements RuleCompiler {
 			BaseAlpha2 first = null;
 			BaseAlpha2 previous = null;
 			BaseAlpha2 current = null;
-			Template templ = cond.getDeftemplate();
+			Template templ = cond.getTemplate();
 
 			Constraint[] constrs = cond.getConstraints();
 			for (int idx = 0; idx < constrs.length; idx++) {
@@ -698,8 +703,8 @@ public class BasicRuleCompiler implements RuleCompiler {
 					// TODO finish implementing Exists
 					ExistCondition exc = (ExistCondition) cdt;
 					boolean hasNotEqual = false;
-					Deftemplate tmpl = exc.getObjectCondition()
-							.getDeftemplate();
+					Template tmpl = exc.getObjectCondition()
+							.getTemplate();
 
 					List blist = exc.getAllBindings();
 					Binding[] binds = new Binding[blist.size()];
@@ -718,7 +723,7 @@ public class BasicRuleCompiler implements RuleCompiler {
 								int rinx = tmpl.getColumnIndex(bc.getName());
 								// we increment the count to make sure the
 								// template isn't removed if it is being used
-								tmpl.incrementColumnUseCount(bc.getName());
+								tmpl.getSlot(rinx).incrementNodeCount();
 								binds[idz].setRightIndex(rinx);
 								binds[idz].setNegated(bc.getNegated());
 								if (bc.getNegated()) {
@@ -744,7 +749,7 @@ public class BasicRuleCompiler implements RuleCompiler {
 								int rinx = tmpl.getColumnIndex(pc.getName());
 								// we increment the count to make sure the
 								// template isn't removed if it is being used
-								tmpl.incrementColumnUseCount(pc.getName());
+								tmpl.getSlot(rinx).incrementNodeCount();
 
 								binds[idz].setRightIndex(rinx);
 							}
@@ -764,7 +769,7 @@ public class BasicRuleCompiler implements RuleCompiler {
 					boolean hasNotEqual = false;
 					ObjectCondition oc = (ObjectCondition) cdt;
 					otn = findObjectTypeNode(oc.getTemplateName());
-					Deftemplate tmpl = oc.getDeftemplate();
+					Template tmpl = oc.getTemplate();
 
 					if (cdt.hasBindings()) {
 						// the condition has bindings, so we have to create
@@ -789,7 +794,7 @@ public class BasicRuleCompiler implements RuleCompiler {
 									// we increment the count to make sure the
 									// template isn't removed if it is being
 									// used
-									tmpl.incrementColumnUseCount(bc.getName());
+									tmpl.getSlot(rinx).incrementNodeCount();
 									binds[idz].setRightIndex(rinx);
 									binds[idz].setNegated(bc.getNegated());
 									if (bc.getNegated()) {
@@ -818,7 +823,7 @@ public class BasicRuleCompiler implements RuleCompiler {
 									// we increment the count to make sure the
 									// template isn't removed if it is being
 									// used
-									tmpl.incrementColumnUseCount(pc.getName());
+									tmpl.getSlot(rinx).incrementNodeCount();
 									binds[idz].setRightIndex(rinx);
 								}
 							}

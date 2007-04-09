@@ -11,13 +11,13 @@ import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.BoundParam;
 import org.jamocha.rete.Constants;
 import org.jamocha.rete.ConversionUtils;
-import org.jamocha.rete.Deftemplate;
 import org.jamocha.rete.ExpressionCollection;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.FunctionParam2;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Slot;
 import org.jamocha.rete.SlotParam;
+import org.jamocha.rete.Template;
 import org.jamocha.rete.TemplateSlot;
 import org.jamocha.rule.Action;
 import org.jamocha.rule.AndCondition;
@@ -153,7 +153,7 @@ public class CLIPSFormatter implements Formatter {
 	private String formatFunctionParamDeftemplate(FunctionParam2 funcParam) {
 		StringBuilder res = new StringBuilder("(");
 		res.append(funcParam.getFunctionName());
-		Deftemplate template = (Deftemplate) ((JamochaValue) funcParam
+		Template template = (Template) ((JamochaValue) funcParam
 				.getParameters()[0]).getObjectValue();
 		res.append(" ");
 		res.append(template.getName());

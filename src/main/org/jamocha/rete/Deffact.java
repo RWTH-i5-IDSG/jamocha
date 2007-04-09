@@ -31,7 +31,12 @@ import org.jamocha.rule.Rule;
  */
 public class Deffact implements Fact {
 
-	protected Deftemplate deftemplate = null;
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	protected Template template = null;
 
 	protected Object objInstance;
 
@@ -56,8 +61,8 @@ public class Deffact implements Fact {
 	 * @param instance
 	 * @param values
 	 */
-	public Deffact(Deftemplate template, Object instance, Slot[] values, long id) {
-		this.deftemplate = template;
+	public Deffact(Template template, Object instance, Slot[] values, long id) {
+		this.template = template;
 		this.objInstance = instance;
 		this.slots = values;
 		this.id = id;
@@ -101,16 +106,17 @@ public class Deffact implements Fact {
 
 	public void resolveValues(Rete engine, Fact[] triggerFacts) {
 		for (int idx = 0; idx < this.boundSlots.length; idx++) {
-            if (this.boundSlots[idx].getValue().getType() == JamochaType.LIST) {
-                JamochaValue mvals = this.boundSlots[idx].getValue();
-                for (int mdx=0; mdx < mvals.getListCount(); mdx++) {
-                    JamochaValue jv = mvals.getListValue(mdx);
-                    BoundParam bp = (BoundParam)jv.getObjectValue();
-                    bp.setResolvedValue(engine.getBinding(bp
-                                    .getVariableName()));
-                }
-            } else if (this.boundSlots[idx].value.getType()
-					.equals(JamochaType.BINDING)) {
+			if (this.boundSlots[idx].getValue().getType() == JamochaType.LIST) {
+				JamochaValue mvals = this.boundSlots[idx].getValue();
+				for (int mdx = 0; mdx < mvals.getListCount(); mdx++) {
+					JamochaValue jv = mvals.getListValue(mdx);
+					BoundParam bp = (BoundParam) jv.getObjectValue();
+					bp
+							.setResolvedValue(engine.getBinding(bp
+									.getVariableName()));
+				}
+			} else if (this.boundSlots[idx].value.getType().equals(
+					JamochaType.BINDING)) {
 				BoundParam bp = (BoundParam) this.boundSlots[idx].value
 						.getObjectValue();
 				if (bp.column > -1) {
@@ -133,7 +139,7 @@ public class Deffact implements Fact {
 	public JamochaValue getSlotValue(int id) {
 		return this.slots[id].value;
 	}
-	
+
 	/**
 	 * Method returns the value of the given slotname.
 	 * 
@@ -141,13 +147,13 @@ public class Deffact implements Fact {
 	 * @return
 	 */
 	public JamochaValue getSlotValue(String name) {
-	    	int col = getSlotId(name);
-	    	if (col!= -1 ){
-	    	    	return getSlotValue(col);
-	    	}else{
-	    	    	return null;
-	    	}
-	 }
+		int col = getSlotId(name);
+		if (col != -1) {
+			return getSlotValue(col);
+		} else {
+			return null;
+		}
+	}
 
 	/**
 	 * Method will iterate over the slots until finds the match. If no match is
@@ -181,7 +187,7 @@ public class Deffact implements Fact {
 	 */
 	public String toFactString() {
 		StringBuffer buf = new StringBuffer();
-		buf.append("f-" + id + " (" + this.deftemplate.getName());
+		buf.append("f-" + id + " (" + this.template.getName());
 		if (this.slots.length > 0) {
 			buf.append(" ");
 		}
@@ -195,7 +201,7 @@ public class Deffact implements Fact {
 
 	public String toPPString() {
 		StringBuffer buf = new StringBuffer();
-		buf.append("(" + this.deftemplate.getName());
+		buf.append("(" + this.template.getName());
 		if (this.slots.length > 0) {
 			buf.append(" ");
 		}
@@ -222,7 +228,7 @@ public class Deffact implements Fact {
 	 * 
 	 * @return
 	 */
-	protected EqualityIndex equalityIndex() {
+	public EqualityIndex equalityIndex() {
 		if (this.Eindex == null) {
 			this.Eindex = new EqualityIndex(this);
 		}
@@ -234,7 +240,7 @@ public class Deffact implements Fact {
 	 * 
 	 * @return
 	 */
-	protected int slotHash() {
+	public int hashCode() {
 		int hash = 0;
 		for (int idx = 0; idx < this.slots.length; idx++) {
 			hash += this.slots[idx].getName().hashCode()
@@ -254,12 +260,10 @@ public class Deffact implements Fact {
 	 * if the factId is -1, the fact will get will the next fact id from Rete
 	 * and set it. Otherwise, the fact will use the same one.
 	 * 
-	 * @param engine
+	 * @param id
 	 */
-	public void setFactId(Rete engine) {
-		if (this.id == -1) {
-			this.id = engine.nextFactId();
-		}
+	public void setFactId(long id) {
+		this.id = id;
 	}
 
 	/**
@@ -291,8 +295,8 @@ public class Deffact implements Fact {
 	/**
 	 * Return the deftemplate for the fact
 	 */
-	public Deftemplate getDeftemplate() {
-		return this.deftemplate;
+	public Template getTemplate() {
+		return this.template;
 	}
 
 	/**
@@ -314,16 +318,19 @@ public class Deffact implements Fact {
 	 * @param fact
 	 * @return
 	 */
-	public boolean slotEquals(Deffact fact) {
-		boolean eq = true;
-		Slot[] cslots = fact.slots;
-		for (int idx = 0; idx < this.slots.length; idx++) {
-			if (!this.slots[idx].value.equals(cslots[idx].value)) {
-				eq = false;
-				break;
+	public boolean equals(Object object) {
+		if (object instanceof Fact) {
+			Fact fact = (Fact) object;
+			boolean eq = true;
+			for (int idx = 0; idx < this.slots.length; idx++) {
+				if (!this.slots[idx].value.equals(fact.getSlotValue(idx))) {
+					eq = false;
+					break;
+				}
 			}
+			return eq;
 		}
-		return eq;
+		return false;
 	}
 
 	/**
@@ -333,30 +340,31 @@ public class Deffact implements Fact {
 	 * @return
 	 */
 	public Deffact cloneFact(Rete engine) {
-		Deffact newfact = new Deffact(this.deftemplate, this.objInstance,
+		Deffact newfact = new Deffact(this.template, this.objInstance,
 				cloneAllSlots(), -1);
 		Slot[] slts = newfact.slots;
 		for (int idx = 0; idx < slts.length; idx++) {
 			// probably need to revisit this and make sure
-            if (this.slots[idx].getValue().getType() == JamochaType.LIST) {
-                JamochaValue mval = this.slots[idx].getValue();
-                // check the list to see if there's any bindings
-                JamochaValue[] rvals = new JamochaValue[mval.getListCount()];
-                for (int mdx = 0; mdx < mval.getListCount(); mdx++) {
-                    JamochaValue v2 = mval.getListValue(mdx);
-                    try {
-                        rvals[mdx] = JamochaValue.newObject(((BoundParam) v2
-                                .getObjectValue()).getValue(engine));
-                    } catch (EvaluationException e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-                    }
-                }
-                slts[idx].value = JamochaValue.newList(rvals);
-            } else if (this.slots[idx].value.getType().equals(JamochaType.BINDING)) {
+			if (this.slots[idx].getValue().getType() == JamochaType.LIST) {
+				JamochaValue mval = this.slots[idx].getValue();
+				// check the list to see if there's any bindings
+				JamochaValue[] rvals = new JamochaValue[mval.getListCount()];
+				for (int mdx = 0; mdx < mval.getListCount(); mdx++) {
+					JamochaValue v2 = mval.getListValue(mdx);
+					try {
+						rvals[mdx] = JamochaValue.newObject(((BoundParam) v2
+								.getObjectValue()).getValue(engine));
+					} catch (EvaluationException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+				slts[idx].value = JamochaValue.newList(rvals);
+			} else if (this.slots[idx].value.getType().equals(
+					JamochaType.BINDING)) {
 				try {
-					slts[idx].value = ((BoundParam) this.slots[idx].value.getObjectValue())
-							.getValue(engine);
+					slts[idx].value = ((BoundParam) this.slots[idx].value
+							.getObjectValue()).getValue(engine);
 				} catch (EvaluationException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -367,7 +375,7 @@ public class Deffact implements Fact {
 		}
 		return newfact;
 	}
-	
+
 	/**
 	 * clone the slots
 	 * 
@@ -381,13 +389,11 @@ public class Deffact implements Fact {
 		return cloned;
 	}
 
-
-
 	/**
 	 * this will make sure the fact is GC immediately
 	 */
 	public void clear() {
-		this.deftemplate = null;
+		this.template = null;
 		this.objInstance = null;
 		this.slots = null;
 		this.id = 0;

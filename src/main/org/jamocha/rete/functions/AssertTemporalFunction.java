@@ -74,11 +74,10 @@ public class AssertTemporalFunction implements Function, Serializable {
 				fact = fact.cloneFact(engine);
 			}
 			try {
-				engine.assertFact(fact);
-				// if the fact id is still -1, it means it wasn't asserted
-				// if it was asserted, we return the fact id, otherwise
-				// we return "false".
-				if (fact.getFactId() > 0) {
+				Fact assertedFact = engine.assertFact(fact);
+				// if the asserted fact is another object than the fact 
+				// we tried to assert, an equal fact was already asserted
+				if (assertedFact == fact) {
 					result = JamochaValue.newFactId(fact.getFactId());
 				}
 			} catch (AssertException e) {

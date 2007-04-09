@@ -19,13 +19,11 @@ package org.jamocha.rete.functions;
 import java.io.Serializable;
 
 import org.jamocha.parser.EvaluationException;
-import org.jamocha.parser.Expression;
 import org.jamocha.parser.IllegalTypeException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.BoundParam;
 import org.jamocha.rete.Deffact;
-import org.jamocha.rete.Deftemplate;
 import org.jamocha.rete.Fact;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
@@ -70,7 +68,7 @@ public class ModifyFunction implements Function, Serializable {
 	JamochaValue result = JamochaValue.FALSE;
 	if (engine != null && params != null && params.length >= 2 && params[0].isObjectBinding()) {
 	    BoundParam bp = (BoundParam) params[0];
-	    Deffact fact = (Deffact) bp.getFact();
+	    Fact fact = bp.getFact();
 	    try {
 		// first retract the fact
 		engine.retractFact(fact);
@@ -110,15 +108,6 @@ public class ModifyFunction implements Function, Serializable {
          */
     public String getName() {
 	return MODIFY;
-    }
-
-    /**
-         * The current implementation expects 3 parameters in the following
-         * sequence:<br/> BoundParam SlotParam[] <br/> Example: (modify
-         * ?boundVariable (slotName value)* )
-         */
-    public Class[] getParameter() {
-	return new Class[] { BoundParam.class, SlotParam[].class };
     }
 
     public String toPPString(Parameter[] params, int indents) {

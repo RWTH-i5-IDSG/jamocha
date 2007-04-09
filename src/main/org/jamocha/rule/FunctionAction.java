@@ -29,6 +29,7 @@ import org.jamocha.rete.Function;
 import org.jamocha.rete.FunctionParam2;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
+import org.jamocha.rete.Template;
 import org.jamocha.rete.exception.ExecuteException;
 import org.jamocha.rete.functions.AssertFunction;
 import org.jamocha.rete.functions.ModifyFunction;
@@ -119,10 +120,10 @@ public class FunctionAction implements Action {
 		// in the case of Assert, we do further compilation
 		if (this.faction instanceof AssertFunction) {
 			JamochaValue tmplName = this.parameters[0].getValue(engine);
-			Deftemplate tmpl = (Deftemplate) engine.getCurrentFocus()
+			Template tmpl = engine.getCurrentFocus()
 					.getTemplate(tmplName.getIdentifierValue());
 			JamochaValue values = this.parameters[1].getValue(engine);
-			Deffact fact = (Deffact) tmpl.createFact((Object[]) values
+			Fact fact = tmpl.createFact(values
 					.getObjectValue(), -1, engine);
 			fact.compileBinding(util);
 			this.parameters = new JamochaValue[1];

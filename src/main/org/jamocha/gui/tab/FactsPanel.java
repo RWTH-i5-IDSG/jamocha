@@ -193,8 +193,8 @@ public class FactsPanel extends AbstractJamochaPanel implements ActionListener,
 						.getSelectedRow());
 				if (fact != null) {
 					buffer.append("f-" + fact.getFactId() + "("
-							+ fact.getDeftemplate().getName());
-					Slot[] slots = fact.getDeftemplate().getAllSlots();
+							+ fact.getTemplate().getName());
+					Slot[] slots = fact.getTemplate().getAllSlots();
 					for (Slot slot : slots) {
 						buffer.append("\n    (" + slot.getName() + " ");
 						if (slot.getValueType() == JamochaType.LIST) {

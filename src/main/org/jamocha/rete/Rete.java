@@ -39,9 +39,9 @@ import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.exception.AssertException;
 import org.jamocha.rete.exception.ExecuteException;
 import org.jamocha.rete.exception.RetractException;
+import org.jamocha.rete.functions.AdaptorFunctions;
 import org.jamocha.rete.functions.BatchFunction;
 import org.jamocha.rete.functions.BooleanFunctions;
-import org.jamocha.rete.functions.AdaptorFunctions;
 import org.jamocha.rete.functions.DateTimeFunctions;
 import org.jamocha.rete.functions.DeffunctionGroup;
 import org.jamocha.rete.functions.IOFunctions;
@@ -64,7 +64,12 @@ import org.jamocha.rete.util.ProfileStats;
  */
 public class Rete implements PropertyChangeListener, CompilerListener, Serializable {
 
-    public static final int WATCH_ACTIVATIONS = 001;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	public static final int WATCH_ACTIVATIONS = 001;
 
     public static final int WATCH_ALL = 002;
 
@@ -647,7 +652,7 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 	    }
 	    this.templateToDefclass.put(templateName, dclass);
 	    if (!getCurrentFocus().containsTemplate(dclass)) {
-		Deftemplate dtemp = null;
+		Template dtemp = null;
 		// if the parent is found, we set it
 		if (parent != null) {
 		    Template ptemp = this.currentModule.findParentTemplate(parent);
@@ -1324,7 +1329,7 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 	    Defclass dc = (Defclass) this.defclass.get(data);
 	    // first we retract the fact
 	    Fact ft = (Fact) this.dynamicFacts.get(data);
-	    String tname = ft.getDeftemplate().getName();
+	    String tname = ft.getTemplate().getName();
 	    long fid = ft.getFactId();
 	    this.workingMem.retractObject(ft);
 	    this.dynamicFacts.remove(data);
@@ -1343,12 +1348,12 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
          * @param statc -
          *                if the fact should be static, assert with true
          */
-    public void assertFact(Deffact fact) throws AssertException {
+    public Fact assertFact(Fact fact) throws AssertException {
 	// we need to check if there's already a fact with the
 	// same values
 	Fact oldFact = getFact(fact);
 	if (oldFact == null) {
-	    fact.setFactId(this);
+	    fact.setFactId(this.nextFactId());
 	    this.deffactMap.put(fact.equalityIndex(), fact);
 	    if (this.profileAssert) {
 		this.assertFactWProfile(fact);
@@ -1358,8 +1363,9 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 		}
 		this.workingMem.assertObject(fact);
 	    }
+	    return fact;
 	} else {
-	    fact.resetID(oldFact);
+	    return oldFact;
 	}
     }
 
@@ -1375,7 +1381,7 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
          * @param fact
          * @throws AssertException
          */
-    protected void assertFactWProfile(Deffact fact) throws AssertException {
+    protected void assertFactWProfile(Fact fact) throws AssertException {
 	ProfileStats.startAssert();
 	this.workingMem.assertObject(fact);
 	ProfileStats.endAssert();
@@ -1408,7 +1414,7 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
          * @param fact
          * @throws RetractException
          */
-    public void retractFact(Deffact fact) throws RetractException {
+    public void retractFact(Fact fact) throws RetractException {
 	this.deffactMap.remove(fact.equalityIndex());
 	if (this.profileRetract) {
 	    this.retractFactWProfile(fact);
@@ -1425,7 +1431,7 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
          * @param fact
          * @throws RetractException
          */
-    protected void retractFactWProfile(Deffact fact) throws RetractException {
+    protected void retractFactWProfile(Fact fact) throws RetractException {
 	ProfileStats.startRetract();
 	this.workingMem.retractObject(fact);
 	ProfileStats.endRetract();
@@ -1439,7 +1445,7 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
          * @param old
          * @param newfact
          */
-    public void modifyFact(Deffact old, Deffact newfact) throws RetractException, AssertException {
+    public void modifyFact(Fact old, Fact newfact) throws RetractException, AssertException {
 	retractFact(old);
 	assertFact(newfact);
     }
@@ -1547,7 +1553,7 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 	    }
 	}
 	try {
-	    ft = dft.createFact(data, dclass, id, this);
+	    ft = ((Deftemplate)dft).createFact(data, dclass, id, this);
 	} catch (EvaluationException e) {
 	    throw new AssertException(e);
 	}

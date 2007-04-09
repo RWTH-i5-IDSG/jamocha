@@ -37,6 +37,11 @@ import org.jamocha.rule.Rule;
  */
 public class Defmodule implements Module, Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	protected int id;
 
 	/**
@@ -258,23 +263,23 @@ public class Defmodule implements Module, Serializable {
 	 * is the classname or the user define name.
 	 */
 	public Template getTemplate(Defclass key) {
-		return (Deftemplate) this.deftemplates.get(key.getClassObject()
+		return (Template) this.deftemplates.get(key.getClassObject()
 				.getName());
 	}
 
 	public Template getTemplate(String key) {
-		return (Deftemplate) this.deftemplates.get(key);
+		return (Template) this.deftemplates.get(key);
 	}
 
 	/**
 	 * find a parent template using the string template name
 	 */
 	public Template findParentTemplate(String key) {
-		Deftemplate tmpl = null;
+		Template tmpl = null;
 		Iterator itr = this.deftemplates.keySet().iterator();
 		while (itr.hasNext()) {
 			Object keyval = itr.next();
-			Deftemplate entry = (Deftemplate) this.deftemplates.get(keyval);
+			Template entry = (Template) this.deftemplates.get(keyval);
 			if (entry.getName().equals(key)) {
 				tmpl = entry;
 				break;

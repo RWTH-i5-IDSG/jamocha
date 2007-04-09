@@ -29,11 +29,11 @@ import org.jamocha.rete.BaseNode;
 import org.jamocha.rete.Binding;
 import org.jamocha.rete.Binding2;
 import org.jamocha.rete.Constants;
-import org.jamocha.rete.Deftemplate;
 import org.jamocha.rete.Fact;
 import org.jamocha.rete.Module;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.Scope;
+import org.jamocha.rete.Template;
 import org.jamocha.rete.util.CollectionsFactory;
 
 /**
@@ -411,9 +411,9 @@ public class Defrule implements Rule, Scope, Serializable {
 			Condition cnd = cnds[idx];
 			if (cnd instanceof ObjectCondition) {
 				ObjectCondition oc = (ObjectCondition)cnd;
-				Deftemplate dft = (Deftemplate)engine.findTemplate(oc.getTemplateName());
+				Template dft = (Template)engine.findTemplate(oc.getTemplateName());
 				if (dft != null) {
-					oc.setDeftemplate(dft);
+					oc.setTemplate(dft);
 				}
 			} else if (cnd instanceof ExistCondition) {
 				// in the case of Exist, we have to check the nested and resolve
@@ -421,9 +421,9 @@ public class Defrule implements Rule, Scope, Serializable {
 				ExistCondition ec = (ExistCondition)cnd;
 				if (ec.hasObjectCondition()) {
 					ObjectCondition oc = ec.getObjectCondition();
-					Deftemplate dft = (Deftemplate)engine.findTemplate(oc.getTemplateName());
+					Template dft = (Template)engine.findTemplate(oc.getTemplateName());
 					if (dft != null) {
-						oc.setDeftemplate(dft);
+						oc.setTemplate(dft);
 					}
 				}
 			}
