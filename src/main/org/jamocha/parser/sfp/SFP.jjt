@@ -227,11 +227,10 @@ Data Types:
  * Cool Grammar Specs.
  */
 
-/** Start rule is one construct at a time, Parser reads constructs into list.
-	No need to create nodes for Start, Defcon and Funcon rule.*/
-SFPStart Start() : {}
+// Start rule is a construct at a time, the parser reads all the constructs into a list.
+SFPStart Start() : 
+{}
 {
-	
    ( LOOKAHEAD(2)
 	Construct() | Expression()
 	
@@ -252,7 +251,7 @@ SFPStart Start() : {}
 *		Float
 **/
 
-Node Float() : 
+SimpleNode Float() : 
 { Token t; }
 {
 	t=<FLOAT>
@@ -268,7 +267,7 @@ Node Float() :
 *		Integer
 **/
 
-Node Integer() : 
+SimpleNode Integer() : 
 { Token t; }
 {
 	t=<INTEGER>
@@ -284,7 +283,7 @@ Node Integer() :
 *		DateTime
 **/
 
-Node DateTime() : 
+SimpleNode DateTime() : 
 { Token t; }
 {
 	t=<DATETIME>
@@ -300,12 +299,12 @@ Node DateTime() :
 *		Number
 **/
 
-Node Number() #void : 
-{ Node n; }
+void Number() #void : 
+{}
 {	
-	(	n=Float()
-	|	n=Integer() 
-	) { return n; }
+	(	Float()
+	|	Integer() 
+	)
 }
 
 
@@ -314,7 +313,7 @@ Node Number() #void :
 *		Symbol
 **/
 
-Node Symbol() : 
+SimpleNode Symbol() : 
 { Token t; }
 {
 	t=<SYMBOL>
@@ -330,7 +329,7 @@ Node Symbol() :
 *		String
 **/
 
-Node String() : 
+SimpleNode String() : 
 { Token t; }
 {
 	t=<STRING>
@@ -347,12 +346,12 @@ Node String() :
 *		Lexeme
 **/
 
-Node Lexeme() #void : 
-{ Node n; }
+void Lexeme() #void : 
+{}
 {	
-	(	n=String()
-	|	n=Symbol() 
-	) { return n; }
+	(	String()
+	|	Symbol() 
+	)
 }
 
 
@@ -361,28 +360,31 @@ Node Lexeme() #void :
 *		Constant
 **/
 
-Node Constant() #void :
-{ Node n; }
+void Constant() #void :
+{}
 { 	
 	(
-		n=DateTime()
-	|   n=Symbol()
-	|	n=String()
-	|	n=Integer()
-	|	n=Float()
-	) { return n; }
+		DateTime()
+	|   Symbol()
+	|	String()
+	|	Integer()
+	|	Float()
+	)
 }
 
 
 
 /**
-*		Comment
+*		Construct Description
 **/
 
-void Comment() #void : 
+SimpleNode ConstructDescription() : 
 {}
 {	
-    String()
+    "\"" 
+    String() 
+    "\""
+    {return jjtThis; }
 }
 
 
@@ -390,9 +392,9 @@ void Comment() #void :
 /**
 *		Single Variable
 **/
-
 // This is used exactly then when only the variables value is needed
-Node SingleVariable() : 
+
+SimpleNode SingleVariable() : 
 { Token t; } 
 {
 	t=<SINGLEVAR>
@@ -404,10 +406,9 @@ Node SingleVariable() :
 /**
 *		Global Variable
 **/
-
 // This is used exactly then when only the variables value is needed
 
-Node GlobalVariable() : 
+SimpleNode GlobalVariable() : 
 { Token t; } 
 {
 	t=<GLOBALVAR>
@@ -419,10 +420,9 @@ Node GlobalVariable() :
 /**
 *		Multi Variable
 **/
-
 // This is used exactly then when only the variables contents are needed
 
-Node MultiVariable() : 
+SimpleNode MultiVariable() : 
 { Token t; } 
 {
 	t=<MULTIVAR>
@@ -434,16 +434,17 @@ Node MultiVariable() :
 /**
 *		Variable
 **/
-
 // This is used exactly then when only the variables value is needed
 
-Node Variable() #void : 
-{ Node n; }
+SimpleNode Variable() : 
+{}
 {	
-	(	n=SingleVariable()
-	|	n=MultiVariable()
-	|	n=GlobalVariable() 
-	) { return n;}
+	(	
+		SingleVariable()
+	|	MultiVariable()
+	|	GlobalVariable() 
+	) 
+	{ return jjtThis; }
 }
 
 
@@ -454,16 +455,19 @@ Node Variable() #void :
 
 // <function-call> ::= (<function-name> <expression>*)
 
-Node FunctionCall() #void : 
-{ Token t; Node n;}
+SimpleNode FunctionCall() : 
+{}
 {
-	"(" (
-		( n=AssertFunc() )
-	|	( n=RetractFunc() )
-	|   ( n=FindFactByFactFunc() )
-	|	( n=IfElseFunc() )
-	|	( n=AnyFunction() )
-	) ")" { return n; }
+	<LBRACE> 
+		(
+			AssertFunc()
+		|	RetractFunc()
+		|   FindFactByFactFunc()	
+		|	IfElseFunc()
+		|	AnyFunction()
+	) 
+	<RBRACE>
+	{ return jjtThis; }
 }
 
 
@@ -472,12 +476,13 @@ Node FunctionCall() #void :
 *		Any Function
 **/
 
-Node AnyFunction() : 
-{ Token t; }
+SimpleNode AnyFunction() : 
+{}
 {
-	t=<SYMBOL> 
-	{ jjtThis.setName(t.image); }
-	(Expression())* 
+ 	Symbol()
+ 	(
+ 		Expression()
+ 	)* 
 	{ return jjtThis; }
 }
 
@@ -487,14 +492,15 @@ Node AnyFunction() :
 *		Expression
 **/
 
-Node Expression() #void : 
-{ Node n; } 
+SimpleNode Expression() : 
+{} 
 {	
 	(	LOOKAHEAD(2)
-		n=Constant()
-	|	n=Variable()
-	|	n=FunctionCall() 
-	) { return n; }
+		Constant()
+	|	Variable()
+	|	FunctionCall() 
+	) 
+	{ return jjtThis; }
 }
 
 
@@ -508,11 +514,13 @@ Node Expression() #void :
 *		Assert Function
 **/
 
-Node AssertFunc() : 
+SimpleNode AssertFunc() : 
 {}
 {
 	<ASSERT>
-	(RHSPattern())+
+	(
+		RHSPattern()
+	)+
 	{ return jjtThis; }
 }
 
@@ -522,11 +530,13 @@ Node AssertFunc() :
 *		FindFactByFact Function
 **/
 
-Node FindFactByFactFunc() : 
+SimpleNode FindFactByFactFunc() : 
 {}
 {
 	<FIND_FACT_BY_FACT>
-	(RHSPattern())
+	( 
+		RHSPattern()
+	)
 	{ return jjtThis; }
 }
 
@@ -536,7 +546,7 @@ Node FindFactByFactFunc() :
 *		Retract Function
 **/
 
-Node RetractFunc() : 
+SimpleNode RetractFunc() : 
 {}
 {
 	<RETRACT>
@@ -556,15 +566,16 @@ Node RetractFunc() :
 *		If Else Function
 **/
 
-Node IfElseFunc() : { Node n;}
+SimpleNode IfElseFunc() : 
+{}
 {
 	<IF>
 	Expression()
 	<THEN>
-	n=ActionList()
+	ActionList()
 	[
 		<ELSE>
-		n=ActionList()
+		ActionList()
 	]
 	{ return jjtThis; }
 }
@@ -575,7 +586,8 @@ Node IfElseFunc() : { Node n;}
 *		While Function
 **/
 
-Node WhileFunc() : {}
+SimpleNode WhileFunc() : 
+{}
 {
 	<WHILE>
 	Expression()
@@ -590,17 +602,20 @@ Node WhileFunc() : {}
 *		Loop For Count Function
 **/
 
-Node LoopForCntFunc() : {}
+SimpleNode LoopForCntFunc() : 
+{}
 {
 	<LOOP_FOR_COUNT>
 	(
-		"("
+		<LBRACE>
 		SingleVariable()
 		[
-			Expression() { /*End Index for node*/ }
-		[ Expression() { /*End Index for node, move previous to start*/ } ]
+			Expression()
+			[ 
+				Expression()
+			]
 		]
-		")"
+		<RBRACE>
 	)
 	[<DO>]
 	ActionList()
@@ -613,16 +628,17 @@ Node LoopForCntFunc() : {}
 *		Case Switch Function
 **/
 
-Node SwitchCaseFunc() : {}
+SimpleNode SwitchCaseFunc() : 
+{}
 {
 	<SWITCH>
 	Expression()	// Test Expression
 	(	LOOKAHEAD(2)
 		CaseStatement()
 	)*
-	([	
+	[	
 		"(" <DEFAULT_ATR> ActionList()
-	])
+	]
 	{ return jjtThis; }
 }
 
@@ -632,17 +648,29 @@ Node SwitchCaseFunc() : {}
 *		Case Statement Function
 **/
 
-Node CaseStatement() : 
+SimpleNode CaseStatement() : 
 {}
 {
-	"(" 
+	<LBRACE> 
 		<CASE> 
 		Expression()	// Comparison Expression
 		<THEN> 
 		ActionList()
-	")"
+	<RBRACE>
 }
 
+/**
+*		Default Statements for SwitchCaseFunc
+**/
+SimpleNode SwitchDefaults() : 
+{}
+{
+	<LBRACE>
+		<DEFAULT_ATR> 
+		ActionList()
+	<RBRACE>
+	{ return jjtThis; }
+}
 
 /**
 *		Construct - Definition Main Handler 
@@ -650,15 +678,15 @@ Node CaseStatement() :
 
 void Construct() #void : {}
 {
-	"("
-	( LOOKAHEAD(2)
-		DeftemplateConstruct()
-	|	DefglobalConstruct()
-	|	DefruleConstruct()
-	|	DeffunctionConstruct()
-	|	DefmoduleConstruct()
-	)
-	")"
+	<LBRACE>
+		( LOOKAHEAD(2)
+			DeftemplateConstruct()
+		|	DefglobalConstruct()
+		|	DefruleConstruct()
+		|	DeffunctionConstruct()
+		|	DefmoduleConstruct()
+		)
+	<RBRACE>
 }
 
 
@@ -666,23 +694,20 @@ void Construct() #void : {}
 /**
 *		Deftemplate Construct
 **/  
-
 // <deftemplate-construct> ::= (deftemplate <deftemplate-name> [<comment>] <slot-definition>*)
 
-void DeftemplateConstruct() :{ Token t; AbstractSlot s;}
+SimpleNode DeftemplateConstruct() :
+{}
 {
         <DEFTEMPLATE>
-        t = <SYMBOL>
-        { 
-			jjtThis.setName(t.image); 
-		}
-	    [
-			t=<STRING>
-			{ jjtThis.setDocString(jjtThis, ParserUtils.getStringLiteral(t.image)); }
+		Symbol()
+	    [ 
+		  ConstructDescription()
 		]
         (
-			s=SlotDefinition() { jjtThis.addSlot(s); }
+			SlotDefinition()
         )*
+        { return jjtThis; }
 }
 
 
@@ -690,14 +715,19 @@ void DeftemplateConstruct() :{ Token t; AbstractSlot s;}
 /**
 *		Slot Definition
 **/  
-
 //<slot-definition> ::= <single-slot-definition> | <multislot-definition>
 
-AbstractSlot SlotDefinition() #void : { AbstractSlot ret;}
+void  SlotDefinition()  #void: 
+{}
 {
-    ( 
-		"(" ( ret=SingleSlotDefinition() | ret=MultislotDefinition() ) ")" 
-    )	{ return ret; }
+    ( 	
+		<LBRACE> 
+			( 
+					SingleSlotDefinition() 
+				|Ê	MultislotDefinition()
+			) 
+		<RBRACE> 
+    )
 }
 
 
@@ -705,24 +735,19 @@ AbstractSlot SlotDefinition() #void : { AbstractSlot ret;}
 /**
 *		Single Slot Definition
 **/
+//< single-slot-definition> ::= ( slot <slot-name> <template-attribute>*)
 
-//<single-slot-definition> ::= (slot <slot-name> <template-attribute>*)
-
-AbstractSlot SingleSlotDefinition() #void :
-{ 
-	Token t;
-	TemplateSlot ts = new TemplateSlot();
-}
+SimpleNode SingleSlotDefinition() :
+{}
 {
 	<SLOT>
-	t = <SYMBOL>
-	{ 
-		ts.setName(t.image); //<slot-name>
-	}
 	(
-		TemplateAttribute(ts)
-	)*
-	{ return ts; }
+		Symbol()
+		(
+			TemplateAttribute()
+		)*
+	)
+	{ return jjtThis; }
 }
 
 
@@ -730,43 +755,39 @@ AbstractSlot SingleSlotDefinition() #void :
 /**
 *		Multi Slot Definition
 **/
+//<multislot-definition> ::= ( multislot <slot-name> <template-attribute>*)
 
-//<multislot-definition> ::= (multislot <slot-name> <template-attribute>*)
-
-AbstractSlot MultislotDefinition() #void :
-{ 
-	Token t; 
-	TemplateSlot ts = new TemplateSlot();
-	ts.setMultiSlot(true);
-}
+SimpleNode MultislotDefinition() :
+{} 
 {
         <MULTISLOT>
-        t = <SYMBOL>
-        { ts.setName(t.image); }//<slot-name>
-        (
-			TemplateAttribute(ts)
+	(
+		Symbol()
+		(
+			TemplateAttribute()
 		)*
-		{return ts;}
+	)
+	{ return jjtThis; }
 }
 
 
 
 /**
-*		Multi Slot Definition
+*		Template Attribute
 **/
-
 //<template-attribute> ::= <default-attribute> | <constraint-attribute>
 
-void TemplateAttribute(TemplateSlot ts) #void : 
+SimpleNode TemplateAttribute() : 
 {}
 {
 	<LBRACE>
 	(	LOOKAHEAD(2)
-	    DefaultAttribute(ts) 
-	| 	DynamicAttribute(ts)
-	|	ConstraintAttribute(ts)
+	    DefaultAttribute() 
+	| 	DynamicAttribute()
+	|	ConstraintAttribute()
 	) 
 	<RBRACE>
+	{ return jjtThis; }
 }
 
 
@@ -774,10 +795,9 @@ void TemplateAttribute(TemplateSlot ts) #void :
 /**
 *		Attributes
 **/
-
 // A dummy node to have a list of attributes
 
-Node Attributes() :
+SimpleNode Attributes() :
 {} 
 { 
 	(	LOOKAHEAD(3)
@@ -791,18 +811,50 @@ Node Attributes() :
 /**
 *		Default Attribute
 **/
-
 //<default-attribute> ::= (default ?DERIVE | ?NONE | <expression>*) | (default-dynamic <expression>*)
 
-void DefaultAttribute(TemplateSlot ts) #void : 
-{ Node n;}
+SimpleNode DefaultAttribute() : 
+{}
 {
 		<DEFAULT_ATR>
 		(	
-			<ATR_DERIVE> { ts.setDefaultDerive(); }
-		|	<ATR_NONE> // { ts.setDefaultNone(); }
-		|	n=Attributes() { ts.setStaticDefaultExpression(n.getExpression()); }
+			DeriveAttribute()
+		|	NoneAttribute() 
+		|	Attributes() 
 		)
+		{ return jjtThis; }
+}
+
+
+
+/**
+*		Derive Attribute
+**/
+
+SimpleNode DeriveAttribute() : 
+{ Token t; }
+{
+	t = <ATR_DERIVE>
+	{
+		jjtThis.setName(t.image); 
+		return jjtThis;
+	}
+}
+
+
+
+/**
+*		None Attribute
+**/
+
+SimpleNode NoneAttribute() : 
+{ Token t; }
+{
+	t = <ATR_NONE>
+	{
+		jjtThis.setName(t.image); 
+		return jjtThis;
+	}
 }
 
 
@@ -813,13 +865,14 @@ void DefaultAttribute(TemplateSlot ts) #void :
 
 //<default-attribute> ::= (default ?DERIVE | ?NONE | <expression>*) | (default-dynamic <expression>*)
 
-void DynamicAttribute(TemplateSlot ts) #void : 
-{ Node n;}
+SimpleNode DynamicAttribute() : 
+{}
 {
 	<DYNAMIC_ATR> 
 	(	
-		n=Attributes() { ts.setDynamicDefaultExpression(n.getExpression()); }
+		Attributes()
 	)
+	{ return jjtThis; }
 }
 
 
@@ -847,35 +900,17 @@ void DynamicAttribute(TemplateSlot ts) #void :
 /**
 *		Right Hand Site Pattern
 **/
-
 // <RHS-pattern> ::= <ordered-RHS-pattern> | <template-RHS-pattern>
 
 void RHSPattern() #void : 
-{ Token t; }
+{}
 { 
-	"("
-	t = <SYMBOL>
-	{
-		TemplateRHSPattern(t.image);
-	//	else OrderedRHSPattern(t.image);
+	<LBRACE>
+		(
+			TemplateRHSPattern()
 	// currently ordered RHS aren't implemented
-	}
-    ")" 
-    
-}
-
-
-
-/**
-*		Ordered Right Hand Site Pattern
-**/
-
-//<ordered-RHS-pattern> ::= (<symbol> <RHS-field>+)
-
-Fact OrderedRHSPattern(String name) : 
-{ jjtThis.setName(name);  }
-{
-    (  Expression() )*
+	//	| 	OrderedRHSPattern(t.image);
+    <RBRACE> 
 }
 
 
@@ -883,13 +918,16 @@ Fact OrderedRHSPattern(String name) :
 /**
 *		Template Right Hand Site Pattern
 **/
-
 //<template-RHS-pattern> ::= (<deftemplate-name> <RHS-slot>*)
 
-void TemplateRHSPattern(String name) :
-{ jjtThis.setName(name); }
+SimpleNode TemplateRHSPattern() :
+{}
 {
-        ( RHSSlot() )*
+		Symbol()
+        ( 
+        	RHSSlot() 
+        )*
+		{ return jjtThis; }
 }
 
 
@@ -897,18 +935,19 @@ void TemplateRHSPattern(String name) :
 /**
 *		Right Hand Site Slot
 **/
-
 //<RHS-slot> ::= <single-field-RHS-slot> | <multifield-RHS-slot>
 //<single-field-RHS-slot> ::= (<slot-name> <RHS-field>)
 //<multifield-RHS-slot> ::= (<slot-name> <RHS-field>*)
 
-void RHSSlot() : { Token t; }
+SimpleNode RHSSlot() : 
+{}
 {
-    "(" 
-        t = <SYMBOL>
-        { jjtThis.setName(t.image); }	// slot-name
-        ( RHSField() )*
-    ")"
+    <LBRACE> 
+        Symbol() // slot-name
+        ( 
+        	RHSField() 
+        )*
+    <RBRACE>
 }
 
 
@@ -922,7 +961,9 @@ void RHSSlot() : { Token t; }
 void RHSField() #void : 
 {}
 {
-    Variable() | Constant() | FunctionCall()
+    	Variable() 
+    |   Constant() 
+    |   FunctionCall()
 }
 
 
@@ -970,46 +1011,27 @@ void RHSField() #void :
 **/
 // <defrule-construct> ::= (defrule <rule-name> [<comment>] [<declaration>] <conditional-element>* => <expression>*) 
 
-void DefruleConstruct() :{ Token t; Node n; Condition ce; }
+SimpleNode DefruleConstruct() :{}
 {
-  ( <DEFRULE>
-	t=<SYMBOL>
-	{ jjtThis.setName(t.image); }//name
-	[ t=<STRING> { jjtThis.setDocString(ParserUtils.getStringLiteral(t.image)); }	]
-	( LOOKAHEAD(3)
+   	<DEFRULE>
+		Symbol() //name
+		[ 
+			ConstructDescription()	//Description
+		]
+		[ 
+			Declaration()	//Declaration
+		]
 		(
-			Declaration(jjtThis)
-			(
-				ce=ConditionalElement()
-								{  jjtThis.addCondition(ce); }
-			)* 
-		) |
-		(
-			(
-				ce=ConditionalElement()
-				{  jjtThis.addCondition(ce); }
-			)* 
-		)
-	)
+			ConditionalElement() //Condition
+		)* 
 	<ARROW>
-	n=ActionList() { jjtThis.setRuleActions(n); }
-  )
-}
-
-////////////////////////////
-// Conditional elements should not produce nodes, 
-// but conditions as in package org.jamocha.rule
-
-// Create Dummy node to have fixed number of chlidren in Defrule
-/*Node CEList():{} 
-{ 
-	(ConditionalElement())* {}
+		ActionList() 
 	{ return jjtThis; }
 }
-*/
+
 
 // Create Dummy node to have fixed number of children in Defrule
-Node ActionList():{} 
+SimpleNode ActionList():{} 
 { 
 	(	LOOKAHEAD(2)
 		Expression()
@@ -1018,30 +1040,23 @@ Node ActionList():{}
 }
 
 
-/*
-// Create Dummy node to have fixed number of children later
-Node CEList2():{} 
-{ 
-	(ConditionalElement())+ 
-	{ return jjtThis; }
-}
-*/
-
 
 
 /**
 *		Declaration
 **/
-
 //<declaration> ::= (declare <rule-property>+)
 
-void Declaration(SFPDefruleConstruct r) #void : 
+SimpleNode Declaration(): 
 {}
 {
-    "("
+    <LBRACE>
         <DECLARE>
-        (RuleProperty(r))+
-    ")"
+        (
+        	RuleProperty()
+        )+
+    <RBRACE>
+    { return jjtThis; }
 }
 
 
@@ -1049,285 +1064,364 @@ void Declaration(SFPDefruleConstruct r) #void :
 /**
 *		Rule Property
 **/
-
 // <rule-property> ::= (salience <integer-expression>) | (auto-focus <boolean-symbol>)
 
-void RuleProperty(SFPDefruleConstruct r) #void: 
-{ Node n; }
+SimpleNode RuleProperty(): 
+{}
 {
-    "(" (
-		(  <SALIENCE>
-			//todo:        <integer-expression>
-			// Ory: Just use expression and check for it being an integer at runtime (it could use global variables)
-			// Need to determine salience at runtime!!
-			n=Expression() { r.setSalienceExpression(n); }
+    <LBRACE>
+     	(
+			Salience()		
+     	| 	AutoFocus()
 		)
-		{ // Set node type to salience, 
-		}
-     | (	<AUTOFOCUS> 
-		(	<TRUE> { r.setAutoFocus(true); }
-		|	<FALSE> { r.setAutoFocus(false); } 
-		)
-	)) ")"
+	<RBRACE>
+	{ return jjtThis; }
 }
 
+SimpleNode Salience() :
+{}
+{
+	<SALIENCE>
+	Expression()
+	{ return jjtThis; }
+}
+
+SimpleNode Autofocus(): 
+{}
+{
+	<AUTOFOCUS>
+	BooleanSymbol()
+}
 
 
 /**
 *		Boolean Symbol
 **/
-
 //<boolean-symbol> ::= TRUE | FALSE
 
-void BooleanSymbol() : { Token t;}
+SimpleNode BooleanSymbol() : { Token t;}
 {
-    ( t=<TRUE> ) { jjtThis.setName(t.image); jjtThis.setToTrue();}
+    ( 
+    	t=<TRUE> 
+    ) { jjtThis.setName(t.image); jjtThis.setToTrue(); return jjtThis; }
     |
-    ( t=<FALSE> ) { jjtThis.setName(t.image); jjtThis.setToFalse(); }
+    ( 
+    	t=<FALSE> 
+    ) { jjtThis.setName(t.image); jjtThis.setToFalse(); return jjtThis; }
 }
 
 
 //<conditional-element> ::= <pattern-CE> | <assigned-pattern-CE> | <not-CE> | <and-CE> | <or-CE> |
 //                          <logical-CE> | <test-CE> | <exists-CE> | <forall-CE>
-Condition ConditionalElement() #void : { Condition ce; }
+SimpleNode ConditionalElement() :
+{}
 {
-	"(" 
+	<LBRACE>
 		(
-			ce=PatternCE() 
-		|	ce=AssignedPatternCE() 
-		|	ce=BooleanFunction() 
-		|	ce=LogicalCE() 
-		|	ce=TestCE()
-		|	ce=ExistsCE()
-		|	ce=ForallCE()
+			PatternCE() 
+		|	AssignedPatternCE() 
+		|	BooleanFunction() 
+		|	LogicalCE() 
+		|	TestCE()
+		|	ExistsCE()
+		|	ForallCE()
 		)
-	")"
-	{ return ce; }	
+	<RBRACE>
+	{ return jjtThis }	
 }
 
 
 
 /**
-*		Boolean Function
+*		Boolean Functions
 **/
 
-Condition BooleanFunction() #void : 
-{ Condition ce=null,child; }
+SimpleNode BooleanFunction(): 
+{}
 {
-	(	(	// Unary operators
-			// No not condition and no condition negation ==> can't implement yet
-			<NOT> {  }
-			child=ConditionalElement() { /*not_ce.addNestedConditionElement(child);*/ }
-		)
-	|	(	// non-Unary operators
-			(
-				<AND> { ce=new AndCondition(); }
-      			(
-					child=ConditionalElement() { /*and_ce.addNestedConditionElement(child); */} 
-				)+
-			)
-		|	(	// No Or condition and no condition negation ==> can't implement yet
-				<OR> { ce=new AndCondition(); }
-      			(
-					child=ConditionalElement() { /*or_ce.addNestedConditionElement(child); */ } 
-				)+
-			) 
-		)
-	)	{ return ce; }
-		
+	(
+		NotFunction()
+	|	AndFunction()
+	|	OrFunction()	
+	)	
+	{ return jjtThis; }
 }
 
+SimpleNode NotFunction():
+{}
+{
+	<NOT>
+		ConditionalElement()
+	{ return jjtThis; }
+}
+
+SimpleNode AndFunction():
+{}
+{	
+	<AND>
+		ConditionalElement()
+	{ return jjtThis; }
+}
+
+SimpleNode OrFunction():
+{}
+{	
+	<OR>
+		ConditionalElement()
+	{ return jjtThis; }
+}	
 
 
 /**
 *		Pattern Conditional Element
 **/
-
 //<pattern-CE> ::= <ordered-pattern-CE> | <template-pattern-CE> | <object-pattern-CE>
 // Create and return conditions
-Condition  PatternCE() #void : { Condition ce;}
+SimpleNode  PatternCE() : 
+{}
 {
 	( LOOKAHEAD(2) 
-		ce=OrderedPatternCE() 
-	|	ce=TemplatePatternCE() 
-	|	ce=ObjectPatternCE() 
-	) { return ce; }
+		OrderedPatternCE() 
+	|	TemplatePatternCE() 
+	) 
+	{ return jjtThis; }
 }
 
 //<assigned-pattern-CE> ::= <single-field-variable> <- <pattern-CE>
-// Create and return conditions 	--	NOT IMPLEMENTED!!
-Condition AssignedPatternCE() #void : {}
+// Create and return conditions
+SimpleNode AssignedPatternCE():
+{}
 {
 	(
 		SingleVariable() 
 		<ASSIGN>
 		PatternCE()
-    ) { return null; }
+    ) { return jjtThis; }
 }
 
 
 //<logical-CE> ::= (logical <conditional-element>+)
-// Create and return conditions	--	NOT IMPLEMENTED!!
-Condition LogicalCE() #void : {}
+// Create and return conditions
+SimpleNode LogicalCE() : 
+{}
 {
     <LOGICAL> 
     (
 		ConditionalElement()
     )+ 
-    { return null; }
+    { return jjtThis; }
 }
 
 //<test-CE> ::= (test <function-call>)
 // Create and return conditions (needs to initialize function 
 // before execution, thus it gets a node
-Condition TestCE() : { TestCondition ce=new TestCondition(); Token t;}
+SimpleNode TestCE() : 
+{}
 {
-    ( 
+	(
 		<TEST>
-		t=<SYMBOL> { jjtThis.setName(t.image); jjtThis.setCondition(ce); }
-	) { return ce; }
+		Symbol()
+	)
+	{ return jjtThis; }
 }
 
 //<exists-CE> ::= (exists <conditional-element>+)
 // Create and return conditions
-Condition ExistsCE() #void : 
-{
-	Condition child;
-	ExistCondition ce=new ExistCondition();
-}
+SimpleNode ExistsCE() : 
+{}
 {
     <EXISTS> 
     (
-		child=ConditionalElement() { ce.addNestedConditionElement(child); }
+		ConditionalElement()
     )+
     { return ce; }
 }
 
 //<forall-CE> ::= (forall <conditional-element> <conditional-element>+)
-// Create and return conditions	--	NOT IMPLEMENTED!!
-Condition ForallCE() #void : {}
+// Create and return conditions
+SimpleNode ForallCE() : 
+{}
 {
-	(	<FORALL> 
-	ConditionalElement() 
-	(ConditionalElement())+
-	)	{return null; }
+	(	
+		<FORALL> 
+		ConditionalElement() 
+		(
+			ConditionalElement()
+		)+
+	)	
+	{return jjtThis; }
 }
 
-// TODO finish 
 //<ordered-pattern-CE> ::= (<symbol> <constraint>*)
-Condition OrderedPatternCE() #void: 
-{ 	
-	Token t; 
-	Condition ce=null;	// NOT IMPLEMENTED
-}
+SimpleNode OrderedPatternCE() : 
+{}
 {
-        (	
-			t=<SYMBOL>
-//			{ jjtThis.setName(t.image); }
-			(Constraint())*
-		)	{ return null; }
+	Symbol()
+	(
+		Constraint()
+	)*
+	{ return jjtThis; }
 }
 
-// TODO finish 
 //<template-pattern-CE> ::= (<deftemplate-name> <LHS-slot>*)
-Condition TemplatePatternCE() #void: 
-{ 
-	Token t; 
-	Condition ce=null;
-}
+SimpleNode TemplatePatternCE(): 
+{}
 {
-		(
-			t=<SYMBOL>
-			{  }	//deftemplate-name
-			(LHSSlot())*
-        )	{ return null; }
+	Symbol()
+	(
+		LHSSlot()
+	)*
+   	{ return jjtThis; }
 }
 
-//<object-pattern-CE> ::= (object <attribute-constraint>*)
-// Create and return conditions (use exist condition!!)
-Condition ObjectPatternCE() #void : 
-{ 
-	ObjectCondition ce=new ObjectCondition();
-	Constraint c;
-}
+//<attribute-constraint> ::= (name <constraint>) | (<slot-name> <constraint>*)
+SimpleNode AttributeConstraint() :
+{}
 {
-        (	<OBJECT>
-        (
-			c=AttributeConstraint() 
-			{ ce.addConstraint(c); }
-		)*
-		)	{ return ce; }
-}
-
-//<attribute-constraint> ::= (is-a <constraint>) | (name <constraint>) | (<slot-name> <constraint>*)
-// Create and return conditions (Are these implemented??)
-Constraint AttributeConstraint()  #void :
-{ 
-	Token t;
-	Constraint c=null;
-}
-{
-    "("
+    <LBRACE>
 		(
-			t=<SYMBOL> 
-			{  
-				// compare symbol to fixed strings, because 'name' can be 
-				// used as slot name according to CLIPS user guide
-			}
-			(Constraint())* 
+			Symbol()
+			(
+				Constraint()
+			)* 
 		)
-    ")" { return c; }
+    <RBRACE> 
+    { return jjtThis; }
 }
 
-// Functionally identical !?
-//<single-field-LHS-slot> ::= (<slot-name> <constraint>)
-//<multifield-LHS-slot> ::= (<slot-name> <constraint>*)
+
+
+
 //<LHS-slot> ::= <single-field-LHS-slot> | <multifield-LHS-slot>
-void LHSSlot()  : { Token t; }
-{
-        t=<SYMBOL>
-        { jjtThis.setName(t.image); }	//slot-name
-		( LOOKAHEAD(2)
-			Constraint()
-		)*
 
+SimpleNode LHSSlot()  : 
+{}
+{
+	Symbol()
+	(
+		LOOKAHEAD(2)
+		Constraint()
+	)*
+	{return jjtThis;}
 }
+
+
+
 
 //<constraint> ::= ? | $? | <connected-constraint>
-void Constraint() #void : {}
+void Constraint() #void : 
+{}
 {
-    SingleFieldWildcard() | MultiFieldWildcard() | ConnectedConstraint()
+    SingleFieldWildcard() 
+    | MultiFieldWildcard() 
+    | ConnectedConstraint()
 }
 
-void SingleFieldWildcard() : {} { <SFWILDCARD> }
-void MultiFieldWildcard() : {} { <MFWILDCARD> }
+
+
+
+SimpleNode SingleFieldWildcard() : 
+{}
+{
+	<SFWILDCARD>
+	{ return jjtThis; }
+}
+
+
+
+SimpleNode MultiFieldWildcard() : 
+{}
+{
+	<MFWILDCARD>
+	{ return jjtThis; }
+}
+
+
+
 
 //<connected-constraint>::= <single-constraint> | <single-constraint> & <connected-constraint> |
 //	<single-constraint> | <connected-constraint>
 
 // THIS IS WRONG: Ampersands and lines can be mixed!!
-void ConnectedConstraint() : {}
+SimpleNode ConnectedConstraint() : 
+{}
 {
 		Term() 
 	[ 
-		( <AMPERSAND> ConnectedConstraint() { jjtThis.setTypeAnd(); } )
-	|	( <LINE> ConnectedConstraint() { jjtThis.setTypeOr(); } )
+		Ampersand()
+	|	Line()
 	]
+	{return jjtThis}
 }
+
+
+
+SimpleNode Ampersand():
+{}
+{
+	<AMPERSAND>
+	ConnectedConstraint()
+	{return jjtThis;} 
+}
+
+
+
+SimpleNode Line():
+{}
+{
+	<LINE>
+	ConnectedConstraint()
+	{return jjtThis;} 
+}
+
+
 
 //<term> ::= <constant> | <single-field-variable> | <multifield-variable> | 
 //	:<function-call> | =<function-call>
-void Term()  : {}
+SimpleNode Term()  : 
+{}
 {
-	[	<TILDE>	{ jjtThis.setNegate(true); }
+	[	
+		Negation()
 	] 
     ( LOOKAHEAD(3)
-		Constant() { jjtThis.setType(SFPTerm.T_CONST); }
-    |	SingleVariable() { jjtThis.setType(SFPTerm.T_SINGLE); }
-    |	MultiVariable() { jjtThis.setType(SFPTerm.T_MULTI); }
-    |	(<COLON> FunctionCall() ) { jjtThis.setType(SFPTerm.T_COLON); }
-    |	(<EQUALS> FunctionCall() ) { jjtThis.setType(SFPTerm.T_EQ); } 
+		Constant()
+    |	SingleVariable()
+    |	MultiVariable()
+    |	Colon()
+    |	Equals()
     )
+    {return jjtThis;}
+}
+
+
+
+SimpleNode Negation() : 
+{}
+{
+	<TILDE>
+	
+	{ return jjtThis; }
+}
+
+
+
+SimpleNode Colon() : 
+{}
+{
+	<COLON>
+	FunctionCall()
+	{ return jjtThis; }
+}
+
+
+
+SimpleNode Equals() : 
+{}
+{
+	<EQUALS>
+	FunctionCall()
+	{ return jjtThis; }
 }
 
 /* Defglobal Construct
@@ -1368,7 +1462,7 @@ void GlobalAssignment()  : { Token t; }
 void DeffunctionConstruct()  :
 { 
 	Token t; 
-	Node n; 
+	SimpleNode n; 
 	ArrayList list = new ArrayList();
 }
 {
@@ -1507,7 +1601,7 @@ void Facet(TemplateSlot ts) #void : {}
 
 //<default-facet> ::= (default ?DERIVE | ?NONE | <expression>*) | (default-dynamic <expression>*)
 
-void DefaultFacet(TemplateSlot ts) #void : { Node n; }
+void DefaultFacet(TemplateSlot ts) #void : { SimpleNode n; }
 {
 	( 	<DEFAULT_ATR>
 		(	<ATR_DERIVE> { ts.setDefaultDerive(); }
@@ -1727,10 +1821,16 @@ void RangeSpecification()  #void : {}
 	Number() | <VARIABLE_TYPE>
 }
 
+
 //<cardinality-attribute> ::= (cardinality <cardinality-specification> <cardinality-specification>)
-void CardinalityAttribute()  #void : {}
+SimpleNode CardinalityAttribute()  : 
+{}
 {
-	<CARDINALITY> CardinalitySpecification() CardinalitySpecification()
+	<CARDINALITY> 
+
+	CardinalitySpecification() 
+
+	CardinalitySpecification()
 }
 
 
@@ -1741,9 +1841,11 @@ void CardinalityAttribute()  #void : {}
 
 //<cardinality-specification> ::= <integer> | ?VARIABLE
 
-void CardinalitySpecification() #void: {}
+SimpleNode CardinalitySpecification() : 
+{}
 {
-	Integer() | <VARIABLE_TYPE>
+		Integer() 
+	| 	<VARIABLE_TYPE>
 }
 
 
