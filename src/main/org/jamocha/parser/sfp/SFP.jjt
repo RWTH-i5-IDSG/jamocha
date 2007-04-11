@@ -1,0 +1,1773 @@
+/** 
+		
+	2007-04-04 : Reducing COOL to Jamocha Slim Fast Parser (sfp) - Karl-Heinz Krempels.
+	2006-11-08 : Implementing the COOL Parser - Ulrich Loup, Ory Chowow-Liebman
+
+	The Grammar is based on the CLIPS Object Oriented Language (COOL) used by
+	the CLIPS Production system
+	
+	@author Karl-Heinz Krempels
+*/
+
+options {
+	MULTI=true;
+	STATIC=false;
+	NODE_PREFIX="SFP";
+	NODE_USES_PARSER=true;
+    ERROR_REPORTING = true;
+}
+
+
+/* Java code used for the Parser. */
+PARSER_BEGIN(SFPParser)
+package org.jamocha.parser.sfp;
+
+import java.util.ArrayList;
+
+import org.jamocha.parser.JamochaType;
+import org.jamocha.parser.Parser;
+import org.jamocha.parser.ParserUtils;
+import org.jamocha.parser.Expression;
+
+import org.jamocha.rete.Rete;
+import org.jamocha.rete.AbstractSlot;
+import org.jamocha.rete.Fact;
+import org.jamocha.rete.TemplateSlot;
+import org.jamocha.rule.*;
+
+public class SFPParser implements Parser{
+
+        public Expression nextExpression() throws ParseException {
+                return Start().getExpression();
+        }
+
+        public static void main(String args[])
+        {
+                boolean verbose = (args != null && args.length == 1 && "verbose".equals(args[0]));
+                if(!verbose)System.out.println("Note: For verbose output type \"java Main verbose\".\n");
+                System.out.print("SFP> ");
+                Rete engine = new Rete();
+                SFPParser p = new SFPParser(System.in);
+                try
+                {
+                while (true)
+                        {
+                                SFPStart n = p.Start();
+                                if (n==null) System.exit(0);
+                                n.dump(" ");
+                                System.out.println(n.getExpression().getValue(engine).toString());
+                        }
+                }
+                catch (Exception e)
+                {
+                        System.err.println("ERROR: " + e.getMessage());
+                        if(verbose)e.printStackTrace();
+                }
+        }
+
+
+
+}
+
+PARSER_END(SFPParser)
+
+/**********************************************
+ * Lexical Specs
+ */
+
+
+SKIP :
+{
+  " "
+| "\t"
+| "\n"
+| "\r"
+}
+
+SPECIAL_TOKEN : /* COMMENTS */
+{
+  <SINGLE_LINE_COMMENT: ";" (~["\n","\r"])* ("\n"|"\r"|"\r\n")>
+}
+
+TOKEN :
+{
+  < LBRACE: "(" >
+| < RBRACE: ")" >| < GE1: ">=" >
+| < #DIGIT: ["0"-"9"] >
+| < INTEGER: (["+","-"])? (<DIGIT>)+ >
+|
+  < FLOAT:
+        (<DIGIT>)+ "." (<DIGIT>)* (<EXPONENT>)?
+      | "." (<DIGIT>)+ (<EXPONENT>)?
+      | (<DIGIT>)+ <EXPONENT>
+  >
+  
+| < #EXPONENT: ["e","E"] (["+","-"])? (<DIGIT>)+ >
+| < #GMT_OFFSET: ("+"|"-") ( <DIGIT> )? <DIGIT> >
+| < #DATE: <DIGIT> <DIGIT> <DIGIT> <DIGIT> "-" <DIGIT> <DIGIT> "-" <DIGIT> <DIGIT> >
+| < #TIME: <DIGIT> <DIGIT> ":" <DIGIT> <DIGIT> ( ":" <DIGIT> <DIGIT>)? >
+| < DATETIME:  <DATE> ( " " <TIME> (<GMT_OFFSET>)? )? > 
+|
+  < STRING:
+      ("\"" ((~["\"","\\"]) | ("\\" ( ["\\","\""] )))* "\"") |
+      ("\'" ((~["\'","\\"]) | ("\\" ( ["\\","\'"] )))* "\'")
+  >
+| < SFWILDCARD: "?" >
+| < MFWILDCARD: "$?" >
+| < GLOBALVAR: "?*" <SYMBOL> "*" >
+| < DEFFACTS: "deffacts" >
+| < DEFTEMPLATE: "deftemplate" >
+| < DEFTEMPLATE_CONSTRUCT: "deftemplate_construct" >
+| < DEFRULE: "defrule" >
+| < DEFFUNCTION: "deffunction" >
+| < DEFGENERIC: "defgeneric" >
+| < DEFMODULE: "defmodule" >
+| < DEFGLOBAL: "defglobal" >
+| < DEFAULT_ATR: "default" >
+| < DYNAMIC_ATR: "default-dynamic" >
+| < ATR_DEFAULT: "?DEFAULT" >
+| < ATR_DERIVE: "?DERIVE" >
+| < ATR_NONE: "?NONE" >
+| < ATR_ALL: "?ALL" >
+| < SLOT: "slot" >
+| < SINGLE_SLOT: "single-slot" >
+| < MULTISLOT: "multislot" >
+| < ARROW: "=>">
+| < DECLARE: "declare" >
+| < SALIENCE: "salience" >
+| < AUTOFOCUS: "auto-focus" >
+| <	TYPE: "type" >
+| < TRUE: "TRUE" | "true" | "True" >
+| < FALSE: "FALSE" | "false" | "False" >
+| < NOT: "not" >
+| < AND: "and" >
+| < OR: "or" >
+| < OF: "of" >
+| < LOGICAL: "logical" >
+| < TEST: "test" >
+| < EXISTS: "exists" >
+| < FORALL: "forall">
+| < OBJECT: "object" >
+| < ASSIGN: "<-" >
+| < TILDE: "~" >
+| < AMPERSAND: "&" >
+| < LINE: "|" >
+| < COLON: ":" >
+| < EQUALS: "=" >
+| < VARIABLE_TYPE: "?VARIABLE" >
+| < SYMBOL_TYPE: "SYMBOL" >
+| < STRING_TYPE: "STRING" >
+| < DATETIME_TYPE: "DATETIME" >
+| < LEXEME_TYPE: "LEXEME" >
+| < INTEGER_TYPE: "INTEGER" >
+| < FLOAT_TYPE: "FLOAT" >
+| < NUMBER_TYPE: "NUMBER" >
+| < EXTERNAL_ADDRESS_TYPE: "EXTERNAL-ADDRESS" >
+| < FACT_ADDRESS_TYPE: "FACT-ADDRESS" >
+| < ALLOWED_SYMBOLS: "allowed-symbols" >
+| < ALLOWED_STRINGS: "allowed-strings" >
+| < ALLOWED_LEXEMES: "allowed-lexemes" >
+| < ALLOWED_INTEGERS: "allowed-integers" >
+| < ALLOWED_FLOATS: "allowed-floats" >
+| < ALLOWED_NUMBERS: "allowed-numbers" >
+| < ALLOWED_VALUES: "allowed-values" >
+| < RANGE: "range" >
+| < CARDINALITY: "cardinality" >
+| < ACTIVE: "active" >
+	// Special functions
+| < ASSERT: "assert" >
+| < RETRACT: "retract" >
+| < FIND_FACT_BY_FACT: "find-fact-by-fact" >
+| < MODIFY: "modify" >
+| < DUPLICATE: "duplicate" >
+| < FACT_RELATION: "fact-relation" >
+| < FACT_SLOT_VALUE: "fact-slot-value" >
+| < IF: "if" >
+| < THEN: "then" >
+| < ELSE: "else" >
+| < WHILE: "while" >
+| < DO: "do" >
+| < LOOP_FOR_COUNT: "loop-for-count" >
+| < SWITCH: "switch" >
+| < CASE: "case" >
+| < STAR: "*">
+  // If you think this is ugly, you are right. See CLIPS Basic Progrmmers Guide:
+  // "Numbers are symbols, but treated different. Instances are symbols, but treated different." 
+| < #VARSYMBOL:  ["a"-"z","A"-"Z"] (~[" ","\r","\n","\t","\"","\'","(",")","&","|","<","~",";"])* >
+| < SINGLEVAR: ("?" <VARSYMBOL>) >
+| < MULTIVAR: ("$?" <VARSYMBOL>) >
+| < SYMBOL:  
+	(~[" ","\r","\n","\t","\"","\'","(",")","&","|","$","?","~",";","0"-"9","="])
+	|(
+		(~[" ","\r","\n","\t","\"","\'","(",")","&","|","$","?","~",";","[","="])
+		(~[" ","\r","\n","\t","\"","\'","(",")","&","|","?","~",";","0"-"9"])*
+		(~[" ","\r","\n","\t","\"","\'","(",")","&","|","<","~",";" ])*
+		(~[" ","\r","\n","\t","\"","\'","(",")","&","|","$","?","~",";","]"])? 
+	)
+	|(
+		(~[" ","\r","\n","\t","\"","\'","(",")","&","|","$","?","~",";","="])
+		(~[" ","\r","\n","\t","\"","\'","(",")","&","|","?","~",";","0"-"9"])*
+		(~[" ","\r","\n","\t","\"","\'","(",")","&","|","<","~",";" ])*
+		(~[" ","\r","\n","\t","\"","\'","(",")","&","|","$","?","~",";","]"])+ 
+	)
+  >
+
+}
+
+/* TODO (From Clips Manual):
+Data Types:
+<file-name> ::= A symbol or string which is a valid file name (including path information)
+	for the operating system under which CLIPS is running
+<slot-name> ::= A valid deftemplate_construct slot name
+<...-name> ::= A <symbol> where the ellipsis indicate what the symbol represents.
+	For example, <rule-name> is a symbol which represents the name of a rule.
+*/
+
+/**********************************************
+ * Cool Grammar Specs.
+ */
+
+/** Start rule is one construct at a time, Parser reads constructs into list.
+	No need to create nodes for Start, Defcon and Funcon rule.*/
+SFPStart Start() : {}
+{
+	
+   ( LOOKAHEAD(2)
+	Construct() | Expression()
+	
+	) { return jjtThis; }
+	| <EOF> { return null; }
+}
+
+
+/*
+<number> ::= <float> | <integer> 
+<lexeme> ::= <symbol> | <string>
+<constant> ::= <datetime> | <symbol> | <string> | <integer> | <float>
+*/
+
+
+
+/**
+*		Float
+**/
+
+Node Float() : 
+{ Token t; }
+{
+	t=<FLOAT>
+	{
+		jjtThis.setName(t.image); 
+		return jjtThis;
+	}
+}
+
+
+
+/**
+*		Integer
+**/
+
+Node Integer() : 
+{ Token t; }
+{
+	t=<INTEGER>
+	{
+		jjtThis.setName(t.image); 
+		return jjtThis;
+	}
+}
+
+
+
+/**
+*		DateTime
+**/
+
+Node DateTime() : 
+{ Token t; }
+{
+	t=<DATETIME>
+	{
+		jjtThis.setName(t.image);
+		return jjtThis;
+	}
+}
+
+
+
+/**
+*		Number
+**/
+
+Node Number() #void : 
+{ Node n; }
+{	
+	(	n=Float()
+	|	n=Integer() 
+	) { return n; }
+}
+
+
+
+/**
+*		Symbol
+**/
+
+Node Symbol() : 
+{ Token t; }
+{
+	t=<SYMBOL>
+	{
+		jjtThis.setName(t.image); 
+		return jjtThis;
+	}
+}
+
+
+
+/**
+*		String
+**/
+
+Node String() : 
+{ Token t; }
+{
+	t=<STRING>
+	{
+		jjtThis.setName(ParserUtils.getStringLiteral(t.image)); 
+		return jjtThis;
+	}
+
+}
+
+
+
+/**
+*		Lexeme
+**/
+
+Node Lexeme() #void : 
+{ Node n; }
+{	
+	(	n=String()
+	|	n=Symbol() 
+	) { return n; }
+}
+
+
+
+/**
+*		Constant
+**/
+
+Node Constant() #void :
+{ Node n; }
+{ 	
+	(
+		n=DateTime()
+	|   n=Symbol()
+	|	n=String()
+	|	n=Integer()
+	|	n=Float()
+	) { return n; }
+}
+
+
+
+/**
+*		Comment
+**/
+
+void Comment() #void : 
+{}
+{	
+    String()
+}
+
+
+
+/**
+*		Single Variable
+**/
+
+// This is used exactly then when only the variables value is needed
+Node SingleVariable() : 
+{ Token t; } 
+{
+	t=<SINGLEVAR>
+	{ jjtThis.setName(t.image); return jjtThis;}
+}
+
+
+
+/**
+*		Global Variable
+**/
+
+// This is used exactly then when only the variables value is needed
+
+Node GlobalVariable() : 
+{ Token t; } 
+{
+	t=<GLOBALVAR>
+	{ jjtThis.setName(t.image); return jjtThis;}
+}
+
+
+
+/**
+*		Multi Variable
+**/
+
+// This is used exactly then when only the variables contents are needed
+
+Node MultiVariable() : 
+{ Token t; } 
+{
+	t=<MULTIVAR>
+	{ jjtThis.setName(t.image); return jjtThis;}
+}
+
+
+
+/**
+*		Variable
+**/
+
+// This is used exactly then when only the variables value is needed
+
+Node Variable() #void : 
+{ Node n; }
+{	
+	(	n=SingleVariable()
+	|	n=MultiVariable()
+	|	n=GlobalVariable() 
+	) { return n;}
+}
+
+
+
+/**
+*		Function Call
+**/
+
+// <function-call> ::= (<function-name> <expression>*)
+
+Node FunctionCall() #void : 
+{ Token t; Node n;}
+{
+	"(" (
+		( n=AssertFunc() )
+	|	( n=RetractFunc() )
+	|   ( n=FindFactByFactFunc() )
+	|	( n=IfElseFunc() )
+	|	( n=AnyFunction() )
+	) ")" { return n; }
+}
+
+
+
+/**
+*		Any Function
+**/
+
+Node AnyFunction() :{ Token t; }
+{
+	t=<SYMBOL> 
+	{ jjtThis.setName(t.image); }
+	(Expression())* 
+	{ return jjtThis; }
+}
+
+
+
+/**
+*		Expression
+**/
+
+Node Expression() #void : { Node n; } 
+{	
+	(	LOOKAHEAD(2)
+		n=Constant()
+	|	n=Variable()
+	|	n=FunctionCall() 
+	) { return n; }
+}
+
+
+
+/****
+**		 Special functions wich are defined by CLIPS to have
+**		a non-standart syntax (e.g. not all parameters are expressions)
+****/
+
+/**
+*		Assert Function
+**/
+
+Node AssertFunc() : {}
+{
+	<ASSERT>
+	(RHSPattern())+
+	{ return jjtThis; }
+}
+
+
+
+/**
+*		Assert Function
+**/
+
+Node FindFactByFactFunc() : {}
+{
+	<FIND_FACT_BY_FACT>
+	(RHSPattern())
+	{ return jjtThis; }
+}
+
+
+
+/**
+*		Retract Function
+**/
+
+Node RetractFunc() : {}
+{
+	<RETRACT>
+	(
+		<STAR>	// Retract all
+	|	(
+			(Expression())*		// Integers and 'retract-specifiers' see BPG
+		)
+	)
+//	RHSPattern()+
+	{ return jjtThis; }
+}
+
+
+
+/**
+*		If Else Function
+**/
+
+Node IfElseFunc() : { Node n;}
+{
+	<IF>
+	Expression()
+	<THEN>
+	n=ActionList()
+	[
+		<ELSE>
+		n=ActionList()
+	]
+	{ return jjtThis; }
+}
+
+
+
+/**
+*		While Function
+**/
+
+Node WhileFunc() : {}
+{
+	<WHILE>
+	Expression()
+	[<DO>]
+	ActionList()
+	{ return jjtThis; }
+}
+
+
+
+/**
+*		Loop For Count Function
+**/
+
+Node LoopForCntFunc() : {}
+{
+	<LOOP_FOR_COUNT>
+	(
+		"("
+		SingleVariable()
+		[
+			Expression() { /*End Index for node*/ }
+		[ Expression() { /*End Index for node, move previous to start*/ } ]
+		]
+		")"
+	)
+	[<DO>]
+	ActionList()
+	{ return jjtThis; }
+}
+
+
+
+/**
+*		Case Switch Function
+**/
+
+Node SwitchCaseFunc() : {}
+{
+	<SWITCH>
+	Expression()	// Test Expression
+	(	LOOKAHEAD(2)
+		CaseStatement()
+	)*
+	([	
+		"(" <DEFAULT_ATR> ActionList()
+	])
+	{ return jjtThis; }
+}
+
+
+
+/**
+*		Case Switch Function
+**/
+
+void CaseStatement() : {}
+{
+	"(" 
+		<CASE> 
+		Expression()	// Comparison Expression
+		<THEN> 
+		ActionList()
+	")"
+}
+
+
+
+/**
+*		Action
+**/
+
+void Action() #void : 
+{} 
+{  Expression() }
+
+
+
+/**
+*		Construct - Definition Main Handler 
+**/
+
+void Construct() #void : {}
+{
+	"("
+	( LOOKAHEAD(2)
+		DeftemplateConstruct()
+	|	DefglobalConstruct()
+	|	DefruleConstruct()
+	|	DeffunctionConstruct()
+	|	DefmoduleConstruct()
+	)
+	")"
+}
+
+
+
+/**
+*		Deftemplate Construct
+**/  
+
+// <deftemplate-construct> ::= (deftemplate <deftemplate-name> [<comment>] <slot-definition>*)
+
+void DeftemplateConstruct() :{ Token t; AbstractSlot s;}
+{
+        <DEFTEMPLATE>
+        t = <SYMBOL>
+        { 
+			jjtThis.setName(t.image); 
+		}
+	    [
+			t=<STRING>
+			{ jjtThis.setDocString(ParserUtils.getStringLiteral(t.image)); }
+		]
+        (
+			s=SlotDefinition() { jjtThis.addSlot(s); }
+        )*
+}
+
+
+
+/**
+*		Slot Definition
+**/  
+
+//<slot-definition> ::= <single-slot-definition> | <multislot-definition>
+
+AbstractSlot SlotDefinition() #void : { AbstractSlot ret;}
+{
+    ( 
+		"(" ( ret=SingleSlotDefinition() | ret=MultislotDefinition() ) ")" 
+    )	{ return ret; }
+}
+
+
+
+/**
+*		Single Slot Definition
+**/
+
+//<single-slot-definition> ::= (slot <slot-name> <template-attribute>*)
+
+AbstractSlot SingleSlotDefinition() #void :
+{ 
+	Token t;
+	TemplateSlot ts = new TemplateSlot();
+}
+{
+	<SLOT>
+	t = <SYMBOL>
+	{ 
+		ts.setName(t.image); //<slot-name>
+	}
+	(
+		TemplateAttribute(ts)
+	)*
+	{ return ts; }
+}
+
+
+
+/**
+*		Multi Slot Definition
+**/
+
+//<multislot-definition> ::= (multislot <slot-name> <template-attribute>*)
+
+AbstractSlot MultislotDefinition() #void :
+{ 
+	Token t; 
+	TemplateSlot ts = new TemplateSlot();
+	ts.setMultiSlot(true);
+}
+{
+        <MULTISLOT>
+        t = <SYMBOL>
+        { ts.setName(t.image); }//<slot-name>
+        (
+			TemplateAttribute(ts)
+		)*
+		{return ts;}
+}
+
+
+
+/**
+*		Multi Slot Definition
+**/
+
+//<template-attribute> ::= <default-attribute> | <constraint-attribute>
+
+void TemplateAttribute(TemplateSlot ts) #void : 
+{}
+{
+	<LBRACE>
+	(	LOOKAHEAD(2)
+	    DefaultAttribute(ts) 
+	| 	DynamicAttribute(ts)
+	|	ConstraintAttribute(ts)
+	) 
+	<RBRACE>
+}
+
+
+
+/**
+*		Attributes
+**/
+
+// A dummy node to have a list of attributes
+
+Node Attributes() :
+{} 
+{ 
+	(	LOOKAHEAD(3)
+		Expression()
+	)*
+	{ return jjtThis; }
+}
+
+
+
+/**
+*		Default Attribute
+**/
+
+//<default-attribute> ::= (default ?DERIVE | ?NONE | <expression>*) | (default-dynamic <expression>*)
+
+void DefaultAttribute(TemplateSlot ts) #void : 
+{ Node n;}
+{
+		<DEFAULT_ATR>
+		(	
+			<ATR_DERIVE> { ts.setDefaultDerive(); }
+		|	<ATR_NONE> // { ts.setDefaultNone(); }
+		|	n=Attributes() { ts.setStaticDefaultExpression(n.getExpression()); }
+		)
+}
+
+
+
+/**
+*		Dynamic Attribute
+**/
+
+//<default-attribute> ::= (default ?DERIVE | ?NONE | <expression>*) | (default-dynamic <expression>*)
+
+void DynamicAttribute(TemplateSlot ts) #void : 
+{ Node n;}
+{
+	<DYNAMIC_ATR> 
+	(	
+		n=Attributes() { ts.setDynamicDefaultExpression(n.getExpression()); }
+	)
+}
+
+
+
+/**
+*		Fact Construct
+**/
+
+/* Fact Specification
+<ordered-RHS-pattern> ::= ( <symbol> <RHS-field>+ )
+
+<template-RHS-pattern> ::= ( <deftemplate-name> <RHS-slot>* )
+
+<RHS-slot> ::= <single-field-RHS-slot> | <multifield-RHS-slot>
+
+<single-field-RHS-slot> ::= (<slot-name> <RHS-field>)
+
+<multifield-RHS-slot> ::= (<slot-name> <RHS-field>*)
+
+<RHS-field> ::= <variable> | <constant> | <function-call>
+*/
+
+
+
+/**
+*		Right Hand Site Pattern
+**/
+
+// <RHS-pattern> ::= <ordered-RHS-pattern> | <template-RHS-pattern>
+
+void RHSPattern() #void : 
+{ Token t; }
+{ 
+	"("
+	t = <SYMBOL>
+	{
+		TemplateRHSPattern(t.image);
+	//	else OrderedRHSPattern(t.image);
+	// currently ordered RHS aren't implemented
+	}
+    ")" 
+    
+}
+
+
+
+/**
+*		Ordered Right Hand Site Pattern
+**/
+
+//<ordered-RHS-pattern> ::= (<symbol> <RHS-field>+)
+
+Fact OrderedRHSPattern(String name) : 
+{ jjtThis.setName(name);  }
+{
+    (  Expression() )*
+}
+
+
+
+/**
+*		Template Right Hand Site Pattern
+**/
+
+//<template-RHS-pattern> ::= (<deftemplate-name> <RHS-slot>*)
+
+void TemplateRHSPattern(String name) :
+{ jjtThis.setName(name); }
+{
+        ( RHSSlot() )*
+}
+
+
+
+/**
+*		Right Hand Site Slot
+**/
+
+//<RHS-slot> ::= <single-field-RHS-slot> | <multifield-RHS-slot>
+//<single-field-RHS-slot> ::= (<slot-name> <RHS-field>)
+//<multifield-RHS-slot> ::= (<slot-name> <RHS-field>*)
+
+void RHSSlot() : { Token t; }
+{
+    "(" 
+        t = <SYMBOL>
+        { jjtThis.setName(t.image); }	// slot-name
+        ( RHSField() )*
+    ")"
+}
+
+
+
+/**
+*		Right Hand Site Field
+**/
+
+//<RHS-field> ::= <variable> | <constant> | <function-call>
+
+void RHSField() #void : 
+{}
+{
+    Variable() | Constant() | FunctionCall()
+}
+
+
+
+/**
+*		Define Rule Construct
+**/
+
+/*
+<defrule-construct> ::= (defrule <rule-name> [<comment>] [<declaration>] <conditional-element>* => <action>*) 
+<rule-property> ::= (salience <integer-expression>) | (auto-focus <boolean-symbol>)
+<boolean-symbol> ::= TRUE | FALSE
+<conditional-element> ::= <pattern-CE> | <assigned-pattern-CE> | <not-CE> | <and-CE> | <or-CE> |
+	<logical-CE> | <test-CE> | <exists-CE> | <forall-CE>
+<pattern-CE> ::= <ordered-pattern-CE> | <template-pattern-CE> | <object-pattern-CE>
+<assigned-pattern-CE> ::= <single-field-variable> <- <pattern-CE>
+<not-CE> ::= (not <conditional-element>)
+<and-CE> ::= (and <conditional-element>+)
+<or-CE> ::= (or <conditional-element>+)
+<logical-CE> ::= (logical <conditional-element>+)
+<test-CE> ::= (test <function-call>)
+<exists-CE> ::= (exists <conditional-element>+)
+<forall-CE> ::= (forall <conditional-element> <conditional-element>+)
+<ordered-pattern-CE> ::= (<symbol> <constraint>*)
+<template-pattern-CE> ::= (<deftemplate-name> <LHS-slot>*)
+<object-pattern-CE> ::= (object <attribute-constraint>*)
+<attribute-constraint> ::= (is-a <constraint>) | (name <constraint>) | (<slot-name> <constraint>*)
+<LHS-slot> ::= <single-field-LHS-slot> | <multifield-LHS-slot>
+<single-field-LHS-slot> ::= (<slot-name> <constraint>)
+<multifield-LHS-slot> ::= (<slot-name> <constraint>*)
+<constraint> ::= ? | $? | <connected-constraint>
+<connected-constraint>::= <single-constraint> | <single-constraint> & <connected-constraint> |
+	<single-constraint> | <connected-constraint>
+<single-constraint> ::= <term> | ~<term>
+<term> ::= <constant> | <single-field-variable> | <multifield-variable> | 
+	:<function-call> | =<function-call>
+*/
+
+
+
+
+
+/**
+*		Define Rule Construct
+**/
+// <defrule-construct> ::= (defrule <rule-name> [<comment>] [<declaration>] <conditional-element>* => <action>*) 
+
+void DefruleConstruct() :{ Token t; Node n; Condition ce; }
+{
+  ( <DEFRULE>
+	t=<SYMBOL>
+	{ jjtThis.setName(t.image); }//name
+	[ t=<STRING> { jjtThis.setDocString(ParserUtils.getStringLiteral(t.image)); }	]
+	( LOOKAHEAD(3)
+		(
+			Declaration(jjtThis)
+			(
+				ce=ConditionalElement()
+								{  jjtThis.addCondition(ce); }
+			)* 
+		) |
+		(
+			(
+				ce=ConditionalElement()
+				{  jjtThis.addCondition(ce); }
+			)* 
+		)
+	)
+	<ARROW>
+	n=ActionList() { jjtThis.setRuleActions(n); }
+  )
+}
+
+////////////////////////////
+// Conditional elements should not produce nodes, 
+// but conditions as in package org.jamocha.rule
+
+// Create Dummy node to have fixed number of chlidren in Defrule
+/*Node CEList():{} 
+{ 
+	(ConditionalElement())* {}
+	{ return jjtThis; }
+}
+*/
+
+// Create Dummy node to have fixed number of children in Defrule
+Node ActionList():{} 
+{ 
+	(	LOOKAHEAD(2)
+		Expression()
+	)* 
+	{ return jjtThis; }
+}
+
+
+/*
+// Create Dummy node to have fixed number of children later
+Node CEList2():{} 
+{ 
+	(ConditionalElement())+ 
+	{ return jjtThis; }
+}
+*/
+
+
+
+/**
+*		Declaration
+**/
+
+//<declaration> ::= (declare <rule-property>+)
+
+void Declaration(SFPDefruleConstruct r) #void : 
+{}
+{
+    "("
+        <DECLARE>
+        (RuleProperty(r))+
+    ")"
+}
+
+
+
+/**
+*		Rule Property
+**/
+
+// <rule-property> ::= (salience <integer-expression>) | (auto-focus <boolean-symbol>)
+
+void RuleProperty(SFPDefruleConstruct r) #void: 
+{ Node n; }
+{
+    "(" (
+		(  <SALIENCE>
+			//todo:        <integer-expression>
+			// Ory: Just use expression and check for it being an integer at runtime (it could use global variables)
+			// Need to determine salience at runtime!!
+			n=Expression() { r.setSalienceExpression(n); }
+		)
+		{ // Set node type to salience, 
+		}
+     | (	<AUTOFOCUS> 
+		(	<TRUE> { r.setAutoFocus(true); }
+		|	<FALSE> { r.setAutoFocus(false); } 
+		)
+	)) ")"
+}
+
+
+
+/**
+*		Boolean Symbol
+**/
+
+//<boolean-symbol> ::= TRUE | FALSE
+
+void BooleanSymbol() : { Token t;}
+{
+    ( t=<TRUE> ) { jjtThis.setName(t.image); jjtThis.setToTrue();}
+    |
+    ( t=<FALSE> ) { jjtThis.setName(t.image); jjtThis.setToFalse(); }
+}
+
+
+//<conditional-element> ::= <pattern-CE> | <assigned-pattern-CE> | <not-CE> | <and-CE> | <or-CE> |
+//                          <logical-CE> | <test-CE> | <exists-CE> | <forall-CE>
+Condition ConditionalElement() #void : { Condition ce; }
+{
+	"(" 
+		(
+			ce=PatternCE() 
+		|	ce=AssignedPatternCE() 
+		|	ce=BooleanFunction() 
+		|	ce=LogicalCE() 
+		|	ce=TestCE()
+		|	ce=ExistsCE()
+		|	ce=ForallCE()
+		)
+	")"
+	{ return ce; }	
+}
+
+
+
+/**
+*		Boolean Function
+**/
+
+Condition BooleanFunction() #void : 
+{ Condition ce=null,child; }
+{
+	(	(	// Unary operators
+			// No not condition and no condition negation ==> can't implement yet
+			<NOT> {  }
+			child=ConditionalElement() { /*not_ce.addNestedConditionElement(child);*/ }
+		)
+	|	(	// non-Unary operators
+			(
+				<AND> { ce=new AndCondition(); }
+      			(
+					child=ConditionalElement() { /*and_ce.addNestedConditionElement(child); */} 
+				)+
+			)
+		|	(	// No Or condition and no condition negation ==> can't implement yet
+				<OR> { ce=new AndCondition(); }
+      			(
+					child=ConditionalElement() { /*or_ce.addNestedConditionElement(child); */ } 
+				)+
+			) 
+		)
+	)	{ return ce; }
+		
+}
+
+
+
+/**
+*		Pattern Conditional Element
+**/
+
+//<pattern-CE> ::= <ordered-pattern-CE> | <template-pattern-CE> | <object-pattern-CE>
+// Create and return conditions
+Condition  PatternCE() #void : { Condition ce;}
+{
+	( LOOKAHEAD(2) 
+		ce=OrderedPatternCE() 
+	|	ce=TemplatePatternCE() 
+	|	ce=ObjectPatternCE() 
+	) { return ce; }
+}
+
+//<assigned-pattern-CE> ::= <single-field-variable> <- <pattern-CE>
+// Create and return conditions 	--	NOT IMPLEMENTED!!
+Condition AssignedPatternCE() #void : {}
+{
+	(
+		SingleVariable() 
+		<ASSIGN>
+		PatternCE()
+    ) { return null; }
+}
+
+
+//<logical-CE> ::= (logical <conditional-element>+)
+// Create and return conditions	--	NOT IMPLEMENTED!!
+Condition LogicalCE() #void : {}
+{
+    <LOGICAL> 
+    (
+		ConditionalElement()
+    )+ 
+    { return null; }
+}
+
+//<test-CE> ::= (test <function-call>)
+// Create and return conditions (needs to initialize function 
+// before execution, thus it gets a node
+Condition TestCE() : { TestCondition ce=new TestCondition(); Token t;}
+{
+    ( 
+		<TEST>
+		t=<SYMBOL> { jjtThis.setName(t.image); jjtThis.setCondition(ce); }
+	) { return ce; }
+}
+
+//<exists-CE> ::= (exists <conditional-element>+)
+// Create and return conditions
+Condition ExistsCE() #void : 
+{
+	Condition child;
+	ExistCondition ce=new ExistCondition();
+}
+{
+    <EXISTS> 
+    (
+		child=ConditionalElement() { ce.addNestedConditionElement(child); }
+    )+
+    { return ce; }
+}
+
+//<forall-CE> ::= (forall <conditional-element> <conditional-element>+)
+// Create and return conditions	--	NOT IMPLEMENTED!!
+Condition ForallCE() #void : {}
+{
+	(	<FORALL> 
+	ConditionalElement() 
+	(ConditionalElement())+
+	)	{return null; }
+}
+
+// TODO finish 
+//<ordered-pattern-CE> ::= (<symbol> <constraint>*)
+Condition OrderedPatternCE() #void: 
+{ 	
+	Token t; 
+	Condition ce=null;	// NOT IMPLEMENTED
+}
+{
+        (	
+			t=<SYMBOL>
+//			{ jjtThis.setName(t.image); }
+			(Constraint())*
+		)	{ return null; }
+}
+
+// TODO finish 
+//<template-pattern-CE> ::= (<deftemplate-name> <LHS-slot>*)
+Condition TemplatePatternCE() #void: 
+{ 
+	Token t; 
+	Condition ce=null;
+}
+{
+		(
+			t=<SYMBOL>
+			{  }	//deftemplate-name
+			(LHSSlot())*
+        )	{ return null; }
+}
+
+//<object-pattern-CE> ::= (object <attribute-constraint>*)
+// Create and return conditions (use exist condition!!)
+Condition ObjectPatternCE() #void : 
+{ 
+	ObjectCondition ce=new ObjectCondition();
+	Constraint c;
+}
+{
+        (	<OBJECT>
+        (
+			c=AttributeConstraint() 
+			{ ce.addConstraint(c); }
+		)*
+		)	{ return ce; }
+}
+
+//<attribute-constraint> ::= (is-a <constraint>) | (name <constraint>) | (<slot-name> <constraint>*)
+// Create and return conditions (Are these implemented??)
+Constraint AttributeConstraint()  #void :
+{ 
+	Token t;
+	Constraint c=null;
+}
+{
+    "("
+		(
+			t=<SYMBOL> 
+			{  
+				// compare symbol to fixed strings, because 'name' can be 
+				// used as slot name according to CLIPS user guide
+			}
+			(Constraint())* 
+		)
+    ")" { return c; }
+}
+
+// Functionally identical !?
+//<single-field-LHS-slot> ::= (<slot-name> <constraint>)
+//<multifield-LHS-slot> ::= (<slot-name> <constraint>*)
+//<LHS-slot> ::= <single-field-LHS-slot> | <multifield-LHS-slot>
+void LHSSlot()  : { Token t; }
+{
+        t=<SYMBOL>
+        { jjtThis.setName(t.image); }	//slot-name
+		( LOOKAHEAD(2)
+			Constraint()
+		)*
+
+}
+
+//<constraint> ::= ? | $? | <connected-constraint>
+void Constraint() #void : {}
+{
+    SingleFieldWildcard() | MultiFieldWildcard() | ConnectedConstraint()
+}
+
+void SingleFieldWildcard() : {} { <SFWILDCARD> }
+void MultiFieldWildcard() : {} { <MFWILDCARD> }
+
+//<connected-constraint>::= <single-constraint> | <single-constraint> & <connected-constraint> |
+//	<single-constraint> | <connected-constraint>
+
+// THIS IS WRONG: Ampersands and lines can be mixed!!
+void ConnectedConstraint() : {}
+{
+		Term() 
+	[ 
+		( <AMPERSAND> ConnectedConstraint() { jjtThis.setTypeAnd(); } )
+	|	( <LINE> ConnectedConstraint() { jjtThis.setTypeOr(); } )
+	]
+}
+
+//<term> ::= <constant> | <single-field-variable> | <multifield-variable> | 
+//	:<function-call> | =<function-call>
+void Term()  : {}
+{
+	[	<TILDE>	{ jjtThis.setNegate(true); }
+	] 
+    ( LOOKAHEAD(3)
+		Constant() { jjtThis.setType(SFPTerm.T_CONST); }
+    |	SingleVariable() { jjtThis.setType(SFPTerm.T_SINGLE); }
+    |	MultiVariable() { jjtThis.setType(SFPTerm.T_MULTI); }
+    |	(<COLON> FunctionCall() ) { jjtThis.setType(SFPTerm.T_COLON); }
+    |	(<EQUALS> FunctionCall() ) { jjtThis.setType(SFPTerm.T_EQ); } 
+    )
+}
+
+/* Defglobal Construct
+<defglobal-construct> ::= (defglobal [<defmodule-name>] <global-assignment>*)
+<global-assignment> ::= <global-variable> = <expression>
+<global-variable> ::= ?*<symbol>*
+*/
+
+//<defglobal-construct> ::= (defglobal [<defmodule-name>] <global-assignment>*)
+void DefglobalConstruct()  :{ Token t; }
+{
+        <DEFGLOBAL>
+        [ 
+            t=<SYMBOL>
+            { jjtThis.setName(t.image); }	//defmodule-name 
+        ]
+        (GlobalAssignment())*
+}
+
+//<global-assignment> ::= <global-variable> = <expression>
+void GlobalAssignment()  : { Token t; }
+{
+	t=<GLOBALVAR>
+	{ jjtThis.setName(t.image); }	// Needs to access variable to set, can not use variable node
+    <EQUALS>
+    Expression()
+}
+
+/* Deffunction Construct
+<deffunction-construct> 
+	::= (deffunction <name> [<comment>] (<regular-parameter>* [<wildcard-parameter>]) <action>*)
+<regular-parameter> ::= <single-field-variable>
+<wildcard-parameter> ::= <multifield-variable>
+*/
+
+//<deffunction-construct> 
+//	::= (deffunction <name> [<comment>] (<regular-parameter>* [<wildcard-parameter>]) <action>*)
+void DeffunctionConstruct()  :
+{ 
+	Token t; 
+	Node n; 
+	ArrayList list = new ArrayList();
+}
+{
+        <DEFFUNCTION>
+        t=<SYMBOL>
+        { jjtThis.setName(t.image); jjtThis.hasMultiVars(false);}//name
+        [ t=<STRING> 
+			{ jjtThis.setDocString(ParserUtils.getStringLiteral(t.image)); }
+        ]
+        "(" 
+            (
+				t=<SINGLEVAR>	{ list.add(t.image); }	// Should add strings or such to a java list here
+			)*
+
+			[ 
+				t=<MULTIVAR> 
+				{list.add(t.image); jjtThis.hasMultiVars(true);}
+			] 
+        ")"
+        n=ActionList()
+        { 
+			jjtThis.setFunctionParams(list);
+			jjtThis.setFunctionActions(n.getExpression()); 
+		}
+}
+
+
+/* Ignored, produces multifield variable directly
+//<wildcard-parameter> ::= <multifield-variable>
+void WildcardParameter()  #void : {}
+{
+    <MULTIVAR>
+}
+*/
+
+/* Defgeneric Construct
+<defgeneric-construct> ::= (defgeneric <name> [<comment>])
+*/
+void DefgenericConstruct()  :{ Token t; }
+{
+        <DEFGENERIC>
+        t=<SYMBOL>
+        { jjtThis.setName(t.image); }	//name
+        [ t=<STRING>
+			{ jjtThis.setDocString(ParserUtils.getStringLiteral(t.image)); }
+        ]
+}
+
+
+//<parameter-restriction> ::= <single-field-variable> | (<single-field-variable> <type>* [<query>])
+void ParameterRestriction() : {}
+{
+	( LOOKAHEAD(2)
+		(
+			<SINGLEVAR>
+		) |
+		(
+			<LBRACE>
+				<SINGLEVAR> 
+				(Type())* 
+				[Query()]
+			<RBRACE>
+		)
+	)
+}
+
+//<wildcard-parameter-restriction> ::= <multifield-variable> | (<multifield-variable> <type>* [<query>])
+void WildcardParameterRestriction() : {}
+{
+	( LOOKAHEAD(2)
+		(
+			<MULTIVAR>
+		) |
+		(
+			<LBRACE>
+				<MULTIVAR> 
+				(Type())* 
+				[Query()]
+			<RBRACE>
+		)
+	)
+}
+
+//<type> ::= <class-name>
+void Type() : { Token t; }
+{
+	t = <SYMBOL>
+	{ jjtThis.setName(t.image); }//class-name
+}
+
+//<query> ::= <global-variable> | <function-call>
+void Query() : { Token t; }
+{
+		GlobalVariable()
+	|	FunctionCall()
+}
+
+/*	Defclass Construct
+<defclass-construct> ::= (defclass <name> [<comment>] (is-a <superclass-name>+)
+	<slot>* <handler-documentation>*)
+<slot> ::= (slot <name> <facet>*) | (single-slot <name> <facet>*) | (multislot <name> <facet>*)
+<facet> ::= <default-facet> | <constraint-attribute>
+<default-facet> ::= (default ?DERIVE | ?NONE | <expression>*) | (default-dynamic <expression>*)
+*/
+
+
+// JUST SET RULE ATTRIBUTE?
+//<slot> ::= (slot <name> <facet>*) | (single-slot <name> <facet>*) | (multislot <name> <facet>*)
+TemplateSlot Slot() #void : { Token t; TemplateSlot ts=new TemplateSlot();}
+{
+	<LBRACE>
+		(
+			<SLOT> { ts.setMultiSlot(false); }
+		|	<SINGLE_SLOT> { ts.setMultiSlot(false); }
+		|	<MULTISLOT> { ts.setMultiSlot(true); }
+		)
+		t = <SYMBOL>
+		{ 
+		 	ts.setName(t.image);
+		}
+		( Facet(ts) )*
+	<RBRACE>
+	{ return ts; }
+}
+
+//  <facet> ::= <default-facet> 
+void Facet(TemplateSlot ts) #void : {}
+{
+	<LBRACE> 			// facets all have brackets
+		( LOOKAHEAD(2)
+			DefaultFacet(ts)
+		|	ConstraintAttribute(ts)
+		)
+	<RBRACE>
+}
+
+//<default-facet> ::= (default ?DERIVE | ?NONE | <expression>*) | (default-dynamic <expression>*)
+
+void DefaultFacet(TemplateSlot ts) #void : { Node n; }
+{
+	( 	<DEFAULT_ATR>
+		(	<ATR_DERIVE> { ts.setDefaultDerive(); }
+		|	<ATR_NONE> // { ts.setDefaultNone(); }
+		|   n=Attributes() { ts.setStaticDefaultExpression(n.getExpression()); }
+		) 
+	) 
+	|	
+	( 	
+		<DYNAMIC_ATR> 
+		n=Attributes() { ts.setDynamicDefaultExpression(n.getExpression()); }
+	)
+}
+
+
+/**
+*		Constraint Attributes 
+**/
+
+//<constraint-attribute> ::= <type-attribute> | <allowed-constant-attribute> | 
+//	<range-attribute> | <cardinality-attribute>
+
+void ConstraintAttribute(TemplateSlot ts) #void : { }
+{
+	( LOOKAHEAD(2)
+		TypeAttribute(ts)
+	|	AllowedConstantAttribute()
+	|	RangeAttribute()
+	|	CardinalityAttribute()
+	)
+}
+
+
+
+/**
+*		Type Attribute
+**/
+
+//<type-attribute> ::= (type <type-specification>)
+
+void TypeAttribute(TemplateSlot ts) #void : { }
+{
+	<TYPE> TypeSpecification(ts)
+}
+
+
+
+/**
+*		Type Specification
+**/
+
+//<type-specification> ::= <allowed-type>+ | ?VARIABLE
+
+void TypeSpecification(TemplateSlot ts)  #void : {}
+{
+	( AllowedType(ts) )+ 
+	| <VARIABLE_TYPE>
+}
+
+
+
+/**
+*		Allowed Type
+**/
+
+//<allowed-type> ::= SYMBOL | STRING | LEXEME | INTEGER | FLOAT | NUMBER |
+// EXTERNAL-ADDRESS | FACT-ADDRESS | DATETIME
+
+void AllowedType(TemplateSlot ts)  #void : {}
+{
+	(	<SYMBOL_TYPE> { ts.setValueType(JamochaType.IDENTIFIER); }
+	|	<STRING_TYPE> { ts.setValueType(JamochaType.STRING); }
+	|	<DATETIME_TYPE>	{ ts.setValueType(JamochaType.DATETIME); }
+	|	<LEXEME_TYPE> { ts.setValueType(JamochaType.IDENTIFIER); }
+	| 	<INTEGER_TYPE> { ts.setValueType(JamochaType.LONG); }
+	| 	<FLOAT_TYPE> { ts.setValueType(JamochaType.DOUBLE); }
+	|	<NUMBER_TYPE> { ts.setValueType(JamochaType.DOUBLE); }
+	|	<FACT_ADDRESS_TYPE> { ts.setValueType(JamochaType.FACT_ID); }
+	|   <DATETIME> { ts.setValueType(JamochaType.DATETIME); }
+	)
+}
+
+
+
+/**
+*		Allowed Constant Atrribute
+**/
+
+// <allowed-constant-attribute> ::= (allowed-symbols <symbol-list>) | (allowed-strings <string-list>) |
+//	(allowed-lexemes <lexeme-list> | (allowed-integers <integer-list>) | (allowed-floats <float-list>) |
+//	(allowed-numbers <number-list>) | (allowed-values <value-list>)
+
+void AllowedConstantAttribute() #void : {}
+{
+	(
+		<ALLOWED_SYMBOLS> SymbolList()		|
+		<ALLOWED_STRINGS> StringList()		|
+		<ALLOWED_LEXEMES> LexemeList()		|
+		<ALLOWED_INTEGERS> IntegerList()	|
+		<ALLOWED_FLOATS> FloatList()		|
+		<ALLOWED_NUMBERS> NumberList()		|
+		<ALLOWED_VALUES> ValueList()		
+	)
+}
+
+
+
+/**
+*		Symbol List
+**/
+
+//<symbol-list> ::= <symbol>+ | ?VARIABLE
+
+void SymbolList() #void : {}
+{
+	(<SYMBOL>)+ | <VARIABLE_TYPE>
+}
+
+
+
+/**
+*		String List
+**/
+
+//<string-list> ::= <string>+ | ?VARIABLE
+
+void StringList() #void : {}
+{
+	(<STRING>)+ | <VARIABLE_TYPE>
+}
+
+
+
+/**
+*		Lexeme List
+**/
+
+//<lexeme-list> ::= <lexeme>+ | ?VARIABLE
+
+void LexemeList() #void : {}
+{
+	(Lexeme())+ | <VARIABLE_TYPE>
+}
+
+
+
+/**
+*		Integer List
+**/
+
+//<integer-list> ::= <integer>+ | ?VARIABLE
+
+void IntegerList() #void : {}
+{
+	(<INTEGER>)+ | <VARIABLE_TYPE>
+}
+
+/**
+*		Float List
+**/
+
+//<float-list> ::= <float>+ | ?VARIABLE
+
+void FloatList() #void : {}
+{
+	(<FLOAT>)+ | <VARIABLE_TYPE>
+}
+
+
+
+/**
+*		Number List
+**/
+
+//<number-list> ::= <number>+ | ?VARIABLE
+
+void NumberList() #void : {}
+{
+	(Number())+ | <VARIABLE_TYPE>
+}
+
+
+
+/**
+*		Value List
+**/
+
+//<value-list> ::= <constant>+ | ?VARIABLE
+
+void ValueList() #void : {}
+{
+	(Constant())+ | <VARIABLE_TYPE>
+}
+
+
+
+/**
+*		Range Attribute
+**/
+
+//<range-attribute> ::= (range <range-specification> <range-specification>)
+
+void RangeAttribute() #void : {}
+{
+	<RANGE> RangeSpecification() RangeSpecification()
+}
+
+
+/**
+*		Range Specification
+**/
+
+//<range-specification> ::= <number> | ?VARIABLE
+
+void RangeSpecification()  #void : {}
+{
+	Number() | <VARIABLE_TYPE>
+}
+
+//<cardinality-attribute> ::= (cardinality <cardinality-specification> <cardinality-specification>)
+void CardinalityAttribute()  #void : {}
+{
+	<CARDINALITY> CardinalitySpecification() CardinalitySpecification()
+}
+
+
+
+/**
+*		Cardinality Specification
+**/
+
+//<cardinality-specification> ::= <integer> | ?VARIABLE
+
+void CardinalitySpecification() #void: {}
+{
+	Integer() | <VARIABLE_TYPE>
+}
+
+
+
+/**
+*		Defmodule Construct
+**/
+
+//	<defmodule-construct> ::= (defmodule <module-name> [<comment>] )
+
+void DefmoduleConstruct() : { Token t; }
+{
+	<DEFMODULE>
+	t = <SYMBOL>
+	{ jjtThis.setName(t.image); }//name
+	[
+		t = <SYMBOL>
+		{ jjtThis.setDocString(t.image); }//comment
+	]
+}
+
+
