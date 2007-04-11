@@ -55,7 +55,7 @@ public class SFPParser implements Parser{
                                 SFPStart n = p.Start();
                                 if (n==null) System.exit(0);
                                 n.dump(" ");
-                                System.out.println(n.getExpression().getValue(engine).toString());
+//                                System.out.println(n.getExpression().getValue(engine).toString());
                         }
                 }
                 catch (Exception e)
@@ -472,7 +472,8 @@ Node FunctionCall() #void :
 *		Any Function
 **/
 
-Node AnyFunction() :{ Token t; }
+Node AnyFunction() : 
+{ Token t; }
 {
 	t=<SYMBOL> 
 	{ jjtThis.setName(t.image); }
@@ -486,7 +487,8 @@ Node AnyFunction() :{ Token t; }
 *		Expression
 **/
 
-Node Expression() #void : { Node n; } 
+Node Expression() #void : 
+{ Node n; } 
 {	
 	(	LOOKAHEAD(2)
 		n=Constant()
@@ -506,7 +508,8 @@ Node Expression() #void : { Node n; }
 *		Assert Function
 **/
 
-Node AssertFunc() : {}
+Node AssertFunc() : 
+{}
 {
 	<ASSERT>
 	(RHSPattern())+
@@ -516,10 +519,11 @@ Node AssertFunc() : {}
 
 
 /**
-*		Assert Function
+*		FindFactByFact Function
 **/
 
-Node FindFactByFactFunc() : {}
+Node FindFactByFactFunc() : 
+{}
 {
 	<FIND_FACT_BY_FACT>
 	(RHSPattern())
@@ -532,7 +536,8 @@ Node FindFactByFactFunc() : {}
 *		Retract Function
 **/
 
-Node RetractFunc() : {}
+Node RetractFunc() : 
+{}
 {
 	<RETRACT>
 	(
@@ -624,10 +629,11 @@ Node SwitchCaseFunc() : {}
 
 
 /**
-*		Case Switch Function
+*		Case Statement Function
 **/
 
-void CaseStatement() : {}
+Node CaseStatement() : 
+{}
 {
 	"(" 
 		<CASE> 
@@ -636,17 +642,6 @@ void CaseStatement() : {}
 		ActionList()
 	")"
 }
-
-
-
-/**
-*		Action
-**/
-
-void Action() #void : 
-{} 
-{  Expression() }
-
 
 
 /**
@@ -683,7 +678,7 @@ void DeftemplateConstruct() :{ Token t; AbstractSlot s;}
 		}
 	    [
 			t=<STRING>
-			{ jjtThis.setDocString(ParserUtils.getStringLiteral(t.image)); }
+			{ jjtThis.setDocString(jjtThis, ParserUtils.getStringLiteral(t.image)); }
 		]
         (
 			s=SlotDefinition() { jjtThis.addSlot(s); }
@@ -937,7 +932,7 @@ void RHSField() #void :
 **/
 
 /*
-<defrule-construct> ::= (defrule <rule-name> [<comment>] [<declaration>] <conditional-element>* => <action>*) 
+<defrule-construct> ::= (defrule <rule-name> [<comment>] [<declaration>] <conditional-element>* => <expression>*) 
 <rule-property> ::= (salience <integer-expression>) | (auto-focus <boolean-symbol>)
 <boolean-symbol> ::= TRUE | FALSE
 <conditional-element> ::= <pattern-CE> | <assigned-pattern-CE> | <not-CE> | <and-CE> | <or-CE> |
@@ -973,7 +968,7 @@ void RHSField() #void :
 /**
 *		Define Rule Construct
 **/
-// <defrule-construct> ::= (defrule <rule-name> [<comment>] [<declaration>] <conditional-element>* => <action>*) 
+// <defrule-construct> ::= (defrule <rule-name> [<comment>] [<declaration>] <conditional-element>* => <expression>*) 
 
 void DefruleConstruct() :{ Token t; Node n; Condition ce; }
 {
@@ -1363,13 +1358,13 @@ void GlobalAssignment()  : { Token t; }
 
 /* Deffunction Construct
 <deffunction-construct> 
-	::= (deffunction <name> [<comment>] (<regular-parameter>* [<wildcard-parameter>]) <action>*)
+	::= (deffunction <name> [<comment>] (<regular-parameter>* [<wildcard-parameter>]) <expression>*)
 <regular-parameter> ::= <single-field-variable>
 <wildcard-parameter> ::= <multifield-variable>
 */
 
 //<deffunction-construct> 
-//	::= (deffunction <name> [<comment>] (<regular-parameter>* [<wildcard-parameter>]) <action>*)
+//	::= (deffunction <name> [<comment>] (<regular-parameter>* [<wildcard-parameter>]) <expression>*)
 void DeffunctionConstruct()  :
 { 
 	Token t; 
