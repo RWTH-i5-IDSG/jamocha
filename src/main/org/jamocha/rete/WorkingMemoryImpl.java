@@ -129,7 +129,8 @@ public class WorkingMemoryImpl implements WorkingMemory {
 				HashedAlphaMemoryImpl alpha = new HashedAlphaMemoryImpl(mname);
 				this.betaRightMemories.put(key, alpha);
 				return alpha;
-			} else if (key instanceof HashedNotEqBNode) {
+			} else if (key instanceof HashedNotEqBNode || 
+                    key instanceof HashedNotEqNJoin) {
 				String mname = "hneq" + ((BaseNode) key).nodeID;
 				HashedAlphaMemory2 alpha = new HashedAlphaMemory2(mname);
 				this.betaRightMemories.put(key, alpha);
