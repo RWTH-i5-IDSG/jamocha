@@ -42,6 +42,12 @@
 
 		<javacc target="${src}/main/org/jamocha/parser/cool/COOL.jj" outputdirectory="${src}/main/org/jamocha/parser/cool/" javacchome="${javacc.home}" />
 
+		
+		<!-- sfp parser -->
+
+		<jjtree javacchome="${javacc.home}" target="${src}/main/org/jamocha/parser/sfp/SFP.jjt" outputdirectory="${src}/main/org/jamocha/parser/sfp/" nodeusesparser="true" />
+
+		<javacc target="${src}/main/org/jamocha/parser/sfp/SFP.jj" outputdirectory="${src}/main/org/jamocha/parser/sfp/" javacchome="${javacc.home}" />
 	</target>
 
 	<target name="compile" depends="init" description="Compile the jamocha main sources">
