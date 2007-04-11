@@ -722,10 +722,10 @@ void  SlotDefinition()  #void:
 {
     ( 	
 		<LBRACE> 
-			( 
-					SingleSlotDefinition() 
-				|Ê	MultislotDefinition()
-			) 
+		(
+					SingleSlotDefinition()
+				| 	MultiSlotDefinition()
+			)
 		<RBRACE> 
     )
 }
@@ -757,7 +757,7 @@ SimpleNode SingleSlotDefinition() :
 **/
 //<multislot-definition> ::= ( multislot <slot-name> <template-attribute>*)
 
-SimpleNode MultislotDefinition() :
+SimpleNode MultiSlotDefinition() :
 {} 
 {
         <MULTISLOT>
@@ -906,11 +906,11 @@ void RHSPattern() #void :
 {}
 { 
 	<LBRACE>
-		(
 			TemplateRHSPattern()
 	// currently ordered RHS aren't implemented
 	//	| 	OrderedRHSPattern(t.image);
     <RBRACE> 
+    
 }
 
 
@@ -1015,15 +1015,14 @@ SimpleNode DefruleConstruct() :{}
 {
    	<DEFRULE>
 		Symbol() //name
-		[ 
-			ConstructDescription()	//Description
-		]
-		[ 
-			Declaration()	//Declaration
-		]
-		(
-			ConditionalElement() //Condition
-		)* 
+
+		(	
+			( ConstructDescription() )?
+			( Declaration() )?
+			( ConditionalElement() )*
+		)
+		
+		
 	<ARROW>
 		ActionList() 
 	{ return jjtThis; }
@@ -1086,7 +1085,7 @@ SimpleNode Salience() :
 	{ return jjtThis; }
 }
 
-SimpleNode Autofocus(): 
+SimpleNode AutoFocus(): 
 {}
 {
 	<AUTOFOCUS>
@@ -1127,7 +1126,7 @@ SimpleNode ConditionalElement() :
 		|	ForallCE()
 		)
 	<RBRACE>
-	{ return jjtThis }	
+	{ return jjtThis; }	
 }
 
 
@@ -1351,7 +1350,7 @@ SimpleNode ConnectedConstraint() :
 		Ampersand()
 	|	Line()
 	]
-	{return jjtThis}
+	{ return jjtThis; }
 }
 
 
@@ -1361,7 +1360,7 @@ SimpleNode Ampersand():
 {
 	<AMPERSAND>
 	ConnectedConstraint()
-	{return jjtThis;} 
+	{ return jjtThis; } 
 }
 
 
@@ -1371,7 +1370,7 @@ SimpleNode Line():
 {
 	<LINE>
 	ConnectedConstraint()
-	{return jjtThis;} 
+	{ return jjtThis; } 
 }
 
 
