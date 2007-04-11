@@ -195,7 +195,7 @@ TOKEN :
 | < OR1: "or" >
 | < OR2: "|" >
 | < TILDA: "~" >
-| < IDENTIFIER: (<LETTER>|<DIGIT>|<TYPEDEF>|["_",":","-","$",".","@","~","?","/"])+ >
+| < IDENTIFIER: (<LETTER>|<DIGIT>|<TYPEDEF>|["_",":","-","$",".","@","/"])+ >
 |
   < LETTER:
       [
