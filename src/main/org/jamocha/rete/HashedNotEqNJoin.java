@@ -305,7 +305,7 @@ public class HashedNotEqNJoin extends BaseJoin {
      */
     public String toPPString(){
         StringBuffer buf = new StringBuffer();
-        buf.append("HNEqBNode-" + this.nodeID + "> ");
+        buf.append("HashedNotEqNJoin-" + this.nodeID + "> ");
         for (int idx=0; idx < this.binds.length; idx++){
             if (idx > 0){
                 buf.append(" && ");
