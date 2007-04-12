@@ -29,6 +29,7 @@ import org.jamocha.parser.Parser;
 import org.jamocha.parser.ParserUtils;
 import org.jamocha.parser.Expression;
 
+
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.AbstractSlot;
 import org.jamocha.rete.Fact;
@@ -337,9 +338,38 @@ SimpleNode String() :
 		jjtThis.setName(ParserUtils.getStringLiteral(t.image)); 
 		return jjtThis;
 	}
-
 }
 
+
+/**
+*		True
+**/
+
+SimpleNode True() : 
+{ Token t; }
+{
+	t=<TRUE>
+	{
+		jjtThis.setName(t.image); 
+		return jjtThis;
+	}
+}
+
+
+
+/**
+*		False
+**/
+
+SimpleNode False() : 
+{ Token t; }
+{
+	t=<FALSE>
+	{
+		jjtThis.setName(t.image); 
+		return jjtThis;
+	}
+}
 
 
 /**
@@ -365,7 +395,7 @@ void Constant() #void :
 { 	
 	(
 		DateTime()
-	|   Symbol()
+	|   	Symbol()
 	|	String()
 	|	Integer()
 	|	Float()
@@ -464,6 +494,16 @@ SimpleNode VariableType() :
 	}
 }
 
+//<type> ::= <class-name>
+SimpleNode Type() : 
+{ Token t; }
+{
+	t = <SYMBOL> //class-name
+	{ 
+	    jjtThis.setName(t.image); 
+	    return jjtThis;
+	}
+}
 
 /**
 *		Function Call
@@ -1114,15 +1154,13 @@ SimpleNode AutoFocus():
 **/
 //<boolean-symbol> ::= TRUE | FALSE
 
-SimpleNode BooleanSymbol() : { Token t;}
+SimpleNode BooleanSymbol() : 
+{}
 {
-    ( 
-    	t=<TRUE> 
-    ) { jjtThis.setName(t.image); jjtThis.setToTrue(); return jjtThis; }
-    |
-    ( 
-    	t=<FALSE> 
-    ) { jjtThis.setName(t.image); jjtThis.setToFalse(); return jjtThis; }
+    	True()
+    |	False()
+    
+    {return jjtThis; }
 }
 
 
@@ -1247,9 +1285,10 @@ SimpleNode ExistsCE() :
 {
     <EXISTS> 
     (
-		ConditionalElement()
+	ConditionalElement()
     )+
-    { return ce; }
+    
+    { return jjtThis; }
 }
 
 //<forall-CE> ::= (forall <conditional-element> <conditional-element>+)
@@ -1446,23 +1485,29 @@ SimpleNode Equals() :
 */
 
 //<defglobal-construct> ::= (defglobal [<defmodule-name>] <global-assignment>*)
-void DefglobalConstruct()  :{ Token t; }
+SimpleNode DefglobalConstruct()  :
+{}
 {
         <DEFGLOBAL>
         [ 
-            t=<SYMBOL>
-            { jjtThis.setName(t.image); }	//defmodule-name 
+         	Symbol()//defmodule-name 
         ]
-        (GlobalAssignment())*
+        (
+        	GlobalAssignment()
+        )*
+        
+        { return jjtThis; }
 }
 
 //<global-assignment> ::= <global-variable> = <expression>
-void GlobalAssignment()  : { Token t; }
+SimpleNode GlobalAssignment()  : 
+{}
 {
-	t=<GLOBALVAR>
-	{ jjtThis.setName(t.image); }	// Needs to access variable to set, can not use variable node
+    GlobalVariable()
     <EQUALS>
     Expression()
+    
+    { return jjtThis; }
 }
 
 /* Deffunction Construct
@@ -1474,99 +1519,88 @@ void GlobalAssignment()  : { Token t; }
 
 //<deffunction-construct> 
 //	::= (deffunction <name> [<comment>] (<regular-parameter>* [<wildcard-parameter>]) <expression>*)
-void DeffunctionConstruct()  :
-{ 
-	Token t; 
-	SimpleNode n; 
-	ArrayList list = new ArrayList();
-}
+SimpleNode DeffunctionConstruct()  :
+{}
 {
         <DEFFUNCTION>
-        t=<SYMBOL>
-        { jjtThis.setName(t.image); jjtThis.hasMultiVars(false);}//name
-        [ t=<STRING> 
-			{ jjtThis.setDocString(ParserUtils.getStringLiteral(t.image)); }
+        Symbol()	//name
+        [ 
+         	ConstructDescription()
         ]
-        "(" 
-            (
-				t=<SINGLEVAR>	{ list.add(t.image); }	// Should add strings or such to a java list here
-			)*
-
-			[ 
-				t=<MULTIVAR> 
-				{list.add(t.image); jjtThis.hasMultiVars(true);}
-			] 
-        ")"
-        n=ActionList()
-        { 
-			jjtThis.setFunctionParams(list);
-			jjtThis.setFunctionActions(n.getExpression()); 
-		}
+        <LBRACE> 
+        	(
+        		SingleVariable()
+        	)*
+        	[
+             		MultiVariable()
+             	] 
+        <RBRACE>
+        ActionList()
+        
+        { return jjtThis; }
 }
 
-
-/* Ignored, produces multifield variable directly
-//<wildcard-parameter> ::= <multifield-variable>
-void WildcardParameter()  #void : {}
-{
-    <MULTIVAR>
-}
-*/
 
 /* Defgeneric Construct
 <defgeneric-construct> ::= (defgeneric <name> [<comment>])
 */
-void DefgenericConstruct()  :{ Token t; }
+SimpleNode DefgenericConstruct() :
+{}
 {
         <DEFGENERIC>
-        t=<SYMBOL>
-        { jjtThis.setName(t.image); }	//name
-        [ t=<STRING>
-			{ jjtThis.setDocString(ParserUtils.getStringLiteral(t.image)); }
+        Symbol()	//name
+        [ 
+         	ConstructDescription()
         ]
+        
+        { return jjtThis; }
 }
 
 
 //<parameter-restriction> ::= <single-field-variable> | (<single-field-variable> <type>* [<query>])
-void ParameterRestriction() : {}
+SimpleNode ParameterRestriction() : {}
 {
 	( LOOKAHEAD(2)
-		(
-			<SINGLEVAR>
-		) |
-		(
+		SingleVariable()
+	|	(
 			<LBRACE>
-				<SINGLEVAR> 
-				(Type())* 
-				[Query()]
+				SingleVariable() 
+				(
+					Type()
+				)* 
+				[
+				 	Query()
+				 ]
 			<RBRACE>
 		)
 	)
+	
+	{ return jjtThis; }
 }
 
 //<wildcard-parameter-restriction> ::= <multifield-variable> | (<multifield-variable> <type>* [<query>])
-void WildcardParameterRestriction() : {}
+SimpleNode WildcardParameterRestriction() : {}
 {
 	( LOOKAHEAD(2)
-		(
-			<MULTIVAR>
-		) |
+		MultiVariable()
+	|
 		(
 			<LBRACE>
-				<MULTIVAR> 
-				(Type())* 
-				[Query()]
+				MultiVariable() 
+				(
+					Type()
+				)* 
+				[
+				 	Query()
+				 ]
 			<RBRACE>
 		)
 	)
+	
+	{ return jjtThis; }
 }
 
-//<type> ::= <class-name>
-void Type() : { Token t; }
-{
-	t = <SYMBOL>
-	{ jjtThis.setName(t.image); }//class-name
-}
+
 
 //<query> ::= <global-variable> | <function-call>
 void Query() : { Token t; }
@@ -1586,63 +1620,63 @@ void Query() : { Token t; }
 
 // JUST SET RULE ATTRIBUTE?
 //<slot> ::= (slot <name> <facet>*) | (single-slot <name> <facet>*) | (multislot <name> <facet>*)
-TemplateSlot Slot() #void : { Token t; TemplateSlot ts=new TemplateSlot();}
-{
-	<LBRACE>
-		(
-			<SLOT> { ts.setMultiSlot(false); }
-		|	<SINGLE_SLOT> { ts.setMultiSlot(false); }
-		|	<MULTISLOT> { ts.setMultiSlot(true); }
-		)
-		t = <SYMBOL>
-		{ 
-		 	ts.setName(t.image);
-		}
-		( Facet(ts) )*
-	<RBRACE>
-	{ return ts; }
-}
-
-//  <facet> ::= <default-facet> 
-void Facet(TemplateSlot ts) #void : {}
-{
-	<LBRACE> 			// facets all have brackets
-		( LOOKAHEAD(2)
-			DefaultFacet(ts)
-		|	ConstraintAttribute(ts)
-		)
-	<RBRACE>
-}
-
-//<default-facet> ::= (default ?DERIVE | ?NONE | <expression>*) | (default-dynamic <expression>*)
-
-void DefaultFacet(TemplateSlot ts) #void : { SimpleNode n; }
-{
-	( 	<DEFAULT_ATR>
-		(	<ATR_DERIVE> { ts.setDefaultDerive(); }
-		|	<ATR_NONE> // { ts.setDefaultNone(); }
-		|   n=Attributes() { ts.setStaticDefaultExpression(n.getExpression()); }
-		) 
-	) 
-	|	
-	( 	
-		<DYNAMIC_ATR> 
-		n=Attributes() { ts.setDynamicDefaultExpression(n.getExpression()); }
-	)
-}
-
-
-/**
-*		Constraint Attributes 
-**/
+//TemplateSlot Slot() #void : { Token t; TemplateSlot ts=new TemplateSlot();}
+//{
+//	<LBRACE>
+//		(
+//			<SLOT> { ts.setMultiSlot(false); }
+//		|	<SINGLE_SLOT> { ts.setMultiSlot(false); }
+//		|	<MULTISLOT> { ts.setMultiSlot(true); }
+//		)
+//		t = <SYMBOL>
+//		{ 
+//		 	ts.setName(t.image);
+//		}
+//		( Facet(ts) )*
+//	<RBRACE>
+//	{ return ts; }
+//}
+//
+////  <facet> ::= <default-facet> 
+//void Facet() #void : {}
+//{
+//	<LBRACE> 			// facets all have brackets
+//		( LOOKAHEAD(2)
+//			DefaultFacet()
+//		|	ConstraintAttribute()
+//		)
+//	<RBRACE>
+//}
+//
+////<default-facet> ::= (default ?DERIVE | ?NONE | <expression>*) | (default-dynamic <expression>*)
+//
+//void DefaultFacet() #void : { SimpleNode n; }
+//{
+//	( 	<DEFAULT_ATR>
+//		(	<ATR_DERIVE> { ts.setDefaultDerive(); }
+//		|	<ATR_NONE> // { ts.setDefaultNone(); }
+//		|   n=Attributes() { ts.setStaticDefaultExpression(n.getExpression()); }
+//		) 
+//	) 
+//	|	
+//	( 	
+//		<DYNAMIC_ATR> 
+//		n=Attributes() { ts.setDynamicDefaultExpression(n.getExpression()); }
+//	)
+//}
+//
+//
+///**
+//*		Constraint Attributes 
+//**/
 
 //<constraint-attribute> ::= <type-attribute> | <allowed-constant-attribute> | 
 //	<range-attribute> | <cardinality-attribute>
 
-void ConstraintAttribute(TemplateSlot ts) #void : { }
+void ConstraintAttribute() #void : { }
 {
 	( LOOKAHEAD(2)
-		TypeAttribute(ts)
+		TypeAttribute()
 	|	AllowedConstantAttribute()
 	|	RangeAttribute()
 	|	CardinalityAttribute()
@@ -1657,9 +1691,13 @@ void ConstraintAttribute(TemplateSlot ts) #void : { }
 
 //<type-attribute> ::= (type <type-specification>)
 
-void TypeAttribute(TemplateSlot ts) #void : { }
+SimpleNode TypeAttribute() :
+{ }
 {
-	<TYPE> TypeSpecification(ts)
+	<TYPE> 
+	TypeSpecification()
+	
+	{ return jjtThis; }
 }
 
 
@@ -1670,10 +1708,15 @@ void TypeAttribute(TemplateSlot ts) #void : { }
 
 //<type-specification> ::= <allowed-type>+ | ?VARIABLE
 
-void TypeSpecification(TemplateSlot ts)  #void : {}
+SimpleNode TypeSpecification() : 
+{}
 {
-	( AllowedType(ts) )+ 
-	| VariableType()
+	( 
+		AllowedType() 
+	)+ 
+	| 	VariableType()
+	
+	{ return jjtThis; }
 }
 
 
@@ -1685,18 +1728,18 @@ void TypeSpecification(TemplateSlot ts)  #void : {}
 //<allowed-type> ::= SYMBOL | STRING | LEXEME | INTEGER | FLOAT | NUMBER |
 // EXTERNAL-ADDRESS | FACT-ADDRESS | DATETIME
 
-SimpleNode AllowedType(TemplateSlot ts)  : 
+SimpleNode AllowedType()  : 
 { Token t; }
 {
-	(		<SYMBOL_TYPE>
-		|	<STRING_TYPE>
-		|	<DATETIME_TYPE>
-		|	<LEXEME_TYPE>
-		| 	<INTEGER_TYPE>
-		| 	<FLOAT_TYPE>
-		|	<NUMBER_TYPE>
-		|	<FACT_ADDRESS_TYPE>
-		|   <DATETIME>
+	(		t = <SYMBOL_TYPE>
+		|	t = <STRING_TYPE>
+		|	t = <DATETIME_TYPE>
+		|	t = <LEXEME_TYPE>
+		| 	t = <INTEGER_TYPE>
+		| 	t = <FLOAT_TYPE>
+		|	t = <NUMBER_TYPE>
+		|	t = <FACT_ADDRESS_TYPE>
+		|   	t = <DATETIME>
 	)
 	{ 	
 		jjtThis.setName(t.image);
@@ -1715,7 +1758,7 @@ SimpleNode AllowedType(TemplateSlot ts)  :
 //	(allowed-numbers <number-list>) | (allowed-values <value-list>)
 
 SimpleNode AllowedConstantAttribute() : 
-{}
+{ Token t; }
 {
 	(
 			t = <ALLOWED_SYMBOLS> SymbolList()
@@ -1745,6 +1788,7 @@ SimpleNode SymbolList() : {}
 {
 		( <SYMBOL> )+ 
 	|	VariableType()
+	
 	{ return jjtThis; }
 }
 
@@ -1761,6 +1805,7 @@ SimpleNode StringList() :
 {
 		( <STRING> )+ 
 	|	VariableType()
+	
 	{ return jjtThis; }
 }
 
@@ -1777,6 +1822,7 @@ SimpleNode LexemeList() :
 {
 		( Lexeme() )+ 
 	|	VariableType()
+	
 	{ return jjtThis; }
 }
 
@@ -1793,6 +1839,7 @@ SimpleNode IntegerList() :
 {
 		( <INTEGER> )+ 
 	| 	VariableType()
+	
 	{ return jjtThis; }
 }
 
@@ -1807,6 +1854,7 @@ SimpleNode FloatList() :
 {
 		( <FLOAT> )+ 
 	|	VariableType()
+	
 	{ return jjtThis; }
 }
 
@@ -1823,6 +1871,7 @@ SimpleNode NumberList() :
 {
 		( Number() )+ 
 	| 	VariableType()
+	
 	{ return jjtThis; }
 }
 
@@ -1839,6 +1888,7 @@ SimpleNode ValueList() :
 {
 		( Constant() )+ 
 	|	VariableType()
+	
 	{ return jjtThis; }
 }
 
@@ -1858,6 +1908,7 @@ SimpleNode RangeAttribute() :
 	RangeSpecification() 
 	
 	RangeSpecification()
+	
 	{ return jjtThis; }
 }
 
@@ -1913,7 +1964,7 @@ SimpleNode CardinalitySpecification() :
 
 //	<defmodule-construct> ::= (defmodule <module-name> [<comment>] )
 
-SimplenNode DefmoduleConstruct() : 
+SimpleNode DefmoduleConstruct() : 
 {}
 {
 	<DEFMODULE>
