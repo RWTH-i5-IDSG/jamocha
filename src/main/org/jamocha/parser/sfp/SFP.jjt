@@ -450,6 +450,22 @@ SimpleNode Variable() :
 
 
 /**
+*		Variable Type
+**/
+// This is used exactly then when only the variables contents are needed
+
+SimpleNode VariableType() : 
+{ Token t; } 
+{
+	t=<VARIABLE_TYPE>
+	{ 
+		jjtThis.setName(t.image); 
+		return jjtThis;
+	}
+}
+
+
+/**
 *		Function Call
 **/
 
@@ -1657,7 +1673,7 @@ void TypeAttribute(TemplateSlot ts) #void : { }
 void TypeSpecification(TemplateSlot ts)  #void : {}
 {
 	( AllowedType(ts) )+ 
-	| <VARIABLE_TYPE>
+	| VariableType()
 }
 
 
@@ -1669,41 +1685,52 @@ void TypeSpecification(TemplateSlot ts)  #void : {}
 //<allowed-type> ::= SYMBOL | STRING | LEXEME | INTEGER | FLOAT | NUMBER |
 // EXTERNAL-ADDRESS | FACT-ADDRESS | DATETIME
 
-void AllowedType(TemplateSlot ts)  #void : {}
+SimpleNode AllowedType(TemplateSlot ts)  : 
+{ Token t; }
 {
-	(	<SYMBOL_TYPE> { ts.setValueType(JamochaType.IDENTIFIER); }
-	|	<STRING_TYPE> { ts.setValueType(JamochaType.STRING); }
-	|	<DATETIME_TYPE>	{ ts.setValueType(JamochaType.DATETIME); }
-	|	<LEXEME_TYPE> { ts.setValueType(JamochaType.IDENTIFIER); }
-	| 	<INTEGER_TYPE> { ts.setValueType(JamochaType.LONG); }
-	| 	<FLOAT_TYPE> { ts.setValueType(JamochaType.DOUBLE); }
-	|	<NUMBER_TYPE> { ts.setValueType(JamochaType.DOUBLE); }
-	|	<FACT_ADDRESS_TYPE> { ts.setValueType(JamochaType.FACT_ID); }
-	|   <DATETIME> { ts.setValueType(JamochaType.DATETIME); }
+	(		<SYMBOL_TYPE>
+		|	<STRING_TYPE>
+		|	<DATETIME_TYPE>
+		|	<LEXEME_TYPE>
+		| 	<INTEGER_TYPE>
+		| 	<FLOAT_TYPE>
+		|	<NUMBER_TYPE>
+		|	<FACT_ADDRESS_TYPE>
+		|   <DATETIME>
 	)
+	{ 	
+		jjtThis.setName(t.image);
+		return jjtThis; 
+	}
 }
 
 
 
 /**
-*		Allowed Constant Atrribute
+*		Allowed Constant Atrributes
 **/
 
 // <allowed-constant-attribute> ::= (allowed-symbols <symbol-list>) | (allowed-strings <string-list>) |
 //	(allowed-lexemes <lexeme-list> | (allowed-integers <integer-list>) | (allowed-floats <float-list>) |
 //	(allowed-numbers <number-list>) | (allowed-values <value-list>)
 
-void AllowedConstantAttribute() #void : {}
+SimpleNode AllowedConstantAttribute() : 
+{}
 {
 	(
-		<ALLOWED_SYMBOLS> SymbolList()		|
-		<ALLOWED_STRINGS> StringList()		|
-		<ALLOWED_LEXEMES> LexemeList()		|
-		<ALLOWED_INTEGERS> IntegerList()	|
-		<ALLOWED_FLOATS> FloatList()		|
-		<ALLOWED_NUMBERS> NumberList()		|
-		<ALLOWED_VALUES> ValueList()		
+			t = <ALLOWED_SYMBOLS> SymbolList()
+		|	t = <ALLOWED_STRINGS> StringList()
+		|	t = <ALLOWED_LEXEMES> LexemeList()
+		|	t = <ALLOWED_INTEGERS> IntegerList()
+		|	t = <ALLOWED_FLOATS> FloatList()
+		|	t = <ALLOWED_NUMBERS> NumberList()
+		|	t = <ALLOWED_VALUES> ValueList()
 	)
+	
+	{ 	
+		jjtThis.setName(t.image);
+		return jjtThis; 
+	}
 }
 
 
@@ -1714,9 +1741,11 @@ void AllowedConstantAttribute() #void : {}
 
 //<symbol-list> ::= <symbol>+ | ?VARIABLE
 
-void SymbolList() #void : {}
+SimpleNode SymbolList() : {}
 {
-	(<SYMBOL>)+ | <VARIABLE_TYPE>
+		( <SYMBOL> )+ 
+	|	VariableType()
+	{ return jjtThis; }
 }
 
 
@@ -1727,9 +1756,12 @@ void SymbolList() #void : {}
 
 //<string-list> ::= <string>+ | ?VARIABLE
 
-void StringList() #void : {}
+SimpleNode StringList() : 
+{}
 {
-	(<STRING>)+ | <VARIABLE_TYPE>
+		( <STRING> )+ 
+	|	VariableType()
+	{ return jjtThis; }
 }
 
 
@@ -1740,9 +1772,12 @@ void StringList() #void : {}
 
 //<lexeme-list> ::= <lexeme>+ | ?VARIABLE
 
-void LexemeList() #void : {}
+SimpleNode LexemeList() : 
+{}
 {
-	(Lexeme())+ | <VARIABLE_TYPE>
+		( Lexeme() )+ 
+	|	VariableType()
+	{ return jjtThis; }
 }
 
 
@@ -1753,9 +1788,12 @@ void LexemeList() #void : {}
 
 //<integer-list> ::= <integer>+ | ?VARIABLE
 
-void IntegerList() #void : {}
+SimpleNode IntegerList() :
+{}
 {
-	(<INTEGER>)+ | <VARIABLE_TYPE>
+		( <INTEGER> )+ 
+	| 	VariableType()
+	{ return jjtThis; }
 }
 
 /**
@@ -1764,9 +1802,12 @@ void IntegerList() #void : {}
 
 //<float-list> ::= <float>+ | ?VARIABLE
 
-void FloatList() #void : {}
+SimpleNode FloatList() : 
+{}
 {
-	(<FLOAT>)+ | <VARIABLE_TYPE>
+		( <FLOAT> )+ 
+	|	VariableType()
+	{ return jjtThis; }
 }
 
 
@@ -1777,9 +1818,12 @@ void FloatList() #void : {}
 
 //<number-list> ::= <number>+ | ?VARIABLE
 
-void NumberList() #void : {}
+SimpleNode NumberList() : 
+{}
 {
-	(Number())+ | <VARIABLE_TYPE>
+		( Number() )+ 
+	| 	VariableType()
+	{ return jjtThis; }
 }
 
 
@@ -1790,9 +1834,12 @@ void NumberList() #void : {}
 
 //<value-list> ::= <constant>+ | ?VARIABLE
 
-void ValueList() #void : {}
+SimpleNode ValueList() : 
+{}
 {
-	(Constant())+ | <VARIABLE_TYPE>
+		( Constant() )+ 
+	|	VariableType()
+	{ return jjtThis; }
 }
 
 
@@ -1803,9 +1850,15 @@ void ValueList() #void : {}
 
 //<range-attribute> ::= (range <range-specification> <range-specification>)
 
-void RangeAttribute() #void : {}
+SimpleNode RangeAttribute() :
+{}
 {
-	<RANGE> RangeSpecification() RangeSpecification()
+	<RANGE> 
+	
+	RangeSpecification() 
+	
+	RangeSpecification()
+	{ return jjtThis; }
 }
 
 
@@ -1815,9 +1868,12 @@ void RangeAttribute() #void : {}
 
 //<range-specification> ::= <number> | ?VARIABLE
 
-void RangeSpecification()  #void : {}
+SimpleNode RangeSpecification()  : 
+{}
 {
-	Number() | <VARIABLE_TYPE>
+		Number() 
+	| 	VariableType()
+	{ return jjtThis; }
 }
 
 
@@ -1830,6 +1886,7 @@ SimpleNode CardinalityAttribute()  :
 	CardinalitySpecification() 
 
 	CardinalitySpecification()
+	{ return jjtThis; }
 }
 
 
@@ -1844,7 +1901,8 @@ SimpleNode CardinalitySpecification() :
 {}
 {
 		Integer() 
-	| 	<VARIABLE_TYPE>
+	| 	VariableType()
+	{ return jjtThis; }
 }
 
 
@@ -1855,15 +1913,15 @@ SimpleNode CardinalitySpecification() :
 
 //	<defmodule-construct> ::= (defmodule <module-name> [<comment>] )
 
-void DefmoduleConstruct() : { Token t; }
+SimplenNode DefmoduleConstruct() : 
+{}
 {
 	<DEFMODULE>
-	t = <SYMBOL>
-	{ jjtThis.setName(t.image); }//name
+	Symbol() 
 	[
-		t = <SYMBOL>
-		{ jjtThis.setDocString(t.image); }//comment
+		ConstructDescription()
 	]
+	{ return jjtThis; }
 }
 
 
