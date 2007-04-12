@@ -137,6 +137,7 @@ TOKEN :
 | < DECLARE: "declare" >
 | < SALIENCE: "salience" >
 | < AUTOFOCUS: "auto-focus" >
+| <RULEVERSION: "rule-version">
 | <	TYPE: "type" >
 | < TRUE: "TRUE" | "true" | "True" >
 | < FALSE: "FALSE" | "false" | "False" >
@@ -161,15 +162,22 @@ TOKEN :
 | < DATETIME_TYPE: "DATETIME" >
 | < LEXEME_TYPE: "LEXEME" >
 | < INTEGER_TYPE: "INTEGER" >
+| < SHORT_TYPE: "SHORT" >
+| < LONG_TYPE: "LONG" >
 | < FLOAT_TYPE: "FLOAT" >
+| < DOUBLE_TYPE: "DOUBLE" >
 | < NUMBER_TYPE: "NUMBER" >
+| < BOOLEAN_TYPE: "BOOLEAN" >
 | < EXTERNAL_ADDRESS_TYPE: "EXTERNAL-ADDRESS" >
 | < FACT_ADDRESS_TYPE: "FACT-ADDRESS" >
 | < ALLOWED_SYMBOLS: "allowed-symbols" >
 | < ALLOWED_STRINGS: "allowed-strings" >
 | < ALLOWED_LEXEMES: "allowed-lexemes" >
 | < ALLOWED_INTEGERS: "allowed-integers" >
+| < ALLOWED_LONGS: "allowed-longs" >
+| < ALLOWED_SHORTS: "allowed-shorts" >
 | < ALLOWED_FLOATS: "allowed-floats" >
+| < ALLOWED_DOUBLES: "allowed-doubles" >
 | < ALLOWED_NUMBERS: "allowed-numbers" >
 | < ALLOWED_VALUES: "allowed-values" >
 | < RANGE: "range" >
@@ -247,7 +255,6 @@ SFPStart Start() :
 */
 
 
-
 /**
 *		Float
 **/
@@ -255,7 +262,11 @@ SFPStart Start() :
 SimpleNode Float() : 
 { Token t; }
 {
-	t=<FLOAT>
+	(
+		t=<FLOAT>
+	//|	t=<DOUBLE>
+	)
+	
 	{
 		jjtThis.setName(t.image); 
 		return jjtThis;
@@ -271,7 +282,12 @@ SimpleNode Float() :
 SimpleNode Integer() : 
 { Token t; }
 {
-	t=<INTEGER>
+	(
+		t=<INTEGER>
+	//|	t=<LONG>
+	//|	t=<SHORT>
+	)
+	
 	{
 		jjtThis.setName(t.image); 
 		return jjtThis;
@@ -399,6 +415,7 @@ void Constant() #void :
 	|	String()
 	|	Integer()
 	|	Float()
+	|	BooleanSymbol()
 	)
 }
 
@@ -518,11 +535,12 @@ SimpleNode FunctionCall() :
 		(
 			AssertFunc()
 		|	RetractFunc()
-		|   FindFactByFactFunc()	
+		|   	FindFactByFactFunc()	
 		|	IfElseFunc()
 		|	AnyFunction()
-	) 
+		) 
 	<RBRACE>
+	
 	{ return jjtThis; }
 }
 
@@ -535,10 +553,13 @@ SimpleNode FunctionCall() :
 SimpleNode AnyFunction() : 
 {}
 {
- 	Symbol()
  	(
- 		Expression()
- 	)* 
+ 		Symbol()
+ 		(
+ 			Expression()
+ 		)*
+ 	)
+ 	
 	{ return jjtThis; }
 }
 
@@ -625,14 +646,17 @@ SimpleNode RetractFunc() :
 SimpleNode IfElseFunc() : 
 {}
 {
-	<IF>
-	Expression()
-	<THEN>
-	ActionList()
-	[
-		<ELSE>
+	(
+		<IF>
+		Expression()
+		<THEN>
 		ActionList()
-	]
+		[
+		 	<ELSE>
+		 	ActionList()
+		 ]
+	)
+	
 	{ return jjtThis; }
 }
 
@@ -645,10 +669,15 @@ SimpleNode IfElseFunc() :
 SimpleNode WhileFunc() : 
 {}
 {
-	<WHILE>
-	Expression()
-	[<DO>]
-	ActionList()
+	(
+		<WHILE>
+		Expression()
+		[
+		 	<DO>
+		]
+		ActionList()
+	)
+	
 	{ return jjtThis; }
 }
 
@@ -661,20 +690,25 @@ SimpleNode WhileFunc() :
 SimpleNode LoopForCntFunc() : 
 {}
 {
-	<LOOP_FOR_COUNT>
 	(
-		<LBRACE>
-		SingleVariable()
+		<LOOP_FOR_COUNT>
+		(
+			<LBRACE>
+			SingleVariable()
+			[
+			 	Expression()
+			 	[ 
+			 	 	Expression()
+			 	]
+			 ]
+			 <RBRACE>
+		)
 		[
-			Expression()
-			[ 
-				Expression()
-			]
-		]
-		<RBRACE>
+		 	<DO>
+		 ]
+		 ActionList()
 	)
-	[<DO>]
-	ActionList()
+	
 	{ return jjtThis; }
 }
 
@@ -687,14 +721,19 @@ SimpleNode LoopForCntFunc() :
 SimpleNode SwitchCaseFunc() : 
 {}
 {
-	<SWITCH>
-	Expression()	// Test Expression
-	(	LOOKAHEAD(2)
-		CaseStatement()
-	)*
-	[	
-		"(" <DEFAULT_ATR> ActionList()
-	]
+	(
+		<SWITCH>
+		Expression()	// Test Expression
+		(	LOOKAHEAD(2)
+			CaseStatement()
+		)*
+		[	
+		<LBRACE>
+		<DEFAULT_ATR> 
+		ActionList()
+		<RBRACE>
+		]
+	)
 	{ return jjtThis; }
 }
 
@@ -707,12 +746,16 @@ SimpleNode SwitchCaseFunc() :
 SimpleNode CaseStatement() : 
 {}
 {
-	<LBRACE> 
-		<CASE> 
-		Expression()	// Comparison Expression
-		<THEN> 
-		ActionList()
-	<RBRACE>
+	(
+		<LBRACE> 
+			<CASE> 
+			Expression()	// Comparison Expression
+			<THEN> 
+			ActionList()
+		<RBRACE>
+	)
+	
+	{ return jjtThis; }
 }
 
 /**
@@ -721,10 +764,13 @@ SimpleNode CaseStatement() :
 SimpleNode SwitchDefaults() : 
 {}
 {
-	<LBRACE>
-		<DEFAULT_ATR> 
-		ActionList()
-	<RBRACE>
+	(
+		<LBRACE>
+			<DEFAULT_ATR> 
+			ActionList()
+		<RBRACE>
+	)
+	
 	{ return jjtThis; }
 }
 
@@ -755,14 +801,17 @@ void Construct() #void : {}
 SimpleNode DeftemplateConstruct() :
 {}
 {
-        <DEFTEMPLATE>
-		Symbol()
-	    [ 
-		  ConstructDescription()
-		]
         (
-			SlotDefinition()
-        )*
+        	<DEFTEMPLATE>
+			Symbol()
+			[ 
+			 	ConstructDescription()
+			]
+			(
+				SlotDefinition()
+			)*
+	)
+	
         { return jjtThis; }
 }
 
@@ -838,7 +887,7 @@ SimpleNode TemplateAttribute() :
 {
 	<LBRACE>
 	(	LOOKAHEAD(2)
-	    DefaultAttribute() 
+		DefaultAttribute() 
 	| 	DynamicAttribute()
 	|	ConstraintAttribute()
 	) 
@@ -856,7 +905,7 @@ SimpleNode TemplateAttribute() :
 SimpleNode Attributes() :
 {} 
 { 
-	(	LOOKAHEAD(3)
+	(	LOOKAHEAD(2)
 		Expression()
 	)*
 	{ return jjtThis; }
@@ -962,10 +1011,10 @@ void RHSPattern() #void :
 {}
 { 
 	<LBRACE>
-			TemplateRHSPattern()
+		TemplateRHSPattern()
 	// currently ordered RHS aren't implemented
 	//	| 	OrderedRHSPattern(t.image);
-    <RBRACE> 
+	<RBRACE> 
     
 }
 
@@ -979,11 +1028,14 @@ void RHSPattern() #void :
 SimpleNode TemplateRHSPattern() :
 {}
 {
-		Symbol()
+    (
+	    Symbol()
         ( 
         	RHSSlot() 
         )*
-		{ return jjtThis; }
+    )
+    
+    { return jjtThis; }
 }
 
 
@@ -999,11 +1051,14 @@ SimpleNode RHSSlot() :
 {}
 {
     <LBRACE> 
-        Symbol() // slot-name
-        ( 
-        	RHSField() 
-        )*
+        (	Symbol() // slot-name
+        	( 
+        		RHSField() 
+        	)*
+        )
     <RBRACE>
+    
+    { return jjtThis; }
 }
 
 
@@ -1067,20 +1122,48 @@ void RHSField() #void :
 **/
 // <defrule-construct> ::= (defrule <rule-name> [<comment>] [<declaration>] <conditional-element>* => <expression>*) 
 
-SimpleNode DefruleConstruct() :{}
+SimpleNode DefruleConstruct() :
+{}
 {
-   	<DEFRULE>
-		Symbol() //name
+    	(
+    		<DEFRULE>
 
-		(	
-			( ConstructDescription() )?
-			( Declaration() )?
-			( ConditionalElement() )*
-		)
-		
-		
-	<ARROW>
-		ActionList() 
+    		Symbol()//name
+    		[ 
+    		  	ConstructDescription()	
+    		]
+    		( LOOKAHEAD(3)
+    			(
+    				Declaration()
+    				(
+    					ConditionalElement()
+    				)* 
+    			) |
+    			(
+    				(
+    					ConditionalElement()
+    				)* 
+    			)
+    		)
+    			<ARROW>
+        		ActionList()
+        )
+    		
+    		
+//    		Symbol() //name
+//    		[
+//    		ConstructDescription()
+//    		]
+//    
+//    		(LOOKAHEAD(2)
+//    				Declaration()	
+//    			|	(ConditionalElement())*
+//
+//    		)
+//        	<ARROW>
+//        		ActionList()
+//        )
+        
 	{ return jjtThis; }
 }
 
@@ -1088,9 +1171,12 @@ SimpleNode DefruleConstruct() :{}
 // Create Dummy node to have fixed number of children in Defrule
 SimpleNode ActionList():{} 
 { 
-	(	LOOKAHEAD(2)
-		Expression()
-	)* 
+    	(
+        	(
+        	LOOKAHEAD(2)
+    		Expression()
+        	)*
+	)
 	{ return jjtThis; }
 }
 
@@ -1124,12 +1210,14 @@ SimpleNode Declaration():
 SimpleNode RuleProperty(): 
 {}
 {
-    <LBRACE>
+    	<LBRACE>
      	(
-			Salience()		
+     		Salience()		
      	| 	AutoFocus()
-		)
+     	|	RuleVersion()
+	)
 	<RBRACE>
+    	
 	{ return jjtThis; }
 }
 
@@ -1146,8 +1234,18 @@ SimpleNode AutoFocus():
 {
 	<AUTOFOCUS>
 	BooleanSymbol()
+	
+	{ return jjtThis; }
 }
 
+SimpleNode RuleVersion(): 
+{}
+{
+	<RULEVERSION>
+	Expression()
+	
+	{ return jjtThis; }
+}
 
 /**
 *		Boolean Symbol
@@ -1157,8 +1255,10 @@ SimpleNode AutoFocus():
 SimpleNode BooleanSymbol() : 
 {}
 {
+    (
     	True()
     |	False()
+    )
     
     {return jjtThis; }
 }
@@ -1196,7 +1296,8 @@ SimpleNode BooleanFunction():
 		NotFunction()
 	|	AndFunction()
 	|	OrFunction()	
-	)	
+	)
+	
 	{ return jjtThis; }
 }
 
@@ -1205,6 +1306,7 @@ SimpleNode NotFunction():
 {
 	<NOT>
 		ConditionalElement()
+		
 	{ return jjtThis; }
 }
 
@@ -1213,6 +1315,7 @@ SimpleNode AndFunction():
 {	
 	<AND>
 		ConditionalElement()
+		
 	{ return jjtThis; }
 }
 
@@ -1221,6 +1324,7 @@ SimpleNode OrFunction():
 {	
 	<OR>
 		ConditionalElement()
+		
 	{ return jjtThis; }
 }	
 
@@ -1233,10 +1337,11 @@ SimpleNode OrFunction():
 SimpleNode  PatternCE() : 
 {}
 {
-	( LOOKAHEAD(2) 
-		OrderedPatternCE() 
-	|	TemplatePatternCE() 
+	( //LOOKAHEAD(2) 
+	//	OrderedPatternCE() 
+		TemplatePatternCE() 
 	) 
+	
 	{ return jjtThis; }
 }
 
@@ -1249,7 +1354,9 @@ SimpleNode AssignedPatternCE():
 		SingleVariable() 
 		<ASSIGN>
 		PatternCE()
-    ) { return jjtThis; }
+	) 
+	
+	{ return jjtThis; }
 }
 
 
@@ -1262,6 +1369,7 @@ SimpleNode LogicalCE() :
     (
 		ConditionalElement()
     )+ 
+    
     { return jjtThis; }
 }
 
@@ -1275,6 +1383,7 @@ SimpleNode TestCE() :
 		<TEST>
 		Symbol()
 	)
+	
 	{ return jjtThis; }
 }
 
@@ -1303,6 +1412,7 @@ SimpleNode ForallCE() :
 			ConditionalElement()
 		)+
 	)	
+	
 	{return jjtThis; }
 }
 
@@ -1310,22 +1420,30 @@ SimpleNode ForallCE() :
 SimpleNode OrderedPatternCE() : 
 {}
 {
-	Symbol()
+    (
+    	Symbol()
 	(
 		Constraint()
 	)*
-	{ return jjtThis; }
+    )
+    
+    { return jjtThis; }
 }
 
 //<template-pattern-CE> ::= (<deftemplate-name> <LHS-slot>*)
 SimpleNode TemplatePatternCE(): 
 {}
 {
-	Symbol()
-	(
+    (
+    	Symbol()
+	(	
+		<LBRACE>
 		LHSSlot()
+		<RBRACE>
 	)*
-   	{ return jjtThis; }
+    )
+    
+   { return jjtThis; }
 }
 
 //<attribute-constraint> ::= (name <constraint>) | (<slot-name> <constraint>*)
@@ -1340,6 +1458,7 @@ SimpleNode AttributeConstraint() :
 			)* 
 		)
     <RBRACE> 
+    
     { return jjtThis; }
 }
 
@@ -1351,12 +1470,15 @@ SimpleNode AttributeConstraint() :
 SimpleNode LHSSlot()  : 
 {}
 {
-	Symbol()
+    (
+    	Symbol()
 	(
 		LOOKAHEAD(2)
 		Constraint()
 	)*
-	{return jjtThis;}
+    )	
+	
+    {return jjtThis;}
 }
 
 
@@ -1375,19 +1497,25 @@ void Constraint() #void :
 
 
 SimpleNode SingleFieldWildcard() : 
-{}
+{ Token t; }
 {
-	<SFWILDCARD>
-	{ return jjtThis; }
+	t = <SFWILDCARD>
+	{
+	    jjtThis.setName(t.image);
+	    return jjtThis; 
+	}
 }
 
 
 
 SimpleNode MultiFieldWildcard() : 
-{}
+{ Token t; }
 {
-	<MFWILDCARD>
-	{ return jjtThis; }
+	t = <MFWILDCARD>
+	{
+	    jjtThis.setName(t.image);
+	    return jjtThis; 
+	}
 }
 
 
@@ -1400,12 +1528,15 @@ SimpleNode MultiFieldWildcard() :
 SimpleNode ConnectedConstraint() : 
 {}
 {
-		Term() 
+    (
+    	Term() 
 	[ 
 		Ampersand()
 	|	Line()
 	]
-	{ return jjtThis; }
+    )
+	
+    { return jjtThis; }
 }
 
 
@@ -1435,7 +1566,8 @@ SimpleNode Line():
 SimpleNode Term()  : 
 {}
 {
-	[	
+    (
+    	[	
 		Negation()
 	] 
     ( LOOKAHEAD(3)
@@ -1445,6 +1577,8 @@ SimpleNode Term()  :
     |	Colon()
     |	Equals()
     )
+    )
+    
     {return jjtThis;}
 }
 
@@ -1488,24 +1622,28 @@ SimpleNode Equals() :
 SimpleNode DefglobalConstruct()  :
 {}
 {
-        <DEFGLOBAL>
+    (
+    	<DEFGLOBAL>
         [ 
          	Symbol()//defmodule-name 
         ]
         (
         	GlobalAssignment()
         )*
-        
-        { return jjtThis; }
+    )
+    
+    { return jjtThis; }
 }
 
 //<global-assignment> ::= <global-variable> = <expression>
 SimpleNode GlobalAssignment()  : 
 {}
 {
-    GlobalVariable()
-    <EQUALS>
-    Expression()
+    (
+        GlobalVariable()
+        <EQUALS>
+        Expression()
+    )
     
     { return jjtThis; }
 }
@@ -1522,7 +1660,8 @@ SimpleNode GlobalAssignment()  :
 SimpleNode DeffunctionConstruct()  :
 {}
 {
-        <DEFFUNCTION>
+    (
+    	<DEFFUNCTION>
         Symbol()	//name
         [ 
          	ConstructDescription()
@@ -1536,8 +1675,9 @@ SimpleNode DeffunctionConstruct()  :
              	] 
         <RBRACE>
         ActionList()
-        
-        { return jjtThis; }
+    ) 
+    
+    { return jjtThis; }
 }
 
 
@@ -1547,13 +1687,15 @@ SimpleNode DeffunctionConstruct()  :
 SimpleNode DefgenericConstruct() :
 {}
 {
-        <DEFGENERIC>
+     (
+    	<DEFGENERIC>
         Symbol()	//name
         [ 
          	ConstructDescription()
         ]
-        
-        { return jjtThis; }
+     )
+     
+     { return jjtThis; }
 }
 
 
@@ -1710,12 +1852,12 @@ SimpleNode TypeAttribute() :
 
 SimpleNode TypeSpecification() : 
 {}
-{
-	( 
-		AllowedType() 
-	)+ 
-	| 	VariableType()
-	
+{	(
+		( 
+			AllowedType() 
+		)+ 
+		| 	VariableType()
+	)
 	{ return jjtThis; }
 }
 
@@ -1736,10 +1878,14 @@ SimpleNode AllowedType()  :
 		|	t = <DATETIME_TYPE>
 		|	t = <LEXEME_TYPE>
 		| 	t = <INTEGER_TYPE>
+		|	t=  <LONG_TYPE>
+		|	t=  <SHORT_TYPE>
 		| 	t = <FLOAT_TYPE>
+		| 	t = <DOUBLE_TYPE>
 		|	t = <NUMBER_TYPE>
 		|	t = <FACT_ADDRESS_TYPE>
 		|   	t = <DATETIME>
+		|       t=  <BOOLEAN_TYPE>
 	)
 	{ 	
 		jjtThis.setName(t.image);
@@ -1765,7 +1911,10 @@ SimpleNode AllowedConstantAttribute() :
 		|	t = <ALLOWED_STRINGS> StringList()
 		|	t = <ALLOWED_LEXEMES> LexemeList()
 		|	t = <ALLOWED_INTEGERS> IntegerList()
+		|	t = <ALLOWED_LONGS> IntegerList() //Long->integer
+		|	t = <ALLOWED_SHORTS> IntegerList() //short ->integer
 		|	t = <ALLOWED_FLOATS> FloatList()
+		|	t = <ALLOWED_DOUBLES> FloatList() //Double->float
 		|	t = <ALLOWED_NUMBERS> NumberList()
 		|	t = <ALLOWED_VALUES> ValueList()
 	)
@@ -1786,10 +1935,12 @@ SimpleNode AllowedConstantAttribute() :
 
 SimpleNode SymbolList() : {}
 {
-		( <SYMBOL> )+ 
+    (
+    		( <SYMBOL> )+ 
 	|	VariableType()
-	
-	{ return jjtThis; }
+    )
+    
+    { return jjtThis; }
 }
 
 
@@ -1803,10 +1954,12 @@ SimpleNode SymbolList() : {}
 SimpleNode StringList() : 
 {}
 {
-		( <STRING> )+ 
+    (
+    		( <STRING> )+ 
 	|	VariableType()
-	
-	{ return jjtThis; }
+    )
+    
+    { return jjtThis; }
 }
 
 
@@ -1820,10 +1973,12 @@ SimpleNode StringList() :
 SimpleNode LexemeList() : 
 {}
 {
-		( Lexeme() )+ 
+    (
+    		( Lexeme() )+ 
 	|	VariableType()
-	
-	{ return jjtThis; }
+    )
+    
+    { return jjtThis; }
 }
 
 
@@ -1837,10 +1992,12 @@ SimpleNode LexemeList() :
 SimpleNode IntegerList() :
 {}
 {
-		( <INTEGER> )+ 
+    (
+    		( <INTEGER> )+ 
 	| 	VariableType()
-	
-	{ return jjtThis; }
+    )
+    
+    { return jjtThis; }
 }
 
 /**
@@ -1852,10 +2009,12 @@ SimpleNode IntegerList() :
 SimpleNode FloatList() : 
 {}
 {
-		( <FLOAT> )+ 
+    (
+    		( <FLOAT> )+ 
 	|	VariableType()
-	
-	{ return jjtThis; }
+    )
+    
+    { return jjtThis; }
 }
 
 
@@ -1869,10 +2028,12 @@ SimpleNode FloatList() :
 SimpleNode NumberList() : 
 {}
 {
-		( Number() )+ 
+    (
+    		( Number() )+ 
 	| 	VariableType()
+    )
 	
-	{ return jjtThis; }
+    { return jjtThis; }
 }
 
 
@@ -1886,10 +2047,12 @@ SimpleNode NumberList() :
 SimpleNode ValueList() : 
 {}
 {
-		( Constant() )+ 
+    (
+    		( Constant() )+ 
 	|	VariableType()
+    )
 	
-	{ return jjtThis; }
+    { return jjtThis; }
 }
 
 
@@ -1903,13 +2066,15 @@ SimpleNode ValueList() :
 SimpleNode RangeAttribute() :
 {}
 {
-	<RANGE> 
+    (	
+    	<RANGE> 
 	
 	RangeSpecification() 
 	
 	RangeSpecification()
+   )
 	
-	{ return jjtThis; }
+   { return jjtThis; }
 }
 
 
@@ -1922,9 +2087,12 @@ SimpleNode RangeAttribute() :
 SimpleNode RangeSpecification()  : 
 {}
 {
-		Number() 
+    (
+    		Number() 
 	| 	VariableType()
-	{ return jjtThis; }
+    )
+	
+    { return jjtThis; }
 }
 
 
@@ -1932,12 +2100,15 @@ SimpleNode RangeSpecification()  :
 SimpleNode CardinalityAttribute()  : 
 {}
 {
-	<CARDINALITY> 
+    (
+    	<CARDINALITY> 
 
 	CardinalitySpecification() 
 
 	CardinalitySpecification()
-	{ return jjtThis; }
+    )
+    
+    { return jjtThis; }
 }
 
 
@@ -1951,9 +2122,12 @@ SimpleNode CardinalityAttribute()  :
 SimpleNode CardinalitySpecification() : 
 {}
 {
-		Integer() 
+    (	
+    		Integer() 
 	| 	VariableType()
-	{ return jjtThis; }
+    )
+	
+    { return jjtThis; }
 }
 
 
@@ -1967,12 +2141,15 @@ SimpleNode CardinalitySpecification() :
 SimpleNode DefmoduleConstruct() : 
 {}
 {
-	<DEFMODULE>
+    (
+    	<DEFMODULE>
 	Symbol() 
 	[
 		ConstructDescription()
 	]
-	{ return jjtThis; }
+    )
+	
+    { return jjtThis; }
 }
 
 
