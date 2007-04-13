@@ -23,9 +23,6 @@ import java.util.List;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.FunctionGroup;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.functions.GarbageCollectFunction;
-import org.jamocha.rete.functions.GenerateFactsFunction;
-import org.jamocha.rete.functions.LazyAgendaFunction;
 import org.jamocha.rete.functions.ListDirectoryFunction;
 import org.jamocha.rete.functions.ListFunctionsFunction;
 import org.jamocha.rete.functions.ListTemplatesFunction;
@@ -151,21 +148,21 @@ public class RuleEngineFunctions implements FunctionGroup, Serializable {
 		engine.declareFunction(fire);
 		funcs.add(fire);
 
-		ModulesFunction modules = new ModulesFunction();
-		engine.declareFunction(modules);
-		funcs.add(modules);
+		GarbageCollect garbageCollect = new GarbageCollect();
+		engine.declareFunction(garbageCollect);
+		funcs.add(garbageCollect);
 
-		GenerateFactsFunction genff = new GenerateFactsFunction();
-		engine.declareFunction(genff);
-		funcs.add(genff);
+		GenerateFacts generateFacts = new GenerateFacts();
+		engine.declareFunction(generateFacts);
+		funcs.add(generateFacts);
 
-		GarbageCollectFunction gcf = new GarbageCollectFunction();
-		engine.declareFunction(gcf);
-		funcs.add(gcf);
+		GetCurrentModule getCurrentModule = new GetCurrentModule();
+		engine.declareFunction(getCurrentModule);
+		funcs.add(getCurrentModule);
 
-		LazyAgendaFunction laf = new LazyAgendaFunction();
-		engine.declareFunction(laf);
-		funcs.add(laf);
+		LazyAgenda lazyAgenda = new LazyAgenda();
+		engine.declareFunction(lazyAgenda);
+		funcs.add(lazyAgenda);
 
 		ListDirectoryFunction ldir = new ListDirectoryFunction();
 		engine.declareFunction(ldir);
@@ -191,6 +188,10 @@ public class RuleEngineFunctions implements FunctionGroup, Serializable {
 		LoadFunctionGroupFunction loadfg = new LoadFunctionGroupFunction();
 		engine.declareFunction(loadfg);
 		funcs.add(loadfg);
+
+		ModulesFunction modules = new ModulesFunction();
+		engine.declareFunction(modules);
+		funcs.add(modules);
 
 		UsageFunction usage = new UsageFunction();
 		engine.declareFunction(usage);
@@ -322,7 +323,8 @@ public class RuleEngineFunctions implements FunctionGroup, Serializable {
 		engine.declareFunction(watchf);
 		funcs.add(watchf);
 
-		engine.declareFunction("focus", setFocus);
+		engine.declareFunction("focus", getCurrentModule);
+		engine.declareFunction("get-focus", getCurrentModule);
 	}
 
 	public List listFunctions() {

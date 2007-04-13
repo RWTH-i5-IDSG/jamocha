@@ -1,5 +1,5 @@
 (deftemplate templ (slot a) (slot b) (slot c) )
-
+(jdbclink-init)
 (bind ?mylink 
 	(assert
 		(jdbclink 

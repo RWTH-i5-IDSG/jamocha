@@ -1,10 +1,10 @@
-/* Copyright 2002-2006 Peter Lin
+/* Copyright 2007 Josef Alexander Hahn, Alexander Wilden
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://ruleml-dev.sourceforge.net/
+ *   http://www.jamocha.org/
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,18 +13,14 @@
  * limitations under the License.
  * 
  */
-package org.jamocha.rete.functions;
+package org.jamocha.rete.functions.adaptor;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.jamocha.parser.JamochaType;
-import org.jamocha.rete.Deftemplate;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.FunctionGroup;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.Template;
-import org.jamocha.rete.TemplateSlot;
 
 public class AdaptorFunctions implements FunctionGroup {
 
@@ -42,25 +38,11 @@ public class AdaptorFunctions implements FunctionGroup {
 
 	public void loadFunctions(Rete engine) {
 
-		/* Defining configuration template */
-		String templateName="jdbclink";
-		String defclass=null;
-		TemplateSlot[] slots = new TemplateSlot[6];
-		slots[0] = new TemplateSlot("ConnectionName");
-		slots[1] = new TemplateSlot("TableName");
-		slots[2] = new TemplateSlot("TemplateName");
-		slots[3] = new TemplateSlot("Username");
-		slots[4] = new TemplateSlot("Password");
-		slots[5] = new TemplateSlot("JDBCurl");
-		slots[0] = new TemplateSlot("JDBCdriver");
-		for( int i=0 ; i<6 ; i++ ) slots[i].setValueType( JamochaType.STRING );
-		Template jdbcConfigTemplate = new Deftemplate(templateName,defclass,slots);
-		
-		/* give it to the engine */
-		engine.findModule("MAIN").addTemplate(jdbcConfigTemplate, engine, engine.getWorkingMemory());
-		
-		/* generate the functions */
-		JDBClink jdbclink = new JDBClink();
+		// Note: The jdbc-template will now be defined when the function
+		// jdbclink-init is called. Otherwise the template is always in the
+		// engine although it isn't needed.
+
+		JDBCLink jdbclink = new JDBCLink();
 		engine.declareFunction(jdbclink);
 		funcs.add(jdbclink);
 		IteratorImporter iteratorimporter = new IteratorImporter();
@@ -68,8 +50,8 @@ public class AdaptorFunctions implements FunctionGroup {
 		funcs.add(iteratorimporter);
 		IteratorExporter iteratorexporter = new IteratorExporter();
 		engine.declareFunction(iteratorexporter);
-		funcs.add(iteratorexporter);		
-		
+		funcs.add(iteratorexporter);
+
 	}
 
 	public List listFunctions() {

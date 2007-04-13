@@ -1,4 +1,5 @@
 (deftemplate jdbc_test (slot id) (slot test_fact))
+(jdbclink-init)
 (assert
     (jdbclink
         (ConnectionName "testcon")
