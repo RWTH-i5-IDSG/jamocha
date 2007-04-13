@@ -219,7 +219,6 @@ public interface SFPParserConstants {
     "<SINGLEVAR>",
     "<MULTIVAR>",
     "<SYMBOL>",
-    "\"\\\"\"",
   };
 
 }

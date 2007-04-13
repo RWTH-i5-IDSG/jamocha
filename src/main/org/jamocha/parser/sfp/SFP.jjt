@@ -422,8 +422,9 @@ void Constant() #void :
 SimpleNode ConstructDescription() : 
 {}
 {	
-    String() 
-    {return jjtThis; }
+    String()
+    
+    { return jjtThis; }
 }
 
 
@@ -1139,23 +1140,7 @@ SimpleNode DefruleConstruct() :
     		)
     			<ARROW>
         		ActionList()
-        )
-    		
-    		
-//    		Symbol() //name
-//    		[
-//    		ConstructDescription()
-//    		]
-//    
-//    		(LOOKAHEAD(2)
-//    				Declaration()	
-//    			|	(ConditionalElement())*
-//
-//    		)
-//        	<ARROW>
-//        		ActionList()
-//        )
-        
+        )        
 	{ return jjtThis; }
 }
 
@@ -1261,15 +1246,20 @@ SimpleNode BooleanSymbol() :
 SimpleNode ConditionalElement() :
 {}
 {
-		(LOOKAHEAD(5)
-			TemplatePatternCE() 
-		//|	BooleanFunction() 
-		|	LogicalCE() 
-		//|	TestCE()
-		//|	ExistsCE()
-		//|	ForallCE()		
-		|	AssignedPatternCE() 
+	(
+		(
+		   <LBRACE> 
+					TemplatePatternCE() 
+				|	BooleanFunction() 
+				|	LogicalCE() 
+				|	TestCE()
+				|	ExistsCE()
+				|	ForallCE()		
+			<RBRACE>
 		)
+
+		|	AssignedPatternCE() 
+	)
 	{ return jjtThis; }	
 }
 
@@ -1292,20 +1282,17 @@ SimpleNode BooleanFunction():
 SimpleNode NotFunction():
 {}
 {
-    	<LBRACE>
 	<NOT>
 		ConditionalElement()
-	<RBRACE>	
+
 	{ return jjtThis; }
 }
 
 SimpleNode AndFunction():
 {}
 {	
-    	<LBRACE>
 	<AND>
 		ConditionalElement()
-	<RBRACE>
     	
 	{ return jjtThis; }
 }
@@ -1313,10 +1300,9 @@ SimpleNode AndFunction():
 SimpleNode OrFunction():
 {}
 {	
-    	<LBRACE>
+
 	<OR>
 		ConditionalElement()
-	<RBRACE>
     	
 	{ return jjtThis; }
 }	
@@ -1331,10 +1317,16 @@ SimpleNode OrFunction():
 SimpleNode AssignedPatternCE():
 {}
 {
+
 	(
 		SingleVariable() 
 		<ASSIGN>
-		TemplatePatternCE()
+		
+		<LBRACE>
+		
+			TemplatePatternCE()
+		
+		<RBRACE>
 	) 
 	
 	{ return jjtThis; }
@@ -1346,12 +1338,13 @@ SimpleNode AssignedPatternCE():
 SimpleNode LogicalCE() : 
 {}
 {
-    <LBRACE>
     <LOGICAL> 
+    
     (
+    	LOOKAHEAD(2)
+    	
 		ConditionalElement()
     )+ 
-    <RBRACE>
     
     { return jjtThis; }
 }
@@ -1362,11 +1355,8 @@ SimpleNode LogicalCE() :
 SimpleNode TestCE() : 
 {}
 {
-    	<LBRACE>
 	<TEST>
 	Symbol()
-	
-	<RBRACE>
 	
 	{ return jjtThis; }
 }
@@ -1376,12 +1366,12 @@ SimpleNode TestCE() :
 SimpleNode ExistsCE() : 
 {}
 {
-    <LBRACE>
     <EXISTS> 
     (
-	ConditionalElement()
+		LOOKAHEAD(2)
+		
+		ConditionalElement()
     )+
-    <RBRACE>
     
     { return jjtThis; }
 }
@@ -1391,13 +1381,13 @@ SimpleNode ExistsCE() :
 SimpleNode ForallCE() : 
 {}
 {
-    	<LBRACE>	
 	<FORALL> 
 	ConditionalElement() 
 	(
+		LOOKAHEAD(2)
+		
 		ConditionalElement()
 	)+	
-	<RBRACE>
     	
 	{return jjtThis; }
 }
@@ -1406,16 +1396,18 @@ SimpleNode ForallCE() :
 SimpleNode TemplatePatternCE(): 
 {}
 {
-    <LBRACE>
     (
     	Symbol()
-	(	
-		<LBRACE>
-		LHSSlot()
-		<RBRACE>
-	)*
+		(	
+			LOOKAHEAD(2)
+	
+			<LBRACE>
+
+				LHSSlot()
+
+			<RBRACE>
+		)*
     )
-    <RBRACE>
     
    { return jjtThis; }
 }
@@ -1694,6 +1686,7 @@ SimpleNode ParameterRestriction() : {}
 	{ return jjtThis; }
 }
 
+
 //<wildcard-parameter-restriction> ::= <multifield-variable> | (<multifield-variable> <type>* [<query>])
 SimpleNode WildcardParameterRestriction() : {}
 {
@@ -1725,66 +1718,10 @@ void Query() : { Token t; }
 	|	FunctionCall()
 }
 
-/*	Defclass Construct
-<defclass-construct> ::= (defclass <name> [<comment>] (is-a <superclass-name>+)
-	<slot>* <handler-documentation>*)
-<slot> ::= (slot <name> <facet>*) | (single-slot <name> <facet>*) | (multislot <name> <facet>*)
-<facet> ::= <default-facet> | <constraint-attribute>
-<default-facet> ::= (default ?DERIVE | ?NONE | <expression>*) | (default-dynamic <expression>*)
-*/
 
-
-// JUST SET RULE ATTRIBUTE?
-//<slot> ::= (slot <name> <facet>*) | (single-slot <name> <facet>*) | (multislot <name> <facet>*)
-//TemplateSlot Slot() #void : { Token t; TemplateSlot ts=new TemplateSlot();}
-//{
-//	<LBRACE>
-//		(
-//			<SLOT> { ts.setMultiSlot(false); }
-//		|	<SINGLE_SLOT> { ts.setMultiSlot(false); }
-//		|	<MULTISLOT> { ts.setMultiSlot(true); }
-//		)
-//		t = <SYMBOL>
-//		{ 
-//		 	ts.setName(t.image);
-//		}
-//		( Facet(ts) )*
-//	<RBRACE>
-//	{ return ts; }
-//}
-//
-////  <facet> ::= <default-facet> 
-//void Facet() #void : {}
-//{
-//	<LBRACE> 			// facets all have brackets
-//		( LOOKAHEAD(2)
-//			DefaultFacet()
-//		|	ConstraintAttribute()
-//		)
-//	<RBRACE>
-//}
-//
-////<default-facet> ::= (default ?DERIVE | ?NONE | <expression>*) | (default-dynamic <expression>*)
-//
-//void DefaultFacet() #void : { SimpleNode n; }
-//{
-//	( 	<DEFAULT_ATR>
-//		(	<ATR_DERIVE> { ts.setDefaultDerive(); }
-//		|	<ATR_NONE> // { ts.setDefaultNone(); }
-//		|   n=Attributes() { ts.setStaticDefaultExpression(n.getExpression()); }
-//		) 
-//	) 
-//	|	
-//	( 	
-//		<DYNAMIC_ATR> 
-//		n=Attributes() { ts.setDynamicDefaultExpression(n.getExpression()); }
-//	)
-//}
-//
-//
-///**
-//*		Constraint Attributes 
-//**/
+/**
+*		Constraint Attributes 
+**/
 
 //<constraint-attribute> ::= <type-attribute> | <allowed-constant-attribute> | 
 //	<range-attribute> | <cardinality-attribute>
