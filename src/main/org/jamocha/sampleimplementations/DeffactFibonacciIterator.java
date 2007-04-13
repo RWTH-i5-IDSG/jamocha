@@ -9,7 +9,6 @@ import org.jamocha.rete.Deftemplate;
 import org.jamocha.rete.Slot;
 import org.jamocha.rete.TemplateSlot;
 import org.jamocha.rete.util.DeffactIterator;
-import org.jamocha.rule.Defrule;
 
 public class DeffactFibonacciIterator extends DeffactIterator {
 

@@ -35,12 +35,14 @@ public class FactUtils {
 		super();
 	}
 
+	@SuppressWarnings("unchecked")
 	public static Object[] sortFacts(List facts) {
 		Object[] sorted = facts.toArray();
 		Arrays.sort(sorted,COMPARATOR);
 		return sorted;
 	}
 	
+	@SuppressWarnings("unchecked")
 	public static Object[] sortFactsByTemplate(List facts) {
 		Object[] sorted = facts.toArray();
 		Arrays.sort(sorted,TEMPLATECOMP);

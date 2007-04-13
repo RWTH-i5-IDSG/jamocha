@@ -16,9 +16,6 @@
  */
 package org.jamocha.rete.util;
 
-import java.util.Collection;
-// import java.util.Iterator;
-import java.util.Set;
 
 /**
  * @author Peter Lin
@@ -200,8 +197,6 @@ public abstract class AbstractMap implements Map {
 		private int length;
 
 		private Entry entry;
-		
-		private Entry next;
 
 		public EntryIterator(final AbstractMap map) {
 			this.hashMap = map;
@@ -236,7 +231,6 @@ public abstract class AbstractMap implements Map {
 			this.length = this.table.length;
 			this.row = -1;
 			this.entry = null;
-			this.next = null;
 		}
 	}
 }

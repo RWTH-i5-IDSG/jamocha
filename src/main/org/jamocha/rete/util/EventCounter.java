@@ -35,21 +35,16 @@ import org.jamocha.rete.EngineEventListener;
  */
 public class EventCounter implements EngineEventListener {
 
-    private ArrayList asserts = new ArrayList();
-    private ArrayList retracts = new ArrayList();
-    private ArrayList profiles = new ArrayList();
-    private Map nodeFilter = new HashMap();
-    
-	/**
-	 * 
-	 */
-	public EventCounter() {
-		super();
-	}
+    private ArrayList<EngineEvent> asserts = new ArrayList<EngineEvent>();
+    private ArrayList<EngineEvent> retracts = new ArrayList<EngineEvent>();
+    private ArrayList<EngineEvent> profiles = new ArrayList<EngineEvent>();
+    private Map<BaseNode,ArrayList> nodeFilter = new HashMap<BaseNode,ArrayList>();
+
 
 	/* (non-Javadoc)
 	 * @see woolfel.engine.rete.EngineEventListener#eventOccurred(woolfel.engine.rete.EngineEvent)
 	 */
+	@SuppressWarnings("unchecked")
 	public void eventOccurred(EngineEvent event) {
         if (event.getEventType() == EngineEvent.ASSERT_EVENT) {
             asserts.add(event);

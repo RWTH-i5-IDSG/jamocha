@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://ruleml-dev.sourceforge.net/
+ *   http://www.jamocha.org/
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -41,7 +41,6 @@ import org.jamocha.rete.exception.ExecuteException;
 import org.jamocha.rete.exception.RetractException;
 import org.jamocha.rete.functions.AdaptorFunctions;
 import org.jamocha.rete.functions.BatchFunction;
-import org.jamocha.rete.functions.BooleanFunctions;
 import org.jamocha.rete.functions.DateTimeFunctions;
 import org.jamocha.rete.functions.DeffunctionGroup;
 import org.jamocha.rete.functions.IOFunctions;
@@ -49,8 +48,8 @@ import org.jamocha.rete.functions.IfFunction;
 import org.jamocha.rete.functions.InterpretedFunction;
 import org.jamocha.rete.functions.JavaFunctions;
 import org.jamocha.rete.functions.MathFunctions;
-import org.jamocha.rete.functions.RuleEngineFunctions;
 import org.jamocha.rete.functions.list.ListFunctions;
+import org.jamocha.rete.functions.ruleengine.RuleEngineFunctions;
 import org.jamocha.rete.functions.strings.StringFunctions;
 import org.jamocha.rete.strategies.DepthStrategy;
 import org.jamocha.rete.util.CollectionsFactory;
@@ -226,43 +225,49 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 		this.theAgenda.addModule(this.main);
 	}
 
+	@SuppressWarnings("unchecked")
 	protected void loadBuiltInFunctions() {
+		// load the IO functions
 		IOFunctions iof = new IOFunctions();
 		functionGroups.add(iof);
 		iof.loadFunctions(this);
-		// load the mathe functions
+		
+		// load the math functions
 		MathFunctions mathf = new MathFunctions();
 		functionGroups.add(mathf);
 		mathf.loadFunctions(this);
+		
 		// load the date/time functions
 		DateTimeFunctions datetimef = new DateTimeFunctions();
 		functionGroups.add(datetimef);
 		datetimef.loadFunctions(this);
+		
 		// load the list functions
 		ListFunctions listf = new ListFunctions();
 		functionGroups.add(listf);
 		listf.loadFunctions(this);
+		
 		// load the database functions
 		AdaptorFunctions databasef = new AdaptorFunctions();
 		functionGroups.add(databasef);
 		databasef.loadFunctions(this);
+		
 		// load the engine relate functions like declaring rules, templates, etc
 		RuleEngineFunctions rulefs = new RuleEngineFunctions();
 		functionGroups.add(rulefs);
 		rulefs.loadFunctions(this);
+		
 		// load string functions
 		StringFunctions strfs = new StringFunctions();
 		functionGroups.add(strfs);
 		strfs.loadFunctions(this);
-		// load string functions
-		BooleanFunctions boolfs = new BooleanFunctions();
-		functionGroups.add(boolfs);
-		boolfs.loadFunctions(this);
+		
 		// load java functions
 		JavaFunctions javafs = new JavaFunctions();
 		functionGroups.add(javafs);
 		javafs.loadFunctions(this);
 		declareFunction(new IfFunction());
+		
 		// add the group for deffunctions
 		functionGroups.add(deffunctions);
 	}

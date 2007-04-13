@@ -322,7 +322,8 @@ public class PriorityQueue {
                 return elements[lastReturnedIndex];
             }
 
-            public void remove() {
+            @SuppressWarnings("unused")
+			public void remove() {
                 if (lastReturnedIndex == -1) {
                     throw new IllegalStateException();
                 }

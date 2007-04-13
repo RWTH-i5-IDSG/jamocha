@@ -17,7 +17,6 @@
 package org.jamocha.rete.strategies;
 
 import java.io.Serializable;
-import java.util.List;
 
 import org.jamocha.rete.Activation;
 import org.jamocha.rete.ActivationList;
@@ -42,12 +41,7 @@ import org.jamocha.rete.Strategy;
  */
 public class BreadthStrategy implements Strategy, Serializable {
 
-	/**
-	 * 
-	 */
-	public BreadthStrategy() {
-		super();
-	}
+	private static final long serialVersionUID = 1L;
 
 	public void addActivation(ActivationList thelist, Activation newActivation) {
         thelist.addActivation(newActivation);
@@ -69,7 +63,7 @@ public class BreadthStrategy implements Strategy, Serializable {
      */
     public int compare(Activation left, Activation right) {
         if (left.getRule().getSalience() == right.getRule().getSalience()) {
-            // Since Sumatra does not propogate based on natural order, we
+            // Since Jamocha does not propogate based on natural order, we
             // don't use the Activation timestamp. Instead, we use the
             // aggregate time.
             if (left.getAggregateTime() == right.getAggregateTime()) {

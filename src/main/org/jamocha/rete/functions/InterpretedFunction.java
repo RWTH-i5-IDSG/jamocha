@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2007 Peter Lin
+ * Copyright 2002-2007 Peter Lin, 2007 Alexander Wilden
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://ruleml-dev.sourceforge.net/
+ *   http://www.jamocha.org/
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -30,81 +30,109 @@ import org.jamocha.rete.Rete;
 import org.jamocha.rete.Scope;
 
 /**
- * 
  * @author Peter Lin
+ * 
+ * An <code>InterpretedFunction</code> is the Class that represents a function
+ * defined through Deffunction. All actions of the deffunction are evaluated
+ * with the given parameters for the deffunction.
  */
 public class InterpretedFunction implements Function {
 
-	/**
-	 * 
-	 */
+	private class InterpretedFunctionDescription implements FunctionDescription {
+
+		public String getDescription() {
+			return description;
+		}
+
+		public int getParameterCount() {
+			if (inputParams != null)
+				return inputParams.length;
+			else
+				return 0;
+		}
+
+		public String getParameterDescription(int parameter) {
+			return "- not available -";
+		}
+
+		public String getParameterName(int parameter) {
+			if (inputParams != null && parameter < inputParams.length
+					&& parameter >= 0) {
+				BoundParam bp = (BoundParam) inputParams[parameter];
+				return bp.getVariableName();
+			}
+			return "";
+		}
+
+		public JamochaType[] getParameterTypes(int parameter) {
+			if (inputParams != null && parameter < inputParams.length
+					&& parameter >= 0)
+				return JamochaType.ANY;
+			else
+				return JamochaType.NONE;
+		}
+
+		public JamochaType[] getReturnType() {
+			return JamochaType.ANY;
+		}
+
+		public boolean isParameterCountFixed() {
+			return true;
+		}
+
+		public boolean isParameterOptional(int parameter) {
+			return false;
+		}
+	}
+
+	private FunctionDescription DESCRIPTION = new InterpretedFunctionDescription();
+
 	private static final long serialVersionUID = 1L;
 
 	private String name = null;
-	
+
 	private String description = null;
 
 	protected Expression[] inputParams = null;
 
 	private ExpressionSequence actions = null;
 
-	/**
-	 * 
-	 */
-	public InterpretedFunction(String name, String description, Expression[] params,
-		ExpressionSequence actions) {
+	public InterpretedFunction(String name, String description,
+			Expression[] params, ExpressionSequence actions) {
 		this.name = name;
 		this.description = description;
 		this.inputParams = params;
 		this.actions = actions;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.jamocha.rete.Function#executeFunction(org.jamocha.rete.Rete,
-	 *      org.jamocha.rete.Parameter[])
-	 */
+	public FunctionDescription getDescription() {
+		return DESCRIPTION;
+	}
+
+	public String getName() {
+		return name;
+	}
+
 	public JamochaValue executeFunction(Rete engine, Parameter[] params)
 			throws EvaluationException {
 		// the first thing we do is set the values
 		JamochaValue result = JamochaValue.NIL;
-		if (params.length == this.inputParams.length) {
+		if (params.length == inputParams.length) {
 			Scope parameterValues = new DefaultScope();
-			for (int idx = 0; idx < this.inputParams.length; idx++) {
-				BoundParam bp = (BoundParam) this.inputParams[idx];
+			for (int idx = 0; idx < inputParams.length; idx++) {
+				BoundParam bp = (BoundParam) inputParams[idx];
 				parameterValues.setBindingValue(bp.getVariableName(),
 						params[idx].getValue(engine));
 			}
 			engine.pushScope(parameterValues);
 			try {
-			    result = actions.getValue(engine);
+				result = actions.getValue(engine);
 			} finally {
 				engine.popScope();
 			}
 		} else {
-			throw new IllegalParameterException(this.inputParams.length);
+			throw new IllegalParameterException(inputParams.length);
 		}
 		return result;
-	}
-
-	public String getName() {
-		return this.name;
-	}
-
-	public Class[] getParameter() {
-		return new Class[] { BoundParam.class };
-	}
-
-	public JamochaType getReturnType() {
-		return JamochaType.UNDEFINED;
-	}
-
-	public String toPPString(Parameter[] params, int indents) {
-		return description;
-	}
-
-	public Expression[] getInputParameters() {
-		return inputParams;
 	}
 }

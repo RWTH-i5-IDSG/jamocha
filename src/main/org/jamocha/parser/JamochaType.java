@@ -26,6 +26,8 @@ public enum JamochaType {
     public static final JamochaType[] STRINGS = new JamochaType[] { STRING };
 
     public static final JamochaType[] FACTS = new JamochaType[] { FACT };
+    
+    public static final JamochaType[] FACT_IDS = new JamochaType[] { FACT_ID };
 
     public static final JamochaType[] SLOTS = new JamochaType[] { SLOT };
     

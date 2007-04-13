@@ -17,7 +17,6 @@
 package org.jamocha.rete.strategies;
 
 import java.io.Serializable;
-import java.util.List;
 
 import org.jamocha.rete.Activation;
 import org.jamocha.rete.ActivationList;
@@ -45,12 +44,7 @@ import org.jamocha.rete.Strategy;
  */
 public class DepthStrategy implements Strategy, Serializable {
 
-	/**
-	 * 
-	 */
-	public DepthStrategy() {
-		super();
-	}
+	private static final long serialVersionUID = 1L;
 
 	/**
 	 * Current implementation will check which order the list is and call
@@ -78,7 +72,7 @@ public class DepthStrategy implements Strategy, Serializable {
 	public int compare(Activation left, Activation right) {
 		if (right != null) {
 			if (left.getRule().getSalience() == right.getRule().getSalience()) {
-				// Since Sumatra does not propogate based on natural order, we
+				// Since Jamocha does not propogate based on natural order, we
 				// don't use the Activation timestamp. Instead, we use the
 				// aggregate time.
 				if (left.getAggregateTime() == right.getAggregateTime()) {
