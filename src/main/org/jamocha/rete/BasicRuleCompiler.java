@@ -466,7 +466,7 @@ public class BasicRuleCompiler implements RuleCompiler {
 								// found and
 								// the return type is either boolean primitive
 								// or object
-								if (f.getReturnType().equals(JamochaType.BOOLEAN)) {
+								if (f.getDescription().getReturnType().equals(JamochaType.BOOLEANS)) {
 									// TODO - need to implement it
 								} else {
 									// the function doesn't return boolean, so
@@ -475,7 +475,7 @@ public class BasicRuleCompiler implements RuleCompiler {
 									CompileEvent ce = new CompileEvent(this,
 											CompileEvent.FUNCTION_INVALID);
 									ce.setMessage(INVALID_FUNCTION
-											+ " " + f.getReturnType()); //$NON-NLS-1$
+											+ " " + f.getDescription().getReturnType()); //$NON-NLS-1$
 									this.notifyListener(ce);
 								}
 							} else {
@@ -484,7 +484,7 @@ public class BasicRuleCompiler implements RuleCompiler {
 								CompileEvent ce = new CompileEvent(this,
 										CompileEvent.FUNCTION_NOT_FOUND);
 								ce.setMessage(FUNCTION_NOT_FOUND
-										+ " " + f.getReturnType()); //$NON-NLS-1$
+										+ " " + f.getDescription().getReturnType()); //$NON-NLS-1$
 								this.notifyListener(ce);
 							}
 						}

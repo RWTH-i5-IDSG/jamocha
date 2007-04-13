@@ -7,6 +7,8 @@ public enum JamochaType {
 
     public static final JamochaType[] NONE = new JamochaType[] {};
 
+    public static final JamochaType[] BOOLEANS = new JamochaType[] { BOOLEAN };
+    
     public static final JamochaType[] IDENTIFIERS = new JamochaType[] { IDENTIFIER };
 
     public static final JamochaType[] OBJECTS = new JamochaType[] { OBJECT };

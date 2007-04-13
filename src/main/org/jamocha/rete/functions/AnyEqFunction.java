@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://ruleml-dev.sourceforge.net/
+ *   http://www.jamocha.org/
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -27,28 +27,73 @@ import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 
 /**
- * @author Peter Lin Any equal is used to compare a literal value against one or
- *         more bindings. If any of the bindings is equal to the constant value,
- *         the function returns true.
+ * @author Peter Lin
+ * 
+ * Any equal is used to compare a literal value against one or more bindings. If
+ * any of the bindings is equal to the constant value, the function returns
+ * true.
  */
 public class AnyEqFunction implements Function, Serializable {
 
-	/**
-	 * 
-	 */
+	private static final class AnyEqDescription implements FunctionDescription {
+
+		public String getDescription() {
+			return "Any equal is used to compare a literal value against one or more bindings. If any of the bindings is equal to the constant value, the function returns true.";
+		}
+
+		public int getParameterCount() {
+			return 2;
+		}
+
+		public String getParameterDescription(int parameter) {
+			switch (parameter) {
+			case 0:
+				return "Literal value that should be compared to the other parameters.";
+			default:
+				return "Value that should be compared to the first parameter.";
+			}
+		}
+
+		public String getParameterName(int parameter) {
+			return "number";
+		}
+
+		public JamochaType[] getParameterTypes(int parameter) {
+			return JamochaType.ANY;
+		}
+
+		public JamochaType[] getReturnType() {
+			return JamochaType.BOOLEANS;
+		}
+
+		public boolean isParameterCountFixed() {
+			return false;
+		}
+
+		public boolean isParameterOptional(int parameter) {
+			if (parameter > 1)
+				return true;
+			else
+				return false;
+		}
+	}
+
+	private static final FunctionDescription DESCRIPTION = new AnyEqDescription();
+
 	private static final long serialVersionUID = 1L;
 
-	public static final String ANYEQUAL = "any-eq";
+	public static final String NAME = "any-eq";
 
-	/**
-	 * 
-	 */
 	public AnyEqFunction() {
 		super();
 	}
 
-	public JamochaType getReturnType() {
-		return JamochaType.BOOLEAN;
+	public FunctionDescription getDescription() {
+		return DESCRIPTION;
+	}
+
+	public String getName() {
+		return NAME;
 	}
 
 	public JamochaValue executeFunction(Rete engine, Parameter[] params)
@@ -66,18 +111,6 @@ public class AnyEqFunction implements Function, Serializable {
 			throw new IllegalParameterException(1);
 		}
 		return result;
-	}
-
-	public String getName() {
-		return ANYEQUAL;
-	}
-
-	public String toPPString(Parameter[] params, int indents) {
-		return "(any-eq (<literal> | <binding>)+)\n"
-				+ "Function description:\n"
-				+ "\tCompares a literal value against one or more"
-				+ "bindings. \n\tIf any of the bindings is equal to the constant value,"
-				+ "\n\tthe function returns true.";
 	}
 
 }
