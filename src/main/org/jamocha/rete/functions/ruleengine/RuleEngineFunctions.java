@@ -23,18 +23,6 @@ import java.util.List;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.FunctionGroup;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.functions.DefinstanceFunction;
-import org.jamocha.rete.functions.DefmoduleFunction;
-import org.jamocha.rete.functions.DefruleFunction;
-import org.jamocha.rete.functions.DeftemplateFunction;
-import org.jamocha.rete.functions.EchoFunction;
-import org.jamocha.rete.functions.EqFunction;
-import org.jamocha.rete.functions.EvalFunction;
-import org.jamocha.rete.functions.ExitFunction;
-import org.jamocha.rete.functions.FactSlotValueFunction;
-import org.jamocha.rete.functions.FactsFunction;
-import org.jamocha.rete.functions.FireFunction;
-import org.jamocha.rete.functions.FocusFunction;
 import org.jamocha.rete.functions.GarbageCollectFunction;
 import org.jamocha.rete.functions.GenerateFactsFunction;
 import org.jamocha.rete.functions.LazyAgendaFunction;
@@ -63,7 +51,6 @@ import org.jamocha.rete.functions.RetractFunction;
 import org.jamocha.rete.functions.RightMatchesFunction;
 import org.jamocha.rete.functions.RulesFunction;
 import org.jamocha.rete.functions.SaveFactsFunction;
-import org.jamocha.rete.functions.SetFocusFunction;
 import org.jamocha.rete.functions.SetParserFunction;
 import org.jamocha.rete.functions.SpoolFunction;
 import org.jamocha.rete.functions.TemplatesFunction;
@@ -99,9 +86,6 @@ public class RuleEngineFunctions implements FunctionGroup, Serializable {
 	}
 
 	public void loadFunctions(Rete engine) {
-		AnyEq anyeq = new AnyEq();
-		engine.declareFunction(anyeq);
-		funcs.add(anyeq);
 
 		Apply apply = new Apply();
 		engine.declareFunction(apply);
@@ -127,53 +111,45 @@ public class RuleEngineFunctions implements FunctionGroup, Serializable {
 		engine.declareFunction(deffunction);
 		funcs.add(deffunction);
 
-		DefinstanceFunction defins = new DefinstanceFunction();
-		engine.declareFunction(defins);
-		funcs.add(defins);
+		Definstance definstance = new Definstance();
+		engine.declareFunction(definstance);
+		funcs.add(definstance);
 
-		DefmoduleFunction dmod = new DefmoduleFunction();
-		engine.declareFunction(dmod);
-		funcs.add(dmod);
+		Defmodule defmodule = new Defmodule();
+		engine.declareFunction(defmodule);
+		funcs.add(defmodule);
 
-		DefruleFunction drule = new DefruleFunction();
-		engine.declareFunction(drule);
-		funcs.add(drule);
+		Defrule defrule = new Defrule();
+		engine.declareFunction(defrule);
+		funcs.add(defrule);
 
-		DeftemplateFunction dtemp = new DeftemplateFunction();
-		engine.declareFunction(dtemp);
-		funcs.add(dtemp);
+		Deftemplate deftemplate = new Deftemplate();
+		engine.declareFunction(deftemplate);
+		funcs.add(deftemplate);
 
-		EchoFunction efunc = new EchoFunction();
-		engine.declareFunction(efunc);
-		funcs.add(efunc);
+		Echo echo = new Echo();
+		engine.declareFunction(echo);
+		funcs.add(echo);
 
-		EqFunction eq = new EqFunction();
-		engine.declareFunction(eq);
-		funcs.add(eq);
-
-		EvalFunction eval = new EvalFunction();
+		Eval eval = new Eval();
 		engine.declareFunction(eval);
 		funcs.add(eval);
 
-		ExitFunction ext = new ExitFunction();
-		engine.declareFunction(ext);
-		funcs.add(ext);
+		Exit exit = new Exit();
+		engine.declareFunction(exit);
+		funcs.add(exit);
 
-		FactsFunction ffun = new FactsFunction();
-		engine.declareFunction(ffun);
-		funcs.add(ffun);
+		Facts facts = new Facts();
+		engine.declareFunction(facts);
+		funcs.add(facts);
 
-		FactSlotValueFunction fsv = new FactSlotValueFunction();
-		engine.declareFunction(fsv);
-		funcs.add(fsv);
+		FactSlotValue factSlotValue = new FactSlotValue();
+		engine.declareFunction(factSlotValue);
+		funcs.add(factSlotValue);
 
-		FireFunction fire = new FireFunction();
+		Fire fire = new Fire();
 		engine.declareFunction(fire);
 		funcs.add(fire);
-
-		FocusFunction focus = new FocusFunction();
-		engine.declareFunction(focus);
-		funcs.add(focus);
 
 		ModulesFunction modules = new ModulesFunction();
 		engine.declareFunction(modules);
@@ -293,9 +269,9 @@ public class RuleEngineFunctions implements FunctionGroup, Serializable {
 		engine.declareFunction(savefacts);
 		funcs.add(savefacts);
 
-		SetFocusFunction setfoc = new SetFocusFunction();
-		engine.declareFunction(setfoc);
-		funcs.add(setfoc);
+		SetFocus setFocus = new SetFocus();
+		engine.declareFunction(setFocus);
+		funcs.add(setFocus);
 
 		SetParserFunction setParserFunction = new SetParserFunction();
 		engine.declareFunction(setParserFunction);
@@ -345,6 +321,8 @@ public class RuleEngineFunctions implements FunctionGroup, Serializable {
 		WatchFunction watchf = new WatchFunction();
 		engine.declareFunction(watchf);
 		funcs.add(watchf);
+
+		engine.declareFunction("focus", setFocus);
 	}
 
 	public List listFunctions() {

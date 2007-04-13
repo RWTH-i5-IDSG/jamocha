@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 Christoph Emonds, Alexander Wilden
+ * Copyright 2007 Sebastian Reinartz, Alexander Wilden
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,52 +17,49 @@
 package org.jamocha.rete.functions.ruleengine;
 
 import java.io.Serializable;
+import java.io.StringReader;
 
 import org.jamocha.parser.EvaluationException;
+import org.jamocha.parser.Expression;
 import org.jamocha.parser.IllegalParameterException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
+import org.jamocha.parser.ParseException;
+import org.jamocha.parser.Parser;
+import org.jamocha.parser.ParserFactory;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.functions.FunctionDescription;
 
 /**
- * @author Christoph Emonds
+ * @author Sebastian Reinartz, Alexander Wilden
  * 
- * Applies a given function to one or more given parameters.
+ * The eval function evaluates the string as though it were entered at the
+ * command prompt and returns the last result of the Expression(s) (if any).
  */
-public class Apply implements Function, Serializable {
+public class Eval implements Function, Serializable {
 
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "Applies a given function to one or more given parameters.";
+			return "The eval function evaluates the string as though it were entered at the command prompt and returns the last result of the Expression(s) (if any).";
 		}
 
 		public int getParameterCount() {
-			return 2;
+			return 1;
 		}
 
 		public String getParameterDescription(int parameter) {
-			if (parameter > 0)
-				return "Optional Parameters for the Function";
-			else
-				return "Name of the Function to apply";
+			return "One or more Commands as one single String.";
 		}
 
 		public String getParameterName(int parameter) {
-			if (parameter > 0)
-				return "functionParameter";
-			else
-				return "functionName";
+			return "command";
 		}
 
 		public JamochaType[] getParameterTypes(int parameter) {
-			if (parameter > 0)
-				return JamochaType.ANY;
-			else
-				return JamochaType.IDENTIFIERS;
+			return JamochaType.STRINGS;
 		}
 
 		public JamochaType[] getReturnType() {
@@ -70,14 +67,11 @@ public class Apply implements Function, Serializable {
 		}
 
 		public boolean isParameterCountFixed() {
-			return false;
+			return true;
 		}
 
 		public boolean isParameterOptional(int parameter) {
-			if (parameter > 0)
-				return true;
-			else
-				return false;
+			return false;
 		}
 	}
 
@@ -85,7 +79,7 @@ public class Apply implements Function, Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	public static final String NAME = "apply";
+	public static final String NAME = "eval";
 
 	public FunctionDescription getDescription() {
 		return DESCRIPTION;
@@ -98,19 +92,26 @@ public class Apply implements Function, Serializable {
 	public JamochaValue executeFunction(Rete engine, Parameter[] params)
 			throws EvaluationException {
 		JamochaValue result;
-		if (params != null && params.length >= 1) {
-			String functionName = params[0].getValue(engine).getStringValue();
-			Function function = engine.findFunction(functionName);
-			if (function == null) {
-				throw new EvaluationException("Error function " + functionName
-						+ " could not be found.");
-			}
-			Parameter[] functionParams = new Parameter[params.length - 1];
-			System.arraycopy(params, 1, functionParams, 0,
-					functionParams.length);
-			result = function.executeFunction(engine, functionParams);
+		if (params != null && params.length == 1) {
+			String command = params[0].getValue(engine).getStringValue();
+			result = eval(engine, command);
 		} else {
 			throw new IllegalParameterException(1);
+		}
+		return result;
+	}
+
+	public JamochaValue eval(Rete engine, String command)
+			throws EvaluationException {
+		JamochaValue result = null;
+		try {
+			Parser parser = ParserFactory.getParser(new StringReader(command));
+			Expression expr = null;
+			while ((expr = parser.nextExpression()) != null) {
+				result = expr.getValue(engine);
+			}
+		} catch (ParseException e) {
+			throw new EvaluationException(e);
 		}
 		return result;
 	}

@@ -17,74 +17,67 @@
 package org.jamocha.rete.functions.ruleengine;
 
 import java.io.Serializable;
+import java.util.List;
 
 import org.jamocha.parser.EvaluationException;
-import org.jamocha.parser.IllegalParameterException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
+import org.jamocha.rete.Constants;
+import org.jamocha.rete.Fact;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.functions.FunctionDescription;
+import org.jamocha.rete.util.FactUtils;
 
 /**
  * @author Peter Lin
  * 
- * Any equal is used to compare a literal value against one or more bindings. If
- * any of the bindings is equal to the constant value, the function returns
- * true.
+ * Facts function will printout all the facts currently in the rule engine.
  */
-public class AnyEq implements Function, Serializable {
+public class Facts implements Function, Serializable {
 
-	private static final class AnyEqDescription implements FunctionDescription {
+	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "Any equal is used to compare a literal value against one or more bindings. If any of the bindings is equal to the constant value, the function returns true.";
+			return "Facts function will printout all the facts currently in the rule engine.";
 		}
 
 		public int getParameterCount() {
-			return 2;
+			return 0;
 		}
 
 		public String getParameterDescription(int parameter) {
-			switch (parameter) {
-			case 0:
-				return "Literal value that should be compared to the other parameters.";
-			default:
-				return "Value that should be compared to the first parameter.";
-			}
+			return "";
 		}
 
 		public String getParameterName(int parameter) {
-			return "number";
+			return "";
 		}
 
 		public JamochaType[] getParameterTypes(int parameter) {
-			return JamochaType.ANY;
+			return JamochaType.NONE;
 		}
 
 		public JamochaType[] getReturnType() {
-			return JamochaType.BOOLEANS;
+			return JamochaType.NONE;
 		}
 
 		public boolean isParameterCountFixed() {
-			return false;
+			return true;
 		}
 
 		public boolean isParameterOptional(int parameter) {
-			if (parameter > 0)
-				return true;
-			else
-				return false;
+			return false;
 		}
 	}
 
-	private static final FunctionDescription DESCRIPTION = new AnyEqDescription();
+	private static final FunctionDescription DESCRIPTION = new Description();
 
 	private static final long serialVersionUID = 1L;
 
-	public static final String NAME = "any-eq";
-	
+	public static final String NAME = "facts";
+
 	public FunctionDescription getDescription() {
 		return DESCRIPTION;
 	}
@@ -95,19 +88,14 @@ public class AnyEq implements Function, Serializable {
 
 	public JamochaValue executeFunction(Rete engine, Parameter[] params)
 			throws EvaluationException {
-		JamochaValue result = JamochaValue.FALSE;
-		if (params != null && params.length > 1) {
-			JamochaValue constant = params[0].getValue(engine);
-			for (int idx = 1; idx < params.length; idx++) {
-				if (constant.equals(params[idx].getValue(engine))) {
-					result = JamochaValue.FALSE;
-					break;
-				}
-			}
-		} else {
-			throw new IllegalParameterException(1);
+		List facts = engine.getAllFacts();
+		Object[] sorted = FactUtils.sortFacts(facts);
+		StringBuilder sb = new StringBuilder();
+		for (int idx = 0; idx < sorted.length; idx++) {
+			Fact ft = (Fact) sorted[idx];
+			sb.append(ft.toFactString()).append(Constants.LINEBREAK);
 		}
-		return result;
+		sb.append("for a total of ").append(sorted.length);
+		return JamochaValue.newString(sb.toString());
 	}
-
 }

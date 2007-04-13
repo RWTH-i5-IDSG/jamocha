@@ -41,7 +41,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  */
 public class Clear implements Function, Serializable {
 
-	private static final class ClearDescription implements FunctionDescription {
+	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
 			return "Clears the Rete engine. Removes all constructs and all associated data structures (such as facts and objects) from the Rete environment. If a parameter is given it is parsed as identifier and only the constructs that are identified by it are removed. This function returns TRUE.";
@@ -86,7 +86,7 @@ public class Clear implements Function, Serializable {
 		}
 	}
 
-	private static final FunctionDescription DESCRIPTION = new ClearDescription();
+	private static final FunctionDescription DESCRIPTION = new Description();
 
 	private static final long serialVersionUID = 1L;
 

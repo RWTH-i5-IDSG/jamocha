@@ -22,6 +22,7 @@ import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.IllegalParameterException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
+import org.jamocha.rete.Fact;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
@@ -30,14 +31,14 @@ import org.jamocha.rete.functions.FunctionDescription;
 /**
  * @author Christoph Emonds
  * 
- * Applies a given function to one or more given parameters.
+ * Returns the value of a slot of a specific fact.
  */
-public class Apply implements Function, Serializable {
+public class FactSlotValue implements Function, Serializable {
 
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "Applies a given function to one or more given parameters.";
+			return "Returns the value of a slot of a specific fact.";
 		}
 
 		public int getParameterCount() {
@@ -45,24 +46,33 @@ public class Apply implements Function, Serializable {
 		}
 
 		public String getParameterDescription(int parameter) {
-			if (parameter > 0)
-				return "Optional Parameters for the Function";
-			else
-				return "Name of the Function to apply";
+			switch (parameter) {
+			case 0:
+				return "Fact the slot value should be returned from.";
+			case 1:
+				return "Name of the Slot the value should be returned from.";
+			}
+			return "";
 		}
 
 		public String getParameterName(int parameter) {
-			if (parameter > 0)
-				return "functionParameter";
-			else
-				return "functionName";
+			switch (parameter) {
+			case 0:
+				return "fact";
+			case 1:
+				return "slotName";
+			}
+			return "";
 		}
 
 		public JamochaType[] getParameterTypes(int parameter) {
-			if (parameter > 0)
-				return JamochaType.ANY;
-			else
+			switch (parameter) {
+			case 0:
+				return JamochaType.FACTS;
+			case 1:
 				return JamochaType.IDENTIFIERS;
+			}
+			return JamochaType.NONE;
 		}
 
 		public JamochaType[] getReturnType() {
@@ -70,14 +80,11 @@ public class Apply implements Function, Serializable {
 		}
 
 		public boolean isParameterCountFixed() {
-			return false;
+			return true;
 		}
 
 		public boolean isParameterOptional(int parameter) {
-			if (parameter > 0)
-				return true;
-			else
-				return false;
+			return false;
 		}
 	}
 
@@ -85,7 +92,7 @@ public class Apply implements Function, Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	public static final String NAME = "apply";
+	public static final String NAME = "fact-slot-value";
 
 	public FunctionDescription getDescription() {
 		return DESCRIPTION;
@@ -97,21 +104,17 @@ public class Apply implements Function, Serializable {
 
 	public JamochaValue executeFunction(Rete engine, Parameter[] params)
 			throws EvaluationException {
-		JamochaValue result;
-		if (params != null && params.length >= 1) {
-			String functionName = params[0].getValue(engine).getStringValue();
-			Function function = engine.findFunction(functionName);
-			if (function == null) {
-				throw new EvaluationException("Error function " + functionName
-						+ " could not be found.");
+		if (params != null && params.length == 2) {
+			JamochaValue factId = params[0].getValue(engine);
+			JamochaValue slotName = params[1].getValue(engine);
+			Fact fact = engine.getFactById(factId.getFactIdValue());
+			int slotId = fact.getSlotId(slotName.getIdentifierValue());
+			if (slotId < 0) {
+				throw new EvaluationException("Error no slot " + slotName);
 			}
-			Parameter[] functionParams = new Parameter[params.length - 1];
-			System.arraycopy(params, 1, functionParams, 0,
-					functionParams.length);
-			result = function.executeFunction(engine, functionParams);
+			return fact.getSlotValue(slotId);
 		} else {
-			throw new IllegalParameterException(1);
+			throw new IllegalParameterException(2);
 		}
-		return result;
 	}
 }

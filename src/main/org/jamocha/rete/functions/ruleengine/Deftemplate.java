@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 Christoph Emonds, Alexander Wilden
+ * Copyright 2002-2006 Peter Lin, 2007 Alexander Wilden
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,56 +28,45 @@ import org.jamocha.rete.Rete;
 import org.jamocha.rete.functions.FunctionDescription;
 
 /**
- * @author Christoph Emonds
+ * @author Peter Lin
  * 
- * Applies a given function to one or more given parameters.
+ * Defines a new template in the currently focused module of the engine.
  */
-public class Apply implements Function, Serializable {
+public class Deftemplate implements Function, Serializable {
 
-	private static final class Description implements FunctionDescription {
+	private static final class Description implements
+			FunctionDescription {
 
 		public String getDescription() {
-			return "Applies a given function to one or more given parameters.";
+			return "Defines a new template in the currently focused module of the engine.";
 		}
 
 		public int getParameterCount() {
-			return 2;
+			return 1;
 		}
 
 		public String getParameterDescription(int parameter) {
-			if (parameter > 0)
-				return "Optional Parameters for the Function";
-			else
-				return "Name of the Function to apply";
+			return "Template that should be defined.";
 		}
 
 		public String getParameterName(int parameter) {
-			if (parameter > 0)
-				return "functionParameter";
-			else
-				return "functionName";
+			return "template";
 		}
 
 		public JamochaType[] getParameterTypes(int parameter) {
-			if (parameter > 0)
-				return JamochaType.ANY;
-			else
-				return JamochaType.IDENTIFIERS;
+			return JamochaType.OBJECTS;
 		}
 
 		public JamochaType[] getReturnType() {
-			return JamochaType.ANY;
+			return JamochaType.BOOLEANS;
 		}
 
 		public boolean isParameterCountFixed() {
-			return false;
+			return true;
 		}
 
 		public boolean isParameterOptional(int parameter) {
-			if (parameter > 0)
-				return true;
-			else
-				return false;
+			return false;
 		}
 	}
 
@@ -85,7 +74,7 @@ public class Apply implements Function, Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	public static final String NAME = "apply";
+	public static final String NAME = "deftemplate";
 
 	public FunctionDescription getDescription() {
 		return DESCRIPTION;
@@ -97,18 +86,15 @@ public class Apply implements Function, Serializable {
 
 	public JamochaValue executeFunction(Rete engine, Parameter[] params)
 			throws EvaluationException {
-		JamochaValue result;
-		if (params != null && params.length >= 1) {
-			String functionName = params[0].getValue(engine).getStringValue();
-			Function function = engine.findFunction(functionName);
-			if (function == null) {
-				throw new EvaluationException("Error function " + functionName
-						+ " could not be found.");
+		JamochaValue result = JamochaValue.FALSE;
+		if (params != null && params.length == 1) {
+			JamochaValue firstParam = params[0].getValue(engine);
+			if (firstParam.getObjectValue() instanceof Deftemplate) {
+				org.jamocha.rete.Deftemplate tpl = (org.jamocha.rete.Deftemplate) firstParam
+						.getObjectValue();
+				result = engine.addTemplate(tpl) ? JamochaValue.TRUE
+						: JamochaValue.FALSE;
 			}
-			Parameter[] functionParams = new Parameter[params.length - 1];
-			System.arraycopy(params, 1, functionParams, 0,
-					functionParams.length);
-			result = function.executeFunction(engine, functionParams);
 		} else {
 			throw new IllegalParameterException(1);
 		}

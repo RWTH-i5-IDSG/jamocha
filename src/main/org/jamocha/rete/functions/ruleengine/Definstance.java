@@ -34,7 +34,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  */
 public class Definstance implements Function, Serializable {
 
-	private static final class DefinstanceDescription implements
+	private static final class Description implements
 			FunctionDescription {
 
 		public String getDescription() {
@@ -42,19 +42,15 @@ public class Definstance implements Function, Serializable {
 		}
 
 		public int getParameterCount() {
-			return 4;
+			return 2;
 		}
 
 		public String getParameterDescription(int parameter) {
 			switch (parameter) {
 			case 0:
-				return "Name of the new function.";
+				return "Object to assert.";
 			case 1:
-				return "Optional Description of the new Function.";
-			case 2:
-				return "Parameters for the Function.";
-			case 3:
-				return "Actions for the Function.";
+				return "Template for the Object.";
 			}
 			return "";
 		}
@@ -62,13 +58,9 @@ public class Definstance implements Function, Serializable {
 		public String getParameterName(int parameter) {
 			switch (parameter) {
 			case 0:
-				return "functionName";
+				return "object";
 			case 1:
-				return "description";
-			case 2:
-				return "parameters";
-			case 3:
-				return "actions";
+				return "template";
 			}
 			return "";
 		}
@@ -76,13 +68,9 @@ public class Definstance implements Function, Serializable {
 		public JamochaType[] getParameterTypes(int parameter) {
 			switch (parameter) {
 			case 0:
-				return JamochaType.IDENTIFIERS;
-			case 1:
-				return JamochaType.STRINGS;
+				return JamochaType.OBJECTS;
 			case 2:
 				return JamochaType.IDENTIFIERS;
-			case 3:
-				return JamochaType.ANY;
 			}
 			return JamochaType.NONE;
 		}
@@ -96,18 +84,15 @@ public class Definstance implements Function, Serializable {
 		}
 
 		public boolean isParameterOptional(int parameter) {
-			switch (parameter) {
-			case 0:
-			case 2:
-			case 3:
+			if (parameter == 0)
 				return false;
-			}
-			return true;
+			else
+				return true;
 
 		}
 	}
 
-	private static final FunctionDescription DESCRIPTION = new DefinstanceDescription();
+	private static final FunctionDescription DESCRIPTION = new Description();
 
 	private static final long serialVersionUID = 1L;
 

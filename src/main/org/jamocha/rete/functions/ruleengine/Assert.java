@@ -40,7 +40,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  */
 public class Assert implements Function, Serializable {
 
-	private static final class AssertDescription implements FunctionDescription {
+	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
 			return "The assert action allows the user to add a fact to the fact-list. Multiple facts may be asserted with each call. If the facts item is being watched, then an informational message will be printed each time a fact is asserted.";
@@ -75,7 +75,7 @@ public class Assert implements Function, Serializable {
 		}
 	}
 
-	private static final FunctionDescription DESCRIPTION = new AssertDescription();
+	private static final FunctionDescription DESCRIPTION = new Description();
 
 	private static final long serialVersionUID = 1L;
 

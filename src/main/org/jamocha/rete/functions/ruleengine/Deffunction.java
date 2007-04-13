@@ -36,7 +36,7 @@ import org.jamocha.rete.functions.InterpretedFunction;
  */
 public class Deffunction implements Function {
 
-	private static final class DeffunctionDescription implements
+	private static final class Description implements
 			FunctionDescription {
 
 		public String getDescription() {
@@ -109,7 +109,7 @@ public class Deffunction implements Function {
 		}
 	}
 
-	private static final FunctionDescription DESCRIPTION = new DeffunctionDescription();
+	private static final FunctionDescription DESCRIPTION = new Description();
 
 	private static final long serialVersionUID = 1L;
 

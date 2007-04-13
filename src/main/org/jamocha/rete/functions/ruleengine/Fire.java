@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 Christoph Emonds, Alexander Wilden
+ * Copyright 2002-2006 Peter Lin, 2007 Alexander Wilden
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,54 +19,50 @@ package org.jamocha.rete.functions.ruleengine;
 import java.io.Serializable;
 
 import org.jamocha.parser.EvaluationException;
-import org.jamocha.parser.IllegalParameterException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
+import org.jamocha.rete.exception.ExecuteException;
 import org.jamocha.rete.functions.FunctionDescription;
 
 /**
- * @author Christoph Emonds
+ * @author Peter Lin
  * 
- * Applies a given function to one or more given parameters.
+ * Starts execution of the rules. If the optional first argument is positive,
+ * execution will cease after the specified number of rule firings or when the
+ * agenda contains no rule activations. If there are no arguments or the first
+ * argument is a negative integer, execution will cease when the agenda contains
+ * no rule activations. If the focus stack is empty, then the MAIN module is
+ * automatically becomes the current focus. Returns the number of rules fired.
  */
-public class Apply implements Function, Serializable {
+public class Fire implements Function, Serializable {
 
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "Applies a given function to one or more given parameters.";
+			return "Starts execution of the rules. If the optional first argument is positive, execution will cease after the specified number of rule firings or when the agenda contains no rule activations. If there are no arguments or the first argument is a negative integer, execution will cease when the agenda contains no rule activations. If the focus stack is empty, then the MAIN module is automatically becomes the current focus. Returns the number of rules fired.";
 		}
 
 		public int getParameterCount() {
-			return 2;
+			return 1;
 		}
 
 		public String getParameterDescription(int parameter) {
-			if (parameter > 0)
-				return "Optional Parameters for the Function";
-			else
-				return "Name of the Function to apply";
+			return "Number of rules to fire at most.";
 		}
 
 		public String getParameterName(int parameter) {
-			if (parameter > 0)
-				return "functionParameter";
-			else
-				return "functionName";
+			return "ruleCount";
 		}
 
 		public JamochaType[] getParameterTypes(int parameter) {
-			if (parameter > 0)
-				return JamochaType.ANY;
-			else
-				return JamochaType.IDENTIFIERS;
+			return JamochaType.LONGS;
 		}
 
 		public JamochaType[] getReturnType() {
-			return JamochaType.ANY;
+			return JamochaType.LONGS;
 		}
 
 		public boolean isParameterCountFixed() {
@@ -74,10 +70,7 @@ public class Apply implements Function, Serializable {
 		}
 
 		public boolean isParameterOptional(int parameter) {
-			if (parameter > 0)
-				return true;
-			else
-				return false;
+			return true;
 		}
 	}
 
@@ -85,7 +78,7 @@ public class Apply implements Function, Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	public static final String NAME = "apply";
+	public static final String NAME = "fire";
 
 	public FunctionDescription getDescription() {
 		return DESCRIPTION;
@@ -97,21 +90,18 @@ public class Apply implements Function, Serializable {
 
 	public JamochaValue executeFunction(Rete engine, Parameter[] params)
 			throws EvaluationException {
-		JamochaValue result;
-		if (params != null && params.length >= 1) {
-			String functionName = params[0].getValue(engine).getStringValue();
-			Function function = engine.findFunction(functionName);
-			if (function == null) {
-				throw new EvaluationException("Error function " + functionName
-						+ " could not be found.");
+		long count = 0;
+		if (params != null && params.length == 1) {
+			long fc = params[0].getValue(engine).implicitCast(JamochaType.LONG)
+					.getLongValue();
+			try {
+				count = engine.fire((int) fc);
+			} catch (ExecuteException e) {
+				throw new EvaluationException(e);
 			}
-			Parameter[] functionParams = new Parameter[params.length - 1];
-			System.arraycopy(params, 1, functionParams, 0,
-					functionParams.length);
-			result = function.executeFunction(engine, functionParams);
 		} else {
-			throw new IllegalParameterException(1);
+			count = engine.fire();
 		}
-		return result;
+		return JamochaValue.newLong(count);
 	}
 }
