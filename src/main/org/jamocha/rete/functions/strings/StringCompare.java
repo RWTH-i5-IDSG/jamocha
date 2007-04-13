@@ -1,11 +1,11 @@
 /*
- * Copyright 2007 Alexander Wilden
+ * Copyright 2002-2006 Peter Lin, 2007 Alexander Wilden
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://jamocha.sourceforge.net/
+ *   http://www.jamocha.org/
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,7 +14,7 @@
  * limitations under the License.
  * 
  */
-package org.jamocha.adapter.sl;
+package org.jamocha.rete.functions.strings;
 
 import java.io.Serializable;
 
@@ -28,28 +28,42 @@ import org.jamocha.rete.Rete;
 import org.jamocha.rete.functions.FunctionDescription;
 
 /**
- * Translates CLIPS-Code resp. JamochaValues to SL.
+ * @author Peter Lin
  * 
- * @author Alexander Wilden
+ * The str-compare function will compare two strings to determine their logical
+ * relationship (i.e., equal to, less than, greater than).
  */
-public class CLIPS2SLFunction implements Function, Serializable {
+public class StringCompare implements Function, Serializable {
 
-	private static final class CLIPS2SLFunctionDescription implements FunctionDescription {
+	private static final class StringCompareDescription implements
+			FunctionDescription {
 
 		public String getDescription() {
-			return "translates CLIPS-Code resp. JamochaValues to SL which then will be returned as a String.";
+			return "The str-compare function will compare two strings to determine their logical relationship (i.e., equal to, less than, greater than).";
 		}
 
 		public int getParameterCount() {
-			return 1;
+			return 2;
 		}
 
 		public String getParameterDescription(int parameter) {
-			return "string that should be translated to SL.";
+			switch(parameter) {
+			case 0:
+				return "String that will be compared to the second String.";
+			case 1:
+				return "String that will be compared to the first String.";
+			}
+			return "";
 		}
 
 		public String getParameterName(int parameter) {
-			return "string";
+			switch(parameter) {
+			case 0:
+				return "firstString";
+			case 1:
+				return "secondString";
+			}
+			return "";
 		}
 
 		public JamochaType[] getParameterTypes(int parameter) {
@@ -57,7 +71,7 @@ public class CLIPS2SLFunction implements Function, Serializable {
 		}
 
 		public JamochaType[] getReturnType() {
-			return JamochaType.STRINGS;
+			return JamochaType.LONGS;
 		}
 
 		public boolean isParameterCountFixed() {
@@ -69,12 +83,12 @@ public class CLIPS2SLFunction implements Function, Serializable {
 		}
 	}
 
-	private static final FunctionDescription DESCRIPTION = new CLIPS2SLFunctionDescription();
-	
+	private static final FunctionDescription DESCRIPTION = new StringCompareDescription();
+
 	private static final long serialVersionUID = 1L;
 
-	public static final String NAME = "clips2sl";
-	
+	public static final String NAME = "str-compare";
+
 	public FunctionDescription getDescription() {
 		return DESCRIPTION;
 	}
@@ -83,20 +97,17 @@ public class CLIPS2SLFunction implements Function, Serializable {
 		return NAME;
 	}
 
-	public JamochaType getReturnType() {
-		return JamochaType.STRING;
-	}
-
 	public JamochaValue executeFunction(Rete engine, Parameter[] params)
 			throws EvaluationException {
-		JamochaValue result = JamochaValue.newString("");
-		if (params != null && params.length == 1) {
-			JamochaValue value = params[0].getValue(engine);
-			String slCode = CLIPS2SL.getSL(value);
-			result = JamochaValue.newString(slCode);
+		int eq = -1;
+		if (params != null && params.length == 2) {
+			String val = params[0].getValue(engine).getStringValue();
+			String val2 = params[1].getValue(engine).getStringValue();
+			eq = val.compareTo(val2);
 		} else {
-			throw new IllegalParameterException(1);
+			throw new IllegalParameterException(2);
 		}
-		return result;
+		return JamochaValue.newLong(eq);
 	}
+
 }

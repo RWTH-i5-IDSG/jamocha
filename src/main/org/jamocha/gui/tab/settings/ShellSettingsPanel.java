@@ -191,13 +191,13 @@ public class ShellSettingsPanel extends AbstractSettingsPanel implements
 
 	private Font[] filterFonts(Font[] fonts) {
 		List<Font> res = new LinkedList<Font>();
+		// TODO I want to replace it by another method: compare width of letter
+		// i to the width of letter w or so. AW
 		for (Font font : fonts) {
 			if (font.getName().matches("(.*)[M|m]ono(.*)")
 					|| font.getFamily().matches("(.*)[M|m]ono(.*)")
 					|| font.getName().matches("Monaco")
 					|| font.getName().matches("(.*)[C|c]ourier(.*)")) {
-				System.out
-						.println(font.getFontName() + ", " + font.getFamily());
 				res.add(font);
 			}
 

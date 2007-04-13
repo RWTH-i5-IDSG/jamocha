@@ -96,10 +96,6 @@ public class SL2CLIPSFunction implements Function, Serializable {
 
 	public static final String NAME = "sl2clips";
 
-	public SL2CLIPSFunction() {
-		super();
-	}
-
 	public FunctionDescription getDescription() {
 		return DESCRIPTION;
 	}

@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://jamocha.sourceforge.net/
+ *   http://www.jamocha.org/
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,7 +14,7 @@
  * limitations under the License.
  * 
  */
-package org.jamocha.rete.functions;
+package org.jamocha.rete.functions.strings;
 
 import java.io.Serializable;
 
@@ -26,31 +26,66 @@ import org.jamocha.rete.Constants;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
+import org.jamocha.rete.functions.FunctionDescription;
 
 /**
- * This function concatenates two or more Strings.
- * 
  * @author Alexander Wilden
  * 
+ * This function concatenates two or more Strings into one String.
  */
-public class StringCatFunction implements Function, Serializable {
+public class StringCat implements Function, Serializable {
 
-	/**
-	 * 
-	 */
+	private static final class StringCatDescription implements
+			FunctionDescription {
+
+		public String getDescription() {
+			return "This function concatenates two or more Strings into one String.";
+		}
+
+		public int getParameterCount() {
+			return 1;
+		}
+
+		public String getParameterDescription(int parameter) {
+			return "String that will be concatenated with the other parameters.";
+		}
+
+		public String getParameterName(int parameter) {
+			return "string";
+		}
+
+		public JamochaType[] getParameterTypes(int parameter) {
+			return JamochaType.STRINGS;
+		}
+
+		public JamochaType[] getReturnType() {
+			return JamochaType.STRINGS;
+		}
+
+		public boolean isParameterCountFixed() {
+			return false;
+		}
+
+		public boolean isParameterOptional(int parameter) {
+			if (parameter > 0)
+				return true;
+			else
+				return false;
+		}
+	}
+
+	private static final FunctionDescription DESCRIPTION = new StringCatDescription();
+
 	private static final long serialVersionUID = 1L;
 
 	public static final String NAME = "str-cat";
 
-	/**
-	 * 
-	 */
-	public StringCatFunction() {
-		super();
+	public FunctionDescription getDescription() {
+		return DESCRIPTION;
 	}
 
-	public JamochaType getReturnType() {
-		return JamochaType.STRING;
+	public String getName() {
+		return NAME;
 	}
 
 	public JamochaValue executeFunction(Rete engine, Parameter[] params)
@@ -69,18 +104,8 @@ public class StringCatFunction implements Function, Serializable {
 				}
 			}
 		} else {
-			throw new IllegalParameterException(1);
+			throw new IllegalParameterException(1, true);
 		}
 		return JamochaValue.newString(txt.toString());
 	}
-
-	public String getName() {
-		return NAME;
-	}
-
-	public String toPPString(Parameter[] params, int indents) {
-		return "(str-cat [string]*)\n" + "Function description:\n"
-				+ "\tConcatenates all its argument Strings.";
-	}
-
 }

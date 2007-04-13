@@ -1,11 +1,11 @@
 /*
- * Copyright 2007 Alexander Wilden
+ * Copyright 2002-2006 Peter Lin, 2007 Alexander Wilden
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://jamocha.sourceforge.net/
+ *   http://www.jamocha.org/
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,7 +14,7 @@
  * limitations under the License.
  * 
  */
-package org.jamocha.adapter.sl;
+package org.jamocha.rete.functions.strings;
 
 import java.io.Serializable;
 
@@ -28,16 +28,18 @@ import org.jamocha.rete.Rete;
 import org.jamocha.rete.functions.FunctionDescription;
 
 /**
- * Translates CLIPS-Code resp. JamochaValues to SL.
+ * @author Peter Lin
  * 
- * @author Alexander Wilden
+ * The str-upper function will return a string with uppercase
+ * alphabetic characters.
  */
-public class CLIPS2SLFunction implements Function, Serializable {
+public class StringUpper implements Function, Serializable {
 
-	private static final class CLIPS2SLFunctionDescription implements FunctionDescription {
+	private static final class StringUpperDescription implements
+			FunctionDescription {
 
 		public String getDescription() {
-			return "translates CLIPS-Code resp. JamochaValues to SL which then will be returned as a String.";
+			return "The str-upper function will return a string with uppercase alphabetic characters.";
 		}
 
 		public int getParameterCount() {
@@ -45,7 +47,7 @@ public class CLIPS2SLFunction implements Function, Serializable {
 		}
 
 		public String getParameterDescription(int parameter) {
-			return "string that should be translated to SL.";
+			return "The String that will be transformed to uppercase.";
 		}
 
 		public String getParameterName(int parameter) {
@@ -69,12 +71,12 @@ public class CLIPS2SLFunction implements Function, Serializable {
 		}
 	}
 
-	private static final FunctionDescription DESCRIPTION = new CLIPS2SLFunctionDescription();
-	
+	private static final FunctionDescription DESCRIPTION = new StringUpperDescription();
+
 	private static final long serialVersionUID = 1L;
 
-	public static final String NAME = "clips2sl";
-	
+	public static final String NAME = "str-upper";
+
 	public FunctionDescription getDescription() {
 		return DESCRIPTION;
 	}
@@ -83,20 +85,15 @@ public class CLIPS2SLFunction implements Function, Serializable {
 		return NAME;
 	}
 
-	public JamochaType getReturnType() {
-		return JamochaType.STRING;
-	}
-
 	public JamochaValue executeFunction(Rete engine, Parameter[] params)
 			throws EvaluationException {
-		JamochaValue result = JamochaValue.newString("");
+		String txt = null;
 		if (params != null && params.length == 1) {
-			JamochaValue value = params[0].getValue(engine);
-			String slCode = CLIPS2SL.getSL(value);
-			result = JamochaValue.newString(slCode);
+			txt = params[0].getValue(engine).getStringValue();
+			txt = txt.toUpperCase();
 		} else {
 			throw new IllegalParameterException(1);
 		}
-		return result;
+		return JamochaValue.newString(txt);
 	}
 }
