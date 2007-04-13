@@ -14,7 +14,8 @@ options {
 	STATIC=false;
 	NODE_PREFIX="SFP";
 	NODE_USES_PARSER=true;
-    ERROR_REPORTING = true;
+	VISITOR = true;  // create Visitor interface
+	ERROR_REPORTING = true;
 }
 
 
@@ -33,7 +34,7 @@ import org.jamocha.rete.Rete;
 public class SFPParser implements Parser{
 
         public Expression nextExpression() throws ParseException {
-                return Start().getExpression();
+                return Start().evaluate();
         }
 
         public static void main(String args[])
