@@ -22,6 +22,7 @@ import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.IllegalParameterException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
+import org.jamocha.parser.ParserFactory;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
@@ -29,20 +30,64 @@ import org.jamocha.rete.Rete;
 /**
  * @author Christian Ebert
  * 
- * Returns the trigonometric arc cosine of an angle.
+ * Returns the trigonometric arc cosine of its only argument (which should be an
+ * angle as numeric expression). The return value will double.
  */
 public class Acos implements Function, Serializable {
 
+	private static final class AcosDescription implements FunctionDescription {
+
+		public String getDescription() {
+			return "Returns the trigonometric arc cosine of its only argument (which should be an angle as numeric expression). The return value will double.";
+		}
+
+		public int getParameterCount() {
+			return 1;
+		}
+
+		public String getParameterDescription(int parameter) {
+			return "Angle, whose trigonometric arc cosine will be returned.";
+		}
+
+		public String getParameterName(int parameter) {
+			return "number";
+		}
+
+		public JamochaType[] getParameterTypes(int parameter) {
+			return JamochaType.NUMBERS;
+		}
+
+		public JamochaType[] getReturnType() {
+			return JamochaType.DOUBLES;
+		}
+
+		public boolean isParameterCountFixed() {
+			return true;
+		}
+
+		public boolean isParameterOptional(int parameter) {
+			return false;
+		}
+	}
+
+	private static final FunctionDescription DESCRIPTION = new AcosDescription();
+
 	private static final long serialVersionUID = 1L;
 
-	public static final String ACOS = "acos";
+	public static final String NAME = "acos";
 
-	/**
-	 * 
-	 */
 	public Acos() {
 		super();
 	}
+
+	public FunctionDescription getDescription() {
+		return DESCRIPTION;
+	}
+
+	public String getName() {
+		return NAME;
+	}
+
 
 	public JamochaType getReturnType() {
 		return JamochaType.DOUBLE;
@@ -67,25 +112,5 @@ public class Acos implements Function, Serializable {
 			}
 		}
 		throw new IllegalParameterException(1);
-	}
-
-	public String getName() {
-		return ACOS;
-	}
-
-	public String toPPString(Parameter[] params, int indents) {
-		if (params != null && params.length >= 0) {
-			StringBuffer buf = new StringBuffer();
-			buf.append("(acos");
-			int idx = 0;
-			buf.append(" ").append(params[idx].getExpressionString());
-			buf.append(")");
-			return buf.toString();
-		} else {
-			return "(acos <literal> | <binding>)\n"
-					+ "Function description:\n"
-					+ "\tCalculates the inverse cosine of the numeric argument.\n"
-					+ "\tThe argument is expected to be in radians.";
-		}
 	}
 }

@@ -23,9 +23,11 @@ import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.IllegalParameterException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
+import org.jamocha.parser.ParserFactory;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
+import org.jamocha.rete.functions.FunctionDescription;
 
 /**
  * Translates SL-Code to CLIPS-Code
@@ -34,56 +36,100 @@ import org.jamocha.rete.Rete;
  */
 public class SL2CLIPSFunction implements Function, Serializable {
 
-    private static final long serialVersionUID = 1L;
+	private static final class SL2CLIPSFunctionDescription implements
+			FunctionDescription {
 
-    public static final String SL_2_CLIPS = "sl2clips";
+		public String getDescription() {
+			return "Translates SL-Code to CLIPS-Code which then will be returned as a String.";
+		}
 
-    /**
-         * 
-         */
-    public SL2CLIPSFunction() {
-	super();
-    }
+		public int getParameterCount() {
+			return 2;
+		}
 
-    public JamochaType getReturnType() {
-	return JamochaType.STRING;
-    }
+		public String getParameterDescription(int parameter) {
+			switch (parameter) {
+			case 0:
+				return "Performative that is used.";
+			case 1:
+				return "String that should be translated to CLIPS-Code.";
+			}
+			return "";
+		}
 
-    public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
-	JamochaValue result = JamochaValue.newString("");
-	if (params != null && params.length == 2) {
-	    // long performative =
-                // params[0].getValue(engine).getLongValue();
-	    String slCode = params[1].getValue(engine).getStringValue();
-	    try {
-		// TODO check if performative is a request
-		String clipsCode = SL2CLIPS.getCLIPSFromRequest(slCode);
-		result = JamochaValue.newString(clipsCode);
-	    } catch (AdapterTranslationException e) {
-		throw new EvaluationException("Error while translating from SL to CLIPS.", e);
-	    }
-	} else {
-	    throw new IllegalParameterException(2);
+		public String getParameterName(int parameter) {
+			switch (parameter) {
+			case 0:
+				return "performative";
+			case 1:
+				return "string";
+			}
+			return "";
+		}
+
+		public JamochaType[] getParameterTypes(int parameter) {
+			switch (parameter) {
+			case 0:
+				return JamochaType.LONGS;
+			case 1:
+				return JamochaType.STRINGS;
+			}
+			return null;
+		}
+
+		public JamochaType[] getReturnType() {
+			return JamochaType.STRINGS;
+		}
+
+		public boolean isParameterCountFixed() {
+			return true;
+		}
+
+		public boolean isParameterOptional(int parameter) {
+			return false;
+		}
 	}
-	return result;
-    }
 
-    public String getName() {
-	return SL_2_CLIPS;
-    }
+	private static final FunctionDescription DESCRIPTION = new SL2CLIPSFunctionDescription();
 
-    public String toPPString(Parameter[] params, int indents) {
-	if (params != null && params.length > 0) {
-	    StringBuffer buf = new StringBuffer();
-	    buf.append("(sl2clips");
-	    for (int idx = 0; idx < params.length; idx++) {
-		buf.append(" " + params[idx].getExpressionString());
-	    }
-	    buf.append(")");
-	    return buf.toString();
-	} else {
-	    return "(sl2clips <string expression>)\n" + "Command description:\n"
-		    + "\tTranslates a string in SL to CLIPS.";
+	private static final long serialVersionUID = 1L;
+
+	public static final String NAME = "sl2clips";
+
+	public SL2CLIPSFunction() {
+		super();
 	}
-    }
+
+	public FunctionDescription getDescription() {
+		return DESCRIPTION;
+	}
+
+	public String getName() {
+		return NAME;
+	}
+
+	public JamochaType getReturnType() {
+		return JamochaType.STRING;
+	}
+
+	public JamochaValue executeFunction(Rete engine, Parameter[] params)
+			throws EvaluationException {
+		JamochaValue result = JamochaValue.newString("");
+		if (params != null && params.length == 2) {
+			// long performative =
+			// params[0].getValue(engine).getLongValue();
+			String slCode = params[1].getValue(engine).getStringValue();
+			try {
+				// TODO check if performative is a request
+				String clipsCode = SL2CLIPS.getCLIPSFromRequest(slCode);
+				result = JamochaValue.newString(clipsCode);
+			} catch (AdapterTranslationException e) {
+				throw new EvaluationException(
+						"Error while translating from SL to CLIPS.", e);
+			}
+		} else {
+			throw new IllegalParameterException(2);
+		}
+		return result;
+	}
 }

@@ -22,6 +22,7 @@ import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.IllegalParameterException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
+import org.jamocha.parser.ParserFactory;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
@@ -29,22 +30,24 @@ import org.jamocha.rete.Rete;
 /**
  * @author Nikolaus Koemm, Christian Ebert
  * 
- * Returns the absolute value of a double value.
+ * Returns the absolute value of its only argument (which should be a numeric
+ * expression). The return value will either be long or double (depending upon
+ * the type the argument).
  */
 public class Abs implements Function, Serializable {
-	
+
 	private static final class AbsDescription implements FunctionDescription {
 
 		public String getDescription() {
-			return "Returns the absolute value af a number.";
+			return "Returns the absolute value of its only argument (which should be a numeric expression). The return value will either be long or double (depending upon the type the argument).";
 		}
-		
+
 		public int getParameterCount() {
 			return 1;
 		}
 
 		public String getParameterDescription(int parameter) {
-			return "number, whose absolute value will be returned";
+			return "Number, whose absolute value will be returned";
 		}
 
 		public String getParameterName(int parameter) {
@@ -65,24 +68,25 @@ public class Abs implements Function, Serializable {
 
 		public boolean isParameterOptional(int parameter) {
 			return false;
-		}		
+		}
 	}
-	
+
 	private static final FunctionDescription DESCRIPTION = new AbsDescription();
 
 	private static final long serialVersionUID = 1L;
-	
-	public static final String ABS = "abs";
 
-	/**
-	 * 
-	 */
+	public static final String NAME = "abs";
+
 	public Abs() {
 		super();
 	}
-	
+
 	public FunctionDescription getDescription() {
 		return DESCRIPTION;
+	}
+
+	public String getName() {
+		return NAME;
 	}
 
 	public JamochaType getReturnType() {
@@ -100,34 +104,15 @@ public class Abs implements Function, Serializable {
 					value = value.implicitCast(JamochaType.DOUBLE);
 				}
 				if (value.getType().equals(JamochaType.DOUBLE)) {
-					result = JamochaValue.newDouble(Math
-							.abs(value.getDoubleValue()));
+					result = JamochaValue.newDouble(Math.abs(value
+							.getDoubleValue()));
 				} else if (value.getType().equals(JamochaType.LONG)) {
-					result = JamochaValue.newLong(Math.abs(value
-							.getLongValue()));
+					result = JamochaValue.newLong(Math
+							.abs(value.getLongValue()));
 				}
 				return result;
 			}
 		}
 		throw new IllegalParameterException(1);
-	}
-
-	public String getName() {
-		return ABS;
-	}
-
-	public String toPPString(Parameter[] params, int indents) {
-		if (params != null && params.length >= 0) {
-			StringBuffer buf = new StringBuffer();
-			buf.append("(abs");
-			int idx = 0;
-			buf.append(" ").append(params[idx].getExpressionString());
-			buf.append(")");
-			return buf.toString();
-		} else {
-			return "(abs <literal> | <binding>)\n"
-					+ "Function description:\n"
-					+ "\tCalculates the absolute value of the numeric argument.";
-		}
 	}
 }

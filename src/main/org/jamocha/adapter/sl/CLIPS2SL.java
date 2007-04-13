@@ -17,7 +17,6 @@ package org.jamocha.adapter.sl;
 
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.rete.Deftemplate;
 import org.jamocha.rete.Fact;
 import org.jamocha.rete.Template;
 

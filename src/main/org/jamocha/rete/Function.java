@@ -21,6 +21,7 @@ import java.io.Serializable;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
+import org.jamocha.rete.functions.FunctionDescription;
 
 /**
  * @author Peter Lin
@@ -31,11 +32,12 @@ import org.jamocha.parser.JamochaValue;
  * basically a stand alone method.
  */
 public interface Function extends Serializable {
+	
 	/**
 	 * every function needs to declare what the return type is.
 	 * @return
 	 */
-	JamochaType getReturnType();
+	public JamochaType getReturnType();
 
 	/**
 	 * Functions must implement concrete logic for the function.
@@ -51,12 +53,14 @@ public interface Function extends Serializable {
 	 * @return
 	 * @throws EvaluationException TODO
 	 */
-	JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException;
+	public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException;
 
 	/**
 	 * Every function must declare the name
 	 * @return
 	 */
-	String getName();
+	public String getName();
+	
+	//public FunctionDescription getDescription();
 
 }

@@ -19,6 +19,7 @@ import org.jamocha.rete.Slot;
 import org.jamocha.rete.SlotParam;
 import org.jamocha.rete.Template;
 import org.jamocha.rete.TemplateSlot;
+import org.jamocha.rete.functions.FunctionDescription;
 import org.jamocha.rule.Action;
 import org.jamocha.rule.AndCondition;
 import org.jamocha.rule.AndLiteralConstraint;
@@ -289,8 +290,16 @@ public class CLIPSFormatter implements Formatter {
 	}
 
 	public String formatFunction(Function function) {
-		// TODO Auto-generated method stub
-		return null;
+		StringBuilder sb = new StringBuilder();
+		sb.append('(');
+		sb.append(function.getName());
+//		FunctionDescription fd = function.getDescription();
+//		int paramCount = fd.getParameterCount();
+//		for (int i = 0; i < paramCount; ++i) {
+//			sb.append("(").append(fd.getParameterName(i)).append(")");
+//		}
+		sb.append(')');
+		return sb.toString();
 	}
 
 	public String formatRule(Rule rule) {
@@ -536,7 +545,6 @@ public class CLIPSFormatter implements Formatter {
 	}
 
 	private void increaseIndent() {
-		System.out.println("inc");
 		for (int i = 0; i < INDENT_WIDTH; ++i) {
 			prefix.append(' ');
 		}
@@ -549,7 +557,6 @@ public class CLIPSFormatter implements Formatter {
 	}
 
 	private void decreaseIndent() {
-		System.out.println("dec");
 		prefix.setLength(Math.max(0, prefix.length() - INDENT_WIDTH));
 	}
 }
