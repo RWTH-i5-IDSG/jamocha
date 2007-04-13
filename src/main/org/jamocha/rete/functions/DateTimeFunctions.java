@@ -41,39 +41,39 @@ public class DateTimeFunctions implements FunctionGroup {
 		Between between = new Between();
 		engine.declareFunction(between);
 		funcs.add(between);
-		
+
 		Timestamp2Datetime ts2dt = new Timestamp2Datetime();
 		engine.declareFunction(ts2dt);
 		funcs.add(ts2dt);
-		
+
 		Datetime2Timestamp dt2ts = new Datetime2Timestamp();
 		engine.declareFunction(dt2ts);
 		funcs.add(dt2ts);
-		
+
 		GetGMToffset gmtoffset = new GetGMToffset();
 		engine.declareFunction(gmtoffset);
 		funcs.add(gmtoffset);
-		
+
 		GetSeconds seconds = new GetSeconds();
 		engine.declareFunction(seconds);
 		funcs.add(seconds);
-		
+
 		GetMinutes minutes = new GetMinutes();
 		engine.declareFunction(minutes);
 		funcs.add(minutes);
-		
+
 		GetHours hours = new GetHours();
 		engine.declareFunction(hours);
 		funcs.add(hours);
-		
+
 		GetDay day = new GetDay();
 		engine.declareFunction(day);
 		funcs.add(day);
-		
+
 		GetMonth month = new GetMonth();
 		engine.declareFunction(month);
 		funcs.add(month);
-		
+
 		GetYear year = new GetYear();
 		engine.declareFunction(year);
 		funcs.add(year);
