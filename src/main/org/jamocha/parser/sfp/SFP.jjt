@@ -24,17 +24,11 @@ package org.jamocha.parser.sfp;
 
 import java.util.ArrayList;
 
-import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.Parser;
 import org.jamocha.parser.ParserUtils;
 import org.jamocha.parser.Expression;
 
-
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.AbstractSlot;
-import org.jamocha.rete.Fact;
-import org.jamocha.rete.TemplateSlot;
-import org.jamocha.rule.*;
 
 public class SFPParser implements Parser{
 
@@ -428,9 +422,7 @@ void Constant() #void :
 SimpleNode ConstructDescription() : 
 {}
 {	
-    "\"" 
     String() 
-    "\""
     {return jjtThis; }
 }
 
@@ -1269,21 +1261,17 @@ SimpleNode BooleanSymbol() :
 SimpleNode ConditionalElement() :
 {}
 {
-	<LBRACE>
-		(
-			PatternCE() 
-		|	AssignedPatternCE() 
-		|	BooleanFunction() 
+		(LOOKAHEAD(5)
+			TemplatePatternCE() 
+		//|	BooleanFunction() 
 		|	LogicalCE() 
-		|	TestCE()
-		|	ExistsCE()
-		|	ForallCE()
+		//|	TestCE()
+		//|	ExistsCE()
+		//|	ForallCE()		
+		|	AssignedPatternCE() 
 		)
-	<RBRACE>
 	{ return jjtThis; }	
 }
-
-
 
 /**
 *		Boolean Functions
@@ -1292,39 +1280,44 @@ SimpleNode ConditionalElement() :
 SimpleNode BooleanFunction(): 
 {}
 {
-	(
+	(LOOKAHEAD(2)
 		NotFunction()
 	|	AndFunction()
 	|	OrFunction()	
 	)
-	
+    	
 	{ return jjtThis; }
 }
 
 SimpleNode NotFunction():
 {}
 {
+    	<LBRACE>
 	<NOT>
 		ConditionalElement()
-		
+	<RBRACE>	
 	{ return jjtThis; }
 }
 
 SimpleNode AndFunction():
 {}
 {	
+    	<LBRACE>
 	<AND>
 		ConditionalElement()
-		
+	<RBRACE>
+    	
 	{ return jjtThis; }
 }
 
 SimpleNode OrFunction():
 {}
 {	
+    	<LBRACE>
 	<OR>
 		ConditionalElement()
-		
+	<RBRACE>
+    	
 	{ return jjtThis; }
 }	
 
@@ -1332,18 +1325,6 @@ SimpleNode OrFunction():
 /**
 *		Pattern Conditional Element
 **/
-//<pattern-CE> ::= <ordered-pattern-CE> | <template-pattern-CE> | <object-pattern-CE>
-// Create and return conditions
-SimpleNode  PatternCE() : 
-{}
-{
-	( //LOOKAHEAD(2) 
-	//	OrderedPatternCE() 
-		TemplatePatternCE() 
-	) 
-	
-	{ return jjtThis; }
-}
 
 //<assigned-pattern-CE> ::= <single-field-variable> <- <pattern-CE>
 // Create and return conditions
@@ -1353,7 +1334,7 @@ SimpleNode AssignedPatternCE():
 	(
 		SingleVariable() 
 		<ASSIGN>
-		PatternCE()
+		TemplatePatternCE()
 	) 
 	
 	{ return jjtThis; }
@@ -1365,10 +1346,12 @@ SimpleNode AssignedPatternCE():
 SimpleNode LogicalCE() : 
 {}
 {
+    <LBRACE>
     <LOGICAL> 
     (
 		ConditionalElement()
     )+ 
+    <RBRACE>
     
     { return jjtThis; }
 }
@@ -1379,10 +1362,11 @@ SimpleNode LogicalCE() :
 SimpleNode TestCE() : 
 {}
 {
-	(
-		<TEST>
-		Symbol()
-	)
+    	<LBRACE>
+	<TEST>
+	Symbol()
+	
+	<RBRACE>
 	
 	{ return jjtThis; }
 }
@@ -1392,10 +1376,12 @@ SimpleNode TestCE() :
 SimpleNode ExistsCE() : 
 {}
 {
+    <LBRACE>
     <EXISTS> 
     (
 	ConditionalElement()
     )+
+    <RBRACE>
     
     { return jjtThis; }
 }
@@ -1405,35 +1391,22 @@ SimpleNode ExistsCE() :
 SimpleNode ForallCE() : 
 {}
 {
-	(	
-		<FORALL> 
-		ConditionalElement() 
-		(
-			ConditionalElement()
-		)+
-	)	
-	
-	{return jjtThis; }
-}
-
-//<ordered-pattern-CE> ::= (<symbol> <constraint>*)
-SimpleNode OrderedPatternCE() : 
-{}
-{
-    (
-    	Symbol()
+    	<LBRACE>	
+	<FORALL> 
+	ConditionalElement() 
 	(
-		Constraint()
-	)*
-    )
-    
-    { return jjtThis; }
+		ConditionalElement()
+	)+	
+	<RBRACE>
+    	
+	{return jjtThis; }
 }
 
 //<template-pattern-CE> ::= (<deftemplate-name> <LHS-slot>*)
 SimpleNode TemplatePatternCE(): 
 {}
 {
+    <LBRACE>
     (
     	Symbol()
 	(	
@@ -1442,6 +1415,7 @@ SimpleNode TemplatePatternCE():
 		<RBRACE>
 	)*
     )
+    <RBRACE>
     
    { return jjtThis; }
 }
