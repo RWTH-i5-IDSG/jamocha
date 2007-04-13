@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2007 Christoph Emonds Sebastian Reinartz
+ * Copyright 2007 Christoph Emonds, Sebastian Reinartz, Alexander Wilden
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@ import org.jamocha.rete.BoundParam;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
+import org.jamocha.rete.functions.FunctionDescription;
 
 /**
  * @author Christoph Emonds, Sebastian Reinartz
@@ -35,61 +36,104 @@ import org.jamocha.rete.Rete;
  */
 public class Foreach implements Function, Serializable {
 
-    private static final long serialVersionUID = 1L;
+	private static final class ForeachDescription implements
+			FunctionDescription {
 
-    public static final String NAME = "foreach";
-
-    /**
-         * 
-         */
-    public Foreach() {
-	super();
-    }
-
-    public JamochaType getReturnType() {
-	return JamochaType.UNDEFINED;
-    }
-
-    public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
-	if (params != null && params.length >= 2) {
-	    if (params[0] instanceof BoundParam) {
-		BoundParam variable = (BoundParam) params[0];
-		JamochaValue list = params[1].getValue(engine);
-		if (list.is(JamochaType.LIST)) {
-		    JamochaValue result = JamochaValue.NIL;
-		    for (int j = 0; j < list.getListCount(); ++j) {
-			engine.setBinding(variable.getVariableName(), list.getListValue(j));
-			for (int i = 2; i < params.length; ++i) {
-			    result = params[i].getValue(engine);
-			}
-		    }
-		    return result;
-		} else {
-		    throw new IllegalTypeException(JamochaType.LISTS, list.getType());
+		public String getDescription() {
+			return "Evaluates expressions for all items in a list.";
 		}
-	    } else {
-		throw new EvaluationException("First parameter must be a binding.");
-	    }
-	}
-	throw new IllegalParameterException(2, true);
-    }
 
-    public String getName() {
-	return NAME;
-    }
+		public int getParameterCount() {
+			return 2;
+		}
 
-    public String toPPString(Parameter[] params, int indents) {
-	if (params != null && params.length > 0) {
-	    StringBuffer buf = new StringBuffer();
-	    buf.append("(" + NAME);
-	    for (int idx = 0; idx < params.length; idx++) {
-		buf.append(" " + params[idx].getExpressionString());
-	    }
-	    buf.append(")");
-	    return buf.toString();
-	} else {
-	    return "(" + NAME + " <variable> <list> <expression>*)\n" + "Function description:\n"
-		    + "\t Iterates over a list.";
+		public String getParameterDescription(int parameter) {
+			switch (parameter) {
+			case 0:
+				return "Name of the variable for each list item.";
+			case 1:
+				return "The List to work on.";
+			}
+			return "An expression that is evaluated for each item of the list.";
+		}
+
+		public String getParameterName(int parameter) {
+			switch (parameter) {
+			case 0:
+				return "variableName";
+			case 1:
+				return "list";
+			}
+			return "someExpression";
+		}
+
+		public JamochaType[] getParameterTypes(int parameter) {
+			switch (parameter) {
+			case 0:
+				return JamochaType.IDENTIFIERS;
+			case 1:
+				return JamochaType.LISTS;
+			}
+			return JamochaType.ANY;
+		}
+
+		public JamochaType[] getReturnType() {
+			return JamochaType.ANY;
+		}
+
+		public boolean isParameterCountFixed() {
+			return false;
+		}
+
+		public boolean isParameterOptional(int parameter) {
+			switch (parameter) {
+			case 0:
+			case 1:
+				return false;
+			}
+			return true;
+		}
 	}
-    }
+
+	private static final FunctionDescription DESCRIPTION = new ForeachDescription();
+
+	private static final long serialVersionUID = 1L;
+
+	public static final String NAME = "foreach";
+
+	public FunctionDescription getDescription() {
+		return DESCRIPTION;
+	}
+
+	public String getName() {
+		return NAME;
+	}
+
+	public JamochaValue executeFunction(Rete engine, Parameter[] params)
+			throws EvaluationException {
+		if (params != null && params.length >= 2) {
+			if (params[0] instanceof BoundParam) {
+				BoundParam variable = (BoundParam) params[0];
+				JamochaValue list = params[1].getValue(engine);
+				if (list.is(JamochaType.LIST)) {
+					JamochaValue result = JamochaValue.NIL;
+					for (int j = 0; j < list.getListCount(); ++j) {
+						engine.setBinding(variable.getVariableName(), list
+								.getListValue(j));
+						for (int i = 2; i < params.length; ++i) {
+							result = params[i].getValue(engine);
+						}
+					}
+					return result;
+				} else {
+					throw new IllegalTypeException(JamochaType.LISTS, list
+							.getType());
+				}
+			} else {
+				throw new EvaluationException(
+						"First parameter must be a binding.");
+			}
+		}
+		throw new IllegalParameterException(2, true);
+	}
 }

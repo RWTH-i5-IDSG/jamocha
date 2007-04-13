@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2007 Christoph Emonds Sebastian Reinartz
+ * Copyright 2007 Christoph Emonds Sebastian Reinartz
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,33 +25,29 @@ import org.jamocha.rete.Rete;
 
 public class ListFunctions implements FunctionGroup {
 
-    private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;
 
-    private ArrayList<Function> funcs = new ArrayList<Function>();
+	private ArrayList<Function> funcs = new ArrayList<Function>();
 
-    public ListFunctions() {
-	super();
-    }
+	public String getName() {
+		return (ListFunctions.class.getSimpleName());
+	}
 
-    public String getName() {
-	return (ListFunctions.class.getSimpleName());
-    }
+	public void loadFunctions(Rete engine) {
+		Create$ create = new Create$();
+		engine.declareFunction(create);
+		funcs.add(create);
 
-    public void loadFunctions(Rete engine) {
-	Create$ create = new Create$();
-	engine.declareFunction(create);
-	funcs.add(create);
+		Length$ length = new Length$();
+		engine.declareFunction(length);
+		funcs.add(length);
 
-	Length$ length = new Length$();
-	engine.declareFunction(length);
-	funcs.add(length);
+		Foreach foreach = new Foreach();
+		engine.declareFunction(foreach);
+		funcs.add(foreach);
+	}
 
-	Foreach foreach = new Foreach();
-	engine.declareFunction(foreach);
-	funcs.add(foreach);
-    }
-
-    public List listFunctions() {
-	return funcs;
-    }
+	public List listFunctions() {
+		return funcs;
+	}
 }

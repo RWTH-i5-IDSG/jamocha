@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2007 Christoph Emonds
+ * Copyright 2007 Christoph Emonds, Alexander Wilden
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,57 +26,75 @@ import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
+import org.jamocha.rete.functions.FunctionDescription;
 
 /**
  * @author Christoph Emonds
  * 
- * Return the length of a list.
+ * Returns the length of a list.
  */
 public class Length$ implements Function, Serializable {
+	private static final class LengthDescription implements
+			FunctionDescription {
 
-    private static final long serialVersionUID = 1L;
+		public String getDescription() {
+			return "Returns the length of a list.";
+		}
 
-    public static final String NAME = "length$";
+		public int getParameterCount() {
+			return 1;
+		}
 
-    /**
-         * 
-         */
-    public Length$() {
-	super();
-    }
+		public String getParameterDescription(int parameter) {
+			return "A List whose length should be returned.";
+		}
 
-    public JamochaType getReturnType() {
-	return JamochaType.LONG;
-    }
+		public String getParameterName(int parameter) {
+			return "list";
+		}
 
-    public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
-	if (params != null && params.length == 1) {
-	    JamochaValue list = params[0].getValue(engine);
-	    if (list.equals(JamochaType.LIST)) {
-		return JamochaValue.newLong(list.getListCount());
-	    } else {
-		throw new IllegalTypeException(JamochaType.LISTS, list.getType());
-	    }
+		public JamochaType[] getParameterTypes(int parameter) {
+			return JamochaType.LISTS;
+		}
+
+		public JamochaType[] getReturnType() {
+			return JamochaType.LONGS;
+		}
+
+		public boolean isParameterCountFixed() {
+			return true;
+		}
+
+		public boolean isParameterOptional(int parameter) {
+			return false;
+		}
 	}
-	throw new IllegalParameterException(1, false);
-    }
 
-    public String getName() {
-	return NAME;
-    }
+	private static final FunctionDescription DESCRIPTION = new LengthDescription();
 
-    public String toPPString(Parameter[] params, int indents) {
-	if (params != null && params.length > 0) {
-	    StringBuffer buf = new StringBuffer();
-	    buf.append("(length$ ");
-	    for (int idx = 0; idx < params.length; idx++) {
-		buf.append(" " + params[idx].getExpressionString());
-	    }
-	    buf.append(")");
-	    return buf.toString();
-	} else {
-	    return "("+NAME+" <list-value>)\n" + "Function description:\n"
-		    + "\t Returns the length of a list.";
+	private static final long serialVersionUID = 1L;
+
+	public static final String NAME = "length$";
+
+	public FunctionDescription getDescription() {
+		return DESCRIPTION;
 	}
-    }
+
+	public String getName() {
+		return NAME;
+	}
+
+	public JamochaValue executeFunction(Rete engine, Parameter[] params)
+			throws EvaluationException {
+		if (params != null && params.length == 1) {
+			JamochaValue list = params[0].getValue(engine);
+			if (list.equals(JamochaType.LIST)) {
+				return JamochaValue.newLong(list.getListCount());
+			} else {
+				throw new IllegalTypeException(JamochaType.LISTS, list
+						.getType());
+			}
+		}
+		throw new IllegalParameterException(1, false);
+	}
 }

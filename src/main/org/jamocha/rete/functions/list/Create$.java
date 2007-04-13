@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2006 Christoph Emonds
+ * Copyright 2007 Christoph Emonds, Alexander Wilden
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,70 +27,84 @@ import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
+import org.jamocha.rete.functions.FunctionDescription;
 
 /**
- * @author Christoph Emonds
+ * @author Christoph Emonds, Alexander Wilden
  * 
  * Creates a list of the given parameter values.
  */
 public class Create$ implements Function, Serializable {
+	
+	private static final class CreateDescription implements
+			FunctionDescription {
 
-    private static final long serialVersionUID = 1L;
+		public String getDescription() {
+			return "Creates a list of the given parameter values.";
+		}
 
-    public static final String NAME = "create$";
+		public int getParameterCount() {
+			return 1;
+		}
 
-    /**
-         * 
-         */
-    public Create$() {
-	super();
-    }
+		public String getParameterDescription(int parameter) {
+			return "Any value that should be put into the List.";
+		}
 
-    public JamochaType getReturnType() {
-	return JamochaType.LIST;
-    }
+		public String getParameterName(int parameter) {
+			return "someValue";
+		}
 
-    public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
-	if (params != null) {
-	    List<JamochaValue> newListValues = new ArrayList<JamochaValue>();
-	    for(int i=0;i<params.length;++i) {
-		    JamochaValue value = params[i].getValue(engine);
-		    if (value.is(JamochaType.LIST)) {
-			for(int j=0;j<value.getListCount();++j) {
-			    newListValues.add(value.getListValue(j));
+		public JamochaType[] getParameterTypes(int parameter) {
+			return JamochaType.ANY;
+		}
+
+		public JamochaType[] getReturnType() {
+			return JamochaType.LISTS;
+		}
+
+		public boolean isParameterCountFixed() {
+			return false;
+		}
+
+		public boolean isParameterOptional(int parameter) {
+			return true;
+		}
+	}
+
+	private static final FunctionDescription DESCRIPTION = new CreateDescription();
+
+	private static final long serialVersionUID = 1L;
+
+	public static final String NAME = "create$";
+
+	public FunctionDescription getDescription() {
+		return DESCRIPTION;
+	}
+
+	public String getName() {
+		return NAME;
+	}
+
+	public JamochaValue executeFunction(Rete engine, Parameter[] params)
+			throws EvaluationException {
+		if (params != null) {
+			List<JamochaValue> newListValues = new ArrayList<JamochaValue>();
+			for (int i = 0; i < params.length; ++i) {
+				JamochaValue value = params[i].getValue(engine);
+				if (value.is(JamochaType.LIST)) {
+					for (int j = 0; j < value.getListCount(); ++j) {
+						newListValues.add(value.getListValue(j));
+					}
+				} else {
+					newListValues.add(value);
+				}
+
 			}
-		    } else {
-			newListValues.add(value);
-		    }
-		
-	    }
-	    JamochaValue[] values = new JamochaValue[newListValues.size()];
-	    newListValues.toArray(values);
-	    return JamochaValue.newList(values);
+			JamochaValue[] values = new JamochaValue[newListValues.size()];
+			newListValues.toArray(values);
+			return JamochaValue.newList(values);
+		}
+		throw new IllegalParameterException(0, true);
 	}
-	throw new IllegalParameterException(0, true);
-    }
-
-    public String getName() {
-	return NAME;
-    }
-
-    public Class[] getParameter() {
-	return new Class[] { };
-    }
-
-    public String toPPString(Parameter[] params, int indents) {
-	if (params != null && params.length > 0) {
-	    StringBuffer buf = new StringBuffer();
-	    buf.append("(");
-	    for (int idx = 0; idx < params.length; idx++) {
-		buf.append(" " + params[idx].getExpressionString());
-	    }
-	    buf.append(")");
-	    return buf.toString();
-	} else {
-	    return "("+NAME+" <value>*)\n" + "Function description:\n"
-		    + "\t Returns the a list of the given parameters.";
-	}
-    }
 }

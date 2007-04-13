@@ -83,11 +83,7 @@ public class AnyEqFunction implements Function, Serializable {
 	private static final long serialVersionUID = 1L;
 
 	public static final String NAME = "any-eq";
-
-	public AnyEqFunction() {
-		super();
-	}
-
+	
 	public FunctionDescription getDescription() {
 		return DESCRIPTION;
 	}

@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2006 Peter Lin
+ * Copyright 2002-2006 Peter Lin, 2007 Alexander Wilden
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://ruleml-dev.sourceforge.net/
+ *   http://www.jamocha.org/
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -26,24 +26,64 @@ import org.jamocha.rete.Fact;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
+import org.jamocha.rete.functions.FunctionDescription;
 
 /**
  * @author Peter Lin
  * 
+ * Returns the ID of the given Fact or NIL if it wasn't found.
  */
 public class FindFactByFact implements Function, Serializable {
 
-	/**
-	 * 
-	 */
+	private static final class FindFactByFactDescription implements FunctionDescription {
+
+		public String getDescription() {
+			return "Returns the ID of the given Fact or NIL if it wasn't found.";
+		}
+
+		public int getParameterCount() {
+			return 1;
+		}
+
+		public String getParameterDescription(int parameter) {
+			return "Fact to search for.";
+		}
+
+		public String getParameterName(int parameter) {
+			return "fact";
+		}
+
+		public JamochaType[] getParameterTypes(int parameter) {
+			return JamochaType.FACTS;
+		}
+
+		public JamochaType[] getReturnType() {
+			return JamochaType.FACTS;
+		}
+
+		public boolean isParameterCountFixed() {
+			return true;
+		}
+
+		public boolean isParameterOptional(int parameter) {
+			return false;
+		}
+	}
+	
+	private static final FunctionDescription DESCRIPTION = new FindFactByFactDescription();
+
 	private static final long serialVersionUID = 1L;
 
 	public static final String NAME = "find-fact-by-fact";
 
 	protected Fact[] triggerFacts = null;
 
-	public JamochaType getReturnType() {
-		return JamochaType.FACT_ID;
+	public FunctionDescription getDescription() {
+		return DESCRIPTION;
+	}
+	
+	public String getName() {
+		return NAME;
 	}
 
 	public void setTriggerFacts(Fact[] facts) {
@@ -63,24 +103,5 @@ public class FindFactByFact implements Function, Serializable {
 		    }
 		}
 		throw new IllegalTypeException(JamochaType.FACTS, factValue.getType());
-	}
-
-	public String getName() {
-		return NAME;
-	}
-
-	public String toPPString(Parameter[] params, int indents) {
-		if (params != null && params.length > 0) {
-			StringBuffer buf = new StringBuffer();
-			buf.append("(assert ");
-			for (int idx = 0; idx < params.length; idx++) {
-				// the parameter should be a deffact
-				buf.append(params[idx].getExpressionString());
-			}
-			buf.append(" )");
-			return buf.toString();
-		} else {
-			return "(assert deffact])";
-		}
 	}
 }
