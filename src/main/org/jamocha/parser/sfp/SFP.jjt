@@ -34,7 +34,8 @@ import org.jamocha.rete.Rete;
 public class SFPParser implements Parser{
 
         public Expression nextExpression() throws ParseException {
-                return Start().evaluate();
+          //      return Start().evaluate();
+          return null;
         }
 
         public static void main(String args[])
@@ -51,6 +52,8 @@ public class SFPParser implements Parser{
                                 SFPStart n = p.Start();
                                 if (n==null) System.exit(0);
                                 n.dump(" ");
+                                Expression expression=null;
+                                n.jjtAccept(new SFPInterpreter(engine), expression);
 //                                System.out.println(n.getExpression().getValue(engine).toString());
                         }
                 }
@@ -1796,8 +1799,8 @@ SimpleNode AllowedType()  :
 		| 	t = <DOUBLE_TYPE>
 		|	t = <NUMBER_TYPE>
 		|	t = <FACT_ADDRESS_TYPE>
-		|   	t = <DATETIME>
-		|       t=  <BOOLEAN_TYPE>
+		|   t = <DATETIME>
+		|   t=  <BOOLEAN_TYPE>
 	)
 	{ 	
 		jjtThis.setName(t.image);
