@@ -2,6 +2,7 @@ package org.jamocha.parser.sfp;
 
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
+import org.jamocha.parser.JamochaValueUtils;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.TemplateSlot;
 
@@ -24,38 +25,31 @@ public class SFPInterpreter implements SFPParserVisitor {
 	}
 
 	public Object visit(SFPFloat node, Object data) {
-		JamochaValue.newDouble(Double.parseDouble(node.getName()));
-		return null;
+		return JamochaValueUtils.convertToDouble(node.getName());
 	}
 
 	public Object visit(SFPInteger node, Object data) {
-		// TODO Auto-generated method stub
-		return null;
+		return JamochaValueUtils.convertToLong(node.getName());
 	}
 
 	public Object visit(SFPDateTime node, Object data) {
-		// TODO Auto-generated method stub
-		return null;
+		return JamochaValueUtils.convertToDateTime(node.getName());
 	}
 
 	public Object visit(SFPSymbol node, Object data) {
-		data = JamochaValue.newIdentifier(node.getName());
-		return null;
+		return JamochaValue.newIdentifier(node.getName());
 	}
 
 	public Object visit(SFPString node, Object data) {
-		data = JamochaValue.newString(node.getName());
-		return null;
+		return  JamochaValue.newString(node.getName());
 	}
 
 	public Object visit(SFPTrue node, Object data) {
-		data = JamochaValue.TRUE;
-		return null;
+		return JamochaValue.TRUE;
 	}
 
 	public Object visit(SFPFalse node, Object data) {
-		data = JamochaValue.FALSE;
-		return null;
+		return JamochaValue.FALSE;
 	}
 
 	public Object visit(SFPConstructDescription node, Object data) {
