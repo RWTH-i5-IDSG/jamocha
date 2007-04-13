@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2006 Peter Lin, 2007 Alexander Wilden
+ * Copyright 2006 Nikolaus Koemm, 2007 Alexander Wilden
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  * 
  */
-package org.jamocha.rete.functions.strings;
+package org.jamocha.rete.functions.compare;
 
 import java.io.Serializable;
 
@@ -28,45 +28,53 @@ import org.jamocha.rete.Rete;
 import org.jamocha.rete.functions.FunctionDescription;
 
 /**
- * @author Peter Lin
+ * @author Nikolaus Koemm
  * 
- * Returns a copy of the string, with leading and trailing whitespace omitted.
+ * Neq is used to compare a literal value against one or more other values. If
+ * all of the values are not equal, the function returns true.
  */
-public class StringTrim implements Function, Serializable {
+public class Neq implements Function, Serializable {
 
-	private static final class Description implements
-			FunctionDescription {
+	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "Returns a copy of the string, with leading and trailing whitespace omitted.";
+			return "Neq is used to compare a literal value against one or more other values. If all of the values are not equal, the function returns true.";
 		}
 
 		public int getParameterCount() {
-			return 1;
+			return 2;
 		}
 
 		public String getParameterDescription(int parameter) {
-			return "The String to trim.";
+			switch (parameter) {
+			case 0:
+				return "Literal value that should be compared to the other parameters.";
+			default:
+				return "Value that should be compared to the first parameter.";
+			}
 		}
 
 		public String getParameterName(int parameter) {
-			return "string";
+			return "value";
 		}
 
 		public JamochaType[] getParameterTypes(int parameter) {
-			return JamochaType.STRINGS;
+			return JamochaType.ANY;
 		}
 
 		public JamochaType[] getReturnType() {
-			return JamochaType.STRINGS;
+			return JamochaType.BOOLEANS;
 		}
 
 		public boolean isParameterCountFixed() {
-			return true;
+			return false;
 		}
 
 		public boolean isParameterOptional(int parameter) {
-			return false;
+			if (parameter > 0)
+				return true;
+			else
+				return false;
 		}
 	}
 
@@ -74,7 +82,7 @@ public class StringTrim implements Function, Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	public static final String NAME = "str-trim";
+	public static final String NAME = "neq";
 
 	public FunctionDescription getDescription() {
 		return DESCRIPTION;
@@ -86,13 +94,19 @@ public class StringTrim implements Function, Serializable {
 
 	public JamochaValue executeFunction(Rete engine, Parameter[] params)
 			throws EvaluationException {
-		String txt = null;
-		if (params != null && params.length == 1) {
-			txt = params[0].getValue(engine).getStringValue();
-			txt = txt.trim();
+		JamochaValue result = JamochaValue.TRUE;
+		if (params != null && params.length > 1) {
+			JamochaValue first = params[0].getValue(engine);
+			for (int idx = 1; idx < params.length; idx++) {
+				JamochaValue right = params[idx].getValue(engine);
+				if (first.equals(right)) {
+					result = JamochaValue.FALSE;
+					break;
+				}
+			}
 		} else {
-			throw new IllegalParameterException(1);
+			throw new IllegalParameterException(1, true);
 		}
-		return JamochaValue.newString(txt);
+		return result;
 	}
 }

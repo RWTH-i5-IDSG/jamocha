@@ -35,7 +35,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  */
 public class StringCat implements Function, Serializable {
 
-	private static final class StringCatDescription implements
+	private static final class Description implements
 			FunctionDescription {
 
 		public String getDescription() {
@@ -74,7 +74,7 @@ public class StringCat implements Function, Serializable {
 		}
 	}
 
-	private static final FunctionDescription DESCRIPTION = new StringCatDescription();
+	private static final FunctionDescription DESCRIPTION = new Description();
 
 	private static final long serialVersionUID = 1L;
 

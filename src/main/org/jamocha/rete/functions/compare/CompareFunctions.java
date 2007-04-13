@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2006 Peter Lin
+ * Copyright 2002-2006 Peter Lin, 2007 Alexander Wilden
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,30 +34,40 @@ public class CompareFunctions implements FunctionGroup {
 	}
 
 	public void loadFunctions(Rete engine) {
-		EqFunction eqf = new EqFunction();
-		engine.declareFunction(eqf);
-		funcs.add(eqf);
-		Greater gr = new Greater();
-		engine.declareFunction(gr);
-		funcs.add(gr);
-		GreaterOrEqual gre = new GreaterOrEqual();
-		engine.declareFunction(gre);
-		funcs.add(gre);
-		Less le = new Less();
-		engine.declareFunction(le);
-		funcs.add(le);
-		LessOrEqual leoe = new LessOrEqual();
-		engine.declareFunction(leoe);
-		funcs.add(leoe);
-		NeqFunction neq = new NeqFunction();
+		AnyEq anyeq = new AnyEq();
+		engine.declareFunction(anyeq);
+		funcs.add(anyeq);
+
+		Eq eq = new Eq();
+		engine.declareFunction(eq);
+		funcs.add(eq);
+
+		Greater greater = new Greater();
+		engine.declareFunction(greater);
+		funcs.add(greater);
+
+		GreaterOrEqual greaterOrEqual = new GreaterOrEqual();
+		engine.declareFunction(greaterOrEqual);
+		funcs.add(greaterOrEqual);
+
+		Less less = new Less();
+		engine.declareFunction(less);
+		funcs.add(less);
+
+		LessOrEqual lessOrEqual = new LessOrEqual();
+		engine.declareFunction(lessOrEqual);
+		funcs.add(lessOrEqual);
+
+		Neq neq = new Neq();
 		engine.declareFunction(neq);
 		funcs.add(neq);
-		engine.declareFunction(">", gr);
-		engine.declareFunction(">=", gre);
-		engine.declareFunction("<", le);
-		engine.declareFunction("<=", leoe);
-		engine.declareFunction("afterdate", gr);
-		engine.declareFunction("beforedate", le);
+
+		engine.declareFunction(">", greater);
+		engine.declareFunction(">=", greaterOrEqual);
+		engine.declareFunction("<", less);
+		engine.declareFunction("<=", lessOrEqual);
+		engine.declareFunction("afterdate", greater);
+		engine.declareFunction("beforedate", less);
 	}
 
 	public List listFunctions() {

@@ -25,6 +25,7 @@ import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
+import org.jamocha.rete.functions.FunctionDescription;
 
 /**
  * @author Peter Lin
@@ -34,19 +35,56 @@ import org.jamocha.rete.Rete;
  */
 public class LessOrEqual implements Function, Serializable {
 
+	private static final class Description implements FunctionDescription {
+
+		public String getDescription() {
+			return "LessOrEqual will compare 2 or more numeric values and return true if the (n-1)th value is less or equal to the nth value.";
+		}
+
+		public int getParameterCount() {
+			return 2;
+		}
+
+		public String getParameterDescription(int parameter) {
+			return "Number that will be compared to the other Parameters.";
+		}
+
+		public String getParameterName(int parameter) {
+			return "number";
+		}
+
+		public JamochaType[] getParameterTypes(int parameter) {
+			return JamochaType.NUMBERS;
+		}
+
+		public JamochaType[] getReturnType() {
+			return JamochaType.BOOLEANS;
+		}
+
+		public boolean isParameterCountFixed() {
+			return false;
+		}
+
+		public boolean isParameterOptional(int parameter) {
+			if (parameter > 0)
+				return true;
+			else
+				return false;
+		}
+	}
+
+	private static final FunctionDescription DESCRIPTION = new Description();
+
 	private static final long serialVersionUID = 1L;
 
 	public static final String NAME = "lessOrEqual";
 
-	/**
-	 * 
-	 */
-	public LessOrEqual() {
-		super();
+	public FunctionDescription getDescription() {
+		return DESCRIPTION;
 	}
 
-	public JamochaType getReturnType() {
-		return JamochaType.BOOLEAN;
+	public String getName() {
+		return NAME;
 	}
 
 	public JamochaValue executeFunction(Rete engine, Parameter[] params)
@@ -90,27 +128,5 @@ public class LessOrEqual implements Function, Serializable {
 			}
 		}
 		throw new IllegalParameterException(1, true);
-	}
-
-	public String getName() {
-		return NAME;
-	}
-
-	public String toPPString(Parameter[] params, int indents) {
-		if (params != null && params.length > 0) {
-			StringBuffer buf = new StringBuffer();
-			buf.append("(<=");
-			for (int idx = 0; idx < params.length; idx++) {
-				buf.append(" " + params[idx].getExpressionString());
-
-			}
-			buf.append(")");
-			return buf.toString();
-		} else {
-			return "(<= (<literal> | <binding>)+)\n"
-					+ "Function description:\n"
-					+ "\t Returns the symbol TRUE if for all its arguments, "
-					+ "argument \n \t n-1 is less or equal than argument n";
-		}
 	}
 }

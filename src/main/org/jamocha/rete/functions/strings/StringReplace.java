@@ -34,7 +34,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  * regular expression with the given replacement.
  */
 public class StringReplace implements Function, Serializable {
-	private static final class StringReplaceDescription implements
+	private static final class Description implements
 			FunctionDescription {
 
 		public String getDescription() {
@@ -86,7 +86,7 @@ public class StringReplace implements Function, Serializable {
 		}
 	}
 
-	private static final FunctionDescription DESCRIPTION = new StringReplaceDescription();
+	private static final FunctionDescription DESCRIPTION = new Description();
 
 	private static final long serialVersionUID = 1L;
 

@@ -42,27 +42,35 @@ public class StringFunctions implements FunctionGroup {
 		StringCat stringCat = new StringCat();
 		engine.declareFunction(stringCat);
 		funcs.add(stringCat);
+		
 		StringCompare stringCompare = new StringCompare();
 		engine.declareFunction(stringCompare);
 		funcs.add(stringCompare);
+		
 		StringIndex stringIndex = new StringIndex();
 		engine.declareFunction(stringIndex);
 		funcs.add(stringIndex);
+		
 		StringLength stringLength = new StringLength();
 		engine.declareFunction(stringLength);
 		funcs.add(stringLength);
+		
 		StringLower stringLower = new StringLower();
 		engine.declareFunction(stringLower);
 		funcs.add(stringLower);
+		
 		StringReplace stringReplace = new StringReplace();
 		engine.declareFunction(stringReplace);
 		funcs.add(stringReplace);
+		
 		StringTrim stringTrim = new StringTrim();
 		engine.declareFunction(stringTrim);
 		funcs.add(stringTrim);
+		
 		StringUpper stringUpper = new StringUpper();
 		engine.declareFunction(stringUpper);
 		funcs.add(stringUpper);
+		
 		SubString subString = new SubString();
 		engine.declareFunction(subString);
 		funcs.add(subString);
