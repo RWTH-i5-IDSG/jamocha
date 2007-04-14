@@ -1,9 +1,12 @@
 package org.jamocha.parser.sfp;
 
+import org.jamocha.parser.EvaluationException;
+import org.jamocha.parser.Expression;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.parser.JamochaValueUtils;
 import org.jamocha.rete.Deftemplate;
+import org.jamocha.rete.ExpressionList;
 import org.jamocha.rete.FunctionParam2;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
@@ -57,6 +60,7 @@ public class SFPInterpreter implements SFPParserVisitor {
     }
 
     public Object visit(SFPConstructDescription node, Object data) {
+	//returns description, stored in subnode Symbol
 	return node.jjtGetChild(0).jjtAccept(this, data);
     }
 
@@ -96,8 +100,8 @@ public class SFPInterpreter implements SFPParserVisitor {
     }
 
     public Object visit(SFPExpression node, Object data) {
-	// TODO Auto-generated method stub
-	return null;
+	// retruns sub value: 	Constant() | Variable()	| FunctionCall() 
+	return node.jjtGetChild(0).jjtAccept(this, data);
     }
 
     public Object visit(SFPAssertFunc node, Object data) {
@@ -159,11 +163,9 @@ public class SFPInterpreter implements SFPParserVisitor {
 	}
 	
 	//slots:
-	TemplateSlot ts;
 	TemplateSlot[] s = new TemplateSlot[node.jjtGetNumChildren() - j];
 	for (int i=j ; i < node.jjtGetNumChildren(); i++) {
-	    ts = (TemplateSlot) (node.jjtGetChild(i).jjtAccept(this, data));
-	    s[i-j] = ts;
+	    s[i-j] = (TemplateSlot) (node.jjtGetChild(i).jjtAccept(this, data));
 	}
 	
 	//create result:
@@ -171,7 +173,13 @@ public class SFPInterpreter implements SFPParserVisitor {
 	FunctionParam2 defTemplate = new FunctionParam2();
 	defTemplate.setFunctionName(DeftemplateFunction.NAME);
 	defTemplate.setParameters(new Parameter[] { JamochaValue.newObject(tpl) });
-	return defTemplate;
+	try {
+	    return defTemplate.getValue(engine);
+	} catch (EvaluationException e) {
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
+	    return null;
+	}
     }
 
     public Object visit(SFPSingleSlotDefinition node, Object data) {
@@ -181,39 +189,64 @@ public class SFPInterpreter implements SFPParserVisitor {
 	
 	TemplateSlot ts = new TemplateSlot();
 	ts.setName(slotName.getStringValue());	
-
+	ts.setMultiSlot(false);
 	// setting the slot attributes
 	for (int i = 1; i < node.jjtGetNumChildren(); i++) {
 	    node.jjtGetChild(i).jjtAccept(this, ts);
 	}
 
 	return ts;
-
     }
 
     public Object visit(SFPMultiSlotDefinition node, Object data) {
-	// TODO Auto-generated method stub
-	return null;
+	//slot-name:
+	JamochaValue slotName = (JamochaValue)node.jjtGetChild(0).jjtAccept(this, data);
+	
+	
+	TemplateSlot ts = new TemplateSlot();
+	ts.setName(slotName.getStringValue());	
+	ts.setMultiSlot(true);
+	// setting the slot attributes
+	for (int i = 1; i < node.jjtGetNumChildren(); i++) {
+	    node.jjtGetChild(i).jjtAccept(this, ts);
+	}
+
+	return ts;
     }
 
     public Object visit(SFPTemplateAttribute node, Object data) {
-
+	//pass on the Template slot: 
 	node.jjtGetChild(0).jjtAccept(this, data);
 
 	return null;
     }
 
     public Object visit(SFPAttributes node, Object data) {
-	// TODO Auto-generated method stub
-	return null;
+	//asks all sub expression for their value:
+	ExpressionList expressionList = new ExpressionList();
+	for (int i = 0; i < node.jjtGetNumChildren(); ++i) {
+	    expressionList.add((Parameter)node.jjtGetChild(i).jjtAccept(this, data));
+	}
+	return expressionList;
     }
 
     public Object visit(SFPDefaultAttribute node, Object data) {
-	// TODO Auto-generated method stub
+	//pass on the Template slot: 
+	node.jjtGetChild(0).jjtAccept(this, data);
 	return null;
     }
 
+    public Object visit(SFPDefaultAttributes node, Object data) {
+	//eval subnodes (SFPAttributes) to get dynamic expressions:
+	Expression exp = (Expression)node.jjtGetChild(0).jjtAccept(this, null);	
+	//set this as Default:
+	((TemplateSlot)data).setDefaultExpression(exp);
+	// TODO Auto-generated method stub
+	return null;
+    }
+    
     public Object visit(SFPDeriveAttribute node, Object data) {
+	((TemplateSlot)data).setDefaultDerive();
 	// TODO Auto-generated method stub
 	return null;
     }
@@ -224,7 +257,10 @@ public class SFPInterpreter implements SFPParserVisitor {
     }
 
     public Object visit(SFPDynamicAttribute node, Object data) {
-	// TODO Auto-generated method stub
+	//eval subnodes (SFPAttributes) to get dynamic expressions:
+	Expression exp = (Expression)node.jjtGetChild(0).jjtAccept(this, null);
+	//set this as Dynamic Default:
+	((TemplateSlot)data).setDynamicDefaultExpression(exp);
 	return null;
     }
 
@@ -424,15 +460,17 @@ public class SFPInterpreter implements SFPParserVisitor {
     }
 
     public Object visit(SFPTypeAttribute node, Object data) {
-
+	//pass on the Template Slot: 
 	node.jjtGetChild(0).jjtAccept(this, data);
 
 	return null;
     }
 
     public Object visit(SFPTypeSpecification node, Object data) {
-
-	node.jjtGetChild(0).jjtAccept(this, data);
+	//collect type from subNode:
+	JamochaType type = (JamochaType)node.jjtGetChild(0).jjtAccept(this, data);
+	//set type to give template slot
+	((TemplateSlot)data).setValueType(type);
 
 	return null;
     }

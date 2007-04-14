@@ -48,6 +48,7 @@ public interface SFPParserVisitor
   public Object visit(SFPTemplateAttribute node, Object data);
   public Object visit(SFPAttributes node, Object data);
   public Object visit(SFPDefaultAttribute node, Object data);
+  public Object visit(SFPDefaultAttributes node, Object data);
   public Object visit(SFPDeriveAttribute node, Object data);
   public Object visit(SFPNoneAttribute node, Object data);
   public Object visit(SFPDynamicAttribute node, Object data);

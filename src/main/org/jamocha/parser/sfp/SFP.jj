@@ -20,11 +20,10 @@ options {
 PARSER_BEGIN(SFPParser)
 package org.jamocha.parser.sfp;
 
-import java.util.ArrayList;
-
 import org.jamocha.parser.Parser;
 import org.jamocha.parser.ParserUtils;
 import org.jamocha.parser.Expression;
+import org.jamocha.parser.JamochaValue;
 
 import org.jamocha.rete.Rete;
 
@@ -52,8 +51,8 @@ public class SFPParser implements/*@bgen(jjtree)*/ SFPParserTreeConstants, /*@eg
                                 SFPStart n = p.Start();
                                 if (n==null) System.exit(0);
                                 n.dump(" ");
-                                Expression expression=null;
-                                n.jjtAccept(new SFPInterpreter(engine), expression);
+                                JamochaValue val=null;
+                                val =(JamochaValue)n.jjtAccept(new SFPInterpreter(engine), null);
 //                                System.out.println(n.getExpression().getValue(engine).toString());
                         }
                 }
@@ -2071,7 +2070,7 @@ SimpleNode DefaultAttribute() :
 		(	
 			DeriveAttribute()
 		|	NoneAttribute() 
-		|	Attributes() 
+		|	DefaultAttributes() 
 		)/*@bgen(jjtree)*/
                 {
                   jjtree.closeNodeScope(jjtn000, true);
@@ -2098,6 +2097,45 @@ SimpleNode DefaultAttribute() :
                     jjtree.closeNodeScope(jjtn000, true);
                   }
                 }
+/*@egen*/
+}
+
+SimpleNode DefaultAttributes() :
+{/*@bgen(jjtree) DefaultAttributes */
+  SFPDefaultAttributes jjtn000 = new SFPDefaultAttributes(this, JJTDEFAULTATTRIBUTES);
+  boolean jjtc000 = true;
+  jjtree.openNodeScope(jjtn000);
+/*@egen*/}
+{/*@bgen(jjtree) DefaultAttributes */
+    try {
+/*@egen*/
+    Attributes()/*@bgen(jjtree)*/
+    {
+      jjtree.closeNodeScope(jjtn000, true);
+      jjtc000 = false;
+    }
+/*@egen*/
+    
+    { return jjtn000; }/*@bgen(jjtree)*/
+    } catch (Throwable jjte000) {
+      if (jjtc000) {
+        jjtree.clearNodeScope(jjtn000);
+        jjtc000 = false;
+      } else {
+        jjtree.popNode();
+      }
+      if (jjte000 instanceof RuntimeException) {
+        throw (RuntimeException)jjte000;
+      }
+      if (jjte000 instanceof ParseException) {
+        throw (ParseException)jjte000;
+      }
+      throw (Error)jjte000;
+    } finally {
+      if (jjtc000) {
+        jjtree.closeNodeScope(jjtn000, true);
+      }
+    }
 /*@egen*/
 }
 

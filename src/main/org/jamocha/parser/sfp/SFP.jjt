@@ -23,11 +23,10 @@ options {
 PARSER_BEGIN(SFPParser)
 package org.jamocha.parser.sfp;
 
-import java.util.ArrayList;
-
 import org.jamocha.parser.Parser;
 import org.jamocha.parser.ParserUtils;
 import org.jamocha.parser.Expression;
+import org.jamocha.parser.JamochaValue;
 
 import org.jamocha.rete.Rete;
 
@@ -52,9 +51,8 @@ public class SFPParser implements Parser{
                                 SFPStart n = p.Start();
                                 if (n==null) System.exit(0);
                                 n.dump(" ");
-                                Expression expression=null;
-                                n.jjtAccept(new SFPInterpreter(engine), expression);
-//                                System.out.println(n.getExpression().getValue(engine).toString());
+                                JamochaValue val=null;
+                                val =(JamochaValue)n.jjtAccept(new SFPInterpreter(engine), null);
                         }
                 }
                 catch (Exception e)
@@ -1066,9 +1064,17 @@ SimpleNode DefaultAttribute() :
 		(	
 			DeriveAttribute()
 		|	NoneAttribute() 
-		|	Attributes() 
+		|	DefaultAttributes() 
 		)
 		{ return jjtThis; }
+}
+
+SimpleNode DefaultAttributes() :
+{}
+{
+    Attributes()
+    
+    { return jjtThis; }
 }
 
 
