@@ -369,6 +369,159 @@ SimpleNode True() :
 	}
 }
 
+/**
+*		SymbolType
+**/
+
+SimpleNode SymbolType() : 
+{ Token t; }
+{
+	t=<SYMBOL_TYPE>
+	{
+		jjtThis.setName(t.image); 
+		return jjtThis;
+	}
+}
+
+/**
+*		StringType
+**/
+
+SimpleNode StringType() : 
+{ Token t; }
+{
+	t=<STRING_TYPE>
+	{
+		jjtThis.setName(t.image); 
+		return jjtThis;
+	}
+}
+
+/**
+*		DateTimeType
+**/
+
+SimpleNode DateTimeType() : 
+{ Token t; }
+{
+	t=<DATETIME_TYPE>
+	{
+		jjtThis.setName(t.image); 
+		return jjtThis;
+	}
+}
+
+/**
+*		LexemeType
+**/
+
+SimpleNode LexemeType() : 
+{ Token t; }
+{
+	t=<LEXEME_TYPE>
+	{
+		jjtThis.setName(t.image); 
+		return jjtThis;
+	}
+}
+
+/**
+*		BooleanType
+**/
+
+SimpleNode BooleanType() : 
+{ Token t; }
+{
+	t=<BOOLEAN_TYPE>
+	{
+		jjtThis.setName(t.image); 
+		return jjtThis;
+	}
+}
+
+/**
+*		IntegerType
+**/
+
+SimpleNode IntegerType() : 
+{ Token t; }
+{
+	t=<INTEGER_TYPE>
+	{
+		jjtThis.setName(t.image); 
+		return jjtThis;
+	}
+}
+
+/**
+*		longType
+**/
+
+SimpleNode LongType() : 
+{ Token t; }
+{
+	t=<LONG_TYPE>
+	{
+		jjtThis.setName(t.image); 
+		return jjtThis;
+	}
+}
+/**
+*		ShortType
+**/
+
+SimpleNode ShortType() : 
+{ Token t; }
+{
+	t=<SHORT_TYPE>
+	{
+		jjtThis.setName(t.image); 
+		return jjtThis;
+	}
+}
+/**
+*		FloatType
+**/
+
+SimpleNode FloatType() : 
+{ Token t; }
+{
+	t=<FLOAT_TYPE>
+	{
+		jjtThis.setName(t.image); 
+		return jjtThis;
+	}
+}
+
+/**
+*		DoubleType
+**/
+
+SimpleNode DoubleType() : 
+{ Token t; }
+{
+	t=<DOUBLE_TYPE>
+	{
+		jjtThis.setName(t.image); 
+		return jjtThis;
+	}
+}
+
+
+/**
+*		NumberType
+**/
+
+SimpleNode NumberType() : 
+{ Token t; }
+{
+	t=<NUMBER_TYPE>
+	{
+		jjtThis.setName(t.image); 
+		return jjtThis;
+	}
+}
+
 
 
 /**
@@ -1785,27 +1938,21 @@ SimpleNode TypeSpecification() :
 //<allowed-type> ::= SYMBOL | STRING | LEXEME | INTEGER | FLOAT | NUMBER |
 // EXTERNAL-ADDRESS | FACT-ADDRESS | DATETIME
 
-SimpleNode AllowedType()  : 
-{ Token t; }
+void AllowedType()  #void: 
+{}
 {
-	(		t = <SYMBOL_TYPE>
-		|	t = <STRING_TYPE>
-		|	t = <DATETIME_TYPE>
-		|	t = <LEXEME_TYPE>
-		| 	t = <INTEGER_TYPE>
-		|	t=  <LONG_TYPE>
-		|	t=  <SHORT_TYPE>
-		| 	t = <FLOAT_TYPE>
-		| 	t = <DOUBLE_TYPE>
-		|	t = <NUMBER_TYPE>
-		|	t = <FACT_ADDRESS_TYPE>
-		|   t = <DATETIME>
-		|   t=  <BOOLEAN_TYPE>
+	(		SymbolType()		
+		|	StringType()
+		|	DateTimeType()
+		|	LexemeType()
+		| 	IntegerType()
+		|	LongType()
+		|	ShortType()
+		| 	FloatType()
+		| 	DoubleType()
+		|	NumberType()
+		|   	BooleanType()
 	)
-	{ 	
-		jjtThis.setName(t.image);
-		return jjtThis; 
-	}
 }
 
 

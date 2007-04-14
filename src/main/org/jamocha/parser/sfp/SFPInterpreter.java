@@ -413,16 +413,6 @@ public class SFPInterpreter implements SFPParserVisitor {
 		return null;
 	}
 
-	public Object visit(SFPAllowedType node, Object data) {
-
-		
-//		JamochaType jt = new JamochaType();
-	
-		((TemplateSlot)data).setValueType(JamochaType.LONG);
-		
-		return null;
-	}
-
 	public Object visit(SFPAllowedConstantAttribute node, Object data) {
 		// TODO Auto-generated method stub
 		return null;
@@ -486,6 +476,52 @@ public class SFPInterpreter implements SFPParserVisitor {
 	public Object visit(SFPDefmoduleConstruct node, Object data) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	public Object visit(SFPSymbolType node, Object data) {
+	    return JamochaType.IDENTIFIER;
+	}
+
+	public Object visit(SFPStringType node, Object data) {
+	    return JamochaType.STRING;
+	}
+
+	public Object visit(SFPDateTimeType node, Object data) {
+	    return JamochaType.DATETIME;
+	}
+
+	public Object visit(SFPLexemeType node, Object data) {
+	    //TODO: check is this correct to match lexeme to undefined?
+	    return JamochaType.UNDEFINED;
+	}
+
+	public Object visit(SFPBooleanType node, Object data) {
+	    return JamochaType.BOOLEAN;
+	}
+
+	public Object visit(SFPIntegerType node, Object data) {
+	    return JamochaType.LONG;
+	}
+
+	public Object visit(SFPLongType node, Object data) {
+	    return JamochaType.LONG;
+	}
+
+	public Object visit(SFPShortType node, Object data) {
+	    return JamochaType.LONG;
+	}
+
+	public Object visit(SFPFloatType node, Object data) {
+	    return JamochaType.DOUBLE;
+	}
+
+	public Object visit(SFPDoubleType node, Object data) {
+	    return JamochaType.DOUBLE;
+	}
+
+	public Object visit(SFPNumberType node, Object data) {
+	    //TODO: check is this correct to match number to double?
+	    return JamochaType.DOUBLE;
 	}
 
 }
