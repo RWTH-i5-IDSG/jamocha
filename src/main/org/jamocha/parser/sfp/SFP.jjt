@@ -661,16 +661,7 @@ SimpleNode VariableType() :
 	}
 }
 
-//<type> ::= <class-name>
-SimpleNode Type() : 
-{ Token t; }
-{
-	t = <SYMBOL> //class-name
-	{ 
-	    jjtThis.setName(t.image); 
-	    return jjtThis;
-	}
-}
+
 
 /**
 *		Function Call
@@ -1831,7 +1822,7 @@ SimpleNode ParameterRestriction() : {}
 			<LBRACE>
 				SingleVariable() 
 				(
-					Type()
+					AllowedType()
 				)* 
 				[
 				 	Query()
@@ -1854,7 +1845,7 @@ SimpleNode WildcardParameterRestriction() : {}
 			<LBRACE>
 				MultiVariable() 
 				(
-					Type()
+					AllowedType()
 				)* 
 				[
 				 	Query()

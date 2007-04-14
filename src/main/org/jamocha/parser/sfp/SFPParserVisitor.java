@@ -30,7 +30,6 @@ public interface SFPParserVisitor
   public Object visit(SFPMultiVariable node, Object data);
   public Object visit(SFPVariable node, Object data);
   public Object visit(SFPVariableType node, Object data);
-  public Object visit(SFPType node, Object data);
   public Object visit(SFPFunctionCall node, Object data);
   public Object visit(SFPAnyFunction node, Object data);
   public Object visit(SFPExpression node, Object data);

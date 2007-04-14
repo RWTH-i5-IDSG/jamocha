@@ -1133,33 +1133,7 @@ SimpleNode VariableType() :
 /*@egen*/
 }
 
-//<type> ::= <class-name>
-SimpleNode Type() : 
-{/*@bgen(jjtree) Type */
-  SFPType jjtn000 = new SFPType(this, JJTTYPE);
-  boolean jjtc000 = true;
-  jjtree.openNodeScope(jjtn000);
-/*@egen*/ Token t; }
-{/*@bgen(jjtree) Type */
-        try {
-/*@egen*/
-	t = <SYMBOL>/*@bgen(jjtree)*/
-        {
-          jjtree.closeNodeScope(jjtn000, true);
-          jjtc000 = false;
-        }
-/*@egen*/ //class-name
-	{ 
-	    jjtn000.setName(t.image); 
-	    return jjtn000;
-	}/*@bgen(jjtree)*/
-        } finally {
-          if (jjtc000) {
-            jjtree.closeNodeScope(jjtn000, true);
-          }
-        }
-/*@egen*/
-}
+
 
 /**
 *		Function Call
@@ -4023,7 +3997,7 @@ SimpleNode ParameterRestriction() : {/*@bgen(jjtree) ParameterRestriction */
 			<LBRACE>
 				SingleVariable() 
 				(
-					Type()
+					AllowedType()
 				)* 
 				[
 				 	Query()
@@ -4077,7 +4051,7 @@ SimpleNode WildcardParameterRestriction() : {/*@bgen(jjtree) WildcardParameterRe
 			<LBRACE>
 				MultiVariable() 
 				(
-					Type()
+					AllowedType()
 				)* 
 				[
 				 	Query()
