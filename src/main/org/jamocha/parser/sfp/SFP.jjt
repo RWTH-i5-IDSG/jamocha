@@ -1398,6 +1398,7 @@ void BooleanSymbol() #void:
 SimpleNode ConditionalElement() :
 {}
 {
+	(	
 		(
 		   <LBRACE> 
 				(	
@@ -1411,8 +1412,8 @@ SimpleNode ConditionalElement() :
 			<RBRACE>
 		)
 
-		|	AssignedPatternCE() 
-
+		|	AssignedPatternCE()
+	)
 		{ return jjtThis; }	
 }
 

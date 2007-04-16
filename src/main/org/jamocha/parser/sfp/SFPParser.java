@@ -2441,33 +2441,33 @@ Data Types:
         break;
       case SINGLEVAR:
         AssignedPatternCE();
-                  jjtree.closeNodeScope(jjtn000, true);
-                  jjtc000 = false;
-                  {if (true) return jjtn000;}
         break;
       default:
         jj_la1[36] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
+                  jjtree.closeNodeScope(jjtn000, true);
+                  jjtc000 = false;
+                  {if (true) return jjtn000;}
     } catch (Throwable jjte000) {
-                  if (jjtc000) {
-                    jjtree.clearNodeScope(jjtn000);
-                    jjtc000 = false;
-                  } else {
-                    jjtree.popNode();
-                  }
-                  if (jjte000 instanceof RuntimeException) {
-                    {if (true) throw (RuntimeException)jjte000;}
-                  }
-                  if (jjte000 instanceof ParseException) {
-                    {if (true) throw (ParseException)jjte000;}
-                  }
-                  {if (true) throw (Error)jjte000;}
+          if (jjtc000) {
+            jjtree.clearNodeScope(jjtn000);
+            jjtc000 = false;
+          } else {
+            jjtree.popNode();
+          }
+          if (jjte000 instanceof RuntimeException) {
+            {if (true) throw (RuntimeException)jjte000;}
+          }
+          if (jjte000 instanceof ParseException) {
+            {if (true) throw (ParseException)jjte000;}
+          }
+          {if (true) throw (Error)jjte000;}
     } finally {
-                  if (jjtc000) {
-                    jjtree.closeNodeScope(jjtn000, true);
-                  }
+          if (jjtc000) {
+            jjtree.closeNodeScope(jjtn000, true);
+          }
     }
     throw new Error("Missing return statement in function");
   }
@@ -4812,11 +4812,6 @@ Data Types:
     return false;
   }
 
-  final private boolean jj_3R_75() {
-    if (jj_scan_token(STRING)) return true;
-    return false;
-  }
-
   final private boolean jj_3_10() {
     if (jj_3R_41()) return true;
     return false;
@@ -4824,6 +4819,11 @@ Data Types:
 
   final private boolean jj_3_18() {
     if (jj_3R_46()) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_75() {
+    if (jj_scan_token(STRING)) return true;
     return false;
   }
 
@@ -4837,6 +4837,11 @@ Data Types:
     return false;
   }
 
+  final private boolean jj_3R_110() {
+    if (jj_scan_token(LOGICAL)) return true;
+    return false;
+  }
+
   final private boolean jj_3_2() {
     if (jj_3R_34()) return true;
     return false;
@@ -4844,11 +4849,6 @@ Data Types:
 
   final private boolean jj_3R_80() {
     if (jj_scan_token(ATR_NONE)) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_110() {
-    if (jj_scan_token(LOGICAL)) return true;
     return false;
   }
 
@@ -4921,13 +4921,18 @@ Data Types:
     return false;
   }
 
+  final private boolean jj_3_17() {
+    if (jj_3R_45()) return true;
+    return false;
+  }
+
   final private boolean jj_3R_103() {
     if (jj_3R_121()) return true;
     return false;
   }
 
-  final private boolean jj_3_17() {
-    if (jj_3R_45()) return true;
+  final private boolean jj_3R_137() {
+    if (jj_scan_token(OR)) return true;
     return false;
   }
 
@@ -4947,11 +4952,6 @@ Data Types:
     if (jj_3R_60()) return true;
     }
     }
-    return false;
-  }
-
-  final private boolean jj_3R_137() {
-    if (jj_scan_token(OR)) return true;
     return false;
   }
 
@@ -5050,13 +5050,13 @@ Data Types:
     return false;
   }
 
-  final private boolean jj_3R_76() {
-    if (jj_scan_token(INTEGER)) return true;
+  final private boolean jj_3R_65() {
+    if (jj_3R_91()) return true;
     return false;
   }
 
-  final private boolean jj_3R_65() {
-    if (jj_3R_91()) return true;
+  final private boolean jj_3R_76() {
+    if (jj_scan_token(INTEGER)) return true;
     return false;
   }
 
@@ -5136,16 +5136,6 @@ Data Types:
     return false;
   }
 
-  final private boolean jj_3R_41() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_64()) {
-    jj_scanpos = xsp;
-    if (jj_3R_65()) return true;
-    }
-    return false;
-  }
-
   final private boolean jj_3R_82() {
     Token xsp;
     xsp = jj_scanpos;
@@ -5155,6 +5145,16 @@ Data Types:
     jj_scanpos = xsp;
     if (jj_3R_102()) return true;
     }
+    }
+    return false;
+  }
+
+  final private boolean jj_3R_41() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_64()) {
+    jj_scanpos = xsp;
+    if (jj_3R_65()) return true;
     }
     return false;
   }
@@ -5219,14 +5219,14 @@ Data Types:
     return false;
   }
 
-  final private boolean jj_3R_55() {
-    if (jj_3R_77()) return true;
-    return false;
-  }
-
   final private boolean jj_3R_140() {
     if (jj_scan_token(EQUALS)) return true;
     if (jj_3R_83()) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_55() {
+    if (jj_3R_77()) return true;
     return false;
   }
 
@@ -5346,6 +5346,11 @@ Data Types:
     return false;
   }
 
+  final private boolean jj_3R_131() {
+    if (jj_3R_139()) return true;
+    return false;
+  }
+
   final private boolean jj_3R_33() {
     if (jj_scan_token(LBRACE)) return true;
     Token xsp;
@@ -5363,11 +5368,6 @@ Data Types:
     }
     }
     }
-    return false;
-  }
-
-  final private boolean jj_3R_131() {
-    if (jj_3R_139()) return true;
     return false;
   }
 
@@ -5427,24 +5427,24 @@ Data Types:
     return false;
   }
 
+  final private boolean jj_3R_141() {
+    if (jj_scan_token(AMPERSAND)) return true;
+    return false;
+  }
+
   final private boolean jj_3R_71() {
     if (jj_scan_token(DEFRULE)) return true;
     return false;
   }
 
-  final private boolean jj_3R_141() {
-    if (jj_scan_token(AMPERSAND)) return true;
+  final private boolean jj_3R_134() {
+    if (jj_3R_142()) return true;
     return false;
   }
 
   final private boolean jj_3R_35() {
     if (jj_scan_token(LBRACE)) return true;
     if (jj_scan_token(CASE)) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_134() {
-    if (jj_3R_142()) return true;
     return false;
   }
 
@@ -5605,13 +5605,13 @@ Data Types:
     return false;
   }
 
-  final private boolean jj_3R_157() {
-    if (jj_scan_token(LEXEME_TYPE)) return true;
+  final private boolean jj_3R_144() {
+    if (jj_3R_155()) return true;
     return false;
   }
 
-  final private boolean jj_3R_144() {
-    if (jj_3R_155()) return true;
+  final private boolean jj_3R_157() {
+    if (jj_scan_token(LEXEME_TYPE)) return true;
     return false;
   }
 
