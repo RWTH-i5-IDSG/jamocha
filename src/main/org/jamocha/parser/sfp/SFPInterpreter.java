@@ -22,7 +22,6 @@ public class SFPInterpreter implements SFPParserVisitor {
 	}
 
 	public Object visit(SFPStart node, Object data) {
-		
 		return node.jjtGetChild(0).jjtAccept(this, data);
 	}
 
@@ -55,7 +54,6 @@ public class SFPInterpreter implements SFPParserVisitor {
 	}
 
 	public Object visit(SFPConstructDescription node, Object data) {
-		// returns description, stored in subnode Symbol
 		return node.jjtGetChild(0).jjtAccept(this, data);
 	}
 
@@ -71,11 +69,6 @@ public class SFPInterpreter implements SFPParserVisitor {
 	}
 
 	public Object visit(SFPMultiVariable node, Object data) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public Object visit(SFPVariable node, Object data) {
 		// TODO Auto-generated method stub
 		return null;
 	}

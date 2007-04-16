@@ -632,7 +632,7 @@ SimpleNode MultiVariable() :
 **/
 // This is used exactly then when only the variables value is needed
 
-SimpleNode Variable() : 
+void Variable() #void: 
 {}
 {	
 	(	
@@ -640,7 +640,6 @@ SimpleNode Variable() :
 	|	MultiVariable()
 	|	GlobalVariable() 
 	) 
-	{ return jjtThis; }
 }
 
 

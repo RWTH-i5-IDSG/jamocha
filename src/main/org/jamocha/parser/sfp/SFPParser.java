@@ -706,50 +706,22 @@ Data Types:
 *		Variable
 **/
 // This is used exactly then when only the variables value is needed
-  final public SimpleNode Variable() throws ParseException {
- /*@bgen(jjtree) Variable */
-  SFPVariable jjtn000 = new SFPVariable(this, JJTVARIABLE);
-  boolean jjtc000 = true;
-  jjtree.openNodeScope(jjtn000);
-    try {
-      switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-      case SINGLEVAR:
-        SingleVariable();
-        break;
-      case MULTIVAR:
-        MultiVariable();
-        break;
-      case GLOBALVAR:
-        GlobalVariable();
-        break;
-      default:
-        jj_la1[5] = jj_gen;
-        jj_consume_token(-1);
-        throw new ParseException();
-      }
-          jjtree.closeNodeScope(jjtn000, true);
-          jjtc000 = false;
-          {if (true) return jjtn000;}
-    } catch (Throwable jjte000) {
-          if (jjtc000) {
-            jjtree.clearNodeScope(jjtn000);
-            jjtc000 = false;
-          } else {
-            jjtree.popNode();
-          }
-          if (jjte000 instanceof RuntimeException) {
-            {if (true) throw (RuntimeException)jjte000;}
-          }
-          if (jjte000 instanceof ParseException) {
-            {if (true) throw (ParseException)jjte000;}
-          }
-          {if (true) throw (Error)jjte000;}
-    } finally {
-          if (jjtc000) {
-            jjtree.closeNodeScope(jjtn000, true);
-          }
+  final public void Variable() throws ParseException {
+    switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+    case SINGLEVAR:
+      SingleVariable();
+      break;
+    case MULTIVAR:
+      MultiVariable();
+      break;
+    case GLOBALVAR:
+      GlobalVariable();
+      break;
+    default:
+      jj_la1[5] = jj_gen;
+      jj_consume_token(-1);
+      throw new ParseException();
     }
-    throw new Error("Missing return statement in function");
   }
 
 /**
@@ -4777,13 +4749,13 @@ Data Types:
     return false;
   }
 
-  final private boolean jj_3R_114() {
-    if (jj_scan_token(TEST)) return true;
+  final private boolean jj_3R_121() {
+    if (jj_scan_token(TRUE)) return true;
     return false;
   }
 
-  final private boolean jj_3R_121() {
-    if (jj_scan_token(TRUE)) return true;
+  final private boolean jj_3R_114() {
+    if (jj_scan_token(TEST)) return true;
     return false;
   }
 
@@ -4955,13 +4927,13 @@ Data Types:
     return false;
   }
 
-  final private boolean jj_3R_89() {
-    if (jj_3R_115()) return true;
+  final private boolean jj_3R_74() {
+    if (jj_scan_token(DATETIME)) return true;
     return false;
   }
 
-  final private boolean jj_3R_74() {
-    if (jj_scan_token(DATETIME)) return true;
+  final private boolean jj_3R_89() {
+    if (jj_3R_115()) return true;
     return false;
   }
 
@@ -5059,13 +5031,13 @@ Data Types:
     return false;
   }
 
-  final private boolean jj_3_9() {
-    if (jj_3R_40()) return true;
+  final private boolean jj_3R_76() {
+    if (jj_scan_token(INTEGER)) return true;
     return false;
   }
 
-  final private boolean jj_3R_76() {
-    if (jj_scan_token(INTEGER)) return true;
+  final private boolean jj_3_9() {
+    if (jj_3R_40()) return true;
     return false;
   }
 
@@ -5173,13 +5145,13 @@ Data Types:
     return false;
   }
 
-  final private boolean jj_3R_72() {
-    if (jj_scan_token(DEFFUNCTION)) return true;
+  final private boolean jj_3R_45() {
+    if (jj_scan_token(MULTIVAR)) return true;
     return false;
   }
 
-  final private boolean jj_3R_45() {
-    if (jj_scan_token(MULTIVAR)) return true;
+  final private boolean jj_3R_72() {
+    if (jj_scan_token(DEFFUNCTION)) return true;
     return false;
   }
 
@@ -5218,24 +5190,24 @@ Data Types:
     return false;
   }
 
+  final private boolean jj_3R_56() {
+    if (jj_3R_78()) return true;
+    return false;
+  }
+
   final private boolean jj_3R_146() {
     if (jj_scan_token(EQUALS)) return true;
     if (jj_3R_83()) return true;
     return false;
   }
 
-  final private boolean jj_3R_56() {
-    if (jj_3R_78()) return true;
+  final private boolean jj_3R_55() {
+    if (jj_3R_77()) return true;
     return false;
   }
 
   final private boolean jj_3R_63() {
     if (jj_3R_84()) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_55() {
-    if (jj_3R_77()) return true;
     return false;
   }
 
@@ -5259,14 +5231,14 @@ Data Types:
     return false;
   }
 
-  final private boolean jj_3R_145() {
-    if (jj_scan_token(COLON)) return true;
-    if (jj_3R_83()) return true;
+  final private boolean jj_3R_50() {
+    if (jj_3R_73()) return true;
     return false;
   }
 
-  final private boolean jj_3R_50() {
-    if (jj_3R_73()) return true;
+  final private boolean jj_3R_145() {
+    if (jj_scan_token(COLON)) return true;
+    if (jj_3R_83()) return true;
     return false;
   }
 
@@ -5629,13 +5601,13 @@ Data Types:
     return false;
   }
 
-  final private boolean jj_3R_149() {
-    if (jj_3R_160()) return true;
+  final private boolean jj_3R_163() {
+    if (jj_scan_token(LEXEME_TYPE)) return true;
     return false;
   }
 
-  final private boolean jj_3R_163() {
-    if (jj_scan_token(LEXEME_TYPE)) return true;
+  final private boolean jj_3R_149() {
+    if (jj_3R_160()) return true;
     return false;
   }
 
@@ -5706,6 +5678,11 @@ Data Types:
     return false;
   }
 
+  final private boolean jj_3R_161() {
+    if (jj_scan_token(STRING_TYPE)) return true;
+    return false;
+  }
+
   final private boolean jj_3R_95() {
     Token xsp;
     if (jj_3R_119()) return true;
@@ -5713,11 +5690,6 @@ Data Types:
       xsp = jj_scanpos;
       if (jj_3R_119()) { jj_scanpos = xsp; break; }
     }
-    return false;
-  }
-
-  final private boolean jj_3R_161() {
-    if (jj_scan_token(STRING_TYPE)) return true;
     return false;
   }
 
