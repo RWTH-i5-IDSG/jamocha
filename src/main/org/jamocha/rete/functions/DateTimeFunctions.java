@@ -78,6 +78,10 @@ public class DateTimeFunctions implements FunctionGroup {
 		engine.declareFunction(year);
 		funcs.add(year);
 
+		MillisecondTime mstime = new MillisecondTime();
+		engine.declareFunction(mstime);
+		funcs.add(mstime);
+
 		Now now = new Now();
 		engine.declareFunction(now);
 		funcs.add(now);

@@ -23,13 +23,13 @@ import java.util.List;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.FunctionGroup;
 import org.jamocha.rete.Rete;
-
+import org.jamocha.rete.functions.ruleengine.LoadFacts;
 
 /**
  * @author Peter Lin
- *
- * IO Functions will initialize the IO related functions like printout,
- * batch, etc.
+ * 
+ * IO Functions will initialize the IO related functions like printout, batch,
+ * etc.
  */
 public class IOFunctions implements FunctionGroup, Serializable {
 
@@ -37,7 +37,7 @@ public class IOFunctions implements FunctionGroup, Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	
+
 	private List<Function> funcs = new ArrayList<Function>();
 
 	/**
@@ -55,7 +55,7 @@ public class IOFunctions implements FunctionGroup, Serializable {
 		BatchFunction b = new BatchFunction();
 		engine.declareFunction(b);
 		funcs.add(b);
-		LoadFactsFunction load = new LoadFactsFunction();
+		LoadFacts load = new LoadFacts();
 		engine.declareFunction(load);
 		funcs.add(load);
 		PrintFunction pf = new PrintFunction();

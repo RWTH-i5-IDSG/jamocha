@@ -1,0 +1,162 @@
+/*
+ * Copyright 2002-2006 Peter Lin, 2007 Alexander Wilden
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.jamocha.org/
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ */
+package org.jamocha.rete.functions.ruleengine;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.Serializable;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Iterator;
+import java.util.List;
+
+import org.jamocha.parser.EvaluationException;
+import org.jamocha.parser.JamochaType;
+import org.jamocha.parser.JamochaValue;
+import org.jamocha.parser.ParseException;
+import org.jamocha.parser.clips.CLIPSParser;
+import org.jamocha.rete.Deffact;
+import org.jamocha.rete.Deftemplate;
+import org.jamocha.rete.Function;
+import org.jamocha.rete.Parameter;
+import org.jamocha.rete.Rete;
+import org.jamocha.rete.exception.AssertException;
+import org.jamocha.rete.functions.FunctionDescription;
+
+/**
+ * @author Peter Lin
+ * 
+ * LoadFacts will create a new instance of CLIPSParser and load the facts in the
+ * data file.
+ * <p>
+ * TODO This function needs to be changed to be independed of CLIPSParser and
+ * use the ParserFactory instead.
+ * 
+ */
+public class LoadFacts implements Function, Serializable {
+
+	private static final class Description implements FunctionDescription {
+
+		public String getDescription() {
+			return "LoadFacts will create a new instance of CLIPSParser and load the facts in the data file. TODO This function needs to be changed to be independed of CLIPSParser and use the ParserFactory instead.";
+		}
+
+		public int getParameterCount() {
+			return 1;
+		}
+
+		public String getParameterDescription(int parameter) {
+			return "File that contains facts that will be loaded.";
+		}
+
+		public String getParameterName(int parameter) {
+			return "factFile";
+		}
+
+		public JamochaType[] getParameterTypes(int parameter) {
+			return JamochaType.STRINGS;
+		}
+
+		public JamochaType[] getReturnType() {
+			return JamochaType.BOOLEANS;
+		}
+
+		public boolean isParameterCountFixed() {
+			return true;
+		}
+
+		public boolean isParameterOptional(int parameter) {
+			return false;
+		}
+	}
+
+	private static final FunctionDescription DESCRIPTION = new Description();
+
+	private static final long serialVersionUID = 1L;
+
+	public static final String NAME = "load-facts";
+
+	public FunctionDescription getDescription() {
+		return DESCRIPTION;
+	}
+
+	public String getName() {
+		return NAME;
+	}
+
+	public JamochaValue executeFunction(Rete engine, Parameter[] params)
+			throws EvaluationException {
+		JamochaValue result = JamochaValue.FALSE;
+		if (params != null && params.length > 0) {
+			for (int idx = 0; idx < params.length; idx++) {
+				String input = params[idx].getValue(engine).getStringValue();
+
+				try {
+					InputStream inStream;
+					// Check for a protocol indicator at the beginning of the
+					// String. If we have one use a URL.
+					if (input.matches("^[a-zA-Z]+://.*")) {
+						URL url = new URL(input);
+						inStream = url.openConnection().getInputStream();
+						// Otherwise treat it as normal file on the Filesystem
+					} else {
+						inStream = new FileInputStream(new File(input));
+					}
+					// Parser parser = ParserFactory.getParser(inStream);
+					// Expression expr = null;
+					// JamochaValue value = null;
+					// while ((expr = parser.nextExpression()) != null) {
+					// value = expr.getValue(engine);
+					// System.out.println(value.getType());
+					// }
+					CLIPSParser parser = new CLIPSParser(inStream);
+					List data = parser.loadExpr();
+					Iterator itr = data.iterator();
+					while (itr.hasNext()) {
+						Object val = itr.next();
+						JamochaValue[] vp = (JamochaValue[]) val;
+						Deftemplate tmpl = (Deftemplate) engine
+								.getCurrentFocus()
+								.getTemplate(
+										vp[0].getValue(engine).getStringValue());
+						Deffact fact = (Deffact) tmpl.createFact(
+								(Object[]) vp[1].getValue(engine)
+										.getObjectValue(), -1, engine);
+
+						engine.assertFact(fact);
+					}
+					inStream.close();
+					result = JamochaValue.TRUE;
+				} catch (FileNotFoundException e) {
+					engine.writeMessage(e.getMessage(), "t");
+				} catch (ParseException e) {
+					engine.writeMessage(e.getMessage(), "t");
+				} catch (AssertException e) {
+					engine.writeMessage(e.getMessage(), "t");
+				} catch (MalformedURLException e) {
+					engine.writeMessage(e.getMessage(), "t");
+				} catch (IOException e) {
+					engine.writeMessage(e.getMessage(), "t");
+				}
+			}
+		}
+		return result;
+	}
+}

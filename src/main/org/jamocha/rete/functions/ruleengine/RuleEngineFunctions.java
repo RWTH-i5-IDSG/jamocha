@@ -23,40 +23,6 @@ import java.util.List;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.FunctionGroup;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.functions.LoadFactsFunction;
-import org.jamocha.rete.functions.LoadFunctionGroupFunction;
-import org.jamocha.rete.functions.LoadFunctionsFunction;
-import org.jamocha.rete.functions.MatchesFunction;
-import org.jamocha.rete.functions.MemberTestFunction;
-import org.jamocha.rete.functions.MemoryFreeFunction;
-import org.jamocha.rete.functions.MemoryTotalFunction;
-import org.jamocha.rete.functions.MemoryUsedFunction;
-import org.jamocha.rete.functions.MillisecondTime;
-import org.jamocha.rete.functions.ModifyFunction;
-import org.jamocha.rete.functions.ModulesFunction;
-import org.jamocha.rete.functions.PPrintRuleFunction;
-import org.jamocha.rete.functions.PPrintTemplateFunction;
-import org.jamocha.rete.functions.PrintProfileFunction;
-import org.jamocha.rete.functions.ProfileFunction;
-import org.jamocha.rete.functions.ResetFactsFunction;
-import org.jamocha.rete.functions.ResetFunction;
-import org.jamocha.rete.functions.ResetObjectsFunction;
-import org.jamocha.rete.functions.RetractFunction;
-import org.jamocha.rete.functions.RightMatchesFunction;
-import org.jamocha.rete.functions.RulesFunction;
-import org.jamocha.rete.functions.SaveFactsFunction;
-import org.jamocha.rete.functions.SetParserFunction;
-import org.jamocha.rete.functions.SpoolFunction;
-import org.jamocha.rete.functions.TemplatesFunction;
-import org.jamocha.rete.functions.TestRuleFunction;
-import org.jamocha.rete.functions.UnDefruleFunction;
-import org.jamocha.rete.functions.UnDeftemplateFunction;
-import org.jamocha.rete.functions.UnProfileFunction;
-import org.jamocha.rete.functions.UnWatchFunction;
-import org.jamocha.rete.functions.UsageFunction;
-import org.jamocha.rete.functions.ValidateRuleFunction;
-import org.jamocha.rete.functions.VersionFunction;
-import org.jamocha.rete.functions.ViewFunction;
 import org.jamocha.rete.functions.WatchFunction;
 
 /**
@@ -173,155 +139,151 @@ public class RuleEngineFunctions implements FunctionGroup, Serializable {
 		engine.declareFunction(listTemplates);
 		funcs.add(listTemplates);
 
-		LoadFactsFunction loadFactsFunction = new LoadFactsFunction();
-		engine.declareFunction(loadFactsFunction);
-		funcs.add(loadFactsFunction);
+		LoadFacts loadFacts = new LoadFacts();
+		engine.declareFunction(loadFacts);
+		funcs.add(loadFacts);
 
-		LoadFunctionsFunction loadfunc = new LoadFunctionsFunction();
-		engine.declareFunction(loadfunc);
-		funcs.add(loadfunc);
+		LoadFunctionGroup loadFunctionGroup = new LoadFunctionGroup();
+		engine.declareFunction(loadFunctionGroup);
+		funcs.add(loadFunctionGroup);
 
-		LoadFunctionGroupFunction loadfg = new LoadFunctionGroupFunction();
-		engine.declareFunction(loadfg);
-		funcs.add(loadfg);
+		LoadFunctions loadFunctions = new LoadFunctions();
+		engine.declareFunction(loadFunctions);
+		funcs.add(loadFunctions);
 
-		ModulesFunction modules = new ModulesFunction();
+		Matches matches = new Matches();
+		engine.declareFunction(matches);
+		funcs.add(matches);
+
+		MemberTest memberTest = new MemberTest();
+		engine.declareFunction(memberTest);
+		funcs.add(memberTest);
+
+		MemoryFree memoryFree = new MemoryFree();
+		engine.declareFunction(memoryFree);
+		funcs.add(memoryFree);
+
+		MemoryTotal memoryTotal = new MemoryTotal();
+		engine.declareFunction(memoryTotal);
+		funcs.add(memoryTotal);
+
+		MemoryUsed memoryUsed = new MemoryUsed();
+		engine.declareFunction(memoryUsed);
+		funcs.add(memoryUsed);
+
+		Modify modify = new Modify();
+		engine.declareFunction(modify);
+		funcs.add(modify);
+
+		Modules modules = new Modules();
 		engine.declareFunction(modules);
 		funcs.add(modules);
 
-		UsageFunction usage = new UsageFunction();
-		engine.declareFunction(usage);
-		funcs.add(usage);
+		PPrintRule pprintRule = new PPrintRule();
+		engine.declareFunction(pprintRule);
+		funcs.add(pprintRule);
 
-		MatchesFunction mf = new MatchesFunction();
-		engine.declareFunction(mf);
-		funcs.add(mf);
+		PPrintTemplate pprintTemplate = new PPrintTemplate();
+		engine.declareFunction(pprintTemplate);
+		funcs.add(pprintTemplate);
 
-		MemberTestFunction mtestf = new MemberTestFunction();
-		engine.declareFunction(mtestf);
-		funcs.add(mtestf);
+		PrintProfile printProfile = new PrintProfile();
+		engine.declareFunction(printProfile);
+		funcs.add(printProfile);
 
-		MemoryFreeFunction mff = new MemoryFreeFunction();
-		engine.declareFunction(mff);
-		funcs.add(mff);
+		Profile profile = new Profile();
+		engine.declareFunction(profile);
+		funcs.add(profile);
 
-		MemoryTotalFunction mtf = new MemoryTotalFunction();
-		engine.declareFunction(mtf);
-		funcs.add(mtf);
+		Reset reset = new Reset();
+		engine.declareFunction(reset);
+		funcs.add(reset);
 
-		MemoryUsedFunction musd = new MemoryUsedFunction();
-		engine.declareFunction(musd);
-		funcs.add(musd);
+		ResetFacts resetFacts = new ResetFacts();
+		engine.declareFunction(resetFacts);
+		funcs.add(resetFacts);
 
-		MillisecondTime mstime = new MillisecondTime();
-		engine.declareFunction(mstime);
-		funcs.add(mstime);
+		ResetObjects resetObjects = new ResetObjects();
+		engine.declareFunction(resetObjects);
+		funcs.add(resetObjects);
 
-		ModifyFunction mod = new ModifyFunction();
-		engine.declareFunction(mod);
-		funcs.add(mod);
+		Retract retract = new Retract();
+		engine.declareFunction(retract);
+		funcs.add(retract);
 
-		PPrintRuleFunction pprule = new PPrintRuleFunction();
-		engine.declareFunction(pprule);
-		funcs.add(pprule);
+		RightMatches rightMatches = new RightMatches();
+		engine.declareFunction(rightMatches);
+		funcs.add(rightMatches);
 
-		PPrintTemplateFunction pptemp = new PPrintTemplateFunction();
-		engine.declareFunction(pptemp);
-		funcs.add(pptemp);
+		Rules rules = new Rules();
+		engine.declareFunction(rules);
+		funcs.add(rules);
 
-		PrintProfileFunction pproff = new PrintProfileFunction();
-		engine.declareFunction(pproff);
-		funcs.add(pproff);
-
-		ProfileFunction proff = new ProfileFunction();
-		engine.declareFunction(proff);
-		funcs.add(proff);
-
-		ResetFunction resetf = new ResetFunction();
-		engine.declareFunction(resetf);
-		funcs.add(resetf);
-
-		ResetFactsFunction resetff = new ResetFactsFunction();
-		engine.declareFunction(resetff);
-		funcs.add(resetff);
-
-		ResetObjectsFunction resetof = new ResetObjectsFunction();
-		engine.declareFunction(resetof);
-		funcs.add(resetof);
-
-		RetractFunction rtract = new RetractFunction();
-		engine.declareFunction(rtract);
-		funcs.add(rtract);
-
-		RightMatchesFunction rmfunc = new RightMatchesFunction();
-		engine.declareFunction(rmfunc);
-		funcs.add(rmfunc);
-
-		RulesFunction rf = new RulesFunction();
-		engine.declareFunction(rf);
-		funcs.add(rf);
-
-		SaveFactsFunction savefacts = new SaveFactsFunction();
-		engine.declareFunction(savefacts);
-		funcs.add(savefacts);
+		SaveFacts saveFacts = new SaveFacts();
+		engine.declareFunction(saveFacts);
+		funcs.add(saveFacts);
 
 		SetFocus setFocus = new SetFocus();
 		engine.declareFunction(setFocus);
 		funcs.add(setFocus);
 
-		SetParserFunction setParserFunction = new SetParserFunction();
-		engine.declareFunction(setParserFunction);
-		funcs.add(setParserFunction);
+		SetParser setParser = new SetParser();
+		engine.declareFunction(setParser);
+		funcs.add(setParser);
 
-		SpoolFunction spool = new SpoolFunction();
+		Spool spool = new Spool();
 		engine.declareFunction(spool);
 		funcs.add(spool);
 
-		TemplatesFunction tempf = new TemplatesFunction();
-		engine.declareFunction(tempf);
-		funcs.add(tempf);
+		Templates templates = new Templates();
+		engine.declareFunction(templates);
+		funcs.add(templates);
 
-		TestRuleFunction trfunc = new TestRuleFunction();
-		engine.declareFunction(trfunc);
-		funcs.add(trfunc);
+		TestRule testRule = new TestRule();
+		engine.declareFunction(testRule);
+		funcs.add(testRule);
 
-		UnDefruleFunction udrule = new UnDefruleFunction();
-		engine.declareFunction(udrule);
-		funcs.add(udrule);
+		UnDefrule unDefrule = new UnDefrule();
+		engine.declareFunction(unDefrule);
+		funcs.add(unDefrule);
 
-		UnDeftemplateFunction udt = new UnDeftemplateFunction();
-		engine.declareFunction(udt);
-		funcs.add(udt);
+		UnDeftemplate unDeftemplate = new UnDeftemplate();
+		engine.declareFunction(unDeftemplate);
+		funcs.add(unDeftemplate);
 
-		UnWatchFunction uwatchf = new UnWatchFunction();
-		engine.declareFunction(uwatchf);
-		funcs.add(uwatchf);
+		UnProfile unProfile = new UnProfile();
+		engine.declareFunction(unProfile);
+		funcs.add(unProfile);
 
-		UnProfileFunction uproff = new UnProfileFunction();
-		engine.declareFunction(uproff);
-		funcs.add(uproff);
+		UnWatch unWatch = new UnWatch();
+		engine.declareFunction(unWatch);
+		funcs.add(unWatch);
 
-		ValidateRuleFunction vrf = new ValidateRuleFunction();
-		engine.declareFunction(vrf);
-		funcs.add(vrf);
+		Usage usage = new Usage();
+		engine.declareFunction(usage);
+		funcs.add(usage);
 
-		VersionFunction ver = new VersionFunction();
-		engine.declareFunction(ver);
-		funcs.add(ver);
+		ValidateRule validateRule = new ValidateRule();
+		engine.declareFunction(validateRule);
+		funcs.add(validateRule);
 
-		ViewFunction view = new ViewFunction();
+		Version version = new Version();
+		engine.declareFunction(version);
+		funcs.add(version);
+
+		View view = new View();
 		engine.declareFunction(view);
 		funcs.add(view);
 
-		WatchFunction watchf = new WatchFunction();
-		engine.declareFunction(watchf);
-		funcs.add(watchf);
+		Watch watch = new Watch();
+		engine.declareFunction(watch);
+		funcs.add(watch);
 
 		engine.declareFunction("focus", getCurrentModule);
 		engine.declareFunction("get-focus", getCurrentModule);
 		engine.declareFunction("functions", listFunctions);
-		engine.declareFunction(RulesFunction.LISTRULES, rf);
-		engine.declareFunction(TemplatesFunction.LISTTEMPLATES, tempf);
+		engine.declareFunction("list-rules", rules);
+		engine.declareFunction("list-deftemplates", templates);
 	}
 
 	public List listFunctions() {
