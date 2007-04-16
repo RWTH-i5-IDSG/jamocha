@@ -869,8 +869,7 @@ SimpleNode SwitchCaseFunc() :
 		)*
 		[	
 		<LBRACE>
-		<DEFAULT_ATR> 
-		ActionList()
+			SwitchDefaults()
 		<RBRACE>
 		]
 	)
@@ -1176,7 +1175,7 @@ SimpleNode TemplateRHSPattern() :
 {}
 {
     (
-	    Symbol()
+	    Symbol() //Template Name
         ( 
         	RHSSlot() 
         )*
@@ -1198,8 +1197,9 @@ SimpleNode RHSSlot() :
 {}
 {
     <LBRACE> 
-        (	Symbol() // slot-name
-        	( 
+        (	
+        	Symbol() // slot-name
+        	(
         		RHSField() 
         	)*
         )
@@ -1216,7 +1216,7 @@ SimpleNode RHSSlot() :
 
 //<RHS-field> ::= <variable> | <constant> | <function-call>
 
-void RHSField() #void : 
+void RHSField() #void: 
 {}
 {
     	Variable() 
