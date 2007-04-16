@@ -1,38 +1,93 @@
+(printout t '
 
 
-(deftemplate t-1 
-	(slot s1)
-	(slot s2)
+---J-A-M-O-C-H-A---B-Y---E-X-A-M-P-L-E---
+* Defining two templates *
+' crlf)
+
+(printout t '
+Defining a template T-1 with a slot S-1 of type STRING
+and a slot S-2 of type INTEGER:
+
+(deftemplate T-1 
+	(slot S-1 (type STRING))
+	(slot S-2 (type INTEGER))
+)'
+ crlf)
+
+(deftemplate T-1 
+	(slot S-1 (type STRING))
+	(slot S-2 (type INTEGER))
 )
 
-(deftemplate t-2
-	(slot s3)
-	(slot s4)
+
+
+(printout t '
+Defining a template T-2 with a slot S-3 of type STRING
+and a slot S-4 of type INTEGER:
+
+(deftemplate T-2
+	(slot S-3 (type STRING))
+	(slot S-4 (type INTEGER))
+)
+'
+ crlf)
+
+(deftemplate T-2
+	(slot S-3 (type STRING))
+	(slot S-4 (type INTEGER))
 )
 
-(defrule r-1 "rule one"
-	(t-1 (s1 ?x)(s2 a)) 
+
+(printout t '
+Checking if the templates defined exist by typing
+
+(templates)
+-->'
+crlf)
+
+(templates)
+
+(printout t '
+and pretty print the definition of T-1 with
+
+(ppdeftemplate T-1)
+-->'
+ crlf)
+ 
+(ppdeftemplate T-1)
+
+(printout t '
+
+
+---J-A-M-O-C-H-A---B-Y---E-X-A-M-P-L-E---
+* Defining two rules
+' crlf)
+
+(defrule R-1 "rule one"
+	(T-1 (S-1 ?x)(S-2 42)) 
 	=>
 	(printout t ?x crlf)
 )
 
-(defrule r-2 "rule two"
-	(t-2 (s3 ?y)(s4 a))
+
+(defrule R-2 "rule two"
+	(T-2 (S-3 ?y)(S-4 28))
 	=>
 	(printout t ?y crlf)
 )
 
-(defrule r-3 "rule three"
-	(t-1 (s1 ?x)(s2 a)) (t-2 (s3 ?y)(s4 a))
+(defrule R-3 "rule three"
+	(T-1 (S-1 ?x)(S-2 a)) (T-2 (S-3 ?y)(S-4 a))
 	=>
 	(printout t ?x crlf)
 )
 
-(assert (t-1 (s1 a)(s2 b)))
-(assert (t-2 (s3 a)(s4 b)))
+(assert (T-1 (S-1 a)(S-2 b)))
+(assert (T-2 (S-3 a)(S-4 b)))
 
-(assert (t-1 (s1 b)(s2 a)))
-(assert (t-2 (s3 b)(s4 a)))
+(assert (T-1 (S-1 b)(S-2 a)))
+(assert (T-2 (S-3 b)(S-4 a)))
 
 (fire)
 

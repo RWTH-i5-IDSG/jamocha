@@ -9,6 +9,7 @@ import org.jamocha.rete.ExpressionList;
 import org.jamocha.rete.FunctionParam2;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.TemplateSlot;
+import org.jamocha.rule.Condition;
 import org.jamocha.rule.Defrule;
 
 public class SFPInterpreter implements SFPParserVisitor {
@@ -309,22 +310,14 @@ public class SFPInterpreter implements SFPParserVisitor {
 			n.jjtAccept(this, rule);
 		}
 
-		// HERE //
+
 		
-		// gather all the conditional elments
 		TemplateSlot[] s = new TemplateSlot[node.jjtGetNumChildren() - j];
 		for (int i = j; i < node.jjtGetNumChildren(); i++) {
 			s[i - j] = (TemplateSlot) (node.jjtGetChild(i)
 					.jjtAccept(this, data));
 		}
 
-		FunctionParam2 defTemplate = new FunctionParam2();
-
-		defTemplate
-				.setFunctionName(org.jamocha.rete.functions.ruleengine.Deftemplate.NAME);
-		defTemplate
-				.setParameters(new Parameter[] { JamochaValue.newObject(tpl) });
-	
 		return null;
 	}
 
