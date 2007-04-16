@@ -89,7 +89,7 @@ public class Defrule implements Function, Serializable {
 		JamochaValue result = JamochaValue.FALSE;
 		if (params != null && params.length == 1) {
 			JamochaValue firstParam = params[0].getValue(engine);
-			if (firstParam.getObjectValue() instanceof Defrule) {
+			if (firstParam.getObjectValue() instanceof org.jamocha.rule.Defrule) {
 				org.jamocha.rule.Defrule rl = (org.jamocha.rule.Defrule) firstParam.getObjectValue();
 				if (!engine.getCurrentFocus().containsRule(rl)) {
 					if (engine.getRuleCompiler().addRule(rl)) {
