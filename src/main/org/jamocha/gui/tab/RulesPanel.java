@@ -262,7 +262,7 @@ public class RulesPanel extends AbstractJamochaPanel implements ActionListener,
 			case 1:
 				return rule.getName();
 			case 2:
-				return rule.getComment();
+				return rule.getDescription();
 			}
 			return null;
 		}

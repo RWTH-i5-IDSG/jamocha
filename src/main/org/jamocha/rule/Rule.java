@@ -60,13 +60,13 @@ public interface Rule extends Scope, Serializable {
      * otherwise it should return zero length string
      * @return
      */
-    String getComment();
+    String getDescription();
     /**
      * set the comment of the rule. it should be a descriptive comment
      * about what the rule does.
      * @param text
      */
-    void setComment(String text);
+    void setDescription(String text);
     /**
      * get the complexity of the rule, which measure how many conditions
      * a rule has

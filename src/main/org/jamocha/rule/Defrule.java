@@ -60,7 +60,7 @@ public class Defrule implements Rule, Scope, Serializable {
     protected Module themodule = null;
     protected Map bindValues = CollectionsFactory.localMap();
 	private LinkedHashMap bindings = new LinkedHashMap();
-	private String comment = "";
+	private String description = "";
 	/**
 	 * by default a rule is active, unless set to false
 	 */
@@ -156,12 +156,17 @@ public class Defrule implements Rule, Scope, Serializable {
         this.salience = sal;
     }
     
-    public String getComment() {
-    	return this.comment;
+    public void setSalience(long sal) {
+        this.salience = (int)sal;
     }
     
-    public void setComment(String text) {
-    	this.comment = text.substring(1,text.length() -1);
+    
+    public String getDescription() {
+    	return this.description;
+    }
+    
+    public void setDescription(String text) {
+    	this.description = text.substring(1,text.length() -1);
     }
 
     public Complexity getComplexity() {

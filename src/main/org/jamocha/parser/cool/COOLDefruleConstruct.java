@@ -35,7 +35,7 @@ public class COOLDefruleConstruct extends ConstructNode {
 
     public void setDocString(String n) {
 	doc = n;
-	rule.setComment(n);
+	rule.setDescription(n);
     }
 
     public void setName(String n) {

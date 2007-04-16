@@ -1,6 +1,5 @@
 package org.jamocha.parser.sfp;
 
-import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.Expression;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
@@ -9,17 +8,10 @@ import org.jamocha.rete.Deftemplate;
 import org.jamocha.rete.ExpressionList;
 import org.jamocha.rete.FunctionParam2;
 import org.jamocha.rete.Parameter;
-import org.jamocha.rete.Rete;
 import org.jamocha.rete.TemplateSlot;
+import org.jamocha.rule.Defrule;
 
 public class SFPInterpreter implements SFPParserVisitor {
-
-	private Rete engine;
-
-	public SFPInterpreter(Rete engine) {
-		super();
-		this.engine = engine;
-	}
 
 	public Object visit(SimpleNode node, Object data) {
 		// TODO Auto-generated method stub
@@ -149,33 +141,43 @@ public class SFPInterpreter implements SFPParserVisitor {
 	}
 
 	public Object visit(SFPDeftemplateConstruct node, Object data) {
-		// template-name:
+
+		// get the template name
 		JamochaValue templName = (JamochaValue) node.jjtGetChild(0).jjtAccept(
 				this, data);
 
-		// Description:
+		// get the template description
 		int j = 1;
+		JamochaValue descr = null;
+
 		Node n = node.jjtGetChild(1);
+
 		if (n != null && n instanceof SFPConstructDescription) {
 			j = 2;
-			JamochaValue descr = (JamochaValue) n.jjtAccept(this, data);
-			// TODO: where to insert descr?
+			descr = (JamochaValue) n.jjtAccept(this, data);
 		}
 
-		// slots:
+		// gather all the slots from the syntax tree and set them up
 		TemplateSlot[] s = new TemplateSlot[node.jjtGetNumChildren() - j];
 		for (int i = j; i < node.jjtGetNumChildren(); i++) {
 			s[i - j] = (TemplateSlot) (node.jjtGetChild(i)
 					.jjtAccept(this, data));
 		}
 
-		// create result:
+		// create the param containing the resulting template
 		Deftemplate tpl = new Deftemplate(templName.getStringValue(), null, s);
+
+		if (descr != null) {
+			tpl.setDescription(descr.toString());
+		}
+
 		FunctionParam2 defTemplate = new FunctionParam2();
+
 		defTemplate
 				.setFunctionName(org.jamocha.rete.functions.ruleengine.Deftemplate.NAME);
 		defTemplate
 				.setParameters(new Parameter[] { JamochaValue.newObject(tpl) });
+
 		return defTemplate;
 	}
 
@@ -187,6 +189,7 @@ public class SFPInterpreter implements SFPParserVisitor {
 		TemplateSlot ts = new TemplateSlot();
 		ts.setName(slotName.getStringValue());
 		ts.setMultiSlot(false);
+		
 		// setting the slot attributes
 		for (int i = 1; i < node.jjtGetNumChildren(); i++) {
 			node.jjtGetChild(i).jjtAccept(this, ts);
@@ -203,7 +206,7 @@ public class SFPInterpreter implements SFPParserVisitor {
 		TemplateSlot ts = new TemplateSlot();
 		ts.setName(slotName.getStringValue());
 		ts.setMultiSlot(true);
-		// setting the slot attributes
+		// set the slot attributes
 		for (int i = 1; i < node.jjtGetNumChildren(); i++) {
 			node.jjtGetChild(i).jjtAccept(this, ts);
 		}
@@ -219,7 +222,7 @@ public class SFPInterpreter implements SFPParserVisitor {
 	}
 
 	public Object visit(SFPAttributes node, Object data) {
-		// asks all sub expression for their value:
+		// ask all sub expression for their value:
 		ExpressionList expressionList = new ExpressionList();
 		for (int i = 0; i < node.jjtGetNumChildren(); ++i) {
 			expressionList.add((Parameter) node.jjtGetChild(i).jjtAccept(this,
@@ -273,7 +276,55 @@ public class SFPInterpreter implements SFPParserVisitor {
 	}
 
 	public Object visit(SFPDefruleConstruct node, Object data) {
-		// TODO Auto-generated method stub
+
+		JamochaValue ruleName = null;
+		int j = 0;
+		
+		// get the rule name
+		ruleName = (JamochaValue) node.jjtGetChild(j++).jjtAccept(
+				this, data);
+
+		// get the rule description
+		JamochaValue descr = null;
+		
+		Node n = node.jjtGetChild(j);
+
+		if (n != null && n instanceof SFPConstructDescription) {
+			j++;
+			descr = (JamochaValue) n.jjtAccept(this, data);
+		}
+
+		// create the rule and set the description
+		Defrule rule = new Defrule(ruleName.getStringValue());
+
+		if (descr != null) {
+			rule.setDescription(descr.toString());
+		}
+		
+		// set the rule declaration(s)
+		n = node.jjtGetChild(j);
+
+		if (n != null && n instanceof SFPDeclaration) {
+			j++;
+			n.jjtAccept(this, rule);
+		}
+
+		// HERE //
+		
+		// gather all the conditional elments
+		TemplateSlot[] s = new TemplateSlot[node.jjtGetNumChildren() - j];
+		for (int i = j; i < node.jjtGetNumChildren(); i++) {
+			s[i - j] = (TemplateSlot) (node.jjtGetChild(i)
+					.jjtAccept(this, data));
+		}
+
+		FunctionParam2 defTemplate = new FunctionParam2();
+
+		defTemplate
+				.setFunctionName(org.jamocha.rete.functions.ruleengine.Deftemplate.NAME);
+		defTemplate
+				.setParameters(new Parameter[] { JamochaValue.newObject(tpl) });
+	
 		return null;
 	}
 
@@ -283,32 +334,29 @@ public class SFPInterpreter implements SFPParserVisitor {
 	}
 
 	public Object visit(SFPDeclaration node, Object data) {
-		// TODO Auto-generated method stub
-		return null;
-	}
 
-	public Object visit(SFPRuleProperty node, Object data) {
-		// TODO Auto-generated method stub
+		for (int i = 0; i < node.jjtGetNumChildren(); i++) {
+			node.jjtGetChild(i).jjtAccept(this, data);
+		}
+		
 		return null;
 	}
 
 	public Object visit(SFPSalience node, Object data) {
-		// TODO Auto-generated method stub
+		JamochaValue jv = (JamochaValue)node.jjtGetChild(0).jjtAccept(this,null);
+		((Defrule)data).setSalience(jv.getLongValue());
 		return null;
 	}
 
 	public Object visit(SFPAutoFocus node, Object data) {
-		// TODO Auto-generated method stub
+		JamochaValue jv = (JamochaValue)node.jjtGetChild(0).jjtAccept(this,null);
+		((Defrule)data).setAutoFocus(jv.getBooleanValue());
 		return null;
 	}
 
 	public Object visit(SFPRuleVersion node, Object data) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public Object visit(SFPBooleanSymbol node, Object data) {
-		// TODO Auto-generated method stub
+		JamochaValue jv = (JamochaValue)node.jjtGetChild(0).jjtAccept(this,null);
+		((Defrule)data).setVersion(jv.getStringValue());
 		return null;
 	}
 
@@ -552,8 +600,7 @@ public class SFPInterpreter implements SFPParserVisitor {
 	}
 
 	public Object visit(SFPLexemeType node, Object data) {
-		// TODO: check is this correct to match lexeme to undefined?
-		return JamochaType.UNDEFINED;
+		return JamochaType.STRING;
 	}
 
 	public Object visit(SFPBooleanType node, Object data) {

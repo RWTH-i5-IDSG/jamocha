@@ -8,7 +8,9 @@
 package org.jamocha.parser.cool;
 
 import java.lang.String;
+
 import org.jamocha.parser.*;
+
 import org.jamocha.rete.Parameter;
 
 /** The minimal interface any Abstract syntax tree node must implement.
@@ -44,9 +46,14 @@ public interface Node
 	public int jjtGetNumChildren();
 
 	public void dump(String prefix);
+	
 	public boolean compareTree(Node n);
+	
 	public Parameter getExpression();
+
 	public String getName();
+	
 	public void setName(String n);
+
 	public int getId();
 }

@@ -59,6 +59,8 @@ public class Deftemplate implements Template, Serializable {
 	private String templateName = null;
 
 	private Template parent = null;
+	
+	private String description = null;
 
 	/**
 	 * Defclass and Deftemplate are decoupled, so it uses a string to look up
@@ -71,6 +73,7 @@ public class Deftemplate implements Template, Serializable {
 		this.templateName = name;
 		this.defclass = defclass;
 		this.slots = slots;
+		
 	}
 
 	public Deftemplate(String name, String defclass, TemplateSlot[] slots,
@@ -447,5 +450,13 @@ public class Deftemplate implements Template, Serializable {
 				slots[i].setStaticDefaultExpression(constantValue);
 			}
 		}
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
 	}
 }

@@ -51,8 +51,8 @@ public class SFPParser implements Parser{
                                 SFPStart n = p.Start();
                                 if (n==null) System.exit(0);
                                 n.dump(" ");
-                                JamochaValue val=null;
-                                val =(JamochaValue)n.jjtAccept(new SFPInterpreter(engine), null);
+                                org.jamocha.parser.Expression val = null;
+                                val = (org.jamocha.parser.Expression)n.jjtAccept(new SFPInterpreter(), null);
                         }
                 }
                 catch (Exception e)
@@ -1275,7 +1275,7 @@ SimpleNode DefruleConstruct() :
     	(
     		<DEFRULE>
 
-    		Symbol()//name
+    		Symbol()	//name
     		[ 
     		  	ConstructDescription()	
     		]
@@ -1338,18 +1338,16 @@ SimpleNode Declaration():
 **/
 // <rule-property> ::= (salience <integer-expression>) | (auto-focus <boolean-symbol>)
 
-SimpleNode RuleProperty(): 
+void RuleProperty() #void: 
 {}
 {
-    	<LBRACE>
+    <LBRACE>
      	(
      		Salience()		
      	| 	AutoFocus()
      	|	RuleVersion()
 	)
 	<RBRACE>
-    	
-	{ return jjtThis; }
 }
 
 SimpleNode Salience() :
@@ -1383,15 +1381,13 @@ SimpleNode RuleVersion():
 **/
 //<boolean-symbol> ::= TRUE | FALSE
 
-SimpleNode BooleanSymbol() : 
+void BooleanSymbol() #void: 
 {}
 {
     (
     	True()
     |	False()
     )
-    
-    {return jjtThis; }
 }
 
 
@@ -1592,10 +1588,10 @@ SimpleNode LHSSlot()  :
 {
     (
     	Symbol()
-	(
-		LOOKAHEAD(2)
-		Constraint()
-	)*
+		(
+			LOOKAHEAD(2)
+			Constraint()
+		)*
     )	
 	
     {return jjtThis;}
@@ -1608,36 +1604,35 @@ SimpleNode LHSSlot()  :
 void Constraint() #void : 
 {}
 {
-    SingleFieldWildcard() 
-    | MultiFieldWildcard() 
-    | ConnectedConstraint()
+	    SingleFieldWildcard() 
+    |	MultiFieldWildcard() 
+    | 	ConnectedConstraint()
 }
 
 
 
 
 SimpleNode SingleFieldWildcard() : 
-{ Token t; }
+{}
 {
-	t = <SFWILDCARD>
-	{
-	    jjtThis.setName(t.image);
-	    return jjtThis; 
-	}
+	<SFWILDCARD>
+
+	Symbol()
+	
+    { return jjtThis; }
 }
 
 
 
 SimpleNode MultiFieldWildcard() : 
-{ Token t; }
+{}
 {
-	t = <MFWILDCARD>
-	{
-	    jjtThis.setName(t.image);
-	    return jjtThis; 
-	}
-}
+	<MFWILDCARD>
 
+	Symbol()
+	
+    { return jjtThis; }
+}
 
 
 
