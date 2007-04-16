@@ -24,7 +24,7 @@ import org.jamocha.rete.FunctionGroup;
 import org.jamocha.rete.Rete;
 
 /**
- * @author pete
+ * @author Peter Lin
  *
  */
 public class DeffunctionGroup implements FunctionGroup {
@@ -32,20 +32,11 @@ public class DeffunctionGroup implements FunctionGroup {
 	private static final long serialVersionUID = 1L;
 	
 	private List<Function> funcs = new ArrayList<Function>();
-    
-    /**
-     * 
-     */
-    public DeffunctionGroup() {
-    }
 
     public String getName() {
         return DeffunctionGroup.class.getName();
     }
 
-    /* (non-Javadoc)
-     * @see org.jamocha.rete.FunctionGroup#listFunctions()
-     */
     public List listFunctions() {
         return funcs;
     }

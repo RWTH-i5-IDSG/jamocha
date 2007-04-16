@@ -2,17 +2,17 @@
 
 package org.jamocha.parser.cool;
 
-import org.jamocha.rete.functions.IfFunction;
+import org.jamocha.rete.functions.If;
 
 public class COOLIfElseFunc extends COOLAnyFunction {
 
     public COOLIfElseFunc(int id) {
 	super(id);
-	setName(IfFunction.NAME);
+	setName(If.NAME);
     }
 
     public COOLIfElseFunc(COOLParser p, int id) {
 	super(p, id);
-	setName(IfFunction.NAME);
+	setName(If.NAME);
     }
 }
