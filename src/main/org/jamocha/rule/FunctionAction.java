@@ -23,7 +23,6 @@ import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Binding;
 import org.jamocha.rete.BoundParam;
 import org.jamocha.rete.Deffact;
-import org.jamocha.rete.Deftemplate;
 import org.jamocha.rete.Fact;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.FunctionParam2;
@@ -31,8 +30,8 @@ import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.Template;
 import org.jamocha.rete.exception.ExecuteException;
-import org.jamocha.rete.functions.AssertFunction;
 import org.jamocha.rete.functions.ModifyFunction;
+import org.jamocha.rete.functions.ruleengine.Assert;
 
 /**
  * @author Peter Lin
@@ -118,7 +117,7 @@ public class FunctionAction implements Action {
 			}
 		}
 		// in the case of Assert, we do further compilation
-		if (this.faction instanceof AssertFunction) {
+		if (this.faction instanceof Assert) {
 			JamochaValue tmplName = this.parameters[0].getValue(engine);
 			Template tmpl = engine.getCurrentFocus()
 					.getTemplate(tmplName.getIdentifierValue());
@@ -147,8 +146,8 @@ public class FunctionAction implements Action {
 			}
 		}
 		// we treat AssertFunction a little different
-		if (this.faction instanceof AssertFunction) {
-			((AssertFunction) this.faction).setTriggerFacts(facts);
+		if (this.faction instanceof Assert) {
+			((Assert) this.faction).setTriggerFacts(facts);
 		} else if (this.faction instanceof ModifyFunction) {
 			((ModifyFunction) this.faction).setTriggerFacts(facts);
 		}

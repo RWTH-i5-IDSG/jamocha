@@ -8,7 +8,7 @@ import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.BoundParam;
 import org.jamocha.rete.FunctionParam2;
 import org.jamocha.rete.Parameter;
-import org.jamocha.rete.functions.DeffunctionFunction;
+import org.jamocha.rete.functions.ruleengine.Deffunction;
 
 public class COOLDeffunctionConstruct extends ConstructNode {
 
@@ -62,7 +62,7 @@ public class COOLDeffunctionConstruct extends ConstructNode {
 	params[2] = JamochaValue.newObject(functionActions);
 	FunctionParam2 functionParam = new FunctionParam2();
 	functionParam.setParameters(params);
-	functionParam.setFunctionName(DeffunctionFunction.NAME);
+	functionParam.setFunctionName(Deffunction.NAME);
 	return functionParam;
     };
 

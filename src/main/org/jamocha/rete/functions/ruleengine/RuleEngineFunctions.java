@@ -23,9 +23,6 @@ import java.util.List;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.FunctionGroup;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.functions.ListDirectoryFunction;
-import org.jamocha.rete.functions.ListFunctionsFunction;
-import org.jamocha.rete.functions.ListTemplatesFunction;
 import org.jamocha.rete.functions.LoadFactsFunction;
 import org.jamocha.rete.functions.LoadFunctionGroupFunction;
 import org.jamocha.rete.functions.LoadFunctionsFunction;
@@ -164,18 +161,17 @@ public class RuleEngineFunctions implements FunctionGroup, Serializable {
 		engine.declareFunction(lazyAgenda);
 		funcs.add(lazyAgenda);
 
-		ListDirectoryFunction ldir = new ListDirectoryFunction();
-		engine.declareFunction(ldir);
-		funcs.add(ldir);
+		ListDirectory listDirectory = new ListDirectory();
+		engine.declareFunction(listDirectory);
+		funcs.add(listDirectory);
 
-		ListFunctionsFunction lffnc = new ListFunctionsFunction();
-		engine.declareFunction(lffnc);
-		engine.declareFunction("functions", lffnc);
-		funcs.add(lffnc);
+		ListFunctions listFunctions = new ListFunctions();
+		engine.declareFunction(listFunctions);
+		funcs.add(listFunctions);
 
-		ListTemplatesFunction listTemp = new ListTemplatesFunction();
-		engine.declareFunction(listTemp);
-		funcs.add(listTemp);
+		ListTemplates listTemplates = new ListTemplates();
+		engine.declareFunction(listTemplates);
+		funcs.add(listTemplates);
 
 		LoadFactsFunction loadFactsFunction = new LoadFactsFunction();
 		engine.declareFunction(loadFactsFunction);
@@ -263,7 +259,6 @@ public class RuleEngineFunctions implements FunctionGroup, Serializable {
 
 		RulesFunction rf = new RulesFunction();
 		engine.declareFunction(rf);
-		engine.declareFunction(RulesFunction.LISTRULES, rf);
 		funcs.add(rf);
 
 		SaveFactsFunction savefacts = new SaveFactsFunction();
@@ -284,7 +279,6 @@ public class RuleEngineFunctions implements FunctionGroup, Serializable {
 
 		TemplatesFunction tempf = new TemplatesFunction();
 		engine.declareFunction(tempf);
-		engine.declareFunction(TemplatesFunction.LISTTEMPLATES, tempf);
 		funcs.add(tempf);
 
 		TestRuleFunction trfunc = new TestRuleFunction();
@@ -325,6 +319,9 @@ public class RuleEngineFunctions implements FunctionGroup, Serializable {
 
 		engine.declareFunction("focus", getCurrentModule);
 		engine.declareFunction("get-focus", getCurrentModule);
+		engine.declareFunction("functions", listFunctions);
+		engine.declareFunction(RulesFunction.LISTRULES, rf);
+		engine.declareFunction(TemplatesFunction.LISTTEMPLATES, tempf);
 	}
 
 	public List listFunctions() {

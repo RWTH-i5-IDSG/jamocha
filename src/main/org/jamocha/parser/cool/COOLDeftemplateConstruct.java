@@ -5,11 +5,10 @@ import java.util.ArrayList;
 
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.AbstractSlot;
-import org.jamocha.rete.Deftemplate;
 import org.jamocha.rete.FunctionParam2;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.TemplateSlot;
-import org.jamocha.rete.functions.DeftemplateFunction;
+import org.jamocha.rete.functions.ruleengine.Deftemplate;
 
 public class COOLDeftemplateConstruct extends ConstructNode {
     private ArrayList<AbstractSlot> slots;
@@ -41,9 +40,9 @@ public class COOLDeftemplateConstruct extends ConstructNode {
     public Parameter getExpression() {
 	TemplateSlot[] s = new TemplateSlot[slots.size()];
 	slots.toArray(s);
-	Deftemplate tpl = new Deftemplate(name, null, s);
+	org.jamocha.rete.Deftemplate tpl = new org.jamocha.rete.Deftemplate(name, null, s);
 	FunctionParam2 defTemplate = new FunctionParam2();
-	defTemplate.setFunctionName(DeftemplateFunction.NAME);
+	defTemplate.setFunctionName(Deftemplate.NAME);
 	defTemplate.setParameters(new Parameter[] { JamochaValue.newObject(tpl) });
 	return defTemplate;
     }
