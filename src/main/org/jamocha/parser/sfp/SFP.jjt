@@ -593,6 +593,7 @@ SimpleNode SingleVariable() :
 { Token t; } 
 {
 	t=<SINGLEVAR>
+	
 	{ jjtThis.setName(t.image); return jjtThis;}
 }
 
@@ -621,6 +622,7 @@ SimpleNode MultiVariable() :
 { Token t; } 
 {
 	t=<MULTIVAR>
+	
 	{ jjtThis.setName(t.image); return jjtThis;}
 }
 
@@ -1396,21 +1398,22 @@ void BooleanSymbol() #void:
 SimpleNode ConditionalElement() :
 {}
 {
-	(
 		(
 		   <LBRACE> 
-					TemplatePatternCE() 
-				|	BooleanFunction() 
-				|	LogicalCE() 
-				|	TestCE()
-				|	ExistsCE()
-				|	ForallCE()		
+				(	
+						TemplatePatternCE() 
+					|	BooleanFunction() 
+					|	LogicalCE() 
+					|	TestCE()
+					|	ExistsCE()
+					|	ForallCE()		
+				)
 			<RBRACE>
 		)
 
 		|	AssignedPatternCE() 
-	)
-	{ return jjtThis; }	
+
+		{ return jjtThis; }	
 }
 
 /**
@@ -1588,6 +1591,7 @@ SimpleNode LHSSlot()  :
 {
     (
     	Symbol()
+    	
 		(
 			LOOKAHEAD(2)
 			Constraint()
@@ -1604,11 +1608,10 @@ SimpleNode LHSSlot()  :
 void Constraint() #void : 
 {}
 {
-	    SingleFieldWildcard() 
-    |	MultiFieldWildcard() 
-    | 	ConnectedConstraint()
+		SingleFieldWildcard()
+	|	MultiFieldWildcard()
+	|	ConnectedConstraint()
 }
-
 
 
 
@@ -1616,8 +1619,6 @@ SimpleNode SingleFieldWildcard() :
 {}
 {
 	<SFWILDCARD>
-
-	Symbol()
 	
     { return jjtThis; }
 }
@@ -1628,12 +1629,9 @@ SimpleNode MultiFieldWildcard() :
 {}
 {
 	<MFWILDCARD>
-
-	Symbol()
 	
     { return jjtThis; }
 }
-
 
 
 //<connected-constraint>::= <single-constraint> | <single-constraint> & <connected-constraint> |

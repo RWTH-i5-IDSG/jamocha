@@ -977,6 +977,7 @@ SimpleNode SingleVariable() :
           jjtc000 = false;
         }
 /*@egen*/
+	
 	{ jjtn000.setName(t.image); return jjtn000;}/*@bgen(jjtree)*/
         } finally {
           if (jjtc000) {
@@ -1039,6 +1040,7 @@ SimpleNode MultiVariable() :
           jjtc000 = false;
         }
 /*@egen*/
+	
 	{ jjtn000.setName(t.image); return jjtn000;}/*@bgen(jjtree)*/
         } finally {
           if (jjtc000) {
@@ -2774,47 +2776,48 @@ SimpleNode ConditionalElement() :
   jjtree.openNodeScope(jjtn000);
 /*@egen*/}
 {/*@bgen(jjtree) ConditionalElement */
-        try {
+                try {
 /*@egen*/
-	(
 		(
 		   <LBRACE> 
-					TemplatePatternCE() 
-				|	BooleanFunction() 
-				|	LogicalCE() 
-				|	TestCE()
-				|	ExistsCE()
-				|	ForallCE()		
+				(	
+						TemplatePatternCE() 
+					|	BooleanFunction() 
+					|	LogicalCE() 
+					|	TestCE()
+					|	ExistsCE()
+					|	ForallCE()		
+				)
 			<RBRACE>
 		)
 
-		|	AssignedPatternCE() 
-	)/*@bgen(jjtree)*/
-        {
-          jjtree.closeNodeScope(jjtn000, true);
-          jjtc000 = false;
-        }
-/*@egen*/
-	{ return jjtn000; }/*@bgen(jjtree)*/
-        } catch (Throwable jjte000) {
-          if (jjtc000) {
-            jjtree.clearNodeScope(jjtn000);
-            jjtc000 = false;
-          } else {
-            jjtree.popNode();
-          }
-          if (jjte000 instanceof RuntimeException) {
-            throw (RuntimeException)jjte000;
-          }
-          if (jjte000 instanceof ParseException) {
-            throw (ParseException)jjte000;
-          }
-          throw (Error)jjte000;
-        } finally {
-          if (jjtc000) {
-            jjtree.closeNodeScope(jjtn000, true);
-          }
-        }
+		|	AssignedPatternCE()/*@bgen(jjtree)*/
+                {
+                  jjtree.closeNodeScope(jjtn000, true);
+                  jjtc000 = false;
+                }
+/*@egen*/ 
+
+		{ return jjtn000; }/*@bgen(jjtree)*/
+                } catch (Throwable jjte000) {
+                  if (jjtc000) {
+                    jjtree.clearNodeScope(jjtn000);
+                    jjtc000 = false;
+                  } else {
+                    jjtree.popNode();
+                  }
+                  if (jjte000 instanceof RuntimeException) {
+                    throw (RuntimeException)jjte000;
+                  }
+                  if (jjte000 instanceof ParseException) {
+                    throw (ParseException)jjte000;
+                  }
+                  throw (Error)jjte000;
+                } finally {
+                  if (jjtc000) {
+                    jjtree.closeNodeScope(jjtn000, true);
+                  }
+                }
 /*@egen*/	
 }
 
@@ -3340,6 +3343,7 @@ SimpleNode LHSSlot()  :
 /*@egen*/
     (
     	Symbol()
+    	
 		(
 			LOOKAHEAD(2)
 			Constraint()
@@ -3381,11 +3385,10 @@ SimpleNode LHSSlot()  :
 void Constraint()       : 
 {}
 {
-	    SingleFieldWildcard() 
-    |	MultiFieldWildcard() 
-    | 	ConnectedConstraint()
+		SingleFieldWildcard()
+	|	MultiFieldWildcard()
+	|	ConnectedConstraint()
 }
-
 
 
 
@@ -3398,9 +3401,7 @@ SimpleNode SingleFieldWildcard() :
 {/*@bgen(jjtree) SingleFieldWildcard */
         try {
 /*@egen*/
-	<SFWILDCARD>
-
-	Symbol()/*@bgen(jjtree)*/
+	<SFWILDCARD>/*@bgen(jjtree)*/
     {
       jjtree.closeNodeScope(jjtn000, true);
       jjtc000 = false;
@@ -3408,20 +3409,6 @@ SimpleNode SingleFieldWildcard() :
 /*@egen*/
 	
     { return jjtn000; }/*@bgen(jjtree)*/
-        } catch (Throwable jjte000) {
-          if (jjtc000) {
-            jjtree.clearNodeScope(jjtn000);
-            jjtc000 = false;
-          } else {
-            jjtree.popNode();
-          }
-          if (jjte000 instanceof RuntimeException) {
-            throw (RuntimeException)jjte000;
-          }
-          if (jjte000 instanceof ParseException) {
-            throw (ParseException)jjte000;
-          }
-          throw (Error)jjte000;
         } finally {
           if (jjtc000) {
             jjtree.closeNodeScope(jjtn000, true);
@@ -3441,9 +3428,7 @@ SimpleNode MultiFieldWildcard() :
 {/*@bgen(jjtree) MultiFieldWildcard */
         try {
 /*@egen*/
-	<MFWILDCARD>
-
-	Symbol()/*@bgen(jjtree)*/
+	<MFWILDCARD>/*@bgen(jjtree)*/
     {
       jjtree.closeNodeScope(jjtn000, true);
       jjtc000 = false;
@@ -3451,20 +3436,6 @@ SimpleNode MultiFieldWildcard() :
 /*@egen*/
 	
     { return jjtn000; }/*@bgen(jjtree)*/
-        } catch (Throwable jjte000) {
-          if (jjtc000) {
-            jjtree.clearNodeScope(jjtn000);
-            jjtc000 = false;
-          } else {
-            jjtree.popNode();
-          }
-          if (jjte000 instanceof RuntimeException) {
-            throw (RuntimeException)jjte000;
-          }
-          if (jjte000 instanceof ParseException) {
-            throw (ParseException)jjte000;
-          }
-          throw (Error)jjte000;
         } finally {
           if (jjtc000) {
             jjtree.closeNodeScope(jjtn000, true);
@@ -3472,7 +3443,6 @@ SimpleNode MultiFieldWildcard() :
         }
 /*@egen*/
 }
-
 
 
 //<connected-constraint>::= <single-constraint> | <single-constraint> & <connected-constraint> |
