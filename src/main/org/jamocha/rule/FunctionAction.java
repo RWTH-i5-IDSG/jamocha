@@ -30,7 +30,6 @@ import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.Template;
 import org.jamocha.rete.exception.ExecuteException;
-import org.jamocha.rete.functions.ModifyFunction;
 import org.jamocha.rete.functions.ruleengine.Assert;
 
 /**
@@ -42,9 +41,6 @@ import org.jamocha.rete.functions.ruleengine.Assert;
  */
 public class FunctionAction implements Action {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 
 	protected Function faction = null;
@@ -53,9 +49,6 @@ public class FunctionAction implements Action {
 
 	protected Parameter[] parameters = null;
 
-	/**
-	 * 
-	 */
 	public FunctionAction() {
 		super();
 	}
@@ -119,11 +112,10 @@ public class FunctionAction implements Action {
 		// in the case of Assert, we do further compilation
 		if (this.faction instanceof Assert) {
 			JamochaValue tmplName = this.parameters[0].getValue(engine);
-			Template tmpl = engine.getCurrentFocus()
-					.getTemplate(tmplName.getIdentifierValue());
+			Template tmpl = engine.getCurrentFocus().getTemplate(
+					tmplName.getIdentifierValue());
 			JamochaValue values = this.parameters[1].getValue(engine);
-			Fact fact = tmpl.createFact(values
-					.getObjectValue(), -1, engine);
+			Fact fact = tmpl.createFact(values.getObjectValue(), -1, engine);
 			fact.compileBinding(util);
 			this.parameters = new JamochaValue[1];
 			this.parameters[0] = JamochaValue.newFact(fact);
@@ -148,8 +140,6 @@ public class FunctionAction implements Action {
 		// we treat AssertFunction a little different
 		if (this.faction instanceof Assert) {
 			((Assert) this.faction).setTriggerFacts(facts);
-		} else if (this.faction instanceof ModifyFunction) {
-			((ModifyFunction) this.faction).setTriggerFacts(facts);
 		}
 		// now we find the function
 		try {

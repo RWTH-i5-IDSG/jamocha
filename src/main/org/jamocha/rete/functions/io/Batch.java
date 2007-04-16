@@ -14,7 +14,7 @@
  * limitations under the License.
  * 
  */
-package org.jamocha.rete.functions.ruleengine;
+package org.jamocha.rete.functions.io;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -22,40 +22,33 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
-import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Iterator;
-import java.util.List;
 
 import org.jamocha.parser.EvaluationException;
+import org.jamocha.parser.Expression;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.parser.ParseException;
-import org.jamocha.parser.clips.CLIPSParser;
-import org.jamocha.rete.Deffact;
-import org.jamocha.rete.Deftemplate;
+import org.jamocha.parser.Parser;
+import org.jamocha.parser.ParserFactory;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.exception.AssertException;
 import org.jamocha.rete.functions.FunctionDescription;
 
 /**
  * @author Peter Lin
  * 
- * LoadFacts will create a new instance of CLIPSParser and load the facts in the
- * data file.
- * <p>
- * TODO This function needs to be changed to be independed of CLIPSParser and
- * use the ParserFactory instead.
- * 
+ * Loads and executes one or more given files. Files can be on a local drive or
+ * on a remote machine accessible via http or some other protocol. Returns true
+ * on success.
  */
-public class LoadFacts implements Function, Serializable {
+public class Batch implements Function, Serializable {
 
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "LoadFacts will create a new instance of CLIPSParser and load the facts in the data file. TODO This function needs to be changed to be independed of CLIPSParser and use the ParserFactory instead.";
+			return "Loads and executes one or more given files. Files can be on a local drive or on a remote machine accessible via http or some other protocol. Returns true on success.";
 		}
 
 		public int getParameterCount() {
@@ -63,11 +56,11 @@ public class LoadFacts implements Function, Serializable {
 		}
 
 		public String getParameterDescription(int parameter) {
-			return "File that contains facts that will be loaded.";
+			return "File(s) to load and execute.";
 		}
 
 		public String getParameterName(int parameter) {
-			return "factFile";
+			return "fileName";
 		}
 
 		public JamochaType[] getParameterTypes(int parameter) {
@@ -79,11 +72,11 @@ public class LoadFacts implements Function, Serializable {
 		}
 
 		public boolean isParameterCountFixed() {
-			return true;
+			return false;
 		}
 
 		public boolean isParameterOptional(int parameter) {
-			return false;
+			return (parameter > 0);
 		}
 	}
 
@@ -91,7 +84,7 @@ public class LoadFacts implements Function, Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	public static final String NAME = "load-facts";
+	public static final String NAME = "batch";
 
 	public FunctionDescription getDescription() {
 		return DESCRIPTION;
@@ -106,9 +99,9 @@ public class LoadFacts implements Function, Serializable {
 		JamochaValue result = JamochaValue.FALSE;
 		if (params != null && params.length > 0) {
 			for (int idx = 0; idx < params.length; idx++) {
-				String input = params[idx].getValue(engine).getStringValue();
-
 				try {
+					String input = params[idx].getValue(engine)
+							.getStringValue();
 					InputStream inStream;
 					// Check for a protocol indicator at the beginning of the
 					// String. If we have one use a URL.
@@ -119,44 +112,28 @@ public class LoadFacts implements Function, Serializable {
 					} else {
 						inStream = new FileInputStream(new File(input));
 					}
-					// Parser parser = ParserFactory.getParser(inStream);
-					// Expression expr = null;
-					// JamochaValue value = null;
-					// while ((expr = parser.nextExpression()) != null) {
-					// value = expr.getValue(engine);
-					// System.out.println(value.getType());
-					// }
-					CLIPSParser parser = new CLIPSParser(inStream);
-					List data = parser.loadExpr();
-					Iterator itr = data.iterator();
-					while (itr.hasNext()) {
-						Object val = itr.next();
-						JamochaValue[] vp = (JamochaValue[]) val;
-						Deftemplate tmpl = (Deftemplate) engine
-								.getCurrentFocus()
-								.getTemplate(
-										vp[0].getValue(engine).getStringValue());
-						Deffact fact = (Deffact) tmpl.createFact(
-								(Object[]) vp[1].getValue(engine)
-										.getObjectValue(), -1, engine);
-
-						engine.assertFact(fact);
-					}
+					result = this.parse(engine, inStream);
 					inStream.close();
-					result = JamochaValue.TRUE;
 				} catch (FileNotFoundException e) {
-					engine.writeMessage(e.getMessage(), "t");
-				} catch (ParseException e) {
-					engine.writeMessage(e.getMessage(), "t");
-				} catch (AssertException e) {
-					engine.writeMessage(e.getMessage(), "t");
-				} catch (MalformedURLException e) {
-					engine.writeMessage(e.getMessage(), "t");
 				} catch (IOException e) {
-					engine.writeMessage(e.getMessage(), "t");
+					throw new EvaluationException(e);
 				}
 			}
 		}
 		return result;
+	}
+
+	public JamochaValue parse(Rete engine, InputStream ins)
+			throws EvaluationException {
+		try {
+			Parser parser = ParserFactory.getParser(ins);
+			Expression expr = null;
+			while ((expr = parser.nextExpression()) != null) {
+				expr.getValue(engine);
+			}
+			return JamochaValue.TRUE;
+		} catch (ParseException e) {
+			return new JamochaValue(JamochaType.STRING, e.getMessage());
+		}
 	}
 }

@@ -138,10 +138,6 @@ public class RuleEngineFunctions implements FunctionGroup, Serializable {
 		engine.declareFunction(listTemplates);
 		funcs.add(listTemplates);
 
-		LoadFacts loadFacts = new LoadFacts();
-		engine.declareFunction(loadFacts);
-		funcs.add(loadFacts);
-
 		LoadFunctionGroup loadFunctionGroup = new LoadFunctionGroup();
 		engine.declareFunction(loadFunctionGroup);
 		funcs.add(loadFunctionGroup);

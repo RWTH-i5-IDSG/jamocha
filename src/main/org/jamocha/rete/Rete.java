@@ -39,8 +39,6 @@ import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.exception.AssertException;
 import org.jamocha.rete.exception.ExecuteException;
 import org.jamocha.rete.exception.RetractException;
-import org.jamocha.rete.functions.BatchFunction;
-import org.jamocha.rete.functions.datetime.DateTimeFunctions;
 import org.jamocha.rete.functions.DeffunctionGroup;
 import org.jamocha.rete.functions.IOFunctions;
 import org.jamocha.rete.functions.IfFunction;
@@ -48,6 +46,8 @@ import org.jamocha.rete.functions.InterpretedFunction;
 import org.jamocha.rete.functions.JavaFunctions;
 import org.jamocha.rete.functions.adaptor.AdaptorFunctions;
 import org.jamocha.rete.functions.compare.CompareFunctions;
+import org.jamocha.rete.functions.datetime.DateTimeFunctions;
+import org.jamocha.rete.functions.io.Batch;
 import org.jamocha.rete.functions.list.ListFunctions;
 import org.jamocha.rete.functions.math.MathFunctions;
 import org.jamocha.rete.functions.ruleengine.RuleEngineFunctions;
@@ -813,8 +813,7 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 	 * @throws EvaluationException
 	 */
 	public void loadRuleset(String filename) throws EvaluationException {
-		BatchFunction bf = (BatchFunction) this.functions
-				.get(BatchFunction.NAME);
+		Batch bf = (Batch) this.functions.get(Batch.NAME);
 		Parameter[] params = new Parameter[] { JamochaValue.newString(filename) };
 		bf.executeFunction(this, params);
 	}
@@ -826,8 +825,7 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 	 * @param ins
 	 */
 	public void loadRuleset(InputStream ins) {
-		BatchFunction bf = (BatchFunction) this.functions
-				.get(BatchFunction.NAME);
+		Batch bf = (Batch) this.functions.get(Batch.NAME);
 		try {
 			bf.parse(this, ins);
 		} catch (EvaluationException e) {

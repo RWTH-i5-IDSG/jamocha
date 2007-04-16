@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2006 Peter Lin
+ * Copyright 2002-2006 Peter Lin, 2007 Alexander Wilden
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://ruleml-dev.sourceforge.net/
+ *   http://www.jamocha.org/
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,17 +22,12 @@ import java.util.List;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.FunctionGroup;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.functions.Timestamp2Datetime;
 
 public class DateTimeFunctions implements FunctionGroup {
 
 	private static final long serialVersionUID = 1L;
 
 	private ArrayList<Function> funcs = new ArrayList<Function>();
-
-	public DateTimeFunctions() {
-		super();
-	}
 
 	public String getName() {
 		return (DateTimeFunctions.class.getSimpleName());
