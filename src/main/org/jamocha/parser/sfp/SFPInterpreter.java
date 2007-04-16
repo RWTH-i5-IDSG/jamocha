@@ -1,7 +1,7 @@
 package org.jamocha.parser.sfp;
 
 import java.util.ArrayList;
-import org.jamocha.parser.EvaluationException;
+
 import org.jamocha.parser.Expression;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
@@ -9,9 +9,9 @@ import org.jamocha.parser.JamochaValueUtils;
 import org.jamocha.rete.BoundParam;
 import org.jamocha.rete.Deftemplate;
 import org.jamocha.rete.ExpressionList;
+import org.jamocha.rete.ExpressionSequence;
 import org.jamocha.rete.FunctionParam2;
 import org.jamocha.rete.Parameter;
-import org.jamocha.rete.Rete;
 import org.jamocha.rete.TemplateSlot;
 import org.jamocha.rule.Condition;
 import org.jamocha.rule.Defrule;
@@ -315,11 +315,10 @@ public class SFPInterpreter implements SFPParserVisitor {
 			n.jjtAccept(this, rule);
 		}
 
-
-		
-		TemplateSlot[] s = new TemplateSlot[node.jjtGetNumChildren() - j];
+		// set the rule LHS
+		Condition[] conditionList = new Condition[node.jjtGetNumChildren() - j];
 		for (int i = j; i < node.jjtGetNumChildren(); i++) {
-			s[i - j] = (TemplateSlot) (node.jjtGetChild(i)
+			conditionList[i - j] = (Condition) (node.jjtGetChild(i)
 					.jjtAccept(this, data));
 		}
 
@@ -327,11 +326,11 @@ public class SFPInterpreter implements SFPParserVisitor {
 	}
 
 	public Object visit(SFPActionList node, Object data) {
-		ArrayList<Expression> actionList = new ArrayList<Expression>();
+		ExpressionSequence actionList = new ExpressionSequence();
 		for( int i=0 ; i<node.jjtGetNumChildren() ; i++) {
-			actionList.add((Expression)node.jjtGetChild(i).jjtAccept(this, null));
+			actionList.add((Parameter)node.jjtGetChild(i).jjtAccept(this, null));
 		}
-		return null;
+		return actionList;
 	}
 
 	public Object visit(SFPDeclaration node, Object data) {
@@ -362,12 +361,7 @@ public class SFPInterpreter implements SFPParserVisitor {
 	}
 
 	public Object visit(SFPConditionalElement node, Object data) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public Object visit(SFPBooleanFunction node, Object data) {
-		// TODO Auto-generated method stub
+		node.jjtGetChild(0).jjtAccept(this, data);
 		return null;
 	}
 
@@ -482,36 +476,42 @@ public class SFPInterpreter implements SFPParserVisitor {
 	}
 
 	public Object visit(SFPDeffunctionConstruct node, Object data) {
-		FunctionParam2 functionParam = new FunctionParam2();
-		
-		/* this is a "setup vector" for the function. the first
-		 * component is the function name, the second is the list
-		 * of variables and the third is the action
-		 */
-		Parameter[] params = new Parameter[3];
-		
-		// get function's name and put it into the new object
-		String functionName = ((JamochaValue)node.jjtGetChild(0).jjtAccept(this, data)).getStringValue();
-		functionParam.setFunctionName(functionName);
-		
-		// get function's variables
-		ArrayList<Parameter> variablesArrayList = new ArrayList<Parameter>();	
-		for ( int i=1 ; i < node.jjtGetNumChildren()-1 ; i++ ) {
-			BoundParam boundParam = (BoundParam) node.jjtGetChild(i).jjtAccept(this, data);
-			variablesArrayList.add(boundParam);
+		int j = 0;
+		// get the function name
+		JamochaValue functionName = (JamochaValue) node.jjtGetChild(j++).jjtAccept(this, data);
+
+		// get the template description
+		JamochaValue descr = JamochaValue.newString("");
+
+		Node n = node.jjtGetChild(j);
+
+		if (n != null && n instanceof SFPConstructDescription) {
+			j++;
+			descr = (JamochaValue) n.jjtAccept(this, data);
 		}
-		Parameter[] variablesArray = new Parameter[variablesArrayList.size()];
-		variablesArrayList.toArray(variablesArray) ;
+
+		// get function's variables
+		Parameter[] s = new Parameter[node.jjtGetNumChildren() - (j+1)];
+		for (int i = j; i < node.jjtGetNumChildren()-1; i++) {
+			BoundParam boundParam = (BoundParam) node.jjtGetChild(i).jjtAccept(this, data);
+			s[i - j] = boundParam;
+		}
 		
-		// get the function's action
-		ArrayList<Expression> expressions = (ArrayList<Expression>)node.jjtGetChild( node.jjtGetNumChildren()-1 ).jjtAccept(this, data);
-		Expression[] action = new Expression[expressions.size()];
-		expressions.toArray(action);
+
+		// get the function actions
+		ExpressionSequence expressions = (ExpressionSequence)node.jjtGetChild( node.jjtGetNumChildren()-1 ).jjtAccept(this, data);
 		
-		// feed the setup vector
-		params[0] = JamochaValue.newIdentifier(functionName);
-		params[1] = JamochaValue.newObject(variablesArray);
-		params[2] = JamochaValue.newObject(action);
+		
+		FunctionParam2 functionParam = new FunctionParam2();		
+		functionParam.setFunctionName(org.jamocha.rete.functions.ruleengine.Deffunction.NAME);
+		
+		Parameter[] params = new Parameter[4];		
+		
+		// setup of FunctionParams
+		params[0] = functionName;
+		params[1] = descr;
+		params[2] = JamochaValue.newObject(s);
+		params[2] = expressions;
 		
 		// put the setup vector into the functionParam-Object
 		functionParam.setParameters(params);

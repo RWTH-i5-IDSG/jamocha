@@ -2826,47 +2826,14 @@ SimpleNode ConditionalElement() :
 *		Boolean Functions
 **/
 
-SimpleNode BooleanFunction(): 
-{/*@bgen(jjtree) BooleanFunction */
-  SFPBooleanFunction jjtn000 = new SFPBooleanFunction(this, JJTBOOLEANFUNCTION);
-  boolean jjtc000 = true;
-  jjtree.openNodeScope(jjtn000);
-/*@egen*/}
-{/*@bgen(jjtree) BooleanFunction */
-        try {
-/*@egen*/
+void BooleanFunction()      : 
+{}
+{
 	(LOOKAHEAD(2)
 		NotFunction()
 	|	AndFunction()
 	|	OrFunction()	
-	)/*@bgen(jjtree)*/
-        {
-          jjtree.closeNodeScope(jjtn000, true);
-          jjtc000 = false;
-        }
-/*@egen*/
-    	
-	{ return jjtn000; }/*@bgen(jjtree)*/
-        } catch (Throwable jjte000) {
-          if (jjtc000) {
-            jjtree.clearNodeScope(jjtn000);
-            jjtc000 = false;
-          } else {
-            jjtree.popNode();
-          }
-          if (jjte000 instanceof RuntimeException) {
-            throw (RuntimeException)jjte000;
-          }
-          if (jjte000 instanceof ParseException) {
-            throw (ParseException)jjte000;
-          }
-          throw (Error)jjte000;
-        } finally {
-          if (jjtc000) {
-            jjtree.closeNodeScope(jjtn000, true);
-          }
-        }
-/*@egen*/
+	)
 }
 
 SimpleNode NotFunction():

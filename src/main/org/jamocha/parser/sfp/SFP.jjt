@@ -1421,7 +1421,7 @@ SimpleNode ConditionalElement() :
 *		Boolean Functions
 **/
 
-SimpleNode BooleanFunction(): 
+void BooleanFunction() #void: 
 {}
 {
 	(LOOKAHEAD(2)
@@ -1429,8 +1429,6 @@ SimpleNode BooleanFunction():
 	|	AndFunction()
 	|	OrFunction()	
 	)
-    	
-	{ return jjtThis; }
 }
 
 SimpleNode NotFunction():
