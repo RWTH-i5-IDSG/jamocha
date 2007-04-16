@@ -176,13 +176,7 @@ public class SFPInterpreter implements SFPParserVisitor {
 				.setFunctionName(org.jamocha.rete.functions.ruleengine.Deftemplate.NAME);
 		defTemplate
 				.setParameters(new Parameter[] { JamochaValue.newObject(tpl) });
-		try {
-			return defTemplate.getValue(engine);
-		} catch (EvaluationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return null;
-		}
+		return defTemplate;
 	}
 
 	public Object visit(SFPSingleSlotDefinition node, Object data) {
