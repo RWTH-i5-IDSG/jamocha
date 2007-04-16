@@ -78,11 +78,6 @@ public class SFPInterpreter implements SFPParserVisitor {
 		return null;
 	}
 
-	public Object visit(SFPFunctionCall node, Object data) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 	public Object visit(SFPAnyFunction node, Object data) {
 		// TODO Auto-generated method stub
 		return null;
@@ -210,13 +205,6 @@ public class SFPInterpreter implements SFPParserVisitor {
 		}
 
 		return ts;
-	}
-
-	public Object visit(SFPTemplateAttribute node, Object data) {
-		// pass on the Template slot:
-		node.jjtGetChild(0).jjtAccept(this, data);
-
-		return null;
 	}
 
 	public Object visit(SFPAttributes node, Object data) {

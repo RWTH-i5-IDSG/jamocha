@@ -29,7 +29,6 @@ public interface SFPParserVisitor
   public Object visit(SFPGlobalVariable node, Object data);
   public Object visit(SFPMultiVariable node, Object data);
   public Object visit(SFPVariableType node, Object data);
-  public Object visit(SFPFunctionCall node, Object data);
   public Object visit(SFPAnyFunction node, Object data);
   public Object visit(SFPExpression node, Object data);
   public Object visit(SFPAssertFunc node, Object data);
@@ -44,7 +43,6 @@ public interface SFPParserVisitor
   public Object visit(SFPDeftemplateConstruct node, Object data);
   public Object visit(SFPSingleSlotDefinition node, Object data);
   public Object visit(SFPMultiSlotDefinition node, Object data);
-  public Object visit(SFPTemplateAttribute node, Object data);
   public Object visit(SFPAttributes node, Object data);
   public Object visit(SFPDefaultAttribute node, Object data);
   public Object visit(SFPDefaultAttributes node, Object data);

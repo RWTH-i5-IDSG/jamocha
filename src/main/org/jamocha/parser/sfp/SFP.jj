@@ -1108,54 +1108,21 @@ SimpleNode VariableType() :
 
 // <function-call> ::= (<function-name> <expression>*)
 
-SimpleNode FunctionCall() : 
-{/*@bgen(jjtree) FunctionCall */
-  SFPFunctionCall jjtn000 = new SFPFunctionCall(this, JJTFUNCTIONCALL);
-  boolean jjtc000 = true;
-  jjtree.openNodeScope(jjtn000);
-/*@egen*/}
-{/*@bgen(jjtree) FunctionCall */
-        try {
-/*@egen*/
+void FunctionCall()      : 
+{}
+{
 	<LBRACE> 
 		(
 			AssertFunc()
 		|	RetractFunc()
-		|   FindFactByFactFunc()	
+		|   	FindFactByFactFunc()	
 		|	IfElseFunc()
 		|	WhileFunc()
 		|	LoopForCntFunc() 
 		|	AnyFunction()
 		|	SwitchCaseFunc()
 		) 
-	<RBRACE>/*@bgen(jjtree)*/
-        {
-          jjtree.closeNodeScope(jjtn000, true);
-          jjtc000 = false;
-        }
-/*@egen*/
-	
-	{ return jjtn000; }/*@bgen(jjtree)*/
-        } catch (Throwable jjte000) {
-          if (jjtc000) {
-            jjtree.clearNodeScope(jjtn000);
-            jjtc000 = false;
-          } else {
-            jjtree.popNode();
-          }
-          if (jjte000 instanceof RuntimeException) {
-            throw (RuntimeException)jjte000;
-          }
-          if (jjte000 instanceof ParseException) {
-            throw (ParseException)jjte000;
-          }
-          throw (Error)jjte000;
-        } finally {
-          if (jjtc000) {
-            jjtree.closeNodeScope(jjtn000, true);
-          }
-        }
-/*@egen*/
+	<RBRACE>
 }
 
 
@@ -1930,48 +1897,16 @@ SimpleNode MultiSlotDefinition() :
 **/
 //<template-attribute> ::= <default-attribute> | <constraint-attribute>
 
-SimpleNode TemplateAttribute() : 
-{/*@bgen(jjtree) TemplateAttribute */
-  SFPTemplateAttribute jjtn000 = new SFPTemplateAttribute(this, JJTTEMPLATEATTRIBUTE);
-  boolean jjtc000 = true;
-  jjtree.openNodeScope(jjtn000);
-/*@egen*/}
-{/*@bgen(jjtree) TemplateAttribute */
-        try {
-/*@egen*/
+void TemplateAttribute()      : 
+{}
+{
 	<LBRACE>
 	(	LOOKAHEAD(2)
 		DefaultAttribute() 
 	| 	DynamicAttribute()
 	|	ConstraintAttribute()
 	) 
-	<RBRACE>/*@bgen(jjtree)*/
-        {
-          jjtree.closeNodeScope(jjtn000, true);
-          jjtc000 = false;
-        }
-/*@egen*/
-	{ return jjtn000; }/*@bgen(jjtree)*/
-        } catch (Throwable jjte000) {
-          if (jjtc000) {
-            jjtree.clearNodeScope(jjtn000);
-            jjtc000 = false;
-          } else {
-            jjtree.popNode();
-          }
-          if (jjte000 instanceof RuntimeException) {
-            throw (RuntimeException)jjte000;
-          }
-          if (jjte000 instanceof ParseException) {
-            throw (ParseException)jjte000;
-          }
-          throw (Error)jjte000;
-        } finally {
-          if (jjtc000) {
-            jjtree.closeNodeScope(jjtn000, true);
-          }
-        }
-/*@egen*/
+	<RBRACE>
 }
 
 

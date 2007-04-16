@@ -667,14 +667,14 @@ SimpleNode VariableType() :
 
 // <function-call> ::= (<function-name> <expression>*)
 
-SimpleNode FunctionCall() : 
+void FunctionCall() #void: 
 {}
 {
 	<LBRACE> 
 		(
 			AssertFunc()
 		|	RetractFunc()
-		|   FindFactByFactFunc()	
+		|   	FindFactByFactFunc()	
 		|	IfElseFunc()
 		|	WhileFunc()
 		|	LoopForCntFunc() 
@@ -682,8 +682,6 @@ SimpleNode FunctionCall() :
 		|	SwitchCaseFunc()
 		) 
 	<RBRACE>
-	
-	{ return jjtThis; }
 }
 
 
@@ -1024,7 +1022,7 @@ SimpleNode MultiSlotDefinition() :
 **/
 //<template-attribute> ::= <default-attribute> | <constraint-attribute>
 
-SimpleNode TemplateAttribute() : 
+void TemplateAttribute() #void: 
 {}
 {
 	<LBRACE>
@@ -1034,7 +1032,6 @@ SimpleNode TemplateAttribute() :
 	|	ConstraintAttribute()
 	) 
 	<RBRACE>
-	{ return jjtThis; }
 }
 
 
