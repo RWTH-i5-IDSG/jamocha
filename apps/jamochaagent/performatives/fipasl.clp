@@ -36,7 +36,7 @@
 
 (assert 
     (agent-performative 
-        (code 16)
+        (performative "request")
         (handlerfunction "fipa-sl-request-handler")
     )
 )

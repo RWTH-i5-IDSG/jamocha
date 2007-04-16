@@ -1,7 +1,7 @@
 
 (deftemplate agent-description
     (slot name (type STRING))
-    (slot local (type STRING))
+    (slot local (type BOOLEAN))
 )
 
 (deftemplate agent-ontology
@@ -54,7 +54,7 @@
 		(user-properties ?userproperties)
 	)
 	(agent-performative 
-	    (code ?performative)
+	    (performative ?performative)
 	    (handlerfunction ?handler)
 	)
 	(test (member$ ?receiver ?receivers))
