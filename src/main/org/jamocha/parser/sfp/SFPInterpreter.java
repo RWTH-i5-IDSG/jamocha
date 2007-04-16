@@ -1,13 +1,17 @@
 package org.jamocha.parser.sfp;
 
+import java.util.ArrayList;
+import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.Expression;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.parser.JamochaValueUtils;
+import org.jamocha.rete.BoundParam;
 import org.jamocha.rete.Deftemplate;
 import org.jamocha.rete.ExpressionList;
 import org.jamocha.rete.FunctionParam2;
 import org.jamocha.rete.Parameter;
+import org.jamocha.rete.Rete;
 import org.jamocha.rete.TemplateSlot;
 import org.jamocha.rule.Condition;
 import org.jamocha.rule.Defrule;
@@ -57,8 +61,9 @@ public class SFPInterpreter implements SFPParserVisitor {
 	}
 
 	public Object visit(SFPSingleVariable node, Object data) {
-		// TODO Auto-generated method stub
-		return null;
+	    BoundParam boundParam = new BoundParam();
+	    boundParam.setVariableName(node.name);
+	    return boundParam;
 	}
 
 	public Object visit(SFPGlobalVariable node, Object data) {
@@ -322,7 +327,10 @@ public class SFPInterpreter implements SFPParserVisitor {
 	}
 
 	public Object visit(SFPActionList node, Object data) {
-		// TODO Auto-generated method stub
+		ArrayList<Expression> actionList = new ArrayList<Expression>();
+		for( int i=0 ; i<node.jjtGetNumChildren() ; i++) {
+			actionList.add((Expression)node.jjtGetChild(i).jjtAccept(this, null));
+		}
 		return null;
 	}
 
@@ -474,8 +482,41 @@ public class SFPInterpreter implements SFPParserVisitor {
 	}
 
 	public Object visit(SFPDeffunctionConstruct node, Object data) {
-		// TODO Auto-generated method stub
-		return null;
+		FunctionParam2 functionParam = new FunctionParam2();
+		
+		/* this is a "setup vector" for the function. the first
+		 * component is the function name, the second is the list
+		 * of variables and the third is the action
+		 */
+		Parameter[] params = new Parameter[3];
+		
+		// get function's name and put it into the new object
+		String functionName = ((JamochaValue)node.jjtGetChild(0).jjtAccept(this, data)).getStringValue();
+		functionParam.setFunctionName(functionName);
+		
+		// get function's variables
+		ArrayList<Parameter> variablesArrayList = new ArrayList<Parameter>();	
+		for ( int i=1 ; i < node.jjtGetNumChildren()-1 ; i++ ) {
+			BoundParam boundParam = (BoundParam) node.jjtGetChild(i).jjtAccept(this, data);
+			variablesArrayList.add(boundParam);
+		}
+		Parameter[] variablesArray = new Parameter[variablesArrayList.size()];
+		variablesArrayList.toArray(variablesArray) ;
+		
+		// get the function's action
+		ArrayList<Expression> expressions = (ArrayList<Expression>)node.jjtGetChild( node.jjtGetNumChildren()-1 ).jjtAccept(this, data);
+		Expression[] action = new Expression[expressions.size()];
+		expressions.toArray(action);
+		
+		// feed the setup vector
+		params[0] = JamochaValue.newIdentifier(functionName);
+		params[1] = JamochaValue.newObject(variablesArray);
+		params[2] = JamochaValue.newObject(action);
+		
+		// put the setup vector into the functionParam-Object
+		functionParam.setParameters(params);
+		
+		return functionParam;
 	}
 
 	public Object visit(SFPDefgenericConstruct node, Object data) {
