@@ -33,8 +33,7 @@ public class SFPParser implements/*@bgen(jjtree)*/ SFPParserTreeConstants, /*@eg
 /*@egen*/
 
         public Expression nextExpression() throws ParseException {
-          //      return Start().evaluate();
-          return null;
+         return (org.jamocha.parser.Expression)Start().jjtAccept(new SFPInterpreter(), null);
         }
 
         public static void main(String args[])
@@ -1154,9 +1153,12 @@ SimpleNode FunctionCall() :
 		(
 			AssertFunc()
 		|	RetractFunc()
-		|   	FindFactByFactFunc()	
+		|   FindFactByFactFunc()	
 		|	IfElseFunc()
+		|	WhileFunc()
+		|	LoopForCntFunc() 
 		|	AnyFunction()
+		|	SwitchCaseFunc()
 		) 
 	<RBRACE>/*@bgen(jjtree)*/
         {

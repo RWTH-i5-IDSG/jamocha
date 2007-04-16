@@ -1,7 +1,5 @@
 package org.jamocha.parser.sfp;
 
-import java.util.ArrayList;
-
 import org.jamocha.parser.Expression;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
@@ -24,7 +22,8 @@ public class SFPInterpreter implements SFPParserVisitor {
 	}
 
 	public Object visit(SFPStart node, Object data) {
-		return node.childrenAccept(this, data);
+		
+		return node.jjtGetChild(0).jjtAccept(this, data);
 	}
 
 	public Object visit(SFPFloat node, Object data) {
