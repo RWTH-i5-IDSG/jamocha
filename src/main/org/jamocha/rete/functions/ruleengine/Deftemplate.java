@@ -89,7 +89,7 @@ public class Deftemplate implements Function, Serializable {
 		JamochaValue result = JamochaValue.FALSE;
 		if (params != null && params.length == 1) {
 			JamochaValue firstParam = params[0].getValue(engine);
-			if (firstParam.getObjectValue() instanceof Deftemplate) {
+			if (firstParam.getObjectValue() instanceof org.jamocha.rete.Deftemplate) {
 				org.jamocha.rete.Deftemplate tpl = (org.jamocha.rete.Deftemplate) firstParam
 						.getObjectValue();
 				result = engine.addTemplate(tpl) ? JamochaValue.TRUE
