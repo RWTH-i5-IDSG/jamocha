@@ -93,7 +93,7 @@ public class Rules implements Function, Serializable {
 		while (itr.hasNext()) {
 			Rule r = (Rule) itr.next();
 			engine.writeMessage(
-					r.getName() + " \"" + r.getComment() + "\" salience:"
+					r.getName() + " \"" + r.getDescription() + "\" salience:"
 							+ r.getSalience() + " version:" + r.getVersion()
 							+ " no-agenda:" + r.getNoAgenda() + "\r\n", "t");
 		}

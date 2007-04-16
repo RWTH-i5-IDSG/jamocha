@@ -23,7 +23,6 @@ import java.util.List;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.FunctionGroup;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.functions.WatchFunction;
 
 /**
  * @author Peter Lin

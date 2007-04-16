@@ -1215,7 +1215,7 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
     ruleActions(actions);
     rule = new Defrule(exp.image);
     if (rulecomment != null) {
-      rule.setComment(rulecomment.image);
+      rule.setDescription(rulecomment.image);
     }
     rule.setRuleProperties(dec);
     Iterator itr = conditions.iterator();
