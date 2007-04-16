@@ -238,7 +238,7 @@ public class FunctionsPanel extends AbstractJamochaPanel implements
 				Function function = (Function) dataModel
 						.getRowAt(functionsTable.getSelectedRow());
 				if (function != null) {
-					buffer.append(ParserFactory.getFormatter().formatFunction(
+					buffer.append(ParserFactory.getFormatter(true).formatFunction(
 							function));
 					buffer.append("\n");
 				}

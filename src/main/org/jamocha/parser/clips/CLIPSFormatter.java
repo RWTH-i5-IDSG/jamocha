@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.jamocha.parser.Expression;
 import org.jamocha.parser.Formatter;
+import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.BoundParam;
 import org.jamocha.rete.Constants;
@@ -293,12 +294,35 @@ public class CLIPSFormatter implements Formatter {
 		StringBuilder sb = new StringBuilder();
 		sb.append('(');
 		sb.append(function.getName());
-//		FunctionDescription fd = function.getDescription();
-//		int paramCount = fd.getParameterCount();
-//		for (int i = 0; i < paramCount; ++i) {
-//			sb.append("(").append(fd.getParameterName(i)).append(")");
-//		}
-		sb.append(')');
+		FunctionDescription fd = function.getDescription();
+		int paramCount = fd.getParameterCount();
+		increaseIndent();
+		for (int i = 0; i < paramCount; ++i) {
+			newLine(sb);
+			if (fd.isParameterOptional(i))
+				sb.append("[");
+			else
+				sb.append("(");
+			sb.append(fd.getParameterName(i));
+			if (fd.isParameterOptional(i))
+				sb.append("]");
+			else
+				sb.append(")");
+			sb.append(" <").append(
+					formatParameterTypes(fd.getParameterTypes(i))).append(">");
+			increaseIndent();
+			newLine(sb);
+			sb.append(fd.getParameterDescription(i));
+			decreaseIndent();
+		}
+		decreaseIndent();
+		newLine(sb);
+		sb.append(")");
+		newLine(sb);
+		sb.append("returns: <").append(formatParameterTypes(fd.getReturnType())).append(">");
+		newLine(sb);
+		newLine(sb);
+		sb.append(fd.getDescription());
 		return sb.toString();
 	}
 
@@ -542,6 +566,18 @@ public class CLIPSFormatter implements Formatter {
 		buf.append(' ').append(formatExpression(condition.getFunction()));
 		buf.append(')').append(Constants.LINEBREAK);
 		return buf.toString();
+	}
+
+	private String formatParameterTypes(JamochaType[] types) {
+		StringBuilder res = new StringBuilder();
+		if (types != null) {
+			for (int i = 0; i < types.length; ++i) {
+				if (i > 0)
+					res.append("|");
+				res.append(types[i].toString());
+			}
+		}
+		return res.toString();
 	}
 
 	private void increaseIndent() {
