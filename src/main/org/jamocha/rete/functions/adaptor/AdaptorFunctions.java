@@ -45,6 +45,9 @@ public class AdaptorFunctions implements FunctionGroup {
 		JDBCLink jdbclink = new JDBCLink();
 		engine.declareFunction(jdbclink);
 		funcs.add(jdbclink);
+		JDBCLinkInit jdbclinkInit = new JDBCLinkInit();
+		engine.declareFunction(jdbclinkInit);
+		funcs.add(jdbclinkInit);
 		IteratorImporter iteratorimporter = new IteratorImporter();
 		engine.declareFunction(iteratorimporter);
 		funcs.add(iteratorimporter);
