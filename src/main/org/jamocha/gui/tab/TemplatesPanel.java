@@ -199,26 +199,27 @@ public class TemplatesPanel extends AbstractJamochaPanel implements
 				ExtTemplate template = (ExtTemplate) dataModel
 						.getRowAt(templatesTable.getSelectedRow());
 				if (template != null) {
-					buffer.append("(" + template.getModule().getModuleName()
-							+ "::" + template.getTemplate().getName());
+					buffer.append("(").append(
+							template.getModule().getModuleName()).append("::")
+							.append(template.getTemplate().getName());
 					TemplateSlot[] slots = template.getTemplate().getAllSlots();
 					for (TemplateSlot slot : slots) {
 						buffer.append("\n    (");
-						if (slot.isMultiSlot())
-							buffer.append("multislot " + slot.getName() + ")");
-						else {
-							buffer.append("slot " + slot.getName()
-									+ "\n        (type "
-									+ slot.getValueType().toString() + ")");
-							if (slot.getDefaultExpression() != null) {
-								buffer.append("\n        (default ");
-								buffer.append(ParserFactory.getFormatter()
-										.formatExpression(
-												slot.getDefaultExpression()));
-								buffer.append(")");
-							}
-							buffer.append("\n    )");
+						if (slot.isMultiSlot()) {
+							buffer.append("multislot ").append(slot.getName());
+						} else {
+							buffer.append("slot ").append(slot.getName());
 						}
+						buffer.append("\n        (type ").append(
+								slot.getValueType().toString()).append(")");
+						if (slot.getDefaultExpression() != null) {
+							buffer.append("\n        (default ");
+							buffer.append(ParserFactory.getFormatter()
+									.formatExpression(
+											slot.getDefaultExpression()));
+							buffer.append(")");
+						}
+						buffer.append("\n    )");
 					}
 					buffer.append("\n)");
 				}
