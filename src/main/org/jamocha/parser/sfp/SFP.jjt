@@ -1547,7 +1547,7 @@ SimpleNode TemplatePatternCE():
 {}
 {
     (
-    	Symbol()
+    	Symbol() //template Name
 		(	
 			LOOKAHEAD(2)
 	
@@ -1562,40 +1562,20 @@ SimpleNode TemplatePatternCE():
    { return jjtThis; }
 }
 
-//<attribute-constraint> ::= (name <constraint>) | (<slot-name> <constraint>*)
-SimpleNode AttributeConstraint() :
-{}
-{
-    <LBRACE>
-		(
-			Symbol()
-			(
-				Constraint()
-			)* 
-		)
-    <RBRACE> 
-    
-    { return jjtThis; }
-}
-
-
-
 
 //<LHS-slot> ::= <single-field-LHS-slot> | <multifield-LHS-slot>
 
-SimpleNode LHSSlot()  : 
+void LHSSlot()  #void: 
 {}
 {
     (
-    	Symbol()
+    	Symbol() //slot Name
     	
 		(
 			LOOKAHEAD(2)
 			Constraint()
 		)*
     )	
-	
-    {return jjtThis;}
 }
 
 
@@ -1635,7 +1615,7 @@ SimpleNode MultiFieldWildcard() :
 //	<single-constraint> | <connected-constraint>
 
 // THIS IS WRONG: Ampersands and lines can be mixed!!
-SimpleNode ConnectedConstraint() : 
+void ConnectedConstraint() #void: 
 {}
 {
     (
@@ -1645,8 +1625,6 @@ SimpleNode ConnectedConstraint() :
 	|	Line()
 	]
     )
-	
-    { return jjtThis; }
 }
 
 
@@ -1681,7 +1659,7 @@ SimpleNode Term()  :
 		Negation()
 	] 
     ( LOOKAHEAD(3)
-		Constant()
+	Constant()
     |	SingleVariable()
     |	MultiVariable()
     |	Colon()

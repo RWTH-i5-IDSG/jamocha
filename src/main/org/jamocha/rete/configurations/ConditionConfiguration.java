@@ -5,7 +5,7 @@ import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 
-public class ConditionConfiguration implements Parameter {
+public abstract class ConditionConfiguration implements Parameter {
 
 	public boolean isObjectBinding() {
 		// TODO Auto-generated method stub

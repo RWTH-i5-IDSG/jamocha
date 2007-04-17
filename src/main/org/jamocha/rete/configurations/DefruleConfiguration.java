@@ -14,7 +14,7 @@ public class DefruleConfiguration implements Parameter {
 	
 	DeclarationConfiguration declarationConfiguration = null;
 	
-	Parameter[] params = null;
+	ConditionConfiguration[] conditions = null;
 	
 	ExpressionSequence actions = null;
 	
@@ -61,12 +61,12 @@ public class DefruleConfiguration implements Parameter {
 		this.declarationConfiguration = declarationConfiguration;
 	}
 
-	public Parameter[] getParams() {
-		return params;
+	public ConditionConfiguration[] getConditionConfigurations() {
+		return conditions;
 	}
 
-	public void setParams(Parameter[] params) {
-		this.params = params;
+	public void seConditionConfiguration(ConditionConfiguration[] conditions) {
+		this.conditions = conditions;
 	}
 
 	public String getRuleDescription() {
