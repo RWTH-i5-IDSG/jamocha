@@ -123,7 +123,7 @@ public class FunctionsDescription implements Function, Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	public static final String NAME = "functions";
+	public static final String NAME = "functions-description";
 
 	public FunctionDescription getDescription() {
 		return DESCRIPTION;
@@ -133,6 +133,24 @@ public class FunctionsDescription implements Function, Serializable {
 		return NAME;
 	}
 
+	private String JamochaType2String(JamochaType[] t) {
+		if (t==JamochaType.BOOLEANS) return "boolean";
+		if (t==JamochaType.DATETIMES) return "datetime";
+		if (t==JamochaType.DOUBLES) return "double";
+		if (t==JamochaType.FACT_IDS) return "fact-id";
+		if (t==JamochaType.FACTS) return "facts";
+		if (t==JamochaType.IDENTIFIERS) return "identifier";
+		if (t==JamochaType.LISTS) return "list";
+		if (t==JamochaType.LONGS) return "long";
+		if (t==JamochaType.NONE) return "none";
+		if (t==JamochaType.NUMBERS) return "number";
+		if (t==JamochaType.OBJECTS) return "java-object";
+		if (t==JamochaType.PRIMITIVES) return "primitive";
+		if (t==JamochaType.SLOTS) return "slot";
+		if (t==JamochaType.STRINGS) return "string";
+		return "unknown";
+	}
+	
 	public JamochaValue executeFunction(Rete engine, Parameter[] params)
 			throws EvaluationException {
 
@@ -162,24 +180,24 @@ public class FunctionsDescription implements Function, Serializable {
 					t.addAttribute("fixedParameterCount", "false");
 				}
 				
-				t.addAttribute("returnType", desc.getReturnType().getClass().getName());
+				t.addAttribute("returnType", JamochaType2String(desc.getReturnType()));
 				
 				for( int i=0 ; i<desc.getParameterCount() ; i++) {
 					XmlTag param=new XmlTag();
 					param.setName("parameter");
 					param.addAttribute("name", desc.getParameterName(i));
 					param.addAttribute("description", desc.getParameterDescription(i));
-					param.addAttribute("type", desc.getParameterTypes(i).getClass().getName());
+					param.addAttribute("type", JamochaType2String(desc.getParameterTypes(i) ));
 					if (desc.isParameterOptional(i)) {
-						t.addAttribute("optional", "true");
+						param.addAttribute("optional", "true");
 					} else {
-						t.addAttribute("optional", "false");
+						param.addAttribute("optional", "false");
 					}
 					t.addChild(param);
 				}
 				groupTag.addChild(t);
 			}
-			
+			groupTag.appendToStringBuilder(xmlDocument);
 		}
 		xmlDocument.append("</functiongroups>");
 		
