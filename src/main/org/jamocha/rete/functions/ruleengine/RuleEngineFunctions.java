@@ -114,6 +114,10 @@ public class RuleEngineFunctions implements FunctionGroup, Serializable {
 		engine.declareFunction(fire);
 		funcs.add(fire);
 
+		FunctionsDescription fd = new FunctionsDescription();
+		engine.declareFunction(fd);
+		funcs.add(fd);
+
 		GarbageCollect garbageCollect = new GarbageCollect();
 		engine.declareFunction(garbageCollect);
 		funcs.add(garbageCollect);
