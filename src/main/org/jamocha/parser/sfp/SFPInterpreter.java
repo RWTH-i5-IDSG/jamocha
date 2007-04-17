@@ -11,7 +11,9 @@ import org.jamocha.rete.ExpressionSequence;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.TemplateSlot;
 import org.jamocha.rete.configurations.AssertConfiguration;
+import org.jamocha.rete.configurations.DeclarationConfiguration;
 import org.jamocha.rete.configurations.DeffunctionConfiguration;
+import org.jamocha.rete.configurations.DefruleConfiguration;
 import org.jamocha.rete.configurations.Signature;
 import org.jamocha.rete.configurations.SlotConfiguration;
 import org.jamocha.rule.Condition;
@@ -326,38 +328,59 @@ public class SFPInterpreter implements SFPParserVisitor {
 		ruleName = (JamochaValue) node.jjtGetChild(j++).jjtAccept(this, data);
 
 		// get the rule description
-		JamochaValue descr = null;
+		JamochaValue ruleDescription = JamochaValue.newString("");
 
 		Node n = node.jjtGetChild(j);
 
 		if (n != null && n instanceof SFPConstructDescription) {
 			j++;
-			descr = (JamochaValue) n.jjtAccept(this, data);
+			ruleDescription = (JamochaValue) n.jjtAccept(this, data);
 		}
 
-		// create the rule and set the description
-		Defrule rule = new Defrule(ruleName.getStringValue());
 
-		if (descr != null) {
-			rule.setDescription(descr.toString());
-		}
-
-		// set the rule declaration(s)
+		// get the rule declaration(s)
+		DeclarationConfiguration dc = null;
+		
 		n = node.jjtGetChild(j);
 
 		if (n != null && n instanceof SFPDeclaration) {
 			j++;
-			n.jjtAccept(this, rule);
+			dc = (DeclarationConfiguration)n.jjtAccept(this, data);
 		}
 
+		
+		//get the action list
+		int k= node.jjtGetNumChildren();
+		n = node.jjtGetChild(k-1);
+		ExpressionSequence actions = null;
+		
+		if (n != null && n instanceof SFPActionList) {
+			k--;
+			actions = (ExpressionSequence)n.jjtAccept(this, data);
+		}
+		
 		// set the rule LHS
 		Condition[] conditionList = new Condition[node.jjtGetNumChildren() - j];
-		for (int i = j; i < node.jjtGetNumChildren(); i++) {
+		for (int i = j; i < k; i++) {
 			conditionList[i - j] = (Condition) (node.jjtGetChild(i).jjtAccept(
 					this, data));
 		}
+		
+		
 
-		return null;
+		// setup a new DefruleConfiguration
+		DefruleConfiguration rc = new DefruleConfiguration();
+		rc.setRuleName(ruleName.toString());
+		rc.setRuleDescription(ruleDescription.toString());
+		rc.setDeclarationConfiguration(dc);
+		rc.setActions(actions);
+		
+		// create the resulting signature
+		Signature signature = new Signature();
+		signature.setSignatureName(org.jamocha.rete.functions.ruleengine.Assert.NAME);
+//		signature.setParameters(acArray);
+		
+		return signature;
 	}
 
 	public Object visit(SFPActionList node, Object data) {
@@ -371,31 +394,33 @@ public class SFPInterpreter implements SFPParserVisitor {
 
 	public Object visit(SFPDeclaration node, Object data) {
 
+		DeclarationConfiguration dc = new DeclarationConfiguration();
+
 		for (int i = 0; i < node.jjtGetNumChildren(); i++) {
-			node.jjtGetChild(i).jjtAccept(this, data);
+			node.jjtGetChild(i).jjtAccept(this, dc);
 		}
 
 		return null;
 	}
 
 	public Object visit(SFPSalience node, Object data) {
-		JamochaValue jv = (JamochaValue) node.jjtGetChild(0).jjtAccept(this,
-				null);
-		((Defrule) data).setSalience(jv.getLongValue());
+		// get the node's expression and set it to the DeclarationConfiguration
+		Parameter parameter = (Parameter) node.jjtGetChild(0).jjtAccept(this, null);
+		((DeclarationConfiguration) data).setSalience(parameter);
 		return null;
 	}
 
 	public Object visit(SFPAutoFocus node, Object data) {
-		JamochaValue jv = (JamochaValue) node.jjtGetChild(0).jjtAccept(this,
-				null);
-		((Defrule) data).setAutoFocus(jv.getBooleanValue());
+		// get the node's expression and set it to the DeclarationConfiguration
+		Parameter parameter = (Parameter) node.jjtGetChild(0).jjtAccept(this, null);
+		((DeclarationConfiguration) data).setAutoFocus(parameter);
 		return null;
 	}
 
 	public Object visit(SFPRuleVersion node, Object data) {
-		JamochaValue jv = (JamochaValue) node.jjtGetChild(0).jjtAccept(this,
-				null);
-		((Defrule) data).setVersion(jv.getStringValue());
+		// get the node's expression and set it to the DeclarationConfiguration
+		Parameter parameter = (Parameter) node.jjtGetChild(0).jjtAccept(this, null);
+		((DeclarationConfiguration) data).setVersion(parameter);
 		return null;
 	}
 

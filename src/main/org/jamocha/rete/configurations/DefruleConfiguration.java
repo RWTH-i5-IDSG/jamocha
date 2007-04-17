@@ -12,6 +12,8 @@ public class DefruleConfiguration implements Parameter {
 	
 	String ruleDescription = null;
 	
+	DeclarationConfiguration declarationConfiguration = null;
+	
 	Parameter[] params = null;
 	
 	ExpressionSequence actions = null;
@@ -40,5 +42,46 @@ public class DefruleConfiguration implements Parameter {
 	public JamochaValue getValue(Rete engine) throws EvaluationException {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	public ExpressionSequence getActions() {
+		return actions;
+	}
+
+	public void setActions(ExpressionSequence actions) {
+		this.actions = actions;
+	}
+
+	public DeclarationConfiguration getDeclarationConfiguration() {
+		return declarationConfiguration;
+	}
+
+	public void setDeclarationConfiguration(
+			DeclarationConfiguration declarationConfiguration) {
+		this.declarationConfiguration = declarationConfiguration;
+	}
+
+	public Parameter[] getParams() {
+		return params;
+	}
+
+	public void setParams(Parameter[] params) {
+		this.params = params;
+	}
+
+	public String getRuleDescription() {
+		return ruleDescription;
+	}
+
+	public void setRuleDescription(String ruleDescription) {
+		this.ruleDescription = ruleDescription;
+	}
+
+	public String getRuleName() {
+		return ruleName;
+	}
+
+	public void setRuleName(String ruleName) {
+		this.ruleName = ruleName;
 	}
 }
