@@ -314,6 +314,71 @@ public class Deftemplate implements Template, Serializable {
 		newfact.equalityIndex();
 		return newfact;
 	}
+		
+	public Fact createFact(SlotConfiguration[] scs, Rete engine) throws EvaluationException {
+		SlotConfiguration sc = null;
+		Slot slot = null;
+		
+		Slot[] slots = createFactSlots(engine);
+		
+		ArrayList bslots = new ArrayList();
+
+		boolean hasbinding = false;
+		for (int i = 0; i < scs.length; i++) {
+			sc = scs[i];
+			for (int j = 0; j < slots.length; j++) {
+				slot = slots[j];
+				
+				//template slots name matches SlotConfiguration Name?
+				if (slot.getName().equals(sc.getSlotName())) 
+				{
+					JamochaValue val = sc.getValue(engine);
+					//Multislot?
+					if (sc.isMultislot())
+						{
+						// check the list to see if there's any bindings
+						for (int mdx = 0; mdx < val.getListCount(); mdx++) {
+							JamochaValue v2 = val.getListValue(mdx);
+							if (v2.getType() == JamochaType.BINDING) {
+								Slot clone = (Slot) slot.clone();
+								clone.setValue(val);
+								bslots.add(clone);
+								hasbinding = true;
+								break;
+							}
+						}
+						slot.setValue(val);
+						
+						
+					} else {
+						//no multislot:
+						if (val == null) {
+							slot.setValue(JamochaValue.NIL);
+						} else if (val.getType() == JamochaType.BINDING) {
+							slot.setValue(val);
+							Slot clone = (Slot) slot.clone();
+							clone.setValue(val);
+							bslots.add(clone);
+							hasbinding = true;
+						} else {
+							slot.setValue(val);
+						}
+					}
+					break;
+				}
+			}
+		}
+		
+		Deffact newfact = new Deffact(this, null, slots, -1);
+		if (hasbinding) {
+			Slot[] slts2 = new Slot[bslots.size()];
+			newfact.boundSlots = (Slot[]) bslots.toArray(slts2);
+			newfact.hasBinding = true;
+		}
+		// we call this to create the string used to map the fact.
+		newfact.equalityIndex();
+		return newfact;
+	}
 
 	public Fact createTemporalFact(Object[] data, long id, Rete engine)
 			throws EvaluationException {

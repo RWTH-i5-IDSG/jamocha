@@ -14,7 +14,7 @@ import org.jamocha.rete.Deftemplate;
 import org.jamocha.rete.ExpressionCollection;
 import org.jamocha.rete.ExpressionSequence;
 import org.jamocha.rete.Function;
-import org.jamocha.rete.SignatureConfiguration;
+import org.jamocha.rete.Signature;
 import org.jamocha.rete.TemplateSlot;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.ParameterUtils;

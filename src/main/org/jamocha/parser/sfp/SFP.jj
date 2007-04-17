@@ -1244,13 +1244,14 @@ SimpleNode AssertFunc() :
         try {
 /*@egen*/
 	<ASSERT>
-		RHSPattern()/*@bgen(jjtree)*/
+	(
+		RHSPattern()
+	)+/*@bgen(jjtree)*/
         {
           jjtree.closeNodeScope(jjtn000, true);
           jjtc000 = false;
         }
 /*@egen*/
-	
 	{ return jjtn000; }/*@bgen(jjtree)*/
         } catch (Throwable jjte000) {
           if (jjtc000) {

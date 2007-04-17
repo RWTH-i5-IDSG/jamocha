@@ -17,7 +17,7 @@
 package org.jamocha.rule;
 
 import org.jamocha.rete.Function;
-import org.jamocha.rete.SignatureConfiguration;
+import org.jamocha.rete.Signature;
 import org.jamocha.rete.Messages;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.Slot;
@@ -125,9 +125,9 @@ public class TemplateValidation implements Analysis {
                     this.error.addMessage(NO_FUNCTION);
                     result = Analysis.VALIDATION_FAILED;
                 } else {
-                    SignatureConfiguration f = tc.getFunction();
+                    Signature f = tc.getFunction();
                     if (f.lookUpFunction(engine) == null) {
-                        addInvalidFunctionError(f.getFunctionName());
+                        addInvalidFunctionError(f.getSignatureName());
                         result = Analysis.VALIDATION_FAILED;
                     }
                 }

@@ -14,7 +14,7 @@ import org.jamocha.rete.Constants;
 import org.jamocha.rete.ConversionUtils;
 import org.jamocha.rete.ExpressionCollection;
 import org.jamocha.rete.Function;
-import org.jamocha.rete.SignatureConfiguration;
+import org.jamocha.rete.Signature;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Slot;
 import org.jamocha.rete.SlotParam;
@@ -55,8 +55,8 @@ public class CLIPSFormatter implements Formatter {
 	public String formatExpression(Expression expression) {
 		if (expression instanceof JamochaValue) {
 			return formatJamochaValue((JamochaValue) expression);
-		} else if (expression instanceof SignatureConfiguration) {
-			return formatFunctionParam((SignatureConfiguration) expression);
+		} else if (expression instanceof Signature) {
+			return formatFunctionParam((Signature) expression);
 		} else if (expression instanceof BoundParam) {
 			return formatBoundParam((BoundParam) expression);
 		} else if (expression instanceof SlotParam) {
@@ -86,22 +86,22 @@ public class CLIPSFormatter implements Formatter {
 		}
 	}
 
-	private String formatFunctionParam(SignatureConfiguration funcParam) {
-		if (funcParam.getFunctionName().equalsIgnoreCase("assert"))
+	private String formatFunctionParam(Signature funcParam) {
+		if (funcParam.getSignatureName().equalsIgnoreCase("assert"))
 			return formatFunctionParamAssert(funcParam);
-		else if (funcParam.getFunctionName().equalsIgnoreCase("deffunction"))
+		else if (funcParam.getSignatureName().equalsIgnoreCase("deffunction"))
 			return formatFunctionParamDeffunction(funcParam);
-		else if (funcParam.getFunctionName().equalsIgnoreCase("defrule"))
+		else if (funcParam.getSignatureName().equalsIgnoreCase("defrule"))
 			return formatFunctionParamDefrule(funcParam);
-		else if (funcParam.getFunctionName().equalsIgnoreCase("deftemplate"))
+		else if (funcParam.getSignatureName().equalsIgnoreCase("deftemplate"))
 			return formatFunctionParamDeftemplate(funcParam);
 		else
 			return formatFunctionParamDefault(funcParam);
 	}
 
-	private String formatFunctionParamAssert(SignatureConfiguration funcParam) {
+	private String formatFunctionParamAssert(Signature funcParam) {
 		StringBuilder res = new StringBuilder("(");
-		res.append(funcParam.getFunctionName());
+		res.append(funcParam.getSignatureName());
 		res.append(" (");
 		res.append(formatExpression(funcParam.getParameters()[0]));
 		Object[] slots = (Object[]) ((JamochaValue) funcParam.getParameters()[1])
@@ -123,9 +123,9 @@ public class CLIPSFormatter implements Formatter {
 		return res.toString();
 	}
 
-	private String formatFunctionParamDeffunction(SignatureConfiguration funcParam) {
+	private String formatFunctionParamDeffunction(Signature funcParam) {
 		StringBuilder res = new StringBuilder("(");
-		res.append(funcParam.getFunctionName());
+		res.append(funcParam.getSignatureName());
 		Parameter[] params = funcParam.getParameters();
 		res.append(" " + formatExpression(params[0]));
 		Parameter[] defFuncParams = (Parameter[]) ((JamochaValue) params[1])
@@ -147,14 +147,14 @@ public class CLIPSFormatter implements Formatter {
 		return res.toString();
 	}
 
-	private String formatFunctionParamDefrule(SignatureConfiguration funcParam) {
+	private String formatFunctionParamDefrule(Signature funcParam) {
 		return formatRule((Rule) ((JamochaValue) funcParam.getParameters()[0])
 				.getObjectValue());
 	}
 
-	private String formatFunctionParamDeftemplate(SignatureConfiguration funcParam) {
+	private String formatFunctionParamDeftemplate(Signature funcParam) {
 		StringBuilder res = new StringBuilder("(");
-		res.append(funcParam.getFunctionName());
+		res.append(funcParam.getSignatureName());
 		Template template = (Template) ((JamochaValue) funcParam
 				.getParameters()[0]).getObjectValue();
 		res.append(" ");
@@ -193,9 +193,9 @@ public class CLIPSFormatter implements Formatter {
 		return res.toString();
 	}
 
-	private String formatFunctionParamDefault(SignatureConfiguration funcParam) {
+	private String formatFunctionParamDefault(Signature funcParam) {
 		StringBuilder res = new StringBuilder("(");
-		res.append(funcParam.getFunctionName());
+		res.append(funcParam.getSignatureName());
 		Parameter[] params = funcParam.getParameters();
 		int lineLength = res.length();
 		if (params != null) {

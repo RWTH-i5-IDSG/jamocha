@@ -24,7 +24,7 @@ import org.jamocha.rete.Deftemplate;
 import org.jamocha.rete.ExpressionCollection;
 import org.jamocha.rete.ExpressionSequence;
 import org.jamocha.rete.Function;
-import org.jamocha.rete.SignatureConfiguration;
+import org.jamocha.rete.Signature;
 import org.jamocha.rete.TemplateSlot;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.ParameterUtils;
@@ -245,8 +245,8 @@ Expression nextExpression() :
   Expression exp = null;
   Token obj = null;
   BoundParam bp = null;
-  SignatureConfiguration func = null;
-  SignatureConfiguration functionParam = null;
+  Signature func = null;
+  Signature functionParam = null;
 }
 {
   obj = getBindType()
@@ -328,7 +328,7 @@ JamochaValue typeExpr() :
   }
 }
 
-SignatureConfiguration expr() :
+Signature expr() :
 {
   Token exp = null;
   Token exp2 = null;
@@ -336,7 +336,7 @@ SignatureConfiguration expr() :
   String body;
   Deftemplate templ;
   Defrule rule;
-  SignatureConfiguration func;
+  Signature func;
   ArrayList list = new ArrayList();
   JamochaValue[] pms;
   ExpressionSequence infunc = new ExpressionSequence();
@@ -345,7 +345,7 @@ SignatureConfiguration expr() :
   exp = <ASSERT> <LBRACE> exp2 = <IDENTIFIER>
   (assertContents(list))+ <RBRACE>
   {
-    func = new SignatureConfiguration(exp.image);
+    func = new Signature(exp.image);
     pms = new JamochaValue[2];
     pms[0] = JamochaValue.newIdentifier(exp2.image);
     pms[1] = JamochaValue.newObject(list.toArray());
@@ -358,7 +358,7 @@ SignatureConfiguration expr() :
   exp = <ASSERTTEMPORAL> <LBRACE> exp2 = <IDENTIFIER>
   (assertContents(list))+ <RBRACE>
   {
-    func = new SignatureConfiguration(exp.image);
+    func = new Signature(exp.image);
     pms = new JamochaValue[2];
     pms[0] = JamochaValue.newIdentifier(exp2.image);
     pms[1] = JamochaValue.newObject(list.toArray());
@@ -370,7 +370,7 @@ SignatureConfiguration expr() :
 |
   exp = <RETRACT> (exp2 = <BIND> | exp2 = <INTEGER_LITERAL>)
   {
-    func = new SignatureConfiguration(exp.image);
+    func = new Signature(exp.image);
     Parameter[] rpms = new Parameter[1];
     if (exp2.image.startsWith("?")) {
       BoundParam bp = new BoundParam();
@@ -390,7 +390,7 @@ SignatureConfiguration expr() :
 |
   exp = <MODIFY> exp2 = <BIND> assertContents(list)
   {
-    func = new SignatureConfiguration(exp.image);
+    func = new Signature(exp.image);
     BoundParam bp = new BoundParam();
     bp.setVariableName(exp2.image);
     list.add(0,bp);
@@ -403,7 +403,7 @@ SignatureConfiguration expr() :
   exp = <DEFTEMPLATE>
   templ = templateExpr()
   {
-    func = new SignatureConfiguration(exp.image);
+    func = new Signature(exp.image);
     pms = new JamochaValue[1];
     pms[0] = JamochaValue.newObject(templ);
     func.setParameters(pms);
@@ -413,7 +413,7 @@ SignatureConfiguration expr() :
   exp = <DEFMODULE>
   body = getIdentifier()
   {
-    func = new SignatureConfiguration(exp.image);
+    func = new Signature(exp.image);
     pms = new JamochaValue[1];
     pms[0] = JamochaValue.newIdentifier(body);
     func.setParameters(pms);
@@ -423,7 +423,7 @@ SignatureConfiguration expr() :
   exp = <DEFRULE>
   rule = ruleBody() 
   {
-    func = new SignatureConfiguration(exp.image);
+    func = new Signature(exp.image);
     pms = new JamochaValue[1];
     pms[0] = JamochaValue.newObject(rule);
     func.setParameters(pms);
@@ -432,7 +432,7 @@ SignatureConfiguration expr() :
 |
   exp = <DEFCLASS> ((valueParams(list))+)?
   {
-    func = new SignatureConfiguration(exp.image);
+    func = new Signature(exp.image);
     func.setParameters(ParameterUtils.convertParameters(list));
     list.clear();
     return func;
@@ -443,7 +443,7 @@ SignatureConfiguration expr() :
   ((bindingParams(list))+)? <RBRACE> (exp3 = <STRING_LITERAL>)? (<LBRACE>
   (ruleAction(infunc))? <RBRACE>)+
   {
-    func = new SignatureConfiguration(exp.image);
+    func = new Signature(exp.image);
     List parameters = new ArrayList();
     parameters.add(JamochaValue.newIdentifier(exp2.image));
     parameters.add(JamochaValue.newObject(ParameterUtils.convertParameters(list)));
@@ -458,7 +458,7 @@ SignatureConfiguration expr() :
   // example: (bind ?*x* 9)
   <BINDING> exp = getBindType() (valueParams(list))+
   {
-    func = new SignatureConfiguration("bind");
+    func = new Signature("bind");
     list.add(0,JamochaValue.newIdentifier(exp.image.substring(1)));
     func.setParameters(ParameterUtils.convertParameters(list));
     list.clear();
@@ -480,7 +480,7 @@ SignatureConfiguration expr() :
    exp = <GE1>|
    exp = <GE2>) (valueParams(list))+
   {
-    func = new SignatureConfiguration(exp.image);
+    func = new Signature(exp.image);
     func.setParameters(ParameterUtils.convertParameters(list));
     list.clear();
     return func;
@@ -488,7 +488,7 @@ SignatureConfiguration expr() :
 |
   exp = <IDENTIFIER> ((valueParams(list))+)?
   {
-    func = new SignatureConfiguration(exp.image);
+    func = new Signature(exp.image);
     func.setParameters(ParameterUtils.convertParameters(list));
     list.clear();
     return func;
@@ -504,7 +504,7 @@ void valueParams(List list) :
 {
   LOOKAHEAD(<LBRACE>)<LBRACE>exp = expr()<RBRACE>
   {
-    SignatureConfiguration subfunc = (SignatureConfiguration)exp;
+    Signature subfunc = (Signature)exp;
     list.add(subfunc);
   }
 |
@@ -918,9 +918,9 @@ Defrule ruleBody() :
     
     for(int i=0;i<actions.size();++i){
       Expression acn = actions.get(i);
-      if (acn instanceof SignatureConfiguration) {
+      if (acn instanceof Signature) {
         FunctionAction faction = new FunctionAction();
-        faction.setFunction((SignatureConfiguration)acn);
+        faction.setFunction((Signature)acn);
         rule.addAction(faction);
       } else if (acn instanceof Action) {
         rule.addAction( (Action)acn );
@@ -1141,7 +1141,7 @@ void conditionElement(List list) :
 void CEType(List list) :
 {
   Token exp;
-  SignatureConfiguration nested = null;
+  Signature nested = null;
   List alpha = new ArrayList();
   ObjectCondition oc = null;
 }

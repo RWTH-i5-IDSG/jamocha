@@ -16,7 +16,7 @@ import org.jamocha.rete.Deftemplate;
 import org.jamocha.rete.ExpressionCollection;
 import org.jamocha.rete.ExpressionSequence;
 import org.jamocha.rete.Function;
-import org.jamocha.rete.SignatureConfiguration;
+import org.jamocha.rete.Signature;
 import org.jamocha.rete.TemplateSlot;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.ParameterUtils;
@@ -68,8 +68,8 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
   Expression exp = null;
   Token obj = null;
   BoundParam bp = null;
-  SignatureConfiguration func = null;
-  SignatureConfiguration functionParam = null;
+  Signature func = null;
+  Signature functionParam = null;
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case BIND:
     case BIND3:
@@ -160,14 +160,14 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
     throw new Error("Missing return statement in function");
   }
 
-  final public SignatureConfiguration expr() throws ParseException {
+  final public Signature expr() throws ParseException {
   Token exp = null;
   Token exp2 = null;
   Token exp3 = null;
   String body;
   Deftemplate templ;
   Defrule rule;
-  SignatureConfiguration func;
+  Signature func;
   ArrayList list = new ArrayList();
   JamochaValue[] pms;
   ExpressionSequence infunc = new ExpressionSequence();
@@ -189,7 +189,7 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
         }
       }
       jj_consume_token(RBRACE);
-    func = new SignatureConfiguration(exp.image);
+    func = new Signature(exp.image);
     pms = new JamochaValue[2];
     pms[0] = JamochaValue.newIdentifier(exp2.image);
     pms[1] = JamochaValue.newObject(list.toArray());
@@ -215,7 +215,7 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
         }
       }
       jj_consume_token(RBRACE);
-    func = new SignatureConfiguration(exp.image);
+    func = new Signature(exp.image);
     pms = new JamochaValue[2];
     pms[0] = JamochaValue.newIdentifier(exp2.image);
     pms[1] = JamochaValue.newObject(list.toArray());
@@ -238,7 +238,7 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
         jj_consume_token(-1);
         throw new ParseException();
       }
-    func = new SignatureConfiguration(exp.image);
+    func = new Signature(exp.image);
     Parameter[] rpms = new Parameter[1];
     if (exp2.image.startsWith("?")) {
       BoundParam bp = new BoundParam();
@@ -259,7 +259,7 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
       exp = jj_consume_token(MODIFY);
       exp2 = jj_consume_token(BIND);
       assertContents(list);
-    func = new SignatureConfiguration(exp.image);
+    func = new Signature(exp.image);
     BoundParam bp = new BoundParam();
     bp.setVariableName(exp2.image);
     list.add(0,bp);
@@ -271,7 +271,7 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
     case DEFTEMPLATE:
       exp = jj_consume_token(DEFTEMPLATE);
       templ = templateExpr();
-    func = new SignatureConfiguration(exp.image);
+    func = new Signature(exp.image);
     pms = new JamochaValue[1];
     pms[0] = JamochaValue.newObject(templ);
     func.setParameters(pms);
@@ -280,7 +280,7 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
     case DEFMODULE:
       exp = jj_consume_token(DEFMODULE);
       body = getIdentifier();
-    func = new SignatureConfiguration(exp.image);
+    func = new Signature(exp.image);
     pms = new JamochaValue[1];
     pms[0] = JamochaValue.newIdentifier(body);
     func.setParameters(pms);
@@ -289,7 +289,7 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
     case DEFRULE:
       exp = jj_consume_token(DEFRULE);
       rule = ruleBody();
-    func = new SignatureConfiguration(exp.image);
+    func = new Signature(exp.image);
     pms = new JamochaValue[1];
     pms[0] = JamochaValue.newObject(rule);
     func.setParameters(pms);
@@ -340,7 +340,7 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
         jj_la1[7] = jj_gen;
         ;
       }
-    func = new SignatureConfiguration(exp.image);
+    func = new Signature(exp.image);
     func.setParameters(ParameterUtils.convertParameters(list));
     list.clear();
     {if (true) return func;}
@@ -426,7 +426,7 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
           break label_6;
         }
       }
-    func = new SignatureConfiguration(exp.image);
+    func = new Signature(exp.image);
     List parameters = new ArrayList();
     parameters.add(JamochaValue.newIdentifier(exp2.image));
     parameters.add(JamochaValue.newObject(ParameterUtils.convertParameters(list)));
@@ -464,7 +464,7 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
           break label_7;
         }
       }
-    func = new SignatureConfiguration("bind");
+    func = new Signature("bind");
     list.add(0,JamochaValue.newIdentifier(exp.image.substring(1)));
     func.setParameters(ParameterUtils.convertParameters(list));
     list.clear();
@@ -556,7 +556,7 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
           break label_8;
         }
       }
-    func = new SignatureConfiguration(exp.image);
+    func = new Signature(exp.image);
     func.setParameters(ParameterUtils.convertParameters(list));
     list.clear();
     {if (true) return func;}
@@ -606,7 +606,7 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
         jj_la1[17] = jj_gen;
         ;
       }
-    func = new SignatureConfiguration(exp.image);
+    func = new Signature(exp.image);
     func.setParameters(ParameterUtils.convertParameters(list));
     list.clear();
     {if (true) return func;}
@@ -627,7 +627,7 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
       jj_consume_token(LBRACE);
       exp = expr();
       jj_consume_token(RBRACE);
-    SignatureConfiguration subfunc = (SignatureConfiguration)exp;
+    Signature subfunc = (Signature)exp;
     list.add(subfunc);
     } else {
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
@@ -1225,9 +1225,9 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
 
     for(int i=0;i<actions.size();++i){
       Expression acn = actions.get(i);
-      if (acn instanceof SignatureConfiguration) {
+      if (acn instanceof Signature) {
         FunctionAction faction = new FunctionAction();
-        faction.setFunction((SignatureConfiguration)acn);
+        faction.setFunction((Signature)acn);
         rule.addAction(faction);
       } else if (acn instanceof Action) {
         rule.addAction( (Action)acn );
@@ -1461,7 +1461,7 @@ public class CLIPSParser implements Parser, CLIPSParserConstants {
 
   final public void CEType(List list) throws ParseException {
   Token exp;
-  SignatureConfiguration nested = null;
+  Signature nested = null;
   List alpha = new ArrayList();
   ObjectCondition oc = null;
     if (jj_2_22(2147483647)) {
