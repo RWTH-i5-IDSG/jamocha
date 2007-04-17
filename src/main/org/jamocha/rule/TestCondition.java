@@ -22,7 +22,7 @@ import java.util.List;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.BaseNode;
-import org.jamocha.rete.FunctionParam2;
+import org.jamocha.rete.SignatureConfiguration;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.TestNode;
@@ -37,7 +37,7 @@ import org.jamocha.rete.TestNode;
  */
 public class TestCondition implements Condition {
 
-    protected FunctionParam2 func = null;
+    protected SignatureConfiguration func = null;
     protected TestNode node = null;
     protected ArrayList binds = new ArrayList();
     protected boolean negated = false;
@@ -49,15 +49,15 @@ public class TestCondition implements Condition {
 		super();
 	}
 
-    public TestCondition(FunctionParam2 function) {
+    public TestCondition(SignatureConfiguration function) {
         this.func = function;
     }
     
-    public FunctionParam2 getFunction() {
+    public SignatureConfiguration getFunction() {
         return this.func;
     }
     
-    public void setFunction(FunctionParam2 function) {
+    public void setFunction(SignatureConfiguration function) {
         this.func = function;
     }
     

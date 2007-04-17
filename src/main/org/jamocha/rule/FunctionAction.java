@@ -25,7 +25,7 @@ import org.jamocha.rete.BoundParam;
 import org.jamocha.rete.Deffact;
 import org.jamocha.rete.Fact;
 import org.jamocha.rete.Function;
-import org.jamocha.rete.FunctionParam2;
+import org.jamocha.rete.SignatureConfiguration;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.Template;
@@ -57,7 +57,7 @@ public class FunctionAction implements Action {
 		return this.faction;
 	}
 
-	public void setFunction(FunctionParam2 func) {
+	public void setFunction(SignatureConfiguration func) {
 		this.functionName = func.getFunctionName();
 		this.parameters = func.getParameters();
 	}
@@ -97,8 +97,8 @@ public class FunctionAction implements Action {
 					bp.setRow(bd.getLeftRow());
 					bp.setColumn(bd.getLeftIndex());
 				}
-			} else if (this.parameters[idx] instanceof FunctionParam2) {
-				FunctionParam2 fp2 = (FunctionParam2) this.parameters[idx];
+			} else if (this.parameters[idx] instanceof SignatureConfiguration) {
+				SignatureConfiguration fp2 = (SignatureConfiguration) this.parameters[idx];
 				fp2.configure(engine, util);
 			} else if (this.parameters[idx] instanceof JamochaValue) {
 				// if the value is a deffact, we need to check and make sure

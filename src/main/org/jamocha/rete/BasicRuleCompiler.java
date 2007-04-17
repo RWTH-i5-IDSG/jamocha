@@ -669,7 +669,7 @@ public class BasicRuleCompiler implements RuleCompiler {
 				if (cdt instanceof TestCondition) {
 
 					TestCondition tc = (TestCondition) cdt;
-					FunctionParam2 fn = (FunctionParam2) tc.getFunction();
+					SignatureConfiguration fn = (SignatureConfiguration) tc.getFunction();
 					Expression[] oldpm = fn.getParameters();
 					Parameter[] pms = new Parameter[oldpm.length];
 					for (int ipm = 0; ipm < pms.length; ipm++) {

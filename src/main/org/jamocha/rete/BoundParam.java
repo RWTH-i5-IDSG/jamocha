@@ -26,7 +26,7 @@ import org.jamocha.parser.ParserFactory;
  * BoundParam is a parameter that is a binding. The test node will need to
  * call setFact(Fact[] facts) so the parameter can access the value.
  */
-public class BoundParam extends AbstractParam {
+public class BoundParam extends AbstractSignature {
 
     /**
 	 * 
