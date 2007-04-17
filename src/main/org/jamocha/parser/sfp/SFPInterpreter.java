@@ -8,7 +8,7 @@ import org.jamocha.rete.BoundParam;
 import org.jamocha.rete.Deftemplate;
 import org.jamocha.rete.ExpressionList;
 import org.jamocha.rete.ExpressionSequence;
-import org.jamocha.rete.FunctionParam2;
+import org.jamocha.rete.SignatureConfiguration;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.TemplateSlot;
 import org.jamocha.rule.Condition;
@@ -91,7 +91,7 @@ public class SFPInterpreter implements SFPParserVisitor {
 	    params[i - 1] = (Parameter) node.jjtGetChild(i).jjtAccept(this, data);
 	}
 	// create FunctionParam as result:
-	FunctionParam2 funcParam = new FunctionParam2();
+	SignatureConfiguration funcParam = new SignatureConfiguration();
 	funcParam.setFunctionName(fktName.getStringValue());
 	funcParam.setParameters(params);
 	return funcParam;
@@ -111,7 +111,7 @@ public class SFPInterpreter implements SFPParserVisitor {
 	expr.toArray(params);
 
 	// create FunctionParam as result:
-	FunctionParam2 funcParam = new FunctionParam2();
+	SignatureConfiguration funcParam = new SignatureConfiguration();
 	funcParam.setFunctionName(org.jamocha.rete.functions.ruleengine.Assert.NAME);
 	funcParam.setParameters(params);
 	return funcParam;
@@ -185,7 +185,7 @@ public class SFPInterpreter implements SFPParserVisitor {
 	    tpl.setDescription(descr.toString());
 	}
 
-	FunctionParam2 defTemplate = new FunctionParam2();
+	SignatureConfiguration defTemplate = new SignatureConfiguration();
 
 	defTemplate.setFunctionName(org.jamocha.rete.functions.ruleengine.Deftemplate.NAME);
 	defTemplate.setParameters(new Parameter[] { JamochaValue.newObject(tpl) });
@@ -520,7 +520,7 @@ public class SFPInterpreter implements SFPParserVisitor {
 	ExpressionSequence expressions = (ExpressionSequence) node.jjtGetChild(
 		node.jjtGetNumChildren() - 1).jjtAccept(this, data);
 
-	FunctionParam2 functionParam = new FunctionParam2();
+	SignatureConfiguration functionParam = new SignatureConfiguration();
 	functionParam.setFunctionName(org.jamocha.rete.functions.ruleengine.Deffunction.NAME);
 
 	Parameter[] params = new Parameter[4];

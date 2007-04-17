@@ -14,7 +14,7 @@ import org.jamocha.rete.Constants;
 import org.jamocha.rete.ConversionUtils;
 import org.jamocha.rete.ExpressionCollection;
 import org.jamocha.rete.Function;
-import org.jamocha.rete.FunctionParam2;
+import org.jamocha.rete.SignatureConfiguration;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Slot;
 import org.jamocha.rete.SlotParam;
@@ -55,8 +55,8 @@ public class CLIPSFormatter implements Formatter {
 	public String formatExpression(Expression expression) {
 		if (expression instanceof JamochaValue) {
 			return formatJamochaValue((JamochaValue) expression);
-		} else if (expression instanceof FunctionParam2) {
-			return formatFunctionParam((FunctionParam2) expression);
+		} else if (expression instanceof SignatureConfiguration) {
+			return formatFunctionParam((SignatureConfiguration) expression);
 		} else if (expression instanceof BoundParam) {
 			return formatBoundParam((BoundParam) expression);
 		} else if (expression instanceof SlotParam) {
@@ -86,7 +86,7 @@ public class CLIPSFormatter implements Formatter {
 		}
 	}
 
-	private String formatFunctionParam(FunctionParam2 funcParam) {
+	private String formatFunctionParam(SignatureConfiguration funcParam) {
 		if (funcParam.getFunctionName().equalsIgnoreCase("assert"))
 			return formatFunctionParamAssert(funcParam);
 		else if (funcParam.getFunctionName().equalsIgnoreCase("deffunction"))
@@ -99,7 +99,7 @@ public class CLIPSFormatter implements Formatter {
 			return formatFunctionParamDefault(funcParam);
 	}
 
-	private String formatFunctionParamAssert(FunctionParam2 funcParam) {
+	private String formatFunctionParamAssert(SignatureConfiguration funcParam) {
 		StringBuilder res = new StringBuilder("(");
 		res.append(funcParam.getFunctionName());
 		res.append(" (");
@@ -123,7 +123,7 @@ public class CLIPSFormatter implements Formatter {
 		return res.toString();
 	}
 
-	private String formatFunctionParamDeffunction(FunctionParam2 funcParam) {
+	private String formatFunctionParamDeffunction(SignatureConfiguration funcParam) {
 		StringBuilder res = new StringBuilder("(");
 		res.append(funcParam.getFunctionName());
 		Parameter[] params = funcParam.getParameters();
@@ -147,12 +147,12 @@ public class CLIPSFormatter implements Formatter {
 		return res.toString();
 	}
 
-	private String formatFunctionParamDefrule(FunctionParam2 funcParam) {
+	private String formatFunctionParamDefrule(SignatureConfiguration funcParam) {
 		return formatRule((Rule) ((JamochaValue) funcParam.getParameters()[0])
 				.getObjectValue());
 	}
 
-	private String formatFunctionParamDeftemplate(FunctionParam2 funcParam) {
+	private String formatFunctionParamDeftemplate(SignatureConfiguration funcParam) {
 		StringBuilder res = new StringBuilder("(");
 		res.append(funcParam.getFunctionName());
 		Template template = (Template) ((JamochaValue) funcParam
@@ -193,7 +193,7 @@ public class CLIPSFormatter implements Formatter {
 		return res.toString();
 	}
 
-	private String formatFunctionParamDefault(FunctionParam2 funcParam) {
+	private String formatFunctionParamDefault(SignatureConfiguration funcParam) {
 		StringBuilder res = new StringBuilder("(");
 		res.append(funcParam.getFunctionName());
 		Parameter[] params = funcParam.getParameters();
