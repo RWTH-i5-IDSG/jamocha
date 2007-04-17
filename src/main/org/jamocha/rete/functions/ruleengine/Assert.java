@@ -24,10 +24,12 @@ import org.jamocha.parser.IllegalTypeException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Deffact;
+import org.jamocha.rete.ExpressionList;
 import org.jamocha.rete.Fact;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
+import org.jamocha.rete.Slot;
 import org.jamocha.rete.Template;
 import org.jamocha.rete.functions.FunctionDescription;
 
@@ -40,94 +42,116 @@ import org.jamocha.rete.functions.FunctionDescription;
  */
 public class Assert implements Function, Serializable {
 
-	private static final class Description implements FunctionDescription {
+    private static final class Description implements FunctionDescription {
 
-		public String getDescription() {
-			return "The assert action allows the user to add a fact to the fact-list. Multiple facts may be asserted with each call. If the facts item is being watched, then an informational message will be printed each time a fact is asserted.";
-		}
-
-		public int getParameterCount() {
-			return 1;
-		}
-
-		public String getParameterDescription(int parameter) {
-			return "RHS of an assert.";
-		}
-
-		public String getParameterName(int parameter) {
-			return "rhs";
-		}
-
-		public JamochaType[] getParameterTypes(int parameter) {
-			return JamochaType.ANY;
-		}
-
-		public JamochaType[] getReturnType() {
-			return JamochaType.FACT_IDS;
-		}
-
-		public boolean isParameterCountFixed() {
-			return false;
-		}
-
-		public boolean isParameterOptional(int parameter) {
-			return false;
-		}
+	public String getDescription() {
+	    return "The assert action allows the user to add a fact to the fact-list. Multiple facts may be asserted with each call. If the facts item is being watched, then an informational message will be printed each time a fact is asserted.";
 	}
 
-	private static final FunctionDescription DESCRIPTION = new Description();
-
-	private static final long serialVersionUID = 1L;
-
-	public static final String NAME = "assert";
-
-	protected Fact[] triggerFacts = null;
-
-	public FunctionDescription getDescription() {
-		return DESCRIPTION;
+	public int getParameterCount() {
+	    return 1;
 	}
 
-	public String getName() {
-		return NAME;
+	public String getParameterDescription(int parameter) {
+	    return "RHS of an assert.";
 	}
 
-	public void setTriggerFacts(Fact[] facts) {
-		this.triggerFacts = facts;
+	public String getParameterName(int parameter) {
+	    return "rhs";
 	}
 
-	public JamochaValue executeFunction(Rete engine, Parameter[] params)
-			throws EvaluationException {
-		JamochaValue result = JamochaValue.FALSE;
-		if (params.length > 0) {
-			Deffact fact = null;
-			JamochaValue firstParam = params[0].getValue(engine);
-			if (firstParam.getType().equals(JamochaType.IDENTIFIER)) {
-				JamochaValue secondParam = params[1].getValue(engine);
-				Template tmpl = (Template) engine.getCurrentFocus()
-						.getTemplate(firstParam.getIdentifierValue());
-				fact = (Deffact) tmpl.createFact((Object[]) secondParam
-						.getObjectValue(), -1, engine);
-			} else if (firstParam.getType().equals(JamochaType.FACT)) {
-				fact = (Deffact) firstParam.getFactValue();
+	public JamochaType[] getParameterTypes(int parameter) {
+	    return JamochaType.ANY;
+	}
+
+	public JamochaType[] getReturnType() {
+	    return JamochaType.FACT_IDS;
+	}
+
+	public boolean isParameterCountFixed() {
+	    return false;
+	}
+
+	public boolean isParameterOptional(int parameter) {
+	    return false;
+	}
+    }
+
+    private static final FunctionDescription DESCRIPTION = new Description();
+
+    private static final long serialVersionUID = 1L;
+
+    public static final String NAME = "assert";
+
+    protected Fact[] triggerFacts = null;
+
+    public FunctionDescription getDescription() {
+	return DESCRIPTION;
+    }
+
+    public String getName() {
+	return NAME;
+    }
+
+    public void setTriggerFacts(Fact[] facts) {
+	this.triggerFacts = facts;
+    }
+
+    public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
+	JamochaValue result = JamochaValue.FALSE;
+	if (params.length > 0) {
+	    Deffact fact = null;
+	    JamochaValue firstParam = params[0].getValue(engine);
+	    if (firstParam.getType().equals(JamochaType.IDENTIFIER)) {
+		Template tmpl = (Template) engine.getCurrentFocus().getTemplate(
+			firstParam.getIdentifierValue());
+
+		Object[] data = null;
+		// jamocha.list?
+		if (params.length == 1 && params[1] instanceof JamochaValue) {
+		    data = (Object[]) params[1].getValue(engine).getObjectValue();
+		}
+		// all other parameters are slot values: (slots
+		// have to be created)
+		{
+		    ExpressionList list = null;
+		    String slotName = null;
+		    data = new Object[params.length - 1];
+		    for (int i = 1; i < params.length; i++) {
+			list = (ExpressionList) params[i];
+			slotName = list.get(0).getValue(engine).getStringValue();
+			if (list.size() == 2) {
+			    // single slot:
+			    data[i - 1] = new Slot(slotName, list.get(1).getValue(engine));
 			} else {
-				throw new IllegalTypeException(new JamochaType[] {
-						JamochaType.FACT, JamochaType.IDENTIFIER }, firstParam
-						.getType());
+			    // mutli Slot:
+			    // data[i-1] = new MultiSlot(slotName, )
 			}
-			if (fact.hasBinding()) {
-				fact.resolveValues(engine, this.triggerFacts);
-				fact = fact.cloneFact(engine);
-			}
-			Fact assertedFact = engine.assertFact(fact);
-			// if the fact id is still -1, it means it wasn't asserted
-			// if it was asserted, we return the fact id, otherwise
-			// we return "false".
-			if (assertedFact == fact) {
-				result = JamochaValue.newFactId(fact.getFactId());
-			}
-		} else {
-			throw new IllegalParameterException(1);
+		    }
 		}
-		return result;
+
+		fact = (Deffact) tmpl.createFact(data, -1, engine);
+	    } else if (firstParam.getType().equals(JamochaType.FACT)) {
+		fact = (Deffact) firstParam.getFactValue();
+	    } else {
+		throw new IllegalTypeException(new JamochaType[] { JamochaType.FACT,
+			JamochaType.IDENTIFIER }, firstParam.getType());
+	    }
+	    if (fact.hasBinding()) {
+		fact.resolveValues(engine, this.triggerFacts);
+		fact = fact.cloneFact(engine);
+	    }
+	    Fact assertedFact = engine.assertFact(fact);
+	    // if the fact id is still -1, it means it wasn't
+	    // asserted
+	    // if it was asserted, we return the fact id, otherwise
+	    // we return "false".
+	    if (assertedFact == fact) {
+		result = JamochaValue.newFactId(fact.getFactId());
+	    }
+	} else {
+	    throw new IllegalParameterException(1);
 	}
+	return result;
+    }
 }

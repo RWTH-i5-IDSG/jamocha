@@ -28,6 +28,10 @@ public abstract class ExpressionCollection implements Parameter {
 	public Parameter get(int index) {
 		return parameterList.get(index);
 	}
+	
+	public void toArray(Parameter[] params){
+	    parameterList.toArray(params);
+	}
 
 	public int size() {
 		return parameterList.size();

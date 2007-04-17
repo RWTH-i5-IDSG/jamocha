@@ -79,15 +79,18 @@ public class SFPInterpreter implements SFPParserVisitor {
     }
 
     public Object visit(SFPAnyFunction node, Object data) {
-	//this function is a little bit diffrent to the others. funktion name is stored id the
-	//frist childnode. all other subnode are handled as paramters for the function call
+	// this function is a little bit diffrent to the others. funktion name
+	// is stored id the
+	// frist childnode. all other subnode are handled as paramters for the
+	// function call
 	// get the template name
-	JamochaValue fktName = (JamochaValue) node.jjtGetChild(0).jjtAccept(this, data);	
-	
-	Parameter params[] = new Parameter[node.jjtGetNumChildren()-1];
+	JamochaValue fktName = (JamochaValue) node.jjtGetChild(0).jjtAccept(this, data);
+
+	Parameter params[] = new Parameter[node.jjtGetNumChildren() - 1];
 	for (int i = 1; i < node.jjtGetNumChildren(); i++) {
-	    params[i-1] = (Parameter) node.jjtGetChild(i).jjtAccept(this, data);
+	    params[i - 1] = (Parameter) node.jjtGetChild(i).jjtAccept(this, data);
 	}
+	// create FunctionParam as result:
 	FunctionParam2 funcParam = new FunctionParam2();
 	funcParam.setFunctionName(fktName.getStringValue());
 	funcParam.setParameters(params);
@@ -100,8 +103,18 @@ public class SFPInterpreter implements SFPParserVisitor {
     }
 
     public Object visit(SFPAssertFunc node, Object data) {
-	// TODO Auto-generated method stub
-	return null;
+	// get parameters from subnodes:
+	// Rulengine can only handle one parmeter:
+	ExpressionList expr = (ExpressionList) node.jjtGetChild(0).jjtAccept(this, data);
+	// convert expressionlist to parameterarray, assertfunction needs this.
+	Parameter[] params = new Parameter[expr.size()];
+	expr.toArray(params);
+
+	// create FunctionParam as result:
+	FunctionParam2 funcParam = new FunctionParam2();
+	funcParam.setFunctionName(org.jamocha.rete.functions.ruleengine.Assert.NAME);
+	funcParam.setParameters(params);
+	return funcParam;
     }
 
     public Object visit(SFPFindFactByFactFunc node, Object data) {
@@ -255,13 +268,38 @@ public class SFPInterpreter implements SFPParserVisitor {
     }
 
     public Object visit(SFPTemplateRHSPattern node, Object data) {
-	// TODO Auto-generated method stub
-	return null;
+
+	ExpressionList params = new ExpressionList();
+	// get the Template name
+	params.add((JamochaValue) node.jjtGetChild(0).jjtAccept(this, data));
+
+	// get the slots from subnodes:
+	for (int i = 1; i < node.jjtGetNumChildren(); i++) {
+	    params.add((Parameter) node.jjtGetChild(i).jjtAccept(this, data));
+	}
+
+	return params;
     }
 
     public Object visit(SFPRHSSlot node, Object data) {
-	// TODO Auto-generated method stub
-	return null;
+	// TODO: SR
+	// problem: bisher wurde ein slot angelegt. diesem der name (kein prob)
+	// und der jamochavalue gesetzt (sehr wohl ein problem, da ein auswerten
+	// des
+	// slot wertes mithilfe der engine nštig ist)
+	// lšsung: nur ein function param zurŸckgeben und die assertfunktion das
+	// anlegen des
+	// slots Ÿberlassen.
+
+	ExpressionList params = new ExpressionList();
+	// get the slot name
+	params.add((JamochaValue) node.jjtGetChild(0).jjtAccept(this, data));
+
+	// get the slots values:
+	for (int i = 1; i < node.jjtGetNumChildren(); i++) {
+	    params.add((Parameter) node.jjtGetChild(i).jjtAccept(this, data));
+	}
+	return params;
     }
 
     public Object visit(SFPDefruleConstruct node, Object data) {
@@ -644,5 +682,4 @@ public class SFPInterpreter implements SFPParserVisitor {
 	// TODO: check is this correct to match number to double?
 	return JamochaType.DOUBLE;
     }
-
 }

@@ -735,9 +735,8 @@ SimpleNode AssertFunc() :
 {}
 {
 	<ASSERT>
-	(
 		RHSPattern()
-	)+
+	
 	{ return jjtThis; }
 }
 
