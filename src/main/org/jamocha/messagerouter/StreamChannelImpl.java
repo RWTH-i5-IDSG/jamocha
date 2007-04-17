@@ -35,86 +35,96 @@ import org.jamocha.parser.clips.TokenMgrError;
  * @author Sebastian Reinartz
  * 
  */
-class StreamChannelImpl extends AbstractCommunicationChannel implements StreamChannel {
+class StreamChannelImpl extends AbstractCommunicationChannel implements
+		StreamChannel {
 
-    /**
-         * The <code>Reader</code> we read from.
-         */
-    private Reader reader;
+	/**
+	 * The <code>Reader</code> we read from.
+	 */
+	private Reader reader;
 
-    /**
-         * Thread reading from the <code>reader</code>, parsing the content
-         * and sending the Expressions to the <code>MessageRouter</code>.
-         */
-    private StreamChannelThread streamChannelThread;
+	/**
+	 * Thread reading from the <code>reader</code>, parsing the content and
+	 * sending the Expressions to the <code>MessageRouter</code>.
+	 */
+	private StreamChannelThread streamChannelThread;
 
-    /**
-         * Flag indicating if the initialzation phase is done.
-         */
-    private boolean initDone = false;
+	/**
+	 * Flag indicating if the initialzation phase is done.
+	 */
+	private boolean initDone = false;
 
-    public StreamChannelImpl(String channelId, MessageRouter router, InterestType interest) {
-	super(channelId, router, interest);
-	// parser = new CLIPSParser((Reader) null);
-	streamChannelThread = new StreamChannelThread();
-    }
-
-    public void init(InputStream inputStream, String parserName) throws ParserNotFoundException {
-	init(new InputStreamReader(inputStream), parserName);
-    }
-
-    public void init(Reader reader, String parserName) throws ParserNotFoundException {
-	this.reader = reader;
-	this.parserName = parserName;
-	streamChannelThread.setStopped();
-	streamChannelThread = new StreamChannelThread();
-	parser = ParserFactory.getParser(parserName, reader);
-	streamChannelThread.start();
-	initDone = true;
-    }
-
-    void close() {
-	streamChannelThread.setStopped();
-	try {
-	    reader.close();
-	} catch (IOException e) {
-	    // TODO Auto-generated catch block
-	    e.printStackTrace();
+	public StreamChannelImpl(String channelId, MessageRouter router,
+			InterestType interest) {
+		super(channelId, router, interest);
+		streamChannelThread = new StreamChannelThread();
 	}
-    }
 
-    public boolean isAvailable() {
-	return initDone;
-    }
+	public void init(InputStream inputStream, String parserName)
+			throws ParserNotFoundException {
+		init(new InputStreamReader(inputStream), parserName);
+	}
 
-    private class StreamChannelThread extends Thread {
+	public void init(Reader reader, String parserName)
+			throws ParserNotFoundException {
+		this.reader = reader;
+		this.parserName = parserName;
+		streamChannelThread.setStopped();
+		streamChannelThread = new StreamChannelThread();
+		parser = ParserFactory.getParser(parserName, reader);
+		streamChannelThread.start();
+		initDone = true;
+	}
 
-	private boolean stopped = false;
-
-	@Override
-	public void run() {
-	    while (!stopped) {
-		Expression command = null;
+	void close() {
+		streamChannelThread.setStopped();
 		try {
-		    while (!stopped && (parser != null) && (command = parser.nextExpression()) != null) {
-			router.enqueueCommand(command, getChannelId());
-		    }
-		} catch (ParseException e) {
-		    router.postMessageEvent(new MessageEvent(MessageEvent.PARSE_ERROR, e,
-			    getChannelId()));
-		    restartParser(reader);
-		} catch (TokenMgrError e) {
-		    router.postMessageEvent(new MessageEvent(MessageEvent.PARSE_ERROR, e,
-			    getChannelId()));
-		    restartParser(reader);
+			reader.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-	    }
 	}
 
-	private void setStopped() {
-	    stopped = true;
+	public boolean isAvailable() {
+		return initDone;
 	}
 
-    }
+	private class StreamChannelThread extends Thread {
+
+		private boolean stopped = false;
+
+		@Override
+		public void run() {
+			while (!stopped) {
+				Expression command = null;
+				try {
+					while (!stopped && (parser != null)
+							&& (command = parser.nextExpression()) != null) {
+						router.enqueueCommand(command, getChannelId());
+					}
+				} catch (ParseException e) {
+					router.postMessageEvent(new MessageEvent(
+							MessageEvent.PARSE_ERROR, e, getChannelId()));
+					restartParser(reader);
+				} catch (TokenMgrError e) {
+					router.postMessageEvent(new MessageEvent(
+							MessageEvent.PARSE_ERROR, e, getChannelId()));
+					restartParser(reader);
+				} catch (NullPointerException e) {
+					// If the Thread is stopped we catch the last NPE that
+					// occurs when closing everything. Otherwise we just throw
+					// it as before.
+					if (!stopped)
+						throw e;
+				}
+			}
+		}
+
+		private void setStopped() {
+			stopped = true;
+		}
+
+	}
 
 }
