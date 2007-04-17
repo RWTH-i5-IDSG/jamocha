@@ -23,13 +23,13 @@ import org.jamocha.parser.IllegalParameterException;
 import org.jamocha.parser.IllegalTypeException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
+import org.jamocha.rete.AssertConfiguration;
 import org.jamocha.rete.Deffact;
-import org.jamocha.rete.ExpressionList;
 import org.jamocha.rete.Fact;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.Slot;
+import org.jamocha.rete.SlotConfiguration;
 import org.jamocha.rete.Template;
 import org.jamocha.rete.functions.FunctionDescription;
 
@@ -102,60 +102,82 @@ public class Assert implements Function, Serializable {
 		JamochaValue result = JamochaValue.FALSE;
 		if (params.length > 0) {
 			Deffact fact = null;
-			JamochaValue firstParam = params[0].getValue(engine);
-			if (firstParam.getType().equals(JamochaType.IDENTIFIER)) {
-				Template tmpl = (Template) engine.getCurrentFocus()
-						.getTemplate(firstParam.getIdentifierValue());
 
-				Object[] data = null;
-				// jamocha.list?
-				if (params.length > 1 && params[1] instanceof JamochaValue) {
-					data = (Object[]) params[1].getValue(engine)
-							.getObjectValue();
-				}
-				// all other parameters are slot values: (slots
-				// have to be created)
-				else {
-					ExpressionList list = null;
-					String slotName = null;
-					data = new Object[params.length - 1];
-					for (int i = 1; i < params.length; i++) {
-						list = (ExpressionList) params[i];
-						slotName = list.get(0).getValue(engine)
-								.getStringValue();
-						if (list.size() == 2) {
-							// single slot:
-							data[i - 1] = new Slot(slotName, list.get(1)
-									.getValue(engine));
+			// get all the asser configuration from params
+			if (params[0] instanceof AssertConfiguration) {
+
+				AssertConfiguration ac = null;
+				String templateName = null;
+				SlotConfiguration[] scArray = null;
+
+				for (int i = 0; i < params.length; i++) {
+					ac = (AssertConfiguration) params[i];
+
+					// get the template name
+					templateName = ac.getTemplateName();
+
+					// check if the needed template exists in the engine
+					org.jamocha.rete.Deftemplate template = (org.jamocha.rete.Deftemplate) engine
+							.getCurrentFocus().getTemplate(templateName);
+					if (template == null) {
+						throw new IllegalParameterException(i + 1);
+					} else {
+
+						// get the slot configurations
+						scArray = ac.getSlots();
+
+						// create the fact
+						fact = (Deffact) template.createFact(scArray, engine);
+						if (fact.hasBinding()) {
+							fact.resolveValues(engine, this.triggerFacts);
+							fact = fact.cloneFact(engine);
+						}
+						Fact assertedFact = engine.assertFact(fact);
+						// if the fact id is still -1, it means it wasn't
+						// asserted
+						// if it was asserted, we return the fact id, otherwise
+						// we return "false".
+						if (assertedFact == fact) {
+							result = JamochaValue.newFactId(fact.getFactId());
 						} else {
-							// mutli Slot:
-							// data[i-1] = new MultiSlot(slotName, )
+							throw new IllegalParameterException(i + 1);
 						}
 					}
 				}
 
-				fact = (Deffact) tmpl.createFact(data, -1, engine);
-			} else if (firstParam.getType().equals(JamochaType.FACT)) {
-				fact = (Deffact) firstParam.getFactValue();
+				// no assert configuration:
 			} else {
-				throw new IllegalTypeException(new JamochaType[] {
-						JamochaType.FACT, JamochaType.IDENTIFIER }, firstParam
-						.getType());
+				JamochaValue firstParam = params[0].getValue(engine);
+
+				if (firstParam.getType().equals(JamochaType.IDENTIFIER)) {
+					JamochaValue secondParam = params[1].getValue(engine);
+					Template tmpl = (Template) engine.getCurrentFocus()
+							.getTemplate(firstParam.getIdentifierValue());
+					fact = (Deffact) tmpl.createFact((Object[]) secondParam
+							.getObjectValue(), -1, engine);
+				} else if (firstParam.getType().equals(JamochaType.FACT)) {
+					fact = (Deffact) firstParam.getFactValue();
+				} else {
+					throw new IllegalTypeException(new JamochaType[] {
+							JamochaType.FACT, JamochaType.IDENTIFIER },
+							firstParam.getType());
+				}
+
+				if (fact.hasBinding()) {
+					fact.resolveValues(engine, this.triggerFacts);
+					fact = fact.cloneFact(engine);
+				}
+
+				Fact assertedFact = engine.assertFact(fact);
+				// if the fact id is still -1, it means it wasn't asserted
+				// if it was asserted, we return the fact id, otherwise
+				// we return "false".
+				if (assertedFact == fact) {
+					result = JamochaValue.newFactId(fact.getFactId());
+				} else {
+					throw new IllegalParameterException(1);
+				}
 			}
-			if (fact.hasBinding()) {
-				fact.resolveValues(engine, this.triggerFacts);
-				fact = fact.cloneFact(engine);
-			}
-			Fact assertedFact = engine.assertFact(fact);
-			// if the fact id is still -1, it means it wasn't
-			// asserted
-			// if it was asserted, we return the fact id, otherwise
-			// we return "false".
-			if (assertedFact == fact) {
-				result = JamochaValue.newFactId(fact.getFactId());
-			}
-		} else {
-			throw new IllegalParameterException(1);
 		}
 		return result;
 	}
