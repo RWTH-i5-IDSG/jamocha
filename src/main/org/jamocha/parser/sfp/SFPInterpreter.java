@@ -6,6 +6,7 @@ import org.jamocha.parser.JamochaValue;
 import org.jamocha.parser.JamochaValueUtils;
 import org.jamocha.rete.AssertConfiguration;
 import org.jamocha.rete.BoundParam;
+import org.jamocha.rete.DeffunctionConfiguration;
 import org.jamocha.rete.Deftemplate;
 import org.jamocha.rete.ExpressionList;
 import org.jamocha.rete.ExpressionSequence;
@@ -520,41 +521,50 @@ public class SFPInterpreter implements SFPParserVisitor {
 				.jjtAccept(this, data);
 
 		// get the template description
-		JamochaValue descr = JamochaValue.newString("");
+		JamochaValue functionDescription = JamochaValue.newString("");
 
 		Node n = node.jjtGetChild(j);
 
 		if (n != null && n instanceof SFPConstructDescription) {
 			j++;
-			descr = (JamochaValue) n.jjtAccept(this, data);
+			functionDescription = (JamochaValue) n.jjtAccept(this, data);
 		}
 
 		// get function's variables
-		Parameter[] s = new Parameter[node.jjtGetNumChildren() - (j + 1)];
+		Parameter[] params = new Parameter[node.jjtGetNumChildren() - (j + 1)];
 		for (int i = j; i < node.jjtGetNumChildren() - 1; i++) {
 			BoundParam boundParam = (BoundParam) node.jjtGetChild(i).jjtAccept(
 					this, data);
-			s[i - j] = boundParam;
+			params[i - j] = boundParam;
 		}
 
-		// get the function actions
+		// get the function's actionlist
 		ExpressionSequence expressions = (ExpressionSequence) node.jjtGetChild(
 				node.jjtGetNumChildren() - 1).jjtAccept(this, data);
 
+		
+		// set up a new DeffunctionConfiguration
+		DeffunctionConfiguration[] dcs = new DeffunctionConfiguration[1];
+		DeffunctionConfiguration dc = new DeffunctionConfiguration();
+		
+		// set the function's name
+		dc.setFunctionName(functionName.toString());
+		
+		// set the function's description
+		dc.setFunctionDescription(functionDescription.toString());
+		
+		// set the function's params
+		dc.setParams(params);
+		
+		// set the function's Actionlist
+		dc.setActions(expressions);
+		
 		Signature functionParam = new Signature();
-		functionParam
-				.setSignatureName(org.jamocha.rete.functions.ruleengine.Deffunction.NAME);
+		functionParam.setSignatureName(org.jamocha.rete.functions.ruleengine.Deffunction.NAME);
 
-		Parameter[] params = new Parameter[4];
+		dcs[0] =dc;
 
-		// setup of FunctionParams
-		params[0] = functionName;
-		params[1] = descr;
-		params[2] = JamochaValue.newObject(s);
-		params[2] = expressions;
-
-		// put the setup vector into the functionParam-Object
-		functionParam.setParameters(params);
+		functionParam.setParameters(dcs);
 
 		return functionParam;
 	}

@@ -19,6 +19,8 @@ package org.jamocha.rete.functions.ruleengine;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
+import org.jamocha.rete.AssertConfiguration;
+import org.jamocha.rete.DeffunctionConfiguration;
 import org.jamocha.rete.ExpressionSequence;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
@@ -36,8 +38,7 @@ import org.jamocha.rete.functions.InterpretedFunction;
  */
 public class Deffunction implements Function {
 
-	private static final class Description implements
-			FunctionDescription {
+	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
 			return "Deffunction is used for functions that are declared in the shell. It is different than a function written in java. Deffunctions run interpreted and are mapped to existing functions. Returns true if the Function could be declared and false if not or if it already existed.";
@@ -126,31 +127,47 @@ public class Deffunction implements Function {
 	public JamochaValue executeFunction(Rete engine, Parameter[] params)
 			throws EvaluationException {
 		JamochaValue result = JamochaValue.FALSE;
-		JamochaValue firstParam = params[0].getValue(engine);
-		String name = firstParam.getIdentifierValue();
-		if (engine.findFunction(name) == null) {
-			int paramIndex = 1;
-			String description = "";
-			JamochaValue secondParam = params[1].getValue(engine);
-			// If the second parameter is a String we have a description for the
-			// Deffunction.
-			if (secondParam.getType().equals(JamochaType.STRING)) {
+
+		String functionName = null;
+		String description = "";
+		Parameter[] functionParameters = null;
+		ExpressionSequence functionList = null;
+
+		// get all the Deffunction configuration from params
+		if (params[0] instanceof DeffunctionConfiguration) {
+			DeffunctionConfiguration dc = (DeffunctionConfiguration) params[0];
+			functionName = dc.getFunctionName();
+			description = dc.getFunctionDescription();
+			functionParameters = dc.getParams();
+			functionList = dc.getActions();
+		} else {
+
+			JamochaValue firstParam = params[0].getValue(engine);
+			String name = firstParam.getIdentifierValue();
+			if (engine.findFunction(name) == null) {
+				int paramIndex = 1;
+				description = "";
+				JamochaValue secondParam = params[1].getValue(engine);
+				// If the second parameter is a String we have a description for
+				// the
+				// Deffunction.
+				if (secondParam.getType().equals(JamochaType.STRING)) {
+					paramIndex++;
+					description = secondParam.getStringValue();
+					secondParam = params[paramIndex].getValue(engine);
+				}
+				functionParameters = (Parameter[]) secondParam.getObjectValue();
 				paramIndex++;
-				description = secondParam.getStringValue();
-				secondParam = params[paramIndex].getValue(engine);
-			}
-			Parameter[] functionParameters = (Parameter[]) secondParam
-					.getObjectValue();
-			paramIndex++;
-			ExpressionSequence functionList;
-			if (params[paramIndex] instanceof ExpressionSequence) {
-				functionList = (ExpressionSequence) params[2];
-				InterpretedFunction intrfunc = new InterpretedFunction(name,
-						description, functionParameters, functionList);
-				engine.declareFunction(intrfunc);
-				result = JamochaValue.TRUE;
+				if (params[paramIndex] instanceof ExpressionSequence) {
+					functionList = (ExpressionSequence) params[2];
+				}
 			}
 		}
+		InterpretedFunction intrfunc = new InterpretedFunction(functionName,
+				description, functionParameters, functionList);
+		engine.declareFunction(intrfunc);
+		result = JamochaValue.TRUE;
+
 		return result;
 	}
 }

@@ -103,7 +103,7 @@ public class Assert implements Function, Serializable {
 		if (params.length > 0) {
 			Deffact fact = null;
 
-			// get all the asser configuration from params
+			// get all the assert configuration from params
 			if (params[0] instanceof AssertConfiguration) {
 
 				AssertConfiguration ac = null;
