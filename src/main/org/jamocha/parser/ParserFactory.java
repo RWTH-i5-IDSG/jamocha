@@ -22,7 +22,6 @@ import java.io.StringReader;
 
 import org.jamocha.parser.clips.CLIPSFormatter;
 import org.jamocha.parser.clips.CLIPSParser;
-import org.jamocha.parser.cool.COOLParser;
 import org.jamocha.parser.sfp.SFPParser;
 
 /**
@@ -74,9 +73,7 @@ public class ParserFactory {
 
 	public static Parser getParser(String parserName, Reader reader)
 			throws ParserNotFoundException {
-		if (parserName.equalsIgnoreCase("cool")) {
-			return new COOLParser(reader);
-		} else if (parserName.equalsIgnoreCase("clips")) {
+		if (parserName.equalsIgnoreCase("clips")) {
 			return new CLIPSParser(reader);
 		} else if (parserName.equalsIgnoreCase("sfp")) {
 			return new SFPParser(reader);
@@ -88,9 +85,7 @@ public class ParserFactory {
 
 	public static Parser getParser(String parserName, InputStream stream)
 			throws ParserNotFoundException {
-		if (parserName.equalsIgnoreCase("cool")) {
-			return new COOLParser(stream);
-		} else if (parserName.equalsIgnoreCase("clips")) {
+		if (parserName.equalsIgnoreCase("clips")) {
 			return new CLIPSParser(stream);
 		} else if (parserName.equalsIgnoreCase("sfp")) {
 			return new SFPParser(stream);
@@ -152,10 +147,7 @@ public class ParserFactory {
 	 */
 	public static Formatter getFormatter(String parserName, boolean indentation)
 			throws ParserNotFoundException {
-		if (parserName.equalsIgnoreCase("cool")) {
-			return new CLIPSFormatter(indentation);
-			// return new COOLFormatter();
-		} else if (parserName.equalsIgnoreCase("clips")) {
+		if (parserName.equalsIgnoreCase("clips")) {
 			return new CLIPSFormatter(indentation);
 		} else if (parserName.equalsIgnoreCase("sfp")) {
 			return new CLIPSFormatter(indentation);
