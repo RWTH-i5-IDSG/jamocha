@@ -19,12 +19,12 @@ package org.jamocha.rete.functions.ruleengine;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.rete.AssertConfiguration;
-import org.jamocha.rete.DeffunctionConfiguration;
 import org.jamocha.rete.ExpressionSequence;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
+import org.jamocha.rete.configurations.AssertConfiguration;
+import org.jamocha.rete.configurations.DeffunctionConfiguration;
 import org.jamocha.rete.functions.FunctionDescription;
 import org.jamocha.rete.functions.InterpretedFunction;
 

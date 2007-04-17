@@ -20,6 +20,7 @@ import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.Expression;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.parser.ParserFactory;
+import org.jamocha.rete.configurations.AbstractSignature;
 
 /**
  * @author Peter Lin

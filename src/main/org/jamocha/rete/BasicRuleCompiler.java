@@ -27,6 +27,7 @@ import org.jamocha.parser.Expression;
 import org.jamocha.parser.IllegalConversionException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
+import org.jamocha.rete.configurations.Signature;
 import org.jamocha.rete.exception.AssertException;
 import org.jamocha.rule.Action;
 import org.jamocha.rule.Analysis;
