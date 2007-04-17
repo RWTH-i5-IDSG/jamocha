@@ -172,6 +172,7 @@ public class FunctionsDescription implements Function, Serializable {
 		
 				XmlTag t=new XmlTag();
 				t.setName("function");
+				t.addAttribute("name", function.getName());
 				t.addAttribute("description", desc.getDescription());
 				
 				if (desc.isParameterCountFixed()) {
@@ -185,7 +186,6 @@ public class FunctionsDescription implements Function, Serializable {
 				for( int i=0 ; i<desc.getParameterCount() ; i++) {
 					XmlTag param=new XmlTag();
 					param.setName("parameter");
-					param.addAttribute("name", desc.getParameterName(i));
 					param.addAttribute("description", desc.getParameterDescription(i));
 					param.addAttribute("type", JamochaType2String(desc.getParameterTypes(i) ));
 					if (desc.isParameterOptional(i)) {
