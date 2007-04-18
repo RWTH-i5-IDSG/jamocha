@@ -23,7 +23,6 @@ import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.IllegalParameterException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.parser.ParserFactory;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
@@ -70,7 +69,7 @@ public class SL2CLIPSFunction implements Function, Serializable {
 		public JamochaType[] getParameterTypes(int parameter) {
 			switch (parameter) {
 			case 0:
-				return JamochaType.LONGS;
+				return JamochaType.STRINGS;
 			case 1:
 				return JamochaType.STRINGS;
 			}
@@ -110,15 +109,14 @@ public class SL2CLIPSFunction implements Function, Serializable {
 
 	public JamochaValue executeFunction(Rete engine, Parameter[] params)
 			throws EvaluationException {
-		JamochaValue result = JamochaValue.newString("");
+		String clipsCode = "";
 		if (params != null && params.length == 2) {
-			// long performative =
-			// params[0].getValue(engine).getLongValue();
+			String performative = params[0].getValue(engine).getStringValue();
 			String slCode = params[1].getValue(engine).getStringValue();
 			try {
-				// TODO check if performative is a request
-				String clipsCode = SL2CLIPS.getCLIPSFromRequest(slCode);
-				result = JamochaValue.newString(clipsCode);
+				if (performative.equalsIgnoreCase("request")) {
+					clipsCode = SL2CLIPS.getCLIPSFromRequest(slCode);
+				}
 			} catch (AdapterTranslationException e) {
 				throw new EvaluationException(
 						"Error while translating from SL to CLIPS.", e);
@@ -126,6 +124,6 @@ public class SL2CLIPSFunction implements Function, Serializable {
 		} else {
 			throw new IllegalParameterException(2);
 		}
-		return result;
+		return JamochaValue.newString(clipsCode);
 	}
 }
