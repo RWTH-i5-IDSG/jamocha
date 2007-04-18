@@ -105,24 +105,41 @@ public class CLIPSFormatter implements Formatter {
 		StringBuilder res = new StringBuilder("(");
 		res.append(funcParam.getSignatureName());
 		res.append(" (");
-		AssertConfiguration assertConf = (AssertConfiguration) funcParam
-				.getParameters()[0];
-		res.append(assertConf.getTemplateName());
-		SlotConfiguration[] slots = assertConf.getSlots();
-		increaseIndent();
-		for (SlotConfiguration slot : slots) {
-			newLine(res);
-			res.append("(");
-			res.append(slot.getSlotName());
-			res.append(" ");
-			Parameter[] slotValues = slot.getSlotValues();
-			for (int i = 0; i < slotValues.length; ++i) {
-				if (i > 0)
-					res.append(" ");
-				res.append(formatExpression(slotValues[i]));
-			}
-			res.append(")");
+		if (funcParam.getParameters()[0] instanceof AssertConfiguration) {
+			AssertConfiguration assertConf = (AssertConfiguration) funcParam
+					.getParameters()[0];
+			res.append(assertConf.getTemplateName());
+			SlotConfiguration[] slots = assertConf.getSlots();
+			increaseIndent();
+			for (SlotConfiguration slot : slots) {
+				newLine(res);
+				res.append("(");
+				res.append(slot.getSlotName());
+				res.append(" ");
+				Parameter[] slotValues = slot.getSlotValues();
+				for (int i = 0; i < slotValues.length; ++i) {
+					if (i > 0)
+						res.append(" ");
+					res.append(formatExpression(slotValues[i]));
+				}
+				res.append(")");
 
+			}
+		} else {
+			res.append(formatExpression(funcParam.getParameters()[0]));
+			Object[] slots = (Object[]) ((JamochaValue) funcParam
+					.getParameters()[1]).getObjectValue();
+			increaseIndent();
+			for (Object obj : slots) {
+				Slot slot = (Slot) obj;
+				newLine(res);
+				res.append("(");
+				res.append(slot.getName());
+				res.append(" ");
+				res.append(formatExpression(slot.getValue()));
+				res.append(")");
+
+			}
 		}
 		decreaseIndent();
 		newLine(res);
