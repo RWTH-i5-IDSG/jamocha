@@ -47,6 +47,7 @@ import org.jamocha.gui.TableRowModel;
 import org.jamocha.gui.editor.TemplateEditor;
 import org.jamocha.gui.icons.IconLoader;
 import org.jamocha.parser.ParserFactory;
+import org.jamocha.rete.Deftemplate;
 import org.jamocha.rete.Module;
 import org.jamocha.rete.Template;
 import org.jamocha.rete.TemplateSlot;
@@ -202,6 +203,10 @@ public class TemplatesPanel extends AbstractJamochaPanel implements
 					buffer.append("(").append(
 							template.getModule().getModuleName()).append("::")
 							.append(template.getTemplate().getName());
+					String description = ((Deftemplate)template.getTemplate()).getDescription();
+					if(description!=null && description.length() >0) {
+						buffer.append(" ").append(description);
+					}
 					TemplateSlot[] slots = template.getTemplate().getAllSlots();
 					for (TemplateSlot slot : slots) {
 						buffer.append("\n    (");

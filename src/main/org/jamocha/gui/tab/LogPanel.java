@@ -406,6 +406,7 @@ public class LogPanel extends AbstractJamochaPanel implements ActionListener,
 				}
 			}
 			detailView.setText(buffer.toString());
+			detailView.setCaretPosition(0);
 		}
 	}
 }

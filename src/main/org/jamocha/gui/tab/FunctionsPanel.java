@@ -131,20 +131,28 @@ public class FunctionsPanel extends AbstractJamochaPanel implements
 		for (int idx = 1; idx <= func.length - 1; idx++) {
 			int bound = funcs.size();
 			larger = true;
-			for (int indx = 0; indx < bound; indx++) {
-				int cmpvalue = func[idx].getName().compareTo(
-						funcs.get(indx).getName());
-				if (cmpvalue < 0) {
-					funcs.add(indx, func[idx]);
-					indx = bound;
-					larger = false;
-				} else if (cmpvalue == 0) {
-					indx = bound;
-					larger = false;
+			int cmpvalue = 0;
+			if (func[idx].getName() != null) {
+				for (int indx = 0; indx < bound; indx++) {
+					try {
+						cmpvalue = func[idx].getName().compareTo(
+								funcs.get(indx).getName());
+					} catch (NullPointerException e) {
+						e.printStackTrace();
+						System.out.println(func[idx].getName());
+					}
+					if (cmpvalue < 0) {
+						funcs.add(indx, func[idx]);
+						indx = bound;
+						larger = false;
+					} else if (cmpvalue == 0) {
+						indx = bound;
+						larger = false;
+					}
 				}
-			}
-			if (larger) {
-				funcs.add(func[idx]);
+				if (larger) {
+					funcs.add(func[idx]);
+				}
 			}
 
 		}
@@ -238,8 +246,8 @@ public class FunctionsPanel extends AbstractJamochaPanel implements
 				Function function = (Function) dataModel
 						.getRowAt(functionsTable.getSelectedRow());
 				if (function != null) {
-					buffer.append(ParserFactory.getFormatter(true).formatFunction(
-							function));
+					buffer.append(ParserFactory.getFormatter(true)
+							.formatFunction(function));
 					buffer.append("\n");
 				}
 			}
