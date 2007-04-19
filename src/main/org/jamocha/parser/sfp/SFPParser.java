@@ -2611,7 +2611,7 @@ Data Types:
   jjtree.openNodeScope(jjtn000);
     try {
       jj_consume_token(TEST);
-      Symbol();
+      FunctionCall();
           jjtree.closeNodeScope(jjtn000, true);
           jjtc000 = false;
           {if (true) return jjtn000;}
@@ -4772,11 +4772,6 @@ Data Types:
     return false;
   }
 
-  final private boolean jj_3R_104() {
-    if (jj_3R_125()) return true;
-    return false;
-  }
-
   final private boolean jj_3R_103() {
     if (jj_3R_124()) return true;
     return false;
@@ -4784,6 +4779,11 @@ Data Types:
 
   final private boolean jj_3R_102() {
     if (jj_3R_123()) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_104() {
+    if (jj_3R_125()) return true;
     return false;
   }
 
