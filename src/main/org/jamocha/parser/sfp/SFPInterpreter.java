@@ -11,6 +11,7 @@ import org.jamocha.rete.ExpressionSequence;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.TemplateSlot;
 import org.jamocha.rete.configurations.AssertConfiguration;
+import org.jamocha.rete.configurations.ConstraintConfiguration;
 import org.jamocha.rete.configurations.LogicalConditionConfiguration;
 import org.jamocha.rete.configurations.ConditionConfiguration;
 import org.jamocha.rete.configurations.DeclarationConfiguration;
@@ -19,7 +20,9 @@ import org.jamocha.rete.configurations.DefruleConfiguration;
 import org.jamocha.rete.configurations.Signature;
 import org.jamocha.rete.configurations.SlotConfiguration;
 import org.jamocha.rete.configurations.TemplateConditionConfiguration;
+import org.jamocha.rete.configurations.WildcardConstraintConfiguration;
 import org.jamocha.rete.configurations.LogicalConditionConfiguration.LogicalOperator;
+import org.jamocha.rete.configurations.WildcardConstraintConfiguration.WildcardType;
 
 public class SFPInterpreter implements SFPParserVisitor {
 
@@ -367,9 +370,12 @@ public class SFPInterpreter implements SFPParserVisitor {
 		}
 
 		// set the rule LHS
-		ConditionConfiguration[] conditionList = new ConditionConfiguration[node.jjtGetNumChildren() - j];
+		ConditionConfiguration[] conditionList = new ConditionConfiguration[node
+				.jjtGetNumChildren()
+				- j];
 		for (int i = j; i < k; i++) {
-			conditionList[i - j] = (ConditionConfiguration) (node.jjtGetChild(i).jjtAccept(this, data));
+			conditionList[i - j] = (ConditionConfiguration) (node
+					.jjtGetChild(i).jjtAccept(this, data));
 		}
 
 		// setup a new DefruleConfiguration
@@ -428,7 +434,8 @@ public class SFPInterpreter implements SFPParserVisitor {
 
 	public Object visit(SFPRuleVersion node, Object data) {
 		// get the node's expression and set it to the DeclarationConfiguration
-		Parameter parameter = (Parameter) node.jjtGetChild(0).jjtAccept(this,null);	
+		Parameter parameter = (Parameter) node.jjtGetChild(0).jjtAccept(this,
+				null);
 		((DeclarationConfiguration) data).setVersion(parameter);
 
 		return null;
@@ -442,7 +449,8 @@ public class SFPInterpreter implements SFPParserVisitor {
 	public Object visit(SFPNotFunction node, Object data) {
 		LogicalConditionConfiguration logicalConditionConf = new LogicalConditionConfiguration();
 
-		ConditionConfiguration[] ccs = new ConditionConfiguration[node.jjtGetNumChildren()];
+		ConditionConfiguration[] ccs = new ConditionConfiguration[node
+				.jjtGetNumChildren()];
 		for (int i = 0; i < node.jjtGetNumChildren(); i++) {
 			ccs[i] = (ConditionConfiguration) node.jjtAccept(this, data);
 		}
@@ -455,7 +463,8 @@ public class SFPInterpreter implements SFPParserVisitor {
 	public Object visit(SFPAndFunction node, Object data) {
 		LogicalConditionConfiguration logicalConditionConf = new LogicalConditionConfiguration();
 
-		ConditionConfiguration[] ccs = new ConditionConfiguration[node.jjtGetNumChildren()];
+		ConditionConfiguration[] ccs = new ConditionConfiguration[node
+				.jjtGetNumChildren()];
 		for (int i = 0; i < node.jjtGetNumChildren(); i++) {
 			ccs[i] = (ConditionConfiguration) node.jjtAccept(this, data);
 		}
@@ -468,7 +477,8 @@ public class SFPInterpreter implements SFPParserVisitor {
 	public Object visit(SFPOrFunction node, Object data) {
 		LogicalConditionConfiguration logicalConditionConf = new LogicalConditionConfiguration();
 
-		ConditionConfiguration[] ccs = new ConditionConfiguration[node.jjtGetNumChildren()];
+		ConditionConfiguration[] ccs = new ConditionConfiguration[node
+				.jjtGetNumChildren()];
 		for (int i = 0; i < node.jjtGetNumChildren(); i++) {
 			ccs[i] = (ConditionConfiguration) node.jjtAccept(this, data);
 		}
@@ -486,7 +496,8 @@ public class SFPInterpreter implements SFPParserVisitor {
 	public Object visit(SFPLogicalCE node, Object data) {
 		LogicalConditionConfiguration logicalConditionConf = new LogicalConditionConfiguration();
 
-		ConditionConfiguration[] ccs = new ConditionConfiguration[node.jjtGetNumChildren()];
+		ConditionConfiguration[] ccs = new ConditionConfiguration[node
+				.jjtGetNumChildren()];
 		for (int i = 0; i < node.jjtGetNumChildren(); i++) {
 			ccs[i] = (ConditionConfiguration) node.jjtAccept(this, data);
 		}
@@ -499,7 +510,8 @@ public class SFPInterpreter implements SFPParserVisitor {
 	public Object visit(SFPTestCE node, Object data) {
 		LogicalConditionConfiguration logicalConditionConf = new LogicalConditionConfiguration();
 
-		ConditionConfiguration[] ccs = new ConditionConfiguration[node.jjtGetNumChildren()];
+		ConditionConfiguration[] ccs = new ConditionConfiguration[node
+				.jjtGetNumChildren()];
 		for (int i = 0; i < node.jjtGetNumChildren(); i++) {
 			ccs[i] = (ConditionConfiguration) node.jjtAccept(this, data);
 		}
@@ -512,7 +524,8 @@ public class SFPInterpreter implements SFPParserVisitor {
 	public Object visit(SFPExistsCE node, Object data) {
 		LogicalConditionConfiguration logicalConditionConf = new LogicalConditionConfiguration();
 
-		ConditionConfiguration[] ccs = new ConditionConfiguration[node.jjtGetNumChildren()];
+		ConditionConfiguration[] ccs = new ConditionConfiguration[node
+				.jjtGetNumChildren()];
 		for (int i = 0; i < node.jjtGetNumChildren(); i++) {
 			ccs[i] = (ConditionConfiguration) node.jjtAccept(this, data);
 		}
@@ -525,7 +538,8 @@ public class SFPInterpreter implements SFPParserVisitor {
 	public Object visit(SFPForallCE node, Object data) {
 		LogicalConditionConfiguration logicalConditionConf = new LogicalConditionConfiguration();
 
-		ConditionConfiguration[] ccs = new ConditionConfiguration[node.jjtGetNumChildren()];
+		ConditionConfiguration[] ccs = new ConditionConfiguration[node
+				.jjtGetNumChildren()];
 		for (int i = 0; i < node.jjtGetNumChildren(); i++) {
 			ccs[i] = (ConditionConfiguration) node.jjtAccept(this, data);
 		}
@@ -536,28 +550,40 @@ public class SFPInterpreter implements SFPParserVisitor {
 	}
 
 	public Object visit(SFPTemplatePatternCE node, Object data) {
+		int j=0;
 		// get Template Name
-		JamochaValue templateName = (JamochaValue) node.jjtGetChild(0)
+		JamochaValue templateName = (JamochaValue) node.jjtGetChild(j++)
 				.jjtAccept(this, data);
 		// get Slot Name
-		JamochaValue slotName = (JamochaValue) node.jjtGetChild(1).jjtAccept(
+		JamochaValue slotName = (JamochaValue) node.jjtGetChild(j++).jjtAccept(
 				this, data);
+		// constraints
+		ConstraintConfiguration[] ccs = new ConstraintConfiguration[node
+				.jjtGetNumChildren()-j];
+		for (int i = j; i < node.jjtGetNumChildren(); i++) {
+			ccs[i-j] = (ConstraintConfiguration) node.jjtAccept(this, data);
+		}
 
 		TemplateConditionConfiguration templConf = new TemplateConditionConfiguration();
 
 		templConf.setTemplateName(templateName.toString());
 		templConf.setSlotName(slotName.toString());
+		templConf.setConstraints(ccs);
 		return templConf;
 	}
 
 	public Object visit(SFPSingleFieldWildcard node, Object data) {
-		// TODO Auto-generated method stub
-		return null;
+		WildcardConstraintConfiguration wcc= new WildcardConstraintConfiguration();
+		wcc.setWildcardType(WildcardType.SFWILDCARD);
+		
+		return wcc;
 	}
 
 	public Object visit(SFPMultiFieldWildcard node, Object data) {
-		// TODO Auto-generated method stub
-		return null;
+		WildcardConstraintConfiguration wcc= new WildcardConstraintConfiguration();
+		wcc.setWildcardType(WildcardType.MFWILDCARD);
+		
+		return wcc;
 	}
 
 	public Object visit(SFPAmpersand node, Object data) {

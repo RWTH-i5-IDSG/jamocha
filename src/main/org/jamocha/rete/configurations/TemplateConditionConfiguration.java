@@ -1,13 +1,12 @@
 package org.jamocha.rete.configurations;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class TemplateConditionConfiguration extends ConditionConfiguration {
 
     protected String templateName = null;
 
     protected String slotName = null;
+    
+    protected ConstraintConfiguration[] constraints = null;
 
     public String getTemplateName() {
         return templateName;
@@ -24,5 +23,13 @@ public class TemplateConditionConfiguration extends ConditionConfiguration {
     public void setSlotName(String slotName) {
         this.slotName = slotName;
     }
+
+	public ConstraintConfiguration[] getConstraints() {
+		return constraints;
+	}
+
+	public void setConstraints(ConstraintConfiguration[] constraints) {
+		this.constraints = constraints;
+	}
 
 }
