@@ -674,7 +674,7 @@ void FunctionCall() #void:
 		(
 			AssertFunc()
 		|	RetractFunc()
-		|   	FindFactByFactFunc()	
+		|   FindFactByFactFunc()	
 		|	IfElseFunc()
 		|	WhileFunc()
 		|	LoopForCntFunc() 
@@ -1506,7 +1506,7 @@ SimpleNode TestCE() :
 {}
 {
 	<TEST>
-	Symbol()
+	FunctionCall()
 	
 	{ return jjtThis; }
 }
