@@ -33,6 +33,7 @@ import org.jamocha.rule.Action;
 import org.jamocha.rule.Analysis;
 import org.jamocha.rule.AndCondition;
 import org.jamocha.rule.AndLiteralConstraint;
+import org.jamocha.rule.BooleanOperatorCondition;
 import org.jamocha.rule.BoundConstraint;
 import org.jamocha.rule.Condition;
 import org.jamocha.rule.Constraint;
@@ -699,7 +700,7 @@ public class BasicRuleCompiler implements RuleCompiler {
 
 				} else if (cdt instanceof AndCondition) {
 					// TODO for now this is not done yet
-					AndCondition ac = (AndCondition) cdt;
+					BooleanOperatorCondition ac = (BooleanOperatorCondition) cdt;
 				} else if (cdt instanceof ExistCondition) {
 					// TODO finish implementing Exists
 					ExistCondition exc = (ExistCondition) cdt;

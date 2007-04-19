@@ -11,18 +11,21 @@ import org.jamocha.rete.ExpressionSequence;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.TemplateSlot;
 import org.jamocha.rete.configurations.AssertConfiguration;
-import org.jamocha.rete.configurations.ConstraintConfiguration;
-import org.jamocha.rete.configurations.LogicalConditionConfiguration;
-import org.jamocha.rete.configurations.ConditionConfiguration;
 import org.jamocha.rete.configurations.DeclarationConfiguration;
 import org.jamocha.rete.configurations.DeffunctionConfiguration;
 import org.jamocha.rete.configurations.DefruleConfiguration;
 import org.jamocha.rete.configurations.Signature;
 import org.jamocha.rete.configurations.SlotConfiguration;
-import org.jamocha.rete.configurations.TemplateConditionConfiguration;
-import org.jamocha.rete.configurations.WildcardConstraintConfiguration;
-import org.jamocha.rete.configurations.LogicalConditionConfiguration.LogicalOperator;
-import org.jamocha.rete.configurations.WildcardConstraintConfiguration.WildcardType;
+import org.jamocha.rule.AndCondition;
+import org.jamocha.rule.BoundConstraint;
+import org.jamocha.rule.Condition;
+import org.jamocha.rule.Constraint;
+import org.jamocha.rule.ExistCondition;
+import org.jamocha.rule.LiteralConstraint;
+import org.jamocha.rule.NotCondition;
+import org.jamocha.rule.ObjectCondition;
+import org.jamocha.rule.OrCondition;
+import org.jamocha.rule.TestCondition;
 
 public class SFPInterpreter implements SFPParserVisitor {
 
@@ -32,6 +35,10 @@ public class SFPInterpreter implements SFPParserVisitor {
 	}
 
 	public Object visit(SFPStart node, Object data) {
+		return node.jjtGetChild(0).jjtAccept(this, data);
+	}
+
+	public Object visit(SFPConstant node, Object data) {
 		return node.jjtGetChild(0).jjtAccept(this, data);
 	}
 
@@ -79,8 +86,10 @@ public class SFPInterpreter implements SFPParserVisitor {
 	}
 
 	public Object visit(SFPMultiVariable node, Object data) {
-		// TODO Auto-generated method stub
-		return null;
+		BoundParam boundParam = new BoundParam();
+		boundParam.setVariableName(node.name);
+		boundParam.setIsMultislot(true);
+		return boundParam;
 	}
 
 	public Object visit(SFPVariableType node, Object data) {
@@ -346,7 +355,8 @@ public class SFPInterpreter implements SFPParserVisitor {
 
 		if (n != null && n instanceof SFPConstructDescription) {
 			j++;
-			ruleDescription = (JamochaValue) n.jjtAccept(this, data);
+			ruleDescription = (JamochaValue) n.jjtGetChild(j).jjtAccept(this,
+					data);
 		}
 
 		// get the rule declaration(s)
@@ -370,12 +380,10 @@ public class SFPInterpreter implements SFPParserVisitor {
 		}
 
 		// set the rule LHS
-		ConditionConfiguration[] conditionList = new ConditionConfiguration[node
-				.jjtGetNumChildren()
-				- j];
+		Condition[] conditionList = new Condition[node.jjtGetNumChildren() - j];
 		for (int i = j; i < k; i++) {
-			conditionList[i - j] = (ConditionConfiguration) (node
-					.jjtGetChild(i).jjtAccept(this, data));
+			conditionList[i - j] = (Condition) (node.jjtGetChild(i).jjtAccept(
+					this, data));
 		}
 
 		// setup a new DefruleConfiguration
@@ -383,7 +391,7 @@ public class SFPInterpreter implements SFPParserVisitor {
 		rc.setRuleName(ruleName.toString());
 		rc.setRuleDescription(ruleDescription.toString());
 		rc.setDeclarationConfiguration(dc);
-		rc.seConditionConfiguration(conditionList);
+		rc.seConditions(conditionList);
 		rc.setActions(actions);
 
 		// create the resulting signature
@@ -441,51 +449,37 @@ public class SFPInterpreter implements SFPParserVisitor {
 		return null;
 	}
 
-	public Object visit(SFPConditionalElement node, Object data) {
-
-		return node.jjtGetChild(0).jjtAccept(this, data);
-	}
-
 	public Object visit(SFPNotFunction node, Object data) {
-		LogicalConditionConfiguration logicalConditionConf = new LogicalConditionConfiguration();
+		NotCondition notCond = new NotCondition();
 
-		ConditionConfiguration[] ccs = new ConditionConfiguration[node
-				.jjtGetNumChildren()];
 		for (int i = 0; i < node.jjtGetNumChildren(); i++) {
-			ccs[i] = (ConditionConfiguration) node.jjtAccept(this, data);
+			notCond.addNestedConditionElement((Condition) node.jjtGetChild(i)
+					.jjtAccept(this, data));
 		}
-		logicalConditionConf.setNestedCCs(ccs);
-		logicalConditionConf.setLogicalOperator(LogicalOperator.NOT);
 
-		return logicalConditionConf;
+		return notCond;
 	}
 
 	public Object visit(SFPAndFunction node, Object data) {
-		LogicalConditionConfiguration logicalConditionConf = new LogicalConditionConfiguration();
+		AndCondition andCond = new AndCondition();
 
-		ConditionConfiguration[] ccs = new ConditionConfiguration[node
-				.jjtGetNumChildren()];
 		for (int i = 0; i < node.jjtGetNumChildren(); i++) {
-			ccs[i] = (ConditionConfiguration) node.jjtAccept(this, data);
+			andCond.addNestedConditionElement((Condition) node.jjtGetChild(i)
+					.jjtAccept(this, data));
 		}
-		logicalConditionConf.setNestedCCs(ccs);
-		logicalConditionConf.setLogicalOperator(LogicalOperator.AND);
 
-		return logicalConditionConf;
+		return andCond;
 	}
 
 	public Object visit(SFPOrFunction node, Object data) {
-		LogicalConditionConfiguration logicalConditionConf = new LogicalConditionConfiguration();
+		OrCondition orCond = new OrCondition();
 
-		ConditionConfiguration[] ccs = new ConditionConfiguration[node
-				.jjtGetNumChildren()];
 		for (int i = 0; i < node.jjtGetNumChildren(); i++) {
-			ccs[i] = (ConditionConfiguration) node.jjtAccept(this, data);
+			orCond.addNestedConditionElement((Condition) node.jjtGetChild(i)
+					.jjtAccept(this, data));
 		}
-		logicalConditionConf.setNestedCCs(ccs);
-		logicalConditionConf.setLogicalOperator(LogicalOperator.OR);
 
-		return logicalConditionConf;
+		return orCond;
 	}
 
 	public Object visit(SFPAssignedPatternCE node, Object data) {
@@ -494,111 +488,116 @@ public class SFPInterpreter implements SFPParserVisitor {
 	}
 
 	public Object visit(SFPLogicalCE node, Object data) {
-		LogicalConditionConfiguration logicalConditionConf = new LogicalConditionConfiguration();
-
-		ConditionConfiguration[] ccs = new ConditionConfiguration[node
-				.jjtGetNumChildren()];
-		for (int i = 0; i < node.jjtGetNumChildren(); i++) {
-			ccs[i] = (ConditionConfiguration) node.jjtAccept(this, data);
-		}
-		logicalConditionConf.setNestedCCs(ccs);
-		logicalConditionConf.setLogicalOperator(LogicalOperator.LOGICAL);
-
-		return logicalConditionConf;
-	}
-
-	public Object visit(SFPTestCE node, Object data) {
-		LogicalConditionConfiguration logicalConditionConf = new LogicalConditionConfiguration();
-
-		ConditionConfiguration[] ccs = new ConditionConfiguration[node
-				.jjtGetNumChildren()];
-		for (int i = 0; i < node.jjtGetNumChildren(); i++) {
-			ccs[i] = (ConditionConfiguration) node.jjtAccept(this, data);
-		}
-		logicalConditionConf.setNestedCCs(ccs);
-		logicalConditionConf.setLogicalOperator(LogicalOperator.TEST);
-
-		return logicalConditionConf;
-	}
-
-	public Object visit(SFPExistsCE node, Object data) {
-		LogicalConditionConfiguration logicalConditionConf = new LogicalConditionConfiguration();
-
-		ConditionConfiguration[] ccs = new ConditionConfiguration[node
-				.jjtGetNumChildren()];
-		for (int i = 0; i < node.jjtGetNumChildren(); i++) {
-			ccs[i] = (ConditionConfiguration) node.jjtAccept(this, data);
-		}
-		logicalConditionConf.setNestedCCs(ccs);
-		logicalConditionConf.setLogicalOperator(LogicalOperator.EXISTS);
-
-		return logicalConditionConf;
-	}
-
-	public Object visit(SFPForallCE node, Object data) {
-		LogicalConditionConfiguration logicalConditionConf = new LogicalConditionConfiguration();
-
-		ConditionConfiguration[] ccs = new ConditionConfiguration[node
-				.jjtGetNumChildren()];
-		for (int i = 0; i < node.jjtGetNumChildren(); i++) {
-			ccs[i] = (ConditionConfiguration) node.jjtAccept(this, data);
-		}
-		logicalConditionConf.setNestedCCs(ccs);
-		logicalConditionConf.setLogicalOperator(LogicalOperator.FORALL);
-
-		return logicalConditionConf;
-	}
-
-	public Object visit(SFPTemplatePatternCE node, Object data) {
-		int j=0;
-		// get Template Name
-		JamochaValue templateName = (JamochaValue) node.jjtGetChild(j++)
-				.jjtAccept(this, data);
-		// get Slot Name
-		JamochaValue slotName = (JamochaValue) node.jjtGetChild(j++).jjtAccept(
-				this, data);
-		// constraints
-		ConstraintConfiguration[] ccs = new ConstraintConfiguration[node
-				.jjtGetNumChildren()-j];
-		for (int i = j; i < node.jjtGetNumChildren(); i++) {
-			ccs[i-j] = (ConstraintConfiguration) node.jjtAccept(this, data);
-		}
-
-		TemplateConditionConfiguration templConf = new TemplateConditionConfiguration();
-
-		templConf.setTemplateName(templateName.toString());
-		templConf.setSlotName(slotName.toString());
-		templConf.setConstraints(ccs);
-		return templConf;
-	}
-
-	public Object visit(SFPSingleFieldWildcard node, Object data) {
-		WildcardConstraintConfiguration wcc= new WildcardConstraintConfiguration();
-		wcc.setWildcardType(WildcardType.SFWILDCARD);
-		
-		return wcc;
-	}
-
-	public Object visit(SFPMultiFieldWildcard node, Object data) {
-		WildcardConstraintConfiguration wcc= new WildcardConstraintConfiguration();
-		wcc.setWildcardType(WildcardType.MFWILDCARD);
-		
-		return wcc;
-	}
-
-	public Object visit(SFPAmpersand node, Object data) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	public Object visit(SFPLine node, Object data) {
+	public Object visit(SFPTestCE node, Object data) {
+		TestCondition testCond = new TestCondition();
+
+		Signature signature = (Signature) node.jjtAccept(this, data);
+		testCond.setFunction(signature);
+		return testCond;
+	}
+
+	public Object visit(SFPExistsCE node, Object data) {
+		ExistCondition existCond = new ExistCondition();
+
+		for (int i = 0; i < node.jjtGetNumChildren(); i++) {
+			existCond.addNestedConditionElement((Condition) node.jjtGetChild(i)
+					.jjtAccept(this, data));
+		}
+
+		return existCond;
+	}
+
+	public Object visit(SFPForallCE node, Object data) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public Object visit(SFPTemplatePatternCE node, Object data) {
+		ObjectCondition objectCond = new ObjectCondition();
+
+		// get Template Name
+		JamochaValue templateName = (JamochaValue) node.jjtGetChild(0)
+				.jjtAccept(this, data);
+		objectCond.setTemplateName(templateName.toString());
+
+		// constraints
+		for (int i = 1; i < node.jjtGetNumChildren(); i++) {
+			objectCond.addConstraint((Constraint) node.jjtGetChild(0)
+					.jjtAccept(this, data));
+		}
+
+		return objectCond;
+	}
+
+	public Object visit(SFPLHSSlot node, Object data) {
+		// get Slot Name
+		JamochaValue slotName = (JamochaValue) node.jjtGetChild(0).jjtAccept(
+				this, data);
+		Constraint constraint = (Constraint) node.jjtGetChild(0).jjtAccept(
+				this, data);
+
+		constraint.setName(slotName.getStringValue());
+		return constraint;
+	}
+
+	public Object visit(SFPSingleFieldWildcard node, Object data) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public Object visit(SFPMultiFieldWildcard node, Object data) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public Object visit(SFPAmpersandConnectedConstraint node, Object data) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public Object visit(SFPLineConnectedConstraint node, Object data) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	public Object visit(SFPTerm node, Object data) {
-		// TODO Auto-generated method stub
-		return null;
+		int j = 0;
+		boolean isNegated = false;
+		Node n = node.jjtGetChild(j);
+		if (n instanceof SFPNegation) {
+			j++;
+			isNegated = true;
+		}
+
+		Constraint constraint = null;
+		n = node.jjtGetChild(j);
+		Object obj = n.jjtAccept(this, data);
+		if (n instanceof SFPConstant) {
+			constraint = new LiteralConstraint();
+			constraint.setValue((JamochaValue) obj);
+		} else if (n instanceof SFPColon) {
+			// TODO: constraint = new PredicateConstraint();
+			// predivate can't handle functions containing functioncalls
+		} else if (n instanceof SFPEquals) {
+			// TODO: constraint = new PredicateConstraint();
+			// predivate can't handle functions containing functioncalls
+		} else if (n instanceof SFPSingleVariable) {
+			constraint = new BoundConstraint();
+			constraint.setValue(JamochaValue.newIdentifier(((BoundParam) obj)
+					.getVariableName()));
+		} else if (n instanceof SFPMultiVariable) {
+			constraint = new BoundConstraint();
+			constraint.setValue(JamochaValue.newIdentifier(((BoundParam) obj)
+					.getVariableName()));
+			((BoundConstraint) constraint).setIsMultislot(true);
+		}
+		// TODO: set negated
+
+		return constraint;
 	}
 
 	public Object visit(SFPNegation node, Object data) {
@@ -827,4 +826,5 @@ public class SFPInterpreter implements SFPParserVisitor {
 		// TODO: check is this correct to match number to double?
 		return JamochaType.DOUBLE;
 	}
+
 }

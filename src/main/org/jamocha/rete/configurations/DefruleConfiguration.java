@@ -5,6 +5,7 @@ import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.ExpressionSequence;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
+import org.jamocha.rule.Condition;
 
 public class DefruleConfiguration implements Parameter {
 
@@ -14,7 +15,7 @@ public class DefruleConfiguration implements Parameter {
 	
 	DeclarationConfiguration declarationConfiguration = null;
 	
-	ConditionConfiguration[] conditions = null;
+	Condition[] conditions = null;
 	
 	ExpressionSequence actions = null;
 	
@@ -61,11 +62,11 @@ public class DefruleConfiguration implements Parameter {
 		this.declarationConfiguration = declarationConfiguration;
 	}
 
-	public ConditionConfiguration[] getConditionConfigurations() {
+	public Condition[] getConditions() {
 		return conditions;
 	}
 
-	public void seConditionConfiguration(ConditionConfiguration[] conditions) {
+	public void seConditions(Condition[] conditions) {
 		this.conditions = conditions;
 	}
 

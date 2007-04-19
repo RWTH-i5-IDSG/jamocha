@@ -26,6 +26,7 @@ import org.jamocha.rete.functions.FunctionDescription;
 import org.jamocha.rule.Action;
 import org.jamocha.rule.AndCondition;
 import org.jamocha.rule.AndLiteralConstraint;
+import org.jamocha.rule.BooleanOperatorCondition;
 import org.jamocha.rule.BoundConstraint;
 import org.jamocha.rule.Condition;
 import org.jamocha.rule.Constraint;
@@ -432,7 +433,7 @@ public class CLIPSFormatter implements Formatter {
 		if (condition instanceof TestCondition) {
 			return formatTestCondition((TestCondition) condition);
 		} else if (condition instanceof AndCondition) {
-			return formatAndCondition((AndCondition) condition);
+			return formatAndCondition((BooleanOperatorCondition) condition);
 		} else if (condition instanceof ExistCondition) {
 			return formatExistCondition((ExistCondition) condition);
 		} else if (condition instanceof ObjectCondition) {
@@ -580,7 +581,7 @@ public class CLIPSFormatter implements Formatter {
 		return "";
 	}
 
-	private String formatAndCondition(AndCondition condition) {
+	private String formatAndCondition(BooleanOperatorCondition condition) {
 		return "";
 	}
 

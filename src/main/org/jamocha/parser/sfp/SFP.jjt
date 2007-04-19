@@ -554,17 +554,19 @@ void Lexeme() #void :
 *		Constant
 **/
 
-void Constant() #void :
+SimpleNode Constant() :
 {}
 { 	
 	(
 		DateTime()
-	|   	Symbol()
+	|   Symbol()
 	|	String()
 	|	Integer()
 	|	Float()
 	|	BooleanSymbol()
 	)
+	
+    { return jjtThis; }	
 }
 
 
@@ -1393,7 +1395,7 @@ void BooleanSymbol() #void:
 
 //<conditional-element> ::= <pattern-CE> | <assigned-pattern-CE> | <not-CE> | <and-CE> | <or-CE> |
 //                          <logical-CE> | <test-CE> | <exists-CE> | <forall-CE>
-SimpleNode ConditionalElement() :
+void ConditionalElement() #void:
 {}
 {
 	(	
@@ -1411,8 +1413,7 @@ SimpleNode ConditionalElement() :
 		)
 
 		|	AssignedPatternCE()
-	)
-		{ return jjtThis; }	
+	)	
 }
 
 /**
@@ -1565,17 +1566,15 @@ SimpleNode TemplatePatternCE():
 
 //<LHS-slot> ::= <single-field-LHS-slot> | <multifield-LHS-slot>
 
-void LHSSlot()  #void: 
+SimpleNode LHSSlot(): 
 {}
 {
     (
     	Symbol() //slot Name
-    	
-		(
-			LOOKAHEAD(2)
-			Constraint()
-		)*
+		Constraint()
     )	
+    
+    { return jjtThis; }
 }
 
 
@@ -1620,32 +1619,41 @@ void ConnectedConstraint() #void:
 {
     (
     	Term() 
-	[ 
-		Ampersand()
-	|	Line()
+    [
+		AmpersandConnectedConstraint()
+	|	LineConnectedConstraint()
 	]
     )
 }
 
-
-
-SimpleNode Ampersand():
+SimpleNode AmpersandConnectedConstraint(): 
 {}
 {
-	<AMPERSAND>
-	ConnectedConstraint()
+    (
+		<AMPERSAND>
+		Term()
+	[
+		AmpersandConnectedConstraint()
+	]
+    )
+    
+    { return jjtThis; }
+}
+
+SimpleNode LineConnectedConstraint(): 
+{}
+{
+    (
+		<LINE>
+		Term()
+	[
+		LineConnectedConstraint()
+	]
+    )
+    
 	{ return jjtThis; } 
 }
 
-
-
-SimpleNode Line():
-{}
-{
-	<LINE>
-	ConnectedConstraint()
-	{ return jjtThis; } 
-}
 
 
 
@@ -1659,7 +1667,7 @@ SimpleNode Term()  :
 		Negation()
 	] 
     ( LOOKAHEAD(3)
-	Constant()
+    	Constant()
     |	SingleVariable()
     |	MultiVariable()
     |	Colon()
