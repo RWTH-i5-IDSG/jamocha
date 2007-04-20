@@ -83,7 +83,7 @@ public class Deftemplate implements Function, Serializable {
 	public String getName() {
 		return NAME;
 	}
-
+	
 	public JamochaValue executeFunction(Rete engine, Parameter[] params)
 			throws EvaluationException {
 		JamochaValue result = JamochaValue.FALSE;
@@ -92,8 +92,9 @@ public class Deftemplate implements Function, Serializable {
 			if (firstParam.getObjectValue() instanceof org.jamocha.rete.Deftemplate) {
 				org.jamocha.rete.Deftemplate tpl = (org.jamocha.rete.Deftemplate) firstParam
 						.getObjectValue();
-				result = engine.addTemplate(tpl) ? JamochaValue.TRUE
-						: JamochaValue.FALSE;
+					//add template:
+					result = engine.addTemplate(tpl) ? JamochaValue.TRUE
+							: JamochaValue.FALSE;
 			}
 		} else {
 			throw new IllegalParameterException(1);

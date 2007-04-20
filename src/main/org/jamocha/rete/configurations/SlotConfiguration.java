@@ -16,6 +16,11 @@ public class SlotConfiguration implements Parameter {
 
 	private String slotName = null;
 	
+	/**
+	 * the id of the slot
+	 */
+	private int id;
+	
 	private Parameter[] slotValues = null;
 	
 	/* (non-Javadoc)
@@ -71,6 +76,14 @@ public class SlotConfiguration implements Parameter {
 
 	public Boolean isMultislot(){
 		return (slotValues.length >1);
+	}
+
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
 	}
 }
 

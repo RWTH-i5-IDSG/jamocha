@@ -333,6 +333,9 @@ public class Deftemplate implements Template, Serializable {
 				//template slots name matches SlotConfiguration Name?
 				if (slot.getName().equals(sc.getSlotName())) 
 				{
+					//copy slot id:
+					slot.setId(sc.getId());
+					
 					JamochaValue val = sc.getValue(engine);
 					//Multislot?
 					if (sc.isMultislot())
@@ -349,7 +352,6 @@ public class Deftemplate implements Template, Serializable {
 							}
 						}
 						slot.setValue(val);
-						
 						
 					} else {
 						//no multislot:

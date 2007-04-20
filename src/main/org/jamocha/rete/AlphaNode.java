@@ -16,8 +16,6 @@
  */
 package org.jamocha.rete;
 
-import java.util.Iterator;
-
 import org.jamocha.rete.exception.AssertException;
 import org.jamocha.rete.exception.RetractException;
 
@@ -32,6 +30,8 @@ import org.jamocha.rete.exception.RetractException;
  * 
  */
 public class AlphaNode extends BaseAlpha2 {
+
+	private static final long serialVersionUID = 1L;
 
 	/**
 	 * The use of Slot(s) is similar to CLIPS design
