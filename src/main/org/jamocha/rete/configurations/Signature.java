@@ -101,9 +101,11 @@ public class Signature extends AbstractSignature {
 			Function func = lookUpFunction(engine);
 			if (func != null) {
 				return func.executeFunction(engine, this.params);
+			} else {
+				// Alexander : please write to the logger
 			}
 		}
-		return null;
+		return JamochaValue.FALSE;
 	}
 
 	public void reset() {
