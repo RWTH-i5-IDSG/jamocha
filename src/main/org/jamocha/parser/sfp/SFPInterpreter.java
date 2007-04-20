@@ -380,10 +380,9 @@ public class SFPInterpreter implements SFPParserVisitor {
 		}
 
 		// set the rule LHS
-		Condition[] conditionList = new Condition[node.jjtGetNumChildren() - j];
+		Condition[] conditionList = new Condition[k - j];
 		for (int i = j; i < k; i++) {
-			conditionList[i - j] = (Condition) (node.jjtGetChild(i).jjtAccept(
-					this, data));
+			conditionList[i - j] = (Condition) (node.jjtGetChild(i).jjtAccept(this, data));
 		}
 
 		// setup a new DefruleConfiguration
@@ -396,9 +395,8 @@ public class SFPInterpreter implements SFPParserVisitor {
 
 		// create the resulting signature
 		Signature signature = new Signature();
-		signature
-				.setSignatureName(org.jamocha.rete.functions.ruleengine.Assert.NAME);
-		// signature.setParameters(acArray);
+		signature.setSignatureName(org.jamocha.rete.functions.ruleengine.Defrule.NAME);
+		signature.setParameters(new Parameter[] {rc});
 
 		return signature;
 	}
@@ -420,7 +418,7 @@ public class SFPInterpreter implements SFPParserVisitor {
 			node.jjtGetChild(i).jjtAccept(this, dc);
 		}
 
-		return null;
+		return dc;
 	}
 
 	public Object visit(SFPSalience node, Object data) {
@@ -520,14 +518,12 @@ public class SFPInterpreter implements SFPParserVisitor {
 		ObjectCondition objectCond = new ObjectCondition();
 
 		// get Template Name
-		JamochaValue templateName = (JamochaValue) node.jjtGetChild(0)
-				.jjtAccept(this, data);
+		JamochaValue templateName = (JamochaValue) node.jjtGetChild(0).jjtAccept(this, data);
 		objectCond.setTemplateName(templateName.toString());
 
 		// constraints
 		for (int i = 1; i < node.jjtGetNumChildren(); i++) {
-			objectCond.addConstraint((Constraint) node.jjtGetChild(0)
-					.jjtAccept(this, data));
+			objectCond.addConstraint((Constraint) node.jjtGetChild(i).jjtAccept(this, data));
 		}
 
 		return objectCond;
@@ -535,12 +531,14 @@ public class SFPInterpreter implements SFPParserVisitor {
 
 	public Object visit(SFPLHSSlot node, Object data) {
 		// get Slot Name
-		JamochaValue slotName = (JamochaValue) node.jjtGetChild(0).jjtAccept(
-				this, data);
-		Constraint constraint = (Constraint) node.jjtGetChild(0).jjtAccept(
-				this, data);
+		JamochaValue slotName = (JamochaValue) node.jjtGetChild(0).jjtAccept(this, data);
+		
+		//get constraint from subnode
+		Constraint constraint = (Constraint) node.jjtGetChild(1).jjtAccept(this, data);
 
+		//set name to given constraint
 		constraint.setName(slotName.getStringValue());
+		
 		return constraint;
 	}
 
@@ -595,7 +593,8 @@ public class SFPInterpreter implements SFPParserVisitor {
 			constraint.setValue(jv);
 			((BoundConstraint) constraint).setIsMultislot(true);
 		}
-		// TODO: set negated
+		
+		constraint.setNegated(isNegated);
 
 		return constraint;
 	}

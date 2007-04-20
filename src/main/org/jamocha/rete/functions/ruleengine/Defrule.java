@@ -25,6 +25,7 @@ import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
+import org.jamocha.rete.configurations.DefruleConfiguration;
 import org.jamocha.rete.functions.FunctionDescription;
 
 /**
@@ -34,8 +35,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  */
 public class Defrule implements Function, Serializable {
 
-	private static final class Description implements
-			FunctionDescription {
+	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
 			return "Defines a new rule in the currently focused module of the engine.";
@@ -87,21 +87,34 @@ public class Defrule implements Function, Serializable {
 	public JamochaValue executeFunction(Rete engine, Parameter[] params)
 			throws EvaluationException {
 		JamochaValue result = JamochaValue.FALSE;
+
 		if (params != null && params.length == 1) {
-			JamochaValue firstParam = params[0].getValue(engine);
-			if (firstParam.getObjectValue() instanceof org.jamocha.rule.Defrule) {
-				org.jamocha.rule.Defrule rl = (org.jamocha.rule.Defrule) firstParam.getObjectValue();
-				if (!engine.getCurrentFocus().containsRule(rl)) {
-					if (engine.getRuleCompiler().addRule(rl)) {
-						result = JamochaValue.TRUE;
-					}
+			org.jamocha.rule.Defrule defrule = null;
+			if (params[0] instanceof JamochaValue) {
+				// get defrule from first parameter:
+				JamochaValue firstParam = params[0].getValue(engine);
+				if (firstParam.getObjectValue() instanceof org.jamocha.rule.Defrule) {
+					defrule = (org.jamocha.rule.Defrule) firstParam
+							.getObjectValue();
 				}
+			}
+			// create new defrule from DefruleConfiguration:
+			else if (params[0] instanceof DefruleConfiguration) {
+				defrule = new org.jamocha.rule.Defrule(
+						(DefruleConfiguration) params[0], engine);
 			} else {
 				throw new EvaluationException("Parameter 1 is no defrule.");
+			}
+			// compile Defrule:
+			if (!engine.getCurrentFocus().containsRule(defrule)) {
+				if (engine.getRuleCompiler().addRule(defrule)) {
+					result = JamochaValue.TRUE;
+				}
 			}
 		} else {
 			throw new IllegalParameterException(1);
 		}
 		return result;
 	}
+
 }

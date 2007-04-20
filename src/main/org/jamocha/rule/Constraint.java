@@ -55,4 +55,19 @@ public interface Constraint extends Serializable {
      * @param val
      */
     void setValue(JamochaValue val);
+    
+	/**
+	 * if the literal constraint is negated with a "~" tilda, call
+	 * the method pass true.
+	 * @param negate
+	 */
+	void setNegated(boolean negate);
+	
+	/**
+	 * if the literal constraint is negated, the method returns true
+	 * @return
+	 */
+	boolean getNegated();
+    
+    
 }

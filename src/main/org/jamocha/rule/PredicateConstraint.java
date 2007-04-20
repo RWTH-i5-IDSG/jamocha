@@ -168,4 +168,14 @@ public class PredicateConstraint implements Constraint {
     public void normalize() {
 
     }
+
+	public boolean getNegated() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	public void setNegated(boolean negate) {
+		// TODO Auto-generated method stub
+		
+	}
 }
