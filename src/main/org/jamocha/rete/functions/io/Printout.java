@@ -21,6 +21,7 @@ import java.io.Serializable;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
+import org.jamocha.parser.ParserUtils;
 import org.jamocha.rete.Constants;
 import org.jamocha.rete.Fact;
 import org.jamocha.rete.Function;
@@ -86,36 +87,23 @@ public class Printout implements Function, Serializable {
 
 	public JamochaValue executeFunction(Rete engine, Parameter[] params)
 			throws EvaluationException {
+		JamochaValue result = JamochaValue.NIL;
 		// print out some stuff
 		if (params.length > 0) {
-			String output = params[0].getValue(engine).getStringValue();
+			String outputType = params[0].getValue(engine).getStringValue();
+			JamochaValue value = null;
+			StringBuilder outputString = new StringBuilder();
 			for (int idx = 1; idx < params.length; idx++) {
-				JamochaValue value = params[idx].getValue(engine);
-				if (value.getType().equals(JamochaType.IDENTIFIER)
-						&& value.getIdentifierValue().equals(Constants.CRLF)) {
-					engine.writeMessage(Constants.LINEBREAK, output);
+				value = params[idx].getValue(engine);
+				if (value !=null){
+					outputString.append(value.toString());
 				} else {
-					engine.writeMessage(value.toString(), output);
+					outputString.append(Constants.NIL_STRING);
 				}
 			}
+			engine.writeMessage(outputString.toString(), outputType);
 		}
-		// there's nothing to return, so just return a new DefaultReturnVector
-		return JamochaValue.NIL;
+		return result;
 	}
 
-	public void writeArray(Object[] arry, Rete engine, String output,
-			boolean linebreak) {
-		for (int idz = 0; idz < arry.length; idz++) {
-			Object val = arry[idz];
-			if (val instanceof Fact) {
-				Fact f = (Fact) val;
-				engine.writeMessage(f.toFactString() + " ", output);
-			} else {
-				engine.writeMessage(arry[idz].toString() + " ", output);
-			}
-			if (linebreak) {
-				engine.writeMessage(Constants.LINEBREAK, output);
-			}
-		}
-	}
 }

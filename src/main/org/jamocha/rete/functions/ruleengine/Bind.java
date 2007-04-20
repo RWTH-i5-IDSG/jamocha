@@ -23,6 +23,7 @@ import org.jamocha.parser.IllegalParameterException;
 import org.jamocha.parser.IllegalTypeException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
+import org.jamocha.rete.BoundParam;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
@@ -107,14 +108,23 @@ public class Bind implements Function, Serializable {
 			throws EvaluationException {
 		JamochaValue result = JamochaValue.FALSE;
 		if (params.length == 2) {
-			JamochaValue identifier = params[0].getValue(engine);
-			if (!identifier.getType().equals(JamochaType.IDENTIFIER)) {
-				throw new IllegalTypeException(JamochaType.IDENTIFIERS,
-						identifier.getType());
+			String variableName = null;
+
+			if (params[0] instanceof JamochaValue) {
+				JamochaValue identifier = params[0].getValue(engine);
+				if (!identifier.getType().equals(JamochaType.IDENTIFIER)) {
+					throw new IllegalTypeException(JamochaType.IDENTIFIERS,
+							identifier.getType());
+				}
+				variableName = identifier.getIdentifierValue();
+			} else if (params[0] instanceof BoundParam) {
+				variableName = ((BoundParam) params[0]).getVariableName();
 			}
 			JamochaValue value = params[1].getValue(engine);
-			engine.setBinding(identifier.getIdentifierValue(), value);
-			result = JamochaValue.TRUE;
+			if (value != null) {
+				engine.setBinding(variableName, value);
+				result = JamochaValue.TRUE;
+			}
 		} else {
 			throw new IllegalParameterException(2);
 		}

@@ -95,7 +95,8 @@ public class Constants {
     public static final String LESSEQUAL_STRING = "less than or equal to";
     public static final String EQUAL_STRING = "equal to";
     public static final String NOTEQUAL_STRING = "not equal to";
-    public static final String NILL_STRING = "is null";
+    public static final String NIL_STRING = " <NIL> ";
+    public static final String NULL_STRING = "is null";
     
     /// --------- native types for the rule engine ---------///
     public static final int SLOT_TYPE = 100;

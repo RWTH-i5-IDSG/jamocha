@@ -275,7 +275,10 @@ public class JamochaValue implements Parameter {
 
 	@Override
 	public String toString() {
-		return ParserFactory.getFormatter().formatExpression(this);
+		if (type.equals(JamochaType.STRING))
+			return ParserUtils.getStringLiteral(ParserFactory.getFormatter().formatExpression(this));
+		else
+			return ParserFactory.getFormatter().formatExpression(this);
 	}
 
 	public JamochaValue implicitCast(JamochaType type)

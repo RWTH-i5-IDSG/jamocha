@@ -75,9 +75,9 @@ public class SFPInterpreter implements SFPParserVisitor {
 	}
 
 	public Object visit(SFPSingleVariable node, Object data) {
-		BoundParam boundParam = new BoundParam();
-		boundParam.setVariableName(node.name);
-		return boundParam;
+		BoundParam bp = new BoundParam();
+		bp.setVariableName(node.getName());
+		return bp;
 	}
 
 	public Object visit(SFPGlobalVariable node, Object data) {
@@ -86,10 +86,10 @@ public class SFPInterpreter implements SFPParserVisitor {
 	}
 
 	public Object visit(SFPMultiVariable node, Object data) {
-		BoundParam boundParam = new BoundParam();
-		boundParam.setVariableName(node.name);
-		boundParam.setIsMultislot(true);
-		return boundParam;
+		BoundParam bp = new BoundParam();
+		bp.setVariableName(node.getName());
+		bp.setIsMultislot(true);
+		return bp;
 	}
 
 	public Object visit(SFPVariableType node, Object data) {
@@ -355,7 +355,7 @@ public class SFPInterpreter implements SFPParserVisitor {
 
 		if (n != null && n instanceof SFPConstructDescription) {
 			j++;
-			ruleDescription = (JamochaValue) n.jjtGetChild(j).jjtAccept(this,
+			ruleDescription = (JamochaValue) n.jjtAccept(this,
 					data);
 		}
 
@@ -587,12 +587,12 @@ public class SFPInterpreter implements SFPParserVisitor {
 			// predivate can't handle functions containing functioncalls
 		} else if (n instanceof SFPSingleVariable) {
 			constraint = new BoundConstraint();
-			constraint.setValue(JamochaValue.newIdentifier(((BoundParam) obj)
-					.getVariableName()));
+			JamochaValue jv = JamochaValue.newIdentifier(((BoundParam) obj).getVariableName());
+			constraint.setValue(jv);
 		} else if (n instanceof SFPMultiVariable) {
 			constraint = new BoundConstraint();
-			constraint.setValue(JamochaValue.newIdentifier(((BoundParam) obj)
-					.getVariableName()));
+			JamochaValue jv = JamochaValue.newIdentifier(((BoundParam) obj).getVariableName());
+			constraint.setValue(jv);
 			((BoundConstraint) constraint).setIsMultislot(true);
 		}
 		// TODO: set negated
@@ -644,14 +644,12 @@ public class SFPInterpreter implements SFPParserVisitor {
 		// get function's variables
 		Parameter[] params = new Parameter[node.jjtGetNumChildren() - (j + 1)];
 		for (int i = j; i < node.jjtGetNumChildren() - 1; i++) {
-			BoundParam boundParam = (BoundParam) node.jjtGetChild(i).jjtAccept(
-					this, data);
-			params[i - j] = boundParam;
+			BoundParam bp = (BoundParam) node.jjtGetChild(i).jjtAccept(this, data);
+			params[i - j] = bp;
 		}
 
 		// get the function's actionlist
-		ExpressionSequence expressions = (ExpressionSequence) node.jjtGetChild(
-				node.jjtGetNumChildren() - 1).jjtAccept(this, data);
+		ExpressionSequence expressions = (ExpressionSequence) node.jjtGetChild(node.jjtGetNumChildren() - 1).jjtAccept(this, data);
 
 		// set up a new DeffunctionConfiguration
 		DeffunctionConfiguration[] dcs = new DeffunctionConfiguration[1];

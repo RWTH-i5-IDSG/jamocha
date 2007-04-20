@@ -121,8 +121,7 @@ public class InterpretedFunction implements Function {
 			Scope parameterValues = new DefaultScope();
 			for (int idx = 0; idx < inputParams.length; idx++) {
 				BoundParam bp = (BoundParam) inputParams[idx];
-				parameterValues.setBindingValue(bp.getVariableName(),
-						params[idx].getValue(engine));
+				parameterValues.setBindingValue(bp.getVariableName(), params[idx].getValue(engine));
 			}
 			engine.pushScope(parameterValues);
 			try {
