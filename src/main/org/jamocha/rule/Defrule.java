@@ -125,8 +125,7 @@ public class Defrule implements Rule, Scope, Serializable {
 		setName(name);
 	}
 
-	public Defrule(DefruleConfiguration configuration, Rete engine)
-			throws EvaluationException {
+	public Defrule(DefruleConfiguration configuration, Rete engine) throws EvaluationException {
 		this();
 		// set rule name:
 		setName(configuration.getRuleName());
@@ -189,9 +188,7 @@ public class Defrule implements Rule, Scope, Serializable {
 		this.watch = watch;
 	}
 
-	public void setDeclaration(
-			DeclarationConfiguration declarationConfiguration, Rete engine)
-			throws EvaluationException {
+	public void setDeclaration(DeclarationConfiguration declarationConfiguration, Rete engine) throws EvaluationException {
 		if (declarationConfiguration != null) {
 			Parameter param = null;
 
@@ -237,7 +234,8 @@ public class Defrule implements Rule, Scope, Serializable {
 	}
 
 	public void setDescription(String text) {
-		this.description = text.substring(1, text.length() - 1);
+		if (text != null)
+			this.description = text.substring(1, text.length() - 1);
 	}
 
 	public Complexity getComplexity() {
@@ -517,8 +515,7 @@ public class Defrule implements Rule, Scope, Serializable {
 			Condition cnd = cnds[idx];
 			if (cnd instanceof ObjectCondition) {
 				ObjectCondition oc = (ObjectCondition) cnd;
-				Template dft = (Template) engine.findTemplate(oc
-						.getTemplateName());
+				Template dft = (Template) engine.findTemplate(oc.getTemplateName());
 				if (dft != null) {
 					oc.setTemplate(dft);
 				}
@@ -528,8 +525,7 @@ public class Defrule implements Rule, Scope, Serializable {
 				ExistCondition ec = (ExistCondition) cnd;
 				if (ec.hasObjectCondition()) {
 					ObjectCondition oc = ec.getObjectCondition();
-					Template dft = (Template) engine.findTemplate(oc
-							.getTemplateName());
+					Template dft = (Template) engine.findTemplate(oc.getTemplateName());
 					if (dft != null) {
 						oc.setTemplate(dft);
 					}
@@ -548,16 +544,13 @@ public class Defrule implements Rule, Scope, Serializable {
 				setSalience(declaration.getIntValue());
 			} else if (declaration.getName().equals(RuleProperty.VERSION)) {
 				setVersion(declaration.getValue());
-			} else if (declaration.getName()
-					.equals(RuleProperty.REMEMBER_MATCH)) {
+			} else if (declaration.getName().equals(RuleProperty.REMEMBER_MATCH)) {
 				setRememberMatch(declaration.getBooleanValue());
 			} else if (declaration.getName().equals(RuleProperty.NO_AGENDA)) {
 				setNoAgenda(declaration.getBooleanValue());
-			} else if (declaration.getName()
-					.equals(RuleProperty.EFFECTIVE_DATE)) {
+			} else if (declaration.getName().equals(RuleProperty.EFFECTIVE_DATE)) {
 				this.effectiveDate = getDateTime(declaration.getValue());
-			} else if (declaration.getName().equals(
-					RuleProperty.EXPIRATION_DATE)) {
+			} else if (declaration.getName().equals(RuleProperty.EXPIRATION_DATE)) {
 				this.expirationDate = getDateTime(declaration.getValue());
 			}
 		}
@@ -567,8 +560,7 @@ public class Defrule implements Rule, Scope, Serializable {
 	public static long getDateTime(String date) {
 		if (date != null && date.length() > 0) {
 			try {
-				java.text.SimpleDateFormat df = new java.text.SimpleDateFormat(
-						"mm/dd/yyyy HH:mm");
+				java.text.SimpleDateFormat df = new java.text.SimpleDateFormat("mm/dd/yyyy HH:mm");
 				return df.parse(date).getTime();
 			} catch (Exception e) {
 				e.printStackTrace();

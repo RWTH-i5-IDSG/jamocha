@@ -339,7 +339,7 @@ public class SFPInterpreter implements SFPParserVisitor {
 		ruleName = (JamochaValue) node.jjtGetChild(j++).jjtAccept(this, data);
 
 		// get the rule description
-		JamochaValue ruleDescription = JamochaValue.newString("");
+		JamochaValue ruleDescription = null;
 
 		Node n = node.jjtGetChild(j);
 
@@ -377,10 +377,14 @@ public class SFPInterpreter implements SFPParserVisitor {
 		// setup a new DefruleConfiguration
 		DefruleConfiguration rc = new DefruleConfiguration();
 		rc.setRuleName(ruleName.toString());
-		rc.setRuleDescription(ruleDescription.toString());
+
 		rc.setDeclarationConfiguration(dc);
 		rc.seConditions(conditionList);
 		rc.setActions(actions);
+		
+		if (ruleDescription != null) {
+			rc.setRuleDescription(ruleDescription.toString());
+		}
 
 		// create the resulting signature
 		Signature signature = new Signature();
