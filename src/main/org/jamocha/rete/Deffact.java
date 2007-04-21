@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
+import org.jamocha.rete.configurations.SlotConfiguration;
 import org.jamocha.rule.Rule;
 
 /**
@@ -79,8 +80,7 @@ public class Deffact implements Fact {
 			if (this.slots[idx].value.getType().equals(JamochaType.BINDING)) {
 				this.hasBinding = true;
 				list.add(this.slots[idx]);
-				BoundParam bp = (BoundParam) this.slots[idx].value
-						.getObjectValue();
+				BoundParam bp = (BoundParam) this.slots[idx].value.getObjectValue();
 				Binding bd = util.getBinding(bp.getVariableName());
 				if (bd != null) {
 					bp.rowId = bd.getLeftRow();
@@ -111,20 +111,14 @@ public class Deffact implements Fact {
 				for (int mdx = 0; mdx < mvals.getListCount(); mdx++) {
 					JamochaValue jv = mvals.getListValue(mdx);
 					BoundParam bp = (BoundParam) jv.getObjectValue();
-					bp
-							.setResolvedValue(engine.getBinding(bp
-									.getVariableName()));
+					bp.setResolvedValue(engine.getBinding(bp.getVariableName()));
 				}
-			} else if (this.boundSlots[idx].value.getType().equals(
-					JamochaType.BINDING)) {
-				BoundParam bp = (BoundParam) this.boundSlots[idx].value
-						.getObjectValue();
+			} else if (this.boundSlots[idx].value.getType().equals(JamochaType.BINDING)) {
+				BoundParam bp = (BoundParam) this.boundSlots[idx].value.getObjectValue();
 				if (bp.column > -1) {
 					bp.setFact(triggerFacts);
 				} else {
-					bp
-							.setResolvedValue(engine.getBinding(bp
-									.getVariableName()));
+					bp.setResolvedValue(engine.getBinding(bp.getVariableName()));
 				}
 			}
 		}
@@ -192,8 +186,7 @@ public class Deffact implements Fact {
 			buf.append(" ");
 		}
 		for (int idx = 0; idx < this.slots.length; idx++) {
-			buf.append("(" + this.slots[idx].getName() + " "
-					+ ConversionUtils.formatSlot(this.slots[idx].value) + ") ");
+			buf.append("(" + this.slots[idx].getName() + " " + ConversionUtils.formatSlot(this.slots[idx].value) + ") ");
 		}
 		buf.append(")");
 		return buf.toString();
@@ -207,14 +200,10 @@ public class Deffact implements Fact {
 		}
 		for (int idx = 0; idx < this.slots.length; idx++) {
 			if (this.slots[idx].value.getType().equals(JamochaType.BINDING)) {
-				BoundParam bp = (BoundParam) this.slots[idx].value
-						.getObjectValue();
-				buf.append("(" + this.slots[idx].getName() + " ?"
-						+ bp.getVariableName() + ") ");
+				BoundParam bp = (BoundParam) this.slots[idx].value.getObjectValue();
+				buf.append("(" + this.slots[idx].getName() + " ?" + bp.getVariableName() + ") ");
 			} else {
-				buf.append("(" + this.slots[idx].getName() + " "
-						+ ConversionUtils.formatSlot(this.slots[idx].value)
-						+ ") ");
+				buf.append("(" + this.slots[idx].getName() + " " + ConversionUtils.formatSlot(this.slots[idx].value) + ") ");
 			}
 		}
 		buf.append(")");
@@ -243,8 +232,7 @@ public class Deffact implements Fact {
 	public int hashCode() {
 		int hash = 0;
 		for (int idx = 0; idx < this.slots.length; idx++) {
-			hash += this.slots[idx].getName().hashCode()
-					+ this.slots[idx].value.hashCode();
+			hash += this.slots[idx].getName().hashCode() + this.slots[idx].value.hashCode();
 		}
 		return hash;
 	}
@@ -289,6 +277,16 @@ public class Deffact implements Fact {
 			} else {
 				this.slots[uslot.getId()].value = uslot.value;
 			}
+		}
+	}
+
+	public void updateSlots(Rete engine, SlotConfiguration[] slots) throws EvaluationException {
+		SlotConfiguration sc = null;
+		JamochaValue val = null;
+		for (int idx = 0; idx < slots.length; idx++) {
+			sc = slots[idx];
+			val = sc.getValue(engine);
+			this.slots[sc.getId()].value = val;
 		}
 	}
 
@@ -340,8 +338,7 @@ public class Deffact implements Fact {
 	 * @return
 	 */
 	public Deffact cloneFact(Rete engine) {
-		Deffact newfact = new Deffact(this.template, this.objInstance,
-				cloneAllSlots(), -1);
+		Deffact newfact = new Deffact(this.template, this.objInstance, cloneAllSlots(), -1);
 		Slot[] slts = newfact.slots;
 		for (int idx = 0; idx < slts.length; idx++) {
 			// probably need to revisit this and make sure
@@ -352,19 +349,16 @@ public class Deffact implements Fact {
 				for (int mdx = 0; mdx < mval.getListCount(); mdx++) {
 					JamochaValue v2 = mval.getListValue(mdx);
 					try {
-						rvals[mdx] = JamochaValue.newObject(((BoundParam) v2
-								.getObjectValue()).getValue(engine));
+						rvals[mdx] = JamochaValue.newObject(((BoundParam) v2.getObjectValue()).getValue(engine));
 					} catch (EvaluationException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 				}
 				slts[idx].value = JamochaValue.newList(rvals);
-			} else if (this.slots[idx].value.getType().equals(
-					JamochaType.BINDING)) {
+			} else if (this.slots[idx].value.getType().equals(JamochaType.BINDING)) {
 				try {
-					slts[idx].value = ((BoundParam) this.slots[idx].value
-							.getObjectValue()).getValue(engine);
+					slts[idx].value = ((BoundParam) this.slots[idx].value.getObjectValue()).getValue(engine);
 				} catch (EvaluationException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -399,4 +393,5 @@ public class Deffact implements Fact {
 		this.id = 0;
 		this.timeStamp = 0;
 	}
+
 }

@@ -14,6 +14,24 @@
 )
 
 
+(defrule wurst-meter "Regel zur Ausgabe der Wurst-LŠnge" 
+	(declare (rule-version "performance version") (salience 101) (auto-focus TRUE))
+	(wurst (gewicht ?x))
+	(bier (gewicht ?x))
+;;	y <- (wurst (laenge ?x)
+	=>
+	(printout t "Lebensmittel die zusammenpassen.")
+)
+
+(defrule wurst-meter-langsam "Regel zur Ausgabe der Wurst-LŠnge" 
+	(wurst (laenge 100))
+;;	y <- (wurst (laenge ?x)
+	=>
+	(printout t "Eine Wurst gefunden.")
+)
+
+
+
 (assert (wurst
 		(name "Fischwurst")
 		(gewicht 200)
@@ -36,18 +54,22 @@
 		)
 )
 
-(defrule wurst-meter "Regel zur Ausgabe der Wurst-LŠnge" 
-	(declare (rule-version "performance version") (salience 101) (auto-focus TRUE))
-	(wurst (gewicht ?x))
-	(bier (gewicht ?x))
-;;	y <- (wurst (laenge ?x)
-	=>
-	(printout t "Lebensmittel die zusammenpassen.")
+;modify test:
+(deftemplate modifywurst
+	(slot name (default "zukurz"))
+	(slot laenge (default 25))
 )
 
-(defrule wurst-meter-langsam "Regel zur Ausgabe der Wurst-LŠnge" 
-	(wurst (laenge 100))
-;;	y <- (wurst (laenge ?x)
-	=>
-	(printout t "Eine Wurst gefunden.")
+(assert (modifywurst)
 )
+
+(defrule bessereWurst
+	 ?wurstFact <-(modifywurst 
+		(laenge ?x)
+	)	
+	=>
+	(modify ?wurstFact
+				(laenge 35)
+	)
+	(printout t "laengere wurst" crlf)
+ )

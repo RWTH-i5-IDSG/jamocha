@@ -18,7 +18,9 @@ package org.jamocha.rete;
 
 import java.io.Serializable;
 
+import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaValue;
+import org.jamocha.rete.configurations.SlotConfiguration;
 import org.jamocha.rule.Rule;
 
 /**
@@ -66,6 +68,9 @@ public interface Fact extends Serializable {
      * @param slots
      */
     void updateSlots(Rete engine, Slot[] slots);
+    
+	void updateSlots(Rete engine, SlotConfiguration[] slots) throws EvaluationException;
+	
     /**
      * Return the Deftemplate for the fact
      * @return
@@ -89,4 +94,5 @@ public interface Fact extends Serializable {
     EqualityIndex equalityIndex();
     
 	void setFactId(long id);
+
 }

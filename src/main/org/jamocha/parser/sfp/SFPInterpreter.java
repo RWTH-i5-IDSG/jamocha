@@ -14,6 +14,7 @@ import org.jamocha.rete.configurations.AssertConfiguration;
 import org.jamocha.rete.configurations.DeclarationConfiguration;
 import org.jamocha.rete.configurations.DeffunctionConfiguration;
 import org.jamocha.rete.configurations.DefruleConfiguration;
+import org.jamocha.rete.configurations.ModifyConfiguration;
 import org.jamocha.rete.configurations.Signature;
 import org.jamocha.rete.configurations.SlotConfiguration;
 import org.jamocha.rule.AndCondition;
@@ -136,6 +137,44 @@ public class SFPInterpreter implements SFPParserVisitor {
 
 		return signature;
 	}
+	
+	public Object visit(SFPModify node, Object data) {
+
+		// create an AssertConfiguration array an fill it in the subnodes
+		ModifyConfiguration[] acArray = new ModifyConfiguration[node.jjtGetNumChildren()];
+		for (int i = 0; i < node.jjtGetNumChildren(); i++) {
+			acArray[i] = (ModifyConfiguration) node.jjtGetChild(i).jjtAccept(this, data);
+		}
+
+		// create the resulting signature
+		Signature signature = new Signature();
+		signature.setSignatureName(org.jamocha.rete.functions.ruleengine.Modify.NAME);
+		signature.setParameters(acArray);
+		
+		return signature;
+	}
+
+	public Object visit(SFPModifyPattern node, Object data) {
+		// get the template name
+		BoundParam fact = (BoundParam) node.jjtGetChild(0).jjtAccept(this, data);
+
+
+		// get the slots from subnodes:
+		SlotConfiguration[] slots = new SlotConfiguration[node.jjtGetNumChildren() - 1];
+		SlotConfiguration slot = null;
+		for (int i = 1; i < node.jjtGetNumChildren(); i++) {
+			slot =  (SlotConfiguration) node.jjtGetChild(i).jjtAccept(this, data);
+			slot.setId(i-1);
+			slots[i - 1] = slot;
+		}
+		
+		ModifyConfiguration mc = new ModifyConfiguration();
+		mc.setFactBinding(fact);
+		mc.setSlots(slots);
+		
+		return mc;
+	}	
+	
 
 	public Object visit(SFPFindFactByFactFunc node, Object data) {
 		// TODO Auto-generated method stub
@@ -805,5 +844,4 @@ public class SFPInterpreter implements SFPParserVisitor {
 		// TODO: check is this correct to match number to double?
 		return JamochaType.DOUBLE;
 	}
-
 }

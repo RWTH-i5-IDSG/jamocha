@@ -28,6 +28,7 @@ import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.Slot;
+import org.jamocha.rete.configurations.ModifyConfiguration;
 import org.jamocha.rete.exception.AssertException;
 import org.jamocha.rete.exception.RetractException;
 import org.jamocha.rete.functions.FunctionDescription;
@@ -103,27 +104,37 @@ public class Modify implements Function, Serializable {
 		return NAME;
 	}
 
-	public JamochaValue executeFunction(Rete engine, Parameter[] params)
-			throws EvaluationException {
+	public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
 		JamochaValue result = JamochaValue.FALSE;
-		if (engine != null && params != null && params.length >= 2
-				&& params[0].isObjectBinding()) {
-			BoundParam bp = (BoundParam) params[0];
-			Fact fact = bp.getFact();
+		if (engine != null && params != null && params.length > 0) {
+			BoundParam bp = null;
+			Fact fact = null;
+			Slot[] newSlots = null;
+			// grather all infos:
 			try {
-				// first retract the fact
-				engine.retractFact(fact);
-				Slot[] newSlots = new Slot[params.length - 1];
-				for (int i = 0; i < newSlots.length; i++) {
-					JamochaValue jamValue = params[i + 1].getValue(engine);
-					if (jamValue.is(JamochaType.SLOT)) {
-						newSlots[i] = jamValue.getSlotValue();
-					} else {
-						throw new IllegalTypeException(JamochaType.SLOTS,
-								jamValue.getType());
+				if (params[0] instanceof BoundParam && params[0].isObjectBinding()) {
+					bp = (BoundParam) params[0];
+					fact = bp.getFact();
+					newSlots = new Slot[params.length - 1];
+					// first retract the fact
+					engine.retractFact(fact);
+					for (int i = 0; i < newSlots.length; i++) {
+						JamochaValue jamValue = params[i + 1].getValue(engine);
+						if (jamValue.is(JamochaType.SLOT)) {
+							newSlots[i] = jamValue.getSlotValue();
+						} else {
+							throw new IllegalTypeException(JamochaType.SLOTS, jamValue.getType());
+						}
 					}
+					fact.updateSlots(engine, newSlots);
+					// modificonfiguration
+				} else if (params[0] instanceof ModifyConfiguration) {
+					ModifyConfiguration mc = (ModifyConfiguration) params[0];
+					bp = mc.getFactBinding();
+					fact = bp.getFact();
+					engine.retractFact(fact);
+					fact.updateSlots(engine, mc.getSlots());
 				}
-				fact.updateSlots(engine, newSlots);
 
 				// now assert the fact using the same fact-id
 				engine.assertFact(fact);

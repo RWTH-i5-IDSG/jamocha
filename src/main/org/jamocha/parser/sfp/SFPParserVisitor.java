@@ -33,6 +33,7 @@ public interface SFPParserVisitor
   public Object visit(SFPAnyFunction node, Object data);
   public Object visit(SFPExpression node, Object data);
   public Object visit(SFPAssertFunc node, Object data);
+  public Object visit(SFPModify node, Object data);
   public Object visit(SFPFindFactByFactFunc node, Object data);
   public Object visit(SFPRetractFunc node, Object data);
   public Object visit(SFPIfElseFunc node, Object data);
@@ -50,6 +51,7 @@ public interface SFPParserVisitor
   public Object visit(SFPDeriveAttribute node, Object data);
   public Object visit(SFPNoneAttribute node, Object data);
   public Object visit(SFPDynamicAttribute node, Object data);
+  public Object visit(SFPModifyPattern node, Object data);
   public Object visit(SFPTemplateRHSPattern node, Object data);
   public Object visit(SFPRHSSlot node, Object data);
   public Object visit(SFPDefruleConstruct node, Object data);

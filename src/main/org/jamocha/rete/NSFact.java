@@ -19,6 +19,7 @@ package org.jamocha.rete;
 import java.io.Serializable;
 
 import org.jamocha.parser.JamochaValue;
+import org.jamocha.rete.configurations.SlotConfiguration;
 import org.jamocha.rule.Rule;
 
 /**
@@ -150,6 +151,8 @@ public class NSFact implements Fact, Serializable {
 	 */
 	public void updateSlots(Rete engine, Slot[] updates) {
 	}
+	public void updateSlots(Rete engine, SlotConfiguration[] slots) {
+	}
 
 	/**
 	 * Return the deftemplate for the fact
@@ -200,4 +203,6 @@ public class NSFact implements Fact, Serializable {
 	public boolean equals(Object obj) {
 		return objInstance.equals(obj);
 	}
+
+
 }

@@ -675,6 +675,7 @@ void FunctionCall() #void:
 	<LBRACE> 
 		(
 			AssertFunc()
+		|	Modify()
 		|	RetractFunc()
 		|   FindFactByFactFunc()	
 		|	IfElseFunc()
@@ -743,6 +744,19 @@ SimpleNode AssertFunc() :
 	{ return jjtThis; }
 }
 
+
+/**
+*		Modify Function
+**/
+SimpleNode Modify() : 
+{}
+{
+	<MODIFY>
+	(
+		ModifyPattern()
+	)+
+	{ return jjtThis; }
+}
 
 
 /**
@@ -1166,7 +1180,15 @@ void RHSPattern() #void :
     
 }
 
-
+SimpleNode ModifyPattern() : 
+{}
+{
+	(	Variable() 
+		RHSSlot() 
+	)
+	
+	{ return jjtThis; }
+}
 
 /**
 *		Template Right Hand Site Pattern
