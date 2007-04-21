@@ -4,10 +4,9 @@ package org.jamocha.rete.configurations;
 
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 
-public class AssertConfiguration implements Parameter {
+public class AssertConfiguration extends AbstractConfiguration {
 
 	
 	String templateName = null;

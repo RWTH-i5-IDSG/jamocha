@@ -28,6 +28,7 @@ import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.Template;
+import org.jamocha.rete.configurations.AbstractConfiguration;
 import org.jamocha.rete.configurations.Signature;
 import org.jamocha.rete.exception.ExecuteException;
 import org.jamocha.rete.functions.ruleengine.Assert;
@@ -100,6 +101,9 @@ public class FunctionAction implements Action {
 			} else if (this.parameters[idx] instanceof Signature) {
 				Signature fp2 = (Signature) this.parameters[idx];
 				fp2.configure(engine, util);
+			} else if (this.parameters[idx] instanceof AbstractConfiguration) {
+				AbstractConfiguration ac = (AbstractConfiguration) this.parameters[idx];
+				ac.configure(engine, util);
 			} else if (this.parameters[idx] instanceof JamochaValue) {
 				// if the value is a deffact, we need to check and make sure
 				// the slots with BoundParam value are compiled properly
@@ -133,9 +137,13 @@ public class FunctionAction implements Action {
 		// first we iterate over the parameters and pass the facts
 		// to the BoundParams.
 		for (int idx = 0; idx < this.parameters.length; idx++) {
+			
 			if (this.parameters[idx] instanceof BoundParam) {
 				((BoundParam) this.parameters[idx]).setFact(facts);
-			}
+				
+			}else if (this.parameters[idx] instanceof AbstractConfiguration) {
+				((AbstractConfiguration) this.parameters[idx]).setFact(facts);
+			}	
 		}
 		// we treat AssertFunction a little different
 		if (this.faction instanceof Assert) {

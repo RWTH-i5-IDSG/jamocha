@@ -5,7 +5,7 @@ import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 
-public class DeclarationConfiguration implements Parameter {
+public class DeclarationConfiguration extends AbstractConfiguration {
 
 	
 	Parameter version = null;

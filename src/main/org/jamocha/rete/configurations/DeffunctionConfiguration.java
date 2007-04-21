@@ -13,7 +13,7 @@ import org.jamocha.rete.Rete;
  * @author charlie
  *
  */
-public class DeffunctionConfiguration implements Parameter {
+public class DeffunctionConfiguration extends AbstractConfiguration  {
 
 	String functionName = null;
 	

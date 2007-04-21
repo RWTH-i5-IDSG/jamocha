@@ -3,11 +3,10 @@ package org.jamocha.rete.configurations;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.ExpressionSequence;
-import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 import org.jamocha.rule.Condition;
 
-public class DefruleConfiguration implements Parameter {
+public class DefruleConfiguration extends AbstractConfiguration  {
 
 	String ruleName = null;
 	

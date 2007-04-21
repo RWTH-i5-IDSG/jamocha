@@ -12,7 +12,7 @@ import org.jamocha.rete.Rete;
  * @author Karl-Heinz Krempels, Sebastian Reinartz
  *
  */
-public class SlotConfiguration implements Parameter {
+public class SlotConfiguration extends AbstractConfiguration  {
 
 	private String slotName = null;
 	

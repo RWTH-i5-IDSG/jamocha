@@ -137,7 +137,7 @@ public class SFPInterpreter implements SFPParserVisitor {
 
 		return signature;
 	}
-	
+
 	public Object visit(SFPModify node, Object data) {
 
 		// create an AssertConfiguration array an fill it in the subnodes
@@ -150,31 +150,30 @@ public class SFPInterpreter implements SFPParserVisitor {
 		Signature signature = new Signature();
 		signature.setSignatureName(org.jamocha.rete.functions.ruleengine.Modify.NAME);
 		signature.setParameters(acArray);
-		
+
 		return signature;
 	}
 
 	public Object visit(SFPModifyPattern node, Object data) {
 		// get the template name
 		BoundParam fact = (BoundParam) node.jjtGetChild(0).jjtAccept(this, data);
-
+		fact.setObjectBinding(true);
 
 		// get the slots from subnodes:
 		SlotConfiguration[] slots = new SlotConfiguration[node.jjtGetNumChildren() - 1];
 		SlotConfiguration slot = null;
 		for (int i = 1; i < node.jjtGetNumChildren(); i++) {
-			slot =  (SlotConfiguration) node.jjtGetChild(i).jjtAccept(this, data);
-			slot.setId(i-1);
+			slot = (SlotConfiguration) node.jjtGetChild(i).jjtAccept(this, data);
+			slot.setId(i - 1);
 			slots[i - 1] = slot;
 		}
-		
+
 		ModifyConfiguration mc = new ModifyConfiguration();
 		mc.setFactBinding(fact);
 		mc.setSlots(slots);
-		
+
 		return mc;
-	}	
-	
+	}
 
 	public Object visit(SFPFindFactByFactFunc node, Object data) {
 		// TODO Auto-generated method stub
@@ -236,7 +235,7 @@ public class SFPInterpreter implements SFPParserVisitor {
 		TemplateSlot slot = null;
 		for (int i = j; i < node.jjtGetNumChildren(); i++) {
 			slot = (TemplateSlot) (node.jjtGetChild(i).jjtAccept(this, data));
-			slot.setId(i-j);
+			slot.setId(i - j);
 			s[i - j] = slot;
 		}
 
@@ -339,8 +338,8 @@ public class SFPInterpreter implements SFPParserVisitor {
 		SlotConfiguration[] slots = new SlotConfiguration[node.jjtGetNumChildren() - 1];
 		SlotConfiguration slot = null;
 		for (int i = 1; i < node.jjtGetNumChildren(); i++) {
-			slot =  (SlotConfiguration) node.jjtGetChild(i).jjtAccept(this, data);
-			slot.setId(i-1);
+			slot = (SlotConfiguration) node.jjtGetChild(i).jjtAccept(this, data);
+			slot.setId(i - 1);
 			slots[i - 1] = slot;
 		}
 
@@ -360,7 +359,7 @@ public class SFPInterpreter implements SFPParserVisitor {
 		Parameter[] slotValues = new Parameter[node.jjtGetNumChildren() - 1];
 
 		for (int i = 1; i < node.jjtGetNumChildren(); i++) {
-			slotValues[i - 1] =	 (Parameter) node.jjtGetChild(i).jjtAccept(this, data);
+			slotValues[i - 1] = (Parameter) node.jjtGetChild(i).jjtAccept(this, data);
 		}
 
 		sc.setSlotName(slotName);
@@ -420,7 +419,7 @@ public class SFPInterpreter implements SFPParserVisitor {
 		rc.setDeclarationConfiguration(dc);
 		rc.seConditions(conditionList);
 		rc.setActions(actions);
-		
+
 		if (ruleDescription != null) {
 			rc.setRuleDescription(ruleDescription.toString());
 		}
@@ -506,8 +505,21 @@ public class SFPInterpreter implements SFPParserVisitor {
 	}
 
 	public Object visit(SFPAssignedPatternCE node, Object data) {
-		// TODO Auto-generated method stub
-		return null;
+		//variable:
+		BoundParam bp =(BoundParam) node.jjtGetChild(0).jjtAccept(this, data);
+		JamochaValue variable = JamochaValue.newIdentifier(bp.getVariableName());
+		
+		//get the object condition from subnode:
+		ObjectCondition objectCond = (ObjectCondition) node.jjtGetChild(1).jjtAccept(this, data);
+		
+		//create boundconstraint
+	    BoundConstraint bc = new BoundConstraint(objectCond.getTemplateName(),true);
+	    bc.setValue(variable);
+	    
+	    //add boundconstraint to obect condition
+	    objectCond.addConstraint(bc,0);
+		
+		return objectCond;
 	}
 
 	public Object visit(SFPLogicalCE node, Object data) {
