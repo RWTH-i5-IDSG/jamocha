@@ -137,8 +137,8 @@ public class Assert implements Function, Serializable {
 						// asserted
 						// if it was asserted, we return the fact id, otherwise
 						// we return "false".
-						if (assertedFact == fact) {
-							result = JamochaValue.newFactId(fact.getFactId());
+						if (assertedFact.getFactId() >0) {
+							result = JamochaValue.newFactId(assertedFact.getFactId());
 						} else {
 							throw new IllegalParameterException(i + 1);
 						}
