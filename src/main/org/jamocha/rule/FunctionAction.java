@@ -113,17 +113,20 @@ public class FunctionAction implements Action {
 				}
 			}
 		}
+		
+		// WE DON'T NEED THIS ANYMORE FOR SFPParser!
+		
 		// in the case of Assert, we do further compilation
-		if (this.faction instanceof Assert) {
-			JamochaValue tmplName = this.parameters[0].getValue(engine);
-			Template tmpl = engine.getCurrentFocus().getTemplate(
-					tmplName.getIdentifierValue());
-			JamochaValue values = this.parameters[1].getValue(engine);
-			Fact fact = tmpl.createFact(values.getObjectValue(), -1, engine);
-			fact.compileBinding(util);
-			this.parameters = new JamochaValue[1];
-			this.parameters[0] = JamochaValue.newFact(fact);
-		}
+//		if (this.faction instanceof Assert) {
+//			JamochaValue tmplName = this.parameters[0].getValue(engine);
+//			Template tmpl = engine.getCurrentFocus().getTemplate(
+//					tmplName.getIdentifierValue());
+//			JamochaValue values = this.parameters[1].getValue(engine);
+//			Fact fact = tmpl.createFact(values.getObjectValue(), -1, engine);
+//			fact.compileBinding(util);
+//			this.parameters = new JamochaValue[1];
+//			this.parameters[0] = JamochaValue.newFact(fact);
+//		}
 	}
 
 	/*
