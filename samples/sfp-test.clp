@@ -54,7 +54,6 @@
 		)
 )
 
-;	(modify ?wurstFact (laenge 35) )
 ;modify test:
 (deftemplate modifywurst
 	(slot name)
@@ -70,6 +69,14 @@
 (defrule bessereWurst
 	 ?wurstFact <-(modifywurst (laenge 25) )
 	=>
-	(modify ?wurstFact (laenge 35) )	
-	(printout t "laengere wurst" crlf)
+	;(modify ?wurstFact (laenge 35) )	
+	(printout t "laengere wurst" )
+ )
+
+(defrule bessereWurstAdvanced
+	 ?wurstFact <-(modifywurst (laenge ?x) )
+	 (test (eq ?x 25))
+	=>
+	;(modify ?wurstFact (laenge 35) )	
+	(printout t "laengere wurst mit test condition")
  )

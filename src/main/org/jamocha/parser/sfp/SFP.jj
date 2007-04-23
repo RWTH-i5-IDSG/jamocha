@@ -18,6 +18,23 @@ options {
 
 /* Java code used for the Parser. */
 PARSER_BEGIN(SFPParser)
+
+/*
+ * Copyright 2007 Karl-Heinz Krempels, Sebastian Reinartz
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.jamocha.org/
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ */
 package org.jamocha.parser.sfp;
 
 import org.jamocha.parser.Parser;
@@ -32,9 +49,16 @@ public class SFPParser implements/*@bgen(jjtree)*/ SFPParserTreeConstants, /*@eg
 
 /*@egen*/
 
-        public Expression nextExpression() throws ParseException {
-         return (org.jamocha.parser.Expression)Start().jjtAccept(new SFPInterpreter(), null);
-        }
+	public Expression nextExpression() throws ParseException {
+		SFPStart n = Start();
+		if (n != null) {
+			Object result = n.jjtAccept(new SFPInterpreter(), null);
+			if (result != null) {
+				return (org.jamocha.parser.Expression) result;
+			} 
+		}
+		return null;
+	}
 
         public static void main(String args[])
         {
@@ -185,7 +209,6 @@ TOKEN :
 | < MODIFY: "modify" >
 | < DUPLICATE: "duplicate" >
 | < FACT_RELATION: "fact-relation" >
-| < FACT_SLOT_VALUE: "fact-slot-value" >
 | < IF: "if" >
 | < THEN: "then" >
 | < ELSE: "else" >
