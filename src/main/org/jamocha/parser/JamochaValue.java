@@ -289,6 +289,9 @@ public class JamochaValue implements Parameter {
 		if (type.equals(JamochaType.LIST)) {
 			return singletonList(this);
 		}
+		if(type.equals(JamochaType.STRING)) {
+			return JamochaValue.newString(value.toString());
+		}
 		switch (this.type) {
 		case BOOLEAN:
 			switch (type) {
