@@ -22,6 +22,7 @@ import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.IllegalParameterException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
+import org.jamocha.parser.RuleException;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
@@ -103,7 +104,7 @@ public class Defrule implements Function, Serializable {
 				defrule = new org.jamocha.rule.Defrule(
 						(DefruleConfiguration) params[0], engine);
 			} else {
-				throw new EvaluationException("Parameter 1 is no defrule.");
+				throw new RuleException("Parameter 1 is no Defrule Configuration.");
 			}
 			// compile Defrule:
 			if (!engine.getCurrentFocus().containsRule(defrule)) {

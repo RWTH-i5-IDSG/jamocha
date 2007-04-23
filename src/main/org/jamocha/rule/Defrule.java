@@ -235,7 +235,8 @@ public class Defrule implements Rule, Scope, Serializable {
 
 	public void setDescription(String text) {
 		if (text != null)
-			this.description = text.substring(1, text.length() - 1);
+			description = text;
+		else description = "";
 	}
 
 	public Complexity getComplexity() {

@@ -31,6 +31,7 @@ import org.jamocha.rete.Rete;
 import org.jamocha.rete.Template;
 import org.jamocha.rete.configurations.AssertConfiguration;
 import org.jamocha.rete.configurations.SlotConfiguration;
+import org.jamocha.rete.exception.AssertException;
 import org.jamocha.rete.functions.FunctionDescription;
 
 /**
@@ -120,7 +121,7 @@ public class Assert implements Function, Serializable {
 					org.jamocha.rete.Deftemplate template = (org.jamocha.rete.Deftemplate) engine
 							.getCurrentFocus().getTemplate(templateName);
 					if (template == null) {
-						throw new IllegalParameterException(i + 1);
+						throw new AssertException("Template " + template.getName() + "could not be found");
 					} else {
 
 						// get the slot configurations
@@ -140,7 +141,7 @@ public class Assert implements Function, Serializable {
 						if (assertedFact.getFactId() >0) {
 							result = JamochaValue.newFactId(assertedFact.getFactId());
 						} else {
-							throw new IllegalParameterException(i + 1);
+							throw new AssertException("Fact could not be asserted for an unknown reason.");
 						}
 					}
 				}
