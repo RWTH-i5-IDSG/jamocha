@@ -530,7 +530,7 @@ public class SFPInterpreter implements SFPParserVisitor {
 	public Object visit(SFPTestCE node, Object data) {
 		TestCondition testCond = new TestCondition();
 
-		Signature signature = (Signature) node.jjtAccept(this, data);
+		Signature signature = (Signature) node.jjtGetChild(0).jjtAccept(this, data);
 		testCond.setFunction(signature);
 		return testCond;
 	}

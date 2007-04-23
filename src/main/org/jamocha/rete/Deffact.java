@@ -280,15 +280,13 @@ public class Deffact implements Fact {
 		}
 	}
 
-	public void updateSlots(Rete engine, SlotConfiguration[] slots) throws EvaluationException {
-		SlotConfiguration sc = null;
-		JamochaValue val = null;
-		Slot slot = null;
-		for (int idx = 0; idx < slots.length; idx++) {
-			sc = slots[idx];
-			val = sc.getValue(engine);
-			slot = getTemplate().getSlot(sc.getSlotName());
-			slot.value = val;
+	public void updateSlots(Rete engine, SlotConfiguration[] slotConfigs) throws EvaluationException {
+		SlotConfiguration slotConfig = null;
+		JamochaValue newValue = null;
+		for (int idx = 0; idx < slotConfigs.length; idx++) {
+			slotConfig = slotConfigs[idx];
+			newValue = slotConfig.getValue(engine);
+			slots[getSlotId(slotConfig.getSlotName())].value = newValue;
 		}
 	}
 
