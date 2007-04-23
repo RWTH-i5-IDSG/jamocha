@@ -20,6 +20,7 @@ import org.jamocha.rete.SlotParam;
 import org.jamocha.rete.Template;
 import org.jamocha.rete.TemplateSlot;
 import org.jamocha.rete.configurations.AssertConfiguration;
+import org.jamocha.rete.configurations.DefruleConfiguration;
 import org.jamocha.rete.configurations.Signature;
 import org.jamocha.rete.configurations.SlotConfiguration;
 import org.jamocha.rete.functions.FunctionDescription;
@@ -173,8 +174,54 @@ public class CLIPSFormatter implements Formatter {
 	}
 
 	private String formatFunctionParamDefrule(Signature funcParam) {
-		return formatRule((Rule) ((JamochaValue) funcParam.getParameters()[0])
-				.getObjectValue());
+		StringBuilder buf = new StringBuilder();
+		DefruleConfiguration conf = (DefruleConfiguration) funcParam
+				.getParameters()[0];
+		// (DefruleConfiguration) ((JamochaValue) funcParam
+		// .getParameters()[0]).getObjectValue();
+		buf.append("(defrule ").append(conf.getRuleName());
+		if (conf.getRuleDescription() != null
+				&& conf.getRuleDescription().length() > 0) {
+			buf.append(" \"").append(conf.getRuleDescription()).append("\"");
+		}
+		increaseIndent();
+		// now print out the rule properties
+		if (conf.getDeclarationConfiguration() != null) {
+			newLine(buf);
+			buf.append("(declare ");
+			increaseIndent();
+			newLine(buf);
+			buf.append("(salience ").append(
+					conf.getDeclarationConfiguration().getSalience()).append(
+					") ");
+			newLine(buf);
+			buf.append("(rule-version ").append(
+					conf.getDeclarationConfiguration().getVersion()).append(
+					") ");
+			newLine(buf);
+			decreaseIndent();
+			newLine(buf);
+			buf.append(") ");
+		}
+		newLine(buf);
+		Condition[] conditions = conf.getConditions();
+		for (int idx = 0; idx < conditions.length; idx++) {
+			Condition c = conditions[idx];
+			buf.append(formatCondition(c));
+			if (idx == conditions.length - 1) {
+				decreaseIndent();
+			}
+			newLine(buf);
+		}
+		buf.append("=>");
+		increaseIndent();
+		newLine(buf);
+		// now append the actions
+		buf.append(formatExpressionCollection(conf.getActions()));
+		decreaseIndent();
+		newLine(buf);
+		buf.append(")");
+		return buf.toString();
 	}
 
 	private String formatFunctionParamDeftemplate(Signature funcParam) {
