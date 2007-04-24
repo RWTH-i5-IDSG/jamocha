@@ -1,5 +1,5 @@
 /*
- * Copyright 2006-2007 Christoph Emonds, Alexander Wilden, Sebastian Reinartz
+ * Copyright 2007 Alexander Wilden
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,21 +25,20 @@ import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.configurations.IfElseConfiguration;
+import org.jamocha.rete.configurations.WhileDoConfiguration;
 
 /**
- * @author Christoph Emonds, Alexander Wilden, Sebastian Reinartz
+ * @author Alexander Wilden
  * 
- * Implementation of the if condition as Jamocha Function. Returns either the
- * result of the last then action executed if condition holds or otherwise the
- * result of the last else action executed if any.
+ * Implementation of the while-loop. An ActionList is executed as long as the
+ * given Condition holds. Returns the result of the last action executed.
  */
-public class If implements Function, Serializable {
+public class While implements Serializable, Function {
 
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "Implementation of the if condition as Jamocha Function. Returns either the result of the last then action executed if condition holds or otherwise the result of the last else action executed if any.";
+			return "Implementation of the while-loop. An ActionList is executed as long as the given Condition holds. Returns the result of the last action executed.";
 		}
 
 		public int getParameterCount() {
@@ -75,7 +74,7 @@ public class If implements Function, Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	public static final String NAME = "if";
+	public static final String NAME = "while";
 
 	public FunctionDescription getDescription() {
 		return DESCRIPTION;
@@ -89,19 +88,19 @@ public class If implements Function, Serializable {
 			throws EvaluationException {
 		JamochaValue result = JamochaValue.NIL;
 		if (params != null && params.length == 1) {
-			IfElseConfiguration ifElseConf = (IfElseConfiguration) params[0];
-			boolean conditionValue = ifElseConf.getCondition().getValue(engine)
-					.getBooleanValue();
-			if (conditionValue) {
-				if (ifElseConf.getThenActions() != null) {
-					result = ifElseConf.getThenActions().getValue(engine);
+			WhileDoConfiguration whileDoConf = (WhileDoConfiguration) params[0];
+			if (whileDoConf.getCondition() != null) {
+				while (whileDoConf.getCondition().getValue(engine)
+						.getBooleanValue()) {
+					if (whileDoConf.getWhileActions() != null) {
+						result = whileDoConf.getWhileActions().getValue(engine);
+					}
 				}
-			} else if (ifElseConf.getElseActions() != null) {
-				result = ifElseConf.getElseActions().getValue(engine);
 			}
 		} else {
 			throw new IllegalParameterException(1);
 		}
 		return result;
 	}
+
 }

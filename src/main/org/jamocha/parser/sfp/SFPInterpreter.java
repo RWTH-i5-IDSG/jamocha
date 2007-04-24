@@ -6,6 +6,7 @@ import org.jamocha.parser.JamochaValue;
 import org.jamocha.parser.JamochaValueUtils;
 import org.jamocha.rete.BoundParam;
 import org.jamocha.rete.Deftemplate;
+import org.jamocha.rete.ExpressionCollection;
 import org.jamocha.rete.ExpressionList;
 import org.jamocha.rete.ExpressionSequence;
 import org.jamocha.rete.Parameter;
@@ -18,6 +19,7 @@ import org.jamocha.rete.configurations.IfElseConfiguration;
 import org.jamocha.rete.configurations.ModifyConfiguration;
 import org.jamocha.rete.configurations.Signature;
 import org.jamocha.rete.configurations.SlotConfiguration;
+import org.jamocha.rete.configurations.WhileDoConfiguration;
 import org.jamocha.rete.functions.If;
 import org.jamocha.rule.AndCondition;
 import org.jamocha.rule.BoundConstraint;
@@ -202,11 +204,11 @@ public class SFPInterpreter implements SFPParserVisitor {
 		IfElseConfiguration ifElseConf = new IfElseConfiguration();
 		ifElseConf.setCondition((Expression) node.jjtGetChild(0).jjtAccept(
 				this, data));
-		ifElseConf.setThenActions((ExpressionSequence) node.jjtGetChild(1)
+		ifElseConf.setThenActions((ExpressionCollection) node.jjtGetChild(1)
 				.jjtAccept(this, data));
 		if (node.jjtGetNumChildren() > 2) {
-			ifElseConf.setElseActions((ExpressionSequence) node.jjtGetChild(2)
-					.jjtAccept(this, data));
+			ifElseConf.setElseActions((ExpressionCollection) node
+					.jjtGetChild(2).jjtAccept(this, data));
 		}
 		Parameter params[] = { ifElseConf };
 		Signature funcParam = new Signature();
@@ -216,8 +218,16 @@ public class SFPInterpreter implements SFPParserVisitor {
 	}
 
 	public Object visit(SFPWhileFunc node, Object data) {
-		// TODO Auto-generated method stub
-		return null;
+		WhileDoConfiguration whileDoConf = new WhileDoConfiguration();
+		whileDoConf.setCondition((Expression) node.jjtGetChild(0).jjtAccept(
+				this, data));
+		whileDoConf.setWhileActions((ExpressionCollection) node.jjtGetChild(1)
+				.jjtAccept(this, data));
+		Parameter params[] = { whileDoConf };
+		Signature funcParam = new Signature();
+		funcParam.setSignatureName(org.jamocha.rete.functions.While.NAME);
+		funcParam.setParameters(params);
+		return funcParam;
 	}
 
 	public Object visit(SFPLoopForCntFunc node, Object data) {

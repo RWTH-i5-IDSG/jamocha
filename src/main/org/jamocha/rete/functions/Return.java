@@ -1,5 +1,5 @@
 /*
- * Copyright 2006-2007 Christoph Emonds, Alexander Wilden, Sebastian Reinartz
+ * Copyright 2007 Alexander Wilden
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,43 +19,41 @@ package org.jamocha.rete.functions;
 import java.io.Serializable;
 
 import org.jamocha.parser.EvaluationException;
-import org.jamocha.parser.IllegalParameterException;
+import org.jamocha.parser.Expression;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.configurations.IfElseConfiguration;
 
 /**
- * @author Christoph Emonds, Alexander Wilden, Sebastian Reinartz
+ * @author Alexander Wilden
  * 
- * Implementation of the if condition as Jamocha Function. Returns either the
- * result of the last then action executed if condition holds or otherwise the
- * result of the last else action executed if any.
+ * Return just returns the result of an Expression or the last result of a whole
+ * ExpressionSequence.
  */
-public class If implements Function, Serializable {
+public class Return implements Serializable, Function {
 
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "Implementation of the if condition as Jamocha Function. Returns either the result of the last then action executed if condition holds or otherwise the result of the last else action executed if any.";
+			return "Return just returns the result of an Expression or the last result of a whole ExpressionSequence.";
 		}
 
 		public int getParameterCount() {
-			return 0;
+			return 1;
 		}
 
 		public String getParameterDescription(int parameter) {
-			return "";
+			return "Some Expression or List of Expressions whose result should be returned.";
 		}
 
 		public String getParameterName(int parameter) {
-			return "";
+			return "expression";
 		}
 
 		public JamochaType[] getParameterTypes(int parameter) {
-			return JamochaType.NONE;
+			return JamochaType.ANY;
 		}
 
 		public JamochaType[] getReturnType() {
@@ -63,11 +61,11 @@ public class If implements Function, Serializable {
 		}
 
 		public boolean isParameterCountFixed() {
-			return true;
+			return false;
 		}
 
 		public boolean isParameterOptional(int parameter) {
-			return false;
+			return true;
 		}
 	}
 
@@ -75,7 +73,7 @@ public class If implements Function, Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	public static final String NAME = "if";
+	public static final String NAME = "return";
 
 	public FunctionDescription getDescription() {
 		return DESCRIPTION;
@@ -88,20 +86,17 @@ public class If implements Function, Serializable {
 	public JamochaValue executeFunction(Rete engine, Parameter[] params)
 			throws EvaluationException {
 		JamochaValue result = JamochaValue.NIL;
-		if (params != null && params.length == 1) {
-			IfElseConfiguration ifElseConf = (IfElseConfiguration) params[0];
-			boolean conditionValue = ifElseConf.getCondition().getValue(engine)
-					.getBooleanValue();
-			if (conditionValue) {
-				if (ifElseConf.getThenActions() != null) {
-					result = ifElseConf.getThenActions().getValue(engine);
+		if (params != null) {
+			for (int i = 0; i < params.length; ++i) {
+				if (params[i] instanceof Expression) {
+					result = ((Expression) params[i]).getValue(engine);
+				} else {
+					throw new EvaluationException("Parameter " + i
+							+ " is no Expression.");
 				}
-			} else if (ifElseConf.getElseActions() != null) {
-				result = ifElseConf.getElseActions().getValue(engine);
 			}
-		} else {
-			throw new IllegalParameterException(1);
 		}
 		return result;
 	}
+
 }

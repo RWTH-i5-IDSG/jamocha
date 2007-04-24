@@ -22,14 +22,12 @@ import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.ExpressionCollection;
 import org.jamocha.rete.Rete;
 
-public class IfElseConfiguration extends AbstractConfiguration {
+public class WhileDoConfiguration extends AbstractConfiguration {
 
 	private Expression condition = null;
-	
-	private ExpressionCollection thenActions = null;
-	
-	private ExpressionCollection elseActions = null;
-	
+
+	private ExpressionCollection whileActions = null;
+
 	public boolean isObjectBinding() {
 		return false;
 	}
@@ -51,21 +49,12 @@ public class IfElseConfiguration extends AbstractConfiguration {
 		this.condition = condition;
 	}
 
-	public ExpressionCollection getElseActions() {
-		return elseActions;
+	public ExpressionCollection getWhileActions() {
+		return whileActions;
 	}
 
-	public void setElseActions(ExpressionCollection elseActions) {
-		this.elseActions = elseActions;
+	public void setWhileActions(ExpressionCollection whileActions) {
+		this.whileActions = whileActions;
 	}
-
-	public ExpressionCollection getThenActions() {
-		return thenActions;
-	}
-
-	public void setThenActions(ExpressionCollection thenActions) {
-		this.thenActions = thenActions;
-	}
-	
 
 }
