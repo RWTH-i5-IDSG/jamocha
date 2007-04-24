@@ -91,24 +91,22 @@ public class LoopForCount implements Serializable, Function {
 			throws EvaluationException {
 		JamochaValue result = JamochaValue.NIL;
 		if (params != null && params.length == 1) {
+			engine.pushScope();
 			LoopForCountConfiguration lfcConf = (LoopForCountConfiguration) params[0];
 			BoundParam countVar = lfcConf.getLoopVar();
 			JamochaValue startValue = lfcConf.getStartIndex().getValue(engine);
 			if (!startValue.is(JamochaType.LONG))
 				throw new IllegalTypeException(JamochaType.LONGS, startValue
 						.getType());
-			long startIndex = startValue.getLongValue();
 			JamochaValue endValue = lfcConf.getEndIndex().getValue(engine);
 			if (!endValue.is(JamochaType.LONG))
 				throw new IllegalTypeException(JamochaType.LONGS, startValue
 						.getType());
 			long endIndex = endValue.getLongValue();
-			engine.pushScope();
-			while (startIndex <= endIndex) {
+			for (long i = startValue.getLongValue(); i <= endIndex; i++) {
 				engine.setBinding(countVar.getVariableName(), JamochaValue
-						.newLong(startIndex));
+						.newLong(i));
 				result = lfcConf.getActions().getValue(engine);
-				startIndex++;
 			}
 			engine.popScope();
 		} else {

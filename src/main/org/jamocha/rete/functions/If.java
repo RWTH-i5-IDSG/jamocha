@@ -90,6 +90,7 @@ public class If implements Function, Serializable {
 		JamochaValue result = JamochaValue.NIL;
 		if (params != null && params.length == 1) {
 			IfElseConfiguration ifElseConf = (IfElseConfiguration) params[0];
+			engine.pushScope();
 			boolean conditionValue = ifElseConf.getCondition().getValue(engine)
 					.getBooleanValue();
 			if (conditionValue) {
@@ -99,6 +100,7 @@ public class If implements Function, Serializable {
 			} else if (ifElseConf.getElseActions() != null) {
 				result = ifElseConf.getElseActions().getValue(engine);
 			}
+			engine.popScope();
 		} else {
 			throw new IllegalParameterException(1);
 		}

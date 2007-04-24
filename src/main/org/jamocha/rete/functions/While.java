@@ -88,6 +88,7 @@ public class While implements Serializable, Function {
 			throws EvaluationException {
 		JamochaValue result = JamochaValue.NIL;
 		if (params != null && params.length == 1) {
+			engine.pushScope();
 			WhileDoConfiguration whileDoConf = (WhileDoConfiguration) params[0];
 			if (whileDoConf.getCondition() != null) {
 				while (whileDoConf.getCondition().getValue(engine)
@@ -97,6 +98,7 @@ public class While implements Serializable, Function {
 					}
 				}
 			}
+			engine.popScope();
 		} else {
 			throw new IllegalParameterException(1);
 		}
