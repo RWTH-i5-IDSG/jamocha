@@ -78,16 +78,16 @@ and pretty print the definition of T-1 with
 )
 
 (defrule R-3 "rule three"
-	(T-1 (S-1 ?x)(S-2 a)) (T-2 (S-3 ?y)(S-4 a))
+	(T-1 (S-1 ?x)(S-2 2)) (T-2 (S-3 ?y)(S-4 2))
 	=>
 	(printout t ?x crlf)
 )
 
-(assert (T-1 (S-1 a)(S-2 b)))
-(assert (T-2 (S-3 a)(S-4 b)))
+(assert (T-1 (S-1 a)(S-2 1)))
+(assert (T-2 (S-3 a)(S-4 1)))
 
-(assert (T-1 (S-1 b)(S-2 a)))
-(assert (T-2 (S-3 b)(S-4 a)))
+(assert (T-1 (S-1 b)(S-2 2)))
+(assert (T-2 (S-3 b)(S-4 2)))
 
 (fire)
 
