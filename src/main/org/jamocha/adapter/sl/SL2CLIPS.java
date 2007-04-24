@@ -16,8 +16,6 @@
 package org.jamocha.adapter.sl;
 
 import java.io.StringReader;
-import java.util.LinkedList;
-import java.util.List;
 
 import org.jamocha.adapter.AdapterTranslationException;
 import org.jamocha.parser.sl.ParseException;
@@ -74,14 +72,10 @@ public class SL2CLIPS {
 			sn = getChild(sn, 1);
 			sn = getChildAtLevel(sn, 2);
 			String functionName = getChild(sn, 0).getText();
-			List<String> asserts = new LinkedList<String>();
-			String lastBind = resolveParameters(getChild(getChild(sn, 1), 1),
-					asserts, "?p" + bindPrefix++);
+			String lastAssert = resolveParameters(getChild(getChild(sn, 1), 1));
 
-			for (String sAssert : asserts) {
-				result.append(sAssert + "\n");
-			}
-			result.append("(" + functionName + " " + lastBind + ")");
+			result.append("(" + functionName + " " + lastAssert + ")");
+			System.out.println(result);
 		}
 
 		return result.toString();
@@ -99,8 +93,7 @@ public class SL2CLIPS {
 	 * @return Either the bind if the node was a Fact or the value of the node
 	 *         if it was a Constant.
 	 */
-	public static String resolveParameters(SimpleNode node,
-			List<String> asserts, String bind) {
+	public static String resolveParameters(SimpleNode node) {
 		// Go From Parameter to Node after Term
 		SimpleNode currNode = node;
 		while (currNode.getID() != SLParserTreeConstants.JJTTERM) {
@@ -110,19 +103,18 @@ public class SL2CLIPS {
 		if (currNode.getID() == SLParserTreeConstants.JJTFUNCTIONALTERM) {
 			// This would be a Fact for CLIPS
 
-			StringBuilder buffer = new StringBuilder(("(bind " + bind
-					+ " (assert (" + getChild(currNode, 0).getText() + " "));
+			StringBuilder buffer = new StringBuilder((" (assert ("
+					+ getChild(currNode, 0).getText() + " "));
 			for (int i = 1; i < currNode.jjtGetNumChildren(); ++i) {
 				SimpleNode child = getChild(currNode, i);
 				String paramName = getChild(child, 0).getText().substring(1);
-				String childBind = resolveParameters(getChild(child, 1),
-						asserts, bind + i);
-				buffer.append("(" + paramName + " " + childBind + ")");
+				String childAssert = resolveParameters(getChild(child, 1));
+				buffer.append("(").append(paramName).append(" ").append(
+						childAssert).append(")");
 			}
-			buffer.append(")))");
-			asserts.add(buffer.toString());
+			buffer.append("))");
 			// System.out.println(buffer);
-			return bind;
+			return buffer.toString();
 		} else if (currNode.getID() == SLParserTreeConstants.JJTCONSTANT) {
 			// Here we have simple constants
 
@@ -142,8 +134,7 @@ public class SL2CLIPS {
 			StringBuilder buffer = new StringBuilder();
 
 			for (int i = 0; i < currNode.jjtGetNumChildren(); ++i) {
-				String childBind = resolveParameters(getChild(currNode, i),
-						asserts, bind + i);
+				String childBind = resolveParameters(getChild(currNode, i));
 				if (i > 0)
 					buffer.append(" ");
 				buffer.append(childBind);
@@ -152,6 +143,61 @@ public class SL2CLIPS {
 		}
 		return "";
 	}
+
+	// public static String resolveParameters(SimpleNode node,
+	// List<String> asserts, String bind) {
+	// // Go From Parameter to Node after Term
+	// SimpleNode currNode = node;
+	// while (currNode.getID() != SLParserTreeConstants.JJTTERM) {
+	// currNode = getChild(currNode, 0);
+	// }
+	// currNode = getChild(currNode, 0);
+	// if (currNode.getID() == SLParserTreeConstants.JJTFUNCTIONALTERM) {
+	// // This would be a Fact for CLIPS
+	//
+	// StringBuilder buffer = new StringBuilder(("(bind " + bind
+	// + " (assert (" + getChild(currNode, 0).getText() + " "));
+	// for (int i = 1; i < currNode.jjtGetNumChildren(); ++i) {
+	// SimpleNode child = getChild(currNode, i);
+	// String paramName = getChild(child, 0).getText().substring(1);
+	// String childBind = resolveParameters(getChild(child, 1),
+	// asserts, bind + i);
+	// buffer.append("(" + paramName + " " + childBind + ")");
+	// }
+	// buffer.append(")))");
+	// asserts.add(buffer.toString());
+	// // System.out.println(buffer);
+	// return bind;
+	// } else if (currNode.getID() == SLParserTreeConstants.JJTCONSTANT) {
+	// // Here we have simple constants
+	//
+	// currNode = getChild(currNode, 0);
+	// if (currNode.getID() == SLParserTreeConstants.JJTSTRING) {
+	// // A String directly contains its value
+	// return "\"" + currNode.getText() + "\"";
+	// } else if (currNode.getID() ==
+	// SLParserTreeConstants.JJTNUMERICALCONSTANT) {
+	// // A numerical constant first has a node describing the type of
+	// // the number (e.g. Integer). We don't check it here.
+	// currNode = getChild(currNode, 0);
+	// return currNode.getText();
+	// }
+	// } else if (currNode.getID() == SLParserTreeConstants.JJTSEQUENCE) {
+	// // Here we have a MultiSlot in CLIPS
+	//
+	// StringBuilder buffer = new StringBuilder();
+	//
+	// for (int i = 0; i < currNode.jjtGetNumChildren(); ++i) {
+	// String childBind = resolveParameters(getChild(currNode, i),
+	// asserts, bind + i);
+	// if (i > 0)
+	// buffer.append(" ");
+	// buffer.append(childBind);
+	// }
+	// return buffer.toString();
+	// }
+	// return "";
+	// }
 
 	/**
 	 * Returns a child of SimpleNode directly as SimpleNode.

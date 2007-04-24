@@ -39,7 +39,6 @@ import org.jamocha.Jamocha;
 import org.jamocha.adapter.sl.CLIPS2SLFunction;
 import org.jamocha.adapter.sl.SL2CLIPSFunction;
 import org.jamocha.messagerouter.MessageEvent;
-import org.jamocha.messagerouter.MessageRouter;
 import org.jamocha.messagerouter.StringChannel;
 import org.jamocha.parser.ParserNotFoundException;
 import org.jamocha.rete.Deftemplate;
@@ -67,8 +66,6 @@ public class JamochaAgent extends ToolAgent {
 
 	private Rete engine;
 
-	private MessageRouter messageRouter;
-
 	private final String STANDARD_PROP_FILE = "Agent.properties";
 
 	private BasicProperties properties = null;
@@ -84,7 +81,6 @@ public class JamochaAgent extends ToolAgent {
 	public void toolSetup() {
 		// Initialize the Rule-engine
 		engine = new Rete();
-		messageRouter = engine.getMessageRouter();
 
 		// Get the agents arguments and puts them into a seperate HashMap
 		initArguments();
@@ -95,10 +91,6 @@ public class JamochaAgent extends ToolAgent {
 			getProperties().list(System.out);
 			System.out.println("----- end of properties -----");
 		}
-
-		initEngine();
-
-		initAgentWithProperties();
 
 		addBehaviour(new MessageReceiver(this));
 		sendingBehaviour = new MessageSender(this);
@@ -112,6 +104,10 @@ public class JamochaAgent extends ToolAgent {
 			e.printStackTrace();
 			System.exit(1);
 		}
+
+		initEngine();
+
+		initAgentWithProperties();
 	}
 
 	private void initEngine() {
@@ -152,10 +148,13 @@ public class JamochaAgent extends ToolAgent {
 		buffer.append("(assert (" + TEMPLATE_AGENT_DESCRIPTION + "(name \""
 				+ getName() + "\")(local TRUE)))");
 
-		StringChannel initChannel = messageRouter.openChannel(getProperties()
-				.getProperty("agent.name", "Agent")
-				+ "init");
-		initChannel.executeCommand(buffer.toString(), true);
+		StringChannel initChannel = engine.getMessageRouter().openChannel(
+				getProperties().getProperty("agent.name", "Agent") + "init");
+		try {
+			initChannel.executeCommand(buffer.toString(), true);
+		} catch (NullPointerException e) {
+			e.printStackTrace();
+		}
 		List<MessageEvent> events = new LinkedList<MessageEvent>();
 		initChannel.fillEventList(events);
 		for (MessageEvent event : events) {
@@ -167,7 +166,7 @@ public class JamochaAgent extends ToolAgent {
 				System.out.println(event.getMessage());
 
 		}
-		messageRouter.closeChannel(initChannel);
+		engine.getMessageRouter().closeChannel(initChannel);
 	}
 
 	private void initAgentWithProperties() {
@@ -181,7 +180,7 @@ public class JamochaAgent extends ToolAgent {
 
 		AID myDF = new AID(dfName, true);
 		myDF.addAddresses(dfAddress);
-		if ((!dfName.equals("undefined")) && (!dfAddress.equals("undefined"))) {
+		if (!dfName.equals("undefined") && !dfAddress.equals("undefined")) {
 
 			DFAgentDescription dfd = new DFAgentDescription();
 			ServiceDescription sd = new ServiceDescription();
@@ -261,10 +260,6 @@ public class JamochaAgent extends ToolAgent {
 	 */
 	public Rete getEngine() {
 		return engine;
-	}
-
-	public MessageRouter getMessageRouter() {
-		return messageRouter;
 	}
 
 	/**

@@ -16,6 +16,7 @@ import org.jamocha.rete.configurations.DeclarationConfiguration;
 import org.jamocha.rete.configurations.DeffunctionConfiguration;
 import org.jamocha.rete.configurations.DefruleConfiguration;
 import org.jamocha.rete.configurations.IfElseConfiguration;
+import org.jamocha.rete.configurations.LoopForCountConfiguration;
 import org.jamocha.rete.configurations.ModifyConfiguration;
 import org.jamocha.rete.configurations.Signature;
 import org.jamocha.rete.configurations.SlotConfiguration;
@@ -230,9 +231,24 @@ public class SFPInterpreter implements SFPParserVisitor {
 		return funcParam;
 	}
 
-	public Object visit(SFPLoopForCntFunc node, Object data) {
-		// TODO Auto-generated method stub
-		return null;
+	public Object visit(SFPLoopForCountFunc node, Object data) {
+		LoopForCountConfiguration lfcConf = new LoopForCountConfiguration();
+		lfcConf.setLoopVar((BoundParam) node.jjtGetChild(0).jjtAccept(this,
+				data));
+		int index = 1;
+		if (node.jjtGetNumChildren() > 3) {
+			lfcConf.setStartIndex((Expression) node.jjtGetChild(index++)
+					.jjtAccept(this, data));
+		}
+		lfcConf.setEndIndex((Expression) node.jjtGetChild(index++).jjtAccept(
+				this, data));
+		lfcConf.setActions((ExpressionCollection) node.jjtGetChild(index)
+				.jjtAccept(this, data));
+		Parameter params[] = { lfcConf };
+		Signature funcParam = new Signature();
+		funcParam.setSignatureName(org.jamocha.rete.functions.LoopForCount.NAME);
+		funcParam.setParameters(params);
+		return funcParam;
 	}
 
 	public Object visit(SFPSwitchCaseFunc node, Object data) {

@@ -703,7 +703,7 @@ void FunctionCall() #void:
 		|   FindFactByFactFunc()	
 		|	IfElseFunc()
 		|	WhileFunc()
-		|	LoopForCntFunc() 
+		|	LoopForCountFunc() 
 		|	AnyFunction()
 		|	SwitchCaseFunc()
 		) 
@@ -866,20 +866,20 @@ SimpleNode WhileFunc() :
 *		Loop For Count Function
 **/
 
-SimpleNode LoopForCntFunc() : 
+SimpleNode LoopForCountFunc() : 
 {}
 {
 	(
 		<LOOP_FOR_COUNT>
 		(
 			<LBRACE>
-			SingleVariable()
-			[
+			(
+				SingleVariable()
 			 	Expression()
 			 	[ 
 			 	 	Expression()
 			 	]
-			 ]
+			 )
 			 <RBRACE>
 		)
 		[

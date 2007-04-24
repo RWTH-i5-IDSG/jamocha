@@ -35,7 +35,7 @@ public class MessageReceiver extends CyclicBehaviour {
 	public MessageReceiver(JamochaAgent agent) {
 		super();
 		this.agent = agent;
-		channel = agent.getMessageRouter().openChannel(
+		channel = agent.getEngine().getMessageRouter().openChannel(
 				agent.getProperties().getProperty("agent.name", "Agent"));
 	}
 
@@ -69,7 +69,8 @@ public class MessageReceiver extends CyclicBehaviour {
 		}
 		sb.append(")");
 		sb.append("(performative \"").append(
-				ACLMessage.getPerformative(msg.getPerformative())).append("\")");
+				ACLMessage.getPerformative(msg.getPerformative()).toLowerCase())
+				.append("\")");
 		if (msg.getContent() != null) {
 			sb.append("(content \"").append(
 					ParserUtils.escapeStringLiteral(msg.getContent())).append(

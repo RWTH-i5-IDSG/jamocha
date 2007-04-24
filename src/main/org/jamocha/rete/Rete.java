@@ -42,6 +42,7 @@ import org.jamocha.rete.exception.RetractException;
 import org.jamocha.rete.functions.DeffunctionGroup;
 import org.jamocha.rete.functions.If;
 import org.jamocha.rete.functions.InterpretedFunction;
+import org.jamocha.rete.functions.LoopForCount;
 import org.jamocha.rete.functions.Return;
 import org.jamocha.rete.functions.While;
 import org.jamocha.rete.functions.adaptor.AdaptorFunctions;
@@ -274,9 +275,10 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 		JavaFunctions javafs = new JavaFunctions();
 		functionGroups.add(javafs);
 		javafs.loadFunctions(this);
-		
+
 		// Other builtin constructs
 		declareFunction(new If());
+		declareFunction(new LoopForCount());
 		declareFunction(new Return());
 		declareFunction(new While());
 
