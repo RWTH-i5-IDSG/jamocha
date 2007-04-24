@@ -8,11 +8,11 @@ import org.jamocha.rete.Rete;
 public class DeclarationConfiguration extends AbstractConfiguration {
 
 	
-	Parameter version = null;
+	private Parameter version = null;
 	
-	Parameter salience = null;
+	private Parameter salience = null;
 	
-	Parameter autoFocus = null;
+	private Parameter autoFocus = null;
 	
 	
 	public boolean isObjectBinding() {

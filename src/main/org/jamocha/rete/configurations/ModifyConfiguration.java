@@ -10,9 +10,9 @@ import org.jamocha.rule.Rule;
 
 public class ModifyConfiguration extends AbstractConfiguration {
 
-	BoundParam factBinding = null;
+	private BoundParam factBinding = null;
 
-	SlotConfiguration[] slots = null;
+	private SlotConfiguration[] slots = null;
 
 	public boolean isObjectBinding() {
 		// TODO Auto-generated method stub

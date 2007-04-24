@@ -15,13 +15,13 @@ import org.jamocha.rete.Rete;
  */
 public class DeffunctionConfiguration extends AbstractConfiguration  {
 
-	String functionName = null;
+	private String functionName = null;
 	
-	String functionDescription = null;
+	private String functionDescription = null;
 	
-	Parameter[] params = null;
+	private Parameter[] params = null;
 	
-	ExpressionSequence actions = null;
+	private ExpressionSequence actions = null;
 	
 	 
 	

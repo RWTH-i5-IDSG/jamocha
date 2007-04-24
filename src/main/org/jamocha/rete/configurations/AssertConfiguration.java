@@ -9,9 +9,9 @@ import org.jamocha.rete.Rete;
 public class AssertConfiguration extends AbstractConfiguration {
 
 	
-	String templateName = null;
+	private String templateName = null;
 	
-	SlotConfiguration[] slots = null;
+	private SlotConfiguration[] slots = null;
 	
 	
 	public boolean isObjectBinding() {

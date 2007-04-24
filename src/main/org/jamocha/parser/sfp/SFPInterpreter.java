@@ -14,9 +14,11 @@ import org.jamocha.rete.configurations.AssertConfiguration;
 import org.jamocha.rete.configurations.DeclarationConfiguration;
 import org.jamocha.rete.configurations.DeffunctionConfiguration;
 import org.jamocha.rete.configurations.DefruleConfiguration;
+import org.jamocha.rete.configurations.IfElseConfiguration;
 import org.jamocha.rete.configurations.ModifyConfiguration;
 import org.jamocha.rete.configurations.Signature;
 import org.jamocha.rete.configurations.SlotConfiguration;
+import org.jamocha.rete.functions.If;
 import org.jamocha.rule.AndCondition;
 import org.jamocha.rule.BoundConstraint;
 import org.jamocha.rule.Condition;
@@ -104,11 +106,13 @@ public class SFPInterpreter implements SFPParserVisitor {
 		// frist childnode. all other subnode are handled as paramters for the
 		// function call
 		// get the template name
-		JamochaValue fktName = (JamochaValue) node.jjtGetChild(0).jjtAccept(this, data);
+		JamochaValue fktName = (JamochaValue) node.jjtGetChild(0).jjtAccept(
+				this, data);
 
 		Parameter params[] = new Parameter[node.jjtGetNumChildren() - 1];
 		for (int i = 1; i < node.jjtGetNumChildren(); i++) {
-			params[i - 1] = (Parameter) node.jjtGetChild(i).jjtAccept(this, data);
+			params[i - 1] = (Parameter) node.jjtGetChild(i).jjtAccept(this,
+					data);
 		}
 		// create FunctionParam as result:
 		Signature funcParam = new Signature();
@@ -125,14 +129,17 @@ public class SFPInterpreter implements SFPParserVisitor {
 	public Object visit(SFPAssertFunc node, Object data) {
 
 		// create an AssertConfiguration array an fill it in the subnodes
-		AssertConfiguration[] acArray = new AssertConfiguration[node.jjtGetNumChildren()];
+		AssertConfiguration[] acArray = new AssertConfiguration[node
+				.jjtGetNumChildren()];
 		for (int i = 0; i < node.jjtGetNumChildren(); i++) {
-			acArray[i] = (AssertConfiguration) node.jjtGetChild(i).jjtAccept(this, data);
+			acArray[i] = (AssertConfiguration) node.jjtGetChild(i).jjtAccept(
+					this, data);
 		}
 
 		// create the resulting signature
 		Signature signature = new Signature();
-		signature.setSignatureName(org.jamocha.rete.functions.ruleengine.Assert.NAME);
+		signature
+				.setSignatureName(org.jamocha.rete.functions.ruleengine.Assert.NAME);
 		signature.setParameters(acArray);
 
 		return signature;
@@ -141,14 +148,17 @@ public class SFPInterpreter implements SFPParserVisitor {
 	public Object visit(SFPModify node, Object data) {
 
 		// create an AssertConfiguration array an fill it in the subnodes
-		ModifyConfiguration[] acArray = new ModifyConfiguration[node.jjtGetNumChildren()];
+		ModifyConfiguration[] acArray = new ModifyConfiguration[node
+				.jjtGetNumChildren()];
 		for (int i = 0; i < node.jjtGetNumChildren(); i++) {
-			acArray[i] = (ModifyConfiguration) node.jjtGetChild(i).jjtAccept(this, data);
+			acArray[i] = (ModifyConfiguration) node.jjtGetChild(i).jjtAccept(
+					this, data);
 		}
 
 		// create the resulting signature
 		Signature signature = new Signature();
-		signature.setSignatureName(org.jamocha.rete.functions.ruleengine.Modify.NAME);
+		signature
+				.setSignatureName(org.jamocha.rete.functions.ruleengine.Modify.NAME);
 		signature.setParameters(acArray);
 
 		return signature;
@@ -156,14 +166,17 @@ public class SFPInterpreter implements SFPParserVisitor {
 
 	public Object visit(SFPModifyPattern node, Object data) {
 		// get the template name
-		BoundParam fact = (BoundParam) node.jjtGetChild(0).jjtAccept(this, data);
+		BoundParam fact = (BoundParam) node.jjtGetChild(0)
+				.jjtAccept(this, data);
 		fact.setObjectBinding(true);
 
 		// get the slots from subnodes:
-		SlotConfiguration[] slots = new SlotConfiguration[node.jjtGetNumChildren() - 1];
+		SlotConfiguration[] slots = new SlotConfiguration[node
+				.jjtGetNumChildren() - 1];
 		SlotConfiguration slot = null;
 		for (int i = 1; i < node.jjtGetNumChildren(); i++) {
-			slot = (SlotConfiguration) node.jjtGetChild(i).jjtAccept(this, data);
+			slot = (SlotConfiguration) node.jjtGetChild(i)
+					.jjtAccept(this, data);
 			slot.setId(i - 1);
 			slots[i - 1] = slot;
 		}
@@ -186,8 +199,20 @@ public class SFPInterpreter implements SFPParserVisitor {
 	}
 
 	public Object visit(SFPIfElseFunc node, Object data) {
-		// TODO Auto-generated method stub
-		return null;
+		IfElseConfiguration ifElseConf = new IfElseConfiguration();
+		ifElseConf.setCondition((Expression) node.jjtGetChild(0).jjtAccept(
+				this, data));
+		ifElseConf.setThenActions((ExpressionSequence) node.jjtGetChild(1)
+				.jjtAccept(this, data));
+		if (node.jjtGetNumChildren() > 2) {
+			ifElseConf.setElseActions((ExpressionSequence) node.jjtGetChild(2)
+					.jjtAccept(this, data));
+		}
+		Parameter params[] = { ifElseConf };
+		Signature funcParam = new Signature();
+		funcParam.setSignatureName(org.jamocha.rete.functions.If.NAME);
+		funcParam.setParameters(params);
+		return funcParam;
 	}
 
 	public Object visit(SFPWhileFunc node, Object data) {
@@ -217,7 +242,8 @@ public class SFPInterpreter implements SFPParserVisitor {
 
 	public Object visit(SFPDeftemplateConstruct node, Object data) {
 		// get the template name
-		JamochaValue templName = (JamochaValue) node.jjtGetChild(0).jjtAccept(this, data);
+		JamochaValue templName = (JamochaValue) node.jjtGetChild(0).jjtAccept(
+				this, data);
 
 		// get the template description
 		int j = 1;
@@ -248,15 +274,18 @@ public class SFPInterpreter implements SFPParserVisitor {
 
 		Signature defTemplate = new Signature();
 
-		defTemplate.setSignatureName(org.jamocha.rete.functions.ruleengine.Deftemplate.NAME);
-		defTemplate.setParameters(new Parameter[] { JamochaValue.newObject(tpl) });
+		defTemplate
+				.setSignatureName(org.jamocha.rete.functions.ruleengine.Deftemplate.NAME);
+		defTemplate
+				.setParameters(new Parameter[] { JamochaValue.newObject(tpl) });
 
 		return defTemplate;
 	}
 
 	public Object visit(SFPSingleSlotDefinition node, Object data) {
 		// slot-name:
-		JamochaValue slotName = (JamochaValue) node.jjtGetChild(0).jjtAccept(this, data);
+		JamochaValue slotName = (JamochaValue) node.jjtGetChild(0).jjtAccept(
+				this, data);
 
 		TemplateSlot ts = new TemplateSlot();
 		ts.setName(slotName.getStringValue());
@@ -272,7 +301,8 @@ public class SFPInterpreter implements SFPParserVisitor {
 
 	public Object visit(SFPMultiSlotDefinition node, Object data) {
 		// slot-name:
-		JamochaValue slotName = (JamochaValue) node.jjtGetChild(0).jjtAccept(this, data);
+		JamochaValue slotName = (JamochaValue) node.jjtGetChild(0).jjtAccept(
+				this, data);
 
 		TemplateSlot ts = new TemplateSlot();
 		ts.setName(slotName.getStringValue());
@@ -289,7 +319,8 @@ public class SFPInterpreter implements SFPParserVisitor {
 		// ask all sub expression for their value:
 		ExpressionList expressionList = new ExpressionList();
 		for (int i = 0; i < node.jjtGetNumChildren(); ++i) {
-			expressionList.add((Parameter) node.jjtGetChild(i).jjtAccept(this, data));
+			expressionList.add((Parameter) node.jjtGetChild(i).jjtAccept(this,
+					data));
 		}
 		return expressionList;
 	}
@@ -332,13 +363,16 @@ public class SFPInterpreter implements SFPParserVisitor {
 
 		AssertConfiguration ac = new AssertConfiguration();
 		// get the Template name
-		String templateName = ((JamochaValue) node.jjtGetChild(0).jjtAccept(this, data)).toString();
+		String templateName = ((JamochaValue) node.jjtGetChild(0).jjtAccept(
+				this, data)).toString();
 
 		// get the slots from subnodes:
-		SlotConfiguration[] slots = new SlotConfiguration[node.jjtGetNumChildren() - 1];
+		SlotConfiguration[] slots = new SlotConfiguration[node
+				.jjtGetNumChildren() - 1];
 		SlotConfiguration slot = null;
 		for (int i = 1; i < node.jjtGetNumChildren(); i++) {
-			slot = (SlotConfiguration) node.jjtGetChild(i).jjtAccept(this, data);
+			slot = (SlotConfiguration) node.jjtGetChild(i)
+					.jjtAccept(this, data);
 			slot.setId(i - 1);
 			slots[i - 1] = slot;
 		}
@@ -353,13 +387,15 @@ public class SFPInterpreter implements SFPParserVisitor {
 		SlotConfiguration sc = new SlotConfiguration();
 
 		// get the slot name
-		String slotName = ((JamochaValue) node.jjtGetChild(0).jjtAccept(this, data)).toString();
+		String slotName = ((JamochaValue) node.jjtGetChild(0).jjtAccept(this,
+				data)).toString();
 
 		// get the slots values:
 		Parameter[] slotValues = new Parameter[node.jjtGetNumChildren() - 1];
 
 		for (int i = 1; i < node.jjtGetNumChildren(); i++) {
-			slotValues[i - 1] = (Parameter) node.jjtGetChild(i).jjtAccept(this, data);
+			slotValues[i - 1] = (Parameter) node.jjtGetChild(i).jjtAccept(this,
+					data);
 		}
 
 		sc.setSlotName(slotName);
@@ -409,7 +445,8 @@ public class SFPInterpreter implements SFPParserVisitor {
 		// set the rule LHS
 		Condition[] conditionList = new Condition[k - j];
 		for (int i = j; i < k; i++) {
-			conditionList[i - j] = (Condition) (node.jjtGetChild(i).jjtAccept(this, data));
+			conditionList[i - j] = (Condition) (node.jjtGetChild(i).jjtAccept(
+					this, data));
 		}
 
 		// setup a new DefruleConfiguration
@@ -426,7 +463,8 @@ public class SFPInterpreter implements SFPParserVisitor {
 
 		// create the resulting signature
 		Signature signature = new Signature();
-		signature.setSignatureName(org.jamocha.rete.functions.ruleengine.Defrule.NAME);
+		signature
+				.setSignatureName(org.jamocha.rete.functions.ruleengine.Defrule.NAME);
 		signature.setParameters(new Parameter[] { rc });
 
 		return signature;
@@ -435,7 +473,8 @@ public class SFPInterpreter implements SFPParserVisitor {
 	public Object visit(SFPActionList node, Object data) {
 		ExpressionSequence actionList = new ExpressionSequence();
 		for (int i = 0; i < node.jjtGetNumChildren(); i++) {
-			actionList.add((Parameter) node.jjtGetChild(i).jjtAccept(this, null));
+			actionList.add((Parameter) node.jjtGetChild(i)
+					.jjtAccept(this, null));
 		}
 		return actionList;
 	}
@@ -453,14 +492,16 @@ public class SFPInterpreter implements SFPParserVisitor {
 
 	public Object visit(SFPSalience node, Object data) {
 		// get the node's expression and set it to the DeclarationConfiguration
-		Parameter parameter = (Parameter) node.jjtGetChild(0).jjtAccept(this, null);
+		Parameter parameter = (Parameter) node.jjtGetChild(0).jjtAccept(this,
+				null);
 		((DeclarationConfiguration) data).setSalience(parameter);
 		return null;
 	}
 
 	public Object visit(SFPAutoFocus node, Object data) {
 		// get the node's expression and set it to the DeclarationConfiguration
-		Parameter parameter = (Parameter) node.jjtGetChild(0).jjtAccept(this, null);
+		Parameter parameter = (Parameter) node.jjtGetChild(0).jjtAccept(this,
+				null);
 		((DeclarationConfiguration) data).setAutoFocus(parameter);
 
 		return null;
@@ -468,7 +509,8 @@ public class SFPInterpreter implements SFPParserVisitor {
 
 	public Object visit(SFPRuleVersion node, Object data) {
 		// get the node's expression and set it to the DeclarationConfiguration
-		Parameter parameter = (Parameter) node.jjtGetChild(0).jjtAccept(this, null);
+		Parameter parameter = (Parameter) node.jjtGetChild(0).jjtAccept(this,
+				null);
 		((DeclarationConfiguration) data).setVersion(parameter);
 
 		return null;
@@ -478,7 +520,8 @@ public class SFPInterpreter implements SFPParserVisitor {
 		NotCondition notCond = new NotCondition();
 
 		for (int i = 0; i < node.jjtGetNumChildren(); i++) {
-			notCond.addNestedConditionElement((Condition) node.jjtGetChild(i).jjtAccept(this, data));
+			notCond.addNestedConditionElement((Condition) node.jjtGetChild(i)
+					.jjtAccept(this, data));
 		}
 
 		return notCond;
@@ -488,7 +531,8 @@ public class SFPInterpreter implements SFPParserVisitor {
 		AndCondition andCond = new AndCondition();
 
 		for (int i = 0; i < node.jjtGetNumChildren(); i++) {
-			andCond.addNestedConditionElement((Condition) node.jjtGetChild(i).jjtAccept(this, data));
+			andCond.addNestedConditionElement((Condition) node.jjtGetChild(i)
+					.jjtAccept(this, data));
 		}
 
 		return andCond;
@@ -498,27 +542,31 @@ public class SFPInterpreter implements SFPParserVisitor {
 		OrCondition orCond = new OrCondition();
 
 		for (int i = 0; i < node.jjtGetNumChildren(); i++) {
-			orCond.addNestedConditionElement((Condition) node.jjtGetChild(i).jjtAccept(this, data));
+			orCond.addNestedConditionElement((Condition) node.jjtGetChild(i)
+					.jjtAccept(this, data));
 		}
 
 		return orCond;
 	}
 
 	public Object visit(SFPAssignedPatternCE node, Object data) {
-		//variable:
-		BoundParam bp =(BoundParam) node.jjtGetChild(0).jjtAccept(this, data);
-		JamochaValue variable = JamochaValue.newIdentifier(bp.getVariableName());
-		
-		//get the object condition from subnode:
-		ObjectCondition objectCond = (ObjectCondition) node.jjtGetChild(1).jjtAccept(this, data);
-		
-		//create boundconstraint
-	    BoundConstraint bc = new BoundConstraint(objectCond.getTemplateName(),true);
-	    bc.setValue(variable);
-	    
-	    //add boundconstraint to obect condition
-	    objectCond.addConstraint(bc,0);
-		
+		// variable:
+		BoundParam bp = (BoundParam) node.jjtGetChild(0).jjtAccept(this, data);
+		JamochaValue variable = JamochaValue
+				.newIdentifier(bp.getVariableName());
+
+		// get the object condition from subnode:
+		ObjectCondition objectCond = (ObjectCondition) node.jjtGetChild(1)
+				.jjtAccept(this, data);
+
+		// create boundconstraint
+		BoundConstraint bc = new BoundConstraint(objectCond.getTemplateName(),
+				true);
+		bc.setValue(variable);
+
+		// add boundconstraint to obect condition
+		objectCond.addConstraint(bc, 0);
+
 		return objectCond;
 	}
 
@@ -530,7 +578,8 @@ public class SFPInterpreter implements SFPParserVisitor {
 	public Object visit(SFPTestCE node, Object data) {
 		TestCondition testCond = new TestCondition();
 
-		Signature signature = (Signature) node.jjtGetChild(0).jjtAccept(this, data);
+		Signature signature = (Signature) node.jjtGetChild(0).jjtAccept(this,
+				data);
 		testCond.setFunction(signature);
 		return testCond;
 	}
@@ -539,7 +588,8 @@ public class SFPInterpreter implements SFPParserVisitor {
 		ExistCondition existCond = new ExistCondition();
 
 		for (int i = 0; i < node.jjtGetNumChildren(); i++) {
-			existCond.addNestedConditionElement((Condition) node.jjtGetChild(i).jjtAccept(this, data));
+			existCond.addNestedConditionElement((Condition) node.jjtGetChild(i)
+					.jjtAccept(this, data));
 		}
 
 		return existCond;
@@ -554,12 +604,14 @@ public class SFPInterpreter implements SFPParserVisitor {
 		ObjectCondition objectCond = new ObjectCondition();
 
 		// get Template Name
-		JamochaValue templateName = (JamochaValue) node.jjtGetChild(0).jjtAccept(this, data);
+		JamochaValue templateName = (JamochaValue) node.jjtGetChild(0)
+				.jjtAccept(this, data);
 		objectCond.setTemplateName(templateName.toString());
 
 		// constraints
 		for (int i = 1; i < node.jjtGetNumChildren(); i++) {
-			objectCond.addConstraint((Constraint) node.jjtGetChild(i).jjtAccept(this, data));
+			objectCond.addConstraint((Constraint) node.jjtGetChild(i)
+					.jjtAccept(this, data));
 		}
 
 		return objectCond;
@@ -567,10 +619,12 @@ public class SFPInterpreter implements SFPParserVisitor {
 
 	public Object visit(SFPLHSSlot node, Object data) {
 		// get Slot Name
-		JamochaValue slotName = (JamochaValue) node.jjtGetChild(0).jjtAccept(this, data);
+		JamochaValue slotName = (JamochaValue) node.jjtGetChild(0).jjtAccept(
+				this, data);
 
 		// get constraint from subnode
-		Constraint constraint = (Constraint) node.jjtGetChild(1).jjtAccept(this, data);
+		Constraint constraint = (Constraint) node.jjtGetChild(1).jjtAccept(
+				this, data);
 
 		// set name to given constraint
 		constraint.setName(slotName.getStringValue());
@@ -621,11 +675,13 @@ public class SFPInterpreter implements SFPParserVisitor {
 			// predivate can't handle functions containing functioncalls
 		} else if (n instanceof SFPSingleVariable) {
 			constraint = new BoundConstraint();
-			JamochaValue jv = JamochaValue.newIdentifier(((BoundParam) obj).getVariableName());
+			JamochaValue jv = JamochaValue.newIdentifier(((BoundParam) obj)
+					.getVariableName());
 			constraint.setValue(jv);
 		} else if (n instanceof SFPMultiVariable) {
 			constraint = new BoundConstraint();
-			JamochaValue jv = JamochaValue.newIdentifier(((BoundParam) obj).getVariableName());
+			JamochaValue jv = JamochaValue.newIdentifier(((BoundParam) obj)
+					.getVariableName());
 			constraint.setValue(jv);
 			((BoundConstraint) constraint).setIsMultislot(true);
 		}
@@ -663,7 +719,8 @@ public class SFPInterpreter implements SFPParserVisitor {
 	public Object visit(SFPDeffunctionConstruct node, Object data) {
 		int j = 0;
 		// get the function name
-		JamochaValue functionName = (JamochaValue) node.jjtGetChild(j++).jjtAccept(this, data);
+		JamochaValue functionName = (JamochaValue) node.jjtGetChild(j++)
+				.jjtAccept(this, data);
 
 		// get the template description
 		JamochaValue functionDescription = JamochaValue.newString("");
@@ -678,12 +735,14 @@ public class SFPInterpreter implements SFPParserVisitor {
 		// get function's variables
 		Parameter[] params = new Parameter[node.jjtGetNumChildren() - (j + 1)];
 		for (int i = j; i < node.jjtGetNumChildren() - 1; i++) {
-			BoundParam bp = (BoundParam) node.jjtGetChild(i).jjtAccept(this, data);
+			BoundParam bp = (BoundParam) node.jjtGetChild(i).jjtAccept(this,
+					data);
 			params[i - j] = bp;
 		}
 
 		// get the function's actionlist
-		ExpressionSequence expressions = (ExpressionSequence) node.jjtGetChild(node.jjtGetNumChildren() - 1).jjtAccept(this, data);
+		ExpressionSequence expressions = (ExpressionSequence) node.jjtGetChild(
+				node.jjtGetNumChildren() - 1).jjtAccept(this, data);
 
 		// set up a new DeffunctionConfiguration
 		DeffunctionConfiguration[] dcs = new DeffunctionConfiguration[1];
@@ -702,7 +761,8 @@ public class SFPInterpreter implements SFPParserVisitor {
 		dc.setActions(expressions);
 
 		Signature functionParam = new Signature();
-		functionParam.setSignatureName(org.jamocha.rete.functions.ruleengine.Deffunction.NAME);
+		functionParam
+				.setSignatureName(org.jamocha.rete.functions.ruleengine.Deffunction.NAME);
 
 		dcs[0] = dc;
 
@@ -740,7 +800,8 @@ public class SFPInterpreter implements SFPParserVisitor {
 
 	public Object visit(SFPTypeSpecification node, Object data) {
 		// collect type from subNode:
-		JamochaType type = (JamochaType) node.jjtGetChild(0).jjtAccept(this, data);
+		JamochaType type = (JamochaType) node.jjtGetChild(0).jjtAccept(this,
+				data);
 		// set type to give template slot
 		((TemplateSlot) data).setValueType(type);
 

@@ -8,15 +8,15 @@ import org.jamocha.rule.Condition;
 
 public class DefruleConfiguration extends AbstractConfiguration  {
 
-	String ruleName = null;
+	private String ruleName = null;
 	
-	String ruleDescription = null;
+	private String ruleDescription = null;
 	
-	DeclarationConfiguration declarationConfiguration = null;
+	private DeclarationConfiguration declarationConfiguration = null;
 	
-	Condition[] conditions = null;
+	private Condition[] conditions = null;
 	
-	ExpressionSequence actions = null;
+	private ExpressionSequence actions = null;
 	
 	 
 	

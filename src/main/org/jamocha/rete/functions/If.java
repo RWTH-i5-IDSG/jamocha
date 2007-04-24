@@ -25,16 +25,15 @@ import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
+import org.jamocha.rete.configurations.IfElseConfiguration;
 
 /**
  * @author Christoph Emonds, Alexander Wilden, Sebastian Reinartz
  * 
  * Implementation of the if condition as Jamocha Function.
- * 
- * TODO This function needs a lot of refactoring when the new parser is ready.
  */
 public class If implements Function, Serializable {
-	
+
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
@@ -86,27 +85,20 @@ public class If implements Function, Serializable {
 
 	public JamochaValue executeFunction(Rete engine, Parameter[] params)
 			throws EvaluationException {
-		JamochaValue result = null;
-		if (params != null && params.length >= 3) {
-			JamochaValue condition = params[0].getValue(engine);
-			boolean conditionValue = condition.getBooleanValue();
-			if (!params[1].getExpressionString().equals("then")) {
-				throw new EvaluationException("Error, expected then, found "
-						+ params[1].getExpressionString());
-			}
-			boolean elseExpressions = false;
-			for (int i = 2; i < params.length; ++i) {
-				if (params[i].getExpressionString().equals("else")) {
-					elseExpressions = true;
-				} else {
-					if ((conditionValue && !elseExpressions)
-							|| (!conditionValue && elseExpressions)) {
-						result = params[i].getValue(engine);
-					}
+		JamochaValue result = JamochaValue.NIL;
+		if (params != null && params.length == 1) {
+			IfElseConfiguration ifElseConf = (IfElseConfiguration) params[0];
+			boolean conditionValue = ifElseConf.getCondition().getValue(engine)
+					.getBooleanValue();
+			if (conditionValue) {
+				if (ifElseConf.getThenActions() != null) {
+					result = ifElseConf.getThenActions().getValue(engine);
 				}
+			} else if (ifElseConf.getElseActions() != null) {
+				result = ifElseConf.getElseActions().getValue(engine);
 			}
 		} else {
-			throw new IllegalParameterException(3, true);
+			throw new IllegalParameterException(1);
 		}
 		return result;
 	}
