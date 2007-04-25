@@ -29,7 +29,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Stack;
 
 import org.jamocha.logging.DefaultLogger;
 import org.jamocha.messagerouter.MessageEvent;
@@ -153,7 +152,7 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 	 */
 	protected DefglobalMap defglobals = new DefglobalMap();
 
-	private Stack<Scope> scopes = new Stack<Scope>();
+	private Scope scopes = new BlockingScope();
 
 	/*
 	 * an ArrayList for the listeners
@@ -876,17 +875,14 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 	 * defglobal. If it is, it will return the value. If not, it will see if
 	 * there is an active rule and try to get the local bound value.
 	 * 
-	 * @param name
+	 * @param key
 	 * @return
 	 */
-	public JamochaValue getBinding(String name) {
-		if (!scopes.isEmpty() && !name.startsWith("*")) {
-			JamochaValue result = scopes.peek().getBindingValue(name);
-			if (result != null) {
-				return result;
-			}
-		}
-		return getDefglobalValue(name);
+	public JamochaValue getBinding(String key) {
+		if (key.startsWith("*"))
+			return getDefglobalValue(key);
+		else
+			return scopes.getBindingValue(key);
 	}
 
 	/**
@@ -900,11 +896,10 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 	 * @param value
 	 */
 	public void setBinding(String key, JamochaValue value) {
-		if (!scopes.isEmpty() && !key.startsWith("*")) {
-			scopes.peek().setBindingValue(key, value);
-		} else {
+		if (key.startsWith("*"))
 			this.declareDefglobal(key, value);
-		}
+		else
+			scopes.setBindingValue(key, value);
 	}
 
 	/**
@@ -1744,15 +1739,17 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 
 	public void pushScope() {
 		pushScope(new DefaultScope());
-
 	}
 
 	public void popScope() {
-		scopes.pop();
+		// We don't pop the last scope
+		if (scopes.getOuterScope() != null)
+			scopes = scopes.popScope();
 	}
 
 	public void pushScope(Scope scope) {
-		scopes.push(scope);
+		scope.pushScope(scopes);
+		scopes = scope;
 	}
 
 	public boolean addTemplate(Deftemplate tpl) throws EvaluationException {

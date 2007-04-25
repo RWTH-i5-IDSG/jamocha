@@ -16,29 +16,40 @@
  */
 package org.jamocha.rete;
 
-import java.util.Map;
-
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.rete.util.CollectionsFactory;
 
 /**
  * A default implementation of the scope interface.
  * 
- * @author Sebastian Reinartz 
+ * @author Sebastian Reinartz
  * @author Christoph Emonds
- *
+ * 
  */
-@SuppressWarnings("unchecked")
-public class DefaultScope implements Scope {
-	
-	private Map<String, JamochaValue> values = CollectionsFactory.localMap();
+public class DefaultScope extends AbstractScope {
 
 	public JamochaValue getBindingValue(String name) {
-		return values.get(name);
+		if (values.containsKey(name))
+			return values.get(name);
+		else if (outerScope != null)
+			return outerScope.getBindingValue(name);
+		else
+			return null;
 	}
 
 	public void setBindingValue(String name, JamochaValue value) {
-		values.put(name, value);
+		if (values.containsKey(name) || !hasBindingInTotalRange(name))
+			values.put(name, value);
+		else
+			outerScope.setBindingValue(name, value);
+	}
+
+	public boolean hasBindingInTotalRange(String name) {
+		if (values.containsKey(name))
+			return true;
+		else if (outerScope != null)
+			return outerScope.hasBindingInTotalRange(name);
+		else
+			return false;
 	}
 
 }

@@ -29,19 +29,17 @@ public class MultiSlot extends Slot {
 
 	protected Object[] value = {};
 
-	/**
-	 * 
-	 */
 	public MultiSlot() {
-		super();
-		super.setValueType(JamochaType.LIST);
+		this("");
 	}
 
 	public MultiSlot(String name) {
-		super.setName(name);
+		this(name, null);
 	}
 
 	public MultiSlot(String name, Object[] value) {
+		super();
+		super.setValueType(JamochaType.LIST);
 		super.setName(name);
 		this.value = value;
 	}

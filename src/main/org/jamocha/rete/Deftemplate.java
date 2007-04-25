@@ -60,7 +60,7 @@ public class Deftemplate implements Template, Serializable {
 	private String templateName = null;
 
 	private Template parent = null;
-	
+
 	private String description = null;
 
 	/**
@@ -74,7 +74,7 @@ public class Deftemplate implements Template, Serializable {
 		this.templateName = name;
 		this.defclass = defclass;
 		this.slots = slots;
-		
+
 	}
 
 	public Deftemplate(String name, String defclass, TemplateSlot[] slots,
@@ -315,13 +315,14 @@ public class Deftemplate implements Template, Serializable {
 		newfact.equalityIndex();
 		return newfact;
 	}
-		
-	public Fact createFact(SlotConfiguration[] scs, Rete engine) throws EvaluationException {
+
+	public Fact createFact(SlotConfiguration[] scs, Rete engine)
+			throws EvaluationException {
 		SlotConfiguration sc = null;
 		Slot slot = null;
-		
+
 		Slot[] slots = createFactSlots(engine);
-		
+
 		ArrayList bslots = new ArrayList();
 
 		boolean hasbinding = false;
@@ -329,18 +330,20 @@ public class Deftemplate implements Template, Serializable {
 			sc = scs[i];
 			for (int j = 0; j < slots.length; j++) {
 				slot = slots[j];
-				
-				//template slots name matches SlotConfiguration Name?
-				if (slot.getName().equals(sc.getSlotName())) 
-				{
-					//copy slot id:
+
+				// template slots name matches SlotConfiguration Name?
+				if (slot.getName().equals(sc.getSlotName())) {
+					// copy slot id:
 					slot.setId(sc.getId());
-					
+
 					JamochaValue val = sc.getValue(engine);
-					//Multislot?
-					if (sc.isMultislot())
-						{
+					// Multislot?
+					if (slot instanceof MultiSlot) {
 						// check the list to see if there's any bindings
+						if (!val.is(JamochaType.LIST)) {
+							JamochaValue[] values = { val };
+							val = JamochaValue.newList(values);
+						}
 						for (int mdx = 0; mdx < val.getListCount(); mdx++) {
 							JamochaValue v2 = val.getListValue(mdx);
 							if (v2.getType() == JamochaType.BINDING) {
@@ -352,9 +355,8 @@ public class Deftemplate implements Template, Serializable {
 							}
 						}
 						slot.setValue(val);
-						
 					} else {
-						//no multislot:
+						// no multislot:
 						if (val == null) {
 							slot.setValue(JamochaValue.NIL);
 						} else if (val.getType() == JamochaType.BINDING) {
@@ -371,7 +373,7 @@ public class Deftemplate implements Template, Serializable {
 				}
 			}
 		}
-		
+
 		Deffact newfact = new Deffact(this, null, slots, -1);
 		if (hasbinding) {
 			Slot[] slts2 = new Slot[bslots.size()];

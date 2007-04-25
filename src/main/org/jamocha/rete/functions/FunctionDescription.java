@@ -35,4 +35,6 @@ public interface FunctionDescription {
 	public String getParameterName(int parameter);
 	
 	public String getParameterDescription(int parameter);
+	
+	//public String getExample();
 }

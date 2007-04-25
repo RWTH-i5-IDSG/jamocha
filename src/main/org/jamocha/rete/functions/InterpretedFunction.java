@@ -21,13 +21,12 @@ import org.jamocha.parser.Expression;
 import org.jamocha.parser.IllegalParameterException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
+import org.jamocha.rete.BlockingScope;
 import org.jamocha.rete.BoundParam;
-import org.jamocha.rete.DefaultScope;
 import org.jamocha.rete.ExpressionSequence;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.Scope;
 
 /**
  * @author Peter Lin
@@ -118,12 +117,15 @@ public class InterpretedFunction implements Function {
 		// the first thing we do is set the values
 		JamochaValue result = JamochaValue.NIL;
 		if (params.length == inputParams.length) {
-			Scope parameterValues = new DefaultScope();
+			JamochaValue[] evaluatedParams = new JamochaValue[inputParams.length];
 			for (int idx = 0; idx < inputParams.length; idx++) {
-				BoundParam bp = (BoundParam) inputParams[idx];
-				parameterValues.setBindingValue(bp.getVariableName(), params[idx].getValue(engine));
+				evaluatedParams[idx] = params[idx].getValue(engine);
 			}
-			engine.pushScope(parameterValues);
+			engine.pushScope(new BlockingScope());
+			for (int idx = 0; idx < inputParams.length; ++idx) {
+				BoundParam bp = (BoundParam) inputParams[idx];
+				engine.setBinding(bp.getVariableName(), evaluatedParams[idx]);
+			}
 			try {
 				result = actions.getValue(engine);
 			} finally {

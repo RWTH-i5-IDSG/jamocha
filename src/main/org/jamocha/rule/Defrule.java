@@ -78,6 +78,8 @@ public class Defrule implements Rule, Scope, Serializable {
 	protected Module themodule = null;
 
 	protected Map bindValues = CollectionsFactory.localMap();
+	
+	protected Scope outerScope = null;
 
 	private LinkedHashMap bindings = new LinkedHashMap();
 
@@ -587,6 +589,22 @@ public class Defrule implements Rule, Scope, Serializable {
 	public Object clone() {
 		Defrule cl = new Defrule(this.name);
 		return cl;
+	}
+
+	public boolean hasBindingInTotalRange(String name) {
+		return bindValues.containsKey(name);
+	}
+
+	public Scope popScope() {
+		return outerScope;
+	}
+
+	public void pushScope(Scope scope) {
+		outerScope = scope;
+	}
+
+	public Scope getOuterScope() {
+		return outerScope;
 	}
 
 }
