@@ -28,5 +28,9 @@ public class IllegalParameterException extends EvaluationException {
 	public IllegalParameterException(int parameterCount, boolean orMore) {
 		super("Expected parameter count "+parameterCount+(orMore?"+":""));
 	}
+	
+	public IllegalParameterException(int parameterCount, String ParameterName){
+		super("Expected parameter " + ParameterName + " at position " + parameterCount);
+	}
 
 }
