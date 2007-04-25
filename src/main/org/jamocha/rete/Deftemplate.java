@@ -25,6 +25,7 @@ import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.configurations.SlotConfiguration;
+import org.jamocha.rete.exception.AssertException;
 
 /**
  * @author Peter Lin Deftemplate is equivalent to CLIPS deftemplate<br/>
@@ -272,7 +273,7 @@ public class Deftemplate implements Template, Serializable {
 			throws EvaluationException {
 		Slot[] values = createFactSlots(engine);
 		Object[] array = (Object[]) data;
-		ArrayList bslots = new ArrayList();
+		ArrayList<Slot> bslots = new ArrayList<Slot>();
 		boolean hasbinding = false;
 		for (int idz = 0; idz < array.length; idz++) {
 			Slot s = (Slot) array[idz];
@@ -318,22 +319,31 @@ public class Deftemplate implements Template, Serializable {
 
 	public Fact createFact(SlotConfiguration[] scs, Rete engine)
 			throws EvaluationException {
+		Boolean foundSlotMatching = false;
 		SlotConfiguration sc = null;
 		Slot slot = null;
 
 		Slot[] slots = createFactSlots(engine);
 
-		ArrayList bslots = new ArrayList();
+		ArrayList<Slot> bslots = new ArrayList<Slot>();
 
 		boolean hasbinding = false;
 		for (int i = 0; i < scs.length; i++) {
+			// initialize foundslotMatching to false:
+			foundSlotMatching = false;
+			
 			sc = scs[i];
 			for (int j = 0; j < slots.length; j++) {
 				slot = slots[j];
+				
+				//template slots name matches SlotConfiguration Name?
+				if (slot.getName().equals(sc.getSlotName())) 
+				{
+					//we found matching slots for our sc
+					foundSlotMatching = true;
+					
+					//copy slot id:
 
-				// template slots name matches SlotConfiguration Name?
-				if (slot.getName().equals(sc.getSlotName())) {
-					// copy slot id:
 					slot.setId(sc.getId());
 
 					JamochaValue val = sc.getValue(engine);
@@ -371,6 +381,10 @@ public class Deftemplate implements Template, Serializable {
 					}
 					break;
 				}
+			}
+			//did wo found a matching slot for our slotconfiguration?
+			if (foundSlotMatching ==false){
+				throw new AssertException("Could not found a slot for given slotname " + sc.getSlotName() +  ".");
 			}
 		}
 

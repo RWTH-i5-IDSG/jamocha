@@ -21,7 +21,6 @@ import org.jamocha.rete.configurations.ModifyConfiguration;
 import org.jamocha.rete.configurations.Signature;
 import org.jamocha.rete.configurations.SlotConfiguration;
 import org.jamocha.rete.configurations.WhileDoConfiguration;
-import org.jamocha.rete.functions.If;
 import org.jamocha.rule.AndCondition;
 import org.jamocha.rule.BoundConstraint;
 import org.jamocha.rule.Condition;

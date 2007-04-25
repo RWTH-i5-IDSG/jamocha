@@ -58,25 +58,22 @@
 (deftemplate modifywurst
 	(slot name)
 	(slot laenge)
+	(multislot zutaten)
 )
 
 (assert (modifywurst
 		(name "zukurz")
 		(laenge 25)
+		(zutaten "wasser" "salz" "pferd")
 	)
 )
 
 (defrule bessereWurst
-	 ?wurstFact <-(modifywurst (laenge 25) )
+	 ?wurstFact <-(modifywurst (laenge 25)(zutaten $?zutatenlist))
 	=>
-	;(modify ?wurstFact (laenge 35) )	
+	(modify ?wurstFact (laenge 35) )
+	;(printout t $?zutatenlist )	
 	(printout t "laengere wurst" )
+	(foreach ?i $?zutatenlist (printout t ?i)) 
  )
 
-(defrule bessereWurstAdvanced
-	 ?wurstFact <-(modifywurst (laenge ?x) )
-	 (test (eq ?x 25))
-	=>
-	;(modify ?wurstFact (laenge 35) )	
-	(printout t "laengere wurst mit test condition")
- )
