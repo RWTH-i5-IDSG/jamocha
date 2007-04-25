@@ -68,9 +68,10 @@ public class MessageReceiver extends CyclicBehaviour {
 					.append(' ');
 		}
 		sb.append(")");
-		sb.append("(performative \"").append(
-				ACLMessage.getPerformative(msg.getPerformative()).toLowerCase())
-				.append("\")");
+		sb.append("(performative \"")
+				.append(
+						ACLMessage.getPerformative(msg.getPerformative())
+								.toLowerCase()).append("\")");
 		if (msg.getContent() != null) {
 			sb.append("(content \"").append(
 					ParserUtils.escapeStringLiteral(msg.getContent())).append(
@@ -117,10 +118,10 @@ public class MessageReceiver extends CyclicBehaviour {
 			sb.append("(reply-with \"").append("\")");
 		}
 		if (msg.getReplyByDate() != null) {
-			sb.append("(reply-by \"").append(msg.getReplyByDate())
-					.append("\")");
+			sb.append("(reply-by ").append(
+					ParserUtils.dateToString(msg.getReplyByDate())).append(")");
 		} else {
-			sb.append("(reply-by \"").append("\")");
+			sb.append("(reply-by ").append(")");
 		}
 		if (msg.getContent() != null) {
 			sb.append("(user-properties \"\" ");

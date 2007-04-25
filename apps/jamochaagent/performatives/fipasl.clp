@@ -1,7 +1,8 @@
-(deffunction fipa-sl-request-handler
+(deffunction fipa-sl-request-handler "Handles incoming requests in FIPA-SL."
     (?factid)
     (printout t "Ein Request ist gekommen: " ?factid)
     (printout t (fact-slot-value ?factid content))
+    (bind ?clipsCode (fact-slot-value ?factid content))
     (if (eq "fipa-sl" (str-lower (fact-slot-value ?factid language))) then (bind ?clipsCode
 	    	(sl2clips
 	    		(fact-slot-value ?factid performative)
@@ -9,11 +10,7 @@
 	    	)
 	    )
 	    (printout t "got sl code and parsed it: " ?clipsCode)
-    else (bind ?clipsCode
-	 		(fact-slot-value ?factid content)
-	 	)
-	    (printout t "got clips-code")
-	)
+    )
     (bind ?result 
     	(eval ?clipsCode)
     )

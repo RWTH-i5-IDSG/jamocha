@@ -67,7 +67,7 @@ public class SendMessageFunction implements Function {
 	private static final long serialVersionUID = 1L;
 
 	private JamochaAgent agent;
-	
+
 	private static final String NAME = "agent-send-message";
 
 	private static final int RECEIVERS_PARAM_POS = 0;
@@ -180,8 +180,10 @@ public class SendMessageFunction implements Function {
 				.getStringValue());
 		result.setReplyWith(params[REPLY_WITH_PARAM_POS].getValue(engine)
 				.getStringValue());
-		result.setReplyByDate(params[REPLY_BY_PARAM_POS].getValue(engine)
-				.getDateValue().getTime());
+		JamochaValue repBy = params[REPLY_BY_PARAM_POS].getValue(engine);
+		if (repBy.is(JamochaType.DATETIME)) {
+			result.setReplyByDate(repBy.getDateValue().getTime());
+		}
 		return result;
 	}
 

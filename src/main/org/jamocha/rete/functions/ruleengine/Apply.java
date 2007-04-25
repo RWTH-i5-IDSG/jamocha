@@ -25,6 +25,7 @@ import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
+import org.jamocha.rete.configurations.Signature;
 import org.jamocha.rete.functions.FunctionDescription;
 
 /**
@@ -100,15 +101,12 @@ public class Apply implements Function, Serializable {
 		JamochaValue result;
 		if (params != null && params.length >= 1) {
 			String functionName = params[0].getValue(engine).getStringValue();
-			Function function = engine.findFunction(functionName);
-			if (function == null) {
-				throw new EvaluationException("Error function " + functionName
-						+ " could not be found.");
-			}
+			Signature func = new Signature(functionName);
 			Parameter[] functionParams = new Parameter[params.length - 1];
 			System.arraycopy(params, 1, functionParams, 0,
 					functionParams.length);
-			result = function.executeFunction(engine, functionParams);
+			func.setParameters(functionParams);
+			result = func.getValue(engine);
 		} else {
 			throw new IllegalParameterException(1);
 		}
