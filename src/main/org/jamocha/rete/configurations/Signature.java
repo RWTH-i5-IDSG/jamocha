@@ -17,6 +17,7 @@
 package org.jamocha.rete.configurations;
 
 import org.jamocha.parser.EvaluationException;
+import org.jamocha.parser.FunctionNotFoundException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.parser.ParserFactory;
@@ -102,7 +103,7 @@ public class Signature extends AbstractSignature {
 			if (func != null) {
 				return func.executeFunction(engine, this.params);
 			} else {
-				// Alexander : please write to the logger
+				throw new FunctionNotFoundException(this.signatureName);
 			}
 		}
 		return JamochaValue.FALSE;
@@ -116,4 +117,3 @@ public class Signature extends AbstractSignature {
 		return ParserFactory.getFormatter().formatExpression(this);
 	}
 }
-

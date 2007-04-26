@@ -1,24 +1,29 @@
-(deffunction fipa-sl-request-handler "Handles incoming requests in FIPA-SL."
-    (?factid)
-    (printout t "Ein Request ist gekommen: " ?factid)
-    (printout t (fact-slot-value ?factid content))
+(deffunction fipa-sl-request-handler "Handles incoming requests in FIPA-SL." (?factid)
     (bind ?clipsCode (fact-slot-value ?factid content))
-    (if (eq "fipa-sl" (str-lower (fact-slot-value ?factid language))) then (bind ?clipsCode
+    ; if we have content in fipa-sl we parse it and translate it to CLIPS
+    (if
+    	(eq "fipa-sl" (str-lower (fact-slot-value ?factid language)))
+     then
+     	(bind ?clipsCode
 	    	(sl2clips
 	    		(fact-slot-value ?factid performative)
-	    		(fact-slot-value ?factid content)
+	    		?clipsCode
 	    	)
 	    )
-	    (printout t "got sl code and parsed it: " ?clipsCode)
     )
     (bind ?result 
     	(eval ?clipsCode)
+    )
+    (if
+    	(eq "fipa-sl" (str-lower (fact-slot-value ?factid language)))
+     then
+     	(bind ?result (clips2sl ?result))
     )
     (printout t ?result)
     (agent-send-message 
     	(fact-slot-value ?factid sender) 
     	(fact-slot-value ?factid reply-to)
-    	(fact-slot-value ?factid performative)
+    	"inform"
     	(str-cat (fact-slot-value ?factid content) crlf ?result) 
     	(fact-slot-value ?factid language)
     	(fact-slot-value ?factid encoding)

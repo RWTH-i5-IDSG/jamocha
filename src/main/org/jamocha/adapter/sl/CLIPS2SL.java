@@ -18,6 +18,7 @@ package org.jamocha.adapter.sl;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Fact;
+import org.jamocha.rete.Rete;
 import org.jamocha.rete.Template;
 
 /**
@@ -42,7 +43,7 @@ public class CLIPS2SL {
 	 *            A JamochaValue that should be translated.
 	 * @return The result of the translation.
 	 */
-	public static String getSL(JamochaValue value) {
+	public static String getSL(JamochaValue value, Rete engine) {
 		StringBuilder res = new StringBuilder();
 		if (value.getType().equals(JamochaType.BOOLEAN)
 				|| value.getType().equals(JamochaType.DATETIME)
@@ -53,7 +54,7 @@ public class CLIPS2SL {
 		} else if (value.getType().equals(JamochaType.LIST)) {
 			res.append("(sequence \n");
 			for (int i = 0; i < value.getListCount(); ++i) {
-				res.append(" " + getSL(value.getListValue(i)) + " "); // recursion
+				res.append(" " + getSL(value.getListValue(i), engine) + " "); // recursion
 			}
 			res.append(")");
 		} else if (value.getType().equals(JamochaType.FACT)) {
@@ -62,9 +63,20 @@ public class CLIPS2SL {
 			res.append("(" + tmpl.getName() + "\n");
 			for (int i = 0; i < tmpl.getNumberOfSlots(); i++) {
 				res.append("		:" + tmpl.getSlot(i).getName() + " "
-						+ getSL(fact.getSlotValue(i)));
+						+ getSL(fact.getSlotValue(i), engine));
 			}
 			res.append(" )\n");
+		} else if (value.getType().equals(JamochaType.FACT_ID)) {
+			Fact fact = engine.getFactById(value.getFactIdValue());
+			if (fact != null) {
+				Template tmpl = fact.getTemplate();
+				res.append("(" + tmpl.getName() + "\n");
+				for (int i = 0; i < tmpl.getNumberOfSlots(); i++) {
+					res.append("		:" + tmpl.getSlot(i).getName() + " "
+							+ getSL(fact.getSlotValue(i), engine));
+				}
+				res.append(" )\n");
+			}
 		}
 		return res.toString();
 	}

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006 Christoph Emonds, Sebastian Reinartz, Alexander Wilden
+ * Copyright (C) 2006-2007 Christoph Emonds, Sebastian Reinartz, Alexander Wilden
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,11 @@ import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.functions.FunctionDescription;
 
+/**
+ * @author Christoph Emonds, Sebastian Reinartz, Alexander Wilden
+ *
+ *
+ */
 public class SendMessageFunction implements Function {
 	private static final class Description implements FunctionDescription {
 
@@ -147,7 +152,7 @@ public class SendMessageFunction implements Function {
 		}
 		ACLMessage result = new ACLMessage(ACLMessage
 				.getInteger(params[PERFORMATIVE_PARAM_POS].getValue(engine)
-						.getStringValue()));
+						.getStringValue().toUpperCase()));
 		// receivers are given in a LIST
 		JamochaValue receivers = params[RECEIVERS_PARAM_POS].getValue(engine)
 				.implicitCast(JamochaType.LIST);

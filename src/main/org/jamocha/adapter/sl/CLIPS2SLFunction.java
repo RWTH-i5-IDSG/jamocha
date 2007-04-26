@@ -34,7 +34,8 @@ import org.jamocha.rete.functions.FunctionDescription;
  */
 public class CLIPS2SLFunction implements Function, Serializable {
 
-	private static final class CLIPS2SLFunctionDescription implements FunctionDescription {
+	private static final class CLIPS2SLFunctionDescription implements
+			FunctionDescription {
 
 		public String getDescription() {
 			return "translates CLIPS-Code resp. JamochaValues to SL which then will be returned as a String.";
@@ -70,11 +71,11 @@ public class CLIPS2SLFunction implements Function, Serializable {
 	}
 
 	private static final FunctionDescription DESCRIPTION = new CLIPS2SLFunctionDescription();
-	
+
 	private static final long serialVersionUID = 1L;
 
 	public static final String NAME = "clips2sl";
-	
+
 	public FunctionDescription getDescription() {
 		return DESCRIPTION;
 	}
@@ -92,7 +93,7 @@ public class CLIPS2SLFunction implements Function, Serializable {
 		JamochaValue result = JamochaValue.newString("");
 		if (params != null && params.length == 1) {
 			JamochaValue value = params[0].getValue(engine);
-			String slCode = CLIPS2SL.getSL(value);
+			String slCode = CLIPS2SL.getSL(value, engine);
 			result = JamochaValue.newString(slCode);
 		} else {
 			throw new IllegalParameterException(1);
