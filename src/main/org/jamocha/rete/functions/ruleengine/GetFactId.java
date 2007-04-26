@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 Christoph Emonds, Alexander Wilden
+ * Copyright 2007 Alexander Wilden
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import java.io.Serializable;
 
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.IllegalParameterException;
+import org.jamocha.parser.IllegalTypeException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Fact;
@@ -29,54 +30,37 @@ import org.jamocha.rete.Rete;
 import org.jamocha.rete.functions.FunctionDescription;
 
 /**
- * @author Christoph Emonds
+ * @author Alexander Wilden
  * 
- * Returns the value of a slot of a specific fact.
+ * Returns the Fact-ID of a given Fact.
  */
-public class FactSlotValue implements Function, Serializable {
+public class GetFactId implements Function, Serializable {
 
-	private static final class Description implements FunctionDescription {
+	private static final class FindFactByFactDescription implements
+			FunctionDescription {
 
 		public String getDescription() {
-			return "Returns the value of a slot of a specific fact.";
+			return "Returns the Fact-ID of a given Fact.";
 		}
 
 		public int getParameterCount() {
-			return 2;
+			return 1;
 		}
 
 		public String getParameterDescription(int parameter) {
-			switch (parameter) {
-			case 0:
-				return "Fact the slot value should be returned from.";
-			case 1:
-				return "Name of the Slot the value should be returned from.";
-			}
-			return "";
+			return "Fact to return the ID of.";
 		}
 
 		public String getParameterName(int parameter) {
-			switch (parameter) {
-			case 0:
-				return "fact";
-			case 1:
-				return "slotName";
-			}
-			return "";
+			return "fact";
 		}
 
 		public JamochaType[] getParameterTypes(int parameter) {
-			switch (parameter) {
-			case 0:
-				return JamochaType.FACT_IDS;
-			case 1:
-				return JamochaType.IDENTIFIERS;
-			}
-			return JamochaType.NONE;
+			return JamochaType.FACTS;
 		}
 
 		public JamochaType[] getReturnType() {
-			return JamochaType.ANY;
+			return JamochaType.FACT_IDS;
 		}
 
 		public boolean isParameterCountFixed() {
@@ -88,11 +72,11 @@ public class FactSlotValue implements Function, Serializable {
 		}
 	}
 
-	private static final FunctionDescription DESCRIPTION = new Description();
+	private static final FunctionDescription DESCRIPTION = new FindFactByFactDescription();
 
 	private static final long serialVersionUID = 1L;
 
-	public static final String NAME = "fact-slot-value";
+	public static final String NAME = "get-fact-id";
 
 	public FunctionDescription getDescription() {
 		return DESCRIPTION;
@@ -104,17 +88,21 @@ public class FactSlotValue implements Function, Serializable {
 
 	public JamochaValue executeFunction(Rete engine, Parameter[] params)
 			throws EvaluationException {
-		if (params != null && params.length == 2) {
-			JamochaValue factId = params[0].getValue(engine);
-			JamochaValue slotName = params[1].getValue(engine);
-			Fact fact = engine.getFactById(factId.getFactIdValue());
-			int slotId = fact.getSlotId(slotName.getIdentifierValue());
-			if (slotId < 0) {
-				throw new EvaluationException("Error no slot " + slotName);
+		if (params != null && params.length == 1) {
+			JamochaValue param = params[0].getValue(engine);
+			if (param.is(JamochaType.FACT)) {
+				Fact fact = param.getFactValue();
+				if (fact == null) {
+					return JamochaValue.newFactId(0);
+				} else {
+					return JamochaValue.newFactId(fact.getFactId());
+				}
+			} else {
+				throw new IllegalTypeException(
+						DESCRIPTION.getParameterTypes(0), param.getType());
 			}
-			return fact.getSlotValue(slotId);
 		} else {
-			throw new IllegalParameterException(2);
+			throw new IllegalParameterException(1);
 		}
 	}
 }

@@ -11,15 +11,18 @@
 	    	)
 	    )
     )
+    ; here we evaluate the clips code in the engine
+    ; and bind the result
     (bind ?result 
     	(eval ?clipsCode)
     )
+    ; if the used language was fipa-sl we again need to retranslate our result
     (if
     	(eq "fipa-sl" (str-lower (fact-slot-value ?factid language)))
      then
      	(bind ?result (clips2sl ?result))
     )
-    (printout t ?result)
+    ; finally we send the result in an inform
     (agent-send-message 
     	(fact-slot-value ?factid sender) 
     	(fact-slot-value ?factid reply-to)

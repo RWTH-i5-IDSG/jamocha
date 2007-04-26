@@ -102,6 +102,10 @@ public class RuleEngineFunctions implements FunctionGroup, Serializable {
 		engine.declareFunction(exit);
 		funcs.add(exit);
 
+		FactId factId = new FactId();
+		engine.declareFunction(factId);
+		funcs.add(factId);
+
 		Facts facts = new Facts();
 		engine.declareFunction(facts);
 		funcs.add(facts);
@@ -129,6 +133,10 @@ public class RuleEngineFunctions implements FunctionGroup, Serializable {
 		GetCurrentModule getCurrentModule = new GetCurrentModule();
 		engine.declareFunction(getCurrentModule);
 		funcs.add(getCurrentModule);
+
+		GetFactId getFactId = new GetFactId();
+		engine.declareFunction(getFactId);
+		funcs.add(getFactId);
 
 		LazyAgenda lazyAgenda = new LazyAgenda();
 		engine.declareFunction(lazyAgenda);
