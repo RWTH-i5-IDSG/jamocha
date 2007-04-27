@@ -27,6 +27,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.logging.SimpleFormatter;
 
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.IllegalParameterException;
@@ -311,7 +312,6 @@ public class JDBCLink implements Function, Serializable {
 		statementString.append(" FROM ");
 		statementString.append(table);
 		
-		
 		for (int i = 0 ; i < conditions.getListCount() ; i++ ) {
 			Fact actCondition = (Fact) engine
 			.getFactById((conditions.getListValue(i)
@@ -328,7 +328,6 @@ public class JDBCLink implements Function, Serializable {
 			statementString.append("?) ");
 		}
 		
-		
 		PreparedStatement stmt = conn.prepareStatement(statementString.toString());
 
 		for (int i = 0 ; i < conditions.getListCount() ; i++ ) {
@@ -336,8 +335,15 @@ public class JDBCLink implements Function, Serializable {
 			.getFactById((conditions.getListValue(i)
 					.getFactIdValue()));
 			Object value = actCondition.getSlotValue("Value").getObjectValue();
+			
+			if (value instanceof GregorianCalendar)  {
+				GregorianCalendar gregval=((GregorianCalendar)value);
+				value = new java.sql.Date( gregval.getTimeInMillis() + gregval.get(gregval.ZONE_OFFSET) );
+			}
 			stmt.setObject(i+1, value);
 		}
+		
+
 
 		ResultSet rs = stmt.executeQuery();
 		

@@ -14,4 +14,15 @@
 	)
 )
 
-(jdbclink ?mylink "import" (create$ )) 
+(bind ?myfilter
+	(assert
+		(jdbccondition
+			(SlotName "foo")
+			(BooleanOperator ">")
+			(Value 2007-04-27 19:00+1)
+		)
+	)
+)
+
+
+(jdbclink ?mylink "import" (create$ ?myfilter)) 
