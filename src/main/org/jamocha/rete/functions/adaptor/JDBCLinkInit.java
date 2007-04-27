@@ -112,8 +112,8 @@ public class JDBCLinkInit implements Function, Serializable {
 			slots[0] = new TemplateSlot("SlotName");
 			slots[1] = new TemplateSlot("BooleanOperator");
 			slots[2] = new TemplateSlot("Value");
-			for (int i = 0; i < slots.length; i++)
-				slots[i].setValueType(JamochaType.STRING);
+			slots[0].setValueType(JamochaType.STRING);
+			slots[1].setValueType(JamochaType.STRING);
 			Template jdbcConfigTemplate = new Deftemplate(templateName, null,
 					slots);	
 			engine.findModule("MAIN").addTemplate(jdbcConfigTemplate, engine,

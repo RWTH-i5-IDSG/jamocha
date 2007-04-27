@@ -322,7 +322,7 @@ public class JDBCLink implements Function, Serializable {
 			Fact actCondition = (Fact) engine
 			.getFactById((conditions.getListValue(i)
 					.getFactIdValue()));
-			String value = actCondition.getSlotValue("Value").getStringValue();
+			Object value = actCondition.getSlotValue("Value").getObjectValue();
 			stmt.setObject(i+1, value);
 		}
 
