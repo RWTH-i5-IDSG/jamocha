@@ -46,7 +46,7 @@ public class IteratorExporter implements Function, Serializable {
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "TODO";
+			return "The iteratorexporter function is used to export facts from the rete engine to some external place. this external place is an user-implementation of org.jamocha.rete.util.ExportHandler. This interface defines the function long export(java.util.Iterator<org.jamocha.rete.Deffact>,java.util.Map<String,String>). When calling iteratorexporter, similar to iteratorimporter, it creates an instance of an ExportHandler-subclass. Then it generates a map from a given config-fact. After all, it calls export.";
 		}
 
 		public int getParameterCount() {
@@ -56,11 +56,11 @@ public class IteratorExporter implements Function, Serializable {
 		public String getParameterDescription(int parameter) {
 			switch (parameter) {
 			case 0:
-				return "TODO";
+				return "The first argument is a class name of a subclass from org.jamocha.rete.util.ExportHandler.";
 			case 1:
-				return "TODO";
+				return "The second argument is a config-fact. Therefrom a map will be generated in the same manner as with iteratorimporter.";
 			case 2:
-				return "TODO";
+				return "The third argument is a list of facts. These facts are piped to the Iterator.";
 			}
 			return "";
 		}
@@ -68,11 +68,11 @@ public class IteratorExporter implements Function, Serializable {
 		public String getParameterName(int parameter) {
 			switch (parameter) {
 			case 0:
-				return "unknown";
+				return "ExportHandlerClass";
 			case 1:
-				return "unknown";
+				return "ConfigFact";
 			case 2:
-				return "unknown";
+				return "FactsToExport";
 			}
 			return "";
 		}

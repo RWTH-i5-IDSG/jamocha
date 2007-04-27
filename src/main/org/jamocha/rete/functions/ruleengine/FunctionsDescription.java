@@ -100,7 +100,7 @@ public class FunctionsDescription implements Function, Serializable {
 				sb.append(" ");
 				sb.append(name);
 				sb.append("=\"");
-				sb.append(value.replace('"', '\'' ));
+				sb.append(value.replace('"', '\'' ).replace(">", "&gt;").replace("<", "&lt;"));
 				sb.append("\"");
 			}
 			if (childs.isEmpty()) {
@@ -134,20 +134,20 @@ public class FunctionsDescription implements Function, Serializable {
 	}
 
 	private String JamochaType2String(JamochaType[] t) {
-		if (t==JamochaType.BOOLEANS) return "boolean";
-		if (t==JamochaType.DATETIMES) return "datetime";
-		if (t==JamochaType.DOUBLES) return "double";
-		if (t==JamochaType.FACT_IDS) return "fact-id";
-		if (t==JamochaType.FACTS) return "facts";
-		if (t==JamochaType.IDENTIFIERS) return "identifier";
-		if (t==JamochaType.LISTS) return "list";
-		if (t==JamochaType.LONGS) return "long";
-		if (t==JamochaType.NONE) return "none";
-		if (t==JamochaType.NUMBERS) return "number";
-		if (t==JamochaType.OBJECTS) return "java-object";
-		if (t==JamochaType.PRIMITIVES) return "primitive";
-		if (t==JamochaType.SLOTS) return "slot";
-		if (t==JamochaType.STRINGS) return "string";
+		if (t==JamochaType.BOOLEANS) return "BOOLEAN";
+		if (t==JamochaType.DATETIMES) return "DATETIME";
+		if (t==JamochaType.DOUBLES) return "DOUBLE";
+		if (t==JamochaType.FACT_IDS) return "FACT_ID";
+		if (t==JamochaType.FACTS) return "FACT";
+		if (t==JamochaType.IDENTIFIERS) return "IDENTIFIER";
+		if (t==JamochaType.LISTS) return "LIST";
+		if (t==JamochaType.LONGS) return "LONG";
+		if (t==JamochaType.NONE) return "NONE";
+		if (t==JamochaType.NUMBERS) return "NUMBER";
+		if (t==JamochaType.OBJECTS) return "OBJECT";
+		if (t==JamochaType.PRIMITIVES) return "PRIMITIVE";
+		if (t==JamochaType.SLOTS) return "SLOT";
+		if (t==JamochaType.STRINGS) return "STRING";
 		return "unknown";
 	}
 	
@@ -186,6 +186,7 @@ public class FunctionsDescription implements Function, Serializable {
 				for( int i=0 ; i<desc.getParameterCount() ; i++) {
 					XmlTag param=new XmlTag();
 					param.setName("parameter");
+					param.addAttribute("name", desc.getParameterName(i));
 					param.addAttribute("description", desc.getParameterDescription(i));
 					param.addAttribute("type", JamochaType2String(desc.getParameterTypes(i) ));
 					if (desc.isParameterOptional(i)) {

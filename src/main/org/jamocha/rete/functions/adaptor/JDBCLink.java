@@ -52,7 +52,7 @@ public class JDBCLink implements Function, Serializable {
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "Exports or imports facts to a database via a jdbc link. Returns true in case of success. Exporting wrt an incomplete template (not all columns from the table) is dangerous!";
+			return "The jdbclink function transfers data from a DB-table line by line to and from Jamocha. For each line of the DB-table a fact of a corresponding Jamocha template is created. Therefore, the Jamocha template will be defined before the data import. The facts are exported by the jdbclink function from Jamocha back to the DB-table from a fact list. For each fact in the list, there will be a new record inserted in the DB or an existing record will become updated (according to the contents of the primary key) The facts are again based on the well defined template. Exporting wrt an incomplete template (not all columns from the table) is dangerous!";
 		}
 
 		public int getParameterCount() {
@@ -78,7 +78,7 @@ public class JDBCLink implements Function, Serializable {
 			case 1:
 				return "operation";
 			case 2:
-				return "unknown";
+				return "facts";
 			}
 			return "";
 		}
@@ -88,9 +88,9 @@ public class JDBCLink implements Function, Serializable {
 			case 0:
 				return JamochaType.FACT_IDS;
 			case 1:
-				return JamochaType.IDENTIFIERS;
+				return JamochaType.STRINGS;
 			case 2:
-				return JamochaType.ANY;
+				return JamochaType.LISTS;
 			}
 			return JamochaType.NONE;
 		}

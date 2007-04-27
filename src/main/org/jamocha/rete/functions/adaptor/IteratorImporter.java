@@ -44,7 +44,7 @@ public class IteratorImporter implements Function, Serializable {
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "TODO";
+			return "The iteratorimporter function imports the content from an user-written (special) iterator and asserts a fact for each Deffact, the iterator returns. The user has to write a subclass of org.jamocha.rete.util.DeffactIterator. This class is a subclass from java.util.Iterator<org.jamocha.rete.Deffact> defining an additional public constructor DeffactIterator(java.util.Map<String,String>). This constructor is able to receive additional information through the given map. It returns true, iff everything went fine.";
 		}
 
 		public int getParameterCount() {
@@ -54,9 +54,9 @@ public class IteratorImporter implements Function, Serializable {
 		public String getParameterDescription(int parameter) {
 			switch (parameter) {
 			case 0:
-				return "TODO";
+				return "The first argument is the (fully qualified) class name of the DeffactIterator-subclass. This class will be used for getting facts. There is a sample implementation org.jamocha.sampleimplementations.DeffactFibonacciIterator, which will put out facts containing fibonacci numbers.";
 			case 1:
-				return "TODO";
+				return "The second argument is a fact-id. this fact will be used for giving some addition information to the iterator. Therefrom a map will be generated and used in the constructor call. for now, all slots must be string-typed. The concrete slots will differ for each class and are user-defined, too. The sample DeffactFibonacciIterator needs a slot max, which sets the maximum value.";
 			}
 			return "";
 		}
@@ -64,9 +64,9 @@ public class IteratorImporter implements Function, Serializable {
 		public String getParameterName(int parameter) {
 			switch (parameter) {
 			case 0:
-				return "unknown";
+				return "DeffactIteratorClass";
 			case 1:
-				return "unknown";
+				return "Parameter";
 			}
 			return "";
 		}

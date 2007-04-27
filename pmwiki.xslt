@@ -1,4 +1,5 @@
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns="http://www.w3.org/1999/xhtml">
+<xsl:output method='text' encoding='utf-8'/>
 <xsl:template match="functiongroups">
 !List of functions
 <xsl:for-each select="functiongroup">
@@ -12,9 +13,9 @@ This function [+has+] fixed parameter count.
 </xsl:if>
 <xsl:if test="@fixedParameterCount = 'false'">
 This function [+hasn't+] fixed parameter count.
-</xsl:if>Return type is [+<xsl:value-of select="@returnType"/>+]
+</xsl:if>Return type is [+&lt;<xsl:value-of select="@returnType"/>&gt;+]
 !!!!Parameter<xsl:for-each select="parameter">
-[+<xsl:value-of select="@type"/>+] <xsl:if test="@fixedParameterCount = 'true'">(optional)</xsl:if> : <xsl:value-of select="@description"/>
+[+&lt;<xsl:value-of select="@type"/>&gt;+] <xsl:if test="@fixedParameterCount = 'true'">(optional)</xsl:if> <xsl:value-of select="@name"/> : <xsl:value-of select="@description"/>
 </xsl:for-each>
 </xsl:for-each>
 </xsl:for-each>
