@@ -15,6 +15,27 @@
 		<mkdir dir="${reports.tests}" />
 		<mkdir dir="${dist}" />
 		<mkdir dir="${lib.home}" />
+		<path id="classpath">
+		    <pathelement path="${bin}" />
+		    <fileset dir="${lib.home}">
+			    <include name="**/*.jar" />
+			    <include name="**/*.zip" />
+		    </fileset>
+		</path>
+		<!-- check if jade is available -->
+		<available classname="jade.core.Agent" property="jade.present" classpathref="classpath" />
+		<!-- check if FastMap is available -->
+		<available classname="javolution.util.FastMap" property="javolution.present" classpathref="classpath" />
+		<fail message="You need to put a javolution jar in the lib/ directory to build jamocha" unless="javolution.present"/>
+		<!-- check for jms -->
+		<available classname="javax.jms.JMSException" property="jms.present" classpathref="classpath" />
+		<fail message="You need to put a jms jar in the lib/ directory to build jamocha" unless="jms.present"/>
+		<!-- check for log4j -->
+		<available classname="org.apache.log4j.Logger" property="log4j.present" classpathref="classpath" />
+		<fail message="You need to put a log4j jar in the lib/ directory to build jamocha" unless="log4j.present"/>
+		<!-- check for junit -->
+		<available classname="junit.framework.TestCase" property="junit.present" classpathref="classpath" />
+		<fail message="You need to put a junit jar in the lib/ directory to build jamocha" unless="log4j.present"/>
 	</target>
 
 	<target name="svninfo">
@@ -55,18 +76,17 @@
 		<javacc target="${src}/main/org/jamocha/parser/sfp/SFP.jj" outputdirectory="${src}/main/org/jamocha/parser/sfp/" javacchome="${javacc.home}" />
 	</target>
 
-	<target name="compile" depends="init" description="Compile the jamocha main sources">
-		<javac srcdir="${src}/main" destdir="${bin}" encoding="UTF-8">
-			<classpath>
-				<pathelement path="${bin}" />
-				<fileset dir="${lib.home}">
-					<include name="**/*.jar" />
-				</fileset>
-			</classpath>
+	<target name="compile-apps" depends="init" if="jade.present">
+		<javac srcdir="${src}/main" destdir="${bin}" encoding="UTF-8" classpathref="classpath">
+		    <include name="org/jamocha/apps/"/>
 		</javac>
-		<copy todir="${bin}">
-			<fileset dir="${src}/main" includes="**/*.properties" />
-		</copy>
+	</target>
+
+	<target name="compile" depends="compile-apps" description="Compile the jamocha main sources">
+		<javac srcdir="${src}/main" destdir="${bin}" encoding="UTF-8" classpathref="classpath" >
+		    <exclude name="org/jamocha/apps/**"/>
+		</javac>
+
 		<!-- copy all files within the source directory (except the sources themselves)
 			to the bin directory. This is e.g. mandatory for the icons in the gui -->
 		<copy todir="${bin}">
@@ -74,16 +94,8 @@
 		</copy>
 	</target>
 
-	<target name="compile-tests" depends="compile" description="Compile the jamocha tests">
-		<javac srcdir="${src}/test" destdir="${bin}" encoding="UTF-8">
-			<classpath>
-				<pathelement path="${bin}" />
-				<fileset dir="${lib.home}">
-					<include name="**/*.jar" />
-					<include name="**/*.zip" />
-				</fileset>
-			</classpath>
-		</javac>
+	<target name="compile-tests" depends="compile" description="Compile the jamocha tests" if="junit.present">
+		<javac srcdir="${src}/test" destdir="${bin}" encoding="UTF-8" classpathref="classpath" />
 		<copy todir="${bin}">
 			<fileset dir="${src}/test" includes="**/*.properties" />
 		</copy>
@@ -177,8 +189,10 @@
 	<target name="tarball-all" depends="jars">
 	    <copy todir="${dist}/all/jamocha-all-${releasever}">
 		<fileset dir="${bin}"/>
-		<fileset dir="${src}"/>
 		<fileset dir="license"/>
+	    </copy>
+	    <copy todir="${dist}/all/src/jamocha-all-${releasever}">
+		<fileset dir="${src}"/>
 	    </copy>
 	    <tar destfile="${dist}/jamocha-all-${releasever}.tar.gz"
 		compression="gzip"
