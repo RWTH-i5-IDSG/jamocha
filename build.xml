@@ -219,7 +219,7 @@
 	<target name="packages" depends="packages-bin, packages-src, packages-all">
 	</target>
 
-	<target name="all" depends="compile-tests,packages" description="Build everything.">
+	<target name="all" depends="packages" description="Build everything.">
 		<echo message="Application ${app.name} built!" />
 	</target>
 
