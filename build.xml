@@ -14,6 +14,7 @@
 		<mkdir dir="${bin-dbg}" />
 		<mkdir dir="${reports.tests}" />
 		<mkdir dir="${dist}" />
+		<mkdir dir="${lib.home}" />
 	</target>
 
 	<target name="svninfo">
@@ -144,8 +145,12 @@
 	</target>
 
 	<target name ="tarball-src" depends="init">
-	    <copy todir="${dist}/src/jamocha-src-${releasever}">
+	    <copy todir="${dist}/src/jamocha-src-${releasever}/src">
 		<fileset dir="${src}"/>
+	    </copy>
+	    <copy todir="${dist}/src/jamocha-src-${releasever}">
+		<fileset file="build.xml"/>
+		<fileset dir="license"/>
 	    </copy>
 	    <tar destfile="${dist}/jamocha-src-${releasever}.tar.gz"
 		compression="gzip"
@@ -160,6 +165,7 @@
 		<fileset dir="${bin}"/>
 		<fileset file="jamocha.bat"/>
 		<fileset file="jamocha.sh"/>
+		<fileset dir="license"/>
 	    </copy>
 	    <tar destfile="${dist}/jamocha-bin-${releasever}.tar.gz"
 		compression="gzip"
@@ -172,6 +178,7 @@
 	    <copy todir="${dist}/all/jamocha-all-${releasever}">
 		<fileset dir="${bin}"/>
 		<fileset dir="${src}"/>
+		<fileset dir="license"/>
 	    </copy>
 	    <tar destfile="${dist}/jamocha-all-${releasever}.tar.gz"
 		compression="gzip"
