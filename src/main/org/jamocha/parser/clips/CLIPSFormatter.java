@@ -297,7 +297,6 @@ public class CLIPSFormatter implements Formatter {
 		case DATETIME:
 			GregorianCalendar c = (GregorianCalendar) jamochaValue
 					.getDateValue();
-			sb.append('"');
 			sb.append(fillToFixedLength(c.get(Calendar.YEAR), "0", 4)).append(
 					'-');
 			sb.append(fillToFixedLength(c.get(Calendar.MONTH) + 1, "0", 2))
@@ -317,7 +316,6 @@ public class CLIPSFormatter implements Formatter {
 			}
 			int gmtOffsetHours = gmtOffsetMillis / (1000 * 60 * 60);
 			sb.append(fillToFixedLength(gmtOffsetHours, "0", 2));
-			sb.append('"');
 			break;
 		case LIST:
 			sb.append('[');
