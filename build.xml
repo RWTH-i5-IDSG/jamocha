@@ -155,8 +155,11 @@
 	</target>
 
 	<target name="tarball-bin" depends="jars">
-	    <copy todir="${dist}/bin/jamocha-src-${releasever}">
+	<!-- This target builds a tar.gz with the compiled tree and startup scripts -->
+	    <copy todir="${dist}/bin/jamocha-bin-${releasever}">
 		<fileset dir="${bin}"/>
+		<fileset file="jamocha.bat"/>
+		<fileset file="jamocha.sh"/>
 	    </copy>
 	    <tar destfile="${dist}/jamocha-bin-${releasever}.tar.gz"
 		compression="gzip"
@@ -180,7 +183,7 @@
 	<target name="tarballs" depends="tarball-bin, tarball-src, tarball-all">
 	</target>
 
-	<target name="all" depends="compile-tests,jars" description="Build everything.">
+	<target name="all" depends="compile-tests,tarball-all" description="Build everything.">
 		<echo message="Application ${app.name} built!" />
 	</target>
 
