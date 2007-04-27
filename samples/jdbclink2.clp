@@ -1,4 +1,4 @@
-(deftemplate templ (slot a) (slot b) (slot c) )
+(deftemplate templ (slot a) (slot b) (slot c) (slot foo) )
 (jdbclink-init)
 (bind ?mylink 
 	(assert
@@ -9,9 +9,9 @@
 				(TemplateName "templ") 
 				(Username "jamocha") 
 				(Password "geheim") 
-				(JDBCurl "jdbc:mysql://134.130.113.67:65306/jamocha")
+				(JDBCurl "jdbc:mysql://134.130.113.67:3306/jamocha")
 		)
 	)
 )
 
-(jdbclink ?mylink "import" "foo") 
+(jdbclink ?mylink "import" (create$ )) 

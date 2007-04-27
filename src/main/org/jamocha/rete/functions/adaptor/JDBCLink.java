@@ -19,7 +19,7 @@ package org.jamocha.rete.functions.adaptor;
 import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
-import java.sql.Date;
+import java.util.Date;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -353,6 +353,7 @@ public class JDBCLink implements Function, Serializable {
 				// a GregorianCalendar-object. =>
 				// if we got a Date, we have to convert it to a GregorianCalendar
 				// before putting it into a JamochaValue
+				
 				if (o instanceof Date){
 					GregorianCalendar cal = new GregorianCalendar();
 					cal.setTime((Date)o);
