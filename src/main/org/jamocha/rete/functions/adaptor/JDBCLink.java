@@ -19,12 +19,13 @@ package org.jamocha.rete.functions.adaptor;
 import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
+import java.sql.Date;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.GregorianCalendar;
 import java.util.List;
 
 import org.jamocha.parser.EvaluationException;
@@ -271,15 +272,27 @@ public class JDBCLink implements Function, Serializable {
 			// TODO: Check for the right deftemplate
 			for (int j = 1; j <= slots.length; j++) {
 				// TODO: Typechecking?!
-				actor.setObject(j, actFact.getSlotValue(
+				Object o = actFact.getSlotValue(
 						slots[j - 1].getName())
-						.getObjectValue());
+						.getObjectValue();
+				
+				// we needs to convert a GregorianCalendar to a Date
+				if (o instanceof GregorianCalendar) {
+						o = ((GregorianCalendar)o).getTime();
+				}
+				actor.setObject(j, o);
 			}
 			if (!insert) {
 				int j = slots.length + 1;
 				for (String key : keys) {
-					actor.setObject(j++, actFact.getSlotValue(
-							key).getObjectValue());
+					Object o = actFact.getSlotValue(key).getObjectValue();
+					
+					// we needs to convert a GregorianCalendar to a Date
+					if (o instanceof GregorianCalendar) {
+						o = ((GregorianCalendar)o).getTime();
+					}
+					
+					actor.setObject(j++, o);
 				}
 			}
 			actor.execute();
@@ -334,6 +347,18 @@ public class JDBCLink implements Function, Serializable {
 			for (int i = 0; i < slots.length; i++) {
 				// TODO: Typechecking?!
 				Object o = rs.getObject(slots[i].getName());
+				
+				// when getting DATETIME-values, we get a Date-object here
+				// but JamochaValue detects a given object as DATETIME, iff it is
+				// a GregorianCalendar-object. =>
+				// if we got a Date, we have to convert it to a GregorianCalendar
+				// before putting it into a JamochaValue
+				if (o instanceof Date){
+					GregorianCalendar cal = new GregorianCalendar();
+					cal.setTime((Date)o);
+					o = cal;
+				}
+				
 				JamochaValue val = new JamochaValue(o);
 				rowValues[i] = new Slot(slots[i].getName(), val);
 			}
