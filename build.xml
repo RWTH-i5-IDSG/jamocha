@@ -2,15 +2,26 @@
 <project name="jamocha" basedir="." default="all">
 
 	<target name="init">
+		<property name="releasever" value="0.1" />
 		<property name="lib.home" value="lib" />
 		<property name="app.name" value="jamocha" />
 		<property name="src" value="${basedir}/src" />
 		<property name="bin" value="${basedir}/bin" />
 		<property name="bin-dbg" value="${basedir}/bin-dbg" />
 		<property name="reports.tests" value="${basedir}/test-reports" />
+		<property name="dist" value="${basedir}/dist" />
 		<mkdir dir="${bin}" />
 		<mkdir dir="${bin-dbg}" />
 		<mkdir dir="${reports.tests}" />
+		<mkdir dir="${dist}" />
+	</target>
+
+	<target name="svninfo">
+	<!-- If this target is depended on, you can use ${sv.Revision} to retrieve the current svn revision of the repo -->
+		<exec executable="svn" output="${dist}/svn.properties">
+		    <arg value="info" />
+		</exec>
+		<property prefix="svn" file="${dist}/svn.properties"/>
 	</target>
 
 	<target name="parser" depends="init" description="Generate parser description for javacc">
@@ -132,6 +143,43 @@
 		</jar>
 	</target>
 
+	<target name ="tarball-src" depends="init">
+	    <copy todir="${dist}/src/jamocha-src-${releasever}">
+		<fileset dir="${src}"/>
+	    </copy>
+	    <tar destfile="${dist}/jamocha-src-${releasever}.tar.gz"
+		compression="gzip"
+		basedir="${dist}/src"
+	    />
+	    <delete dir="${dist}/src" />
+	</target>
+
+	<target name="tarball-bin" depends="jars">
+	    <copy todir="${dist}/bin/jamocha-src-${releasever}">
+		<fileset dir="${bin}"/>
+	    </copy>
+	    <tar destfile="${dist}/jamocha-bin-${releasever}.tar.gz"
+		compression="gzip"
+		basedir="${dist}/bin/"
+	    />
+	    <delete dir="${dist}/bin" />
+	</target>
+
+	<target name="tarball-all" depends="jars">
+	    <copy todir="${dist}/all/jamocha-all-${releasever}">
+		<fileset dir="${bin}"/>
+		<fileset dir="${src}"/>
+	    </copy>
+	    <tar destfile="${dist}/jamocha-all-${releasever}.tar.gz"
+		compression="gzip"
+		basedir="${dist}/all/"
+	    />
+	    <delete dir="${dist}/all" />
+	</target>
+
+	<target name="tarballs" depends="tarball-bin, tarball-src, tarball-all">
+	</target>
+
 	<target name="all" depends="compile-tests,jars" description="Build everything.">
 		<echo message="Application ${app.name} built!" />
 	</target>
@@ -144,6 +192,7 @@
 	<target name="distclean" depends="init" description="Clean the binary output directories, the created jars and the junit report directory.">
 		<delete dir="${bin}" />
 		<delete dir="${bin-dbg}" />
+		<delete dir="${dist}" />
 		<delete dir="${reports.tests}" />
 		<delete>
 			<fileset dir=".">
