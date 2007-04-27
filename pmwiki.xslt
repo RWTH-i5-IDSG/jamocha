@@ -7,15 +7,16 @@
 <xsl:for-each select="function">
 !!!<xsl:value-of select="@name"/>
 !!!!Description
-<xsl:value-of select="@description"/>
+<xsl:value-of select="@description"/>\\
 <xsl:if test="@fixedParameterCount = 'true'">
-This function [+has+] fixed parameter count.
+This function [+has+] fixed parameter count.\\
 </xsl:if>
 <xsl:if test="@fixedParameterCount = 'false'">
-This function [+hasn't+] fixed parameter count.
+This function [+hasn't+] fixed parameter count.\\
 </xsl:if>Return type is [+&lt;<xsl:value-of select="@returnType"/>&gt;+]
-!!!!Parameter<xsl:for-each select="parameter">
-[+&lt;<xsl:value-of select="@type"/>&gt;+] <xsl:if test="@fixedParameterCount = 'true'">(optional)</xsl:if> <xsl:value-of select="@name"/> : <xsl:value-of select="@description"/>
+!!!!Parameter
+<xsl:if test="count(parameter) = 0">"none"</xsl:if><xsl:for-each select="parameter">
+[+&lt;<xsl:value-of select="@type"/>&gt;+] <xsl:if test="@fixedParameterCount = 'true'">(optional)</xsl:if> <xsl:value-of select="@name"/> : <xsl:value-of select="@description"/>\\
 </xsl:for-each>
 </xsl:for-each>
 </xsl:for-each>

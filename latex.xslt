@@ -71,7 +71,7 @@
 Return type is \textbf{$&lt;$<xsl:call-template name="clean-text"><xsl:with-param name="source" select="@returnType"/></xsl:call-template>$&gt;$}
 \paragraph{Parameter}
 \begin{itemize}
-<xsl:if test="count(parameter) = 0">\item\textit{keine}</xsl:if>
+<xsl:if test="count(parameter) = 0">\item\textit{none}</xsl:if>
 <xsl:for-each select="parameter">
 \item\textbf{$&lt;$<xsl:call-template name="clean-text"><xsl:with-param name="source" select="@type"/></xsl:call-template>$&gt;$}
 <xsl:if test="@fixedParameterCount = 'true'">(optional)</xsl:if> <xsl:call-template name="clean-text"><xsl:with-param name="source" select="@name"/></xsl:call-template> : <xsl:call-template name="clean-text"><xsl:with-param name="source" select="@description"/></xsl:call-template>\\
@@ -79,5 +79,6 @@ Return type is \textbf{$&lt;$<xsl:call-template name="clean-text"><xsl:with-para
 \end{itemize}
 </xsl:for-each>
 </xsl:for-each>
+\end{document}
 </xsl:template>
 </xsl:stylesheet>
