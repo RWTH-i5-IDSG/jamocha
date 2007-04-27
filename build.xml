@@ -38,7 +38,7 @@
 		<fail message="You need to put a junit jar in the lib/ directory to build jamocha" unless="log4j.present"/>
 	</target>
 
-	<target name="svninfo">
+	<target name="svninfo" depends="init">
 	<!-- If this target is depended on, you can use ${sv.Revision} to retrieve the current svn revision of the repo -->
 		<exec executable="svn" output="${dist}/svn.properties">
 		    <arg value="info" />
@@ -156,55 +156,70 @@
 		</jar>
 	</target>
 
-	<target name ="tarball-src" depends="init">
+	<target name ="packages-src" depends="init">
 	    <copy todir="${dist}/src/jamocha-src-${releasever}/src">
 		<fileset dir="${src}"/>
 	    </copy>
+	    <copy todir="${dist}/src/jamocha-src-${releasever}/license">
+		<fileset dir="license"/>
+	    </copy>
 	    <copy todir="${dist}/src/jamocha-src-${releasever}">
 		<fileset file="build.xml"/>
-		<fileset dir="license"/>
+		<fileset file="README"/>
 	    </copy>
 	    <tar destfile="${dist}/jamocha-src-${releasever}.tar.gz"
 		compression="gzip"
 		basedir="${dist}/src"
 	    />
+	    <zip destfile="${dist}/jamocha-src-${releasever}.zip"
+		basedir="${dist}/src/"
+	    />
 	    <delete dir="${dist}/src" />
 	</target>
 
-	<target name="tarball-bin" depends="jars">
+	<target name="packages-bin" depends="jars">
 	<!-- This target builds a tar.gz with the compiled tree and startup scripts -->
 	    <copy todir="${dist}/bin/jamocha-bin-${releasever}">
-		<fileset dir="${bin}"/>
-		<fileset file="jamocha.bat"/>
-		<fileset file="jamocha.sh"/>
+		<fileset file="jamocha.jar"/>
+		<fileset file="README"/>
+	    </copy>
+	    <copy todir="${dist}/bin/jamocha-bin-${releasever}/license">
 		<fileset dir="license"/>
 	    </copy>
 	    <tar destfile="${dist}/jamocha-bin-${releasever}.tar.gz"
 		compression="gzip"
 		basedir="${dist}/bin/"
 	    />
+	    <zip destfile="${dist}/jamocha-bin-${releasever}.zip"
+		basedir="${dist}/bin/"
+	    />
 	    <delete dir="${dist}/bin" />
 	</target>
 
-	<target name="tarball-all" depends="jars">
+	<target name="packages-all" depends="jars">
 	    <copy todir="${dist}/all/jamocha-all-${releasever}">
-		<fileset dir="${bin}"/>
-		<fileset dir="license"/>
+		<fileset file="jamocha.jar"/>
 	    </copy>
-	    <copy todir="${dist}/all/src/jamocha-all-${releasever}">
+	    <copy todir="${dist}/all/jamocha-all-${releasever}/src">
 		<fileset dir="${src}"/>
+	    </copy>
+	    <copy todir="${dist}/all/jamocha-all-${releasever}/license">
+		<fileset dir="license"/>
 	    </copy>
 	    <tar destfile="${dist}/jamocha-all-${releasever}.tar.gz"
 		compression="gzip"
 		basedir="${dist}/all/"
 	    />
+	    <zip destfile="${dist}/jamocha-all-${releasever}.zip"
+		basedir="${dist}/all/"
+	    />
 	    <delete dir="${dist}/all" />
 	</target>
 
-	<target name="tarballs" depends="tarball-bin, tarball-src, tarball-all">
+	<target name="packages" depends="packages-bin, packages-src, packages-all">
 	</target>
 
-	<target name="all" depends="compile-tests,tarball-all" description="Build everything.">
+	<target name="all" depends="compile-tests,packages" description="Build everything.">
 		<echo message="Application ${app.name} built!" />
 	</target>
 
