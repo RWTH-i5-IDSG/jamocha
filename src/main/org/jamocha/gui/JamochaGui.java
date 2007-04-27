@@ -18,6 +18,7 @@ package org.jamocha.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Cursor;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -185,7 +186,7 @@ public class JamochaGui extends JFrame implements ChangeListener,
 		batchResultsButton.setVisible(true);
 		batchResultsButton.setIcon(IconLoader.getImageIcon("lorry_error"));
 	}
-	
+
 	public void processBatchFiles(List<String> files) {
 		batchThread.processBatchFiles(files);
 	}
@@ -200,7 +201,9 @@ public class JamochaGui extends JFrame implements ChangeListener,
 		} else {
 			this.setLocation(locx, locy);
 		}
-		if (width <= 0 || height <= 0) {
+		setMinimumSize(new Dimension(500, 300));
+		setPreferredSize(new Dimension(750, 550));
+		if (width <= 100 || height <= 50) {
 			this.setSize(750, 550);
 		} else {
 			this.setSize(width, height);
@@ -387,5 +390,4 @@ public class JamochaGui extends JFrame implements ChangeListener,
 		}
 	}
 
-	
 }
