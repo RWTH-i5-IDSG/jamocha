@@ -39,7 +39,7 @@ public class JDBCLinkInit implements Function, Serializable {
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "Initializes the JDBC adaptor by defining the jdbclink template. Returns true.";
+			return "Initializes the JDBC adaptor by defining the jdbclink and jdbccondition template. Returns true.";
 		}
 
 		public int getParameterCount() {
@@ -87,6 +87,7 @@ public class JDBCLinkInit implements Function, Serializable {
 
 	public JamochaValue executeFunction(Rete engine, Parameter[] params)
 			throws EvaluationException {
+		// define deftemplate jdbclink
 		String templateName = "jdbclink";
 		if (engine.findModule("MAIN").getTemplate(templateName) == null) {
 			TemplateSlot[] slots = new TemplateSlot[7];
@@ -101,7 +102,20 @@ public class JDBCLinkInit implements Function, Serializable {
 				slots[i].setValueType(JamochaType.STRING);
 			Template jdbcConfigTemplate = new Deftemplate(templateName, null,
 					slots);
-
+			engine.findModule("MAIN").addTemplate(jdbcConfigTemplate, engine,
+					engine.getWorkingMemory());
+		}
+		// define deftemplate jdbccondition	
+		templateName = "jdbccondition";
+		if (engine.findModule("MAIN").getTemplate(templateName) == null) {
+			TemplateSlot[] slots = new TemplateSlot[3];
+			slots[0] = new TemplateSlot("SlotName");
+			slots[1] = new TemplateSlot("BooleanOperator");
+			slots[2] = new TemplateSlot("Value");
+			for (int i = 0; i < slots.length; i++)
+				slots[i].setValueType(JamochaType.STRING);
+			Template jdbcConfigTemplate = new Deftemplate(templateName, null,
+					slots);	
 			engine.findModule("MAIN").addTemplate(jdbcConfigTemplate, engine,
 					engine.getWorkingMemory());
 		}

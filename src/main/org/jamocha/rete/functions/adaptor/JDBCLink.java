@@ -38,6 +38,7 @@ import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.Slot;
+import org.jamocha.rete.exception.AssertException;
 import org.jamocha.rete.functions.FunctionDescription;
 
 /**
@@ -51,7 +52,7 @@ public class JDBCLink implements Function, Serializable {
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "Exports or imports facts to a database via a jdbc link. Returns true in case of success.";
+			return "Exports or imports facts to a database via a jdbc link. Returns true in case of success. Exporting wrt an incomplete template (not all columns from the table) is dangerous!";
 		}
 
 		public int getParameterCount() {
@@ -65,7 +66,7 @@ public class JDBCLink implements Function, Serializable {
 			case 1:
 				return "Operation is either import or export.";
 			case 2:
-				return "TODO";
+				return "for export: list of facts to export. for import: list of jdbccondition-facts for filtering";
 			}
 			return "";
 		}
@@ -163,132 +164,11 @@ public class JDBCLink implements Function, Serializable {
 				try {
 					conn = DriverManager.getConnection(jdbc_url, username,
 							password);
-					Statement s = conn.createStatement();
 
 					if (action.equals("import")) {
-						String sqlStatement = "SELECT " + slots[0].getName();
-						for (int i = 1; i < slots.length; i++) {
-							sqlStatement += "," + slots[i].getName();
-						}
-						sqlStatement += " FROM " + table;
-						ResultSet rs = s.executeQuery(sqlStatement);
-						while (rs.next()) {
-
-							Slot[] rowValues = new Slot[slots.length];
-							for (int i = 0; i < slots.length; i++) {
-								// TODO: Typechecking?!
-								// TODO: Does it work with Datetime?
-								// TODO: Why cant Orys' parser assert facts wrt
-								// the jdbclink-template?
-								Object o = rs.getObject(slots[i].getName());
-								JamochaValue val = new JamochaValue(o);
-								rowValues[i] = new Slot(slots[i].getName(), val);
-							}
-							// TODO: What is meant by the filter-fact (see
-							// feature request)
-							Deffact rowFact = new Deffact(template, null,
-									rowValues, engine.nextFactId());
-							engine.assertFact(rowFact);
-						}
-						return JamochaValue.newBoolean(true);
-
+						return method_import(engine, thirdParam, table, template, slots, conn);
 					} else if (action.equals("export")) {
-						// TODO: For now, we assume the third parameter to be a
-						// csv-list of facts. dirty thing :(
-
-						// get primary keys from our table
-						DatabaseMetaData meta = conn.getMetaData();
-						ResultSet rs = meta.getPrimaryKeys(null, null, table);
-						List<String> keys = new ArrayList<String>();
-						while (rs.next()) {
-							keys.add(rs.getString("COLUMN_NAME"));
-						}
-
-						// generate some prepared statements
-						String insertStatement = "INSERT INTO " + table + " ("
-								+ slots[0].getName();
-						for (int i = 1; i < slots.length; i++) {
-							insertStatement += "," + slots[i].getName();
-						}
-						insertStatement += ") VALUES (?";
-						for (int i = 1; i < slots.length; i++) {
-							insertStatement += ",?";
-						}
-						insertStatement += ")";
-
-						String updateStatement = "UPDATE " + table + " SET "
-								+ slots[0].getName() + "=?";
-						for (int i = 1; i < slots.length; i++) {
-							updateStatement += "," + slots[i].getName() + "=?";
-						}
-						updateStatement += " WHERE ";
-						boolean firstKey = true;
-						for (String key : keys) {
-							if (!firstKey) {
-								updateStatement += " AND ";
-							}
-							firstKey = false;
-							updateStatement += key + "=?";
-						}
-						String lookupStatement = "SELECT * FROM " + table
-								+ " WHERE ";
-						firstKey = true;
-						for (String key : keys) {
-							if (!firstKey) {
-								lookupStatement += " AND ";
-							}
-							firstKey = false;
-							lookupStatement += key + "=?";
-						}
-						PreparedStatement inserter = conn
-								.prepareStatement(insertStatement);
-						PreparedStatement updater = conn
-								.prepareStatement(updateStatement);
-						PreparedStatement lookuper = conn
-								.prepareStatement(lookupStatement); // any
-						// better
-						// name ;) ?
-
-						// iterate over our facts
-						for (int i = 0; i < thirdParam.getListCount(); i++) {
-							Fact actFact = (Fact) engine
-									.getFactById((thirdParam.getListValue(i)
-											.getFactIdValue()));
-
-							// check whether to update or to insert
-							boolean insert = true;
-							if (keys.size() > 0) {
-								int keyindex = 1;
-								for (String key : keys) {
-									lookuper
-											.setObject(keyindex++, actFact
-													.getSlotValue(key)
-													.getObjectValue());
-								}
-								insert = !lookuper.executeQuery().next();
-							}
-
-							PreparedStatement actor = insert ? inserter
-									: updater;
-
-							// TODO: Check for the right deftemplate
-							for (int j = 1; j <= slots.length; j++) {
-								// TODO: Typechecking?!
-								actor.setObject(j, actFact.getSlotValue(
-										slots[j - 1].getName())
-										.getObjectValue());
-							}
-							if (!insert) {
-								int j = slots.length + 1;
-								for (String key : keys) {
-									actor.setObject(j++, actFact.getSlotValue(
-											key).getObjectValue());
-								}
-							}
-							actor.execute();
-						}
-						return JamochaValue.newBoolean(true);
-
+						return method_export(engine, thirdParam, table, slots, conn);
 					} else {
 						throw new EvaluationException("Unknown action '"
 								+ action + "'");
@@ -310,5 +190,158 @@ public class JDBCLink implements Function, Serializable {
 			}
 		}
 		throw new IllegalParameterException(3, false);
+	}
+
+	private JamochaValue method_export(Rete engine, JamochaValue thirdParam, String table, Slot[] slots, Connection conn) throws SQLException {
+		// get primary keys from our table
+		DatabaseMetaData meta = conn.getMetaData();
+		ResultSet rs = meta.getPrimaryKeys(null, null, table);
+		List<String> keys = new ArrayList<String>();
+		while (rs.next()) {
+			keys.add(rs.getString("COLUMN_NAME"));
+		}
+
+		// generate some prepared statements
+		String insertStatement = "INSERT INTO " + table + " ("
+				+ slots[0].getName();
+		for (int i = 1; i < slots.length; i++) {
+			insertStatement += "," + slots[i].getName();
+		}
+		insertStatement += ") VALUES (?";
+		for (int i = 1; i < slots.length; i++) {
+			insertStatement += ",?";
+		}
+		insertStatement += ")";
+
+		String updateStatement = "UPDATE " + table + " SET "
+				+ slots[0].getName() + "=?";
+		for (int i = 1; i < slots.length; i++) {
+			updateStatement += "," + slots[i].getName() + "=?";
+		}
+		updateStatement += " WHERE ";
+		boolean firstKey = true;
+		for (String key : keys) {
+			if (!firstKey) {
+				updateStatement += " AND ";
+			}
+			firstKey = false;
+			updateStatement += key + "=?";
+		}
+		String lookupStatement = "SELECT * FROM " + table
+				+ " WHERE ";
+		firstKey = true;
+		for (String key : keys) {
+			if (!firstKey) {
+				lookupStatement += " AND ";
+			}
+			firstKey = false;
+			lookupStatement += key + "=?";
+		}
+		PreparedStatement inserter = conn
+				.prepareStatement(insertStatement);
+		PreparedStatement updater = conn
+				.prepareStatement(updateStatement);
+		PreparedStatement lookuper = conn
+				.prepareStatement(lookupStatement); // any
+		// better
+		// name ;) ?
+
+		// iterate over our facts
+		for (int i = 0; i < thirdParam.getListCount(); i++) {
+			Fact actFact = (Fact) engine
+					.getFactById((thirdParam.getListValue(i)
+							.getFactIdValue()));
+
+			// check whether to update or to insert
+			boolean insert = true;
+			if (keys.size() > 0) {
+				int keyindex = 1;
+				for (String key : keys) {
+					lookuper
+							.setObject(keyindex++, actFact
+									.getSlotValue(key)
+									.getObjectValue());
+				}
+				insert = !lookuper.executeQuery().next();
+			}
+
+			PreparedStatement actor = insert ? inserter
+					: updater;
+
+			// TODO: Check for the right deftemplate
+			for (int j = 1; j <= slots.length; j++) {
+				// TODO: Typechecking?!
+				actor.setObject(j, actFact.getSlotValue(
+						slots[j - 1].getName())
+						.getObjectValue());
+			}
+			if (!insert) {
+				int j = slots.length + 1;
+				for (String key : keys) {
+					actor.setObject(j++, actFact.getSlotValue(
+							key).getObjectValue());
+				}
+			}
+			actor.execute();
+		}
+		return JamochaValue.newBoolean(true);
+	}
+
+	private JamochaValue method_import(Rete engine, JamochaValue conditions, String table, Deftemplate template, Slot[] slots, Connection conn) throws SQLException, AssertException {
+		StringBuffer statementString = new StringBuffer();
+		statementString.append("SELECT ");
+		statementString.append(slots[0].getName());
+		for (int i = 1; i < slots.length; i++) {
+			statementString.append(",");
+			statementString.append(slots[i].getName());
+		}
+		statementString.append(" FROM ");
+		statementString.append(table);
+		
+		
+		for (int i = 0 ; i < conditions.getListCount() ; i++ ) {
+			Fact actCondition = (Fact) engine
+			.getFactById((conditions.getListValue(i)
+					.getFactIdValue()));
+			String slotname = actCondition.getSlotValue("SlotName").getStringValue();
+			String operator = actCondition.getSlotValue("BooleanOperator").getStringValue();
+			if (i == 0) {
+				statementString.append(" WHERE (");
+			} else {
+				statementString.append(" AND (");	
+			}
+			statementString.append(slotname);
+			statementString.append(operator);
+			statementString.append("?) ");
+		}
+		
+		
+		PreparedStatement stmt = conn.prepareStatement(statementString.toString());
+
+		for (int i = 0 ; i < conditions.getListCount() ; i++ ) {
+			Fact actCondition = (Fact) engine
+			.getFactById((conditions.getListValue(i)
+					.getFactIdValue()));
+			String value = actCondition.getSlotValue("Value").getStringValue();
+			stmt.setObject(i+1, value);
+		}
+
+		ResultSet rs = stmt.executeQuery();
+		
+		while (rs.next()) {
+
+			Slot[] rowValues = new Slot[slots.length];
+			for (int i = 0; i < slots.length; i++) {
+				// TODO: Typechecking?!
+				Object o = rs.getObject(slots[i].getName());
+				JamochaValue val = new JamochaValue(o);
+				rowValues[i] = new Slot(slots[i].getName(), val);
+			}
+
+			Deffact rowFact = new Deffact(template, null,
+					rowValues, engine.nextFactId());
+			engine.assertFact(rowFact);
+		}
+		return JamochaValue.newBoolean(true);
 	}
 }
