@@ -32,7 +32,7 @@ import org.jamocha.parser.sfp.SFPParser;
  */
 public class ParserFactory {
 
-	private static String defaultParser = "clips";
+	private static String defaultParser = "sfp";
 
 	public static void setDefaultParser(String parserName)
 			throws ParserNotFoundException {

@@ -88,6 +88,7 @@ public class Jamocha {
 			jamocha = new Jamocha(new Rete(), startGui, startShell, parser,
 					batchFiles);
 		} catch (ParserNotFoundException e) {
+			// This really is a fatal error so we stop everything.
 			e.printStackTrace();
 			System.exit(1);
 		}
@@ -162,12 +163,7 @@ public class Jamocha {
 			ParserFactory.setDefaultParser(parserName);
 		}
 		if (startShell) {
-			try {
-				startShell();
-			} catch (ParserNotFoundException e) {
-				e.printStackTrace();
-				System.exit(1);
-			}
+			startShell();
 		}
 		if (startGui) {
 			startGui();
@@ -244,7 +240,7 @@ public class Jamocha {
 	 * <tr>
 	 * <td>-parser [parsername]:</td>
 	 * <td>Uses the given parser to parse the input. Default (at the moment) is
-	 * clips.</td>
+	 * sfp.</td>
 	 * </tr>
 	 * </table>
 	 * 
@@ -273,7 +269,7 @@ public class Jamocha {
 						+ sep
 						+ "-parser [parsername]:"
 						+ sep
-						+ "     Uses the given parser to parse the input. Default is clips.");
+						+ "     Uses the given parser to parse the input. Default is sfp.");
 		System.exit(0);
 	}
 
