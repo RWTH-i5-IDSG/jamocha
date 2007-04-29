@@ -1,3 +1,22 @@
+/*
+ * Copyright 2007 Karl-Heinz Krempels, Sebastian Reinartz
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.jamocha.org/
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ */
+
+
+
 package org.jamocha.parser.sfp;
 
 import org.jamocha.parser.Expression;
@@ -103,12 +122,11 @@ public class SFPInterpreter implements SFPParserVisitor {
 	}
 
 	public Object visit(SFPAnyFunction node, Object data) {
-		// this function is a little bit diffrent to the others. funktion name
-		// is stored id the
-		// frist childnode. all other subnode are handled as paramters for the
-		// function call
-		// get the template name
-		JamochaValue fktName = (JamochaValue) node.jjtGetChild(0).jjtAccept(
+		// This function is different to the others, because the function name
+		// is stored in the first child node and all the other child nodes are considered
+		// as function call parameters.
+
+		JamochaValue fctName = (JamochaValue) node.jjtGetChild(0).jjtAccept(
 				this, data);
 
 		Parameter params[] = new Parameter[node.jjtGetNumChildren() - 1];
@@ -116,9 +134,10 @@ public class SFPInterpreter implements SFPParserVisitor {
 			params[i - 1] = (Parameter) node.jjtGetChild(i).jjtAccept(this,
 					data);
 		}
-		// create FunctionParam as result:
+
+		// Create FunctionParam as result:
 		Signature funcParam = new Signature();
-		funcParam.setSignatureName(fktName.getStringValue());
+		funcParam.setSignatureName(fctName.getStringValue());
 		funcParam.setParameters(params);
 		return funcParam;
 	}
@@ -196,8 +215,17 @@ public class SFPInterpreter implements SFPParserVisitor {
 	}
 
 	public Object visit(SFPRetractFunc node, Object data) {
-		// TODO Auto-generated method stub
-		return null;
+
+		Parameter params[] = new Parameter[node.jjtGetNumChildren()];
+		for (int i = 0; i < node.jjtGetNumChildren(); i++) {
+			params[i] = (Parameter) node.jjtGetChild(i).jjtAccept(this, data);
+		}
+
+		// Create FunctionParam as result:
+		Signature funcParam = new Signature();
+		funcParam.setSignatureName("retract");
+		funcParam.setParameters(params);
+		return funcParam;
 	}
 
 	public Object visit(SFPIfElseFunc node, Object data) {

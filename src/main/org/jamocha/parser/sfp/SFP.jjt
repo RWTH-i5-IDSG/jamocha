@@ -1,13 +1,31 @@
-/** 
+/*
+ * Copyright 2007 Karl-Heinz Krempels, Sebastian Reinartz
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.jamocha.org/
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ */
+ 
+ /** 
 		
-	2007-04-04 : Reducing COOL to Jamocha Slim Fast Parser (sfp) - Karl-Heinz Krempels.
-	2006-11-08 : Implementing the COOL Parser - Ulrich Loup, Ory Chowow-Liebman
+	2007-04-04 : Reduced COOL to the Jamocha Slim Fast Parser (sfp) - Karl-Heinz Krempels, Sebastian Reinartz.
+	2006-11-08 : Implemented the COOL Parser - Ulrich Loup, Ory Chowow-Liebman
+
 
 	The Grammar is based on the CLIPS Object Oriented Language (COOL) used by
 	the CLIPS Production system
-	
+
 	@author Karl-Heinz Krempels
-*/
+**/
 
 options {
 	MULTI=true;
@@ -1309,11 +1327,10 @@ void RHSField() #void:
 
 
 
-
-
 /**
 *		Define Rule Construct
 **/
+
 // <defrule-construct> ::= (defrule <rule-name> [<comment>] [<declaration>] <conditional-element>* => <expression>*) 
 
 SimpleNode DefruleConstruct() :
@@ -1346,7 +1363,13 @@ SimpleNode DefruleConstruct() :
 }
 
 
+
+/**
+*		Action List
+**/
+
 // Create Dummy node to have fixed number of children in Defrule
+
 SimpleNode ActionList():{} 
 { 
     	(
@@ -1360,10 +1383,10 @@ SimpleNode ActionList():{}
 
 
 
-
 /**
 *		Declaration
 **/
+
 //<declaration> ::= (declare <rule-property>+)
 
 SimpleNode Declaration(): 
@@ -1383,6 +1406,7 @@ SimpleNode Declaration():
 /**
 *		Rule Property
 **/
+
 // <rule-property> ::= (salience <integer-expression>) | (auto-focus <boolean-symbol>)
 
 void RuleProperty() #void: 
@@ -1397,6 +1421,12 @@ void RuleProperty() #void:
 	<RBRACE>
 }
 
+
+
+/**
+*		Salience
+**/
+
 SimpleNode Salience() :
 {}
 {
@@ -1404,6 +1434,12 @@ SimpleNode Salience() :
 	Expression()
 	{ return jjtThis; }
 }
+
+
+
+/**
+*		Auto Focus
+**/
 
 SimpleNode AutoFocus(): 
 {}
@@ -1414,6 +1450,12 @@ SimpleNode AutoFocus():
 	{ return jjtThis; }
 }
 
+
+
+/**
+*		Rule Version
+**/
+
 SimpleNode RuleVersion(): 
 {}
 {
@@ -1423,9 +1465,12 @@ SimpleNode RuleVersion():
 	{ return jjtThis; }
 }
 
+
+
 /**
 *		Boolean Symbol
 **/
+
 //<boolean-symbol> ::= TRUE | FALSE
 
 void BooleanSymbol() #void: 
@@ -1438,8 +1483,14 @@ void BooleanSymbol() #void:
 }
 
 
+
+/**
+*		Conditional Element
+**/
+
 //<conditional-element> ::= <pattern-CE> | <assigned-pattern-CE> | <not-CE> | <and-CE> | <or-CE> |
 //                          <logical-CE> | <test-CE> | <exists-CE> | <forall-CE>
+
 void ConditionalElement() #void:
 {}
 {
@@ -1461,8 +1512,10 @@ void ConditionalElement() #void:
 	)	
 }
 
+
+
 /**
-*		Boolean Functions
+*		Boolean Function
 **/
 
 void BooleanFunction() #void: 
@@ -1475,6 +1528,12 @@ void BooleanFunction() #void:
 	)
 }
 
+
+
+/**
+*		And Function
+**/
+
 SimpleNode NotFunction():
 {}
 {
@@ -1484,6 +1543,12 @@ SimpleNode NotFunction():
 	{ return jjtThis; }
 }
 
+
+
+/**
+*		And Function
+**/
+
 SimpleNode AndFunction():
 {}
 {	
@@ -1492,6 +1557,12 @@ SimpleNode AndFunction():
     	
 	{ return jjtThis; }
 }
+
+
+
+/**
+*		Or Function
+**/
 
 SimpleNode OrFunction():
 {}
@@ -1510,6 +1581,7 @@ SimpleNode OrFunction():
 
 //<assigned-pattern-CE> ::= <single-field-variable> <- <pattern-CE>
 // Create and return conditions
+
 SimpleNode AssignedPatternCE():
 {}
 {
@@ -1529,8 +1601,14 @@ SimpleNode AssignedPatternCE():
 }
 
 
+
+/**
+*		Logical CE
+**/
+
 //<logical-CE> ::= (logical <conditional-element>+)
 // Create and return conditions
+
 SimpleNode LogicalCE() : 
 {}
 {
@@ -1545,9 +1623,15 @@ SimpleNode LogicalCE() :
     { return jjtThis; }
 }
 
+
+
+/**
+*		Test CE
+**/
+
 //<test-CE> ::= (test <function-call>)
-// Create and return conditions (needs to initialize function 
-// before execution, thus it gets a node
+// Create and return conditions (initialize the function before execution, to get a node
+
 SimpleNode TestCE() : 
 {}
 {
@@ -1556,6 +1640,12 @@ SimpleNode TestCE() :
 	
 	{ return jjtThis; }
 }
+
+
+
+/**
+*		Exists CE
+**/
 
 //<exists-CE> ::= (exists <conditional-element>+)
 // Create and return conditions
@@ -1572,8 +1662,15 @@ SimpleNode ExistsCE() :
     { return jjtThis; }
 }
 
+
+
+/**
+*		Forall CE
+**/
+
 //<forall-CE> ::= (forall <conditional-element> <conditional-element>+)
 // Create and return conditions
+
 SimpleNode ForallCE() : 
 {}
 {
@@ -1588,7 +1685,14 @@ SimpleNode ForallCE() :
 	{return jjtThis; }
 }
 
+
+
+/**
+*		Template Pattern CE
+**/
+
 //<template-pattern-CE> ::= (<deftemplate-name> <LHS-slot>*)
+
 SimpleNode TemplatePatternCE(): 
 {}
 {
@@ -1609,6 +1713,11 @@ SimpleNode TemplatePatternCE():
 }
 
 
+
+/**
+*		LHSSlot
+**/
+
 //<LHS-slot> ::= <single-field-LHS-slot> | <multifield-LHS-slot>
 
 SimpleNode LHSSlot(): 
@@ -1624,8 +1733,12 @@ SimpleNode LHSSlot():
 
 
 
+/**
+*		Constraint
+**/
 
 //<constraint> ::= ? | $? | <connected-constraint>
+
 void Constraint() #void : 
 {}
 {
@@ -1635,6 +1748,10 @@ void Constraint() #void :
 }
 
 
+
+/**
+*		Singlefield Wildcard
+**/
 
 SimpleNode SingleFieldWildcard() : 
 {}
@@ -1646,6 +1763,10 @@ SimpleNode SingleFieldWildcard() :
 
 
 
+/**
+*		Multifield Wildcard
+**/
+
 SimpleNode MultiFieldWildcard() : 
 {}
 {
@@ -1655,10 +1776,16 @@ SimpleNode MultiFieldWildcard() :
 }
 
 
+
+/**
+*		Connected Constraint
+**/
+
 //<connected-constraint>::= <single-constraint> | <single-constraint> & <connected-constraint> |
 //	<single-constraint> | <connected-constraint>
 
 // THIS IS WRONG: Ampersands and lines can be mixed!!
+
 void ConnectedConstraint() #void: 
 {}
 {
@@ -1670,6 +1797,12 @@ void ConnectedConstraint() #void:
 	]
     )
 }
+
+
+
+/**
+*		Ampersand Connected Constraint
+**/
 
 SimpleNode AmpersandConnectedConstraint(): 
 {}
@@ -1684,6 +1817,12 @@ SimpleNode AmpersandConnectedConstraint():
     
     { return jjtThis; }
 }
+
+
+
+/**
+*		Line Connected Constraint
+**/
 
 SimpleNode LineConnectedConstraint(): 
 {}
@@ -1701,9 +1840,13 @@ SimpleNode LineConnectedConstraint():
 
 
 
+/**
+*		Term
+**/
 
 //<term> ::= <constant> | <single-field-variable> | <multifield-variable> | 
 //	:<function-call> | =<function-call>
+
 SimpleNode Term()  : 
 {}
 {
@@ -1725,6 +1868,10 @@ SimpleNode Term()  :
 
 
 
+/**
+*		Negation
+**/
+
 SimpleNode Negation() : 
 {}
 {
@@ -1734,6 +1881,10 @@ SimpleNode Negation() :
 }
 
 
+
+/**
+*		Colon
+**/
 
 SimpleNode Colon() : 
 {}
@@ -1745,6 +1896,10 @@ SimpleNode Colon() :
 
 
 
+/**
+*		Equals
+**/
+
 SimpleNode Equals() : 
 {}
 {
@@ -1753,13 +1908,14 @@ SimpleNode Equals() :
 	{ return jjtThis; }
 }
 
-/* Defglobal Construct
-<defglobal-construct> ::= (defglobal [<defmodule-name>] <global-assignment>*)
-<global-assignment> ::= <global-variable> = <expression>
-<global-variable> ::= ?*<symbol>*
-*/
+
+
+/**
+*		Defglobal Construct
+**/
 
 //<defglobal-construct> ::= (defglobal [<defmodule-name>] <global-assignment>*)
+
 SimpleNode DefglobalConstruct()  :
 {}
 {
@@ -1776,7 +1932,14 @@ SimpleNode DefglobalConstruct()  :
     { return jjtThis; }
 }
 
+
+
+/**
+*		Global Assignment
+**/
+
 //<global-assignment> ::= <global-variable> = <expression>
+
 SimpleNode GlobalAssignment()  : 
 {}
 {
@@ -1789,15 +1952,15 @@ SimpleNode GlobalAssignment()  :
     { return jjtThis; }
 }
 
-/* Deffunction Construct
-<deffunction-construct> 
-	::= (deffunction <name> [<comment>] (<regular-parameter>* [<wildcard-parameter>]) <expression>*)
-<regular-parameter> ::= <single-field-variable>
-<wildcard-parameter> ::= <multifield-variable>
-*/
+
+
+/**
+*		Deffunction Construct
+**/
 
 //<deffunction-construct> 
 //	::= (deffunction <name> [<comment>] (<regular-parameter>* [<wildcard-parameter>]) <expression>*)
+
 SimpleNode DeffunctionConstruct()  :
 {}
 {
@@ -1822,9 +1985,13 @@ SimpleNode DeffunctionConstruct()  :
 }
 
 
-/* Defgeneric Construct
-<defgeneric-construct> ::= (defgeneric <name> [<comment>])
-*/
+
+/**
+*		Defgeneric Construct 
+**/
+
+//	<defgeneric-construct> ::= (defgeneric <name> [<comment>])
+
 SimpleNode DefgenericConstruct() :
 {}
 {
@@ -1840,7 +2007,13 @@ SimpleNode DefgenericConstruct() :
 }
 
 
+
+/**
+*		Parameter Restriction 
+**/
+
 //<parameter-restriction> ::= <single-field-variable> | (<single-field-variable> <type>* [<query>])
+
 SimpleNode ParameterRestriction() : {}
 {
 	( LOOKAHEAD(2)
@@ -1862,7 +2035,13 @@ SimpleNode ParameterRestriction() : {}
 }
 
 
+
+/**
+*		Wildcard Parameter Restriction 
+**/
+
 //<wildcard-parameter-restriction> ::= <multifield-variable> | (<multifield-variable> <type>* [<query>])
+
 SimpleNode WildcardParameterRestriction() : {}
 {
 	( LOOKAHEAD(2)
@@ -1886,7 +2065,12 @@ SimpleNode WildcardParameterRestriction() : {}
 
 
 
+/**
+*		Query 
+**/
+
 //<query> ::= <global-variable> | <function-call>
+
 void Query() : { Token t; }
 {
 		GlobalVariable()
@@ -1894,8 +2078,9 @@ void Query() : { Token t; }
 }
 
 
+
 /**
-*		Constraint Attributes 
+*		Constraint Attribute
 **/
 
 //<constraint-attribute> ::= <type-attribute> | <allowed-constant-attribute> | 
