@@ -30,6 +30,8 @@ import org.jamocha.rete.exception.RetractException;
  */
 public class NoMemANode extends BaseAlpha2 {
 
+	static final long serialVersionUID = 0xDeadBeafCafeBabeL;
+	
 	/**
 	 * The use of Slot(s) is similar to CLIPS design
 	 */

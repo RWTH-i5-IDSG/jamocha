@@ -19,15 +19,14 @@ package org.jamocha.rete.functions.adaptor;
 import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
-import java.util.Date;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
-import java.util.logging.SimpleFormatter;
 
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.IllegalParameterException;
@@ -50,6 +49,8 @@ import org.jamocha.rete.functions.FunctionDescription;
  * of success.
  */
 public class JDBCLink implements Function, Serializable {
+	
+	
 
 	private static final class Description implements FunctionDescription {
 
@@ -112,7 +113,7 @@ public class JDBCLink implements Function, Serializable {
 
 	private static final FunctionDescription DESCRIPTION = new Description();
 
-	private static final long serialVersionUID = 1L;
+	static final long serialVersionUID = 0xDeadBeafCafeBabeL;
 
 	public static final String NAME = "jdbclink";
 

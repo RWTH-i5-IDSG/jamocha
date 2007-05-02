@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2006 Peter Lin
+ * Copyright 2002-2007 Peter Lin
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://ruleml-dev.sourceforge.net/
+ *   http://www.jamocha.org/
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -30,6 +30,8 @@ import org.jamocha.rule.Rule;
  * it checks the previous and next and set them correctly.
  */
 public class LinkedActivation implements Activation {
+
+	static final long serialVersionUID = 0xDeadBeafCafeBabeL;
 
 	private static final int MAX_POOL_SIZE = 10000;
 

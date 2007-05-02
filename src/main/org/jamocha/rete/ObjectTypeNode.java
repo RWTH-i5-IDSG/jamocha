@@ -19,7 +19,6 @@ package org.jamocha.rete;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 import org.jamocha.rete.exception.AssertException;
@@ -47,6 +46,8 @@ import org.jamocha.rete.util.CollectionsFactory;
  */
 public class ObjectTypeNode extends BaseAlpha implements Serializable {
 
+	static final long serialVersionUID = 0xDeadBeafCafeBabeL;
+	
     /**
      * The Class that defines object type
      */

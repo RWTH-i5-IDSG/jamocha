@@ -31,6 +31,8 @@ import org.jamocha.rete.util.CollectionsFactory;
  */
 public class HashedAlphaMemoryImpl implements Serializable {
 
+	static final long serialVersionUID = 0xDeadBeafCafeBabeL;
+	
     protected Map memory = null;
     
     protected int counter = 0;

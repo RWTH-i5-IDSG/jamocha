@@ -59,10 +59,7 @@ import org.jamocha.rule.TestCondition;
  */
 public class BasicRuleCompiler implements RuleCompiler {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
+	static final long serialVersionUID = 0xDeadBeafCafeBabeL;
 
 	private WorkingMemory memory = null;
 

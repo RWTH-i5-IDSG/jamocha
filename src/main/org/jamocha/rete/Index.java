@@ -33,6 +33,8 @@ import java.util.Arrays;
  * it and make sure it works for memory snapshots and other features.
  */
 public class Index implements Serializable, HashIndex {
+	
+	static final long serialVersionUID = 0xDeadBeafCafeBabeL;
 
 	private Fact[] facts = null;
 

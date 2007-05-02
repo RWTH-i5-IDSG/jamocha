@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2006 Peter Lin
+ * Copyright 2002-2007 Peter Lin
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://ruleml-dev.sourceforge.net/
+ *   http://www.jamocha.org/
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,9 +20,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.jamocha.rete.BaseJoin;
 import org.jamocha.rete.BaseNode;
-import org.jamocha.rete.ExistJoinFrst;
 
 /**
  * @author Peter Lin
@@ -31,6 +29,7 @@ import org.jamocha.rete.ExistJoinFrst;
  */
 public class ExistCondition implements Condition {
 
+	static final long serialVersionUID = 0xDeadBeafCafeBabeL;
     protected List nestedCE = new ArrayList();
     protected List nodes = new ArrayList();
     protected boolean isFirstCE = false;

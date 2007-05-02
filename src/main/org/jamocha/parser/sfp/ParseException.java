@@ -12,6 +12,8 @@ package org.jamocha.parser.sfp;
  */
 public class ParseException extends org.jamocha.parser.ParseException  {
 
+	static final long serialVersionUID = 0xDeadBeafCafeBabeL;
+	
   /**
    * This constructor is used by the method "generateParseException"
    * in the generated parser.  Calling this constructor generates

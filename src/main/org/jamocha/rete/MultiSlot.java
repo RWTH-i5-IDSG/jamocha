@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2006 Peter Lin
+ * Copyright 2002-2007 Peter Lin
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://ruleml-dev.sourceforge.net/
+ *   http://www.jamocha.org/
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,7 +17,6 @@
 package org.jamocha.rete;
 
 import org.jamocha.parser.JamochaType;
-import org.jamocha.parser.JamochaValue;
 
 /**
  * @author Peter Lin
@@ -27,6 +26,8 @@ import org.jamocha.parser.JamochaValue;
  */
 public class MultiSlot extends Slot {
 
+	static final long serialVersionUID = 0xDeadBeafCafeBabeL;
+	
 	protected Object[] value = {};
 
 	public MultiSlot() {

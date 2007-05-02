@@ -31,6 +31,8 @@ import org.jamocha.rete.exception.RetractException;
  */
 public class HashedNotEqNJoin extends BaseJoin {
 
+	static final long serialVersionUID = 0xDeadBeafCafeBabeL;
+
     /**
      * The operator for the join by default is equal. The the join
      * doesn't comparing values, the operator should be set to -1.

@@ -36,6 +36,7 @@ import org.jamocha.parser.JamochaValue;
  */
 public class OrLiteralConstraint implements Constraint {
 
+	static final long serialVersionUID = 0xDeadBeafCafeBabeL;
     protected String name;
     protected JamochaValue value = JamochaValue.newObject(new ArrayList());
     protected boolean negated = false;

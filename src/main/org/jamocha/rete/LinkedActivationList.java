@@ -27,6 +27,8 @@ package org.jamocha.rete;
  */
 public class LinkedActivationList extends AbstractActivationList {
 
+	static final long serialVersionUID = 0xDeadBeafCafeBabeL;
+
 	private int count = 0;
 
 	private LinkedActivation first = null;
