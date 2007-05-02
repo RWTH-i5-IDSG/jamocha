@@ -1,11 +1,12 @@
 /*
+ * 
  * Copyright 2002-2006 Peter Lin
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://ruleml-dev.sourceforge.net/
+ *   http://www.jamocha.org/
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -144,7 +145,7 @@ public class Defrule implements Rule, Scope, Serializable {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see woolfel.engine.rule.Rule#getName()
+	 * @see org.jamocha.rule.Rule#getName()
 	 */
 	public String getName() {
 		return name;
@@ -153,7 +154,7 @@ public class Defrule implements Rule, Scope, Serializable {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see woolfel.engine.rule.Rule#setName()
+	 * @see org.jamocha.rule.Rule#setName()
 	 */
 	public void setName(String name) {
 		this.name = name;
@@ -175,7 +176,7 @@ public class Defrule implements Rule, Scope, Serializable {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see woolfel.engine.rule.Rule#getWatch()
+	 * @see org.jamocha.rule.Rule#getWatch()
 	 */
 	public boolean getWatch() {
 		return watch;
@@ -184,7 +185,7 @@ public class Defrule implements Rule, Scope, Serializable {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see woolfel.engine.rule.Rule#setWatch(boolean)
+	 * @see org.jamocha.rule.Rule#setWatch(boolean)
 	 */
 	public void setWatch(boolean watch) {
 		this.watch = watch;
@@ -294,7 +295,7 @@ public class Defrule implements Rule, Scope, Serializable {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see woolfel.engine.rule.Rule#addCondition(woolfel.engine.rule.Condition)
+	 * @see org.jamocha.rule.Rule#addCondition(org.jamocha.rule.Condition)
 	 */
 	public void addCondition(Condition cond) {
 		conditions.add(cond);
@@ -311,7 +312,7 @@ public class Defrule implements Rule, Scope, Serializable {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see woolfel.engine.rule.Rule#addAction(woolfel.engine.rule.Action)
+	 * @see org.jamocha.rule.Rule#addAction(org.jamocha.rule.Action)
 	 */
 	public void addAction(Action act) {
 		actions.add(act);
@@ -331,7 +332,7 @@ public class Defrule implements Rule, Scope, Serializable {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see woolfel.engine.rule.Rule#getConditions()
+	 * @see org.jamocha.rule.Rule#getConditions()
 	 */
 	public Condition[] getConditions() {
 		Condition[] cond = new Condition[conditions.size()];
@@ -342,7 +343,7 @@ public class Defrule implements Rule, Scope, Serializable {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see woolfel.engine.rule.Rule#getActions()
+	 * @see org.jamocha.rule.Rule#getActions()
 	 */
 	public Action[] getActions() {
 		Action[] acts = new Action[actions.size()];

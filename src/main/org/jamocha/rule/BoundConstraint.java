@@ -17,7 +17,6 @@
 package org.jamocha.rule;
 
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.rete.Constants;
 
 /**
  * @author Peter Lin

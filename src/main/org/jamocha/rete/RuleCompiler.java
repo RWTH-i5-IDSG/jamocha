@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2006 Peter Lin
+ * Copyright 2002-2007 Peter Lin
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://ruleml-dev.sourceforge.net/
+ *   http://www.jamocha.org/
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,8 +17,6 @@
 package org.jamocha.rete;
 
 import java.io.Serializable;
-import java.util.List;
-
 import org.jamocha.rule.Rule;
 
 
@@ -30,6 +28,10 @@ import org.jamocha.rule.Rule;
  * that others can implement their own RuleCompiler.
  */
 public interface RuleCompiler extends Serializable {
+	public class SFRuleCompiler {
+
+	}
+
 	/**
 	 * for the runtime, the default should be false. For the development
 	 * the setting should be set to true.

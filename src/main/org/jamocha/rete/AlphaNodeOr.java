@@ -16,8 +16,6 @@
  */
 package org.jamocha.rete;
 
-import java.util.Iterator;
-
 import org.jamocha.rete.exception.AssertException;
 import org.jamocha.rete.exception.RetractException;
 

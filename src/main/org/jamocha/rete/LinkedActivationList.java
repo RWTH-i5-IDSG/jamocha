@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2006 Peter Lin
+ * Copyright 2002-2007 Peter Lin
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://ruleml-dev.sourceforge.net/
+ *   http://www.jamocha.org/
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,10 +16,6 @@
  */
 package org.jamocha.rete;
 
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.ListIterator;
 
 /**
  * @author Peter Lin
@@ -36,13 +32,7 @@ public class LinkedActivationList extends AbstractActivationList {
 	private LinkedActivation first = null;
 
 	private LinkedActivation last = null;
-
-	private LinkedActivation current = null;
-
-	private LinkedActivation itrCurrent = null;
-	
-	private int counter = 0;
-    
+   
 	public LinkedActivationList(Strategy strat) {
 		this.theStrategy = strat;
 	}

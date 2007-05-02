@@ -17,11 +17,9 @@
 package org.jamocha.rete;
 
 import java.io.Serializable;
-import java.util.Map;
 
 import org.jamocha.rete.exception.AssertException;
 import org.jamocha.rete.exception.RetractException;
-import org.jamocha.rete.util.CollectionsFactory;
 
 /**
  * OrderedFactTypeNode is the object type node for ordered facts. The
@@ -33,6 +31,7 @@ import org.jamocha.rete.util.CollectionsFactory;
  * The class should just look it up and only propogate to the one node.
  * @author Peter Lin
  */
+
 public class OrderedFactTypeNode extends BaseAlpha implements Serializable {
 
     /**
@@ -43,7 +42,7 @@ public class OrderedFactTypeNode extends BaseAlpha implements Serializable {
     /**
      * HashMap entries for unique AlphaNodes
      */
-    private Map entries = CollectionsFactory.localMap();
+//    private Map entries = CollectionsFactory.localMap();
 
     /**
      * @param id

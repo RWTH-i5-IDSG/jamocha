@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://ruleml-dev.sourceforge.net/
+ *   http://www.jamocha.org/
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -53,7 +53,6 @@ public abstract class AbstractSlot implements Serializable, Cloneable {
 	 * implemented. it is also used in the case a condition has
 	 * multiple equal/not equal as in (attr2 "me" | "you" | ~"her" | ~"she")
 	 */
-	private int depth;
 
 	/**
 	 * Get the name of the slot
