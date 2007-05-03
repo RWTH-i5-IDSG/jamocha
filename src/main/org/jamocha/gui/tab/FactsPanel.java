@@ -132,8 +132,9 @@ public class FactsPanel extends AbstractJamochaPanel implements ActionListener,
 		List<Fact> facts = gui.getEngine().getAllFacts();
 		dataModel.setFacts(facts);
 		factsTable.getColumnModel().getColumn(0).setPreferredWidth(50);
-		factsTable.getColumnModel().getColumn(1).setPreferredWidth(
-				factsTable.getWidth() - 50);
+		factsTable.getColumnModel().getColumn(1).setPreferredWidth(150);
+		factsTable.getColumnModel().getColumn(2).setPreferredWidth(
+				factsTable.getWidth() - 200);
 	}
 
 	private void initPopupMenu() {
@@ -246,6 +247,8 @@ public class FactsPanel extends AbstractJamochaPanel implements ActionListener,
 			case 0:
 				return "ID";
 			case 1:
+				return "Template";
+			case 2:
 				return "Fact";
 			default:
 				return null;
@@ -253,7 +256,7 @@ public class FactsPanel extends AbstractJamochaPanel implements ActionListener,
 		}
 
 		public int getColumnCount() {
-			return 2;
+			return 3;
 		}
 
 		public boolean isCellEditable(int row, int col) {
@@ -265,6 +268,8 @@ public class FactsPanel extends AbstractJamochaPanel implements ActionListener,
 			if (aColumn == 0)
 				return java.lang.Long.class;
 			else if (aColumn == 1)
+				return java.lang.String.class;
+			else if (aColumn == 2)
 				return java.lang.String.class;
 			else
 				return Class.class;
@@ -280,6 +285,8 @@ public class FactsPanel extends AbstractJamochaPanel implements ActionListener,
 			case 0:
 				return fact.getFactId();
 			case 1:
+				return fact.getTemplate().getName();
+			case 2:
 				return fact.toFactString();
 			}
 			return null;
