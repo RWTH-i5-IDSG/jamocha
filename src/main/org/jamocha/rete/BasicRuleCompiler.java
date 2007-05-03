@@ -894,7 +894,12 @@ public class BasicRuleCompiler implements RuleCompiler {
 					// add the join to the rule object
 					rule.addJoinNode(njoin);
 					oc.getLastNode().addNode(njoin);
-				}
+				} else if (oc.getNodes().size() == 0) {
+                    ObjectTypeNode otn = findObjectTypeNode(oc.getTemplateName());
+                    LIANode lianode = new LIANode(engine.nextNodeId());
+                    otn.addSuccessorNode(lianode, engine, this.memory);
+                    rule.getConditions()[0].addNode(lianode);
+                }
 			}
 		}
 	}
