@@ -138,7 +138,7 @@ public class Defrule implements Rule, Scope, Serializable {
 		setDeclaration(configuration.getDeclarationConfiguration(), engine);
 		// set conditions:
 		setConditions(configuration.getConditions());
-		// set conditions:
+		// set actions:
 		setActions(configuration.getActions());
 	}
 
