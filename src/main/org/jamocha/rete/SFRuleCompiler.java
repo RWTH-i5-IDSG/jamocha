@@ -244,37 +244,52 @@ public class SFRuleCompiler implements RuleCompiler {
 				// module. if it is, we have to add it to that module
 
 				this.setModule(rule);
-/*				try {
-					Condition[] conds = rule.getConditions();
-					// at first we create the constraints and then the conditional elements which include joins
-					for (int i = 0; i < conds.length; i++)
-						compileCondition(conds[i], i, rule);
+				TerminalNode terminalNode = createTerminalNode(rule);
+				
+				Condition[] conds = rule.getConditions();
+				
+				// at first we create the constraints and then the conditional elements which include joins
+				for (int i = 0; i < conds.length; i++)
+					compileCondition(conds[i], i, rule);
+				
+				/*
+				 * Do it in this way:
+				 * compileBindings();
+				 * compileConstraints();
+				 * compileJoins();
+				 */
 
-					// compileJoins(rule, conds);
+				// compileJoins(rule, conds);
 
-					BaseNode last = rule.getLastNode();
-					TerminalNode tnode = createTerminalNode(rule);
+				BaseNode last = rule.getLastNode();
 
-					attachTerminalNode(last, tnode);
+//					if (last != null && terminal != null) {
+//						try {
+//								if (last instanceof BaseJoin ) {
+//									((BaseJoin) last)
+//											.addSuccessorNode(terminal, engine, memory);
+//								} else if (last instanceof BaseAlpha) {
+//									((BaseAlpha) last).addSuccessorNode(terminal, engine, memory);
+//								}
+//							} catch (AssertException e) {
+//
+//							}
+//					}
+				
+				
+//					attachTerminalNode(last, tnode);
 
-					// compile the actionlist
-					compileActions(rule, rule.getActions());
-					// now we pass the bindings to the rule, so that actiosn can
-					// resolve the bindings
+				// compile the actionlist
+				compileActions(rule, rule.getActions());
+				// now we pass the bindings to the rule, so that actiosn can
+				// resolve the bindings
 
-					// now we add the rule to the module
-					currentMod.addRule(rule);
-					CompileEvent ce = new CompileEvent(rule, CompileEvent.ADD_RULE_EVENT);
-					ce.setRule(rule);
-					this.notifyListener(ce);
-					return true;
-				} catch (AssertException e) {
-					CompileEvent ce = new CompileEvent(rule, CompileEvent.INVALID_RULE);
-					ce.setMessage(Messages.getString("RuleCompiler.assert.error")); //$NON-NLS-1$
-					this.notifyListener(ce);
-					log.debug(e);
-					return false;
-				}*/
+				// now we add the rule to the module
+				currentMod.addRule(rule);
+				CompileEvent ce = new CompileEvent(rule, CompileEvent.ADD_RULE_EVENT);
+				ce.setRule(rule);
+				this.notifyListener(ce);
+				return true;
 			} else if (rule.getConditions().length == 0) {
 				this.setModule(rule);
 				// the rule has no LHS, this means it only has actions
@@ -1171,5 +1186,4 @@ if (conds.length > 1) {
 		}
 		return initialFactLIANode;
 	}
-	
 }
