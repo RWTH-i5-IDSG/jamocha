@@ -78,12 +78,6 @@ class StreamChannelImpl extends AbstractCommunicationChannel implements
 
 	void close() {
 		streamChannelThread.setStopped();
-		try {
-			reader.close();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 	}
 
 	public boolean isAvailable() {

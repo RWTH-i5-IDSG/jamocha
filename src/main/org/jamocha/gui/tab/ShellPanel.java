@@ -174,6 +174,8 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 	 */
 	private Thread channelListener;
 
+	private boolean channelListenerPaused = false;
+
 	/**
 	 * The main constructor for a ShellPanel.
 	 * 
@@ -211,17 +213,7 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 		add(clearButtonPanel, BorderLayout.PAGE_END);
 
 		// initialize the channel to the engine
-		PipedOutputStream outStream = new PipedOutputStream();
-		PipedInputStream inStream = new PipedInputStream();
-		outWriter = new PrintWriter(outStream);
-		try {
-			inStream.connect(outStream);
-		} catch (IOException e) {
-			e.printStackTrace();
-			System.exit(1);
-		}
-		channel = gui.getEngine().getMessageRouter().openChannel("JamochaGui",
-				inStream);
+		initChannel();
 
 		printPrompt();
 		moveCursorToEnd();
@@ -236,6 +228,20 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 
 		// initialize the mouselistener for the context menu
 		initPopupMenu();
+	}
+
+	private void initChannel() {
+		PipedOutputStream outStream = new PipedOutputStream();
+		PipedInputStream inStream = new PipedInputStream();
+		outWriter = new PrintWriter(outStream);
+		try {
+			inStream.connect(outStream);
+		} catch (IOException e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
+		channel = gui.getEngine().getMessageRouter().openChannel("JamochaGui",
+				inStream);
 	}
 
 	/**
@@ -397,48 +403,60 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 				boolean printPrompt = false;
 
 				while (running) {
-					channel.fillEventList(msgEvents);
-					if (!msgEvents.isEmpty()) {
-						stopTimer();
-						StringBuilder buffer = new StringBuilder();
-						for (MessageEvent event : msgEvents) {
-							if (event.getType() == MessageEvent.PARSE_ERROR
-									|| event.getType() == MessageEvent.ERROR
-									|| event.getType() == MessageEvent.RESULT) {
+					if (!channelListenerPaused) {
+						channel.fillEventList(msgEvents);
+						if (!msgEvents.isEmpty()) {
+							stopTimer();
+							StringBuilder buffer = new StringBuilder();
+							for (MessageEvent event : msgEvents) {
+								if (event.getType() == MessageEvent.PARSE_ERROR
+										|| event.getType() == MessageEvent.ERROR
+										|| event.getType() == MessageEvent.RESULT) {
 
-								printPrompt = true;
-								lastIncompleteCommand = new StringBuilder();
-							}
-							if (event.getType() == MessageEvent.ERROR) {
-								String msg = ((Exception) event.getMessage())
-										.getMessage();
-								if (msg == null) {
-									msg = "An unknown error occured. Please check the Log.";
+									printPrompt = true;
+									lastIncompleteCommand = new StringBuilder();
 								}
-								buffer.append(msg.trim()
-										+ System.getProperty("line.separator"));
+								if (event.getType() == MessageEvent.ERROR) {
+									String msg = ((Exception) event
+											.getMessage()).getMessage();
+									if (msg == null) {
+										msg = "An unknown error occured. Please check the Log.";
+									}
+									buffer
+											.append(msg.trim()
+													+ System
+															.getProperty("line.separator"));
+								}
+								if (event.getType() != MessageEvent.COMMAND
+										&& event.getMessage() != null
+										&& !event.getMessage().toString()
+												.equals("")
+										&& !event.getMessage().equals(
+												JamochaValue.NIL)) {
+									buffer
+											.append(event.getMessage()
+													.toString().trim()
+													+ System
+															.getProperty("line.separator"));
+								}
 							}
-							if (event.getType() != MessageEvent.COMMAND
-									&& event.getMessage() != null
-									&& !event.getMessage().toString()
-											.equals("")
-									&& !event.getMessage().equals(
-											JamochaValue.NIL)) {
-								buffer.append(event.getMessage().toString()
-										.trim()
-										+ System.getProperty("line.separator"));
+							msgEvents.clear();
+							hideCursor();
+							printMessage(buffer.toString().trim(), true);
+							if (printPrompt) {
+								printPrompt();
+								moveCursorTo(lastPromptIndex);
+							}
+							showCursor();
+							printPrompt = false;
+							startTimer();
+						} else {
+							try {
+								Thread.sleep(10);
+							} catch (InterruptedException e) {
+								// Can be ignored
 							}
 						}
-						msgEvents.clear();
-						hideCursor();
-						printMessage(buffer.toString().trim(), true);
-						if (printPrompt) {
-							printPrompt();
-							moveCursorTo(lastPromptIndex);
-						}
-						showCursor();
-						printPrompt = false;
-						startTimer();
 					} else {
 						try {
 							Thread.sleep(10);
@@ -737,6 +755,21 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 				clearArea();
 			}
 		});
+		JMenuItem resetShellMenu = new JMenuItem("Reset Shell");
+		resetShellMenu.addMouseListener(new MouseAdapter() {
+			public void mouseReleased(MouseEvent event) {
+				stopTimer();
+				hideCursor();
+				channelListenerPaused = true;
+				lastIncompleteCommand = new StringBuilder();
+				clearArea();
+				gui.getEngine().getMessageRouter().closeChannel(channel);
+				initChannel();
+				channelListenerPaused = false;
+				showCursor();
+				startTimer();
+			}
+		});
 		menu.add(copyMenu);
 		menu.add(pasteMenu);
 		menu.addSeparator();
@@ -745,6 +778,8 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 		menu.addSeparator();
 		menu.add(clearLineMenu);
 		menu.add(clearShellMenu);
+		menu.addSeparator();
+		menu.add(resetShellMenu);
 		outputArea.setComponentPopupMenu(menu);
 
 	}

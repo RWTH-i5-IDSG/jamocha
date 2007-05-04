@@ -232,15 +232,6 @@ public class FactsPanel extends AbstractJamochaPanel implements ActionListener,
 			fireTableDataChanged();
 		}
 
-		public void sortByColumn(int column, boolean ascending) {
-			switch (column) {
-			case 0:
-				for (int i = 0; i < facts.size(); ++i) {
-
-				}
-			}
-		}
-
 		@Override
 		public String getColumnName(int column) {
 			switch (column) {
