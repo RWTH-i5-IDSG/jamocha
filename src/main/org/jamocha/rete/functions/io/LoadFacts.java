@@ -1,5 +1,6 @@
 /*
  * Copyright 2002-2006 Peter Lin, 2007 Alexander Wilden
+ * Copyright 2007 Uta Christoph (documentation)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,15 +56,20 @@ public class LoadFacts implements Function, Serializable {
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "LoadFacts will create a new instance of CLIPSParser and load the facts in the data file. TODO This function needs to be changed to be independed of CLIPSParser and use the ParserFactory instead.";
+			return "Load-facts creates a new instance of CLIPSParser and loads the facts from the argument file. Returns true on success. TODO This function needs to be changed to be independed of CLIPSParser and use the ParserFactory instead."; 
+			//LoadFacts will create a new instance of CLIPSParser and load the facts in the data file. TODO This function needs to be changed to be independed of CLIPSParser and use the ParserFactory instead.";
 		}
-
+		
+		public String getExample()	{
+			return "'Jamocha> (load-facts factFile.clp)'";
+		}
+		
 		public int getParameterCount() {
 			return 1;
 		}
 
 		public String getParameterDescription(int parameter) {
-			return "File that contains facts that will be loaded.";
+			return "File that contains facts to be loaded.";
 		}
 
 		public String getParameterName(int parameter) {

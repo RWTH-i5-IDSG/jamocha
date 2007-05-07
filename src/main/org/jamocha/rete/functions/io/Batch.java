@@ -1,5 +1,6 @@
 /*
  * Copyright 2002-2006 Peter Lin, 2007 Alexander Wilden
+ * Copyright 2007 Uta Christoph (documentation)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,9 +49,13 @@ public class Batch implements Function, Serializable {
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "Loads and executes one or more given files. Files can be on a local drive or on a remote machine accessible via http or some other protocol. Returns true on success.";
+			return "Loads and executes one or more given files. Multiple arguments are separated by a blank. Files can be located on a local drive or on a remote machine accessible via http or some other protocol. Returns true on success.";
 		}
-
+		
+		public String getExample() {
+			return "'Jamocha> (batch samples/view-test.clp)' or 'Jamocha> (batch samples/view-test.clp samples/test.clp)'";
+		}
+		
 		public int getParameterCount() {
 			return 1;
 		}
