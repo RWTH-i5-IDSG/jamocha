@@ -108,8 +108,11 @@ public class Defrule implements Function, Serializable {
 			else if (params[0] instanceof DefruleConfiguration) {
 				defrule = new org.jamocha.rule.Defrule(
 						(DefruleConfiguration) params[0], engine);
+				engine.writeMessage("added rule with complexity "
+						+ defrule.getTotalComplexity());
 			} else {
-				throw new RuleException("Parameter 1 is no Defrule Configuration.");
+				throw new RuleException(
+						"Parameter 1 is no Defrule Configuration.");
 			}
 			// compile Defrule:
 			if (!engine.getCurrentFocus().containsRule(defrule)) {

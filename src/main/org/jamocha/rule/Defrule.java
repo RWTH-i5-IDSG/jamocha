@@ -17,7 +17,6 @@
  */
 package org.jamocha.rule;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -49,7 +48,7 @@ import org.jamocha.rete.util.CollectionsFactory;
  * 
  * A basic implementation of the Rule interface
  */
-public class Defrule implements Rule, Scope, Serializable {
+public class Defrule implements Rule {
 
 	private static final long serialVersionUID = 1L;
 
@@ -65,8 +64,6 @@ public class Defrule implements Rule, Scope, Serializable {
 
 	protected boolean auto = false;
 
-	protected Complexity complex = null;
-
 	protected boolean rememberMatch = true;
 
 	/**
@@ -79,7 +76,7 @@ public class Defrule implements Rule, Scope, Serializable {
 	protected Module themodule = null;
 
 	protected Map bindValues = CollectionsFactory.localMap();
-	
+
 	protected Scope outerScope = null;
 
 	private LinkedHashMap bindings = new LinkedHashMap();
@@ -113,6 +110,10 @@ public class Defrule implements Rule, Scope, Serializable {
 
 	protected Fact[] triggerFacts = null;
 
+	private int complexity = 1;
+
+	private int totalComplexity = 0;
+
 	/**
 	 * 
 	 */
@@ -128,8 +129,10 @@ public class Defrule implements Rule, Scope, Serializable {
 		setName(name);
 	}
 
-	public Defrule(DefruleConfiguration configuration, Rete engine) throws EvaluationException {
+	public Defrule(DefruleConfiguration configuration, Rete engine)
+			throws EvaluationException {
 		this();
+		totalComplexity = configuration.getTotalComplexity();
 		// set rule name:
 		setName(configuration.getRuleName());
 		// set rule description:
@@ -191,7 +194,9 @@ public class Defrule implements Rule, Scope, Serializable {
 		this.watch = watch;
 	}
 
-	public void setDeclaration(DeclarationConfiguration declarationConfiguration, Rete engine) throws EvaluationException {
+	public void setDeclaration(
+			DeclarationConfiguration declarationConfiguration, Rete engine)
+			throws EvaluationException {
 		if (declarationConfiguration != null) {
 			Parameter param = null;
 
@@ -239,15 +244,8 @@ public class Defrule implements Rule, Scope, Serializable {
 	public void setDescription(String text) {
 		if (text != null)
 			description = text;
-		else description = "";
-	}
-
-	public Complexity getComplexity() {
-		return this.complex;
-	}
-
-	public void setComplexity(Complexity complexity) {
-		this.complex = complexity;
+		else
+			description = "";
 	}
 
 	public long getEffectiveDate() {
@@ -519,7 +517,8 @@ public class Defrule implements Rule, Scope, Serializable {
 			Condition cnd = cnds[idx];
 			if (cnd instanceof ObjectCondition) {
 				ObjectCondition oc = (ObjectCondition) cnd;
-				Template dft = (Template) engine.findTemplate(oc.getTemplateName());
+				Template dft = (Template) engine.findTemplate(oc
+						.getTemplateName());
 				if (dft != null) {
 					oc.setTemplate(dft);
 				}
@@ -529,7 +528,8 @@ public class Defrule implements Rule, Scope, Serializable {
 				ExistCondition ec = (ExistCondition) cnd;
 				if (ec.hasObjectCondition()) {
 					ObjectCondition oc = ec.getObjectCondition();
-					Template dft = (Template) engine.findTemplate(oc.getTemplateName());
+					Template dft = (Template) engine.findTemplate(oc
+							.getTemplateName());
 					if (dft != null) {
 						oc.setTemplate(dft);
 					}
@@ -548,13 +548,16 @@ public class Defrule implements Rule, Scope, Serializable {
 				setSalience(declaration.getIntValue());
 			} else if (declaration.getName().equals(RuleProperty.VERSION)) {
 				setVersion(declaration.getValue());
-			} else if (declaration.getName().equals(RuleProperty.REMEMBER_MATCH)) {
+			} else if (declaration.getName()
+					.equals(RuleProperty.REMEMBER_MATCH)) {
 				setRememberMatch(declaration.getBooleanValue());
 			} else if (declaration.getName().equals(RuleProperty.NO_AGENDA)) {
 				setNoAgenda(declaration.getBooleanValue());
-			} else if (declaration.getName().equals(RuleProperty.EFFECTIVE_DATE)) {
+			} else if (declaration.getName()
+					.equals(RuleProperty.EFFECTIVE_DATE)) {
 				this.effectiveDate = getDateTime(declaration.getValue());
-			} else if (declaration.getName().equals(RuleProperty.EXPIRATION_DATE)) {
+			} else if (declaration.getName().equals(
+					RuleProperty.EXPIRATION_DATE)) {
 				this.expirationDate = getDateTime(declaration.getValue());
 			}
 		}
@@ -564,7 +567,8 @@ public class Defrule implements Rule, Scope, Serializable {
 	public static long getDateTime(String date) {
 		if (date != null && date.length() > 0) {
 			try {
-				java.text.SimpleDateFormat df = new java.text.SimpleDateFormat("mm/dd/yyyy HH:mm");
+				java.text.SimpleDateFormat df = new java.text.SimpleDateFormat(
+						"mm/dd/yyyy HH:mm");
 				return df.parse(date).getTime();
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -606,6 +610,22 @@ public class Defrule implements Rule, Scope, Serializable {
 
 	public Scope getOuterScope() {
 		return outerScope;
+	}
+
+	public int getComplexity() {
+		return complexity;
+	}
+
+	public int getTotalComplexity() {
+		return (complexity + totalComplexity);
+	}
+
+	public void incrementTotalComplexityBy(int value) {
+		totalComplexity += value;
+	}
+
+	public void setComplexity(int value) {
+		complexity = value;
 	}
 
 }

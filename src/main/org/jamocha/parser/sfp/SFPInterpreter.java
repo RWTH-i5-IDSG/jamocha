@@ -497,15 +497,18 @@ public class SFPInterpreter implements SFPParserVisitor {
 
 		// set the rule LHS
 		Condition[] conditionList = new Condition[k - j];
+		Condition cond;
+		int totalComplexity = 0;
 		for (int i = j; i < k; i++) {
-			conditionList[i - j] = (Condition) (node.jjtGetChild(i).jjtAccept(
-					this, data));
+			cond = (Condition) (node.jjtGetChild(i).jjtAccept(this, data));
+			conditionList[i - j] = cond;
+			totalComplexity += cond.getTotalComplexity();
 		}
 
 		// setup a new DefruleConfiguration
 		DefruleConfiguration rc = new DefruleConfiguration();
 		rc.setRuleName(ruleName.toString());
-
+		rc.setTotalComplexity(totalComplexity);
 		rc.setDeclarationConfiguration(dc);
 		rc.seConditions(conditionList);
 		rc.setActions(actions);

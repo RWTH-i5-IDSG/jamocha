@@ -18,7 +18,7 @@ public class DefruleConfiguration extends AbstractConfiguration  {
 	
 	private ExpressionSequence actions = null;
 	
-	 
+	private int totalComplexity = 0;
 	
 	/* (non-Javadoc)
 	 * @see org.jamocha.rete.Parameter#isObjectBinding()
@@ -83,5 +83,13 @@ public class DefruleConfiguration extends AbstractConfiguration  {
 
 	public void setRuleName(String ruleName) {
 		this.ruleName = ruleName;
+	}
+
+	public int getTotalComplexity() {
+		return totalComplexity;
+	}
+
+	public void setTotalComplexity(int totalComplexity) {
+		this.totalComplexity = totalComplexity;
 	}
 }

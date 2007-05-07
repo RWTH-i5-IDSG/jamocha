@@ -96,10 +96,15 @@ public class Printout implements Function, Serializable {
 			String outputType = params[0].getValue(engine).getStringValue();
 			JamochaValue value = null;
 			StringBuilder outputString = new StringBuilder();
+			String str;
 			for (int idx = 1; idx < params.length; idx++) {
 				value = params[idx].getValue(engine);
-				if (value !=null){
-					outputString.append(value.toString());
+				if (value != null) {
+					str = value.toString();
+					if (str.equalsIgnoreCase(Constants.CRLF)) {
+						outputString.append(Constants.LINEBREAK);
+					} else
+						outputString.append(str);
 				} else {
 					outputString.append(Constants.NIL_STRING);
 				}
