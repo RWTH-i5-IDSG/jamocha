@@ -24,37 +24,39 @@ import org.jamocha.rete.BaseAlpha;
 import org.jamocha.rete.BaseNode;
 import org.jamocha.rete.Template;
 
-
 /**
  * @author Peter Lin
- *
+ * 
  * ObjectCondition is equivalent to RuleML 0.83 resourceType. ObjectCondition
  * matches on the fields of an object. The patterns may be simple value
  * comparisons, or joins against other objects.
  */
 public class ObjectCondition extends AbstractCondition {
 
-    /**
+	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	
+
 	protected String templateName = null;
-    protected String varname = null;
-    protected List propConditions = new ArrayList();
-    /**
-     * In the case the object pattern is negated, the boolean
-     * would be set to true.
-     */
-    protected boolean negated = false;
-    
-    /**
-     * a list for the RETE nodes created by RuleCompiler
-     */
-    protected List nodes = new ArrayList();
-    
-    protected Template template = null;
-    
+
+	protected String varname = null;
+
+	protected List propConditions = new ArrayList();
+
+	/**
+	 * In the case the object pattern is negated, the boolean would be set to
+	 * true.
+	 */
+	protected boolean negated = false;
+
+	/**
+	 * a list for the RETE nodes created by RuleCompiler
+	 */
+	protected List nodes = new ArrayList();
+
+	protected Template template = null;
+
 	/**
 	 * 
 	 */
@@ -62,111 +64,115 @@ public class ObjectCondition extends AbstractCondition {
 		super();
 	}
 
-    public String getTemplateName() {
-        return this.templateName;
-    }
-    
-    public void setTemplateName(String name) {
-        this.templateName = name;
-    }
-    
-    public Template getTemplate() {
-    	return this.template;
-    }
-    
-    public void setTemplate(Template tmpl) {
-    	this.template = tmpl;
-    }
-    
-    public String getVariableName() {
-        return this.varname;
-    }
-    
-    public void setVariableName(String name) {
-        this.varname = name;
-    }
-    
-    /**
-     * set whether or not the pattern is negated
-     * @param negate
-     */
-    public void setNegated(boolean negate) {
-    	this.negated = negate;
-    }
-    
-    /**
-     * by default patterns are not negated. Negated Conditional Elements
-     * (aka object patterns) are expensive, so they should be used with 
-     * care.
-     * @return
-     */
-    public boolean getNegated() {
-    	return this.negated;
-    }
-    
-    public Constraint[] getConstraints() {
-        Constraint[] con = new Constraint[propConditions.size()];
-        return (Constraint[])propConditions.toArray(con);
-    }
-    
-    public void addConstraint(Constraint con) {
-        this.propConditions.add(con);
-    }
-    
-    public void addConstraint(Constraint con, int position) {
-    	this.propConditions.add(0,con);
-    }
-    
-    public void removeConstraint(Constraint con) {
-        this.propConditions.remove(con);
-    }
-    
-	/* (non-Javadoc)
+	public String getTemplateName() {
+		return this.templateName;
+	}
+
+	public void setTemplateName(String name) {
+		this.templateName = name;
+	}
+
+	public Template getTemplate() {
+		return this.template;
+	}
+
+	public void setTemplate(Template tmpl) {
+		this.template = tmpl;
+	}
+
+	public String getVariableName() {
+		return this.varname;
+	}
+
+	public void setVariableName(String name) {
+		this.varname = name;
+	}
+
+	/**
+	 * set whether or not the pattern is negated
+	 * 
+	 * @param negate
+	 */
+	public void setNegated(boolean negate) {
+		this.negated = negate;
+	}
+
+	/**
+	 * by default patterns are not negated. Negated Conditional Elements (aka
+	 * object patterns) are expensive, so they should be used with care.
+	 * 
+	 * @return
+	 */
+	public boolean getNegated() {
+		return this.negated;
+	}
+
+	public Constraint[] getConstraints() {
+		Constraint[] con = new Constraint[propConditions.size()];
+		return (Constraint[]) propConditions.toArray(con);
+	}
+
+	public void addConstraint(Constraint con) {
+		this.propConditions.add(con);
+	}
+
+	public void addConstraint(Constraint con, int position) {
+		this.propConditions.add(0, con);
+	}
+
+	public void removeConstraint(Constraint con) {
+		this.propConditions.remove(con);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see woolfel.engine.rule.Condition#compare(woolfel.engine.rule.Condition)
 	 */
-	public boolean compare(Condition cond) {
+	public boolean compare(Complexity cond) {
 		return false;
 	}
 
-    /**
-     * Return the List of the RETE nodes for the ObjectCondition
-     */
-    public List getNodes() {
-        return this.nodes;
-    }
-    
-    /**
-     * Add a node to an ObjectCondition. the node should only be
-     * AlphaNodes and not join nodes.
-     */
-    public void addNode(BaseNode node) {
-    	if (!this.nodes.contains(node)) {
-            this.nodes.add(node);
-    	}
-    }
-    
-    /**
-     * Return the last alphaNode for the object pattern
-     */
-    public BaseNode getLastNode() {
-    	if (this.nodes.size() > 0) {
-            return getLast((BaseAlpha)this.nodes.get(nodes.size() -1));
-    	} else {
-    		return null;
-    	}
-    }
-    
-    /**
-     * protected method actually does the work of getting the last alphaNode
-     * @param node
-     * @return
-     */
-    protected BaseNode getLast(BaseAlpha node) {
+	/**
+	 * Return the List of the RETE nodes for the ObjectCondition
+	 */
+	public List getNodes() {
+		return this.nodes;
+	}
+
+	/**
+	 * Add a node to an ObjectCondition. the node should only be AlphaNodes and
+	 * not join nodes.
+	 */
+	public void addNode(BaseNode node) {
+		if (!this.nodes.contains(node)) {
+			this.nodes.add(node);
+		}
+	}
+
+	/**
+	 * Return the last alphaNode for the object pattern
+	 */
+	public BaseNode getLastNode() {
+		if (this.nodes.size() > 0) {
+			return getLast((BaseAlpha) this.nodes.get(nodes.size() - 1));
+		} else {
+			return null;
+		}
+	}
+
+	/**
+	 * protected method actually does the work of getting the last alphaNode
+	 * 
+	 * @param node
+	 * @return
+	 */
+	protected BaseNode getLast(BaseAlpha node) {
 		int ncount = node.successorCount();
 		if (node != null && ncount > 0) {
-            // there should only be 1 successor, so we always get the item
-            // at index zero. If the AlphaNode at index zero is wrong, it
-            // means there's some other bug
+			// there should only be 1 successor, so we always get the item
+			// at index zero. If the AlphaNode at index zero is wrong, it
+			// means there's some other bug
 			if (node.getSuccessorNodes()[0] instanceof BaseAlpha) {
 				return getLast((BaseAlpha) node.getSuccessorNodes()[ncount - 1]);
 			} else {
@@ -176,72 +182,72 @@ public class ObjectCondition extends AbstractCondition {
 			return node;
 		}
 	}
-    
-    public BaseNode getFirstNode() {
-    	if (this.nodes.size() > 0) {
-            return (BaseNode)this.nodes.get(0);
-    	} else {
-    		return null;
-    	}
-    }
-    
-    /**
-     * if the ObjectCondition
-     */
-    public boolean hasBindings() {
-        Iterator itr = propConditions.iterator();
-        while (itr.hasNext()) {
-        	Object ob = itr.next();
-            if (ob instanceof BoundConstraint) {
-                return true;
-            } else if (ob instanceof PredicateConstraint) {
-            	return ((PredicateConstraint)ob).isPredicateJoin();
-            }
-        }
-        return false;
-    }
-    
-    /**
-     * Method will return a list of all the BoundConstraints
-     */
-    public List getAllBindings() {
-        ArrayList binds = new ArrayList();
-        Iterator itr = propConditions.iterator();
-        while (itr.hasNext()) {
-            Object c = itr.next();
-            if (c instanceof BoundConstraint) {
-            	BoundConstraint bc = (BoundConstraint)c;
-            	if (!bc.firstDeclaration()) {
-                    binds.add(c);
-            	}
-            } else if (c instanceof PredicateConstraint) {
-            	if (((PredicateConstraint)c).isPredicateJoin()) {
-                	binds.add(c);
-            	}
-            }
-        }
-        return binds;
-    }
 
-    public List getBindings() {
-        ArrayList binds = new ArrayList();
-        Iterator itr = propConditions.iterator();
-        while (itr.hasNext()) {
-            Object c = itr.next();
-            if (c instanceof BoundConstraint) {
-                BoundConstraint bc = (BoundConstraint)c;
-                if (!bc.firstDeclaration() && !bc.getIsObjectBinding()) {
-                    binds.add(c);
-                }
-            }
-        }
-        return binds;
-    }
-    
-    /**
-     * clears the RETE nodes
-     */
-    public void clear() {
-    	nodes.clear();
-    }
+	public BaseNode getFirstNode() {
+		if (this.nodes.size() > 0) {
+			return (BaseNode) this.nodes.get(0);
+		} else {
+			return null;
+		}
+	}
+
+	/**
+	 * if the ObjectCondition
+	 */
+	public boolean hasBindings() {
+		Iterator itr = propConditions.iterator();
+		while (itr.hasNext()) {
+			Object ob = itr.next();
+			if (ob instanceof BoundConstraint) {
+				return true;
+			} else if (ob instanceof PredicateConstraint) {
+				return ((PredicateConstraint) ob).isPredicateJoin();
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Method will return a list of all the BoundConstraints
+	 */
+	public List getAllBindings() {
+		ArrayList binds = new ArrayList();
+		Iterator itr = propConditions.iterator();
+		while (itr.hasNext()) {
+			Object c = itr.next();
+			if (c instanceof BoundConstraint) {
+				BoundConstraint bc = (BoundConstraint) c;
+				if (!bc.firstDeclaration()) {
+					binds.add(c);
+				}
+			} else if (c instanceof PredicateConstraint) {
+				if (((PredicateConstraint) c).isPredicateJoin()) {
+					binds.add(c);
+				}
+			}
+		}
+		return binds;
+	}
+
+	public List getBindings() {
+		ArrayList binds = new ArrayList();
+		Iterator itr = propConditions.iterator();
+		while (itr.hasNext()) {
+			Object c = itr.next();
+			if (c instanceof BoundConstraint) {
+				BoundConstraint bc = (BoundConstraint) c;
+				if (!bc.firstDeclaration() && !bc.getIsObjectBinding()) {
+					binds.add(c);
+				}
+			}
+		}
+		return binds;
+	}
+
+	/**
+	 * clears the RETE nodes
+	 */
+	public void clear() {
+		nodes.clear();
+	}
 }

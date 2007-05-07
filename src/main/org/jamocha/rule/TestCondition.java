@@ -71,7 +71,7 @@ public class TestCondition extends AbstractCondition {
 		return rv.getBooleanValue();
 	}
 
-	public boolean compare(Condition cond) {
+	public boolean compare(Complexity cond) {
 		return false;
 	}
 

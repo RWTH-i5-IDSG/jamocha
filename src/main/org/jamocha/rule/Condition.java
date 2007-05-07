@@ -27,7 +27,7 @@ import org.jamocha.rete.BaseNode;
  * Conditions are patterns. It may be a simple fact pattern, test function, or
  * an object pattern.
  */
-public interface Condition extends Serializable {
+public interface Condition extends Serializable, Complexity {
 
 	/**
 	 * Method is used to compare the pattern to another pattern and determine if
@@ -36,7 +36,7 @@ public interface Condition extends Serializable {
 	 * @param cond
 	 * @return
 	 */
-	boolean compare(Condition cond);
+	boolean compare(Complexity cond);
 
 	/**
 	 * Get the nodes associated with the condition. In the case of
@@ -87,31 +87,4 @@ public interface Condition extends Serializable {
 	 * clear the condition
 	 */
 	void clear();
-
-	/**
-	 * Returns the complexity of the current node.
-	 * 
-	 * @return
-	 */
-	int getComplexity();
-
-	/**
-	 * Sets the complexity of the current node.
-	 * 
-	 */
-	void setComplexity(int value);
-
-	/**
-	 * Returns the complexity of the complete subtree.
-	 * 
-	 * @return
-	 */
-	int getTotalComplexity();
-
-	/**
-	 * Increments the total complexity by the specific value.
-	 * 
-	 * @param value
-	 */
-	void incrementTotalComplexityBy(int value);
 }

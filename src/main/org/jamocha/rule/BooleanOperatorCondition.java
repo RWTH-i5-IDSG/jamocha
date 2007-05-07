@@ -8,7 +8,7 @@ import org.jamocha.rete.BaseNode;
 
 public abstract class BooleanOperatorCondition extends AbstractCondition {
 
-	protected List nestedCE = new ArrayList();
+	protected List<Condition> nestedCE = new ArrayList<Condition>();
 
 	protected BaseJoin reteNode = null;
 
@@ -16,12 +16,12 @@ public abstract class BooleanOperatorCondition extends AbstractCondition {
 		super();
 	}
 
-	public boolean compare(Condition cond) {
+	public boolean compare(Complexity cond) {
 		return false;
 	}
 
 	public void addNestedConditionElement(Object ce) {
-		this.nestedCE.add(ce);
+		this.nestedCE.add((Condition) ce);
 	}
 
 	public List getNestedConditionalElement() {

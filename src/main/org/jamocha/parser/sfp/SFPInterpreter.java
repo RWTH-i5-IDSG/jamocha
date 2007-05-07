@@ -640,8 +640,8 @@ public class SFPInterpreter implements SFPParserVisitor {
 		Signature signature = (Signature) node.jjtGetChild(0).jjtAccept(this,
 				data);
 		testCond.setFunction(signature);
-		// we don't increment the total complexity here, because we don't know
-		// anything about the complexity of the signature
+		// we don't increment the total Condition here, because we don't know
+		// anything about the Condition of the signature
 		return testCond;
 	}
 
