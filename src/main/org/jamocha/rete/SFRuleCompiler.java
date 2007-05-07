@@ -256,7 +256,7 @@ public class SFRuleCompiler implements RuleCompiler {
 				// at first we create the constraints and then the conditional
 				// elements which include joins
 				for (int i = 0; i < conds.length; i++)
-					conds[i].compile(this, i, rule);
+					conds[i].compile(this,  rule,i );
 
 				/*
 				 * Do it in this way: compileBindings(); compileConstraints();
@@ -662,7 +662,7 @@ public class SFRuleCompiler implements RuleCompiler {
 					return null;
 
 				constraint.setSlot(slot);
-				current = (BaseAlpha2) constraint.compile(this, conditionIndex, rule);
+				current = (BaseAlpha2) constraint.compile(this, rule, conditionIndex);
 
 				// we add the node to the previous
 				if (first == null) {
@@ -707,8 +707,7 @@ public class SFRuleCompiler implements RuleCompiler {
 		if (condition.hasObjectCondition()) {
 			ObjectCondition oc = (ObjectCondition) condition
 					.getObjectCondition();
-oc.
-		return 	this.compileCondition(oc, conditionIndex, rule);
+			return oc.compile(this, rule, conditionIndex);
 		}
 
 		return null;

@@ -1118,50 +1118,7 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 		return null;
 	}
 
-	/**
-	 * Returns the first found fact by the given slot
-	 * 
-	 * @param Slot[]
-	 * @return Fact
-	 */
 
-	public Fact getFactBySlot(String templateName, Slot slot){
-		// get all facts
-		List facts = getAllFacts();
-		Fact df = null;
-		String dfTemplateName =null;
-		Iterator itr = facts.iterator();
-		while (itr.hasNext()) {
-			df = (Deffact) itr.next();
-			dfTemplateName = df.getTemplate().getName();
-			if (dfTemplateName.equals(templateName) && df.containsSlot(slot)){
-				return df;
-			}
-		}
-		return null;
-	}
-	
-	
-	/**
-	 * Returns the first found fact by the given slots
-	 * 
-	 * @param Slot[]
-	 * @return Fact
-	 */
-
-	public Fact getFactBySlots(Slot[] slots){
-		// get all facts
-		List facts = getAllFacts();
-		Fact df = null;
-		Iterator itr = facts.iterator();
-		while (itr.hasNext()) {
-			df = (Deffact) itr.next();
-			if (df.containsSlots(slots)){
-				return df;
-			}
-		}
-		return null;
-	}
 
 	// ----- method for adding output streams for spools ----- //
 	/**
