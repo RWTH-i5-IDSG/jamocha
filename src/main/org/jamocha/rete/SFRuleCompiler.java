@@ -640,8 +640,7 @@ public class SFRuleCompiler implements RuleCompiler {
 	 * 
 	 * @return compileConditionState
 	 */
-	public BaseNode compileCondition(ObjectCondition condition,
-			int conditionIndex, Rule rule) {
+	public BaseNode compile(ObjectCondition condition, Rule rule,	int conditionIndex) {
 
 		Template template = condition.getTemplate();
 
@@ -702,14 +701,13 @@ public class SFRuleCompiler implements RuleCompiler {
 	 * 
 	 * @return compileConditionState
 	 */
-	public BaseNode compileCondition(ExistCondition condition,
-			int conditionIndex, Rule rule) {
+	public BaseNode compile(ExistCondition condition,	Rule rule, int conditionIndex) {
 
 		// it seems to produce a loop ...
 		if (condition.hasObjectCondition()) {
 			ObjectCondition oc = (ObjectCondition) condition
 					.getObjectCondition();
-
+oc.
 		return 	this.compileCondition(oc, conditionIndex, rule);
 		}
 
@@ -725,8 +723,7 @@ public class SFRuleCompiler implements RuleCompiler {
 	 * 
 	 * @return compileConditionState
 	 */
-	public BaseNode compileCondition(TestCondition condition,
-			int conditionIndex, Rule rule) {
+	public BaseNode compile(TestCondition condition, Rule rule, int conditionIndex) {
 		return null;
 	}
 
@@ -739,8 +736,7 @@ public class SFRuleCompiler implements RuleCompiler {
 	 * 
 	 * @return compileConditionState
 	 */
-	public BaseNode compileCondition(AndCondition condition,
-			int conditionIndex, Rule rule) {
+	public BaseNode compile(AndCondition condition,	Rule rule,	int conditionIndex) {
 		return null;
 	}
 
@@ -753,8 +749,7 @@ public class SFRuleCompiler implements RuleCompiler {
 	 * 
 	 * @return compileConditionState
 	 */
-	public BaseNode compileCondition(NotCondition condition,
-			int conditionIndex, Rule rule) {
+	public BaseNode compile(NotCondition condition,	Rule rule,	int conditionIndex) {
 		return null;
 	}
 
@@ -767,8 +762,7 @@ public class SFRuleCompiler implements RuleCompiler {
 	 * 
 	 * @return compileConditionState
 	 */
-	public BaseNode compileCondition(OrCondition condition, int conditionIndex,
-			Rule rule) {
+	public BaseNode compile(OrCondition condition,	Rule rule, int conditionIndex) {
 		return null;
 	}
 
@@ -783,8 +777,7 @@ public class SFRuleCompiler implements RuleCompiler {
 	 * 
 	 * @return BaseNode
 	 */
-	public BaseNode compileConstraint(PredicateConstraint constraint,
-			Rule rule, int conditionIndex) {
+	public BaseNode compile(PredicateConstraint constraint,	Rule rule, int conditionIndex) {
 		BaseAlpha2 node = null;
 		// for now we expect the user to write the predicate in this
 		// way (> ?bind value), where the binding is first. this
@@ -878,8 +871,7 @@ public class SFRuleCompiler implements RuleCompiler {
 	 * 
 	 * @return BaseNode
 	 */
-	public BaseNode compileConstraint(OrLiteralConstraint constraint,
-			Rule rule, int conditionIndex) {
+	public BaseNode compile(OrLiteralConstraint constraint,	Rule rule, int conditionIndex) {
 		BaseAlpha2 node = null;
 		Slot2 sl = new Slot2(constraint.getName());
 		sl.setId(constraint.getSlot().getId());
@@ -910,8 +902,7 @@ public class SFRuleCompiler implements RuleCompiler {
 	 * 
 	 * @return BaseNode
 	 */
-	public BaseNode compileConstraint(LiteralConstraint constraint, Rule rule,
-			int conditionIndex) {
+	public BaseNode compile(LiteralConstraint constraint, Rule rule,	int conditionIndex) {
 		BaseAlpha2 node = null;
 		Slot sl = (Slot) constraint.getSlot().clone();
 		JamochaValue sval;
@@ -948,7 +939,7 @@ public class SFRuleCompiler implements RuleCompiler {
 	 * 
 	 * @return BaseNode
 	 */
-	public BaseNode compileConstraint(BoundConstraint constraint, Rule rule,
+	public BaseNode compile(BoundConstraint constraint, Rule rule,
 			int conditionIndex) {
 		// we need to create a binding class for the BoundConstraint
 		if (rule.getBinding(constraint.getVariableName()) == null) {
@@ -986,8 +977,7 @@ public class SFRuleCompiler implements RuleCompiler {
 	 * @return BaseNode
 	 */
 
-	public BaseNode compileConstraint(AndLiteralConstraint constraint,
-			Rule rule, int conditionIndex) {
+	public BaseNode compile(AndLiteralConstraint constraint,Rule rule, int conditionIndex) {
 		BaseAlpha2 node = null;
 		Slot2 sl = new Slot2(constraint.getName());
 		sl.setId(constraint.getSlot().getId());

@@ -22,6 +22,8 @@ import java.util.List;
 
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
+import org.jamocha.rete.BaseNode;
+import org.jamocha.rete.SFRuleCompiler;
 
 /**
  * @author Peter Lin
@@ -77,8 +79,7 @@ public class AndLiteralConstraint extends AbstractConstraint {
 	 * binding.
 	 */
 	public void setValue(JamochaValue val) {
-		if (val.getType().equals(JamochaType.OBJECT)
-				&& val.getObjectValue() instanceof List) {
+		if (val.getType().equals(JamochaType.OBJECT) && val.getObjectValue() instanceof List) {
 			this.value = val;
 		}
 	}
@@ -108,5 +109,9 @@ public class AndLiteralConstraint extends AbstractConstraint {
 	 */
 	public boolean getNegated() {
 		return this.negated;
+	}
+
+	public BaseNode compile(SFRuleCompiler compiler, Rule rule, int conditionIndex) {
+		return compiler.compile(this, rule, conditionIndex);
 	}
 }

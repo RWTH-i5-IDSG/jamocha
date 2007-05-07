@@ -22,7 +22,9 @@ import java.util.List;
 
 import org.jamocha.parser.Expression;
 import org.jamocha.parser.JamochaValue;
+import org.jamocha.rete.BaseNode;
 import org.jamocha.rete.BoundParam;
+import org.jamocha.rete.SFRuleCompiler;
 
 /**
  * @author Peter Lin
@@ -178,5 +180,9 @@ public class PredicateConstraint extends AbstractConstraint {
 	public void setNegated(boolean negate) {
 		// TODO Auto-generated method stub
 
+	}
+	
+	public BaseNode compile(SFRuleCompiler compiler, Rule rule, int conditionIndex) {
+		return compiler.compile(this, rule, conditionIndex);
 	}
 }

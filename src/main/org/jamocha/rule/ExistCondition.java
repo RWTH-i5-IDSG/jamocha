@@ -21,6 +21,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.jamocha.rete.BaseNode;
+import org.jamocha.rete.SFRuleCompiler;
 
 /**
  * @author Peter Lin
@@ -165,5 +166,9 @@ public class ExistCondition extends AbstractCondition {
 
 	public void clear() {
 		nodes.clear();
+	}
+	
+	public BaseNode compile(SFRuleCompiler compiler, Rule rule, int conditionIndex) {
+		return compiler.compile(this, rule, conditionIndex);
 	}
 }

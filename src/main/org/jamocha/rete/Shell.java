@@ -41,7 +41,7 @@ public class Shell {
 
 	public Shell(Rete engine) throws ParserNotFoundException {
 		router = engine.getMessageRouter();
-		channel = router.openChannel(CHANNELNAME, System.in);
+		channel = router.openChannel(CHANNELNAME, System.in,"clips");
 	}
 
 	public void run() {

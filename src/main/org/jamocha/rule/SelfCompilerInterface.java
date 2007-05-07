@@ -1,6 +1,7 @@
 package org.jamocha.rule;
 
-import org.jamocha.rete.RuleCompiler;
+import org.jamocha.rete.BaseNode;
+import org.jamocha.rete.SFRuleCompiler;
 
 public interface SelfCompilerInterface {
 
@@ -10,7 +11,5 @@ public interface SelfCompilerInterface {
 	 * @param compiler
 	 * @return an object ;)
 	 */
-	Object compile(RuleCompiler compiler,
-			int conditionIndex, Rule rule);
-
+	BaseNode compile(SFRuleCompiler compiler, Rule rule, int conditionIndex);
 }

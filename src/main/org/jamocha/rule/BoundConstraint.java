@@ -17,6 +17,8 @@
 package org.jamocha.rule;
 
 import org.jamocha.parser.JamochaValue;
+import org.jamocha.rete.BaseNode;
+import org.jamocha.rete.SFRuleCompiler;
 
 /**
  * @author Peter Lin
@@ -176,5 +178,9 @@ public class BoundConstraint extends AbstractConstraint {
 
 	public String toFactBindingPPString() {
 		return "  ?" + this.value.toString() + " <-";
+	}
+	
+	public BaseNode compile(SFRuleCompiler compiler, Rule rule, int conditionIndex) {
+		return compiler.compile(this, rule, conditionIndex);
 	}
 }

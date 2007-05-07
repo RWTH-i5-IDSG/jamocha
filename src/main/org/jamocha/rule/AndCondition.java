@@ -16,17 +16,18 @@
  */
 package org.jamocha.rule;
 
-import org.jamocha.rete.RuleCompiler;
+import org.jamocha.rete.BaseNode;
+import org.jamocha.rete.SFRuleCompiler;
 
 /**
  * @author Peter Lin
- *
- * AndCondition is specifically created to handle and conjunctions. AndConditions
- * are compiled to a BetaNode.
+ * 
+ * AndCondition is specifically created to handle and conjunctions.
+ * AndConditions are compiled to a BetaNode.
  */
 public class AndCondition extends BooleanOperatorCondition {
 
-    /**
+	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
@@ -38,7 +39,7 @@ public class AndCondition extends BooleanOperatorCondition {
 		super();
 	}
 
-	public Object compile(RuleCompiler compiler, int conditionIndex, Rule rule) {
-		compiler.
+	public BaseNode compile(SFRuleCompiler compiler, Rule rule, int conditionIndex) {
+		return compiler.compile(this, rule, conditionIndex);
 	}
 }

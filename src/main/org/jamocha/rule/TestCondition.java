@@ -24,6 +24,7 @@ import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.BaseNode;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
+import org.jamocha.rete.SFRuleCompiler;
 import org.jamocha.rete.TestNode;
 import org.jamocha.rete.configurations.Signature;
 
@@ -154,5 +155,9 @@ public class TestCondition extends AbstractCondition {
 
 	public void clear() {
 		node = null;
+	}
+	
+	public BaseNode compile(SFRuleCompiler compiler, Rule rule, int conditionIndex) {
+		return compiler.compile(this, rule, conditionIndex);
 	}
 }

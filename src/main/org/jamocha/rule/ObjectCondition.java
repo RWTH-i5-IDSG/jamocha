@@ -22,6 +22,7 @@ import java.util.List;
 
 import org.jamocha.rete.BaseAlpha;
 import org.jamocha.rete.BaseNode;
+import org.jamocha.rete.SFRuleCompiler;
 import org.jamocha.rete.Template;
 
 /**
@@ -249,5 +250,9 @@ public class ObjectCondition extends AbstractCondition {
 	 */
 	public void clear() {
 		nodes.clear();
+	}
+	
+	public BaseNode compile(SFRuleCompiler compiler, Rule rule, int conditionIndex) {
+		return compiler.compile(this, rule, conditionIndex);
 	}
 }
