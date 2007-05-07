@@ -23,6 +23,7 @@ import java.util.List;
 
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.Expression;
+import org.jamocha.parser.IllegalParameterException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.parser.ParseException;
@@ -104,7 +105,6 @@ public class Example implements Function, Serializable {
 			Function aFunction = engine.findFunction(function);
 			if (aFunction != null) {
 				String example = aFunction.getDescription().getExample();
-				System.out.println(example);
 				if (example != null) {
 					engine
 							.writeMessage("Showing example for " + function
@@ -129,8 +129,12 @@ public class Example implements Function, Serializable {
 					engine.writeMessage("Sorry, but " + function
 							+ " provides no example.");
 				}
+			} else {
+				engine.writeMessage("The Function " + function
+						+ " doesn't exist.");
 			}
-		}
+		} else
+			throw new IllegalParameterException(1);
 		return JamochaValue.NIL;
 	}
 
