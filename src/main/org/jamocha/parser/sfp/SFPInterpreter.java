@@ -15,8 +15,6 @@
  * 
  */
 
-
-
 package org.jamocha.parser.sfp;
 
 import org.jamocha.parser.Expression;
@@ -123,7 +121,8 @@ public class SFPInterpreter implements SFPParserVisitor {
 
 	public Object visit(SFPAnyFunction node, Object data) {
 		// This function is different to the others, because the function name
-		// is stored in the first child node and all the other child nodes are considered
+		// is stored in the first child node and all the other child nodes are
+		// considered
 		// as function call parameters.
 
 		JamochaValue fctName = (JamochaValue) node.jjtGetChild(0).jjtAccept(
@@ -273,7 +272,8 @@ public class SFPInterpreter implements SFPParserVisitor {
 				.jjtAccept(this, data));
 		Parameter params[] = { lfcConf };
 		Signature funcParam = new Signature();
-		funcParam.setSignatureName(org.jamocha.rete.functions.LoopForCount.NAME);
+		funcParam
+				.setSignatureName(org.jamocha.rete.functions.LoopForCount.NAME);
 		funcParam.setParameters(params);
 		return funcParam;
 	}
@@ -572,9 +572,11 @@ public class SFPInterpreter implements SFPParserVisitor {
 	public Object visit(SFPNotFunction node, Object data) {
 		NotCondition notCond = new NotCondition();
 
+		Condition nested;
 		for (int i = 0; i < node.jjtGetNumChildren(); i++) {
-			notCond.addNestedConditionElement((Condition) node.jjtGetChild(i)
-					.jjtAccept(this, data));
+			nested = (Condition) node.jjtGetChild(i).jjtAccept(this, data);
+			notCond.addNestedConditionElement(nested);
+			notCond.incrementTotalComplexityBy(nested.getTotalComplexity());
 		}
 
 		return notCond;
@@ -583,9 +585,11 @@ public class SFPInterpreter implements SFPParserVisitor {
 	public Object visit(SFPAndFunction node, Object data) {
 		AndCondition andCond = new AndCondition();
 
+		Condition nested;
 		for (int i = 0; i < node.jjtGetNumChildren(); i++) {
-			andCond.addNestedConditionElement((Condition) node.jjtGetChild(i)
-					.jjtAccept(this, data));
+			nested = (Condition) node.jjtGetChild(i).jjtAccept(this, data);
+			andCond.addNestedConditionElement(nested);
+			andCond.incrementTotalComplexityBy(nested.getTotalComplexity());
 		}
 
 		return andCond;
@@ -594,9 +598,11 @@ public class SFPInterpreter implements SFPParserVisitor {
 	public Object visit(SFPOrFunction node, Object data) {
 		OrCondition orCond = new OrCondition();
 
+		Condition nested;
 		for (int i = 0; i < node.jjtGetNumChildren(); i++) {
-			orCond.addNestedConditionElement((Condition) node.jjtGetChild(i)
-					.jjtAccept(this, data));
+			nested = (Condition) node.jjtGetChild(i).jjtAccept(this, data);
+			orCond.addNestedConditionElement(nested);
+			orCond.incrementTotalComplexityBy(nested.getTotalComplexity());
 		}
 
 		return orCond;
@@ -634,15 +640,19 @@ public class SFPInterpreter implements SFPParserVisitor {
 		Signature signature = (Signature) node.jjtGetChild(0).jjtAccept(this,
 				data);
 		testCond.setFunction(signature);
+		// we don't increment the total complexity here, because we don't know
+		// anything about the complexity of the signature
 		return testCond;
 	}
 
 	public Object visit(SFPExistsCE node, Object data) {
 		ExistCondition existCond = new ExistCondition();
 
+		Condition nested;
 		for (int i = 0; i < node.jjtGetNumChildren(); i++) {
-			existCond.addNestedConditionElement((Condition) node.jjtGetChild(i)
-					.jjtAccept(this, data));
+			nested = (Condition) node.jjtGetChild(i).jjtAccept(this, data);
+			existCond.addNestedConditionElement(nested);
+			existCond.incrementTotalComplexityBy(nested.getTotalComplexity());
 		}
 
 		return existCond;
@@ -662,11 +672,12 @@ public class SFPInterpreter implements SFPParserVisitor {
 		objectCond.setTemplateName(templateName.toString());
 
 		// constraints
+		Constraint constr;
 		for (int i = 1; i < node.jjtGetNumChildren(); i++) {
-			objectCond.addConstraint((Constraint) node.jjtGetChild(i)
-					.jjtAccept(this, data));
+			constr = (Constraint) node.jjtGetChild(i).jjtAccept(this, data);
+			objectCond.addConstraint(constr);
+			objectCond.incrementTotalComplexityBy(constr.getTotalComplexity());
 		}
-
 		return objectCond;
 	}
 

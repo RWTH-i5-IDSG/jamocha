@@ -1784,8 +1784,6 @@ SimpleNode MultiFieldWildcard() :
 //<connected-constraint>::= <single-constraint> | <single-constraint> & <connected-constraint> |
 //	<single-constraint> | <connected-constraint>
 
-// THIS IS WRONG: Ampersands and lines can be mixed!!
-
 void ConnectedConstraint() #void: 
 {}
 {
