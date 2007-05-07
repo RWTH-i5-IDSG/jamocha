@@ -16,12 +16,16 @@
  */
 package org.jamocha.rule;
 
+import org.jamocha.rete.TemplateSlot;
+
 
 public abstract class AbstractConstraint implements Constraint {
 	
 	protected static int complexity = 1;
 
 	protected int totalComplexity = 0;
+	
+	protected TemplateSlot slot = null;
 
 	public int getComplexity() {
 		return AbstractCondition.complexity;
@@ -37,6 +41,15 @@ public abstract class AbstractConstraint implements Constraint {
 
 	public void setComplexity(int value) {
 		AbstractCondition.complexity = value;
+	}
+
+	
+	public void setSlot(TemplateSlot slot){
+		this.slot = slot;
+	}
+	
+	public TemplateSlot getSlot(){
+		return slot;
 	}
 
 }

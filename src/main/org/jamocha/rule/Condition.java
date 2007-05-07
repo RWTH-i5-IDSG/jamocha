@@ -20,6 +20,7 @@ import java.io.Serializable;
 import java.util.List;
 
 import org.jamocha.rete.BaseNode;
+import org.jamocha.rete.RuleCompiler;
 
 /**
  * @author Peter Lin
@@ -27,7 +28,7 @@ import org.jamocha.rete.BaseNode;
  * Conditions are patterns. It may be a simple fact pattern, test function, or
  * an object pattern.
  */
-public interface Condition extends Serializable, Complexity{
+public interface Condition extends Serializable, Complexity,SelfCompilerInterface{
 
 	/**
 	 * Method is used to compare the pattern to another pattern and determine if
@@ -87,4 +88,5 @@ public interface Condition extends Serializable, Complexity{
 	 * clear the condition
 	 */
 	void clear();
+	
 }

@@ -19,6 +19,8 @@ package org.jamocha.rule;
 import java.io.Serializable;
 
 import org.jamocha.parser.JamochaValue;
+import org.jamocha.rete.Slot;
+import org.jamocha.rete.TemplateSlot;
 
 /**
  * @author Peter Lin
@@ -29,7 +31,7 @@ import org.jamocha.parser.JamochaValue;
  * then evaluated against 1 or more operations.
  * 
  */
-public interface Constraint extends Serializable, Complexity {
+public interface Constraint extends Serializable, Complexity, SelfCompilerInterface{
 
 	/**
 	 * This should be the name of the constraint. In the case of an object, it
@@ -76,5 +78,9 @@ public interface Constraint extends Serializable, Complexity {
 	 * @return
 	 */
 	boolean getNegated();
+
+	void setSlot(TemplateSlot slot);
+	
+	TemplateSlot getSlot();
 
 }

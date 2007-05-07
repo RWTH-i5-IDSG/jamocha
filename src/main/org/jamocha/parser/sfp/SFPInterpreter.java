@@ -26,6 +26,7 @@ import org.jamocha.rete.Deftemplate;
 import org.jamocha.rete.ExpressionCollection;
 import org.jamocha.rete.ExpressionList;
 import org.jamocha.rete.ExpressionSequence;
+import org.jamocha.rete.ObjectTypeNode;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.TemplateSlot;
 import org.jamocha.rete.configurations.AssertConfiguration;
@@ -503,6 +504,7 @@ public class SFPInterpreter implements SFPParserVisitor {
 			cond = (Condition) (node.jjtGetChild(i).jjtAccept(this, data));
 			conditionList[i - j] = cond;
 			totalComplexity += cond.getTotalComplexity();
+
 		}
 
 		// setup a new DefruleConfiguration
@@ -519,8 +521,7 @@ public class SFPInterpreter implements SFPParserVisitor {
 
 		// create the resulting signature
 		Signature signature = new Signature();
-		signature
-				.setSignatureName(org.jamocha.rete.functions.ruleengine.Defrule.NAME);
+		signature.setSignatureName(org.jamocha.rete.functions.ruleengine.Defrule.NAME);
 		signature.setParameters(new Parameter[] { rc });
 
 		return signature;
@@ -626,7 +627,7 @@ public class SFPInterpreter implements SFPParserVisitor {
 				true);
 		bc.setValue(variable);
 
-		// add boundconstraint to obect condition
+		// add boundconstraint to object condition
 		objectCond.addConstraint(bc, 0);
 
 		return objectCond;
@@ -674,6 +675,7 @@ public class SFPInterpreter implements SFPParserVisitor {
 				.jjtAccept(this, data);
 		objectCond.setTemplateName(templateName.toString());
 
+		
 		// constraints
 		Constraint constr;
 		for (int i = 1; i < node.jjtGetNumChildren(); i++) {

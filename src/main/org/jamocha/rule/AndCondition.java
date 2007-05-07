@@ -16,6 +16,8 @@
  */
 package org.jamocha.rule;
 
+import org.jamocha.rete.RuleCompiler;
+
 /**
  * @author Peter Lin
  *
@@ -34,5 +36,9 @@ public class AndCondition extends BooleanOperatorCondition {
 	 */
 	public AndCondition() {
 		super();
+	}
+
+	public Object compile(RuleCompiler compiler, int conditionIndex, Rule rule) {
+		compiler.
 	}
 }
