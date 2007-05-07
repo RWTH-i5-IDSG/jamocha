@@ -344,7 +344,7 @@ public class JDBCLink implements Function, Serializable {
 			
 			if (value instanceof GregorianCalendar)  {
 				GregorianCalendar gregval=((GregorianCalendar)value);
-				value = new java.sql.Date( gregval.getTimeInMillis() + gregval.get(gregval.ZONE_OFFSET) );
+				value = new java.sql.Date( gregval.getTimeInMillis() + gregval.get(GregorianCalendar.ZONE_OFFSET) );
 			}
 			stmt.setObject(i+1, value);
 		}

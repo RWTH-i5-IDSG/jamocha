@@ -78,8 +78,7 @@ public class Assert implements Function, Serializable {
 		}
 
 		public String getExample() {
-			// TODO Auto-generated method stub
-			return null;
+			return "(deftemplate car (slot color)(slot speed)) (assert (car (color \"red\")(speed 200))) (facts)";
 		}
 	}
 

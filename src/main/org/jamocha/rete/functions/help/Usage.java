@@ -14,7 +14,7 @@
  * limitations under the License.
  * 
  */
-package org.jamocha.rete.functions.ruleengine;
+package org.jamocha.rete.functions.help;
 
 import java.io.Serializable;
 

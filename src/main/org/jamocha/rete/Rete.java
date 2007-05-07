@@ -47,6 +47,7 @@ import org.jamocha.rete.functions.While;
 import org.jamocha.rete.functions.adaptor.AdaptorFunctions;
 import org.jamocha.rete.functions.compare.CompareFunctions;
 import org.jamocha.rete.functions.datetime.DateTimeFunctions;
+import org.jamocha.rete.functions.help.HelpFunctions;
 import org.jamocha.rete.functions.io.Batch;
 import org.jamocha.rete.functions.io.IOFunctions;
 import org.jamocha.rete.functions.java.JavaFunctions;
@@ -274,6 +275,11 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 		JavaFunctions javafs = new JavaFunctions();
 		functionGroups.add(javafs);
 		javafs.loadFunctions(this);
+
+		// load java functions
+		HelpFunctions helpfs = new HelpFunctions();
+		functionGroups.add(helpfs);
+		helpfs.loadFunctions(this);
 
 		// Other builtin constructs
 		declareFunction(new If());

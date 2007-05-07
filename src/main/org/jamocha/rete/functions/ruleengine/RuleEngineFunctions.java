@@ -270,10 +270,6 @@ public class RuleEngineFunctions implements FunctionGroup, Serializable {
 		engine.declareFunction(unWatch);
 		funcs.add(unWatch);
 
-		Usage usage = new Usage();
-		engine.declareFunction(usage);
-		funcs.add(usage);
-
 		ValidateRule validateRule = new ValidateRule();
 		engine.declareFunction(validateRule);
 		funcs.add(validateRule);
