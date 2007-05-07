@@ -68,6 +68,33 @@ public interface Constraint extends Serializable {
 	 * @return
 	 */
 	boolean getNegated();
+
+	/**
+	 * Returns the complexity of the current node.
+	 * 
+	 * @return
+	 */
+	int getComplexity();
+
+	/**
+	 * Sets the complexity of the current node.
+	 * 
+	 */
+	void setComplexity(int value);
+
+	/**
+	 * Returns the complexity of the complete subtree.
+	 * 
+	 * @return
+	 */
+	int getTotalComplexity();
+
+	/**
+	 * Increments the total complexity by the specific value.
+	 * 
+	 * @param value
+	 */
+	void incrementTotalComplexityBy(int value);
     
     
 }

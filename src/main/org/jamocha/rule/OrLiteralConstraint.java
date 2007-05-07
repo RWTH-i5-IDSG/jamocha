@@ -23,24 +23,25 @@ import java.util.List;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 
-
 /**
  * @author Peter Lin
- *
+ * 
  * Literal constraint is a comparison between an object field and a concrete
- * value. for example, account.name is equal to "Peter Lin". I originally,
- * named the class something else, but since CLIPS uses literal constraint,
- * I decided to change the name of the class. Even though I don't like the
- * term literal constraint, it doesn't make sense to fight existing
- * terminology.
+ * value. for example, account.name is equal to "Peter Lin". I originally, named
+ * the class something else, but since CLIPS uses literal constraint, I decided
+ * to change the name of the class. Even though I don't like the term literal
+ * constraint, it doesn't make sense to fight existing terminology.
  */
-public class OrLiteralConstraint implements Constraint {
+public class OrLiteralConstraint extends AbstractConstraint {
 
 	static final long serialVersionUID = 0xDeadBeafCafeBabeL;
-    protected String name;
-    protected JamochaValue value = JamochaValue.newObject(new ArrayList());
-    protected boolean negated = false;
-    
+
+	protected String name;
+
+	protected JamochaValue value = JamochaValue.newObject(new ArrayList());
+
+	protected boolean negated = false;
+
 	/**
 	 * 
 	 */
@@ -49,20 +50,22 @@ public class OrLiteralConstraint implements Constraint {
 	}
 
 	/**
-     * the name is the slot name
+	 * the name is the slot name
 	 */
 	public String getName() {
 		return name;
 	}
 
 	/**
-     * set the slot name as declared in the rule
+	 * set the slot name as declared in the rule
 	 */
 	public void setName(String name) {
-        this.name = name;
+		this.name = name;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see woolfel.engine.rule.Constraint#getValue()
 	 */
 	public JamochaValue getValue() {
@@ -70,34 +73,37 @@ public class OrLiteralConstraint implements Constraint {
 	}
 
 	/**
-     * Set the value of the constraint. It should be a concrete value and
-     * not a binding.
+	 * Set the value of the constraint. It should be a concrete value and not a
+	 * binding.
 	 */
 	public void setValue(JamochaValue val) {
-		if (val.getType().equals(JamochaType.OBJECT) && val.getObjectValue() instanceof List) {
-	        this.value = val;
+		if (val.getType().equals(JamochaType.OBJECT)
+				&& val.getObjectValue() instanceof List) {
+			this.value = val;
 		}
 	}
-	
+
 	public void addValue(MultiValue mv) {
-		((List)this.value.getObjectValue()).add(mv);
+		((List) this.value.getObjectValue()).add(mv);
 	}
-	
+
 	public void addValues(Collection list) {
-		((List)this.value.getObjectValue()).addAll(list);
+		((List) this.value.getObjectValue()).addAll(list);
 	}
 
 	/**
-	 * if the literal constraint is negated with a "~" tilda, call
-	 * the method pass true.
+	 * if the literal constraint is negated with a "~" tilda, call the method
+	 * pass true.
+	 * 
 	 * @param negate
 	 */
 	public void setNegated(boolean negate) {
 		this.negated = negate;
 	}
-	
+
 	/**
 	 * if the literal constraint is negated, the method returns true
+	 * 
 	 * @return
 	 */
 	public boolean getNegated() {

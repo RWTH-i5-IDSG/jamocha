@@ -16,8 +16,9 @@
  */
 package org.jamocha.rule;
 
-public abstract class AbstractCondition implements Condition {
 
+public abstract class AbstractConstraint implements Constraint {
+	
 	protected static int complexity = 1;
 
 	protected int totalComplexity = 0;

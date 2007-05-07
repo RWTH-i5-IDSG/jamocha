@@ -31,144 +31,144 @@ import org.jamocha.rete.BoundParam;
  * For example (myslot ?s&:(> ?s 100) )
  * 
  */
-public class PredicateConstraint implements Constraint {
+public class PredicateConstraint extends AbstractConstraint {
 
 	static final long serialVersionUID = 0xDeadBeafCafeBabeL;
-	
-    /**
-         * the name of the slot
-         */
-    protected String name = null;
 
-    /**
-         * the name of the variable
-         */
-    protected String varName = null;
+	/**
+	 * the name of the slot
+	 */
+	protected String name = null;
 
-    /**
-         * the name of the function
-         */
-    protected String functionName = null;
+	/**
+	 * the name of the variable
+	 */
+	protected String varName = null;
 
-    protected JamochaValue value = JamochaValue.NIL;
+	/**
+	 * the name of the function
+	 */
+	protected String functionName = null;
 
-    protected ArrayList parameters = new ArrayList();
+	protected JamochaValue value = JamochaValue.NIL;
 
-    protected boolean isPredicateJoin = false;
+	protected ArrayList parameters = new ArrayList();
 
-    /**
-         * 
-         */
-    public PredicateConstraint() {
-	super();
-    }
+	protected boolean isPredicateJoin = false;
 
-    /*
-         * (non-Javadoc)
-         * 
-         * @see woolfel.engine.rule.Constraint#getName()
-         */
-    public String getName() {
-	return this.name;
-    }
+	/**
+	 * 
+	 */
+	public PredicateConstraint() {
+		super();
+	}
 
-    /*
-         * (non-Javadoc)
-         * 
-         * @see woolfel.engine.rule.Constraint#setName(java.lang.String)
-         */
-    public void setName(String name) {
-	this.name = name;
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see woolfel.engine.rule.Constraint#getName()
+	 */
+	public String getName() {
+		return this.name;
+	}
 
-    /*
-         * (non-Javadoc)
-         * 
-         * @see woolfel.engine.rule.Constraint#getValue()
-         */
-    public JamochaValue getValue() {
-	return this.value;
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see woolfel.engine.rule.Constraint#setName(java.lang.String)
+	 */
+	public void setName(String name) {
+		this.name = name;
+	}
 
-    /*
-         * (non-Javadoc)
-         * 
-         * @see woolfel.engine.rule.Constraint#setValue(java.lang.Object)
-         */
-    public void setValue(JamochaValue val) {
-	this.value = val;
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see woolfel.engine.rule.Constraint#getValue()
+	 */
+	public JamochaValue getValue() {
+		return this.value;
+	}
 
-    public String getVariableName() {
-	return this.varName;
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see woolfel.engine.rule.Constraint#setValue(java.lang.Object)
+	 */
+	public void setValue(JamochaValue val) {
+		this.value = val;
+	}
 
-    public void setVariableName(String name) {
-	this.varName = name;
-    }
+	public String getVariableName() {
+		return this.varName;
+	}
 
-    public String getFunctionName() {
-	return this.functionName;
-    }
+	public void setVariableName(String name) {
+		this.varName = name;
+	}
 
-    public void setFunctionName(String func) {
-	this.functionName = func;
-    }
+	public String getFunctionName() {
+		return this.functionName;
+	}
 
-    public boolean isPredicateJoin() {
-	return this.isPredicateJoin;
-    }
+	public void setFunctionName(String func) {
+		this.functionName = func;
+	}
 
-    public void addParameters(List params) {
-	this.parameters.addAll(params);
-	int bcount = 0;
-	// we try to set the value
-	Iterator itr = parameters.iterator();
-	while (itr.hasNext()) {
-	    Object p = itr.next();
-	    // for now, a simple implementation
-	    if (p instanceof JamochaValue) {
-		this.setValue((JamochaValue) p);
+	public boolean isPredicateJoin() {
+		return this.isPredicateJoin;
+	}
 
-		break;
-	    } else if (p instanceof BoundParam) {
-		BoundParam bp = (BoundParam) p;
-		if (!bp.getVariableName().equals(this.varName)) {
-		    this.setValue(JamochaValue.newBinding(bp));
+	public void addParameters(List params) {
+		this.parameters.addAll(params);
+		int bcount = 0;
+		// we try to set the value
+		Iterator itr = parameters.iterator();
+		while (itr.hasNext()) {
+			Object p = itr.next();
+			// for now, a simple implementation
+			if (p instanceof JamochaValue) {
+				this.setValue((JamochaValue) p);
+
+				break;
+			} else if (p instanceof BoundParam) {
+				BoundParam bp = (BoundParam) p;
+				if (!bp.getVariableName().equals(this.varName)) {
+					this.setValue(JamochaValue.newBinding(bp));
+				}
+				bcount++;
+			}
 		}
-		bcount++;
-	    }
+		if (bcount > 1) {
+			this.isPredicateJoin = true;
+		}
 	}
-	if (bcount > 1) {
-	    this.isPredicateJoin = true;
+
+	public void addParameter(Expression param) {
+		this.parameters.add(param);
+		if (param instanceof JamochaValue) {
+			this.setValue((JamochaValue) param);
+		} else if (param instanceof BoundParam && this.varName == null) {
+			this.varName = ((BoundParam) param).getVariableName();
+		}
 	}
-    }
 
-    public void addParameter(Expression param) {
-	this.parameters.add(param);
-	if (param instanceof JamochaValue) {
-	    this.setValue((JamochaValue) param);
-	} else if (param instanceof BoundParam && this.varName == null) {
-	    this.varName = ((BoundParam) param).getVariableName();
+	public List getParameters() {
+		return this.parameters;
 	}
-    }
 
-    public List getParameters() {
-	return this.parameters;
-    }
+	public int parameterCount() {
+		return this.parameters.size();
+	}
 
-    public int parameterCount() {
-	return this.parameters.size();
-    }
+	/**
+	 * the purpose of normalize is to look at the order of the parameters and
+	 * flip the operator if necessary
+	 * 
+	 */
+	public void normalize() {
 
-    /**
-         * the purpose of normalize is to look at the order of the parameters
-         * and flip the operator if necessary
-         * 
-         */
-    public void normalize() {
-
-    }
+	}
 
 	public boolean getNegated() {
 		// TODO Auto-generated method stub
@@ -177,6 +177,6 @@ public class PredicateConstraint implements Constraint {
 
 	public void setNegated(boolean negate) {
 		// TODO Auto-generated method stub
-		
+
 	}
 }
