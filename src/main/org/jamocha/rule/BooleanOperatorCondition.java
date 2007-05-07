@@ -6,9 +6,10 @@ import java.util.List;
 import org.jamocha.rete.BaseJoin;
 import org.jamocha.rete.BaseNode;
 
-public abstract class BooleanOperatorCondition implements Condition{
+public abstract class BooleanOperatorCondition extends AbstractCondition {
 
 	protected List nestedCE = new ArrayList();
+
 	protected BaseJoin reteNode = null;
 
 	public BooleanOperatorCondition() {
@@ -20,11 +21,11 @@ public abstract class BooleanOperatorCondition implements Condition{
 	}
 
 	public void addNestedConditionElement(Object ce) {
-	    this.nestedCE.add(ce);
+		this.nestedCE.add(ce);
 	}
 
 	public List getNestedConditionalElement() {
-	    return this.nestedCE;
+		return this.nestedCE;
 	}
 
 	public List getNodes() {
@@ -50,7 +51,7 @@ public abstract class BooleanOperatorCondition implements Condition{
 	}
 
 	public List getBindings() {
-	    return null;
+		return null;
 	}
 
 	public void clear() {

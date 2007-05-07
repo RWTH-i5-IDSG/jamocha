@@ -32,7 +32,7 @@ import org.jamocha.rete.Template;
  * matches on the fields of an object. The patterns may be simple value
  * comparisons, or joins against other objects.
  */
-public class ObjectCondition implements Condition {
+public class ObjectCondition extends AbstractCondition {
 
     /**
 	 * 

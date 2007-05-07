@@ -20,9 +20,11 @@ import org.jamocha.rete.Constants;
 
 /**
  * @author Peter Lin
- *
+ * 
  */
 public class WarningSummary implements Summary {
+
+	private static final long serialVersionUID = 1L;
 
 	private String[] warnings = new String[0];
 
@@ -43,7 +45,7 @@ public class WarningSummary implements Summary {
 
 	public String getMessage() {
 		StringBuffer buf = new StringBuffer();
-		for (int idx=0; idx < this.warnings.length; idx++) {
+		for (int idx = 0; idx < this.warnings.length; idx++) {
 			buf.append(this.warnings[idx] + Constants.LINEBREAK);
 		}
 		return buf.toString();

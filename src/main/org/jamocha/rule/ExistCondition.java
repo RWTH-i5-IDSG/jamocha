@@ -27,7 +27,7 @@ import org.jamocha.rete.BaseNode;
  *
  * ExistCondition for existential quantifier.
  */
-public class ExistCondition implements Condition {
+public class ExistCondition extends AbstractCondition {
 
 	static final long serialVersionUID = 0xDeadBeafCafeBabeL;
     protected List nestedCE = new ArrayList();
