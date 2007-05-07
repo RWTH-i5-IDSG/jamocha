@@ -54,7 +54,7 @@ public class WorkingMemoryImpl implements WorkingMemory {
 	public WorkingMemoryImpl(Rete engine) {
 		super();
 		this.engine = engine;
-		this.compiler = new BasicRuleCompiler(engine, this, this.root
+		this.compiler = new KrautsalatRuleCompiler(engine, this, this.root
 				.getObjectTypeNodes());
 		this.compiler.addListener(engine);
 	}

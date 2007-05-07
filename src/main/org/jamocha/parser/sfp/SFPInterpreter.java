@@ -485,7 +485,7 @@ public class SFPInterpreter implements SFPParserVisitor {
 			dc = (DeclarationConfiguration) n.jjtAccept(this, data);
 		}
 
-		// get the action list
+		// get the action listCondition
 		int k = node.jjtGetNumChildren();
 		n = node.jjtGetChild(k - 1);
 		ExpressionSequence actions = null;

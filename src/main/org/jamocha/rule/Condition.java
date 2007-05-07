@@ -27,7 +27,7 @@ import org.jamocha.rete.BaseNode;
  * Conditions are patterns. It may be a simple fact pattern, test function, or
  * an object pattern.
  */
-public interface Condition extends Serializable, Complexity {
+public interface Condition extends Serializable, Complexity{
 
 	/**
 	 * Method is used to compare the pattern to another pattern and determine if
