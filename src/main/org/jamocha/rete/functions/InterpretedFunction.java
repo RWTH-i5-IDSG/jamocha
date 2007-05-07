@@ -82,6 +82,11 @@ public class InterpretedFunction implements Function {
 		public boolean isParameterOptional(int parameter) {
 			return false;
 		}
+
+		public String getExample() {
+			// TODO Auto-generated method stub
+			return null;
+		}
 	}
 
 	private FunctionDescription DESCRIPTION = new InterpretedFunctionDescription();

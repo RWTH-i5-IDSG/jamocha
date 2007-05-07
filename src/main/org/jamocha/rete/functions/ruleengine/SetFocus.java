@@ -67,6 +67,11 @@ public class SetFocus implements Function, Serializable {
 		public boolean isParameterOptional(int parameter) {
 			return true;
 		}
+
+		public String getExample() {
+			// TODO Auto-generated method stub
+			return null;
+		}
 	}
 
 	private static final FunctionDescription DESCRIPTION = new Description();

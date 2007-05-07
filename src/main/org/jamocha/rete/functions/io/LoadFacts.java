@@ -60,10 +60,6 @@ public class LoadFacts implements Function, Serializable {
 			//LoadFacts will create a new instance of CLIPSParser and load the facts in the data file. TODO This function needs to be changed to be independed of CLIPSParser and use the ParserFactory instead.";
 		}
 		
-		public String getExample()	{
-			return "'Jamocha> (load-facts factFile.clp)'";
-		}
-		
 		public int getParameterCount() {
 			return 1;
 		}
@@ -90,6 +86,10 @@ public class LoadFacts implements Function, Serializable {
 
 		public boolean isParameterOptional(int parameter) {
 			return false;
+		}
+		
+		public String getExample()	{
+			return "(load-facts factFile.clp)";
 		}
 	}
 

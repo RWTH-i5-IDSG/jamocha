@@ -91,6 +91,11 @@ public class SaveFacts implements Function, Serializable {
 		public boolean isParameterOptional(int parameter) {
 			return (parameter > 0);
 		}
+
+		public String getExample() {
+			// TODO Auto-generated method stub
+			return null;
+		}
 	}
 
 	private static final FunctionDescription DESCRIPTION = new Description();

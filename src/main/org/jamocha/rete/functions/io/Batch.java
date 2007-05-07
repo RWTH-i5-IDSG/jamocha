@@ -52,10 +52,6 @@ public class Batch implements Function, Serializable {
 			return "Loads and executes one or more given files. Multiple arguments are separated by a blank. Files can be located on a local drive or on a remote machine accessible via http or some other protocol. Returns true on success.";
 		}
 		
-		public String getExample() {
-			return "'Jamocha> (batch samples/view-test.clp)' or 'Jamocha> (batch samples/view-test.clp samples/test.clp)'";
-		}
-		
 		public int getParameterCount() {
 			return 1;
 		}
@@ -82,6 +78,10 @@ public class Batch implements Function, Serializable {
 
 		public boolean isParameterOptional(int parameter) {
 			return (parameter > 0);
+		}
+
+		public String getExample() {
+			return "(batch samples/view-test.clp)";
 		}
 	}
 

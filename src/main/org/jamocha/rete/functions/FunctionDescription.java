@@ -36,5 +36,5 @@ public interface FunctionDescription {
 	
 	public String getParameterDescription(int parameter);
 	
-	//public String getExample();
+	public String getExample();
 }

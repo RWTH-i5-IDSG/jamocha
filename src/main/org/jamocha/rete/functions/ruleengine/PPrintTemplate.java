@@ -72,6 +72,11 @@ public class PPrintTemplate implements Function, Serializable {
 		public boolean isParameterOptional(int parameter) {
 			return (parameter > 1);
 		}
+
+		public String getExample() {
+			// TODO Auto-generated method stub
+			return null;
+		}
 	}
 
 	private static final FunctionDescription DESCRIPTION = new Description();

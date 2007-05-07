@@ -76,6 +76,11 @@ public class Neq implements Function, Serializable {
 			else
 				return false;
 		}
+
+		public String getExample() {
+			// TODO Auto-generated method stub
+			return null;
+		}
 	}
 
 	private static final FunctionDescription DESCRIPTION = new Description();
