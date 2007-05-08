@@ -18,6 +18,7 @@
 package org.jamocha.rete;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -247,59 +248,39 @@ public class SFRuleCompiler implements RuleCompiler {
 			if (rule.getConditions() != null && rule.getConditions().length > 0) {
 				// we check the name of the rule to see if it is for a specific
 				// module. if it is, we have to add it to that module
-
 				this.setModule(rule);
 				TerminalNode terminalNode = createTerminalNode(rule);
-
 				Condition[] conds = rule.getConditions();
-
 				// at first we create the constraints and then the conditional
 				// elements which include joins
 				for (int i = 0; i < conds.length; i++)
 					conds[i].compile(this,  rule,i );
 
-				/*
-				 * Do it in this way: compileBindings(); compileConstraints();
-				 * compileJoins();
-				 */
-
-				// compileJoins(rule, conds);
+				try {
+					compileJoins(rule, conds, terminalNode);
+				} catch (AssertException e) {
+					e.printStackTrace();
+				}
 				BaseNode last = rule.getLastNode();
-
-				// if (last != null && terminal != null) {
-				// try {
-				// if (last instanceof BaseJoin ) {
-				// ((BaseJoin) last)
-				// .addSuccessorNode(terminal, engine, memory);
-				// } else if (last instanceof BaseAlpha) {
-				// ((BaseAlpha) last).addSuccessorNode(terminal, engine,
-				// memory);
-				// }
-				// } catch (AssertException e) {
-				//
-				// }
-				// }
-
-				// attachTerminalNode(last, tnode);
-
-				// compile the actionlist
+				
 				compileActions(rule, rule.getActions());
-				// now we pass the bindings to the rule, so that actiosn can
-				// resolve the bindings
-
-				// now we add the rule to the module
+				
 				currentMod.addRule(rule);
+
 				CompileEvent ce = new CompileEvent(rule,
 						CompileEvent.ADD_RULE_EVENT);
+				
 				ce.setRule(rule);
+				
 				this.notifyListener(ce);
 				return true;
+				
 			} else if (rule.getConditions().length == 0) {
 				this.setModule(rule);
 				// the rule has no LHS, this means it only has actions
 				BaseNode last = (BaseNode) this.inputnodes.get(engine.initFact);
-
 				TerminalNode tnode = createTerminalNode(rule);
+				last.addNode(tnode);
 
 				compileActions(rule, rule.getActions());
 				// attachTerminalNode(last, tnode);
@@ -325,7 +306,38 @@ public class SFRuleCompiler implements RuleCompiler {
 		}
 	}
 
-	public void compileJoins(Rule rule, Condition[] conds)
+	public void compileJoins(Rule rule, Condition[] conds, TerminalNode terminal) throws AssertException {
+		// take the last node from each condition and connect them by joins
+		// regarding the complexity
+		
+		Condition[] sortedConds = conds.clone();
+		Arrays.sort(sortedConds);
+		
+		BaseNode fromBottom = terminal;
+		for ( int i=0 ; i<sortedConds.length ; i++ ) {
+			Condition c = sortedConds[i];
+			// c now is the next condition with the lowest complexity
+			
+			// now, check whether we have to create a new join
+			boolean createNewJoin = (i < sortedConds.length-1 );
+			
+			if (createNewJoin) {
+				ZJBetaNode newJoin = new ZJBetaNode(engine.nextNodeId());
+				newJoin.addNode(fromBottom);
+				fromBottom = newJoin;
+			}
+			BaseNode lastNode = c.getLastNode();
+			
+			if (lastNode != null) {
+				c.getLastNode().addNode(fromBottom);
+			} else {
+				
+			}
+			
+		}
+	}
+	
+	public void compileJoins2(Rule rule, Condition[] conds)
 			throws AssertException {
 		// only if there's more than 1 condition do we attempt to
 		// create the join nodes. A rule with just 1 condition has

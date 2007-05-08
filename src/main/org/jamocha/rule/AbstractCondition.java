@@ -37,5 +37,9 @@ public abstract class AbstractCondition implements Condition {
 	public void setComplexity(int value) {
 		AbstractCondition.complexity = value;
 	}
+	
+	public int compareTo(Object o) {
+		return this.getTotalComplexity() - ((Condition)o).getTotalComplexity();
+	}
 
 }
