@@ -37,3 +37,5 @@
 	(wurst (name "wienerwurst"))
 	=> (printout t "rule with one condition fired " ?x crlf)
 )
+
+(fire)

@@ -323,10 +323,21 @@ public class SFRuleCompiler implements RuleCompiler {
 			
 			if (createNewJoin) {
 				ZJBetaNode newJoin = new ZJBetaNode(engine.nextNodeId());
-				newJoin.addNode(fromBottom);
+				if (fromBottom instanceof BaseJoin) {
+					newJoin.addSuccessorNode((BaseJoin)fromBottom, engine, memory);
+				} else /*(fromBottom instanceof TerminalNode)*/ {
+					newJoin.addSuccessorNode((TerminalNode)fromBottom, engine, memory);
+				}
 				fromBottom = newJoin;
 			}
 			BaseNode lastNode = c.getLastNode();
+			
+			if (lastNode instanceof BaseAlpha && createNewJoin) {
+				LIANode adapter = new LIANode(engine.nextNodeId());
+				((BaseAlpha)lastNode).addSuccessorNode(adapter, engine, memory);
+				lastNode = adapter;
+			}
+			
 			
 			if (lastNode != null) {
 				c.getLastNode().addNode(fromBottom);
