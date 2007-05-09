@@ -79,19 +79,15 @@ public class SFRuleCompiler implements RuleCompiler {
 
 	protected TemplateValidation tval = null;
 
-	public static final String FUNCTION_NOT_FOUND = Messages
-			.getString("CompilerProperties.function.not.found"); //$NON-NLS-1$
+	public static final String FUNCTION_NOT_FOUND = Messages.getString("CompilerProperties.function.not.found"); //$NON-NLS-1$
 
-	public static final String INVALID_FUNCTION = Messages
-			.getString("CompilerProperties.invalid.function"); //$NON-NLS-1$
+	public static final String INVALID_FUNCTION = Messages.getString("CompilerProperties.invalid.function"); //$NON-NLS-1$
 
-	public static final String ASSERT_ON_PROPOGATE = Messages
-			.getString("CompilerProperties.assert.on.add"); //$NON-NLS-1$
+	public static final String ASSERT_ON_PROPOGATE = Messages.getString("CompilerProperties.assert.on.add"); //$NON-NLS-1$
 
 	protected DefaultLogger log = new DefaultLogger(BasicRuleCompiler.class);
 
-	public SFRuleCompiler(Rete engine, WorkingMemory mem,
-			Map<Deftemplate, ObjectTypeNode> inputNodes) {
+	public SFRuleCompiler(Rete engine, WorkingMemory mem, Map<Deftemplate, ObjectTypeNode> inputNodes) {
 		super();
 		this.engine = engine;
 		this.memory = mem;
@@ -243,8 +239,7 @@ public class SFRuleCompiler implements RuleCompiler {
 
 	public boolean addRule(Rule rule) {
 		rule.resolveTemplates(engine);
-		if (!this.validate
-				|| (this.validate && this.tval.analyze(rule) == Analysis.VALIDATION_PASSED)) {
+		if (!this.validate || (this.validate && this.tval.analyze(rule) == Analysis.VALIDATION_PASSED)) {
 			if (rule.getConditions() != null && rule.getConditions().length > 0) {
 				// we check the name of the rule to see if it is for a specific
 				// module. if it is, we have to add it to that module
@@ -254,27 +249,27 @@ public class SFRuleCompiler implements RuleCompiler {
 				// at first we create the constraints and then the conditional
 				// elements which include joins
 				for (int i = 0; i < conds.length; i++)
-					conds[i].compile(this,  rule,i );
+					conds[i].compile(this, rule, i);
 
 				try {
 					compileJoins(rule, conds, terminalNode);
+					// compileJoins2(rule, conds);
 				} catch (AssertException e) {
 					e.printStackTrace();
 				}
 				BaseNode last = rule.getLastNode();
-				
+
 				compileActions(rule, rule.getActions());
-				
+
 				currentMod.addRule(rule);
 
-				CompileEvent ce = new CompileEvent(rule,
-						CompileEvent.ADD_RULE_EVENT);
-				
+				CompileEvent ce = new CompileEvent(rule, CompileEvent.ADD_RULE_EVENT);
+
 				ce.setRule(rule);
-				
+
 				this.notifyListener(ce);
 				return true;
-				
+
 			} else if (rule.getConditions().length == 0) {
 				this.setModule(rule);
 				// the rule has no LHS, this means it only has actions
@@ -286,8 +281,7 @@ public class SFRuleCompiler implements RuleCompiler {
 				// attachTerminalNode(last, tnode);
 				// now we add the rule to the module
 				currentMod.addRule(rule);
-				CompileEvent ce = new CompileEvent(rule,
-						CompileEvent.ADD_RULE_EVENT);
+				CompileEvent ce = new CompileEvent(rule, CompileEvent.ADD_RULE_EVENT);
 				ce.setRule(rule);
 				// / this.notifyListener(ce);
 				return true;
@@ -296,9 +290,7 @@ public class SFRuleCompiler implements RuleCompiler {
 		} else {
 			// we print out a message and say that the rule is not valid
 			Summary error = this.tval.getErrors();
-			engine
-					.writeMessage(
-							"Rule " + rule.getName() + " was not added. ", Constants.DEFAULT_OUTPUT); //$NON-NLS-1$ //$NON-NLS-2$
+			engine.writeMessage("Rule " + rule.getName() + " was not added. ", Constants.DEFAULT_OUTPUT); //$NON-NLS-1$ //$NON-NLS-2$
 			engine.writeMessage(error.getMessage(), Constants.DEFAULT_OUTPUT);
 			Summary warn = this.tval.getWarnings();
 			engine.writeMessage(warn.getMessage(), Constants.DEFAULT_OUTPUT);
@@ -309,47 +301,45 @@ public class SFRuleCompiler implements RuleCompiler {
 	public void compileJoins(Rule rule, Condition[] conds, TerminalNode terminal) throws AssertException {
 		// take the last node from each condition and connect them by joins
 		// regarding the complexity
-		
+
 		Condition[] sortedConds = conds.clone();
 		Arrays.sort(sortedConds);
-		
+
 		BaseNode fromBottom = terminal;
-		for ( int i=0 ; i<sortedConds.length ; i++ ) {
+		for (int i = 0; i < sortedConds.length; i++) {
 			Condition c = sortedConds[i];
 			// c now is the next condition with the lowest complexity
-			
+
 			// now, check whether we have to create a new join
-			boolean createNewJoin = (i < sortedConds.length-1 );
-			
+			boolean createNewJoin = (i < sortedConds.length - 1);
+
 			if (createNewJoin) {
 				ZJBetaNode newJoin = new ZJBetaNode(engine.nextNodeId());
 				if (fromBottom instanceof BaseJoin) {
-					newJoin.addSuccessorNode((BaseJoin)fromBottom, engine, memory);
-				} else /*(fromBottom instanceof TerminalNode)*/ {
-					newJoin.addSuccessorNode((TerminalNode)fromBottom, engine, memory);
+					newJoin.addSuccessorNode((BaseJoin) fromBottom, engine, memory);
+				} else /* (fromBottom instanceof TerminalNode) */{
+					newJoin.addSuccessorNode((TerminalNode) fromBottom, engine, memory);
 				}
 				fromBottom = newJoin;
 			}
 			BaseNode lastNode = c.getLastNode();
-			
+
 			if (lastNode instanceof BaseAlpha && createNewJoin) {
 				LIANode adapter = new LIANode(engine.nextNodeId());
-				((BaseAlpha)lastNode).addSuccessorNode(adapter, engine, memory);
+				((BaseAlpha) lastNode).addSuccessorNode(adapter, engine, memory);
 				lastNode = adapter;
 			}
-			
-			
+
 			if (lastNode != null) {
-				c.getLastNode().addNode(fromBottom);
-			} else {
-				
+				if (lastNode instanceof BaseAlpha)
+					((BaseAlpha) lastNode).addSuccessorNode(fromBottom, engine, memory);
+				else
+					lastNode.addNode(fromBottom);
 			}
-			
 		}
 	}
-	
-	public void compileJoins2(Rule rule, Condition[] conds)
-			throws AssertException {
+
+	public void compileJoins2(Rule rule, Condition[] conds) throws AssertException {
 		// only if there's more than 1 condition do we attempt to
 		// create the join nodes. A rule with just 1 condition has
 		// no joins
@@ -421,18 +411,15 @@ public class SFRuleCompiler implements RuleCompiler {
 							BoundParam bpm = (BoundParam) oldpm[ipm];
 							// now we need to resolve and setup the BoundParam
 							Binding b = rule.getBinding(bpm.getVariableName());
-							BoundParam newpm = new BoundParam(b.getLeftRow(), b
-									.getLeftIndex(), 9, bpm.isObjectBinding());
+							BoundParam newpm = new BoundParam(b.getLeftRow(), b.getLeftIndex(), 9, bpm.isObjectBinding());
 							newpm.setVariableName(bpm.getVariableName());
 							pms[ipm] = newpm;
 						}
 					}
 					if (tc.isNegated()) {
-						bn = new NTestNode(engine.nextNodeId(), fn
-								.lookUpFunction(engine), pms);
+						bn = new NTestNode(engine.nextNodeId(), fn.lookUpFunction(engine), pms);
 					} else {
-						bn = new TestNode(engine.nextNodeId(), fn
-								.lookUpFunction(engine), pms);
+						bn = new TestNode(engine.nextNodeId(), fn.lookUpFunction(engine), pms);
 					}
 					if (prevJoin != null) {
 						attachJoinNode(prevJoin, (BaseJoin) bn);
@@ -455,8 +442,7 @@ public class SFRuleCompiler implements RuleCompiler {
 						Object cst = blist.get(idz);
 						if (cst instanceof BoundConstraint) {
 							BoundConstraint bc = (BoundConstraint) cst;
-							Binding cpy = rule
-									.copyBinding(bc.getVariableName());
+							Binding cpy = rule.copyBinding(bc.getVariableName());
 							if (cpy.getLeftRow() >= idx) {
 								binds = new Binding[0];
 								break;
@@ -475,19 +461,15 @@ public class SFRuleCompiler implements RuleCompiler {
 							}
 						} else if (cst instanceof PredicateConstraint) {
 							PredicateConstraint pc = (PredicateConstraint) cst;
-							if (pc.getValue().getType().equals(
-									JamochaType.BINDING)) {
-								BoundParam bpm = (BoundParam) pc.getValue()
-										.getObjectValue();
+							if (pc.getValue().getType().equals(JamochaType.BINDING)) {
+								BoundParam bpm = (BoundParam) pc.getValue().getObjectValue();
 								String var = bpm.getVariableName();
-								int op = ConversionUtils.getOperatorCode(pc
-										.getFunctionName());
+								int op = ConversionUtils.getOperatorCode(pc.getFunctionName());
 								// if the first binding in the function is from
 								// the object type
 								// we reverse the operator
 								if (pc.getParameters().get(0) != bpm) {
-									op = ConversionUtils
-											.getOppositeOperatorCode(op);
+									op = ConversionUtils.getOppositeOperatorCode(op);
 								}
 								binds[idz] = rule.copyPredicateBinding(var, op);
 								binds[idz].setRightRow(idx - negatedCE);
@@ -526,16 +508,14 @@ public class SFRuleCompiler implements RuleCompiler {
 							Object cst = blist.get(idz);
 							if (cst instanceof BoundConstraint) {
 								BoundConstraint bc = (BoundConstraint) cst;
-								Binding cpy = rule.copyBinding(bc
-										.getVariableName());
+								Binding cpy = rule.copyBinding(bc.getVariableName());
 								if (cpy.getLeftRow() >= idx) {
 									binds = new Binding[0];
 									break;
 								} else {
 									binds[idz] = cpy;
 									binds[idz].setRightRow(idx - negatedCE);
-									int rinx = tmpl
-											.getColumnIndex(bc.getName());
+									int rinx = tmpl.getColumnIndex(bc.getName());
 									// we increment the count to make sure the
 									// template isn't removed if it is being
 									// used
@@ -548,25 +528,19 @@ public class SFRuleCompiler implements RuleCompiler {
 								}
 							} else if (cst instanceof PredicateConstraint) {
 								PredicateConstraint pc = (PredicateConstraint) cst;
-								if (pc.getValue().getType().equals(
-										JamochaType.BINDING)) {
-									BoundParam bpm = (BoundParam) pc.getValue()
-											.getObjectValue();
+								if (pc.getValue().getType().equals(JamochaType.BINDING)) {
+									BoundParam bpm = (BoundParam) pc.getValue().getObjectValue();
 									String var = bpm.getVariableName();
-									int op = ConversionUtils.getOperatorCode(pc
-											.getFunctionName());
+									int op = ConversionUtils.getOperatorCode(pc.getFunctionName());
 									// if the first binding in the function is
 									// from the object type
 									// we reverse the operator
 									if (pc.getParameters().get(0) != bpm) {
-										op = ConversionUtils
-												.getOppositeOperatorCode(op);
+										op = ConversionUtils.getOppositeOperatorCode(op);
 									}
-									binds[idz] = rule.copyPredicateBinding(var,
-											op);
+									binds[idz] = rule.copyPredicateBinding(var, op);
 									binds[idz].setRightRow(idx - negatedCE);
-									int rinx = tmpl
-											.getColumnIndex(pc.getName());
+									int rinx = tmpl.getColumnIndex(pc.getName());
 									// we increment the count to make sure the
 									// template isn't removed if it is being
 									// used
@@ -615,8 +589,7 @@ public class SFRuleCompiler implements RuleCompiler {
 					if (cdt.getNodes().size() > 0) {
 						attachJoinNode(cdt.getLastNode(), (BaseJoin) bn);
 					} else {
-						otn.addSuccessorNode(bn, engine, engine
-								.getWorkingMemory());
+						otn.addSuccessorNode(bn, engine, engine.getWorkingMemory());
 					}
 				}
 				// now we set the previous node to current
@@ -633,8 +606,7 @@ public class SFRuleCompiler implements RuleCompiler {
 					// handle it appropriate. This means we need to
 					// add a LIANode to _IntialFact and attach a NOTNode
 					// to the LIANode.
-					ObjectTypeNode otn = (ObjectTypeNode) this.inputnodes
-							.get(engine.initFact);
+					ObjectTypeNode otn = (ObjectTypeNode) this.inputnodes.get(engine.initFact);
 					LIANode lianode = findLeftInputAdapter(otn);
 					NotJoin njoin = new NotJoin(engine.nextNodeId());
 					njoin.setBindings(new Binding[0]);
@@ -643,8 +615,7 @@ public class SFRuleCompiler implements RuleCompiler {
 					rule.addJoinNode(njoin);
 					oc.getLastNode().addNode(njoin);
 				} else if (oc.getNodes().size() == 0) {
-					ObjectTypeNode otn = findObjectTypeNode(oc
-							.getTemplateName());
+					ObjectTypeNode otn = findObjectTypeNode(oc.getTemplateName());
 					LIANode lianode = new LIANode(engine.nextNodeId());
 					otn.addSuccessorNode(lianode, engine, this.memory);
 					rule.getConditions()[0].addNode(lianode);
@@ -652,7 +623,6 @@ public class SFRuleCompiler implements RuleCompiler {
 			}
 		}
 	}
-
 
 	/**
 	 * The method compiles an ObjectCondition.
@@ -663,7 +633,7 @@ public class SFRuleCompiler implements RuleCompiler {
 	 * 
 	 * @return compileConditionState
 	 */
-	public BaseNode compile(ObjectCondition condition, Rule rule,	int conditionIndex) {
+	public BaseNode compile(ObjectCondition condition, Rule rule, int conditionIndex) {
 
 		Template template = condition.getTemplate();
 
@@ -724,12 +694,11 @@ public class SFRuleCompiler implements RuleCompiler {
 	 * 
 	 * @return compileConditionState
 	 */
-	public BaseNode compile(ExistCondition condition,	Rule rule, int conditionIndex) {
+	public BaseNode compile(ExistCondition condition, Rule rule, int conditionIndex) {
 
 		// it seems to produce a loop ...
 		if (condition.hasObjectCondition()) {
-			ObjectCondition oc = (ObjectCondition) condition
-					.getObjectCondition();
+			ObjectCondition oc = (ObjectCondition) condition.getObjectCondition();
 			return oc.compile(this, rule, conditionIndex);
 		}
 
@@ -758,7 +727,7 @@ public class SFRuleCompiler implements RuleCompiler {
 	 * 
 	 * @return compileConditionState
 	 */
-	public BaseNode compile(AndCondition condition,	Rule rule,	int conditionIndex) {
+	public BaseNode compile(AndCondition condition, Rule rule, int conditionIndex) {
 		return null;
 	}
 
@@ -771,7 +740,7 @@ public class SFRuleCompiler implements RuleCompiler {
 	 * 
 	 * @return compileConditionState
 	 */
-	public BaseNode compile(NotCondition condition,	Rule rule,	int conditionIndex) {
+	public BaseNode compile(NotCondition condition, Rule rule, int conditionIndex) {
 		return null;
 	}
 
@@ -784,10 +753,9 @@ public class SFRuleCompiler implements RuleCompiler {
 	 * 
 	 * @return compileConditionState
 	 */
-	public BaseNode compile(OrCondition condition,	Rule rule, int conditionIndex) {
+	public BaseNode compile(OrCondition condition, Rule rule, int conditionIndex) {
 		return null;
 	}
-
 
 	/**
 	 * The method compiles a PredicateConstraint.
@@ -799,7 +767,7 @@ public class SFRuleCompiler implements RuleCompiler {
 	 * 
 	 * @return BaseNode
 	 */
-	public BaseNode compile(PredicateConstraint constraint,	Rule rule, int conditionIndex) {
+	public BaseNode compile(PredicateConstraint constraint, Rule rule, int conditionIndex) {
 		BaseAlpha2 node = null;
 		// for now we expect the user to write the predicate in this
 		// way (> ?bind value), where the binding is first. this
@@ -808,15 +776,12 @@ public class SFRuleCompiler implements RuleCompiler {
 		// we only create an AlphaNode if the predicate isn't
 		// joining 2 bindings.
 		if (!constraint.isPredicateJoin()) {
-			if (ConversionUtils.isPredicateOperatorCode(constraint
-					.getFunctionName())) {
-				int oprCode = ConversionUtils.getOperatorCode(constraint
-						.getFunctionName());
+			if (ConversionUtils.isPredicateOperatorCode(constraint.getFunctionName())) {
+				int oprCode = ConversionUtils.getOperatorCode(constraint.getFunctionName());
 				Slot sl = (Slot) constraint.getSlot().clone();
 				JamochaValue sval;
 				try {
-					sval = constraint.getValue()
-							.implicitCast(sl.getValueType());
+					sval = constraint.getValue().implicitCast(sl.getValueType());
 				} catch (IllegalConversionException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -846,26 +811,21 @@ public class SFRuleCompiler implements RuleCompiler {
 					// found and
 					// the return type is either boolean primitive
 					// or object
-					if (f.getDescription().getReturnType().equals(
-							JamochaType.BOOLEANS)) {
+					if (f.getDescription().getReturnType().equals(JamochaType.BOOLEANS)) {
 						// TODO - need to implement it
 					} else {
 						// the function doesn't return boolean, so
 						// we have to notify
 						// the listeners the condition is not valid
-						CompileEvent ce = new CompileEvent(this,
-								CompileEvent.FUNCTION_INVALID);
-						ce.setMessage(INVALID_FUNCTION
-								+ " " + f.getDescription().getReturnType()); //$NON-NLS-1$
+						CompileEvent ce = new CompileEvent(this, CompileEvent.FUNCTION_INVALID);
+						ce.setMessage(INVALID_FUNCTION + " " + f.getDescription().getReturnType()); //$NON-NLS-1$
 						this.notifyListener(ce);
 					}
 				} else {
 					// we need to notify listeners the function
 					// wasn't found
-					CompileEvent ce = new CompileEvent(this,
-							CompileEvent.FUNCTION_NOT_FOUND);
-					ce.setMessage(FUNCTION_NOT_FOUND
-							+ " " + f.getDescription().getReturnType()); //$NON-NLS-1$
+					CompileEvent ce = new CompileEvent(this, CompileEvent.FUNCTION_NOT_FOUND);
+					ce.setMessage(FUNCTION_NOT_FOUND + " " + f.getDescription().getReturnType()); //$NON-NLS-1$
 					this.notifyListener(ce);
 				}
 			}
@@ -893,7 +853,7 @@ public class SFRuleCompiler implements RuleCompiler {
 	 * 
 	 * @return BaseNode
 	 */
-	public BaseNode compile(OrLiteralConstraint constraint,	Rule rule, int conditionIndex) {
+	public BaseNode compile(OrLiteralConstraint constraint, Rule rule, int conditionIndex) {
 		BaseAlpha2 node = null;
 		Slot2 sl = new Slot2(constraint.getName());
 		sl.setId(constraint.getSlot().getId());
@@ -924,7 +884,7 @@ public class SFRuleCompiler implements RuleCompiler {
 	 * 
 	 * @return BaseNode
 	 */
-	public BaseNode compile(LiteralConstraint constraint, Rule rule,	int conditionIndex) {
+	public BaseNode compile(LiteralConstraint constraint, Rule rule, int conditionIndex) {
 		BaseAlpha2 node = null;
 		Slot sl = (Slot) constraint.getSlot().clone();
 		JamochaValue sval;
@@ -961,8 +921,7 @@ public class SFRuleCompiler implements RuleCompiler {
 	 * 
 	 * @return BaseNode
 	 */
-	public BaseNode compile(BoundConstraint constraint, Rule rule,
-			int conditionIndex) {
+	public BaseNode compile(BoundConstraint constraint, Rule rule, int conditionIndex) {
 		// we need to create a binding class for the BoundConstraint
 		if (rule.getBinding(constraint.getVariableName()) == null) {
 			// if the HashMap doesn't already contain the binding,
@@ -999,7 +958,7 @@ public class SFRuleCompiler implements RuleCompiler {
 	 * @return BaseNode
 	 */
 
-	public BaseNode compile(AndLiteralConstraint constraint,Rule rule, int conditionIndex) {
+	public BaseNode compile(AndLiteralConstraint constraint, Rule rule, int conditionIndex) {
 		BaseAlpha2 node = null;
 		Slot2 sl = new Slot2(constraint.getName());
 		sl.setId(constraint.getSlot().getId());
@@ -1051,8 +1010,7 @@ public class SFRuleCompiler implements RuleCompiler {
 	 *            or AlphaNode
 	 * @param alpha
 	 */
-	protected void attachAlphaNode(BaseAlpha existing, BaseAlpha alpha,
-			Condition cond) {
+	protected void attachAlphaNode(BaseAlpha existing, BaseAlpha alpha, Condition cond) {
 		if (alpha != null) {
 			try {
 				BaseAlpha share = null;
@@ -1069,8 +1027,7 @@ public class SFRuleCompiler implements RuleCompiler {
 					share.incrementUseCount();
 					cond.addNode(share);
 					memory.removeAlphaMemory(alpha);
-					if (alpha.successorCount() == 1
-							&& alpha.getSuccessorNodes()[0] instanceof BaseAlpha) {
+					if (alpha.successorCount() == 1 && alpha.getSuccessorNodes()[0] instanceof BaseAlpha) {
 						// get the next node from the new AlphaNode
 						BaseAlpha nnext = (BaseAlpha) alpha.getSuccessorNodes()[0];
 						attachAlphaNode(share, nnext, cond);
@@ -1078,8 +1035,7 @@ public class SFRuleCompiler implements RuleCompiler {
 				}
 			} catch (AssertException e) {
 				// send an event with the correct error
-				CompileEvent ce = new CompileEvent(this,
-						CompileEvent.ADD_NODE_ERROR);
+				CompileEvent ce = new CompileEvent(this, CompileEvent.ADD_NODE_ERROR);
 				ce.setMessage(alpha.toPPString());
 				this.notifyListener(ce);
 			}
@@ -1140,8 +1096,7 @@ public class SFRuleCompiler implements RuleCompiler {
 	 * @param join
 	 * @throws AssertException
 	 */
-	protected void attachJoinNode(BaseNode last, BaseJoin join)
-			throws AssertException {
+	protected void attachJoinNode(BaseNode last, BaseJoin join) throws AssertException {
 		if (last instanceof BaseAlpha) {
 			((BaseAlpha) last).addSuccessorNode(join, engine, memory);
 		} else if (last instanceof BaseJoin) {
@@ -1151,8 +1106,7 @@ public class SFRuleCompiler implements RuleCompiler {
 
 	protected LIANode findLeftInputAdapter(ObjectTypeNode otn) {
 		if (initialFactLIANode == null) {
-			if (otn.getSuccessorNodes() != null
-					&& otn.getSuccessorNodes().length > 0) {
+			if (otn.getSuccessorNodes() != null && otn.getSuccessorNodes().length > 0) {
 				BaseNode[] nodes = (BaseNode[]) otn.getSuccessorNodes();
 				for (int idx = 0; idx < nodes.length; idx++) {
 					if (nodes[idx] instanceof LIANode) {
@@ -1163,8 +1117,7 @@ public class SFRuleCompiler implements RuleCompiler {
 			} else {
 				initialFactLIANode = new LIANode(engine.nextNodeId());
 				try {
-					otn.addSuccessorNode(initialFactLIANode, engine,
-							this.memory);
+					otn.addSuccessorNode(initialFactLIANode, engine, this.memory);
 				} catch (AssertException e) {
 					log.warn(e);
 				}

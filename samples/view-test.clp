@@ -89,5 +89,3 @@ and pretty print the definition of T-1 with
 (assert (T-1 (S-1 b)(S-2 2)))
 (assert (T-2 (S-3 b)(S-4 2)))
 
-(fire)
-

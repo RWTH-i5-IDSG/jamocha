@@ -34,6 +34,8 @@ import org.jamocha.rule.Rule;
  */
 public class WorkingMemoryImpl implements WorkingMemory {
 
+	private static final long serialVersionUID = 1L;
+
 	protected Rete engine = null;
 
 	protected RootNode root = new RootNode();
