@@ -57,8 +57,7 @@ public class WorkingMemoryImpl implements WorkingMemory {
 	public WorkingMemoryImpl(Rete engine) {
 		super();
 		this.engine = engine;
-		this.compiler = ParserFactory.getRuleCompiler(engine, this, this.root
-				.getObjectTypeNodes());
+		this.compiler = ParserFactory.getRuleCompiler(engine, this, this.root);
 		// this.compiler = new SFRuleCompiler(engine, this,
 		// this.root.getObjectTypeNodes());
 		this.compiler.addListener(engine);

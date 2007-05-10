@@ -26,6 +26,7 @@ import org.jamocha.parser.clips.CLIPSParser;
 import org.jamocha.parser.sfp.SFPParser;
 import org.jamocha.rete.BasicRuleCompiler;
 import org.jamocha.rete.Rete;
+import org.jamocha.rete.RootNode;
 import org.jamocha.rete.RuleCompiler;
 import org.jamocha.rete.SFRuleCompiler;
 import org.jamocha.rete.WorkingMemory;
@@ -159,9 +160,9 @@ public class ParserFactory {
 	}
 
 	public static RuleCompiler getRuleCompiler(Rete engine, WorkingMemory wmem,
-			Map inputNodes) {
+			RootNode root) {
 		try {
-			return getRuleCompiler(defaultMode, engine, wmem, inputNodes);
+			return getRuleCompiler(defaultMode, engine, wmem, root);
 		} catch (ModeNotFoundException e) {
 			// This shouldn't happen because the exception is thrown already
 			// before when setting the default mode.
@@ -171,11 +172,11 @@ public class ParserFactory {
 
 	@SuppressWarnings("unchecked")
 	public static RuleCompiler getRuleCompiler(String mode, Rete engine,
-			WorkingMemory wmem, Map inputNodes) throws ModeNotFoundException {
+			WorkingMemory wmem, RootNode root) throws ModeNotFoundException {
 		if (mode.equalsIgnoreCase("clips")) {
-			return new BasicRuleCompiler(engine, wmem, inputNodes);
+			return new BasicRuleCompiler(engine, wmem, root.getObjectTypeNodes());
 		} else if (mode.equalsIgnoreCase("sfp")) {
-			return new SFRuleCompiler(engine, wmem, inputNodes);
+			return new SFRuleCompiler(engine, wmem, root);
 		} else {
 			throw new ModeNotFoundException(mode);
 		}

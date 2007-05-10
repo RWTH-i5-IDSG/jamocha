@@ -67,9 +67,7 @@ public class SFRuleCompiler implements RuleCompiler {
 
 	private Rete engine = null;
 
-	
-	
-	private Map<Deftemplate, ObjectTypeNode> inputnodes = null;
+	protected RootNode root = null;	
 
 	private Module currentMod = null;
 
@@ -92,12 +90,11 @@ public class SFRuleCompiler implements RuleCompiler {
 
 	protected DefaultLogger log = new DefaultLogger(BasicRuleCompiler.class);
 
-	public SFRuleCompiler(Rete engine, WorkingMemory mem,
-			Map<Deftemplate, ObjectTypeNode> inputNodes) {
+	public SFRuleCompiler(Rete engine, WorkingMemory mem, RootNode root) {
 		super();
 		this.engine = engine;
 		this.memory = mem;
-		this.inputnodes = inputNodes;
+		this.root =root;
 		this.tval = new TemplateValidation(engine);
 	}
 
@@ -163,8 +160,8 @@ public class SFRuleCompiler implements RuleCompiler {
 	 * @return void
 	 */
 	public void addObjectTypeNode(ObjectTypeNode node) {
-		if (!this.inputnodes.containsKey(node.getDeftemplate())) {
-			this.inputnodes.put((Deftemplate) node.getDeftemplate(), node);
+		if (!root.getObjectTypeNodes().containsKey(node.getDeftemplate())) {
+			root.getObjectTypeNodes().put((Deftemplate) node.getDeftemplate(), node);
 		}
 	}
 
@@ -176,7 +173,7 @@ public class SFRuleCompiler implements RuleCompiler {
 	 * @return void
 	 */
 	public void removeObjectTypeNode(ObjectTypeNode node) {
-		this.inputnodes.remove(node.getDeftemplate());
+		root.getObjectTypeNodes().remove(node.getDeftemplate());
 		node.clear(this.memory);
 		node.clearSuccessors();
 	}
@@ -190,7 +187,7 @@ public class SFRuleCompiler implements RuleCompiler {
 	 * @return ObjectTypeNode
 	 */
 	public ObjectTypeNode findObjectTypeNode(String templateName) {
-		Iterator itr = this.inputnodes.keySet().iterator();
+		Iterator itr = root.getObjectTypeNodes().keySet().iterator();
 		Template tmpl = null;
 		while (itr.hasNext()) {
 			tmpl = (Template) itr.next();
@@ -214,7 +211,7 @@ public class SFRuleCompiler implements RuleCompiler {
 	 * @return ObjectTypeNode
 	 */
 	public ObjectTypeNode getObjectTypeNode(Template template) {
-		return (ObjectTypeNode) this.inputnodes.get(template);
+		return (ObjectTypeNode) root.getObjectTypeNodes().get(template);
 	}
 
 	/**
@@ -281,7 +278,7 @@ public class SFRuleCompiler implements RuleCompiler {
 			} else if (rule.getConditions().length == 0) {
 				this.setModule(rule);
 				// the rule has no LHS, this means it only has actions
-				BaseNode last = (BaseNode) this.inputnodes.get(engine.initFact);
+				BaseNode last = (BaseNode) root.getObjectTypeNodes().get(engine.initFact);
 				TerminalNode tnode = createTerminalNode(rule);
 				last.addNode(tnode);
 
@@ -640,7 +637,7 @@ public class SFRuleCompiler implements RuleCompiler {
 					// handle it appropriate. This means we need to
 					// add a LIANode to _IntialFact and attach a NOTNode
 					// to the LIANode.
-					ObjectTypeNode otn = (ObjectTypeNode) this.inputnodes
+					ObjectTypeNode otn = (ObjectTypeNode) root.getObjectTypeNodes()
 							.get(engine.initFact);
 					LIANode lianode = findLeftInputAdapter(otn);
 					NotJoin njoin = new NotJoin(engine.nextNodeId());
