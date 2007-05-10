@@ -67,7 +67,7 @@ public class SFRuleCompiler implements RuleCompiler {
 
 	private Rete engine = null;
 
-	protected RootNode root = null;	
+	protected RootNode root = null;
 
 	private Module currentMod = null;
 
@@ -94,7 +94,7 @@ public class SFRuleCompiler implements RuleCompiler {
 		super();
 		this.engine = engine;
 		this.memory = mem;
-		this.root =root;
+		this.root = root;
 		this.tval = new TemplateValidation(engine);
 	}
 
@@ -161,7 +161,8 @@ public class SFRuleCompiler implements RuleCompiler {
 	 */
 	public void addObjectTypeNode(ObjectTypeNode node) {
 		if (!root.getObjectTypeNodes().containsKey(node.getDeftemplate())) {
-			root.getObjectTypeNodes().put((Deftemplate) node.getDeftemplate(), node);
+			root.getObjectTypeNodes().put((Deftemplate) node.getDeftemplate(),
+					node);
 		}
 	}
 
@@ -278,7 +279,8 @@ public class SFRuleCompiler implements RuleCompiler {
 			} else if (rule.getConditions().length == 0) {
 				this.setModule(rule);
 				// the rule has no LHS, this means it only has actions
-				BaseNode last = (BaseNode) root.getObjectTypeNodes().get(engine.initFact);
+				BaseNode last = (BaseNode) root.getObjectTypeNodes().get(
+						engine.initFact);
 				TerminalNode tnode = createTerminalNode(rule);
 				last.addNode(tnode);
 
@@ -637,8 +639,8 @@ public class SFRuleCompiler implements RuleCompiler {
 					// handle it appropriate. This means we need to
 					// add a LIANode to _IntialFact and attach a NOTNode
 					// to the LIANode.
-					ObjectTypeNode otn = (ObjectTypeNode) root.getObjectTypeNodes()
-							.get(engine.initFact);
+					ObjectTypeNode otn = (ObjectTypeNode) root
+							.getObjectTypeNodes().get(engine.initFact);
 					LIANode lianode = findLeftInputAdapter(otn);
 					NotJoin njoin = new NotJoin(engine.nextNodeId());
 					njoin.setBindings(new Binding[0]);
@@ -670,8 +672,13 @@ public class SFRuleCompiler implements RuleCompiler {
 			int conditionIndex) {
 
 		Template template = condition.getTemplate();
-
-		ObjectTypeNode otn = getObjectTypeNode(template);
+		Map otns = root.getObjectTypeNodes();
+		ObjectTypeNode otn;
+		if (!otns.containsKey(template)) {
+			root.addObjectTypeNode(new ObjectTypeNode(engine.nextNodeId(),
+					template));
+		}
+		otn = (ObjectTypeNode) otns.get(template);
 		BaseAlpha2 current = null;
 
 		if (otn != null) {
