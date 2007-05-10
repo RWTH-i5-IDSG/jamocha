@@ -136,6 +136,9 @@ public class RootNode implements Serializable {
 	 */
 	public synchronized void assertObjectParent(Fact fact, Template template, Rete engine, WorkingMemory mem) throws AssertException {
 		ObjectTypeNode otn = (ObjectTypeNode) this.inputNodes.get(template);
+		if (otn == null) {
+			otn = (ObjectTypeNode) this.tempInputNodes.get(fact.getTemplate());
+		}
 		if (otn != null) {
 			otn.assertFact(fact, engine, mem);
 		}
@@ -151,6 +154,9 @@ public class RootNode implements Serializable {
 	 */
 	public synchronized void retractObject(Fact fact, Rete engine, WorkingMemory mem) throws RetractException {
 		ObjectTypeNode otn = (ObjectTypeNode) this.inputNodes.get(fact.getTemplate());
+		if (otn == null) {
+			otn = (ObjectTypeNode) this.tempInputNodes.get(fact.getTemplate());
+		}
 		if (otn != null) {
 			otn.retractFact(fact, engine, mem);
 		}
@@ -168,6 +174,9 @@ public class RootNode implements Serializable {
 	 */
 	public synchronized void retractObjectParent(Fact fact, Template template, Rete engine, WorkingMemory mem) throws RetractException {
 		ObjectTypeNode otn = (ObjectTypeNode) this.inputNodes.get(template);
+		if (otn == null) {
+			otn = (ObjectTypeNode) this.tempInputNodes.get(fact.getTemplate());
+		}
 		if (otn != null) {
 			otn.retractFact(fact, engine, mem);
 		}
@@ -178,5 +187,6 @@ public class RootNode implements Serializable {
 
 	public synchronized void clear() {
 		this.inputNodes.clear();
+		this.tempInputNodes.clear();
 	}
 }
