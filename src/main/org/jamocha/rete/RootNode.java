@@ -116,6 +116,9 @@ public class RootNode implements Serializable {
 		// we need to lookup the defclass and deftemplate to assert
 		// the object to the network
 		ObjectTypeNode otn = (ObjectTypeNode) this.inputNodes.get(fact.getTemplate());
+		if (otn == null) {
+			otn = (ObjectTypeNode) this.tempInputNodes.get(fact.getTemplate());
+		}
 		if (otn != null) {
 			otn.assertFact(fact, engine, mem);
 		}
