@@ -13,10 +13,6 @@
 	(slot hersteller (type STRING))
 )
 
-
-
-
-
 (assert (wurst
 		(name "Fischwurst")
 		(gewicht 200)
@@ -39,16 +35,6 @@
 		)
 )
 
-
-(defrule wurst-meter "Regel zur Ausgabe der Wurst-LŠnge" 
-	(declare (rule-version "performance version") (salience 101) (auto-focus TRUE))
-	(wurst (gewicht ?x))
-	(bier (gewicht ?x))
-;;	y <- (wurst (laenge ?x)
-	=>
-	(printout t "Lebensmittel die zusammenpassen.")
-)
-
 (defrule wurst-meter-langsam "Regel zur Ausgabe der Wurst-LŠnge" 
 	(wurst (laenge 100) (gewicht 200))
 	(bier (gewicht 100))
@@ -57,6 +43,20 @@
 	=>
 	(printout t "Eine Wurst gefunden.")
 )
+
+
+
+(defrule wurst-meter "Regel zur Ausgabe der Wurst-LŠnge" 
+	(declare (rule-version "performance version") (salience 101) (auto-focus TRUE))
+	(wurst (gewicht ?x))
+	(wurst (laenge 100))
+	(bier (gewicht ?x))
+;;	y <- (wurst (laenge ?x)
+	=>
+	(printout t "Lebensmittel die zusammenpassen.")
+)
+
+
 
 
 
