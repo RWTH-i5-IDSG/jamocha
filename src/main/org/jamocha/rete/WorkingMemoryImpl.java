@@ -58,8 +58,6 @@ public class WorkingMemoryImpl implements WorkingMemory {
 		super();
 		this.engine = engine;
 		this.compiler = ParserFactory.getRuleCompiler(engine, this, this.root);
-		// this.compiler = new SFRuleCompiler(engine, this,
-		// this.root.getObjectTypeNodes());
 		this.compiler.addListener(engine);
 	}
 

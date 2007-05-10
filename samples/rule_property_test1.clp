@@ -1,28 +1,20 @@
 (deftemplate transaction
-  (slot accountId)
-  (slot buyPrice)
-  (slot countryCode)
-  (slot currentPrice)
-  (slot cusip)
-  (slot exchange)
-  (slot industryGroupID)
-  (slot industryID)
-  (slot issuer)
-  (slot lastPrice)
-  (slot purchaseDate)
-  (slot sectorID)
-  (slot shares)
-  (slot subIndustryID)
+  (slot aaa)
+  (slot bbb)
 )
-(defrule rule1 (declare (expiration-date "05/05/2010 00:00") )
+(defrule rule "sdfgdfg"
  (transaction
-    (accountId ?accid)
-    (buyPrice ?bp)
-    (issuer "BBB")
-    (exchange "NSDQ")
-    (countryCode "BR")
-    (subIndustryID 25201020)
+    (aaa ?accid)
+    (bbb "BBB")
   )
 =>
   (printout t "rule1 was fired" )
 )
+
+(assert 
+	(transaction
+		(aaa 1234)
+		(bbb "BBB")
+	)
+)
+ 
