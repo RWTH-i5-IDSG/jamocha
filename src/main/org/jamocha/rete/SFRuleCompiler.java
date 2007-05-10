@@ -159,11 +159,8 @@ public class SFRuleCompiler implements RuleCompiler {
 	 * @param ObjectTypeNode
 	 * @return void
 	 */
-	public void addObjectTypeNode(ObjectTypeNode node) {
-		if (!root.getObjectTypeNodes().containsKey(node.getDeftemplate())) {
-			root.getObjectTypeNodes().put((Deftemplate) node.getDeftemplate(),
-					node);
-		}
+	public void addObjectTypeNode(Template template) {
+		root.addObjectTypeNode(template, engine);
 	}
 
 	/**
@@ -672,13 +669,7 @@ public class SFRuleCompiler implements RuleCompiler {
 			int conditionIndex) {
 
 		Template template = condition.getTemplate();
-		Map otns = root.getObjectTypeNodes();
-		ObjectTypeNode otn;
-		if (!otns.containsKey(template)) {
-			root.addObjectTypeNode(new ObjectTypeNode(engine.nextNodeId(),
-					template));
-		}
-		otn = (ObjectTypeNode) otns.get(template);
+		ObjectTypeNode otn = root.activateObjectTypeNode(template);
 		BaseAlpha2 current = null;
 
 		if (otn != null) {

@@ -239,9 +239,9 @@ public class BasicRuleCompiler implements RuleCompiler {
 	 * the value. If the node already exists in the HashMap, or the key already
 	 * exists, the compiler will not add it to the network.
 	 */
-	public void addObjectTypeNode(ObjectTypeNode node) {
-		if (!this.inputnodes.containsKey(node.getDeftemplate())) {
-			this.inputnodes.put(node.getDeftemplate(), node);
+	public void addObjectTypeNode(Template template) {
+		if (!this.inputnodes.containsKey(template)) {
+			this.inputnodes.put(template, new ObjectTypeNode(engine.nextNodeId(), template));
 		}
 	}
 

@@ -304,11 +304,7 @@ public class Defmodule implements Module, Serializable {
 				this.deftemplates.put(temp.getName(), temp);
 				this.templateCount++;
 			}
-			if (!ParserFactory.getDefaultParser().equalsIgnoreCase("sfp")) {
-				ObjectTypeNode otn = new ObjectTypeNode(engine.nextNodeId(),
-						temp);
-				mem.getRuleCompiler().addObjectTypeNode(otn);
-			}
+			mem.getRuleCompiler().addObjectTypeNode(temp);
 			return true;
 		}
 		return false;

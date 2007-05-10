@@ -56,7 +56,7 @@ public interface RuleCompiler extends Serializable {
 	 * Add a new ObjectTypeNode to the network
 	 * @param node
 	 */
-	void addObjectTypeNode(ObjectTypeNode node);
+	void addObjectTypeNode(Template template);
 
 	/**
 	 * Remove an ObjectTypeNode from the network. This should be
