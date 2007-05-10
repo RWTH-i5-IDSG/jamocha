@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 Christoph Emonds
+ * Copyright 2007 Alexander Wilden
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,22 +16,12 @@
  */
 package org.jamocha.parser;
 
-public class ParserNotFoundException extends Exception {
-	
+public class ModeNotFoundException extends Exception {
+
 	private static final long serialVersionUID = 1L;
 
-	public ParserNotFoundException() {
+	public ModeNotFoundException(String mode) {
+		super("The mode " + mode + " could not be found.");
 	}
 
-	public ParserNotFoundException(String message) {
-		super(message);
-	}
-
-	public ParserNotFoundException(Throwable cause) {
-		super(cause);
-	}
-
-	public ParserNotFoundException(String message, Throwable cause) {
-		super(message, cause);
-	}
 }

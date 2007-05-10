@@ -20,8 +20,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.jamocha.gui.JamochaGui;
+import org.jamocha.parser.ModeNotFoundException;
 import org.jamocha.parser.ParserFactory;
-import org.jamocha.parser.ParserNotFoundException;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.Shell;
 
@@ -48,6 +48,9 @@ public class Jamocha {
 	 */
 	private Rete engine;
 
+	/**
+	 * A Thread working on Batch-processes in the background.
+	 */
 	private BatchThread batchThread;
 
 	/**
@@ -59,17 +62,17 @@ public class Jamocha {
 		boolean startGui = false;
 		boolean startShell = false;
 		List<String> batchFiles = new LinkedList<String>();
-		String parser = "";
+		String mode = "";
 		if (null != args) {
-			boolean inBatchFiles = false, inParser = false;
+			boolean inBatchFiles = false, inMode = false;
 			for (int i = 0; i < args.length; ++i) {
 				if (args[i].startsWith("-")) {
-					inBatchFiles = inParser = false;
+					inBatchFiles = inMode = false;
 				}
 				if (inBatchFiles) {
 					batchFiles.add(args[i]);
-				} else if (inParser) {
-					parser = args[i];
+				} else if (inMode) {
+					mode = args[i];
 				} else {
 					if (args[i].equalsIgnoreCase("-gui")) {
 						startGui = true;
@@ -77,17 +80,17 @@ public class Jamocha {
 						startShell = true;
 					} else if (args[i].equals("-batch")) {
 						inBatchFiles = true;
-					} else if (args[i].equals("-parser")) {
-						inParser = true;
+					} else if (args[i].equals("-mode")) {
+						inMode = true;
 					}
 				}
 			}
 		}
 		Jamocha jamocha = null;
 		try {
-			jamocha = new Jamocha(new Rete(), startGui, startShell, parser,
+			jamocha = new Jamocha(new Rete(), startGui, startShell, mode,
 					batchFiles);
-		} catch (ParserNotFoundException e) {
+		} catch (ModeNotFoundException e) {
 			// This really is a fatal error so we stop everything.
 			e.printStackTrace();
 			System.exit(1);
@@ -116,17 +119,16 @@ public class Jamocha {
 	 * @param startShell
 	 *            If <code>true</code> a simple commandline Shell working on
 	 *            System.in and System.out will be started.
-	 * @param parserName
-	 *            Name of the Parser to use. If none is given the default one
-	 *            will be used. If the Parser is unknown a
-	 *            <code>ParserNotFoundException</code> will be thrown.
-	 * @throws ParserNotFoundException
-	 *             if the specified Parser in <code>parserName</code> was not
-	 *             found.
+	 * @param mode
+	 *            Name of the Mode to use. If none is given the default one will
+	 *            be used. If the Mode is unknown a
+	 *            <code>ModeNotFoundException</code> will be thrown.
+	 * @throws ModeNotFoundException
+	 *             if the specified Mode in <code>mode</code> was not found.
 	 */
 	public Jamocha(Rete engine, boolean startGui, boolean startShell,
-			String parserName) throws ParserNotFoundException {
-		this(engine, startGui, startShell, parserName, null);
+			String mode) throws ModeNotFoundException {
+		this(engine, startGui, startShell, mode, null);
 	}
 
 	/**
@@ -143,24 +145,22 @@ public class Jamocha {
 	 * @param startShell
 	 *            If <code>true</code> a simple commandline Shell working on
 	 *            System.in and System.out will be started.
-	 * @param parserName
-	 *            Name of the Parser to use. If none is given the default one
-	 *            will be used. If the Parser is unknown a
-	 *            <code>ParserNotFoundException</code> will be thrown.
+	 * @param mode
+	 *            Name of the Mode to use. If none is given the default one will
+	 *            be used. If the Mode is unknown a
+	 *            <code>ModeNotFoundException</code> will be thrown.
 	 * @param batchFiles
 	 *            List of files that should be batch-processed at startup.
-	 * @throws ParserNotFoundException
-	 *             if the specified Parser in <code>parserName</code> was not
-	 *             found.
+	 * @throws ModeNotFoundException
+	 *             if the specified Mode in <code>mode</code> was not found.
 	 */
 	public Jamocha(Rete engine, boolean startGui, boolean startShell,
-			String parserName, List<String> batchFiles)
-			throws ParserNotFoundException {
+			String mode, List<String> batchFiles) throws ModeNotFoundException {
 		this.engine = engine;
 		batchThread = new BatchThread(engine);
 		batchThread.start();
-		if (parserName != null && parserName.length() > 0) {
-			ParserFactory.setDefaultParser(parserName);
+		if (mode != null && mode.length() > 0) {
+			ParserFactory.setDefaultMode(mode);
 		}
 		if (startShell) {
 			startShell();
@@ -183,7 +183,7 @@ public class Jamocha {
 	 * @throws ParserNotFoundException
 	 *             if the specified Parser was not found
 	 */
-	public void startShell() throws ParserNotFoundException {
+	public void startShell() throws ModeNotFoundException {
 		if (shell == null) {
 			shell = new Shell(engine);
 
@@ -238,9 +238,9 @@ public class Jamocha {
 	 * batch-files.</td>
 	 * </tr>
 	 * <tr>
-	 * <td>-parser [parsername]:</td>
-	 * <td>Uses the given parser to parse the input. Default (at the moment) is
-	 * sfp.</td>
+	 * <td>-mode [modename]:</td>
+	 * <td>Uses the given mode for the Parser, Formatter and RuleCompiler.
+	 * Default is sfp.</td>
 	 * </tr>
 	 * </table>
 	 * 
@@ -267,9 +267,9 @@ public class Jamocha {
 						+ sep
 						+ "     Processes a list of given files (separated by blanks) as batch-files."
 						+ sep
-						+ "-parser [parsername]:"
+						+ "-mode [modename]:"
 						+ sep
-						+ "     Uses the given parser to parse the input. Default is sfp.");
+						+ "     Uses the given mode for the Parser, Formatter and RuleCompiler. Default is sfp.");
 		System.exit(0);
 	}
 

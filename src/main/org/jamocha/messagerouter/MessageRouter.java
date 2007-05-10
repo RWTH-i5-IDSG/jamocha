@@ -28,8 +28,8 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.jamocha.parser.Expression;
 import org.jamocha.parser.JamochaValue;
+import org.jamocha.parser.ModeNotFoundException;
 import org.jamocha.parser.ParserFactory;
-import org.jamocha.parser.ParserNotFoundException;
 import org.jamocha.rete.Rete;
 
 /**
@@ -167,7 +167,7 @@ public class MessageRouter implements Serializable {
 	 */
 	public StreamChannel openChannel(String channelName,
 			InputStream inputStream, String parserName)
-			throws ParserNotFoundException {
+			throws ModeNotFoundException {
 		return openChannel(channelName, inputStream, InterestType.MINE,
 				parserName);
 	}
@@ -192,7 +192,7 @@ public class MessageRouter implements Serializable {
 		try {
 			return openChannel(channelName, inputStream, interestType,
 					ParserFactory.getDefaultParser());
-		} catch (ParserNotFoundException e) {
+		} catch (ModeNotFoundException e) {
 			// ignore it here, because the default parser is always available
 		}
 		return null;
@@ -220,7 +220,7 @@ public class MessageRouter implements Serializable {
 	 */
 	public StreamChannel openChannel(String channelName,
 			InputStream inputStream, InterestType interestType,
-			String parserName) throws ParserNotFoundException {
+			String parserName) throws ModeNotFoundException {
 		StreamChannel channel = new StreamChannelImpl(channelName + "_"
 				+ idCounter++, this, interestType);
 		channel.init(inputStream, parserName);
@@ -267,7 +267,7 @@ public class MessageRouter implements Serializable {
 	 *             if the preferred Parser is not available.
 	 */
 	public StreamChannel openChannel(String channelName, Reader reader,
-			String parserName) throws ParserNotFoundException {
+			String parserName) throws ModeNotFoundException {
 		return openChannel(channelName, reader, InterestType.MINE, parserName);
 	}
 
@@ -291,7 +291,7 @@ public class MessageRouter implements Serializable {
 		try {
 			return openChannel(channelName, reader, interestType, ParserFactory
 					.getDefaultParser());
-		} catch (ParserNotFoundException e) {
+		} catch (ModeNotFoundException e) {
 			// ignore it here, because the default parser is always available
 		}
 		return null;
@@ -319,7 +319,7 @@ public class MessageRouter implements Serializable {
 	 */
 	public StreamChannel openChannel(String channelName, Reader reader,
 			InterestType interestType, String parserName)
-			throws ParserNotFoundException {
+			throws ModeNotFoundException {
 		StreamChannel channel = new StreamChannelImpl(channelName + "_"
 				+ idCounter++, this, interestType);
 		channel.init(reader, parserName);
@@ -363,7 +363,7 @@ public class MessageRouter implements Serializable {
 	 *             if the preferred Parser is not available.
 	 */
 	public StringChannel openChannel(String channelName, String parserName)
-			throws ParserNotFoundException {
+			throws ModeNotFoundException {
 		return openChannel(channelName, InterestType.MINE, parserName);
 	}
 
@@ -385,7 +385,7 @@ public class MessageRouter implements Serializable {
 		try {
 			return openChannel(channelName, interestType, ParserFactory
 					.getDefaultParser());
-		} catch (ParserNotFoundException e) {
+		} catch (ModeNotFoundException e) {
 			// ignore it here, because the default parser is always available
 		}
 		return null;
@@ -411,7 +411,7 @@ public class MessageRouter implements Serializable {
 	 */
 	public StringChannel openChannel(String channelName,
 			InterestType interestType, String parserName)
-			throws ParserNotFoundException {
+			throws ModeNotFoundException {
 		StringChannel channel = new StringChannelImpl(channelName + "_"
 				+ idCounter++, this, interestType, parserName);
 		registerChannel(channel);

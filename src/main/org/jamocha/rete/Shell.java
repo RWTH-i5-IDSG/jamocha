@@ -23,7 +23,7 @@ import org.jamocha.messagerouter.MessageEvent;
 import org.jamocha.messagerouter.MessageRouter;
 import org.jamocha.messagerouter.StreamChannel;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.parser.ParserNotFoundException;
+import org.jamocha.parser.ModeNotFoundException;
 
 /**
  * This class represents a simple command line shell on System.in / System.out.
@@ -39,7 +39,7 @@ public class Shell {
 
 	private StreamChannel channel;
 
-	public Shell(Rete engine) throws ParserNotFoundException {
+	public Shell(Rete engine) throws ModeNotFoundException {
 		router = engine.getMessageRouter();
 		channel = router.openChannel(CHANNELNAME, System.in);
 	}

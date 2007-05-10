@@ -21,9 +21,9 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 
 import org.jamocha.parser.Expression;
+import org.jamocha.parser.ModeNotFoundException;
 import org.jamocha.parser.ParseException;
 import org.jamocha.parser.ParserFactory;
-import org.jamocha.parser.ParserNotFoundException;
 import org.jamocha.parser.clips.TokenMgrError;
 
 /**
@@ -60,12 +60,12 @@ class StreamChannelImpl extends AbstractCommunicationChannel implements
 	}
 
 	public void init(InputStream inputStream, String parserName)
-			throws ParserNotFoundException {
+			throws ModeNotFoundException {
 		init(new InputStreamReader(inputStream), parserName);
 	}
 
 	public void init(Reader reader, String parserName)
-			throws ParserNotFoundException {
+			throws ModeNotFoundException {
 		this.reader = reader;
 		this.parserName = parserName;
 		streamChannelThread.setStopped();

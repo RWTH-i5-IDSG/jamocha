@@ -19,9 +19,9 @@ package org.jamocha.messagerouter;
 import java.io.Reader;
 import java.util.List;
 
+import org.jamocha.parser.ModeNotFoundException;
 import org.jamocha.parser.Parser;
 import org.jamocha.parser.ParserFactory;
-import org.jamocha.parser.ParserNotFoundException;
 
 /**
  * Abstract implementation of the {@link CommunicationChannel} Interface. All
@@ -112,7 +112,7 @@ abstract class AbstractCommunicationChannel implements CommunicationChannel {
 	protected void restartParser(Reader reader){
 		try {
 			parser = ParserFactory.getParser(parserName, reader);
-		} catch (ParserNotFoundException e1) {
+		} catch (ModeNotFoundException e1) {
 			// we ignore this Exception here, because if the Parser
 			// didn't exist init() would already have thrown an
 			// Exception.

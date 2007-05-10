@@ -21,8 +21,8 @@ import java.io.Serializable;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
+import org.jamocha.parser.ModeNotFoundException;
 import org.jamocha.parser.ParserFactory;
-import org.jamocha.parser.ParserNotFoundException;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
@@ -96,13 +96,13 @@ public class SetParser implements Function, Serializable {
 	public JamochaValue executeFunction(Rete engine, Parameter[] params)
 			throws EvaluationException {
 		if (params != null && params.length == 1) {
-			String defaultParser = params[0].getValue(engine).getStringValue();
+			String defaultMode = params[0].getValue(engine).getStringValue();
 			try {
-				ParserFactory.setDefaultParser(defaultParser);
-			} catch (ParserNotFoundException e) {
+				ParserFactory.setDefaultMode(defaultMode);
+			} catch (ModeNotFoundException e) {
 				throw new EvaluationException(
 						"Error while setting the default parser to "
-								+ defaultParser + ":\n" + e.getMessage(), e);
+								+ defaultMode + ":\n" + e.getMessage(), e);
 			}
 		}
 		return JamochaValue.newString(ParserFactory.getDefaultParser());

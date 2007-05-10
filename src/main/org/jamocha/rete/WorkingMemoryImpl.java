@@ -20,6 +20,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.jamocha.parser.ParserFactory;
 import org.jamocha.rete.exception.AssertException;
 import org.jamocha.rete.exception.RetractException;
 import org.jamocha.rete.util.CollectionsFactory;
@@ -28,9 +29,9 @@ import org.jamocha.rule.Rule;
 
 /**
  * @author Peter Lin
- *
- * WorkingMemoryImpl is a basic implementation of the WorkingMemory
- * interface. A couple of important things about ava - Code Style - Code Templates
+ * 
+ * WorkingMemoryImpl is a basic implementation of the WorkingMemory interface. A
+ * couple of important things about ava - Code Style - Code Templates
  */
 public class WorkingMemoryImpl implements WorkingMemory {
 
@@ -56,13 +57,16 @@ public class WorkingMemoryImpl implements WorkingMemory {
 	public WorkingMemoryImpl(Rete engine) {
 		super();
 		this.engine = engine;
-		this.compiler = new SFRuleCompiler(engine, this, this.root
+		this.compiler = ParserFactory.getRuleCompiler(engine, this, this.root
 				.getObjectTypeNodes());
+		// this.compiler = new SFRuleCompiler(engine, this,
+		// this.root.getObjectTypeNodes());
 		this.compiler.addListener(engine);
 	}
 
 	/**
 	 * Return the rootnode of the RETE network
+	 * 
 	 * @return
 	 */
 	public RootNode getRootNode() {
@@ -74,8 +78,8 @@ public class WorkingMemoryImpl implements WorkingMemory {
 	}
 
 	/**
-	 * the implementation will lookup the alpha memory. If one exists,
-	 * it will return it. If not, it will create a new AlphaMemory.
+	 * the implementation will lookup the alpha memory. If one exists, it will
+	 * return it. If not, it will create a new AlphaMemory.
 	 */
 	public Object getAlphaMemory(Object key) {
 		if (this.alphaMemories.containsKey(key)) {
@@ -91,16 +95,16 @@ public class WorkingMemoryImpl implements WorkingMemory {
 	}
 
 	/**
-	 * The current implementation simply removes the alpha memory for
-	 * a given AlphaNode.
+	 * The current implementation simply removes the alpha memory for a given
+	 * AlphaNode.
 	 */
 	public void removeAlphaMemory(Object key) {
 		this.alphaMemories.remove(key);
 	}
 
 	/**
-	 * the key should be the BetaNode. The left memory is a HashMap,
-	 * which has Index for the key and BetaMemory for the value.
+	 * the key should be the BetaNode. The left memory is a HashMap, which has
+	 * Index for the key and BetaMemory for the value.
 	 */
 	public Object getBetaLeftMemory(Object key) {
 		Object val = this.betaLeftMemories.get(key);
@@ -117,9 +121,8 @@ public class WorkingMemoryImpl implements WorkingMemory {
 	}
 
 	/**
-	 * The key should be the BetaNode. The right memory is also
-	 * a HashMap, which has Index for the key and a single fact
-	 * for the value.
+	 * The key should be the BetaNode. The right memory is also a HashMap, which
+	 * has Index for the key and a single fact for the value.
 	 */
 	public Object getBetaRightMemory(Object key) {
 		Object val = this.betaRightMemories.get(key);
@@ -131,8 +134,8 @@ public class WorkingMemoryImpl implements WorkingMemory {
 				HashedAlphaMemoryImpl alpha = new HashedAlphaMemoryImpl(mname);
 				this.betaRightMemories.put(key, alpha);
 				return alpha;
-			} else if (key instanceof HashedNotEqBNode || 
-                    key instanceof HashedNotEqNJoin) {
+			} else if (key instanceof HashedNotEqBNode
+					|| key instanceof HashedNotEqNJoin) {
 				String mname = "hneq" + ((BaseNode) key).nodeID;
 				HashedAlphaMemory2 alpha = new HashedAlphaMemory2(mname);
 				this.betaRightMemories.put(key, alpha);
@@ -147,9 +150,8 @@ public class WorkingMemoryImpl implements WorkingMemory {
 	}
 
 	/**
-	 * The current implementation will lookup the memory. If one
-	 * does not exist, it will create a new HashMap and use the
-	 * node as the key.
+	 * The current implementation will lookup the memory. If one does not exist,
+	 * it will create a new HashMap and use the node as the key.
 	 */
 	public Object getTerminalMemory(Object key) {
 		if (this.terminalMemories.containsKey(key)) {
@@ -171,6 +173,7 @@ public class WorkingMemoryImpl implements WorkingMemory {
 
 	/**
 	 * Retract an object from the Working memory
+	 * 
 	 * @param objInstance
 	 */
 	public synchronized void retractObject(Fact fact) throws RetractException {
@@ -207,76 +210,88 @@ public class WorkingMemoryImpl implements WorkingMemory {
 				}
 			}
 		}
-		engine.writeMessage("total AlphaMemories = " + memTotal + Constants.LINEBREAK);
+		engine.writeMessage("total AlphaMemories = " + memTotal
+				+ Constants.LINEBREAK);
 
 		// now write out the left beta memory
-		engine.writeMessage("BetaNode Count " + this.betaLeftMemories.size() + Constants.LINEBREAK);
+		engine.writeMessage("BetaNode Count " + this.betaLeftMemories.size()
+				+ Constants.LINEBREAK);
 		int betaTotal = 0;
 		itr = this.betaLeftMemories.keySet().iterator();
 		while (itr.hasNext()) {
 			BaseNode key = (BaseNode) itr.next();
 			if (key instanceof BaseJoin) {
-				this.printBetaNodes((BaseJoin)key, detailed, betaTotal);
+				this.printBetaNodes((BaseJoin) key, detailed, betaTotal);
 			}
 		}
-		engine.writeMessage("total BetaMemories = " + betaTotal + Constants.LINEBREAK);
+		engine.writeMessage("total BetaMemories = " + betaTotal
+				+ Constants.LINEBREAK);
 	}
 
-	protected void printBetaNodes(BaseJoin bjoin, boolean detailed, int betaTotal) {
+	protected void printBetaNodes(BaseJoin bjoin, boolean detailed,
+			int betaTotal) {
 		if (bjoin instanceof HashedEqBNode) {
-			HashedEqBNode hebj = (HashedEqBNode)bjoin;
+			HashedEqBNode hebj = (HashedEqBNode) bjoin;
 			Map bm = (Map) this.betaLeftMemories.get(hebj);
 			// we iterate over the keys in the HashMap
 			Iterator bitr = bm.keySet().iterator();
 			while (bitr.hasNext()) {
 				Index bmm = (Index) bm.get(bitr.next());
 				if (detailed) {
-					engine.writeMessage(bjoin.toPPString(),Constants.DEFAULT_OUTPUT);
-					HashedAlphaMemoryImpl rightmem = (HashedAlphaMemoryImpl)
-							this.getBetaRightMemory(hebj);
+					engine.writeMessage(bjoin.toPPString(),
+							Constants.DEFAULT_OUTPUT);
+					HashedAlphaMemoryImpl rightmem = (HashedAlphaMemoryImpl) this
+							.getBetaRightMemory(hebj);
 
-					EqHashIndex eqinx = new EqHashIndex(hebj.getLeftValues(bmm.getFacts()));
+					EqHashIndex eqinx = new EqHashIndex(hebj.getLeftValues(bmm
+							.getFacts()));
 					// add to the total count
 					betaTotal += rightmem.count(eqinx);
 					engine.writeMessage(" count=" + betaTotal,
-                            Constants.DEFAULT_OUTPUT);
+							Constants.DEFAULT_OUTPUT);
 					Iterator ritr = rightmem.iterator(eqinx);
 					if (ritr != null) {
 						StringBuffer buf = new StringBuffer();
 						while (ritr.hasNext()) {
-							buf.append( ((Fact)ritr.next()).getFactId() + ",");
+							buf.append(((Fact) ritr.next()).getFactId() + ",");
 						}
-						engine.writeMessage(buf.toString(),Constants.DEFAULT_OUTPUT);
+						engine.writeMessage(buf.toString(),
+								Constants.DEFAULT_OUTPUT);
 					}
-					engine.writeMessage(Constants.LINEBREAK, Constants.DEFAULT_OUTPUT);
+					engine.writeMessage(Constants.LINEBREAK,
+							Constants.DEFAULT_OUTPUT);
 				}
 			}
 		} else if (bjoin instanceof HashedEqNJoin) {
-			HashedEqNJoin henj = (HashedEqNJoin)bjoin;
+			HashedEqNJoin henj = (HashedEqNJoin) bjoin;
 			Map bm = (Map) this.betaLeftMemories.get(henj);
 			// we iterate over the keys in the HashMap
 			Iterator bitr = bm.keySet().iterator();
 			while (bitr.hasNext()) {
 				Index bmm = (Index) bm.get(bitr.next());
 				if (detailed) {
-					engine.writeMessage(bjoin.toPPString(),Constants.DEFAULT_OUTPUT);
-					HashedAlphaMemoryImpl rightmem = (HashedAlphaMemoryImpl)
-							this.getBetaRightMemory(henj);
+					engine.writeMessage(bjoin.toPPString(),
+							Constants.DEFAULT_OUTPUT);
+					HashedAlphaMemoryImpl rightmem = (HashedAlphaMemoryImpl) this
+							.getBetaRightMemory(henj);
 
-					EqHashIndex eqinx = new EqHashIndex(henj.getLeftValues(bmm.getFacts()));
+					EqHashIndex eqinx = new EqHashIndex(henj.getLeftValues(bmm
+							.getFacts()));
 					// add to the total count
 					betaTotal += rightmem.count(eqinx);
-					engine.writeMessage(" count=" + betaTotal
-                            , Constants.DEFAULT_OUTPUT);
+					engine.writeMessage(" count=" + betaTotal,
+							Constants.DEFAULT_OUTPUT);
 					Iterator ritr = rightmem.iterator(eqinx);
 					if (ritr != null) {
 						StringBuffer buf = new StringBuffer();
 						while (ritr.hasNext()) {
-							buf.append( ((Fact)ritr.next()).getFactId() + ",");
+							buf.append(((Fact) ritr.next()).getFactId() + ",");
 						}
-						engine.writeMessage(buf.toString(),Constants.DEFAULT_OUTPUT);
+						engine.writeMessage(buf.toString(),
+								Constants.DEFAULT_OUTPUT);
 					}
-					engine.writeMessage(Constants.LINEBREAK, Constants.DEFAULT_OUTPUT);
+					engine.writeMessage(Constants.LINEBREAK,
+							Constants.DEFAULT_OUTPUT);
 				}
 			}
 		} else {
@@ -287,16 +302,16 @@ public class WorkingMemoryImpl implements WorkingMemory {
 				BetaMemory bmm = (BetaMemory) bm.get(bitr.next());
 				if (detailed) {
 					engine.writeMessage(bjoin.toPPString() + " count="
-							+ bmm.matchCount() + " - " + bmm.toPPString() + Constants.LINEBREAK);
+							+ bmm.matchCount() + " - " + bmm.toPPString()
+							+ Constants.LINEBREAK);
 				}
 				betaTotal += bmm.matchCount();
 			}
 		}
 	}
-	
+
 	/**
-	 * The method will print out the facts in the right input for all
-	 * BetaNodes.
+	 * The method will print out the facts in the right input for all BetaNodes.
 	 */
 	public void printWorkingMemoryBetaRight() {
 		StringBuffer buf = new StringBuffer();
@@ -323,7 +338,7 @@ public class WorkingMemoryImpl implements WorkingMemory {
 				int count = 0;
 				Object[] fitr = ham.iterateAll();
 				if (fitr != null) {
-					for (int idz=0; idz < fitr.length; idz++) {
+					for (int idz = 0; idz < fitr.length; idz++) {
 						Fact ft = (Fact) fitr[idz];
 						buf2.append(ft.getFactId() + ",");
 						count++;
@@ -339,6 +354,7 @@ public class WorkingMemoryImpl implements WorkingMemory {
 
 	/**
 	 * Printout the memory for the given rule.
+	 * 
 	 * @param rule
 	 */
 	public void printWorkingMemory(Rule rule) {
@@ -352,7 +368,8 @@ public class WorkingMemoryImpl implements WorkingMemory {
 			while (itr.hasNext()) {
 				BaseNode key = (BaseNode) itr.next();
 				AlphaMemory am = (AlphaMemory) this.alphaMemories.get(key);
-				engine.writeMessage(key.toPPString() + " count=" + am.size() + Constants.LINEBREAK);
+				engine.writeMessage(key.toPPString() + " count=" + am.size()
+						+ Constants.LINEBREAK);
 				memTotal += am.size();
 			}
 		}
@@ -379,31 +396,31 @@ public class WorkingMemoryImpl implements WorkingMemory {
 			am.clear();
 		}
 		this.alphaMemories.clear();
-        Iterator blitr = this.betaLeftMemories.values().iterator();
-        while (blitr.hasNext()) {
-            Object bval = blitr.next();
-            if (bval instanceof Map) {
-                Map lmem = (Map) bval;
-                // now iterate over the betamemories
-                Iterator bmitr = lmem.keySet().iterator();
-                while (bmitr.hasNext()) {
-                    Index indx = (Index) bmitr.next();
-                    indx.clear();
-                }
-                lmem.clear();
-            }
-        }
-        this.betaLeftMemories.clear();
-        Iterator britr = this.betaRightMemories.values().iterator();
-        while (britr.hasNext()) {
-            Object val = britr.next();
-            if (val instanceof HashedAlphaMemoryImpl) {
-                ((HashedAlphaMemoryImpl) val).clear();
-            } else {
-                Map mem = (Map) val;
-                mem.clear();
-            }
-        }
+		Iterator blitr = this.betaLeftMemories.values().iterator();
+		while (blitr.hasNext()) {
+			Object bval = blitr.next();
+			if (bval instanceof Map) {
+				Map lmem = (Map) bval;
+				// now iterate over the betamemories
+				Iterator bmitr = lmem.keySet().iterator();
+				while (bmitr.hasNext()) {
+					Index indx = (Index) bmitr.next();
+					indx.clear();
+				}
+				lmem.clear();
+			}
+		}
+		this.betaLeftMemories.clear();
+		Iterator britr = this.betaRightMemories.values().iterator();
+		while (britr.hasNext()) {
+			Object val = britr.next();
+			if (val instanceof HashedAlphaMemoryImpl) {
+				((HashedAlphaMemoryImpl) val).clear();
+			} else {
+				Map mem = (Map) val;
+				mem.clear();
+			}
+		}
 		this.betaRightMemories.clear();
 		this.terminalMemories.clear();
 		this.root.clear();

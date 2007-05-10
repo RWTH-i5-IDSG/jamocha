@@ -19,8 +19,8 @@ package org.jamocha.messagerouter;
 import java.io.InputStream;
 import java.io.Reader;
 
+import org.jamocha.parser.ModeNotFoundException;
 import org.jamocha.parser.ParserFactory;
-import org.jamocha.parser.ParserNotFoundException;
 
 /**
  * Interface for Channels using Streams as input source.
@@ -48,7 +48,7 @@ public interface StreamChannel extends CommunicationChannel {
 	 *             if the preferred Parser is not available.
 	 */
 	public void init(InputStream inputStream, String parserName)
-			throws ParserNotFoundException;
+			throws ModeNotFoundException;
 
 	/**
 	 * Initializes the channel directly with a <code>Reader</code> and a
@@ -66,7 +66,7 @@ public interface StreamChannel extends CommunicationChannel {
 	 *             if the preferred Parser is not available.
 	 */
 	public void init(Reader reader, String parserName)
-			throws ParserNotFoundException;
+			throws ModeNotFoundException;
 
 	/**
 	 * Returns if the <code>StreamChannel</code> is available. This is the

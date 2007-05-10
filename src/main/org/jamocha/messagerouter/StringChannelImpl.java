@@ -22,9 +22,9 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.jamocha.parser.Expression;
+import org.jamocha.parser.ModeNotFoundException;
 import org.jamocha.parser.ParseException;
 import org.jamocha.parser.ParserFactory;
-import org.jamocha.parser.ParserNotFoundException;
 import org.jamocha.parser.clips.TokenMgrError;
 
 /**
@@ -46,7 +46,7 @@ class StringChannelImpl extends AbstractCommunicationChannel implements
 
 	public StringChannelImpl(String channelId, MessageRouter router,
 			InterestType interest, String parserName)
-			throws ParserNotFoundException {
+			throws ModeNotFoundException {
 		super(channelId, router, interest);
 		this.parserName = parserName;
 		parser = ParserFactory.getParser(parserName, (Reader) null);

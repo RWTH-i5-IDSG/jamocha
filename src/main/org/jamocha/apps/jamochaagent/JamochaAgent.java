@@ -40,7 +40,7 @@ import org.jamocha.adapter.sl.CLIPS2SLFunction;
 import org.jamocha.adapter.sl.SL2CLIPSFunction;
 import org.jamocha.messagerouter.MessageEvent;
 import org.jamocha.messagerouter.StringChannel;
-import org.jamocha.parser.ParserNotFoundException;
+import org.jamocha.parser.ModeNotFoundException;
 import org.jamocha.rete.Deftemplate;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Rete;
@@ -100,7 +100,7 @@ public class JamochaAgent extends ToolAgent {
 					isSetArgument("shell"), getArgument("parser", ""));
 			if (isSetArgument("gui"))
 				jamocha.getJamochaGui().setExitOnClose(false);
-		} catch (ParserNotFoundException e) {
+		} catch (ModeNotFoundException e) {
 			e.printStackTrace();
 			System.exit(1);
 		}

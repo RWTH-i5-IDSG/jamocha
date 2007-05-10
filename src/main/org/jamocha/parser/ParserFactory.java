@@ -19,10 +19,16 @@ package org.jamocha.parser;
 import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
+import java.util.Map;
 
 import org.jamocha.parser.clips.CLIPSFormatter;
 import org.jamocha.parser.clips.CLIPSParser;
 import org.jamocha.parser.sfp.SFPParser;
+import org.jamocha.rete.BasicRuleCompiler;
+import org.jamocha.rete.Rete;
+import org.jamocha.rete.RuleCompiler;
+import org.jamocha.rete.SFRuleCompiler;
+import org.jamocha.rete.WorkingMemory;
 
 /**
  * The ParserFactory generates all known Parsers for CLIPS-Code or other
@@ -32,91 +38,87 @@ import org.jamocha.parser.sfp.SFPParser;
  */
 public class ParserFactory {
 
-	private static String defaultParser = "sfp";
+	private static String defaultMode = "sfp";
 
-	public static void setDefaultParser(String parserName)
-			throws ParserNotFoundException {
-		if (parserName != null && parserName.length() > 0) {
-			defaultParser = parserName;
+	public static void setDefaultMode(String mode) throws ModeNotFoundException {
+		if (mode != null && mode.length() > 0) {
+			defaultMode = mode;
 			// This is just to test if the specified Parser exists. If not we
 			// can
 			// throw an exception.
-			getParser(parserName, new StringReader(""));
+			getParser(mode, new StringReader(""));
+			getFormatter();
 		}
 	}
 
 	public static String getDefaultParser() {
-		return defaultParser;
+		return defaultMode;
 	}
 
 	public static Parser getParser(Reader reader) {
 		try {
-			return getParser(defaultParser, reader);
-		} catch (ParserNotFoundException e) {
+			return getParser(defaultMode, reader);
+		} catch (ModeNotFoundException e) {
 			// This shouldn't happen because the exception is thrown already
-			// before when setting the default parser.
-			e.printStackTrace();
+			// before when setting the default mode.
 		}
 		return null;
 	}
 
 	public static Parser getParser(InputStream stream) {
 		try {
-			return getParser(defaultParser, stream);
-		} catch (ParserNotFoundException e) {
+			return getParser(defaultMode, stream);
+		} catch (ModeNotFoundException e) {
 			// This shouldn't happen because the exception is thrown already
-			// before when setting the default parser.
-			e.printStackTrace();
+			// before when setting the default mode.
 		}
 		return null;
 	}
 
-	public static Parser getParser(String parserName, Reader reader)
-			throws ParserNotFoundException {
-		if (parserName.equalsIgnoreCase("clips")) {
+	public static Parser getParser(String mode, Reader reader)
+			throws ModeNotFoundException {
+		if (mode.equalsIgnoreCase("clips")) {
 			return new CLIPSParser(reader);
-		} else if (parserName.equalsIgnoreCase("sfp")) {
+		} else if (mode.equalsIgnoreCase("sfp")) {
 			return new SFPParser(reader);
 		} else {
-			throw new ParserNotFoundException("The Parser with the name \""
-					+ parserName + "\" could not be found.");
+			throw new ModeNotFoundException(mode);
 		}
 	}
 
-	public static Parser getParser(String parserName, InputStream stream)
-			throws ParserNotFoundException {
-		if (parserName.equalsIgnoreCase("clips")) {
+	public static Parser getParser(String mode, InputStream stream)
+			throws ModeNotFoundException {
+		if (mode.equalsIgnoreCase("clips")) {
 			return new CLIPSParser(stream);
-		} else if (parserName.equalsIgnoreCase("sfp")) {
+		} else if (mode.equalsIgnoreCase("sfp")) {
 			return new SFPParser(stream);
 		} else {
-			throw new ParserNotFoundException("The Parser with the name \""
-					+ parserName + "\" could not be found.");
+			throw new ModeNotFoundException(mode);
 		}
 	}
 
 	/**
-	 * Returns the Formatter without indentation belonging to the default
-	 * Parser.
+	 * Returns the Formatter without indentation belonging to the default Mode.
 	 * 
-	 * @return The Formatter of the default parser.
+	 * @return The Formatter of the default mode.
 	 */
 	public static Formatter getFormatter() {
 		return getFormatter(false);
 	}
 
 	/**
-	 * Returns the Formatter belonging to the default Parser.
+	 * Returns the Formatter belonging to the default Mode.
 	 * 
 	 * @param indentation
 	 *            if <code>true</code> the Formatter uses indentation.
-	 * @return The Formatter of the default parser.
+	 * @return The Formatter of the default mode.
 	 */
 	public static Formatter getFormatter(boolean indentation) {
 		try {
-			return getFormatter(defaultParser, indentation);
-		} catch (ParserNotFoundException e) {
-			// Should never happen
+			return getFormatter(defaultMode, indentation);
+		} catch (ModeNotFoundException e) {
+			// This shouldn't happen because the exception is thrown already
+			// before when setting the default mode.
 		}
 		return null;
 	}
@@ -125,35 +127,57 @@ public class ParserFactory {
 	 * Returns the Formatter without indentation belonging to a specified
 	 * Parser. Parser.
 	 * 
-	 * @param parserName
-	 *            Name of the spcecific Parser.
-	 * @return The Formatter of the default parser.
+	 * @param mode
+	 *            Name of the specific Mode.
+	 * @return The Formatter of the default mode.
 	 * @throws ParserNotFoundException
 	 */
-	public static Formatter getFormatter(String parserName)
-			throws ParserNotFoundException {
-		return getFormatter(parserName, false);
+	public static Formatter getFormatter(String mode)
+			throws ModeNotFoundException {
+		return getFormatter(mode, false);
 	}
 
 	/**
 	 * Returns the Formatter belonging to a specified Parser.
 	 * 
-	 * @param parserName
-	 *            Name of the spcecific Parser.
+	 * @param mode
+	 *            Name of the specific Mode.
 	 * @param indentation
 	 *            if <code>true</code> the Formatter uses indentation.
-	 * @return The Formatter of the parser.
+	 * @return The Formatter of the mode.
 	 * @throws ParserNotFoundException
 	 */
-	public static Formatter getFormatter(String parserName, boolean indentation)
-			throws ParserNotFoundException {
-		if (parserName.equalsIgnoreCase("clips")) {
+	public static Formatter getFormatter(String mode, boolean indentation)
+			throws ModeNotFoundException {
+		if (mode.equalsIgnoreCase("clips")) {
 			return new CLIPSFormatter(indentation);
-		} else if (parserName.equalsIgnoreCase("sfp")) {
+		} else if (mode.equalsIgnoreCase("sfp")) {
 			return new CLIPSFormatter(indentation);
 		} else {
-			throw new ParserNotFoundException("The Parser with the name \""
-					+ parserName + "\" could not be found.");
+			throw new ModeNotFoundException(mode);
+		}
+	}
+
+	public static RuleCompiler getRuleCompiler(Rete engine, WorkingMemory wmem,
+			Map inputNodes) {
+		try {
+			return getRuleCompiler(defaultMode, engine, wmem, inputNodes);
+		} catch (ModeNotFoundException e) {
+			// This shouldn't happen because the exception is thrown already
+			// before when setting the default mode.
+		}
+		return null;
+	}
+
+	@SuppressWarnings("unchecked")
+	public static RuleCompiler getRuleCompiler(String mode, Rete engine,
+			WorkingMemory wmem, Map inputNodes) throws ModeNotFoundException {
+		if (mode.equalsIgnoreCase("clips")) {
+			return new BasicRuleCompiler(engine, wmem, inputNodes);
+		} else if (mode.equalsIgnoreCase("sfp")) {
+			return new SFRuleCompiler(engine, wmem, inputNodes);
+		} else {
+			throw new ModeNotFoundException(mode);
 		}
 	}
 
