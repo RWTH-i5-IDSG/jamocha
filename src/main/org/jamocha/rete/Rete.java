@@ -301,7 +301,7 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 	protected void declareInitialFact() {
 		this.declareTemplate(initFact);
 		try {
-			Deffact ifact = (Deffact) initFact.createFact(null, null, this.nextFactId(), this);
+			Deffact ifact = (Deffact) initFact.createFact(null, null, 0, this);
 			this.assertFact(ifact);
 		} catch (AssertException e) {
 			// an error should not occur
