@@ -67,6 +67,8 @@ public class SFRuleCompiler implements RuleCompiler {
 
 	private Rete engine = null;
 
+	
+	
 	private Map<Deftemplate, ObjectTypeNode> inputnodes = null;
 
 	private Module currentMod = null;

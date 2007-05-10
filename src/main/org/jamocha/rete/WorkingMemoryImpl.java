@@ -73,9 +73,7 @@ public class WorkingMemoryImpl implements WorkingMemory {
 		return this.root;
 	}
 
-	protected void setRootNode(RootNode rnode) {
-		this.root = rnode;
-	}
+
 
 	/**
 	 * the implementation will lookup the alpha memory. If one exists, it will
