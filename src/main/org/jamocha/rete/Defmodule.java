@@ -22,16 +22,16 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.jamocha.parser.ParserFactory;
 import org.jamocha.rete.util.CollectionsFactory;
 import org.jamocha.rule.Condition;
 import org.jamocha.rule.Defrule;
 import org.jamocha.rule.ObjectCondition;
 import org.jamocha.rule.Rule;
 
-
 /**
  * @author Peter Lin
- *
+ * 
  * A module represents a set of rulesets. The concept is from CLIPS and provides
  * a way to isolate the rule activation and pattern matching.
  */
@@ -45,15 +45,15 @@ public class Defmodule implements Module, Serializable {
 	protected int id;
 
 	/**
-	 * The name of the module. A rule engine may have one or
-	 * more modules with rules loaded
+	 * The name of the module. A rule engine may have one or more modules with
+	 * rules loaded
 	 */
 	protected String name = null;
 
 	/**
-	 * A simple list of the rules in this module. Before an
-	 * activation is added to the module, the class should
-	 * check to see if the rule is in the module first.
+	 * A simple list of the rules in this module. Before an activation is added
+	 * to the module, the class should check to see if the rule is in the module
+	 * first.
 	 */
 	protected Map rules = CollectionsFactory.localMap();
 
@@ -63,15 +63,14 @@ public class Defmodule implements Module, Serializable {
 	protected ActivationList activations = null;
 
 	/**
-	 * In some cases, we may want a module to use a specific
-	 * conflict resolution strategy.
+	 * In some cases, we may want a module to use a specific conflict resolution
+	 * strategy.
 	 */
 	protected Strategy strategy = null;
 
 	/**
-	 * The key is either the template name if it was created
-	 * from the shell, or the defclass if it was created from
-	 * an Object.
+	 * The key is either the template name if it was created from the shell, or
+	 * the defclass if it was created from an Object.
 	 */
 	protected Map deftemplates = CollectionsFactory.localMap();
 
@@ -95,17 +94,17 @@ public class Defmodule implements Module, Serializable {
 	}
 
 	/**
-	 * When the focus is changed, fireActivations should be
-	 * called to make sure any activations in the module are
-	 * processed.
+	 * When the focus is changed, fireActivations should be called to make sure
+	 * any activations in the module are processed.
 	 */
 	public synchronized int getActivationCount() {
 		return this.activations.size();
 	}
 
 	/**
-	 * The method should get the agenda and use it to add the new
-	 * activation to the agenda
+	 * The method should get the agenda and use it to add the new activation to
+	 * the agenda
+	 * 
 	 * @param actv
 	 */
 	public void addActivation(Activation actv) {
@@ -114,6 +113,7 @@ public class Defmodule implements Module, Serializable {
 
 	/**
 	 * Remove an activation from the list
+	 * 
 	 * @param actv
 	 * @return
 	 */
@@ -122,9 +122,8 @@ public class Defmodule implements Module, Serializable {
 	}
 
 	/**
-	 * The current implementation will remove the first activation
-	 * and return it. If there's no more activations, the method
-	 * return null;
+	 * The current implementation will remove the first activation and return
+	 * it. If there's no more activations, the method return null;
 	 */
 	public Activation nextActivation(Rete engine) {
 		Activation act = this.activations.nextActivation();
@@ -136,6 +135,7 @@ public class Defmodule implements Module, Serializable {
 
 	/**
 	 * Return the name of the module
+	 * 
 	 * @return
 	 */
 	public String getModuleName() {
@@ -143,8 +143,9 @@ public class Defmodule implements Module, Serializable {
 	}
 
 	/**
-	 * If the module has a default conflict resolution strategy,
-	 * it will return it. Otherwise the method returns null.
+	 * If the module has a default conflict resolution strategy, it will return
+	 * it. Otherwise the method returns null.
+	 * 
 	 * @return
 	 */
 	public Strategy getDefaultResolver() {
@@ -182,28 +183,30 @@ public class Defmodule implements Module, Serializable {
 		// them if they are not shared
 		Condition[] cnds = rl.getConditions();
 		// first remove the alpha nodes
-		for (int idx=0; idx < cnds.length; idx++) {
+		for (int idx = 0; idx < cnds.length; idx++) {
 			Condition cnd = cnds[idx];
 			if (cnd instanceof ObjectCondition) {
-				ObjectCondition oc = (ObjectCondition)cnd;
+				ObjectCondition oc = (ObjectCondition) cnd;
 				String templ = oc.getTemplateName();
-				Deftemplate temp = (Deftemplate)this.deftemplates.get(templ);
-				ObjectTypeNode otn = mem.getRuleCompiler().getObjectTypeNode(temp);
-				this.removeAlphaNodes(oc.getNodes(),otn);
+				Deftemplate temp = (Deftemplate) this.deftemplates.get(templ);
+				ObjectTypeNode otn = mem.getRuleCompiler().getObjectTypeNode(
+						temp);
+				this.removeAlphaNodes(oc.getNodes(), otn);
 			}
 		}
 		// now remove the betaNodes, since the engine currently
 		// doesn't share the betaNodes, we can just remove it
 		List bjl = rl.getJoins();
-		
-		for (int idx=0; idx < bjl.size(); idx++) {
-			BaseJoin bjoin = (BaseJoin)bjl.get(idx);
+
+		for (int idx = 0; idx < bjl.size(); idx++) {
+			BaseJoin bjoin = (BaseJoin) bjl.get(idx);
 			Condition cnd = cnds[idx + 1];
 			if (cnd instanceof ObjectCondition) {
-				ObjectCondition oc = (ObjectCondition)cnd;
+				ObjectCondition oc = (ObjectCondition) cnd;
 				String templ = oc.getTemplateName();
-				Deftemplate temp = (Deftemplate)this.deftemplates.get(templ);
-				ObjectTypeNode otn = mem.getRuleCompiler().getObjectTypeNode(temp);
+				Deftemplate temp = (Deftemplate) this.deftemplates.get(templ);
+				ObjectTypeNode otn = mem.getRuleCompiler().getObjectTypeNode(
+						temp);
 				otn.removeNode(bjoin);
 			}
 		}
@@ -211,8 +214,8 @@ public class Defmodule implements Module, Serializable {
 
 	protected void removeAlphaNodes(List nodes, ObjectTypeNode otn) {
 		BaseNode prev = otn;
-		for (int idx=0; idx < nodes.size(); idx++) {
-			BaseNode node = (BaseNode)nodes.get(idx);
+		for (int idx = 0; idx < nodes.size(); idx++) {
+			BaseNode node = (BaseNode) nodes.get(idx);
 			if (node.useCount > 1) {
 				node.decrementUseCount();
 			} else {
@@ -221,12 +224,11 @@ public class Defmodule implements Module, Serializable {
 			prev = node;
 		}
 	}
-	
+
 	/**
-	 * If the module already contains the rule, it will return true.
-	 * The lookup uses the rule name, so rule names are distinct
-	 * within a single module. The same rule name may be used in
-	 * multiple modules.
+	 * If the module already contains the rule, it will return true. The lookup
+	 * uses the rule name, so rule names are distinct within a single module.
+	 * The same rule name may be used in multiple modules.
 	 */
 	public boolean containsRule(Rule rl) {
 		return this.rules.containsKey(rl.getName());
@@ -259,12 +261,11 @@ public class Defmodule implements Module, Serializable {
 	}
 
 	/**
-	 * implementation looks up the template and assumes the key
-	 * is the classname or the user define name.
+	 * implementation looks up the template and assumes the key is the classname
+	 * or the user define name.
 	 */
 	public Template getTemplate(Defclass key) {
-		return (Template) this.deftemplates.get(key.getClassObject()
-				.getName());
+		return (Template) this.deftemplates.get(key.getClassObject().getName());
 	}
 
 	public Template getTemplate(String key) {
@@ -289,9 +290,8 @@ public class Defmodule implements Module, Serializable {
 	}
 
 	/**
-	 * The implementation will use either the defclass or the
-	 * template name for the key. The templates are stored in
-	 * a HashMap.
+	 * The implementation will use either the defclass or the template name for
+	 * the key. The templates are stored in a HashMap.
 	 */
 	public boolean addTemplate(Template temp, Rete engine, WorkingMemory mem) {
 		if (!this.deftemplates.containsKey(temp.getName())) {
@@ -304,16 +304,19 @@ public class Defmodule implements Module, Serializable {
 				this.deftemplates.put(temp.getName(), temp);
 				this.templateCount++;
 			}
-			ObjectTypeNode otn = new ObjectTypeNode(engine.nextNodeId(), temp);
-			mem.getRuleCompiler().addObjectTypeNode(otn);
+			if (!ParserFactory.getDefaultParser().equalsIgnoreCase("sfp")) {
+				ObjectTypeNode otn = new ObjectTypeNode(engine.nextNodeId(),
+						temp);
+				mem.getRuleCompiler().addObjectTypeNode(otn);
+			}
 			return true;
 		}
 		return false;
 	}
 
 	/**
-	 * implementation will remove the template from the HashMap
-	 * and it will remove the ObjectTypeNode from the network.
+	 * implementation will remove the template from the HashMap and it will
+	 * remove the ObjectTypeNode from the network.
 	 */
 	public void removeTemplate(Template temp, Rete engine, WorkingMemory mem) {
 		this.deftemplates.remove(temp.getName());
@@ -325,10 +328,9 @@ public class Defmodule implements Module, Serializable {
 	}
 
 	/**
-	 * Method returns the entrySet of the HashMap containing the
-	 * Deftemplates. Because of how we map the deftemplates, the
-	 * number of entries will not correspond to the number of
-	 * actual deftemplates
+	 * Method returns the entrySet of the HashMap containing the Deftemplates.
+	 * Because of how we map the deftemplates, the number of entries will not
+	 * correspond to the number of actual deftemplates
 	 */
 	public Collection getTemplates() {
 		return this.deftemplates.values();
@@ -346,8 +348,8 @@ public class Defmodule implements Module, Serializable {
 	}
 
 	/**
-	 * Call the method with true to turn on lazy agenda. Call with
-	 * false to turn it off.
+	 * Call the method with true to turn on lazy agenda. Call with false to turn
+	 * it off.
 	 */
 	public void setLazy(boolean lazy) {
 		this.activations.setLazy(lazy);
