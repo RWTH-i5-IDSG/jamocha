@@ -24,7 +24,6 @@ import java.util.Map;
 import org.jamocha.parser.clips.CLIPSFormatter;
 import org.jamocha.parser.clips.CLIPSParser;
 import org.jamocha.parser.sfp.SFPParser;
-import org.jamocha.rete.BasicRuleCompiler;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.RuleCompiler;
 import org.jamocha.rete.SFRuleCompiler;
@@ -174,7 +173,11 @@ public class ParserFactory {
 	public static RuleCompiler getRuleCompiler(String mode, Rete engine,
 			WorkingMemory wmem, RootNode root) throws ModeNotFoundException {
 		if (mode.equalsIgnoreCase("clips")) {
-			return new BasicRuleCompiler(engine, wmem, root.getObjectTypeNodes());
+			throw new ModeNotFoundException("clips-mode not supported anymore");
+			/* BasicRuleCompiler is deleted since we refactored and deleted many classes,
+			 * which were used in BasicRuleCompiler, which leaded to errors.
+			 */ 
+			//return new BasicRuleCompiler(engine, wmem, root.getObjectTypeNodes());
 		} else if (mode.equalsIgnoreCase("sfp")) {
 			return new SFRuleCompiler(engine, wmem, root);
 		} else {

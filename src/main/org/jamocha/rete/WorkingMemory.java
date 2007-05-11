@@ -56,7 +56,7 @@ public interface WorkingMemory extends Serializable {
 	 * @param key
 	 * @return
 	 */
-	Object getBetaLeftMemory(Object key);
+	//Object getBetaLeftMemory(Object key);
 
 	/**
 	 * The key for the lookup should be the node. Each BetaNode has
@@ -65,7 +65,7 @@ public interface WorkingMemory extends Serializable {
 	 * @param key
 	 * @return
 	 */
-	Object getBetaRightMemory(Object key);
+	//Object getBetaRightMemory(Object key);
 
 	/**
 	 * The for the lookup is the terminalNode. Depending on the terminal
@@ -89,14 +89,14 @@ public interface WorkingMemory extends Serializable {
 	 * of matches for each Node is sufficient.
 	 * @param detailed
 	 */
-	void printWorkingMemory(boolean detailed, boolean inputNodes);
+	//void printWorkingMemory(boolean detailed, boolean inputNodes);
 
 	/**
 	 * Printout the working memory with the given filter. if no filer
 	 * is passed, it should call printWorkingMemory(true,false);
 	 * @param filter
 	 */
-	void printWorkingMemory(Map filter);
+	//void printWorkingMemory(Map filter);
 
 	/**
 	 * Printout the facts on the right side of BetaNodes.

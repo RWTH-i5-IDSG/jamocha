@@ -211,7 +211,12 @@ public class Defmodule implements Module, Serializable {
 				Deftemplate temp = (Deftemplate) this.deftemplates.get(templ);
 				ObjectTypeNode otn = mem.getRuleCompiler().getObjectTypeNode(
 						temp);
-				otn.removeNode(bjoin, engine);
+				try {
+					otn.removeNode(bjoin, engine);
+				} catch (RetractException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 		}
 	}
@@ -221,7 +226,12 @@ public class Defmodule implements Module, Serializable {
 		for (int idx = 0; idx < nodes.size(); idx++) {
 			BaseNode node = (BaseNode) nodes.get(idx);
 			if (node.getChildCount() == 0) {
-				prev.removeNode(node, engine);
+				try {
+					prev.removeNode(node, engine);
+				} catch (RetractException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 			prev = node;
 		}
@@ -322,7 +332,12 @@ public class Defmodule implements Module, Serializable {
 			this.deftemplates.remove(temp.getClassName());
 		}
 		ObjectTypeNode otn = mem.getRuleCompiler().getObjectTypeNode(temp);
-		mem.getRuleCompiler().removeObjectTypeNode(otn);
+		try {
+			mem.getRuleCompiler().removeObjectTypeNode(otn);
+		} catch (RetractException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	/**

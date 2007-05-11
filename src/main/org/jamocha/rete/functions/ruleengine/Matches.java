@@ -100,7 +100,9 @@ public class Matches implements Function, Serializable {
 				filter.put(params[idx].getValue(engine).getStringValue(), null);
 			}
 		}
-		engine.getWorkingMemory().printWorkingMemory(filter);
+		System.out.println("sorry, i have to become reimplemented");
+		//TODO find an equivalent of that
+		//engine.getWorkingMemory().printWorkingMemory(filter);
 		return JamochaValue.NIL;
 	}
 }

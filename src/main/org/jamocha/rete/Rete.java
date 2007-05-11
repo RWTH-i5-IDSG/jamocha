@@ -1647,9 +1647,9 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 		return this.workingMem.getRuleCompiler();
 	}
 
-	public void printWorkingMemory(boolean detailed, boolean inputNodes) {
-		this.workingMem.printWorkingMemory(detailed, inputNodes);
-	}
+//	public void printWorkingMemory(boolean detailed, boolean inputNodes) {
+//		this.workingMem.printWorkingMemory(detailed, inputNodes);
+//	}
 
 	public WorkingMemory getWorkingMemory() {
 		return this.workingMem;

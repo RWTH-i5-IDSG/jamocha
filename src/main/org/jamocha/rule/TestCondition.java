@@ -21,11 +21,11 @@ import java.util.List;
 
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaValue;
+import org.jamocha.rete.nodes.AlphaNode;
 import org.jamocha.rete.nodes.BaseNode;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.SFRuleCompiler;
-import org.jamocha.rete.TestNode;
 import org.jamocha.rete.configurations.Signature;
 
 /**
@@ -40,7 +40,7 @@ public class TestCondition extends AbstractCondition {
 
 	protected Signature func = null;
 
-	protected TestNode node = null;
+	protected AlphaNode node = null;
 
 	protected ArrayList binds = new ArrayList();
 
@@ -76,11 +76,11 @@ public class TestCondition extends AbstractCondition {
 		return false;
 	}
 
-	public void setTestNode(TestNode node) {
+	public void setTestNode(AlphaNode node) {
 		this.node = node;
 	}
 
-	public TestNode getTestNode() {
+	public AlphaNode getTestNode() {
 		return this.node;
 	}
 
@@ -99,8 +99,8 @@ public class TestCondition extends AbstractCondition {
 	 * it is, it will set the node. If not, it will ignore it.
 	 */
 	public void addNode(BaseNode node) {
-		if (node instanceof TestNode) {
-			this.node = (TestNode) node;
+		if (node instanceof AlphaNode) {
+			this.node = (AlphaNode) node;
 		}
 	}
 

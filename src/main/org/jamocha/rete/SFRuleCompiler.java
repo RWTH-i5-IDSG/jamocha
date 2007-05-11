@@ -20,17 +20,22 @@ package org.jamocha.rete;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.List;
 
 import org.jamocha.logging.DefaultLogger;
 import org.jamocha.parser.EvaluationException;
+import org.jamocha.parser.Expression;
 import org.jamocha.parser.IllegalConversionException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
+import org.jamocha.rete.configurations.Signature;
 import org.jamocha.rete.exception.AssertException;
 import org.jamocha.rete.exception.RetractException;
 import org.jamocha.rete.nodes.AbstractAlpha;
 import org.jamocha.rete.nodes.AlphaNode;
+import org.jamocha.rete.nodes.BaseJoin;
 import org.jamocha.rete.nodes.BaseNode;
+import org.jamocha.rete.nodes.BetaNode;
 import org.jamocha.rete.nodes.LIANode;
 import org.jamocha.rete.nodes.ObjectTypeNode;
 import org.jamocha.rete.nodes.RootNode;
@@ -40,6 +45,7 @@ import org.jamocha.rule.Action;
 import org.jamocha.rule.Analysis;
 import org.jamocha.rule.AndCondition;
 import org.jamocha.rule.AndLiteralConstraint;
+import org.jamocha.rule.BooleanOperatorCondition;
 import org.jamocha.rule.BoundConstraint;
 import org.jamocha.rule.Condition;
 import org.jamocha.rule.Constraint;
@@ -75,6 +81,8 @@ public class SFRuleCompiler implements RuleCompiler {
 
 	private Module currentMod = null;
 
+	private LIANode initialFactLIANode = null;
+
 	private ArrayList<CompilerListener> listener = new ArrayList<CompilerListener>();
 
 	protected boolean validate = true;
@@ -87,7 +95,7 @@ public class SFRuleCompiler implements RuleCompiler {
 
 	public static final String ASSERT_ON_PROPOGATE = Messages.getString("CompilerProperties.assert.on.add"); //$NON-NLS-1$
 
-	protected DefaultLogger log = new DefaultLogger(BasicRuleCompiler.class);
+	protected DefaultLogger log = new DefaultLogger(this.getClass());
 
 	public SFRuleCompiler(Rete engine, WorkingMemory mem, RootNode root) {
 		super();
@@ -169,7 +177,7 @@ public class SFRuleCompiler implements RuleCompiler {
 	 * @param ObjectTypeNode
 	 *            node
 	 * @return void
-	 * @throws RetractException
+	 * @throws RetractException 
 	 */
 	public void removeObjectTypeNode(ObjectTypeNode node) throws RetractException {
 		root.removeObjectTypeNode(node);
@@ -313,7 +321,7 @@ public class SFRuleCompiler implements RuleCompiler {
 
 			if (createNewJoin) {
 				// creat join add old bottom node, set join to new bottom node
-				ZJBetaNode newJoin = new ZJBetaNode(engine.nextNodeId());
+				BetaNode newJoin = new BetaNode(engine.nextNodeId());
 				newJoin.addNode(fromBottom, engine);
 				fromBottom = newJoin;
 				// add join to rule:
@@ -332,158 +340,292 @@ public class SFRuleCompiler implements RuleCompiler {
 				(lastNode).addNode(fromBottom, engine);
 		}
 	}
+/*
+	public void compileJoins2(Rule rule, Condition[] conds) throws AssertException {
+		// only if there's more than 1 condition do we attempt to
+		// create the join nodes. A rule with just 1 condition has
+		// no joins
+		if (conds.length > 1) {
+			// previous Condition
+			Condition prev = conds[0];
+			BaseJoin prevJoin = null;
+			BaseJoin bn = null;
+			// check if the first condition has any alphaNodes
+			// if it does, we add a LeftInputAdapater to the
+			// last AlphaNode
+			if (prev instanceof ObjectCondition) {
+				ObjectCondition cond = (ObjectCondition) prev;
+				ObjectTypeNode otn = findObjectTypeNode(cond.getTemplateName());
+				// the LeftInputAdapterNode is the first node to propogate to
+				// the first joinNode of the rule
+				LIANode node = new LIANode(engine.nextNodeId());
+				// if the condition doesn't have any nodes, we add the
+				// LeftInputAdapter
+				// to the ObjectTypeNode, otherwise we add it to the last
+				// AlphaNode
+				if (cond.getNodes().size() == 0) {
+					otn.addNode(node, engine);
+				} else {
+					// add the LeftInputAdapterNode to the last alphaNode
+					// we need to see if new LIANode is the same as the existing
+					AbstractAlpha old = (AbstractAlpha) cond.getLastNode();
+					if (old instanceof LIANode) {
+						node = (LIANode) old;
+					} else {
+						old.addNode(node, engine);
+					}
+				}
+				cond.addNode(node);
+			} else if (prev instanceof TestCondition) {
+				// for now this is not implemented, since most rules do not
+				// have a test condition as the first condition
+			} else if (prev instanceof ExistCondition) {
+				// if the first CE is an exists CE, we handle it differently
+				BaseJoin bjoin = new ExistJoinFrst(engine.nextNodeId());
+				ExistCondition cond = (ExistCondition) prev;
+				BaseNode base = cond.getLastNode();
+				if (base instanceof AbstractAlpha) {
+					((AbstractAlpha) base).addNode(bjoin, engine);
+				} else if (base instanceof BaseJoin) {
+					((BaseJoin) base).addNode(bjoin, engine);
+				}
+				// important, do not call this before ExistJoinFrst is added
+				// if it's called first, the arraylist will return index
+				// out of bound, since there's nothing in the list
+				cond.setIsFirstCE(true);
+				cond.addNode(bjoin);
+			}
+			int negatedCE = 0;
+			// now compile the remaining conditions
+			for (int idx = 1; idx < conds.length; idx++) {
+				Condition cdt = conds[idx];
+				ObjectTypeNode otn = null;
+				if (cdt instanceof TestCondition) {
 
-	/*
-	 * public void compileJoins2(Rule rule, Condition[] conds) throws
-	 * AssertException { // only if there's more than 1 condition do we attempt
-	 * to // create the join nodes. A rule with just 1 condition has // no joins
-	 * if (conds.length > 1) { // previous Condition Condition prev = conds[0];
-	 * BaseJoin prevJoin = null; BaseJoin bn = null; // check if the first
-	 * condition has any alphaNodes // if it does, we add a LeftInputAdapater to
-	 * the // last AlphaNode if (prev instanceof ObjectCondition) {
-	 * ObjectCondition cond = (ObjectCondition) prev; ObjectTypeNode otn =
-	 * findObjectTypeNode(cond.getTemplateName()); // the LeftInputAdapterNode
-	 * is the first node to propogate to // the first joinNode of the rule
-	 * LIANode node = new LIANode(engine.nextNodeId()); // if the condition
-	 * doesn't have any nodes, we add the // LeftInputAdapter // to the
-	 * ObjectTypeNode, otherwise we add it to the last // AlphaNode if
-	 * (cond.getNodes().size() == 0) { otn.addNode(node, engine); } else { //
-	 * add the LeftInputAdapterNode to the last alphaNode // we need to see if
-	 * new LIANode is the same as the existing AbstractAlpha old =
-	 * (AbstractAlpha) cond.getLastNode(); if (old instanceof LIANode) { node =
-	 * (LIANode) old; } else { old.addNode(node, engine); } }
-	 * cond.addNode(node); } else if (prev instanceof TestCondition) { // for
-	 * now this is not implemented, since most rules do not // have a test
-	 * condition as the first condition } else if (prev instanceof
-	 * ExistCondition) { // if the first CE is an exists CE, we handle it
-	 * differently BaseJoin bjoin = new ExistJoinFrst(engine.nextNodeId());
-	 * ExistCondition cond = (ExistCondition) prev; BaseNode base =
-	 * cond.getLastNode(); if (base instanceof AbstractAlpha) { ((AbstractAlpha)
-	 * base).addNode(bjoin, engine); } else if (base instanceof BaseJoin) {
-	 * ((BaseJoin) base).addNode(bjoin, engine); } // important, do not call
-	 * this before ExistJoinFrst is added // if it's called first, the arraylist
-	 * will return index // out of bound, since there's nothing in the list
-	 * cond.setIsFirstCE(true); cond.addNode(bjoin); } int negatedCE = 0; // now
-	 * compile the remaining conditions for (int idx = 1; idx < conds.length;
-	 * idx++) { Condition cdt = conds[idx]; ObjectTypeNode otn = null; if (cdt
-	 * instanceof TestCondition) {
-	 * 
-	 * TestCondition tc = (TestCondition) cdt; Signature fn = (Signature)
-	 * tc.getFunction(); Expression[] oldpm = fn.getParameters(); Parameter[]
-	 * pms = new Parameter[oldpm.length]; for (int ipm = 0; ipm < pms.length;
-	 * ipm++) { if (oldpm[ipm] instanceof JamochaValue) { pms[ipm] = (Parameter)
-	 * oldpm[ipm]; } else if (oldpm[ipm] instanceof BoundParam) { BoundParam bpm =
-	 * (BoundParam) oldpm[ipm]; // now we need to resolve and setup the
-	 * BoundParam Binding b = rule.getBinding(bpm.getVariableName()); BoundParam
-	 * newpm = new BoundParam(b.getLeftRow(), b.getLeftIndex(), 9,
-	 * bpm.isObjectBinding()); newpm.setVariableName(bpm.getVariableName());
-	 * pms[ipm] = newpm; } } if (tc.isNegated()) { bn = new
-	 * NTestNode(engine.nextNodeId(), fn.lookUpFunction(engine), pms); } else {
-	 * bn = new TestNode(engine.nextNodeId(), fn.lookUpFunction(engine), pms); }
-	 * if (prevJoin != null) { attachJoinNode(prevJoin, (BaseJoin) bn); } else {
-	 * attachJoinNode(prev.getLastNode(), (BaseJoin) bn); }
-	 *  } else if (cdt instanceof AndCondition) { // TODO for now this is not
-	 * done yet BooleanOperatorCondition ac = (BooleanOperatorCondition) cdt; }
-	 * else if (cdt instanceof ExistCondition) { // TODO finish implementing
-	 * Exists ExistCondition exc = (ExistCondition) cdt; boolean hasNotEqual =
-	 * false; Template tmpl = exc.getObjectCondition().getTemplate();
-	 * 
-	 * List blist = exc.getAllBindings(); Binding[] binds = new
-	 * Binding[blist.size()]; for (int idz = 0; idz < binds.length; idz++) {
-	 * Object cst = blist.get(idz); if (cst instanceof BoundConstraint) {
-	 * BoundConstraint bc = (BoundConstraint) cst; Binding cpy =
-	 * rule.copyBinding(bc.getVariableName()); if (cpy.getLeftRow() >= idx) {
-	 * binds = new Binding[0]; break; } else { binds[idz] = cpy;
-	 * binds[idz].setRightRow(idx - negatedCE); int rinx =
-	 * tmpl.getColumnIndex(bc.getName()); // we increment the count to make sure
-	 * the // template isn't removed if it is being used
-	 * tmpl.getSlot(rinx).incrementNodeCount(); binds[idz].setRightIndex(rinx);
-	 * binds[idz].setNegated(bc.getNegated()); if (bc.getNegated()) {
-	 * hasNotEqual = true; } } } else if (cst instanceof PredicateConstraint) {
-	 * PredicateConstraint pc = (PredicateConstraint) cst; if
-	 * (pc.getValue().getType().equals(JamochaType.BINDING)) { BoundParam bpm =
-	 * (BoundParam) pc.getValue().getObjectValue(); String var =
-	 * bpm.getVariableName(); int op =
-	 * ConversionUtils.getOperatorCode(pc.getFunctionName()); // if the first
-	 * binding in the function is from // the object type // we reverse the
-	 * operator if (pc.getParameters().get(0) != bpm) { op =
-	 * ConversionUtils.getOppositeOperatorCode(op); } binds[idz] =
-	 * rule.copyPredicateBinding(var, op); binds[idz].setRightRow(idx -
-	 * negatedCE); int rinx = tmpl.getColumnIndex(pc.getName()); // we increment
-	 * the count to make sure the // template isn't removed if it is being used
-	 * tmpl.getSlot(rinx).incrementNodeCount();
-	 * 
-	 * binds[idz].setRightIndex(rinx); } } } bn = new
-	 * ExistJoin(engine.nextNodeId()); bn.setBindings(binds); exc.addNode(bn);
-	 * if (prevJoin != null) { attachJoinNode(prevJoin, (BaseJoin) bn); } else {
-	 * attachJoinNode(prev.getLastNode(), (BaseJoin) bn); }
-	 * attachJoinNode(exc.getLastNode(), (BaseJoin) bn); negatedCE++; } else {
-	 * boolean hasNotEqual = false; ObjectCondition oc = (ObjectCondition) cdt;
-	 * otn = findObjectTypeNode(oc.getTemplateName()); Template tmpl =
-	 * oc.getTemplate();
-	 * 
-	 * if (cdt.hasBindings()) { // the condition has bindings, so we have to
-	 * create // the bindings and set the joinNode List blist =
-	 * cdt.getBindings(); Binding[] binds = new Binding[blist.size()]; Iterator
-	 * itr = blist.iterator(); for (int idz = 0; idz < blist.size(); idz++) {
-	 * Object cst = blist.get(idz); if (cst instanceof BoundConstraint) {
-	 * BoundConstraint bc = (BoundConstraint) cst; Binding cpy =
-	 * rule.copyBinding(bc.getVariableName()); if (cpy.getLeftRow() >= idx) {
-	 * binds = new Binding[0]; break; } else { binds[idz] = cpy;
-	 * binds[idz].setRightRow(idx - negatedCE); int rinx =
-	 * tmpl.getColumnIndex(bc.getName()); // we increment the count to make sure
-	 * the // template isn't removed if it is being // used
-	 * tmpl.getSlot(rinx).incrementNodeCount(); binds[idz].setRightIndex(rinx);
-	 * binds[idz].setNegated(bc.getNegated()); if (bc.getNegated()) {
-	 * hasNotEqual = true; } } } else if (cst instanceof PredicateConstraint) {
-	 * PredicateConstraint pc = (PredicateConstraint) cst; if
-	 * (pc.getValue().getType().equals(JamochaType.BINDING)) { BoundParam bpm =
-	 * (BoundParam) pc.getValue().getObjectValue(); String var =
-	 * bpm.getVariableName(); int op =
-	 * ConversionUtils.getOperatorCode(pc.getFunctionName()); // if the first
-	 * binding in the function is // from the object type // we reverse the
-	 * operator if (pc.getParameters().get(0) != bpm) { op =
-	 * ConversionUtils.getOppositeOperatorCode(op); } binds[idz] =
-	 * rule.copyPredicateBinding(var, op); binds[idz].setRightRow(idx -
-	 * negatedCE); int rinx = tmpl.getColumnIndex(pc.getName()); // we increment
-	 * the count to make sure the // template isn't removed if it is being //
-	 * used tmpl.getSlot(rinx).incrementNodeCount();
-	 * binds[idz].setRightIndex(rinx); } } } if (!oc.getNegated()) { if
-	 * (binds.length > 0 && !hasNotEqual) { bn = new
-	 * HashedEqBNode(engine.nextNodeId()); } else if (binds.length > 0 &&
-	 * hasNotEqual) { bn = new HashedNotEqBNode(engine.nextNodeId()); } else if
-	 * (binds.length == 0) { bn = new ZJBetaNode(engine.nextNodeId()); } else {
-	 * bn = new BetaNode(engine.nextNodeId()); } } else {
-	 * 
-	 * if (binds.length == 0 || hasNotEqual) { bn = new
-	 * HashedNotEqNJoin(engine.nextNodeId()); } else { bn = new
-	 * HashedEqNJoin(engine.nextNodeId()); } // bn = new
-	 * NotJoin(engine.nextNodeId()); negatedCE++; } bn.setBindings(binds); }
-	 * else { // if the condition doesn't have any bindings, we make // a join
-	 * without any bindings if (bn == null) { bn = new
-	 * ZJBetaNode(engine.nextNodeId()); } bn.setBindings(new Binding[0]); // now
-	 * add the join node to the last nodes of the // current // and previous
-	 * condition } if (prevJoin != null) { attachJoinNode(prevJoin, (BaseJoin)
-	 * bn); } else { attachJoinNode(prev.getLastNode(), (BaseJoin) bn); } if
-	 * (cdt.getNodes().size() > 0) { attachJoinNode(cdt.getLastNode(),
-	 * (BaseJoin) bn); } else { otn.addNode(bn, engine); } } // now we set the
-	 * previous node to current prev = cdt; prevJoin = bn; rule.addJoinNode(bn); } }
-	 * else if (conds.length == 1) { // we have to check and see if the rule has
-	 * a single NOT CE if (conds[0] instanceof ObjectCondition) {
-	 * ObjectCondition oc = (ObjectCondition) conds[0]; if (oc.getNegated()) { //
-	 * the ObjectCondition is negated, so we need to // handle it appropriate.
-	 * This means we need to // add a LIANode to _IntialFact and attach a
-	 * NOTNode // to the LIANode. ObjectTypeNode otn = (ObjectTypeNode)
-	 * root.getObjectTypeNodes().get(engine.initFact); LIANode lianode =
-	 * findLeftInputAdapter(otn); NotJoin njoin = new
-	 * NotJoin(engine.nextNodeId()); njoin.setBindings(new Binding[0]);
-	 * lianode.addNode(njoin, engine); // add the join to the rule object
-	 * rule.addJoinNode(njoin); oc.getLastNode().addNode(njoin,engine); } else
-	 * if (oc.getNodes().size() == 0) { ObjectTypeNode otn =
-	 * findObjectTypeNode(oc.getTemplateName()); LIANode lianode = new
-	 * LIANode(engine.nextNodeId()); otn.addNode(lianode, engine);
-	 * rule.getConditions()[0].addNode(lianode); } } } }
-	 */
+					TestCondition tc = (TestCondition) cdt;
+					Signature fn = (Signature) tc.getFunction();
+					Expression[] oldpm = fn.getParameters();
+					Parameter[] pms = new Parameter[oldpm.length];
+					for (int ipm = 0; ipm < pms.length; ipm++) {
+						if (oldpm[ipm] instanceof JamochaValue) {
+							pms[ipm] = (Parameter) oldpm[ipm];
+						} else if (oldpm[ipm] instanceof BoundParam) {
+							BoundParam bpm = (BoundParam) oldpm[ipm];
+							// now we need to resolve and setup the BoundParam
+							Binding b = rule.getBinding(bpm.getVariableName());
+							BoundParam newpm = new BoundParam(b.getLeftRow(), b.getLeftIndex(), 9, bpm.isObjectBinding());
+							newpm.setVariableName(bpm.getVariableName());
+							pms[ipm] = newpm;
+						}
+					}
+					if (tc.isNegated()) {
+						bn = new NTestNode(engine.nextNodeId(), fn.lookUpFunction(engine), pms);
+					} else {
+						bn = new TestNode(engine.nextNodeId(), fn.lookUpFunction(engine), pms);
+					}
+					if (prevJoin != null) {
+						attachJoinNode(prevJoin, (BaseJoin) bn);
+					} else {
+						attachJoinNode(prev.getLastNode(), (BaseJoin) bn);
+					}
+
+				} else if (cdt instanceof AndCondition) {
+					// TODO for now this is not done yet
+					BooleanOperatorCondition ac = (BooleanOperatorCondition) cdt;
+				} else if (cdt instanceof ExistCondition) {
+					// TODO finish implementing Exists
+					ExistCondition exc = (ExistCondition) cdt;
+					boolean hasNotEqual = false;
+					Template tmpl = exc.getObjectCondition().getTemplate();
+
+					List blist = exc.getAllBindings();
+					Binding[] binds = new Binding[blist.size()];
+					for (int idz = 0; idz < binds.length; idz++) {
+						Object cst = blist.get(idz);
+						if (cst instanceof BoundConstraint) {
+							BoundConstraint bc = (BoundConstraint) cst;
+							Binding cpy = rule.copyBinding(bc.getVariableName());
+							if (cpy.getLeftRow() >= idx) {
+								binds = new Binding[0];
+								break;
+							} else {
+								binds[idz] = cpy;
+								binds[idz].setRightRow(idx - negatedCE);
+								int rinx = tmpl.getColumnIndex(bc.getName());
+								// we increment the count to make sure the
+								// template isn't removed if it is being used
+								tmpl.getSlot(rinx).incrementNodeCount();
+								binds[idz].setRightIndex(rinx);
+								binds[idz].setNegated(bc.getNegated());
+								if (bc.getNegated()) {
+									hasNotEqual = true;
+								}
+							}
+						} else if (cst instanceof PredicateConstraint) {
+							PredicateConstraint pc = (PredicateConstraint) cst;
+							if (pc.getValue().getType().equals(JamochaType.BINDING)) {
+								BoundParam bpm = (BoundParam) pc.getValue().getObjectValue();
+								String var = bpm.getVariableName();
+								int op = ConversionUtils.getOperatorCode(pc.getFunctionName());
+								// if the first binding in the function is from
+								// the object type
+								// we reverse the operator
+								if (pc.getParameters().get(0) != bpm) {
+									op = ConversionUtils.getOppositeOperatorCode(op);
+								}
+								binds[idz] = rule.copyPredicateBinding(var, op);
+								binds[idz].setRightRow(idx - negatedCE);
+								int rinx = tmpl.getColumnIndex(pc.getName());
+								// we increment the count to make sure the
+								// template isn't removed if it is being used
+								tmpl.getSlot(rinx).incrementNodeCount();
+
+								binds[idz].setRightIndex(rinx);
+							}
+						}
+					}
+					bn = new ExistJoin(engine.nextNodeId());
+					bn.setBindings(binds);
+					exc.addNode(bn);
+					if (prevJoin != null) {
+						attachJoinNode(prevJoin, (BaseJoin) bn);
+					} else {
+						attachJoinNode(prev.getLastNode(), (BaseJoin) bn);
+					}
+					attachJoinNode(exc.getLastNode(), (BaseJoin) bn);
+					negatedCE++;
+				} else {
+					boolean hasNotEqual = false;
+					ObjectCondition oc = (ObjectCondition) cdt;
+					otn = findObjectTypeNode(oc.getTemplateName());
+					Template tmpl = oc.getTemplate();
+
+					if (cdt.hasBindings()) {
+						// the condition has bindings, so we have to create
+						// the bindings and set the joinNode
+						List blist = cdt.getBindings();
+						Binding[] binds = new Binding[blist.size()];
+						Iterator itr = blist.iterator();
+						for (int idz = 0; idz < blist.size(); idz++) {
+							Object cst = blist.get(idz);
+							if (cst instanceof BoundConstraint) {
+								BoundConstraint bc = (BoundConstraint) cst;
+								Binding cpy = rule.copyBinding(bc.getVariableName());
+								if (cpy.getLeftRow() >= idx) {
+									binds = new Binding[0];
+									break;
+								} else {
+									binds[idz] = cpy;
+									binds[idz].setRightRow(idx - negatedCE);
+									int rinx = tmpl.getColumnIndex(bc.getName());
+									// we increment the count to make sure the
+									// template isn't removed if it is being
+									// used
+									tmpl.getSlot(rinx).incrementNodeCount();
+									binds[idz].setRightIndex(rinx);
+									binds[idz].setNegated(bc.getNegated());
+									if (bc.getNegated()) {
+										hasNotEqual = true;
+									}
+								}
+							} else if (cst instanceof PredicateConstraint) {
+								PredicateConstraint pc = (PredicateConstraint) cst;
+								if (pc.getValue().getType().equals(JamochaType.BINDING)) {
+									BoundParam bpm = (BoundParam) pc.getValue().getObjectValue();
+									String var = bpm.getVariableName();
+									int op = ConversionUtils.getOperatorCode(pc.getFunctionName());
+									// if the first binding in the function is
+									// from the object type
+									// we reverse the operator
+									if (pc.getParameters().get(0) != bpm) {
+										op = ConversionUtils.getOppositeOperatorCode(op);
+									}
+									binds[idz] = rule.copyPredicateBinding(var, op);
+									binds[idz].setRightRow(idx - negatedCE);
+									int rinx = tmpl.getColumnIndex(pc.getName());
+									// we increment the count to make sure the
+									// template isn't removed if it is being
+									// used
+									tmpl.getSlot(rinx).incrementNodeCount();
+									binds[idz].setRightIndex(rinx);
+								}
+							}
+						}
+						if (!oc.getNegated()) {
+							if (binds.length > 0 && !hasNotEqual) {
+								bn = new HashedEqBNode(engine.nextNodeId());
+							} else if (binds.length > 0 && hasNotEqual) {
+								bn = new HashedNotEqBNode(engine.nextNodeId());
+							} else if (binds.length == 0) {
+								bn = new ZJBetaNode(engine.nextNodeId());
+							} else {
+								bn = new BetaNode(engine.nextNodeId());
+							}
+						} else {
+
+							if (binds.length == 0 || hasNotEqual) {
+								bn = new HashedNotEqNJoin(engine.nextNodeId());
+							} else {
+								bn = new HashedEqNJoin(engine.nextNodeId());
+							}
+							// bn = new NotJoin(engine.nextNodeId());
+							negatedCE++;
+						}
+						bn.setBindings(binds);
+					} else {
+						// if the condition doesn't have any bindings, we make
+						// a join without any bindings
+						if (bn == null) {
+							bn = new ZJBetaNode(engine.nextNodeId());
+						}
+						bn.setBindings(new Binding[0]);
+						// now add the join node to the last nodes of the
+						// current
+						// and previous condition
+					}
+					if (prevJoin != null) {
+						attachJoinNode(prevJoin, (BaseJoin) bn);
+					} else {
+						attachJoinNode(prev.getLastNode(), (BaseJoin) bn);
+					}
+					if (cdt.getNodes().size() > 0) {
+						attachJoinNode(cdt.getLastNode(), (BaseJoin) bn);
+					} else {
+						otn.addNode(bn, engine);
+					}
+				}
+				// now we set the previous node to current
+				prev = cdt;
+				prevJoin = bn;
+				rule.addJoinNode(bn);
+			}
+		} else if (conds.length == 1) {
+			// we have to check and see if the rule has a single NOT CE
+			if (conds[0] instanceof ObjectCondition) {
+				ObjectCondition oc = (ObjectCondition) conds[0];
+				if (oc.getNegated()) {
+					// the ObjectCondition is negated, so we need to
+					// handle it appropriate. This means we need to
+					// add a LIANode to _IntialFact and attach a NOTNode
+					// to the LIANode.
+					ObjectTypeNode otn = (ObjectTypeNode) root.getObjectTypeNodes().get(engine.initFact);
+					LIANode lianode = findLeftInputAdapter(otn);
+					NotJoin njoin = new NotJoin(engine.nextNodeId());
+					njoin.setBindings(new Binding[0]);
+					lianode.addNode(njoin, engine);
+					// add the join to the rule object
+					rule.addJoinNode(njoin);
+					oc.getLastNode().addNode(njoin,engine);
+				} else if (oc.getNodes().size() == 0) {
+					ObjectTypeNode otn = findObjectTypeNode(oc.getTemplateName());
+					LIANode lianode = new LIANode(engine.nextNodeId());
+					otn.addNode(lianode, engine);
+					rule.getConditions()[0].addNode(lianode);
+				}
+			}
+		}
+	}
+*/
 	/**
 	 * The method compiles an ObjectCondition.
 	 * 
@@ -496,9 +638,9 @@ public class SFRuleCompiler implements RuleCompiler {
 	public BaseNode compile(ObjectCondition condition, Rule rule, int conditionIndex) {
 		// get activated ObjectType Node:
 		Template template = condition.getTemplate();
-		ObjectTypeNode otn = null;
+		ObjectTypeNode otn= null;
 		try {
-			otn = root.activateObjectTypeNode(template, engine);
+			otn = root.activateObjectTypeNode(template,engine);
 		} catch (AssertException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -657,11 +799,10 @@ public class SFRuleCompiler implements RuleCompiler {
 				}
 				sl.value = sval;
 				// create the alphaNode
-				if (rule.getRememberMatch()) {
-					node = new AlphaNode(engine.nextNodeId());
-				} else {
-					node = new NoMemANode(engine.nextNodeId());
-				}
+
+				// NoMemANodes are not supported anymore. so we create AlphaNodes, no matter what rule.getRememberMatch() says
+				node = new AlphaNode(engine.nextNodeId());
+				
 				node.setSlot(sl);
 				node.setOperator(oprCode);
 				// we increment the node use count when when create
@@ -719,6 +860,7 @@ public class SFRuleCompiler implements RuleCompiler {
 	 * @param conditionIndex
 	 * 
 	 * @return BaseNode
+	 * @throws Exception 
 	 */
 	public BaseNode compile(OrLiteralConstraint constraint, Rule rule, int conditionIndex) {
 		SlotAlpha node = null;
@@ -726,18 +868,19 @@ public class SFRuleCompiler implements RuleCompiler {
 		sl.setId(constraint.getSlot().getId());
 		Object sval = constraint.getValue();
 		sl.setValue(sval);
-		if (rule.getRememberMatch()) {
-			node = new AlphaNodeOr(engine.nextNodeId());
-		} else {
-			node = new NoMemOr(engine.nextNodeId());
-		}
-		node.setSlot(sl);
+		
+		return null;
+		
+		//TODO later on, we should implement an AlphaNodeOr like node and reimplement that:
+//		node = new AlphaNodeOr(engine.nextNodeId());
+		
+//		node.setSlot(sl);
 		// we increment the node use count when when create a
 		// new
 		// AlphaNode for the LiteralConstraint
-		constraint.getSlot().incrementNodeCount();
+//		constraint.getSlot().incrementNodeCount();
 
-		return node;
+//		return node;
 	}
 
 	/**
@@ -762,11 +905,7 @@ public class SFRuleCompiler implements RuleCompiler {
 			return null;
 		}
 		sl.value = sval;
-		if (rule.getRememberMatch()) {
-			node = new AlphaNode(engine.nextNodeId());
-		} else {
-			node = new NoMemANode(engine.nextNodeId());
-		}
+		node = new AlphaNode(engine.nextNodeId());
 		node.setSlot(sl);
 		node.setOperator(Constants.EQUAL);
 		// we increment the node use count when when create a
@@ -821,6 +960,7 @@ public class SFRuleCompiler implements RuleCompiler {
 	 * @param conditionIndex
 	 * 
 	 * @return BaseNode
+	 * @throws Exception 
 	 */
 
 	public BaseNode compile(AndLiteralConstraint constraint, Rule rule, int conditionIndex) {
@@ -829,17 +969,15 @@ public class SFRuleCompiler implements RuleCompiler {
 		sl.setId(constraint.getSlot().getId());
 		Object sval = constraint.getValue();
 		sl.setValue(sval);
-		if (rule.getRememberMatch()) {
-			node = new AlphaNodeAnd(engine.nextNodeId());
-		} else {
-			node = new NoMemAnd(engine.nextNodeId());
-		}
-		node.setSlot(sl);
+		//TODO like with AlphaNodeOr
+		return null;
+//		node = new AlphaNodeAnd(engine.nextNodeId());
+//		node.setSlot(sl);
 		// we increment the node use count when when create a
 		// new AlphaNode for the LiteralConstraint
-		constraint.getSlot().incrementNodeCount();
+//		constraint.getSlot().incrementNodeCount();
 
-		return node;
+//		return node;
 	}
 
 	/**
@@ -918,7 +1056,7 @@ public class SFRuleCompiler implements RuleCompiler {
 			Object next = scc[idx];
 			if (next instanceof AbstractAlpha) {
 				AbstractAlpha baseAlpha = (AbstractAlpha) next;
-				// TODO: don't use equal directly on nodes -> use hash values
+				//TODO: don't use equal directly on nodes -> use hash values
 				if (baseAlpha.equals(alpha)) {
 					return baseAlpha;
 				}

@@ -17,6 +17,7 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Set;
+
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -29,13 +30,13 @@ import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 
 import org.jamocha.gui.icons.IconLoader;
-import org.jamocha.rete.AlphaNodePredConstr;
-import org.jamocha.rete.nodes.BaseNode;
 import org.jamocha.rete.EngineEvent;
 import org.jamocha.rete.EngineEventListener;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.WorkingMemoryImpl;
+import org.jamocha.rete.nodes.AlphaNode;
 import org.jamocha.rete.nodes.BaseJoin;
+import org.jamocha.rete.nodes.BaseNode;
 import org.jamocha.rete.nodes.LIANode;
 import org.jamocha.rete.nodes.ObjectTypeNode;
 import org.jamocha.rete.nodes.RootNode;
@@ -94,8 +95,6 @@ public class Visualiser implements ActionListener, MouseListener,
 			bg = Color.cyan;
 		if (node.getReteNode() instanceof ObjectTypeNode)
 			bg = Color.orange;
-		if (node.getReteNode() instanceof AlphaNodePredConstr)
-			bg = Color.red;
 		if (node.getReteNode() instanceof SlotAlpha)
 			bg = Color.red;
 		return bg;

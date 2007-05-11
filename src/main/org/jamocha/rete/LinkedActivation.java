@@ -18,6 +18,7 @@ package org.jamocha.rete;
 
 import org.jamocha.rete.exception.ExecuteException;
 import org.jamocha.rete.nodes.FactTuple;
+import org.jamocha.rete.nodes.TerminalNode;
 import org.jamocha.rule.Action;
 import org.jamocha.rule.Rule;
 
@@ -55,7 +56,7 @@ public class LinkedActivation implements Activation {
 
 	private long aggreTime = 0;
 
-	private TerminalNode2 tnode = null;
+	private TerminalNode tnode = null;
 	
 	/**
 	 * 
@@ -165,11 +166,11 @@ public class LinkedActivation implements Activation {
 		return this.next;
 	}
 
-	public void setTerminalNode(TerminalNode2 node) {
+	public void setTerminalNode(TerminalNode node) {
 		this.tnode = node;
 	}
 
-	public TerminalNode2 getTerminalNode() {
+	public TerminalNode getTerminalNode() {
 		return this.tnode;
 	}
 
@@ -214,7 +215,8 @@ public class LinkedActivation implements Activation {
 	 */
 	protected void remove(Rete engine) {
 		if (tnode != null) {
-			tnode.removeActivation(engine.getWorkingMemory(),this);
+//			tnode.removeActivation(engine.getWorkingMemory(),this);
+			//TODO: Implement an equivalent of that removeActivation-call, which doesnt exist in TerminalNode(1)
 		}
 	}
 

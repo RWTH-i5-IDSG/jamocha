@@ -70,8 +70,9 @@ public interface RuleCompiler extends Serializable {
 	 * need to be removed.
 	 * @param node
 	 * @throws RetractException 
+	 * @throws RetractException 
 	 */
-	void removeObjectTypeNode(ObjectTypeNode node);
+	void removeObjectTypeNode(ObjectTypeNode node) throws RetractException;
 
 	/**
 	 * Look up the ObjectTypeNode using the Template
