@@ -110,7 +110,7 @@ public abstract class BaseNode implements Serializable {
 	 * @param n
 	 * @return
 	 */
-	public boolean removeNode(BaseNode n, Rete engine) throws RetractException {
+	public boolean removeNode(BaseNode n, Rete engine) {
 		boolean rem = false;
 		if (containsNode(this.childNodes, n))
 			// inform removed child node:
@@ -125,9 +125,9 @@ public abstract class BaseNode implements Serializable {
 		return rem;
 	}
 
-	protected abstract void unmountChild(BaseNode oldChild, Rete engine) throws RetractException;
+	protected abstract void unmountChild(BaseNode oldChild, Rete engine) ;
 
-	public void destroy(Rete engine) throws RetractException {
+	public void destroy(Rete engine) {
 		for (int i = 0; i < parentNodes.length; i++) {
 			parentNodes[i].removeNode(this, engine);
 		}
@@ -155,7 +155,7 @@ public abstract class BaseNode implements Serializable {
 	 * 
 	 * @return
 	 */
-	protected void evZeroUseCount(Rete engine) throws RetractException {
+	protected void evZeroUseCount(Rete engine)  {
 		destroy(engine);
 	}
 

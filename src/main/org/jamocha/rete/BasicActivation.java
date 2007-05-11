@@ -118,11 +118,7 @@ public class BasicActivation implements Activation, Serializable {
 		if (act == this) {
 			return false;
 		}
-		if (act.getRule() == this.theRule && act.getFactTuple().equals(this.facts)) {
-			return true;
-		} else {
-			return false;
-		}
+		return (act.getRule() == this.theRule && act.getFactTuple().equals(this.facts));
 	}
 
 	/**

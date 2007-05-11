@@ -22,8 +22,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.jamocha.parser.ParserFactory;
+import org.jamocha.rete.exception.RetractException;
 import org.jamocha.rete.nodes.BaseJoin;
+import org.jamocha.rete.nodes.BaseNode;
 import org.jamocha.rete.nodes.ObjectTypeNode;
 import org.jamocha.rete.util.CollectionsFactory;
 import org.jamocha.rule.Condition;
@@ -178,6 +179,7 @@ public class Defmodule implements Module, Serializable {
 
 	/**
 	 * Remove a rule from this module
+	 * @throws RetractException 
 	 */
 	public void removeRule(Rule rl, Rete engine, WorkingMemory mem) {
 		this.rules.remove(rl.getName());
@@ -193,7 +195,7 @@ public class Defmodule implements Module, Serializable {
 				Deftemplate temp = (Deftemplate) this.deftemplates.get(templ);
 				ObjectTypeNode otn = mem.getRuleCompiler().getObjectTypeNode(
 						temp);
-				this.removeAlphaNodes(oc.getNodes(), otn);
+				this.removeAlphaNodes(oc.getNodes(), otn, engine);
 			}
 		}
 		// now remove the betaNodes, since the engine currently
@@ -209,19 +211,17 @@ public class Defmodule implements Module, Serializable {
 				Deftemplate temp = (Deftemplate) this.deftemplates.get(templ);
 				ObjectTypeNode otn = mem.getRuleCompiler().getObjectTypeNode(
 						temp);
-				otn.removeNode(bjoin);
+				otn.removeNode(bjoin, engine);
 			}
 		}
 	}
 
-	protected void removeAlphaNodes(List nodes, ObjectTypeNode otn) {
+	protected void removeAlphaNodes(List nodes, ObjectTypeNode otn, Rete engine) {
 		BaseNode prev = otn;
 		for (int idx = 0; idx < nodes.size(); idx++) {
 			BaseNode node = (BaseNode) nodes.get(idx);
-			if (node.useCount > 1) {
-				node.decrementUseCount();
-			} else {
-				prev.removeNode(node);
+			if (node.getChildCount() == 0) {
+				prev.removeNode(node, engine);
 			}
 			prev = node;
 		}

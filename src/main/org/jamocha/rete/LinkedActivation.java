@@ -17,6 +17,7 @@
 package org.jamocha.rete;
 
 import org.jamocha.rete.exception.ExecuteException;
+import org.jamocha.rete.nodes.FactTuple;
 import org.jamocha.rule.Action;
 import org.jamocha.rule.Rule;
 
@@ -40,6 +41,13 @@ public class LinkedActivation implements Activation {
 	private LinkedActivation next = null;
 
 	private Rule theRule;
+	
+	/**
+	 * these are the facts that activated the rule. It's important
+	 * to keep in mind that any combination of facts may fire a
+	 * rule. 
+	 */
+	private FactTuple facts;
 
 	private long timetag;
 
@@ -55,9 +63,9 @@ public class LinkedActivation implements Activation {
 	private LinkedActivation() {
 	}
 
-	private void init(Rule rule, Index inx) {
+	private void init(Rule rule, FactTuple facts) {
 		this.theRule = rule;
-		this.index = inx;
+		this.facts = facts;
 		this.timetag = System.nanoTime();
         calculateTime(index.getFacts());
 	}
@@ -68,7 +76,15 @@ public class LinkedActivation implements Activation {
 	
 	private static final LinkedActivation[] instancePool = new LinkedActivation[MAX_POOL_SIZE];
 	
-	public static LinkedActivation acquire(Rule rule, Index index) {
+	/**
+	 * The facts that matched the rule
+	 * @return
+	 */
+	public Fact[] getFacts() {
+		return this.facts.getFacts();
+	}
+	
+	protected static LinkedActivation acquire(Rule rule, FactTuple facts) {
 		LinkedActivation result;
 		if(instances == 0) {
 			result = new LinkedActivation();
@@ -76,7 +92,7 @@ public class LinkedActivation implements Activation {
 			result = instancePool[--instances];
 			instancePool[instances] = null;
 		}
-		result.init(rule, index);
+		result.init(rule, facts);
 		return result;
 	}
 	
@@ -99,8 +115,8 @@ public class LinkedActivation implements Activation {
 		return this.aggreTime;
 	}
 
-	public Fact[] getFacts() {
-		return this.index.getFacts();
+	public FactTuple getFactTuple() {
+		return facts;
 	}
 
 	public Index getIndex() {
@@ -164,11 +180,7 @@ public class LinkedActivation implements Activation {
 		if (act == this) {
 			return true;
 		}
-		if (act.getRule() == this.theRule && act.getIndex().equals(this.index)) {
-			return true;
-		} else {
-			return false;
-		}
+		return (act.getRule() == this.theRule && act.getFactTuple().equals(this.facts));
 	}
 
 	/**
@@ -248,7 +260,8 @@ public class LinkedActivation implements Activation {
     }
     
     public LinkedActivation clone() {
-        LinkedActivation la = LinkedActivation.acquire(this.theRule,this.index);
+        LinkedActivation la = LinkedActivation.acquire(this.theRule,this.facts);
         return la;
     }
+
 }
