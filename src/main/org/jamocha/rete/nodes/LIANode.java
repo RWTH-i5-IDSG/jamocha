@@ -51,19 +51,24 @@ public class LIANode extends AbstractAlpha {
 	}
 
 	@Override
-	protected boolean assertFact(Assertable fact, Rete engine, BaseNode sender) throws AssertException {
-		facts.add((Fact)fact);
-		return true;
+	protected void assertFact(Assertable fact, Rete engine, BaseNode sender) throws AssertException {
+		// add to own buffer list:
+		facts.add((Fact) fact);
+		// build tuple and propagate:
+		FactTuple tuple = new FactTuple((Fact) fact);
+		propogateAssert(tuple, engine);
 	}
 
 	@Override
 	public void retractFact(Assertable fact, Rete engine, BaseNode sender) throws RetractException {
-		facts.remove(fact);
-	}
-	
-	public static boolean isRightNode(){
-		return false;
+		if (facts.remove(fact)) {
+			FactTuple tuple = new FactTuple((Fact) fact);
+			propogateRetract(tuple, engine);
+		}
 	}
 
+	public static boolean isRightNode() {
+		return false;
+	}
 
 }

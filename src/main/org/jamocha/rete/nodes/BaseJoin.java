@@ -56,11 +56,11 @@ public abstract class BaseJoin extends BaseNode {
 	}
 
 	@Override
-	protected boolean assertFact(Assertable fact, Rete engine, BaseNode sender) throws AssertException {
+	protected void assertFact(Assertable fact, Rete engine, BaseNode sender) throws AssertException {
 		if (sender.isRightNode()) {
-			return assertRight((Fact)fact, engine);
+			 assertRight((Fact)fact, engine);
 		} else
-			return assertLeft((FactTuple)fact, engine);
+			 assertLeft((FactTuple)fact, engine);
 	}
 
 	/**
@@ -70,7 +70,7 @@ public abstract class BaseJoin extends BaseNode {
 	 * @param lfacts
 	 * @param engine
 	 */
-	public abstract boolean assertLeft(FactTuple tuple, Rete engine) throws AssertException;
+	public abstract void assertLeft(FactTuple tuple, Rete engine) throws AssertException;
 
 	/**
 	 * Subclasses must implement this method. assertRight takes input from alpha
@@ -79,7 +79,7 @@ public abstract class BaseJoin extends BaseNode {
 	 * @param rfact
 	 * @param engine
 	 */
-	public abstract boolean assertRight(Fact fact, Rete engine) throws AssertException;
+	public abstract void assertRight(Fact fact, Rete engine) throws AssertException;
 
 	@Override
 	public void retractFact(Assertable fact, Rete engine, BaseNode sender) throws RetractException {

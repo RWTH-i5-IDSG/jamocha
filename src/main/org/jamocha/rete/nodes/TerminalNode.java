@@ -25,7 +25,6 @@ import org.jamocha.rete.exception.AssertException;
 import org.jamocha.rete.exception.RetractException;
 import org.jamocha.rule.Rule;
 
-
 /**
  * @author Peter Lin
  * 
@@ -36,7 +35,7 @@ import org.jamocha.rule.Rule;
 public class TerminalNode extends BaseNode {
 
 	private static final long serialVersionUID = 1L;
-	
+
 	protected Rule theRule = null;
 
 	/**
@@ -45,8 +44,8 @@ public class TerminalNode extends BaseNode {
 	public TerminalNode(int id, Rule rl) {
 		super(id);
 		this.theRule = rl;
-		this.maxChildCount =0;
-		this.maxParentCount=1;
+		this.maxChildCount = 0;
+		this.maxParentCount = 1;
 	}
 
 	/**
@@ -60,39 +59,38 @@ public class TerminalNode extends BaseNode {
 	 * the rule have been met. The method creates a new Activation and adds it
 	 * to the activationList of the correct module. Note: we may want to change
 	 * the design so that we don't create a new Activation object.
+	 * 
 	 * @param engine
 	 * @param idx
 	 */
-	protected boolean assertFact(Assertable fact, Rete engine, BaseNode sender) throws AssertException{
-		FactTuple tuple =null;
+	protected void assertFact(Assertable fact, Rete engine, BaseNode sender) throws AssertException {
+		FactTuple tuple = null;
 		if (sender.isRightNode())
-			tuple = new FactTuple((Fact)fact);
+			tuple = new FactTuple((Fact) fact);
 		else
-			tuple = (FactTuple)tuple;
-		
-		
+			tuple = (FactTuple) tuple;
+
 		Activation act = new BasicActivation(this.theRule, tuple);
 		engine.getAgenda().addActivation(act);
-		return true;
 	}
 
 	/**
 	 * Retract means we need to remove the activation from the correct module
 	 * agenda.
+	 * 
 	 * @param engine
 	 * @param idx
 	 */
 	@Override
 	public void retractFact(Assertable fact, Rete engine, BaseNode sender) throws RetractException {
-		FactTuple tuple =null;
+		FactTuple tuple = null;
 		if (sender.isRightNode())
-			tuple = new FactTuple((Fact)fact);
+			tuple = new FactTuple((Fact) fact);
 		else
-			tuple = (FactTuple)tuple;		
-		
+			tuple = (FactTuple) tuple;
+
 		Activation act = new BasicActivation(this.theRule, tuple);
 		engine.getAgenda().removeActivation(act);
-		
 	}
 
 	public Rule getRule() {
@@ -119,7 +117,6 @@ public class TerminalNode extends BaseNode {
 	public void removeAllSuccessors() {
 	}
 
-
 	@Override
 	protected void mountChild(BaseNode newChild, Rete engine) {
 	}
@@ -127,8 +124,5 @@ public class TerminalNode extends BaseNode {
 	@Override
 	protected void unmountChild(BaseNode oldChild, Rete engine) {
 	}
-
-
-
 
 }

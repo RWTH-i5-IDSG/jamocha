@@ -39,8 +39,6 @@ public abstract class BaseNode implements Serializable {
 	protected BaseNode[] childNodes = new BaseNode[0];
 
 	protected BaseNode[] parentNodes = new BaseNode[0];
-	
-
 
 	// override these values in subclasses:
 	protected int maxParentCount = 1;
@@ -134,7 +132,7 @@ public abstract class BaseNode implements Serializable {
 		return rem;
 	}
 
-	protected abstract void unmountChild(BaseNode oldChild, Rete engine) throws RetractException ;
+	protected abstract void unmountChild(BaseNode oldChild, Rete engine) throws RetractException;
 
 	public void destroy(Rete engine) throws RetractException {
 		for (int i = 0; i < parentNodes.length; i++) {
@@ -179,7 +177,8 @@ public abstract class BaseNode implements Serializable {
 		}
 	}
 
-	protected  abstract void clear();
+	protected abstract void clear();
+
 	/**
 	 * toPPString should return a string format, but formatted nicely so it's
 	 * easier for humans to read. Chances are this method will be used in
@@ -213,8 +212,7 @@ public abstract class BaseNode implements Serializable {
 	 */
 	protected void propogateRetract(Assertable fact, Rete engine) throws RetractException {
 		for (BaseNode nNode : childNodes) {
-			retractFact(fact, engine, null);
-			nNode.propogateRetract(fact, engine);
+			nNode.retractFact(fact, engine, this);
 		}
 	}
 
@@ -226,18 +224,16 @@ public abstract class BaseNode implements Serializable {
 	 */
 	protected void propogateAssert(Assertable fact, Rete engine) throws AssertException {
 		for (BaseNode nNode : childNodes) {
-			if (assertFact(fact, engine, null))
-				nNode.propogateAssert(fact, engine);
-
+			nNode.assertFact(fact, engine, this);
 		}
 	}
 
 	// use of good old Delphi sender...
-	protected abstract boolean assertFact(Assertable fact, Rete engine, BaseNode /* TObject ;) */sender) throws AssertException;
+	protected abstract void assertFact(Assertable fact, Rete engine, BaseNode sender) throws AssertException;
 
 	public abstract void retractFact(Assertable fact, Rete engine, BaseNode sender) throws RetractException;
-	
-	public static  boolean isRightNode(){
+
+	public static boolean isRightNode() {
 		return true;
 	}
 
