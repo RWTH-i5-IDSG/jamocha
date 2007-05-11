@@ -18,6 +18,7 @@ package org.jamocha.rete;
 
 import org.jamocha.rete.exception.AssertException;
 import org.jamocha.rete.exception.RetractException;
+import org.jamocha.rete.nodes.SlotAlpha;
 
 /**
  * @author Peter Lin
@@ -33,7 +34,7 @@ import org.jamocha.rete.exception.RetractException;
  * replace the arrayList with a map of AlphaMemory.<br/>
  * 
  */
-public class NoMemOr extends BaseAlpha2 {
+public class NoMemOr extends SlotAlpha {
 
 	static final long serialVersionUID = 0xDeadBeafCafeBabeL;
 	

@@ -20,10 +20,10 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.jamocha.rete.BaseAlpha;
 import org.jamocha.rete.BaseNode;
 import org.jamocha.rete.SFRuleCompiler;
 import org.jamocha.rete.Template;
+import org.jamocha.rete.nodes.AbstractAlpha;
 
 /**
  * @author Peter Lin
@@ -156,7 +156,7 @@ public class ObjectCondition extends AbstractCondition {
 	 */
 	public BaseNode getLastNode() {
 		if (this.nodes.size() > 0) {
-			return getLast((BaseAlpha) this.nodes.get(nodes.size() - 1));
+			return getLast((AbstractAlpha) this.nodes.get(nodes.size() - 1));
 		} else {
 			return null;
 		}
@@ -168,14 +168,14 @@ public class ObjectCondition extends AbstractCondition {
 	 * @param node
 	 * @return
 	 */
-	protected BaseNode getLast(BaseAlpha node) {
+	protected BaseNode getLast(AbstractAlpha node) {
 		int ncount = node.successorCount();
 		if (node != null && ncount > 0) {
 			// there should only be 1 successor, so we always get the item
 			// at index zero. If the AlphaNode at index zero is wrong, it
 			// means there's some other bug
-			if (node.getSuccessorNodes()[0] instanceof BaseAlpha) {
-				return getLast((BaseAlpha) node.getSuccessorNodes()[ncount - 1]);
+			if (node.getSuccessorNodes()[0] instanceof AbstractAlpha) {
+				return getLast((AbstractAlpha) node.getSuccessorNodes()[ncount - 1]);
 			} else {
 				return node;
 			}

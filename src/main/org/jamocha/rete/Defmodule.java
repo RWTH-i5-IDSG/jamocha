@@ -23,6 +23,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.jamocha.parser.ParserFactory;
+import org.jamocha.rete.nodes.BaseJoin;
+import org.jamocha.rete.nodes.ObjectTypeNode;
 import org.jamocha.rete.util.CollectionsFactory;
 import org.jamocha.rule.Condition;
 import org.jamocha.rule.Defrule;

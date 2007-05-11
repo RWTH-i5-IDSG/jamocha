@@ -20,6 +20,7 @@ import java.io.Serializable;
 
 import org.jamocha.rete.exception.AssertException;
 import org.jamocha.rete.exception.RetractException;
+import org.jamocha.rete.nodes.AbstractAlpha;
 
 /**
  * OrderedFactTypeNode is the object type node for ordered facts. The
@@ -32,7 +33,7 @@ import org.jamocha.rete.exception.RetractException;
  * @author Peter Lin
  */
 
-public class OrderedFactTypeNode extends BaseAlpha implements Serializable {
+public class OrderedFactTypeNode extends AbstractAlpha implements Serializable {
 
     /**
      * The Class that defines object type

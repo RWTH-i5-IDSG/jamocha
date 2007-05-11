@@ -20,13 +20,13 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.rete.BaseJoin;
 import org.jamocha.rete.BaseNode;
 import org.jamocha.rete.Binding;
 import org.jamocha.rete.Fact;
 import org.jamocha.rete.Module;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.Scope;
+import org.jamocha.rete.nodes.BaseJoin;
 
 /**
  * @author Peter Lin

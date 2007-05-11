@@ -21,13 +21,14 @@ import java.util.Iterator;
 
 import org.jamocha.rete.exception.AssertException;
 import org.jamocha.rete.exception.RetractException;
+import org.jamocha.rete.nodes.SlotAlpha;
 
 /**
  * @author Peter Lin
  *
  * 
  */
-public class AlphaNodeAnd extends BaseAlpha2 {
+public class AlphaNodeAnd extends SlotAlpha {
 
 	/**
 	 * The use of Slot(s) is similar to CLIPS design

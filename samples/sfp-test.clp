@@ -14,7 +14,7 @@
 )
 
 (assert (wurst
-		(name "Fischwurst")
+		(name "Fischwurst schwer")
 		(gewicht 200)
 		(laenge 100)
 		(hersteller "Nordmann")
@@ -22,17 +22,35 @@
 )
 
 (assert (wurst
-		(name "Fischwurst")
+		(name "Fischwurst2")
 		(gewicht 100)
 		(laenge 100)
 		(hersteller "Nordmann")
 	)
 )
 
+(assert (wurst
+		(name "miniwurst")
+		(gewicht 10)
+		(laenge 15)
+		(hersteller "Nordmann")
+	)
+)
+
+
+
 (assert (bier 
 		(name "Birburger")
 		(gewicht 100)
 		)
+)
+
+(defrule wurst-meter "Regel zur Ausgabe der Wurst-LŠnge" 
+	(declare (rule-version "performance version") (salience 101) (auto-focus TRUE))
+	(wurst (gewicht ?x) (name ?y))
+	(bier (gewicht ?x) (name ?z))
+	=>
+	(printout t "Lebensmittel die zusammenpassen. wurst:" ?y " Bier: " ?z " Gewicht: " ?x)
 )
 
 (defrule wurst-meter-langsam "Regel zur Ausgabe der Wurst-LŠnge" 
@@ -44,14 +62,6 @@
 
 
 
-(defrule wurst-meter "Regel zur Ausgabe der Wurst-LŠnge" 
-	(declare (rule-version "performance version") (salience 101) (auto-focus TRUE))
-	(wurst (gewicht ?x))
-	(bier (gewicht ?x))
-;;	y <- (wurst (laenge ?x)
-	=>
-	(printout t "Lebensmittel die zusammenpassen.")
-)
 
 
 

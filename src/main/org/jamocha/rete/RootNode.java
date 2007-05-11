@@ -21,6 +21,7 @@ import java.util.Map;
 
 import org.jamocha.rete.exception.AssertException;
 import org.jamocha.rete.exception.RetractException;
+import org.jamocha.rete.nodes.ObjectTypeNode;
 import org.jamocha.rete.util.CollectionsFactory;
 
 /**

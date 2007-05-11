@@ -30,6 +30,13 @@ import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.configurations.Signature;
 import org.jamocha.rete.exception.AssertException;
+import org.jamocha.rete.nodes.AbstractAlpha;
+import org.jamocha.rete.nodes.AlphaNode;
+import org.jamocha.rete.nodes.BaseJoin;
+import org.jamocha.rete.nodes.LIANode;
+import org.jamocha.rete.nodes.ObjectTypeNode;
+import org.jamocha.rete.nodes.SlotAlpha;
+import org.jamocha.rete.nodes.TerminalNode;
 import org.jamocha.rule.Action;
 import org.jamocha.rule.Analysis;
 import org.jamocha.rule.AndCondition;
@@ -334,16 +341,16 @@ public class SFRuleCompiler implements RuleCompiler {
 			}
 			BaseNode lastNode = c.getLastNode();
 
-			if (lastNode instanceof BaseAlpha && createNewJoin) {
+			if (lastNode instanceof AbstractAlpha && createNewJoin) {
 				LIANode adapter = new LIANode(engine.nextNodeId());
-				((BaseAlpha) lastNode)
+				((AbstractAlpha) lastNode)
 						.addSuccessorNode(adapter, engine, memory);
 				lastNode = adapter;
 			}
 
 			if (lastNode != null) {
-				if (lastNode instanceof BaseAlpha)
-					((BaseAlpha) lastNode).addSuccessorNode(fromBottom, engine,
+				if (lastNode instanceof AbstractAlpha)
+					((AbstractAlpha) lastNode).addSuccessorNode(fromBottom, engine,
 							memory);
 				else
 					lastNode.addNode(fromBottom);
@@ -379,7 +386,7 @@ public class SFRuleCompiler implements RuleCompiler {
 				} else {
 					// add the LeftInputAdapterNode to the last alphaNode
 					// we need to see if new LIANode is the same as the existing
-					BaseAlpha old = (BaseAlpha) cond.getLastNode();
+					AbstractAlpha old = (AbstractAlpha) cond.getLastNode();
 					if (old instanceof LIANode) {
 						node = (LIANode) old;
 					} else {
@@ -395,8 +402,8 @@ public class SFRuleCompiler implements RuleCompiler {
 				BaseJoin bjoin = new ExistJoinFrst(engine.nextNodeId());
 				ExistCondition cond = (ExistCondition) prev;
 				BaseNode base = cond.getLastNode();
-				if (base instanceof BaseAlpha) {
-					((BaseAlpha) base).addSuccessorNode(bjoin, engine, memory);
+				if (base instanceof AbstractAlpha) {
+					((AbstractAlpha) base).addSuccessorNode(bjoin, engine, memory);
 				} else if (base instanceof BaseJoin) {
 					((BaseJoin) base).addSuccessorNode(bjoin, engine, memory);
 				}
@@ -673,11 +680,11 @@ public class SFRuleCompiler implements RuleCompiler {
 		//add otn to condition:
 		condition.addNode(otn);
 		
-		BaseAlpha2 current = null;
+		SlotAlpha current = null;
 
 		if (otn != null) {
-			BaseAlpha2 first = null;
-			BaseAlpha2 previous = null;
+			SlotAlpha first = null;
+			SlotAlpha previous = null;
 
 			Constraint[] constraints = condition.getConstraints();
 			Constraint constraint = null;
@@ -690,7 +697,7 @@ public class SFRuleCompiler implements RuleCompiler {
 					return null;
 
 				constraint.setSlot(slot);
-				current = (BaseAlpha2) constraint.compile(this, rule,
+				current = (SlotAlpha) constraint.compile(this, rule,
 						conditionIndex);
 
 				// we add the node to the previous
@@ -810,7 +817,7 @@ public class SFRuleCompiler implements RuleCompiler {
 	 */
 	public BaseNode compile(PredicateConstraint constraint, Rule rule,
 			int conditionIndex) {
-		BaseAlpha2 node = null;
+		SlotAlpha node = null;
 		// for now we expect the user to write the predicate in this
 		// way (> ?bind value), where the binding is first. this
 		// needs to be updated so that we look at the order of the
@@ -905,7 +912,7 @@ public class SFRuleCompiler implements RuleCompiler {
 	 */
 	public BaseNode compile(OrLiteralConstraint constraint, Rule rule,
 			int conditionIndex) {
-		BaseAlpha2 node = null;
+		SlotAlpha node = null;
 		Slot2 sl = new Slot2(constraint.getName());
 		sl.setId(constraint.getSlot().getId());
 		Object sval = constraint.getValue();
@@ -937,7 +944,7 @@ public class SFRuleCompiler implements RuleCompiler {
 	 */
 	public BaseNode compile(LiteralConstraint constraint, Rule rule,
 			int conditionIndex) {
-		BaseAlpha2 node = null;
+		SlotAlpha node = null;
 		Slot sl = (Slot) constraint.getSlot().clone();
 		JamochaValue sval;
 		try {
@@ -1013,7 +1020,7 @@ public class SFRuleCompiler implements RuleCompiler {
 
 	public BaseNode compile(AndLiteralConstraint constraint, Rule rule,
 			int conditionIndex) {
-		BaseAlpha2 node = null;
+		SlotAlpha node = null;
 		Slot2 sl = new Slot2(constraint.getName());
 		sl.setId(constraint.getSlot().getId());
 		Object sval = constraint.getValue();
@@ -1064,11 +1071,11 @@ public class SFRuleCompiler implements RuleCompiler {
 	 *            or AlphaNode
 	 * @param alpha
 	 */
-	protected void attachAlphaNode(BaseAlpha existing, BaseAlpha alpha,
+	protected void attachAlphaNode(AbstractAlpha existing, AbstractAlpha alpha,
 			Condition cond) {
 		if (alpha != null) {
 			try {
-				BaseAlpha share = null;
+				AbstractAlpha share = null;
 				share = shareAlphaNode(existing, alpha);
 				if (share == null) {
 					existing.addSuccessorNode(alpha, engine, memory);
@@ -1083,9 +1090,9 @@ public class SFRuleCompiler implements RuleCompiler {
 					cond.addNode(share);
 					memory.removeAlphaMemory(alpha);
 					if (alpha.successorCount() == 1
-							&& alpha.getSuccessorNodes()[0] instanceof BaseAlpha) {
+							&& alpha.getSuccessorNodes()[0] instanceof AbstractAlpha) {
 						// get the next node from the new AlphaNode
-						BaseAlpha nnext = (BaseAlpha) alpha.getSuccessorNodes()[0];
+						AbstractAlpha nnext = (AbstractAlpha) alpha.getSuccessorNodes()[0];
 						attachAlphaNode(share, nnext, cond);
 					}
 				}
@@ -1106,12 +1113,12 @@ public class SFRuleCompiler implements RuleCompiler {
 	 * @param alpha
 	 * @return
 	 */
-	protected BaseAlpha shareAlphaNode(BaseAlpha existing, BaseAlpha alpha) {
+	protected AbstractAlpha shareAlphaNode(AbstractAlpha existing, AbstractAlpha alpha) {
 		Object[] scc = existing.getSuccessorNodes();
 		for (int idx = 0; idx < scc.length; idx++) {
 			Object next = scc[idx];
-			if (next instanceof BaseAlpha) {
-				BaseAlpha baseAlpha = (BaseAlpha) next;
+			if (next instanceof AbstractAlpha) {
+				AbstractAlpha baseAlpha = (AbstractAlpha) next;
 				if (baseAlpha.hashString().equals(alpha.hashString())) {
 					return baseAlpha;
 				}
@@ -1155,8 +1162,8 @@ public class SFRuleCompiler implements RuleCompiler {
 	 */
 	protected void attachJoinNode(BaseNode last, BaseJoin join)
 			throws AssertException {
-		if (last instanceof BaseAlpha) {
-			((BaseAlpha) last).addSuccessorNode(join, engine, memory);
+		if (last instanceof AbstractAlpha) {
+			((AbstractAlpha) last).addSuccessorNode(join, engine, memory);
 		} else if (last instanceof BaseJoin) {
 			((BaseJoin) last).addSuccessorNode(join, engine, memory);
 		}

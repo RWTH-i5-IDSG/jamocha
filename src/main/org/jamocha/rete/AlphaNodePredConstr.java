@@ -20,6 +20,7 @@ import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.exception.AssertException;
 import org.jamocha.rete.exception.RetractException;
+import org.jamocha.rete.nodes.AbstractAlpha;
 
 /**
  * @author Peter Lin
@@ -30,7 +31,7 @@ import org.jamocha.rete.exception.RetractException;
  * example of a predicate constraint:
  * (total ?tl&:(< ?tl 100.00) )
  */
-public class AlphaNodePredConstr extends BaseAlpha {
+public class AlphaNodePredConstr extends AbstractAlpha {
 
 	/**
 	 * The function to call

@@ -30,17 +30,17 @@ import javax.swing.text.StyleConstants;
 
 import org.jamocha.gui.icons.IconLoader;
 import org.jamocha.rete.AlphaNodePredConstr;
-import org.jamocha.rete.BaseAlpha2;
-import org.jamocha.rete.BaseJoin;
 import org.jamocha.rete.BaseNode;
 import org.jamocha.rete.EngineEvent;
 import org.jamocha.rete.EngineEventListener;
-import org.jamocha.rete.LIANode;
-import org.jamocha.rete.ObjectTypeNode;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.RootNode;
-import org.jamocha.rete.TerminalNode;
 import org.jamocha.rete.WorkingMemoryImpl;
+import org.jamocha.rete.nodes.BaseJoin;
+import org.jamocha.rete.nodes.LIANode;
+import org.jamocha.rete.nodes.ObjectTypeNode;
+import org.jamocha.rete.nodes.SlotAlpha;
+import org.jamocha.rete.nodes.TerminalNode;
 
 /**
  * @author Josef Alexander Hahn
@@ -96,7 +96,7 @@ public class Visualiser implements ActionListener, MouseListener,
 			bg = Color.orange;
 		if (node.getReteNode() instanceof AlphaNodePredConstr)
 			bg = Color.red;
-		if (node.getReteNode() instanceof BaseAlpha2)
+		if (node.getReteNode() instanceof SlotAlpha)
 			bg = Color.red;
 		return bg;
 	}
@@ -145,7 +145,7 @@ public class Visualiser implements ActionListener, MouseListener,
 		if (reteNode == null) { // ROOT NODE
 			s = new Ellipse();
 		} else if (reteNode instanceof BaseJoin
-				|| act.getReteNode() instanceof BaseAlpha2) {
+				|| act.getReteNode() instanceof SlotAlpha) {
 			s = new Trapezoid();
 		} else if (reteNode instanceof TerminalNode) {
 			s = new RoundedRectangle();

@@ -21,6 +21,8 @@ import java.util.Iterator;
 
 import org.jamocha.rete.exception.AssertException;
 import org.jamocha.rete.exception.RetractException;
+import org.jamocha.rete.nodes.BaseJoin;
+import org.jamocha.rete.nodes.BaseNode;
 
 /**
  * @author Peter Lin
@@ -44,6 +46,7 @@ import org.jamocha.rete.exception.RetractException;
  */
 public class BetaNode extends BaseJoin {
 
+	private static final long serialVersionUID = 1L;
 	/**
 	 * The operator for the join by default is equal. The the join
 	 * doesn't comparing values, the operator should be set to -1.
@@ -301,4 +304,30 @@ public class BetaNode extends BaseJoin {
 		}
 		return buf.toString();
 	}
+
+	@Override
+	public boolean assertLeft(Fact fact, Rete engine) throws AssertException {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean assertRight(Fact fact, Rete engine) throws AssertException {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public void retractLeft(Fact fact, Rete engine) throws RetractException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void retractRight(Fact fact, Rete engine) throws RetractException {
+		// TODO Auto-generated method stub
+		
+	}
+
+
 }

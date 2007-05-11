@@ -55,6 +55,7 @@ import org.jamocha.rete.functions.list.ListFunctions;
 import org.jamocha.rete.functions.math.MathFunctions;
 import org.jamocha.rete.functions.ruleengine.RuleEngineFunctions;
 import org.jamocha.rete.functions.strings.StringFunctions;
+import org.jamocha.rete.nodes.TerminalNode;
 import org.jamocha.rete.strategies.DepthStrategy;
 import org.jamocha.rete.util.CollectionsFactory;
 import org.jamocha.rete.util.ProfileStats;

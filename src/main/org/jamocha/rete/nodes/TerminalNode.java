@@ -14,9 +14,15 @@
  * limitations under the License.
  * 
  */
-package org.jamocha.rete;
+package org.jamocha.rete.nodes;
 
-import org.jamocha.rete.nodes.rtBaseNode;
+import org.jamocha.rete.Activation;
+import org.jamocha.rete.BasicActivation;
+import org.jamocha.rete.Fact;
+import org.jamocha.rete.Index;
+import org.jamocha.rete.Rete;
+import org.jamocha.rete.exception.AssertException;
+import org.jamocha.rete.exception.RetractException;
 import org.jamocha.rule.Rule;
 
 
@@ -27,7 +33,7 @@ import org.jamocha.rule.Rule;
  * action of the rule. NOTE: currently this is not used directly. other terminal
  * nodes extend it.
  */
-public class TerminalNode extends rtBaseNode {
+public class TerminalNode extends BaseNode {
 
 	private static final long serialVersionUID = 1L;
 	
@@ -54,25 +60,27 @@ public class TerminalNode extends rtBaseNode {
 	 * the rule have been met. The method creates a new Activation and adds it
 	 * to the activationList of the correct module. Note: we may want to change
 	 * the design so that we don't create a new Activation object.
-	 * 
-	 * @param idx
 	 * @param engine
+	 * @param idx
 	 */
-	public void assertFacts(Fact[] facts, Rete engine) {
-		Activation act = new BasicActivation(this.theRule, new Index(facts));
+	protected boolean assertFact(Fact fact, Rete engine, BaseNode sender) throws AssertException{
+		
+		Activation act = new BasicActivation(this.theRule, new Index(new Fact[]{fact}));
 		engine.getAgenda().addActivation(act);
+		return true;
 	}
 
 	/**
 	 * Retract means we need to remove the activation from the correct module
 	 * agenda.
-	 * 
-	 * @param idx
 	 * @param engine
+	 * @param idx
 	 */
-	public void retractFacts(Fact[] facts, Rete engine) {
-		Activation act = new BasicActivation(this.theRule, new Index(facts));
+	@Override
+	public void retractFact(Fact factInstance, Rete engine, BaseNode sender) throws RetractException {
+		Activation act = new BasicActivation(this.theRule, new Index(new Fact[]{factInstance}));
 		engine.getAgenda().removeActivation(act);
+		
 	}
 
 	public Rule getRule() {
@@ -99,8 +107,16 @@ public class TerminalNode extends rtBaseNode {
 	public void removeAllSuccessors() {
 	}
 
+
 	@Override
-	protected void evZeroUseCount() {
-		destroy();
+	protected void mountChild(BaseNode newChild, Rete engine) {
 	}
+
+	@Override
+	protected void unmountChild(BaseNode oldChild, Rete engine) {
+	}
+
+
+
+
 }

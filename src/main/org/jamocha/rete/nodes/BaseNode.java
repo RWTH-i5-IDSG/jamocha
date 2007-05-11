@@ -17,13 +17,14 @@
 package org.jamocha.rete.nodes;
 
 import java.io.Serializable;
+import java.util.AbstractCollection;
+import java.util.Vector;
 
-import org.jamocha.rete.Activation;
-import org.jamocha.rete.BasicActivation;
 import org.jamocha.rete.ConversionUtils;
-import org.jamocha.rete.Index;
+import org.jamocha.rete.Fact;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.WorkingMemory;
+import org.jamocha.rete.exception.AssertException;
+import org.jamocha.rete.exception.RetractException;
 
 /**
  * @author Sebastian Reinartz
@@ -31,16 +32,18 @@ import org.jamocha.rete.WorkingMemory;
  * BaseNode is meant to define common logic that all nodes must have and
  * implement common logic.
  */
-public abstract class rtBaseNode implements Serializable {
+public abstract class BaseNode implements Serializable {
 
 	protected int nodeID;
 
 	/**
 	 * We use an object Array to keep things efficient
 	 */
-	protected rtBaseNode[] childNodes = new rtBaseNode[0];
+	protected BaseNode[] childNodes = new BaseNode[0];
 
-	protected rtBaseNode[] parentNodes = new rtBaseNode[0];
+	protected BaseNode[] parentNodes = new BaseNode[0];
+	
+	protected AbstractCollection<Fact> facts = null;
 
 	// override these values in subclasses:
 	protected int maxParentCount = 1;
@@ -59,16 +62,17 @@ public abstract class rtBaseNode implements Serializable {
 	 * BaseNode has only one constructor which takes an unique node id. All
 	 * subclasses need to call the constructor.
 	 */
-	public rtBaseNode(int id) {
+	public BaseNode(int id) {
 		super();
 		this.nodeID = id;
+		facts = new Vector<Fact>();
 	}
 
-	public rtBaseNode[] getParentNodes() {
+	public BaseNode[] getParentNodes() {
 		return parentNodes;
 	}
 
-	public rtBaseNode[] getChildNodes() {
+	public BaseNode[] getChildNodes() {
 		return childNodes;
 	}
 
@@ -78,7 +82,7 @@ public abstract class rtBaseNode implements Serializable {
 	 * @param n
 	 * @return
 	 */
-	public boolean addNode(rtBaseNode n) {
+	public boolean addNode(BaseNode n, Rete engine) throws AssertException {
 		boolean add = false;
 		// check if not inserted yet and free space for subchild:
 		if (!containsNode(this.childNodes, n) && childNodes.length < maxChildCount)
@@ -86,11 +90,17 @@ public abstract class rtBaseNode implements Serializable {
 			if (n.evAdded(this)) {
 				// add to own list:
 				this.childNodes = ConversionUtils.add(this.childNodes, n);
+				mountChild(n, engine);
 				// inc own node use count
 				useCount++;
 				add = true;
 			}
 		return add;
+	}
+
+	protected void mountChild(BaseNode newChild, Rete engine) throws AssertException {
+		for (Fact fact : facts)
+			newChild.assertFact(fact, engine, null);
 	}
 
 	/**
@@ -99,7 +109,7 @@ public abstract class rtBaseNode implements Serializable {
 	 * @param n
 	 * @return
 	 */
-	private boolean evAdded(rtBaseNode newParentNode) {
+	private boolean evAdded(BaseNode newParentNode) {
 		// we have been added to the new parent, add parent to own list:
 		if (!containsNode(this.parentNodes, newParentNode) && childNodes.length < maxParentCount) {
 			// add to own list:
@@ -115,24 +125,30 @@ public abstract class rtBaseNode implements Serializable {
 	 * @param n
 	 * @return
 	 */
-	public boolean removeNode(rtBaseNode n) {
+	public boolean removeNode(BaseNode n, Rete engine) throws RetractException {
 		boolean rem = false;
 		if (containsNode(this.childNodes, n))
 			// inform removed child node:
 			if (n.evRemoved(this)) {
 				this.childNodes = ConversionUtils.remove(this.childNodes, n);
+				unmountChild(n, engine);
 				// dec own node use count
 				useCount--;
 				if (useCount == 0)
-					evZeroUseCount();
+					evZeroUseCount(engine);
 				rem = true;
 			}
 		return rem;
 	}
-	
-	public void destroy(){
-		for (int i =0; i<parentNodes.length;i++){
-			parentNodes[i].removeNode(this);
+
+	protected void unmountChild(BaseNode oldChild, Rete engine) throws RetractException {
+		for (Fact fact : facts)
+			oldChild.retractFact(fact, engine, null);
+	}
+
+	public void destroy(Rete engine) throws RetractException {
+		for (int i = 0; i < parentNodes.length; i++) {
+			parentNodes[i].removeNode(this, engine);
 		}
 	}
 
@@ -142,7 +158,7 @@ public abstract class rtBaseNode implements Serializable {
 	 * @param n
 	 * @return
 	 */
-	private boolean evRemoved(rtBaseNode oldParentNode) {
+	private boolean evRemoved(BaseNode oldParentNode) {
 		// we have been added to the new parent, add parent to own list:
 		if (containsNode(this.parentNodes, oldParentNode)) {
 			// add to own list:
@@ -158,13 +174,24 @@ public abstract class rtBaseNode implements Serializable {
 	 * 
 	 * @return
 	 */
-	protected abstract void evZeroUseCount();
-	
+	protected void evZeroUseCount(Rete engine) throws RetractException {
+		destroy(engine);
+	}
+
 	/**
-	 * Subclasses need to implement clear and make sure all
-	 * memories are cleared properly.
+	 * Subclasses need to implement clear and make sure all memories are cleared
+	 * properly.
 	 */
-	public abstract void clear();
+	public void propagateClear() {
+		for (BaseNode nNode : childNodes) {
+			nNode.propagateClear();
+			clear();
+		}
+	}
+
+	protected  void clear(){
+		facts.clear();
+	}
 
 	/**
 	 * toPPString should return a string format, but formatted nicely so it's
@@ -174,9 +201,13 @@ public abstract class rtBaseNode implements Serializable {
 	 * 
 	 * @return
 	 */
-	public abstract String toPPString();
+	public String toPPString() {
+		return toString();
+	}
 
-	protected boolean containsNode(rtBaseNode[] list, rtBaseNode n) {
+	public abstract String toString();
+
+	protected boolean containsNode(BaseNode[] list, BaseNode n) {
 		boolean cn = false;
 		for (int idx = 0; idx < list.length; idx++) {
 			if (list[idx] == n) {
@@ -186,6 +217,41 @@ public abstract class rtBaseNode implements Serializable {
 		}
 		return cn;
 	}
+
+	/**
+	 * method for propogating the retract
+	 * 
+	 * @param fact
+	 * @param engine
+	 */
+	protected void propogateRetract(Fact fact, Rete engine) throws RetractException {
+		for (BaseNode nNode : childNodes) {
+			retractFact(fact, engine, null);
+			nNode.propogateRetract(fact, engine);
+		}
+	}
+
+	/**
+	 * Method is used to pass a fact to the successor nodes
+	 * 
+	 * @param fact
+	 * @param engine
+	 */
+	protected void propogateAssert(Fact fact, Rete engine) throws AssertException {
+		for (BaseNode nNode : childNodes) {
+			if (assertFact(fact, engine, null))
+				nNode.propogateAssert(fact, engine);
+
+		}
+	}
+
+	// use of good old Delphi sender...
+	protected abstract boolean assertFact(Fact fact, Rete engine, BaseNode /* TObject ;) */sender) throws AssertException;
+
+	public abstract void retractFact(Fact factInstance, Rete engine, BaseNode sender) throws RetractException;
 	
-	
+	public static  boolean isRightNode(){
+		return true;
+	}
+
 }

@@ -22,6 +22,7 @@ import java.util.Map;
 
 import org.jamocha.rete.exception.AssertException;
 import org.jamocha.rete.exception.RetractException;
+import org.jamocha.rete.nodes.BaseJoin;
 
 /**
  * @author Peter Lin

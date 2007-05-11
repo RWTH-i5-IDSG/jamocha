@@ -18,6 +18,7 @@ package org.jamocha.rete;
 
 import java.util.Map;
 
+import org.jamocha.rete.nodes.TerminalNode;
 import org.jamocha.rule.Rule;
 
 

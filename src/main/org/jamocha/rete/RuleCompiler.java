@@ -17,6 +17,8 @@
 package org.jamocha.rete;
 
 import java.io.Serializable;
+
+import org.jamocha.rete.nodes.ObjectTypeNode;
 import org.jamocha.rule.Rule;
 
 

@@ -29,6 +29,13 @@ import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.configurations.Signature;
 import org.jamocha.rete.exception.AssertException;
+import org.jamocha.rete.nodes.AbstractAlpha;
+import org.jamocha.rete.nodes.AlphaNode;
+import org.jamocha.rete.nodes.BaseJoin;
+import org.jamocha.rete.nodes.LIANode;
+import org.jamocha.rete.nodes.ObjectTypeNode;
+import org.jamocha.rete.nodes.SlotAlpha;
+import org.jamocha.rete.nodes.TerminalNode;
 import org.jamocha.rule.Action;
 import org.jamocha.rule.Analysis;
 import org.jamocha.rule.AndCondition;
@@ -314,9 +321,9 @@ public class BasicRuleCompiler implements RuleCompiler {
 			Rule util, boolean alphaMemory) {
 		ObjectTypeNode otn = findObjectTypeNode(cond.getTemplateName());
 		if (otn != null) {
-			BaseAlpha2 first = null;
-			BaseAlpha2 previous = null;
-			BaseAlpha2 current = null;
+			SlotAlpha first = null;
+			SlotAlpha previous = null;
+			SlotAlpha current = null;
 			Template templ = cond.getTemplate();
 
 			Constraint[] constrs = cond.getConstraints();
@@ -548,11 +555,11 @@ public class BasicRuleCompiler implements RuleCompiler {
 	 *            or AlphaNode
 	 * @param alpha
 	 */
-	protected void attachAlphaNode(BaseAlpha existing, BaseAlpha alpha,
+	protected void attachAlphaNode(AbstractAlpha existing, AbstractAlpha alpha,
 			Condition cond) {
 		if (alpha != null) {
 			try {
-				BaseAlpha share = null;
+				AbstractAlpha share = null;
 				share = shareAlphaNode(existing, alpha);
 				if (share == null) {
 					existing.addSuccessorNode(alpha, engine, memory);
@@ -567,9 +574,9 @@ public class BasicRuleCompiler implements RuleCompiler {
 					cond.addNode(share);
 					memory.removeAlphaMemory(alpha);
 					if (alpha.successorCount() == 1
-							&& alpha.getSuccessorNodes()[0] instanceof BaseAlpha) {
+							&& alpha.getSuccessorNodes()[0] instanceof AbstractAlpha) {
 						// get the next node from the new AlphaNode
-						BaseAlpha nnext = (BaseAlpha) alpha.getSuccessorNodes()[0];
+						AbstractAlpha nnext = (AbstractAlpha) alpha.getSuccessorNodes()[0];
 						attachAlphaNode(share, nnext, cond);
 					}
 				}
@@ -591,12 +598,12 @@ public class BasicRuleCompiler implements RuleCompiler {
 	 * @param alpha
 	 * @return
 	 */
-	protected BaseAlpha shareAlphaNode(BaseAlpha existing, BaseAlpha alpha) {
+	protected AbstractAlpha shareAlphaNode(AbstractAlpha existing, AbstractAlpha alpha) {
 		Object[] scc = existing.getSuccessorNodes();
 		for (int idx = 0; idx < scc.length; idx++) {
 			Object next = scc[idx];
-			if (next instanceof BaseAlpha) {
-				BaseAlpha baseAlpha = (BaseAlpha) next;
+			if (next instanceof AbstractAlpha) {
+				AbstractAlpha baseAlpha = (AbstractAlpha) next;
 				if (baseAlpha.hashString().equals(alpha.hashString())) {
 					return baseAlpha;
 				}
@@ -633,7 +640,7 @@ public class BasicRuleCompiler implements RuleCompiler {
 				} else {
 					// add the LeftInputAdapterNode to the last alphaNode
 					// we need to see if new LIANode is the same as the existing
-					BaseAlpha old = (BaseAlpha) cond.getLastNode();
+					AbstractAlpha old = (AbstractAlpha) cond.getLastNode();
 					if (old instanceof LIANode) {
 						node = (LIANode) old;
 					} else {
@@ -649,8 +656,8 @@ public class BasicRuleCompiler implements RuleCompiler {
 				BaseJoin bjoin = new ExistJoinFrst(engine.nextNodeId());
 				ExistCondition cond = (ExistCondition) prev;
 				BaseNode base = cond.getLastNode();
-				if (base instanceof BaseAlpha) {
-					((BaseAlpha) base).addSuccessorNode(bjoin, engine, memory);
+				if (base instanceof AbstractAlpha) {
+					((AbstractAlpha) base).addSuccessorNode(bjoin, engine, memory);
 				} else if (base instanceof BaseJoin) {
 					((BaseJoin) base).addSuccessorNode(bjoin, engine, memory);
 				}
@@ -935,8 +942,8 @@ public class BasicRuleCompiler implements RuleCompiler {
 				if (last instanceof BaseJoin) {
 					((BaseJoin) last)
 							.addSuccessorNode(terminal, engine, memory);
-				} else if (last instanceof BaseAlpha) {
-					((BaseAlpha) last).addSuccessorNode(terminal, engine,
+				} else if (last instanceof AbstractAlpha) {
+					((AbstractAlpha) last).addSuccessorNode(terminal, engine,
 							memory);
 				}
 			} catch (AssertException e) {
@@ -955,8 +962,8 @@ public class BasicRuleCompiler implements RuleCompiler {
 	 */
 	protected void attachJoinNode(BaseNode last, BaseJoin join)
 			throws AssertException {
-		if (last instanceof BaseAlpha) {
-			((BaseAlpha) last).addSuccessorNode(join, engine, memory);
+		if (last instanceof AbstractAlpha) {
+			((AbstractAlpha) last).addSuccessorNode(join, engine, memory);
 		} else if (last instanceof BaseJoin) {
 			((BaseJoin) last).addSuccessorNode(join, engine, memory);
 		}

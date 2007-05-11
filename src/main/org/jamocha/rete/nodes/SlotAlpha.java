@@ -14,7 +14,10 @@
  * limitations under the License.
  * 
  */
-package org.jamocha.rete;
+package org.jamocha.rete.nodes;
+
+import org.jamocha.rete.Slot;
+
 
 /**
  * @author Peter Lin
@@ -22,12 +25,12 @@ package org.jamocha.rete;
  * BaseAlpha2 is an abstract class for AlphaNodes that compare literal or bound
  * constraints. It isn't used for LIANode, ObjectTypeNode.
  */
-public abstract class BaseAlpha2 extends BaseAlpha {
+public abstract class SlotAlpha extends AbstractAlpha {
 
 	/**
 	 * @param id
 	 */
-	public BaseAlpha2(int id) {
+	public SlotAlpha(int id) {
 		super(id);
 	}
 

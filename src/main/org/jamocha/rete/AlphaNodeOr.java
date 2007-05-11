@@ -18,13 +18,14 @@ package org.jamocha.rete;
 
 import org.jamocha.rete.exception.AssertException;
 import org.jamocha.rete.exception.RetractException;
+import org.jamocha.rete.nodes.SlotAlpha;
 
 /**
  * @author Peter Lin
  *
  * 
  */
-public class AlphaNodeOr extends BaseAlpha2 {
+public class AlphaNodeOr extends SlotAlpha {
 
 	static final long serialVersionUID = 0xDeadBeafCafeBabeL;
 	
