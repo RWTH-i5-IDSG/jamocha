@@ -43,7 +43,7 @@ public class ObjectCondition extends AbstractCondition {
 
 	protected String varname = null;
 
-	protected List propConditions = new ArrayList();
+	protected List<Constraint> propConditions = new ArrayList<Constraint>();
 
 	/**
 	 * In the case the object pattern is negated, the boolean would be set to
@@ -54,7 +54,7 @@ public class ObjectCondition extends AbstractCondition {
 	/**
 	 * a list for the RETE nodes created by RuleCompiler
 	 */
-	protected List nodes = new ArrayList();
+	protected List<BaseNode> nodes = new ArrayList<BaseNode>();
 
 	protected Template template = null;
 
@@ -169,13 +169,13 @@ public class ObjectCondition extends AbstractCondition {
 	 * @return
 	 */
 	protected BaseNode getLast(AbstractAlpha node) {
-		int ncount = node.successorCount();
+		int ncount = node.getChildCount();
 		if (node != null && ncount > 0) {
 			// there should only be 1 successor, so we always get the item
 			// at index zero. If the AlphaNode at index zero is wrong, it
 			// means there's some other bug
-			if (node.getSuccessorNodes()[0] instanceof AbstractAlpha) {
-				return getLast((AbstractAlpha) node.getSuccessorNodes()[ncount - 1]);
+			if (node.getChildNodes()[0] instanceof AbstractAlpha) {
+				return getLast((AbstractAlpha) node.getChildNodes()[ncount - 1]);
 			} else {
 				return node;
 			}
@@ -212,10 +212,10 @@ public class ObjectCondition extends AbstractCondition {
 	 * Method will return a list of all the BoundConstraints
 	 */
 	public List getAllBindings() {
-		ArrayList binds = new ArrayList();
-		Iterator itr = propConditions.iterator();
+		ArrayList<Constraint> binds = new ArrayList<Constraint>();
+		Iterator<Constraint> itr = propConditions.iterator();
 		while (itr.hasNext()) {
-			Object c = itr.next();
+			Constraint c = itr.next();
 			if (c instanceof BoundConstraint) {
 				BoundConstraint bc = (BoundConstraint) c;
 				if (!bc.firstDeclaration()) {
@@ -231,10 +231,10 @@ public class ObjectCondition extends AbstractCondition {
 	}
 
 	public List getBindings() {
-		ArrayList binds = new ArrayList();
-		Iterator itr = propConditions.iterator();
+		ArrayList<Constraint> binds = new ArrayList<Constraint>();
+		Iterator<Constraint> itr = propConditions.iterator();
 		while (itr.hasNext()) {
-			Object c = itr.next();
+			Constraint c = itr.next();
 			if (c instanceof BoundConstraint) {
 				BoundConstraint bc = (BoundConstraint) c;
 				if (!bc.firstDeclaration() && !bc.getIsObjectBinding()) {
