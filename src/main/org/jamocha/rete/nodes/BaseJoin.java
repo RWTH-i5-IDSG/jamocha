@@ -39,7 +39,7 @@ public abstract class BaseJoin extends BaseNode {
 	
 	protected AbstractCollection<Fact> alphaMemory = null;
 	
-	protected AbstractCollection<FactTupel> betaMemory = null;
+	protected AbstractCollection<FactTuple> betaMemory = null;
 
 	/**
 	 * @param id
@@ -49,7 +49,7 @@ public abstract class BaseJoin extends BaseNode {
 		this.maxChildCount = Integer.MAX_VALUE;
 		this.maxParentCount = 2;
 		alphaMemory = new Vector<Fact>();
-		betaMemory = new Vector<FactTupel>();
+		betaMemory = new Vector<FactTuple>();
 	}
 
 	@Override

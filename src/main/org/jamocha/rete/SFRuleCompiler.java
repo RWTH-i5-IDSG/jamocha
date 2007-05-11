@@ -145,6 +145,8 @@ public class SFRuleCompiler implements RuleCompiler {
 	 * @return TerminalNode
 	 */
 	protected TerminalNode createTerminalNode(Rule rule) {
+		return new TerminalNode(engine.nextNodeId(), rule);
+		/*
 		if (rule.getNoAgenda() && rule.getExpirationDate() == 0) {
 			return new NoAgendaTNode(engine.nextNodeId(), rule);
 		} else if (rule.getNoAgenda() && rule.getExpirationDate() > 0) {
@@ -153,7 +155,7 @@ public class SFRuleCompiler implements RuleCompiler {
 			return new TerminalNode3(engine.nextNodeId(), rule);
 		} else {
 			return new TerminalNode2(engine.nextNodeId(), rule);
-		}
+		}*/
 	}
 
 	/**

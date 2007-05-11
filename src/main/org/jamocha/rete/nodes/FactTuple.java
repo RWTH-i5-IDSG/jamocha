@@ -21,7 +21,7 @@ import java.util.AbstractCollection;
 
 import org.jamocha.rete.Fact;
 
-public class FactTupel implements Serializable{
+public class FactTuple implements Serializable{
 
 	private static final long serialVersionUID = 1L;
 
@@ -29,7 +29,7 @@ public class FactTupel implements Serializable{
 	protected AbstractCollection<Fact> facts = null;
 
 
-	public FactTupel(AbstractCollection<Fact> facts) {
+	public FactTuple(AbstractCollection<Fact> facts) {
 		super();
 		this.facts = facts;
 	}
@@ -44,5 +44,8 @@ public class FactTupel implements Serializable{
 		this.facts = facts;
 	}
 	
+	public void addFact(Fact fact){
+		facts.add(fact);
+	}
 	
 }

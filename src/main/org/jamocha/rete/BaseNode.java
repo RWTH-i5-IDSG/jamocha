@@ -24,7 +24,7 @@ import java.io.Serializable;
  * BaseNode is meant to define common logic that all nodes must have
  * and implement common logic.
  */
-public abstract class BaseNode implements Serializable {
+public abstract class rtBaseNode implements Serializable {
 
 	protected int nodeID;
 
