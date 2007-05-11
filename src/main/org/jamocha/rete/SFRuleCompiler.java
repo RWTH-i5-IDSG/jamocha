@@ -328,6 +328,9 @@ public class SFRuleCompiler implements RuleCompiler {
 							memory);
 				}
 				fromBottom = newJoin;
+				//add join to rule:
+				rule.addJoinNode(newJoin);
+				
 			}
 			BaseNode lastNode = c.getLastNode();
 
