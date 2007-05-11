@@ -24,8 +24,10 @@ import org.jamocha.parser.ParserFactory;
 import org.jamocha.rete.exception.AssertException;
 import org.jamocha.rete.exception.RetractException;
 import org.jamocha.rete.nodes.BaseJoin;
+import org.jamocha.rete.nodes.BaseNode;
 import org.jamocha.rete.nodes.LIANode;
 import org.jamocha.rete.nodes.ObjectTypeNode;
+import org.jamocha.rete.nodes.RootNode;
 import org.jamocha.rete.util.CollectionsFactory;
 import org.jamocha.rule.Condition;
 import org.jamocha.rule.Rule;
@@ -42,7 +44,7 @@ public class WorkingMemoryImpl implements WorkingMemory {
 
 	protected Rete engine = null;
 
-	protected RootNode root = new RootNode();
+	protected RootNode root = null;
 
 	protected Map alphaMemories = CollectionsFactory.newMap();
 
@@ -62,6 +64,7 @@ public class WorkingMemoryImpl implements WorkingMemory {
 		this.engine = engine;
 		this.compiler = ParserFactory.getRuleCompiler(engine, this, this.root);
 		this.compiler.addListener(engine);
+		this.root = new RootNode(engine.nextNodeId());
 	}
 
 	/**
@@ -85,7 +88,7 @@ public class WorkingMemoryImpl implements WorkingMemory {
 		} else {
 			// for now return null, it should create a new memory
 			// and return it.
-			String mname = "alphamem" + ((BaseNode) key).nodeID;
+			String mname = "alphamem" + ((BaseNode) key).getNodeId();
 			AlphaMemoryImpl alpha = new AlphaMemoryImpl(mname);
 			this.alphaMemories.put(key, alpha);
 			return alpha;
@@ -111,7 +114,7 @@ public class WorkingMemoryImpl implements WorkingMemory {
 		} else {
 			// it should create a new memory
 			// and return it.
-			String mname = "blmem" + ((BaseNode) key).nodeID;
+			String mname = "blmem" + ((BaseNode) key).getNodeId();
 			Map left = CollectionsFactory.newBetaMemoryMap(mname);
 			this.betaLeftMemories.put(key, left);
 			return left;
@@ -128,18 +131,18 @@ public class WorkingMemoryImpl implements WorkingMemory {
 			return val;
 		} else {
 			if (key instanceof HashedEqBNode || key instanceof HashedEqNJoin) {
-				String mname = "hnode" + ((BaseNode) key).nodeID;
+				String mname = "hnode" + ((BaseNode) key).getNodeId();
 				HashedAlphaMemoryImpl alpha = new HashedAlphaMemoryImpl(mname);
 				this.betaRightMemories.put(key, alpha);
 				return alpha;
 			} else if (key instanceof HashedNotEqBNode
 					|| key instanceof HashedNotEqNJoin) {
-				String mname = "hneq" + ((BaseNode) key).nodeID;
+				String mname = "hneq" + ((BaseNode) key).getNodeId();
 				HashedAlphaMemory2 alpha = new HashedAlphaMemory2(mname);
 				this.betaRightMemories.put(key, alpha);
 				return alpha;
 			} else {
-				String mname = "brmem" + ((BaseNode) key).nodeID;
+				String mname = "brmem" + ((BaseNode) key).getNodeId();
 				Map right = CollectionsFactory.newAlphaMemoryMap(mname);
 				this.betaRightMemories.put(key, right);
 				return right;
@@ -166,7 +169,7 @@ public class WorkingMemoryImpl implements WorkingMemory {
 		// has been added to the working memory, so we just assert.
 		// we need to lookup the defclass and deftemplate to assert
 		// the object to the network
-		this.root.assertObject(fact, engine, this);
+		this.root.assertObject(fact, engine);
 	}
 
 	/**
@@ -175,7 +178,7 @@ public class WorkingMemoryImpl implements WorkingMemory {
 	 * @param objInstance
 	 */
 	public synchronized void retractObject(Fact fact) throws RetractException {
-		this.root.retractObject(fact, engine, this);
+		this.root.retractObject(fact, engine);
 	}
 
 	/**

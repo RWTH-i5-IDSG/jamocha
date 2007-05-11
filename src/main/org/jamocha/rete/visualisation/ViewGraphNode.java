@@ -22,7 +22,7 @@ import java.util.Iterator;
 import java.util.Collection;
 
 import org.jamocha.rete.nodes.BaseNode;
-import org.jamocha.rete.RootNode;
+import org.jamocha.rete.nodes.RootNode;
 
 import java.lang.Math;
 
@@ -159,7 +159,7 @@ public class ViewGraphNode {
 	}
 
 	protected static ViewGraphNode buildFromRete(BaseNode root, Hashtable<BaseNode,ViewGraphNode> ht) {
-		Object succ[]=root.getSuccessorNodes();
+		Object succ[]=root.getChildNodes();
 		ViewGraphNode foo=ht.get(root);
 		ViewGraphNode res=null;
 		if (foo==null) {

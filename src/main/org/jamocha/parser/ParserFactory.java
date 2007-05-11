@@ -26,10 +26,10 @@ import org.jamocha.parser.clips.CLIPSParser;
 import org.jamocha.parser.sfp.SFPParser;
 import org.jamocha.rete.BasicRuleCompiler;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.RootNode;
 import org.jamocha.rete.RuleCompiler;
 import org.jamocha.rete.SFRuleCompiler;
 import org.jamocha.rete.WorkingMemory;
+import org.jamocha.rete.nodes.RootNode;
 
 /**
  * The ParserFactory generates all known Parsers for CLIPS-Code or other

@@ -34,11 +34,11 @@ import org.jamocha.rete.nodes.BaseNode;
 import org.jamocha.rete.EngineEvent;
 import org.jamocha.rete.EngineEventListener;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.RootNode;
 import org.jamocha.rete.WorkingMemoryImpl;
 import org.jamocha.rete.nodes.BaseJoin;
 import org.jamocha.rete.nodes.LIANode;
 import org.jamocha.rete.nodes.ObjectTypeNode;
+import org.jamocha.rete.nodes.RootNode;
 import org.jamocha.rete.nodes.SlotAlpha;
 import org.jamocha.rete.nodes.TerminalNode;
 

@@ -14,15 +14,15 @@
  * limitations under the License.
  * 
  */
-package org.jamocha.rete;
+package org.jamocha.rete.nodes;
 
 import java.util.Map;
 
+import org.jamocha.rete.Fact;
+import org.jamocha.rete.Rete;
+import org.jamocha.rete.Template;
 import org.jamocha.rete.exception.AssertException;
 import org.jamocha.rete.exception.RetractException;
-import org.jamocha.rete.nodes.Assertable;
-import org.jamocha.rete.nodes.BaseNode;
-import org.jamocha.rete.nodes.ObjectTypeNode;
 import org.jamocha.rete.util.CollectionsFactory;
 
 public class RootNode extends BaseNode {
