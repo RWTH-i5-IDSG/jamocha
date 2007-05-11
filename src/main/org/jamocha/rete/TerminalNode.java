@@ -16,6 +16,7 @@
  */
 package org.jamocha.rete;
 
+import org.jamocha.rete.nodes.rtBaseNode;
 import org.jamocha.rule.Rule;
 
 
@@ -26,8 +27,10 @@ import org.jamocha.rule.Rule;
  * action of the rule. NOTE: currently this is not used directly. other terminal
  * nodes extend it.
  */
-public class TerminalNode extends BaseNode {
+public class TerminalNode extends rtBaseNode {
 
+	private static final long serialVersionUID = 1L;
+	
 	protected Rule theRule = null;
 
 	/**
@@ -36,12 +39,14 @@ public class TerminalNode extends BaseNode {
 	public TerminalNode(int id, Rule rl) {
 		super(id);
 		this.theRule = rl;
+		this.maxChildCount =0;
+		this.maxParentCount=1;
 	}
 
 	/**
 	 * The terminal nodes doesn't have a memory, so the method does nothing.
 	 */
-	public void clear(WorkingMemory mem) {
+	public void clear() {
 	}
 
 	/**
@@ -53,8 +58,8 @@ public class TerminalNode extends BaseNode {
 	 * @param idx
 	 * @param engine
 	 */
-	public void assertFacts(Index inx, Rete engine, WorkingMemory mem) {
-		Activation act = new BasicActivation(this.theRule, inx);
+	public void assertFacts(Fact[] facts, Rete engine) {
+		Activation act = new BasicActivation(this.theRule, new Index(facts));
 		engine.getAgenda().addActivation(act);
 	}
 
@@ -65,8 +70,8 @@ public class TerminalNode extends BaseNode {
 	 * @param idx
 	 * @param engine
 	 */
-	public void retractFacts(Index inx, Rete engine, WorkingMemory mem) {
-		Activation act = new BasicActivation(this.theRule, inx);
+	public void retractFacts(Fact[] facts, Rete engine) {
+		Activation act = new BasicActivation(this.theRule, new Index(facts));
 		engine.getAgenda().removeActivation(act);
 	}
 
@@ -92,5 +97,10 @@ public class TerminalNode extends BaseNode {
 	 * The terminal node has no successors, so this method does nothing.
 	 */
 	public void removeAllSuccessors() {
+	}
+
+	@Override
+	protected void evZeroUseCount() {
+		destroy();
 	}
 }

@@ -19,6 +19,8 @@ package org.jamocha.rete;
 import java.math.BigDecimal;
 import java.util.HashMap;
 
+import org.jamocha.rete.nodes.rtBaseNode;
+
 /**
  * @author Peter Lin
  *
@@ -205,6 +207,13 @@ public class ConversionUtils {
     	return newlist;
     }
     
+    public static rtBaseNode[] add(rtBaseNode[] list, rtBaseNode nobj) {
+    	rtBaseNode[] newlist = new rtBaseNode[list.length + 1];
+    	System.arraycopy(list,0,newlist,0,list.length);
+    	newlist[list.length] = nobj;
+    	return newlist;
+    }
+    
     /**
      * remove an object from an object array
      * @param list
@@ -213,6 +222,18 @@ public class ConversionUtils {
      */
     public static BaseNode[] remove(BaseNode[] list, BaseNode nobj) {
         BaseNode[] newlist = new BaseNode[list.length - 1];
+    	int pos = 0;
+    	for (int idx=0; idx < list.length; idx++) {
+    		if (list[idx] != nobj) {
+    			newlist[pos] = list[idx];
+    			pos++;
+    		}
+    	}
+    	return newlist;
+    }
+    
+    public static rtBaseNode[] remove(rtBaseNode[] list, rtBaseNode nobj) {
+    	rtBaseNode[] newlist = new rtBaseNode[list.length - 1];
     	int pos = 0;
     	for (int idx=0; idx < list.length; idx++) {
     		if (list[idx] != nobj) {

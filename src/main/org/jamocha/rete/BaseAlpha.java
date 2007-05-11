@@ -20,6 +20,7 @@ import java.util.Iterator;
 
 import org.jamocha.rete.exception.AssertException;
 import org.jamocha.rete.exception.RetractException;
+import org.jamocha.rete.nodes.rtBaseNode;
 
 /**
  * @author Peter Lin
@@ -64,7 +65,7 @@ import org.jamocha.rete.exception.RetractException;
  * rules and facts, it can potentially reduce partial matches by an
  * order of magnitude or more.
  */
-public abstract class BaseAlpha extends BaseNode {
+public abstract class BaseAlpha extends rtBaseNode {
 
     /**
      * The operator to compare two values
@@ -74,6 +75,7 @@ public abstract class BaseAlpha extends BaseNode {
 
     public BaseAlpha(int id){
         super(id);
+        this.maxChildCount = Integer.MAX_VALUE;
     }
     
     /**
@@ -81,7 +83,7 @@ public abstract class BaseAlpha extends BaseNode {
      * @param factInstance
      * @param engine
      */
-    public abstract void assertFact(Fact factInstance, Rete engine, WorkingMemory mem) 
+    public abstract void assertFact(Fact factInstance, Rete engine) 
     throws AssertException;
 
     /**
@@ -90,34 +92,30 @@ public abstract class BaseAlpha extends BaseNode {
      * @param factInstance
      * @param engine
      */
-    public abstract void retractFact(Fact factInstance, Rete engine, WorkingMemory mem) 
+    public abstract void retractFact(Fact factInstance, Rete engine) 
     throws RetractException;
     
-    public int successorCount() {
-    	return this.successorNodes.length;
-    }
     
     /**
      * method for propogating the retract
      * @param fact
      * @param engine
      */
-    protected void propogateRetract(Fact fact, Rete engine, WorkingMemory mem)
+    protected void propogateRetract(Fact fact, Rete engine)
     throws RetractException
     {
-        for (int idx=0; idx < this.successorNodes.length; idx++) {
-            BaseNode nNode = this.successorNodes[idx];
+        for (int idx=0; idx < childNodes.length; idx++) {
+            rtBaseNode nNode = childNodes[idx];
             if (nNode instanceof BaseAlpha) {
                 BaseAlpha next = (BaseAlpha) nNode;
-                next.retractFact(fact,engine,mem);
+                next.retractFact(fact,engine);
             } else if (nNode instanceof BaseJoin) {
             	BaseJoin next = (BaseJoin) nNode;
                 // AlphaNodes always call retractRight in the
                 // BetaNode
-                next.retractRight(fact,engine,mem);
+                next.retractRight(fact,engine);
             } else if (nNode instanceof TerminalNode) {
-            	Fact[] facts = new Fact[]{fact};
-            	((TerminalNode)nNode).retractFacts(new Index(facts),engine,mem);
+            	((TerminalNode)nNode).retractFacts(new Fact[]{fact},engine);
             }
         }
     }
@@ -127,20 +125,20 @@ public abstract class BaseAlpha extends BaseNode {
      * @param fact
      * @param engine
      */
-    protected void propogateAssert(Fact fact, Rete engine, WorkingMemory mem)
+    protected void propogateAssert(Fact fact, Rete engine)
     throws AssertException
     {
-        for (int idx=0; idx < this.successorNodes.length; idx++) {
-            BaseNode nNode = this.successorNodes[idx];
+        for (int idx=0; idx < childNodes.length; idx++) {
+            rtBaseNode nNode = childNodes[idx];
             if (nNode instanceof BaseAlpha) {
                 BaseAlpha next = (BaseAlpha) nNode;
-                next.assertFact(fact, engine, mem);
+                next.assertFact(fact, engine);
             } else if (nNode instanceof BaseJoin) {
             	BaseJoin next = (BaseJoin) nNode;
-                next.assertRight(fact,engine,mem);
+                next.assertRight(fact,engine);
             } else if (nNode instanceof TerminalNode) {
                 TerminalNode next = (TerminalNode)nNode;
-                next.assertFacts(new Index(new Fact[]{fact}),engine,mem);
+                next.assertFacts(new Fact[]{fact},engine);
             }
         }
     }
