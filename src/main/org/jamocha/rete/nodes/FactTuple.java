@@ -30,6 +30,10 @@ public class FactTuple implements Assertable{
 		super();
 		this.facts = facts;
 	}
+	
+	public FactTuple(Fact fact) {
+		this(new Fact[] {fact});
+	}
 
 
 	public Fact[] getFacts() {

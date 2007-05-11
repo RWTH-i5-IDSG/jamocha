@@ -19,6 +19,7 @@ package org.jamocha.rete;
 import java.io.Serializable;
 
 import org.jamocha.rete.exception.ExecuteException;
+import org.jamocha.rete.nodes.FactTuple;
 import org.jamocha.rule.Rule;
 
 
@@ -44,7 +45,7 @@ public interface Activation extends Serializable {
      * Get the Index for the Facts
      * @return
      */
-    Index getIndex();
+    FactTuple getFactTuple();
     /**
      * Get the rule that should fire
      * @return

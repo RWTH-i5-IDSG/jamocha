@@ -19,6 +19,7 @@ package org.jamocha.rete;
 import java.io.Serializable;
 
 import org.jamocha.rete.exception.ExecuteException;
+import org.jamocha.rete.nodes.FactTuple;
 import org.jamocha.rule.Action;
 import org.jamocha.rule.Rule;
 
@@ -48,7 +49,7 @@ public class BasicActivation implements Activation, Serializable {
 	 * to keep in mind that any combination of facts may fire a
 	 * rule. 
 	 */
-	private Index index;
+	private FactTuple facts;
 	/**
 	 * The aggregate time of the facts that triggered the rule.
 	 */
@@ -57,12 +58,12 @@ public class BasicActivation implements Activation, Serializable {
 	/**
 	 * 
 	 */
-	public BasicActivation(Rule rule, Index index) {
+	public BasicActivation(Rule rule, FactTuple facts) {
 		super();
 		this.theRule = rule;
-		this.index = index;
+		this.facts = facts;
 		this.timetag = System.nanoTime();
-		calculateTime(index.getFacts());
+		calculateTime(facts.getFacts());
 	}
 
 	protected void calculateTime(Fact[] facts) {
@@ -76,15 +77,15 @@ public class BasicActivation implements Activation, Serializable {
 	 * @return
 	 */
 	public Fact[] getFacts() {
-		return this.index.getFacts();
+		return this.facts.getFacts();
 	}
 
 	/**
 	 * the index is used to compare the facts quickly
 	 * @return
 	 */
-	public Index getIndex() {
-		return index;
+	public FactTuple getFactTuple() {
+		return facts;
 	}
 
 	/**
@@ -117,7 +118,7 @@ public class BasicActivation implements Activation, Serializable {
 		if (act == this) {
 			return false;
 		}
-		if (act.getRule() == this.theRule && act.getIndex().equals(this.index)) {
+		if (act.getRule() == this.theRule && act.getFactTuple().equals(this.facts)) {
 			return true;
 		} else {
 			return false;

@@ -64,8 +64,14 @@ public class TerminalNode extends BaseNode {
 	 * @param idx
 	 */
 	protected boolean assertFact(Assertable fact, Rete engine, BaseNode sender) throws AssertException{
+		FactTuple tuple =null;
+		if (sender.isRightNode())
+			tuple = new FactTuple((Fact)fact);
+		else
+			tuple = (FactTuple)tuple;
 		
-		Activation act = new BasicActivation(this.theRule, fact);
+		
+		Activation act = new BasicActivation(this.theRule, tuple);
 		engine.getAgenda().addActivation(act);
 		return true;
 	}
@@ -78,7 +84,13 @@ public class TerminalNode extends BaseNode {
 	 */
 	@Override
 	public void retractFact(Assertable fact, Rete engine, BaseNode sender) throws RetractException {
-		Activation act = new BasicActivation(this.theRule, new Index(new Fact[]{fact}));
+		FactTuple tuple =null;
+		if (sender.isRightNode())
+			tuple = new FactTuple((Fact)fact);
+		else
+			tuple = (FactTuple)tuple;		
+		
+		Activation act = new BasicActivation(this.theRule, tuple);
 		engine.getAgenda().removeActivation(act);
 		
 	}
