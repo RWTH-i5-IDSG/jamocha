@@ -52,6 +52,8 @@ public class BetaNode extends BaseJoin {
 	 * doesn't comparing values, the operator should be set to -1.
 	 */
 	protected int operator = Constants.EQUAL;
+	
+	
 
 	public BetaNode(int id) {
 		super(id);

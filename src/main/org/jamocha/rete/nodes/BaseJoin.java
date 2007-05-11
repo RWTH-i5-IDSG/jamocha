@@ -16,6 +16,7 @@
  */
 package org.jamocha.rete.nodes;
 
+import java.util.AbstractCollection;
 import java.util.Vector;
 
 import org.jamocha.rete.Binding;
@@ -35,6 +36,10 @@ public abstract class BaseJoin extends BaseNode {
 	 * binding for the join
 	 */
 	protected Binding[] binds = null;
+	
+	protected AbstractCollection<Fact> alphaMemory = null;
+	
+	protected AbstracCollection<FactTupel> betaMemory = null;
 
 	/**
 	 * @param id
