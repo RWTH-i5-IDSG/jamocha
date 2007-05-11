@@ -63,9 +63,9 @@ public class ObjectTypeNode extends AbstractAlpha implements Serializable {
 	}
 
 	@Override
-	protected boolean assertFact(Fact fact, Rete engine, BaseNode sender) throws AssertException {
-		if (fact.getTemplate().equals(this.getDeftemplate())) {
-			this.facts.add(fact);
+	protected boolean assertFact(Assertable fact, Rete engine, BaseNode sender) throws AssertException {
+		if (((Fact)fact).getTemplate().equals(this.getDeftemplate())) {
+			this.facts.add((Fact)fact);
 		return true;
 		}
 		return false;
@@ -73,8 +73,8 @@ public class ObjectTypeNode extends AbstractAlpha implements Serializable {
 	}
 
 	@Override
-	public void retractFact(Fact factInstance, Rete engine, BaseNode sender) throws RetractException {
-		this.facts.remove(factInstance);
+	public void retractFact(Assertable fact, Rete engine, BaseNode sender) throws RetractException {
+		this.facts.remove(fact);
 	}
 
 	/**

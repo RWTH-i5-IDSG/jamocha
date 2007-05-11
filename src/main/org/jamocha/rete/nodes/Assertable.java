@@ -16,35 +16,8 @@
  */
 package org.jamocha.rete.nodes;
 
-import java.util.AbstractCollection;
+import java.io.Serializable;
 
-import org.jamocha.rete.Fact;
+public interface Assertable extends Serializable{
 
-public class FactTuple implements Assertable{
-
-	private static final long serialVersionUID = 1L;
-
-	
-	protected AbstractCollection<Fact> facts = null;
-
-
-	public FactTuple(AbstractCollection<Fact> facts) {
-		super();
-		this.facts = facts;
-	}
-
-
-	public AbstractCollection<Fact> getFacts() {
-		return facts;
-	}
-
-
-	public void setFacts(AbstractCollection<Fact> facts) {
-		this.facts = facts;
-	}
-	
-	public void addFact(Fact fact){
-		facts.add(fact);
-	}
-	
 }

@@ -16,11 +16,10 @@
  */
 package org.jamocha.rete;
 
-import java.io.Serializable;
-
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.configurations.SlotConfiguration;
+import org.jamocha.rete.nodes.Assertable;
 import org.jamocha.rule.Rule;
 
 /**
@@ -28,7 +27,7 @@ import org.jamocha.rule.Rule;
  * 
  * Base interface for Facts
  */
-public interface Fact extends Serializable {
+public interface Fact extends Assertable {
 
     /**
      * Return the value at the given slot id

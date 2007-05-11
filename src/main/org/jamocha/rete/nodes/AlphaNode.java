@@ -81,9 +81,9 @@ public class AlphaNode extends SlotAlpha {
 	 * @param factInstance
 	 */
 	@Override
-	protected boolean assertFact(Fact fact, Rete engine, BaseNode sender) throws AssertException {
-		if (evaluate(fact)){
-			facts.add(fact);
+	protected boolean assertFact(Assertable fact, Rete engine, BaseNode sender) throws AssertException {
+		if (evaluate((Fact)fact)){
+			facts.add((Fact)fact);
 			return true;
 		}
 		return false;
@@ -92,11 +92,11 @@ public class AlphaNode extends SlotAlpha {
 	/**
 	 * Retract a fact from the node
 	 * 
-	 * @param factInstance
+	 * @param fact
 	 * @param engine
 	 */
 	@Override
-	public void retractFact(Fact fact, Rete engine, BaseNode sender) throws RetractException {
+	public void retractFact(Assertable fact, Rete engine, BaseNode sender) throws RetractException {
 		facts.remove(fact);
 	}
 

@@ -63,7 +63,7 @@ public class TerminalNode extends BaseNode {
 	 * @param engine
 	 * @param idx
 	 */
-	protected boolean assertFact(Fact fact, Rete engine, BaseNode sender) throws AssertException{
+	protected boolean assertFact(Assertable fact, Rete engine, BaseNode sender) throws AssertException{
 		
 		Activation act = new BasicActivation(this.theRule, new Index(new Fact[]{fact}));
 		engine.getAgenda().addActivation(act);
@@ -77,8 +77,8 @@ public class TerminalNode extends BaseNode {
 	 * @param idx
 	 */
 	@Override
-	public void retractFact(Fact factInstance, Rete engine, BaseNode sender) throws RetractException {
-		Activation act = new BasicActivation(this.theRule, new Index(new Fact[]{factInstance}));
+	public void retractFact(Assertable fact, Rete engine, BaseNode sender) throws RetractException {
+		Activation act = new BasicActivation(this.theRule, new Index(new Fact[]{fact}));
 		engine.getAgenda().removeActivation(act);
 		
 	}

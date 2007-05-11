@@ -17,11 +17,8 @@
 package org.jamocha.rete.nodes;
 
 import java.io.Serializable;
-import java.util.AbstractCollection;
-import java.util.Vector;
 
 import org.jamocha.rete.ConversionUtils;
-import org.jamocha.rete.Fact;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.exception.AssertException;
 import org.jamocha.rete.exception.RetractException;
@@ -214,7 +211,7 @@ public abstract class BaseNode implements Serializable {
 	 * @param fact
 	 * @param engine
 	 */
-	protected void propogateRetract(Fact fact, Rete engine) throws RetractException {
+	protected void propogateRetract(Assertable fact, Rete engine) throws RetractException {
 		for (BaseNode nNode : childNodes) {
 			retractFact(fact, engine, null);
 			nNode.propogateRetract(fact, engine);
@@ -227,7 +224,7 @@ public abstract class BaseNode implements Serializable {
 	 * @param fact
 	 * @param engine
 	 */
-	protected void propogateAssert(Fact fact, Rete engine) throws AssertException {
+	protected void propogateAssert(Assertable fact, Rete engine) throws AssertException {
 		for (BaseNode nNode : childNodes) {
 			if (assertFact(fact, engine, null))
 				nNode.propogateAssert(fact, engine);
@@ -236,9 +233,9 @@ public abstract class BaseNode implements Serializable {
 	}
 
 	// use of good old Delphi sender...
-	protected abstract boolean assertFact(Fact fact, Rete engine, BaseNode /* TObject ;) */sender) throws AssertException;
+	protected abstract boolean assertFact(Assertable fact, Rete engine, BaseNode /* TObject ;) */sender) throws AssertException;
 
-	public abstract void retractFact(Fact factInstance, Rete engine, BaseNode sender) throws RetractException;
+	public abstract void retractFact(Assertable fact, Rete engine, BaseNode sender) throws RetractException;
 	
 	public static  boolean isRightNode(){
 		return true;
