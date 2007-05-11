@@ -16,7 +16,6 @@
  */
 package org.jamocha.rete.nodes;
 
-import java.util.Map;
 import java.util.Iterator;
 
 import org.jamocha.rete.Binding;
@@ -121,16 +120,16 @@ public class BetaNode extends BaseJoin {
 	 */
 	@Override
 	public void retractLeft(FactTuple tuple, Rete engine) throws RetractException {
-		if (betaMemory.contains(tuple)){
+		if (betaMemory.contains(tuple)) {
 			betaMemory.remove(tuple);
 			// now we propogate the retract. To do that, we have
 			// merge each item in the list with the Fact array
 			// and call retract in the successor nodes
-			Iterator <FactTuple>itr = mergeMemory.iterator();
+			Iterator<FactTuple> itr = mergeMemory.iterator();
 			while (itr.hasNext()) {
 				propogateRetract(itr.next(), engine);
 			}
-			//Todo: remove tuple from mergeMemory
+			// Todo: remove tuple from mergeMemory
 		}
 	}
 
@@ -144,13 +143,13 @@ public class BetaNode extends BaseJoin {
 	 */
 	@Override
 	public void retractRight(Fact fact, Rete engine) throws RetractException {
-		if (alphaMemory.contains(fact)){
+		if (alphaMemory.contains(fact)) {
 			alphaMemory.remove(fact);
-			Iterator <FactTuple>itr = mergeMemory.iterator();
+			Iterator<FactTuple> itr = mergeMemory.iterator();
 			while (itr.hasNext()) {
 				propogateRetract(itr.next(), engine);
 			}
-			//Todo: remove tuple from mergeMemory
+			// Todo: remove tuple from mergeMemory
 		}
 	}
 
@@ -257,7 +256,7 @@ public class BetaNode extends BaseJoin {
 
 	@Override
 	protected void mountChild(BaseNode newChild, Rete engine) throws AssertException {
-		Iterator <FactTuple>itr = mergeMemory.iterator();
+		Iterator<FactTuple> itr = mergeMemory.iterator();
 		while (itr.hasNext()) {
 			propogateAssert(itr.next(), engine);
 		}
@@ -266,7 +265,7 @@ public class BetaNode extends BaseJoin {
 	@Override
 	protected void unmountChild(BaseNode oldChild, Rete engine) throws RetractException {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 }
