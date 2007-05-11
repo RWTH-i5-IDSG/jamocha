@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import org.jamocha.logging.DefaultLogger;
 import org.jamocha.parser.EvaluationException;
@@ -171,7 +170,7 @@ public class SFRuleCompiler implements RuleCompiler {
 	 * @return void
 	 */
 	public void removeObjectTypeNode(ObjectTypeNode node) {
-		root.getObjectTypeNodes().remove(node.getDeftemplate());
+		root.removeObjectTypeNode(node);
 		node.clear(this.memory);
 		node.clearSuccessors();
 	}
@@ -259,8 +258,6 @@ public class SFRuleCompiler implements RuleCompiler {
 				} catch (AssertException e) {
 					e.printStackTrace();
 				}
-				BaseNode last = rule.getLastNode();
-
 				compileActions(rule, rule.getActions());
 
 				currentMod.addRule(rule);
@@ -667,9 +664,12 @@ public class SFRuleCompiler implements RuleCompiler {
 	 */
 	public BaseNode compile(ObjectCondition condition, Rule rule,
 			int conditionIndex) {
-
+		//get activated ObjectType Node:
 		Template template = condition.getTemplate();
 		ObjectTypeNode otn = root.activateObjectTypeNode(template);
+		//add otn to condition:
+		condition.addNode(otn);
+		
 		BaseAlpha2 current = null;
 
 		if (otn != null) {

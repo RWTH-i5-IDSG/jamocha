@@ -90,6 +90,7 @@ public class RootNode implements Serializable {
 			this.inputNodes.put(template, result);
 		} else
 			result = this.inputNodes.get(template);
+		result.incrementUseCount();
 		return result;
 	}
 
