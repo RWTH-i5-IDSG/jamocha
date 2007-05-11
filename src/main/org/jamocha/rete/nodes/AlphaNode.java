@@ -117,7 +117,7 @@ public class AlphaNode extends SlotAlpha {
 	 * should be cleaned up.
 	 */
 	public String toString() {
-		return "slot(" + this.slot.getId() + ") " + ConversionUtils.getPPOperator(this.operator) + " " + this.slot.getValue().toString() + " - useCount=" + this.useCount;
+		return "slot(" + this.slot.getId() + ") " + ConversionUtils.getPPOperator(this.operator) + " " + this.slot.getValue().toString();
 	}
 
 
@@ -130,7 +130,7 @@ public class AlphaNode extends SlotAlpha {
 	 */
 	public String toPPString() {
 		return "AlphaNode-" + this.nodeID + "> slot(" + this.slot.getName() + ") " + ConversionUtils.getPPOperator(this.operator) + " " + ConversionUtils.formatSlot(this.slot.getValue()) + " - useCount="
-				+ this.useCount;
+				+ this.getChildCount();
 	}
 
 }
