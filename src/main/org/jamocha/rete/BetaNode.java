@@ -21,39 +21,37 @@ import java.util.Iterator;
 
 import org.jamocha.rete.exception.AssertException;
 import org.jamocha.rete.exception.RetractException;
+import org.jamocha.rete.nodes.Assertable;
 import org.jamocha.rete.nodes.BaseJoin;
 import org.jamocha.rete.nodes.BaseNode;
+import org.jamocha.rete.nodes.FactTuple;
 
 /**
  * @author Peter Lin
  * 
  * BetaNode is the basic class for join nodes. The implementation uses
- * BetaMemory for the left and AlphaMemory for the right. When the left
- * and right match, the facts are merged and propogated to the
- * succeeding nodes. This is an important distinction for a couple of
- * reasons.
+ * BetaMemory for the left and AlphaMemory for the right. When the left and
+ * right match, the facts are merged and propogated to the succeeding nodes.
+ * This is an important distinction for a couple of reasons.
  * 
- * 1. The next join may join one or more objects.
- * 2. Rather than store the facts needed for the next join in a global
- * map of map, it's more efficient to simply merge the two arrays and
- * pass it on.
- * 3. It isn't sufficient to pass just the bound attributes of this
- * node to the next.
+ * 1. The next join may join one or more objects. 2. Rather than store the facts
+ * needed for the next join in a global map of map, it's more efficient to
+ * simply merge the two arrays and pass it on. 3. It isn't sufficient to pass
+ * just the bound attributes of this node to the next.
  * 
- * Some important notes. If a rule defines a join, which doesn't compare
- * a slot from one fact against the slot of a different fact, the node
- * simply propogates.
+ * Some important notes. If a rule defines a join, which doesn't compare a slot
+ * from one fact against the slot of a different fact, the node simply
+ * propogates.
  */
 public class BetaNode extends BaseJoin {
 
 	private static final long serialVersionUID = 1L;
+
 	/**
-	 * The operator for the join by default is equal. The the join
-	 * doesn't comparing values, the operator should be set to -1.
+	 * The operator for the join by default is equal. The the join doesn't
+	 * comparing values, the operator should be set to -1.
 	 */
 	protected int operator = Constants.EQUAL;
-	
-	
 
 	public BetaNode(int id) {
 		super(id);
@@ -61,6 +59,7 @@ public class BetaNode extends BaseJoin {
 
 	/**
 	 * Set the bindings for this join
+	 * 
 	 * @param binds
 	 */
 	public void setBindings(Binding[] binds) {
@@ -68,46 +67,23 @@ public class BetaNode extends BaseJoin {
 	}
 
 	/**
-	 * clear will clear the lists
-	 */
-	public void clear(WorkingMemory mem) {
-		Map leftmem = (Map) mem.getBetaLeftMemory(this);
-		Map rightmem = (Map) mem.getBetaRightMemory(this);
-		Iterator itr = leftmem.keySet().iterator();
-		// first we iterate over the list for each fact
-		// and clear it.
-		while (itr.hasNext()) {
-			BetaMemory bmem = (BetaMemory) leftmem.get(itr.next());
-			bmem.clear();
-		}
-		// now that we've cleared the list for each fact, we
-		// can clear the Map.
-		leftmem.clear();
-		rightmem.clear();
-	}
-
-	/**
-	 * assertLeft takes an array of facts. Since the next join may be
-	 * joining against one or more objects, we need to pass all
-	 * previously matched facts.
+	 * assertLeft takes an array of facts. Since the next join may be joining
+	 * against one or more objects, we need to pass all previously matched
+	 * facts.
+	 * 
 	 * @param factInstance
 	 * @param engine
 	 */
-	public void assertLeft(Index index, Rete engine, WorkingMemory mem)
-			throws AssertException {
-		Map leftmem = (Map) mem.getBetaLeftMemory(this);
-
-		BetaMemory bmem = new BetaMemoryImpl(index);
-		leftmem.put(bmem.getIndex(), bmem);
-		Map rightmem = (Map) mem.getBetaRightMemory(this);
-		Iterator itr = rightmem.values().iterator();
+	@Override
+	public boolean assertLeft(FactTuple tuple, Rete engine) throws AssertException {
+		betaMemory.add(tuple);
+		Iterator<Fact> itr = alphaMemory.iterator();
 		while (itr.hasNext()) {
-			Fact rfcts = (Fact) itr.next();
-			if (this.evaluate(index.getFacts(), rfcts)) {
-				// it matched, so we add it to the beta memory
-				bmem.addMatch(rfcts);
-				// now we propogate
-				this.propogateAssert(index.add(rfcts), engine, mem);
+			Fact rfcts = itr.next();
+			if (this.evaluate(tuple.getFacts(), rfcts)) {
+				FactTuple newTuple = tuple.addFact(rfcts);
+				mergeMemory.add(newTuple);
+				this.propogateAssert(newTuple, engine);
 			}
 		}
 
@@ -119,91 +95,68 @@ public class BetaNode extends BaseJoin {
 	 * @param factInstance
 	 * @param engine
 	 */
-	public void assertRight(Fact rfact, Rete engine, WorkingMemory mem)
-			throws AssertException {
-		Map rightmem = (Map) mem.getBetaRightMemory(this);
-		Index index = new Index(new Fact[] { rfact });
+	@Override
+	public boolean assertRight(Fact fact, Rete engine) throws AssertException {
+		alphaMemory.add(fact);
 
-		rightmem.put(index, rfact);
-		// now that we've added the facts to the list, we
-		// proceed with evaluating the fact
-		// else we compare the fact to all facts in the left
-		Map leftmem = (Map) mem.getBetaLeftMemory(this);
-		// since there may be key collisions, we iterate over the
-		// values of the HashMap. If we used keySet to iterate,
-		// we could encounter a ClassCastException in the case of
-		// key collision.
-		Iterator itr = leftmem.values().iterator();
+		Iterator<FactTuple> itr = betaMemory.iterator();
 		while (itr.hasNext()) {
-			BetaMemory bmem = (BetaMemory) itr.next();
-			Fact[] lfcts = bmem.getLeftFacts();
-			if (this.evaluate(lfcts, rfact)) {
-				bmem.addMatch(rfact);
+			FactTuple tuple = itr.next();
+			if (this.evaluate(tuple.getFacts(), fact)) {
 				// now we propogate
-				Fact[] merged = ConversionUtils.mergeFacts(lfcts, rfact);
-				this.propogateAssert(index.add(rfact), engine, mem);
+				FactTuple newTuple = tuple.addFact(fact);
+				mergeMemory.add(newTuple);
+				this.propogateAssert(newTuple, engine);
 			}
 		}
 	}
 
 	/**
 	 * Retracting from the left requires that we propogate the
+	 * 
 	 * @param factInstance
 	 * @param engine
 	 */
-	public void retractLeft(Index inx, Rete engine, WorkingMemory mem)
-			throws RetractException {
-		Map leftmem = (Map) mem.getBetaLeftMemory(this);
-		if (leftmem.containsKey(inx)) {
-			// the left memory contains the fact array, so we 
-			// retract it.
-			BetaMemory bmem = (BetaMemory) leftmem.remove(inx);
+	@Override
+	public void retractLeft(FactTuple tuple, Rete engine) throws RetractException {
+		if (betaMemory.contains(tuple)){
+			betaMemory.remove(tuple);
 			// now we propogate the retract. To do that, we have
 			// merge each item in the list with the Fact array
 			// and call retract in the successor nodes
-			Iterator itr = bmem.iterateRightFacts();
+			Iterator <FactTuple>itr = mergeMemory.iterator();
 			while (itr.hasNext()) {
-				propogateRetract(inx.add((Fact) itr.next()), engine, mem);
+				propogateRetract(itr.next(), engine);
 			}
-			bmem.clear();
-			bmem = null;
+			//Todo: remove tuple from mergeMemory
 		}
 	}
 
 	/**
-	 * Retract from the right works in the following order.
-	 * 1. remove the fact from the right memory
-	 * 2. check which left memory matched
-	 * 3. propogate the retract
+	 * Retract from the right works in the following order. 1. remove the fact
+	 * from the right memory 2. check which left memory matched 3. propogate the
+	 * retract
+	 * 
 	 * @param factInstance
 	 * @param engine
 	 */
-	public void retractRight(Fact rfact, Rete engine, WorkingMemory mem)
-			throws RetractException {
-		Index inx = new Index(new Fact[] { rfact });
-		Map rightmem = (Map) mem.getBetaRightMemory(this);
-		if (rightmem.containsKey(inx)) {
-			rightmem.remove(inx);
-			// now we see the left memory matched and remove it also
-			Map leftmem = (Map) mem.getBetaLeftMemory(this);
-			Iterator itr = leftmem.values().iterator();
+	@Override
+	public boolean retractRight(Fact fact, Rete engine) throws RetractException {
+		if (alphaMemory.contains(fact)){
+			alphaMemory.remove(fact);
+			Iterator <FactTuple>itr = mergeMemory.iterator();
 			while (itr.hasNext()) {
-				BetaMemory bmem = (BetaMemory) itr.next();
-				if (bmem.matched(rfact)) {
-					bmem.removeMatch(rfact);
-					// it matched, so we need to retract it from
-					// succeeding nodes
-					propogateRetract(bmem.getIndex().add(rfact), engine, mem);
-				}
+				propogateRetract(itr.next(), engine);
 			}
+			//Todo: remove tuple from mergeMemory
 		}
 	}
 
 	/**
-	 * Method will use the right binding to perform the evaluation
-	 * of the join. Since we are building joins similar to how
-	 * CLIPS and other rule engines handle it, it means 95% of the
-	 * time the right fact list only has 1 fact.
+	 * Method will use the right binding to perform the evaluation of the join.
+	 * Since we are building joins similar to how CLIPS and other rule engines
+	 * handle it, it means 95% of the time the right fact list only has 1 fact.
+	 * 
 	 * @param leftlist
 	 * @param right
 	 * @return
@@ -220,9 +173,7 @@ public class BetaNode extends BaseJoin {
 				// to get it working.
 				if (leftlist.length >= bnd.getLeftRow()) {
 					Fact left = leftlist[bnd.getLeftRow()];
-					if (left == right
-							|| !this.evaluate(left, bnd.getLeftIndex(), right,
-									bnd.getRightIndex(), bnd.getOperator())) {
+					if (left == right || !this.evaluate(left, bnd.getLeftIndex(), right, bnd.getRightIndex(), bnd.getOperator())) {
 						eval = false;
 						break;
 					}
@@ -240,9 +191,7 @@ public class BetaNode extends BaseJoin {
 				// to get it working.
 				if (leftlist.length >= bnd.getLeftRow()) {
 					Fact left = leftlist[bnd.getLeftRow()];
-					if (left == right
-							|| !this.evaluate(left, bnd.getLeftIndex(), right,
-									bnd.getRightIndex(), opr)) {
+					if (left == right || !this.evaluate(left, bnd.getLeftIndex(), right, bnd.getRightIndex(), opr)) {
 						eval = false;
 						break;
 					}
@@ -256,23 +205,20 @@ public class BetaNode extends BaseJoin {
 
 	/**
 	 * Method will evaluate a single slot from the left against the right.
+	 * 
 	 * @param left
 	 * @param leftId
 	 * @param right
 	 * @param rightId
 	 * @return
 	 */
-	public boolean evaluate(Fact left, int leftId, Fact right, int rightId,
-			int op) {
+	public boolean evaluate(Fact left, int leftId, Fact right, int rightId, int op) {
 		if (op == Constants.EQUAL) {
-			return Evaluate.evaluateEqual(left.getSlotValue(leftId), right
-					.getSlotValue(rightId));
+			return Evaluate.evaluateEqual(left.getSlotValue(leftId), right.getSlotValue(rightId));
 		} else if (op == Constants.NOTEQUAL) {
-			return Evaluate.evaluateNotEqual(left.getSlotValue(leftId), right
-					.getSlotValue(rightId));
+			return Evaluate.evaluateNotEqual(left.getSlotValue(leftId), right.getSlotValue(rightId));
 		} else {
-			return Evaluate.evaluate(op, left.getSlotValue(leftId), right
-					.getSlotValue(rightId));
+			return Evaluate.evaluate(op, left.getSlotValue(leftId), right.getSlotValue(rightId));
 		}
 	}
 
@@ -306,30 +252,5 @@ public class BetaNode extends BaseJoin {
 		}
 		return buf.toString();
 	}
-
-	@Override
-	public boolean assertLeft(Fact fact, Rete engine) throws AssertException {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean assertRight(Fact fact, Rete engine) throws AssertException {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public void retractLeft(Fact fact, Rete engine) throws RetractException {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void retractRight(Fact fact, Rete engine) throws RetractException {
-		// TODO Auto-generated method stub
-		
-	}
-
 
 }

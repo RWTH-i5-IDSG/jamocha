@@ -40,6 +40,8 @@ public abstract class BaseJoin extends BaseNode {
 	protected AbstractCollection<Fact> alphaMemory = null;
 	
 	protected AbstractCollection<FactTuple> betaMemory = null;
+	
+	protected AbstractCollection<FactTuple> mergeMemory = null;
 
 	/**
 	 * @param id
@@ -50,6 +52,7 @@ public abstract class BaseJoin extends BaseNode {
 		this.maxParentCount = 2;
 		alphaMemory = new Vector<Fact>();
 		betaMemory = new Vector<FactTuple>();
+		mergeMemory = new Vector<FactTuple>();
 	}
 
 	@Override
@@ -106,6 +109,16 @@ public abstract class BaseJoin extends BaseNode {
 	public abstract void retractRight(Fact fact, Rete engine) throws RetractException;
 
 	public abstract void setBindings(Binding[] binds);
+	
+	
+	/**
+	 * clear will clear the lists
+	 */
+	public void clear() {
+		alphaMemory.clear();
+		betaMemory.clear();
+		mergeMemory.clear();
+	}
 
 	public static boolean isRightNode() {
 		return false;

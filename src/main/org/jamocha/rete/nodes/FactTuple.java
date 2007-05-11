@@ -16,8 +16,6 @@
  */
 package org.jamocha.rete.nodes;
 
-import java.util.AbstractCollection;
-
 import org.jamocha.rete.Fact;
 
 public class FactTuple implements Assertable{
@@ -25,26 +23,29 @@ public class FactTuple implements Assertable{
 	private static final long serialVersionUID = 1L;
 
 	
-	protected AbstractCollection<Fact> facts = null;
+	protected Fact[] facts = null;
 
 
-	public FactTuple(AbstractCollection<Fact> facts) {
+	public FactTuple(Fact[] facts) {
 		super();
 		this.facts = facts;
 	}
 
 
-	public AbstractCollection<Fact> getFacts() {
+	public Fact[] getFacts() {
 		return facts;
 	}
 
 
-	public void setFacts(AbstractCollection<Fact> facts) {
+	public void setFacts(Fact[] facts) {
 		this.facts = facts;
 	}
 	
-	public void addFact(Fact fact){
-		facts.add(fact);
+	public FactTuple addFact(Fact fact){
+		Fact[] facts = new Fact[this.facts.length+1];
+		System.arraycopy(this.facts, 0, facts, 0, this.facts.length);
+		facts[this.facts.length] = fact;
+		return new FactTuple(facts);
 	}
 	
 }

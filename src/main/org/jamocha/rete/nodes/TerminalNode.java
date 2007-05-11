@@ -65,7 +65,7 @@ public class TerminalNode extends BaseNode {
 	 */
 	protected boolean assertFact(Assertable fact, Rete engine, BaseNode sender) throws AssertException{
 		
-		Activation act = new BasicActivation(this.theRule, new Index(new Fact[]{fact}));
+		Activation act = new BasicActivation(this.theRule, fact);
 		engine.getAgenda().addActivation(act);
 		return true;
 	}
