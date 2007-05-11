@@ -55,6 +55,7 @@ import org.jamocha.rete.functions.list.ListFunctions;
 import org.jamocha.rete.functions.math.MathFunctions;
 import org.jamocha.rete.functions.ruleengine.RuleEngineFunctions;
 import org.jamocha.rete.functions.strings.StringFunctions;
+import org.jamocha.rete.nodes.BaseNode;
 import org.jamocha.rete.nodes.TerminalNode;
 import org.jamocha.rete.strategies.DepthStrategy;
 import org.jamocha.rete.util.CollectionsFactory;
@@ -1196,7 +1197,7 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 	 */
 	public void assertEvent(BaseNode node, Fact fact) {
 		if (debug) {
-			System.out.println("\"assert at nodeid=" + node.nodeID + " - "
+			System.out.println("\"assert at nodeid=" + node.getNodeId() + " - "
 					+ node.toString().replaceAll("\"", "'") + ":: with fact -"
 					+ fact.toFactString().replaceAll("\"", "'") + "::\"");
 		}

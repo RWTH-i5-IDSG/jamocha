@@ -17,7 +17,7 @@
 package org.jamocha.rule;
 
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.rete.BaseNode;
+import org.jamocha.rete.nodes.BaseNode;
 import org.jamocha.rete.SFRuleCompiler;
 
 /**

@@ -105,7 +105,7 @@ public abstract class AbstractAlpha extends BaseNode {
 		for (Fact fact : facts)
 			oldChild.retractFact(fact, engine, null);
 	}
-	protected  void clear(){
+	public void clear(){
 		facts.clear();
 	}
 

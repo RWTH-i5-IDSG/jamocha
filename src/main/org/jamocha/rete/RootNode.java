@@ -16,29 +16,22 @@
  */
 package org.jamocha.rete;
 
-import java.io.Serializable;
 import java.util.Map;
 
 import org.jamocha.rete.exception.AssertException;
 import org.jamocha.rete.exception.RetractException;
+import org.jamocha.rete.nodes.Assertable;
+import org.jamocha.rete.nodes.BaseNode;
 import org.jamocha.rete.nodes.ObjectTypeNode;
 import org.jamocha.rete.util.CollectionsFactory;
 
-/**
- * @author Peter Lin
- * 
- * RootNode does not extend BaseNode like all other RETE nodes. This is done for
- * a couple of reasons.<br/>
- * <ul>
- * <li> RootNode doesn't need to have a memory </li>
- * <li> RootNode only has ObjectTypeNode for successors</li>
- * <li> RootNode doesn't need the toPPString and other string methods</li>
- * <li> RootNode doesn't need watch or profile capabilities</li>
- * </ul>
- * In the future, the design may change. For now, I've decided to keep it as
- * simple as necessary.
- */
-public class RootNode implements Serializable {
+public class RootNode extends BaseNode {
+
+	public RootNode(int id) {
+		super(id);
+	}
+
+	private static final long serialVersionUID = 1L;
 
 	// input Nodes are linked to the net
 	protected Map<Template, ObjectTypeNode> inputNodes = CollectionsFactory.newHashMap();
@@ -46,13 +39,6 @@ public class RootNode implements Serializable {
 	// temp input nodes are not linked to the net and exists to temporal store
 	// facts
 	protected Map<Template, ObjectTypeNode> tempInputNodes = CollectionsFactory.newHashMap();
-
-	/**
-	 * 
-	 */
-	public RootNode() {
-		super();
-	}
 
 	/**
 	 * Add a new ObjectTypeNode. The implementation will check to see if the
@@ -63,9 +49,9 @@ public class RootNode implements Serializable {
 	 */
 
 	public void addObjectTypeNode(Template template, Rete engine) {
-		if (!this.inputNodes.containsKey(template) && !this.tempInputNodes.containsKey(template)) {
+		if (!inputNodes.containsKey(template) && !tempInputNodes.containsKey(template)) {
 			ObjectTypeNode node = new ObjectTypeNode(engine.nextNodeId(), template);
-			this.tempInputNodes.put(template, node);
+			tempInputNodes.put(template, node);
 		}
 	}
 
@@ -83,15 +69,16 @@ public class RootNode implements Serializable {
 	/**
 	 * Return the HashMap with all the ObjectTypeNodes
 	 * 
-	 * @return
+	 * @return ObjectTypeNode
+	 * @throws AssertException
 	 */
-	public ObjectTypeNode activateObjectTypeNode(Template template) {
+	public ObjectTypeNode activateObjectTypeNode(Template template, Rete engine) throws AssertException {
 		ObjectTypeNode result = this.tempInputNodes.remove(template);
 		if (result != null) {
 			this.inputNodes.put(template, result);
+			this.addNode(result, engine);
 		} else
 			result = this.inputNodes.get(template);
-		result.incrementUseCount();
 		return result;
 	}
 
@@ -112,41 +99,12 @@ public class RootNode implements Serializable {
 	 * @param mem
 	 * @throws AssertException
 	 */
-	public synchronized void assertObject(Fact fact, Rete engine, WorkingMemory mem) throws AssertException {
+	public synchronized void assertObject(Fact fact, Rete engine) throws AssertException {
 		// we assume Rete has already checked to see if the object
 		// has been added to the working memory, so we just assert.
 		// we need to lookup the defclass and deftemplate to assert
 		// the object to the network
-		ObjectTypeNode otn = (ObjectTypeNode) this.inputNodes.get(fact.getTemplate());
-		if (otn == null) {
-			otn = (ObjectTypeNode) this.tempInputNodes.get(fact.getTemplate());
-		}
-		if (otn != null) {
-			otn.assertFact(fact, engine, mem);
-		}
-		if (fact.getTemplate().getParent() != null) {
-			assertObjectParent(fact, fact.getTemplate().getParent(), engine, mem);
-		}
-	}
-
-	/**
-	 * Method will get the deftemplate's parent and do a lookup
-	 * 
-	 * @param fact
-	 * @param templates
-	 * @throws AssertException
-	 */
-	public synchronized void assertObjectParent(Fact fact, Template template, Rete engine, WorkingMemory mem) throws AssertException {
-		ObjectTypeNode otn = (ObjectTypeNode) this.inputNodes.get(template);
-		if (otn == null) {
-			otn = (ObjectTypeNode) this.tempInputNodes.get(fact.getTemplate());
-		}
-		if (otn != null) {
-			otn.assertFact(fact, engine, mem);
-		}
-		if (template.getParent() != null) {
-			assertObjectParent(fact, template.getParent(), engine, mem);
-		}
+		this.assertFact(fact, engine, this);
 	}
 
 	/**
@@ -154,17 +112,8 @@ public class RootNode implements Serializable {
 	 * 
 	 * @param objInstance
 	 */
-	public synchronized void retractObject(Fact fact, Rete engine, WorkingMemory mem) throws RetractException {
-		ObjectTypeNode otn = (ObjectTypeNode) this.inputNodes.get(fact.getTemplate());
-		if (otn == null) {
-			otn = (ObjectTypeNode) this.tempInputNodes.get(fact.getTemplate());
-		}
-		if (otn != null) {
-			otn.retractFact(fact, engine, mem);
-		}
-		if (fact.getTemplate().getParent() != null) {
-			retractObjectParent(fact, fact.getTemplate().getParent(), engine, mem);
-		}
+	public synchronized void retractObject(Fact fact, Rete engine) throws RetractException {
+		this.retractFact(fact, engine, this);
 	}
 
 	/**
@@ -174,21 +123,49 @@ public class RootNode implements Serializable {
 	 * @param templates
 	 * @throws AssertException
 	 */
-	public synchronized void retractObjectParent(Fact fact, Template template, Rete engine, WorkingMemory mem) throws RetractException {
-		ObjectTypeNode otn = (ObjectTypeNode) this.inputNodes.get(template);
-		if (otn == null) {
-			otn = (ObjectTypeNode) this.tempInputNodes.get(fact.getTemplate());
-		}
-		if (otn != null) {
-			otn.retractFact(fact, engine, mem);
-		}
-		if (template.getParent() != null) {
-			retractObjectParent(fact, template.getParent(), engine, mem);
-		}
-	}
 
 	public synchronized void clear() {
 		this.inputNodes.clear();
 		this.tempInputNodes.clear();
+	}
+
+	@Override
+	public void assertFact(Assertable fact, Rete engine, BaseNode sender) throws AssertException {
+		Fact fct = (Fact) fact;
+		ObjectTypeNode otn = (ObjectTypeNode) this.inputNodes.get(fct.getTemplate());
+		if (otn == null) {
+			otn = (ObjectTypeNode) this.tempInputNodes.get(fct.getTemplate());
+		}
+		if (otn != null) {
+			otn.assertFact(fact, engine, sender);
+		}
+	}
+
+	@Override
+	protected void mountChild(BaseNode newChild, Rete engine) throws AssertException {
+		// nothing to do: facts are allready asserted to all possible otn
+	}
+
+	@Override
+	public void retractFact(Assertable fact, Rete engine, BaseNode sender) throws RetractException {
+		Fact fct = (Fact) fact;
+		ObjectTypeNode otn = (ObjectTypeNode) this.inputNodes.get(fct.getTemplate());
+		if (otn == null) {
+			otn = (ObjectTypeNode) this.tempInputNodes.get(fct.getTemplate());
+		}
+		if (otn != null) {
+			otn.retractFact(fact, engine, sender);
+		}
+	}
+
+	@Override
+	public String toString() {
+		// TODO Auto-generated method stub
+		return "";
+	}
+
+	@Override
+	protected void unmountChild(BaseNode oldChild, Rete engine) throws RetractException {
+		// nothing to do: facts are allready asserted to all possible otn
 	}
 }

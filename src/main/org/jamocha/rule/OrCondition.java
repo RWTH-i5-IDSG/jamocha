@@ -1,6 +1,6 @@
 package org.jamocha.rule;
 
-import org.jamocha.rete.BaseNode;
+import org.jamocha.rete.nodes.BaseNode;
 import org.jamocha.rete.SFRuleCompiler;
 
 public class OrCondition extends BooleanOperatorCondition {

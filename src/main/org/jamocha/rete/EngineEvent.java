@@ -18,6 +18,8 @@ package org.jamocha.rete;
 
 import java.util.EventObject;
 
+import org.jamocha.rete.nodes.BaseNode;
+
 /**
  * @author Peter Lin
  *
@@ -26,7 +28,8 @@ import java.util.EventObject;
  */
 public class EngineEvent extends EventObject {
 
-    public static final int ASSERT_EVENT = 0;
+	private static final long serialVersionUID = 1L;
+	public static final int ASSERT_EVENT = 0;
     public static final int RETRACT_EVENT = 1;
     public static final int PROFILE_EVENT = 2;
     public static final int ASSERT_RETRACT_EVENT = 3;

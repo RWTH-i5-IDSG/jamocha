@@ -20,7 +20,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.rete.BaseNode;
+import org.jamocha.rete.nodes.BaseNode;
 import org.jamocha.rete.Binding;
 import org.jamocha.rete.Fact;
 import org.jamocha.rete.Module;

@@ -46,14 +46,6 @@ public abstract class BaseNode implements Serializable {
 	protected int maxChildCount = 1;
 
 	/**
-	 * The useCount is used to keep track of how many times an Alpha node is
-	 * shared. This is needed so that we can dynamically remove a rule at run
-	 * time and remove the node from the network. If we didn't keep count, it
-	 * would be harder to figure out if we can remove the node.
-	 */
-	protected int useCount = 0;
-
-	/**
 	 * BaseNode has only one constructor which takes an unique node id. All
 	 * subclasses need to call the constructor.
 	 */
@@ -68,6 +60,10 @@ public abstract class BaseNode implements Serializable {
 
 	public BaseNode[] getChildNodes() {
 		return childNodes;
+	}
+	
+	public int getChildCount(){
+		return childNodes.length;
 	}
 
 	/**
@@ -85,8 +81,6 @@ public abstract class BaseNode implements Serializable {
 				// add to own list:
 				this.childNodes = ConversionUtils.add(this.childNodes, n);
 				mountChild(n, engine);
-				// inc own node use count
-				useCount++;
 				add = true;
 			}
 		return add;
@@ -124,8 +118,7 @@ public abstract class BaseNode implements Serializable {
 				this.childNodes = ConversionUtils.remove(this.childNodes, n);
 				unmountChild(n, engine);
 				// dec own node use count
-				useCount--;
-				if (useCount == 0)
+				if (getChildCount() == 0)
 					evZeroUseCount(engine);
 				rem = true;
 			}
@@ -172,12 +165,13 @@ public abstract class BaseNode implements Serializable {
 	 */
 	public void propagateClear() {
 		for (BaseNode nNode : childNodes) {
-			nNode.propagateClear();
 			clear();
+			nNode.propagateClear();
 		}
 	}
 
-	protected abstract void clear();
+	public abstract void clear();
+	
 
 	/**
 	 * toPPString should return a string format, but formatted nicely so it's
@@ -229,12 +223,16 @@ public abstract class BaseNode implements Serializable {
 	}
 
 	// use of good old Delphi sender...
-	protected abstract void assertFact(Assertable fact, Rete engine, BaseNode sender) throws AssertException;
+	public abstract void assertFact(Assertable fact, Rete engine, BaseNode sender) throws AssertException;
 
 	public abstract void retractFact(Assertable fact, Rete engine, BaseNode sender) throws RetractException;
 
 	public static boolean isRightNode() {
 		return true;
+	}
+
+	public int getNodeId() {
+		return this.nodeID;
 	}
 
 }

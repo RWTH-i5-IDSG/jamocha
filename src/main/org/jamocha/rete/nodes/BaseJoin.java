@@ -56,7 +56,7 @@ public abstract class BaseJoin extends BaseNode {
 	}
 
 	@Override
-	protected void assertFact(Assertable fact, Rete engine, BaseNode sender) throws AssertException {
+	public void assertFact(Assertable fact, Rete engine, BaseNode sender) throws AssertException {
 		if (sender.isRightNode()) {
 			 assertRight((Fact)fact, engine);
 		} else

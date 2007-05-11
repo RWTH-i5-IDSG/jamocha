@@ -51,7 +51,7 @@ public class LIANode extends AbstractAlpha {
 	}
 
 	@Override
-	protected void assertFact(Assertable fact, Rete engine, BaseNode sender) throws AssertException {
+	public void assertFact(Assertable fact, Rete engine, BaseNode sender) throws AssertException {
 		// add to own buffer list:
 		facts.add((Fact) fact);
 		// build tuple and propagate:

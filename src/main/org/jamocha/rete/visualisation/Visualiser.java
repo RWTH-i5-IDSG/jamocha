@@ -30,7 +30,7 @@ import javax.swing.text.StyleConstants;
 
 import org.jamocha.gui.icons.IconLoader;
 import org.jamocha.rete.AlphaNodePredConstr;
-import org.jamocha.rete.BaseNode;
+import org.jamocha.rete.nodes.BaseNode;
 import org.jamocha.rete.EngineEvent;
 import org.jamocha.rete.EngineEventListener;
 import org.jamocha.rete.Rete;

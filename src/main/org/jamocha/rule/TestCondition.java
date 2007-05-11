@@ -21,7 +21,7 @@ import java.util.List;
 
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.rete.BaseNode;
+import org.jamocha.rete.nodes.BaseNode;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.SFRuleCompiler;

@@ -3,7 +3,7 @@ package org.jamocha.rule;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.jamocha.rete.BaseNode;
+import org.jamocha.rete.nodes.BaseNode;
 import org.jamocha.rete.nodes.BaseJoin;
 
 public abstract class BooleanOperatorCondition extends AbstractCondition {

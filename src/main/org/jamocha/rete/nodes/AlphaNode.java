@@ -81,7 +81,7 @@ public class AlphaNode extends SlotAlpha {
 	 * @param factInstance
 	 */
 	@Override
-	protected void assertFact(Assertable fact, Rete engine, BaseNode sender) throws AssertException {
+	public void assertFact(Assertable fact, Rete engine, BaseNode sender) throws AssertException {
 		if (evaluate((Fact)fact)){
 			facts.add((Fact)fact);
 			propogateAssert(fact, engine);

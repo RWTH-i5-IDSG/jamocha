@@ -21,7 +21,7 @@ import java.io.Serializable;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.rete.BaseNode;
+import org.jamocha.rete.nodes.BaseNode;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
@@ -108,7 +108,7 @@ public class View implements Function, Serializable {
 		for (int i = 0; i < indent; i++)
 			System.out.print(" ");
 		System.out.println("+" + b.toString() + " id=" + b.getNodeId());
-		for (int i = 0; i < b.getSuccessorNodes().length; i++)
-			traverse(indent + 2, (BaseNode) b.getSuccessorNodes()[i]);
+		for (int i = 0; i < b.getChildNodes().length; i++)
+			traverse(indent + 2, (BaseNode) b.getChildNodes()[i]);
 	}
 }

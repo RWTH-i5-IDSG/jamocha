@@ -21,7 +21,7 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Collection;
 
-import org.jamocha.rete.BaseNode;
+import org.jamocha.rete.nodes.BaseNode;
 import org.jamocha.rete.RootNode;
 
 import java.lang.Math;

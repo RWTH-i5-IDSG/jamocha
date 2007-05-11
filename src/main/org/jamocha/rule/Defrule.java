@@ -26,7 +26,7 @@ import java.util.Map;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.Expression;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.rete.BaseNode;
+import org.jamocha.rete.nodes.BaseNode;
 import org.jamocha.rete.Binding;
 import org.jamocha.rete.Binding2;
 import org.jamocha.rete.Constants;

@@ -63,7 +63,7 @@ public class ObjectTypeNode extends AbstractAlpha implements Serializable {
 	}
 
 	@Override
-	protected void assertFact(Assertable fact, Rete engine, BaseNode sender) throws AssertException {
+	public void assertFact(Assertable fact, Rete engine, BaseNode sender) throws AssertException {
 		if (((Fact) fact).getTemplate().equals(this.getDeftemplate())) {
 			this.facts.add((Fact) fact);
 			propogateAssert(fact, engine);

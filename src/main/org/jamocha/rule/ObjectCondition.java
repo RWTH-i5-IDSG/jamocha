@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.jamocha.rete.BaseNode;
+import org.jamocha.rete.nodes.BaseNode;
 import org.jamocha.rete.SFRuleCompiler;
 import org.jamocha.rete.Template;
 import org.jamocha.rete.nodes.AbstractAlpha;
