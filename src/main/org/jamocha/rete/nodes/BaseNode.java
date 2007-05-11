@@ -43,7 +43,7 @@ public abstract class BaseNode implements Serializable {
 
 	protected BaseNode[] parentNodes = new BaseNode[0];
 	
-	protected AbstractCollection<Fact> facts = null;
+
 
 	// override these values in subclasses:
 	protected int maxParentCount = 1;
@@ -65,7 +65,6 @@ public abstract class BaseNode implements Serializable {
 	public BaseNode(int id) {
 		super();
 		this.nodeID = id;
-		facts = new Vector<Fact>();
 	}
 
 	public BaseNode[] getParentNodes() {
@@ -98,10 +97,7 @@ public abstract class BaseNode implements Serializable {
 		return add;
 	}
 
-	protected void mountChild(BaseNode newChild, Rete engine) throws AssertException {
-		for (Fact fact : facts)
-			newChild.assertFact(fact, engine, null);
-	}
+	protected abstract void mountChild(BaseNode newChild, Rete engine) throws AssertException;
 
 	/**
 	 * This node has been added to the given parant node
@@ -141,10 +137,7 @@ public abstract class BaseNode implements Serializable {
 		return rem;
 	}
 
-	protected void unmountChild(BaseNode oldChild, Rete engine) throws RetractException {
-		for (Fact fact : facts)
-			oldChild.retractFact(fact, engine, null);
-	}
+	protected abstract void unmountChild(BaseNode oldChild, Rete engine) throws RetractException ;
 
 	public void destroy(Rete engine) throws RetractException {
 		for (int i = 0; i < parentNodes.length; i++) {
@@ -189,10 +182,7 @@ public abstract class BaseNode implements Serializable {
 		}
 	}
 
-	protected  void clear(){
-		facts.clear();
-	}
-
+	protected  abstract void clear();
 	/**
 	 * toPPString should return a string format, but formatted nicely so it's
 	 * easier for humans to read. Chances are this method will be used in

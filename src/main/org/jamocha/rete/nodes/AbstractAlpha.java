@@ -16,6 +16,9 @@
  */
 package org.jamocha.rete.nodes;
 
+import java.util.AbstractCollection;
+import java.util.Vector;
+
 import org.jamocha.rete.Constants;
 import org.jamocha.rete.Fact;
 import org.jamocha.rete.Rete;
@@ -75,11 +78,12 @@ public abstract class AbstractAlpha extends BaseNode {
 	 */
 	protected int operator = Constants.EQUAL;
 
-
+	protected AbstractCollection<Fact> facts = null;
 
 	public AbstractAlpha(int id) {
 		super(id);
 		this.maxChildCount = Integer.MAX_VALUE;
+		facts = new Vector<Fact>();
 	}
 
 
@@ -92,6 +96,17 @@ public abstract class AbstractAlpha extends BaseNode {
 	}
 	
 
+	protected void mountChild(BaseNode newChild, Rete engine) throws AssertException {
+		for (Fact fact : facts)
+			newChild.assertFact(fact, engine, null);
+	}
 	
+	protected void unmountChild(BaseNode oldChild, Rete engine) throws RetractException {
+		for (Fact fact : facts)
+			oldChild.retractFact(fact, engine, null);
+	}
+	protected  void clear(){
+		facts.clear();
+	}
 
 }

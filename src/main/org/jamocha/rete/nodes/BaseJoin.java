@@ -16,6 +16,8 @@
  */
 package org.jamocha.rete.nodes;
 
+import java.util.Vector;
+
 import org.jamocha.rete.Binding;
 import org.jamocha.rete.Fact;
 import org.jamocha.rete.Rete;
@@ -39,6 +41,8 @@ public abstract class BaseJoin extends BaseNode {
 	 */
 	public BaseJoin(int id) {
 		super(id);
+		this.maxChildCount = Integer.MAX_VALUE;
+		this.maxParentCount = 2;
 	}
 
 	@Override
