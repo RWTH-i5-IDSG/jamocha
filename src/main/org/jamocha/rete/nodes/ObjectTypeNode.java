@@ -98,5 +98,14 @@ public class ObjectTypeNode extends AbstractAlpha implements Serializable {
 	public String toPPString() {
 		return "ObjectTypeNode-" + this.nodeID + "> for Template(" + this.deftemplate.getName() + ")";
 	}
+	
+	protected void evZeroUseCount(Rete engine)  {
+		try {
+			getRootNode().deactivateObjectTypeNode(this, engine);
+		} catch (RetractException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 
 }

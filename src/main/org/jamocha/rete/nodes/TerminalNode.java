@@ -17,7 +17,6 @@
 package org.jamocha.rete.nodes;
 
 import org.jamocha.rete.Activation;
-import org.jamocha.rete.BasicActivation;
 import org.jamocha.rete.Fact;
 import org.jamocha.rete.LinkedActivation;
 import org.jamocha.rete.Rete;
@@ -87,7 +86,7 @@ public class TerminalNode extends BaseNode {
 		if (sender.isRightNode())
 			tuple = new FactTuple((Fact) fact);
 		else
-			tuple = (FactTuple) tuple;
+			tuple = (FactTuple) fact;
 
 		Activation act = new LinkedActivation(this.theRule, tuple);
 		engine.getAgenda().removeActivation(act);

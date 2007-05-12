@@ -29,8 +29,8 @@ public class RootNode extends BaseNode {
 
 	public RootNode(int id) {
 		super(id);
-		this.maxChildCount =Integer.MAX_VALUE;
-		this.maxParentCount =0;
+		this.maxChildCount = Integer.MAX_VALUE;
+		this.maxParentCount = 0;
 	}
 
 	private static final long serialVersionUID = 1L;
@@ -77,11 +77,18 @@ public class RootNode extends BaseNode {
 	public ObjectTypeNode activateObjectTypeNode(Template template, Rete engine) throws AssertException {
 		ObjectTypeNode result = this.tempInputNodes.remove(template);
 		if (result != null) {
-			this.inputNodes.put(template, result);
-			this.addNode(result, engine);
+			inputNodes.put(template, result);
+			addNode(result, engine);
 		} else
-			result = this.inputNodes.get(template);
+			result = inputNodes.get(template);
 		return result;
+	}
+
+	public void deactivateObjectTypeNode(ObjectTypeNode node, Rete engine) throws RetractException {
+		Template tmpl = node.getDeftemplate();
+		inputNodes.remove(tmpl);
+		tempInputNodes.put(tmpl, node);
+		removeNode(node, engine);
 	}
 
 	/**
@@ -174,9 +181,9 @@ public class RootNode extends BaseNode {
 		sb.append(tempInputNodes.toString());
 		return sb.toString();
 	}
-	
+
 	public String toString() {
 		return "Root Node";
 	}
-	
+
 }

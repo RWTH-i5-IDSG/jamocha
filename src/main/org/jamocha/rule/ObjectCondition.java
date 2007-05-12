@@ -142,7 +142,10 @@ public class ObjectCondition extends AbstractCondition {
 	}
 
 	public BaseNode getNode(int idx){
+		if (idx < nodes.size())
 		return nodes.get(idx);
+		else
+			return null;
 	}
 
 	

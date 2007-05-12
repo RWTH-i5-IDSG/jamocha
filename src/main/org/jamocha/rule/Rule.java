@@ -21,6 +21,7 @@ import java.util.List;
 
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.nodes.BaseNode;
+import org.jamocha.rete.nodes.TerminalNode;
 import org.jamocha.rete.Binding;
 import org.jamocha.rete.Fact;
 import org.jamocha.rete.Module;
@@ -220,7 +221,11 @@ public interface Rule extends Scope, Complexity {
 
 	void addJoinNode(BaseJoin node);
 
-	List getJoins();
+	void AddTerminalNode(TerminalNode node);
+	
+	List<BaseJoin> getJoins();
+	
+	List<TerminalNode> getTerminalNodes();
 
 	/**
 	 * The method should return the last node in the rule, not counting the

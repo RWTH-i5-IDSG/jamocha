@@ -136,9 +136,13 @@ public abstract class BaseNode implements Serializable {
 	protected abstract void unmountChild(BaseNode oldChild, Rete engine) throws RetractException ;
 
 	public void destroy(Rete engine) throws RetractException {
-		for (int i = 0; i < parentNodes.length; i++) {
-			parentNodes[i].removeNode(this, engine);
+		for( BaseNode node: parentNodes){
+		node.removeNode(this, engine);
+			
 		}
+	//	for (int i = 0; i < parentNodes.length; i++) {
+		//	parentNodes[i].removeNode(this, engine);
+		//}
 	}
 
 	/**

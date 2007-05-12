@@ -17,7 +17,6 @@
 package org.jamocha.rete;
 
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 import org.jamocha.parser.ParserFactory;
@@ -25,12 +24,8 @@ import org.jamocha.rete.exception.AssertException;
 import org.jamocha.rete.exception.RetractException;
 import org.jamocha.rete.nodes.BaseJoin;
 import org.jamocha.rete.nodes.BaseNode;
-import org.jamocha.rete.nodes.LIANode;
-import org.jamocha.rete.nodes.ObjectTypeNode;
 import org.jamocha.rete.nodes.RootNode;
 import org.jamocha.rete.util.CollectionsFactory;
-import org.jamocha.rule.Condition;
-import org.jamocha.rule.Rule;
 
 /**
  * @author Peter Lin

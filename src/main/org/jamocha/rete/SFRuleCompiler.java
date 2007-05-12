@@ -139,7 +139,9 @@ public class SFRuleCompiler implements RuleCompiler {
 	 * @return TerminalNode
 	 */
 	protected TerminalNode createTerminalNode(Rule rule) {
-		return new TerminalNode(engine.nextNodeId(), rule);
+		TerminalNode node = new TerminalNode(engine.nextNodeId(), rule);
+		rule.AddTerminalNode(node);
+		return node;
 		/*
 		 * if (rule.getNoAgenda() && rule.getExpirationDate() == 0) { return new
 		 * NoAgendaTNode(engine.nextNodeId(), rule); } else if

@@ -27,6 +27,7 @@ import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.Expression;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.nodes.BaseNode;
+import org.jamocha.rete.nodes.TerminalNode;
 import org.jamocha.rete.Binding;
 import org.jamocha.rete.Binding2;
 import org.jamocha.rete.Constants;
@@ -59,6 +60,8 @@ public class Defrule implements Rule {
 	protected ArrayList<Action> actions = null;
 
 	protected ArrayList<BaseJoin> joins = null;
+	
+	protected ArrayList<TerminalNode> terminals = null;
 
 	protected int salience = 100;
 
@@ -122,7 +125,9 @@ public class Defrule implements Rule {
 		conditions = new ArrayList<Condition>();
 		actions = new ArrayList<Action>();
 		joins = new ArrayList<BaseJoin>();
+		terminals = new ArrayList<TerminalNode>();
 	}
+	
 
 	public Defrule(String name) {
 		this();
@@ -363,12 +368,26 @@ public class Defrule implements Rule {
 	public void addJoinNode(BaseJoin node) {
 		this.joins.add(node);
 	}
-
+	
 	/**
 	 * get the array of join nodes
 	 */
 	public List<BaseJoin> getJoins() {
 		return this.joins;
+	}
+	
+	/**
+	 * add join nodes to the rule
+	 */
+	public void AddTerminalNode(TerminalNode node) {
+		this.terminals.add(node);
+	}
+
+	/**
+	 * get the array of join nodes
+	 */
+	public List<TerminalNode> getTerminalNodes() {
+		return this.terminals;
 	}
 
 	public BaseNode getLastNode() {
@@ -586,6 +605,7 @@ public class Defrule implements Rule {
 			cond.clear();
 		}
 		this.joins.clear();
+		this.terminals.clear();
 	}
 
 	/**
