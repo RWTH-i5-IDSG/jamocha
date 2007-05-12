@@ -34,29 +34,12 @@ public interface WorkingMemory extends Serializable {
 	void retractObject(Fact fact) throws RetractException;
 
 	/**
-	 * The key for looking up the memory should be the node. Each node
-	 * should pass itself as the key for the lookup.
-	 * @param key
-	 * @return
-	 */
-	Object getAlphaMemory(Object key);
-
-	/**
 	 * In the case of AlphaMemory, during the compilation process,
 	 * we may want to remove an alpha memory if one already exists.
 	 * This depends on how rule compilation works.
 	 * @param key
 	 */
 	void removeAlphaMemory(Object key);
-
-	/**
-	 * The key for the lookup should be the node. Each BetaNode has
-	 * a left and right memory, so it's necessary to have a lookup
-	 * method for each memory.
-	 * @param key
-	 * @return
-	 */
-	//Object getBetaLeftMemory(Object key);
 
 	/**
 	 * The key for the lookup should be the node. Each BetaNode has
