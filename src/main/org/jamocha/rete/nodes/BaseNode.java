@@ -81,7 +81,9 @@ public abstract class BaseNode implements Serializable {
 				// add to own list:
 				this.childNodes = ConversionUtils.add(this.childNodes, n);
 				mountChild(n, engine);
-				add = true;
+				add = true;}
+			else{
+				throw new AssertException("Adding Node not Possible, Child does not want to be added");
 			}
 		return add;
 	}

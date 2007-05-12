@@ -54,11 +54,11 @@ public class Defrule implements Rule {
 
 	protected String name = null;
 
-	protected ArrayList conditions = null;
+	protected ArrayList<Condition> conditions = null;
 
-	protected ArrayList actions = null;
+	protected ArrayList<Action> actions = null;
 
-	protected ArrayList joins = null;
+	protected ArrayList<BaseJoin> joins = null;
 
 	protected int salience = 100;
 
@@ -75,11 +75,11 @@ public class Defrule implements Rule {
 
 	protected Module themodule = null;
 
-	protected Map bindValues = CollectionsFactory.localMap();
+	protected Map<String, JamochaValue> bindValues = CollectionsFactory.localMap();
 
 	protected Scope outerScope = null;
 
-	private LinkedHashMap bindings = new LinkedHashMap();
+	private LinkedHashMap<String, Binding> bindings = new LinkedHashMap<String, Binding>();
 
 	private String description = "";
 
@@ -119,9 +119,9 @@ public class Defrule implements Rule {
 	 */
 	public Defrule() {
 		super();
-		conditions = new ArrayList();
-		actions = new ArrayList();
-		joins = new ArrayList();
+		conditions = new ArrayList<Condition>();
+		actions = new ArrayList<Action>();
+		joins = new ArrayList<BaseJoin>();
 	}
 
 	public Defrule(String name) {
@@ -367,18 +367,18 @@ public class Defrule implements Rule {
 	/**
 	 * get the array of join nodes
 	 */
-	public List getJoins() {
+	public List<BaseJoin> getJoins() {
 		return this.joins;
 	}
 
 	public BaseNode getLastNode() {
 		if (this.joins.size() > 0) {
-			return (BaseNode) this.joins.get(this.joins.size() - 1);
+			return this.joins.get(this.joins.size() - 1);
 		} else if (conditions.size() > 0) {
 			// this means there's only 1 ConditionalElement, so the conditions
 			// only has 1 element. in all other cases, there will be atleast
 			// 1 join node
-			Condition c = (Condition) this.conditions.get(0);
+			Condition c = this.conditions.get(0);
 			if (c instanceof ObjectCondition) {
 				return ((ObjectCondition) c).getLastNode();
 			} else if (c instanceof TestCondition) {
@@ -402,9 +402,9 @@ public class Defrule implements Rule {
 	 * return the value associated with the binding
 	 */
 	public JamochaValue getBindingValue(String key) {
-		JamochaValue val = (JamochaValue) this.bindValues.get(key);
+		JamochaValue val = this.bindValues.get(key);
 		if (val == null) {
-			Binding bd = (Binding) this.bindings.get(key);
+			Binding bd = this.bindings.get(key);
 			if (bd != null) {
 				Fact left = this.triggerFacts[bd.getLeftRow()];
 				if (bd.getIsObjectVar()) {
@@ -460,7 +460,7 @@ public class Defrule implements Rule {
 	 * @return
 	 */
 	public Binding getBinding(String varName) {
-		return (Binding) this.bindings.get(varName);
+		return this.bindings.get(varName);
 	}
 
 	/**
@@ -497,7 +497,7 @@ public class Defrule implements Rule {
 	 * 
 	 * @return
 	 */
-	public Iterator getBindingIterator() {
+	public Iterator<Binding> getBindingIterator() {
 		return this.bindings.values().iterator();
 	}
 
@@ -580,9 +580,9 @@ public class Defrule implements Rule {
 	}
 
 	public void clear() {
-		Iterator itr = this.conditions.iterator();
+		Iterator<Condition> itr = this.conditions.iterator();
 		while (itr.hasNext()) {
-			Condition cond = (Condition) itr.next();
+			Condition cond = itr.next();
 			cond.clear();
 		}
 		this.joins.clear();

@@ -45,13 +45,6 @@
 		)
 )
 
-(defrule wurst-meter "Regel zur Ausgabe der Wurst-LŠnge" 
-	(declare (rule-version "performance version") (salience 101) (auto-focus TRUE))
-	(wurst (gewicht ?x) (name ?y))
-	(bier (gewicht ?x) (name ?z))
-	=>
-	(printout t "Lebensmittel die zusammenpassen. wurst:" ?y " Bier: " ?z " Gewicht: " ?x)
-)
 
 (defrule wurst-meter-langsam "Regel zur Ausgabe der Wurst-LŠnge" 
 	(wurst (laenge 100) (gewicht 200))
@@ -63,6 +56,13 @@
 
 
 
+(defrule wurst-meter "Regel zur Ausgabe der Wurst-LŠnge" 
+	(declare (rule-version "performance version") (salience 101) (auto-focus TRUE))
+	(wurst (gewicht ?x) (name ?y))
+	(bier (gewicht ?x) (name ?z))
+	=>
+	(printout t "Lebensmittel die zusammenpassen. wurst:" ?y " Bier: " ?z " Gewicht: " ?x)
+)
 
 
 

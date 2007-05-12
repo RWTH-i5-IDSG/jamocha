@@ -29,6 +29,8 @@ public class RootNode extends BaseNode {
 
 	public RootNode(int id) {
 		super(id);
+		this.maxChildCount =Integer.MAX_VALUE;
+		this.maxParentCount =0;
 	}
 
 	private static final long serialVersionUID = 1L;
