@@ -26,6 +26,7 @@ import org.jamocha.rete.exception.RetractException;
 import org.jamocha.rete.nodes.BaseJoin;
 import org.jamocha.rete.nodes.BaseNode;
 import org.jamocha.rete.nodes.ObjectTypeNode;
+import org.jamocha.rete.nodes.RootNode;
 import org.jamocha.rete.util.CollectionsFactory;
 import org.jamocha.rule.Condition;
 import org.jamocha.rule.Defrule;
@@ -179,24 +180,29 @@ public class Defmodule implements Module, Serializable {
 
 	/**
 	 * Remove a rule from this module
-	 * @throws RetractException 
+	 * 
+	 * @throws RetractException
 	 */
 	public void removeRule(Rule rl, Rete engine, WorkingMemory mem) {
 		this.rules.remove(rl.getName());
 		// we should iterate over the nodes of the rule and remove
 		// them if they are not shared
 		Condition[] cnds = rl.getConditions();
-		// first remove the alpha nodes
-		for (int idx = 0; idx < cnds.length; idx++) {
-			Condition cnd = cnds[idx];
-			if (cnd instanceof ObjectCondition) {
-				ObjectCondition oc = (ObjectCondition) cnd;
-				String templ = oc.getTemplateName();
-				Deftemplate temp = (Deftemplate) this.deftemplates.get(templ);
-				ObjectTypeNode otn = mem.getRuleCompiler().getObjectTypeNode(
-						temp);
-				this.removeAlphaNodes(oc.getNodes(), otn, engine);
+		// first remove the alpha nodes#
+		try {
+			for (int idx = 0; idx < cnds.length; idx++) {
+				Condition cnd = cnds[idx];
+				if (cnd instanceof ObjectCondition) {
+					ObjectCondition oc = (ObjectCondition) cnd;
+					// first node is OTN, we ask for second:
+					ObjectTypeNode otn = (ObjectTypeNode) oc.getFirstNode();
+					BaseNode node = oc.getNode(1);
+					otn.removeNode(node, engine);
+				}
 			}
+		} catch (RetractException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 		// now remove the betaNodes, since the engine currently
 		// doesn't share the betaNodes, we can just remove it
@@ -209,8 +215,7 @@ public class Defmodule implements Module, Serializable {
 				ObjectCondition oc = (ObjectCondition) cnd;
 				String templ = oc.getTemplateName();
 				Deftemplate temp = (Deftemplate) this.deftemplates.get(templ);
-				ObjectTypeNode otn = mem.getRuleCompiler().getObjectTypeNode(
-						temp);
+				ObjectTypeNode otn = mem.getRuleCompiler().getObjectTypeNode(temp);
 				try {
 					otn.removeNode(bjoin, engine);
 				} catch (RetractException e) {

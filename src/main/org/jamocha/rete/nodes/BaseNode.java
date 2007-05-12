@@ -66,6 +66,10 @@ public abstract class BaseNode implements Serializable {
 	public int getChildCount(){
 		return childNodes.length;
 	}
+	
+	public int getParentCount(){
+		return parentNodes.length;
+	}
 
 	/**
 	 * Add the node to the list of successors

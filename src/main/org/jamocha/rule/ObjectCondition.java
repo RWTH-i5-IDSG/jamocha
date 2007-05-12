@@ -141,6 +141,11 @@ public class ObjectCondition extends AbstractCondition {
 		return this.nodes;
 	}
 
+	public BaseNode getNode(int idx){
+		return nodes.get(idx);
+	}
+
+	
 	/**
 	 * Add a node to an ObjectCondition. the node should only be AlphaNodes and
 	 * not join nodes.
@@ -156,31 +161,9 @@ public class ObjectCondition extends AbstractCondition {
 	 */
 	public BaseNode getLastNode() {
 		if (this.nodes.size() > 0) {
-			return getLast((AbstractAlpha) this.nodes.get(nodes.size() - 1));
+			return nodes.get(nodes.size()-1);
 		} else {
 			return null;
-		}
-	}
-
-	/**
-	 * protected method actually does the work of getting the last alphaNode
-	 * 
-	 * @param node
-	 * @return
-	 */
-	protected BaseNode getLast(AbstractAlpha node) {
-		int ncount = node.getChildCount();
-		if (node != null && ncount > 0) {
-			// there should only be 1 successor, so we always get the item
-			// at index zero. If the AlphaNode at index zero is wrong, it
-			// means there's some other bug
-			if (node.getChildNodes()[0] instanceof AbstractAlpha) {
-				return getLast((AbstractAlpha) node.getChildNodes()[ncount - 1]);
-			} else {
-				return node;
-			}
-		} else {
-			return node;
 		}
 	}
 

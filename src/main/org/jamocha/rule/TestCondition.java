@@ -107,6 +107,10 @@ public class TestCondition extends AbstractCondition {
 	public BaseNode getLastNode() {
 		return this.node;
 	}
+	
+	public BaseNode getFirstNode() {
+		return this.node;
+	}
 
 	/**
 	 * the implementation will look at the parameters for the function and see

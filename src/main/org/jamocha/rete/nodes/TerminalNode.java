@@ -89,7 +89,7 @@ public class TerminalNode extends BaseNode {
 		else
 			tuple = (FactTuple) tuple;
 
-		Activation act = new BasicActivation(this.theRule, tuple);
+		Activation act = new LinkedActivation(this.theRule, tuple);
 		engine.getAgenda().removeActivation(act);
 	}
 

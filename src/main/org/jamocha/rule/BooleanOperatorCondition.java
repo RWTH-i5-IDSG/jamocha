@@ -45,6 +45,10 @@ public abstract class BooleanOperatorCondition extends AbstractCondition {
 	public BaseNode getLastNode() {
 		return reteNode;
 	}
+	
+	public BaseNode getFirstNode() {
+		return reteNode;
+	}
 
 	public List getAllBindings() {
 		return null;

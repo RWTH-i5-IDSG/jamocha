@@ -68,6 +68,13 @@ public interface Condition extends Serializable, Complexity, SelfCompilerInterfa
 	 * @return
 	 */
 	BaseNode getLastNode();
+	
+	/**
+	 * Get the first node in the Condition
+	 * 
+	 * @return
+	 */
+	BaseNode getFirstNode();
 
 	/**
 	 * convienance method for getting the bindings

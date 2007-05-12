@@ -34,7 +34,7 @@ public class ExistCondition extends AbstractCondition {
 
 	protected List nestedCE = new ArrayList();
 
-	protected List nodes = new ArrayList();
+	protected List<BaseNode> nodes = new ArrayList<BaseNode>();
 
 	protected boolean isFirstCE = false;
 
@@ -93,12 +93,19 @@ public class ExistCondition extends AbstractCondition {
 	public BaseNode getLastNode() {
 		BaseNode base = null;
 		if (this.isFirstCE) {
-			base = (BaseNode) this.nodes.get(this.nodes.size() - 1);
+			base =  this.nodes.get(this.nodes.size() - 1);
 		} else {
 			Condition c = (Condition) nestedCE.get(nestedCE.size() - 1);
 			base = c.getLastNode();
 		}
 		return base;
+	}
+
+	public BaseNode getFirstNode() {
+		if (nodes.size() > 0)
+			return nodes.get(0);
+		else
+			return null;
 	}
 
 	/**
@@ -167,10 +174,9 @@ public class ExistCondition extends AbstractCondition {
 	public void clear() {
 		nodes.clear();
 	}
-	
+
 	public BaseNode compile(SFRuleCompiler compiler, Rule rule, int conditionIndex) {
 		return compiler.compile(this, rule, conditionIndex);
 	}
-
 
 }
