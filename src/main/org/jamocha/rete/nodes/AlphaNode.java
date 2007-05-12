@@ -101,6 +101,22 @@ public class AlphaNode extends SlotAlpha {
 		propogateRetract(fact, engine);
 	}
 
+	@Override
+	protected void mountChild(BaseNode newChild, Rete engine) throws AssertException {
+		for (Fact fact : facts)
+			//eval before send down:
+			if (evaluate((Fact) fact))
+				newChild.assertFact(fact, engine, this);
+	}
+
+	@Override
+	protected void unmountChild(BaseNode oldChild, Rete engine) throws RetractException {
+		for (Fact fact : facts)
+//			eval before send down:
+			if (evaluate((Fact) fact))
+				oldChild.retractFact(fact, engine, this);
+	}
+
 	/**
 	 * evaluate the node's value against the slot's value. The method uses
 	 * Evaluate class to perform the evaluation

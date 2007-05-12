@@ -164,40 +164,42 @@ public class BetaNode extends BaseJoin {
 	 */
 	public boolean evaluate(Fact[] leftlist, Fact right) {
 		boolean eval = true;
-		// we iterate over the binds and evaluate the facts
-		for (int idx = 0; idx < this.binds.length; idx++) {
-			// we got the binding
-			if (binds[idx] instanceof Binding2) {
-				Binding2 bnd = (Binding2) binds[idx];
-				// we may want to consider putting the fact array into
-				// a map to make it more efficient. for now I just want
-				// to get it working.
-				if (leftlist.length >= bnd.getLeftRow()) {
-					Fact left = leftlist[bnd.getLeftRow()];
-					if (left == right || !this.evaluate(left, bnd.getLeftIndex(), right, bnd.getRightIndex(), bnd.getOperator())) {
+		if (binds != null) {
+			// we iterate over the binds and evaluate the facts
+			for (int idx = 0; idx < this.binds.length; idx++) {
+				// we got the binding
+				if (binds[idx] instanceof Binding2) {
+					Binding2 bnd = (Binding2) binds[idx];
+					// we may want to consider putting the fact array into
+					// a map to make it more efficient. for now I just want
+					// to get it working.
+					if (leftlist.length >= bnd.getLeftRow()) {
+						Fact left = leftlist[bnd.getLeftRow()];
+						if (left == right || !this.evaluate(left, bnd.getLeftIndex(), right, bnd.getRightIndex(), bnd.getOperator())) {
+							eval = false;
+							break;
+						}
+					} else {
 						eval = false;
-						break;
 					}
-				} else {
-					eval = false;
-				}
-			} else if (binds[idx] instanceof Binding) {
-				Binding bnd = binds[idx];
-				int opr = this.operator;
-				if (bnd.negated()) {
-					opr = Constants.NOTEQUAL;
-				}
-				// we may want to consider putting the fact array into
-				// a map to make it more efficient. for now I just want
-				// to get it working.
-				if (leftlist.length >= bnd.getLeftRow()) {
-					Fact left = leftlist[bnd.getLeftRow()];
-					if (left == right || !this.evaluate(left, bnd.getLeftIndex(), right, bnd.getRightIndex(), opr)) {
+				} else if (binds[idx] instanceof Binding) {
+					Binding bnd = binds[idx];
+					int opr = this.operator;
+					if (bnd.negated()) {
+						opr = Constants.NOTEQUAL;
+					}
+					// we may want to consider putting the fact array into
+					// a map to make it more efficient. for now I just want
+					// to get it working.
+					if (leftlist.length >= bnd.getLeftRow()) {
+						Fact left = leftlist[bnd.getLeftRow()];
+						if (left == right || !this.evaluate(left, bnd.getLeftIndex(), right, bnd.getRightIndex(), opr)) {
+							eval = false;
+							break;
+						}
+					} else {
 						eval = false;
-						break;
 					}
-				} else {
-					eval = false;
 				}
 			}
 		}
@@ -259,7 +261,7 @@ public class BetaNode extends BaseJoin {
 
 		sb.append(printAlphaMemory());
 		sb.append(printBetaMemory());
-		
+
 		return sb.toString();
 	}
 
@@ -267,14 +269,15 @@ public class BetaNode extends BaseJoin {
 	protected void mountChild(BaseNode newChild, Rete engine) throws AssertException {
 		Iterator<FactTuple> itr = mergeMemory.iterator();
 		while (itr.hasNext()) {
-			propogateAssert(itr.next(), engine);
+			newChild.assertFact(itr.next(), engine, this);
 		}
 	}
 
 	@Override
 	protected void unmountChild(BaseNode oldChild, Rete engine) throws RetractException {
-		// TODO Auto-generated method stub
-
+		Iterator<FactTuple> itr = mergeMemory.iterator();
+		while (itr.hasNext()) {
+			oldChild.retractFact(itr.next(), engine, this);
+		}
 	}
-
 }

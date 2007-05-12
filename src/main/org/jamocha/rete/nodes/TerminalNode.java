@@ -19,7 +19,7 @@ package org.jamocha.rete.nodes;
 import org.jamocha.rete.Activation;
 import org.jamocha.rete.BasicActivation;
 import org.jamocha.rete.Fact;
-import org.jamocha.rete.Index;
+import org.jamocha.rete.LinkedActivation;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.exception.AssertException;
 import org.jamocha.rete.exception.RetractException;
@@ -68,9 +68,9 @@ public class TerminalNode extends BaseNode {
 		if (sender.isRightNode())
 			tuple = new FactTuple((Fact) fact);
 		else
-			tuple = (FactTuple) tuple;
+			tuple = (FactTuple) fact;
 
-		Activation act = new BasicActivation(this.theRule, tuple);
+		Activation act = new LinkedActivation(this.theRule, tuple);
 		engine.getAgenda().addActivation(act);
 	}
 
@@ -111,11 +111,6 @@ public class TerminalNode extends BaseNode {
 		return "TerminalNode-" + nodeID + ">";
 	}
 
-	/**
-	 * The terminal node has no successors, so this method does nothing.
-	 */
-	public void removeAllSuccessors() {
-	}
 
 	@Override
 	protected void mountChild(BaseNode newChild, Rete engine) {

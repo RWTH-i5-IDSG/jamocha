@@ -60,6 +60,20 @@ public class LIANode extends AbstractAlpha {
 			propogateRetract(tuple, engine);
 		}
 	}
+	
+	protected void mountChild(BaseNode newChild, Rete engine) throws AssertException {
+		for (Fact fact : facts)
+			//we have to send down a fact tuple:
+			newChild.assertFact(new FactTuple((Fact) fact), engine, this);
+		}
+
+	protected void unmountChild(BaseNode oldChild, Rete engine) throws RetractException {
+		for (Fact fact : facts)
+//			we have to send down a fact tuple:
+			oldChild.retractFact(new FactTuple((Fact) fact), engine, this);
+	}
+	
+	
 
 	protected boolean isRightNode() {
 		return false;

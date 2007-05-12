@@ -24,12 +24,12 @@ import org.jamocha.rule.Rule;
 
 /**
  * @author Peter Lin
- *
- * LinkedActivation is different than BasicActivation in a couple of
- * ways. LinkedActivation makes it easier to remove Activations from
- * an ActivationList, without having to iterate over the activations.
- * When the activation is executed or removed, it needs to make sure
- * it checks the previous and next and set them correctly.
+ * 
+ * LinkedActivation is different than BasicActivation in a couple of ways.
+ * LinkedActivation makes it easier to remove Activations from an
+ * ActivationList, without having to iterate over the activations. When the
+ * activation is executed or removed, it needs to make sure it checks the
+ * previous and next and set them correctly.
  */
 public class LinkedActivation implements Activation {
 
@@ -42,52 +42,55 @@ public class LinkedActivation implements Activation {
 	private LinkedActivation next = null;
 
 	private Rule theRule;
-	
+
 	/**
-	 * these are the facts that activated the rule. It's important
-	 * to keep in mind that any combination of facts may fire a
-	 * rule. 
+	 * these are the facts that activated the rule. It's important to keep in
+	 * mind that any combination of facts may fire a rule.
 	 */
 	private FactTuple facts;
 
 	private long timetag;
 
-	private Index index;
-
 	private long aggreTime = 0;
 
 	private TerminalNode tnode = null;
-	
+
 	/**
 	 * 
 	 */
 	private LinkedActivation() {
 	}
 
+	public LinkedActivation(Rule rule, FactTuple tuple) {
+		super();
+		init(rule, tuple);
+	}
+
 	private void init(Rule rule, FactTuple facts) {
 		this.theRule = rule;
 		this.facts = facts;
 		this.timetag = System.nanoTime();
-        calculateTime(index.getFacts());
+        calculateTime(facts.getFacts());
 	}
-	
+
 	private static int instances = 0;
 
 	private static int maxInstances = 0;
-	
+
 	private static final LinkedActivation[] instancePool = new LinkedActivation[MAX_POOL_SIZE];
-	
+
 	/**
 	 * The facts that matched the rule
+	 * 
 	 * @return
 	 */
 	public Fact[] getFacts() {
 		return this.facts.getFacts();
 	}
-	
+
 	protected static LinkedActivation acquire(Rule rule, FactTuple facts) {
 		LinkedActivation result;
-		if(instances == 0) {
+		if (instances == 0) {
 			result = new LinkedActivation();
 		} else {
 			result = instancePool[--instances];
@@ -96,32 +99,28 @@ public class LinkedActivation implements Activation {
 		result.init(rule, facts);
 		return result;
 	}
-	
+
 	public static void release(LinkedActivation activation) {
-		if(instances < maxInstances || maxInstances < MAX_POOL_SIZE-1) {
+		if (instances < maxInstances || maxInstances < MAX_POOL_SIZE - 1) {
 			instancePool[instances++] = activation;
-			if(maxInstances<instances) {
+			if (maxInstances < instances) {
 				++maxInstances;
 			}
 		}
 	}
 
 	protected void calculateTime(Fact[] facts) {
-        for (int idx=0; idx < facts.length; idx++) {
-            this.aggreTime += facts[idx].timeStamp();
-        }
-    }
-    
+		for (int idx = 0; idx < facts.length; idx++) {
+			this.aggreTime += facts[idx].timeStamp();
+		}
+	}
+
 	public long getAggregateTime() {
 		return this.aggreTime;
 	}
 
 	public FactTuple getFactTuple() {
 		return facts;
-	}
-
-	public Index getIndex() {
-		return this.index;
 	}
 
 	public Rule getRule() {
@@ -133,9 +132,9 @@ public class LinkedActivation implements Activation {
 	}
 
 	/**
-	 * the method will set the previous activation to the one
-	 * passed to the method and it will also set previous.next
-	 * to this instance.
+	 * the method will set the previous activation to the one passed to the
+	 * method and it will also set previous.next to this instance.
+	 * 
 	 * @param previous
 	 */
 	public void setPrevious(LinkedActivation previous) {
@@ -150,9 +149,9 @@ public class LinkedActivation implements Activation {
 	}
 
 	/**
-	 * the method will set the next activation to the one
-	 * passed to the method and it will set next.prev to
-	 * this instance.
+	 * the method will set the next activation to the one passed to the method
+	 * and it will set next.prev to this instance.
+	 * 
 	 * @param next
 	 */
 	public void setNext(LinkedActivation next) {
@@ -174,7 +173,9 @@ public class LinkedActivation implements Activation {
 		return this.tnode;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see woolfel.engine.rete.Activation#compare(woolfel.engine.rete.Activation)
 	 */
 	public boolean compare(Activation act) {
@@ -185,14 +186,10 @@ public class LinkedActivation implements Activation {
 	}
 
 	/**
-	 * Remove the Activation from the list and set the previous
-	 * and next activation correctly. There's basically 3 cases
-	 * we have to handle.
-	 * 1. first
-	 * 2. last
-	 * 3. somewhere in between
-	 * The current implementation will first set the previous
-	 * and next. Once they are correctly set, it will set
+	 * Remove the Activation from the list and set the previous and next
+	 * activation correctly. There's basically 3 cases we have to handle. 1.
+	 * first 2. last 3. somewhere in between The current implementation will
+	 * first set the previous and next. Once they are correctly set, it will set
 	 * the references to those LinkedActivation to null.
 	 */
 	public void remove() {
@@ -207,20 +204,23 @@ public class LinkedActivation implements Activation {
 		this.prev = null;
 		this.next = null;
 	}
-	
+
 	/**
-	 * method is used to make sure the activation is removed from
-	 * TerminalNode2.
+	 * method is used to make sure the activation is removed from TerminalNode2.
+	 * 
 	 * @param engine
 	 */
 	protected void remove(Rete engine) {
 		if (tnode != null) {
-//			tnode.removeActivation(engine.getWorkingMemory(),this);
-			//TODO: Implement an equivalent of that removeActivation-call, which doesnt exist in TerminalNode(1)
+			// tnode.removeActivation(engine.getWorkingMemory(),this);
+			// TODO: Implement an equivalent of that removeActivation-call,
+			// which doesnt exist in TerminalNode(1)
 		}
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see woolfel.engine.rete.Activation#executeActivation(woolfel.engine.rete.Rete)
 	 */
 	public void executeActivation(Rete engine) throws ExecuteException {
@@ -228,11 +228,11 @@ public class LinkedActivation implements Activation {
 		// of each and then set the reference to null
 		remove(engine);
 		try {
-            this.theRule.setTriggerFacts(this.index.getFacts());
+			this.theRule.setTriggerFacts(this.facts.getFacts());
 			Action[] actions = this.theRule.getActions();
 			for (int idx = 0; idx < actions.length; idx++) {
 				if (actions[idx] != null) {
-					actions[idx].executeAction(engine, this.index.getFacts());
+					actions[idx].executeAction(engine, this.facts.getFacts());
 				} else {
 					throw new ExecuteException(ExecuteException.NULL_ACTION);
 				}
@@ -241,29 +241,29 @@ public class LinkedActivation implements Activation {
 			throw e;
 		}
 	}
-    
-    public void clear() {
-        this.theRule = null;
-        this.index = null;
-        this.tnode = null;
-        this.aggreTime = 0;
-        release(this);
-    }
 
-    public String toPPString() {
-    	StringBuffer buf = new StringBuffer();
-    	buf.append("Activation: " + this.theRule.getName());
-    	Fact[] facts = this.index.getFacts();
-    	for (int idx=0; idx < facts.length; idx++) {
-    		buf.append(", id-" + facts[idx].getFactId());
-    	}
-    	buf.append(" AggrTime-" + this.aggreTime);
-    	return buf.toString();
-    }
-    
-    public LinkedActivation clone() {
-        LinkedActivation la = LinkedActivation.acquire(this.theRule,this.facts);
-        return la;
-    }
+	public void clear() {
+		this.theRule = null;
+		this.facts = null;
+		this.tnode = null;
+		this.aggreTime = 0;
+		release(this);
+	}
+
+	public String toPPString() {
+		StringBuffer buf = new StringBuffer();
+		buf.append("Activation: " + this.theRule.getName());
+		Fact[] facts = this.facts.getFacts();
+		for (int idx = 0; idx < facts.length; idx++) {
+			buf.append(", id-" + facts[idx].getFactId());
+		}
+		buf.append(" AggrTime-" + this.aggreTime);
+		return buf.toString();
+	}
+
+	public LinkedActivation clone() {
+		LinkedActivation la = LinkedActivation.acquire(this.theRule, this.facts);
+		return la;
+	}
 
 }
