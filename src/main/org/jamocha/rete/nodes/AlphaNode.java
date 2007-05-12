@@ -97,7 +97,7 @@ public class AlphaNode extends SlotAlpha {
 	 */
 	@Override
 	public void retractFact(Assertable fact, Rete engine, BaseNode sender) throws RetractException {
-		facts.remove(fact);
+		facts.remove((Fact)fact);
 		propogateRetract(fact, engine);
 	}
 
@@ -156,10 +156,8 @@ public class AlphaNode extends SlotAlpha {
 		sb.append(ConversionUtils.formatSlot(this.slot.getValue()));
 		sb.append(" ; SubNodes: ");
 		sb.append(getChildCount());
-		sb.append(" \n");
-
-		sb.append(printMemory());
-
+		sb.append(" \nAlpha-Memory: ");
+		sb.append(facts.toPPString());
 		return sb.toString();
 	}
 

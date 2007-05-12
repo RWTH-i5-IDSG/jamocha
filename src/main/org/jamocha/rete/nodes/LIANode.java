@@ -55,7 +55,8 @@ public class LIANode extends AbstractAlpha {
 
 	@Override
 	public void retractFact(Assertable fact, Rete engine, BaseNode sender) throws RetractException {
-		if (facts.remove(fact)) {
+		assert(fact instanceof Fact);
+		if (facts.remove((Fact)fact)) {
 			FactTuple tuple = new FactTuple((Fact) fact);
 			propogateRetract(tuple, engine);
 		}
@@ -90,10 +91,8 @@ public class LIANode extends AbstractAlpha {
 		sb.append(" ");
 		sb.append(" ; SubNodes: ");
 		sb.append(getChildCount());
-		sb.append(" \n");
-
-		sb.append(printMemory());
-
+		sb.append(" \nAlpha-Memory: ");
+		sb.append(facts.toPPString());
 		return sb.toString();
 	}
 

@@ -72,7 +72,7 @@ public class ObjectTypeNode extends AbstractAlpha implements Serializable {
 
 	@Override
 	public void retractFact(Assertable fact, Rete engine, BaseNode sender) throws RetractException {
-		if (facts.remove(fact))
+		if (facts.remove((Fact)fact))
 			propogateRetract(fact, engine);
 	}
 

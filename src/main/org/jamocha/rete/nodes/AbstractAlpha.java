@@ -16,10 +16,9 @@
  */
 package org.jamocha.rete.nodes;
 
-import java.util.AbstractCollection;
-import java.util.Iterator;
 import java.util.Vector;
 
+import org.jamocha.rete.AlphaMemory;
 import org.jamocha.rete.Constants;
 import org.jamocha.rete.Fact;
 import org.jamocha.rete.Rete;
@@ -79,12 +78,12 @@ public abstract class AbstractAlpha extends BaseNode {
 	 */
 	protected int operator = Constants.EQUAL;
 
-	protected AbstractCollection<Fact> facts = null;
+	protected AlphaMemory facts = null;
 
 	public AbstractAlpha(int id) {
 		super(id);
 		this.maxChildCount = Integer.MAX_VALUE;
-		facts = new Vector<Fact>();
+		facts = new AlphaMemory();
 	}
 
 	/**
@@ -109,14 +108,5 @@ public abstract class AbstractAlpha extends BaseNode {
 		facts.clear();
 	}
 
-	protected String printMemory() {
-		StringBuilder sb = new StringBuilder();
-		for (Fact fact : facts) {
-			sb.append("    Input Memory: ");
-			sb.append(fact.toPPString());
-			sb.append(" \n");
-		}
-		return sb.toString();
-	}
 
 }

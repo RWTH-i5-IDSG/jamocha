@@ -19,6 +19,7 @@ package org.jamocha.rete.nodes;
 import java.io.Serializable;
 
 import org.jamocha.rete.ConversionUtils;
+import org.jamocha.rete.Fact;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.exception.AssertException;
 import org.jamocha.rete.exception.RetractException;

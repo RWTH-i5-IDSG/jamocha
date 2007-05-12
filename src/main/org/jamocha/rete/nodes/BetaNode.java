@@ -257,10 +257,10 @@ public class BetaNode extends BaseJoin {
 					sb.append(this.binds[idx].toPPString());
 				}
 			}
-		sb.append(" \n");
-
-		sb.append(printAlphaMemory());
-		sb.append(printBetaMemory());
+		sb.append(" \nAlpha-Memory: ");
+		sb.append(alphaMemory.toPPString());
+		sb.append(" \nBeta-Memory: ");
+		sb.append(betaMemory.toPPString());
 
 		return sb.toString();
 	}

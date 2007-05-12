@@ -19,6 +19,8 @@ package org.jamocha.rete.nodes;
 import java.util.AbstractCollection;
 import java.util.Vector;
 
+import org.jamocha.rete.AlphaMemory;
+import org.jamocha.rete.BetaMemory;
 import org.jamocha.rete.Binding;
 import org.jamocha.rete.Fact;
 import org.jamocha.rete.Rete;
@@ -37,9 +39,9 @@ public abstract class BaseJoin extends BaseNode {
 	 */
 	protected Binding[] binds = null;
 	
-	protected AbstractCollection<Fact> alphaMemory = null;
+	protected AlphaMemory alphaMemory = null;
 	
-	protected AbstractCollection<FactTuple> betaMemory = null;
+	protected BetaMemory betaMemory = null;
 	
 	protected AbstractCollection<FactTuple> mergeMemory = null;
 
@@ -50,8 +52,8 @@ public abstract class BaseJoin extends BaseNode {
 		super(id);
 		this.maxChildCount = Integer.MAX_VALUE;
 		this.maxParentCount = 2;
-		alphaMemory = new Vector<Fact>();
-		betaMemory = new Vector<FactTuple>();
+		alphaMemory = new AlphaMemory();
+		betaMemory = new BetaMemory();
 		mergeMemory = new Vector<FactTuple>();
 	}
 
@@ -124,25 +126,4 @@ public abstract class BaseJoin extends BaseNode {
 		return false;
 	}
 	
-	protected String printAlphaMemory() {
-		StringBuilder sb = new StringBuilder();
-		for (Fact fact : alphaMemory) {
-			sb.append("    Alpha Memory: ");
-			sb.append(fact.toPPString());
-			sb.append(" \n");
-		}
-		sb.append(" \n");
-		return sb.toString();
-	}
-	
-	protected String printBetaMemory() {
-		StringBuilder sb = new StringBuilder();
-		for (FactTuple fact : betaMemory) {
-			sb.append("    Beta Memory: ");
-			sb.append(fact.toPPString());
-			sb.append(" \n");
-		}
-		sb.append(" \n");
-		return sb.toString();
-	}
 }
