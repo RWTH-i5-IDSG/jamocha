@@ -233,7 +233,7 @@ public abstract class BaseNode implements Serializable {
 
 	public abstract void retractFact(Assertable fact, Rete engine, BaseNode sender) throws RetractException;
 
-	public static boolean isRightNode() {
+	protected boolean isRightNode() {
 		return true;
 	}
 

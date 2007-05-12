@@ -61,7 +61,7 @@ public class LIANode extends AbstractAlpha {
 		}
 	}
 
-	public static boolean isRightNode() {
+	protected boolean isRightNode() {
 		return false;
 	}
 	

@@ -20,20 +20,16 @@ package org.jamocha.rete;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
-import java.util.List;
 
 import org.jamocha.logging.DefaultLogger;
 import org.jamocha.parser.EvaluationException;
-import org.jamocha.parser.Expression;
 import org.jamocha.parser.IllegalConversionException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.rete.configurations.Signature;
 import org.jamocha.rete.exception.AssertException;
 import org.jamocha.rete.exception.RetractException;
 import org.jamocha.rete.nodes.AbstractAlpha;
 import org.jamocha.rete.nodes.AlphaNode;
-import org.jamocha.rete.nodes.BaseJoin;
 import org.jamocha.rete.nodes.BaseNode;
 import org.jamocha.rete.nodes.BetaNode;
 import org.jamocha.rete.nodes.LIANode;
@@ -45,7 +41,6 @@ import org.jamocha.rule.Action;
 import org.jamocha.rule.Analysis;
 import org.jamocha.rule.AndCondition;
 import org.jamocha.rule.AndLiteralConstraint;
-import org.jamocha.rule.BooleanOperatorCondition;
 import org.jamocha.rule.BoundConstraint;
 import org.jamocha.rule.Condition;
 import org.jamocha.rule.Constraint;
@@ -80,8 +75,6 @@ public class SFRuleCompiler implements RuleCompiler {
 	protected RootNode root = null;
 
 	private Module currentMod = null;
-
-	private LIANode initialFactLIANode = null;
 
 	private ArrayList<CompilerListener> listener = new ArrayList<CompilerListener>();
 

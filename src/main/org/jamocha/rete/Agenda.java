@@ -39,6 +39,8 @@ import org.jamocha.rete.util.ProfileStats;
  */
 public class Agenda implements Serializable {
 
+	private static final long serialVersionUID = 1L;
+
 	/**
 	 * The ArrayList for the modules.
 	 */

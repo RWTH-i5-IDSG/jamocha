@@ -55,7 +55,6 @@ public abstract class BaseJoin extends BaseNode {
 		mergeMemory = new Vector<FactTuple>();
 	}
 
-	@SuppressWarnings("static-access")
 	@Override
 	public void assertFact(Assertable fact, Rete engine, BaseNode sender) throws AssertException {
 		if (sender.isRightNode()) {
@@ -82,7 +81,6 @@ public abstract class BaseJoin extends BaseNode {
 	 */
 	public abstract void assertRight(Fact fact, Rete engine) throws AssertException;
 
-	@SuppressWarnings("static-access")
 	@Override
 	public void retractFact(Assertable fact, Rete engine, BaseNode sender) throws RetractException {
 		if (sender.isRightNode()) {
@@ -122,7 +120,7 @@ public abstract class BaseJoin extends BaseNode {
 		mergeMemory.clear();
 	}
 
-	public static boolean isRightNode() {
+	protected boolean isRightNode() {
 		return false;
 	}
 	
