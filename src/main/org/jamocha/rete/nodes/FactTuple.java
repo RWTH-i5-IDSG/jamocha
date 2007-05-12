@@ -51,5 +51,27 @@ public class FactTuple implements Assertable{
 		facts[this.facts.length] = fact;
 		return new FactTuple(facts);
 	}
+
+	public String toPPString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("[ ");
+		for (Fact fact: facts){
+			sb.append(fact.toPPString());
+			sb.append(" | ");
+		}
+		sb.append("] ");
+		return sb.toString();
+	}
+
+	public String toString(){
+		StringBuilder sb = new StringBuilder();
+		sb.append("[ ");
+		for (Fact fact: facts){
+			sb.append(fact.toString());
+			sb.append(" | ");
+		}
+		sb.append("] ");
+		return sb.toString();
+	}
 	
 }

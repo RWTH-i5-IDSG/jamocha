@@ -241,18 +241,26 @@ public class BetaNode extends BaseJoin {
 	 * method returns a string of the node id and bindings details
 	 */
 	public String toPPString() {
-		StringBuffer buf = new StringBuffer();
-		buf.append("BetaNode-" + this.nodeID + "> ");
+		StringBuilder sb = new StringBuilder();
+		sb.append("AlphaNode: ID ");
+		sb.append(getNodeId());
+		sb.append(" ; SubNodes: ");
+		sb.append(getChildCount());
 		if (binds != null)
 			for (int idx = 0; idx < this.binds.length; idx++) {
 				if (idx > 0) {
-					buf.append(" && ");
+					sb.append(" && ");
 				}
 				if (this.binds[idx] != null) {
-					buf.append(this.binds[idx].toPPString());
+					sb.append(this.binds[idx].toPPString());
 				}
 			}
-		return buf.toString();
+		sb.append(" \n");
+
+		sb.append(printAlphaMemory());
+		sb.append(printBetaMemory());
+		
+		return sb.toString();
 	}
 
 	@Override

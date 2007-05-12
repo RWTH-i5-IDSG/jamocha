@@ -86,7 +86,6 @@ public abstract class AbstractAlpha extends BaseNode {
 		facts = new Vector<Fact>();
 	}
 
-
 	/**
 	 * Abstract implementation returns an int code for the operator. To get the
 	 * string representation, it should be converted.
@@ -94,19 +93,29 @@ public abstract class AbstractAlpha extends BaseNode {
 	public int getOperator() {
 		return this.operator;
 	}
-	
 
 	protected void mountChild(BaseNode newChild, Rete engine) throws AssertException {
 		for (Fact fact : facts)
 			newChild.assertFact(fact, engine, null);
 	}
-	
+
 	protected void unmountChild(BaseNode oldChild, Rete engine) throws RetractException {
 		for (Fact fact : facts)
 			oldChild.retractFact(fact, engine, null);
 	}
-	public void clear(){
+
+	public void clear() {
 		facts.clear();
+	}
+
+	protected String printMemory() {
+		StringBuilder sb = new StringBuilder();
+		for (Fact fact : facts) {
+			sb.append("    Input Memory: ");
+			sb.append(fact.toPPString());
+			sb.append(" \n");
+		}
+		return sb.toString();
 	}
 
 }

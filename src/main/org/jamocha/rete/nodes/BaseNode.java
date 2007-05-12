@@ -189,9 +189,7 @@ public abstract class BaseNode implements Serializable {
 	 * 
 	 * @return
 	 */
-	public String toPPString() {
-		return toString();
-	}
+	public abstract String  toPPString();
 
 	public abstract String toString();
 

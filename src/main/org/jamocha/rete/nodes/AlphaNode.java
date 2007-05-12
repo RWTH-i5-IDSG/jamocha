@@ -77,13 +77,14 @@ public class AlphaNode extends SlotAlpha {
 	 * the implementation will first check to see if the fact already matched.
 	 * If it did, the fact stops and doesn't go any further. If it doesn't, it
 	 * will attempt to evaluate it and add the fact if it matches.
+	 * 
 	 * @param engine
 	 * @param factInstance
 	 */
 	@Override
 	public void assertFact(Assertable fact, Rete engine, BaseNode sender) throws AssertException {
-		if (evaluate((Fact)fact)){
-			facts.add((Fact)fact);
+		if (evaluate((Fact) fact)) {
+			facts.add((Fact) fact);
 			propogateAssert(fact, engine);
 		}
 	}
@@ -120,7 +121,6 @@ public class AlphaNode extends SlotAlpha {
 		return "slot(" + this.slot.getId() + ") " + ConversionUtils.getPPOperator(this.operator) + " " + this.slot.getValue().toString();
 	}
 
-
 	/**
 	 * Method returns the pretty printer formatted string of the node's
 	 * condition. For now, the method just replaces the operator. It might be
@@ -129,8 +129,22 @@ public class AlphaNode extends SlotAlpha {
 	 * @return
 	 */
 	public String toPPString() {
-		return "AlphaNode-" + this.nodeID + "> slot(" + this.slot.getName() + ") " + ConversionUtils.getPPOperator(this.operator) + " " + ConversionUtils.formatSlot(this.slot.getValue()) + " - useCount="
-				+ this.getChildCount();
+		StringBuilder sb = new StringBuilder();
+		sb.append("AlphaNode: ID ");
+		sb.append(getNodeId());
+		sb.append(" Slot Condition: ");
+		sb.append(slot.getName());
+		sb.append(" ");
+		sb.append(ConversionUtils.getPPOperator(this.operator));
+		sb.append(" ");
+		sb.append(ConversionUtils.formatSlot(this.slot.getValue()));
+		sb.append(" ; SubNodes: ");
+		sb.append(getChildCount());
+		sb.append(" \n");
+
+		sb.append(printMemory());
+
+		return sb.toString();
 	}
 
 }

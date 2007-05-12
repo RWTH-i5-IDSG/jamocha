@@ -18,6 +18,7 @@ package org.jamocha.rete;
 
 import java.io.Serializable;
 
+import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.configurations.SlotConfiguration;
 import org.jamocha.rule.Rule;
@@ -204,5 +205,22 @@ public class NSFact implements Fact, Serializable {
 		return objInstance.equals(obj);
 	}
 
+	public String toPPString() {
+		StringBuffer buf = new StringBuffer();
+		buf.append("(" + this.deftemplate.getName());
+		if (this.slots.length > 0) {
+			buf.append(" ");
+		}
+		for (int idx = 0; idx < this.slots.length; idx++) {
+			if (this.slots[idx].value.getType().equals(JamochaType.BINDING)) {
+				BoundParam bp = (BoundParam) this.slots[idx].value.getObjectValue();
+				buf.append("(" + this.slots[idx].getName() + " ?" + bp.getVariableName() + ") ");
+			} else {
+				buf.append("(" + this.slots[idx].getName() + " " + ConversionUtils.formatSlot(this.slots[idx].value) + ") ");
+			}
+		}
+		buf.append(")");
+		return buf.toString();
+	}
 
 }

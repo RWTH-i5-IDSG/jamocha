@@ -43,12 +43,6 @@ public class LIANode extends AbstractAlpha {
 		return "LIANode";
 	}
 
-	/**
-	 * the Left input Adapter Node returns zero length string
-	 */
-	public String toPPString() {
-		return "LIANode-" + this.nodeID + ">";
-	}
 
 	@Override
 	public void assertFact(Assertable fact, Rete engine, BaseNode sender) throws AssertException {
@@ -69,6 +63,24 @@ public class LIANode extends AbstractAlpha {
 
 	public static boolean isRightNode() {
 		return false;
+	}
+	
+	/**
+	 * 
+	 */
+	@Override
+	public String toPPString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("Left Input Adapter Node: ID ");
+		sb.append(getNodeId());
+		sb.append(" ");
+		sb.append(" ; SubNodes: ");
+		sb.append(getChildCount());
+		sb.append(" \n");
+
+		sb.append(printMemory());
+
+		return sb.toString();
 	}
 
 }

@@ -34,7 +34,6 @@ import org.jamocha.rete.EngineEvent;
 import org.jamocha.rete.EngineEventListener;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.WorkingMemoryImpl;
-import org.jamocha.rete.nodes.AlphaNode;
 import org.jamocha.rete.nodes.BaseJoin;
 import org.jamocha.rete.nodes.BaseNode;
 import org.jamocha.rete.nodes.LIANode;

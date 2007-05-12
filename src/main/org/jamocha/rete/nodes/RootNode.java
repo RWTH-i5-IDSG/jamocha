@@ -161,13 +161,22 @@ public class RootNode extends BaseNode {
 	}
 
 	@Override
-	public String toString() {
-		// TODO Auto-generated method stub
-		return "";
-	}
-
-	@Override
 	protected void unmountChild(BaseNode oldChild, Rete engine) throws RetractException {
 		// nothing to do: facts are allready asserted to all possible otn
 	}
+
+	@Override
+	public String toPPString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("InputNodes: ");
+		sb.append(inputNodes.toString());
+		sb.append("ObjectTypeNodes(not used in Net): ");
+		sb.append(tempInputNodes.toString());
+		return sb.toString();
+	}
+	
+	public String toString() {
+		return "Root Node";
+	}
+	
 }
