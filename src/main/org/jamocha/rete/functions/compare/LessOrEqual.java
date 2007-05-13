@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2006 Peter Lin
+ * Copyright 2002-2006 Peter Lin, 2007 Uta Christoph
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ public class LessOrEqual implements Function, Serializable {
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "LessOrEqual will compare 2 or more numeric values and return true if the (n-1)th value is less or equal to the nth value.";
+			return "LessOrEqual will compare two or more numeric values and return true, if the (n-1)th value is less than or equal to the nth value.";
 		}
 
 		public int getParameterCount() {
@@ -46,7 +46,7 @@ public class LessOrEqual implements Function, Serializable {
 		}
 
 		public String getParameterDescription(int parameter) {
-			return "Number that will be compared to the other Parameters.";
+			return "Number that will be compared to the other parameters.";
 		}
 
 		public String getParameterName(int parameter) {
@@ -73,8 +73,7 @@ public class LessOrEqual implements Function, Serializable {
 		}
 
 		public String getExample() {
-			// TODO Auto-generated method stub
-			return null;
+			return "(lessOrEqual 1 2 2 84)";
 		}
 	}
 
