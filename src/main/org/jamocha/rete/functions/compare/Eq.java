@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2006 Peter Lin, 2007 Alexander Wilden
+ * Copyright 2002-2006 Peter Lin, 2007 Alexander Wilden, Uta Christoph
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ public class Eq implements Function, Serializable {
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "Eq is used to compare a literal value against one or more other values. If all of the values are equal, the function returns true.";
+			return "Eq is used to compare a literal value against one or more other values. If all of the other values are equal, the function returns true. Eq should be used if the type of its arguments is not known in adavance.";
 		}
 
 		public int getParameterCount() {
@@ -48,9 +48,9 @@ public class Eq implements Function, Serializable {
 		public String getParameterDescription(int parameter) {
 			switch (parameter) {
 			case 0:
-				return "Literal value that should be compared to the other parameters.";
+				return "Literal value to be compared to all other parameters.";
 			default:
-				return "Value that should be compared to the first parameter.";
+				return "Value to be compared to the first parameter.";
 			}
 		}
 

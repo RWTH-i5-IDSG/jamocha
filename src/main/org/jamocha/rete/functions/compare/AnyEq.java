@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2006 Peter Lin, 2007 Alexander Wilden
+ * Copyright 2002-2006 Peter Lin, 2007 Alexander Wilden, Uta Christoph
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,7 +39,7 @@ public class AnyEq implements Function, Serializable {
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "Any equal is used to compare a literal value against one or more bindings. If any of the bindings is equal to the constant value, the function returns true.";
+			return "Any-eq is used to compare a literal value against one or more bindings. If any of the bindings is equal to the constant value, the function returns true.";
 		}
 
 		public int getParameterCount() {

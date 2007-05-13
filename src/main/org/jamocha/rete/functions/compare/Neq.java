@@ -1,5 +1,5 @@
 /*
- * Copyright 2006 Nikolaus Koemm, 2007 Alexander Wilden
+ * Copyright 2006 Nikolaus Koemm, 2007 Alexander Wilden, Uta Christoph
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ public class Neq implements Function, Serializable {
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "Neq is used to compare a literal value against one or more other values. If all of the values are not equal, the function returns true.";
+			return "Neq is used to compare a literal value against one or more other values. If all of the other values are not equal, the function returns true. Neq should be used if the type of its arguments is not known in adavance.";
 		}
 
 		public int getParameterCount() {
@@ -48,9 +48,9 @@ public class Neq implements Function, Serializable {
 		public String getParameterDescription(int parameter) {
 			switch (parameter) {
 			case 0:
-				return "Literal value that should be compared to the other parameters.";
+				return "Literal value to be compared to all other parameters.";
 			default:
-				return "Value that should be compared to the first parameter.";
+				return "Value to be compared to the first parameter.";
 			}
 		}
 
