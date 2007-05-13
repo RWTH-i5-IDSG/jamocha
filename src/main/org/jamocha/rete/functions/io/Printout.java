@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2006 Peter Lin, 2007 Alexander Wilden
+ * Copyright 2002-2006 Peter Lin, 2007 Alexander Wilden, Uta Christoph
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ public class Printout implements Function, Serializable {
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "Prints out any number and type of parameters. Returns nothing.";
+			return "Printout writes any number and type of arguments to the channel specified in the first argument. 't' indicates to send the output to the standard output device of the computer. Generally, this is the terminal. Printout concatenates all arguments after the channel without separation marks. A string, enclosed in single or double quotes, is handled as one single argument.";
 		}
 
 		public int getParameterCount() {
@@ -70,7 +70,8 @@ public class Printout implements Function, Serializable {
 
 		public String getExample() {
 			// TODO Auto-generated method stub
-			return null;
+			return "(printout t \"Jamocha rul\" e z !)";
+			//return null;
 		}
 	}
 

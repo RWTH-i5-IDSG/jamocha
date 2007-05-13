@@ -1,6 +1,5 @@
 /*
- * Copyright 2002-2006 Peter Lin, 2007 Alexander Wilden
- * Copyright 2007 Uta Christoph (documentation)
+ * Copyright 2002-2006 Peter Lin, 2007 Alexander Wilden, Uta Christoph
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,8 +55,8 @@ public class LoadFacts implements Function, Serializable {
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "Load-facts creates a new instance of CLIPSParser and loads the facts from the argument file. Returns true on success. TODO This function needs to be changed to be independed of CLIPSParser and use the ParserFactory instead."; 
-			//LoadFacts will create a new instance of CLIPSParser and load the facts in the data file. TODO This function needs to be changed to be independed of CLIPSParser and use the ParserFactory instead.";
+			return "Load-facts creates a new instance of CLIPSParser and loads the facts from the argument file. Templates for all kind of facts in the file must be defined in the engine. Returns true on success. TODO This function needs to be changed to be independed of CLIPSParser and use the ParserFactory instead."; 
+			//TODO This function needs to be changed to be independed of CLIPSParser and use the ParserFactory instead.";
 		}
 		
 		public int getParameterCount() {
@@ -89,7 +88,7 @@ public class LoadFacts implements Function, Serializable {
 		}
 		
 		public String getExample()	{
-			return "(load-facts factFile.clp)";
+			return "(batch samples/deftemplate_transaction.clp) (load-facts samples/transaction_facts.clp)";
 		}
 	}
 
