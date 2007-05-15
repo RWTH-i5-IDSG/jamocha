@@ -309,7 +309,7 @@ public class SFRuleCompiler implements RuleCompiler {
 	}
 	
 	protected void compileBindings(Rule rule){
-		
+		TerminalNode terminal = rule.getTerminalNode();		
 		
 		
 	}
