@@ -33,8 +33,8 @@ public class JShapeContainer extends JComponent {
 	protected Font font;
 
 	public JShapeContainer() {
-		lines = new ArrayList<ConnectorLine>();
-		shapes = new ArrayList<Shape>();
+			lines = new ArrayList<ConnectorLine>();
+			shapes = new ArrayList<Shape>();
 		offsetX = offsetY = 0;
 	}
 
@@ -55,11 +55,13 @@ public class JShapeContainer extends JComponent {
 	 *            the primitive which should become added
 	 */
 	public void addPrimitive(ConnectorLine c) {
-		lines.add(c);
-		Graphics2D gr = (Graphics2D) getGraphics();
-		if (gr == null)
-			return;
-		drawPrimitive(c, gr);
+		synchronized (shapes) {
+			lines.add(c);
+			Graphics2D gr = (Graphics2D) getGraphics();
+			if (gr == null)
+				return;
+			drawPrimitive(c, gr);
+		}
 	}
 
 	/**
@@ -69,15 +71,17 @@ public class JShapeContainer extends JComponent {
 	 *            the primitive which should become added
 	 */
 	public void addPrimitive(Shape s) {
-		shapes.add(s);
-		if (s.width + s.x > graphwidth)
-			graphwidth = s.width + s.x;
-		if (s.height + s.y > graphheight)
-			graphheight = s.height + s.y;
-		Graphics2D gr = (Graphics2D) getGraphics();
-		if (gr == null)
-			return;
-		drawPrimitive(s, gr);
+		synchronized (shapes) {
+			shapes.add(s);	
+			if (s.width + s.x > graphwidth)
+				graphwidth = s.width + s.x;
+			if (s.height + s.y > graphheight)
+				graphheight = s.height + s.y;
+			Graphics2D gr = (Graphics2D) getGraphics();
+			if (gr == null)
+				return;
+			drawPrimitive(s, gr);
+		}
 	}
 
 	/**
@@ -87,10 +91,12 @@ public class JShapeContainer extends JComponent {
 	 *            primitive to delete
 	 */
 	public void removePrimitive(Primitive p) {
-		if (p instanceof ConnectorLine)
-			lines.remove(p);
-		if (p instanceof Shape)
-			shapes.remove(p);
+		synchronized (shapes) {
+			if (p instanceof ConnectorLine)
+				lines.remove(p);
+			if (p instanceof Shape)
+				shapes.remove(p);
+		}
 		repaint();
 	}
 
@@ -98,8 +104,10 @@ public class JShapeContainer extends JComponent {
 	 * Flushes the container
 	 */
 	public void removeAllPrimitives() {
-		lines.clear();
-		shapes.clear();
+		synchronized (shapes) {
+			lines.clear();
+			shapes.clear();
+		}
 		repaint();
 	}
 
@@ -132,15 +140,17 @@ public class JShapeContainer extends JComponent {
 		gr.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
 				RenderingHints.VALUE_ANTIALIAS_ON);
 		gr.setFont(font);
-		Iterator<Shape> itshapes = shapes.iterator();
-		Iterator<ConnectorLine> itarrows = lines.iterator();
-		while (itshapes.hasNext()) {
-			Shape s = itshapes.next();
-			drawPrimitive(s, gr);
-		}
-		while (itarrows.hasNext()) {
-			ConnectorLine l = itarrows.next();
-			drawPrimitive(l, gr);
+		synchronized (shapes) {
+			Iterator<Shape> itshapes = shapes.iterator();
+			Iterator<ConnectorLine> itarrows = lines.iterator();
+			while (itshapes.hasNext()) {
+				Shape s = itshapes.next();
+				drawPrimitive(s, gr);
+			}
+			while (itarrows.hasNext()) {
+				ConnectorLine l = itarrows.next();
+				drawPrimitive(l, gr);
+			}
 		}
 	}
 
@@ -170,13 +180,15 @@ public class JShapeContainer extends JComponent {
 	public Shape getShapeAtPosition(int x, int y) {
 		// TODO: Not so efficient. Later, maybe, we should use a tricky
 		// data structure for finding the shape faster ;)
-		for (Iterator<Shape> it = shapes.iterator(); it.hasNext();) {
-			Shape s = it.next();
-			int offX = (x - s.getX());
-			int offY = (y - s.getY());
-			if (offX >= 0 && offY >= 0 && offX <= s.getWidth()
-					&& offY <= s.getHeight())
-				return s;
+		synchronized (shapes) {
+			for (Iterator<Shape> it = shapes.iterator(); it.hasNext();) {
+				Shape s = it.next();
+				int offX = (x - s.getX());
+				int offY = (y - s.getY());
+				if (offX >= 0 && offY >= 0 && offX <= s.getWidth()
+						&& offY <= s.getHeight())
+					return s;
+			}
 		}
 		return null;
 	}

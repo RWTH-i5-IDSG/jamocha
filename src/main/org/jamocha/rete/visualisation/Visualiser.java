@@ -379,6 +379,7 @@ public class Visualiser implements ActionListener, MouseListener,
 			if (autoReloadButton.isSelected()) {
 				reloadButton.setEnabled(false);
 				engine.addEngineEventListener(this);
+				container.repaint();
 			} else {
 				reloadButton.setEnabled(true);
 				engine.removeEngineEventListener(this);
