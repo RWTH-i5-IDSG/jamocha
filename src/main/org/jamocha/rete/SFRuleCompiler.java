@@ -247,6 +247,7 @@ public class SFRuleCompiler implements RuleCompiler {
 				ce.setRule(rule);
 
 				this.notifyListener(ce);
+				engine.newRuleEvent(rule);
 				return true;
 
 			} else if (rule.getConditions().length == 0) {
@@ -263,6 +264,7 @@ public class SFRuleCompiler implements RuleCompiler {
 				CompileEvent ce = new CompileEvent(rule, CompileEvent.ADD_RULE_EVENT);
 				ce.setRule(rule);
 				// / this.notifyListener(ce);
+				engine.newRuleEvent(rule);
 				return true;
 			}
 			return false;

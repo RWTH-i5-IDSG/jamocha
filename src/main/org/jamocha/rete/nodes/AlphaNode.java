@@ -129,13 +129,6 @@ public class AlphaNode extends SlotAlpha {
 		return Evaluate.evaluate(this.operator, factInstance.getSlotValue(this.slot.getId()), this.slot.getValue());
 	}
 
-	/**
-	 * Method returns the string format of the node's condition. later on this
-	 * should be cleaned up.
-	 */
-	public String toString() {
-		return "slot(" + this.slot.getId() + ") " + ConversionUtils.getPPOperator(this.operator) + " " + this.slot.getValue().toString();
-	}
 
 	/**
 	 * Method returns the pretty printer formatted string of the node's
@@ -146,18 +139,18 @@ public class AlphaNode extends SlotAlpha {
 	 */
 	public String toPPString() {
 		StringBuilder sb = new StringBuilder();
-		sb.append("AlphaNode: ID ");
-		sb.append(getNodeId());
-		sb.append(" Slot Condition: ");
+		sb.append(super.toPPString());
+		sb.append("Slot Condition: ");
 		sb.append(slot.getName());
 		sb.append(" ");
 		sb.append(ConversionUtils.getPPOperator(this.operator));
 		sb.append(" ");
 		sb.append(ConversionUtils.formatSlot(this.slot.getValue()));
-		sb.append(" ; SubNodes: ");
+		sb.append("\nSubNodes: ");
 		sb.append(getChildCount());
-		sb.append(" \nAlpha-Memory: ");
+		sb.append("\nAlpha-Memory:\n");
 		sb.append(facts.toPPString());
+		sb.append("\n");
 		return sb.toString();
 	}
 

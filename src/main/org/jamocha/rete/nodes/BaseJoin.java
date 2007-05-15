@@ -46,6 +46,8 @@ public abstract class BaseJoin extends BaseNode {
 	
 	protected AbstractCollection<FactTuple> mergeMemory = null;
 
+
+	
 	/**
 	 * @param id
 	 */
@@ -129,17 +131,6 @@ public abstract class BaseJoin extends BaseNode {
 		
 	}
 
-	@Override
-	public String toPPString() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String toString() {
-		// TODO Auto-generated method stub
-		return null;
-	}
 
 	@Override
 	protected void unmountChild(BaseNode oldChild, Rete engine) throws RetractException {

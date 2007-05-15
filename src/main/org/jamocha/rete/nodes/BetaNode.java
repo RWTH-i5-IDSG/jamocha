@@ -225,30 +225,17 @@ public class BetaNode extends BaseJoin {
 		}
 	}
 
-	/**
-	 * Basic implementation will return string format of the betaNode
-	 */
-	public String toString() {
-		StringBuffer buf = new StringBuffer();
-		for (int idx = 0; idx < this.binds.length; idx++) {
-			if (idx > 0) {
-				buf.append(" && ");
-			}
-			buf.append(this.binds[idx].toBindString());
-		}
-		return buf.toString();
-	}
 
 	/**
 	 * method returns a string of the node id and bindings details
 	 */
 	public String toPPString() {
 		StringBuilder sb = new StringBuilder();
-		sb.append("AlphaNode: ID ");
-		sb.append(getNodeId());
-		sb.append(" ; SubNodes: ");
+		sb.append(super.toPPString());
+		sb.append("SubNodes: ");
 		sb.append(getChildCount());
-		if (binds != null)
+		sb.append("\n");
+		if (binds != null) {
 			for (int idx = 0; idx < this.binds.length; idx++) {
 				if (idx > 0) {
 					sb.append(" && ");
@@ -257,11 +244,13 @@ public class BetaNode extends BaseJoin {
 					sb.append(this.binds[idx].toPPString());
 				}
 			}
-		sb.append(" \nAlpha-Memory: ");
+			sb.append("\n");
+		}
+		sb.append("Alpha-Memory:\n");
 		sb.append(alphaMemory.toPPString());
-		sb.append(" \nBeta-Memory: ");
+		sb.append("\nBeta-Memory:\n");
 		sb.append(betaMemory.toPPString());
-
+		sb.append("\n");
 		return sb.toString();
 	}
 

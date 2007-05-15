@@ -92,6 +92,13 @@ public abstract class BaseNode implements Serializable {
 				throw new AssertException("Adding Node not Possible, Child does not want to be added");
 			}
 		}
+		
+		try {
+			checkForConsistence();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
 		return add;
 	}
 
@@ -200,9 +207,13 @@ public abstract class BaseNode implements Serializable {
 	 * 
 	 * @return
 	 */
-	public abstract String  toPPString();
+	public String toPPString(){
+		return toString();
+	}
 
-	public abstract String toString();
+	public String toString() {
+		return "Type: " + this.getClass().getSimpleName() + "\nID:" + this.getNodeId() + "\n";
+	}
 
 	protected boolean containsNode(BaseNode[] list, BaseNode n) {
 		boolean cn = false;
@@ -252,4 +263,22 @@ public abstract class BaseNode implements Serializable {
 		return this.nodeID;
 	}
 
+	/*
+	 * this method is for debugging purposes only. it checks the
+	 * consistency of parent- and child-arrays. since that is a
+	 * non-productive method, it is not optimized and a bit redundant ;)
+	 */
+	protected void checkForConsistence() throws Exception {
+		for (BaseNode child : childNodes) {
+			if (!containsNode(child.parentNodes, this)) {
+				throw new Exception("Array inconsistent. my("+this.getNodeId()+") child-array contains "+child.getNodeId()+" but it doesnt holds me as parent!");
+			}
+		}
+		for (BaseNode parent : parentNodes) {
+			if (!containsNode(parent.childNodes, this)) {
+				throw new Exception("Array inconsistent. my("+this.getNodeId()+") parent-array contains "+parent.getNodeId()+" but it doesnt holds me as child!");
+			}			
+		}
+	}
+	
 }

@@ -36,13 +36,6 @@ public class LIANode extends AbstractAlpha {
 
 	private static final long serialVersionUID = 1L;
 
-	/**
-	 * the Left Input Adapter Node returns zero length string
-	 */
-	public String toString() {
-		return "LIANode";
-	}
-
 
 	@Override
 	public void assertFact(Assertable fact, Rete engine, BaseNode sender) throws AssertException {
@@ -86,13 +79,13 @@ public class LIANode extends AbstractAlpha {
 	@Override
 	public String toPPString() {
 		StringBuilder sb = new StringBuilder();
-		sb.append("Left Input Adapter Node: ID ");
-		sb.append(getNodeId());
-		sb.append(" ");
-		sb.append(" ; SubNodes: ");
+		sb.append(super.toPPString());
+		sb.append("SubNodes: ");
 		sb.append(getChildCount());
-		sb.append(" \nAlpha-Memory: ");
+		sb.append("\nAlpha-Memory: \n");
 		sb.append(facts.toPPString());
+		sb.append("\n");
+		
 		return sb.toString();
 	}
 

@@ -96,21 +96,6 @@ public class TerminalNode extends BaseNode {
 		return this.theRule;
 	}
 
-	/**
-	 * return the name of the rule
-	 */
-	public String toString() {
-		return this.theRule.getName();
-	}
-
-	/**
-	 * return a descriptive string
-	 */
-	public String toPPString() {
-		return "TerminalNode-" + nodeID + ">";
-	}
-
-
 	@Override
 	protected void mountChild(BaseNode newChild, Rete engine) {
 	}

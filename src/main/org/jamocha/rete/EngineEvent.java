@@ -19,6 +19,7 @@ package org.jamocha.rete;
 import java.util.EventObject;
 
 import org.jamocha.rete.nodes.BaseNode;
+import org.jamocha.rule.Rule;
 
 /**
  * @author Peter Lin
@@ -35,6 +36,7 @@ public class EngineEvent extends EventObject {
     public static final int ASSERT_RETRACT_EVENT = 3;
     public static final int ASSERT_RETRACT_PROFILE_EVENT = 4;
     public static final int ASSERT_PROFILE_EVENT = 5;
+    public static final int NEWRULE_EVENT = 6;
  
     /**
      * the default value is assert event
@@ -42,6 +44,7 @@ public class EngineEvent extends EventObject {
     private int typeCode = ASSERT_EVENT;
     private BaseNode sourceNode = null;
     private Fact[] facts = null;
+    private Rule rule = null;
 
     /**
      * 
@@ -54,6 +57,12 @@ public class EngineEvent extends EventObject {
         this.typeCode = typeCode;
         this.sourceNode = sourceNode;
         this.facts = facts;
+	}
+	
+	public EngineEvent(Object source, int typeCode, Rule rule){
+		super(source);
+		this.typeCode = typeCode;
+		this.rule = rule;
 	}
     
     public int getEventType() {

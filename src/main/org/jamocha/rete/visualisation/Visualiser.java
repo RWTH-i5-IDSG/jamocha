@@ -175,7 +175,7 @@ public class Visualiser implements ActionListener, MouseListener,
 		} else {
 			longdesc = reteNode.toPPString();
 		}
-		longdesc += " | Rules:";
+		longdesc += "Used by rules:";
 		Iterator iter = terminalNodes.iterator();
 		while (iter.hasNext()) {
 			TerminalNode t = (TerminalNode) iter.next();
@@ -420,6 +420,7 @@ public class Visualiser implements ActionListener, MouseListener,
 	}
 
 	public void eventOccurred(EngineEvent event) {
+		reloadView();
 	}
 
 	public void mousePressed(MouseEvent event) {

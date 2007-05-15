@@ -60,6 +60,7 @@ import org.jamocha.rete.nodes.TerminalNode;
 import org.jamocha.rete.strategies.DepthStrategy;
 import org.jamocha.rete.util.CollectionsFactory;
 import org.jamocha.rete.util.ProfileStats;
+import org.jamocha.rule.Rule;
 
 /**
  * @author Peter Lin
@@ -1206,6 +1207,17 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 			EngineEventListener eel = (EngineEventListener) itr.next();
 			eel.eventOccurred(new EngineEvent(this, EngineEvent.ASSERT_EVENT,
 					node, new Fact[] { fact }));
+		}
+	}
+	
+	public void newRuleEvent(Rule rule) {
+		if (debug) {
+			System.out.println("\"new rule added=" + rule.toString());
+		}
+		Iterator itr = this.listeners.iterator();
+		while (itr.hasNext()) {
+			EngineEventListener eel = (EngineEventListener) itr.next();
+			eel.eventOccurred(new EngineEvent(this, EngineEvent.NEWRULE_EVENT,rule));
 		}
 	}
 
