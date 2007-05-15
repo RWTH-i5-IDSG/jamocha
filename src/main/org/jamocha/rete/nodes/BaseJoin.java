@@ -122,22 +122,22 @@ public abstract class BaseJoin extends BaseNode {
 		mergeMemory.clear();
 	}
 	
-//	@Override
-//	public boolean addNode(BaseNode n, Rete engine) throws AssertException {
-//		
-//		BaseNode forAdd = n;
-//		if (parentNodes.length > 0 && parentNodes[0].isRightNode()){
-//			// here is already an alpha node and i want to add another alpha node
-//			// so i have to create a LIAnode between me and the new alpha node
-//			
-//			LIANode adapter = new LIANode(engine.nextNodeId());
-//			if (!adapter.addNode(n,engine))
-//				throw new AssertException("Could not add LIANode");
-//			forAdd = adapter;
-//			
-//		}
-//		return super.addNode(forAdd, engine);
-//	}
+	@Override
+	public boolean addNode(BaseNode n, Rete engine) throws AssertException {
+		
+		BaseNode forAdd = n;
+		if (parentNodes.length > 0 && parentNodes[0].isRightNode()){
+			// here is already an alpha node and i want to add another alpha node
+			// so i have to create a LIAnode between me and the new alpha node
+			
+			LIANode adapter = new LIANode(engine.nextNodeId());
+			if (!adapter.addNode(n,engine))
+				throw new AssertException("Could not add LIANode");
+			forAdd = adapter;
+			
+		}
+		return super.addNode(forAdd, engine);
+	}
 
 	@Override
 	protected void mountChild(BaseNode newChild, Rete engine) throws AssertException {

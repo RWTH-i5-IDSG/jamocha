@@ -5,7 +5,7 @@
 
 (assert (wurst (name "bratwurst")(farbe "weiss") ))
 (assert (wurst (name "wienerwurst")(farbe "rot") ))
-(assert (wurst (name "gemüsewurst")(farbe "grün") ))
+(assert (wurst (name "gemuesewurst")(farbe "gruen") ))
 (assert (salat (name "kartoffelsalat")(farbe "weiss") ))
 
 
@@ -14,7 +14,7 @@
 	(salat (name ?salatname))
 	(wurst (farbe ?farbe))
 	(salat (farbe ?farbe))
-	=> (printout t "Die Wurst " ?wurstname " und der Salat " ?salatname " haben dieselbe Farbe, nämlich " ?farbe "!"  crlf)
+	=> (printout t "Die Wurst " ?wurstname " und der Salat " ?salatname " haben dieselbe Farbe, naemlich " ?farbe "!"  crlf)
 )
 
 
@@ -24,9 +24,9 @@
 	=> (printout t "rule with two conditions fired " crlf)
 )
 
-(defrule zero
- => (assert (salat (name "krautsalat")(farbe "fastweiss") ))
-)
+;(defrule zero
+; => (assert (salat (name "krautsalat")(farbe "fastweiss") ))
+;)
 
 (defrule one
 	(wurst (name ?x))

@@ -221,11 +221,11 @@ public interface Rule extends Scope, Complexity {
 
 	void addJoinNode(BaseJoin node);
 
-	void AddTerminalNode(TerminalNode node);
+	void SetTerminalNode(TerminalNode node);
 	
 	List<BaseJoin> getJoins();
 	
-	List<TerminalNode> getTerminalNodes();
+	TerminalNode getTerminalNode();
 
 	/**
 	 * The method should return the last node in the rule, not counting the

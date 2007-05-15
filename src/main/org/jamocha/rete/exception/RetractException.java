@@ -16,13 +16,15 @@
  */
 package org.jamocha.rete.exception;
 
+import org.jamocha.parser.EvaluationException;
+
 /**
  * @author Peter Lin
  *
  * TODO To change the template for this generated type comment go to
  * Window - Preferences - Java - Code Style - Code Templates
  */
-public class RetractException extends Exception {
+public class RetractException extends EvaluationException {
 
 	private static final long serialVersionUID = 1L;
 

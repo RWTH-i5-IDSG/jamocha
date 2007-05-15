@@ -188,10 +188,11 @@ public class Defmodule implements Module, Serializable {
 	public void removeRule(Rule rl, Rete engine, WorkingMemory mem) {
 		try {
 			this.rules.remove(rl.getName());
-			List<TerminalNode> list = rl.getTerminalNodes();
-			for (TerminalNode termNode : list) {
-				termNode.destroy(engine);
-			}
+			rl.getTerminalNode().destroy(engine);
+			// List<TerminalNode> list = rl.getTerminalNodes();
+			// for (TerminalNode termNode : list) {
+			// termNode.destroy(engine);
+			//			}
 		} catch (RetractException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

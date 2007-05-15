@@ -61,7 +61,7 @@ public class Defrule implements Rule {
 
 	protected ArrayList<BaseJoin> joins = null;
 	
-	protected ArrayList<TerminalNode> terminals = null;
+	protected TerminalNode terminal = null;
 
 	protected int salience = 100;
 
@@ -125,7 +125,6 @@ public class Defrule implements Rule {
 		conditions = new ArrayList<Condition>();
 		actions = new ArrayList<Action>();
 		joins = new ArrayList<BaseJoin>();
-		terminals = new ArrayList<TerminalNode>();
 	}
 	
 
@@ -379,15 +378,15 @@ public class Defrule implements Rule {
 	/**
 	 * add join nodes to the rule
 	 */
-	public void AddTerminalNode(TerminalNode node) {
-		this.terminals.add(node);
+	public void SetTerminalNode(TerminalNode node) {
+		this.terminal = node;
 	}
 
 	/**
 	 * get the array of join nodes
 	 */
-	public List<TerminalNode> getTerminalNodes() {
-		return this.terminals;
+	public TerminalNode getTerminalNode() {
+		return this.terminal;
 	}
 
 	public BaseNode getLastNode() {
@@ -605,7 +604,7 @@ public class Defrule implements Rule {
 			cond.clear();
 		}
 		this.joins.clear();
-		this.terminals.clear();
+		this.terminal= null;
 	}
 
 	/**

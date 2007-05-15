@@ -140,7 +140,7 @@ public class SFRuleCompiler implements RuleCompiler {
 	 */
 	protected TerminalNode createTerminalNode(Rule rule) {
 		TerminalNode node = new TerminalNode(engine.nextNodeId(), rule);
-		rule.AddTerminalNode(node);
+		rule.SetTerminalNode(node);
 		return node;
 		/*
 		 * if (rule.getNoAgenda() && rule.getExpirationDate() == 0) { return new
@@ -175,34 +175,12 @@ public class SFRuleCompiler implements RuleCompiler {
 	 * @throws RetractException
 	 */
 	public void removeObjectTypeNode(ObjectTypeNode node) throws RetractException {
+		// TODO: check here if a destroy is needed, I think not. deactivate
+		// might be enough. (SR)
+
 		root.removeObjectTypeNode(node);
 		node.clear();
 		node.destroy(engine);
-	}
-
-	/**
-	 * The method returns the ObjectTypeNode for the given Deftemplate name. If
-	 * no ObjectTypeNode is found with this name the method returns null.
-	 * 
-	 * @param String
-	 *            templateName
-	 * @return ObjectTypeNode
-	 */
-	public ObjectTypeNode findObjectTypeNode(String templateName) {
-		Iterator itr = root.getObjectTypeNodes().keySet().iterator();
-		Template tmpl = null;
-		while (itr.hasNext()) {
-			tmpl = (Template) itr.next();
-			if (tmpl.getName().equals(templateName)) {
-				break;
-			}
-		}
-		if (tmpl != null) {
-			return getObjectTypeNode(tmpl);
-		} else {
-			log.debug(Messages.getString("RuleCompiler.deftemplate.error")); //$NON-NLS-1$
-			return null;
-		}
 	}
 
 	/**
@@ -258,9 +236,9 @@ public class SFRuleCompiler implements RuleCompiler {
 				for (int i = 0; i < conds.length; i++)
 					conds[i].compile(this, rule, i);
 
-				compileJoins(rule, conds, terminalNode);
+				compileJoins(rule);
 
-				compileActions(rule, rule.getActions());
+				compileActions(rule);
 
 				currentMod.addRule(rule);
 
@@ -278,7 +256,7 @@ public class SFRuleCompiler implements RuleCompiler {
 				TerminalNode tnode = createTerminalNode(rule);
 				last.addNode(tnode, engine);
 
-				compileActions(rule, rule.getActions());
+				compileActions(rule);
 				// attachTerminalNode(last, tnode);
 				// now we add the rule to the module
 				currentMod.addRule(rule);
@@ -299,11 +277,11 @@ public class SFRuleCompiler implements RuleCompiler {
 		}
 	}
 
-	public void compileJoins(Rule rule, Condition[] conds, TerminalNode terminal) throws AssertException {
+	protected void compileJoins(Rule rule) throws AssertException {
 		// take the last node from each condition and connect them by joins
 		// regarding the complexity
-
-		Condition[] sortedConds = conds.clone();
+		TerminalNode terminal = rule.getTerminalNode();
+		Condition[] sortedConds = rule.getConditions().clone();
 		Arrays.sort(sortedConds);
 
 		BaseNode fromBottom = terminal;
@@ -325,15 +303,15 @@ public class SFRuleCompiler implements RuleCompiler {
 			}
 			BaseNode lastNode = c.getLastNode();
 
-			if (lastNode instanceof AbstractAlpha && createNewJoin) {
-				LIANode adapter = new LIANode(engine.nextNodeId());
-				lastNode.addNode(adapter, engine);
-				lastNode = adapter;
-			}
-
 			if (lastNode != null)
 				(lastNode).addNode(fromBottom, engine);
 		}
+	}
+	
+	protected void compileBindings(Rule rule){
+		
+		
+		
 	}
 
 	/*
@@ -850,69 +828,50 @@ public class SFRuleCompiler implements RuleCompiler {
 			}
 		}
 	}
-	
+
 	/*
-
-	*//**
-	 * For now just attach the node and don't bother with node sharing
 	 * 
-	 * @param existing -
-	 *            an existing node in the network. it may be an ObjectTypeNode
-	 *            or AlphaNode
-	 * @param alpha
-	 *//*
-	protected void attachAlphaNode(AbstractAlpha existing, AbstractAlpha alpha, Condition cond) {
-		if (alpha != null) {
-			try {
-				AbstractAlpha share = null;
-				share = shareAlphaNode(existing, alpha);
-				if (share == null) {
-					existing.addNode(alpha, engine);
-					// if the node isn't shared, we add the node to the
-					// Condition
-					// object the node belongs to.
-					cond.addNode(alpha);
-				} else if (existing != alpha) {
-					// the node is shared, so instead of adding the new node,
-					// we add the existing node
-					cond.addNode(share);
-					memory.removeAlphaMemory(alpha);
-					if (alpha.getChildCount() == 1 && alpha.getChildNodes()[0] instanceof AbstractAlpha) {
-						// get the next node from the new AlphaNode
-						AbstractAlpha nnext = (AbstractAlpha) alpha.getChildNodes()[0];
-						attachAlphaNode(share, nnext, cond);
-					}
-				}
-			} catch (AssertException e) {
-				// send an event with the correct error
-				CompileEvent ce = new CompileEvent(this, CompileEvent.ADD_NODE_ERROR);
-				ce.setMessage(alpha.toPPString());
-				this.notifyListener(ce);
-			}
-		}
-	}
-
-	*//**
-	 * Implementation will get the hashString from each node and compare them
+	 *//**
+		 * For now just attach the node and don't bother with node sharing
+		 * 
+		 * @param existing -
+		 *            an existing node in the network. it may be an
+		 *            ObjectTypeNode or AlphaNode
+		 * @param alpha
+		 */
+	/*
+	 * protected void attachAlphaNode(AbstractAlpha existing, AbstractAlpha
+	 * alpha, Condition cond) { if (alpha != null) { try { AbstractAlpha share =
+	 * null; share = shareAlphaNode(existing, alpha); if (share == null) {
+	 * existing.addNode(alpha, engine); // if the node isn't shared, we add the
+	 * node to the // Condition // object the node belongs to.
+	 * cond.addNode(alpha); } else if (existing != alpha) { // the node is
+	 * shared, so instead of adding the new node, // we add the existing node
+	 * cond.addNode(share); memory.removeAlphaMemory(alpha); if
+	 * (alpha.getChildCount() == 1 && alpha.getChildNodes()[0] instanceof
+	 * AbstractAlpha) { // get the next node from the new AlphaNode
+	 * AbstractAlpha nnext = (AbstractAlpha) alpha.getChildNodes()[0];
+	 * attachAlphaNode(share, nnext, cond); } } } catch (AssertException e) { //
+	 * send an event with the correct error CompileEvent ce = new
+	 * CompileEvent(this, CompileEvent.ADD_NODE_ERROR);
+	 * ce.setMessage(alpha.toPPString()); this.notifyListener(ce); } } }
 	 * 
-	 * @param otn
-	 * @param alpha
-	 * @return
-	 *//*
-	protected AbstractAlpha shareAlphaNode(AbstractAlpha existing, AbstractAlpha alpha) {
-		Object[] scc = existing.getChildNodes();
-		for (int idx = 0; idx < scc.length; idx++) {
-			Object next = scc[idx];
-			if (next instanceof AbstractAlpha) {
-				AbstractAlpha baseAlpha = (AbstractAlpha) next;
-				// TODO: don't use equal directly on nodes -> use hash values
-				if (baseAlpha.equals(alpha)) {
-					return baseAlpha;
-				}
-			}
-		}
-		return null;
-	}*/
+	 *//**
+		 * Implementation will get the hashString from each node and compare
+		 * them
+		 * 
+		 * @param otn
+		 * @param alpha
+		 * @return
+		 */
+	/*
+	 * protected AbstractAlpha shareAlphaNode(AbstractAlpha existing,
+	 * AbstractAlpha alpha) { Object[] scc = existing.getChildNodes(); for (int
+	 * idx = 0; idx < scc.length; idx++) { Object next = scc[idx]; if (next
+	 * instanceof AbstractAlpha) { AbstractAlpha baseAlpha = (AbstractAlpha)
+	 * next; // TODO: don't use equal directly on nodes -> use hash values if
+	 * (baseAlpha.equals(alpha)) { return baseAlpha; } } } return null; }
+	 */
 
 	/**
 	 * The method compiles the the actions from the string form into the
@@ -923,8 +882,8 @@ public class SFRuleCompiler implements RuleCompiler {
 	 * @param actions -
 	 *            the action list
 	 */
-	protected void compileActions(Rule rule, Action[] actions) {
-
+	protected void compileActions(Rule rule) {
+		Action[] actions = rule.getActions();
 		for (Action action : actions) {
 			if (action instanceof FunctionAction) {
 				FunctionAction fa = (FunctionAction) action;
