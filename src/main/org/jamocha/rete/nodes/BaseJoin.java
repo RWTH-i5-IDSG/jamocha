@@ -22,6 +22,7 @@ import java.util.Vector;
 import org.jamocha.rete.AlphaMemory;
 import org.jamocha.rete.BetaMemory;
 import org.jamocha.rete.Binding;
+import org.jamocha.rete.ConversionUtils;
 import org.jamocha.rete.Fact;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.exception.AssertException;
@@ -123,23 +124,6 @@ public abstract class BaseJoin extends BaseNode {
 	}
 	
 	@Override
-	public boolean addNode(BaseNode n, Rete engine) throws AssertException {
-		
-		BaseNode forAdd = n;
-		if (parentNodes.length > 0 && parentNodes[0].isRightNode()){
-			// here is already an alpha node and i want to add another alpha node
-			// so i have to create a LIAnode between me and the new alpha node
-			
-			LIANode adapter = new LIANode(engine.nextNodeId());
-			if (!adapter.addNode(n,engine))
-				throw new AssertException("Could not add LIANode");
-			forAdd = adapter;
-			
-		}
-		return super.addNode(forAdd, engine);
-	}
-
-	@Override
 	protected void mountChild(BaseNode newChild, Rete engine) throws AssertException {
 		// TODO Auto-generated method stub
 		
@@ -166,5 +150,52 @@ public abstract class BaseJoin extends BaseNode {
 	public boolean isRightNode() {
 		return false;
 	}
+
+	@Override
+	protected BaseNode evAdded(BaseNode newParentNode, Rete engine) {
+		
+		// ======= Briefing ===========
+		// this: the child
+		// newParentNode: the parent
+		// return-value: the child or another (maybe an inserted LIANode leading to the child)
+		// we want to test whether we need a new LIANode between child and parent
+		if (this.parentNodes.length>0 && this.parentNodes[0].isRightNode() && newParentNode.isRightNode()){
+			//now, indeed, we need a new LIANode between them
+			LIANode adaptor = new LIANode(engine.nextNodeId());
+			try {
+				adaptor.addNode(this, engine);
+				return adaptor.evAdded(newParentNode, engine);
+			} catch (AssertException e) {
+				e.printStackTrace();
+			}
+			return super.evAdded(newParentNode, engine);
+			
+			
+		} else {
+			// no additional node needed.
+			// it is okay to have same behaviour like superclass here
+			return super.evAdded(newParentNode,engine);
+		}
+		
+
+	}
+	
+	
+//	/**
+//	 * This node has been added to the given parant node
+//	 * 
+//	 * @param n
+//	 * @return
+//	 */
+//	@Override
+//	protected BaseNode evAdded(BaseNode newParentNode) {
+//		// we have been added to the new parent, add parent to own list:
+//		if (!containsNode(this.parentNodes, newParentNode) && childNodes.length < maxParentCount) {
+//			// add to own list:
+//			this.parentNodes = ConversionUtils.add(this.parentNodes, newParentNode);
+//			return this;
+//		}
+//		return null;
+//	}
 	
 }

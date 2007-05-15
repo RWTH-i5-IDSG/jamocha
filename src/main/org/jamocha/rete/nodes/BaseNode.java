@@ -80,16 +80,18 @@ public abstract class BaseNode implements Serializable {
 	public boolean addNode(BaseNode n, Rete engine) throws AssertException {
 		boolean add = false;
 		// check if not inserted yet and free space for subchild:
-		if (!containsNode(this.childNodes, n) && childNodes.length < maxChildCount)
+		if (!containsNode(this.childNodes, n) && childNodes.length < maxChildCount) {
 			// inform added child node:
-			if (n.evAdded(this)) {
+			BaseNode weWillAddThisNode = n.evAdded(this, engine);
+			if (weWillAddThisNode != null) {
 				// add to own list:
-				this.childNodes = ConversionUtils.add(this.childNodes, n);
-				mountChild(n, engine);
+				this.childNodes = ConversionUtils.add(this.childNodes, weWillAddThisNode);
+				mountChild(weWillAddThisNode, engine);
 				add = true;}
 			else{
 				throw new AssertException("Adding Node not Possible, Child does not want to be added");
 			}
+		}
 		return add;
 	}
 
@@ -101,14 +103,14 @@ public abstract class BaseNode implements Serializable {
 	 * @param n
 	 * @return
 	 */
-	private boolean evAdded(BaseNode newParentNode) {
+	protected BaseNode evAdded(BaseNode newParentNode, Rete engine) {
 		// we have been added to the new parent, add parent to own list:
-		if (!containsNode(this.parentNodes, newParentNode) && childNodes.length < maxParentCount) {
+		if (!containsNode(this.parentNodes, newParentNode) && parentNodes.length < maxParentCount) {
 			// add to own list:
 			this.parentNodes = ConversionUtils.add(this.parentNodes, newParentNode);
-			return true;
+			return this;
 		}
-		return false;
+		return null;
 	}
 
 	/**
