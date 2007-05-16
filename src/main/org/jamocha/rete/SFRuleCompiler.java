@@ -28,11 +28,9 @@ import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.exception.AssertException;
 import org.jamocha.rete.exception.RetractException;
-import org.jamocha.rete.nodes.AbstractAlpha;
 import org.jamocha.rete.nodes.AlphaNode;
 import org.jamocha.rete.nodes.BaseNode;
 import org.jamocha.rete.nodes.BetaNode;
-import org.jamocha.rete.nodes.LIANode;
 import org.jamocha.rete.nodes.ObjectTypeNode;
 import org.jamocha.rete.nodes.RootNode;
 import org.jamocha.rete.nodes.SlotAlpha;
@@ -228,7 +226,8 @@ public class SFRuleCompiler implements RuleCompiler {
 				// module. if it is, we have to add it to that module
 				this.setModule(rule);
 
-				TerminalNode terminalNode = createTerminalNode(rule);
+				//creates a Terminal nod for this rule. this node will be added to tho rule:
+				createTerminalNode(rule);
 
 				Condition[] conds = rule.getConditions();
 				// at first we create the constraints and then the conditional

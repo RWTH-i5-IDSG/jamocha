@@ -299,7 +299,7 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 	}
 
 	protected void startLog() {
-		log.info("Sumatra started");
+		log.info("Jamocha started");
 	}
 
 	protected void declareInitialFact() {

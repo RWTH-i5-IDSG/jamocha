@@ -17,7 +17,6 @@
 package org.jamocha.rete;
 
 import java.io.Serializable;
-import java.util.Map;
 
 import org.jamocha.rete.exception.AssertException;
 import org.jamocha.rete.exception.RetractException;
@@ -34,57 +33,10 @@ public interface WorkingMemory extends Serializable {
 	void retractObject(Fact fact) throws RetractException;
 
 	/**
-	 * In the case of AlphaMemory, during the compilation process,
-	 * we may want to remove an alpha memory if one already exists.
-	 * This depends on how rule compilation works.
-	 * @param key
-	 */
-	void removeAlphaMemory(Object key);
-
-	/**
-	 * The key for the lookup should be the node. Each BetaNode has
-	 * a left and right memory, so it's necessary to have a lookup
-	 * method for each memory.
-	 * @param key
-	 * @return
-	 */
-	//Object getBetaRightMemory(Object key);
-
-	/**
-	 * The for the lookup is the terminalNode. Depending on the terminal
-	 * node used, it may not have a memory.
-	 * @param key
-	 * @return
-	 */
-	Object getTerminalMemory(Object key);
-
-	/**
 	 * Return the RuleCompiler for this working memory
 	 * @return
 	 */
 	RuleCompiler getRuleCompiler();
-
-	/**
-	 * Printout the working memory. If the method is called with
-	 * true, the workingmemory should print out the number of 
-	 * matches for each node. It isn't necessary to print the full
-	 * detail of each fact in each node. For now, just the number
-	 * of matches for each Node is sufficient.
-	 * @param detailed
-	 */
-	//void printWorkingMemory(boolean detailed, boolean inputNodes);
-
-	/**
-	 * Printout the working memory with the given filter. if no filer
-	 * is passed, it should call printWorkingMemory(true,false);
-	 * @param filter
-	 */
-	//void printWorkingMemory(Map filter);
-
-	/**
-	 * Printout the facts on the right side of BetaNodes.
-	 */
-	void printWorkingMemoryBetaRight();
 
 	/**
 	 * Clears everything in the working memory

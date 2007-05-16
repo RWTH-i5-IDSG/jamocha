@@ -222,10 +222,6 @@ public class RuleEngineFunctions implements FunctionGroup, Serializable {
 		engine.declareFunction(retract);
 		funcs.add(retract);
 
-		RightMatches rightMatches = new RightMatches();
-		engine.declareFunction(rightMatches);
-		funcs.add(rightMatches);
-
 		Rules rules = new Rules();
 		engine.declareFunction(rules);
 		funcs.add(rules);
