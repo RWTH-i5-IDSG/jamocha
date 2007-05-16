@@ -171,7 +171,7 @@ public class Visualiser implements ActionListener, MouseListener,
 		s.setHeight(nodeVertical);
 		String longdesc = "";
 		if (reteNode == null) {
-			longdesc = "Root Node";
+			longdesc = "Root Node\n";
 		} else {
 			longdesc = reteNode.toPPString();
 		}
@@ -379,7 +379,7 @@ public class Visualiser implements ActionListener, MouseListener,
 			if (autoReloadButton.isSelected()) {
 				reloadButton.setEnabled(false);
 				engine.addEngineEventListener(this);
-				container.repaint();
+				reloadView();
 			} else {
 				reloadButton.setEnabled(true);
 				engine.removeEngineEventListener(this);

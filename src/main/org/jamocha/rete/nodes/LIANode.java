@@ -73,20 +73,5 @@ public class LIANode extends AbstractAlpha {
 		return false;
 	}
 	
-	/**
-	 * 
-	 */
-	@Override
-	public String toPPString() {
-		StringBuilder sb = new StringBuilder();
-		sb.append(super.toPPString());
-		sb.append("SubNodes: ");
-		sb.append(getChildCount());
-		sb.append("\nAlpha-Memory: \n");
-		sb.append(facts.toPPString());
-		sb.append("\n");
-		
-		return sb.toString();
-	}
 
 }

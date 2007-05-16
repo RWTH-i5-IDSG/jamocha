@@ -73,6 +73,16 @@ import org.jamocha.rete.exception.RetractException;
  */
 public abstract class AbstractAlpha extends BaseNode {
 
+	@Override
+	public String toPPString() {
+		StringBuffer result = new StringBuffer();
+		result.append(super.toPPString());
+		result.append("Alpha-Memory: ");
+		result.append(facts.toPPString());
+		result.append("\n");
+		return result.toString();
+	}
+
 	/**
 	 * The operator to compare two values
 	 */

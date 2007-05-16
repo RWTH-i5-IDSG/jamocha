@@ -146,10 +146,6 @@ public class AlphaNode extends SlotAlpha {
 		sb.append(ConversionUtils.getPPOperator(this.operator));
 		sb.append(" ");
 		sb.append(ConversionUtils.formatSlot(this.slot.getValue()));
-		sb.append("\nSubNodes: ");
-		sb.append(getChildCount());
-		sb.append("\nAlpha-Memory:\n");
-		sb.append(facts.toPPString());
 		sb.append("\n");
 		return sb.toString();
 	}

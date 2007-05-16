@@ -232,9 +232,6 @@ public class BetaNode extends BaseJoin {
 	public String toPPString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append(super.toPPString());
-		sb.append("SubNodes: ");
-		sb.append(getChildCount());
-		sb.append("\n");
 		if (binds != null) {
 			for (int idx = 0; idx < this.binds.length; idx++) {
 				if (idx > 0) {
@@ -246,11 +243,6 @@ public class BetaNode extends BaseJoin {
 			}
 			sb.append("\n");
 		}
-		sb.append("Alpha-Memory:\n");
-		sb.append(alphaMemory.toPPString());
-		sb.append("\nBeta-Memory:\n");
-		sb.append(betaMemory.toPPString());
-		sb.append("\n");
 		return sb.toString();
 	}
 

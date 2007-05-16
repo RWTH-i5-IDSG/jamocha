@@ -212,7 +212,15 @@ public abstract class BaseNode implements Serializable {
 	}
 
 	public String toString() {
-		return "Type: " + this.getClass().getSimpleName() + "\nID:" + this.getNodeId() + "\n";
+		StringBuffer result = new StringBuffer();
+		result.append("Type: ");
+		result.append(this.getClass().getSimpleName());
+		result.append("\nID: ");
+		result.append(getNodeId());
+		result.append("\nSubnodes: ");
+		result.append(getChildCount());
+		result.append("\n");
+		return result.toString();
 	}
 
 	protected boolean containsNode(BaseNode[] list, BaseNode n) {

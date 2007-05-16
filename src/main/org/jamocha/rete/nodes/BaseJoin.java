@@ -171,6 +171,17 @@ public abstract class BaseJoin extends BaseNode {
 
 	}
 	
+	public String toPPString() {
+		StringBuffer sb = new StringBuffer();
+		sb.append(super.toPPString());
+		sb.append("Alpha-Memory: ");
+		sb.append(alphaMemory.toPPString());
+		sb.append("\nBeta-Memory: ");
+		sb.append(betaMemory.toPPString());
+		sb.append("\n");
+		return sb.toString();
+	}
+	
 	
 //	/**
 //	 * This node has been added to the given parant node
