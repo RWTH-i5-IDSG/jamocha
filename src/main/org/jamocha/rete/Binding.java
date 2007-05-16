@@ -39,6 +39,17 @@ public class Binding implements Serializable, Cloneable {
 
 	private static final long serialVersionUID = 1L;
 
+	protected int operator = Constants.EQUAL;
+	
+	public Binding(int operator) {
+		this();
+		this.operator = operator;
+	}
+
+	public int getOperator() {
+		return this.operator;
+	}
+	
 	/**
      * This is the name of the variable. Every binding must
      * have a variable name. It can be user defined or auto-

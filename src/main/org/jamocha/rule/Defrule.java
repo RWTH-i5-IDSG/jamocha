@@ -29,7 +29,6 @@ import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.nodes.BaseNode;
 import org.jamocha.rete.nodes.TerminalNode;
 import org.jamocha.rete.Binding;
-import org.jamocha.rete.Binding2;
 import org.jamocha.rete.Constants;
 import org.jamocha.rete.ExpressionSequence;
 import org.jamocha.rete.Fact;
@@ -500,7 +499,7 @@ public class Defrule implements Rule {
 	public Binding copyPredicateBinding(String varName, int operator) {
 		Binding b = getBinding(varName);
 		if (b != null) {
-			Binding2 b2 = new Binding2(operator);
+			Binding b2 = new Binding(operator);
 			b2.setLeftRow(b.getLeftRow());
 			b2.setLeftIndex(b.getLeftIndex());
 			return b2;

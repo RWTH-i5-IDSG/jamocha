@@ -178,6 +178,11 @@ public abstract class BaseJoin extends BaseNode {
 		sb.append(alphaMemory.toPPString());
 		sb.append("\nBeta-Memory: ");
 		sb.append(betaMemory.toPPString());
+		sb.append("\nBindings: ");
+		if (binds != null){
+			for(Binding b : binds)
+				sb.append(b.toPPString());
+		} else sb.append("none");
 		sb.append("\n");
 		return sb.toString();
 	}

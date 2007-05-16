@@ -19,7 +19,6 @@ package org.jamocha.rete.nodes;
 import java.util.Iterator;
 
 import org.jamocha.rete.Binding;
-import org.jamocha.rete.Binding2;
 import org.jamocha.rete.Constants;
 import org.jamocha.rete.Evaluate;
 import org.jamocha.rete.Fact;
@@ -168,38 +167,18 @@ public class BetaNode extends BaseJoin {
 			// we iterate over the binds and evaluate the facts
 			for (int idx = 0; idx < this.binds.length; idx++) {
 				// we got the binding
-				if (binds[idx] instanceof Binding2) {
-					Binding2 bnd = (Binding2) binds[idx];
-					// we may want to consider putting the fact array into
-					// a map to make it more efficient. for now I just want
-					// to get it working.
-					if (leftlist.length >= bnd.getLeftRow()) {
-						Fact left = leftlist[bnd.getLeftRow()];
-						if (left == right || !this.evaluate(left, bnd.getLeftIndex(), right, bnd.getRightIndex(), bnd.getOperator())) {
-							eval = false;
-							break;
-						}
-					} else {
+				Binding bnd = (Binding) binds[idx];
+				// we may want to consider putting the fact array into
+				// a map to make it more efficient. for now I just want
+				// to get it working.
+				if (leftlist.length >= bnd.getLeftRow()) {
+					Fact left = leftlist[bnd.getLeftRow()];
+					if (left == right || !this.evaluate(left, bnd.getLeftIndex(), right, bnd.getRightIndex(), bnd.getOperator())) {
 						eval = false;
+						break;
 					}
-				} else if (binds[idx] instanceof Binding) {
-					Binding bnd = binds[idx];
-					int opr = this.operator;
-					if (bnd.negated()) {
-						opr = Constants.NOTEQUAL;
-					}
-					// we may want to consider putting the fact array into
-					// a map to make it more efficient. for now I just want
-					// to get it working.
-					if (leftlist.length >= bnd.getLeftRow()) {
-						Fact left = leftlist[bnd.getLeftRow()];
-						if (left == right || !this.evaluate(left, bnd.getLeftIndex(), right, bnd.getRightIndex(), opr)) {
-							eval = false;
-							break;
-						}
-					} else {
-						eval = false;
-					}
+				} else {
+					eval = false;
 				}
 			}
 		}

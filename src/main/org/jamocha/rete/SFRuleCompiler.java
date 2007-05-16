@@ -238,6 +238,8 @@ public class SFRuleCompiler implements RuleCompiler {
 
 				compileJoins(rule);
 
+				compileBindings(rule);
+				
 				compileActions(rule);
 
 				currentMod.addRule(rule);
@@ -311,7 +313,10 @@ public class SFRuleCompiler implements RuleCompiler {
 	}
 	
 	protected void compileBindings(Rule rule){
-		TerminalNode terminal = rule.getTerminalNode();		
+		for (Iterator<Binding> bIt=rule.getBindingIterator();bIt.hasNext();)	{
+			Binding b = bIt.next();
+			System.out.println(b.toPPString());
+		}
 		
 		
 	}
