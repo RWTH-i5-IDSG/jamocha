@@ -107,7 +107,7 @@ public class LoadPackage implements Function, Serializable {
 						.resolveClass(classname);
 				o = classDefinition.newInstance();
 				if (o instanceof FunctionGroup) {
-					engine.declareFunctionGroup((FunctionGroup) o);
+					engine.getFunctionMemory().declareFunctionGroup((FunctionGroup) o);
 					result = JamochaValue.TRUE;
 				}
 			} catch (ClassNotFoundException e) {

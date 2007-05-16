@@ -108,7 +108,7 @@ public class TemplateValidation implements Analysis {
 							}
 						} else if (cons instanceof PredicateConstraint) {
                             PredicateConstraint pc = (PredicateConstraint)cons;
-                            Function f = engine.findFunction(pc.getFunctionName());
+                            Function f = engine.getFunctionMemory().findFunction(pc.getFunctionName());
                             if (f == null) {
                                 addInvalidFunctionError(pc.getFunctionName());
                             }
@@ -141,7 +141,7 @@ public class TemplateValidation implements Analysis {
             Action act = acts[idx];
             if (act instanceof FunctionAction) {
                 FunctionAction fa = (FunctionAction)act;
-                if (engine.findFunction(fa.getFunctionName()) == null) {
+                if (engine.getFunctionMemory().findFunction(fa.getFunctionName()) == null) {
                     addInvalidFunctionError(fa.getFunctionName());
                     result = Analysis.VALIDATION_FAILED;
                 }

@@ -96,7 +96,7 @@ public class Usage implements Function, Serializable {
 		if (params != null && params.length == 1) {
 			JamochaValue firstParam = params[0].getValue(engine);
 			String function = firstParam.getStringValue();
-			Function aFunction = engine.findFunction(function);
+			Function aFunction = engine.getFunctionMemory().findFunction(function);
 			if (aFunction != null) {
 				result = JamochaValue.newString(ParserFactory.getFormatter()
 						.formatFunction(aFunction));

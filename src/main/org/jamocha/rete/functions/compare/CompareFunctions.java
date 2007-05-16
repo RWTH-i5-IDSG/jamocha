@@ -21,7 +21,7 @@ import java.util.List;
 
 import org.jamocha.rete.Function;
 import org.jamocha.rete.FunctionGroup;
-import org.jamocha.rete.Rete;
+import org.jamocha.rete.functions.FunctionMemory;
 
 public class CompareFunctions implements FunctionGroup {
 
@@ -33,41 +33,41 @@ public class CompareFunctions implements FunctionGroup {
 		return (CompareFunctions.class.getSimpleName());
 	}
 
-	public void loadFunctions(Rete engine) {
+	public void loadFunctions(FunctionMemory functionMem) {
 		AnyEq anyeq = new AnyEq();
-		engine.declareFunction(anyeq);
+		functionMem.declareFunction(anyeq);
 		funcs.add(anyeq);
 
 		Eq eq = new Eq();
-		engine.declareFunction(eq);
+		functionMem.declareFunction(eq);
 		funcs.add(eq);
 
 		Greater greater = new Greater();
-		engine.declareFunction(greater);
+		functionMem.declareFunction(greater);
 		funcs.add(greater);
 
 		GreaterOrEqual greaterOrEqual = new GreaterOrEqual();
-		engine.declareFunction(greaterOrEqual);
+		functionMem.declareFunction(greaterOrEqual);
 		funcs.add(greaterOrEqual);
 
 		Less less = new Less();
-		engine.declareFunction(less);
+		functionMem.declareFunction(less);
 		funcs.add(less);
 
 		LessOrEqual lessOrEqual = new LessOrEqual();
-		engine.declareFunction(lessOrEqual);
+		functionMem.declareFunction(lessOrEqual);
 		funcs.add(lessOrEqual);
 
 		Neq neq = new Neq();
-		engine.declareFunction(neq);
+		functionMem.declareFunction(neq);
 		funcs.add(neq);
 
-		engine.declareFunction(">", greater);
-		engine.declareFunction(">=", greaterOrEqual);
-		engine.declareFunction("<", less);
-		engine.declareFunction("<=", lessOrEqual);
-		engine.declareFunction("afterdate", greater);
-		engine.declareFunction("beforedate", less);
+		functionMem.declareFunction(">", greater);
+		functionMem.declareFunction(">=", greaterOrEqual);
+		functionMem.declareFunction("<", less);
+		functionMem.declareFunction("<=", lessOrEqual);
+		functionMem.declareFunction("afterdate", greater);
+		functionMem.declareFunction("beforedate", less);
 	}
 
 	public List listFunctions() {

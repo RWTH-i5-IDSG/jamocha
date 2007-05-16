@@ -112,9 +112,9 @@ public class JamochaAgent extends ToolAgent {
 
 	private void initEngine() {
 		// register user function for sending messages
-		engine.declareFunction(new SendMessageFunction(this));
-		engine.declareFunction(new SL2CLIPSFunction());
-		engine.declareFunction(new CLIPS2SLFunction());
+		engine.getFunctionMemory().declareFunction(new SendMessageFunction(this));
+		engine.getFunctionMemory().declareFunction(new SL2CLIPSFunction());
+		engine.getFunctionMemory().declareFunction(new CLIPS2SLFunction());
 
 		StringBuilder buffer = new StringBuilder();
 

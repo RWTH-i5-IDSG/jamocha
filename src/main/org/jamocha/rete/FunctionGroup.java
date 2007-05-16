@@ -19,6 +19,8 @@ package org.jamocha.rete;
 import java.io.Serializable;
 import java.util.List;
 
+import org.jamocha.rete.functions.FunctionMemory;
+
 /**
  * @author Peter Lin
  *
@@ -34,7 +36,7 @@ public interface FunctionGroup extends Serializable {
 	 * create instances of the function and register them the rule engine.
 	 * @param engine
 	 */
-	void loadFunctions(Rete engine);
+	void loadFunctions(FunctionMemory functionMem);
 
 	/**
 	 * A convienance method for listing the functions in a given group.

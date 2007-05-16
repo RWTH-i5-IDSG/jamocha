@@ -21,7 +21,7 @@ import java.util.List;
 
 import org.jamocha.rete.Function;
 import org.jamocha.rete.FunctionGroup;
-import org.jamocha.rete.Rete;
+import org.jamocha.rete.functions.FunctionMemory;
 
 /**
  * @author Peter Lin
@@ -38,41 +38,41 @@ public class StringFunctions implements FunctionGroup {
 		return (StringFunctions.class.getSimpleName());
 	}
 
-	public void loadFunctions(Rete engine) {
+	public void loadFunctions(FunctionMemory functionMem) {
 		StringCat stringCat = new StringCat();
-		engine.declareFunction(stringCat);
+		functionMem.declareFunction(stringCat);
 		funcs.add(stringCat);
 		
 		StringCompare stringCompare = new StringCompare();
-		engine.declareFunction(stringCompare);
+		functionMem.declareFunction(stringCompare);
 		funcs.add(stringCompare);
 		
 		StringIndex stringIndex = new StringIndex();
-		engine.declareFunction(stringIndex);
+		functionMem.declareFunction(stringIndex);
 		funcs.add(stringIndex);
 		
 		StringLength stringLength = new StringLength();
-		engine.declareFunction(stringLength);
+		functionMem.declareFunction(stringLength);
 		funcs.add(stringLength);
 		
 		StringLower stringLower = new StringLower();
-		engine.declareFunction(stringLower);
+		functionMem.declareFunction(stringLower);
 		funcs.add(stringLower);
 		
 		StringReplace stringReplace = new StringReplace();
-		engine.declareFunction(stringReplace);
+		functionMem.declareFunction(stringReplace);
 		funcs.add(stringReplace);
 		
 		StringTrim stringTrim = new StringTrim();
-		engine.declareFunction(stringTrim);
+		functionMem.declareFunction(stringTrim);
 		funcs.add(stringTrim);
 		
 		StringUpper stringUpper = new StringUpper();
-		engine.declareFunction(stringUpper);
+		functionMem.declareFunction(stringUpper);
 		funcs.add(stringUpper);
 		
 		SubString subString = new SubString();
-		engine.declareFunction(subString);
+		functionMem.declareFunction(subString);
 		funcs.add(subString);
 	}
 

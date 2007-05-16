@@ -123,7 +123,7 @@ public class FunctionsPanel extends AbstractJamochaPanel implements
 
 	@SuppressWarnings("unchecked")
 	private void initFunctionsList() {
-		Collection c = gui.getEngine().getAllFunctions();
+		Collection c = gui.getEngine().getFunctionMemory().getAllFunctions();
 		Function[] func = (Function[]) c.toArray(new Function[0]);
 		List<Function> funcs = new ArrayList<Function>();
 		boolean larger = false;

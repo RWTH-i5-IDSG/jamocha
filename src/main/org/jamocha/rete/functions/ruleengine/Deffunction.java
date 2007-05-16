@@ -148,7 +148,7 @@ public class Deffunction implements Function {
 
 			JamochaValue firstParam = params[0].getValue(engine);
 			String name = firstParam.getIdentifierValue();
-			if (engine.findFunction(name) == null) {
+			if (engine.getFunctionMemory().findFunction(name) == null) {
 				int paramIndex = 1;
 				description = "";
 				JamochaValue secondParam = params[1].getValue(engine);
@@ -169,7 +169,7 @@ public class Deffunction implements Function {
 		}
 		InterpretedFunction intrfunc = new InterpretedFunction(functionName,
 				description, functionParameters, functionList);
-		engine.declareFunction(intrfunc);
+		engine.getFunctionMemory().declareFunction(intrfunc);
 		result = JamochaValue.TRUE;
 
 		return result;

@@ -22,7 +22,7 @@ import java.util.List;
 
 import org.jamocha.rete.Function;
 import org.jamocha.rete.FunctionGroup;
-import org.jamocha.rete.Rete;
+import org.jamocha.rete.functions.FunctionMemory;
 
 /**
  * @author Alexander Wilden
@@ -40,14 +40,14 @@ public class HelpFunctions implements FunctionGroup, Serializable {
 		return (HelpFunctions.class.getSimpleName());
 	}
 
-	public void loadFunctions(Rete engine) {
+	public void loadFunctions(FunctionMemory functionMem) {
 
 		Example example = new Example();
-		engine.declareFunction(example);
+		functionMem.declareFunction(example);
 		funcs.add(example);
 
 		Usage usage = new Usage();
-		engine.declareFunction(usage);
+		functionMem.declareFunction(usage);
 		funcs.add(usage);
 	}
 

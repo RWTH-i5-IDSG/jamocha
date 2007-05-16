@@ -95,7 +95,7 @@ public class LoadFunctions implements Function, Serializable {
 			for (int idx = 0; idx < params.length; idx++) {
 				String func = params[idx].getValue(engine).getStringValue();
 				try {
-					engine.declareFunction(func);
+					engine.getFunctionMemory().declareFunction(func);
 					result = JamochaValue.TRUE;
 				} catch (ClassNotFoundException e) {
 				}

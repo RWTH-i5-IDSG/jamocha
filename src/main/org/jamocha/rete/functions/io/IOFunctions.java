@@ -23,6 +23,7 @@ import java.util.List;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.FunctionGroup;
 import org.jamocha.rete.Rete;
+import org.jamocha.rete.functions.FunctionMemory;
 
 /**
  * @author Peter Lin
@@ -40,15 +41,15 @@ public class IOFunctions implements FunctionGroup, Serializable {
 		return (IOFunctions.class.getSimpleName());
 	}
 
-	public void loadFunctions(Rete engine) {
+	public void loadFunctions(FunctionMemory functionMem) {
 		Batch batch = new Batch();
-		engine.declareFunction(batch);
+		functionMem.declareFunction(batch);
 		funcs.add(batch);
 		LoadFacts loadFacts = new LoadFacts();
-		engine.declareFunction(loadFacts);
+		functionMem.declareFunction(loadFacts);
 		funcs.add(loadFacts);
 		Printout printout = new Printout();
-		engine.declareFunction(printout);
+		functionMem.declareFunction(printout);
 		funcs.add(printout);
 	}
 

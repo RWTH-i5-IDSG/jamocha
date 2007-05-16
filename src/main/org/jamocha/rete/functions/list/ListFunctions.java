@@ -22,6 +22,7 @@ import java.util.List;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.FunctionGroup;
 import org.jamocha.rete.Rete;
+import org.jamocha.rete.functions.FunctionMemory;
 
 public class ListFunctions implements FunctionGroup {
 
@@ -33,21 +34,22 @@ public class ListFunctions implements FunctionGroup {
 		return (ListFunctions.class.getSimpleName());
 	}
 
-	public void loadFunctions(Rete engine) {
+	public void loadFunctions(FunctionMemory functionMem) {
 		Create$ create = new Create$();
-		engine.declareFunction(create);
+		functionMem.declareFunction(create);
 		funcs.add(create);
 
 		Length$ length = new Length$();
-		engine.declareFunction(length);
+		functionMem.declareFunction(length);
 		funcs.add(length);
 
 		Foreach foreach = new Foreach();
-		engine.declareFunction(foreach);
+		functionMem.declareFunction(foreach);
 		funcs.add(foreach);
 	}
 
 	public List listFunctions() {
 		return funcs;
 	}
+
 }

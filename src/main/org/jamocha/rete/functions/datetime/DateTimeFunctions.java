@@ -21,7 +21,7 @@ import java.util.List;
 
 import org.jamocha.rete.Function;
 import org.jamocha.rete.FunctionGroup;
-import org.jamocha.rete.Rete;
+import org.jamocha.rete.functions.FunctionMemory;
 
 public class DateTimeFunctions implements FunctionGroup {
 
@@ -33,53 +33,53 @@ public class DateTimeFunctions implements FunctionGroup {
 		return (DateTimeFunctions.class.getSimpleName());
 	}
 
-	public void loadFunctions(Rete engine) {
+	public void loadFunctions(FunctionMemory functionMem) {
 		Between between = new Between();
-		engine.declareFunction(between);
+		functionMem.declareFunction(between);
 		funcs.add(between);
 
 		Datetime2Timestamp datetime2Timestamp = new Datetime2Timestamp();
-		engine.declareFunction(datetime2Timestamp);
+		functionMem.declareFunction(datetime2Timestamp);
 		funcs.add(datetime2Timestamp);
 
 		GetDay getDay = new GetDay();
-		engine.declareFunction(getDay);
+		functionMem.declareFunction(getDay);
 		funcs.add(getDay);
 
 		GetGMTOffset getGMTOffset = new GetGMTOffset();
-		engine.declareFunction(getGMTOffset);
+		functionMem.declareFunction(getGMTOffset);
 		funcs.add(getGMTOffset);
 
 		GetHours getHours = new GetHours();
-		engine.declareFunction(getHours);
+		functionMem.declareFunction(getHours);
 		funcs.add(getHours);
 
 		GetMinutes getMinutes = new GetMinutes();
-		engine.declareFunction(getMinutes);
+		functionMem.declareFunction(getMinutes);
 		funcs.add(getMinutes);
 
 		GetMonth getMonth = new GetMonth();
-		engine.declareFunction(getMonth);
+		functionMem.declareFunction(getMonth);
 		funcs.add(getMonth);
 
 		GetSeconds getSeconds = new GetSeconds();
-		engine.declareFunction(getSeconds);
+		functionMem.declareFunction(getSeconds);
 		funcs.add(getSeconds);
 
 		GetYear getYear = new GetYear();
-		engine.declareFunction(getYear);
+		functionMem.declareFunction(getYear);
 		funcs.add(getYear);
 
 		MillisecondTime millisecondTime = new MillisecondTime();
-		engine.declareFunction(millisecondTime);
+		functionMem.declareFunction(millisecondTime);
 		funcs.add(millisecondTime);
 
 		Now now = new Now();
-		engine.declareFunction(now);
+		functionMem.declareFunction(now);
 		funcs.add(now);
 
 		Timestamp2Datetime timestamp2Datetime = new Timestamp2Datetime();
-		engine.declareFunction(timestamp2Datetime);
+		functionMem.declareFunction(timestamp2Datetime);
 		funcs.add(timestamp2Datetime);
 	}
 

@@ -94,7 +94,7 @@ public class LoadFunctionGroup implements Function, Serializable {
 		if (params != null && params.length > 0) {
 			for (int idx = 0; idx < params.length; idx++) {
 				String func = params[idx].getValue(engine).getStringValue();
-				engine.declareFunctionGroup(func);
+				engine.getFunctionMemory().declareFunctionGroup(func);
 				result = JamochaValue.TRUE;
 			}
 		}

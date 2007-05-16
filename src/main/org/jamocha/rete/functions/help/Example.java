@@ -102,7 +102,7 @@ public class Example implements Function, Serializable {
 		if (params != null && params.length == 1) {
 			JamochaValue firstParam = params[0].getValue(engine);
 			String function = firstParam.getStringValue();
-			Function aFunction = engine.findFunction(function);
+			Function aFunction = engine.getFunctionMemory().findFunction(function);
 			if (aFunction != null) {
 				String example = aFunction.getDescription().getExample();
 				if (example != null) {

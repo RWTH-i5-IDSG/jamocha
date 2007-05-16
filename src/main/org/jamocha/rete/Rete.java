@@ -23,7 +23,6 @@ import java.io.PrintWriter;
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
@@ -38,23 +37,9 @@ import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.exception.AssertException;
 import org.jamocha.rete.exception.ExecuteException;
 import org.jamocha.rete.exception.RetractException;
-import org.jamocha.rete.functions.DeffunctionGroup;
-import org.jamocha.rete.functions.If;
-import org.jamocha.rete.functions.InterpretedFunction;
-import org.jamocha.rete.functions.LoopForCount;
-import org.jamocha.rete.functions.Return;
-import org.jamocha.rete.functions.While;
-import org.jamocha.rete.functions.adaptor.AdaptorFunctions;
-import org.jamocha.rete.functions.compare.CompareFunctions;
-import org.jamocha.rete.functions.datetime.DateTimeFunctions;
-import org.jamocha.rete.functions.help.HelpFunctions;
+import org.jamocha.rete.functions.FunctionMemory;
+import org.jamocha.rete.functions.FunctionMemoryImpl;
 import org.jamocha.rete.functions.io.Batch;
-import org.jamocha.rete.functions.io.IOFunctions;
-import org.jamocha.rete.functions.java.JavaFunctions;
-import org.jamocha.rete.functions.list.ListFunctions;
-import org.jamocha.rete.functions.math.MathFunctions;
-import org.jamocha.rete.functions.ruleengine.RuleEngineFunctions;
-import org.jamocha.rete.functions.strings.StringFunctions;
 import org.jamocha.rete.nodes.BaseNode;
 import org.jamocha.rete.nodes.TerminalNode;
 import org.jamocha.rete.strategies.DepthStrategy;
@@ -111,7 +96,9 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 
 	protected boolean prettyPrint = false;
 
-	protected WorkingMemoryImpl workingMem = null;
+	protected WorkingMemory workingMem = null;
+	
+	protected FunctionMemory functionMem = null;
 
 	/**
 	 * the keySystem.out.println(rs.getString(1)); is the Class object. The
@@ -121,12 +108,6 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 	protected Map defclass = CollectionsFactory.localMap();
 
 	protected Map templateToDefclass = CollectionsFactory.localMap();
-
-	/**
-	 * this is the HashMap for all functions. This means all function names are
-	 * unique.
-	 */
-	protected Map functions = CollectionsFactory.localMap();
 
 	/**
 	 * We keep a map between the object instance and the corresponding shadown
@@ -163,7 +144,6 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 	 */
 	protected ArrayList listeners = new ArrayList();
 
-	private ArrayList functionGroups = new ArrayList();
 
 	/**
 	 * Each engine instance only has 1 agenda
@@ -201,7 +181,7 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 
 	protected Deftemplate initFact = new InitialFact();
 
-	private DeffunctionGroup deffunctions = new DeffunctionGroup();
+
 
 	/**
 	 * 
@@ -209,6 +189,7 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 	public Rete() {
 		super();
 		this.workingMem = new WorkingMemoryImpl(this);
+		this.functionMem = new FunctionMemoryImpl(this);
 		this.theAgenda = new Agenda(this);
 		this.theStrat = new DepthStrategy();
 		CollectionsFactory.init();
@@ -221,7 +202,7 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 	 */
 	protected void init() {
 		initMain();
-		loadBuiltInFunctions();
+		functionMem.init();
 		declareInitialFact();
 	}
 
@@ -230,72 +211,6 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 		// by default, we set the current module to main
 		this.currentModule = this.main;
 		this.theAgenda.addModule(this.main);
-	}
-
-	@SuppressWarnings("unchecked")
-	protected void loadBuiltInFunctions() {
-		// load the IO functions
-		IOFunctions iof = new IOFunctions();
-		functionGroups.add(iof);
-		iof.loadFunctions(this);
-
-		// load the math functions
-		MathFunctions mathf = new MathFunctions();
-		functionGroups.add(mathf);
-		mathf.loadFunctions(this);
-
-		// load the math functions
-		CompareFunctions comparef = new CompareFunctions();
-		functionGroups.add(comparef);
-		comparef.loadFunctions(this);
-
-		// load the date/time functions
-		DateTimeFunctions datetimef = new DateTimeFunctions();
-		functionGroups.add(datetimef);
-		datetimef.loadFunctions(this);
-
-		// load the list functions
-		ListFunctions listf = new ListFunctions();
-		functionGroups.add(listf);
-		listf.loadFunctions(this);
-
-		// load the database functions
-		AdaptorFunctions databasef = new AdaptorFunctions();
-		functionGroups.add(databasef);
-		databasef.loadFunctions(this);
-
-		// load the engine relate functions like declaring rules, templates, etc
-		RuleEngineFunctions rulefs = new RuleEngineFunctions();
-		functionGroups.add(rulefs);
-		rulefs.loadFunctions(this);
-
-		// load string functions
-		StringFunctions strfs = new StringFunctions();
-		functionGroups.add(strfs);
-		strfs.loadFunctions(this);
-
-		// load java functions
-		JavaFunctions javafs = new JavaFunctions();
-		functionGroups.add(javafs);
-		javafs.loadFunctions(this);
-
-		// load java functions
-		HelpFunctions helpfs = new HelpFunctions();
-		functionGroups.add(helpfs);
-		helpfs.loadFunctions(this);
-
-		// Other builtin constructs
-		declareFunction(new If());
-		declareFunction(new LoopForCount());
-		declareFunction(new Return());
-		declareFunction(new While());
-
-		// add the group for deffunctions
-		functionGroups.add(deffunctions);
-	}
-
-	protected void clearBuiltInFunctions() {
-		this.functions.clear();
 	}
 
 	protected void startLog() {
@@ -392,6 +307,7 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 		this.staticFacts.clear();
 		this.deffactMap.clear();
 		this.workingMem.clear();
+		this.functionMem.clear();
 		// now we clear all the rules and templates
 		this.theAgenda.clear();
 		this.defclass.clear();
@@ -401,8 +317,6 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 		this.main.clear();
 		this.currentModule.clear();
 		this.theAgenda.addModule(this.main);
-		this.clearBuiltInFunctions();
-		this.loadBuiltInFunctions();
 		declareInitialFact();
 	}
 
@@ -416,7 +330,7 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 		this.deffactMap.clear();
 		this.dynamicFacts.clear();
 		this.focusStack.clear();
-		this.functions.clear();
+		this.functionMem.clearBuiltInFunctions();
 		this.initialFacts.clear();
 		this.listeners.clear();
 		this.staticFacts.clear();
@@ -575,9 +489,6 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 		return this.theAgenda.findModule(name);
 	}
 
-	public Function findFunction(String name) {
-		return (Function) this.functions.get(name);
-	}
 
 	/**
 	 * Method will look up the Template using the class
@@ -743,82 +654,6 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 	}
 
 	/**
-	 * To explicitly deploy a custom function, call the method with an instance
-	 * of the function
-	 * 
-	 * @param func
-	 */
-	public void declareFunction(Function func) {
-		this.functions.put(func.getName(), func);
-		if (func instanceof InterpretedFunction) {
-			this.deffunctions.addFunction(func);
-		}
-	}
-
-	/**
-	 * In some cases, we may want to declare a function under an alias. For
-	 * example, Add can be alias as "+".
-	 * 
-	 * @param alias
-	 * @param func
-	 */
-	public void declareFunction(String alias, Function func) {
-		this.functions.put(alias, func);
-	}
-
-	/**
-	 * Method will create an instance of the function and declare it. Once a
-	 * function is declared, it can be used. All custom functions must be
-	 * declared before they can be used.
-	 * 
-	 * @param name
-	 */
-	public void declareFunction(String name) throws ClassNotFoundException {
-		try {
-			Class fclaz = Class.forName(name);
-			Function func = (Function) fclaz.newInstance();
-			declareFunction(func);
-		} catch (ClassNotFoundException e) {
-			log.debug(e);
-			throw e;
-		} catch (IllegalAccessException e) {
-			log.debug(e);
-		} catch (InstantiationException e) {
-			log.debug(e);
-		}
-	}
-
-	/**
-	 * Method will create in instance of the FunctionGroup class and load the
-	 * functions.
-	 * 
-	 * @param name
-	 */
-	public void declareFunctionGroup(String name) {
-		try {
-			Class fclaz = Class.forName(name);
-			FunctionGroup group = (FunctionGroup) fclaz.newInstance();
-			declareFunctionGroup(group);
-		} catch (ClassNotFoundException e) {
-			log.debug(e);
-		} catch (IllegalAccessException e) {
-			log.debug(e);
-		} catch (InstantiationException e) {
-			log.debug(e);
-		}
-	}
-
-	/**
-	 * Method will register the function of the FunctionGroup .
-	 * 
-	 * @param functionGroup
-	 *            FunctionGroup with the functions to register.
-	 */
-	public void declareFunctionGroup(FunctionGroup functionGroup) {
-		functionGroup.loadFunctions(this);
-	}
-
-	/**
 	 * pass a filename to load the rules. The implementation uses BatchFunction
 	 * to load the file.
 	 * 
@@ -826,7 +661,7 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 	 * @throws EvaluationException
 	 */
 	public void loadRuleset(String filename) throws EvaluationException {
-		Batch bf = (Batch) this.functions.get(Batch.NAME);
+		Batch bf = (Batch) this.functionMem.findFunction(Batch.NAME);
 		Parameter[] params = new Parameter[] { JamochaValue.newString(filename) };
 		bf.executeFunction(this, params);
 	}
@@ -838,32 +673,13 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 	 * @param ins
 	 */
 	public void loadRuleset(InputStream ins) {
-		Batch bf = (Batch) this.functions.get(Batch.NAME);
+		Batch bf = (Batch) this.functionMem.findFunction(Batch.NAME);
 		try {
 			bf.parse(this, ins);
 		} catch (EvaluationException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-	}
-
-	/**
-	 * Returns a list of the function groups. If a function is not in a group,
-	 * get the complete list of functions using getAllFunctions instead.
-	 * 
-	 * @return
-	 */
-	public List getFunctionGroups() {
-		return this.functionGroups;
-	}
-
-	/**
-	 * Returns a collection of the function instances
-	 * 
-	 * @return
-	 */
-	public Collection getAllFunctions() {
-		return this.functions.values();
 	}
 
 	public void declareDefglobal(String name, Object value) {
@@ -1659,12 +1475,16 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 		return this.workingMem.getRuleCompiler();
 	}
 
-//	public void printWorkingMemory(boolean detailed, boolean inputNodes) {
-//		this.workingMem.printWorkingMemory(detailed, inputNodes);
-//	}
+	public FunctionMemory getFunctionMemory() {
+		return this.functionMem;
+	}
 
 	public WorkingMemory getWorkingMemory() {
 		return this.workingMem;
+	}
+	
+	public DefaultLogger getLogger(){
+		return this.log;
 	}
 
 	public Strategy getStrategy() {

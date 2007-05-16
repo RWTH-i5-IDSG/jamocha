@@ -643,7 +643,7 @@ public class SFRuleCompiler implements RuleCompiler {
 				// that
 				// returns boolean true/false. We look up the
 				// function
-				Function f = engine.findFunction(constraint.getFunctionName());
+				Function f = engine.getFunctionMemory().findFunction(constraint.getFunctionName());
 				if (f != null) {
 					// we create the alphaNode if a function is
 					// found and

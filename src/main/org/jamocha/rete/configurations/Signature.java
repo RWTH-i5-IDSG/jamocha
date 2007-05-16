@@ -86,7 +86,7 @@ public class Signature extends AbstractSignature {
 	}
 
 	public Function lookUpFunction(Rete engine) {
-		return engine.findFunction(this.signatureName);
+		return engine.getFunctionMemory().findFunction(this.signatureName);
 	}
 
 	public JamochaType getValueType() {

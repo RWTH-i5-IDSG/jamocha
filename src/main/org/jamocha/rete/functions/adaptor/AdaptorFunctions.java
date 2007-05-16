@@ -20,7 +20,7 @@ import java.util.List;
 
 import org.jamocha.rete.Function;
 import org.jamocha.rete.FunctionGroup;
-import org.jamocha.rete.Rete;
+import org.jamocha.rete.functions.FunctionMemory;
 
 public class AdaptorFunctions implements FunctionGroup {
 
@@ -36,23 +36,23 @@ public class AdaptorFunctions implements FunctionGroup {
 		return (AdaptorFunctions.class.getSimpleName());
 	}
 
-	public void loadFunctions(Rete engine) {
+	public void loadFunctions(FunctionMemory functionMem) {
 
 		// Note: The jdbc-template will now be defined when the function
 		// jdbclink-init is called. Otherwise the template is always in the
 		// engine although it isn't needed.
 
 		JDBCLink jdbclink = new JDBCLink();
-		engine.declareFunction(jdbclink);
+		functionMem.declareFunction(jdbclink);
 		funcs.add(jdbclink);
 		JDBCLinkInit jdbclinkInit = new JDBCLinkInit();
-		engine.declareFunction(jdbclinkInit);
+		functionMem.declareFunction(jdbclinkInit);
 		funcs.add(jdbclinkInit);
 		IteratorImporter iteratorimporter = new IteratorImporter();
-		engine.declareFunction(iteratorimporter);
+		functionMem.declareFunction(iteratorimporter);
 		funcs.add(iteratorimporter);
 		IteratorExporter iteratorexporter = new IteratorExporter();
-		engine.declareFunction(iteratorexporter);
+		functionMem.declareFunction(iteratorexporter);
 		funcs.add(iteratorexporter);
 
 	}

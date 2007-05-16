@@ -21,8 +21,6 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.jamocha.rete.Rete;
-
 public class ClassnameResolver {
 
 	private List<String> packages = new ArrayList<String>();
@@ -35,7 +33,7 @@ public class ClassnameResolver {
 	private static final Pattern packagePattern = Pattern
 			.compile("([\\w_][\\w_\\d]*\\.)+\\*");
 
-	public ClassnameResolver(Rete engine) {
+	public ClassnameResolver() {
 		packages.add("java.lang.*");
 	}
 

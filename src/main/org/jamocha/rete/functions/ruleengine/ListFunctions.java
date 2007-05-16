@@ -94,7 +94,7 @@ public class ListFunctions implements Function, Serializable {
 
 	public JamochaValue executeFunction(Rete engine, Parameter[] params)
 			throws EvaluationException {
-		List fgroups = engine.getFunctionGroups();
+		List fgroups = engine.getFunctionMemory().getFunctionGroups();
 		Iterator itr = fgroups.iterator();
 		int counter = 0;
 		while (itr.hasNext()) {

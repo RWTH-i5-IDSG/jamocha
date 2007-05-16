@@ -22,7 +22,7 @@ import java.util.List;
 
 import org.jamocha.rete.Function;
 import org.jamocha.rete.FunctionGroup;
-import org.jamocha.rete.Rete;
+import org.jamocha.rete.functions.FunctionMemory;
 
 /**
  * @author Peter Lin
@@ -44,249 +44,249 @@ public class RuleEngineFunctions implements FunctionGroup, Serializable {
 		return (RuleEngineFunctions.class.getSimpleName());
 	}
 
-	public void loadFunctions(Rete engine) {
+	public void loadFunctions(FunctionMemory functionMem) {
 
 		Apply apply = new Apply();
-		engine.declareFunction(apply);
+		functionMem.declareFunction(apply);
 		funcs.add(apply);
 
 		Assert assrt = new Assert();
-		engine.declareFunction(assrt);
+		functionMem.declareFunction(assrt);
 		funcs.add(assrt);
 
 		AssertTemporal assertTemporal = new AssertTemporal();
-		engine.declareFunction(assertTemporal);
+		functionMem.declareFunction(assertTemporal);
 		funcs.add(assertTemporal);
 
 		Bind bind = new Bind();
-		engine.declareFunction(bind);
+		functionMem.declareFunction(bind);
 		funcs.add(bind);
 
 		Clear clear = new Clear();
-		engine.declareFunction(clear);
+		functionMem.declareFunction(clear);
 		funcs.add(clear);
 
 		Defclass defclass = new Defclass();
-		engine.declareFunction(defclass);
+		functionMem.declareFunction(defclass);
 		funcs.add(defclass);
 
 		Deffunction deffunction = new Deffunction();
-		engine.declareFunction(deffunction);
+		functionMem.declareFunction(deffunction);
 		funcs.add(deffunction);
 
 		Definstance definstance = new Definstance();
-		engine.declareFunction(definstance);
+		functionMem.declareFunction(definstance);
 		funcs.add(definstance);
 
 		Defmodule defmodule = new Defmodule();
-		engine.declareFunction(defmodule);
+		functionMem.declareFunction(defmodule);
 		funcs.add(defmodule);
 
 		Defrule defrule = new Defrule();
-		engine.declareFunction(defrule);
+		functionMem.declareFunction(defrule);
 		funcs.add(defrule);
 
 		Deftemplate deftemplate = new Deftemplate();
-		engine.declareFunction(deftemplate);
+		functionMem.declareFunction(deftemplate);
 		funcs.add(deftemplate);
 
 		Echo echo = new Echo();
-		engine.declareFunction(echo);
+		functionMem.declareFunction(echo);
 		funcs.add(echo);
 
 		Eval eval = new Eval();
-		engine.declareFunction(eval);
+		functionMem.declareFunction(eval);
 		funcs.add(eval);
 
 		Exit exit = new Exit();
-		engine.declareFunction(exit);
+		functionMem.declareFunction(exit);
 		funcs.add(exit);
 
 		FactId factId = new FactId();
-		engine.declareFunction(factId);
+		functionMem.declareFunction(factId);
 		funcs.add(factId);
 
 		Facts facts = new Facts();
-		engine.declareFunction(facts);
+		functionMem.declareFunction(facts);
 		funcs.add(facts);
 
 		FactSlotValue factSlotValue = new FactSlotValue();
-		engine.declareFunction(factSlotValue);
+		functionMem.declareFunction(factSlotValue);
 		funcs.add(factSlotValue);
 
 		Fire fire = new Fire();
-		engine.declareFunction(fire);
+		functionMem.declareFunction(fire);
 		funcs.add(fire);
 
 		FunctionsDescription fd = new FunctionsDescription();
-		engine.declareFunction(fd);
+		functionMem.declareFunction(fd);
 		funcs.add(fd);
 
 		GarbageCollect garbageCollect = new GarbageCollect();
-		engine.declareFunction(garbageCollect);
+		functionMem.declareFunction(garbageCollect);
 		funcs.add(garbageCollect);
 
 		GenerateFacts generateFacts = new GenerateFacts();
-		engine.declareFunction(generateFacts);
+		functionMem.declareFunction(generateFacts);
 		funcs.add(generateFacts);
 
 		GetCurrentModule getCurrentModule = new GetCurrentModule();
-		engine.declareFunction(getCurrentModule);
+		functionMem.declareFunction(getCurrentModule);
 		funcs.add(getCurrentModule);
 
 		GetFactId getFactId = new GetFactId();
-		engine.declareFunction(getFactId);
+		functionMem.declareFunction(getFactId);
 		funcs.add(getFactId);
 
 		LazyAgenda lazyAgenda = new LazyAgenda();
-		engine.declareFunction(lazyAgenda);
+		functionMem.declareFunction(lazyAgenda);
 		funcs.add(lazyAgenda);
 
 		ListDirectory listDirectory = new ListDirectory();
-		engine.declareFunction(listDirectory);
+		functionMem.declareFunction(listDirectory);
 		funcs.add(listDirectory);
 
 		ListFunctions listFunctions = new ListFunctions();
-		engine.declareFunction(listFunctions);
+		functionMem.declareFunction(listFunctions);
 		funcs.add(listFunctions);
 
 		ListTemplates listTemplates = new ListTemplates();
-		engine.declareFunction(listTemplates);
+		functionMem.declareFunction(listTemplates);
 		funcs.add(listTemplates);
 
 		LoadFunctionGroup loadFunctionGroup = new LoadFunctionGroup();
-		engine.declareFunction(loadFunctionGroup);
+		functionMem.declareFunction(loadFunctionGroup);
 		funcs.add(loadFunctionGroup);
 
 		LoadFunctions loadFunctions = new LoadFunctions();
-		engine.declareFunction(loadFunctions);
+		functionMem.declareFunction(loadFunctions);
 		funcs.add(loadFunctions);
 
 		Matches matches = new Matches();
-		engine.declareFunction(matches);
+		functionMem.declareFunction(matches);
 		funcs.add(matches);
 
 		MemberTest memberTest = new MemberTest();
-		engine.declareFunction(memberTest);
+		functionMem.declareFunction(memberTest);
 		funcs.add(memberTest);
 
 		MemoryFree memoryFree = new MemoryFree();
-		engine.declareFunction(memoryFree);
+		functionMem.declareFunction(memoryFree);
 		funcs.add(memoryFree);
 
 		MemoryTotal memoryTotal = new MemoryTotal();
-		engine.declareFunction(memoryTotal);
+		functionMem.declareFunction(memoryTotal);
 		funcs.add(memoryTotal);
 
 		MemoryUsed memoryUsed = new MemoryUsed();
-		engine.declareFunction(memoryUsed);
+		functionMem.declareFunction(memoryUsed);
 		funcs.add(memoryUsed);
 
 		Modify modify = new Modify();
-		engine.declareFunction(modify);
+		functionMem.declareFunction(modify);
 		funcs.add(modify);
 
 		Modules modules = new Modules();
-		engine.declareFunction(modules);
+		functionMem.declareFunction(modules);
 		funcs.add(modules);
 
 		PPrintRule pprintRule = new PPrintRule();
-		engine.declareFunction(pprintRule);
+		functionMem.declareFunction(pprintRule);
 		funcs.add(pprintRule);
 
 		PPrintTemplate pprintTemplate = new PPrintTemplate();
-		engine.declareFunction(pprintTemplate);
+		functionMem.declareFunction(pprintTemplate);
 		funcs.add(pprintTemplate);
 
 		PrintProfile printProfile = new PrintProfile();
-		engine.declareFunction(printProfile);
+		functionMem.declareFunction(printProfile);
 		funcs.add(printProfile);
 
 		Profile profile = new Profile();
-		engine.declareFunction(profile);
+		functionMem.declareFunction(profile);
 		funcs.add(profile);
 
 		Reset reset = new Reset();
-		engine.declareFunction(reset);
+		functionMem.declareFunction(reset);
 		funcs.add(reset);
 
 		ResetFacts resetFacts = new ResetFacts();
-		engine.declareFunction(resetFacts);
+		functionMem.declareFunction(resetFacts);
 		funcs.add(resetFacts);
 
 		ResetObjects resetObjects = new ResetObjects();
-		engine.declareFunction(resetObjects);
+		functionMem.declareFunction(resetObjects);
 		funcs.add(resetObjects);
 
 		Retract retract = new Retract();
-		engine.declareFunction(retract);
+		functionMem.declareFunction(retract);
 		funcs.add(retract);
 
 		Rules rules = new Rules();
-		engine.declareFunction(rules);
+		functionMem.declareFunction(rules);
 		funcs.add(rules);
 
 		SaveFacts saveFacts = new SaveFacts();
-		engine.declareFunction(saveFacts);
+		functionMem.declareFunction(saveFacts);
 		funcs.add(saveFacts);
 
 		SetFocus setFocus = new SetFocus();
-		engine.declareFunction(setFocus);
+		functionMem.declareFunction(setFocus);
 		funcs.add(setFocus);
 
 		SetParser setParser = new SetParser();
-		engine.declareFunction(setParser);
+		functionMem.declareFunction(setParser);
 		funcs.add(setParser);
 
 		Spool spool = new Spool();
-		engine.declareFunction(spool);
+		functionMem.declareFunction(spool);
 		funcs.add(spool);
 
 		Templates templates = new Templates();
-		engine.declareFunction(templates);
+		functionMem.declareFunction(templates);
 		funcs.add(templates);
 
 		TestRule testRule = new TestRule();
-		engine.declareFunction(testRule);
+		functionMem.declareFunction(testRule);
 		funcs.add(testRule);
 
 		UnDefrule unDefrule = new UnDefrule();
-		engine.declareFunction(unDefrule);
+		functionMem.declareFunction(unDefrule);
 		funcs.add(unDefrule);
 
 		UnDeftemplate unDeftemplate = new UnDeftemplate();
-		engine.declareFunction(unDeftemplate);
+		functionMem.declareFunction(unDeftemplate);
 		funcs.add(unDeftemplate);
 
 		UnProfile unProfile = new UnProfile();
-		engine.declareFunction(unProfile);
+		functionMem.declareFunction(unProfile);
 		funcs.add(unProfile);
 
 		UnWatch unWatch = new UnWatch();
-		engine.declareFunction(unWatch);
+		functionMem.declareFunction(unWatch);
 		funcs.add(unWatch);
 
 		ValidateRule validateRule = new ValidateRule();
-		engine.declareFunction(validateRule);
+		functionMem.declareFunction(validateRule);
 		funcs.add(validateRule);
 
 		Version version = new Version();
-		engine.declareFunction(version);
+		functionMem.declareFunction(version);
 		funcs.add(version);
 
 		View view = new View();
-		engine.declareFunction(view);
+		functionMem.declareFunction(view);
 		funcs.add(view);
 
 		Watch watch = new Watch();
-		engine.declareFunction(watch);
+		functionMem.declareFunction(watch);
 		funcs.add(watch);
 
-		engine.declareFunction("focus", getCurrentModule);
-		engine.declareFunction("get-focus", getCurrentModule);
-		engine.declareFunction("functions", listFunctions);
-		engine.declareFunction("list-rules", rules);
-		engine.declareFunction("list-deftemplates", templates);
+		functionMem.declareFunction("focus", getCurrentModule);
+		functionMem.declareFunction("get-focus", getCurrentModule);
+		functionMem.declareFunction("functions", listFunctions);
+		functionMem.declareFunction("list-rules", rules);
+		functionMem.declareFunction("list-deftemplates", templates);
 	}
 
 	public List listFunctions() {

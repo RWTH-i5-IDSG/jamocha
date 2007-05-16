@@ -21,7 +21,6 @@ import java.util.List;
 
 import org.jamocha.rete.Function;
 import org.jamocha.rete.FunctionGroup;
-import org.jamocha.rete.Rete;
 
 /**
  * @author Peter Lin
@@ -45,7 +44,7 @@ public class DeffunctionGroup implements FunctionGroup {
      * At engine initialization time, the function group doesn't
      * have any functions.
      */
-    public void loadFunctions(Rete engine) {
+    public void loadFunctions(FunctionMemory functionMem) {
     }
 
     /**

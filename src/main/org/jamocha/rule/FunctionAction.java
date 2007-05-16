@@ -43,7 +43,7 @@ public class FunctionAction implements Action {
 
 	private static final long serialVersionUID = 1L;
 
-	protected Function faction = null;
+	protected Function function = null;
 
 	protected String functionName = null;
 
@@ -54,7 +54,7 @@ public class FunctionAction implements Action {
 	}
 
 	public Function getFunction() {
-		return this.faction;
+		return this.function;
 	}
 
 	public void setFunction(Signature func) {
@@ -84,10 +84,13 @@ public class FunctionAction implements Action {
 	 * @throws EvaluationException
 	 */
 	public void configure(Rete engine, Rule util) throws EvaluationException {
-		if (this.functionName != null
-				&& engine.findFunction(this.functionName) != null) {
-			this.faction = engine.findFunction(this.functionName);
+		if (this.functionName != null){
+			Function func = engine.getFunctionMemory().findFunction(this.functionName);
+			if (func != null){
+				this.function = func;
+			}
 		}
+
 		// now setup the BoundParameters if there are any
 		for (int idx = 0; idx < this.parameters.length; idx++) {
 			if (this.parameters[idx] instanceof BoundParam) {
@@ -116,7 +119,7 @@ public class FunctionAction implements Action {
 		// WE DON'T NEED THIS ANYMORE FOR SFPParser!
 		
 		// in the case of Assert, we do further compilation
-//		if (this.faction instanceof Assert) {
+//		if (this.function instanceof Assert) {
 //			JamochaValue tmplName = this.parameters[0].getValue(engine);
 //			Template tmpl = engine.getCurrentFocus().getTemplate(
 //					tmplName.getIdentifierValue());
@@ -148,12 +151,12 @@ public class FunctionAction implements Action {
 			}	
 		}
 		// we treat AssertFunction a little different
-		if (this.faction instanceof Assert) {
-			((Assert) this.faction).setTriggerFacts(facts);
+		if (this.function instanceof Assert) {
+			((Assert) this.function).setTriggerFacts(facts);
 		}
 		// now we find the function
 		try {
-			this.faction.executeFunction(engine, this.parameters);
+			this.function.executeFunction(engine, this.parameters);
 		} catch (EvaluationException e) {
 			throw new ExecuteException(e);
 		}
