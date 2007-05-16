@@ -98,7 +98,7 @@ public class JamochaGui extends JFrame implements ChangeListener,
 		// set up the frame
 		setLayout(new BorderLayout());
 		setTitle("Jamocha");
-		setLookAndFeel(SYSTEM_LOOK_AND_FEEL);
+		//setLookAndFeel(SYSTEM_LOOK_AND_FEEL);
 		setSizeAndLocation();
 
 		// show logo
