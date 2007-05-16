@@ -219,26 +219,30 @@ public class SFRuleCompiler implements RuleCompiler {
 	}
 
 	public boolean addRule(Rule rule) throws AssertException {
+		boolean result = false;
 		rule.resolveTemplates(engine);
 		if (!this.validate || (this.validate && this.tval.analyze(rule) == Analysis.VALIDATION_PASSED)) {
-			if (rule.getConditions() != null && rule.getConditions().length > 0) {
+			if (rule.getConditions() != null) {
 				// we check the name of the rule to see if it is for a specific
 				// module. if it is, we have to add it to that module
 				this.setModule(rule);
+				// creates a Terminal nod for this rule. this node will be added
+				// to tho rule:
+				TerminalNode tnode = createTerminalNode(rule);
+				//has conditions:
+				if (rule.getConditions().length > 0) {
+					Condition[] conds = rule.getConditions();
+					for (int i = 0; i < conds.length; i++)
+						conds[i].compile(this, rule, i);
 
-				//creates a Terminal nod for this rule. this node will be added to tho rule:
-				createTerminalNode(rule);
-
-				Condition[] conds = rule.getConditions();
-				// at first we create the constraints and then the conditional
-				// elements which include joins
-				for (int i = 0; i < conds.length; i++)
-					conds[i].compile(this, rule, i);
-
-				compileJoins(rule);
-
-				compileBindings(rule);
-				
+					compileJoins(rule);
+					compileBindings(rule);
+				//has no conditions:	
+				} else if (rule.getConditions().length == 0) {
+					// the rule has no LHS, this means it only has actions
+					BaseNode last = (BaseNode) root.getObjectTypeNodes().get(engine.initFact);
+					last.addNode(tnode, engine);
+				}
 				compileActions(rule);
 
 				currentMod.addRule(rule);
@@ -249,26 +253,8 @@ public class SFRuleCompiler implements RuleCompiler {
 
 				this.notifyListener(ce);
 				engine.newRuleEvent(rule);
-				return true;
-
-			} else if (rule.getConditions().length == 0) {
-				this.setModule(rule);
-				// the rule has no LHS, this means it only has actions
-				BaseNode last = (BaseNode) root.getObjectTypeNodes().get(engine.initFact);
-				TerminalNode tnode = createTerminalNode(rule);
-				last.addNode(tnode, engine);
-
-				compileActions(rule);
-				// attachTerminalNode(last, tnode);
-				// now we add the rule to the module
-				currentMod.addRule(rule);
-				CompileEvent ce = new CompileEvent(rule, CompileEvent.ADD_RULE_EVENT);
-				ce.setRule(rule);
-				// / this.notifyListener(ce);
-				engine.newRuleEvent(rule);
-				return true;
+				result = true;
 			}
-			return false;
 		} else {
 			// we print out a message and say that the rule is not valid
 			Summary error = this.tval.getErrors();
@@ -276,8 +262,8 @@ public class SFRuleCompiler implements RuleCompiler {
 			engine.writeMessage(error.getMessage(), Constants.DEFAULT_OUTPUT);
 			Summary warn = this.tval.getWarnings();
 			engine.writeMessage(warn.getMessage(), Constants.DEFAULT_OUTPUT);
-			return false;
 		}
+		return result;
 	}
 
 	protected void compileJoins(Rule rule) throws AssertException {
@@ -310,14 +296,13 @@ public class SFRuleCompiler implements RuleCompiler {
 				(lastNode).addNode(fromBottom, engine);
 		}
 	}
-	
-	protected void compileBindings(Rule rule){
-		for (Iterator<Binding> bIt=rule.getBindingIterator();bIt.hasNext();)	{
+
+	protected void compileBindings(Rule rule) {
+		for (Iterator<Binding> bIt = rule.getBindingIterator(); bIt.hasNext();) {
 			Binding b = bIt.next();
 			System.out.println(b.toPPString());
 		}
-		
-		
+
 	}
 
 	/*
