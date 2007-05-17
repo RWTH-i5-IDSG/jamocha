@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jamocha.adapter.sl;
+package org.jamocha.adapter.sl.performative;
 
 import java.io.StringReader;
 
@@ -30,13 +30,13 @@ import org.jamocha.parser.sl.SimpleNode;
  * @author Alexander Wilden
  * 
  */
-public class SL2CLIPS {
+public class Request {
 
 	/**
 	 * A private constructor to force access only in a static way.
 	 * 
 	 */
-	private SL2CLIPS() {
+	private Request() {
 	}
 
 	/**
@@ -50,7 +50,7 @@ public class SL2CLIPS {
 	 *             if the SLParser throws an Exception or anything else unnormal
 	 *             happens.
 	 */
-	public static String getCLIPSFromRequest(String slContent)
+	public static String getCLIPS(String slContent)
 			throws AdapterTranslationException {
 		StringBuilder result = new StringBuilder();
 

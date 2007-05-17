@@ -80,27 +80,27 @@ public enum JamochaType {
 
     public static JamochaValue getDefaultValue(JamochaType type) {
 	switch (type) {
-	case NIL:
-	case UNDEFINED:
-	case DATETIME:
-	case OBJECT:
-	case IDENTIFIER:
-	case FACT:
-	case FACT_ID:
-	case SLOT:
-	case BINDING:
-	    return JamochaValue.NIL;
-	case BOOLEAN:
-	    return JamochaValue.FALSE;
-	case LONG:
-	    return JamochaValue.newLong(0);
-	case DOUBLE:
-	    return JamochaValue.newDouble(0);
-	case STRING:
-	    return JamochaValue.newString("");
-	case LIST:
-	    return JamochaValue.EMPTY_LIST;
-	}
+		case NIL:
+		case UNDEFINED:
+		case DATETIME:
+		case OBJECT:
+		case IDENTIFIER:
+		case FACT:
+		case FACT_ID:
+		case SLOT:
+		case BINDING:
+			return JamochaValue.NIL;
+		case BOOLEAN:
+			return JamochaValue.FALSE;
+		case LONG:
+			return JamochaValue.newLong(0);
+		case DOUBLE:
+			return JamochaValue.newDouble(0);
+		case STRING:
+			return JamochaValue.newString("");
+		case LIST:
+			return JamochaValue.EMPTY_LIST;
+		}
 	throw new RuntimeException("Wrong JamochaType");
     }
 }

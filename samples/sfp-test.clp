@@ -8,11 +8,25 @@
 )
 
 (deftemplate bier 
-	(slot name (type STRING))
-	(slot gewicht (type INTEGER))
-	(slot hersteller (type STRING))
+	(slot name )
+	(slot gewicht )
+	(slot hersteller )
 )
 
+<<<<<<< .mine
+
+(deftemplate wurst 
+	(slot name )
+	(multislot zutaten )
+	(slot gewicht )
+	(slot laenge )
+	(slot hersteller )
+)
+
+
+
+=======
+>>>>>>> .r955
 (assert (wurst
 		(name "Fischwurst schwer")
 		(gewicht 200)
@@ -45,17 +59,36 @@
 		)
 )
 
+<<<<<<< .mine
+
+(assert (bier 
+		(name "Bitburger")
+		(gewicht 100)
+		)
+)
+
+(defrule wurst-meter "Regel zur Ausgabe der Wurst-Laenge" 
+;	(declare (rule-version "performance version") (salience 101) (auto-focus TRUE))
+	(wurst (laenge 100))
+<<<<<<< .mine
+	(wurst (gewicht ?x))
+	(bier (gewicht ?x))
+;	?y <- (wurst (laenge ?x))
+=======
+=======
 
 
 (defrule wurst-meter "Regel zur Ausgabe der Wurst-LŠnge" 
 	(declare (rule-version "performance version") (salience 101) (auto-focus TRUE))
+>>>>>>> .r1003
 	(wurst (gewicht ?x) (name ?y))
 	(bier (gewicht ?x) (name ?z))
+>>>>>>> .r955
 	=>
 	(printout t "Lebensmittel die zusammenpassen. wurst:" ?y " Bier: " ?z " Gewicht: " ?x)
 )
 
-(defrule wurst-meter-langsam "Regel zur Ausgabe der Wurst-LŠnge" 
+(defrule wurst-meter-langsam "Regel zur Ausgabe der Wurst-Laenge" 
 	(wurst (laenge 100) (gewicht 200))
 	(bier (gewicht 100))
 	=>

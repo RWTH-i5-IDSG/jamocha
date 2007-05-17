@@ -33,9 +33,17 @@
 	=> (printout t "rule with one condition fired " ?x crlf)
 )
 
-(defrule one2
+(defrule three
 	(wurst (name "wienerwurst"))
-	=> (printout t "rule with one condition fired " ?x crlf)
+	=> (printout t "rule with one condition fired - wienerwurst" crlf)
 )
+
+(defrule four
+	?x <- (wurst (name "wienerwurst"))
+	=> 
+	(printout t "rule with one binding fired - wienerwurst" crlf)
+	(printout t "fact id of the wienerwurst fact" (get-fact-id  ?x) crlf)
+)
+
 
 (fire)
