@@ -1,20 +1,21 @@
 
-(deftemplate wurst (slot name) (slot farbe) )
+(deftemplate wurst (slot name) (slot spitzname) (slot farbe) )
 
 (deftemplate salat (slot name) (slot farbe) )
 
-(assert (wurst (name "bratwurst")(farbe "weiss") ))
-(assert (wurst (name "wienerwurst")(farbe "rot") ))
-(assert (wurst (name "gemuesewurst")(farbe "gruen") ))
+(assert (wurst (name "bratwurst")(spitzname "bratwosch")(farbe "weiss") ))
+(assert (wurst (name "weisswurst")(spitzname "weisswurst")(farbe "weiss") ))
+(assert (wurst (name "wienerwurst")(spitzname "wiener")(farbe "rot") ))
+(assert (wurst (name "gemuesewurst")(spitzname "gemuesewurst")(farbe "gruen") ))
 (assert (salat (name "kartoffelsalat")(farbe "weiss") ))
 
 
 (defrule megarule
-	(wurst (name ?wurstname))
-	(salat (name ?salatname))
-	(wurst (farbe ?farbe))
+	(wurst (name ?wurstname) (spitzname ?wurstname) )
 	(salat (farbe ?farbe))
-	=> (printout t "Die Wurst " ?wurstname " und der Salat " ?salatname " haben dieselbe Farbe, naemlich " ?farbe "!"  crlf)
+	(wurst (farbe ?farbe))
+	(salat (name ?salatname))	
+	=> (printout t "Die Wurst " ?wurstname " und der Salat " ?salatname " haben dieselbe Farbe, naemlich " ?farbe "! Ausserdem hat die Wurst denselben Spitznamen wie Name"  crlf)
 )
 
 

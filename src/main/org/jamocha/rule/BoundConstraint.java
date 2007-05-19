@@ -180,6 +180,10 @@ public class BoundConstraint extends AbstractConstraint {
 		return "  ?" + this.value.toString() + " <-";
 	}
 	
+	public String toString() {
+		return "[BoundConstraint]:  ?" + this.value.toString() + " <-";
+	}
+	
 	public BaseNode compile(SFRuleCompiler compiler, Rule rule, int conditionIndex) {
 		return compiler.compile(this, rule, conditionIndex);
 	}

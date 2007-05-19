@@ -236,6 +236,36 @@ public class SFRuleCompiler implements RuleCompiler {
 						conds[i].compile(this, rule, i);
 
 					compileJoins(rule);
+					
+					///
+					System.out.println("Direkt aus der Regel:");
+					Iterator<Binding> b = rule.getBindingIterator();
+					while (b.hasNext()) {
+						Binding c = b.next();
+						System.out.println(c.toPPString());
+					}
+					
+					for (Condition c : rule.getConditions()) {
+						System.out.println("Für Condition "+c.toString()+":");
+						System.out.println("getBindings():");
+						for (Object bin : c.getBindings()) {
+							//Binding boo = (Binding) bin;
+							System.out.println(bin.toString());
+						}
+						System.out.println("getAllBindings():");
+						for (Object bin : c.getAllBindings()) {
+							//Binding boo = (Binding) bin;
+							System.out.println(bin.toString());
+						}
+						System.out.println("getConstraints():");
+						for (Constraint cons : ((ObjectCondition)c).getConstraints() ) {
+							System.out.println(cons.toString());
+						}
+					}
+					System.out.println("over and out");
+					
+					///
+					
 					compileBindings(rule);
 				//has no conditions:	
 				} else if (rule.getConditions().length == 0) {
