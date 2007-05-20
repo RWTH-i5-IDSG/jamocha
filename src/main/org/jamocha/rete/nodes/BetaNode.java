@@ -205,25 +205,6 @@ public class BetaNode extends BaseJoin {
 	}
 
 
-	/**
-	 * method returns a string of the node id and bindings details
-	 */
-	public String toPPString() {
-		StringBuilder sb = new StringBuilder();
-		sb.append(super.toPPString());
-		if (binds != null) {
-			for (int idx = 0; idx < this.binds.length; idx++) {
-				if (idx > 0) {
-					sb.append(" && ");
-				}
-				if (this.binds[idx] != null) {
-					sb.append(this.binds[idx].toPPString());
-				}
-			}
-			sb.append("\n");
-		}
-		return sb.toString();
-	}
 
 	@Override
 	protected void mountChild(BaseNode newChild, Rete engine) throws AssertException {

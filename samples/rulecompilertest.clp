@@ -9,6 +9,14 @@
 (assert (wurst (name "gemuesewurst")(spitzname "gemuesewurst")(farbe "gruen") ))
 (assert (salat (name "kartoffelsalat")(farbe "weiss") ))
 
+(defrule megarule1
+	(salat (farbe ?farbe))
+	(wurst (farbe ?farbe))
+	=> (printout t "Es gibt sowohl einen Salat, als auch eine Wurst, die " ?farbe "ist."  crlf)
+)
+
+
+
 
 (defrule megarule
 	(wurst (name ?wurstname) (spitzname ?wurstname) )

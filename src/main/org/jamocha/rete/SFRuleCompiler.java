@@ -311,21 +311,50 @@ public class SFRuleCompiler implements RuleCompiler {
 		BaseNode fromBottom = terminal;
 		
 		HashMap<String, Integer> boundConstraintName2lastUsingCondition = new HashMap<String, Integer>();
+		HashMap<Condition, BaseNode> conditionJoiners = new HashMap<Condition, BaseNode>();
 		
 		for (int i = 0; i < sortedConds.length; i++) {
 			Condition c = sortedConds[i];
 			// c now is the next condition with the lowest complexity
 
-			////
-			Binding[] binds = new Binding[0];
+			
+			
+			// now, check whether we have to create a new join
+			boolean createNewJoin = (i < sortedConds.length - 1);
 
+
+			
+			if (createNewJoin) {
+				// creat join add old bottom node, set join to new bottom node
+				BetaNode newJoin = new BetaNode(engine.nextNodeId());
+				newJoin.addNode(fromBottom, engine);
+				fromBottom = newJoin;
+				// add join to rule:
+				rule.addJoinNode(newJoin);
+
+			}
+			
+			conditionJoiners.put(c,fromBottom);
+			
+			BaseNode lastNode = c.getLastNode();
+
+			if (lastNode != null)
+				(lastNode).addNode(fromBottom, engine);
+		}
+		
+		for (int i = sortedConds.length-1 ; i>=0; i--){
+			////
+			////
+			Condition c = sortedConds[i];
+			Binding[] binds = new Binding[0];
+	
 			Vector<Binding> bindings = new Vector<Binding>();
 			for (Object o : c.getBindings()) {
 				if (o instanceof BoundConstraint){
 					BoundConstraint bc = (BoundConstraint)o;
-
+	
 					Integer lastUseIn = boundConstraintName2lastUsingCondition.get(bc.getVariableName());
-
+	
 					if (lastUseIn != null) {
 						Binding b = new Binding();
 						b.rightIndex = bc.getSlot().getId();
@@ -347,31 +376,13 @@ public class SFRuleCompiler implements RuleCompiler {
 				}
 			}
 			binds = bindings.toArray(binds);
-
-			////
-			
-			
-			// now, check whether we have to create a new join
-			boolean createNewJoin = (i < sortedConds.length - 1);
-
-			if (i>0) {
-				((BetaNode)fromBottom).setBindings(binds);
-			}
-			
-			if (createNewJoin) {
-				// creat join add old bottom node, set join to new bottom node
-				BetaNode newJoin = new BetaNode(engine.nextNodeId());
-				newJoin.addNode(fromBottom, engine);
-				fromBottom = newJoin;
-				// add join to rule:
-				rule.addJoinNode(newJoin);
-
-			}
-			BaseNode lastNode = c.getLastNode();
-
-			if (lastNode != null)
-				(lastNode).addNode(fromBottom, engine);
+			System.out.println(binds.length);
+			if (binds.length>0) ((BetaNode)conditionJoiners.get(c)).setBindings(binds);
+	
 		}
+
+		
+		
 	}
 
 	protected void compileBindings(Rule rule, BindingHelper bindingHelper) {
