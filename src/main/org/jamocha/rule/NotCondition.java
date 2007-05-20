@@ -10,8 +10,8 @@ public class NotCondition extends BooleanOperatorCondition {
 	 */
 	private static final long serialVersionUID = 1L;
 	
-	public BaseNode compile(SFRuleCompiler compiler, Rule rule, int conditionIndex) {
-		return compiler.compile(this, rule, conditionIndex);
+	public BaseNode compile(SFRuleCompiler compiler, Rule rule, int conditionIndex, BindingHelper bindingHelper) {
+		return compiler.compile(this, rule, conditionIndex, bindingHelper);
 	}
 
 }

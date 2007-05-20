@@ -80,7 +80,7 @@ public class BetaNode extends BaseJoin {
 		Iterator<Fact> itr = alphaMemory.iterator();
 		while (itr.hasNext()) {
 			Fact rfcts = itr.next();
-			if (this.evaluate(tuple.getFacts(), rfcts)) {
+			if (this.evaluate(tuple, rfcts)) {
 				FactTuple newTuple = tuple.addFact(rfcts);
 				mergeMemory.add(newTuple);
 				this.propogateAssert(newTuple, engine);
@@ -102,7 +102,7 @@ public class BetaNode extends BaseJoin {
 		Iterator<FactTuple> itr = betaMemory.iterator();
 		while (itr.hasNext()) {
 			FactTuple tuple = itr.next();
-			if (this.evaluate(tuple.getFacts(), fact)) {
+			if (this.evaluate(tuple, fact)) {
 				// now we propogate
 				FactTuple newTuple = tuple.addFact(fact);
 				mergeMemory.add(newTuple);
@@ -161,7 +161,7 @@ public class BetaNode extends BaseJoin {
 	 * @param right
 	 * @return
 	 */
-	public boolean evaluate(Fact[] leftlist, Fact right) {
+	public boolean evaluate(FactTuple leftlist, Fact right) {
 		boolean eval = true;
 		if (binds != null) {
 			// we iterate over the binds and evaluate the facts
@@ -171,8 +171,8 @@ public class BetaNode extends BaseJoin {
 				// we may want to consider putting the fact array into
 				// a map to make it more efficient. for now I just want
 				// to get it working.
-				if (leftlist.length >= bnd.getLeftRow()) {
-					Fact left = leftlist[bnd.getLeftRow()];
+				if (leftlist.facts.length >= bnd.getLeftRow()) {
+					Fact left = leftlist.facts[bnd.getLeftRow()];
 					if (left == right || !this.evaluate(left, bnd.getLeftIndex(), right, bnd.getRightIndex(), bnd.getOperator())) {
 						eval = false;
 						break;

@@ -9,7 +9,8 @@ public interface SelfCompilerInterface {
 	 * compile yourself!
 	 * 
 	 * @param compiler
+	 * @param bindingHelper 
 	 * @return an object ;)
 	 */
-	BaseNode compile(SFRuleCompiler compiler, Rule rule, int conditionIndex);
+	BaseNode compile(SFRuleCompiler compiler, Rule rule, int conditionIndex, BindingHelper bindingHelper);
 }

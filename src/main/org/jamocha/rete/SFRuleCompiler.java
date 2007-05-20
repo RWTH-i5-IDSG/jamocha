@@ -19,7 +19,9 @@ package org.jamocha.rete;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Vector;
 
 import org.jamocha.logging.DefaultLogger;
 import org.jamocha.parser.EvaluationException;
@@ -39,6 +41,7 @@ import org.jamocha.rule.Action;
 import org.jamocha.rule.Analysis;
 import org.jamocha.rule.AndCondition;
 import org.jamocha.rule.AndLiteralConstraint;
+import org.jamocha.rule.BindingHelper;
 import org.jamocha.rule.BoundConstraint;
 import org.jamocha.rule.Condition;
 import org.jamocha.rule.Constraint;
@@ -221,6 +224,7 @@ public class SFRuleCompiler implements RuleCompiler {
 	public boolean addRule(Rule rule) throws AssertException {
 		boolean result = false;
 		rule.resolveTemplates(engine);
+		BindingHelper bindingHelper = new BindingHelper();
 		if (!this.validate || (this.validate && this.tval.analyze(rule) == Analysis.VALIDATION_PASSED)) {
 			if (rule.getConditions() != null) {
 				// we check the name of the rule to see if it is for a specific
@@ -231,9 +235,10 @@ public class SFRuleCompiler implements RuleCompiler {
 				TerminalNode tnode = createTerminalNode(rule);
 				//has conditions:
 				if (rule.getConditions().length > 0) {
+
 					Condition[] conds = rule.getConditions();
 					for (int i = 0; i < conds.length; i++)
-						conds[i].compile(this, rule, i);
+						conds[i].compile(this, rule, i, bindingHelper);
 
 					compileJoins(rule);
 					
@@ -266,7 +271,7 @@ public class SFRuleCompiler implements RuleCompiler {
 					
 					///
 					
-					compileBindings(rule);
+					compileBindings(rule, bindingHelper);
 				//has no conditions:	
 				} else if (rule.getConditions().length == 0) {
 					// the rule has no LHS, this means it only has actions
@@ -304,13 +309,55 @@ public class SFRuleCompiler implements RuleCompiler {
 		Arrays.sort(sortedConds);
 
 		BaseNode fromBottom = terminal;
+		
+		HashMap<String, Integer> boundConstraintName2lastUsingCondition = new HashMap<String, Integer>();
+		
 		for (int i = 0; i < sortedConds.length; i++) {
 			Condition c = sortedConds[i];
 			// c now is the next condition with the lowest complexity
 
+			////
+			Binding[] binds = new Binding[0];
+
+			Vector<Binding> bindings = new Vector<Binding>();
+			for (Object o : c.getBindings()) {
+				if (o instanceof BoundConstraint){
+					BoundConstraint bc = (BoundConstraint)o;
+
+					Integer lastUseIn = boundConstraintName2lastUsingCondition.get(bc.getVariableName());
+
+					if (lastUseIn != null) {
+						Binding b = new Binding();
+						b.rightIndex = bc.getSlot().getId();
+						b.rightrow = -1;
+						b.varName = bc.getVariableName();
+						for (Object ob : sortedConds[lastUseIn].getBindings()) {
+							if (ob instanceof BoundConstraint){
+								BoundConstraint lastbc = (BoundConstraint)ob;
+								if (lastbc.getVariableName().equals(bc.getVariableName())) {
+									b.leftrow = lastUseIn;
+									b.leftIndex = lastbc.getSlot().getId();
+									break;
+								}
+							}
+						}
+						bindings.add(b);
+					}
+					boundConstraintName2lastUsingCondition.put(bc.getVariableName(), i);
+				}
+			}
+			binds = bindings.toArray(binds);
+
+			////
+			
+			
 			// now, check whether we have to create a new join
 			boolean createNewJoin = (i < sortedConds.length - 1);
 
+			if (i>0) {
+				((BetaNode)fromBottom).setBindings(binds);
+			}
+			
 			if (createNewJoin) {
 				// creat join add old bottom node, set join to new bottom node
 				BetaNode newJoin = new BetaNode(engine.nextNodeId());
@@ -327,10 +374,13 @@ public class SFRuleCompiler implements RuleCompiler {
 		}
 	}
 
-	protected void compileBindings(Rule rule) {
-		for (Iterator<Binding> bIt = rule.getBindingIterator(); bIt.hasNext();) {
-			Binding b = bIt.next();
-			System.out.println(b.toPPString());
+	protected void compileBindings(Rule rule, BindingHelper bindingHelper) {
+		System.out.println(bindingHelper);
+		for (String constraintName : bindingHelper.getAllNames() ) {
+			
+			//Constraint c = bindingHelper.getConstraint(constraintName);
+			
+			
 		}
 
 	}
@@ -495,7 +545,7 @@ public class SFRuleCompiler implements RuleCompiler {
 	 * 
 	 * @return compileConditionState
 	 */
-	public BaseNode compile(ObjectCondition condition, Rule rule, int conditionIndex) {
+	public BaseNode compile(ObjectCondition condition, Rule rule, int conditionIndex, BindingHelper bindingHelper) {
 		// get activated ObjectType Node:
 		Template template = condition.getTemplate();
 		ObjectTypeNode otn = null;
@@ -520,7 +570,7 @@ public class SFRuleCompiler implements RuleCompiler {
 						return null;
 
 					constraint.setSlot(slot);
-					current = (SlotAlpha) constraint.compile(this, rule, conditionIndex);
+					current = (SlotAlpha) constraint.compile(this, rule, conditionIndex, bindingHelper);
 
 					// we add the node to the previous
 					if (current != null) {
@@ -548,12 +598,12 @@ public class SFRuleCompiler implements RuleCompiler {
 	 * 
 	 * @return compileConditionState
 	 */
-	public BaseNode compile(ExistCondition condition, Rule rule, int conditionIndex) {
+	public BaseNode compile(ExistCondition condition, Rule rule, int conditionIndex, BindingHelper bindingHelper) {
 
 		// it seems to produce a loop ...
 		if (condition.hasObjectCondition()) {
 			ObjectCondition oc = (ObjectCondition) condition.getObjectCondition();
-			return oc.compile(this, rule, conditionIndex);
+			return oc.compile(this, rule, conditionIndex, bindingHelper);
 		}
 
 		return null;
@@ -568,7 +618,7 @@ public class SFRuleCompiler implements RuleCompiler {
 	 * 
 	 * @return compileConditionState
 	 */
-	public BaseNode compile(TestCondition condition, Rule rule, int conditionIndex) {
+	public BaseNode compile(TestCondition condition, Rule rule, int conditionIndex, BindingHelper bindingHelper) {
 		return null;
 	}
 
@@ -581,7 +631,7 @@ public class SFRuleCompiler implements RuleCompiler {
 	 * 
 	 * @return compileConditionState
 	 */
-	public BaseNode compile(AndCondition condition, Rule rule, int conditionIndex) {
+	public BaseNode compile(AndCondition condition, Rule rule, int conditionIndex, BindingHelper bindingHelper) {
 		return null;
 	}
 
@@ -594,7 +644,7 @@ public class SFRuleCompiler implements RuleCompiler {
 	 * 
 	 * @return compileConditionState
 	 */
-	public BaseNode compile(NotCondition condition, Rule rule, int conditionIndex) {
+	public BaseNode compile(NotCondition condition, Rule rule, int conditionIndex, BindingHelper bindingHelper) {
 		return null;
 	}
 
@@ -607,7 +657,7 @@ public class SFRuleCompiler implements RuleCompiler {
 	 * 
 	 * @return compileConditionState
 	 */
-	public BaseNode compile(OrCondition condition, Rule rule, int conditionIndex) {
+	public BaseNode compile(OrCondition condition, Rule rule, int conditionIndex, BindingHelper bindingHelper) {
 		return null;
 	}
 
@@ -621,7 +671,7 @@ public class SFRuleCompiler implements RuleCompiler {
 	 * 
 	 * @return BaseNode
 	 */
-	public BaseNode compile(PredicateConstraint constraint, Rule rule, int conditionIndex) {
+	public BaseNode compile(PredicateConstraint constraint, Rule rule, int conditionIndex, BindingHelper bindingHelper) {
 		SlotAlpha node = null;
 		// for now we expect the user to write the predicate in this
 		// way (> ?bind value), where the binding is first. this
@@ -739,7 +789,7 @@ public class SFRuleCompiler implements RuleCompiler {
 	 * 
 	 * @return BaseNode
 	 */
-	public BaseNode compile(LiteralConstraint constraint, Rule rule, int conditionIndex) {
+	public BaseNode compile(LiteralConstraint constraint, Rule rule, int conditionIndex, BindingHelper bindingHelper) {
 		SlotAlpha node = null;
 		Slot sl = (Slot) constraint.getSlot().clone();
 		JamochaValue sval;
@@ -771,29 +821,31 @@ public class SFRuleCompiler implements RuleCompiler {
 	 * 
 	 * @return BaseNode
 	 */
-	public BaseNode compile(BoundConstraint constraint, Rule rule, int conditionIndex) {
+	public BaseNode compile(BoundConstraint constraint, Rule rule, int conditionIndex, BindingHelper bindingHelper) {
+		bindingHelper.register(constraint, rule.getConditions()[conditionIndex], conditionIndex, constraint.getSlot().getId());
+		
 		// we need to create a binding class for the BoundConstraint
-		if (rule.getBinding(constraint.getVariableName()) == null) {
+//		if (rule.getBinding(constraint.getVariableName()) == null) {
 			// if the HashMap doesn't already contain the binding,
 			// we create
 			// a new one
-			if (constraint.getIsObjectBinding()) {
-				Binding bind = new Binding();
-				bind.setVarName(constraint.getVariableName());
-				bind.setLeftRow(conditionIndex);
-				bind.setLeftIndex(-1);
-				bind.setIsObjectVar(true);
-				rule.addBinding(constraint.getVariableName(), bind);
-			} else {
-				Binding bind = new Binding();
-				bind.setVarName(constraint.getVariableName());
-				bind.setLeftRow(conditionIndex);
-				bind.setLeftIndex(constraint.getSlot().getId());
-				bind.setRowDeclared(conditionIndex);
-				constraint.setFirstDeclaration(true);
-				rule.addBinding(constraint.getVariableName(), bind);
-			}
-		}
+//			if (constraint.getIsObjectBinding()) {
+//				Binding bind = new Binding();
+//				bind.setVarName(constraint.getVariableName());
+//				bind.setLeftRow(conditionIndex);
+//				bind.setLeftIndex(-1);
+//				bind.setIsObjectVar(true);
+//				rule.addBinding(constraint.getVariableName(), bind);
+//			} else {
+//				Binding bind = new Binding();
+//				bind.setVarName(constraint.getVariableName());
+//				bind.setLeftRow(conditionIndex);
+//				bind.setLeftIndex(constraint.getSlot().getId());
+//				bind.setRowDeclared(conditionIndex);
+//				constraint.setFirstDeclaration(true);
+//				rule.addBinding(constraint.getVariableName(), bind);
+//			}
+//		}
 		return null;
 	}
 
@@ -809,7 +861,7 @@ public class SFRuleCompiler implements RuleCompiler {
 	 * @throws Exception
 	 */
 
-	public BaseNode compile(AndLiteralConstraint constraint, Rule rule, int conditionIndex) {
+	public BaseNode compile(AndLiteralConstraint constraint, Rule rule, int conditionIndex, BindingHelper bindingHelper) {
 		SlotAlpha node = null;
 		Slot2 sl = new Slot2(constraint.getName());
 		sl.setId(constraint.getSlot().getId());

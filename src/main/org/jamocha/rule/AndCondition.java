@@ -39,7 +39,7 @@ public class AndCondition extends BooleanOperatorCondition {
 		super();
 	}
 
-	public BaseNode compile(SFRuleCompiler compiler, Rule rule, int conditionIndex) {
-		return compiler.compile(this, rule, conditionIndex);
+	public BaseNode compile(SFRuleCompiler compiler, Rule rule, int conditionIndex, BindingHelper bindingHelper) {
+		return compiler.compile(this, rule, conditionIndex, bindingHelper);
 	}
 }
