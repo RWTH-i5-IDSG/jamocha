@@ -29,10 +29,10 @@ import org.jamocha.rete.nodes.BaseNode;
  */
 public class ConversionUtils {
 
-    private static HashMap OPR_MAP;
+    private static HashMap <String, String>OPR_MAP;
     
     static {
-        OPR_MAP = new HashMap();
+        OPR_MAP = new HashMap<String,String>();
         OPR_MAP.put(String.valueOf(Constants.ADD),Constants.ADD_STRING);
         OPR_MAP.put(String.valueOf(Constants.SUBTRACT),Constants.SUBTRACT_STRING);
         OPR_MAP.put(String.valueOf(Constants.MULTIPLY),Constants.MULTIPLY_STRING);

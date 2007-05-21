@@ -22,7 +22,6 @@ import java.util.Vector;
 import org.jamocha.rete.AlphaMemory;
 import org.jamocha.rete.BetaMemory;
 import org.jamocha.rete.Binding;
-import org.jamocha.rete.ConversionUtils;
 import org.jamocha.rete.Fact;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.exception.AssertException;
@@ -113,7 +112,7 @@ public abstract class BaseJoin extends BaseNode {
 	 */
 	public abstract void retractRight(Fact fact, Rete engine) throws RetractException;
 
-	public abstract void setBindings(Binding[] binds);
+	public abstract void setBindings(Binding[] binds, Rete engine) throws AssertException;
 	
 	
 	/**

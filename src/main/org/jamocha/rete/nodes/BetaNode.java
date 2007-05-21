@@ -53,6 +53,9 @@ public class BetaNode extends BaseJoin {
 	 */
 	protected int operator = Constants.EQUAL;
 
+	// per default deactivated
+	protected boolean activated = false;
+
 	public BetaNode(int id) {
 		super(id);
 	}
@@ -61,9 +64,22 @@ public class BetaNode extends BaseJoin {
 	 * Set the bindings for this join
 	 * 
 	 * @param binds
+	 * @throws AssertException 
 	 */
-	public void setBindings(Binding[] binds) {
+	public void setBindings(Binding[] binds, Rete engine) throws AssertException {
 		this.binds = binds;
+		// activate node:
+		activate(engine);
+	}
+
+	private void activate(Rete engine) throws AssertException {
+		// we have to traverse the whole beta mem and eval it.
+		activated = true;
+		Iterator<FactTuple> itr = betaMemory.iterator();
+		while (itr.hasNext()) {
+			FactTuple tuple = itr.next();
+			evaluateBeta(tuple, engine);
+			}
 	}
 
 	/**
@@ -77,16 +93,10 @@ public class BetaNode extends BaseJoin {
 	@Override
 	public void assertLeft(FactTuple tuple, Rete engine) throws AssertException {
 		betaMemory.add(tuple);
-		Iterator<Fact> itr = alphaMemory.iterator();
-		while (itr.hasNext()) {
-			Fact rfcts = itr.next();
-			if (this.evaluate(tuple, rfcts)) {
-				FactTuple newTuple = tuple.addFact(rfcts);
-				mergeMemory.add(newTuple);
-				this.propogateAssert(newTuple, engine);
-			}
+		//only if activated:
+		if (activated) {
+			evaluateBeta(tuple, engine);
 		}
-
 	}
 
 	/**
@@ -98,15 +108,17 @@ public class BetaNode extends BaseJoin {
 	@Override
 	public void assertRight(Fact fact, Rete engine) throws AssertException {
 		alphaMemory.add(fact);
-
-		Iterator<FactTuple> itr = betaMemory.iterator();
-		while (itr.hasNext()) {
-			FactTuple tuple = itr.next();
-			if (this.evaluate(tuple, fact)) {
-				// now we propogate
-				FactTuple newTuple = tuple.addFact(fact);
-				mergeMemory.add(newTuple);
-				this.propogateAssert(newTuple, engine);
+		//only if activated:
+		if (activated) {
+			Iterator<FactTuple> itr = betaMemory.iterator();
+			while (itr.hasNext()) {
+				FactTuple tuple = itr.next();
+				if (this.evaluate(tuple, fact)) {
+					// now we propogate
+					FactTuple newTuple = tuple.addFact(fact);
+					mergeMemory.add(newTuple);
+					this.propogateAssert(newTuple, engine);
+				}
 			}
 		}
 	}
@@ -152,6 +164,19 @@ public class BetaNode extends BaseJoin {
 		}
 	}
 
+	protected void evaluateBeta(FactTuple tuple, Rete engine) throws AssertException {
+		Iterator<Fact> itr = alphaMemory.iterator();
+		while (itr.hasNext()) {
+			Fact rfcts = itr.next();
+			if (this.evaluate(tuple, rfcts)) {
+				FactTuple newTuple = tuple.addFact(rfcts);
+				mergeMemory.add(newTuple);
+				this.propogateAssert(newTuple, engine);
+			}
+		}
+
+	}
+
 	/**
 	 * Method will use the right binding to perform the evaluation of the join.
 	 * Since we are building joins similar to how CLIPS and other rule engines
@@ -161,7 +186,7 @@ public class BetaNode extends BaseJoin {
 	 * @param right
 	 * @return
 	 */
-	public boolean evaluate(FactTuple leftlist, Fact right) {
+	protected boolean evaluate(FactTuple tuple, Fact right) {
 		boolean eval = true;
 		if (binds != null) {
 			// we iterate over the binds and evaluate the facts
@@ -171,8 +196,8 @@ public class BetaNode extends BaseJoin {
 				// we may want to consider putting the fact array into
 				// a map to make it more efficient. for now I just want
 				// to get it working.
-				if (leftlist.facts.length >= bnd.getLeftRow()) {
-					Fact left = leftlist.facts[bnd.getLeftRow()];
+				if (tuple.facts.length >= bnd.getLeftRow()) {
+					Fact left = tuple.facts[bnd.getLeftRow()];
 					if (left == right || !this.evaluate(left, bnd.getLeftIndex(), right, bnd.getRightIndex(), bnd.getOperator())) {
 						eval = false;
 						break;
@@ -194,17 +219,15 @@ public class BetaNode extends BaseJoin {
 	 * @param rightId
 	 * @return
 	 */
-	public boolean evaluate(Fact left, int leftId, Fact right, int rightId, int op) {
+	protected boolean evaluate(Fact left, int leftId, Fact right, int rightId, int op) {
 		if (op == Constants.EQUAL) {
-			return Evaluate.evaluateEqual(left.getSlotValue(leftId), right.getSlotValue(rightId));
+			return left.getSlotValue(leftId).equals(right.getSlotValue(rightId));
 		} else if (op == Constants.NOTEQUAL) {
-			return Evaluate.evaluateNotEqual(left.getSlotValue(leftId), right.getSlotValue(rightId));
+			return !left.getSlotValue(leftId).equals(right.getSlotValue(rightId));
 		} else {
 			return Evaluate.evaluate(op, left.getSlotValue(leftId), right.getSlotValue(rightId));
 		}
 	}
-
-
 
 	@Override
 	protected void mountChild(BaseNode newChild, Rete engine) throws AssertException {

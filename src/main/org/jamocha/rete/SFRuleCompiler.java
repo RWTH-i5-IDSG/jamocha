@@ -364,7 +364,7 @@ public class SFRuleCompiler implements RuleCompiler {
 							if (ob instanceof BoundConstraint){
 								BoundConstraint lastbc = (BoundConstraint)ob;
 								if (lastbc.getVariableName().equals(bc.getVariableName())) {
-									b.leftrow = lastUseIn;
+									b.leftrow = sortedConds.length -1 - lastUseIn;
 									b.leftIndex = lastbc.getSlot().getId();
 									break;
 								}
@@ -377,7 +377,7 @@ public class SFRuleCompiler implements RuleCompiler {
 			}
 			binds = bindings.toArray(binds);
 			System.out.println(binds.length);
-			if (binds.length>0) ((BetaNode)conditionJoiners.get(c)).setBindings(binds);
+			if (binds.length>0) ((BetaNode)conditionJoiners.get(c)).setBindings(binds, engine);
 	
 		}
 
