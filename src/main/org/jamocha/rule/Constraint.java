@@ -31,7 +31,7 @@ import org.jamocha.rete.TemplateSlot;
  * then evaluated against 1 or more operations.
  * 
  */
-public interface Constraint extends Serializable, Complexity, SelfCompilerInterface{
+public interface Constraint extends Serializable, Complexity, Compileable{
 
 	/**
 	 * This should be the name of the constraint. In the case of an object, it

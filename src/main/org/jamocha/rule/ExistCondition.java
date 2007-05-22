@@ -175,8 +175,8 @@ public class ExistCondition extends AbstractCondition {
 		nodes.clear();
 	}
 
-	public BaseNode compile(SFRuleCompiler compiler, Rule rule, int conditionIndex, BindingHelper bindingHelper) {
-		return compiler.compile(this, rule, conditionIndex, bindingHelper);
+	public BaseNode compile(SFRuleCompiler compiler, Rule rule, int conditionIndex) {
+		return compiler.compile(this, rule, conditionIndex);
 	}
 
 }
