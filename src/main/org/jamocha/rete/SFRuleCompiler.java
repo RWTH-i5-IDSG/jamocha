@@ -297,6 +297,8 @@ public class SFRuleCompiler implements RuleCompiler {
 			conditionJoiners.put(c,fromBottom);
 			BaseNode lastNode = c.getLastNode();
 
+			//HERE
+			
 			if (lastNode != null)
 				(lastNode).addNode(fromBottom, engine);
 		}
@@ -304,6 +306,40 @@ public class SFRuleCompiler implements RuleCompiler {
 	}
 
 	protected void compileBindings(Rule rule, Condition[] conds, Map<Condition, BaseNode> conditionJoiners) throws AssertException {
+		// WARNING: THIS IMPLEMENTATION IS FULLY INEFFICIENT SINCE IT IS - LIKE FIRST TRY - ONLY PROOF OF CONCEPT CODE.
+		// IF THIS APPROACH WILL SHAPE UP AS GOOD, WE CAN DO MANY THINGS MORE EFFICIENT...
+		
+		// first, we need such a table
+		/*
+		 *                 CONDITION1      CONDITION2          CONDITION3        CONDITION4       CONDITION5
+		 *     VARIABLE1      !=              !=                ==  ==             != [==]
+		 * 	   VARIABLE2      ==                                  [==]
+		 *     VARIABLE3                      != !=                                  [==]
+		 */
+		// then, for each variable V, a boundconstraint C is a "hook-constraint", iff C binds V in a not-negated manner.
+		// a "hook-condition" (wrt V) is a a condition, containing a "hook-constraint" (wrt V)
+		
+		// 1) for each variable, we first try to find the last hook-condition and the corresponding hook-constraint in "conds"-array
+		
+		Map <String, Condition> lastHookCondition = new HashMap<String, Condition>();
+		Map <String, Constraint> lastHookConstraint = new HashMap<String, Constraint>();
+		
+		// 2) iterate over all variables. let V the actual variable, hookCond the last hook condition and hookConstr the last hook constraint.
+		//    further, let Constr be the set of all hook constraints wrt V. 
+		//    let generateBindingsFor be that set= { ( x , hookConstr) | x \in Constr, x != hookConstr }
+
+		// 3) for each b \in generateBindingsFor:
+		//    generate that binding "bind":
+		//			varName = variable name from constraint b.x (easy)
+		//			operator = operator from constraint b.x (easy)
+		//			[left|right][row|index] = compute from the table (maybe a bit tricky in some cases)
+		//	  if b.x and hookConstr are from two different condition, put that binding into the joinnode from x's condition
+		//    if b.x and hookConstr are from the same condition, we must insert some additional join nodes (details about that would have to become elaborated)
+		
+	}
+	
+	
+	protected void compileBindings2(Rule rule, Condition[] conds, Map<Condition, BaseNode> conditionJoiners) throws AssertException {
 		Vector<Binding> bindings = new Vector<Binding>();
 		HashMap<String, Integer> boundConstraintName2lastUsingCondition = new HashMap<String, Integer>();
 		
