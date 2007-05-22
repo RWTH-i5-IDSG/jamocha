@@ -309,12 +309,12 @@ public class SFRuleCompiler implements RuleCompiler {
 		// WARNING: THIS IMPLEMENTATION IS FULLY INEFFICIENT SINCE IT IS - LIKE FIRST TRY - ONLY PROOF OF CONCEPT CODE.
 		// IF THIS APPROACH WILL SHAPE UP AS GOOD, WE CAN DO MANY THINGS MORE EFFICIENT...
 		
-		// first, we need such a table
+		// first, we need such a table (since each condition can contain many constraints, there are more than one operator-sign per cell)
 		/*
 		 *                 CONDITION1      CONDITION2          CONDITION3        CONDITION4       CONDITION5
 		 *     VARIABLE1      !=              !=                ==  ==             != [==]
 		 * 	   VARIABLE2      ==                                  [==]
-		 *     VARIABLE3                      != !=                                  [==]
+		 *     VARIABLE3                      != >=                                 [==]
 		 */
 		// then, for each variable V, a boundconstraint C is a "hook-constraint", iff C binds V in a not-negated manner.
 		// a "hook-condition" (wrt V) is a a condition, containing a "hook-constraint" (wrt V)
