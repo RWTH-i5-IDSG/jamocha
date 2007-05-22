@@ -278,7 +278,6 @@ public class SFRuleCompiler implements RuleCompiler {
 
 		BaseNode fromBottom = terminal;
 		
-		HashMap<String, Integer> boundConstraintName2lastUsingCondition = new HashMap<String, Integer>();
 		HashMap<Condition, BaseNode> conditionJoiners = new HashMap<Condition, BaseNode>();
 		
 		for (int i = 0; i < sortedConds.length; i++) {
@@ -301,11 +300,15 @@ public class SFRuleCompiler implements RuleCompiler {
 			if (lastNode != null)
 				(lastNode).addNode(fromBottom, engine);
 		}
-		compileBindings(rule, sortedConds, boundConstraintName2lastUsingCondition, conditionJoiners);
+		compileBindings(rule, sortedConds, conditionJoiners);
 	}
 
-	protected void compileBindings(Rule rule, Condition[] conds, Map<String,Integer> boundConstraintName2lastUsingCondition, Map<Condition, BaseNode> conditionJoiners) throws AssertException {
+	protected void compileBindings(Rule rule, Condition[] conds, Map<Condition, BaseNode> conditionJoiners) throws AssertException {
 		Vector<Binding> bindings = new Vector<Binding>();
+		HashMap<String, Integer> boundConstraintName2lastUsingCondition = new HashMap<String, Integer>();
+		
+		HashMap<String, Vector<Integer>> negatedBCs = new HashMap<String, Vector<Integer>>();
+		
 		for (int i = conds.length-1 ; i>=0; i--){
 			Condition c = conds[i];
 			Binding[] binds = new Binding[0];
@@ -316,6 +319,50 @@ public class SFRuleCompiler implements RuleCompiler {
 					BoundConstraint bc = (BoundConstraint)o;
 	
 					Integer lastUseIn = boundConstraintName2lastUsingCondition.get(bc.getVariableName());
+					
+					if (lastUseIn == null && bc.getNegated()) {
+						// hmmm... this is the first time we see this boundconstraint and
+						// it is negated.... what shall we do now?
+						// we save it into negatedBCs. we must handle that when we will
+						// find it not negated!
+						
+						Vector<Integer> neg = negatedBCs.get(bc.getVariableName());
+						if (neg == null) {
+							neg = new Vector<Integer>();
+							negatedBCs.put(bc.getVariableName(), neg);
+						}
+						neg.add(i);
+					}
+					
+					Vector<Integer> oldConds = null;
+					if (lastUseIn == null && !bc.getNegated() && (oldConds=negatedBCs.get(bc.getVariableName())) != null ) {
+						// thats the point, we have to handle negated versions of that boundconstraint
+						// we found in past
+						
+						for ( Integer oldCondition : oldConds ){
+							Binding b = new Binding();
+							b.varName = bc.getVariableName();
+							b.operator = Constants.NOTEQUAL;
+							b.rightrow = -1;
+							b.rightIndex = bc.getSlot().getId();
+							// search for the occurence of the boundconstraint in the other condition
+							// TODO: optimize that by holding that value at first finding time
+							for (Object ob : conds[oldCondition].getBindings()) {
+								if (ob instanceof BoundConstraint){
+									BoundConstraint lastbc = (BoundConstraint)ob;
+									if (lastbc.getVariableName().equals(bc.getVariableName())) {
+										b.leftrow = conds.length - 1 - oldCondition;
+										b.leftIndex = lastbc.getSlot().getId();
+										break;
+									}
+								}
+							}
+							
+							bindings.add(b);
+							
+						}
+						
+					}
 	
 					if (lastUseIn != null) {
 						Binding b = new Binding();
@@ -329,6 +376,9 @@ public class SFRuleCompiler implements RuleCompiler {
 							b.setOperator(Constants.EQUAL);
 						}*/ //(COMMENTED OUT SINCE DEFAULT OPERATOR IS EQUAL!)
 						
+						
+						// search for the occurence of the boundconstraint in the other condition
+						// TODO: optimize that by holding that value at first finding time
 						for (Object ob : conds[lastUseIn].getBindings()) {
 							if (ob instanceof BoundConstraint){
 								BoundConstraint lastbc = (BoundConstraint)ob;
@@ -339,6 +389,7 @@ public class SFRuleCompiler implements RuleCompiler {
 								}
 							}
 						}
+						
 						bindings.add(b);
 					}
 					if (!bc.getNegated()) {

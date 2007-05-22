@@ -1,14 +1,27 @@
 
 (deftemplate wurst (slot name) (slot spitzname) (slot farbe) )
-
 (deftemplate salat (slot name) (slot farbe) )
+(deftemplate getraenk (slot name) (slot farbe) )
 
 (assert (wurst (name "bratwurst")(spitzname "bratwosch")(farbe "weiss") ))
 (assert (wurst (name "weisswurst")(spitzname "weisswurst")(farbe "weiss") ))
 (assert (wurst (name "wienerwurst")(spitzname "wiener")(farbe "rot") ))
 (assert (wurst (name "gemuesewurst")(spitzname "gemuesewurst")(farbe "gruen") ))
 (assert (wurst (name "kartoffelsalat")(farbe "pink") ))
+
 (assert (salat (name "kartoffelsalat")(farbe "weiss") ))
+
+(assert (getraenk (name "wasser") (farbe "schwarz") ))
+(assert (getraenk (name "cola") (farbe "schwarz") ))
+(assert (getraenk (name "kartoffelsalat") (farbe "schwarz") ))
+
+(defrule tst
+	(wurst (name ~ ?salad))
+	(salat (name ?salad))
+	(getraenk (name ~ ?salad))
+	=> (printout t ?salad crlf)
+)
+
 
 (defrule megarule1
 	(salat (farbe ?farbe))
@@ -17,11 +30,7 @@
 )
 
 
-(defrule tst
-	(wurst (name ~ ?salad))
-	(salat (name ?salad))
-	=> (printout t ?salad crlf)
-)
+
 
 (defrule megarule
 	(wurst (name ?wurstname) (spitzname ?wurstname) )
