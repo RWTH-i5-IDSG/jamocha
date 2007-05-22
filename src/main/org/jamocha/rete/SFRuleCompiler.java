@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Vector;
 
 import org.jamocha.logging.DefaultLogger;
@@ -241,37 +242,6 @@ public class SFRuleCompiler implements RuleCompiler {
 						conds[i].compile(this, rule, i, bindingHelper);
 
 					compileJoins(rule);
-					
-					///
-					System.out.println("Direkt aus der Regel:");
-					Iterator<Binding> b = rule.getBindingIterator();
-					while (b.hasNext()) {
-						Binding c = b.next();
-						System.out.println(c.toPPString());
-					}
-					
-					for (Condition c : rule.getConditions()) {
-						System.out.println("Für Condition "+c.toString()+":");
-						System.out.println("getBindings():");
-						for (Object bin : c.getBindings()) {
-							//Binding boo = (Binding) bin;
-							System.out.println(bin.toString());
-						}
-						System.out.println("getAllBindings():");
-						for (Object bin : c.getAllBindings()) {
-							//Binding boo = (Binding) bin;
-							System.out.println(bin.toString());
-						}
-						System.out.println("getConstraints():");
-						for (Constraint cons : ((ObjectCondition)c).getConstraints() ) {
-							System.out.println(cons.toString());
-						}
-					}
-					System.out.println("over and out");
-					
-					///
-					
-					compileBindings(rule, bindingHelper);
 				//has no conditions:	
 				} else if (rule.getConditions().length == 0) {
 					// the rule has no LHS, this means it only has actions
@@ -316,13 +286,8 @@ public class SFRuleCompiler implements RuleCompiler {
 		for (int i = 0; i < sortedConds.length; i++) {
 			Condition c = sortedConds[i];
 			// c now is the next condition with the lowest complexity
-
-			
-			
 			// now, check whether we have to create a new join
 			boolean createNewJoin = (i < sortedConds.length - 1);
-
-
 			
 			if (createNewJoin) {
 				// creat join add old bottom node, set join to new bottom node
@@ -331,24 +296,23 @@ public class SFRuleCompiler implements RuleCompiler {
 				fromBottom = newJoin;
 				// add join to rule:
 				rule.addJoinNode(newJoin);
-
 			}
-			
 			conditionJoiners.put(c,fromBottom);
-			
 			BaseNode lastNode = c.getLastNode();
 
 			if (lastNode != null)
 				(lastNode).addNode(fromBottom, engine);
 		}
-		
-		for (int i = sortedConds.length-1 ; i>=0; i--){
-			////
-			////
-			Condition c = sortedConds[i];
+		compileBindings(rule, sortedConds, boundConstraintName2lastUsingCondition, conditionJoiners);
+	}
+
+	protected void compileBindings(Rule rule, Condition[] conds, Map<String,Integer> boundConstraintName2lastUsingCondition, Map<Condition, BaseNode> conditionJoiners) throws AssertException {
+		Vector<Binding> bindings = new Vector<Binding>();
+		for (int i = conds.length-1 ; i>=0; i--){
+			Condition c = conds[i];
 			Binding[] binds = new Binding[0];
 	
-			Vector<Binding> bindings = new Vector<Binding>();
+
 			for (Object o : c.getBindings()) {
 				if (o instanceof BoundConstraint){
 					BoundConstraint bc = (BoundConstraint)o;
@@ -360,12 +324,18 @@ public class SFRuleCompiler implements RuleCompiler {
 						b.rightIndex = bc.getSlot().getId();
 						b.rightrow = -1;
 						b.varName = bc.getVariableName();
-						b.negated = bc.getNegated();
-						for (Object ob : sortedConds[lastUseIn].getBindings()) {
+						
+						if (bc.getNegated()) {
+							b.setOperator(Constants.NOTEQUAL);
+						}/* else {
+							b.setOperator(Constants.EQUAL);
+						}*/ //(DEFAULT OPERATOR IS EQUAL!)
+						
+						for (Object ob : conds[lastUseIn].getBindings()) {
 							if (ob instanceof BoundConstraint){
 								BoundConstraint lastbc = (BoundConstraint)ob;
 								if (lastbc.getVariableName().equals(bc.getVariableName())) {
-									b.leftrow = sortedConds.length - 1 - lastUseIn;
+									b.leftrow = conds.length - 1 - lastUseIn;
 									b.leftIndex = lastbc.getSlot().getId();
 									break;
 								}
@@ -379,24 +349,9 @@ public class SFRuleCompiler implements RuleCompiler {
 				}
 			}
 			binds = bindings.toArray(binds);
-			System.out.println(binds.length);
+			bindings.clear();
 			if (binds.length>0) ((BetaNode)conditionJoiners.get(c)).setBindings(binds, engine);
-	
 		}
-
-		
-		
-	}
-
-	protected void compileBindings(Rule rule, BindingHelper bindingHelper) {
-		System.out.println(bindingHelper);
-		for (String constraintName : bindingHelper.getAllNames() ) {
-			
-			//Constraint c = bindingHelper.getConstraint(constraintName);
-			
-			
-		}
-
 	}
 
 	/*

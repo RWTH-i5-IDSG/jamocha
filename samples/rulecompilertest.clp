@@ -7,6 +7,7 @@
 (assert (wurst (name "weisswurst")(spitzname "weisswurst")(farbe "weiss") ))
 (assert (wurst (name "wienerwurst")(spitzname "wiener")(farbe "rot") ))
 (assert (wurst (name "gemuesewurst")(spitzname "gemuesewurst")(farbe "gruen") ))
+(assert (wurst (name "kartoffelsalat")(farbe "pink") ))
 (assert (salat (name "kartoffelsalat")(farbe "weiss") ))
 
 (defrule megarule1
@@ -16,7 +17,11 @@
 )
 
 
-
+(defrule tst
+	(wurst (name ~ ?salad))
+	(salat (name ?salad))
+	=> (printout t ?salad crlf)
+)
 
 (defrule megarule
 	(wurst (name ?wurstname) (spitzname ?wurstname) )

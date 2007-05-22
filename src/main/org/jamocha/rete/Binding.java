@@ -88,12 +88,6 @@ public class Binding implements Serializable, Cloneable {
     protected int rightIndex;
     
     /**
-     * by default bindings test for equality. in some cases
-     * they test for inequality.
-     */
-    protected boolean negated = false;
-    
-    /**
      * We need this to keep track of which CE is the first to declare
      * a binding. This is important to rule compilation.
      */
@@ -219,55 +213,16 @@ public class Binding implements Serializable, Cloneable {
         this.rightIndex = indx;
     }
     
-    /**
-     * by default bindings are not negated. if it is,
-     * method return true.
-     * @return
-     */
-    public boolean negated() {
-    	return this.negated;
-    }
-    
-    /**
-     * if a binding is negated, call the method with true
-     * @param neg
-     */
-    public void setNegated(boolean neg) {
-    	this.negated = neg;
-    }
-    
-    /**
-     * Since the binding refers to the row and column, the binding
-     * doesn't know the deftemplate.
-     * @return
-     */
-    public String toBindString(){
-        StringBuffer buf = new StringBuffer();
-        buf.append("(" + this.leftrow + ")(");
-        buf.append(this.leftIndex);
-        if (this.negated) {
-            buf.append(") " + Constants.NOTEQUAL_STRING + " (" +
-                    this.rightrow + ")(");
-        } else {
-            buf.append(") " + Constants.EQUAL_STRING + " (" +
-                    this.rightrow + ")(");
-        }
-        buf.append(this.rightIndex);
-        buf.append(")");
-        return buf.toString();
-    }
-    
+  
     public String toPPString() {
         StringBuffer buf = new StringBuffer();
         buf.append("?" + varName + " left(");
         buf.append(this.leftrow);
         buf.append(",");
         buf.append(this.leftIndex);
-        if (this.negated) {
-            buf.append(") " + Constants.NOTEQUAL_STRING + " right(");
-        } else {
-            buf.append(") " + Constants.EQUAL_STRING + " right(");
-        }
+        buf.append(") ");
+        buf.append(ConversionUtils.getPPOperator(operator));
+        buf.append(" right(");
         buf.append(rightrow);
         buf.append(",");
         buf.append(this.rightIndex);
@@ -287,6 +242,11 @@ public class Binding implements Serializable, Cloneable {
         bind.setLeftIndex(this.getLeftIndex());
         bind.setRightRow(this.getRightRow());
         bind.setRightIndex(this.getRightIndex());
+        bind.setOperator(this.getOperator());
         return bind;
     }
+
+	public void setOperator(int operator) {
+		this.operator = operator;
+	}
 }
