@@ -68,7 +68,6 @@ public class BetaNode extends BaseJoin {
 	 */
 	public void setBindings(Binding[] binds, Rete engine) throws AssertException {
 		this.binds = binds;
-		// activate node:
 		activate(engine);
 	}
 
@@ -79,7 +78,7 @@ public class BetaNode extends BaseJoin {
 		while (itr.hasNext()) {
 			FactTuple tuple = itr.next();
 			evaluateBeta(tuple, engine);
-			}
+		}
 	}
 
 	/**
@@ -187,27 +186,13 @@ public class BetaNode extends BaseJoin {
 	 * @return
 	 */
 	protected boolean evaluate(FactTuple tuple, Fact right) {
-		boolean eval = true;
 		if (binds != null) {
 			// we iterate over the binds and evaluate the facts
-			for (int idx = 0; idx < this.binds.length; idx++) {
-				// we got the binding
-				Binding bnd = (Binding) binds[idx];
-				// we may want to consider putting the fact array into
-				// a map to make it more efficient. for now I just want
-				// to get it working.
-				if (tuple.facts.length >= bnd.getLeftRow()) {
-					Fact left = tuple.facts[bnd.getLeftRow()];
-					if (left == right || !this.evaluate(left, bnd.getLeftIndex(), right, bnd.getRightIndex(), bnd.getOperator())) {
-						eval = false;
-						break;
-					}
-				} else {
-					eval = false;
-				}
+			for ( Binding binding : binds ) {
+				if (!binding.evaluate(right, tuple)) return false;
 			}
 		}
-		return eval;
+		return true;
 	}
 
 	/**
@@ -219,15 +204,15 @@ public class BetaNode extends BaseJoin {
 	 * @param rightId
 	 * @return
 	 */
-	protected boolean evaluate(Fact left, int leftId, Fact right, int rightId, int op) {
-		if (op == Constants.EQUAL) {
-			return left.getSlotValue(leftId).equals(right.getSlotValue(rightId));
-		} else if (op == Constants.NOTEQUAL) {
-			return !left.getSlotValue(leftId).equals(right.getSlotValue(rightId));
-		} else {
-			return Evaluate.evaluate(op, left.getSlotValue(leftId), right.getSlotValue(rightId));
-		}
-	}
+//	protected boolean evaluate(Fact left, int leftId, Fact right, int rightId, int op) {
+//		if (op == Constants.EQUAL) {
+//			return left.getSlotValue(leftId).equals(right.getSlotValue(rightId));
+//		} else if (op == Constants.NOTEQUAL) {
+//			return !left.getSlotValue(leftId).equals(right.getSlotValue(rightId));
+//		} else {
+//			return Evaluate.evaluate(op, left.getSlotValue(leftId), right.getSlotValue(rightId));
+//		}
+//	}
 
 	@Override
 	protected void mountChild(BaseNode newChild, Rete engine) throws AssertException {

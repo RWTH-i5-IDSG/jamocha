@@ -18,6 +18,8 @@ package org.jamocha.rete;
 
 import java.io.Serializable;
 
+import org.jamocha.rete.nodes.FactTuple;
+
 /**
  * @author Peter Lin
  *
@@ -48,6 +50,10 @@ public class Binding implements Serializable, Cloneable {
 
 	public int getOperator() {
 		return this.operator;
+	}
+	
+	public boolean evaluate(Fact right, FactTuple left) {
+			return Evaluate.evaluate(operator, left.getFacts()[leftrow].getSlotValue(leftIndex), right.getSlotValue(rightIndex));
 	}
 	
 	/**
