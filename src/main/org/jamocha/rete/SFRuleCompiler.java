@@ -360,11 +360,12 @@ public class SFRuleCompiler implements RuleCompiler {
 						b.rightIndex = bc.getSlot().getId();
 						b.rightrow = -1;
 						b.varName = bc.getVariableName();
+						b.negated = bc.getNegated();
 						for (Object ob : sortedConds[lastUseIn].getBindings()) {
 							if (ob instanceof BoundConstraint){
 								BoundConstraint lastbc = (BoundConstraint)ob;
 								if (lastbc.getVariableName().equals(bc.getVariableName())) {
-									b.leftrow = sortedConds.length -1 - lastUseIn;
+									b.leftrow = sortedConds.length - 1 - lastUseIn;
 									b.leftIndex = lastbc.getSlot().getId();
 									break;
 								}
@@ -372,7 +373,9 @@ public class SFRuleCompiler implements RuleCompiler {
 						}
 						bindings.add(b);
 					}
-					boundConstraintName2lastUsingCondition.put(bc.getVariableName(), i);
+					if (!bc.getNegated()) {
+						boundConstraintName2lastUsingCondition.put(bc.getVariableName(), i);
+					}
 				}
 			}
 			binds = bindings.toArray(binds);
