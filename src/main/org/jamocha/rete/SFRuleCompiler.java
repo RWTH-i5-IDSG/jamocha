@@ -243,8 +243,8 @@ public class SFRuleCompiler implements RuleCompiler {
 				//has no conditions:	
 				} else if (rule.getConditions().length == 0) {
 					// the rule has no LHS, this means it only has actions
-					BaseNode last = (BaseNode) root.getObjectTypeNodes().get(engine.initFact);
-					last.addNode(tnode, engine);
+					BaseNode initFactNode = root.activateObjectTypeNode(engine.initFact, engine);
+					initFactNode.addNode(tnode, engine);
 				}
 				compileActions(rule);
 
@@ -318,6 +318,7 @@ public class SFRuleCompiler implements RuleCompiler {
 				if (o instanceof BoundConstraint){
 					BoundConstraint bc = (BoundConstraint)o;
 	
+					// remembers, in which condition a given variablename occured last (in not negated manner!)
 					Integer lastUseIn = boundConstraintName2lastUsingCondition.get(bc.getVariableName());
 					
 					if (lastUseIn == null && bc.getNegated()) {
@@ -363,6 +364,13 @@ public class SFRuleCompiler implements RuleCompiler {
 						negatedBCs.remove(bc.getVariableName());
 					}
 	
+					if (!bc.getNegated() && lastUseIn == null) {
+						Binding b = new Binding();
+						b.leftIndex = bc.getSlot().getId();
+						b.leftrow = conds.length - 1 - i;
+						rule.addBinding(bc.getVariableName(), b);
+					}
+					
 					if (lastUseIn != null) {
 						Binding b = new Binding();
 						b.rightIndex = bc.getSlot().getId();
@@ -371,9 +379,9 @@ public class SFRuleCompiler implements RuleCompiler {
 						
 						if (bc.getNegated()) {
 							b.setOperator(Constants.NOTEQUAL);
-						}/* else {
-							b.setOperator(Constants.EQUAL);
-						}*/ //(COMMENTED OUT SINCE DEFAULT OPERATOR IS EQUAL!)
+						} else {
+							//b.setOperator(Constants.EQUAL);
+						}
 						
 						
 						// search for the occurence of the boundconstraint in the other condition
@@ -390,6 +398,9 @@ public class SFRuleCompiler implements RuleCompiler {
 						}
 						
 						bindings.add(b);
+						
+
+						
 					}
 					if (!bc.getNegated()) {
 						boundConstraintName2lastUsingCondition.put(bc.getVariableName(), i);

@@ -47,9 +47,9 @@
 	=> (printout t "rule with two conditions fired " crlf)
 )
 
-;(defrule zero
-; => (assert (salat (name "krautsalat")(farbe "fastweiss") ))
-;)
+(defrule zero
+ => (printout t "boombam" crlf)
+)
 
 (defrule one
 	(wurst (name ?x))
@@ -61,12 +61,12 @@
 	=> (printout t "rule with one condition fired - wienerwurst" crlf)
 )
 
-(defrule four
-	?x <- (wurst (name "wienerwurst"))
-	=> 
-	(printout t "rule with one binding fired - wienerwurst" crlf)
-	(printout t "fact id of the wienerwurst fact" (get-fact-id  ?x) crlf)
-)
+;(defrule four
+;	?x <- (wurst (name "wienerwurst"))
+;	=> 
+;	(printout t "rule with one binding fired - wienerwurst" crlf)
+;	(printout t "fact id of the wienerwurst fact" (get-fact-id  ?x) crlf)
+;)
 
 
 (fire)

@@ -83,7 +83,7 @@ public class FunctionAction implements Action {
 	 * 
 	 * @throws EvaluationException
 	 */
-	public void configure(Rete engine, Rule util) throws EvaluationException {
+	public void configure(Rete engine, Rule rule) throws EvaluationException {
 		if (this.functionName != null){
 			Function func = engine.getFunctionMemory().findFunction(this.functionName);
 			if (func != null){
@@ -95,23 +95,23 @@ public class FunctionAction implements Action {
 		for (int idx = 0; idx < this.parameters.length; idx++) {
 			if (this.parameters[idx] instanceof BoundParam) {
 				BoundParam bp = (BoundParam) this.parameters[idx];
-				Binding bd = util.getBinding(bp.getVariableName());
+				Binding bd = rule.getBinding(bp.getVariableName());
 				if (bd != null) {
 					bp.setRow(bd.getLeftRow());
 					bp.setColumn(bd.getLeftIndex());
 				}
 			} else if (this.parameters[idx] instanceof Signature) {
 				Signature fp2 = (Signature) this.parameters[idx];
-				fp2.configure(engine, util);
+				fp2.configure(engine, rule);
 			} else if (this.parameters[idx] instanceof AbstractConfiguration) {
 				AbstractConfiguration ac = (AbstractConfiguration) this.parameters[idx];
-				ac.configure(engine, util);
+				ac.configure(engine, rule);
 			} else if (this.parameters[idx] instanceof JamochaValue) {
 				// if the value is a deffact, we need to check and make sure
 				// the slots with BoundParam value are compiled properly
 				JamochaValue value = (JamochaValue) this.parameters[idx];
 				if (value.getType().equals(JamochaType.FACT)) {
-					((Deffact) value.getFactValue()).compileBinding(util);
+					((Deffact) value.getFactValue()).compileBinding(rule);
 				}
 			}
 		}
