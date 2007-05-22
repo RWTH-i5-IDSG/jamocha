@@ -359,9 +359,8 @@ public class SFRuleCompiler implements RuleCompiler {
 							}
 							
 							bindings.add(b);
-							
 						}
-						
+						negatedBCs.remove(bc.getVariableName());
 					}
 	
 					if (lastUseIn != null) {
@@ -401,6 +400,24 @@ public class SFRuleCompiler implements RuleCompiler {
 			bindings.clear();
 			if (binds.length>0) ((BetaNode)conditionJoiners.get(c)).setBindings(binds, engine);
 		}
+		
+		// now, we will look for boundconstraints, which only occurs negated in our rule
+		for ( String bc : negatedBCs.keySet() ){
+			// what shall we do with such a kind of boundconstraint?
+			// imho, the most reasonable semantic for this example:
+			// (foo (name ~?x))
+			// (bar (name ~?x))
+			// (baz (name ~?x))
+			// is: (foo.name != bar.name && bar.name != baz.name && foo.name != baz.name)
+			// in german, we term it "paarweise verschieden" ;)
+			// this semantic is not easy to implement, since the "!=" relation isnt
+			// transitive (it is not okay to just test 
+			//		foo.name != bar.name && bar.name != baz.name
+			// !)
+			// => we have to implement that rare and useless case later.
+			throw new AssertException(bc + " only occurs negated. for now, that will not work as expected.");
+		}
+		
 	}
 
 	/*
