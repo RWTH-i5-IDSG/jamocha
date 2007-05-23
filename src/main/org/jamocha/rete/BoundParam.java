@@ -123,24 +123,6 @@ public class BoundParam extends AbstractSignature {
     	}
     }
     
-	/**
-     * get the value type
-	 */
-	public int getValueType() {
-		return this.valueType;
-	}
-
-	/**
-     * Get the value of the given slot
-	 */
-	public Object getValue() {
-		if (fact != null) {
-			return this.fact.getSlotValue(this.column);
-		} else {
-			return this.resolvedVal;
-		}
-	}
-    
     /**
      * method will try to resolve the variable and return the value.
      */
@@ -220,22 +202,6 @@ public class BoundParam extends AbstractSignature {
      */
     public void setIsMultislot(boolean multi) {
     	this.isMultislot = multi;
-    }
-    
-    /**
-     * In some cases, we need to know what the action for the parameter.
-     * @return
-     */
-    public int getActionType() {
-        return this.actionType;
-    }
-    
-    /**
-     * Set the action for this bound parameter
-     * @param action
-     */
-    public void setActionType(int action) {
-        this.actionType = action;
     }
     
     public void setRow(int row) {

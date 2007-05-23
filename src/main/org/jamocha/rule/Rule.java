@@ -16,18 +16,13 @@
  */
 package org.jamocha.rule;
 
-import java.util.Iterator;
-import java.util.List;
-
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.rete.nodes.BaseNode;
-import org.jamocha.rete.nodes.TerminalNode;
 import org.jamocha.rete.Binding;
 import org.jamocha.rete.Fact;
 import org.jamocha.rete.Module;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.Scope;
-import org.jamocha.rete.nodes.BaseJoin;
+import org.jamocha.rete.nodes.TerminalNode;
 
 /**
  * @author Peter Lin
@@ -275,51 +270,12 @@ public interface Rule extends Scope, Complexity {
 	Binding getBinding(String varName);
 
 	/**
-	 * utility method for copying bindings
-	 * 
-	 * @param varName
-	 * @return
-	 */
-	Binding copyBinding(String varName);
-
-	/**
-	 * utility method for copying predicate bindings
-	 * 
-	 * @param varName
-	 * @param operator
-	 * @return
-	 */
-	Binding copyPredicateBinding(String varName, int operator);
-
-	/**
-	 * Get a iterator to the Binding objects
-	 * 
-	 * @return
-	 */
-	Iterator getBindingIterator();
-
-	/**
-	 * Get a count of the Binding
-	 * 
-	 * @return
-	 */
-	int getBindingCount();
-
-	/**
 	 * We need to set the trigger facts, so the rule action can look up values
 	 * easily.
 	 * 
 	 * @param facts
 	 */
 	void setTriggerFacts(Fact[] facts);
-
-	/**
-	 * In case an user wants to get the trigger facts in the right hand side of
-	 * the rule.
-	 * 
-	 * @return
-	 */
-	Fact[] getTriggerFacts();
 
 	/**
 	 * After the actions of a rule are executed, reset should be called to make

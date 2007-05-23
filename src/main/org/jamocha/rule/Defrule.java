@@ -26,8 +26,6 @@ import java.util.Map;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.Expression;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.rete.nodes.BaseNode;
-import org.jamocha.rete.nodes.TerminalNode;
 import org.jamocha.rete.Binding;
 import org.jamocha.rete.Constants;
 import org.jamocha.rete.ExpressionSequence;
@@ -40,7 +38,7 @@ import org.jamocha.rete.Template;
 import org.jamocha.rete.configurations.DeclarationConfiguration;
 import org.jamocha.rete.configurations.DefruleConfiguration;
 import org.jamocha.rete.configurations.Signature;
-import org.jamocha.rete.nodes.BaseJoin;
+import org.jamocha.rete.nodes.TerminalNode;
 import org.jamocha.rete.util.CollectionsFactory;
 
 /**
@@ -383,8 +381,10 @@ public class Defrule implements Rule {
 	 * return the value associated with the binding
 	 */
 	public JamochaValue getBindingValue(String key) {
+		//first we check bind values: may set via (bind ?x.....)
 		JamochaValue val = this.bindValues.get(key);
 		if (val == null) {
+			//nothing found: check own bindings:
 			Binding bd = this.bindings.get(key);
 			if (bd != null) {
 				Fact left = this.triggerFacts[bd.getLeftRow()];
@@ -419,10 +419,6 @@ public class Defrule implements Rule {
 		this.triggerFacts = null;
 	}
 
-	public Fact[] getTriggerFacts() {
-		return this.triggerFacts;
-	}
-
 	/**
 	 * Method will only add the binding if it doesn't already exist.
 	 * 
@@ -442,54 +438,6 @@ public class Defrule implements Rule {
 	 */
 	public Binding getBinding(String varName) {
 		return this.bindings.get(varName);
-	}
-
-	/**
-	 * Get a copy of the Binding using the variable name
-	 * 
-	 * @param varName
-	 * @return
-	 */
-	public Binding copyBinding(String varName) {
-		Binding b = getBinding(varName);
-		if (b != null) {
-			Binding b2 = (Binding) b.clone();
-			return b2;
-		} else {
-			return null;
-		}
-	}
-
-	public Binding copyPredicateBinding(String varName, int operator) {
-		Binding b = getBinding(varName);
-		if (b != null) {
-			Binding b2 = new Binding(operator);
-			b2.setLeftRow(b.getLeftRow());
-			b2.setLeftIndex(b.getLeftIndex());
-			return b2;
-		} else {
-			return null;
-		}
-	}
-
-	/**
-	 * The method will return the Bindings in the order they were added to the
-	 * utility.
-	 * 
-	 * @return
-	 */
-	public Iterator<Binding> getBindingIterator() {
-		return this.bindings.values().iterator();
-	}
-
-	/**
-	 * Returns the number of unique bindings. If a binding is used multiple
-	 * times to join several facts, it is only counted once.
-	 * 
-	 * @return
-	 */
-	public int getBindingCount() {
-		return this.bindings.size();
 	}
 
 	public void resolveTemplates(Rete engine) {
@@ -567,14 +515,6 @@ public class Defrule implements Rule {
 			cond.clear();
 		}
 		this.terminal= null;
-	}
-
-	/**
-	 * TODO need to finish implementing the clone method
-	 */
-	public Object clone() {
-		Defrule cl = new Defrule(this.name);
-		return cl;
 	}
 
 	public boolean hasBindingInTotalRange(String name) {
