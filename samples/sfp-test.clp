@@ -61,7 +61,7 @@
 
 (assert (senf (name scharf) (gewicht 100)))
 
-(assert (senf (name auchscharf) (gewicht 100)))
+(assert (senf (name auchscharf) (gewicht 200)))
 
 (assert (senf (name nix) (gewicht 1)))
 

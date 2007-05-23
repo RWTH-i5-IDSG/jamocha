@@ -58,8 +58,6 @@ public class Defrule implements Rule {
 
 	protected ArrayList<Action> actions = null;
 
-	protected ArrayList<BaseJoin> joins = null;
-	
 	protected TerminalNode terminal = null;
 
 	protected int salience = 100;
@@ -123,7 +121,6 @@ public class Defrule implements Rule {
 		super();
 		conditions = new ArrayList<Condition>();
 		actions = new ArrayList<Action>();
-		joins = new ArrayList<BaseJoin>();
 	}
 	
 
@@ -363,20 +360,6 @@ public class Defrule implements Rule {
 	/**
 	 * add join nodes to the rule
 	 */
-	public void addJoinNode(BaseJoin node) {
-		this.joins.add(node);
-	}
-	
-	/**
-	 * get the array of join nodes
-	 */
-	public List<BaseJoin> getJoins() {
-		return this.joins;
-	}
-	
-	/**
-	 * add join nodes to the rule
-	 */
 	public void SetTerminalNode(TerminalNode node) {
 		this.terminal = node;
 	}
@@ -386,25 +369,6 @@ public class Defrule implements Rule {
 	 */
 	public TerminalNode getTerminalNode() {
 		return this.terminal;
-	}
-
-	public BaseNode getLastNode() {
-		if (this.joins.size() > 0) {
-			return this.joins.get(this.joins.size() - 1);
-		} else if (conditions.size() > 0) {
-			// this means there's only 1 ConditionalElement, so the conditions
-			// only has 1 element. in all other cases, there will be atleast
-			// 1 join node
-			Condition c = this.conditions.get(0);
-			if (c instanceof ObjectCondition) {
-				return ((ObjectCondition) c).getLastNode();
-			} else if (c instanceof TestCondition) {
-				return ((TestCondition) c).getTestNode();
-			}
-			return null;
-		} else {
-			return null;
-		}
 	}
 
 	/**
@@ -602,7 +566,6 @@ public class Defrule implements Rule {
 			Condition cond = itr.next();
 			cond.clear();
 		}
-		this.joins.clear();
 		this.terminal= null;
 	}
 

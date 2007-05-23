@@ -426,8 +426,6 @@ public class SFRuleCompiler implements RuleCompiler {
 				BetaNode newJoin = new BetaNode(engine.nextNodeId());
 				newJoin.addNode(fromBottom, engine);
 				fromBottom = newJoin;
-				// add join to rule:
-				rule.addJoinNode(newJoin);
 			}
 			conditionJoiners.put(c, fromBottom);
 			BaseNode lastNode = c.getLastNode();

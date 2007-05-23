@@ -219,21 +219,9 @@ public interface Rule extends Scope, Complexity {
 
 	Action[] getActions();
 
-	void addJoinNode(BaseJoin node);
-
 	void SetTerminalNode(TerminalNode node);
 	
-	List<BaseJoin> getJoins();
-	
 	TerminalNode getTerminalNode();
-
-	/**
-	 * The method should return the last node in the rule, not counting the
-	 * terminal node.
-	 * 
-	 * @return
-	 */
-	BaseNode getLastNode();
 
 	/**
 	 * When the rule is compiled, the rule compiler needs to set the module so
