@@ -18,10 +18,6 @@
 	(slot name)
 ) 
 
-(assert (senf (name scharf) (gewicht 100)))
-
-(assert (senf (name nix) (gewicht 1)))
-
 (assert (wurst
 		(name "Fischwurst schwer")
 		(gewicht 200)
@@ -46,7 +42,14 @@
 	)
 )
 
-
+(defrule wurst-meter "Regel zur Ausgabe der Wurst-LŠnge" 
+	(declare (rule-version "performance version") (salience 101) (auto-focus TRUE))
+	(wurst (gewicht ?x) (name ?y))
+	(bier (gewicht ?x) (name ?z))
+	(senf (gewicht ?x))
+	=>
+	(printout t "Lebensmittel die zusammenpassen. wurst:" ?y " Bier: " ?z " Gewicht: " ?x)
+)
 
 (assert (bier 
 		(name "Bitburger")
@@ -64,14 +67,12 @@
 
 
 
-(defrule wurst-meter "Regel zur Ausgabe der Wurst-LŠnge" 
-	(declare (rule-version "performance version") (salience 101) (auto-focus TRUE))
-	(wurst (gewicht ?x) (name ?y))
-	(bier (gewicht ?x) (name ?z))
-	(senf (gewicht ?x))
-	=>
-	(printout t "Lebensmittel die zusammenpassen. wurst:" ?y " Bier: " ?z " Gewicht: " ?x)
-)
+(assert (senf (name scharf) (gewicht 100)))
+
+(assert (senf (name nix) (gewicht 1)))
+
+
+
 
 
 (defrule wurst-meter-langsam "Regel zur Ausgabe der Wurst-Laenge" 

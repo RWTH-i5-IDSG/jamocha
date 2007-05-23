@@ -20,7 +20,6 @@ import java.util.Iterator;
 
 import org.jamocha.rete.Binding;
 import org.jamocha.rete.Constants;
-import org.jamocha.rete.Evaluate;
 import org.jamocha.rete.Fact;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.exception.AssertException;
@@ -195,24 +194,6 @@ public class BetaNode extends BaseJoin {
 		return true;
 	}
 
-	/**
-	 * Method will evaluate a single slot from the left against the right.
-	 * 
-	 * @param left
-	 * @param leftId
-	 * @param right
-	 * @param rightId
-	 * @return
-	 */
-//	protected boolean evaluate(Fact left, int leftId, Fact right, int rightId, int op) {
-//		if (op == Constants.EQUAL) {
-//			return left.getSlotValue(leftId).equals(right.getSlotValue(rightId));
-//		} else if (op == Constants.NOTEQUAL) {
-//			return !left.getSlotValue(leftId).equals(right.getSlotValue(rightId));
-//		} else {
-//			return Evaluate.evaluate(op, left.getSlotValue(leftId), right.getSlotValue(rightId));
-//		}
-//	}
 
 	@Override
 	protected void mountChild(BaseNode newChild, Rete engine) throws AssertException {
