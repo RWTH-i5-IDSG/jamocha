@@ -50,11 +50,11 @@ public abstract class BooleanOperatorCondition extends AbstractCondition {
 		return reteNode;
 	}
 
-	public List getAllBindings() {
+	public List getAllBoundConstraints() {
 		return null;
 	}
 
-	public List getBindings() {
+	public List getBoundConstraints() {
 		return null;
 	}
 

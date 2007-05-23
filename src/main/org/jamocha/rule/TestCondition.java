@@ -141,11 +141,11 @@ public class TestCondition extends AbstractCondition {
 	 * return an List of the bindings. in the case of TestCondition, the
 	 * bindings are BoundParam
 	 */
-	public List getAllBindings() {
+	public List getAllBoundConstraints() {
 		return binds;
 	}
 
-	public List getBindings() {
+	public List getBoundConstraints() {
 		return binds;
 	}
 

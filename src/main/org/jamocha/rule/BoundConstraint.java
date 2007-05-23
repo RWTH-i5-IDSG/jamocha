@@ -18,6 +18,7 @@ package org.jamocha.rule;
 
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.nodes.BaseNode;
+import org.jamocha.rete.Constants;
 import org.jamocha.rete.SFRuleCompiler;
 
 /**
@@ -186,5 +187,9 @@ public class BoundConstraint extends AbstractConstraint {
 	
 	public BaseNode compile(SFRuleCompiler compiler, Rule rule, int conditionIndex) {
 		return compiler.compile(this, rule, conditionIndex);
+	}
+	
+	public int getOperator(){
+		return (negated? Constants.NOTEQUAL : Constants.EQUAL);
 	}
 }

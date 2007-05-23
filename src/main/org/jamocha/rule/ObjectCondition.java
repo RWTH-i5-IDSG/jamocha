@@ -197,7 +197,7 @@ public class ObjectCondition extends AbstractCondition {
 	/**
 	 * Method will return a list of all the BoundConstraints
 	 */
-	public List getAllBindings() {
+	public List getAllBoundConstraints() {
 		ArrayList<Constraint> binds = new ArrayList<Constraint>();
 		Iterator<Constraint> itr = propConditions.iterator();
 		while (itr.hasNext()) {
@@ -216,7 +216,7 @@ public class ObjectCondition extends AbstractCondition {
 		return binds;
 	}
 
-	public List getBindings() {
+	public List getBoundConstraints() {
 		ArrayList<Constraint> binds = new ArrayList<Constraint>();
 		Iterator<Constraint> itr = propConditions.iterator();
 		while (itr.hasNext()) {

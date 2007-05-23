@@ -137,7 +137,7 @@ public class ExistCondition extends AbstractCondition {
 		return oc;
 	}
 
-	public List getAllBindings() {
+	public List getAllBoundConstraints() {
 		ArrayList bindings = new ArrayList();
 		Iterator itr = nestedCE.iterator();
 		while (itr.hasNext()) {
@@ -167,7 +167,7 @@ public class ExistCondition extends AbstractCondition {
 		return bindings;
 	}
 
-	public List getBindings() {
+	public List getBoundConstraints() {
 		return null;
 	}
 

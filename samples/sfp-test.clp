@@ -13,6 +13,15 @@
 	(slot hersteller )
 )
 
+(deftemplate senf 
+	(slot gewicht)
+	(slot name)
+) 
+
+(assert (senf (name scharf) (gewicht 100)))
+
+(assert (senf (name nix) (gewicht 1)))
+
 (assert (wurst
 		(name "Fischwurst schwer")
 		(gewicht 200)
@@ -59,6 +68,7 @@
 	(declare (rule-version "performance version") (salience 101) (auto-focus TRUE))
 	(wurst (gewicht ?x) (name ?y))
 	(bier (gewicht ?x) (name ?z))
+	(senf (gewicht ?x))
 	=>
 	(printout t "Lebensmittel die zusammenpassen. wurst:" ?y " Bier: " ?z " Gewicht: " ?x)
 )

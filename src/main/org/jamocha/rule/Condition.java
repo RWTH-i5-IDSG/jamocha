@@ -20,6 +20,7 @@ import java.io.Serializable;
 import java.util.List;
 
 import org.jamocha.rete.nodes.BaseNode;
+import org.jamocha.rete.nodes.BetaNode;
 
 /**
  * @author Peter Lin
@@ -81,14 +82,14 @@ public interface Condition extends Serializable, Complexity, Compileable, Compar
 	 * 
 	 * @return
 	 */
-	List getAllBindings();
+	List getAllBoundConstraints();
 
 	/**
 	 * method to get just the bindings excluding predicate constraints
 	 * 
 	 * @return
 	 */
-	List getBindings();
+	List getBoundConstraints();
 
 	/**
 	 * clear the condition
