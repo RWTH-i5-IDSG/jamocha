@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 Markus put your name here and write the fantastic code
+ * Copyright 2007 Markus Kucay 
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ import org.jamocha.parser.sl.SimpleNode;
  * This class walks through an SL code tree and translates it to CLIPS depending
  * on the given performative.
  * 
- * @author Alexander Wilden
+ * @author Markus Kucay
  * 
  */
 public class RequestWhen {
@@ -63,16 +63,22 @@ public class RequestWhen {
 					"Could not translate from SL to CLIPS.", e);
 		}
 		// Walk through the children until we have something useful
-		sn = getChildAtLevel(sn, 3);
-		if (sn.getID() == SLParserTreeConstants.JJTACTION) {
+		sn = getChildAtLevel(sn, 2);
+		if (getChild(sn,0).getID() == SLParserTreeConstants.JJTACTION && getChild(sn,1).getID() == SLParserTreeConstants.JJTWFF) {
+			
 			// Here we have an Action
 			// Get the right Child. The left Child is the agent-identifier.
-			sn = getChild(sn, 1);
-			sn = getChildAtLevel(sn, 2);
-			String functionName = getChild(sn, 0).getText();
-			String lastAssert = resolveParameters(getChild(getChild(sn, 1), 1));
-
-			result.append("(" + functionName + " " + lastAssert + ")");
+			SimpleNode act = getChild(getChild(sn, 0),0);
+			act = getChildAtLevel(act, 2);
+			String functionName = getChild(act, 0).getText();
+			String lastAssert = resolveParameters(getChild(getChild(act, 1), 1));
+			String conclusion = functionName + lastAssert;
+			
+			// Here we have an Proposition
+			SimpleNode wff = getChild(getChild(sn, 0), 1);
+			String premisse = "(" + resolveParameters(wff) + ")";	
+			//Name has to be added
+			result.append("(defrule" + premisse + " => " + conclusion + ")");
 		}
 
 		return result.toString();
@@ -89,9 +95,6 @@ public class RequestWhen {
 	public static String resolveParameters(SimpleNode node) {
 		// Go From Parameter to Node after Term
 		SimpleNode currNode = node;
-		while (currNode.getID() != SLParserTreeConstants.JJTTERM) {
-			currNode = getChild(currNode, 0);
-		}
 		currNode = getChild(currNode, 0);
 		if (currNode.getID() == SLParserTreeConstants.JJTFUNCTIONALTERM) {
 			// This would be a Fact for CLIPS
@@ -133,6 +136,95 @@ public class RequestWhen {
 				buffer.append(childBind);
 			}
 			return buffer.toString();
+			
+		//************	
+		//Resolve WFFs
+		//************
+			
+		//Atomic Formula
+		} else if(currNode.getID() == SLParserTreeConstants.JJTATOMICFORMULA){
+			
+			//Propositionsymbol (contains directly its value)
+			if(getChild(currNode,0).getID() == SLParserTreeConstants.JJTPROPOSITIONSYMBOL){
+				return "\"" + getChild(currNode,0).getText() + "\"";
+				
+			//Binary Term Operator (Equal or Result)
+			} else if(getChild(currNode,0).getID() == SLParserTreeConstants.JJTBINARYTERMOP){
+				currNode = getChild(currNode,0);
+				if(currNode.getID() == SLParserTreeConstants.JJTEQUAL){
+					return "(= " + resolveParameters(getChild(currNode,0)) + " " + resolveParameters(getChild(currNode, 1)) + ")";
+				}
+				else if (getChild(currNode,0).getID() == SLParserTreeConstants.JJTRESULT){
+					return "(result " + resolveParameters(getChild(currNode, 1)) + " " + resolveParameters(getChild(currNode, 2)) + ")";
+				}
+				
+			//Predicatesymbol (n-ary => n Childs to resolve)
+			} else if(getChild(currNode,0).getID() == SLParserTreeConstants.JJTPREDICATESYMBOL){
+				StringBuilder buffer = new StringBuilder();
+				buffer.append("(" + getChild(currNode, 0).getText());
+				for(int i = 1; i < currNode.jjtGetNumChildren(); i++){
+					buffer.append(" " + resolveParameters(getChild(currNode, i)));
+				}					
+				buffer.append(")");
+				return buffer.toString();
+				
+			//TRUE or FALSE
+			} else if(currNode.getID() == SLParserTreeConstants.JJTTRUE){
+				return "TRUE";
+			} else if(currNode.getID() == SLParserTreeConstants.JJTFALSE){
+				return "FALSE";
+			}
+			
+		//Binary Logical Operator (AND and OR)
+		} else if(currNode.getID() == SLParserTreeConstants.JJTAND 
+					|| currNode.getID() == SLParserTreeConstants.JJTOR){ 
+			
+			return "(" + currNode.getText() + " " + resolveParameters(getChild(node, 1)) 
+					+ " " + resolveParameters(getChild(currNode,2)) + ")";
+		
+		//Binary Logical Operator (IMPLIES, x -> y = -x v y)
+		} else if(currNode.getID() == SLParserTreeConstants.JJTIMPLIES){
+			return "(or not(" + resolveParameters(getChild(currNode,1)) + ") "
+					+ resolveParameters(getChild(currNode,2)) + ")";
+			
+		//Binary Logical Operator (EQUIVALENT, x <-> y = (-x v y) ^ (x v -y))
+		} else if(currNode.getID() == SLParserTreeConstants.JJTEQUIV){
+			String x = resolveParameters(getChild(currNode,1));
+			String y = resolveParameters(getChild(currNode,2));
+			return "(and (or (not " + x + ") " + y + ") (or " + x + " (not " + y + ")))";
+			
+		//Unary Logical Operator
+		} else if(currNode.getID() == SLParserTreeConstants.JJTNOT){
+			return "(not " + resolveParameters(getChild(node,1)) + ")";
+			
+		//Quantifier
+		} else if(currNode.getID() == SLParserTreeConstants.JJTFORALL
+					|| currNode.getID() == SLParserTreeConstants.JJTEXISTS){
+			return "(" + currNode.getText() + resolveParameters(getChild(node,2)) 
+					+ " " + resolveParameters(getChild(node,1)) + ")";
+		
+		//Modal Operator (B)
+		} else if(currNode.getID() == SLParserTreeConstants.JJTB){
+		
+		//Modal Operator (U)
+		} else if(currNode.getID() == SLParserTreeConstants.JJTU){
+		
+		//Modal Operator (PG)
+		} else if(currNode.getID() == SLParserTreeConstants.JJTPG){
+			
+		//Modal Operator (I)
+		} else if(currNode.getID() == SLParserTreeConstants.JJTI){
+
+		//Action Operator
+		} else if(currNode.getID() == SLParserTreeConstants.JJTACTIONOP){
+			
+			//ActionOP + ActionExpression
+			if(currNode.jjtGetNumChildren() == 2){}
+			
+			//ActionOP + ActionExpression + WFF
+			else if(currNode.jjtGetNumChildren() == 3){}
+		}else {
+			return resolveParameters(getChild(currNode, 0));
 		}
 		return "";
 	}
