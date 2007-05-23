@@ -42,14 +42,6 @@
 	)
 )
 
-(defrule wurst-meter "Regel zur Ausgabe der Wurst-LŠnge" 
-	(declare (rule-version "performance version") (salience 101) (auto-focus TRUE))
-	(wurst (gewicht ?x) (name ?y))
-	(bier (gewicht ?x) (name ?z))
-	(senf (gewicht ?x))
-	=>
-	(printout t "Lebensmittel die zusammenpassen. wurst:" ?y " Bier: " ?z " Gewicht: " ?x)
-)
 
 (assert (bier 
 		(name "Bitburger")
@@ -72,6 +64,14 @@
 (assert (senf (name nix) (gewicht 1)))
 
 
+(defrule wurst-meter "Regel zur Ausgabe der Wurst-LŠnge" 
+	(declare (rule-version "performance version") (salience 101) (auto-focus TRUE))
+	(wurst (gewicht ?x) (name ?y))
+	(bier (gewicht ?x) (name ?z))
+	;(senf (gewicht ?x))
+	=>
+	(printout t "Lebensmittel die zusammenpassen. wurst:" ?y " Bier: " ?z " Gewicht: " ?x)
+)
 
 
 

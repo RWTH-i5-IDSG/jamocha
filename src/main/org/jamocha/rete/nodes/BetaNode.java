@@ -63,7 +63,7 @@ public class BetaNode extends BaseJoin {
 	 * Set the bindings for this join
 	 * 
 	 * @param binds
-	 * @throws AssertException 
+	 * @throws AssertException
 	 */
 	public void setBindings(Binding[] binds, Rete engine) throws AssertException {
 		this.binds = binds;
@@ -71,12 +71,14 @@ public class BetaNode extends BaseJoin {
 	}
 
 	private void activate(Rete engine) throws AssertException {
-		// we have to traverse the whole beta mem and eval it.
-		activated = true;
-		Iterator<FactTuple> itr = betaMemory.iterator();
-		while (itr.hasNext()) {
-			FactTuple tuple = itr.next();
-			evaluateBeta(tuple, engine);
+		if (!activated) {
+			// we have to traverse the whole beta mem and eval it.
+			activated = true;
+			Iterator<FactTuple> itr = betaMemory.iterator();
+			while (itr.hasNext()) {
+				FactTuple tuple = itr.next();
+				evaluateBeta(tuple, engine);
+			}
 		}
 	}
 
@@ -91,7 +93,7 @@ public class BetaNode extends BaseJoin {
 	@Override
 	public void assertLeft(FactTuple tuple, Rete engine) throws AssertException {
 		betaMemory.add(tuple);
-		//only if activated:
+		// only if activated:
 		if (activated) {
 			evaluateBeta(tuple, engine);
 		}
@@ -106,7 +108,7 @@ public class BetaNode extends BaseJoin {
 	@Override
 	public void assertRight(Fact fact, Rete engine) throws AssertException {
 		alphaMemory.add(fact);
-		//only if activated:
+		// only if activated:
 		if (activated) {
 			Iterator<FactTuple> itr = betaMemory.iterator();
 			while (itr.hasNext()) {
@@ -187,13 +189,13 @@ public class BetaNode extends BaseJoin {
 	protected boolean evaluate(FactTuple tuple, Fact right) {
 		if (binds != null) {
 			// we iterate over the binds and evaluate the facts
-			for ( Binding binding : binds ) {
-				if (!binding.evaluate(right, tuple)) return false;
+			for (Binding binding : binds) {
+				if (!binding.evaluate(right, tuple))
+					return false;
 			}
 		}
 		return true;
 	}
-
 
 	@Override
 	protected void mountChild(BaseNode newChild, Rete engine) throws AssertException {
