@@ -4,7 +4,7 @@ import java.util.Iterator;
 import java.util.Vector;
 
 
-public class AlphaMemory implements Iterable<Fact>{
+public class AlphaMemory extends AbstractMemory implements Iterable<Fact>{
 
 	protected Vector<Fact> facts = null;
 	
@@ -28,23 +28,27 @@ public class AlphaMemory implements Iterable<Fact>{
 	public void add(Fact newTuple) {
 		facts.add(newTuple);
 	}
-
-
-	public String toPPString(){
-		StringBuffer result = new StringBuffer();
-		result.append("[");
-		for ( Fact t : facts ){
-			result.append(t.toPPString());
-			result.append(" , ");
-		}
-		result.append("]");
-		return result.toString();
-	}
-	
 	
 	public Iterator<Fact> iterator() {
 		return facts.iterator();
 	}
+
+	@Override
+	protected String contentToString() {
+		StringBuffer result = new StringBuffer();
+		for ( Fact t : facts ){
+			result.append("   ");
+			result.append(t.toPPString());
+			result.append("\n");
+		}
+		return result.toString();
+	}
+
+	@Override
+	public int getSize() {
+		return facts.size();
+	}
+
 	
 	
 	

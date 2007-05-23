@@ -463,7 +463,7 @@ public class SFRuleCompiler implements RuleCompiler {
 		PreBinding act = null;
 		if (itr.hasNext()) act = itr.next();
 		Binding[] bindArray = new Binding [0];
-		for (int i = conds.length - 1; i >= 0; i--) {
+		for (int i = conds.length - 2; i >= 0; i--) {
 			Vector<Binding> binds = new Vector<Binding>();
 			BaseNode node = conditionJoiners.get(conds[i]);
 			
@@ -480,8 +480,8 @@ public class SFRuleCompiler implements RuleCompiler {
 				
 				act = (itr.hasNext()) ? itr.next() : null;
 			}
-			
-			((BetaNode)node).setBindings(binds.toArray(bindArray), engine);
+			//set bindig= null if binds.size=0
+			((BetaNode)node).setBindings((binds.size() != 0) ?binds.toArray(bindArray): null, engine);
 			
 		}
 		

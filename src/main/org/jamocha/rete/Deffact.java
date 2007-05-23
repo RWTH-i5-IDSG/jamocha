@@ -210,6 +210,10 @@ public class Deffact implements Fact {
 		return buf.toString();
 	}
 
+	public String toString(){
+		return toPPString();
+	}
+	
 	/**
 	 * Returns the string format for the fact without the fact-id. this is used
 	 * to make sure that if an user asserts an equivalent fact, we can easily

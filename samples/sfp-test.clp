@@ -68,7 +68,7 @@
 	(declare (rule-version "performance version") (salience 101) (auto-focus TRUE))
 	(wurst (gewicht ?x) (name ?y))
 	(bier (gewicht ?x) (name ?z))
-	;(senf (gewicht ?x))
+	(senf (gewicht ?x))
 	=>
 	(printout t "Lebensmittel die zusammenpassen. wurst:" ?y " Bier: " ?z " Gewicht: " ?x)
 )
