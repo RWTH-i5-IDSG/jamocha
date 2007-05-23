@@ -61,6 +61,8 @@
 
 (assert (senf (name scharf) (gewicht 100)))
 
+(assert (senf (name auchscharf) (gewicht 100)))
+
 (assert (senf (name nix) (gewicht 1)))
 
 
@@ -68,9 +70,9 @@
 	(declare (rule-version "performance version") (salience 101) (auto-focus TRUE))
 	(wurst (gewicht ?x) (name ?y))
 	(bier (gewicht ?x) (name ?z))
-	(senf (gewicht ?x))
+	(senf (gewicht ?x) (name ?w))
 	=>
-	(printout t "Lebensmittel die zusammenpassen. wurst:" ?y " Bier: " ?z " Gewicht: " ?x)
+	(printout t "Lebensmittel die zusammenpassen. wurst:" ?y " Bier: " ?z  "Senf: " ?w " Gewicht: " ?x)
 )
 
 
