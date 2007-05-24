@@ -21,7 +21,6 @@ import java.io.Reader;
 import java.io.StringReader;
 
 import org.jamocha.parser.clips.CLIPSFormatter;
-import org.jamocha.parser.clips.CLIPSParser;
 import org.jamocha.parser.sfp.SFPParser;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.RuleCompiler;
@@ -76,9 +75,7 @@ public class ParserFactory {
 
 	public static Parser getParser(String mode, Reader reader)
 			throws ModeNotFoundException {
-		if (mode.equalsIgnoreCase("clips")) {
-			return new CLIPSParser(reader);
-		} else if (mode.equalsIgnoreCase("sfp")) {
+		if (mode.equalsIgnoreCase("sfp")) {
 			return new SFPParser(reader);
 		} else {
 			throw new ModeNotFoundException(mode);
@@ -87,9 +84,7 @@ public class ParserFactory {
 
 	public static Parser getParser(String mode, InputStream stream)
 			throws ModeNotFoundException {
-		if (mode.equalsIgnoreCase("clips")) {
-			return new CLIPSParser(stream);
-		} else if (mode.equalsIgnoreCase("sfp")) {
+		if (mode.equalsIgnoreCase("sfp")) {
 			return new SFPParser(stream);
 		} else {
 			throw new ModeNotFoundException(mode);

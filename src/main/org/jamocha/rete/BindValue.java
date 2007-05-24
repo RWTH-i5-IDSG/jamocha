@@ -23,6 +23,8 @@ import java.io.Serializable;
  *
  */
 public class BindValue implements Serializable {
+	
+	private static final long serialVersionUID = 0xDEADBEAFL;
 
 	protected Object value = null;
 

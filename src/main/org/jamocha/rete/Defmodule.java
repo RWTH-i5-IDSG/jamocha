@@ -17,22 +17,14 @@
 package org.jamocha.rete;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 import org.jamocha.rete.exception.RetractException;
-import org.jamocha.rete.nodes.BaseJoin;
-import org.jamocha.rete.nodes.BaseNode;
 import org.jamocha.rete.nodes.ObjectTypeNode;
-import org.jamocha.rete.nodes.RootNode;
-import org.jamocha.rete.nodes.TerminalNode;
 import org.jamocha.rete.util.CollectionsFactory;
-import org.jamocha.rule.Condition;
 import org.jamocha.rule.Defrule;
-import org.jamocha.rule.ObjectCondition;
 import org.jamocha.rule.Rule;
 
 /**
@@ -46,7 +38,7 @@ public class Defmodule implements Module, Serializable {
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 0xDEADBEAFL;
 
 	protected int id;
 

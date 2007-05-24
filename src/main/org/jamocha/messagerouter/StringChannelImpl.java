@@ -25,7 +25,7 @@ import org.jamocha.parser.Expression;
 import org.jamocha.parser.ModeNotFoundException;
 import org.jamocha.parser.ParseException;
 import org.jamocha.parser.ParserFactory;
-import org.jamocha.parser.clips.TokenMgrError;
+import org.jamocha.parser.sfp.TokenMgrError;
 
 /**
  * Implementation of a <code>StringChannel</code>.

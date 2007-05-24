@@ -20,7 +20,6 @@ import java.io.Serializable;
 import java.util.List;
 
 import org.jamocha.rete.nodes.BaseNode;
-import org.jamocha.rete.nodes.BetaNode;
 
 /**
  * @author Peter Lin

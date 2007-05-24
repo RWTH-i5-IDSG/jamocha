@@ -16,8 +16,6 @@
  */
 package org.jamocha.rete.nodes;
 
-import java.util.Vector;
-
 import org.jamocha.rete.AlphaMemory;
 import org.jamocha.rete.Constants;
 import org.jamocha.rete.Fact;

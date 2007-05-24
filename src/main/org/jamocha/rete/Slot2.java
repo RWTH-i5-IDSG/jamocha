@@ -36,6 +36,8 @@ import org.jamocha.rule.MultiValue;
  * a sequence of "or" value comparisons.
  */
 public class Slot2 extends Slot {
+	
+	private static final long serialVersionUID = 0xDEADBEAFL;
 
     private List equalsList = new ArrayList();
     private List notEqualList = new ArrayList();

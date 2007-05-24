@@ -19,7 +19,6 @@ package org.jamocha.rule;
 import java.io.Serializable;
 
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.rete.Slot;
 import org.jamocha.rete.TemplateSlot;
 
 /**

@@ -22,7 +22,6 @@ import org.jamocha.parser.sl.ParseException;
 import org.jamocha.parser.sl.SLParser;
 import org.jamocha.parser.sl.SLParserTreeConstants;
 import org.jamocha.parser.sl.SimpleNode;
-import org.jamocha.parser.sl.TokenMgrError;
 
 /**
  * This class walks through an SL code tree and translates it to CLIPS depending

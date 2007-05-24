@@ -21,12 +21,11 @@ import java.util.List;
 
 import org.jamocha.rete.Function;
 import org.jamocha.rete.FunctionGroup;
-import org.jamocha.rete.Rete;
 import org.jamocha.rete.functions.FunctionMemory;
 
 public class ListFunctions implements FunctionGroup {
 
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 0xDEADBEAFL;
 
 	private ArrayList<Function> funcs = new ArrayList<Function>();
 

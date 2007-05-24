@@ -24,7 +24,6 @@ import org.jamocha.parser.Expression;
 import org.jamocha.parser.ModeNotFoundException;
 import org.jamocha.parser.ParseException;
 import org.jamocha.parser.ParserFactory;
-import org.jamocha.parser.clips.TokenMgrError;
 
 /**
  * Implementation of a <code>StreamChannel</code>.
@@ -97,10 +96,6 @@ class StreamChannelImpl extends AbstractCommunicationChannel implements
 						router.enqueueCommand(command, getChannelId());
 					}
 				} catch (ParseException e) {
-					router.postMessageEvent(new MessageEvent(
-							MessageEvent.PARSE_ERROR, e, getChannelId()));
-					restartParser(reader);
-				} catch (TokenMgrError e) {
 					router.postMessageEvent(new MessageEvent(
 							MessageEvent.PARSE_ERROR, e, getChannelId()));
 					restartParser(reader);

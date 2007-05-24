@@ -22,7 +22,6 @@ import java.util.List;
 
 import org.jamocha.rete.Function;
 import org.jamocha.rete.FunctionGroup;
-import org.jamocha.rete.Rete;
 import org.jamocha.rete.functions.FunctionMemory;
 
 /**
@@ -33,7 +32,7 @@ import org.jamocha.rete.functions.FunctionMemory;
  */
 public class IOFunctions implements FunctionGroup, Serializable {
 
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 0xBABABABABABABEL;
 
 	private List<Function> funcs = new ArrayList<Function>();
 
@@ -45,9 +44,15 @@ public class IOFunctions implements FunctionGroup, Serializable {
 		Batch batch = new Batch();
 		functionMem.declareFunction(batch);
 		funcs.add(batch);
-		LoadFacts loadFacts = new LoadFacts();
-		functionMem.declareFunction(loadFacts);
-		funcs.add(loadFacts);
+		
+//		LoadFacts loadFacts = new LoadFacts();
+//		functionMem.declareFunction(loadFacts);
+//		funcs.add(loadFacts);
+
+		// will be reimplented based on SFP
+		// for compatibility reasons we use batch so far
+		functionMem.declareFunction("load-facts", batch );
+
 		Printout printout = new Printout();
 		functionMem.declareFunction(printout);
 		funcs.add(printout);
