@@ -1,4 +1,4 @@
-package org.jamocha.parser.clips;
+package org.jamocha.formatter;
 
 import java.util.Calendar;
 import java.util.GregorianCalendar;

@@ -20,7 +20,7 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
 
-import org.jamocha.parser.clips.CLIPSFormatter;
+import org.jamocha.formatter.CLIPSFormatter;
 import org.jamocha.parser.sfp.SFPParser;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.RuleCompiler;
