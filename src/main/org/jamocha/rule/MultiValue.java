@@ -18,6 +18,8 @@ package org.jamocha.rule;
 
 import java.io.Serializable;
 
+import org.jamocha.parser.JamochaValue;
+
 /**
  * @author Peter Lin
  * The purpose of the class is for conditions that have & or |. For
@@ -28,7 +30,7 @@ import java.io.Serializable;
 public class MultiValue implements Serializable {
 
 	static final long serialVersionUID = 0xDeadBeafCafeBabeL;
-	protected Object value = null;
+	protected JamochaValue value = null;
 	protected boolean negated = false;
 	
 	/**
@@ -38,20 +40,20 @@ public class MultiValue implements Serializable {
 		super();
 	}
 	
-	public MultiValue(Object val) {
+	public MultiValue(JamochaValue val) {
 		setValue(val);
 	}
 	
-	public MultiValue(Object val, boolean neg) {
+	public MultiValue(JamochaValue val, boolean neg) {
 		setValue(val);
 		this.negated = neg;
 	}
 
-	public void setValue(Object val) {
+	public void setValue(JamochaValue val) {
 		this.value = val;
 	}
 	
-	public Object getValue() {
+	public JamochaValue getValue() {
 		return this.value;
 	}
 	

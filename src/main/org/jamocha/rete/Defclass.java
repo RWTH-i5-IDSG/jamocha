@@ -26,11 +26,12 @@ import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.rete.util.CollectionsFactory;
 
 
 /**
@@ -59,7 +60,7 @@ public class Defclass implements Serializable {
 
 	private Method removeListener = null;
 
-	private Map methods = CollectionsFactory.localMap();
+	private Map<String, PropertyDescriptor> methods = new HashMap<String, PropertyDescriptor>();
 
 	/**
 	 * 
@@ -81,7 +82,7 @@ public class Defclass implements Serializable {
 			this.INFO = Introspector.getBeanInfo(this.OBJECT_CLASS);
 			// we have to filter out the class PropertyDescriptor
 			PropertyDescriptor[] pd = this.INFO.getPropertyDescriptors();
-			ArrayList list = new ArrayList();
+			ArrayList<PropertyDescriptor> list = new ArrayList<PropertyDescriptor>();
 			for (int idx = 0; idx < pd.length; idx++) {
 				if (pd[idx].getName().equals("class")) {
 					// don't add
@@ -214,7 +215,7 @@ public class Defclass implements Serializable {
 	 */
 	public JamochaValue getSlotValue(int col, Object data) {
 		try {
-			return new JamochaValue(this.PROPS[col].getReadMethod().invoke(data, null));
+			return new JamochaValue(this.PROPS[col].getReadMethod().invoke(data, (Object[]) null));
 		} catch (IllegalAccessException e) {
 			return null;
 		} catch (IllegalArgumentException e) {
@@ -265,7 +266,7 @@ public class Defclass implements Serializable {
 	 * @param parent
 	 */
 	protected void reOrderDescriptors(Template parent) {
-		ArrayList desc = null;
+		List<String> desc = null;
 		boolean add = false;
 		Slot[] pslots = parent.getAllSlots();
 		PropertyDescriptor[] newprops = new PropertyDescriptor[this.PROPS.length];
@@ -273,7 +274,7 @@ public class Defclass implements Serializable {
 		// are in the same column
 		// now check to see if the new class has more fields
 		if (newprops.length > pslots.length) {
-			desc = new ArrayList();
+			desc = new ArrayList<String>();
 			add = true;
 		}
 		for (int idx = 0; idx < pslots.length; idx++) {
@@ -283,7 +284,7 @@ public class Defclass implements Serializable {
 			}
 		}
 		if (add) {
-			ArrayList newfields = new ArrayList();
+			List<PropertyDescriptor> newfields = new ArrayList<PropertyDescriptor>();
 			for (int idz = 0; idz < this.PROPS.length; idz++) {
 				if (!desc.contains(this.PROPS[idz].getName())) {
 					// we add it to the new fields
@@ -364,7 +365,7 @@ public class Defclass implements Serializable {
 		dcl.ISBEAN = this.ISBEAN;
 		dcl.PROPS = this.PROPS;
 		dcl.removeListener = this.removeListener;
-		dcl.methods = CollectionsFactory.localMap();
+		dcl.methods = new HashMap<String, PropertyDescriptor>();
 		dcl.methods.putAll(this.methods);
 		return dcl;
 	}

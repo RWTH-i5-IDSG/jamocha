@@ -16,6 +16,7 @@
  */
 package org.jamocha.rete.nodes;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.jamocha.rete.Fact;
@@ -23,7 +24,6 @@ import org.jamocha.rete.Rete;
 import org.jamocha.rete.Template;
 import org.jamocha.rete.exception.AssertException;
 import org.jamocha.rete.exception.RetractException;
-import org.jamocha.rete.util.CollectionsFactory;
 
 public class RootNode extends BaseNode {
 
@@ -36,11 +36,11 @@ public class RootNode extends BaseNode {
 	private static final long serialVersionUID = 1L;
 
 	// input Nodes are linked to the net
-	protected Map<Template, ObjectTypeNode> inputNodes = CollectionsFactory.newHashMap();
+	protected Map<Template, ObjectTypeNode> inputNodes = new HashMap<Template, ObjectTypeNode>();
 
 	// temp input nodes are not linked to the net and exists to temporal store
 	// facts
-	protected Map<Template, ObjectTypeNode> tempInputNodes = CollectionsFactory.newHashMap();
+	protected Map<Template, ObjectTypeNode> tempInputNodes = new HashMap<Template, ObjectTypeNode>();
 
 	/**
 	 * Add a new ObjectTypeNode. The implementation will check to see if the

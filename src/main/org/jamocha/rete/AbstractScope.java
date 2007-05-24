@@ -1,14 +1,13 @@
 package org.jamocha.rete;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.rete.util.CollectionsFactory;
 
-@SuppressWarnings("unchecked")
 public abstract class AbstractScope implements Scope {
 
-	protected Map<String, JamochaValue> values = CollectionsFactory.localMap();
+	protected Map<String, JamochaValue> values = new HashMap<String, JamochaValue>();
 
 	protected Scope outerScope = null;
 

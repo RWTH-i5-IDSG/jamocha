@@ -16,8 +16,8 @@
 (assert (getraenk (name "kartoffelsalat") (farbe "schwarz") ))
 
 (defrule tst2
-	(wurst (name ?x) (spitzname ?x))
-	=> (printout t ?x crlf)
+	(wurst (name ?x) (spitzname ?y))
+	=> (printout t ?x  crlf)
 )
 
 (defrule tst

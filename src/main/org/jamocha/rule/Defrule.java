@@ -18,6 +18,7 @@
 package org.jamocha.rule;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -39,7 +40,6 @@ import org.jamocha.rete.configurations.DeclarationConfiguration;
 import org.jamocha.rete.configurations.DefruleConfiguration;
 import org.jamocha.rete.configurations.Signature;
 import org.jamocha.rete.nodes.TerminalNode;
-import org.jamocha.rete.util.CollectionsFactory;
 
 /**
  * @author Peter Lin
@@ -73,7 +73,7 @@ public class Defrule implements Rule {
 
 	protected Module themodule = null;
 
-	protected Map<String, JamochaValue> bindValues = CollectionsFactory.localMap();
+	protected Map<String, JamochaValue> bindValues = new HashMap<String, JamochaValue>();
 
 	protected Scope outerScope = null;
 

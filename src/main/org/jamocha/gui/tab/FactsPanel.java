@@ -127,9 +127,8 @@ public class FactsPanel extends AbstractJamochaPanel implements ActionListener,
 		initPopupMenu();
 	}
 
-	@SuppressWarnings("unchecked")
 	private void initFactsList() {
-		List<Fact> facts = gui.getEngine().getAllFacts();
+		List<Fact> facts = gui.getEngine().getDeffacts();
 		dataModel.setFacts(facts);
 		factsTable.getColumnModel().getColumn(0).setPreferredWidth(50);
 		factsTable.getColumnModel().getColumn(1).setPreferredWidth(150);

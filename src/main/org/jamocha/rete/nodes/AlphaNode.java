@@ -143,7 +143,7 @@ public class AlphaNode extends SlotAlpha {
 		sb.append("Slot Condition: ");
 		sb.append(slot.getName());
 		sb.append(" ");
-		sb.append(ConversionUtils.getPPOperator(this.operator));
+		sb.append(ConversionUtils.getOperatorDescription(this.operator));
 		sb.append(" ");
 		sb.append(ConversionUtils.formatSlot(this.slot.getValue()));
 		sb.append("\n");

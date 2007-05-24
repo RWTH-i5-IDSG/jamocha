@@ -20,8 +20,6 @@ package org.jamocha.parser.sfp;
 import org.jamocha.parser.Parser;
 import org.jamocha.parser.ParserUtils;
 import org.jamocha.parser.Expression;
-import org.jamocha.parser.JamochaValue;
-
 import org.jamocha.rete.Rete;
 
 public class SFPParser implements/*@bgen(jjtree)*/ SFPParserTreeConstants,Parser, SFPParserConstants {/*@bgen(jjtree)*/
@@ -5655,7 +5653,12 @@ Data Types:
     throw generateParseException();
   }
 
-  static private final class LookaheadSuccess extends java.lang.Error { }
+  static private final class LookaheadSuccess extends java.lang.Error {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L; }
   final private LookaheadSuccess jj_ls = new LookaheadSuccess();
   final private boolean jj_scan_token(int kind) {
     if (jj_scanpos == jj_lastpos) {

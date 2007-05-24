@@ -16,7 +16,6 @@
  */
 package org.jamocha.rete;
 
-import java.math.BigDecimal;
 import java.util.HashMap;
 
 import org.jamocha.rete.nodes.BaseNode;
@@ -29,123 +28,49 @@ import org.jamocha.rete.nodes.BaseNode;
  */
 public class ConversionUtils {
 
-    private static HashMap <String, String>OPR_MAP;
+    private static HashMap<Integer, String> OPR_MAP;
     
     static {
-        OPR_MAP = new HashMap<String,String>();
-        OPR_MAP.put(String.valueOf(Constants.ADD),Constants.ADD_STRING);
-        OPR_MAP.put(String.valueOf(Constants.SUBTRACT),Constants.SUBTRACT_STRING);
-        OPR_MAP.put(String.valueOf(Constants.MULTIPLY),Constants.MULTIPLY_STRING);
-        OPR_MAP.put(String.valueOf(Constants.DIVIDE),Constants.DIVIDE_STRING);
-        OPR_MAP.put(String.valueOf(Constants.LESS),Constants.LESS_STRING);
-        OPR_MAP.put(String.valueOf(Constants.LESSEQUAL),Constants.LESSEQUAL_STRING);
-        OPR_MAP.put(String.valueOf(Constants.GREATER),Constants.GREATER_STRING);
-        OPR_MAP.put(String.valueOf(Constants.GREATEREQUAL),Constants.GREATEREQUAL_STRING);
-        OPR_MAP.put(String.valueOf(Constants.EQUAL),Constants.EQUAL_STRING);
-        OPR_MAP.put(String.valueOf(Constants.NOTEQUAL),Constants.NOTEQUAL_STRING);
+        OPR_MAP = new HashMap<Integer,String>();
+        OPR_MAP.put((Constants.ADD),Constants.ADD_STRING);
+        OPR_MAP.put((Constants.SUBTRACT),Constants.SUBTRACT_STRING);
+        OPR_MAP.put((Constants.MULTIPLY),Constants.MULTIPLY_STRING);
+        OPR_MAP.put((Constants.DIVIDE),Constants.DIVIDE_STRING);
+        OPR_MAP.put((Constants.LESS),Constants.LESS_STRING);
+        OPR_MAP.put((Constants.LESSEQUAL),Constants.LESSEQUAL_STRING);
+        OPR_MAP.put((Constants.GREATER),Constants.GREATER_STRING);
+        OPR_MAP.put((Constants.GREATEREQUAL),Constants.GREATEREQUAL_STRING);
+        OPR_MAP.put((Constants.EQUAL),Constants.EQUAL_STRING);
+        OPR_MAP.put((Constants.NOTEQUAL),Constants.NOTEQUAL_STRING);
     }
     
-    private static HashMap STROPR_MAP;
+    private static HashMap<String,String> STROPR_MAP;
     
     static {
-        STROPR_MAP = new HashMap();
-        OPR_MAP.put(Constants.ADD_STRING,Constants.ADD_SYMBOL);
-        OPR_MAP.put(Constants.SUBTRACT_STRING,Constants.SUBTRACT_SYMBOL);
-        OPR_MAP.put(Constants.MULTIPLY_STRING,Constants.MULTIPLY_SYMBOL);
-        OPR_MAP.put(Constants.DIVIDE_STRING,Constants.DIVIDE_SYMBOL);
-        OPR_MAP.put(Constants.LESS_STRING,Constants.LESS_SYMBOL);
-        OPR_MAP.put(Constants.LESSEQUAL_STRING,Constants.LESSEQUAL_SYMBOL);
-        OPR_MAP.put(Constants.GREATER_STRING,Constants.GREATER_SYMBOL);
-        OPR_MAP.put(Constants.GREATEREQUAL_STRING,Constants.GREATEREQUAL_SYMBOL);
-        OPR_MAP.put(Constants.EQUAL_STRING,Constants.EQUAL_SYMBOL);
-        OPR_MAP.put(Constants.NOTEQUAL_STRING,Constants.NOTEQUAL_SYMBOL);
+        STROPR_MAP = new HashMap<String,String>();
+        STROPR_MAP.put(Constants.ADD_STRING,Constants.ADD_SYMBOL);
+        STROPR_MAP.put(Constants.SUBTRACT_STRING,Constants.SUBTRACT_SYMBOL);
+        STROPR_MAP.put(Constants.MULTIPLY_STRING,Constants.MULTIPLY_SYMBOL);
+        STROPR_MAP.put(Constants.DIVIDE_STRING,Constants.DIVIDE_SYMBOL);
+        STROPR_MAP.put(Constants.LESS_STRING,Constants.LESS_SYMBOL);
+        STROPR_MAP.put(Constants.LESSEQUAL_STRING,Constants.LESSEQUAL_SYMBOL);
+        STROPR_MAP.put(Constants.GREATER_STRING,Constants.GREATER_SYMBOL);
+        STROPR_MAP.put(Constants.GREATEREQUAL_STRING,Constants.GREATEREQUAL_SYMBOL);
+        STROPR_MAP.put(Constants.EQUAL_STRING,Constants.EQUAL_SYMBOL);
+        STROPR_MAP.put(Constants.NOTEQUAL_STRING,Constants.NOTEQUAL_SYMBOL);
     }
     
-    /**
-     * Convert a int primitive to an Integer object
-     * @param val
-     * @return
-     */
-    public static Object convert(int val){
-        return new Integer(val);
-    }
-    
-    /**
-     * Convert a short primitive to a Short object
-     * @param val
-     * @return
-     */
-    public static Object convert(short val){
-        return new Short(val);
-    }
-    
-    /**
-     * Convert a float primitive to Float object
-     * @param val
-     * @return
-     */
-    public static Object convert(float val){
-        return new Float(val);
-    }
-    
-    /**
-     * convert a primitive long to Long object
-     * @param val
-     * @return
-     */
-    public static Object convert(long val){
-        return new Long(val);
-    }
-    
-    /**
-     * convert a primitive double to a Double object
-     * @param val
-     * @return
-     */
-    public static Object convert(double val){
-        return new Double(val);
-    }
-    
-    /**
-     * convert a primitive byte to Byte object
-     * @param val
-     * @return
-     */
-    public static Object convert(byte val){
-        return new Byte(val);
-    }
-    
-    public static Object convert(int type, Object val) {
-    	if (type == Constants.INT_PRIM_TYPE || type == Constants.INTEGER_OBJECT) {
-    		if (val instanceof BigDecimal) {
-    			return new Integer(((BigDecimal)val).intValue());
-    		}
-    	} else if (type == Constants.SHORT_PRIM_TYPE || type == Constants.SHORT_OBJECT) {
-    		if (val instanceof BigDecimal) {
-    			return new Short(((BigDecimal)val).shortValue());
-    		}
-    	} else if (type == Constants.FLOAT_PRIM_TYPE || type == Constants.FLOAT_OBJECT) {
-    		if (val instanceof BigDecimal) {
-    			return new Float(((BigDecimal)val).floatValue());
-    		}
-    	} else if (type == Constants.LONG_PRIM_TYPE || type == Constants.LONG_OBJECT) {
-    		if (val instanceof BigDecimal) {
-    			return new Long(((BigDecimal)val).longValue());
-    		}
-    	} else if (type == Constants.DOUBLE_PRIM_TYPE || type == Constants.DOUBLE_OBJECT) {
-    		if (val instanceof BigDecimal) {
-    			return new Double(((BigDecimal)val).doubleValue());
-    		}
-    	}
-    	return val;
-    }
     /**
      * Return the string form of the operator
      * @param opr
      * @return
      */
-    public static String getPPOperator(int opr){
-        return (String)OPR_MAP.get(String.valueOf(opr));
+    public static String getOperatorDescription(int opr){
+        return OPR_MAP.get(opr);
+    }
+    
+    public static String getOperator(int opr){
+        return STROPR_MAP.get(OPR_MAP.get(opr));
     }
     
     /**

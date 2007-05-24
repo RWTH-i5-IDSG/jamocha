@@ -23,6 +23,7 @@ import java.io.PrintWriter;
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
@@ -43,7 +44,6 @@ import org.jamocha.rete.functions.io.Batch;
 import org.jamocha.rete.nodes.BaseNode;
 import org.jamocha.rete.nodes.TerminalNode;
 import org.jamocha.rete.strategies.DepthStrategy;
-import org.jamocha.rete.util.CollectionsFactory;
 import org.jamocha.rete.util.ProfileStats;
 import org.jamocha.rule.Rule;
 
@@ -105,9 +105,9 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 	 * value is the defclass. the defclass is then used to lookup the
 	 * deftemplate in the current Module.
 	 */
-	protected Map defclass = CollectionsFactory.localMap();
+	protected Map<Class,Defclass> defclass = new HashMap<Class,Defclass>();
 
-	protected Map templateToDefclass = CollectionsFactory.localMap();
+	protected Map<String,Defclass> templateToDefclass = new HashMap<String,Defclass>();
 
 	/**
 	 * We keep a map between the object instance and the corresponding shadown
@@ -115,22 +115,22 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 	 * rule engine is notified of changes, it will check this list. If the
 	 * object instance is in this list, we ignore it.
 	 */
-	protected Map staticFacts = CollectionsFactory.localMap();
+	protected Map<Object,Fact> staticFacts = new HashMap<Object,Fact>();
 
 	/**
 	 * We keep a map of the dynamic object instances. When the rule engine is
 	 * notified
 	 */
-	protected Map dynamicFacts = CollectionsFactory.localMap();
+	protected Map<Object,Fact> dynamicFacts = new HashMap<Object,Fact>();
 
 	/**
 	 * We use a HashMap to make it easy to determine if an existing deffact
 	 * already exists in the working memory. this is only used for deffacts and
 	 * not for objects
 	 */
-	protected Map deffactMap = CollectionsFactory.localMap();
+	protected Map<EqualityIndex,Fact> deffactMap = new HashMap<EqualityIndex,Fact>();
 
-	protected Map outputStreams = CollectionsFactory.localMap();
+	protected Map<String,PrintWriter> outputStreams = new HashMap<String,PrintWriter>();
 
 	/**
 	 * Container for Defglobals
@@ -142,7 +142,7 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 	/*
 	 * an ArrayList for the listeners
 	 */
-	protected ArrayList listeners = new ArrayList();
+	protected List<EngineEventListener> listeners = new ArrayList<EngineEventListener>();
 
 
 	/**
@@ -192,7 +192,6 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 		this.functionMem = new FunctionMemoryImpl(this);
 		this.theAgenda = new Agenda(this);
 		this.theStrat = new DepthStrategy();
-		CollectionsFactory.init();
 		init();
 		startLog();
 	}
@@ -815,8 +814,8 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 	 * 
 	 * @return
 	 */
-	public List getAllFacts() {
-		ArrayList facts = new ArrayList();
+	public List<Object> getAllFacts() {
+		List<Object> facts = new ArrayList<Object>();
 		facts.addAll(this.getObjects());
 		facts.addAll(this.getDeffacts());
 		return facts;
@@ -827,8 +826,8 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 	 * 
 	 * @return
 	 */
-	public List getObjects() {
-		ArrayList objects = new ArrayList();
+	public List<Object> getObjects() {
+		List<Object> objects = new ArrayList<Object>();
 		Iterator itr = this.dynamicFacts.keySet().iterator();
 		while (itr.hasNext()) {
 			Object key = itr.next();
@@ -851,11 +850,11 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 	 * 
 	 * @return
 	 */
-	public List getDeffacts() {
-		ArrayList objects = new ArrayList();
-		Iterator itr = this.deffactMap.values().iterator();
+	public List<Fact> getDeffacts() {
+		List<Fact> objects = new ArrayList<Fact>();
+		Iterator<Fact> itr = this.deffactMap.values().iterator();
 		while (itr.hasNext()) {
-			Object fact = itr.next();
+			Fact fact = itr.next();
 			objects.add(fact);
 		}
 		return objects;

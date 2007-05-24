@@ -203,7 +203,7 @@ public class Binding implements Serializable, Cloneable {
         buf.append(",");
         buf.append(this.leftIndex);
         buf.append(") ");
-        buf.append(ConversionUtils.getPPOperator(operator));
+        buf.append(ConversionUtils.getOperatorDescription(operator));
         buf.append(" right(");
         buf.append(rightrow);
         buf.append(",");

@@ -75,7 +75,7 @@ public class Deffact implements Fact {
 	 * @param util
 	 */
 	public void compileBinding(Rule util) {
-		ArrayList list = new ArrayList();
+		ArrayList<Slot> list = new ArrayList<Slot>();
 		for (int idx = 0; idx < this.slots.length; idx++) {
 			if (this.slots[idx].value.getType().equals(JamochaType.BINDING)) {
 				this.hasBinding = true;

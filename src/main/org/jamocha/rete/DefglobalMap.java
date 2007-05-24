@@ -17,10 +17,9 @@
 package org.jamocha.rete;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-
-import org.jamocha.rete.util.CollectionsFactory;
 
 
 /**
@@ -34,9 +33,13 @@ import org.jamocha.rete.util.CollectionsFactory;
 public class DefglobalMap implements Serializable {
 
 	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	/**
 	 * later on we should replace this and have it
 	 */
-	private Map variables = CollectionsFactory.newHashMap();
+	private Map<String,Object> variables = new HashMap<String,Object>();
 	
 	public DefglobalMap() {
 		super();

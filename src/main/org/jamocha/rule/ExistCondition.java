@@ -137,8 +137,8 @@ public class ExistCondition extends AbstractCondition {
 		return oc;
 	}
 
-	public List getAllBoundConstraints() {
-		ArrayList bindings = new ArrayList();
+	public List<BoundConstraint> getAllBoundConstraints() {
+		ArrayList<BoundConstraint> bindings = new ArrayList<BoundConstraint>();
 		Iterator itr = nestedCE.iterator();
 		while (itr.hasNext()) {
 			Complexity con = (Complexity) itr.next();
@@ -150,18 +150,11 @@ public class ExistCondition extends AbstractCondition {
 					if (c instanceof BoundConstraint) {
 						BoundConstraint bc = (BoundConstraint) c;
 						if (!bc.firstDeclaration()) {
-							bindings.add(c);
+							bindings.add(bc);
 						}
-					} else if (c instanceof PredicateConstraint) {
-						if (((PredicateConstraint) c).isPredicateJoin()) {
-							bindings.add(c);
-						}
-					}
+					} 
 
 				}
-			} else if (con instanceof TestCondition) {
-				TestCondition tc = (TestCondition) con;
-
 			}
 		}
 		return bindings;

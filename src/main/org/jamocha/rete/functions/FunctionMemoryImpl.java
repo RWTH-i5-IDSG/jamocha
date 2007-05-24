@@ -18,6 +18,7 @@ package org.jamocha.rete.functions;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -34,7 +35,6 @@ import org.jamocha.rete.functions.list.ListFunctions;
 import org.jamocha.rete.functions.math.MathFunctions;
 import org.jamocha.rete.functions.ruleengine.RuleEngineFunctions;
 import org.jamocha.rete.functions.strings.StringFunctions;
-import org.jamocha.rete.util.CollectionsFactory;
 
 /**
  * @author Sebastian Reinartz
@@ -52,7 +52,7 @@ public class FunctionMemoryImpl implements FunctionMemory {
 	 * this is the HashMap for all functions. This means all function names are
 	 * unique.
 	 */
-	protected Map<String,Function> functions = CollectionsFactory.localMap();
+	protected Map<String,Function> functions = new HashMap<String, Function>();
 	
 	private DeffunctionGroup deffunctions = new DeffunctionGroup();
 	

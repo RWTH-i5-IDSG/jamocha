@@ -18,10 +18,10 @@ package org.jamocha.rete;
 
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.jamocha.rete.util.CollectionsFactory;
 import org.jamocha.rete.util.ProfileStats;
 
 
@@ -44,7 +44,7 @@ public class Agenda implements Serializable {
 	/**
 	 * The ArrayList for the modules.
 	 */
-	protected Map modules = CollectionsFactory.localMap();
+	protected Map<String,Module> modules = new HashMap<String,Module>();
 
 	private Rete engine = null;
 

@@ -159,11 +159,11 @@ public class SimpleNode implements Node {
 	
 	// used for pre order visit to collect the functional terms
 	public void visit() {
-		if (children != null) {
-			for (int i = 0; i < children.length; ++i) {
-				SimpleNode n = (SimpleNode) children[i];
-			}
-		}
+//		if (children != null) {
+//			for (int i = 0; i < children.length; ++i) {
+//				SimpleNode n = (SimpleNode) children[i];
+//			}
+//		}
 	}
 	
 /*	

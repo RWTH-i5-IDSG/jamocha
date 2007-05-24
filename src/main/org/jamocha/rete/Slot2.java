@@ -39,8 +39,8 @@ public class Slot2 extends Slot {
 	
 	private static final long serialVersionUID = 0xDEADBEAFL;
 
-    private List equalsList = new ArrayList();
-    private List notEqualList = new ArrayList();
+    private List<JamochaValue> equalsList = new ArrayList<JamochaValue>();
+    private List<JamochaValue> notEqualList = new ArrayList<JamochaValue>();
 
     public Slot2(){
     }
@@ -80,7 +80,7 @@ public class Slot2 extends Slot {
      * get the list of values the slot should equal to
      * @return
      */
-    public List getEqualList(){
+    public List<JamochaValue> getEqualList(){
         return this.equalsList;
     }
 
@@ -88,7 +88,7 @@ public class Slot2 extends Slot {
      * set the values the slot should equal to 
      * @param val
      */
-    public void setEqualList(List val){
+    public void setEqualList(List<JamochaValue> val){
         this.equalsList = val;
     }
 
@@ -96,7 +96,7 @@ public class Slot2 extends Slot {
      * get the list of values the slot should not equal to
      * @return
      */
-    public List getNotEqualList(){
+    public List<JamochaValue> getNotEqualList(){
         return this.notEqualList;
     }
     
@@ -104,7 +104,7 @@ public class Slot2 extends Slot {
      * set the list of values the slot should not equal to
      * @param val
      */
-    public void setNotEqualList(List val){
+    public void setNotEqualList(List<JamochaValue> val){
         this.notEqualList = val;
     }
     

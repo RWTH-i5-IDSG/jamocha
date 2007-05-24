@@ -115,7 +115,7 @@ public class SFRuleCompiler implements RuleCompiler {
 			result.append(",");
 			result.append(leftSlot);
 			result.append(")");
-			result.append(ConversionUtils.getPPOperator(operator));
+			result.append(ConversionUtils.getOperatorDescription(operator));
 			result.append("(");
 			result.append(rightCondition);
 			result.append(",");
@@ -154,7 +154,7 @@ public class SFRuleCompiler implements RuleCompiler {
 
 	private class BindingAddressesTable {
 		private Map<String, Vector<BindingAddress>> row = new HashMap<String, Vector<BindingAddress>>();
-
+		
 		public BindingAddressesTable() {
 			super();
 		}
@@ -175,19 +175,29 @@ public class SFRuleCompiler implements RuleCompiler {
 			}
 			vector.add(ba);
 		}
+		
+		private BindingAddress getPivot(String variable, Vector<BindingAddress> bas) {
+			BindingAddress pivot = null;
+			for (BindingAddress ba : bas) {
+				if (ba.operator == Constants.EQUAL) {
+					if (pivot == null || pivot.compareTo(ba) < 0) {
+						pivot = ba;
+					}
+				}
+			}
+			return pivot;
+		}
+		
+		public BindingAddress getPivot(String variable) {
+			return getPivot(variable, getBindingAddresses(variable));
+		}
 
 		public Vector<PreBinding> getPreBindings() {
 			Vector<PreBinding> result = new Vector<PreBinding>();
 			for (String variable : row.keySet()) {
 				Vector<BindingAddress> bas = getBindingAddresses(variable);
-				BindingAddress pivot = null;
-				for (BindingAddress ba : bas) {
-					if (ba.operator == Constants.EQUAL) {
-						if (pivot == null || pivot.compareTo(ba) < 0) {
-							pivot = ba;
-						}
-					}
-				}
+				
+				BindingAddress pivot = getPivot(variable, bas);
 
 				if (pivot != null)
 					for (BindingAddress ba : bas) {
@@ -449,19 +459,32 @@ public class SFRuleCompiler implements RuleCompiler {
 		 */
 
 		// create the table:
-		BindingAddressesTable table = new BindingAddressesTable();
+		BindingAddressesTable bindingAddressTable = new BindingAddressesTable();
 
+		// generate table contents:
 		for (int i = 0; i < conds.length; i++) {
 			List boundConstraints = conds[i].getBoundConstraints();
 			for (Object bc : boundConstraints) {
 				BoundConstraint boundConstraint = (BoundConstraint) bc;
 				BindingAddress ba = new BindingAddress(i, boundConstraint.getSlot().getId(), boundConstraint.getOperator());
-				table.addBindingAddress(ba, boundConstraint.getVariableName());
+				bindingAddressTable.addBindingAddress(ba, boundConstraint.getVariableName());
 			}
 
 		}
+		
+		// create bindings for actions:
+		for (String variable : bindingAddressTable.row.keySet()) {
+			BindingAddress pivot = bindingAddressTable.getPivot(variable);
+			
+			Binding b = new Binding();
+			b.leftIndex = pivot.slotIndex;
+			b.leftrow = conds.length -1 - pivot.conditionIndex;
+			b.varName = variable;
+			rule.addBinding(variable, b);
+		}
+		
 		// get prebindings from table:
-		Vector<PreBinding> preBindings = table.getPreBindings();
+		Vector<PreBinding> preBindings = bindingAddressTable.getPreBindings();
 		Iterator<PreBinding> itr = preBindings.iterator();
 		PreBinding act = null;
 		if (itr.hasNext())
@@ -481,7 +504,6 @@ public class SFRuleCompiler implements RuleCompiler {
 				b.rightrow = -1;
 				b.varName = act.varName;
 				binds.add(b);
-				rule.addBinding(b.varName, b);
 
 				act = (itr.hasNext()) ? itr.next() : null;
 			}
@@ -496,332 +518,8 @@ public class SFRuleCompiler implements RuleCompiler {
 			act = (itr.hasNext()) ? itr.next() : null;
 		}
 
-		// WARNING: THIS IMPLEMENTATION IS FULLY INEFFICIENT SINCE IT IS - LIKE
-		// FIRST TRY - ONLY PROOF OF CONCEPT CODE.
-		// IF THIS APPROACH WILL SHAPE UP AS GOOD, WE CAN DO MANY THINGS MORE
-		// EFFICIENT...
-
-		// then, for each variable V, a boundconstraint C is a
-		// "hook-constraint", iff C binds V in a not-negated manner.
-		// a "hook-condition" (wrt V) is a a condition, containing a
-		// "hook-constraint" (wrt V)
-
-		// 1) for each variable, we first try to find the last hook-condition
-		// and the corresponding hook-constraint in "conds"-array
-
-		// 2) iterate over all variables. let V the actual variable, hookCond
-		// the last hook condition and hookConstr the last hook constraint.
-		// further, let Constr be the set of all hook constraints wrt V.
-		// let generateBindingsFor be that set= { ( x , hookConstr) | x \in
-		// Constr, x != hookConstr }
-
-		// 3) for each b \in generateBindingsFor:
-		// generate that binding "bind":
-		// varName = variable name from constraint b.x (easy)
-		// operator = operator from constraint b.x (easy)
-		// [left|right][row|index] = compute from the table (maybe a bit tricky
-		// in some cases)
-		// if b.x and hookConstr are from two different condition, put that
-		// binding into the joinnode from x's condition
-		// if b.x and hookConstr are from the same condition, we must insert
-		// some additional join nodes (details about that would have to become
-		// elaborated)
-
 	}
 
-	// protected void compileBindings2(Rule rule, Condition[] conds,
-	// Map<Condition, BaseNode> conditionJoiners) throws AssertException {
-	// Vector<Binding> bindings = new Vector<Binding>();
-	// HashMap<String, Integer> boundConstraintName2lastUsingCondition = new
-	// HashMap<String, Integer>();
-	//
-	// HashMap<String, Vector<Integer>> negatedBCs = new HashMap<String,
-	// Vector<Integer>>();
-	//
-	// for (int i = conds.length - 1; i >= 0; i--) {
-	// Condition c = conds[i];
-	// Binding[] binds = new Binding[0];
-	//
-	// for (Object o : c.getBindings()) {
-	// if (o instanceof BoundConstraint) {
-	// BoundConstraint bc = (BoundConstraint) o;
-	//
-	// // remembers, in which condition a given variablename
-	// // occured last (in not negated manner!)
-	// Integer lastUseIn =
-	// boundConstraintName2lastUsingCondition.get(bc.getVariableName());
-	//
-	// if (lastUseIn == null && bc.getNegated()) {
-	// // hmmm... this is the first time we see this
-	// // boundconstraint and
-	// // it is negated.... what shall we do now?
-	// // we save it into negatedBCs. we must handle that when
-	// // we will
-	// // find it not negated!
-	//
-	// Vector<Integer> neg = negatedBCs.get(bc.getVariableName());
-	// if (neg == null) {
-	// neg = new Vector<Integer>();
-	// negatedBCs.put(bc.getVariableName(), neg);
-	// }
-	// neg.add(i);
-	// }
-	//
-	// Vector<Integer> oldConds = null;
-	// if (lastUseIn == null && !bc.getNegated() && (oldConds =
-	// negatedBCs.get(bc.getVariableName())) != null) {
-	// // thats the point, we have to handle negated versions
-	// // of that boundconstraint
-	// // we found in past
-	//
-	// for (Integer oldCondition : oldConds) {
-	// Binding b = new Binding();
-	// b.varName = bc.getVariableName();
-	// b.operator = Constants.NOTEQUAL;
-	// b.rightrow = -1;
-	// b.rightIndex = bc.getSlot().getId();
-	// // search for the occurence of the boundconstraint
-	// // in the other condition
-	// // TODO: optimize that by holding that value at
-	// // first finding time
-	// for (Object ob : conds[oldCondition].getBindings()) {
-	// if (ob instanceof BoundConstraint) {
-	// BoundConstraint lastbc = (BoundConstraint) ob;
-	// if (lastbc.getVariableName().equals(bc.getVariableName())) {
-	// b.leftrow = conds.length - 1 - oldCondition;
-	// b.leftIndex = lastbc.getSlot().getId();
-	// break;
-	// }
-	// }
-	// }
-	//
-	// bindings.add(b);
-	// }
-	// negatedBCs.remove(bc.getVariableName());
-	// }
-	//
-	// if (!bc.getNegated() && lastUseIn == null) {
-	// Binding b = new Binding();
-	// b.leftIndex = bc.getSlot().getId();
-	// b.leftrow = conds.length - 1 - i;
-	// rule.addBinding(bc.getVariableName(), b);
-	// }
-	//
-	// if (lastUseIn != null) {
-	// Binding b = new Binding();
-	// b.rightIndex = bc.getSlot().getId();
-	// b.rightrow = -1;
-	// b.varName = bc.getVariableName();
-	//
-	// if (bc.getNegated()) {
-	// b.setOperator(Constants.NOTEQUAL);
-	// } else {
-	// // b.setOperator(Constants.EQUAL);
-	// }
-	//
-	// // search for the occurence of the boundconstraint in
-	// // the other condition
-	// // TODO: optimize that by holding that value at first
-	// // finding time
-	// for (Object ob : conds[lastUseIn].getBindings()) {
-	// if (ob instanceof BoundConstraint) {
-	// BoundConstraint lastbc = (BoundConstraint) ob;
-	// if (lastbc.getVariableName().equals(bc.getVariableName())) {
-	// b.leftrow = conds.length - 1 - lastUseIn;
-	// b.leftIndex = lastbc.getSlot().getId();
-	// break;
-	// }
-	// }
-	// }
-	//
-	// bindings.add(b);
-	//
-	// }
-	// if (!bc.getNegated()) {
-	// boundConstraintName2lastUsingCondition.put(bc.getVariableName(), i);
-	// }
-	// }
-	// }
-	// binds = bindings.toArray(binds);
-	// bindings.clear();
-	// if (binds.length > 0)
-	// ((BetaNode) conditionJoiners.get(c)).setBindings(binds, engine);
-	// }
-	//
-	// // now, we will look for boundconstraints, which only occurs negated in
-	// // our rule
-	// for (String bc : negatedBCs.keySet()) {
-	// // what shall we do with such a kind of boundconstraint?
-	// // imho, the most reasonable semantic for this example:
-	// // (foo (name ~?x))
-	// // (bar (name ~?x))
-	// // (baz (name ~?x))
-	// // is: (foo.name != bar.name && bar.name != baz.name && foo.name !=
-	// // baz.name)
-	// // in german, we term it "paarweise verschieden" ;)
-	// // this semantic is not easy to implement, since the "!=" relation
-	// // isnt
-	// // transitive (it is not okay to just test
-	// // foo.name != bar.name && bar.name != baz.name
-	// // !)
-	// // => we have to implement that rare and useless case later.
-	// throw new AssertException(bc + " only occurs negated. for now, that will
-	// not work as expected.");
-	// }
-	//
-	// }
-
-	/*
-	 * public void compileJoins2(Rule rule, Condition[] conds) throws
-	 * AssertException { // only if there's more than 1 condition do we attempt
-	 * to // create the join nodes. A rule with just 1 condition has // no joins
-	 * if (conds.length > 1) { // previous Condition Condition prev = conds[0];
-	 * BaseJoin prevJoin = null; BaseJoin bn = null; // check if the first
-	 * condition has any alphaNodes // if it does, we add a LeftInputAdapater to
-	 * the // last AlphaNode if (prev instanceof ObjectCondition) {
-	 * ObjectCondition cond = (ObjectCondition) prev; ObjectTypeNode otn =
-	 * findObjectTypeNode(cond.getTemplateName()); // the LeftInputAdapterNode
-	 * is the first node to propogate to // the first joinNode of the rule
-	 * LIANode node = new LIANode(engine.nextNodeId()); // if the condition
-	 * doesn't have any nodes, we add the // LeftInputAdapter // to the
-	 * ObjectTypeNode, otherwise we add it to the last // AlphaNode if
-	 * (cond.getNodes().size() == 0) { otn.addNode(node, engine); } else { //
-	 * add the LeftInputAdapterNode to the last alphaNode // we need to see if
-	 * new LIANode is the same as the existing AbstractAlpha old =
-	 * (AbstractAlpha) cond.getLastNode(); if (old instanceof LIANode) { node =
-	 * (LIANode) old; } else { old.addNode(node, engine); } }
-	 * cond.addNode(node); } else if (prev instanceof TestCondition) { // for
-	 * now this is not implemented, since most rules do not // have a test
-	 * condition as the first condition } else if (prev instanceof
-	 * ExistCondition) { // if the first CE is an exists CE, we handle it
-	 * differently BaseJoin bjoin = new ExistJoinFrst(engine.nextNodeId());
-	 * ExistCondition cond = (ExistCondition) prev; BaseNode base =
-	 * cond.getLastNode(); if (base instanceof AbstractAlpha) { ((AbstractAlpha)
-	 * base).addNode(bjoin, engine); } else if (base instanceof BaseJoin) {
-	 * ((BaseJoin) base).addNode(bjoin, engine); } // important, do not call
-	 * this before ExistJoinFrst is added // if it's called first, the arraylist
-	 * will return index // out of bound, since there's nothing in the list
-	 * cond.setIsFirstCE(true); cond.addNode(bjoin); } int negatedCE = 0; // now
-	 * compile the remaining conditions for (int idx = 1; idx < conds.length;
-	 * idx++) { Condition cdt = conds[idx]; ObjectTypeNode otn = null; if (cdt
-	 * instanceof TestCondition) {
-	 * 
-	 * TestCondition tc = (TestCondition) cdt; Signature fn = (Signature)
-	 * tc.getFunction(); Expression[] oldpm = fn.getParameters(); Parameter[]
-	 * pms = new Parameter[oldpm.length]; for (int ipm = 0; ipm < pms.length;
-	 * ipm++) { if (oldpm[ipm] instanceof JamochaValue) { pms[ipm] = (Parameter)
-	 * oldpm[ipm]; } else if (oldpm[ipm] instanceof BoundParam) { BoundParam bpm =
-	 * (BoundParam) oldpm[ipm]; // now we need to resolve and setup the
-	 * BoundParam Binding b = rule.getBinding(bpm.getVariableName()); BoundParam
-	 * newpm = new BoundParam(b.getLeftRow(), b.getLeftIndex(), 9,
-	 * bpm.isObjectBinding()); newpm.setVariableName(bpm.getVariableName());
-	 * pms[ipm] = newpm; } } if (tc.isNegated()) { bn = new
-	 * NTestNode(engine.nextNodeId(), fn.lookUpFunction(engine), pms); } else {
-	 * bn = new TestNode(engine.nextNodeId(), fn.lookUpFunction(engine), pms); }
-	 * if (prevJoin != null) { attachJoinNode(prevJoin, (BaseJoin) bn); } else {
-	 * attachJoinNode(prev.getLastNode(), (BaseJoin) bn); } } else if (cdt
-	 * instanceof AndCondition) { // TODO for now this is not done yet
-	 * BooleanOperatorCondition ac = (BooleanOperatorCondition) cdt; } else if
-	 * (cdt instanceof ExistCondition) { // TODO finish implementing Exists
-	 * ExistCondition exc = (ExistCondition) cdt; boolean hasNotEqual = false;
-	 * Template tmpl = exc.getObjectCondition().getTemplate();
-	 * 
-	 * List blist = exc.getAllBindings(); Binding[] binds = new
-	 * Binding[blist.size()]; for (int idz = 0; idz < binds.length; idz++) {
-	 * Object cst = blist.get(idz); if (cst instanceof BoundConstraint) {
-	 * BoundConstraint bc = (BoundConstraint) cst; Binding cpy =
-	 * rule.copyBinding(bc.getVariableName()); if (cpy.getLeftRow() >= idx) {
-	 * binds = new Binding[0]; break; } else { binds[idz] = cpy;
-	 * binds[idz].setRightRow(idx - negatedCE); int rinx =
-	 * tmpl.getColumnIndex(bc.getName()); // we increment the count to make sure
-	 * the // template isn't removed if it is being used
-	 * tmpl.getSlot(rinx).incrementNodeCount(); binds[idz].setRightIndex(rinx);
-	 * binds[idz].setNegated(bc.getNegated()); if (bc.getNegated()) {
-	 * hasNotEqual = true; } } } else if (cst instanceof PredicateConstraint) {
-	 * PredicateConstraint pc = (PredicateConstraint) cst; if
-	 * (pc.getValue().getType().equals(JamochaType.BINDING)) { BoundParam bpm =
-	 * (BoundParam) pc.getValue().getObjectValue(); String var =
-	 * bpm.getVariableName(); int op =
-	 * ConversionUtils.getOperatorCode(pc.getFunctionName()); // if the first
-	 * binding in the function is from // the object type // we reverse the
-	 * operator if (pc.getParameters().get(0) != bpm) { op =
-	 * ConversionUtils.getOppositeOperatorCode(op); } binds[idz] =
-	 * rule.copyPredicateBinding(var, op); binds[idz].setRightRow(idx -
-	 * negatedCE); int rinx = tmpl.getColumnIndex(pc.getName()); // we increment
-	 * the count to make sure the // template isn't removed if it is being used
-	 * tmpl.getSlot(rinx).incrementNodeCount();
-	 * 
-	 * binds[idz].setRightIndex(rinx); } } } bn = new
-	 * ExistJoin(engine.nextNodeId()); bn.setBindings(binds); exc.addNode(bn);
-	 * if (prevJoin != null) { attachJoinNode(prevJoin, (BaseJoin) bn); } else {
-	 * attachJoinNode(prev.getLastNode(), (BaseJoin) bn); }
-	 * attachJoinNode(exc.getLastNode(), (BaseJoin) bn); negatedCE++; } else {
-	 * boolean hasNotEqual = false; ObjectCondition oc = (ObjectCondition) cdt;
-	 * otn = findObjectTypeNode(oc.getTemplateName()); Template tmpl =
-	 * oc.getTemplate();
-	 * 
-	 * if (cdt.hasBindings()) { // the condition has bindings, so we have to
-	 * create // the bindings and set the joinNode List blist =
-	 * cdt.getBindings(); Binding[] binds = new Binding[blist.size()]; Iterator
-	 * itr = blist.iterator(); for (int idz = 0; idz < blist.size(); idz++) {
-	 * Object cst = blist.get(idz); if (cst instanceof BoundConstraint) {
-	 * BoundConstraint bc = (BoundConstraint) cst; Binding cpy =
-	 * rule.copyBinding(bc.getVariableName()); if (cpy.getLeftRow() >= idx) {
-	 * binds = new Binding[0]; break; } else { binds[idz] = cpy;
-	 * binds[idz].setRightRow(idx - negatedCE); int rinx =
-	 * tmpl.getColumnIndex(bc.getName()); // we increment the count to make sure
-	 * the // template isn't removed if it is being // used
-	 * tmpl.getSlot(rinx).incrementNodeCount(); binds[idz].setRightIndex(rinx);
-	 * binds[idz].setNegated(bc.getNegated()); if (bc.getNegated()) {
-	 * hasNotEqual = true; } } } else if (cst instanceof PredicateConstraint) {
-	 * PredicateConstraint pc = (PredicateConstraint) cst; if
-	 * (pc.getValue().getType().equals(JamochaType.BINDING)) { BoundParam bpm =
-	 * (BoundParam) pc.getValue().getObjectValue(); String var =
-	 * bpm.getVariableName(); int op =
-	 * ConversionUtils.getOperatorCode(pc.getFunctionName()); // if the first
-	 * binding in the function is // from the object type // we reverse the
-	 * operator if (pc.getParameters().get(0) != bpm) { op =
-	 * ConversionUtils.getOppositeOperatorCode(op); } binds[idz] =
-	 * rule.copyPredicateBinding(var, op); binds[idz].setRightRow(idx -
-	 * negatedCE); int rinx = tmpl.getColumnIndex(pc.getName()); // we increment
-	 * the count to make sure the // template isn't removed if it is being //
-	 * used tmpl.getSlot(rinx).incrementNodeCount();
-	 * binds[idz].setRightIndex(rinx); } } } if (!oc.getNegated()) { if
-	 * (binds.length > 0 && !hasNotEqual) { bn = new
-	 * HashedEqBNode(engine.nextNodeId()); } else if (binds.length > 0 &&
-	 * hasNotEqual) { bn = new HashedNotEqBNode(engine.nextNodeId()); } else if
-	 * (binds.length == 0) { bn = new ZJBetaNode(engine.nextNodeId()); } else {
-	 * bn = new BetaNode(engine.nextNodeId()); } } else {
-	 * 
-	 * if (binds.length == 0 || hasNotEqual) { bn = new
-	 * HashedNotEqNJoin(engine.nextNodeId()); } else { bn = new
-	 * HashedEqNJoin(engine.nextNodeId()); } // bn = new
-	 * NotJoin(engine.nextNodeId()); negatedCE++; } bn.setBindings(binds); }
-	 * else { // if the condition doesn't have any bindings, we make // a join
-	 * without any bindings if (bn == null) { bn = new
-	 * ZJBetaNode(engine.nextNodeId()); } bn.setBindings(new Binding[0]); // now
-	 * add the join node to the last nodes of the // current // and previous
-	 * condition } if (prevJoin != null) { attachJoinNode(prevJoin, (BaseJoin)
-	 * bn); } else { attachJoinNode(prev.getLastNode(), (BaseJoin) bn); } if
-	 * (cdt.getNodes().size() > 0) { attachJoinNode(cdt.getLastNode(),
-	 * (BaseJoin) bn); } else { otn.addNode(bn, engine); } } // now we set the
-	 * previous node to current prev = cdt; prevJoin = bn; rule.addJoinNode(bn); } }
-	 * else if (conds.length == 1) { // we have to check and see if the rule has
-	 * a single NOT CE if (conds[0] instanceof ObjectCondition) {
-	 * ObjectCondition oc = (ObjectCondition) conds[0]; if (oc.getNegated()) { //
-	 * the ObjectCondition is negated, so we need to // handle it appropriate.
-	 * This means we need to // add a LIANode to _IntialFact and attach a
-	 * NOTNode // to the LIANode. ObjectTypeNode otn = (ObjectTypeNode)
-	 * root.getObjectTypeNodes().get(engine.initFact); LIANode lianode =
-	 * findLeftInputAdapter(otn); NotJoin njoin = new
-	 * NotJoin(engine.nextNodeId()); njoin.setBindings(new Binding[0]);
-	 * lianode.addNode(njoin, engine); // add the join to the rule object
-	 * rule.addJoinNode(njoin); oc.getLastNode().addNode(njoin,engine); } else
-	 * if (oc.getNodes().size() == 0) { ObjectTypeNode otn =
-	 * findObjectTypeNode(oc.getTemplateName()); LIANode lianode = new
-	 * LIANode(engine.nextNodeId()); otn.addNode(lianode, engine);
-	 * rule.getConditions()[0].addNode(lianode); } } } }
-	 */
 	/**
 	 * The method compiles an ObjectCondition.
 	 * 

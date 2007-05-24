@@ -18,12 +18,12 @@ package org.jamocha.rete;
 
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
 import org.jamocha.rete.exception.RetractException;
 import org.jamocha.rete.nodes.ObjectTypeNode;
-import org.jamocha.rete.util.CollectionsFactory;
 import org.jamocha.rule.Defrule;
 import org.jamocha.rule.Rule;
 
@@ -53,7 +53,7 @@ public class Defmodule implements Module, Serializable {
 	 * to the module, the class should check to see if the rule is in the module
 	 * first.
 	 */
-	protected Map rules = CollectionsFactory.localMap();
+	protected Map<String,Rule> rules = new HashMap<String,Rule>();
 
 	/**
 	 * A simple List of the activations for the given module
@@ -70,7 +70,7 @@ public class Defmodule implements Module, Serializable {
 	 * The key is either the template name if it was created from the shell, or
 	 * the defclass if it was created from an Object.
 	 */
-	protected Map deftemplates = CollectionsFactory.localMap();
+	protected Map<String,Template> deftemplates = new HashMap<String,Template>();
 
 	private int templateCount = 0;
 

@@ -27,6 +27,11 @@ import java.io.Serializable;
  */
 public class CompositeIndex implements Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	private String name = null;
 
 	// by default, we set it to Equals

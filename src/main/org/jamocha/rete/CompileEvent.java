@@ -27,6 +27,11 @@ import org.jamocha.rule.Rule;
  */
 public class CompileEvent extends AbstractEvent {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	private int type = -1;
 
 	private String message = "";

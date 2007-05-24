@@ -88,4 +88,12 @@ public class EngineEvent extends EventObject {
     public void setFacts(Fact[] facts) {
         this.facts = facts;
     }
+
+	public Rule getRule() {
+		return rule;
+	}
+
+	public void setRule(Rule rule) {
+		this.rule = rule;
+	}
 }
