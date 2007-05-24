@@ -22,6 +22,7 @@ import org.jamocha.parser.sl.ParseException;
 import org.jamocha.parser.sl.SLParser;
 import org.jamocha.parser.sl.SLParserTreeConstants;
 import org.jamocha.parser.sl.SimpleNode;
+import org.jamocha.parser.sl.TokenMgrError;
 
 /**
  * This class walks through an SL code tree and translates it to CLIPS depending
@@ -38,6 +39,8 @@ public class Subscribe {
 	 */
 	private Subscribe() {
 	}
+	
+
 
 	/**
 	 * Translates SL code of a request to CLIPS code. A request only contains
@@ -50,6 +53,38 @@ public class Subscribe {
 	 *             if the SLParser throws an Exception or anything else unnormal
 	 *             happens.
 	 */
+	
+	/*
+	 * Example: ((iota ?x (= ?x (xch-rate FFR USD)))))
+	 * Parser Tree:
+	 * 	Content
+		 ContentExpression
+		  IdentifyingExpression
+		   Iota
+		    TermOrIE
+		     Term
+		      Variable: ?x
+		    Wff
+		     AtomicFormula
+		      BinaryTermOp
+		       Equal
+		        TermOrIE
+		         Term
+		          Variable: ?x
+		        TermOrIE
+		         Term
+		          FunctionalTerm
+		           FunctionSymbol: xch-rate
+		           TermOrIE
+		            Term
+		             Constant
+		              String: FFR
+		           TermOrIE
+		            Term
+		             Constant
+		              String: USD
+	 */
+	
 	public static String getCLIPS(String slContent)
 			throws AdapterTranslationException {
 		StringBuilder result = new StringBuilder();
@@ -62,8 +97,40 @@ public class Subscribe {
 			throw new AdapterTranslationException(
 					"Could not translate from SL to CLIPS.", e);
 		}
-		// Walk through the children until we have something useful
+		
+		// ReferentialOperator
 		sn = getChildAtLevel(sn, 3);
+		switch (sn.getID()) {
+			case SLParserTreeConstants.JJTIOTA:
+				result.append("IOTA");
+				break;
+			case SLParserTreeConstants.JJTALL:
+				result.append("ALL");
+				break;
+			case SLParserTreeConstants.JJTANY:
+				result.append("ANY");
+				break;
+			default:
+				throw new AdapterTranslationException("Could not translate from SL to CLIPS.");
+		}
+		
+		// BinaryTermOp
+		sn = getChild(sn, 1);
+		sn = getChildAtLevel(sn, 3);
+		if (sn.getID() == SLParserTreeConstants.JJTEQUAL) {
+			result.append("EQUAL");
+		} else if (sn.getID() == SLParserTreeConstants.JJTRESULT) { 
+			result.append("RESULT");
+		} else {
+			throw new AdapterTranslationException("Could not translate from SL to CLIPS.");
+		}
+		
+		
+		
+		
+		
+		result.append(getChildAtLevel(sn, 7).getID());
+		
 		if (sn.getID() == SLParserTreeConstants.JJTACTION) {
 			// Here we have an Action
 			// Get the right Child. The left Child is the agent-identifier.
