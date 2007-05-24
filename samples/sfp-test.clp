@@ -108,3 +108,13 @@
 	(foreach ?i $?zutatenlist (printout t ?i)) 
  )
 
+; binding tests
+
+(defrule bier-senf-vergleich
+	 (bier (gewicht ?x)(name ?y))
+	 (wurst (gewicht ?x)(name ?z))
+	=>
+	(printout t "das bier " ?y " und die wurst " ?z " haben das gewicht " ?x " !" )
+ )
+
+
