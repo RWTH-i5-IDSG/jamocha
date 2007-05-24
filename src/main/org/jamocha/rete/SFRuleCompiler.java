@@ -441,6 +441,11 @@ public class SFRuleCompiler implements RuleCompiler {
 		/*
 		 * CONDITION1 CONDITION2 CONDITION3 CONDITION4 CONDITION5 VARIABLE1 != != == == !=
 		 * [==] VARIABLE2 == [==] VARIABLE3 != >= [==]
+         * 
+         * Note:  here's some comments and general thoughts. A binding used in a join
+         * should only use "==". if it's some other operator, a TestNode is used to evaluate
+         * it. A condition like predicateConstraint (age ?age&:(> ?age 20) ) creates a
+         * binding and an alpha node that uses ">" operator. Peter 5/24/2007
 		 */
 
 		// create the table:
