@@ -80,7 +80,8 @@ public abstract class BaseNode implements Serializable {
 	public boolean addNode(BaseNode n, Rete engine) throws AssertException {
 		boolean add = false;
 		// check if not inserted yet and free space for subchild:
-		if (!containsNode(this.childNodes, n) && childNodes.length < maxChildCount) {
+//		if (!containsNode(this.childNodes, n) && childNodes.length < maxChildCount) {
+		if (childNodes.length < maxChildCount) {
 			// inform added child node:
 			BaseNode weWillAddThisNode = n.evAdded(this, engine);
 			if (weWillAddThisNode != null) {
