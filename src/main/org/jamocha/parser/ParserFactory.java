@@ -19,7 +19,6 @@ package org.jamocha.parser;
 import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
-import java.util.Map;
 
 import org.jamocha.parser.clips.CLIPSFormatter;
 import org.jamocha.parser.clips.CLIPSParser;
@@ -179,7 +178,7 @@ public class ParserFactory {
 			 */ 
 			//return new BasicRuleCompiler(engine, wmem, root.getObjectTypeNodes());
 		} else if (mode.equalsIgnoreCase("sfp")) {
-			return new SFRuleCompiler(engine, wmem, root);
+			return new SFRuleCompiler(engine, root);
 		} else {
 			throw new ModeNotFoundException(mode);
 		}

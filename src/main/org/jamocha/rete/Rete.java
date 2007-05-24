@@ -561,24 +561,6 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 	}
 
 	/**
-	 * 
-	 * @param obj
-	 */
-	public void declareObject(Class obj) {
-		declareObject(obj, null, null);
-	}
-
-	/**
-	 * Declare a class with a specific template name
-	 * 
-	 * @param obj
-	 * @param templateName
-	 */
-	public void declareObject(Class obj, String templateName) {
-		declareObject(obj, templateName, null);
-	}
-
-	/**
 	 * @param obj
 	 * @param templateName
 	 * @param parent -

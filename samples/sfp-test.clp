@@ -85,10 +85,6 @@
 )
 
 
-
-
-
-
 ;modify test:
 (deftemplate modifywurst
 	(slot name)

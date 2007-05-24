@@ -127,10 +127,10 @@ public class SFRuleCompiler implements RuleCompiler {
 		public PreBinding(BindingAddress left, BindingAddress right, String varName) {
 			super();
 			this.varName = varName;
-			leftCondition = left.conditionIndex;
-			rightCondition = right.conditionIndex;
-			leftSlot = left.slotIndex;
-			rightSlot = right.slotIndex;
+			this.leftCondition = left.conditionIndex;
+			this.rightCondition = right.conditionIndex;
+			this.leftSlot = left.slotIndex;
+			this.rightSlot = right.slotIndex;
 			if (left.operator == Constants.EQUAL) {
 				this.operator = right.operator;
 			} else if (right.operator == Constants.EQUAL) {
@@ -176,7 +176,7 @@ public class SFRuleCompiler implements RuleCompiler {
 			vector.add(ba);
 		}
 
-		public Vector<PreBinding> getVariableBindings() {
+		public Vector<PreBinding> getPreBindings() {
 			Vector<PreBinding> result = new Vector<PreBinding>();
 			for (String variable : row.keySet()) {
 				Vector<BindingAddress> bas = getBindingAddresses(variable);
@@ -204,8 +204,6 @@ public class SFRuleCompiler implements RuleCompiler {
 
 	static final long serialVersionUID = 0xDeadBeafCafeBabeL;
 
-	private WorkingMemory memory = null;
-
 	private Rete engine = null;
 
 	protected RootNode root = null;
@@ -226,10 +224,9 @@ public class SFRuleCompiler implements RuleCompiler {
 
 	protected DefaultLogger log = new DefaultLogger(this.getClass());
 
-	public SFRuleCompiler(Rete engine, WorkingMemory mem, RootNode root) {
+	public SFRuleCompiler(Rete engine, RootNode root) {
 		super();
 		this.engine = engine;
-		this.memory = mem;
 		this.root = root;
 		this.tval = new TemplateValidation(engine);
 	}
@@ -445,7 +442,7 @@ public class SFRuleCompiler implements RuleCompiler {
 		 * CONDITION1 CONDITION2 CONDITION3 CONDITION4 CONDITION5 VARIABLE1 != != == == !=
 		 * [==] VARIABLE2 == [==] VARIABLE3 != >= [==]
 		 */
-		
+
 		// create the table:
 		BindingAddressesTable table = new BindingAddressesTable();
 
@@ -459,41 +456,40 @@ public class SFRuleCompiler implements RuleCompiler {
 
 		}
 		// get prebindings from table:
-		Vector<PreBinding> preBindings = table.getVariableBindings();
-		Iterator<PreBinding> itr = preBindings.iterator(); 
+		Vector<PreBinding> preBindings = table.getPreBindings();
+		Iterator<PreBinding> itr = preBindings.iterator();
 		PreBinding act = null;
-		if (itr.hasNext()) act = itr.next();
-		Binding[] bindArray = new Binding [0];
+		if (itr.hasNext())
+			act = itr.next();
+		Binding[] bindArray = new Binding[0];
 		// traverse conditions and get their join node:
 		for (int i = conds.length - 2; i >= 0; i--) {
 			Vector<Binding> binds = new Vector<Binding>();
 			BaseNode node = conditionJoiners.get(conds[i]);
 			// traverse prebindings and try to set them to join nodes:
-			while (act != null && act.getJoinIndex()==i ){
-				
-				Binding b = new Binding();
-				b.leftIndex= act.leftSlot;
-				b.leftrow= conds.length -1 -Math.max(act.leftCondition, act.rightCondition);
-				b.rightIndex= act.rightSlot;
-				b.rightrow= -1;
-				b.varName= act.varName;
-				b.operator= act.operator;
+			while (act != null && act.getJoinIndex() == i) {
+
+				Binding b = new Binding(act.operator);
+				b.leftIndex = act.leftSlot;
+				b.leftrow = conds.length - 1 - Math.max(act.leftCondition, act.rightCondition);
+				b.rightIndex = act.rightSlot;
+				b.rightrow = -1;
+				b.varName = act.varName;
 				binds.add(b);
 				rule.addBinding(b.varName, b);
-				
+
 				act = (itr.hasNext()) ? itr.next() : null;
 			}
 			// set bindig= null if binds.size=0
-			((BetaNode)node).setBindings((binds.size() != 0) ?binds.toArray(bindArray): null, engine);
+			((BetaNode) node).setBindings((binds.size() != 0) ? binds.toArray(bindArray) : null, engine);
 		}
 		// handle all bindings that couldn't be placed to join node.
 		while (act != null) {
-			
+
 			System.out.println(act);
-			
+
 			act = (itr.hasNext()) ? itr.next() : null;
 		}
-		
 
 		// WARNING: THIS IMPLEMENTATION IS FULLY INEFFICIENT SINCE IT IS - LIKE
 		// FIRST TRY - ONLY PROOF OF CONCEPT CODE.
@@ -1022,7 +1018,7 @@ public class SFRuleCompiler implements RuleCompiler {
 		bind.setVarName(constraint.getVariableName());
 		bind.setLeftRow(conditionIndex);
 		bind.setLeftIndex(constraint.getSlot().getId());
-		bind.setRowDeclared(conditionIndex);
+		// bind.setRowDeclared(conditionIndex);
 		// we only add the binding to the map if it doesn't already
 		// exist
 		if (rule.getBinding(constraint.getVariableName()) == null) {
@@ -1043,11 +1039,11 @@ public class SFRuleCompiler implements RuleCompiler {
 	 * @throws Exception
 	 */
 	public BaseNode compile(OrLiteralConstraint constraint, Rule rule, int conditionIndex) {
-		SlotAlpha node = null;
-		Slot2 sl = new Slot2(constraint.getName());
-		sl.setId(constraint.getSlot().getId());
-		Object sval = constraint.getValue();
-		sl.setValue(sval);
+		// SlotAlpha node = null;
+		// Slot2 sl = new Slot2(constraint.getName());
+		// sl.setId(constraint.getSlot().getId());
+		// Object sval = constraint.getValue();
+		// sl.setValue(sval);
 
 		return null;
 
@@ -1108,28 +1104,28 @@ public class SFRuleCompiler implements RuleCompiler {
 	 */
 	public BaseNode compile(BoundConstraint constraint, Rule rule, int conditionIndex) {
 
-//		// we need to create a binding class for the BoundConstraint
-//		if (rule.getBinding(constraint.getVariableName()) == null) {
-//			// if the HashMap doesn't already contain the binding,
-//			// we create
-//			// a new one
-//			if (constraint.getIsObjectBinding()) {
-//				Binding bind = new Binding();
-//				bind.setVarName(constraint.getVariableName());
-//				bind.setLeftRow(conditionIndex);
-//				bind.setLeftIndex(-1);
-//				bind.setIsObjectVar(true);
-//				rule.addBinding(constraint.getVariableName(), bind);
-//			} else {
-//				Binding bind = new Binding();
-//				bind.setVarName(constraint.getVariableName());
-//				bind.setLeftRow(conditionIndex);
-//				bind.setLeftIndex(constraint.getSlot().getId());
-//				bind.setRowDeclared(conditionIndex);
-//				constraint.setFirstDeclaration(true);
-//				rule.addBinding(constraint.getVariableName(), bind);
-//			}
-//		}
+		// // we need to create a binding class for the BoundConstraint
+		// if (rule.getBinding(constraint.getVariableName()) == null) {
+		// // if the HashMap doesn't already contain the binding,
+		// // we create
+		// // a new one
+		// if (constraint.getIsObjectBinding()) {
+		// Binding bind = new Binding();
+		// bind.setVarName(constraint.getVariableName());
+		// bind.setLeftRow(conditionIndex);
+		// bind.setLeftIndex(-1);
+		// bind.setIsObjectVar(true);
+		// rule.addBinding(constraint.getVariableName(), bind);
+		// } else {
+		// Binding bind = new Binding();
+		// bind.setVarName(constraint.getVariableName());
+		// bind.setLeftRow(conditionIndex);
+		// bind.setLeftIndex(constraint.getSlot().getId());
+		// bind.setRowDeclared(conditionIndex);
+		// constraint.setFirstDeclaration(true);
+		// rule.addBinding(constraint.getVariableName(), bind);
+		// }
+		// }
 		return null;
 	}
 
@@ -1146,11 +1142,11 @@ public class SFRuleCompiler implements RuleCompiler {
 	 */
 
 	public BaseNode compile(AndLiteralConstraint constraint, Rule rule, int conditionIndex) {
-		SlotAlpha node = null;
-		Slot2 sl = new Slot2(constraint.getName());
-		sl.setId(constraint.getSlot().getId());
-		Object sval = constraint.getValue();
-		sl.setValue(sval);
+//		SlotAlpha node = null;
+//		Slot2 sl = new Slot2(constraint.getName());
+//		sl.setId(constraint.getSlot().getId());
+//		Object sval = constraint.getValue();
+//		sl.setValue(sval);
 		// TODO like with AlphaNodeOr
 		return null;
 		// node = new AlphaNodeAnd(engine.nextNodeId());
@@ -1186,41 +1182,13 @@ public class SFRuleCompiler implements RuleCompiler {
 		}
 	}
 
-	/*
+	/**
+	 * Implementation will get the hashString from each node and compare them
 	 * 
-	 *//**
-		 * For now just attach the node and don't bother with node sharing
-		 * 
-		 * @param existing -
-		 *            an existing node in the network. it may be an
-		 *            ObjectTypeNode or AlphaNode
-		 * @param alpha
-		 */
-	/*
-	 * protected void attachAlphaNode(AbstractAlpha existing, AbstractAlpha
-	 * alpha, Condition cond) { if (alpha != null) { try { AbstractAlpha share =
-	 * null; share = shareAlphaNode(existing, alpha); if (share == null) {
-	 * existing.addNode(alpha, engine); // if the node isn't shared, we add the
-	 * node to the // Condition // object the node belongs to.
-	 * cond.addNode(alpha); } else if (existing != alpha) { // the node is
-	 * shared, so instead of adding the new node, // we add the existing node
-	 * cond.addNode(share); memory.removeAlphaMemory(alpha); if
-	 * (alpha.getChildCount() == 1 && alpha.getChildNodes()[0] instanceof
-	 * AbstractAlpha) { // get the next node from the new AlphaNode
-	 * AbstractAlpha nnext = (AbstractAlpha) alpha.getChildNodes()[0];
-	 * attachAlphaNode(share, nnext, cond); } } } catch (AssertException e) { //
-	 * send an event with the correct error CompileEvent ce = new
-	 * CompileEvent(this, CompileEvent.ADD_NODE_ERROR);
-	 * ce.setMessage(alpha.toPPString()); this.notifyListener(ce); } } }
-	 * 
-	 *//**
-		 * Implementation will get the hashString from each node and compare
-		 * them
-		 * 
-		 * @param otn
-		 * @param alpha
-		 * @return
-		 */
+	 * @param otn
+	 * @param alpha
+	 * @return
+	 */
 	/*
 	 * protected AbstractAlpha shareAlphaNode(AbstractAlpha existing,
 	 * AbstractAlpha alpha) { Object[] scc = existing.getChildNodes(); for (int

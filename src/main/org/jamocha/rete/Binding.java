@@ -43,19 +43,6 @@ public class Binding implements Serializable, Cloneable {
 
 	protected int operator = Constants.EQUAL;
 	
-	public Binding(int operator) {
-		this();
-		this.operator = operator;
-	}
-
-	public int getOperator() {
-		return this.operator;
-	}
-	
-	public boolean evaluate(Fact right, FactTuple left) {
-			return Evaluate.evaluate(operator, left.getFacts()[leftrow].getSlotValue(leftIndex), right.getSlotValue(rightIndex));
-	}
-	
 	/**
      * This is the name of the variable. Every binding must
      * have a variable name. It can be user defined or auto-
@@ -93,15 +80,23 @@ public class Binding implements Serializable, Cloneable {
      */
     protected int rightIndex;
     
-    /**
-     * We need this to keep track of which CE is the first to declare
-     * a binding. This is important to rule compilation.
-     */
-    protected int rowDeclared = -1;
     
-    public Binding(){
-        super();
-    }
+	public Binding(int operator) {
+		this();
+		this.operator = operator;
+	}
+
+	public Binding() {
+		super();
+	}
+
+	public int getOperator() {
+		return this.operator;
+	}
+	
+	public boolean evaluate(Fact right, FactTuple left) {
+			return Evaluate.evaluate(operator, left.getFacts()[leftrow].getSlotValue(leftIndex), right.getSlotValue(rightIndex));
+	}
     
     /**
      * Return the name of the variable
@@ -134,25 +129,6 @@ public class Binding implements Serializable, Cloneable {
      */
     public void setIsObjectVar(boolean obj){
         this.isObjVar = obj;
-    }
-    
-    /**
-     * The row that declares the binding the first time. The
-     * row corresponds directly to the Conditional Element in
-     * the rule. If the second CE declares the binding for the
-     * first time, the row would be 1. 
-     * @return
-     */
-    public int rowDeclared() {
-    	return this.rowDeclared;
-    }
-    
-    /**
-     * Set the row that declares the binding
-     * @param row
-     */
-    public void setRowDeclared(int row) {
-    	this.rowDeclared = row;
     }
     
     /**
@@ -234,22 +210,6 @@ public class Binding implements Serializable, Cloneable {
         buf.append(this.rightIndex);
         buf.append(")");
         return buf.toString();
-    }
-    
-    /**
-     * convienance method for clonging a binding at rule compilation
-     * time.
-     */
-    public Object clone(){
-        Binding bind = new Binding();
-        bind.setVarName(this.getVarName());
-        bind.setIsObjectVar(this.getIsObjectVar());
-        bind.setLeftRow(this.getLeftRow());
-        bind.setLeftIndex(this.getLeftIndex());
-        bind.setRightRow(this.getRightRow());
-        bind.setRightIndex(this.getRightIndex());
-        bind.setOperator(this.getOperator());
-        return bind;
     }
 
 	public void setOperator(int operator) {
