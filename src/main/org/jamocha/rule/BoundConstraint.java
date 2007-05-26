@@ -19,6 +19,7 @@ package org.jamocha.rule;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.nodes.BaseNode;
 import org.jamocha.rete.Constants;
+import org.jamocha.rete.ConversionUtils;
 import org.jamocha.rete.SFRuleCompiler;
 
 /**
@@ -182,7 +183,17 @@ public class BoundConstraint extends AbstractConstraint {
 	}
 	
 	public String toString() {
-		return "[BoundConstraint]:  ?" + this.value.toString() + " <-";
+		StringBuffer res = new StringBuffer();
+		res.append(super.toString());
+		res.append(":  ?").append(value).append(" ");
+		res.append(ConversionUtils.getOperator(getOperator())  );
+		if (isObjectBinding) {
+			res.append(" whole fact");
+		} else {
+			res.append(" slot# ");
+			res.append(getSlot().getId());
+		}
+		return res.toString();
 	}
 	
 	public BaseNode compile(SFRuleCompiler compiler, Rule rule, int conditionIndex) {

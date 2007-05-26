@@ -144,9 +144,7 @@ public class ExistCondition extends AbstractCondition {
 			Complexity con = (Complexity) itr.next();
 			if (con instanceof ObjectCondition) {
 				ObjectCondition oc = (ObjectCondition) con;
-				Constraint[] constr = oc.getConstraints();
-				for (int idx = 0; idx < constr.length; idx++) {
-					Object c = constr[idx];
+				for (Constraint c : oc.getConstraints()) {
 					if (c instanceof BoundConstraint) {
 						BoundConstraint bc = (BoundConstraint) c;
 						if (!bc.firstDeclaration()) {
@@ -170,6 +168,10 @@ public class ExistCondition extends AbstractCondition {
 
 	public BaseNode compile(SFRuleCompiler compiler, Rule rule, int conditionIndex) {
 		return compiler.compile(this, rule, conditionIndex);
+	}
+
+	public List<Constraint> getConstraints() {
+ 		return null;
 	}
 
 }

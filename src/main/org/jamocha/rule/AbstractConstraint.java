@@ -51,5 +51,9 @@ public abstract class AbstractConstraint implements Constraint {
 	public TemplateSlot getSlot(){
 		return slot;
 	}
+	
+	public String toString(){
+		return "["+this.getClass().getSimpleName()+"]";
+	}
 
 }

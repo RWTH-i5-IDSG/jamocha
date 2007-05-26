@@ -89,6 +89,8 @@ public interface Condition extends Serializable, Complexity, Compileable, Compar
 	 * @return
 	 */
 	List getBoundConstraints();
+	
+	List<Constraint> getConstraints();
 
 	/**
 	 * clear the condition

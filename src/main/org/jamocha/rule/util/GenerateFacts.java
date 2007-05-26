@@ -86,9 +86,7 @@ public class GenerateFacts {
 			Class theclz = Class.forName(templ.getClassName());
 			Defclass dfc = engine.findDefclass(theclz);
 			Object data = theclz.newInstance();
-			Constraint[] cnstr = cond.getConstraints();
-			for (int idx=0; idx < cnstr.length; idx++) {
-				Constraint cn = cnstr[idx];
+			for (Constraint cn : cond.getConstraints()) {
 				if (cn instanceof LiteralConstraint) {
 					java.lang.reflect.Method meth = dfc.getWriteMethod(cn.getName());
 					meth.invoke(data, new Object[]{cn.getValue()});
@@ -120,9 +118,7 @@ public class GenerateFacts {
 	 */
 	public static Object generateDeffact(ObjectCondition cond, Deftemplate templ, Rete engine) {
 		ArrayList<Slot> list = new ArrayList<Slot>();
-		Constraint[] cnstr = cond.getConstraints();
-		for (int idx=0; idx < cnstr.length; idx++) {
-			Constraint cn = cnstr[idx];
+		for (Constraint cn : cond.getConstraints()) {
 			if (cn instanceof LiteralConstraint) {
 				Slot s = new Slot(cn.getName(),cn.getValue());
 				list.add(s);

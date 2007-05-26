@@ -442,10 +442,13 @@ public class SFRuleCompiler implements RuleCompiler {
 			conditionJoiners.put(c, fromBottom);
 			BaseNode lastNode = c.getLastNode();
 
-			// HERE
-
-			if (lastNode != null)
-				(lastNode).addNode(fromBottom, engine);
+			if (lastNode != null){
+				if (fromBottom != null) {
+					(lastNode).addNode(fromBottom, engine);
+				} else {
+					mostBottomNode = lastNode;
+				}
+			}
 		}
 		
 		if (mostBottomNode == null) mostBottomNode = sortedConds[0].getLastNode();
@@ -472,11 +475,12 @@ public class SFRuleCompiler implements RuleCompiler {
 
 		// generate table contents:
 		for (int i = 0; i < conds.length; i++) {
-			List boundConstraints = conds[i].getBoundConstraints();
-			for (Object bc : boundConstraints) {
-				BoundConstraint boundConstraint = (BoundConstraint) bc;
-				BindingAddress ba = new BindingAddress(i, boundConstraint.getSlot().getId(), boundConstraint.getOperator());
-				bindingAddressTable.addBindingAddress(ba, boundConstraint.getVariableName());
+			for (Constraint c : conds[i].getConstraints()) {
+				System.out.println(c);
+				if (!(c instanceof BoundConstraint)) continue;
+				BoundConstraint bc = (BoundConstraint) c;
+				BindingAddress ba = new BindingAddress(i, bc.getSlot().getId(), bc.getOperator());
+				bindingAddressTable.addBindingAddress(ba, bc.getVariableName());
 			}
 
 		}
@@ -578,11 +582,8 @@ public class SFRuleCompiler implements RuleCompiler {
 			SlotAlpha current = null;
 
 			if (otn != null) {
-				Constraint[] constraints = condition.getConstraints();
-				Constraint constraint = null;
 				TemplateSlot slot;
-				for (int i = 0; i < constraints.length; i++) {
-					constraint = constraints[i];
+				for (Constraint constraint : condition.getConstraints()) {
 					slot = template.getSlot(constraint.getName());
 					if (slot == null)
 						// slot does not exist -> exit!
@@ -602,8 +603,7 @@ public class SFRuleCompiler implements RuleCompiler {
 			}
 			return current;
 		} catch (AssertException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+			engine.writeMessage("ERROR: "+e1.getMessage());
 			return null;
 		}
 	}

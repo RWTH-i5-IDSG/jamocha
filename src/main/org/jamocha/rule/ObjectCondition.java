@@ -107,9 +107,8 @@ public class ObjectCondition extends AbstractCondition {
 		return this.negated;
 	}
 
-	public Constraint[] getConstraints() {
-		Constraint[] con = new Constraint[propConditions.size()];
-		return (Constraint[]) propConditions.toArray(con);
+	public List<Constraint> getConstraints() {
+		return propConditions;
 	}
 
 	public void addConstraint(Constraint con) {
@@ -196,6 +195,7 @@ public class ObjectCondition extends AbstractCondition {
 	/**
 	 * Method will return a list of all the BoundConstraints
 	 */
+	@Deprecated
 	public List getAllBoundConstraints() {
 		ArrayList<Constraint> binds = new ArrayList<Constraint>();
 		Iterator<Constraint> itr = propConditions.iterator();
@@ -215,6 +215,7 @@ public class ObjectCondition extends AbstractCondition {
 		return binds;
 	}
 
+	@Deprecated
 	public List getBoundConstraints() {
 		ArrayList<Constraint> binds = new ArrayList<Constraint>();
 		Iterator<Constraint> itr = propConditions.iterator();

@@ -15,6 +15,13 @@
 (assert (getraenk (name "cola") (farbe "schwarz") ))
 (assert (getraenk (name "kartoffelsalat") (farbe "schwarz") ))
 
+(defrule ababab
+	?x <- (wurst (farbe weiss))
+=>
+	(printout t ?x crlf)
+)
+
+
 
 (defrule megarule
 	(wurst (name ?wurstname) (spitzname ?wurstname) (farbe ?farbe))

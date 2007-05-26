@@ -494,8 +494,8 @@ public class CLIPSFormatter implements Formatter {
 		// default indent for CE is 2 spaces
 		String pad = "  ";
 		boolean obind = false;
-		Constraint[] constraints = condition.getConstraints();
-		Constraint cn = constraints[0];
+		List<Constraint> constraints = condition.getConstraints();
+		Constraint cn = constraints.get(0);
 		if (cn instanceof BoundConstraint) {
 			BoundConstraint bc = (BoundConstraint) cn;
 			if (bc.getIsObjectBinding()) {
@@ -513,8 +513,8 @@ public class CLIPSFormatter implements Formatter {
 		}
 		buf.append(pad).append('(').append(condition.getTemplateName()).append(
 				Constants.LINEBREAK);
-		for (int idx = start; idx < constraints.length; idx++) {
-			Constraint cnstr = constraints[idx];
+		for (int idx = start; idx < constraints.size(); idx++) {
+			Constraint cnstr = constraints.get(idx);
 			if (condition.getNegated()) {
 				buf.append("  ");
 			}

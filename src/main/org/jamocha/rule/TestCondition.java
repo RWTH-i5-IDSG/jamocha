@@ -164,4 +164,8 @@ public class TestCondition extends AbstractCondition {
 	public BaseNode compile(SFRuleCompiler compiler, Rule rule, int conditionIndex) {
 		return compiler.compile(this, rule, conditionIndex);
 	}
+
+	public List<Constraint> getConstraints() {
+		return null;
+	}
 }

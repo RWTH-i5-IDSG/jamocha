@@ -86,9 +86,7 @@ public class TemplateValidation implements Analysis {
 				ObjectCondition oc = (ObjectCondition)cnd;
 				Template dft = oc.getTemplate();
 				if (dft != null) {
-					Constraint[] cntrs = oc.getConstraints();
-					for (int idy=0; idy < cntrs.length; idy++) {
-						Constraint cons = cntrs[idy];
+					for ( Constraint cons : oc.getConstraints()) {
 						if (cons instanceof LiteralConstraint) {
 							Slot sl = dft.getSlot(cons.getName());
 							if (sl == null) {
