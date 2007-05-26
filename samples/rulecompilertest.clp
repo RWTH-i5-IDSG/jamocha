@@ -15,6 +15,15 @@
 (assert (getraenk (name "cola") (farbe "schwarz") ))
 (assert (getraenk (name "kartoffelsalat") (farbe "schwarz") ))
 
+
+(defrule megarule
+	(wurst (name ?wurstname) (spitzname ?wurstname) (farbe ?farbe))
+	(salat (farbe ?farbe)(name ?salatname) )	
+	=> (printout t "Die Wurst " ?wurstname " und der Salat " ?salatname " haben dieselbe Farbe, naemlich " ?farbe "! Ausserdem hat die Wurst denselben Spitznamen wie Name"  crlf)
+)
+
+(fire)
+
 (defrule tst2
 	(wurst (name ?x) (spitzname ?y))
 	=> (printout t ?x  crlf)

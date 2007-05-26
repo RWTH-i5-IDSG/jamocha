@@ -142,8 +142,7 @@ public class SFRuleCompiler implements RuleCompiler {
 
 		public int getJoinIndex() {
 			if (leftCondition == rightCondition)
-				return Integer.MAX_VALUE;
-
+				return -1;
 			return Math.min(leftCondition, rightCondition);
 		}
 
@@ -417,8 +416,10 @@ public class SFRuleCompiler implements RuleCompiler {
 		TerminalNode terminal = rule.getTerminalNode();
 		Condition[] sortedConds = rule.getConditions().clone();
 		Arrays.sort(sortedConds);
+		
+		BaseNode mostBottomNode = null;
 
-		BaseNode fromBottom = terminal;
+		BaseNode fromBottom = null;
 
 		HashMap<Condition, BaseNode> conditionJoiners = new HashMap<Condition, BaseNode>();
 
@@ -431,7 +432,11 @@ public class SFRuleCompiler implements RuleCompiler {
 			if (createNewJoin) {
 				// creat join add old bottom node, set join to new bottom node
 				BetaNode betaNode = new BetaNode(engine.nextNodeId());
-				betaNode.addNode(fromBottom, engine);
+				if (fromBottom != null) {
+					betaNode.addNode(fromBottom, engine);
+				} else {
+					mostBottomNode = betaNode;
+				}
 				fromBottom = betaNode;
 			}
 			conditionJoiners.put(c, fromBottom);
@@ -442,10 +447,14 @@ public class SFRuleCompiler implements RuleCompiler {
 			if (lastNode != null)
 				(lastNode).addNode(fromBottom, engine);
 		}
-		compileBindings(rule, sortedConds, conditionJoiners);
+		
+		if (mostBottomNode == null) mostBottomNode = sortedConds[0].getLastNode();
+		
+		BaseNode ultimateMostBottomNode = compileBindings(rule, sortedConds, conditionJoiners, mostBottomNode);
+		ultimateMostBottomNode.addNode(terminal, engine);
 	}
 
-	protected void compileBindings(Rule rule, Condition[] conds, Map<Condition, BaseNode> conditionJoiners) throws AssertException {
+	protected BaseNode compileBindings(Rule rule, Condition[] conds, Map<Condition, BaseNode> conditionJoiners, BaseNode mostBottomNode) throws AssertException {
 		// first, we need such a table (since each condition can contain many
 		// constraints, there are more than one operator-sign per cell)
 		/*
@@ -512,11 +521,37 @@ public class SFRuleCompiler implements RuleCompiler {
 		}
 		// handle all bindings that couldn't be placed to join node.
 		while (act != null) {
-
-			System.out.println(act);
-
+			
+			Condition c = conds[act.leftCondition];
+			if (!(c instanceof ObjectCondition)) continue;
+			ObjectCondition objectC= (ObjectCondition) c;
+			Template template = objectC.getTemplate();
+			ObjectTypeNode otn = root.activateObjectTypeNode(template, engine);
+			
+			
+			
+			BetaNode newJoin = new BetaNode(engine.nextNodeId());
+			
+			mostBottomNode.addNode(newJoin, engine);
+			otn.addNode(newJoin, engine);
+			
+			mostBottomNode = newJoin;
+			
+			Binding binds[] = new Binding [1];
+			binds[0] = new Binding();
+			binds[0].leftIndex= act.leftSlot;
+			binds[0].leftrow=   conds.length -1 -act.leftCondition;
+			binds[0].rightIndex=act.rightSlot;
+			binds[0].rightrow=  act.rightCondition;
+			binds[0].operator=  act.operator;
+			binds[0].varName=   act.varName;
+			
+			newJoin.setBindings(binds, engine);
+			
 			act = (itr.hasNext()) ? itr.next() : null;
 		}
+		
+		return mostBottomNode;
 
 	}
 
