@@ -37,6 +37,9 @@ import org.jamocha.rete.nodes.FactTuple;
  * could be a very costly process. More thought and research is needed
  * to figure out the best way to handle re-declaring deftemplates.
  */
+
+//TODO unite Binding, BoundParam, PreBinding and so on (maybe in OO fashion)
+
 public class Binding implements Serializable, Cloneable {
 
 	private static final long serialVersionUID = 1L;

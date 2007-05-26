@@ -66,6 +66,19 @@ import org.jamocha.rule.TestCondition;
  * @author Sebastian Reinartz
  * 
  */
+
+
+//SOLVED simple literal constraints
+//SOLVED boundconstraints in ObjectCondition
+//SOLVED multi-occuring boundconstraints in one ObjectCondition
+//SOLVED negated boundconstraints in ObjectCondition
+//TODO what should happen when a bc only occurs in negated manner?
+//TODO multifield stuff
+//TODO predicate constraints
+//TODO and / or / not CEs
+//TODO forall / exists CEs
+//TODO test CEs
+//TODO finish this todo list ;)
 public class SFRuleCompiler implements RuleCompiler {
 
 	private class BindingAddress implements Comparable<BindingAddress> {
@@ -332,6 +345,8 @@ public class SFRuleCompiler implements RuleCompiler {
 	 * @return ObjectTypeNode
 	 */
 	public ObjectTypeNode getObjectTypeNode(Template template) {
+		
+		//TODO ObjectTypeNodes shouldnt become generated in deftemplate but only when a rule needs it
 		return (ObjectTypeNode) root.getObjectTypeNodes().get(template);
 	}
 
@@ -420,6 +435,7 @@ public class SFRuleCompiler implements RuleCompiler {
 
 		BaseNode fromBottom = null;
 
+		//TODO we can do that more efficient with a simple array
 		HashMap<Condition, BaseNode> conditionJoiners = new HashMap<Condition, BaseNode>();
 
 		for (int i = 0; i < sortedConds.length; i++) {
