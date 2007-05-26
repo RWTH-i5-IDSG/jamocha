@@ -22,7 +22,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
@@ -473,17 +472,25 @@ public class SFRuleCompiler implements RuleCompiler {
 		// create the table:
 		BindingAddressesTable bindingAddressTable = new BindingAddressesTable();
 
-		// generate table contents:
+		// Iterate of all conditions and constraints
 		for (int i = 0; i < conds.length; i++) {
 			for (Constraint c : conds[i].getConstraints()) {
-				System.out.println(c);
-				if (!(c instanceof BoundConstraint)) continue;
-				BoundConstraint bc = (BoundConstraint) c;
-				BindingAddress ba = new BindingAddress(i, bc.getSlot().getId(), bc.getOperator());
-				bindingAddressTable.addBindingAddress(ba, bc.getVariableName());
-			}
 
-		}
+				// if we found a BoundConstraint
+				if (c instanceof BoundConstraint){
+					BoundConstraint bc = (BoundConstraint) c;
+					BindingAddress ba;
+					if (bc.getIsObjectBinding()) {
+						ba = new BindingAddress(i, -1, bc.getOperator());
+					} else {
+						ba = new BindingAddress(i, bc.getSlot().getId(), bc.getOperator());
+					}
+					bindingAddressTable.addBindingAddress(ba, bc.getVariableName());
+				}
+				
+				
+			}
+	}
 		
 		// create bindings for actions:
 		for (String variable : bindingAddressTable.row.keySet()) {
@@ -520,6 +527,7 @@ public class SFRuleCompiler implements RuleCompiler {
 
 				act = (itr.hasNext()) ? itr.next() : null;
 			}
+			
 			// set bindig= null if binds.size=0
 			((BetaNode) node).setBindings((binds.size() != 0) ? binds.toArray(bindArray) : null, engine);
 		}

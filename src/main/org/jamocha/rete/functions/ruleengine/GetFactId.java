@@ -93,6 +93,7 @@ public class GetFactId implements Function, Serializable {
 
 	public JamochaValue executeFunction(Rete engine, Parameter[] params)
 			throws EvaluationException {
+
 		if (params != null && params.length == 1) {
 			JamochaValue param = params[0].getValue(engine);
 			if (param.is(JamochaType.FACT)) {

@@ -21,6 +21,13 @@
 	(printout t ?x crlf)
 )
 
+(defrule megarule
+	(wurst (name ?wurstname) (spitzname ?wurstname) (farbe ?farbe))
+	(salat (farbe ?farbe)(name ?salatname) )	
+	=> (printout t "Die Wurst " ?wurstname " und der Salat " ?salatname " haben dieselbe Farbe, naemlich " ?farbe "! Ausserdem hat die Wurst denselben Spitznamen wie Name"  crlf)
+)
+
+(fire)
 
 
 (defrule megarule
