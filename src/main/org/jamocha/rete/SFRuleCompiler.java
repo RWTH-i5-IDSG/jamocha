@@ -480,9 +480,16 @@ public class SFRuleCompiler implements RuleCompiler {
 		 * [==] VARIABLE2 == [==] VARIABLE3 != >= [==]
          * 
          * Note:  here's some comments and general thoughts. A binding used in a join
-         * should only use "==". if it's some other operator, a TestNode is used to evaluate
-         * it. A condition like predicateConstraint (age ?age&:(> ?age 20) ) creates a
-         * binding and an alpha node that uses ">" operator. Peter 5/24/2007
+         * should normally use "==" and "!=". if it's some other operator, a TestNode
+         * is used to evaluate it. A condition like predicateConstraint
+         * (age ?age&:(> ?age 20) ) creates a binding and an alpha node that uses 
+         * ">" operator. Peter 5/24/2007
+         * Josef had a good question. The reason most people don't use numeric operators
+         * in JESS and clips for joins isn't technical. A join node can use numeric
+         * operators, it's just that people generally don't with CLIPS language. For example
+         * the pattern would look like this
+         * (age ?age2&:(> ?age2 ?age1) )
+         * Peter 5/26/07
 		 */
 
 		// create the table:
