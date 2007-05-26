@@ -435,6 +435,12 @@ public class SFRuleCompiler implements RuleCompiler {
 
 		BaseNode fromBottom = null;
 
+        // Note: here is a tip on compiling the joins. Using a row+column approach,
+        // it's important to take into account Not and Exist nodes. This is because
+        // Not and Exist do not propogate any additional facts. In order to build
+        // the joins correctly from the terminal node up, you have to know how
+        // many Not and Exist nodes are above it. Peter 5/16/07
+        
 		//TODO we can do that more efficient with a simple array
 		HashMap<Condition, BaseNode> conditionJoiners = new HashMap<Condition, BaseNode>();
 
