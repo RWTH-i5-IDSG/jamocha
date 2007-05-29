@@ -191,7 +191,7 @@ public class BoundConstraint extends AbstractConstraint {
 			res.append(" whole fact");
 		} else {
 			res.append(" slot# ");
-			res.append(getSlot().getId());
+			if (getSlot() != null) {res.append(getSlot().getId());} else {res.append("null");}
 		}
 		return res.toString();
 	}

@@ -169,6 +169,18 @@ public class SFRuleCompiler implements RuleCompiler {
 		public BindingAddressesTable() {
 			super();
 		}
+		
+		public String toString() {
+			StringBuffer result = new StringBuffer();
+			for (String key : row.keySet()) {
+				result.append(key).append("  :  ");
+				for (BindingAddress ba : row.get(key)) {
+					result.append(ba.toString()).append(" ; ");
+				}
+				result.append("\n");
+			}
+			return result.toString();
+		}
 
 		private Vector<BindingAddress> getBindingAddresses(String variable) {
 			Vector<BindingAddress> result = row.get(variable);
@@ -519,8 +531,9 @@ public class SFRuleCompiler implements RuleCompiler {
 				
 				
 			}
-	}
+		}
 		
+				
 		// create bindings for actions:
 		for (String variable : bindingAddressTable.row.keySet()) {
 			BindingAddress pivot = bindingAddressTable.getPivot(variable);
@@ -618,13 +631,12 @@ public class SFRuleCompiler implements RuleCompiler {
 			BaseNode prev = otn;
 			SlotAlpha current = null;
 
+						
 			if (otn != null) {
 				TemplateSlot slot;
 				for (Constraint constraint : condition.getConstraints()) {
+					
 					slot = template.getSlot(constraint.getName());
-					if (slot == null)
-						// slot does not exist -> exit!
-						return null;
 
 					constraint.setSlot(slot);
 					current = (SlotAlpha) constraint.compile(this, rule, conditionIndex);
@@ -878,7 +890,6 @@ public class SFRuleCompiler implements RuleCompiler {
 	 * @return BaseNode
 	 */
 	public BaseNode compile(BoundConstraint constraint, Rule rule, int conditionIndex) {
-
 		// // we need to create a binding class for the BoundConstraint
 		// if (rule.getBinding(constraint.getVariableName()) == null) {
 		// // if the HashMap doesn't already contain the binding,

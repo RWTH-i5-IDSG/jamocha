@@ -16,7 +16,8 @@
 (assert (getraenk (name "kartoffelsalat") (farbe "schwarz") ))
 
 (defrule ababab
-	?x <- (wurst (farbe weiss))
+	(salat (farbe ?farbe))
+	?x <- (wurst (farbe ?farbe))
 =>
 	(printout t ?x crlf)
 )
