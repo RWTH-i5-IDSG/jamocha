@@ -57,8 +57,7 @@ public class BetaBindingNode extends AbstractBeta {
 	 */
 	protected int operator = Constants.EQUAL;
 
-	// per default deactivated
-	protected boolean activated = false;
+
 
 	public BetaBindingNode(int id) {
 		super(id);
@@ -75,112 +74,14 @@ public class BetaBindingNode extends AbstractBeta {
 		activate(engine);
 	}
 
-	private void activate(Rete engine) throws AssertException {
-		if (!activated) {
-			// we have to traverse the whole beta mem and eval it.
-			activated = true;
-			Iterator<FactTuple> itr = betaMemory.iterator();
-			while (itr.hasNext()) {
-				FactTuple tuple = itr.next();
-				evaluateBeta(tuple, engine);
-			}
-		}
-	}
 
-	/**
-	 * assertLeft takes an array of facts. Since the next join may be joining
-	 * against one or more objects, we need to pass all previously matched
-	 * facts.
-	 * 
-	 * @param factInstance
-	 * @param engine
-	 */
-	@Override
-	public void assertLeft(FactTuple tuple, Rete engine) throws AssertException {
-		betaMemory.add(tuple);
-		// only if activated:
-		if (activated) {
-			evaluateBeta(tuple, engine);
-		}
-	}
 
-	/**
-	 * Assert from the right side is always going to be from an Alpha node.
-	 * 
-	 * @param factInstance
-	 * @param engine
-	 */
-	@Override
-	public void assertRight(Fact fact, Rete engine) throws AssertException {
-		alphaMemory.add(fact);
-		// only if activated:
-		if (activated) {
-			Iterator<FactTuple> itr = betaMemory.iterator();
-			while (itr.hasNext()) {
-				FactTuple tuple = itr.next();
-				if (this.evaluate(tuple, fact)) {
-					// now we propogate
-					FactTuple newTuple = tuple.addFact(fact);
-					mergeMemory.add(newTuple);
-					this.propogateAssert(newTuple, engine);
-				}
-			}
-		}
-	}
 
-	/**
-	 * Retracting from the left requires that we propogate the
-	 * 
-	 * @param factInstance
-	 * @param engine
-	 */
-	@Override
-	public void retractLeft(FactTuple tuple, Rete engine) throws RetractException {
-		if (betaMemory.contains(tuple)) {
-			betaMemory.remove(tuple);
-			// now we propogate the retract. To do that, we have
-			// merge each item in the list with the Fact array
-			// and call retract in the successor nodes
-			Iterator<FactTuple> itr = mergeMemory.iterator();
-			while (itr.hasNext()) {
-				propogateRetract(itr.next(), engine);
-			}
-			// Todo: remove tuple from mergeMemory
-		}
-	}
 
-	/**
-	 * Retract from the right works in the following order. 1. remove the fact
-	 * from the right memory 2. check which left memory matched 3. propogate the
-	 * retract
-	 * 
-	 * @param factInstance
-	 * @param engine
-	 */
-	@Override
-	public void retractRight(Fact fact, Rete engine) throws RetractException {
-		if (alphaMemory.contains(fact)) {
-			alphaMemory.remove(fact);
-			Iterator<FactTuple> itr = mergeMemory.iterator();
-			while (itr.hasNext()) {
-				propogateRetract(itr.next(), engine);
-			}
-			// Todo: remove tuple from mergeMemory
-		}
-	}
 
-	protected void evaluateBeta(FactTuple tuple, Rete engine) throws AssertException {
-		Iterator<Fact> itr = alphaMemory.iterator();
-		while (itr.hasNext()) {
-			Fact rfcts = itr.next();
-			if (this.evaluate(tuple, rfcts)) {
-				FactTuple newTuple = tuple.addFact(rfcts);
-				mergeMemory.add(newTuple);
-				this.propogateAssert(newTuple, engine);
-			}
-		}
 
-	}
+
+
 
 	/**
 	 * Method will use the right binding to perform the evaluation of the join.
@@ -229,4 +130,5 @@ public class BetaBindingNode extends AbstractBeta {
 		sb.append("\n");
 		return sb.toString();
 	}
+
 }
