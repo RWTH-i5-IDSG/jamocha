@@ -73,11 +73,6 @@
 )
 
 
-(defrule two
-	(wurst (name "bratwurst"))
-	(wurst (farbe "weiss"))
-	=> (printout t "rule with two conditions fired " crlf)
-)
 
 (defrule zero
  => (printout t "boombam" crlf)
@@ -88,17 +83,37 @@
 	=> (printout t "rule with one condition fired " ?x crlf)
 )
 
+(defrule two
+	(wurst (name "bratwurst"))
+	(wurst (farbe "weiss"))
+	=> (printout t "rule with two conditions fired " crlf)
+)
+
 (defrule three
 	(wurst (name "wienerwurst"))
 	=> (printout t "rule with one condition fired - wienerwurst" crlf)
 )
 
-;(defrule four
-;	?x <- (wurst (name "wienerwurst"))
-;	=> 
-;	(printout t "rule with one binding fired - wienerwurst" crlf)
-;	(printout t "fact id of the wienerwurst fact" (get-fact-id  ?x) crlf)
-;)
+(defrule four
+	?x <- (wurst (name "wienerwurst"))
+	=> 
+	(printout t "rule with one binding fired - wienerwurst" crlf)
+	(printout t "fact id of the wienerwurst fact" (get-fact-id  ?x) crlf)
+)
 
+(defrule five
+	?x <- (wurst (name "wienerwurst") (gewicht ?y:&(> ?y 111))
+	=> 
+	(printout t "rule with one predicate constraint fired - wienerwurst" crlf)
+	(printout t "fact id of the wienerwurst fact" (get-fact-id  ?x) crlf)
+)
+
+(defrule six
+	?x <- (wurst (gewicht ?y:&(> ?y ?z))
+	(salat (name "kartoffelsalat") (gewicht ?z))
+	=> 
+	(printout t "rule with one predicate constraint and an internal join fired" crlf)
+	(printout t "fact id of the wienerwurst fact" (get-fact-id  ?x) crlf)
+)
 
 (fire)
