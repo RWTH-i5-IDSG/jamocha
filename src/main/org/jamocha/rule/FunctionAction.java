@@ -137,7 +137,7 @@ public class FunctionAction implements Action {
 	 * @see woolfel.engine.rule.Action#executeAction(woolfel.engine.rete.Rete,
 	 *      woolfel.engine.rete.Fact[])
 	 */
-	public void executeAction(Rete engine, Fact[] facts)
+	public JamochaValue executeAction(Rete engine, Fact[] facts)
 			throws ExecuteException {
 		// first we iterate over the parameters and pass the facts
 		// to the BoundParams.
@@ -156,7 +156,7 @@ public class FunctionAction implements Action {
 		}
 		// now we find the function
 		try {
-			this.function.executeFunction(engine, this.parameters);
+			return this.function.executeFunction(engine, this.parameters);
 		} catch (EvaluationException e) {
 			throw new ExecuteException(e);
 		}

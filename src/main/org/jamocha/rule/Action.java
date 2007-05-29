@@ -19,6 +19,7 @@ package org.jamocha.rule;
 import java.io.Serializable;
 
 import org.jamocha.parser.EvaluationException;
+import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Fact;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.exception.ExecuteException;
@@ -52,5 +53,5 @@ public interface Action extends Serializable {
      * @param facts
      * @throws ExecuteException
      */
-    void executeAction(Rete engine, Fact[] facts) throws ExecuteException;
+    JamochaValue executeAction(Rete engine, Fact[] facts) throws ExecuteException;
 }

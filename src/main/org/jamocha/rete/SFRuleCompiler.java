@@ -34,7 +34,7 @@ import org.jamocha.rete.exception.AssertException;
 import org.jamocha.rete.exception.RetractException;
 import org.jamocha.rete.nodes.AlphaNode;
 import org.jamocha.rete.nodes.BaseNode;
-import org.jamocha.rete.nodes.BetaNode;
+import org.jamocha.rete.nodes.BetaBindingNode;
 import org.jamocha.rete.nodes.ObjectTypeNode;
 import org.jamocha.rete.nodes.RootNode;
 import org.jamocha.rete.nodes.SlotAlpha;
@@ -464,7 +464,7 @@ public class SFRuleCompiler implements RuleCompiler {
 
 			if (createNewJoin) {
 				// creat join add old bottom node, set join to new bottom node
-				BetaNode betaNode = new BetaNode(engine.nextNodeId());
+				BetaBindingNode betaNode = new BetaBindingNode(engine.nextNodeId());
 				if (fromBottom != null) {
 					betaNode.addNode(fromBottom, engine);
 				} else {
@@ -572,7 +572,7 @@ public class SFRuleCompiler implements RuleCompiler {
 			}
 			
 			// set bindig= null if binds.size=0
-			((BetaNode) node).setBindings((binds.size() != 0) ? binds.toArray(bindArray) : null, engine);
+			((BetaBindingNode) node).setBindings((binds.size() != 0) ? binds.toArray(bindArray) : null, engine);
 		}
 		// handle all bindings that couldn't be placed to join node.
 		while (act != null) {
@@ -585,7 +585,7 @@ public class SFRuleCompiler implements RuleCompiler {
 			
 			
 			
-			BetaNode newJoin = new BetaNode(engine.nextNodeId());
+			BetaBindingNode newJoin = new BetaBindingNode(engine.nextNodeId());
 			
 			mostBottomNode.addNode(newJoin, engine);
 			otn.addNode(newJoin, engine);

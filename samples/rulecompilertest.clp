@@ -1,19 +1,31 @@
 
-(deftemplate wurst (slot name) (slot spitzname) (slot farbe) )
-(deftemplate salat (slot name) (slot farbe) )
+(deftemplate wurst (slot name) (slot spitzname) (slot farbe)  (slot gewicht))
+(deftemplate salat (slot name) (slot farbe)   (slot gewicht))
 (deftemplate getraenk (slot name) (slot farbe) )
 
-(assert (wurst (name "bratwurst")(spitzname "bratwosch")(farbe "weiss") ))
-(assert (wurst (name "weisswurst")(spitzname "weisswurst")(farbe "weiss") ))
-(assert (wurst (name "wienerwurst")(spitzname "wiener")(farbe "rot") ))
-(assert (wurst (name "gemuesewurst")(spitzname "gemuesewurst")(farbe "gruen") ))
-(assert (wurst (name "kartoffelsalat")(farbe "pink") ))
+(assert (wurst (name "bratwurst")(spitzname "bratwosch")(farbe "weiss")(gewicht 100) ))
+(assert (wurst (name "weisswurst")(spitzname "weisswurst")(farbe "weiss")(gewicht 200) ))
+(assert (wurst (name "wienerwurst")(spitzname "wiener")(farbe "rot")(gewicht 300) ))
+(assert (wurst (name "gemuesewurst")(spitzname "gemuesewurst")(farbe "gruen")(gewicht 400) ))
 
-(assert (salat (name "kartoffelsalat")(farbe "weiss") ))
+
+(assert (salat (name "kartoffelsalat")(farbe "weiss")(gewicht 220) ))
 
 (assert (getraenk (name "wasser") (farbe "schwarz") ))
 (assert (getraenk (name "cola") (farbe "schwarz") ))
 (assert (getraenk (name "kartoffelsalat") (farbe "schwarz") ))
+
+
+(defrule six
+	?x <- (wurst (gewicht ?y&:(less ?y ?z) ))
+	(salat (name "kartoffelsalat") (gewicht ?z))
+	=> 
+	(printout t "wurst die schwerer als kartoffelsalat ist: " (get-fact-id  ?x) crlf)
+)
+
+(fire)
+
+
 
 
 

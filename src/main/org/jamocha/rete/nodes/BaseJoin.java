@@ -34,10 +34,7 @@ import org.jamocha.rete.exception.RetractException;
  */
 public abstract class BaseJoin extends BaseNode {
 
-	/**
-	 * binding for the join
-	 */
-	protected Binding[] binds = null;
+
 	
 	protected AlphaMemory alphaMemory = null;
 	
@@ -112,9 +109,6 @@ public abstract class BaseJoin extends BaseNode {
 	 */
 	public abstract void retractRight(Fact fact, Rete engine) throws RetractException;
 
-	public abstract void setBindings(Binding[] binds, Rete engine) throws AssertException;
-	
-	
 	/**
 	 * clear will clear the lists
 	 */
@@ -177,12 +171,6 @@ public abstract class BaseJoin extends BaseNode {
 		sb.append(alphaMemory.toPPString());
 		sb.append("\nBeta-Memory: ");
 		sb.append(betaMemory.toPPString());
-		sb.append("\nBindings: ");
-		if (binds != null){
-			for(Binding b : binds)
-				sb.append(b.toPPString());
-		} else sb.append("none");
-		sb.append("\n");
 		return sb.toString();
 	}
 	

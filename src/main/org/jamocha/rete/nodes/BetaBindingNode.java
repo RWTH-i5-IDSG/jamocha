@@ -42,10 +42,15 @@ import org.jamocha.rete.exception.RetractException;
  * from one fact against the slot of a different fact, the node simply
  * propogates.
  */
-public class BetaNode extends BaseJoin {
+public class BetaBindingNode extends BaseJoin {
 
 	private static final long serialVersionUID = 1L;
 
+	/**
+	 * binding for the join
+	 */
+	protected Binding[] binds = null;
+	
 	/**
 	 * The operator for the join by default is equal. The the join doesn't
 	 * comparing values, the operator should be set to -1.
@@ -55,7 +60,7 @@ public class BetaNode extends BaseJoin {
 	// per default deactivated
 	protected boolean activated = false;
 
-	public BetaNode(int id) {
+	public BetaBindingNode(int id) {
 		super(id);
 	}
 
@@ -211,5 +216,17 @@ public class BetaNode extends BaseJoin {
 		while (itr.hasNext()) {
 			oldChild.retractFact(itr.next(), engine, this);
 		}
+	}
+	
+	public String toPPString(){
+		StringBuffer sb = new StringBuffer();
+		sb.append(super.toPPString());
+		sb.append("\nBindings: ");
+		if (binds != null){
+			for(Binding b : binds)
+				sb.append(b.toPPString());
+		} else sb.append("none");
+		sb.append("\n");
+		return sb.toString();
 	}
 }

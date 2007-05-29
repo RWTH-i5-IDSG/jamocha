@@ -1809,7 +1809,7 @@ SimpleNode AmpersandConnectedConstraint():
 		<AMPERSAND>
 		Term()
 	[
-		AmpersandConnectedConstraint()
+		ConnectedConstraint()
 	]
     )
     
@@ -1829,7 +1829,7 @@ SimpleNode LineConnectedConstraint():
 		<LINE>
 		Term()
 	[
-		LineConnectedConstraint()
+		ConnectedConstraint()
 	]
     )
     
