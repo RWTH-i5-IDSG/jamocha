@@ -32,7 +32,7 @@ import org.jamocha.rete.exception.RetractException;
  * 
  * BaseJoin is the abstract base for all join node classes.
  */
-public abstract class BaseJoin extends BaseNode {
+public abstract class AbstractBeta extends BaseNode {
 
 
 	
@@ -47,7 +47,7 @@ public abstract class BaseJoin extends BaseNode {
 	/**
 	 * @param id
 	 */
-	public BaseJoin(int id) {
+	public AbstractBeta(int id) {
 		super(id);
 		this.maxChildCount = Integer.MAX_VALUE;
 		this.maxParentCount = 2;

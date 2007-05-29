@@ -42,7 +42,7 @@ import org.jamocha.rete.exception.RetractException;
  * from one fact against the slot of a different fact, the node simply
  * propogates.
  */
-public class BetaBindingNode extends BaseJoin {
+public class BetaBindingNode extends AbstractBeta {
 
 	private static final long serialVersionUID = 1L;
 

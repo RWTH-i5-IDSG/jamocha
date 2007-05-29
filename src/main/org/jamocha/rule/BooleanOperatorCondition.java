@@ -4,13 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.jamocha.rete.nodes.BaseNode;
-import org.jamocha.rete.nodes.BaseJoin;
+import org.jamocha.rete.nodes.AbstractBeta;
 
 public abstract class BooleanOperatorCondition extends AbstractCondition {
 
 	protected List<Condition> nestedCE = new ArrayList<Condition>();
 
-	protected BaseJoin reteNode = null;
+	protected AbstractBeta reteNode = null;
 
 	public BooleanOperatorCondition() {
 		super();

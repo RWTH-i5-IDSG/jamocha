@@ -34,7 +34,7 @@ import org.jamocha.rete.EngineEvent;
 import org.jamocha.rete.EngineEventListener;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.WorkingMemoryImpl;
-import org.jamocha.rete.nodes.BaseJoin;
+import org.jamocha.rete.nodes.AbstractBeta;
 import org.jamocha.rete.nodes.BaseNode;
 import org.jamocha.rete.nodes.LIANode;
 import org.jamocha.rete.nodes.ObjectTypeNode;
@@ -88,7 +88,7 @@ public class Visualiser implements ActionListener, MouseListener,
 		Color bg = Color.black;
 		if (node.getReteNode() instanceof TerminalNode)
 			bg = Color.black;
-		if (node.getReteNode() instanceof BaseJoin)
+		if (node.getReteNode() instanceof AbstractBeta)
 			bg = Color.green;
 		if (node.getReteNode() instanceof LIANode)
 			bg = Color.cyan;
@@ -142,7 +142,7 @@ public class Visualiser implements ActionListener, MouseListener,
 		Shape s;
 		if (reteNode == null) { // ROOT NODE
 			s = new Ellipse();
-		} else if (reteNode instanceof BaseJoin
+		} else if (reteNode instanceof AbstractBeta
 				|| act.getReteNode() instanceof SlotAlpha) {
 			s = new Trapezoid();
 		} else if (reteNode instanceof TerminalNode) {
@@ -249,7 +249,7 @@ public class Visualiser implements ActionListener, MouseListener,
 					s1 = makeShapeFromNode(n, queue);
 				ConnectorLine line = new ConnectorLine(s1, s);
 				line.setColor(Color.blue);
-				if (n.getReteNode() instanceof BaseJoin)
+				if (n.getReteNode() instanceof AbstractBeta)
 					line.setColor(Color.red);
 				if (n.getReteNode() instanceof LIANode)
 					line.setColor(Color.red);
