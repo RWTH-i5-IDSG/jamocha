@@ -15,12 +15,15 @@
 (assert (getraenk (name "cola") (farbe "schwarz") ))
 (assert (getraenk (name "kartoffelsalat") (farbe "schwarz") ))
 
+
+
 (defrule ababab
 	(salat (farbe ?farbe))
 	?x <- (wurst (farbe ?farbe))
 =>
-	(printout t ?x crlf)
+	(printout t (get-fact-id ?x) crlf )
 )
+(fire)
 
 (defrule megarule
 	(wurst (name ?wurstname) (spitzname ?wurstname) (farbe ?farbe))

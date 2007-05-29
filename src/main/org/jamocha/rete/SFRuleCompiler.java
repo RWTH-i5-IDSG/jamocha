@@ -540,6 +540,7 @@ public class SFRuleCompiler implements RuleCompiler {
 			
 			Binding b = new Binding();
 			b.leftIndex = pivot.slotIndex;
+			if (b.leftIndex == -1) b.isObjVar=true;
 			b.leftrow = conds.length -1 - pivot.conditionIndex;
 			b.varName = variable;
 			rule.addBinding(variable, b);
