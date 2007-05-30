@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 Christoph Emonds, Alexander Wilden
+ * Copyright 2007 Alexander Wilden
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,11 +17,10 @@
 package org.jamocha.rete.functions.list;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.IllegalParameterException;
+import org.jamocha.parser.IllegalTypeException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Function;
@@ -30,17 +29,16 @@ import org.jamocha.rete.Rete;
 import org.jamocha.rete.functions.FunctionDescription;
 
 /**
- * @author Christoph Emonds, Alexander Wilden
+ * @author Alexander Wilden
  * 
- * Creates a list of the given parameter values.
+ * Returns all elements of a List beginning with the second one.
  */
-public class Create$ implements Function, Serializable {
-	
-	private static final class CreateDescription implements
-			FunctionDescription {
+public class Rest$ implements Function, Serializable {
+
+	private static final class CreateDescription implements FunctionDescription {
 
 		public String getDescription() {
-			return "Creates a list of the given parameter values.";
+			return "Returns all elements of a List beginning with the second one.";
 		}
 
 		public int getParameterCount() {
@@ -48,15 +46,15 @@ public class Create$ implements Function, Serializable {
 		}
 
 		public String getParameterDescription(int parameter) {
-			return "Any value that should be put into the List.";
+			return "A List whose rest will be returned.";
 		}
 
 		public String getParameterName(int parameter) {
-			return "someValue";
+			return "someList";
 		}
 
 		public JamochaType[] getParameterTypes(int parameter) {
-			return JamochaType.ANY;
+			return JamochaType.LISTS;
 		}
 
 		public JamochaType[] getReturnType() {
@@ -64,15 +62,16 @@ public class Create$ implements Function, Serializable {
 		}
 
 		public boolean isParameterCountFixed() {
-			return false;
-		}
-
-		public boolean isParameterOptional(int parameter) {
 			return true;
 		}
 
+		public boolean isParameterOptional(int parameter) {
+			return false;
+		}
+
 		public String getExample() {
-			return "(create$ cheese milk eggs)";
+			return "(bind ?x (create$ cheese milk eggs bread))"
+			+ "(rest$ ?x)";
 		}
 	}
 
@@ -80,7 +79,7 @@ public class Create$ implements Function, Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	public static final String NAME = "create$";
+	public static final String NAME = "rest$";
 
 	public FunctionDescription getDescription() {
 		return DESCRIPTION;
@@ -92,23 +91,22 @@ public class Create$ implements Function, Serializable {
 
 	public JamochaValue executeFunction(Rete engine, Parameter[] params)
 			throws EvaluationException {
-		if (params != null) {
-			List<JamochaValue> newListValues = new ArrayList<JamochaValue>();
-			for (int i = 0; i < params.length; ++i) {
-				JamochaValue value = params[i].getValue(engine);
-				if (value.is(JamochaType.LIST)) {
-					for (int j = 0; j < value.getListCount(); ++j) {
-						newListValues.add(value.getListValue(j));
-					}
+		if (params != null && params.length == 1) {
+			JamochaValue list = params[0].getValue(engine);
+			if (list.is(JamochaType.LIST)) {
+				if (list.getListCount() > 1) {
+					JamochaValue[] rest = new JamochaValue[list.getListCount() - 1];
+					for (int i = 0; i < rest.length; ++i)
+						rest[i] = list.getListValue(i + 1);
+					return JamochaValue.newList(rest);
 				} else {
-					newListValues.add(value);
+					return JamochaValue.EMPTY_LIST;
 				}
-
+			} else {
+				throw new IllegalTypeException(JamochaType.LISTS, list
+						.getType());
 			}
-			JamochaValue[] values = new JamochaValue[newListValues.size()];
-			newListValues.toArray(values);
-			return JamochaValue.newList(values);
 		}
-		throw new IllegalParameterException(0, true);
+		throw new IllegalParameterException(1, false);
 	}
 }

@@ -34,8 +34,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  * Returns the length of a list.
  */
 public class Length$ implements Function, Serializable {
-	private static final class LengthDescription implements
-			FunctionDescription {
+	private static final class LengthDescription implements FunctionDescription {
 
 		public String getDescription() {
 			return "Returns the length of a list.";
@@ -70,8 +69,8 @@ public class Length$ implements Function, Serializable {
 		}
 
 		public String getExample() {
-			// TODO Auto-generated method stub
-			return null;
+			return "(bind ?x (create$ cheese milk eggs bread))"
+					+ "(length$ ?x)";
 		}
 	}
 
@@ -93,7 +92,7 @@ public class Length$ implements Function, Serializable {
 			throws EvaluationException {
 		if (params != null && params.length == 1) {
 			JamochaValue list = params[0].getValue(engine);
-			if (list.equals(JamochaType.LIST)) {
+			if (list.is(JamochaType.LIST)) {
 				return JamochaValue.newLong(list.getListCount());
 			} else {
 				throw new IllegalTypeException(JamochaType.LISTS, list

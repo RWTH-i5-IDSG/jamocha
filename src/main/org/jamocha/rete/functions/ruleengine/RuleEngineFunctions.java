@@ -23,6 +23,7 @@ import java.util.List;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.FunctionGroup;
 import org.jamocha.rete.functions.FunctionMemory;
+import org.jamocha.rete.functions.list.Member$;
 
 /**
  * @author Peter Lin
@@ -165,10 +166,6 @@ public class RuleEngineFunctions implements FunctionGroup, Serializable {
 		Matches matches = new Matches();
 		functionMem.declareFunction(matches);
 		funcs.add(matches);
-
-		MemberTest memberTest = new MemberTest();
-		functionMem.declareFunction(memberTest);
-		funcs.add(memberTest);
 
 		MemoryFree memoryFree = new MemoryFree();
 		functionMem.declareFunction(memoryFree);

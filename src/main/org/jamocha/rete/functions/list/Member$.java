@@ -14,7 +14,7 @@
  * limitations under the License.
  * 
  */
-package org.jamocha.rete.functions.ruleengine;
+package org.jamocha.rete.functions.list;
 
 import java.io.Serializable;
 
@@ -34,7 +34,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  * expression is in the second expression it, returns the integer position. Else
  * -1 is returned.
  */
-public class MemberTest implements Function, Serializable {
+public class Member$ implements Function, Serializable {
 
 	private static final class Description implements FunctionDescription {
 
@@ -126,14 +126,6 @@ public class MemberTest implements Function, Serializable {
 			}
 		}
 		return result;
-	}
-
-	public String toPPString(Parameter[] params, int indents) {
-		return "(member$ <expression> <multifield-expression>)\n"
-				+ "Function description:\n"
-				+ "\tCompares an expression against a multifield-expression."
-				+ "\n\tIf the single expression is in the second expression it,"
-				+ "\n\treturns the integer position.";
 	}
 
 }

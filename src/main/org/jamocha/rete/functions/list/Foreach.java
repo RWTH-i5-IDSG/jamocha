@@ -95,8 +95,10 @@ public class Foreach implements Function, Serializable {
 		}
 
 		public String getExample() {
-			// TODO Auto-generated method stub
-			return null;
+			return "(bind ?x (create$ cheese milk eggs bread))"
+					+ "(bind ?res \"We need: \")"
+					+ "(foreach ?item ?x (bind ?res (str-cat ?res ?item \", \")))"
+					+ "(return ?res)";
 		}
 	}
 

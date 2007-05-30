@@ -34,17 +34,37 @@ public class ListFunctions implements FunctionGroup {
 	}
 
 	public void loadFunctions(FunctionMemory functionMem) {
+		Complement$ complement = new Complement$();
+		functionMem.declareFunction(complement);
+		funcs.add(complement);
+
 		Create$ create = new Create$();
 		functionMem.declareFunction(create);
 		funcs.add(create);
+
+		Delete$ delete = new Delete$();
+		functionMem.declareFunction(delete);
+		funcs.add(delete);
+
+		First$ first = new First$();
+		functionMem.declareFunction(first);
+		funcs.add(first);
+
+		Foreach foreach = new Foreach();
+		functionMem.declareFunction(foreach);
+		funcs.add(foreach);
 
 		Length$ length = new Length$();
 		functionMem.declareFunction(length);
 		funcs.add(length);
 
-		Foreach foreach = new Foreach();
-		functionMem.declareFunction(foreach);
-		funcs.add(foreach);
+		Member$ member = new Member$();
+		functionMem.declareFunction(member);
+		funcs.add(member);
+
+		Rest$ rest = new Rest$();
+		functionMem.declareFunction(rest);
+		funcs.add(rest);
 	}
 
 	public List listFunctions() {
