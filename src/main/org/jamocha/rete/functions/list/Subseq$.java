@@ -31,19 +31,19 @@ import org.jamocha.rete.functions.FunctionDescription;
 /**
  * @author Alexander Wilden
  * 
- * Deletes a specified number of items from a list and returns the resulting
- * values again in a new list. The first integer expression is the index of the
- * first value to remove and the second integer expression is the index of the
- * last value to remove.
+ * Extracts and returns a specified range from a list and returns a new list
+ * containing just the sub-sequence. The first integer expression is the index
+ * of the first value to return and the second integer expression is the index
+ * of the last value to return.
  * <p>
  * Attention: Lists in Jamocha start with index 1.
  */
-public class Delete$ implements Function, Serializable {
+public class Subseq$ implements Function, Serializable {
 
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "Deletes a specified number of items from a list and returns the resulting values again in a new list. The first integer expression is the index of the first value to remove and the second integer expression is the index of the last value to remove. Attention: Lists in Jamocha start with index 1.";
+			return "Extracts and returns a specified range from a list and returns a new list containing just the sub-sequence. The first integer expression is the index of the first value to return and the second integer expression is the index of the last value to return. Attention: Lists in Jamocha start with index 1.";
 		}
 
 		public int getParameterCount() {
@@ -53,11 +53,11 @@ public class Delete$ implements Function, Serializable {
 		public String getParameterDescription(int parameter) {
 			switch (parameter) {
 			case 0:
-				return "The List to delete items from.";
+				return "The List to return the subsequence of.";
 			case 1:
-				return "First item to delete in the List. Has to be smaller or equal to endIndex.";
+				return "First item to return of the List. Has to be smaller or equal to endIndex.";
 			case 2:
-				return "Last item to delete in the List. Has to be greater or equal to startIndex.";
+				return "Last item to return of the List. Has to be greater or equal to startIndex.";
 			}
 			return "";
 		}
@@ -99,8 +99,7 @@ public class Delete$ implements Function, Serializable {
 		}
 
 		public String getExample() {
-			return "(bind ?x (create$ cheese milk eggs bread sausages))"
-					+ "(delete$ ?x 2 4)";
+			return "(subseq$ (create$ 42 123 911 4711 1) 2 4)";
 		}
 	}
 
@@ -108,7 +107,7 @@ public class Delete$ implements Function, Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	public static final String NAME = "delete$";
+	public static final String NAME = "subseq$";
 
 	public FunctionDescription getDescription() {
 		return DESCRIPTION;
@@ -137,13 +136,10 @@ public class Delete$ implements Function, Serializable {
 							+ " is out of bounds (1 - " + list.getListCount()
 							+ ").");
 				} else {
-					JamochaValue[] tmp = new JamochaValue[list.getListCount()
-							- ((endIndex - startIndex) + 1)];
+					JamochaValue[] tmp = new JamochaValue[(endIndex - startIndex) + 1];
 					int count = 0;
-					for (int i = 1; i <= list.getListCount(); ++i) {
-						if (i < startIndex || i > endIndex) {
-							tmp[count++] = list.getListValue(i - 1);
-						}
+					for (int i = startIndex; i <= endIndex; ++i) {
+						tmp[count++] = list.getListValue(i - 1);
 					}
 					return JamochaValue.newList(tmp);
 				}

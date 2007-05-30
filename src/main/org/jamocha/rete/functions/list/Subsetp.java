@@ -31,34 +31,53 @@ import org.jamocha.rete.functions.FunctionDescription;
 /**
  * @author Alexander Wilden
  * 
- * Returns the first value of a list. Nil if the List is empty.
+ * Returns TRUE if the first list is a subset of the second list, FALSE
+ * otherwise. The order of the lists is not considered.
  */
-public class First$ implements Function, Serializable {
+public class Subsetp implements Function, Serializable {
 
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "Returns the first value of a list. Nil if the List is empty.";
+			return "Returns TRUE if the first list is a subset of the second list, FALSE otherwise. The order of the lists is not considered.";
 		}
 
 		public int getParameterCount() {
-			return 1;
+			return 2;
 		}
 
 		public String getParameterDescription(int parameter) {
-			return "A List whose first value will be returned.";
+			switch (parameter) {
+			case 0:
+				return "Subset of second argument.";
+			case 1:
+				return "List to search in.";
+			}
+			return "";
 		}
 
 		public String getParameterName(int parameter) {
-			return "someList";
+			switch (parameter) {
+			case 0:
+				return "listOne";
+			case 1:
+				return "listTwo";
+			}
+			return "";
 		}
 
 		public JamochaType[] getParameterTypes(int parameter) {
-			return JamochaType.LISTS;
+			switch (parameter) {
+			case 0:
+				return JamochaType.LISTS;
+			case 1:
+				return JamochaType.LISTS;
+			}
+			return JamochaType.NONE;
 		}
 
 		public JamochaType[] getReturnType() {
-			return JamochaType.ANY;
+			return JamochaType.BOOLEANS;
 		}
 
 		public boolean isParameterCountFixed() {
@@ -70,8 +89,7 @@ public class First$ implements Function, Serializable {
 		}
 
 		public String getExample() {
-			return "(bind ?x (create$ cheese milk eggs bread))"
-			+ "(first$ ?x)";
+			return "(subsetp (create$ 3 4) (create$ 1 2 3 4 5 6))";
 		}
 	}
 
@@ -79,7 +97,7 @@ public class First$ implements Function, Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	public static final String NAME = "first$";
+	public static final String NAME = "subsetp";
 
 	public FunctionDescription getDescription() {
 		return DESCRIPTION;
@@ -91,19 +109,33 @@ public class First$ implements Function, Serializable {
 
 	public JamochaValue executeFunction(Rete engine, Parameter[] params)
 			throws EvaluationException {
-		if (params != null && params.length == 1) {
-			JamochaValue list = params[0].getValue(engine);
-			if (list.is(JamochaType.LIST)) {
-				if (list.getListCount() > 0) {
-					return list.getListValue(0);
-				} else {
-					return JamochaValue.NIL;
-				}
-			} else {
-				throw new IllegalTypeException(JamochaType.LISTS, list
+		if (params != null && params.length == 2) {
+			JamochaValue first = params[0].getValue(engine);
+			JamochaValue second = params[1].getValue(engine);
+			if (!first.getType().equals(JamochaType.LIST)) {
+				throw new IllegalTypeException(JamochaType.LISTS, first
 						.getType());
 			}
+			if (!second.getType().equals(JamochaType.LIST)) {
+				throw new IllegalTypeException(JamochaType.LISTS, second
+						.getType());
+			}
+			if (first.equals(JamochaValue.EMPTY_LIST))
+				return JamochaValue.TRUE;
+			if (second.getListCount() >= first.getListCount()) {
+				outer: for (int i = 0; i < first.getListCount(); i++) {
+					for (int j = 0; j < second.getListCount(); j++) {
+						if (first.getListValue(i)
+								.equals(second.getListValue(j)))
+							continue outer;
+					}
+					return JamochaValue.FALSE;
+				}
+				return JamochaValue.TRUE;
+			} else {
+				return JamochaValue.FALSE;
+			}
 		}
-		throw new IllegalParameterException(1, false);
+		throw new IllegalParameterException(2, false);
 	}
 }

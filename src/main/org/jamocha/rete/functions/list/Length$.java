@@ -34,7 +34,8 @@ import org.jamocha.rete.functions.FunctionDescription;
  * Returns the length of a list.
  */
 public class Length$ implements Function, Serializable {
-	private static final class LengthDescription implements FunctionDescription {
+	
+	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
 			return "Returns the length of a list.";
@@ -74,7 +75,7 @@ public class Length$ implements Function, Serializable {
 		}
 	}
 
-	private static final FunctionDescription DESCRIPTION = new LengthDescription();
+	private static final FunctionDescription DESCRIPTION = new Description();
 
 	private static final long serialVersionUID = 1L;
 

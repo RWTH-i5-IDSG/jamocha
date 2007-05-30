@@ -31,47 +31,71 @@ import org.jamocha.rete.functions.FunctionDescription;
 /**
  * @author Alexander Wilden
  * 
- * Returns the first value of a list. Nil if the List is empty.
+ * Creates and returns a String of a given list. Optionally a separator can be
+ * provided to glue the string together. Default is a whitespace.
  */
-public class First$ implements Function, Serializable {
+public class Implode$ implements Function, Serializable {
 
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "Returns the first value of a list. Nil if the List is empty.";
+			return "Creates and returns a String of a given list. Optionally a separator can be provided to glue the string together. Default is a whitespace.";
 		}
 
 		public int getParameterCount() {
-			return 1;
+			return 2;
 		}
 
 		public String getParameterDescription(int parameter) {
-			return "A List whose first value will be returned.";
+			switch (parameter) {
+			case 0:
+				return "List that should be imploded.";
+			case 1:
+				return "Optional separator. Default is a whitespace.";
+			}
+			return "";
 		}
 
 		public String getParameterName(int parameter) {
-			return "someList";
+			switch (parameter) {
+			case 0:
+				return "list";
+			case 1:
+				return "separator";
+			}
+			return "";
 		}
 
 		public JamochaType[] getParameterTypes(int parameter) {
-			return JamochaType.LISTS;
+			switch (parameter) {
+			case 0:
+				return JamochaType.LISTS;
+			case 1:
+				return JamochaType.STRINGS;
+			}
+			return JamochaType.NONE;
 		}
 
 		public JamochaType[] getReturnType() {
-			return JamochaType.ANY;
+			return JamochaType.STRINGS;
 		}
 
 		public boolean isParameterCountFixed() {
-			return true;
+			return false;
 		}
 
 		public boolean isParameterOptional(int parameter) {
+			switch (parameter) {
+			case 0:
+				return false;
+			case 1:
+				return true;
+			}
 			return false;
 		}
 
 		public String getExample() {
-			return "(bind ?x (create$ cheese milk eggs bread))"
-			+ "(first$ ?x)";
+			return "(implode$ (create$ \"We\" \"need\" \"beer\"))(implode$ (create$ \"We\" \"need\" \"beer\") \" -STOP- \")";
 		}
 	}
 
@@ -79,7 +103,7 @@ public class First$ implements Function, Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	public static final String NAME = "first$";
+	public static final String NAME = "implode$";
 
 	public FunctionDescription getDescription() {
 		return DESCRIPTION;
@@ -91,19 +115,27 @@ public class First$ implements Function, Serializable {
 
 	public JamochaValue executeFunction(Rete engine, Parameter[] params)
 			throws EvaluationException {
-		if (params != null && params.length == 1) {
+		if (params != null && params.length >= 1) {
 			JamochaValue list = params[0].getValue(engine);
-			if (list.is(JamochaType.LIST)) {
-				if (list.getListCount() > 0) {
-					return list.getListValue(0);
-				} else {
-					return JamochaValue.NIL;
-				}
-			} else {
+			if (!list.getType().equals(JamochaType.LIST)) {
 				throw new IllegalTypeException(JamochaType.LISTS, list
 						.getType());
 			}
+			if (list.equals(JamochaValue.EMPTY_LIST))
+				return JamochaValue.newString("");
+			String separator = " ";
+			// In contrast to Jess or CLIPS we allow separators specified by the
+			// user.
+			if (params.length > 1)
+				separator = params[1].getValue(engine).getStringValue();
+			StringBuilder res = new StringBuilder();
+			for (int i = 0; i < list.getListCount(); i++) {
+				if (i > 0)
+					res.append(separator);
+				res.append(list.getListValue(i));
+			}
+			return JamochaValue.newString(res.toString());
 		}
-		throw new IllegalParameterException(1, false);
+		throw new IllegalParameterException(1, true);
 	}
 }

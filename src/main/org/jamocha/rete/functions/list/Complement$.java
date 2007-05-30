@@ -38,7 +38,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  */
 public class Complement$ implements Function, Serializable {
 
-	private static final class CreateDescription implements FunctionDescription {
+	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
 			return "Returns a new list consisting of all elements of the second list that don't appear in the first list.";
@@ -91,7 +91,7 @@ public class Complement$ implements Function, Serializable {
 		}
 	}
 
-	private static final FunctionDescription DESCRIPTION = new CreateDescription();
+	private static final FunctionDescription DESCRIPTION = new Description();
 
 	private static final long serialVersionUID = 1L;
 

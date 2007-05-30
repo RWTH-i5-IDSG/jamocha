@@ -31,30 +31,50 @@ import org.jamocha.rete.functions.FunctionDescription;
 /**
  * @author Alexander Wilden
  * 
- * Returns the first value of a list. Nil if the List is empty.
+ * Returns the item of a list at the specified index.
+ * <p>
+ * Attention: Lists in Jamocha start with index 1.
  */
-public class First$ implements Function, Serializable {
+public class Nth$ implements Function, Serializable {
 
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "Returns the first value of a list. Nil if the List is empty.";
+			return "Returns the item of a list at the specified index. Attention: Lists in Jamocha start with index 1.";
 		}
 
 		public int getParameterCount() {
-			return 1;
+			return 2;
 		}
 
 		public String getParameterDescription(int parameter) {
-			return "A List whose first value will be returned.";
+			switch (parameter) {
+			case 0:
+				return "Index of the item in the list to return.";
+			case 1:
+				return "The list to return the specified item from.";
+			}
+			return "";
 		}
 
 		public String getParameterName(int parameter) {
-			return "someList";
+			switch (parameter) {
+			case 0:
+				return "index";
+			case 1:
+				return "someList";
+			}
+			return "";
 		}
 
 		public JamochaType[] getParameterTypes(int parameter) {
-			return JamochaType.LISTS;
+			switch (parameter) {
+			case 0:
+				return JamochaType.LONGS;
+			case 1:
+				return JamochaType.LISTS;
+			}
+			return JamochaType.NONE;
 		}
 
 		public JamochaType[] getReturnType() {
@@ -70,8 +90,8 @@ public class First$ implements Function, Serializable {
 		}
 
 		public String getExample() {
-			return "(bind ?x (create$ cheese milk eggs bread))"
-			+ "(first$ ?x)";
+			return "(bind ?x (create$ cheese milk eggs bread sausages))"
+					+ "(nth$ 3 ?x)";
 		}
 	}
 
@@ -79,7 +99,7 @@ public class First$ implements Function, Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	public static final String NAME = "first$";
+	public static final String NAME = "nth$";
 
 	public FunctionDescription getDescription() {
 		return DESCRIPTION;
@@ -91,19 +111,22 @@ public class First$ implements Function, Serializable {
 
 	public JamochaValue executeFunction(Rete engine, Parameter[] params)
 			throws EvaluationException {
-		if (params != null && params.length == 1) {
-			JamochaValue list = params[0].getValue(engine);
+		if (params != null && params.length == 2) {
+			int index = (int) params[0].getValue(engine).getLongValue();
+			JamochaValue list = params[1].getValue(engine);
 			if (list.is(JamochaType.LIST)) {
-				if (list.getListCount() > 0) {
-					return list.getListValue(0);
+				if (index < 1 || index > list.getListCount()) {
+					throw new EvaluationException("Index " + index
+							+ " is out of bounds (1 - " + list.getListCount()
+							+ ").");
 				} else {
-					return JamochaValue.NIL;
+					return list.getListValue(index - 1);
 				}
 			} else {
 				throw new IllegalTypeException(JamochaType.LISTS, list
 						.getType());
 			}
 		}
-		throw new IllegalParameterException(1, false);
+		throw new IllegalParameterException(2, false);
 	}
 }

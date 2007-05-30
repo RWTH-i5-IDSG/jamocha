@@ -36,7 +36,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  */
 public class Foreach implements Function, Serializable {
 
-	private static final class ForeachDescription implements
+	private static final class Description implements
 			FunctionDescription {
 
 		public String getDescription() {
@@ -102,7 +102,7 @@ public class Foreach implements Function, Serializable {
 		}
 	}
 
-	private static final FunctionDescription DESCRIPTION = new ForeachDescription();
+	private static final FunctionDescription DESCRIPTION = new Description();
 
 	private static final long serialVersionUID = 1L;
 

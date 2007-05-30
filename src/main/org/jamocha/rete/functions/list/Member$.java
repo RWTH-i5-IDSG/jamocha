@@ -19,6 +19,7 @@ package org.jamocha.rete.functions.list;
 import java.io.Serializable;
 
 import org.jamocha.parser.EvaluationException;
+import org.jamocha.parser.IllegalParameterException;
 import org.jamocha.parser.IllegalTypeException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
@@ -30,16 +31,17 @@ import org.jamocha.rete.functions.FunctionDescription;
 /**
  * @author Peter Lin
  * 
- * Compares an expression against a multifield-expression. If the single
- * expression is in the second expression it, returns the integer position. Else
- * -1 is returned.
+ * Compares an expression against a multifield-expression. If the expression is
+ * in the second expression or the expression is a list and a subset of the
+ * second expression in same order, integer position is returned. For lists the
+ * index of the first matching element is returned. Else -1 is returned.
  */
 public class Member$ implements Function, Serializable {
 
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "Compares an expression against a multifield-expression. If the single expression is in the second expression it, returns the integer position. Else -1 is returned.";
+			return "Compares an expression against a multifield-expression. If the expression is in the second expression or the expression is a list and a subset of the second expression in same order, integer position is returned. For lists the index of the first matching element is returned. Else -1 is returned.";
 		}
 
 		public int getParameterCount() {
@@ -47,7 +49,7 @@ public class Member$ implements Function, Serializable {
 		}
 
 		public String getParameterDescription(int parameter) {
-			switch(parameter) {
+			switch (parameter) {
 			case 0:
 				return "Value to search for in the List.";
 			case 1:
@@ -57,7 +59,7 @@ public class Member$ implements Function, Serializable {
 		}
 
 		public String getParameterName(int parameter) {
-			switch(parameter) {
+			switch (parameter) {
 			case 0:
 				return "value";
 			case 1:
@@ -67,7 +69,7 @@ public class Member$ implements Function, Serializable {
 		}
 
 		public JamochaType[] getParameterTypes(int parameter) {
-			switch(parameter) {
+			switch (parameter) {
 			case 0:
 				return JamochaType.ANY;
 			case 1:
@@ -89,8 +91,8 @@ public class Member$ implements Function, Serializable {
 		}
 
 		public String getExample() {
-			// TODO Auto-generated method stub
-			return null;
+			return "(member$ 5 (create$ 1 2 3 4 5 6))"
+					+ "(member$ (create$ 3 4) (create$ 1 2 3 4 5 6))";
 		}
 	}
 
@@ -110,22 +112,41 @@ public class Member$ implements Function, Serializable {
 
 	public JamochaValue executeFunction(Rete engine, Parameter[] params)
 			throws EvaluationException {
-		JamochaValue result = new JamochaValue(JamochaType.LONG, -1);
 		if (params != null && params.length == 2) {
+			JamochaValue result = JamochaValue.newLong(-1);
 			JamochaValue first = params[0].getValue(engine);
 			JamochaValue second = params[1].getValue(engine);
 			if (!second.getType().equals(JamochaType.LIST)) {
 				throw new IllegalTypeException(JamochaType.LISTS, second
 						.getType());
 			}
-			for (int idx = 0; idx < second.getListCount(); idx++) {
-				if (first.equals(second.getListValue(idx))) {
-					result = JamochaValue.newLong(++idx);
-					break;
+			// For lists we check if the first list is a subset of the second
+			// list and then return the index. This behaviour is adopted from
+			// clips. Jess doesn't support this.
+			if (first.is(JamochaType.LIST)) {
+				if (second.getListCount() >= first.getListCount()) {
+					outer: for (int i = 0; i < second.getListCount(); i++) {
+						if ((second.getListCount() - i) < first.getListCount()) {
+							break outer;
+						}
+						for (int j = 0; j < first.getListCount(); j++) {
+							if (!first.getListValue(j).equals(
+									second.getListValue(i + j)))
+								continue outer;
+						}
+						result = JamochaValue.newLong(i + 1);
+					}
+				}
+			} else {
+				for (int i = 0; i < second.getListCount(); i++) {
+					if (first.equals(second.getListValue(i))) {
+						result = JamochaValue.newLong(i + 1);
+						break;
+					}
 				}
 			}
+			return result;
 		}
-		return result;
+		throw new IllegalParameterException(2, false);
 	}
-
 }
