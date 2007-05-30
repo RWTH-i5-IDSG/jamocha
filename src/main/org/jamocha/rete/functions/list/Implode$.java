@@ -95,7 +95,7 @@ public class Implode$ implements Function, Serializable {
 		}
 
 		public String getExample() {
-			return "(implode$ (create$ \"We\" \"need\" \"beer\"))(implode$ (create$ \"We\" \"need\" \"beer\") \" -STOP- \")";
+			return "(implode$ (create$ We need beer))(implode$ (create$ We need beer) \" -STOP- \")";
 		}
 	}
 

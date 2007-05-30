@@ -62,6 +62,10 @@ public class ListFunctions implements FunctionGroup {
 		functionMem.declareFunction(implode);
 		funcs.add(implode);
 
+		Insert$ insert = new Insert$();
+		functionMem.declareFunction(insert);
+		funcs.add(insert);
+
 		Length$ length = new Length$();
 		functionMem.declareFunction(length);
 		funcs.add(length);
@@ -73,6 +77,10 @@ public class ListFunctions implements FunctionGroup {
 		Nth$ nth = new Nth$();
 		functionMem.declareFunction(nth);
 		funcs.add(nth);
+
+		Replace$ replace = new Replace$();
+		functionMem.declareFunction(replace);
+		funcs.add(replace);
 
 		Rest$ rest = new Rest$();
 		functionMem.declareFunction(rest);
