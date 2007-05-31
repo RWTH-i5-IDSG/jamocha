@@ -42,7 +42,7 @@ import org.jamocha.rete.nodes.TerminalNode;
 import org.jamocha.rule.Action;
 import org.jamocha.rule.Analysis;
 import org.jamocha.rule.AndCondition;
-import org.jamocha.rule.AndLiteralConstraint;
+import org.jamocha.rule.AndConnectedConstraint;
 import org.jamocha.rule.BoundConstraint;
 import org.jamocha.rule.Condition;
 import org.jamocha.rule.Constraint;
@@ -52,7 +52,7 @@ import org.jamocha.rule.LiteralConstraint;
 import org.jamocha.rule.NotCondition;
 import org.jamocha.rule.ObjectCondition;
 import org.jamocha.rule.OrCondition;
-import org.jamocha.rule.OrLiteralConstraint;
+import org.jamocha.rule.OrConnectedConstraint;
 import org.jamocha.rule.PredicateConstraint;
 import org.jamocha.rule.Rule;
 import org.jamocha.rule.Summary;
@@ -405,6 +405,13 @@ public class SFRuleCompiler implements RuleCompiler {
 					Condition[] conds = rule.getConditions();
 					for (int i = 0; i < conds.length; i++)
 						conds[i].compile(this, rule, i);
+					
+					for (Condition c : conds) {
+						for (Constraint cond : c.getConstraints()) {
+							System.out.println(cond.toString());
+						}
+					}
+					
 
 					compileJoins(rule);
 					// has no conditions:
@@ -826,26 +833,8 @@ public class SFRuleCompiler implements RuleCompiler {
 	 * @return BaseNode
 	 * @throws Exception
 	 */
-	public BaseNode compile(OrLiteralConstraint constraint, Rule rule, int conditionIndex) {
-		// SlotAlpha node = null;
-		// Slot2 sl = new Slot2(constraint.getName());
-		// sl.setId(constraint.getSlot().getId());
-		// Object sval = constraint.getValue();
-		// sl.setValue(sval);
-
+	public BaseNode compile(OrConnectedConstraint constraint, Rule rule, int conditionIndex) {
 		return null;
-
-		// TODO later on, we should implement an AlphaNodeOr like node and
-		// reimplement that:
-		// node = new AlphaNodeOr(engine.nextNodeId());
-
-		// node.setSlot(sl);
-		// we increment the node use count when when create a
-		// new
-		// AlphaNode for the LiteralConstraint
-		// constraint.getSlot().incrementNodeCount();
-
-		// return node;
 	}
 
 	/**
@@ -928,21 +917,8 @@ public class SFRuleCompiler implements RuleCompiler {
 	 * @throws Exception
 	 */
 
-	public BaseNode compile(AndLiteralConstraint constraint, Rule rule, int conditionIndex) {
-//		SlotAlpha node = null;
-//		Slot2 sl = new Slot2(constraint.getName());
-//		sl.setId(constraint.getSlot().getId());
-//		Object sval = constraint.getValue();
-//		sl.setValue(sval);
-		// TODO like with AlphaNodeOr
+	public BaseNode compile(AndConnectedConstraint constraint, Rule rule, int conditionIndex) {
 		return null;
-		// node = new AlphaNodeAnd(engine.nextNodeId());
-		// node.setSlot(sl);
-		// we increment the node use count when when create a
-		// new AlphaNode for the LiteralConstraint
-		// constraint.getSlot().incrementNodeCount();
-
-		// return node;
 	}
 
 	/**

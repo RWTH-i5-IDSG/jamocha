@@ -16,6 +16,11 @@
  * 
  */
 package org.jamocha.parser.sfp;
+import org.jamocha.parser.Parser;
+import org.jamocha.parser.ParserUtils;
+import org.jamocha.parser.Expression;
+import org.jamocha.parser.JamochaValue;
+import org.jamocha.rete.Rete;
 
 public class SFPParserTokenManager implements SFPParserConstants
 {

@@ -17,6 +17,8 @@
 
 package org.jamocha.parser.sfp;
 
+import java.util.ArrayList;
+
 import org.jamocha.parser.Expression;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
@@ -39,6 +41,7 @@ import org.jamocha.rete.configurations.Signature;
 import org.jamocha.rete.configurations.SlotConfiguration;
 import org.jamocha.rete.configurations.WhileDoConfiguration;
 import org.jamocha.rule.AndCondition;
+import org.jamocha.rule.AndConnectedConstraint;
 import org.jamocha.rule.BoundConstraint;
 import org.jamocha.rule.Condition;
 import org.jamocha.rule.Constraint;
@@ -47,9 +50,113 @@ import org.jamocha.rule.LiteralConstraint;
 import org.jamocha.rule.NotCondition;
 import org.jamocha.rule.ObjectCondition;
 import org.jamocha.rule.OrCondition;
+import org.jamocha.rule.OrConnectedConstraint;
 import org.jamocha.rule.TestCondition;
 
 public class SFPInterpreter implements SFPParserVisitor {
+	
+	class ConstraintElementGroup extends ArrayList<Constraint>{
+		private static final long serialVersionUID = 1L;
+
+		public String toString() {
+			StringBuffer result = new StringBuffer();
+			result.append("{ ");
+			for (Constraint c : this) {
+				result.append(c.toString());
+			}
+			return result.append("}").toString();
+		}
+		
+		public Constraint getRootConstraint() {
+			Constraint root=null;
+			AndConnectedConstraint act=null;
+			if (this.size() == 1) {
+				// we dont need any OR-Constraints
+				root = this.get(0);
+			} else {
+				for (int i=0 ; i < this.size()-1; i++ ) {
+					
+					// create new AND node
+					AndConnectedConstraint newAndNode = new AndConnectedConstraint();
+
+					// mount our constraint on our new AND node
+					Constraint actConstr = this.get(i);
+					newAndNode.setLeft(actConstr);
+					
+					// store new AND node as root, we root is null now
+					if (root == null) {root = newAndNode;}
+					
+					// if we have an actual AND node, we mount our new one to the old one
+					if (act != null) act.setRight(newAndNode);
+
+					
+					act = newAndNode;
+				}
+				act.setRight(this.get(this.size()-1));
+
+			}
+			return root;
+		}
+
+
+	}
+	
+	class ConstraintElementGroupList extends ArrayList<ConstraintElementGroup>{
+		private static final long serialVersionUID = 1L;
+		
+		ConstraintElementGroup getLastGroup() {
+			return this.get( this.size()-1 );
+		}
+		
+		public String toString() {
+			StringBuffer result = new StringBuffer();
+			result.append("[ \n");
+			for (ConstraintElementGroup c : this) {
+				result.append("   ").append(c.toString()).append("\n");
+			}
+			return result.append("\n]").toString();
+		}
+
+		
+		ConstraintElementGroup createNewGroup() {
+			ConstraintElementGroup result;
+			this.add(result = new ConstraintElementGroup());
+			return result;
+		}
+		
+		Constraint getRootConstraint() {
+			Constraint root=null;
+			OrConnectedConstraint act=null;
+			if (this.size() == 1 ){
+				//we dont need any OR-Constraints
+				root = this.get(0).getRootConstraint();
+			} else {
+				for (int i=0 ; i < this.size()-1; i++ ) {
+					
+					// create new OR node
+					OrConnectedConstraint newOrNode = new OrConnectedConstraint();
+
+					// mount our constraint on our new OR node
+					Constraint actConstr = this.get(i).getRootConstraint();
+					newOrNode.setLeft(actConstr);
+					
+					// store new OR node as root, we root is null now
+					if (root == null) {root = newOrNode;}
+					
+					// if we have an actual OR node, we mount our new one to the old one
+					if (act != null) act.setRight(newOrNode);
+
+					
+					act = newOrNode;
+				}
+				act.setRight(this.getLastGroup().getRootConstraint());
+			}
+			return root;
+		}
+		
+		
+	}
+	
 
 	public Object visit(SimpleNode node, Object data) {
 		// TODO Auto-generated method stub
@@ -710,13 +817,35 @@ public class SFPInterpreter implements SFPParserVisitor {
 		return null;
 	}
 
+	public Object visit(SFPConnectedConstraint node, Object data) {
+		ConstraintElementGroupList cegl = new ConstraintElementGroupList();
+		cegl.createNewGroup().add((Constraint)node.jjtGetChild(0).jjtAccept(this, null));
+		for (int i = 1; i < node.jjtGetNumChildren() ; i++) {
+			node.jjtGetChild(i).jjtAccept(this,	cegl);
+		}
+		return cegl.getRootConstraint();
+	}
+	
 	public Object visit(SFPAmpersandConnectedConstraint node, Object data) {
-		// TODO Auto-generated method stub
+		ConstraintElementGroupList cegl = (ConstraintElementGroupList)data;
+		ConstraintElementGroup actGroup = cegl.getLastGroup();
+		actGroup.add( (Constraint)node.jjtGetChild(0).jjtAccept(this, null) );
+		
+		if (node.jjtGetNumChildren() > 1) 
+				node.jjtGetChild(1).jjtAccept(this,	data);
+		
 		return null;
 	}
+	
+	
 
 	public Object visit(SFPLineConnectedConstraint node, Object data) {
-		// TODO Auto-generated method stub
+		ConstraintElementGroupList cegl = (ConstraintElementGroupList)data;
+		cegl.createNewGroup().add( (Constraint)node.jjtGetChild(0).jjtAccept(this, null)   );
+		
+		if (node.jjtGetNumChildren() > 1)
+			node.jjtGetChild(1).jjtAccept(this,	data);
+		
 		return null;
 	}
 
@@ -985,4 +1114,5 @@ public class SFPInterpreter implements SFPParserVisitor {
 		// TODO: check is this correct to match number to double?
 		return JamochaType.DOUBLE;
 	}
+
 }

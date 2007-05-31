@@ -17,13 +17,26 @@
 
 
 (defrule six
-	?x <- (wurst (gewicht ?y&:(less ?y ?z) ))
+	(wurst (farbe a & b & c | ?x & e | f | g & h ) )
+	=> 
+)
+
+
+
+(defrule six
+	?x <- (wurst (gewicht ?y & :(less ?y ?z) ))
 	(salat (name "kartoffelsalat") (gewicht ?z))
 	=> 
 	(printout t "wurst die schwerer als kartoffelsalat ist: " (get-fact-id  ?x) crlf)
 )
-
 (fire)
+
+
+
+(defrule foo
+(wurst (farbe a & b & c & d & e | f | g & h))
+=>
+)
 
 
 

@@ -96,6 +96,10 @@ public class LiteralConstraint extends AbstractConstraint {
 		return this.negated;
 	}
 	
+	public String toString(){
+		return super.toString()+value.toString();
+	}
+	
 	public BaseNode compile(SFRuleCompiler compiler, Rule rule, int conditionIndex) {
 		return compiler.compile(this, rule, conditionIndex);
 	}

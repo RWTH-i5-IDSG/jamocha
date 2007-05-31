@@ -26,7 +26,7 @@ import org.jamocha.rete.configurations.SlotConfiguration;
 import org.jamocha.rete.functions.FunctionDescription;
 import org.jamocha.rule.Action;
 import org.jamocha.rule.AndCondition;
-import org.jamocha.rule.AndLiteralConstraint;
+import org.jamocha.rule.AndConnectedConstraint;
 import org.jamocha.rule.BooleanOperatorCondition;
 import org.jamocha.rule.BoundConstraint;
 import org.jamocha.rule.Condition;
@@ -36,7 +36,7 @@ import org.jamocha.rule.FunctionAction;
 import org.jamocha.rule.LiteralConstraint;
 import org.jamocha.rule.MultiValue;
 import org.jamocha.rule.ObjectCondition;
-import org.jamocha.rule.OrLiteralConstraint;
+import org.jamocha.rule.OrConnectedConstraint;
 import org.jamocha.rule.PredicateConstraint;
 import org.jamocha.rule.Rule;
 import org.jamocha.rule.TestCondition;
@@ -533,14 +533,14 @@ public class CLIPSFormatter implements Formatter {
 	}
 
 	private String formatConstraint(Constraint constraint) {
-		if (constraint instanceof AndLiteralConstraint) {
-			return formatAndLiteralConstraint((AndLiteralConstraint) constraint);
+		if (constraint instanceof AndConnectedConstraint) {
+			return formatAndConnectedConstraint((AndConnectedConstraint) constraint);
 		} else if (constraint instanceof BoundConstraint) {
 			return formatBoundConstraint((BoundConstraint) constraint);
 		} else if (constraint instanceof LiteralConstraint) {
 			return formatLiteralConstraint((LiteralConstraint) constraint);
-		} else if (constraint instanceof OrLiteralConstraint) {
-			return formatOrLiteralConstraint((OrLiteralConstraint) constraint);
+		} else if (constraint instanceof OrConnectedConstraint) {
+			return formatOrConnectedConstraint((OrConnectedConstraint) constraint);
 		} else if (constraint instanceof PredicateConstraint) {
 			return formatPredicateConstraint((PredicateConstraint) constraint);
 		}
@@ -553,27 +553,29 @@ public class CLIPSFormatter implements Formatter {
 				+ Constants.LINEBREAK;
 	}
 
-	private String formatOrLiteralConstraint(OrLiteralConstraint constraint) {
-		StringBuilder buf = new StringBuilder();
-		Iterator itr = ((List) constraint.getValue().getObjectValue())
-				.iterator();
-		buf.append("    (").append(constraint.getName()).append(' ');
-		int count = 0;
-		while (itr.hasNext()) {
-			MultiValue mv = (MultiValue) itr.next();
-			if (count > 0) {
-				buf.append("|");
-			}
-			if (mv.getNegated()) {
-				buf.append("~").append(
-						ConversionUtils.formatSlot(mv.getValue()));
-			} else {
-				buf.append(ConversionUtils.formatSlot(mv.getValue()));
-			}
-			count++;
-		}
-		buf.append(")").append(Constants.LINEBREAK);
-		return buf.toString();
+	private String formatOrConnectedConstraint(OrConnectedConstraint constraint) {
+		//TODO Reimplement that
+//		StringBuilder buf = new StringBuilder();
+//		Iterator itr = ((List) constraint.getValue().getObjectValue())
+//				.iterator();
+//		buf.append("    (").append(constraint.getName()).append(' ');
+//		int count = 0;
+//		while (itr.hasNext()) {
+//			MultiValue mv = (MultiValue) itr.next();
+//			if (count > 0) {
+//				buf.append("|");
+//			}
+//			if (mv.getNegated()) {
+//				buf.append("~").append(
+//						ConversionUtils.formatSlot(mv.getValue()));
+//			} else {
+//				buf.append(ConversionUtils.formatSlot(mv.getValue()));
+//			}
+//			count++;
+//		}
+//		buf.append(")").append(Constants.LINEBREAK);
+//		return buf.toString();
+		return null;
 	}
 
 	private String formatLiteralConstraint(LiteralConstraint constraint) {
@@ -598,27 +600,30 @@ public class CLIPSFormatter implements Formatter {
 		return sb.toString();
 	}
 
-	private String formatAndLiteralConstraint(AndLiteralConstraint constraint) {
-		StringBuilder buf = new StringBuilder();
-		Iterator itr = ((List) constraint.getValue().getObjectValue())
-				.iterator();
-		buf.append("    (").append(constraint.getName()).append(" ");
-		int count = 0;
-		while (itr.hasNext()) {
-			MultiValue mv = (MultiValue) itr.next();
-			if (count > 0) {
-				buf.append("&");
-			}
-			if (mv.getNegated()) {
-				buf.append("~").append(
-						ConversionUtils.formatSlot(mv.getValue()));
-			} else {
-				buf.append(ConversionUtils.formatSlot(mv.getValue()));
-			}
-			count++;
-		}
-		buf.append(")").append(Constants.LINEBREAK);
-		return buf.toString();
+	private String formatAndConnectedConstraint(AndConnectedConstraint constraint) {
+		
+		//TODO Reimplement that
+//		StringBuilder buf = new StringBuilder();
+//		Iterator itr = ((List) constraint.getValue().getObjectValue())
+//				.iterator();
+//		buf.append("    (").append(constraint.getName()).append(" ");
+//		int count = 0;
+//		while (itr.hasNext()) {
+//			MultiValue mv = (MultiValue) itr.next();
+//			if (count > 0) {
+//				buf.append("&");
+//			}
+//			if (mv.getNegated()) {
+//				buf.append("~").append(
+//						ConversionUtils.formatSlot(mv.getValue()));
+//			} else {
+//				buf.append(ConversionUtils.formatSlot(mv.getValue()));
+//			}
+//			count++;
+//		}
+//		buf.append(")").append(Constants.LINEBREAK);
+//		return buf.toString();
+		return null;
 
 	}
 

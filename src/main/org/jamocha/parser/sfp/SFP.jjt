@@ -1784,7 +1784,7 @@ SimpleNode MultiFieldWildcard() :
 //<connected-constraint>::= <single-constraint> | <single-constraint> & <connected-constraint> |
 //	<single-constraint> | <connected-constraint>
 
-void ConnectedConstraint() #void: 
+SimpleNode ConnectedConstraint():
 {}
 {
     (
@@ -1794,6 +1794,7 @@ void ConnectedConstraint() #void:
 	|	LineConnectedConstraint()
 	]
     )
+    {return jjtThis;}
 }
 
 
@@ -1809,7 +1810,7 @@ SimpleNode AmpersandConnectedConstraint():
 		<AMPERSAND>
 		Term()
 	[
-		ConnectedConstraint()
+		LineConnectedConstraint() | AmpersandConnectedConstraint()
 	]
     )
     
@@ -1829,7 +1830,7 @@ SimpleNode LineConnectedConstraint():
 		<LINE>
 		Term()
 	[
-		ConnectedConstraint()
+		LineConnectedConstraint() | AmpersandConnectedConstraint()
 	]
     )
     
