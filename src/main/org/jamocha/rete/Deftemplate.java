@@ -341,9 +341,8 @@ public class Deftemplate implements Template, Serializable {
 				{
 					//we found matching slots for our sc
 					foundSlotMatching = true;
-					
-					//copy slot id:
 
+					//copy slot id:
 					slot.setId(sc.getId());
 
 					JamochaValue val = sc.getValue(engine);
@@ -388,6 +387,23 @@ public class Deftemplate implements Template, Serializable {
 			}
 		}
 
+		// check slots with required values "(default ?NONE) for empty asserts
+		TemplateSlot ts = null;
+		
+		for (int i = 0; i < this.getAllSlots().length ; i++) {	
+			ts = this.getSlot(i);
+			
+			if(ts.isRequired()) {
+				String slotName = ts.getName();
+				
+				for (int j = 0; j < slots.length; j++) {
+					if (slots[j].getName().equals(slotName) && slots[j].getValue().equals(JamochaValue.NIL)) {
+						throw new AssertException("A non-empty value is required for the slot " + ts.getName() +  "by the corresponding template.");
+					}
+				}
+			}
+		}
+		
 		Deffact newfact = new Deffact(this, null, slots, -1);
 		if (hasbinding) {
 			Slot[] slts2 = new Slot[bslots.size()];

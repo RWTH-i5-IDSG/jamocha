@@ -400,7 +400,7 @@ public class SFPInterpreter implements SFPParserVisitor {
 	}
 
 	public Object visit(SFPNoneAttribute node, Object data) {
-		// TODO Auto-generated method stub
+		((TemplateSlot) data).setRequired(true);
 		return null;
 	}
 

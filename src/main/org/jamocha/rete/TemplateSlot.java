@@ -24,6 +24,9 @@ public class TemplateSlot extends Slot {
 	private boolean multiSlot = false;
 
 	private boolean staticDefault;
+	
+	// used for the implementation of slot default "?NONE", as it specified in CLIPS BPG
+	private boolean required = false;
 
 	private Expression defaultExpression;
 
@@ -64,7 +67,7 @@ public class TemplateSlot extends Slot {
 			result = new Slot(getName());
 			result.setValueType(getValueType());
 		}
-		if (defaultExpression != null) {
+		if (defaultExpression != null && !defaultExpression.equals("?None")) {
 			JamochaValue value = defaultExpression.getValue(engine);
 			if (value.getType().equals(JamochaType.LIST) && !isMultiSlot()) {
 				if (value.getListCount() > 0) {
@@ -121,6 +124,14 @@ public class TemplateSlot extends Slot {
 	public void setDefaultDerive() {
 		staticDefault = true;
 		defaultExpression = JamochaType.getDefaultValue(getValueType());
+	}
+
+	public boolean isRequired() {
+		return required;
+	}
+
+	public void setRequired(boolean required) {
+		this.required = required;
 	}
 
 }
