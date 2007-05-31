@@ -46,6 +46,10 @@ public class ListFunctions implements FunctionGroup {
 		functionMem.declareFunction(delete);
 		funcs.add(delete);
 
+		DeleteMember$ deleteMember = new DeleteMember$();
+		functionMem.declareFunction(deleteMember);
+		funcs.add(deleteMember);
+
 		Explode$ explode = new Explode$();
 		functionMem.declareFunction(explode);
 		funcs.add(explode);
@@ -66,6 +70,10 @@ public class ListFunctions implements FunctionGroup {
 		functionMem.declareFunction(insert);
 		funcs.add(insert);
 
+		Intersection$ intersection = new Intersection$();
+		functionMem.declareFunction(intersection);
+		funcs.add(intersection);
+
 		Length$ length = new Length$();
 		functionMem.declareFunction(length);
 		funcs.add(length);
@@ -82,6 +90,10 @@ public class ListFunctions implements FunctionGroup {
 		functionMem.declareFunction(replace);
 		funcs.add(replace);
 
+		ReplaceMember$ replaceMember = new ReplaceMember$();
+		functionMem.declareFunction(replaceMember);
+		funcs.add(replaceMember);
+
 		Rest$ rest = new Rest$();
 		functionMem.declareFunction(rest);
 		funcs.add(rest);
@@ -93,6 +105,10 @@ public class ListFunctions implements FunctionGroup {
 		Subsetp subsetp = new Subsetp();
 		functionMem.declareFunction(subsetp);
 		funcs.add(subsetp);
+
+		Union$ union = new Union$();
+		functionMem.declareFunction(union);
+		funcs.add(union);
 	}
 
 	public List listFunctions() {

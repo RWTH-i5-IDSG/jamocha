@@ -90,8 +90,7 @@ public class Nth$ implements Function, Serializable {
 		}
 
 		public String getExample() {
-			return "(bind ?x (create$ cheese milk eggs bread sausages))"
-					+ "(nth$ 3 ?x)";
+			return "(nth$ 3 (create$ cheese milk eggs bread sausages))";
 		}
 	}
 

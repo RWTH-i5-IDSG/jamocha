@@ -67,21 +67,21 @@ public class BatchResultBrowser extends JFrame implements ActionListener {
 		this.batchResultsButton = batchResultsButton;
 		topPanel = new JPanel();
 		setLocationByPlatform(true);
-		setSize(500, 400);
+		setSize(650, 400);
 		setLayout(new BorderLayout());
 		resultsBoxModel = new ResultBoxModel();
 		resultsBox = new JComboBox(resultsBoxModel);
 		removeButton = new JButton(IconLoader.getImageIcon("delete"));
 		removeButton.addActionListener(this);
 		removeButton.setToolTipText("Remove this batch result");
+		removeButton.setVisible(false);
 		reloadButton = new JButton(IconLoader.getImageIcon("arrow_refresh"));
 		reloadButton.addActionListener(this);
 		reloadButton
 				.setToolTipText("Reload the list of available batch results");
-
 		topPanel.add(resultsBox);
-		topPanel.add(removeButton);
-		topPanel.add(reloadButton);
+		//topPanel.add(removeButton);
+		//topPanel.add(reloadButton);
 		add(topPanel, BorderLayout.NORTH);
 		aboutArea = new JTextArea();
 		aboutArea.setBorder(BorderFactory.createEmptyBorder());
@@ -94,6 +94,8 @@ public class BatchResultBrowser extends JFrame implements ActionListener {
 		JPanel closePanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 		closeButton = new JButton("close");
 		closeButton.addActionListener(this);
+		closePanel.add(reloadButton);
+		closePanel.add(removeButton);
 		closePanel.add(closeButton);
 		add(closePanel, BorderLayout.SOUTH);
 		batchResultsButton.setIcon(IconLoader.getImageIcon("lorry"));
@@ -112,6 +114,7 @@ public class BatchResultBrowser extends JFrame implements ActionListener {
 			if (item != null) {
 				aboutArea.setText(batchResults.get(item.toString()));
 			}
+			removeButton.setVisible(true);
 			batchResultsButton.setIcon(IconLoader.getImageIcon("lorry"));
 		} else if (event.getSource().equals(removeButton)) {
 			Object item = resultsBox.getSelectedItem();
@@ -120,6 +123,7 @@ public class BatchResultBrowser extends JFrame implements ActionListener {
 				batchResults.remove(item);
 				aboutArea.setText("");
 				resultsBox.setSelectedIndex(-1);
+				removeButton.setVisible(false);
 				// if we removed the last result we hide the indicator button
 				if (batchResults.isEmpty()) {
 					batchResultsButton.setVisible(false);
@@ -129,6 +133,7 @@ public class BatchResultBrowser extends JFrame implements ActionListener {
 			resultsBoxModel.setItems(batchResults.keySet().toArray());
 			aboutArea.setText("");
 			resultsBox.setSelectedIndex(-1);
+			removeButton.setVisible(false);
 		}
 	}
 

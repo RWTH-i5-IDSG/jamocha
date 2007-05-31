@@ -70,8 +70,7 @@ public class Length$ implements Function, Serializable {
 		}
 
 		public String getExample() {
-			return "(bind ?x (create$ cheese milk eggs bread))"
-					+ "(length$ ?x)";
+			return "(length$ (create$ cheese milk eggs bread))";
 		}
 	}
 

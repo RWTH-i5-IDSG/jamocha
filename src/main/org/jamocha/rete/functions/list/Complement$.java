@@ -85,9 +85,7 @@ public class Complement$ implements Function, Serializable {
 		}
 
 		public String getExample() {
-			return "(bind ?x (create$ sausage milk eggs))"
-					+ "(bind ?y (create$ cheese milk eggs bread))"
-					+ "(complement$ ?x ?y)";
+			return "(complement$  (create$ sausage milk eggs) (create$ cheese milk eggs bread))";
 		}
 	}
 

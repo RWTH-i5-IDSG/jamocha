@@ -125,20 +125,20 @@ public class Replace$ implements Function, Serializable {
 	public JamochaValue executeFunction(Rete engine, Parameter[] params)
 			throws EvaluationException {
 		if (params != null && params.length >= 4) {
-			JamochaValue list = params[0].getValue(engine);
+			JamochaValue subject = params[0].getValue(engine);
 			int startIndex = (int) params[1].getValue(engine).getLongValue();
 			int endIndex = (int) params[2].getValue(engine).getLongValue();
-			if (list.is(JamochaType.LIST)) {
+			if (subject.is(JamochaType.LIST)) {
 				if (startIndex > endIndex) {
 					throw new EvaluationException("Start index " + startIndex
 							+ " is greater than end index " + endIndex + ".");
-				} else if (startIndex < 1 || startIndex > list.getListCount()) {
+				} else if (startIndex < 1 || startIndex > subject.getListCount()) {
 					throw new EvaluationException("Start index " + startIndex
-							+ " is out of bounds (1 - " + list.getListCount()
+							+ " is out of bounds (1 - " + subject.getListCount()
 							+ ").");
-				} else if (endIndex < 1 || endIndex > list.getListCount()) {
+				} else if (endIndex < 1 || endIndex > subject.getListCount()) {
 					throw new EvaluationException("End index " + endIndex
-							+ " is out of bounds (1 - " + list.getListCount()
+							+ " is out of bounds (1 - " + subject.getListCount()
 							+ ").");
 				} else {
 					List<JamochaValue> newList = new LinkedList<JamochaValue>();
@@ -146,26 +146,26 @@ public class Replace$ implements Function, Serializable {
 					// add old entries before replacement start
 					startIndex--;
 					for (int i = 0; i < startIndex; ++i) {
-						newList.add(list.getListValue(i));
+						newList.add(subject.getListValue(i));
 					}
 
 					// add new entries
 					for (int i = 3; i < params.length; ++i) {
-						JamochaValue value = params[i].getValue(engine);
-						if (!value.equals(JamochaValue.NIL)) {
-							if (value.is(JamochaType.LIST)) {
-								for (int j = 0; j < value.getListCount(); ++j) {
-									newList.add(value.getListValue(j));
+						JamochaValue replacement = params[i].getValue(engine);
+						if (!replacement.equals(JamochaValue.NIL)) {
+							if (replacement.is(JamochaType.LIST)) {
+								for (int j = 0; j < replacement.getListCount(); ++j) {
+									newList.add(replacement.getListValue(j));
 								}
 							} else {
-								newList.add(value);
+								newList.add(replacement);
 							}
 						}
 					}
 
 					// add old entries after replacement end
-					for (int i = endIndex; i < list.getListCount(); ++i) {
-						newList.add(list.getListValue(i));
+					for (int i = endIndex; i < subject.getListCount(); ++i) {
+						newList.add(subject.getListValue(i));
 					}
 					JamochaValue[] tmp = new JamochaValue[newList.size()];
 					for (int i = 0; i < newList.size(); ++i) {
@@ -174,7 +174,7 @@ public class Replace$ implements Function, Serializable {
 					return JamochaValue.newList(tmp);
 				}
 			} else {
-				throw new IllegalTypeException(JamochaType.LISTS, list
+				throw new IllegalTypeException(JamochaType.LISTS, subject
 						.getType());
 			}
 		}

@@ -17,6 +17,8 @@
 package org.jamocha.rete.functions.list;
 
 import java.io.Serializable;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.IllegalParameterException;
@@ -31,14 +33,14 @@ import org.jamocha.rete.functions.FunctionDescription;
 /**
  * @author Alexander Wilden
  * 
- * Returns the first value of a list. Nil if the List is empty.
+ * Returns the union of its arguments without duplicates.
  */
-public class First$ implements Function, Serializable {
+public class Union$ implements Function, Serializable {
 
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "Returns the first value of a list. Nil if the List is empty.";
+			return "Returns the union of its arguments without duplicates.";
 		}
 
 		public int getParameterCount() {
@@ -46,11 +48,11 @@ public class First$ implements Function, Serializable {
 		}
 
 		public String getParameterDescription(int parameter) {
-			return "A List whose first value will be returned.";
+			return "List that should be unified with the other arguments.";
 		}
 
 		public String getParameterName(int parameter) {
-			return "someList";
+			return "list";
 		}
 
 		public JamochaType[] getParameterTypes(int parameter) {
@@ -58,19 +60,19 @@ public class First$ implements Function, Serializable {
 		}
 
 		public JamochaType[] getReturnType() {
-			return JamochaType.ANY;
+			return JamochaType.LISTS;
 		}
 
 		public boolean isParameterCountFixed() {
-			return true;
-		}
-
-		public boolean isParameterOptional(int parameter) {
 			return false;
 		}
 
+		public boolean isParameterOptional(int parameter) {
+			return (parameter > 0);
+		}
+
 		public String getExample() {
-			return "(first$ (create$ cheese milk eggs bread))";
+			return "(union$ (create$ a b c) (create$ e d a f) (create$ 1 2 d))";
 		}
 	}
 
@@ -78,7 +80,7 @@ public class First$ implements Function, Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	public static final String NAME = "first$";
+	public static final String NAME = "union$";
 
 	public FunctionDescription getDescription() {
 		return DESCRIPTION;
@@ -90,18 +92,29 @@ public class First$ implements Function, Serializable {
 
 	public JamochaValue executeFunction(Rete engine, Parameter[] params)
 			throws EvaluationException {
-		if (params != null && params.length == 1) {
-			JamochaValue list = params[0].getValue(engine);
-			if (list.is(JamochaType.LIST)) {
-				if (list.getListCount() > 0) {
-					return list.getListValue(0);
+		if (params != null && params.length > 0) {
+			JamochaValue list;
+			JamochaValue current;
+			List<JamochaValue> tmpList = new LinkedList<JamochaValue>();
+			for (int i = 0; i < params.length; ++i) {
+				list = params[i].getValue(engine);
+				if (list.is(JamochaType.LIST)) {
+					for (int j = 0; j < list.getListCount(); ++j) {
+						current = list.getListValue(j);
+						if (!tmpList.contains(current))
+							tmpList.add(current);
+					}
+
 				} else {
-					return JamochaValue.NIL;
+					throw new IllegalTypeException(JamochaType.LISTS, list
+							.getType());
 				}
-			} else {
-				throw new IllegalTypeException(JamochaType.LISTS, list
-						.getType());
 			}
+			JamochaValue[] res = new JamochaValue[tmpList.size()];
+			for (int i = 0; i < res.length; ++i) {
+				res[i] = tmpList.get(i);
+			}
+			return JamochaValue.newList(res);
 		}
 		throw new IllegalParameterException(1, false);
 	}

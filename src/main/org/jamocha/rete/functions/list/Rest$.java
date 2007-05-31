@@ -70,8 +70,7 @@ public class Rest$ implements Function, Serializable {
 		}
 
 		public String getExample() {
-			return "(bind ?x (create$ cheese milk eggs bread))"
-			+ "(rest$ ?x)";
+			return "(rest$ (create$ cheese milk eggs bread))";
 		}
 	}
 

@@ -99,8 +99,7 @@ public class Delete$ implements Function, Serializable {
 		}
 
 		public String getExample() {
-			return "(bind ?x (create$ cheese milk eggs bread sausages))"
-					+ "(delete$ ?x 2 4)";
+			return "(delete$ (create$ cheese milk eggs bread sausages) 2 4)";
 		}
 	}
 
@@ -121,34 +120,34 @@ public class Delete$ implements Function, Serializable {
 	public JamochaValue executeFunction(Rete engine, Parameter[] params)
 			throws EvaluationException {
 		if (params != null && params.length == 3) {
-			JamochaValue list = params[0].getValue(engine);
+			JamochaValue subject = params[0].getValue(engine);
 			int startIndex = (int) params[1].getValue(engine).getLongValue();
 			int endIndex = (int) params[2].getValue(engine).getLongValue();
-			if (list.is(JamochaType.LIST)) {
+			if (subject.is(JamochaType.LIST)) {
 				if (startIndex > endIndex) {
 					throw new EvaluationException("Start index " + startIndex
 							+ " is greater than end index " + endIndex + ".");
-				} else if (startIndex < 1 || startIndex > list.getListCount()) {
+				} else if (startIndex < 1 || startIndex > subject.getListCount()) {
 					throw new EvaluationException("Start index " + startIndex
-							+ " is out of bounds (1 - " + list.getListCount()
+							+ " is out of bounds (1 - " + subject.getListCount()
 							+ ").");
-				} else if (endIndex < 1 || endIndex > list.getListCount()) {
+				} else if (endIndex < 1 || endIndex > subject.getListCount()) {
 					throw new EvaluationException("End index " + endIndex
-							+ " is out of bounds (1 - " + list.getListCount()
+							+ " is out of bounds (1 - " + subject.getListCount()
 							+ ").");
 				} else {
-					JamochaValue[] tmp = new JamochaValue[list.getListCount()
+					JamochaValue[] tmp = new JamochaValue[subject.getListCount()
 							- ((endIndex - startIndex) + 1)];
 					int count = 0;
-					for (int i = 1; i <= list.getListCount(); ++i) {
+					for (int i = 1; i <= subject.getListCount(); ++i) {
 						if (i < startIndex || i > endIndex) {
-							tmp[count++] = list.getListValue(i - 1);
+							tmp[count++] = subject.getListValue(i - 1);
 						}
 					}
 					return JamochaValue.newList(tmp);
 				}
 			} else {
-				throw new IllegalTypeException(JamochaType.LISTS, list
+				throw new IllegalTypeException(JamochaType.LISTS, subject
 						.getType());
 			}
 		}

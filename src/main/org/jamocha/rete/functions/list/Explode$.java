@@ -94,7 +94,8 @@ public class Explode$ implements Function, Serializable {
 		}
 
 		public String getExample() {
-			return "(explode$ \"A horse has about four legs\")(explode$ \"A horse has about four legs\" \" about \")";
+			return "(explode$ \"A horse has about four legs\")\n"
+					+ "(explode$ \"A horse has about four legs\" \" about \")";
 		}
 	}
 

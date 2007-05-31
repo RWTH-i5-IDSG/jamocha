@@ -109,7 +109,7 @@ public class Example implements Function, Serializable {
 					engine
 							.writeMessage("Showing example for " + function
 									+ ":");
-					engine.writeMessage("Code: " + example);
+					engine.writeMessage("Code:\n" + example);
 					engine
 							.writeMessage("-------- START OF EXAMPLE --------------------------");
 					engine.writeMessage(" ");
