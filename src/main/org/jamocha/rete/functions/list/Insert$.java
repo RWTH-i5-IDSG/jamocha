@@ -118,7 +118,7 @@ public class Insert$ implements Function, Serializable {
 			JamochaValue list = params[0].getValue(engine);
 			int index = (int) params[1].getValue(engine).getLongValue();
 			if (list.is(JamochaType.LIST)) {
-				if (index < 1 || index > list.getListCount()) {
+				if (index < 1 && list.getListCount() > 0) {
 					throw new EvaluationException("Index " + index
 							+ " is out of bounds (1 - " + list.getListCount()
 							+ ").");
@@ -127,7 +127,7 @@ public class Insert$ implements Function, Serializable {
 
 					// add old entries before replacement start
 					index--;
-					for (int i = 0; i < index; ++i) {
+					for (int i = 0; i < index && i < list.getListCount(); ++i) {
 						newList.add(list.getListValue(i));
 					}
 
