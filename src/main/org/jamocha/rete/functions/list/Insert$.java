@@ -120,7 +120,7 @@ public class Insert$ implements Function, Serializable {
 			if (list.is(JamochaType.LIST)) {
 				if (index < 1 && list.getListCount() > 0) {
 					throw new EvaluationException("Index " + index
-							+ " is out of bounds (1 - " + list.getListCount()
+							+ " is out of bounds (1 - " + (list.getListCount()+1)
 							+ ").");
 				} else {
 					List<JamochaValue> newList = new LinkedList<JamochaValue>();
