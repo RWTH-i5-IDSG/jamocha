@@ -33,7 +33,7 @@ public class DeffunctionGroup implements FunctionGroup {
 	private List<Function> funcs = new ArrayList<Function>();
 
     public String getName() {
-        return DeffunctionGroup.class.getName();
+        return "Deffunctions";
     }
 
     public List listFunctions() {

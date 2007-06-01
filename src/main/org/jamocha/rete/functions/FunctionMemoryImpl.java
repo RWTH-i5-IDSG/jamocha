@@ -18,6 +18,7 @@ package org.jamocha.rete.functions;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -236,6 +237,15 @@ public class FunctionMemoryImpl implements FunctionMemory {
 	 */
 	public Collection getAllFunctions() {
 		return this.functions.values();
+	}
+
+	public Collection getFunctionsOfGroup(String name) {
+		for(FunctionGroup group : functionGroups) {
+			if( group.getName().equalsIgnoreCase(name)) {
+				return group.listFunctions();
+			}
+		}
+		return Collections.emptyList();
 	}
 
 }

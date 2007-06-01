@@ -29,12 +29,15 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import javax.swing.AbstractListModel;
 import javax.swing.JButton;
+import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
+import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
@@ -47,6 +50,8 @@ import org.jamocha.gui.icons.IconLoader;
 import org.jamocha.messagerouter.StringChannel;
 import org.jamocha.parser.ParserFactory;
 import org.jamocha.rete.Function;
+import org.jamocha.rete.FunctionGroup;
+import org.jamocha.rete.functions.FunctionMemory;
 
 /**
  * This Panel shows all functions currently in the Jamocha engine.
@@ -58,13 +63,21 @@ public class FunctionsPanel extends AbstractJamochaPanel implements
 
 	private static final long serialVersionUID = 23;
 
+	private final String SHOW_ALL = "all Functions";
+
 	private JTextArea dumpAreaFunction;
 
 	private JSplitPane pane;
 
+	private JSplitPane listPane;
+
+	private JList functionGroupList;
+
 	private JTable functionsTable;
 
-	private FunctionsTableModel dataModel;
+	private FunctionGroupDataModel funcGroupsDataModel;
+
+	private FunctionsTableModel funcsDataModel;
 
 	private StringChannel editorChannel;
 
@@ -74,8 +87,12 @@ public class FunctionsPanel extends AbstractJamochaPanel implements
 		super(gui);
 		setLayout(new BorderLayout());
 
-		dataModel = new FunctionsTableModel();
-		functionsTable = new JTable(dataModel);
+		funcGroupsDataModel = new FunctionGroupDataModel();
+		functionGroupList = new JList(funcGroupsDataModel);
+		functionGroupList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		functionGroupList.addListSelectionListener(this);
+		funcsDataModel = new FunctionsTableModel();
+		functionsTable = new JTable(funcsDataModel);
 		functionsTable.getTableHeader().addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent e) {
 				TableColumnModel columnModel = functionsTable.getColumnModel();
@@ -85,7 +102,7 @@ public class FunctionsPanel extends AbstractJamochaPanel implements
 				if (e.getClickCount() == 1 && column != -1) {
 					int shiftPressed = e.getModifiers() & InputEvent.SHIFT_MASK;
 					boolean ascending = (shiftPressed == 0);
-					TableModelQuickSort.sort(dataModel, ascending, column);
+					TableModelQuickSort.sort(funcsDataModel, ascending, column);
 				}
 			}
 		});
@@ -98,14 +115,19 @@ public class FunctionsPanel extends AbstractJamochaPanel implements
 				.setToolTipText(
 						"Click to sort ascending. Click while pressing the shift-key down to sort descending");
 		functionsTable.getSelectionModel().addListSelectionListener(this);
+		listPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, new JScrollPane(
+				functionGroupList), new JScrollPane(functionsTable));
+		listPane.setDividerLocation(gui.getPreferences().getInt(
+				"functions.functiongroups_dividerlocation", 200));
+
 		dumpAreaFunction = new JTextArea();
 		dumpAreaFunction.setLineWrap(true);
 		dumpAreaFunction.setWrapStyleWord(true);
 		dumpAreaFunction.setEditable(false);
 		dumpAreaFunction.setFont(new Font("Courier", Font.PLAIN, 12));
 
-		pane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, new JScrollPane(
-				functionsTable), new JScrollPane(dumpAreaFunction));
+		pane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, listPane,
+				new JScrollPane(dumpAreaFunction));
 		add(pane, BorderLayout.CENTER);
 		pane.setDividerLocation(gui.getPreferences().getInt(
 				"functions.dividerlocation", 300));
@@ -118,58 +140,75 @@ public class FunctionsPanel extends AbstractJamochaPanel implements
 		buttonPanel.add(reloadButton);
 		add(buttonPanel, BorderLayout.PAGE_END);
 
-		initFunctionsList();
+		initFunctionGroupsList();
+		initFunctionsList(null);
 	}
 
 	@SuppressWarnings("unchecked")
-	private void initFunctionsList() {
-		Collection c = gui.getEngine().getFunctionMemory().getAllFunctions();
-		Function[] func = (Function[]) c.toArray(new Function[0]);
-		List<Function> funcs = new ArrayList<Function>();
-		boolean larger = false;
-		funcs.add(0, func[0]);
-		for (int idx = 1; idx <= func.length - 1; idx++) {
-			int bound = funcs.size();
-			larger = true;
-			int cmpvalue = 0;
-			if (func[idx].getName() != null) {
-				for (int indx = 0; indx < bound; indx++) {
-					try {
-						cmpvalue = func[idx].getName().compareTo(
-								funcs.get(indx).getName());
-					} catch (NullPointerException e) {
-						e.printStackTrace();
-						System.out.println(func[idx].getName());
-					}
-					if (cmpvalue < 0) {
-						funcs.add(indx, func[idx]);
-						indx = bound;
-						larger = false;
-					} else if (cmpvalue == 0) {
-						indx = bound;
-						larger = false;
-					}
-				}
-				if (larger) {
-					funcs.add(func[idx]);
+	private void initFunctionGroupsList() {
+		List<FunctionGroup> funcGroups = gui.getEngine().getFunctionMemory()
+				.getFunctionGroups();
+		int n = funcGroups.size() - 1;
+		boolean swap;
+		do {
+			swap = false;
+			for (int i = 0; i < n; ++i) {
+				if (funcGroups.get(i).getName().compareToIgnoreCase(
+						funcGroups.get(i + 1).getName()) > 0) {
+					FunctionGroup temp = funcGroups.get(i);
+					funcGroups.set(i, funcGroups.get(i + 1));
+					funcGroups.set(i + 1, temp);
+					swap = true;
 				}
 			}
+			--n;
+		} while (swap);
+		funcGroups.add(0, new FunctionGroup() {
 
+			private static final long serialVersionUID = 1L;
+
+			public String getName() {
+				return SHOW_ALL;
+			}
+
+			public List listFunctions() {
+				return null;
+			}
+
+			public void loadFunctions(FunctionMemory functionMem) {
+			}
+		});
+		funcGroupsDataModel.setFunctionGroups(funcGroups);
+	}
+
+	@SuppressWarnings("unchecked")
+	private void initFunctionsList(String funcGroupName) {
+		Collection c;
+		if (funcGroupName == null || funcGroupName.equals(SHOW_ALL)) {
+			c = gui.getEngine().getFunctionMemory().getAllFunctions();
+		} else {
+			c = gui.getEngine().getFunctionMemory().getFunctionsOfGroup(
+					funcGroupName);
 		}
-		dataModel.setFunctions(funcs);
+		funcsDataModel.setFunctions(new ArrayList(c));
+
+		TableModelQuickSort.sort(funcsDataModel, true, 0);
 		functionsTable.getColumnModel().getColumn(0).setPreferredWidth(50);
 	}
 
 	public void setFocus() {
 		super.setFocus();
-		initFunctionsList();
+		initFunctionsList(null);
 	}
 
 	public void close() {
-		if (editorChannel != null)
+		if (editorChannel != null) {
 			gui.getEngine().getMessageRouter().closeChannel(editorChannel);
+		}
 		gui.getPreferences().putInt("functions.dividerlocation",
 				pane.getDividerLocation());
+		gui.getPreferences().putInt("functions.functiongroups_dividerlocation",
+				listPane.getDividerLocation());
 	}
 
 	public void settingsChanged() {
@@ -178,8 +217,30 @@ public class FunctionsPanel extends AbstractJamochaPanel implements
 
 	public void actionPerformed(ActionEvent event) {
 		if (event.getSource().equals(reloadButton)) {
-			initFunctionsList();
+			initFunctionGroupsList();
+			initFunctionsList(null);
 		}
+	}
+
+	private final class FunctionGroupDataModel extends AbstractListModel {
+
+		private static final long serialVersionUID = 1L;
+
+		List<FunctionGroup> funcGroups;
+
+		public void setFunctionGroups(List<FunctionGroup> funcGroups) {
+			this.funcGroups = funcGroups;
+			fireContentsChanged(this, 0, funcGroups.size());
+		}
+
+		public Object getElementAt(int index) {
+			return funcGroups.get(index).getName();
+		}
+
+		public int getSize() {
+			return funcGroups.size();
+		}
+
 	}
 
 	private final class FunctionsTableModel extends AbstractTableModel
@@ -243,7 +304,7 @@ public class FunctionsPanel extends AbstractJamochaPanel implements
 			StringBuilder buffer = new StringBuilder();
 			if (functionsTable.getSelectedColumnCount() == 1
 					&& functionsTable.getSelectedRow() > -1) {
-				Function function = (Function) dataModel
+				Function function = (Function) funcsDataModel
 						.getRowAt(functionsTable.getSelectedRow());
 				if (function != null) {
 					buffer.append(ParserFactory.getFormatter(true)
@@ -252,6 +313,9 @@ public class FunctionsPanel extends AbstractJamochaPanel implements
 				}
 			}
 			dumpAreaFunction.setText(buffer.toString());
+			dumpAreaFunction.setCaretPosition(0);
+		} else if (arg0.getSource() == functionGroupList) {
+			initFunctionsList((String) functionGroupList.getSelectedValue());
 		}
 	}
 

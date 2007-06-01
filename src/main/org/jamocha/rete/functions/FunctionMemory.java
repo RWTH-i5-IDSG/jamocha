@@ -34,7 +34,9 @@ public interface FunctionMemory extends Serializable {
 
 	void clear();
 	
-	public void clearBuiltInFunctions() ;
+	public void clearBuiltInFunctions();
+	
+	public Collection getFunctionsOfGroup(String name);
 	
 	public Function findFunction(String name);
 	
