@@ -251,7 +251,7 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 	private synchronized void printPrompt() {
 		outputArea.append(Constants.SHELL_PROMPT);
 		lastPromptIndex = getOffset();
-		outputArea.setCaretPosition(outputArea.getDocument().getLength());
+		scrollToEnd();
 	}
 
 	/**
@@ -579,6 +579,7 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 							history_activeline = "";
 							printMessage("", true);
 							moveCursorToEnd();
+							scrollToEnd();
 							showCursor();
 							startTimer();
 							break;
@@ -639,6 +640,7 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 								// simple character
 								printMessage(String.valueOf(e.getKeyChar()),
 										false);
+								scrollToEnd();
 							} else {
 								// paste from clipboard
 								if (e.getKeyChar() == 'v'
@@ -674,6 +676,10 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 			}
 		};
 		eventThread.start();
+	}
+
+	protected void scrollToEnd() {
+		outputArea.setCaretPosition(outputArea.getDocument().getLength());
 	}
 
 	/**
