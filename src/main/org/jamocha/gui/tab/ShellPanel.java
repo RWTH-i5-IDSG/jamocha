@@ -251,7 +251,7 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 	private synchronized void printPrompt() {
 		outputArea.append(Constants.SHELL_PROMPT);
 		lastPromptIndex = getOffset();
-		scrollToEnd();
+		scrollToCursor();
 	}
 
 	/**
@@ -545,6 +545,7 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 
 							}
 							moveCursorToEnd();
+							scrollToCursor();
 							showCursor();
 							startTimer();
 							break;
@@ -579,7 +580,7 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 							history_activeline = "";
 							printMessage("", true);
 							moveCursorToEnd();
-							scrollToEnd();
+							scrollToCursor();
 							showCursor();
 							startTimer();
 							break;
@@ -590,6 +591,7 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 							if (cursorPosition > lastPromptIndex) {
 								removeCharLeft();
 							}
+							scrollToCursor();
 							showCursor();
 							startTimer();
 							break;
@@ -600,6 +602,7 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 							if (cursorPosition < getOffset()) {
 								removeCharRight();
 							}
+							scrollToCursor();
 							showCursor();
 							startTimer();
 							break;
@@ -612,6 +615,7 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 								if (cursorPosition < getOffset()) {
 									moveCursorTo(cursorPosition + 1);
 								}
+								scrollToCursor();
 								showCursor();
 								startTimer();
 							}
@@ -625,6 +629,7 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 								if (cursorPosition > lastPromptIndex) {
 									moveCursorTo(cursorPosition - 1);
 								}
+								scrollToCursor();
 								showCursor();
 								startTimer();
 							}
@@ -640,7 +645,7 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 								// simple character
 								printMessage(String.valueOf(e.getKeyChar()),
 										false);
-								scrollToEnd();
+								scrollToCursor();
 							} else {
 								// paste from clipboard
 								if (e.getKeyChar() == 'v'
@@ -650,6 +655,7 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 											.getClipboardContents();
 									if (clipContent != null) {
 										printMessage(clipContent, false);
+										scrollToCursor();
 									}
 								}
 								// copy to clipboard
@@ -678,8 +684,8 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 		eventThread.start();
 	}
 
-	protected void scrollToEnd() {
-		outputArea.setCaretPosition(outputArea.getDocument().getLength());
+	private void scrollToCursor() {
+		outputArea.setCaretPosition(cursorPosition);
 	}
 
 	/**
