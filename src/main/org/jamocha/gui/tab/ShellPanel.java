@@ -24,8 +24,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
@@ -48,7 +46,6 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
-import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 import javax.swing.text.BadLocationException;
 
@@ -67,7 +64,7 @@ import org.jamocha.rete.Constants;
  * @author Alexander Wilden <october.rust@gmx.de>
  */
 public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
-		FocusListener, AdjustmentListener {
+		AdjustmentListener {
 
 	private static final long serialVersionUID = 1777454004380892575L;
 
@@ -190,15 +187,14 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 		outputArea.setEditable(false);
 		outputArea.setLineWrap(true);
 		outputArea.setWrapStyleWord(true);
-		outputArea.addFocusListener(this);
 		// set the font and the colors
 		settingsChanged();
-		this.addFocusListener(this);
 		// create a scroll pane to embedd the output area
 		scrollPane = new JScrollPane(outputArea,
 				JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
 				JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		scrollPane.getVerticalScrollBar().addAdjustmentListener(this);
+		scrollPane.setAutoscrolls(false);
 		// Assemble the GUI
 		setLayout(new BorderLayout());
 		add(scrollPane, BorderLayout.CENTER);
@@ -499,14 +495,14 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 					if (!keyEventQueue.isEmpty()) {
 						KeyEvent e = keyEventQueue.poll();
 						int delta = 1;
+						stopTimer();
+						hideCursor();
 						switch (e.getKeyCode()) {
 						case KeyEvent.VK_DOWN:
 						case KeyEvent.VK_KP_DOWN:
 							delta = -1;
 						case KeyEvent.VK_UP:
 						case KeyEvent.VK_KP_UP:
-							stopTimer();
-							hideCursor();
 							// Here we walk through the history
 							int old_offset = history_offset;
 							history_offset += delta;
@@ -546,12 +542,8 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 							}
 							moveCursorToEnd();
 							scrollToCursor();
-							showCursor();
-							startTimer();
 							break;
 						case KeyEvent.VK_ENTER:
-							stopTimer();
-							hideCursor();
 							moveCursorToEnd();
 
 							if (lastPromptIndex < getOffset()) {
@@ -581,57 +573,39 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 							printMessage("", true);
 							moveCursorToEnd();
 							scrollToCursor();
-							showCursor();
-							startTimer();
 							break;
 						// delete a char on the left side of the cursor
 						case KeyEvent.VK_BACK_SPACE:
-							stopTimer();
-							hideCursor();
 							if (cursorPosition > lastPromptIndex) {
 								removeCharLeft();
 							}
 							scrollToCursor();
-							showCursor();
-							startTimer();
 							break;
 						// delete a char on the right side of the cursor
 						case KeyEvent.VK_DELETE:
-							stopTimer();
-							hideCursor();
 							if (cursorPosition < getOffset()) {
 								removeCharRight();
 							}
 							scrollToCursor();
-							showCursor();
-							startTimer();
 							break;
 						// Moving the Cursor in the current line
 						case KeyEvent.VK_RIGHT:
 						case KeyEvent.VK_KP_RIGHT:
 							if (!e.isShiftDown()) {
-								stopTimer();
-								hideCursor();
 								if (cursorPosition < getOffset()) {
 									moveCursorTo(cursorPosition + 1);
 								}
 								scrollToCursor();
-								showCursor();
-								startTimer();
 							}
 							break;
 
 						case KeyEvent.VK_LEFT:
 						case KeyEvent.VK_KP_LEFT:
 							if (!e.isShiftDown()) {
-								stopTimer();
-								hideCursor();
 								if (cursorPosition > lastPromptIndex) {
 									moveCursorTo(cursorPosition - 1);
 								}
 								scrollToCursor();
-								showCursor();
-								startTimer();
 							}
 							break;
 						// ignore special keys
@@ -670,6 +644,7 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 							break;
 						}
 						// e.consume();
+						showCursor();
 						startTimer();
 					} else {
 						try {
@@ -880,28 +855,6 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 			} else {
 				showCursor();
 			}
-		}
-	}
-
-	public void focusGained(FocusEvent event) {
-		if (event.getSource() == this || event.getSource() == outputArea) {
-			SwingUtilities.invokeLater(new Runnable() {
-				public void run() {
-					showCursor();
-					startTimer();
-				}
-			});
-		}
-	}
-
-	public void focusLost(FocusEvent event) {
-		if (event.getSource() == this || event.getSource() == outputArea) {
-			SwingUtilities.invokeLater(new Runnable() {
-				public void run() {
-					stopTimer();
-					hideCursor();
-				}
-			});
 		}
 	}
 
