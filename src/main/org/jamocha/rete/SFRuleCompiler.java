@@ -71,18 +71,17 @@ import org.jamocha.rule.TestCondition;
  * 
  */
 
-
-//SOLVED simple literal constraints
-//SOLVED boundconstraints in ObjectCondition
-//SOLVED multi-occuring boundconstraints in one ObjectCondition
-//SOLVED negated boundconstraints in ObjectCondition
-//TODO what should happen when a bc only occurs in negated manner?
-//TODO multifield stuff
-//TODO predicate constraints
-//TODO and / or / not CEs
-//TODO forall / exists CEs
-//TODO test CEs
-//TODO finish this todo list ;)
+// SOLVED simple literal constraints
+// SOLVED boundconstraints in ObjectCondition
+// SOLVED multi-occuring boundconstraints in one ObjectCondition
+// SOLVED negated boundconstraints in ObjectCondition
+// TODO what should happen when a bc only occurs in negated manner?
+// TODO multifield stuff
+// TODO predicate constraints
+// TODO and / or / not CEs
+// TODO forall / exists CEs
+// TODO test CEs
+// TODO finish this todo list ;)
 public class SFRuleCompiler implements RuleCompiler {
 
 	private class BindingAddress implements Comparable<BindingAddress> {
@@ -169,11 +168,11 @@ public class SFRuleCompiler implements RuleCompiler {
 
 	private class BindingAddressesTable {
 		private Map<String, Vector<BindingAddress>> row = new HashMap<String, Vector<BindingAddress>>();
-		
+
 		public BindingAddressesTable() {
 			super();
 		}
-		
+
 		public String toString() {
 			StringBuffer result = new StringBuffer();
 			for (String key : row.keySet()) {
@@ -202,7 +201,7 @@ public class SFRuleCompiler implements RuleCompiler {
 			}
 			vector.add(ba);
 		}
-		
+
 		private BindingAddress getPivot(String variable, Vector<BindingAddress> bas) {
 			BindingAddress pivot = null;
 			for (BindingAddress ba : bas) {
@@ -214,7 +213,7 @@ public class SFRuleCompiler implements RuleCompiler {
 			}
 			return pivot;
 		}
-		
+
 		public BindingAddress getPivot(String variable) {
 			return getPivot(variable, getBindingAddresses(variable));
 		}
@@ -223,7 +222,7 @@ public class SFRuleCompiler implements RuleCompiler {
 			Vector<PreBinding> result = new Vector<PreBinding>();
 			for (String variable : row.keySet()) {
 				Vector<BindingAddress> bas = getBindingAddresses(variable);
-				
+
 				BindingAddress pivot = getPivot(variable, bas);
 
 				if (pivot != null)
@@ -361,8 +360,9 @@ public class SFRuleCompiler implements RuleCompiler {
 	 * @return ObjectTypeNode
 	 */
 	public ObjectTypeNode getObjectTypeNode(Template template) {
-		
-		//TODO ObjectTypeNodes shouldnt become generated in deftemplate but only when a rule needs it
+
+		// TODO ObjectTypeNodes shouldnt become generated in deftemplate but
+		// only when a rule needs it
 		return (ObjectTypeNode) root.getObjectTypeNodes().get(template);
 	}
 
@@ -409,13 +409,6 @@ public class SFRuleCompiler implements RuleCompiler {
 					Condition[] conds = rule.getConditions();
 					for (int i = 0; i < conds.length; i++)
 						conds[i].compile(this, rule, i);
-					
-					for (Condition c : conds) {
-						for (Constraint cond : c.getConstraints()) {
-							System.out.println(cond.toString());
-						}
-					}
-					
 
 					compileJoins(rule);
 					// has no conditions:
@@ -453,18 +446,21 @@ public class SFRuleCompiler implements RuleCompiler {
 		TerminalNode terminal = rule.getTerminalNode();
 		Condition[] sortedConds = rule.getConditions().clone();
 		Arrays.sort(sortedConds);
-		
+
 		BaseNode mostBottomNode = null;
 
 		BaseNode fromBottom = null;
 
-        // Note: here is a tip on compiling the joins. Using a row+column approach,
-        // it's important to take into account Not and Exist nodes. This is because
-        // Not and Exist do not propogate any additional facts. In order to build
-        // the joins correctly from the terminal node up, you have to know how
-        // many Not and Exist nodes are above it. Peter 5/16/07
-        
-		//TODO we can do that more efficient with a simple array
+		// Note: here is a tip on compiling the joins. Using a row+column
+		// approach,
+		// it's important to take into account Not and Exist nodes. This is
+		// because
+		// Not and Exist do not propogate any additional facts. In order to
+		// build
+		// the joins correctly from the terminal node up, you have to know how
+		// many Not and Exist nodes are above it. Peter 5/16/07
+
+		// TODO we can do that more efficient with a simple array
 		HashMap<Condition, BaseNode> conditionJoiners = new HashMap<Condition, BaseNode>();
 
 		for (int i = 0; i < sortedConds.length; i++) {
@@ -486,7 +482,7 @@ public class SFRuleCompiler implements RuleCompiler {
 			conditionJoiners.put(c, fromBottom);
 			BaseNode lastNode = c.getLastNode();
 
-			if (lastNode != null){
+			if (lastNode != null) {
 				if (fromBottom != null) {
 					(lastNode).addNode(fromBottom, engine);
 				} else {
@@ -494,9 +490,10 @@ public class SFRuleCompiler implements RuleCompiler {
 				}
 			}
 		}
-		
-		if (mostBottomNode == null) mostBottomNode = sortedConds[0].getLastNode();
-		
+
+		if (mostBottomNode == null)
+			mostBottomNode = sortedConds[0].getLastNode();
+
 		BaseNode ultimateMostBottomNode = compileBindings(rule, sortedConds, conditionJoiners, mostBottomNode);
 		ultimateMostBottomNode.addNode(terminal, engine);
 	}
@@ -507,18 +504,17 @@ public class SFRuleCompiler implements RuleCompiler {
 		/*
 		 * CONDITION1 CONDITION2 CONDITION3 CONDITION4 CONDITION5 VARIABLE1 != != == == !=
 		 * [==] VARIABLE2 == [==] VARIABLE3 != >= [==]
-         * 
-         * Note:  here's some comments and general thoughts. A binding used in a join
-         * should normally use "==" and "!=". if it's some other operator, a TestNode
-         * is used to evaluate it. A condition like predicateConstraint
-         * (age ?age&:(> ?age 20) ) creates a binding and an alpha node that uses 
-         * ">" operator. Peter 5/24/2007
-         * Josef had a good question. The reason most people don't use numeric operators
-         * in JESS and clips for joins isn't technical. A join node can use numeric
-         * operators, it's just that people generally don't with CLIPS language. For example
-         * the pattern would look like this
-         * (age ?age2&:(> ?age2 ?age1) )
-         * Peter 5/26/07
+		 * 
+		 * Note: here's some comments and general thoughts. A binding used in a
+		 * join should normally use "==" and "!=". if it's some other operator,
+		 * a TestNode is used to evaluate it. A condition like
+		 * predicateConstraint (age ?age&:(> ?age 20) ) creates a binding and an
+		 * alpha node that uses ">" operator. Peter 5/24/2007 Josef had a good
+		 * question. The reason most people don't use numeric operators in JESS
+		 * and clips for joins isn't technical. A join node can use numeric
+		 * operators, it's just that people generally don't with CLIPS language.
+		 * For example the pattern would look like this (age ?age2&:(> ?age2
+		 * ?age1) ) Peter 5/26/07
 		 */
 
 		// create the table:
@@ -526,37 +522,39 @@ public class SFRuleCompiler implements RuleCompiler {
 
 		// Iterate of all conditions and constraints
 		for (int i = 0; i < conds.length; i++) {
-			for (Constraint c : conds[i].getConstraints()) {
+			// only for Object Conditions:
+			if (conds[i] instanceof ObjectCondition) {
+				ObjectCondition oc = (ObjectCondition) conds[i];
+				for (Constraint c : oc.getConstraints()) {
 
-				// if we found a BoundConstraint
-				if (c instanceof BoundConstraint){
-					BoundConstraint bc = (BoundConstraint) c;
-					BindingAddress ba;
-					if (bc.getIsObjectBinding()) {
-						ba = new BindingAddress(i, -1, bc.getOperator());
-					} else {
-						ba = new BindingAddress(i, bc.getSlot().getId(), bc.getOperator());
+					// if we found a BoundConstraint
+					if (c instanceof BoundConstraint) {
+						BoundConstraint bc = (BoundConstraint) c;
+						BindingAddress ba;
+						if (bc.getIsObjectBinding()) {
+							ba = new BindingAddress(i, -1, bc.getOperator());
+						} else {
+							ba = new BindingAddress(i, bc.getSlot().getId(), bc.getOperator());
+						}
+						bindingAddressTable.addBindingAddress(ba, bc.getVariableName());
 					}
-					bindingAddressTable.addBindingAddress(ba, bc.getVariableName());
 				}
-				
-				
 			}
 		}
-		
-				
+
 		// create bindings for actions:
 		for (String variable : bindingAddressTable.row.keySet()) {
 			BindingAddress pivot = bindingAddressTable.getPivot(variable);
-			
+
 			Binding b = new Binding();
 			b.leftIndex = pivot.slotIndex;
-			if (b.leftIndex == -1) b.isObjVar=true;
-			b.leftrow = conds.length -1 - pivot.conditionIndex;
+			if (b.leftIndex == -1)
+				b.isObjVar = true;
+			b.leftrow = conds.length - 1 - pivot.conditionIndex;
 			b.varName = variable;
 			rule.addBinding(variable, b);
 		}
-		
+
 		// get prebindings from table:
 		Vector<PreBinding> preBindings = bindingAddressTable.getPreBindings();
 		Iterator<PreBinding> itr = preBindings.iterator();
@@ -571,46 +569,44 @@ public class SFRuleCompiler implements RuleCompiler {
 			// traverse prebindings and try to set them to join nodes:
 			while (act != null && act.getJoinIndex() == i) {
 
-
-				LeftFieldAddress left= new LeftFieldAddress(conds.length - 1 - Math.max(act.leftCondition, act.rightCondition), act.leftSlot );
+				LeftFieldAddress left = new LeftFieldAddress(conds.length - 1 - Math.max(act.leftCondition, act.rightCondition), act.leftSlot);
 				RightFieldAddress right = new RightFieldAddress(act.rightSlot);
 				FieldComparator b = new FieldComparator(act.varName, left, act.operator, right);
 				filters.add(b);
 
 				act = (itr.hasNext()) ? itr.next() : null;
 			}
-			
+
 			// set bindig= null if binds.size=0
 			((BetaFilterNode) node).setFilters((filters.size() != 0) ? filters.toArray(bindArray) : null, engine);
 		}
 		// handle all bindings that couldn't be placed to join node.
 		while (act != null) {
-			
+
 			Condition c = conds[act.leftCondition];
-			if (!(c instanceof ObjectCondition)) continue;
-			ObjectCondition objectC= (ObjectCondition) c;
+			if (!(c instanceof ObjectCondition))
+				continue;
+			ObjectCondition objectC = (ObjectCondition) c;
 			Template template = objectC.getTemplate();
 			ObjectTypeNode otn = root.activateObjectTypeNode(template, engine);
-			
-			
-			
+
 			BetaFilterNode newJoin = new BetaFilterNode(engine.nextNodeId());
-			
+
 			mostBottomNode.addNode(newJoin, engine);
 			otn.addNode(newJoin, engine);
-			
+
 			mostBottomNode = newJoin;
-			
-			JoinFilter filters[] = new JoinFilter [1];
-			LeftFieldAddress left = new LeftFieldAddress(conds.length -1 -act.leftCondition, act.leftSlot);
+
+			JoinFilter filters[] = new JoinFilter[1];
+			LeftFieldAddress left = new LeftFieldAddress(conds.length - 1 - act.leftCondition, act.leftSlot);
 			RightFieldAddress right = new RightFieldAddress(act.rightSlot);
 			filters[0] = new FieldComparator(act.varName, left, act.operator, right);
-			
+
 			newJoin.setFilters(filters, engine);
-			
+
 			act = (itr.hasNext()) ? itr.next() : null;
 		}
-		
+
 		return mostBottomNode;
 
 	}
@@ -637,11 +633,10 @@ public class SFRuleCompiler implements RuleCompiler {
 			BaseNode prev = otn;
 			SlotAlpha current = null;
 
-						
 			if (otn != null) {
 				TemplateSlot slot;
 				for (Constraint constraint : condition.getConstraints()) {
-					
+
 					slot = template.getSlot(constraint.getName());
 
 					constraint.setSlot(slot);
@@ -658,7 +653,7 @@ public class SFRuleCompiler implements RuleCompiler {
 			}
 			return current;
 		} catch (AssertException e1) {
-			engine.writeMessage("ERROR: "+e1.getMessage());
+			engine.writeMessage("ERROR: " + e1.getMessage());
 			return null;
 		}
 	}
