@@ -162,7 +162,7 @@ public class FunctionsDescription implements Function, Serializable {
 		StringBuilder xmlDocument = new StringBuilder();
 		xmlDocument.append(" <?xml version=\"1.0\" encoding=\"utf-8\" ?> ");
 		xmlDocument.append("<functiongroups>");
-		Iterator itGroup=engine.getFunctionMemory().getFunctionGroups().iterator() ;
+		Iterator itGroup=engine.getFunctionMemory().getFunctionGroups().values().iterator();
 		while( itGroup.hasNext() ){
 			XmlTag groupTag = new XmlTag();
 			FunctionGroup group = (FunctionGroup)itGroup.next();

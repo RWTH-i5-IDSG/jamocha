@@ -177,6 +177,15 @@ public class Jamocha {
 	}
 
 	/**
+	 * Returns the underlying Rete engine.
+	 * 
+	 * @return The Rete engin used by this Jamocha instance.
+	 */
+	public Rete getEngine() {
+		return engine;
+	}
+
+	/**
 	 * Starts a single command line shell using <code>System.in</code> and
 	 * <code>System.out</code>.
 	 * 

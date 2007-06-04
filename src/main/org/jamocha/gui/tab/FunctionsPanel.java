@@ -27,6 +27,7 @@ import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
 import javax.swing.AbstractListModel;
@@ -146,8 +147,8 @@ public class FunctionsPanel extends AbstractJamochaPanel implements
 
 	@SuppressWarnings("unchecked")
 	private void initFunctionGroupsList() {
-		List<FunctionGroup> funcGroups = gui.getEngine().getFunctionMemory()
-				.getFunctionGroups();
+		List<FunctionGroup> funcGroups = new LinkedList<FunctionGroup>(gui
+				.getEngine().getFunctionMemory().getFunctionGroups().values());
 		int n = funcGroups.size() - 1;
 		boolean swap;
 		do {
