@@ -3536,7 +3536,7 @@ Data Types:
   jjtree.openNodeScope(jjtn000);
     try {
       jj_consume_token(FUNCTIONGROUP);
-      String();
+      Lexeme();
            jjtree.closeNodeScope(jjtn000, true);
            jjtc000 = false;
            {if (true) return jjtn000;}

@@ -88,12 +88,11 @@ public class FunctionMemoryImpl implements FunctionMemory {
 			this.declareFunctionInDefaultGroup(func);
 		}
 	}
-	
-	public void declareFunction(Function func, String functionGroupName){
+
+	public void declareFunction(Function func, String functionGroupName) {
 		this.functions.put(func.getName(), func);
-		if (func instanceof InterpretedFunction) {
+		if (func instanceof InterpretedFunction)
 			this.declareFunctionInGroup(func, functionGroupName);
-		}
 	}
 
 	/**
@@ -105,7 +104,8 @@ public class FunctionMemoryImpl implements FunctionMemory {
 	 */
 	public void declareFunction(String alias, Function func) {
 		this.functions.put(alias, func);
-		declareFunctionInDefaultGroup(func);
+		if (func instanceof InterpretedFunction)
+			declareFunctionInDefaultGroup(func);
 	}
 
 	/**
@@ -230,24 +230,23 @@ public class FunctionMemoryImpl implements FunctionMemory {
 	}
 
 	protected void declareFunctionInGroup(Function function, String groupName) {
-		FunctionGroup group = this.functionGroups.get(groupName);
-		if (group == null)
-			declareFunctionInDefaultGroup(function);
-		else
-			group.addFunction(function);
+		FunctionGroup group = getOrCreateDefaultFunctionGroup(groupName);
+		group.addFunction(function);
 	}
 
-	protected FunctionGroup getDefaultFunctionGroup() {
-		FunctionGroup group = this.functionGroups.get(UNDEFINED_GROUP_NAME);
+	protected FunctionGroup getOrCreateDefaultFunctionGroup(String groupName) {
+		if (groupName == null || groupName == "")
+			groupName = UNDEFINED_GROUP_NAME;
+		FunctionGroup group = this.functionGroups.get(groupName);
 		if (group == null) {
-			group = new DeffunctionGroup(UNDEFINED_GROUP_NAME);
-			this.functionGroups.put(UNDEFINED_GROUP_NAME, group);
+			group = new DeffunctionGroup(groupName);
+			this.functionGroups.put(groupName, group);
 		}
 		return group;
 	}
 
 	protected void declareFunctionInDefaultGroup(Function function) {
-		FunctionGroup group = getDefaultFunctionGroup();
+		FunctionGroup group = getOrCreateDefaultFunctionGroup(UNDEFINED_GROUP_NAME);
 		if (group != null)
 			group.addFunction(function);
 

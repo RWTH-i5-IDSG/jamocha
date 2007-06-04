@@ -4020,7 +4020,7 @@ SimpleNode FunctionGroup() :
                 try {
 /*@egen*/
 		<FUNCTIONGROUP>
-		String()/*@bgen(jjtree)*/
+		Lexeme()/*@bgen(jjtree)*/
          {
            jjtree.closeNodeScope(jjtn000, true);
            jjtc000 = false;

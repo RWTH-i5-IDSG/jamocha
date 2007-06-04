@@ -2000,7 +2000,7 @@ SimpleNode FunctionGroup() :
 {}	
 {
 		<FUNCTIONGROUP>
-		String()
+		Lexeme()
 	
 	 { return jjtThis; }
 }
