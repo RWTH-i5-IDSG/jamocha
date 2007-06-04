@@ -211,6 +211,8 @@ public interface Rule extends Scope, Complexity {
 	void addAction(Action act);
 
 	Condition[] getConditions();
+	
+	Condition[] getSortedConditions();
 
 	Action[] getActions();
 
@@ -290,4 +292,6 @@ public interface Rule extends Scope, Complexity {
 	 * @param engine
 	 */
 	void resolveTemplates(Rete engine);
+
+
 }

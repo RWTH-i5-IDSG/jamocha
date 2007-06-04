@@ -444,7 +444,7 @@ public class SFRuleCompiler implements RuleCompiler {
 		// take the last node from each condition and connect them by joins
 		// regarding the complexity
 		TerminalNode terminal = rule.getTerminalNode();
-		Condition[] sortedConds = rule.getConditions().clone();
+		Condition[] sortedConds = rule.getSortedConditions().clone();
 		Arrays.sort(sortedConds);
 
 		BaseNode mostBottomNode = null;
