@@ -615,9 +615,6 @@ public class SFRuleCompiler implements RuleCompiler {
 		for (Condition c: rule.getConditions()){
 			if (c instanceof TestCondition){
 				TestCondition tc = (TestCondition) c;
-				tc.g
-				
-				
 			}
 		}
 	}
