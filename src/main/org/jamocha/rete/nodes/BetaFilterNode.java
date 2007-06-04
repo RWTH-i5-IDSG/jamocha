@@ -24,6 +24,8 @@ import org.jamocha.rete.Fact;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.exception.AssertException;
 import org.jamocha.rete.exception.RetractException;
+import org.jamocha.rete.joinfilter.JoinFilter;
+import org.jamocha.rete.joinfilter.JoinFilterException;
 
 /**
  * @author Peter Lin
@@ -42,14 +44,14 @@ import org.jamocha.rete.exception.RetractException;
  * from one fact against the slot of a different fact, the node simply
  * propogates.
  */
-public class BetaBindingNode extends AbstractBeta {
+public class BetaFilterNode extends AbstractBeta {
 
 	private static final long serialVersionUID = 1L;
 
 	/**
 	 * binding for the join
 	 */
-	protected Binding[] binds = null;
+	protected JoinFilter[] filters = null;
 	
 	/**
 	 * The operator for the join by default is equal. The the join doesn't
@@ -59,7 +61,7 @@ public class BetaBindingNode extends AbstractBeta {
 
 
 
-	public BetaBindingNode(int id) {
+	public BetaFilterNode(int id) {
 		super(id);
 	}
 
@@ -69,19 +71,10 @@ public class BetaBindingNode extends AbstractBeta {
 	 * @param binds
 	 * @throws AssertException
 	 */
-	public void setBindings(Binding[] binds, Rete engine) throws AssertException {
-		this.binds = binds;
+	public void setFilters(JoinFilter[] filters, Rete engine) throws AssertException {
+		this.filters = filters;
 		activate(engine);
 	}
-
-
-
-
-
-
-
-
-
 
 	/**
 	 * Method will use the right binding to perform the evaluation of the join.
@@ -93,11 +86,16 @@ public class BetaBindingNode extends AbstractBeta {
 	 * @return
 	 */
 	protected boolean evaluate(FactTuple tuple, Fact right) {
-		if (binds != null) {
+		if (filters != null) {
 			// we iterate over the binds and evaluate the facts
-			for (Binding binding : binds) {
-				if (!binding.evaluate(right, tuple))
-					return false;
+			for (JoinFilter filter : filters) {
+				try {
+					if (!filter.evaluate(right, tuple))
+						return false;
+				} catch (JoinFilterException e) {
+					//TODO make good error output
+					e.printStackTrace();
+				}
 			}
 		}
 		return true;
@@ -122,12 +120,11 @@ public class BetaBindingNode extends AbstractBeta {
 	public String toPPString(){
 		StringBuffer sb = new StringBuffer();
 		sb.append(super.toPPString());
-		sb.append("\nBindings: ");
-		if (binds != null){
-			for(Binding b : binds)
-				sb.append(b.toPPString());
-		} else sb.append("none");
-		sb.append("\n");
+		sb.append("\nFilters: ");
+		if (filters != null){
+			for(JoinFilter f : filters)
+				sb.append(f.toPPString()).append("\n");
+		} else sb.append("none\n");
 		return sb.toString();
 	}
 

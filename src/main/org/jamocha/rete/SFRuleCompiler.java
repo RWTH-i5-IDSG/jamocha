@@ -32,9 +32,13 @@ import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.exception.AssertException;
 import org.jamocha.rete.exception.RetractException;
+import org.jamocha.rete.joinfilter.FieldComparator;
+import org.jamocha.rete.joinfilter.JoinFilter;
+import org.jamocha.rete.joinfilter.LeftFieldAddress;
+import org.jamocha.rete.joinfilter.RightFieldAddress;
 import org.jamocha.rete.nodes.AlphaNode;
 import org.jamocha.rete.nodes.BaseNode;
-import org.jamocha.rete.nodes.BetaBindingNode;
+import org.jamocha.rete.nodes.BetaFilterNode;
 import org.jamocha.rete.nodes.ObjectTypeNode;
 import org.jamocha.rete.nodes.RootNode;
 import org.jamocha.rete.nodes.SlotAlpha;
@@ -471,7 +475,7 @@ public class SFRuleCompiler implements RuleCompiler {
 
 			if (createNewJoin) {
 				// creat join add old bottom node, set join to new bottom node
-				BetaBindingNode betaNode = new BetaBindingNode(engine.nextNodeId());
+				BetaFilterNode betaNode = new BetaFilterNode(engine.nextNodeId());
 				if (fromBottom != null) {
 					betaNode.addNode(fromBottom, engine);
 				} else {
@@ -559,27 +563,25 @@ public class SFRuleCompiler implements RuleCompiler {
 		PreBinding act = null;
 		if (itr.hasNext())
 			act = itr.next();
-		Binding[] bindArray = new Binding[0];
+		JoinFilter[] bindArray = new JoinFilter[0];
 		// traverse conditions and get their join node:
 		for (int i = conds.length - 2; i >= 0; i--) {
-			Vector<Binding> binds = new Vector<Binding>();
+			Vector<JoinFilter> filters = new Vector<JoinFilter>();
 			BaseNode node = conditionJoiners.get(conds[i]);
 			// traverse prebindings and try to set them to join nodes:
 			while (act != null && act.getJoinIndex() == i) {
 
-				Binding b = new Binding(act.operator);
-				b.leftIndex = act.leftSlot;
-				b.leftrow = conds.length - 1 - Math.max(act.leftCondition, act.rightCondition);
-				b.rightIndex = act.rightSlot;
-				b.rightrow = -1;
-				b.varName = act.varName;
-				binds.add(b);
+
+				LeftFieldAddress left= new LeftFieldAddress(conds.length - 1 - Math.max(act.leftCondition, act.rightCondition), act.leftSlot );
+				RightFieldAddress right = new RightFieldAddress(act.rightSlot);
+				FieldComparator b = new FieldComparator(act.varName, left, act.operator, right);
+				filters.add(b);
 
 				act = (itr.hasNext()) ? itr.next() : null;
 			}
 			
 			// set bindig= null if binds.size=0
-			((BetaBindingNode) node).setBindings((binds.size() != 0) ? binds.toArray(bindArray) : null, engine);
+			((BetaFilterNode) node).setFilters((filters.size() != 0) ? filters.toArray(bindArray) : null, engine);
 		}
 		// handle all bindings that couldn't be placed to join node.
 		while (act != null) {
@@ -592,23 +594,19 @@ public class SFRuleCompiler implements RuleCompiler {
 			
 			
 			
-			BetaBindingNode newJoin = new BetaBindingNode(engine.nextNodeId());
+			BetaFilterNode newJoin = new BetaFilterNode(engine.nextNodeId());
 			
 			mostBottomNode.addNode(newJoin, engine);
 			otn.addNode(newJoin, engine);
 			
 			mostBottomNode = newJoin;
 			
-			Binding binds[] = new Binding [1];
-			binds[0] = new Binding();
-			binds[0].leftIndex= act.leftSlot;
-			binds[0].leftrow=   conds.length -1 -act.leftCondition;
-			binds[0].rightIndex=act.rightSlot;
-			binds[0].rightrow=  act.rightCondition;
-			binds[0].operator=  act.operator;
-			binds[0].varName=   act.varName;
+			JoinFilter filters[] = new JoinFilter [1];
+			LeftFieldAddress left = new LeftFieldAddress(conds.length -1 -act.leftCondition, act.leftSlot);
+			RightFieldAddress right = new RightFieldAddress(act.rightSlot);
+			filters[0] = new FieldComparator(act.varName, left, act.operator, right);
 			
-			newJoin.setBindings(binds, engine);
+			newJoin.setFilters(filters, engine);
 			
 			act = (itr.hasNext()) ? itr.next() : null;
 		}
