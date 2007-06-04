@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 Josef Alexander Hahn, Alexander Wilden
+ * Copyright 2007 Josef Alexander Hahn, Alexander Wilden, Uta Christoph
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,7 +39,7 @@ public class Timestamp2Datetime implements Function, Serializable {
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "Returns the DateTime-Object from the given Timestamp.";
+			return "Returns the DateTime-Object of the given Timestamp argument.";
 		}
 
 		public int getParameterCount() {
@@ -47,7 +47,7 @@ public class Timestamp2Datetime implements Function, Serializable {
 		}
 
 		public String getParameterDescription(int parameter) {
-			return "Timestamp to generate the Datetime-Object from.";
+			return "Timestamp to convert into a Datetime-Object.";
 		}
 
 		public String getParameterName(int parameter) {
@@ -70,9 +70,8 @@ public class Timestamp2Datetime implements Function, Serializable {
 			return false;
 		}
 
-		public String getExample() {
-			// TODO Auto-generated method stub
-			return null;
+		public String getExample() { 
+			return "(timestamp2datetime 293196017000)";
 		}
 	}
 

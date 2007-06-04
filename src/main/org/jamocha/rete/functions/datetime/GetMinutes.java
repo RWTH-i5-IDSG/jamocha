@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 Josef Alexander Hahn, Alexander Wilden
+ * Copyright 2007 Josef Alexander Hahn, Alexander Wilden, Uta Christoph
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,7 +39,7 @@ public class GetMinutes implements Function, Serializable {
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "Returns the Minutes-Field from the given DateTime-Object.";
+			return "Returns the minutes-field from the given DateTime argument.";
 		}
 
 		public int getParameterCount() {
@@ -47,7 +47,7 @@ public class GetMinutes implements Function, Serializable {
 		}
 
 		public String getParameterDescription(int parameter) {
-			return "DateTime to return the minutes from.";
+			return "DateTime to get the minutes from.";
 		}
 
 		public String getParameterName(int parameter) {
@@ -71,8 +71,7 @@ public class GetMinutes implements Function, Serializable {
 		}
 
 		public String getExample() {
-			// TODO Auto-generated method stub
-			return null;
+			return "(getminutes 2007-06-04 17:14:06)";
 		}
 	}
 

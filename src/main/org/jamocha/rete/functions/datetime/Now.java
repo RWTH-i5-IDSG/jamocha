@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 Josef Alexander Hahn, Alexander Wilden
+ * Copyright 2007 Josef Alexander Hahn, Alexander Wilden, Uta Christoph
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ public class Now implements Function, Serializable {
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "Returns the DateTime-Object from the actual Date and Time.";
+			return "Returns the DateTime-Object from the current date and time.";
 		}
 
 		public int getParameterCount() {
@@ -69,9 +69,8 @@ public class Now implements Function, Serializable {
 			return false;
 		}
 
-		public String getExample() {
-			// TODO Auto-generated method stub
-			return null;
+		public String getExample() {			
+			return "(now)";
 		}
 	}
 

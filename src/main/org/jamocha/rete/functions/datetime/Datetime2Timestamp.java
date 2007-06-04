@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 Josef Alexander Hahn, Alexander Wilden
+ * Copyright 2007 Josef Alexander Hahn, Alexander Wilden, Uta Christoph
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ public class Datetime2Timestamp implements Function, Serializable {
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "Returns the Timestamp in Milliseconds from the given DateTime-Object.";
+			return "Returns the Timestamp in milliseconds of the given DateTime argument.";
 		}
 
 		public int getParameterCount() {
@@ -46,7 +46,7 @@ public class Datetime2Timestamp implements Function, Serializable {
 		}
 
 		public String getParameterDescription(int parameter) {
-			return "DateTime to translate to milliseconds.";
+			return "DateTime to convert into milliseconds (Timestamp).";
 		}
 
 		public String getParameterName(int parameter) {
@@ -69,9 +69,8 @@ public class Datetime2Timestamp implements Function, Serializable {
 			return false;
 		}
 
-		public String getExample() {
-			// TODO Auto-generated method stub
-			return null;
+		public String getExample() {			
+			return "(datetime2timestamp 2007-06-04 16:01:21)";
 		}
 	}
 

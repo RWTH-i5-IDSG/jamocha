@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 Josef Alexander Hahn, Alexander Wilden
+ * Copyright 2007 Josef Alexander Hahn, Alexander Wilden, Uta Christoph
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ public class Between implements Function, Serializable {
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "Returns TRUE if the given dates are in increasing chronological order.";
+			return "Returns true if the given DateTime arguments are in increasing chronological order.";
 		}
 
 		public int getParameterCount() {
@@ -69,8 +69,7 @@ public class Between implements Function, Serializable {
 		}
 
 		public String getExample() {
-			// TODO Auto-generated method stub
-			return null;
+			return "(between 2007-06-04 16:01:21 2007-07-07 19:07:49)";
 		}
 	}
 

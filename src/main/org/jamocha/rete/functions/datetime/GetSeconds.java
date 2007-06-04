@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2006 Peter Lin
+ * Copyright 2002-2006 Peter Lin, 2007 Uta Christoph
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,7 +39,7 @@ public class GetSeconds implements Function, Serializable {
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "Returns the Seconds-Field from the given DateTime-Object.";
+			return "Returns the seconds-field from the given DateTime argument.";
 		}
 
 		public int getParameterCount() {
@@ -47,7 +47,7 @@ public class GetSeconds implements Function, Serializable {
 		}
 
 		public String getParameterDescription(int parameter) {
-			return "DateTime to return the seconds from.";
+			return "DateTime to get the seconds from.";
 		}
 
 		public String getParameterName(int parameter) {
@@ -71,8 +71,7 @@ public class GetSeconds implements Function, Serializable {
 		}
 
 		public String getExample() {
-			// TODO Auto-generated method stub
-			return null;
+			return "(getseconds 2007-06-04 17:14:06)";
 		}
 	}
 
