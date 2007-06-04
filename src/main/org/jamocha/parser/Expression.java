@@ -43,11 +43,8 @@ public interface Expression {
 	 * Returns the String which defines this expression (e.g."(+ 1 2)" or "?x"
 	 * or "153").
 	 * 
-	 * @deprecated Use the {@link org.jamocha.parser.ParserFactory#getFormatter()} instead.
-	 * 
 	 * @return String definition of this expression.
 	 */
-	@Deprecated
 	String getExpressionString();
 
 }

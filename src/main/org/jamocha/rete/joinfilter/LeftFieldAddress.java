@@ -1,5 +1,6 @@
 package org.jamocha.rete.joinfilter;
 
+
 public class LeftFieldAddress extends FieldAddress {
 	protected int slotIndex;
 	protected int rowIndex;
@@ -37,4 +38,6 @@ public class LeftFieldAddress extends FieldAddress {
 		}
 		return result.toString();
 	}
+
+
 }

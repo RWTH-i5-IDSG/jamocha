@@ -32,4 +32,5 @@ public interface Parameter extends Expression {
      * @return
      */
     boolean isObjectBinding();
+
 }
