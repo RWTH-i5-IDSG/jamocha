@@ -94,6 +94,7 @@ public class FunctionsPanel extends AbstractJamochaPanel implements
 		functionGroupList.addListSelectionListener(this);
 		funcsDataModel = new FunctionsTableModel();
 		functionsTable = new JTable(funcsDataModel);
+		functionsTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		functionsTable.getTableHeader().addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent e) {
 				TableColumnModel columnModel = functionsTable.getColumnModel();

@@ -45,13 +45,9 @@ public class IOFunctions implements FunctionGroup, Serializable {
 		functionMem.declareFunction(batch);
 		funcs.add(batch);
 		
-//		LoadFacts loadFacts = new LoadFacts();
-//		functionMem.declareFunction(loadFacts);
-//		funcs.add(loadFacts);
-
-		// will be reimplented based on SFP
-		// for compatibility reasons we use batch so far
-		functionMem.declareFunction("load-facts", batch );
+		LoadFacts loadFacts = new LoadFacts();
+		functionMem.declareFunction(loadFacts);
+		funcs.add(loadFacts);
 
 		Printout printout = new Printout();
 		functionMem.declareFunction(printout);
