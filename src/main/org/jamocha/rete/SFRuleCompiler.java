@@ -444,7 +444,7 @@ public class SFRuleCompiler implements RuleCompiler {
 		// take the last node from each condition and connect them by joins
 		// regarding the complexity
 		TerminalNode terminal = rule.getTerminalNode();
-		Condition[] sortedConds = rule.getSortedConditions().clone();
+		ObjectCondition[] sortedConds = rule.getObjectConditions().clone();
 		Arrays.sort(sortedConds);
 
 		BaseNode mostBottomNode = null;
@@ -464,7 +464,7 @@ public class SFRuleCompiler implements RuleCompiler {
 		HashMap<Condition, BaseNode> conditionJoiners = new HashMap<Condition, BaseNode>();
 
 		for (int i = 0; i < sortedConds.length; i++) {
-			Condition c = sortedConds[i];
+			ObjectCondition c = sortedConds[i];
 			// c now is the next condition with the lowest complexity
 			// now, check whether we have to create a new join
 			boolean createNewJoin = (i < sortedConds.length - 1);

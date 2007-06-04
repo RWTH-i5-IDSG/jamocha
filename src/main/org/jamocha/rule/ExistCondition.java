@@ -20,8 +20,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.jamocha.rete.nodes.BaseNode;
 import org.jamocha.rete.SFRuleCompiler;
+import org.jamocha.rete.nodes.BaseNode;
 
 /**
  * @author Peter Lin
@@ -88,17 +88,6 @@ public class ExistCondition extends AbstractCondition {
 
 	public boolean hasBindings() {
 		return false;
-	}
-
-	public BaseNode getLastNode() {
-		BaseNode base = null;
-		if (this.isFirstCE) {
-			base =  this.nodes.get(this.nodes.size() - 1);
-		} else {
-			Condition c = (Condition) nestedCE.get(nestedCE.size() - 1);
-			base = c.getLastNode();
-		}
-		return base;
 	}
 
 	public BaseNode getFirstNode() {

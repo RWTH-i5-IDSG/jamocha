@@ -212,7 +212,7 @@ public interface Rule extends Scope, Complexity {
 
 	Condition[] getConditions();
 	
-	Condition[] getSortedConditions();
+	ObjectCondition[] getObjectConditions();
 
 	Action[] getActions();
 

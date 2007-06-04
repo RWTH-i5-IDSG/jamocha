@@ -19,8 +19,6 @@ package org.jamocha.rule;
 import java.io.Serializable;
 import java.util.List;
 
-import org.jamocha.rete.nodes.BaseNode;
-
 /**
  * @author Peter Lin
  * 
@@ -39,42 +37,12 @@ public interface Condition extends Serializable, Complexity, Compileable, Compar
 	boolean compare(Complexity cond);
 
 	/**
-	 * Get the nodes associated with the condition. In the case of
-	 * TestConditions, it should only be 1 node.
-	 * 
-	 * @return
-	 */
-	List getNodes();
-
-	/**
-	 * When the rule is compiled, we add the node to the condition, so that we
-	 * can print out the matches for a given rule.
-	 * 
-	 * @param node
-	 */
-	void addNode(BaseNode node);
-
-	/**
 	 * It's convienant to have a method which rule compilers can call to find
 	 * out if a condition has bindings.
 	 * 
 	 * @return
 	 */
 	boolean hasBindings();
-
-	/**
-	 * Get the last node in the Condition
-	 * 
-	 * @return
-	 */
-	BaseNode getLastNode();
-	
-	/**
-	 * Get the first node in the Condition
-	 * 
-	 * @return
-	 */
-	BaseNode getFirstNode();
 
 	/**
 	 * convienance method for getting the bindings

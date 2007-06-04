@@ -21,12 +21,11 @@ import java.util.List;
 
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.rete.nodes.AlphaNode;
-import org.jamocha.rete.nodes.BaseNode;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.SFRuleCompiler;
 import org.jamocha.rete.configurations.Signature;
+import org.jamocha.rete.nodes.BaseNode;
 
 /**
  * @author Peter Lin
@@ -39,8 +38,6 @@ public class TestCondition extends AbstractCondition {
 	private static final long serialVersionUID = 1L;
 
 	protected Signature func = null;
-
-	protected AlphaNode node = null;
 
 	protected ArrayList binds = new ArrayList();
 
@@ -76,41 +73,6 @@ public class TestCondition extends AbstractCondition {
 		return false;
 	}
 
-	public void setTestNode(AlphaNode node) {
-		this.node = node;
-	}
-
-	public AlphaNode getTestNode() {
-		return this.node;
-	}
-
-	/**
-	 * the current implementation creates a new ArrayList, adds the TestNode to
-	 * it and returns the list.
-	 */
-	public List getNodes() {
-		List<BaseNode> n = new ArrayList<BaseNode>();
-		n.add(node);
-		return n;
-	}
-
-	/**
-	 * The current implementation checks to make sure the node is a TestNode. If
-	 * it is, it will set the node. If not, it will ignore it.
-	 */
-	public void addNode(BaseNode node) {
-		if (node instanceof AlphaNode) {
-			this.node = (AlphaNode) node;
-		}
-	}
-
-	public BaseNode getLastNode() {
-		return this.node;
-	}
-	
-	public BaseNode getFirstNode() {
-		return this.node;
-	}
 
 	/**
 	 * the implementation will look at the parameters for the function and see
@@ -158,7 +120,6 @@ public class TestCondition extends AbstractCondition {
 	}
 
 	public void clear() {
-		node = null;
 	}
 	
 	public BaseNode compile(SFRuleCompiler compiler, Rule rule, int conditionIndex) {
@@ -168,4 +129,5 @@ public class TestCondition extends AbstractCondition {
 	public List<Constraint> getConstraints() {
 		return null;
 	}
+
 }

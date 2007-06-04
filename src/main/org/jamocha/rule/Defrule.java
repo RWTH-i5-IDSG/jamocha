@@ -336,14 +336,14 @@ public class Defrule implements Rule {
 		return cond;
 	}
 	
-	public Condition[] getSortedConditions() {
+	public ObjectCondition[] getObjectConditions() {
 		ArrayList<ObjectCondition> ocs = new ArrayList<ObjectCondition>();
 		for (Condition c: this.conditions){
 			if (c instanceof ObjectCondition){
 				ocs.add((ObjectCondition)c);
 			}
 		}
-		Condition[] cond = new Condition[ocs.size()];
+		ObjectCondition[] cond = new ObjectCondition[ocs.size()];
 		ocs.toArray(cond);
 		return cond;
 	}
