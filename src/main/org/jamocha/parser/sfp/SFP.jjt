@@ -158,6 +158,7 @@ TOKEN :
 | < DEFTEMPLATE_CONSTRUCT: "deftemplate_construct" >
 | < DEFRULE: "defrule" >
 | < DEFFUNCTION: "deffunction" >
+| <FUNCTIONGROUP: "functiongroup">
 | < DEFGENERIC: "defgeneric" >
 | < DEFMODULE: "defmodule" >
 | < DEFGLOBAL: "defglobal" >
@@ -623,7 +624,6 @@ SimpleNode ConstructDescription() :
     
     { return jjtThis; }
 }
-
 
 
 /**
@@ -1958,7 +1958,7 @@ SimpleNode GlobalAssignment()  :
 **/
 
 //<deffunction-construct> 
-//	::= (deffunction <name> [<comment>] (<regular-parameter>* [<wildcard-parameter>]) <expression>*)
+//	::= (deffunction <name> [(functiongroup <groupname>)] [<comment>] (<regular-parameter>* [<wildcard-parameter>]) <expression>*)
 
 SimpleNode DeffunctionConstruct()  :
 {}
@@ -1969,21 +1969,41 @@ SimpleNode DeffunctionConstruct()  :
         [ 
          	ConstructDescription()
         ]
-        <LBRACE> 
+        (<LBRACE>
+        [ 
+         	FunctionGroup()
+         	<RBRACE>
+         	<LBRACE>
+        ]
+
         	(
         		SingleVariable()
         	)*
         	[
              		MultiVariable()
-             	] 
+            ] 
         <RBRACE>
+        )
         ActionList()
+        
     ) 
     
     { return jjtThis; }
 }
 
 
+/**
+*		Function Group
+**/
+
+SimpleNode FunctionGroup() :
+{}	
+{
+		<FUNCTIONGROUP>
+		String()
+	
+	 { return jjtThis; }
+}
 
 /**
 *		Defgeneric Construct 

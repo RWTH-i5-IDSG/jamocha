@@ -23,7 +23,7 @@ public class DeffunctionConfiguration extends AbstractConfiguration  {
 	
 	private ExpressionSequence actions = null;
 	
-	 
+	private String functionGroup = null; 
 	
 	/* (non-Javadoc)
 	 * @see org.jamocha.rete.Parameter#isObjectBinding()
@@ -79,6 +79,18 @@ public class DeffunctionConfiguration extends AbstractConfiguration  {
 
 	public void setParams(Parameter[] params) {
 		this.params = params;
+	}
+
+	public boolean definesFunctionGroup() {
+		return this.functionGroup != null;
+	}
+
+	public String getFunctionGroup() {
+		return functionGroup;
+	}
+
+	public void setFunctionGroup(String functionGroup) {
+		this.functionGroup = functionGroup;
 	}
 
 }

@@ -88,6 +88,13 @@ public class FunctionMemoryImpl implements FunctionMemory {
 			this.declareFunctionInDefaultGroup(func);
 		}
 	}
+	
+	public void declareFunction(Function func, String functionGroupName){
+		this.functions.put(func.getName(), func);
+		if (func instanceof InterpretedFunction) {
+			this.declareFunctionInGroup(func, functionGroupName);
+		}
+	}
 
 	/**
 	 * In some cases, we may want to declare a function under an alias. For

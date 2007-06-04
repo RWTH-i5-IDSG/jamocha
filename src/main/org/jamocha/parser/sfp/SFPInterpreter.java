@@ -920,9 +920,19 @@ public class SFPInterpreter implements SFPParserVisitor {
 				.jjtAccept(this, data);
 
 		// get the template description
-		JamochaValue functionDescription = JamochaValue.newString("");
+		JamochaValue functionGroup = null;
 
 		Node n = node.jjtGetChild(j);
+
+		if (n != null && n instanceof SFPFunctionGroup) {
+			j++;
+			functionGroup = (JamochaValue) n.jjtAccept(this, data);
+		}
+		
+		// get the template description
+		JamochaValue functionDescription = JamochaValue.newString("");
+
+		n = node.jjtGetChild(j);
 
 		if (n != null && n instanceof SFPConstructDescription) {
 			j++;
@@ -947,6 +957,10 @@ public class SFPInterpreter implements SFPParserVisitor {
 
 		// set the function's name
 		dc.setFunctionName(functionName.toString());
+		
+		// set the function's group name
+		if (functionGroup != null)
+			dc.setFunctionGroup(functionGroup.toString());
 
 		// set the function's description
 		dc.setFunctionDescription(functionDescription.toString());
@@ -966,6 +980,10 @@ public class SFPInterpreter implements SFPParserVisitor {
 		functionParam.setParameters(dcs);
 
 		return functionParam;
+	}
+	
+	public Object visit(SFPFunctionGroup node, Object data) {
+		return node.jjtGetChild(0).jjtAccept(this, data);
 	}
 
 	public Object visit(SFPDefgenericConstruct node, Object data) {
@@ -1114,5 +1132,4 @@ public class SFPInterpreter implements SFPParserVisitor {
 		// TODO: check is this correct to match number to double?
 		return JamochaType.DOUBLE;
 	}
-
 }

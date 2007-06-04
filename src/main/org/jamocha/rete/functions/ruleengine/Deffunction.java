@@ -128,8 +128,7 @@ public class Deffunction implements Function {
 		return NAME;
 	}
 
-	public JamochaValue executeFunction(Rete engine, Parameter[] params)
-			throws EvaluationException {
+	public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
 		JamochaValue result = JamochaValue.FALSE;
 
 		String functionName = null;
@@ -144,33 +143,18 @@ public class Deffunction implements Function {
 			description = dc.getFunctionDescription();
 			functionParameters = dc.getParams();
 			functionList = dc.getActions();
-		} else {
 
-			JamochaValue firstParam = params[0].getValue(engine);
-			String name = firstParam.getIdentifierValue();
-			if (engine.getFunctionMemory().findFunction(name) == null) {
-				int paramIndex = 1;
-				description = "";
-				JamochaValue secondParam = params[1].getValue(engine);
-				// If the second parameter is a String we have a description for
-				// the
-				// Deffunction.
-				if (secondParam.getType().equals(JamochaType.STRING)) {
-					paramIndex++;
-					description = secondParam.getStringValue();
-					secondParam = params[paramIndex].getValue(engine);
-				}
-				functionParameters = (Parameter[]) secondParam.getObjectValue();
-				paramIndex++;
-				if (params[paramIndex] instanceof ExpressionSequence) {
-					functionList = (ExpressionSequence) params[2];
-				}
+			InterpretedFunction intrfunc = new InterpretedFunction(functionName, description, functionParameters, functionList);
+			if (dc.definesFunctionGroup()) {
+				engine.getFunctionMemory().declareFunction(intrfunc, dc.getFunctionGroup());
+			} else {
+				engine.getFunctionMemory().declareFunction(intrfunc);
 			}
+			result = JamochaValue.TRUE;
+
+		} else {
+			throw new EvaluationException();
 		}
-		InterpretedFunction intrfunc = new InterpretedFunction(functionName,
-				description, functionParameters, functionList);
-		engine.getFunctionMemory().declareFunction(intrfunc);
-		result = JamochaValue.TRUE;
 
 		return result;
 	}
