@@ -31,9 +31,16 @@ public class DeffunctionGroup implements FunctionGroup {
 	private static final long serialVersionUID = 1L;
 	
 	private List<Function> funcs = new ArrayList<Function>();
+	
+	private String name = "Deffunctions";
 
-    public String getName() {
-        return "Deffunctions";
+	public DeffunctionGroup(String name) {
+		super();
+		this.name = name;
+	}
+
+	public String getName() {
+        return this.name;
     }
 
     public List listFunctions() {

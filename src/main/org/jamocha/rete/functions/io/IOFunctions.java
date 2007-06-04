@@ -61,5 +61,9 @@ public class IOFunctions implements FunctionGroup, Serializable {
 	public List listFunctions() {
 		return funcs;
 	}
+	
+	public void addFunction(Function function) {
+		this.funcs.add(function);
+	}
 
 }

@@ -178,6 +178,9 @@ public class FunctionsPanel extends AbstractJamochaPanel implements
 
 			public void loadFunctions(FunctionMemory functionMem) {
 			}
+
+			public void addFunction(Function function) {
+			}
 		});
 		funcGroupsDataModel.setFunctionGroups(funcGroups);
 	}

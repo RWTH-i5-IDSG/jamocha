@@ -54,7 +54,7 @@ public class FunctionMemoryImpl implements FunctionMemory {
 	 */
 	protected Map<String, Function> functions = new HashMap<String, Function>();
 
-	private DeffunctionGroup deffunctions = new DeffunctionGroup();
+	protected final String UNDEFINED_GROUP_NAME = "UNDEFINED";
 
 	private Map<String, FunctionGroup> functionGroups = new HashMap<String, FunctionGroup>();
 
@@ -85,7 +85,7 @@ public class FunctionMemoryImpl implements FunctionMemory {
 	public void declareFunction(Function func) {
 		this.functions.put(func.getName(), func);
 		if (func instanceof InterpretedFunction) {
-			this.deffunctions.addFunction(func);
+			this.declareFunctionInDefaultGroup(func);
 		}
 	}
 
@@ -98,6 +98,7 @@ public class FunctionMemoryImpl implements FunctionMemory {
 	 */
 	public void declareFunction(String alias, Function func) {
 		this.functions.put(alias, func);
+		declareFunctionInDefaultGroup(func);
 	}
 
 	/**
@@ -221,4 +222,27 @@ public class FunctionMemoryImpl implements FunctionMemory {
 		return Collections.emptyList();
 	}
 
+	protected void declareFunctionInGroup(Function function, String groupName) {
+		FunctionGroup group = this.functionGroups.get(groupName);
+		if (group == null)
+			declareFunctionInDefaultGroup(function);
+		else
+			group.addFunction(function);
+	}
+
+	protected FunctionGroup getDefaultFunctionGroup() {
+		FunctionGroup group = this.functionGroups.get(UNDEFINED_GROUP_NAME);
+		if (group == null) {
+			group = new DeffunctionGroup(UNDEFINED_GROUP_NAME);
+			this.functionGroups.put(UNDEFINED_GROUP_NAME, group);
+		}
+		return group;
+	}
+
+	protected void declareFunctionInDefaultGroup(Function function) {
+		FunctionGroup group = getDefaultFunctionGroup();
+		if (group != null)
+			group.addFunction(function);
+
+	}
 }

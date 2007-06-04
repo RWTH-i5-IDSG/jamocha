@@ -43,4 +43,6 @@ public interface FunctionGroup extends Serializable {
 	 * @return
 	 */
 	List listFunctions();
+
+	void addFunction(Function function);
 }

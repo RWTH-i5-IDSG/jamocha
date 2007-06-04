@@ -86,5 +86,9 @@ public class DateTimeFunctions implements FunctionGroup {
 	public List listFunctions() {
 		return funcs;
 	}
+	
+	public void addFunction(Function function) {
+		this.funcs.add(function);
+	}
 
 }

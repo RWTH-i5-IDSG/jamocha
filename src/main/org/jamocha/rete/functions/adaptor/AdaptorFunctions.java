@@ -61,4 +61,8 @@ public class AdaptorFunctions implements FunctionGroup {
 		return funcs;
 	}
 
+	public void addFunction(Function function) {
+		this.funcs.add(function);
+	}
+
 }
