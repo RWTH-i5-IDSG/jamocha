@@ -2,10 +2,12 @@ package org.jamocha.rete.joinfilter;
 
 import java.util.List;
 
+import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Fact;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
+import org.jamocha.rete.Rete;
 import org.jamocha.rete.nodes.FactTuple;
 import org.jamocha.rule.BoundConstraint;
 
@@ -13,9 +15,11 @@ public class FunctionEvaluator implements JoinFilter {
 
 	protected Parameter[] parameters;
 	protected Function function;
-
-	private FunctionEvaluator(Function function) {
+	protected Rete engine;
+	
+	private FunctionEvaluator(Rete engine, Function function) {
 		this.function = function;
+		this.engine = engine;
 	}
 	
 	private void sanityCheckParameterTypes() throws JoinFilterException {
@@ -37,15 +41,15 @@ public class FunctionEvaluator implements JoinFilter {
 		}
 	}
 	
-	public FunctionEvaluator(Function function, List<Parameter> parameters) throws JoinFilterException {
-		this(function);
+	public FunctionEvaluator(Rete engine, Function function, List<Parameter> parameters) throws JoinFilterException {
+		this(engine,function);
 		Parameter[] params = new Parameter[0];
 		this.parameters = parameters.toArray(params);
 		sanityCheckParameterTypes();
 	}
 	
-	public FunctionEvaluator(Function function, Parameter[] parameters) throws JoinFilterException {
-		this(function);
+	public FunctionEvaluator(Rete engine, Function function, Parameter[] parameters) throws JoinFilterException {
+		this(engine,function);
 		this.parameters = parameters;
 		sanityCheckParameterTypes();
 	}
@@ -56,10 +60,33 @@ public class FunctionEvaluator implements JoinFilter {
 		System.arraycopy(parameters, 0, callParams, 0, parameters.length);
 		
 		for (int i = 0 ; i < callParams.length ; i++) {
-			//Parameter p = callParams[]
+			Parameter p = callParams[i];
+			if (p instanceof RightFieldAddress) {
+				RightFieldAddress addr = (RightFieldAddress) p;
+				JamochaValue val;
+				if (addr.refersWholeFact()) {
+					val = right.getSlotValue(-1);
+				} else {
+					val = right.getSlotValue(addr.getSlotIndex());	
+				}
+				callParams[i] = val;
+			} else if (p instanceof LeftFieldAddress){
+				LeftFieldAddress addr = (LeftFieldAddress) p;
+				JamochaValue val;
+				if (addr.refersWholeFact()) {
+					val = left.getFacts()[addr.getRowIndex()].getSlotValue(-1);
+				} else {
+					val = left.getFacts()[addr.getRowIndex()].getSlotValue(addr.getSlotIndex());	
+				}
+				callParams[i] = val;
+			}
+			
 		}
-		
-		return false;
+		try {
+			return function.executeFunction(engine, callParams).getBooleanValue();
+		} catch (EvaluationException e) {
+			return false;
+		}
 	}
 
 	public String toPPString() {
