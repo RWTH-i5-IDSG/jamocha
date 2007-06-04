@@ -16,7 +16,6 @@
  */
 package org.jamocha.rete.functions;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -40,25 +39,25 @@ import org.jamocha.rete.functions.strings.StringFunctions;
 /**
  * @author Sebastian Reinartz
  * 
- * FunctionMemoryImpl is a basic implementation of the FunctionMemory interface. 
+ * FunctionMemoryImpl is a basic implementation of the FunctionMemory interface.
  * Holds Maps of functions and function groups.
  */
 public class FunctionMemoryImpl implements FunctionMemory {
 
 	private static final long serialVersionUID = 1L;
-	
+
 	protected Rete engine = null;
-	
+
 	/**
 	 * this is the HashMap for all functions. This means all function names are
 	 * unique.
 	 */
-	protected Map<String,Function> functions = new HashMap<String, Function>();
-	
+	protected Map<String, Function> functions = new HashMap<String, Function>();
+
 	private DeffunctionGroup deffunctions = new DeffunctionGroup();
-	
-	private ArrayList<FunctionGroup>  functionGroups = new ArrayList<FunctionGroup>();
-	
+
+	private Map<String, FunctionGroup> functionGroups = new HashMap<String, FunctionGroup>();
+
 	public FunctionMemoryImpl(Rete engine) {
 		super();
 		this.engine = engine;
@@ -67,17 +66,16 @@ public class FunctionMemoryImpl implements FunctionMemory {
 	public void init() {
 		loadBuiltInFunctions();
 	}
-	
+
 	public void clear() {
 		this.clearBuiltInFunctions();
 		this.loadBuiltInFunctions();
 	}
-	
+
 	public Function findFunction(String name) {
 		return (Function) this.functions.get(name);
 	}
-	
-	
+
 	/**
 	 * To explicitly deploy a custom function, call the method with an instance
 	 * of the function
@@ -101,7 +99,7 @@ public class FunctionMemoryImpl implements FunctionMemory {
 	public void declareFunction(String alias, Function func) {
 		this.functions.put(alias, func);
 	}
-	
+
 	/**
 	 * Method will create an instance of the function and declare it. Once a
 	 * function is declared, it can be used. All custom functions must be
@@ -151,82 +149,59 @@ public class FunctionMemoryImpl implements FunctionMemory {
 	 *            FunctionGroup with the functions to register.
 	 */
 	public void declareFunctionGroup(FunctionGroup functionGroup) {
+		functionGroups.put(functionGroup.getName(), functionGroup);
 		functionGroup.loadFunctions(this);
 	}
-	
+
 	protected void loadBuiltInFunctions() {
 		// load the IO functions
-		IOFunctions iof = new IOFunctions();
-		functionGroups.add(iof);
-		iof.loadFunctions(this);
+		declareFunctionGroup(new IOFunctions());
 
 		// load the math functions
-		MathFunctions mathf = new MathFunctions();
-		functionGroups.add(mathf);
-		mathf.loadFunctions(this);
+		declareFunctionGroup(new MathFunctions());
 
-		// load the math functions
-		CompareFunctions comparef = new CompareFunctions();
-		functionGroups.add(comparef);
-		comparef.loadFunctions(this);
+		// load the Compare functions
+		declareFunctionGroup(new CompareFunctions());
 
 		// load the date/time functions
-		DateTimeFunctions datetimef = new DateTimeFunctions();
-		functionGroups.add(datetimef);
-		datetimef.loadFunctions(this);
+		declareFunctionGroup(new DateTimeFunctions());
 
 		// load the list functions
-		ListFunctions listf = new ListFunctions();
-		functionGroups.add(listf);
-		listf.loadFunctions(this);
+		declareFunctionGroup(new ListFunctions());
 
 		// load the database functions
-		AdaptorFunctions databasef = new AdaptorFunctions();
-		functionGroups.add(databasef);
-		databasef.loadFunctions(this);
+		declareFunctionGroup(new AdaptorFunctions());
 
 		// load the engine relate functions like declaring rules, templates, etc
-		RuleEngineFunctions rulefs = new RuleEngineFunctions();
-		functionGroups.add(rulefs);
-		rulefs.loadFunctions(this);
+		declareFunctionGroup(new RuleEngineFunctions());
 
 		// load string functions
-		StringFunctions strfs = new StringFunctions();
-		functionGroups.add(strfs);
-		strfs.loadFunctions(this);
+		declareFunctionGroup(new StringFunctions());
 
 		// load java functions
-		JavaFunctions javafs = new JavaFunctions();
-		functionGroups.add(javafs);
-		javafs.loadFunctions(this);
+		declareFunctionGroup(new JavaFunctions());
 
 		// load java functions
-		HelpFunctions helpfs = new HelpFunctions();
-		functionGroups.add(helpfs);
-		helpfs.loadFunctions(this);
+		declareFunctionGroup(new HelpFunctions());
 
 		// Other builtin constructs
 		declareFunction(new If());
 		declareFunction(new LoopForCount());
 		declareFunction(new Return());
 		declareFunction(new While());
-
-		// add the group for deffunctions
-		functionGroups.add(deffunctions);
 	}
 
 	public void clearBuiltInFunctions() {
 		this.functions.clear();
 	}
-	
-	
+
 	/**
 	 * Returns a list of the function groups. If a function is not in a group,
 	 * get the complete list of functions using getAllFunctions instead.
 	 * 
 	 * @return
 	 */
-	public List getFunctionGroups() {
+	public Map getFunctionGroups() {
 		return this.functionGroups;
 	}
 
@@ -239,12 +214,10 @@ public class FunctionMemoryImpl implements FunctionMemory {
 		return this.functions.values();
 	}
 
-	public Collection getFunctionsOfGroup(String name) {
-		for(FunctionGroup group : functionGroups) {
-			if( group.getName().equalsIgnoreCase(name)) {
-				return group.listFunctions();
-			}
-		}
+	public List getFunctionsOfGroup(String name) {
+		FunctionGroup group = this.functionGroups.get(name);
+		if (group != null)
+			return group.listFunctions();
 		return Collections.emptyList();
 	}
 

@@ -69,10 +69,11 @@
 (defrule wurst-meter "Regel zur Ausgabe der Wurst-LŠnge" 
 	(declare (rule-version "performance version") (salience 101) (auto-focus TRUE))
 	(wurst (gewicht ?x) (name ?y))
+	(wurst (zutaten $?v))
 	(bier (gewicht ?x) (name ?z))
 	(senf (gewicht ?x) (name ?w))
 	=>
-	(printout t "Lebensmittel die zusammenpassen. wurst:" ?y " Bier: " ?z  "Senf: " ?w " Gewicht: " ?x)
+	(printout t "Lebensmittel die zusammenpassen. wurst:" ?y "zutaten: " $?v " Bier: " ?z  "Senf: " ?w " Gewicht: " ?x)
 )
 
 

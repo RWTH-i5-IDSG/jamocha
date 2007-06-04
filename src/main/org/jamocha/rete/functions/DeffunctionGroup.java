@@ -54,4 +54,5 @@ public class DeffunctionGroup implements FunctionGroup {
     public void addFunction(Function f) {
         this.funcs.add(f);
     }
+   
 }

@@ -18,7 +18,7 @@ package org.jamocha.rete.functions;
 
 import java.io.Serializable;
 import java.util.Collection;
-import java.util.List;
+import java.util.Map;
 
 import org.jamocha.rete.Function;
 import org.jamocha.rete.FunctionGroup;
@@ -50,7 +50,7 @@ public interface FunctionMemory extends Serializable {
 	
 	public void declareFunctionGroup(FunctionGroup functionGroup);
 	
-	public List getFunctionGroups();
+	public Map getFunctionGroups();
 	
 	public Collection getAllFunctions() ;
 }

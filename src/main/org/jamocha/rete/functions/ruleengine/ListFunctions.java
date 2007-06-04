@@ -19,6 +19,7 @@ package org.jamocha.rete.functions.ruleengine;
 import java.io.Serializable;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaType;
@@ -94,7 +95,8 @@ public class ListFunctions implements Function, Serializable {
 
 	public JamochaValue executeFunction(Rete engine, Parameter[] params)
 			throws EvaluationException {
-		List fgroups = engine.getFunctionMemory().getFunctionGroups();
+		Map fgroups = engine.getFunctionMemory().getFunctionGroups();
+		fgroups.
 		Iterator itr = fgroups.iterator();
 		int counter = 0;
 		while (itr.hasNext()) {
