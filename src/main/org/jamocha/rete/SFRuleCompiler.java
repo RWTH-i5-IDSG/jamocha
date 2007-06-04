@@ -610,6 +610,17 @@ public class SFRuleCompiler implements RuleCompiler {
 		return mostBottomNode;
 
 	}
+	
+	protected void compileTestConditions(Rule rule,BindingAddressesTable bindingAddressTable , Map<Condition, BaseNode> conditionJoiners){
+		for (Condition c: rule.getConditions()){
+			if (c instanceof TestCondition){
+				TestCondition tc = (TestCondition) c;
+				tc.g
+				
+				
+			}
+		}
+	}
 
 	/**
 	 * The method compiles an ObjectCondition.
