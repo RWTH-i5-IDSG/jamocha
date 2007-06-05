@@ -45,7 +45,7 @@ public class Tan implements Function, Serializable {
 		}
 
 		public String getParameterDescription(int parameter) {
-			return "an angle, in radians.";
+			return "Angle, in radians.";
 		}
 
 		public String getParameterName(int parameter) {
@@ -69,8 +69,7 @@ public class Tan implements Function, Serializable {
 		}
 
 		public String getExample() {
-			// TODO Auto-generated method stub
-			return null;
+			return "(tan (/ (pi) 2))";
 		}
 	}
 

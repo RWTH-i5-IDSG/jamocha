@@ -38,8 +38,7 @@ public class Subtract implements Function, Serializable {
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "Returns the value of the first argument minus the "
-					+ "sum of all subsequent arguments.";
+			return "Returns the value of the first numeric argument minus the sum of all subsequent numeric arguments. This function can be called with the identifier 'subtract' or '-'";
 		}
 
 		public int getParameterCount() {
@@ -48,9 +47,9 @@ public class Subtract implements Function, Serializable {
 
 		public String getParameterDescription(int parameter) {
 			if (parameter == 0) {
-				return "Value from which all subsequent arguments become subtracted.";
+				return "Numeric value from which to subtract all subsequent arguments.";
 			}
-			return "Number which will be subtracted from the first argument.";
+			return "Numeric value(s) to subtract from the first argument.";
 		}
 
 		public String getParameterName(int parameter) {
@@ -75,7 +74,7 @@ public class Subtract implements Function, Serializable {
 
 		public String getExample() {
 			// TODO Auto-generated method stub
-			return null;
+			return "(subtract 15 4 3 -6)\n(- 15 4 3 -6)";
 		}
 	}
 

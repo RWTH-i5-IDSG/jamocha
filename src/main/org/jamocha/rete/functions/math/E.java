@@ -68,7 +68,7 @@ public class E implements Function, Serializable {
 		}
 
 		public String getExample() {
-			return "(e)";
+			return "(log (e))";
 		}
 	}
 

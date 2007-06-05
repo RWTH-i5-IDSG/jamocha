@@ -45,7 +45,7 @@ public class Oddp implements Function, Serializable {
 		}
 
 		public String getParameterDescription(int parameter) {
-			return "number to test";
+			return "Numeric value to test.";
 		}
 
 		public String getParameterName(int parameter) {
@@ -69,8 +69,7 @@ public class Oddp implements Function, Serializable {
 		}
 
 		public String getExample() {
-			// TODO Auto-generated method stub
-			return null;
+			return "(oddp 77.0)";
 		}
 	}
 

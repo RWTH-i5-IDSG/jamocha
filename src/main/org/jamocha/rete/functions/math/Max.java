@@ -1,5 +1,5 @@
 /*
- * Copyright 2006 Nikolaus Koemm, Christoph Emonds
+ * Copyright 2006 Nikolaus Koemm, Christoph Emonds, 2007 Uta Christoph
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,7 +39,8 @@ public class Max implements Function, Serializable {
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "The max function returns the value of its greatest numeric argument. Each of its arguments should be a numeric expression. When necessary, integers are temporarily converted to floats for comparison. The return value will either be integer or float (depending upon the type of the smallest argument).";
+			return "Returns the value of its greatest numeric argument. Each argument has to be a numeric expression. The return type is either an integer or float depending on the type of the greatest argument."; 
+					//"When necessary, integers are temporarily converted to floats for comparison. ";
 		}
 
 		public int getParameterCount() {
@@ -47,7 +48,7 @@ public class Max implements Function, Serializable {
 		}
 
 		public String getParameterDescription(int parameter) {
-			return "Numbers (at least one) whose maximum will be returned.";
+			return "Numeric values (at least one) to get the maximum from.";
 		}
 
 		public String getParameterName(int parameter) {
@@ -71,8 +72,7 @@ public class Max implements Function, Serializable {
 		}
 
 		public String getExample() {
-			// TODO Auto-generated method stub
-			return null;
+			return "(max 87 -.3 777 445 9023 -75555)";
 		}
 	}
 

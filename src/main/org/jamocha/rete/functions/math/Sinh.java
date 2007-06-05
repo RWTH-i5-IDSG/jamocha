@@ -37,7 +37,7 @@ public class Sinh implements Function, Serializable {
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "Returns the hyperbolic sine of a numeric value. The hyperbolic sine of x is defined to be (e^x - e^(-x))/2 where e is Euler's number.";
+			return "Returns the hyperbolic sine of a numeric argument. The hyperbolic sine of x is defined to be (e^x - e^(-x))/2 where e is Euler's number.";
 		}
 
 		public int getParameterCount() {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2006 Peter Lin
+ * Copyright 2002-2006 Peter Lin, 2007 Uta Christoph
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,7 +43,9 @@ public class Multiply implements Function, Serializable {
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "The * function returns the product of its arguments. Each of its arguments should be a numeric expression. Multiplication is performed using the type of the arguments provided unless mixed mode arguments (long and double) are used. In this case, the function return value and long arguments are converted to doubles after the first double argument has been encountered. This function returns a double if any of its arguments is a double, otherwise it returns an long.";
+			return "Returns the product of its numeric arguments. Each argument has to be a numeric expression. The return type is a double if any of its arguments is a double, otherwise it is a long.";
+			//"Multiplication is performed using the type of the arguments provided unless mixed mode arguments (long and double) are used. In this case, the function return value and long arguments are converted to doubles after the first double argument has been encountered. ";
+			//This function can be called with the identifier 'multipy' or '*'?
 		}
 
 		public int getParameterCount() {
@@ -51,7 +53,7 @@ public class Multiply implements Function, Serializable {
 		}
 
 		public String getParameterDescription(int parameter) {
-			return "Numbers (at least one) whose product will be returned.";
+			return "Numeric values (at least one) to multiply with each other.";
 		}
 
 		public String getParameterName(int parameter) {
@@ -75,8 +77,7 @@ public class Multiply implements Function, Serializable {
 		}
 
 		public String getExample() {
-			// TODO Auto-generated method stub
-			return null;
+			return "(multiply 11 7 -3)";
 		}
 	}
 

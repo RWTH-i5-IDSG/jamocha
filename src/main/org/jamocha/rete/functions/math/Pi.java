@@ -68,7 +68,7 @@ public class Pi implements Function, Serializable {
 		}
 
 		public String getExample() {
-			return "(pi)";
+			return "(rad-deg (pi))";
 		}
 	}
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2006 Nikolaus Koemm, Christian Ebert 
+ * Copyright 2006 Nikolaus Koemm, Christian Ebert, 2007 Uta Christoph
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ public class Pow implements Function, Serializable {
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "Returns the value of the first argument raised to the power of the following arguments.";
+			return "Returns the value of the first mumeric argument raised to the power of the following numeric arguments.";
 		}
 
 		public int getParameterCount() {
@@ -47,9 +47,9 @@ public class Pow implements Function, Serializable {
 
 		public String getParameterDescription(int parameter) {
 			if (parameter == 0) {
-				return "base for the calculation";
+				return "Numeric value, base for the calculation.";
 			} else if (parameter == 1) {
-				return "exponent for the calculation";
+				return "Numeric values, exponent(s) for the calculation";
 			}
 			return null;
 		}
@@ -58,7 +58,7 @@ public class Pow implements Function, Serializable {
 			if (parameter == 0) {
 				return "base";
 			} else if (parameter == 1) {
-				return "exponent";
+				return "exponent(s)";
 			}
 			return null;
 		}
@@ -80,8 +80,7 @@ public class Pow implements Function, Serializable {
 		}
 
 		public String getExample() {
-			// TODO Auto-generated method stub
-			return null;
+			return "(pow 2 3 2 0.5)";
 		}
 	}
 

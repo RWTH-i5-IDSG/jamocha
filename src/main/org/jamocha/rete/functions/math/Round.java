@@ -37,7 +37,7 @@ public class Round implements Function, Serializable {
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "Round returns the closest int to the argument.";
+			return "Returns the closest int to the numeric argument.";
 		}
 
 		public int getParameterCount() {
@@ -45,7 +45,7 @@ public class Round implements Function, Serializable {
 		}
 
 		public String getParameterDescription(int parameter) {
-			return "value to round.";
+			return "Numeric value to round.";
 		}
 
 		public String getParameterName(int parameter) {
@@ -69,8 +69,7 @@ public class Round implements Function, Serializable {
 		}
 
 		public String getExample() {
-			// TODO Auto-generated method stub
-			return null;
+			return "(round 0.752343)";
 		}
 	}
 

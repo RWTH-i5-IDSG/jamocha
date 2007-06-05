@@ -1,5 +1,5 @@
 /*
- * Copyright 2006 Nikolaus Koemm
+ * Copyright 2006 Nikolaus Koemm, 2007 Uta Christoph
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ public class Log implements Function, Serializable {
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "Returns the natural logarithm (base e) of a number value.";
+			return "Returns the natural logarithm (base e) of its numeric argument.";
 		}
 
 		public int getParameterCount() {
@@ -45,7 +45,7 @@ public class Log implements Function, Serializable {
 		}
 
 		public String getParameterDescription(int parameter) {
-			return "value, which should be used as an argument";
+			return "Numeric value to get the natural logarithm from.";
 		}
 
 		public String getParameterName(int parameter) {
@@ -69,8 +69,7 @@ public class Log implements Function, Serializable {
 		}
 
 		public String getExample() {
-			// TODO Auto-generated method stub
-			return null;
+			return "(log 2.7)";
 		}
 	}
 

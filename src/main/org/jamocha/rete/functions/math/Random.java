@@ -1,5 +1,5 @@
 /*
- * Copyright 2006 Christian Ebert 
+ * Copyright 2006 Christian Ebert, 2007 Uta Christoph
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -70,8 +70,7 @@ public class Random implements Function, Serializable {
 		}
 
 		public String getExample() {
-			// TODO Auto-generated method stub
-			return null;
+			return "(asin (random))";
 		}
 	}
 

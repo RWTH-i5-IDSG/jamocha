@@ -37,7 +37,7 @@ public class Rint implements Function, Serializable {
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "Rint returns the double value closest to the argument.";
+			return "Returns the double value closest to the numeric argument.";
 		}
 
 		public int getParameterCount() {
@@ -45,7 +45,7 @@ public class Rint implements Function, Serializable {
 		}
 
 		public String getParameterDescription(int parameter) {
-			return "numeric value.";
+			return "Numeric value to get closest double value for.";
 		}
 
 		public String getParameterName(int parameter) {
@@ -69,8 +69,7 @@ public class Rint implements Function, Serializable {
 		}
 
 		public String getExample() {
-			// TODO Auto-generated method stub
-			return null;
+			return "(rint .50000001)";
 		}
 	}
 

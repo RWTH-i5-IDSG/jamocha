@@ -38,7 +38,7 @@ public class Signum implements Function, Serializable {
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "Signum returns -1.0 if the argument is negativ, 1.0 if the argument is positive and 0 if the argument is 0.";
+			return "Returns -1.0 if the argument is negative, 1.0 if the argument is positive and 0 if the argument is 0.";
 		}
 
 		public int getParameterCount() {
@@ -46,7 +46,7 @@ public class Signum implements Function, Serializable {
 		}
 
 		public String getParameterDescription(int parameter) {
-			return "value for which the signum should be returned.";
+			return "Numeric value to get the signum from.";
 		}
 
 		public String getParameterName(int parameter) {
@@ -70,8 +70,7 @@ public class Signum implements Function, Serializable {
 		}
 
 		public String getExample() {
-			// TODO Auto-generated method stub
-			return null;
+			return "(signum 7)";
 		}
 	}
 

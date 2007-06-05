@@ -37,7 +37,7 @@ public class Tanh implements Function, Serializable {
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "Returns the hyperbolic tangent of an angle.";
+			return "Returns the hyperbolic tangent of a numeric argument. The hyperbolic tangent of x is defined to be sinh(x)/cosh(x).";
 		}
 
 		public int getParameterCount() {
@@ -45,7 +45,7 @@ public class Tanh implements Function, Serializable {
 		}
 
 		public String getParameterDescription(int parameter) {
-			return "an angle, in radians.";
+			return "Numeric value to get the hyperbolic tangent from.";
 		}
 
 		public String getParameterName(int parameter) {
@@ -69,8 +69,7 @@ public class Tanh implements Function, Serializable {
 		}
 
 		public String getExample() {
-			// TODO Auto-generated method stub
-			return null;
+			return "(tan -6.98263)";
 		}
 	}
 

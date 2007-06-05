@@ -1,5 +1,5 @@
 /*
- * Copyright 2006 Nikolaus Koemm, Christoph Emonds
+ * Copyright 2006 Nikolaus Koemm, Christoph Emonds, 2007 Uta Christoph
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,7 +39,8 @@ public class Min implements Function, Serializable {
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "The min function returns the value of its smallest numeric argument. Each of its arguments should be a numeric expression. When necessary, integers are temporarily converted to floats for comparison. The return value will either be integer or float (depending upon the type of the smallest argument).";
+			return "Returns the value of its smallest numeric argument. Each argument has to be a numeric expression. The return type is either an integer or float depending on the type of the smallest argument.";
+			//"When necessary, integers are temporarily converted to floats for comparison. ";
 		}
 
 		public int getParameterCount() {
@@ -47,7 +48,7 @@ public class Min implements Function, Serializable {
 		}
 
 		public String getParameterDescription(int parameter) {
-			return "Numbers (at least one) whose minimum will be returned.";
+			return "Numeric values (at least one) to get the minimum from.";
 		}
 
 		public String getParameterName(int parameter) {
@@ -71,8 +72,7 @@ public class Min implements Function, Serializable {
 		}
 
 		public String getExample() {
-			// TODO Auto-generated method stub
-			return null;
+			return "(min 7834 -1 23 80.87583)";
 		}
 	}
 
