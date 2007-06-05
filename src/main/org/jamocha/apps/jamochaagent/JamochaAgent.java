@@ -75,13 +75,14 @@ public class JamochaAgent extends ToolAgent {
 	private MessageSender sendingBehaviour;
 
 	private Deftemplate messageTemplate;
+	
+	private Jamocha jamocha;
 
 	/** Is called when agent is started. */
 	@Override
 	public void toolSetup() {
 		// Initialize the Rule-engine
 		engine = new Rete();
-
 		// Get the agents arguments and puts them into a seperate HashMap
 		initArguments();
 
@@ -96,7 +97,7 @@ public class JamochaAgent extends ToolAgent {
 		sendingBehaviour = new MessageSender(this);
 		addBehaviour(sendingBehaviour);
 		try {
-			Jamocha jamocha = new Jamocha(engine, isSetArgument("gui"),
+			jamocha = new Jamocha(engine, isSetArgument("gui"),
 					isSetArgument("shell"), getArgument("parser", ""));
 			if (isSetArgument("gui"))
 				jamocha.getJamochaGui().setExitOnClose(false);

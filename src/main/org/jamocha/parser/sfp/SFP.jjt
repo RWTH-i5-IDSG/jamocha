@@ -135,9 +135,9 @@ TOKEN :
 | < INTEGER: (["+","-"])? (<DIGIT>)+ >
 |
   < FLOAT:
-        (<DIGIT>)+ "." (<DIGIT>)* (<EXPONENT>)?
-      | "." (<DIGIT>)+ (<EXPONENT>)?
-      | (<DIGIT>)+ <EXPONENT>
+	  (["+","-"])? (<DIGIT>)+ "." (<DIGIT>)* (<EXPONENT>)?
+      | (["+","-"])? "." (<DIGIT>)+ (<EXPONENT>)?
+      | (["+","-"])? (<DIGIT>)+ <EXPONENT>
   >
   
 | < #EXPONENT: ["e","E"] (["+","-"])? (<DIGIT>)+ >
