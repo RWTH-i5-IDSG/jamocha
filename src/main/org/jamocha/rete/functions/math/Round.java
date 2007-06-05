@@ -87,7 +87,7 @@ public class Round implements Function, Serializable {
 	public String getName() {
 		return NAME;
 	}
- 
+
 	public JamochaValue executeFunction(Rete engine, Parameter[] params)
 			throws EvaluationException {
 		if (params != null) {
@@ -98,7 +98,7 @@ public class Round implements Function, Serializable {
 					value = value.implicitCast(JamochaType.DOUBLE);
 				}
 				if (value.getType().equals(JamochaType.DOUBLE)) {
-					return JamochaValue.newDouble(Math.floor(value
+					return JamochaValue.newDouble(Math.round(value
 							.getDoubleValue()));
 				} else if (value.getType().equals(JamochaType.LONG)) {
 					return value;
