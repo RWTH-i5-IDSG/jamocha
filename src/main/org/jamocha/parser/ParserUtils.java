@@ -68,5 +68,11 @@ public class ParserUtils {
 		res.append(cal.get(Calendar.ZONE_OFFSET));
 		return res.toString();
 	}
+	
+	public static long dateToLong(Date date) {
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(date);
+		return cal.getTimeInMillis();
+	}
 
 }

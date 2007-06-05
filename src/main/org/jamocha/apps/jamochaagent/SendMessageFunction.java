@@ -28,8 +28,8 @@ import org.jamocha.rete.functions.FunctionDescription;
 
 /**
  * @author Christoph Emonds, Sebastian Reinartz, Alexander Wilden
- *
- *
+ * 
+ * 
  */
 public class SendMessageFunction implements Function {
 	private static final class Description implements FunctionDescription {
@@ -170,8 +170,10 @@ public class SendMessageFunction implements Function {
 		JamochaValue replyTo = params[REPLY_TO_PARAM_POS].getValue(engine)
 				.implicitCast(JamochaType.LIST);
 		for (int i = 0; i < replyTo.getListCount(); ++i) {
-			result.addReplyTo(new AID(replyTo.getListValue(i).getStringValue(),
-					true));
+			if (!replyTo.getListValue(i).equals(JamochaValue.NIL)) {
+				result.addReplyTo(new AID(replyTo.getListValue(i)
+						.getStringValue(), true));
+			}
 		}
 		result
 				.setContent(params[CONTENT_PARAM_POS].getValue(engine)

@@ -27,7 +27,7 @@
 	(slot conversation-id (type STRING))
 	(slot in-reply-to (type STRING))
 	(slot reply-with (type STRING))
-	(slot reply-by (type DATETIME))
+	(slot reply-by (type LONG))
 	(multislot user-properties)
 )
 

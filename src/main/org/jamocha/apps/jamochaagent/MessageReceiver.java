@@ -19,6 +19,7 @@ import jade.core.AID;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.lang.acl.ACLMessage;
 
+import java.util.Date;
 import java.util.Iterator;
 
 import org.jamocha.messagerouter.StringChannel;
@@ -117,11 +118,12 @@ public class MessageReceiver extends CyclicBehaviour {
 		} else {
 			sb.append("(reply-with \"").append("\")");
 		}
-		if (msg.getReplyByDate() != null) {
-			sb.append("(reply-by ").append(
-					ParserUtils.dateToString(msg.getReplyByDate())).append(")");
+		Date replyBy = msg.getReplyByDate();
+		if (replyBy == null) {
+			sb.append("(reply-by 0)");
 		} else {
-			sb.append("(reply-by ").append(")");
+			sb.append("(reply-by ").append(ParserUtils.dateToLong(replyBy))
+					.append(")");
 		}
 		if (msg.getContent() != null) {
 			sb.append("(user-properties \"\" ");
