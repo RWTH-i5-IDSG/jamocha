@@ -1,5 +1,5 @@
 /*
- * Copyright 2006 Nikolaus Koemm
+ * Copyright 2006 Nikolaus Koemm, 2007 Uta Christoph
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -68,8 +68,7 @@ public class Pi implements Function, Serializable {
 		}
 
 		public String getExample() {
-			// TODO Auto-generated method stub
-			return null;
+			return "(pi)";
 		}
 	}
 

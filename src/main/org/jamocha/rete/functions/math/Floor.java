@@ -37,7 +37,7 @@ public class Floor implements Function, Serializable {
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "Returns the largest (closest to positive infinity) double value that is less than or equal to the argument and is equal to a mathematical integer.";
+			return "Returns the largest (closest to positive infinity) double value that is less than or equal to the argument and equal to a mathematical integer.";
 		}
 
 		public int getParameterCount() {
@@ -45,7 +45,7 @@ public class Floor implements Function, Serializable {
 		}
 
 		public String getParameterDescription(int parameter) {
-			return "value, which should be used as an argument";
+			return "Numeric value to get the floor from.";
 		}
 
 		public String getParameterName(int parameter) {
@@ -69,8 +69,7 @@ public class Floor implements Function, Serializable {
 		}
 
 		public String getExample() {
-			// TODO Auto-generated method stub
-			return null;
+			return "(floor 6.7496)";
 		}
 	}
 

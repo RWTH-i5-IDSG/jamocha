@@ -1,5 +1,5 @@
 /*
- * Copyright 2006 Christian Ebert 
+ * Copyright 2006 Christian Ebert, 2007 Uta Christoph
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ public class Cosh implements Function, Serializable {
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "Returns the hyperbolic cosine of a number value. The hyperbolic cosine of x is defined to be (ex + e-x)/2 where e is Euler's number.";
+			return "Returns the hyperbolic cosine of a numeric value. The hyperbolic cosine of x is defined to be (e^x + e^(-x))/2 where e is Euler's number.";
 		}
 
 		public int getParameterCount() {
@@ -45,7 +45,7 @@ public class Cosh implements Function, Serializable {
 		}
 
 		public String getParameterDescription(int parameter) {
-			return "The number whose hyperbolic cosine is to be returned.";
+			return "Numeric value to get the hyperbolic cosine from.";
 		}
 
 		public String getParameterName(int parameter) {
@@ -69,8 +69,7 @@ public class Cosh implements Function, Serializable {
 		}
 
 		public String getExample() {
-			// TODO Auto-generated method stub
-			return null;
+			return "(cosh -.08646678676)";
 		}
 	}
 

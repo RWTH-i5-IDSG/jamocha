@@ -1,6 +1,6 @@
 
 /*
- * Copyright 2006 Nikolaus Koemm, Christian Ebert 
+ * Copyright 2006 Nikolaus Koemm, Christian Ebert, 2007 Uta Christoph 
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,7 +40,7 @@ public class Abs implements Function, Serializable {
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "Returns the absolute value of its only argument (which should be a numeric expression). The return value will either be long or double (depending upon the type the argument).";
+			return "Returns the absolute value of its numeric argument. The return type depends on the type of the argument.";
 		}
 
 		public int getParameterCount() {
@@ -48,7 +48,7 @@ public class Abs implements Function, Serializable {
 		}
 
 		public String getParameterDescription(int parameter) {
-			return "Number, whose absolute value will be returned";
+			return "Numeric value to get the absolute value from.";
 		}
 
 		public String getParameterName(int parameter) {
@@ -71,9 +71,8 @@ public class Abs implements Function, Serializable {
 			return false;
 		}
 
-		public String getExample() {
-			// TODO Auto-generated method stub
-			return null;
+		public String getExample() {			
+			return "(abs -57.39)";
 		}
 	}
 

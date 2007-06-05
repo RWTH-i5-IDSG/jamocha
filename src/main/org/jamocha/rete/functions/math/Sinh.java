@@ -1,5 +1,5 @@
 /*
- * Copyright 2006 Christian Ebert 
+ * Copyright 2006 Christian Ebert, 2007 Uta Christoph 
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ public class Sinh implements Function, Serializable {
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "Returns the hyperbolic sine of an angle.";
+			return "Returns the hyperbolic sine of a numeric value. The hyperbolic sine of x is defined to be (e^x - e^(-x))/2 where e is Euler's number.";
 		}
 
 		public int getParameterCount() {
@@ -45,7 +45,7 @@ public class Sinh implements Function, Serializable {
 		}
 
 		public String getParameterDescription(int parameter) {
-			return "an angle, in radians.";
+			return "Numeric value to get the hyperbolic sine from.";
 		}
 
 		public String getParameterName(int parameter) {
@@ -69,8 +69,7 @@ public class Sinh implements Function, Serializable {
 		}
 
 		public String getExample() {
-			// TODO Auto-generated method stub
-			return null;
+			return "(sinh 9.820345)";
 		}
 	}
 

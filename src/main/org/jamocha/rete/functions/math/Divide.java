@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2006 Peter Lin
+ * Copyright 2002-2006 Peter Lin, 2007 Uta Christoph
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ public class Divide implements Function, Serializable {
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "The / function returns the value of the first argument divided by each of the subsequent arguments.";
+			return "Returns the value of the first argument divided by each of the subsequent arguments. This function can be called with the identifier 'divide' or '/'.";
 		}
 
 		public int getParameterCount() {
@@ -46,9 +46,9 @@ public class Divide implements Function, Serializable {
 
 		public String getParameterDescription(int parameter) {
 			if(parameter == 0) {
-				return "Number which is divided by the following arguments.";
+				return "Numeric value which is divided by the following arguments.";
 			}
-			return "Number which divides the first argument.";
+			return "Numeric values which divide the first argument or the result of the previous divisions respectively.";
 		}
 
 		public String getParameterName(int parameter) {
@@ -75,8 +75,7 @@ public class Divide implements Function, Serializable {
 		}
 
 		public String getExample() {
-			// TODO Auto-generated method stub
-			return null;
+			return "(/ 27 3 -4.5)";
 		}
 	}
 

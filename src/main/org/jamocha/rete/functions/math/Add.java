@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2006 Peter Lin
+ * Copyright 2002-2006 Peter Lin, 2007 Uta Christoph
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,7 +43,7 @@ public class Add implements Function, Serializable {
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "The + function returns the sum of its arguments. Each of its arguments should be a numeric expression. Addition is performed using the type of the arguments provided unless mixed mode arguments (long and double) are used. In this case, the function return value and long arguments are converted to doubles after the first double argument has been encountered. This function returns a double if any of its arguments is a double, otherwise it returns an long.";
+			return "Returns the sum of its numeric arguments. This function can be called with the identifier 'add' or '+'. Each argument has to be a numeric expression. The return type depends on the types of the arguments, it returns a double if any of its arguments is a double, otherwise it returns a long.";
 		}
 
 		public int getParameterCount() {
@@ -51,7 +51,7 @@ public class Add implements Function, Serializable {
 		}
 
 		public String getParameterDescription(int parameter) {
-			return "Numbers (at least one) whose sum will be returned.";
+			return "Numeric values (at least one) to be added up.";
 		}
 
 		public String getParameterName(int parameter) {
@@ -74,9 +74,8 @@ public class Add implements Function, Serializable {
 			return false;
 		}
 
-		public String getExample() {
-			// TODO Auto-generated method stub
-			return null;
+		public String getExample() {			
+			return "(+ 7 8.56 -4.3)";
 		}
 	}
 

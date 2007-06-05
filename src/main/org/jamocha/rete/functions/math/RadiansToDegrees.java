@@ -1,5 +1,5 @@
 /*
- * Copyright 2006 Nikolaus Koemm
+ * Copyright 2006 Nikolaus Koemm, 2007 Uta Christoph
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ public class RadiansToDegrees implements Function, Serializable {
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "Converts its only argument from units of radians to units of degrees.";
+			return "Converts an angle measured in radians to an approximately equivalent angle measured in degrees.";
 		}
 
 		public int getParameterCount() {
@@ -46,7 +46,7 @@ public class RadiansToDegrees implements Function, Serializable {
 		}
 
 		public String getParameterDescription(int parameter) {
-			return "The angle to be converted in radians.";
+			return "Angle, in radians.";
 		}
 
 		public String getParameterName(int parameter) {
@@ -70,8 +70,7 @@ public class RadiansToDegrees implements Function, Serializable {
 		}
 
 		public String getExample() {
-			// TODO Auto-generated method stub
-			return null;
+			return "(rad-deg -0.7853981633974483)";
 		}
 	}
 

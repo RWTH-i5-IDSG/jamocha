@@ -1,5 +1,5 @@
 /*
- * Copyright 2006 Christian Ebert 
+ * Copyright 2006 Christian Ebert, 2007 Uta Christoph 
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ public class Acos implements Function, Serializable {
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "Returns the trigonometric arc cosine of its only argument (which should be an angle as numeric expression). The return value will double.";
+			return "Returns the arc cosine of its numeric argument. The return value is an angle expressed in radians in the range of 0.0 through pi (3.141592653589793..)";
 		}
 
 		public int getParameterCount() {
@@ -46,7 +46,7 @@ public class Acos implements Function, Serializable {
 		}
 
 		public String getParameterDescription(int parameter) {
-			return "Angle, whose trigonometric arc cosine will be returned.";
+			return "Numeric value in the range of -1.0 through 1.0.";	
 		}
 
 		public String getParameterName(int parameter) {
@@ -69,9 +69,8 @@ public class Acos implements Function, Serializable {
 			return false;
 		}
 
-		public String getExample() {
-			// TODO Auto-generated method stub
-			return null;
+		public String getExample() { 
+			return "(acos -0.7563654)";
 		}
 	}
 

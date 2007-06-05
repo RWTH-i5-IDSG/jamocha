@@ -1,5 +1,5 @@
 /*
- * Copyright 2006 Nikolaus Koemm
+ * Copyright 2006 Nikolaus Koemm, 2007 Uta Christoph
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,8 +36,8 @@ public class Ceil implements Function, Serializable {
 
 	private static final class Description implements FunctionDescription {
 
-		public String getDescription() {
-			return "Returns the smallest (closest to negative infinity) double value that is greater than or equal to the argument and is equal to a mathematical integer.";
+		public String getDescription() {			
+			return "Returns the smallest (closest to negative infinity) double value that is greater than or equal to the argument and equal to a mathematical integer.";
 		}
 
 		public int getParameterCount() {
@@ -45,7 +45,7 @@ public class Ceil implements Function, Serializable {
 		}
 
 		public String getParameterDescription(int parameter) {
-			return "value, which should be used as an argument";
+			return "Numeric value to get the ceiling from.";
 		}
 
 		public String getParameterName(int parameter) {
@@ -69,8 +69,7 @@ public class Ceil implements Function, Serializable {
 		}
 
 		public String getExample() {
-			// TODO Auto-generated method stub
-			return null;
+			return "(ceil 2.379079)";
 		}
 	}
 
