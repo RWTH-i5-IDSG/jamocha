@@ -23,7 +23,6 @@ import java.util.List;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.FunctionGroup;
 import org.jamocha.rete.functions.FunctionMemory;
-import org.jamocha.rete.functions.list.Member$;
 
 /**
  * @author Peter Lin
@@ -114,6 +113,10 @@ public class RuleEngineFunctions implements FunctionGroup, Serializable {
 		FactSlotValue factSlotValue = new FactSlotValue();
 		functionMem.declareFunction(factSlotValue);
 		funcs.add(factSlotValue);
+		
+		FindFactByFact factbyfact = new FindFactByFact();
+		functionMem.declareFunction(factbyfact);
+		funcs.add(factbyfact);
 
 		Fire fire = new Fire();
 		functionMem.declareFunction(fire);

@@ -210,8 +210,9 @@ public class SFPInterpreter implements SFPParserVisitor {
 	}
 
 	public Object visit(SFPGlobalVariable node, Object data) {
-		// TODO Auto-generated method stub
-		return null;
+		BoundParam bp = new BoundParam();
+		bp.setVariableName(node.getName());
+		return bp;
 	}
 
 	public Object visit(SFPMultiVariable node, Object data) {
@@ -920,24 +921,25 @@ public class SFPInterpreter implements SFPParserVisitor {
 				.jjtAccept(this, data);
 
 		// get the template description
-		JamochaValue functionGroup = null;
-
-		Node n = node.jjtGetChild(j);
-
-		if (n != null && n instanceof SFPFunctionGroup) {
-			j++;
-			functionGroup = (JamochaValue) n.jjtAccept(this, data);
-		}
-		
-		// get the template description
 		JamochaValue functionDescription = JamochaValue.newString("");
 
-		n = node.jjtGetChild(j);
+		Node n = node.jjtGetChild(j);
 
 		if (n != null && n instanceof SFPConstructDescription) {
 			j++;
 			functionDescription = (JamochaValue) n.jjtAccept(this, data);
 		}
+		
+		// get the function group
+		JamochaValue functionGroup = null;
+
+		n = node.jjtGetChild(j);
+
+		if (n != null && n instanceof SFPFunctionGroup) {
+			j++;
+			functionGroup = (JamochaValue) n.jjtAccept(this, data);
+		}		
+		
 
 		// get function's variables
 		Parameter[] params = new Parameter[node.jjtGetNumChildren() - (j + 1)];
