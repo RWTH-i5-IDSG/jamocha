@@ -37,7 +37,7 @@ public class Sqrt implements Function, Serializable {
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "Sqrt returns the square root value of a double value.";
+			return "Returns the positive square root value of its numeric argument.";
 		}
 
 		public int getParameterCount() {
@@ -45,7 +45,7 @@ public class Sqrt implements Function, Serializable {
 		}
 
 		public String getParameterDescription(int parameter) {
-			return "value for which the square root value should be returned.";
+			return "Numeric value, positive or equal to +/-0.0, to get the square root value from.";
 		}
 
 		public String getParameterName(int parameter) {
@@ -78,7 +78,7 @@ public class Sqrt implements Function, Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	public static final String NAME = "signum";
+	public static final String NAME = "sqrt";
 
 	public FunctionDescription getDescription() {
 		return DESCRIPTION;
