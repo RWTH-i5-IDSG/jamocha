@@ -68,10 +68,8 @@ public class Printout implements Function, Serializable {
 			return (parameter > 0);
 		}
 
-		public String getExample() {
-			// TODO Auto-generated method stub
+		public String getExample() {			
 			return "(printout t \"Jamocha rul\" e z !)";
-			//return null;
 		}
 	}
 
