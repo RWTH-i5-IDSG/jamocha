@@ -19,13 +19,16 @@ package org.jamocha.rete.functions.ruleengine;
 import java.io.Serializable;
 
 import org.jamocha.parser.EvaluationException;
-import org.jamocha.parser.IllegalTypeException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
+import org.jamocha.rete.Deffact;
 import org.jamocha.rete.Fact;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
+import org.jamocha.rete.configurations.AssertConfiguration;
+import org.jamocha.rete.configurations.SlotConfiguration;
+import org.jamocha.rete.exception.AssertException;
 import org.jamocha.rete.functions.FunctionDescription;
 
 /**
@@ -74,7 +77,7 @@ public class FindFactByFact implements Function, Serializable {
 			return null;
 		}
 	}
-	
+
 	private static final FunctionDescription DESCRIPTION = new FindFactByFactDescription();
 
 	private static final long serialVersionUID = 1L;
@@ -86,7 +89,7 @@ public class FindFactByFact implements Function, Serializable {
 	public FunctionDescription getDescription() {
 		return DESCRIPTION;
 	}
-	
+
 	public String getName() {
 		return NAME;
 	}
@@ -95,18 +98,47 @@ public class FindFactByFact implements Function, Serializable {
 		this.triggerFacts = facts;
 	}
 
-	public JamochaValue executeFunction(Rete engine, Parameter[] params)
-			throws EvaluationException {
-		JamochaValue factValue = params[0].getValue(engine);
-		if (factValue.is(JamochaType.FACT))  {
-		    Fact templateFact =factValue.getFactValue();
-		    Fact existingFact = engine.getFact(templateFact);
-		    if(existingFact == null) {
-			return JamochaValue.NIL;
-		    } else {
-			return JamochaValue.newFactId(existingFact.getFactId());
-		    }
+	public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
+		JamochaValue result = JamochaValue.FALSE;
+		if (params.length == 1) {
+			Deffact fact = null;
+
+			// get all the assert configuration from params
+			if (params[0] instanceof AssertConfiguration) {
+
+				AssertConfiguration ac = null;
+				String templateName = null;
+				SlotConfiguration[] scArray = null;
+				ac = (AssertConfiguration) params[0];
+
+				// get the template name
+				templateName = ac.getTemplateName();
+
+				// check if the needed template exists in the engine
+				org.jamocha.rete.Deftemplate template = (org.jamocha.rete.Deftemplate) engine.getCurrentFocus().getTemplate(templateName);
+				if (template == null) {
+					throw new AssertException("Template " + template.getName() + "could not be found");
+				} else {
+
+					// get the slot configurations
+					scArray = ac.getSlots();
+
+					// create the fact
+					fact = (Deffact) template.createFact(scArray, engine);
+					if (fact.hasBinding()) {
+						fact.resolveValues(engine, this.triggerFacts);
+						fact = fact.cloneFact(engine);
+					}
+					Fact existingFact = engine.getFact(fact);
+					if (existingFact == null) {
+						result = JamochaValue.NIL;
+					} else {
+						result = JamochaValue.newFactId(existingFact.getFactId());
+					}
+				}
+			}
 		}
-		throw new IllegalTypeException(JamochaType.FACTS, factValue.getType());
+		return result;
 	}
+
 }

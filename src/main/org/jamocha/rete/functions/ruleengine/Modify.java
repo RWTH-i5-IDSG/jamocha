@@ -136,7 +136,13 @@ public class Modify implements Function, Serializable {
 				} else if (params[0] instanceof ModifyConfiguration) {
 					ModifyConfiguration mc = (ModifyConfiguration) params[0];
 					bp = mc.getFactBinding();
+
 					fact = bp.getFact();
+					if (fact == null) {
+						JamochaValue engineBinding = engine.getBinding(bp.getVariableName());
+						if (engineBinding != null && engineBinding.is(JamochaType.FACT_ID))
+							fact = engine.getFactById(engineBinding.getFactIdValue());
+					}
 					engine.retractFact(fact);
 					fact.updateSlots(engine, mc.getSlots());
 				}

@@ -317,8 +317,22 @@ public class SFPInterpreter implements SFPParserVisitor {
 	}
 
 	public Object visit(SFPFindFactByFactFunc node, Object data) {
-		// TODO Auto-generated method stub
-		return null;
+
+		// create an AssertConfiguration array an fill it in the subnodes
+		AssertConfiguration[] acArray = new AssertConfiguration[node
+				.jjtGetNumChildren()];
+		for (int i = 0; i < node.jjtGetNumChildren(); i++) {
+			acArray[i] = (AssertConfiguration) node.jjtGetChild(i).jjtAccept(
+					this, data);
+		}
+
+		// create the resulting signature
+		Signature signature = new Signature();
+		signature
+				.setSignatureName(org.jamocha.rete.functions.ruleengine.FindFactByFact.NAME);
+		signature.setParameters(acArray);
+
+		return signature;
 	}
 
 	public Object visit(SFPRetractFunc node, Object data) {
