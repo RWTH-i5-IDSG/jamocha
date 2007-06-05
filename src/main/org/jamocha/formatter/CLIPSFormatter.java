@@ -2,7 +2,6 @@ package org.jamocha.formatter;
 
 import java.util.Calendar;
 import java.util.GregorianCalendar;
-import java.util.Iterator;
 import java.util.List;
 
 import org.jamocha.parser.Expression;
@@ -11,7 +10,6 @@ import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.BoundParam;
 import org.jamocha.rete.Constants;
-import org.jamocha.rete.ConversionUtils;
 import org.jamocha.rete.ExpressionCollection;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
@@ -34,7 +32,6 @@ import org.jamocha.rule.Constraint;
 import org.jamocha.rule.ExistCondition;
 import org.jamocha.rule.FunctionAction;
 import org.jamocha.rule.LiteralConstraint;
-import org.jamocha.rule.MultiValue;
 import org.jamocha.rule.ObjectCondition;
 import org.jamocha.rule.OrConnectedConstraint;
 import org.jamocha.rule.PredicateConstraint;
@@ -394,6 +391,14 @@ public class CLIPSFormatter implements Formatter {
 		newLine(sb);
 		newLine(sb);
 		sb.append(fd.getDescription());
+		String example = fd.getExample();
+		if(example != null) {
+			newLine(sb);
+			newLine(sb);
+			sb.append("Example(s):");
+			newLine(sb);
+			sb.append(example);
+		}
 		return sb.toString();
 	}
 

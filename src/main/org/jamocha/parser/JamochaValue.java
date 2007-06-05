@@ -276,7 +276,8 @@ public class JamochaValue implements Parameter {
 	@Override
 	public String toString() {
 		if (type.equals(JamochaType.STRING))
-			return ParserUtils.getStringLiteral(ParserFactory.getFormatter().formatExpression(this));
+			return ParserUtils.getStringLiteral(ParserFactory.getFormatter()
+					.formatExpression(this));
 		else
 			return ParserFactory.getFormatter().formatExpression(this);
 	}
@@ -289,8 +290,11 @@ public class JamochaValue implements Parameter {
 		if (type.equals(JamochaType.LIST)) {
 			return singletonList(this);
 		}
-		if(type.equals(JamochaType.STRING)) {
-			return JamochaValue.newString(value.toString());
+		if (type.equals(JamochaType.STRING)) {
+			if (value != null)
+				return JamochaValue.newString(value.toString());
+			else
+				return JamochaValue.newString("");
 		}
 		switch (this.type) {
 		case BOOLEAN:

@@ -10,20 +10,22 @@ import org.jamocha.rete.Rete;
 
 /**
  * @author Karl-Heinz Krempels, Sebastian Reinartz
- *
+ * 
  */
-public class SlotConfiguration extends AbstractConfiguration  {
+public class SlotConfiguration extends AbstractConfiguration {
 
 	private String slotName = null;
-	
+
 	/**
 	 * the id of the slot
 	 */
 	private int id;
-	
+
 	private Parameter[] slotValues = null;
-	
-	/* (non-Javadoc)
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.jamocha.rete.Parameter#isObjectBinding()
 	 */
 	public boolean isObjectBinding() {
@@ -31,7 +33,9 @@ public class SlotConfiguration extends AbstractConfiguration  {
 		return false;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.jamocha.parser.Expression#getExpressionString()
 	 */
 	public String getExpressionString() {
@@ -39,23 +43,28 @@ public class SlotConfiguration extends AbstractConfiguration  {
 		return null;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.jamocha.parser.Expression#getValue(org.jamocha.rete.Rete)
 	 */
 	public JamochaValue getValue(Rete engine) throws EvaluationException {
-		//multislot:
-		if (isMultislot()){
-			JamochaValue[] jvs= new JamochaValue[slotValues.length];
-			for (int i=0 ; i< slotValues.length; i++){
+		// multislot:
+		if (isMultislot()) {
+			JamochaValue[] jvs = new JamochaValue[slotValues.length];
+			for (int i = 0; i < slotValues.length; i++) {
 				jvs[i] = slotValues[i].getValue(engine);
 			}
 			return JamochaValue.newList(jvs);
-			
-		//single slot:	
-		}else {
-			return slotValues[0].getValue(engine);
+
+			// single slot:
+		} else {
+			if (slotValues.length > 0)
+				return slotValues[0].getValue(engine);
+			else
+				return JamochaValue.NIL;
 		}
-		
+
 	}
 
 	public String getSlotName() {
@@ -74,8 +83,8 @@ public class SlotConfiguration extends AbstractConfiguration  {
 		this.slotValues = slotValues;
 	}
 
-	public Boolean isMultislot(){
-		return (slotValues.length >1);
+	public Boolean isMultislot() {
+		return (slotValues.length > 1);
 	}
 
 	public int getId() {
@@ -86,4 +95,3 @@ public class SlotConfiguration extends AbstractConfiguration  {
 		this.id = id;
 	}
 }
-
