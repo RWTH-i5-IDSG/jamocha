@@ -23,6 +23,7 @@ import org.jamocha.parser.IllegalTypeException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.BoundParam;
+import org.jamocha.rete.Deffact;
 import org.jamocha.rete.Fact;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
@@ -117,23 +118,8 @@ public class Modify implements Function, Serializable {
 			Slot[] newSlots = null;
 			// grather all infos:
 			try {
-				if (params[0] instanceof BoundParam && params[0].isObjectBinding()) {
-					bp = (BoundParam) params[0];
-					fact = bp.getFact();
-					newSlots = new Slot[params.length - 1];
-					// first retract the fact
-					engine.retractFact(fact);
-					for (int i = 0; i < newSlots.length; i++) {
-						JamochaValue jamValue = params[i + 1].getValue(engine);
-						if (jamValue.is(JamochaType.SLOT)) {
-							newSlots[i] = jamValue.getSlotValue();
-						} else {
-							throw new IllegalTypeException(JamochaType.SLOTS, jamValue.getType());
-						}
-					}
-					fact.updateSlots(engine, newSlots);
 					// modificonfiguration
-				} else if (params[0] instanceof ModifyConfiguration) {
+				 if (params[0] instanceof ModifyConfiguration) {
 					ModifyConfiguration mc = (ModifyConfiguration) params[0];
 					bp = mc.getFactBinding();
 
@@ -143,13 +129,16 @@ public class Modify implements Function, Serializable {
 						if (engineBinding != null && engineBinding.is(JamochaType.FACT_ID))
 							fact = engine.getFactById(engineBinding.getFactIdValue());
 					}
+					Fact modifiedFact = ((Deffact)fact).cloneFact(engine);
 					engine.retractFact(fact);
-					fact.updateSlots(engine, mc.getSlots());
-				}
 
-				// now assert the fact using the same fact-id
-				engine.assertFact(fact);
-				result = JamochaValue.TRUE;
+					modifiedFact.updateSlots(engine, mc.getSlots());
+					
+					// now assert the fact using the same fact-id
+					engine.assertFact(modifiedFact);
+					result = JamochaValue.TRUE;
+				}
+			
 			} catch (RetractException e) {
 				engine.writeMessage(e.getMessage());
 			} catch (AssertException e) {
