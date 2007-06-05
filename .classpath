@@ -5,7 +5,7 @@
 	<classpathentry kind="lib" path="lib/junit-4.1.jar"/>
 	<classpathentry kind="lib" path="lib/jms.jar"/>
 	<classpathentry kind="lib" path="apps/jamochaagent/lib/jadeTools.jar"/>
-	<classpathentry kind="lib" path="apps/jamochaagent/lib/jade.jar"/>
+	<classpathentry kind="lib" path="apps/jamochaagent/lib/jade.jar" sourcepath="/Users/alex/Documents/JADE-all-3.4/src"/>
 	<classpathentry kind="lib" path="apps/jamochaagent/lib/http.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="output" path="bin"/>
