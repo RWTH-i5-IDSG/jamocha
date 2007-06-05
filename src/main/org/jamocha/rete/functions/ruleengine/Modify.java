@@ -130,6 +130,7 @@ public class Modify implements Function, Serializable {
 							fact = engine.getFactById(engineBinding.getFactIdValue());
 					}
 					Fact modifiedFact = ((Deffact)fact).cloneFact(engine);
+					modifiedFact.setFactId(fact.getFactId());
 					engine.retractFact(fact);
 
 					modifiedFact.updateSlots(engine, mc.getSlots());
