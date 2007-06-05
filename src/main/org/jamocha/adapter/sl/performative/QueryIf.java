@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 Mustafa put your name here and write the fantastic code
+ * Copyright 2007 Mustafa Karafil 
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -64,15 +64,16 @@ public class QueryIf {
 		}
 		// Walk through the children until we have something useful
 		sn = getChildAtLevel(sn, 3);
-		if (sn.getID() == SLParserTreeConstants.JJTACTION) {
-			// Here we have an Action
-			// Get the right Child. The left Child is the agent-identifier.
-			sn = getChild(sn, 1);
-			sn = getChildAtLevel(sn, 2);
-			String functionName = getChild(sn, 0).getText();
-			String lastAssert = resolveParameters(getChild(getChild(sn, 1), 1));
-
-			result.append("(" + functionName + " " + lastAssert + ")");
+		if (sn.getID() == SLParserTreeConstants.JJTATOMICFORMULA) {
+			// Here we have an AtomicFormula
+			String predicateName = getChild(sn, 0).getText();
+			
+			String lastAssert = "";
+            for(int i = 1; i<sn.jjtGetNumChildren(); i++){
+            	lastAssert = lastAssert + " ("+resolveParameters(getChild(sn,i))+") "; 
+            }
+		    result.append("(defrule \"query-if\""+lastAssert+"=>"+
+		    		      " (return Boolean ("+predicateName+lastAssert +")))");
 		}
 
 		return result.toString();
@@ -96,16 +97,14 @@ public class QueryIf {
 		if (currNode.getID() == SLParserTreeConstants.JJTFUNCTIONALTERM) {
 			// This would be a Fact for CLIPS
 
-			StringBuilder buffer = new StringBuilder((" (assert ("
-					+ getChild(currNode, 0).getText() + " "));
+			StringBuilder buffer = new StringBuilder(" ("
+					+ getChild(currNode, 0).getText() + " ");
 			for (int i = 1; i < currNode.jjtGetNumChildren(); ++i) {
 				SimpleNode child = getChild(currNode, i);
-				String paramName = getChild(child, 0).getText().substring(1);
-				String childAssert = resolveParameters(getChild(child, 1));
-				buffer.append("(").append(paramName).append(" ").append(
-						childAssert).append(")");
+				String childAssert = resolveParameters(child);
+				buffer.append(childAssert).append(")");
 			}
-			buffer.append("))");
+
 			// System.out.println(buffer);
 			return buffer.toString();
 		} else if (currNode.getID() == SLParserTreeConstants.JJTCONSTANT) {
