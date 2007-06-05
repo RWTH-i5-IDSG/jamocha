@@ -16,7 +16,6 @@
  */
 package org.jamocha.rule;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.jamocha.parser.EvaluationException;
@@ -38,10 +37,6 @@ public class TestCondition extends AbstractCondition {
 	private static final long serialVersionUID = 1L;
 
 	protected Signature func = null;
-
-	protected ArrayList binds = new ArrayList();
-
-	protected boolean negated = false;
 
 	/**
 	 * 
@@ -73,52 +68,6 @@ public class TestCondition extends AbstractCondition {
 		return false;
 	}
 
-
-	/**
-	 * the implementation will look at the parameters for the function and see
-	 * if it takes BoundParam
-	 */
-	public boolean hasBindings() {
-		// if (this.func.getParameter() != null) {
-		// Class[] pms = func.getParameter();
-		// for (int idx=0; idx < pms.length; idx++) {
-		// if (pms[idx] == BoundParam.class) {
-		// binds.add(pms[idx]);
-		// }
-		// }
-		// if (binds.size() > 0) {
-		// return true;
-		// } else {
-		// return true;
-		// }
-		// } else {
-		// return false;
-		// }
-		// TODO first we just return true. We don't know here, if any of the
-		// parameter for the function are BoundParams
-		return true;
-	}
-
-	/**
-	 * return an List of the bindings. in the case of TestCondition, the
-	 * bindings are BoundParam
-	 */
-	public List getAllBoundConstraints() {
-		return binds;
-	}
-
-	public List getBoundConstraints() {
-		return binds;
-	}
-
-	public boolean isNegated() {
-		return this.negated;
-	}
-
-	public void setNegated(boolean negate) {
-		this.negated = negate;
-	}
-
 	public void clear() {
 	}
 	
@@ -128,6 +77,20 @@ public class TestCondition extends AbstractCondition {
 
 	public List<Constraint> getConstraints() {
 		return null;
+	}
+
+	public List getAllBoundConstraints() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public List getBoundConstraints() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public boolean hasBindings() {
+		return false;
 	}
 
 }

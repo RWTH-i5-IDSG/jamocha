@@ -16,6 +16,9 @@
  */
 package org.jamocha.rete.configurations;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.FunctionNotFoundException;
 import org.jamocha.parser.JamochaType;
@@ -83,6 +86,17 @@ public class Signature extends AbstractSignature {
 
 	public void setParameters(Parameter[] params) {
 		this.params = params;
+	}
+
+	public List<BoundParam> getBoundParameters() {
+		ArrayList<BoundParam> result = new ArrayList<BoundParam>();
+		for (Parameter param : this.params) {
+			if (param instanceof BoundParam)
+				result.add((BoundParam) param);
+			else if (param instanceof Signature)
+				result.addAll(((Signature) param).getBoundParameters());
+		}
+		return result;
 	}
 
 	public Function lookUpFunction(Rete engine) {

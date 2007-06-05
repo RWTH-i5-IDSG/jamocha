@@ -17,9 +17,11 @@
 package org.jamocha.rete.nodes;
 
 import java.util.Iterator;
+import java.util.List;
 
 import org.jamocha.rete.Binding;
 import org.jamocha.rete.Constants;
+import org.jamocha.rete.ConversionUtils;
 import org.jamocha.rete.Fact;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.exception.AssertException;
@@ -51,7 +53,7 @@ public class BetaFilterNode extends AbstractBeta {
 	/**
 	 * binding for the join
 	 */
-	protected JoinFilter[] filters = null;
+	protected List<JoinFilter> filters = null;
 	
 	/**
 	 * The operator for the join by default is equal. The the join doesn't
@@ -71,9 +73,8 @@ public class BetaFilterNode extends AbstractBeta {
 	 * @param binds
 	 * @throws AssertException
 	 */
-	public void setFilters(JoinFilter[] filters, Rete engine) throws AssertException {
+	public void setFilters(List<JoinFilter> filters, Rete engine) throws AssertException {
 		this.filters = filters;
-		activate(engine);
 	}
 
 	/**
@@ -99,6 +100,11 @@ public class BetaFilterNode extends AbstractBeta {
 			}
 		}
 		return true;
+	}
+	
+	public void addFilter(JoinFilter f) {
+		filters.add(f);
+		
 	}
 
 	@Override

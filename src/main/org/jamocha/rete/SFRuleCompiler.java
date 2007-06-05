@@ -22,6 +22,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
@@ -30,10 +31,14 @@ import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.IllegalConversionException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
+import org.jamocha.rete.configurations.Signature;
 import org.jamocha.rete.exception.AssertException;
 import org.jamocha.rete.exception.RetractException;
+import org.jamocha.rete.joinfilter.FieldAddress;
 import org.jamocha.rete.joinfilter.FieldComparator;
+import org.jamocha.rete.joinfilter.FunctionEvaluator;
 import org.jamocha.rete.joinfilter.JoinFilter;
+import org.jamocha.rete.joinfilter.JoinFilterException;
 import org.jamocha.rete.joinfilter.LeftFieldAddress;
 import org.jamocha.rete.joinfilter.RightFieldAddress;
 import org.jamocha.rete.nodes.AlphaNode;
@@ -105,6 +110,17 @@ public class SFRuleCompiler implements RuleCompiler {
 				return conditionDifference;
 
 			return this.slotIndex - o.slotIndex;
+		}
+		
+		public String toString(){
+			StringBuilder result = new StringBuilder();
+			result.append("ConditionIndex: ");
+			result.append(conditionIndex);
+			result.append(" SlotIndex: ");
+			result.append(slotIndex);
+			result.append(" Operator: ");
+			result.append(ConversionUtils.getOperator(operator));
+			return result.toString();
 		}
 
 	}
@@ -496,6 +512,10 @@ public class SFRuleCompiler implements RuleCompiler {
 
 		BaseNode ultimateMostBottomNode = compileBindings(rule, sortedConds, conditionJoiners, mostBottomNode);
 		ultimateMostBottomNode.addNode(terminal, engine);
+		
+		//activate all joins
+		for (BaseNode n : conditionJoiners.values()) ((BetaFilterNode)n).activate(engine);
+		
 	}
 
 	protected BaseNode compileBindings(Rule rule, Condition[] conds, Map<Condition, BaseNode> conditionJoiners, BaseNode mostBottomNode) throws AssertException {
@@ -578,7 +598,7 @@ public class SFRuleCompiler implements RuleCompiler {
 			}
 
 			// set bindig= null if binds.size=0
-			((BetaFilterNode) node).setFilters((filters.size() != 0) ? filters.toArray(bindArray) : null, engine);
+			((BetaFilterNode) node).setFilters(filters, engine);
 		}
 		// handle all bindings that couldn't be placed to join node.
 		while (act != null) {
@@ -597,24 +617,75 @@ public class SFRuleCompiler implements RuleCompiler {
 
 			mostBottomNode = newJoin;
 
-			JoinFilter filters[] = new JoinFilter[1];
+			JoinFilter filter;
 			LeftFieldAddress left = new LeftFieldAddress(conds.length - 1 - act.leftCondition, act.leftSlot);
 			RightFieldAddress right = new RightFieldAddress(act.rightSlot);
-			filters[0] = new FieldComparator(act.varName, left, act.operator, right);
+			filter = new FieldComparator(act.varName, left, act.operator, right);
 
-			newJoin.setFilters(filters, engine);
+			newJoin.addFilter(filter);
 
 			act = (itr.hasNext()) ? itr.next() : null;
 		}
-
+		try {
+			compileTestConditions(conds, rule,bindingAddressTable, conditionJoiners);
+		} catch (JoinFilterException e) {
+			engine.writeMessage(e.getMessage());
+		}
 		return mostBottomNode;
 
 	}
 	
-	protected void compileTestConditions(Rule rule,BindingAddressesTable bindingAddressTable , Map<Condition, BaseNode> conditionJoiners){
+	protected Parameter[] recalculateParameters(int conditionsCount, Signature s, BindingAddressesTable bindingAddressTable, int conditionIndex){
+		List<Parameter> result = new ArrayList<Parameter>();
+		
+		for (Parameter p : s.getParameters()) {
+			
+			if (p instanceof BoundParam) {
+				BoundParam bp = (BoundParam)p;
+				BindingAddress pivot = bindingAddressTable.getPivot(bp.getVariableName());
+				
+				FieldAddress addr = null;
+				System.out.println(pivot);
+				if (pivot.conditionIndex == conditionIndex && conditionIndex < conditionsCount-1 ){
+					addr = new RightFieldAddress(pivot.slotIndex);
+				} else {
+					addr = new LeftFieldAddress(conditionsCount -1 -pivot.conditionIndex, pivot.slotIndex);
+				}
+				
+				result.add(addr);
+				
+				
+			} else if (p instanceof Signature) {
+				Signature nested = (Signature)p;
+				result.add(nested);
+				nested.setParameters( recalculateParameters(conditionsCount,nested, bindingAddressTable, conditionIndex) );
+			} else {
+				result.add(p);
+			}
+			
+			
+		}
+		
+		Parameter[] arr = new Parameter[0];
+		return result.toArray(arr);
+	}
+	
+	protected void compileTestConditions(Condition[] objectConditions, Rule rule,BindingAddressesTable bindingAddressTable , Map<Condition, BaseNode> conditionJoiners) throws JoinFilterException{
 		for (Condition c: rule.getConditions()){
 			if (c instanceof TestCondition){
 				TestCondition tc = (TestCondition) c;
+				List<BoundParam> boundParams = tc.getFunction().getBoundParameters();
+				
+				int validRowIndex = objectConditions.length - 1;
+				for ( BoundParam p : boundParams ) {
+					validRowIndex = Math.min(bindingAddressTable.getPivot(p.getVariableName()).conditionIndex, validRowIndex);
+				}
+				BetaFilterNode validNode = (BetaFilterNode)(conditionJoiners.get(objectConditions[validRowIndex]));
+								
+				Parameter[] functionParams = recalculateParameters(objectConditions.length,tc.getFunction(), bindingAddressTable, validRowIndex);
+				FunctionEvaluator testFilter = new FunctionEvaluator(engine,tc.getFunction().lookUpFunction(engine),functionParams);
+				validNode.addFilter(testFilter);
+								
 			}
 		}
 	}

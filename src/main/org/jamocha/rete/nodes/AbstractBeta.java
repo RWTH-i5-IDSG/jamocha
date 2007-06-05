@@ -47,7 +47,7 @@ public abstract class AbstractBeta extends BaseNode {
 	// per default deactivated
 	protected boolean activated = false;
 	
-	protected void activate(Rete engine) throws AssertException {
+	public void activate(Rete engine) throws AssertException {
 		if (!activated) {
 			// we have to traverse the whole beta mem and eval it.
 			activated = true;

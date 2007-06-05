@@ -69,9 +69,9 @@
 (defrule test-node-rule 
 	(wurst (gewicht ?x) (name ?y))
 	;(wurst (zutaten $?v))
-	(test (eq ?x 100))
 	(bier (gewicht ?x) (name ?z))
 	(senf (gewicht ?x) (name ?w))
+		(test (> ?x 100))
 	=>
 	(printout t "Lebensmittel die zusammenpassen. wurst:" ?y "zutaten: " $?v " Bier: " ?z  "Senf: " ?w " Gewicht: " ?x)
 )

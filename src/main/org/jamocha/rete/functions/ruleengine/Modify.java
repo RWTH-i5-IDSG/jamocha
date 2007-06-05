@@ -19,7 +19,6 @@ package org.jamocha.rete.functions.ruleengine;
 import java.io.Serializable;
 
 import org.jamocha.parser.EvaluationException;
-import org.jamocha.parser.IllegalTypeException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.BoundParam;
@@ -28,7 +27,6 @@ import org.jamocha.rete.Fact;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.Slot;
 import org.jamocha.rete.configurations.ModifyConfiguration;
 import org.jamocha.rete.exception.AssertException;
 import org.jamocha.rete.exception.RetractException;
@@ -115,7 +113,6 @@ public class Modify implements Function, Serializable {
 		if (engine != null && params != null && params.length > 0) {
 			BoundParam bp = null;
 			Fact fact = null;
-			Slot[] newSlots = null;
 			// grather all infos:
 			try {
 					// modificonfiguration
