@@ -97,6 +97,11 @@ public class MathFunctions implements FunctionGroup {
 		Oddp oddp = new Oddp();
 		functionMem.declareFunction(oddp);
 		funcs.add(oddp);
+		
+		Pi pi = new Pi();
+		functionMem.declareFunction(pi);
+		funcs.add(pi);
+		
 		Pow pow = new Pow();
 		functionMem.declareFunction(pow);
 		funcs.add(pow);
