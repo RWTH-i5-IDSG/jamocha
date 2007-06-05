@@ -58,7 +58,7 @@ public class JamochaValueUtils {
 	}
 
 	public static JamochaValue convertToLong(String n) {
-		return JamochaValue.newLong(Integer.parseInt(n));
+		return JamochaValue.newLong(Long.parseLong(n));
 	}
 
 }
