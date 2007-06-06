@@ -98,19 +98,11 @@ public class Signum implements Function, Serializable {
 					value = value.implicitCast(JamochaType.DOUBLE);
 				}
 				if (value.getType().equals(JamochaType.DOUBLE)) {
-					if (value.getDoubleValue() > 0)
-						return JamochaValue.newDouble(1.0);
-					else if (value.getDoubleValue() < 0)
-						return JamochaValue.newDouble(-1.0);
-					else
-						return JamochaValue.newDouble(0);
+					return JamochaValue.newDouble(Math.signum(value
+							.getDoubleValue()));
 				} else if (value.getType().equals(JamochaType.LONG)) {
-					if (value.getLongValue() > 0)
-						return JamochaValue.newDouble(1.0);
-					else if (value.getLongValue() < 0)
-						return JamochaValue.newDouble(-1.0);
-					else
-						return JamochaValue.newDouble(0);
+					return JamochaValue.newDouble(Math.signum(value
+							.getLongValue()));
 				}
 			}
 		}
