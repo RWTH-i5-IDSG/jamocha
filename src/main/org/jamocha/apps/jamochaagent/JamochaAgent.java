@@ -25,15 +25,13 @@ import jade.util.BasicProperties;
 import jade.util.ExpandedProperties;
 
 import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
+import java.io.InputStreamReader;
+import java.net.URL;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import org.jamocha.Jamocha;
 import org.jamocha.adapter.sl.CLIPS2SLFunction;
@@ -41,7 +39,6 @@ import org.jamocha.adapter.sl.SL2CLIPSFunction;
 import org.jamocha.messagerouter.MessageEvent;
 import org.jamocha.messagerouter.StringChannel;
 import org.jamocha.parser.ModeNotFoundException;
-import org.jamocha.rete.Deftemplate;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Rete;
 
@@ -70,12 +67,10 @@ public class JamochaAgent extends ToolAgent {
 
 	private BasicProperties properties = null;
 
-	private Map<String, String> arguments = new HashMap<String, String>();
+	private String[] arguments;
 
 	private MessageSender sendingBehaviour;
 
-	private Deftemplate messageTemplate;
-	
 	private Jamocha jamocha;
 
 	/** Is called when agent is started. */
@@ -83,23 +78,18 @@ public class JamochaAgent extends ToolAgent {
 	public void toolSetup() {
 		// Initialize the Rule-engine
 		engine = new Rete();
-		// Get the agents arguments and puts them into a seperate HashMap
-		initArguments();
-
-		// dump the provided properties if debugging is on
-		if (getProperties().getBooleanProperty("agent.debug", false)) {
-			System.out.println("----- " + getLocalName() + "'s properties:");
-			getProperties().list(System.out);
-			System.out.println("----- end of properties -----");
-		}
+		// Load the properties and merge them with possible arguments
+		initProperties();
 
 		addBehaviour(new MessageReceiver(this));
 		sendingBehaviour = new MessageSender(this);
 		addBehaviour(sendingBehaviour);
 		try {
-			jamocha = new Jamocha(engine, isSetArgument("gui"),
-					isSetArgument("shell"), getArgument("parser", ""));
-			if (isSetArgument("gui"))
+			jamocha = new Jamocha(engine, getProperties().getBooleanProperty(
+					"jamocha.gui", false), getProperties().getBooleanProperty(
+					"jamoche.shell", false), getProperties().getProperty(
+					"jamocha.mode", ""));
+			if (getProperties().getBooleanProperty("jamocha.gui", false))
 				jamocha.getJamochaGui().setExitOnClose(false);
 		} catch (ModeNotFoundException e) {
 			e.printStackTrace();
@@ -113,7 +103,8 @@ public class JamochaAgent extends ToolAgent {
 
 	private void initEngine() {
 		// register user function for sending messages
-		engine.getFunctionMemory().declareFunction(new SendMessageFunction(this));
+		engine.getFunctionMemory().declareFunction(
+				new SendMessageFunction(this));
 		engine.getFunctionMemory().declareFunction(new SL2CLIPSFunction());
 		engine.getFunctionMemory().declareFunction(new CLIPS2SLFunction());
 
@@ -123,28 +114,17 @@ public class JamochaAgent extends ToolAgent {
 		// in the "agent.init" property
 		String initFileName = getProperties().getProperty("agent.initfile",
 				"init.clp");
-		try {
-			if (getProperties().getBooleanProperty("agent.debug", false)) {
-				System.out.println("----- initializing the agent from :");
-				System.out.println(initFileName);
-			}
-			BufferedReader reader = new BufferedReader(new FileReader(
-					initFileName));
 
-			while (reader.ready()) {
-				buffer.append(reader.readLine());
-			}
-
-		} catch (FileNotFoundException e1) {
-			if (getProperties().getBooleanProperty("agent.debug", false)) {
-				System.out.println(e1.getMessage());
-			}
-		} catch (IOException e2) {
-			if (getProperties().getBooleanProperty("agent.debug", false)) {
-				System.out.println(e2.getMessage());
-			}
+		initFileName = this.getClass().getPackage().getName().replace('.', '/')
+				+ "/" + initFileName;
+		readFromPackage(buffer, initFileName);
+		String path = getProperties().getProperty("agent.protocols.package",
+				this.getClass().getPackage().getName() + ".protocols").replace(
+				'.', '/');
+		String[] protocols = listPackage(path);
+		for (String str : protocols) {
+			readFromPackage(buffer, path + "/" + str);
 		}
-
 		// store agent name as fact
 		buffer.append("(assert (" + TEMPLATE_AGENT_DESCRIPTION + "(name \""
 				+ getName() + "\")(local TRUE)))");
@@ -206,52 +186,50 @@ public class JamochaAgent extends ToolAgent {
 		}
 	}
 
-	/**
-	 * Sets the given Arguments for the Agent.
-	 * 
-	 */
-	private void initArguments() {
-		Object[] args = getArguments();
-		String argKey = null, currArg = null;
-		if (args != null) {
-			for (int i = 0; i < args.length; ++i) {
-				currArg = args[i].toString();
-				if (currArg.startsWith("-")) {
-					argKey = currArg.subSequence(1, currArg.length())
-							.toString();
-					arguments.put(argKey, null);
-					if (argKey != null)
-						System.out.println();
-					System.out.print("arg: " + argKey);
-				} else if (argKey != null) {
-					arguments.put(argKey, currArg);
-					System.out.println(" = " + currArg);
-					argKey = currArg = null;
-				}
-
-			}
-			if (argKey != null)
-				System.out.println();
+	private void initProperties() {
+		properties = new ExpandedProperties();
+		String defaultPropName = STANDARD_PROP_FILE;
+		try {
+			defaultPropName = this.getClass().getPackage().getName().replace(
+					'.', '/')
+					+ "/" + defaultPropName;
+			// System.out.println(defaultPropName);
+		} catch (Exception any) {
+			// ignore - likely class not in package.
 		}
-	}
+		InputStream propertyStream = this.getClass().getClassLoader()
+				.getResourceAsStream(defaultPropName);
+		if (propertyStream != null) {
+			try {
+				properties.load(propertyStream);
+			} catch (IOException ioe) {
+				System.err.println("Error reading:" + defaultPropName);
+				System.exit(-1);
+			}
+		}
 
-	private String getArgument(String key, String defaultValue) {
-		if (arguments.get(key) == null)
-			return defaultValue;
-		else
-			return arguments.get(key);
-	}
+		Object[] arguments = super.getArguments();
+		if (arguments != null) {
+			String[] stringArgs = new String[arguments.length];
 
-	private boolean isSetArgument(String key) {
-		return (arguments.containsKey(key));
+			for (int i = 0; i < arguments.length; ++i) {
+				stringArgs[i] = arguments[i].toString();
+				System.out.print("arg[" + i + "]: " + (String) arguments[i]
+						+ "\n");
+			}
+			setArguments(stringArgs);
+		}
+
+		// dump the provided properties
+		if (getProperties().getBooleanProperty("agent.debug", false)) {
+			System.out.println("----- " + getLocalName() + "'s properties:");
+			getProperties().list(System.out);
+			System.out.println("----- end of properties -----");
+		}
 	}
 
 	public MessageSender getMessageSender() {
 		return sendingBehaviour;
-	}
-
-	public Deftemplate getAgentConversationTemplate() {
-		return messageTemplate;
 	}
 
 	/**
@@ -279,24 +257,26 @@ public class JamochaAgent extends ToolAgent {
 	 * @return the Properties
 	 */
 	public BasicProperties getProperties() {
-		if (properties == null) {
-			properties = new ExpandedProperties();
-			String defaultPropName = getArgument("properties",
-					STANDARD_PROP_FILE);
-			InputStream propertyStream;
-			try {
-				propertyStream = new FileInputStream(defaultPropName);
-				try {
-					properties.load(propertyStream);
-				} catch (IOException ioe) {
-					System.err.println("Error reading:" + defaultPropName);
-					System.exit(-1);
-				}
-			} catch (FileNotFoundException fnfe) {
-				System.out.println("No properties found!");
-			}
-		}
 		return properties;
+	}
+
+	/**
+	 * Called by Jade to set the agents arguments so we use it to initialize our
+	 * properties. It calls getProperties to get the starting properties, copies
+	 * them into a new instance of ExpandedProperties, calls its parseArgs
+	 * method of handle the presented arguments, and then replaces our starting
+	 * properties with this result. This ensures that empty setting in the
+	 * arguments will overlay those in starting. arguments.
+	 * 
+	 * @param args
+	 *            The arguments passed to the agent.
+	 */
+	public void setArguments(String[] args) {
+		arguments = args;
+		ExpandedProperties newProperties = new ExpandedProperties();
+		newProperties.copyProperties(getProperties());
+		newProperties.parseArgs(args);
+		setProperties(newProperties);
 	}
 
 	/**
@@ -304,9 +284,35 @@ public class JamochaAgent extends ToolAgent {
 	 * 
 	 * @return The value given to setArguments - may be null;
 	 */
-	@Override
 	public Object[] getArguments() {
-		return super.getArguments();
+		return arguments;
+	}
+
+	private String[] listPackage(String path) {
+		ClassLoader cld = this.getClass().getClassLoader();
+		URL resource = cld.getResource(path);
+		File directory = new File(resource.getFile());
+		return directory.list();
+	}
+
+	private void readFromPackage(StringBuilder buffer, String dataFile) {
+		InputStream initStream = this.getClass().getClassLoader()
+				.getResourceAsStream(dataFile);
+		BufferedReader reader = new BufferedReader(new InputStreamReader(
+				initStream));
+		if (getProperties().getBooleanProperty("agent.debug", false)) {
+			System.out.println("----- reading file :" + dataFile);
+		}
+		try {
+			while (reader.ready()) {
+				buffer.append(reader.readLine() + "\n");
+			}
+			reader.close();
+
+		} catch (IOException e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
 	}
 
 }

@@ -203,6 +203,7 @@ public class FunctionsPanel extends AbstractJamochaPanel implements
 
 	public void setFocus() {
 		super.setFocus();
+		initFunctionGroupsList();
 		initFunctionsList(null);
 	}
 

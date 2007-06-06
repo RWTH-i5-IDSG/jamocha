@@ -1,4 +1,7 @@
-(deffunction fipa-sl-request-handler "Handles incoming requests in FIPA-SL." (?factid)
+(deffunction fipa-sl-request-handler "Handles incoming requests in FIPA-SL."
+	(functiongroup "AgentFunctions")
+	(?factid)
+	
     (bind ?clipsCode (fact-slot-value ?factid content))
     ; if we have content in fipa-sl we parse it and translate it to CLIPS
     (if

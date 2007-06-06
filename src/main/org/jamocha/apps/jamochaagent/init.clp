@@ -57,11 +57,11 @@
 	    (performative ?performative)
 	    (handlerfunction ?handler)
 	)
-	(test (member$ ?receiver ?receivers))
+	(test (> (member$ ?receiver ?receivers) 0))
 	=> 
 	(printout t ?receiver " received a message with performative " ?performative)	
 	(assert (agent-description (name ?sender)(local FALSE)))
 	(apply ?handler (get-fact-id ?message))
 )
 
-(batch apps/jamochaagent/performatives/fipasl.clp)
+; (batch apps/jamochaagent/performatives/fipasl.clp)
