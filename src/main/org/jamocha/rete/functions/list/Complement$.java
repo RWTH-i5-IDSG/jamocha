@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 Alexander Wilden
+ * Copyright 2007 Alexander Wilden, Uta Christoph
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,7 +41,7 @@ public class Complement$ implements Function, Serializable {
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "Returns a new list consisting of all elements of the second list that don't appear in the first list.";
+			return "Returns a new list containing all elements of the second list that are not also elements of the first list.";			
 		}
 
 		public int getParameterCount() {

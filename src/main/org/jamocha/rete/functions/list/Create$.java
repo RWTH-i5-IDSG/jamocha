@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 Christoph Emonds, Alexander Wilden
+ * Copyright 2007 Christoph Emonds, Alexander Wilden, Uta Christoph
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,7 +40,7 @@ public class Create$ implements Function, Serializable {
 			FunctionDescription {
 
 		public String getDescription() {
-			return "Creates a list of the given parameter values.";
+			return "Creates a list of the given arguments.";
 		}
 
 		public int getParameterCount() {
@@ -48,7 +48,7 @@ public class Create$ implements Function, Serializable {
 		}
 
 		public String getParameterDescription(int parameter) {
-			return "Any value that should be put into the List.";
+			return "Any value to be part of the list.";
 		}
 
 		public String getParameterName(int parameter) {

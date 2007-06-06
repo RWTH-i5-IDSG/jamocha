@@ -43,7 +43,7 @@ public class DeleteMember$ implements Function, Serializable {
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "Deletes specific values from a list. Arguments given as list are removed in correct order and coherent. The arguments are processed in the order they are given. Have a look at the examples to understand the behaviour. Returns a new list without the given values.";
+			return "Deletes specific values from a list. Arguments given as a list are removed in correct order and coherent. The arguments are processed in the order they are given. Have a look at the examples to understand the behaviour. Returns a new list containing the remaining values.";
 		}
 
 		public int getParameterCount() {
@@ -53,9 +53,9 @@ public class DeleteMember$ implements Function, Serializable {
 		public String getParameterDescription(int parameter) {
 			switch (parameter) {
 			case 0:
-				return "The List to delete items from.";
+				return "List to delete items from.";
 			case 1:
-				return "Item to delete in the List.";
+				return "Item(s) to delete from the list.";
 			}
 			return "";
 		}

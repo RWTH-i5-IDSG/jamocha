@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 Alexander Wilden
+ * Copyright 2007 Alexander Wilden, Uta Christoph
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,7 +43,7 @@ public class Delete$ implements Function, Serializable {
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "Deletes a specified number of items from a list and returns the resulting values again in a new list. The first integer expression is the index of the first value to remove and the second integer expression is the index of the last value to remove. Attention: Lists in Jamocha start with index 1.";
+			return "Deletes a specified number of items from a list and returns the remaining values in a new list. The first integer defines the index of the first item to be removed and the second integer defines the index of the last item to be removed. Attention: Lists in Jamocha start with index 1.";
 		}
 
 		public int getParameterCount() {
@@ -53,11 +53,11 @@ public class Delete$ implements Function, Serializable {
 		public String getParameterDescription(int parameter) {
 			switch (parameter) {
 			case 0:
-				return "The List to delete items from.";
+				return "List to delete items from.";
 			case 1:
-				return "First item to delete in the List. Has to be smaller or equal to endIndex.";
+				return "First item to delete from the List. Has to be smaller or equal to endIndex and within the bounds of the list.";
 			case 2:
-				return "Last item to delete in the List. Has to be greater or equal to startIndex.";
+				return "Last item to delete from the List. Has to be greater or equal to startIndex and within the bounds of list.";
 			}
 			return "";
 		}
