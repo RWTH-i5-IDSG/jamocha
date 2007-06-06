@@ -118,11 +118,10 @@ public interface SFPParserConstants {
   int LOOP_FOR_COUNT = 100;
   int SWITCH = 101;
   int CASE = 102;
-  int STAR = 103;
-  int VARSYMBOL = 104;
-  int SINGLEVAR = 105;
-  int MULTIVAR = 106;
-  int SYMBOL = 107;
+  int VARSYMBOL = 103;
+  int SINGLEVAR = 104;
+  int MULTIVAR = 105;
+  int SYMBOL = 106;
 
   int DEFAULT = 0;
 
@@ -230,7 +229,6 @@ public interface SFPParserConstants {
     "\"loop-for-count\"",
     "\"switch\"",
     "\"case\"",
-    "\"*\"",
     "<VARSYMBOL>",
     "<SINGLEVAR>",
     "<MULTIVAR>",

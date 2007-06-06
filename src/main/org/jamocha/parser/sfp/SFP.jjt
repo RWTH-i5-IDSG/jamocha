@@ -236,7 +236,7 @@ TOKEN :
 | < LOOP_FOR_COUNT: "loop-for-count" >
 | < SWITCH: "switch" >
 | < CASE: "case" >
-| < STAR: "*">
+//| < STAR: "*">
   // If you think this is ugly, you are right. See CLIPS Basic Progrmmers Guide:
   // "Numbers are symbols, but treated different. Instances are symbols, but treated different." 
 | < #VARSYMBOL:  ["a"-"z","A"-"Z"] (~[" ","\r","\n","\t","\"","\'","(",")","&","|","<","~",";"])* >
@@ -825,10 +825,10 @@ SimpleNode RetractFunc() :
 {
 	<RETRACT>
 	(
-		<STAR>	// Retract all
-	|	(
+	//	<STAR>	// Retract all
+	//|	(
 			(Expression())*		// Integers and 'retract-specifiers' see BPG
-		)
+	//	)
 	)
 //	RHSPattern()+
 	{ return jjtThis; }
