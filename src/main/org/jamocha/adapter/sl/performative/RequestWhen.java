@@ -40,8 +40,8 @@ public class RequestWhen {
 	}
 
 	/**
-	 * Translates SL code of a request to CLIPS code. A request only contains
-	 * one action.
+	 * Translates SL code of a request-when to CLIPS code. A request-when contains
+	 * one action and one proposition.
 	 * 
 	 * @param slContent
 	 *            The SL content we have to translate.
@@ -64,7 +64,8 @@ public class RequestWhen {
 		}
 		// Walk through the children until we have something useful
 		sn = getChildAtLevel(sn, 2);
-		if (getChild(sn,0).getID() == SLParserTreeConstants.JJTACTION && getChild(sn,1).getID() == SLParserTreeConstants.JJTWFF) {
+		if (getChild(sn,0).getID() == SLParserTreeConstants.JJTACTION 
+				&& getChild(sn,1).getID() == SLParserTreeConstants.JJTWFF) {
 			
 			// Here we have an Action
 			// Get the right Child. The left Child is the agent-identifier.
@@ -76,9 +77,9 @@ public class RequestWhen {
 			
 			// Here we have an Proposition
 			SimpleNode wff = getChild(getChild(sn, 0), 1);
-			String premisse = "(" + resolveParameters(wff) + ")";	
-			//Name has to be added
-			result.append("(defrule" + premisse + " => " + conclusion + ")");
+			String premisse = "(" + resolveWff(wff) + ")";	
+			
+			result.append("(defrule request-when " + premisse + " => " + conclusion + "(undefrule request-when))");
 		}
 
 		return result.toString();
@@ -95,6 +96,9 @@ public class RequestWhen {
 	public static String resolveParameters(SimpleNode node) {
 		// Go From Parameter to Node after Term
 		SimpleNode currNode = node;
+		while (currNode.getID() != SLParserTreeConstants.JJTTERM) {
+			currNode = getChild(currNode, 0);
+		}
 		currNode = getChild(currNode, 0);
 		if (currNode.getID() == SLParserTreeConstants.JJTFUNCTIONALTERM) {
 			// This would be a Fact for CLIPS
@@ -136,28 +140,40 @@ public class RequestWhen {
 				buffer.append(childBind);
 			}
 			return buffer.toString();
-			
-		//************	
-		//Resolve WFFs
-		//************
-			
+		}
+		return "";
+	}
+
+	/**
+	 * Recusively walks through a Wff and converts it to Clips.
+	 * 
+	 * @param node 
+	 * 				the node to start from
+	 * 
+	 * @return a premisse for a Clips rule 
+	 */
+	public static String resolveWff(SimpleNode node){
+		
+		SimpleNode currNode = getChild(node, 0);
+		
 		//Atomic Formula
-		} else if(currNode.getID() == SLParserTreeConstants.JJTATOMICFORMULA){
-			
+		if(currNode.getID() == SLParserTreeConstants.JJTATOMICFORMULA){
+		
 			//Propositionsymbol (contains directly its value)
 			if(getChild(currNode,0).getID() == SLParserTreeConstants.JJTPROPOSITIONSYMBOL){
-				return "\"" + getChild(currNode,0).getText() + "\"";
-				
+				return "(" + getChild(currNode,0).getText() + ")";
+			
 			//Binary Term Operator (Equal or Result)
 			} else if(getChild(currNode,0).getID() == SLParserTreeConstants.JJTBINARYTERMOP){
+				
 				currNode = getChild(currNode,0);
 				if(currNode.getID() == SLParserTreeConstants.JJTEQUAL){
-					return "(= " + resolveParameters(getChild(currNode,0)) + " " + resolveParameters(getChild(currNode, 1)) + ")";
+					return "(eq " + resolveParameters(getChild(currNode,0)) + " " + resolveParameters(getChild(currNode, 1)) + ")";
 				}
 				else if (getChild(currNode,0).getID() == SLParserTreeConstants.JJTRESULT){
 					return "(result " + resolveParameters(getChild(currNode, 1)) + " " + resolveParameters(getChild(currNode, 2)) + ")";
 				}
-				
+			
 			//Predicatesymbol (n-ary => n Childs to resolve)
 			} else if(getChild(currNode,0).getID() == SLParserTreeConstants.JJTPREDICATESYMBOL){
 				StringBuilder buffer = new StringBuilder();
@@ -170,65 +186,86 @@ public class RequestWhen {
 				
 			//TRUE or FALSE
 			} else if(currNode.getID() == SLParserTreeConstants.JJTTRUE){
-				return "TRUE";
+				return "(TRUE)";
 			} else if(currNode.getID() == SLParserTreeConstants.JJTFALSE){
-				return "FALSE";
+				return "(FALSE)";
 			}
-			
-		//Binary Logical Operator (AND and OR)
-		} else if(currNode.getID() == SLParserTreeConstants.JJTAND 
-					|| currNode.getID() == SLParserTreeConstants.JJTOR){ 
-			
-			return "(" + currNode.getText() + " " + resolveParameters(getChild(node, 1)) 
-					+ " " + resolveParameters(getChild(currNode,2)) + ")";
 		
-		//Binary Logical Operator (IMPLIES, x -> y = -x v y)
-		} else if(currNode.getID() == SLParserTreeConstants.JJTIMPLIES){
-			return "(or not(" + resolveParameters(getChild(currNode,1)) + ") "
-					+ resolveParameters(getChild(currNode,2)) + ")";
-			
-		//Binary Logical Operator (EQUIVALENT, x <-> y = (-x v y) ^ (x v -y))
-		} else if(currNode.getID() == SLParserTreeConstants.JJTEQUIV){
-			String x = resolveParameters(getChild(currNode,1));
-			String y = resolveParameters(getChild(currNode,2));
-			return "(and (or (not " + x + ") " + y + ") (or " + x + " (not " + y + ")))";
-			
-		//Unary Logical Operator
-		} else if(currNode.getID() == SLParserTreeConstants.JJTNOT){
-			return "(not " + resolveParameters(getChild(node,1)) + ")";
-			
-		//Quantifier
-		} else if(currNode.getID() == SLParserTreeConstants.JJTFORALL
-					|| currNode.getID() == SLParserTreeConstants.JJTEXISTS){
-			return "(" + currNode.getText() + resolveParameters(getChild(node,2)) 
-					+ " " + resolveParameters(getChild(node,1)) + ")";
+	//Binary Logical Operator (AND)
+	} else if(currNode.getID() == SLParserTreeConstants.JJTAND){ 
 		
-		//Modal Operator (B)
-		} else if(currNode.getID() == SLParserTreeConstants.JJTB){
-		
-		//Modal Operator (U)
-		} else if(currNode.getID() == SLParserTreeConstants.JJTU){
-		
-		//Modal Operator (PG)
-		} else if(currNode.getID() == SLParserTreeConstants.JJTPG){
-			
-		//Modal Operator (I)
-		} else if(currNode.getID() == SLParserTreeConstants.JJTI){
+		return "(and " + resolveWff(getChild(node, 0)) 
+				+ " " + resolveWff(getChild(currNode,1)) + ")";
+	
+	//Binary Logical Operator (OR)
+	} else if(currNode.getID() == SLParserTreeConstants.JJTOR){ 
+	
+		return "(or " + resolveWff(getChild(node, 0)) 
+			+ " " + resolveWff(getChild(currNode,1)) + ")";
 
-		//Action Operator
-		} else if(currNode.getID() == SLParserTreeConstants.JJTACTIONOP){
-			
-			//ActionOP + ActionExpression
-			if(currNode.jjtGetNumChildren() == 2){}
-			
-			//ActionOP + ActionExpression + WFF
-			else if(currNode.jjtGetNumChildren() == 3){}
-		}else {
-			return resolveParameters(getChild(currNode, 0));
+	//Binary Logical Operator (IMPLIES, x -> y = -x v y)
+	} else if(currNode.getID() == SLParserTreeConstants.JJTIMPLIES){
+		return "(or not(" + resolveWff(getChild(currNode,0)) + ") "
+				+ resolveWff(getChild(currNode,1)) + ")";
+		
+	//Binary Logical Operator (EQUIVALENT, x <-> y = (-x v y) ^ (x v -y))
+	} else if(currNode.getID() == SLParserTreeConstants.JJTEQUIV){
+		String x = resolveWff(getChild(currNode,0));
+		String y = resolveWff(getChild(currNode,1));
+		return "(and (or (not " + x + ") " + y + ") (or " + x + " (not " + y + ")))";
+		
+	//Unary Logical Operator
+	} else if(currNode.getID() == SLParserTreeConstants.JJTNOT){
+		return "(not " + resolveWff(getChild(node,0)) + ")";
+		
+	//Quantifier (ForAll)
+	} else if(currNode.getID() == SLParserTreeConstants.JJTFORALL){
+		return "(forall " + resolveWff(getChild(node,1)) + ")";
+	
+	//Quantifier (Exists)
+	} else if(currNode.getID() == SLParserTreeConstants.JJTEXISTS){
+		return "(exists " + resolveWff(getChild(node,1)) + ")";
+
+	//Modal Operator (B)
+	} else if(currNode.getID() == SLParserTreeConstants.JJTB){
+	
+	//Modal Operator (U)
+	} else if(currNode.getID() == SLParserTreeConstants.JJTU){
+	
+	//Modal Operator (PG)
+	} else if(currNode.getID() == SLParserTreeConstants.JJTPG){
+		
+	//Modal Operator (I)
+	} else if(currNode.getID() == SLParserTreeConstants.JJTI){
+
+	//Action Operator
+	} else if(currNode.getID() == SLParserTreeConstants.JJTACTIONOP){
+		
+		//ActionOP + ActionExpression
+		if(currNode.jjtGetNumChildren() == 2){
+			if(getChild(currNode,0).getID() == SLParserTreeConstants.JJTFEASIBLE){
+				
+			}
+			else if(getChild(currNode,0).getID() == SLParserTreeConstants.JJTDONE){
+				return "(done " + resolveParameters(getChild(currNode,1)) + ")";
+			}
 		}
-		return "";
+		
+		//ActionOP + ActionExpression + WFF
+		else if(currNode.jjtGetNumChildren() == 3){}
+			if(getChild(currNode,0).getID() == SLParserTreeConstants.JJTFEASIBLE){
+			
+			}
+			else if(getChild(currNode,0).getID() == SLParserTreeConstants.JJTDONE){
+				return "(done " + resolveParameters(getChild(currNode,1)) + ")";
+			}
+	}else if(currNode.getID() == SLParserTreeConstants.JJTWFF){
+		return resolveWff(getChild(currNode, 0));
 	}
+	return "";
+}
 
+	
 	/**
 	 * Returns a child of SimpleNode directly as SimpleNode.
 	 * 
