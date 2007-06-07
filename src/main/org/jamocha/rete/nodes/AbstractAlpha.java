@@ -102,12 +102,14 @@ public abstract class AbstractAlpha extends BaseNode {
 		return this.operator;
 	}
 
-	protected void mountChild(BaseNode newChild, Rete engine) throws AssertException {
+	protected void mountChild(BaseNode newChild, Rete engine)
+			throws AssertException {
 		for (Fact fact : facts)
 			newChild.assertFact(fact, engine, this);
-		}
+	}
 
-	protected void unmountChild(BaseNode oldChild, Rete engine) throws RetractException {
+	protected void unmountChild(BaseNode oldChild, Rete engine)
+			throws RetractException {
 		for (Fact fact : facts)
 			oldChild.retractFact(fact, engine, this);
 	}
@@ -115,6 +117,5 @@ public abstract class AbstractAlpha extends BaseNode {
 	public void clear() {
 		facts.clear();
 	}
-
 
 }

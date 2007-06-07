@@ -18,7 +18,6 @@ package org.jamocha.rete.nodes;
 
 import org.jamocha.rete.Slot;
 
-
 /**
  * @author Peter Lin
  * 
@@ -36,12 +35,14 @@ public abstract class SlotAlpha extends AbstractAlpha {
 
 	/**
 	 * set the operator type for the node
+	 * 
 	 * @param opr
 	 */
 	public abstract void setOperator(int opr);
 
 	/**
 	 * set the slot for the node
+	 * 
 	 * @param sl
 	 */
 	public abstract void setSlot(Slot sl);

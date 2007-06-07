@@ -82,7 +82,8 @@ public class AlphaNode extends SlotAlpha {
 	 * @param factInstance
 	 */
 	@Override
-	public void assertFact(Assertable fact, Rete engine, BaseNode sender) throws AssertException {
+	public void assertFact(Assertable fact, Rete engine, BaseNode sender)
+			throws AssertException {
 		if (evaluate((Fact) fact)) {
 			facts.add((Fact) fact);
 			propogateAssert(fact, engine);
@@ -96,23 +97,26 @@ public class AlphaNode extends SlotAlpha {
 	 * @param engine
 	 */
 	@Override
-	public void retractFact(Assertable fact, Rete engine, BaseNode sender) throws RetractException {
-		facts.remove((Fact)fact);
+	public void retractFact(Assertable fact, Rete engine, BaseNode sender)
+			throws RetractException {
+		facts.remove((Fact) fact);
 		propogateRetract(fact, engine);
 	}
 
 	@Override
-	protected void mountChild(BaseNode newChild, Rete engine) throws AssertException {
+	protected void mountChild(BaseNode newChild, Rete engine)
+			throws AssertException {
 		for (Fact fact : facts)
-			//eval before send down:
+			// eval before send down:
 			if (evaluate((Fact) fact))
 				newChild.assertFact(fact, engine, this);
 	}
 
 	@Override
-	protected void unmountChild(BaseNode oldChild, Rete engine) throws RetractException {
+	protected void unmountChild(BaseNode oldChild, Rete engine)
+			throws RetractException {
 		for (Fact fact : facts)
-//			eval before send down:
+			// eval before send down:
 			if (evaluate((Fact) fact))
 				oldChild.retractFact(fact, engine, this);
 	}
@@ -126,9 +130,9 @@ public class AlphaNode extends SlotAlpha {
 	 * @return
 	 */
 	protected boolean evaluate(Fact factInstance) {
-		return Evaluate.evaluate(this.operator, factInstance.getSlotValue(this.slot.getId()), this.slot.getValue());
+		return Evaluate.evaluate(this.operator, factInstance
+				.getSlotValue(this.slot.getId()), this.slot.getValue());
 	}
-
 
 	/**
 	 * Method returns the pretty printer formatted string of the node's

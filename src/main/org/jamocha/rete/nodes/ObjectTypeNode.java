@@ -63,7 +63,8 @@ public class ObjectTypeNode extends AbstractAlpha implements Serializable {
 	}
 
 	@Override
-	public void assertFact(Assertable fact, Rete engine, BaseNode sender) throws AssertException {
+	public void assertFact(Assertable fact, Rete engine, BaseNode sender)
+			throws AssertException {
 		if (((Fact) fact).getTemplate().equals(this.getDeftemplate())) {
 			this.facts.add((Fact) fact);
 			propogateAssert(fact, engine);
@@ -71,28 +72,30 @@ public class ObjectTypeNode extends AbstractAlpha implements Serializable {
 	}
 
 	@Override
-	public void retractFact(Assertable fact, Rete engine, BaseNode sender) throws RetractException {
-		if (facts.remove((Fact)fact))
+	public void retractFact(Assertable fact, Rete engine, BaseNode sender)
+			throws RetractException {
+		if (facts.remove((Fact) fact))
 			propogateRetract(fact, engine);
 	}
 
-	public RootNode getRootNode(){
-		//we only have one parent. this must be the rootnode
-		if (getParentCount() >0 )
-			return (RootNode)this.parentNodes[0];
+	public RootNode getRootNode() {
+		// we only have one parent. this must be the rootnode
+		if (getParentCount() > 0)
+			return (RootNode) this.parentNodes[0];
 		else
 			return null;
-		
+
 	}
-	
+
 	/**
 	 * this returns name of the deftemplate
 	 */
 	public String toPPString() {
-		return super.toPPString() + "Template: " + this.deftemplate.getName() + "\n";
+		return super.toPPString() + "Template: " + this.deftemplate.getName()
+				+ "\n";
 	}
-	
-	protected void evZeroUseCount(Rete engine)  {
+
+	protected void evZeroUseCount(Rete engine) {
 		try {
 			getRootNode().deactivateObjectTypeNode(this, engine);
 		} catch (RetractException e) {

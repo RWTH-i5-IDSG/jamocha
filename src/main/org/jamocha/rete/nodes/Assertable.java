@@ -18,11 +18,10 @@ package org.jamocha.rete.nodes;
 
 import java.io.Serializable;
 
-public interface Assertable extends Serializable{
-	
+public interface Assertable extends Serializable {
+
 	public String toPPString();
 
 	public String toString();
-	
 
 }

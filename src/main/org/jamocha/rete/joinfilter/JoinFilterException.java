@@ -2,6 +2,8 @@ package org.jamocha.rete.joinfilter;
 
 public class JoinFilterException extends Exception {
 
+	private static final long serialVersionUID = 1L;
+
 	public JoinFilterException() {
 	}
 

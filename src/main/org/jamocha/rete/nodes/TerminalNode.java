@@ -62,7 +62,8 @@ public class TerminalNode extends BaseNode {
 	 * @param engine
 	 * @param idx
 	 */
-	public void assertFact(Assertable fact, Rete engine, BaseNode sender) throws AssertException {
+	public void assertFact(Assertable fact, Rete engine, BaseNode sender)
+			throws AssertException {
 		FactTuple tuple = null;
 		if (sender.isRightNode())
 			tuple = new FactTuple((Fact) fact);
@@ -81,7 +82,8 @@ public class TerminalNode extends BaseNode {
 	 * @param idx
 	 */
 	@Override
-	public void retractFact(Assertable fact, Rete engine, BaseNode sender) throws RetractException {
+	public void retractFact(Assertable fact, Rete engine, BaseNode sender)
+			throws RetractException {
 		FactTuple tuple = null;
 		if (sender.isRightNode())
 			tuple = new FactTuple((Fact) fact);

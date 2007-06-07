@@ -19,9 +19,7 @@ package org.jamocha.rete.nodes;
 import java.util.Iterator;
 import java.util.List;
 
-import org.jamocha.rete.Binding;
 import org.jamocha.rete.Constants;
-import org.jamocha.rete.ConversionUtils;
 import org.jamocha.rete.Fact;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.exception.AssertException;
@@ -54,14 +52,12 @@ public class BetaFilterNode extends AbstractBeta {
 	 * binding for the join
 	 */
 	protected List<JoinFilter> filters = null;
-	
+
 	/**
 	 * The operator for the join by default is equal. The the join doesn't
 	 * comparing values, the operator should be set to -1.
 	 */
 	protected int operator = Constants.EQUAL;
-
-
 
 	public BetaFilterNode(int id) {
 		super(id);
@@ -73,7 +69,8 @@ public class BetaFilterNode extends AbstractBeta {
 	 * @param binds
 	 * @throws AssertException
 	 */
-	public void setFilters(List<JoinFilter> filters, Rete engine) throws AssertException {
+	public void setFilters(List<JoinFilter> filters, Rete engine)
+			throws AssertException {
 		this.filters = filters;
 	}
 
@@ -94,21 +91,22 @@ public class BetaFilterNode extends AbstractBeta {
 					if (!filter.evaluate(right, tuple))
 						return false;
 				} catch (JoinFilterException e) {
-					//TODO make good error output
+					// TODO make good error output
 					e.printStackTrace();
 				}
 			}
 		}
 		return true;
 	}
-	
+
 	public void addFilter(JoinFilter f) {
 		filters.add(f);
-		
+
 	}
 
 	@Override
-	protected void mountChild(BaseNode newChild, Rete engine) throws AssertException {
+	protected void mountChild(BaseNode newChild, Rete engine)
+			throws AssertException {
 		Iterator<FactTuple> itr = mergeMemory.iterator();
 		while (itr.hasNext()) {
 			newChild.assertFact(itr.next(), engine, this);
@@ -116,21 +114,23 @@ public class BetaFilterNode extends AbstractBeta {
 	}
 
 	@Override
-	protected void unmountChild(BaseNode oldChild, Rete engine) throws RetractException {
+	protected void unmountChild(BaseNode oldChild, Rete engine)
+			throws RetractException {
 		Iterator<FactTuple> itr = mergeMemory.iterator();
 		while (itr.hasNext()) {
 			oldChild.retractFact(itr.next(), engine, this);
 		}
 	}
-	
-	public String toPPString(){
+
+	public String toPPString() {
 		StringBuffer sb = new StringBuffer();
 		sb.append(super.toPPString());
 		sb.append("\nFilters: ");
-		if (filters != null){
-			for(JoinFilter f : filters)
+		if (filters != null) {
+			for (JoinFilter f : filters)
 				sb.append(f.toPPString()).append("\n");
-		} else sb.append("none\n");
+		} else
+			sb.append("none\n");
 		return sb.toString();
 	}
 

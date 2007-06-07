@@ -61,12 +61,12 @@ public abstract class BaseNode implements Serializable {
 	public BaseNode[] getChildNodes() {
 		return childNodes;
 	}
-	
-	public int getChildCount(){
+
+	public int getChildCount() {
 		return childNodes.length;
 	}
-	
-	public int getParentCount(){
+
+	public int getParentCount() {
 		return parentNodes.length;
 	}
 
@@ -79,30 +79,34 @@ public abstract class BaseNode implements Serializable {
 	public boolean addNode(BaseNode n, Rete engine) throws AssertException {
 		boolean add = false;
 		// check if not inserted yet and free space for subchild:
-//		if (!containsNode(this.childNodes, n) && childNodes.length < maxChildCount) {
+		// if (!containsNode(this.childNodes, n) && childNodes.length <
+		// maxChildCount) {
 		if (childNodes.length < maxChildCount) {
 			// inform added child node:
 			BaseNode weWillAddThisNode = n.evAdded(this, engine);
 			if (weWillAddThisNode != null) {
 				// add to own list:
-				this.childNodes = ConversionUtils.add(this.childNodes, weWillAddThisNode);
+				this.childNodes = ConversionUtils.add(this.childNodes,
+						weWillAddThisNode);
 				mountChild(weWillAddThisNode, engine);
-				add = true;}
-			else{
-				throw new AssertException("Adding Node not Possible, Child does not want to be added");
+				add = true;
+			} else {
+				throw new AssertException(
+						"Adding Node not Possible, Child does not want to be added");
 			}
 		}
-		
+
 		try {
 			checkForConsistence();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
+
 		return add;
 	}
 
-	protected abstract void mountChild(BaseNode newChild, Rete engine) throws AssertException;
+	protected abstract void mountChild(BaseNode newChild, Rete engine)
+			throws AssertException;
 
 	/**
 	 * This node has been added to the given parant node
@@ -112,9 +116,11 @@ public abstract class BaseNode implements Serializable {
 	 */
 	protected BaseNode evAdded(BaseNode newParentNode, Rete engine) {
 		// we have been added to the new parent, add parent to own list:
-		if (!containsNode(this.parentNodes, newParentNode) && parentNodes.length < maxParentCount) {
+		if (!containsNode(this.parentNodes, newParentNode)
+				&& parentNodes.length < maxParentCount) {
 			// add to own list:
-			this.parentNodes = ConversionUtils.add(this.parentNodes, newParentNode);
+			this.parentNodes = ConversionUtils.add(this.parentNodes,
+					newParentNode);
 			return this;
 		}
 		return null;
@@ -125,7 +131,7 @@ public abstract class BaseNode implements Serializable {
 	 * 
 	 * @param n
 	 * @return
-	 * @throws RetractException 
+	 * @throws RetractException
 	 */
 	public boolean removeNode(BaseNode n, Rete engine) throws RetractException {
 		boolean rem = false;
@@ -142,16 +148,17 @@ public abstract class BaseNode implements Serializable {
 		return rem;
 	}
 
-	protected abstract void unmountChild(BaseNode oldChild, Rete engine) throws RetractException ;
+	protected abstract void unmountChild(BaseNode oldChild, Rete engine)
+			throws RetractException;
 
 	public void destroy(Rete engine) throws RetractException {
-		for( BaseNode node: parentNodes){
-		node.removeNode(this, engine);
-			
+		for (BaseNode node : parentNodes) {
+			node.removeNode(this, engine);
+
 		}
-	//	for (int i = 0; i < parentNodes.length; i++) {
-		//	parentNodes[i].removeNode(this, engine);
-		//}
+		// for (int i = 0; i < parentNodes.length; i++) {
+		// parentNodes[i].removeNode(this, engine);
+		// }
 	}
 
 	/**
@@ -164,7 +171,8 @@ public abstract class BaseNode implements Serializable {
 		// we have been added to the new parent, add parent to own list:
 		if (containsNode(this.parentNodes, oldParentNode)) {
 			// add to own list:
-			this.parentNodes = ConversionUtils.remove(this.parentNodes, oldParentNode);
+			this.parentNodes = ConversionUtils.remove(this.parentNodes,
+					oldParentNode);
 			return true;
 		}
 		return false;
@@ -176,7 +184,7 @@ public abstract class BaseNode implements Serializable {
 	 * 
 	 * @return
 	 */
-	protected void evZeroUseCount(Rete engine)  {
+	protected void evZeroUseCount(Rete engine) {
 		try {
 			destroy(engine);
 		} catch (RetractException e) {
@@ -197,7 +205,6 @@ public abstract class BaseNode implements Serializable {
 	}
 
 	public abstract void clear();
-	
 
 	/**
 	 * toPPString should return a string format, but formatted nicely so it's
@@ -207,7 +214,7 @@ public abstract class BaseNode implements Serializable {
 	 * 
 	 * @return
 	 */
-	public String toPPString(){
+	public String toPPString() {
 		return toString();
 	}
 
@@ -240,7 +247,8 @@ public abstract class BaseNode implements Serializable {
 	 * @param fact
 	 * @param engine
 	 */
-	protected void propogateRetract(Assertable fact, Rete engine) throws RetractException {
+	protected void propogateRetract(Assertable fact, Rete engine)
+			throws RetractException {
 		for (BaseNode nNode : childNodes) {
 			nNode.retractFact(fact, engine, this);
 		}
@@ -252,16 +260,19 @@ public abstract class BaseNode implements Serializable {
 	 * @param fact
 	 * @param engine
 	 */
-	protected void propogateAssert(Assertable fact, Rete engine) throws AssertException {
+	protected void propogateAssert(Assertable fact, Rete engine)
+			throws AssertException {
 		for (BaseNode nNode : childNodes) {
 			nNode.assertFact(fact, engine, this);
 		}
 	}
 
 	// use of good old Delphi sender...
-	public abstract void assertFact(Assertable fact, Rete engine, BaseNode sender) throws AssertException;
+	public abstract void assertFact(Assertable fact, Rete engine,
+			BaseNode sender) throws AssertException;
 
-	public abstract void retractFact(Assertable fact, Rete engine, BaseNode sender) throws RetractException;
+	public abstract void retractFact(Assertable fact, Rete engine,
+			BaseNode sender) throws RetractException;
 
 	public boolean isRightNode() {
 		return true;
@@ -272,21 +283,27 @@ public abstract class BaseNode implements Serializable {
 	}
 
 	/*
-	 * this method is for debugging purposes only. it checks the
-	 * consistency of parent- and child-arrays. since that is a
-	 * non-productive method, it is not optimized and a bit redundant ;)
+	 * this method is for debugging purposes only. it checks the consistency of
+	 * parent- and child-arrays. since that is a non-productive method, it is
+	 * not optimized and a bit redundant ;)
 	 */
 	protected void checkForConsistence() throws Exception {
 		for (BaseNode child : childNodes) {
 			if (!containsNode(child.parentNodes, this)) {
-				throw new Exception("Array inconsistent. my("+this.getNodeId()+") child-array contains "+child.getNodeId()+" but it doesnt holds me as parent!");
+				throw new Exception("Array inconsistent. my("
+						+ this.getNodeId() + ") child-array contains "
+						+ child.getNodeId()
+						+ " but it doesnt holds me as parent!");
 			}
 		}
 		for (BaseNode parent : parentNodes) {
 			if (!containsNode(parent.childNodes, this)) {
-				throw new Exception("Array inconsistent. my("+this.getNodeId()+") parent-array contains "+parent.getNodeId()+" but it doesnt holds me as child!");
-			}			
+				throw new Exception("Array inconsistent. my("
+						+ this.getNodeId() + ") parent-array contains "
+						+ parent.getNodeId()
+						+ " but it doesnt holds me as child!");
+			}
 		}
 	}
-	
+
 }

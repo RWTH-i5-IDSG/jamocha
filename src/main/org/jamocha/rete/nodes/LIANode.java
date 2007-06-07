@@ -36,9 +36,9 @@ public class LIANode extends AbstractAlpha {
 
 	private static final long serialVersionUID = 1L;
 
-
 	@Override
-	public void assertFact(Assertable fact, Rete engine, BaseNode sender) throws AssertException {
+	public void assertFact(Assertable fact, Rete engine, BaseNode sender)
+			throws AssertException {
 		// add to own buffer list:
 		facts.add((Fact) fact);
 		// build tuple and propagate:
@@ -47,31 +47,31 @@ public class LIANode extends AbstractAlpha {
 	}
 
 	@Override
-	public void retractFact(Assertable fact, Rete engine, BaseNode sender) throws RetractException {
-		assert(fact instanceof Fact);
-		if (facts.remove((Fact)fact)) {
+	public void retractFact(Assertable fact, Rete engine, BaseNode sender)
+			throws RetractException {
+		assert (fact instanceof Fact);
+		if (facts.remove((Fact) fact)) {
 			FactTuple tuple = new FactTuple((Fact) fact);
 			propogateRetract(tuple, engine);
 		}
 	}
-	
-	protected void mountChild(BaseNode newChild, Rete engine) throws AssertException {
-		for (Fact fact : facts)
-			//we have to send down a fact tuple:
-			newChild.assertFact(new FactTuple((Fact) fact), engine, this);
-		}
 
-	protected void unmountChild(BaseNode oldChild, Rete engine) throws RetractException {
+	protected void mountChild(BaseNode newChild, Rete engine)
+			throws AssertException {
 		for (Fact fact : facts)
-//			we have to send down a fact tuple:
+			// we have to send down a fact tuple:
+			newChild.assertFact(new FactTuple((Fact) fact), engine, this);
+	}
+
+	protected void unmountChild(BaseNode oldChild, Rete engine)
+			throws RetractException {
+		for (Fact fact : facts)
+			// we have to send down a fact tuple:
 			oldChild.retractFact(new FactTuple((Fact) fact), engine, this);
 	}
-	
-	
 
 	public boolean isRightNode() {
 		return false;
 	}
-	
 
 }

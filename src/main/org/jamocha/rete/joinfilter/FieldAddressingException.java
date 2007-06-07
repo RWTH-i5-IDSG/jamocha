@@ -2,6 +2,8 @@ package org.jamocha.rete.joinfilter;
 
 public class FieldAddressingException extends JoinFilterException {
 
+	private static final long serialVersionUID = 1L;
+
 	public FieldAddressingException() {
 		super();
 	}

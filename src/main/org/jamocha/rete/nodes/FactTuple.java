@@ -18,35 +18,31 @@ package org.jamocha.rete.nodes;
 
 import org.jamocha.rete.Fact;
 
-public class FactTuple implements Assertable{
+public class FactTuple implements Assertable {
 
 	private static final long serialVersionUID = 1L;
 
-	
 	protected Fact[] facts = null;
-
 
 	public FactTuple(Fact[] facts) {
 		super();
 		this.facts = facts;
 	}
-	
-	public FactTuple(Fact fact) {
-		this(new Fact[] {fact});
-	}
 
+	public FactTuple(Fact fact) {
+		this(new Fact[] { fact });
+	}
 
 	public Fact[] getFacts() {
 		return facts;
 	}
 
-
 	public void setFacts(Fact[] facts) {
 		this.facts = facts;
 	}
-	
-	public FactTuple addFact(Fact fact){
-		Fact[] facts = new Fact[this.facts.length+1];
+
+	public FactTuple addFact(Fact fact) {
+		Fact[] facts = new Fact[this.facts.length + 1];
 		System.arraycopy(this.facts, 0, facts, 0, this.facts.length);
 		facts[this.facts.length] = fact;
 		return new FactTuple(facts);
@@ -55,7 +51,7 @@ public class FactTuple implements Assertable{
 	public String toPPString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("[ ");
-		for (Fact fact: facts){
+		for (Fact fact : facts) {
 			sb.append(fact.toPPString());
 			sb.append(" | ");
 		}
@@ -63,15 +59,15 @@ public class FactTuple implements Assertable{
 		return sb.toString();
 	}
 
-	public String toString(){
+	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("[ ");
-		for (Fact fact: facts){
+		for (Fact fact : facts) {
 			sb.append(fact.toString());
 			sb.append(" | ");
 		}
 		sb.append("] ");
 		return sb.toString();
 	}
-	
+
 }

@@ -51,8 +51,10 @@ public class RootNode extends BaseNode {
 	 */
 
 	public void addObjectTypeNode(Template template, Rete engine) {
-		if (!inputNodes.containsKey(template) && !tempInputNodes.containsKey(template)) {
-			ObjectTypeNode node = new ObjectTypeNode(engine.nextNodeId(), template);
+		if (!inputNodes.containsKey(template)
+				&& !tempInputNodes.containsKey(template)) {
+			ObjectTypeNode node = new ObjectTypeNode(engine.nextNodeId(),
+					template);
 			tempInputNodes.put(template, node);
 		}
 	}
@@ -74,7 +76,8 @@ public class RootNode extends BaseNode {
 	 * @return ObjectTypeNode
 	 * @throws AssertException
 	 */
-	public ObjectTypeNode activateObjectTypeNode(Template template, Rete engine) throws AssertException {
+	public ObjectTypeNode activateObjectTypeNode(Template template, Rete engine)
+			throws AssertException {
 		ObjectTypeNode result = this.tempInputNodes.remove(template);
 		if (result != null) {
 			inputNodes.put(template, result);
@@ -84,7 +87,8 @@ public class RootNode extends BaseNode {
 		return result;
 	}
 
-	public void deactivateObjectTypeNode(ObjectTypeNode node, Rete engine) throws RetractException {
+	public void deactivateObjectTypeNode(ObjectTypeNode node, Rete engine)
+			throws RetractException {
 		Template tmpl = node.getDeftemplate();
 		inputNodes.remove(tmpl);
 		tempInputNodes.put(tmpl, node);
@@ -108,7 +112,8 @@ public class RootNode extends BaseNode {
 	 * @param mem
 	 * @throws AssertException
 	 */
-	public synchronized void assertObject(Fact fact, Rete engine) throws AssertException {
+	public synchronized void assertObject(Fact fact, Rete engine)
+			throws AssertException {
 		// we assume Rete has already checked to see if the object
 		// has been added to the working memory, so we just assert.
 		// we need to lookup the defclass and deftemplate to assert
@@ -121,7 +126,8 @@ public class RootNode extends BaseNode {
 	 * 
 	 * @param objInstance
 	 */
-	public synchronized void retractObject(Fact fact, Rete engine) throws RetractException {
+	public synchronized void retractObject(Fact fact, Rete engine)
+			throws RetractException {
 		this.retractFact(fact, engine, this);
 	}
 
@@ -139,9 +145,11 @@ public class RootNode extends BaseNode {
 	}
 
 	@Override
-	public void assertFact(Assertable fact, Rete engine, BaseNode sender) throws AssertException {
+	public void assertFact(Assertable fact, Rete engine, BaseNode sender)
+			throws AssertException {
 		Fact fct = (Fact) fact;
-		ObjectTypeNode otn = (ObjectTypeNode) this.inputNodes.get(fct.getTemplate());
+		ObjectTypeNode otn = (ObjectTypeNode) this.inputNodes.get(fct
+				.getTemplate());
 		if (otn == null) {
 			otn = (ObjectTypeNode) this.tempInputNodes.get(fct.getTemplate());
 		}
@@ -151,14 +159,17 @@ public class RootNode extends BaseNode {
 	}
 
 	@Override
-	protected void mountChild(BaseNode newChild, Rete engine) throws AssertException {
+	protected void mountChild(BaseNode newChild, Rete engine)
+			throws AssertException {
 		// nothing to do: facts are allready asserted to all possible otn
 	}
 
 	@Override
-	public void retractFact(Assertable fact, Rete engine, BaseNode sender) throws RetractException {
+	public void retractFact(Assertable fact, Rete engine, BaseNode sender)
+			throws RetractException {
 		Fact fct = (Fact) fact;
-		ObjectTypeNode otn = (ObjectTypeNode) this.inputNodes.get(fct.getTemplate());
+		ObjectTypeNode otn = (ObjectTypeNode) this.inputNodes.get(fct
+				.getTemplate());
 		if (otn == null) {
 			otn = (ObjectTypeNode) this.tempInputNodes.get(fct.getTemplate());
 		}
@@ -168,7 +179,8 @@ public class RootNode extends BaseNode {
 	}
 
 	@Override
-	protected void unmountChild(BaseNode oldChild, Rete engine) throws RetractException {
+	protected void unmountChild(BaseNode oldChild, Rete engine)
+			throws RetractException {
 		// nothing to do: facts are allready asserted to all possible otn
 	}
 
