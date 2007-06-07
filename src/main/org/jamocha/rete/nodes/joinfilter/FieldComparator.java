@@ -14,7 +14,7 @@
  * limitations under the License.
  * 
  */
-package org.jamocha.rete.joinfilter;
+package org.jamocha.rete.nodes.joinfilter;
 
 import java.io.Serializable;
 

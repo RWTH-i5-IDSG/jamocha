@@ -163,7 +163,7 @@ public class JDBCLink implements Function, Serializable {
 					// http://java.sun.com/developer/onlineTraining/Database/JDBC20Intro/JDBC20.html
 					Class.forName(jdbc_driver).newInstance();
 				} catch (Exception e) {
-					System.out.println(e.toString());
+					engine.writeMessage("Couldnt load JDBC driver");
 				}
 
 				Deftemplate template = (Deftemplate) engine.findTemplate(tmplt);

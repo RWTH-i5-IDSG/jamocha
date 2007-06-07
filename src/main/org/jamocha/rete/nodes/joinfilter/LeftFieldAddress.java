@@ -1,4 +1,4 @@
-package org.jamocha.rete.joinfilter;
+package org.jamocha.rete.nodes.joinfilter;
 
 
 public class LeftFieldAddress extends FieldAddress {
@@ -28,6 +28,10 @@ public class LeftFieldAddress extends FieldAddress {
 	}
 	
 	public String toPPString(){
+		return getExpressionString();
+	}
+	
+	public String getExpressionString(){
 		StringBuffer result = new StringBuffer();
 		result.append("left(row=");
 		result.append(rowIndex);

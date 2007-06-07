@@ -1,4 +1,4 @@
-package org.jamocha.rete.joinfilter;
+package org.jamocha.rete.nodes.joinfilter;
 
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaValue;
@@ -22,12 +22,7 @@ public abstract class FieldAddress implements Parameter {
 		return refersWholeFact();
 	}
 
-	public String getExpressionString() {
-		// that returns not a real clips-expression!
-		// but since this class is only used inside rulecompiler/engine internally,
-		// that would be not that problem, i think
-		return toPPString();
-	}
+
 
 	public JamochaValue getValue(Rete engine) throws EvaluationException {
 		return null;

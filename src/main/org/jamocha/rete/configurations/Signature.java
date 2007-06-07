@@ -36,7 +36,7 @@ import org.jamocha.rule.Rule;
  * 
  * Describe difference between the Function parameters
  */
-public class Signature extends AbstractSignature {
+public class Signature extends AbstractSignature implements Cloneable{
 
 	/**
 	 * 
@@ -50,6 +50,14 @@ public class Signature extends AbstractSignature {
 	public Signature() {
 		super();
 	}
+	
+	public Object clone(){
+		Signature result = new Signature();
+		result.setSignatureName(this.signatureName);
+		result.setParameters(params.clone());
+		return result;
+	}
+
 
 	public Signature(String signatureName) {
 		super();

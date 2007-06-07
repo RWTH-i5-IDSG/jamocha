@@ -1,4 +1,4 @@
-package org.jamocha.rete.joinfilter;
+package org.jamocha.rete.nodes.joinfilter;
 
 import org.jamocha.rete.Fact;
 import org.jamocha.rete.nodes.FactTuple;

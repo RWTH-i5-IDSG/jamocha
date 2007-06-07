@@ -1,4 +1,4 @@
-package org.jamocha.rete.joinfilter;
+package org.jamocha.rete.nodes.joinfilter;
 
 import java.util.List;
 
@@ -8,6 +8,7 @@ import org.jamocha.rete.Fact;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
+import org.jamocha.rete.configurations.Signature;
 import org.jamocha.rete.nodes.FactTuple;
 import org.jamocha.rule.BoundConstraint;
 
@@ -17,71 +18,75 @@ public class FunctionEvaluator implements JoinFilter {
 	protected Function function;
 	protected Rete engine;
 	
+	//TODO: maybe it is better to store a Signature instead of Parameter[]&Function
+	
 	private FunctionEvaluator(Rete engine, Function function) {
 		this.function = function;
 		this.engine = engine;
 	}
 	
-	private void sanityCheckParameterTypes() throws JoinFilterException {
-		for ( int paramIdx = 0 ; paramIdx < parameters.length ; paramIdx++){
-			Parameter p = parameters[paramIdx];
-			if (p instanceof JamochaValue) {
-				// everything is good, we dont need to convert that
-			} else if (p instanceof FieldAddress) {
-				// everything is good, we dont need to convert that
-			}
-			else if (p instanceof BoundConstraint) {
-				// FATAL: we cant handle that here. rule-compiler has to convert that to a fieldfieldaddress
-				throw new JoinFilterException("our rule compiler made something wrong. it gave me a BoundParam. it must convert BoundParams to LeftFieldAddress for me.");
+	
 
-			} else {
-				// FATAL: we have a type of Parameter we didnt know how to convert.
-				throw new JoinFilterException("i cannot convert the following parameter in your test call (maybe since not yet implemented): "+p.getClass().getName());
-			}
-		}
-	}
 	
 	public FunctionEvaluator(Rete engine, Function function, List<Parameter> parameters) throws JoinFilterException {
 		this(engine,function);
 		Parameter[] params = new Parameter[0];
 		this.parameters = parameters.toArray(params);
-		sanityCheckParameterTypes();
 	}
 	
 	public FunctionEvaluator(Rete engine, Function function, Parameter[] parameters) throws JoinFilterException {
 		this(engine,function);
 		this.parameters = parameters;
-		sanityCheckParameterTypes();
 	}
 
-
-	public boolean evaluate(Fact right, FactTuple left) throws JoinFilterException {
-		Parameter[] callParams = new Parameter[parameters.length];
-		System.arraycopy(parameters, 0, callParams, 0, parameters.length);
-		
-		for (int i = 0 ; i < callParams.length ; i++) {
-			Parameter p = callParams[i];
+	
+	private void substitute(Parameter[] params, Fact right, FactTuple left) throws FieldAddressingException{
+		for (int i = 0 ; i < params.length ; i++) {
+			Parameter p = params[i];
 			if (p instanceof RightFieldAddress) {
 				RightFieldAddress addr = (RightFieldAddress) p;
 				JamochaValue val;
 				if (addr.refersWholeFact()) {
-					val = right.getSlotValue(-1);
+					val = new JamochaValue(right);
 				} else {
 					val = right.getSlotValue(addr.getSlotIndex());	
 				}
-				callParams[i] = val;
+				params[i] = val;
 			} else if (p instanceof LeftFieldAddress){
 				LeftFieldAddress addr = (LeftFieldAddress) p;
 				JamochaValue val;
 				if (addr.refersWholeFact()) {
-					val = left.getFacts()[addr.getRowIndex()].getSlotValue(-1);
+					val = new JamochaValue(left.getFacts()[addr.getRowIndex()]);
 				} else {
 					val = left.getFacts()[addr.getRowIndex()].getSlotValue(addr.getSlotIndex());	
 				}
-				callParams[i] = val;
+				params[i] = val;
+			} else if (p instanceof Signature){
+				Signature sig = ((Signature)p);
+				substitute(sig.getParameters(),right,left);
 			}
-			
 		}
+	}
+	
+	private Parameter[] semicloneParameters(Parameter[] orig){
+		Parameter[] clone = orig.clone();
+		
+		for (int i=0 ; i<clone.length ; i++){
+			if (clone[i] instanceof Signature){
+				Signature s = (Signature)clone[i];
+				Signature sigClone = (Signature) s.clone();
+				sigClone.setParameters( semicloneParameters(sigClone.getParameters()));
+				clone[i] = sigClone;
+			}
+		}
+		
+		return clone;
+	}
+
+	public boolean evaluate(Fact right, FactTuple left) throws JoinFilterException {
+		Parameter[] callParams = semicloneParameters(parameters);
+		substitute(callParams, right, left);
+
 		try {
 			return function.executeFunction(engine, callParams).getBooleanValue();
 		} catch (EvaluationException e) {
@@ -90,6 +95,7 @@ public class FunctionEvaluator implements JoinFilter {
 	}
 
 	public String toPPString() {
+		//TODO thats not really good since FieldAdresses only were printed if in first level since clipsformatter doesnt format it
 		StringBuffer result = new StringBuffer();
 		result.append("test: ");
 		result.append(function.getName());

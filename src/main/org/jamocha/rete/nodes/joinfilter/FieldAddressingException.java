@@ -1,4 +1,4 @@
-package org.jamocha.rete.joinfilter;
+package org.jamocha.rete.nodes.joinfilter;
 
 public class FieldAddressingException extends JoinFilterException {
 

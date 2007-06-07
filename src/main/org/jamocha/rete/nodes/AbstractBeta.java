@@ -38,7 +38,7 @@ public abstract class AbstractBeta extends BaseNode {
 
 	protected BetaMemory betaMemory = null;
 
-	protected AbstractCollection<FactTuple> mergeMemory = null;
+	protected BetaMemory mergeMemory = null;
 
 	// per default deactivated
 	protected boolean activated = false;
@@ -99,7 +99,7 @@ public abstract class AbstractBeta extends BaseNode {
 		this.maxParentCount = 2;
 		alphaMemory = new AlphaMemory();
 		betaMemory = new BetaMemory();
-		mergeMemory = new Vector<FactTuple>();
+		mergeMemory = new BetaMemory();
 	}
 
 	@Override
@@ -238,10 +238,12 @@ public abstract class AbstractBeta extends BaseNode {
 	public String toPPString() {
 		StringBuffer sb = new StringBuffer();
 		sb.append(super.toPPString());
-		sb.append("Alpha-Memory: ");
+		sb.append("Alpha-Input: ");
 		sb.append(alphaMemory.toPPString());
-		sb.append("\nBeta-Memory: ");
+		sb.append("\nBeta-Input: ");
 		sb.append(betaMemory.toPPString());
+		sb.append("\nOutput: ");
+		sb.append(mergeMemory.toPPString());
 		return sb.toString();
 	}
 

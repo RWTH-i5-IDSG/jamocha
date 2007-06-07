@@ -1,4 +1,4 @@
-package org.jamocha.rete.joinfilter;
+package org.jamocha.rete.nodes.joinfilter;
 
 public class RightFieldAddress extends FieldAddress {
 
@@ -22,6 +22,10 @@ public class RightFieldAddress extends FieldAddress {
 	}
 	
 	public String toPPString(){
+		return getExpressionString();
+	}
+	
+	public String getExpressionString(){
 		if (slotIndex == -1) {
 			return "right(whole fact)";
 		} else {

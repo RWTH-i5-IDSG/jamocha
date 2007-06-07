@@ -16,6 +16,7 @@
  */
 package org.jamocha.rete.nodes;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -24,8 +25,8 @@ import org.jamocha.rete.Fact;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.exception.AssertException;
 import org.jamocha.rete.exception.RetractException;
-import org.jamocha.rete.joinfilter.JoinFilter;
-import org.jamocha.rete.joinfilter.JoinFilterException;
+import org.jamocha.rete.nodes.joinfilter.JoinFilter;
+import org.jamocha.rete.nodes.joinfilter.JoinFilterException;
 
 /**
  * @author Peter Lin
@@ -100,8 +101,8 @@ public class BetaFilterNode extends AbstractBeta {
 	}
 
 	public void addFilter(JoinFilter f) {
+		if (filters == null) filters = new ArrayList<JoinFilter>();
 		filters.add(f);
-
 	}
 
 	@Override
