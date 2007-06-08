@@ -313,6 +313,10 @@ public class Defrule implements Rule {
 	public void addAction(Action act) {
 		actions.add(act);
 	}
+	
+	public void setActions(Action[] actions){
+		for (Action a : actions) addAction(a);
+	}
 
 	public void setActions(ExpressionSequence actions) {
 		for (int i = 0; i < actions.size(); ++i) {
@@ -559,6 +563,68 @@ public class Defrule implements Rule {
 
 	public void setComplexity(int value) {
 		complexity = value;
+	}
+
+
+	public void setConditionIndex(int index, Condition c) {
+		conditions.set(index, c);
+	}
+	
+
+	public Defrule clone(Rete engine){
+		Defrule newRule = new Defrule();
+		newRule.totalComplexity = getTotalComplexity();
+		// set rule name:
+		newRule.setName(getName());
+		// set rule description:
+		newRule.setDescription(getDescription());
+		// set rule declaration:
+
+		DeclarationConfiguration newDecl = new DeclarationConfiguration();
+		
+		newDecl.setAutoFocus(new JamochaValue( this.getAutoFocus() ));
+		newDecl.setSalience(new JamochaValue( this.getSalience() ));
+		newDecl.setVersion(new JamochaValue( this.getVersion() ));
+		
+		try {
+			newRule.setDeclaration(newDecl, engine);
+		} catch (EvaluationException e) {
+			engine.writeMessage(e.getMessage());
+		}
+
+		
+		// set conditions:
+		newRule.setConditions(getConditions().clone());
+		// set actions:
+		newRule.setActions(getActions());
+		return newRule;
+	}
+	
+	public Defrule clone() {
+		Defrule newRule = new Defrule();
+		newRule.name = name;
+		newRule.conditions = (ArrayList<Condition>) conditions.clone();
+		newRule.actions = actions;
+		newRule.terminal = terminal;
+		newRule.salience = salience;
+		newRule.auto = auto;
+		newRule.rememberMatch = rememberMatch;
+		newRule.noAgenda = noAgenda;
+		newRule.version = version;
+		newRule.themodule = themodule;
+		newRule.bindValues = bindValues;
+		newRule.outerScope = outerScope;
+		newRule.bindings = bindings;
+		newRule.description = description;
+		newRule.active = active;
+		newRule.direction = direction;
+		newRule.watch = watch;
+		newRule.effectiveDate = effectiveDate;
+		newRule.expirationDate = expirationDate;
+		newRule.triggerFacts = triggerFacts;
+		newRule.complexity = complexity;
+		newRule.totalComplexity = totalComplexity;
+		return newRule;
 	}
 
 }

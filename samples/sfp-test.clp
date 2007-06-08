@@ -65,6 +65,15 @@
 
 (assert (senf (name nix) (gewicht 1)))
 
+(defrule test-or-node-rule 
+	(wurst (gewicht ?x) (name ?y))
+;	(bier (gewicht ?x) (name ?z))
+;	(senf (gewicht ?x) (name ?w))
+	=>
+	(printout t "Lebensmittel die zusammenpassen. wurst:" ?y "zutaten: " $?v " Bier: " ?z  "Senf: " ?w " Gewicht: " ?x)
+)
+
+
 
 (defrule test-node-rule 
 	(wurst (gewicht ?x) (name ?y))
@@ -78,7 +87,7 @@
 
 
 
-(defrule wurst-meter "Regel zur Ausgabe der Wurst-LŠnge" 
+(defrule wurst-meter "Regel zur Ausgabe der Wurst-Lï¿½nge" 
 	(declare (rule-version "performance version") (salience 101) (auto-focus TRUE))
 	(wurst (gewicht ?x) (name ?y))
 	(wurst (zutaten $?v))

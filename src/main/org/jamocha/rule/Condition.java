@@ -25,7 +25,7 @@ import java.util.List;
  * Conditions are patterns. It may be a simple fact pattern, test function, or
  * an object pattern.
  */
-public interface Condition extends Serializable, Complexity, Compileable, Comparable{
+public interface Condition extends Serializable, Complexity, Compileable, Comparable, Cloneable{
 
 	/**
 	 * Method is used to compare the pattern to another pattern and determine if

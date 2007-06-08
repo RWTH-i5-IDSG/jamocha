@@ -35,13 +35,15 @@ import org.jamocha.rete.nodes.TerminalNode;
  * the last node in the rule. These convienance method are present to make it
  * easier to write rule parsers and compilers.
  */
-public interface Rule extends Scope, Complexity {
+public interface Rule extends Scope, Complexity, Cloneable {
 	/**
 	 * if the rule is set to autofocus, it returns true
 	 * 
 	 * @return
 	 */
 	boolean getAutoFocus();
+	
+	void setConditionIndex(int index, Condition c);
 
 	/**
 	 * if the rule should fire even when the module is not in focus, call the
@@ -293,5 +295,6 @@ public interface Rule extends Scope, Complexity {
 	 */
 	void resolveTemplates(Rete engine);
 
+	Rule clone();
 
 }

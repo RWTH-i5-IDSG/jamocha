@@ -57,6 +57,7 @@ import org.jamocha.rule.AndConnectedConstraint;
 import org.jamocha.rule.BoundConstraint;
 import org.jamocha.rule.Condition;
 import org.jamocha.rule.Constraint;
+import org.jamocha.rule.Defrule;
 import org.jamocha.rule.ExistCondition;
 import org.jamocha.rule.FunctionAction;
 import org.jamocha.rule.LiteralConstraint;
@@ -426,7 +427,12 @@ public class SFRuleCompiler implements RuleCompiler {
 
 					Condition[] conds = rule.getConditions();
 					for (int i = 0; i < conds.length; i++)
-						conds[i].compile(this, rule, i);
+						try {
+							conds[i].compile(this, rule, i);
+						} catch (StopCompileException e) {
+							//TODO we have to pass through return-value from nested compiles 
+							return false;
+						}
 
 					compileJoins(rule);
 					// has no conditions:
@@ -756,7 +762,11 @@ public class SFRuleCompiler implements RuleCompiler {
 					slot = template.getSlot(constraint.getName());
 
 					constraint.setSlot(slot);
-					current = (SlotAlpha) constraint.compile(this, rule, conditionIndex);
+					try {
+						current = (SlotAlpha) constraint.compile(this, rule, conditionIndex);
+					} catch (StopCompileException e) {
+						// will never happen
+					}
 
 					// we add the node to the previous
 					if (current != null) {
@@ -841,9 +851,29 @@ public class SFRuleCompiler implements RuleCompiler {
 	 * @param rule
 	 * 
 	 * @return compileConditionState
+	 * @throws AssertException 
 	 */
-	public BaseNode compile(OrCondition condition, Rule rule, int conditionIndex) {
-		return null;
+	public BaseNode compile(OrCondition condition, Rule rule, int conditionIndex) throws StopCompileException, AssertException {
+		//now, we will split our rule in more different rules
+		int counter = 1;
+		for (Object nested : condition.getNestedConditionalElement()) {
+			Condition nestedCE = (Condition)nested;
+			Rule newRule = ((Defrule)rule).clone(engine);
+			newRule.setConditionIndex(conditionIndex, nestedCE);
+			
+			
+			org.jamocha.rete.SFRuleCompiler compiler = new org.jamocha.rete.SFRuleCompiler(engine,root);
+			
+			compiler.addRule(newRule);
+			
+			
+			
+			newRule.setName(newRule.getName() + "-" + counter++);
+			
+			
+		}
+		throw new StopCompileException();
+		
 	}
 
 	/**
