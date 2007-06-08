@@ -205,7 +205,7 @@ public class TemplatesPanel extends AbstractJamochaPanel implements
 							.append(template.getTemplate().getName());
 					String description = ((Deftemplate)template.getTemplate()).getDescription();
 					if(description!=null && description.length() >0) {
-						buffer.append(" ").append(description);
+						buffer.append("\n   Description: ").append(description).append("\n");
 					}
 					TemplateSlot[] slots = template.getTemplate().getAllSlots();
 					for (TemplateSlot slot : slots) {

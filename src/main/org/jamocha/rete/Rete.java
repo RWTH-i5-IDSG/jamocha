@@ -1192,7 +1192,6 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 
 	public Fact getFact(Fact fact) {
 		Fact result = (Fact) this.deffactMap.get(((Deffact) fact).equalityIndex());
-		System.out.println(((Deffact) fact).equalityIndex());
 		return result;
 	}
 
