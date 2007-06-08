@@ -44,16 +44,15 @@ public class DeleteMember$ implements Function, Serializable {
 
 		public String getDescription() {
 			return "Deletes specific items from a list. Arguments can either be single items or lists of " +
-					"items. In case of a list, items are only removed if they appear in identical (correct and " +
-					"coherent) order in the list. The function walks through the first list and matches each " +
-					"position to those arguments that are to be deleted. After deleting items from the list, it " +
-					"starts to anew and tries to find matches with to all arguments ";
-					//"to be The arguments are processed in the order that a match is " +
-					//"found Matches are found The outer loop walks through the first list and tries to find " +
-					//"matches in any of the other arguments at the current position. The arguments are processed in the order they are " +
-					//"given. Have a look " +
-					//"at the examples to understand the behaviour. Returns a new list consisting of the remaining " +
-					//"values.";
+					"items.\n" +
+					"In case of a list to be deleted, items are only removed if they appear in identical (correct and " +
+					"coherent) order in the first list. The function walks through the first list and tries to match each " +
+					"position to any of the arguments that are to be deleted. After deleting items from the list, it " +
+					"starts anew to walk through the remaining list and tries again to find a match to any of the " +
+					"arguments that are to be deleted. Therefore the arguments are not necessarily processed in the " +
+					"order they are given and also deleted repeatedly if the remaining list can be matched again.\n" +
+					"Returns a new list consisting of the remaining items.";
+					//"Have a look at the examples to understand the behavior.";
 		}
 
 		public int getParameterCount() {
