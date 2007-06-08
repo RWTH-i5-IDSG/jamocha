@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 Alexander Wilden
+ * Copyright 2007 Alexander Wilden, Uta Christoph
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,6 +34,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  * Returns the item of a list at the specified index.
  * <p>
  * Attention: Lists in Jamocha start with index 1.
+ * </p>
  */
 public class Nth$ implements Function, Serializable {
 
@@ -50,9 +51,9 @@ public class Nth$ implements Function, Serializable {
 		public String getParameterDescription(int parameter) {
 			switch (parameter) {
 			case 0:
-				return "Index of the item in the list to return.";
+				return "Index of the item in the list to return. Needs to be in the bounds of someList.";
 			case 1:
-				return "The list to return the specified item from.";
+				return "List to return the specified item from.";
 			}
 			return "";
 		}

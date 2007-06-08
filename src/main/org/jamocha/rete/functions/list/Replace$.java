@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 Alexander Wilden
+ * Copyright 2007 Alexander Wilden, Uta Christoph
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,21 +33,27 @@ import org.jamocha.rete.functions.FunctionDescription;
 /**
  * @author Alexander Wilden
  * 
- * Replaces a specified range in a list with (a) given value(s) and returns it
- * as a new list. The first integer expression is the index of the first value
- * to replace and the second integer expression is the index of the last value
- * to replace. All following values will take the place of the values in the
- * replacement range. Lists are also possible values where each item is added
- * separately.
+ * Replaces a specified range in a list with (a) given value(s) and returns 
+ * the modified list.  
+ * The first integer defines the index of the first item to replace and 
+ * the second integer defines the index of the last item to replace.
+ * The following arguments are inserted into the list, starting at the index of the first 
+ * replaced item. If a list is given as replacement each item is inserted separately.
  * <p>
  * Attention: Lists in Jamocha start with index 1.
+ * </p>
  */
 public class Replace$ implements Function, Serializable {
 
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "Replaces a specified range in a list with (a) given value(s) and returns it as a new list. The first integer expression is the index of the first value to replace and the second integer expression is the index of the last value to replace. All following values will take the place of the values in the replacement range. Lists are also possible values where each item is added separately. Attention: Lists in Jamocha start with index 1.";
+			return "Replaces a specified range in a list with (a) given value(s) and returns the modified list. " +
+					"The first integer defines the index of the first item to replace and the second integer defines " +
+					"the index of the last item to replace. The following arguments are inserted into the list, " +
+					"starting at the index of the first replaced item. If a list is given as replacement each item " +
+					"is inserted separately.\n" +
+					"Attention: Lists in Jamocha start with index 1.";			
 		}
 
 		public int getParameterCount() {
@@ -57,13 +63,13 @@ public class Replace$ implements Function, Serializable {
 		public String getParameterDescription(int parameter) {
 			switch (parameter) {
 			case 0:
-				return "The List to replace a specific range in.";
+				return "List to replace a specific range in.";
 			case 1:
-				return "First item to replace in the List. Has to be smaller or equal to endIndex.";
+				return "First item to replace in the List. Has to be smaller or equal to endIndex and within the bounds of the list.";
 			case 2:
-				return "Last item to replace in the List. Has to be greater or equal to startIndex.";
+				return "Last item to replace in the List. Has to be greater or equal to startIndex and within the bounds of the list.";
 			}
-			return "Value used as replacement.";
+			return "Value(s) used as replacement.";
 		}
 
 		public String getParameterName(int parameter) {
@@ -103,7 +109,7 @@ public class Replace$ implements Function, Serializable {
 		}
 
 		public String getExample() {
-			return "(replace$ (create$ 42 123 911 4711 1) 2 4 112)"
+			return "(replace$ (create$ 42 123 911 4711 1) 2 4 112)\n"
 					+ "(replace$ (create$ cheese eggs milk sausages) 3 4 (create$ bread ham))";
 		}
 	}

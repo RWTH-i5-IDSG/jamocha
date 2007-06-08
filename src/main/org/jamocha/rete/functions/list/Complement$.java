@@ -33,8 +33,7 @@ import org.jamocha.rete.functions.FunctionDescription;
 /**
  * @author Alexander Wilden
  * 
- * Returns a new list consisting of all elements of the second list that don't
- * appear in the first list.
+ * Returns a new list containing all elements of the second list that are not also elements of the first list.
  */
 public class Complement$ implements Function, Serializable {
 

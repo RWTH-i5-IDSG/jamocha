@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 Alexander Wilden
+ * Copyright 2007 Alexander Wilden, Uta Christoph
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,18 +33,35 @@ import org.jamocha.rete.functions.FunctionDescription;
 /**
  * @author Alexander Wilden
  * 
- * Replaces specific values in a list with a given replacement. Arguments given
- * as list are replaced in correct order and coherent. The arguments are
- * processed in the order they are given. Have a look at the examples to
- * understand the behaviour. Returns a new list the given values replaced by the
- * replacement.
+ * Replaces specific items in a list with a given replacement. Arguments can either 
+ * be single items or lists of items.
+ * If a list is given to be replaced, the items are only replaced if they appear in 
+ * identical (correct and coherent) order in the first list.
+ * The function walks through the first list and tries to match each position to any 
+ * of the arguments that are to be replaced. If it finds a match it replaces the item(s)
+ * at the current position. Afterwards it moves on to the next position after the 
+ * replacement and tries to match this position anew to any of the arguments that are 
+ * to replaced.   
+ * Therefore the arguments are not necessarily processed in the order they are given, but 
+ * replacements will not be matched recursively.
+ * Returns a new list consisting of untouched and replaced items.
  */
 public class ReplaceMember$ implements Function, Serializable {
 
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "Replaces specific values in a list with a given replacement. Arguments given as list are replaced in correct order and coherent. The arguments are processed in the order they are given. Have a look at the examples to understand the behaviour. Returns a new list the given values replaced by the replacement.";
+			return "Replaces specific items in a list with a given replacement. Arguments can either be single " +
+					"items or lists of items.\n" +
+					"If a list is given to be replaced, the items are only replaced if they appear in identical " +
+					"(correct and coherent) order in the first list.\n" +
+					"The function walks through the first list and tries to match each position to any of the " +
+					"arguments that are to be replaced. If it finds a match it replaces the item(s) at the current " +
+					"position. Afterwards it moves on to the next position after the replacement and tries to match " +
+					"this position anew to any of the arguments that are to replaced.\n" +
+					"Therefore the arguments are not necessarily processed in the order they are given, but " +
+					"replacements will not be matched recursively.\n" +
+					" Returns a new list consisting of untouched and replaced items.";					
 		}
 
 		public int getParameterCount() {
@@ -54,11 +71,11 @@ public class ReplaceMember$ implements Function, Serializable {
 		public String getParameterDescription(int parameter) {
 			switch (parameter) {
 			case 0:
-				return "The List to delete items from.";
+				return "List to replace items in.";
 			case 1:
-				return "Replacement for the searchValues in the List.";
+				return "Replacement for the searchValue in the list.";
 			case 2:
-				return "Value to search for and replace in the List.";
+				return "Value to search for and replace in the list.";
 			}
 			return "";
 		}

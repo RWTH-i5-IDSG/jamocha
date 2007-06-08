@@ -31,12 +31,12 @@ import org.jamocha.rete.functions.FunctionDescription;
 /**
  * @author Alexander Wilden
  * 
- * Deletes a specified number of items from a list and returns the resulting
- * values again in a new list. The first integer expression is the index of the
- * first value to remove and the second integer expression is the index of the
- * last value to remove.
+ * Deletes a specified number of items from a list and returns the remaining values in a new list. 
+ * The first integer defines the index of the first item to be removed and 
+ * the second integer defines the index of the last item to be removed. 
  * <p>
  * Attention: Lists in Jamocha start with index 1.
+ * </p>
  */
 public class Delete$ implements Function, Serializable {
 

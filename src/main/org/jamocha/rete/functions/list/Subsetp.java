@@ -31,7 +31,7 @@ import org.jamocha.rete.functions.FunctionDescription;
 /**
  * @author Alexander Wilden
  * 
- * Returns TRUE if the first list is a subset of the second list, FALSE
+ * Returns true if the first list is a subset of the second list, false
  * otherwise. The order of the lists is not considered.
  */
 public class Subsetp implements Function, Serializable {
@@ -39,7 +39,7 @@ public class Subsetp implements Function, Serializable {
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "Returns TRUE if the first list is a subset of the second list, FALSE otherwise. The order of the lists is not considered.";
+			return "Returns true if the first list is a subset of the second list, false otherwise. The order of the lists is not considered.";
 		}
 
 		public int getParameterCount() {
@@ -49,7 +49,7 @@ public class Subsetp implements Function, Serializable {
 		public String getParameterDescription(int parameter) {
 			switch (parameter) {
 			case 0:
-				return "Subset of second argument.";
+				return "Subset to test for.";
 			case 1:
 				return "List to search in.";
 			}

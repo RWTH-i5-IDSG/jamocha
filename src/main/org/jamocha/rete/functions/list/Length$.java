@@ -38,7 +38,7 @@ public class Length$ implements Function, Serializable {
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "Returns the length of a list.";
+			return "Returns the number of items of a list.";
 		}
 
 		public int getParameterCount() {
@@ -46,7 +46,7 @@ public class Length$ implements Function, Serializable {
 		}
 
 		public String getParameterDescription(int parameter) {
-			return "A List whose length should be returned.";
+			return "List to get the length from.";
 		}
 
 		public String getParameterName(int parameter) {

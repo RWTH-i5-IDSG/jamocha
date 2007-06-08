@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 Alexander Wilden
+ * Copyright 2007 Alexander Wilden, Uta Christoph
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,15 +31,16 @@ import org.jamocha.rete.functions.FunctionDescription;
 /**
  * @author Alexander Wilden
  * 
- * Creates and returns a String of a given list. Optionally a separator can be
- * provided to glue the string together. Default is a whitespace.
+ * Creates and returns a string of a given list. Optionally a separator to put in-between the items can be provided. 
+ * Default separator is the space character.
  */
 public class Implode$ implements Function, Serializable {
 
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "Creates and returns a String of a given list. Optionally a separator can be provided to glue the string together. Default is a whitespace.";
+			return "Creates and returns a string of a given list. Optionally a separator to put in-between the items" +
+					"can be provided. Default separator is the space character.";
 		}
 
 		public int getParameterCount() {
@@ -49,9 +50,9 @@ public class Implode$ implements Function, Serializable {
 		public String getParameterDescription(int parameter) {
 			switch (parameter) {
 			case 0:
-				return "List that should be imploded.";
+				return "List to be imploded.";
 			case 1:
-				return "Optional separator. Default is a whitespace.";
+				return "Optional separator, default: space character.";
 			}
 			return "";
 		}
@@ -95,7 +96,7 @@ public class Implode$ implements Function, Serializable {
 		}
 
 		public String getExample() {
-			return "(implode$ (create$ We need beer))(implode$ (create$ We need beer) \" -STOP- \")";
+			return "(implode$ (create$ We need beer))\n(implode$ (create$ We need beer) \" -STOP- \")";
 		}
 	}
 

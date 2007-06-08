@@ -33,18 +33,19 @@ import org.jamocha.rete.functions.FunctionDescription;
 /**
  * @author Alexander Wilden
  * 
- * Inserts one or more items into an existing list at a specific position and
- * returns it as a new list. If a list is inserted each item of it is inserted
- * separately.
+ * Inserts one or more items into an existing list at a specific position and returns the extended list.
+ * If a list of items is inserted each item of it is inserted separately, so there are no nested lists.
  * <p>
  * Attention: Lists in Jamocha start with index 1.
+ * </p> 
  */
 public class Insert$ implements Function, Serializable {
 
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "Inserts one or more items into an existing list at a specific position and returns it as a new list. If a list is inserted each item of it is inserted separately. Attention: Lists in Jamocha start with index 1.";
+			return "Inserts one or more items into an existing list at a specific position and returns the extended list. If a list of items is inserted each item of it is inserted separately, so there are no nested lists.\n" +
+					"Attention: Lists in Jamocha start with index 1.";
 		}
 
 		public int getParameterCount() {
@@ -54,11 +55,11 @@ public class Insert$ implements Function, Serializable {
 		public String getParameterDescription(int parameter) {
 			switch (parameter) {
 			case 0:
-				return "The List to insert one or more items in.";
+				return "List to insert one or more items into.";
 			case 1:
 				return "Position where the new item(s) should be added at.";
 			}
-			return "Items to add to the List.";
+			return "Item(s) to insert into the List.";
 		}
 
 		public String getParameterName(int parameter) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 Alexander Wilden
+ * Copyright 2007 Alexander Wilden, Uta Christoph
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,14 +31,14 @@ import org.jamocha.rete.functions.FunctionDescription;
 /**
  * @author Alexander Wilden
  * 
- * Returns all elements of a List beginning with the second one.
+ * Returns all elements of a list except for the first one.
  */
 public class Rest$ implements Function, Serializable {
 
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "Returns all elements of a List beginning with the second one.";
+			return "Returns all elements of a list except for the first one.";
 		}
 
 		public int getParameterCount() {
@@ -46,7 +46,7 @@ public class Rest$ implements Function, Serializable {
 		}
 
 		public String getParameterDescription(int parameter) {
-			return "A List whose rest will be returned.";
+			return "List to return rest from.";
 		}
 
 		public String getParameterName(int parameter) {

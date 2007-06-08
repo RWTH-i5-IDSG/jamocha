@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 Alexander Wilden
+ * Copyright 2007 Alexander Wilden, Uta Christoph
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,14 +33,15 @@ import org.jamocha.rete.functions.FunctionDescription;
 /**
  * @author Alexander Wilden
  * 
- * Returns the union of its arguments without duplicates.
+ * Returns the intersection of its arguments without duplicates.
+ * The order of returned items corresponds to the one in the first list.
  */
 public class Intersection$ implements Function, Serializable {
 
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "Returns the intersection of its two arguments without duplicates.";
+			return "Returns the intersection of its two arguments without duplicates. The order of returned items corresponds to the one in the first list. ";
 		}
 
 		public int getParameterCount() {

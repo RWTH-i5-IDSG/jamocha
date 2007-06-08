@@ -32,18 +32,22 @@ import org.jamocha.rete.functions.FunctionDescription;
  * @author Alexander Wilden
  * 
  * Extracts a specified range from a list and returns a new list
- * containing just the sub-sequence. The first integer expression is the index
- * of the first value to return and the second integer expression is the index
- * of the last value to return.
+ * containing just the sub-sequence. The first integer defines the index 
+ * of the first item to return and the second integer defines the index 
+ * of the last item to return.
  * <p>
  * Attention: Lists in Jamocha start with index 1.
+ * </p>
  */
 public class Subseq$ implements Function, Serializable {
 
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "Extracts and returns a specified range from a list and returns a new list containing just the sub-sequence. The first integer expression is the index of the first value to return and the second integer expression is the index of the last value to return. Attention: Lists in Jamocha start with index 1.";
+			return "Extracts a specified range from a list and returns a new list containing just the sub-sequence. " +
+					"The first integer defines the index of the first item to return and the second integer defines " +
+					"the index of the last item to return.\n" +
+					"Attention: Lists in Jamocha start with index 1.";					
 		}
 
 		public int getParameterCount() {
@@ -53,11 +57,11 @@ public class Subseq$ implements Function, Serializable {
 		public String getParameterDescription(int parameter) {
 			switch (parameter) {
 			case 0:
-				return "The List to return the subsequence of.";
+				return "List to return the subsequence from.";
 			case 1:
-				return "First item to return of the List. Has to be smaller or equal to endIndex.";
+				return "First item to return from the list. Has to be smaller or equal to endIndex and within the bounds of the list.";
 			case 2:
-				return "Last item to return of the List. Has to be greater or equal to startIndex.";
+				return "Last item to return from the list. Has to be greater or equal to startIndex and within the bounds of the list.";
 			}
 			return "";
 		}

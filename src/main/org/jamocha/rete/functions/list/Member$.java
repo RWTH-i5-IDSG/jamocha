@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2006 Peter Lin, 2007 Alexander Wilden
+ * Copyright 2002-2006 Peter Lin, 2007 Alexander Wilden, Uta Christoph
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,17 +31,25 @@ import org.jamocha.rete.functions.FunctionDescription;
 /**
  * @author Peter Lin
  * 
- * Compares an expression against a multifield-expression. If the expression is
- * in the second expression or the expression is a list and a subset of the
- * second expression in same order, integer position is returned. For lists the
- * index of the first matching element is returned. Else -1 is returned.
+ * Compares if the first argument is a member of the list given in the second argument.
+ * If the the first argument is a list it is compared if there exists a subset of the second argument 
+ * which is in the same order. 
+ * Returns the position index of the element or the starting index of the subset in the second argument, 
+ * if the first argument is a member.
+ * Otherwise returns -1.
  */
 public class Member$ implements Function, Serializable {
 
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "Compares an expression against a multifield-expression. If the expression is in the second expression or the expression is a list and a subset of the second expression in same order, integer position is returned. For lists the index of the first matching element is returned. Else -1 is returned.";
+			return "Compares if the first argument is a member of the list given in the second argument. " +
+					"If the the first argument is a list it is compared if there exists a subset of the second " +
+					"argument which is in the same order.\n" +
+					"Returns the position index of the element or the starting index of the subset in the second " +
+					"argument, if the first argument is a member.\n" +
+					"Otherwise returns -1."; 
+					//"Compares an expression against a multifield-expression. If the expression is in the second expression or the expression is a list and a subset of the second expression in same order, integer position is returned. For lists the index of the first matching element is returned. Else -1 is returned.";
 		}
 
 		public int getParameterCount() {
@@ -51,7 +59,7 @@ public class Member$ implements Function, Serializable {
 		public String getParameterDescription(int parameter) {
 			switch (parameter) {
 			case 0:
-				return "Value to search for in the List.";
+				return "Value to search for in the list.";
 			case 1:
 				return "List to search in.";
 			}
@@ -91,7 +99,7 @@ public class Member$ implements Function, Serializable {
 		}
 
 		public String getExample() {
-			return "(member$ 5 (create$ 1 2 3 4 5 6))"
+			return "(member$ 5 (create$ 1 2 3 4 5 6))\n"
 					+ "(member$ (create$ 3 4) (create$ 1 2 3 4 5 6))";
 		}
 	}

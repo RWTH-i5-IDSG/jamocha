@@ -48,7 +48,7 @@ public class Union$ implements Function, Serializable {
 		}
 
 		public String getParameterDescription(int parameter) {
-			return "List that should be unified with the other arguments.";
+			return "List to unify with the other arguments.";
 		}
 
 		public String getParameterName(int parameter) {

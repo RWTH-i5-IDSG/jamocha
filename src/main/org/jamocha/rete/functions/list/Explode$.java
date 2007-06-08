@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 Alexander Wilden
+ * Copyright 2007 Alexander Wilden, Uta Christoph
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,8 +30,8 @@ import org.jamocha.rete.functions.FunctionDescription;
 /**
  * @author Alexander Wilden
  * 
- * Creates a list of a given String. Optionally a separator can be provided to
- * split the string at. Default is a whitespace.
+ * Creates a list of a given string. Optionally a separator where to split the string can be provided. 
+ * Default separator is the space character.
  */
 public class Explode$ implements Function, Serializable {
 
@@ -39,7 +39,7 @@ public class Explode$ implements Function, Serializable {
 
 		public String getDescription() {
 			return "Creates a list of a given string. Optionally a separator where to split the string can " +
-					"be provided. Default is the space character.";
+					"be provided. Default separator is the space character.";
 		}
 
 		public int getParameterCount() {
