@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 Alexander Wilden
+ * Copyright 2007 Alexander Wilden, Uta Christoph
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,7 +43,17 @@ public class DeleteMember$ implements Function, Serializable {
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "Deletes specific values from a list. Arguments given as a list are removed in correct order and coherent. The arguments are processed in the order they are given. Have a look at the examples to understand the behaviour. Returns a new list containing the remaining values.";
+			return "Deletes specific items from a list. Arguments can either be single items or lists of " +
+					"items. In case of a list, items are only removed if they appear in identical (correct and " +
+					"coherent) order in the list. The function walks through the first list and matches each " +
+					"position to those arguments that are to be deleted. After deleting items from the list, it " +
+					"starts to anew and tries to find matches with to all arguments ";
+					//"to be The arguments are processed in the order that a match is " +
+					//"found Matches are found The outer loop walks through the first list and tries to find " +
+					//"matches in any of the other arguments at the current position. The arguments are processed in the order they are " +
+					//"given. Have a look " +
+					//"at the examples to understand the behaviour. Returns a new list consisting of the remaining " +
+					//"values.";
 		}
 
 		public int getParameterCount() {

@@ -38,7 +38,7 @@ public class First$ implements Function, Serializable {
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "Returns the first value of a list. Nil if the List is empty.";
+			return "Returns the first item of a list. Nil if the list is empty.";
 		}
 
 		public int getParameterCount() {
@@ -46,7 +46,7 @@ public class First$ implements Function, Serializable {
 		}
 
 		public String getParameterDescription(int parameter) {
-			return "A List whose first value will be returned.";
+			return "List to get the first item from.";
 		}
 
 		public String getParameterName(int parameter) {

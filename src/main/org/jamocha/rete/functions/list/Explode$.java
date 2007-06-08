@@ -38,7 +38,8 @@ public class Explode$ implements Function, Serializable {
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "Creates a list of a given String. Optionally a separator can be provided to split the string at. Default is a whitespace.";
+			return "Creates a list of a given string. Optionally a separator where to split the string can " +
+					"be provided. Default is the space character.";
 		}
 
 		public int getParameterCount() {
@@ -48,9 +49,9 @@ public class Explode$ implements Function, Serializable {
 		public String getParameterDescription(int parameter) {
 			switch (parameter) {
 			case 0:
-				return "String that should be exploded.";
+				return "String to be exploded.";
 			case 1:
-				return "Optional separator. Default is a whitespace.";
+				return "Optional separator, default: space character.";
 			}
 			return "";
 		}
@@ -58,7 +59,7 @@ public class Explode$ implements Function, Serializable {
 		public String getParameterName(int parameter) {
 			switch (parameter) {
 			case 0:
-				return "String";
+				return "string";
 			case 1:
 				return "separator";
 			}

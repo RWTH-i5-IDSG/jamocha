@@ -52,7 +52,7 @@ public class Foreach implements Function, Serializable {
 			case 0:
 				return "Name of the variable for each list item.";
 			case 1:
-				return "The List to work on.";
+				return "List to work on.";
 			}
 			return "An expression that is evaluated for each item of the list.";
 		}
