@@ -1553,7 +1553,7 @@ SimpleNode AndFunction():
 {}
 {	
 	<AND>
-		ConditionalElement()
+		(ConditionalElement())+
     	
 	{ return jjtThis; }
 }
@@ -1569,7 +1569,7 @@ SimpleNode OrFunction():
 {	
 
 	<OR>
-		ConditionalElement()
+		(ConditionalElement())+
     	
 	{ return jjtThis; }
 }	
