@@ -120,46 +120,53 @@ public class DeleteMember$ implements Function, Serializable {
 			if (subject.is(JamochaType.LIST)) {
 				List<JamochaValue> tmpList = new LinkedList<JamochaValue>();
 				List<JamochaValue> searchValues = new LinkedList<JamochaValue>();
+
+				// preparsing the subject list
+				for (int i = 0; i < subject.getListCount(); ++i) {
+					tmpList.add(subject.getListValue(i));
+				}
 				// preparsing to prevent possible multiple functioncalls for
 				// searchvalues
 				for (int i = 1; i < params.length; ++i) {
 					searchValues.add(params[i].getValue(engine));
 				}
 				int startIndex = 0;
-				int end = subject.getListCount();
 				boolean found;
-				JamochaValue current;
-				while (startIndex < end) {
+				while (startIndex < tmpList.size()) {
 					found = false;
-					current = subject.getListValue(startIndex);
 					searchFor: for (JamochaValue searchValue : searchValues) {
 						if (searchValue.is(JamochaType.LIST)) {
-							if (searchValue.getListCount() > (end - startIndex)) {
+							if (searchValue.getListCount() > (tmpList.size() - startIndex)) {
 								continue searchFor;
 							} else {
 								for (int i = 0; i < searchValue.getListCount(); ++i) {
-									if (!subject.getListValue(startIndex + i)
+									if (!tmpList.get(startIndex + i)
 											.equals(searchValue.getListValue(i))) {
 										continue searchFor;
 									}
 								}
-								startIndex += searchValue.getListCount();
+								for (int i = 0; i < searchValue.getListCount(); ++i) {
+									tmpList.remove(startIndex);
+								}
 								found = true;
 								break searchFor;
 							}
 						} else {
 							// found something. ignore the value
-							if (current.equals(searchValue)) {
+							if (tmpList.get(startIndex).equals(searchValue)) {
 								found = true;
-								++startIndex;
+								tmpList.remove(startIndex);
 								break searchFor;
 							}
 						}
 					}
-					// no match found so keep the old value
+					// no match found so raise the startIndex
 					if (!found) {
-						tmpList.add(current);
 						++startIndex;
+					}
+					// match found so reset the startIndex
+					else {
+						startIndex = 0;
 					}
 				}
 
