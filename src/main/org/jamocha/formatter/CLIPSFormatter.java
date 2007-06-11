@@ -18,6 +18,7 @@ import org.jamocha.rete.SlotParam;
 import org.jamocha.rete.Template;
 import org.jamocha.rete.TemplateSlot;
 import org.jamocha.rete.configurations.AssertConfiguration;
+import org.jamocha.rete.configurations.DeffunctionConfiguration;
 import org.jamocha.rete.configurations.DefruleConfiguration;
 import org.jamocha.rete.configurations.Signature;
 import org.jamocha.rete.configurations.SlotConfiguration;
@@ -148,11 +149,16 @@ public class CLIPSFormatter implements Formatter {
 
 	private String formatFunctionParamDeffunction(Signature funcParam) {
 		StringBuilder res = new StringBuilder("(");
-		res.append(funcParam.getSignatureName());
-		Parameter[] params = funcParam.getParameters();
-		res.append(" " + formatExpression(params[0]));
-		Parameter[] defFuncParams = (Parameter[]) ((JamochaValue) params[1])
-				.getObjectValue();
+		DeffunctionConfiguration conf = (DeffunctionConfiguration) funcParam
+				.getParameters()[0];
+
+		res.append(conf.getFunctionName());
+		if (conf.getFunctionDescription() != null
+				&& conf.getFunctionDescription().length() > 0) {
+			res.append(" \"").append(conf.getFunctionDescription())
+					.append("\"");
+		}
+		Parameter[] defFuncParams = conf.getParams();
 		res.append(" (");
 		for (int i = 0; i < defFuncParams.length; ++i) {
 			if (i > 0)
@@ -160,14 +166,42 @@ public class CLIPSFormatter implements Formatter {
 			res.append(formatExpression(defFuncParams[i]));
 		}
 		res.append(")");
-		res.append(" ");
 		increaseIndent();
 		newLine(res);
-		res.append(formatExpression((ExpressionCollection) params[2]));
+		if (conf.getFunctionGroup() != null
+				&& conf.getFunctionGroup().length() > 0) {
+			res.append("(functiongroup ").append(conf.getFunctionGroup())
+					.append(")");
+			newLine(res);
+		}
+		increaseIndent();
+		newLine(res);
+		res.append(formatExpression(conf.getActions()));
 		decreaseIndent();
 		newLine(res);
 		res.append(")");
 		return res.toString();
+
+		// res.append(funcParam.getSignatureName());
+		// Parameter[] params = funcParam.getParameters();
+		// res.append(" " + formatExpression(params[0]));
+		// Parameter[] defFuncParams = (Parameter[]) ((JamochaValue) params[1])
+		// .getObjectValue();
+		// res.append(" (");
+		// for (int i = 0; i < defFuncParams.length; ++i) {
+		// if (i > 0)
+		// res.append(" ");
+		// res.append(formatExpression(defFuncParams[i]));
+		// }
+		// res.append(")");
+		// res.append(" ");
+		// increaseIndent();
+		// newLine(res);
+		// res.append(formatExpression((ExpressionCollection) params[2]));
+		// decreaseIndent();
+		// newLine(res);
+		// res.append(")");
+		// return res.toString();
 	}
 
 	private String formatFunctionParamDefrule(Signature funcParam) {
@@ -392,7 +426,7 @@ public class CLIPSFormatter implements Formatter {
 		newLine(sb);
 		sb.append(fd.getDescription());
 		String example = fd.getExample();
-		if(example != null) {
+		if (example != null) {
 			newLine(sb);
 			newLine(sb);
 			sb.append("Example(s):");
@@ -559,27 +593,27 @@ public class CLIPSFormatter implements Formatter {
 	}
 
 	private String formatOrConnectedConstraint(OrConnectedConstraint constraint) {
-		//TODO Reimplement that
-//		StringBuilder buf = new StringBuilder();
-//		Iterator itr = ((List) constraint.getValue().getObjectValue())
-//				.iterator();
-//		buf.append("    (").append(constraint.getName()).append(' ');
-//		int count = 0;
-//		while (itr.hasNext()) {
-//			MultiValue mv = (MultiValue) itr.next();
-//			if (count > 0) {
-//				buf.append("|");
-//			}
-//			if (mv.getNegated()) {
-//				buf.append("~").append(
-//						ConversionUtils.formatSlot(mv.getValue()));
-//			} else {
-//				buf.append(ConversionUtils.formatSlot(mv.getValue()));
-//			}
-//			count++;
-//		}
-//		buf.append(")").append(Constants.LINEBREAK);
-//		return buf.toString();
+		// TODO Reimplement that
+		// StringBuilder buf = new StringBuilder();
+		// Iterator itr = ((List) constraint.getValue().getObjectValue())
+		// .iterator();
+		// buf.append(" (").append(constraint.getName()).append(' ');
+		// int count = 0;
+		// while (itr.hasNext()) {
+		// MultiValue mv = (MultiValue) itr.next();
+		// if (count > 0) {
+		// buf.append("|");
+		// }
+		// if (mv.getNegated()) {
+		// buf.append("~").append(
+		// ConversionUtils.formatSlot(mv.getValue()));
+		// } else {
+		// buf.append(ConversionUtils.formatSlot(mv.getValue()));
+		// }
+		// count++;
+		// }
+		// buf.append(")").append(Constants.LINEBREAK);
+		// return buf.toString();
 		return null;
 	}
 
@@ -605,29 +639,30 @@ public class CLIPSFormatter implements Formatter {
 		return sb.toString();
 	}
 
-	private String formatAndConnectedConstraint(AndConnectedConstraint constraint) {
-		
-		//TODO Reimplement that
-//		StringBuilder buf = new StringBuilder();
-//		Iterator itr = ((List) constraint.getValue().getObjectValue())
-//				.iterator();
-//		buf.append("    (").append(constraint.getName()).append(" ");
-//		int count = 0;
-//		while (itr.hasNext()) {
-//			MultiValue mv = (MultiValue) itr.next();
-//			if (count > 0) {
-//				buf.append("&");
-//			}
-//			if (mv.getNegated()) {
-//				buf.append("~").append(
-//						ConversionUtils.formatSlot(mv.getValue()));
-//			} else {
-//				buf.append(ConversionUtils.formatSlot(mv.getValue()));
-//			}
-//			count++;
-//		}
-//		buf.append(")").append(Constants.LINEBREAK);
-//		return buf.toString();
+	private String formatAndConnectedConstraint(
+			AndConnectedConstraint constraint) {
+
+		// TODO Reimplement that
+		// StringBuilder buf = new StringBuilder();
+		// Iterator itr = ((List) constraint.getValue().getObjectValue())
+		// .iterator();
+		// buf.append(" (").append(constraint.getName()).append(" ");
+		// int count = 0;
+		// while (itr.hasNext()) {
+		// MultiValue mv = (MultiValue) itr.next();
+		// if (count > 0) {
+		// buf.append("&");
+		// }
+		// if (mv.getNegated()) {
+		// buf.append("~").append(
+		// ConversionUtils.formatSlot(mv.getValue()));
+		// } else {
+		// buf.append(ConversionUtils.formatSlot(mv.getValue()));
+		// }
+		// count++;
+		// }
+		// buf.append(")").append(Constants.LINEBREAK);
+		// return buf.toString();
 		return null;
 
 	}

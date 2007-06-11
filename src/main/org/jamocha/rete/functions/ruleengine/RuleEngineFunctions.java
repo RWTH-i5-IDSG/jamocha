@@ -122,6 +122,10 @@ public class RuleEngineFunctions implements FunctionGroup, Serializable {
 		functionMem.declareFunction(fire);
 		funcs.add(fire);
 
+		FunctionExists functionExists = new FunctionExists();
+		functionMem.declareFunction(functionExists);
+		funcs.add(functionExists);
+
 		FunctionsDescription fd = new FunctionsDescription();
 		functionMem.declareFunction(fd);
 		funcs.add(fd);

@@ -73,7 +73,7 @@ public class FunctionMemoryImpl implements FunctionMemory {
 	}
 
 	public Function findFunction(String name) {
-		return (Function) this.functions.get(name);
+		return this.functions.get(name);
 	}
 
 	/**

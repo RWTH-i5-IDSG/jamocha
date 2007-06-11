@@ -9,8 +9,8 @@
     (slot definition (type STRING))
 )
 
-(deftemplate agent-performative
-    (slot performative (type STRING))
+(deftemplate agent-interaction-protocol
+    (slot protocol (type STRING))
     (slot handlerfunction (type STRING))
 )
 
@@ -53,15 +53,13 @@
 		(reply-by ?replyby)
 		(user-properties ?userproperties)
 	)
-	(agent-performative 
-	    (performative ?performative)
+	(agent-interaction-protocol 
+	    (protocol ?protocol)
 	    (handlerfunction ?handler)
 	)
 	(test (> (member$ ?receiver ?receivers) 0))
 	=> 
-	(printout t ?receiver " received a message with performative " ?performative)	
+	(printout t ?receiver " received a message using interaction protocol " ?protocol " with performative " ?performative)	
 	(assert (agent-description (name ?sender)(local FALSE)))
 	(apply ?handler (get-fact-id ?message))
 )
-
-; (batch apps/jamochaagent/performatives/fipasl.clp)
