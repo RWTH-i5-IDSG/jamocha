@@ -210,10 +210,10 @@ public class Deffact implements Fact {
 		return buf.toString();
 	}
 
-	public String toString(){
+	public String toString() {
 		return toPPString();
 	}
-	
+
 	/**
 	 * Returns the string format for the fact without the fact-id. this is used
 	 * to make sure that if an user asserts an equivalent fact, we can easily
@@ -352,11 +352,15 @@ public class Deffact implements Fact {
 				JamochaValue[] rvals = new JamochaValue[mval.getListCount()];
 				for (int mdx = 0; mdx < mval.getListCount(); mdx++) {
 					JamochaValue v2 = mval.getListValue(mdx);
-					try {
-						rvals[mdx] = JamochaValue.newObject(((BoundParam) v2.getObjectValue()).getValue(engine));
-					} catch (EvaluationException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+					if (v2.getType().equals(JamochaType.BINDING)){
+						try {
+							rvals[mdx] = JamochaValue.newObject(((BoundParam) v2.getObjectValue()).getValue(engine));
+						} catch (EvaluationException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}else{
+						rvals[mdx] = v2;
 					}
 				}
 				slts[idx].value = JamochaValue.newList(rvals);

@@ -225,4 +225,8 @@ public class BoundParam extends AbstractSignature {
 	public String getExpressionString() {
 		return ParserFactory.getFormatter().formatExpression(this);
 	}
+	
+	public String toString(){
+		return this.getExpressionString();
+	}
 }

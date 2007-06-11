@@ -20,6 +20,7 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.GregorianCalendar;
 import java.util.Iterator;
+import java.util.List;
 import java.util.TimeZone;
 
 import org.jamocha.rete.BoundParam;
@@ -87,6 +88,10 @@ public class JamochaValue implements Parameter {
 
 	public static JamochaValue newList(JamochaValue[] values) {
 		return new JamochaValue(JamochaType.LIST, values);
+	}
+	
+	public static JamochaValue newList(List<JamochaValue> list) {
+		return new JamochaValue(JamochaType.LIST, list.toArray());
 	}
 
 	public static JamochaValue newBinding(BoundParam value) {

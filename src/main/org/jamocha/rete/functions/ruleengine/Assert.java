@@ -125,7 +125,7 @@ public class Assert implements Function, Serializable {
 					org.jamocha.rete.Deftemplate template = (org.jamocha.rete.Deftemplate) engine
 							.getCurrentFocus().getTemplate(templateName);
 					if (template == null) {
-						throw new AssertException("Template " + templateName + "could not be found");
+						throw new AssertException("Template " + templateName + " could not be found");
 					} else {
 
 						// get the slot configurations
