@@ -32,17 +32,32 @@ public class Slot extends AbstractSlot {
 	static final long serialVersionUID = 0xDeadBeafCafeBabeL;
 	
     protected JamochaValue value = JamochaValue.NIL;
+    
+    protected boolean silent = false;
 
     public Slot() {
     }
+    
+    public Slot(boolean silent){
+    	this.silent = silent;
+    }
 
+    public boolean isSilent() {
+    	return silent;
+    }
+    
     /**
          * Create a new instance with a given name
          * 
          * @param name
          */
     public Slot(String name) {
-	this.setName(name);
+    	this.setName(name);
+    }
+    
+    public Slot(boolean silent,String name){
+    	this(name);
+    	this.silent=silent;
     }
 
     /**
@@ -50,9 +65,15 @@ public class Slot extends AbstractSlot {
          * directly
          */
     public Slot(String name, JamochaValue value) {
-	this(name);
-	this.value = value;
+    	this(name);
+    	this.value = value;
     }
+    
+    public Slot(boolean silent, String name, JamochaValue value){
+    	this(name,value);
+    	this.silent=silent;
+    }
+    
 
     /**
          * get the value of the slot

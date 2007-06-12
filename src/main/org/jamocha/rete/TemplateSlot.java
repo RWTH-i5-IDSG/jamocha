@@ -24,6 +24,8 @@ public class TemplateSlot extends Slot {
 	private boolean multiSlot = false;
 
 	private boolean staticDefault;
+	
+	private boolean silent = false;
 
 	// used for the implementation of slot default "?NONE", as it specified in
 	// CLIPS BPG
@@ -63,9 +65,9 @@ public class TemplateSlot extends Slot {
 	public Slot createSlot(Rete engine) throws EvaluationException {
 		Slot result;
 		if (isMultiSlot())
-			result = new MultiSlot(getName());
+			result = new MultiSlot(silent,getName());
 		else {
-			result = new Slot(getName());
+			result = new Slot(silent,getName());
 			result.setValueType(getValueType());
 		}
 		if (defaultExpression != null && !defaultExpression.equals("?None")) {
@@ -136,6 +138,14 @@ public class TemplateSlot extends Slot {
 
 	public void setRequired(boolean required) {
 		this.required = required;
+	}
+
+	public boolean isSilent() {
+		return silent;
+	}
+
+	public void setSilent(boolean silent) {
+		this.silent = silent;
 	}
 
 }

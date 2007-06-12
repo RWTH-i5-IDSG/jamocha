@@ -145,6 +145,7 @@ TOKEN :
 | < #DATE: <DIGIT> <DIGIT> <DIGIT> <DIGIT> "-" <DIGIT> <DIGIT> "-" <DIGIT> <DIGIT> >
 | < #TIME: <DIGIT> <DIGIT> ":" <DIGIT> <DIGIT> ( ":" <DIGIT> <DIGIT>)? >
 | < DATETIME:  <DATE> ( " " <TIME> (<GMT_OFFSET>)? )? > 
+| < SILENT: "silent" >
 |
   < STRING:
       ("\"" ((~["\"","\\"]) | ("\\" ( ["\\","\""] )))* "\"") |
@@ -1011,6 +1012,12 @@ SimpleNode DeftemplateConstruct() :
         { return jjtThis; }
 }
 
+SimpleNode Silent() :
+{}
+{
+	<SILENT>
+	{return jjtThis;}
+}
 
 
 /**
@@ -1018,17 +1025,19 @@ SimpleNode DeftemplateConstruct() :
 **/  
 //<slot-definition> ::= <single-slot-definition> | <multislot-definition>
 
-void  SlotDefinition()  #void: 
+SimpleNode  SlotDefinition() : 
 {}
 {
     ( 	
 		<LBRACE> 
+		(Silent())?
 		(
 					SingleSlotDefinition()
 				| 	MultiSlotDefinition()
 			)
 		<RBRACE> 
     )
+    {return jjtThis;}
 }
 
 

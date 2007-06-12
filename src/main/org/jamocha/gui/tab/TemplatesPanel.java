@@ -59,6 +59,9 @@ import org.jamocha.rete.TemplateSlot;
  * @author Karl-Heinz Krempels <krempels@cs.rwth-aachen.de>
  * @author Alexander Wilden <october.rust@gmx.de>
  */
+
+//TODO: it would be better to use ClipsFormatter for printing templates and so on, wouldnt it? jh
+
 public class TemplatesPanel extends AbstractJamochaPanel implements
 		ListSelectionListener, ActionListener {
 
@@ -191,6 +194,8 @@ public class TemplatesPanel extends AbstractJamochaPanel implements
 			editor.init();
 		}
 	}
+	
+
 
 	public void valueChanged(ListSelectionEvent arg0) {
 		if (arg0.getSource() == templatesTable.getSelectionModel()) {
@@ -210,6 +215,7 @@ public class TemplatesPanel extends AbstractJamochaPanel implements
 					TemplateSlot[] slots = template.getTemplate().getAllSlots();
 					for (TemplateSlot slot : slots) {
 						buffer.append("\n    (");
+						if (slot.isSilent()) buffer.append("silent ");
 						if (slot.isMultiSlot()) {
 							buffer.append("multislot ").append(slot.getName());
 						} else {

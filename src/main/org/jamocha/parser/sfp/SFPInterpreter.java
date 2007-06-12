@@ -1148,4 +1148,21 @@ public class SFPInterpreter implements SFPParserVisitor {
 		// TODO: check is this correct to match number to double?
 		return JamochaType.DOUBLE;
 	}
+
+	public Object visit(SFPSilent node, Object data) {
+		((TemplateSlot)data).setSilent(true);
+		return null;
+	}
+
+	public Object visit(SFPSlotDefinition node, Object data) {
+		int count = node.jjtGetNumChildren();
+		// we assume that last child is Single- or MultiSlotDefinition
+		// and the other childs are keywords
+		TemplateSlot ts = (TemplateSlot)node.jjtGetChild(count-1).jjtAccept(this, null);
+
+		for (int i =0 ; i< count-1 ; i++){
+			node.jjtGetChild(i).jjtAccept(this, ts);
+		}
+		return ts;
+	}
 }

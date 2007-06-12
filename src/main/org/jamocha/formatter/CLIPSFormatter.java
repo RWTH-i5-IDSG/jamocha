@@ -267,6 +267,9 @@ public class CLIPSFormatter implements Formatter {
 		for (TemplateSlot slot : slots) {
 			newLine(res);
 			res.append("(");
+			if (slot.isSilent()){
+				res.append("silent ");
+			}
 			if (slot.isMultiSlot()) {
 				res.append("multislot ");
 				res.append(slot.getName());

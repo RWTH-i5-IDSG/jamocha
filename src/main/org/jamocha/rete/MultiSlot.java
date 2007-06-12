@@ -44,6 +44,21 @@ public class MultiSlot extends Slot {
 		super.setName(name);
 		this.value = value;
 	}
+	
+	public MultiSlot(boolean silent) {
+		this();
+		this.silent=silent;
+	}
+
+	public MultiSlot(boolean silent,String name) {
+		this(name, null);
+		this.silent=silent;
+	}
+
+	public MultiSlot(boolean silent,String name, Object[] value) {
+		this(name,value);
+		this.silent=silent;
+	}
 
 	/**
 	 * In some cases, a deftemplate can be define with a default value.
