@@ -35,6 +35,8 @@ import org.jamocha.messagerouter.MessageEvent;
 import org.jamocha.messagerouter.MessageRouter;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaValue;
+import org.jamocha.rete.configurations.ModifyConfiguration;
+import org.jamocha.rete.configurations.SlotConfiguration;
 import org.jamocha.rete.exception.AssertException;
 import org.jamocha.rete.exception.ExecuteException;
 import org.jamocha.rete.exception.RetractException;
@@ -1265,10 +1267,26 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 	 * 
 	 * @param old
 	 * @param newfact
+	 * @throws EvaluationException 
 	 */
-	public void modifyFact(Fact old, Fact newfact) throws RetractException, AssertException {
-		retractFact(old);
-		assertFact(newfact);
+	
+	//TODO not really efficient to pre-traverse the whole slot-list just for determining whether we must retract/assert or not
+	public void modifyFact(Fact old, ModifyConfiguration mc) throws EvaluationException {
+		boolean allSilent = true;
+		
+		for (SlotConfiguration slot : mc.getSlots() ) {
+			allSilent &= old.getSlotSilence(slot.getSlotName());
+		}
+		
+		if (allSilent) {
+			old.updateSlots(this, mc.getSlots());
+		} else {
+			Fact modifiedFact = ((Deffact)old).cloneFact(this);
+			modifiedFact.setFactId(old.getFactId());
+			modifiedFact.updateSlots(this, mc.getSlots());
+			retractFact(old);
+			assertFact(modifiedFact);
+		}
 	}
 
 	/**

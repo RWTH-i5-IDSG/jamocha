@@ -94,4 +94,8 @@ public interface Fact extends Assertable {
     
 	void setFactId(long id);
 
+	public boolean getSlotSilence(int idx);
+	
+	public boolean getSlotSilence(String slotName);
+	
 }

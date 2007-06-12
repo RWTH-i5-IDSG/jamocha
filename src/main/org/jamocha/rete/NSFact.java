@@ -223,4 +223,12 @@ public class NSFact implements Fact, Serializable {
 		return buf.toString();
 	}
 
+	public boolean getSlotSilence(int idx) {
+		return slots[idx].silent;
+	}
+	
+	public boolean getSlotSilence(String slotName) {
+		return this.slots[getSlotId(slotName)].silent;
+	}
+
 }

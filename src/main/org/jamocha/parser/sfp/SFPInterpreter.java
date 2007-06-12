@@ -565,6 +565,8 @@ public class SFPInterpreter implements SFPParserVisitor {
 		String slotName = ((JamochaValue) node.jjtGetChild(0).jjtAccept(this,
 				data)).toString();
 
+		
+		
 		// get the slots values:
 		Parameter[] slotValues = new Parameter[node.jjtGetNumChildren() - 1];
 
@@ -573,6 +575,7 @@ public class SFPInterpreter implements SFPParserVisitor {
 					data);
 		}
 
+	
 		sc.setSlotName(slotName);
 		sc.setSlotValues(slotValues);
 

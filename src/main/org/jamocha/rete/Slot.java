@@ -124,12 +124,12 @@ public class Slot extends AbstractSlot {
          * A convienance method to clone slots
          */
     public Object clone() {
-	Slot newslot = new Slot();
-	newslot.setId(this.getId());
-	newslot.setName(this.getName());
-	newslot.value = this.value;
-	newslot.setValueType(this.getValueType());
-	return newslot;
+    	Slot newslot = new Slot(this.silent);
+    	newslot.setId(this.getId());
+    	newslot.setName(this.getName());
+    	newslot.value = this.value;
+    	newslot.setValueType(this.getValueType());
+    	return newslot;
     }
 
     public String valueToString() {

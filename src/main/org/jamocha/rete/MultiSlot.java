@@ -84,7 +84,7 @@ public class MultiSlot extends Slot {
 	 * method returns a clone and set id, name and value.
 	 */
 	public Object clone() {
-		MultiSlot newms = new MultiSlot();
+		MultiSlot newms = new MultiSlot(silent);
 		newms.setId(this.getId());
 		newms.setName(this.getName());
 		newms.value = this.value;

@@ -20,7 +20,7 @@ public class SlotConfiguration extends AbstractConfiguration {
 	 * the id of the slot
 	 */
 	private int id;
-
+	
 	private Parameter[] slotValues = null;
 
 	/*
@@ -94,4 +94,5 @@ public class SlotConfiguration extends AbstractConfiguration {
 	public void setId(int id) {
 		this.id = id;
 	}
+
 }

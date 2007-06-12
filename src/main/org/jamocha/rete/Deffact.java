@@ -402,4 +402,12 @@ public class Deffact implements Fact {
 		this.timeStamp = 0;
 	}
 
+	public boolean getSlotSilence(int idx) {
+		return this.slots[idx].silent;
+	}
+
+	public boolean getSlotSilence(String slotName) {
+		return this.slots[getSlotId(slotName)].silent;
+	}
+	
 }
