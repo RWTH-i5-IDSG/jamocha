@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 Christoph Emonds, Alexander Wilden
+ * Copyright 2007 Christoph Emonds, Alexander Wilden, Uta Christoph
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ public class Apply implements Function, Serializable {
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "Applies a given function to one or more given parameters.";
+			return "Applies a given function to one or more given arguments.";
 		}
 
 		public int getParameterCount() {
@@ -47,9 +47,9 @@ public class Apply implements Function, Serializable {
 
 		public String getParameterDescription(int parameter) {
 			if (parameter > 0)
-				return "Optional Parameters for the Function";
+				return "Optional parameters for the function.";
 			else
-				return "Name of the Function to apply";
+				return "Name of the function to apply.";
 		}
 
 		public String getParameterName(int parameter) {
@@ -81,9 +81,9 @@ public class Apply implements Function, Serializable {
 				return false;
 		}
 
-		public String getExample() {
-			// TODO Auto-generated method stub
-			return null;
+		public String getExample() {			
+			return "(apply add 17 4)\n" +
+					"(apply explode$ \"My name is not earl.\" ' not ')";
 		}
 	}
 

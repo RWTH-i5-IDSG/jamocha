@@ -32,15 +32,14 @@ import org.jamocha.rete.functions.FunctionDescription;
 /**
  * @author Peter Lin
  * 
- * Bind will bind any value to a variable visible in the scope the bind takes
- * place.
+ * Binds any value to a variable visible in the scope the bind takes place.
  */
 public class Bind implements Function, Serializable {
 
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "Bind will bind any value to a variable visible in the scope the bind takes place.";
+			return "Binds any value to a variable visible in the scope the bind takes place.";
 		}
 
 		public int getParameterCount() {
@@ -50,7 +49,7 @@ public class Bind implements Function, Serializable {
 		public String getParameterDescription(int parameter) {
 			switch (parameter) {
 			case 0:
-				return "Variable the value should be bound to.";
+				return "Variable to bind the value to. Name should start with a '?': ?variableName .";
 			case 1:
 				return "Value to bind to the variable.";
 			}
@@ -90,8 +89,7 @@ public class Bind implements Function, Serializable {
 		}
 
 		public String getExample() {
-			// TODO Auto-generated method stub
-			return null;
+			return "(bind ?helo 'Jamocha rulez!') (printout t ?helo)";
 		}
 	}
 
