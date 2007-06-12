@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2006 Peter Lin, 2007 Alexander Wilden
+ * Copyright 2002-2006 Peter Lin, 2007 Alexander Wilden, Uta Christoph
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,17 +34,21 @@ import org.jamocha.rete.functions.FunctionDescription;
  * Clears the Rete engine. Removes all constructs and all associated data
  * structures (such as facts and objects) from the Rete environment.
  * <p>
- * If a parameter is given it is parsed as identifier and only the constructs
- * that are identified by it are removed.
- * <p>
- * This function returns TRUE.
+ * In case of a given argument it is parsed as identifier and only the constructs that are 
+ * identified by it are removed.
+ * </p>
+ * Returns true on success.
  */
 public class Clear implements Function, Serializable {
 
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "Clears the Rete engine. Removes all constructs and all associated data structures (such as facts and objects) from the Rete environment. If a parameter is given it is parsed as identifier and only the constructs that are identified by it are removed. This function returns TRUE.";
+			return "Clears the Rete engine. Removes all constructs and all associated data structures (such as facts " +
+					"and objects) from the Rete environment.\n" +
+					"In case of a given argument it is parsed as identifier and only the constructs that are " +
+					"identified by it are removed.\n" +
+					"Returns true on success.";
 		}
 
 		public int getParameterCount() {
@@ -55,7 +59,7 @@ public class Clear implements Function, Serializable {
 			if (parameter > 0)
 				return "";
 			else
-				return "Identifier saying what to clear (deffacts or objects).";
+				return "Identifier saying what to clear (facts or objects).";
 		}
 
 		public String getParameterName(int parameter) {

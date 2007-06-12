@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2006 Peter Lin, 2007 Alexander Wilden
+ * Copyright 2002-2006 Peter Lin, 2007 Alexander Wilden, Uta Christoph
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,16 +34,16 @@ import org.jamocha.rete.functions.FunctionDescription;
 /**
  * @author Peter Lin
  * 
- * The temporal-assert action allows the user to add a temporal fact to the
- * fact-list. If the facts item is being watched, then an informational message
- * will be printed each time a fact is asserted.
+ * Allows the user to add a temporal fact to the fact-list. If the fact-list is being watched, 
+ * an inform message is printed each time a fact is asserted.
  */
 public class AssertTemporal implements Function, Serializable {
 
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "The temporal-assert action allows the user to add a temporal fact to the fact-list. If the facts item is being watched, then an informational message will be printed each time a fact is asserted.";
+			return "Allows the user to add a temporal fact to the fact-list. If the fact-list is being watched, " +
+					"an inform message is printed each time a fact is asserted.";
 		}
 
 		public int getParameterCount() {
@@ -51,11 +51,11 @@ public class AssertTemporal implements Function, Serializable {
 		}
 
 		public String getParameterDescription(int parameter) {
-			return "RHS of an assert.";
+			return "Temporal fact(s) to be asserted.";
 		}
 
 		public String getParameterName(int parameter) {
-			return "rhs";
+			return "temporalFact";
 		}
 
 		public JamochaType[] getParameterTypes(int parameter) {

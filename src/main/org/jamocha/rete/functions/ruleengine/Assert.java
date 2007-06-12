@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2006 Peter Lin, 2007 Alexander Wilden
+ * Copyright 2002-2006 Peter Lin, 2007 Alexander Wilden, Uta Christoph
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,16 +37,21 @@ import org.jamocha.rete.functions.FunctionDescription;
 /**
  * @author Peter Lin
  * 
- * The assert action allows the user to add a fact to the fact-list. Multiple
- * facts may be asserted with each call. If the facts item is being watched,
- * then an informational message will be printed each time a fact is asserted.
+ * Allows the user to add a fact to the fact-list. Multiple facts may be asserted with each call.
+ * If the fact-list is being watched, then an inform message will be printed each time a fact is asserted. 
+ * <p>
+ * Attention: In Jamocha there has to exist a corresponding template in order to assert a fact.
+ * </p>
  */
 public class Assert implements Function, Serializable {
 
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "The assert action allows the user to add a fact to the fact-list. Multiple facts may be asserted with each call. If the facts item is being watched, then an informational message will be printed each time a fact is asserted.";
+			return "Allows the user to add a fact to the fact-list. Multiple facts may be asserted with each call. " +
+					"If the fact-list is being watched, an inform message is printed each time a " +
+					"fact is asserted.\n" +
+					"Attention: In Jamocha there has to exist a corresponding template in order to assert a fact. ";
 		}
 
 		public int getParameterCount() {
@@ -54,11 +59,11 @@ public class Assert implements Function, Serializable {
 		}
 
 		public String getParameterDescription(int parameter) {
-			return "RHS of an assert.";
+			return "Fact(s) to be asserted."; 
 		}
 
 		public String getParameterName(int parameter) {
-			return "rhs";
+			return "fact";
 		}
 
 		public JamochaType[] getParameterTypes(int parameter) {
