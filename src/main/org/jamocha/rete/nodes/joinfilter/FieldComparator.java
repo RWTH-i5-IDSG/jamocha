@@ -61,7 +61,8 @@ public class FieldComparator implements Serializable, Cloneable, JoinFilter {
 	public boolean evaluate(Fact rightinput, FactTuple leftinput) throws JoinFilterException {
 		JamochaValue rightValue = null, leftValue = null;
 		if (right.refersWholeFact()) {
-			rightValue = rightinput.getSlotValue( -1 );
+			JamochaValue.newFact(rightinput);
+			//rightValue = rightinput.getSlotValue( -1 );
 		} else {
 			rightValue = rightinput.getSlotValue( right.getSlotIndex() );			
 		}
