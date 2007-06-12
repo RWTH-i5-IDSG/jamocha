@@ -61,7 +61,7 @@ public class ReplaceMember$ implements Function, Serializable {
 					"this position anew to any of the arguments that are to replaced.\n" +
 					"Therefore the arguments are not necessarily processed in the order they are given, but " +
 					"replacements will not be matched recursively.\n" +
-					" Returns a new list consisting of untouched and replaced items.";					
+					"Returns a new list consisting of untouched and replaced items.";					
 		}
 
 		public int getParameterCount() {
