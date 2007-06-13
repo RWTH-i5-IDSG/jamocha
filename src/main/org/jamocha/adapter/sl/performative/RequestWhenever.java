@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 Georg put your name here and write the fantastic code
+ * Copyright 2007 Daniel Grams
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import org.jamocha.parser.sl.ParseException;
 import org.jamocha.parser.sl.SLParser;
 import org.jamocha.parser.sl.SLParserTreeConstants;
 import org.jamocha.parser.sl.SimpleNode;
+import org.jamocha.adapter.sl.performative.*;
 
 /**
  * This class walks through an SL code tree and translates it to CLIPS depending
@@ -50,31 +51,152 @@ public class RequestWhenever {
 	 *             if the SLParser throws an Exception or anything else unnormal
 	 *             happens.
 	 */
-	public static String getCLIPS(String slContent)
-			throws AdapterTranslationException {
-		StringBuilder result = new StringBuilder();
+	/*
+	 * Example: 
+	 * ((action (agent-identifier :name j)
+	      (inform-ref
+	        :sender (agent-identifier :name j)
+	        :receiver (set (agent-identifier :name i))
+	        :content
+	          \"\"))
+     	(> (price widget) 50))
+     	
+     Parser Tree:	
+	    Content
+		 ContentExpression
+		  ActionExpression
+		   Action
+		    Agent
+		     TermOrIE
+		      Term
+		       FunctionalTerm
+		        FunctionSymbol: agent-identifier
+		        Parameter
+		         ParameterName: :name
+		         ParameterValue
+		          TermOrIE
+		           Term
+		            Constant
+		             String: j
+		    TermOrIE
+		     Term
+		      FunctionalTerm
+		       FunctionSymbol: inform-ref
+		       Parameter
+		        ParameterName: :sender
+		        ParameterValue
+		         TermOrIE
+		          Term
+		           FunctionalTerm
+		            FunctionSymbol: agent-identifier
+		            Parameter
+		             ParameterName: :name
+		             ParameterValue
+		              TermOrIE
+		               Term
+		                Constant
+		                 String: j
+		       Parameter
+		        ParameterName: :receiver
+		        ParameterValue
+		         TermOrIE
+		          Term
+		           Set
+		            TermOrIE
+		             Term
+		              FunctionalTerm
+		               FunctionSymbol: agent-identifier
+		               Parameter
+		                ParameterName: :name
+		                ParameterValue
+		                 TermOrIE
+		                  Term
+		                   Constant
+		                    String: i
+		       Parameter
+		        ParameterName: :content
+		        ParameterValue
+		         TermOrIE
+		          Term
+		           Constant
+		            String: \"\"
+		 ContentExpression
+		  Wff
+		   AtomicFormula
+		    PredicateSymbol: >
+		    TermOrIE
+		     Term
+		      FunctionalTerm
+		       FunctionSymbol: price
+		       TermOrIE
+		        Term
+		         Constant
+		          String: widget
+		    TermOrIE
+		     Term
+		      Constant
+		       NumericalConstant
+		        Integer: 50
+	 */
+	
+	
+	public static String handleAction(SimpleNode node) {
+		node = getChild(node, 1);
+		node = getChildAtLevel(node, 2);
+		String functionName = getChild(node, 0).getText();
+		String lastAssert = resolveParameters(getChild(getChild(node, 1), 1));
 
-		SLParser parser = new SLParser(new StringReader(slContent));
-		SimpleNode sn;
-		try {
-			sn = parser.Content();
-		} catch (ParseException e) {
-			throw new AdapterTranslationException(
-					"Could not translate from SL to CLIPS.", e);
-		}
-		// Walk through the children until we have something useful
+		return "(" + functionName + " " + lastAssert + ")";
+	}
+	
+	public static String handleProposal(SimpleNode node, String Action) {
+		SimpleNode sn = getChild(node, 0);
+		String PredicateSymbol = sn.getText();
+		sn = getChild(node, 1);
 		sn = getChildAtLevel(sn, 3);
-		if (sn.getID() == SLParserTreeConstants.JJTACTION) {
-			// Here we have an Action
-			// Get the right Child. The left Child is the agent-identifier.
-			sn = getChild(sn, 1);
-			sn = getChildAtLevel(sn, 2);
-			String functionName = getChild(sn, 0).getText();
-			String lastAssert = resolveParameters(getChild(getChild(sn, 1), 1));
-
-			result.append("(" + functionName + " " + lastAssert + ")");
+		String FunctionName = sn.getText();
+		sn = getChild(node, 2);
+		sn = getChildAtLevel(sn, 4);
+		String Constant = sn.getText();
+		return "(defrule MyRule (" + PredicateSymbol + " " + FunctionName + " " + Constant +  ") => " + Action + ")"; 
+	}
+	
+	
+	public static String getCLIPS(String slContent) throws AdapterTranslationException {
+		StringBuilder result = new StringBuilder();
+		
+		SLParser parser = new SLParser(new StringReader(slContent));
+		SimpleNode rn, sn;
+		try {
+			rn = parser.Content(); // RootNode
+		} catch (ParseException e) {
+			throw new AdapterTranslationException("Could not translate from SL to CLIPS.", e);
 		}
-
+		
+		SimpleNode ContentNode 	= rn; //getChild(rn, 0);
+		
+		String RightHand 	= Subscribe.handleContentExpression(getChild(ContentNode, 0));
+		String LeftHand 	= Subscribe.handleContentExpression(getChild(ContentNode, 1));
+		
+		result.append("(defrule RequestWhenever " + LeftHand + " => " + RightHand + ")");
+		
+		/*
+		// RequestWhenever is known for two things: Action and Proposal	
+		// Let's start with the Action
+		sn = getChildAtLevel(rn, 3);
+		if (sn.getID() != SLParserTreeConstants.JJTACTION) {
+			throw new AdapterTranslationException("request-whenever has no Action");
+		} 
+		String Action = handleAction(sn);
+		
+		// Proposal
+		sn = getChild(rn, 1);
+		sn = getChildAtLevel(sn, 2);
+		if (sn.getID() != SLParserTreeConstants.JJTATOMICFORMULA) {
+			throw new AdapterTranslationException("request-whenever has no Proposal");
+		}		
+		result.append(handleProposal(sn, Action));*/
+		
 		return result.toString();
 	}
 
