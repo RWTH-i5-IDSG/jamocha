@@ -600,11 +600,17 @@ public class Defrule implements Rule {
 		return newRule;
 	}
 	
-	public Defrule clone() {
+	public Defrule clone() throws CloneNotSupportedException {
 		Defrule newRule = new Defrule();
 		newRule.name = name;
 		newRule.conditions = (ArrayList<Condition>) conditions.clone();
+		
+		ArrayList actions = new ArrayList();
 		newRule.actions = actions;
+		
+		for (Action a : this.actions)
+			actions.add(a.clone());
+		
 		newRule.terminal = terminal;
 		newRule.salience = salience;
 		newRule.auto = auto;

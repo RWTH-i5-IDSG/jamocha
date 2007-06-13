@@ -31,6 +31,10 @@ import org.jamocha.rete.Slot;
 
 public class JamochaValue implements Parameter {
 
+	public Object clone(){
+		return new JamochaValue(this.value);
+	}
+	
 	public static final JamochaValue NIL = new JamochaValue(JamochaType.NIL,
 			null);
 

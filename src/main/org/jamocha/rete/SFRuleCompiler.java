@@ -441,6 +441,9 @@ public class SFRuleCompiler implements RuleCompiler {
 					BaseNode initFactNode = root.activateObjectTypeNode(engine.initFact, engine);
 					initFactNode.addNode(tnode, engine);
 				}
+				
+				System.out.println(rule.getBinding("weight").toPPString());
+				
 				compileActions(rule);
 
 				currentMod.addRule(rule);
@@ -603,6 +606,7 @@ public class SFRuleCompiler implements RuleCompiler {
 		for (String variable : bindingAddressTable.row.keySet()) {
 			BindingAddress pivot = bindingAddressTable.getPivot(variable);
 
+			
 			Binding b = new Binding();
 			b.leftIndex = pivot.slotIndex;
 			if (b.leftIndex == -1)
@@ -863,12 +867,9 @@ public class SFRuleCompiler implements RuleCompiler {
 			
 			
 			org.jamocha.rete.SFRuleCompiler compiler = new org.jamocha.rete.SFRuleCompiler(engine,root);
-			
-			compiler.addRule(newRule);
-			
-			
-			
+
 			newRule.setName(newRule.getName() + "-" + counter++);
+			compiler.addRule(newRule);
 			
 			
 		}

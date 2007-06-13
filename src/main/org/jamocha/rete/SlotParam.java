@@ -33,6 +33,11 @@ public class SlotParam extends AbstractSignature {
 	/**
 	 * 
 	 */
+	
+	public Object clone(){
+		return new SlotParam(name, valueExpression);
+	}
+	
 	private static final long serialVersionUID = 1L;
 
 	protected String name;

@@ -7,8 +7,12 @@ import org.jamocha.parser.ParserFactory;
 
 public abstract class ExpressionCollection implements Parameter {
 
-	protected List<Parameter> parameterList = new ArrayList<Parameter>();
+	protected ArrayList<Parameter> parameterList = new ArrayList<Parameter>();
 
+	public Object clone() throws CloneNotSupportedException{
+		throw new CloneNotSupportedException(); // abstract class!
+	}
+	
 	public ExpressionCollection() {
 		super();
 	}

@@ -4,6 +4,10 @@ public class RightFieldAddress extends FieldAddress {
 
 	protected int slotIndex;
 	
+	public Object clone(){
+		return new RightFieldAddress(slotIndex);
+	}
+	
 	public RightFieldAddress() {
 		this(-1);
 	}

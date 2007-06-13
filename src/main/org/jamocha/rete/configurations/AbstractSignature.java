@@ -21,6 +21,10 @@ import org.jamocha.rete.Parameter;
 public abstract class AbstractSignature implements Parameter, Serializable {
 	protected boolean objBinding = false;
 
+	public Object clone() throws CloneNotSupportedException{
+		throw new CloneNotSupportedException(); //abstract class!
+	}
+	
 	/**
 	 * subclasses have to implement the method
 	 */

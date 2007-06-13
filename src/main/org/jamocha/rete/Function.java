@@ -30,7 +30,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  * Function is very similar to Methods, since a function is basically a stand
  * alone method.
  */
-public interface Function extends Serializable {
+public interface Function extends Serializable, Cloneable {
 
 	/**
 	 * Functions must implement concrete logic for the function. To execute a

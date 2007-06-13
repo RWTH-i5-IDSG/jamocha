@@ -72,7 +72,20 @@ public class BoundParam extends AbstractSignature {
      */
     protected boolean isMultislot = false;
     
-    public BoundParam() {
+    public Object clone() {
+		BoundParam result = new BoundParam();
+		result.fact = fact;
+		result.resolvedVal = resolvedVal;
+		result.column = column;
+		result.valueType = valueType;
+		result.rowId = rowId;
+		result.actionType = actionType;
+		result.variableName = variableName;
+		result.isMultislot = isMultislot;
+		return result;
+	}
+
+	public BoundParam() {
         super();
     }
     

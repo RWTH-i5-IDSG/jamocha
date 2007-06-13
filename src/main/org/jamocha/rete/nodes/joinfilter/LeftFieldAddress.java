@@ -5,6 +5,10 @@ public class LeftFieldAddress extends FieldAddress {
 	protected int slotIndex;
 	protected int rowIndex;
 	
+	public Object clone(){
+		return new LeftFieldAddress(rowIndex,slotIndex);
+	}
+	
 	public LeftFieldAddress(int rowIndex) {
 		this(rowIndex, -1);
 	}

@@ -295,6 +295,6 @@ public interface Rule extends Scope, Complexity, Cloneable {
 	 */
 	void resolveTemplates(Rete engine);
 
-	Rule clone();
+	public Rule clone() throws CloneNotSupportedException;
 
 }

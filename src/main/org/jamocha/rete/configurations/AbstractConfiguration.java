@@ -12,5 +12,9 @@ public abstract class AbstractConfiguration  implements Parameter{
 
 	public void configure(Rete engine, Rule util) {
 	}
+	
+	public Object clone() throws CloneNotSupportedException{
+		throw new CloneNotSupportedException();
+	}
 
 }

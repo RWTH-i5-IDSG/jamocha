@@ -37,7 +37,7 @@ import org.jamocha.rete.exception.ExecuteException;
  * Part of the responsibility of the action is to know how to get
  * the a fact or binding.
  */
-public interface Action extends Serializable {
+public interface Action extends Serializable, Cloneable {
     /**
      * The purpose of configure is to setup the action when the rule
      * is loaded to the rule engine. When the parser parses the rule,
@@ -54,4 +54,6 @@ public interface Action extends Serializable {
      * @throws ExecuteException
      */
     JamochaValue executeAction(Rete engine, Fact[] facts) throws ExecuteException;
+    
+    public Object clone() throws CloneNotSupportedException;
 }

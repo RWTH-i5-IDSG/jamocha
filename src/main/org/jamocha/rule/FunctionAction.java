@@ -41,6 +41,19 @@ import org.jamocha.rete.functions.ruleengine.Assert;
  */
 public class FunctionAction implements Action {
 
+	public Object clone() throws CloneNotSupportedException {
+		FunctionAction result = new FunctionAction();
+		
+		result.function = function;
+		result.functionName = functionName;
+		result.parameters = new Parameter[parameters.length];
+		for (int i=0 ; i < parameters.length ; i++){
+			result.parameters[i] = (Parameter)parameters[i].clone();
+		}
+		
+		return result;
+	}
+	
 	private static final long serialVersionUID = 1L;
 
 	protected Function function = null;

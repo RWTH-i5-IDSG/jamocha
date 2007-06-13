@@ -14,6 +14,10 @@ import org.jamocha.rete.Rete;
 
 public abstract class FieldAddress implements Parameter {
 	
+	public Object clone() throws CloneNotSupportedException{
+		throw new CloneNotSupportedException(); //abstract class
+	}
+	
 	public abstract boolean refersWholeFact();
 	public abstract int getSlotIndex() throws FieldAddressingException;
 	public abstract String toPPString();

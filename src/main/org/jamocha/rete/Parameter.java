@@ -25,12 +25,14 @@ import org.jamocha.parser.Expression;
  * Parameter can be a value, a bound variable or the result of a function.
  * It is up to the implementing class to provide the necessary logic.
  */
-public interface Parameter extends Expression {
+public interface Parameter extends Expression, Cloneable {
 	
     /**
      * If the parameter is an object binding, the method should return true
      * @return
      */
     boolean isObjectBinding();
+    
+    public Object clone() throws CloneNotSupportedException;
 
 }
