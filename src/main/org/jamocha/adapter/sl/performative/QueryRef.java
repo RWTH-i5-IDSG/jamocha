@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 Fehmi put your name here and write the fantastic code
+ * Copyright 2007 Fehmi Karanfil
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -63,16 +63,23 @@ public class QueryRef {
 					"Could not translate from SL to CLIPS.", e);
 		}
 		// Walk through the children until we have something useful
-		sn = getChildAtLevel(sn, 3);
-		if (sn.getID() == SLParserTreeConstants.JJTACTION) {
-			// Here we have an Action
-			// Get the right Child. The left Child is the agent-identifier.
-			sn = getChild(sn, 1);
-			sn = getChildAtLevel(sn, 2);
-			String functionName = getChild(sn, 0).getText();
-			String lastAssert = resolveParameters(getChild(getChild(sn, 1), 1));
-
-			result.append("(" + functionName + " " + lastAssert + ")");
+		sn = getChildAtLevel(sn, 2);
+		if (sn.getID() == SLParserTreeConstants.JJTIDENTIFYINGEXPRESSION) {
+			
+			sn = getChild(sn,0);
+			String refOpName = sn.getText();
+			String lastAssert =getChildAtLevel(sn,3).getText();
+			sn = getChild(getChild(sn,1),0);
+			
+			if(sn.getID()==SLParserTreeConstants.JJTATOMICFORMULA){
+				lastAssert += " ("+getChild(sn,0).getText();
+				for(int i=1; i<sn.jjtGetNumChildren(); i++){
+					lastAssert+=resolveParameters(getChild(sn,i));
+			    }
+			String expr="("+refOpName+lastAssert+"))";	
+			result.append("(defrule \"query-ref\""+expr+"=>"+
+					" (return inform-ref"+expr+"))");
+		    }
 		}
 
 		return result.toString();
@@ -96,16 +103,15 @@ public class QueryRef {
 		if (currNode.getID() == SLParserTreeConstants.JJTFUNCTIONALTERM) {
 			// This would be a Fact for CLIPS
 
-			StringBuilder buffer = new StringBuilder((" (assert ("
+			StringBuilder buffer = new StringBuilder((" ("
 					+ getChild(currNode, 0).getText() + " "));
 			for (int i = 1; i < currNode.jjtGetNumChildren(); ++i) {
 				SimpleNode child = getChild(currNode, i);
-				String paramName = getChild(child, 0).getText().substring(1);
-				String childAssert = resolveParameters(getChild(child, 1));
-				buffer.append("(").append(paramName).append(" ").append(
-						childAssert).append(")");
+				//String paramName = getChild(child, 0).getText().substring(1);
+				String childAssert = resolveParameters(child);
+				buffer.append(childAssert);
 			}
-			buffer.append("))");
+			buffer.append(")");
 			// System.out.println(buffer);
 			return buffer.toString();
 		} else if (currNode.getID() == SLParserTreeConstants.JJTCONSTANT) {
@@ -133,6 +139,8 @@ public class QueryRef {
 				buffer.append(childBind);
 			}
 			return buffer.toString();
+		}else if (currNode.getID()==SLParserTreeConstants.JJTVARIABLE){
+			return "\"" + currNode.getText() + "\"";
 		}
 		return "";
 	}
