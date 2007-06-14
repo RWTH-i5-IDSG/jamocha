@@ -222,7 +222,6 @@ public class SLPerformative {
 
 	public static String handleFeasible(SimpleNode node) throws AdapterTranslationException {
 		StringBuilder result = new StringBuilder();
-		SimpleNode sn = getChild(node, 0);
 		result.append("feasible ");
 		return result.toString();
 	}
