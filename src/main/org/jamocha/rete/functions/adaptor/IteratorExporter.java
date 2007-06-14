@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 Josef Alexander Hahn, Alexander Wilden
+ * Copyright 2007 Josef Alexander Hahn, Alexander Wilden, Uta Christoph
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,14 +39,29 @@ import org.jamocha.rete.util.ExportIterator;
 /**
  * @author Josef Alexander Hahn
  * 
- * TODO please add a description!
+ * Exports facts from the rete engine to an external location. The external location is 
+ * specified in the first argument and needs to be an user-implementation of org.jamocha.rete.util.ExportHandler.
+ * The function first generates a mapping from the config-fact given in the second argument. 
+ * After that it exports all facts from the facts-list in the third argument through the iterator.
+ * 
+ * Former developers description:
+ * Exports facts from the rete engine to an external location. This external location needs 
+ * to be an user-implementation of org.jamocha.rete.util.ExportHandler.
+ * This interface defines the function 
+ * long export(java.util.Iterator<org.jamocha.rete.Deffact>, java.util.Map<String,String>).
+ * When calling iteratorexporter, similar to iteratorimporter, it creates an instance of an 
+ * ExportHandler-subclass. Then it generates a map from a given config-fact. 
+ * After all, it calls export.
  */
 public class IteratorExporter implements Function, Serializable {
 
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "The iteratorexporter function is used to export facts from the rete engine to some external place. this external place is an user-implementation of org.jamocha.rete.util.ExportHandler. This interface defines the function long export(java.util.Iterator<org.jamocha.rete.Deffact>,java.util.Map<String,String>). When calling iteratorexporter, similar to iteratorimporter, it creates an instance of an ExportHandler-subclass. Then it generates a map from a given config-fact. After all, it calls export.";
+			return "Exports facts from the rete engine to an external location. The external location is specified in the " +
+					"first argument and needs to be an user-implementation of org.jamocha.rete.util.ExportHandler. " +
+					"The function first generates a mapping from the config-fact given in the second argument. After " +
+					"that it exports all facts from the fact-list given as third argument via the iterator.";					
 		}
 
 		public int getParameterCount() {
@@ -56,11 +71,11 @@ public class IteratorExporter implements Function, Serializable {
 		public String getParameterDescription(int parameter) {
 			switch (parameter) {
 			case 0:
-				return "The first argument is a class name of a subclass from org.jamocha.rete.util.ExportHandler.";
+				return "External location, class name of a subclass from org.jamocha.rete.util.ExportHandler.";
 			case 1:
-				return "The second argument is a config-fact. Therefrom a map will be generated in the same manner as with iteratorimporter.";
+				return "Config-fact, to generate the mapping for the export from.";
 			case 2:
-				return "The third argument is a list of facts. These facts are piped to the Iterator.";
+				return "Fact-list to export via the iterator.";// These facts are piped to the Iterator.";
 			}
 			return "";
 		}
@@ -101,9 +116,19 @@ public class IteratorExporter implements Function, Serializable {
 			return false;
 		}
 
-		public String getExample() {
-			// TODO Auto-generated method stub
-			return null;
+		public String getExample() {			
+			return "(deftemplate a 	(slot horst))\n" +
+					"(deftemplate b	(slot heiner))\n" +
+					"(deftemplate c	(slot ory))\n" +
+					"(deftemplate d	(slot krautsalat))\n" +
+					"(bind ?horst (assert (a (horst 1))))\n" +
+					"(bind ?heiner1 (assert	(b (heiner 13))))\n" +
+					"(bind ?heiner2	(assert	(b (heiner 1))))\n" +
+					"(bind ?ory	(assert	(c (ory 4711))))\n" +
+					"(bind ?krautsalat (assert (d (krautsalat 11))))\n" +
+					"(deftemplate config (slot removeSlot))\n" +
+					"(bind ?config (assert (config (removeSlot \"heiner\"))))\n" +
+					"(iteratorexporter \"org.jamocha.sampleimplementations.SampleExportHandler\"  ?config (create$ ?horst ?heiner1 ?ory ?krautsalat))";
 		}
 	}
 

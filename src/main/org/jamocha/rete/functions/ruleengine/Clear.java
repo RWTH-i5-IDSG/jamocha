@@ -59,7 +59,7 @@ public class Clear implements Function, Serializable {
 			if (parameter > 0)
 				return "";
 			else
-				return "Identifier saying what to clear (facts or objects).";
+				return "Optional identifier saying what to clear (\"deffacts\" or \"objects\"), if not specified: all is cleared.";
 		}
 
 		public String getParameterName(int parameter) {
