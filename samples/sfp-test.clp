@@ -65,6 +65,18 @@
 
 (assert (senf (name nix) (gewicht 1)))
 
+;modify test:
+(defrule modify1
+	 ?wurstFact <-(wurst (laenge 100))
+	=>
+	(modify ?wurstFact (laenge 500))
+)
+(defrule modify2
+	 ?wurstFact <-(wurst (laenge 500))
+	=>
+	(modify ?wurstFact (laenge 1000))
+)
+
 (defrule test-or-node-rule 
 	(wurst (gewicht ?x) (name ?y))
 ;	(bier (gewicht ?x) (name ?z))

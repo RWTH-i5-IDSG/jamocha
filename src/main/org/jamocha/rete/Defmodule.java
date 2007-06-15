@@ -126,7 +126,7 @@ public class Defmodule implements Module, Serializable {
 	public Activation nextActivation(Rete engine) {
 		Activation act = this.activations.nextActivation();
 		if (act instanceof LinkedActivation) {
-			((LinkedActivation) act).remove(engine);
+			//((LinkedActivation) act).remove(engine);
 		}
 		return act;
 	}
