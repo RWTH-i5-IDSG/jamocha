@@ -605,7 +605,6 @@ public class SFRuleCompiler implements RuleCompiler {
 		// create bindings for actions:
 		for (String variable : bindingAddressTable.row.keySet()) {
 			BindingAddress pivot = bindingAddressTable.getPivot(variable);
-
 			
 			Binding b = new Binding();
 			b.leftIndex = pivot.slotIndex;
@@ -614,6 +613,7 @@ public class SFRuleCompiler implements RuleCompiler {
 			b.leftrow = conds.length - 1 - pivot.conditionIndex;
 			b.varName = variable;
 			rule.addBinding(variable, b);
+
 		}
 
 		// get prebindings from table:
@@ -862,7 +862,12 @@ public class SFRuleCompiler implements RuleCompiler {
 		int counter = 1;
 		for (Object nested : condition.getNestedConditionalElement()) {
 			Condition nestedCE = (Condition)nested;
-			Rule newRule = ((Defrule)rule).clone(engine);
+			Rule newRule = null;
+			try {
+				newRule = ((Defrule)rule).clone(engine);
+			} catch (CloneNotSupportedException e) {
+				engine.writeMessage(e.getMessage());
+			}
 			newRule.setConditionIndex(conditionIndex, nestedCE);
 			
 			
@@ -1112,7 +1117,9 @@ public class SFRuleCompiler implements RuleCompiler {
 	 */
 	protected void compileActions(Rule rule) {
 		Action[] actions = rule.getActions();
+		System.out.println(this);
 		for (Action action : actions) {
+			System.out.println(action);
 			if (action instanceof FunctionAction) {
 				FunctionAction fa = (FunctionAction) action;
 				try {

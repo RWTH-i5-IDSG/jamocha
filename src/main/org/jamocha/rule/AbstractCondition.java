@@ -41,5 +41,7 @@ public abstract class AbstractCondition implements Condition {
 	public int compareTo(Object o) {
 		return this.getTotalComplexity() - ((Condition)o).getTotalComplexity();
 	}
+	
+	public void negate();
 
 }

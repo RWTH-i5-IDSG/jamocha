@@ -12,6 +12,18 @@
 (assert (getraenk (name "cola") (farbe "schwarz") ))
 (assert (getraenk (name "kartoffelsalat") (farbe "schwarz") ))
 
+
+(defrule megarule
+	(or
+		(wurst (name "bratwurst") (gewicht ?weight))
+		(salat (farbe "weiss")(gewicht ?weight) )	
+	)
+	=> (printout t ?weight  crlf)
+)
+
+(fire)
+
+
 (defrule eineandereregelf
 	?x <- (wurst)
 	(test (less (fact-slot-value (get-fact-id ?x) "gewicht") 290) )
@@ -30,11 +42,7 @@
 )
 
 
-(defrule megarule
-	(wurst (name ?wurstname) (spitzname ?wurstname) (farbe ?farbe))
-	(salat (farbe ?farbe)(name ?salatname) )	
-	=> (printout t "Die Wurst " ?wurstname " und der Salat " ?salatname " haben dieselbe Farbe, naemlich " ?farbe "! Ausserdem hat die Wurst denselben Spitznamen wie Name"  crlf)
-)
+
 
 
 

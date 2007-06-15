@@ -571,7 +571,7 @@ public class Defrule implements Rule {
 	}
 	
 
-	public Defrule clone(Rete engine){
+	public Defrule clone(Rete engine) throws CloneNotSupportedException{
 		Defrule newRule = new Defrule();
 		newRule.totalComplexity = getTotalComplexity();
 		// set rule name:
@@ -596,7 +596,12 @@ public class Defrule implements Rule {
 		// set conditions:
 		newRule.setConditions(getConditions().clone());
 		// set actions:
-		newRule.setActions(getActions());
+		
+		
+		ArrayList actions = new ArrayList();
+		for (Action a : this.actions)
+			actions.add(a.clone());
+		newRule.actions=actions;
 		return newRule;
 	}
 	
