@@ -42,6 +42,16 @@ public abstract class AbstractCondition implements Condition {
 		return this.getTotalComplexity() - ((Condition)o).getTotalComplexity();
 	}
 	
-	public void negate();
+	protected boolean negated;
 
+	public boolean getNegated() {
+		return negated;
+	}
+	
+
+	public void setNegated(boolean negated) {
+		this.negated = negated;
+	}
+	
+	
 }

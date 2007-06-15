@@ -1006,7 +1006,12 @@ public class SFRuleCompiler implements RuleCompiler {
 		sl.value = sval;
 		node = new AlphaNode(engine.nextNodeId());
 		node.setSlot(sl);
-		node.setOperator(Constants.EQUAL);
+		if (constraint.getNegated()){
+			node.setOperator(Constants.NOTEQUAL);
+		} else {
+			node.setOperator(Constants.EQUAL);	
+		}
+		
 		// we increment the node use count when when create a
 		// new AlphaNode for the LiteralConstraint
 		constraint.getSlot().incrementNodeCount();

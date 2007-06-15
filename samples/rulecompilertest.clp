@@ -8,16 +8,14 @@
 (assert (wurst (name "gemuesewurst")(spitzname "gemuesewurst")(farbe "gruen")(gewicht 400) ))
 (assert (salat (name "kartoffelsalat")(farbe "weiss")(gewicht 220) ))
 (assert (salat (name "gurkensalat")(farbe "weiss")(gewicht 320) ))
+(assert (salat (name "gruenergurkensalat")(farbe "gruen")(gewicht 320) ))
 (assert (getraenk (name "wasser") (farbe "schwarz") ))
 (assert (getraenk (name "cola") (farbe "schwarz") ))
 (assert (getraenk (name "kartoffelsalat") (farbe "schwarz") ))
 
 
 (defrule megarule
-	(or
-		(wurst (name "bratwurst") (gewicht ?weight))
-		(salat (farbe "weiss")(gewicht ?weight) )	
-	)
+		(salat (farbe ~ "weiss")(name ?weight) )	
 	=> (printout t ?weight  crlf)
 )
 

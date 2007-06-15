@@ -37,6 +37,7 @@ public class TestCondition extends AbstractCondition {
 	private static final long serialVersionUID = 1L;
 
 	protected Signature func = null;
+	
 
 	/**
 	 * 
@@ -44,7 +45,7 @@ public class TestCondition extends AbstractCondition {
 	public TestCondition() {
 		super();
 	}
-
+	
 	public TestCondition(Signature function) {
 		this.func = function;
 	}
@@ -92,5 +93,9 @@ public class TestCondition extends AbstractCondition {
 	public boolean hasBindings() {
 		return false;
 	}
+	
+
+	
+	
 
 }

@@ -44,11 +44,6 @@ public class ObjectCondition extends AbstractCondition {
 
 	protected List<Constraint> propConditions = new ArrayList<Constraint>();
 
-	/**
-	 * In the case the object pattern is negated, the boolean would be set to
-	 * true.
-	 */
-	protected boolean negated = false;
 
 	/**
 	 * a list for the RETE nodes created by RuleCompiler
@@ -88,24 +83,6 @@ public class ObjectCondition extends AbstractCondition {
 		this.varname = name;
 	}
 
-	/**
-	 * set whether or not the pattern is negated
-	 * 
-	 * @param negate
-	 */
-	public void setNegated(boolean negate) {
-		this.negated = negate;
-	}
-
-	/**
-	 * by default patterns are not negated. Negated Conditional Elements (aka
-	 * object patterns) are expensive, so they should be used with care.
-	 * 
-	 * @return
-	 */
-	public boolean getNegated() {
-		return this.negated;
-	}
 
 	public List<Constraint> getConstraints() {
 		return propConditions;
