@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2007 Peter Lin, 2007 Alexander Wilden
+ * Copyright 2002-2007 Peter Lin, 2007 Alexander Wilden, Uta Christoph
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,17 +30,20 @@ import org.jamocha.rete.functions.InterpretedFunction;
 /**
  * @author Peter Lin
  * 
- * Deffunction is used for functions that are declared in the shell. It is
- * different than a function written in java. Deffunctions run interpreted and
- * are mapped to existing functions. Returns true if the Function could be
- * declared and false if not or if it already existed.
+ * Used to declare new functions in the shell. It is different from a function 
+ * written in Java. Deffunctions run interpreted and are mapped to existing functions. 
+ * Returns true if the function could be declared. Returns false if the function
+ * could not be declared or already existed. 
  */
 public class Deffunction implements Function {
 
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "Deffunction is used for functions that are declared in the shell. It is different than a function written in java. Deffunctions run interpreted and are mapped to existing functions. Returns true if the Function could be declared and false if not or if it already existed.";
+			return "Used to declare new functions in the shell. Deffunctions run interpreted and are mapped to " +
+					"existing functions. Returns true if the function could be declared. Returns false if the function" +
+					"could not be declared or already existed." +
+					"Deffunction is used for functions that are declared in the shell. It is different than a function written in java. Deffunctions run interpreted and are mapped to existing functions. Returns true if the Function could be declared and false if not or if it already existed.";
 		}
 
 		public int getParameterCount() {
@@ -108,9 +111,10 @@ public class Deffunction implements Function {
 
 		}
 
-		public String getExample() {
-			// TODO Auto-generated method stub
-			return null;
+		public String getExample() {			
+			return "(deffunction minute-hand \"Returns the minutes of the actual time.\" () (printout t \"The minute hand is pointing to \" (getminutes (now)) \" right now.\"))\n" +
+					"(minute-hand)\n\n" +
+					"(deffunction is-hello (?x1) (eq \"hello\" ?x1))";
 		}
 	}
 
