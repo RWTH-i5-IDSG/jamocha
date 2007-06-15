@@ -442,8 +442,7 @@ public class SFRuleCompiler implements RuleCompiler {
 					initFactNode.addNode(tnode, engine);
 				}
 				
-				System.out.println(rule.getBinding("weight").toPPString());
-				
+			
 				compileActions(rule);
 
 				currentMod.addRule(rule);
