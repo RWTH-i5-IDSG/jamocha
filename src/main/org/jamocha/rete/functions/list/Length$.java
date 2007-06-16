@@ -92,6 +92,8 @@ public class Length$ implements Function, Serializable {
 			throws EvaluationException {
 		if (params != null && params.length == 1) {
 			JamochaValue list = params[0].getValue(engine);
+			if (list.is(JamochaType.NIL))
+				return JamochaValue.newLong(0);
 			if (list.is(JamochaType.LIST)) {
 				return JamochaValue.newLong(list.getListCount());
 			} else {

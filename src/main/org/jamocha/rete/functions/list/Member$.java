@@ -146,6 +146,9 @@ public class Member$ implements Function, Serializable {
 					}
 				}
 			} else {
+				if (first.is(JamochaType.FACT)){
+					first = JamochaValue.newFactId(first.getFactValue().getFactId());
+				}
 				for (int i = 0; i < second.getListCount(); i++) {
 					if (first.equals(second.getListValue(i))) {
 						result = JamochaValue.newLong(i + 1);
