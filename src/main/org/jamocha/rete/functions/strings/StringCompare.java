@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2006 Peter Lin, 2007 Alexander Wilden
+ * Copyright 2002-2006 Peter Lin, 2007 Alexander Wilden, Uta Christoph
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,8 +30,18 @@ import org.jamocha.rete.functions.FunctionDescription;
 /**
  * @author Peter Lin
  * 
- * The str-compare function will compare two strings to determine their logical
- * relationship (i.e., equal to, less than, greater than).
+ * Compares two strings lexicographically. The comparison is based on the Unicode value of each 
+ * character in the strings. The character sequence of the first argument is compared to the 
+ * character sequence of the second argument. Returns a negative integer if the first string 
+ * lexicographically precedes the second string. Returns a positive integer if the first string 
+ * lexicographically follows the second string. Returns 0 if the strings are equal.
+ * 
+ * (Definition of lexicographic ordering: Two strings are different, when they have either
+ * different characters at some index, or their lengths differ, or both. If they have different 
+ * characters at one or more index positions, then the string whose character at the smallest 
+ * differing index position k has the smaller value, as determined by using the < operator, 
+ * lexicographically precedes the other string. If there is no index position at which they
+ * differ, then the shorter string lexicographically precedes the longer string.) 
  */
 public class StringCompare implements Function, Serializable {
 
@@ -39,7 +49,18 @@ public class StringCompare implements Function, Serializable {
 			FunctionDescription {
 
 		public String getDescription() {
-			return "The str-compare function will compare two strings to determine their logical relationship (i.e., equal to, less than, greater than).";
+			return "Compares two strings lexicographically. The comparison is based on the Unicode value of each " +
+					"character in the strings. " +
+					"The character sequence of the first argument is compared to the character sequence of the" +
+					"second argument. Returns a negative integer if the first string lexicographically precedes " +
+					"the second string. Returns a positive integer if the first string lexicographically follows " +
+					"the second string. Returns 0 if the strings are equal.\n\n" +
+					"(Definition of lexicographic ordering: Two strings are different, when they have either" +
+					"different characters at some index, or their lengths differ, or both. If they have different " +
+					"characters at one or more index positions, then the string whose character at the smallest " +
+					"differing index position k has the smaller value, as determined by using the < operator, " +
+					"lexicographically precedes the other string. If there is no index position at which they " +
+					"differ, then the shorter string lexicographically precedes the longer string.) ";
 		}
 
 		public int getParameterCount() {
@@ -49,9 +70,9 @@ public class StringCompare implements Function, Serializable {
 		public String getParameterDescription(int parameter) {
 			switch(parameter) {
 			case 0:
-				return "String that will be compared to the second String.";
+				return "String to compare to the second string.";
 			case 1:
-				return "String that will be compared to the first String.";
+				return "String to compare to the first string.";
 			}
 			return "";
 		}
@@ -83,8 +104,11 @@ public class StringCompare implements Function, Serializable {
 		}
 
 		public String getExample() {
-			// TODO Auto-generated method stub
-			return null;
+			return "(str-compare \"Jamocha\" \"Jamocha\")\n" +
+					"(str-compare \"Jamocha\" \"Jamocho\")\n" +
+					"(str-compare \"Jamocha\" \"Jamicha\")\n" +
+					"(str-compare \"Jamocha\" \"Jamochaaaa\")\n" +
+					"(str-compare \"Jamochaaaa\" \"Jamocha\")";
 		}
 	}
 

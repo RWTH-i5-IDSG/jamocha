@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2006 Peter Lin, 2007 Alexander Wilden
+ * Copyright 2002-2006 Peter Lin, 2007 Alexander Wilden, Uta Christoph
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,8 +30,7 @@ import org.jamocha.rete.functions.FunctionDescription;
 /**
  * @author Peter Lin
  * 
- * The str-upper function will return a string with uppercase
- * alphabetic characters.
+ * Returns the given string in uppercase alphabetic characters.
  */
 public class StringUpper implements Function, Serializable {
 
@@ -39,7 +38,7 @@ public class StringUpper implements Function, Serializable {
 			FunctionDescription {
 
 		public String getDescription() {
-			return "The str-upper function will return a string with uppercase alphabetic characters.";
+			return "Returns the given string in uppercase alphabetic characters.";
 		}
 
 		public int getParameterCount() {
@@ -47,7 +46,7 @@ public class StringUpper implements Function, Serializable {
 		}
 
 		public String getParameterDescription(int parameter) {
-			return "The String that will be transformed to uppercase.";
+			return "String to transform to uppercase.";
 		}
 
 		public String getParameterName(int parameter) {
@@ -71,8 +70,7 @@ public class StringUpper implements Function, Serializable {
 		}
 
 		public String getExample() {
-			// TODO Auto-generated method stub
-			return null;
+			return "(str-upper \"JaMoChA\")";
 		}
 	}
 

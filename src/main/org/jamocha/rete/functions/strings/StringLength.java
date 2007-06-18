@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2006 Peter Lin, 2007 Alexander Wilden
+ * Copyright 2002-2006 Peter Lin, 2007 Alexander Wilden, Uta Christoph
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ import org.jamocha.rete.functions.FunctionDescription;
 /**
  * @author Peter Lin
  * 
- * The str-length function returns the length of a string as a long.
+ * Returns the length of a string as a long.
  */
 public class StringLength implements Function, Serializable {
 
@@ -38,7 +38,7 @@ public class StringLength implements Function, Serializable {
 			FunctionDescription {
 
 		public String getDescription() {
-			return "The str-length function returns the length of a string as a long.";
+			return "Returns the length of a string as a long.";
 		}
 
 		public int getParameterCount() {
@@ -46,7 +46,7 @@ public class StringLength implements Function, Serializable {
 		}
 
 		public String getParameterDescription(int parameter) {
-			return "The String whose length will be returned.";
+			return "String to get its length from.";
 		}
 
 		public String getParameterName(int parameter) {
@@ -70,8 +70,7 @@ public class StringLength implements Function, Serializable {
 		}
 
 		public String getExample() {
-			// TODO Auto-generated method stub
-			return null;
+			return "(str-length \"Jamocha really ruleZ!!!\")";
 		}
 	}
 

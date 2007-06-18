@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2006 Peter Lin, 2007 Alexander Wilden
+ * Copyright 2002-2006 Peter Lin, 2007 Alexander Wilden, Uta Christoph
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,8 +30,11 @@ import org.jamocha.rete.functions.FunctionDescription;
 /**
  * @author Peter Lin
  * 
- * The str-index function will return the position of the first occurrence of
- * the second String inside the first String.
+ * Returns the position index of the first occurrence of the second 
+ * string inside the first string. This function is case sensitive. 
+ * Returns -1 if no such substring is found in the first argument.
+ * 
+ * Index positions in a string start with 0. 
  */
 public class StringIndex implements Function, Serializable {
 
@@ -39,7 +42,9 @@ public class StringIndex implements Function, Serializable {
 			FunctionDescription {
 
 		public String getDescription() {
-			return "The str-index function will return the position of the first occurrence of the second String inside the first String.";
+			return "Returns the position index of the first occurrence of the second string inside the first string. " +
+					"This function is case sensitive. Returns -1 if no such substring is found in the first argument.\n" +
+					"Index positions in a string start with 0.";
 		}
 
 		public int getParameterCount() {
@@ -49,9 +54,9 @@ public class StringIndex implements Function, Serializable {
 		public String getParameterDescription(int parameter) {
 			switch (parameter) {
 			case 0:
-				return "The String to search in.";
+				return "String to search in.";
 			case 1:
-				return "The Substring to search for.";
+				return "Substring to search for.";
 			}
 			return "";
 		}
@@ -83,8 +88,9 @@ public class StringIndex implements Function, Serializable {
 		}
 
 		public String getExample() {
-			// TODO Auto-generated method stub
-			return null;
+			return "(str-index \"Jamocha\" \"mocha\")\n" +
+					"(str-index \"Jamocha\" \"Jam\")\n" +
+					"(str-index \"Jamocha\" \"Mocha\")\n";
 		}
 	}
 

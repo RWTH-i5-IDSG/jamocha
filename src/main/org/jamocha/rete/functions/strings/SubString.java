@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2006 Peter Lin, 2007 Alexander Wilden
+ * Copyright 2002-2006 Peter Lin, 2007 Alexander Wilden, Uta Christoph
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,8 +30,11 @@ import org.jamocha.rete.functions.FunctionDescription;
 /**
  * @author Peter Lin
  * 
- * The sub-string function will retrieve a portion of a string from another
- * string.
+ * Returns a new string that is a substring of the string given as third argument. 
+ * The substring begins at the specified beginIndex and extends to the character at index endIndex - 1. 
+ * Thus the length of the substring is endIndex-beginIndex.
+ * 
+ * Index positions in a string start with 0.
  */
 public class SubString implements Function, Serializable {
 
@@ -39,7 +42,10 @@ public class SubString implements Function, Serializable {
 			FunctionDescription {
 
 		public String getDescription() {
-			return "The sub-string function will retrieve a portion of a string from another string.";
+			return "Returns a new string that is a substring of the string given as third argument. " +
+					"The substring begins at the specified beginIndex and extends to the character at index endIndex - 1. " +
+					"Thus the length of the substring is endIndex-beginIndex.\n" +
+					"Index positions in a string start with 0.";					
 		}
 
 		public int getParameterCount() {
@@ -49,11 +55,11 @@ public class SubString implements Function, Serializable {
 		public String getParameterDescription(int parameter) {
 			switch (parameter) {
 			case 0:
-				return "Start index of the Substring.";
+				return "First index of the substring. Has to be smaller to endIndex and within the bounds of the string.";
 			case 1:
-				return "End index of the Substring.";
+				return "Last +1 index of the substring. Has to be greater to endIndex and within the bounds of the string (max: last position of the string +1).";
 			case 2:
-				return "The String to work on.";
+				return "String to get the substring from.";
 			}
 			return "";
 		}
@@ -94,8 +100,8 @@ public class SubString implements Function, Serializable {
 		}
 
 		public String getExample() {
-			// TODO Auto-generated method stub
-			return null;
+			return "(sub-string 0 2 \"Jamocha\")\n" +
+					"(sub-string 2 7 \"Jamocha\")\n";
 		}
 	}
 

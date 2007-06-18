@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2006 Peter Lin, 2007 Alexander Wilden
+ * Copyright 2002-2006 Peter Lin, 2007 Alexander Wilden, Uta Christoph
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ import org.jamocha.rete.functions.FunctionDescription;
 /**
  * @author Peter Lin
  * 
- * Returns a copy of the string, with leading and trailing whitespace omitted.
+ * Returns a copy of the given string where leading and following blanks are omitted.
  */
 public class StringTrim implements Function, Serializable {
 
@@ -38,7 +38,7 @@ public class StringTrim implements Function, Serializable {
 			FunctionDescription {
 
 		public String getDescription() {
-			return "Returns a copy of the string, with leading and trailing whitespace omitted.";
+			return "Returns a copy of the given string where leading and following blanks are omitted.";
 		}
 
 		public int getParameterCount() {
@@ -46,7 +46,7 @@ public class StringTrim implements Function, Serializable {
 		}
 
 		public String getParameterDescription(int parameter) {
-			return "The String to trim.";
+			return "String to trim.";
 		}
 
 		public String getParameterName(int parameter) {
@@ -69,9 +69,8 @@ public class StringTrim implements Function, Serializable {
 			return false;
 		}
 
-		public String getExample() {
-			// TODO Auto-generated method stub
-			return null;
+		public String getExample() {			
+			return "(str-trim \"   Ja mo cha      \")";
 		}
 	}
 

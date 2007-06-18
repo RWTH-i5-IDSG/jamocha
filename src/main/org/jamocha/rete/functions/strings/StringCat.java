@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 Alexander Wilden
+ * Copyright 2007 Alexander Wilden, Uta Christoph
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ import org.jamocha.rete.functions.FunctionDescription;
 /**
  * @author Alexander Wilden
  * 
- * This function concatenates two or more Strings into one String.
+ * This function concatenates two or more strings into one string.
  */
 public class StringCat implements Function, Serializable {
 
@@ -39,7 +39,7 @@ public class StringCat implements Function, Serializable {
 			FunctionDescription {
 
 		public String getDescription() {
-			return "This function concatenates two or more Strings into one String.";
+			return "Concatenates two or more strings into one string and returns the new string.";
 		}
 
 		public int getParameterCount() {
@@ -47,7 +47,7 @@ public class StringCat implements Function, Serializable {
 		}
 
 		public String getParameterDescription(int parameter) {
-			return "String that will be concatenated with the other parameters.";
+			return "String to be concatenated with the strings from the other arguments.";
 		}
 
 		public String getParameterName(int parameter) {
@@ -74,8 +74,7 @@ public class StringCat implements Function, Serializable {
 		}
 
 		public String getExample() {
-			// TODO Auto-generated method stub
-			return null;
+			return "(str-cat \"Jamocha \" 'rulez' \"!!!\")";
 		}
 	}
 

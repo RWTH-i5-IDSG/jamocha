@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2006 Peter Lin, 2007 Alexander Wilden
+ * Copyright 2002-2006 Peter Lin, 2007 Alexander Wilden, Uta Christoph
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,15 +30,18 @@ import org.jamocha.rete.functions.FunctionDescription;
 /**
  * @author Peter Lin
  * 
- * Replaces the first Substring of the target String that matches the given
- * regular expression with the given replacement.
+ * Replaces the first substring of the target string, given as first argument, 
+ * that matches the regular expression given as second argument with the replacement 
+ * from the third argument.
  */
 public class StringReplace implements Function, Serializable {
 	private static final class Description implements
 			FunctionDescription {
 
 		public String getDescription() {
-			return "Replaces the first Substring of the target String that matches the given regular expression with the given replacement.";
+			return "Replaces the first substring of the target string, given as first argument, " +
+					"that matches the regular expression given as second argument with the replacement from the" +
+					"third argument.";
 		}
 
 		public int getParameterCount() {
@@ -48,11 +51,11 @@ public class StringReplace implements Function, Serializable {
 		public String getParameterDescription(int parameter) {
 			switch (parameter) {
 			case 0:
-				return "The String the replacement takes place in.";
+				return "String where the replacement takes place.";
 			case 1:
-				return "The Substring to search for (as regular expression).";
+				return "Substring to search for (as regular expression).";
 			case 2:
-				return "The replacement String.";
+				return "Replacement string.";
 			}
 			return "";
 		}
@@ -86,8 +89,7 @@ public class StringReplace implements Function, Serializable {
 		}
 
 		public String getExample() {
-			// TODO Auto-generated method stub
-			return null;
+			return "(str-replace \"Jamocha\" \"m[^io]ch\" \"maic\")";
 		}
 	}
 
