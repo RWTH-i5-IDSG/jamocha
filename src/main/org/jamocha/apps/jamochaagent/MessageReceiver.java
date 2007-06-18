@@ -96,7 +96,7 @@ public class MessageReceiver extends CyclicBehaviour {
 			sb.append("(ontology \"").append("\")");
 		}
 		if (msg.getProtocol() != null) {
-			sb.append("(protocol \"").append(msg.getProtocol()).append("\")");
+			sb.append("(protocol \"").append(msg.getProtocol().toLowerCase()).append("\")");
 		} else {
 			sb.append("(protocol \"").append("\")");
 		}

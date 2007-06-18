@@ -68,7 +68,14 @@ public class FactSlotValue implements Function, Serializable {
 		public JamochaType[] getParameterTypes(int parameter) {
 			switch (parameter) {
 			case 0:
-				return JamochaType.FACT_IDS;
+				JamochaType[] paramTypes = new JamochaType[JamochaType.FACTS.length
+						+ JamochaType.FACT_IDS.length];
+				int count = 0;
+				for (int i = 0; i < JamochaType.FACTS.length; ++i)
+					paramTypes[count++] = JamochaType.FACTS[i];
+				for (int i = 0; i < JamochaType.FACT_IDS.length; ++i)
+					paramTypes[count++] = JamochaType.FACT_IDS[i];
+				return paramTypes;
 			case 1:
 				return JamochaType.IDENTIFIERS;
 			}
@@ -112,7 +119,12 @@ public class FactSlotValue implements Function, Serializable {
 		if (params != null && params.length == 2) {
 			JamochaValue factId = params[0].getValue(engine);
 			JamochaValue slotName = params[1].getValue(engine);
-			Fact fact = engine.getFactById(factId.getFactIdValue());
+			Fact fact;
+			if (!factId.is(JamochaType.FACT)) {
+				fact = engine.getFactById(factId.getFactIdValue());
+			} else {
+				fact = factId.getFactValue();
+			}
 			int slotId = fact.getSlotId(slotName.getIdentifierValue());
 			if (slotId < 0) {
 				throw new EvaluationException("Error no slot " + slotName);

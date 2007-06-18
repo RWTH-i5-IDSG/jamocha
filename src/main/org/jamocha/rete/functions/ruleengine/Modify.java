@@ -22,7 +22,6 @@ import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.BoundParam;
-import org.jamocha.rete.Deffact;
 import org.jamocha.rete.Fact;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
@@ -108,29 +107,37 @@ public class Modify implements Function, Serializable {
 		return NAME;
 	}
 
-	public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
+	public JamochaValue executeFunction(Rete engine, Parameter[] params)
+			throws EvaluationException {
 		JamochaValue result = JamochaValue.FALSE;
 		if (engine != null && params != null && params.length > 0) {
 			BoundParam bp = null;
 			Fact fact = null;
 			// grather all infos:
 			try {
-					// modificonfiguration
-				 if (params[0] instanceof ModifyConfiguration) {
+				// modificonfiguration
+				if (params[0] instanceof ModifyConfiguration) {
 					ModifyConfiguration mc = (ModifyConfiguration) params[0];
 					bp = mc.getFactBinding();
 
 					fact = bp.getFact();
 					if (fact == null) {
-						JamochaValue engineBinding = engine.getBinding(bp.getVariableName());
-						if (engineBinding != null && engineBinding.is(JamochaType.FACT_ID))
-							fact = engine.getFactById(engineBinding.getFactIdValue());
+						JamochaValue engineBinding = engine.getBinding(bp
+								.getVariableName());
+						if (engineBinding != null) {
+							if (engineBinding.is(JamochaType.FACT_ID)) {
+								fact = engine.getFactById(engineBinding
+										.getFactIdValue());
+							} else if (engineBinding.is(JamochaType.FACT)) {
+								fact = engineBinding.getFactValue();
+							}
+						}
 					}
-					
+
 					engine.modifyFact(fact, mc);
 					result = JamochaValue.TRUE;
 				}
-			
+
 			} catch (RetractException e) {
 				engine.writeMessage(e.getMessage());
 			} catch (AssertException e) {
