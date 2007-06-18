@@ -11,20 +11,28 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.text.DateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
+import java.util.Vector;
 
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
+import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTextPane;
 import javax.swing.JToggleButton;
+import javax.swing.ListSelectionModel;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
@@ -32,6 +40,7 @@ import javax.swing.text.StyleConstants;
 import org.jamocha.gui.icons.IconLoader;
 import org.jamocha.rete.EngineEvent;
 import org.jamocha.rete.EngineEventListener;
+import org.jamocha.rete.Module;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.WorkingMemoryImpl;
 import org.jamocha.rete.nodes.AbstractBeta;
@@ -41,6 +50,7 @@ import org.jamocha.rete.nodes.ObjectTypeNode;
 import org.jamocha.rete.nodes.RootNode;
 import org.jamocha.rete.nodes.SlotAlpha;
 import org.jamocha.rete.nodes.TerminalNode;
+import org.jamocha.rule.Rule;
 
 /**
  * @author Josef Alexander Hahn
@@ -51,7 +61,62 @@ import org.jamocha.rete.nodes.TerminalNode;
  * can embed somewhere.
  */
 public class Visualiser implements ActionListener, MouseListener,
-		EngineEventListener {
+		EngineEventListener, ListSelectionListener {
+	
+	
+	class RuleSelectorPanel extends JPanel {
+		JList list;
+		
+		List<ListSelectionListener> listeners;
+		
+		public RuleSelectorPanel(Vector<String> rules) {
+			listeners = new ArrayList<ListSelectionListener>();
+			setRules(rules);
+			this.setLayout(new GridLayout(1,1));
+		}
+		
+		public void synchronize(){
+			for (ListSelectionListener l : listeners) {
+				list.addListSelectionListener(l);
+			}
+		}
+		
+		public void addListSelectionListener(ListSelectionListener listener) {
+			listeners.add(listener);
+			synchronize();
+		}
+		
+		public void setRules(Vector<String> rules) {
+			if (list != null) this.remove(list);
+			list = new JList(rules);
+			list.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+			if (rules != null) list.setSelectionInterval(0, rules.size()-1);
+			synchronize();
+			show();
+		}
+		
+		public void show() {
+			System.out.println("boom");
+			this.add(list);
+		}
+		
+		public /*LONG_OBJECT*/ boolean isSelected(Rule r) {
+			String s = r.getName();
+			
+			for (Object o : list.getSelectedValues()) {
+				String ssel = (String) o;
+				if (ssel.equals(s)) return true;
+			}
+			return false;
+			
+		}
+		
+	}
+	
+	
+	
+	
+	
 	protected JZoomableShapeContainer container;
 
 	protected JMiniRadarShapeContainer radar;
@@ -63,6 +128,8 @@ public class Visualiser implements ActionListener, MouseListener,
 	protected JScrollPane scrollPane;
 
 	protected JToggleButton autoReloadButton;
+	
+	protected RuleSelectorPanel rulePanel;
 
 	protected JTextPane dump;
 
@@ -131,12 +198,23 @@ public class Visualiser implements ActionListener, MouseListener,
 	@SuppressWarnings("unchecked")
 	protected Shape makeShapeFromNode(ViewGraphNode act,
 			LinkedList<ViewGraphNode> queue) {
+		
 		Color bg = getBackgroundColorForNode(act);
 		Color border = getBorderColorForNode(act);
 		String desc = "";
 		BaseNode reteNode = act.getReteNode();
 		HashSet terminalNodes = new HashSet();
 		getCorrespondingTerminalNodes(act, terminalNodes);
+		
+		
+		boolean drawMe = false;
+		for (Object tNode : terminalNodes) {
+			TerminalNode terminal = (TerminalNode) tNode;
+			if (drawMe=(rulePanel.isSelected(terminal.getRule()))) break;
+		}
+		
+	
+		
 		if (reteNode != null)
 			desc = String.valueOf(reteNode.getNodeId());
 		Shape s;
@@ -152,8 +230,28 @@ public class Visualiser implements ActionListener, MouseListener,
 		} else {
 			s = new Rectangle();
 		}
+		
+		if (!drawMe) {
+			int red = bg.getRed();
+			int green = bg.getGreen();
+			int blue = bg.getBlue();
+			Color containerBg = Color.GRAY;
+			int containerred = containerBg.getRed();
+			int containergreen = containerBg.getGreen();
+			int containerblue = containerBg.getBlue();
+			red= red/8 + 7*containerred/8;
+			green= green/8 + 7*containergreen/8;
+			blue= blue/8 + 7*containerblue/8;
+			bg = new Color(red,green,blue).brighter();
+			border = bg;
+		}
+		
+		s.setActivated(drawMe);
+		
 		s.setBgcolor(bg);
 		s.setBordercolor(border);
+		
+		
 		int x = (spaceHorizontal / 2)
 				+ (int) ((float) (act.getX() * (spaceHorizontal + nodeHorizontal)) / 2.0);
 		int y = (spaceVertical / 2) + act.getY()
@@ -241,6 +339,9 @@ public class Visualiser implements ActionListener, MouseListener,
 			if (act.isParentsChecked())
 				continue;
 			act.setParentsChecked(true);
+			
+			if (s == null) continue;
+			
 			for (Iterator<ViewGraphNode> it = act.getParents().iterator(); it
 					.hasNext();) {
 				ViewGraphNode n = it.next();
@@ -253,6 +354,12 @@ public class Visualiser implements ActionListener, MouseListener,
 					line.setColor(Color.red);
 				if (n.getReteNode() instanceof LIANode)
 					line.setColor(Color.red);
+				
+				if (!s.isActivated()) {
+				//	line.setColor(Color.DARK_GRAY.brighter().brighter());
+					line.setColor(Color.LIGHT_GRAY);
+				}
+				
 				addPrimitive(line);
 			}
 		}
@@ -267,6 +374,7 @@ public class Visualiser implements ActionListener, MouseListener,
 		this.engine = engine;
 		container = new JZoomableShapeContainer();
 		container.addMouseListener(this);
+		rulePanel = new RuleSelectorPanel(null);
 		radar = new JMiniRadarShapeContainer();
 		radar.setMasterShapeContainer(container);
 		radar.setNormalizedFontHeight(nodeVertical);
@@ -277,6 +385,7 @@ public class Visualiser implements ActionListener, MouseListener,
 		StyleConstants.setForeground(even, Color.blue);
 		StyleConstants.setForeground(odd, Color.green.darker());
 		actAttributes = even;
+		rulePanel.addListSelectionListener(this);
 		reloadView();
 	}
 
@@ -321,12 +430,22 @@ public class Visualiser implements ActionListener, MouseListener,
 		sideBar.add(toolBox, BorderLayout.WEST);
 		sideBar.add(dumpPanel, BorderLayout.CENTER);
 
+		
+		JSplitPane mainSplitPane2 = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, rulePanel, container);
+		
+		
+		
+		
+		
+		
+		
+		
 		// Main Window with two Splitters (between radar, sidebar and main)
 		panel.setLayout(new BorderLayout());
 		JSplitPane sideSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
 				radar, sideBar);
 		JSplitPane mainSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
-				container, sideSplitPane);
+				mainSplitPane2, sideSplitPane);
 		mainSplitPane.setResizeWeight(1.0);
 		mainSplitPane.setOneTouchExpandable(true);
 		sideSplitPane.setOneTouchExpandable(true);
@@ -385,15 +504,15 @@ public class Visualiser implements ActionListener, MouseListener,
 				engine.removeEngineEventListener(this);
 			}
 		}
-
 	}
 
 	protected String getCaption(Date date) {
 		return "Jamocha - Rete Network - "
 				+ DateFormat.getInstance().format(date);
 	}
-
-	protected void reloadView() {
+	
+	protected void updateView() {
+		System.out.println("sdfsd");
 		this.coordinates.clear();
 		RootNode root = ((WorkingMemoryImpl) engine.getWorkingMemory())
 				.getRootNode();
@@ -402,10 +521,23 @@ public class Visualiser implements ActionListener, MouseListener,
 		container.removeAllPrimitives();
 		radar.removeAllPrimitives();
 		createPrimitives(t);
+	}
+
+	protected void reloadView() {
+		Vector<String> rules = new Vector<String>();
+		for (Object moduleObj : engine.getAgenda().getModules() ){
+			Module module = (Module)moduleObj;
+			for (Object ruleObj : module.getAllRules()) {
+				Rule r = (Rule) ruleObj;
+				rules.add(r.getName());
+			}
+		}
+		
+		rulePanel.setRules(rules);
+		updateView();
 		if (myFrame != null) {
 			myFrame.setTitle(getCaption(new Date()));
 		}
-
 	}
 
 	public void mouseClicked(MouseEvent arg0) {
@@ -446,5 +578,10 @@ public class Visualiser implements ActionListener, MouseListener,
 		}
 		;
 
+	}
+
+	public void valueChanged(ListSelectionEvent e) {
+		System.out.println("asdfsdgsdgsdfg");
+		updateView();
 	}
 }

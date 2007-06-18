@@ -27,6 +27,8 @@ public abstract class Shape extends Primitive {
 
 	protected String longDescription;
 
+	protected boolean activated;
+	
 	/**
 	 * gets the optional long description text
 	 * 
@@ -239,6 +241,14 @@ public abstract class Shape extends Primitive {
 		setWidth(width);
 		setHeight(height);
 		this.text = text;
+	}
+
+	public boolean isActivated() {
+		return activated;
+	}
+
+	public void setActivated(boolean activated) {
+		this.activated = activated;
 	}
 
 }
