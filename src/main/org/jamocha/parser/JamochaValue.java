@@ -97,6 +97,10 @@ public class JamochaValue implements Parameter {
 	public static JamochaValue newList(List<JamochaValue> list) {
 		return new JamochaValue(JamochaType.LIST, list.toArray());
 	}
+	
+	public static JamochaValue newList() {
+		return new JamochaValue(JamochaType.LIST, new JamochaValue[0]);
+	}
 
 	public static JamochaValue newBinding(BoundParam value) {
 		return new JamochaValue(JamochaType.BINDING, value);
@@ -401,7 +405,7 @@ public class JamochaValue implements Parameter {
 			return false;
 		final JamochaValue other = (JamochaValue) obj;
 		if (value == null) {
-			if (other.value != null)
+			if (other.value != null || other.value !="NIL")
 				return false;
 		} else if (!value.equals(other.value))
 			return false;

@@ -17,6 +17,7 @@
 package org.jamocha.rete;
 
 import org.jamocha.parser.JamochaType;
+import org.jamocha.parser.JamochaValue;
 
 /**
  * @author Peter Lin
@@ -27,46 +28,26 @@ import org.jamocha.parser.JamochaType;
 public class MultiSlot extends Slot {
 
 	static final long serialVersionUID = 0xDeadBeafCafeBabeL;
-	
-	protected Object[] value = {};
 
 	public MultiSlot() {
 		this("");
 	}
 
 	public MultiSlot(String name) {
-		this(name, null);
-	}
-
-	public MultiSlot(String name, Object[] value) {
 		super();
 		super.setValueType(JamochaType.LIST);
+		this.value =JamochaValue.newList();
 		super.setName(name);
-		this.value = value;
 	}
-	
+
 	public MultiSlot(boolean silent) {
 		this();
-		this.silent=silent;
+		this.silent = silent;
 	}
 
-	public MultiSlot(boolean silent,String name) {
-		this(name, null);
-		this.silent=silent;
-	}
-
-	public MultiSlot(boolean silent,String name, Object[] value) {
-		this(name,value);
-		this.silent=silent;
-	}
-
-	/**
-	 * In some cases, a deftemplate can be define with a default value.
-	 * 
-	 * @param value
-	 */
-	public void setDefaultValue(Object[] value) {
-		this.value = value;
+	public MultiSlot(boolean silent, String name) {
+		this(name);
+		this.silent = silent;
 	}
 
 	/**

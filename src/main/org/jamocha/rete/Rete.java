@@ -883,6 +883,11 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 		return f;
 	}
 
+	
+	public Fact getFactById(JamochaValue factID){
+		return getFactById(factID.getFactIdValue());
+	}
+	
 	/**
 	 * changed the implementation so it searches for the fact by id. Starting
 	 * with the HashMap for deffact, dynamic facts and finally static facts.

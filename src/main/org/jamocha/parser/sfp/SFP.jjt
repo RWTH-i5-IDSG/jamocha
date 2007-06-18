@@ -180,6 +180,7 @@ TOKEN :
 | <	TYPE: "type" >
 | < TRUE: "TRUE" | "true" | "True" >
 | < FALSE: "FALSE" | "false" | "False" >
+| < NIL: "NIL" | "Nil" | "nil" >
 | < NOT: "not" >
 | < AND: "and" >
 | < OR: "or" >
@@ -409,6 +410,16 @@ SimpleNode True() :
 	}
 }
 
+SimpleNode Nil() : 
+{ Token t; }
+{
+	t=<NIL>
+	{
+		jjtThis.setName(t.image); 
+		return jjtThis;
+	}
+}
+
 /**
 *		SymbolType
 **/
@@ -601,7 +612,8 @@ SimpleNode Constant() :
 {}
 { 	
 	(
-		DateTime()
+		Nil()		
+	|	DateTime()
 	|   Symbol()
 	|	String()
 	|	Integer()
@@ -1492,7 +1504,6 @@ void BooleanSymbol() #void:
 }
 
 
-
 /**
 *		Conditional Element
 **/
@@ -1750,7 +1761,7 @@ SimpleNode LHSSlot():
 
 void Constraint() #void : 
 {}
-{
+{		
 		SingleFieldWildcard()
 	|	MultiFieldWildcard()
 	|	ConnectedConstraint()
@@ -1988,9 +1999,9 @@ SimpleNode DeffunctionConstruct()  :
         	(
         		SingleVariable()
         	)*
-        	[
-             		MultiVariable()
-            ] 
+        	(
+             	MultiVariable()
+            )* 
         <RBRACE>
         )
         ActionList()

@@ -198,6 +198,10 @@ public class SFPInterpreter implements SFPParserVisitor {
 	public Object visit(SFPFalse node, Object data) {
 		return JamochaValue.FALSE;
 	}
+	
+	public Object visit(SFPNil node, Object data) {
+		return JamochaValue.NIL;
+	}
 
 	public Object visit(SFPConstructDescription node, Object data) {
 		return node.jjtGetChild(0).jjtAccept(this, data);

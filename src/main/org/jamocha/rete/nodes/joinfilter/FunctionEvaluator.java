@@ -58,7 +58,9 @@ public class FunctionEvaluator implements JoinFilter {
 				if (addr.refersWholeFact()) {
 					val = new JamochaValue(left.getFacts()[addr.getRowIndex()]);
 				} else {
-					val = left.getFacts()[addr.getRowIndex()].getSlotValue(addr.getSlotIndex());	
+					Fact[] facts = left.getFacts();
+					Fact fact = facts[addr.getRowIndex()];
+					val = fact.getSlotValue(addr.getSlotIndex());	
 				}
 				params[i] = val;
 			} else if (p instanceof Signature){
