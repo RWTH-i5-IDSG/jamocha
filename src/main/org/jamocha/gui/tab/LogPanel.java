@@ -392,15 +392,23 @@ public class LogPanel extends AbstractJamochaPanel implements ActionListener,
 						+ "\n\nMessage:\n========\n");
 				Object message = event.getMessage();
 				if (message instanceof Exception) {
-					Exception ex = (Exception) message;
-					StackTraceElement[] str = ex.getStackTrace();
-					buffer.append(ex.getClass().getName() + ": "
-							+ ex.getMessage());
-					for (StackTraceElement strelem : str) {
-						buffer.append("\n" + strelem);
-					}
+					Throwable ex = (Throwable) message;
+					boolean first = true;
+					do {
+						if (!first) {
+							buffer.append("\n\ncaused by:\n");
+						}
+						StackTraceElement[] str = ex.getStackTrace();
+						buffer.append(ex.getClass().getName() + ": "
+								+ ex.getMessage());
+						for (StackTraceElement strelem : str) {
+							buffer.append("\n").append(strelem);
+						}
+						first = false;
+					} while ((ex = ex.getCause()) != null);
 				} else if (message instanceof Expression) {
-					buffer.append(ParserFactory.getFormatter(true).formatExpression((Expression)message));
+					buffer.append(ParserFactory.getFormatter(true)
+							.formatExpression((Expression) message));
 				} else if (message != null) {
 					buffer.append(message.toString());
 				}

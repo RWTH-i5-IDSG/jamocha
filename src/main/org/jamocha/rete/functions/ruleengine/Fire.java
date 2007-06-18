@@ -105,7 +105,11 @@ public class Fire implements Function, Serializable {
 				throw new EvaluationException(e);
 			}
 		} else {
-			count = engine.fire();
+			try {
+				count = engine.fire();
+			} catch (ExecuteException e) {
+				throw new EvaluationException("Error during fire. ", e);
+			}
 		}
 		return JamochaValue.newLong(count);
 	}

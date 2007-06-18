@@ -28,6 +28,7 @@ import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.exception.AssertException;
+import org.jamocha.rete.exception.ExecuteException;
 import org.jamocha.rete.functions.FunctionDescription;
 import org.jamocha.rule.Defrule;
 import org.jamocha.rule.util.GenerateFacts;
@@ -116,7 +117,9 @@ public class TestRule implements Function, Serializable {
 					engine.setUnWatch(Rete.WATCH_ALL);
 					result = JamochaValue.TRUE;
 				} catch (AssertException e) {
-					e.printStackTrace();
+					throw new EvaluationException("Error during assert. ",e);
+				} catch (ExecuteException e) {
+					throw new EvaluationException("Error during fire. ",e);
 				}
 			}
 		}

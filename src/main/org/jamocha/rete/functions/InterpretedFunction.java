@@ -133,6 +133,9 @@ public class InterpretedFunction implements Function {
 			}
 			try {
 				result = actions.getValue(engine);
+			} catch (Exception e) {
+				throw new EvaluationException("Unknown Error in function "
+						+ name, e);
 			} finally {
 				engine.popScope();
 			}

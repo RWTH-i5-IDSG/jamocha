@@ -46,7 +46,7 @@ public class CLIPS2SLFunction implements Function, Serializable {
 		}
 
 		public String getParameterDescription(int parameter) {
-			return "string that should be translated to SL.";
+			return "Jamochavalue that should be translated to SL.";
 		}
 
 		public String getParameterName(int parameter) {
@@ -54,7 +54,7 @@ public class CLIPS2SLFunction implements Function, Serializable {
 		}
 
 		public JamochaType[] getParameterTypes(int parameter) {
-			return JamochaType.STRINGS;
+			return JamochaType.ANY;
 		}
 
 		public JamochaType[] getReturnType() {
