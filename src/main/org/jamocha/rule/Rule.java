@@ -18,6 +18,7 @@ package org.jamocha.rule;
 
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Binding;
+import org.jamocha.rete.Dumpable;
 import org.jamocha.rete.Fact;
 import org.jamocha.rete.Module;
 import org.jamocha.rete.Rete;

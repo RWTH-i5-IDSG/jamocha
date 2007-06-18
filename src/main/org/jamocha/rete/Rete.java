@@ -467,7 +467,7 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 			return false;
 		}
 	}
-
+	
 	public Module addModule(String name, boolean setfocus) {
 		if (findModule(name) == null) {
 			Defmodule mod = new Defmodule(name, theStrat);

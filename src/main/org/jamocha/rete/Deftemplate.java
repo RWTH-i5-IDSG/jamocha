@@ -20,6 +20,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaType;
@@ -558,5 +559,20 @@ public class Deftemplate implements Template, Serializable {
 
 	public void setDescription(String description) {
 		this.description = description;
+	}
+
+	public String getDump(String modName) {
+		StringBuffer buf = new StringBuffer();
+		buf.append("(deftemplate " + modName + "::" + this.templateName + " ");
+		for (int idx = 0; idx < this.slots.length; idx++) {
+			buf.append("(slot " + this.slots[idx].getName());
+			if (this.slots[idx].getValueType() != JamochaType.UNDEFINED) buf.append(" (type "+ this.slots[idx].getValueType() + ") ");
+			buf.append(") ");
+		}
+		if (this.defclass != null) {
+			buf.append("[" + this.defclass + "] ");
+		}
+		buf.append(")");
+		return buf.toString();
 	}
 }

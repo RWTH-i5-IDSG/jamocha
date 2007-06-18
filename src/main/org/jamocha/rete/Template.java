@@ -27,7 +27,7 @@ import org.jamocha.parser.EvaluationException;
  * equivalent of un-ordered facts. It defines all the necessary
  * methods for Deftemplate.
  */
-public interface Template extends Serializable {
+public interface Template extends Serializable, Dumpable {
 	/**
 	 * The name of the template may be the fully qualified
 	 * class name, or an alias.
@@ -120,6 +120,7 @@ public interface Template extends Serializable {
 	 * @return
 	 */
 	String toString();
+	
 
 	/**
 	 * 

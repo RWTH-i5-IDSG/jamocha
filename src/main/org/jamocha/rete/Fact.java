@@ -27,7 +27,7 @@ import org.jamocha.rule.Rule;
  * 
  * Base interface for Facts
  */
-public interface Fact extends Assertable {
+public interface Fact extends Assertable, Dumpable {
 
     /**
      * Return the value at the given slot id

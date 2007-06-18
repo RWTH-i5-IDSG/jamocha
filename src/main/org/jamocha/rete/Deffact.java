@@ -409,5 +409,18 @@ public class Deffact implements Fact {
 	public boolean getSlotSilence(String slotName) {
 		return this.slots[getSlotId(slotName)].silent;
 	}
+
+	public String getDump(String modName) {
+		StringBuffer buf = new StringBuffer();
+		buf.append("(assert (" + modName + "::" + this.template.getName());
+		if (this.slots.length > 0) {
+			buf.append(" ");
+		}
+		for (int idx = 0; idx < this.slots.length; idx++) {
+			buf.append("(" + this.slots[idx].getName() + " " + ConversionUtils.formatSlot(this.slots[idx].value) + ") ");
+		}
+		buf.append(") )");
+		return buf.toString();
+	}
 	
 }

@@ -231,4 +231,8 @@ public class NSFact implements Fact, Serializable {
 		return this.slots[getSlotId(slotName)].silent;
 	}
 
+	public String getDump(String modName) {
+		return "";
+	}
+	
 }
