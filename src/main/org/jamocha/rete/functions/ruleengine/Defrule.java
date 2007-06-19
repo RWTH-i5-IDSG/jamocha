@@ -39,7 +39,22 @@ public class Defrule implements Function, Serializable {
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "Defines a new rule in the currently focused module of the engine.";
+			return "Defines a new rule in the currently focused module of the engine.\n" +
+					"defrule has the following syntax:\n" +
+					"(defrule rule_name \"optional_comment\"\n" +
+					"	(pattern_1)     ; Left-Hand Side (LHS)\n" +
+					"	(pattern_2)     ; of the rule consisting of elements\n" +
+					"		.           ; before the \"=>\"\n" +
+					"		.\n" +
+					"		.\n" +
+					"	(pattern_N)\n" +
+					"=>                 ; THEN arrow\n" +
+					"	(action_1)      ; Right-Hand Side (RHS)\n" +
+					"	(action_2)      ; of the rule consisting of elements\n" +
+					"		.           ; after the \"=>\"\n" +
+					"		.\n" +
+					"	(action_M)\n" +
+					")                  ; close defrule";
 		}
 
 		public int getParameterCount() {
@@ -71,8 +86,21 @@ public class Defrule implements Function, Serializable {
 		}
 
 		public String getExample() {
-			// TODO Auto-generated method stub
-			return null;
+			return "(deftemplate customer\n" +
+					"  (slot first)\n" +
+					"  (slot last)\n" +
+					"  (slot title)\n" +
+					"  (slot address)\n" +
+					")\n" +
+					"(defrule rule\n" +
+					"  (customer\n" +
+					"    (first \"john\")\n" +
+					"  )\n" +
+					"  =>\n" +
+					"  (printout t \"rule0 was fired\" )\n" +
+					")\n" +
+					"(assert (customer (first \"john\")(last \"doe\")(address \"moon\") ) )\n" +
+					"(fire)";
 		}
 	}
 
