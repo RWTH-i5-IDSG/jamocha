@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 Josef Alexander Hahn, Alexander Wilden
+ * Copyright 2007 Josef Alexander Hahn, Alexander Wilden, Uta Christoph
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,8 +45,16 @@ import org.jamocha.rete.functions.FunctionDescription;
 /**
  * @author Josef Alexander Hahn
  * 
- * Exports or imports facts to a database via a jdbc link. Returns true in case
- * of success.
+ * Exports or imports facts to a database via a jdbc link.
+ * On import for each line of the DB-table a fact of a corresponding 
+ * Jamocha template is asserted. Therefore an adequate template has 
+ * to be defined before an import can take place.
+ * On export for each fact in a fact-list a new record is inserted into 
+ * the DB-table or an existing record is updated (according to the 
+ * contents of the primary key). The facts have to be based on a 
+ * well-defined template. Exporting incomplete templates may cause 
+ * inconsistencies. 
+ * Returns true on success.
  */
 public class JDBCLink implements Function, Serializable {
 	
@@ -55,7 +63,13 @@ public class JDBCLink implements Function, Serializable {
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "The jdbclink function transfers data from a DB-table line by line to and from Jamocha. For each line of the DB-table a fact of a corresponding Jamocha template is created. Therefore, the Jamocha template will be defined before the data import. The facts are exported by the jdbclink function from Jamocha back to the DB-table from a fact list. For each fact in the list, there will be a new record inserted in the DB or an existing record will become updated (according to the contents of the primary key) The facts are again based on the well defined template. Exporting wrt an incomplete template (not all columns from the table) is dangerous!";
+			return "Imports or exports facts to and from a database via a jdbc link.\n" +					
+					"On import for each line of the DB-table a fact of a corresponding Jamocha template is " +
+					"asserted. Therefore an adequate template has to be defined before an import can take place.\n" +
+					"On export for each fact in a fact-list a new record is inserted into the DB-table or an " +
+					"existing record is updated (according to the contents of the primary key). The facts have " +
+					"to be based on a well-defined template. Exporting incomplete templates may cause inconsistencies." +
+					"Returns true on success";					
 		}
 
 		public int getParameterCount() {
@@ -65,11 +79,11 @@ public class JDBCLink implements Function, Serializable {
 		public String getParameterDescription(int parameter) {
 			switch (parameter) {
 			case 0:
-				return "jdbclink fact describing the connection to use.";
+				return "Fact describing the jdbc link connection to use.";
 			case 1:
-				return "Operation is either import or export.";
+				return "Operation is either \"import\" or \"export\".";
 			case 2:
-				return "for export: list of facts to export. for import: list of jdbccondition-facts for filtering";
+				return "On export: fact-list to export. On import: list of jdbccondition-facts for filtering.";
 			}
 			return "";
 		}
@@ -111,8 +125,51 @@ public class JDBCLink implements Function, Serializable {
 		}
 
 		public String getExample() {
-			// TODO Auto-generated method stub
-			return null;
+			return //import example
+					"(deftemplate templ (slot a) (slot b) (slot c) (slot foo) )\n" +
+					"(jdbclink-init)\n" +
+					"(bind ?mylink\n" +
+					"	(assert\n" +
+					"		(jdbclink\n" +
+					"			(JDBCdriver \"com.mysql.jdbc.Driver\")\n" +
+					"			(ConnectionName \"db\")\n" +
+					"			(TableName \"test\")\n" +
+					"			(TemplateName \"templ\")\n" +
+					"			(Username \"jamocha\")\n" +
+					"			(Password \"geheim\")\n" +
+					"			(JDBCurl \"jdbc:mysql://134.130.113.67:3306/jamocha\")\n" +
+					"		)\n" +
+					"	)\n" +
+					")\n" +
+					"(bind ?myfilter\n" +
+					"	(assert\n" +
+					"		(jdbccondition\n" +
+					"			(SlotName \"foo\")\n" +
+					"			(BooleanOperator \">\")\n" +
+					"			(Value 2007-04-27 19:00+1)\n" +
+					"		)\n" +
+					"	)\n" +
+					")\n" +
+					"(jdbclink ?mylink \"import\" (create$ ?myfilter))\n\n" +
+					"" +
+					//export example
+					"(deftemplate templ2 (slot a) (slot b) (slot c) )\n" +
+					"(jdbclink-init)\n" +
+					"(bind ?mylink\n" +
+					"	(assert\n" +
+					"		(jdbclink\n" +
+					"				(JDBCdriver \"com.mysql.jdbc.Driver\")\n" +
+					"				(ConnectionName \"db\")\n" +
+					"				(TableName \"test\")\n" +
+					"				(TemplateName \"templ2\")\n" +
+					"				(Username \"jamocha\")\n" +
+					"				(Password \"geheim\")\n" +
+					"				(JDBCurl \"jdbc:mysql://134.130.113.67:65306/jamocha\")\n" +
+					"		)\n" +
+					"	)\n" +
+					")\n" +
+					"(assert (templ2 (a 99) (b 99) (c \"neunviermal\")) )\n" +
+					"(jdbclink ?mylink \"export\" \"3\"  )";
 		}
 	}
 

@@ -59,7 +59,7 @@ public class IteratorExporter implements Function, Serializable {
 
 		public String getDescription() {
 			return "Exports facts from the rete engine to an external location. The external location is specified in the " +
-					"first argument and needs to be an user-implementation of org.jamocha.rete.util.ExportHandler. " +
+					"first argument and needs to be an user-implementation of a subclass of org.jamocha.rete.util.ExportHandler. " +
 					"The function first generates a mapping from the config-fact given in the second argument. After " +
 					"that it exports all facts from the fact-list given as third argument via the iterator.";					
 		}
@@ -71,7 +71,7 @@ public class IteratorExporter implements Function, Serializable {
 		public String getParameterDescription(int parameter) {
 			switch (parameter) {
 			case 0:
-				return "External location, class name of a subclass from org.jamocha.rete.util.ExportHandler.";
+				return "External location, class name of a subclass of org.jamocha.rete.util.ExportHandler.";
 			case 1:
 				return "Config-fact, to generate the mapping for the export from.";
 			case 2:

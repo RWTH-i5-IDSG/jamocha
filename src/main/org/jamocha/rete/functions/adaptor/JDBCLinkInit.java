@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 Alexander Wilden
+ * Copyright 2007 Alexander Wilden, Uta Christoph
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,14 +32,14 @@ import org.jamocha.rete.functions.FunctionDescription;
 /**
  * @author Alexander Wilden
  * 
- * Initializes the JDBC adaptor by defining the jdbclink template. Returns true.
+ * Initializes the JDBC adaptor by defining the jdbclink template. Returns true on success.
  */
 public class JDBCLinkInit implements Function, Serializable {
 
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "Initializes the JDBC adaptor by defining the jdbclink and jdbccondition template. Returns true.";
+			return "Initializes the JDBC adaptor by defining the jdbclink and jdbccondition template. Returns true on success.";
 		}
 
 		public int getParameterCount() {
@@ -71,8 +71,26 @@ public class JDBCLinkInit implements Function, Serializable {
 		}
 
 		public String getExample() {
-			// TODO Auto-generated method stub
-			return null;
+			return "(deftemplate templ (slot a) (slot b) (slot c) (slot foo) )\n" +
+					"(jdbclink-init)\n" +
+					"(assert\n" +
+					"	(jdbclink\n" +
+					"		(JDBCdriver \"com.mysql.jdbc.Driver\")\n" +
+					"		(ConnectionName \"db\")\n" +
+					"		(TableName \"test\")\n" +
+					"		(TemplateName \"templ\")\n" +
+					"		(Username \"jamocha\")\n" +
+					"		(Password \"secret\")\n" +
+					"		(JDBCurl \"jdbc:mysql://134.130.113.67:3306/jamocha\")\n" +
+					"	)\n" +
+					")\n" +
+					"(assert\n" +
+					"	(jdbccondition\n" +
+					"		(SlotName \"foo\")\n" +
+					"		(BooleanOperator \">\")\n" +
+					"		(Value 2007-04-27 19:00+1)\n" +
+					"	)\n" +
+					")";
 		}
 	}
 
