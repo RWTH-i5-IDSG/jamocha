@@ -47,7 +47,7 @@ public class Defrule implements Function, Serializable {
 		}
 
 		public String getParameterDescription(int parameter) {
-			return "Rule that should be defined.";
+			return "Rule to be defined.";
 		}
 
 		public String getParameterName(int parameter) {

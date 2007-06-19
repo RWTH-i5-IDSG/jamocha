@@ -50,7 +50,7 @@ public class Definstance implements Function, Serializable {
 			case 0:
 				return "Object to assert.";
 			case 1:
-				return "Template for the Object.";
+				return "Template for the object.";
 			}
 			return "";
 		}
