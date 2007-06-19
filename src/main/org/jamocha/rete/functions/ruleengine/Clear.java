@@ -48,7 +48,7 @@ public class Clear implements Function, Serializable {
 					"and objects) from the Rete environment.\n" +
 					"In case of a given argument it is parsed as identifier and only the constructs that are " +
 					"identified by it are removed.\n" +
-					"Returns true on success.";
+					"Returns true on success." ;
 		}
 
 		public int getParameterCount() {
@@ -89,9 +89,8 @@ public class Clear implements Function, Serializable {
 			return true;
 		}
 
-		public String getExample() {
-			// TODO Auto-generated method stub
-			return null;
+		public String getExample() {			
+			return "(clear)";
 		}
 	}
 
