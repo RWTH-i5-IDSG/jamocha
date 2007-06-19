@@ -37,7 +37,7 @@ import org.jamocha.rete.functions.FunctionDescription;
 /**
  * @author Alexander Wilden
  * 
- * Prints out an example for this function and executes it in the rule engine.
+ * Prints out an example for the given function and executes it in the rule engine.
  * Note: Don't use this function in your production environment as templates,
  * rules and facts might be added, removed or modified.
  */
@@ -46,7 +46,7 @@ public class Example implements Function, Serializable {
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "Prints out an example for this function and executes it in the rule engine. Note: Don't use this function in your production environment as templates, rules and facts might be added, removed or modified.";
+			return "Prints out an example for the function given as argument and executes it in the rule engine. Note: Don't use this function in your production environment as templates, rules and facts might be added, removed or modified.";
 		}
 
 		public int getParameterCount() {
@@ -78,8 +78,7 @@ public class Example implements Function, Serializable {
 		}
 
 		public String getExample() {
-			// TODO Auto-generated method stub
-			return null;
+			return "(example load-facts)";
 		}
 	}
 

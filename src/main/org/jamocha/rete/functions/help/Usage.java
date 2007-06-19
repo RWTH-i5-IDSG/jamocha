@@ -31,14 +31,14 @@ import org.jamocha.rete.functions.FunctionDescription;
  * @author Karl-Heinz Krempels
  * 
  * Prints out a short usage for a function name passed as argument. If no
- * argument is passed the usage of this function is printed.
+ * argument is passed the usage of this function itself is printed.
  */
 public class Usage implements Function, Serializable {
 
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "Prints out a short usage for a function name passed as argument. If no argument is passed the usage of this function is printed.";
+			return "Prints out a short usage for a function name passed as argument. If no argument is passed the usage of this usage function itself is printed.";
 		}
 
 		public int getParameterCount() {
@@ -70,8 +70,8 @@ public class Usage implements Function, Serializable {
 		}
 
 		public String getExample() {
-			// TODO Auto-generated method stub
-			return null;
+			return "(usage)\n\n" +
+					"(usage member$)";
 		}
 	}
 
