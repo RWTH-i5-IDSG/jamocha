@@ -22,7 +22,6 @@ import java.util.Set;
 import java.util.Vector;
 
 import javax.swing.JButton;
-import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JList;
 import javax.swing.JPanel;
@@ -60,63 +59,61 @@ import org.jamocha.rule.Rule;
  * you can get a JPanel by calling getVisualiserPanel. That JPanel-instance you
  * can embed somewhere.
  */
-public class Visualiser implements ActionListener, MouseListener,
-		EngineEventListener, ListSelectionListener {
-	
-	
+public class Visualiser implements ActionListener, MouseListener, EngineEventListener, ListSelectionListener {
+
 	class RuleSelectorPanel extends JPanel {
+		private static final long serialVersionUID = 1L;
+
 		JList list;
-		
+
 		List<ListSelectionListener> listeners;
-		
+
 		public RuleSelectorPanel(Vector<String> rules) {
 			listeners = new ArrayList<ListSelectionListener>();
 			setRules(rules);
-			this.setLayout(new GridLayout(1,1));
+			this.setLayout(new GridLayout(1, 1));
 		}
-		
-		public void synchronize(){
+
+		public void synchronize() {
 			for (ListSelectionListener l : listeners) {
 				list.addListSelectionListener(l);
 			}
 		}
-		
+
 		public void addListSelectionListener(ListSelectionListener listener) {
 			listeners.add(listener);
 			synchronize();
 		}
-		
+
 		public void setRules(Vector<String> rules) {
-			if (list != null) this.remove(list);
+			if (list != null)
+				this.remove(list);
 			list = new JList(rules);
 			list.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-			if (rules != null) list.setSelectionInterval(0, rules.size()-1);
+			if (rules != null)
+				list.setSelectionInterval(0, rules.size() - 1);
 			synchronize();
 			show();
 		}
-		
+
 		public void show() {
-			System.out.println("boom");
 			this.add(list);
 		}
-		
-		public /*LONG_OBJECT*/ boolean isSelected(Rule r) {
+
+		public/* LONG_OBJECT */boolean isSelected(Rule r) {
 			String s = r.getName();
-			
+
 			for (Object o : list.getSelectedValues()) {
 				String ssel = (String) o;
-				if (ssel.equals(s)) return true;
+				if (ssel.equals(s))
+					return true;
 			}
 			return false;
-			
+
 		}
-		
+
 	}
-	
-	
-	
-	
-	
+
 	protected JZoomableShapeContainer container;
 
 	protected JMiniRadarShapeContainer radar;
@@ -128,7 +125,7 @@ public class Visualiser implements ActionListener, MouseListener,
 	protected JScrollPane scrollPane;
 
 	protected JToggleButton autoReloadButton;
-	
+
 	protected RuleSelectorPanel rulePanel;
 
 	protected JTextPane dump;
@@ -196,32 +193,28 @@ public class Visualiser implements ActionListener, MouseListener,
 	}
 
 	@SuppressWarnings("unchecked")
-	protected Shape makeShapeFromNode(ViewGraphNode act,
-			LinkedList<ViewGraphNode> queue) {
-		
+	protected Shape makeShapeFromNode(ViewGraphNode act, LinkedList<ViewGraphNode> queue) {
+
 		Color bg = getBackgroundColorForNode(act);
 		Color border = getBorderColorForNode(act);
 		String desc = "";
 		BaseNode reteNode = act.getReteNode();
 		HashSet terminalNodes = new HashSet();
 		getCorrespondingTerminalNodes(act, terminalNodes);
-		
-		
+
 		boolean drawMe = false;
 		for (Object tNode : terminalNodes) {
 			TerminalNode terminal = (TerminalNode) tNode;
-			if (drawMe=(rulePanel.isSelected(terminal.getRule()))) break;
+			if (drawMe = (rulePanel.isSelected(terminal.getRule())))
+				break;
 		}
-		
-	
-		
+
 		if (reteNode != null)
 			desc = String.valueOf(reteNode.getNodeId());
 		Shape s;
 		if (reteNode == null) { // ROOT NODE
 			s = new Ellipse();
-		} else if (reteNode instanceof AbstractBeta
-				|| act.getReteNode() instanceof SlotAlpha) {
+		} else if (reteNode instanceof AbstractBeta || act.getReteNode() instanceof SlotAlpha) {
 			s = new Trapezoid();
 		} else if (reteNode instanceof TerminalNode) {
 			s = new RoundedRectangle();
@@ -230,7 +223,7 @@ public class Visualiser implements ActionListener, MouseListener,
 		} else {
 			s = new Rectangle();
 		}
-		
+
 		if (!drawMe) {
 			int red = bg.getRed();
 			int green = bg.getGreen();
@@ -239,23 +232,20 @@ public class Visualiser implements ActionListener, MouseListener,
 			int containerred = containerBg.getRed();
 			int containergreen = containerBg.getGreen();
 			int containerblue = containerBg.getBlue();
-			red= red/8 + 7*containerred/8;
-			green= green/8 + 7*containergreen/8;
-			blue= blue/8 + 7*containerblue/8;
-			bg = new Color(red,green,blue).brighter();
+			red = red / 8 + 7 * containerred / 8;
+			green = green / 8 + 7 * containergreen / 8;
+			blue = blue / 8 + 7 * containerblue / 8;
+			bg = new Color(red, green, blue).brighter();
 			border = bg;
 		}
-		
+
 		s.setActivated(drawMe);
-		
+
 		s.setBgcolor(bg);
 		s.setBordercolor(border);
-		
-		
-		int x = (spaceHorizontal / 2)
-				+ (int) ((float) (act.getX() * (spaceHorizontal + nodeHorizontal)) / 2.0);
-		int y = (spaceVertical / 2) + act.getY()
-				* (spaceVertical + nodeVertical);
+
+		int x = (spaceHorizontal / 2) + (int) ((float) (act.getX() * (spaceHorizontal + nodeHorizontal)) / 2.0);
+		int y = (spaceVertical / 2) + act.getY() * (spaceVertical + nodeVertical);
 		String key = x + "," + y;
 		// if there is already a node at the given location, we shift it right
 		while (this.coordinates.containsKey(key)) {
@@ -286,8 +276,7 @@ public class Visualiser implements ActionListener, MouseListener,
 		s.setText(desc);
 		act.setShape(s);
 		addPrimitive(s);
-		for (Iterator<ViewGraphNode> it = act.getSuccessors().iterator(); it
-				.hasNext();) {
+		for (Iterator<ViewGraphNode> it = act.getSuccessors().iterator(); it.hasNext();) {
 			ViewGraphNode n = it.next();
 			queue.offer(n);
 		}
@@ -307,13 +296,11 @@ public class Visualiser implements ActionListener, MouseListener,
 			queue.offer(root);
 			while (!queue.isEmpty()) {
 				ViewGraphNode act = queue.poll();
-				for (Iterator<ViewGraphNode> it = act.getSuccessors()
-						.iterator(); it.hasNext();) {
+				for (Iterator<ViewGraphNode> it = act.getSuccessors().iterator(); it.hasNext();) {
 					ViewGraphNode succ = it.next();
 					queue.add(succ);
 				}
-				for (Iterator<ViewGraphNode> it = act.getParents().iterator(); it
-						.hasNext();) {
+				for (Iterator<ViewGraphNode> it = act.getParents().iterator(); it.hasNext();) {
 					ViewGraphNode parent = it.next();
 					if (parent.getY() >= act.getY()) {
 						act.y = parent.y + 1;
@@ -339,11 +326,11 @@ public class Visualiser implements ActionListener, MouseListener,
 			if (act.isParentsChecked())
 				continue;
 			act.setParentsChecked(true);
-			
-			if (s == null) continue;
-			
-			for (Iterator<ViewGraphNode> it = act.getParents().iterator(); it
-					.hasNext();) {
+
+			if (s == null)
+				continue;
+
+			for (Iterator<ViewGraphNode> it = act.getParents().iterator(); it.hasNext();) {
 				ViewGraphNode n = it.next();
 				Shape s1 = n.getShape();
 				if (s1 == null)
@@ -354,12 +341,12 @@ public class Visualiser implements ActionListener, MouseListener,
 					line.setColor(Color.red);
 				if (n.getReteNode() instanceof LIANode)
 					line.setColor(Color.red);
-				
+
 				if (!s.isActivated()) {
-				//	line.setColor(Color.DARK_GRAY.brighter().brighter());
+					// line.setColor(Color.DARK_GRAY.brighter().brighter());
 					line.setColor(Color.LIGHT_GRAY);
 				}
-				
+
 				addPrimitive(line);
 			}
 		}
@@ -409,18 +396,15 @@ public class Visualiser implements ActionListener, MouseListener,
 		toolBox.setLayout(toolBoxLayout);
 
 		// Zoom Buttons
-		zoomInButton = new JButton("Zoom In", IconLoader.getImageIcon(
-				"magnifier_zoom_in", Visualiser.class));
-		zoomOutButton = new JButton("Zoom Out", IconLoader.getImageIcon(
-				"magnifier_zoom_out", Visualiser.class));
+		zoomInButton = new JButton("Zoom In", IconLoader.getImageIcon("magnifier_zoom_in", Visualiser.class));
+		zoomOutButton = new JButton("Zoom Out", IconLoader.getImageIcon("magnifier_zoom_out", Visualiser.class));
 		zoomInButton.addActionListener(this);
 		zoomOutButton.addActionListener(this);
 
 		// Dump Field
 		dump = new JTextPane();
 		scrollPane = new JScrollPane(dump);
-		dump
-				.setText("This is the node dump area. Click on a node and you will get some information here\n");
+		dump.setText("This is the node dump area. Click on a node and you will get some information here\n");
 		scrollPane.setAutoscrolls(true);
 		JPanel dumpPanel = new JPanel(new BorderLayout());
 		dumpPanel.add(scrollPane);
@@ -430,22 +414,12 @@ public class Visualiser implements ActionListener, MouseListener,
 		sideBar.add(toolBox, BorderLayout.WEST);
 		sideBar.add(dumpPanel, BorderLayout.CENTER);
 
-		
 		JSplitPane mainSplitPane2 = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, rulePanel, container);
-		
-		
-		
-		
-		
-		
-		
-		
+
 		// Main Window with two Splitters (between radar, sidebar and main)
 		panel.setLayout(new BorderLayout());
-		JSplitPane sideSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
-				radar, sideBar);
-		JSplitPane mainSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
-				mainSplitPane2, sideSplitPane);
+		JSplitPane sideSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, radar, sideBar);
+		JSplitPane mainSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, mainSplitPane2, sideSplitPane);
 		mainSplitPane.setResizeWeight(1.0);
 		mainSplitPane.setOneTouchExpandable(true);
 		sideSplitPane.setOneTouchExpandable(true);
@@ -456,13 +430,11 @@ public class Visualiser implements ActionListener, MouseListener,
 		buttonPanel.setLayout(new FlowLayout(FlowLayout.RIGHT, 5, 1));
 		buttonPanel.add(zoomInButton);
 		buttonPanel.add(zoomOutButton);
-		autoReloadButton = new JToggleButton("Automatic Reload", IconLoader
-				.getImageIcon("arrow_refresh"));
+		autoReloadButton = new JToggleButton("Automatic Reload", IconLoader.getImageIcon("arrow_refresh"));
 		autoReloadButton.setSelected(false);
 		autoReloadButton.addActionListener(this);
 		buttonPanel.add(autoReloadButton);
-		reloadButton = new JButton("Reload View", IconLoader
-				.getImageIcon("arrow_refresh"));
+		reloadButton = new JButton("Reload View", IconLoader.getImageIcon("arrow_refresh"));
 		reloadButton.addActionListener(this);
 		buttonPanel.add(reloadButton);
 		panel.add(buttonPanel, BorderLayout.PAGE_END);
@@ -507,15 +479,12 @@ public class Visualiser implements ActionListener, MouseListener,
 	}
 
 	protected String getCaption(Date date) {
-		return "Jamocha - Rete Network - "
-				+ DateFormat.getInstance().format(date);
+		return "Jamocha - Rete Network - " + DateFormat.getInstance().format(date);
 	}
-	
+
 	protected void updateView() {
-		System.out.println("sdfsd");
 		this.coordinates.clear();
-		RootNode root = ((WorkingMemoryImpl) engine.getWorkingMemory())
-				.getRootNode();
+		RootNode root = ((WorkingMemoryImpl) engine.getWorkingMemory()).getRootNode();
 		ViewGraphNode t = ViewGraphNode.buildFromRete(root);
 		this.root = t;
 		container.removeAllPrimitives();
@@ -525,14 +494,14 @@ public class Visualiser implements ActionListener, MouseListener,
 
 	protected void reloadView() {
 		Vector<String> rules = new Vector<String>();
-		for (Object moduleObj : engine.getAgenda().getModules() ){
-			Module module = (Module)moduleObj;
+		for (Object moduleObj : engine.getAgenda().getModules()) {
+			Module module = (Module) moduleObj;
 			for (Object ruleObj : module.getAllRules()) {
 				Rule r = (Rule) ruleObj;
 				rules.add(r.getName());
 			}
 		}
-		
+
 		rulePanel.setRules(rules);
 		updateView();
 		if (myFrame != null) {
@@ -565,8 +534,7 @@ public class Visualiser implements ActionListener, MouseListener,
 		if (shape == null)
 			return;
 		try {
-			dump.getDocument().insertString(dump.getDocument().getLength(),
-					shape.getLongDescription() + "\n", actAttributes);
+			dump.getDocument().insertString(dump.getDocument().getLength(), shape.getLongDescription() + "\n", actAttributes);
 			if (actAttributes == even) {
 				actAttributes = odd;
 			} else {
@@ -581,7 +549,6 @@ public class Visualiser implements ActionListener, MouseListener,
 	}
 
 	public void valueChanged(ListSelectionEvent e) {
-		System.out.println("asdfsdgsdgsdfg");
 		updateView();
 	}
 }
