@@ -148,6 +148,7 @@ public class FunctionsPanel extends AbstractJamochaPanel implements
 
 	@SuppressWarnings("unchecked")
 	private void initFunctionGroupsList() {
+		functionGroupList.setSelectedIndex(0);
 		List<FunctionGroup> funcGroups = new LinkedList<FunctionGroup>(gui
 				.getEngine().getFunctionMemory().getFunctionGroups().values());
 		int n = funcGroups.size() - 1;
@@ -244,6 +245,9 @@ public class FunctionsPanel extends AbstractJamochaPanel implements
 		}
 
 		public int getSize() {
+			if (funcGroups == null) {
+				return 0;
+			}
 			return funcGroups.size();
 		}
 

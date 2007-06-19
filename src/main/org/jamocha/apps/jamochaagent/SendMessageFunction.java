@@ -35,7 +35,7 @@ public class SendMessageFunction implements Function {
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "LoadFacts will create a new instance of CLIPSParser and load the facts in the data file. TODO This function needs to be changed to be independed of CLIPSParser and use the ParserFactory instead.";
+			return "FIX ME!";
 		}
 
 		public int getParameterCount() {

@@ -27,6 +27,7 @@ import org.jamocha.parser.JamochaValue;
 import org.jamocha.parser.ParseException;
 import org.jamocha.parser.Parser;
 import org.jamocha.parser.ParserFactory;
+import org.jamocha.rete.BoundParam;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
@@ -36,30 +37,50 @@ import org.jamocha.rete.functions.FunctionDescription;
  * @author Sebastian Reinartz, Alexander Wilden
  * 
  * The eval function evaluates the string as though it were entered at the
- * command prompt and returns the last result of the Expression(s) (if any).
+ * command prompt and returns the last result of the Expression(s) (if any). An
+ * optional Binding as second parameter can be used to catch an Exception and
+ * set the error message in it.
  */
 public class Eval implements Function, Serializable {
 
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "The eval function evaluates the string as though it were entered at the command prompt and returns the last result of the Expression(s) (if any).";
+			return "The eval function evaluates the string as though it were entered at the command prompt and returns the last result of the Expression(s) (if any). An optional Binding as second parameter can be used to catch an Exception and set the error message in it.";
 		}
 
 		public int getParameterCount() {
-			return 1;
+			return 2;
 		}
 
 		public String getParameterDescription(int parameter) {
-			return "One or more Commands as one single String.";
+			switch (parameter) {
+			case 0:
+				return "One or more commans as a String.";
+			case 1:
+				return "An optional Binding to set the error message in if an Exception occurred.";
+			}
+			return "";
 		}
 
 		public String getParameterName(int parameter) {
-			return "command";
+			switch (parameter) {
+			case 0:
+				return "command";
+			case 1:
+				return "errorBinding";
+			}
+			return "";
 		}
 
 		public JamochaType[] getParameterTypes(int parameter) {
-			return JamochaType.STRINGS;
+			switch (parameter) {
+			case 0:
+				return JamochaType.STRINGS;
+			case 1:
+				return JamochaType.IDENTIFIERS;
+			}
+			return JamochaType.NONE;
 		}
 
 		public JamochaType[] getReturnType() {
@@ -67,11 +88,17 @@ public class Eval implements Function, Serializable {
 		}
 
 		public boolean isParameterCountFixed() {
-			return true;
+			return false;
 		}
 
 		public boolean isParameterOptional(int parameter) {
-			return false;
+			switch (parameter) {
+			case 0:
+				return false;
+			case 1:
+				return true;
+			}
+			return true;
 		}
 
 		public String getExample() {
@@ -96,10 +123,27 @@ public class Eval implements Function, Serializable {
 
 	public JamochaValue executeFunction(Rete engine, Parameter[] params)
 			throws EvaluationException {
-		JamochaValue result;
-		if (params != null && params.length == 1) {
+		JamochaValue result = JamochaValue.NIL;
+		if (params != null && params.length >= 1) {
 			String command = params[0].getValue(engine).getStringValue();
-			result = eval(engine, command);
+			String bindName = null;
+			// if an additionall Binding is provided we reset it
+			if (params.length > 1 && params[1] instanceof BoundParam) {
+				bindName = ((BoundParam) params[1]).getVariableName();
+				engine.setBinding(bindName, JamochaValue.NIL);
+			}
+			try {
+				result = eval(engine, command);
+			} catch (EvaluationException e) {
+				// if an additionall Binding is provided we set the error
+				// message in it.
+				if (bindName != null) {
+					engine.setBinding(bindName, JamochaValue.newString(e
+							.getMessage()));
+				} else {
+					throw e;
+				}
+			}
 		} else {
 			throw new IllegalParameterException(1);
 		}

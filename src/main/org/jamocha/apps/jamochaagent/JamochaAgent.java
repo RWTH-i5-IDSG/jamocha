@@ -40,6 +40,7 @@ import org.jamocha.messagerouter.MessageEvent;
 import org.jamocha.messagerouter.StringChannel;
 import org.jamocha.parser.ModeNotFoundException;
 import org.jamocha.rete.Function;
+import org.jamocha.rete.FunctionGroup;
 import org.jamocha.rete.Rete;
 
 /**
@@ -103,10 +104,21 @@ public class JamochaAgent extends ToolAgent {
 
 	private void initEngine() {
 		// register user function for sending messages
-		engine.getFunctionMemory().declareFunction(
-				new SendMessageFunction(this));
-		engine.getFunctionMemory().declareFunction(new SL2CLIPSFunction());
-		engine.getFunctionMemory().declareFunction(new CLIPS2SLFunction());
+		FunctionGroup agentFuncs = new AgentFunctions();
+		engine.getFunctionMemory().declareFunctionGroup(agentFuncs);
+		
+		Function sendMessageFunction = new SendMessageFunction(this);
+		engine.getFunctionMemory().declareFunction(sendMessageFunction);
+		agentFuncs.addFunction(sendMessageFunction);
+		
+		Function sl2ClipsFunction = new SL2CLIPSFunction();
+		engine.getFunctionMemory().declareFunction(sl2ClipsFunction);
+		agentFuncs.addFunction(sl2ClipsFunction);
+		
+
+		Function clips2SlFunction = new CLIPS2SLFunction();
+		engine.getFunctionMemory().declareFunction(clips2SlFunction);
+		agentFuncs.addFunction(clips2SlFunction);
 
 		StringBuilder buffer = new StringBuilder();
 
