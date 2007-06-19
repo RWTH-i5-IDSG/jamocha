@@ -38,13 +38,17 @@ import org.jamocha.rule.Rule;
 
 /**
  * @author Josef Alexander Hahn
+ * 
+ * Writes engine's deftemplates, defrules and facts into a file, which is 
+ * compatible to the format expected by the batch function. 
+ * Returns true iff everything could be dumped.
  */
 public class Dump implements Function, Serializable {
 
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "Writes engine's deftemplates, defrules and facts into a file, which is compatible to the format, batch expects. Returns true iff everything could be dumped";
+			return "Writes engine's deftemplates, defrules and facts into a file, which is compatible to the format expected by the batch function. Returns true iff everything could be dumped.";
 		}
 		
 		public int getParameterCount() {
@@ -52,8 +56,8 @@ public class Dump implements Function, Serializable {
 		}
 
 		public String getParameterDescription(int parameter) {
-			if (parameter == 0) return "The file, in which dump shall be written";
-			if (parameter == 1) return "The module you want to save";
+			if (parameter == 0) return "Output-file where to write the dump of the module.";
+			if (parameter == 1) return "Module to be safed.";
 			return null;
 		}
 
