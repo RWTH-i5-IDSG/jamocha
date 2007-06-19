@@ -40,7 +40,8 @@ public class New implements Function, Serializable {
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "Creates a Java Object and returns it. Searches for the constructor that accepts the appropriate number of parameters.";
+			return "Creates a Java object and returns it. Searches for the constructor that accepts the " +
+					"appropriate number of parameters.";
 		}
 
 		public int getParameterCount() {
@@ -52,7 +53,7 @@ public class New implements Function, Serializable {
 			case 0:
 				return "Object to instantiate.";
 			}
-			return "One or more Parameters for the constructor.";
+			return "One or more parameters for the constructor.";
 		}
 
 		public String getParameterName(int parameter) {

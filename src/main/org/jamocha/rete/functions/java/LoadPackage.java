@@ -37,7 +37,7 @@ public class LoadPackage implements Function, Serializable {
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "Creates a Java Object and returns true on success.";
+			return "Creates a Java object and returns true on success.";
 		}
 
 		public int getParameterCount() {
@@ -45,7 +45,7 @@ public class LoadPackage implements Function, Serializable {
 		}
 
 		public String getParameterDescription(int parameter) {
-			return "Classname of the Object to create.";
+			return "Classname of the object to create.";
 		}
 
 		public String getParameterName(int parameter) {

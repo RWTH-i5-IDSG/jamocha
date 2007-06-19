@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2006 Peter Lin, 2007 Alexander Wilden
+ * Copyright 2002-2006 Peter Lin, 2007 Alexander Wilden, Uta Christoph
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,15 +30,17 @@ import org.jamocha.rete.functions.FunctionDescription;
 /**
  * @author Peter Lin
  * 
- * Tests whether a given Object is of a certain type. Returns true if it is the
- * case, false otherwise.
+ * Tests whether an object given as first argument is of a certain type, 
+ * specified in the second argument. Returns true if this is the case, 
+ * false otherwise.
  */
 public class Instanceof implements Function, Serializable {
 
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "Tests whether a given Object is of a certain type. Returns true if it is the case, false otherwise.";
+			return "Tests whether an object given as first argument is of a certain type, " +
+					"specified in the second argument. Returns true if this is the case, false otherwise.";
 		}
 
 		public int getParameterCount() {
@@ -50,7 +52,7 @@ public class Instanceof implements Function, Serializable {
 			case 0:
 				return "Object to test.";
 			case 1:
-				return "Name of the Class to check against.";
+				return "Name of the class to test for.";
 			}
 			return "";
 		}

@@ -53,7 +53,7 @@ public class Member implements Function, Serializable {
 			case 1:
 				return "Method to call.";
 			}
-			return "One or more Parameters for the method.";
+			return "One or more parameters for the method.";
 		}
 
 		public String getParameterName(int parameter) {
