@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 Alexander Wilden
+ * Copyright 2007 Alexander Wilden, Uta Christoph
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,7 +48,11 @@ public class LoadFacts implements Function, Serializable {
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "Reads a given URL and surrounds the content with (assert ... ). So a list offacts will be assert in the rule engine via just one call to AssertFunction. The result will be TRUE if any of the urls could be parsed successfully and FALSE otherwise. On failure an exception is thrown.";
+			return "Reads a file from the given location and surrounds the content with (assert ... ). So a list " +
+					"of facts can be asserted into the rule engine with one single call. The result is true if " +
+					"any of the given files could be parsed successfully." + // and false otherwise. On failure an exception is thrown.";
+					"Attention a corresponding Jamocha template must be defined in order to actually import the" +
+					"facts into the engine.";					
 		}
 
 		public int getParameterCount() {
@@ -56,7 +60,7 @@ public class LoadFacts implements Function, Serializable {
 		}
 
 		public String getParameterDescription(int parameter) {
-			return "File containing facts without assert-call that will be asserted.";
+			return "Path(s) to one or more file(s) containing facts without assert-call to be asserted.";
 		}
 
 		public String getParameterName(int parameter) {
@@ -80,8 +84,14 @@ public class LoadFacts implements Function, Serializable {
 		}
 
 		public String getExample() {
-//			 TODO Auto-generated method stub
-			return null;
+			return "(deftemplate transaction\n" +
+					"  (slot accountId (type STRING))\n" +					
+					"  (slot countryCode (type STRING))\n" +
+					"  (slot cusip (type INTEGER))\n" +					
+					"  (slot issuer (type STRING))\n" +
+					"  (slot total (type DOUBLE))\n" +
+					")\n" +
+					"(load-facts samples/data.clp)\n";			
 		}
 	}
 
