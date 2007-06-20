@@ -6,7 +6,7 @@ import org.jamocha.adapter.sl.configurations.ContentSLConfiguration;
 import org.jamocha.adapter.sl.configurations.FunctionCallSLConfiguration;
 import org.jamocha.adapter.sl.configurations.SLConfiguration;
 import org.jamocha.adapter.sl.configurations.SequenceSLConfiguration;
-import org.jamocha.adapter.sl.configurations.TemplateSlotSLConfiguration;
+import org.jamocha.adapter.sl.configurations.FunctionCallOrFactSLConfiguration;
 
 public class SLInterpreter implements SLParserVisitor {
 
@@ -163,7 +163,7 @@ public class SLInterpreter implements SLParserVisitor {
 	}
 
 	public Object visit(SLFunctionalTermWithParameter node, Object data) {
-		TemplateSlotSLConfiguration tslc = new TemplateSlotSLConfiguration();
+		FunctionCallOrFactSLConfiguration tslc = new FunctionCallOrFactSLConfiguration();
 		tslc.setTemplateName(getChildSLConfiguration(node, 0));
 		for (int i = 1; i < node.jjtGetNumChildren(); ++i) {
 			tslc.addSlot(getChildSLConfiguration(node.jjtGetChild(i), 0),

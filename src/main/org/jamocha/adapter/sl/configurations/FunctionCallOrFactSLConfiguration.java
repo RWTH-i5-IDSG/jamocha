@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-public class TemplateSlotSLConfiguration implements SLConfiguration {
+public class FunctionCallOrFactSLConfiguration implements SLConfiguration {
 
 	private SLConfiguration templateName;
 
@@ -31,6 +31,10 @@ public class TemplateSlotSLConfiguration implements SLConfiguration {
 		Set<SLConfiguration> keys = slots.keySet();
 		switch (compileType) {
 		case ACTION_AND_ASSERT:
+			// If this node is called directly after an ActionExpression with
+			// keyword
+			// action, this node is a function call and all following will be
+			// asserts.
 			res.append("(").append(templateName.compile(compileType));
 			for (SLConfiguration key : keys) {
 				if (slots.get(key) != null) {
@@ -41,6 +45,7 @@ public class TemplateSlotSLConfiguration implements SLConfiguration {
 			res.append(")");
 			break;
 		case ASSERT:
+			// Here we have an assert of a fact.
 			res.append("(assert (").append(templateName.compile(compileType));
 			for (SLConfiguration key : keys) {
 				res.append(" (").append(key.compile(compileType)).append(" ");
@@ -51,6 +56,8 @@ public class TemplateSlotSLConfiguration implements SLConfiguration {
 			res.append("))");
 			break;
 		case RULE_LHS:
+			// This is a lefthand side of a rule and by this will result in a
+			// Node of the rete network.
 			res.append("(").append(templateName.compile(compileType));
 			for (SLConfiguration key : keys) {
 				res.append(" (").append(key.compile(compileType)).append(" ");

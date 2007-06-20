@@ -3,9 +3,9 @@ package org.jamocha.adapter.sl.configurations;
 public class ActionSLConfiguration implements SLConfiguration {
 
 	private SLConfiguration agent;
-	
+
 	private SLConfiguration action;
-	
+
 	public SLConfiguration getAction() {
 		return action;
 	}
@@ -23,6 +23,9 @@ public class ActionSLConfiguration implements SLConfiguration {
 	}
 
 	public String compile(SLCompileType compileType) {
+		if (compileType == SLCompileType.ASSERT) {
+			return action.compile(SLCompileType.ACTION_AND_ASSERT);
+		}
 		return action.compile(compileType);
 	}
 
