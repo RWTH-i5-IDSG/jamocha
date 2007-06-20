@@ -1,0 +1,601 @@
+/*
+ * Copyright 2007 Karl-Heinz Krempels, Alexander Wilden
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.jamocha.org/
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ **/
+
+/**
+ * Further information regarding the FIPA SL Content Language described in this
+ * file at http://fipa.org/specs/fipa00008/index.html
+ */
+
+
+options {
+	MULTI=true;
+	STATIC=false;
+	NODE_PREFIX="SL";
+	NODE_USES_PARSER=true;
+	VISITOR = true;  // create Visitor interface
+	ERROR_REPORTING = true;
+}
+
+
+
+PARSER_BEGIN(SLParser)
+package org.jamocha.parser.sl;
+
+import org.jamocha.parser.ParserUtils;
+import org.jamocha.adapter.sl.configurations.*;
+import java.io.InputStream;
+import java.io.StringReader;
+
+public class SLParser {
+	
+	public static ContentSLConfiguration parse(String string) throws ParseException {
+		SLParser parser = new SLParser(new StringReader(string));
+    	SimpleNode content = parser.Content();
+        return (ContentSLConfiguration) content.jjtAccept(new SLInterpreter(), null);
+	}
+	
+	public static ContentSLConfiguration parse(InputStream stream) throws ParseException {
+		SLParser parser = new SLParser(stream);
+    	SimpleNode content = parser.Content();
+        return (ContentSLConfiguration) content.jjtAccept(new SLInterpreter(), null);
+	}
+	
+	public static void main(String args[]){
+        try{
+        	System.out.print("SL> ");
+            ContentSLConfiguration res = SLParser.parse(System.in);
+            String result = res.compile(SLCompileType.ACTION_AND_ASSERT);
+            System.out.println(result);
+            System.out.println("Thank you.");
+        }
+        catch(ParseException e){
+            System.out.println("parse(): an invalid expression!");
+            System.out.println(e.getMessage());
+            e.printStackTrace();
+        }
+        catch (TokenMgrError e){
+            System.out.println("a Token Manager error!");
+            System.out.println(e.getMessage());
+            e.printStackTrace();
+        }
+    }
+}
+
+PARSER_END(SLParser)
+
+
+/* WHITE SPACE */
+SKIP :
+{
+  " "
+| "\t"
+| "\n"
+| "\r"
+| "\f"
+}
+
+TOKEN :
+{
+	< TRUE: "true">
+	|
+	< FALSE: "false">
+	|
+	< NOT: "not">
+	|
+	< AND: "and">
+	|
+	< OR: "or">
+	|
+	< IMPLIES: "implies">
+	|
+	< EQUIV: "equiv">
+	|
+	< EQUAL: "=">
+	|
+	< RESULT: "result">
+	|
+	< FORALL: "forall">
+	|
+	< EXISTS: "exists">
+	|
+	< MODAL_B: "B">
+	|
+	< MODAL_U: "U">
+	|
+	< MODAL_PG: "PG">
+	|
+	< MODAL_I: "I">
+	|
+	< FEASIBLE: "feasible">
+	|
+	< DONE: "done">
+	|
+	< IOTA: "iota">
+	|
+	< ANY: "any">
+	|
+	< ALL: "all">
+	|
+	< SEQUENCE: "sequence">
+	|
+	< SET: "set">
+	|
+	< ACTION: "action">
+	|
+	< PIPE: "|">
+	|
+	< SEMICOLON: ";">
+	|
+	< LBRACE: "(" >
+	| 
+	< RBRACE: ")" >
+	|
+	< STRING: <WORD> | <STRING_LITERAL> >
+	|
+	< WORD: (~["\u0000"-"\u0020","(",")","#","0"-"9",":","-","?"]) (~["\u0000"-"\u0020","(",")"])* >
+	|
+	< PARAMETER_NAME: ":" <STRING> >
+	|
+	< VARIABLE_IDENTIFIER: "?" <STRING> >
+	|
+ 	< #SIGN: ["+", "-"]>
+	|
+	< INTEGER: ( <SIGN> )?  ( <DIGIT> )+ | ( <SIGN> )?  "0" ["x", "X"] ( <HEXDIGIT> )+ >
+	|
+	< FLOAT: ( <SIGN> )? <FLOATMANTISSA> ( <FLOATEXPONENT> )? |  ( <SIGN> )? ( <DIGIT> )+ ( <FLOATEXPONENT> ) >
+	|
+ 	< FLOATMANTISSA: ( <DIGIT> )+ "." ( <DIGIT> )* | ( <DIGIT> )* "." ( <DIGIT> )+ >
+	|
+ 	< FLOATEXPONENT: ["e", "E"] ( <SIGN> )? ( <DIGIT> )+ >
+	|
+	< #DIGIT: ["0"-"9"] >
+	|
+	< #HEXDIGIT: ["0"-"9", "A"-"F", "a"-"f"]>
+	|
+	< STRING_LITERAL: "\"" ( (~["\""]) | "\\\"" )* "\"" >
+	|
+	< DATETIME :	( <SIGN> )? (["0"-"9"]) (["0"-"9"]) (["0"-"9"]) (["0"-"9"])
+              		(["0"-"9"]) (["0"-"9"]) (["0"-"9"]) (["0"-"9"]) ["t","T"]
+              		(["0"-"9"]) (["0"-"9"]) (["0"-"9"]) (["0"-"9"])
+              		(["0"-"9"]) (["0"-"9"]) (["0"-"9"]) (["0"-"9"]) (["0"-"9"]) (["a"-"z","A"-"Z"])? >
+}
+
+/* Content syntax follows */
+SimpleNode Content() :
+{}
+{
+	<LBRACE>  
+	( 
+				ContentExpression() 
+	)+ 
+	<RBRACE> 
+    {
+        return jjtThis;
+    }
+}
+
+
+SimpleNode ContentExpression() :
+{}
+{
+	(LOOKAHEAD(2)
+		Proposition()
+		|
+		(
+		<LBRACE>
+			(
+				IdentifyingExpression()
+				|
+				ActionExpression()
+			)
+		<RBRACE>
+		)
+  	)
+    {
+        return jjtThis;
+    }
+}
+
+SimpleNode Proposition() :
+{}
+{
+	Wff()
+    {
+        return jjtThis;
+    }
+}
+
+
+SimpleNode Wff() :
+{}
+{
+	(
+		<LBRACE>
+		(
+			UnaryLogicalOp() Wff()
+			|
+			BinaryLogicalOp() Wff() Wff()
+			|
+			Quantifier() Variable() Wff()
+			|
+			ModalOp() Agent() Wff()
+			|
+			ActionOp() <LBRACE> ActionExpression() <RBRACE> [Wff()]
+			|
+			BinaryTermOp() TermOrIE() TermOrIE()
+			|
+			PredicateSymbol() (TermOrIE())+
+		)
+		<RBRACE>
+	)
+	|
+	(
+		BooleanSymbol()
+		|
+		PropositionSymbol()
+	)
+    {
+        return jjtThis;
+    }
+}
+
+void TermOrIE() #void :
+{}
+{
+	Term()
+	|
+	IdentifyingExpression()
+}
+
+void Term() #void :
+{}
+{
+	(
+		Variable()
+		|
+		Constant()
+		|
+		<LBRACE>
+		(
+			ActionExpression()
+			|
+			FunctionalTerm()
+			|
+			SetOrSequence()
+		)
+		<RBRACE>
+	)
+}
+
+SimpleNode IdentifyingExpression() :
+{}
+{
+	ReferentialOp() TermOrIE() Wff()
+    {
+        return jjtThis;
+    }
+}
+
+void FunctionalTerm() #void :
+{}
+{
+	(LOOKAHEAD(2)
+		FunctionalTermWithTermOrIE()
+		|
+		FunctionalTermWithParameter()
+	)
+}
+
+SimpleNode FunctionalTermWithTermOrIE() :
+{}
+{
+	FunctionSymbol()
+	(TermOrIE())+
+    {
+        return jjtThis;
+    }
+}
+
+SimpleNode FunctionalTermWithParameter() :
+{}
+{
+	FunctionSymbol()
+	(Parameter())+
+    {
+        return jjtThis;
+    }
+}
+
+SimpleNode ActionExpression() :
+{ Token t; }
+{
+	(
+		t=<ACTION> Agent() TermOrIE()
+		|
+		t=<PIPE> <LBRACE> ActionExpression() <RBRACE> <LBRACE> ActionExpression() <RBRACE>
+		|
+		t=<SEMICOLON> <LBRACE> ActionExpression() <RBRACE> <LBRACE> ActionExpression() <RBRACE>
+	)
+    {
+        jjtThis.setName(t.image);
+        return jjtThis;
+    }
+}
+
+SimpleNode Agent() :
+{}
+{
+	TermOrIE()
+    {
+        return jjtThis;
+    }
+}
+
+SimpleNode SetOrSequence() :
+{}
+{
+	(
+		<SET>
+		|
+		<SEQUENCE>
+	)
+	(TermOrIE())*
+    {
+        return jjtThis;
+    }
+}
+
+SimpleNode Parameter() :
+{}
+{
+	ParameterName() TermOrIE()
+    {
+        return jjtThis;
+    }
+}
+
+/* Operators */
+
+SimpleNode UnaryLogicalOp() : 
+{ Token t; }
+{
+    t=<NOT>
+    {
+        jjtThis.setName(t.image);
+        return jjtThis;
+    }
+}
+
+
+SimpleNode BinaryLogicalOp() : 
+{ Token t; }
+{
+	(
+		t=<AND>
+		|
+		t=<OR>
+		|
+		t=<IMPLIES>
+		|
+		t=<EQUIV>
+	)
+    {
+        jjtThis.setName(t.image);
+        return jjtThis;
+    }
+}
+
+SimpleNode BinaryTermOp() : 
+{ Token t; }
+{
+	(
+		t=<EQUAL>
+		|
+		t=<RESULT>
+	)
+    {
+        jjtThis.setName(t.image);
+        return jjtThis;
+    }
+}
+
+SimpleNode Quantifier() : 
+{ Token t; }
+{
+	(
+		t=<FORALL>
+		|
+		t=<EXISTS>
+	)
+    {
+        jjtThis.setName(t.image);
+        return jjtThis;
+    }
+}
+
+SimpleNode ModalOp() : 
+{ Token t; }
+{
+	(
+		t=<MODAL_B>
+		|
+		t=<MODAL_U>
+		|
+		t=<MODAL_PG>
+		|
+		t=<MODAL_I>
+	)
+    {
+        jjtThis.setName(t.image);
+        return jjtThis;
+    }
+}
+
+SimpleNode ActionOp() : 
+{ Token t; }
+{
+	(
+		t=<FEASIBLE>
+		|
+		t=<DONE>
+	)
+    {
+        jjtThis.setName(t.image);
+        return jjtThis;
+    }
+}
+
+SimpleNode ReferentialOp() : 
+{ Token t; }
+{
+	(
+		t=<IOTA>
+		|
+		t=<ANY>
+		|
+		t=<ALL>
+	)
+    {
+        jjtThis.setName(t.image);
+        return jjtThis;
+    }
+}
+
+/* Symbols */
+
+SimpleNode PropositionSymbol() :
+{}
+{
+	String()
+	{
+        return jjtThis;
+    }
+}
+
+SimpleNode PredicateSymbol() :
+{}
+{
+	String()
+	{
+        return jjtThis;
+    }
+}
+
+SimpleNode FunctionSymbol() :
+{}
+{
+	String()
+	{
+        return jjtThis;
+    }
+}
+
+/* Constants */
+
+SimpleNode BooleanSymbol() : 
+{ Token t; }
+{
+    (
+    	t=<TRUE>
+    |	t=<FALSE>
+    )
+    {
+        jjtThis.setName(t.image);
+        return jjtThis;
+    }
+}
+
+SimpleNode String() : 
+{ Token t; }
+{
+	t=<STRING>
+	{
+		//jjtThis.setName(ParserUtils.getStringLiteral(t.image)); 
+		jjtThis.setName(t.image);
+		return jjtThis;
+	}
+}
+
+void NumericalConstant() #void :
+{}
+{
+    Integer()
+    |
+    Float()
+}
+
+SimpleNode Integer() :
+{ Token t; }
+{
+	t = <INTEGER>
+    {
+        jjtThis.setName(t.image);
+        return jjtThis;
+    }
+}
+
+
+SimpleNode Float() :
+{ Token t; }
+{
+    t = <FLOAT>
+    {
+        jjtThis.setName(t.image);
+        return jjtThis;
+    }
+}
+
+
+SimpleNode DateTime() :
+{ Token t; }
+{
+    t = <DATETIME>
+    {
+        jjtThis.setName(t.image);
+        return jjtThis;
+    }
+}
+
+void Constant() #void:
+{}
+{
+  NumericalConstant()
+  |
+  String()
+  |
+  DateTime()
+}
+
+SimpleNode Variable() :
+{ Token t; }
+{
+	t=<VARIABLE_IDENTIFIER>
+    {
+        jjtThis.setName(t.image);
+        return jjtThis;
+    }
+}
+
+SimpleNode ParameterName() :
+{ Token t; }
+{
+	t=<PARAMETER_NAME>
+    {
+        jjtThis.setName(t.image);
+        return jjtThis;
+    }
+}
