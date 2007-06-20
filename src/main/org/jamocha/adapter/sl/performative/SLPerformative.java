@@ -1,8 +1,8 @@
 package org.jamocha.adapter.sl.performative;
 
 import org.jamocha.adapter.AdapterTranslationException;
-import org.jamocha.parser.sl.SLParserTreeConstants;
-import org.jamocha.parser.sl.SimpleNode;
+import org.jamocha.parser.sl_old.SLParserTreeConstants;
+import org.jamocha.parser.sl_old.SimpleNode;
 
 public class SLPerformative {
 

@@ -18,9 +18,9 @@ package org.jamocha.adapter.sl.performative;
 import java.io.StringReader;
 
 import org.jamocha.adapter.AdapterTranslationException;
-import org.jamocha.parser.sl.ParseException;
-import org.jamocha.parser.sl.SLParser;
-import org.jamocha.parser.sl.SimpleNode;
+import org.jamocha.parser.sl_old.ParseException;
+import org.jamocha.parser.sl_old.SLParser;
+import org.jamocha.parser.sl_old.SimpleNode;
 
 /**
  * This class walks through an SL code tree and translates it to CLIPS depending

@@ -18,10 +18,10 @@ package org.jamocha.adapter.sl.performative;
 import java.io.StringReader;
 
 import org.jamocha.adapter.AdapterTranslationException;
-import org.jamocha.parser.sl.ParseException;
-import org.jamocha.parser.sl.SLParser;
-import org.jamocha.parser.sl.SLParserTreeConstants;
-import org.jamocha.parser.sl.SimpleNode;
+import org.jamocha.parser.sl_old.ParseException;
+import org.jamocha.parser.sl_old.SLParser;
+import org.jamocha.parser.sl_old.SLParserTreeConstants;
+import org.jamocha.parser.sl_old.SimpleNode;
 
 /**
  * This class walks through an SL code tree and translates it to CLIPS depending
@@ -39,6 +39,7 @@ public class Request {
 	private Request() {
 	}
 
+	
 	/**
 	 * Translates SL code of a request to CLIPS code. A request only contains
 	 * one action.
@@ -77,6 +78,45 @@ public class Request {
 
 		return result.toString();
 	}
+	
+	/**
+	 * Translates SL code of a request to CLIPS code. A request only contains
+	 * one action.
+	 * 
+	 * @param slContent
+	 *            The SL content we have to translate.
+	 * @return CLIPS commands that represent the given SL code.
+	 * @throws AdapterTranslationException
+	 *             if the SLParser throws an Exception or anything else unnormal
+	 *             happens.
+	 */
+//	public static String getCLIPS(String slContent)
+//			throws AdapterTranslationException {
+//		StringBuilder result = new StringBuilder();
+//
+//		SLParser parser = new SLParser(new StringReader(slContent));
+//		SimpleNode sn;
+//		try {
+//			sn = parser.Content();
+//		} catch (ParseException e) {
+//			throw new AdapterTranslationException(
+//					"Could not translate from SL to CLIPS.", e);
+//		}
+//		// Walk through the children until we have something useful
+//		sn = getChildAtLevel(sn, 3);
+//		if (sn.getID() == SLParserTreeConstants.JJTACTION) {
+//			// Here we have an Action
+//			// Get the right Child. The left Child is the agent-identifier.
+//			sn = getChild(sn, 1);
+//			sn = getChildAtLevel(sn, 2);
+//			String functionName = getChild(sn, 0).getText();
+//			String lastAssert = resolveParameters(getChild(getChild(sn, 1), 1));
+//
+//			result.append("(" + functionName + " " + lastAssert + ")");
+//		}
+//
+//		return result.toString();
+//	}
 
 	/**
 	 * Recursively walks through the tree of Parameters and translates them.
