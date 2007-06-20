@@ -15,12 +15,14 @@
  */
 package org.jamocha.adapter.sl.performative;
 
-import java.io.StringReader;
+import java.util.List;
 
 import org.jamocha.adapter.AdapterTranslationException;
-import org.jamocha.parser.sl_old.ParseException;
-import org.jamocha.parser.sl_old.SLParser;
-import org.jamocha.parser.sl_old.SimpleNode;
+import org.jamocha.adapter.sl.configurations.ContentSLConfiguration;
+import org.jamocha.adapter.sl.configurations.SLCompileType;
+import org.jamocha.adapter.sl.configurations.SLConfiguration;
+import org.jamocha.parser.sl.ParseException;
+import org.jamocha.parser.sl.SLParser;
 
 /**
  * This class walks through an SL code tree and translates it to CLIPS depending
@@ -29,7 +31,7 @@ import org.jamocha.parser.sl_old.SimpleNode;
  * @author Daniel Grams
  * 
  */
-public class RequestWhenever extends SLPerformative {
+public class RequestWhenever {
 
 	/**
 	 * A private constructor to force access only in a static way.
@@ -49,115 +51,30 @@ public class RequestWhenever extends SLPerformative {
 	 *             if the SLParser throws an Exception or anything else unnormal
 	 *             happens.
 	 */
-	/*
-	 * Example: 
-	 * ((action (agent-identifier :name j)
-	      (inform-ref
-	        :sender (agent-identifier :name j)
-	        :receiver (set (agent-identifier :name i))
-	        :content
-	          \"\"))
-     	(> (price widget) 50))
-     	
-     Parser Tree:	
-	    Content
-		 ContentExpression
-		  ActionExpression
-		   Action
-		    Agent
-		     TermOrIE
-		      Term
-		       FunctionalTerm
-		        FunctionSymbol: agent-identifier
-		        Parameter
-		         ParameterName: :name
-		         ParameterValue
-		          TermOrIE
-		           Term
-		            Constant
-		             String: j
-		    TermOrIE
-		     Term
-		      FunctionalTerm
-		       FunctionSymbol: inform-ref
-		       Parameter
-		        ParameterName: :sender
-		        ParameterValue
-		         TermOrIE
-		          Term
-		           FunctionalTerm
-		            FunctionSymbol: agent-identifier
-		            Parameter
-		             ParameterName: :name
-		             ParameterValue
-		              TermOrIE
-		               Term
-		                Constant
-		                 String: j
-		       Parameter
-		        ParameterName: :receiver
-		        ParameterValue
-		         TermOrIE
-		          Term
-		           Set
-		            TermOrIE
-		             Term
-		              FunctionalTerm
-		               FunctionSymbol: agent-identifier
-		               Parameter
-		                ParameterName: :name
-		                ParameterValue
-		                 TermOrIE
-		                  Term
-		                   Constant
-		                    String: i
-		       Parameter
-		        ParameterName: :content
-		        ParameterValue
-		         TermOrIE
-		          Term
-		           Constant
-		            String: \"\"
-		 ContentExpression
-		  Wff
-		   AtomicFormula
-		    PredicateSymbol: >
-		    TermOrIE
-		     Term
-		      FunctionalTerm
-		       FunctionSymbol: price
-		       TermOrIE
-		        Term
-		         Constant
-		          String: widget
-		    TermOrIE
-		     Term
-		      Constant
-		       NumericalConstant
-		        Integer: 50
-	 */
-	
-		
-	
-	public static String getCLIPS(String slContent) throws AdapterTranslationException {
-		StringBuilder result = new StringBuilder();
-		
-		SLParser parser = new SLParser(new StringReader(slContent));
-		SimpleNode rn;
+	public static String getCLIPS(String slContent)
+			throws AdapterTranslationException {
+		ContentSLConfiguration contentConf;
 		try {
-			rn = parser.Content(); // RootNode
+			contentConf = SLParser.parse(slContent);
 		} catch (ParseException e) {
-			throw new AdapterTranslationException("Could not translate from SL to CLIPS.", e);
+			throw new AdapterTranslationException(
+					"Could not translate from SL to CLIPS.", e);
 		}
-		
-		SimpleNode ContentNode 	= rn; //getChild(rn, 0);
-		
-		String RightHand 	= handleContentExpression(getChild(ContentNode, 0));
-		String LeftHand 	= handleContentExpression(getChild(ContentNode, 1));
-		
-		result.append("(defrule RequestWhenever " + LeftHand + " => " + RightHand + ")");
-		
-			
+		List<SLConfiguration> results = contentConf.getExpressions();
+		if (results.size() != 2) {
+			// TODO: Add more Exceptions for different things extending
+			// AdapterTranslationException that tell more about the nature of
+			// the problem!
+			throw new AdapterTranslationException("Error");
+		}
+		StringBuilder result = new StringBuilder();
+		result
+				.append("(defrule request-whenever ")
+				.append(results.get(0).compile(SLCompileType.RULE_LHS))
+				.append(" => ")
+				.append(results.get(1).compile(SLCompileType.ACTION_AND_ASSERT))
+				.append(")");
+
 		return result.toString();
 	}
 

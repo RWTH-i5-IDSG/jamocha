@@ -31,7 +31,7 @@ import org.jamocha.parser.sl.SLParser;
  * @author Markus Kucay
  * 
  */
-public class RequestWhen extends SLPerformative {
+public class RequestWhen {
 
 	/**
 	 * A private constructor to force access only in a static way.
@@ -75,7 +75,6 @@ public class RequestWhen extends SLPerformative {
 				.append(" => ")
 				.append(results.get(1).compile(SLCompileType.ACTION_AND_ASSERT))
 				.append("(undefrule request-when))");
-
 		return result.toString();
 	}
 }
