@@ -1,11 +1,11 @@
-/**
+/*
  * Copyright 2007 Karl-Heinz Krempels, Alexander Wilden
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://jamocha.sourceforge.net/
+ *   http://www.jamocha.org/
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,9 +16,9 @@
  **/
 
 /**
- * Further information regarding the FIPA SL Content Language described 
- * in this file at http://fipa.org/specs/fipa00008/index.html
- **/
+ * Further information regarding the FIPA SL Content Language described in this
+ * file at http://fipa.org/specs/fipa00008/index.html
+ */
 
 
 options {
@@ -26,13 +26,13 @@ options {
     NODE_PREFIX = "SL";
     VISITOR = true;
 	NODE_USES_PARSER=true;
-//    FORCE_LA_CHECK = true;
+// FORCE_LA_CHECK = true;
     JAVA_UNICODE_ESCAPE = true;
     BUILD_PARSER = true;
     BUILD_TOKEN_MANAGER = true;
     ERROR_REPORTING = true;
     CACHE_TOKENS = true;
-//  DEBUG_TOKEN_MANAGER=true;
+ DEBUG_TOKEN_MANAGER=true;
     CHOICE_AMBIGUITY_CHECK = 2;
     OTHER_AMBIGUITY_CHECK = 2;
 	STATIC = false;
@@ -46,7 +46,7 @@ package org.jamocha.parser.slp;
 public class SLParser {
 	public static void main(String args[]){
         try{
-		System.out.println("Reading from standard input...");
+		System.out.println("SL> ");
         	SLParser parser = new SLParser(System.in);
         	SimpleNode content = parser.Content();
             content.dump("");
@@ -159,27 +159,27 @@ void Wff() #Wff :
 	AtomicFormula()
 	|
 	(
-				"not" Wff()
-				|
-				"and" Wff() Wff()
-				|
-				"or" Wff() Wff()
-				|
-				"implies" Wff() Wff()
-				|
-				"equiv" Wff() Wff()
-				|
-				"forall" Variable() Wff()
-				|
-				"exists" Variable() Wff()
-				|
-				"B" Agent() Wff()
-				|
-				"U" Agent() Wff() 
-				|
-				"PG" Agent() Wff()
-				|
-				"I" Agent() Wff()
+		"not" Wff()
+		|
+		"and" Wff() Wff()
+		|
+		"or" Wff() Wff()
+		|
+		"implies" Wff() Wff()
+		|
+		"equiv" Wff() Wff()
+		|
+		"forall" Variable() Wff()
+		|
+		"exists" Variable() Wff()
+		|
+		"B" Agent() Wff()
+		|
+		"U" Agent() Wff() 
+		|
+		"PG" Agent() Wff()
+		|
+		"I" Agent() Wff()
 	)
 	|
   	ActionOp() 
@@ -188,15 +188,27 @@ void Wff() #Wff :
 void ActionOp() :
 {}
 {
-	(
-			"feasible" ActionExpression()
-			|
-			"done" ActionExpression()  
-			|
-			"feasible" ActionExpression() Wff()
-			|
-			"done" ActionExpression() Wff() 
-	)
+	FeasibleActionOp()
+	|
+	DoneActionOp()
+}
+
+void FeasibleActionOp() :
+{}
+{
+	"feasible" ActionExpression()
+	[
+		Wff()
+	]
+}
+
+void DoneActionOp() :
+{}
+{
+	"done" ActionExpression()
+	[
+		Wff()
+	]
 }
 
 void AtomicFormula() :
@@ -204,17 +216,21 @@ void AtomicFormula() :
 {
   	PropositionSymbol()
  	|
-  	BinaryTermOp()
-	|
-  	<LBRACE>  PredicateSymbol() ( TermOrIE() )+ <RBRACE> 
+ 	<LBRACE>
+  	(
+		BinaryTermOp()
+		|
+		PredicateSymbol() ( TermOrIE() )+
+	)
+	<RBRACE>
 }
 
 void BinaryTermOp() :
 {}
 {
-   	<LBRACE>  "=" TermOrIE() TermOrIE() <RBRACE>  #Equal(2)
+   	"=" TermOrIE() TermOrIE()  #Equal(2)
  	| 
-   	<LBRACE>  "result" TermOrIE() TermOrIE() <RBRACE>  #Result(2)
+   	"result" TermOrIE() TermOrIE()  #Result(2)
 }
 
 
@@ -232,15 +248,20 @@ void Term() #Term :
 {
 	Variable()
  	|
-  	FunctionalTerm()
- 	|
-  	ActionExpression()
- 	|
   	Constant()
- 	|
-  	Sequence()
- 	|
-  	Set()
+  	|
+  	<LBRACE>
+  	(
+  		FunctionalTerm()
+  		|
+  		ActionExpression()
+	 	|
+	  	Sequence()
+	 	|
+	  	Set()
+  	)
+  	<RBRACE>
+  	
 }
 
 
@@ -258,9 +279,12 @@ void IdentifyingExpression() #IdentifyingExpression :
 void FunctionalTerm() :
 {}
 {
-	<LBRACE>  FunctionSymbol() ( TermOrIE() )* <RBRACE>  #FunctionalTerm(>1)
-	|
- 	<LBRACE>  FunctionSymbol() ( Parameter() )* <RBRACE>  #FunctionalTerm(>1)
+	FunctionSymbol()
+	(
+		( TermOrIE() )* #FunctionalTerm(>1)
+		|
+	 	( Parameter() )* #FunctionalTerm(>1)
+	)
 }
 
 
@@ -301,7 +325,7 @@ void ActionExpression() :
 {
   	"action" Agent() TermOrIE()
  	|
-  	 "|" ActionExpression() ActionExpression()
+  	"|" ActionExpression() ActionExpression()
  	|
  	";" ActionExpression() ActionExpression() 
 }
@@ -352,14 +376,14 @@ void Agent() :
 void Sequence() #Sequence : 
 {}
 {
-  <LBRACE>  "sequence" ( TermOrIE() )* <RBRACE> 
+  "sequence" ( TermOrIE() )*
 }
 
 
 void Set() #Set :
 {}
 {
-  <LBRACE>  "set" ( TermOrIE() )* <RBRACE> 
+  "set" ( TermOrIE() )* 
 }
 
 

@@ -22,21 +22,26 @@ import java.util.Date;
 public class ParserUtils {
 
 	public static String getStringLiteral(String text) {
-		StringBuffer buf = new StringBuffer();
-		int len = text.length() - 1;
-		boolean escaping = false;
-		for (int i = 1; i < len; i++) {
-			char ch = text.charAt(i);
-			if (escaping) {
-				buf.append(ch);
-				escaping = false;
-			} else if (ch == '\\') {
-				escaping = true;
-			} else {
-				buf.append(ch);
+		if (text != null && text.length() > 1) {
+			if (text.charAt(0) == '"' && text.charAt(text.length() - 1) == '"') {
+				StringBuffer buf = new StringBuffer();
+				int len = text.length() - 1;
+				boolean escaping = false;
+				for (int i = 1; i < len; i++) {
+					char ch = text.charAt(i);
+					if (escaping) {
+						buf.append(ch);
+						escaping = false;
+					} else if (ch == '\\') {
+						escaping = true;
+					} else {
+						buf.append(ch);
+					}
+				}
+				return buf.toString();
 			}
 		}
-		return buf.toString();
+		return text;
 	}
 
 	public static String escapeStringLiteral(String text) {
@@ -68,7 +73,7 @@ public class ParserUtils {
 		res.append(cal.get(Calendar.ZONE_OFFSET));
 		return res.toString();
 	}
-	
+
 	public static long dateToLong(Date date) {
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(date);
