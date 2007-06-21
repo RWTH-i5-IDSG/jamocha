@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 Alexander Wilden
+ * Copyright 2007 Alexander Wilden, Uta Christoph
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,7 +33,7 @@ import org.jamocha.rete.functions.FunctionDescription;
 /**
  * @author Alexander Wilden
  * 
- * Returns the Fact that has the given fact-id or NIL if it doesn't exist.
+ * Returns the value (fact) of the given fact-id or NIL if the given id doesn't exist.
  */
 public class FactId implements Function, Serializable {
 
@@ -41,7 +41,7 @@ public class FactId implements Function, Serializable {
 			FunctionDescription {
 
 		public String getDescription() {
-			return "Returns the Fact that has the given fact-id or NIL if it doesn't exist.";
+			return "Returns the value (fact) of the given fact-id or NIL if the given id doesn't exist.";
 		}
 
 		public int getParameterCount() {
@@ -49,7 +49,7 @@ public class FactId implements Function, Serializable {
 		}
 
 		public String getParameterDescription(int parameter) {
-			return "Fact-Id to return the Fact for.";
+			return "Fact-Id to get fact from.";
 		}
 
 		public String getParameterName(int parameter) {
@@ -80,8 +80,11 @@ public class FactId implements Function, Serializable {
 		}
 
 		public String getExample() {
-			// TODO Auto-generated method stub
-			return null;
+			return "(deftemplate car (slot color)(slot speed))\n" +
+					"(assert (car (color \"red\")(speed 200)))\n" +
+					"(assert (car (color \"blue\")(speed 150)))\n" +
+					"(assert (car (color \"green\")(speed 100)))\n" +
+					"(fact-id 2)";
 		}
 	}
 

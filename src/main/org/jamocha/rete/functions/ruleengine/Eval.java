@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 Sebastian Reinartz, Alexander Wilden
+ * Copyright 2007 Sebastian Reinartz, Alexander Wilden, Uta Christoph
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,17 +36,18 @@ import org.jamocha.rete.functions.FunctionDescription;
 /**
  * @author Sebastian Reinartz, Alexander Wilden
  * 
- * The eval function evaluates the string as though it were entered at the
- * command prompt and returns the last result of the Expression(s) (if any). An
- * optional Binding as second parameter can be used to catch an Exception and
- * set the error message in it.
+ * Evaluates the string given in the first argument as though it was entered at the command
+ * prompt and returns the last result of the expression(s) (if any). An optional binding as 
+ * second argument can be used to catch an exception and hold the error message.
  */
 public class Eval implements Function, Serializable {
 
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "The eval function evaluates the string as though it were entered at the command prompt and returns the last result of the Expression(s) (if any). An optional Binding as second parameter can be used to catch an Exception and set the error message in it.";
+			return "Evaluates the string given in the first argument as though it was entered at the command " +
+					"prompt and returns the last result of the expression(s) (if any). An optional binding as " +
+					"second argument can be used to catch an exception and hold the error message.";
 		}
 
 		public int getParameterCount() {
@@ -56,9 +57,9 @@ public class Eval implements Function, Serializable {
 		public String getParameterDescription(int parameter) {
 			switch (parameter) {
 			case 0:
-				return "One or more commans as a String.";
+				return "One or more commands in one string.";
 			case 1:
-				return "An optional Binding to set the error message in if an Exception occurred.";
+				return "Optional binding to hold the error message if an exception occurres.";
 			}
 			return "";
 		}
@@ -101,9 +102,10 @@ public class Eval implements Function, Serializable {
 			return true;
 		}
 
-		public String getExample() {
-			// TODO Auto-generated method stub
-			return null;
+		public String getExample() {			
+			return "(eval \"(printout t BlackJack)\" ?catchErr)\n\n" +
+					"(bind ?x \"(+ 17 4)\")\n" +
+					"(eval ?x)";
 		}
 	}
 

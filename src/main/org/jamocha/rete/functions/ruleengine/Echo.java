@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2006 Peter Lin, 2007 Alexander Wilden
+ * Copyright 2002-2006 Peter Lin, 2007 Alexander Wilden, Uta Christoph
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,7 +39,7 @@ public class Echo implements Function, Serializable {
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "Echo is used to echo variable bindings in the shell. The method expects an array of ShellBoundParam. The method will use StringBuffer to resolve the binding and print out 1 binding per line.";
+			return "Used to echo variable bindings in the shell. Prints out one binding per line.";
 		}
 
 		public int getParameterCount() {
@@ -47,7 +47,7 @@ public class Echo implements Function, Serializable {
 		}
 
 		public String getParameterDescription(int parameter) {
-			return "Value to print out.";
+			return "Binding to echo.";
 		}
 
 		public String getParameterName(int parameter) {
@@ -70,9 +70,9 @@ public class Echo implements Function, Serializable {
 			return true;
 		}
 
-		public String getExample() {
-			// TODO Auto-generated method stub
-			return null;
+		public String getExample() {			
+			return "(bind ?testbind \"This is an echo and the binding of the variable ?testbind\")\n" +
+					"(echo ?testbind)";
 		}
 	}
 

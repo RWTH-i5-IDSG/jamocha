@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2006 Peter Lin, 2007 Alexander Wilden
+ * Copyright 2002-2006 Peter Lin, 2007 Alexander Wilden, Uta Christoph
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,6 +31,12 @@ import org.jamocha.rete.functions.FunctionDescription;
  * @author Peter Lin
  * 
  * Defines a new module in the engine.
+ * Defmodule enables the division of rules and facts into distinct groups called modules. 
+ * Modules help to physically organize large numbers of rules into logical groups. 
+ * The commands for listing constructs (rules, facts, and so on) let you specify the name of a module
+ * and can then operate on one module at a time, e.g. (rules MOD1), (facts WORK), (list-deftemplates MAIN)..
+ * Furthermore modules provide a control mechanism: The rules in a module fire only when that module has 
+ * the focus, and only one module can be in focus at a time.
  */
 public class Defmodule implements Function, Serializable {
 
@@ -38,7 +44,15 @@ public class Defmodule implements Function, Serializable {
 			FunctionDescription {
 
 		public String getDescription() {
-			return "Defines a new module in the engine.";
+			return "Defines a new module in the engine.\n" +
+					"Defmodule enables the division of rules and facts into distinct groups called modules. " +
+					"Modules help to physically organize large numbers of rules into logical groups. " +
+					//TODO uncomment when the following holds for Jamocha (when defmodule is implemented..)
+					//"The commands for listing constructs (rules, facts, and so on) let you specify the name of a module " +
+					//"and can then operate on one module at a time, e.g. (rules MOD1), (facts WORK), (list-deftemplates MAIN).." +
+					"Furthermore modules provide a control mechanism: " +
+					"The rules in a module fire only when that module has the focus, and only one module can be " +
+					"in focus at a time.";
 		}
 
 		public int getParameterCount() {
@@ -70,8 +84,8 @@ public class Defmodule implements Function, Serializable {
 		}
 
 		public String getExample() {
-			// TODO Auto-generated method stub
-			return null;
+			return "(defmodule PIZZAENV)\n" +
+					"(get-current-module)";
 		}
 	}
 
