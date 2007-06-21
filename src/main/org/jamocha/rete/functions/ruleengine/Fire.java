@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2006 Peter Lin, 2007 Alexander Wilden
+ * Copyright 2002-2006 Peter Lin, 2007 Alexander Wilden, Uta Christoph
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,19 +30,26 @@ import org.jamocha.rete.functions.FunctionDescription;
 /**
  * @author Peter Lin
  * 
- * Starts execution of the rules. If the optional first argument is positive,
- * execution will cease after the specified number of rule firings or when the
- * agenda contains no rule activations. If there are no arguments or the first
- * argument is a negative integer, execution will cease when the agenda contains
- * no rule activations. If the focus stack is empty, then the MAIN module is
- * automatically becomes the current focus. Returns the number of rules fired.
+ * Starts the execution of rules in the currently focused module.
+ * If the optional argument is positive, execution will cease after the 
+ * specified number of rule firings or when the agenda contains no more 
+ * rule activations. If there are no arguments or the argument is a 
+ * negative integer, execution will cease when the agenda contains
+ * no more rule activations. 
+ * If the focus stack is empty the MAIN module is automatically in the
+ * current focus. Returns the number of rules fired.
  */
 public class Fire implements Function, Serializable {
 
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "Starts execution of the rules. If the optional first argument is positive, execution will cease after the specified number of rule firings or when the agenda contains no rule activations. If there are no arguments or the first argument is a negative integer, execution will cease when the agenda contains no rule activations. If the focus stack is empty, then the MAIN module is automatically becomes the current focus. Returns the number of rules fired.";
+			return "Starts the execution of rules. If the optional argument is positive, execution will cease " +
+					"after the specified number of rule firings or when the agenda contains no more rule " +
+					"activations. If there are no arguments or the argument is a negative integer, " +
+					"execution will cease when the agenda contains no more rule activations. " +
+					"If the focus stack is empty the MAIN module is automatically in the current " +
+					"focus. Returns the number of rules fired.";
 		}
 
 		public int getParameterCount() {
@@ -74,8 +81,8 @@ public class Fire implements Function, Serializable {
 		}
 
 		public String getExample() {
-			// TODO Auto-generated method stub
-			return null;
+			return "(fire)\n" +
+					"(fire 7)";
 		}
 	}
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2006 Peter Lin, 2007 Alexander Wilden
+ * Copyright 2002-2006 Peter Lin, 2007 Alexander Wilden, Uta Christoph
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,7 +41,7 @@ public class FindFactByFact implements Function, Serializable {
 	private static final class FindFactByFactDescription implements FunctionDescription {
 
 		public String getDescription() {
-			return "Returns the ID of the given Fact or NIL if it wasn't found.";
+			return "Returns the ID of the given fact or NIL if it wasn't found.";
 		}
 
 		public int getParameterCount() {
@@ -73,8 +73,11 @@ public class FindFactByFact implements Function, Serializable {
 		}
 
 		public String getExample() {
-			// TODO Auto-generated method stub
-			return null;
+			return "(deftemplate car (slot color)(slot speed))\n" +
+					"(assert (car (color \"red\")(speed 200)))\n" +
+					"(assert (car (color \"blue\")(speed 150)))\n" +
+					"(assert (car (color \"green\")(speed 100)))\n" +					
+					"(find-fact-by-fact (car (color \"green\") (speed 100)))";
 		}
 	}
 

@@ -1,6 +1,5 @@
 /*
- * Copyright 2007 Christoph Emonds, Alexander Wilden
- *
+ * Copyright 2007 Christoph Emonds, Alexander Wilden, Uta Christoph
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -48,9 +47,9 @@ public class FactSlotValue implements Function, Serializable {
 		public String getParameterDescription(int parameter) {
 			switch (parameter) {
 			case 0:
-				return "Fact the slot value should be returned from.";
+				return "Fact to return the slot value from.";
 			case 1:
-				return "Name of the Slot the value should be returned from.";
+				return "Name of the slot to get the value from.";
 			}
 			return "";
 		}
@@ -95,8 +94,12 @@ public class FactSlotValue implements Function, Serializable {
 		}
 
 		public String getExample() {
-			// TODO Auto-generated method stub
-			return null;
+			return "(deftemplate car (slot color)(slot speed))\n" +
+					"(assert (car (color \"red\")(speed 200)))\n" +
+					"(assert (car (color \"blue\")(speed 150)))\n" +
+					"(assert (car (color \"green\")(speed 100)))\n" +
+					"(fact-slot-value 1 color)\n" +
+					"(fact-slot-value 3 speed)";
 		}
 	}
 
