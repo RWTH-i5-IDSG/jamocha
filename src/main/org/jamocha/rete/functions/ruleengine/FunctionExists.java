@@ -36,9 +36,9 @@ import org.jamocha.rete.functions.FunctionDescription;
 /**
  * @author Alexander Wilden
  * 
- * This Function takes a CLIPS String as Parameter and uses the default parser
- * to parse it. If the first statement is a function call we check the
- * FunctionMemory if a Function with this name exists. If it does it returns
+ * This funcion takes a CLIPS string as argument and uses the default parser
+ * to parse it. If the first statement is a function call, the FunctionMemory 
+ * is checked wether a Function with this name exists. If it does it returns
  * true otherwise (or if the first statement is no function call) it returns
  * false.
  */
@@ -47,7 +47,9 @@ public class FunctionExists implements Function, Serializable {
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "This Function takes a CLIPS String as Parameter and uses the default parser to parse it. If the first statement is a function call we check the FunctionMemory if a Function with this name exists. If it does it returns true otherwise (or if the first statement is no function call) it returns false.";
+			return "Takes a CLIPS string as argument and uses the default parser to parse it. If the first statement " +
+					"is a function call, the FunctionMemory is checked wether a function with this name exists. If it " +
+					"does it returns true otherwise (or if the first statement is no function call) it returns false.";
 		}
 
 		public int getParameterCount() {
@@ -55,7 +57,7 @@ public class FunctionExists implements Function, Serializable {
 		}
 
 		public String getParameterDescription(int parameter) {
-			return "One Command as one single String.";
+			return "One command as one single string.";
 		}
 
 		public String getParameterName(int parameter) {
