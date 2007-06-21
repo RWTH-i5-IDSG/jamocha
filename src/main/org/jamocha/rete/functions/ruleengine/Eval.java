@@ -103,7 +103,8 @@ public class Eval implements Function, Serializable {
 		}
 
 		public String getExample() {			
-			return "(eval \"(printout t BlackJack)\" ?catchErr)\n\n" +
+			return "(eval \"(printout t BlackJack)\" ?catchErr)\n" +
+					"(eval \"(printout t \\\"This is BlackJack.\\\")\")\n\n" +
 					"(bind ?x \"(+ 17 4)\")\n" +
 					"(eval ?x)";
 		}
