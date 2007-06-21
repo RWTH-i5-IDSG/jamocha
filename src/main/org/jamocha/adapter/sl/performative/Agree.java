@@ -16,6 +16,10 @@
 package org.jamocha.adapter.sl.performative;
 
 import org.jamocha.adapter.AdapterTranslationException;
+import org.jamocha.adapter.sl.configurations.ContentSLConfiguration;
+import org.jamocha.adapter.sl.configurations.SLCompileType;
+import org.jamocha.parser.sl.ParseException;
+import org.jamocha.parser.sl.SLParser;
 
 /**
  * This class walks through an SL code tree and translates it to CLIPS depending
@@ -46,8 +50,15 @@ public class Agree {
 	 */
 	public static String getCLIPS(String slContent)
 			throws AdapterTranslationException {
-		// TODO: implement me
-		return null;
+		ContentSLConfiguration result;
+		try {
+			result = SLParser.parse(slContent);
+		} catch (ParseException e) {
+			throw new AdapterTranslationException(
+					"Could not translate from SL to CLIPS.", e);
+		}
+
+		return result.compile(SLCompileType.ASSERT_PROP);
 	}
 
 }

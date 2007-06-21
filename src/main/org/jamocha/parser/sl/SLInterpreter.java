@@ -38,7 +38,7 @@ public class SLInterpreter implements SLParserVisitor {
 	}
 
 	public Object visit(SLWff node, Object data) {
-		// TODO Auto-generated method stub
+		//WffSLConfiguration wslc = new WffSLConfiguration();
 		return null;
 	}
 
@@ -103,8 +103,7 @@ public class SLInterpreter implements SLParserVisitor {
 	}
 
 	public Object visit(SLActionOp node, Object data) {
-		// TODO Auto-generated method stub
-		return null;
+		return getChildSLConfiguration(node, 0);
 	}
 
 	public Object visit(SLReferentialOp node, Object data) {

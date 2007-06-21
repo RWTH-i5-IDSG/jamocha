@@ -38,3 +38,40 @@
 	; Set the initiator to processed.
 	(modify ?initiator (processed TRUE))
 )
+
+(defrule fipa-request-agree
+	"Fires for agent-message-initiators with protocol request and performative agree."
+	?initiator <- (agent-message-initiator
+		(receiver ?receiver)
+		(refering-message ?oldMessage)
+		(protocol "fipa-request")
+		(previous-performative "agree")
+		(content ?result)
+		(processed FALSE)
+	)
+	
+	=>
+	
+	(printout t ?result)
+	; Set the initiator to processed.
+	(modify ?initiator (processed TRUE))
+)
+
+(defrule fipa-request-inform
+	"Fires for agent-message-initiators with protocol request and performative inform."
+	?initiator <- (agent-message-initiator
+		(receiver ?receiver)
+		(refering-message ?oldMessage)
+		(protocol "fipa-request")
+		(previous-performative "inform")
+		(content ?result)
+		(processed FALSE)
+	)
+	
+	=>
+	(printout t ?result)
+	;(sl2clips ?result)	
+	; Set the initiator to processed.
+	(modify ?initiator (processed TRUE))
+)
+

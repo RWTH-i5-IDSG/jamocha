@@ -16,12 +16,15 @@
 package org.jamocha.adapter.sl.performative;
 
 import java.io.StringReader;
+import java.util.List;
 
 import org.jamocha.adapter.AdapterTranslationException;
-import org.jamocha.parser.sl_old.ParseException;
-import org.jamocha.parser.sl_old.SLParser;
-import org.jamocha.parser.sl_old.SLParserTreeConstants;
-import org.jamocha.parser.sl_old.SimpleNode;
+import org.jamocha.adapter.sl.configurations.ContentSLConfiguration;
+import org.jamocha.adapter.sl.configurations.SLCompileType;
+import org.jamocha.adapter.sl.configurations.SLConfiguration;
+import org.jamocha.parser.sl.ParseException;
+import org.jamocha.parser.sl.SLParser;
+
 
 /**
  * This class walks through an SL code tree and translates it to CLIPS depending
@@ -51,26 +54,27 @@ public class QueryRef extends SLPerformative  {
 	 */
 	public static String getCLIPS(String slContent)
 			throws AdapterTranslationException {
-		StringBuilder result = new StringBuilder();
-
-		SLParser parser = new SLParser(new StringReader(slContent));
-		SimpleNode sn;
+		ContentSLConfiguration contentConf;
 		try {
-			sn = parser.Content();
+			contentConf = SLParser.parse(slContent);
 		} catch (ParseException e) {
 			throw new AdapterTranslationException(
 					"Could not translate from SL to CLIPS.", e);
 		}
-		// Walk through the children until we have something useful
-		sn = getChildAtLevel(sn, 2);
-		if (sn.getID() == SLParserTreeConstants.JJTIDENTIFYINGEXPRESSION) {
-			
-		    String expression = handleIdentifyingExpression(sn);
-			
-			result.append("(defrule query-ref"+expression+"=>"+
-					" (return inform-ref"+expression+"))");
-		    }
+		List<SLConfiguration> results = contentConf.getExpressions();
+		if (results.size() != 2) {
+			// TODO: Add more Exceptions for different things extending
+			// AdapterTranslationException that tell more about the nature of
+			// the problem!
+			throw new AdapterTranslationException("Error");
 		}
+		StringBuilder result = new StringBuilder();
+		result
+				.append("(defrule queryRef ")
+				.append(results.get(0).compile(SLCompileType.RULE_LHS))
+				.append(" => ")
+				.append("(inform-ref MSG ?MSGID")
+				.append(")");
 
 		return result.toString();
 	}

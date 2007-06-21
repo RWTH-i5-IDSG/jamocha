@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 Alexander Wilden
+ * Copyright 2007 
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,13 +15,20 @@
  */
 package org.jamocha.adapter.sl.performative;
 
+import java.util.List;
+
 import org.jamocha.adapter.AdapterTranslationException;
+import org.jamocha.adapter.sl.configurations.ContentSLConfiguration;
+import org.jamocha.adapter.sl.configurations.SLCompileType;
+import org.jamocha.adapter.sl.configurations.SLConfiguration;
+import org.jamocha.parser.sl.ParseException;
+import org.jamocha.parser.sl.SLParser;
 
 /**
  * This class walks through an SL code tree and translates it to CLIPS depending
  * on the given performative.
  * 
- * @author Alexander Wilden
+ * @author 
  * 
  */
 public class Confirm {
@@ -34,8 +41,7 @@ public class Confirm {
 	}
 
 	/**
-	 * Translates SL code of a request to CLIPS code. A request only contains
-	 * one action.
+	 * Translates SL code of a confirm to CLIPS code. 
 	 * 
 	 * @param slContent
 	 *            The SL content we have to translate.
@@ -46,8 +52,27 @@ public class Confirm {
 	 */
 	public static String getCLIPS(String slContent)
 			throws AdapterTranslationException {
-		// TODO: implement me
-		return null;
+		ContentSLConfiguration contentConf;
+		try {
+			contentConf = SLParser.parse(slContent);
+		} catch (ParseException e) {
+			throw new AdapterTranslationException(
+					"Could not translate from SL to CLIPS.", e);
+		}
+		List<SLConfiguration> results = contentConf.getExpressions();
+		if (results.size() != 2) {
+			// TODO: Add more Exceptions for different things extending
+			// AdapterTranslationException that tell more about the nature of
+			// the problem!
+			throw new AdapterTranslationException("Error");
+		}
+		StringBuilder result = new StringBuilder();
+		result
+				.append("(defrule confirm ")
+				.append(results.get(0).compile(SLCompileType.RULE_LHS))
+				.append(" => true )");
+
+		return result.toString();
 	}
 
 }

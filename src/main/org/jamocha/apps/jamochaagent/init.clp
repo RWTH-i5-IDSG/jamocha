@@ -51,6 +51,15 @@
 	(slot error (type STRING)(default NIL))
 )
 
+(deftemplate done
+	(slot action (type STRING))
+)
+
+(deftemplate result
+	(slot action (type STRING))
+	(slot result-ref (type STRING))
+)
+
 ; ===================================================
 ; definition of functions that are needed
 ; ===================================================
