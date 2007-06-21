@@ -36,7 +36,7 @@ public class Exit implements Function, Serializable {
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "ExitFunction closes the engine and calls System.exit(0).";
+			return "Closes the engine.";
 		}
 
 		public int getParameterCount() {
@@ -68,8 +68,7 @@ public class Exit implements Function, Serializable {
 		}
 
 		public String getExample() {
-			// TODO Auto-generated method stub
-			return null;
+			return "(exit)";
 		}
 	}
 
