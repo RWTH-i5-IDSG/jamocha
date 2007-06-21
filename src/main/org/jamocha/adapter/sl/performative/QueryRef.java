@@ -33,7 +33,7 @@ import org.jamocha.parser.sl.SLParser;
  * @author Fehmi Karanfil
  * 
  */
-public class QueryRef extends SLPerformative  {
+public class QueryRef{
 
 	/**
 	 * A private constructor to force access only in a static way.

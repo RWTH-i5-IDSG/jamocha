@@ -33,7 +33,7 @@ import org.jamocha.parser.sl.SLParser;
  * @author Mustafa Karafil
  * 
  */
-public class QueryIf extends SLPerformative{
+public class QueryIf{
 
 	/**
 	 * A private constructor to force access only in a static way.
