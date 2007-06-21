@@ -30,14 +30,20 @@ import org.jamocha.rete.functions.FunctionDescription;
 /**
  * @author Peter Lin
  * 
- * Prints out any number and type of parameters. Returns nothing.
+ * Writes any number and type of arguments to the channel specified in the first argument. 
+ * 't' indicates to send the output to the standard output device of the computer. Generally,
+ * this is the terminal. Printout concatenates all arguments after the channel without separation marks.
+ * A string, enclosed in double quotes, is handled as one single argument.
  */
 public class Printout implements Function, Serializable {
 
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "Printout writes any number and type of arguments to the channel specified in the first argument. 't' indicates to send the output to the standard output device of the computer. Generally, this is the terminal. Printout concatenates all arguments after the channel without separation marks. A string, enclosed in single or double quotes, is handled as one single argument.";
+			return "Writes any number and type of arguments to the channel specified in the first argument. " +
+					"'t' indicates to send the output to the standard output device of the computer. Generally, " +
+					"this is the terminal. Printout concatenates all arguments after the channel without separation marks. " +
+					"A string, enclosed in double quotes, is handled as one single argument.";
 		}
 
 		public int getParameterCount() {
