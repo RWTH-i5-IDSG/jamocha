@@ -1,0 +1,18 @@
+*******************************************************************************
+********************** J A M O C H A * * C H A N G E L O G ********************
+*******************************************************************************
+* 
+*
+* 
+* Please add one line for all each modification made on the jamocha code.
+* We prefer the following entry pattern:
+*
+* <date> // <author> // <component>|<feature>
+* <modification description>
+*
+*******************************************************************************
+
+
+--
+Fri Jun 22 15:16:26 CEST 2007 // KHK / ChangeLog
+Introduced the Jamocha changelog file.
