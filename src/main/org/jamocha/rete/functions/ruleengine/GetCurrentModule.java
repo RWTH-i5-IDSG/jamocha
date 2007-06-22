@@ -29,14 +29,14 @@ import org.jamocha.rete.functions.FunctionDescription;
 /**
  * @author Alexander Wilden
  * 
- * Returns the Name of the current focus.
+ * Returns the name of the module which is currently focused.
  */
 public class GetCurrentModule implements Function, Serializable {
 
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "Returns the Name of the current focus.";
+			return "Returns the name of the module which is currently focused.";
 		}
 
 		public int getParameterCount() {
@@ -68,8 +68,7 @@ public class GetCurrentModule implements Function, Serializable {
 		}
 
 		public String getExample() {
-			// TODO Auto-generated method stub
-			return null;
+			return "(get-current-module)";
 		}
 	}
 

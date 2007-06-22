@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2006 Peter Lin, 2007 Alexander Wilden
+ * Copyright 2002-2006 Peter Lin, 2007 Alexander Wilden, Uta Christoph
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,7 +33,7 @@ import org.jamocha.rete.functions.FunctionDescription;
 /**
  * @author Peter Lin
  * 
- * list-deffunctions will printout a list of all defined functions. It's return
+ * Prints out a list of all defined functions. The return
  * value is NIL.
  */
 public class ListFunctions implements Function, Serializable {
@@ -41,7 +41,7 @@ public class ListFunctions implements Function, Serializable {
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "list-deffunctions will printout a list of all defined functions. It's return value is NIL.";
+			return "Prints out a list of all defined functions. The return value is NIL.";
 		}
 
 		public int getParameterCount() {
@@ -73,8 +73,7 @@ public class ListFunctions implements Function, Serializable {
 		}
 
 		public String getExample() {
-			// TODO Auto-generated method stub
-			return null;
+			return "(list-deffunctions)";
 		}
 	}
 

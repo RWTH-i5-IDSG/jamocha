@@ -29,16 +29,15 @@ import org.jamocha.rete.functions.FunctionDescription;
 /**
  * @author Peter Lin
  * 
- * LazyAgenda is used to turn on/off lazy agenda. That means the activations are
- * not sorted when added to the agenda. Instead, it's sorted when they are
- * removed.
+ * Used to turn on/off lazy agenda. That means the activations are not sorted 
+ * when added to the agenda. Instead it is sorted when they are removed.
  */
 public class LazyAgenda implements Function, Serializable {
 
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "LazyAgenda is used to turn on/off lazy agenda. That means the activations are not sorted when added to the agenda. Instead, it's sorted when they are removed.";
+			return "Used to turn on/off lazy agenda. That means the activations are not sorted when added to the agenda. Instead it is sorted when they are removed.";
 		}
 
 		public int getParameterCount() {
@@ -70,8 +69,7 @@ public class LazyAgenda implements Function, Serializable {
 		}
 
 		public String getExample() {
-			// TODO Auto-generated method stub
-			return null;
+			return "(lazy-agenda)";
 		}
 	}
 

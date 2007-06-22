@@ -33,15 +33,15 @@ import org.jamocha.rete.functions.FunctionDescription;
 /**
  * @author Peter Lin
  * 
- * The current implementation of list-deftemplates will print out all the templates in no specific
- * order. It returns NIL.
+ * Prints out all defined templates in no specific order. 
+ * The return value is NIL.
  */
 public class ListTemplates implements Function, Serializable {
 
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "The current implementation of list-deftemplates will print out all the templates in no specific order. It returns NIL.";
+			return "Prints out all defined templates in no specific order. The return value is NIL.";
 		}
 
 		public int getParameterCount() {
@@ -73,8 +73,7 @@ public class ListTemplates implements Function, Serializable {
 		}
 
 		public String getExample() {
-			// TODO Auto-generated method stub
-			return null;
+			return "(list-deftemplates)";
 		}
 	}
 

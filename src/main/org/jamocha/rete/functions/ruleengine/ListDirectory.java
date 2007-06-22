@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2006 Peter Lin, 2007 Alexander Wilden
+ * Copyright 2002-2006 Peter Lin, 2007 Alexander Wilden, Uta Christoph
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,15 +31,17 @@ import org.jamocha.rete.functions.FunctionDescription;
 /**
  * @author Peter Lin
  * 
- * list-dir will print out the files and folders in a given directory. It's the
- * same as dir in DOS and ls in unix. It's return value is NIL.
+ * Prints out the files and folders of a given directory. It is the same 
+ * command as dir in DOS and ls in Unix. 
+ * The return value is NIL.";
  */
 public class ListDirectory implements Function, Serializable {
 
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "list-dir will print out the files and folders in a given directory. It's the same as dir in DOS and ls in unix. It's return value is NIL.";
+			return "Prints out the files and folders of a given directory. It is the same command as" +
+					"dir in DOS and ls in Unix. The return value is NIL.";
 		}
 
 		public int getParameterCount() {
@@ -47,7 +49,7 @@ public class ListDirectory implements Function, Serializable {
 		}
 
 		public String getParameterDescription(int parameter) {
-			return "Directory whose files and folders will be listed.";
+			return "Directory to list files and folders of.";
 		}
 
 		public String getParameterName(int parameter) {
@@ -71,8 +73,8 @@ public class ListDirectory implements Function, Serializable {
 		}
 
 		public String getExample() {
-			// TODO Auto-generated method stub
-			return null;
+			return "(list-dir examples)\n" +
+					"(list-dir /var/tmp)";
 		}
 	}
 

@@ -32,7 +32,7 @@ import org.jamocha.rete.functions.FunctionDescription;
 /**
  * @author Alexander Wilden
  * 
- * Returns the Fact-ID of a given Fact.
+ * Returns the fact-ID of the given fact.
  */
 public class GetFactId implements Function, Serializable {
 
@@ -40,7 +40,7 @@ public class GetFactId implements Function, Serializable {
 			FunctionDescription {
 
 		public String getDescription() {
-			return "Returns the Fact-ID of a given Fact.";
+			return "Returns the fact-ID of the given fact.";
 		}
 
 		public int getParameterCount() {
