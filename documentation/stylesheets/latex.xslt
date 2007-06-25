@@ -77,6 +77,12 @@ Return type is \textbf{$&lt;$<xsl:call-template name="clean-text"><xsl:with-para
 <xsl:if test="@fixedParameterCount = 'true'">(optional)</xsl:if> <xsl:call-template name="clean-text"><xsl:with-param name="source" select="@name"/></xsl:call-template> : <xsl:call-template name="clean-text"><xsl:with-param name="source" select="@description"/></xsl:call-template>\\
 </xsl:for-each>
 \end{itemize}
+<xsl:if test="count(example) &gt; 0">
+\paragraph{Example}
+<xsl:for-each select="example/exampleline">
+<xsl:call-template name="clean-text"><xsl:with-param name="source" select="@value"/></xsl:call-template>\\
+</xsl:for-each>
+</xsl:if>
 </xsl:for-each>
 </xsl:for-each>
 \end{document}

@@ -18,6 +18,7 @@ package org.jamocha.parser;
 
 import java.util.GregorianCalendar;
 
+
 public enum JamochaType {
     UNDEFINED, NIL, BOOLEAN, LONG, DOUBLE, DATETIME, STRING, LIST, OBJECT, IDENTIFIER, FACT, FACT_ID, SLOT, BINDING;
 

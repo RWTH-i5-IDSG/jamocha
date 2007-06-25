@@ -90,7 +90,7 @@ public class FunctionsDescription implements Function, Serializable {
 		
 		String getName() {return name;}
 		void setName(String name) {this.name=name;}
-		void addAttribute(String name, String value) {attributes.put(name, value);}
+		void addAttribute(String name, String value) {if (value!=null) attributes.put(name, value);}
 		void clearAttributes() {attributes.clear();}
 		void clearChilds() {childs.clear();}
 		void addChild(XmlTag tag) {childs.add(tag);}
@@ -185,6 +185,33 @@ public class FunctionsDescription implements Function, Serializable {
 				} else {
 					t.addAttribute("fixedParameterCount", "false");
 				}
+				
+				
+				//example
+				String ex = desc.getExample();
+				if (ex != null) {
+					XmlTag example = new XmlTag();
+					example.setName("example");
+					
+					String[] lines = ex.split("\n");
+					
+					int linenr=1;
+					for (String line : lines) {
+						XmlTag exampleLine = new XmlTag();
+						exampleLine.addAttribute("value", line);
+						exampleLine.addAttribute("line", Integer.toString(linenr++) );
+						exampleLine.setName("exampleline");
+						example.addChild(exampleLine);
+					}
+					
+					
+					
+					t.addChild(example);
+				}
+				
+				
+				
+				
 				
 				t.addAttribute("returnType", JamochaType2String(desc.getReturnType()));
 				
