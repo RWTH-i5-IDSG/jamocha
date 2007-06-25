@@ -29,7 +29,7 @@ import org.jamocha.rete.functions.FunctionDescription;
 /**
  * @author Peter Lin
  * 
- * LoadFunction loads one or more Functions into the engine. Returns true on
+ * LoadFunction loads one or more functions into the engine. Returns true on
  * success.
  */
 public class LoadFunctions implements Function, Serializable {
@@ -37,7 +37,7 @@ public class LoadFunctions implements Function, Serializable {
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "LoadFunction loads one or more Functions into the engine. Returns true on success.";
+			return "Loads one or more functions into the engine. Returns true on success.";
 		}
 
 		public int getParameterCount() {
@@ -45,7 +45,7 @@ public class LoadFunctions implements Function, Serializable {
 		}
 
 		public String getParameterDescription(int parameter) {
-			return "Function(s) that will be loaded.";
+			return "Function(s) to be be loaded.";
 		}
 
 		public String getParameterName(int parameter) {
