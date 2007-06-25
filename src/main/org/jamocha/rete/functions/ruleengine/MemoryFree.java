@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2006 Peter Lin, 2007 Alexander Wilden
+ * Copyright 2002-2006 Peter Lin, 2007 Alexander Wilden, Uta Christoph
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ public class MemoryFree implements Function, Serializable {
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "mem-free will print out the free memory currently available to the Java VM. Returns NIL.";
+			return "Prints out the free memory currently available to the Java VM. Returns NIL.";
 		}
 
 		public int getParameterCount() {
@@ -70,8 +70,7 @@ public class MemoryFree implements Function, Serializable {
 		}
 
 		public String getExample() {
-			// TODO Auto-generated method stub
-			return null;
+			return "(mem-free)";
 		}
 	}
 

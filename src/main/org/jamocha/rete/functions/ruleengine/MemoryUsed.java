@@ -37,7 +37,7 @@ public class MemoryUsed implements Function, Serializable {
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "mem-used will print out the currently used memory. Returns NIL.";
+			return "Prints out the memory space currently in  use. Returns NIL.";
 		}
 
 		public int getParameterCount() {
@@ -69,8 +69,7 @@ public class MemoryUsed implements Function, Serializable {
 		}
 
 		public String getExample() {
-			// TODO Auto-generated method stub
-			return null;
+			return "(mem-used)";
 		}
 	}
 

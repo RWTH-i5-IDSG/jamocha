@@ -38,7 +38,7 @@ public class MemoryTotal implements Function, Serializable {
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "mem-total will print out the total memory currently available to the Java VM. Returns NIL.";
+			return "Prints out the total memory currently available to the Java VM. Returns NIL.";
 		}
 
 		public int getParameterCount() {
@@ -70,8 +70,7 @@ public class MemoryTotal implements Function, Serializable {
 		}
 
 		public String getExample() {
-			// TODO Auto-generated method stub
-			return null;
+			return "(mem-total)";
 		}
 	}
 

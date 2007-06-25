@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2006 Peter Lin, 2007 Alexander Wilden
+ * Copyright 2002-2006 Peter Lin, 2007 Alexander Wilden, Uta Christoph
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ import org.jamocha.rete.functions.FunctionDescription;
 /**
  * @author Peter Lin
  * 
- * LoadFunctionGroup loads one or more whole Functiongroups into the engine. Returns true
+ * LoadFunctionGroup loads one or more complete functiongroups into the engine. Returns true
  * on success.
  */
 public class LoadFunctionGroup implements Function, Serializable {
@@ -37,7 +37,7 @@ public class LoadFunctionGroup implements Function, Serializable {
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "LoadFunctionGroup loads one or more whole Functiongroups into the engine. Returns true on success.";
+			return "Loads one or more complete functiongroups into the engine. Returns true on success.";
 		}
 
 		public int getParameterCount() {
@@ -45,7 +45,7 @@ public class LoadFunctionGroup implements Function, Serializable {
 		}
 
 		public String getParameterDescription(int parameter) {
-			return "Functiongroup(s) that will be loaded.";
+			return "Functiongroup(s) to be loaded.";
 		}
 
 		public String getParameterName(int parameter) {
@@ -69,8 +69,7 @@ public class LoadFunctionGroup implements Function, Serializable {
 		}
 
 		public String getExample() {
-			// TODO Auto-generated method stub
-			return null;
+			return "(load-function-group adaptor datetime)";
 		}
 	}
 
