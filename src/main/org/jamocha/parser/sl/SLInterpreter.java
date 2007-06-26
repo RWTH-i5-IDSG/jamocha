@@ -1,12 +1,31 @@
+/*
+ * Copyright 2007 Alexander Wilden
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.jamocha.org/
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ */
 package org.jamocha.parser.sl;
 
 import org.jamocha.adapter.sl.configurations.ActionSLConfiguration;
+import org.jamocha.adapter.sl.configurations.ConnectedActionSLConfiguration;
 import org.jamocha.adapter.sl.configurations.ConstantSLConfiguration;
 import org.jamocha.adapter.sl.configurations.ContentSLConfiguration;
+import org.jamocha.adapter.sl.configurations.FunctionCallOrFactSLConfiguration;
 import org.jamocha.adapter.sl.configurations.FunctionCallSLConfiguration;
+import org.jamocha.adapter.sl.configurations.IdentifyingExpressionSLConfiguration;
 import org.jamocha.adapter.sl.configurations.SLConfiguration;
 import org.jamocha.adapter.sl.configurations.SequenceSLConfiguration;
-import org.jamocha.adapter.sl.configurations.FunctionCallOrFactSLConfiguration;
+import org.jamocha.adapter.sl.configurations.WffSLConfiguration;
 
 public class SLInterpreter implements SLParserVisitor {
 
@@ -16,7 +35,7 @@ public class SLInterpreter implements SLParserVisitor {
 	}
 
 	public Object visit(SimpleNode node, Object data) {
-		// TODO Auto-generated method stub
+		// not needed
 		return null;
 	}
 
@@ -33,18 +52,30 @@ public class SLInterpreter implements SLParserVisitor {
 	}
 
 	public Object visit(SLProposition node, Object data) {
-		// TODO Auto-generated method stub
-		return null;
+		return getChildSLConfiguration(node, 0);
 	}
 
 	public Object visit(SLWff node, Object data) {
-		//WffSLConfiguration wslc = new WffSLConfiguration();
-		return null;
+		WffSLConfiguration wslc = new WffSLConfiguration();
+		SimpleNode firstChild = (SimpleNode) node.jjtGetChild(0);
+		if (firstChild instanceof SLPropositionSymbol
+				|| firstChild instanceof SLBooleanSymbol) {
+			wslc.setBraces(false);
+		} else {
+			wslc.setBraces(true);
+		}
+		for (int i = 0; i < node.jjtGetNumChildren(); ++i) {
+			wslc.addExpression(getChildSLConfiguration(node, i));
+		}
+		return wslc;
 	}
 
 	public Object visit(SLIdentifyingExpression node, Object data) {
-		// TODO Auto-generated method stub
-		return null;
+		IdentifyingExpressionSLConfiguration ieslc = new IdentifyingExpressionSLConfiguration();
+		ieslc.setRefOp(getChildSLConfiguration(node, 0));
+		ieslc.setTermOrIE(getChildSLConfiguration(node, 1));
+		ieslc.setWff(getChildSLConfiguration(node, 2));
+		return ieslc;
 	}
 
 	public Object visit(SLActionExpression node, Object data) {
@@ -54,9 +85,12 @@ public class SLInterpreter implements SLParserVisitor {
 			aslc.setAction(getChildSLConfiguration(node, 1));
 			return aslc;
 		} else {
-			// TODO
+			ConnectedActionSLConfiguration caslc = new ConnectedActionSLConfiguration();
+			caslc.setConnector(node.getName());
+			caslc.setFirstAction(getChildSLConfiguration(node, 0));
+			caslc.setSecondAction(getChildSLConfiguration(node, 1));
+			return caslc;
 		}
-		return null;
 	}
 
 	public Object visit(SLAgent node, Object data) {
@@ -78,28 +112,23 @@ public class SLInterpreter implements SLParserVisitor {
 	}
 
 	public Object visit(SLUnaryLogicalOp node, Object data) {
-		// TODO Auto-generated method stub
-		return null;
+		return new ConstantSLConfiguration(node.getName());
 	}
 
 	public Object visit(SLBinaryLogicalOp node, Object data) {
-		// TODO Auto-generated method stub
-		return null;
+		return new ConstantSLConfiguration(node.getName());
 	}
 
 	public Object visit(SLBinaryTermOp node, Object data) {
-		// TODO Auto-generated method stub
-		return null;
+		return new ConstantSLConfiguration(node.getName());
 	}
 
 	public Object visit(SLQuantifier node, Object data) {
-		// TODO Auto-generated method stub
-		return null;
+		return new ConstantSLConfiguration(node.getName());
 	}
 
 	public Object visit(SLModalOp node, Object data) {
-		// TODO Auto-generated method stub
-		return null;
+		return new ConstantSLConfiguration(node.getName());
 	}
 
 	public Object visit(SLActionOp node, Object data) {
@@ -107,8 +136,7 @@ public class SLInterpreter implements SLParserVisitor {
 	}
 
 	public Object visit(SLReferentialOp node, Object data) {
-		// TODO Auto-generated method stub
-		return null;
+		return new ConstantSLConfiguration(node.getName());
 	}
 
 	public Object visit(SLPropositionSymbol node, Object data) {

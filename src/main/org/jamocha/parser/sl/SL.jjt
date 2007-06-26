@@ -224,29 +224,31 @@ SimpleNode Wff() :
 {}
 {
 	(
-		<LBRACE>
 		(
-			UnaryLogicalOp() Wff()
-			|
-			BinaryLogicalOp() Wff() Wff()
-			|
-			Quantifier() Variable() Wff()
-			|
-			ModalOp() Agent() Wff()
-			|
-			ActionOp() <LBRACE> ActionExpression() <RBRACE> [Wff()]
-			|
-			BinaryTermOp() TermOrIE() TermOrIE()
-			|
-			PredicateSymbol() (TermOrIE())+
+			<LBRACE>
+			(
+				UnaryLogicalOp() Wff()
+				|
+				BinaryLogicalOp() Wff() Wff()
+				|
+				Quantifier() Variable() Wff()
+				|
+				ModalOp() Agent() Wff()
+				|
+				ActionOp() <LBRACE> ActionExpression() <RBRACE> [Wff()]
+				|
+				BinaryTermOp() TermOrIE() TermOrIE()
+				|
+				PredicateSymbol() (TermOrIE())+
+			)
+			<RBRACE>
 		)
-		<RBRACE>
-	)
-	|
-	(
-		BooleanSymbol()
 		|
-		PropositionSymbol()
+		(
+			BooleanSymbol()
+			|
+			PropositionSymbol()
+		)
 	)
     {
         return jjtThis;

@@ -19,31 +19,40 @@ package org.jamocha.adapter.sl.configurations;
 import java.util.LinkedList;
 import java.util.List;
 
-public class FunctionCallSLConfiguration implements SLConfiguration {
+public class WffSLConfiguration implements SLConfiguration {
 
-	private SLConfiguration functionName;
-	
-	private List<SLConfiguration> parameters = new LinkedList<SLConfiguration>();
-	
-	public SLConfiguration getFunctionName() {
-		return functionName;
+	boolean braces = true;
+
+	private List<SLConfiguration> expressions = new LinkedList<SLConfiguration>();
+
+	public boolean isBraces() {
+		return braces;
 	}
 
-	public void setFunctionName(SLConfiguration functionName) {
-		this.functionName = functionName;
+	public void setBraces(boolean braces) {
+		this.braces = braces;
 	}
 
-	public List<SLConfiguration> getParameters() {
-		return parameters;
+	public void addExpression(SLConfiguration expression) {
+		expressions.add(expression);
 	}
 
-	public void addParameter(SLConfiguration parameter) {
-		parameters.add(parameter);
+	public List<SLConfiguration> getExpressions() {
+		return expressions;
 	}
 
 	public String compile(SLCompileType compileType) {
-		// TODO Auto-generated method stub
-		return null;
+		StringBuilder res = new StringBuilder();
+		if (braces)
+			res.append("(");
+		for (int i = 0; i < expressions.size(); ++i) {
+			if (i > 0)
+				res.append(" ");
+			res.append(expressions.get(i).compile(compileType));
+		}
+		if (braces)
+			res.append(")");
+		return res.toString();
 	}
 
 }

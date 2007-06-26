@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://jamocha.sourceforge.net/
+ *   http://www.jamocha.org/
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -26,10 +26,10 @@ import org.jamocha.rete.Rete;
 import org.jamocha.rete.Shell;
 
 /**
+ * @author Alexander Wilden
+ * 
  * This is the main entry point when using Jamocha as standalone application.
  * Depending on the arguments this Class starts the GUI and / or the Shell.
- * 
- * @author Alexander Wilden <october.rust@gmx.de>
  */
 public class Jamocha {
 

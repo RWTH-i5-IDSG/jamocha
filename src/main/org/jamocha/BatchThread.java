@@ -1,3 +1,19 @@
+/*
+ * Copyright 2007 Alexander Wilden
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.jamocha.org/
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ */
 package org.jamocha;
 
 import java.util.ArrayList;
@@ -14,10 +30,17 @@ import org.jamocha.messagerouter.StringChannel;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Rete;
 
+/**
+ * @author Alexander Wilden
+ * 
+ * This Thread handles batch processes in the background. These processes are
+ * started via the command line parameter -batch or the "File -> batch file"
+ * Option in the Menu of the GUI.
+ */
 public class BatchThread extends Thread {
 
 	private Rete engine;
-	
+
 	private JamochaGui gui = null;
 
 	private boolean running = true;
@@ -30,10 +53,9 @@ public class BatchThread extends Thread {
 
 	public BatchThread(Rete engine) {
 		this.engine = engine;
-		batchChannel = engine.getMessageRouter().openChannel(
-				"batch_channel");
+		batchChannel = engine.getMessageRouter().openChannel("batch_channel");
 	}
-	
+
 	public void run() {
 		StringBuilder buffer = new StringBuilder();
 		while (running) {
