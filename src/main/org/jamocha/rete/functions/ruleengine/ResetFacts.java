@@ -37,7 +37,7 @@ public class ResetFacts implements Function, Serializable {
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "reset-facts will reset all deffacts only. This means that they are retracted and asserted again.";
+			return "Resets all facts only. Meaning that they are retracted and asserted again.";
 		}
 
 		public int getParameterCount() {
@@ -69,8 +69,7 @@ public class ResetFacts implements Function, Serializable {
 		}
 
 		public String getExample() {
-			// TODO Auto-generated method stub
-			return null;
+			return "(reset-facts)";
 		}
 	}
 

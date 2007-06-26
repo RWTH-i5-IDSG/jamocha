@@ -37,7 +37,7 @@ public class Reset implements Function, Serializable {
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "reset will reset all deffacts and objects.";
+			return "Resets all facts and objects. Meaning that they are retracted and asserted anew.";
 		}
 
 		public int getParameterCount() {
@@ -69,8 +69,7 @@ public class Reset implements Function, Serializable {
 		}
 
 		public String getExample() {
-			// TODO Auto-generated method stub
-			return null;
+			return "(reset)";
 		}
 	}
 

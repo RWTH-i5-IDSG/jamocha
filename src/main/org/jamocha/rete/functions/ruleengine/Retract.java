@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2006 Peter Lin, 2007 Alexander Wilden
+ * Copyright 2002-2006 Peter Lin, 2007 Alexander Wilden, Uta Christoph
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,7 +47,12 @@ public class Retract implements Function, Serializable {
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "The retract action allows the user to remove facts from the fact-list. Multiple facts may be retracted with a single retract statement. The retraction of a fact also removes all rules that depended upon that fact for activation from the agenda. Retraction of a fact may also cause the retraction of other facts which receive logical support from the retracted fact. If the facts item is  being watched, then an informational message will be printed each time a fact is retracted.";
+			return "Allows the user to remove facts from the fact-list. Multiple facts may be retracted " +
+					"with a single retract statement. The retraction of a fact also removes all rules that " +
+					"depend upon that fact for activation from the agenda. Retraction of a fact may also " +
+					"cause the retraction of other facts which receive logical support from the retracted " +
+					"fact. If the facts item is being watched, then an informational message will be printed " +
+					"each time a fact is retracted.";
 		}
 
 		public int getParameterCount() {
@@ -55,7 +60,7 @@ public class Retract implements Function, Serializable {
 		}
 
 		public String getParameterDescription(int parameter) {
-			return "Fact-ID or Fact that will be retracted.";
+			return "Fact-ID or fact to be retracted.";
 		}
 
 		public String getParameterName(int parameter) {
@@ -91,8 +96,14 @@ public class Retract implements Function, Serializable {
 		}
 
 		public String getExample() {
-			// TODO Auto-generated method stub
-			return null;
+			return "(clear)" +
+					"(deftemplate car (slot color)(slot speed))\n" +
+					"(assert (car (color \"red\")(speed 200)))\n" +
+					"(assert (car (color \"blue\")(speed 150)))\n" +
+					"(assert (car (color \"green\")(speed 100)))\n" +
+					"(facts)\n" +
+					"(retract 2)\n" +
+					"(facts)"; 
 		}
 	}
 
