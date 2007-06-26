@@ -44,7 +44,9 @@ public class GenerateFacts implements Function, Serializable {
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "Generate facts will call the utility class with the Rule object and return an Object[] array of facts. Depending on the rule, there should be one or more deffacts or object instances. The way to use this is to bind the result or add it to a list.";
+			return "Generate facts will call the utility class with the Rule object and return an Object[] " +
+					"array of facts. Depending on the rule, there should be one or more deffacts or object " +
+					"instances. The way to use this is to bind the result or add it to a list.";
 		}
 
 		public int getParameterCount() {
@@ -54,9 +56,9 @@ public class GenerateFacts implements Function, Serializable {
 		public String getParameterDescription(int parameter) {
 			switch (parameter) {
 			case 0:
-				return "Name of the Rule to generate Facts for.";
+				return "Name of the rule to generate facts from.";
 			case 1:
-				return "If true the results will be printed out.";
+				return "If true the results are printed out.";
 			}
 			return "";
 		}
