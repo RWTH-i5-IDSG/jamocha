@@ -163,7 +163,7 @@ public class SLInterpreter implements SLParserVisitor {
 
 	public Object visit(SLFunctionalTermWithParameter node, Object data) {
 		FunctionCallOrFactSLConfiguration tslc = new FunctionCallOrFactSLConfiguration();
-		tslc.setTemplateName(getChildSLConfiguration(node, 0));
+		tslc.setName(getChildSLConfiguration(node, 0));
 		for (int i = 1; i < node.jjtGetNumChildren(); ++i) {
 			tslc.addSlot(getChildSLConfiguration(node.jjtGetChild(i), 0),
 					getChildSLConfiguration(node.jjtGetChild(i), 1));

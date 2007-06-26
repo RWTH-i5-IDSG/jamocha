@@ -95,40 +95,27 @@ public class GreaterOrEqual implements Function, Serializable {
 			throws EvaluationException {
 		if (params != null) {
 			if (params.length > 0) {
-				boolean isDouble = false;
-				for (int idx = 0; idx < params.length; idx++) {
-					if (params[idx].getValue(engine).getType().equals(
-							JamochaType.DOUBLE)) {
+				JamochaValue current, previous = params[0].getValue(engine);
+				boolean isDouble = (previous.is(JamochaType.DOUBLE));
+				for (int i = 1; i < params.length; ++i) {
+					current = params[i].getValue(engine);
+					if (current.is(JamochaType.DOUBLE)) {
 						isDouble = true;
-						break;
 					}
-				}
-				if (isDouble) {
-					double left = params[0].getValue(engine).implicitCast(
-							JamochaType.DOUBLE).getDoubleValue();
-					double right;
-					for (int i = 1; i < params.length; ++i) {
-						right = params[i].getValue(engine).implicitCast(
-								JamochaType.DOUBLE).getDoubleValue();
-						if (right > left) {
-							return JamochaValue.newBoolean(false);
+
+					if (isDouble) {
+						if (current.getDoubleValue() > previous
+								.getDoubleValue()) {
+							return JamochaValue.FALSE;
 						}
-						left = right;
-					}
-				} else {
-					long left = params[0].getValue(engine).implicitCast(
-							JamochaType.LONG).getLongValue();
-					long right;
-					for (int i = 1; i < params.length; ++i) {
-						right = params[i].getValue(engine).implicitCast(
-								JamochaType.LONG).getLongValue();
-						if (right > left) {
-							return JamochaValue.newBoolean(false);
+					} else {
+						if (current.getLongValue() > previous.getLongValue()) {
+							return JamochaValue.FALSE;
 						}
-						left = right;
 					}
+					previous = current;
 				}
-				return JamochaValue.newBoolean(true);
+				return JamochaValue.TRUE;
 			}
 		}
 		throw new IllegalParameterException(1, true);

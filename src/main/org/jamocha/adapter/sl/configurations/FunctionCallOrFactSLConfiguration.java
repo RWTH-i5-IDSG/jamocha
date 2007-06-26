@@ -6,7 +6,7 @@ import java.util.Set;
 
 public class FunctionCallOrFactSLConfiguration implements SLConfiguration {
 
-	private SLConfiguration templateName;
+	private SLConfiguration name;
 
 	private Map<SLConfiguration, SLConfiguration> slots = new HashMap<SLConfiguration, SLConfiguration>();
 
@@ -18,12 +18,12 @@ public class FunctionCallOrFactSLConfiguration implements SLConfiguration {
 		this.slots.put(name, value);
 	}
 
-	public SLConfiguration getTemplateName() {
-		return templateName;
+	public SLConfiguration getName() {
+		return name;
 	}
 
-	public void setTemplateName(SLConfiguration templateName) {
-		this.templateName = templateName;
+	public void setName(SLConfiguration templateName) {
+		this.name = templateName;
 	}
 
 	public String compile(SLCompileType compileType) {
@@ -35,7 +35,7 @@ public class FunctionCallOrFactSLConfiguration implements SLConfiguration {
 			// keyword
 			// action, this node is a function call and all following will be
 			// asserts.
-			res.append("(").append(templateName.compile(compileType));
+			res.append("(").append(name.compile(compileType));
 			for (SLConfiguration key : keys) {
 				if (slots.get(key) != null) {
 					res.append(" ");
@@ -46,7 +46,7 @@ public class FunctionCallOrFactSLConfiguration implements SLConfiguration {
 			break;
 		case ASSERT:
 			// Here we have an assert of a fact.
-			res.append("(assert (").append(templateName.compile(compileType));
+			res.append("(assert (").append(name.compile(compileType));
 			for (SLConfiguration key : keys) {
 				res.append(" (").append(key.compile(compileType)).append(" ");
 				if (slots.get(key) != null)
@@ -58,7 +58,7 @@ public class FunctionCallOrFactSLConfiguration implements SLConfiguration {
 		case RULE_LHS:
 			// This is a lefthand side of a rule and by this will result in a
 			// Node of the rete network.
-			res.append("(").append(templateName.compile(compileType));
+			res.append("(").append(name.compile(compileType));
 			for (SLConfiguration key : keys) {
 				res.append(" (").append(key.compile(compileType)).append(" ");
 				if (slots.get(key) != null)

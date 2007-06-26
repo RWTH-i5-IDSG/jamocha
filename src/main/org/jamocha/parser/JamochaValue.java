@@ -31,10 +31,10 @@ import org.jamocha.rete.Slot;
 
 public class JamochaValue implements Parameter {
 
-	public Object clone(){
+	public Object clone() {
 		return new JamochaValue(this.value);
 	}
-	
+
 	public static final JamochaValue NIL = new JamochaValue(JamochaType.NIL,
 			null);
 
@@ -93,11 +93,11 @@ public class JamochaValue implements Parameter {
 	public static JamochaValue newList(JamochaValue[] values) {
 		return new JamochaValue(JamochaType.LIST, values);
 	}
-	
+
 	public static JamochaValue newList(List<JamochaValue> list) {
 		return new JamochaValue(JamochaType.LIST, list.toArray());
 	}
-	
+
 	public static JamochaValue newList() {
 		return new JamochaValue(JamochaType.LIST, new JamochaValue[0]);
 	}
@@ -326,6 +326,9 @@ public class JamochaValue implements Parameter {
 			case LONG:
 				return JamochaValue.newLong(((Calendar) value)
 						.getTimeInMillis() / 1000);
+			case DOUBLE:
+				return JamochaValue.newDouble(((Number) (((Calendar) value)
+						.getTimeInMillis() / 1000)).doubleValue());
 			case DATETIME:
 				return this;
 
@@ -405,7 +408,7 @@ public class JamochaValue implements Parameter {
 			return false;
 		final JamochaValue other = (JamochaValue) obj;
 		if (value == null) {
-			if (other.value != null || other.value !="NIL")
+			if (other.value != null || other.value != "NIL")
 				return false;
 		} else if (!value.equals(other.value))
 			return false;
