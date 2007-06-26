@@ -38,7 +38,7 @@ public class PrintProfile implements Function, Serializable {
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "print-profile will print out the current profile information.";
+			return "Prints out the current profile information.";
 		}
 
 		public int getParameterCount() {
@@ -70,8 +70,7 @@ public class PrintProfile implements Function, Serializable {
 		}
 
 		public String getExample() {
-			// TODO Auto-generated method stub
-			return null;
+			return "(print-profile)";
 		}
 	}
 

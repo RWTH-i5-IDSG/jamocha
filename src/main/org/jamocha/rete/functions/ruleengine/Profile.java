@@ -29,15 +29,16 @@ import org.jamocha.rete.functions.FunctionDescription;
 /**
  * @author Peter Lin
  * 
- * profile is used to turn on profiling. It provides basic profiling of assert,
- * retract, add activation, remove activation and fire.
+ * Turns on profiling. Provides basic profiling of assert, retract, add activation, 
+ * remove activation, and fire. Returns NIL.
  */
 public class Profile implements Function, Serializable {
 
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "profile is used to turn on profiling. It provides basic profiling of assert, retract, add activation, remove activation and fire.";
+			return "Turns on profiling. Provides basic profiling of assert, retract, add activation, " +
+					"remove activation, and fire. Returns NIL.";
 		}
 
 		public int getParameterCount() {
@@ -45,7 +46,7 @@ public class Profile implements Function, Serializable {
 		}
 
 		public String getParameterDescription(int parameter) {
-			return "What to profile. Can be one or more of: all, assert-fact, add-activation, fire, retract-fact or remove-activation.";
+			return "What to profile. One or more of: all, assert-fact, add-activation, fire, retract-fact or remove-activation.";
 		}
 
 		public String getParameterName(int parameter) {
@@ -69,8 +70,7 @@ public class Profile implements Function, Serializable {
 		}
 
 		public String getExample() {
-			// TODO Auto-generated method stub
-			return null;
+			return "(profile assert-fact fire)";
 		}
 	}
 
