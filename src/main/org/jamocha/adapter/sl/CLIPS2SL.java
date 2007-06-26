@@ -44,6 +44,10 @@ public class CLIPS2SL {
 	 * @return The result of the translation.
 	 */
 	public static String getSL(JamochaValue value, Rete engine) {
+		return "(" + getSLInner(value, engine) + ")";
+	}
+
+	private static String getSLInner(JamochaValue value, Rete engine) {
 		StringBuilder res = new StringBuilder();
 		if (value.getType().equals(JamochaType.BOOLEAN)
 				|| value.getType().equals(JamochaType.DATETIME)

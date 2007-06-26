@@ -62,7 +62,7 @@ public class QueryIf{
 					"Could not translate from SL to CLIPS.", e);
 		}
 		List<SLConfiguration> results = contentConf.getExpressions();
-		if (results.size() != 2) {
+		if (results.size() != 1) {
 			// TODO: Add more Exceptions for different things extending
 			// AdapterTranslationException that tell more about the nature of
 			// the problem!
@@ -70,17 +70,19 @@ public class QueryIf{
 		}
 		StringBuilder result = new StringBuilder();
 		result
+				.append("(bind ?*query-if-result* FALSE)")
 				.append("(defrule queryIfTrue ")
 				.append(results.get(0).compile(SLCompileType.RULE_LHS))
 				.append(" => ")
-				.append("(inform MSG True")
+				.append("(bind ?*query-if-result* TRUE)")
 				.append(")")
-				.append("(defrule queryIfFalse ")
-				.append("(not ")
-				.append(results.get(0).compile(SLCompileType.RULE_LHS))
-				.append(") => ")
-				.append("(inform MSG False")
-				.append(")");
+//				.append("(defrule queryIfFalse ")
+//				.append("(not ")
+//				.append(results.get(0).compile(SLCompileType.RULE_LHS))
+//				.append(") => ")
+//				.append("(bind ?*query-if-result* FALSE)")
+//				.append(")")
+				.append("(fire)(undefrule \"queryIfTrue\")");
 
 		return result.toString();	}
 

@@ -65,6 +65,10 @@ public class DefglobalMap implements Serializable {
 		return this.variables.get(name);
 	}
 	
+	public Map<String,Object> getDefglobals() {
+		return variables;
+	}
+	
 	/**
 	 * Convienance method for iterating over the entries in the HashMap
 	 * and printing it out. The implementation prints the String key and

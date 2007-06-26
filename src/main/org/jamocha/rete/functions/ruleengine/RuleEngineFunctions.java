@@ -150,6 +150,10 @@ public class RuleEngineFunctions implements FunctionGroup, Serializable {
 		functionMem.declareFunction(lazyAgenda);
 		funcs.add(lazyAgenda);
 
+		ListBindings listBindings = new ListBindings();
+		functionMem.declareFunction(listBindings);
+		funcs.add(listBindings);
+		
 		ListDirectory listDirectory = new ListDirectory();
 		functionMem.declareFunction(listDirectory);
 		funcs.add(listDirectory);

@@ -382,7 +382,7 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 	 * completely.
 	 * 
 	 * @return
-	 * @throws ExecuteException 
+	 * @throws ExecuteException
 	 */
 	public int fire() throws ExecuteException {
 		if (this.currentModule.getActivationCount() > 0) {
@@ -467,7 +467,7 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 			return false;
 		}
 	}
-	
+
 	public Module addModule(String name, boolean setfocus) {
 		if (findModule(name) == null) {
 			Defmodule mod = new Defmodule(name, theStrat);
@@ -672,6 +672,21 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 	}
 
 	// -------------- Get / Set methods --------------------- //
+
+	public Map<String, Object> getBindings() {
+		Map<String, Object> bindings = new HashMap<String, Object>();
+		Map<String, Object> globalBindings = defglobals.getDefglobals();
+		Set<String> keys = globalBindings.keySet();
+		for (String key : keys) {
+			bindings.put(key, globalBindings.get(key));
+		}
+		Map<String,JamochaValue> scopeBindings = scopes.getBindings();
+		keys = scopeBindings.keySet();
+		for (String key : keys) {
+			bindings.put(key, scopeBindings.get(key));
+		}
+		return bindings;
+	}
 
 	/**
 	 * The current implementation will check to see if the variable is a
@@ -883,11 +898,10 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 		return f;
 	}
 
-	
-	public Fact getFactById(JamochaValue factID){
+	public Fact getFactById(JamochaValue factID) {
 		return getFactById(factID.getFactIdValue());
 	}
-	
+
 	/**
 	 * changed the implementation so it searches for the fact by id. Starting
 	 * with the HashMap for deffact, dynamic facts and finally static facts.

@@ -16,6 +16,10 @@
  */
 package org.jamocha.rete;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
 import org.jamocha.parser.JamochaValue;
 
 /**
@@ -50,6 +54,22 @@ public class DefaultScope extends AbstractScope {
 			return outerScope.hasBindingInTotalRange(name);
 		else
 			return false;
+	}
+
+	public Map<String, JamochaValue> getBindings() {
+		Map<String, JamochaValue> result = new HashMap<String, JamochaValue>();
+		if (outerScope != null) {
+			Map<String, JamochaValue> outerBindings = outerScope.getBindings();
+			Set<String> keys = outerBindings.keySet();
+			for (String key : keys) {
+				result.put(key, outerBindings.get(key));
+			}
+		}
+		Set<String> keys = values.keySet();
+		for (String key : keys) {
+			result.put(key, values.get(key));
+		}
+		return result;
 	}
 
 }

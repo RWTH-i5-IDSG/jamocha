@@ -1,5 +1,7 @@
 package org.jamocha.rete;
 
+import java.util.Map;
+
 import org.jamocha.parser.JamochaValue;
 
 public class BlockingScope extends AbstractScope {
@@ -17,6 +19,10 @@ public class BlockingScope extends AbstractScope {
 
 	public boolean hasBindingInTotalRange(String name) {
 		return values.containsKey(name);
+	}
+
+	public Map<String, JamochaValue> getBindings() {
+		return values;
 	}
 
 }

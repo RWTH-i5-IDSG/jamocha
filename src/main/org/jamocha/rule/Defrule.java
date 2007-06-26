@@ -413,6 +413,10 @@ public class Defrule implements Rule {
 		}
 		return val;
 	}
+	
+	public Map<String,JamochaValue> getBindings() {
+		return bindValues;
+	}
 
 	/**
 	 * This should be called when the action is being fired. after the rule
