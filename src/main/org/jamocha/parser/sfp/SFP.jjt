@@ -130,7 +130,7 @@ SPECIAL_TOKEN : /* COMMENTS */
 TOKEN :
 {
   < LBRACE: "(" >
-| < RBRACE: ")" >| < GE1: ">=" >
+| < RBRACE: ")" >
 | < #DIGIT: ["0"-"9"] >
 | < INTEGER: (["+","-"])? (<DIGIT>)+ >
 |
