@@ -39,7 +39,8 @@ public class PPrintRule implements Function {
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "The function will print out one or more rules in a pretty format. Note the format may not be identical to what the user wrote. It is a normalized and cleaned up format.";
+			return "Prints out one or more rules in a pretty format. Note the format may not " +
+					"be identical to what the user wrote. It is a normalized and cleaned up format.";
 		}
 
 		public int getParameterCount() {
@@ -71,8 +72,20 @@ public class PPrintRule implements Function {
 		}
 
 		public String getExample() {
-			// TODO Auto-generated method stub
-			return null;
+			return "(deftemplate customer\n" +
+					"  (slot first)\n" +
+					"  (slot last)\n" +
+					"  (slot title)\n" +
+					"  (slot address)\n" +
+					")\n" +
+					"(defrule rule\n" +
+					"  (customer\n" +
+					"    (first \"john\")\n" +
+					"  )\n" +
+					"  =>\n" +
+					"  (printout t \"rule0 was fired\" )\n" +
+					")\n" +
+					"(ppdefrule rule)";
 		}
 	}
 

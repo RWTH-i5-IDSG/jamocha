@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2006 Peter Lin, 2007 Alexander Wilden
+ * Copyright 2002-2006 Peter Lin, 2007 Alexander Wilden, Uta Christoph
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,7 +44,9 @@ public class Modify implements Function, Serializable {
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "The modify action allows the user to modify template facts on the fact-list. Only one fact may be modified with a single modify statement. The modification of a fact is equivalent to retracting the present fact and asserting the modified fact. Returns true on success.";
+			return "Allows the user to modify template facts on the fact-list. Only one fact may be modified " +
+					"with a single modify statement. The modification of a fact is equivalent to retracting " +
+					"the present fact and asserting the modified fact. Returns true on success.";
 		}
 
 		public int getParameterCount() {
@@ -55,7 +57,7 @@ public class Modify implements Function, Serializable {
 			if (parameter == 0)
 				return "Fact to modify.";
 			else
-				return "Slot to change in the given Fact.";
+				return "Slot and new value which is changed in the given fact.";
 		}
 
 		public String getParameterName(int parameter) {
@@ -88,8 +90,14 @@ public class Modify implements Function, Serializable {
 		}
 
 		public String getExample() {
-			// TODO Auto-generated method stub
-			return null;
+			return "(deftemplate car (slot color)(slot speed))\n" +
+					"(assert (car (color \"red\")(speed 200)))\n" +
+					"(assert (car (color \"blue\")(speed 150)))\n" +
+					"(assert (car (color \"green\")(speed 100)))\n" +
+					"(bind ?fact (fact-id 2))\n" +
+					"(echo ?fact)\n" +
+					"(modify ?fact (speed 500))\n" +
+					"(facts)";
 		}
 	}
 

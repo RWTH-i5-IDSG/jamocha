@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2006 Peter Lin, 2007 Alexander Wilden
+ * Copyright 2002-2006 Peter Lin, 2007 Alexander Wilden, Uta Christoph
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,8 +33,8 @@ import org.jamocha.rete.functions.FunctionDescription;
 /**
  * @author Peter Lin
  * 
- * The function will print out one or more templates of the current focus in a
- * pretty format. Note the format may not be identical to what the user wrote.
+ * Prints out one or more templates of the module currently in focus in a pretty
+ * format. Note the format may not be identical to what the user wrote. 
  * It is a normalized and cleaned up format.
  */
 public class PPrintTemplate implements Function, Serializable {
@@ -42,7 +42,9 @@ public class PPrintTemplate implements Function, Serializable {
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "The function will print out one or more templates of the current focus in a pretty format. Note the format may not be identical to what the user wrote. It is a normalized and cleaned up format.";
+			return "Prints out one or more templates of the module currently in focus in a pretty format. " +
+					"Note the format may not be identical to what the user wrote. It is a normalized and " +
+					"cleaned up format.";
 		}
 
 		public int getParameterCount() {
@@ -74,8 +76,8 @@ public class PPrintTemplate implements Function, Serializable {
 		}
 
 		public String getExample() {
-			// TODO Auto-generated method stub
-			return null;
+			return "(deftemplate car (slot color)(slot speed))\n" +
+					"(ppdeftemplate car)";
 		}
 	}
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 Sebastian Reinartz, Alexander Wilden
+ * Copyright 2007 Sebastian Reinartz, Alexander Wilden, Uta Christoph
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,7 +40,7 @@ public class Modules implements Function, Serializable {
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "Modules will print out all the modules currently in the rule engine.";
+			return "Prints out all the modules which are currently defined in the rule engine.";
 		}
 
 		public int getParameterCount() {
@@ -72,8 +72,7 @@ public class Modules implements Function, Serializable {
 		}
 
 		public String getExample() {
-			// TODO Auto-generated method stub
-			return null;
+			return "(modules)";
 		}
 	}
 
