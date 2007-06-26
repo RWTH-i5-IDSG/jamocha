@@ -36,7 +36,7 @@ public class GarbageCollect implements Function, Serializable {
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "Runs the Java Garbagecollector.";
+			return "Runs the Java garbage collector.";
 		}
 
 		public int getParameterCount() {
@@ -68,8 +68,7 @@ public class GarbageCollect implements Function, Serializable {
 		}
 
 		public String getExample() {
-			// TODO Auto-generated method stub
-			return null;
+			return "(gc)";
 		}
 	}
 
