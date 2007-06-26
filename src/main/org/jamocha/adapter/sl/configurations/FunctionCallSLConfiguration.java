@@ -42,8 +42,14 @@ public class FunctionCallSLConfiguration implements SLConfiguration {
 	}
 
 	public String compile(SLCompileType compileType) {
-		// TODO Auto-generated method stub
-		return null;
+		StringBuilder res = new StringBuilder();
+		res.append("(").append(functionName.compile(compileType));
+		for (SLConfiguration parameter : parameters) {
+			res.append(" ");
+			res.append(parameter.compile(SLCompileType.ASSERT));
+		}
+		res.append(")");
+		return res.toString();
 	}
 
 }

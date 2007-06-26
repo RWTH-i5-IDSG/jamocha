@@ -125,12 +125,13 @@ public class MessageReceiver extends CyclicBehaviour {
 			sb.append("(reply-by ").append(ParserUtils.dateToLong(replyBy))
 					.append(")");
 		}
-		if (msg.getContent() != null) {
-			sb.append("(user-properties \"\" ");
-			sb.append(")");
-		} else {
-			sb.append("(user-properties \"\")");
-		}
+		// not needed and therefore isn't defined in init.clp
+//		if (msg.getContent() != null) {
+//			sb.append("(user-properties \"\" ");
+//			sb.append(")");
+//		} else {
+//			sb.append("(user-properties \"\")");
+//		}
 		sb.append("))");
 		return sb.toString();
 	}

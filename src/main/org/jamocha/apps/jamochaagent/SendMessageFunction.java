@@ -18,6 +18,8 @@ package org.jamocha.apps.jamochaagent;
 import jade.core.AID;
 import jade.lang.acl.ACLMessage;
 
+import java.util.Calendar;
+
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
@@ -193,8 +195,10 @@ public class SendMessageFunction implements Function {
 		result.setReplyWith(params[REPLY_WITH_PARAM_POS].getValue(engine)
 				.getStringValue());
 		JamochaValue repBy = params[REPLY_BY_PARAM_POS].getValue(engine);
-		if (repBy.is(JamochaType.DATETIME)) {
-			result.setReplyByDate(repBy.getDateValue().getTime());
+		if (repBy.is(JamochaType.LONG)) {
+			Calendar cal = Calendar.getInstance();
+			cal.setTimeInMillis(repBy.getLongValue());
+			result.setReplyByDate(cal.getTime());
 		}
 		return result;
 	}

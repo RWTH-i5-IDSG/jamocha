@@ -103,9 +103,11 @@ public class Union$ implements Function, Serializable {
 						current = list.getListValue(j);
 						if (!tmpList.contains(current))
 							tmpList.add(current);
-				} 					} else if (list.is(JamochaType.NIL)){
-				}else{
-					
+					}
+				} else if (list.is(JamochaType.NIL)) {
+					// nothing to do here
+				} else {
+
 					throw new IllegalTypeException(JamochaType.LISTS, list
 							.getType());
 				}

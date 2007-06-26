@@ -34,8 +34,8 @@
 	(slot in-reply-to (type STRING))
 	(slot reply-with (type STRING))
 	(slot reply-by (type LONG))
-	(multislot user-properties)
 	(silent slot content-clips (type STRING))
+	(slot incoming (type BOOLEAN)(default TRUE))
 	(slot processed (type BOOLEAN)(default FALSE))
 )
 
@@ -105,23 +105,45 @@
 	))
 )
 
+
+(deffunction process-outgoing-message
+	"Processes (= sends) outgoing messages."
+	(functiongroup AgentFunctions)
+	(?message)
+	(agent-send-message 
+		(fact-slot-value ?message "receivers")
+		(fact-slot-value ?message "reply-to")
+		(fact-slot-value ?message "performative")
+		(fact-slot-value ?message "content") 
+		(fact-slot-value ?message "language")
+		(fact-slot-value ?message "encoding")
+		(fact-slot-value ?message "ontology")
+		(fact-slot-value ?message "protocol")
+		(fact-slot-value ?message "conversation-id")
+		(fact-slot-value ?message "in-reply-to")
+		(fact-slot-value ?message "reply-with")
+		(fact-slot-value ?message "reply-by")
+	)
+	(modify ?message (processed TRUE))
+)
+
 ; ===================================================
 ; Definition of rules that are needed
 ; ===================================================
 
 (defrule incoming-message
 	"Fires when a message in FIPA-SL arrives, that is addressed to a local Agent."
-	; Only look for messages addressed to a local agent. There might be more than one
-	; agent running locally using this rete engine.
+	; Only look for messages addressed to the local agent.
 	(agent-description
 		(name ?receiver)
 		(local TRUE)
 	)
-	; Only extract messages that have not been answered yet.
+	; Only extract messages that have not been answered yet and that are incoming.
 	?message <- (agent-message
 		(receivers ?receivers)
 		(language "fipa-sl")
 		(protocol ?protocol)
+		(incoming TRUE)
 		(processed FALSE)
 	)
 	; The receiver of the message must be local.
@@ -131,6 +153,24 @@
 	
 	; Process the message.
 	(process-incoming-message ?message ?protocol)
+	
+	(fire)
+)
+
+
+(defrule outgoing-message
+	"Fires when a message in FIPA-SL has to be send."
+	; Only extract messages that have not been sent yet and that are outgoing.
+	?message <- (agent-message
+		(language "fipa-sl")
+		(incoming FALSE)
+		(processed FALSE)
+	)
+	
+	=>
+	
+	; Process the message.
+	(process-outgoing-message ?message)
 	
 	(fire)
 )
