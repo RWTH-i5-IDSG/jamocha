@@ -85,7 +85,7 @@ public class Deftemplate implements Function, Serializable {
 					"  (slot countryCode (type STRING))\n" +
 					"  (slot currentPrice (type DOUBLE))\n" +
 					"  (slot issuer (type STRING))\n" +
-					"  (slot lastPrice (type DOUBLE)\n)" +
+					"  (slot lastPrice (type DOUBLE))\n" +
 					"  (slot purchaseDate (type STRING))\n" +
 					"  (slot total (type DOUBLE))\n" +
 					")";
