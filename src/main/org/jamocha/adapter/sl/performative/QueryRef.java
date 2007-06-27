@@ -15,16 +15,15 @@
  */
 package org.jamocha.adapter.sl.performative;
 
-import java.io.StringReader;
 import java.util.List;
 
 import org.jamocha.adapter.AdapterTranslationException;
 import org.jamocha.adapter.sl.configurations.ContentSLConfiguration;
+import org.jamocha.adapter.sl.configurations.IdentifyingExpressionSLConfiguration;
 import org.jamocha.adapter.sl.configurations.SLCompileType;
 import org.jamocha.adapter.sl.configurations.SLConfiguration;
 import org.jamocha.parser.sl.ParseException;
 import org.jamocha.parser.sl.SLParser;
-
 
 /**
  * This class walks through an SL code tree and translates it to CLIPS depending
@@ -33,7 +32,7 @@ import org.jamocha.parser.sl.SLParser;
  * @author Fehmi Karanfil
  * 
  */
-public class QueryRef{
+public class QueryRef {
 
 	/**
 	 * A private constructor to force access only in a static way.
@@ -62,21 +61,29 @@ public class QueryRef{
 					"Could not translate from SL to CLIPS.", e);
 		}
 		List<SLConfiguration> results = contentConf.getExpressions();
-		if (results.size() != 2) {
+		if (results.size() != 1) {
 			// TODO: Add more Exceptions for different things extending
 			// AdapterTranslationException that tell more about the nature of
 			// the problem!
 			throw new AdapterTranslationException("Error");
 		}
 		StringBuilder result = new StringBuilder();
-		result
-				.append("(defrule queryRef ")
-				.append(results.get(0).compile(SLCompileType.RULE_LHS))
-				.append(" => ")
-				.append("(inform-ref MSG ?MSGID")
-				.append(")");
-
+		IdentifyingExpressionSLConfiguration conf = (IdentifyingExpressionSLConfiguration) results
+				.get(0);
+		String refOp = conf.getRefOp().compile(SLCompileType.RULE_LHS);
+		String binding = conf.getTermOrIE().compile(SLCompileType.RULE_LHS);
+		if (refOp.equals("all")) {
+			result
+					.append("(bind ?*query-ref-result* (create$))")
+					.append("(defrule queryRef ")
+					.append(conf.getWff().compile(SLCompileType.RULE_LHS))
+					.append(" => ")
+					.append(
+							"(bind ?*query-ref-result* (insert$ ?*query-ref-result* 1 ")
+					.append(binding).append("))").append(")").append("(fire)")
+					.append("(undefrule \"queryRef\")");
+		}
 		return result.toString();
 	}
-	
+
 }

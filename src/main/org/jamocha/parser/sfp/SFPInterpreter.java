@@ -33,6 +33,7 @@ import org.jamocha.rete.TemplateSlot;
 import org.jamocha.rete.configurations.AssertConfiguration;
 import org.jamocha.rete.configurations.DeclarationConfiguration;
 import org.jamocha.rete.configurations.DeffunctionConfiguration;
+import org.jamocha.rete.configurations.DefmoduleConfiguration;
 import org.jamocha.rete.configurations.DefruleConfiguration;
 import org.jamocha.rete.configurations.IfElseConfiguration;
 import org.jamocha.rete.configurations.LoopForCountConfiguration;
@@ -54,8 +55,8 @@ import org.jamocha.rule.OrConnectedConstraint;
 import org.jamocha.rule.TestCondition;
 
 public class SFPInterpreter implements SFPParserVisitor {
-	
-	class ConstraintElementGroup extends ArrayList<Constraint>{
+
+	class ConstraintElementGroup extends ArrayList<Constraint> {
 		private static final long serialVersionUID = 1L;
 
 		public String toString() {
@@ -66,48 +67,50 @@ public class SFPInterpreter implements SFPParserVisitor {
 			}
 			return result.append("}").toString();
 		}
-		
+
 		public Constraint getRootConstraint() {
-			Constraint root=null;
-			AndConnectedConstraint act=null;
+			Constraint root = null;
+			AndConnectedConstraint act = null;
 			if (this.size() == 1) {
 				// we dont need any OR-Constraints
 				root = this.get(0);
 			} else {
-				for (int i=0 ; i < this.size()-1; i++ ) {
-					
+				for (int i = 0; i < this.size() - 1; i++) {
+
 					// create new AND node
 					AndConnectedConstraint newAndNode = new AndConnectedConstraint();
 
 					// mount our constraint on our new AND node
 					Constraint actConstr = this.get(i);
 					newAndNode.setLeft(actConstr);
-					
-					// store new AND node as root, we root is null now
-					if (root == null) {root = newAndNode;}
-					
-					// if we have an actual AND node, we mount our new one to the old one
-					if (act != null) act.setRight(newAndNode);
 
-					
+					// store new AND node as root, we root is null now
+					if (root == null) {
+						root = newAndNode;
+					}
+
+					// if we have an actual AND node, we mount our new one to
+					// the old one
+					if (act != null)
+						act.setRight(newAndNode);
+
 					act = newAndNode;
 				}
-				act.setRight(this.get(this.size()-1));
+				act.setRight(this.get(this.size() - 1));
 
 			}
 			return root;
 		}
 
-
 	}
-	
-	class ConstraintElementGroupList extends ArrayList<ConstraintElementGroup>{
+
+	class ConstraintElementGroupList extends ArrayList<ConstraintElementGroup> {
 		private static final long serialVersionUID = 1L;
-		
+
 		ConstraintElementGroup getLastGroup() {
-			return this.get( this.size()-1 );
+			return this.get(this.size() - 1);
 		}
-		
+
 		public String toString() {
 			StringBuffer result = new StringBuffer();
 			result.append("[ \n");
@@ -117,46 +120,46 @@ public class SFPInterpreter implements SFPParserVisitor {
 			return result.append("\n]").toString();
 		}
 
-		
 		ConstraintElementGroup createNewGroup() {
 			ConstraintElementGroup result;
 			this.add(result = new ConstraintElementGroup());
 			return result;
 		}
-		
+
 		Constraint getRootConstraint() {
-			Constraint root=null;
-			OrConnectedConstraint act=null;
-			if (this.size() == 1 ){
-				//we dont need any OR-Constraints
+			Constraint root = null;
+			OrConnectedConstraint act = null;
+			if (this.size() == 1) {
+				// we dont need any OR-Constraints
 				root = this.get(0).getRootConstraint();
 			} else {
-				for (int i=0 ; i < this.size()-1; i++ ) {
-					
+				for (int i = 0; i < this.size() - 1; i++) {
+
 					// create new OR node
 					OrConnectedConstraint newOrNode = new OrConnectedConstraint();
 
 					// mount our constraint on our new OR node
 					Constraint actConstr = this.get(i).getRootConstraint();
 					newOrNode.setLeft(actConstr);
-					
-					// store new OR node as root, we root is null now
-					if (root == null) {root = newOrNode;}
-					
-					// if we have an actual OR node, we mount our new one to the old one
-					if (act != null) act.setRight(newOrNode);
 
-					
+					// store new OR node as root, we root is null now
+					if (root == null) {
+						root = newOrNode;
+					}
+
+					// if we have an actual OR node, we mount our new one to the
+					// old one
+					if (act != null)
+						act.setRight(newOrNode);
+
 					act = newOrNode;
 				}
 				act.setRight(this.getLastGroup().getRootConstraint());
 			}
 			return root;
 		}
-		
-		
+
 	}
-	
 
 	public Object visit(SimpleNode node, Object data) {
 		// TODO Auto-generated method stub
@@ -198,7 +201,7 @@ public class SFPInterpreter implements SFPParserVisitor {
 	public Object visit(SFPFalse node, Object data) {
 		return JamochaValue.FALSE;
 	}
-	
+
 	public Object visit(SFPNil node, Object data) {
 		return JamochaValue.NIL;
 	}
@@ -569,8 +572,6 @@ public class SFPInterpreter implements SFPParserVisitor {
 		String slotName = ((JamochaValue) node.jjtGetChild(0).jjtAccept(this,
 				data)).toString();
 
-		
-		
 		// get the slots values:
 		Parameter[] slotValues = new Parameter[node.jjtGetNumChildren() - 1];
 
@@ -579,7 +580,6 @@ public class SFPInterpreter implements SFPParserVisitor {
 					data);
 		}
 
-	
 		sc.setSlotName(slotName);
 		sc.setSlotValues(slotValues);
 
@@ -649,7 +649,8 @@ public class SFPInterpreter implements SFPParserVisitor {
 
 		// create the resulting signature
 		Signature signature = new Signature();
-		signature.setSignatureName(org.jamocha.rete.functions.ruleengine.Defrule.NAME);
+		signature
+				.setSignatureName(org.jamocha.rete.functions.ruleengine.Defrule.NAME);
 		signature.setParameters(new Parameter[] { rc });
 
 		return signature;
@@ -803,7 +804,6 @@ public class SFPInterpreter implements SFPParserVisitor {
 				.jjtAccept(this, data);
 		objectCond.setTemplateName(templateName.toString());
 
-		
 		// constraints
 		Constraint constr;
 		for (int i = 1; i < node.jjtGetNumChildren(); i++) {
@@ -841,33 +841,33 @@ public class SFPInterpreter implements SFPParserVisitor {
 
 	public Object visit(SFPConnectedConstraint node, Object data) {
 		ConstraintElementGroupList cegl = new ConstraintElementGroupList();
-		cegl.createNewGroup().add((Constraint)node.jjtGetChild(0).jjtAccept(this, null));
-		for (int i = 1; i < node.jjtGetNumChildren() ; i++) {
-			node.jjtGetChild(i).jjtAccept(this,	cegl);
+		cegl.createNewGroup().add(
+				(Constraint) node.jjtGetChild(0).jjtAccept(this, null));
+		for (int i = 1; i < node.jjtGetNumChildren(); i++) {
+			node.jjtGetChild(i).jjtAccept(this, cegl);
 		}
 		return cegl.getRootConstraint();
 	}
-	
+
 	public Object visit(SFPAmpersandConnectedConstraint node, Object data) {
-		ConstraintElementGroupList cegl = (ConstraintElementGroupList)data;
+		ConstraintElementGroupList cegl = (ConstraintElementGroupList) data;
 		ConstraintElementGroup actGroup = cegl.getLastGroup();
-		actGroup.add( (Constraint)node.jjtGetChild(0).jjtAccept(this, null) );
-		
-		if (node.jjtGetNumChildren() > 1) 
-				node.jjtGetChild(1).jjtAccept(this,	data);
-		
+		actGroup.add((Constraint) node.jjtGetChild(0).jjtAccept(this, null));
+
+		if (node.jjtGetNumChildren() > 1)
+			node.jjtGetChild(1).jjtAccept(this, data);
+
 		return null;
 	}
-	
-	
 
 	public Object visit(SFPLineConnectedConstraint node, Object data) {
-		ConstraintElementGroupList cegl = (ConstraintElementGroupList)data;
-		cegl.createNewGroup().add( (Constraint)node.jjtGetChild(0).jjtAccept(this, null)   );
-		
+		ConstraintElementGroupList cegl = (ConstraintElementGroupList) data;
+		cegl.createNewGroup().add(
+				(Constraint) node.jjtGetChild(0).jjtAccept(this, null));
+
 		if (node.jjtGetNumChildren() > 1)
-			node.jjtGetChild(1).jjtAccept(this,	data);
-		
+			node.jjtGetChild(1).jjtAccept(this, data);
+
 		return null;
 	}
 
@@ -950,7 +950,7 @@ public class SFPInterpreter implements SFPParserVisitor {
 			j++;
 			functionDescription = (JamochaValue) n.jjtAccept(this, data);
 		}
-		
+
 		// get the function group
 		JamochaValue functionGroup = null;
 
@@ -959,8 +959,7 @@ public class SFPInterpreter implements SFPParserVisitor {
 		if (n != null && n instanceof SFPFunctionGroup) {
 			j++;
 			functionGroup = (JamochaValue) n.jjtAccept(this, data);
-		}		
-		
+		}
 
 		// get function's variables
 		Parameter[] params = new Parameter[node.jjtGetNumChildren() - (j + 1)];
@@ -980,7 +979,7 @@ public class SFPInterpreter implements SFPParserVisitor {
 
 		// set the function's name
 		dc.setFunctionName(functionName.toString());
-		
+
 		// set the function's group name
 		if (functionGroup != null)
 			dc.setFunctionGroup(functionGroup.toString());
@@ -1004,7 +1003,7 @@ public class SFPInterpreter implements SFPParserVisitor {
 
 		return functionParam;
 	}
-	
+
 	public Object visit(SFPFunctionGroup node, Object data) {
 		return node.jjtGetChild(0).jjtAccept(this, data);
 	}
@@ -1107,8 +1106,24 @@ public class SFPInterpreter implements SFPParserVisitor {
 	}
 
 	public Object visit(SFPDefmoduleConstruct node, Object data) {
-		// TODO Auto-generated method stub
-		return null;
+		DefmoduleConfiguration defmodconf = new DefmoduleConfiguration();
+		JamochaValue name = (JamochaValue) node.jjtGetChild(0).jjtAccept(this,
+				data);
+		defmodconf.setModuleName(name.toString());
+		if (node.jjtGetNumChildren() > 1) {
+			JamochaValue description = (JamochaValue) node.jjtGetChild(1)
+					.jjtAccept(this, data);
+			defmodconf.setModuleDescription(description.toString());
+		}
+		Signature functionParam = new Signature();
+		functionParam
+				.setSignatureName(org.jamocha.rete.functions.ruleengine.Defmodule.NAME);
+
+		DefmoduleConfiguration[] dcs = new DefmoduleConfiguration[1];
+		dcs[0] = defmodconf;
+
+		functionParam.setParameters(dcs);
+		return functionParam;
 	}
 
 	public Object visit(SFPSymbolType node, Object data) {
@@ -1157,7 +1172,7 @@ public class SFPInterpreter implements SFPParserVisitor {
 	}
 
 	public Object visit(SFPSilent node, Object data) {
-		((TemplateSlot)data).setSilent(true);
+		((TemplateSlot) data).setSilent(true);
 		return null;
 	}
 
@@ -1165,9 +1180,10 @@ public class SFPInterpreter implements SFPParserVisitor {
 		int count = node.jjtGetNumChildren();
 		// we assume that last child is Single- or MultiSlotDefinition
 		// and the other childs are keywords
-		TemplateSlot ts = (TemplateSlot)node.jjtGetChild(count-1).jjtAccept(this, null);
+		TemplateSlot ts = (TemplateSlot) node.jjtGetChild(count - 1).jjtAccept(
+				this, null);
 
-		for (int i =0 ; i< count-1 ; i++){
+		for (int i = 0; i < count - 1; i++) {
 			node.jjtGetChild(i).jjtAccept(this, ts);
 		}
 		return ts;

@@ -96,7 +96,8 @@ public class MessageReceiver extends CyclicBehaviour {
 			sb.append("(ontology \"").append("\")");
 		}
 		if (msg.getProtocol() != null) {
-			sb.append("(protocol \"").append(msg.getProtocol().toLowerCase()).append("\")");
+			sb.append("(protocol \"").append(msg.getProtocol().toLowerCase())
+					.append("\")");
 		} else {
 			sb.append("(protocol \"").append("\")");
 		}
@@ -126,12 +127,13 @@ public class MessageReceiver extends CyclicBehaviour {
 					.append(")");
 		}
 		// not needed and therefore isn't defined in init.clp
-//		if (msg.getContent() != null) {
-//			sb.append("(user-properties \"\" ");
-//			sb.append(")");
-//		} else {
-//			sb.append("(user-properties \"\")");
-//		}
+		// if (msg.getContent() != null) {
+		// sb.append("(user-properties \"\" ");
+		// sb.append(")");
+		// } else {
+		// sb.append("(user-properties \"\")");
+		// }
+		sb.append("(timestamp ").append(System.currentTimeMillis()).append(")");
 		sb.append("))");
 		return sb.toString();
 	}

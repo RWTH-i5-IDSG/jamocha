@@ -15,7 +15,6 @@
  */
 package org.jamocha.adapter.sl.performative;
 
-import java.io.StringReader;
 import java.util.List;
 
 import org.jamocha.adapter.AdapterTranslationException;
@@ -71,17 +70,12 @@ public class QueryIf{
 		StringBuilder result = new StringBuilder();
 		result
 				.append("(bind ?*query-if-result* FALSE)")
+				.append("(list-bindings)")
 				.append("(defrule queryIfTrue ")
 				.append(results.get(0).compile(SLCompileType.RULE_LHS))
 				.append(" => ")
 				.append("(bind ?*query-if-result* TRUE)")
 				.append(")")
-//				.append("(defrule queryIfFalse ")
-//				.append("(not ")
-//				.append(results.get(0).compile(SLCompileType.RULE_LHS))
-//				.append(") => ")
-//				.append("(bind ?*query-if-result* FALSE)")
-//				.append(")")
 				.append("(fire)(undefrule \"queryIfTrue\")");
 
 		return result.toString();	}

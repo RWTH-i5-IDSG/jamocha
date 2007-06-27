@@ -53,12 +53,13 @@ public class CLIPS2SL {
 				|| value.getType().equals(JamochaType.DATETIME)
 				|| value.getType().equals(JamochaType.DOUBLE)
 				|| value.getType().equals(JamochaType.LONG)
-				|| value.getType().equals(JamochaType.STRING)) {
+				|| value.getType().equals(JamochaType.STRING)
+				|| value.getType().equals(JamochaType.IDENTIFIER)) {
 			res.append(value.toString());
 		} else if (value.getType().equals(JamochaType.LIST)) {
-			res.append("(sequence \n");
+			res.append("(set \n");
 			for (int i = 0; i < value.getListCount(); ++i) {
-				res.append(" " + getSL(value.getListValue(i), engine) + " "); // recursion
+				res.append(" " + getSLInner(value.getListValue(i), engine) + " "); // recursion
 			}
 			res.append(")");
 		} else if (value.getType().equals(JamochaType.FACT)) {
@@ -67,7 +68,7 @@ public class CLIPS2SL {
 			res.append("(" + tmpl.getName() + "\n");
 			for (int i = 0; i < tmpl.getNumberOfSlots(); i++) {
 				res.append("		:" + tmpl.getSlot(i).getName() + " "
-						+ getSL(fact.getSlotValue(i), engine));
+						+ getSLInner(fact.getSlotValue(i), engine));
 			}
 			res.append(" )\n");
 		} else if (value.getType().equals(JamochaType.FACT_ID)) {
@@ -77,7 +78,7 @@ public class CLIPS2SL {
 				res.append("(" + tmpl.getName() + "\n");
 				for (int i = 0; i < tmpl.getNumberOfSlots(); i++) {
 					res.append("		:" + tmpl.getSlot(i).getName() + " "
-							+ getSL(fact.getSlotValue(i), engine));
+							+ getSLInner(fact.getSlotValue(i), engine));
 				}
 				res.append(" )\n");
 			}

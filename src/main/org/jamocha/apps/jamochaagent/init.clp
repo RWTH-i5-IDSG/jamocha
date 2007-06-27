@@ -9,18 +9,15 @@
 
 (deftemplate agent-description
 	"A template defining an agent."
+	; Name / address of an agent.
     (slot name (type STRING))
+    
+    ; Flag indicating if this agent is running locally or not.
     (slot local (type BOOLEAN))
 )
 
-(deftemplate agent-ontology
-	"Definition of ontologies. (not needed at the moment)"
-    (slot name (type STRING))
-    (slot definition (type STRING))
-)
-
 (deftemplate agent-message
-	"Definition of an (incoming) agent-message."
+	"Definition of an agent-message."
 	(slot sender (type STRING))
 	(multislot receivers)
 	(multislot reply-to)
@@ -35,19 +32,43 @@
 	(slot reply-with (type STRING))
 	(slot reply-by (type LONG))
 	(silent slot content-clips (type STRING))
+	(silent slot timestamp (type LONG))
 	(slot incoming (type BOOLEAN)(default TRUE))
 	(slot processed (type BOOLEAN)(default FALSE))
 )
 
 (deftemplate agent-message-initiator
 	"Deftemplate for a message initiator."
-	(slot receiver)
-	(slot refering-message)
+	; The receiver of the new message to send.
+	(slot receiver) ; type: agent-description
+		
+	; The message that was the cause for this initiator and acts as reference to this
+	; initiator. It might  be NIL, if this initiator is used to start a new
+	; interaction sequence.
+	(slot refering-message) ; type: agent-message
+		
+	; The Interaction Protocol that is currently in use for communication.
 	(slot protocol (type STRING))
+	
+	; This slot is the performative used in the refering message. It might be empty,
+	; if this initiator is used to start a new interaction sequence. Although this
+	; information can also be obtained through the refering message this helps to keep
+	; the rules checking for the performative small.
 	(slot previous-performative (type STRING))
+	
+	; In this slot the content in SL for the new message to send is hold.
 	(slot content (type STRING))
+	
+	; In this slot the content in CLIPS for the new message to send is hold.
 	(slot content-clips (type STRING))
+	
+	; This flag indicates whether this initiator was processed and the new message was
+	; send or not. It is not essential for the rule engine but for the user to see
+	; what is happening.
 	(slot processed (type BOOLEAN)(default FALSE))
+	
+	; If an error occured during evaluation of the content of the refering message
+	; it will be placed here.
 	(slot error (type STRING)(default NIL))
 )
 
@@ -61,7 +82,7 @@
 )
 
 ; ===================================================
-; definition of functions that are needed
+; Definition of functions that are needed.
 ; ===================================================
 
 (deffunction process-incoming-message
@@ -90,6 +111,7 @@
 	
 	; Evaluate the code in the rete engine.
 	(bind ?error "")
+	(bind ?*message* ?message)
 	(bind ?result (eval ?clipsCode ?error))
 	
 	; Assert a new agent message initiator that will initiate a new message according
@@ -128,7 +150,7 @@
 )
 
 ; ===================================================
-; Definition of rules that are needed
+; Definition of rules that are needed.
 ; ===================================================
 
 (defrule incoming-message

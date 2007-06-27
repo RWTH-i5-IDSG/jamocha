@@ -25,34 +25,39 @@ import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
+import org.jamocha.rete.configurations.DefmoduleConfiguration;
 import org.jamocha.rete.functions.FunctionDescription;
 
 /**
  * @author Peter Lin
  * 
- * Defines a new module in the engine.
- * Defmodule enables the division of rules and facts into distinct groups called modules. 
- * Modules help to physically organize large numbers of rules into logical groups. 
- * The commands for listing constructs (rules, facts, and so on) let you specify the name of a module
- * and can then operate on one module at a time, e.g. (rules MOD1), (facts WORK), (list-deftemplates MAIN)..
- * Furthermore modules provide a control mechanism: The rules in a module fire only when that module has 
- * the focus, and only one module can be in focus at a time.
+ * Defines a new module in the engine. Defmodule enables the division of rules
+ * and facts into distinct groups called modules. Modules help to physically
+ * organize large numbers of rules into logical groups. The commands for listing
+ * constructs (rules, facts, and so on) let you specify the name of a module and
+ * can then operate on one module at a time, e.g. (rules MOD1), (facts WORK),
+ * (list-deftemplates MAIN).. Furthermore modules provide a control mechanism:
+ * The rules in a module fire only when that module has the focus, and only one
+ * module can be in focus at a time.
  */
 public class Defmodule implements Function, Serializable {
 
-	private static final class Description implements
-			FunctionDescription {
+	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "Defines a new module in the engine.\n" +
-					"Defmodule enables the division of rules and facts into distinct groups called modules. " +
-					"Modules help to physically organize large numbers of rules into logical groups. " +
-					//TODO uncomment when the following holds for Jamocha (when defmodule is implemented..)
-					//"The commands for listing constructs (rules, facts, and so on) let you specify the name of a module " +
-					//"and can then operate on one module at a time, e.g. (rules MOD1), (facts WORK), (list-deftemplates MAIN).." +
-					"Furthermore modules provide a control mechanism: " +
-					"The rules in a module fire only when that module has the focus, and only one module can be " +
-					"in focus at a time.";
+			return "Defines a new module in the engine.\n"
+					+ "Defmodule enables the division of rules and facts into distinct groups called modules. "
+					+ "Modules help to physically organize large numbers of rules into logical groups. "
+					+
+					// TODO uncomment when the following holds for Jamocha (when
+					// defmodule is implemented..)
+					// "The commands for listing constructs (rules, facts, and
+					// so on) let you specify the name of a module " +
+					// "and can then operate on one module at a time, e.g.
+					// (rules MOD1), (facts WORK), (list-deftemplates MAIN).." +
+					"Furthermore modules provide a control mechanism: "
+					+ "The rules in a module fire only when that module has the focus, and only one module can be "
+					+ "in focus at a time.";
 		}
 
 		public int getParameterCount() {
@@ -84,8 +89,7 @@ public class Defmodule implements Function, Serializable {
 		}
 
 		public String getExample() {
-			return "(defmodule PIZZAENV)\n" +
-					"(get-current-module)";
+			return "(defmodule PIZZAENV)\n" + "(get-current-module)";
 		}
 	}
 
@@ -107,8 +111,8 @@ public class Defmodule implements Function, Serializable {
 			throws EvaluationException {
 		JamochaValue result = JamochaValue.FALSE;
 		if (params != null && params.length == 1) {
-			engine.addModule(params[0].getValue(engine).implicitCast(
-					JamochaType.IDENTIFIER).getIdentifierValue());
+			DefmoduleConfiguration defmodconf = (DefmoduleConfiguration) params[0];
+			engine.addModule(defmodconf.getModuleName());
 			result = JamochaValue.TRUE;
 		} else {
 			throw new IllegalParameterException(1);

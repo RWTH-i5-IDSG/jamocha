@@ -20,7 +20,6 @@
 	=>
 	
 	
-	
 	(bind ?receivers
 		(union$
 			(create$ (fact-slot-value ?receiver "name"))
@@ -46,6 +45,7 @@
 			(in-reply-to (fact-slot-value ?oldMessage "reply-with"))
 			(reply-with "")
 			(reply-by 0)
+			(timestamp (datetime2timestamp (now)))
 			(incoming FALSE)
 		))
 		(fire)
@@ -55,7 +55,7 @@
 		(assert (agent-message
 			(receivers ?receivers)
 			(performative "inform")
-			(content (str-cat (fact-slot-value ?oldMessage content) crlf ?result))
+			(content (str-cat (fact-slot-value ?oldMessage "content") crlf ?result))
 			(language (fact-slot-value ?oldMessage "language"))
 			(encoding (fact-slot-value ?oldMessage "encoding"))
 			(ontology (fact-slot-value ?oldMessage "ontology"))
@@ -64,6 +64,7 @@
 			(in-reply-to (fact-slot-value ?oldMessage "reply-with"))
 			(reply-with "")
 			(reply-by 0)
+			(timestamp (datetime2timestamp (now)))
 			(incoming FALSE)
 		))
 		(fire)
@@ -73,7 +74,7 @@
 		(assert (agent-message
 			(receivers ?receivers)
 			(performative "refuse")
-			(content (str-cat (fact-slot-value ?oldMessage content) crlf "\"" ?error "\""))
+			(content (str-cat (fact-slot-value ?oldMessage "content") crlf "\"" ?error "\""))
 			(language (fact-slot-value ?oldMessage "language"))
 			(encoding (fact-slot-value ?oldMessage "encoding"))
 			(ontology (fact-slot-value ?oldMessage "ontology"))
@@ -82,6 +83,7 @@
 			(in-reply-to (fact-slot-value ?oldMessage "reply-with"))
 			(reply-with "")
 			(reply-by 0)
+			(timestamp (datetime2timestamp (now)))
 			(incoming FALSE)
 		))
 		(fire)

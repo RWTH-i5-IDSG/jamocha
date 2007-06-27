@@ -89,6 +89,10 @@ import org.jamocha.rule.TestCondition;
 // TODO and / or / not CEs
 // TODO forall / exists CEs
 // TODO test CEs
+// TODO use ObjectType Node of InitialFact only at empty LHS rules
+// TODO implement / optimize node sharing
+// TODO clean up "node-waste" if an exception occured during rule compilation.
+//		At the moment unused nodes remain in the network.
 // TODO finish this todo list ;)
 public class SFRuleCompiler implements RuleCompiler {
 
