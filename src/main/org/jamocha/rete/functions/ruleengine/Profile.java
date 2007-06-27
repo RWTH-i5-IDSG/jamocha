@@ -46,7 +46,7 @@ public class Profile implements Function, Serializable {
 		}
 
 		public String getParameterDescription(int parameter) {
-			return "What to profile. One or more of: all, assert-fact, add-activation, fire, retract-fact or remove-activation.";
+			return "What to profile. One or several of: all, assert-fact, add-activation, fire, retract-fact or remove-activation.";
 		}
 
 		public String getParameterName(int parameter) {
