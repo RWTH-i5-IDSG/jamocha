@@ -31,18 +31,22 @@ import org.jamocha.rete.functions.FunctionDescription;
 /**
  * @author Alexander Wilden
  * 
- * This function either sets the default parser to the given one or prints out
- * the current default parser.
+ * Sets the default parser to the one given as first argument or prints
+ * out the current default parser, if no argument is given.
  * <p>
  * Note: Changing the parser during runtime only makes sense for StringChannels.
  * StreamChannels must be reinitalized after changing the parser.
+ * </p>
  */
 public class SetParser implements Function, Serializable {
 
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "This function either sets the default parser to the given one or prints out the current default parser. Note: Changing the parser during runtime only makes sense for StringChannels. StreamChannels must be reinitalized after changing the parser.";
+			return "Sets the default parser to the one given as first argument or prints out the current default " +
+					"parser, if no argument is given.\n" +
+					"Note: Changing the parser during runtime only makes sense for StringChannels. " +
+					"StreamChannels must be reinitalized after changing the parser.";
 		}
 
 		public int getParameterCount() {
@@ -74,8 +78,7 @@ public class SetParser implements Function, Serializable {
 		}
 
 		public String getExample() {
-			// TODO Auto-generated method stub
-			return null;
+			return "(set-parser)";
 		}
 	}
 

@@ -33,16 +33,16 @@ import org.jamocha.rete.functions.FunctionDescription;
 /**
  * @author Peter Lin
  * 
- * The purpose of spool function is to capture the output to a file, and make it
- * easier to record what happens. This is inspired by Oracle SqlPlus spool
- * function.
+ * Captures the output to a file, and makes it easier to record what happens. 
+ * This is inspired by Oracle SqlPlus spool function.
  */
 public class Spool implements Function, Serializable {
 
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "The purpose of spool function is to capture the output to a file, and make it easier to record what happens. This is inspired by Oracle SqlPlus spool function.";
+			return "Captures the output to a file, and makes it easier to record what happens. This is " +
+					"inspired by Oracle SqlPlus spool function.";
 		}
 
 		public int getParameterCount() {
@@ -54,7 +54,7 @@ public class Spool implements Function, Serializable {
 			case 0:
 				return "Use \"on\" or \"off\" for spooling.";
 			case 1:
-				return "If switch is \"on\" this is the file to spool to.";
+				return "Filename to spool to, if switch is \"on\".";
 			}
 			return "";
 		}
@@ -86,8 +86,7 @@ public class Spool implements Function, Serializable {
 		}
 
 		public String getExample() {
-			// TODO Auto-generated method stub
-			return null;
+			return "(spool on /var/tmp/spool.clp)";
 		}
 	}
 

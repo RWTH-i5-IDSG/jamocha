@@ -32,14 +32,14 @@ import org.jamocha.rule.Rule;
 /**
  * @author Peter Lin
  * 
- * rules prints out the names of the rules and the comment.
+ * rules prints out the names of the rules and their comments. Returns NIL.
  */
 public class Rules implements Function, Serializable {
 
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "rules prints out the names of the rules and the comment.";
+			return "Prints out the names of the rules and their comments. Returns NIL.";
 		}
 
 		public int getParameterCount() {
@@ -71,8 +71,7 @@ public class Rules implements Function, Serializable {
 		}
 
 		public String getExample() {
-			// TODO Auto-generated method stub
-			return null;
+			return "(rules)";
 		}
 	}
 

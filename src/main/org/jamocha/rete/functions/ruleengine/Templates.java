@@ -40,7 +40,7 @@ public class Templates implements Function, Serializable {
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "templates prints out the names of the deftemplates.";
+			return "Prints out the names of the deftemplates.";
 		}
 
 		public int getParameterCount() {
@@ -72,8 +72,9 @@ public class Templates implements Function, Serializable {
 		}
 
 		public String getExample() {
-			// TODO Auto-generated method stub
-			return null;
+			return "(deftemplate car (slot color)(slot speed))\n" +
+					"(deftemplate bike (slot color)(slot kind))\n" +
+					"(templates)";
 		}
 	}
 

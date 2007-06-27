@@ -29,15 +29,16 @@ import org.jamocha.rete.functions.FunctionDescription;
 /**
  * @author Peter Lin
  * 
- * Sets the focus to the given module. If no Parameter is given the focus
- * doesn't change. In either case returns the Identifier of the current focus.
+ * Sets the focus to the given module. If no argument is given the focus 
+ * doesn't change. In either case the identifier of the current focus is returned.
  */
 public class SetFocus implements Function, Serializable {
 
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "Sets the focus to the given module. If no Parameter is given the focus doesn't change. In either case returns the Identifier of the current focus.";
+			return "Sets the focus to the given module. If no argument is given the focus doesn't change. " +
+					"In either case the identifier of the current focus is returned.";
 		}
 
 		public int getParameterCount() {
@@ -69,8 +70,7 @@ public class SetFocus implements Function, Serializable {
 		}
 
 		public String getExample() {
-			// TODO Auto-generated method stub
-			return null;
+			return "(set-focus MAIN)";
 		}
 	}
 

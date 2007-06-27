@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2006 Peter Lin, 2007 Alexander Wilden
+ * Copyright 2002-2006 Peter Lin, 2007 Alexander Wilden, Uta Christoph
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,15 +35,16 @@ import org.jamocha.rete.util.FactUtils;
 /**
  * @author Peter Lin
  * 
- * save-facts will store all facts in the engine in a specified file and can be
- * sorted by templates or facts-ids.
+ * Saves all facts in the engine to a file, specified in the first argument.
+ * Facts can be sorted according to their deftemplates or fact-ids.
  */
 public class SaveFacts implements Function, Serializable {
 
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "save-facts will store all facts in the engine in a specified file and can be sorted by templates or facts-ids.";
+			return "Saves all facts in the engine to a file, specified in the first argument." +
+					"Facts can be sorted according to their deftemplates or fact-ids.";
 		}
 
 		public int getParameterCount() {
@@ -93,8 +94,12 @@ public class SaveFacts implements Function, Serializable {
 		}
 
 		public String getExample() {
-			// TODO Auto-generated method stub
-			return null;
+			return "(deftemplate car (slot color)(slot speed))\n" +
+					"(assert (car (color \"red\")(speed 200)))\n" +
+					"(assert (car (color \"blue\")(speed 150)))\n" +
+					"(assert (car (color \"green\")(speed 100)))\n" +		
+					"(save-facts /var/tmp/savetest.clp)\n" +
+					"(save-facts /var/tmp/savetest2.clp template)";
 		}
 	}
 
