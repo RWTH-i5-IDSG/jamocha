@@ -44,7 +44,7 @@ public class ValidateRule implements Function, Serializable {
 		}
 
 		public String getParameterDescription(int parameter) {
-			return "True or false.";
+			return "'true' or 'false'";
 		}
 
 		public String getParameterName(int parameter) {
@@ -68,8 +68,22 @@ public class ValidateRule implements Function, Serializable {
 		}
 
 		public String getExample() {
-			// TODO Auto-generated method stub
-			return null;
+			return "(validate-rule true)\n" +
+					"(deftemplate customer\n" +
+					"  (slot first)\n" +
+					"  (slot last)\n" +
+					"  (slot title)\n" +
+					"  (slot address)\n" +
+					")\n" +
+					"(defrule rule\n" +
+					"  (customer\n" +
+					"    (first \"john\")\n" +
+					"  )\n" +
+					"  =>\n" +
+					"  (printout t \"rule0 was fired\" )\n" +
+					")\n" +
+					"(assert (customer (first \"john\")(last \"doe\")(address \"moon\") ) )\n" +
+					"(fire)";
 		}
 	}
 

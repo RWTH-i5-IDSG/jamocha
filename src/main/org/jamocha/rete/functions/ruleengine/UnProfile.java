@@ -29,15 +29,17 @@ import org.jamocha.rete.functions.FunctionDescription;
 /**
  * @author Peter Lin
  * 
- * unprofile is used to turn off profiling. It provides basic profiling of
- * assert, retract, add activation, remove activation and fire.
+ * Turns off profiling. There is the choice to turn off profiling
+ * of assert, retract, add activation, remove activation, and fire. 
+ * Returns NIL.
  */
 public class UnProfile implements Function, Serializable {
 
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "profile is used to turn on profiling. It provides basic profiling of assert, retract, add activation, remove activation and fire.";
+			return "Turns off profiling. There is the choice to turn off profiling of assert, retract, add activation, " +
+					"remove activation, and fire. Returns NIL.";
 		}
 
 		public int getParameterCount() {
@@ -45,7 +47,7 @@ public class UnProfile implements Function, Serializable {
 		}
 
 		public String getParameterDescription(int parameter) {
-			return "What to unprofile. Can be one or more of: all, assert-fact, add-activation, fire, retract-fact or remove-activation.";
+			return "What to unprofile. One or several of: all, assert-fact, add-activation, fire, retract-fact or remove-activation.";
 		}
 
 		public String getParameterName(int parameter) {
@@ -69,8 +71,10 @@ public class UnProfile implements Function, Serializable {
 		}
 
 		public String getExample() {
-			// TODO Auto-generated method stub
-			return null;
+			return "(profile all)\n" +
+					"(deftemplate templ1 (slot name))\n" +
+					"(print-profile)\n" +
+					"(unprofile assert-fact)";
 		}
 	}
 

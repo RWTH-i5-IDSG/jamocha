@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2006 Peter Lin, 2007 Alexander Wilden
+ * Copyright 2002-2006 Peter Lin, 2007 Alexander Wilden, Uta Christoph
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,8 @@ public class UnWatch implements Function, Serializable {
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "unwatch allows users to remove the watch of different engine processes, like activations, facts and rules.";
+			return "Allows users to remove the watch of different engine processes, like activations, " +
+					"facts and rules.";
 		}
 
 		public int getParameterCount() {
@@ -45,7 +46,7 @@ public class UnWatch implements Function, Serializable {
 		}
 
 		public String getParameterDescription(int parameter) {
-			return "What to unwatch. Can be one or more of: all, facts, activations or rules.";
+			return "What to unwatch. One or several of: all, facts, activations or rules.";
 		}
 
 		public String getParameterName(int parameter) {
@@ -69,8 +70,11 @@ public class UnWatch implements Function, Serializable {
 		}
 
 		public String getExample() {
-			// TODO Auto-generated method stub
-			return null;
+			return "(watch facts)\n" +
+					"(deftemplate templ2 (slot name))\n" +
+					"(assert (templ2 (name test1)) (templ2 (name test2)))\n" +
+					"(unwatch facts)\n" +
+					"(assert (templ2 (name test3)))";
 		}
 	}
 

@@ -30,14 +30,14 @@ import org.jamocha.rete.functions.FunctionDescription;
 /**
  * @author Peter Lin
  * 
- * Prints out the Version of Jamocha.
+ * Prints out the Version of Jamocha. Returns NIL.
  */
 public class Version implements Function, Serializable {
 
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "Prints out the Version of Jamocha.";
+			return "Prints out the version of Jamocha. Returns NIL.";
 		}
 
 		public int getParameterCount() {
@@ -69,8 +69,7 @@ public class Version implements Function, Serializable {
 		}
 
 		public String getExample() {
-			// TODO Auto-generated method stub
-			return null;
+			return "(version)";
 		}
 	}
 

@@ -30,16 +30,17 @@ import org.jamocha.rete.functions.FunctionDescription;
 /**
  * @author Peter Lin
  * 
- * Removes a Template from the engine that currently is not in use. Returns true
- * on success and false otherwise (e.g. if the template is still in use by a
- * fact or a rule).
+ * Removes a template wich is currentlich not in use from the engine.
+ * Returns true on success and false otherwise (e.g. if the template 
+ * is still in use by a fact or a rule)..
  */
 public class UnDeftemplate implements Function, Serializable {
 
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "Removes a Template from the engine that currently is not in use. Returns true on success and false otherwise (e.g. if the template is still in use by a fact or a rule).";
+			return "Removes a template wich is currentlich not in use from the engine. Returns true on success " +
+					"and false otherwise (e.g. if the template is still in use by a fact or a rule).";
 		}
 
 		public int getParameterCount() {
@@ -47,7 +48,7 @@ public class UnDeftemplate implements Function, Serializable {
 		}
 
 		public String getParameterDescription(int parameter) {
-			return "Template that will be removed.";
+			return "Template to be removed.";
 		}
 
 		public String getParameterName(int parameter) {
@@ -71,8 +72,18 @@ public class UnDeftemplate implements Function, Serializable {
 		}
 
 		public String getExample() {
-			// TODO Auto-generated method stub
-			return null;
+			return "(deftemplate transact\n" +
+					"  (slot accountId (type STRING))\n" +
+					"  (slot countryCode (type STRING))\n" +
+					"  (slot currentPrice (type DOUBLE))\n" +
+					"  (slot issuer (type STRING))\n" +
+					"  (slot lastPrice (type DOUBLE)\n)" +
+					"  (slot purchaseDate (type STRING))\n" +
+					"  (slot total (type DOUBLE))\n" +
+					")\n" +
+					"(templates)\n" +
+					"(undeftemplate transact)\n" +
+					"(templates)";
 		}
 	}
 

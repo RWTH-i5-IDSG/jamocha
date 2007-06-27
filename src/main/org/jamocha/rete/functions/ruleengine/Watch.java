@@ -37,7 +37,7 @@ public class Watch implements Function, Serializable {
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "watch allows users to watch different engine processes, likes activations, facts and rules.";
+			return "Allows users to watch different engine processes, likes activations, facts and rules.";
 		}
 
 		public int getParameterCount() {
@@ -45,7 +45,7 @@ public class Watch implements Function, Serializable {
 		}
 
 		public String getParameterDescription(int parameter) {
-			return "What to watch. Can be one or more of: all, facts, activations or rules.";
+			return "What to watch. One or several of: all, facts, activations or rules.";
 		}
 
 		public String getParameterName(int parameter) {
@@ -69,8 +69,7 @@ public class Watch implements Function, Serializable {
 		}
 
 		public String getExample() {
-			// TODO Auto-generated method stub
-			return null;
+			return "(watch facts)";
 		}
 	}
 
