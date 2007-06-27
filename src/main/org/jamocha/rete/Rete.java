@@ -132,6 +132,13 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 	 */
 	protected Map<EqualityIndex, Fact> deffactMap = new HashMap<EqualityIndex, Fact>();
 
+	/**
+	 * We use a HashMap to make it easy to determine if an existing deffact
+	 * already exists in the working memory. this is only used for deffacts and
+	 * not for objects
+	 */
+	protected Map<Long, Fact> idToDeffactMap = new HashMap<Long, Fact>();
+
 	protected Map<String, PrintWriter> outputStreams = new HashMap<String, PrintWriter>();
 
 	/**
@@ -680,7 +687,7 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 		for (String key : keys) {
 			bindings.put(key, globalBindings.get(key));
 		}
-		Map<String,JamochaValue> scopeBindings = scopes.getBindings();
+		Map<String, JamochaValue> scopeBindings = scopes.getBindings();
 		keys = scopeBindings.keySet();
 		for (String key : keys) {
 			bindings.put(key, scopeBindings.get(key));
@@ -911,13 +918,9 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 	 */
 	public Fact getFactById(long id) {
 		Fact df = null;
-		Iterator itr = this.deffactMap.values().iterator();
-		while (itr.hasNext()) {
-			df = (Deffact) itr.next();
-			if (df.getFactId() == id) {
-				return df;
-			}
-		}
+		df = idToDeffactMap.get(id);
+		if (df != null)
+			return df;
 		// now search the object facts
 		if (df == null) {
 			// check dynamic facts
@@ -1218,6 +1221,7 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 			if (factID == -1 || this.getFactById(factID) != null)
 				fact.setFactId(this.nextFactId());
 			this.deffactMap.put(fact.equalityIndex(), fact);
+			this.idToDeffactMap.put(fact.getFactId(), fact);
 			if (this.profileAssert) {
 				this.assertFactWProfile(fact);
 			} else {
@@ -1259,15 +1263,7 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 	 * @param id
 	 */
 	public void retractById(long id) throws RetractException {
-		Iterator itr = this.deffactMap.values().iterator();
-		Deffact ft = null;
-		while (itr.hasNext()) {
-			Deffact f = (Deffact) itr.next();
-			if (f.getFactId() == id) {
-				ft = f;
-				break;
-			}
-		}
+		Fact ft = idToDeffactMap.get(id);
 		if (ft != null) {
 			retractFact(ft);
 		}
@@ -1281,6 +1277,7 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 	 */
 	public void retractFact(Fact fact) throws RetractException {
 		this.deffactMap.remove(fact.equalityIndex());
+		this.idToDeffactMap.remove(fact.getFactId());
 		if (this.profileRetract) {
 			this.retractFactWProfile(fact);
 		} else {
