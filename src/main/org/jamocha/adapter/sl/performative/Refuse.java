@@ -15,13 +15,20 @@
  */
 package org.jamocha.adapter.sl.performative;
 
+import java.util.List;
+
 import org.jamocha.adapter.AdapterTranslationException;
+import org.jamocha.adapter.sl.configurations.ContentSLConfiguration;
+import org.jamocha.adapter.sl.configurations.SLCompileType;
+import org.jamocha.adapter.sl.configurations.SLConfiguration;
+import org.jamocha.parser.sl.ParseException;
+import org.jamocha.parser.sl.SLParser;
 
 /**
  * This class walks through an SL code tree and translates it to CLIPS depending
  * on the given performative.
  * 
- * @author Alexander Wilden
+ * @author Karl-Heinz Krempels
  * 
  */
 public class Refuse {
@@ -34,8 +41,8 @@ public class Refuse {
 	}
 
 	/**
-	 * Translates SL code of a request to CLIPS code. A request only contains
-	 * one action.
+	 * Translates SL code of a request to CLIPS code. A refuse contains
+	 * a tuple, consisting of an action expression and a proposition giving the reason for the refusal.
 	 * 
 	 * @param slContent
 	 *            The SL content we have to translate.
@@ -46,8 +53,21 @@ public class Refuse {
 	 */
 	public static String getCLIPS(String slContent)
 			throws AdapterTranslationException {
-		// TODO: implement me
-		return null;
+		ContentSLConfiguration contentConf;
+		try {
+			contentConf = SLParser.parse(slContent);
+		} catch (ParseException e) {
+			throw new AdapterTranslationException(
+					"Could not translate from SL to CLIPS.", e);
+		}
+		StringBuffer result = new StringBuffer();
+		List<SLConfiguration> results = contentConf.getExpressions();
+		result.append("(assert (agent-refuse-result (propositions");
+		for (int i = 1; i < results.size(); i++) {
+			result.append(results.get(i).compile(SLCompileType.ASSERT));
+		}
+		result.append(")))");
+		return result.toString();
 	}
 
 }
