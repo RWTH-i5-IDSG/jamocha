@@ -235,4 +235,13 @@
 			</fileset>
 		</delete>
 	</target>
+	
+	<target name="doc" depends="jars">
+		<java args="-shell" jar="jamocha.jar" fork="true" inputstring="(functions-description)\n(exit)" output="documentation/functions.xml"/>
+		<xslt style="documentation/stylesheets/latex.xslt" out="documentation/documentation.tex" in="documentation/functions.xml"/>
+
+		
+		
+	</target>
+	
 </project>

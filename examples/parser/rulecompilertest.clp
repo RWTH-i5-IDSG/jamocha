@@ -14,6 +14,15 @@
 (assert (getraenk (name "kartoffelsalat") (farbe "schwarz") ))
 
 
+(defrule existrule
+	(not
+		(wurst (name "bratwurst"))
+	)
+	=>
+	(printout t "keine bratwurst" crlf)
+)
+
+
 (defrule megarule
 		(salat (farbe ~ "weiss")(name ?weight) )	
 	=> (printout t ?weight  crlf)

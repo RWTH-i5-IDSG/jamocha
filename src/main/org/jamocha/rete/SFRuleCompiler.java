@@ -50,6 +50,7 @@ import org.jamocha.rete.nodes.joinfilter.JoinFilter;
 import org.jamocha.rete.nodes.joinfilter.JoinFilterException;
 import org.jamocha.rete.nodes.joinfilter.LeftFieldAddress;
 import org.jamocha.rete.nodes.joinfilter.RightFieldAddress;
+import org.jamocha.rule.AbstractCondition;
 import org.jamocha.rule.Action;
 import org.jamocha.rule.Analysis;
 import org.jamocha.rule.AndCondition;
@@ -494,14 +495,25 @@ public class SFRuleCompiler implements RuleCompiler {
 		HashMap<Condition, BaseNode> conditionJoiners = new HashMap<Condition, BaseNode>();
 
 		for (int i = 0; i < sortedConds.length; i++) {
-			ObjectCondition c = sortedConds[i];
+			
+			Condition c = sortedConds[i];
 			// c now is the next condition with the lowest complexity
 			// now, check whether we have to create a new join
 			boolean createNewJoin = (i < sortedConds.length - 1);
-
+			BaseNode lastNode = null;
 			if (createNewJoin) {
 				// creat join add old bottom node, set join to new bottom node
-				BetaFilterNode betaNode = new BetaFilterNode(engine.nextNodeId());
+				
+				AbstractBeta betaNode = null;
+				if (c instanceof ObjectCondition) {
+					betaNode = new BetaFilterNode(engine.nextNodeId());
+					lastNode = ((ObjectCondition)c).getLastNode();
+				} else if (c instanceof NotCondition) {
+					betaNode = new BetaNotNode(engine.nextNodeId());
+					lastNode = ((NotCondition)c).getLastNode();
+				}
+				
+				
 				if (fromBottom != null) {
 					betaNode.addNode(fromBottom, engine);
 				} else {
@@ -510,7 +522,9 @@ public class SFRuleCompiler implements RuleCompiler {
 				fromBottom = betaNode;
 			}
 			conditionJoiners.put(c, fromBottom);
-			BaseNode lastNode = c.getLastNode();
+			
+			
+			
 
 			if (lastNode != null) {
 				if (fromBottom != null) {
@@ -845,9 +859,18 @@ public class SFRuleCompiler implements RuleCompiler {
 	 * @param rule
 	 * 
 	 * @return compileConditionState
+	 * @throws StopCompileException 
+	 * @throws AssertException 
 	 */
 	public BaseNode compile(NotCondition condition, Rule rule, int conditionIndex) {
-		return null;
+		Object o = condition.getNestedConditionalElement().get(0);
+		AbstractCondition nested = (AbstractCondition)o;
+		try {
+			return nested.compile(this, rule, conditionIndex);
+		} catch (Exception e) {
+			engine.writeMessage(e.getMessage());
+			return null /* or LONG_OBJECT */;
+		}
 	}
 
 	/**

@@ -43,7 +43,7 @@ public abstract class BooleanOperatorCondition extends AbstractCondition {
 	}
 
 	public BaseNode getLastNode() {
-		return reteNode;
+		return ((ObjectCondition)nestedCE.get(0)).getLastNode();
 	}
 	
 	public BaseNode getFirstNode() {

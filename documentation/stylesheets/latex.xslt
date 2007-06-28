@@ -70,13 +70,13 @@
 <xsl:if test="@fixedParameterCount = 'true'">This function \textbf{has} fixed parameter count.</xsl:if><xsl:if test="@fixedParameterCount = 'false'">This function \textbf{hasn't} fixed parameter count.</xsl:if>\\
 Return type is \textbf{$&lt;$<xsl:call-template name="clean-text"><xsl:with-param name="source" select="@returnType"/></xsl:call-template>$&gt;$}
 \paragraph{Parameter}
-\begin{itemize}
-<xsl:if test="count(parameter) = 0">\item\textit{none}</xsl:if>
+<xsl:if test="count(parameter) = 0">\textit{none}</xsl:if>
+\begin{description}
 <xsl:for-each select="parameter">
-\item\textbf{$&lt;$<xsl:call-template name="clean-text"><xsl:with-param name="source" select="@type"/></xsl:call-template>$&gt;$}
-<xsl:if test="@fixedParameterCount = 'true'">(optional)</xsl:if> <xsl:call-template name="clean-text"><xsl:with-param name="source" select="@name"/></xsl:call-template> : <xsl:call-template name="clean-text"><xsl:with-param name="source" select="@description"/></xsl:call-template>\\
+\item[<xsl:call-template name="clean-text"><xsl:with-param name="source" select="@type"/></xsl:call-template>
+<xsl:if test="@fixedParameterCount = 'true'">(optional)</xsl:if> <xsl:call-template name="clean-text"><xsl:with-param name="source" select="@name"/></xsl:call-template>] : <xsl:call-template name="clean-text"><xsl:with-param name="source" select="@description"/></xsl:call-template>\\
 </xsl:for-each>
-\end{itemize}
+\end{description}
 <xsl:if test="count(example) &gt; 0">
 \paragraph{Example}
 <xsl:for-each select="example/exampleline">

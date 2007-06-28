@@ -341,10 +341,13 @@ public class Defrule implements Rule {
 	}
 	
 	public ObjectCondition[] getObjectConditions() {
-		ArrayList<ObjectCondition> ocs = new ArrayList<ObjectCondition>();
+		ArrayList<Condition> ocs = new ArrayList<Condition>();
 		for (Condition c: this.conditions){
 			if (c instanceof ObjectCondition){
-				ocs.add((ObjectCondition)c);
+				ocs.add((Condition)c);
+			}
+			if (c instanceof NotCondition){
+				ocs.add((Condition)c);
 			}
 		}
 		ObjectCondition[] cond = new ObjectCondition[ocs.size()];
