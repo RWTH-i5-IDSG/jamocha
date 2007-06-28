@@ -49,6 +49,9 @@ public class AlphaMemory extends AbstractMemory implements Iterable<Fact>{
 		return facts.size();
 	}
 
+	public boolean isEmpty(){
+		return facts.size() == 0;
+	}
 	
 	
 	

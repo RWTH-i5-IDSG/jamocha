@@ -340,7 +340,7 @@ public class Defrule implements Rule {
 		return cond;
 	}
 	
-	public ObjectCondition[] getObjectConditions() {
+	public Condition[] getObjectConditions() {
 		ArrayList<Condition> ocs = new ArrayList<Condition>();
 		for (Condition c: this.conditions){
 			if (c instanceof ObjectCondition){
@@ -350,7 +350,7 @@ public class Defrule implements Rule {
 				ocs.add((Condition)c);
 			}
 		}
-		ObjectCondition[] cond = new ObjectCondition[ocs.size()];
+		Condition[] cond = new Condition[ocs.size()];
 		ocs.toArray(cond);
 		return cond;
 	}

@@ -38,6 +38,7 @@ import org.jamocha.rete.nodes.AbstractBeta;
 import org.jamocha.rete.nodes.AlphaNode;
 import org.jamocha.rete.nodes.BaseNode;
 import org.jamocha.rete.nodes.BetaFilterNode;
+import org.jamocha.rete.nodes.BetaNotNode;
 import org.jamocha.rete.nodes.LIANode;
 import org.jamocha.rete.nodes.ObjectTypeNode;
 import org.jamocha.rete.nodes.RootNode;
@@ -475,7 +476,7 @@ public class SFRuleCompiler implements RuleCompiler {
 		// take the last node from each condition and connect them by joins
 		// regarding the complexity
 		TerminalNode terminal = rule.getTerminalNode();
-		ObjectCondition[] sortedConds = rule.getObjectConditions().clone();
+		Condition[] sortedConds = rule.getObjectConditions().clone();
 		Arrays.sort(sortedConds);
 
 		BaseNode mostBottomNode = null;
@@ -535,8 +536,13 @@ public class SFRuleCompiler implements RuleCompiler {
 			}
 		}
 
-		if (mostBottomNode == null)
-			mostBottomNode = sortedConds[0].getLastNode();
+		if (mostBottomNode == null){
+			if (sortedConds[0] instanceof ObjectCondition)
+				mostBottomNode = ((ObjectCondition)sortedConds[0]).getLastNode();
+			if (sortedConds[0] instanceof NotCondition)
+				mostBottomNode = ((NotCondition)sortedConds[0]).getLastNode();
+		}
+		assert(mostBottomNode != null);
 
 
 		if (!(mostBottomNode instanceof AbstractBeta)){

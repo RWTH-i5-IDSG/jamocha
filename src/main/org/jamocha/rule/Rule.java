@@ -215,7 +215,7 @@ public interface Rule extends Scope, Complexity, Cloneable {
 
 	Condition[] getConditions();
 	
-	ObjectCondition[] getObjectConditions();
+	Condition[] getObjectConditions();
 
 	Action[] getActions();
 
