@@ -112,7 +112,7 @@
 		; This fire is needed to immediately send the agree
 		(fire)
 	
-		(bind ?refOp (fact-slot-value ?result "refOp")
+		(bind ?refOp (fact-slot-value ?result "refOp"))
 		
 		(apply (str-cat "fipa-queryRef-handler-" ?refOp) ?receivers ?oldMessage ?result)
 	; an error occured

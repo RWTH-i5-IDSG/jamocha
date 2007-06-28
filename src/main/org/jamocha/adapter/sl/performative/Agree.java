@@ -65,7 +65,7 @@ public class Agree {
 		result.append("(assert (agent-agree-result (propositions");
 		for(int i = 1; i < results.size(); i++){
 			result.append(" ");
-			result.append(results.get(1).compile(SLCompileType.RULE_LHS));
+			result.append(results.get(i).compile(SLCompileType.RULE_LHS));
 		}
 		result.append(")))");
 		return result.toString();
