@@ -476,109 +476,141 @@ public class SFRuleCompiler implements RuleCompiler {
 		// take the last node from each condition and connect them by joins
 		// regarding the complexity
 		TerminalNode terminal = rule.getTerminalNode();
-		Condition[] sortedConds = rule.getObjectConditions().clone();
-		Arrays.sort(sortedConds);
-
-		BaseNode mostBottomNode = null;
-
-		BaseNode fromBottom = null;
-
-		// Note: here is a tip on compiling the joins. Using a row+column
-		// approach,
-		// it's important to take into account Not and Exist nodes. This is
-		// because
-		// Not and Exist do not propogate any additional facts. In order to
-		// build
-		// the joins correctly from the terminal node up, you have to know how
-		// many Not and Exist nodes are above it. Peter 5/16/07
-
-		// TODO we can do that more efficient with a simple array
+		Condition[] sortedConds = rule.getObjectConditions().clone(); Arrays.sort(sortedConds);
 		HashMap<Condition, BaseNode> conditionJoiners = new HashMap<Condition, BaseNode>();
-
+		BaseNode initFactNode = root.activateObjectTypeNode(engine.initFact, engine);
+		
+		
+		BaseNode mostBottomNode = null;
+		
+		BaseNode fromBottom = null;
 		for (int i = 0; i < sortedConds.length; i++) {
 			
 			Condition c = sortedConds[i];
-			// c now is the next condition with the lowest complexity
-			// now, check whether we have to create a new join
-			boolean createNewJoin = (i < sortedConds.length - 1);
-			BaseNode lastNode = null;
-			if (createNewJoin) {
-				// creat join add old bottom node, set join to new bottom node
-				AbstractBeta betaNode = null;
-				if (c instanceof ObjectCondition) {
-					betaNode = new BetaFilterNode(engine.nextNodeId());
-					lastNode = ((ObjectCondition)c).getLastNode();
-				} else if (c instanceof NotCondition) {
-					betaNode = new BetaNotNode(engine.nextNodeId());
-					lastNode = ((NotCondition)c).getLastNode();
-				}
-				
-				if (fromBottom != null) {
-					betaNode.addNode(fromBottom, engine);
-				} else {
-					mostBottomNode = betaNode;
-				}
-				fromBottom = betaNode;
-			}
-			conditionJoiners.put(c, fromBottom);
+			AbstractBeta newBeta = null;
 			
-			if (c instanceof ObjectCondition) {
-				lastNode = ((ObjectCondition)c).getLastNode();
-			} else if (c instanceof NotCondition) {
-				lastNode = ((NotCondition)c).getLastNode();
+			if (c instanceof ObjectCondition) newBeta = new BetaFilterNode(engine.nextNodeId());
+			else if (c instanceof NotCondition) newBeta = new BetaNotNode(engine.nextNodeId());
+			
+			if (fromBottom == null){
+				mostBottomNode = newBeta;
+			} else {
+				newBeta.addNode(fromBottom, engine);				
 			}
 			
-
-			if (lastNode != null) {
-				if (fromBottom != null) {
-					(lastNode).addNode(fromBottom, engine);
-				} else {
-					mostBottomNode = lastNode;
-				}
-			}
-		}
-
-		if (mostBottomNode == null){
-			if (sortedConds[0] instanceof ObjectCondition)
-				mostBottomNode = ((ObjectCondition)sortedConds[0]).getLastNode();
-			if (sortedConds[0] instanceof NotCondition)
-				mostBottomNode = ((NotCondition)sortedConds[0]).getLastNode();
-		}
-
-		if (!(mostBottomNode instanceof AbstractBeta)){
-			// we will generate a pseudo-join. little dirty, but sometimes,
-			// we need it (e.g. for test-conditions)
-			BetaFilterNode pseudoJoin = new BetaFilterNode(engine.nextNodeId());
+			fromBottom = newBeta;
 			
-			//get initial fact
-			BaseNode initFactNode = root.activateObjectTypeNode(engine.initFact, engine);
+			c.getLastNode().addNode(newBeta, engine);
 			
-			// build adaptor for our only condition
-			LIANode adaptor = new LIANode(engine.nextNodeId());
-			initFactNode.addNode(adaptor, engine);
+			conditionJoiners.put(c, newBeta);
 			
-			
-			adaptor.addNode(pseudoJoin, engine);
-			mostBottomNode.addNode(pseudoJoin, engine);
-			
-			
-			mostBottomNode = pseudoJoin;
-			conditionJoiners.put(sortedConds[0], pseudoJoin);
 		}
 		
+		if (fromBottom != null) initFactNode.addNode(fromBottom, engine);
+		
+		if (mostBottomNode == null) mostBottomNode = sortedConds[0].getLastNode();
+		
+		
+//		BaseNode mostBottomNode = null;
+//
+//		BaseNode fromBottom = null;
+//
+//		// Note: here is a tip on compiling the joins. Using a row+column
+//		// approach,
+//		// it's important to take into account Not and Exist nodes. This is
+//		// because
+//		// Not and Exist do not propogate any additional facts. In order to
+//		// build
+//		// the joins correctly from the terminal node up, you have to know how
+//		// many Not and Exist nodes are above it. Peter 5/16/07
+//
+//		// TODO we can do that more efficient with a simple array
+//		HashMap<Condition, BaseNode> conditionJoiners = new HashMap<Condition, BaseNode>();
+//
+//		for (int i = 0; i < sortedConds.length; i++) {
+//			
+//			Condition c = sortedConds[i];
+//			// c now is the next condition with the lowest complexity
+//			// now, check whether we have to create a new join
+//			boolean createNewJoin = (i < sortedConds.length - 1);
+//			BaseNode lastNode = null;
+//			if (createNewJoin) {
+//				// creat join add old bottom node, set join to new bottom node
+//				AbstractBeta betaNode = null;
+//				if (c instanceof ObjectCondition) {
+//					betaNode = new BetaFilterNode(engine.nextNodeId());
+//					lastNode = ((ObjectCondition)c).getLastNode();
+//				} else if (c instanceof NotCondition) {
+//					betaNode = new BetaNotNode(engine.nextNodeId());
+//					lastNode = ((NotCondition)c).getLastNode();
+//				}
+//				
+//				if (fromBottom != null) {
+//					betaNode.addNode(fromBottom, engine);
+//				} else {
+//					mostBottomNode = betaNode;
+//				}
+//				fromBottom = betaNode;
+//			}
+//			conditionJoiners.put(c, fromBottom);
+//			
+//			if (c instanceof ObjectCondition) {
+//				lastNode = ((ObjectCondition)c).getLastNode();
+//			} else if (c instanceof NotCondition) {
+//				lastNode = ((NotCondition)c).getLastNode();
+//			}
+//			
+//
+//			if (lastNode != null) {
+//				if (fromBottom != null) {
+//					(lastNode).addNode(fromBottom, engine);
+//				} else {
+//					mostBottomNode = lastNode;
+//				}
+//			}
+//		}
+//
+//		if (mostBottomNode == null){
+//			if (sortedConds[0] instanceof ObjectCondition)
+//				mostBottomNode = ((ObjectCondition)sortedConds[0]).getLastNode();
+//			if (sortedConds[0] instanceof NotCondition)
+//				mostBottomNode = ((NotCondition)sortedConds[0]).getLastNode();
+//		}
+//
+//		if (!(mostBottomNode instanceof AbstractBeta)){
+//			// we will generate a pseudo-join. little dirty, but sometimes,
+//			// we need it (e.g. for test-conditions)
+//			BetaFilterNode pseudoJoin = new BetaFilterNode(engine.nextNodeId());
+//			
+//			//get initial fact
+//			BaseNode initFactNode = root.activateObjectTypeNode(engine.initFact, engine);
+//			
+//			// build adaptor for our only condition
+//			LIANode adaptor = new LIANode(engine.nextNodeId());
+//			initFactNode.addNode(adaptor, engine);
+//			
+//			
+//			adaptor.addNode(pseudoJoin, engine);
+//			mostBottomNode.addNode(pseudoJoin, engine);
+//			
+//			
+//			mostBottomNode = pseudoJoin;
+//			conditionJoiners.put(sortedConds[0], pseudoJoin);
+//		}
+//		
 		BaseNode ultimateMostBottomNode = compileBindings(rule, sortedConds, conditionJoiners, mostBottomNode);
-		
-		
-		
-		
+//		
+//		
+//		
+//		
 		ultimateMostBottomNode.addNode(terminal, engine);
-		
+//		
 		//activate all joins
 		for (BaseNode n : conditionJoiners.values()){
 			if (n == null) continue;
 			((BetaFilterNode)n).activate(engine);
 		}
-		
+//		
 	}
 
 	protected BaseNode compileBindings(Rule rule, Condition[] conds, Map<Condition, BaseNode> conditionJoiners, BaseNode mostBottomNode) throws AssertException {
@@ -614,12 +646,10 @@ public class SFRuleCompiler implements RuleCompiler {
 					if (c instanceof BoundConstraint) {
 						BoundConstraint bc = (BoundConstraint) c;
 						BindingAddress ba;
-						int j = i;
-						if (conds.length == 1) j = -1;
 						if (bc.getIsObjectBinding()) {
-							ba = new BindingAddress(j, -1, bc.getOperator());
+							ba = new BindingAddress(i-1, -1, bc.getOperator());
 						} else {
-							ba = new BindingAddress(j, bc.getSlot().getId(), bc.getOperator());
+							ba = new BindingAddress(i-1, bc.getSlot().getId(), bc.getOperator());
 						}
 						bindingAddressTable.addBindingAddress(ba, bc.getVariableName());
 					}

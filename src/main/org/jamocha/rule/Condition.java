@@ -19,6 +19,8 @@ package org.jamocha.rule;
 import java.io.Serializable;
 import java.util.List;
 
+import org.jamocha.rete.nodes.BaseNode;
+
 /**
  * @author Peter Lin
  * 
@@ -62,5 +64,7 @@ public interface Condition extends Serializable, Complexity, Compileable, Compar
 	 * clear the condition
 	 */
 	void clear();
+	
+	BaseNode getLastNode();
 	
 }

@@ -13,6 +13,12 @@
 (assert (getraenk (name "cola") (farbe "schwarz") ))
 (assert (getraenk (name "kartoffelsalat") (farbe "schwarz") ))
 
+(defrule tst2
+	(wurst (name ?x) (farbe ?f) )
+	(salat (name ?y) (farbe ?f) )
+	=> (printout t ?x ?y crlf)
+)
+(fire)
 
 
 (defrule existrule
@@ -28,12 +34,7 @@
 
 
 
-(defrule tst2
-;	(wurst (name ?x) (farbe ?f) )
-	(salat (name ?y) (farbe ?f) )
-	=> (printout t ?x ?y crlf)
-)
-(fire)
+
 
 (defrule tst
 	(wurst (name ~ ?salad))

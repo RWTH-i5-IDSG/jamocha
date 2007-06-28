@@ -93,6 +93,11 @@ public class TestCondition extends AbstractCondition {
 	public boolean hasBindings() {
 		return false;
 	}
+
+	public BaseNode getLastNode() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 	
 
 	
