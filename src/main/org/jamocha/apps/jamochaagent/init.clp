@@ -72,6 +72,22 @@
 	(slot error (type STRING)(default NIL))
 )
 
+
+
+
+
+(deftemplate agent-queryRef-result
+	(slot refOp (type STRING))
+	(multislot items)
+	(slot noConnected (type LONG))
+)
+
+
+
+(deftemplate agent-agree-result
+	(multislot propositions)
+)
+
 ; ===================================================
 ; Definition of functions that are needed.
 ; ===================================================

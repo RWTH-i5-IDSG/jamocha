@@ -73,15 +73,6 @@
 )
 
 
-
-(deftemplate agent-queryRef-result
-	(slot refOp (type STRING))
-	(multislot items)
-	(slot noConnected (type LONG))
-)
-
-
-
 (defrule fipa-query-queryRef
 	"Fires for agent-message-evaluation-result facts with protocol query and performative query-ref."
 	?initiator <- (agent-message-evaluation-result
@@ -157,8 +148,11 @@
 	(?receivers ?oldMessage ?resultFact)
 	
 	; For refOp all nothing has to be checked. All results are just send to the receivers.
-	(bind ?resultContent (fact-slot-value ?oldMessage "content"))
-	(bind ?resultContent (str-cat "((= " (strip-braces ?resultContent)))
+	(bind ?resultContent 
+		(str-cat "((= "
+			(strip-braces (fact-slot-value ?oldMessage "content"))
+		)
+	)
 		
 	(bind ?resultSet (fact-slot-value ?resultFact "items"))
 	
@@ -193,11 +187,10 @@
 	(?receivers ?oldMessage ?resultSet)
 	
 	; For refOp any we just return the first result.
-	(bind ?resultContent (fact-slot-value ?oldMessage "content"))
 	(bind ?resultContent
 		(str-cat 
 			"((= "
-			(strip-braces ?resultContent)
+			(strip-braces (fact-slot-value ?oldMessage "content"))
 			(clips2sl (first$ ?resultSet)) "))"
 		)
 	)
