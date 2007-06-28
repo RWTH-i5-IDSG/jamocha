@@ -44,10 +44,6 @@ public class CLIPS2SL {
 	 * @return The result of the translation.
 	 */
 	public static String getSL(JamochaValue value, Rete engine) {
-		return "(" + getSLInner(value, engine) + ")";
-	}
-
-	private static String getSLInner(JamochaValue value, Rete engine) {
 		StringBuilder res = new StringBuilder();
 		if (value.getType().equals(JamochaType.BOOLEAN)
 				|| value.getType().equals(JamochaType.DATETIME)
@@ -59,7 +55,7 @@ public class CLIPS2SL {
 		} else if (value.getType().equals(JamochaType.LIST)) {
 			res.append("(set \n");
 			for (int i = 0; i < value.getListCount(); ++i) {
-				res.append(" " + getSLInner(value.getListValue(i), engine) + " "); // recursion
+				res.append(" " + getSL(value.getListValue(i), engine) + " "); // recursion
 			}
 			res.append(")");
 		} else if (value.getType().equals(JamochaType.FACT)) {
@@ -68,7 +64,7 @@ public class CLIPS2SL {
 			res.append("(" + tmpl.getName() + "\n");
 			for (int i = 0; i < tmpl.getNumberOfSlots(); i++) {
 				res.append("		:" + tmpl.getSlot(i).getName() + " "
-						+ getSLInner(fact.getSlotValue(i), engine));
+						+ getSL(fact.getSlotValue(i), engine));
 			}
 			res.append(" )\n");
 		} else if (value.getType().equals(JamochaType.FACT_ID)) {
@@ -78,7 +74,7 @@ public class CLIPS2SL {
 				res.append("(" + tmpl.getName() + "\n");
 				for (int i = 0; i < tmpl.getNumberOfSlots(); i++) {
 					res.append("		:" + tmpl.getSlot(i).getName() + " "
-							+ getSLInner(fact.getSlotValue(i), engine));
+							+ getSL(fact.getSlotValue(i), engine));
 				}
 				res.append(" )\n");
 			}

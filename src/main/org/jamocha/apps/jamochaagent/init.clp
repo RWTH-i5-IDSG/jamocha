@@ -2,6 +2,7 @@
 ; Initial data that is essential to run the JamochaAgent.
 ; ===================================================
 
+(defmodule Agent)
 
 ; ===================================================
 ; Definition of the templates that are needed.
@@ -37,7 +38,7 @@
 	(slot processed (type BOOLEAN)(default FALSE))
 )
 
-(deftemplate agent-message-initiator
+(deftemplate agent-message-evaluation-result
 	"Deftemplate for a message initiator."
 	; The receiver of the new message to send.
 	(slot receiver) ; type: agent-description
@@ -56,11 +57,10 @@
 	; the rules checking for the performative small.
 	(slot previous-performative (type STRING))
 	
-	; In this slot the content in SL for the new message to send is hold.
-	(slot content (type STRING))
-	
-	; In this slot the content in CLIPS for the new message to send is hold.
-	(slot content-clips (type STRING))
+	; In this slot the result of the content evaluation in clips code of the refering
+	; message is placed. The content and type of this slot depends on the
+	; previous-performative.
+	(slot result)
 	
 	; This flag indicates whether this initiator was processed and the new message was
 	; send or not. It is not essential for the rule engine but for the user to see
@@ -70,15 +70,6 @@
 	; If an error occured during evaluation of the content of the refering message
 	; it will be placed here.
 	(slot error (type STRING)(default NIL))
-)
-
-(deftemplate done
-	(slot action (type STRING))
-)
-
-(deftemplate result
-	(slot action (type STRING))
-	(slot result-ref (type STRING))
 )
 
 ; ===================================================
@@ -102,27 +93,26 @@
 	    	(fact-slot-value ?message "content")
 	    )
 	)
-	
 	; Add the translated code to the initial message.
 	(modify ?message (content-clips ?clipsCode))
 	
 	; Set the message to processed.
 	(modify ?message (processed TRUE))
 	
+	
 	; Evaluate the code in the rete engine.
 	(bind ?error "")
 	(bind ?*message* ?message)
-	(bind ?result (eval ?clipsCode ?error))
+	(bind ?result (eval-blocking ?clipsCode ?error))
 	
-	; Assert a new agent message initiator that will initiate a new message according
-	; to the used performative and protocol.
-	(assert (agent-message-initiator
+	; Assert a new agent message evaluation result fact that will initiate a new message
+	; according to the used performative and protocol.
+	(assert (agent-message-evaluation-result
 		(receiver ?agent)
 		(refering-message ?message)
 		(protocol ?protocol)
 		(previous-performative (fact-slot-value ?message "performative"))
-		(content (clips2sl ?result))
-		(content-clips ?result)
+		(result ?result)
 		(error ?error)
 	))
 )
@@ -147,6 +137,31 @@
 		(fact-slot-value ?message "reply-by")
 	)
 	(modify ?message (processed TRUE))
+)
+
+
+(deffunction strip-braces
+	"Removes a brace from the left and the right end of a String."
+	(functiongroup AgentFunctions)
+	(?aString)
+	(return 
+		(sub-string 1 (- (str-length ?aString) 1) ?aString)
+	)
+)
+
+
+(deffunction prepare-receivers
+	"Puts together the receivers of a message by extracting the old sender and the reply-to content."
+	(functiongroup AgentFunctions)
+	(?message)
+	(bind ?receivers
+		(union$
+			(create$ (fact-slot-value ?message "sender"))
+			(fact-slot-value ?message "reply-to")
+		)
+	)
+	; delete NIL values in the list.
+	(return (delete-member$ ?receivers NIL))
 )
 
 ; ===================================================
@@ -175,8 +190,6 @@
 	
 	; Process the message.
 	(process-incoming-message ?message ?protocol)
-	
-	(fire)
 )
 
 
@@ -193,6 +206,4 @@
 	
 	; Process the message.
 	(process-outgoing-message ?message)
-	
-	(fire)
 )

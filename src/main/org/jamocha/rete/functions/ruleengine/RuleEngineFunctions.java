@@ -98,6 +98,10 @@ public class RuleEngineFunctions implements FunctionGroup, Serializable {
 		functionMem.declareFunction(eval);
 		funcs.add(eval);
 
+		EvalBlocking evalBlocking = new EvalBlocking();
+		functionMem.declareFunction(evalBlocking);
+		funcs.add(evalBlocking);
+
 		Exit exit = new Exit();
 		functionMem.declareFunction(exit);
 		funcs.add(exit);

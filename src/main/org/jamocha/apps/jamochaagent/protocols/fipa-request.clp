@@ -6,28 +6,20 @@
 
 
 (defrule fipa-request-request
-	"Fires for agent-message-initiators with protocol request and performative request."
-	?initiator <- (agent-message-initiator
+	"Fires for agent-message-evaluation-result facts with protocol request and performative request."
+	?initiator <- (agent-message-evaluation-result
 		(receiver ?receiver)
 		(refering-message ?oldMessage)
 		(protocol "fipa-request")
 		(previous-performative "request")
-		(content ?result)
+		(result ?result)
 		(processed FALSE)
 		(error ?error)
 	)
 	
 	=>
 	
-	
-	(bind ?receivers
-		(union$
-			(create$ (fact-slot-value ?receiver "name"))
-			(fact-slot-value ?oldMessage "reply-to")
-		)
-	)
-	
-	(bind ?receivers (delete-member$ ?receivers NIL))
+	(bind ?receivers (prepare-receivers ?oldMessage))
 	
 	(if
 		(eq ?error "")
@@ -48,6 +40,8 @@
 			(timestamp (datetime2timestamp (now)))
 			(incoming FALSE)
 		))
+		
+		; This fire is needed to immediately send the agree
 		(fire)
 		
 		; Send the reply as inform to the sender of the initiating message and all
@@ -55,7 +49,7 @@
 		(assert (agent-message
 			(receivers ?receivers)
 			(performative "inform")
-			(content (str-cat (fact-slot-value ?oldMessage "content") crlf ?result))
+			(content (str-cat (fact-slot-value ?oldMessage "content") crlf (clips2sl ?result)))
 			(language (fact-slot-value ?oldMessage "language"))
 			(encoding (fact-slot-value ?oldMessage "encoding"))
 			(ontology (fact-slot-value ?oldMessage "ontology"))
@@ -67,7 +61,6 @@
 			(timestamp (datetime2timestamp (now)))
 			(incoming FALSE)
 		))
-		(fire)
 		
 	; an error occured
 	else
@@ -86,7 +79,6 @@
 			(timestamp (datetime2timestamp (now)))
 			(incoming FALSE)
 		))
-		(fire)
 	)
 	
 	; Set the initiator to processed.
@@ -94,13 +86,13 @@
 )
 
 (defrule fipa-request-agree
-	"Fires for agent-message-initiators with protocol request and performative agree."
-	?initiator <- (agent-message-initiator
+	"Fires for agent-message-evaluation-result facts with protocol request and performative agree."
+	?initiator <- (agent-message-evaluation-result
 		(receiver ?receiver)
 		(refering-message ?oldMessage)
 		(protocol "fipa-request")
 		(previous-performative "agree")
-		(content ?result)
+		(result ?result)
 		(processed FALSE)
 	)
 	
@@ -112,13 +104,13 @@
 )
 
 (defrule fipa-request-inform
-	"Fires for agent-message-initiators with protocol request and performative inform."
+	"Fires for agent-message-evaluation-result facts with protocol request and performative inform."
 	?initiator <- (agent-message-initiator
 		(receiver ?receiver)
 		(refering-message ?oldMessage)
 		(protocol "fipa-request")
 		(previous-performative "inform")
-		(content ?result)
+		(result ?result)
 		(processed FALSE)
 	)
 	
