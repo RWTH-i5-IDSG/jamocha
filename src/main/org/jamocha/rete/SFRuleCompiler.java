@@ -504,7 +504,6 @@ public class SFRuleCompiler implements RuleCompiler {
 			BaseNode lastNode = null;
 			if (createNewJoin) {
 				// creat join add old bottom node, set join to new bottom node
-				
 				AbstractBeta betaNode = null;
 				if (c instanceof ObjectCondition) {
 					betaNode = new BetaFilterNode(engine.nextNodeId());
@@ -513,7 +512,6 @@ public class SFRuleCompiler implements RuleCompiler {
 					betaNode = new BetaNotNode(engine.nextNodeId());
 					lastNode = ((NotCondition)c).getLastNode();
 				}
-				
 				
 				if (fromBottom != null) {
 					betaNode.addNode(fromBottom, engine);
@@ -524,7 +522,11 @@ public class SFRuleCompiler implements RuleCompiler {
 			}
 			conditionJoiners.put(c, fromBottom);
 			
-			
+			if (c instanceof ObjectCondition) {
+				lastNode = ((ObjectCondition)c).getLastNode();
+			} else if (c instanceof NotCondition) {
+				lastNode = ((NotCondition)c).getLastNode();
+			}
 			
 
 			if (lastNode != null) {
@@ -542,8 +544,6 @@ public class SFRuleCompiler implements RuleCompiler {
 			if (sortedConds[0] instanceof NotCondition)
 				mostBottomNode = ((NotCondition)sortedConds[0]).getLastNode();
 		}
-		assert(mostBottomNode != null);
-
 
 		if (!(mostBottomNode instanceof AbstractBeta)){
 			// we will generate a pseudo-join. little dirty, but sometimes,
@@ -555,11 +555,11 @@ public class SFRuleCompiler implements RuleCompiler {
 			
 			// build adaptor for our only condition
 			LIANode adaptor = new LIANode(engine.nextNodeId());
-			mostBottomNode.addNode(adaptor, engine);
+			initFactNode.addNode(adaptor, engine);
 			
 			
 			adaptor.addNode(pseudoJoin, engine);
-			initFactNode.addNode(pseudoJoin, engine);
+			mostBottomNode.addNode(pseudoJoin, engine);
 			
 			
 			mostBottomNode = pseudoJoin;
@@ -614,10 +614,12 @@ public class SFRuleCompiler implements RuleCompiler {
 					if (c instanceof BoundConstraint) {
 						BoundConstraint bc = (BoundConstraint) c;
 						BindingAddress ba;
+						int j = i;
+						if (conds.length == 1) j = -1;
 						if (bc.getIsObjectBinding()) {
-							ba = new BindingAddress(i, -1, bc.getOperator());
+							ba = new BindingAddress(j, -1, bc.getOperator());
 						} else {
-							ba = new BindingAddress(i, bc.getSlot().getId(), bc.getOperator());
+							ba = new BindingAddress(j, bc.getSlot().getId(), bc.getOperator());
 						}
 						bindingAddressTable.addBindingAddress(ba, bc.getVariableName());
 					}

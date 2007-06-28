@@ -237,8 +237,10 @@
 	</target>
 	
 	<target name="doc" depends="jars">
-		<java args="-shell" jar="jamocha.jar" fork="true" inputstring="(functions-description)\n(exit)" output="documentation/functions.xml"/>
+		<java args="-shell" jar="jamocha.jar" fork="true" inputstring="(functions-description)(exit)" output="documentation/functions2.xml"/>
+		<!-- <exec command="/usr/bin/env sed 's/Jamocha\>//g' documentation/functions2.xml >  documentation/functions.xml"/>-->
 		<xslt style="documentation/stylesheets/latex.xslt" out="documentation/documentation.tex" in="documentation/functions.xml"/>
+		<exec command="/usr/bin/env latex documentation/documentation.tex"/>
 
 		
 		

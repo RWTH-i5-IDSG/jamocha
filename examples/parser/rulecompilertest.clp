@@ -14,13 +14,35 @@
 (assert (getraenk (name "kartoffelsalat") (farbe "schwarz") ))
 
 
+
 (defrule existrule
+	(_initialFact)
 	(not
 		(wurst (name "bratwurst"))
 	)
 	=>
 	(printout t "keine bratwurst" crlf)
 )
+
+(fire)
+
+
+
+(defrule tst2
+;	(wurst (name ?x) (farbe ?f) )
+	(salat (name ?y) (farbe ?f) )
+	=> (printout t ?x ?y crlf)
+)
+(fire)
+
+(defrule tst
+	(wurst (name ~ ?salad))
+	(salat (name ?salad))
+	(getraenk (name ~ ?salad))
+	=> (printout t ?salad crlf)
+)
+
+
 
 
 (defrule megarule
