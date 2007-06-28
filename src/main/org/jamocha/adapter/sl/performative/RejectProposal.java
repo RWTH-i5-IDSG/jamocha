@@ -15,9 +15,12 @@
  */
 package org.jamocha.adapter.sl.performative;
 
+import java.util.List;
+
 import org.jamocha.adapter.AdapterTranslationException;
 import org.jamocha.adapter.sl.configurations.ContentSLConfiguration;
 import org.jamocha.adapter.sl.configurations.SLCompileType;
+import org.jamocha.adapter.sl.configurations.SLConfiguration;
 import org.jamocha.parser.sl.ParseException;
 import org.jamocha.parser.sl.SLParser;
 
@@ -50,15 +53,22 @@ public class RejectProposal {
 	 */
 	public static String getCLIPS(String slContent)
 			throws AdapterTranslationException {
-		ContentSLConfiguration result;
+		ContentSLConfiguration contentConf;
 		try {
-			result = SLParser.parse(slContent);
+			contentConf = SLParser.parse(slContent);
 		} catch (ParseException e) {
 			throw new AdapterTranslationException(
 					"Could not translate from SL to CLIPS.", e);
 		}
-
-		return result.compile(SLCompileType.ASSERT);
-	}
+		
+		StringBuffer result = new StringBuffer();
+		List<SLConfiguration> results = contentConf.getExpressions();
+		result.append("(assert (agent-rejectProposal-result (propositions");
+		for(int i = 1; i < results.size(); i++){
+			result.append(results.get(i).compile(SLCompileType.ASSERT));
+		}
+		result.append(")))");
+		return result.toString();
+		}
 
 }
