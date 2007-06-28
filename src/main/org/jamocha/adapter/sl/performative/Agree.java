@@ -64,8 +64,7 @@ public class Agree {
 		List<SLConfiguration> results = contentConf.getExpressions();
 		result.append("(assert (agent-agree-result (propositions");
 		for(int i = 1; i < results.size(); i++){
-			result.append(" ");
-			result.append(results.get(i).compile(SLCompileType.RULE_LHS));
+			result.append(results.get(i).compile(SLCompileType.ASSERT));
 		}
 		result.append(")))");
 		return result.toString();
