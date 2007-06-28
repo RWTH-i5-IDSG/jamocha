@@ -608,7 +608,7 @@ public class SFRuleCompiler implements RuleCompiler {
 		//activate all joins
 		for (BaseNode n : conditionJoiners.values()){
 			if (n == null) continue;
-			((BetaFilterNode)n).activate(engine);
+			((AbstractBeta)n).activate(engine);
 		}
 //		
 	}
@@ -679,22 +679,21 @@ public class SFRuleCompiler implements RuleCompiler {
 			act = itr.next();
 		JoinFilter[] bindArray = new JoinFilter[0];
 		// traverse conditions and get their join node:
-		for (int i = conds.length - 2; i >= 0; i--) {
+		for (int i = conds.length - 1; i >= 0; i--) {
 			Vector<JoinFilter> filters = new Vector<JoinFilter>();
 			BaseNode node = conditionJoiners.get(conds[i]);
 			// traverse prebindings and try to set them to join nodes:
-			while (act != null && act.getJoinIndex() == i) {
+			while (act != null && act.getJoinIndex() == i-1) {
 
 				LeftFieldAddress left = new LeftFieldAddress(conds.length - 1 - Math.max(act.leftCondition, act.rightCondition), act.leftSlot);
 				RightFieldAddress right = new RightFieldAddress(act.rightSlot);
 				FieldComparator b = new FieldComparator(act.varName, left, act.operator, right);
 				filters.add(b);
-
 				act = (itr.hasNext()) ? itr.next() : null;
 			}
 
 			// set bindig= null if binds.size=0
-			((BetaFilterNode) node).setFilters(filters, engine);
+			if (filters.size()>0)((BetaFilterNode) node).setFilters(filters, engine);
 		}
 		// handle all bindings that couldn't be placed to join node.
 		while (act != null) {

@@ -2,7 +2,7 @@
 (deftemplate wurst (slot name) (slot spitzname) (slot farbe)  (slot gewicht))
 (deftemplate salat (slot name) (slot farbe)   (slot gewicht))
 (deftemplate getraenk (slot name) (slot farbe) )
-(assert (wurst (name "bratwurst")(spitzname "bratwosch")(farbe "weiss")(gewicht 100) ))
+(assert (wurst (name "brastwurst")(spitzname "bratwosch")(farbe "weiss")(gewicht 100) ))
 (assert (wurst (name "weisswurst")(spitzname "weisswurst")(farbe "weiss")(gewicht 200) ))
 (assert (wurst (name "wienerwurst")(spitzname "wiener")(farbe "rot")(gewicht 300) ))
 (assert (wurst (name "gemuesewurst")(spitzname "gemuesewurst")(farbe "gruen")(gewicht 400) ))
@@ -13,16 +13,7 @@
 (assert (getraenk (name "cola") (farbe "schwarz") ))
 (assert (getraenk (name "kartoffelsalat") (farbe "schwarz") ))
 
-(defrule tst2
-	(wurst (name ?x) (farbe ?f) )
-	(salat (name ?y) (farbe ?f) )
-	=> (printout t ?x ?y crlf)
-)
-(fire)
-
-
 (defrule existrule
-	(_initialFact)
 	(not
 		(wurst (name "bratwurst"))
 	)
@@ -31,6 +22,16 @@
 )
 
 (fire)
+
+(defrule tst2
+	(wurst (name ?x) (farbe ?f) )
+	(salat (name ?y) (farbe ?f) )
+	=> (printout t ?x ?y crlf)
+)
+(fire)
+
+
+
 
 
 

@@ -18,6 +18,7 @@ public class BetaNotNode extends AbstractBeta {
 		return false;
 	}
 	
+		
 	public void retractRight(Fact fact, Rete engine) throws RetractException {
 		alphaMemory.remove(fact);
 		if (alphaMemory.isEmpty()) {
