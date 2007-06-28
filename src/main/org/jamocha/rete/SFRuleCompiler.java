@@ -647,9 +647,9 @@ public class SFRuleCompiler implements RuleCompiler {
 						BoundConstraint bc = (BoundConstraint) c;
 						BindingAddress ba;
 						if (bc.getIsObjectBinding()) {
-							ba = new BindingAddress(i-1, -1, bc.getOperator());
+							ba = new BindingAddress(i, -1, bc.getOperator());
 						} else {
-							ba = new BindingAddress(i-1, bc.getSlot().getId(), bc.getOperator());
+							ba = new BindingAddress(i, bc.getSlot().getId(), bc.getOperator());
 						}
 						bindingAddressTable.addBindingAddress(ba, bc.getVariableName());
 					}
@@ -665,7 +665,7 @@ public class SFRuleCompiler implements RuleCompiler {
 			b.leftIndex = pivot.slotIndex;
 			if (b.leftIndex == -1)
 				b.isObjVar = true;
-			b.leftrow = conds.length - 1 - pivot.conditionIndex;
+			b.leftrow = conds.length - pivot.conditionIndex;
 			b.varName = variable;
 			rule.addBinding(variable, b);
 
@@ -683,9 +683,9 @@ public class SFRuleCompiler implements RuleCompiler {
 			Vector<JoinFilter> filters = new Vector<JoinFilter>();
 			BaseNode node = conditionJoiners.get(conds[i]);
 			// traverse prebindings and try to set them to join nodes:
-			while (act != null && act.getJoinIndex() == i-1) {
+			while (act != null && act.getJoinIndex() == i) {
 
-				LeftFieldAddress left = new LeftFieldAddress(conds.length - 1 - Math.max(act.leftCondition, act.rightCondition), act.leftSlot);
+				LeftFieldAddress left = new LeftFieldAddress(conds.length - Math.max(act.leftCondition, act.rightCondition), act.leftSlot);
 				RightFieldAddress right = new RightFieldAddress(act.rightSlot);
 				FieldComparator b = new FieldComparator(act.varName, left, act.operator, right);
 				filters.add(b);
@@ -738,7 +738,7 @@ public class SFRuleCompiler implements RuleCompiler {
 				BindingAddress pivot = bindingAddressTable.getPivot(bp.getVariableName());
 				
 				FieldAddress addr = null;
-				if (pivot.conditionIndex == conditionIndex && conditionIndex < conditionsCount-1 ){
+				if (pivot.conditionIndex == conditionIndex && conditionIndex < conditionsCount ){
 					if (pivot.slotIndex == -1) {
 						addr = new RightFieldAddress();
 					} else {
@@ -746,9 +746,9 @@ public class SFRuleCompiler implements RuleCompiler {
 					}
 				} else {
 					if (pivot.slotIndex == -1) {
-						addr = new LeftFieldAddress(conditionsCount -1 -pivot.conditionIndex);
+						addr = new LeftFieldAddress(conditionsCount  -pivot.conditionIndex);
 					} else {
-						addr = new LeftFieldAddress(conditionsCount -1 -pivot.conditionIndex, pivot.slotIndex);
+						addr = new LeftFieldAddress(conditionsCount  -pivot.conditionIndex, pivot.slotIndex);
 					}
 				}
 				
@@ -777,7 +777,9 @@ public class SFRuleCompiler implements RuleCompiler {
 				TestCondition tc = (TestCondition) c;
 				List<BoundParam> boundParams = tc.getFunction().getBoundParameters();
 				
-				int validRowIndex = objectConditions.length - 1;
+				System.out.println(bindingAddressTable.getPivot(boundParams.get(0).getVariableName()));
+				
+				int validRowIndex = objectConditions.length-1 ;
 				for ( BoundParam p : boundParams ) {
 					validRowIndex = Math.min(bindingAddressTable.getPivot(p.getVariableName()).conditionIndex, validRowIndex);
 				}

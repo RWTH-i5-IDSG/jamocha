@@ -26,6 +26,16 @@
 	)
 )
 
+(defrule test-node-rule 
+	(wurst (gewicht ?x) (name ?y))
+	(wurst (zutaten $?v))
+	(bier (gewicht ?x) (name ?z))
+	(senf (gewicht ?x) (name ?w))
+		(test (> ?x 100))
+	=>
+	(printout t "Lebensmittel die zusammenpassen. wurst:" ?y "zutaten: " $?v " Bier: " ?z  "Senf: " ?w " Gewicht: " ?x)
+)
+
 (assert (wurst
 		(name "Fischwurst2")
 		(gewicht 100)
@@ -87,15 +97,6 @@
 
 
 
-(defrule test-node-rule 
-	(wurst (gewicht ?x) (name ?y))
-	;(wurst (zutaten $?v))
-	(bier (gewicht ?x) (name ?z))
-	(senf (gewicht ?x) (name ?w))
-		(test (> ?x 100))
-	=>
-	(printout t "Lebensmittel die zusammenpassen. wurst:" ?y "zutaten: " $?v " Bier: " ?z  "Senf: " ?w " Gewicht: " ?x)
-)
 
 
 
