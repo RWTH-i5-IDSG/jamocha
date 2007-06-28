@@ -58,7 +58,7 @@ public class Failure {
 					"Could not translate from SL to CLIPS.", e);
 		}
 //TODO
-		return result.compile(SLCompileType.ASSERT_PROP);
+		return result.compile(SLCompileType.ASSERT);
 	
 	}
 }

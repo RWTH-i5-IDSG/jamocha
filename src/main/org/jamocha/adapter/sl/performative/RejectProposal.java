@@ -49,7 +49,7 @@ public class RejectProposal {
 	 *             happens.
 	 */
 	public static String getCLIPS(String slContent)
-	throws AdapterTranslationException {
+			throws AdapterTranslationException {
 		ContentSLConfiguration result;
 		try {
 			result = SLParser.parse(slContent);
@@ -57,8 +57,8 @@ public class RejectProposal {
 			throw new AdapterTranslationException(
 					"Could not translate from SL to CLIPS.", e);
 		}
-		
-		return result.compile(SLCompileType.ASSERT_PROP );
-		}
-		
+
+		return result.compile(SLCompileType.ASSERT);
 	}
+
+}

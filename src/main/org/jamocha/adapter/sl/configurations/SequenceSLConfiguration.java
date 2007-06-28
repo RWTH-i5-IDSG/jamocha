@@ -33,12 +33,21 @@ public class SequenceSLConfiguration implements SLConfiguration {
 
 	public String compile(SLCompileType compileType) {
 		StringBuilder res = new StringBuilder();
-		boolean first = true;
-		for (SLConfiguration conf : items) {
-			if (!first)
+		if (compileType.equals(SLCompileType.RULE_RESULT)) {
+			res.append("(create$");
+			for (SLConfiguration conf : items) {
 				res.append(" ");
-			res.append(conf.compile(compileType));
-			first = false;
+				res.append(conf.compile(compileType));
+			}
+			res.append(")");
+		} else {
+			boolean first = true;
+			for (SLConfiguration conf : items) {
+				if (!first)
+					res.append(" ");
+				res.append(conf.compile(compileType));
+				first = false;
+			}
 		}
 		return res.toString();
 	}

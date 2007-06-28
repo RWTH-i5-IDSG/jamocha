@@ -79,7 +79,6 @@
 (deftemplate agent-queryRef-result
 	(slot refOp (type STRING))
 	(multislot items)
-	(slot noConnected (type LONG))
 )
 
 
