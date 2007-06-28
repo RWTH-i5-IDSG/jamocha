@@ -22,6 +22,7 @@ import org.jamocha.adapter.sl.configurations.ContentSLConfiguration;
 import org.jamocha.adapter.sl.configurations.IdentifyingExpressionSLConfiguration;
 import org.jamocha.adapter.sl.configurations.SLCompileType;
 import org.jamocha.adapter.sl.configurations.SLConfiguration;
+import org.jamocha.adapter.sl.configurations.SequenceSLConfiguration;
 import org.jamocha.parser.sl.ParseException;
 import org.jamocha.parser.sl.SLParser;
 
@@ -70,9 +71,9 @@ public class QueryRef {
 		StringBuilder result = new StringBuilder();
 		IdentifyingExpressionSLConfiguration conf = (IdentifyingExpressionSLConfiguration) results
 				.get(0);
-		String refOp = conf.getRefOp().compile(SLCompileType.RULE_RESULT);
+		String refOp = conf.getRefOp().compile(SLCompileType.RULE_LHS);
 		String binding = conf.getTermOrIE().compile(
-				SLCompileType.ACTION_AND_ASSERT);
+				SLCompileType.RULE_RESULT);
 		result.append("(bind ?*agent-result* (create$))");
 		result.append("(defrule queryRef ");
 		result.append(conf.getWff().compile(SLCompileType.RULE_LHS));
