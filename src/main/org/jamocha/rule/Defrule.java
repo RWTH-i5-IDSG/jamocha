@@ -120,15 +120,13 @@ public class Defrule implements Rule {
 		conditions = new ArrayList<Condition>();
 		actions = new ArrayList<Action>();
 	}
-	
 
 	public Defrule(String name) {
 		this();
 		setName(name);
 	}
 
-	public Defrule(DefruleConfiguration configuration, Rete engine)
-			throws EvaluationException {
+	public Defrule(DefruleConfiguration configuration, Rete engine) throws EvaluationException {
 		this();
 		totalComplexity = configuration.getTotalComplexity();
 		// set rule name:
@@ -192,9 +190,7 @@ public class Defrule implements Rule {
 		this.watch = watch;
 	}
 
-	public void setDeclaration(
-			DeclarationConfiguration declarationConfiguration, Rete engine)
-			throws EvaluationException {
+	public void setDeclaration(DeclarationConfiguration declarationConfiguration, Rete engine) throws EvaluationException {
 		if (declarationConfiguration != null) {
 			Parameter param = null;
 
@@ -313,9 +309,10 @@ public class Defrule implements Rule {
 	public void addAction(Action act) {
 		actions.add(act);
 	}
-	
-	public void setActions(Action[] actions){
-		for (Action a : actions) addAction(a);
+
+	public void setActions(Action[] actions) {
+		for (Action a : actions)
+			addAction(a);
 	}
 
 	public void setActions(ExpressionSequence actions) {
@@ -339,15 +336,15 @@ public class Defrule implements Rule {
 		conditions.toArray(cond);
 		return cond;
 	}
-	
+
 	public Condition[] getObjectConditions() {
 		ArrayList<Condition> ocs = new ArrayList<Condition>();
-		for (Condition c: this.conditions){
-			if (c instanceof ObjectCondition){
-				ocs.add((Condition)c);
+		for (Condition c : this.conditions) {
+			if (c instanceof ObjectCondition) {
+				ocs.add((Condition) c);
 			}
-			if (c instanceof NotCondition){
-				ocs.add((Condition)c);
+			if (c instanceof NotCondition) {
+				ocs.add((Condition) c);
 			}
 		}
 		Condition[] cond = new Condition[ocs.size()];
@@ -400,10 +397,10 @@ public class Defrule implements Rule {
 	 * return the value associated with the binding
 	 */
 	public JamochaValue getBindingValue(String key) {
-		//first we check bind values: may set via (bind ?x.....)
+		// first we check bind values: may set via (bind ?x.....)
 		JamochaValue val = this.bindValues.get(key);
 		if (val == null) {
-			//nothing found: check own bindings:
+			// nothing found: check own bindings:
 			Binding bd = this.bindings.get(key);
 			if (bd != null) {
 				Fact left = this.triggerFacts[bd.getLeftRow()];
@@ -416,8 +413,8 @@ public class Defrule implements Rule {
 		}
 		return val;
 	}
-	
-	public Map<String,JamochaValue> getBindings() {
+
+	public Map<String, JamochaValue> getBindings() {
 		return bindValues;
 	}
 
@@ -467,25 +464,33 @@ public class Defrule implements Rule {
 		Condition[] cnds = this.getConditions();
 		for (int idx = 0; idx < cnds.length; idx++) {
 			Condition cnd = cnds[idx];
-			if (cnd instanceof ObjectCondition) {
-				ObjectCondition oc = (ObjectCondition) cnd;
-				Template dft = (Template) engine.findTemplate(oc
-						.getTemplateName());
+			resolveTempate(engine, cnd);
+		}
+	}
+
+	public void resolveTempate(Rete engine, Condition cond) {
+		if (cond instanceof ObjectCondition) {
+			ObjectCondition oc = (ObjectCondition) cond;
+			Template dft = (Template) engine.findTemplate(oc.getTemplateName());
+			if (dft != null) {
+				oc.setTemplate(dft);
+			}
+		} else if (cond instanceof ExistCondition) {
+			// in the case of Exist, we have to check the nested and resolve
+			// the deftemplate
+			ExistCondition ec = (ExistCondition) cond;
+			if (ec.hasObjectCondition()) {
+				ObjectCondition oc = ec.getObjectCondition();
+				Template dft = (Template) engine.findTemplate(oc.getTemplateName());
 				if (dft != null) {
 					oc.setTemplate(dft);
 				}
-			} else if (cnd instanceof ExistCondition) {
-				// in the case of Exist, we have to check the nested and resolve
-				// the deftemplate
-				ExistCondition ec = (ExistCondition) cnd;
-				if (ec.hasObjectCondition()) {
-					ObjectCondition oc = ec.getObjectCondition();
-					Template dft = (Template) engine.findTemplate(oc
-							.getTemplateName());
-					if (dft != null) {
-						oc.setTemplate(dft);
-					}
-				}
+			}
+		} else if (cond instanceof BooleanOperatorCondition) {
+			//reslove all templates from nested conditions:
+			List<Condition> nestedConds = ((BooleanOperatorCondition) cond).getNestedConditionalElement();
+			for (Condition nestedCond : nestedConds) {
+				resolveTempate(engine, nestedCond);
 			}
 		}
 	}
@@ -500,16 +505,13 @@ public class Defrule implements Rule {
 				setSalience(declaration.getIntValue());
 			} else if (declaration.getName().equals(RuleProperty.VERSION)) {
 				setVersion(declaration.getValue());
-			} else if (declaration.getName()
-					.equals(RuleProperty.REMEMBER_MATCH)) {
+			} else if (declaration.getName().equals(RuleProperty.REMEMBER_MATCH)) {
 				setRememberMatch(declaration.getBooleanValue());
 			} else if (declaration.getName().equals(RuleProperty.NO_AGENDA)) {
 				setNoAgenda(declaration.getBooleanValue());
-			} else if (declaration.getName()
-					.equals(RuleProperty.EFFECTIVE_DATE)) {
+			} else if (declaration.getName().equals(RuleProperty.EFFECTIVE_DATE)) {
 				this.effectiveDate = getDateTime(declaration.getValue());
-			} else if (declaration.getName().equals(
-					RuleProperty.EXPIRATION_DATE)) {
+			} else if (declaration.getName().equals(RuleProperty.EXPIRATION_DATE)) {
 				this.expirationDate = getDateTime(declaration.getValue());
 			}
 		}
@@ -519,8 +521,7 @@ public class Defrule implements Rule {
 	public static long getDateTime(String date) {
 		if (date != null && date.length() > 0) {
 			try {
-				java.text.SimpleDateFormat df = new java.text.SimpleDateFormat(
-						"mm/dd/yyyy HH:mm");
+				java.text.SimpleDateFormat df = new java.text.SimpleDateFormat("mm/dd/yyyy HH:mm");
 				return df.parse(date).getTime();
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -537,7 +538,7 @@ public class Defrule implements Rule {
 			Condition cond = itr.next();
 			cond.clear();
 		}
-		this.terminal= null;
+		this.terminal = null;
 	}
 
 	public boolean hasBindingInTotalRange(String name) {
@@ -572,13 +573,11 @@ public class Defrule implements Rule {
 		complexity = value;
 	}
 
-
 	public void setConditionIndex(int index, Condition c) {
 		conditions.set(index, c);
 	}
-	
 
-	public Defrule clone(Rete engine) throws CloneNotSupportedException{
+	public Defrule clone(Rete engine) throws CloneNotSupportedException {
 		Defrule newRule = new Defrule();
 		newRule.totalComplexity = getTotalComplexity();
 		// set rule name:
@@ -588,41 +587,39 @@ public class Defrule implements Rule {
 		// set rule declaration:
 
 		DeclarationConfiguration newDecl = new DeclarationConfiguration();
-		
-		newDecl.setAutoFocus(new JamochaValue( this.getAutoFocus() ));
-		newDecl.setSalience(new JamochaValue( this.getSalience() ));
-		newDecl.setVersion(new JamochaValue( this.getVersion() ));
-		
+
+		newDecl.setAutoFocus(new JamochaValue(this.getAutoFocus()));
+		newDecl.setSalience(new JamochaValue(this.getSalience()));
+		newDecl.setVersion(new JamochaValue(this.getVersion()));
+
 		try {
 			newRule.setDeclaration(newDecl, engine);
 		} catch (EvaluationException e) {
 			engine.writeMessage(e.getMessage());
 		}
 
-		
 		// set conditions:
 		newRule.setConditions(getConditions().clone());
 		// set actions:
-		
-		
+
 		ArrayList actions = new ArrayList();
 		for (Action a : this.actions)
 			actions.add(a.clone());
-		newRule.actions=actions;
+		newRule.actions = actions;
 		return newRule;
 	}
-	
+
 	public Defrule clone() throws CloneNotSupportedException {
 		Defrule newRule = new Defrule();
 		newRule.name = name;
 		newRule.conditions = (ArrayList<Condition>) conditions.clone();
-		
+
 		ArrayList actions = new ArrayList();
 		newRule.actions = actions;
-		
+
 		for (Action a : this.actions)
 			actions.add(a.clone());
-		
+
 		newRule.terminal = terminal;
 		newRule.salience = salience;
 		newRule.auto = auto;
@@ -644,7 +641,5 @@ public class Defrule implements Rule {
 		newRule.totalComplexity = totalComplexity;
 		return newRule;
 	}
-
-
 
 }

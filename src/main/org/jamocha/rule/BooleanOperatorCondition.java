@@ -24,7 +24,7 @@ public abstract class BooleanOperatorCondition extends AbstractCondition {
 		this.nestedCE.add((Condition) ce);
 	}
 
-	public List getNestedConditionalElement() {
+	public List<Condition> getNestedConditionalElement() {
 		return this.nestedCE;
 	}
 
