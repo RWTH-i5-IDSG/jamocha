@@ -55,8 +55,7 @@ import org.jamocha.rule.Rule;
  * This is the main Rete engine class. For now it's called Rete, but I may
  * change it to Engine to be more generic.
  */
-public class Rete implements PropertyChangeListener, CompilerListener,
-		Serializable {
+public class Rete implements PropertyChangeListener, CompilerListener, Serializable {
 
 	/**
 	 * 
@@ -187,7 +186,7 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 
 	private MessageRouter router = new MessageRouter(this);
 
-	protected Deftemplate initFact = new InitialFact();
+	protected InitialFact initFact = new InitialFact();
 
 	/**
 	 * 
@@ -225,12 +224,10 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 	protected void declareInitialFact() {
 		this.declareTemplate(initFact);
 		try {
-			Deffact ifact = (Deffact) initFact.createFact(null, null, 0, this);
+			Fact ifact = initFact.getInitialFact();
 			this.assertFact(ifact);
 		} catch (AssertException e) {
 			// an error should not occur
-			log.info(e);
-		} catch (EvaluationException e) {
 			log.info(e);
 		}
 	}
@@ -355,12 +352,10 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 			if (profileFire) {
 				ProfileStats.startFire();
 			}
-			while ((actv = this.currentModule.nextActivation(this)) != null
-					&& counter < count) {
+			while ((actv = this.currentModule.nextActivation(this)) != null && counter < count) {
 				try {
 					if (watchRules) {
-						this.writeMessage("==> fire: " + actv.toPPString()
-								+ "\r\n", "t");
+						this.writeMessage("==> fire: " + actv.toPPString() + "\r\n", "t");
 					}
 					pushScope(actv.getRule());
 					try {
@@ -403,8 +398,7 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 				this.firingcount++;
 				try {
 					if (watchRules) {
-						this.writeMessage("==> fire: " + actv.toPPString()
-								+ "\r\n", "t");
+						this.writeMessage("==> fire: " + actv.toPPString() + "\r\n", "t");
 					}
 					// we set the active rule, this means only one rule
 					// can be active at a time.
@@ -554,8 +548,7 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 
 	}
 
-	public void declareObject(String className, String templateName,
-			String parent) throws ClassNotFoundException {
+	public void declareObject(String className, String templateName, String parent) throws ClassNotFoundException {
 		try {
 			Class clzz = Class.forName(className);
 			declareObject(clzz, templateName, parent);
@@ -586,8 +579,7 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 				Template dtemp = null;
 				// if the parent is found, we set it
 				if (parent != null) {
-					Template ptemp = this.currentModule
-							.findParentTemplate(parent);
+					Template ptemp = this.currentModule.findParentTemplate(parent);
 					if (ptemp != null) {
 						dtemp = dclass.createDeftemplate(templateName, ptemp);
 						dtemp.setParent(ptemp);
@@ -986,8 +978,7 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 	 */
 	public void writeMessage(String msg, String output) {
 		MessageRouter router = getMessageRouter();
-		router.postMessageEvent(new MessageEvent(MessageEvent.ENGINE, msg, "t"
-				.equals(output) ? router.getCurrentChannelId() : output));
+		router.postMessageEvent(new MessageEvent(MessageEvent.ENGINE, msg, "t".equals(output) ? router.getCurrentChannelId() : output));
 		if (this.outputStreams.size() > 0) {
 			Iterator itr = this.outputStreams.values().iterator();
 			while (itr.hasNext()) {
@@ -1017,15 +1008,12 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 	 */
 	public void assertEvent(BaseNode node, Fact fact) {
 		if (debug) {
-			System.out.println("\"assert at nodeid=" + node.getNodeId() + " - "
-					+ node.toString().replaceAll("\"", "'") + ":: with fact -"
-					+ fact.toFactString().replaceAll("\"", "'") + "::\"");
+			System.out.println("\"assert at nodeid=" + node.getNodeId() + " - " + node.toString().replaceAll("\"", "'") + ":: with fact -" + fact.toFactString().replaceAll("\"", "'") + "::\"");
 		}
 		Iterator itr = this.listeners.iterator();
 		while (itr.hasNext()) {
 			EngineEventListener eel = (EngineEventListener) itr.next();
-			eel.eventOccurred(new EngineEvent(this, EngineEvent.ASSERT_EVENT,
-					node, new Fact[] { fact }));
+			eel.eventOccurred(new EngineEvent(this, EngineEvent.ASSERT_EVENT, node, new Fact[] { fact }));
 		}
 	}
 
@@ -1036,16 +1024,14 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 		Iterator itr = this.listeners.iterator();
 		while (itr.hasNext()) {
 			EngineEventListener eel = (EngineEventListener) itr.next();
-			eel.eventOccurred(new EngineEvent(this, EngineEvent.NEWRULE_EVENT,
-					rule));
+			eel.eventOccurred(new EngineEvent(this, EngineEvent.NEWRULE_EVENT, rule));
 		}
 	}
 
 	public void assertEvent(BaseNode node, Fact[] facts) {
 		if (debug) {
 			if (node instanceof TerminalNode) {
-				System.out.println(((TerminalNode) node).getRule().getName()
-						+ " fired");
+				System.out.println(((TerminalNode) node).getRule().getName() + " fired");
 			} else {
 
 			}
@@ -1053,8 +1039,7 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 		Iterator itr = this.listeners.iterator();
 		while (itr.hasNext()) {
 			EngineEventListener eel = (EngineEventListener) itr.next();
-			eel.eventOccurred(new EngineEvent(this, EngineEvent.ASSERT_EVENT,
-					node, facts));
+			eel.eventOccurred(new EngineEvent(this, EngineEvent.ASSERT_EVENT, node, facts));
 		}
 	}
 
@@ -1068,8 +1053,7 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 		Iterator itr = this.listeners.iterator();
 		while (itr.hasNext()) {
 			EngineEventListener eel = (EngineEventListener) itr.next();
-			eel.eventOccurred(new EngineEvent(this, EngineEvent.RETRACT_EVENT,
-					node, new Fact[] { fact }));
+			eel.eventOccurred(new EngineEvent(this, EngineEvent.RETRACT_EVENT, node, new Fact[] { fact }));
 		}
 	}
 
@@ -1082,8 +1066,7 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 		Iterator itr = this.listeners.iterator();
 		while (itr.hasNext()) {
 			EngineEventListener eel = (EngineEventListener) itr.next();
-			eel.eventOccurred(new EngineEvent(this, EngineEvent.ASSERT_EVENT,
-					node, facts));
+			eel.eventOccurred(new EngineEvent(this, EngineEvent.ASSERT_EVENT, node, facts));
 		}
 	}
 
@@ -1102,8 +1085,7 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 	 * @param shadow
 	 * @throws AssertException
 	 */
-	public void assertObject(Object data, String template, boolean statc,
-			boolean shadow) throws AssertException {
+	public void assertObject(Object data, String template, boolean statc, boolean shadow) throws AssertException {
 		Defclass dc = null;
 		if (template == null) {
 			dc = (Defclass) this.defclass.get(data.getClass());
@@ -1121,8 +1103,7 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 					// first add the rule engine as a listener
 					if (dc.isJavaBean()) {
 						try {
-							dc.getAddListenerMethod().invoke(data,
-									new Object[] { this });
+							dc.getAddListenerMethod().invoke(data, new Object[] { this });
 						} catch (InvocationTargetException e) {
 							e.printStackTrace();
 						} catch (IllegalAccessException e) {
@@ -1131,8 +1112,7 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 					}
 					// second, lookup the deftemplate and create the
 					// shadow fact
-					Fact shadowfact = createFact(data, dc, template,
-							nextFactId());
+					Fact shadowfact = createFact(data, dc, template, nextFactId());
 					// add it to the dynamic fact map
 					this.dynamicFacts.put(data, shadowfact);
 					this.workingMem.assertObject(shadowfact);
@@ -1187,8 +1167,7 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 	 * 
 	 * @param data
 	 */
-	public void modifyObject(Object data) throws AssertException,
-			RetractException {
+	public void modifyObject(Object data) throws AssertException, RetractException {
 		if (this.dynamicFacts.containsKey(data)) {
 			Defclass dc = (Defclass) this.defclass.get(data);
 			// first we retract the fact
@@ -1226,8 +1205,7 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 				this.assertFactWProfile(fact);
 			} else {
 				if (watchFact) {
-					this.writeMessage("==> " + fact.toFactString()
-							+ Constants.LINEBREAK, "t");
+					this.writeMessage("==> " + fact.toFactString() + Constants.LINEBREAK, "t");
 				}
 				this.workingMem.assertObject(fact);
 			}
@@ -1238,8 +1216,7 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 	}
 
 	public Fact getFact(Fact fact) {
-		Fact result = (Fact) this.deffactMap.get(((Deffact) fact)
-				.equalityIndex());
+		Fact result = (Fact) this.deffactMap.get(((Deffact) fact).equalityIndex());
 		return result;
 	}
 
@@ -1282,8 +1259,7 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 			this.retractFactWProfile(fact);
 		} else {
 			if (watchFact) {
-				this.writeMessage("<== " + fact.toFactString()
-						+ Constants.LINEBREAK, "t");
+				this.writeMessage("<== " + fact.toFactString() + Constants.LINEBREAK, "t");
 			}
 			this.workingMem.retractObject(fact);
 		}
@@ -1312,8 +1288,7 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 
 	// TODO not really efficient to pre-traverse the whole slot-list just for
 	// determining whether we must retract/assert or not
-	public void modifyFact(Fact old, ModifyConfiguration mc)
-			throws EvaluationException {
+	public void modifyFact(Fact old, ModifyConfiguration mc) throws EvaluationException {
 		boolean allSilent = true;
 
 		for (SlotConfiguration slot : mc.getSlots()) {
@@ -1406,13 +1381,11 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 	 * @param id
 	 * @return
 	 */
-	protected Fact createFact(Object data, Defclass dclass, String template,
-			long id) throws AssertException {
+	protected Fact createFact(Object data, Defclass dclass, String template, long id) throws AssertException {
 		Fact ft = null;
 		Template dft = null;
 		if (template == null) {
-			dft = getCurrentFocus().getTemplate(
-					dclass.getClassObject().getName());
+			dft = getCurrentFocus().getTemplate(dclass.getClassObject().getName());
 		} else {
 			dft = getCurrentFocus().getTemplate(template);
 		}

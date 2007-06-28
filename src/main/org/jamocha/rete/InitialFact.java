@@ -16,6 +16,8 @@
  */
 package org.jamocha.rete;
 
+import org.jamocha.parser.EvaluationException;
+
 /**
  * @author Peter Lin
  * 
@@ -24,6 +26,8 @@ package org.jamocha.rete;
  */
 public class InitialFact extends Deftemplate {
 
+	private Fact factInstance = null;
+	
 	/**
 	 * 
 	 */
@@ -37,4 +41,14 @@ public class InitialFact extends Deftemplate {
 		this.slots = new TemplateSlot[0];
 	}
 
+	public Fact getInitialFact(){
+		if (factInstance == null)
+			try {
+				factInstance = this.createFact(null, null, 0, null);
+			} catch (EvaluationException e) {
+				e.printStackTrace();
+			}
+		return factInstance;
+	}
+	
 }
