@@ -70,6 +70,10 @@ public class ListFunctions implements FunctionGroup {
 		functionMem.declareFunction(insert);
 		funcs.add(insert);
 
+		InsertList$ insertList = new InsertList$();
+		functionMem.declareFunction(insertList);
+		funcs.add(insertList);
+
 		Intersection$ intersection = new Intersection$();
 		functionMem.declareFunction(intersection);
 		funcs.add(intersection);
