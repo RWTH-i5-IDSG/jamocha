@@ -1,5 +1,7 @@
 package org.jamocha.rete.nodes;
 
+import java.util.Iterator;
+
 import org.jamocha.rete.Fact;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.exception.AssertException;
@@ -18,25 +20,39 @@ public class BetaNotNode extends AbstractBeta {
 		return false;
 	}
 	
-		
-	public void retractRight(Fact fact, Rete engine) throws RetractException {
-		alphaMemory.remove(fact);
-		if (alphaMemory.isEmpty()) {
-			
-			for (FactTuple t : betaMemory) {
-				
-				FactTuple newTuple = t.addFact(engine.getFactById(0));
-				
+	public void activate(Rete engine) throws AssertException {
+		if (!activated) {
+			// we have to traverse the whole beta mem and eval it.
+			activated = true;
+			if (alphaMemory.isEmpty()){
 				try {
-					propogateAssert(newTuple, engine);
-				} catch (AssertException e) {
-					throw new RetractException(e);
+					fire(engine);
+				} catch (RetractException e) {
+					throw new AssertException(e);
 				}
-				
+			}
+		}
+	}
+	
+	private void fire(Rete engine) throws RetractException{
+		for (FactTuple t : betaMemory) {
+			
+			FactTuple newTuple = t.addFact(engine.getFactById(0));
+			
+			try {
+				propogateAssert(newTuple, engine);
+			} catch (AssertException e) {
+				throw new RetractException(e);
 			}
 			
 		}
-		
+	}
+	
+	public void retractRight(Fact fact, Rete engine) throws RetractException {
+		alphaMemory.remove(fact);
+		if (alphaMemory.isEmpty()) {
+			fire(engine);
+		}
 	}
 	
 	
