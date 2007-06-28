@@ -7,13 +7,29 @@ import org.jamocha.rete.Rete;
 import org.jamocha.rete.exception.AssertException;
 import org.jamocha.rete.exception.RetractException;
 
-public class BetaNotNode extends AbstractBeta {
+public class BetaQuantorNode extends AbstractBeta {
 
-	public BetaNotNode(int id) {
+	public boolean negated;
+	
+	public BetaQuantorNode(int id,boolean negated) {
 		super(id);
-		// TODO Auto-generated constructor stub
+		this.negated=negated;
 	}
 
+	public BetaQuantorNode(int id) {
+		this(id,false);
+	}
+	
+	public boolean controlledNot(boolean control, boolean data){
+		if (control) {
+			return !data;
+		} else {
+			return data;
+		}
+		
+	}
+
+	
 	@Override
 	protected boolean evaluate(FactTuple tuple, Fact rfcts) {
 		// TODO Auto-generated method stub
@@ -24,7 +40,7 @@ public class BetaNotNode extends AbstractBeta {
 		if (!activated) {
 			// we have to traverse the whole beta mem and eval it.
 			activated = true;
-			if (alphaMemory.isEmpty()){
+			if ( controlledNot(negated, alphaMemory.getSize()>0 ) ){
 				try {
 					fire(engine);
 				} catch (RetractException e) {
@@ -36,9 +52,7 @@ public class BetaNotNode extends AbstractBeta {
 	
 	private void fire(Rete engine) throws RetractException{
 		for (FactTuple t : betaMemory) {
-			
 			FactTuple newTuple = t.addFact(engine.getFactById(0));
-			
 			try {
 				propogateAssert(newTuple, engine);
 			} catch (AssertException e) {
@@ -48,10 +62,19 @@ public class BetaNotNode extends AbstractBeta {
 		}
 	}
 	
+	private void backfire(Rete engine) throws RetractException{
+		for (FactTuple t : betaMemory) {
+			this.propogateRetract(t, engine);
+		}
+	}
+	
+	
 	public void retractRight(Fact fact, Rete engine) throws RetractException {
 		alphaMemory.remove(fact);
-		if (alphaMemory.isEmpty()) {
+		if (alphaMemory.isEmpty() && negated) {
 			fire(engine);
+		} else if (alphaMemory.isEmpty() && !negated) {
+			backfire(engine);
 		}
 	}
 	
@@ -60,12 +83,10 @@ public class BetaNotNode extends AbstractBeta {
 		if (alphaMemory.isEmpty()) {
 			alphaMemory.add(fact);
 			if (activated) {
-				for (FactTuple t : betaMemory) {
-					try {
-						this.propogateRetract(t, engine);
-					} catch (RetractException e) {
-						throw new AssertException(e);
-					}
+				try{
+					if (negated) backfire(engine);	else fire(engine);
+				} catch (RetractException e){
+					throw new AssertException(e);
 				}
 			}
 		} else {

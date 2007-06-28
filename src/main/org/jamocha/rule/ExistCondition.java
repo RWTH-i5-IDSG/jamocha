@@ -163,9 +163,9 @@ public class ExistCondition extends AbstractCondition {
  		return null;
 	}
 
+
 	public BaseNode getLastNode() {
-		// TODO Auto-generated method stub
-		return null;
+		return ((ObjectCondition)nestedCE.get(0)).getLastNode();
 	}
 
 }

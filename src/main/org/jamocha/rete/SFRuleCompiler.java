@@ -38,7 +38,7 @@ import org.jamocha.rete.nodes.AbstractBeta;
 import org.jamocha.rete.nodes.AlphaNode;
 import org.jamocha.rete.nodes.BaseNode;
 import org.jamocha.rete.nodes.BetaFilterNode;
-import org.jamocha.rete.nodes.BetaNotNode;
+import org.jamocha.rete.nodes.BetaQuantorNode;
 import org.jamocha.rete.nodes.LIANode;
 import org.jamocha.rete.nodes.ObjectTypeNode;
 import org.jamocha.rete.nodes.RootNode;
@@ -490,7 +490,8 @@ public class SFRuleCompiler implements RuleCompiler {
 			AbstractBeta newBeta = null;
 			
 			if (c instanceof ObjectCondition) newBeta = new BetaFilterNode(engine.nextNodeId());
-			else if (c instanceof NotCondition) newBeta = new BetaNotNode(engine.nextNodeId());
+			else if (c instanceof NotCondition) newBeta = new BetaQuantorNode(engine.nextNodeId(),true);
+			else if (c instanceof ExistCondition) newBeta = new BetaQuantorNode(engine.nextNodeId(),false);
 			
 			if (fromBottom == null){
 				mostBottomNode = newBeta;
@@ -854,14 +855,14 @@ public class SFRuleCompiler implements RuleCompiler {
 	 * @return compileConditionState
 	 */
 	public BaseNode compile(ExistCondition condition, Rule rule, int conditionIndex) {
-
-		// it seems to produce a loop ...
-		if (condition.hasObjectCondition()) {
-			ObjectCondition oc = (ObjectCondition) condition.getObjectCondition();
-			return oc.compile(this, rule, conditionIndex);
+		Object o = condition.getNestedConditionalElement().get(0);
+		AbstractCondition nested = (AbstractCondition)o;
+		try {
+			return nested.compile(this, rule, conditionIndex);
+		} catch (Exception e) {
+			engine.writeMessage(e.getMessage());
+			return null /* or LONG_OBJECT */;
 		}
-
-		return null;
 	}
 
 	/**

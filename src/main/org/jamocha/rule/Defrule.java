@@ -343,7 +343,10 @@ public class Defrule implements Rule {
 			if (c instanceof ObjectCondition) {
 				ocs.add((Condition) c);
 			}
-			if (c instanceof NotCondition) {
+			else if (c instanceof NotCondition) {
+				ocs.add((Condition) c);
+			}
+			else if (c instanceof ExistCondition) {
 				ocs.add((Condition) c);
 			}
 		}

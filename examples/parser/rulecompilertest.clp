@@ -2,7 +2,7 @@
 (deftemplate wurst (slot name) (slot spitzname) (slot farbe)  (slot gewicht))
 (deftemplate salat (slot name) (slot farbe)   (slot gewicht))
 (deftemplate getraenk (slot name) (slot farbe) )
-(assert (wurst (name "bratwsurst")(spitzname "bratwosch")(farbe "weiss")(gewicht 100) ))
+(assert (wurst (name "brazwurst")(spitzname "bratwosch")(farbe "weiss")(gewicht 100) ))
 (assert (wurst (name "weisswurst")(spitzname "weisswurst")(farbe "weiss")(gewicht 200) ))
 (assert (wurst (name "wienerwurst")(spitzname "wiener")(farbe "rot")(gewicht 300) ))
 (assert (wurst (name "gemuesewurst")(spitzname "gemuesewurst")(farbe "gruen")(gewicht 400) ))
@@ -14,11 +14,11 @@
 (assert (getraenk (name "kartoffelsalat") (farbe "schwarz") ))
 
 (defrule existrule
-	(not
+	(exists
 		(wurst (name "bratwurst"))
 	)
 	=>
-	(printout t "keine bratwurst" crlf)
+	(printout t "eine bratwurst" crlf)
 )
 
 (fire)
