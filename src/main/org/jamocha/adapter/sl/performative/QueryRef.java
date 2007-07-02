@@ -22,7 +22,6 @@ import org.jamocha.adapter.sl.configurations.ContentSLConfiguration;
 import org.jamocha.adapter.sl.configurations.IdentifyingExpressionSLConfiguration;
 import org.jamocha.adapter.sl.configurations.SLCompileType;
 import org.jamocha.adapter.sl.configurations.SLConfiguration;
-import org.jamocha.adapter.sl.configurations.SequenceSLConfiguration;
 import org.jamocha.parser.sl.ParseException;
 import org.jamocha.parser.sl.SLParser;
 
@@ -74,16 +73,16 @@ public class QueryRef {
 		String refOp = conf.getRefOp().compile(SLCompileType.RULE_LHS);
 		String binding = conf.getTermOrIE().compile(
 				SLCompileType.RULE_RESULT);
-		result.append("(bind ?*agent-result* (create$))");
+		result.append("(bind ?*queryRef-temp* (create$))");
 		result.append("(defrule queryRef ");
 		result.append(conf.getWff().compile(SLCompileType.RULE_LHS));
 		result.append(" => ");
-		result.append("(bind ?*agent-result* (insert-list$ ?*agent-result* 1 ");
+		result.append("(bind ?*queryRef-temp* (insert-list$ ?*queryRef-temp* 1 ");
 		result.append(binding);
 		result.append(")))");
 		result.append("(fire)(undefrule \"queryRef\")");
-		result.append("(return (assert (agent-queryRef-result (refOp ");
-		result.append(refOp).append(")(items ?*agent-result*))))");
+		result.append("(return (assert (agent-queryRef-result (message %MSG%)(refOp ");
+		result.append(refOp).append(")(items ?*queryRef-temp*))))");
 		System.out.println(result);
 		return result.toString();
 	}

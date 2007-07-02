@@ -50,14 +50,18 @@ public class Request {
 	 */
 	public static String getCLIPS(String slContent)
 			throws AdapterTranslationException {
-		ContentSLConfiguration result;
+		ContentSLConfiguration contentConf;
+		StringBuilder result = new StringBuilder();
+		result.append("(assert (agent-request-result (message %MSG%)(result ");
 		try {
-			result = SLParser.parse(slContent);
+			contentConf = SLParser.parse(slContent);
+			result.append(contentConf.compile(SLCompileType.ACTION_AND_ASSERT));
 		} catch (ParseException e) {
 			throw new AdapterTranslationException(
 					"Could not translate from SL to CLIPS.", e);
 		}
+		result.append(")))");
 
-		return result.compile(SLCompileType.ACTION_AND_ASSERT);
+		return result.toString();
 	}
 }

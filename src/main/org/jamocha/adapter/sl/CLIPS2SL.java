@@ -49,9 +49,10 @@ public class CLIPS2SL {
 				|| value.getType().equals(JamochaType.DATETIME)
 				|| value.getType().equals(JamochaType.DOUBLE)
 				|| value.getType().equals(JamochaType.LONG)
-				|| value.getType().equals(JamochaType.STRING)
 				|| value.getType().equals(JamochaType.IDENTIFIER)) {
 			res.append(value.toString());
+		} else if (value.getType().equals(JamochaType.STRING)) {
+			res.append("\"").append(value.toString()).append("\"");
 		} else if (value.getType().equals(JamochaType.LIST)) {
 			res.append("(set \n");
 			for (int i = 0; i < value.getListCount(); ++i) {

@@ -69,14 +69,13 @@ public class QueryIf{
 		}
 		StringBuilder result = new StringBuilder();
 		result
-				.append("(bind ?*agent-result* FALSE)")
-				.append("(list-bindings)")
+				.append("(bind ?*queryIf-temp* FALSE)")
 				.append("(defrule queryIfTrue ")
 				.append(results.get(0).compile(SLCompileType.RULE_LHS))
 				.append(" => ")
-				.append("(bind ?*agent-result* TRUE)")
+				.append("(bind ?*queryIf-temp* TRUE)")
 				.append(")")
-				.append("(fire)(undefrule \"queryIfTrue\")(return ?*agent-result*)");
+				.append("(fire)(undefrule \"queryIfTrue\")(return ?*queryIf-temp*)");
 
 		return result.toString();	}
 

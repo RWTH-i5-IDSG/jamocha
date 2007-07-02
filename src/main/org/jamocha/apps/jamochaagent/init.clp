@@ -17,6 +17,7 @@
     (slot local (type BOOLEAN))
 )
 
+
 (deftemplate agent-message
 	"Definition of an agent-message."
 	(slot sender (type STRING))
@@ -38,53 +39,40 @@
 	(slot processed (type BOOLEAN)(default FALSE))
 )
 
-(deftemplate agent-message-evaluation-result
-	"Deftemplate for a message initiator."
-	; The receiver of the new message to send.
-	(slot receiver) ; type: agent-description
-		
-	; The message that was the cause for this initiator and acts as reference to this
-	; initiator. It might  be NIL, if this initiator is used to start a new
-	; interaction sequence.
-	(slot refering-message) ; type: agent-message
-		
-	; The Interaction Protocol that is currently in use for communication.
-	(slot protocol (type STRING))
-	
-	; This slot is the performative used in the refering message. It might be empty,
-	; if this initiator is used to start a new interaction sequence. Although this
-	; information can also be obtained through the refering message this helps to keep
-	; the rules checking for the performative small.
-	(slot previous-performative (type STRING))
-	
-	; In this slot the result of the content evaluation in clips code of the refering
-	; message is placed. The content and type of this slot depends on the
-	; previous-performative.
-	(slot result)
-	
-	; This flag indicates whether this initiator was processed and the new message was
-	; send or not. It is not essential for the rule engine but for the user to see
-	; what is happening.
-	(slot processed (type BOOLEAN)(default FALSE))
-	
-	; If an error occured during evaluation of the content of the refering message
-	; it will be placed here.
-	(slot error (type STRING)(default NIL))
+
+(deftemplate agent-evaluation-error
+	"Template for an error during evaluation."
+	(slot message)
+	(slot error (type STRING))
 )
 
 
+(deftemplate agent-agree-result
+	"Result-Template for agree performatives."
+	(slot message)
+	(multislot propositions)
+)
 
+
+(deftemplate agent-queryIf-result
+	"Result-Template for query-if performatives."
+	(slot message)
+	(slot result (type BOOLEAN)(default FALSE))
+)
 
 
 (deftemplate agent-queryRef-result
+	"Result-Template for query-ref performatives."
+	(slot message)
 	(slot refOp (type STRING))
 	(multislot items)
 )
 
 
-
-(deftemplate agent-agree-result
-	(multislot propositions)
+(deftemplate agent-request-result
+	"Result-Template for request performatives."
+	(slot message)
+	(slot result)
 )
 
 ; ===================================================
@@ -94,12 +82,19 @@
 (deffunction process-incoming-message
 	"Processes incoming messages with any protocol and performative."
 	(functiongroup AgentFunctions)
-	(?message ?protocol)
+	(?message)
 	
 	; Assert the agent that sent the message if he is unknown.
-	(bind ?agent (fact-id 
-		(assert (agent-description (name (fact-slot-value ?message "sender"))(local FALSE)))
-	))
+	(bind ?agent
+		(fact-id 
+			(assert
+				(agent-description
+					(name (fact-slot-value ?message "sender"))
+					(local FALSE)
+				)
+			)
+		)
+	)
 	
 	; Translate the Code according to the given performative.
 	(bind ?clipsCode
@@ -108,28 +103,47 @@
 	    	(fact-slot-value ?message "content")
 	    )
 	)
+	
+	; Set the error to an empty value.
+	(bind ?error "")
+	
+	; We substitute the String %MSG% in the clips code with the actual message-fact
+	; to give the performatives the possibility to use a reference in their results.
+	(bind ?clipsCode
+		(str-replace
+			?clipsCode
+			"%MSG%"
+			(str-cat "(fact-id " (get-fact-id ?message) ")")
+		)
+	)
+	
+	; Evaluate the code. The performatives are responsible for creating their specific
+	; result-facts.
+	(eval-blocking ?clipsCode ?error)
+	
+	; Here we have to check for Errors that occured during evaluation.
+	
+	(if
+		(neq ?error NIL)
+	 then
+	 	(if
+			(> (str-length ?error) 0)
+		 then
+		 	(assert
+		 		(agent-evaluation-error
+		 			(message ?message)
+		 			(error ?error)
+		 		)
+		 	)
+		)
+	)
+	
+	
 	; Add the translated code to the initial message.
 	(modify ?message (content-clips ?clipsCode))
 	
 	; Set the message to processed.
 	(modify ?message (processed TRUE))
-	
-	
-	; Evaluate the code in the rete engine.
-	(bind ?error "")
-	(bind ?*message* ?message)
-	(bind ?result (eval-blocking ?clipsCode ?error))
-	
-	; Assert a new agent message evaluation result fact that will initiate a new message
-	; according to the used performative and protocol.
-	(assert (agent-message-evaluation-result
-		(receiver ?agent)
-		(refering-message ?message)
-		(protocol ?protocol)
-		(previous-performative (fact-slot-value ?message "performative"))
-		(result ?result)
-		(error ?error)
-	))
 )
 
 
@@ -137,6 +151,8 @@
 	"Processes (= sends) outgoing messages."
 	(functiongroup AgentFunctions)
 	(?message)
+	
+	; Call agent-send-message with the slot values.
 	(agent-send-message 
 		(fact-slot-value ?message "receivers")
 		(fact-slot-value ?message "reply-to")
@@ -151,6 +167,8 @@
 		(fact-slot-value ?message "reply-with")
 		(fact-slot-value ?message "reply-by")
 	)
+	
+	; Set the message to processed.
 	(modify ?message (processed TRUE))
 )
 
@@ -179,6 +197,43 @@
 	(return (delete-member$ ?receivers NIL))
 )
 
+
+(deffunction send-agree
+	"Sends an agree to a message using the same protocol with optional propositions."
+	(functiongroup AgentFunctions)
+	(?message ?propositions)
+	
+	(bind ?receivers (prepare-receivers ?message))
+	(bind ?newContent (fact-slot-value ?message "content"))
+	(if
+		(neq ?propositions NIL)
+	 then
+		(bind ?newContent
+			(str-cat ?newContent ?propositions)
+		)
+	)
+	
+	(assert 
+		(agent-message
+			(receivers ?receivers)
+			(performative "agree")
+			(content ?newContent)
+			(language (fact-slot-value ?message "language"))
+			(encoding (fact-slot-value ?message "encoding"))
+			(ontology (fact-slot-value ?message "ontology"))
+			(protocol (fact-slot-value ?message "protocol"))
+			(conversation-id (fact-slot-value ?message "conversation-id"))
+			(in-reply-to (fact-slot-value ?message "reply-with"))
+			(reply-with "")
+			(reply-by 0)
+			(timestamp (datetime2timestamp (now)))
+			(incoming FALSE)
+		)
+	)
+	
+	(fire)
+)
+
 ; ===================================================
 ; Definition of rules that are needed.
 ; ===================================================
@@ -204,7 +259,7 @@
 	=>
 	
 	; Process the message.
-	(process-incoming-message ?message ?protocol)
+	(process-incoming-message ?message)
 )
 
 
