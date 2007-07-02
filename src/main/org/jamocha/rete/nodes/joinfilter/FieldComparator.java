@@ -61,14 +61,14 @@ public class FieldComparator implements Serializable, Cloneable, JoinFilter {
 	public boolean evaluate(Fact rightinput, FactTuple leftinput) throws JoinFilterException {
 		JamochaValue rightValue = null, leftValue = null;
 		if (right.refersWholeFact()) {
-			JamochaValue.newFact(rightinput);
+			rightValue = JamochaValue.newFact(rightinput);
 			//rightValue = rightinput.getSlotValue( -1 );
 		} else {
 			rightValue = rightinput.getSlotValue( right.getSlotIndex() );			
 		}
 		
 		if (left.refersWholeFact()) {
-			leftValue = leftinput.getFacts()[left.getRowIndex()].getSlotValue( -1 );
+			leftValue = JamochaValue.newFact(leftinput.getFacts()[left.getRowIndex()]);
 		} else {
 			leftValue = leftinput.getFacts()[left.getRowIndex()].getSlotValue( left.getSlotIndex() );			
 		}

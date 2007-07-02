@@ -33,7 +33,8 @@ import org.jamocha.rete.functions.FunctionDescription;
 /**
  * @author Alexander Wilden
  * 
- * Returns the value (fact) of the given fact-id or NIL if the given id doesn't exist.
+ * Returns the value (fact) of the given fact-id or NIL if the given id doesn't
+ * exist.
  */
 public class FactId implements Function, Serializable {
 
@@ -80,11 +81,11 @@ public class FactId implements Function, Serializable {
 		}
 
 		public String getExample() {
-			return "(deftemplate car (slot color)(slot speed))\n" +
-					"(assert (car (color \"red\")(speed 200)))\n" +
-					"(assert (car (color \"blue\")(speed 150)))\n" +
-					"(assert (car (color \"green\")(speed 100)))\n" +
-					"(fact-id 2)";
+			return "(deftemplate car (slot color)(slot speed))\n"
+					+ "(assert (car (color \"red\")(speed 200)))\n"
+					+ "(assert (car (color \"blue\")(speed 150)))\n"
+					+ "(assert (car (color \"green\")(speed 100)))\n"
+					+ "(fact-id 2)";
 		}
 	}
 
@@ -107,8 +108,16 @@ public class FactId implements Function, Serializable {
 		if (params != null && params.length == 1) {
 			JamochaValue param = params[0].getValue(engine);
 			try {
-				long factId = param.implicitCast(JamochaType.LONG)
-						.getLongValue();
+				long factId;
+				if (param.is(JamochaType.IDENTIFIER)
+						&& param.getStringValue().length() > 2
+						&& param.getStringValue().startsWith("f-")) {
+					factId = Long
+							.parseLong(param.getStringValue().substring(2));
+				} else {
+					factId = param.implicitCast(JamochaType.LONG)
+							.getLongValue();
+				}
 				Fact fact = engine.getFactById(factId);
 				if (fact == null) {
 					return JamochaValue.NIL;
