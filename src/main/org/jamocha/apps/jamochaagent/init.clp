@@ -75,6 +75,12 @@
 	(slot result)
 )
 
+(deftemplate agent-message-rule-pairing
+	"General pairing to connect a rule to the message that caused its definition."
+	(slot message)
+	(slot ruleName (type STRING))
+)
+
 ; ===================================================
 ; Definition of functions that are needed.
 ; ===================================================

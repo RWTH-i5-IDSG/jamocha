@@ -74,15 +74,17 @@ public class QueryRef {
 		String binding = conf.getTermOrIE().compile(
 				SLCompileType.RULE_RESULT);
 		result.append("(bind ?*queryRef-temp* (create$))");
-		result.append("(defrule queryRef ");
+		result.append("(defrule query-ref ");
 		result.append(conf.getWff().compile(SLCompileType.RULE_LHS));
 		result.append(" => ");
 		result.append("(bind ?*queryRef-temp* (insert-list$ ?*queryRef-temp* 1 ");
 		result.append(binding);
 		result.append(")))");
-		result.append("(fire)(undefrule \"queryRef\")");
-		result.append("(return (assert (agent-queryRef-result (message %MSG%)(refOp ");
-		result.append(refOp).append(")(items ?*queryRef-temp*))))");
+		result.append("(fire)");
+		result.append("(undefrule \"query-ref\")");
+		result.append("(assert (agent-queryRef-result (message %MSG%)(refOp ");
+		result.append(refOp);
+		result.append(")(items ?*queryRef-temp*)))");
 		System.out.println(result);
 		return result.toString();
 	}

@@ -41,7 +41,7 @@
 	"Fires for agent-message-evaluation-result facts with protocol query and performative query-if."
 	?message <- (agent-message
 		(protocol "fipa-query")
-		(performative "query-ref")
+		(performative "query-if")
 	)
 	(agent-queryIf-result
 		(message ?message)

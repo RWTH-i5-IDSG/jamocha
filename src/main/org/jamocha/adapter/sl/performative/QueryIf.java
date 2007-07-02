@@ -24,7 +24,6 @@ import org.jamocha.adapter.sl.configurations.SLConfiguration;
 import org.jamocha.parser.sl.ParseException;
 import org.jamocha.parser.sl.SLParser;
 
-
 /**
  * This class walks through an SL code tree and translates it to CLIPS depending
  * on the given performative.
@@ -32,7 +31,7 @@ import org.jamocha.parser.sl.SLParser;
  * @author Mustafa Karafil
  * 
  */
-public class QueryIf{
+public class QueryIf {
 
 	/**
 	 * A private constructor to force access only in a static way.
@@ -42,7 +41,7 @@ public class QueryIf{
 	}
 
 	/**
-	 * Translates SL code of a query-if to CLIPS code. 
+	 * Translates SL code of a query-if to CLIPS code.
 	 * 
 	 * @param slContent
 	 *            The SL content we have to translate.
@@ -52,7 +51,7 @@ public class QueryIf{
 	 *             happens.
 	 */
 	public static String getCLIPS(String slContent)
-	throws AdapterTranslationException {
+			throws AdapterTranslationException {
 		ContentSLConfiguration contentConf;
 		try {
 			contentConf = SLParser.parse(slContent);
@@ -68,15 +67,17 @@ public class QueryIf{
 			throw new AdapterTranslationException("Error");
 		}
 		StringBuilder result = new StringBuilder();
-		result
-				.append("(bind ?*queryIf-temp* FALSE)")
-				.append("(defrule queryIfTrue ")
-				.append(results.get(0).compile(SLCompileType.RULE_LHS))
-				.append(" => ")
-				.append("(bind ?*queryIf-temp* TRUE)")
-				.append(")")
-				.append("(fire)(undefrule \"queryIfTrue\")(return ?*queryIf-temp*)");
+		result.append("(bind ?*queryIf-temp* FALSE)");
+		result.append("(defrule query-if-true ");
+		result.append(results.get(0).compile(SLCompileType.RULE_LHS));
+		result.append(" => ");
+		result.append("(bind ?*queryIf-temp* TRUE)");
+		result.append(")");
+		result.append("(fire)");
+		result.append("(undefrule \"query-if-true\")");
+		result.append("(assert (agent-queryIf-result (message %MSG%)(result ?*queryIf-temp*)))");
 
-		return result.toString();	}
+		return result.toString();
+	}
 
 }
