@@ -28,7 +28,7 @@ import org.jamocha.parser.sl.SLParser;
  * This class walks through an SL code tree and translates it to CLIPS depending
  * on the given performative.
  * 
- * @author 
+ * @author Daniel Grams & Georg Jennessen
  * 
  */
 public class Confirm {
@@ -41,7 +41,7 @@ public class Confirm {
 	}
 
 	/**
-	 * Translates SL code of a confirm to CLIPS code. 
+	 * Translates SL code of a confirm to CLIPS code.
 	 * 
 	 * @param slContent
 	 *            The SL content we have to translate.
@@ -59,19 +59,13 @@ public class Confirm {
 			throw new AdapterTranslationException(
 					"Could not translate from SL to CLIPS.", e);
 		}
+		StringBuffer result = new StringBuffer();
 		List<SLConfiguration> results = contentConf.getExpressions();
-		if (results.size() != 2) {
-			// TODO: Add more Exceptions for different things extending
-			// AdapterTranslationException that tell more about the nature of
-			// the problem!
-			throw new AdapterTranslationException("Error");
+		result.append("(assert (agent-Confirm-result (propositions");
+		for (int i = 1; i < results.size(); i++) {
+			result.append(results.get(i).compile(SLCompileType.ASSERT));
 		}
-		StringBuilder result = new StringBuilder();
-		result
-				.append("(defrule confirm ")
-				.append(results.get(0).compile(SLCompileType.RULE_LHS))
-				.append(" => true )");
-
+		result.append(")))");
 		return result.toString();
 	}
 

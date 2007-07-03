@@ -15,13 +15,21 @@
  */
 package org.jamocha.adapter.sl.performative;
 
+import java.util.List;
+
 import org.jamocha.adapter.AdapterTranslationException;
+import org.jamocha.adapter.sl.configurations.ContentSLConfiguration;
+import org.jamocha.adapter.sl.configurations.IdentifyingExpressionSLConfiguration;
+import org.jamocha.adapter.sl.configurations.SLCompileType;
+import org.jamocha.adapter.sl.configurations.SLConfiguration;
+import org.jamocha.parser.sl.ParseException;
+import org.jamocha.parser.sl.SLParser;
 
 /**
  * This class walks through an SL code tree and translates it to CLIPS depending
  * on the given performative.
  * 
- * @author Alexander Wilden
+ * @author Daniel & Georg Grams-Jennessen
  * 
  */
 public class InformRef {
@@ -46,8 +54,40 @@ public class InformRef {
 	 */
 	public static String getCLIPS(String slContent)
 			throws AdapterTranslationException {
-		// TODO: implement me
-		return null;
+		ContentSLConfiguration contentConf;
+		try {
+			contentConf = SLParser.parse(slContent);
+		} catch (ParseException e) {
+			throw new AdapterTranslationException(
+					"Could not translate from SL to CLIPS.", e);
+		}
+		List<SLConfiguration> results = contentConf.getExpressions();
+		if (results.size() != 1) {
+			// TODO: Add more Exceptions for different things extending
+			// AdapterTranslationException that tell more about the nature of
+			// the problem!
+			throw new AdapterTranslationException("Error");
+		}
+		StringBuilder result = new StringBuilder();
+		IdentifyingExpressionSLConfiguration conf = (IdentifyingExpressionSLConfiguration) results
+				.get(0);
+		String refOp = conf.getRefOp().compile(SLCompileType.RULE_LHS);
+		String binding = conf.getTermOrIE().compile(SLCompileType.RULE_RESULT);
+		result.append("(bind ?*informRef-temp* (create$))");
+		result.append("(defrule inform-ref ");
+		result.append(conf.getWff().compile(SLCompileType.RULE_LHS));
+		result.append(" => ");
+		result
+				.append("(bind ?*informRef-temp* (insert-list$ ?*informRef-temp* 1 ");
+		result.append(binding);
+		result.append(")))");
+		result.append("(fire)");
+		result.append("(undefrule \"inform-ref\")");
+		result.append("(assert (agent-informRef-result (message %MSG%)(refOp ");
+		result.append(refOp);
+		result.append(")(items ?*informRef-temp*)))");
+		System.out.println(result);
+		return result.toString();
 	}
 
 }
