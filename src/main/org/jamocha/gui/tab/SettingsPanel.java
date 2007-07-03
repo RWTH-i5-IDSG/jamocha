@@ -32,7 +32,7 @@ import org.jamocha.gui.JamochaGui;
 import org.jamocha.gui.icons.IconLoader;
 import org.jamocha.gui.tab.settings.AbstractSettingsPanel;
 import org.jamocha.gui.tab.settings.EngineSettingsPanel;
-import org.jamocha.gui.tab.settings.ShellSettingsPanel;
+import org.jamocha.gui.tab.settings.GUISettingsPanel;
 
 /**
  * A Panel to change the settings of the jamocha rule engine or this gui.
@@ -60,9 +60,9 @@ public class SettingsPanel extends AbstractJamochaPanel implements
 		tabbedPane.addTab("Engine", null, engineSettingsPanel, "Engine Settings");
 		panels.add(engineSettingsPanel);
 		
-		ShellSettingsPanel shellSettingsPanel = new ShellSettingsPanel(gui);
-		tabbedPane.addTab("Shell", null, shellSettingsPanel, "Shell Settings");
-		panels.add(shellSettingsPanel);
+		GUISettingsPanel guiSettingsPanel = new GUISettingsPanel(gui);
+		tabbedPane.addTab("GUI", null, guiSettingsPanel, "GUI Settings");
+		panels.add(guiSettingsPanel);
 
 		add(tabbedPane, BorderLayout.CENTER);
 

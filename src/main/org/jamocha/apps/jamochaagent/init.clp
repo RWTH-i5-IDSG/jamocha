@@ -75,8 +75,15 @@
 	(slot result)
 )
 
+(deftemplate agent-cancel
+	"Generic Template for a cancel communicative act."
+	(slot initiator (type STRING))
+	(slot performative (type STRING))
+	(slot message-content (type STRING))
+)
+
 (deftemplate agent-message-rule-pairing
-	"General pairing to connect a rule to the message that caused its definition."
+	"Generic pairing to connect a rule to the message that caused its definition."
 	(slot message)
 	(slot ruleName (type STRING))
 )

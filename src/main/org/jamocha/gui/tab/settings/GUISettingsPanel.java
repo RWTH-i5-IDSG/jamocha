@@ -29,6 +29,8 @@ import java.awt.event.ActionListener;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.JButton;
 import javax.swing.JColorChooser;
@@ -36,6 +38,7 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 
 import org.jamocha.gui.JamochaGui;
@@ -47,7 +50,7 @@ import org.jamocha.gui.icons.IconLoader;
  * @author Karl-Heinz Krempels <krempels@cs.rwth-aachen.de>
  * @author Alexander Wilden <october.rust@gmx.de>
  */
-public class ShellSettingsPanel extends AbstractSettingsPanel implements
+public class GUISettingsPanel extends AbstractSettingsPanel implements
 		ActionListener {
 
 	private static final long serialVersionUID = -7136144663514250335L;
@@ -64,15 +67,23 @@ public class ShellSettingsPanel extends AbstractSettingsPanel implements
 
 	private JTextField backgroundColorChooserPreview;
 
-	public ShellSettingsPanel(JamochaGui gui) {
+	private JComboBox factSortOptionsCombo;
+
+	public GUISettingsPanel(JamochaGui gui) {
 		super(gui);
+		JPanel mainPanel = new JPanel();
+		mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.PAGE_AXIS));
+
 		GridBagLayout gridbag = new GridBagLayout();
 		GridBagConstraints c = new GridBagConstraints();
 		c.weightx = 1.0;
-		setLayout(gridbag);
+
+		JPanel shellPanel = new JPanel();
+		shellPanel.setLayout(gridbag);
+		shellPanel.setBorder(BorderFactory.createTitledBorder("Shell"));
 
 		// Font
-		addLabel(this, new JLabel("Font:"), gridbag, c, 0);
+		addLabel(shellPanel, new JLabel("Font:"), gridbag, c, 0);
 		GraphicsEnvironment ge = GraphicsEnvironment
 				.getLocalGraphicsEnvironment();
 		Font allFonts[] = ge.getAllFonts();
@@ -91,10 +102,10 @@ public class ShellSettingsPanel extends AbstractSettingsPanel implements
 		fonts.setRenderer(new FontListCellRenderer());
 		JPanel fontsPanel = new JPanel(new BorderLayout());
 		fontsPanel.add(fonts, BorderLayout.WEST);
-		addInputComponent(this, fontsPanel, gridbag, c, 0);
+		addInputComponent(shellPanel, fontsPanel, gridbag, c, 0);
 
 		// Fontsize
-		addLabel(this, new JLabel("Fontsize:"), gridbag, c, 1);
+		addLabel(shellPanel, new JLabel("Fontsize:"), gridbag, c, 1);
 		Integer[] sizes = new Integer[17];
 		for (int i = 0; i < sizes.length; ++i) {
 			sizes[i] = 8 + i;
@@ -104,10 +115,10 @@ public class ShellSettingsPanel extends AbstractSettingsPanel implements
 				12));
 		JPanel fontsizesPanel = new JPanel(new BorderLayout());
 		fontsizesPanel.add(fontsizes, BorderLayout.WEST);
-		addInputComponent(this, fontsizesPanel, gridbag, c, 1);
+		addInputComponent(shellPanel, fontsizesPanel, gridbag, c, 1);
 
 		// Fontcolor
-		addLabel(this, new JLabel("Fontcolor:"), gridbag, c, 2);
+		addLabel(shellPanel, new JLabel("Fontcolor:"), gridbag, c, 2);
 		JPanel fontColorChooserPanel = new JPanel(new FlowLayout(
 				FlowLayout.LEFT));
 		fontColorChooserPreview = new JTextField(5);
@@ -119,10 +130,10 @@ public class ShellSettingsPanel extends AbstractSettingsPanel implements
 		fontColorChooserButton.addActionListener(this);
 		fontColorChooserPanel.add(fontColorChooserPreview);
 		fontColorChooserPanel.add(fontColorChooserButton);
-		addInputComponent(this, fontColorChooserPanel, gridbag, c, 2);
+		addInputComponent(shellPanel, fontColorChooserPanel, gridbag, c, 2);
 
 		// Backgroundcolor
-		addLabel(this, new JLabel("Backgroundcolor:"), gridbag, c, 3);
+		addLabel(shellPanel, new JLabel("Backgroundcolor:"), gridbag, c, 3);
 		JPanel backgroundColorChooserPanel = new JPanel(new FlowLayout(
 				FlowLayout.LEFT));
 		backgroundColorChooserPreview = new JTextField(5);
@@ -135,7 +146,33 @@ public class ShellSettingsPanel extends AbstractSettingsPanel implements
 		backgroundColorChooserButton.addActionListener(this);
 		backgroundColorChooserPanel.add(backgroundColorChooserPreview);
 		backgroundColorChooserPanel.add(backgroundColorChooserButton);
-		addInputComponent(this, backgroundColorChooserPanel, gridbag, c, 3);
+		addInputComponent(shellPanel, backgroundColorChooserPanel, gridbag, c,
+				3);
+
+		mainPanel.add(shellPanel);
+
+		gridbag = new GridBagLayout();
+		c = new GridBagConstraints();
+		c.weightx = 1.0;
+		JPanel factsPanel = new JPanel();
+		factsPanel.setLayout(gridbag);
+		factsPanel.setBorder(BorderFactory.createTitledBorder("Facts"));
+
+		// Sort Facts on Load
+		addLabel(factsPanel, new JLabel("Auto sort Facts by ID:"), gridbag, c,
+				1);
+		String[] factSortOptions = { "No sorting", "Sort ascending",
+				"Sort descending" };
+		factSortOptionsCombo = new JComboBox(factSortOptions);
+		factSortOptionsCombo.setSelectedItem(gui.getPreferences().get(
+				"facts.autoSort", "No sorting"));
+		JPanel factSortOptionsPanel = new JPanel(new BorderLayout());
+		factSortOptionsPanel.add(factSortOptionsCombo, BorderLayout.WEST);
+		addInputComponent(factsPanel, factSortOptionsPanel, gridbag, c, 1);
+
+		mainPanel.add(factsPanel);
+
+		add(new JScrollPane(mainPanel));
 	}
 
 	@Override
@@ -150,6 +187,8 @@ public class ShellSettingsPanel extends AbstractSettingsPanel implements
 				"shell.backgroundcolor",
 				(Integer) backgroundColorChooserPreview.getBackground()
 						.getRGB());
+		gui.getPreferences().put("facts.autoSort",
+				factSortOptionsCombo.getSelectedItem().toString());
 	}
 
 	private class FontListCellRenderer extends DefaultListCellRenderer {

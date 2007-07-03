@@ -34,6 +34,20 @@ public class FunctionCallOrFactSLConfiguration implements SLConfiguration {
 		this.slots.put(name, value);
 	}
 
+	public SLConfiguration getSlot(SLConfiguration name) {
+		return slots.get(name);
+	}
+
+	public SLConfiguration getSlot(String name, SLCompileType compileType) {
+		Set<SLConfiguration> keys = slots.keySet();
+		for (SLConfiguration key : keys) {
+			if (name.equals(key.compile(compileType))) {
+				return slots.get(key);
+			}
+		}
+		return null;
+	}
+
 	public SLConfiguration getName() {
 		return name;
 	}

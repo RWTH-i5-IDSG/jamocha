@@ -134,6 +134,14 @@ public class FactsPanel extends AbstractJamochaPanel implements ActionListener,
 		factsTable.getColumnModel().getColumn(1).setPreferredWidth(150);
 		factsTable.getColumnModel().getColumn(2).setPreferredWidth(
 				factsTable.getWidth() - 200);
+		String autoSort = gui.getPreferences().get(
+				"facts.autoSort", "No sorting");
+		if(autoSort.contains("ascending")) {
+			TableModelQuickSort.sort(dataModel, true, 0);
+		}
+		else if(autoSort.contains("descending")) {
+			TableModelQuickSort.sort(dataModel, false, 0);
+		}
 	}
 
 	private void initPopupMenu() {

@@ -33,6 +33,8 @@ import org.jamocha.parser.sl.SLParser;
  */
 public class RequestWhen {
 
+	private static long uniqueId = 1;
+
 	/**
 	 * A private constructor to force access only in a static way.
 	 * 
@@ -69,12 +71,22 @@ public class RequestWhen {
 			throw new AdapterTranslationException("Error");
 		}
 		StringBuilder result = new StringBuilder();
-		result
-				.append("(defrule request-when ")
-				.append(results.get(0).compile(SLCompileType.RULE_LHS))
-				.append(" => ")
-				.append(results.get(1).compile(SLCompileType.ACTION_AND_ASSERT))
-				.append("(undefrule request-when))");
+		String ruleName = "request-when-" + uniqueId++;
+
+		result.append("(defrule ");
+		result.append(ruleName);
+		result.append(" ");
+		result.append(results.get(0).compile(SLCompileType.RULE_LHS));
+		result.append(" => ");
+		result.append("(assert (agent-requestWhen-result (message %MSG%)(result ");
+		result.append(results.get(1).compile(SLCompileType.ACTION_AND_ASSERT));
+		result.append(")))");
+		result.append("(undefrule ");
+		result.append(ruleName);
+		result.append("))");
+		result.append("(assert (agent-message-rule-pairing (message %MSG%)(ruleName ");
+		result.append(ruleName);
+		result.append(")))");
 		return result.toString();
 	}
 }

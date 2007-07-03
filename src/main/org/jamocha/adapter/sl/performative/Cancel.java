@@ -18,8 +18,12 @@ package org.jamocha.adapter.sl.performative;
 import java.util.List;
 
 import org.jamocha.adapter.AdapterTranslationException;
+import org.jamocha.adapter.sl.configurations.ActionSLConfiguration;
 import org.jamocha.adapter.sl.configurations.ContentSLConfiguration;
+import org.jamocha.adapter.sl.configurations.FunctionCallOrFactSLConfiguration;
+import org.jamocha.adapter.sl.configurations.SLCompileType;
 import org.jamocha.adapter.sl.configurations.SLConfiguration;
+import org.jamocha.parser.ParserUtils;
 import org.jamocha.parser.sl.ParseException;
 import org.jamocha.parser.sl.SLParser;
 
@@ -61,14 +65,34 @@ public class Cancel {
 					"Could not translate from SL to CLIPS.", e);
 		}
 		List<SLConfiguration> results = contentConf.getExpressions();
-		if (results.size() != 2) {
+		if (results.size() != 1) {
 			// TODO: Add more Exceptions for different things extending
 			// AdapterTranslationException that tell more about the nature of
 			// the problem!
 			throw new AdapterTranslationException("Error");
 		}
-		
-		return "(undefrule CID)";				
+		ActionSLConfiguration actConf = (ActionSLConfiguration) results.get(0);
+		FunctionCallOrFactSLConfiguration functionConf = (FunctionCallOrFactSLConfiguration) actConf
+				.getAction();
+		String performative = functionConf.getName().compile(
+				SLCompileType.ASSERT);
+		String oldContent = functionConf.getSlot("content",
+				SLCompileType.ASSERT).compile(SLCompileType.ASSERT);
+		FunctionCallOrFactSLConfiguration agentConf = (FunctionCallOrFactSLConfiguration) actConf
+				.getAgent();
+		String agent = agentConf.getSlot("name", SLCompileType.ASSERT).compile(
+				SLCompileType.ASSERT);
+		StringBuilder result = new StringBuilder();
+		if (oldContent != null) {
+			result.append("(assert (agent-cancel (initiator \"");
+			result.append(agent);
+			result.append("\")(performative \"");
+			result.append(performative);
+			result.append("\")(message-content ");
+			result.append(oldContent);
+			result.append(")))");
+		}
+		System.out.println(result);
+		return result.toString();
 	}
-
 }
