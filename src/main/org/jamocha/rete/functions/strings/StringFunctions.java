@@ -62,6 +62,10 @@ public class StringFunctions implements FunctionGroup {
 		StringReplace stringReplace = new StringReplace();
 		functionMem.declareFunction(stringReplace);
 		funcs.add(stringReplace);
+
+		StringReplaceAll stringReplaceAll = new StringReplaceAll();
+		functionMem.declareFunction(stringReplaceAll);
+		funcs.add(stringReplaceAll);
 		
 		StringTrim stringTrim = new StringTrim();
 		functionMem.declareFunction(stringTrim);

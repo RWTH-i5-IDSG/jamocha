@@ -36,6 +36,7 @@ import java.util.List;
 import org.jamocha.Jamocha;
 import org.jamocha.adapter.sl.CLIPS2SLFunction;
 import org.jamocha.adapter.sl.SL2CLIPSFunction;
+import org.jamocha.adapter.sl.SLMessageCompare;
 import org.jamocha.messagerouter.MessageEvent;
 import org.jamocha.messagerouter.StringChannel;
 import org.jamocha.parser.ModeNotFoundException;
@@ -56,7 +57,7 @@ import org.jamocha.rete.Rete;
  */
 public class JamochaAgent extends ToolAgent {
 
-	public static final String TEMPLATE_AGENT_DESCRIPTION = "agent-description";
+	public static final String TEMPLATE_AGENT_DESCRIPTION = "agent-identifier";
 
 	public static final String TEMPLATE_AGENT_MESSAGE = "agent-message";
 
@@ -112,6 +113,10 @@ public class JamochaAgent extends ToolAgent {
 		Function sendMessageFunction = new SendMessageFunction(this);
 		engine.getFunctionMemory().declareFunction(sendMessageFunction);
 		agentFuncs.addFunction(sendMessageFunction);
+
+		Function slMessageCompare = new SLMessageCompare();
+		engine.getFunctionMemory().declareFunction(slMessageCompare);
+		agentFuncs.addFunction(slMessageCompare);
 
 		Function sl2ClipsFunction = new SL2CLIPSFunction();
 		engine.getFunctionMemory().declareFunction(sl2ClipsFunction);

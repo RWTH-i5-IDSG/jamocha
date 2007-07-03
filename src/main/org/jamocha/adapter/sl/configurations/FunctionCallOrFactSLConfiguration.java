@@ -17,8 +17,9 @@
 package org.jamocha.adapter.sl.configurations;
 
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 public class FunctionCallOrFactSLConfiguration implements SLConfiguration {
 
@@ -26,11 +27,16 @@ public class FunctionCallOrFactSLConfiguration implements SLConfiguration {
 
 	private Map<SLConfiguration, SLConfiguration> slots = new HashMap<SLConfiguration, SLConfiguration>();
 
+	// needed to keep the order in compile for the slots. This is essential for
+	// function calls.
+	private List<SLConfiguration> slotNames = new LinkedList<SLConfiguration>();
+
 	public Map<SLConfiguration, SLConfiguration> getSlots() {
 		return slots;
 	}
 
 	public void addSlot(SLConfiguration name, SLConfiguration value) {
+		this.slotNames.add(name);
 		this.slots.put(name, value);
 	}
 
@@ -39,10 +45,9 @@ public class FunctionCallOrFactSLConfiguration implements SLConfiguration {
 	}
 
 	public SLConfiguration getSlot(String name, SLCompileType compileType) {
-		Set<SLConfiguration> keys = slots.keySet();
-		for (SLConfiguration key : keys) {
-			if (name.equals(key.compile(compileType))) {
-				return slots.get(key);
+		for (SLConfiguration slotName : slotNames) {
+			if (name.equals(slotName.compile(compileType))) {
+				return slots.get(slotName);
 			}
 		}
 		return null;
@@ -58,7 +63,6 @@ public class FunctionCallOrFactSLConfiguration implements SLConfiguration {
 
 	public String compile(SLCompileType compileType) {
 		StringBuilder res = new StringBuilder();
-		Set<SLConfiguration> keys = slots.keySet();
 		switch (compileType) {
 		case ACTION_AND_ASSERT:
 			// If this node is called directly after an ActionExpression with
@@ -66,10 +70,11 @@ public class FunctionCallOrFactSLConfiguration implements SLConfiguration {
 			// action, this node is a function call and all following will be
 			// asserts.
 			res.append("(").append(name.compile(compileType));
-			for (SLConfiguration key : keys) {
-				if (slots.get(key) != null) {
+			for (SLConfiguration slotName : slotNames) {
+				if (slots.get(slotName) != null) {
 					res.append(" ");
-					res.append(slots.get(key).compile(SLCompileType.ASSERT));
+					res.append(slots.get(slotName)
+							.compile(SLCompileType.ASSERT));
 				}
 			}
 			res.append(")");
@@ -77,10 +82,11 @@ public class FunctionCallOrFactSLConfiguration implements SLConfiguration {
 		case ASSERT:
 			// Here we have an assert of a fact.
 			res.append("(assert (").append(name.compile(compileType));
-			for (SLConfiguration key : keys) {
-				res.append(" (").append(key.compile(compileType)).append(" ");
-				if (slots.get(key) != null)
-					res.append(slots.get(key).compile(compileType));
+			for (SLConfiguration slotName : slotNames) {
+				res.append(" (").append(slotName.compile(compileType)).append(
+						" ");
+				if (slots.get(slotName) != null)
+					res.append(slots.get(slotName).compile(compileType));
 				res.append(")");
 			}
 			res.append("))");
@@ -89,10 +95,11 @@ public class FunctionCallOrFactSLConfiguration implements SLConfiguration {
 			// This is a lefthand side of a rule and by this will result in a
 			// Node of the rete network.
 			res.append("(").append(name.compile(compileType));
-			for (SLConfiguration key : keys) {
-				res.append(" (").append(key.compile(compileType)).append(" ");
-				if (slots.get(key) != null)
-					res.append(slots.get(key).compile(compileType));
+			for (SLConfiguration slotName : slotNames) {
+				res.append(" (").append(slotName.compile(compileType)).append(
+						" ");
+				if (slots.get(slotName) != null)
+					res.append(slots.get(slotName).compile(compileType));
 				else
 					res.append("NIL");
 				res.append(")");

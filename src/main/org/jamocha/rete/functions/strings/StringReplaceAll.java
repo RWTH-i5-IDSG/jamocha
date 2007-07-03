@@ -1,11 +1,11 @@
 /*
- * Copyright 2007 Alexander Wilden
+ * Copyright 2007 Alexander Wilden, Uta Christoph
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://jamocha.sourceforge.net/
+ *   http://www.jamocha.org/
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,11 +14,10 @@
  * limitations under the License.
  * 
  */
-package org.jamocha.adapter.sl;
+package org.jamocha.rete.functions.strings;
 
 import java.io.Serializable;
 
-import org.jamocha.adapter.AdapterTranslationException;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.IllegalParameterException;
 import org.jamocha.parser.JamochaType;
@@ -29,29 +28,33 @@ import org.jamocha.rete.Rete;
 import org.jamocha.rete.functions.FunctionDescription;
 
 /**
- * Translates SL-Code to CLIPS-Code
- * 
  * @author Alexander Wilden
+ * 
+ * Replaces the all substrings of the target string, given as first argument,
+ * that match the regular expression given as second argument with the
+ * replacement from the third argument.
  */
-public class SL2CLIPSFunction implements Function, Serializable {
-
-	private static final class SL2CLIPSFunctionDescription implements
-			FunctionDescription {
+public class StringReplaceAll implements Function, Serializable {
+	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "Translates SL-Code to CLIPS-Code which then will be returned as a String.";
+			return "Replaces the all substrings of the target string, given as first argument, "
+					+ "that match the regular expression given as second argument with the replacement "
+					+ "from the third argument.";
 		}
 
 		public int getParameterCount() {
-			return 2;
+			return 3;
 		}
 
 		public String getParameterDescription(int parameter) {
 			switch (parameter) {
 			case 0:
-				return "Performative that is used.";
+				return "String where the replacement takes place.";
 			case 1:
-				return "String that should be translated to CLIPS-Code.";
+				return "Substring to search for (as regular expression).";
+			case 2:
+				return "Replacement string.";
 			}
 			return "";
 		}
@@ -59,21 +62,17 @@ public class SL2CLIPSFunction implements Function, Serializable {
 		public String getParameterName(int parameter) {
 			switch (parameter) {
 			case 0:
-				return "performative";
+				return "targetString";
 			case 1:
-				return "string";
+				return "searchString";
+			case 2:
+				return "replString";
 			}
 			return "";
 		}
 
 		public JamochaType[] getParameterTypes(int parameter) {
-			switch (parameter) {
-			case 0:
-				return JamochaType.STRINGS;
-			case 1:
-				return JamochaType.STRINGS;
-			}
-			return null;
+			return JamochaType.STRINGS;
 		}
 
 		public JamochaType[] getReturnType() {
@@ -89,16 +88,15 @@ public class SL2CLIPSFunction implements Function, Serializable {
 		}
 
 		public String getExample() {
-			// TODO Auto-generated method stub
-			return null;
+			return "(str-replace-all \"Jamocha\" \"m[^io]ch\" \"maic\")";
 		}
 	}
 
-	private static final FunctionDescription DESCRIPTION = new SL2CLIPSFunctionDescription();
+	private static final FunctionDescription DESCRIPTION = new Description();
 
 	private static final long serialVersionUID = 1L;
 
-	public static final String NAME = "sl2clips";
+	public static final String NAME = "str-replace-all";
 
 	public FunctionDescription getDescription() {
 		return DESCRIPTION;
@@ -108,25 +106,17 @@ public class SL2CLIPSFunction implements Function, Serializable {
 		return NAME;
 	}
 
-	public JamochaType getReturnType() {
-		return JamochaType.STRING;
-	}
-
 	public JamochaValue executeFunction(Rete engine, Parameter[] params)
 			throws EvaluationException {
-		String clipsCode = "";
-		if (params != null && params.length == 2) {
-			String performative = params[0].getValue(engine).getStringValue();
-			String slCode = params[1].getValue(engine).getStringValue();
-			try {
-				clipsCode = SL2CLIPS.getCLIPS(performative, slCode);
-			} catch (AdapterTranslationException e) {
-				throw new EvaluationException(
-						"Error while translating from SL to CLIPS.", e);
-			}
+		String retstr = null;
+		if (params != null && params.length == 3) {
+			String txt = params[0].getValue(engine).getStringValue();
+			String regx = params[1].getValue(engine).getStringValue();
+			String repl = params[2].getValue(engine).getStringValue();
+			retstr = txt.replaceAll(regx, repl);
 		} else {
-			throw new IllegalParameterException(2);
+			throw new IllegalParameterException(3);
 		}
-		return JamochaValue.newString(clipsCode);
+		return JamochaValue.newString(retstr);
 	}
 }

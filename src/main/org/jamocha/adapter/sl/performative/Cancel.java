@@ -23,7 +23,6 @@ import org.jamocha.adapter.sl.configurations.ContentSLConfiguration;
 import org.jamocha.adapter.sl.configurations.FunctionCallOrFactSLConfiguration;
 import org.jamocha.adapter.sl.configurations.SLCompileType;
 import org.jamocha.adapter.sl.configurations.SLConfiguration;
-import org.jamocha.parser.ParserUtils;
 import org.jamocha.parser.sl.ParseException;
 import org.jamocha.parser.sl.SLParser;
 
@@ -88,7 +87,7 @@ public class Cancel {
 			result.append(agent);
 			result.append("\")(performative \"");
 			result.append(performative);
-			result.append("\")(message-content ");
+			result.append("\")(messageContent ");
 			result.append(oldContent);
 			result.append(")))");
 		}

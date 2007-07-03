@@ -76,3 +76,23 @@
 		)
 	)
 )
+
+
+(defrule fipa-cancel
+	"Does cancel ..."
+	(agent-cancel
+		(initiator ?agent)
+		(performative ?performative)
+		(messageContent ?messageContent)
+	)
+	(agent-message-rule-pairing
+		(message ?message)
+		(ruleName ?ruleName)
+	)
+	(test (SL-message-compare ?messageContent (fact-slot-value ?message "content")))
+	
+	=>
+	
+	(undefrule ?ruleName)
+	
+)

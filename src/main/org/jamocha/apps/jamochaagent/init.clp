@@ -8,13 +8,13 @@
 ; Definition of the templates that are needed.
 ; ===================================================
 
-(deftemplate agent-description
+(deftemplate agent-identifier
 	"A template defining an agent."
 	; Name / address of an agent.
     (slot name (type STRING))
     
     ; Flag indicating if this agent is running locally or not.
-    (slot local (type BOOLEAN))
+    (slot local (type BOOLEAN)(default FALSE))
 )
 
 
@@ -75,11 +75,17 @@
 	(slot result)
 )
 
+(deftemplate agent-requestWhen-result
+	""
+	(slot message)
+	(slot result)
+)
+
 (deftemplate agent-cancel
 	"Generic Template for a cancel communicative act."
 	(slot initiator (type STRING))
 	(slot performative (type STRING))
-	(slot message-content (type STRING))
+	(slot messageContent (type STRING))
 )
 
 (deftemplate agent-message-rule-pairing
@@ -101,7 +107,7 @@
 	(bind ?agent
 		(fact-id 
 			(assert
-				(agent-description
+				(agent-identifier
 					(name (fact-slot-value ?message "sender"))
 					(local FALSE)
 				)
@@ -123,7 +129,7 @@
 	; We substitute the String %MSG% in the clips code with the actual message-fact
 	; to give the performatives the possibility to use a reference in their results.
 	(bind ?clipsCode
-		(str-replace
+		(str-replace-all
 			?clipsCode
 			"%MSG%"
 			(str-cat "(fact-id " (get-fact-id ?message) ")")
@@ -254,7 +260,7 @@
 (defrule incoming-message
 	"Fires when a message in FIPA-SL arrives, that is addressed to a local Agent."
 	; Only look for messages addressed to the local agent.
-	(agent-description
+	(agent-identifier
 		(name ?receiver)
 		(local TRUE)
 	)
