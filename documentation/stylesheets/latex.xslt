@@ -36,15 +36,19 @@
 					<xsl:call-template name="str-replace">
 			        <xsl:with-param name="sub" select="'&lt;'"/><xsl:with-param name="rep" select="'$&lt;$'"/>
 			        <xsl:with-param name="string">
-						<xsl:call-template name="str-replace">
-				        <xsl:with-param name="sub" select="'$'"/><xsl:with-param name="rep" select="'\$'"/>
-		        		<xsl:with-param name="string">
+				        <xsl:call-template name="str-replace">
+				        <xsl:with-param name="sub" select="'^'"/><xsl:with-param name="rep" select="'\^'"/>
+				        <xsl:with-param name="string">
 							<xsl:call-template name="str-replace">
-					        <xsl:with-param name="sub" select="'_'"/><xsl:with-param name="rep" select="'\_'"/>
+					        <xsl:with-param name="sub" select="'$'"/><xsl:with-param name="rep" select="'\$'"/>
 			        		<xsl:with-param name="string">
-								<xsl:value-of select="$source"/>
+								<xsl:call-template name="str-replace">
+						        <xsl:with-param name="sub" select="'_'"/><xsl:with-param name="rep" select="'\_'"/>
+				        		<xsl:with-param name="string">
+									<xsl:value-of select="$source"/>
+						        </xsl:with-param></xsl:call-template>
 					        </xsl:with-param></xsl:call-template>
-				        </xsl:with-param></xsl:call-template>
+				        </xsl:with-param></xsl:call-template>					        
 			        </xsl:with-param></xsl:call-template>
 		        </xsl:with-param></xsl:call-template>
 	        </xsl:with-param></xsl:call-template>
@@ -71,12 +75,14 @@
 Return type is \textbf{$&lt;$<xsl:call-template name="clean-text"><xsl:with-param name="source" select="@returnType"/></xsl:call-template>$&gt;$}
 \paragraph{Parameter}
 <xsl:if test="count(parameter) = 0">\textit{none}</xsl:if>
+<xsl:if test="count(parameter) &gt; 0">
 \begin{description}
 <xsl:for-each select="parameter">
 \item[<xsl:call-template name="clean-text"><xsl:with-param name="source" select="@type"/></xsl:call-template>
 <xsl:if test="@fixedParameterCount = 'true'">(optional)</xsl:if> <xsl:call-template name="clean-text"><xsl:with-param name="source" select="@name"/></xsl:call-template>] : <xsl:call-template name="clean-text"><xsl:with-param name="source" select="@description"/></xsl:call-template>\\
 </xsl:for-each>
 \end{description}
+</xsl:if>
 <xsl:if test="count(example) &gt; 0">
 \paragraph{Example}
 <xsl:for-each select="example/exampleline">

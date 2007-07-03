@@ -237,13 +237,13 @@
 	</target>
 	
 	<target name="doc" depends="jars">
-		<java args="-shell" jar="jamocha.jar" fork="true" inputstring="(functions-description)(exit)" output="documentation/functions2.xml"/>
-		<!-- <exec command="/usr/bin/env sed 's/Jamocha\>//g' documentation/functions2.xml >  documentation/functions.xml"/>-->
+		<java args="-shell" jar="jamocha.jar" fork="true" inputstring="(functions-description)" output="documentation/functions.xml" timeout="10000"/>
+		<replaceregexp match="Jamocha> " replace="" flags="g" byline="true" file="documentation/functions.xml"/>
 		<xslt style="documentation/stylesheets/latex.xslt" out="documentation/documentation.tex" in="documentation/functions.xml"/>
-		<exec command="/usr/bin/env latex documentation/documentation.tex"/>
-
-		
-		
+		<xslt style="documentation/stylesheets/pmwiki.xslt" out="documentation/pmwiki.out" in="documentation/functions.xml"/>
+		<exec command="/usr/bin/env latex -output-directory=documentation documentation/documentation.tex"/>
+		<exec command="/usr/bin/env latex -output-directory=documentation documentation/documentation.tex"/>
+		<exec command="/usr/bin/env latex -output-directory=documentation documentation/documentation.tex"/>
 	</target>
 	
 </project>
