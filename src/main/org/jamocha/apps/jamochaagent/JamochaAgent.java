@@ -90,8 +90,10 @@ public class JamochaAgent extends ToolAgent {
 					"jamocha.gui", false), getProperties().getBooleanProperty(
 					"jamoche.shell", false), getProperties().getProperty(
 					"jamocha.mode", ""));
-			if (getProperties().getBooleanProperty("jamocha.gui", false))
+			if (getProperties().getBooleanProperty("jamocha.gui", false)) {
 				jamocha.getJamochaGui().setExitOnClose(false);
+				jamocha.setGUITitle("JamochaAgent - " + getName());
+			}
 		} catch (ModeNotFoundException e) {
 			e.printStackTrace();
 			System.exit(1);
@@ -106,15 +108,14 @@ public class JamochaAgent extends ToolAgent {
 		// register user function for sending messages
 		FunctionGroup agentFuncs = new AgentFunctions();
 		engine.getFunctionMemory().declareFunctionGroup(agentFuncs);
-		
+
 		Function sendMessageFunction = new SendMessageFunction(this);
 		engine.getFunctionMemory().declareFunction(sendMessageFunction);
 		agentFuncs.addFunction(sendMessageFunction);
-		
+
 		Function sl2ClipsFunction = new SL2CLIPSFunction();
 		engine.getFunctionMemory().declareFunction(sl2ClipsFunction);
 		agentFuncs.addFunction(sl2ClipsFunction);
-		
 
 		Function clips2SlFunction = new CLIPS2SLFunction();
 		engine.getFunctionMemory().declareFunction(clips2SlFunction);

@@ -175,6 +175,12 @@ public class Jamocha {
 			}
 		}
 	}
+	
+	public void setGUITitle(String title) {
+		if(jamochaGui != null) {
+			jamochaGui.setTitle(title);
+		}
+	}
 
 	/**
 	 * Returns the underlying Rete engine.
