@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 Alexander Wilden
+ * Copyright 2007 Markus Kucay
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,19 +19,23 @@ import java.util.List;
 
 import org.jamocha.adapter.AdapterTranslationException;
 import org.jamocha.adapter.sl.configurations.ContentSLConfiguration;
+import org.jamocha.adapter.sl.configurations.IdentifyingExpressionSLConfiguration;
 import org.jamocha.adapter.sl.configurations.SLCompileType;
 import org.jamocha.adapter.sl.configurations.SLConfiguration;
 import org.jamocha.parser.sl.ParseException;
 import org.jamocha.parser.sl.SLParser;
 
+
 /**
  * This class walks through an SL code tree and translates it to CLIPS depending
  * on the given performative.
  * 
- * @author Alexander Wilden
+ * @author Markus Kucay
  * 
  */
 public class Cfp {
+	
+	private static long uniqueId = 1;
 
 	/**
 	 * A private constructor to force access only in a static way.
@@ -41,8 +45,10 @@ public class Cfp {
 	}
 
 	/**
-	 * Translates SL code of a request to CLIPS code. A request only contains
-	 * one action.
+	 * Translates SL code of a call-for-proposal to CLIPS code. This performative contains
+	 * an action and a referential operator, which defines a proposition with 
+	 * exactly one parameter. The receiving agent has to decide whether he can perform the action 
+	 * under this precondition or not. 
 	 * 
 	 * @param slContent
 	 *            The SL content we have to translate.
@@ -62,19 +68,20 @@ public class Cfp {
 		}
 		List<SLConfiguration> results = contentConf.getExpressions();
 		if (results.size() != 2) {
-			// TODO: Add more Exceptions for different things extending
-			// AdapterTranslationException that tell more about the nature of
-			// the problem!
 			throw new AdapterTranslationException("Error");
 		}
 		StringBuilder result = new StringBuilder();
-		result // TODO
-				.append("(defrule cfp ")
-				.append(results.get(1).compile(SLCompileType.RULE_LHS))
-				.append(" => ")
-				.append(" (propose MSG ?MSGID)")
-				.append(") (undefrule cfp)");
-
+		IdentifyingExpressionSLConfiguration conf = (IdentifyingExpressionSLConfiguration) results.get(1);
+		String refOp = conf.getRefOp().compile(SLCompileType.RULE_LHS);
+		String binding = conf.getTermOrIE().compile(SLCompileType.ACTION_AND_ASSERT);
+		
+		result.append("(assert(agent-cfp-result (action ");
+		result.append(results.get(0).compile(SLCompileType.ASSERT));
+		result.append(") (ref-expression ");
+		result.append(refOp);
+		result.append(binding);
+		result.append(")))");
+		
 		return result.toString();
 	}
 
