@@ -99,21 +99,23 @@ import org.jamocha.rule.TestCondition;
 public class SFRuleCompiler implements RuleCompiler {
 
 	private class BindingAddress implements Comparable<BindingAddress> {
-		public int conditionIndex;
+		public int tupleIndex;
 
 		public int slotIndex;
 
 		public int operator;
+		
+		public boolean canBePivot;
 
 		public BindingAddress(int conditionIndex, int slotIndex, int operator) {
 			super();
-			this.conditionIndex = conditionIndex;
+			this.tupleIndex = conditionIndex;
 			this.slotIndex = slotIndex;
 			this.operator = operator;
 		}
 
 		public int compareTo(BindingAddress o) {
-			int conditionDifference = this.conditionIndex - o.conditionIndex;
+			int conditionDifference = this.tupleIndex - o.tupleIndex;
 
 			if (conditionDifference != 0)
 				return conditionDifference;
@@ -124,7 +126,7 @@ public class SFRuleCompiler implements RuleCompiler {
 		public String toString(){
 			StringBuilder result = new StringBuilder();
 			result.append("ConditionIndex: ");
-			result.append(conditionIndex);
+			result.append(tupleIndex);
 			result.append(" SlotIndex: ");
 			result.append(slotIndex);
 			result.append(" Operator: ");
@@ -135,9 +137,9 @@ public class SFRuleCompiler implements RuleCompiler {
 	}
 
 	private class PreBinding implements Comparable<PreBinding> {
-		public int leftCondition;
+		public int leftIndex;
 
-		public int rightCondition;
+		public int rightIndex;
 
 		public int leftSlot;
 
@@ -151,13 +153,13 @@ public class SFRuleCompiler implements RuleCompiler {
 			StringBuffer result = new StringBuffer();
 
 			result.append("Prebinding: (");
-			result.append(leftCondition);
+			result.append(leftIndex);
 			result.append(",");
 			result.append(leftSlot);
 			result.append(")");
 			result.append(ConversionUtils.getOperatorDescription(operator));
 			result.append("(");
-			result.append(rightCondition);
+			result.append(rightIndex);
 			result.append(",");
 			result.append(rightSlot);
 			result.append(")");
@@ -167,8 +169,8 @@ public class SFRuleCompiler implements RuleCompiler {
 		public PreBinding(BindingAddress left, BindingAddress right, String varName) {
 			super();
 			this.varName = varName;
-			this.leftCondition = left.conditionIndex;
-			this.rightCondition = right.conditionIndex;
+			this.leftIndex = left.tupleIndex;
+			this.rightIndex = right.tupleIndex;
 			this.leftSlot = left.slotIndex;
 			this.rightSlot = right.slotIndex;
 			if (left.operator == Constants.EQUAL) {
@@ -180,14 +182,14 @@ public class SFRuleCompiler implements RuleCompiler {
 			}
 		}
 
-		public int getJoinIndex() {
-			if (leftCondition == rightCondition)
+		public int getCorrectJoinerIndex() {
+			if (leftIndex == rightIndex)
 				return -1;
-			return Math.min(leftCondition, rightCondition);
+			return Math.max(leftIndex, rightIndex);
 		}
 
 		public int compareTo(PreBinding o) {
-			return this.getJoinIndex() - o.getJoinIndex();
+			return this.getCorrectJoinerIndex() - o.getCorrectJoinerIndex();
 		}
 	}
 
@@ -230,7 +232,7 @@ public class SFRuleCompiler implements RuleCompiler {
 		private BindingAddress getPivot(String variable, Vector<BindingAddress> bas) {
 			BindingAddress pivot = null;
 			for (BindingAddress ba : bas) {
-				if (ba.operator == Constants.EQUAL) {
+				if (ba.operator == Constants.EQUAL && ba.canBePivot) {
 					if (pivot == null || pivot.compareTo(ba) < 0) {
 						pivot = ba;
 					}
@@ -258,7 +260,6 @@ public class SFRuleCompiler implements RuleCompiler {
 					}
 			}
 			Collections.sort(result);
-			Collections.reverse(result);
 			return result;
 		}
 	}
@@ -613,6 +614,14 @@ public class SFRuleCompiler implements RuleCompiler {
 		}
 //		
 	}
+	
+	public int conditionIndexToTupleIndex(int cond, int condCount){
+		return condCount - cond;
+	}
+	
+	public int tupleIndexToConditionIndex(int tupleInd, int condCount){
+		return condCount - tupleInd;
+	}
 
 	protected BaseNode compileBindings(Rule rule, Condition[] conds, Map<Condition, BaseNode> conditionJoiners, BaseNode mostBottomNode) throws AssertException {
 		// first, we need such a table (since each condition can contain many
@@ -639,8 +648,17 @@ public class SFRuleCompiler implements RuleCompiler {
 		// Iterate of all conditions and constraints
 		for (int i = 0; i < conds.length; i++) {
 			// only for Object Conditions:
-			if (conds[i] instanceof ObjectCondition) {
-				ObjectCondition oc = (ObjectCondition) conds[i];
+			if (conds[i] instanceof ObjectCondition || conds[i] instanceof NotCondition || conds[i] instanceof ExistCondition) {
+				ObjectCondition oc = null;
+				if (conds[i] instanceof ObjectCondition) {
+					oc = (ObjectCondition) conds[i];
+				} else if (conds[i] instanceof NotCondition){
+					oc = ((ObjectCondition)((NotCondition) conds[i]).getNestedConditionalElement().get(0));
+				} else if (conds[i] instanceof ExistCondition){
+					oc = ((ObjectCondition)((ExistCondition) conds[i]).getNestedConditionalElement().get(0));
+				}
+				
+				
 				for (Constraint c : oc.getConstraints()) {
 
 					// if we found a BoundConstraint
@@ -648,10 +666,11 @@ public class SFRuleCompiler implements RuleCompiler {
 						BoundConstraint bc = (BoundConstraint) c;
 						BindingAddress ba;
 						if (bc.getIsObjectBinding()) {
-							ba = new BindingAddress(i, -1, bc.getOperator());
+							ba = new BindingAddress( conditionIndexToTupleIndex(i, conds.length) , -1, bc.getOperator());
 						} else {
-							ba = new BindingAddress(i, bc.getSlot().getId(), bc.getOperator());
+							ba = new BindingAddress( conditionIndexToTupleIndex(i, conds.length) , bc.getSlot().getId(),bc.getOperator());
 						}
+						ba.canBePivot = !(conds[i] instanceof ExistCondition || conds[i] instanceof NotCondition);
 						bindingAddressTable.addBindingAddress(ba, bc.getVariableName());
 					}
 				}
@@ -666,7 +685,7 @@ public class SFRuleCompiler implements RuleCompiler {
 			b.leftIndex = pivot.slotIndex;
 			if (b.leftIndex == -1)
 				b.isObjVar = true;
-			b.leftrow = conds.length - pivot.conditionIndex;
+			b.leftrow = pivot.tupleIndex;
 			b.varName = variable;
 			rule.addBinding(variable, b);
 
@@ -682,11 +701,11 @@ public class SFRuleCompiler implements RuleCompiler {
 		// traverse conditions and get their join node:
 		for (int i = conds.length - 1; i >= 0; i--) {
 			Vector<JoinFilter> filters = new Vector<JoinFilter>();
-			BaseNode node = conditionJoiners.get(conds[i]);
+			BaseNode conditionJoiner = conditionJoiners.get(conds[i]);
 			// traverse prebindings and try to set them to join nodes:
-			while (act != null && act.getJoinIndex() == i) {
+			while (act != null && act.getCorrectJoinerIndex() == i) {
 
-				LeftFieldAddress left = new LeftFieldAddress(conds.length - Math.max(act.leftCondition, act.rightCondition), act.leftSlot);
+				LeftFieldAddress left = new LeftFieldAddress( Math.min(act.leftIndex, act.rightIndex), act.leftSlot);
 				RightFieldAddress right = new RightFieldAddress(act.rightSlot);
 				FieldComparator b = new FieldComparator(act.varName, left, act.operator, right);
 				filters.add(b);
@@ -694,12 +713,12 @@ public class SFRuleCompiler implements RuleCompiler {
 			}
 
 			// set bindig= null if binds.size=0
-			if (filters.size()>0)((BetaFilterNode) node).setFilters(filters, engine);
+			if (filters.size()>0)((BetaFilterNode) conditionJoiner).setFilters(filters, engine);
 		}
 		// handle all bindings that couldn't be placed to join node.
 		while (act != null) {
 
-			Condition c = conds[act.leftCondition];
+			Condition c = conds[ tupleIndexToConditionIndex(act.leftIndex,conds.length) ];
 			if (!(c instanceof ObjectCondition))
 				continue;
 			ObjectCondition objectC = (ObjectCondition) c;
@@ -714,7 +733,7 @@ public class SFRuleCompiler implements RuleCompiler {
 			mostBottomNode = newJoin;
 
 			JoinFilter filter;
-			LeftFieldAddress left = new LeftFieldAddress(conds.length - 1 - act.leftCondition, act.leftSlot);
+			LeftFieldAddress left = new LeftFieldAddress( act.leftIndex, act.leftSlot);
 			RightFieldAddress right = new RightFieldAddress(act.rightSlot);
 			filter = new FieldComparator(act.varName, left, act.operator, right);
 
@@ -739,7 +758,7 @@ public class SFRuleCompiler implements RuleCompiler {
 				BindingAddress pivot = bindingAddressTable.getPivot(bp.getVariableName());
 				
 				FieldAddress addr = null;
-				if (pivot.conditionIndex == conditionIndex && conditionIndex < conditionsCount ){
+				if (pivot.tupleIndex == conditionIndex && conditionIndex < conditionsCount ){
 					if (pivot.slotIndex == -1) {
 						addr = new RightFieldAddress();
 					} else {
@@ -747,9 +766,9 @@ public class SFRuleCompiler implements RuleCompiler {
 					}
 				} else {
 					if (pivot.slotIndex == -1) {
-						addr = new LeftFieldAddress(conditionsCount  -pivot.conditionIndex);
+						addr = new LeftFieldAddress(pivot.tupleIndex);
 					} else {
-						addr = new LeftFieldAddress(conditionsCount  -pivot.conditionIndex, pivot.slotIndex);
+						addr = new LeftFieldAddress(pivot.tupleIndex, pivot.slotIndex);
 					}
 				}
 				
@@ -772,6 +791,8 @@ public class SFRuleCompiler implements RuleCompiler {
 		return result.toArray(arr);
 	}
 	
+	
+	//TODO: fix indices here
 	protected void compileTestConditions(Condition[] objectConditions, Rule rule,BindingAddressesTable bindingAddressTable , Map<Condition, BaseNode> conditionJoiners) throws JoinFilterException{
 		for (Condition c: rule.getConditions()){
 			if (c instanceof TestCondition){
@@ -782,7 +803,7 @@ public class SFRuleCompiler implements RuleCompiler {
 				
 				int validRowIndex = objectConditions.length-1 ;
 				for ( BoundParam p : boundParams ) {
-					validRowIndex = Math.min(bindingAddressTable.getPivot(p.getVariableName()).conditionIndex, validRowIndex);
+					validRowIndex = Math.min(bindingAddressTable.getPivot(p.getVariableName()).tupleIndex, validRowIndex);
 				}
 				BetaFilterNode validNode = (BetaFilterNode)(conditionJoiners.get(objectConditions[validRowIndex]));
 				

@@ -1,24 +1,24 @@
 
 (deftemplate wurst (slot name) (slot spitzname) (slot farbe)  (slot gewicht))
-(deftemplate salat (slot name) (slot farbe)   (slot gewicht))
+(deftemplate salat (slot name) (slot farbe) (slot dazupasst) (slot gewicht))
 (deftemplate getraenk (slot name) (slot farbe) )
-(assert (wurst (name "brazwurst")(spitzname "bratwosch")(farbe "weiss")(gewicht 100) ))
+(assert (wurst (name "bratwurst")(spitzname "bratwosch")(farbe "weiss")(gewicht 100) ))
 (assert (wurst (name "weisswurst")(spitzname "weisswurst")(farbe "weiss")(gewicht 200) ))
 (assert (wurst (name "wienerwurst")(spitzname "wiener")(farbe "rot")(gewicht 300) ))
 (assert (wurst (name "gemuesewurst")(spitzname "gemuesewurst")(farbe "gruen")(gewicht 400) ))
-(assert (salat (name "kartoffelsalat")(farbe "weiss")(gewicht 220) ))
-(assert (salat (name "gurkensalat")(farbe "weiss")(gewicht 320) ))
-(assert (salat (name "gruenergurkensalat")(farbe "gruen")(gewicht 320) ))
+(assert (salat (name "kartoffelsalat")(farbe "weiss")(gewicht 220)(dazupasst "weisswurst") ))
+(assert (salat (name "gurkensalat")(farbe "weiss")(dazupasst "spaghetti")(gewicht 320) ))
 (assert (getraenk (name "wasser") (farbe "schwarz") ))
 (assert (getraenk (name "cola") (farbe "schwarz") ))
 (assert (getraenk (name "kartoffelsalat") (farbe "schwarz") ))
 
-(defrule existrule
+(defrule vorschlag
+	(salat (name ?salatname) (dazupasst ?match))
 	(exists
-		(wurst (name "bratwurst"))
+		(wurst (name ?match))
 	)
 	=>
-	(printout t "eine bratwurst" crlf)
+	(printout t "man kann einen " ?salatname " essen." crlf)
 )
 
 (fire)
