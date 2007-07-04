@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 Mustafa Karafil
+ * Copyright 2007 Mustafa Karafil & Fehmi Karanfil
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ import org.jamocha.parser.sl.SLParser;
  * This class walks through an SL code tree and translates it to CLIPS depending
  * on the given performative.
  * 
- * @author Mustafa Karafil
+ * @author Mustafa Karafil & Fehmi Karanfil
  * 
  */
 public class Proxy {
