@@ -82,14 +82,17 @@ public class FunctionsDescription implements Function, Serializable {
 		private String name;
 		private HashMap<String, String> attributes;
 		private ArrayList<XmlTag> childs;
+		private String body;
 		
 		public XmlTag() {
 			attributes = new HashMap<String, String>();
 			childs=new ArrayList<XmlTag>();
+			body="";
 		}
 		
 		String getName() {return name;}
 		void setName(String name) {this.name=name;}
+		void setBody(String body) {this.body=body;}
 		void addAttribute(String name, String value) {if (value!=null) attributes.put(name, value);}
 		void clearAttributes() {attributes.clear();}
 		void clearChilds() {childs.clear();}
@@ -108,7 +111,7 @@ public class FunctionsDescription implements Function, Serializable {
 				sb.append(value.replace('"', '\'' ).replace(">", "&gt;").replace("<", "&lt;"));
 				sb.append("\"");
 			}
-			if (childs.isEmpty()) {
+			if (childs.isEmpty() && body.length()==0 ) {
 				sb.append("/>");
 			} else {
 				sb.append(">");
@@ -117,6 +120,7 @@ public class FunctionsDescription implements Function, Serializable {
 					XmlTag child=itChilds.next();
 					child.appendToStringBuilder(sb);
 				}
+				sb.append(body);
 				sb.append("</");
 				sb.append(name);
 				sb.append(">");
@@ -188,27 +192,14 @@ public class FunctionsDescription implements Function, Serializable {
 				
 				
 				//example
+
 				String ex = desc.getExample();
-				if (ex != null) {
+				if (ex != null){
 					XmlTag example = new XmlTag();
 					example.setName("example");
-					
-					String[] lines = ex.split("\n");
-					
-					int linenr=1;
-					for (String line : lines) {
-						XmlTag exampleLine = new XmlTag();
-						exampleLine.addAttribute("value", line);
-						exampleLine.addAttribute("line", Integer.toString(linenr++) );
-						exampleLine.setName("exampleline");
-						example.addChild(exampleLine);
-					}
-					
-					
-					
+					example.setBody(ex);
 					t.addChild(example);
 				}
-				
 				
 				
 				

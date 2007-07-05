@@ -2,6 +2,7 @@
 (deftemplate wurst (slot name) (slot spitzname) (slot farbe)  (slot gewicht))
 (deftemplate salat (slot name) (slot farbe) (slot dazupasst) (slot gewicht))
 (deftemplate getraenk (slot name) (slot farbe) )
+
 (assert (wurst (name "bratwurst")(spitzname "bratwosch")(farbe "weiss")(gewicht 100) ))
 (assert (wurst (name "weisswurst")(spitzname "weisswurst")(farbe "weiss")(gewicht 200) ))
 (assert (wurst (name "wienerwurst")(spitzname "wiener")(farbe "rot")(gewicht 300) ))
@@ -13,12 +14,22 @@
 (assert (getraenk (name "kartoffelsalat") (farbe "schwarz") ))
 
 (defrule vorschlag
-	(salat (name ?salatname) (dazupasst ?match))
-	(exists
-		(wurst (name ?match))
-	)
-	=>
-	(printout t "man kann einen " ?salatname " essen." crlf)
+ 	(salat (name ?salatname) (dazupasst ?match))
+ 	(exists
+ 		(wurst (name ?match))
+  	)
+  	=>
+ 	(printout t "man kann einen " ?salatname " essen." crlf)
+)
+
+(fire)
+
+
+(defrule tst
+	(wurst (name ~ ?salad))
+	(salat (name ?salad))
+	(getraenk (name ~ ?salad))
+	=> (printout t ?salad crlf)
 )
 
 (fire)

@@ -182,14 +182,14 @@ public class SFRuleCompiler implements RuleCompiler {
 			}
 		}
 
-		public int getCorrectJoinerIndex() {
+		public int getCorrectJoinTupleIndex() {
 			if (leftIndex == rightIndex)
 				return -1;
 			return Math.max(leftIndex, rightIndex);
 		}
 
 		public int compareTo(PreBinding o) {
-			return this.getCorrectJoinerIndex() - o.getCorrectJoinerIndex();
+			return this.getCorrectJoinTupleIndex() - o.getCorrectJoinTupleIndex();
 		}
 	}
 
@@ -233,7 +233,7 @@ public class SFRuleCompiler implements RuleCompiler {
 			BindingAddress pivot = null;
 			for (BindingAddress ba : bas) {
 				if (ba.operator == Constants.EQUAL && ba.canBePivot) {
-					if (pivot == null || pivot.compareTo(ba) < 0) {
+					if (pivot == null || pivot.compareTo(ba) > 0) {
 						pivot = ba;
 					}
 				}
@@ -693,6 +693,13 @@ public class SFRuleCompiler implements RuleCompiler {
 
 		// get prebindings from table:
 		Vector<PreBinding> preBindings = bindingAddressTable.getPreBindings();
+		
+		System.out.println("-- prebinding table --");
+		for (PreBinding b : preBindings) System.out.println(b+" "+b.getCorrectJoinTupleIndex());
+		System.out.println("-- /prebinding table --");
+		
+		System.out.println(bindingAddressTable.toString());
+		
 		Iterator<PreBinding> itr = preBindings.iterator();
 		PreBinding act = null;
 		if (itr.hasNext())
@@ -703,7 +710,7 @@ public class SFRuleCompiler implements RuleCompiler {
 			Vector<JoinFilter> filters = new Vector<JoinFilter>();
 			BaseNode conditionJoiner = conditionJoiners.get(conds[i]);
 			// traverse prebindings and try to set them to join nodes:
-			while (act != null && act.getCorrectJoinerIndex() == i) {
+			while (act != null && act.getCorrectJoinTupleIndex() == conditionIndexToTupleIndex(i, conds.length)) {
 
 				LeftFieldAddress left = new LeftFieldAddress( Math.min(act.leftIndex, act.rightIndex), act.leftSlot);
 				RightFieldAddress right = new RightFieldAddress(act.rightSlot);
