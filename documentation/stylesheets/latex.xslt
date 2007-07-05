@@ -59,7 +59,7 @@
 
 </xsl:template>
 <xsl:template match="functiongroups">
-\documentclass[a4paper,10pt]{article}
+\documentclass[a4paper,12pt]{scrartcl}
 \usepackage[latin1]{inputenc} % encoding
 \begin{document}
 \tableofcontents
@@ -79,15 +79,17 @@ Return type is \textbf{$&lt;$<xsl:call-template name="clean-text"><xsl:with-para
 \begin{description}
 <xsl:for-each select="parameter">
 \item[<xsl:call-template name="clean-text"><xsl:with-param name="source" select="@type"/></xsl:call-template>
-<xsl:if test="@fixedParameterCount = 'true'">(optional)</xsl:if> <xsl:call-template name="clean-text"><xsl:with-param name="source" select="@name"/></xsl:call-template>] : <xsl:call-template name="clean-text"><xsl:with-param name="source" select="@description"/></xsl:call-template>\\
+<xsl:if test="@fixedParameterCount = 'true'">(optional)</xsl:if>\space\textit{<xsl:call-template name="clean-text"><xsl:with-param name="source" select="@name"/></xsl:call-template>}] : <xsl:call-template name="clean-text"><xsl:with-param name="source" select="@description"/></xsl:call-template>
 </xsl:for-each>
 \end{description}
 </xsl:if>
 <xsl:if test="count(example) &gt; 0">
 \paragraph{Example}
+\begin{verbatim}
 <xsl:for-each select="example/exampleline">
-<xsl:call-template name="clean-text"><xsl:with-param name="source" select="@value"/></xsl:call-template>\\
+<xsl:call-template name="clean-text"><xsl:with-param name="source" select="@value"/></xsl:call-template>
 </xsl:for-each>
+\end{verbatim}
 </xsl:if>
 </xsl:for-each>
 </xsl:for-each>
