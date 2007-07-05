@@ -49,7 +49,7 @@ This function [+hasn't+] fixed parameter count.\\
 </xsl:if>Return type is [+&lt;<xsl:value-of select="@returnType"/>&gt;+]
 !!!!Parameter
 <xsl:if test="count(parameter) = 0">"none"</xsl:if><xsl:for-each select="parameter">
-[+&lt;<xsl:value-of select="@type"/>&gt;+] <xsl:if test="@fixedParameterCount = 'true'">(optional)</xsl:if> <xsl:value-of select="@name"/> : <xsl:value-of select="@description"/>\\
+[+&lt;<xsl:value-of select="@type"/>&gt;+] <xsl:if test="@fixedParameterCount = 'true'">(optional)</xsl:if> <xsl:value-of select="@name"/>    <xsl:value-of select="@description"/>\\
 </xsl:for-each>
 <xsl:if test="count(example) &gt; 0">
 !!!!Example

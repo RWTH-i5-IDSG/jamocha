@@ -59,14 +59,8 @@
 
 </xsl:template>
 <xsl:template match="functiongroups">
-\documentclass[a4paper,12pt]{scrartcl}
-\usepackage[latin1]{inputenc} % encoding
-\begin{document}
-\tableofcontents
-\newpage
-\section{Function groups}
 <xsl:for-each select="functiongroup">
-\subsection{<xsl:call-template name="clean-text"><xsl:with-param name="source" select="@name"/></xsl:call-template>}
+\subsection{<xsl:call-template name="clean-text"><xsl:with-param name="source" select="@name"/></xsl:call-template> function group}
 <xsl:for-each select="function">
 \subsubsection{<xsl:call-template name="clean-text"><xsl:with-param name="source" select="@name"/></xsl:call-template>}
 \paragraph{Description}
@@ -79,7 +73,7 @@ Return type is \textbf{$&lt;$<xsl:call-template name="clean-text"><xsl:with-para
 \begin{description}
 <xsl:for-each select="parameter">
 \item[<xsl:call-template name="clean-text"><xsl:with-param name="source" select="@type"/></xsl:call-template>
-<xsl:if test="@fixedParameterCount = 'true'">(optional)</xsl:if>\space\textit{<xsl:call-template name="clean-text"><xsl:with-param name="source" select="@name"/></xsl:call-template>}] : <xsl:call-template name="clean-text"><xsl:with-param name="source" select="@description"/></xsl:call-template>
+<xsl:if test="@fixedParameterCount = 'true'">(optional)</xsl:if>\space\textit{<xsl:call-template name="clean-text"><xsl:with-param name="source" select="@name"/></xsl:call-template>}]  <xsl:call-template name="clean-text"><xsl:with-param name="source" select="@description"/></xsl:call-template>
 </xsl:for-each>
 \end{description}
 </xsl:if>
