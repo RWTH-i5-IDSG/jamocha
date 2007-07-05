@@ -493,6 +493,10 @@ public class SFRuleCompiler implements RuleCompiler {
 					
 					BindingAddress pivot = bat.getPivot(bc.getVariableName());
 					
+					System.out.println(bc.getVariableName());
+					System.out.println(pivot.tupleIndex);
+					System.out.println( conditionIndexToTupleIndex(i, conds.length) );
+					
 					if (pivot.tupleIndex > conditionIndexToTupleIndex(i, conds.length) ) {
 						//shift them
 						for ( int j=i ; j<conds.length-1 ; j++) {
@@ -1163,9 +1167,7 @@ public class SFRuleCompiler implements RuleCompiler {
 	 */
 	protected void compileActions(Rule rule) {
 		Action[] actions = rule.getActions();
-		System.out.println(this);
 		for (Action action : actions) {
-			System.out.println(action);
 			if (action instanceof FunctionAction) {
 				FunctionAction fa = (FunctionAction) action;
 				try {
