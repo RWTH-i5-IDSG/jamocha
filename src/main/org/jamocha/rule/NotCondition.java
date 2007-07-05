@@ -5,7 +5,7 @@ import java.util.List;
 import org.jamocha.rete.nodes.BaseNode;
 import org.jamocha.rete.SFRuleCompiler;
 
-public class NotCondition extends BooleanOperatorCondition {
+public class NotCondition extends BooleanOperatorCondition implements IsQuantorCondition  {
 
 	/**
 	 * 
@@ -18,6 +18,12 @@ public class NotCondition extends BooleanOperatorCondition {
 
 	public List<Constraint> getConstraints() {
 		return null;
+	}
+	
+	public ObjectCondition getObjectCondition() {
+		ObjectCondition oc = null;
+		oc = (ObjectCondition) nestedCE.get(0);
+		return oc;
 	}
 
 }

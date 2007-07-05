@@ -62,6 +62,7 @@ import org.jamocha.rule.Constraint;
 import org.jamocha.rule.Defrule;
 import org.jamocha.rule.ExistCondition;
 import org.jamocha.rule.FunctionAction;
+import org.jamocha.rule.IsQuantorCondition;
 import org.jamocha.rule.LiteralConstraint;
 import org.jamocha.rule.NotCondition;
 import org.jamocha.rule.ObjectCondition;
@@ -131,6 +132,8 @@ public class SFRuleCompiler implements RuleCompiler {
 			result.append(slotIndex);
 			result.append(" Operator: ");
 			result.append(ConversionUtils.getOperator(operator));
+			result.append(" canBePivot: ");
+			result.append(canBePivot);
 			return result.toString();
 		}
 
@@ -472,12 +475,50 @@ public class SFRuleCompiler implements RuleCompiler {
 		}
 		return result;
 	}
+	
+	protected void rearrangeConditions(Condition[] conds){
+		BindingAddressesTable bat = computeBindingAddressTable(conds);
+		for ( int i=0 ; i<conds.length ; i++ ) {
+			Condition c = conds[i];
+			
+			if (c instanceof IsQuantorCondition){
+				// for each constraint of our quantor condition, we have to check,
+				// whether it is already available at the given position.
+				for (Constraint constr : ((IsQuantorCondition)c).getObjectCondition().getConstraints()  ) {
+					
+					
+					BoundConstraint bc = (BoundConstraint) constr;
+					System.out.println(constr.getValue());
+					System.out.println(bat.toString());
+					
+					BindingAddress pivot = bat.getPivot(bc.getVariableName());
+					
+					if (pivot.tupleIndex > conditionIndexToTupleIndex(i, conds.length) ) {
+						//shift them
+						for ( int j=i ; j<conds.length-1 ; j++) {
+							conds[j] = conds[j+1];
+						}
+						conds[conds.length-1] = c;
+						rearrangeConditions(conds); //TODO: better way? thats simple but not efficient ^^
+						return;
+					}
+					
+				}
+			}
+			
+		}
+		
+	}
+	
 
 	protected void compileJoins(Rule rule) throws AssertException {
 		// take the last node from each condition and connect them by joins
 		// regarding the complexity
 		TerminalNode terminal = rule.getTerminalNode();
 		Condition[] sortedConds = rule.getObjectConditions().clone(); Arrays.sort(sortedConds);
+		
+		rearrangeConditions(sortedConds);
+		
 		HashMap<Condition, BaseNode> conditionJoiners = new HashMap<Condition, BaseNode>();
 		BaseNode initFactNode = root.activateObjectTypeNode(engine.initFact, engine);
 		
@@ -513,106 +554,14 @@ public class SFRuleCompiler implements RuleCompiler {
 		if (mostBottomNode == null) mostBottomNode = sortedConds[0].getLastNode();
 		
 		
-//		BaseNode mostBottomNode = null;
-//
-//		BaseNode fromBottom = null;
-//
-//		// Note: here is a tip on compiling the joins. Using a row+column
-//		// approach,
-//		// it's important to take into account Not and Exist nodes. This is
-//		// because
-//		// Not and Exist do not propogate any additional facts. In order to
-//		// build
-//		// the joins correctly from the terminal node up, you have to know how
-//		// many Not and Exist nodes are above it. Peter 5/16/07
-//
-//		// TODO we can do that more efficient with a simple array
-//		HashMap<Condition, BaseNode> conditionJoiners = new HashMap<Condition, BaseNode>();
-//
-//		for (int i = 0; i < sortedConds.length; i++) {
-//			
-//			Condition c = sortedConds[i];
-//			// c now is the next condition with the lowest complexity
-//			// now, check whether we have to create a new join
-//			boolean createNewJoin = (i < sortedConds.length - 1);
-//			BaseNode lastNode = null;
-//			if (createNewJoin) {
-//				// creat join add old bottom node, set join to new bottom node
-//				AbstractBeta betaNode = null;
-//				if (c instanceof ObjectCondition) {
-//					betaNode = new BetaFilterNode(engine.nextNodeId());
-//					lastNode = ((ObjectCondition)c).getLastNode();
-//				} else if (c instanceof NotCondition) {
-//					betaNode = new BetaNotNode(engine.nextNodeId());
-//					lastNode = ((NotCondition)c).getLastNode();
-//				}
-//				
-//				if (fromBottom != null) {
-//					betaNode.addNode(fromBottom, engine);
-//				} else {
-//					mostBottomNode = betaNode;
-//				}
-//				fromBottom = betaNode;
-//			}
-//			conditionJoiners.put(c, fromBottom);
-//			
-//			if (c instanceof ObjectCondition) {
-//				lastNode = ((ObjectCondition)c).getLastNode();
-//			} else if (c instanceof NotCondition) {
-//				lastNode = ((NotCondition)c).getLastNode();
-//			}
-//			
-//
-//			if (lastNode != null) {
-//				if (fromBottom != null) {
-//					(lastNode).addNode(fromBottom, engine);
-//				} else {
-//					mostBottomNode = lastNode;
-//				}
-//			}
-//		}
-//
-//		if (mostBottomNode == null){
-//			if (sortedConds[0] instanceof ObjectCondition)
-//				mostBottomNode = ((ObjectCondition)sortedConds[0]).getLastNode();
-//			if (sortedConds[0] instanceof NotCondition)
-//				mostBottomNode = ((NotCondition)sortedConds[0]).getLastNode();
-//		}
-//
-//		if (!(mostBottomNode instanceof AbstractBeta)){
-//			// we will generate a pseudo-join. little dirty, but sometimes,
-//			// we need it (e.g. for test-conditions)
-//			BetaFilterNode pseudoJoin = new BetaFilterNode(engine.nextNodeId());
-//			
-//			//get initial fact
-//			BaseNode initFactNode = root.activateObjectTypeNode(engine.initFact, engine);
-//			
-//			// build adaptor for our only condition
-//			LIANode adaptor = new LIANode(engine.nextNodeId());
-//			initFactNode.addNode(adaptor, engine);
-//			
-//			
-//			adaptor.addNode(pseudoJoin, engine);
-//			mostBottomNode.addNode(pseudoJoin, engine);
-//			
-//			
-//			mostBottomNode = pseudoJoin;
-//			conditionJoiners.put(sortedConds[0], pseudoJoin);
-//		}
-//		
 		BaseNode ultimateMostBottomNode = compileBindings(rule, sortedConds, conditionJoiners, mostBottomNode);
-//		
-//		
-//		
-//		
 		ultimateMostBottomNode.addNode(terminal, engine);
-//		
+
 		//activate all joins
 		for (BaseNode n : conditionJoiners.values()){
 			if (n == null) continue;
 			((AbstractBeta)n).activate(engine);
 		}
-//		
 	}
 	
 	public int conditionIndexToTupleIndex(int cond, int condCount){
@@ -621,6 +570,41 @@ public class SFRuleCompiler implements RuleCompiler {
 	
 	public int tupleIndexToConditionIndex(int tupleInd, int condCount){
 		return condCount - tupleInd;
+	}
+	
+	protected BindingAddressesTable computeBindingAddressTable(Condition[] conds){
+		BindingAddressesTable bindingAddressTable = new BindingAddressesTable();
+		// Iterate of all conditions and constraints
+		for (int i = 0; i < conds.length; i++) {
+			// only for Object Conditions:
+			if (conds[i] instanceof ObjectCondition || conds[i] instanceof NotCondition || conds[i] instanceof ExistCondition) {
+				ObjectCondition oc = null;
+				if (conds[i] instanceof ObjectCondition) {
+					oc = (ObjectCondition) conds[i];
+				} else if (conds[i] instanceof NotCondition){
+					oc = ((ObjectCondition)((NotCondition) conds[i]).getNestedConditionalElement().get(0));
+				} else if (conds[i] instanceof ExistCondition){
+					oc = ((ObjectCondition)((ExistCondition) conds[i]).getNestedConditionalElement().get(0));
+				}
+				
+				
+				for (Constraint c : oc.getConstraints()) {
+					// if we found a BoundConstraint
+					if (c instanceof BoundConstraint) {
+						BoundConstraint bc = (BoundConstraint) c;
+						BindingAddress ba;
+						if (bc.getIsObjectBinding()) {
+							ba = new BindingAddress( conditionIndexToTupleIndex(i, conds.length) , -1, bc.getOperator());
+						} else {
+							ba = new BindingAddress( conditionIndexToTupleIndex(i, conds.length) , bc.getSlot().getId(),bc.getOperator());
+						}
+						ba.canBePivot = !(conds[i] instanceof ExistCondition || conds[i] instanceof NotCondition);
+						bindingAddressTable.addBindingAddress(ba, bc.getVariableName());
+					}
+				}
+			}
+		}
+		return bindingAddressTable;
 	}
 
 	protected BaseNode compileBindings(Rule rule, Condition[] conds, Map<Condition, BaseNode> conditionJoiners, BaseNode mostBottomNode) throws AssertException {
@@ -642,40 +626,8 @@ public class SFRuleCompiler implements RuleCompiler {
 		 * ?age1) ) Peter 5/26/07
 		 */
 
-		// create the table:
-		BindingAddressesTable bindingAddressTable = new BindingAddressesTable();
+		BindingAddressesTable bindingAddressTable = computeBindingAddressTable(conds);
 
-		// Iterate of all conditions and constraints
-		for (int i = 0; i < conds.length; i++) {
-			// only for Object Conditions:
-			if (conds[i] instanceof ObjectCondition || conds[i] instanceof NotCondition || conds[i] instanceof ExistCondition) {
-				ObjectCondition oc = null;
-				if (conds[i] instanceof ObjectCondition) {
-					oc = (ObjectCondition) conds[i];
-				} else if (conds[i] instanceof NotCondition){
-					oc = ((ObjectCondition)((NotCondition) conds[i]).getNestedConditionalElement().get(0));
-				} else if (conds[i] instanceof ExistCondition){
-					oc = ((ObjectCondition)((ExistCondition) conds[i]).getNestedConditionalElement().get(0));
-				}
-				
-				
-				for (Constraint c : oc.getConstraints()) {
-
-					// if we found a BoundConstraint
-					if (c instanceof BoundConstraint) {
-						BoundConstraint bc = (BoundConstraint) c;
-						BindingAddress ba;
-						if (bc.getIsObjectBinding()) {
-							ba = new BindingAddress( conditionIndexToTupleIndex(i, conds.length) , -1, bc.getOperator());
-						} else {
-							ba = new BindingAddress( conditionIndexToTupleIndex(i, conds.length) , bc.getSlot().getId(),bc.getOperator());
-						}
-						ba.canBePivot = !(conds[i] instanceof ExistCondition || conds[i] instanceof NotCondition);
-						bindingAddressTable.addBindingAddress(ba, bc.getVariableName());
-					}
-				}
-			}
-		}
 
 		// create bindings for actions:
 		for (String variable : bindingAddressTable.row.keySet()) {
@@ -693,12 +645,6 @@ public class SFRuleCompiler implements RuleCompiler {
 
 		// get prebindings from table:
 		Vector<PreBinding> preBindings = bindingAddressTable.getPreBindings();
-		
-		System.out.println("-- prebinding table --");
-		for (PreBinding b : preBindings) System.out.println(b+" "+b.getCorrectJoinTupleIndex());
-		System.out.println("-- /prebinding table --");
-		
-		System.out.println(bindingAddressTable.toString());
 		
 		Iterator<PreBinding> itr = preBindings.iterator();
 		PreBinding act = null;
@@ -765,7 +711,7 @@ public class SFRuleCompiler implements RuleCompiler {
 				BindingAddress pivot = bindingAddressTable.getPivot(bp.getVariableName());
 				
 				FieldAddress addr = null;
-				if (pivot.tupleIndex == conditionIndex && conditionIndex < conditionsCount ){
+				if (pivot.tupleIndex == conditionIndexToTupleIndex(conditionIndex,conditionsCount) && conditionIndex < conditionsCount ){
 					if (pivot.slotIndex == -1) {
 						addr = new RightFieldAddress();
 					} else {
@@ -806,15 +752,16 @@ public class SFRuleCompiler implements RuleCompiler {
 				TestCondition tc = (TestCondition) c;
 				List<BoundParam> boundParams = tc.getFunction().getBoundParameters();
 				
-				System.out.println(bindingAddressTable.getPivot(boundParams.get(0).getVariableName()));
-				
-				int validRowIndex = objectConditions.length-1 ;
+				// determine good row index for our test
+				int validRowIndex = 0;
 				for ( BoundParam p : boundParams ) {
-					validRowIndex = Math.min(bindingAddressTable.getPivot(p.getVariableName()).tupleIndex, validRowIndex);
+					validRowIndex = Math.max(bindingAddressTable.getPivot(p.getVariableName()).tupleIndex, validRowIndex);
 				}
-				BetaFilterNode validNode = (BetaFilterNode)(conditionJoiners.get(objectConditions[validRowIndex]));
 				
-				Parameter[] functionParams = recalculateParameters(objectConditions.length,tc.getFunction(), bindingAddressTable, validRowIndex);
+				// determine corresponding node
+				BetaFilterNode validNode = (BetaFilterNode)(conditionJoiners.get( objectConditions[tupleIndexToConditionIndex(validRowIndex, objectConditions.length) ] ));
+				
+				Parameter[] functionParams = recalculateParameters(objectConditions.length,tc.getFunction(), bindingAddressTable, tupleIndexToConditionIndex(validRowIndex,objectConditions.length));
 				FunctionEvaluator testFilter = new FunctionEvaluator(engine,tc.getFunction().lookUpFunction(engine),functionParams);
 				validNode.addFilter(testFilter);
 								

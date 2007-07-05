@@ -13,6 +13,18 @@
 (assert (getraenk (name "cola") (farbe "schwarz") ))
 (assert (getraenk (name "kartoffelsalat") (farbe "schwarz") ))
 
+
+
+(defrule eineregel
+	?w <- (wurst (gewicht ?x))
+	?s <- (salat (gewicht ?y))
+	(test (less ?y ?x))
+	=> (printout t "ein essenspaar, wo der salat leichter ist als die wurst: " ?w ?s  crlf)
+)
+
+(fire)
+
+
 (defrule vorschlag
  	(salat (name ?salatname) (dazupasst ?match))
  	(exists
@@ -75,13 +87,6 @@
 (fire)
 
 
-
-(defrule eineregel
-	?w <- (wurst (gewicht ?x))
-	?s <- (salat (gewicht ?y))
-	(test (less ?y ?x))
-	=> (printout t "ein essenspaar, wo der salat leichter ist als die wurst: " ?w ?s  crlf)
-)
 
 
 
