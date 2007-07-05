@@ -38,7 +38,7 @@ import org.jamocha.rete.nodes.AbstractBeta;
 import org.jamocha.rete.nodes.AlphaNode;
 import org.jamocha.rete.nodes.BaseNode;
 import org.jamocha.rete.nodes.BetaFilterNode;
-import org.jamocha.rete.nodes.BetaQuantorNode;
+import org.jamocha.rete.nodes.BetaQuantorFilterNode;
 import org.jamocha.rete.nodes.LIANode;
 import org.jamocha.rete.nodes.ObjectTypeNode;
 import org.jamocha.rete.nodes.RootNode;
@@ -126,7 +126,7 @@ public class SFRuleCompiler implements RuleCompiler {
 		
 		public String toString(){
 			StringBuilder result = new StringBuilder();
-			result.append("ConditionIndex: ");
+			result.append("TupleIndex: ");
 			result.append(tupleIndex);
 			result.append(" SlotIndex: ");
 			result.append(slotIndex);
@@ -495,14 +495,14 @@ public class SFRuleCompiler implements RuleCompiler {
 					
 					System.out.println(bc.getVariableName());
 					System.out.println(pivot.tupleIndex);
-					System.out.println( conditionIndexToTupleIndex(i, conds.length) );
+					System.out.println(conditionIndexToTupleIndex(i, conds.length) );
 					
 					if (pivot.tupleIndex > conditionIndexToTupleIndex(i, conds.length) ) {
 						//shift them
-						for ( int j=i ; j<conds.length-1 ; j++) {
-							conds[j] = conds[j+1];
+						for ( int j=i ; j > 0 ; j-- ) {
+							conds[j] = conds[j-1];
 						}
-						conds[conds.length-1] = c;
+						conds[0] = c;
 						rearrangeConditions(conds); //TODO: better way? thats simple but not efficient ^^
 						return;
 					}
@@ -536,8 +536,8 @@ public class SFRuleCompiler implements RuleCompiler {
 			AbstractBeta newBeta = null;
 			
 			if (c instanceof ObjectCondition) newBeta = new BetaFilterNode(engine.nextNodeId());
-			else if (c instanceof NotCondition) newBeta = new BetaQuantorNode(engine.nextNodeId(),true);
-			else if (c instanceof ExistCondition) newBeta = new BetaQuantorNode(engine.nextNodeId(),false);
+			else if (c instanceof NotCondition) newBeta = new BetaQuantorFilterNode(engine.nextNodeId(),true);
+			else if (c instanceof ExistCondition) newBeta = new BetaQuantorFilterNode(engine.nextNodeId(),false);
 			
 			if (fromBottom == null){
 				mostBottomNode = newBeta;

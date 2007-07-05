@@ -7,16 +7,16 @@ import org.jamocha.rete.Rete;
 import org.jamocha.rete.exception.AssertException;
 import org.jamocha.rete.exception.RetractException;
 
-public class BetaQuantorNode extends AbstractBeta {
+public class BetaQuantorFilterNode extends BetaFilterNode {
 
 	public boolean negated;
 	
-	public BetaQuantorNode(int id,boolean negated) {
+	public BetaQuantorFilterNode(int id,boolean negated) {
 		super(id);
 		this.negated=negated;
 	}
 
-	public BetaQuantorNode(int id) {
+	public BetaQuantorFilterNode(int id) {
 		this(id,false);
 	}
 	
