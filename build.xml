@@ -241,33 +241,23 @@
 			<arg value="-shell"/>
 		</java>
 		
-		<delete>
-		  <fileset dir="documentation" includes="temp.*"/>
-		</delete>
-		
 		<replace token="Jamocha> " value="" file="documentation/functions.xml"/>
 		<xslt style="documentation/stylesheets/latex.xslt" out="documentation/functions-documentation.tex" in="documentation/functions.xml"/>
 		<xslt style="documentation/stylesheets/pmwiki.xslt" out="documentation/pmwiki.out" in="documentation/functions.xml"/>
 		
-		<loadfile property="doc.functions" srcFile="documentation/functions-documentation.tex"/>
-		
-		<copy file="documentation/documentation.tex" tofile="documentation/temp.tex"/>
-		<replace token="&lt;FUNCTIONS&gt;" value="${doc.functions}" file="documentation/temp.tex"/>
-		
-		<exec executable="latex">
+		<exec executable="latex" searchpath="true">
 			<arg value="-output-directory=documentation"/>
-			<arg value="documentation/temp.tex"/>
+			<arg value="documentation/documentation.tex"/>
 		</exec>
-		<exec executable="latex">
+		<exec executable="latex" searchpath="true">
 			<arg value="-output-directory=documentation"/>
-			<arg value="documentation/temp.tex"/>
+			<arg value="documentation/documentation.tex"/>
 		</exec>
-		<exec executable="latex">
+		<exec executable="latex" searchpath="true">
 			<arg value="-output-directory=documentation"/>
-			<arg value="documentation/temp.tex"/>
+			<arg value="documentation/documentation.tex"/>
 		</exec>
 		
-		<move file="documentation/temp.dvi" tofile="documentation/documentation.dvi"/>
 	</target>
 	
 </project>

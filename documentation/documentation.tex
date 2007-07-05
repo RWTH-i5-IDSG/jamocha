@@ -1,18 +1,43 @@
 \documentclass[a4paper,12pt]{scrbook}
 \usepackage[latin1]{inputenc} % encoding
+\usepackage{listings}
+
+\lstnewenvironment{clips} { \lstset{language=Lisp, breaklines=true, prebreak={\mbox{\hfill$\hookleftarrow$}}  } } { }
+
 
 \begin{document}
+
+\begin{titlepage}
+\begin{center}
+\vspace*{4cm}
+\Huge Jamocha in Action\\
+\vspace{1cm}
+\large Jamocha users manual\\
+\vspace{1cm}
+\normalsize Autoren\\
+Tim Testuser\\
+\vspace{1cm}
+2007-2012\\
+\end{center}
+\end{titlepage}
+
 \tableofcontents
 \newpage
+
+\chapter{Rule engines}
+
+\section{What a rule engine is}
+much blabla
+
+\chapter{Jamocha}
 
 \section{Overview}
 Jamocha is a nice tool, which will be much better than Jess in about one week...
 
-\section{Functions}
-<FUNCTIONS>
+\chapter{Appendix}
 
-\section{More nice stuff}
-bamboom
+\section{Functions}
+\input{functions-documentation.tex}
 
 
 \end{document}

@@ -79,9 +79,9 @@ Return type is \textbf{$&lt;$<xsl:call-template name="clean-text"><xsl:with-para
 </xsl:if>
 <xsl:if test="count(example) &gt; 0">
 \paragraph{Example}
-\begin{verbatim}
+\begin{clips}
 <xsl:value-of select="example"/>
-\end{verbatim}
+\end{clips}
 </xsl:if>
 </xsl:for-each>
 </xsl:for-each>
