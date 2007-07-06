@@ -29,6 +29,11 @@ public class FactTuple implements Assertable {
 		this.facts = facts;
 	}
 
+	public int length() {
+		return facts.length;
+
+	}
+
 	public FactTuple(Fact fact) {
 		this(new Fact[] { fact });
 	}
@@ -68,6 +73,18 @@ public class FactTuple implements Assertable {
 		}
 		sb.append("] ");
 		return sb.toString();
+	}
+
+	public boolean isMySubTuple(FactTuple possibleSub) {
+		for (int i = 0; i < possibleSub.length(); i++) {
+			if (possibleSub.facts[i] != this.facts[i])
+				return false;
+		}
+		return true;
+	}
+	
+	public boolean isMyLastFact(Fact input){
+		return (facts[facts.length-1]==input);
 	}
 
 }

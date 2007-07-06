@@ -59,15 +59,17 @@ public class BetaQuantorFilterNode extends BetaFilterNode {
 	protected void propagateNewTuple(FactTuple t, Rete e) throws AssertException {
 		FactTuple newTuple = t.addFact(e.getInitialFact());
 		propagatedMarker.mark(t);
-		mergeMemory.add(t);
+		mergeMemory.add(newTuple);
 		propogateAssert(newTuple, e);
 	}
 
 	protected void unPropagateNewTuple(FactTuple t, Rete e) throws RetractException {
-		FactTuple newTuple = t.addFact(e.getInitialFact());
 		propagatedMarker.unmark(t);
-		mergeMemory.remove(t);
-		propogateRetract(newTuple, e);
+		
+		for (FactTuple tuple: mergeMemory.getPrefixMatchingTuples(t)){
+			mergeMemory.remove(tuple);
+			propogateRetract(tuple, e);
+		}
 	}
 
 	protected void evaluateBeta(FactTuple tuple, Rete engine) throws AssertException {

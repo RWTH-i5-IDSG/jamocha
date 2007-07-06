@@ -50,4 +50,19 @@ public class BetaMemory extends AbstractMemory implements Iterable<FactTuple> {
 		return factTuples.size();
 	}
 
+	public Vector<FactTuple> getPrefixMatchingTuples(FactTuple input){
+		Vector<FactTuple> result= new Vector<FactTuple>();
+		for (FactTuple ourTuple : factTuples){
+			if (ourTuple.isMySubTuple(input)) result.add(ourTuple);
+		}
+		return result;
+	}
+	
+	public Vector<FactTuple> getPostfixMatchingTuples(Fact input){
+		Vector<FactTuple> result= new Vector<FactTuple>();
+		for (FactTuple ourTuple : factTuples){
+			if (ourTuple.isMyLastFact(input)) result.add(ourTuple);
+		}
+		return result;
+	}
 }

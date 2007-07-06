@@ -17,6 +17,7 @@
 package org.jamocha.rete.nodes;
 
 import java.util.Iterator;
+import java.util.Vector;
 
 import org.jamocha.rete.AlphaMemory;
 import org.jamocha.rete.BetaMemory;
@@ -56,8 +57,7 @@ public abstract class AbstractBeta extends BaseNode {
 	// protected abstract void evaluateBeta(FactTuple tuple, Rete engine) throws
 	// AssertException;
 
-	protected void evaluateBeta(FactTuple tuple, Rete engine)
-			throws AssertException {
+	protected void evaluateBeta(FactTuple tuple, Rete engine) throws AssertException {
 		Iterator<Fact> itr = alphaMemory.iterator();
 		while (itr.hasNext()) {
 			Fact rfcts = itr.next();
@@ -101,8 +101,7 @@ public abstract class AbstractBeta extends BaseNode {
 	}
 
 	@Override
-	public void assertFact(Assertable fact, Rete engine, BaseNode sender)
-			throws AssertException {
+	public void assertFact(Assertable fact, Rete engine, BaseNode sender) throws AssertException {
 		if (sender.isRightNode()) {
 			assertRight((Fact) fact, engine);
 		} else
@@ -127,8 +126,7 @@ public abstract class AbstractBeta extends BaseNode {
 	}
 
 	@Override
-	public void retractFact(Assertable fact, Rete engine, BaseNode sender)
-			throws RetractException {
+	public void retractFact(Assertable fact, Rete engine, BaseNode sender) throws RetractException {
 		if (sender.isRightNode()) {
 			retractRight((Fact) fact, engine);
 
@@ -146,8 +144,7 @@ public abstract class AbstractBeta extends BaseNode {
 	}
 
 	@Override
-	protected void mountChild(BaseNode newChild, Rete engine)
-			throws AssertException {
+	protected void mountChild(BaseNode newChild, Rete engine) throws AssertException {
 		// TODO Auto-generated method stub
 
 	}
@@ -158,18 +155,18 @@ public abstract class AbstractBeta extends BaseNode {
 	 * @param factInstance
 	 * @param engine
 	 */
-	public void retractLeft(FactTuple tuple, Rete engine)
-			throws RetractException {
+	public void retractLeft(FactTuple tuple, Rete engine) throws RetractException {
 		if (betaMemory.contains(tuple)) {
 			betaMemory.remove(tuple);
 			// now we propogate the retract. To do that, we have
 			// merge each item in the list with the Fact array
 			// and call retract in the successor nodes
-			Iterator<FactTuple> itr = mergeMemory.iterator();
-			while (itr.hasNext()) {
-				propogateRetract(itr.next(), engine);
+			Vector<FactTuple> matchings = mergeMemory.getPrefixMatchingTuples(tuple);
+			for (FactTuple toRemove : matchings) {
+				mergeMemory.remove(toRemove);
+				propogateRetract(toRemove, engine);
 			}
-			// Todo: remove tuple from mergeMemory
+
 		}
 	}
 
@@ -184,17 +181,16 @@ public abstract class AbstractBeta extends BaseNode {
 	public void retractRight(Fact fact, Rete engine) throws RetractException {
 		if (alphaMemory.contains(fact)) {
 			alphaMemory.remove(fact);
-			Iterator<FactTuple> itr = mergeMemory.iterator();
-			while (itr.hasNext()) {
-				propogateRetract(itr.next(), engine);
+			Vector<FactTuple> matchings = mergeMemory.getPostfixMatchingTuples(fact);
+			for (FactTuple toRemove : matchings) {
+				mergeMemory.remove(toRemove);
+				propogateRetract(toRemove, engine);
 			}
-			// Todo: remove tuple from mergeMemory
 		}
 	}
 
 	@Override
-	protected void unmountChild(BaseNode oldChild, Rete engine)
-			throws RetractException {
+	protected void unmountChild(BaseNode oldChild, Rete engine) throws RetractException {
 		// TODO Auto-generated method stub
 
 	}
@@ -213,8 +209,7 @@ public abstract class AbstractBeta extends BaseNode {
 		// to the child)
 		// we want to test whether we need a new LIANode between child and
 		// parent
-		if (this.parentNodes.length > 0 && this.parentNodes[0].isRightNode()
-				&& newParentNode.isRightNode()) {
+		if (this.parentNodes.length > 0 && this.parentNodes[0].isRightNode() && newParentNode.isRightNode()) {
 			// now, indeed, we need a new LIANode between them
 			LIANode adaptor = new LIANode(engine.nextNodeId());
 			try {

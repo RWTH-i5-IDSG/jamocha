@@ -485,16 +485,10 @@ public class SFRuleCompiler implements RuleCompiler {
 				// whether it is already available at the given position.
 				for (Constraint constr : ((IsQuantorCondition)c).getObjectCondition().getConstraints()  ) {
 					
+					if (!(constr instanceof BoundConstraint)) continue;
 					
 					BoundConstraint bc = (BoundConstraint) constr;
-					System.out.println(constr.getValue());
-					System.out.println(bat.toString());
-					
 					BindingAddress pivot = bat.getPivot(bc.getVariableName());
-					
-					System.out.println(bc.getVariableName());
-					System.out.println(pivot.tupleIndex);
-					System.out.println(conditionIndexToTupleIndex(i, conds.length) );
 					
 					if (pivot.tupleIndex > conditionIndexToTupleIndex(i, conds.length) ) {
 						//shift them
