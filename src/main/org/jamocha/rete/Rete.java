@@ -232,6 +232,10 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 		}
 	}
 
+	public Fact getInitialFact(){
+		return initFact.getInitialFact();
+	}
+	
 	// ----- methods for clearing rules and facts ----- //
 
 	/**
