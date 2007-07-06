@@ -39,7 +39,6 @@ import org.jamocha.rete.nodes.AlphaNode;
 import org.jamocha.rete.nodes.BaseNode;
 import org.jamocha.rete.nodes.BetaFilterNode;
 import org.jamocha.rete.nodes.BetaQuantorFilterNode;
-import org.jamocha.rete.nodes.LIANode;
 import org.jamocha.rete.nodes.ObjectTypeNode;
 import org.jamocha.rete.nodes.RootNode;
 import org.jamocha.rete.nodes.SlotAlpha;

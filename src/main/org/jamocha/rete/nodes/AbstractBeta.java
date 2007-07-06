@@ -16,9 +16,7 @@
  */
 package org.jamocha.rete.nodes;
 
-import java.util.AbstractCollection;
 import java.util.Iterator;
-import java.util.Vector;
 
 import org.jamocha.rete.AlphaMemory;
 import org.jamocha.rete.BetaMemory;
