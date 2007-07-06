@@ -73,6 +73,8 @@ public class BetaQuantorFilterNode extends BetaFilterNode {
 		// check, whether there is a fact, which matches the filters.
 		// propagate them, depending on "negated" and the matching above and
 		// mark tuple as propagated somewhere
+		
+	
 		boolean thereIsAFact = false;
 		for (Fact alphaFact : alphaMemory) {
 			if ( evaluate(tuple, alphaFact) ) { thereIsAFact = true; break;}
@@ -161,6 +163,7 @@ public class BetaQuantorFilterNode extends BetaFilterNode {
 
 	public void activate(Rete engine) throws AssertException {
 		if (activated) return;
+		activated = true;
 		for (FactTuple tuple : betaMemory) {
 			evaluateBeta(tuple, engine);
 		}
