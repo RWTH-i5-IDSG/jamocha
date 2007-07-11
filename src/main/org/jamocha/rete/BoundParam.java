@@ -242,4 +242,11 @@ public class BoundParam extends AbstractSignature {
 	public String toString(){
 		return this.getExpressionString();
 	}
+
+	public String toClipsFormat(int indent) {
+		String ind = "";
+		while (ind.length() < indent*blanksPerIndent) ind+=" ";
+		if (isMultislot) return ind+"$?"+variableName;
+		return ind+"?"+variableName;
+	}
 }

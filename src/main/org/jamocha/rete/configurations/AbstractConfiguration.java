@@ -16,5 +16,9 @@ public abstract class AbstractConfiguration  implements Parameter{
 	public Object clone() throws CloneNotSupportedException{
 		throw new CloneNotSupportedException();
 	}
+	
+	public String toClipsFormat(int indent){
+		return null; //since configurations dont have clips string representations
+	}
 
 }

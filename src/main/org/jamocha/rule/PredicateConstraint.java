@@ -24,6 +24,7 @@ import org.jamocha.parser.Expression;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.nodes.BaseNode;
 import org.jamocha.rete.BoundParam;
+import org.jamocha.rete.Constants;
 import org.jamocha.rete.SFRuleCompiler;
 
 /**
@@ -184,5 +185,11 @@ public class PredicateConstraint extends AbstractConstraint {
 	
 	public BaseNode compile(SFRuleCompiler compiler, Rule rule, int conditionIndex) {
 		return compiler.compile(this, rule, conditionIndex);
+	}
+
+	public String toClipsFormat(int indent) {
+		String ind = "";
+		while (ind.length() < indent*blanksPerIndent) ind+=" ";
+		return ind+"(" + getName() + " " + getValue().toClipsFormat(indent) + ")";
 	}
 }

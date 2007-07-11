@@ -900,6 +900,7 @@ public class SFRuleCompiler implements RuleCompiler {
 		int counter = 1;
 		for (Object nested : condition.getNestedConditionalElement()) {
 			Condition nestedCE = (Condition)nested;
+			System.out.println(nestedCE);
 			Rule newRule = null;
 			try {
 				newRule = ((Defrule)rule).clone(engine);

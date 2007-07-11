@@ -7,7 +7,7 @@ import org.jamocha.rete.nodes.BaseNode;
 import org.jamocha.rete.SFRuleCompiler;
 import org.jamocha.rete.StopCompileException;
 
-public class OrCondition extends BooleanOperatorCondition {
+public class OrCondition extends ConditionWithNested {
 
 	/**
 	 * 
@@ -21,4 +21,6 @@ public class OrCondition extends BooleanOperatorCondition {
 	public List<Constraint> getConstraints() {
 		return null;
 	}
+	
+	protected String clipsName() {return "or";}
 }

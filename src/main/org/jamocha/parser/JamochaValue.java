@@ -419,11 +419,81 @@ public class JamochaValue implements Parameter {
 		return false;
 	}
 
+
+	private String fillToFixedLength(int val, String fill, int length) {
+		String res = String.valueOf(val);
+		while (res.length() < length)
+			res = fill + res;
+		return res;
+	}
+	
 	public String getExpressionString() {
-		return ParserFactory.getFormatter().formatExpression(this);
+		StringBuilder sb = new StringBuilder();
+		switch (getType()) {
+		case NIL:
+			return "NIL";
+		case STRING:
+			return "\"" + getStringValue() + "\"";
+		case FACT_ID:
+			return "f-" + getFactIdValue();
+		case DATETIME:
+			GregorianCalendar c = (GregorianCalendar) getDateValue();
+			sb.append(fillToFixedLength(c.get(Calendar.YEAR), "0", 4)).append(
+					'-');
+			sb.append(fillToFixedLength(c.get(Calendar.MONTH) + 1, "0", 2))
+					.append('-');
+			sb.append(fillToFixedLength(c.get(Calendar.DAY_OF_MONTH), "0", 2))
+					.append(' ');
+			sb.append(fillToFixedLength(c.get(Calendar.HOUR_OF_DAY), "0", 2))
+					.append(':');
+			sb.append(fillToFixedLength(c.get(Calendar.MINUTE), "0", 2))
+					.append(':');
+			sb.append(fillToFixedLength(c.get(Calendar.SECOND), "0", 2));
+			int gmtOffsetMillis = c.get(Calendar.ZONE_OFFSET);
+			if (gmtOffsetMillis >= 0) {
+				sb.append('+');
+			} else {
+				sb.append('-');
+			}
+			int gmtOffsetHours = gmtOffsetMillis / (1000 * 60 * 60);
+			sb.append(fillToFixedLength(gmtOffsetHours, "0", 2));
+			break;
+		case LIST:
+			sb.append('[');
+			for (int i = 0; i < getListCount(); ++i) {
+				if (i > 0) {
+					sb.append(", ");
+				}
+				sb.append(getListValue(i).getExpressionString());
+			}
+			sb.append(']');
+			break;
+		case SLOT:
+			sb.append('(');
+			Slot slot = getSlotValue();
+			sb.append(slot.getName());
+			sb.append(' ');
+			sb.append(slot.getValue().getExpressionString());
+			sb.append(')');
+			break;
+
+		default:
+			sb.append(getObjectValue().toString());
+			break;
+		}
+		return sb.toString();
+
 	}
 
 	public JamochaValue getValue(Rete engine) throws EvaluationException {
 		return this;
+	}
+
+	public String toClipsFormat(int indent) {
+		String ind = "";
+		while (ind.length() < indent*blanksPerIndent) ind+=" ";
+		return ind+getExpressionString();
+		
+		
 	}
 }

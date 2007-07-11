@@ -489,9 +489,9 @@ public class Defrule implements Rule {
 					oc.setTemplate(dft);
 				}
 			}
-		} else if (cond instanceof BooleanOperatorCondition) {
+		} else if (cond instanceof ConditionWithNested) {
 			//reslove all templates from nested conditions:
-			List<Condition> nestedConds = ((BooleanOperatorCondition) cond).getNestedConditionalElement();
+			List<Condition> nestedConds = ((ConditionWithNested) cond).getNestedConditionalElement();
 			for (Condition nestedCond : nestedConds) {
 				resolveTempate(engine, nestedCond);
 			}
@@ -643,6 +643,30 @@ public class Defrule implements Rule {
 		newRule.complexity = complexity;
 		newRule.totalComplexity = totalComplexity;
 		return newRule;
+	}
+
+	public String toClipsFormat(int indent) {
+		StringBuilder buf = new StringBuilder();
+		buf.append("(defrule ").append(getName());
+		buf.append(" (declare ");
+		buf.append("(salience ").append(getSalience()).append(") ");
+		buf.append("(rule-version ").append(getVersion()).append(") ");
+		buf.append("(remember-match ").append(getRememberMatch()).append(") ");
+		buf.append("(effective-date ").append(getEffectiveDate()).append(") ");
+		buf.append("(expiration-date ").append(getExpirationDate()).append(") ");
+		buf.append(")\n ");
+		for (Condition c : conditions) {
+			buf.append(c.toClipsFormat(indent+1)).append("\n");
+		}
+		buf.append("=>");
+		for (Action a : actions) {
+			if (a instanceof FunctionAction) {
+				FunctionAction fa = (FunctionAction) a;
+				buf.append(fa.toClipsFormat(indent+1)).append("\n");
+			}
+		}
+		buf.append(")");
+		return buf.toString();
 	}
 
 }

@@ -3,6 +3,31 @@
 (deftemplate salat (slot name) (slot farbe) (slot dazupasst) (slot gewicht))
 (deftemplate getraenk (slot name) (slot farbe) )
 
+
+(defrule babaam
+	(or	
+		(not (wurst (name "weisswurst") )  )
+		(not (wurst (name "bratwurst") )  )
+	)
+	=>
+	(printout t "es gibt entweder keine w oder keine b" crlf)
+)
+
+
+
+
+(assert (wurst (name "bratwurst")(spitzname "bratwosch")(farbe "weiss")(gewicht 100) ))
+(assert (wurst (name "weisswurst")(spitzname "weisswurst")(farbe "weiss")(gewicht 200) ))
+(assert (wurst (name "wienerwurst")(spitzname "wiener")(farbe "rot")(gewicht 300) ))
+(assert (wurst (name "gemuesewurst")(spitzname "gemuesewurst")(farbe "gruen")(gewicht 400) ))
+(assert (salat (name "kartoffelsalat")(farbe "weiss")(gewicht 220)(dazupasst "weisswurst") ))
+(assert (salat (name "gurkensalat")(farbe "weiss")(dazupasst "spaghetti")(gewicht 320) ))
+(assert (getraenk (name "wasser") (farbe "schwarz") ))
+(assert (getraenk (name "cola") (farbe "schwarz")   ))
+(assert (getraenk (name "kartoffelsalat") (farbe "schwarz") ))
+
+(fire)
+
 (defrule vorschlag
  	(salat (name ?salatname) (dazupasst ?match))
  	(not
@@ -14,18 +39,6 @@
   	=>
  	(printout t "man kann einen " ?salatname " essen." crlf)
 )
-(assert (wurst (name "bratwurst")(spitzname "bratwosch")(farbe "weiss")(gewicht 100) ))
-(assert (wurst (name "weisswurst")(spitzname "weisswurst")(farbe "weiss")(gewicht 200) ))
-(assert (wurst (name "wienerwurst")(spitzname "wiener")(farbe "rot")(gewicht 300) ))
-(assert (wurst (name "gemuesewurst")(spitzname "gemuesewurst")(farbe "gruen")(gewicht 400) ))
-(assert (salat (name "kartoffelsalat")(farbe "weiss")(gewicht 220)(dazupasst "weisswurst") ))
-(assert (salat (name "gurkensalat")(farbe "weiss")(dazupasst "spaghetti")(gewicht 320) ))
-(assert (getraenk (name "wasser") (farbe "schwarz") ))
-(assert (getraenk (name "cola") (farbe "schwarz") ))
-(assert (getraenk (name "kartoffelsalat") (farbe "schwarz") ))
-
-(fire)
-
 
 (defrule tst
 	(wurst (name ~ ?salad))

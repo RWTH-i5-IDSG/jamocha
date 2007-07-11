@@ -6,13 +6,30 @@ import java.util.List;
 import org.jamocha.rete.nodes.BaseNode;
 import org.jamocha.rete.nodes.AbstractBeta;
 
-public abstract class BooleanOperatorCondition extends AbstractCondition {
+public abstract class ConditionWithNested extends AbstractCondition {
 
 	protected List<Condition> nestedCE = new ArrayList<Condition>();
-
+	protected String clipsName() {return "";}
+	
+	public String toClipsFormat(int indent) {
+		String ind = "";
+		while (ind.length() < indent*blanksPerIndent) ind+=" ";
+		StringBuffer result = new StringBuffer();
+		result.append(ind+"(");
+		result.append(clipsName());
+		result.append("\n");
+		
+		for(Condition c : nestedCE) {
+			result.append( c.toClipsFormat(indent+1) + "\n" ) ;
+		}
+		result.append(ind+")");
+		
+		return result.toString();
+	}
+	
 	protected AbstractBeta reteNode = null;
 
-	public BooleanOperatorCondition() {
+	public ConditionWithNested() {
 		super();
 	}
 

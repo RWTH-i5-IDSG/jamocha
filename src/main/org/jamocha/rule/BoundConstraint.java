@@ -203,4 +203,13 @@ public class BoundConstraint extends AbstractConstraint {
 	public int getOperator(){
 		return (negated? Constants.NOTEQUAL : Constants.EQUAL);
 	}
+
+	public String toClipsFormat(int indent) {
+		StringBuilder sb = new StringBuilder();
+		sb.append("    (").append(getName()).append(' ');
+		if (isMultislot()) sb.append('$');
+		sb.append('?').append(getValue().toClipsFormat(indent));
+		sb.append(")\n");
+		return sb.toString();
+	}
 }

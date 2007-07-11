@@ -98,8 +98,17 @@ public class TestCondition extends AbstractCondition {
 		// TODO Auto-generated method stub
 		return null;
 	}
-	
 
+	public String toClipsFormat(int indent) {
+		String ind = "";
+		while (ind.length() < indent*blanksPerIndent) ind+=" ";
+		StringBuffer result = new StringBuffer();
+		result.append(ind+"(test\n");
+		result.append(func.toClipsFormat(indent+1));
+		result.append(ind+")");
+		return result.toString();
+	}
+	
 	
 	
 

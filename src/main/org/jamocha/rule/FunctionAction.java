@@ -16,12 +16,14 @@
  */
 package org.jamocha.rule;
 
+import org.jamocha.formatter.IsClipsElement;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.Expression;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Binding;
 import org.jamocha.rete.BoundParam;
+import org.jamocha.rete.Constants;
 import org.jamocha.rete.Deffact;
 import org.jamocha.rete.Fact;
 import org.jamocha.rete.Function;
@@ -39,7 +41,7 @@ import org.jamocha.rete.functions.ruleengine.Assert;
  * rule. It uses built-in or user written functions. When the rule is loaded,
  * the engine looks up the functions. At run time, the rule simply executes it.
  */
-public class FunctionAction implements Action {
+public class FunctionAction implements Action, IsClipsElement {
 
 	public Object clone() throws CloneNotSupportedException {
 		FunctionAction result = new FunctionAction();
@@ -173,5 +175,19 @@ public class FunctionAction implements Action {
 		} catch (EvaluationException e) {
 			throw new ExecuteException(e);
 		}
+	}
+
+	public String toClipsFormat(int indent) {
+		StringBuilder sb = new StringBuilder();
+		String ind = "";
+		while (ind.length() < indent*blanksPerIndent) ind+=" ";
+		
+		sb.append(ind).append('(').append(getFunctionName());
+		Expression[] parameters = getParameters();
+		for (int i = 0; i < parameters.length; ++i) {
+			sb.append(ind).append(parameters[i].toClipsFormat(indent));
+		}
+		sb.append(')');
+		return sb.toString();
 	}
 }

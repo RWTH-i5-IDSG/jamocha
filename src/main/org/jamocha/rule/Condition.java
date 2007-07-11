@@ -19,6 +19,7 @@ package org.jamocha.rule;
 import java.io.Serializable;
 import java.util.List;
 
+import org.jamocha.formatter.IsClipsElement;
 import org.jamocha.rete.nodes.BaseNode;
 
 /**
@@ -27,7 +28,7 @@ import org.jamocha.rete.nodes.BaseNode;
  * Conditions are patterns. It may be a simple fact pattern, test function, or
  * an object pattern.
  */
-public interface Condition extends Serializable, Complexity, Compileable, Comparable, Cloneable{
+public interface Condition extends Serializable, Complexity, Compileable, Comparable, Cloneable, IsClipsElement{
 
 	/**
 	 * Method is used to compare the pattern to another pattern and determine if

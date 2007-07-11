@@ -3,6 +3,7 @@ package org.jamocha.rete;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.jamocha.parser.Expression;
 import org.jamocha.parser.ParserFactory;
 
 public abstract class ExpressionCollection implements Parameter {
@@ -49,4 +50,15 @@ public abstract class ExpressionCollection implements Parameter {
 	public String getExpressionString() {
 		return ParserFactory.getFormatter().formatExpression(this);
 	}
+
+	public String toClipsFormat(int indent) {
+		String ind = "";
+		while (ind.length() < indent*blanksPerIndent) ind+=" ";
+		StringBuffer result = new StringBuffer();
+		for (Parameter p : parameterList) {
+			result.append(p.toClipsFormat(indent));
+		}
+		return result.toString();
+	}
+	
 }

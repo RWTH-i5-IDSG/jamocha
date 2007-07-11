@@ -71,4 +71,16 @@ public class SlotParam extends AbstractSignature {
 	public String getExpressionString() {
 		return ParserFactory.getFormatter().formatExpression(this);
 	}
+
+	public String toClipsFormat(int indent) {
+		String ind = "";
+		while (ind.length() < indent*blanksPerIndent) ind+=" ";
+		StringBuilder sb = new StringBuilder();
+		sb.append('(');
+		sb.append(getName());
+		sb.append(' ');
+		sb.append(valueExpression.toClipsFormat(indent+1));
+		sb.append(')');
+		return sb.toString();
+	}
 }

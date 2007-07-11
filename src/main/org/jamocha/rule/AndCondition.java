@@ -27,7 +27,7 @@ import org.jamocha.rete.SFRuleCompiler;
  * AndCondition is specifically created to handle and conjunctions.
  * AndConditions are compiled to a BetaNode.
  */
-public class AndCondition extends BooleanOperatorCondition {
+public class AndCondition extends ConditionWithNested {
 
 	/**
 	 * 
@@ -48,4 +48,7 @@ public class AndCondition extends BooleanOperatorCondition {
 	public List<Constraint> getConstraints() {
 		return null;
 	}
+
+	protected String clipsName() {return "and";}
+	
 }

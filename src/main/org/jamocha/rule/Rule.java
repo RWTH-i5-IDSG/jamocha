@@ -16,6 +16,7 @@
  */
 package org.jamocha.rule;
 
+import org.jamocha.formatter.IsClipsElement;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Binding;
 import org.jamocha.rete.Dumpable;
@@ -36,7 +37,7 @@ import org.jamocha.rete.nodes.TerminalNode;
  * the last node in the rule. These convienance method are present to make it
  * easier to write rule parsers and compilers.
  */
-public interface Rule extends Scope, Complexity, Cloneable {
+public interface Rule extends Scope, Complexity, Cloneable, IsClipsElement {
 	/**
 	 * if the rule is set to autofocus, it returns true
 	 * 

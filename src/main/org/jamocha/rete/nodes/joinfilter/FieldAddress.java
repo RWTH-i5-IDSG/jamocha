@@ -26,7 +26,11 @@ public abstract class FieldAddress implements Parameter {
 		return refersWholeFact();
 	}
 
-
+	public String toClipsFormat(int indent) {
+		String ind = "";
+		while (ind.length() < indent*blanksPerIndent) ind+=" ";
+		return ind+getExpressionString();
+	}
 
 	public JamochaValue getValue(Rete engine) throws EvaluationException {
 		return null;

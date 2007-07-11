@@ -16,7 +16,9 @@
  */
 package org.jamocha.rule;
 
-public abstract class AbstractCondition implements Condition {
+import org.jamocha.formatter.IsClipsElement;
+
+public abstract class AbstractCondition implements Condition, IsClipsElement {
 
 	protected static int complexity = 1;
 

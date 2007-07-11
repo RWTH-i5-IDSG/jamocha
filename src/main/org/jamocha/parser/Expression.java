@@ -16,6 +16,7 @@
  */
 package org.jamocha.parser;
 
+import org.jamocha.formatter.IsClipsElement;
 import org.jamocha.rete.Rete;
 
 /**
@@ -26,7 +27,7 @@ import org.jamocha.rete.Rete;
  * @author Christoph Emonds
  * 
  */
-public interface Expression {
+public interface Expression extends IsClipsElement{
 
 	/**
 	 * Evaluates the expression and returns the value.
