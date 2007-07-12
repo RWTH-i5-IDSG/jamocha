@@ -122,6 +122,11 @@ public class IteratorImporter implements Function, Serializable {
 					"(iteratorimporter \"org.jamocha.sampleimplementations.DeffactFibonacciIterator\" ?config)\n" +
 					"(facts)";
 		}
+
+		public boolean isResultAutoGeneratable() {
+			// TODO Auto-generated method stub
+			return false;
+		}
 	}
 
 	private static final FunctionDescription DESCRIPTION = new Description();

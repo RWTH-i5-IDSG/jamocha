@@ -101,6 +101,11 @@ public class SaveFacts implements Function, Serializable {
 					"(save-facts /var/tmp/savetest.clp)\n" +
 					"(save-facts /var/tmp/savetest2.clp template)";
 		}
+
+		public boolean isResultAutoGeneratable() {
+			// TODO Auto-generated method stub
+			return false;
+		}
 	}
 
 	private static final FunctionDescription DESCRIPTION = new Description();

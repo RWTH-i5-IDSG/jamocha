@@ -72,6 +72,11 @@ public class Random implements Function, Serializable {
 		public String getExample() {
 			return "(asin (random))";
 		}
+
+		public boolean isResultAutoGeneratable() {
+			// TODO Auto-generated method stub
+			return false;
+		}
 	}
 
 	private static final FunctionDescription DESCRIPTION = new Description();

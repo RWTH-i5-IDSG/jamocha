@@ -87,6 +87,11 @@ public class FactId implements Function, Serializable {
 					+ "(assert (car (color \"green\")(speed 100)))\n"
 					+ "(fact-id 2)";
 		}
+
+		public boolean isResultAutoGeneratable() {
+			// TODO Auto-generated method stub
+			return false;
+		}
 	}
 
 	private static final FunctionDescription DESCRIPTION = new FindFactByFactDescription();

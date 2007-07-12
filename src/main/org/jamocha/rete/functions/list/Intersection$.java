@@ -88,6 +88,11 @@ public class Intersection$ implements Function, Serializable {
 		public String getExample() {
 			return "(intersection$ (create$ 3 a b 1 c) (create$ e 1 d a f c))";
 		}
+
+		public boolean isResultAutoGeneratable() {
+			// TODO Auto-generated method stub
+			return false;
+		}
 	}
 
 	private static final FunctionDescription DESCRIPTION = new Description();

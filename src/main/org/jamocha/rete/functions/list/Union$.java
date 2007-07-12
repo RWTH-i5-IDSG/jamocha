@@ -74,6 +74,11 @@ public class Union$ implements Function, Serializable {
 		public String getExample() {
 			return "(union$ (create$ a b c) (create$ e d a f) (create$ 1 2 d))";
 		}
+
+		public boolean isResultAutoGeneratable() {
+			// TODO Auto-generated method stub
+			return false;
+		}
 	}
 
 	private static final FunctionDescription DESCRIPTION = new Description();

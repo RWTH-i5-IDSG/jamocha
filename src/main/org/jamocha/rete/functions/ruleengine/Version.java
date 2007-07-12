@@ -71,6 +71,11 @@ public class Version implements Function, Serializable {
 		public String getExample() {
 			return "(version)";
 		}
+
+		public boolean isResultAutoGeneratable() {
+			// TODO Auto-generated method stub
+			return false;
+		}
 	}
 
 	private static final FunctionDescription DESCRIPTION = new Description();

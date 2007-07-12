@@ -76,6 +76,11 @@ public class FunctionsDescription implements Function, Serializable {
 			// TODO Auto-generated method stub
 			return null;
 		}
+
+		public boolean isResultAutoGeneratable() {
+			// TODO Auto-generated method stub
+			return false;
+		}
 	}
 	
 	private class XmlTag {

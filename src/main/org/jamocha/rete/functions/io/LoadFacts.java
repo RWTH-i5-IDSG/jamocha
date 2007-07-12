@@ -93,6 +93,11 @@ public class LoadFacts implements Function, Serializable {
 					")\n" +
 					"(load-facts samples/data.clp)\n";			
 		}
+
+		public boolean isResultAutoGeneratable() {
+			// TODO Auto-generated method stub
+			return false;
+		}
 	}
 
 	private static final FunctionDescription DESCRIPTION = new Description();

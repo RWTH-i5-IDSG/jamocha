@@ -171,6 +171,11 @@ public class JDBCLink implements Function, Serializable {
 					"(assert (templ2 (a 99) (b 99) (c \"neunviermal\")) )\n" +
 					"(jdbclink ?mylink \"export\" \"3\"  )";
 		}
+
+		public boolean isResultAutoGeneratable() {
+			// TODO Auto-generated method stub
+			return false;
+		}
 	}
 
 	private static final FunctionDescription DESCRIPTION = new Description();

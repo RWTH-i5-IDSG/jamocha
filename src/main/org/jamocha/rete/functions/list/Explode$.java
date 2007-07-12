@@ -98,6 +98,11 @@ public class Explode$ implements Function, Serializable {
 			return "(explode$ \"A horse has about four legs\")\n"
 					+ "(explode$ \"A horse has about four legs\" \" about \")";
 		}
+
+		public boolean isResultAutoGeneratable() {
+			// TODO Auto-generated method stub
+			return false;
+		}
 	}
 
 	private static final FunctionDescription DESCRIPTION = new Description();

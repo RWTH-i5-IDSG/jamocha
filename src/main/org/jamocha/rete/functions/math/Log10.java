@@ -71,6 +71,11 @@ public class Log10 implements Function, Serializable {
 		public String getExample() {
 			return "(log10 10)";
 		}
+
+		public boolean isResultAutoGeneratable() {
+			// TODO Auto-generated method stub
+			return false;
+		}
 	}
 
 	private static final FunctionDescription DESCRIPTION = new Description();

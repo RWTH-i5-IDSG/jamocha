@@ -74,6 +74,11 @@ public class Min implements Function, Serializable {
 		public String getExample() {
 			return "(min 7834 -1 23 80.87583)";
 		}
+
+		public boolean isResultAutoGeneratable() {
+			// TODO Auto-generated method stub
+			return false;
+		}
 	}
 
 	private static final FunctionDescription DESCRIPTION = new Description();

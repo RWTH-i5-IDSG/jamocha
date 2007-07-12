@@ -71,6 +71,11 @@ public class Tan implements Function, Serializable {
 		public String getExample() {
 			return "(tan (/ (pi) 2))";
 		}
+
+		public boolean isResultAutoGeneratable() {
+			// TODO Auto-generated method stub
+			return false;
+		}
 	}
 
 	private static final FunctionDescription DESCRIPTION = new Description();

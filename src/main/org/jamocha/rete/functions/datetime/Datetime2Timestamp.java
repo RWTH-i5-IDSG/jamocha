@@ -72,6 +72,11 @@ public class Datetime2Timestamp implements Function, Serializable {
 		public String getExample() {			
 			return "(datetime2timestamp 2007-06-04 16:01:21)";
 		}
+
+		public boolean isResultAutoGeneratable() {
+			// TODO Auto-generated method stub
+			return false;
+		}
 	}
 
 	private static final FunctionDescription DESCRIPTION = new Description();

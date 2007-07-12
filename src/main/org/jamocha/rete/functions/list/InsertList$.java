@@ -97,6 +97,11 @@ public class InsertList$ implements Function, Serializable {
 		public String getExample() {
 			return "(insert$ (create$ cheese milk bread sausages) 3 eggs)";
 		}
+
+		public boolean isResultAutoGeneratable() {
+			// TODO Auto-generated method stub
+			return false;
+		}
 	}
 
 	private static final FunctionDescription DESCRIPTION = new Description();

@@ -87,6 +87,11 @@ public class InterpretedFunction implements Function {
 			// TODO Auto-generated method stub
 			return null;
 		}
+
+		public boolean isResultAutoGeneratable() {
+			// TODO Auto-generated method stub
+			return false;
+		}
 	}
 
 	private FunctionDescription DESCRIPTION = new InterpretedFunctionDescription();

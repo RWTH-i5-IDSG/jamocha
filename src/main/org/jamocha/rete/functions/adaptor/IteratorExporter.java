@@ -130,6 +130,11 @@ public class IteratorExporter implements Function, Serializable {
 					"(bind ?config (assert (config (removeSlot \"heiner\"))))\n" +
 					"(iteratorexporter \"org.jamocha.sampleimplementations.SampleExportHandler\"  ?config (create$ ?horst ?heiner1 ?ory ?krautsalat))";
 		}
+
+		public boolean isResultAutoGeneratable() {
+			// TODO Auto-generated method stub
+			return false;
+		}
 	}
 
 	private static final FunctionDescription DESCRIPTION = new Description();

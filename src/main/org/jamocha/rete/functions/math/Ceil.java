@@ -71,6 +71,11 @@ public class Ceil implements Function, Serializable {
 		public String getExample() {
 			return "(ceil 2.379079)";
 		}
+
+		public boolean isResultAutoGeneratable() {
+			// TODO Auto-generated method stub
+			return false;
+		}
 	}
 
 	private static final FunctionDescription DESCRIPTION = new Description();

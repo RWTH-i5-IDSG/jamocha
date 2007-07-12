@@ -72,6 +72,11 @@ public class Profile implements Function, Serializable {
 		public String getExample() {
 			return "(profile assert-fact fire)";
 		}
+
+		public boolean isResultAutoGeneratable() {
+			// TODO Auto-generated method stub
+			return false;
+		}
 	}
 
 	private static final FunctionDescription DESCRIPTION = new Description();

@@ -4,18 +4,6 @@
 (deftemplate getraenk (slot name) (slot farbe) )
 
 
-(defrule babaam
-	(or	
-		(not (wurst (name "weisswurst") )  )
-		(not (wurst (name "bratwurst") )  )
-	)
-	=>
-	(printout t "es gibt entweder keine w oder keine b" crlf)
-)
-
-
-
-
 (assert (wurst (name "bratwurst")(spitzname "bratwosch")(farbe "weiss")(gewicht 100) ))
 (assert (wurst (name "weisswurst")(spitzname "weisswurst")(farbe "weiss")(gewicht 200) ))
 (assert (wurst (name "wienerwurst")(spitzname "wiener")(farbe "rot")(gewicht 300) ))
@@ -25,6 +13,15 @@
 (assert (getraenk (name "wasser") (farbe "schwarz") ))
 (assert (getraenk (name "cola") (farbe "schwarz")   ))
 (assert (getraenk (name "kartoffelsalat") (farbe "schwarz") ))
+
+(defrule babaam
+	(or	
+		(not (wurst (name "weisswurst") )  )
+		(not (wurst (name "bratwurst") )  )
+	)
+	=>
+	(printout t "es gibt entweder keine w oder keine b" crlf)
+)
 
 (fire)
 

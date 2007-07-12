@@ -105,6 +105,11 @@ public class Subseq$ implements Function, Serializable {
 		public String getExample() {
 			return "(subseq$ (create$ 42 123 911 4711 1) 2 4)";
 		}
+
+		public boolean isResultAutoGeneratable() {
+			// TODO Auto-generated method stub
+			return false;
+		}
 	}
 
 	private static final FunctionDescription DESCRIPTION = new Description();

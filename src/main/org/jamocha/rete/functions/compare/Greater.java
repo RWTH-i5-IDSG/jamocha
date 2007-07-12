@@ -75,6 +75,11 @@ public class Greater implements Function, Serializable {
 		public String getExample() {
 			return "(greater 84 22 1)";
 		}
+
+		public boolean isResultAutoGeneratable() {
+			// TODO Auto-generated method stub
+			return false;
+		}
 	}
 
 	private static final FunctionDescription DESCRIPTION = new Description();

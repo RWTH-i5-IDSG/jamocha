@@ -71,6 +71,11 @@ public class Exp implements Function, Serializable {
 		public String getExample() {
 			return "(exp -2)";
 		}
+
+		public boolean isResultAutoGeneratable() {
+			// TODO Auto-generated method stub
+			return false;
+		}
 	}
 
 	private static final FunctionDescription DESCRIPTION = new Description();

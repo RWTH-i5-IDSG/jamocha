@@ -71,6 +71,11 @@ public class Between implements Function, Serializable {
 		public String getExample() {
 			return "(between 2007-06-04 16:01:21 2007-07-07 19:07:49)";
 		}
+
+		public boolean isResultAutoGeneratable() {
+			// TODO Auto-generated method stub
+			return false;
+		}
 	}
 
 	private static final FunctionDescription DESCRIPTION = new Description();

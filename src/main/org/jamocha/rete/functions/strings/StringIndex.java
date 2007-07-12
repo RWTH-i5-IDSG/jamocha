@@ -92,6 +92,11 @@ public class StringIndex implements Function, Serializable {
 					"(str-index \"Jamocha\" \"Jam\")\n" +
 					"(str-index \"Jamocha\" \"Mocha\")\n";
 		}
+
+		public boolean isResultAutoGeneratable() {
+			// TODO Auto-generated method stub
+			return false;
+		}
 	}
 
 	private static final FunctionDescription DESCRIPTION = new Description();

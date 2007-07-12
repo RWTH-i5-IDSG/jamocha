@@ -72,6 +72,11 @@ public class SendMessageFunction implements Function {
 			// TODO Auto-generated method stub
 			return null;
 		}
+
+		public boolean isResultAutoGeneratable() {
+			// TODO Auto-generated method stub
+			return false;
+		}
 	}
 
 	private static final FunctionDescription DESCRIPTION = new Description();

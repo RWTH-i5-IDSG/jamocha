@@ -79,6 +79,11 @@ public class PPrintTemplate implements Function, Serializable {
 			return "(deftemplate car (slot color)(slot speed))\n" +
 					"(ppdeftemplate car)";
 		}
+
+		public boolean isResultAutoGeneratable() {
+			// TODO Auto-generated method stub
+			return false;
+		}
 	}
 
 	private static final FunctionDescription DESCRIPTION = new Description();

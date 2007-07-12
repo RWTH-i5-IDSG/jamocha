@@ -76,6 +76,11 @@ public class UnWatch implements Function, Serializable {
 					"(unwatch facts)\n" +
 					"(assert (templ2 (name test3)))";
 		}
+
+		public boolean isResultAutoGeneratable() {
+			// TODO Auto-generated method stub
+			return false;
+		}
 	}
 
 	private static final FunctionDescription DESCRIPTION = new Description();

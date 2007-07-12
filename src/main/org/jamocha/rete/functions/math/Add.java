@@ -77,6 +77,11 @@ public class Add implements Function, Serializable {
 		public String getExample() {			
 			return "(+ 7 8.56 -4.3)";
 		}
+
+		public boolean isResultAutoGeneratable() {
+			// TODO Auto-generated method stub
+			return false;
+		}
 	}
 
 	private static final FunctionDescription DESCRIPTION = new Description();

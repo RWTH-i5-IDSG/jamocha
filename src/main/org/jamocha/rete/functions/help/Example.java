@@ -80,6 +80,11 @@ public class Example implements Function, Serializable {
 		public String getExample() {
 			return "(example load-facts)";
 		}
+
+		public boolean isResultAutoGeneratable() {
+			// TODO Auto-generated method stub
+			return false;
+		}
 	}
 
 	private static final FunctionDescription DESCRIPTION = new Description();

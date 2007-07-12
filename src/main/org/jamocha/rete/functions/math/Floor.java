@@ -71,6 +71,11 @@ public class Floor implements Function, Serializable {
 		public String getExample() {
 			return "(floor 6.7496)";
 		}
+
+		public boolean isResultAutoGeneratable() {
+			// TODO Auto-generated method stub
+			return false;
+		}
 	}
 
 	private static final FunctionDescription DESCRIPTION = new Description();

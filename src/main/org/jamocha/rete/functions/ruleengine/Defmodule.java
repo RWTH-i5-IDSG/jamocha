@@ -91,6 +91,11 @@ public class Defmodule implements Function, Serializable {
 		public String getExample() {
 			return "(defmodule PIZZAENV)\n" + "(get-current-module)";
 		}
+
+		public boolean isResultAutoGeneratable() {
+			// TODO Auto-generated method stub
+			return false;
+		}
 	}
 
 	private static final FunctionDescription DESCRIPTION = new Description();

@@ -82,6 +82,11 @@ public class Batch implements Function, Serializable {
 		public String getExample() {
 			return "(batch samples/view-test.clp)";
 		}
+
+		public boolean isResultAutoGeneratable() {
+			// TODO Auto-generated method stub
+			return false;
+		}
 	}
 
 	private static final FunctionDescription DESCRIPTION = new Description();

@@ -71,6 +71,11 @@ public class LoadFunctionGroup implements Function, Serializable {
 		public String getExample() {
 			return "(load-function-group adaptor datetime)";
 		}
+
+		public boolean isResultAutoGeneratable() {
+			// TODO Auto-generated method stub
+			return false;
+		}
 	}
 
 	private static final FunctionDescription DESCRIPTION = new Description();

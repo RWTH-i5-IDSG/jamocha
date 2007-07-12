@@ -93,6 +93,11 @@ public class Nth$ implements Function, Serializable {
 		public String getExample() {
 			return "(nth$ 3 (create$ cheese milk eggs bread sausages))";
 		}
+
+		public boolean isResultAutoGeneratable() {
+			// TODO Auto-generated method stub
+			return false;
+		}
 	}
 
 	private static final FunctionDescription DESCRIPTION = new Description();

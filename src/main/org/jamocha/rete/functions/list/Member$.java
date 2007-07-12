@@ -102,6 +102,11 @@ public class Member$ implements Function, Serializable {
 			return "(member$ 5 (create$ 1 2 3 4 5 6))\n"
 					+ "(member$ (create$ 3 4) (create$ 1 2 3 4 5 6))";
 		}
+
+		public boolean isResultAutoGeneratable() {
+			// TODO Auto-generated method stub
+			return false;
+		}
 	}
 
 	private static final FunctionDescription DESCRIPTION = new Description();

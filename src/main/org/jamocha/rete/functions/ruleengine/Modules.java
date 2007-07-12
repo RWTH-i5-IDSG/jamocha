@@ -74,6 +74,11 @@ public class Modules implements Function, Serializable {
 		public String getExample() {
 			return "(modules)";
 		}
+
+		public boolean isResultAutoGeneratable() {
+			// TODO Auto-generated method stub
+			return false;
+		}
 	}
 
 	private static final FunctionDescription DESCRIPTION = new Description();

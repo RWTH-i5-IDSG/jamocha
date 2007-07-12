@@ -100,6 +100,11 @@ public class Foreach implements Function, Serializable {
 					+ "(foreach ?item ?x (bind ?res (str-cat ?res ?item \", \")))"
 					+ "(return ?res)";
 		}
+
+		public boolean isResultAutoGeneratable() {
+			// TODO Auto-generated method stub
+			return false;
+		}
 	}
 
 	private static final FunctionDescription DESCRIPTION = new Description();

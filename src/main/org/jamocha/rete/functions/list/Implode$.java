@@ -98,6 +98,11 @@ public class Implode$ implements Function, Serializable {
 		public String getExample() {
 			return "(implode$ (create$ We need beer))\n(implode$ (create$ We need beer) \" -STOP- \")";
 		}
+
+		public boolean isResultAutoGeneratable() {
+			// TODO Auto-generated method stub
+			return false;
+		}
 	}
 
 	private static final FunctionDescription DESCRIPTION = new Description();

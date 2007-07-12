@@ -71,6 +71,11 @@ public class Asin implements Function, Serializable {
 		public String getExample() {
 			return "(asin -0.7563654)";
 		}
+
+		public boolean isResultAutoGeneratable() {
+			// TODO Auto-generated method stub
+			return false;
+		}
 	}
 
 	private static final FunctionDescription DESCRIPTION = new Description();

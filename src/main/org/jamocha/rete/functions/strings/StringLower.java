@@ -72,6 +72,11 @@ public class StringLower implements Function, Serializable {
 		public String getExample() {
 			return "(str-lower \"JaMoChA\")";
 		}
+
+		public boolean isResultAutoGeneratable() {
+			// TODO Auto-generated method stub
+			return false;
+		}
 	}
 
 	private static final FunctionDescription DESCRIPTION = new Description();

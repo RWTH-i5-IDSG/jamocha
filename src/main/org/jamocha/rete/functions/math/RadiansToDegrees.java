@@ -72,6 +72,11 @@ public class RadiansToDegrees implements Function, Serializable {
 		public String getExample() {
 			return "(rad-deg -0.7853981633974483)";
 		}
+
+		public boolean isResultAutoGeneratable() {
+			// TODO Auto-generated method stub
+			return false;
+		}
 	}
 
 	private static final FunctionDescription DESCRIPTION = new Description();

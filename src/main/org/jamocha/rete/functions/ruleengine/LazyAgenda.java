@@ -71,6 +71,11 @@ public class LazyAgenda implements Function, Serializable {
 		public String getExample() {
 			return "(lazy-agenda)";
 		}
+
+		public boolean isResultAutoGeneratable() {
+			// TODO Auto-generated method stub
+			return false;
+		}
 	}
 
 	private static final FunctionDescription DESCRIPTION = new Description();

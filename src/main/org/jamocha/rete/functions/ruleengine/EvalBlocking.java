@@ -109,6 +109,11 @@ public class EvalBlocking implements Function, Serializable {
 					+ "(eval-blocking \"(printout t \\\"This is BlackJack.\\\")\")\n\n"
 					+ "(bind ?x \"(+ 17 4)\")\n" + "(eval-blocking ?x)";
 		}
+
+		public boolean isResultAutoGeneratable() {
+			// TODO Auto-generated method stub
+			return false;
+		}
 	}
 
 	private static final FunctionDescription DESCRIPTION = new Description();

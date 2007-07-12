@@ -101,6 +101,11 @@ public class FactSlotValue implements Function, Serializable {
 					"(fact-slot-value 1 color)\n" +
 					"(fact-slot-value 3 speed)";
 		}
+
+		public boolean isResultAutoGeneratable() {
+			// TODO Auto-generated method stub
+			return false;
+		}
 	}
 
 	private static final FunctionDescription DESCRIPTION = new Description();

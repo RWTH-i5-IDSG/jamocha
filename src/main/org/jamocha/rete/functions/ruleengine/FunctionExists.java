@@ -84,6 +84,11 @@ public class FunctionExists implements Function, Serializable {
 			return "(function-exists \"(cos)\")\n"
 					+ "(function-exists \"(i-dont-exist)\")";
 		}
+
+		public boolean isResultAutoGeneratable() {
+			// TODO Auto-generated method stub
+			return false;
+		}
 	}
 
 	private static final FunctionDescription DESCRIPTION = new Description();

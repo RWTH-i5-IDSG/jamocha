@@ -75,6 +75,11 @@ public class Less implements Function, Serializable {
 		public String getExample() {
 			return "(less 1 22 84)";
 		}
+
+		public boolean isResultAutoGeneratable() {
+			// TODO Auto-generated method stub
+			return false;
+		}
 	}
 
 	private static final FunctionDescription DESCRIPTION = new Description();

@@ -71,6 +71,11 @@ public class Cos implements Function, Serializable {
 		public String getExample() {
 			return "(cos -1.5567)";
 		}
+
+		public boolean isResultAutoGeneratable() {
+			// TODO Auto-generated method stub
+			return false;
+		}
 	}
 
 	private static final FunctionDescription DESCRIPTION = new Description();

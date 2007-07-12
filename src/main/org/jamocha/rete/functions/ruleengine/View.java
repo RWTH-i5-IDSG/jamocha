@@ -75,6 +75,11 @@ public class View implements Function, Serializable {
 		public String getExample() {
 			return "(view)";
 		}
+
+		public boolean isResultAutoGeneratable() {
+			// TODO Auto-generated method stub
+			return false;
+		}
 	}
 
 	private static final FunctionDescription DESCRIPTION = new Description();

@@ -79,6 +79,11 @@ public class FindFactByFact implements Function, Serializable {
 					"(assert (car (color \"green\")(speed 100)))\n" +					
 					"(find-fact-by-fact (car (color \"green\") (speed 100)))";
 		}
+
+		public boolean isResultAutoGeneratable() {
+			// TODO Auto-generated method stub
+			return false;
+		}
 	}
 
 	private static final FunctionDescription DESCRIPTION = new FindFactByFactDescription();

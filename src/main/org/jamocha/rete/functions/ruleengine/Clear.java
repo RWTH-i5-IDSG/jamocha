@@ -92,6 +92,11 @@ public class Clear implements Function, Serializable {
 		public String getExample() {			
 			return "(clear)";
 		}
+
+		public boolean isResultAutoGeneratable() {
+			// TODO Auto-generated method stub
+			return false;
+		}
 	}
 
 	private static final FunctionDescription DESCRIPTION = new Description();

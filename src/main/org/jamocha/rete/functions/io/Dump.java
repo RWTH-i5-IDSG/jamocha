@@ -87,6 +87,11 @@ public class Dump implements Function, Serializable {
 		public String getExample() {
 			return "(dump /tmp/jamochadump.clp)";
 		}
+
+		public boolean isResultAutoGeneratable() {
+			// TODO Auto-generated method stub
+			return false;
+		}
 	}
 
 	private static final FunctionDescription DESCRIPTION = new Description();

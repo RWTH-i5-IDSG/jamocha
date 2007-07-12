@@ -74,6 +74,11 @@ public class Create$ implements Function, Serializable {
 		public String getExample() {
 			return "(create$ cheese milk eggs)";
 		}
+
+		public boolean isResultAutoGeneratable() {
+			// TODO Auto-generated method stub
+			return false;
+		}
 	}
 
 	private static final FunctionDescription DESCRIPTION = new Description();

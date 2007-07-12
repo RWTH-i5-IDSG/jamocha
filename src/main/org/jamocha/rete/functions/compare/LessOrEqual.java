@@ -75,6 +75,11 @@ public class LessOrEqual implements Function, Serializable {
 		public String getExample() {
 			return "(lessOrEqual 1 2 2 84)";
 		}
+
+		public boolean isResultAutoGeneratable() {
+			// TODO Auto-generated method stub
+			return false;
+		}
 	}
 
 	private static final FunctionDescription DESCRIPTION = new Description();

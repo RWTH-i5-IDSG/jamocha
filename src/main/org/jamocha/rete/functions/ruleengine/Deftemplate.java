@@ -90,6 +90,11 @@ public class Deftemplate implements Function, Serializable {
 					"  (slot total (type DOUBLE))\n" +
 					")";
 		}
+
+		public boolean isResultAutoGeneratable() {
+			// TODO Auto-generated method stub
+			return false;
+		}
 	}
 
 	private static final FunctionDescription DESCRIPTION = new Description();

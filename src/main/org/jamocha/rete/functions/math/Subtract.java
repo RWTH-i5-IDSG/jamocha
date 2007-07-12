@@ -76,6 +76,11 @@ public class Subtract implements Function, Serializable {
 			// TODO Auto-generated method stub
 			return "(subtract 15 4 3 -6)\n(- 15 4 3 -6)";
 		}
+
+		public boolean isResultAutoGeneratable() {
+			// TODO Auto-generated method stub
+			return false;
+		}
 	}
 
 	private static final FunctionDescription DESCRIPTION = new Description();

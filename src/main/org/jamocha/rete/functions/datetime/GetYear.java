@@ -73,6 +73,11 @@ public class GetYear implements Function, Serializable {
 		public String getExample() {
 			return "(getyear 2007-06-04 17:14:06)";
 		}
+
+		public boolean isResultAutoGeneratable() {
+			// TODO Auto-generated method stub
+			return false;
+		}
 	}
 
 	private static final FunctionDescription DESCRIPTION = new Description();

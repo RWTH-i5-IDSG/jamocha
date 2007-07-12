@@ -73,6 +73,11 @@ public class GetGMTOffset implements Function, Serializable {
 		public String getExample() {
 			return "(getgmtoffset 2007-06-04 17:14:06+5)";
 		}
+
+		public boolean isResultAutoGeneratable() {
+			// TODO Auto-generated method stub
+			return false;
+		}
 	}
 
 	private static final FunctionDescription DESCRIPTION = new Description();

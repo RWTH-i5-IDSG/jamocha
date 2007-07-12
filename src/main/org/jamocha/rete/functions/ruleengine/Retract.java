@@ -105,6 +105,11 @@ public class Retract implements Function, Serializable {
 					"(retract 2)\n" +
 					"(facts)"; 
 		}
+
+		public boolean isResultAutoGeneratable() {
+			// TODO Auto-generated method stub
+			return false;
+		}
 	}
 
 	private static final FunctionDescription DESCRIPTION = new Description();

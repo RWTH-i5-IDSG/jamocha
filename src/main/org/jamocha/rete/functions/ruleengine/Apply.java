@@ -85,6 +85,11 @@ public class Apply implements Function, Serializable {
 			return "(apply add 17 4)\n" +
 					"(apply explode$ \"My name is not earl.\" ' not ')";
 		}
+
+		public boolean isResultAutoGeneratable() {
+			// TODO Auto-generated method stub
+			return false;
+		}
 	}
 
 	private static final FunctionDescription DESCRIPTION = new Description();

@@ -76,6 +76,11 @@ public class Templates implements Function, Serializable {
 					"(deftemplate bike (slot color)(slot kind))\n" +
 					"(templates)";
 		}
+
+		public boolean isResultAutoGeneratable() {
+			// TODO Auto-generated method stub
+			return false;
+		}
 	}
 
 	private static final FunctionDescription DESCRIPTION = new Description();

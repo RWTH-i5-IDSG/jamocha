@@ -74,6 +74,11 @@ public class Max implements Function, Serializable {
 		public String getExample() {
 			return "(max 87 -.3 777 445 9023 -75555)";
 		}
+
+		public boolean isResultAutoGeneratable() {
+			// TODO Auto-generated method stub
+			return false;
+		}
 	}
 
 	private static final FunctionDescription DESCRIPTION = new Description();

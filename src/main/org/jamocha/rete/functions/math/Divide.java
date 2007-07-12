@@ -77,6 +77,11 @@ public class Divide implements Function, Serializable {
 		public String getExample() {
 			return "(/ 27 3 -4.5)";
 		}
+
+		public boolean isResultAutoGeneratable() {
+			// TODO Auto-generated method stub
+			return false;
+		}
 	}
 
 	private static final FunctionDescription DESCRIPTION = new Description();

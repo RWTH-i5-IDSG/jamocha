@@ -73,6 +73,11 @@ public class GetDay implements Function, Serializable {
 		public String getExample() {
 			return "(getday 2007-06-04 17:10:47)";
 		}
+
+		public boolean isResultAutoGeneratable() {
+			// TODO Auto-generated method stub
+			return false;
+		}
 	}
 
 	private static final FunctionDescription DESCRIPTION = new Description();

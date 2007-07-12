@@ -71,6 +71,11 @@ public class Log implements Function, Serializable {
 		public String getExample() {
 			return "(log 2.7)";
 		}
+
+		public boolean isResultAutoGeneratable() {
+			// TODO Auto-generated method stub
+			return false;
+		}
 	}
 
 	private static final FunctionDescription DESCRIPTION = new Description();

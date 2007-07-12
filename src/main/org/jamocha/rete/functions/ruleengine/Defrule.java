@@ -102,6 +102,11 @@ public class Defrule implements Function, Serializable {
 					"(assert (customer (first \"john\")(last \"doe\")(address \"moon\") ) )\n" +
 					"(fire)";
 		}
+
+		public boolean isResultAutoGeneratable() {
+			// TODO Auto-generated method stub
+			return false;
+		}
 	}
 
 	private static final FunctionDescription DESCRIPTION = new Description();

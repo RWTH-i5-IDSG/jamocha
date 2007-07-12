@@ -79,6 +79,11 @@ public class Mod implements Function, Serializable {
 		public String getExample() {
 			return "(mod 17 3)";
 		}
+
+		public boolean isResultAutoGeneratable() {
+			// TODO Auto-generated method stub
+			return false;
+		}
 	}
 
 	private static final FunctionDescription DESCRIPTION = new Description();

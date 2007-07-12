@@ -116,6 +116,11 @@ public class Deffunction implements Function {
 					"(minute-hand)\n\n" +
 					"(deffunction is-hello (?x1) (eq \"hello\" ?x1))";
 		}
+
+		public boolean isResultAutoGeneratable() {
+			// TODO Auto-generated method stub
+			return false;
+		}
 	}
 
 	private static final FunctionDescription DESCRIPTION = new Description();

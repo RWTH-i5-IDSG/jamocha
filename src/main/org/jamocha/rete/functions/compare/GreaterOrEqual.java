@@ -75,6 +75,11 @@ public class GreaterOrEqual implements Function, Serializable {
 		public String getExample() {			
 			return "(greaterOrEqual 84 2 2 1)";
 		}
+
+		public boolean isResultAutoGeneratable() {
+			// TODO Auto-generated method stub
+			return false;
+		}
 	}
 
 	private static final FunctionDescription DESCRIPTION = new Description();

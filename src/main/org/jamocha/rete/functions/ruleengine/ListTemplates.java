@@ -75,6 +75,11 @@ public class ListTemplates implements Function, Serializable {
 		public String getExample() {
 			return "(list-deftemplates)";
 		}
+
+		public boolean isResultAutoGeneratable() {
+			// TODO Auto-generated method stub
+			return false;
+		}
 	}
 
 	private static final FunctionDescription DESCRIPTION = new Description();

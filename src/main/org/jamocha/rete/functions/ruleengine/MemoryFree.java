@@ -72,6 +72,11 @@ public class MemoryFree implements Function, Serializable {
 		public String getExample() {
 			return "(mem-free)";
 		}
+
+		public boolean isResultAutoGeneratable() {
+			// TODO Auto-generated method stub
+			return false;
+		}
 	}
 
 	private static final FunctionDescription DESCRIPTION = new Description();

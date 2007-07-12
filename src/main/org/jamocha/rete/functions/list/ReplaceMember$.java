@@ -120,6 +120,11 @@ public class ReplaceMember$ implements Function, Serializable {
 			return "(replace-member$ (create$ a b a b) (create$ a b a) a b)\n"
 					+ "(replace-member$ (create$ a b a b) (create$ a b a) (create$ a b))";
 		}
+
+		public boolean isResultAutoGeneratable() {
+			// TODO Auto-generated method stub
+			return false;
+		}
 	}
 
 	private static final FunctionDescription DESCRIPTION = new Description();

@@ -85,6 +85,11 @@ public class UnDeftemplate implements Function, Serializable {
 					"(undeftemplate transact)\n" +
 					"(templates)";
 		}
+
+		public boolean isResultAutoGeneratable() {
+			// TODO Auto-generated method stub
+			return false;
+		}
 	}
 
 	private static final FunctionDescription DESCRIPTION = new Description();

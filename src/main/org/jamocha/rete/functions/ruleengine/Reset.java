@@ -71,6 +71,11 @@ public class Reset implements Function, Serializable {
 		public String getExample() {
 			return "(reset)";
 		}
+
+		public boolean isResultAutoGeneratable() {
+			// TODO Auto-generated method stub
+			return false;
+		}
 	}
 
 	private static final FunctionDescription DESCRIPTION = new Description();

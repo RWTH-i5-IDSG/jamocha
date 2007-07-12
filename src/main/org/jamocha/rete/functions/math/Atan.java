@@ -71,6 +71,11 @@ public class Atan implements Function, Serializable {
 		public String getExample() {
 			return "(atan -3.14)";
 		}
+
+		public boolean isResultAutoGeneratable() {
+			// TODO Auto-generated method stub
+			return false;
+		}
 	}
 
 	private static final FunctionDescription DESCRIPTION = new Description();

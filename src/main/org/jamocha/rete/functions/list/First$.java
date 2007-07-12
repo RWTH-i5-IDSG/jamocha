@@ -72,6 +72,11 @@ public class First$ implements Function, Serializable {
 		public String getExample() {
 			return "(first$ (create$ cheese milk eggs bread))";
 		}
+
+		public boolean isResultAutoGeneratable() {
+			// TODO Auto-generated method stub
+			return false;
+		}
 	}
 
 	private static final FunctionDescription DESCRIPTION = new Description();

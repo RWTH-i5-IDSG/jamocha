@@ -74,6 +74,11 @@ public class Echo implements Function, Serializable {
 			return "(bind ?testbind \"This is an echo and the binding of the variable ?testbind\")\n" +
 					"(echo ?testbind)";
 		}
+
+		public boolean isResultAutoGeneratable() {
+			// TODO Auto-generated method stub
+			return false;
+		}
 	}
 
 	private static final FunctionDescription DESCRIPTION = new Description();

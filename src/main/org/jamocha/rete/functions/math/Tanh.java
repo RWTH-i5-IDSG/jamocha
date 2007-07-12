@@ -71,6 +71,11 @@ public class Tanh implements Function, Serializable {
 		public String getExample() {
 			return "(tan -6.98263)";
 		}
+
+		public boolean isResultAutoGeneratable() {
+			// TODO Auto-generated method stub
+			return false;
+		}
 	}
 
 	private static final FunctionDescription DESCRIPTION = new Description();

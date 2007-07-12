@@ -86,6 +86,11 @@ public class Complement$ implements Function, Serializable {
 		public String getExample() {
 			return "(complement$  (create$ sausage milk eggs) (create$ cheese milk eggs bread))";
 		}
+
+		public boolean isResultAutoGeneratable() {
+			// TODO Auto-generated method stub
+			return false;
+		}
 	}
 
 	private static final FunctionDescription DESCRIPTION = new Description();

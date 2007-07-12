@@ -73,6 +73,11 @@ public class GetHours implements Function, Serializable {
 		public String getExample() {
 			return "(gethours 2007-06-04 17:14:06)";
 		}
+
+		public boolean isResultAutoGeneratable() {
+			// TODO Auto-generated method stub
+			return false;
+		}
 	}
 
 	private static final FunctionDescription DESCRIPTION = new Description();

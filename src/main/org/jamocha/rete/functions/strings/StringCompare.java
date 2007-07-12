@@ -110,6 +110,11 @@ public class StringCompare implements Function, Serializable {
 					"(str-compare \"Jamocha\" \"Jamochaaaa\")\n" +
 					"(str-compare \"Jamochaaaa\" \"Jamocha\")";
 		}
+
+		public boolean isResultAutoGeneratable() {
+			// TODO Auto-generated method stub
+			return false;
+		}
 	}
 
 	private static final FunctionDescription DESCRIPTION = new Description();

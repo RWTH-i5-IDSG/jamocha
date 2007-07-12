@@ -71,6 +71,11 @@ public class Sin implements Function, Serializable {
 		public String getExample() {
 			return "(sin -1.567)";
 		}
+
+		public boolean isResultAutoGeneratable() {
+			// TODO Auto-generated method stub
+			return false;
+		}
 	}
 
 	private static final FunctionDescription DESCRIPTION = new Description();

@@ -108,6 +108,11 @@ public class Eval implements Function, Serializable {
 					"(bind ?x \"(+ 17 4)\")\n" +
 					"(eval ?x)";
 		}
+
+		public boolean isResultAutoGeneratable() {
+			// TODO Auto-generated method stub
+			return false;
+		}
 	}
 
 	private static final FunctionDescription DESCRIPTION = new Description();

@@ -74,6 +74,11 @@ public class ListBindings implements Function, Serializable {
 		public String getExample() {
 			return "(list-bindings)";
 		}
+
+		public boolean isResultAutoGeneratable() {
+			// TODO Auto-generated method stub
+			return false;
+		}
 	}
 
 	private static final FunctionDescription DESCRIPTION = new Description();

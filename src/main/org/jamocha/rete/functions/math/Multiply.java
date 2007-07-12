@@ -79,6 +79,11 @@ public class Multiply implements Function, Serializable {
 		public String getExample() {
 			return "(multiply 11 7 -3)";
 		}
+
+		public boolean isResultAutoGeneratable() {
+			// TODO Auto-generated method stub
+			return false;
+		}
 	}
 
 	private static final FunctionDescription DESCRIPTION = new Description();

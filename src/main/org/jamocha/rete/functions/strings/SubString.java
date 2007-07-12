@@ -103,6 +103,11 @@ public class SubString implements Function, Serializable {
 			return "(sub-string 0 2 \"Jamocha\")\n" +
 					"(sub-string 2 7 \"Jamocha\")\n";
 		}
+
+		public boolean isResultAutoGeneratable() {
+			// TODO Auto-generated method stub
+			return false;
+		}
 	}
 
 	private static final FunctionDescription DESCRIPTION = new Description();

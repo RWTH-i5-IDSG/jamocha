@@ -85,6 +85,11 @@ public class Assert implements Function, Serializable {
 		public String getExample() {
 			return "(deftemplate car (slot color)(slot speed)) (assert (car (color \"red\")(speed 200))) (facts)";
 		}
+
+		public boolean isResultAutoGeneratable() {
+			// TODO Auto-generated method stub
+			return false;
+		}
 	}
 
 	private static final FunctionDescription DESCRIPTION = new Description();

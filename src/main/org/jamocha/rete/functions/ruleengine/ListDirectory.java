@@ -76,6 +76,11 @@ public class ListDirectory implements Function, Serializable {
 			return "(list-dir examples)\n" +
 					"(list-dir /var/tmp)";
 		}
+
+		public boolean isResultAutoGeneratable() {
+			// TODO Auto-generated method stub
+			return false;
+		}
 	}
 
 	private static final FunctionDescription DESCRIPTION = new Description();

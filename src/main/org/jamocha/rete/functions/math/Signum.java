@@ -72,6 +72,11 @@ public class Signum implements Function, Serializable {
 		public String getExample() {
 			return "(signum 7)";
 		}
+
+		public boolean isResultAutoGeneratable() {
+			// TODO Auto-generated method stub
+			return false;
+		}
 	}
 
 	private static final FunctionDescription DESCRIPTION = new Description();

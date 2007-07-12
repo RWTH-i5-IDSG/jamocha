@@ -112,6 +112,11 @@ public class Replace$ implements Function, Serializable {
 			return "(replace$ (create$ 42 123 911 4711 1) 2 4 112)\n"
 					+ "(replace$ (create$ cheese eggs milk sausages) 3 4 (create$ bread ham))";
 		}
+
+		public boolean isResultAutoGeneratable() {
+			// TODO Auto-generated method stub
+			return false;
+		}
 	}
 
 	private static final FunctionDescription DESCRIPTION = new Description();

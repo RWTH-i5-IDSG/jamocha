@@ -101,6 +101,11 @@ public class Delete$ implements Function, Serializable {
 		public String getExample() {
 			return "(delete$ (create$ cheese milk eggs bread sausages) 2 4)";
 		}
+
+		public boolean isResultAutoGeneratable() {
+			// TODO Auto-generated method stub
+			return false;
+		}
 	}
 
 	private static final FunctionDescription DESCRIPTION = new Description();

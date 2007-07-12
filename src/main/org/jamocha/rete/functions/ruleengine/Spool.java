@@ -88,6 +88,11 @@ public class Spool implements Function, Serializable {
 		public String getExample() {
 			return "(spool on /var/tmp/spool.clp)";
 		}
+
+		public boolean isResultAutoGeneratable() {
+			// TODO Auto-generated method stub
+			return false;
+		}
 	}
 
 	private static final FunctionDescription DESCRIPTION = new Description();

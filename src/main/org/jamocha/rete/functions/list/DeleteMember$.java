@@ -109,6 +109,11 @@ public class DeleteMember$ implements Function, Serializable {
 					+ "(delete-member$ (create$ 1 2 3 4 5) (create$ 3 4) 1)\n"
 					+ "(delete-member$ (create$ 1 2 3 4 5) (create$ 3 4) (create$ 2 5))";
 		}
+
+		public boolean isResultAutoGeneratable() {
+			// TODO Auto-generated method stub
+			return false;
+		}
 	}
 
 	private static final FunctionDescription DESCRIPTION = new Description();

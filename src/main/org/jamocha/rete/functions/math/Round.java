@@ -71,6 +71,11 @@ public class Round implements Function, Serializable {
 		public String getExample() {
 			return "(round 0.752343)";
 		}
+
+		public boolean isResultAutoGeneratable() {
+			// TODO Auto-generated method stub
+			return false;
+		}
 	}
 
 	private static final FunctionDescription DESCRIPTION = new Description();

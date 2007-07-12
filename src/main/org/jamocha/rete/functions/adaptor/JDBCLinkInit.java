@@ -92,6 +92,11 @@ public class JDBCLinkInit implements Function, Serializable {
 					"	)\n" +
 					")";
 		}
+
+		public boolean isResultAutoGeneratable() {
+			// TODO Auto-generated method stub
+			return false;
+		}
 	}
 
 	private static final FunctionDescription DESCRIPTION = new Description();
