@@ -34,7 +34,7 @@
     </task>
     <task id="10" name="Jamocha API for embedding in other software projects" note="" work="28800" start="20070712T000000Z" end="20070712T170000Z" work-start="20070712T080000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
     <task id="11" name="Comments refactoring" note="" work="28800" start="20070712T000000Z" end="20070712T170000Z" work-start="20070712T080000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
-    <task id="12" name="GUI" note="" work="230400" start="20070712T000000Z" end="20070712T170000Z" work-start="20070712T080000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
+    <task id="12" name="GUI" note="" work="259200" start="20070712T000000Z" end="20070712T170000Z" work-start="20070712T080000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
       <task id="13" name="fact panel" note="" work="57600" start="20070712T000000Z" end="20070712T170000Z" work-start="20070712T080000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
         <task id="14" name="better sorting and filtering" note="" work="28800" start="20070712T000000Z" end="20070712T170000Z" work-start="20070712T080000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
         <task id="15" name="modify facts" note="" work="28800" start="20070712T000000Z" end="20070712T170000Z" work-start="20070712T080000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
@@ -49,35 +49,36 @@
         <task id="22" name="implement those fancy buttons" note="" work="28800" start="20070712T000000Z" end="20070712T170000Z" work-start="20070712T080000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
       </task>
       <task id="23" name="protege panel" note="" work="28800" start="20070712T000000Z" end="20070712T170000Z" work-start="20070712T080000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
+      <task id="24" name="variable panel" note="" work="28800" start="20070712T000000Z" end="20070712T170000Z" work-start="20070712T080000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
     </task>
-    <task id="24" name="shell panel" note="" work="57600" start="20070712T000000Z" end="20070712T170000Z" work-start="20070712T080000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
-      <task id="25" name="auto completion" note="" work="28800" start="20070712T000000Z" end="20070712T170000Z" work-start="20070712T080000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
-      <task id="26" name="support keyboard selection" note="" work="28800" start="20070712T000000Z" end="20070712T170000Z" work-start="20070712T080000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
+    <task id="25" name="shell panel" note="" work="57600" start="20070712T000000Z" end="20070712T170000Z" work-start="20070712T080000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
+      <task id="26" name="auto completion" note="" work="28800" start="20070712T000000Z" end="20070712T170000Z" work-start="20070712T080000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
+      <task id="27" name="support keyboard selection" note="" work="28800" start="20070712T000000Z" end="20070712T170000Z" work-start="20070712T080000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
     </task>
-    <task id="27" name="rule compiler" note="" work="115200" start="20070712T000000Z" end="20070712T170000Z" work-start="20070712T080000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
-      <task id="28" name="connected constraints" note="" work="28800" start="20070712T000000Z" end="20070712T170000Z" work-start="20070712T080000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
-      <task id="29" name="some refactoring" note="" work="28800" start="20070712T000000Z" end="20070712T170000Z" work-start="20070712T080000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
-      <task id="30" name="node sharing" note="" work="28800" start="20070712T000000Z" end="20070712T170000Z" work-start="20070712T080000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
-      <task id="31" name="combinations of not/and/or/exists/forall" note="evil ;)" work="28800" start="20070712T000000Z" end="20070712T170000Z" work-start="20070712T080000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
+    <task id="28" name="rule compiler" note="" work="115200" start="20070712T000000Z" end="20070712T170000Z" work-start="20070712T080000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
+      <task id="29" name="connected constraints" note="" work="28800" start="20070712T000000Z" end="20070712T170000Z" work-start="20070712T080000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
+      <task id="30" name="some refactoring" note="" work="28800" start="20070712T000000Z" end="20070712T170000Z" work-start="20070712T080000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
+      <task id="31" name="node sharing" note="" work="28800" start="20070712T000000Z" end="20070712T170000Z" work-start="20070712T080000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
+      <task id="32" name="combinations of not/and/or/exists/forall" note="evil ;)" work="28800" start="20070712T000000Z" end="20070712T170000Z" work-start="20070712T080000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
     </task>
-    <task id="32" name="jamocha agent" note="" work="28800" start="20070712T000000Z" end="20070712T170000Z" work-start="20070712T080000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
-    <task id="33" name="write a book ;)" note="" work="28800" start="20070712T000000Z" end="20070712T170000Z" work-start="20070712T080000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
-    <task id="34" name="drink beer" note="" work="28800" start="20070712T000000Z" end="20070712T170000Z" work-start="20070712T080000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
-      <task id="35" name="drink more beer" note="" work="28800" start="20070712T000000Z" end="20070712T170000Z" work-start="20070712T080000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
-        <task id="36" name="dont forget wine" note="" work="28800" start="20070712T000000Z" end="20070712T170000Z" work-start="20070712T080000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
-          <task id="37" name="its no magic to catch the cheese platter" note="" work="28800" start="20070712T000000Z" end="20070712T170000Z" work-start="20070712T080000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
+    <task id="33" name="jamocha agent" note="" work="28800" start="20070712T000000Z" end="20070712T170000Z" work-start="20070712T080000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
+    <task id="34" name="write a book ;)" note="" work="28800" start="20070712T000000Z" end="20070712T170000Z" work-start="20070712T080000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
+    <task id="35" name="drink beer" note="" work="28800" start="20070712T000000Z" end="20070712T170000Z" work-start="20070712T080000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
+      <task id="36" name="drink more beer" note="" work="28800" start="20070712T000000Z" end="20070712T170000Z" work-start="20070712T080000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
+        <task id="37" name="dont forget wine" note="" work="28800" start="20070712T000000Z" end="20070712T170000Z" work-start="20070712T080000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
+          <task id="38" name="its no magic to catch the cheese platter" note="" work="28800" start="20070712T000000Z" end="20070712T170000Z" work-start="20070712T080000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
         </task>
       </task>
     </task>
-    <task id="38" name="a few samples and applications" note="" work="28800" start="20070712T000000Z" end="20070712T170000Z" work-start="20070712T080000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
-      <task id="39" name="good test cases for automatic evaluation" note="" work="28800" start="20070712T000000Z" end="20070712T170000Z" work-start="20070712T080000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
-        <task id="40" name="JUnit ?" note="" work="28800" start="20070712T000000Z" end="20070712T170000Z" work-start="20070712T080000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
+    <task id="39" name="a few samples and applications" note="" work="28800" start="20070712T000000Z" end="20070712T170000Z" work-start="20070712T080000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
+      <task id="40" name="good test cases for automatic evaluation" note="" work="28800" start="20070712T000000Z" end="20070712T170000Z" work-start="20070712T080000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
+        <task id="41" name="JUnit ?" note="" work="28800" start="20070712T000000Z" end="20070712T170000Z" work-start="20070712T080000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
       </task>
     </task>
-    <task id="41" name="refactoring" note="" work="57600" start="20070712T000000Z" end="20070712T170000Z" work-start="20070712T080000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
-      <task id="42" name="Bindings" note="" work="28800" start="20070712T000000Z" end="20070712T170000Z" work-start="20070712T080000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
-      <task id="43" name="Rete and components" note="" work="28800" start="20070712T000000Z" end="20070712T170000Z" work-start="20070712T080000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
-        <task id="44" name="better module support" note="" work="28800" start="20070712T000000Z" end="20070712T170000Z" work-start="20070712T080000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
+    <task id="42" name="refactoring" note="" work="57600" start="20070712T000000Z" end="20070712T170000Z" work-start="20070712T080000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
+      <task id="43" name="Bindings" note="" work="28800" start="20070712T000000Z" end="20070712T170000Z" work-start="20070712T080000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
+      <task id="44" name="Rete and components" note="" work="28800" start="20070712T000000Z" end="20070712T170000Z" work-start="20070712T080000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
+        <task id="45" name="better module support" note="" work="28800" start="20070712T000000Z" end="20070712T170000Z" work-start="20070712T080000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work"/>
       </task>
     </task>
   </tasks>

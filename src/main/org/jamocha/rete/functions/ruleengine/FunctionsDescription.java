@@ -16,6 +16,8 @@
  */
 package org.jamocha.rete.functions.ruleengine;
 
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
@@ -37,6 +39,7 @@ import org.jamocha.parser.JamochaValue;
 import org.jamocha.parser.ParseException;
 import org.jamocha.parser.Parser;
 import org.jamocha.parser.sfp.SFPParser;
+import org.jamocha.rete.Constants;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.FunctionGroup;
 import org.jamocha.rete.Parameter;
@@ -54,22 +57,25 @@ public class FunctionsDescription implements Function, Serializable {
 			FunctionDescription {
 
 		public String getDescription() {
-			return "This function generates an XML-document, which describes the declared functions.";
+			return "This function generates a XML-document, which describes the declared functions. If a filename is given, it only prints that to file and returns an empty string.";
 		}
 
 		public int getParameterCount() {
-			return 0;
+			return 1;
 		}
 
 		public String getParameterDescription(int parameter) {
+			if (parameter == 1) return "destination file name";
 			return "";
 		}
 
 		public String getParameterName(int parameter) {
+			if (parameter == 1) return "filename";
 			return "";
 		}
 
 		public JamochaType[] getParameterTypes(int parameter) {
+			if (parameter == 1) return JamochaType.STRINGS;
 			return JamochaType.NONE;
 		}
 
@@ -82,7 +88,9 @@ public class FunctionsDescription implements Function, Serializable {
 		}
 
 		public boolean isParameterOptional(int parameter) {
+			if (parameter == 1) return true;
 			return false;
+			
 		}
 
 		public String getExample() {
@@ -205,15 +213,17 @@ public class FunctionsDescription implements Function, Serializable {
 				
 				Expression expr = new SFPParser(new StringReader(expression)).nextExpression();
 				
-				result.append("Salamibrot> ");
+				result.append(Constants.SHELL_PROMPT);
 				result.append(expression+"\n");
 				result.append(expr.getValue(engine).toString()).append("\n");
 			}
 		} catch (Exception e) {
+			engine.close();
 			System.err.println("Warning: While executing a documentation example, an exception was thrown. Clips code was:\n"+clipsCode+"\n\nExceptios:\n");
 			e.printStackTrace(System.err);
 			return clipsCode;
 		}
+		engine.close();
 		return result.toString();
 	}
 	
@@ -222,7 +232,7 @@ public class FunctionsDescription implements Function, Serializable {
 			throws EvaluationException {
 
 		StringBuilder xmlDocument = new StringBuilder();
-		xmlDocument.append(" <?xml version=\"1.0\" encoding=\"utf-8\" ?> ");
+		xmlDocument.append("<?xml version=\"1.0\" encoding=\"utf-8\" ?> ");
 		xmlDocument.append("<functiongroups>");
 		Iterator itGroup=engine.getFunctionMemory().getFunctionGroups().values().iterator();
 		while( itGroup.hasNext() ){
@@ -291,6 +301,23 @@ public class FunctionsDescription implements Function, Serializable {
 		}
 		xmlDocument.append("</functiongroups>");
 		
-		return JamochaValue.newString(xmlDocument.toString());
+		String res = xmlDocument.toString();
+		
+		if (params.length > 0 ) {
+			String file= params[0].getValue(engine).toString();
+			FileWriter fw;
+			try {
+				fw = new FileWriter(file);
+				fw.write(res);
+				fw.close();
+				return JamochaValue.newString("");
+			} catch (IOException e) {
+				engine.writeMessage(e.getMessage());
+			}
+
+		}
+		return JamochaValue.newString(res);
+		
+		
 	}
 }

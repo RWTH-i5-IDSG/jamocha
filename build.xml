@@ -237,11 +237,10 @@
 	</target>
 	
 	<target name="doc" depends="jars">
-		<java jar="jamocha.jar" fork="true" inputstring="(functions-description)" output="documentation/functions.xml" timeout="30000">
+		<java jar="jamocha.jar" fork="true" inputstring="(functions-description documentation/functions.xml)(exit)">
 			<arg value="-shell"/>
 		</java>
 		
-		<replace token="Jamocha> " value="" file="documentation/functions.xml"/>
 		<xslt style="documentation/stylesheets/latex.xslt" out="documentation/functions-documentation.tex" in="documentation/functions.xml"/>
 		<xslt style="documentation/stylesheets/pmwiki.xslt" out="documentation/pmwiki.out" in="documentation/functions.xml"/>
 		

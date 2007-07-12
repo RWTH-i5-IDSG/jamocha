@@ -1,8 +1,22 @@
 \documentclass[a4paper,12pt]{scrbook}
 \usepackage[latin1]{inputenc} % encoding
 \usepackage{listings}
+\usepackage{color}
 
-\lstnewenvironment{clips} { \lstset{language=Lisp, breaklines=true, prebreak={\mbox{\hfill$\hookleftarrow$}}  } } { }
+
+
+\definecolor{orange}{rgb}{1,0.5,0} 
+\definecolor{hellgelb}{rgb}{1,1,0.7} 
+\definecolor{blau}{rgb}{0,0.1,1} 
+\definecolor{schwarz}{rgb}{0,0,0} 
+\definecolor{rot}{rgb}{1,0,0} 
+\definecolor{gruen}{rgb}{0,0.5,0}  
+
+\lstset{basicstyle=\ttfamily\small,tabsize=4,classoffset=0,aboveskip=\bigskipamount,keywordstyle=\color{blau},commentstyle=\color{orange},identifierstyle=\color{schwarz}}
+
+ \lstdefinelanguage{clips}{keywords={defrule,deftemplate,slot,multislot,assert,=>}, sensitive,keywordsprefix={:}, string=[b]" }[keywords,strings]
+
+\lstnewenvironment{clips} { \lstset{language=clips, breaklines=true, prebreak={\mbox{\hfill$\hookleftarrow$}}  } } { }
 
 
 \begin{document}
