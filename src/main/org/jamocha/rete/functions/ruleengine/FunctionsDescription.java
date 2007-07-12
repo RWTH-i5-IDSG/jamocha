@@ -91,7 +91,7 @@ public class FunctionsDescription implements Function, Serializable {
 		}
 
 		public boolean isResultAutoGeneratable() {
-			// TODO Auto-generated method stub
+			// NEVER set this to true! it would lead to an infinite loop!
 			return false;
 		}
 	}
@@ -138,7 +138,7 @@ public class FunctionsDescription implements Function, Serializable {
 					XmlTag child=itChilds.next();
 					child.appendToStringBuilder(sb);
 				}
-				sb.append(body);
+				sb.append(body.replace('"', '\'' ).replace(">", "&gt;").replace("<", "&lt;"));
 				sb.append("</");
 				sb.append(name);
 				sb.append(">");
@@ -183,90 +183,41 @@ public class FunctionsDescription implements Function, Serializable {
 		
 		Rete engine = new Rete();
 		
-		Parser joe = new SFPParser(new StringReader(clipsCode));
+		int next = 0;
+		int ind = 0;
 		
-		Expression exp;
-		try {
-			while ( (exp = joe.nextExpression()) != null) {
+		try{
+			while (next < clipsCode.length()) {
+				
+				ind = next + 1;
+				int opened = 0;
+				
+				if (ind >= clipsCode.length()) break;
+				
+				while ( clipsCode.charAt(ind) != ')' || opened > 0) {
+					if (clipsCode.charAt(ind) == ')') opened--;
+					if (clipsCode.charAt(ind) == '(') opened++;
+					ind++;
+				}
+				String expression = clipsCode.substring(next, ind+1);
+				next = ind+1;
+				while (next < clipsCode.length()-1 && clipsCode.charAt(next) != '(') next++;
+				
+				Expression expr = new SFPParser(new StringReader(expression)).nextExpression();
+				
 				result.append("Salamibrot> ");
-				result.append(exp.toClipsFormat(0)).append("\n");
-				
-				result.append(exp.getValue(engine).toString()).append("\n");
-				
-				
+				result.append(expression+"\n");
+				result.append(expr.getValue(engine).toString()).append("\n");
 			}
 		} catch (Exception e) {
+			System.err.println("Warning: While executing a documentation example, an exception was thrown. Clips code was:\n"+clipsCode+"\n\nExceptios:\n");
+			e.printStackTrace(System.err);
 			return clipsCode;
 		}
-		
-		
 		return result.toString();
 	}
 	
-	
-	private String execute2(String clipsCode) {
-
-		StringBuffer result = new StringBuffer();
 		
-		Rete engine = new Rete();
-		MessageRouter router = engine.getMessageRouter();
-		
-		PipedInputStream clipsInput = new PipedInputStream();
-		PipedOutputStream clipsOutput = null;
-	    try {
-			clipsOutput = new PipedOutputStream(clipsInput);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		StreamChannel channel = router.openChannel("functions-description-channel", clipsInput);
-		PrintWriter clipsWriter = new PrintWriter(clipsOutput);
-		
-		String[] lines = clipsCode.split("\n");
-
-		boolean needNewPrompt = true;
-		for (String line : lines ){
-			if (needNewPrompt) {
-				//result.append(Constants.SHELL_PROMPT);
-				result.append("Salamibrot> ");
-				needNewPrompt = false;
-			}
-			
-			
-			// write a line to message router
-			clipsWriter.write(line);
-			clipsWriter.write("\n");
-			clipsWriter.flush();
-			result.append(line).append("\n");
-
-			
-			// wait a bit ;)
-			try {
-				Thread.sleep(1000);
-			} catch (InterruptedException e) {
-				// ignore an interruption
-			}
-			
-			
-			// process events
-			List<MessageEvent> msgEvents = new ArrayList<MessageEvent>();
-			channel.fillEventList(msgEvents);
-			
-			for (MessageEvent e : msgEvents) {
-				int msgType = e.getType();
-				needNewPrompt = ( msgType == MessageEvent.ERROR || msgType == MessageEvent.PARSE_ERROR || msgType == MessageEvent.RESULT) ;
-				
-				if (e.getType() != MessageEvent.COMMAND) {
-					result.append(e.getMessage().toString().trim()).append("\n");
-				}
-			}
-			msgEvents.clear();
-			
-		}
-
-		return result.toString();
-	}
-	
 	public JamochaValue executeFunction(Rete engine, Parameter[] params)
 			throws EvaluationException {
 

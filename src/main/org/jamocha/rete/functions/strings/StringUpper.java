@@ -74,8 +74,7 @@ public class StringUpper implements Function, Serializable {
 		}
 
 		public boolean isResultAutoGeneratable() {
-			// TODO Auto-generated method stub
-			return false;
+			return true;
 		}
 	}
 
