@@ -16,14 +16,26 @@
  */
 package org.jamocha.rete.functions.ruleengine;
 
+import java.io.BufferedInputStream;
+import java.io.IOException;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
+import java.io.PrintWriter;
 import java.io.Serializable;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 
+import org.jamocha.messagerouter.MessageEvent;
+import org.jamocha.messagerouter.MessageRouter;
+import org.jamocha.messagerouter.StreamChannel;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
+import org.jamocha.parser.ModeNotFoundException;
+import org.jamocha.rete.Constants;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.FunctionGroup;
 import org.jamocha.rete.Parameter;
@@ -41,7 +53,7 @@ public class FunctionsDescription implements Function, Serializable {
 			FunctionDescription {
 
 		public String getDescription() {
-			return "This function gets an XML-document, which describes the declared functions.";
+			return "This function generates an XML-document, which describes the declared functions.";
 		}
 
 		public int getParameterCount() {
@@ -165,6 +177,69 @@ public class FunctionsDescription implements Function, Serializable {
 		return "unknown";
 	}
 	
+	private String execute(String clipsCode){
+
+		StringBuffer result = new StringBuffer();
+		
+		Rete engine = new Rete();
+		MessageRouter router = engine.getMessageRouter();
+		
+		PipedInputStream clipsInput = new PipedInputStream();
+		PipedOutputStream clipsOutput = null;
+	    try {
+			clipsOutput = new PipedOutputStream(clipsInput);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		StreamChannel channel = router.openChannel("functions-description-channel", clipsInput);
+		PrintWriter clipsWriter = new PrintWriter(clipsOutput);
+		
+		String[] lines = clipsCode.split("\n");
+
+		boolean needNewPrompt = true;
+		for (String line : lines ){
+			if (needNewPrompt) {
+				//result.append(Constants.SHELL_PROMPT);
+				result.append("Salamibrot> ");
+				needNewPrompt = false;
+			}
+			
+			
+			// write a line to message router
+			clipsWriter.write(line);
+			clipsWriter.write("\n");
+			clipsWriter.flush();
+			result.append(line).append("\n");
+
+			
+			// wait a bit ;)
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				// ignore an interruption
+			}
+			
+			
+			// process events
+			List<MessageEvent> msgEvents = new ArrayList<MessageEvent>();
+			channel.fillEventList(msgEvents);
+			
+			for (MessageEvent e : msgEvents) {
+				int msgType = e.getType();
+				needNewPrompt = ( msgType == MessageEvent.ERROR || msgType == MessageEvent.PARSE_ERROR || msgType == MessageEvent.RESULT) ;
+				
+				if (e.getType() != MessageEvent.COMMAND) {
+					result.append(e.getMessage().toString().trim()).append("\n");
+				}
+			}
+			msgEvents.clear();
+			
+		}
+
+		return result.toString();
+	}
+	
 	public JamochaValue executeFunction(Rete engine, Parameter[] params)
 			throws EvaluationException {
 
@@ -200,6 +275,14 @@ public class FunctionsDescription implements Function, Serializable {
 
 				String ex = desc.getExample();
 				if (ex != null){
+					
+					/// maybe we may generate results
+					if (desc.isResultAutoGeneratable()) {
+						ex = execute(ex);
+					}
+					///
+					
+					
 					XmlTag example = new XmlTag();
 					example.setName("example");
 					example.setBody(ex);

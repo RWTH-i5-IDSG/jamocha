@@ -237,7 +237,7 @@
 	</target>
 	
 	<target name="doc" depends="jars">
-		<java jar="jamocha.jar" fork="true" inputstring="(functions-description)" output="documentation/functions.xml" timeout="4000">
+		<java jar="jamocha.jar" fork="true" inputstring="(functions-description)" output="documentation/functions.xml" timeout="10000">
 			<arg value="-shell"/>
 		</java>
 		
