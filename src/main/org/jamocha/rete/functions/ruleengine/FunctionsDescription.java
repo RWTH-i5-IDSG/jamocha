@@ -16,13 +16,12 @@
  */
 package org.jamocha.rete.functions.ruleengine;
 
-import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.io.PrintWriter;
 import java.io.Serializable;
-import java.io.StringWriter;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -32,10 +31,12 @@ import org.jamocha.messagerouter.MessageEvent;
 import org.jamocha.messagerouter.MessageRouter;
 import org.jamocha.messagerouter.StreamChannel;
 import org.jamocha.parser.EvaluationException;
+import org.jamocha.parser.Expression;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.parser.ModeNotFoundException;
-import org.jamocha.rete.Constants;
+import org.jamocha.parser.ParseException;
+import org.jamocha.parser.Parser;
+import org.jamocha.parser.sfp.SFPParser;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.FunctionGroup;
 import org.jamocha.rete.Parameter;
@@ -177,7 +178,33 @@ public class FunctionsDescription implements Function, Serializable {
 		return "unknown";
 	}
 	
-	private String execute(String clipsCode){
+	private String execute(String clipsCode) {
+		StringBuilder result = new StringBuilder();
+		
+		Rete engine = new Rete();
+		
+		Parser joe = new SFPParser(new StringReader(clipsCode));
+		
+		Expression exp;
+		try {
+			while ( (exp = joe.nextExpression()) != null) {
+				result.append("Salamibrot> ");
+				result.append(exp.toClipsFormat(0)).append("\n");
+				
+				result.append(exp.getValue(engine).toString()).append("\n");
+				
+				
+			}
+		} catch (Exception e) {
+			return clipsCode;
+		}
+		
+		
+		return result.toString();
+	}
+	
+	
+	private String execute2(String clipsCode) {
 
 		StringBuffer result = new StringBuffer();
 		
