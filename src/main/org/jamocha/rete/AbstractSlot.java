@@ -101,4 +101,8 @@ public abstract class AbstractSlot implements Serializable, Cloneable {
 	 * this method.
 	 */
 	public abstract Object clone();
+	
+	public String toString(){
+		return "Slot "+ this.getName() + " Type: " + this.getValueType();
+	}
 }

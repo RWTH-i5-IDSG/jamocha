@@ -135,4 +135,10 @@ public class Slot extends AbstractSlot {
     public String valueToString() {
 	return this.value.toString();
     }
+    
+	public String toString(){
+		String result =super.toString();
+		result += this.valueToString();
+		return result;
+	}
 }

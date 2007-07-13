@@ -121,6 +121,9 @@ public class Insert$ implements Function, Serializable {
 			throws EvaluationException {
 		if (params != null && params.length > 2) {
 			JamochaValue list = params[0].getValue(engine);
+			if (list == null) {
+				list = JamochaValue.newList(new JamochaValue[0]);
+			}
 			int index = (int) params[1].getValue(engine).getLongValue();
 			if (list.is(JamochaType.LIST)) {
 				if (index < 1 && list.getListCount() > 0) {

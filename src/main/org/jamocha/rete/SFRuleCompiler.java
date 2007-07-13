@@ -33,6 +33,7 @@ import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.configurations.Signature;
 import org.jamocha.rete.exception.AssertException;
+import org.jamocha.rete.exception.CompileRuleException;
 import org.jamocha.rete.exception.RetractException;
 import org.jamocha.rete.nodes.AbstractBeta;
 import org.jamocha.rete.nodes.AlphaNode;
@@ -752,7 +753,10 @@ public class SFRuleCompiler implements RuleCompiler {
 				// determine good row index for our test
 				int validRowIndex = 0;
 				for ( BoundParam p : boundParams ) {
-					validRowIndex = Math.max(bindingAddressTable.getPivot(p.getVariableName()).tupleIndex, validRowIndex);
+					BindingAddress pivot = bindingAddressTable.getPivot(p.getVariableName());
+					if (pivot==null)
+						throw new JoinFilterException("Error in TestCondition: Variable " + p.getVariableName() + " is not defined");
+					validRowIndex = Math.max(pivot.tupleIndex, validRowIndex);
 				}
 				
 				// determine corresponding node
@@ -761,7 +765,6 @@ public class SFRuleCompiler implements RuleCompiler {
 				Parameter[] functionParams = recalculateParameters(objectConditions.length,tc.getFunction(), bindingAddressTable, tupleIndexToConditionIndex(validRowIndex,objectConditions.length));
 				FunctionEvaluator testFilter = new FunctionEvaluator(engine,tc.getFunction().lookUpFunction(engine),functionParams);
 				validNode.addFilter(testFilter);
-								
 			}
 		}
 	}
