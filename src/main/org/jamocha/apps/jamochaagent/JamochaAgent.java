@@ -26,10 +26,11 @@ import jade.util.ExpandedProperties;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileFilter;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.URL;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -132,17 +133,24 @@ public class JamochaAgent extends ToolAgent {
 		// in the "agent.init" property
 		String initFileName = getProperties().getProperty("agent.initfile",
 				"init.clp");
+		try {
+			readFile(buffer, initFileName);
+			String pathProtocols = getProperties().getProperty(
+					"agent.protocols", "apps/jamochaagent/protocols/");
+			readPath(buffer, pathProtocols);
 
-		initFileName = this.getClass().getPackage().getName().replace('.', '/')
-				+ "/" + initFileName;
-		readFromPackage(buffer, initFileName);
-		String path = getProperties().getProperty("agent.protocols.package",
-				this.getClass().getPackage().getName() + ".protocols").replace(
-				'.', '/');
-		String[] protocols = listPackage(path);
-		for (String str : protocols) {
-			readFromPackage(buffer, path + "/" + str);
+			String pathPerformatives = getProperties().getProperty(
+					"agent.performatives", "apps/jamochaagent/performatives/");
+
+			readPath(buffer, pathPerformatives);
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+			System.exit(1);
+		} catch (IOException e) {
+			e.printStackTrace();
+			System.exit(1);
 		}
+
 		// store agent name as fact
 		buffer.append("(assert (" + TEMPLATE_AGENT_DESCRIPTION + "(name \""
 				+ getName() + "\")(local TRUE)))");
@@ -306,31 +314,28 @@ public class JamochaAgent extends ToolAgent {
 		return arguments;
 	}
 
-	private String[] listPackage(String path) {
-		ClassLoader cld = this.getClass().getClassLoader();
-		URL resource = cld.getResource(path);
-		File directory = new File(resource.getFile());
-		return directory.list();
+	private void readFile(StringBuilder buffer, String fileName)
+			throws IOException {
+		BufferedReader reader = new BufferedReader(new FileReader(fileName));
+		while (reader.ready()) {
+			buffer.append(reader.readLine() + "\n");
+		}
+		reader.close();
+
 	}
 
-	private void readFromPackage(StringBuilder buffer, String dataFile) {
-		InputStream initStream = this.getClass().getClassLoader()
-				.getResourceAsStream(dataFile);
-		BufferedReader reader = new BufferedReader(new InputStreamReader(
-				initStream));
-		if (getProperties().getBooleanProperty("agent.debug", false)) {
-			System.out.println("----- reading file :" + dataFile);
-		}
-		try {
-			while (reader.ready()) {
-				buffer.append(reader.readLine() + "\n");
+	private void readPath(StringBuilder buffer, String path) throws IOException {
+		File dir = new File(path);
+		if (dir.isDirectory()) {
+			FileFilter filter = new FileFilter() {
+				public boolean accept(File arg0) {
+					return (arg0.isFile() && arg0.getName().endsWith(".clp"));
+				}
+			};
+			File[] contents = dir.listFiles(filter);
+			for (File file : contents) {
+				readFile(buffer, file.getAbsolutePath());
 			}
-			reader.close();
-
-		} catch (IOException e) {
-			e.printStackTrace();
-			System.exit(1);
 		}
 	}
-
 }

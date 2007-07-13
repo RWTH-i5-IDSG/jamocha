@@ -6,6 +6,7 @@ import org.jamocha.adapter.sl.configurations.ContentSLConfiguration;
 import org.jamocha.adapter.sl.configurations.SLCompileType;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.IllegalParameterException;
+import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.parser.sl.ParseException;
 import org.jamocha.parser.sl.SLParser;
@@ -15,14 +16,75 @@ import org.jamocha.rete.Rete;
 import org.jamocha.rete.functions.FunctionDescription;
 
 public class SLMessageCompare implements Function, Serializable {
+	private static final class Description implements FunctionDescription {
+
+		public String getDescription() {
+			return "Compares two messages in SL by translating them to CLIPS and thereby receiving a kind of semantic representation. Then the result of a simple String comparison is returned.";
+		}
+
+		public int getParameterCount() {
+			return 2;
+		}
+
+		public String getParameterDescription(int parameter) {
+			switch (parameter) {
+			case 0:
+				return "String to compare to the second argument.";
+			case 1:
+				return "String to compare to the first argument.";
+			}
+			return "";
+		}
+
+		public String getParameterName(int parameter) {
+			switch (parameter) {
+			case 0:
+				return "stringOne";
+			case 1:
+				return "stringTwo";
+			}
+			return "";
+		}
+
+		public JamochaType[] getParameterTypes(int parameter) {
+			switch (parameter) {
+			case 0:
+				return JamochaType.STRINGS;
+			case 1:
+				return JamochaType.STRINGS;
+			}
+			return null;
+		}
+
+		public JamochaType[] getReturnType() {
+			return JamochaType.BOOLEANS;
+		}
+
+		public boolean isParameterCountFixed() {
+			return true;
+		}
+
+		public boolean isParameterOptional(int parameter) {
+			return false;
+		}
+
+		public String getExample() {
+			return null;
+		}
+
+		public boolean isResultAutoGeneratable() {
+			return true;
+		}
+	}
+
+	private static final FunctionDescription DESCRIPTION = new Description();
 
 	private static final long serialVersionUID = 1L;
 
 	public static final String NAME = "SL-message-compare";
 
 	public FunctionDescription getDescription() {
-		// TODO Auto-generated method stub
-		return null;
+		return DESCRIPTION;
 	}
 
 	public String getName() {
