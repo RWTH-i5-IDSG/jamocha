@@ -4,14 +4,16 @@
 (deftemplate getraenk (slot name) (slot farbe) )
 (deftemplate farbe (slot name) (slot red) (slot green) (slot blue) )
 
+(assert (wurst (name "gruenspanwurst") (spitzname "gruebi") (farbe "hellgruen") (gewicht 1) ))
 (assert (wurst (name "bratwurst")(spitzname "bratwosch")(farbe "weiss")(gewicht 100) ))
 (assert (wurst (name "weisswurst")(spitzname "weisswurst")(farbe "weiss")(gewicht 200) ))
 (assert (wurst (name "wienerwurst")(spitzname "wiener")(farbe "rot")(gewicht 300) ))
 (assert (wurst (name "gemuesewurst")(spitzname "gemuesewurst")(farbe "gruen")(gewicht 400) ))
 (assert (wurst (name "senfwurst") (spitzname "senfi") (farbe "gelb") (gewicht 200) ))
 (assert (salat (name "kartoffelsalat")(farbe "weiss")(gewicht 220)(dazupasst "weisswurst") ))
-(assert (salat (name "gurkensalat")(farbe "weiss")(dazupasst "spaghetti")(gewicht 320) ))
+(assert (salat (name "weissgurkensalat")(farbe "weiss")(dazupasst "spaghetti")(gewicht 320) ))
 (assert (salat (name "gelbebohnensalat") (farbe "gelb") (dazupasst "knoblauchmarmelade") (gewicht 123) ))
+(assert (salat (name "gruengurkensalat")(farbe "hellgruen")(dazupasst "spaghettisd")(gewicht 32320) ))
 (assert (getraenk (name "wasser") (farbe "schwarz") ))
 (assert (getraenk (name "cola") (farbe "schwarz")   ))
 (assert (getraenk (name "kartoffelsalatdrink") (farbe "weiss") ))
@@ -22,14 +24,16 @@
 (assert (farbe (name gruen) (red 0) (green 1) (blue 0)))
 (assert (farbe (name blau) (red 0) (green 0) (blue 1)))
 (assert (farbe (name gelb) (red 1) (green 1) (blue 0)))
-
+(assert (farbe (name hellgruen) (red 0.3) (green 1) (blue 0.3)))
 
 (defrule nichtgelbpaar
 	(wurst (farbe ?wurstfarbe) (name ?wurstname) )
 	(salat (farbe ?salatfarbe) (name ?salatname) )
-	(farbe (name ?wurstfarbe & ?salatfarbe & ~ gelb) (red ?rot) (green ?gruen) (blue ?blau) )
+	(farbe (name ?wurstfarbe & ?salatfarbe & ~ gelb & ?farbe) (green ?gruen) (blue ?blau) )
+	(farbe (name ?farbe) (red ?rot) )
+	(test (eq (str-length ?farbe) 5) )
 	=> 
-	(printout t "Ein Wurst/Salat Paar mit gleicher Farbe, die nicht Gelb ist, ist " ?wurstname "/" ?salatname " und hat die RGB Farbanteile " ?rot "," ?gruen "," ?blau "!" crlf)
+	(printout t "Ein Wurst/Salat Paar mit gleicher Farbe (bei der der Name die Länge 5 hat), die nicht Gelb ist, ist " ?wurstname "/" ?salatname " und hat die RGB Farbanteile " ?rot "," ?gruen "," ?blau "!" crlf)
 )
 
 (fire)
