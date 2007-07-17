@@ -14,6 +14,15 @@
 (assert (getraenk (name "cola") (farbe "schwarz")   ))
 (assert (getraenk (name "kartoffelsalat") (farbe "schwarz") ))
 
+(defrule sixx
+	(wurst (farbe a & ~b & c | ~?x & e | v & v) )
+	=> 
+)
+
+(fire)
+
+
+
 (defrule babaam
 	(or	
 		(not (wurst (name "weisswurst") )  )
@@ -94,10 +103,6 @@
 
 
 
-(defrule six
-	(wurst (farbe a & b & c | ?x & e | f | g & h ) )
-	=> 
-)
 
 
 

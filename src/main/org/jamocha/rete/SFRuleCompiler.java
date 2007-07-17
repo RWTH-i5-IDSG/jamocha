@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Stack;
 import java.util.Vector;
 
 import org.jamocha.logging.DefaultLogger;
@@ -58,6 +59,7 @@ import org.jamocha.rule.AndCondition;
 import org.jamocha.rule.AndConnectedConstraint;
 import org.jamocha.rule.BoundConstraint;
 import org.jamocha.rule.Condition;
+import org.jamocha.rule.ConditionWithNested;
 import org.jamocha.rule.Constraint;
 import org.jamocha.rule.Defrule;
 import org.jamocha.rule.ExistCondition;
@@ -777,8 +779,9 @@ public class SFRuleCompiler implements RuleCompiler {
 	 * @param rule
 	 * 
 	 * @return compileConditionState
+	 * @throws StopCompileException 
 	 */
-	public BaseNode compile(ObjectCondition condition, Rule rule, int conditionIndex) {
+	public BaseNode compile(ObjectCondition condition, Rule rule, int conditionIndex) throws StopCompileException {
 		// get activated ObjectType Node:
 		Template template = condition.getTemplate();
 		ObjectTypeNode otn = null;
@@ -798,11 +801,7 @@ public class SFRuleCompiler implements RuleCompiler {
 					slot = template.getSlot(constraint.getName());
 
 					constraint.setSlot(slot);
-					try {
-						current = (SlotAlpha) constraint.compile(this, rule, conditionIndex);
-					} catch (StopCompileException e) {
-						// will never happen
-					}
+					current = (SlotAlpha) constraint.compile(this, rule, conditionIndex);
 
 					// we add the node to the previous
 					if (current != null) {
@@ -903,7 +902,6 @@ public class SFRuleCompiler implements RuleCompiler {
 		int counter = 1;
 		for (Object nested : condition.getNestedConditionalElement()) {
 			Condition nestedCE = (Condition)nested;
-			System.out.println(nestedCE);
 			Rule newRule = null;
 			try {
 				newRule = ((Defrule)rule).clone(engine);
@@ -1018,10 +1016,66 @@ public class SFRuleCompiler implements RuleCompiler {
 	 * @param conditionIndex
 	 * 
 	 * @return BaseNode
-	 * @throws Exception
+	 * @throws StopCompileException 
 	 */
-	public BaseNode compile(OrConnectedConstraint constraint, Rule rule, int conditionIndex) {
-		return null;
+	public BaseNode compile(OrConnectedConstraint constraint, Rule rule, int conditionIndex) throws StopCompileException {
+		//now, we will split our rule in more different rules
+		int counter = 1;
+		
+		Constraint[] nestedConstraints = {constraint.getLeft(), constraint.getRight()};
+		
+		for (Constraint nested : nestedConstraints ) {
+
+			Rule newRule = null;
+			try {
+				newRule = ((Defrule)rule).clone(engine);
+			} catch (CloneNotSupportedException e) {
+				engine.writeMessage(e.getMessage());
+			}
+
+			// search for position of the or constraint
+			Stack<Condition> conditionStack = new Stack<Condition>();
+			for (Condition c:newRule.getConditions()) conditionStack.push(c);
+
+			boolean replaced = false;
+			constraintSearchLoop:
+			while (!conditionStack.isEmpty()) {
+				Condition c = conditionStack.pop();
+				System.out.println(c);
+				if (c instanceof ObjectCondition) {
+					ObjectCondition objc = (ObjectCondition)c;
+					for (int i=0 ; i< objc.getConstraints().size() ; i++) {
+						Constraint constr = objc.getConstraints().get(i);
+						if (constr == constraint) {
+							// we've found our constraint ;)
+							objc.getConstraints().set(i, nested);
+							replaced = true;
+							break constraintSearchLoop;
+						}
+					}
+				}
+				if (c instanceof ConditionWithNested) {
+					ConditionWithNested cwn = (ConditionWithNested)c;
+					for (Condition c2:cwn.getNestedConditionalElement()) conditionStack.add(c2);
+				}
+			}
+			
+			if (!replaced) {
+				engine.writeMessage("FATAL: could not compile or connected constraint");
+			}
+				
+			
+			
+			org.jamocha.rete.SFRuleCompiler compiler = new org.jamocha.rete.SFRuleCompiler(engine,root);
+
+			newRule.setName(newRule.getName() + "-" + counter++);
+			try {
+				compiler.addRule(newRule);
+			} catch (AssertException e) {
+				engine.writeMessage("FATAL: could not insert rule");
+			}
+		}
+		throw new StopCompileException();
 	}
 
 	/**
@@ -1109,7 +1163,7 @@ public class SFRuleCompiler implements RuleCompiler {
 	 * @throws Exception
 	 */
 
-	public BaseNode compile(AndConnectedConstraint constraint, Rule rule, int conditionIndex) {
+	public BaseNode compile(AndConnectedConstraint constraint, Rule rule, int conditionIndex) throws StopCompileException{
 		return null;
 	}
 

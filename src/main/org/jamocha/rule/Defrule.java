@@ -52,9 +52,9 @@ public class Defrule implements Rule {
 
 	protected String name = null;
 
-	protected ArrayList<Condition> conditions = null;
+	protected List<Condition> conditions = null;
 
-	protected ArrayList<Action> actions = null;
+	protected List<Action> actions = null;
 
 	protected TerminalNode terminal = null;
 
@@ -293,6 +293,10 @@ public class Defrule implements Rule {
 		conditions.add(cond);
 	}
 
+	public void setConditions(List<Condition> conds) {
+		this.conditions = conds;
+	}
+	
 	public void setConditions(Condition[] conds) {
 		Condition cond = null;
 		for (int i = 0; i < conds.length; i++) {
@@ -601,10 +605,14 @@ public class Defrule implements Rule {
 			engine.writeMessage(e.getMessage());
 		}
 
+		List<Condition> conditions = new ArrayList<Condition>();
+		for (Condition c : getConditions()) {
+			conditions.add((Condition)c.clone());
+		}
 		// set conditions:
-		newRule.setConditions(getConditions().clone());
-		// set actions:
+		newRule.setConditions(conditions);
 
+		// set actions:
 		ArrayList actions = new ArrayList();
 		for (Action a : this.actions)
 			actions.add(a.clone());
@@ -615,7 +623,7 @@ public class Defrule implements Rule {
 	public Defrule clone() throws CloneNotSupportedException {
 		Defrule newRule = new Defrule();
 		newRule.name = name;
-		newRule.conditions = (ArrayList<Condition>) conditions.clone();
+		newRule.conditions = (ArrayList<Condition>)((ArrayList<Condition>) conditions).clone();
 
 		ArrayList actions = new ArrayList();
 		newRule.actions = actions;

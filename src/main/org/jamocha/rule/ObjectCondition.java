@@ -22,6 +22,7 @@ import java.util.List;
 
 import org.jamocha.rete.Constants;
 import org.jamocha.rete.SFRuleCompiler;
+import org.jamocha.rete.StopCompileException;
 import org.jamocha.rete.Template;
 import org.jamocha.rete.nodes.BaseNode;
 
@@ -216,7 +217,7 @@ public class ObjectCondition extends AbstractCondition {
 		nodes.clear();
 	}
 	
-	public BaseNode compile(SFRuleCompiler compiler, Rule rule, int conditionIndex) {
+	public BaseNode compile(SFRuleCompiler compiler, Rule rule, int conditionIndex) throws StopCompileException {
 		return compiler.compile(this, rule, conditionIndex);
 	}
 
@@ -246,4 +247,25 @@ public class ObjectCondition extends AbstractCondition {
 		buf.append(")\n");
 		return buf.toString();
 	}
+	
+	public Object clone() throws CloneNotSupportedException {
+		ObjectCondition result = new ObjectCondition();
+
+		result.templateName = this.templateName;
+		result.varname = this.varname;
+		result.negated = this.negated;
+		result.template = this.template;
+		result.totalComplexity = this.totalComplexity;
+		result.varname = this.varname;
+
+		result.propConditions = new ArrayList<Constraint>();
+		for (Constraint c : propConditions) result.propConditions.add(c);
+
+		result.nodes = new ArrayList<BaseNode>();
+		for (BaseNode b : nodes) result.nodes.add(b);
+		
+		
+		return result;
+	}
+	
 }

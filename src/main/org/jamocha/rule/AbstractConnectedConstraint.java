@@ -3,10 +3,7 @@ package org.jamocha.rule;
 
 public abstract class AbstractConnectedConstraint extends AbstractConstraint {
 	
-	public String toClipsFormat(int indent) {
-		return "[UNIMPLEMENTED]";
-	}
-
+	
 	Constraint left;
 	Constraint right;
 	

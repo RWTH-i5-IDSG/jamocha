@@ -110,9 +110,8 @@ public class LiteralConstraint extends AbstractConstraint {
 		while (ind.length() < indent*blanksPerIndent) ind+=" ";
 		StringBuffer result = new StringBuffer();
 		result.append(ind);
-		result.append("(").append(getName()).append(' ');
 		if (getNegated()) result.append('~');
-		result.append( getValue().toClipsFormat(0)) .append(')');
+		result.append( getValue().toClipsFormat(0));
 		return result.toString();
 	}
 }

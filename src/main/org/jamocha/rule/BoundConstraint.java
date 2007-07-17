@@ -206,10 +206,9 @@ public class BoundConstraint extends AbstractConstraint {
 
 	public String toClipsFormat(int indent) {
 		StringBuilder sb = new StringBuilder();
-		sb.append("    (").append(getName()).append(' ');
+		if (getNegated()) sb.append("~");
 		if (isMultislot()) sb.append('$');
 		sb.append('?').append(getValue().toClipsFormat(indent));
-		sb.append(")\n");
 		return sb.toString();
 	}
 }

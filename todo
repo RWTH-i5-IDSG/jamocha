@@ -40,6 +40,7 @@ refactoring
 	Rete and components
 	better module support
 	comments
+	iterate over all classes and remove unused attributes and methods. furthermore, rename attrs/methods with stupid names
 Core
 	Rules should have an id
 	Rules should be groupable, like functions are.

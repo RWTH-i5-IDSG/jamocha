@@ -68,4 +68,6 @@ public interface Condition extends Serializable, Complexity, Compileable, Compar
 	
 	BaseNode getLastNode();
 	
+	public Object clone() throws CloneNotSupportedException;
+	
 }

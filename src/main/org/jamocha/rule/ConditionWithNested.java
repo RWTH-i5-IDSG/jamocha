@@ -78,5 +78,22 @@ public abstract class ConditionWithNested extends AbstractCondition {
 	public void clear() {
 		reteNode = null;
 	}
+	
+	public Object clone() throws CloneNotSupportedException {
+		ConditionWithNested result;
+		try {
+			result = this.getClass().newInstance();
+		} catch (Exception e) {
+			throw new CloneNotSupportedException("problem while instantiating new condition instance");
+		}
+		
+	
+		result.negated = this.negated;
+		result.reteNode = this.reteNode;
+		result.totalComplexity = this.totalComplexity;
+		result.nestedCE = new ArrayList<Condition>();
+		for (Condition c : nestedCE) result.nestedCE.add((Condition)c.clone());
+		return result;
+	}
 
 }

@@ -2,10 +2,16 @@ package org.jamocha.rule;
 
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.SFRuleCompiler;
+import org.jamocha.rete.StopCompileException;
 import org.jamocha.rete.nodes.BaseNode;
 
 public class OrConnectedConstraint extends AbstractConnectedConstraint {
 
+	public String toClipsFormat(int indent) {
+		return left.toClipsFormat(0)+" | "+right.toClipsFormat(0);
+	}
+
+	
 	public String getName() {
 		// TODO Auto-generated method stub
 		return null;
@@ -37,7 +43,7 @@ public class OrConnectedConstraint extends AbstractConnectedConstraint {
 	}
 
 	public BaseNode compile(SFRuleCompiler compiler, Rule rule,
-			int conditionIndex) {
+			int conditionIndex) throws StopCompileException {
 		return compiler.compile(this, rule, conditionIndex);
 	}
 

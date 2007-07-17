@@ -55,5 +55,6 @@ public abstract class AbstractCondition implements Condition, IsClipsElement {
 		this.negated = negated;
 	}
 	
+	public abstract Object clone() throws CloneNotSupportedException;
 	
 }

@@ -16,6 +16,7 @@
  */
 package org.jamocha.rule;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.jamocha.parser.EvaluationException;
@@ -109,7 +110,15 @@ public class TestCondition extends AbstractCondition {
 		return result.toString();
 	}
 	
-	
+	public Object clone() throws CloneNotSupportedException {
+		TestCondition result = new TestCondition();
+
+		result.negated = this.negated;
+		result.totalComplexity = this.totalComplexity;
+		result.func = (Signature)this.func.clone();
+		
+		return result;
+	}
 	
 
 }

@@ -51,4 +51,5 @@ public class AndCondition extends ConditionWithNested {
 
 	protected String clipsName() {return "and";}
 	
+	
 }
