@@ -822,10 +822,13 @@ public class SFPInterpreter implements SFPParserVisitor {
 		// get constraint from subnode
 		Constraint constraint = (Constraint) node.jjtGetChild(1).jjtAccept(
 				this, data);
-
+		
 		// set name to given constraint
 		constraint.setName(slotName.getStringValue());
-
+		
+		System.out.println(slotName.getStringValue());
+		System.out.println(constraint.getName());
+		
 		return constraint;
 	}
 

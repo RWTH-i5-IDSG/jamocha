@@ -33,10 +33,7 @@ public class BoundConstraint extends AbstractConstraint {
 
 	private static final long serialVersionUID = 1L;
 
-	/**
-	 * the name is the slot name
-	 */
-	protected String name;
+
 
 	/**
 	 * In the case of BoundConstraints, the value is the name of the variable

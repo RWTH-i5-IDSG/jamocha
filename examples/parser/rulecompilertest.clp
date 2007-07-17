@@ -2,21 +2,34 @@
 (deftemplate wurst (slot name) (slot spitzname) (slot farbe)  (slot gewicht))
 (deftemplate salat (slot name) (slot farbe) (slot dazupasst) (slot gewicht))
 (deftemplate getraenk (slot name) (slot farbe) )
-
+(deftemplate farbe (slot name) (slot red) (slot green) (slot blue) )
 
 (assert (wurst (name "bratwurst")(spitzname "bratwosch")(farbe "weiss")(gewicht 100) ))
 (assert (wurst (name "weisswurst")(spitzname "weisswurst")(farbe "weiss")(gewicht 200) ))
 (assert (wurst (name "wienerwurst")(spitzname "wiener")(farbe "rot")(gewicht 300) ))
 (assert (wurst (name "gemuesewurst")(spitzname "gemuesewurst")(farbe "gruen")(gewicht 400) ))
+(assert (wurst (name "senfwurst") (spitzname "senfi") (farbe "gelb") (gewicht 200) ))
 (assert (salat (name "kartoffelsalat")(farbe "weiss")(gewicht 220)(dazupasst "weisswurst") ))
 (assert (salat (name "gurkensalat")(farbe "weiss")(dazupasst "spaghetti")(gewicht 320) ))
+(assert (salat (name "gelbebohnensalat") (farbe "gelb") (dazupasst "knoblauchmarmelade") (gewicht 123) ))
 (assert (getraenk (name "wasser") (farbe "schwarz") ))
 (assert (getraenk (name "cola") (farbe "schwarz")   ))
-(assert (getraenk (name "kartoffelsalat") (farbe "schwarz") ))
+(assert (getraenk (name "kartoffelsalatdrink") (farbe "weiss") ))
 
-(defrule sixx
-	(wurst (farbe a & ~b & c | ~?x & e | v & v) )
+(assert (farbe (name weiss) (red 1) (green 1) (blue 1)))
+(assert (farbe (name schwarz) (red 0) (green 0) (blue 0)))
+(assert (farbe (name rot) (red 1) (green 0) (blue 0)))
+(assert (farbe (name gruen) (red 0) (green 1) (blue 0)))
+(assert (farbe (name blau) (red 0) (green 0) (blue 1)))
+(assert (farbe (name gelb) (red 1) (green 1) (blue 0)))
+
+
+(defrule nichtgelbpaar
+	(wurst (farbe ?wurstfarbe) (name ?wurstname) )
+	(salat (farbe ?salatfarbe) (name ?salatname) )
+	(farbe (name ?wurstfarbe & ?salatfarbe & ~ gelb) (red ?rot) (green ?gruen) (blue ?blau) )
 	=> 
+	(printout t "Ein Wurst/Salat Paar mit gleicher Farbe, die nicht Gelb ist, ist " ?wurstname "/" ?salatname " und hat die RGB Farbanteile " ?rot "," ?gruen "," ?blau "!" crlf)
 )
 
 (fire)

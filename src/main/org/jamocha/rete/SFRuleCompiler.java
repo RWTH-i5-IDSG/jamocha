@@ -1022,9 +1022,11 @@ public class SFRuleCompiler implements RuleCompiler {
 		//now, we will split our rule in more different rules
 		int counter = 1;
 		
+	
 		Constraint[] nestedConstraints = {constraint.getLeft(), constraint.getRight()};
 		
 		for (Constraint nested : nestedConstraints ) {
+			nested.setName(constraint.getName());
 
 			Rule newRule = null;
 			try {
@@ -1041,7 +1043,6 @@ public class SFRuleCompiler implements RuleCompiler {
 			constraintSearchLoop:
 			while (!conditionStack.isEmpty()) {
 				Condition c = conditionStack.pop();
-				System.out.println(c);
 				if (c instanceof ObjectCondition) {
 					ObjectCondition objc = (ObjectCondition)c;
 					for (int i=0 ; i< objc.getConstraints().size() ; i++) {
@@ -1164,7 +1165,49 @@ public class SFRuleCompiler implements RuleCompiler {
 	 */
 
 	public BaseNode compile(AndConnectedConstraint constraint, Rule rule, int conditionIndex) throws StopCompileException{
-		return null;
+		try {
+			constraint.getLeft().setName(constraint.getName());
+			constraint.getRight().setName(constraint.getName());
+			// search for position of the and constraint
+			Stack<Condition> conditionStack = new Stack<Condition>();
+			for (Condition c:rule.getConditions()) conditionStack.push(c);
+			boolean replaced = false;
+			constraintSearchLoop:
+				while (!conditionStack.isEmpty()) {
+					Condition c = conditionStack.pop();
+					if (c instanceof ObjectCondition) {
+						ObjectCondition objc = (ObjectCondition)c;
+						for (int i=0 ; i< objc.getConstraints().size() ; i++) {
+							Constraint constr = objc.getConstraints().get(i);
+							if (constr == constraint) {
+								// we've found our constraint ;)
+								objc.getConstraints().remove(i);
+								objc.getConstraints().add(constraint.getLeft());
+								objc.getConstraints().add(constraint.getRight());
+								replaced = true;
+								break constraintSearchLoop;
+							}
+						}
+					}
+					if (c instanceof ConditionWithNested) {
+						ConditionWithNested cwn = (ConditionWithNested)c;
+						for (Condition c2:cwn.getNestedConditionalElement()) conditionStack.add(c2);
+					}
+				}
+
+			if (!replaced) {
+				engine.writeMessage("FATAL: could not compile or connected constraint");
+			}
+
+
+
+			org.jamocha.rete.SFRuleCompiler compiler = new org.jamocha.rete.SFRuleCompiler(engine,root);
+			compiler.addRule(rule);
+		} catch (AssertException e) {
+			engine.writeMessage("FATAL: could not insert rule");
+		}
+		throw new StopCompileException();
+
 	}
 
 	/**

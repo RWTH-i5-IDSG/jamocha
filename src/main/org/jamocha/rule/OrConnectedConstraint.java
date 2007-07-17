@@ -12,11 +12,6 @@ public class OrConnectedConstraint extends AbstractConnectedConstraint {
 	}
 
 	
-	public String getName() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 	public boolean getNegated() {
 		// TODO Auto-generated method stub
 		return false;
@@ -25,11 +20,6 @@ public class OrConnectedConstraint extends AbstractConnectedConstraint {
 	public JamochaValue getValue() {
 		// TODO Auto-generated method stub
 		return null;
-	}
-
-	public void setName(String name) {
-		// TODO Auto-generated method stub
-
 	}
 
 	public void setNegated(boolean negate) {

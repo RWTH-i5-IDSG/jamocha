@@ -21,6 +21,11 @@ import org.jamocha.rete.TemplateSlot;
 
 public abstract class AbstractConstraint implements Constraint {
 	
+	/**
+	 * the name is the slot name
+	 */
+	protected String name;
+	
 	protected static int complexity = 1;
 
 	protected int totalComplexity = 0;
@@ -54,6 +59,14 @@ public abstract class AbstractConstraint implements Constraint {
 	
 	public String toString(){
 		return "["+this.getClass().getSimpleName()+"]";
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
 	}
 
 }
