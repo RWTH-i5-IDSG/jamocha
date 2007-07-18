@@ -179,8 +179,15 @@ public class Defmodule implements Module, Serializable {
 	 */
 	public void removeRule(Rule rl, Rete engine, WorkingMemory mem) {
 		try {
-			this.rules.remove(rl.getName());
-			rl.getTerminalNode().destroy(engine);
+			if ( rl.getSubRules().isEmpty()) {
+				this.rules.remove(rl.getName());
+				rl.getTerminalNode().destroy(engine);
+			} else {
+				for (Rule subRule : rl.getSubRules()) {
+					this.rules.remove(subRule.getName());
+					subRule.getTerminalNode().destroy(engine);
+				}
+			}
 			// List<TerminalNode> list = rl.getTerminalNodes();
 			// for (TerminalNode termNode : list) {
 			// termNode.destroy(engine);

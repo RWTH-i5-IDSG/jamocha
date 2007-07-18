@@ -442,8 +442,7 @@ public class SFRuleCompiler implements RuleCompiler {
 						try {
 							conds[i].compile(this, rule, i);
 						} catch (StopCompileException e) {
-							//TODO we have to pass through return-value from nested compiles 
-							return false;
+							return e.isSubSuccessed();
 						}
 
 					compileJoins(rule);
@@ -900,6 +899,7 @@ public class SFRuleCompiler implements RuleCompiler {
 	public BaseNode compile(OrCondition condition, Rule rule, int conditionIndex) throws StopCompileException, AssertException {
 		//now, we will split our rule in more different rules
 		int counter = 1;
+		boolean success = true;
 		for (Object nested : condition.getNestedConditionalElement()) {
 			Condition nestedCE = (Condition)nested;
 			Rule newRule = null;
@@ -914,11 +914,11 @@ public class SFRuleCompiler implements RuleCompiler {
 			org.jamocha.rete.SFRuleCompiler compiler = new org.jamocha.rete.SFRuleCompiler(engine,root);
 
 			newRule.setName(newRule.getName() + "-" + counter++);
-			compiler.addRule(newRule);
+			success = success && compiler.addRule(newRule);
 			
 			
 		}
-		throw new StopCompileException();
+		throw new StopCompileException(success);
 		
 	}
 
@@ -1022,6 +1022,7 @@ public class SFRuleCompiler implements RuleCompiler {
 		//now, we will split our rule in more different rules
 		int counter = 1;
 		
+		boolean success = true;
 	
 		Constraint[] nestedConstraints = {constraint.getLeft(), constraint.getRight()};
 		
@@ -1071,12 +1072,12 @@ public class SFRuleCompiler implements RuleCompiler {
 
 			newRule.setName(newRule.getName() + "-" + counter++);
 			try {
-				compiler.addRule(newRule);
+				success = success && compiler.addRule(newRule);
 			} catch (AssertException e) {
 				engine.writeMessage("FATAL: could not insert rule");
 			}
 		}
-		throw new StopCompileException();
+		throw new StopCompileException(success);
 	}
 
 	/**
@@ -1165,6 +1166,7 @@ public class SFRuleCompiler implements RuleCompiler {
 	 */
 
 	public BaseNode compile(AndConnectedConstraint constraint, Rule rule, int conditionIndex) throws StopCompileException{
+		boolean success = false;
 		try {
 			constraint.getLeft().setName(constraint.getName());
 			constraint.getRight().setName(constraint.getName());
@@ -1202,11 +1204,11 @@ public class SFRuleCompiler implements RuleCompiler {
 
 
 			org.jamocha.rete.SFRuleCompiler compiler = new org.jamocha.rete.SFRuleCompiler(engine,root);
-			compiler.addRule(rule);
+			success = compiler.addRule(rule);
 		} catch (AssertException e) {
 			engine.writeMessage("FATAL: could not insert rule");
 		}
-		throw new StopCompileException();
+		throw new StopCompileException(success);
 
 	}
 

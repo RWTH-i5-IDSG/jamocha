@@ -24,6 +24,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -217,8 +218,16 @@ public class RulesPanel extends AbstractJamochaPanel implements ActionListener,
 		}
 
 		private void addRules(Collection<Rule> rules) {
-			for (Rule rule : rules) {
-				this.rules.add(rule);
+			List<Rule> alreadyAdded = new ArrayList<Rule>();
+			for (Rule rule : rules) {	
+				Rule superRule = rule.getSuperRule();
+				if (superRule != null) {
+					if (alreadyAdded.contains(superRule)) continue;
+					alreadyAdded.add(superRule);
+					this.rules.add(superRule);
+				} else {
+					this.rules.add(rule);
+				}
 			}
 			fireTableDataChanged();
 		}

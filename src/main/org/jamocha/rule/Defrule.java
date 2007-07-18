@@ -50,6 +50,10 @@ public class Defrule implements Rule {
 
 	private static final long serialVersionUID = 1L;
 
+	protected Rule superRule;
+	
+	protected List<Rule> subRules;
+	
 	protected String name = null;
 
 	protected List<Condition> conditions = null;
@@ -64,6 +68,8 @@ public class Defrule implements Rule {
 
 	protected boolean rememberMatch = true;
 
+
+	
 	/**
 	 * by default noAgenda is false
 	 */
@@ -117,6 +123,7 @@ public class Defrule implements Rule {
 	 */
 	public Defrule() {
 		super();
+		subRules = new ArrayList<Rule>();
 		conditions = new ArrayList<Condition>();
 		actions = new ArrayList<Action>();
 	}
@@ -591,6 +598,17 @@ public class Defrule implements Rule {
 		newRule.setName(getName());
 		// set rule description:
 		newRule.setDescription(getDescription());
+		
+		// set super rule:
+		
+		if (this.superRule != null) {
+			this.superRule.addSubRule(newRule);
+			newRule.superRule = this.superRule; 
+		} else {
+			subRules.add(newRule);
+			newRule.superRule = this;
+		}
+		
 		// set rule declaration:
 
 		DeclarationConfiguration newDecl = new DeclarationConfiguration();
@@ -621,36 +639,43 @@ public class Defrule implements Rule {
 	}
 
 	public Defrule clone() throws CloneNotSupportedException {
-		Defrule newRule = new Defrule();
-		newRule.name = name;
-		newRule.conditions = (ArrayList<Condition>)((ArrayList<Condition>) conditions).clone();
-
-		ArrayList actions = new ArrayList();
-		newRule.actions = actions;
-
-		for (Action a : this.actions)
-			actions.add(a.clone());
-
-		newRule.terminal = terminal;
-		newRule.salience = salience;
-		newRule.auto = auto;
-		newRule.rememberMatch = rememberMatch;
-		newRule.noAgenda = noAgenda;
-		newRule.version = version;
-		newRule.themodule = themodule;
-		newRule.bindValues = bindValues;
-		newRule.outerScope = outerScope;
-		newRule.bindings = bindings;
-		newRule.description = description;
-		newRule.active = active;
-		newRule.direction = direction;
-		newRule.watch = watch;
-		newRule.effectiveDate = effectiveDate;
-		newRule.expirationDate = expirationDate;
-		newRule.triggerFacts = triggerFacts;
-		newRule.complexity = complexity;
-		newRule.totalComplexity = totalComplexity;
-		return newRule;
+		
+		// since it is not needed and old implementation
+		// is wrong at some points
+		throw new CloneNotSupportedException();
+		
+//		Defrule newRule = new Defrule();
+//		newRule.name = name;
+//		newRule.conditions = (ArrayList<Condition>)((ArrayList<Condition>) conditions).clone();
+//
+//		newRule.superRule = this.superRule;
+//		
+//		ArrayList actions = new ArrayList();
+//		newRule.actions = actions;
+//
+//		for (Action a : this.actions)
+//			actions.add(a.clone());
+//
+//		newRule.terminal = terminal;
+//		newRule.salience = salience;
+//		newRule.auto = auto;
+//		newRule.rememberMatch = rememberMatch;
+//		newRule.noAgenda = noAgenda;
+//		newRule.version = version;
+//		newRule.themodule = themodule;
+//		newRule.bindValues = bindValues;
+//		newRule.outerScope = outerScope;
+//		newRule.bindings = bindings;
+//		newRule.description = description;
+//		newRule.active = active;
+//		newRule.direction = direction;
+//		newRule.watch = watch;
+//		newRule.effectiveDate = effectiveDate;
+//		newRule.expirationDate = expirationDate;
+//		newRule.triggerFacts = triggerFacts;
+//		newRule.complexity = complexity;
+//		newRule.totalComplexity = totalComplexity;
+//		return newRule;
 	}
 
 	public String toClipsFormat(int indent) {
@@ -676,5 +701,22 @@ public class Defrule implements Rule {
 		buf.append(")");
 		return buf.toString();
 	}
+
+	public Rule getSuperRule() {
+		return superRule;
+	}
+
+	public void setSuperRule(Rule superRule) {
+		this.superRule = superRule;
+	}
+
+	public void addSubRule(Rule rule) {
+		subRules.add(rule);
+	}
+
+	public List<Rule> getSubRules() {
+		return subRules;
+	}
+
 
 }

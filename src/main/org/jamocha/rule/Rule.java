@@ -16,6 +16,8 @@
  */
 package org.jamocha.rule;
 
+import java.util.List;
+
 import org.jamocha.formatter.IsClipsElement;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Binding;
@@ -44,6 +46,15 @@ public interface Rule extends Scope, Complexity, Cloneable, IsClipsElement {
 	 * @return
 	 */
 	boolean getAutoFocus();
+	
+	Rule getSuperRule();
+	
+	void setSuperRule(Rule superRule);
+	
+	List<Rule> getSubRules();
+	
+	void addSubRule(Rule rule);
+	
 	
 	void setConditionIndex(int index, Condition c);
 
