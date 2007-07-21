@@ -16,12 +16,17 @@
  */
 package org.jamocha.rete.nodes;
 
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.Point;
 import java.io.Serializable;
+import java.util.Map;
 
 import org.jamocha.rete.ConversionUtils;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.exception.AssertException;
 import org.jamocha.rete.exception.RetractException;
+import org.jamocha.rete.visualisation.VisualizerSetup;
 
 /**
  * @author Sebastian Reinartz
@@ -304,6 +309,132 @@ public abstract class BaseNode implements Serializable {
 						+ " but it doesnt holds me as child!");
 			}
 		}
+	}
+
+	/**
+	 * this method draws itself onto a Graphics2D canvas. The alternative
+	 * is to extend JComponent here, but imho, that would be overkill here.
+	 * Furthermore, that would be conceptionally wrong, since the JComponent
+	 * representation is not the major thing in the BaseNode class. It is protected,
+	 * since it will be called from a higher-level (public) method inside BaseNode.
+	 */
+	protected void drawNode(int x, int y, int height, int width, int alpha, Graphics2D canvas){
+		canvas.setBackground( new Color(155,0,0,alpha) );
+		canvas.setColor(  new Color(85,0,0,alpha) );
+		canvas.fillRect(x, y, width, height);
+		canvas.drawRect(x, y, width, height);
+		drawId(x,y,height,width,canvas);
+	}
+	
+	protected void drawId(int x, int y, int height, int width, Graphics2D canvas){
+		int paintX = x + height/2;
+		int paintY = y + width/2;
+		canvas.drawString( String.valueOf(nodeID) , paintX, paintY);
+	}
+	
+	
+	public final static int shapeWidth = 48;
+	public final static int shapeHeight = 24;
+	public final static int shapeGapWidth = 20;
+	public final static int shapeGapHeight = 10;
+
+	
+	// THIS STUFF IS FOR CALCULATING SOME DRAWING INTERNALS
+	protected static Point topLeft = new Point(shapeHeight/2 ,  -shapeWidth/2);
+	protected static Point topRight = new Point(shapeHeight/2 ,  shapeWidth/2);
+	protected static Point bottomLeft = new Point(-shapeHeight/2 ,  -shapeWidth/2);
+	protected static Point bottomRight = new Point(-shapeHeight/2 ,  shapeWidth/2);
+	
+	protected static double angleTopLeft = Math.atan2(topLeft.y, topLeft.x);
+	protected static double angleTopRight = Math.atan2(topRight.y, topRight.x);
+	protected static double angleBottomLeft = Math.atan2(bottomLeft.y, bottomLeft.x);
+	protected static double angleBottomRight = Math.atan2(bottomRight.y, bottomRight.x);
+	
+	/**
+	 * draws a node. here, the row gives a logical y position
+	 * (1 for first row, 2 for second and so on) and the column
+	 * is analog but only the half width is one unit here.
+	 * @param row the row to paint (from 0 to infinite)
+	 * @param fromColumn the first column you can paint
+	 * @param alpha alpha value
+	 * @param canvas the canvas
+	 * @param setup the setup
+	 * @return the width
+	 */
+	public int drawNode(int row, int fromColumn, int alpha, Graphics2D canvas, VisualizerSetup setup, Map<BaseNode,Point> positions) {
+		int firstColumn = fromColumn;
+		for (BaseNode child : childNodes ){
+			// only draw the child node, iff i am the "primary parent"
+			if (!(child.parentNodes[0] == this)) continue;
+			firstColumn += child.drawNode(row+1, firstColumn, alpha, canvas, setup, positions);
+		}
+		int width = firstColumn - fromColumn;
+		if (width == 0) width = 2;
+		// calculate real positions and draw them
+			int column = fromColumn + width/2;
+			int y = (shapeHeight+shapeGapHeight)*row + shapeGapHeight/2;
+			int x = ((shapeWidth+shapeGapWidth)/2)  *column + shapeGapWidth/2;
+			x += setup.offsetX;
+			y += setup.offsetY;
+			x *= setup.scaleX;
+			y *= setup.scaleY;
+			int w = shapeWidth;
+			int h = shapeHeight;
+			h *= setup.scaleY;
+			w *= setup.scaleX;
+			positions.put(this, new Point(column, row));
+			drawNode(x, y, h, w, alpha, canvas);
+		//
+		return width;
+	}
+
+	/*
+	 * | a b |
+	 * | c d |
+	 */
+	public float determinant(float a, float b, float c, float d) {
+		return a*d - c*b; 
+	}
+	
+	public Point intersectionPoint(Point l1p1, Point l1p2, Point l2p1, Point l2p2) {
+		Point result = new Point();
+		float denominator = determinant (    l1p1.x - l1p2.x    ,     l1p1.y - l1p2.y     ,
+				                             l2p1.x - l2p2.x    ,     l1p1.y - l1p2.y     );
+		float line1 = determinant (   l1p1.x     ,     l1p1.y      ,
+	                                  l1p2.x     ,     l1p2.y      );
+		float line2 = determinant (   l2p1.x     ,     l2p1.y      ,
+									  l2p2.x     ,     l2p2.y      );
+		float preX = determinant  (    line1    ,   l2p1.x-l2p2.x      ,
+									   line2    ,   l2p1.x-l2p2.x      );
+		float preY = determinant  (    line1    ,   l2p1.y-l2p2.y      ,
+										line2    ,   l2p1.y-l2p2.y      );
+		result.x = (int)( preX / denominator );
+		result.y = (int)( preY / denominator );
+		return result;
+	}
+	
+	public Point getLineEndPoint(Point target, Point me) {
+		double angle = Math.atan2(target.y-me.y, target.x-me.x);
+		Point p1;
+		Point p2;
+		if (angle < angleTopRight || angle >= angleBottomRight) {
+			// RIGHT SIDE
+			p1 = topRight;
+			p2 = bottomRight;
+		} else if (angle < angleTopLeft) {
+			// TOP SIDE
+			p1 = topLeft;
+			p2 = topRight;
+		} else if (angle < angleBottomLeft) {
+			// LEFT SIDE
+			p1 = topLeft;
+			p2 = bottomLeft;
+		} else {
+			// BOTTOM SIDE
+			p1 = bottomRight;
+			p2 = bottomLeft;
+		}
+		return intersectionPoint(p1, p2, target, me);
 	}
 
 }

@@ -16,7 +16,11 @@
  */
 package org.jamocha.rete.functions.ruleengine;
 
+import java.awt.BorderLayout;
 import java.io.Serializable;
+import java.util.Date;
+
+import javax.swing.JFrame;
 
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaType;
@@ -30,6 +34,7 @@ import org.jamocha.rete.WorkingMemoryImpl;
 import org.jamocha.rete.functions.FunctionDescription;
 import org.jamocha.rete.visualisation.ViewGraphNode;
 import org.jamocha.rete.visualisation.Visualiser;
+import org.jamocha.rete.visualisation.Visualizer;
 
 /**
  * @author Josef Alexander Hahn
@@ -96,23 +101,19 @@ public class View implements Function, Serializable {
 		return NAME;
 	}
 
-	public JamochaValue executeFunction(Rete engine, Parameter[] params)
-			throws EvaluationException {
-		RootNode root = ((WorkingMemoryImpl) engine.getWorkingMemory())
-				.getRootNode();
+	public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
+		Visualizer visualizer = new Visualizer(engine);
+		
+		JFrame frame = new JFrame("Jamocha - Rete net viewer");
+		frame.getContentPane().add(visualizer, BorderLayout.CENTER);
+		frame.pack();
+		frame.setLocationByPlatform(true);
+		frame.setVisible(true);
+		frame.setSize(700, 500);
 
-		@SuppressWarnings("unused")
-		ViewGraphNode t = ViewGraphNode.buildFromRete(root);
-		Visualiser visualiser = new Visualiser(engine);
-		visualiser.show();
+		
+		
 		return JamochaValue.NIL;
 	}
 
-	void traverse(int indent, BaseNode b) {
-		for (int i = 0; i < indent; i++)
-			System.out.print(" ");
-		System.out.println("+" + b.toString() + " id=" + b.getNodeId());
-		for (int i = 0; i < b.getChildNodes().length; i++)
-			traverse(indent + 2, (BaseNode) b.getChildNodes()[i]);
-	}
 }
