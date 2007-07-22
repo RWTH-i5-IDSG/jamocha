@@ -340,15 +340,15 @@ public abstract class BaseNode implements Serializable {
 
 	
 	// THIS STUFF IS FOR CALCULATING SOME DRAWING INTERNALS
-	protected static Point topLeft = new Point(shapeHeight/2 ,  -shapeWidth/2);
-	protected static Point topRight = new Point(shapeHeight/2 ,  shapeWidth/2);
-	protected static Point bottomLeft = new Point(-shapeHeight/2 ,  -shapeWidth/2);
-	protected static Point bottomRight = new Point(-shapeHeight/2 ,  shapeWidth/2);
+	protected static Point bottomLeft = new Point(-shapeWidth/2 ,  -shapeHeight/2);
+	protected static Point bottomRight = new Point(shapeWidth/2 , -shapeHeight/2);
+	protected static Point topLeft = new Point(-shapeWidth/2 ,  shapeHeight/2);
+	protected static Point topRight = new Point(shapeWidth/2 ,  shapeHeight/2);
 	
-	protected static double angleTopLeft = Math.atan2(topLeft.y, topLeft.x);
-	protected static double angleTopRight = Math.atan2(topRight.y, topRight.x);
-	protected static double angleBottomLeft = Math.atan2(bottomLeft.y, bottomLeft.x);
-	protected static double angleBottomRight = Math.atan2(bottomRight.y, bottomRight.x);
+	protected static double angleTopLeft = atan3(topLeft.y, topLeft.x);
+	protected static double angleTopRight = atan3(topRight.y, topRight.x);
+	protected static double angleBottomLeft = atan3(bottomLeft.y, bottomLeft.x);
+	protected static double angleBottomRight = atan3(bottomRight.y, bottomRight.x);
 	
 	/**
 	 * draws a node. here, the row gives a logical y position
@@ -388,35 +388,46 @@ public abstract class BaseNode implements Serializable {
 		return width;
 	}
 
-	/*
-	 * | a b |
-	 * | c d |
-	 */
-	public float determinant(float a, float b, float c, float d) {
-		return a*d - c*b; 
-	}
 	
-	public Point intersectionPoint(Point l1p1, Point l1p2, Point l2p1, Point l2p2) {
+	protected static Point intersectionPoint(Point l1p1, Point l1p2, Point l2p1, Point l2p2) {
 		Point result = new Point();
-		float denominator = determinant (    l1p1.x - l1p2.x    ,     l1p1.y - l1p2.y     ,
-				                             l2p1.x - l2p2.x    ,     l1p1.y - l1p2.y     );
-		float line1 = determinant (   l1p1.x     ,     l1p1.y      ,
-	                                  l1p2.x     ,     l1p2.y      );
-		float line2 = determinant (   l2p1.x     ,     l2p1.y      ,
-									  l2p2.x     ,     l2p2.y      );
-		float preX = determinant  (    line1    ,   l2p1.x-l2p2.x      ,
-									   line2    ,   l2p1.x-l2p2.x      );
-		float preY = determinant  (    line1    ,   l2p1.y-l2p2.y      ,
-										line2    ,   l2p1.y-l2p2.y      );
-		result.x = (int)( preX / denominator );
-		result.y = (int)( preY / denominator );
+		double x1 = l1p1.x;
+		double x2 = l1p2.x;
+		double x3 = l2p1.x;
+		double x4 = l2p2.x;
+		double y1 = l1p1.y;
+		double y2 = l1p2.y;
+		double y3 = l2p1.y;
+		double y4 = l2p2.y;
+
+		
+		double denom = ( (y4-y3)*(x2-x1)-(x4-x3)*(y2-y1)  );
+		double ua = ( (x4-x3)*(y1-y3)-(y4-y3)*(x1-x3) ) / denom;
+		//double ub = ( (x2-x1)*(y1-y3)-(y2-y1)*(x1-x3) ) / denom;
+		
+		result.x = (int) (x1+ua*(x2-x1));
+		result.y = (int) (y1+ua*(y2-y1));
+
 		return result;
 	}
 	
-	public Point getLineEndPoint(Point target, Point me) {
-		double angle = Math.atan2(target.y-me.y, target.x-me.x);
+	public static double atan3(double y, double x) {
+		double result = Math.atan2(y, x);
+		if (result<0) result += 2*Math.PI;
+		return result;
+	}
+	
+	public static Point getLineEndPoint(Point target, Point me) {
+		double angle = atan3(-target.y+me.y, target.x-me.x);
 		Point p1;
 		Point p2;
+		System.out.println(angle);
+		
+		System.out.println("boombe");
+		System.out.println(angleTopRight);
+		System.out.println(angleTopLeft);
+		System.out.println(angleBottomRight);
+		System.out.println(angleBottomLeft);
 		if (angle < angleTopRight || angle >= angleBottomRight) {
 			// RIGHT SIDE
 			p1 = topRight;
@@ -434,7 +445,21 @@ public abstract class BaseNode implements Serializable {
 			p1 = bottomRight;
 			p2 = bottomLeft;
 		}
-		return intersectionPoint(p1, p2, target, me);
+		Point pp1 = new Point(p1);
+		Point pp2 = new Point(p2);
+		
+		pp1.x += me.x;
+		pp1.y = me.y - pp1.y;
+		pp2.x += me.x;
+		pp2.y = me.y - pp2.y;
+		
+		System.out.println("help1"+pp1);
+		System.out.println("help2"+pp2);
+		System.out.println("me"+me);
+		System.out.println("target"+target);
+		System.out.println("newpoint"+intersectionPoint(pp1, pp2, target, me));
+		
+		return intersectionPoint(pp1, pp2, target, me);
 	}
 
 }

@@ -41,16 +41,55 @@ public class Visualizer extends JComponent{
 		return result;
 	}
 	
+	protected int atan4(double y, double x) {
+		double result = Math.atan2(y, x);
+		result = (result / Math.PI)* 180.0;
+		return (  ((int)result) % 360  );
+	}
+	
 	protected void drawConnectionLines(BaseNode root, Map<BaseNode,Point> positions, Graphics2D canvas) {
 		for (BaseNode child : root.getChildNodes() ) {
-			Point me = positions.get(root);
-			Point target = positions.get(child);
-			me = toPhysical(me,setup);
-			target = toPhysical(target,setup);
-			//me = root.getLineEndPoint(target, me);
-			//target = root.getLineEndPoint(target, me);
-			canvas.setColor(Color.GREEN);
-			canvas.drawLine(me.x, me.y, target.x, target.y);
+			Point rootPos = positions.get(root);
+			Point childPos = positions.get(child);
+			rootPos = toPhysical(rootPos,setup);
+			childPos = toPhysical(childPos,setup);
+			childPos = BaseNode.getLineEndPoint(rootPos, childPos);
+			rootPos = BaseNode.getLineEndPoint(childPos, rootPos);
+			canvas.setColor(Color.green.darker().darker());
+			
+			// nice algo
+			int midX, midY, w, h;
+			w = Math.abs(rootPos.x - childPos.x);
+			if (rootPos.y < childPos.y) {
+				h = childPos.y - rootPos.y;
+				midX = rootPos.x-w;
+				midY = childPos.y-h;
+			} else {
+				h = - childPos.y + rootPos.y;
+				midY = rootPos.y-w;
+				midX = childPos.x-h;
+			}
+			h *= 2;
+			w *= 2;
+			
+			int originToRootX = rootPos.x - midX;
+			int originToRootY = rootPos.y - midY;
+			
+			int originToChildX = childPos.x - midX;
+			int originToChildY = childPos.y - midY;
+
+			System.out.println(originToRootX);
+			System.out.println(originToRootY);
+			
+			int startAngle = atan4(-originToRootY,originToRootX);
+			int arcAngle = atan4(originToRootY,originToRootX);
+			
+			//startAngle = 0;
+			arcAngle= 30;
+			
+			canvas.drawArc(midX, midY, w, h, startAngle, arcAngle);
+			//canvas.drawLine(rootPos.x, rootPos.y, 0,0);
+			
 			drawConnectionLines(child, positions, canvas);
 		}
 	}
