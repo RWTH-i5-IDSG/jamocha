@@ -90,15 +90,10 @@ public class LIANode extends AbstractAlpha {
 	protected void drawNode(int x, int y, int height, int width, int alpha, Graphics2D canvas){
 		canvas.setBackground( new Color(100,100,255,alpha) );
 		canvas.setColor(  new Color(15,15,200,alpha) );
-		
-		int x2 = x + width/2;
-		int y2 = y + height/2;
-		
-		int[] xpoints = {topLeft.x+x2, topRight.x+x2, bottomRight.x+x2, bottomLeft.x+x2};
-		int[] ypoints = {topLeft.y+y2, topRight.y+y2, bottomRight.y+y2, bottomLeft.y+y2};
+		int[] xpoints = { x , x+width , (int)(x+width*0.8) , x+ (int)(width*0.2)       };
+		int[] ypoints = { y , y       , y+height, y+height};
 		canvas.fillPolygon(xpoints, ypoints, 4);
 		canvas.drawPolygon(xpoints, ypoints, 4);
-		
 		drawId(x,y,height,width,canvas);
 	}
 	

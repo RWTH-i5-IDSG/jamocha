@@ -103,6 +103,9 @@ public class View implements Function, Serializable {
 
 	public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
 		Visualizer visualizer = new Visualizer(engine);
+
+		visualizer.enableToolTips(true);
+		visualizer.enableAutoScale(true);
 		
 		JFrame frame = new JFrame("Jamocha - Rete net viewer");
 		frame.getContentPane().add(visualizer, BorderLayout.CENTER);

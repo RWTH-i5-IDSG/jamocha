@@ -370,17 +370,18 @@ public abstract class BaseNode implements Serializable {
 	 * @param setup the setup
 	 * @return the width
 	 */
-	public int drawNode(int row, int fromColumn, int alpha, Graphics2D canvas, VisualizerSetup setup, Map<BaseNode,Point> positions) {
+	public int drawNode(int fromColumn, int alpha, Graphics2D canvas, VisualizerSetup setup, Map<BaseNode,Point> positions, Map<Point,BaseNode> p2n, Map<BaseNode,Integer> rowHints) {
 		int firstColumn = fromColumn;
+		int row = rowHints.get(this);
 		for (BaseNode child : childNodes ){
 			// only draw the child node, iff i am the "primary parent"
 			if (!(child.parentNodes[0] == this)) continue;
-			firstColumn += child.drawNode(row+1, firstColumn, alpha, canvas, setup, positions);
+			firstColumn += child.drawNode(firstColumn, alpha, canvas, setup, positions,p2n,rowHints);
 		}
 		int width = firstColumn - fromColumn;
 		if (width == 0) width = 2;
 		// calculate real positions and draw them
-			int column = fromColumn + width/2;
+			int column = fromColumn + width/2 -1;
 			int y = (shapeHeight+shapeGapHeight)*row + shapeGapHeight/2;
 			int x = ((shapeWidth+shapeGapWidth)/2)  *column + shapeGapWidth/2;
 			x += setup.offsetX;
@@ -391,11 +392,16 @@ public abstract class BaseNode implements Serializable {
 			int h = shapeHeight;
 			h *= setup.scaleY;
 			w *= setup.scaleX;
-			positions.put(this, new Point(column, row));
+			Point p1 = new Point(column, row);
+			Point p2 = new Point(column+1, row);
+			positions.put(this, p1);
+			p2n.put(p1, this);
+			p2n.put(p2, this);
 			drawNode(x, y, h, w, alpha, canvas);
 		//
 		return width;
 	}
+
 
 	
 	protected static Point intersectionPoint(Point l1p1, Point l1p2, Point l2p1, Point l2p2) {
@@ -408,15 +414,10 @@ public abstract class BaseNode implements Serializable {
 		double y2 = l1p2.y;
 		double y3 = l2p1.y;
 		double y4 = l2p2.y;
-
-		
 		double denom = ( (y4-y3)*(x2-x1)-(x4-x3)*(y2-y1)  );
 		double ua = ( (x4-x3)*(y1-y3)-(y4-y3)*(x1-x3) ) / denom;
-		//double ub = ( (x2-x1)*(y1-y3)-(y2-y1)*(x1-x3) ) / denom;
-		
 		result.x = (int) (x1+ua*(x2-x1));
 		result.y = (int) (y1+ua*(y2-y1));
-
 		return result;
 	}
 	
@@ -426,17 +427,10 @@ public abstract class BaseNode implements Serializable {
 		return result;
 	}
 	
-	public static Point getLineEndPoint(Point target, Point me) {
+	public static Point getLineEndPoint(Point target, Point me, VisualizerSetup setup) {
 		double angle = atan3(-target.y+me.y, target.x-me.x);
 		Point p1;
 		Point p2;
-		System.out.println(angle);
-		
-		System.out.println("boombe");
-		System.out.println(angleTopRight);
-		System.out.println(angleTopLeft);
-		System.out.println(angleBottomRight);
-		System.out.println(angleBottomLeft);
 		if (angle < angleTopRight || angle >= angleBottomRight) {
 			// RIGHT SIDE
 			p1 = topRight;
@@ -457,16 +451,19 @@ public abstract class BaseNode implements Serializable {
 		Point pp1 = new Point(p1);
 		Point pp2 = new Point(p2);
 		
+		pp1.x += setup.offsetX;
+		pp1.y += setup.offsetY;
+		pp2.x += setup.offsetX;
+		pp2.y += setup.offsetY;
+		pp1.x *= setup.scaleX;
+		pp1.y *= setup.scaleY;
+		pp2.x *= setup.scaleX;
+		pp2.y *= setup.scaleY;
+		
 		pp1.x += me.x;
 		pp1.y = me.y - pp1.y;
 		pp2.x += me.x;
 		pp2.y = me.y - pp2.y;
-		
-		System.out.println("help1"+pp1);
-		System.out.println("help2"+pp2);
-		System.out.println("me"+me);
-		System.out.println("target"+target);
-		System.out.println("newpoint"+intersectionPoint(pp1, pp2, target, me));
 		
 		return intersectionPoint(pp1, pp2, target, me);
 	}
