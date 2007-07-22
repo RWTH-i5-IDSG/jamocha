@@ -137,7 +137,7 @@ public class JShapeContainer extends JComponent {
 
 	public void paint(Graphics g) {
 		Graphics2D gr = (Graphics2D) g;
-		/*gr.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+		gr.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
 				RenderingHints.VALUE_ANTIALIAS_ON);
 		gr.setFont(font);
 		synchronized (shapes) {
@@ -151,8 +151,7 @@ public class JShapeContainer extends JComponent {
 				ConnectorLine l = itarrows.next();
 				drawPrimitive(l, gr);
 			}
-		}*/
-		
+		}	
 		
 		
 	}

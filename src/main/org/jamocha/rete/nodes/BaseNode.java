@@ -311,6 +311,12 @@ public abstract class BaseNode implements Serializable {
 		}
 	}
 
+	//////////////////////////////////////////////////////////////
+	/// GRAPHICS STUFF ///////////////////////////////////////////
+	//////////////////////////////////////////////////////////////
+	
+	
+	
 	/**
 	 * this method draws itself onto a Graphics2D canvas. The alternative
 	 * is to extend JComponent here, but imho, that would be overkill here.
@@ -319,24 +325,27 @@ public abstract class BaseNode implements Serializable {
 	 * since it will be called from a higher-level (public) method inside BaseNode.
 	 */
 	protected void drawNode(int x, int y, int height, int width, int alpha, Graphics2D canvas){
-		canvas.setBackground( new Color(155,0,0,alpha) );
-		canvas.setColor(  new Color(85,0,0,alpha) );
+		canvas.setBackground( new Color(255,40,40,alpha) );
+		canvas.setColor(  new Color(200,15,15,alpha) );
 		canvas.fillRect(x, y, width, height);
 		canvas.drawRect(x, y, width, height);
 		drawId(x,y,height,width,canvas);
 	}
 	
 	protected void drawId(int x, int y, int height, int width, Graphics2D canvas){
-		int paintX = x + height/2;
-		int paintY = y + width/2;
+		int hth = 0;
+		int htw = 0;
+		int paintX = x + width/2 + htw;
+		int paintY = y + height/2 - hth;
+		canvas.setColor(Color.BLACK);
 		canvas.drawString( String.valueOf(nodeID) , paintX, paintY);
 	}
 	
 	
-	public final static int shapeWidth = 48;
+	public final static int shapeWidth = 64;
 	public final static int shapeHeight = 24;
-	public final static int shapeGapWidth = 20;
-	public final static int shapeGapHeight = 10;
+	public final static int shapeGapWidth = 25;
+	public final static int shapeGapHeight = 15;
 
 	
 	// THIS STUFF IS FOR CALCULATING SOME DRAWING INTERNALS
