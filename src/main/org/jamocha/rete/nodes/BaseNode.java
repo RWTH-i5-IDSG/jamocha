@@ -451,10 +451,10 @@ public abstract class BaseNode implements Serializable {
 		Point pp1 = new Point(p1);
 		Point pp2 = new Point(p2);
 		
-		pp1.x += setup.offsetX;
-		pp1.y += setup.offsetY;
-		pp2.x += setup.offsetX;
-		pp2.y += setup.offsetY;
+//		pp1.x += setup.offsetX;
+//		pp1.y += setup.offsetY;
+//		pp2.x += setup.offsetX;
+//		pp2.y += setup.offsetY;
 		pp1.x *= setup.scaleX;
 		pp1.y *= setup.scaleY;
 		pp2.x *= setup.scaleX;

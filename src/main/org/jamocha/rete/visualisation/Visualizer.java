@@ -9,11 +9,14 @@ import java.awt.RenderingHints;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
 import javax.swing.JComponent;
+import javax.swing.event.MouseInputListener;
 
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.WorkingMemoryImpl;
@@ -21,7 +24,7 @@ import org.jamocha.rete.nodes.AlphaNode;
 import org.jamocha.rete.nodes.BaseNode;
 
  
-public class Visualizer extends JComponent implements ComponentListener{
+public class Visualizer extends JComponent implements ComponentListener, MouseInputListener, ViewportChangedListener{
 	
 	BaseNode rootNode;
 	VisualizerSetup setup;
@@ -31,9 +34,11 @@ public class Visualizer extends JComponent implements ComponentListener{
 	protected Map<Point, BaseNode> point2node;
 	protected int logicalWidth = 0;
 	protected int logicalHeight = 0;
-
+	protected List<ViewportChangedListener> viewportChangedListener; 
+	protected boolean viewportChangeByClick = false;
 	protected boolean autoScale = false;
 	protected Map<BaseNode,Integer> rowHints;
+	protected boolean showSelection = false;
 	
 	public void computeRowHints() {
 		rowHints.clear();
@@ -61,13 +66,29 @@ public class Visualizer extends JComponent implements ComponentListener{
 		
 	}
 	
+	public void addViewportChangedListener(ViewportChangedListener listener) {
+		viewportChangedListener.add(listener);
+	}
+	
+	protected void callViewportChangedListeners() {
+		ViewportChangeEvent e = new ViewportChangeEvent();
+		e.x=-setup.offsetX;
+		e.y=-setup.offsetY;
+		e.width=(int)(this.getWidth() / setup.scaleX);
+		e.height=(int)(this.getHeight() / setup.scaleY);
+		for (ViewportChangedListener listener : viewportChangedListener)
+			listener.viewportChanged(e);
+	}
+	
 	public Visualizer(Rete e) {
 		rootNode = ((WorkingMemoryImpl) e.getWorkingMemory()).getRootNode();
 		setup = new VisualizerSetup();
 		point2node = new HashMap<Point, BaseNode>();
 		rowHints = new HashMap<BaseNode, Integer>();
+		viewportChangedListener = new ArrayList<ViewportChangedListener>();
 		reload();
 		this.addComponentListener(this);
+		this.addMouseListener(this);
 	}
 	
 	protected Point toPhysical(Point p, VisualizerSetup setup){
@@ -151,6 +172,20 @@ public class Visualizer extends JComponent implements ComponentListener{
 				RenderingHints.VALUE_ANTIALIAS_ON);
 		rootNode.drawNode(0,255,canvas,setup,node2point, point2node,rowHints);
 		drawConnectionLines(rootNode, node2point, canvas);
+		
+		
+		if (showSelection) {
+			int x = (int)(-setup.offsetX / setup.scaleX);
+			int y = (int)(-setup.offsetX / setup.scaleX);
+			int w = (int)(getWidth() / setup.scaleX);
+			int h = (int)(getHeight() / setup.scaleY);
+			g.fillRect(x, y, w, h);
+		}
+	}
+	
+	public void enableShowSelection(boolean enable){
+		showSelection = enable;
+		repaint();
 	}
 
 	
@@ -195,6 +230,10 @@ public class Visualizer extends JComponent implements ComponentListener{
 			repaint();
 		}
 	}
+	
+	public void enableViewportByClick(boolean enable) {
+		viewportChangeByClick = enable;
+	}
 
 	public void componentHidden(ComponentEvent e) {
 	}
@@ -203,6 +242,81 @@ public class Visualizer extends JComponent implements ComponentListener{
 	}
 
 	public void componentShown(ComponentEvent e) {
+	}
+
+	
+	protected void changeViewport(MouseEvent ev) {
+		if (ev.getButton() != MouseEvent.BUTTON1) return;
+		double x = ev.getX();
+		double y = ev.getY();
+		
+		x /= setup.scaleX;
+		y /= setup.scaleY;
+		
+		if (!autoScale) {
+			x -= setup.offsetX;
+			y -= setup.offsetY;
+		}
+		
+		double normalizedWidth = getWidth() / setup.scaleX;
+		double normalizedHeight = getHeight() / setup.scaleY;
+		
+		x -= normalizedWidth/2;
+		y -= normalizedHeight/2;
+		
+		setup.offsetX = (int)x;
+		setup.offsetY = (int)y;
+		
+	}
+	
+	public void mouseClicked(MouseEvent arg0) {
+		if (viewportChangeByClick) {
+			changeViewport(arg0);
+			callViewportChangedListeners();
+		}
+	}
+
+	@Override
+	public void mouseEntered(MouseEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseExited(MouseEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mousePressed(MouseEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseReleased(MouseEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseDragged(MouseEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseMoved(MouseEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void viewportChanged(ViewportChangeEvent e) {
+		setup.offsetX = e.x;
+		setup.offsetY = e.y;
+		repaint();
 	}
 	
 

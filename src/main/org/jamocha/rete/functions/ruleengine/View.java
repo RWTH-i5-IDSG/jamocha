@@ -35,6 +35,7 @@ import org.jamocha.rete.functions.FunctionDescription;
 import org.jamocha.rete.visualisation.ViewGraphNode;
 import org.jamocha.rete.visualisation.Visualiser;
 import org.jamocha.rete.visualisation.Visualizer;
+import org.jamocha.rete.visualisation.VisualizerPanel;
 
 /**
  * @author Josef Alexander Hahn
@@ -102,10 +103,10 @@ public class View implements Function, Serializable {
 	}
 
 	public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
-		Visualizer visualizer = new Visualizer(engine);
-
-		visualizer.enableToolTips(true);
-		visualizer.enableAutoScale(true);
+//		Visualizer visualizer = new Visualizer(engine);
+//		visualizer.enableToolTips(true);
+//		visualizer.enableAutoScale(true);
+		VisualizerPanel visualizer = new VisualizerPanel(engine);
 		
 		JFrame frame = new JFrame("Jamocha - Rete net viewer");
 		frame.getContentPane().add(visualizer, BorderLayout.CENTER);
