@@ -40,6 +40,8 @@ public class Visualizer extends JComponent implements ComponentListener, MouseIn
 	protected Map<BaseNode,Integer> rowHints;
 	protected boolean showSelection = false;
 	protected Visualizer selectionRelativeTo;
+	protected boolean pressed;
+	protected ClickListener clickListener;
 	
 	public void computeRowHints() {
 		rowHints.clear();
@@ -93,6 +95,7 @@ public class Visualizer extends JComponent implements ComponentListener, MouseIn
 		viewportChangedListener = new ArrayList<ViewportChangedListener>();
 		reload();
 		this.addComponentListener(this);
+		this.addMouseMotionListener(this);
 		this.addMouseListener(this);
 	}
 	
@@ -181,8 +184,8 @@ public class Visualizer extends JComponent implements ComponentListener, MouseIn
 		
 		if (showSelection) {
 			VisualizerSetup s = selectionRelativeTo.setup;
-			int x = (int)(s.offsetX * setup.scaleX);
-			int y = (int)(s.offsetY * setup.scaleY);
+			int x = -(int)(s.offsetX * setup.scaleX) + (int)(selectionRelativeTo.getWidth() * setup.scaleX /2);
+			int y = -(int)(s.offsetY * setup.scaleY) + (int)(selectionRelativeTo.getHeight() * setup.scaleY /2);
 			int w = (int)((selectionRelativeTo.getWidth() / s.scaleX)*setup.scaleX);
 			int h = (int)((selectionRelativeTo.getHeight() / s.scaleY)*setup.scaleY);
 			g.setColor(new Color(100,100,255,100));
@@ -196,8 +199,15 @@ public class Visualizer extends JComponent implements ComponentListener, MouseIn
 	}
 
 	
-	protected static Point getLogicalPosition(int x, int y) {
+	protected Point getLogicalPosition(int x, int y) {
 		Point result = new Point();
+		
+		
+		x /= setup.scaleX;
+		y /= setup.scaleY;
+		
+		x -= setup.offsetX;
+		y -= setup.offsetY;
 		
 		result.y = y / (BaseNode.shapeGapHeight+BaseNode.shapeHeight);
 		result.x = x / ((BaseNode.shapeGapWidth+BaseNode.shapeWidth)/2);
@@ -236,6 +246,7 @@ public class Visualizer extends JComponent implements ComponentListener, MouseIn
 			setup.scaleX = setup.scaleY = (float) Math.min(scaleW, scaleH);
 			repaint();
 		}
+		callViewportChangedListeners();
 	}
 	
 	public void enableViewportByClick(boolean enable, Visualizer other) {
@@ -275,15 +286,34 @@ public class Visualizer extends JComponent implements ComponentListener, MouseIn
 		setup.offsetX = (int)x;
 		setup.offsetY = (int)y;
 		
+
+		
+	}
+	
+	protected void _changeVP(int x, int y){
+		ViewportChangeEvent ev = new ViewportChangeEvent();
+
+		x -= (selectionRelativeTo.getWidth() * setup.scaleX) /2;
+		y -= (selectionRelativeTo.getHeight() * setup.scaleY) /2;
+		
+		ev.x = (int)-(x / setup.scaleX);
+		ev.y = (int)-(y / setup.scaleY);
+		callViewportChangedListeners(ev);
+		repaint();
+		
 	}
 	
 	public void mouseClicked(MouseEvent arg0) {
 		if (viewportChangeByClick) {
-			ViewportChangeEvent ev = new ViewportChangeEvent();
-			ev.x = (int)(arg0.getX() / setup.scaleX);
-			ev.y = (int)(arg0.getY() / setup.scaleY);
-			callViewportChangedListeners(ev);
-			repaint();
+			_changeVP(arg0.getX(), arg0.getY());
+		} else {
+			
+			int x = arg0.getX();
+			int y = arg0.getY();
+			BaseNode node = point2node.get(getLogicalPosition(x, y));
+			String description = node.toPPString();
+			clickListener.nodeClicked(description);
+			
 		}
 	}
 
@@ -301,34 +331,51 @@ public class Visualizer extends JComponent implements ComponentListener, MouseIn
 
 	@Override
 	public void mousePressed(MouseEvent arg0) {
-		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
 	public void mouseReleased(MouseEvent arg0) {
-		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void mouseDragged(MouseEvent arg0) {
-		// TODO Auto-generated method stub
+		if (viewportChangeByClick) {
+			mouseClicked(arg0);
+		}
 		
 	}
 
 	@Override
 	public void mouseMoved(MouseEvent arg0) {
-		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void viewportChanged(ViewportChangeEvent e) {
-		setup.offsetX = e.x;
-		setup.offsetY = e.y;
+		
+		if (!autoScale) {
+		
+			setup.offsetX = e.x;
+			setup.offsetY = e.y;
+			
+	
+			
+			int maxOffsetX = -logicalWidth*(BaseNode.shapeGapWidth+BaseNode.shapeWidth)+getWidth();
+			int maxOffsetY = -logicalHeight*(BaseNode.shapeGapHeight+BaseNode.shapeHeight)+getHeight();
+			
+			if (setup.offsetX < maxOffsetX) setup.offsetX = maxOffsetX;
+			if (setup.offsetY < maxOffsetY) setup.offsetY = maxOffsetY;
+			
+			if (setup.offsetX >0) setup.offsetX = 0;
+			if (setup.offsetY >0) setup.offsetY = 0;
+		}
 		repaint();
 	}
 	
+	public void setClickListener(ClickListener cl) {
+		this.clickListener = cl;
+	}
 
 }

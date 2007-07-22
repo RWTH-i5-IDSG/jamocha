@@ -147,6 +147,7 @@ public class JMiniRadarShapeContainer extends JShapeContainer implements
 	}
 
 	public void mousePressed(MouseEvent arg0) {
+		mouseClicked(arg0);
 	}
 
 	public void mouseReleased(MouseEvent arg0) {

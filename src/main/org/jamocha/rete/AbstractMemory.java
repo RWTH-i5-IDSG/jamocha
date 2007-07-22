@@ -19,9 +19,7 @@ public abstract class AbstractMemory {
 		result.append(getSize());
 		result.append("; Content: ");
 		result.append("\n");
-		result.append("[");
 		result.append(contentToString());
-		result.append("]");
 		return result.toString();
 	}
 
