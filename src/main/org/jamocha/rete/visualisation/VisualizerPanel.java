@@ -20,7 +20,6 @@ public class VisualizerPanel extends JPanel {
 		miniMap = new Visualizer(e);
 		miniMap.enableToolTips(false);
 		miniMap.enableAutoScale(true);
-		miniMap.enableViewportByClick(true);
 		miniMap.enableShowSelection(true);
 		miniMap.setPreferredSize(new Dimension(150,120));
 		
@@ -30,7 +29,7 @@ public class VisualizerPanel extends JPanel {
 		
 		mainVis.addViewportChangedListener(miniMap);
 		miniMap.addViewportChangedListener(mainVis);
-
+		miniMap.enableViewportByClick(true,mainVis);
 		
 		dump = new JTextPane();
 		

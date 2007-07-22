@@ -39,6 +39,7 @@ public class Visualizer extends JComponent implements ComponentListener, MouseIn
 	protected boolean autoScale = false;
 	protected Map<BaseNode,Integer> rowHints;
 	protected boolean showSelection = false;
+	protected Visualizer selectionRelativeTo;
 	
 	public void computeRowHints() {
 		rowHints.clear();
@@ -76,6 +77,10 @@ public class Visualizer extends JComponent implements ComponentListener, MouseIn
 		e.y=-setup.offsetY;
 		e.width=(int)(this.getWidth() / setup.scaleX);
 		e.height=(int)(this.getHeight() / setup.scaleY);
+		callViewportChangedListeners(e);
+	}
+	
+	protected void callViewportChangedListeners(ViewportChangeEvent e) {
 		for (ViewportChangedListener listener : viewportChangedListener)
 			listener.viewportChanged(e);
 	}
@@ -175,11 +180,13 @@ public class Visualizer extends JComponent implements ComponentListener, MouseIn
 		
 		
 		if (showSelection) {
-			int x = (int)(-setup.offsetX / setup.scaleX);
-			int y = (int)(-setup.offsetX / setup.scaleX);
-			int w = (int)(getWidth() / setup.scaleX);
-			int h = (int)(getHeight() / setup.scaleY);
-			g.fillRect(x, y, w, h);
+			VisualizerSetup s = selectionRelativeTo.setup;
+			int x = (int)(s.offsetX * setup.scaleX);
+			int y = (int)(s.offsetY * setup.scaleY);
+			int w = (int)((selectionRelativeTo.getWidth() / s.scaleX)*setup.scaleX);
+			int h = (int)((selectionRelativeTo.getHeight() / s.scaleY)*setup.scaleY);
+			g.setColor(new Color(100,100,255,100));
+			g.fillRect(x-w/2, y-h/2, w, h);
 		}
 	}
 	
@@ -231,8 +238,9 @@ public class Visualizer extends JComponent implements ComponentListener, MouseIn
 		}
 	}
 	
-	public void enableViewportByClick(boolean enable) {
+	public void enableViewportByClick(boolean enable, Visualizer other) {
 		viewportChangeByClick = enable;
+		selectionRelativeTo = other;
 	}
 
 	public void componentHidden(ComponentEvent e) {
@@ -258,8 +266,8 @@ public class Visualizer extends JComponent implements ComponentListener, MouseIn
 			y -= setup.offsetY;
 		}
 		
-		double normalizedWidth = getWidth() / setup.scaleX;
-		double normalizedHeight = getHeight() / setup.scaleY;
+		double normalizedWidth = selectionRelativeTo.getWidth() / selectionRelativeTo.setup.scaleX;
+		double normalizedHeight = selectionRelativeTo.getHeight() / selectionRelativeTo.setup.scaleY;
 		
 		x -= normalizedWidth/2;
 		y -= normalizedHeight/2;
@@ -271,8 +279,11 @@ public class Visualizer extends JComponent implements ComponentListener, MouseIn
 	
 	public void mouseClicked(MouseEvent arg0) {
 		if (viewportChangeByClick) {
-			changeViewport(arg0);
-			callViewportChangedListeners();
+			ViewportChangeEvent ev = new ViewportChangeEvent();
+			ev.x = (int)(arg0.getX() / setup.scaleX);
+			ev.y = (int)(arg0.getY() / setup.scaleY);
+			callViewportChangedListeners(ev);
+			repaint();
 		}
 	}
 
