@@ -95,15 +95,14 @@ public class Foreach implements Function, Serializable {
 		}
 
 		public String getExample() {
-			return "(bind ?x (create$ cheese milk eggs bread))"
-					+ "(bind ?res \"We need: \")"
-					+ "(foreach ?item ?x (bind ?res (str-cat ?res ?item \", \")))"
+			return "(bind ?x (create$ cheese milk eggs bread))\n"
+					+ "(bind ?res \"We need: \")\n"
+					+ "(foreach ?item ?x (bind ?res (str-cat ?res ?item \", \")))\n"
 					+ "(return ?res)";
 		}
 
 		public boolean isResultAutoGeneratable() {
-			// TODO Auto-generated method stub
-			return false;
+			return true;
 		}
 	}
 

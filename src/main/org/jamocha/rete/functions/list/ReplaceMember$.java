@@ -122,8 +122,7 @@ public class ReplaceMember$ implements Function, Serializable {
 		}
 
 		public boolean isResultAutoGeneratable() {
-			// TODO Auto-generated method stub
-			return false;
+			return true;
 		}
 	}
 

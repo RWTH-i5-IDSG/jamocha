@@ -123,9 +123,8 @@ public class IteratorImporter implements Function, Serializable {
 					"(facts)";
 		}
 
-		public boolean isResultAutoGeneratable() {
-			// TODO Auto-generated method stub
-			return false;
+		public boolean isResultAutoGeneratable() {			
+			return true;
 		}
 	}
 

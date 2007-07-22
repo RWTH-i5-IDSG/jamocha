@@ -70,12 +70,12 @@ public class Now implements Function, Serializable {
 		}
 
 		public String getExample() {			
-			return "(now)";
+			return "(now)\n" +
+					"(getseconds (now))";
 		}
 
 		public boolean isResultAutoGeneratable() {
-			// TODO Auto-generated method stub
-			return false;
+			return true;
 		}
 	}
 

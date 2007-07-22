@@ -131,9 +131,8 @@ public class IteratorExporter implements Function, Serializable {
 					"(iteratorexporter \"org.jamocha.sampleimplementations.SampleExportHandler\"  ?config (create$ ?horst ?heiner1 ?ory ?krautsalat))";
 		}
 
-		public boolean isResultAutoGeneratable() {
-			// TODO Auto-generated method stub
-			return false;
+		public boolean isResultAutoGeneratable() {			
+			return true;
 		}
 	}
 

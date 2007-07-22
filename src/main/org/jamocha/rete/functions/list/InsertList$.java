@@ -95,12 +95,12 @@ public class InsertList$ implements Function, Serializable {
 		}
 
 		public String getExample() {
-			return "(insert$ (create$ cheese milk bread sausages) 3 eggs)";
+			return "(insert-list$ (create$ cheese milk bread sausages) 3 (create$ eggs butter))\n" +
+					"(insert-list$ (create$ cheese milk bread sausages) 3 eggs butter)";
 		}
 
 		public boolean isResultAutoGeneratable() {
-			// TODO Auto-generated method stub
-			return false;
+			return true;
 		}
 	}
 
