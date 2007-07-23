@@ -155,21 +155,7 @@ public class ObjectCondition extends AbstractCondition {
 		}
 	}
 
-	/**
-	 * if the ObjectCondition
-	 */
-	public boolean hasBindings() {
-		Iterator itr = propConditions.iterator();
-		while (itr.hasNext()) {
-			Object ob = itr.next();
-			if (ob instanceof BoundConstraint) {
-				return true;
-			} else if (ob instanceof PredicateConstraint) {
-				return ((PredicateConstraint) ob).isPredicateJoin();
-			}
-		}
-		return false;
-	}
+
 
 	/**
 	 * Method will return a list of all the BoundConstraints
@@ -186,9 +172,7 @@ public class ObjectCondition extends AbstractCondition {
 					binds.add(c);
 				}
 			} else if (c instanceof PredicateConstraint) {
-				if (((PredicateConstraint) c).isPredicateJoin()) {
-					binds.add(c);
-				}
+				binds.add(c);
 			}
 		}
 		return binds;
@@ -266,6 +250,11 @@ public class ObjectCondition extends AbstractCondition {
 		
 		
 		return result;
+	}
+
+	@Override
+	public boolean hasBindings() {
+		return (!getAllBoundConstraints().isEmpty());
 	}
 	
 }

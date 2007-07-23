@@ -933,78 +933,9 @@ public class SFRuleCompiler implements RuleCompiler {
 	 * @return BaseNode
 	 */
 	public BaseNode compile(PredicateConstraint constraint, Rule rule, int conditionIndex) {
-		SlotAlpha node = null;
-		// for now we expect the user to write the predicate in this
-		// way (> ?bind value), where the binding is first. this
-		// needs to be updated so that we look at the order of the
-		// parameters and set the node appropriately
-		// we only create an AlphaNode if the predicate isn't
-		// joining 2 bindings.
-		if (!constraint.isPredicateJoin()) {
-			if (ConversionUtils.isPredicateOperatorCode(constraint.getFunctionName())) {
-				int oprCode = ConversionUtils.getOperatorCode(constraint.getFunctionName());
-				Slot sl = (Slot) constraint.getSlot().clone();
-				JamochaValue sval;
-				try {
-					sval = constraint.getValue().implicitCast(sl.getValueType());
-				} catch (IllegalConversionException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-					return null;
-				}
-				sl.value = sval;
-				// create the alphaNode
-
-				// NoMemANodes are not supported anymore. so we create
-				// AlphaNodes, no matter what rule.getRememberMatch() says
-				node = new AlphaNode(engine.nextNodeId());
-
-				node.setSlot(sl);
-				node.setOperator(oprCode);
-				// we increment the node use count when when create
-				// a new AlphaNode for the LiteralConstraint
-				constraint.getSlot().incrementNodeCount();
-			} else {
-				// the function isn't a built in predicate function
-				// that
-				// returns boolean true/false. We look up the
-				// function
-				Function f = engine.getFunctionMemory().findFunction(constraint.getFunctionName());
-				if (f != null) {
-					// we create the alphaNode if a function is
-					// found and
-					// the return type is either boolean primitive
-					// or object
-					if (f.getDescription().getReturnType().equals(JamochaType.BOOLEANS)) {
-						// TODO - need to implement it
-					} else {
-						// the function doesn't return boolean, so
-						// we have to notify
-						// the listeners the condition is not valid
-						CompileEvent ce = new CompileEvent(this, CompileEvent.FUNCTION_INVALID);
-						ce.setMessage(INVALID_FUNCTION + " " + f.getDescription().getReturnType()); //$NON-NLS-1$
-						this.notifyListener(ce);
-					}
-				} else {
-					// we need to notify listeners the function
-					// wasn't found
-					CompileEvent ce = new CompileEvent(this, CompileEvent.FUNCTION_NOT_FOUND);
-					ce.setMessage(FUNCTION_NOT_FOUND + " " + f.getDescription().getReturnType()); //$NON-NLS-1$
-					this.notifyListener(ce);
-				}
-			}
-		}
-		Binding bind = new Binding();
-		bind.setVarName(constraint.getVariableName());
-		bind.setLeftRow(conditionIndex);
-		bind.setLeftIndex(constraint.getSlot().getId());
-		// bind.setRowDeclared(conditionIndex);
-		// we only add the binding to the map if it doesn't already
-		// exist
-		if (rule.getBinding(constraint.getVariableName()) == null) {
-			rule.addBinding(constraint.getVariableName(), bind);
-		}
-		return node;
+		System.out.println("predicate");
+		System.out.println(constraint.toClipsFormat(0));
+		return null;
 	}
 
 	/**

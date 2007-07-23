@@ -25,6 +25,7 @@ import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.nodes.BaseNode;
 import org.jamocha.rete.BoundParam;
 import org.jamocha.rete.Constants;
+import org.jamocha.rete.Parameter;
 import org.jamocha.rete.SFRuleCompiler;
 
 /**
@@ -39,25 +40,11 @@ public class PredicateConstraint extends AbstractConstraint {
 	static final long serialVersionUID = 0xDeadBeafCafeBabeL;
 
 	/**
-	 * the name of the slot
-	 */
-	protected String name = null;
-
-	/**
-	 * the name of the variable
-	 */
-	protected String varName = null;
-
-	/**
 	 * the name of the function
 	 */
 	protected String functionName = null;
 
-	protected JamochaValue value = JamochaValue.NIL;
-
-	protected ArrayList parameters = new ArrayList();
-
-	protected boolean isPredicateJoin = false;
+	protected ArrayList<Parameter> parameters = new ArrayList<Parameter>();
 
 	/**
 	 * 
@@ -71,44 +58,7 @@ public class PredicateConstraint extends AbstractConstraint {
 	 * 
 	 * @see woolfel.engine.rule.Constraint#getName()
 	 */
-	public String getName() {
-		return this.name;
-	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see woolfel.engine.rule.Constraint#setName(java.lang.String)
-	 */
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see woolfel.engine.rule.Constraint#getValue()
-	 */
-	public JamochaValue getValue() {
-		return this.value;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see woolfel.engine.rule.Constraint#setValue(java.lang.Object)
-	 */
-	public void setValue(JamochaValue val) {
-		this.value = val;
-	}
-
-	public String getVariableName() {
-		return this.varName;
-	}
-
-	public void setVariableName(String name) {
-		this.varName = name;
-	}
 
 	public String getFunctionName() {
 		return this.functionName;
@@ -118,63 +68,15 @@ public class PredicateConstraint extends AbstractConstraint {
 		this.functionName = func;
 	}
 
-	public boolean isPredicateJoin() {
-		return this.isPredicateJoin;
-	}
-
-	public void addParameters(List params) {
-		this.parameters.addAll(params);
-		int bcount = 0;
-		// we try to set the value
-		Iterator itr = parameters.iterator();
-		while (itr.hasNext()) {
-			Object p = itr.next();
-			// for now, a simple implementation
-			if (p instanceof JamochaValue) {
-				this.setValue((JamochaValue) p);
-
-				break;
-			} else if (p instanceof BoundParam) {
-				BoundParam bp = (BoundParam) p;
-				if (!bp.getVariableName().equals(this.varName)) {
-					this.setValue(JamochaValue.newBinding(bp));
-				}
-				bcount++;
-			}
-		}
-		if (bcount > 1) {
-			this.isPredicateJoin = true;
-		}
-	}
-
-	public void addParameter(Expression param) {
-		this.parameters.add(param);
-		if (param instanceof JamochaValue) {
-			this.setValue((JamochaValue) param);
-		} else if (param instanceof BoundParam && this.varName == null) {
-			this.varName = ((BoundParam) param).getVariableName();
-		}
-	}
-
-	public List getParameters() {
-		return this.parameters;
+	public void addParameter(Parameter params) {
+		this.parameters.add(params);
 	}
 
 	public int parameterCount() {
 		return this.parameters.size();
 	}
 
-	/**
-	 * the purpose of normalize is to look at the order of the parameters and
-	 * flip the operator if necessary
-	 * 
-	 */
-	public void normalize() {
-
-	}
-
 	public boolean getNegated() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
@@ -190,6 +92,25 @@ public class PredicateConstraint extends AbstractConstraint {
 	public String toClipsFormat(int indent) {
 		String ind = "";
 		while (ind.length() < indent*blanksPerIndent) ind+=" ";
-		return ind+"(" + getName() + " " + getValue().toClipsFormat(indent) + ")";
+		StringBuilder sb = new StringBuilder();
+		sb.append(ind+"(" + getFunctionName());
+		for (Parameter param : parameters) {
+			sb.append(" ");
+			sb.append(param.toClipsFormat(0));
+		}
+		sb.append(")");
+		return sb.toString();
+	}
+
+	@Override
+	public JamochaValue getValue() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void setValue(JamochaValue val) {
+		// TODO Auto-generated method stub
+		
 	}
 }

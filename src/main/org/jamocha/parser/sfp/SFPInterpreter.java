@@ -52,6 +52,7 @@ import org.jamocha.rule.NotCondition;
 import org.jamocha.rule.ObjectCondition;
 import org.jamocha.rule.OrCondition;
 import org.jamocha.rule.OrConnectedConstraint;
+import org.jamocha.rule.PredicateConstraint;
 import org.jamocha.rule.TestCondition;
 
 public class SFPInterpreter implements SFPParserVisitor {
@@ -890,8 +891,20 @@ public class SFPInterpreter implements SFPParserVisitor {
 			constraint = new LiteralConstraint();
 			constraint.setValue((JamochaValue) obj);
 		} else if (n instanceof SFPColon) {
-			// TODO: constraint = new PredicateConstraint();
-			// predivate can't handle functions containing functioncalls
+			PredicateConstraint pred = new PredicateConstraint(); 
+			constraint = pred;
+			
+			String functionName = 
+				((JamochaValue)n.jjtGetChild(0).jjtGetChild(0).jjtAccept(this, null)).toString();
+			pred.setFunctionName(functionName);
+			
+			for (int i=1; i< n.jjtGetChild(0).jjtGetNumChildren() ; i++) {
+				Parameter param = 
+					(Parameter)n.jjtGetChild(0).jjtGetChild(i).jjtAccept(this, null);
+				pred.addParameter(param);
+			}
+			
+			
 		} else if (n instanceof SFPEquals) {
 			// TODO: constraint = new PredicateConstraint();
 			// predivate can't handle functions containing functioncalls
