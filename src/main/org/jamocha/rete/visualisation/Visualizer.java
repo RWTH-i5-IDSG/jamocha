@@ -29,10 +29,10 @@ public class Visualizer extends JComponent implements ComponentListener, MouseIn
 	BaseNode rootNode;
 	VisualizerSetup setup;
 
-	protected final Color alphaColor = new Color(0,0,255,120);
-	protected final Color betaColor = new Color(255,0,0,120);
-	protected final Color alphaColorDeselected = new Color(0,0,255,10);
-	protected final Color betaColorDeselected = new Color(255,0,0,10);
+	protected final Color betaColor = new Color(0,0,255,120);
+	protected final Color alphaColor = new Color(255,0,0,120);
+	protected final Color betaColorDeselected = new Color(0,0,255,10);
+	protected final Color alphaColorDeselected = new Color(255,0,0,10);
 	protected Map<Point, BaseNode> point2node;
 	protected Map<BaseNode,Boolean> isSelectedNode = new HashMap<BaseNode, Boolean>();
 	protected int logicalWidth = 0;
@@ -251,7 +251,7 @@ public class Visualizer extends JComponent implements ComponentListener, MouseIn
 				RenderingHints.VALUE_ANTIALIAS_ON);
 		rootNode.drawNode(0,selectedNodes,canvas,setup,node2point, point2node,rowHints);
 		
-		BasicStroke widthThreeStroke = new BasicStroke(3*setup.scaleX);
+		BasicStroke widthThreeStroke = new BasicStroke(1*setup.scaleX);
 		canvas.setStroke(widthThreeStroke);
 		
 		drawConnectionLines(rootNode, node2point, canvas);

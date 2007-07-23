@@ -35,9 +35,6 @@
 (fire)
 
 
-(view)
-
-
 
 (defrule predconstrtest
 	(salat (name ?nameschwer) (gewicht ?gewichtschwer))
@@ -46,14 +43,6 @@
 )
 
 (fire)
-
-
-
-
-(view)
-
-
-
 
 
 (defrule babaam
