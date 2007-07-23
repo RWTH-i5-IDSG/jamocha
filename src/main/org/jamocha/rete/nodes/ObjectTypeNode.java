@@ -16,8 +16,16 @@
  */
 package org.jamocha.rete.nodes;
 
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.image.ImageObserver;
 import java.io.Serializable;
+import java.util.List;
 
+import javax.swing.ImageIcon;
+import javax.swing.JTextPane;
+
+import org.jamocha.gui.icons.IconLoader;
 import org.jamocha.rete.Fact;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.Template;
@@ -102,6 +110,32 @@ public class ObjectTypeNode extends AbstractAlpha implements Serializable {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+	
+	
+	protected void drawNode(int x, int y, int height, int width, List<BaseNode> selected, Graphics2D canvas){
+		int alpha = (selected.contains(this)) ? 255 : 20;
+		canvas.setBackground( new Color(90,255,90,alpha) );
+		canvas.setColor(  new Color(15,200,15,alpha) );
+		canvas.fillRect(x, y, width, height);
+		canvas.drawRect(x, y, width, height);
+		drawId(x,y,height,width,canvas);
+		
+		String dtn = deftemplate.getName();
+		if (dtn.equals("bier")) {
+			ImageIcon icon = IconLoader.getImageIcon("src/main/org/jamocha/rete/visualisation/images/bier.png");
+			System.out.println(icon);
+			int w = 48;
+			int h = 48;
+			icon.paintIcon(new JTextPane(), canvas, x, y);
+			canvas.drawImage(icon.getImage(), x, y, w, h, null);
+		} else if (dtn.equals("wurst")) {
+			
+		} else if (dtn.equals("salat")) {
+			
+		} 
+		
+		
 	}
 
 }

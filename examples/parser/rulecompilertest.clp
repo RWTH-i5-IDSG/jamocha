@@ -2,6 +2,7 @@
 (deftemplate salat (slot name) (slot farbe) (slot dazupasst) (slot gewicht))
 (deftemplate getraenk (slot name) (slot farbe) )
 (deftemplate farbe (slot name) (slot red) (slot green) (slot blue) )
+(deftemplate bier (slot name))
 
 (assert (wurst (name "gruenspanwurst") (spitzname "gruebi") (farbe "hellgruen") (gewicht 1) ))
 (assert (wurst (name "bratwurst")(spitzname "bratwosch")(farbe "weiss")(gewicht 100) ))
@@ -24,6 +25,18 @@
 (assert (farbe (name blau) (red 0) (green 0) (blue 1)))
 (assert (farbe (name gelb) (red 1) (green 1) (blue 0)))
 (assert (farbe (name hellgruen) (red 0.3) (green 1) (blue 0.3)))
+
+
+(defrule tst2
+	(wurst (name ?x) (farbe ?f) )
+	(bier (name ?y))
+	=> (printout t ?x ?y crlf)
+)
+(fire)
+
+
+(view)
+
 
 
 (defrule predconstrtest
