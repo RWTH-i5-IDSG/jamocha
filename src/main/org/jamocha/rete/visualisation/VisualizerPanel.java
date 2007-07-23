@@ -65,7 +65,7 @@ public class VisualizerPanel extends JPanel implements ClickListener {
 		
 	}
 
-	@Override
+	
 	public void nodeClicked(String description) {
 		try {
 			dump.getDocument().insertString(dump.getDocument().getLength(), description + "\n", actAttributes);

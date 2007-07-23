@@ -317,29 +317,27 @@ public class Visualizer extends JComponent implements ComponentListener, MouseIn
 		}
 	}
 
-	@Override
+	
 	public void mouseEntered(MouseEvent arg0) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
+	
 	public void mouseExited(MouseEvent arg0) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
+	
 	public void mousePressed(MouseEvent arg0) {
 		
 	}
 
-	@Override
 	public void mouseReleased(MouseEvent arg0) {
 
 	}
 
-	@Override
 	public void mouseDragged(MouseEvent arg0) {
 		if (viewportChangeByClick) {
 			mouseClicked(arg0);
@@ -347,12 +345,11 @@ public class Visualizer extends JComponent implements ComponentListener, MouseIn
 		
 	}
 
-	@Override
 	public void mouseMoved(MouseEvent arg0) {
 
 	}
 
-	@Override
+	
 	public void viewportChanged(ViewportChangeEvent e) {
 		
 		if (!autoScale) {
