@@ -70,12 +70,15 @@ public class SetFocus implements Function, Serializable {
 		}
 
 		public String getExample() {
-			return "(set-focus MAIN)";
+			return "(defmodule MOCHA)\n" +
+					"(modules)\n" +
+					"(get-current-module)\n" +
+					"(set-focus MAIN)\n" +
+					"(get-current-module)";
 		}
 
 		public boolean isResultAutoGeneratable() {
-			// TODO Auto-generated method stub
-			return false;
+			return true;
 		}
 	}
 

@@ -74,7 +74,7 @@ public class MemoryFree implements Function, Serializable {
 		}
 
 		public boolean isResultAutoGeneratable() {
-			return false;
+			return true;
 		}
 	}
 

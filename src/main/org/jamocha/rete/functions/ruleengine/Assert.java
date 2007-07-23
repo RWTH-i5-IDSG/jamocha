@@ -87,7 +87,6 @@ public class Assert implements Function, Serializable {
 		}
 
 		public boolean isResultAutoGeneratable() {
-			// TODO Auto-generated method stub
 			return true;
 		}
 	}

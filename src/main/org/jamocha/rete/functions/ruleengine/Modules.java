@@ -72,12 +72,12 @@ public class Modules implements Function, Serializable {
 		}
 
 		public String getExample() {
-			return "(modules)";
+			return "(defmodule TESTMODUL)\n" +
+					"(modules)";
 		}
 
 		public boolean isResultAutoGeneratable() {
-			// TODO Auto-generated method stub
-			return false;
+			return true;
 		}
 	}
 

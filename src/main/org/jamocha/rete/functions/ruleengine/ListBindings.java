@@ -72,12 +72,12 @@ public class ListBindings implements Function, Serializable {
 		}
 
 		public String getExample() {
-			return "(list-bindings)";
+			return "(bind ?helo 'Jamocha rulez!')\n" +
+					"(list-bindings)";
 		}
 
 		public boolean isResultAutoGeneratable() {
-			// TODO Auto-generated method stub
-			return false;
+			return true;
 		}
 	}
 

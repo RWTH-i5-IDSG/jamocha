@@ -69,12 +69,13 @@ public class Watch implements Function, Serializable {
 		}
 
 		public String getExample() {
-			return "(watch facts)";
+			return "(watch facts)\n" +
+					"(deftemplate templ2 (slot name))\n" +
+					"(assert (templ2 (name test1)) (templ2 (name test2)))";
 		}
 
 		public boolean isResultAutoGeneratable() {
-			// TODO Auto-generated method stub
-			return false;
+			return true;
 		}
 	}
 
