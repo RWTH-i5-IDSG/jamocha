@@ -28,7 +28,7 @@
 
 
 (defrule tst
-	(salat (name ?salad&:(less 2 3) ))
+	(salat (name ?salad&:(less 4 3) ))
 	=> (printout t ?salad crlf)
 )
 

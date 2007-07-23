@@ -663,6 +663,24 @@ public class SFRuleCompiler implements RuleCompiler {
 				filters.add(b);
 				act = (itr.hasNext()) ? itr.next() : null;
 			}
+			
+			// search for predicate constraints and build filters for them
+			Condition c = conds[i];
+			if (c instanceof ObjectCondition) {
+				ObjectCondition objc = (ObjectCondition)c;
+				for (Constraint constr : objc.getConstraints()) {
+					if (constr instanceof PredicateConstraint) {
+						PredicateConstraint pcon = (PredicateConstraint)constr;
+						Function function = engine.getFunctionMemory().findFunction(pcon.getFunctionName());
+						try {
+							FunctionEvaluator filter = new FunctionEvaluator(engine,function,pcon.getParameters());
+							filters.add(filter);
+						} catch (JoinFilterException e) {
+							engine.writeMessage(e.getMessage());
+						}
+					}
+				}
+			}
 
 			// set bindig= null if binds.size=0
 			if (filters.size()>0)((BetaFilterNode) conditionJoiner).setFilters(filters, engine);
@@ -933,8 +951,6 @@ public class SFRuleCompiler implements RuleCompiler {
 	 * @return BaseNode
 	 */
 	public BaseNode compile(PredicateConstraint constraint, Rule rule, int conditionIndex) {
-		System.out.println("predicate");
-		System.out.println(constraint.toClipsFormat(0));
 		return null;
 	}
 

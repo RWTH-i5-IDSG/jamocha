@@ -113,4 +113,8 @@ public class PredicateConstraint extends AbstractConstraint {
 		// TODO Auto-generated method stub
 		
 	}
+
+	public ArrayList<Parameter> getParameters() {
+		return parameters;
+	}
 }
