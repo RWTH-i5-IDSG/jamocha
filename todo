@@ -47,3 +47,9 @@ Core
 	Activation List
 	strategies for conflict resolution
 	more multithreading support
+usage
+	implement an eclipse plugin
+		syntax highlighting
+		code completion
+		syntax-check
+		run configuration
