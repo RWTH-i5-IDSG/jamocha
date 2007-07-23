@@ -20,6 +20,7 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.io.Serializable;
+import java.util.List;
 import java.util.Map;
 
 import org.jamocha.rete.ConversionUtils;
@@ -324,7 +325,8 @@ public abstract class BaseNode implements Serializable {
 	 * representation is not the major thing in the BaseNode class. It is protected,
 	 * since it will be called from a higher-level (public) method inside BaseNode.
 	 */
-	protected void drawNode(int x, int y, int height, int width, int alpha, Graphics2D canvas){
+	protected void drawNode(int x, int y, int height, int width, List<BaseNode> selected, Graphics2D canvas){
+		int alpha = (selected.contains(this)) ? 255 : 20;
 		canvas.setBackground( new Color(255,40,40,alpha) );
 		canvas.setColor(  new Color(200,15,15,alpha) );
 		canvas.fillRect(x, y, width, height);
@@ -370,13 +372,13 @@ public abstract class BaseNode implements Serializable {
 	 * @param setup the setup
 	 * @return the width
 	 */
-	public int drawNode(int fromColumn, int alpha, Graphics2D canvas, VisualizerSetup setup, Map<BaseNode,Point> positions, Map<Point,BaseNode> p2n, Map<BaseNode,Integer> rowHints) {
+	public int drawNode(int fromColumn, List<BaseNode> selected, Graphics2D canvas, VisualizerSetup setup, Map<BaseNode,Point> positions, Map<Point,BaseNode> p2n, Map<BaseNode,Integer> rowHints) {
 		int firstColumn = fromColumn;
 		int row = rowHints.get(this);
 		for (BaseNode child : childNodes ){
 			// only draw the child node, iff i am the "primary parent"
 			if (!(child.parentNodes[0] == this)) continue;
-			firstColumn += child.drawNode(firstColumn, alpha, canvas, setup, positions,p2n,rowHints);
+			firstColumn += child.drawNode(firstColumn, selected, canvas, setup, positions,p2n,rowHints);
 		}
 		int width = firstColumn - fromColumn;
 		if (width == 0) width = 2;
@@ -397,7 +399,7 @@ public abstract class BaseNode implements Serializable {
 			positions.put(this, p1);
 			p2n.put(p1, this);
 			p2n.put(p2, this);
-			drawNode(x, y, h, w, alpha, canvas);
+			drawNode(x, y, h, w, selected, canvas);
 		//
 		return width;
 	}

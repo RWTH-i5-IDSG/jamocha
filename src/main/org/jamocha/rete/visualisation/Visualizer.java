@@ -22,16 +22,19 @@ import org.jamocha.rete.Rete;
 import org.jamocha.rete.WorkingMemoryImpl;
 import org.jamocha.rete.nodes.AlphaNode;
 import org.jamocha.rete.nodes.BaseNode;
-
+import org.jamocha.rete.nodes.TerminalNode;
  
 public class Visualizer extends JComponent implements ComponentListener, MouseInputListener, ViewportChangedListener{
 	
 	BaseNode rootNode;
 	VisualizerSetup setup;
-	protected final BasicStroke widthThreeStroke = new BasicStroke(3);
+
 	protected final Color alphaColor = new Color(0,0,255,120);
 	protected final Color betaColor = new Color(255,0,0,120);
+	protected final Color alphaColorDeselected = new Color(0,0,255,10);
+	protected final Color betaColorDeselected = new Color(255,0,0,10);
 	protected Map<Point, BaseNode> point2node;
+	protected Map<BaseNode,Boolean> isSelectedNode = new HashMap<BaseNode, Boolean>();
 	protected int logicalWidth = 0;
 	protected int logicalHeight = 0;
 	protected List<ViewportChangedListener> viewportChangedListener; 
@@ -42,6 +45,9 @@ public class Visualizer extends JComponent implements ComponentListener, MouseIn
 	protected Visualizer selectionRelativeTo;
 	protected boolean pressed;
 	protected ClickListener clickListener;
+	protected Map<BaseNode,List<String>> usedForRules; 
+	protected List<String> selectedRules = new ArrayList<String>();
+	protected List<BaseNode> selectedNodes;
 	
 	public void computeRowHints() {
 		rowHints.clear();
@@ -66,7 +72,7 @@ public class Visualizer extends JComponent implements ComponentListener, MouseIn
 	
 	public void reload() {
 		computeRowHints();
-		
+		calculateSelectedNodes();
 	}
 	
 	public void addViewportChangedListener(ViewportChangedListener listener) {
@@ -93,6 +99,7 @@ public class Visualizer extends JComponent implements ComponentListener, MouseIn
 		point2node = new HashMap<Point, BaseNode>();
 		rowHints = new HashMap<BaseNode, Integer>();
 		viewportChangedListener = new ArrayList<ViewportChangedListener>();
+		usedForRules = new HashMap<BaseNode, List<String>>();
 		reload();
 		this.addComponentListener(this);
 		this.addMouseMotionListener(this);
@@ -120,6 +127,55 @@ public class Visualizer extends JComponent implements ComponentListener, MouseIn
 		return (int)result;
 	}
 	
+	protected List<String> calculateSelectedNodesHelper(BaseNode node) {
+		List<String> result = new ArrayList<String>();
+		
+		if (node instanceof TerminalNode) {
+			TerminalNode n = (TerminalNode)node;
+			result.add( (String) n.getRule().getName() );
+		} else {
+			for (BaseNode child : node.getChildNodes()) {
+				List<String> childResult = calculateSelectedNodesHelper(child);
+				result.addAll( childResult );
+			}
+		}
+		usedForRules.put(node, result);
+		return result;
+	}
+	
+	protected void calculateSelectedNodes() {
+		calculateSelectedNodesHelper(rootNode);
+		
+		selectedNodes = new ArrayList<BaseNode>();
+		
+		Stack<BaseNode> nodes = new Stack<BaseNode>();
+		nodes.add(rootNode);
+		
+		while (!nodes.isEmpty()) {
+			BaseNode act = nodes.pop();
+			
+			for (BaseNode child : act.getChildNodes()) nodes.add(child);
+			
+			if (isNodeSelected(act)) selectedNodes.add(act);
+			
+		}
+			
+	}
+	
+	public boolean isNodeSelected(BaseNode node) {
+		List<String> rules = usedForRules.get(node);
+		for (String noderule : rules)
+			for (String selected : selectedRules)
+				if (noderule.equals(selected))  return true;
+		return false;
+	}
+
+	protected void setSelectedRules(List<String> selected) {
+		selectedRules = selected;
+		calculateSelectedNodes();
+		repaint();
+	}
+	
 	protected void drawConnectionLines(BaseNode root, Map<BaseNode,Point> positions, Graphics2D canvas) {
 		for (BaseNode child : root.getChildNodes() ) {
 			Point rootPos = positions.get(root);
@@ -129,11 +185,20 @@ public class Visualizer extends JComponent implements ComponentListener, MouseIn
 			childPos = BaseNode.getLineEndPoint(rootPos, childPos, setup);
 			rootPos = BaseNode.getLineEndPoint(childPos, rootPos, setup);
 			
-			if (root instanceof AlphaNode) {
-				canvas.setColor( alphaColor );
-			} else{
-				canvas.setColor( betaColor );
+			if (isNodeSelected(child)) {
+				if (root instanceof AlphaNode) {
+					canvas.setColor( alphaColor );
+				} else{
+					canvas.setColor( betaColor );
+				}
+			} else {
+				if (root instanceof AlphaNode) {
+					canvas.setColor( alphaColorDeselected );
+				} else{
+					canvas.setColor( betaColorDeselected );
+				}
 			}
+				
 			
 			int arcX, arcY,midX, midY, w, h;
 			w = Math.abs(rootPos.x - childPos.x);
@@ -175,10 +240,20 @@ public class Visualizer extends JComponent implements ComponentListener, MouseIn
 		Map<BaseNode,Point> node2point = new HashMap<BaseNode,Point>();
 		point2node.clear();
 		Graphics2D canvas = (Graphics2D) g;
-		canvas.setStroke(widthThreeStroke);
+		canvas.setColor(Color.white);
+		canvas.fillRect(0,0,getWidth(), getHeight());
+		
+		BasicStroke widthOneStroke = new BasicStroke(1*setup.scaleX);
+		canvas.setStroke(widthOneStroke);
+
+		
 		canvas.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
 				RenderingHints.VALUE_ANTIALIAS_ON);
-		rootNode.drawNode(0,255,canvas,setup,node2point, point2node,rowHints);
+		rootNode.drawNode(0,selectedNodes,canvas,setup,node2point, point2node,rowHints);
+		
+		BasicStroke widthThreeStroke = new BasicStroke(3*setup.scaleX);
+		canvas.setStroke(widthThreeStroke);
+		
 		drawConnectionLines(rootNode, node2point, canvas);
 		
 		
