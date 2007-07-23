@@ -664,24 +664,6 @@ public class SFRuleCompiler implements RuleCompiler {
 				act = (itr.hasNext()) ? itr.next() : null;
 			}
 			
-			// search for predicate constraints and build filters for them
-			Condition c = conds[i];
-			if (c instanceof ObjectCondition) {
-				ObjectCondition objc = (ObjectCondition)c;
-				for (Constraint constr : objc.getConstraints()) {
-					if (constr instanceof PredicateConstraint) {
-						PredicateConstraint pcon = (PredicateConstraint)constr;
-						Function function = engine.getFunctionMemory().findFunction(pcon.getFunctionName());
-						try {
-							FunctionEvaluator filter = new FunctionEvaluator(engine,function,pcon.getParameters());
-							filters.add(filter);
-						} catch (JoinFilterException e) {
-							engine.writeMessage(e.getMessage());
-						}
-					}
-				}
-			}
-
 			// set bindig= null if binds.size=0
 			if (filters.size()>0)((BetaFilterNode) conditionJoiner).setFilters(filters, engine);
 		}
@@ -716,13 +698,66 @@ public class SFRuleCompiler implements RuleCompiler {
 		} catch (JoinFilterException e) {
 			engine.writeMessage(e.getMessage());
 		}
+		compilePredicateConstraints(rule, conds, conditionJoiners, bindingAddressTable);
 		return mostBottomNode;
 
 	}
 	
+	protected void compilePredicateConstraints(Rule rule, Condition[] conds, Map<Condition, BaseNode> conditionJoiners, BindingAddressesTable bindingAddressTable) throws AssertException{
+		// search for predicate constraints and build filters for them
+		for (Condition c : rule.getConditions()) {
+			if (c instanceof ObjectCondition) {
+				ObjectCondition objc = (ObjectCondition)c;
+				for (Constraint constr : objc.getConstraints()) {
+					if (constr instanceof PredicateConstraint) {
+						PredicateConstraint pcon = (PredicateConstraint)constr;
+						List<Parameter> params = (List<Parameter>)pcon.getParameters().clone();
+						// determine good row index for our test
+						int validRowIndex = 1;
+						while (!params.isEmpty()) {
+							Parameter p = params.remove(params.size()-1);
+							if (p instanceof Signature) {
+								Signature sig = (Signature) p;
+								for (Parameter pnew :	sig.getParameters()) params.add(pnew);
+							} else if (p instanceof BoundParam) {
+								BoundParam bp = (BoundParam) p;
+								BindingAddress pivot = bindingAddressTable.getPivot(bp.getVariableName());
+								if (pivot==null)
+									throw new AssertException("Error in TestCondition: Variable " + bp.getVariableName() + " is not defined");
+								validRowIndex = Math.max(pivot.tupleIndex, validRowIndex);
+							}
+						}
+						// determine corresponding node
+						
+						BetaFilterNode validNode = (BetaFilterNode)(conditionJoiners.get( conds[tupleIndexToConditionIndex(validRowIndex, conds.length) ] ));
+						Parameter[] functionParams = recalculateParameters(conds.length, pcon.getParameters(), bindingAddressTable, tupleIndexToConditionIndex(validRowIndex,conds.length));
+						Function function = engine.getFunctionMemory().findFunction(pcon.getFunctionName());
+						try {
+							FunctionEvaluator filter = new FunctionEvaluator(engine,function,functionParams);
+							validNode.addFilter(filter);
+						} catch (JoinFilterException e) {
+							engine.writeMessage(e.getMessage());
+						}
+					}
+				}
+			}
+		}
+	}
+	
+	
+	protected Parameter[] recalculateParameters(int conditionsCount, List<Parameter> params, BindingAddressesTable bindingAddressTable, int conditionIndex){
+		Parameter[] paramsArr = new Parameter[params.size()];
+		params.toArray(paramsArr);
+		return recalculateParameters(conditionsCount, paramsArr, bindingAddressTable, conditionIndex);
+	}
+	
 	protected Parameter[] recalculateParameters(int conditionsCount, Signature s, BindingAddressesTable bindingAddressTable, int conditionIndex){
+		return recalculateParameters(conditionsCount, s.getParameters(), bindingAddressTable, conditionIndex);
+	}
+	
+	protected Parameter[] recalculateParameters(int conditionsCount, Parameter[] params, BindingAddressesTable bindingAddressTable, int conditionIndex){
 		List<Parameter> result = new ArrayList<Parameter>();
-		for (Parameter p : s.getParameters()) {
+		for (Parameter p : params) {
 			if (p instanceof BoundParam) {
 				BoundParam bp = (BoundParam)p;
 				BindingAddress pivot = bindingAddressTable.getPivot(bp.getVariableName());
@@ -770,7 +805,7 @@ public class SFRuleCompiler implements RuleCompiler {
 				List<BoundParam> boundParams = tc.getFunction().getBoundParameters();
 				
 				// determine good row index for our test
-				int validRowIndex = 0;
+				int validRowIndex = 1;
 				for ( BoundParam p : boundParams ) {
 					BindingAddress pivot = bindingAddressTable.getPivot(p.getVariableName());
 					if (pivot==null)

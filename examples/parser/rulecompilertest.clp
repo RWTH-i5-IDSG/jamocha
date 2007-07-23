@@ -1,4 +1,3 @@
-
 (deftemplate wurst (slot name) (slot spitzname) (slot farbe)  (slot gewicht))
 (deftemplate salat (slot name) (slot farbe) (slot dazupasst) (slot gewicht))
 (deftemplate getraenk (slot name) (slot farbe) )
@@ -27,9 +26,10 @@
 (assert (farbe (name hellgruen) (red 0.3) (green 1) (blue 0.3)))
 
 
-(defrule tst
-	(salat (name ?salad&:(less 4 3) ))
-	=> (printout t ?salad crlf)
+(defrule predconstrtest
+	(salat (name ?nameschwer) (gewicht ?gewichtschwer))
+	(salat (name ?nameleicht) (gewicht ?gewichtleicht&:(less ?gewichtleicht ?gewichtschwer)) )
+	=> (printout t ?nameschwer "(" ?gewichtschwer ") ist schwerer als "?nameleicht "(" ?gewichtleicht ")" crlf)
 )
 
 (fire)
