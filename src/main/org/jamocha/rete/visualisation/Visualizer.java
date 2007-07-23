@@ -9,6 +9,8 @@ import java.awt.RenderingHints;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -24,7 +26,7 @@ import org.jamocha.rete.nodes.AlphaNode;
 import org.jamocha.rete.nodes.BaseNode;
 import org.jamocha.rete.nodes.TerminalNode;
  
-public class Visualizer extends JComponent implements ComponentListener, MouseInputListener, ViewportChangedListener{
+public class Visualizer extends JComponent implements ComponentListener, MouseInputListener, ViewportChangedListener, MouseWheelListener{
 	
 	BaseNode rootNode;
 	VisualizerSetup setup;
@@ -48,6 +50,9 @@ public class Visualizer extends JComponent implements ComponentListener, MouseIn
 	protected Map<BaseNode,List<String>> usedForRules; 
 	protected List<String> selectedRules = new ArrayList<String>();
 	protected List<BaseNode> selectedNodes;
+	protected Point pressPos;
+	protected Point offsetWhenPressed;
+	protected boolean rightScroll;
 	
 	public void computeRowHints() {
 		rowHints.clear();
@@ -104,6 +109,7 @@ public class Visualizer extends JComponent implements ComponentListener, MouseIn
 		this.addComponentListener(this);
 		this.addMouseMotionListener(this);
 		this.addMouseListener(this);
+		this.addMouseWheelListener(this);
 	}
 	
 	protected Point toPhysical(Point p, VisualizerSetup setup){
@@ -406,16 +412,28 @@ public class Visualizer extends JComponent implements ComponentListener, MouseIn
 
 	
 	public void mousePressed(MouseEvent arg0) {
-		
+		pressPos = arg0.getPoint();
+		offsetWhenPressed = new Point(setup.offsetX,setup.offsetY);
+		if (!viewportChangeByClick && arg0.getButton()==MouseEvent.BUTTON3) rightScroll=true;
 	}
 
 	public void mouseReleased(MouseEvent arg0) {
-
+		rightScroll=false;
 	}
 
 	public void mouseDragged(MouseEvent arg0) {
 		if (viewportChangeByClick) {
 			mouseClicked(arg0);
+		} else {
+			if (rightScroll) {
+				int altOffX = offsetWhenPressed.x;
+				int altOffY = offsetWhenPressed.y;
+				int offsetOffsetX = (arg0.getPoint().x - pressPos.x);
+				int offsetOffsetY = (arg0.getPoint().y - pressPos.y);
+				setup.offsetX = altOffX + offsetOffsetX;
+				setup.offsetY = altOffY + offsetOffsetY;
+				repaint();
+			}
 		}
 		
 	}
@@ -448,6 +466,36 @@ public class Visualizer extends JComponent implements ComponentListener, MouseIn
 	
 	public void setClickListener(ClickListener cl) {
 		this.clickListener = cl;
+	}
+	
+	protected void zoom(double valueX, double valueY) {
+		//is always absolute
+		int midX = (int)( setup.offsetX + (getWidth() / setup.scaleX)/2.0 );
+		int midY = (int)( setup.offsetY + (getHeight() / setup.scaleY)/2.0 );
+
+		setup.scaleX=(float)valueX;
+		setup.scaleY=(float)valueY;
+		
+		setup.offsetX = (int)(midX - (getWidth() / setup.scaleX)/2.0 );
+		setup.offsetY = (int)(midY - (getHeight() / setup.scaleY)/2.0 );
+	}
+	
+	protected void zoom(double valueX, double valueY, boolean relative){
+		if (relative) {
+			zoom(valueX*setup.scaleX, valueY*setup.scaleY);
+		} else {
+			zoom(valueX, valueY);
+		}
+		callViewportChangedListeners();
+		repaint();
+	}
+
+	@Override
+	public void mouseWheelMoved(MouseWheelEvent arg0) {
+		int dir = arg0.getWheelRotation();
+		double d = 1;
+		if (dir > 0) {d = dir*1.1;} else { d = dir / -1.1; };
+		zoom(d,d,true);
 	}
 
 }

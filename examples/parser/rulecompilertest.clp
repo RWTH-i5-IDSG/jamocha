@@ -66,7 +66,7 @@
 
 (fire)
 
-
+(view)
 
 
 (defrule vorschlag
