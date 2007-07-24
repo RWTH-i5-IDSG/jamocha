@@ -65,10 +65,7 @@ public class Cancel {
 		}
 		List<SLConfiguration> results = contentConf.getExpressions();
 		if (results.size() != 1) {
-			// TODO: Add more Exceptions for different things extending
-			// AdapterTranslationException that tell more about the nature of
-			// the problem!
-			throw new AdapterTranslationException("Error");
+			throw new AdapterTranslationException("Unexpected structure of the content. Expected 1 Expression.");
 		}
 		ActionSLConfiguration actConf = (ActionSLConfiguration) results.get(0);
 		FunctionCallOrFactSLConfiguration functionConf = (FunctionCallOrFactSLConfiguration) actConf
@@ -83,7 +80,7 @@ public class Cancel {
 				SLCompileType.ASSERT);
 		StringBuilder result = new StringBuilder();
 		if (oldContent != null) {
-			result.append("(assert (agent-cancel (initiator \"");
+			result.append("(assert (agent-cancel-result (message %MSG%)(initiator \"");
 			result.append(agent);
 			result.append("\")(performative \"");
 			result.append(performative);

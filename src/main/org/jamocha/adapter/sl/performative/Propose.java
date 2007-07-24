@@ -69,11 +69,13 @@ public class Propose {
 			throw new AdapterTranslationException("Error");
 		
 	
-		result.append("(assert (agent-propose-result (action");
-		result.append(results.get(0).compile(SLCompileType.ASSERT));
-		result.append(") propositions(");
+		result.append("(assert (agent-propose-result (message %MSG%)(action ");
+		result.append(results.get(0).compile(SLCompileType.ACTION_AND_ASSERT));
+		result.append(") (propositions");
 		for(int i = 1; i < results.size(); i++){
-			result.append(results.get(i).compile(SLCompileType.ASSERT));
+			result.append(" \"");
+			result.append(results.get(i).compile(SLCompileType.RULE_LHS));
+			result.append("\"");
 		}
 		result.append(")))");
 		

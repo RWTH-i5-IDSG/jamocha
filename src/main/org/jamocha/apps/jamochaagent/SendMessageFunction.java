@@ -87,31 +87,33 @@ public class SendMessageFunction implements Function {
 
 	private static final String NAME = "agent-send-message";
 
-	private static final int RECEIVERS_PARAM_POS = 0;
+	private static final int SENDER_PARAM_POS = 0;
 
-	private static final int REPLY_TO_PARAM_POS = 1;
+	private static final int RECEIVERS_PARAM_POS = 1;
 
-	private static final int PERFORMATIVE_PARAM_POS = 2;
+	private static final int REPLY_TO_PARAM_POS = 2;
 
-	private static final int CONTENT_PARAM_POS = 3;
+	private static final int PERFORMATIVE_PARAM_POS = 3;
 
-	private static final int LANGUAGE_PARAM_POS = 4;
+	private static final int CONTENT_PARAM_POS = 4;
 
-	private static final int ENCODING_PARAM_POS = 5;
+	private static final int LANGUAGE_PARAM_POS = 5;
 
-	private static final int ONTOLOGY_PARAM_POS = 6;
+	private static final int ENCODING_PARAM_POS = 6;
 
-	private static final int PROTOCOL_PARAM_POS = 7;
+	private static final int ONTOLOGY_PARAM_POS = 7;
 
-	private static final int CONVERSATION_PARAM_POS = 8;
+	private static final int PROTOCOL_PARAM_POS = 8;
 
-	private static final int IN_REPLY_TO_PARAM_POS = 9;
+	private static final int CONVERSATION_PARAM_POS = 9;
 
-	private static final int REPLY_WITH_PARAM_POS = 10;
+	private static final int IN_REPLY_TO_PARAM_POS = 10;
 
-	private static final int REPLY_BY_PARAM_POS = 11;
+	private static final int REPLY_WITH_PARAM_POS = 11;
 
-	private static final int PARAM_COUNT = 12;
+	private static final int REPLY_BY_PARAM_POS = 12;
+
+	private static final int PARAM_COUNT = 13;
 
 	public FunctionDescription getDescription() {
 		return DESCRIPTION;
@@ -165,6 +167,13 @@ public class SendMessageFunction implements Function {
 		ACLMessage result = new ACLMessage(ACLMessage
 				.getInteger(params[PERFORMATIVE_PARAM_POS].getValue(engine)
 						.getStringValue().toUpperCase()));
+		String sender = params[SENDER_PARAM_POS].getValue(engine)
+				.getStringValue();
+		if(sender == null || sender.length() < 1) {
+			sender = agent.getName();
+		}
+		result.setSender(new AID(sender, true));
+
 		// receivers are given in a LIST
 		JamochaValue receivers = params[RECEIVERS_PARAM_POS].getValue(engine)
 				.implicitCast(JamochaType.LIST);

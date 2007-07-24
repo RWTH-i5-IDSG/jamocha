@@ -28,7 +28,7 @@ import org.jamocha.parser.sl.SLParser;
  * This class walks through an SL code tree and translates it to CLIPS depending
  * on the given performative.
  * 
- * @author Daniel Grams & Georg Jennessen
+ * @author Daniel Grams, Georg Jennessen
  * 
  */
 public class Disconfirm {
@@ -61,11 +61,13 @@ public class Disconfirm {
 		}
 		StringBuffer result = new StringBuffer();
 		List<SLConfiguration> results = contentConf.getExpressions();
-		result.append("(assert (agent-Disconfirm-result (propositions");
+		result.append("(assert (agent-disconfirm-result (message %MSG%)(propositions (create$");
 		for (int i = 1; i < results.size(); i++) {
+			result.append(" \"");
 			result.append(results.get(i).compile(SLCompileType.ASSERT));
+			result.append("\"");
 		}
-		result.append(")))");
+		result.append("))))");
 		return result.toString();
 	}
 

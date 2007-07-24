@@ -28,7 +28,7 @@ import org.jamocha.parser.sl.SLParser;
  * This class walks through an SL code tree and translates it to CLIPS depending
  * on the given performative.
  * 
- * @author Daniel Grams & Georg Jennessen
+ * @author Daniel Grams, Georg Jennessen
  * 
  */
 public class Failure {
@@ -62,11 +62,12 @@ public class Failure {
 		}
 		StringBuffer result = new StringBuffer();
 		List<SLConfiguration> results = contentConf.getExpressions();
-		result.append("(assert (agent-Failure-result (propositions");
-		for (int i = 1; i < results.size(); i++) {
-			result.append(results.get(i).compile(SLCompileType.ASSERT));
-		}
-		result.append(")))");
+		result
+				.append("(assert (agent-failure-result (message %MSG%)(action \"");
+		result.append(results.get(0).compile(SLCompileType.ACTION_AND_ASSERT));
+		result.append("\")(proposition \"");
+		results.get(1).compile(SLCompileType.RULE_LHS);
+		result.append("\")))");
 		return result.toString();
 	}
 }

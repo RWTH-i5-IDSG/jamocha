@@ -39,15 +39,15 @@ public class AcceptProposal {
 	 * A private constructor to force access only in a static way.
 	 * 
 	 */
-	
-	private AcceptProposal(){
+	private AcceptProposal() {
 	}
-	
+
 	/**
 	 * Translates SL code of an accept-propose to CLIPS code. An accept-propose
-	 * contains an action and a proposition. The action will be performed when the
-	 * given preconditions, given by the proposition, come true. This proposition
-	 * was accepted by another agent after he received a propose by this agent.
+	 * contains an action and a proposition. The action will be performed when
+	 * the given preconditions, given by the proposition, come true. This
+	 * proposition was accepted by another agent after he received a propose by
+	 * this agent.
 	 * 
 	 * @param slContent
 	 *            The SL content we have to translate.
@@ -57,40 +57,39 @@ public class AcceptProposal {
 	 *             happens.
 	 */
 	public static String getCLIPS(String slContent)
-	throws AdapterTranslationException {
+			throws AdapterTranslationException {
 
-	ContentSLConfiguration contentConf;
-	try {
-		contentConf = SLParser.parse(slContent);
-	} catch (ParseException e) {
-		throw new AdapterTranslationException(
-				"Could not translate from SL to CLIPS.", e);
-	}
-	List<SLConfiguration> results = contentConf.getExpressions();
-	if (results.size() != 2) {
-		// TODO: Add more Exceptions for different things extending
-		// AdapterTranslationException that tell more about the nature of
-		// the problem!
-		throw new AdapterTranslationException("Error");
-	}
-	StringBuilder result = new StringBuilder();
-	String ruleName = "accept-proposal" + uniqueId++;
-	
-	result.append("(defrule ");
-	result.append(ruleName);
-	result.append(" ");
-	result.append(results.get(1).compile(SLCompileType.RULE_LHS));
-	result.append(" => ");
-	result.append("(assert (agent-acceptPropose-result (message %MSG%)(result \"");
-	result.append(results.get(0).compile(SLCompileType.ACTION_AND_ASSERT));
-	result.append("\")))");
-	result.append("(undefrule ");
-	result.append(ruleName);
-	result.append("))");
-	result.append("(assert (agent-message-rule-pairing (message %MSG%)(ruleName \"");
-	result.append(ruleName);
-	result.append("\")))");
-	System.out.println(result);
-	return result.toString();
+		ContentSLConfiguration contentConf;
+		try {
+			contentConf = SLParser.parse(slContent);
+		} catch (ParseException e) {
+			throw new AdapterTranslationException(
+					"Could not translate from SL to CLIPS.", e);
+		}
+		List<SLConfiguration> results = contentConf.getExpressions();
+		if (results.size() != 2) {
+			throw new AdapterTranslationException("Unexpected structure of the content. Expected 2 Expressions.");
+		}
+		StringBuilder result = new StringBuilder();
+		String ruleName = "accept-proposal" + uniqueId++;
+
+		result.append("(defrule ");
+		result.append(ruleName);
+		result.append(" ");
+		result.append(results.get(1).compile(SLCompileType.RULE_LHS));
+		result.append(" => ");
+		result
+				.append("(assert (agent-acceptProposal-result (message %MSG%)(result \"");
+		result.append(results.get(0).compile(SLCompileType.ACTION_AND_ASSERT));
+		result.append("\")))");
+		result.append("(undefrule ");
+		result.append(ruleName);
+		result.append("))");
+		result
+				.append("(assert (agent-message-rule-pairing (message %MSG%)(ruleName \"");
+		result.append(ruleName);
+		result.append("\")))");
+
+		return result.toString();
 	}
 }

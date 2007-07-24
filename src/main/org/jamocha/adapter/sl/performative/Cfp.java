@@ -25,7 +25,6 @@ import org.jamocha.adapter.sl.configurations.SLConfiguration;
 import org.jamocha.parser.sl.ParseException;
 import org.jamocha.parser.sl.SLParser;
 
-
 /**
  * This class walks through an SL code tree and translates it to CLIPS depending
  * on the given performative.
@@ -34,7 +33,7 @@ import org.jamocha.parser.sl.SLParser;
  * 
  */
 public class Cfp {
-	
+
 	private static long uniqueId = 1;
 
 	/**
@@ -45,10 +44,10 @@ public class Cfp {
 	}
 
 	/**
-	 * Translates SL code of a call-for-proposal to CLIPS code. This performative contains
-	 * an action and a referential operator, which defines a proposition with 
-	 * exactly one parameter. The receiving agent has to decide whether he can perform the action 
-	 * under this precondition or not. 
+	 * Translates SL code of a call-for-proposal to CLIPS code. This
+	 * performative contains an action and a referential operator, which defines
+	 * a proposition with exactly one parameter. The receiving agent has to
+	 * decide whether he can perform the action under this precondition or not.
 	 * 
 	 * @param slContent
 	 *            The SL content we have to translate.
@@ -68,20 +67,22 @@ public class Cfp {
 		}
 		List<SLConfiguration> results = contentConf.getExpressions();
 		if (results.size() != 2) {
-			throw new AdapterTranslationException("Error");
+			throw new AdapterTranslationException("Unexpected structure of the content. Expected 2 Expressions.");
 		}
 		StringBuilder result = new StringBuilder();
-		IdentifyingExpressionSLConfiguration conf = (IdentifyingExpressionSLConfiguration) results.get(1);
+		IdentifyingExpressionSLConfiguration conf = (IdentifyingExpressionSLConfiguration) results
+				.get(1);
 		String refOp = conf.getRefOp().compile(SLCompileType.RULE_LHS);
-		String binding = conf.getTermOrIE().compile(SLCompileType.ACTION_AND_ASSERT);
-		
-		result.append("(assert(agent-cfp-result (action ");
-		result.append(results.get(0).compile(SLCompileType.ASSERT));
-		result.append(") (ref-expression ");
+		String binding = conf.getTermOrIE().compile(
+				SLCompileType.ACTION_AND_ASSERT);
+
+		result.append("(assert (agent-cfp-result (message %MSG%)(action \"");
+		result.append(results.get(0).compile(SLCompileType.ACTION_AND_ASSERT));
+		result.append("\") (refExpression ");
 		result.append(refOp);
 		result.append(binding);
 		result.append(")))");
-		
+
 		return result.toString();
 	}
 

@@ -20,7 +20,7 @@
 
 (deftemplate agent-message
 	"Definition of an agent-message."
-	(slot sender (type STRING))
+	(slot sender (type STRING)(default ""))
 	(multislot receivers)
 	(multislot reply-to)
 	(slot performative (type STRING))
@@ -47,9 +47,73 @@
 )
 
 
+(deftemplate agent-acceptProposal-result
+	"Result-Template for agree performatives."
+	(slot message)
+	(slot result)
+)
+
+
 (deftemplate agent-agree-result
 	"Result-Template for agree performatives."
 	(slot message)
+	(slot action (type STRING))
+	(slot proposition (type STRING))
+)
+
+
+(deftemplate agent-cancel-result
+	"Result template for cancel performatives."
+	(slot message)
+	(slot initiator (type STRING))
+	(slot performative (type STRING))
+	(slot messageContent (type STRING))
+)
+
+
+(deftemplate agent-cfp-result
+	"Result-Template for cfp performatives."
+	(slot message)
+	(slot action (type STRING))
+	(slot refExpression (type STRING))
+)
+
+
+(deftemplate agent-confirm-result
+	"Result-Template for confirm performatives."
+	(slot message)
+	(multislot propositions)
+)
+
+
+(deftemplate agent-disconfirm-result
+	"Result-Template for disconfirm performatives."
+	(slot message)
+	(multislot propositions)
+)
+
+
+(deftemplate agent-failure-result
+	"Result-Template for failure performatives."
+	(slot message)
+	(slot action (type STRING))
+	(slot proposition (type STRING))
+)
+
+
+(deftemplate agent-queryRef-result
+	"Result-Template for query-ref performatives."
+	(slot message)
+	(slot action (type STRING))
+	(slot refOp (type STRING))
+	(multislot items)
+)
+
+
+(deftemplate agent-propose-result
+	"Result-Template for propose performatives."
+	(slot message)
+	(slot action (type STRING))
 	(multislot propositions)
 )
 
@@ -75,18 +139,13 @@
 	(slot result)
 )
 
+
 (deftemplate agent-requestWhen-result
-	""
+	"Result template for request-when performatives."
 	(slot message)
 	(slot result)
 )
 
-(deftemplate agent-cancel
-	"Generic Template for a cancel communicative act."
-	(slot initiator (type STRING))
-	(slot performative (type STRING))
-	(slot messageContent (type STRING))
-)
 
 (deftemplate agent-message-rule-pairing
 	"Generic pairing to connect a rule to the message that caused its definition."
@@ -172,7 +231,8 @@
 	(?message)
 	
 	; Call agent-send-message with the slot values.
-	(agent-send-message 
+	(agent-send-message
+		(fact-slot-value ?message "sender")
 		(fact-slot-value ?message "receivers")
 		(fact-slot-value ?message "reply-to")
 		(fact-slot-value ?message "performative")

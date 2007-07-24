@@ -62,7 +62,7 @@ public class Inform {
 		}
 		StringBuffer result = new StringBuffer();
 		List<SLConfiguration> results = contentConf.getExpressions();
-		result.append("(assert (agent-Inform-result (propositions");
+		result.append("(assert (agent-inform-result (propositions");
 		for (int i = 1; i < results.size(); i++) {
 			result.append(results.get(i).compile(SLCompileType.ASSERT));
 		}
