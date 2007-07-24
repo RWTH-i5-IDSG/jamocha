@@ -11,6 +11,7 @@ import java.awt.event.ComponentListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -22,8 +23,10 @@ import javax.swing.event.MouseInputListener;
 
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.WorkingMemoryImpl;
+import org.jamocha.rete.nodes.AbstractBeta;
 import org.jamocha.rete.nodes.AlphaNode;
 import org.jamocha.rete.nodes.BaseNode;
+import org.jamocha.rete.nodes.LIANode;
 import org.jamocha.rete.nodes.TerminalNode;
  
 public class Visualizer extends JComponent implements ComponentListener, MouseInputListener, ViewportChangedListener, MouseWheelListener{
@@ -33,9 +36,10 @@ public class Visualizer extends JComponent implements ComponentListener, MouseIn
 
 	protected final Color betaColor = new Color(0,0,255,120);
 	protected final Color alphaColor = new Color(255,0,0,120);
-	protected final Color betaColorDeselected = new Color(0,0,255,10);
-	protected final Color alphaColorDeselected = new Color(255,0,0,10);
+	protected final Color betaColorDeselected = new Color(0,0,255,20);
+	protected final Color alphaColorDeselected = new Color(255,0,0,20);
 	protected Map<Point, BaseNode> point2node;
+	protected Map<BaseNode,Point> node2point;
 	protected Map<BaseNode,Boolean> isSelectedNode = new HashMap<BaseNode, Boolean>();
 	protected int logicalWidth = 0;
 	protected int logicalHeight = 0;
@@ -52,6 +56,7 @@ public class Visualizer extends JComponent implements ComponentListener, MouseIn
 	protected List<BaseNode> selectedNodes;
 	protected Point pressPos;
 	protected Point offsetWhenPressed;
+	protected int linestyle = VisualizerSetup.QUARTERELLIPSE;
 	protected boolean rightScroll;
 	
 	public void computeRowHints() {
@@ -78,6 +83,9 @@ public class Visualizer extends JComponent implements ComponentListener, MouseIn
 	public void reload() {
 		computeRowHints();
 		calculateSelectedNodes();
+		node2point = new HashMap<BaseNode,Point>();
+		rootNode.drawNode(0,selectedNodes,(Graphics2D)new BufferedImage(1,1,BufferedImage.TYPE_INT_RGB).getGraphics(),setup,node2point, point2node,rowHints);
+		
 	}
 	
 	public void addViewportChangedListener(ViewportChangedListener listener) {
@@ -96,6 +104,11 @@ public class Visualizer extends JComponent implements ComponentListener, MouseIn
 	protected void callViewportChangedListeners(ViewportChangeEvent e) {
 		for (ViewportChangedListener listener : viewportChangedListener)
 			listener.viewportChanged(e);
+	}
+	
+	public void setLineStyle(int style) {
+		linestyle=style;
+		repaint();
 	}
 	
 	public Visualizer(Rete e) {
@@ -182,57 +195,81 @@ public class Visualizer extends JComponent implements ComponentListener, MouseIn
 		repaint();
 	}
 	
-	protected void drawConnectionLines(BaseNode root, Map<BaseNode,Point> positions, Graphics2D canvas) {
+	protected void drawConnectionLines(BaseNode root, Map<BaseNode,Point> positions, Graphics2D canvas, boolean selected, boolean unselected) {
 		for (BaseNode child : root.getChildNodes() ) {
 			Point rootPos = positions.get(root);
 			Point childPos = positions.get(child);
 			rootPos = toPhysical(rootPos,setup);
 			childPos = toPhysical(childPos,setup);
-			childPos = BaseNode.getLineEndPoint(rootPos, childPos, setup);
-			rootPos = BaseNode.getLineEndPoint(childPos, rootPos, setup);
+
+			if (isNodeSelected(child) && selected || !isNodeSelected(child) && unselected) {
 			
-			if (isNodeSelected(child)) {
-				if (root instanceof AlphaNode) {
-					canvas.setColor( alphaColor );
-				} else{
-					canvas.setColor( betaColor );
+				if (isNodeSelected(child)) {
+					if (root instanceof AbstractBeta || root instanceof LIANode) {
+						canvas.setColor( betaColor );
+					} else{
+						canvas.setColor( alphaColor );
+					}
+				} else {
+					if (root instanceof AbstractBeta || root instanceof LIANode) {
+						canvas.setColor( betaColorDeselected );
+					} else{
+						canvas.setColor( alphaColorDeselected );
+					}
 				}
-			} else {
-				if (root instanceof AlphaNode) {
-					canvas.setColor( alphaColorDeselected );
-				} else{
-					canvas.setColor( betaColorDeselected );
-				}
-			}
 				
-			
-			int arcX, arcY,midX, midY, w, h;
-			w = Math.abs(rootPos.x - childPos.x);
-			if (rootPos.y < childPos.y) {
-				h = childPos.y - rootPos.y;
-				midX = rootPos.x;
-				midY = childPos.y;
-				arcX = midX-w;
-				arcY = midY-h;
-			} else {
-				h = - childPos.y + rootPos.y;
-				midY = rootPos.y;
-				midX = childPos.x;
-				arcX = midX-w;
-				arcY = midY-h;
+				
+				
+				if  (linestyle == VisualizerSetup.QUARTERELLIPSE ) {
+					if (childPos.x == rootPos.x) {
+						rootPos = root.getVerticalEndPoint(childPos, rootPos, setup);	
+					} else {
+						rootPos = root.getHorizontalEndPoint(childPos, rootPos, setup);
+					}
+					if (childPos.y == rootPos.y) {
+						childPos = child.getHorizontalEndPoint(rootPos, childPos, setup);
+					} else {
+						childPos = child.getVerticalEndPoint(rootPos, childPos, setup);
+					}
+					int arcX, arcY,midX, midY, w, h;
+					w = Math.abs(rootPos.x - childPos.x);
+					if (rootPos.y < childPos.y) {
+						h = childPos.y - rootPos.y;
+						midX = rootPos.x;
+						midY = childPos.y;
+						arcX = midX-w;
+						arcY = midY-h;
+					} else {
+						h = - childPos.y + rootPos.y;
+						midY = rootPos.y;
+						midX = childPos.x;
+						arcX = midX-w;
+						arcY = midY-h;
+					}
+					h *= 2;
+					w *= 2;
+					int originToRootX = rootPos.x - midX;
+					int originToRootY = rootPos.y - midY;
+					int originToChildX = childPos.x - midX;
+					int originToChildY = childPos.y - midY;
+					int startAngle = atan4(-originToRootY,originToRootX);
+					int arcAngle = atan4(  -originToChildY,originToChildX) - startAngle;
+					canvas.drawArc(arcX, arcY, w, h, startAngle, arcAngle);
+				} else if (linestyle == VisualizerSetup.LINE) {
+					rootPos = root.getLineEndPoint(childPos, rootPos, setup);
+					childPos = child.getLineEndPoint(rootPos, childPos, setup);
+					canvas.drawLine(rootPos.x, rootPos.y, childPos.x, childPos.y);
+					
+				}
+				
+				
+				
+				
+	
+				double angle = Math.atan2( (childPos.y-rootPos.y), (childPos.x-rootPos.x) );
+				drawArrowHead(childPos.x, childPos.y, angle, canvas);
 			}
-			h *= 2;
-			w *= 2;
-			int originToRootX = rootPos.x - midX;
-			int originToRootY = rootPos.y - midY;
-			int originToChildX = childPos.x - midX;
-			int originToChildY = childPos.y - midY;
-			int startAngle = atan4(-originToRootY,originToRootX);
-			int arcAngle = atan4(  -originToChildY,originToChildX) - startAngle;
-			canvas.drawArc(arcX, arcY, w, h, startAngle, arcAngle);
-			double angle = Math.atan2( (childPos.y-rootPos.y), (childPos.x-rootPos.x) );
-			drawArrowHead(childPos.x, childPos.y, angle, canvas);
-			drawConnectionLines(child, positions, canvas);
+			drawConnectionLines(child, positions, canvas, selected, unselected);
 		}
 	}
 	
@@ -243,7 +280,12 @@ public class Visualizer extends JComponent implements ComponentListener, MouseIn
 	}
 
 	public void paint(Graphics g) {
-		Map<BaseNode,Point> node2point = new HashMap<BaseNode,Point>();
+		//node2point = new HashMap<BaseNode,Point>();
+		
+		
+		//TODO: REMOVE THAT AND RECEIVE EVENTS INSTEAD OF THEM!!!!!
+		reload();
+		
 		point2node.clear();
 		Graphics2D canvas = (Graphics2D) g;
 		canvas.setColor(Color.white);
@@ -255,22 +297,25 @@ public class Visualizer extends JComponent implements ComponentListener, MouseIn
 		
 		canvas.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
 				RenderingHints.VALUE_ANTIALIAS_ON);
+		
+		drawConnectionLines(rootNode, node2point, canvas,false,true);
+	
+		
 		rootNode.drawNode(0,selectedNodes,canvas,setup,node2point, point2node,rowHints);
 		
-		BasicStroke widthThreeStroke = new BasicStroke(1*setup.scaleX);
-		canvas.setStroke(widthThreeStroke);
+		canvas.setStroke(widthOneStroke);
 		
-		drawConnectionLines(rootNode, node2point, canvas);
+		drawConnectionLines(rootNode, node2point, canvas,true,false);
 		
 		
 		if (showSelection) {
 			VisualizerSetup s = selectionRelativeTo.setup;
-			int x = -(int)(s.offsetX * setup.scaleX) + (int)(selectionRelativeTo.getWidth() * setup.scaleX /2);
-			int y = -(int)(s.offsetY * setup.scaleY) + (int)(selectionRelativeTo.getHeight() * setup.scaleY /2);
+			int x = (int) ((-s.offsetX+ ((selectionRelativeTo.getWidth() / s.scaleX) /2)) * setup.scaleX);
+			int y = (int) ((-s.offsetY+ ((selectionRelativeTo.getHeight() / s.scaleY) /2)) * setup.scaleY);
 			int w = (int)((selectionRelativeTo.getWidth() / s.scaleX)*setup.scaleX);
 			int h = (int)((selectionRelativeTo.getHeight() / s.scaleY)*setup.scaleY);
 			g.setColor(new Color(100,100,255,100));
-			g.fillRect(x-w/2, y-h/2, w, h);
+			g.fillRect(x - w/2, y - h/2 , w+1, h+1);
 		}
 	}
 	
@@ -385,16 +430,35 @@ public class Visualizer extends JComponent implements ComponentListener, MouseIn
 	}
 	
 	public void mouseClicked(MouseEvent arg0) {
-		if (viewportChangeByClick) {
-			_changeVP(arg0.getX(), arg0.getY());
-		} else {
-			
-			int x = arg0.getX();
-			int y = arg0.getY();
-			BaseNode node = point2node.get(getLogicalPosition(x, y));
-			String description = node.toPPString();
-			clickListener.nodeClicked(description);
-			
+		if (arg0.getButton() == MouseEvent.BUTTON1){
+			if (viewportChangeByClick) {
+				_changeVP(arg0.getX(), arg0.getY());
+			} else {
+				int x = arg0.getX();
+				int y = arg0.getY();
+				BaseNode node = point2node.get(getLogicalPosition(x, y));
+				if (node != null) {
+					String description = node.toPPString();
+					clickListener.nodeClicked(description);
+				}
+			}
+		} else if (arg0.getButton() == MouseEvent.BUTTON2) {
+			final float margin = 5.0f;
+			Point lp = node2point.get(point2node.get(getLogicalPosition(arg0.getX(), arg0.getY())));
+			int midX = (BaseNode.shapeGapWidth/2)+ ((lp.x)*(BaseNode.shapeGapWidth+BaseNode.shapeWidth))/2 + (BaseNode.shapeWidth/2);
+			int midY = (BaseNode.shapeGapHeight/2)+ (lp.y)*(BaseNode.shapeGapHeight+BaseNode.shapeHeight) + (BaseNode.shapeHeight/2);
+			float scaleX = getWidth() / (BaseNode.shapeWidth*margin);
+			float scaleY = getHeight() / (BaseNode.shapeHeight*margin);
+			float scale = Math.min(scaleX, scaleY);
+			midX -= (getWidth() / scale )/2;
+			midY -= (getHeight() / scale )/2;
+			setup.scaleX = scale;
+			setup.scaleY = scale;
+			setup.offsetX=-midX;
+			setup.offsetY=-midY;
+			correctOffsets();
+			callViewportChangedListeners();
+			repaint();
 		}
 	}
 
@@ -423,16 +487,20 @@ public class Visualizer extends JComponent implements ComponentListener, MouseIn
 
 	public void mouseDragged(MouseEvent arg0) {
 		if (viewportChangeByClick) {
-			mouseClicked(arg0);
+			_changeVP(arg0.getX(), arg0.getY());
 		} else {
 			if (rightScroll) {
 				int altOffX = offsetWhenPressed.x;
 				int altOffY = offsetWhenPressed.y;
 				int offsetOffsetX = (arg0.getPoint().x - pressPos.x);
 				int offsetOffsetY = (arg0.getPoint().y - pressPos.y);
+				offsetOffsetX /= setup.scaleX;
+				offsetOffsetY /= setup.scaleY;
 				setup.offsetX = altOffX + offsetOffsetX;
 				setup.offsetY = altOffY + offsetOffsetY;
+				correctOffsets();
 				repaint();
+				callViewportChangedListeners();
 			}
 		}
 		
@@ -443,6 +511,19 @@ public class Visualizer extends JComponent implements ComponentListener, MouseIn
 	}
 
 	
+	
+	
+	protected void correctOffsets(){
+		int maxOffsetX = (int)( -logicalWidth*(BaseNode.shapeGapWidth+BaseNode.shapeWidth)+getWidth()/setup.scaleX       );
+		int maxOffsetY = (int)( -logicalHeight*(BaseNode.shapeGapHeight+BaseNode.shapeHeight)+getHeight()/setup.scaleY   );
+		
+		if (setup.offsetX < maxOffsetX) setup.offsetX = maxOffsetX;
+		if (setup.offsetY < maxOffsetY) setup.offsetY = maxOffsetY;
+		
+		if (setup.offsetX >0) setup.offsetX = 0;
+		if (setup.offsetY >0) setup.offsetY = 0;
+	}
+		
 	public void viewportChanged(ViewportChangeEvent e) {
 		
 		if (!autoScale) {
@@ -450,16 +531,7 @@ public class Visualizer extends JComponent implements ComponentListener, MouseIn
 			setup.offsetX = e.x;
 			setup.offsetY = e.y;
 			
-	
-			
-			int maxOffsetX = -logicalWidth*(BaseNode.shapeGapWidth+BaseNode.shapeWidth)+getWidth();
-			int maxOffsetY = -logicalHeight*(BaseNode.shapeGapHeight+BaseNode.shapeHeight)+getHeight();
-			
-			if (setup.offsetX < maxOffsetX) setup.offsetX = maxOffsetX;
-			if (setup.offsetY < maxOffsetY) setup.offsetY = maxOffsetY;
-			
-			if (setup.offsetX >0) setup.offsetX = 0;
-			if (setup.offsetY >0) setup.offsetY = 0;
+			correctOffsets();
 		}
 		repaint();
 	}
@@ -470,14 +542,15 @@ public class Visualizer extends JComponent implements ComponentListener, MouseIn
 	
 	protected void zoom(double valueX, double valueY) {
 		//is always absolute
-		int midX = (int)( setup.offsetX + (getWidth() / setup.scaleX)/2.0 );
-		int midY = (int)( setup.offsetY + (getHeight() / setup.scaleY)/2.0 );
+		int midX = (int)(- setup.offsetX + (getWidth() / setup.scaleX)/2.0 );
+		int midY = (int)(- setup.offsetY + (getHeight() / setup.scaleY)/2.0 );
 
 		setup.scaleX=(float)valueX;
 		setup.scaleY=(float)valueY;
 		
-		setup.offsetX = (int)(midX - (getWidth() / setup.scaleX)/2.0 );
-		setup.offsetY = (int)(midY - (getHeight() / setup.scaleY)/2.0 );
+		setup.offsetX = (int)(-midX + (getWidth() / setup.scaleX)/2.0 );
+		setup.offsetY = (int)(-midY + (getHeight() / setup.scaleY)/2.0 );
+		correctOffsets();
 	}
 	
 	protected void zoom(double valueX, double valueY, boolean relative){
@@ -491,6 +564,7 @@ public class Visualizer extends JComponent implements ComponentListener, MouseIn
 	}
 
 	public void mouseWheelMoved(MouseWheelEvent arg0) {
+		if (autoScale) return;
 		int dir = arg0.getWheelRotation();
 		double d = 1;
 		if (dir > 0) {d = dir*1.1;} else { d = dir / -1.1; };

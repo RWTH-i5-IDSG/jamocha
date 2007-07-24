@@ -2,17 +2,24 @@ package org.jamocha.rete.visualisation;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.GridLayout;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 
+import javax.swing.ButtonGroup;
+import javax.swing.JButton;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTextPane;
+import javax.swing.JToggleButton;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -25,21 +32,23 @@ import org.jamocha.rete.Rete;
 import org.jamocha.rule.Defrule;
 import org.jamocha.rule.Rule;
 
-public class VisualizerPanel extends JPanel implements ClickListener, ListSelectionListener {
+public class VisualizerPanel extends JPanel implements ClickListener, ListSelectionListener, MouseListener {
 
 	
 	
 	class RuleSelectorPanel extends JPanel {
 		private static final long serialVersionUID = 1L;
 
+		JScrollPane scrollPane;
 		JList list;
+		int numRules;
 
 		List<ListSelectionListener> listeners;
 
 		public RuleSelectorPanel(Vector<String> rules) {
 			listeners = new ArrayList<ListSelectionListener>();
+			this.setLayout(new GridLayout(1,1));
 			setRules(rules);
-			this.setLayout(new GridLayout(1, 1));
 		}
 
 		public void synchronize() {
@@ -58,14 +67,18 @@ public class VisualizerPanel extends JPanel implements ClickListener, ListSelect
 				this.remove(list);
 			list = new JList(rules);
 			list.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-			if (rules != null)
-				list.setSelectionInterval(0, rules.size() - 1);
+			numRules = (rules!=null)? rules.size() : 0;
 			synchronize();
 			show();
 		}
 
+		
 		public void show() {
-			this.add(list);
+			if (scrollPane != null) this.remove(scrollPane);
+			scrollPane = new JScrollPane(list);
+			this.add(scrollPane);
+			this.validate();
+			list.setSelectionInterval(0, numRules-1);
 		}
 
 		public/* LONG_OBJECT */boolean isSelected(Rule r) {
@@ -96,6 +109,9 @@ public class VisualizerPanel extends JPanel implements ClickListener, ListSelect
 	protected JPanel optionsPanel;
 	protected RuleSelectorPanel rulePanel;
 	protected Rete engine;
+	protected JToggleButton lineBtn;
+	protected JToggleButton lineQuarterEllipse;
+	protected JButton reloadButton;
 	
 	protected SimpleAttributeSet actAttributes, even, odd;
 	
@@ -107,7 +123,7 @@ public class VisualizerPanel extends JPanel implements ClickListener, ListSelect
 		miniMap.enableToolTips(false);
 		miniMap.enableAutoScale(true);
 		miniMap.enableShowSelection(true);
-		miniMap.setPreferredSize(new Dimension(150,120));
+		miniMap.setPreferredSize(new Dimension(240,160));
 		
 		mainVis = new Visualizer(e);
 		mainVis.enableToolTips(true);
@@ -129,6 +145,9 @@ public class VisualizerPanel extends JPanel implements ClickListener, ListSelect
 		
 		optionsPanel = new JPanel();
 		optionsPanel.setPreferredSize(new Dimension(150,120));
+		
+		optionsPanel.setLayout(new GridLayout(1,1));
+		
 		rulePanel = new RuleSelectorPanel(null);
 		rulePanel.addListSelectionListener(this);
 		generateRulesList();
@@ -146,13 +165,42 @@ public class VisualizerPanel extends JPanel implements ClickListener, ListSelect
 		
 		this.setLayout(new BorderLayout());
 		this.add(splitUpperAndLower,BorderLayout.CENTER);
+
+		JPanel buttonPanel = new JPanel();
+		buttonPanel.setLayout(new FlowLayout(FlowLayout.RIGHT, 5, 1));
 		
+		//
+		ButtonGroup lineChooser = new ButtonGroup();
+		lineBtn = new JToggleButton("Lines");
+		lineQuarterEllipse = new JToggleButton("Quarter Ellipses");
+		lineChooser.add(lineBtn);
+		lineChooser.add(lineQuarterEllipse);
+
+		lineBtn.addMouseListener(this);
+		lineQuarterEllipse.addMouseListener(this);
+		lineQuarterEllipse.setSelected(true);		
+		
+		reloadButton = new JButton("Reload rules (only needed in this beta version)");
+		reloadButton.addMouseListener(this);
+
+		buttonPanel.add(lineBtn);
+		buttonPanel.add(lineQuarterEllipse);
+		buttonPanel.add(reloadButton);
+		
+		this.add(buttonPanel, BorderLayout.PAGE_END);
+
 	}
 
 	
+	public void reload() {
+		generateRulesList();
+		mainVis.reload();
+		miniMap.reload();
+	}
+	
 	public void nodeClicked(String description) {
 		try {
-			dump.getDocument().insertString(dump.getDocument().getLength(), description + "\n", actAttributes);
+			dump.getDocument().insertString(dump.getDocument().getLength(), description, actAttributes);
 		} catch (BadLocationException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -180,11 +228,51 @@ public class VisualizerPanel extends JPanel implements ClickListener, ListSelect
 	}
 
 	public void valueChanged(ListSelectionEvent e) {
-		
-		
-		
 		mainVis.setSelectedRules(rulePanel.getSelectedRules());
 		miniMap.setSelectedRules(rulePanel.getSelectedRules());
+	}
+
+
+	@Override
+	public void mouseClicked(MouseEvent arg0) {
+		Component c = arg0.getComponent();
+		if (c == lineBtn){
+			miniMap.setLineStyle( VisualizerSetup.LINE );
+			mainVis.setLineStyle( VisualizerSetup.LINE );
+		} else if (c == lineQuarterEllipse){
+			miniMap.setLineStyle( VisualizerSetup.QUARTERELLIPSE );
+			mainVis.setLineStyle( VisualizerSetup.QUARTERELLIPSE );
+		} else if (c == reloadButton) {
+			reload();
+		}
+		
+	}
+
+
+	@Override
+	public void mouseEntered(MouseEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	public void mouseExited(MouseEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	public void mousePressed(MouseEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	public void mouseReleased(MouseEvent arg0) {
+		// TODO Auto-generated method stub
 		
 	}
 	

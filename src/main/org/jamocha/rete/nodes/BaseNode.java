@@ -347,7 +347,7 @@ public abstract class BaseNode implements Serializable {
 	public final static int shapeWidth = 64;
 	public final static int shapeHeight = 24;
 	public final static int shapeGapWidth = 25;
-	public final static int shapeGapHeight = 15;
+	public final static int shapeGapHeight = 25;
 
 	
 	// THIS STUFF IS FOR CALCULATING SOME DRAWING INTERNALS
@@ -429,34 +429,48 @@ public abstract class BaseNode implements Serializable {
 		return result;
 	}
 	
-	public static Point getLineEndPoint(Point target, Point me, VisualizerSetup setup) {
+	public Point getHorizontalEndPoint(Point target, Point me, VisualizerSetup setup){
+		Point target2 = new Point (target.x, me.y);
+		return getLineEndPoint(target2, me, setup);
+	}
+	
+	public Point getVerticalEndPoint(Point target, Point me, VisualizerSetup setup){
+		Point target2 = new Point (me.x, target.y);
+		return getLineEndPoint(target2, me, setup);
+	}
+	
+	public Point getLineEndPoint(Point target, Point me, VisualizerSetup setup) {
+		return getLineEndPoint2(target,me,setup,
+				angleTopRight, angleTopLeft, angleBottomRight, angleBottomLeft,
+				topRight,topLeft,bottomRight,bottomLeft
+		);
+	}
+	
+	public Point getLineEndPoint2(Point target, Point me, VisualizerSetup setup,double atr, double atl, double abr, double abl, Point ptr, Point ptl, Point pbr, Point pbl) {
 		double angle = atan3(-target.y+me.y, target.x-me.x);
 		Point p1;
 		Point p2;
-		if (angle < angleTopRight || angle >= angleBottomRight) {
+		if (angle < atr || angle >= abr) {
 			// RIGHT SIDE
-			p1 = topRight;
-			p2 = bottomRight;
-		} else if (angle < angleTopLeft) {
+			p1 = ptr;
+			p2 = pbr;
+		} else if (angle < atl) {
 			// TOP SIDE
-			p1 = topLeft;
-			p2 = topRight;
-		} else if (angle < angleBottomLeft) {
+			p1 = ptl;
+			p2 = ptr;
+		} else if (angle < abl) {
 			// LEFT SIDE
-			p1 = topLeft;
-			p2 = bottomLeft;
+			p1 = ptl;
+			p2 = pbl;
 		} else {
 			// BOTTOM SIDE
-			p1 = bottomRight;
-			p2 = bottomLeft;
+			p1 = pbr;
+			p2 = pbl;
 		}
+		
 		Point pp1 = new Point(p1);
 		Point pp2 = new Point(p2);
 		
-//		pp1.x += setup.offsetX;
-//		pp1.y += setup.offsetY;
-//		pp2.x += setup.offsetX;
-//		pp2.y += setup.offsetY;
 		pp1.x *= setup.scaleX;
 		pp1.y *= setup.scaleY;
 		pp2.x *= setup.scaleX;
