@@ -179,8 +179,6 @@ public class VisualizerPanel extends JPanel implements ClickListener, ListSelect
 	
 	}
 
-
-	@Override
 	public void valueChanged(ListSelectionEvent e) {
 		
 		

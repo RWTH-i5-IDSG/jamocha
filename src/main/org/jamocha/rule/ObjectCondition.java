@@ -252,7 +252,6 @@ public class ObjectCondition extends AbstractCondition {
 		return result;
 	}
 
-	@Override
 	public boolean hasBindings() {
 		return (!getAllBoundConstraints().isEmpty());
 	}

@@ -102,13 +102,11 @@ public class PredicateConstraint extends AbstractConstraint {
 		return sb.toString();
 	}
 
-	@Override
 	public JamochaValue getValue() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	@Override
 	public void setValue(JamochaValue val) {
 		// TODO Auto-generated method stub
 		

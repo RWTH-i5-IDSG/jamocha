@@ -490,7 +490,6 @@ public class Visualizer extends JComponent implements ComponentListener, MouseIn
 		repaint();
 	}
 
-	@Override
 	public void mouseWheelMoved(MouseWheelEvent arg0) {
 		int dir = arg0.getWheelRotation();
 		double d = 1;
