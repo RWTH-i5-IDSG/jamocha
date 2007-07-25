@@ -23,6 +23,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.jamocha.rete.exception.RetractException;
+import org.jamocha.rete.memory.WorkingMemory;
 import org.jamocha.rete.nodes.ObjectTypeNode;
 import org.jamocha.rule.Defrule;
 import org.jamocha.rule.Rule;

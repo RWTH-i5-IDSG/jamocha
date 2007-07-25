@@ -37,11 +37,11 @@ import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 
 import org.jamocha.gui.icons.IconLoader;
-import org.jamocha.rete.EngineEvent;
-import org.jamocha.rete.EngineEventListener;
 import org.jamocha.rete.Module;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.WorkingMemoryImpl;
+import org.jamocha.rete.eventhandling.EngineEvent;
+import org.jamocha.rete.eventhandling.EngineEventListener;
+import org.jamocha.rete.memory.WorkingMemoryImpl;
 import org.jamocha.rete.nodes.AbstractBeta;
 import org.jamocha.rete.nodes.BaseNode;
 import org.jamocha.rete.nodes.LIANode;

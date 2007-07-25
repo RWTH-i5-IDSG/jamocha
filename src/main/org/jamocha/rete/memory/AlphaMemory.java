@@ -1,7 +1,9 @@
-package org.jamocha.rete;
+package org.jamocha.rete.memory;
 
 import java.util.Iterator;
 import java.util.Vector;
+
+import org.jamocha.rete.Fact;
 
 
 public class AlphaMemory extends AbstractMemory implements Iterable<Fact>{
@@ -40,6 +42,22 @@ public class AlphaMemory extends AbstractMemory implements Iterable<Fact>{
 			result.append("   ");
 			result.append(t.toPPString());
 			result.append("\n");
+		}
+		return result.toString();
+	}
+	
+	protected String contentToString(int length) {
+		StringBuffer result = new StringBuffer();
+		int i = 0;
+		for ( Fact t : facts ){
+			if (i == length) {
+				result.append("and ").append(facts.size()-length).append(" more");
+				break;
+			}
+			result.append("   ");
+			result.append(t.toPPString());
+			result.append("\n");
+			i++;
 		}
 		return result.toString();
 	}

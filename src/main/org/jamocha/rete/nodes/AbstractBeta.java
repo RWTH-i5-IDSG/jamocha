@@ -19,12 +19,12 @@ package org.jamocha.rete.nodes;
 import java.util.Iterator;
 import java.util.Vector;
 
-import org.jamocha.rete.AlphaMemory;
-import org.jamocha.rete.BetaMemory;
 import org.jamocha.rete.Fact;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.exception.AssertException;
 import org.jamocha.rete.exception.RetractException;
+import org.jamocha.rete.memory.AlphaMemory;
+import org.jamocha.rete.memory.BetaMemory;
 
 /**
  * @author Peter Lin
@@ -232,11 +232,11 @@ public abstract class AbstractBeta extends BaseNode {
 		StringBuffer sb = new StringBuffer();
 		sb.append(super.toPPString());
 		sb.append("Alpha-Input: ");
-		sb.append(alphaMemory.toPPString());
+		sb.append(alphaMemory.toPPString(5));
 		sb.append("\nBeta-Input: ");
-		sb.append(betaMemory.toPPString());
+		sb.append(betaMemory.toPPString(5));
 		sb.append("\nOutput: ");
-		sb.append(mergeMemory.toPPString());
+		sb.append(mergeMemory.toPPString(5));
 		return sb.toString();
 	}
 

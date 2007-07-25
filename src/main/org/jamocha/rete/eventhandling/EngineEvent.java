@@ -14,10 +14,11 @@
  * limitations under the License.
  * 
  */
-package org.jamocha.rete;
+package org.jamocha.rete.eventhandling;
 
 import java.util.EventObject;
 
+import org.jamocha.rete.Fact;
 import org.jamocha.rete.nodes.BaseNode;
 import org.jamocha.rule.Rule;
 

@@ -14,9 +14,12 @@
  * limitations under the License.
  * 
  */
-package org.jamocha.rete;
+package org.jamocha.rete.memory;
 
 import org.jamocha.parser.ParserFactory;
+import org.jamocha.rete.Fact;
+import org.jamocha.rete.Rete;
+import org.jamocha.rete.RuleCompiler;
 import org.jamocha.rete.exception.AssertException;
 import org.jamocha.rete.exception.RetractException;
 import org.jamocha.rete.nodes.RootNode;

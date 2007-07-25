@@ -223,6 +223,10 @@ public abstract class BaseNode implements Serializable {
 	public String toPPString() {
 		return toString();
 	}
+	
+	public String toSmallPPString() {
+		return toString();
+	}
 
 	public String toString() {
 		StringBuffer result = new StringBuffer();

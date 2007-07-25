@@ -3,7 +3,6 @@
 (deftemplate getraenk (slot name) (slot farbe) )
 (deftemplate farbe (slot name) (slot red) (slot green) (slot blue) )
 (deftemplate bier (slot name))
-
 (assert (wurst (name "gruenspanwurst") (spitzname "gruebi") (farbe "hellgruen") (gewicht 1) ))
 (assert (wurst (name "bratwurst")(spitzname "bratwosch")(farbe "weiss")(gewicht 100) ))
 (assert (wurst (name "weisswurst")(spitzname "weisswurst")(farbe "weiss")(gewicht 200) ))

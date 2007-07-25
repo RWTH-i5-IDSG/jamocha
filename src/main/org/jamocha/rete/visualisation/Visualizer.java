@@ -22,7 +22,7 @@ import javax.swing.JComponent;
 import javax.swing.event.MouseInputListener;
 
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.WorkingMemoryImpl;
+import org.jamocha.rete.memory.WorkingMemoryImpl;
 import org.jamocha.rete.nodes.AbstractBeta;
 import org.jamocha.rete.nodes.AlphaNode;
 import org.jamocha.rete.nodes.BaseNode;

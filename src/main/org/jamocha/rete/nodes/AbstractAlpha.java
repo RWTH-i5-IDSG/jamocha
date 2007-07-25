@@ -16,12 +16,12 @@
  */
 package org.jamocha.rete.nodes;
 
-import org.jamocha.rete.AlphaMemory;
 import org.jamocha.rete.Constants;
 import org.jamocha.rete.Fact;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.exception.AssertException;
 import org.jamocha.rete.exception.RetractException;
+import org.jamocha.rete.memory.AlphaMemory;
 
 /**
  * @author Peter Lin
@@ -76,7 +76,7 @@ public abstract class AbstractAlpha extends BaseNode {
 		StringBuffer result = new StringBuffer();
 		result.append(super.toPPString());
 		result.append("Alpha-Memory: ");
-		result.append(facts.toPPString());
+		result.append(facts.toPPString(10));
 		result.append("\n");
 		return result.toString();
 	}

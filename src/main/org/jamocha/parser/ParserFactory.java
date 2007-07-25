@@ -25,7 +25,7 @@ import org.jamocha.parser.sfp.SFPParser;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.RuleCompiler;
 import org.jamocha.rete.SFRuleCompiler;
-import org.jamocha.rete.WorkingMemory;
+import org.jamocha.rete.memory.WorkingMemory;
 import org.jamocha.rete.nodes.RootNode;
 
 /**

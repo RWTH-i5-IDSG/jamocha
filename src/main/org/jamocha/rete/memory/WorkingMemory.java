@@ -14,14 +14,35 @@
  * limitations under the License.
  * 
  */
-package org.jamocha.rete;
+package org.jamocha.rete.memory;
+
+import java.io.Serializable;
+
+import org.jamocha.rete.Fact;
+import org.jamocha.rete.RuleCompiler;
+import org.jamocha.rete.exception.AssertException;
+import org.jamocha.rete.exception.RetractException;
 
 /**
  * @author Peter Lin
  *
- * Classes that listen for various engine related events should implement
- * the interface and handle the events appropriately.
+ * Interface defining working memory
  */
-public interface EngineEventListener {
-    void eventOccurred(EngineEvent event);
+public interface WorkingMemory extends Serializable {
+
+	void assertObject(Fact fact) throws AssertException;
+
+	void retractObject(Fact fact) throws RetractException;
+
+	/**
+	 * Return the RuleCompiler for this working memory
+	 * @return
+	 */
+	RuleCompiler getRuleCompiler();
+
+	/**
+	 * Clears everything in the working memory
+	 *
+	 */
+	void clear();
 }

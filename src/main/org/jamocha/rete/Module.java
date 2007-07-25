@@ -19,6 +19,7 @@ package org.jamocha.rete;
 import java.io.Serializable;
 import java.util.Collection;
 
+import org.jamocha.rete.memory.WorkingMemory;
 import org.jamocha.rule.Rule;
 
 

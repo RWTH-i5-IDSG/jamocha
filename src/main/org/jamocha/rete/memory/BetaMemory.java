@@ -1,8 +1,9 @@
-package org.jamocha.rete;
+package org.jamocha.rete.memory;
 
 import java.util.Iterator;
 import java.util.Vector;
 
+import org.jamocha.rete.Fact;
 import org.jamocha.rete.nodes.FactTuple;
 
 public class BetaMemory extends AbstractMemory implements Iterable<FactTuple> {
@@ -34,6 +35,25 @@ public class BetaMemory extends AbstractMemory implements Iterable<FactTuple> {
 		return factTuples.iterator();
 	}
 
+	
+	protected String contentToString(int length) {
+		StringBuffer result = new StringBuffer();
+		int i = 0;
+		for (FactTuple t : factTuples) {
+			if (i == length) {
+				result.append("and ").append(factTuples.size()-length).append(" more...");
+				break;
+			}
+			result.append("   ");
+			result.append(t.toPPString());
+			result.append("\n");
+			i++;
+		}
+		return result.toString();
+	}
+
+	
+	
 	@Override
 	protected String contentToString() {
 		StringBuffer result = new StringBuffer();

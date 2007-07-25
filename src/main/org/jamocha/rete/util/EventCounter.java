@@ -21,9 +21,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.jamocha.rete.eventhandling.EngineEvent;
+import org.jamocha.rete.eventhandling.EngineEventListener;
 import org.jamocha.rete.nodes.BaseNode;
-import org.jamocha.rete.EngineEvent;
-import org.jamocha.rete.EngineEventListener;
 
 
 /**
