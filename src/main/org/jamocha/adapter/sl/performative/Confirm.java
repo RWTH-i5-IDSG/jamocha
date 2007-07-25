@@ -61,13 +61,9 @@ public class Confirm {
 		}
 		StringBuffer result = new StringBuffer();
 		List<SLConfiguration> results = contentConf.getExpressions();
-		result.append("(assert (agent-confirm-result (message %MSG%)(propositions (create$");
-		for (int i = 1; i < results.size(); i++) {
-			result.append(" \"");
-			result.append(results.get(i).compile(SLCompileType.ASSERT));
-			result.append("\"");
-		}
-		result.append("))))");
+		result.append("(assert (agent-confirm-result (message %MSG%)(proposition \"");
+		result.append(results.get(0).compile(SLCompileType.RULE_LHS));
+		result.append("\")))");
 		return result.toString();
 	}
 

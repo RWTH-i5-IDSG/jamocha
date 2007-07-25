@@ -1,11 +1,11 @@
 /*
- * Copyright 2007 Markus Kucay 
+ * Copyright 2007 Markus Kucay, Alexander Wilden
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://jamocha.sourceforge.net/
+ *   http://www.jamocha.org/
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -28,7 +28,7 @@ import org.jamocha.parser.sl.SLParser;
  * This class walks through an SL code tree and translates it to CLIPS depending
  * on the given performative.
  * 
- * @author Markus Kucay
+ * @author Markus Kucay, Alexander Wilden
  * 
  */
 public class RequestWhen {

@@ -29,7 +29,7 @@ import org.jamocha.parser.sl.SLParser;
  * This class walks through an SL code tree and translates it to CLIPS depending
  * on the given performative.
  * 
- * @author ATP Team
+ * @author Alexander Wilden
  * 
  */
 public class Subscribe {

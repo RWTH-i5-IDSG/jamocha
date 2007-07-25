@@ -77,14 +77,14 @@
 (deftemplate agent-confirm-result
 	"Result-Template for confirm performatives."
 	(slot message)
-	(multislot propositions)
+	(slot proposition (type STRING))
 )
 
 
 (deftemplate agent-disconfirm-result
 	"Result-Template for disconfirm performatives."
 	(slot message)
-	(multislot propositions)
+	(slot proposition (type STRING))
 )
 
 
@@ -92,6 +92,13 @@
 	"Result-Template for failure performatives."
 	(slot message)
 	(slot action (type STRING))
+	(slot proposition (type STRING))
+)
+
+
+(deftemplate agent-inform-result
+	"Result-Template for inform performatives."
+	(slot message)
 	(slot proposition (type STRING))
 )
 
@@ -119,6 +126,14 @@
 )
 
 
+(deftemplate agent-refuse-result
+	"Result-Template for refuse performatives."
+	(slot message)
+	(slot action (type STRING))
+	(slot proposition (type STRING))
+)
+
+
 (deftemplate agent-request-result
 	"Result-Template for request performatives."
 	(slot message)
@@ -131,6 +146,14 @@
 	(slot message)
 	(slot result)
 )
+
+
+(deftemplate agent-requestWhenever-result
+	"Result template for request-whenever performatives."
+	(slot message)
+	(slot result)
+)
+
 
 (deftemplate agent-message-rule-pairing
 	"Generic pairing to connect a rule to the message that caused its definition."

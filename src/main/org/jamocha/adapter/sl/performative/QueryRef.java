@@ -34,6 +34,8 @@ import org.jamocha.parser.sl.SLParser;
  */
 public class QueryRef {
 
+	private static long uniqueId = 1;
+
 	/**
 	 * A private constructor to force access only in a static way.
 	 * 
@@ -67,24 +69,39 @@ public class QueryRef {
 			// the problem!
 			throw new AdapterTranslationException("Error");
 		}
+		String ruleName = "query-ref-" + uniqueId;
+		String bindName = "?*query-ref-" + uniqueId++ + "*";
+		
 		StringBuilder result = new StringBuilder();
 		IdentifyingExpressionSLConfiguration conf = (IdentifyingExpressionSLConfiguration) results
 				.get(0);
 		String refOp = conf.getRefOp().compile(SLCompileType.RULE_LHS);
 		String binding = conf.getTermOrIE().compile(
 				SLCompileType.RULE_RESULT);
-		result.append("(bind ?*queryRef-temp* (create$))");
-		result.append("(defrule query-ref ");
+		result.append("(bind ");
+		result.append(bindName);
+		result.append(" (create$))");
+		result.append("(defrule ");
+		result.append(ruleName);
+		result.append(" ");
 		result.append(conf.getWff().compile(SLCompileType.RULE_LHS));
 		result.append(" => ");
-		result.append("(bind ?*queryRef-temp* (insert-list$ ?*queryRef-temp* 1 ");
+		result.append("(bind ");
+		result.append(bindName);
+		result.append(" (insert-list$ ");
+		result.append(bindName);
+		result.append(" 1 ");
 		result.append(binding);
 		result.append(")))");
 		result.append("(fire)");
-		result.append("(undefrule \"query-ref\")");
+		result.append("(undefrule \"");
+		result.append(ruleName);
+		result.append("\")");
 		result.append("(assert (agent-queryRef-result (message %MSG%)(refOp ");
 		result.append(refOp);
-		result.append(")(items ?*queryRef-temp*)))");
+		result.append(")(items ");
+		result.append(bindName);
+		result.append(")))");
 		return result.toString();
 	}
 }

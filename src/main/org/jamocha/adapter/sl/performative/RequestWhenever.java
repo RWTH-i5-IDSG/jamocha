@@ -1,11 +1,11 @@
 /*
- * Copyright 2007 Daniel Grams
+ * Copyright 2007 Daniel Grams, Alexander Wilden
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://jamocha.sourceforge.net/
+ *   http://www.jamocha.org/
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -28,10 +28,12 @@ import org.jamocha.parser.sl.SLParser;
  * This class walks through an SL code tree and translates it to CLIPS depending
  * on the given performative.
  * 
- * @author Daniel Grams
+ * @author Daniel Grams, Alexander Wilden
  * 
  */
 public class RequestWhenever {
+
+	private static long uniqueId = 1;
 
 	/**
 	 * A private constructor to force access only in a static way.
@@ -68,12 +70,20 @@ public class RequestWhenever {
 			throw new AdapterTranslationException("Error");
 		}
 		StringBuilder result = new StringBuilder();
+		String ruleName = "request-whenever-" + uniqueId++;
+
+		result.append("(defrule ");
+		result.append(ruleName);
+		result.append(" ");
+		result.append(results.get(1).compile(SLCompileType.RULE_LHS));
+		result.append(" => ");
 		result
-				.append("(defrule request-whenever ")
-				.append(results.get(0).compile(SLCompileType.RULE_LHS))
-				.append(" => ")
-				.append(results.get(1).compile(SLCompileType.ACTION_AND_ASSERT))
-				.append(")");
+				.append("(assert (agent-requestWhenever-result (message %MSG%)(result ");
+		result.append(results.get(0).compile(SLCompileType.ACTION_AND_ASSERT));
+		result.append("))))");
+		result.append("(assert (agent-message-rule-pairing (message %MSG%)(ruleName \"");
+		result.append(ruleName);
+		result.append("\")))");
 
 		return result.toString();
 	}

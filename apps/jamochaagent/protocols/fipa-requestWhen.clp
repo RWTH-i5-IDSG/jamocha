@@ -42,6 +42,7 @@
 	?message <- (agent-message
 		(protocol "fipa-request-when")
 		(performative "request-when")
+		(processed TRUE)
 	)
 	(not
 		(agent-evaluation-error

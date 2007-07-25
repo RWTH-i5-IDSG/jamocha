@@ -71,7 +71,7 @@ public class AcceptProposal {
 			throw new AdapterTranslationException("Unexpected structure of the content. Expected 2 Expressions.");
 		}
 		StringBuilder result = new StringBuilder();
-		String ruleName = "accept-proposal" + uniqueId++;
+		String ruleName = "accept-proposal-" + uniqueId++;
 
 		result.append("(defrule ");
 		result.append(ruleName);

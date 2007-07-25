@@ -33,6 +33,8 @@ import org.jamocha.parser.sl.SLParser;
  */
 public class QueryIf {
 
+	private static long uniqueId = 1;
+
 	/**
 	 * A private constructor to force access only in a static way.
 	 * 
@@ -66,16 +68,30 @@ public class QueryIf {
 			// the problem!
 			throw new AdapterTranslationException("Error");
 		}
+
+		String ruleName = "query-if-" + uniqueId;
+		String bindName = "?*query-if-" + uniqueId++ + "*";
+
 		StringBuilder result = new StringBuilder();
-		result.append("(bind ?*queryIf-temp* FALSE)");
-		result.append("(defrule query-if-true ");
+		result.append("(bind ");
+		result.append(bindName);
+		result.append(" FALSE)");
+		result.append("(defrule ");
+		result.append(ruleName);
+		result.append(" ");
 		result.append(results.get(0).compile(SLCompileType.RULE_LHS));
 		result.append(" => ");
-		result.append("(bind ?*queryIf-temp* TRUE)");
+		result.append("(bind ");
+		result.append(bindName);
+		result.append(" TRUE)");
 		result.append(")");
 		result.append("(fire)");
-		result.append("(undefrule \"query-if-true\")");
-		result.append("(assert (agent-queryIf-result (message %MSG%)(result ?*queryIf-temp*)))");
+		result.append("(undefrule \"");
+		result.append(ruleName);
+		result.append("\")");
+		result.append("(assert (agent-queryIf-result (message %MSG%)(result ");
+		result.append(bindName);
+		result.append(")))");
 
 		return result.toString();
 	}
