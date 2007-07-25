@@ -35,3 +35,28 @@
 ;;[vegetable-meat-dressing-menu-with-less-than-250-cals] a vegetable,meat,dressing combination with at less than 250 calories is beef,tomato,yoghurt.
 ;;[vegetable-meat-dressing-menu-with-less-than-250-cals] a vegetable,meat,dressing combination with at less than 250 calories is chicken,onion,yoghurt.
 ;;[vegetable-meat-dressing-menu-with-less-than-250-cals] a vegetable,meat,dressing combination with at less than 250 calories is chicken,onion,mustard.
+
+
+(defrule wurst-for-which-no-salat-with-same-color-exists
+	(wurst (name ?sausage_name) (color ?color_name) )
+	(not (salat (color ?color_name) )	)
+	=>
+	(printout t "[wurst-for-which-no-salat-with-same-color-exists] a sausage, for which we dont have a salad with same color is " ?sausage_name "." crlf)
+)
+;;[wurst-for-which-no-salat-with-same-color-exists] a sausage, for which we dont have a salad with same color is kaesewurst.
+
+
+(defrule wurst-with-weight-is-multiple-of-twenty
+	(wurst (weight ?weight&:(eq(mod ?weight 20) 0) ) (name ?name) )
+	=>
+	(printout t "[wurst-with-weight-is-multiple-of-twenty] a sausage with weight is multiple of 20 is " ?name "." crlf)
+)
+;;[wurst-with-weight-is-multiple-of-twenty] a sausage with weight is multiple of 20 is kaesewurst.
+;;[wurst-with-weight-is-multiple-of-twenty] a sausage with weight is multiple of 20 is zwiebelwurst.
+;;[wurst-with-weight-is-multiple-of-twenty] a sausage with weight is multiple of 20 is bratwurst.
+
+
+
+
+; here is end of file.
+; (there must be a line break after here for jamocha parser)

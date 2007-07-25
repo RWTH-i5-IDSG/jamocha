@@ -56,5 +56,5 @@
 (assert (wurst (name gemuesewurst) (color green)	(weight 50) (ingredients corn onion potatoes) (price 4) ))
 (assert (wurst (name rindfleischwurst) (color red)	(weight 90) (ingredients beef salt pepper oil) (price 5) ))
 (assert (wurst (name zwiebelwurst) (color red)	(weight 40) (ingredients onion) (price 2) ))
-(assert (wurst (name kaesewurst) (color red)	(weight 60) (ingredients pork cheese pepper paprika salt) (price 7) ))
+(assert (wurst (name kaesewurst) (color blue)	(weight 60) (ingredients pork cheese pepper paprika salt) (price 7) ))
 (assert (wurst (name gruenkohlwurst) (color green)	(weight 90) (ingredients kale salt oil) (price 3) ))

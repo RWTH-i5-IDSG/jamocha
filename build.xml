@@ -242,16 +242,18 @@
 		</java>
 		<exec executable="grep" output="bierwursttest2.tmp">
 			<arg value="^\[" />
-			<arg value="bierwursttest.tmp" />
+			<arg value="bierwursttest1.tmp" />
 		</exec>
 		<exec executable="grep" output="bierwursttest3.tmp">
 			<arg value="^;;" />
 			<arg value="examples/bierwurstsalat/rules.clp" />
 		</exec>
 		<replaceregexp file="bierwursttest3.tmp" match="^;;" replace="" flags="gs" byline="true"/>
+		<exec executable="sort" output="bierwursttest4.tmp"  input="bierwursttest2.tmp"/>
+		<exec executable="sort" output="bierwursttest5.tmp"  input="bierwursttest3.tmp"/>
 		<exec executable="diff" output="test.diff.tmp" failonerror="false" resultproperty="diffresult">
-			<arg value="bierwursttest2.tmp"/>
-			<arg value="bierwursttest3.tmp"/>
+			<arg value="bierwursttest4.tmp"/>
+			<arg value="bierwursttest5.tmp"/>
 		</exec>
 		<echo message="return of diff is ${diffresult}. if 0, everything is fine. else, see test.diff.tmp for problems!"/>
 	</target>
