@@ -63,6 +63,16 @@ public class FunctionCallOrFactSLConfiguration implements SLConfiguration {
 
 	public String compile(SLCompileType compileType) {
 		StringBuilder res = new StringBuilder();
+		String nameStr = name.compile(compileType);
+		if (compileType.equals(SLCompileType.ACTION_AND_ASSERT)) {
+			// Here we treat inform different than a normal function. Inform
+			// will be asserted as a fact and not called as a function so we
+			// just switch directly to ASSERT.
+			if (nameStr.equals("inform") || nameStr.equals("inform-ref")
+					|| nameStr.equals("inform-if")) {
+				compileType = SLCompileType.ASSERT;
+			}
+		}
 		switch (compileType) {
 		case ACTION_AND_ASSERT:
 			// If this node is called directly after an ActionExpression with

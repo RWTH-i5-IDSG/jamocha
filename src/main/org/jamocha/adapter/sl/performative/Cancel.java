@@ -88,7 +88,6 @@ public class Cancel {
 			result.append(oldContent);
 			result.append(")))");
 		}
-		System.out.println(result);
 		return result.toString();
 	}
 }

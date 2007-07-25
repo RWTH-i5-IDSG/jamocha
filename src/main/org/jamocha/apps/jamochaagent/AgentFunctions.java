@@ -41,7 +41,7 @@ public class AgentFunctions implements FunctionGroup {
 
 	}
 
-	public List listFunctions() {
+	public List<Function> listFunctions() {
 		return funcs;
 	}
 

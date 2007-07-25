@@ -39,9 +39,6 @@ public class ActionSLConfiguration implements SLConfiguration {
 	}
 
 	public String compile(SLCompileType compileType) {
-		if (compileType == SLCompileType.ASSERT) {
-			return action.compile(SLCompileType.ACTION_AND_ASSERT);
-		}
 		return action.compile(compileType);
 	}
 

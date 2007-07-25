@@ -34,8 +34,6 @@ import org.jamocha.parser.sl.SLParser;
  */
 public class Cfp {
 
-	private static long uniqueId = 1;
-
 	/**
 	 * A private constructor to force access only in a static way.
 	 * 
@@ -67,21 +65,34 @@ public class Cfp {
 		}
 		List<SLConfiguration> results = contentConf.getExpressions();
 		if (results.size() != 2) {
-			throw new AdapterTranslationException("Unexpected structure of the content. Expected 2 Expressions.");
+			throw new AdapterTranslationException(
+					"Unexpected structure of the content. Expected 2 Expressions.");
 		}
 		StringBuilder result = new StringBuilder();
-		IdentifyingExpressionSLConfiguration conf = (IdentifyingExpressionSLConfiguration) results
-				.get(1);
-		String refOp = conf.getRefOp().compile(SLCompileType.RULE_LHS);
-		String binding = conf.getTermOrIE().compile(
-				SLCompileType.ACTION_AND_ASSERT);
 
-		result.append("(assert (agent-cfp-result (message %MSG%)(action \"");
-		result.append(results.get(0).compile(SLCompileType.ACTION_AND_ASSERT));
-		result.append("\") (refExpression ");
-		result.append(refOp);
+		
+		IdentifyingExpressionSLConfiguration ieConf = (IdentifyingExpressionSLConfiguration) results
+				.get(1);
+		String refOp = ieConf.getRefOp().compile(SLCompileType.RULE_LHS);
+		String binding = ieConf.getTermOrIE().compile(SLCompileType.RULE_RESULT);
+		String action = results.get(0).compile(SLCompileType.ACTION_AND_ASSERT);
+		
+		result.append("(bind ?*cfp-temp* (create$))");
+		result.append("(defrule cfp ");
+		result.append(ieConf.getWff().compile(SLCompileType.RULE_LHS));
+		result.append(" => ");
+		result.append("(bind ?*cfp-temp* (insert-list$ ?*cfp-temp* 1 ");
 		result.append(binding);
 		result.append(")))");
+		result.append("(fire)");
+		result.append("(undefrule \"cfp\")");
+		result.append("(assert (agent-cfp-result (message %MSG%)(action \"");
+		result.append(action);
+		result.append("\")(refOp ");
+		result.append(refOp);
+		result.append(")(items ?*cfp-temp*)))");
+
+		
 
 		return result.toString();
 	}

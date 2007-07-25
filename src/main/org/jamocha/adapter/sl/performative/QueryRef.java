@@ -85,7 +85,6 @@ public class QueryRef {
 		result.append("(assert (agent-queryRef-result (message %MSG%)(refOp ");
 		result.append(refOp);
 		result.append(")(items ?*queryRef-temp*)))");
-		System.out.println(result);
 		return result.toString();
 	}
 }

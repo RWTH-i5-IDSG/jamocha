@@ -78,16 +78,15 @@ public class RequestWhen {
 		result.append(" ");
 		result.append(results.get(1).compile(SLCompileType.RULE_LHS));
 		result.append(" => ");
-		result.append("(assert (agent-requestWhen-result (message %MSG%)(result \"");
+		result.append("(assert (agent-requestWhen-result (message %MSG%)(result ");
 		result.append(results.get(0).compile(SLCompileType.ACTION_AND_ASSERT));
-		result.append("\")))");
+		result.append(")))");
 		result.append("(undefrule ");
 		result.append(ruleName);
 		result.append("))");
 		result.append("(assert (agent-message-rule-pairing (message %MSG%)(ruleName \"");
 		result.append(ruleName);
 		result.append("\")))");
-		System.out.println(result);
 		return result.toString();
 	}
 }

@@ -40,6 +40,7 @@ import org.jamocha.adapter.sl.SL2CLIPSFunction;
 import org.jamocha.adapter.sl.SLMessageCompare;
 import org.jamocha.messagerouter.MessageEvent;
 import org.jamocha.messagerouter.StringChannel;
+import org.jamocha.parser.JamochaValue;
 import org.jamocha.parser.ModeNotFoundException;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.FunctionGroup;
@@ -57,6 +58,8 @@ import org.jamocha.rete.Rete;
  * 
  */
 public class JamochaAgent extends ToolAgent {
+
+	private static final String INIT_FILE_NAME = "init.clp";
 
 	public static final String TEMPLATE_AGENT_DESCRIPTION = "agent-identifier";
 
@@ -131,10 +134,12 @@ public class JamochaAgent extends ToolAgent {
 
 		// initializing the agent with the code from the file specified
 		// in the "agent.init" property
-		String initFileName = getProperties().getProperty("agent.initfile",
-				"init.clp");
+		String initFolderName = getProperties().getProperty("agent.initFolder",
+				"apps/jamochaagent/initial/");
 		try {
-			readFile(buffer, initFileName);
+			engine.setBinding("init-folder", JamochaValue
+					.newString(initFolderName));
+			readFile(buffer, initFolderName + INIT_FILE_NAME);
 			String pathProtocols = getProperties().getProperty(
 					"agent.protocols", "apps/jamochaagent/protocols/");
 			readPath(buffer, pathProtocols);
