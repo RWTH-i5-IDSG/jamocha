@@ -64,7 +64,6 @@ import org.jamocha.rule.Constraint;
 import org.jamocha.rule.Defrule;
 import org.jamocha.rule.ExistCondition;
 import org.jamocha.rule.FunctionAction;
-import org.jamocha.rule.IsQuantorCondition;
 import org.jamocha.rule.LiteralConstraint;
 import org.jamocha.rule.NotCondition;
 import org.jamocha.rule.ObjectCondition;
@@ -422,58 +421,36 @@ public class SFRuleCompiler implements RuleCompiler {
 	public void removeListener(CompilerListener listener) {
 		this.listener.remove(listener);
 	}
+	
+	public BaseNode compileRule(Rule rule) throws AssertException, StopCompileException {
+		rule.resolveTemplates(engine);
+		this.setModule(rule);
+		if (rule.getConditions()!=null && rule.getConditions().length > 0) {
+			Condition[] conds = rule.getConditions();
+			for (int i = 0; i < conds.length; i++) conds[i].compile(this, rule, i);
+			return compileJoins(rule);
+		} else /*if (rule.getConditions().length == 0)*/ {
+			return root.activateObjectTypeNode(engine.initFact, engine);
+		}
+	}
 
 	public boolean addRule(Rule rule) throws AssertException {
 		boolean result = false;
-		rule.resolveTemplates(engine);
-		if (!this.validate || (this.validate && this.tval.analyze(rule) == Analysis.VALIDATION_PASSED)) {
-			if (rule.getConditions() != null) {
-				// we check the name of the rule to see if it is for a specific
-				// module. if it is, we have to add it to that module
-				this.setModule(rule);
-				// creates a Terminal nod for this rule. this node will be added
-				// to tho rule:
-				TerminalNode tnode = createTerminalNode(rule);
-				// has conditions:
-				if (rule.getConditions().length > 0) {
-
-					Condition[] conds = rule.getConditions();
-					for (int i = 0; i < conds.length; i++)
-						try {
-							conds[i].compile(this, rule, i);
-						} catch (StopCompileException e) {
-							return e.isSubSuccessed();
-						}
-
-					compileJoins(rule);
-					// has no conditions:
-				} else if (rule.getConditions().length == 0) {
-					// the rule has no LHS, this means it only has actions
-					BaseNode initFactNode = root.activateObjectTypeNode(engine.initFact, engine);
-					initFactNode.addNode(tnode, engine);
-				}
-				
-			
-				compileActions(rule);
-
-				currentMod.addRule(rule);
-
-				CompileEvent ce = new CompileEvent(rule, CompileEvent.ADD_RULE_EVENT);
-
-				ce.setRule(rule);
-
-				this.notifyListener(ce);
-				engine.newRuleEvent(rule);
-				result = true;
-			}
-		} else {
-			// we print out a message and say that the rule is not valid
-			Summary error = this.tval.getErrors();
-			engine.writeMessage("Rule " + rule.getName() + " was not added. ", Constants.DEFAULT_OUTPUT); //$NON-NLS-1$ //$NON-NLS-2$
-			engine.writeMessage(error.getMessage(), Constants.DEFAULT_OUTPUT);
-			Summary warn = this.tval.getWarnings();
-			engine.writeMessage(warn.getMessage(), Constants.DEFAULT_OUTPUT);
+		TerminalNode tnode = createTerminalNode(rule);
+		BaseNode lastNode;
+		try {
+			lastNode = compileRule(rule);
+		} catch (StopCompileException e) {
+			return e.isSubSuccessed();
 		}
+		lastNode.addNode(tnode, engine);
+		compileActions(rule);
+		currentMod.addRule(rule);
+		CompileEvent ce = new CompileEvent(rule, CompileEvent.ADD_RULE_EVENT);
+		ce.setRule(rule);
+		this.notifyListener(ce);
+		engine.newRuleEvent(rule);
+		result = true;
 		return result;
 	}
 	
@@ -482,38 +459,37 @@ public class SFRuleCompiler implements RuleCompiler {
 		for ( int i=0 ; i<conds.length ; i++ ) {
 			Condition c = conds[i];
 			
-			if (c instanceof IsQuantorCondition){
-				// for each constraint of our quantor condition, we have to check,
-				// whether it is already available at the given position.
-				for (Constraint constr : ((IsQuantorCondition)c).getObjectCondition().getConstraints()  ) {
-					
-					if (!(constr instanceof BoundConstraint)) continue;
-					
-					BoundConstraint bc = (BoundConstraint) constr;
-					BindingAddress pivot = bat.getPivot(bc.getVariableName());
-					
-					if (pivot.tupleIndex > conditionIndexToTupleIndex(i, conds.length) ) {
-						//shift them
-						for ( int j=i ; j > 0 ; j-- ) {
-							conds[j] = conds[j-1];
-						}
-						conds[0] = c;
-						rearrangeConditions(conds); //TODO: better way? thats simple but not efficient ^^
-						return;
-					}
-					
-				}
-			}
+//			if (c instanceof IsQuantorCondition){
+//				// for each constraint of our quantor condition, we have to check,
+//				// whether it is already available at the given position.
+//				for (Constraint constr : ((IsQuantorCondition)c).getObjectCondition().getConstraints()  ) {
+//					
+//					if (!(constr instanceof BoundConstraint)) continue;
+//					
+//					BoundConstraint bc = (BoundConstraint) constr;
+//					BindingAddress pivot = bat.getPivot(bc.getVariableName());
+//					
+//					if (pivot.tupleIndex > conditionIndexToTupleIndex(i, conds.length) ) {
+//						//shift them
+//						for ( int j=i ; j > 0 ; j-- ) {
+//							conds[j] = conds[j-1];
+//						}
+//						conds[0] = c;
+//						rearrangeConditions(conds); //TODO: better way? thats simple but not efficient ^^
+//						return;
+//					}
+//					
+//				}
+//			}
 			
 		}
 		
 	}
 	
 
-	protected void compileJoins(Rule rule) throws AssertException {
+	protected BaseNode compileJoins(Rule rule) throws AssertException {
 		// take the last node from each condition and connect them by joins
 		// regarding the complexity
-		TerminalNode terminal = rule.getTerminalNode();
 		Condition[] sortedConds = rule.getObjectConditions().clone(); Arrays.sort(sortedConds);
 		
 		rearrangeConditions(sortedConds);
@@ -554,13 +530,12 @@ public class SFRuleCompiler implements RuleCompiler {
 		
 		
 		BaseNode ultimateMostBottomNode = compileBindings(rule, sortedConds, conditionJoiners, mostBottomNode);
-		ultimateMostBottomNode.addNode(terminal, engine);
-
 		//activate all joins
 		for (BaseNode n : conditionJoiners.values()){
 			if (n == null) continue;
 			((AbstractBeta)n).activate(engine);
 		}
+		return ultimateMostBottomNode;
 	}
 	
 	public int conditionIndexToTupleIndex(int cond, int condCount){

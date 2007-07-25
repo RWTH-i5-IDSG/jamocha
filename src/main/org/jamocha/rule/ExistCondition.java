@@ -28,7 +28,7 @@ import org.jamocha.rete.nodes.BaseNode;
  * 
  * ExistCondition for existential quantifier.
  */
-public class ExistCondition extends ConditionWithNested implements IsQuantorCondition {
+public class ExistCondition extends ConditionWithNested {
 
 	static final long serialVersionUID = 0xDeadBeafCafeBabeL;
 
@@ -114,17 +114,6 @@ public class ExistCondition extends ConditionWithNested implements IsQuantorCond
 		return has;
 	}
 
-	/**
-	 * if the first nested CE in the exist is an object condition, we return the
-	 * first item in the ArrayList
-	 * 
-	 * @return
-	 */
-	public ObjectCondition getObjectCondition() {
-		ObjectCondition oc = null;
-		oc = (ObjectCondition) nestedCE.get(0);
-		return oc;
-	}
 
 	public List<BoundConstraint> getAllBoundConstraints() {
 		ArrayList<BoundConstraint> bindings = new ArrayList<BoundConstraint>();

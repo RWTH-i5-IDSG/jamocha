@@ -10,6 +10,7 @@ public abstract class ConditionWithNested extends AbstractCondition {
 
 	protected List<Condition> nestedCE = new ArrayList<Condition>();
 	protected String clipsName() {return "";}
+	protected BaseNode helperNode;
 	
 	public String toClipsFormat(int indent) {
 		String ind = "";
@@ -94,6 +95,14 @@ public abstract class ConditionWithNested extends AbstractCondition {
 		result.nestedCE = new ArrayList<Condition>();
 		for (Condition c : nestedCE) result.nestedCE.add((Condition)c.clone());
 		return result;
+	}
+	
+	public void setHelperNode(BaseNode node ) {
+		helperNode = node;
+	}
+	
+	public BaseNode getHelperNode() {
+		return helperNode;
 	}
 
 }

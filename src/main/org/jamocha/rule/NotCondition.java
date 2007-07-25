@@ -5,7 +5,7 @@ import java.util.List;
 import org.jamocha.rete.nodes.BaseNode;
 import org.jamocha.rete.SFRuleCompiler;
 
-public class NotCondition extends ConditionWithNested implements IsQuantorCondition  {
+public class NotCondition extends ConditionWithNested {
 
 	/**
 	 * 
@@ -19,12 +19,7 @@ public class NotCondition extends ConditionWithNested implements IsQuantorCondit
 	public List<Constraint> getConstraints() {
 		return null;
 	}
-	
-	public ObjectCondition getObjectCondition() {
-		ObjectCondition oc = null;
-		oc = (ObjectCondition) nestedCE.get(0);
-		return oc;
-	}
+
 	
 	@Override
 	protected String clipsName() {return "not";}

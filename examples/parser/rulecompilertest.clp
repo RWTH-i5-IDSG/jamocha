@@ -25,13 +25,22 @@
 (assert (farbe (name gelb) (red 1) (green 1) (blue 0)))
 (assert (farbe (name hellgruen) (red 0.3) (green 1) (blue 0.3)))
 
+(defrule babaam
+	(or	
+		(not (wurst (name "weisswurst") )  )
+		(not (wurst (name "brastwurst") )  )
+	)
+	=>
+	(printout t "es gibt entweder keine w oder keine b" crlf)
+)
+
+(fire)
+
 
 (defrule tst2
 	(wurst (name ?x) (farbe ?f) )
-	(bier (name ?y))
-	=> (printout t ?x ?y crlf)
+	=> (printout t ?x crlf)
 )
-(fire)
 
 
 
@@ -44,14 +53,6 @@
 (fire)
 
 
-(defrule babaam
-	(or	
-		(not (wurst (name "weisswurst") )  )
-		(not (wurst (name "bratwurst") )  )
-	)
-	=>
-	(printout t "es gibt entweder keine w oder keine b" crlf)
-)
 
 (defrule nichtgelbpaar
 	(wurst (farbe ?wurstfarbe) (name ?wurstname) )

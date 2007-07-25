@@ -478,33 +478,22 @@ public class Defrule implements Rule {
 		Condition[] cnds = this.getConditions();
 		for (int idx = 0; idx < cnds.length; idx++) {
 			Condition cnd = cnds[idx];
-			resolveTempate(engine, cnd);
+			resolveTemplate(engine, cnd);
 		}
 	}
 
-	public void resolveTempate(Rete engine, Condition cond) {
+	public void resolveTemplate(Rete engine, Condition cond) {
 		if (cond instanceof ObjectCondition) {
 			ObjectCondition oc = (ObjectCondition) cond;
 			Template dft = (Template) engine.findTemplate(oc.getTemplateName());
 			if (dft != null) {
 				oc.setTemplate(dft);
 			}
-		} else if (cond instanceof ExistCondition) {
-			// in the case of Exist, we have to check the nested and resolve
-			// the deftemplate
-			ExistCondition ec = (ExistCondition) cond;
-			if (ec.hasObjectCondition()) {
-				ObjectCondition oc = ec.getObjectCondition();
-				Template dft = (Template) engine.findTemplate(oc.getTemplateName());
-				if (dft != null) {
-					oc.setTemplate(dft);
-				}
-			}
 		} else if (cond instanceof ConditionWithNested) {
 			//reslove all templates from nested conditions:
 			List<Condition> nestedConds = ((ConditionWithNested) cond).getNestedConditionalElement();
 			for (Condition nestedCond : nestedConds) {
-				resolveTempate(engine, nestedCond);
+				resolveTemplate(engine, nestedCond);
 			}
 		}
 	}
