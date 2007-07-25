@@ -21,7 +21,10 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Vector;
 
+import org.jamocha.rete.eventhandling.ModuleChangedEvent;
+import org.jamocha.rete.eventhandling.ModuleChangedListener;
 import org.jamocha.rete.exception.RetractException;
 import org.jamocha.rete.memory.WorkingMemory;
 import org.jamocha.rete.nodes.ObjectTypeNode;
@@ -39,6 +42,8 @@ public class Defmodule implements Module, Serializable {
 	/**
 	 * 
 	 */
+	Vector<ModuleChangedListener> listeners;
+	
 	private static final long serialVersionUID = 0xDEADBEAFL;
 
 	protected int id;
@@ -81,7 +86,7 @@ public class Defmodule implements Module, Serializable {
 	public Defmodule(String name, Strategy strat) {
 		super();
 		this.name = name;
-		// activations = new ArrayActivationList(strat);
+		listeners = new Vector<ModuleChangedListener>();
 		activations = new LinkedActivationList(strat);
 	}
 
@@ -171,6 +176,7 @@ public class Defmodule implements Module, Serializable {
 	 */
 	public void addRule(Rule rl) {
 		this.rules.put(rl.getName(), rl);
+		callAddRuleListeners(rl);
 	}
 
 	/**
@@ -189,6 +195,7 @@ public class Defmodule implements Module, Serializable {
 					subRule.getTerminalNode().destroy(engine);
 				}
 			}
+			callRemoveRuleListeners(rl);
 			// List<TerminalNode> list = rl.getTerminalNodes();
 			// for (TerminalNode termNode : list) {
 			// termNode.destroy(engine);
@@ -279,17 +286,61 @@ public class Defmodule implements Module, Serializable {
 				this.templateCount++;
 			}
 			mem.getRuleCompiler().addObjectTypeNode(temp);
+			callAddTemplateListeners(temp);
 			return true;
 		}
 		return false;
 	}
 
+	protected void callRemoveTemplateListeners(Template temp) {
+		ModuleChangedEvent ev = new ModuleChangedEvent();
+		ev.module = this;
+		ev.template = temp;
+		for (ModuleChangedListener l : listeners) l.templateRemoved(ev);
+	}
+
+	protected void callRemoveRuleListeners(Rule rule) {
+		ModuleChangedEvent ev = new ModuleChangedEvent();
+		ev.module = this;
+		ev.rule = rule;
+		for (ModuleChangedListener l : listeners) l.ruleRemoved(ev);
+	}
+
+	protected void callRemoveFactListeners(Fact fact) {
+		ModuleChangedEvent ev = new ModuleChangedEvent();
+		ev.module = this;
+		ev.fact = fact;
+		for (ModuleChangedListener l : listeners) l.factRemoved(ev);
+	}
+	
+	protected void callAddTemplateListeners(Template temp) {
+		ModuleChangedEvent ev = new ModuleChangedEvent();
+		ev.module = this;
+		ev.template = temp;
+		for (ModuleChangedListener l : listeners) l.templateAdded(ev);
+	}
+
+	protected void callAddRuleListeners(Rule rule) {
+		ModuleChangedEvent ev = new ModuleChangedEvent();
+		ev.module = this;
+		ev.rule = rule;
+		for (ModuleChangedListener l : listeners) l.ruleAdded(ev);
+	}
+
+	protected void callAddFactListeners(Fact fact) {
+		ModuleChangedEvent ev = new ModuleChangedEvent();
+		ev.module = this;
+		ev.fact = fact;
+		for (ModuleChangedListener l : listeners) l.factAdded(ev);
+	}
+	
 	/**
 	 * implementation will remove the template from the HashMap and it will
 	 * remove the ObjectTypeNode from the network.
 	 */
 	public void removeTemplate(Template temp, Rete engine, WorkingMemory mem) {
 		this.deftemplates.remove(temp.getName());
+		callRemoveTemplateListeners(temp);
 		if (temp.getClassName() != null) {
 			this.deftemplates.remove(temp.getClassName());
 		}
@@ -328,5 +379,15 @@ public class Defmodule implements Module, Serializable {
 	 */
 	public void setLazy(boolean lazy) {
 		this.activations.setLazy(lazy);
+	}
+
+	@Override
+	public void addModuleChangedListener(ModuleChangedListener listener) {
+		listeners.add(listener);
+	}
+
+	@Override
+	public void removeModuleChangedListener(ModuleChangedListener listener) {
+		listeners.remove(listener);
 	}
 }

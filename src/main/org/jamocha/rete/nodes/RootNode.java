@@ -16,7 +16,11 @@
  */
 package org.jamocha.rete.nodes;
 
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.Point;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.jamocha.rete.Fact;
@@ -24,6 +28,7 @@ import org.jamocha.rete.Rete;
 import org.jamocha.rete.Template;
 import org.jamocha.rete.exception.AssertException;
 import org.jamocha.rete.exception.RetractException;
+import org.jamocha.rete.visualisation.VisualizerSetup;
 
 public class RootNode extends BaseNode {
 
@@ -184,4 +189,38 @@ public class RootNode extends BaseNode {
 		// nothing to do: facts are allready asserted to all possible otn
 	}
 
+	
+	
+	
+	
+	
+	
+	//////////////////////////////////////////////////////////////
+	/// GRAPHICS STUFF ///////////////////////////////////////////
+	//////////////////////////////////////////////////////////////	
+	
+	protected void drawNode(int x, int y, int height, int width,  List<BaseNode> selected, Graphics2D canvas){
+		int alpha = (selected.contains(this)) ? 255 : 20;
+		canvas.setBackground( new Color(0,0,0,alpha) );
+		canvas.setColor(  new Color(40,40,40,alpha) );
+		canvas.fillOval(x,y,width,height);
+		canvas.drawOval(x,y,width,height);
+		drawId(x,y,height,width,canvas);
+	}
+	
+	
+	public Point getLineEndPoint(Point target, Point me, VisualizerSetup setup) {
+		double angle = atan3(-target.y+me.y, target.x-me.x);
+		
+		double unitCircleX = Math.cos(angle);
+		double unitCircleY = Math.sin(angle);
+		
+		Point result = new Point();
+		result.x = (int)(unitCircleX * (BaseNode.shapeWidth * setup.scaleX /2) + me.x);
+		result.y = (int)(-unitCircleY * (BaseNode.shapeHeight * setup.scaleY /2) + me.y);
+		return result;
+	}
+	
+	
+	
 }

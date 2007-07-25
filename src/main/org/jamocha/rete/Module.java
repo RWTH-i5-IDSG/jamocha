@@ -19,6 +19,7 @@ package org.jamocha.rete;
 import java.io.Serializable;
 import java.util.Collection;
 
+import org.jamocha.rete.eventhandling.ModuleChangedListener;
 import org.jamocha.rete.memory.WorkingMemory;
 import org.jamocha.rule.Rule;
 
@@ -171,4 +172,10 @@ public interface Module extends Serializable {
      * @param lazy
      */
     void setLazy(boolean lazy);
+    
+    
+    void addModuleChangedListener(ModuleChangedListener listener);
+    
+    void removeModuleChangedListener(ModuleChangedListener listener);
+    
 }

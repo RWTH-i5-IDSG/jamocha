@@ -29,10 +29,12 @@ import javax.swing.text.StyleConstants;
 
 import org.jamocha.rete.Module;
 import org.jamocha.rete.Rete;
+import org.jamocha.rete.eventhandling.ModuleChangedEvent;
+import org.jamocha.rete.eventhandling.ModuleChangedListener;
 import org.jamocha.rule.Defrule;
 import org.jamocha.rule.Rule;
 
-public class VisualizerPanel extends JPanel implements ClickListener, ListSelectionListener, MouseListener {
+public class VisualizerPanel extends JPanel implements ClickListener, ListSelectionListener, MouseListener, ModuleChangedListener {
 
 	
 	
@@ -111,14 +113,20 @@ public class VisualizerPanel extends JPanel implements ClickListener, ListSelect
 	protected Rete engine;
 	protected JToggleButton lineBtn;
 	protected JToggleButton lineQuarterEllipse;
-	protected JButton reloadButton;
-	
+	protected Module module;
 	protected SimpleAttributeSet actAttributes, even, odd;
+	
+	protected void setModule(Module module){
+		if (this.module != null) this.module.removeModuleChangedListener(this);
+		module.addModuleChangedListener(this);
+		this.module = module;
+	}
+
 	
 	public VisualizerPanel(Rete e) {
 		
 		engine = e;
-		
+		setModule(e.findModule("MAIN"));
 		miniMap = new Visualizer(e);
 		miniMap.enableToolTips(false);
 		miniMap.enableAutoScale(true);
@@ -180,12 +188,8 @@ public class VisualizerPanel extends JPanel implements ClickListener, ListSelect
 		lineQuarterEllipse.addMouseListener(this);
 		lineQuarterEllipse.setSelected(true);		
 		
-		reloadButton = new JButton("Reload rules (only needed in this beta version)");
-		reloadButton.addMouseListener(this);
-
 		buttonPanel.add(lineBtn);
 		buttonPanel.add(lineQuarterEllipse);
-		buttonPanel.add(reloadButton);
 		
 		this.add(buttonPanel, BorderLayout.PAGE_END);
 
@@ -241,8 +245,6 @@ public class VisualizerPanel extends JPanel implements ClickListener, ListSelect
 		} else if (c == lineQuarterEllipse){
 			miniMap.setLineStyle( VisualizerSetup.QUARTERELLIPSE );
 			mainVis.setLineStyle( VisualizerSetup.QUARTERELLIPSE );
-		} else if (c == reloadButton) {
-			reload();
 		}
 		
 	}
@@ -267,6 +269,46 @@ public class VisualizerPanel extends JPanel implements ClickListener, ListSelect
 
 
 	public void mouseReleased(MouseEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	public void factAdded(ModuleChangedEvent ev) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	public void factRemoved(ModuleChangedEvent ev) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	public void ruleAdded(ModuleChangedEvent ev) {
+		reload();
+	}
+
+
+	@Override
+	public void ruleRemoved(ModuleChangedEvent ev) {
+		reload();
+	}
+
+
+	@Override
+	public void templateAdded(ModuleChangedEvent ev) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	public void templateRemoved(ModuleChangedEvent ev) {
 		// TODO Auto-generated method stub
 		
 	}

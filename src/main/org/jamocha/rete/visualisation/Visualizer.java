@@ -21,10 +21,12 @@ import java.util.Stack;
 import javax.swing.JComponent;
 import javax.swing.event.MouseInputListener;
 
+import org.jamocha.rete.Module;
 import org.jamocha.rete.Rete;
+import org.jamocha.rete.eventhandling.ModuleChangedEvent;
+import org.jamocha.rete.eventhandling.ModuleChangedListener;
 import org.jamocha.rete.memory.WorkingMemoryImpl;
 import org.jamocha.rete.nodes.AbstractBeta;
-import org.jamocha.rete.nodes.AlphaNode;
 import org.jamocha.rete.nodes.BaseNode;
 import org.jamocha.rete.nodes.LIANode;
 import org.jamocha.rete.nodes.TerminalNode;
@@ -33,7 +35,6 @@ public class Visualizer extends JComponent implements ComponentListener, MouseIn
 	
 	BaseNode rootNode;
 	VisualizerSetup setup;
-
 	protected final Color betaColor = new Color(0,0,255,120);
 	protected final Color alphaColor = new Color(255,0,0,120);
 	protected final Color betaColorDeselected = new Color(0,0,255,20);
@@ -58,6 +59,7 @@ public class Visualizer extends JComponent implements ComponentListener, MouseIn
 	protected Point offsetWhenPressed;
 	protected int linestyle = VisualizerSetup.QUARTERELLIPSE;
 	protected boolean rightScroll;
+	
 	
 	public void computeRowHints() {
 		rowHints.clear();
@@ -570,5 +572,6 @@ public class Visualizer extends JComponent implements ComponentListener, MouseIn
 		if (dir > 0) {d = dir*1.1;} else { d = dir / -1.1; };
 		zoom(d,d,true);
 	}
+
 
 }
