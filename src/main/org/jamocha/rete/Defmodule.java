@@ -381,12 +381,10 @@ public class Defmodule implements Module, Serializable {
 		this.activations.setLazy(lazy);
 	}
 
-	@Override
 	public void addModuleChangedListener(ModuleChangedListener listener) {
 		listeners.add(listener);
 	}
 
-	@Override
 	public void removeModuleChangedListener(ModuleChangedListener listener) {
 		listeners.remove(listener);
 	}

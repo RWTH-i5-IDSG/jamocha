@@ -274,40 +274,34 @@ public class VisualizerPanel extends JPanel implements ClickListener, ListSelect
 	}
 
 
-	@Override
 	public void factAdded(ModuleChangedEvent ev) {
 		// TODO Auto-generated method stub
 		
 	}
 
 
-	@Override
 	public void factRemoved(ModuleChangedEvent ev) {
 		// TODO Auto-generated method stub
 		
 	}
 
 
-	@Override
 	public void ruleAdded(ModuleChangedEvent ev) {
 		reload();
 	}
 
 
-	@Override
 	public void ruleRemoved(ModuleChangedEvent ev) {
 		reload();
 	}
 
 
-	@Override
 	public void templateAdded(ModuleChangedEvent ev) {
 		// TODO Auto-generated method stub
 		
 	}
 
 
-	@Override
 	public void templateRemoved(ModuleChangedEvent ev) {
 		// TODO Auto-generated method stub
 		
