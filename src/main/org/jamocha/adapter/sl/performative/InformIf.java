@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://jamocha.sourceforge.net/
+ *   http://www.jamocha.org/
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -25,34 +25,30 @@ import org.jamocha.parser.sl.ParseException;
 import org.jamocha.parser.sl.SLParser;
 
 /**
- * This class walks through an SL code tree and translates it to CLIPS depending
- * on the given performative.
+ * Translates SL code of an inform-if to CLIPS code. An inform-if has a
+ * proposition that is either set to be true or false. The receiver can decide
+ * if he also adopts this belief or not according to the ontology and other
+ * parameters.
  * 
- * @author Daniel Georg & Grams Jennessen
+ * @author Daniel Grams, Georg Jennessen, Alexander Wilden
  * 
  */
-public class InformIf {
+class InformIf extends SLPerformativeTranslator {
 
 	/**
-	 * A private constructor to force access only in a static way.
-	 * 
-	 */
-	private InformIf() {
-	}
-
-	/**
-	 * Translates SL code of a request to CLIPS code. A request only contains
-	 * one action.
+	 * Translates SL code of an inform-if to CLIPS code. An inform-if has a
+	 * proposition that is either set to be true or false. The receiver can
+	 * decide if he also adopts this belief or not according to the ontology and
+	 * other parameters.
 	 * 
 	 * @param slContent
 	 *            The SL content we have to translate.
 	 * @return CLIPS commands that represent the given SL code.
 	 * @throws AdapterTranslationException
-	 *             if the SLParser throws an Exception or anything else unnormal
+	 *             if the SLParser throws an Exception or anything else abnormal
 	 *             happens.
 	 */
-	public static String getCLIPS(String slContent)
-			throws AdapterTranslationException {
+	public String getCLIPS(String slContent) throws AdapterTranslationException {
 		ContentSLConfiguration contentConf;
 		try {
 			contentConf = SLParser.parse(slContent);
@@ -61,22 +57,13 @@ public class InformIf {
 					"Could not translate from SL to CLIPS.", e);
 		}
 		List<SLConfiguration> results = contentConf.getExpressions();
-		if (results.size() != 1) {
-			// TODO: Add more Exceptions for different things extending
-			// AdapterTranslationException that tell more about the nature of
-			// the problem!
-			throw new AdapterTranslationException("Error");
-		}
+		checkContentItemCount(results, 1);
+
 		StringBuilder result = new StringBuilder();
-		result.append("(bind ?*informIf-temp* FALSE)");
-		result.append("(defrule inform-if-true ");
+		result
+				.append("(assert (agent-informIf-result (message %MSG%)(proposition \"");
 		result.append(results.get(0).compile(SLCompileType.RULE_LHS));
-		result.append(" => ");
-		result.append("(bind ?*informIf-temp* TRUE)");
-		result.append(")");
-		result.append("(fire)");
-		result.append("(undefrule \"inform-if-true\")");
-		result.append("(assert (agent-informIf-result (message %MSG%)(result ?*informIf-temp*)))");
+		result.append("\")))");
 
 		return result.toString();
 	}

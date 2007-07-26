@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://jamocha.sourceforge.net/
+ *   http://www.jamocha.org/
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -32,14 +32,7 @@ import org.jamocha.parser.sl.SLParser;
  * @author Alexander Wilden
  * 
  */
-public class Subscribe {
-
-	/**
-	 * A private constructor to force access only in a static way.
-	 * 
-	 */
-	private Subscribe() {
-	}
+class Subscribe extends SLPerformativeTranslator {
 
 	/**
 	 * Translates SL code of a subscribe to CLIPS code.
@@ -48,11 +41,10 @@ public class Subscribe {
 	 *            The SL content we have to translate.
 	 * @return CLIPS commands that represent the given SL code.
 	 * @throws AdapterTranslationException
-	 *             if the SLParser throws an Exception or anything else unnormal
+	 *             if the SLParser throws an Exception or anything else abnormal
 	 *             happens.
 	 */
-	public static String getCLIPS(String slContent)
-			throws AdapterTranslationException {
+	public String getCLIPS(String slContent) throws AdapterTranslationException {
 		ContentSLConfiguration contentConf;
 		try {
 			contentConf = SLParser.parse(slContent);
@@ -61,16 +53,15 @@ public class Subscribe {
 					"Could not translate from SL to CLIPS.", e);
 		}
 		List<SLConfiguration> results = contentConf.getExpressions();
-		if (results.size() != 1) {
-			// TODO: Add more Exceptions for different things extending
-			// AdapterTranslationException that tell more about the nature of
-			// the problem!
-			throw new AdapterTranslationException("Error");
-		}
-		StringBuilder result = new StringBuilder();
-		IdentifyingExpressionSLConfiguration conf = (IdentifyingExpressionSLConfiguration) results.get(0);
+		checkContentItemCount(results, 2);
+		
+		IdentifyingExpressionSLConfiguration conf = (IdentifyingExpressionSLConfiguration) results
+				.get(0);
 		String refOp = conf.getRefOp().compile(SLCompileType.RULE_LHS);
-		String binding = conf.getTermOrIE().compile(SLCompileType.ACTION_AND_ASSERT);
+		String binding = conf.getTermOrIE().compile(
+				SLCompileType.ACTION_AND_ASSERT);
+
+		StringBuilder result = new StringBuilder();
 		result.append("(bind ?*agent-result* (create$))");
 		result.append("(defrule subscribe ");
 		result.append(conf.getWff().compile(SLCompileType.RULE_LHS));

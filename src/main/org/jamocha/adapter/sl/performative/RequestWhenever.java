@@ -25,36 +25,28 @@ import org.jamocha.parser.sl.ParseException;
 import org.jamocha.parser.sl.SLParser;
 
 /**
- * This class walks through an SL code tree and translates it to CLIPS depending
- * on the given performative.
+ * Translates SL code of a request-whenever to CLIPS code. A request-whenever
+ * contains one action and one proposition. The action is executed whenever the
+ * proposition holds.
  * 
  * @author Daniel Grams, Alexander Wilden
  * 
  */
-public class RequestWhenever {
-
-	private static long uniqueId = 1;
+class RequestWhenever extends SLPerformativeTranslator {
 
 	/**
-	 * A private constructor to force access only in a static way.
-	 * 
-	 */
-	private RequestWhenever() {
-	}
-
-	/**
-	 * Translates SL code of a request to CLIPS code. A request only contains
-	 * one action.
+	 * Translates SL code of a request-whenever to CLIPS code. A
+	 * request-whenever contains one action and one proposition. The action is
+	 * executed whenever the proposition holds.
 	 * 
 	 * @param slContent
 	 *            The SL content we have to translate.
 	 * @return CLIPS commands that represent the given SL code.
 	 * @throws AdapterTranslationException
-	 *             if the SLParser throws an Exception or anything else unnormal
+	 *             if the SLParser throws an Exception or anything else abnormal
 	 *             happens.
 	 */
-	public static String getCLIPS(String slContent)
-			throws AdapterTranslationException {
+	public String getCLIPS(String slContent) throws AdapterTranslationException {
 		ContentSLConfiguration contentConf;
 		try {
 			contentConf = SLParser.parse(slContent);
@@ -63,15 +55,12 @@ public class RequestWhenever {
 					"Could not translate from SL to CLIPS.", e);
 		}
 		List<SLConfiguration> results = contentConf.getExpressions();
-		if (results.size() != 2) {
-			// TODO: Add more Exceptions for different things extending
-			// AdapterTranslationException that tell more about the nature of
-			// the problem!
-			throw new AdapterTranslationException("Error");
-		}
-		StringBuilder result = new StringBuilder();
-		String ruleName = "request-whenever-" + uniqueId++;
+		checkContentItemCount(results, 2);
 
+		int uniqueId = getUniqueId();
+		String ruleName = "request-whenever-" + uniqueId;
+
+		StringBuilder result = new StringBuilder();
 		result.append("(defrule ");
 		result.append(ruleName);
 		result.append(" ");
@@ -81,7 +70,9 @@ public class RequestWhenever {
 				.append("(assert (agent-requestWhenever-result (message %MSG%)(result ");
 		result.append(results.get(0).compile(SLCompileType.ACTION_AND_ASSERT));
 		result.append("))))");
-		result.append("(assert (agent-message-rule-pairing (message %MSG%)(ruleName \"");
+
+		result
+				.append("(assert (agent-message-rule-pairing (message %MSG%)(ruleName \"");
 		result.append(ruleName);
 		result.append("\")))");
 

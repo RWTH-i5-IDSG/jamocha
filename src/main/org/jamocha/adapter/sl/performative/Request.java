@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://jamocha.sourceforge.net/
+ *   http://www.jamocha.org/
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,51 +15,49 @@
  */
 package org.jamocha.adapter.sl.performative;
 
+import java.util.List;
+
 import org.jamocha.adapter.AdapterTranslationException;
 import org.jamocha.adapter.sl.configurations.ContentSLConfiguration;
 import org.jamocha.adapter.sl.configurations.SLCompileType;
+import org.jamocha.adapter.sl.configurations.SLConfiguration;
 import org.jamocha.parser.sl.ParseException;
 import org.jamocha.parser.sl.SLParser;
 
 /**
- * This class walks through an SL code tree and translates it to CLIPS depending
- * on the given performative.
+ * Translates SL code of a request to CLIPS code. A request only contains one
+ * action that directly is executed.
  * 
  * @author Alexander Wilden
  * 
  */
-public class Request {
-
-	/**
-	 * A private constructor to force access only in a static way.
-	 * 
-	 */
-	private Request() {
-	}
+class Request extends SLPerformativeTranslator {
 
 	/**
 	 * Translates SL code of a request to CLIPS code. A request only contains
-	 * one action.
+	 * one action that directly is executed.
 	 * 
 	 * @param slContent
 	 *            The SL content we have to translate.
 	 * @return CLIPS commands that represent the given SL code.
 	 * @throws AdapterTranslationException
-	 *             if the SLParser throws an Exception or anything else unnormal
+	 *             if the SLParser throws an Exception or anything else abnormal
 	 *             happens.
 	 */
-	public static String getCLIPS(String slContent)
-			throws AdapterTranslationException {
+	public String getCLIPS(String slContent) throws AdapterTranslationException {
 		ContentSLConfiguration contentConf;
-		StringBuilder result = new StringBuilder();
-		result.append("(assert (agent-request-result (message %MSG%)(result ");
 		try {
 			contentConf = SLParser.parse(slContent);
-			result.append(contentConf.compile(SLCompileType.ACTION_AND_ASSERT));
 		} catch (ParseException e) {
 			throw new AdapterTranslationException(
 					"Could not translate from SL to CLIPS.", e);
 		}
+		List<SLConfiguration> results = contentConf.getExpressions();
+		checkContentItemCount(results, 1);
+
+		StringBuilder result = new StringBuilder();
+		result.append("(assert (agent-request-result (message %MSG%)(result ");
+		result.append(results.get(0).compile(SLCompileType.ACTION_AND_ASSERT));
 		result.append(")))");
 
 		return result.toString();

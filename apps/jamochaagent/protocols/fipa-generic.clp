@@ -22,5 +22,7 @@
 	)
 	=>
 	
+	; TODO: maybe we should send an confirm or inform message here??
+	
 	(undefrule ?ruleName)
 )

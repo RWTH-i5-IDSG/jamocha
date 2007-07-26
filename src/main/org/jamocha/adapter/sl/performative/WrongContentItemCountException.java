@@ -12,35 +12,26 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ * 
  */
 package org.jamocha.adapter.sl.performative;
 
 import org.jamocha.adapter.AdapterTranslationException;
 
 /**
- * This class walks through an SL code tree and translates it to CLIPS depending
- * on the given performative.
+ * Exception that signals a translation error because of a wrong number of content
+ * elements in some SL content.
  * 
  * @author Alexander Wilden
  * 
  */
-class Propagate extends SLPerformativeTranslator {
+public class WrongContentItemCountException extends AdapterTranslationException {
 
-	/**
-	 * Translates SL code of a request to CLIPS code. A request only contains
-	 * one action.
-	 * 
-	 * @param slContent
-	 *            The SL content we have to translate.
-	 * @return CLIPS commands that represent the given SL code.
-	 * @throws AdapterTranslationException
-	 *             if the SLParser throws an Exception or anything else abnormal
-	 *             happens.
-	 */
-	public String getCLIPS(String slContent)
-			throws AdapterTranslationException {
-		// TODO: implement me
-		return null;
+	private static final long serialVersionUID = 1L;
+
+	public WrongContentItemCountException(int isCount, int hasToBeCount) {
+		super("Wrong number of content elements. Expected " + hasToBeCount
+				+ " elements and found" + isCount + " elements.");
 	}
 
 }

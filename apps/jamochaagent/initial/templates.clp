@@ -41,6 +41,18 @@
 )
 
 
+(deftemplate agent-message-rule-pairing
+	"Generic pairing to connect a rule to the message that caused its definition."
+	(slot message)
+	(slot ruleName (type STRING))
+)
+
+
+; ===================================================
+; Definition of the templates for the performatives (speech acts)
+; ===================================================
+
+
 (deftemplate agent-acceptProposal-result
 	"Result-Template for agree performatives."
 	(slot message)
@@ -103,6 +115,28 @@
 )
 
 
+(deftemplate agent-informIf-result
+	"Result-Template for inform-if performatives."
+	(slot message)
+	(slot proposition (type STRING))
+)
+
+
+(deftemplate agent-informRef-result
+	"Result-Template for inform-ref performatives."
+	(slot message)
+	(slot proposition (type STRING))
+)
+
+
+(deftemplate agent-notUnderstood-result
+	"Result-Template for not-understood performatives."
+	(slot message)
+	(slot action (type STRING))
+	(slot proposition (type STRING))
+)
+
+
 (deftemplate agent-propose-result
 	"Result-Template for propose performatives."
 	(slot message)
@@ -134,6 +168,15 @@
 )
 
 
+(deftemplate agent-rejectProposal-result
+	"Result-Template for reject-proposal performatives."
+	(slot message)
+	(slot action (type STRING))
+	(slot proposition (type STRING))
+	(slot reason (type STRING))
+)
+
+
 (deftemplate agent-request-result
 	"Result-Template for request performatives."
 	(slot message)
@@ -155,13 +198,10 @@
 )
 
 
-(deftemplate agent-message-rule-pairing
-	"Generic pairing to connect a rule to the message that caused its definition."
-	(slot message)
-	(slot ruleName (type STRING))
-)
-
-
+; ===================================================
+; Definition of the "macro" templates.
+; These are needed to initiate the sending of a new message.
+; ===================================================
 
 
 (deftemplate inform

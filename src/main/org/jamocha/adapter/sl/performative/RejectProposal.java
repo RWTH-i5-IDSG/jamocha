@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://jamocha.sourceforge.net/
+ *   http://www.jamocha.org/
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -25,34 +25,30 @@ import org.jamocha.parser.sl.ParseException;
 import org.jamocha.parser.sl.SLParser;
 
 /**
- * This class walks through an SL code tree and translates it to CLIPS depending
- * on the given performative.
+ * Translates SL code of a reject-proposal to CLIPS code. A reject-proposal
+ * contains an action and a proposition, which formed the original proposal
+ * being rejected, and a further proposition which denotes the reason for the
+ * rejection.
  * 
  * @author Alexander Wilden
  * 
  */
-public class RejectProposal {
+class RejectProposal extends SLPerformativeTranslator {
 
 	/**
-	 * A private constructor to force access only in a static way.
-	 * 
-	 */
-	private RejectProposal() {
-	}
-
-	/**
-	 * Translates SL code of a request to CLIPS code. A request only contains
-	 * one action.
+	 * Translates SL code of a reject-proposal to CLIPS code. A reject-proposal
+	 * contains an action and a proposition, which formed the original proposal
+	 * being rejected, and a further proposition which denotes the reason for
+	 * the rejection.
 	 * 
 	 * @param slContent
 	 *            The SL content we have to translate.
 	 * @return CLIPS commands that represent the given SL code.
 	 * @throws AdapterTranslationException
-	 *             if the SLParser throws an Exception or anything else unnormal
+	 *             if the SLParser throws an Exception or anything else abnormal
 	 *             happens.
 	 */
-	public static String getCLIPS(String slContent)
-			throws AdapterTranslationException {
+	public String getCLIPS(String slContent) throws AdapterTranslationException {
 		ContentSLConfiguration contentConf;
 		try {
 			contentConf = SLParser.parse(slContent);
@@ -60,15 +56,19 @@ public class RejectProposal {
 			throw new AdapterTranslationException(
 					"Could not translate from SL to CLIPS.", e);
 		}
-		
-		StringBuffer result = new StringBuffer();
 		List<SLConfiguration> results = contentConf.getExpressions();
-		result.append("(assert (agent-rejectProposal-result (propositions");
-		for(int i = 1; i < results.size(); i++){
-			result.append(results.get(i).compile(SLCompileType.ASSERT));
-		}
-		result.append(")))");
+		checkContentItemCount(results, 3);
+
+		StringBuffer result = new StringBuffer();
+		result
+				.append("(assert (agent-rejectProposal-result (message %MSG%)(action \"");
+		result.append(results.get(0).compile(SLCompileType.ACTION_AND_ASSERT));
+		result.append("\")(proposition \"");
+		result.append(results.get(1).compile(SLCompileType.RULE_LHS));
+		result.append("\")(reason \"");
+		result.append(results.get(2).compile(SLCompileType.RULE_LHS));
+		result.append("\")))");
 		return result.toString();
-		}
+	}
 
 }

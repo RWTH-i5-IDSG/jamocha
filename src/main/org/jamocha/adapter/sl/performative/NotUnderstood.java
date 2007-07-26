@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://jamocha.sourceforge.net/
+ *   http://www.jamocha.org/
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -25,34 +25,30 @@ import org.jamocha.parser.sl.ParseException;
 import org.jamocha.parser.sl.SLParser;
 
 /**
- * This class walks through an SL code tree and translates it to CLIPS depending
- * on the given performative.
+ * Translates SL code of a not-understood to CLIPS code. A not-understood
+ * performative consists of an action or event and a proposition. The action
+ * resp. event is something the sender didn't understand and the proposition
+ * tries give a reason for why the action resp. event was not understood.
  * 
- * @author Charlies Angels (Daniel & Georg)
+ * @author Daniel Grams, Georg Jennessen, Alexander Wilden
  * 
  */
-public class NotUnderstood {
+class NotUnderstood extends SLPerformativeTranslator {
 
 	/**
-	 * A private constructor to force access only in a static way.
-	 * 
-	 */
-	private NotUnderstood() {
-	}
-
-	/**
-	 * Translates SL code of a request to CLIPS code. A request only contains
-	 * one action.
+	 * Translates SL code of a not-understood to CLIPS code. A not-understood
+	 * performative consists of an action or event and a proposition. The action
+	 * resp. event is something the sender didn't understand and the proposition
+	 * tries give a reason for why the action resp. event was not understood.
 	 * 
 	 * @param slContent
 	 *            The SL content we have to translate.
 	 * @return CLIPS commands that represent the given SL code.
 	 * @throws AdapterTranslationException
-	 *             if the SLParser throws an Exception or anything else unnormal
+	 *             if the SLParser throws an Exception or anything else abnormal
 	 *             happens.
 	 */
-	public static String getCLIPS(String slContent)
-			throws AdapterTranslationException {
+	public String getCLIPS(String slContent) throws AdapterTranslationException {
 		ContentSLConfiguration contentConf;
 		try {
 			contentConf = SLParser.parse(slContent);
@@ -61,19 +57,15 @@ public class NotUnderstood {
 					"Could not translate from SL to CLIPS.", e);
 		}
 		List<SLConfiguration> results = contentConf.getExpressions();
-		if (results.size() != 1) {
-			// TODO: Add more Exceptions for different things extending
-			// AdapterTranslationException that tell more about the nature of
-			// the problem!
-			throw new AdapterTranslationException("Error");
-		}
+		checkContentItemCount(results, 2);
+
 		StringBuilder result = new StringBuilder();
-				
-		result.append("(assert (agent-notUnderstood-result (message %MSG%)(propositions");
-		for (int i = 1; i < results.size(); i++) {
-			result.append(results.get(i).compile(SLCompileType.ASSERT));
-		}
-		result.append(")))");
+		result
+				.append("(assert (agent-notUnderstood-result (message %MSG%)(action \"");
+		result.append(results.get(0).compile(SLCompileType.ACTION_AND_ASSERT));
+		result.append("\")(proposition \"");
+		result.append(results.get(1).compile(SLCompileType.RULE_LHS));
+		result.append("\")))");
 		System.out.println(result);
 		return result.toString();
 	}

@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://jamocha.sourceforge.net/
+ *   http://www.jamocha.org/
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -27,34 +27,57 @@ import org.jamocha.parser.sl.ParseException;
 import org.jamocha.parser.sl.SLParser;
 
 /**
- * This class walks through an SL code tree and translates it to CLIPS depending
- * on the given performative.
+ * Translates SL code of a cancel to CLIPS code. A cancel informs the receiver
+ * that an ongoing or outstanding action isn't necessary any more and should be
+ * canceled. There are different ways to find out which action should be
+ * canceled. On the one hand one could cancel any action started by a message
+ * with the same conversation-id as this cancel speech act. On the other hand
+ * one can check the message content against the content of the other messages
+ * to find out the message whose action should be canceled.
+ * <p>
+ * As the second method requires a slow string comparison we prefer the first
+ * one. Here we just assert a fact with all the information to cancel an action
+ * in both ways.
+ * <p>
+ * As an action we here define a rule defined by another performative like
+ * request-when. A generic cancel rule than checks for
+ * agent-message-rule-pairings whose initializing message had the same
+ * conversation-id as this cancel speech act. This rule than gets undefined.This
+ * class walks through an SL code tree and translates it to CLIPS depending on
+ * the given performative.
  * 
  * @author Alexander Wilden
  * 
  */
-public class Cancel {
+class Cancel extends SLPerformativeTranslator {
 
 	/**
-	 * A private constructor to force access only in a static way.
-	 * 
-	 */
-	private Cancel() {
-	}
-
-	/**
-	 * Translates SL code of a request to CLIPS code. A request only contains
-	 * one action.
+	 * Translates SL code of a cancel to CLIPS code. A cancel informs the
+	 * receiver that an ongoing or outstanding action isn't necessary any more
+	 * and should be canceled. There are different ways to find out which action
+	 * should be canceled. On the one hand one could cancel any action started
+	 * by a message with the same conversation-id as this cancel speech act. On
+	 * the other hand one can check the message content against the content of
+	 * the other messages to find out the message whose action should be
+	 * canceled.
+	 * <p>
+	 * As the second method requires a slow string comparison we prefer the
+	 * first one. Here we just assert a fact with all the information to cancel
+	 * an action in both ways.
+	 * <p>
+	 * As an action we here define a rule defined by another performative like
+	 * request-when. A generic cancel rule than checks for
+	 * agent-message-rule-pairings whose initializing message had the same
+	 * conversation-id as this cancel speech act. This rule than gets undefined.
 	 * 
 	 * @param slContent
 	 *            The SL content we have to translate.
 	 * @return CLIPS commands that represent the given SL code.
 	 * @throws AdapterTranslationException
-	 *             if the SLParser throws an Exception or anything else unnormal
+	 *             if the SLParser throws an Exception or anything else abnormal
 	 *             happens.
 	 */
-	public static String getCLIPS(String slContent)
-			throws AdapterTranslationException {
+	public String getCLIPS(String slContent) throws AdapterTranslationException {
 
 		ContentSLConfiguration contentConf;
 		try {
@@ -64,9 +87,8 @@ public class Cancel {
 					"Could not translate from SL to CLIPS.", e);
 		}
 		List<SLConfiguration> results = contentConf.getExpressions();
-		if (results.size() != 1) {
-			throw new AdapterTranslationException("Unexpected structure of the content. Expected 1 Expression.");
-		}
+		checkContentItemCount(results, 1);
+
 		ActionSLConfiguration actConf = (ActionSLConfiguration) results.get(0);
 		FunctionCallOrFactSLConfiguration functionConf = (FunctionCallOrFactSLConfiguration) actConf
 				.getAction();
@@ -78,16 +100,17 @@ public class Cancel {
 				.getAgent();
 		String agent = agentConf.getSlot("name", SLCompileType.ASSERT).compile(
 				SLCompileType.ASSERT);
+		
 		StringBuilder result = new StringBuilder();
-		if (oldContent != null) {
-			result.append("(assert (agent-cancel-result (message %MSG%)(initiator \"");
-			result.append(agent);
-			result.append("\")(performative \"");
-			result.append(performative);
-			result.append("\")(messageContent ");
-			result.append(oldContent);
-			result.append(")))");
-		}
+		result
+				.append("(assert (agent-cancel-result (message %MSG%)(initiator \"");
+		result.append(agent);
+		result.append("\")(performative \"");
+		result.append(performative);
+		result.append("\")(messageContent ");
+		result.append(oldContent);
+		result.append(")))");
+
 		return result.toString();
 	}
 }

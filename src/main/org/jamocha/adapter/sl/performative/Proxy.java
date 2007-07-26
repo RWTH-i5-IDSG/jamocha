@@ -1,11 +1,11 @@
 /*
- * Copyright 2007 Mustafa Karafil & Fehmi Karanfil
+ * Copyright 2007 Mustafa Karafil, Fehmi Karanfil, Alexander Wilden
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://jamocha.sourceforge.net/
+ *   http://www.jamocha.org/
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -31,31 +31,23 @@ import org.jamocha.parser.sl.SLParser;
  * This class walks through an SL code tree and translates it to CLIPS depending
  * on the given performative.
  * 
- * @author Mustafa Karafil & Fehmi Karanfil
+ * @author Mustafa Karafil, Fehmi Karanfil, Alexander Wilden
  * 
  */
-public class Proxy {
+class Proxy extends SLPerformativeTranslator {
 
 	/**
-	 * A private constructor to force access only in a static way.
-	 * 
-	 */
-	private Proxy() {
-	}
-
-	/**
-	 * Translates SL code of a proxy to CLIPS code. A proxy only contains
-	 * a tuple of referential expression.
+	 * Translates SL code of a proxy to CLIPS code. A proxy only contains a
+	 * tuple of referential expression.
 	 * 
 	 * @param slContent
 	 *            The SL content we have to translate.
 	 * @return CLIPS commands that represent the given SL code.
 	 * @throws AdapterTranslationException
-	 *             if the SLParser throws an Exception or anything else unnormal
+	 *             if the SLParser throws an Exception or anything else abnormal
 	 *             happens.
 	 */
-	public static String getCLIPS(String slContent)
-	throws AdapterTranslationException {
+	public String getCLIPS(String slContent) throws AdapterTranslationException {
 		ContentSLConfiguration contentConf;
 		try {
 			contentConf = SLParser.parse(slContent);
@@ -64,18 +56,14 @@ public class Proxy {
 					"Could not translate from SL to CLIPS.", e);
 		}
 		List<SLConfiguration> results = contentConf.getExpressions();
-		if (results.size() != 1) {
-			// TODO: Add more Exceptions for different things extending
-			// AdapterTranslationException that tell more about the nature of
-			// the problem!
-			throw new AdapterTranslationException("Error");
-		}
-		StringBuilder result = new StringBuilder();
+		checkContentItemCount(results, 2);
+
 		IdentifyingExpressionSLConfiguration conf = (IdentifyingExpressionSLConfiguration) results
 				.get(0);
 		String refOp = conf.getRefOp().compile(SLCompileType.RULE_LHS);
-		String binding = conf.getTermOrIE().compile(
-				SLCompileType.RULE_RESULT);
+		String binding = conf.getTermOrIE().compile(SLCompileType.RULE_RESULT);
+		
+		StringBuilder result = new StringBuilder();
 		result.append("(bind ?*proxy-temp* (create$))");
 		result.append("(defrule proxy ");
 		result.append(conf.getWff().compile(SLCompileType.RULE_LHS));
@@ -85,7 +73,7 @@ public class Proxy {
 		result.append(")))");
 		result.append("(fire)");
 		result.append("(undefrule \"proxy\")");
-		
+
 		ActionSLConfiguration actConf = (ActionSLConfiguration) results.get(1);
 		FunctionCallOrFactSLConfiguration functionConf = (FunctionCallOrFactSLConfiguration) actConf
 				.getAction();
@@ -94,14 +82,15 @@ public class Proxy {
 		String oldContent = functionConf.getSlot("content",
 				SLCompileType.ASSERT).compile(SLCompileType.ASSERT);
 
-		if (oldContent != null){
-			result.append("(assert (agent-proxy-result (message %MSG%)(performative \"");
+		if (oldContent != null) {
+			result
+					.append("(assert (agent-proxy-result (message %MSG%)(performative \"");
 			result.append(performative);
-			result.append("\")(messageContent ");
+			result.append("\")(messageContent \"");
 			result.append(oldContent);
-			result.append(")(refOp ");
+			result.append("\")(refOp \"");
 			result.append(refOp);
-			result.append(")(agents ?*proxy-temp*)))");
+			result.append("\")(agents ?*proxy-temp*)))");
 		}
 		System.out.println(result);
 		return result.toString();

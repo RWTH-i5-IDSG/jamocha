@@ -25,37 +25,28 @@ import org.jamocha.parser.sl.ParseException;
 import org.jamocha.parser.sl.SLParser;
 
 /**
- * This class walks through an SL code tree and translates it to CLIPS depending
- * on the given performative.
+ * Translates SL code of a request-when to CLIPS code. A request-when contains
+ * one action and one proposition. The action is executed as soon as the
+ * proposition holds.
  * 
  * @author Markus Kucay, Alexander Wilden
  * 
  */
-public class RequestWhen {
-
-	private static long uniqueId = 1;
-
-	/**
-	 * A private constructor to force access only in a static way.
-	 * 
-	 */
-	private RequestWhen() {
-	}
+class RequestWhen extends SLPerformativeTranslator {
 
 	/**
 	 * Translates SL code of a request-when to CLIPS code. A request-when
-	 * contains one action and one proposition.
+	 * contains one action and one proposition. The action is executed as soon
+	 * as the proposition holds.
 	 * 
 	 * @param slContent
 	 *            The SL content we have to translate.
 	 * @return CLIPS commands that represent the given SL code.
 	 * @throws AdapterTranslationException
-	 *             if the SLParser throws an Exception or anything else unnormal
+	 *             if the SLParser throws an Exception or anything else abnormal
 	 *             happens.
 	 */
-	public static String getCLIPS(String slContent)
-			throws AdapterTranslationException {
-
+	public String getCLIPS(String slContent) throws AdapterTranslationException {
 		ContentSLConfiguration contentConf;
 		try {
 			contentConf = SLParser.parse(slContent);
@@ -64,27 +55,27 @@ public class RequestWhen {
 					"Could not translate from SL to CLIPS.", e);
 		}
 		List<SLConfiguration> results = contentConf.getExpressions();
-		if (results.size() != 2) {
-			// TODO: Add more Exceptions for different things extending
-			// AdapterTranslationException that tell more about the nature of
-			// the problem!
-			throw new AdapterTranslationException("Error");
-		}
-		StringBuilder result = new StringBuilder();
-		String ruleName = "request-when-" + uniqueId++;
+		checkContentItemCount(results, 2);
 
+		int uniqueId = getUniqueId();
+		String ruleName = "request-when-" + uniqueId;
+
+		StringBuilder result = new StringBuilder();
 		result.append("(defrule ");
 		result.append(ruleName);
 		result.append(" ");
 		result.append(results.get(1).compile(SLCompileType.RULE_LHS));
 		result.append(" => ");
-		result.append("(assert (agent-requestWhen-result (message %MSG%)(result ");
+		result
+				.append("(assert (agent-requestWhen-result (message %MSG%)(result ");
 		result.append(results.get(0).compile(SLCompileType.ACTION_AND_ASSERT));
 		result.append(")))");
 		result.append("(undefrule ");
 		result.append(ruleName);
 		result.append("))");
-		result.append("(assert (agent-message-rule-pairing (message %MSG%)(ruleName \"");
+
+		result
+				.append("(assert (agent-message-rule-pairing (message %MSG%)(ruleName \"");
 		result.append(ruleName);
 		result.append("\")))");
 		return result.toString();

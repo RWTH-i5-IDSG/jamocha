@@ -1,11 +1,11 @@
 /*
- * Copyright 2007 Markus Kucay
+ * Copyright 2007 Markus Kucay, Alexander Wilden
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://jamocha.sourceforge.net/
+ *   http://www.jamocha.org/
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -26,20 +26,15 @@ import org.jamocha.parser.sl.ParseException;
 import org.jamocha.parser.sl.SLParser;
 
 /**
- * This class walks through an SL code tree and translates it to CLIPS depending
- * on the given performative.
+ * Translates SL code of a call-for-proposal to CLIPS code. This performative
+ * contains an action and a referential operator, which defines a proposition
+ * with exactly one parameter. The receiving agent has to decide whether he can
+ * perform the action under this precondition or not.
  * 
- * @author Markus Kucay
+ * @author Markus Kucay, Alexander Wilden
  * 
  */
-public class Cfp {
-
-	/**
-	 * A private constructor to force access only in a static way.
-	 * 
-	 */
-	private Cfp() {
-	}
+class Cfp extends SLPerformativeTranslator {
 
 	/**
 	 * Translates SL code of a call-for-proposal to CLIPS code. This
@@ -51,11 +46,10 @@ public class Cfp {
 	 *            The SL content we have to translate.
 	 * @return CLIPS commands that represent the given SL code.
 	 * @throws AdapterTranslationException
-	 *             if the SLParser throws an Exception or anything else unnormal
+	 *             if the SLParser throws an Exception or anything else abnormal
 	 *             happens.
 	 */
-	public static String getCLIPS(String slContent)
-			throws AdapterTranslationException {
+	public String getCLIPS(String slContent) throws AdapterTranslationException {
 		ContentSLConfiguration contentConf;
 		try {
 			contentConf = SLParser.parse(slContent);
@@ -64,35 +58,50 @@ public class Cfp {
 					"Could not translate from SL to CLIPS.", e);
 		}
 		List<SLConfiguration> results = contentConf.getExpressions();
-		if (results.size() != 2) {
-			throw new AdapterTranslationException(
-					"Unexpected structure of the content. Expected 2 Expressions.");
-		}
-		StringBuilder result = new StringBuilder();
+		checkContentItemCount(results, 2);
 
-		
 		IdentifyingExpressionSLConfiguration ieConf = (IdentifyingExpressionSLConfiguration) results
 				.get(1);
 		String refOp = ieConf.getRefOp().compile(SLCompileType.RULE_LHS);
-		String binding = ieConf.getTermOrIE().compile(SLCompileType.RULE_RESULT);
+		String binding = ieConf.getTermOrIE()
+				.compile(SLCompileType.RULE_RESULT);
 		String action = results.get(0).compile(SLCompileType.ACTION_AND_ASSERT);
-		
-		result.append("(bind ?*cfp-temp* (create$))");
-		result.append("(defrule cfp ");
+
+		int uniqueId = getUniqueId();
+		String ruleName = "cfp-" + uniqueId;
+		String bindName = "?*cfp-" + uniqueId + "*";
+
+		StringBuilder result = new StringBuilder();
+		result.append("(bind ");
+		result.append(bindName);
+		result.append(" (create$ ))");
+
+		result.append("(defrule ");
+		result.append(ruleName);
+		result.append(" ");
 		result.append(ieConf.getWff().compile(SLCompileType.RULE_LHS));
 		result.append(" => ");
-		result.append("(bind ?*cfp-temp* (insert-list$ ?*cfp-temp* 1 ");
+		result.append("(bind ");
+		result.append(bindName);
+		result.append(" (insert-list$ ");
+		result.append(bindName);
+		result.append(" 1 ");
 		result.append(binding);
 		result.append(")))");
+
 		result.append("(fire)");
-		result.append("(undefrule \"cfp\")");
+
+		result.append("(undefrule \"");
+		result.append(ruleName);
+		result.append("\")");
+
 		result.append("(assert (agent-cfp-result (message %MSG%)(action \"");
 		result.append(action);
 		result.append("\")(refOp ");
 		result.append(refOp);
-		result.append(")(items ?*cfp-temp*)))");
-
-		
+		result.append(")(items ");
+		result.append(bindName);
+		result.append(")))");
 
 		return result.toString();
 	}
