@@ -107,7 +107,7 @@
 	"Result-Template for propose performatives."
 	(slot message)
 	(slot action (type STRING))
-	(multislot propositions)
+	(slot proposition (type STRING))
 )
 
 

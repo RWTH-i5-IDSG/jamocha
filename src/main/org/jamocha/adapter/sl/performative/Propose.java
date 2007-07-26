@@ -42,9 +42,9 @@ public class Propose {
 
 	/**
 	 * Translates SL code of a propose to CLIPS code. A propose contains an
-	 * action and a proposition, which specifies the preconditions for 
-	 * performing the action. The action will be performed by the sender, if 
-	 * the receiver accepts the preconditions.
+	 * action and a proposition, which specifies the preconditions for
+	 * performing the action. The action will be performed by the sender, if the
+	 * receiver accepts the preconditions.
 	 * 
 	 * @param slContent
 	 *            The SL content we have to translate.
@@ -54,7 +54,7 @@ public class Propose {
 	 *             happens.
 	 */
 	public static String getCLIPS(String slContent)
-	throws AdapterTranslationException {
+			throws AdapterTranslationException {
 		ContentSLConfiguration contentConf;
 		try {
 			contentConf = SLParser.parse(slContent);
@@ -64,22 +64,17 @@ public class Propose {
 		}
 		StringBuffer result = new StringBuffer();
 		List<SLConfiguration> results = contentConf.getExpressions();
-		
-		if(results.size() != 2)
+
+		if (results.size() != 2)
 			throw new AdapterTranslationException("Error");
-		
-	
+
 		result.append("(assert (agent-propose-result (message %MSG%)(action ");
 		result.append(results.get(0).compile(SLCompileType.ACTION_AND_ASSERT));
-		result.append(") (propositions");
-		for(int i = 1; i < results.size(); i++){
-			result.append(" \"");
-			result.append(results.get(i).compile(SLCompileType.RULE_LHS));
-			result.append("\"");
-		}
-		result.append(")))");
-		
+		result.append(")(proposition \"");
+		result.append(results.get(1).compile(SLCompileType.RULE_LHS));
+		result.append("\")))");
+
 		return result.toString();
-		}
-		
 	}
+
+}
