@@ -1,0 +1,5 @@
+(QUERY-REF
+ :sender  ( agent-identifier :name DA@Nocturna.local:1099/JADE  :addresses (sequence http://Nocturna.local:1100/acc ) :X-JADE-agent-classname jade.tools.DummyAgent.DummyAgent )
+ :receiver  (set ( agent-identifier :name JA@Nocturna.local:1099/JADE ) )
+ :content  "ping" 
+ :language  pinging  :conversation-id  some-id-123 )
