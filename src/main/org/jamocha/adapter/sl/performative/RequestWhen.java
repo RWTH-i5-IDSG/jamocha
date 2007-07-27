@@ -70,9 +70,9 @@ class RequestWhen extends SLPerformativeTranslator {
 				.append("(assert (agent-requestWhen-result (message %MSG%)(result ");
 		result.append(results.get(0).compile(SLCompileType.ACTION_AND_ASSERT));
 		result.append(")))");
-		result.append("(undefrule ");
+		result.append("(undefrule \"");
 		result.append(ruleName);
-		result.append("))");
+		result.append("\"))");
 
 		result
 				.append("(assert (agent-message-rule-pairing (message %MSG%)(ruleName \"");

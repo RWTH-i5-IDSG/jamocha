@@ -107,9 +107,9 @@ class Cancel extends SLPerformativeTranslator {
 		result.append(agent);
 		result.append("\")(performative \"");
 		result.append(performative);
-		result.append("\")(messageContent ");
+		result.append("\")(messageContent \"");
 		result.append(oldContent);
-		result.append(")))");
+		result.append("\")))");
 
 		return result.toString();
 	}
