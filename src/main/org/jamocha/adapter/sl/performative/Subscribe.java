@@ -26,8 +26,9 @@ import org.jamocha.parser.sl.ParseException;
 import org.jamocha.parser.sl.SLParser;
 
 /**
- * This class walks through an SL code tree and translates it to CLIPS depending
- * on the given performative.
+ * Translates SL code of a subscribe to CLIPS code. Subscribe is a presistent
+ * version of the query-ref performative. An inform should be send whenever some
+ * object changes as long as it isn't canceled.
  * 
  * @author Alexander Wilden
  * 
@@ -35,7 +36,9 @@ import org.jamocha.parser.sl.SLParser;
 class Subscribe extends SLPerformativeTranslator {
 
 	/**
-	 * Translates SL code of a subscribe to CLIPS code.
+	 * Translates SL code of a subscribe to CLIPS code. Subscribe is a
+	 * presistent version of the query-ref performative. An inform should be
+	 * send whenever some object changes as long as it isn't canceled.
 	 * 
 	 * @param slContent
 	 *            The SL content we have to translate.
@@ -54,7 +57,10 @@ class Subscribe extends SLPerformativeTranslator {
 		}
 		List<SLConfiguration> results = contentConf.getExpressions();
 		checkContentItemCount(results, 2);
-		
+
+		int uniqueId = getUniqueId();
+		String ruleName = "subscribe-" + uniqueId;
+
 		IdentifyingExpressionSLConfiguration conf = (IdentifyingExpressionSLConfiguration) results
 				.get(0);
 		String refOp = conf.getRefOp().compile(SLCompileType.RULE_LHS);
@@ -62,17 +68,20 @@ class Subscribe extends SLPerformativeTranslator {
 				SLCompileType.ACTION_AND_ASSERT);
 
 		StringBuilder result = new StringBuilder();
-		result.append("(bind ?*agent-result* (create$))");
-		result.append("(defrule subscribe ");
+		result.append("(defrule ");
+		result.append(ruleName);
+		result.append(" ");
 		result.append(conf.getWff().compile(SLCompileType.RULE_LHS));
 		result.append(" => ");
-		result.append("(bind ?*agent-result* (insert-list$ ?*agent-result* 1 ");
+		result.append("(assert (agent-subcribe-result (message %MSG%)(refOp ");
+		result.append(refOp).append(")(item ");
 		result.append(binding);
-		result.append(")))");
-		result.append("(fire)");
-		result.append("(return (assert (agent-subcribe-result (refOp ");
-		result.append(refOp).append(")(items ?*agent-result*)");
-		result.append(")))");
+		result.append("))))");
+
+		result
+				.append("(assert (agent-message-rule-pairing (message %MSG%)(ruleName \"");
+		result.append(ruleName);
+		result.append("\")))");
 		System.out.println(result);
 		return result.toString();
 	}

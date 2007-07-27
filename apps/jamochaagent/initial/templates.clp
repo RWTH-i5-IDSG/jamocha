@@ -198,6 +198,14 @@
 )
 
 
+(deftemplate agent-subscribe-result
+	"Result-Template for subscribe performatives."
+	(slot message)
+	(slot refOp (type STRING))
+	(slot item)
+)
+
+
 ; ===================================================
 ; Definition of the "macro" templates.
 ; These are needed to initiate the sending of a new message.

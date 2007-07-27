@@ -23,6 +23,13 @@ import java.util.Map;
 
 public class FunctionCallOrFactSLConfiguration implements SLConfiguration {
 
+	/**
+	 * If the <code>name</code> is one of these we always do an assert also if
+	 * compile type is ACTION_AND_ASSERT.
+	 */
+	private static final String[] alwaysAssert = { "inform", "inform-if",
+			"inform-ref", "proxy", "request" };
+
 	private SLConfiguration name;
 
 	private Map<SLConfiguration, SLConfiguration> slots = new HashMap<SLConfiguration, SLConfiguration>();
@@ -68,9 +75,11 @@ public class FunctionCallOrFactSLConfiguration implements SLConfiguration {
 			// Here we treat inform different than a normal function. Inform
 			// will be asserted as a fact and not called as a function so we
 			// just switch directly to ASSERT.
-			if (nameStr.equals("inform") || nameStr.equals("inform-ref")
-					|| nameStr.equals("inform-if")) {
-				compileType = SLCompileType.ASSERT;
+			for (String temp : alwaysAssert) {
+				if (nameStr.equals(temp)) {
+					compileType = SLCompileType.ASSERT;
+					break;
+				}
 			}
 		}
 		switch (compileType) {

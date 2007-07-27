@@ -58,40 +58,58 @@ class Proxy extends SLPerformativeTranslator {
 		List<SLConfiguration> results = contentConf.getExpressions();
 		checkContentItemCount(results, 2);
 
+		int uniqueId = getUniqueId();
+		String ruleName = "proxy-" + uniqueId;
+		String bindName = "?*proxy-" + uniqueId + "*";
+
 		IdentifyingExpressionSLConfiguration conf = (IdentifyingExpressionSLConfiguration) results
 				.get(0);
 		String refOp = conf.getRefOp().compile(SLCompileType.RULE_LHS);
 		String binding = conf.getTermOrIE().compile(SLCompileType.RULE_RESULT);
-		
-		StringBuilder result = new StringBuilder();
-		result.append("(bind ?*proxy-temp* (create$))");
-		result.append("(defrule proxy ");
-		result.append(conf.getWff().compile(SLCompileType.RULE_LHS));
-		result.append(" => ");
-		result.append("(bind ?*proxy-temp* (insert-list$ ?*proxy-temp* 1 ");
-		result.append(binding);
-		result.append(")))");
-		result.append("(fire)");
-		result.append("(undefrule \"proxy\")");
 
 		ActionSLConfiguration actConf = (ActionSLConfiguration) results.get(1);
 		FunctionCallOrFactSLConfiguration functionConf = (FunctionCallOrFactSLConfiguration) actConf
 				.getAction();
 		String performative = functionConf.getName().compile(
 				SLCompileType.ASSERT);
-		String oldContent = functionConf.getSlot("content",
-				SLCompileType.ASSERT).compile(SLCompileType.ASSERT);
+		String content = functionConf.getSlot("content", SLCompileType.ASSERT)
+				.compile(SLCompileType.ASSERT);
 
-		if (oldContent != null) {
-			result
-					.append("(assert (agent-proxy-result (message %MSG%)(performative \"");
-			result.append(performative);
-			result.append("\")(messageContent \"");
-			result.append(oldContent);
-			result.append("\")(refOp \"");
-			result.append(refOp);
-			result.append("\")(agents ?*proxy-temp*)))");
-		}
+		StringBuilder result = new StringBuilder();
+		result.append("(bind ");
+		result.append(bindName);
+		result.append(" (create$ ))");
+		
+		result.append("(defrule ");
+		result.append(ruleName);
+		result.append(" ");
+		result.append(conf.getWff().compile(SLCompileType.RULE_LHS));
+		result.append(" => ");
+		result.append("(bind ");
+		result.append(bindName);
+		result.append(" (insert-list$ ");
+		result.append(bindName);
+		result.append(" 1 ");
+		result.append(binding);
+		result.append(")))");
+
+		result.append("(fire)");
+
+		result.append("(undefrule \"");
+		result.append(ruleName);
+		result.append("\")");
+
+		result
+				.append("(assert (agent-proxy-result (message %MSG%)(performative \"");
+		result.append(performative);
+		result.append("\")(messageContent \"");
+		result.append(content);
+		result.append("\")(refOp \"");
+		result.append(refOp);
+		result.append("\")(agents ");
+		result.append(bindName);
+		result.append(")))");
+
 		System.out.println(result);
 		return result.toString();
 	}
