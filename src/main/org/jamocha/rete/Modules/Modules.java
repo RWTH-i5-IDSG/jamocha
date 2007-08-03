@@ -17,18 +17,19 @@
 package org.jamocha.rete.Modules;
 
 import java.io.Serializable;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import org.jamocha.rete.Constants;
-import org.jamocha.rete.Defclass;
 import org.jamocha.rete.Defmodule;
 import org.jamocha.rete.Fact;
 import org.jamocha.rete.Module;
+import org.jamocha.rete.Rete;
 import org.jamocha.rete.Template;
 import org.jamocha.rete.exception.AssertException;
+import org.jamocha.rule.Rule;
 
 /**
  * @author Sebastian Reinartz
@@ -51,18 +52,20 @@ public class Modules implements Serializable {
 
 	private TemplateDataContainer templates = new TemplateDataContainer();
 
+	protected Rete engine;
 	/**
 	 * The HashMap for the modules.
 	 */
 	protected Map<String, Module> modules = new HashMap<String, Module>();
 
-	public Modules() {
+	public Modules(Rete engine) {
 		super();
 		initMain();
+		this.engine = engine;
 	}
 
 	protected void initMain() {
-		this.main = new Defmodule(Constants.MAIN_MODULE);
+		this.main = new Defmodule(Constants.MAIN_MODULE,engine);
 		// by default, we set the current module to main
 		this.currentModule = this.main;
 	}
@@ -157,8 +160,8 @@ public class Modules implements Serializable {
 		facts.clear();
 	}
 
-	public Template findTemplates(String templName) {
-		return (Template) templates.find(templName);
+	public Template findTemplates(Defmodule defmodule) {
+		return (Template) templates.find(defmodule);
 	}
 	
 	protected Fact createFact(Object data, String template, long id) throws AssertException {
@@ -194,6 +197,66 @@ public class Modules implements Serializable {
 //			throw new AssertException(e);
 //		}
 //		return ft;
+		return null;
+	}
+
+	public Rule findRule(Module defmodule, String name) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public void removeTemplate(Module defmodule, Template temp) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public boolean addTemplate(Module defmodule, Template temp) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	public Template getTemplate(Module defmodule, String key) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public boolean containsTemplate(Module defmodule, Template key) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	public List<Rule> getAllRules(Module defmodule) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public boolean containsRule(Module defmodule, Rule rl) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	public void removeRule(Module defmodule, Rule rl) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void addRule(Module defmodule, Rule rl) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void flushRules(Module defmodule) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void flush(Module defmodule) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public List<Template> getTemplates(Module defmodule) {
+		// TODO Auto-generated method stub
 		return null;
 	}
 }

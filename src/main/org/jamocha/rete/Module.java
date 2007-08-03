@@ -18,6 +18,7 @@ package org.jamocha.rete;
 
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.List;
 
 import org.jamocha.rete.eventhandling.ModuleChangedListener;
 import org.jamocha.rete.memory.WorkingMemory;
@@ -47,7 +48,7 @@ public interface Module extends Serializable {
      * Add a new template to the module
      * @param temp
      */
-    boolean addTemplate(Template temp, Rete engine, WorkingMemory mem);
+    boolean addTemplate(Template temp);
     /**
      * Clear will remove all the rules, activations, and templates
      * from the module.
@@ -72,7 +73,7 @@ public interface Module extends Serializable {
      * @param key
      * @return
      */
-    boolean containsTemplate(Object key);
+    boolean containsTemplate(Template key);
     /**
      * Return the name of the module. The interface doesn't provide
      * any guidelines for the format, but it is a good idea to restrict
@@ -81,28 +82,16 @@ public interface Module extends Serializable {
      */
     String getModuleName();
     /**
-     * Look up the template
-     * @param key
-     * @return
-     */
-    Template getTemplate(Defclass key);
-    /**
      * look up the template using a string template name
      * @param key
      * @return
      */
     Template getTemplate(String key);
     /**
-     * Look up the parent template by the template name
-     * @param key
-     * @return
-     */
-    Template findParentTemplate(String key);
-    /**
      * Return the Deftemplates in a collection
      * @return
      */
-    Collection getTemplates();
+    List<Template> getTemplates();
     /**
      * return the number of actual deftemplates declared
      * using deftemplate or objects
@@ -113,7 +102,7 @@ public interface Module extends Serializable {
      * Return a list of all the rules in this module
      * @return
      */
-    Collection getAllRules();
+    List<Rule> getAllRules();
     /**
      * Return the rule count
      * @return
@@ -124,13 +113,13 @@ public interface Module extends Serializable {
      * the user should have found the rule they want to remove first.
      * @param rl
      */
-    void removeRule(Rule rl, Rete engine, WorkingMemory mem);
+    void removeRule(Rule rl);
     /**
      * Remove a template from the module. The method returns void,
      * since the user should have found the template first.
      * @param temp
      */
-    void removeTemplate(Template temp, Rete engine, WorkingMemory mem);
+    void removeTemplate(Template temp);
     /**
      * In the event we need to find the rule, this method will look
      * up the name of the rule without the module name. Implementing
@@ -140,9 +129,4 @@ public interface Module extends Serializable {
      * @return
      */
     Rule findRule(String name);
-    
-    void addModuleChangedListener(ModuleChangedListener listener);
-    
-    void removeModuleChangedListener(ModuleChangedListener listener);
-    
 }

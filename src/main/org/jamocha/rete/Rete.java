@@ -1275,6 +1275,10 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 		return null;
 	}
 
+	public Modules getModules(){
+		return modules;
+	}
+	
 	/**
 	 * convienance method for creating a Non-Shadow fact.
 	 * 
