@@ -308,6 +308,8 @@ public interface Rule extends Scope, Complexity, Cloneable, IsClipsElement {
 	 */
 	void resolveTemplates(Rete engine);
 
+	public void removeCondition(int idx);
+	
 	public Rule clone() throws CloneNotSupportedException;
 
 }

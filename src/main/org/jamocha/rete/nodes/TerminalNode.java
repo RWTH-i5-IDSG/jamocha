@@ -39,7 +39,18 @@ public class TerminalNode extends BaseNode {
 
 	/**
 	 * @param id
+	 * @throws AssertException 
 	 */
+	
+	public void activate(Rete engine) throws AssertException {
+		for (BaseNode b : parentNodes) {
+			if (b instanceof AbstractBeta) {
+				AbstractBeta beta = (AbstractBeta)b;
+				beta.activate(engine);
+			}
+		}
+	}
+	
 	public TerminalNode(int id, Rule rl) {
 		super(id);
 		this.theRule = rl;

@@ -1,14 +1,15 @@
-(deftemplate wurst (slot name) (slot spitzname) (slot farbe)  (slot gewicht))
+(deftemplate wurst (slot name) (slot spitzname) (slot farbe)  (slot gewicht) (slot passzusalat))
 (deftemplate salat (slot name) (slot farbe) (slot dazupasst) (slot gewicht))
 (deftemplate getraenk (slot name) (slot farbe) )
-(deftemplate farbe (slot name) (slot red) (slot green) (slot blue) )
+(deftemplate farbehell (slot name) (slot red) (slot green) (slot blue) )
+(deftemplate farbedunkel (slot name) (slot red) (slot green) (slot blue) )
 (deftemplate bier (slot name))
-(assert (wurst (name "gruenspanwurst") (spitzname "gruebi") (farbe "hellgruen") (gewicht 1) ))
-(assert (wurst (name "bratwurst")(spitzname "bratwosch")(farbe "weiss")(gewicht 100) ))
-(assert (wurst (name "weisswurst")(spitzname "weisswurst")(farbe "weiss")(gewicht 200) ))
-(assert (wurst (name "wienerwurst")(spitzname "wiener")(farbe "rot")(gewicht 300) ))
-(assert (wurst (name "gemuesewurst")(spitzname "gemuesewurst")(farbe "gruen")(gewicht 400) ))
-(assert (wurst (name "senfwurst") (spitzname "senfi") (farbe "gelb") (gewicht 200) ))
+(assert (wurst (name "gruenspanwurst") (spitzname "gruebi") (farbe "gold") (gewicht 1) (passtzusalat "gelbebohnensalat") ))
+(assert (wurst (name "bratwurst")(spitzname "bratwosch")(farbe "weiss")(gewicht 100) (passtzusalat "weissgurkensalat") ))
+(assert (wurst (name "weisswurst")(spitzname "weisswurst")(farbe "weiss")(gewicht 200) (passtzusalat "blechsalat") ))
+(assert (wurst (name "wienerwurst")(spitzname "wiener")(farbe "terracottagold")(gewicht 300) (passtzusalat "gurkensalat") ))
+(assert (wurst (name "gemuesewurst")(spitzname "gemuesewurst")(farbe "gruen")(gewicht 400) (passtzusalat "frittensalat") ))
+(assert (wurst (name "senfwurst") (spitzname "senfi") (farbe "gelb") (gewicht 200) (passtzusalat "kartoffelsalat") ))
 (assert (salat (name "kartoffelsalat")(farbe "weiss")(gewicht 220)(dazupasst "weisswurst") ))
 (assert (salat (name "weissgurkensalat")(farbe "weiss")(dazupasst "spaghetti")(gewicht 320) ))
 (assert (salat (name "gelbebohnensalat") (farbe "gelb") (dazupasst "knoblauchmarmelade") (gewicht 123) ))
@@ -16,22 +17,77 @@
 (assert (getraenk (name "wasser") (farbe "schwarz") ))
 (assert (getraenk (name "cola") (farbe "schwarz")   ))
 (assert (getraenk (name "kartoffelsalatdrink") (farbe "weiss") ))
+(assert (farbehell (name weiss) (red 1) (green 1) (blue 1)))
+(assert (farbehell (name schwarz) (red 0) (green 0) (blue 0)))
+(assert (farbehell (name rot) (red 1) (green 0) (blue 0)))
+(assert (farbehell (name gruen) (red 0) (green 1) (blue 0)))
+(assert (farbehell (name blau) (red 0) (green 0) (blue 1)))
+(assert (farbehell (name gelb) (red 1) (green 1) (blue 0)))
+(assert (farbedunkel (name orange) (red 1) (green 0) (blue 0)))
+(assert (farbedunkel (name gruen) (red 0) (green 1) (blue 0)))
+(assert (farbedunkel (name lila) (red 0) (green 0) (blue 1)))
+(assert (farbedunkel (name gelb) (red 1) (green 1) (blue 0)))
 
-(assert (farbe (name weiss) (red 1) (green 1) (blue 1)))
-(assert (farbe (name schwarz) (red 0) (green 0) (blue 0)))
-(assert (farbe (name rot) (red 1) (green 0) (blue 0)))
-(assert (farbe (name gruen) (red 0) (green 1) (blue 0)))
-(assert (farbe (name blau) (red 0) (green 0) (blue 1)))
-(assert (farbe (name gelb) (red 1) (green 1) (blue 0)))
-(assert (farbe (name hellgruen) (red 0.3) (green 1) (blue 0.3)))
+
+(defrule t
+	(and
+		(or
+			(farbehell (name ?a))
+			(farbedunkel (name ?a))
+		)
+		(wurst (passtzusalat ?passenderSalat) (farbe ?a) (name ?wurstname) )
+		(exists
+			(salat (gewicht ?salatgew) (name ?passenderSalat))
+			(test (> ?salatget 200)) 
+		)
+	)
+	=>
+	(printout t ?wurstname ?passenderSalat ?a crlf)
+)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+(defrule jess-1
+	(wurst (farbe ?x) )
+	(exists
+		(farbe (name ?x ))
+	)
+	=>
+	(printout t "brampf" ?x crlf)
+)
+
+
+
+
 
 (defrule babaam
 	(or	
 		(not (wurst (name "weisswurst") )  )
 		(not (wurst (name "brastwurst") )  )
 	)
+	(farbe (name blau) (blue ?x))
 	=>
-	(printout t "es gibt entweder keine w oder keine b" crlf)
+	(printout t "das muss kommen" ?x crlf)
+)
+(defrule babaaam
+	(or	
+		(not (wurst (name "weisswurst") )  )
+		(not (wurst (name "bratwurst") )  )
+	)
+	(farbe (name blau) (blue ?x))
+	=>
+	(printout t "das darf nicht kommen" ?x crlf)
 )
 
 (fire)

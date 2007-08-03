@@ -10,7 +10,7 @@ public abstract class ConditionWithNested extends AbstractCondition {
 
 	protected List<Condition> nestedCE = new ArrayList<Condition>();
 	protected String clipsName() {return "";}
-	protected BaseNode helperNode;
+	protected List<BaseNode> nodes = new ArrayList<BaseNode>();
 	
 	public String toClipsFormat(int indent) {
 		String ind = "";
@@ -47,13 +47,14 @@ public abstract class ConditionWithNested extends AbstractCondition {
 	}
 
 	public List getNodes() {
-		return new ArrayList();
+		return nodes;
 	}
 
 	/**
 	 * the method doesn't apply and isn't implemented currently
 	 */
 	public void addNode(BaseNode node) {
+		nodes.add(node);
 	}
 
 	public boolean hasBindings() {
@@ -61,13 +62,21 @@ public abstract class ConditionWithNested extends AbstractCondition {
 	}
 
 	public BaseNode getLastNode() {
-		return ((ObjectCondition)nestedCE.get(0)).getLastNode();
-	}
-	
-	public BaseNode getFirstNode() {
-		return reteNode;
+		if (nodes.size() > 0) {
+			return nodes.get(nodes.size()-1);
+		} else {
+			return null;
+		}
 	}
 
+	public BaseNode getFirstNode() {
+		if (nodes.size() > 0) {
+			return (BaseNode) nodes.get(0);
+		} else {
+			return null;
+		}
+	}
+	
 	public List getAllBoundConstraints() {
 		return null;
 	}
@@ -97,12 +106,4 @@ public abstract class ConditionWithNested extends AbstractCondition {
 		return result;
 	}
 	
-	public void setHelperNode(BaseNode node ) {
-		helperNode = node;
-	}
-	
-	public BaseNode getHelperNode() {
-		return helperNode;
-	}
-
 }

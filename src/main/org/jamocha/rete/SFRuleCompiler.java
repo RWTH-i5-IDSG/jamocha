@@ -30,11 +30,9 @@ import java.util.Vector;
 import org.jamocha.logging.DefaultLogger;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.IllegalConversionException;
-import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.configurations.Signature;
 import org.jamocha.rete.exception.AssertException;
-import org.jamocha.rete.exception.CompileRuleException;
 import org.jamocha.rete.exception.RetractException;
 import org.jamocha.rete.nodes.AbstractBeta;
 import org.jamocha.rete.nodes.AlphaNode;
@@ -42,6 +40,7 @@ import org.jamocha.rete.nodes.BaseNode;
 import org.jamocha.rete.nodes.BetaFilterNode;
 import org.jamocha.rete.nodes.BetaQuantorFilterNode;
 import org.jamocha.rete.nodes.ObjectTypeNode;
+import org.jamocha.rete.nodes.RIANode;
 import org.jamocha.rete.nodes.RootNode;
 import org.jamocha.rete.nodes.SlotAlpha;
 import org.jamocha.rete.nodes.TerminalNode;
@@ -54,7 +53,6 @@ import org.jamocha.rete.nodes.joinfilter.LeftFieldAddress;
 import org.jamocha.rete.nodes.joinfilter.RightFieldAddress;
 import org.jamocha.rule.AbstractCondition;
 import org.jamocha.rule.Action;
-import org.jamocha.rule.Analysis;
 import org.jamocha.rule.AndCondition;
 import org.jamocha.rule.AndConnectedConstraint;
 import org.jamocha.rule.BoundConstraint;
@@ -71,7 +69,6 @@ import org.jamocha.rule.OrCondition;
 import org.jamocha.rule.OrConnectedConstraint;
 import org.jamocha.rule.PredicateConstraint;
 import org.jamocha.rule.Rule;
-import org.jamocha.rule.Summary;
 import org.jamocha.rule.TemplateValidation;
 import org.jamocha.rule.TestCondition;
 
@@ -427,7 +424,11 @@ public class SFRuleCompiler implements RuleCompiler {
 		this.setModule(rule);
 		if (rule.getConditions()!=null && rule.getConditions().length > 0) {
 			Condition[] conds = rule.getConditions();
-			for (int i = 0; i < conds.length; i++) conds[i].compile(this, rule, i);
+			for (int i = 0; i < conds.length; i++) {
+				Condition c = conds[i];
+				if (c == null) continue;
+				c.compile(this, rule, i);
+			}
 			return compileJoins(rule);
 		} else /*if (rule.getConditions().length == 0)*/ {
 			return root.activateObjectTypeNode(engine.initFact, engine);
@@ -444,6 +445,7 @@ public class SFRuleCompiler implements RuleCompiler {
 			return e.isSubSuccessed();
 		}
 		lastNode.addNode(tnode, engine);
+		tnode.activate(engine);
 		compileActions(rule);
 		currentMod.addRule(rule);
 		CompileEvent ce = new CompileEvent(rule, CompileEvent.ADD_RULE_EVENT);
@@ -530,11 +532,11 @@ public class SFRuleCompiler implements RuleCompiler {
 		
 		
 		BaseNode ultimateMostBottomNode = compileBindings(rule, sortedConds, conditionJoiners, mostBottomNode);
-		//activate all joins
-		for (BaseNode n : conditionJoiners.values()){
-			if (n == null) continue;
-			((AbstractBeta)n).activate(engine);
-		}
+//		//activate all joins
+//		for (BaseNode n : conditionJoiners.values()){
+//			if (n == null) continue;
+//			((AbstractBeta)n).activate(engine);
+//		}
 		return ultimateMostBottomNode;
 	}
 	
@@ -551,16 +553,11 @@ public class SFRuleCompiler implements RuleCompiler {
 		// Iterate of all conditions and constraints
 		for (int i = 0; i < conds.length; i++) {
 			// only for Object Conditions:
-			if (conds[i] instanceof ObjectCondition || conds[i] instanceof NotCondition || conds[i] instanceof ExistCondition) {
+			if (conds[i] instanceof ObjectCondition) {
 				ObjectCondition oc = null;
 				if (conds[i] instanceof ObjectCondition) {
 					oc = (ObjectCondition) conds[i];
-				} else if (conds[i] instanceof NotCondition){
-					oc = ((ObjectCondition)((NotCondition) conds[i]).getNestedConditionalElement().get(0));
-				} else if (conds[i] instanceof ExistCondition){
-					oc = ((ObjectCondition)((ExistCondition) conds[i]).getNestedConditionalElement().get(0));
 				}
-				
 				
 				for (Constraint c : oc.getConstraints()) {
 					// if we found a BoundConstraint
@@ -887,9 +884,25 @@ public class SFRuleCompiler implements RuleCompiler {
 	 * @param rule
 	 * 
 	 * @return compileConditionState
+	 * @throws StopCompileException 
+	 * @throws AssertException 
 	 */
-	public BaseNode compile(AndCondition condition, Rule rule, int conditionIndex) {
-		return null;
+	public BaseNode compile(AndCondition condition, Rule rule, int conditionIndex) throws AssertException, StopCompileException {
+		boolean success = true;
+		Rule newRule = null;
+		try {
+			newRule = ((Defrule)rule).clone(engine);
+		} catch (CloneNotSupportedException e) {
+			engine.writeMessage(e.getMessage());
+		}
+		newRule.removeCondition(conditionIndex);
+		for (Condition nested : condition.getNestedConditionalElement()) {
+			newRule.addCondition(nested);
+		}
+		org.jamocha.rete.SFRuleCompiler compiler = new org.jamocha.rete.SFRuleCompiler(engine,root);
+		newRule.setName(newRule.getName() + "-1");
+		success = compiler.addRule(newRule);
+		throw new StopCompileException(success);
 	}
 
 	/**
@@ -904,14 +917,46 @@ public class SFRuleCompiler implements RuleCompiler {
 	 * @throws AssertException 
 	 */
 	public BaseNode compile(NotCondition condition, Rule rule, int conditionIndex) {
-		Object o = condition.getNestedConditionalElement().get(0);
-		AbstractCondition nested = (AbstractCondition)o;
+		Rule ruleWithoutThisNot;
+		BaseNode lastNode = null;
 		try {
-			return nested.compile(this, rule, conditionIndex);
-		} catch (Exception e) {
-			engine.writeMessage(e.getMessage());
-			return null /* or LONG_OBJECT */;
+			ruleWithoutThisNot = ((Defrule)rule).clone(engine);
+		} catch (CloneNotSupportedException e1) {
+			return null;
 		}
+		ruleWithoutThisNot.removeCondition(conditionIndex);
+		
+		//insert myself
+		for (Condition c : condition.getNestedConditionalElement()) {
+			ruleWithoutThisNot.addCondition(c);
+		}
+		
+		org.jamocha.rete.SFRuleCompiler compiler = new org.jamocha.rete.SFRuleCompiler(engine,root);
+		ruleWithoutThisNot.setName(ruleWithoutThisNot.getName() + "-1");
+		BaseNode bnode = null;
+		try {
+			bnode = compiler.compileRule(ruleWithoutThisNot);
+		} catch (AssertException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (StopCompileException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		if (bnode instanceof AlphaNode) {
+			lastNode = bnode;
+		} else {
+			RIANode rightInputAdaptor = new RIANode(engine.nextNodeId());
+			try {
+				bnode.addNode(rightInputAdaptor, engine);
+			} catch (AssertException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			lastNode = rightInputAdaptor;
+		}
+		condition.addNode(lastNode);
+		return lastNode;
 	}
 
 	/**

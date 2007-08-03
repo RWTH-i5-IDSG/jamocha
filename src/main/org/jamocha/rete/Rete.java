@@ -35,6 +35,7 @@ import org.jamocha.messagerouter.MessageEvent;
 import org.jamocha.messagerouter.MessageRouter;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaValue;
+import org.jamocha.rete.agenda.Agenda;
 import org.jamocha.rete.configurations.ModifyConfiguration;
 import org.jamocha.rete.configurations.SlotConfiguration;
 import org.jamocha.rete.eventhandling.EngineEvent;

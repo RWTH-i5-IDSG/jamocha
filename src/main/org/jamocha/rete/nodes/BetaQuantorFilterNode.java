@@ -167,11 +167,18 @@ public class BetaQuantorFilterNode extends BetaFilterNode {
 	}
 
 	public void activate(Rete engine) throws AssertException {
-		if (activated)
-			return;
-		activated = true;
-		for (FactTuple tuple : betaMemory) {
-			evaluateBeta(tuple, engine);
+
+		if (!activated) {
+			activated = true;
+			for (FactTuple tuple : betaMemory) {
+				evaluateBeta(tuple, engine);
+			}
+		}
+		for (BaseNode b : parentNodes) {
+			if (b instanceof AbstractBeta) {
+				AbstractBeta beta = (AbstractBeta)b;
+				beta.activate(engine);
+			}
 		}
 	}
 

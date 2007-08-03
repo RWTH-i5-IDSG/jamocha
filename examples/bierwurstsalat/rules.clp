@@ -7,8 +7,10 @@
 ;(defrule wurst-ohne-fleisch
 ;	(wurst (name ?sausage_name) (ingredients $?sausage_ingredients ) )
 ;	(not
-;		(ingredient (name ?name) (isMeat true) )
-;		(test (member$ ?name $?sausage_ingredients) )
+;		(and
+;			(ingredient (name ?name) (isMeat true) )
+;			(test (greater (member$ ?name $?sausage_ingredients) -1 ) )
+;		)
 ;	)
 ;	=>	
 ;	(printout t "[wurst-ohne-fleisch] a sausage without meat is " ?sausage_name "." crlf )

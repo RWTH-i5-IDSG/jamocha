@@ -52,6 +52,12 @@ public abstract class AbstractBeta extends BaseNode {
 				evaluateBeta(tuple, engine);
 			}
 		}
+		for (BaseNode b : parentNodes) {
+			if (b instanceof AbstractBeta) {
+				AbstractBeta beta = (AbstractBeta)b;
+				beta.activate(engine);
+			}
+		}
 	}
 
 	// protected abstract void evaluateBeta(FactTuple tuple, Rete engine) throws
@@ -228,9 +234,12 @@ public abstract class AbstractBeta extends BaseNode {
 
 	}
 
+	
 	public String toPPString() {
 		StringBuffer sb = new StringBuffer();
 		sb.append(super.toPPString());
+		if (!activated) sb.append("not ");
+		sb.append("activated\n");
 		sb.append("Alpha-Input: ");
 		sb.append(alphaMemory.toPPString(5));
 		sb.append("\nBeta-Input: ");

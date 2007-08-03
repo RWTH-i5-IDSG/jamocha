@@ -627,6 +627,10 @@ public class Defrule implements Rule {
 		return newRule;
 	}
 
+	public void removeCondition(int idx) {
+		conditions.remove(idx);
+	}
+	
 	public Defrule clone() throws CloneNotSupportedException {
 		
 		// since it is not needed and old implementation
