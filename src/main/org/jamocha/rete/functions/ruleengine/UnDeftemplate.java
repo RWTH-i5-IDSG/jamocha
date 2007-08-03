@@ -112,8 +112,7 @@ public class UnDeftemplate implements Function, Serializable {
 			String template = params[0].getValue(engine).getStringValue();
 			Template t = engine.getCurrentFocus().getTemplate(template);
 			if (!t.inUse()) {
-				engine.getCurrentFocus().removeTemplate(t, engine,
-						engine.getWorkingMemory());
+				engine.getCurrentFocus().removeTemplate(t);
 				result = JamochaValue.TRUE;
 			}
 		}

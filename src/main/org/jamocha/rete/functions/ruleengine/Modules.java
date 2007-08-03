@@ -97,12 +97,12 @@ public class Modules implements Function, Serializable {
 
 	public JamochaValue executeFunction(Rete engine, Parameter[] params)
 			throws EvaluationException {
-		Collection modules = engine.getAgenda().getModules();
+		Collection<Module> modules = engine.getModules().getModuleList();
 		int count = modules.size();
-		Iterator itr = modules.iterator();
+		Iterator<Module> itr = modules.iterator();
 		StringBuilder sb = new StringBuilder();
 		while (itr.hasNext()) {
-			Module r = (Module) itr.next();
+			Module r = itr.next();
 			sb.append(r.getModuleName()).append(Constants.LINEBREAK);
 		}
 		sb.append("for a total of ").append(count).append(Constants.LINEBREAK);

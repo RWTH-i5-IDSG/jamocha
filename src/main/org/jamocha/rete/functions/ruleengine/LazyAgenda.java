@@ -96,13 +96,14 @@ public class LazyAgenda implements Function, Serializable {
 			throws EvaluationException {
 		if (params != null && params.length == 1) {
 			JamochaValue firstParam = params[0].getValue(engine);
-			if (firstParam.getBooleanValue()) {
-				engine.getCurrentFocus().setLazy(true);
-				engine.writeMessage("TRUE");
-			} else {
-				engine.getCurrentFocus().setLazy(false);
-				engine.writeMessage("FALSE");
-			}
+//			if (firstParam.getBooleanValue()) {
+//				engine.getAgendas().getAgenda(engine.getCurrentFocus()).
+//				engine.getCurrentFocus().setLazy(true);
+//				engine.writeMessage("TRUE");
+//			} else {
+//				engine.getCurrentFocus().setLazy(false);
+//				engine.writeMessage("FALSE");
+//			}
 		}
 		return JamochaValue.NIL;
 	}

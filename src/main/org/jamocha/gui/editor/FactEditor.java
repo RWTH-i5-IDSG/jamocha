@@ -203,8 +203,8 @@ public class FactEditor extends AbstractJamochaEditor implements
 
 	private void initTemplateList() {
 		templateListModel.clear();
-		Module module = engine.getAgenda().findModule(
-				String.valueOf(moduleList.getSelectedValue()));
+		String selected = String.valueOf(moduleList.getSelectedValue());
+		Module module = engine.getModules().getModule(selected,false);
 		if (module != null) {
 			Collection templates = module.getTemplates();
 			for (Object obj : templates) {
@@ -226,8 +226,9 @@ public class FactEditor extends AbstractJamochaEditor implements
 		factEditPanel.setBorder(BorderFactory
 				.createTitledBorder("Set the Slots for the Fact"));
 		if (templateList.getSelectedIndex() > -1) {
-			Module module = engine.getAgenda().findModule(
-					String.valueOf(moduleList.getSelectedValue()));
+			Module module = engine.getModules().getModule(
+					String.valueOf(moduleList.getSelectedValue()),false
+					);
 
 			Template tmp = module.getTemplate(String.valueOf(templateList
 					.getSelectedValue()));
@@ -340,8 +341,8 @@ public class FactEditor extends AbstractJamochaEditor implements
 		} else if (event.getSource() == templateList.getSelectionModel()) {
 			if (templateList.getSelectedIndex() > -1) {
 				nextButton.setEnabled(true);
-				Module module = engine.getAgenda().findModule(
-						String.valueOf(moduleList.getSelectedValue()));
+				Module module = engine.getModules().getModule(
+						String.valueOf(moduleList.getSelectedValue()),false);
 				Template tmp = module.getTemplate(String.valueOf(templateList
 						.getSelectedValue()));
 
@@ -373,8 +374,8 @@ public class FactEditor extends AbstractJamochaEditor implements
 	}
 
 	private String getCurrentFactAssertionString(boolean print) {
-		Module module = engine.getAgenda().findModule(
-				String.valueOf(moduleList.getSelectedValue()));
+		Module module = engine.getModules().getModule(
+				String.valueOf(moduleList.getSelectedValue()),false);
 		Template tmp = module.getTemplate(String.valueOf(templateList
 				.getSelectedValue()));
 		StringBuilder res = new StringBuilder("(assert (" + tmp.getName());

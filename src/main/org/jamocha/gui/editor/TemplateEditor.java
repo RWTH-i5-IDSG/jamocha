@@ -102,11 +102,11 @@ public class TemplateEditor extends AbstractJamochaEditor implements
 		add(buttonPanel, BorderLayout.SOUTH);
 
 		nameField = new JTextField(15);
-		Collection modules = engine.getAgenda().getModules();
+		Collection<Module> modules = engine.getModules().getModuleList();
 		String[] moduleNames = new String[modules.size()];
 		int i = 0;
-		for (Object obj : modules) {
-			moduleNames[i++] = ((Module) obj).getModuleName();
+		for (Module mod : modules) {
+			moduleNames[i++] = mod.getModuleName();
 		}
 		moduleBox = new JComboBox(moduleNames);
 

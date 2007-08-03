@@ -109,7 +109,7 @@ public class Deftemplate implements Template, Serializable {
 		if (this.templateName.indexOf("::") > 0) {
 			String[] sp = this.templateName.split("::");
 			this.templateName = sp[1];
-			return engine.addModule(sp[0], false);
+			return engine.getModules().getModule(sp[0], false);
 		} else {
 			return null;
 		}

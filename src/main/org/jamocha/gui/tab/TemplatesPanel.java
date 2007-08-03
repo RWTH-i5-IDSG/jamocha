@@ -136,7 +136,7 @@ public class TemplatesPanel extends AbstractJamochaPanel implements
 	@SuppressWarnings("unchecked")
 	private void initTemplatesList() {
 		dataModel.clear();
-		Collection<Module> modules = gui.getEngine().getAgenda().getModules();
+		Collection<Module> modules = gui.getEngine().getModules().getModuleList();
 		// dataModel.setTemplates(modules);
 		for (Module module : modules) {
 			Collection templates = module.getTemplates();
@@ -161,8 +161,7 @@ public class TemplatesPanel extends AbstractJamochaPanel implements
 							.removeTemplate(
 									((ExtTemplate) dataModel
 											.getRowAt(selCols[i]))
-											.getTemplate(), gui.getEngine(),
-									gui.getEngine().getWorkingMemory());
+											.getTemplate());
 				}
 				initTemplatesList();
 			}

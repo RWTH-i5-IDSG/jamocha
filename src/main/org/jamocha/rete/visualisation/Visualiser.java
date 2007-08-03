@@ -494,7 +494,7 @@ public class Visualiser implements ActionListener, MouseListener, EngineEventLis
 
 	protected void reloadView() {
 		Vector<String> rules = new Vector<String>();
-		for (Object moduleObj : engine.getAgenda().getModules()) {
+		for (Object moduleObj : engine.getModules().getModuleList()) {
 			Module module = (Module) moduleObj;
 			for (Object ruleObj : module.getAllRules()) {
 				Rule r = (Rule) ruleObj;

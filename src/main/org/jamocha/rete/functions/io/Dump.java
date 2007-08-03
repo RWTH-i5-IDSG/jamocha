@@ -133,7 +133,7 @@ public class Dump implements Function, Serializable {
 			out.write("\n\n%		Fact definitions\n");
 			for (Object fObj : engine.getAllFacts()) {
 				Fact fact = (Fact) fObj;
-				if (mod.containsTemplate( fact.getTemplate().getName() )) {
+				if (mod.containsTemplate( fact.getTemplate() )) {
 					if (!(fact.getTemplate().getName().equals("_initialFact")))
 						out.write( fact.getDump(modName)+"\n" );
 				}
@@ -175,20 +175,10 @@ public class Dump implements Function, Serializable {
 			if (modName != null) {
 				dumpModule(engine,modName,out,formatter);
 			} else {
-				for (Object mObj : engine.getAgenda().getModules()) {
-					Module mod = (Module) mObj;
+				for (Module mod : engine.getModules().getModuleList()) {
 					dumpModule(engine, mod.getModuleName(), out, formatter);
-					
-					
 				}
-				
-				
-				
 			}
-			
-							
-			
-			
 			
 	        out.close();				
 		} catch (IOException e) {

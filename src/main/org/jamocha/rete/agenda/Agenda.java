@@ -68,12 +68,18 @@ public class Agenda implements Serializable {
 		return activations.contains(a);
 	}
 
-	public void fire() throws ExecuteException{
+	public int fire() throws ExecuteException{
 		try {
-			for (Activation activation : activations)
+			int result=0;
+			for (Activation activation : activations) {
 				activation.fire(engine);
+				result++;
+			}
+			return result;
 		} finally {
 			activations.clear();
 		}
 	}
+	
+
 }

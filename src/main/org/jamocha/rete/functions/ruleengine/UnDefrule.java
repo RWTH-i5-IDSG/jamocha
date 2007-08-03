@@ -115,8 +115,7 @@ public class UnDefrule implements Function, Serializable {
 			String rl = params[0].getValue(engine).getStringValue();
 			Defrule defrl = (Defrule) engine.getCurrentFocus().findRule(rl);
 			if (defrl != null) {
-				engine.getCurrentFocus().removeRule(defrl, engine,
-						engine.getWorkingMemory());
+				engine.getCurrentFocus().removeRule(defrl);
 				result = JamochaValue.TRUE;
 			}
 		}

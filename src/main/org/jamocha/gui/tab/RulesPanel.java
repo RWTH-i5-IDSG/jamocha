@@ -131,7 +131,7 @@ public class RulesPanel extends AbstractJamochaPanel implements ActionListener,
 	@SuppressWarnings("unchecked")
 	private void initRulesList() {
 		dataModel.clear();
-		Collection<Module> modules = gui.getEngine().getAgenda().getModules();
+		Collection<Module> modules = gui.getEngine().getModules().getModuleList();
 		for (Module module : modules) {
 			Collection rules = module.getAllRules();
 			dataModel.addRules(rules);
@@ -154,8 +154,7 @@ public class RulesPanel extends AbstractJamochaPanel implements ActionListener,
 					if (rule != null) {
 						Module module = rule.getModule();
 						if (module != null) {
-							module.removeRule(rule, gui.getEngine(), gui
-									.getEngine().getWorkingMemory());
+							module.removeRule(rule);
 						}
 					}
 				}

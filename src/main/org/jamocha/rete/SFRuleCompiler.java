@@ -320,11 +320,7 @@ public class SFRuleCompiler implements RuleCompiler {
 			String[] sp = text.split("::"); //$NON-NLS-1$
 			rule.setName(sp[1]);
 			String modName = sp[0].toUpperCase();
-			currentMod = engine.findModule(modName);
-			if (currentMod == null) {
-				engine.addModule(modName, false);
-				currentMod = engine.findModule(modName);
-			}
+			currentMod = engine.getModules().getModule(modName,false);
 		} else {
 			currentMod = engine.getCurrentFocus();
 		}

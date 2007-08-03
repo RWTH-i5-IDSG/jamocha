@@ -100,15 +100,15 @@ public class Modules implements Serializable {
 	 * @param name,
 	 *            autoFocus
 	 */
-	public boolean addModule(String name, boolean autoFocus) {
+	public Module addModule(String name, boolean autoFocus) {
 		if (findModule(name) == null) {
 			Defmodule mod = new Defmodule(name, this);
 			if (autoFocus)
 				this.currentModule = mod;
 			this.modules.put(name, mod);
-			return true;
+			return mod;
 		} else
-			return false;
+			return null;
 	}
 
 	public Module getModule(String name, boolean autoFocus) {

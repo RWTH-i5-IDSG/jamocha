@@ -117,9 +117,10 @@ public class VisualizerPanel extends JPanel implements ClickListener, ListSelect
 	protected SimpleAttributeSet actAttributes, even, odd;
 	
 	protected void setModule(Module module){
-		if (this.module != null) this.module.removeModuleChangedListener(this);
-		module.addModuleChangedListener(this);
-		this.module = module;
+		//TODO: Module event handling reactivation
+//		if (this.module != null) this.module.removeModuleChangedListener(this);
+//		module.addModuleChangedListener(this);
+//		this.module = module;
 	}
 
 	
@@ -220,9 +221,8 @@ public class VisualizerPanel extends JPanel implements ClickListener, ListSelect
 
 	protected void generateRulesList() {
 		Vector<String> rules = new Vector<String>();
-		for (Object moduleObj : engine.getAgenda().getModules()) {
-			Module module = (Module) moduleObj;
-			for (Object ruleObj : module.getAllRules()) {
+		for (Module module : engine.getModules().getModuleList()) {
+			for (Rule ruleObj : module.getAllRules()) {
 				String r = ((Defrule) ruleObj).getName();
 				rules.add(r);
 			}

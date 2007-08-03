@@ -33,7 +33,7 @@ public class Agendas {
 	public int fireFocus() throws ExecuteException {
 		Module focus = engine.getCurrentFocus();
 		Agenda agendaFocus = getAgenda(focus);
-		agendaFocus.fire();
+		return agendaFocus.fire();
 	}
 
 	public void clear() {

@@ -130,8 +130,7 @@ public class JDBCLinkInit implements Function, Serializable {
 				slots[i].setValueType(JamochaType.STRING);
 			Template jdbcConfigTemplate = new Deftemplate(templateName, null,
 					slots);
-			engine.findModule("MAIN").addTemplate(jdbcConfigTemplate, engine,
-					engine.getWorkingMemory());
+			engine.findModule("MAIN").addTemplate(jdbcConfigTemplate);
 		}
 		// define deftemplate jdbccondition	
 		templateName = "jdbccondition";
@@ -144,8 +143,7 @@ public class JDBCLinkInit implements Function, Serializable {
 			slots[1].setValueType(JamochaType.STRING);
 			Template jdbcConfigTemplate = new Deftemplate(templateName, null,
 					slots);	
-			engine.findModule("MAIN").addTemplate(jdbcConfigTemplate, engine,
-					engine.getWorkingMemory());
+			engine.findModule("MAIN").addTemplate(jdbcConfigTemplate);
 		}
 		return JamochaValue.TRUE;
 	}
