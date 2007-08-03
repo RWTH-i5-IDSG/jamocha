@@ -1241,37 +1241,38 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 	 * @return
 	 */
 	protected Fact createFact(Object data, Defclass dclass, String template, long id) throws AssertException {
-		Fact ft = null;
-		Template dft = null;
-		if (template == null) {
-			dft = getCurrentFocus().getTemplate(dclass.getClassObject().getName());
-		} else {
-			dft = getCurrentFocus().getTemplate(template);
-		}
-		// if the deftemplate is null, check the other modules
-		if (dft == null) {
-			// get the entry set from the agenda and iterate
-			Iterator itr = this.agendas.getModules().iterator();
-			while (itr.hasNext()) {
-				Module mod = (Module) itr.next();
-				if (mod.containsTemplate(dclass)) {
-					dft = mod.getTemplate(dclass);
-				}
-			}
-			// we've searched every module, so now check main
-			if (dft == null && this.main.containsTemplate(dclass)) {
-				dft = this.main.getTemplate(dclass);
-			} else {
-				// throw an exception
-				throw new AssertException("Could not find the template");
-			}
-		}
-		try {
-			ft = ((Deftemplate) dft).createFact(data, dclass, id, this);
-		} catch (EvaluationException e) {
-			throw new AssertException(e);
-		}
-		return ft;
+//		Fact ft = null;
+//		Template dft = null;
+//		if (template == null) {
+//			dft = getCurrentFocus().getTemplate(dclass.getClassObject().getName());
+//		} else {
+//			dft = getCurrentFocus().getTemplate(template);
+//		}
+//		// if the deftemplate is null, check the other modules
+//		if (dft == null) {
+//			// get the entry set from the agenda and iterate
+//			Iterator itr = this.agendas.getModules().iterator();
+//			while (itr.hasNext()) {
+//				Module mod = (Module) itr.next();
+//				if (mod.containsTemplate(dclass)) {
+//					dft = mod.getTemplate(dclass);
+//				}
+//			}
+//			// we've searched every module, so now check main
+//			if (dft == null && this.main.containsTemplate(dclass)) {
+//				dft = this.main.getTemplate(dclass);
+//			} else {
+//				// throw an exception
+//				throw new AssertException("Could not find the template");
+//			}
+//		}
+//		try {
+//			ft = ((Deftemplate) dft).createFact(data, dclass, id, this);
+//		} catch (EvaluationException e) {
+//			throw new AssertException(e);
+//		}
+//		return ft;
+		return null;
 	}
 
 	/**
@@ -1297,7 +1298,7 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 		return this.lastFactId++;
 	}
 
-	public Agenda getAgenda() {
+	public Agendas getAgendas() {
 		return this.agendas;
 	}
 

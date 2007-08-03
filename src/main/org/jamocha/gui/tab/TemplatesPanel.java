@@ -157,7 +157,7 @@ public class TemplatesPanel extends AbstractJamochaPanel implements
 				for (int i = 0; i < selCols.length; ++i) {
 					String modName = (String) dataModel.getValueAt(selCols[i],
 							0);
-					gui.getEngine().getAgenda().findModule(modName)
+					gui.getEngine().findModule(modName)
 							.removeTemplate(
 									((ExtTemplate) dataModel
 											.getRowAt(selCols[i]))
