@@ -58,7 +58,7 @@ import org.jamocha.rete.Module;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.Template;
 import org.jamocha.rete.TemplateSlot;
-import org.jamocha.rete.Modules.Modules;
+import org.jamocha.rete.modules.Modules;
 
 /**
  * Editor for Facts. First the user selects the module, then a template and

@@ -14,7 +14,7 @@
  * limitations under the License.
  * 
  */
-package org.jamocha.rete.Modules;
+package org.jamocha.rete.modules;
 
 import java.util.Map;
 
