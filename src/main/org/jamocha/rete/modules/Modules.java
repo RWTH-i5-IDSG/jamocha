@@ -17,6 +17,7 @@
 package org.jamocha.rete.modules;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -58,6 +59,10 @@ public class Modules implements Serializable {
 	 */
 	protected Map<String, Module> modules = new HashMap<String, Module>();
 
+	public Collection<Module> getModuleList() {
+		return modules.values();
+	}
+	
 	public Modules(Rete engine) {
 		super();
 		initMain();
