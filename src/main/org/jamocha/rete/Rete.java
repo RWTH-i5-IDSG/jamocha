@@ -358,7 +358,7 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 	 * 
 	 * @param act
 	 */
-	public boolean addModule(String name) {
+	public Module addModule(String name) {
 		return this.modules.addModule(name, true);
 	}
 
@@ -387,7 +387,7 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 	 * @return Template
 	 */
 	public Template findTemplate(String name) {
-		return this.modules.findTemplates(name);
+		return this.modules.getCurrentTemplate( name);
 	}
 
 	/**
