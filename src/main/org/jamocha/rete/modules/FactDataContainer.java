@@ -56,6 +56,7 @@ public class FactDataContainer extends ModulesDataContainer {
 		if (!this.deffactMap.containsKey(fact.equalityIndex())){
 		this.deffactMap.put(fact.equalityIndex(), fact);
 		this.idToCLIPSElement.put(lastFactId, fact);
+		fact.setFactId(lastFactId);
 		result = lastFactId;
 		lastFactId++;
 		}

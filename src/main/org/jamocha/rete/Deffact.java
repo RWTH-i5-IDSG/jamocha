@@ -48,7 +48,7 @@ public class Deffact implements Fact {
 	/**
 	 * the Fact id must be unique, since we use it for the indexes
 	 */
-	protected long id;
+	protected long id = -1;
 
 	private long timeStamp = 0;
 
@@ -62,11 +62,10 @@ public class Deffact implements Fact {
 	 * @param instance
 	 * @param values
 	 */
-	public Deffact(Template template, Object instance, Slot[] values, long id) {
+	public Deffact(Template template, Object instance, Slot[] values) {
 		this.template = template;
 		this.objInstance = instance;
 		this.slots = values;
-		this.id = id;
 		this.timeStamp = System.nanoTime();
 	}
 
@@ -342,7 +341,7 @@ public class Deffact implements Fact {
 	 * @return
 	 */
 	public Deffact cloneFact(Rete engine) {
-		Deffact newfact = new Deffact(this.template, this.objInstance, cloneAllSlots(), -1);
+		Deffact newfact = new Deffact(this.template, this.objInstance, cloneAllSlots());
 		Slot[] slts = newfact.slots;
 		for (int idx = 0; idx < slts.length; idx++) {
 			// probably need to revisit this and make sure

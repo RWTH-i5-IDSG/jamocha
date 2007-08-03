@@ -271,7 +271,7 @@ public class Deftemplate implements Template, Serializable {
 		return newfact;
 	}
 
-	public Fact createFact(Object data, long id, Rete engine)
+	public Fact createFact(Object data, Rete engine)
 			throws EvaluationException {
 		Slot[] values = createFactSlots(engine);
 		Object[] array = (Object[]) data;
@@ -308,7 +308,7 @@ public class Deftemplate implements Template, Serializable {
 				}
 			}
 		}
-		Deffact newfact = new Deffact(this, null, values, id);
+		Deffact newfact = new Deffact(this, null, values);
 		if (hasbinding) {
 			Slot[] slts2 = new Slot[bslots.size()];
 			newfact.boundSlots = (Slot[]) bslots.toArray(slts2);
@@ -406,7 +406,7 @@ public class Deftemplate implements Template, Serializable {
 			}
 		}
 		
-		Deffact newfact = new Deffact(this, null, slots, -1);
+		Deffact newfact = new Deffact(this, null, slots);
 		if (hasbinding) {
 			Slot[] slts2 = new Slot[bslots.size()];
 			newfact.boundSlots = (Slot[]) bslots.toArray(slts2);

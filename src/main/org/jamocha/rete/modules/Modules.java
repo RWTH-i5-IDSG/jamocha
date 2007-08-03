@@ -23,7 +23,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.jamocha.parser.EvaluationException;
 import org.jamocha.rete.Constants;
+import org.jamocha.rete.Deftemplate;
 import org.jamocha.rete.Fact;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.Template;
@@ -163,44 +165,17 @@ public class Modules implements Serializable {
 		facts.clear();
 	}
 
-	public Template findTemplates(Defmodule defmodule) {
-		return (Template) templates.find(defmodule);
-	}
 	
-	protected Fact createFact(Object data, String template, long id) throws AssertException {
-		templates.find(key);
-//		Fact ft = null;
-//		Template dft = null;
-//		if (template == null) {
-//			dft = getCurrentFocus().getTemplate(dclass.getClassObject().getName());
-//		} else {
-//			dft = getCurrentFocus().getTemplate(template);
-//		}
-//		// if the deftemplate is null, check the other modules
-//		if (dft == null) {
-//			// get the entry set from the agenda and iterate
-//			Iterator itr = this.agendas.getModules().iterator();
-//			while (itr.hasNext()) {
-//				Module mod = (Module) itr.next();
-//				if (mod.containsTemplate(dclass)) {
-//					dft = mod.getTemplate(dclass);
-//				}
-//			}
-//			// we've searched every module, so now check main
-//			if (dft == null && this.main.containsTemplate(dclass)) {
-//				dft = this.main.getTemplate(dclass);
-//			} else {
-//				// throw an exception
-//				throw new AssertException("Could not find the template");
-//			}
-//		}
-//		try {
-//			ft = ((Deftemplate) dft).createFact(data, dclass, id, this);
-//		} catch (EvaluationException e) {
-//			throw new AssertException(e);
-//		}
-//		return ft;
-		return null;
+	protected Fact createFact(Object data, String template) throws AssertException {
+		Template tmpl = this.getTemplate(currentModule, template);
+		Fact ft = null;
+		try {
+			ft = ((Deftemplate) tmpl).createFact(data, engine);
+			facts.add(ft);
+		} catch (EvaluationException e) {
+			throw new AssertException(e);
+		}
+		return ft;
 	}
 
 	public Rule findRule(Module defmodule, String name) {
@@ -218,12 +193,12 @@ public class Modules implements Serializable {
 		return false;
 	}
 
-	public Template getTemplate(Module defmodule, String key) {
+	public Template getTemplate(Module defmodule, String template) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	public boolean containsTemplate(Module defmodule, Template key) {
+	public boolean containsTemplate(Module defmodule, Template template) {
 		// TODO Auto-generated method stub
 		return false;
 	}
