@@ -62,17 +62,6 @@ public class Defmodule implements Module, Serializable {
 	protected Map<String,Rule> rules = new HashMap<String,Rule>();
 
 	/**
-	 * A simple List of the activations for the given module
-	 */
-	protected ActivationList activations = null;
-
-	/**
-	 * In some cases, we may want a module to use a specific conflict resolution
-	 * strategy.
-	 */
-	protected Strategy strategy = null;
-
-	/**
 	 * The key is either the template name if it was created from the shell, or
 	 * the defclass if it was created from an Object.
 	 */
@@ -87,54 +76,6 @@ public class Defmodule implements Module, Serializable {
 		super();
 		this.name = name;
 		listeners = new Vector<ModuleChangedListener>();
-		//activations = new LinkedActivationList(strat);
-	}
-
-	/**
-	 * Return all the activations within the module
-	 */
-	public ActivationList getAllActivations() {
-		return this.activations.clone();
-	}
-
-	/**
-	 * When the focus is changed, fireActivations should be called to make sure
-	 * any activations in the module are processed.
-	 */
-	public synchronized int getActivationCount() {
-		return this.activations.size();
-	}
-
-	/**
-	 * The method should get the agenda and use it to add the new activation to
-	 * the agenda
-	 * 
-	 * @param actv
-	 */
-	public void addActivation(Activation actv) {
-		this.activations.addActivation(actv);
-	}
-
-	/**
-	 * Remove an activation from the list
-	 * 
-	 * @param actv
-	 * @return
-	 */
-	public Activation removeActivation(Activation actv) {
-		return (Activation) this.activations.removeActivation(actv);
-	}
-
-	/**
-	 * The current implementation will remove the first activation and return
-	 * it. If there's no more activations, the method return null;
-	 */
-	public Activation nextActivation(Rete engine) {
-		Activation act = this.activations.nextActivation();
-		if (act instanceof LinkedActivation) {
-			//((LinkedActivation) act).remove(engine);
-		}
-		return act;
 	}
 
 	/**
@@ -147,16 +88,6 @@ public class Defmodule implements Module, Serializable {
 	}
 
 	/**
-	 * If the module has a default conflict resolution strategy, it will return
-	 * it. Otherwise the method returns null.
-	 * 
-	 * @return
-	 */
-	public Strategy getDefaultResolver() {
-		return this.strategy;
-	}
-
-	/**
 	 * When clear is called, the module needs to clear all the internal lists
 	 * for rules and activations. The handle to Rete should not be nulled.
 	 */
@@ -166,7 +97,6 @@ public class Defmodule implements Module, Serializable {
 	}
 	
 	public void clearRules() {
-		this.activations.clear();
 		Iterator itr = this.rules.values().iterator();
 		while (itr.hasNext()) {
 			Defrule rl = (Defrule) itr.next();
@@ -201,12 +131,7 @@ public class Defmodule implements Module, Serializable {
 				}
 			}
 			callRemoveRuleListeners(rl);
-			// List<TerminalNode> list = rl.getTerminalNodes();
-			// for (TerminalNode termNode : list) {
-			// termNode.destroy(engine);
-			//			}
 		} catch (RetractException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -376,14 +301,6 @@ public class Defmodule implements Module, Serializable {
 	 */
 	public Rule findRule(String name) {
 		return (Rule) this.rules.get(name);
-	}
-
-	/**
-	 * Call the method with true to turn on lazy agenda. Call with false to turn
-	 * it off.
-	 */
-	public void setLazy(boolean lazy) {
-		this.activations.setLazy(lazy);
 	}
 
 	public void addModuleChangedListener(ModuleChangedListener listener) {

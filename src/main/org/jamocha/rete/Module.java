@@ -33,13 +33,6 @@ import org.jamocha.rule.Rule;
  */
 public interface Module extends Serializable {
     /**
-     * Add a new activation. Classes implementing the Agenda should
-     * check to make sure the activation is new. If it isn't new,
-     * don't add it.
-     * @param actv
-     */
-    void addActivation(Activation actv);
-    /**
      * Add a new rule to the module. Implementing classes may want
      * to check the status of the rule engine before adding new
      * rules. In the case where rules are added dynamically at
@@ -80,16 +73,6 @@ public interface Module extends Serializable {
      * @return
      */
     boolean containsTemplate(Object key);
-    /**
-     * fireActivations will execute the Activations in the activation
-     * list. Implementing classes should make the method synchronized.
-     */
-    int getActivationCount();
-    /**
-     * Return a list of all the activation
-     * @return
-     */
-    ActivationList getAllActivations();
     /**
      * Return the name of the module. The interface doesn't provide
      * any guidelines for the format, but it is a good idea to restrict
@@ -137,12 +120,6 @@ public interface Module extends Serializable {
      */
     int getRuleCount();
     /**
-     * remove an activation from the activation list.
-     * @param actv
-     * @return
-     */
-    Activation removeActivation(Activation actv);
-    /**
      * Remove a rule from the module. The method returns void, since
      * the user should have found the rule they want to remove first.
      * @param rl
@@ -163,20 +140,6 @@ public interface Module extends Serializable {
      * @return
      */
     Rule findRule(String name);
-    /**
-     * Method will remove the activation from the module and return it
-     * to the engine. The method should only be called when the RHS
-     * of the rule should be executed.
-     * @return
-     */
-    Activation nextActivation(Rete engine);
-    /**
-     * To use a lazy agenda, call the method with true. To turn off
-     * lazy agenda, call it with false.
-     * @param lazy
-     */
-    void setLazy(boolean lazy);
-    
     
     void addModuleChangedListener(ModuleChangedListener listener);
     

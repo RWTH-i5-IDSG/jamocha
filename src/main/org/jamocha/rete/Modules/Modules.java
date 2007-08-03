@@ -23,9 +23,12 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.jamocha.rete.Constants;
+import org.jamocha.rete.Defclass;
 import org.jamocha.rete.Defmodule;
+import org.jamocha.rete.Fact;
 import org.jamocha.rete.Module;
 import org.jamocha.rete.Template;
+import org.jamocha.rete.exception.AssertException;
 
 /**
  * @author Sebastian Reinartz
@@ -120,15 +123,6 @@ public class Modules implements Serializable {
 	}
 
 	/**
-	 * Return the values from the HashMap
-	 * 
-	 * @return
-	 */
-	public Collection getModules() {
-		return this.modules.values();
-	}
-
-	/**
 	 * return the module. if it doesn't exist, method returns null.
 	 * 
 	 * @param name
@@ -157,12 +151,6 @@ public class Modules implements Serializable {
 
 	public void clearAllRules() {
 		rules.clear();
-		// Iterator itr = this.modules.keySet().iterator();
-		// while (itr.hasNext()) {
-		// Object key = itr.next();
-		// Module mod = (Module) this.modules.get(key);
-		// mod.clearRules();
-		// }
 	}
 
 	public void clearAllFacts() {
@@ -171,15 +159,41 @@ public class Modules implements Serializable {
 
 	public Template findTemplates(String templName) {
 		return (Template) templates.find(templName);
-		// Template tmpl = null;
-		// Iterator itr = modules.values().iterator();
-		// while (itr.hasNext()) {
-		// Module mod = (Module) itr.next();
-		// tmpl = mod.getTemplate(templName);
-		// if (tmpl != null){
-		// break;
-		// }
-		// }
-		// return tmpl;
+	}
+	
+	protected Fact createFact(Object data, String template, long id) throws AssertException {
+		templates.find(key);
+//		Fact ft = null;
+//		Template dft = null;
+//		if (template == null) {
+//			dft = getCurrentFocus().getTemplate(dclass.getClassObject().getName());
+//		} else {
+//			dft = getCurrentFocus().getTemplate(template);
+//		}
+//		// if the deftemplate is null, check the other modules
+//		if (dft == null) {
+//			// get the entry set from the agenda and iterate
+//			Iterator itr = this.agendas.getModules().iterator();
+//			while (itr.hasNext()) {
+//				Module mod = (Module) itr.next();
+//				if (mod.containsTemplate(dclass)) {
+//					dft = mod.getTemplate(dclass);
+//				}
+//			}
+//			// we've searched every module, so now check main
+//			if (dft == null && this.main.containsTemplate(dclass)) {
+//				dft = this.main.getTemplate(dclass);
+//			} else {
+//				// throw an exception
+//				throw new AssertException("Could not find the template");
+//			}
+//		}
+//		try {
+//			ft = ((Deftemplate) dft).createFact(data, dclass, id, this);
+//		} catch (EvaluationException e) {
+//			throw new AssertException(e);
+//		}
+//		return ft;
+		return null;
 	}
 }
