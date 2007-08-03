@@ -35,7 +35,9 @@ import org.jamocha.messagerouter.MessageEvent;
 import org.jamocha.messagerouter.MessageRouter;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaValue;
+import org.jamocha.rete.Modules.Modules;
 import org.jamocha.rete.agenda.Agenda;
+import org.jamocha.rete.agenda.Agendas;
 import org.jamocha.rete.configurations.ModifyConfiguration;
 import org.jamocha.rete.configurations.SlotConfiguration;
 import org.jamocha.rete.eventhandling.EngineEvent;
@@ -50,7 +52,6 @@ import org.jamocha.rete.memory.WorkingMemory;
 import org.jamocha.rete.memory.WorkingMemoryImpl;
 import org.jamocha.rete.nodes.BaseNode;
 import org.jamocha.rete.nodes.TerminalNode;
-import org.jamocha.rete.strategies.DepthStrategy;
 import org.jamocha.rete.util.ProfileStats;
 import org.jamocha.rule.Rule;
 
@@ -160,16 +161,9 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 	/**
 	 * Each engine instance only has 1 agenda
 	 */
-	private Agenda theAgenda = null;
+	private Agendas agendas = null;
 
-	private Module currentModule = null;
-
-	/**
-	 * this is the main module
-	 */
-	private Module main = null;
-
-	private Strategy theStrat = null;
+	private Modules modules = null;
 
 	private long lastFactId = 1;
 
@@ -200,8 +194,7 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 		super();
 		this.workingMem = new WorkingMemoryImpl(this);
 		this.functionMem = new FunctionMemoryImpl(this);
-		this.theAgenda = new Agenda(this);
-		this.theStrat = new DepthStrategy();
+		this.agendas = new Agendas(this);
 		init();
 		startLog();
 	}
@@ -210,16 +203,9 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 	 * initialization logic should go here
 	 */
 	protected void init() {
-		initMain();
+		modules = new Modules();
 		functionMem.init();
 		declareInitialFact();
-	}
-
-	protected void initMain() {
-		this.main = new Defmodule(Constants.MAIN_MODULE, this.theStrat);
-		// by default, we set the current module to main
-		this.currentModule = this.main;
-		this.theAgenda.addModule(this.main);
 	}
 
 	protected void startLog() {
@@ -291,7 +277,7 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 	}
 
 	public void clearRules() {
-		this.theAgenda.clearRules();
+		this.modules.clearAllRules();
 	}
 
 	/**
@@ -304,15 +290,12 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 		this.workingMem.clear();
 		this.functionMem.clear();
 		// now we clear all the rules and templates
-		this.theAgenda.clear();
+		this.agendas.clear();
 		this.defclass.clear();
 		ProfileStats.reset();
 		this.lastFactId = 1;
 		this.lastNodeId = 1;
-		this.main.clear();
-		// TODO: why don't we clear all modules?
-		this.currentModule.clear();
-		this.theAgenda.addModule(this.main);
+		this.modules.clearAll();
 		declareInitialFact();
 	}
 
@@ -320,6 +303,7 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 	 * Method will clear the engine of all rules, facts and objects.
 	 */
 	public void close() {
+		this.modules.clearAll();
 		this.workingMem.clear();
 		this.contexts.clear();
 		this.defclass.clear();
@@ -340,37 +324,7 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 	 * @return
 	 */
 	public int fire(int count) throws ExecuteException {
-		int counter = 0;
-		if (this.currentModule.getActivationCount() > 0) {
-			Activation actv = null;
-			if (profileFire) {
-				ProfileStats.startFire();
-			}
-			while ((actv = this.currentModule.nextActivation(this)) != null && counter < count) {
-				try {
-					if (watchRules) {
-						this.writeMessage("==> fire: " + actv.toPPString() + "\r\n", "t");
-					}
-					pushScope(actv.getRule());
-					try {
-						actv.executeActivation(this);
-						actv.clear();
-					} finally {
-						popScope();
-					}
-					counter++;
-				} catch (ExecuteException e) {
-					// we need to report the exception
-					log.debug(e);
-					// we break out of the for loop
-					break;
-				}
-			}
-			if (profileFire) {
-				ProfileStats.endFire();
-			}
-		}
-		return counter;
+		return agendas.fireFocus();
 	}
 
 	/**
@@ -381,62 +335,7 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 	 * @throws ExecuteException
 	 */
 	public int fire() throws ExecuteException {
-		if (this.currentModule.getActivationCount() > 0) {
-			// we reset the rules fire count
-			this.firingcount = 0;
-			Activation actv = null;
-			if (profileFire) {
-				ProfileStats.startFire();
-			}
-			while ((actv = this.currentModule.nextActivation(this)) != null) {
-				this.firingcount++;
-				try {
-					if (watchRules) {
-						this.writeMessage("==> fire: " + actv.toPPString() + "\r\n", "t");
-					}
-					// we set the active rule, this means only one rule
-					// can be active at a time.
-					pushScope(actv.getRule());
-					try {
-						actv.executeActivation(this);
-						actv.clear();
-					} finally {
-						popScope();
-					}
-				} catch (ExecuteException e) {
-					log.debug(e);
-					throw e;
-				}
-			}
-			if (profileFire) {
-				ProfileStats.endFire();
-			}
-			return this.firingcount;
-		} else {
-			return 0;
-		}
-	}
-
-	/**
-	 * method is used to fire an activation immediately
-	 * 
-	 * @param act
-	 */
-	protected void fireActivation(Activation act) {
-		if (act != null) {
-			this.firingcount++;
-			try {
-				pushScope(act.getRule());
-				try {
-					act.executeActivation(this);
-					act.clear();
-				} finally {
-					popScope();
-				}
-			} catch (ExecuteException e) {
-				log.debug(e);
-			}
-		}
+		return agendas.fireFocus();
 	}
 
 	// ----- defmodule related methods ----- //
@@ -449,54 +348,35 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 	 * @return
 	 */
 	public Module getCurrentFocus() {
-		return this.currentModule;
-	}
-
-	public boolean addModule(String name) {
-		if (findModule(name) == null) {
-			Defmodule mod = new Defmodule(name, theStrat);
-			this.currentModule = mod;
-			this.theAgenda.addModule(mod);
-			return true;
-		} else {
-			return false;
-		}
-	}
-
-	public Module addModule(String name, boolean setfocus) {
-		if (findModule(name) == null) {
-			Defmodule mod = new Defmodule(name, theStrat);
-			if (setfocus) {
-				this.currentModule = mod;
-			}
-			this.theAgenda.addModule(mod);
-			return mod;
-		} else {
-			return findModule(name);
-		}
-	}
-
-	public Module removeModule(String name) {
-		return this.theAgenda.removeModule(name);
-	}
-
-	public Module findModule(String name) {
-		return this.theAgenda.findModule(name);
+		return this.modules.getCurrentModule();
 	}
 
 	/**
-	 * Method will look up the Template using the class
+	 * method will create for given name, if it does not exist. The current
+	 * module is changed to the new one
 	 * 
-	 * @param clazz
-	 * @return
+	 * @param act
 	 */
-	public Template findTemplate(Class clazz) {
-		Object templ = this.defclass.get(clazz);
-		if (templ != null) {
-			return (Template) templ;
-		} else {
-			return null;
-		}
+	public boolean addModule(String name) {
+		return this.modules.addModule(name, true);
+	}
+
+	/**
+	 * method will return module for given name, if does not exist, a new one
+	 * will be created The current module is changed to the new one
+	 * 
+	 * @param act
+	 */
+	public Module getModule(String name) {
+		return this.modules.getModule(name, true);
+	}
+
+	public Module removeModule(String name) {
+		return this.modules.removeModule(name);
+	}
+
+	public Module findModule(String name) {
+		return this.modules.findModule(name);
 	}
 
 	/**
@@ -506,7 +386,7 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 	 * @return Template
 	 */
 	public Template findTemplate(String name) {
-		return this.theAgenda.findTemplate(name);
+		return this.modules.findTemplates(name);
 	}
 
 	/**
@@ -557,7 +437,10 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 				Template dtemp = null;
 				// if the parent is found, we set it
 				if (parent != null) {
-					Template ptemp = this.currentModule.findParentTemplate(parent);
+					// TODO: write me!!!
+					Template ptemp = null;
+					// Template ptemp =
+					// this.currentModule.findParentTemplate(parent);
 					if (ptemp != null) {
 						dtemp = dclass.createDeftemplate(templateName, ptemp);
 						dtemp.setParent(ptemp);
@@ -702,10 +585,8 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 	 * 
 	 * @param moduleName
 	 */
-	public void setFocus(String moduleName) {
-		if (this.theAgenda.findModule(moduleName) != null) {
-			this.currentModule = this.theAgenda.findModule(moduleName);
-		}
+	public boolean setFocus(String moduleName) {
+		return this.modules.setCurrentModule(moduleName);
 	}
 
 	/**
@@ -717,9 +598,9 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 	 */
 	public void setWatch(int type) {
 		if (type == WATCH_ACTIVATIONS) {
-			this.theAgenda.setWatch(true);
+			this.agendas.setWatch(true);
 		} else if (type == WATCH_ALL) {
-			this.theAgenda.setWatch(true);
+			this.agendas.setWatch(true);
 			this.watchFact = true;
 			this.watchRules = true;
 		} else if (type == WATCH_FACTS) {
@@ -737,9 +618,9 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 	 */
 	public void setUnWatch(int type) {
 		if (type == WATCH_ACTIVATIONS) {
-			this.theAgenda.setWatch(false);
+			this.agendas.setWatch(false);
 		} else if (type == WATCH_ALL) {
-			this.theAgenda.setWatch(false);
+			this.agendas.setWatch(false);
 			this.watchFact = false;
 			this.watchRules = false;
 		} else if (type == WATCH_FACTS) {
@@ -757,21 +638,21 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 	 */
 	public void setProfile(int type) {
 		if (type == PROFILE_ADD_ACTIVATION) {
-			this.theAgenda.setProfileAdd(true);
+			this.agendas.setProfileAdd(true);
 		} else if (type == PROFILE_ASSERT) {
 			this.profileAssert = true;
 		} else if (type == PROFILE_ALL) {
-			this.theAgenda.setProfileAdd(true);
+			this.agendas.setProfileAdd(true);
 			this.profileAssert = true;
 			this.profileFire = true;
 			this.profileRetract = true;
-			this.theAgenda.setProfileRemove(true);
+			this.agendas.setProfileRemove(true);
 		} else if (type == PROFILE_FIRE) {
 			this.profileFire = true;
 		} else if (type == PROFILE_RETRACT) {
 			this.profileRetract = true;
 		} else if (type == PROFILE_RM_ACTIVATION) {
-			this.theAgenda.setProfileRemove(true);
+			this.agendas.setProfileRemove(true);
 		}
 	}
 
@@ -783,21 +664,21 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 	 */
 	public void setProfileOff(int type) {
 		if (type == PROFILE_ADD_ACTIVATION) {
-			this.theAgenda.setProfileAdd(false);
+			this.agendas.setProfileAdd(false);
 		} else if (type == PROFILE_ASSERT) {
 			this.profileAssert = false;
 		} else if (type == PROFILE_ALL) {
-			this.theAgenda.setProfileAdd(false);
+			this.agendas.setProfileAdd(false);
 			this.profileAssert = false;
 			this.profileFire = false;
 			this.profileRetract = false;
-			this.theAgenda.setProfileRemove(false);
+			this.agendas.setProfileRemove(false);
 		} else if (type == PROFILE_FIRE) {
 			this.profileFire = false;
 		} else if (type == PROFILE_RETRACT) {
 			this.profileRetract = false;
 		} else if (type == PROFILE_RM_ACTIVATION) {
-			this.theAgenda.setProfileRemove(false);
+			this.agendas.setProfileRemove(false);
 		}
 	}
 
@@ -1370,7 +1251,7 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 		// if the deftemplate is null, check the other modules
 		if (dft == null) {
 			// get the entry set from the agenda and iterate
-			Iterator itr = this.theAgenda.getModules().iterator();
+			Iterator itr = this.agendas.getModules().iterator();
 			while (itr.hasNext()) {
 				Module mod = (Module) itr.next();
 				if (mod.containsTemplate(dclass)) {
@@ -1417,7 +1298,7 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 	}
 
 	public Agenda getAgenda() {
-		return this.theAgenda;
+		return this.agendas;
 	}
 
 	/**
@@ -1453,14 +1334,6 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 
 	public DefaultLogger getLogger() {
 		return this.log;
-	}
-
-	public Strategy getStrategy() {
-		return this.theStrat;
-	}
-
-	public ActivationList getActivationList() {
-		return this.currentModule.getAllActivations();
 	}
 
 	public int getObjectCount() {

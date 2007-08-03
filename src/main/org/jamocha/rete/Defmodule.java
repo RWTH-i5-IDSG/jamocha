@@ -83,11 +83,11 @@ public class Defmodule implements Module, Serializable {
 	/**
 	 * 
 	 */
-	public Defmodule(String name, Strategy strat) {
+	public Defmodule(String name) {
 		super();
 		this.name = name;
 		listeners = new Vector<ModuleChangedListener>();
-		activations = new LinkedActivationList(strat);
+		//activations = new LinkedActivationList(strat);
 	}
 
 	/**

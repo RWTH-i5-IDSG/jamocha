@@ -30,10 +30,30 @@ public class Agendas {
 		return a;
 	}
 	
-	public void fireFocus() throws ExecuteException {
+	public int fireFocus() throws ExecuteException {
 		Module focus = engine.getCurrentFocus();
 		Agenda agendaFocus = getAgenda(focus);
 		agendaFocus.fire();
+	}
+
+	public void clear() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void setWatch(boolean b) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void setProfileAdd(boolean b) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void setProfileRemove(boolean b) {
+		// TODO Auto-generated method stub
+		
 	}
 	
 	
