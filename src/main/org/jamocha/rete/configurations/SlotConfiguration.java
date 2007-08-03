@@ -5,6 +5,7 @@ package org.jamocha.rete.configurations;
 
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaValue;
+import org.jamocha.rete.BoundParam;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 
@@ -84,7 +85,15 @@ public class SlotConfiguration extends AbstractConfiguration {
 	}
 
 	public Boolean isMultislot() {
-		return (slotValues.length > 1);
+		//count values:
+		Boolean result = (slotValues.length > 1);
+		//if values =1 we might have a boundvariable and this can bind a list: we have to check:
+	//	if (!result && slotValues.length == 1){
+		//	if (slotValues[0] instanceof BoundParam){
+			//	result = ((BoundParam)slotValues[0]).isMultislot();
+			//}
+		//}
+		return result;
 	}
 
 	public int getId() {

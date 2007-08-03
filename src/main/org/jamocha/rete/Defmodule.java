@@ -161,6 +161,11 @@ public class Defmodule implements Module, Serializable {
 	 * for rules and activations. The handle to Rete should not be nulled.
 	 */
 	public void clear() {
+		this.clearRules();
+		this.deftemplates.clear();
+	}
+	
+	public void clearRules() {
 		this.activations.clear();
 		Iterator itr = this.rules.values().iterator();
 		while (itr.hasNext()) {
@@ -168,8 +173,8 @@ public class Defmodule implements Module, Serializable {
 			rl.clear();
 		}
 		this.rules.clear();
-		this.deftemplates.clear();
 	}
+
 
 	/**
 	 * Add a compiled rule to the module
@@ -388,4 +393,6 @@ public class Defmodule implements Module, Serializable {
 	public void removeModuleChangedListener(ModuleChangedListener listener) {
 		listeners.remove(listener);
 	}
+
+
 }

@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://ruleml-dev.sourceforge.net/
+ *   http://jamocha.org/
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -60,6 +60,10 @@ public interface Module extends Serializable {
      * from the module.
      */
     void clear();
+    /**
+     * ClearRules will remove all the rules from the module.
+     */
+    void clearRules();
     /**
      * Implementing classes need to keep a list of the rules, so
      * that when new rules are added, the module can check to see

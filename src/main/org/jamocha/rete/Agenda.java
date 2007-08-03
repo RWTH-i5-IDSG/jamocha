@@ -44,7 +44,7 @@ public class Agenda implements Serializable {
 	/**
 	 * The ArrayList for the modules.
 	 */
-	protected Map<String,Module> modules = new HashMap<String,Module>();
+	protected Modules modules = new Modules();
 
 	private Rete engine = null;
 
@@ -88,15 +88,15 @@ public class Agenda implements Serializable {
 	}
 
 	public void addModule(Module module) {
-		this.modules.put(module.getModuleName(), module);
+		this.modules.addModule(module);
 	}
 
 	public Module removeModule(Module module) {
-		return (Module)this.modules.remove(module.getModuleName());
+		return this.modules.removeModule(module);
 	}
 
 	public Module removeModule(String name) {
-		return (Module)this.modules.remove(name);
+		return this.modules.removeModule(name);
 	}
 
 	/**
@@ -104,7 +104,7 @@ public class Agenda implements Serializable {
 	 * @return
 	 */
 	public Collection getModules() {
-		return this.modules.values();
+		return this.modules.getModules();
 	}
 
 	/**
@@ -113,7 +113,7 @@ public class Agenda implements Serializable {
 	 * @return
 	 */
 	public Module findModule(String name) {
-		return (Module) this.modules.get(name);
+		return (Module) this.modules.findModule(name);
 	}
 
 	/**
@@ -174,12 +174,14 @@ public class Agenda implements Serializable {
 	 * Clear will clear all the modules and remove all activations
 	 */
 	public void clear() {
-		Iterator itr = this.modules.keySet().iterator();
-		while (itr.hasNext()) {
-			Object key = itr.next();
-			Module mod = (Module) this.modules.get(key);
-			mod.clear();
-		}
-		this.modules.clear();
+		this.modules.clearAll();
+	}
+	
+	public void clearRules(){
+		this.modules.clearAllRules();
+	}
+	
+	public Template findTemplate(String templName){
+		return this.modules.findTemplates(templName);
 	}
 }

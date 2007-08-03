@@ -120,10 +120,13 @@ public class Clear implements Function, Serializable {
 			if (params.length == 1) {
 				JamochaValue param = params[0].getValue(engine);
 				if (param.getType().equals(JamochaType.IDENTIFIER)) {
-					if (param.getIdentifierValue().equals("objects")) {
+					String identifier = param.getIdentifierValue();
+					if (identifier.equals("objects")) {
 						engine.clearObjects();
-					} else if (param.getIdentifierValue().equals("deffacts")) {
+					} else if (identifier.equals("deffacts") || (identifier.equals("facts"))) {
 						engine.clearFacts();
+					} else if (identifier.equals("defrules") || (identifier.equals("rules"))) {
+						engine.clearRules();
 					} else {
 						throw new EvaluationException("Unknown argument "
 								+ param.getIdentifierValue());

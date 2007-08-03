@@ -1,3 +1,7 @@
+------------------------------------------------------------------------
+--------- TODO - List --------------------------------------------------
+------------------------------------------------------------------------
+
 new functions
 	store an engine snapshot to file
 	providing GUI support (e.g. for visualizing data structures)
@@ -39,7 +43,10 @@ a few samples and applications
 refactoring
 	Bindings
 	Rete and components
-	better module support
+	module support
+		find out how it works right now
+		are facts and rules seperated in modules, can they be global defined?
+		clear function only clear current module? is there a global option?
 	comments
 	iterate over all classes and remove unused attributes and methods. furthermore, rename attrs/methods with stupid names
 Core
@@ -54,3 +61,10 @@ usage
 		code completion
 		syntax-check
 		run configuration
+object-support
+	do we still have an object-support? test?
+	defclass, definstance, instanceof
+tests for:
+	assert-temporal
+	deffacts
+			

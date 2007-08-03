@@ -236,10 +236,10 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 		}
 	}
 
-	public Fact getInitialFact(){
+	public Fact getInitialFact() {
 		return initFact.getInitialFact();
 	}
-	
+
 	// ----- methods for clearing rules and facts ----- //
 
 	/**
@@ -279,34 +279,24 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 	 * asserted using assertObject.
 	 */
 	public void clearFacts() {
-		if (dynamicFacts.size() > 0) {
-			try {
-				Iterator itr = dynamicFacts.keySet().iterator();
-				while (itr.hasNext()) {
-					Object obj = itr.next();
-					if (obj instanceof Fact) {
-						this.workingMem.retractObject((Fact) obj);
-					}
-				}
-				this.dynamicFacts.clear();
-			} catch (RetractException e) {
-				log.debug(e);
+		try {
+			List<Fact> facts = this.getAllFacts();
+			for (Fact fact : facts) {
+				this.workingMem.retractObject(fact);
 			}
+		} catch (RetractException e) {
+			log.debug(e);
 		}
-		if (staticFacts.size() > 0) {
-			try {
-				Iterator itr = staticFacts.keySet().iterator();
-				while (itr.hasNext()) {
-					Object obj = itr.next();
-					if (obj instanceof Fact) {
-						this.workingMem.retractObject((Fact) obj);
-					}
-				}
-				this.staticFacts.clear();
-			} catch (RetractException e) {
-				log.debug(e);
-			}
-		}
+		//clear lists:
+		//TODO: remove facts from list automatic 
+		this.dynamicFacts.clear();
+		this.staticFacts.clear();
+		this.deffactMap.clear();
+
+	}
+
+	public void clearRules() {
+		this.theAgenda.clearRules();
 	}
 
 	/**
@@ -325,6 +315,7 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 		this.lastFactId = 1;
 		this.lastNodeId = 1;
 		this.main.clear();
+		// TODO: why don't we clear all modules?
 		this.currentModule.clear();
 		this.theAgenda.addModule(this.main);
 		declareInitialFact();
@@ -514,29 +505,13 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 	}
 
 	/**
-	 * find the template starting with other modules and ending with the main
-	 * module.
+	 * find the template by name
 	 * 
 	 * @param name
-	 * @return
+	 * @return Template
 	 */
 	public Template findTemplate(String name) {
-		Template tmpl = null;
-		Iterator itr = this.theAgenda.modules.values().iterator();
-		while (itr.hasNext()) {
-			Object val = itr.next();
-			if (val != this.main) {
-				tmpl = ((Defmodule) val).getTemplate(name);
-			}
-			if (tmpl != null) {
-				break;
-			}
-		}
-		// if it wasn't found in any other module, check main
-		if (tmpl == null) {
-			tmpl = this.main.getTemplate(name);
-		}
-		return tmpl;
+		return this.theAgenda.findTemplate(name);
 	}
 
 	/**
@@ -836,8 +811,8 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 	 * 
 	 * @return
 	 */
-	public List<Object> getAllFacts() {
-		List<Object> facts = new ArrayList<Object>();
+	public List<Fact> getAllFacts() {
+		List<Fact> facts = new ArrayList<Fact>();
 		facts.addAll(this.getObjects());
 		facts.addAll(this.getDeffacts());
 		return facts;
@@ -848,20 +823,20 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 	 * 
 	 * @return
 	 */
-	public List<Object> getObjects() {
-		List<Object> objects = new ArrayList<Object>();
+	public List<Fact> getObjects() {
+		List<Fact> objects = new ArrayList<Fact>();
 		Iterator itr = this.dynamicFacts.keySet().iterator();
 		while (itr.hasNext()) {
 			Object key = itr.next();
 			if (!(key instanceof Fact)) {
-				objects.add(key);
+				objects.add((Fact) key);
 			}
 		}
 		itr = this.staticFacts.keySet().iterator();
 		while (itr.hasNext()) {
 			Object key = itr.next();
 			if (!(key instanceof Fact)) {
-				objects.add(key);
+				objects.add((Fact) key);
 			}
 		}
 		return objects;
