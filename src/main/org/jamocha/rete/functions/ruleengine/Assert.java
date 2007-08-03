@@ -168,7 +168,7 @@ public class Assert implements Function, Serializable {
 					Template tmpl = (Template) engine.getCurrentFocus()
 							.getTemplate(firstParam.getIdentifierValue());
 					fact = (Deffact) tmpl.createFact((Object[]) secondParam
-							.getObjectValue(), -1, engine);
+							.getObjectValue(), engine);
 				} else if (firstParam.getType().equals(JamochaType.FACT)) {
 					fact = (Deffact) firstParam.getFactValue();
 				} else {

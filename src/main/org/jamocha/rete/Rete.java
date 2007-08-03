@@ -915,7 +915,7 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 					}
 					// second, lookup the deftemplate and create the
 					// shadow fact
-					Fact shadowfact = createFact(data, dc, template, -1);
+					Fact shadowfact = modules.createFact(data, template);
 					// add it to the dynamic fact map
 					this.dynamicFacts.put(data, shadowfact);
 					this.workingMem.assertObject(shadowfact);
