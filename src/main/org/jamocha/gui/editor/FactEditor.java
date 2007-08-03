@@ -26,6 +26,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.swing.BorderFactory;
@@ -57,6 +58,7 @@ import org.jamocha.rete.Module;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.Template;
 import org.jamocha.rete.TemplateSlot;
+import org.jamocha.rete.Modules.Modules;
 
 /**
  * Editor for Facts. First the user selects the module, then a template and
@@ -157,9 +159,8 @@ public class FactEditor extends AbstractJamochaEditor implements
 		moduleList = new JList(moduleListModel);
 		moduleList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		moduleList.getSelectionModel().addListSelectionListener(this);
-		Collection modules = engine.getAgenda().getModules();
-		for (Object obj : modules) {
-			Module mod = (Module) obj;
+		Collection<Module> modules = engine.getModules().getModuleList();
+		for (Module mod : modules) {
 			moduleListModel.addElement(mod.getModuleName());
 		}
 		JPanel modulePanel = new JPanel();
