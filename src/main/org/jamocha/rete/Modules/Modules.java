@@ -236,12 +236,12 @@ public class Modules implements Serializable {
 	}
 
 	public void removeRule(Module defmodule, Rule rl) {
-		// TODO Auto-generated method stub
+		rules.remove(rl.getName(), defmodule);
 		
 	}
 
 	public void addRule(Module defmodule, Rule rl) {
-		// TODO Auto-generated method stub
+		rules.add(rl, defmodule);
 		
 	}
 
