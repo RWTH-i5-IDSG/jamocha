@@ -49,7 +49,7 @@ import org.jamocha.gui.TableRowModel;
 import org.jamocha.gui.editor.RuleEditor;
 import org.jamocha.gui.icons.IconLoader;
 import org.jamocha.parser.ParserFactory;
-import org.jamocha.rete.Module;
+import org.jamocha.rete.modules.Module;
 import org.jamocha.rule.Rule;
 
 /**

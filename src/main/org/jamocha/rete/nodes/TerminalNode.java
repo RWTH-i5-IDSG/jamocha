@@ -17,11 +17,11 @@
 package org.jamocha.rete.nodes;
 
 import org.jamocha.rete.Fact;
-import org.jamocha.rete.Module;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.agenda.Activation;
 import org.jamocha.rete.exception.AssertException;
 import org.jamocha.rete.exception.RetractException;
+import org.jamocha.rete.modules.Module;
 import org.jamocha.rule.Rule;
 
 /**

@@ -35,8 +35,8 @@ import javax.swing.JTextField;
 
 import org.jamocha.gui.icons.IconLoader;
 import org.jamocha.messagerouter.StringChannel;
-import org.jamocha.rete.Module;
 import org.jamocha.rete.Rete;
+import org.jamocha.rete.modules.Module;
 
 /**
  * A simple editor for rules.

@@ -48,9 +48,9 @@ import org.jamocha.gui.editor.TemplateEditor;
 import org.jamocha.gui.icons.IconLoader;
 import org.jamocha.parser.ParserFactory;
 import org.jamocha.rete.Deftemplate;
-import org.jamocha.rete.Module;
 import org.jamocha.rete.Template;
 import org.jamocha.rete.TemplateSlot;
+import org.jamocha.rete.modules.Module;
 
 /**
  * This Panel shows all Templates of all Modules currently in the Engine. You

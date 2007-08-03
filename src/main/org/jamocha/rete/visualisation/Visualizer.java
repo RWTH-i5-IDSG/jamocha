@@ -21,11 +21,11 @@ import java.util.Stack;
 import javax.swing.JComponent;
 import javax.swing.event.MouseInputListener;
 
-import org.jamocha.rete.Module;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.eventhandling.ModuleChangedEvent;
 import org.jamocha.rete.eventhandling.ModuleChangedListener;
 import org.jamocha.rete.memory.WorkingMemoryImpl;
+import org.jamocha.rete.modules.Module;
 import org.jamocha.rete.nodes.AbstractBeta;
 import org.jamocha.rete.nodes.BaseNode;
 import org.jamocha.rete.nodes.LIANode;

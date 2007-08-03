@@ -24,9 +24,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.jamocha.rete.Constants;
-import org.jamocha.rete.Defmodule;
 import org.jamocha.rete.Fact;
-import org.jamocha.rete.Module;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.Template;
 import org.jamocha.rete.exception.AssertException;
@@ -70,7 +68,7 @@ public class Modules implements Serializable {
 	}
 
 	protected void initMain() {
-		this.main = new Defmodule(Constants.MAIN_MODULE,engine);
+		this.main = new Defmodule(Constants.MAIN_MODULE,this);
 		// by default, we set the current module to main
 		this.currentModule = this.main;
 	}
@@ -102,7 +100,7 @@ public class Modules implements Serializable {
 	 */
 	public boolean addModule(String name, boolean autoFocus) {
 		if (findModule(name) == null) {
-			Defmodule mod = new Defmodule(name);
+			Defmodule mod = new Defmodule(name, this);
 			if (autoFocus)
 				this.currentModule = mod;
 			this.modules.put(name, mod);
@@ -114,7 +112,7 @@ public class Modules implements Serializable {
 	public Module getModule(String name, boolean autoFocus) {
 		Module result = findModule(name);
 		if (result == null) {
-			result = new Defmodule(name);
+			result = new Defmodule(name, this);
 			if (autoFocus)
 				this.currentModule = result;
 			this.modules.put(name, result);

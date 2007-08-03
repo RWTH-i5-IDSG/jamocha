@@ -14,12 +14,13 @@
  * limitations under the License.
  * 
  */
-package org.jamocha.rete;
+package org.jamocha.rete.modules;
 
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 
+import org.jamocha.rete.Template;
 import org.jamocha.rete.eventhandling.ModuleChangedListener;
 import org.jamocha.rete.memory.WorkingMemory;
 import org.jamocha.rule.Rule;

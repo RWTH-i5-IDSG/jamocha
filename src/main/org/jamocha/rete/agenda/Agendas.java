@@ -3,9 +3,9 @@ package org.jamocha.rete.agenda;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.jamocha.rete.Module;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.exception.ExecuteException;
+import org.jamocha.rete.modules.Module;
 
 /**
  * @author Josef Alexander Hahn

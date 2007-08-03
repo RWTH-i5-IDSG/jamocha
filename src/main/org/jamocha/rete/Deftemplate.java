@@ -27,6 +27,7 @@ import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.configurations.SlotConfiguration;
 import org.jamocha.rete.exception.AssertException;
+import org.jamocha.rete.modules.Module;
 
 /**
  * @author Peter Lin Deftemplate is equivalent to CLIPS deftemplate<br/>

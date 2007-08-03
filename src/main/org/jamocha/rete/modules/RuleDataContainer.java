@@ -19,7 +19,6 @@ package org.jamocha.rete.modules;
 import java.util.HashMap;
 
 import org.jamocha.rete.Fact;
-import org.jamocha.rete.Module;
 import org.jamocha.rule.Rule;
 
 /**

@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.jamocha.rete.modules.Module;
 import org.jamocha.rete.modules.Modules;
 import org.jamocha.rete.util.ProfileStats;
 

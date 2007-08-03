@@ -54,10 +54,10 @@ import javax.swing.event.PopupMenuListener;
 import org.jamocha.gui.icons.IconLoader;
 import org.jamocha.messagerouter.StringChannel;
 import org.jamocha.parser.JamochaType;
-import org.jamocha.rete.Module;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.Template;
 import org.jamocha.rete.TemplateSlot;
+import org.jamocha.rete.modules.Module;
 import org.jamocha.rete.modules.Modules;
 
 /**

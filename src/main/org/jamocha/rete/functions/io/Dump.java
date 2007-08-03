@@ -29,11 +29,11 @@ import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Fact;
 import org.jamocha.rete.Function;
-import org.jamocha.rete.Module;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.Template;
 import org.jamocha.rete.functions.FunctionDescription;
+import org.jamocha.rete.modules.Module;
 import org.jamocha.rule.Rule;
 
 /**

@@ -31,7 +31,6 @@ import org.jamocha.rete.Binding;
 import org.jamocha.rete.Constants;
 import org.jamocha.rete.ExpressionSequence;
 import org.jamocha.rete.Fact;
-import org.jamocha.rete.Module;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.Scope;
@@ -39,6 +38,7 @@ import org.jamocha.rete.Template;
 import org.jamocha.rete.configurations.DeclarationConfiguration;
 import org.jamocha.rete.configurations.DefruleConfiguration;
 import org.jamocha.rete.configurations.Signature;
+import org.jamocha.rete.modules.Module;
 import org.jamocha.rete.nodes.TerminalNode;
 
 /**

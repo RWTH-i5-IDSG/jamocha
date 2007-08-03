@@ -36,6 +36,7 @@ import org.jamocha.rete.configurations.Signature;
 import org.jamocha.rete.exception.AssertException;
 import org.jamocha.rete.exception.CompileRuleException;
 import org.jamocha.rete.exception.RetractException;
+import org.jamocha.rete.modules.Module;
 import org.jamocha.rete.nodes.AbstractBeta;
 import org.jamocha.rete.nodes.AlphaNode;
 import org.jamocha.rete.nodes.BaseNode;

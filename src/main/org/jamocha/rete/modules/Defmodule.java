@@ -14,13 +14,14 @@
  * limitations under the License.
  * 
  */
-package org.jamocha.rete;
+package org.jamocha.rete.modules;
 
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+import org.jamocha.rete.Template;
 import org.jamocha.rete.eventhandling.ModuleChangedEvent;
 import org.jamocha.rete.eventhandling.ModuleChangedListener;
 import org.jamocha.rete.exception.RetractException;
@@ -36,7 +37,7 @@ import org.jamocha.rule.Rule;
  */
 public class Defmodule implements Module, Serializable {
 
-	Rete engine;
+	Modules modules;
 	
 	private static final long serialVersionUID = 0xDEADBEAFL;
 
@@ -51,10 +52,10 @@ public class Defmodule implements Module, Serializable {
 	/**
 	 * 
 	 */
-	public Defmodule(String name, Rete engine) {
+	public Defmodule(String name, Modules modules) {
 		super();
 		this.name = name;
-		this.engine = engine;
+		this.modules = modules;
 	}
 
 	/**
@@ -71,27 +72,27 @@ public class Defmodule implements Module, Serializable {
 	 * for rules and activations. The handle to Rete should not be nulled.
 	 */
 	public void clear() {
-		engine.getModules().flush(this);
+		modules.flush(this);
 	}
 	
 	public void clearRules() {
-		engine.getModules().flushRules(this);
+		modules.flushRules(this);
 	}
 
 	public void addRule(Rule rl) {
-		engine.getModules().addRule(this, rl);
+		modules.addRule(this, rl);
 	}
 
 	public void removeRule(Rule rl) {
-		engine.getModules().removeRule(this, rl);
+		modules.removeRule(this, rl);
 	}
 
 	public boolean containsRule(Rule rl) {
-		return engine.getModules().containsRule(this,rl);
+		return modules.containsRule(this,rl);
 	}
 
 	public List<Rule> getAllRules() {
-		return engine.getModules().getAllRules(this);
+		return modules.getAllRules(this);
 	}
 
 	public int getRuleCount() {
@@ -99,23 +100,23 @@ public class Defmodule implements Module, Serializable {
 	}
 
 	public boolean containsTemplate(Template key) {
-		return engine.getModules().containsTemplate(this,key);
+		return modules.containsTemplate(this,key);
 	}
 
 	public Template getTemplate(String key) {
-		return engine.getModules().getTemplate(this,key);
+		return modules.getTemplate(this,key);
 	}
 
 	public boolean addTemplate(Template temp) {
-		return engine.getModules().addTemplate(this, temp);
+		return modules.addTemplate(this, temp);
 	}
 
 	public void removeTemplate(Template temp) {
-		engine.getModules().removeTemplate(this,temp);
+		modules.removeTemplate(this,temp);
 	}
 
 	public List<Template> getTemplates() {
-		return engine.getModules().getTemplates(this);
+		return modules.getTemplates(this);
 	}
 
 	public int getTemplateCount() {
@@ -123,7 +124,7 @@ public class Defmodule implements Module, Serializable {
 	}
 
 	public Rule findRule(String name) {
-		return engine.getModules().findRule(this,name);
+		return modules.findRule(this,name);
 	}
 
 

@@ -23,9 +23,9 @@ import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Binding;
 import org.jamocha.rete.Dumpable;
 import org.jamocha.rete.Fact;
-import org.jamocha.rete.Module;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.Scope;
+import org.jamocha.rete.modules.Module;
 import org.jamocha.rete.nodes.TerminalNode;
 
 /**

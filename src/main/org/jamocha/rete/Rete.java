@@ -49,6 +49,7 @@ import org.jamocha.rete.functions.FunctionMemoryImpl;
 import org.jamocha.rete.functions.io.Batch;
 import org.jamocha.rete.memory.WorkingMemory;
 import org.jamocha.rete.memory.WorkingMemoryImpl;
+import org.jamocha.rete.modules.Module;
 import org.jamocha.rete.modules.Modules;
 import org.jamocha.rete.nodes.BaseNode;
 import org.jamocha.rete.nodes.TerminalNode;
