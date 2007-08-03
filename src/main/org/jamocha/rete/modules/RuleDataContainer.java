@@ -57,5 +57,7 @@ public class RuleDataContainer extends ModulesDataContainer {
 	private String toKeyString(String ruleName, String moduleName) {
 		return moduleName + "::" + ruleName;
 	}
+	
+	public getAllRules();
 
 }

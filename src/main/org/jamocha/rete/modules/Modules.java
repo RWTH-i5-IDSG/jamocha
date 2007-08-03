@@ -192,15 +192,16 @@ public class Modules implements Serializable {
 		// TODO Auto-generated method stub
 		return false;
 	}
-
+	
+	public Template getCurrentTemplate(String template) {
+		return this.getTemplate(currentModule, template);
+	}
 	public Template getTemplate(Module defmodule, String template) {
-		// TODO Auto-generated method stub
-		return null;
+		return templates.get(template, defmodule);
 	}
 
 	public boolean containsTemplate(Module defmodule, Template template) {
-		// TODO Auto-generated method stub
-		return false;
+		return templates.containsTemplate(defmodule, template);
 	}
 
 	public List<Rule> getAllRules(Module defmodule) {
@@ -224,7 +225,6 @@ public class Modules implements Serializable {
 
 	public void flushRules(Module defmodule) {
 		// TODO Auto-generated method stub
-		
 	}
 
 	public void flush(Module defmodule) {
@@ -235,5 +235,9 @@ public class Modules implements Serializable {
 	public List<Template> getTemplates(Module defmodule) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+	
+	public long addFact(Fact fact){
+			return facts.add(fact);
 	}
 }

@@ -30,13 +30,14 @@ import org.jamocha.rule.Rule;
 public class FactDataContainer extends ModulesDataContainer {
 
 	private long lastFactId = 1;
+
 	/**
 	 * We use a HashMap to make it easy to determine if an existing deffact
 	 * already exists in the working memory. this is only used for deffacts and
 	 * not for objects
 	 */
 	protected Map<EqualityIndex, Fact> deffactMap = new HashMap<EqualityIndex, Fact>();
-	
+
 	public FactDataContainer() {
 		super();
 		idToCLIPSElement = new HashMap<Long, Fact>();
@@ -47,30 +48,33 @@ public class FactDataContainer extends ModulesDataContainer {
 		deffactMap.clear();
 		lastFactId = 1;
 	}
-	
-	
-	
-	public long add(Fact fact){
-		long result =-1;
-		//add to map with equalityIndex:
-		if (!this.deffactMap.containsKey(fact.equalityIndex())){
-		this.deffactMap.put(fact.equalityIndex(), fact);
-		this.idToCLIPSElement.put(lastFactId, fact);
-		fact.setFactId(lastFactId);
-		result = lastFactId;
-		lastFactId++;
+
+	public long add(Fact fact) {
+		long result = -1;
+		// add to map with equalityIndex:
+		if (!this.deffactMap.containsKey(fact.equalityIndex())) {
+			this.deffactMap.put(fact.equalityIndex(), fact);
+			// look at fact ids:
+			// does fact contain fact id <>-1 we take a new one:
+			if (fact.getFactId() != -1) {
+				result = fact.getFactId();
+			} else {
+				result = lastFactId;
+				fact.setFactId(result);
+				lastFactId++;
+			}
+			this.idToCLIPSElement.put(result, fact);
 		}
 		return result;
 	}
-	
-	public Fact remove(long factId){
+
+	public Fact remove(long factId) {
 		Fact result = null;
-		if (this.idToCLIPSElement.containsKey(factId)){
-			result = (Fact)idToCLIPSElement.remove(factId);
+		if (this.idToCLIPSElement.containsKey(factId)) {
+			result = (Fact) idToCLIPSElement.remove(factId);
 			deffactMap.remove(result.equalityIndex());
 		}
 		return result;
 	}
-	
-	
+
 }

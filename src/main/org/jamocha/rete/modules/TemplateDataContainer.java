@@ -37,12 +37,12 @@ public class TemplateDataContainer extends ModulesDataContainer {
 		// TODO Auto-generated method stub
 	}
 	
-	public Template get(String templateName, String moduleName){
-		return (Template)idToCLIPSElement.get(toKeyString(templateName,moduleName));
+	public Template get(String templateName, Module module){
+		return (Template)idToCLIPSElement.get(toKeyString(templateName,module.getModuleName()));
 	}
 	
-	public void add(Template template, String moduleName){
-		this.idToCLIPSElement.put(toKeyString(template.getName(),moduleName), template);
+	public void add(Template template, Module module){
+		this.idToCLIPSElement.put(toKeyString(template.getName(),module.getModuleName()), template);
 	}
 	
 	public Template remove(String templateName, String moduleName){
@@ -51,5 +51,9 @@ public class TemplateDataContainer extends ModulesDataContainer {
 	
 	private String toKeyString(String templateName, String moduleName){
 		return moduleName + "::" + templateName;
+	}
+
+	public boolean containsTemplate(Module defmodule, Template template) {
+		return idToCLIPSElement.containsKey(toKeyString(template.getName(),defmodule.getModuleName()));
 	}
 }
