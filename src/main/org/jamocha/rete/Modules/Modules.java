@@ -231,8 +231,7 @@ public class Modules implements Serializable {
 	}
 
 	public boolean containsRule(Module defmodule, Rule rl) {
-		// TODO Auto-generated method stub
-		return false;
+		return rules.containsRule(rl, defmodule);
 	}
 
 	public void removeRule(Module defmodule, Rule rl) {

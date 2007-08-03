@@ -19,6 +19,7 @@ package org.jamocha.rete.Modules;
 import java.util.HashMap;
 
 import org.jamocha.rete.Fact;
+import org.jamocha.rete.Module;
 import org.jamocha.rule.Rule;
 
 /**
@@ -34,24 +35,28 @@ public class RuleDataContainer extends ModulesDataContainer {
 
 	@Override
 	protected void handleClear() {
-		//TODO: we have to remove from all modules
+		// TODO: we have to remove from all modules
 		// TODO Auto-generated method stub
 	}
-	
-	public Rule get(String ruleName, String moduleName){
-		return (Rule)idToCLIPSElement.get(toKeyString(ruleName,moduleName));
+
+	public Rule get(String ruleName, Module module) {
+		return (Rule) idToCLIPSElement.get(toKeyString(ruleName, module.getModuleName()));
 	}
-	
-	public void add(Rule rule, String moduleName){
-		this.idToCLIPSElement.put(toKeyString(rule.getName(),moduleName), rule);
+
+	public void add(Rule rule, Module module) {
+		this.idToCLIPSElement.put(toKeyString(rule.getName(), module.getModuleName()), rule);
 	}
-	
-	public Rule remove(String ruleName, String moduleName){
-		return (Rule)idToCLIPSElement.remove(toKeyString(ruleName,moduleName));
+
+	public Rule remove(String ruleName, Module module) {
+		return (Rule) idToCLIPSElement.remove(toKeyString(ruleName, module.getModuleName()));
 	}
-	
-	private String toKeyString(String ruleName, String moduleName){
+
+	public boolean containsRule(Rule rule, Module module) {
+		return this.idToCLIPSElement.containsKey(toKeyString(rule.getName(), module.getModuleName()));
+	}
+
+	private String toKeyString(String ruleName, String moduleName) {
 		return moduleName + "::" + ruleName;
 	}
-	
+
 }
