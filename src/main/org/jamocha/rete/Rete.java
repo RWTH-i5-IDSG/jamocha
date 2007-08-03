@@ -387,7 +387,7 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 	 * @return Template
 	 */
 	public Template findTemplate(String name) {
-		return this.modules.getCurrentTemplate( name);
+		return this.modules.getCurrentModule().getTemplate(name);
 	}
 
 	/**
@@ -405,63 +405,6 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 
 	public void registerQueryAdapter(Query adapter) {
 
-	}
-
-	public void declareObject(String className, String templateName, String parent) throws ClassNotFoundException {
-		try {
-			Class clzz = Class.forName(className);
-			declareObject(clzz, templateName, parent);
-		} catch (ClassNotFoundException e) {
-			// for now do nothing, but we should report the error for real
-			log.debug(e);
-			throw e;
-		}
-	}
-
-	/**
-	 * @param obj
-	 * @param templateName
-	 * @param parent -
-	 *            the parent template
-	 */
-	public void declareObject(Class obj, String templateName, String parent) {
-		// if the class hasn't already been declared, we create a defclass
-		// and deftemplate for the class.
-		if (!this.defclass.containsKey(obj)) {
-			Defclass dclass = new Defclass(obj);
-			this.defclass.put(obj, dclass);
-			if (templateName == null) {
-				templateName = obj.getName();
-			}
-			this.templateToDefclass.put(templateName, dclass);
-			if (!getCurrentFocus().containsTemplate(dclass)) {
-				Template dtemp = null;
-				// if the parent is found, we set it
-				if (parent != null) {
-					// TODO: write me!!!
-					Template ptemp = null;
-					// Template ptemp =
-					// this.currentModule.findParentTemplate(parent);
-					if (ptemp != null) {
-						dtemp = dclass.createDeftemplate(templateName, ptemp);
-						dtemp.setParent(ptemp);
-					} else {
-						// we need to throw an exception to let users know the
-						// parent template wasn't found
-					}
-				} else {
-					dtemp = dclass.createDeftemplate(templateName);
-				}
-				// the key for the deftemplate is the declass, this means
-				// that when we assert an object instance to the engine,
-				// we need to use the Class to lookup defclass and then
-				// use the defclass to lookup the deftemplate. Once we
-				// have the deftemplate, we can use it to create the shadow
-				// fact for the object instance.
-				getCurrentFocus().addTemplate(dtemp, this, this.workingMem);
-				writeMessage(dtemp.getName(), "t");
-			}
-		}
 	}
 
 	/**
@@ -492,7 +435,7 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 	 */
 	public void declareTemplate(Template temp) {
 		// The check if the Template exists is done in the addTemplate function
-		getCurrentFocus().addTemplate(temp, this, this.workingMem);
+		getCurrentFocus().addTemplate(temp);
 	}
 
 	/**
@@ -972,12 +915,12 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 					}
 					// second, lookup the deftemplate and create the
 					// shadow fact
-					Fact shadowfact = createFact(data, dc, template, nextFactId());
+					Fact shadowfact = createFact(data, dc, template, -1);
 					// add it to the dynamic fact map
 					this.dynamicFacts.put(data, shadowfact);
 					this.workingMem.assertObject(shadowfact);
 				} else {
-					Fact nsfact = createNSFact(data, dc, nextFactId());
+					Fact nsfact = createNSFact(data, dc, -1);
 					this.dynamicFacts.put(data, nsfact);
 					this.workingMem.assertObject(nsfact);
 				}
@@ -1022,29 +965,6 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 	}
 
 	/**
-	 * Modify will call retract with the old fact, followed by updating the fact
-	 * instance and asserting the fact.
-	 * 
-	 * @param data
-	 */
-	public void modifyObject(Object data) throws AssertException, RetractException {
-		if (this.dynamicFacts.containsKey(data)) {
-			Defclass dc = (Defclass) this.defclass.get(data);
-			// first we retract the fact
-			Fact ft = (Fact) this.dynamicFacts.get(data);
-			String tname = ft.getTemplate().getName();
-			long fid = ft.getFactId();
-			this.workingMem.retractObject(ft);
-			this.dynamicFacts.remove(data);
-			// create a new fact with the same ID
-			ft = createFact(data, dc, tname, fid);
-			this.dynamicFacts.put(data, ft);
-			this.workingMem.assertObject(ft);
-		}
-
-	}
-
-	/**
 	 * This method is explicitly used to assert facts.
 	 * 
 	 * @param fact
@@ -1056,9 +976,6 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 		// same values
 		Fact oldFact = getFact(fact);
 		if (oldFact == null) {
-			long factID = fact.getFactId();
-			if (factID == -1 || this.getFactById(factID) != null)
-				fact.setFactId(this.nextFactId());
 			this.deffactMap.put(fact.equalityIndex(), fact);
 			this.idToDeffactMap.put(fact.getFactId(), fact);
 			if (this.profileAssert) {
@@ -1244,7 +1161,7 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 	 * @return
 	 */
 	protected Fact createNSFact(Object data, Defclass dclass, long id) {
-		Deftemplate dft = (Deftemplate) getCurrentFocus().getTemplate(dclass);
+		Deftemplate dft = (Deftemplate) getCurrentFocus().getTemplate(dclass.getClassObject().getName());
 		NSFact fact = new NSFact(dft, dclass, data, dft.getAllSlots(), id);
 		return fact;
 	}
@@ -1306,14 +1223,15 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 	 * @param event
 	 */
 	public void propertyChange(PropertyChangeEvent event) {
-		Object source = event.getSource();
-		try {
-			this.modifyObject(source);
-		} catch (RetractException e) {
-			log.debug(e);
-		} catch (AssertException e) {
-			log.debug(e);
-		}
+//		Object source = event.getSource();
+//		try {
+//			
+//		} catch (RetractException e) {
+//			log.debug(e);
+//		} catch (AssertException e) {
+//			log.debug(e);
+//		}
+		//TODO :reimplement it
 	}
 
 	/**
@@ -1388,6 +1306,6 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 		if (mod == null) {
 			mod = getCurrentFocus();
 		}
-		return mod.addTemplate(tpl, this, getWorkingMemory());
+		return mod.addTemplate(tpl);
 	}
 }

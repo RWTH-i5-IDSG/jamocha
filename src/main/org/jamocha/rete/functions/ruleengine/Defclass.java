@@ -129,12 +129,12 @@ public class Defclass implements Function, Serializable {
 				parent = params[2].getValue(engine).implicitCast(
 						JamochaType.IDENTIFIER).getIdentifierValue();
 			}
-			try {
-				engine.declareObject(clazz, template, parent);
+			//try {
+				//engine.declareObject(clazz, template, parent);
 				result = JamochaValue.TRUE;
-			} catch (ClassNotFoundException e) {
-				throw new EvaluationException(e);
-			}
+			//} catch (ClassNotFoundException e) {
+			//	throw new EvaluationException(e);
+			//}
 		} else {
 			throw new IllegalParameterException(1);
 		}

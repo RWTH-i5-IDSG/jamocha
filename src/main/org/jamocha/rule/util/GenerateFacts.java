@@ -133,7 +133,7 @@ public class GenerateFacts {
 		}
 		Fact f = null;
 		try {
-		    f = templ.createFact(list,engine.nextFactId(), engine);
+		    f = templ.createFact(list, engine);
 		} catch (EvaluationException e) {
 		    // TODO Auto-generated catch block
 		    e.printStackTrace();

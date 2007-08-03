@@ -33,7 +33,7 @@ public class RIANode extends AbstractBeta {
 	// AssertException;
 
 	protected Fact addToMergeMemory(FactTuple ft, Rete engine) {
-		Fact f = new Deffact( engine.findTemplate("_initialFact") , null, new Slot[0], engine.nextFactId());
+		Fact f = new Deffact( engine.findTemplate("_initialFact") , null, new Slot[0]);
 		mapping.put(ft, f);
 		mergeMemory.add(f);
 		return f;
