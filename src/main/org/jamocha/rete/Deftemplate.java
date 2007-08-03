@@ -237,7 +237,7 @@ public class Deftemplate implements Template, Serializable {
 				values[idx].value = new JamochaValue(val);
 			}
 		}
-		Deffact newfact = new Deffact(this, data, values, id);
+		Deffact newfact = new Deffact(this, data, values);
 		return newfact;
 	}
 
@@ -265,7 +265,7 @@ public class Deftemplate implements Template, Serializable {
 				}
 			}
 		}
-		Deffact newfact = new Deffact(this, null, values, id);
+		Deffact newfact = new Deffact(this, null, values);
 		// we call this to create the string used to map the fact.
 		newfact.equalityIndex();
 		return newfact;

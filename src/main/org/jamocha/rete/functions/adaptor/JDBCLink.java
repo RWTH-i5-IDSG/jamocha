@@ -438,8 +438,7 @@ public class JDBCLink implements Function, Serializable {
 				rowValues[i] = new Slot(slots[i].getName(), val);
 			}
 
-			Deffact rowFact = new Deffact(template, null,
-					rowValues, -1);
+			Deffact rowFact = new Deffact(template, null, rowValues);
 			engine.assertFact(rowFact);
 		}
 		return JamochaValue.newBoolean(true);

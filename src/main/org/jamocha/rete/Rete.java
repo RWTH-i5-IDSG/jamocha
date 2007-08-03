@@ -204,7 +204,7 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 	 * initialization logic should go here
 	 */
 	protected void init() {
-		modules = new Modules();
+		modules = new Modules(this);
 		functionMem.init();
 		declareInitialFact();
 	}

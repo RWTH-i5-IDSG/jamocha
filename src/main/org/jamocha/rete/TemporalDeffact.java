@@ -19,7 +19,7 @@ public class TemporalDeffact extends Deffact implements TemporalFact {
 
 	public TemporalDeffact(Template template, Object instance, Slot[] values,
 			long id) {
-		super(template, instance, values, id);
+		super(template, instance, values);
 	}
 
 	public long getExpirationTime() {

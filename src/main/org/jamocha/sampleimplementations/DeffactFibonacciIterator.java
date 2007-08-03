@@ -35,7 +35,7 @@ public class DeffactFibonacciIterator extends DeffactIterator {
 		Deftemplate t = new Deftemplate("fib", null, slots);
 		Slot[] values = new Slot[1];
 		values[0] = new Slot("number", new JamochaValue(JamochaType.LONG, new Long(temp)));
-		Deffact fact = new Deffact(t,null,values,-1);
+		Deffact fact = new Deffact(t,null,values);
 		
 		return fact;
 	}

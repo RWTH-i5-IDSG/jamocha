@@ -87,7 +87,7 @@ public interface Template extends Serializable, Dumpable {
 	 * @param id
 	 * @return
 	 */
-	Fact createFact(Object data, long id, Rete engine) throws EvaluationException;
+	Fact createFact(Object data, Rete engine) throws EvaluationException;
 
 	/**
 	 * If a template has a parent, the method should
