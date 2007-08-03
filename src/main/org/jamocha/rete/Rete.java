@@ -282,17 +282,11 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 		try {
 			List<Fact> facts = this.getAllFacts();
 			for (Fact fact : facts) {
-				this.workingMem.retractObject(fact);
+				this.retractFact(fact);
 			}
 		} catch (RetractException e) {
 			log.debug(e);
 		}
-		//clear lists:
-		//TODO: remove facts from list automatic 
-		this.dynamicFacts.clear();
-		this.staticFacts.clear();
-		this.deffactMap.clear();
-
 	}
 
 	public void clearRules() {
