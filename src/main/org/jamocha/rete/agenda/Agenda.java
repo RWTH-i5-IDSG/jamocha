@@ -56,7 +56,12 @@ public class Agenda implements Serializable {
 	}
 	
 	public void removeActivation(Activation a){
-		strategy.removeActivation(activations,a);
+		List<Activation> forDelete = new ArrayList<Activation>();
+		for (Activation i : activations) {
+			if (a.equals(i)) forDelete.add(i);
+		}
+		for (Activation del : forDelete)
+			strategy.removeActivation(activations,del);
 	}
 	
 	public boolean activationExists(Activation a){

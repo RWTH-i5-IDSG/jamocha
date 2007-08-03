@@ -15,6 +15,19 @@ public class Activation {
 	
 	protected FactTuple tuple;
 	
+	public boolean equals(Object o) {
+		if (o instanceof Activation) {
+			Activation that = (Activation)o;
+			return this.rule == that.rule && this.tuple == that.tuple;
+		}
+		return false;
+	}
+	
+	public Activation(Rule rule, FactTuple tuple){
+		setRule(rule);
+		setTuple(tuple);
+	}
+	
 	public void setRule(Rule rule){
 		this.rule=rule;
 	}

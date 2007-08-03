@@ -16,10 +16,10 @@
  */
 package org.jamocha.rete.nodes;
 
-import org.jamocha.rete.Activation;
 import org.jamocha.rete.Fact;
-import org.jamocha.rete.LinkedActivation;
+import org.jamocha.rete.Module;
 import org.jamocha.rete.Rete;
+import org.jamocha.rete.agenda.Activation;
 import org.jamocha.rete.exception.AssertException;
 import org.jamocha.rete.exception.RetractException;
 import org.jamocha.rule.Rule;
@@ -81,8 +81,9 @@ public class TerminalNode extends BaseNode {
 		else
 			tuple = (FactTuple) fact;
 
-		Activation act = new LinkedActivation(this.theRule, tuple);
-		engine.getAgenda().addActivation(act);
+		Activation act = new Activation(theRule, tuple);
+		Module module = theRule.getModule();
+		engine.getAgendas().getAgenda(module).addActivation(act);
 	}
 
 	/**
@@ -101,8 +102,9 @@ public class TerminalNode extends BaseNode {
 		else
 			tuple = (FactTuple) fact;
 
-		Activation act = new LinkedActivation(this.theRule, tuple);
-		engine.getAgenda().removeActivation(act);
+		Activation act = new Activation(theRule, tuple);
+		Module module = theRule.getModule();
+		engine.getAgendas().getAgenda(module).removeActivation(act);
 	}
 
 	public Rule getRule() {
