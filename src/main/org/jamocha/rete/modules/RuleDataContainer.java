@@ -58,6 +58,4 @@ public class RuleDataContainer extends ModulesDataContainer {
 		return moduleName + "::" + ruleName;
 	}
 	
-	public getAllRules();
-
 }
