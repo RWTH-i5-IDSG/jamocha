@@ -166,7 +166,7 @@ public class Modules implements Serializable {
 	}
 
 	
-	protected Fact createFact(Object data, String template) throws AssertException {
+	public Fact createFact(Object data, String template) throws AssertException {
 		Template tmpl = this.getTemplate(currentModule, template);
 		Fact ft = null;
 		try {
