@@ -37,4 +37,19 @@ public class TemplateDataContainer extends ModulesDataContainer {
 		// TODO Auto-generated method stub
 	}
 	
+	public Template get(String templateName, String moduleName){
+		return (Template)idToCLIPSElement.get(toKeyString(templateName,moduleName));
+	}
+	
+	public void add(Template template, String moduleName){
+		this.idToCLIPSElement.put(toKeyString(template.getName(),moduleName), template);
+	}
+	
+	public Template remove(String templateName, String moduleName){
+		return (Template)idToCLIPSElement.remove(toKeyString(templateName,moduleName));
+	}
+	
+	private String toKeyString(String templateName, String moduleName){
+		return moduleName + "::" + templateName;
+	}
 }

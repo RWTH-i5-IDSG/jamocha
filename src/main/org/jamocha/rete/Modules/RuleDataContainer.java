@@ -19,6 +19,7 @@ package org.jamocha.rete.Modules;
 import java.util.HashMap;
 
 import org.jamocha.rete.Fact;
+import org.jamocha.rule.Rule;
 
 /**
  * @author Josef Alexander Hahn, Sebastian Reinartz
@@ -35,6 +36,22 @@ public class RuleDataContainer extends ModulesDataContainer {
 	protected void handleClear() {
 		//TODO: we have to remove from all modules
 		// TODO Auto-generated method stub
+	}
+	
+	public Rule get(String ruleName, String moduleName){
+		return (Rule)idToCLIPSElement.get(toKeyString(ruleName,moduleName));
+	}
+	
+	public void add(Rule rule, String moduleName){
+		this.idToCLIPSElement.put(toKeyString(rule.getName(),moduleName), rule);
+	}
+	
+	public Rule remove(String ruleName, String moduleName){
+		return (Rule)idToCLIPSElement.remove(toKeyString(ruleName,moduleName));
+	}
+	
+	private String toKeyString(String ruleName, String moduleName){
+		return moduleName + "::" + ruleName;
 	}
 	
 }

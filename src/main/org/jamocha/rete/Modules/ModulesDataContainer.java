@@ -28,8 +28,6 @@ public abstract class ModulesDataContainer {
 
 	protected Map idToCLIPSElement =null;	
 	
-	protected Map moduleToElement = null;
-	
 	public Object find(Object key){
 		return	this.idToCLIPSElement.get(key);
 	}
@@ -37,9 +35,7 @@ public abstract class ModulesDataContainer {
 	public void clear(){
 		handleClear();
 		this.idToCLIPSElement.clear();
-		this.moduleToElement.clear();
 	}
 
 	protected abstract void handleClear();
-	
 }

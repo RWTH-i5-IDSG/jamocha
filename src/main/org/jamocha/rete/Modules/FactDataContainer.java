@@ -21,6 +21,7 @@ import java.util.Map;
 
 import org.jamocha.rete.EqualityIndex;
 import org.jamocha.rete.Fact;
+import org.jamocha.rule.Rule;
 
 /**
  * @author Josef Alexander Hahn, Sebastian Reinartz
@@ -45,9 +46,30 @@ public class FactDataContainer extends ModulesDataContainer {
 	protected void handleClear() {
 		deffactMap.clear();
 		lastFactId = 1;
-		//TODO: we have to remove from all modules
-		// TODO Auto-generated method stub
 	}
-
+	
+	
+	
+	public long add(Fact fact){
+		long result =-1;
+		//add to map with equalityIndex:
+		if (!this.deffactMap.containsKey(fact.equalityIndex())){
+		this.deffactMap.put(fact.equalityIndex(), fact);
+		this.idToCLIPSElement.put(lastFactId, fact);
+		result = lastFactId;
+		lastFactId++;
+		}
+		return result;
+	}
+	
+	public Fact remove(long factId){
+		Fact result = null;
+		if (this.idToCLIPSElement.containsKey(factId)){
+			result = (Fact)idToCLIPSElement.remove(factId);
+			deffactMap.remove(result.equalityIndex());
+		}
+		return result;
+	}
+	
 	
 }
