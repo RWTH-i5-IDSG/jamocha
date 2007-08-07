@@ -128,7 +128,7 @@ public class FactsPanel extends AbstractJamochaPanel implements ActionListener,
 	}
 
 	private void initFactsList() {
-		List<Fact> facts = gui.getEngine().getDeffacts();
+		List<Fact> facts = gui.getEngine().getModules().getAllFacts();
 		dataModel.setFacts(facts);
 		factsTable.getColumnModel().getColumn(0).setPreferredWidth(50);
 		factsTable.getColumnModel().getColumn(1).setPreferredWidth(150);

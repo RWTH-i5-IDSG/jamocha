@@ -135,7 +135,7 @@ public class SaveFacts implements Function, Serializable {
 			}
 			try {
 				FileWriter writer = new FileWriter(firstParam.getStringValue());
-				List facts = engine.getAllFacts();
+				List facts = engine.getModules().getAllFacts();
 				Object[] sorted = null;
 				if (sortid) {
 					sorted = FactUtils.sortFacts(facts);

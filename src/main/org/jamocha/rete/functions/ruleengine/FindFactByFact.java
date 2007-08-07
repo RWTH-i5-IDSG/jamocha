@@ -136,7 +136,7 @@ public class FindFactByFact implements Function, Serializable {
 						fact.resolveValues(engine, this.triggerFacts);
 						fact = fact.cloneFact(engine);
 					}
-					Fact existingFact = engine.getFact(fact);
+					Fact existingFact = engine.getModules().getFactByFact(fact);
 					if (existingFact == null) {
 						result = JamochaValue.NIL;
 					} else {

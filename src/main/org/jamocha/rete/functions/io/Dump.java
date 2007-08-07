@@ -131,7 +131,7 @@ public class Dump implements Function, Serializable {
 			// dumping facts
 			//TODO argh it would be good, if module can give a list of all facts. This solution is _horrible_!!
 			out.write("\n\n%		Fact definitions\n");
-			for (Object fObj : engine.getAllFacts()) {
+			for (Object fObj : engine.getModules().getAllFacts()) {
 				Fact fact = (Fact) fObj;
 				if (mod.containsTemplate( fact.getTemplate() )) {
 					if (!(fact.getTemplate().getName().equals("_initialFact")))

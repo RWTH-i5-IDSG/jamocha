@@ -130,20 +130,6 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 	 */
 	protected Map<Object, Fact> dynamicFacts = new HashMap<Object, Fact>();
 
-	/**
-	 * We use a HashMap to make it easy to determine if an existing deffact
-	 * already exists in the working memory. this is only used for deffacts and
-	 * not for objects
-	 */
-	protected Map<EqualityIndex, Fact> deffactMap = new HashMap<EqualityIndex, Fact>();
-
-	/**
-	 * We use a HashMap to make it easy to determine if an existing deffact
-	 * already exists in the working memory. this is only used for deffacts and
-	 * not for objects
-	 */
-	protected Map<Long, Fact> idToDeffactMap = new HashMap<Long, Fact>();
-
 	protected Map<String, PrintWriter> outputStreams = new HashMap<String, PrintWriter>();
 
 	/**
@@ -165,7 +151,6 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 
 	private Modules modules = null;
 
-	private long lastFactId = 1;
 
 	private int lastNodeId = 0;
 
@@ -266,14 +251,7 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 	 * asserted using assertObject.
 	 */
 	public void clearFacts() {
-		try {
-			List<Fact> facts = this.getAllFacts();
-			for (Fact fact : facts) {
-				this.retractFact(fact);
-			}
-		} catch (RetractException e) {
-			log.debug(e);
-		}
+		this.modules.clearAllFacts();
 	}
 
 	public void clearRules() {
@@ -286,14 +264,12 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 	public void clearAll() {
 		this.dynamicFacts.clear();
 		this.staticFacts.clear();
-		this.deffactMap.clear();
 		this.workingMem.clear();
 		this.functionMem.clear();
 		// now we clear all the rules and templates
 		this.agendas.clear();
 		this.defclass.clear();
 		ProfileStats.reset();
-		this.lastFactId = 1;
 		this.lastNodeId = 1;
 		this.modules.clearAll();
 		declareInitialFact();
@@ -307,7 +283,6 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 		this.workingMem.clear();
 		this.contexts.clear();
 		this.defclass.clear();
-		this.deffactMap.clear();
 		this.dynamicFacts.clear();
 		this.focusStack.clear();
 		this.functionMem.clearBuiltInFunctions();
@@ -626,18 +601,6 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 	}
 
 	/**
-	 * return a list of all the facts including deffacts and shadow of objects
-	 * 
-	 * @return
-	 */
-	public List<Fact> getAllFacts() {
-		List<Fact> facts = new ArrayList<Fact>();
-		facts.addAll(this.getObjects());
-		facts.addAll(this.getDeffacts());
-		return facts;
-	}
-
-	/**
 	 * Return a list of the objects asserted in the working memory
 	 * 
 	 * @return
@@ -659,30 +622,6 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 			}
 		}
 		return objects;
-	}
-
-	/**
-	 * Return a list of all facts which are not shadows of Objects.
-	 * 
-	 * @return
-	 */
-	public List<Fact> getDeffacts() {
-		List<Fact> objects = new ArrayList<Fact>();
-		Iterator<Fact> itr = this.deffactMap.values().iterator();
-		while (itr.hasNext()) {
-			Fact fact = itr.next();
-			objects.add(fact);
-		}
-		return objects;
-	}
-
-	/**
-	 * return just the number of deffacts
-	 * 
-	 * @return
-	 */
-	public int getDeffactCount() {
-		return this.deffactMap.size();
 	}
 
 	/**
@@ -711,31 +650,7 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 	 * @return
 	 */
 	public Fact getFactById(long id) {
-		Fact df = null;
-		df = idToDeffactMap.get(id);
-		if (df != null)
-			return df;
-		// now search the object facts
-		if (df == null) {
-			// check dynamic facts
-			Iterator itr2 = this.dynamicFacts.values().iterator();
-			while (itr2.hasNext()) {
-				df = (Fact) itr2.next();
-				if (df.getFactId() == id) {
-					return df;
-				}
-			}
-			if (df == null) {
-				itr2 = this.staticFacts.values().iterator();
-				while (itr2.hasNext()) {
-					df = (Fact) itr2.next();
-					if (df.getFactId() == id) {
-						return df;
-					}
-				}
-			}
-		}
-		return null;
+		return this.modules.getFactById(id);
 	}
 
 	// ----- method for adding output streams for spools ----- //
@@ -971,29 +886,15 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 	 *            if the fact should be static, assert with true
 	 */
 	public Fact assertFact(Fact fact) throws AssertException {
-		// we need to check if there's already a fact with the
-		// same values
-		Fact oldFact = getFact(fact);
-		if (oldFact == null) {
-			this.deffactMap.put(fact.equalityIndex(), fact);
-			this.idToDeffactMap.put(fact.getFactId(), fact);
-			if (this.profileAssert) {
-				this.assertFactWProfile(fact);
-			} else {
-				if (watchFact) {
-					this.writeMessage("==> " + fact.toFactString() + Constants.LINEBREAK, "t");
-				}
-				this.workingMem.assertObject(fact);
-			}
-			return fact;
+		if (this.profileAssert) {
+			this.assertFactWProfile(fact);
 		} else {
-			return oldFact;
+			if (watchFact) {
+				this.writeMessage("==> " + fact.toFactString() + Constants.LINEBREAK, "t");
+			}
+			this.workingMem.assertObject(fact);
 		}
-	}
-
-	public Fact getFact(Fact fact) {
-		Fact result = (Fact) this.deffactMap.get(((Deffact) fact).equalityIndex());
-		return result;
+		return fact;
 	}
 
 	/**
@@ -1016,10 +917,8 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 	 * @param id
 	 */
 	public void retractById(long id) throws RetractException {
-		Fact ft = idToDeffactMap.get(id);
-		if (ft != null) {
-			retractFact(ft);
-		}
+		Fact ft = this.modules.getFactById(id);
+		retractFact(ft);
 	}
 
 	/**
@@ -1029,8 +928,7 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 	 * @throws RetractException
 	 */
 	public void retractFact(Fact fact) throws RetractException {
-		this.deffactMap.remove(fact.equalityIndex());
-		this.idToDeffactMap.remove(fact.getFactId());
+		this.modules.removeFact(fact);
 		if (this.profileRetract) {
 			this.retractFactWProfile(fact);
 		} else {
@@ -1078,6 +976,7 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 			modifiedFact.setFactId(old.getFactId());
 			modifiedFact.updateSlots(this, mc.getSlots());
 			retractFact(old);
+			this.modules.addFact(modifiedFact);
 			assertFact(modifiedFact);
 		}
 	}
@@ -1131,12 +1030,13 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 	 */
 	public void resetFacts() {
 		try {
-			Iterator itr = this.deffactMap.values().iterator();
+			List facts = this.modules.getAllFacts();
+			Iterator itr = facts.iterator();
 			while (itr.hasNext()) {
 				Deffact ft = (Deffact) itr.next();
 				this.workingMem.retractObject(ft);
 			}
-			itr = this.deffactMap.values().iterator();
+			itr = facts.iterator();
 			while (itr.hasNext()) {
 				Deffact ft = (Deffact) itr.next();
 				this.workingMem.assertObject(ft);
@@ -1148,10 +1048,10 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 		}
 	}
 
-	public Modules getModules(){
+	public Modules getModules() {
 		return modules;
 	}
-	
+
 	/**
 	 * convienance method for creating a Non-Shadow fact.
 	 * 
@@ -1222,15 +1122,15 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 	 * @param event
 	 */
 	public void propertyChange(PropertyChangeEvent event) {
-//		Object source = event.getSource();
-//		try {
-//			
-//		} catch (RetractException e) {
-//			log.debug(e);
-//		} catch (AssertException e) {
-//			log.debug(e);
-//		}
-		//TODO :reimplement it
+		// Object source = event.getSource();
+		// try {
+		//			
+		// } catch (RetractException e) {
+		// log.debug(e);
+		// } catch (AssertException e) {
+		// log.debug(e);
+		// }
+		// TODO :reimplement it
 	}
 
 	/**

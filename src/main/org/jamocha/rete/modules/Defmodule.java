@@ -88,7 +88,7 @@ public class Defmodule implements Module, Serializable {
 	}
 
 	public List<Rule> getAllRules() {
-		return modules.getAllRules(this);
+		return modules.getRules(this);
 	}
 
 	public int getRuleCount() {

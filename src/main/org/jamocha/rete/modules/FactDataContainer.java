@@ -16,12 +16,14 @@
  */
 package org.jamocha.rete.modules;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import org.jamocha.rete.EqualityIndex;
 import org.jamocha.rete.Fact;
-import org.jamocha.rule.Rule;
 
 /**
  * @author Josef Alexander Hahn, Sebastian Reinartz
@@ -75,6 +77,26 @@ public class FactDataContainer extends ModulesDataContainer {
 			deffactMap.remove(result.equalityIndex());
 		}
 		return result;
+	}
+	
+	public Fact getFactById(long id){
+		return (Fact) this.idToCLIPSElement.get(id);
+	}
+
+	public List<Fact> getFacts() {
+		List<Fact> facts = new ArrayList<Fact>();
+		// clearadd all templates from hashmap to resulting list:
+		Iterator itr = this.idToCLIPSElement.keySet().iterator();
+		while (itr.hasNext()) {
+			Object key = itr.next();
+			Fact fact = (Fact) this.idToCLIPSElement.get(key);
+			facts.add(fact);
+		}
+		return facts;
+	}
+
+	public Fact getFactByFact(Fact fact) {
+		return this.deffactMap.get(fact.equalityIndex());
 	}
 
 }

@@ -96,7 +96,7 @@ public class Facts implements Function, Serializable {
 
 	public JamochaValue executeFunction(Rete engine, Parameter[] params)
 			throws EvaluationException {
-		List facts = engine.getAllFacts();
+		List facts = engine.getModules().getAllFacts();
 		Object[] sorted = FactUtils.sortFacts(facts);
 		StringBuilder sb = new StringBuilder();
 		for (int idx = 0; idx < sorted.length; idx++) {

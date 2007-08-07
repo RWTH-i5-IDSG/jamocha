@@ -197,7 +197,7 @@ public class Modules implements Serializable {
 		return templates.containsTemplate(defmodule, template);
 	}
 
-	public List<Rule> getAllRules(Module module) {
+	public List<Rule> getRules(Module module) {
 	return this.rules.getRules(module);
 	}
 
@@ -220,8 +220,24 @@ public class Modules implements Serializable {
 		return this.templates.getTemplates(defmodule);
 	}
 	
+	public List<Fact> getAllFacts() {
+		return this.facts.getFacts();
+	}
+	
+	public Fact getFactById(long id) {
+		return this.facts.getFactById(id);
+	}
+	
+	public Fact getFactByFact(Fact fact) {
+		return this.facts.getFactByFact(fact);
+	}
+	
 	public long addFact(Fact fact){
 			return facts.add(fact);
+	}
+	
+	public void removeFact(Fact fact){
+		this.facts.remove(fact.getFactId());
 	}
 	
 	public String toString(){
@@ -271,5 +287,4 @@ public class Modules implements Serializable {
 	public void clearAllFacts() {
 		facts.clear();
 	}
-
 }
