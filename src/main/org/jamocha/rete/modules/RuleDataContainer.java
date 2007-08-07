@@ -16,9 +16,13 @@
  */
 package org.jamocha.rete.modules;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 
 import org.jamocha.rete.Fact;
+import org.jamocha.rete.Template;
 import org.jamocha.rule.Rule;
 
 /**
@@ -56,6 +60,18 @@ public class RuleDataContainer extends ModulesDataContainer {
 
 	private String toKeyString(String ruleName, String moduleName) {
 		return moduleName + "::" + ruleName;
+	}
+
+	public List<Rule> getRules(Module module) {
+		List<Rule> rules = new ArrayList<Rule>();
+		// clearadd all templates from hashmap to resulting list:
+		Iterator itr = this.idToCLIPSElement.keySet().iterator();
+		while (itr.hasNext()) {
+			Object key = itr.next();
+			Rule rule = (Rule) this.idToCLIPSElement.get(key);
+			rules.add(rule);
+		}
+		return rules;
 	}
 	
 }

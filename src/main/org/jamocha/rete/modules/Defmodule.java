@@ -17,16 +17,9 @@
 package org.jamocha.rete.modules;
 
 import java.io.Serializable;
-import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 
 import org.jamocha.rete.Template;
-import org.jamocha.rete.eventhandling.ModuleChangedEvent;
-import org.jamocha.rete.eventhandling.ModuleChangedListener;
-import org.jamocha.rete.exception.RetractException;
-import org.jamocha.rete.memory.WorkingMemory;
-import org.jamocha.rete.nodes.ObjectTypeNode;
 import org.jamocha.rule.Rule;
 
 /**
@@ -127,6 +120,8 @@ public class Defmodule implements Module, Serializable {
 		return modules.findRule(this,name);
 	}
 
-
+	public String toString(){
+		return "Module: " + this.getModuleName();
+	}
 
 }

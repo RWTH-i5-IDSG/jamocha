@@ -71,6 +71,7 @@ public class Modules implements Serializable {
 
 	protected void initMain() {
 		this.main = new Defmodule(Constants.MAIN_MODULE,this);
+		this.modules.put(this.main.getModuleName(), this.main);
 		// by default, we set the current module to main
 		this.currentModule = this.main;
 	}
@@ -153,7 +154,7 @@ public class Modules implements Serializable {
 		}
 		this.modules.clear();
 
-		// reinit min module:
+		// reinit main module:
 		initMain();
 	}
 
@@ -178,19 +179,17 @@ public class Modules implements Serializable {
 		return ft;
 	}
 
-	public Rule findRule(Module defmodule, String name) {
-		// TODO Auto-generated method stub
-		return null;
+	public Rule findRule(Module module, String ruleName) {
+		return this.rules.get(ruleName, module);
 	}
 
-	public void removeTemplate(Module defmodule, Template temp) {
-		// TODO Auto-generated method stub
+	public void removeTemplate(Module module, Template temp) {
+		this.templates.remove(temp.getName(), module);
 		
 	}
 
 	public boolean addTemplate(Module defmodule, Template temp) {
-		// TODO Auto-generated method stub
-		return false;
+		return this.templates.add(temp, defmodule);
 	}
 	
 	public Template getCurrentTemplate(String template) {
@@ -204,9 +203,8 @@ public class Modules implements Serializable {
 		return templates.containsTemplate(defmodule, template);
 	}
 
-	public List<Rule> getAllRules(Module defmodule) {
-		// TODO Auto-generated method stub
-		return null;
+	public List<Rule> getAllRules(Module module) {
+	return this.rules.getRules(module);
 	}
 
 	public boolean containsRule(Module defmodule, Rule rl) {
@@ -233,11 +231,15 @@ public class Modules implements Serializable {
 	}
 
 	public List<Template> getTemplates(Module defmodule) {
-		// TODO Auto-generated method stub
-		return null;
+		return this.templates.getTemplates(defmodule);
 	}
 	
 	public long addFact(Fact fact){
 			return facts.add(fact);
+	}
+	
+	public String toString(){
+		return "Modules Current Module:" + this.getCurrentModule().getModuleName(); 
+		
 	}
 }

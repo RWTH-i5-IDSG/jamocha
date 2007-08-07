@@ -16,13 +16,16 @@
  */
 package org.jamocha.rete.modules;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 
 import org.jamocha.rete.Template;
 
 /**
  * @author Josef Alexander Hahn, Sebastian Reinartz
- *
+ * 
  */
 public class TemplateDataContainer extends ModulesDataContainer {
 
@@ -30,30 +33,48 @@ public class TemplateDataContainer extends ModulesDataContainer {
 		super();
 		idToCLIPSElement = new HashMap<String, Template>();
 	}
-	
+
 	@Override
 	protected void handleClear() {
-		//TODO: we have to remove from all modules
+		// TODO: we have to remove from all modules
 		// TODO Auto-generated method stub
 	}
-	
-	public Template get(String templateName, Module module){
-		return (Template)idToCLIPSElement.get(toKeyString(templateName,module.getModuleName()));
+
+	public Template get(String templateName, Module module) {
+		return (Template) idToCLIPSElement.get(toKeyString(templateName, module.getModuleName()));
 	}
-	
-	public void add(Template template, Module module){
-		this.idToCLIPSElement.put(toKeyString(template.getName(),module.getModuleName()), template);
+
+	public boolean add(Template template, Module module) {
+		String templateKey = toKeyString(template.getName(), module.getModuleName());
+		if (this.idToCLIPSElement.containsKey(templateKey))
+			return false;
+		else {
+			this.idToCLIPSElement.put(templateKey, template);
+			return true;
+		}
 	}
-	
-	public Template remove(String templateName, String moduleName){
-		return (Template)idToCLIPSElement.remove(toKeyString(templateName,moduleName));
+
+	public Template remove(String templateName, Module module) {
+		return (Template) idToCLIPSElement.remove(toKeyString(templateName, module.getModuleName()));
 	}
-	
-	private String toKeyString(String templateName, String moduleName){
+
+	private String toKeyString(String templateName, String moduleName) {
 		return moduleName + "::" + templateName;
 	}
 
 	public boolean containsTemplate(Module defmodule, Template template) {
-		return idToCLIPSElement.containsKey(toKeyString(template.getName(),defmodule.getModuleName()));
+		return idToCLIPSElement.containsKey(toKeyString(template.getName(), defmodule.getModuleName()));
+	}
+
+	public List<Template> getTemplates(Module defmodule) {
+		List<Template> templates = new ArrayList<Template>();
+		// clearadd all templates from hashmap to resulting list:
+		Iterator itr = this.idToCLIPSElement.keySet().iterator();
+		while (itr.hasNext()) {
+			Object key = itr.next();
+			Template templ = (Template) this.idToCLIPSElement.get(key);
+			templates.add(templ);
+		}
+		return templates;
 	}
 }
