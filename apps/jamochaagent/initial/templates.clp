@@ -145,6 +145,15 @@
 )
 
 
+(deftemplate agent-proxy-result
+	"Result-Template for proxy performatives."
+	(slot message)
+	(slot proxyMessage (type STRING))
+	(slot refOp (type STRING))
+	(multislot agents)
+)
+
+
 (deftemplate agent-queryIf-result
 	"Result-Template for query-if performatives."
 	(slot message)
@@ -203,38 +212,4 @@
 	(slot message)
 	(slot refOp (type STRING))
 	(slot item)
-)
-
-
-; ===================================================
-; Definition of the "macro" templates.
-; These are needed to initiate the sending of a new message.
-; ===================================================
-
-
-(deftemplate inform
-	"A generic template for inform messages. It needs to be connected to some other construct (e.g. agent-requestWhen-result) to fire a certain rule."
-	(slot sender)
-	(multislot receiver)
-	(slot content (type STRING))
-	; for now these three fields are enough.
-	; we might want to tread like any other agent-message.
-)
-
-(deftemplate inform-if
-	"A generic template for inform messages. It needs to be connected to some other construct (e.g. agent-requestWhen-result) to fire a certain rule."
-	(slot sender)
-	(multislot receiver)
-	(slot content (type STRING))
-	; for now these three fields are enough.
-	; we might want to tread like any other agent-message.
-)
-
-(deftemplate inform-ref
-	"A generic template for inform messages. It needs to be connected to some other construct (e.g. agent-requestWhen-result) to fire a certain rule."
-	(slot sender)
-	(multislot receiver)
-	(slot content (type STRING))
-	; for now these three fields are enough.
-	; we might want to tread like any other agent-message.
 )

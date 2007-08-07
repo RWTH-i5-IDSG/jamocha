@@ -24,11 +24,17 @@ import java.util.Map;
 public class FunctionCallOrFactSLConfiguration implements SLConfiguration {
 
 	/**
-	 * If the <code>name</code> is one of these we always do an assert also if
-	 * compile type is ACTION_AND_ASSERT.
+	 * If the <code>name</code> is one of these we always assert it as an
+	 * agent-message also if compile type is ACTION_AND_ASSERT.
+	 * 
+	 * TODO: Perhaps find a better place for these constants.
 	 */
-	private static final String[] alwaysAssert = { "inform", "inform-if",
-			"inform-ref", "proxy", "request" };
+	private static final String[] isSLMessage = { "accept-proposal", "agree",
+			"cancel", "cfp", "confirm", "disconfirm", "failure", "inform",
+			"inform-if", "inform-ref", "not-understood", "propagate",
+			"propose", "proxy", "query-if", "query-ref", "refuse",
+			"reject-proposal", "request", "request-when", "request-whenever",
+			"subscribe" };
 
 	private SLConfiguration name;
 
@@ -75,9 +81,9 @@ public class FunctionCallOrFactSLConfiguration implements SLConfiguration {
 			// Here we treat inform different than a normal function. Inform
 			// will be asserted as a fact and not called as a function so we
 			// just switch directly to ASSERT.
-			for (String temp : alwaysAssert) {
+			for (String temp : isSLMessage) {
 				if (nameStr.equals(temp)) {
-					compileType = SLCompileType.ASSERT;
+					compileType = SLCompileType.ASSERT_MESSAGE;
 					break;
 				}
 			}
@@ -107,6 +113,23 @@ public class FunctionCallOrFactSLConfiguration implements SLConfiguration {
 				if (slots.get(slotName) != null)
 					res.append(slots.get(slotName).compile(compileType));
 				res.append(")");
+			}
+			res.append("))");
+			break;
+		case ASSERT_MESSAGE:
+			res.append("(assert (agent-message (performative ");
+			res.append(name.compile(compileType));
+			res.append(")");
+			for (SLConfiguration slotName : slotNames) {
+				String slotNameString = slotName.compile(compileType);
+				// Parameter performative is left out because we set it
+				// statically
+				if (!slotNameString.equals("performative")) {
+					res.append(" (").append(slotNameString).append(" ");
+					if (slots.get(slotName) != null)
+						res.append(slots.get(slotName).compile(compileType));
+					res.append(")");
+				}
 			}
 			res.append("))");
 			break;

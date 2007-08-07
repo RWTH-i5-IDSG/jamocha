@@ -20,7 +20,6 @@ import java.util.List;
 import org.jamocha.adapter.AdapterTranslationException;
 import org.jamocha.adapter.sl.configurations.ActionSLConfiguration;
 import org.jamocha.adapter.sl.configurations.ContentSLConfiguration;
-import org.jamocha.adapter.sl.configurations.FunctionCallOrFactSLConfiguration;
 import org.jamocha.adapter.sl.configurations.IdentifyingExpressionSLConfiguration;
 import org.jamocha.adapter.sl.configurations.SLCompileType;
 import org.jamocha.adapter.sl.configurations.SLConfiguration;
@@ -68,18 +67,13 @@ class Proxy extends SLPerformativeTranslator {
 		String binding = conf.getTermOrIE().compile(SLCompileType.RULE_RESULT);
 
 		ActionSLConfiguration actConf = (ActionSLConfiguration) results.get(1);
-		FunctionCallOrFactSLConfiguration functionConf = (FunctionCallOrFactSLConfiguration) actConf
-				.getAction();
-		String performative = functionConf.getName().compile(
-				SLCompileType.ASSERT);
-		String content = functionConf.getSlot("content", SLCompileType.ASSERT)
-				.compile(SLCompileType.ASSERT);
+		String proxyMessage = actConf.compile(SLCompileType.ACTION_AND_ASSERT);
 
 		StringBuilder result = new StringBuilder();
 		result.append("(bind ");
 		result.append(bindName);
 		result.append(" (create$ ))");
-		
+
 		result.append("(defrule ");
 		result.append(ruleName);
 		result.append(" ");
@@ -99,11 +93,9 @@ class Proxy extends SLPerformativeTranslator {
 		result.append(ruleName);
 		result.append("\")");
 
-		result
-				.append("(assert (agent-proxy-result (message %MSG%)(performative \"");
-		result.append(performative);
-		result.append("\")(messageContent \"");
-		result.append(content);
+		result.append("(assert (agent-proxy-result (message %MSG%)");
+		result.append("(proxyMessage \"");
+		result.append(proxyMessage);
 		result.append("\")(refOp \"");
 		result.append(refOp);
 		result.append("\")(agents ");
