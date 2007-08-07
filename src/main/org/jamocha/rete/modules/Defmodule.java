@@ -65,11 +65,14 @@ public class Defmodule implements Module, Serializable {
 	 * for rules and activations. The handle to Rete should not be nulled.
 	 */
 	public void clear() {
-		modules.flush(this);
+		modules.clearModule(this);
 	}
 	
 	public void clearRules() {
-		modules.flushRules(this);
+		modules.clearRules(this);
+	}
+	public void clearFacts(){
+		modules.clearFacts(this);
 	}
 
 	public void addRule(Rule rl) {

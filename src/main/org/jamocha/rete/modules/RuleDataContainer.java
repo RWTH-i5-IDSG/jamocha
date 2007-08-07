@@ -22,7 +22,6 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.jamocha.rete.Fact;
-import org.jamocha.rete.Template;
 import org.jamocha.rule.Rule;
 
 /**

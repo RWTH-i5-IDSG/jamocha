@@ -30,17 +30,18 @@ import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.Template;
 import org.jamocha.rete.configurations.AssertConfiguration;
-import org.jamocha.rete.configurations.SlotConfiguration;
 import org.jamocha.rete.exception.AssertException;
 import org.jamocha.rete.functions.FunctionDescription;
 
 /**
  * @author Peter Lin
  * 
- * Allows the user to add a fact to the fact-list. Multiple facts may be asserted with each call.
- * If the fact-list is being watched, then an inform message will be printed each time a fact is asserted. 
+ * Allows the user to add a fact to the fact-list. Multiple facts may be
+ * asserted with each call. If the fact-list is being watched, then an inform
+ * message will be printed each time a fact is asserted.
  * <p>
- * Attention: In Jamocha there has to exist a corresponding template in order to assert a fact.
+ * Attention: In Jamocha there has to exist a corresponding template in order to
+ * assert a fact.
  * </p>
  */
 public class Assert implements Function, Serializable {
@@ -48,10 +49,8 @@ public class Assert implements Function, Serializable {
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "Allows the user to add a fact to the fact-list. Multiple facts may be asserted with each call. " +
-					"If the fact-list is being watched, an inform message is printed each time a " +
-					"fact is asserted.\n" +
-					"Attention: In Jamocha there has to exist a corresponding template in order to assert a fact. ";
+			return "Allows the user to add a fact to the fact-list. Multiple facts may be asserted with each call. " + "If the fact-list is being watched, an inform message is printed each time a "
+					+ "fact is asserted.\n" + "Attention: In Jamocha there has to exist a corresponding template in order to assert a fact. ";
 		}
 
 		public int getParameterCount() {
@@ -59,7 +58,7 @@ public class Assert implements Function, Serializable {
 		}
 
 		public String getParameterDescription(int parameter) {
-			return "Fact(s) to be asserted."; 
+			return "Fact(s) to be asserted.";
 		}
 
 		public String getParameterName(int parameter) {
@@ -111,8 +110,7 @@ public class Assert implements Function, Serializable {
 		this.triggerFacts = facts;
 	}
 
-	public JamochaValue executeFunction(Rete engine, Parameter[] params)
-			throws EvaluationException {
+	public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
 		JamochaValue result = JamochaValue.FALSE;
 		if (params.length > 0) {
 			Deffact fact = null;
@@ -122,59 +120,43 @@ public class Assert implements Function, Serializable {
 
 				AssertConfiguration ac = null;
 				String templateName = null;
-				SlotConfiguration[] scArray = null;
 
 				for (int i = 0; i < params.length; i++) {
 					ac = (AssertConfiguration) params[i];
 
 					// get the template name
 					templateName = ac.getTemplateName();
-
-					// check if the needed template exists in the engine
-					org.jamocha.rete.Deftemplate template = (org.jamocha.rete.Deftemplate) engine
-							.getCurrentFocus().getTemplate(templateName);
-					if (template == null) {
-						throw new AssertException("Template " + templateName + " could not be found");
+					fact = (Deffact) engine.getModules().createFact(ac.getSlots(), templateName);
+					//TODO: check if binding handling can be moved to create fact
+					if (fact.hasBinding()) {
+						fact.resolveValues(engine, this.triggerFacts);
+						fact = fact.cloneFact(engine);
+					}
+					Fact assertedFact = engine.assertFact(fact);
+					// if the fact id is still -1, it means it wasn't
+					// asserted
+					// if it was asserted, we return the fact id, otherwise
+					// we return "false".
+					if (assertedFact.getFactId() > 0) {
+						result = JamochaValue.newFactId(assertedFact.getFactId());
 					} else {
-
-						// get the slot configurations
-						scArray = ac.getSlots();
-
-						// create the fact
-						fact = (Deffact) template.createFact(scArray, engine);
-						if (fact.hasBinding()) {
-							fact.resolveValues(engine, this.triggerFacts);
-							fact = fact.cloneFact(engine);
-						}
-						Fact assertedFact = engine.assertFact(fact);
-						// if the fact id is still -1, it means it wasn't
-						// asserted
-						// if it was asserted, we return the fact id, otherwise
-						// we return "false".
-						if (assertedFact.getFactId() >0) {
-							result = JamochaValue.newFactId(assertedFact.getFactId());
-						} else {
-							throw new AssertException("Fact could not be asserted for an unknown reason.");
-						}
+						throw new AssertException("Fact could not be asserted for an unknown reason.");
 					}
 				}
 
 				// no assert configuration:
 			} else {
+				assert (false);
 				JamochaValue firstParam = params[0].getValue(engine);
 
 				if (firstParam.getType().equals(JamochaType.IDENTIFIER)) {
 					JamochaValue secondParam = params[1].getValue(engine);
-					Template tmpl = (Template) engine.getCurrentFocus()
-							.getTemplate(firstParam.getIdentifierValue());
-					fact = (Deffact) tmpl.createFact((Object[]) secondParam
-							.getObjectValue(), engine);
+					Template tmpl = (Template) engine.getCurrentFocus().getTemplate(firstParam.getIdentifierValue());
+					fact = (Deffact) tmpl.createFact((Object[]) secondParam.getObjectValue(), engine);
 				} else if (firstParam.getType().equals(JamochaType.FACT)) {
 					fact = (Deffact) firstParam.getFactValue();
 				} else {
-					throw new IllegalTypeException(new JamochaType[] {
-							JamochaType.FACT, JamochaType.IDENTIFIER },
-							firstParam.getType());
+					throw new IllegalTypeException(new JamochaType[] { JamochaType.FACT, JamochaType.IDENTIFIER }, firstParam.getType());
 				}
 
 				if (fact.hasBinding()) {

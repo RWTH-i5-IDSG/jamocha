@@ -29,6 +29,7 @@ import org.jamocha.rete.Deftemplate;
 import org.jamocha.rete.Fact;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.Template;
+import org.jamocha.rete.configurations.SlotConfiguration;
 import org.jamocha.rete.exception.AssertException;
 import org.jamocha.rule.Rule;
 
@@ -124,6 +125,7 @@ public class Modules implements Serializable {
 	}
 
 	public Module removeModule(Module module) {
+		this.clearModule(module);
 		return (Module) this.modules.remove(module.getModuleName());
 	}
 
@@ -141,37 +143,29 @@ public class Modules implements Serializable {
 		return (Module) this.modules.get(name);
 	}
 
-	/**
-	 * Clear will clear all the modules and remove all activations
-	 */
-	public void clearAll() {
-		// clear all modules:
-		Iterator itr = this.modules.keySet().iterator();
-		while (itr.hasNext()) {
-			Object key = itr.next();
-			Module mod = (Module) this.modules.get(key);
-			mod.clear();
-		}
-		this.modules.clear();
-
-		// reinit main module:
-		initMain();
-	}
-
-	public void clearAllRules() {
-		rules.clear();
-	}
-
-	public void clearAllFacts() {
-		facts.clear();
-	}
 
 	
 	public Fact createFact(Object data, String template) throws AssertException {
 		Template tmpl = this.getTemplate(currentModule, template);
+		if (tmpl == null) 
+			throw new AssertException("Template " + template + " could not be found");
 		Fact ft = null;
 		try {
 			ft = ((Deftemplate) tmpl).createFact(data, engine);
+			facts.add(ft);
+		} catch (EvaluationException e) {
+			throw new AssertException(e);
+		}
+		return ft;
+	}
+	
+	public Fact createFact(SlotConfiguration[] scs, String template) throws AssertException {
+		Template tmpl = this.getTemplate(currentModule, template);
+		if (tmpl == null) 
+			throw new AssertException("Template " + template + " could not be found");
+		Fact ft = null;
+		try {
+			ft = ((Deftemplate) tmpl).createFact(scs, engine);
 			facts.add(ft);
 		} catch (EvaluationException e) {
 			throw new AssertException(e);
@@ -221,14 +215,6 @@ public class Modules implements Serializable {
 		
 	}
 
-	public void flushRules(Module defmodule) {
-		// TODO Auto-generated method stub
-	}
-
-	public void flush(Module defmodule) {
-		// TODO Auto-generated method stub
-		
-	}
 
 	public List<Template> getTemplates(Module defmodule) {
 		return this.templates.getTemplates(defmodule);
@@ -242,4 +228,48 @@ public class Modules implements Serializable {
 		return "Modules Current Module:" + this.getCurrentModule().getModuleName(); 
 		
 	}
+	
+	/**
+	 * Clear will clear all the modules and remove all activations
+	 */
+	public void clearAll() {
+		// clear all modules:
+		Iterator itr = this.modules.keySet().iterator();
+		while (itr.hasNext()) {
+			Object key = itr.next();
+			Module mod = (Module) this.modules.get(key);
+			mod.clear();
+		}
+		this.modules.clear();
+		
+		// reinit main module:
+		initMain();
+	}
+	
+	public void clearModule(Module module) {
+		this.clearFacts(module);
+		this.clearRules(module);
+		this.clearTemplates(module);
+	}
+	
+	private void clearTemplates(Module module) {
+		// TODO Auto-generated method stub
+	}
+
+	public void clearRules(Module module) {
+		// TODO Auto-generated method stub
+	}
+
+	public void clearFacts(Module module) {
+		// TODO Auto-generated method stub
+	}
+	
+	public void clearAllRules() {
+		rules.clear();
+	}
+	
+	public void clearAllFacts() {
+		facts.clear();
+	}
+
 }
