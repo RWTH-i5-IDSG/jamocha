@@ -198,11 +198,11 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 	}
 
 	protected void declareInitialFact() {
-		this.declareTemplate(initFact);
 		try {
+			this.addTemplate(initFact);
 			Fact ifact = initFact.getInitialFact();
 			this.assertFact(ifact);
-		} catch (AssertException e) {
+		} catch (Exception e) {
 			// an error should not occur
 			log.info(e);
 		}
@@ -401,16 +401,6 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 		return (Defclass) this.defclass.get(key.getClass());
 	}
 
-	/**
-	 * method is specifically for templates that are declared in the shell and
-	 * do not have a corresponding java class.
-	 * 
-	 * @param temp
-	 */
-	public void declareTemplate(Template temp) {
-		// The check if the Template exists is done in the addTemplate function
-		getCurrentFocus().addTemplate(temp);
-	}
 
 	/**
 	 * pass a filename to load the rules. The implementation uses BatchFunction
@@ -1199,12 +1189,14 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 		scopes = scope;
 	}
 
-	public boolean addTemplate(Deftemplate tpl) throws EvaluationException {
+	public boolean addTemplate(Deftemplate tpl) throws EvaluationException{
 		tpl.evaluateStaticDefaults(this);
 		Module mod = tpl.checkName(this);
 		if (mod == null) {
 			mod = getCurrentFocus();
 		}
-		return mod.addTemplate(tpl);
+		Boolean result=  mod.addTemplate(tpl);
+		if (result) this.getRuleCompiler().addObjectTypeNode(tpl);
+		return result;
 	}
 }
