@@ -37,6 +37,8 @@ public class Agenda implements Serializable {
 	protected ConflictResolutionStrategy strategy = null;
 
 	protected List<Activation> activations;
+	
+	protected boolean chainFiring = true;
 
 	public Agenda(Rete engine, ConflictResolutionStrategy strategy) {
 		this.engine = engine;
@@ -77,17 +79,41 @@ public class Agenda implements Serializable {
 		return activations.contains(a);
 	}
 
-	public int fire() throws ExecuteException{
+	protected int fireActivationList(List<Activation> activ) throws ExecuteException{
 		try {
 			int result=0;
-			for (Activation activation : activations) {
+			for (Activation activation : activ) {
 				activation.fire(engine);
 				result++;
 			}
 			return result;
 		} finally {
-			activations.clear();
+			activ.clear();
 		}
+	}
+	
+	public int fire() throws ExecuteException{
+		if (chainFiring) {
+			int count2 = 0;
+			while (activations.size() > 0) {
+				List<Activation> act = activations;
+				activations = new ArrayList<Activation>();
+				count2 += fireActivationList(act);
+			}
+			return count2;
+		} else {
+			List<Activation> act = activations;
+			activations = new ArrayList<Activation>();
+			return fireActivationList(act);
+		}
+	}
+
+	public boolean isChainFiring() {
+		return chainFiring;
+	}
+
+	public void setChainFiring(boolean chainFiring) {
+		this.chainFiring = chainFiring;
 	}
 	
 

@@ -6,6 +6,23 @@
 (assert (wurst (name "gemuesewurst")(spitzname "gemuesewurst")(farbe "gruen")(gewicht 400) (passtzusalat "frittensalat") ))
 (assert (wurst (name "senfwurst") (spitzname "senfi") (farbe "gelb") (gewicht 200) (passtzusalat "kartoffelsalat") ))
 
+(defrule a
+	=>
+	(assert (wurst (name hanswurst)))
+)
+
+(defrule b
+	(wurst (name hanswurst))
+	=>
+	(printout t "hallo wurst!" crlf)
+)
+
+
+
+
+
+
+
 (defrule t
 	(wurst (name ?x))
 	=>
