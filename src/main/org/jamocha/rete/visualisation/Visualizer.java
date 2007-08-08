@@ -85,6 +85,7 @@ public class Visualizer extends JComponent implements ComponentListener, MouseIn
 	public void reload() {
 		computeRowHints();
 		calculateSelectedNodes();
+		componentResized2(null);
 		node2point = new HashMap<BaseNode,Point>();
 		rootNode.drawNode(0,selectedNodes,(Graphics2D)new BufferedImage(1,1,BufferedImage.TYPE_INT_RGB).getGraphics(),setup,node2point, point2node,rowHints);
 		
@@ -363,7 +364,7 @@ public class Visualizer extends JComponent implements ComponentListener, MouseIn
 		autoScale = enable;
 	}
 	
-	public void componentResized(ComponentEvent arg0) {
+	public void componentResized2(ComponentEvent arg0){
 		if (autoScale) {
 			int w = this.getWidth();
 			int h = this.getHeight();
@@ -374,6 +375,10 @@ public class Visualizer extends JComponent implements ComponentListener, MouseIn
 			setup.scaleX = setup.scaleY = (float) Math.min(scaleW, scaleH);
 			repaint();
 		}
+	}
+	
+	public void componentResized(ComponentEvent arg0) {
+		componentResized2(arg0);
 		callViewportChangedListeners();
 	}
 	
@@ -550,6 +555,11 @@ public class Visualizer extends JComponent implements ComponentListener, MouseIn
 		setup.scaleX=(float)valueX;
 		setup.scaleY=(float)valueY;
 		
+		if (setup.scaleX< 0.1) setup.scaleX=0.1f;
+		if (setup.scaleY< 0.1) setup.scaleY=0.1f;
+		if (setup.scaleX> 10) setup.scaleX=10;
+		if (setup.scaleY> 10) setup.scaleY=10;
+
 		setup.offsetX = (int)(-midX + (getWidth() / setup.scaleX)/2.0 );
 		setup.offsetY = (int)(-midY + (getHeight() / setup.scaleY)/2.0 );
 		correctOffsets();

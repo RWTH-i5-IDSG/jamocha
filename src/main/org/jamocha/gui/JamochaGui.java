@@ -46,7 +46,6 @@ import org.jamocha.gui.tab.AbstractJamochaPanel;
 import org.jamocha.gui.tab.FactsPanel;
 import org.jamocha.gui.tab.FunctionsPanel;
 import org.jamocha.gui.tab.LogPanel;
-import org.jamocha.gui.tab.RetePanel;
 import org.jamocha.gui.tab.RulesPanel;
 import org.jamocha.gui.tab.SettingsPanel;
 import org.jamocha.gui.tab.ShellPanel;
@@ -157,15 +156,12 @@ public class JamochaGui extends JFrame implements ChangeListener,
 		tabbedPane.addTab("Functions", IconLoader.getImageIcon("cog"),
 				functionsPanel, "View Functions");
 		panels.add(functionsPanel);
-		RetePanel retePanel = new RetePanel(this);
-		tabbedPane.addTab("old viewer", IconLoader.getImageIcon("eye"), retePanel,
-				"View the Rete-network");
-		
+	
 		ViewerPanel viewerPanel = new ViewerPanel(this);
-		tabbedPane.addTab("new viewer", IconLoader.getImageIcon("eye"), viewerPanel,
+		tabbedPane.addTab("Rete viewer", IconLoader.getImageIcon("eye"), viewerPanel,
 		"View the Rete-network");
+		panels.add(viewerPanel);
 		
-		panels.add(retePanel);
 		LogPanel logPanel = new LogPanel(this);
 		tabbedPane.addTab("Log", IconLoader.getImageIcon("monitor"), logPanel,
 				"View alle messages from or to the Rete-engine");

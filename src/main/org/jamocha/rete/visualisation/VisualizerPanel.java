@@ -163,7 +163,6 @@ public class VisualizerPanel extends JPanel implements ClickListener, ListSelect
 		optionsPanel.add(rulePanel);
 		mainVis.setSelectedRules(rulePanel.getSelectedRules());
 		miniMap.setSelectedRules(rulePanel.getSelectedRules());
-		//miniMap.
 		miniMap.repaint();
 		
 		JSplitPane splitMainAndOptionsToUpper = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, mainVis, optionsPanel);
