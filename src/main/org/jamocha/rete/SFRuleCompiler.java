@@ -30,11 +30,9 @@ import java.util.Vector;
 import org.jamocha.logging.DefaultLogger;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.IllegalConversionException;
-import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.configurations.Signature;
 import org.jamocha.rete.exception.AssertException;
-import org.jamocha.rete.exception.CompileRuleException;
 import org.jamocha.rete.exception.RetractException;
 import org.jamocha.rete.modules.Module;
 import org.jamocha.rete.nodes.AbstractBeta;
@@ -43,6 +41,7 @@ import org.jamocha.rete.nodes.BaseNode;
 import org.jamocha.rete.nodes.BetaFilterNode;
 import org.jamocha.rete.nodes.BetaQuantorFilterNode;
 import org.jamocha.rete.nodes.ObjectTypeNode;
+import org.jamocha.rete.nodes.ReteNet;
 import org.jamocha.rete.nodes.RootNode;
 import org.jamocha.rete.nodes.SlotAlpha;
 import org.jamocha.rete.nodes.TerminalNode;
@@ -55,7 +54,6 @@ import org.jamocha.rete.nodes.joinfilter.LeftFieldAddress;
 import org.jamocha.rete.nodes.joinfilter.RightFieldAddress;
 import org.jamocha.rule.AbstractCondition;
 import org.jamocha.rule.Action;
-import org.jamocha.rule.Analysis;
 import org.jamocha.rule.AndCondition;
 import org.jamocha.rule.AndConnectedConstraint;
 import org.jamocha.rule.BoundConstraint;
@@ -72,7 +70,6 @@ import org.jamocha.rule.OrCondition;
 import org.jamocha.rule.OrConnectedConstraint;
 import org.jamocha.rule.PredicateConstraint;
 import org.jamocha.rule.Rule;
-import org.jamocha.rule.Summary;
 import org.jamocha.rule.TemplateValidation;
 import org.jamocha.rule.TestCondition;
 
@@ -272,6 +269,8 @@ public class SFRuleCompiler implements RuleCompiler {
 	static final long serialVersionUID = 0xDeadBeafCafeBabeL;
 
 	private Rete engine = null;
+	
+	private ReteNet net = null;
 
 	protected RootNode root = null;
 
@@ -291,9 +290,10 @@ public class SFRuleCompiler implements RuleCompiler {
 
 	protected DefaultLogger log = new DefaultLogger(this.getClass());
 
-	public SFRuleCompiler(Rete engine, RootNode root) {
+	public SFRuleCompiler(Rete engine, RootNode root, ReteNet net) {
 		super();
 		this.engine = engine;
+		this.net = net;
 		this.root = root;
 		this.tval = new TemplateValidation(engine);
 	}
@@ -335,7 +335,7 @@ public class SFRuleCompiler implements RuleCompiler {
 	 * @return TerminalNode
 	 */
 	protected TerminalNode createTerminalNode(Rule rule) {
-		TerminalNode node = new TerminalNode(engine.nextNodeId(), rule);
+		TerminalNode node = new TerminalNode(net.nextNodeId(), rule);
 		rule.SetTerminalNode(node);
 		return node;
 		/*
@@ -503,9 +503,9 @@ public class SFRuleCompiler implements RuleCompiler {
 			Condition c = sortedConds[i];
 			AbstractBeta newBeta = null;
 			
-			if (c instanceof ObjectCondition) newBeta = new BetaFilterNode(engine.nextNodeId());
-			else if (c instanceof NotCondition) newBeta = new BetaQuantorFilterNode(engine.nextNodeId(),true);
-			else if (c instanceof ExistCondition) newBeta = new BetaQuantorFilterNode(engine.nextNodeId(),false);
+			if (c instanceof ObjectCondition) newBeta = new BetaFilterNode(net.nextNodeId());
+			else if (c instanceof NotCondition) newBeta = new BetaQuantorFilterNode(net.nextNodeId(),true);
+			else if (c instanceof ExistCondition) newBeta = new BetaQuantorFilterNode(net.nextNodeId(),false);
 			
 			if (fromBottom == null){
 				mostBottomNode = newBeta;
@@ -649,7 +649,7 @@ public class SFRuleCompiler implements RuleCompiler {
 			Template template = objectC.getTemplate();
 			ObjectTypeNode otn = root.activateObjectTypeNode(template, engine);
 
-			BetaFilterNode newJoin = new BetaFilterNode(engine.nextNodeId());
+			BetaFilterNode newJoin = new BetaFilterNode(net.nextNodeId());
 
 			mostBottomNode.addNode(newJoin, engine);
 			otn.addNode(newJoin, engine);
@@ -936,7 +936,7 @@ public class SFRuleCompiler implements RuleCompiler {
 			newRule.setConditionIndex(conditionIndex, nestedCE);
 			
 			
-			org.jamocha.rete.SFRuleCompiler compiler = new org.jamocha.rete.SFRuleCompiler(engine,root);
+			org.jamocha.rete.SFRuleCompiler compiler = new org.jamocha.rete.SFRuleCompiler(engine,root,net);
 
 			newRule.setName(newRule.getName() + "-" + counter++);
 			success = success && compiler.addRule(newRule);
@@ -1022,7 +1022,7 @@ public class SFRuleCompiler implements RuleCompiler {
 				
 			
 			
-			org.jamocha.rete.SFRuleCompiler compiler = new org.jamocha.rete.SFRuleCompiler(engine,root);
+			org.jamocha.rete.SFRuleCompiler compiler = new org.jamocha.rete.SFRuleCompiler(engine,root,net);
 
 			newRule.setName(newRule.getName() + "-" + counter++);
 			try {
@@ -1056,7 +1056,7 @@ public class SFRuleCompiler implements RuleCompiler {
 			return null;
 		}
 		sl.value = sval;
-		node = new AlphaNode(engine.nextNodeId());
+		node = new AlphaNode(net.nextNodeId());
 		node.setSlot(sl);
 		if (constraint.getNegated()){
 			node.setOperator(Constants.NOTEQUAL);
@@ -1157,7 +1157,7 @@ public class SFRuleCompiler implements RuleCompiler {
 
 
 
-			org.jamocha.rete.SFRuleCompiler compiler = new org.jamocha.rete.SFRuleCompiler(engine,root);
+			org.jamocha.rete.SFRuleCompiler compiler = new org.jamocha.rete.SFRuleCompiler(engine,root,net);
 			success = compiler.addRule(rule);
 		} catch (AssertException e) {
 			engine.writeMessage("FATAL: could not insert rule");

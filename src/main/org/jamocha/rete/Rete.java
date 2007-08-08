@@ -46,11 +46,10 @@ import org.jamocha.rete.exception.RetractException;
 import org.jamocha.rete.functions.FunctionMemory;
 import org.jamocha.rete.functions.FunctionMemoryImpl;
 import org.jamocha.rete.functions.io.Batch;
-import org.jamocha.rete.memory.WorkingMemory;
-import org.jamocha.rete.memory.WorkingMemoryImpl;
 import org.jamocha.rete.modules.Module;
 import org.jamocha.rete.modules.Modules;
 import org.jamocha.rete.nodes.BaseNode;
+import org.jamocha.rete.nodes.ReteNet;
 import org.jamocha.rete.nodes.TerminalNode;
 import org.jamocha.rete.util.ProfileStats;
 import org.jamocha.rule.Rule;
@@ -103,7 +102,7 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 
 	protected boolean prettyPrint = false;
 
-	protected WorkingMemory workingMem = null;
+	protected ReteNet net = null;
 
 	protected FunctionMemory functionMem = null;
 
@@ -152,8 +151,6 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 	private Modules modules = null;
 
 
-	private int lastNodeId = 0;
-
 	private boolean debug = false;
 
 	private boolean watchFact = false;
@@ -177,7 +174,7 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 	 */
 	public Rete() {
 		super();
-		this.workingMem = new WorkingMemoryImpl(this);
+		this.net = new ReteNet(this);
 		this.functionMem = new FunctionMemoryImpl(this);
 		this.agendas = new Agendas(this);
 		init();
@@ -264,13 +261,12 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 	public void clearAll() {
 		this.dynamicFacts.clear();
 		this.staticFacts.clear();
-		this.workingMem.clear();
+		this.net.clear();
 		this.functionMem.clear();
 		// now we clear all the rules and templates
 		this.agendas.clear();
 		this.defclass.clear();
 		ProfileStats.reset();
-		this.lastNodeId = 1;
 		this.modules.clearAll();
 		declareInitialFact();
 	}
@@ -280,7 +276,7 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 	 */
 	public void close() {
 		this.modules.clearAll();
-		this.workingMem.clear();
+		this.net.clear();
 		this.contexts.clear();
 		this.defclass.clear();
 		this.dynamicFacts.clear();
@@ -804,7 +800,7 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 				Fact shadowfact = modules.createFact(data, template);
 				// add it to the static fact map
 				this.staticFacts.put(data, shadowfact);
-				this.workingMem.assertObject(shadowfact);
+				this.net.assertObject(shadowfact);
 			} else if (!this.dynamicFacts.containsKey(data)) {
 				if (shadow) {
 					// first add the rule engine as a listener
@@ -822,11 +818,11 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 					Fact shadowfact = modules.createFact(data, template);
 					// add it to the dynamic fact map
 					this.dynamicFacts.put(data, shadowfact);
-					this.workingMem.assertObject(shadowfact);
+					this.net.assertObject(shadowfact);
 				} else {
 					Fact nsfact = createNSFact(data, dc, -1);
 					this.dynamicFacts.put(data, nsfact);
-					this.workingMem.assertObject(nsfact);
+					this.net.assertObject(nsfact);
 				}
 			}
 		}
@@ -853,14 +849,14 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 	public void retractObject(Object data) throws RetractException {
 		if (this.staticFacts.containsKey(data)) {
 			Fact ft = (Fact) this.staticFacts.get(data);
-			this.workingMem.retractObject(ft);
+			this.net.retractObject(ft);
 			this.staticFacts.remove(data);
 			// we should probably recyle the factId before we
 			// clean the fact
 			ft.clear();
 		} else if (this.dynamicFacts.containsKey(data)) {
 			Fact ft = (Fact) this.dynamicFacts.get(data);
-			this.workingMem.retractObject(ft);
+			this.net.retractObject(ft);
 			this.dynamicFacts.remove(data);
 			// we should probably recyle the factId before we
 			// clean the fact
@@ -882,7 +878,7 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 			if (watchFact) {
 				this.writeMessage("==> " + fact.toFactString() + Constants.LINEBREAK, "t");
 			}
-			this.workingMem.assertObject(fact);
+			this.net.assertObject(fact);
 		}
 		return fact;
 	}
@@ -896,7 +892,7 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 	 */
 	protected void assertFactWProfile(Fact fact) throws AssertException {
 		ProfileStats.startAssert();
-		this.workingMem.assertObject(fact);
+		this.net.assertObject(fact);
 		ProfileStats.endAssert();
 	}
 
@@ -925,7 +921,7 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 			if (watchFact) {
 				this.writeMessage("<== " + fact.toFactString() + Constants.LINEBREAK, "t");
 			}
-			this.workingMem.retractObject(fact);
+			this.net.retractObject(fact);
 		}
 	}
 
@@ -936,7 +932,7 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 	 */
 	protected void retractFactWProfile(Fact fact) throws RetractException {
 		ProfileStats.startRetract();
-		this.workingMem.retractObject(fact);
+		this.net.retractObject(fact);
 		ProfileStats.endRetract();
 	}
 
@@ -988,23 +984,23 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 			Iterator itr = this.staticFacts.values().iterator();
 			while (itr.hasNext()) {
 				Deffact ft = (Deffact) itr.next();
-				this.workingMem.retractObject(ft);
+				this.net.retractObject(ft);
 			}
 			itr = this.dynamicFacts.values().iterator();
 			while (itr.hasNext()) {
 				Deffact ft = (Deffact) itr.next();
-				this.workingMem.retractObject(ft);
+				this.net.retractObject(ft);
 			}
 			// now assert
 			itr = this.staticFacts.values().iterator();
 			while (itr.hasNext()) {
 				Deffact ft = (Deffact) itr.next();
-				this.workingMem.assertObject(ft);
+				this.net.assertObject(ft);
 			}
 			itr = this.dynamicFacts.values().iterator();
 			while (itr.hasNext()) {
 				Deffact ft = (Deffact) itr.next();
-				this.workingMem.assertObject(ft);
+				this.net.assertObject(ft);
 			}
 		} catch (RetractException e) {
 			log.debug(e);
@@ -1024,12 +1020,12 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 			Iterator itr = facts.iterator();
 			while (itr.hasNext()) {
 				Deffact ft = (Deffact) itr.next();
-				this.workingMem.retractObject(ft);
+				this.net.retractObject(ft);
 			}
 			itr = facts.iterator();
 			while (itr.hasNext()) {
 				Deffact ft = (Deffact) itr.next();
-				this.workingMem.assertObject(ft);
+				this.net.assertObject(ft);
 			}
 		} catch (RetractException e) {
 			log.debug(e);
@@ -1059,35 +1055,8 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 		return this.agendas;
 	}
 
-	/**
-	 * return the next rete node id for a new node
-	 * 
-	 * @return
-	 */
-	public int nextNodeId() {
-		return ++this.lastNodeId;
-	}
-
-	/**
-	 * peak at the next node id. Do not use this method to get an id for the
-	 * next node. only nextNodeId() should be used to create new rete nodes.
-	 * 
-	 * @return
-	 */
-	public int peakNextNodeId() {
-		return this.lastNodeId + 1;
-	}
-
-	public RuleCompiler getRuleCompiler() {
-		return this.workingMem.getRuleCompiler();
-	}
-
 	public FunctionMemory getFunctionMemory() {
 		return this.functionMem;
-	}
-
-	public WorkingMemory getWorkingMemory() {
-		return this.workingMem;
 	}
 
 	public DefaultLogger getLogger() {
@@ -1099,11 +1068,11 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 	}
 
 	public void setValidateRules(boolean val) {
-		this.workingMem.getRuleCompiler().setValidateRule(val);
+		this.net.setValidateRule(val);
 	}
 
 	public boolean getValidateRules() {
-		return this.workingMem.getRuleCompiler().getValidateRule();
+		return this.net.getValidateRule();
 	}
 
 	/**
@@ -1196,7 +1165,17 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 			mod = getCurrentFocus();
 		}
 		Boolean result=  mod.addTemplate(tpl);
-		if (result) this.getRuleCompiler().addObjectTypeNode(tpl);
+		if (result) this.net.addTemplate(tpl);
 		return result;
+	}
+	
+	public boolean addRule(Rule rule) throws AssertException{
+		if (!getCurrentFocus().containsRule(rule)) {
+			return net.addRule(rule);}
+		return false;
+	}
+	
+	public ReteNet getNet(){
+		return this.net;
 	}
 }

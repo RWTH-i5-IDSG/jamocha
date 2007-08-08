@@ -43,11 +43,11 @@ public class WorkingMemoryImpl implements WorkingMemory {
 	/**
 	 * 
 	 */
-	public WorkingMemoryImpl(Rete engine) {
+	public WorkingMemoryImpl(Rete engine, int dummy) {
 		super();
 		this.engine = engine;
 		this.root = new RootNode(engine.nextNodeId());
-		this.compiler = ParserFactory.getRuleCompiler(engine, this, this.root);
+	//	this.compiler = ParserFactory.getRuleCompiler(engine, this, this.root);
 		this.compiler.addListener(engine);
 	}
 

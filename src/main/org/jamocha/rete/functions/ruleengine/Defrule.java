@@ -39,22 +39,10 @@ public class Defrule implements Function, Serializable {
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "Defines a new rule in the currently focused module of the engine.\n" +
-					"defrule has the following syntax:\n" +
-					"(defrule rule_name \"optional_comment\"\n" +
-					"	(pattern_1)     ; Left-Hand Side (LHS)\n" +
-					"	(pattern_2)     ; of the rule consisting of elements\n" +
-					"		.           ; before the \"=>\"\n" +
-					"		.\n" +
-					"		.\n" +
-					"	(pattern_N)\n" +
-					"=>                 ; THEN arrow\n" +
-					"	(action_1)      ; Right-Hand Side (RHS)\n" +
-					"	(action_2)      ; of the rule consisting of elements\n" +
-					"		.           ; after the \"=>\"\n" +
-					"		.\n" +
-					"	(action_M)\n" +
-					")                  ; close defrule";
+			return "Defines a new rule in the currently focused module of the engine.\n" + "defrule has the following syntax:\n" + "(defrule rule_name \"optional_comment\"\n"
+					+ "	(pattern_1)     ; Left-Hand Side (LHS)\n" + "	(pattern_2)     ; of the rule consisting of elements\n" + "		.           ; before the \"=>\"\n" + "		.\n" + "		.\n"
+					+ "	(pattern_N)\n" + "=>                 ; THEN arrow\n" + "	(action_1)      ; Right-Hand Side (RHS)\n" + "	(action_2)      ; of the rule consisting of elements\n"
+					+ "		.           ; after the \"=>\"\n" + "		.\n" + "	(action_M)\n" + ")                  ; close defrule";
 		}
 
 		public int getParameterCount() {
@@ -86,21 +74,9 @@ public class Defrule implements Function, Serializable {
 		}
 
 		public String getExample() {
-			return "(deftemplate customer\n" +
-					"  (slot first)\n" +
-					"  (slot last)\n" +
-					"  (slot title)\n" +
-					"  (slot address)\n" +
-					")\n" +
-					"(defrule rule\n" +
-					"  (customer\n" +
-					"    (first \"john\")\n" +
-					"  )\n" +
-					"  =>\n" +
-					"  (printout t \"rule0 was fired\" )\n" +
-					")\n" +
-					"(assert (customer (first \"john\")(last \"doe\")(address \"moon\") ) )\n" +
-					"(fire)";
+			return "(deftemplate customer\n" + "  (slot first)\n" + "  (slot last)\n" + "  (slot title)\n" + "  (slot address)\n" + ")\n" + "(defrule rule\n" + "  (customer\n"
+					+ "    (first \"john\")\n" + "  )\n" + "  =>\n" + "  (printout t \"rule0 was fired\" )\n" + ")\n" + "(assert (customer (first \"john\")(last \"doe\")(address \"moon\") ) )\n"
+					+ "(fire)";
 		}
 
 		public boolean isResultAutoGeneratable() {
@@ -122,8 +98,7 @@ public class Defrule implements Function, Serializable {
 		return NAME;
 	}
 
-	public JamochaValue executeFunction(Rete engine, Parameter[] params)
-			throws EvaluationException {
+	public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
 		JamochaValue result = JamochaValue.FALSE;
 
 		if (params != null && params.length == 1) {
@@ -132,25 +107,19 @@ public class Defrule implements Function, Serializable {
 				// get defrule from first parameter:
 				JamochaValue firstParam = params[0].getValue(engine);
 				if (firstParam.getObjectValue() instanceof org.jamocha.rule.Defrule) {
-					defrule = (org.jamocha.rule.Defrule) firstParam
-							.getObjectValue();
+					defrule = (org.jamocha.rule.Defrule) firstParam.getObjectValue();
 				}
 			}
 			// create new defrule from DefruleConfiguration:
 			else if (params[0] instanceof DefruleConfiguration) {
-				defrule = new org.jamocha.rule.Defrule(
-						(DefruleConfiguration) params[0], engine);
+				defrule = new org.jamocha.rule.Defrule((DefruleConfiguration) params[0], engine);
 			} else {
-				throw new RuleException(
-						"Parameter 1 is no Defrule Configuration.");
+				throw new RuleException("Parameter 1 is no Defrule Configuration.");
 			}
 			// compile Defrule:
-			if (!engine.getCurrentFocus().containsRule(defrule)) {
-				if (engine.getRuleCompiler().addRule(defrule)) {
-					result = JamochaValue.TRUE;
-					engine.writeMessage("added rule with complexity "
-							+ defrule.getTotalComplexity());
-				}
+			if (engine.addRule(defrule)) {
+				result = JamochaValue.TRUE;
+				engine.writeMessage("added rule with complexity " + defrule.getTotalComplexity());
 			}
 		} else {
 			throw new IllegalParameterException(1);

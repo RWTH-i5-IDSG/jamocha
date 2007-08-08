@@ -115,7 +115,7 @@ public class Visualizer extends JComponent implements ComponentListener, MouseIn
 	}
 	
 	public Visualizer(Rete e) {
-		rootNode = ((WorkingMemoryImpl) e.getWorkingMemory()).getRootNode();
+		rootNode = e.getWorkingMemory()).getRootNode();
 		setup = new VisualizerSetup();
 		point2node = new HashMap<Point, BaseNode>();
 		rowHints = new HashMap<BaseNode, Integer>();

@@ -25,8 +25,8 @@ import org.jamocha.parser.sfp.SFPParser;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.RuleCompiler;
 import org.jamocha.rete.SFRuleCompiler;
-import org.jamocha.rete.memory.WorkingMemory;
 import org.jamocha.rete.nodes.RootNode;
+import org.jamocha.rete.nodes.ReteNet;
 
 /**
  * The ParserFactory generates all known Parsers for CLIPS-Code or other
@@ -152,10 +152,10 @@ public class ParserFactory {
 		}
 	}
 
-	public static RuleCompiler getRuleCompiler(Rete engine, WorkingMemory wmem,
+	public static RuleCompiler getRuleCompiler(Rete engine, ReteNet net,
 			RootNode root) {
 		try {
-			return getRuleCompiler(defaultMode, engine, wmem, root);
+			return getRuleCompiler(defaultMode, engine, net, root);
 		} catch (ModeNotFoundException e) {
 			// This shouldn't happen because the exception is thrown already
 			// before when setting the default mode.
@@ -165,7 +165,7 @@ public class ParserFactory {
 
 	@SuppressWarnings("unchecked")
 	public static RuleCompiler getRuleCompiler(String mode, Rete engine,
-			WorkingMemory wmem, RootNode root) throws ModeNotFoundException {
+			ReteNet net, RootNode root) throws ModeNotFoundException {
 		if (mode.equalsIgnoreCase("clips")) {
 			throw new ModeNotFoundException("clips-mode not supported anymore");
 			/* BasicRuleCompiler is deleted since we refactored and deleted many classes,
@@ -173,7 +173,7 @@ public class ParserFactory {
 			 */ 
 			//return new BasicRuleCompiler(engine, wmem, root.getObjectTypeNodes());
 		} else if (mode.equalsIgnoreCase("sfp")) {
-			return new SFRuleCompiler(engine, root);
+			return new SFRuleCompiler(engine, root,net);
 		} else {
 			throw new ModeNotFoundException(mode);
 		}
