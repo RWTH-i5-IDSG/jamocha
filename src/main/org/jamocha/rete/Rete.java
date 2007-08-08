@@ -21,7 +21,6 @@ import java.beans.PropertyChangeListener;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.Serializable;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -87,47 +86,17 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 
 	public static final int PROFILE_RM_ACTIVATION = 106;
 
-	/**
-	 * The initial facts the rule engine needs at startup
-	 */
-	protected ArrayList initialFacts = new ArrayList();
-
 	protected Hashtable contexts = new Hashtable();
 
 	protected ArrayList focusStack = new ArrayList();
 
 	protected boolean halt = true;
 
-	protected int firingcount = 0;
-
 	protected boolean prettyPrint = false;
 
 	protected ReteNet net = null;
 
 	protected FunctionMemory functionMem = null;
-
-	/**
-	 * the keySystem.out.println(rs.getString(1)); is the Class object. The
-	 * value is the defclass. the defclass is then used to lookup the
-	 * deftemplate in the current Module.
-	 */
-	protected Map<Class, Defclass> defclass = new HashMap<Class, Defclass>();
-
-	protected Map<String, Defclass> templateToDefclass = new HashMap<String, Defclass>();
-
-	/**
-	 * We keep a map between the object instance and the corresponding shadown
-	 * fact. If an object is added as static, it is added to this map. When the
-	 * rule engine is notified of changes, it will check this list. If the
-	 * object instance is in this list, we ignore it.
-	 */
-	protected Map<Object, Fact> staticFacts = new HashMap<Object, Fact>();
-
-	/**
-	 * We keep a map of the dynamic object instances. When the rule engine is
-	 * notified
-	 */
-	protected Map<Object, Fact> dynamicFacts = new HashMap<Object, Fact>();
 
 	protected Map<String, PrintWriter> outputStreams = new HashMap<String, PrintWriter>();
 
@@ -149,7 +118,6 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 	private Agendas agendas = null;
 
 	private Modules modules = null;
-
 
 	private boolean debug = false;
 
@@ -215,32 +183,7 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 	 * Clear the objects from the working memory
 	 */
 	public void clearObjects() {
-		if (dynamicFacts.size() > 0) {
-			try {
-				Iterator itr = dynamicFacts.keySet().iterator();
-				while (itr.hasNext()) {
-					Object obj = itr.next();
-					if (!(obj instanceof Deffact)) {
-						retractObject(obj);
-					}
-				}
-			} catch (RetractException e) {
-				log.debug(e);
-			}
-		}
-		if (staticFacts.size() > 0) {
-			try {
-				Iterator itr = staticFacts.keySet().iterator();
-				while (itr.hasNext()) {
-					Object obj = itr.next();
-					if (!(obj instanceof Deffact)) {
-						retractObject(obj);
-					}
-				}
-			} catch (RetractException e) {
-				log.debug(e);
-			}
-		}
+		//TODO: we don't support objects
 	}
 
 	/**
@@ -259,13 +202,10 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 	 * clear all objects and deffacts
 	 */
 	public void clearAll() {
-		this.dynamicFacts.clear();
-		this.staticFacts.clear();
 		this.net.clear();
 		this.functionMem.clear();
 		// now we clear all the rules and templates
 		this.agendas.clear();
-		this.defclass.clear();
 		ProfileStats.reset();
 		this.modules.clearAll();
 		declareInitialFact();
@@ -278,13 +218,9 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 		this.modules.clearAll();
 		this.net.clear();
 		this.contexts.clear();
-		this.defclass.clear();
-		this.dynamicFacts.clear();
 		this.focusStack.clear();
 		this.functionMem.clearBuiltInFunctions();
-		this.initialFacts.clear();
 		this.listeners.clear();
-		this.staticFacts.clear();
 	}
 
 	/**
@@ -378,15 +314,6 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 	}
 
 	/**
-	 * Return a Set of the declass instances
-	 * 
-	 * @return
-	 */
-	public Set getDefclasses() {
-		return this.defclass.entrySet();
-	}
-
-	/**
 	 * Implementation will lookup the defclass for a given object by using the
 	 * Class as the key.
 	 * 
@@ -394,7 +321,8 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 	 * @return
 	 */
 	public Defclass findDefclass(Object key) {
-		return (Defclass) this.defclass.get(key.getClass());
+		//TODO: we don't support Classes
+		return null;
 	}
 
 
@@ -586,44 +514,6 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 		}
 	}
 
-	/**
-	 * Return a list of the objects asserted in the working memory
-	 * 
-	 * @return
-	 */
-	public List<Fact> getObjects() {
-		List<Fact> objects = new ArrayList<Fact>();
-		Iterator itr = this.dynamicFacts.keySet().iterator();
-		while (itr.hasNext()) {
-			Object key = itr.next();
-			if (!(key instanceof Fact)) {
-				objects.add((Fact) key);
-			}
-		}
-		itr = this.staticFacts.keySet().iterator();
-		while (itr.hasNext()) {
-			Object key = itr.next();
-			if (!(key instanceof Fact)) {
-				objects.add((Fact) key);
-			}
-		}
-		return objects;
-	}
-
-	/**
-	 * get the shadow for the object
-	 * 
-	 * @param key
-	 * @return
-	 */
-	public Fact getShadowFact(Object key) {
-		Fact f = (Fact) this.dynamicFacts.get(key);
-		if (f == null) {
-			f = (Fact) this.staticFacts.get(key);
-		}
-		return f;
-	}
-
 	public Fact getFactById(JamochaValue factID) {
 		return getFactById(factID.getFactIdValue());
 	}
@@ -789,43 +679,7 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 	 * @throws AssertException
 	 */
 	public void assertObject(Object data, String template, boolean statc, boolean shadow) throws AssertException {
-		Defclass dc = null;
-		if (template == null) {
-			dc = (Defclass) this.defclass.get(data.getClass());
-		} else {
-			dc = (Defclass) this.templateToDefclass.get(template);
-		}
-		if (dc != null) {
-			if (statc && !this.staticFacts.containsKey(data)) {
-				Fact shadowfact = modules.createFact(data, template);
-				// add it to the static fact map
-				this.staticFacts.put(data, shadowfact);
-				this.net.assertObject(shadowfact);
-			} else if (!this.dynamicFacts.containsKey(data)) {
-				if (shadow) {
-					// first add the rule engine as a listener
-					if (dc.isJavaBean()) {
-						try {
-							dc.getAddListenerMethod().invoke(data, new Object[] { this });
-						} catch (InvocationTargetException e) {
-							e.printStackTrace();
-						} catch (IllegalAccessException e) {
-							e.printStackTrace();
-						}
-					}
-					// second, lookup the deftemplate and create the
-					// shadow fact
-					Fact shadowfact = modules.createFact(data, template);
-					// add it to the dynamic fact map
-					this.dynamicFacts.put(data, shadowfact);
-					this.net.assertObject(shadowfact);
-				} else {
-					Fact nsfact = createNSFact(data, dc, -1);
-					this.dynamicFacts.put(data, nsfact);
-					this.net.assertObject(nsfact);
-				}
-			}
-		}
+		//TODO: we don't support Classes
 	}
 
 	/**
@@ -847,21 +701,7 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 	 * @param data
 	 */
 	public void retractObject(Object data) throws RetractException {
-		if (this.staticFacts.containsKey(data)) {
-			Fact ft = (Fact) this.staticFacts.get(data);
-			this.net.retractObject(ft);
-			this.staticFacts.remove(data);
-			// we should probably recyle the factId before we
-			// clean the fact
-			ft.clear();
-		} else if (this.dynamicFacts.containsKey(data)) {
-			Fact ft = (Fact) this.dynamicFacts.get(data);
-			this.net.retractObject(ft);
-			this.dynamicFacts.remove(data);
-			// we should probably recyle the factId before we
-			// clean the fact
-			ft.clear();
-		}
+		//TODO: we don't support Classes
 	}
 
 	/**
@@ -980,33 +820,7 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 	 * deffacts.
 	 */
 	public void resetObjects() {
-		try {
-			Iterator itr = this.staticFacts.values().iterator();
-			while (itr.hasNext()) {
-				Deffact ft = (Deffact) itr.next();
-				this.net.retractObject(ft);
-			}
-			itr = this.dynamicFacts.values().iterator();
-			while (itr.hasNext()) {
-				Deffact ft = (Deffact) itr.next();
-				this.net.retractObject(ft);
-			}
-			// now assert
-			itr = this.staticFacts.values().iterator();
-			while (itr.hasNext()) {
-				Deffact ft = (Deffact) itr.next();
-				this.net.assertObject(ft);
-			}
-			itr = this.dynamicFacts.values().iterator();
-			while (itr.hasNext()) {
-				Deffact ft = (Deffact) itr.next();
-				this.net.assertObject(ft);
-			}
-		} catch (RetractException e) {
-			log.debug(e);
-		} catch (AssertException e) {
-			log.debug(e);
-		}
+		//TODO: we don't support Classes
 	}
 
 	/**
@@ -1061,10 +875,6 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 
 	public DefaultLogger getLogger() {
 		return this.log;
-	}
-
-	public int getObjectCount() {
-		return this.dynamicFacts.size() + this.staticFacts.size();
 	}
 
 	public void setValidateRules(boolean val) {
