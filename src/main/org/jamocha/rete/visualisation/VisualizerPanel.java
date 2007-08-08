@@ -12,8 +12,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 
+import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
-import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -31,6 +33,7 @@ import org.jamocha.rete.Rete;
 import org.jamocha.rete.eventhandling.ModuleChangedEvent;
 import org.jamocha.rete.eventhandling.ModuleChangedListener;
 import org.jamocha.rete.modules.Module;
+import org.jamocha.rete.modules.Modules;
 import org.jamocha.rule.Defrule;
 import org.jamocha.rule.Rule;
 
@@ -115,6 +118,8 @@ public class VisualizerPanel extends JPanel implements ClickListener, ListSelect
 	protected JToggleButton lineQuarterEllipse;
 	protected Module module;
 	protected SimpleAttributeSet actAttributes, even, odd;
+	protected JComboBox moduleChooser;
+	protected JPanel moduleChooserPanel;
 	
 	protected void setModule(Module module){
 		//TODO: Module event handling reactivation
@@ -155,12 +160,20 @@ public class VisualizerPanel extends JPanel implements ClickListener, ListSelect
 		optionsPanel = new JPanel();
 		optionsPanel.setPreferredSize(new Dimension(150,120));
 		
-		optionsPanel.setLayout(new GridLayout(1,1));
+		optionsPanel.setLayout(new BoxLayout(optionsPanel,BoxLayout.Y_AXIS));
 		
 		rulePanel = new RuleSelectorPanel(null);
 		rulePanel.addListSelectionListener(this);
+		
+		moduleChooserPanel = new JPanel();
+		
+	
+		loadModuleList();
+		
 		generateRulesList();
 		optionsPanel.add(rulePanel);
+		optionsPanel.add(new JLabel("Module:"));
+		optionsPanel.add(moduleChooser);
 		mainVis.setSelectedRules(rulePanel.getSelectedRules());
 		miniMap.setSelectedRules(rulePanel.getSelectedRules());
 		miniMap.repaint();
@@ -195,6 +208,19 @@ public class VisualizerPanel extends JPanel implements ClickListener, ListSelect
 		
 		this.add(buttonPanel, BorderLayout.PAGE_END);
 
+	}
+	
+	public void loadModuleList(){
+		Vector<String> modules = new Vector<String>();
+		for (Module module : engine.getModules().getModuleList()) {
+			modules.add(module.getModuleName());
+		}
+		JComboBox oldChooser = moduleChooser;
+		if (oldChooser != null) {
+			
+		}
+		moduleChooser = new JComboBox(modules);
+		moduleChooser.setMaximumSize(new Dimension(4000,40));
 	}
 
 	
