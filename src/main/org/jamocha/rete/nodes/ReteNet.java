@@ -39,7 +39,7 @@ public class ReteNet implements Serializable {
 		// has been added to the working memory, so we just assert.
 		// we need to lookup the defclass and deftemplate to assert
 		// the object to the network
-		this.root.assertObject(fact, engine);
+		this.root.assertObject(fact, this);
 	}
 
 	/**
@@ -48,7 +48,7 @@ public class ReteNet implements Serializable {
 	 * @param objInstance
 	 */
 	public synchronized void retractObject(Fact fact) throws RetractException {
-		this.root.retractObject(fact, engine);
+		this.root.retractObject(fact, this);
 	}
 	
 	public boolean addRule(Rule rule) throws AssertException{
@@ -84,6 +84,10 @@ public class ReteNet implements Serializable {
 	
 	public RootNode getRoot(){
 		return this.root;
+	}
+	
+	public Rete getEngine(){
+		return this.engine;
 	}
 	
 }

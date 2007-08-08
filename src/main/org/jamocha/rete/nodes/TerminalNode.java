@@ -17,7 +17,6 @@
 package org.jamocha.rete.nodes;
 
 import org.jamocha.rete.Fact;
-import org.jamocha.rete.Rete;
 import org.jamocha.rete.agenda.Activation;
 import org.jamocha.rete.exception.AssertException;
 import org.jamocha.rete.exception.RetractException;
@@ -42,11 +41,11 @@ public class TerminalNode extends BaseNode {
 	 * @throws AssertException 
 	 */
 	
-	public void activate(Rete engine) throws AssertException {
+	public void activate(ReteNet net) throws AssertException {
 		for (BaseNode b : parentNodes) {
 			if (b instanceof AbstractBeta) {
 				AbstractBeta beta = (AbstractBeta)b;
-				beta.activate(engine);
+				beta.activate(net);
 			}
 		}
 	}
@@ -73,7 +72,7 @@ public class TerminalNode extends BaseNode {
 	 * @param engine
 	 * @param idx
 	 */
-	public void assertFact(Assertable fact, Rete engine, BaseNode sender)
+	public void assertFact(Assertable fact, ReteNet net, BaseNode sender)
 			throws AssertException {
 		FactTuple tuple = null;
 		if (sender.isRightNode())
@@ -83,7 +82,7 @@ public class TerminalNode extends BaseNode {
 
 		Activation act = new Activation(theRule, tuple);
 		Module module = theRule.getModule();
-		engine.getAgendas().getAgenda(module).addActivation(act);
+		net.getEngine().getAgendas().getAgenda(module).addActivation(act);
 	}
 
 	/**
@@ -94,7 +93,7 @@ public class TerminalNode extends BaseNode {
 	 * @param idx
 	 */
 	@Override
-	public void retractFact(Assertable fact, Rete engine, BaseNode sender)
+	public void retractFact(Assertable fact, ReteNet net, BaseNode sender)
 			throws RetractException {
 		FactTuple tuple = null;
 		if (sender.isRightNode())
@@ -104,7 +103,7 @@ public class TerminalNode extends BaseNode {
 
 		Activation act = new Activation(theRule, tuple);
 		Module module = theRule.getModule();
-		engine.getAgendas().getAgenda(module).removeActivation(act);
+		net.getEngine().getAgendas().getAgenda(module).removeActivation(act);
 	}
 
 	public Rule getRule() {
@@ -112,11 +111,11 @@ public class TerminalNode extends BaseNode {
 	}
 
 	@Override
-	protected void mountChild(BaseNode newChild, Rete engine) {
+	protected void mountChild(BaseNode newChild, ReteNet net) {
 	}
 
 	@Override
-	protected void unmountChild(BaseNode oldChild, Rete engine) {
+	protected void unmountChild(BaseNode oldChild, ReteNet net) {
 	}
 
 }

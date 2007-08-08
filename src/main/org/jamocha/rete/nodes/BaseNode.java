@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.jamocha.rete.ConversionUtils;
-import org.jamocha.rete.Rete;
 import org.jamocha.rete.exception.AssertException;
 import org.jamocha.rete.exception.RetractException;
 import org.jamocha.rete.visualisation.VisualizerSetup;
@@ -82,19 +81,19 @@ public abstract class BaseNode implements Serializable {
 	 * @param n
 	 * @return
 	 */
-	public boolean addNode(BaseNode n, Rete engine) throws AssertException {
+	public boolean addNode(BaseNode n, ReteNet net) throws AssertException {
 		boolean add = false;
 		// check if not inserted yet and free space for subchild:
 		// if (!containsNode(this.childNodes, n) && childNodes.length <
 		// maxChildCount) {
 		if (childNodes.length < maxChildCount) {
 			// inform added child node:
-			BaseNode weWillAddThisNode = n.evAdded(this, engine);
+			BaseNode weWillAddThisNode = n.evAdded(this, net);
 			if (weWillAddThisNode != null) {
 				// add to own list:
 				this.childNodes = ConversionUtils.add(this.childNodes,
 						weWillAddThisNode);
-				mountChild(weWillAddThisNode, engine);
+				mountChild(weWillAddThisNode, net);
 				add = true;
 			} else {
 				throw new AssertException(
@@ -111,7 +110,7 @@ public abstract class BaseNode implements Serializable {
 		return add;
 	}
 
-	protected abstract void mountChild(BaseNode newChild, Rete engine)
+	protected abstract void mountChild(BaseNode newChild, ReteNet net)
 			throws AssertException;
 
 	/**
@@ -120,7 +119,7 @@ public abstract class BaseNode implements Serializable {
 	 * @param n
 	 * @return
 	 */
-	protected BaseNode evAdded(BaseNode newParentNode, Rete engine) {
+	protected BaseNode evAdded(BaseNode newParentNode, ReteNet Net) {
 		// we have been added to the new parent, add parent to own list:
 		if (!containsNode(this.parentNodes, newParentNode)
 				&& parentNodes.length < maxParentCount) {
@@ -139,27 +138,27 @@ public abstract class BaseNode implements Serializable {
 	 * @return
 	 * @throws RetractException
 	 */
-	public boolean removeNode(BaseNode n, Rete engine) throws RetractException {
+	public boolean removeNode(BaseNode n, ReteNet net) throws RetractException {
 		boolean rem = false;
 		if (containsNode(this.childNodes, n))
 			// inform removed child node:
 			if (n.evRemoved(this)) {
 				this.childNodes = ConversionUtils.remove(this.childNodes, n);
-				unmountChild(n, engine);
+				unmountChild(n, net);
 				// dec own node use count
 				if (getChildCount() == 0)
-					evZeroUseCount(engine);
+					evZeroUseCount(net);
 				rem = true;
 			}
 		return rem;
 	}
 
-	protected abstract void unmountChild(BaseNode oldChild, Rete engine)
+	protected abstract void unmountChild(BaseNode oldChild, ReteNet net)
 			throws RetractException;
 
-	public void destroy(Rete engine) throws RetractException {
+	public void destroy(ReteNet net) throws RetractException {
 		for (BaseNode node : parentNodes) {
-			node.removeNode(this, engine);
+			node.removeNode(this, net);
 
 		}
 		// for (int i = 0; i < parentNodes.length; i++) {
@@ -190,9 +189,9 @@ public abstract class BaseNode implements Serializable {
 	 * 
 	 * @return
 	 */
-	protected void evZeroUseCount(Rete engine) {
+	protected void evZeroUseCount(ReteNet net) {
 		try {
-			destroy(engine);
+			destroy(net);
 		} catch (RetractException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -257,10 +256,10 @@ public abstract class BaseNode implements Serializable {
 	 * @param fact
 	 * @param engine
 	 */
-	protected void propogateRetract(Assertable fact, Rete engine)
+	protected void propogateRetract(Assertable fact, ReteNet net)
 			throws RetractException {
 		for (BaseNode nNode : childNodes) {
-			nNode.retractFact(fact, engine, this);
+			nNode.retractFact(fact, net, this);
 		}
 	}
 
@@ -270,18 +269,18 @@ public abstract class BaseNode implements Serializable {
 	 * @param fact
 	 * @param engine
 	 */
-	protected void propogateAssert(Assertable fact, Rete engine)
+	protected void propogateAssert(Assertable fact, ReteNet net)
 			throws AssertException {
 		for (BaseNode nNode : childNodes) {
-			nNode.assertFact(fact, engine, this);
+			nNode.assertFact(fact, net, this);
 		}
 	}
 
 	// use of good old Delphi sender...
-	public abstract void assertFact(Assertable fact, Rete engine,
+	public abstract void assertFact(Assertable fact, ReteNet net,
 			BaseNode sender) throws AssertException;
 
-	public abstract void retractFact(Assertable fact, Rete engine,
+	public abstract void retractFact(Assertable fact, ReteNet net,
 			BaseNode sender) throws RetractException;
 
 	public boolean isRightNode() {

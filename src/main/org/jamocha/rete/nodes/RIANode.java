@@ -1,7 +1,6 @@
 package org.jamocha.rete.nodes;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Vector;
 
@@ -13,10 +12,11 @@ import org.jamocha.rete.exception.AssertException;
 import org.jamocha.rete.exception.RetractException;
 import org.jamocha.rete.memory.AlphaMemory;
 
-import com.sun.media.sound.AlawCodec;
-
 
 public class RIANode extends AbstractBeta {
+
+	private static final long serialVersionUID = 1L;
+
 
 	public RIANode(int id) {
 		super(id);
@@ -32,27 +32,27 @@ public class RIANode extends AbstractBeta {
 	// protected abstract void evaluateBeta(FactTuple tuple, Rete engine) throws
 	// AssertException;
 
-	protected Fact addToMergeMemory(FactTuple ft, Rete engine) {
-		Fact f = new Deffact( engine.findTemplate("_initialFact") , null, new Slot[0]);
+	protected Fact addToMergeMemory(FactTuple ft, ReteNet net) {
+		Fact f = new Deffact( net.getEngine().findTemplate("_initialFact") , null, new Slot[0]);
 		mapping.put(ft, f);
 		mergeMemory.add(f);
 		return f;
 	}
 	
-	protected Fact removeFromMergeMemory(FactTuple ft, Rete engine) {
+	protected Fact removeFromMergeMemory(FactTuple ft, ReteNet net) {
 		Fact f = mapping.get(ft);
 		mapping.remove(ft);
 		mergeMemory.remove(f);
 		return f;
 	}
 	
-	protected void evaluateBeta(FactTuple tuple, Rete engine) throws AssertException {
-		Fact f = addToMergeMemory(tuple, engine);
-		this.propogateAssert(f, engine);
+	protected void evaluateBeta(FactTuple tuple, ReteNet net) throws AssertException {
+		Fact f = addToMergeMemory(tuple, net);
+		this.propogateAssert(f, net);
 	}
 
 
-	/**
+	/**s
 	 * assertLeft takes an array of facts. Since the next join may be joining
 	 * against one or more objects, we need to pass all previously matched
 	 * facts.
@@ -60,20 +60,20 @@ public class RIANode extends AbstractBeta {
 	 * @param factInstance
 	 * @param engine
 	 */
-	public void assertLeft(FactTuple tuple, Rete engine) throws AssertException {
+	public void assertLeft(FactTuple tuple, ReteNet net) throws AssertException {
 		betaMemory.add(tuple);
 		// only if activated:
 		if (activated) {
-			evaluateBeta(tuple, engine);
+			evaluateBeta(tuple, net);
 		}
 	}
 
 
-	public void assertFact(Assertable fact, Rete engine, BaseNode sender) throws AssertException {
+	public void assertFact(Assertable fact, ReteNet net, BaseNode sender) throws AssertException {
 		if (sender.isRightNode()) {
-			assertRight((Fact) fact, engine);
+			assertRight((Fact) fact, net);
 		} else
-			assertLeft((FactTuple) fact, engine);
+			assertLeft((FactTuple) fact, net);
 	}
 	
 
@@ -82,11 +82,11 @@ public class RIANode extends AbstractBeta {
 	}
 
 	@Override
-	public void retractFact(Assertable fact, Rete engine, BaseNode sender) throws RetractException {
+	public void retractFact(Assertable fact, ReteNet net, BaseNode sender) throws RetractException {
 		if (sender.isRightNode()) {
-			retractRight((Fact) fact, engine);
+			retractRight((Fact) fact, net);
 		} else
-			retractLeft((FactTuple) fact, engine);
+			retractLeft((FactTuple) fact, net);
 	}
 
 	/**
@@ -115,7 +115,7 @@ public class RIANode extends AbstractBeta {
 	 * @param factInstance
 	 * @param engine
 	 */
-	public void retractLeft(FactTuple tuple, Rete engine) throws RetractException {
+	public void retractLeft(FactTuple tuple, ReteNet net) throws RetractException {
 		if (betaMemory.contains(tuple)) {
 			betaMemory.remove(tuple);
 			// now we propogate the retract. To do that, we have
@@ -123,8 +123,8 @@ public class RIANode extends AbstractBeta {
 			// and call retract in the successor nodes
 			Vector<FactTuple> matchings = mergeMemorygetPrefixMatchingTuples(tuple);
 			for (FactTuple toRemove : matchings) {
-				Fact f = removeFromMergeMemory(tuple, engine);
-				propogateRetract(f, engine);
+				Fact f = removeFromMergeMemory(tuple, net);
+				propogateRetract(f, net);
 			}
 
 		}

@@ -81,23 +81,23 @@ public class RootNode extends BaseNode {
 	 * @return ObjectTypeNode
 	 * @throws AssertException
 	 */
-	public ObjectTypeNode activateObjectTypeNode(Template template, Rete engine)
+	public ObjectTypeNode activateObjectTypeNode(Template template, ReteNet net)
 			throws AssertException {
 		ObjectTypeNode result = this.tempInputNodes.remove(template);
 		if (result != null) {
 			inputNodes.put(template, result);
-			addNode(result, engine);
+			addNode(result, net);
 		} else
 			result = inputNodes.get(template);
 		return result;
 	}
 
-	public void deactivateObjectTypeNode(ObjectTypeNode node, Rete engine)
+	public void deactivateObjectTypeNode(ObjectTypeNode node, ReteNet net)
 			throws RetractException {
 		Template tmpl = node.getDeftemplate();
 		inputNodes.remove(tmpl);
 		tempInputNodes.put(tmpl, node);
-		removeNode(node, engine);
+		removeNode(node, net);
 	}
 
 	/**
@@ -117,13 +117,13 @@ public class RootNode extends BaseNode {
 	 * @param mem
 	 * @throws AssertException
 	 */
-	public synchronized void assertObject(Fact fact, Rete engine)
+	public synchronized void assertObject(Fact fact, ReteNet net)
 			throws AssertException {
 		// we assume Rete has already checked to see if the object
 		// has been added to the working memory, so we just assert.
 		// we need to lookup the defclass and deftemplate to assert
 		// the object to the network
-		this.assertFact(fact, engine, this);
+		this.assertFact(fact, net, this);
 	}
 
 	/**
@@ -131,9 +131,9 @@ public class RootNode extends BaseNode {
 	 * 
 	 * @param objInstance
 	 */
-	public synchronized void retractObject(Fact fact, Rete engine)
+	public synchronized void retractObject(Fact fact, ReteNet net)
 			throws RetractException {
-		this.retractFact(fact, engine, this);
+		this.retractFact(fact, net, this);
 	}
 
 	/**
@@ -150,7 +150,7 @@ public class RootNode extends BaseNode {
 	}
 
 	@Override
-	public void assertFact(Assertable fact, Rete engine, BaseNode sender)
+	public void assertFact(Assertable fact, ReteNet net, BaseNode sender)
 			throws AssertException {
 		Fact fct = (Fact) fact;
 		ObjectTypeNode otn = (ObjectTypeNode) this.inputNodes.get(fct
@@ -159,18 +159,18 @@ public class RootNode extends BaseNode {
 			otn = (ObjectTypeNode) this.tempInputNodes.get(fct.getTemplate());
 		}
 		if (otn != null) {
-			otn.assertFact(fact, engine, sender);
+			otn.assertFact(fact, net, sender);
 		}
 	}
 
 	@Override
-	protected void mountChild(BaseNode newChild, Rete engine)
+	protected void mountChild(BaseNode newChild, ReteNet net)
 			throws AssertException {
 		// nothing to do: facts are allready asserted to all possible otn
 	}
 
 	@Override
-	public void retractFact(Assertable fact, Rete engine, BaseNode sender)
+	public void retractFact(Assertable fact, ReteNet net, BaseNode sender)
 			throws RetractException {
 		Fact fct = (Fact) fact;
 		ObjectTypeNode otn = (ObjectTypeNode) this.inputNodes.get(fct
@@ -179,12 +179,12 @@ public class RootNode extends BaseNode {
 			otn = (ObjectTypeNode) this.tempInputNodes.get(fct.getTemplate());
 		}
 		if (otn != null) {
-			otn.retractFact(fact, engine, sender);
+			otn.retractFact(fact, net, sender);
 		}
 	}
 
 	@Override
-	protected void unmountChild(BaseNode oldChild, Rete engine)
+	protected void unmountChild(BaseNode oldChild, ReteNet net)
 			throws RetractException {
 		// nothing to do: facts are allready asserted to all possible otn
 	}

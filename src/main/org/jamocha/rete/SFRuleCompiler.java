@@ -376,7 +376,7 @@ public class SFRuleCompiler implements RuleCompiler {
 
 		root.removeObjectTypeNode(node);
 		node.clear();
-		node.destroy(engine);
+		node.destroy(net);
 	}
 
 	/**
@@ -427,7 +427,7 @@ public class SFRuleCompiler implements RuleCompiler {
 			for (int i = 0; i < conds.length; i++) conds[i].compile(this, rule, i);
 			return compileJoins(rule);
 		} else /*if (rule.getConditions().length == 0)*/ {
-			return root.activateObjectTypeNode(engine.initFact, engine);
+			return root.activateObjectTypeNode(engine.initFact, net);
 		}
 	}
 
@@ -440,7 +440,7 @@ public class SFRuleCompiler implements RuleCompiler {
 		} catch (StopCompileException e) {
 			return e.isSubSuccessed();
 		}
-		lastNode.addNode(tnode, engine);
+		lastNode.addNode(tnode, net);
 		compileActions(rule);
 		currentMod.addRule(rule);
 		CompileEvent ce = new CompileEvent(rule, CompileEvent.ADD_RULE_EVENT);
@@ -492,7 +492,7 @@ public class SFRuleCompiler implements RuleCompiler {
 		rearrangeConditions(sortedConds);
 		
 		HashMap<Condition, BaseNode> conditionJoiners = new HashMap<Condition, BaseNode>();
-		BaseNode initFactNode = root.activateObjectTypeNode(engine.initFact, engine);
+		BaseNode initFactNode = root.activateObjectTypeNode(engine.initFact, net);
 		
 		
 		BaseNode mostBottomNode = null;
@@ -510,18 +510,18 @@ public class SFRuleCompiler implements RuleCompiler {
 			if (fromBottom == null){
 				mostBottomNode = newBeta;
 			} else {
-				newBeta.addNode(fromBottom, engine);				
+				newBeta.addNode(fromBottom, net);				
 			}
 			
 			fromBottom = newBeta;
 			
-			c.getLastNode().addNode(newBeta, engine);
+			c.getLastNode().addNode(newBeta, net);
 			
 			conditionJoiners.put(c, newBeta);
 			
 		}
 		
-		if (fromBottom != null) initFactNode.addNode(fromBottom, engine);
+		if (fromBottom != null) initFactNode.addNode(fromBottom, net);
 		
 		if (mostBottomNode == null) mostBottomNode = sortedConds[0].getLastNode();
 		
@@ -530,7 +530,7 @@ public class SFRuleCompiler implements RuleCompiler {
 		//activate all joins
 		for (BaseNode n : conditionJoiners.values()){
 			if (n == null) continue;
-			((AbstractBeta)n).activate(engine);
+			((AbstractBeta)n).activate(net);
 		}
 		return ultimateMostBottomNode;
 	}
@@ -647,12 +647,12 @@ public class SFRuleCompiler implements RuleCompiler {
 				continue;
 			ObjectCondition objectC = (ObjectCondition) c;
 			Template template = objectC.getTemplate();
-			ObjectTypeNode otn = root.activateObjectTypeNode(template, engine);
+			ObjectTypeNode otn = root.activateObjectTypeNode(template, net);
 
 			BetaFilterNode newJoin = new BetaFilterNode(net.nextNodeId());
 
-			mostBottomNode.addNode(newJoin, engine);
-			otn.addNode(newJoin, engine);
+			mostBottomNode.addNode(newJoin, net);
+			otn.addNode(newJoin, net);
 
 			mostBottomNode = newJoin;
 
@@ -810,7 +810,7 @@ public class SFRuleCompiler implements RuleCompiler {
 		Template template = condition.getTemplate();
 		ObjectTypeNode otn = null;
 		try {
-			otn = root.activateObjectTypeNode(template, engine);
+			otn = root.activateObjectTypeNode(template, net);
 
 			// add otn to condition:
 			condition.addNode(otn);
@@ -829,7 +829,7 @@ public class SFRuleCompiler implements RuleCompiler {
 
 					// we add the node to the previous
 					if (current != null) {
-						prev.addNode(current, engine);
+						prev.addNode(current, net);
 						condition.addNode(current);
 						// now set the previous to current
 						prev = current;

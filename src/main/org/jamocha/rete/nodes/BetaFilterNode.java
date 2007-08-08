@@ -110,20 +110,20 @@ public class BetaFilterNode extends AbstractBeta {
 	}
 
 	@Override
-	protected void mountChild(BaseNode newChild, Rete engine)
+	protected void mountChild(BaseNode newChild, ReteNet net)
 			throws AssertException {
 		Iterator<FactTuple> itr = mergeMemory.iterator();
 		while (itr.hasNext()) {
-			newChild.assertFact(itr.next(), engine, this);
+			newChild.assertFact(itr.next(), net, this);
 		}
 	}
 
 	@Override
-	protected void unmountChild(BaseNode oldChild, Rete engine)
+	protected void unmountChild(BaseNode oldChild, ReteNet net)
 			throws RetractException {
 		Iterator<FactTuple> itr = mergeMemory.iterator();
 		while (itr.hasNext()) {
-			oldChild.retractFact(itr.next(), engine, this);
+			oldChild.retractFact(itr.next(), net, this);
 		}
 	}
 

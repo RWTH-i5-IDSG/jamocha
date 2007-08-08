@@ -42,20 +42,20 @@ public abstract class AbstractBeta extends BaseNode {
 	// per default deactivated
 	protected boolean activated = false;
 
-	public void activate(Rete engine) throws AssertException {
+	public void activate(ReteNet net) throws AssertException {
 		if (!activated) {
 			// we have to traverse the whole beta mem and eval it.
 			activated = true;
 			Iterator<FactTuple> itr = betaMemory.iterator();
 			while (itr.hasNext()) {
 				FactTuple tuple = itr.next();
-				evaluateBeta(tuple, engine);
+				evaluateBeta(tuple, net);
 			}
 		}
 		for (BaseNode b : parentNodes) {
 			if (b instanceof AbstractBeta) {
 				AbstractBeta beta = (AbstractBeta)b;
-				beta.activate(engine);
+				beta.activate(net);
 			}
 		}
 	}
@@ -63,14 +63,14 @@ public abstract class AbstractBeta extends BaseNode {
 	// protected abstract void evaluateBeta(FactTuple tuple, Rete engine) throws
 	// AssertException;
 
-	protected void evaluateBeta(FactTuple tuple, Rete engine) throws AssertException {
+	protected void evaluateBeta(FactTuple tuple, ReteNet net) throws AssertException {
 		Iterator<Fact> itr = alphaMemory.iterator();
 		while (itr.hasNext()) {
 			Fact rfcts = itr.next();
 			if (this.evaluate(tuple, rfcts)) {
 				FactTuple newTuple = tuple.addFact(rfcts);
 				mergeMemory.add(newTuple);
-				this.propogateAssert(newTuple, engine);
+				this.propogateAssert(newTuple, net);
 			}
 		}
 
@@ -84,11 +84,11 @@ public abstract class AbstractBeta extends BaseNode {
 	 * @param factInstance
 	 * @param engine
 	 */
-	public void assertLeft(FactTuple tuple, Rete engine) throws AssertException {
+	public void assertLeft(FactTuple tuple, ReteNet net) throws AssertException {
 		betaMemory.add(tuple);
 		// only if activated:
 		if (activated) {
-			evaluateBeta(tuple, engine);
+			evaluateBeta(tuple, net);
 		}
 	}
 
@@ -107,14 +107,14 @@ public abstract class AbstractBeta extends BaseNode {
 	}
 
 	@Override
-	public void assertFact(Assertable fact, Rete engine, BaseNode sender) throws AssertException {
+	public void assertFact(Assertable fact, ReteNet net, BaseNode sender) throws AssertException {
 		if (sender.isRightNode()) {
-			assertRight((Fact) fact, engine);
+			assertRight((Fact) fact, net);
 		} else
-			assertLeft((FactTuple) fact, engine);
+			assertLeft((FactTuple) fact, net);
 	}
 
-	public void assertRight(Fact fact, Rete engine) throws AssertException {
+	public void assertRight(Fact fact, ReteNet net) throws AssertException {
 		alphaMemory.add(fact);
 		// only if activated:
 		if (activated) {
@@ -125,19 +125,19 @@ public abstract class AbstractBeta extends BaseNode {
 					// now we propogate
 					FactTuple newTuple = tuple.addFact(fact);
 					mergeMemory.add(newTuple);
-					this.propogateAssert(newTuple, engine);
+					this.propogateAssert(newTuple, net);
 				}
 			}
 		}
 	}
 
 	@Override
-	public void retractFact(Assertable fact, Rete engine, BaseNode sender) throws RetractException {
+	public void retractFact(Assertable fact, ReteNet net, BaseNode sender) throws RetractException {
 		if (sender.isRightNode()) {
-			retractRight((Fact) fact, engine);
+			retractRight((Fact) fact, net);
 
 		} else
-			retractLeft((FactTuple) fact, engine);
+			retractLeft((FactTuple) fact, net);
 	}
 
 	/**
@@ -150,7 +150,7 @@ public abstract class AbstractBeta extends BaseNode {
 	}
 
 	@Override
-	protected void mountChild(BaseNode newChild, Rete engine) throws AssertException {
+	protected void mountChild(BaseNode newChild, ReteNet net) throws AssertException {
 		// TODO Auto-generated method stub
 
 	}
@@ -161,7 +161,7 @@ public abstract class AbstractBeta extends BaseNode {
 	 * @param factInstance
 	 * @param engine
 	 */
-	public void retractLeft(FactTuple tuple, Rete engine) throws RetractException {
+	public void retractLeft(FactTuple tuple, ReteNet net) throws RetractException {
 		if (betaMemory.contains(tuple)) {
 			betaMemory.remove(tuple);
 			// now we propogate the retract. To do that, we have
@@ -170,7 +170,7 @@ public abstract class AbstractBeta extends BaseNode {
 			Vector<FactTuple> matchings = mergeMemory.getPrefixMatchingTuples(tuple);
 			for (FactTuple toRemove : matchings) {
 				mergeMemory.remove(toRemove);
-				propogateRetract(toRemove, engine);
+				propogateRetract(toRemove, net);
 			}
 
 		}
@@ -184,19 +184,19 @@ public abstract class AbstractBeta extends BaseNode {
 	 * @param factInstance
 	 * @param engine
 	 */
-	public void retractRight(Fact fact, Rete engine) throws RetractException {
+	public void retractRight(Fact fact, ReteNet net) throws RetractException {
 		if (alphaMemory.contains(fact)) {
 			alphaMemory.remove(fact);
 			Vector<FactTuple> matchings = mergeMemory.getPostfixMatchingTuples(fact);
 			for (FactTuple toRemove : matchings) {
 				mergeMemory.remove(toRemove);
-				propogateRetract(toRemove, engine);
+				propogateRetract(toRemove, net);
 			}
 		}
 	}
 
 	@Override
-	protected void unmountChild(BaseNode oldChild, Rete engine) throws RetractException {
+	protected void unmountChild(BaseNode oldChild, ReteNet net) throws RetractException {
 		// TODO Auto-generated method stub
 
 	}
@@ -206,7 +206,7 @@ public abstract class AbstractBeta extends BaseNode {
 	}
 
 	@Override
-	protected BaseNode evAdded(BaseNode newParentNode, Rete engine) {
+	protected BaseNode evAdded(BaseNode newParentNode, ReteNet net) {
 
 		// ======= Briefing ===========
 		// this: the child
@@ -217,19 +217,19 @@ public abstract class AbstractBeta extends BaseNode {
 		// parent
 		if (this.parentNodes.length > 0 && this.parentNodes[0].isRightNode() && newParentNode.isRightNode()) {
 			// now, indeed, we need a new LIANode between them
-			LIANode adaptor = new LIANode(engine.getNet().nextNodeId());
+			LIANode adaptor = new LIANode(net.nextNodeId());
 			try {
-				adaptor.addNode(this, engine);
-				return adaptor.evAdded(newParentNode, engine);
+				adaptor.addNode(this, net);
+				return adaptor.evAdded(newParentNode, net);
 			} catch (AssertException e) {
 				e.printStackTrace();
 			}
-			return super.evAdded(newParentNode, engine);
+			return super.evAdded(newParentNode, net);
 
 		} else {
 			// no additional node needed.
 			// it is okay to have same behaviour like superclass here
-			return super.evAdded(newParentNode, engine);
+			return super.evAdded(newParentNode, net);
 		}
 
 	}

@@ -56,23 +56,23 @@ public class BetaQuantorFilterNode extends BetaFilterNode {
 		this(id, false);
 	}
 
-	protected void propagateNewTuple(FactTuple t, Rete e) throws AssertException {
-		FactTuple newTuple = t.addFact(e.getInitialFact());
+	protected void propagateNewTuple(FactTuple t, ReteNet net) throws AssertException {
+		FactTuple newTuple = t.addFact(net.getEngine().getInitialFact());
 		propagatedMarker.mark(t);
 		mergeMemory.add(newTuple);
-		propogateAssert(newTuple, e);
+		propogateAssert(newTuple, net);
 	}
 
-	protected void unPropagateNewTuple(FactTuple t, Rete e) throws RetractException {
+	protected void unPropagateNewTuple(FactTuple t, ReteNet net) throws RetractException {
 		propagatedMarker.unmark(t);
 		
 		for (FactTuple tuple: mergeMemory.getPrefixMatchingTuples(t)){
 			mergeMemory.remove(tuple);
-			propogateRetract(tuple, e);
+			propogateRetract(tuple, net);
 		}
 	}
 
-	protected void evaluateBeta(FactTuple tuple, Rete engine) throws AssertException {
+	protected void evaluateBeta(FactTuple tuple, ReteNet net) throws AssertException {
 		// iterate over alpha memory.
 		// check, whether there is a fact, which matches the filters.
 		// propagate them, depending on "negated" and the matching above and
@@ -87,19 +87,19 @@ public class BetaQuantorFilterNode extends BetaFilterNode {
 		}
 		boolean propagateIt = (thereIsAFact != negated);
 		if (propagateIt) {
-			propagateNewTuple(tuple, engine);
+			propagateNewTuple(tuple, net);
 		}
 	}
 
-	public void assertLeft(FactTuple tuple, Rete engine) throws AssertException {
+	public void assertLeft(FactTuple tuple, ReteNet net) throws AssertException {
 		betaMemory.add(tuple);
 		if (!activated)
 			return;
 
-		evaluateBeta(tuple, engine);
+		evaluateBeta(tuple, net);
 	}
 
-	public void assertRight(Fact fact, Rete engine) throws AssertException {
+	public void assertRight(Fact fact, ReteNet net) throws AssertException {
 
 		alphaMemory.add(fact);
 		if (!activated)
@@ -116,24 +116,24 @@ public class BetaQuantorFilterNode extends BetaFilterNode {
 				continue;
 			if (negated /* && propagated */) {
 				try {
-					unPropagateNewTuple(tuple, engine);
+					unPropagateNewTuple(tuple, net);
 				} catch (RetractException e) {
 					throw new AssertException(e);
 				}
 			} else /* if (!negated && !propagated ) */{
-				propagateNewTuple(tuple, engine);
+				propagateNewTuple(tuple, net);
 			}
 		}
 	}
 
-	public void retractLeft(FactTuple tuple, Rete engine) throws RetractException {
+	public void retractLeft(FactTuple tuple, ReteNet net) throws RetractException {
 		// simply retract it ;)
 		if (propagatedMarker.isMarked(tuple))
-			unPropagateNewTuple(tuple, engine);
+			unPropagateNewTuple(tuple, net);
 		betaMemory.remove(tuple);
 	}
 
-	public void retractRight(Fact fact, Rete engine) throws RetractException {
+	public void retractRight(Fact fact, ReteNet net) throws RetractException {
 		// retract it and check for all not propagated (or for "negated" all
 		// propagated), whether this status must be changed. if so, do it.
 		for (FactTuple tuple : betaMemory) {
@@ -154,30 +154,30 @@ public class BetaQuantorFilterNode extends BetaFilterNode {
 			if (matchBeforeRetracting && !matchAfterRetracting) {
 				if (negated) {
 					try {
-						propagateNewTuple(tuple, engine);
+						propagateNewTuple(tuple, net);
 					} catch (AssertException e) {
 						throw new RetractException(e);
 					}
 				} else {
-					unPropagateNewTuple(tuple, engine);
+					unPropagateNewTuple(tuple, net);
 				}
 			}
 		}
 		alphaMemory.remove(fact);
 	}
 
-	public void activate(Rete engine) throws AssertException {
+	public void activate(ReteNet net) throws AssertException {
 
 		if (!activated) {
 			activated = true;
 			for (FactTuple tuple : betaMemory) {
-				evaluateBeta(tuple, engine);
+				evaluateBeta(tuple, net);
 			}
 		}
 		for (BaseNode b : parentNodes) {
 			if (b instanceof AbstractBeta) {
 				AbstractBeta beta = (AbstractBeta)b;
-				beta.activate(engine);
+				beta.activate(net);
 			}
 		}
 	}

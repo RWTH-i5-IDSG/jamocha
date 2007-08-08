@@ -20,7 +20,6 @@ import org.jamocha.rete.CompositeIndex;
 import org.jamocha.rete.ConversionUtils;
 import org.jamocha.rete.Evaluate;
 import org.jamocha.rete.Fact;
-import org.jamocha.rete.Rete;
 import org.jamocha.rete.Slot;
 import org.jamocha.rete.exception.AssertException;
 import org.jamocha.rete.exception.RetractException;
@@ -82,11 +81,11 @@ public class AlphaNode extends SlotAlpha {
 	 * @param factInstance
 	 */
 	@Override
-	public void assertFact(Assertable fact, Rete engine, BaseNode sender)
+	public void assertFact(Assertable fact, ReteNet net, BaseNode sender)
 			throws AssertException {
 		if (evaluate((Fact) fact)) {
 			facts.add((Fact) fact);
-			propogateAssert(fact, engine);
+			propogateAssert(fact, net);
 		}
 	}
 
@@ -97,28 +96,28 @@ public class AlphaNode extends SlotAlpha {
 	 * @param engine
 	 */
 	@Override
-	public void retractFact(Assertable fact, Rete engine, BaseNode sender)
+	public void retractFact(Assertable fact, ReteNet net, BaseNode sender)
 			throws RetractException {
 		facts.remove((Fact) fact);
-		propogateRetract(fact, engine);
+		propogateRetract(fact, net);
 	}
 
 	@Override
-	protected void mountChild(BaseNode newChild, Rete engine)
+	protected void mountChild(BaseNode newChild, ReteNet net)
 			throws AssertException {
 		for (Fact fact : facts)
 			// eval before send down:
 			if (evaluate((Fact) fact))
-				newChild.assertFact(fact, engine, this);
+				newChild.assertFact(fact, net, this);
 	}
 
 	@Override
-	protected void unmountChild(BaseNode oldChild, Rete engine)
+	protected void unmountChild(BaseNode oldChild, ReteNet net)
 			throws RetractException {
 		for (Fact fact : facts)
 			// eval before send down:
 			if (evaluate((Fact) fact))
-				oldChild.retractFact(fact, engine, this);
+				oldChild.retractFact(fact, net, this);
 	}
 
 	/**

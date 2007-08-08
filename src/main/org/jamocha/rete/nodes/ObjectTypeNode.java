@@ -85,19 +85,19 @@ public class ObjectTypeNode extends AbstractAlpha implements Serializable {
 	}
 
 	@Override
-	public void assertFact(Assertable fact, Rete engine, BaseNode sender)
+	public void assertFact(Assertable fact, ReteNet net, BaseNode sender)
 			throws AssertException {
 		if (((Fact) fact).getTemplate().equals(this.getDeftemplate())) {
 			this.facts.add((Fact) fact);
-			propogateAssert(fact, engine);
+			propogateAssert(fact, net);
 		}
 	}
 
 	@Override
-	public void retractFact(Assertable fact, Rete engine, BaseNode sender)
+	public void retractFact(Assertable fact, ReteNet net, BaseNode sender)
 			throws RetractException {
 		if (facts.remove((Fact) fact))
-			propogateRetract(fact, engine);
+			propogateRetract(fact, net);
 	}
 
 	public RootNode getRootNode() {
@@ -117,9 +117,9 @@ public class ObjectTypeNode extends AbstractAlpha implements Serializable {
 				+ "\n";
 	}
 
-	protected void evZeroUseCount(Rete engine) {
+	protected void evZeroUseCount(ReteNet net) {
 		try {
-			getRootNode().deactivateObjectTypeNode(this, engine);
+			getRootNode().deactivateObjectTypeNode(this, net);
 		} catch (RetractException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

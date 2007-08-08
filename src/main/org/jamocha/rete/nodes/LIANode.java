@@ -22,7 +22,6 @@ import java.awt.Point;
 import java.util.List;
 
 import org.jamocha.rete.Fact;
-import org.jamocha.rete.Rete;
 import org.jamocha.rete.exception.AssertException;
 import org.jamocha.rete.exception.RetractException;
 import org.jamocha.rete.visualisation.VisualizerSetup;
@@ -45,37 +44,37 @@ public class LIANode extends AbstractAlpha {
 	private static final long serialVersionUID = 1L;
 
 	@Override
-	public void assertFact(Assertable fact, Rete engine, BaseNode sender)
+	public void assertFact(Assertable fact, ReteNet net, BaseNode sender)
 			throws AssertException {
 		// add to own buffer list:
 		facts.add((Fact) fact);
 		// build tuple and propagate:
 		FactTuple tuple = new FactTuple((Fact) fact);
-		propogateAssert(tuple, engine);
+		propogateAssert(tuple, net);
 	}
 
 	@Override
-	public void retractFact(Assertable fact, Rete engine, BaseNode sender)
+	public void retractFact(Assertable fact, ReteNet net, BaseNode sender)
 			throws RetractException {
 		assert (fact instanceof Fact);
 		if (facts.remove((Fact) fact)) {
 			FactTuple tuple = new FactTuple((Fact) fact);
-			propogateRetract(tuple, engine);
+			propogateRetract(tuple, net);
 		}
 	}
 
-	protected void mountChild(BaseNode newChild, Rete engine)
+	protected void mountChild(BaseNode newChild, ReteNet net)
 			throws AssertException {
 		for (Fact fact : facts)
 			// we have to send down a fact tuple:
-			newChild.assertFact(new FactTuple((Fact) fact), engine, this);
+			newChild.assertFact(new FactTuple((Fact) fact), net, this);
 	}
 
-	protected void unmountChild(BaseNode oldChild, Rete engine)
+	protected void unmountChild(BaseNode oldChild, ReteNet net)
 			throws RetractException {
 		for (Fact fact : facts)
 			// we have to send down a fact tuple:
-			oldChild.retractFact(new FactTuple((Fact) fact), engine, this);
+			oldChild.retractFact(new FactTuple((Fact) fact), net, this);
 	}
 
 	public boolean isRightNode() {

@@ -18,7 +18,6 @@ package org.jamocha.rete.nodes;
 
 import org.jamocha.rete.Constants;
 import org.jamocha.rete.Fact;
-import org.jamocha.rete.Rete;
 import org.jamocha.rete.exception.AssertException;
 import org.jamocha.rete.exception.RetractException;
 import org.jamocha.rete.memory.AlphaMemory;
@@ -102,16 +101,16 @@ public abstract class AbstractAlpha extends BaseNode {
 		return this.operator;
 	}
 
-	protected void mountChild(BaseNode newChild, Rete engine)
+	protected void mountChild(BaseNode newChild, ReteNet net)
 			throws AssertException {
 		for (Fact fact : facts)
-			newChild.assertFact(fact, engine, this);
+			newChild.assertFact(fact, net, this);
 	}
 
-	protected void unmountChild(BaseNode oldChild, Rete engine)
+	protected void unmountChild(BaseNode oldChild, ReteNet net)
 			throws RetractException {
 		for (Fact fact : facts)
-			oldChild.retractFact(fact, engine, this);
+			oldChild.retractFact(fact, net, this);
 	}
 
 	public void clear() {
