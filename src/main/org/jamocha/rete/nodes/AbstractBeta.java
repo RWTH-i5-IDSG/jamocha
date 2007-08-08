@@ -217,7 +217,7 @@ public abstract class AbstractBeta extends BaseNode {
 		// parent
 		if (this.parentNodes.length > 0 && this.parentNodes[0].isRightNode() && newParentNode.isRightNode()) {
 			// now, indeed, we need a new LIANode between them
-			LIANode adaptor = new LIANode(engine.nextNodeId());
+			LIANode adaptor = new LIANode(engine.getNet().nextNodeId());
 			try {
 				adaptor.addNode(this, engine);
 				return adaptor.evAdded(newParentNode, engine);

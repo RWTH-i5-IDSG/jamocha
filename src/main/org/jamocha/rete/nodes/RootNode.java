@@ -58,7 +58,7 @@ public class RootNode extends BaseNode {
 	public void addObjectTypeNode(Template template, Rete engine) {
 		if (!inputNodes.containsKey(template)
 				&& !tempInputNodes.containsKey(template)) {
-			ObjectTypeNode node = new ObjectTypeNode(engine.nextNodeId(),
+			ObjectTypeNode node = new ObjectTypeNode(engine.getNet().nextNodeId(),
 					template);
 			tempInputNodes.put(template, node);
 		}

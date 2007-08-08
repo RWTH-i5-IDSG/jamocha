@@ -25,7 +25,6 @@ import javax.swing.JFrame;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.rete.memory.WorkingMemoryImpl;
 import org.jamocha.rete.nodes.BaseNode;
 import org.jamocha.rete.nodes.RootNode;
 import org.jamocha.rete.Function;
