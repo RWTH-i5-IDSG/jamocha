@@ -50,6 +50,10 @@ public class Agenda implements Serializable {
 	
 	public void setConflictResolutionStrategy(ConflictResolutionStrategy strat) {
 		strategy = strat;
+		// we need to recompute the activation list
+		List<Activation> oldList = activations;
+		activations = new ArrayList<Activation>();
+		for(Activation a : oldList) strategy.addActivation(activations, a);
 	}
 	
 	public ConflictResolutionStrategy getConflictResolutionStrategy(){
