@@ -42,7 +42,7 @@ import org.jamocha.rule.Rule;
 
 public class VisualizerPanel extends JPanel implements ClickListener, ListSelectionListener, MouseListener, ModuleChangedListener, ActionListener {
 
-	class JCheckBoxList extends JScrollPane implements ActionListener{
+	class JCheckBoxList extends JPanel implements ActionListener{
 		
 		Vector<JCheckBox> boxes;
 		List<ListSelectionListener> listeners;
@@ -50,24 +50,31 @@ public class VisualizerPanel extends JPanel implements ClickListener, ListSelect
 		JPanel panel;
 		
 		JCheckBoxList(Vector<String> items) {
+			listeners = new ArrayList<ListSelectionListener>();
+			selected = new ArrayList<String>();
+			setList(items);
+		}
+		
+		public void setList(Vector<String> items) {
 			if (items == null) {
 				items = new Vector<String>();
 			}
+			if (panel != null) this.remove(panel);
 			panel = new JPanel();
 			boxes=new Vector<JCheckBox>();
 			loadItemsList(items);
 			panel.setLayout(new BoxLayout(panel,BoxLayout.Y_AXIS));
-			listeners = new ArrayList<ListSelectionListener>();
-			selected = new ArrayList<String>();
+			selectAll();
 			this.add(panel);
 		}
 		
 		void loadItemsList(Vector<String> items){
-			for (JCheckBox box : boxes) this.remove(box);
+			for (JCheckBox box : boxes) panel.remove(box);
 			boxes.clear();
 			for (String s : items) {
 				JCheckBox newBox = new JCheckBox(s);
 				newBox.addActionListener(this);
+				boxes.add(newBox);
 				panel.add(newBox);
 			}
 		}
@@ -83,7 +90,11 @@ public class VisualizerPanel extends JPanel implements ClickListener, ListSelect
 		}
 		
 		public void selectAll() {
-			for (JCheckBox box : boxes) box.setSelected(true);
+			selected.clear();
+			for (JCheckBox box : boxes) {
+				box.setSelected(true);
+				selected.add(box.getText());
+			}
 			callListeners();
 		}
 
@@ -97,7 +108,7 @@ public class VisualizerPanel extends JPanel implements ClickListener, ListSelect
 			} else {
 				selected.remove(fooboo);
 			}
-			
+			callListeners();
 		}
 		
 		public List<String> getSelectedValues(){
@@ -118,28 +129,16 @@ public class VisualizerPanel extends JPanel implements ClickListener, ListSelect
 		public RuleSelectorPanel(Vector<String> rules) {
 			listeners = new ArrayList<ListSelectionListener>();
 			this.setLayout(new GridLayout(1,1));
-			setRules(rules);
-		}
-
-		public void synchronize() {
-			for (ListSelectionListener l : listeners) {
-				list.addListSelectionListener(l);
-			}
+			list = new JCheckBoxList(rules);
+			show();
 		}
 
 		public void addListSelectionListener(ListSelectionListener listener) {
-			listeners.add(listener);
-			synchronize();
+			list.addListSelectionListener(listener);
 		}
 
 		public void setRules(Vector<String> rules) {
-			if (list != null)
-				this.remove(list);
-			list = new JCheckBoxList(rules);
-			numRules = (rules!=null)? rules.size() : 0;
-			synchronize();
-			list.selectAll();
-			show();
+			list.setList(rules);
 		}
 
 		
