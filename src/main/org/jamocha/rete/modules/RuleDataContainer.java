@@ -34,7 +34,7 @@ import org.jamocha.rule.Rule;
 public class RuleDataContainer extends ModulesDataContainer {
 
 	private Map<String, Set> moduleToRules;
-	
+
 	public RuleDataContainer() {
 		super();
 		idToCLIPSElement = new HashMap<String, Rule>();
@@ -75,7 +75,6 @@ public class RuleDataContainer extends ModulesDataContainer {
 		moduleSet.remove(result);
 		return result;
 	}
-	
 
 	public boolean containsRule(Rule rule, Module module) {
 		return this.idToCLIPSElement.containsKey(toKeyString(rule.getName(), module.getModuleName()));
@@ -87,14 +86,16 @@ public class RuleDataContainer extends ModulesDataContainer {
 
 	public List<Rule> getRules(Module module) {
 		List<Rule> rules = new ArrayList<Rule>();
-		// clearadd all templates from hashmap to resulting list:
-		Iterator itr = this.idToCLIPSElement.keySet().iterator();
-		while (itr.hasNext()) {
-			Object key = itr.next();
-			Rule rule = (Rule) this.idToCLIPSElement.get(key);
-			rules.add(rule);
+		// get set of templates from hashmap
+		Set templs = (Set) this.moduleToRules.get(module.getModuleName());
+		if (templs != null) {
+			Iterator itr = templs.iterator();
+			while (itr.hasNext()) {
+				Rule rule = (Rule) itr.next();
+				rules.add(rule);
+			}
 		}
 		return rules;
 	}
-	
+
 }
