@@ -6,6 +6,8 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.ArrayList;
@@ -14,6 +16,7 @@ import java.util.Vector;
 
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -29,23 +32,85 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 
+import org.jamocha.rete.Constants;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.eventhandling.ModuleChangedEvent;
 import org.jamocha.rete.eventhandling.ModuleChangedListener;
 import org.jamocha.rete.modules.Module;
-import org.jamocha.rete.modules.Modules;
 import org.jamocha.rule.Defrule;
 import org.jamocha.rule.Rule;
 
-public class VisualizerPanel extends JPanel implements ClickListener, ListSelectionListener, MouseListener, ModuleChangedListener {
+public class VisualizerPanel extends JPanel implements ClickListener, ListSelectionListener, MouseListener, ModuleChangedListener, ActionListener {
 
-	
+	class JCheckBoxList extends JScrollPane implements ActionListener{
+		
+		Vector<JCheckBox> boxes;
+		List<ListSelectionListener> listeners;
+		List<String> selected;
+		JPanel panel;
+		
+		JCheckBoxList(Vector<String> items) {
+			if (items == null) {
+				items = new Vector<String>();
+			}
+			panel = new JPanel();
+			boxes=new Vector<JCheckBox>();
+			loadItemsList(items);
+			panel.setLayout(new BoxLayout(panel,BoxLayout.Y_AXIS));
+			listeners = new ArrayList<ListSelectionListener>();
+			selected = new ArrayList<String>();
+			this.add(panel);
+		}
+		
+		void loadItemsList(Vector<String> items){
+			for (JCheckBox box : boxes) this.remove(box);
+			boxes.clear();
+			for (String s : items) {
+				JCheckBox newBox = new JCheckBox(s);
+				newBox.addActionListener(this);
+				panel.add(newBox);
+			}
+		}
+
+		public void addListSelectionListener(ListSelectionListener l) {
+			listeners.add(l);
+		}
+		
+		protected void callListeners(){
+			for (ListSelectionListener l: listeners) {
+				l.valueChanged(new ListSelectionEvent(this,-1,-1,false));
+			}
+		}
+		
+		public void selectAll() {
+			for (JCheckBox box : boxes) box.setSelected(true);
+			callListeners();
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
+			JCheckBox box = (JCheckBox)arg0.getSource();
+			String fooboo = box.getText();
+			boolean inserted = box.isSelected();
+			if (inserted) {
+				selected.add(fooboo);
+			} else {
+				selected.remove(fooboo);
+			}
+			
+		}
+		
+		public List<String> getSelectedValues(){
+			return selected;
+		}
+		
+	}
 	
 	class RuleSelectorPanel extends JPanel {
 		private static final long serialVersionUID = 1L;
 
 		JScrollPane scrollPane;
-		JList list;
+		JCheckBoxList list;
 		int numRules;
 
 		List<ListSelectionListener> listeners;
@@ -70,10 +135,10 @@ public class VisualizerPanel extends JPanel implements ClickListener, ListSelect
 		public void setRules(Vector<String> rules) {
 			if (list != null)
 				this.remove(list);
-			list = new JList(rules);
-			list.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+			list = new JCheckBoxList(rules);
 			numRules = (rules!=null)? rules.size() : 0;
 			synchronize();
+			list.selectAll();
 			show();
 		}
 
@@ -83,7 +148,7 @@ public class VisualizerPanel extends JPanel implements ClickListener, ListSelect
 			scrollPane = new JScrollPane(list);
 			this.add(scrollPane);
 			this.validate();
-			list.setSelectionInterval(0, numRules-1);
+			list.selectAll();
 		}
 
 		public/* LONG_OBJECT */boolean isSelected(Rule r) {
@@ -99,9 +164,7 @@ public class VisualizerPanel extends JPanel implements ClickListener, ListSelect
 		}
 		
 		public List<String> getSelectedRules() {
-			List<String> result = new ArrayList<String>();
-			for (Object s : list.getSelectedValues()) result.add((String)s);
-			return result;
+			return list.getSelectedValues();
 		}
 
 	}
@@ -216,13 +279,42 @@ public class VisualizerPanel extends JPanel implements ClickListener, ListSelect
 			modules.add(module.getModuleName());
 		}
 		JComboBox oldChooser = moduleChooser;
+		String toSelect = null;
 		if (oldChooser != null) {
-			
+			toSelect = (String) oldChooser.getSelectedItem();
+			moduleChooserPanel.remove(oldChooser);
 		}
 		moduleChooser = new JComboBox(modules);
+		
+		boolean selectedGoodModule = false;
+		if (toSelect!= null) {
+			for (String mod : modules) {
+				if (mod.equals(toSelect)) {
+					selectedGoodModule = true;
+					moduleChooser.setSelectedItem(mod);
+				}
+			}
+		}
+		if (!selectedGoodModule) {
+			for (String mod : modules) {
+				if (mod.equals(Constants.MAIN_MODULE)) {
+					selectedGoodModule = true;
+					moduleChooser.setSelectedItem(mod);
+				}
+			}
+		}
+		
 		moduleChooser.setMaximumSize(new Dimension(4000,40));
+		moduleChooser.addActionListener(this);
+		moduleChooserPanel.add(moduleChooser);
+		
+		moduleSelected((String)moduleChooser.getSelectedItem());
 	}
 
+	protected void moduleSelected(String mod) {
+		module = engine.getModule(mod);
+		reload();
+	}
 	
 	public void reload() {
 		generateRulesList();
@@ -332,6 +424,13 @@ public class VisualizerPanel extends JPanel implements ClickListener, ListSelect
 	public void templateRemoved(ModuleChangedEvent ev) {
 		// TODO Auto-generated method stub
 		
+	}
+
+
+	public void actionPerformed(ActionEvent arg0) {
+		if (arg0.getSource() == moduleChooser) {
+			moduleSelected((String)moduleChooser.getSelectedItem());
+		}
 	}
 	
 	

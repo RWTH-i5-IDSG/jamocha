@@ -1,32 +1,10 @@
 (deftemplate wurst (slot name) (slot spitzname) (slot farbe)  (slot gewicht) (slot passtzusalat))
-(deftemplate salat (slot name) (slot farbe) (slot dazupasst) (slot gewicht))
-(deftemplate getraenk (slot name) (slot farbe) )
-(deftemplate farbehell (slot name) (slot red) (slot green) (slot blue) )
-(deftemplate farbedunkel (slot name) (slot red) (slot green) (slot blue) )
-(deftemplate bier (slot name))
 (assert (wurst (name "gruenspanwurst") (spitzname "gruebi") (farbe "gold") (gewicht 1) (passtzusalat "gelbebohnensalat") ))
 (assert (wurst (name "bratwurst")(spitzname "bratwosch")(farbe "weiss")(gewicht 100) (passtzusalat "weissgurkensalat") ))
 (assert (wurst (name "weisswurst")(spitzname "weisswurst")(farbe "weiss")(gewicht 200) (passtzusalat "blechsalat") ))
 (assert (wurst (name "wienerwurst")(spitzname "wiener")(farbe "terracottagold")(gewicht 300) (passtzusalat "gurkensalat") ))
 (assert (wurst (name "gemuesewurst")(spitzname "gemuesewurst")(farbe "gruen")(gewicht 400) (passtzusalat "frittensalat") ))
 (assert (wurst (name "senfwurst") (spitzname "senfi") (farbe "gelb") (gewicht 200) (passtzusalat "kartoffelsalat") ))
-(assert (salat (name "kartoffelsalat")(farbe "weiss")(gewicht 220)(dazupasst "weisswurst") ))
-(assert (salat (name "weissgurkensalat")(farbe "weiss")(dazupasst "spaghetti")(gewicht 320) ))
-(assert (salat (name "gelbebohnensalat") (farbe "gelb") (dazupasst "knoblauchmarmelade") (gewicht 123) ))
-(assert (salat (name "gruengurkensalat")(farbe "hellgruen")(dazupasst "spaghettisd")(gewicht 32320) ))
-(assert (getraenk (name "wasser") (farbe "schwarz") ))
-(assert (getraenk (name "cola") (farbe "schwarz")   ))
-(assert (getraenk (name "kartoffelsalatdrink") (farbe "weiss") ))
-(assert (farbehell (name weiss) (red 1) (green 1) (blue 1)))
-(assert (farbehell (name schwarz) (red 0) (green 0) (blue 0)))
-(assert (farbehell (name rot) (red 1) (green 0) (blue 0)))
-(assert (farbehell (name gruen) (red 0) (green 1) (blue 0)))
-(assert (farbehell (name blau) (red 0) (green 0) (blue 1)))
-(assert (farbehell (name gelb) (red 1) (green 1) (blue 0)))
-(assert (farbedunkel (name orange) (red 1) (green 0) (blue 0)))
-(assert (farbedunkel (name gruen) (red 0) (green 1) (blue 0)))
-(assert (farbedunkel (name lila) (red 0) (green 0) (blue 1)))
-(assert (farbedunkel (name gelb) (red 1) (green 1) (blue 0)))
 
 (defrule t
 	(wurst (name ?x))
@@ -35,11 +13,14 @@
 )
 
 
-
+(deftemplate salat (slot name) (slot farbe) (slot dazupasst) (slot gewicht))
+(assert (salat (name "kartoffelsalat")(farbe "weiss")(gewicht 220)(dazupasst "weisswurst") ))
+(assert (salat (name "weissgurkensalat")(farbe "weiss")(dazupasst "spaghetti")(gewicht 320) ))
+(assert (salat (name "gelbebohnensalat") (farbe "gelb") (dazupasst "knoblauchmarmelade") (gewicht 123) ))
+(assert (salat (name "gruengurkensalat")(farbe "hellgruen")(dazupasst "spaghettisd")(gewicht 32320) ))
 
 (defrule jess-1
-	(wurst (farbe ?x) )
-	(farbehell (name ?x ))
+	(salat (farbe ?x) )
 	=>
 	(printout t "brampf" ?x crlf)
 )
