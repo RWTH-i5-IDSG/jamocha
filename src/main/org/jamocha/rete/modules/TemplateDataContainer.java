@@ -18,8 +18,11 @@ package org.jamocha.rete.modules;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.jamocha.rete.Template;
 
@@ -29,9 +32,12 @@ import org.jamocha.rete.Template;
  */
 public class TemplateDataContainer extends ModulesDataContainer {
 
+	private Map<String, Set> moduleToTemplates;
+
 	public TemplateDataContainer() {
 		super();
 		idToCLIPSElement = new HashMap<String, Template>();
+		moduleToTemplates = new HashMap<String, Set>();
 	}
 
 	@Override
@@ -50,12 +56,23 @@ public class TemplateDataContainer extends ModulesDataContainer {
 			return false;
 		else {
 			this.idToCLIPSElement.put(templateKey, template);
+			// add to modules templateset
+			Set moduleSet = (Set) this.moduleToTemplates.get(module.getModuleName());
+			// Does this Set exists?
+			if (moduleSet == null) {
+				moduleSet = new HashSet<Template>();
+				this.moduleToTemplates.put(module.getModuleName(), moduleSet);
+			}
+			moduleSet.add(template);
 			return true;
 		}
 	}
 
 	public Template remove(String templateName, Module module) {
-		return (Template) idToCLIPSElement.remove(toKeyString(templateName, module.getModuleName()));
+		Template result = (Template) idToCLIPSElement.remove(toKeyString(templateName, module.getModuleName()));
+		Set moduleSet = (Set) this.moduleToTemplates.get(module.getModuleName());
+		moduleSet.remove(result);
+		return result;
 	}
 
 	private String toKeyString(String templateName, String moduleName) {
@@ -68,12 +85,14 @@ public class TemplateDataContainer extends ModulesDataContainer {
 
 	public List<Template> getTemplates(Module defmodule) {
 		List<Template> templates = new ArrayList<Template>();
-		// clearadd all templates from hashmap to resulting list:
-		Iterator itr = this.idToCLIPSElement.keySet().iterator();
-		while (itr.hasNext()) {
-			Object key = itr.next();
-			Template templ = (Template) this.idToCLIPSElement.get(key);
-			templates.add(templ);
+		// get set of templates from hashmap
+		Set templs = (Set) this.moduleToTemplates.get(defmodule.getModuleName());
+		if (templs != null) {
+			Iterator itr = templs.iterator();
+			while (itr.hasNext()) {
+				Template templ = (Template) itr.next();
+				templates.add(templ);
+			}
 		}
 		return templates;
 	}

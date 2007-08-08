@@ -19,7 +19,6 @@ package org.jamocha.rete.modules;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -186,9 +185,7 @@ public class Modules implements Serializable {
 		return this.templates.add(temp, defmodule);
 	}
 	
-	public Template getCurrentTemplate(String template) {
-		return this.getTemplate(currentModule, template);
-	}
+
 	public Template getTemplate(Module defmodule, String template) {
 		return templates.get(template, defmodule);
 	}
@@ -249,13 +246,9 @@ public class Modules implements Serializable {
 	 * Clear will clear all the modules and remove all activations
 	 */
 	public void clearAll() {
-		// clear all modules:
-		Iterator itr = this.modules.keySet().iterator();
-		while (itr.hasNext()) {
-			Object key = itr.next();
-			Module mod = (Module) this.modules.get(key);
-			mod.clear();
-		}
+		this.clearAllRules();
+		this.clearAllFacts();
+		this.clearAllTemplates();
 		this.modules.clear();
 		
 		// reinit main module:
@@ -286,5 +279,8 @@ public class Modules implements Serializable {
 	
 	public void clearAllFacts() {
 		facts.clear();
+	}
+	public void clearAllTemplates(){
+		templates.clear();
 	}
 }
