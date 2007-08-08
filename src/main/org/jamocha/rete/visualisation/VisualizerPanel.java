@@ -98,7 +98,6 @@ public class VisualizerPanel extends JPanel implements ClickListener, ListSelect
 			callListeners();
 		}
 
-		@Override
 		public void actionPerformed(ActionEvent arg0) {
 			JCheckBox box = (JCheckBox)arg0.getSource();
 			String fooboo = box.getText();

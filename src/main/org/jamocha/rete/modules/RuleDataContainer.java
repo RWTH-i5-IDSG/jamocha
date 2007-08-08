@@ -18,10 +18,13 @@ package org.jamocha.rete.modules;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
-import org.jamocha.rete.Fact;
+import org.jamocha.rete.Template;
 import org.jamocha.rule.Rule;
 
 /**
@@ -30,9 +33,12 @@ import org.jamocha.rule.Rule;
  */
 public class RuleDataContainer extends ModulesDataContainer {
 
+	private Map<String, Set> moduleToRules;
+	
 	public RuleDataContainer() {
 		super();
-		idToCLIPSElement = new HashMap<String, Fact>();
+		idToCLIPSElement = new HashMap<String, Rule>();
+		moduleToRules = new HashMap<String, Set>();
 	}
 
 	@Override
@@ -45,13 +51,31 @@ public class RuleDataContainer extends ModulesDataContainer {
 		return (Rule) idToCLIPSElement.get(toKeyString(ruleName, module.getModuleName()));
 	}
 
-	public void add(Rule rule, Module module) {
-		this.idToCLIPSElement.put(toKeyString(rule.getName(), module.getModuleName()), rule);
+	public boolean add(Rule rule, Module module) {
+		String ruleKey = toKeyString(rule.getName(), module.getModuleName());
+		if (this.idToCLIPSElement.containsKey(ruleKey))
+			return false;
+		else {
+			this.idToCLIPSElement.put(ruleKey, rule);
+			// add to modules templateset
+			Set moduleSet = (Set) this.moduleToRules.get(module.getModuleName());
+			// Does this Set exists?
+			if (moduleSet == null) {
+				moduleSet = new HashSet<Template>();
+				this.moduleToRules.put(module.getModuleName(), moduleSet);
+			}
+			moduleSet.add(rule);
+			return true;
+		}
 	}
 
 	public Rule remove(String ruleName, Module module) {
-		return (Rule) idToCLIPSElement.remove(toKeyString(ruleName, module.getModuleName()));
+		Rule result = (Rule) idToCLIPSElement.remove(toKeyString(ruleName, module.getModuleName()));
+		Set moduleSet = (Set) this.moduleToRules.get(module.getModuleName());
+		moduleSet.remove(result);
+		return result;
 	}
+	
 
 	public boolean containsRule(Rule rule, Module module) {
 		return this.idToCLIPSElement.containsKey(toKeyString(rule.getName(), module.getModuleName()));
