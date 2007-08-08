@@ -1,4 +1,4 @@
-(deftemplate wurst (slot name) (slot spitzname) (slot farbe)  (slot gewicht) (slot passzusalat))
+(deftemplate wurst (slot name) (slot spitzname) (slot farbe)  (slot gewicht) (slot passtzusalat))
 (deftemplate salat (slot name) (slot farbe) (slot dazupasst) (slot gewicht))
 (deftemplate getraenk (slot name) (slot farbe) )
 (deftemplate farbehell (slot name) (slot red) (slot green) (slot blue) )
@@ -27,6 +27,18 @@
 (assert (farbedunkel (name gruen) (red 0) (green 1) (blue 0)))
 (assert (farbedunkel (name lila) (red 0) (green 0) (blue 1)))
 (assert (farbedunkel (name gelb) (red 1) (green 1) (blue 0)))
+
+(defrule t
+	(wurst (name ?x))
+	=>
+	(printout t ?x crlf)
+)
+
+
+
+
+
+
 
 
 (defrule t

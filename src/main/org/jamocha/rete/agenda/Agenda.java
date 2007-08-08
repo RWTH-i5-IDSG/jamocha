@@ -38,9 +38,14 @@ public class Agenda implements Serializable {
 
 	protected List<Activation> activations;
 
-	public Agenda(Rete engine) {
+	public Agenda(Rete engine, ConflictResolutionStrategy strategy) {
 		this.engine = engine;
 		activations = new ArrayList<Activation>();
+		this.strategy=strategy;
+	}
+	
+	public Agenda(Rete engine) {
+		this(engine, new FifoConflictResolutionStrategy());
 	}
 	
 	public void setConflictResolutionStrategy(ConflictResolutionStrategy strat) {
