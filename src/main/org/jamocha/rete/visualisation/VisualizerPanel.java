@@ -118,9 +118,9 @@ public class VisualizerPanel extends JPanel implements ClickListener, ListSelect
 	
 	protected void setModule(Module module){
 		//TODO: Module event handling reactivation
-//		if (this.module != null) this.module.removeModuleChangedListener(this);
-//		module.addModuleChangedListener(this);
-//		this.module = module;
+		if (this.module != null) this.module.removeModuleChangedEventListener(this);
+		module.addModuleChangedEventListener(this);
+		this.module = module;
 	}
 
 	
@@ -163,6 +163,8 @@ public class VisualizerPanel extends JPanel implements ClickListener, ListSelect
 		optionsPanel.add(rulePanel);
 		mainVis.setSelectedRules(rulePanel.getSelectedRules());
 		miniMap.setSelectedRules(rulePanel.getSelectedRules());
+		//miniMap.
+		miniMap.repaint();
 		
 		JSplitPane splitMainAndOptionsToUpper = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, mainVis, optionsPanel);
 		JSplitPane splitMiniAndDumpToBottom = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, miniMap, scrollDump);

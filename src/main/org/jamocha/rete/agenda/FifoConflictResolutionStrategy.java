@@ -13,7 +13,7 @@ public class FifoConflictResolutionStrategy extends
 		activations.remove(a);
 	}
 	
-	public String getName(){
+	public static String getName(){
 		return "FifoStrategy";
 	}
 

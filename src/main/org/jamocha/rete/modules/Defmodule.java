@@ -17,9 +17,12 @@
 package org.jamocha.rete.modules;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.jamocha.rete.Template;
+import org.jamocha.rete.eventhandling.ModuleChangedEvent;
+import org.jamocha.rete.eventhandling.ModuleChangedListener;
 import org.jamocha.rule.Rule;
 
 /**
@@ -32,10 +35,36 @@ public class Defmodule implements Module, Serializable {
 
 	Modules modules;
 	
+	List<ModuleChangedListener> listeners;
+	
 	private static final long serialVersionUID = 0xDEADBEAFL;
 
 	protected int id;
 
+	protected void callListenersAddRule(Rule rule) {
+		ModuleChangedEvent ev = new ModuleChangedEvent();
+		ev.rule = rule;
+		for (ModuleChangedListener listener : listeners) listener.ruleAdded(ev);
+	}
+	
+	protected void callListenersRemoveRule(Rule rule) {
+		ModuleChangedEvent ev = new ModuleChangedEvent();
+		ev.rule = rule;
+		for (ModuleChangedListener listener : listeners) listener.ruleRemoved(ev);
+	}
+	
+	protected void callListenersAddTemplate(Template tmpl) {
+		ModuleChangedEvent ev = new ModuleChangedEvent();
+		ev.template = tmpl;
+		for (ModuleChangedListener listener : listeners) listener.templateAdded(ev);
+	}
+	
+	protected void callListenersRemoveTemplate(Template tmpl) {
+		ModuleChangedEvent ev = new ModuleChangedEvent();
+		ev.template = tmpl;
+		for (ModuleChangedListener listener : listeners) listener.templateRemoved(ev);
+	}
+	
 	/**
 	 * The name of the module. A rule engine may have one or more modules with
 	 * rules loaded
@@ -49,6 +78,7 @@ public class Defmodule implements Module, Serializable {
 		super();
 		this.name = name;
 		this.modules = modules;
+		this.listeners = new ArrayList<ModuleChangedListener>();
 	}
 
 	/**
@@ -77,9 +107,11 @@ public class Defmodule implements Module, Serializable {
 
 	public void addRule(Rule rl) {
 		modules.addRule(this, rl);
+		callListenersAddRule(rl);
 	}
 
 	public void removeRule(Rule rl) {
+		callListenersRemoveRule(rl);
 		modules.removeRule(this, rl);
 	}
 
@@ -104,10 +136,13 @@ public class Defmodule implements Module, Serializable {
 	}
 
 	public boolean addTemplate(Template temp) {
-		return modules.addTemplate(this, temp);
+		boolean result = modules.addTemplate(this, temp);
+		callListenersAddTemplate(temp);
+		return result;
 	}
 
 	public void removeTemplate(Template temp) {
+		callListenersRemoveTemplate(temp);
 		modules.removeTemplate(this,temp);
 	}
 
@@ -125,6 +160,14 @@ public class Defmodule implements Module, Serializable {
 
 	public String toString(){
 		return "Module: " + this.getModuleName();
+	}
+
+	public void addModuleChangedEventListener(ModuleChangedListener listener) {
+		listeners.add(listener);
+	}
+
+	public void removeModuleChangedEventListener(ModuleChangedListener listener) {
+		listeners.remove(listener);
 	}
 
 }

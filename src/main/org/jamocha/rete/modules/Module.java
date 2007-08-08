@@ -20,6 +20,7 @@ import java.io.Serializable;
 import java.util.List;
 
 import org.jamocha.rete.Template;
+import org.jamocha.rete.eventhandling.ModuleChangedListener;
 import org.jamocha.rule.Rule;
 
 
@@ -127,4 +128,8 @@ public interface Module extends Serializable {
      * @return
      */
     Rule findRule(String name);
+    
+    void addModuleChangedEventListener(ModuleChangedListener listener);
+    
+    void removeModuleChangedEventListener(ModuleChangedListener listener);
 }

@@ -130,9 +130,9 @@ public class ObjectTypeNode extends AbstractAlpha implements Serializable {
 	protected void drawNode(int x, int y, int height, int width, List<BaseNode> selected, Graphics2D canvas){
 		boolean isSelected=selected.contains(this);
 		int alpha = (isSelected) ? 255 : 20;
-		canvas.setColor( new Color(90,255,90,alpha) );
+		canvas.setColor( new Color(255,215,15,alpha) );
 		canvas.fillRect(x, y, width, height);
-		canvas.setColor(  new Color(15,200,15,alpha) );
+		canvas.setColor(  new Color(208,181,44,alpha) );
 		canvas.drawRect(x, y, width, height);
 		drawId(x,y,height,width,canvas);
 		if (icon != null && isSelected) {

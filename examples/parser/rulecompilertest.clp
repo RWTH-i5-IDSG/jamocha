@@ -37,6 +37,16 @@
 
 
 
+(defrule jess-1
+	(wurst (farbe ?x) )
+	(farbehell (name ?x ))
+	=>
+	(printout t "brampf" ?x crlf)
+)
+
+
+
+
 
 
 
@@ -66,18 +76,6 @@
 
 
 
-
-
-
-
-(defrule jess-1
-	(wurst (farbe ?x) )
-	(exists
-		(farbe (name ?x ))
-	)
-	=>
-	(printout t "brampf" ?x crlf)
-)
 
 
 
