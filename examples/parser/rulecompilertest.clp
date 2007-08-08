@@ -12,6 +12,7 @@
 	(printout t ?x crlf)
 )
 
+(defmodule salat)
 
 (deftemplate salat (slot name) (slot farbe) (slot dazupasst) (slot gewicht))
 (assert (salat (name "kartoffelsalat")(farbe "weiss")(gewicht 220)(dazupasst "weisswurst") ))

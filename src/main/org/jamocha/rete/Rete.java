@@ -278,10 +278,6 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 		return this.modules.getModule(name, true);
 	}
 
-	public Module removeModule(String name) {
-		return this.modules.removeModule(name);
-	}
-
 	public Module findModule(String name) {
 		return this.modules.findModule(name);
 	}

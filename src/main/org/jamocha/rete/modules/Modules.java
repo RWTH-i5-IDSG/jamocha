@@ -21,6 +21,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Vector;
 
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.rete.Constants;
@@ -29,6 +30,7 @@ import org.jamocha.rete.Fact;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.Template;
 import org.jamocha.rete.configurations.SlotConfiguration;
+import org.jamocha.rete.eventhandling.ModulesChangeListener;
 import org.jamocha.rete.exception.AssertException;
 import org.jamocha.rule.Rule;
 
@@ -41,6 +43,8 @@ public class Modules implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	private Module currentModule = null;
+	
+	private Vector<ModulesChangeListener> listeners;
 
 	/**
 	 * this is the main module
@@ -67,8 +71,18 @@ public class Modules implements Serializable {
 		super();
 		initMain();
 		this.engine = engine;
+		this.listeners = new Vector<ModulesChangeListener>();
+	}
+	
+	public void addModulesChangeListener(ModulesChangeListener l){
+		listeners.add(l);
 	}
 
+	public void removeModulesChangeListener(ModulesChangeListener l){
+		listeners.remove(l);
+	}
+
+	
 	protected void initMain() {
 		this.main = new Defmodule(Constants.MAIN_MODULE,this);
 		this.modules.put(this.main.getModuleName(), this.main);
@@ -107,6 +121,7 @@ public class Modules implements Serializable {
 			if (autoFocus)
 				this.currentModule = mod;
 			this.modules.put(name, mod);
+			for (ModulesChangeListener l : listeners) l.evModuleAdded(mod);
 			return mod;
 		} else
 			return null;
@@ -123,14 +138,13 @@ public class Modules implements Serializable {
 		return result;
 	}
 
+	
 	public Module removeModule(Module module) {
+		for (ModulesChangeListener l : listeners) l.evModuleRemoved(module);
 		this.clearModule(module);
 		return (Module) this.modules.remove(module.getModuleName());
 	}
 
-	public Module removeModule(String name) {
-		return (Module) this.modules.remove(name);
-	}
 
 	/**
 	 * return the module. if it doesn't exist, method returns null.

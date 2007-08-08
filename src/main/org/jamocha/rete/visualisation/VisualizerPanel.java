@@ -34,11 +34,12 @@ import org.jamocha.rete.Constants;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.eventhandling.ModuleChangedEvent;
 import org.jamocha.rete.eventhandling.ModuleChangedListener;
+import org.jamocha.rete.eventhandling.ModulesChangeListener;
 import org.jamocha.rete.modules.Module;
 import org.jamocha.rule.Defrule;
 import org.jamocha.rule.Rule;
 
-public class VisualizerPanel extends JPanel implements ClickListener, ListSelectionListener, MouseListener, ModuleChangedListener, ActionListener {
+public class VisualizerPanel extends JPanel implements ClickListener, ListSelectionListener, MouseListener, ModuleChangedListener, ActionListener, ModulesChangeListener {
 
 	class JCheckBoxList extends JPanel implements ActionListener{
 		
@@ -64,6 +65,7 @@ public class VisualizerPanel extends JPanel implements ClickListener, ListSelect
 			panel.setLayout(new BoxLayout(panel,BoxLayout.Y_AXIS));
 			selectAll();
 			this.add(panel);
+			this.validate();
 		}
 		
 		void loadItemsList(Vector<String> items){
@@ -206,6 +208,7 @@ public class VisualizerPanel extends JPanel implements ClickListener, ListSelect
 		miniMap.addViewportChangedListener(mainVis);
 		miniMap.enableViewportByClick(true,mainVis);
 		
+		
 		dump = new JTextPane();
 		JScrollPane scrollDump = new JScrollPane(dump);
 		even = new SimpleAttributeSet();
@@ -227,6 +230,7 @@ public class VisualizerPanel extends JPanel implements ClickListener, ListSelect
 		moduleChooserPanel = new JPanel();
 		
 	
+		engine.getModules().addModulesChangeListener(this);
 		loadModuleList();
 		
 		generateRulesList();
@@ -308,7 +312,7 @@ public class VisualizerPanel extends JPanel implements ClickListener, ListSelect
 	}
 
 	protected void moduleSelected(String mod) {
-		module = engine.getModule(mod);
+		setModule(engine.getModule(mod));
 		reload();
 	}
 	
@@ -336,14 +340,11 @@ public class VisualizerPanel extends JPanel implements ClickListener, ListSelect
 
 	protected void generateRulesList() {
 		Vector<String> rules = new Vector<String>();
-		for (Module module : engine.getModules().getModuleList()) {
-			for (Rule ruleObj : module.getAllRules()) {
-				String r = ((Defrule) ruleObj).getName();
-				rules.add(r);
-			}
+		for (Rule ruleObj : module.getAllRules()) {
+			String r = ((Defrule) ruleObj).getName();
+			rules.add(r);
 		}
 		rulePanel.setRules(rules);
-	
 	}
 
 	public void valueChanged(ListSelectionEvent e) {
@@ -427,6 +428,14 @@ public class VisualizerPanel extends JPanel implements ClickListener, ListSelect
 		if (arg0.getSource() == moduleChooser) {
 			moduleSelected((String)moduleChooser.getSelectedItem());
 		}
+	}
+
+	public void evModuleAdded(Module newModule) {
+		moduleChooser.addItem(newModule.getModuleName());
+	}
+
+	public void evModuleRemoved(Module oldModule) {
+		moduleChooser.removeItem(oldModule.getModuleName());
 	}
 	
 	
