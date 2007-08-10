@@ -21,13 +21,23 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Collection;
+import java.util.Set;
 
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 
 import org.jamocha.gui.JamochaGui;
 import org.jamocha.messagerouter.StringChannel;
+import org.jamocha.rete.agenda.ConflictResolutionStrategy;
+import org.jamocha.rete.modules.Module;
 
 /**
  * This Panel allows changes in the engines settings.
@@ -58,104 +68,188 @@ public class EngineSettingsPanel extends AbstractSettingsPanel implements
 
 	private JCheckBox watchRulesCheckBox;
 
+	private JComboBox strategySelectorMain;
+
+	private JComboBox moduleSelector;
+
+	private JComboBox strategySelector;
+
 	public EngineSettingsPanel(JamochaGui gui) {
 		super(gui);
+		JPanel mainPanel = new JPanel();
+		mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.PAGE_AXIS));
+
 		GridBagLayout gridbag = new GridBagLayout();
 		GridBagConstraints c = new GridBagConstraints();
 		c.weightx = 1.0;
-		setLayout(gridbag);
+
+		// -------------------
+		// General Settings Settings
+		// -------------------
+
+		JPanel generalSettingsPanel = new JPanel();
+		generalSettingsPanel.setLayout(gridbag);
+		generalSettingsPanel.setBorder(BorderFactory
+				.createTitledBorder("General Settings"));
 
 		// Evaluation
-		addLabel(this, new JLabel("Evaluation"), gridbag, c, 0);
+		addLabel(generalSettingsPanel, new JLabel("Evaluation"), gridbag, c, 0);
 		JPanel evaluationPanel = new JPanel(new BorderLayout());
 
 		evaluationCheckBox = new JCheckBox();
-		evaluationCheckBox.setEnabled(true);
 		evaluationCheckBox.addActionListener(this);
 		evaluationPanel.add(evaluationCheckBox, BorderLayout.WEST);
-		addInputComponent(this, evaluationPanel, gridbag, c, 0);
+		addInputComponent(generalSettingsPanel, evaluationPanel, gridbag, c, 0);
 
 		// Profile Assert
-		addLabel(this, new JLabel("Profile Assert:"), gridbag, c, 1);
+		addLabel(generalSettingsPanel, new JLabel("Profile Assert:"), gridbag,
+				c, 1);
 		JPanel profileAssertPanel = new JPanel(new BorderLayout());
 
 		profileAssertCheckBox = new JCheckBox();
-		profileAssertCheckBox.setEnabled(true);
 		profileAssertCheckBox.addActionListener(this);
 		profileAssertPanel.add(profileAssertCheckBox, BorderLayout.WEST);
-		addInputComponent(this, profileAssertPanel, gridbag, c, 1);
+		addInputComponent(generalSettingsPanel, profileAssertPanel, gridbag, c,
+				1);
 
 		// Profile Retract
-		addLabel(this, new JLabel("Profile Retract:"), gridbag, c, 2);
+		addLabel(generalSettingsPanel, new JLabel("Profile Retract:"), gridbag,
+				c, 2);
 		JPanel profileRetractPanel = new JPanel(new BorderLayout());
 
 		profileRetractCheckBox = new JCheckBox();
-		profileRetractCheckBox.setEnabled(true);
 		profileRetractCheckBox.addActionListener(this);
 		profileRetractPanel.add(profileRetractCheckBox, BorderLayout.WEST);
-		addInputComponent(this, profileRetractPanel, gridbag, c, 2);
+		addInputComponent(generalSettingsPanel, profileRetractPanel, gridbag,
+				c, 2);
 
 		// Profile Fire
-		addLabel(this, new JLabel("Profile Fire:"), gridbag, c, 3);
+		addLabel(generalSettingsPanel, new JLabel("Profile Fire:"), gridbag, c,
+				3);
 		JPanel profileFirePanel = new JPanel(new BorderLayout());
 
 		profileFireCheckBox = new JCheckBox();
-		profileFireCheckBox.setEnabled(true);
 		profileFireCheckBox.addActionListener(this);
 		profileFirePanel.add(profileFireCheckBox, BorderLayout.WEST);
-		addInputComponent(this, profileFirePanel, gridbag, c, 3);
+		addInputComponent(generalSettingsPanel, profileFirePanel, gridbag, c, 3);
 
 		// Profile Add Activation
-		addLabel(this, new JLabel("Profile Add Activation:"), gridbag, c, 4);
+		addLabel(generalSettingsPanel, new JLabel("Profile Add Activation:"),
+				gridbag, c, 4);
 		JPanel profileAddActivationPanel = new JPanel(new BorderLayout());
 
 		profileAddActivationCheckBox = new JCheckBox();
-		profileAddActivationCheckBox.setEnabled(true);
 		profileAddActivationCheckBox.addActionListener(this);
 		profileAddActivationPanel.add(profileAddActivationCheckBox,
 				BorderLayout.WEST);
-		addInputComponent(this, profileAddActivationPanel, gridbag, c, 4);
+		addInputComponent(generalSettingsPanel, profileAddActivationPanel,
+				gridbag, c, 4);
 
 		// Profile Remove Activation
-		addLabel(this, new JLabel("Profile Remove Activation:"), gridbag, c, 5);
+		addLabel(generalSettingsPanel,
+				new JLabel("Profile Remove Activation:"), gridbag, c, 5);
 		JPanel profileRemoveActivationPanel = new JPanel(new BorderLayout());
 
 		profileRemoveActivationCheckBox = new JCheckBox();
-		profileRemoveActivationCheckBox.setEnabled(true);
 		profileRemoveActivationCheckBox.addActionListener(this);
 		profileRemoveActivationPanel.add(profileRemoveActivationCheckBox,
 				BorderLayout.WEST);
-		addInputComponent(this, profileRemoveActivationPanel, gridbag, c, 5);
+		addInputComponent(generalSettingsPanel, profileRemoveActivationPanel,
+				gridbag, c, 5);
 
 		// Activations
-		addLabel(this, new JLabel(" Watch Activations:"), gridbag, c, 6);
+		addLabel(generalSettingsPanel, new JLabel("Watch Activations:"),
+				gridbag, c, 6);
 		JPanel watchActivationsPanel = new JPanel(new BorderLayout());
 
 		watchActivationsCheckBox = new JCheckBox();
-		watchActivationsCheckBox.setEnabled(true);
 		watchActivationsCheckBox.addActionListener(this);
 		watchActivationsPanel.add(watchActivationsCheckBox, BorderLayout.WEST);
-		addInputComponent(this, watchActivationsPanel, gridbag, c, 6);
+		addInputComponent(generalSettingsPanel, watchActivationsPanel, gridbag,
+				c, 6);
 
 		// Facts
-		addLabel(this, new JLabel("Watch Facts:"), gridbag, c, 7);
+		addLabel(generalSettingsPanel, new JLabel("Watch Facts:"), gridbag, c,
+				7);
 		JPanel watchFactsPanel = new JPanel(new BorderLayout());
 
 		watchFactsCheckBox = new JCheckBox();
-		watchFactsCheckBox.setEnabled(true);
 		watchFactsCheckBox.addActionListener(this);
 		watchFactsPanel.add(watchFactsCheckBox, BorderLayout.WEST);
-		addInputComponent(this, watchFactsPanel, gridbag, c, 7);
+		addInputComponent(generalSettingsPanel, watchFactsPanel, gridbag, c, 7);
 
 		// Rules
-		addLabel(this, new JLabel("Watch Rules:"), gridbag, c, 8);
+		addLabel(generalSettingsPanel, new JLabel("Watch Rules:"), gridbag, c,
+				8);
 		JPanel watchRulesPanel = new JPanel(new BorderLayout());
 
 		watchRulesCheckBox = new JCheckBox();
-		watchRulesCheckBox.setEnabled(true);
 		watchRulesCheckBox.addActionListener(this);
 		watchRulesPanel.add(watchRulesCheckBox, BorderLayout.WEST);
-		addInputComponent(this, watchRulesPanel, gridbag, c, 8);
+		addInputComponent(generalSettingsPanel, watchRulesPanel, gridbag, c, 8);
+
+		mainPanel.add(generalSettingsPanel);
+
+		// -------------------
+		// Module Settings
+		// -------------------
+
+		gridbag = new GridBagLayout();
+		c = new GridBagConstraints();
+		c.weightx = 1.0;
+
+		JPanel moduleSettingsPanel = new JPanel();
+		moduleSettingsPanel.setLayout(gridbag);
+		moduleSettingsPanel.setBorder(BorderFactory
+				.createTitledBorder("Strategy Settings"));
+
+		// Setting for main (is the default)
+		addLabel(moduleSettingsPanel, new JLabel("Strategy for MAIN:"),
+				gridbag, c, 0);
+		JPanel strategyPanelMain = new JPanel(new BorderLayout());
+
+		strategySelectorMain = new JComboBox();
+		strategySelectorMain.addActionListener(this);
+		strategyPanelMain.add(strategySelectorMain, BorderLayout.WEST);
+		addInputComponent(moduleSettingsPanel, strategyPanelMain, gridbag, c, 0);
+
+		// Preselect the module
+		addLabel(moduleSettingsPanel, new JLabel("Other Modules:"), gridbag, c,
+				1);
+		JPanel modulePanel = new JPanel(new BorderLayout());
+
+		moduleSelector = new JComboBox();
+		moduleSelector.addActionListener(this);
+		modulePanel.add(moduleSelector, BorderLayout.WEST);
+		addInputComponent(moduleSettingsPanel, modulePanel, gridbag, c, 1);
+
+		// select the strategy to use
+		addLabel(moduleSettingsPanel, new JLabel(""), gridbag, c, 2);
+		JPanel strategyPanel = new JPanel(new BorderLayout());
+
+		strategySelector = new JComboBox();
+		strategySelector.addActionListener(this);
+		strategyPanel.add(strategySelector, BorderLayout.WEST);
+		addInputComponent(moduleSettingsPanel, strategyPanel, gridbag, c, 2);
+
+		mainPanel.add(moduleSettingsPanel);
+
+		add(new JScrollPane(mainPanel));
+
+		// hint for other modules
+		addLabel(moduleSettingsPanel, new JLabel("Attention:"), gridbag, c, 3);
+		JTextArea attentionField = new JTextArea();
+		attentionField.setEditable(false);
+		attentionField.setBorder(BorderFactory.createEmptyBorder());
+		attentionField.setBackground(gui.getBackground());
+		attentionField
+				.setText("Changes you make here are lost after a restart.\nOnly the settings for MAIN-module are made persistent.");
+		
+		addInputComponent(moduleSettingsPanel, attentionField, gridbag, c, 3);
+
+		mainPanel.add(moduleSettingsPanel);
+
+		add(new JScrollPane(mainPanel));
 	}
 
 	@Override
@@ -230,6 +324,89 @@ public class EngineSettingsPanel extends AbstractSettingsPanel implements
 				guiStringChannel.executeCommand("(watch rules)");
 			else
 				guiStringChannel.executeCommand("(unwatch rules)");
+		} else if (event.getSource().equals(moduleSelector)) {
+			initStrategySelector();
+		} else if (event.getSource().equals(strategySelector)) {
+			if (strategySelector.getSelectedItem() != null
+					&& moduleSelector.getSelectedItem() != null) {
+				String strategyName = strategySelector.getSelectedItem()
+						.toString();
+				String moduleName = moduleSelector.getSelectedItem().toString();
+				Module module = gui.getEngine().getModule(moduleName);
+				try {
+					gui.getEngine().getAgendas().getAgenda(module)
+							.setConflictResolutionStrategy(
+									ConflictResolutionStrategy
+											.getStrategy(strategyName));
+				} catch (InstantiationException e) {
+					JOptionPane.showMessageDialog(this, e,
+							"Error setting the strategy.",
+							JOptionPane.ERROR_MESSAGE);
+				} catch (IllegalAccessException e) {
+					JOptionPane.showMessageDialog(this, e,
+							"Error setting the strategy.",
+							JOptionPane.ERROR_MESSAGE);
+				}
+			}
+		}
+	}
+
+	public void refresh() {
+		initStrategySelectorMain();
+		initModuleSelector();
+		initStrategySelector();
+	}
+
+	private void initModuleSelector() {
+		moduleSelector.removeAllItems();
+		Collection<Module> modules = gui.getEngine().getModules()
+				.getModuleList();
+		for (Module module : modules) {
+			if (!module.getModuleName().equals("MAIN"))
+				moduleSelector.addItem(module.getModuleName());
+		}
+		if (moduleSelector.getItemCount() > 0) {
+			moduleSelector.setSelectedIndex(0);
+			moduleSelector.setEnabled(true);
+		} else {
+			moduleSelector.setEnabled(false);
+		}
+	}
+
+	@SuppressWarnings("static-access")
+	private void initStrategySelector() {
+		strategySelector.removeAllItems();
+		if (moduleSelector.getSelectedItem() != null) {
+			strategySelector.setEnabled(true);
+			String moduleName = moduleSelector.getSelectedItem().toString();
+			Module module = gui.getEngine().getModule(moduleName);
+			ConflictResolutionStrategy currentStrategy = gui.getEngine()
+					.getAgendas().getAgenda(module)
+					.getConflictResolutionStrategy();
+			Set<String> strategies = ConflictResolutionStrategy.getStrategies();
+			for (String strategyName : strategies) {
+				strategySelector.addItem(strategyName);
+				if (strategyName.equals(currentStrategy.getName())) {
+					strategySelector.setSelectedItem(strategyName);
+				}
+			}
+		} else {
+			strategySelector.setEnabled(false);
+		}
+	}
+
+	@SuppressWarnings("static-access")
+	private void initStrategySelectorMain() {
+		strategySelectorMain.removeAllItems();
+		Module module = gui.getEngine().getModule("MAIN");
+		ConflictResolutionStrategy currentStrategy = gui.getEngine()
+				.getAgendas().getAgenda(module).getConflictResolutionStrategy();
+		Set<String> strategies = ConflictResolutionStrategy.getStrategies();
+		for (String strategyName : strategies) {
+			strategySelectorMain.addItem(strategyName);
+			if (strategyName.equals(currentStrategy.getName())) {
+				strategySelectorMain.setSelectedItem(strategyName);
+			}
 		}
 	}
 }

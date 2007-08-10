@@ -134,6 +134,7 @@ public class MessageReceiver extends CyclicBehaviour {
 		// sb.append("(user-properties \"\")");
 		// }
 		sb.append("(timestamp ").append(System.currentTimeMillis()).append(")");
+		sb.append("(incoming TRUE)");
 		sb.append("))");
 		return sb.toString();
 	}

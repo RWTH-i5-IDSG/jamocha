@@ -36,8 +36,9 @@ import org.jamocha.parser.sl.SLParser;
 class Proxy extends SLPerformativeTranslator {
 
 	/**
-	 * Translates SL code of a proxy to CLIPS code. A proxy only contains a
-	 * tuple of referential expression.
+	 * Translates SL code of a proxy to CLIPS code. A proxy contains a
+	 * referential expression denoting the agents the message should be send to
+	 * and an ACL-communicative act that should be send out.
 	 * 
 	 * @param slContent
 	 *            The SL content we have to translate.

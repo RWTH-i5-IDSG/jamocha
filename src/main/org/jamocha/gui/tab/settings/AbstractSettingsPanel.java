@@ -39,6 +39,10 @@ public abstract class AbstractSettingsPanel extends JPanel {
 	}
 
 	public abstract void save();
+	
+	public void refresh() {
+		
+	}
 
 	public void addLabel(JPanel parent, JLabel label, GridBagLayout gridbag,
 			GridBagConstraints c, int row) {

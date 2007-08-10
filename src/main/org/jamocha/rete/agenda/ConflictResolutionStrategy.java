@@ -33,6 +33,7 @@ public abstract class ConflictResolutionStrategy {
 	private static void init() {
 		if (initialized) return;
 		map = new HashMap<String, Class>();
+		registerStrategy(LifoConflictResolutionStrategy.class);
 		registerStrategy(FifoConflictResolutionStrategy.class);
 		initialized=true;
 	}

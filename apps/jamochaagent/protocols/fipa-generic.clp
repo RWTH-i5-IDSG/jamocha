@@ -18,7 +18,7 @@
 		)
 	)
 	(test
-		(eq ?initiator (fact-slot-value ?ruleMessage "sender"))
+		(eq ?agent (fact-slot-value ?ruleMessage "sender"))
 	)
 	=>
 	

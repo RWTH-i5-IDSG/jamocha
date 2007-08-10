@@ -78,6 +78,10 @@ public class GUISettingsPanel extends AbstractSettingsPanel implements
 		GridBagConstraints c = new GridBagConstraints();
 		c.weightx = 1.0;
 
+		// -------------------
+		// Shell Settings
+		// -------------------
+		
 		JPanel shellPanel = new JPanel();
 		shellPanel.setLayout(gridbag);
 		shellPanel.setBorder(BorderFactory.createTitledBorder("Shell"));
@@ -150,6 +154,10 @@ public class GUISettingsPanel extends AbstractSettingsPanel implements
 				3);
 
 		mainPanel.add(shellPanel);
+		
+		// -------------------
+		// Factspanel Settings
+		// -------------------
 
 		gridbag = new GridBagLayout();
 		c = new GridBagConstraints();

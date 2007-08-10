@@ -81,6 +81,19 @@ public class SettingsPanel extends AbstractJamochaPanel implements
 		
 	}
 	
+	/**
+	 * Sets the focus of this panel and by this sets the focus to the outputArea
+	 * so that the user doesn't have to click on it before he can start typing.
+	 * 
+	 */
+	@Override
+	public void setFocus() {
+		super.setFocus();
+		for(AbstractSettingsPanel panel:panels) {
+			panel.refresh();
+		}
+	}
+	
 	public void actionPerformed(ActionEvent event) {
 		if (event.getSource() == saveButton) {
 			for (AbstractSettingsPanel panel : panels) {

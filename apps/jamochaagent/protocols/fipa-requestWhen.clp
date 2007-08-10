@@ -62,7 +62,8 @@
 		(protocol "fipa-request-when")
 		(performative "request-when")
 	)
-	?inform <- (inform
+	?inform <- (agent-message
+		(performative "inform")
 		(sender ?sender)
 		(receiver ?receivers)
 		(content ?content)

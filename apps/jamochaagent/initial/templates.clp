@@ -29,7 +29,7 @@
 	(slot reply-by (type LONG))
 	(silent slot content-clips (type STRING))
 	(silent slot timestamp (type LONG))
-	(slot incoming (type BOOLEAN)(default TRUE))
+	(slot incoming (type BOOLEAN)(default FALSE))
 	(slot processed (type BOOLEAN)(default FALSE))
 )
 
