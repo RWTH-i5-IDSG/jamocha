@@ -15,6 +15,19 @@
   - jamocha-all-<version>.tar.gz
     contains the jamocha.jar, readme.txt, the jamocha source code and the APL 2.0
 
+  Starting Jamocha:
+    java -jar jamocha.jar [-shell|-gui] [-batch URL]
+    -shell 
+     starts a shell command prompt
+    -gui
+     starts the Jamocha GUI with a command shell, inspectors for templates
+     facts, rules, and log channels. Furthermore, it provides a sophisticated
+     rete viewerx
+    -batch
+     loads a CLIPS file and will  process it on time. The link to the file could
+     be provided a file name or as an URL.
+
+
  Web-Site: 
    http://www.jamocha.org/
  
