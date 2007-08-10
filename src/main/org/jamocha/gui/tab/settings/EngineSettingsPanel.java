@@ -244,7 +244,7 @@ public class EngineSettingsPanel extends AbstractSettingsPanel implements
 		attentionField.setBackground(gui.getBackground());
 		attentionField
 				.setText("Changes you make here are lost after a restart.\nOnly the settings for MAIN-module are made persistent.");
-		
+
 		addInputComponent(moduleSettingsPanel, attentionField, gridbag, c, 3);
 
 		mainPanel.add(moduleSettingsPanel);
@@ -272,6 +272,38 @@ public class EngineSettingsPanel extends AbstractSettingsPanel implements
 				new Boolean(false).toString());
 		gui.getPreferences().put("engine.watchRules",
 				new Boolean(false).toString());
+		gui.getPreferences().put("engine.mainStrategy",
+				strategySelectorMain.getSelectedItem().toString());
+	}
+
+	@Override
+	public void refresh() {
+		initStrategySelectorMain();
+		initModuleSelector();
+		initStrategySelector();
+	}
+
+	@Override
+	public void loadSettings() {
+		String strategyName = gui.getPreferences().get("engine.mainStrategy",
+				"-empty-");
+		if (!strategyName.equals("-empty-")) {
+			Module module = gui.getEngine().getModule("MAIN");
+			try {
+				gui.getEngine().getAgendas().getAgenda(module)
+						.setConflictResolutionStrategy(
+								ConflictResolutionStrategy
+										.getStrategy(strategyName));
+			} catch (InstantiationException e) {
+				JOptionPane.showMessageDialog(this, e,
+						"Error setting the strategy for MAIN.",
+						JOptionPane.ERROR_MESSAGE);
+			} catch (IllegalAccessException e) {
+				JOptionPane.showMessageDialog(this, e,
+						"Error setting the strategy for MAIN.",
+						JOptionPane.ERROR_MESSAGE);
+			}
+		}
 	}
 
 	public void actionPerformed(ActionEvent event) {
@@ -349,12 +381,6 @@ public class EngineSettingsPanel extends AbstractSettingsPanel implements
 				}
 			}
 		}
-	}
-
-	public void refresh() {
-		initStrategySelectorMain();
-		initModuleSelector();
-		initStrategySelector();
 	}
 
 	private void initModuleSelector() {

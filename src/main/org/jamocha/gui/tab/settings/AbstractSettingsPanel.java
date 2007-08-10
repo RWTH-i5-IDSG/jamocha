@@ -39,9 +39,22 @@ public abstract class AbstractSettingsPanel extends JPanel {
 	}
 
 	public abstract void save();
-	
+
+	/**
+	 * This function is called right when the GUI is starting up. It's purpose
+	 * is to load the preferences concerning the engine.
+	 */
+	public void loadSettings() {
+
+	}
+
+	/**
+	 * This function is called whenever the specific SettingsPanel gains the
+	 * focus and is used to initialize the comboboxes etc. with possibly new
+	 * values.
+	 */
 	public void refresh() {
-		
+
 	}
 
 	public void addLabel(JPanel parent, JLabel label, GridBagLayout gridbag,

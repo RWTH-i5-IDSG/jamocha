@@ -57,9 +57,10 @@ public class SettingsPanel extends AbstractJamochaPanel implements
 		tabbedPane = new JTabbedPane();
 
 		EngineSettingsPanel engineSettingsPanel = new EngineSettingsPanel(gui);
-		tabbedPane.addTab("Engine", null, engineSettingsPanel, "Engine Settings");
+		tabbedPane.addTab("Engine", null, engineSettingsPanel,
+				"Engine Settings");
 		panels.add(engineSettingsPanel);
-		
+
 		GUISettingsPanel guiSettingsPanel = new GUISettingsPanel(gui);
 		tabbedPane.addTab("GUI", null, guiSettingsPanel, "GUI Settings");
 		panels.add(guiSettingsPanel);
@@ -72,15 +73,24 @@ public class SettingsPanel extends AbstractJamochaPanel implements
 		saveButton.addActionListener(this);
 		buttonPanel.add(saveButton);
 		add(buttonPanel, BorderLayout.SOUTH);
+
+		loadSettings();
+
+	}
+
+	private void loadSettings() {
+		for (AbstractSettingsPanel panel : panels) {
+			panel.loadSettings();
+		}
 	}
 
 	public void close() {
 	}
-	
+
 	public void settingsChanged() {
-		
+
 	}
-	
+
 	/**
 	 * Sets the focus of this panel and by this sets the focus to the outputArea
 	 * so that the user doesn't have to click on it before he can start typing.
@@ -89,11 +99,11 @@ public class SettingsPanel extends AbstractJamochaPanel implements
 	@Override
 	public void setFocus() {
 		super.setFocus();
-		for(AbstractSettingsPanel panel:panels) {
+		for (AbstractSettingsPanel panel : panels) {
 			panel.refresh();
 		}
 	}
-	
+
 	public void actionPerformed(ActionEvent event) {
 		if (event.getSource() == saveButton) {
 			for (AbstractSettingsPanel panel : panels) {
