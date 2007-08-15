@@ -33,6 +33,7 @@ import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JColorChooser;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
@@ -68,6 +69,8 @@ public class GUISettingsPanel extends AbstractSettingsPanel implements
 	private JTextField backgroundColorChooserPreview;
 
 	private JComboBox factSortOptionsCombo;
+	
+	private JCheckBox autoCompletion;
 
 	public GUISettingsPanel(JamochaGui gui) {
 		super(gui);
@@ -152,6 +155,9 @@ public class GUISettingsPanel extends AbstractSettingsPanel implements
 		backgroundColorChooserPanel.add(backgroundColorChooserButton);
 		addInputComponent(shellPanel, backgroundColorChooserPanel, gridbag, c,
 				3);
+		autoCompletion = new JCheckBox("Enable Auto-Completion");
+		autoCompletion.setSelected(gui.getPreferences().getBoolean("shell.autocompletion", false));
+		addInputComponent(shellPanel, autoCompletion, gridbag, c, 4);
 
 		mainPanel.add(shellPanel);
 		
@@ -197,6 +203,7 @@ public class GUISettingsPanel extends AbstractSettingsPanel implements
 						.getRGB());
 		gui.getPreferences().put("facts.autoSort",
 				factSortOptionsCombo.getSelectedItem().toString());
+		gui.getPreferences().putBoolean("shell.autocompletion", autoCompletion.isSelected());
 	}
 
 	private class FontListCellRenderer extends DefaultListCellRenderer {
