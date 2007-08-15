@@ -20,6 +20,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.AdjustmentEvent;
@@ -42,7 +43,6 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
-import javax.swing.JFrame;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
@@ -516,48 +516,57 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 						switch (e.getKeyCode()) {
 						case KeyEvent.VK_DOWN:
 						case KeyEvent.VK_KP_DOWN:
+							if (autoCompletionBox.isVisible()) {
+								autoCompletionBox.down();
+								break;
+							}
 							delta = -1;
 						case KeyEvent.VK_UP:
 						case KeyEvent.VK_KP_UP:
-							// Here we walk through the history
-							int old_offset = history_offset;
-							history_offset += delta;
-							if (history_offset <= 0) {
-								history_offset = 0;
-								if (lastPromptIndex < getOffset()) {
-									removeLine();
-								}
-								printMessage(history_activeline, false);
+							if (autoCompletionBox.isVisible()) {
+								autoCompletionBox.up();
 							} else {
-								if (history_offset > history.size()) {
-									history_offset = history.size();
-								}
-								// save the currently typed stuff
-								if (delta == 1 && old_offset < 1) {
-									String currLine = "";
-									try {
-										currLine = outputArea.getText(
-												lastPromptIndex, getOffset()
-														- lastPromptIndex);
-									} catch (BadLocationException e1) {
-										e1.printStackTrace();
+								
+								// Here we walk through the history
+								int old_offset = history_offset;
+								history_offset += delta;
+								if (history_offset <= 0) {
+									history_offset = 0;
+									if (lastPromptIndex < getOffset()) {
+										removeLine();
 									}
-									history_activeline = currLine;
+									printMessage(history_activeline, false);
+								} else {
+									if (history_offset > history.size()) {
+										history_offset = history.size();
+									}
+									// save the currently typed stuff
+									if (delta == 1 && old_offset < 1) {
+										String currLine = "";
+										try {
+											currLine = outputArea.getText(
+													lastPromptIndex, getOffset()
+															- lastPromptIndex);
+										} catch (BadLocationException e1) {
+											e1.printStackTrace();
+										}
+										history_activeline = currLine;
+									}
+									if (lastPromptIndex < getOffset()
+											&& history.size() > 0) {
+										removeLine();
+									}
+									int index = history.size() - history_offset;
+									if (index >= 0 && history.size() > 0) {
+	
+										String tmp = history.get(index);
+										printMessage(tmp, false);
+									}
+	
 								}
-								if (lastPromptIndex < getOffset()
-										&& history.size() > 0) {
-									removeLine();
-								}
-								int index = history.size() - history_offset;
-								if (index >= 0 && history.size() > 0) {
-
-									String tmp = history.get(index);
-									printMessage(tmp, false);
-								}
-
+								moveCursorToEnd();
+								scrollToCursor();
 							}
-							moveCursorToEnd();
-							scrollToCursor();
 							break;
 						case KeyEvent.VK_ENTER:
 							moveCursorToEnd();
@@ -607,6 +616,7 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 						// Moving the Cursor in the current line
 						case KeyEvent.VK_RIGHT:
 						case KeyEvent.VK_KP_RIGHT:
+						
 							if (!e.isShiftDown()) {
 								if (cursorPosition < getOffset()) {
 									moveCursorTo(cursorPosition + 1);
@@ -692,7 +702,13 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 		}
 		
 		if (!suggestions.isEmpty()) {
-			autoCompletionBox.show(suggestions);
+			//Point p = outputArea.getCaret().getMagicCaretPosition();
+			//outputArea.;
+			//if (p != null) {
+				int x = outputArea.getX();
+				int y = outputArea.getY();
+				autoCompletionBox.show(suggestions,x,y);
+			//}
 		} else {
 			autoCompletionBox.hide();
 		}
