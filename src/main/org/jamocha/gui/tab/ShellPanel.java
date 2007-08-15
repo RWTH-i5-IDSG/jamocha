@@ -37,10 +37,12 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
+import java.util.Vector;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JFrame;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
@@ -66,6 +68,10 @@ import org.jamocha.rete.Constants;
 public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 		AdjustmentListener {
 
+	private AutoCompletion autoCompletion;
+	
+	private AutoCompletionBox autoCompletionBox;
+	
 	private static final long serialVersionUID = 1777454004380892575L;
 
 	/**
@@ -173,6 +179,12 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 
 	private boolean channelListenerPaused = false;
 
+	private void initAutoCompletion() {
+		autoCompletion.addToken("assert");
+		autoCompletion.addToken("slot");
+		autoCompletion.addToken("defrule");
+	}
+	
 	/**
 	 * The main constructor for a ShellPanel.
 	 * 
@@ -181,6 +193,8 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 	 */
 	public ShellPanel(JamochaGui gui) {
 		super(gui);
+		autoCompletion = new AutoCompletion();
+		autoCompletionBox = new AutoCompletionBox(gui);
 		// GUI construction
 		// create the output area
 		outputArea = new JTextArea();
@@ -211,6 +225,8 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 		// initialize the channel to the engine
 		initChannel();
 
+		initAutoCompletion();
+		
 		printPrompt();
 		moveCursorToEnd();
 		showCursor();
@@ -645,6 +661,7 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 						}
 						// e.consume();
 						showCursor();
+						//handleAutoCompletion();
 						startTimer();
 					} else {
 						try {
@@ -657,6 +674,29 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 			}
 		};
 		eventThread.start();
+	}
+
+	protected void handleAutoCompletion() {
+		int i = 0;
+		Vector<String> suggestions = null;
+		try {
+			while (outputArea.getText().charAt(cursorPosition-i) != '(' && outputArea.getText().charAt(cursorPosition-i) != ' ') i++;
+			if (outputArea.getText().charAt(cursorPosition-i) == '(') {
+				String prefix = outputArea.getText(cursorPosition-i+1, i-1);
+				suggestions = autoCompletion.getAllBeginningWith(prefix);
+			} else {
+				suggestions = new Vector<String>();
+			}
+		} catch (Exception e) {
+			suggestions = new Vector<String>();
+		}
+		
+		if (!suggestions.isEmpty()) {
+			autoCompletionBox.show(suggestions);
+		} else {
+			autoCompletionBox.hide();
+		}
+		
 	}
 
 	private void scrollToCursor() {
