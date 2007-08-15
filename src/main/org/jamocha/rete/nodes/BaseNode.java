@@ -334,7 +334,7 @@ public abstract class BaseNode implements Serializable {
 		canvas.fillRect(x, y, width, height);
 		canvas.setColor(  new Color(200,15,15,alpha) );
 		canvas.drawRect(x, y, width, height);
-		canvas.setColor(Color.black);
+		canvas.setColor( new Color(0,0,0,alpha) );
 		drawId(x,y,height,width,halfLineHeight,canvas);
 	}
 	

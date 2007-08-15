@@ -98,7 +98,7 @@ public class LIANode extends AbstractAlpha {
 		canvas.fillPolygon(xpoints, ypoints, 4);
 		canvas.setColor(  new Color(107,197,196,alpha) );
 		canvas.drawPolygon(xpoints, ypoints, 4);
-		canvas.setColor(Color.black);
+		canvas.setColor( new Color(0,0,0,alpha) );
 		drawId(x,y,height,width,halfLineHeight,canvas);
 	}
 	

@@ -205,7 +205,7 @@ public class RootNode extends BaseNode {
 		canvas.setColor(  new Color(40,40,40,alpha) );
 		canvas.fillOval(x,y,width,height);
 		canvas.drawOval(x,y,width,height);
-		canvas.setColor(Color.white);
+		canvas.setColor( new Color(255,255,255,alpha) );
 		drawId(x,y,height,width,halfLineHeight,canvas);
 	}
 	

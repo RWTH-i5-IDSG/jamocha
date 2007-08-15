@@ -155,7 +155,7 @@ public class BetaFilterNode extends AbstractBeta {
 		canvas.fillPolygon(xpoints, ypoints, 4);
 		canvas.setColor(  new Color(54,208,55,alpha) );
 		canvas.drawPolygon(xpoints, ypoints, 4);
-		canvas.setColor(Color.black);
+		canvas.setColor( new Color(0,0,0,alpha) );
 		drawId(x,y,height,width,halfLineHeight,canvas);
 	}
 	

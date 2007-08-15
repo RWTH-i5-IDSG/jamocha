@@ -598,7 +598,6 @@ public class Visualizer extends JComponent implements ComponentListener, MouseIn
 		if (autoScale)
 			return;
 		int dir = arg0.getWheelRotation();
-		arg0.getClickCount();
 		double d = 1;
 		if (dir > 0) {
 			d =  1.1;

@@ -134,7 +134,7 @@ public class ObjectTypeNode extends AbstractAlpha implements Serializable {
 		canvas.fillRect(x, y, width, height);
 		canvas.setColor(  new Color(208,181,44,alpha) );
 		canvas.drawRect(x, y, width, height);
-		canvas.setColor(Color.black);
+		canvas.setColor( new Color(0,0,0,alpha) );
 		drawId(x,y,height,width, halfLineHeight,canvas);
 		if (icon != null && isSelected) {
 			float aspectRatio = icon.getWidth(null) / icon.getHeight(null);

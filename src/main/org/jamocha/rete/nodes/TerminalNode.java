@@ -128,7 +128,7 @@ public class TerminalNode extends BaseNode {
 		canvas.fillRect(x, y, width, height);
 		canvas.setColor(  new Color(40,40,40,alpha) );
 		canvas.drawRect(x, y, width, height);
-		canvas.setColor(Color.white);
+		canvas.setColor( new Color(255,255,255,alpha) );
 		drawId(x,y,height,width,halfLineHeight,canvas);
 	}
 
