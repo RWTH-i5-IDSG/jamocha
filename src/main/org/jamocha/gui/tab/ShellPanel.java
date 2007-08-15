@@ -72,6 +72,8 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 	
 	private AutoCompletionBox autoCompletionBox;
 	
+	private String autoCompletionPrefix;
+	
 	private static final long serialVersionUID = 1777454004380892575L;
 
 	/**
@@ -569,35 +571,45 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 							}
 							break;
 						case KeyEvent.VK_ENTER:
-							moveCursorToEnd();
-
-							if (lastPromptIndex < getOffset()) {
-								String currLine = "";
-								try {
+							
+							if (autoCompletionBox.isVisible()) {
+								String txt = autoCompletionBox.getSelected().substring(autoCompletionPrefix.length());
+								int cursorPos = outputArea.getCaretPosition();
+								outputArea.insert(txt, cursorPos);
+								outputArea.setCaretPosition(cursorPos + txt.length());
+								autoCompletionBox.hide();
+							} else {
+								
+								moveCursorToEnd();
+	
+								if (lastPromptIndex < getOffset()) {
+									String currLine = "";
 									try {
-										currLine = outputArea.getText(
-												lastPromptIndex, getOffset()
-														- lastPromptIndex);
-									} catch (BadLocationException e1) {
+										try {
+											currLine = outputArea.getText(
+													lastPromptIndex, getOffset()
+															- lastPromptIndex);
+										} catch (BadLocationException e1) {
+											e1.printStackTrace();
+										}
+										lastIncompleteCommand
+												.append(currLine
+														+ System
+																.getProperty("line.separator"));
+										if (currLine.length() > 0) {
+											addToHistory(currLine);
+											outWriter.write(currLine);
+											outWriter.flush();
+										}
+									} catch (IOException e1) {
 										e1.printStackTrace();
 									}
-									lastIncompleteCommand
-											.append(currLine
-													+ System
-															.getProperty("line.separator"));
-									if (currLine.length() > 0) {
-										addToHistory(currLine);
-										outWriter.write(currLine);
-										outWriter.flush();
-									}
-								} catch (IOException e1) {
-									e1.printStackTrace();
 								}
+								history_activeline = "";
+								printMessage("", true);
+								moveCursorToEnd();
+								scrollToCursor();
 							}
-							history_activeline = "";
-							printMessage("", true);
-							moveCursorToEnd();
-							scrollToCursor();
 							break;
 						// delete a char on the left side of the cursor
 						case KeyEvent.VK_BACK_SPACE:
@@ -692,8 +704,8 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 		try {
 			while (outputArea.getText().charAt(cursorPosition-i) != '(' && outputArea.getText().charAt(cursorPosition-i) != ' ') i++;
 			if (outputArea.getText().charAt(cursorPosition-i) == '(') {
-				String prefix = outputArea.getText(cursorPosition-i+1, i-1);
-				suggestions = autoCompletion.getAllBeginningWith(prefix);
+				autoCompletionPrefix = outputArea.getText(cursorPosition-i+1, i-1);
+				suggestions = autoCompletion.getAllBeginningWith(autoCompletionPrefix);
 			} else {
 				suggestions = new Vector<String>();
 			}

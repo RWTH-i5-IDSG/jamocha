@@ -47,6 +47,10 @@ public class AutoCompletionBox {
 		if (listFrame != null)	listFrame.hide();
 	}
 	
+	public String getSelected() {
+		return (String)list.getSelectedValue();
+	}
+	
 	public void show(Vector<String> lst, int x, int y) {
 		if (visible && numElems==lst.size() ) return;
 		
