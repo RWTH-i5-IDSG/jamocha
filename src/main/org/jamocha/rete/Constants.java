@@ -119,4 +119,6 @@ public class Constants {
     public static String DEFAULT_OUTPUT = "t";
     public static String VERSION = "0.8";
     public static String INITIAL_FACT = "_initialFact";
+    
+    public static String REVISION_NUMBER = "$GlobalRev$"; 
 }
