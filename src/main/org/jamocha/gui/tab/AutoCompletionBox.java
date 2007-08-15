@@ -13,6 +13,7 @@ public class AutoCompletionBox {
 	JFrame parent;
 	Popup listFrame =null;
 	boolean visible = false;
+	int numElems=0;
 	Vector<String> strings = null;
 	
 	PopupFactory factory;
@@ -32,7 +33,6 @@ public class AutoCompletionBox {
 		now --;
 		if (now < 0) now = strings.size()-1;
 		list.setSelectedIndex(now);
-		System.out.println(list.getSelectedIndex());
 	}
 	
 	public void down() {
@@ -48,11 +48,15 @@ public class AutoCompletionBox {
 	}
 	
 	public void show(Vector<String> lst, int x, int y) {
+		if (visible && numElems==lst.size() ) return;
+		
+		numElems = lst.size();
 		visible=true;
 		strings = lst;
 		list.setListData(lst);
 		list.setSelectedIndex(0);
-		Popup listFrame = factory.getPopup(parent, list, x, y);
+		if (listFrame != null) listFrame.hide();
+		listFrame = factory.getPopup(parent, list, x, y);
 		listFrame.show();
 	}
 	
