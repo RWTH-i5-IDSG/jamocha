@@ -3,6 +3,7 @@
  */
 package org.jamocha.rete.configurations;
 
+import org.jamocha.formatter.Formatter;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.ExpressionSequence;
@@ -91,6 +92,10 @@ public class DeffunctionConfiguration extends AbstractConfiguration  {
 
 	public void setFunctionGroup(String functionGroup) {
 		this.functionGroup = functionGroup;
+	}
+
+	public String format(Formatter visitor) {
+		return visitor.visit(this);
 	}
 
 }

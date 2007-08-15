@@ -113,7 +113,7 @@ public class PPrintRule implements Function {
 			for (int idx=0; idx < params.length; idx++) {
 				Rule rls = 
 					engine.getCurrentFocus().findRule(params[idx].getValue(engine).getIdentifierValue());
-				engine.writeMessage(ParserFactory.getFormatter().formatRule(rls),"t");
+				engine.writeMessage(ParserFactory.getFormatter().visit(rls),"t");
 			}
 		}
 		return JamochaValue.NIL;

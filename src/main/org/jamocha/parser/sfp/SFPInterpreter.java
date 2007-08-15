@@ -431,14 +431,14 @@ public class SFPInterpreter implements SFPParserVisitor {
 		// get the template description
 		int j = 1;
 		JamochaValue descr = null;
+		if (node.jjtGetNumChildren() > 1) {
+			Node n = node.jjtGetChild(1);
 
-		Node n = node.jjtGetChild(1);
-
-		if (n != null && n instanceof SFPConstructDescription) {
-			j = 2;
-			descr = (JamochaValue) n.jjtAccept(this, data);
+			if (n != null && n instanceof SFPConstructDescription) {
+				j = 2;
+				descr = (JamochaValue) n.jjtAccept(this, data);
+			}
 		}
-
 		// gather all the slots from the syntax tree and set them up
 		TemplateSlot[] s = new TemplateSlot[node.jjtGetNumChildren() - j];
 		TemplateSlot slot = null;
@@ -823,13 +823,13 @@ public class SFPInterpreter implements SFPParserVisitor {
 		// get constraint from subnode
 		Constraint constraint = (Constraint) node.jjtGetChild(1).jjtAccept(
 				this, data);
-		
+
 		// set name to given constraint
 		constraint.setName(slotName.getStringValue());
-		
-		//System.out.println(slotName.getStringValue());
-		//System.out.println(constraint.getName());
-		
+
+		// System.out.println(slotName.getStringValue());
+		// System.out.println(constraint.getName());
+
 		return constraint;
 	}
 
@@ -891,20 +891,19 @@ public class SFPInterpreter implements SFPParserVisitor {
 			constraint = new LiteralConstraint();
 			constraint.setValue((JamochaValue) obj);
 		} else if (n instanceof SFPColon) {
-			PredicateConstraint pred = new PredicateConstraint(); 
+			PredicateConstraint pred = new PredicateConstraint();
 			constraint = pred;
-			
-			String functionName = 
-				((JamochaValue)n.jjtGetChild(0).jjtGetChild(0).jjtAccept(this, null)).toString();
+
+			String functionName = ((JamochaValue) n.jjtGetChild(0).jjtGetChild(
+					0).jjtAccept(this, null)).toString();
 			pred.setFunctionName(functionName);
-			
-			for (int i=1; i< n.jjtGetChild(0).jjtGetNumChildren() ; i++) {
-				Parameter param = 
-					(Parameter)n.jjtGetChild(0).jjtGetChild(i).jjtAccept(this, null);
+
+			for (int i = 1; i < n.jjtGetChild(0).jjtGetNumChildren(); i++) {
+				Parameter param = (Parameter) n.jjtGetChild(0).jjtGetChild(i)
+						.jjtAccept(this, null);
 				pred.addParameter(param);
 			}
-			
-			
+
 		} else if (n instanceof SFPEquals) {
 			// TODO: constraint = new PredicateConstraint();
 			// predivate can't handle functions containing functioncalls

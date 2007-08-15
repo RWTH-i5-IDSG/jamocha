@@ -7,11 +7,8 @@ import org.jamocha.rete.nodes.BaseNode;
 
 public class AndConnectedConstraint extends AbstractConnectedConstraint {
 
-	public String toClipsFormat(int indent) {
-		return left.toClipsFormat(0)+" & "+right.toClipsFormat(0);
-	}
+	private static final long serialVersionUID = 1L;
 
-	
 	public boolean getNegated() {
 		// TODO Auto-generated method stub
 		return false;

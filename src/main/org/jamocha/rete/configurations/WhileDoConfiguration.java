@@ -16,6 +16,7 @@
  */
 package org.jamocha.rete.configurations;
 
+import org.jamocha.formatter.Formatter;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.Expression;
 import org.jamocha.parser.JamochaValue;
@@ -55,6 +56,11 @@ public class WhileDoConfiguration extends AbstractConfiguration {
 
 	public void setWhileActions(ExpressionCollection whileActions) {
 		this.whileActions = whileActions;
+	}
+
+	public String format(Formatter visitor) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

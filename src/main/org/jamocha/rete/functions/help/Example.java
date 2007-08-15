@@ -121,7 +121,7 @@ public class Example implements Function, Serializable {
 						for (JamochaValue value : result) {
 							engine
 									.writeMessage(ParserFactory.getFormatter(
-											true).formatExpression(value));
+											true).visit(value));
 							engine.writeMessage(" ");
 						}
 					}

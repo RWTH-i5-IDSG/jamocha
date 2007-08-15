@@ -23,13 +23,15 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.TimeZone;
 
+import org.jamocha.formatter.Formattable;
+import org.jamocha.formatter.Formatter;
 import org.jamocha.rete.BoundParam;
 import org.jamocha.rete.Fact;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.Slot;
 
-public class JamochaValue implements Parameter {
+public class JamochaValue implements Parameter, Formattable {
 
 	public Object clone() {
 		return new JamochaValue(this.value);
@@ -188,6 +190,7 @@ public class JamochaValue implements Parameter {
 		this.value = value;
 	}
 
+	@SuppressWarnings("unchecked")
 	public JamochaValue(Object object) {
 		if (object == null) {
 			type = JamochaType.NIL;
@@ -290,9 +293,9 @@ public class JamochaValue implements Parameter {
 	public String toString() {
 		if (type.equals(JamochaType.STRING))
 			return ParserUtils.getStringLiteral(ParserFactory.getFormatter()
-					.formatExpression(this));
+					.visit(this));
 		else
-			return ParserFactory.getFormatter().formatExpression(this);
+			return format(ParserFactory.getFormatter());
 	}
 
 	public JamochaValue implicitCast(JamochaType type)
@@ -419,14 +422,13 @@ public class JamochaValue implements Parameter {
 		return false;
 	}
 
-
 	private String fillToFixedLength(int val, String fill, int length) {
 		String res = String.valueOf(val);
 		while (res.length() < length)
 			res = fill + res;
 		return res;
 	}
-	
+
 	public String getExpressionString() {
 		StringBuilder sb = new StringBuilder();
 		switch (getType()) {
@@ -489,11 +491,7 @@ public class JamochaValue implements Parameter {
 		return this;
 	}
 
-	public String toClipsFormat(int indent) {
-		String ind = "";
-		while (ind.length() < indent*blanksPerIndent) ind+=" ";
-		return ind+getExpressionString();
-		
-		
+	public String format(Formatter visitor) {
+		return visitor.visit(this);
 	}
 }

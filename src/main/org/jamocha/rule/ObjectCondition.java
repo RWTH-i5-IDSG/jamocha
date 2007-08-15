@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.jamocha.rete.Constants;
 import org.jamocha.rete.SFRuleCompiler;
 import org.jamocha.rete.StopCompileException;
 import org.jamocha.rete.Template;
@@ -203,33 +202,6 @@ public class ObjectCondition extends AbstractCondition {
 	
 	public BaseNode compile(SFRuleCompiler compiler, Rule rule, int conditionIndex) throws StopCompileException {
 		return compiler.compile(this, rule, conditionIndex);
-	}
-
-	public String toClipsFormat(int indent) {
-		String ind = "";
-		while (ind.length() < indent*blanksPerIndent) ind+=" ";
-		StringBuilder buf = new StringBuilder();
-		
-		int start = 0; boolean obind = false;
-		
-		Constraint cn = propConditions.get(0);
-		if (cn instanceof BoundConstraint) {
-			BoundConstraint bc = (BoundConstraint) cn;
-			if (bc.getIsObjectBinding()) {
-				start = 1;
-				buf.append(bc.toFactBindingPPString());
-				obind = true;
-			}
-		}
-		
-		buf.append('(').append(getTemplateName()).append("\n");
-
-		for (int idx = start; idx < propConditions.size(); idx++) {
-			Constraint cnstr = propConditions.get(idx);
-			buf.append(cnstr.toClipsFormat(indent));
-		}
-		buf.append(")\n");
-		return buf.toString();
 	}
 	
 	public Object clone() throws CloneNotSupportedException {

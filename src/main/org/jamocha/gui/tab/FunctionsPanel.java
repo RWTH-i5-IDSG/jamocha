@@ -49,7 +49,6 @@ import org.jamocha.gui.TableModelQuickSort;
 import org.jamocha.gui.TableRowModel;
 import org.jamocha.gui.icons.IconLoader;
 import org.jamocha.messagerouter.StringChannel;
-import org.jamocha.parser.ParserFactory;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.FunctionGroup;
 import org.jamocha.rete.functions.FunctionMemory;
@@ -317,9 +316,10 @@ public class FunctionsPanel extends AbstractJamochaPanel implements
 				Function function = (Function) funcsDataModel
 						.getRowAt(functionsTable.getSelectedRow());
 				if (function != null) {
-					buffer.append(ParserFactory.getFormatter(true)
-							.formatFunction(function));
-					buffer.append("\n");
+//					buffer.append(ParserFactory.getFormatter(true)
+//							.format(function));
+//					buffer.append("\n");
+					// TODO fix me
 				}
 			}
 			dumpAreaFunction.setText(buffer.toString());

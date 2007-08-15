@@ -17,16 +17,12 @@
 package org.jamocha.rule;
 
 import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 
-import org.jamocha.parser.Expression;
+import org.jamocha.formatter.Formatter;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.rete.nodes.BaseNode;
-import org.jamocha.rete.BoundParam;
-import org.jamocha.rete.Constants;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.SFRuleCompiler;
+import org.jamocha.rete.nodes.BaseNode;
 
 /**
  * @author Peter Lin
@@ -89,17 +85,8 @@ public class PredicateConstraint extends AbstractConstraint {
 		return compiler.compile(this, rule, conditionIndex);
 	}
 
-	public String toClipsFormat(int indent) {
-		String ind = "";
-		while (ind.length() < indent*blanksPerIndent) ind+=" ";
-		StringBuilder sb = new StringBuilder();
-		sb.append(ind+"(" + getFunctionName());
-		for (Parameter param : parameters) {
-			sb.append(" ");
-			sb.append(param.toClipsFormat(0));
-		}
-		sb.append(")");
-		return sb.toString();
+	public String format(Formatter visitor) {
+		return visitor.visit(this);
 	}
 
 	public JamochaValue getValue() {

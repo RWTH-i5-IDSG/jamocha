@@ -1,5 +1,7 @@
 package org.jamocha.rete.nodes.joinfilter;
 
+import org.jamocha.formatter.Formatter;
+
 public class RightFieldAddress extends FieldAddress {
 
 	protected int slotIndex;
@@ -37,6 +39,10 @@ public class RightFieldAddress extends FieldAddress {
 			result.append("right(slot=").append(slotIndex).append(")");
 			return result.toString();
 		}
+	}
+
+	public String format(Formatter visitor) {
+		return visitor.visit(this);
 	}
 	
 }

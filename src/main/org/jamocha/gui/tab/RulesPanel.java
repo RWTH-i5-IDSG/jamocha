@@ -197,7 +197,7 @@ public class RulesPanel extends AbstractJamochaPanel implements ActionListener,
 				Rule rule = (Rule) dataModel.getRowAt(rulesTable
 						.getSelectedRow());
 				if (rule != null) {
-					buffer.append(ParserFactory.getFormatter().formatRule(rule));
+					buffer.append(ParserFactory.getFormatter().visit(rule));
 				}
 			}
 			dumpArea.setText(buffer.toString());

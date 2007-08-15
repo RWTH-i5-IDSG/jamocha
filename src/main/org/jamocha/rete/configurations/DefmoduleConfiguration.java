@@ -1,5 +1,6 @@
 package org.jamocha.rete.configurations;
 
+import org.jamocha.formatter.Formatter;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Rete;
@@ -37,6 +38,11 @@ public class DefmoduleConfiguration extends AbstractConfiguration {
 	}
 
 	public JamochaValue getValue(Rete engine) throws EvaluationException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public String format(Formatter visitor) {
 		// TODO Auto-generated method stub
 		return null;
 	}

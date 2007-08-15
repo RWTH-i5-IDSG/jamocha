@@ -16,7 +16,6 @@
  */
 package org.jamocha.rete;
 
-import org.jamocha.formatter.IsClipsElement;
 import org.jamocha.parser.Expression;
 
 
@@ -26,7 +25,7 @@ import org.jamocha.parser.Expression;
  * Parameter can be a value, a bound variable or the result of a function.
  * It is up to the implementing class to provide the necessary logic.
  */
-public interface Parameter extends Expression, Cloneable, IsClipsElement {
+public interface Parameter extends Expression, Cloneable {
 	
     /**
      * If the parameter is an object binding, the method should return true

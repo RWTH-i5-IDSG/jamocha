@@ -16,9 +16,9 @@
  */
 package org.jamocha.rule;
 
-import java.util.ArrayList;
 import java.util.List;
 
+import org.jamocha.formatter.Formatter;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Parameter;
@@ -100,14 +100,8 @@ public class TestCondition extends AbstractCondition {
 		return null;
 	}
 
-	public String toClipsFormat(int indent) {
-		String ind = "";
-		while (ind.length() < indent*blanksPerIndent) ind+=" ";
-		StringBuffer result = new StringBuffer();
-		result.append(ind+"(test\n");
-		result.append(func.toClipsFormat(indent+1));
-		result.append(ind+")");
-		return result.toString();
+	public String format(Formatter visitor) {
+		return visitor.visit(this);
 	}
 	
 	public Object clone() throws CloneNotSupportedException {

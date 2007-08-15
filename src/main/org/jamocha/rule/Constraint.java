@@ -18,7 +18,7 @@ package org.jamocha.rule;
 
 import java.io.Serializable;
 
-import org.jamocha.formatter.IsClipsElement;
+import org.jamocha.formatter.Formattable;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.TemplateSlot;
 
@@ -31,7 +31,8 @@ import org.jamocha.rete.TemplateSlot;
  * then evaluated against 1 or more operations.
  * 
  */
-public interface Constraint extends Serializable, Complexity, Compileable, IsClipsElement{
+public interface Constraint extends Serializable, Complexity, Compileable,
+		Formattable {
 
 	/**
 	 * This should be the name of the constraint. In the case of an object, it
@@ -80,7 +81,7 @@ public interface Constraint extends Serializable, Complexity, Compileable, IsCli
 	boolean getNegated();
 
 	void setSlot(TemplateSlot slot);
-	
+
 	TemplateSlot getSlot();
 
 }

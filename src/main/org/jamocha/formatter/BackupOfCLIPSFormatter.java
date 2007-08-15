@@ -5,12 +5,13 @@ import java.util.GregorianCalendar;
 import java.util.List;
 
 import org.jamocha.parser.Expression;
-import org.jamocha.parser.Formatter;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
+import org.jamocha.rete.AbstractFunction;
 import org.jamocha.rete.BoundParam;
 import org.jamocha.rete.Constants;
 import org.jamocha.rete.ExpressionCollection;
+import org.jamocha.rete.ExpressionSequence;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Slot;
@@ -19,16 +20,21 @@ import org.jamocha.rete.Template;
 import org.jamocha.rete.TemplateSlot;
 import org.jamocha.rete.configurations.AssertConfiguration;
 import org.jamocha.rete.configurations.DeffunctionConfiguration;
+import org.jamocha.rete.configurations.DefmoduleConfiguration;
 import org.jamocha.rete.configurations.DefruleConfiguration;
+import org.jamocha.rete.configurations.IfElseConfiguration;
+import org.jamocha.rete.configurations.LoopForCountConfiguration;
+import org.jamocha.rete.configurations.ModifyConfiguration;
 import org.jamocha.rete.configurations.Signature;
 import org.jamocha.rete.configurations.SlotConfiguration;
+import org.jamocha.rete.configurations.WhileDoConfiguration;
 import org.jamocha.rete.functions.FunctionDescription;
 import org.jamocha.rule.Action;
 import org.jamocha.rule.AndCondition;
 import org.jamocha.rule.AndConnectedConstraint;
-import org.jamocha.rule.ConditionWithNested;
 import org.jamocha.rule.BoundConstraint;
 import org.jamocha.rule.Condition;
+import org.jamocha.rule.ConditionWithNested;
 import org.jamocha.rule.Constraint;
 import org.jamocha.rule.ExistCondition;
 import org.jamocha.rule.FunctionAction;
@@ -40,20 +46,7 @@ import org.jamocha.rule.PredicateConstraint;
 import org.jamocha.rule.Rule;
 import org.jamocha.rule.TestCondition;
 
-public class BackupOfCLIPSFormatter implements Formatter {
-
-	private static final int INDENT_WIDTH = 4;
-
-	private boolean indentation = true;
-
-	private StringBuilder prefix = new StringBuilder();
-
-	public BackupOfCLIPSFormatter() {
-	}
-
-	public BackupOfCLIPSFormatter(boolean indentation) {
-		this.indentation = indentation;
-	}
+public class BackupOfCLIPSFormatter extends Formatter {
 
 	public String formatExpression(Expression expression) {
 		if (expression instanceof JamochaValue) {
@@ -268,7 +261,7 @@ public class BackupOfCLIPSFormatter implements Formatter {
 		for (TemplateSlot slot : slots) {
 			newLine(res);
 			res.append("(");
-			if (slot.isSilent()){
+			if (slot.isSilent()) {
 				res.append("silent ");
 			}
 			if (slot.isMultiSlot()) {
@@ -309,7 +302,7 @@ public class BackupOfCLIPSFormatter implements Formatter {
 			for (Parameter param : params) {
 				String exp = formatExpression(param);
 				lineLength += exp.length();
-				if (indentation && lineLength > 80) {
+				if (intend && lineLength > 80) {
 					newLine(res);
 					lineLength = exp.length();
 				}
@@ -376,13 +369,6 @@ public class BackupOfCLIPSFormatter implements Formatter {
 			break;
 		}
 		return sb.toString();
-	}
-
-	private String fillToFixedLength(int val, String fill, int length) {
-		String res = String.valueOf(val);
-		while (res.length() < length)
-			res = fill + res;
-		return res;
 	}
 
 	private String formatSlotParam(SlotParam slotParam) {
@@ -499,21 +485,15 @@ public class BackupOfCLIPSFormatter implements Formatter {
 
 	private String formatFunctionAction(FunctionAction action) {
 		StringBuilder sb = new StringBuilder();
-		sb.append(prefix).append('(').append(action.getFunctionName());
+		sb.append('(').append(action.getFunctionName());
 		Expression[] parameters = action.getParameters();
-		if (indentation) {
-			sb.append(Constants.LINEBREAK);
-		}
+		newLine(sb);
 		for (int i = 0; i < parameters.length; ++i) {
-			sb.append(prefix).append(formatExpression(parameters[i]));
-			if (indentation) {
-				sb.append(Constants.LINEBREAK);
-			}
+			sb.append(formatExpression(parameters[i]));
+			newLine(sb);
 		}
 		sb.append(')');
-		if (indentation) {
-			sb.append(Constants.LINEBREAK);
-		}
+		newLine(sb);
 		return sb.toString();
 	}
 
@@ -702,19 +682,87 @@ public class BackupOfCLIPSFormatter implements Formatter {
 		return res.toString();
 	}
 
-	private void increaseIndent() {
-		for (int i = 0; i < INDENT_WIDTH; ++i) {
-			prefix.append(' ');
-		}
+	@Override
+	public String visit(JamochaValue object) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
-	private void newLine(StringBuilder sb) {
-		if (indentation) {
-			sb.append(Constants.LINEBREAK).append(prefix);
-		}
+	@Override
+	public String visit(Signature object) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
-	private void decreaseIndent() {
-		prefix.setLength(Math.max(0, prefix.length() - INDENT_WIDTH));
+	@Override
+	public String visit(AbstractFunction object) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String visit(AssertConfiguration object) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String visit(BoundParam object) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String visit(DeffunctionConfiguration object) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String visit(DefmoduleConfiguration object) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String visit(DefruleConfiguration object) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String visit(ExpressionSequence object) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String visit(IfElseConfiguration object) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String visit(LoopForCountConfiguration object) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String visit(ModifyConfiguration object) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String visit(SlotConfiguration object) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String visit(WhileDoConfiguration object) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

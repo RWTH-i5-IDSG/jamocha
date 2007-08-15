@@ -407,8 +407,8 @@ public class LogPanel extends AbstractJamochaPanel implements ActionListener,
 						first = false;
 					} while ((ex = ex.getCause()) != null);
 				} else if (message instanceof Expression) {
-					buffer.append(ParserFactory.getFormatter(true)
-							.formatExpression((Expression) message));
+					buffer.append(((Expression) message).format(ParserFactory
+							.getFormatter(true)));
 				} else if (message != null) {
 					buffer.append(message.toString());
 				}

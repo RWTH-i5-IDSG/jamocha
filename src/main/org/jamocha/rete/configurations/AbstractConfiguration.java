@@ -5,7 +5,7 @@ import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 import org.jamocha.rule.Rule;
 
-public abstract class AbstractConfiguration  implements Parameter{
+public abstract class AbstractConfiguration implements Parameter{
 
 	public void setFact(Fact[] facts) {
 	}
@@ -15,10 +15,6 @@ public abstract class AbstractConfiguration  implements Parameter{
 	
 	public Object clone() throws CloneNotSupportedException{
 		throw new CloneNotSupportedException();
-	}
-	
-	public String toClipsFormat(int indent){
-		return null; //since configurations dont have clips string representations
 	}
 
 }

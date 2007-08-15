@@ -24,6 +24,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.jamocha.formatter.Formatter;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.Expression;
 import org.jamocha.parser.JamochaValue;
@@ -671,28 +672,8 @@ public class Defrule implements Rule {
 //		return newRule;
 	}
 
-	public String toClipsFormat(int indent) {
-		StringBuilder buf = new StringBuilder();
-		buf.append("(defrule ").append(getName());
-		buf.append(" (declare ");
-		buf.append("(salience ").append(getSalience()).append(") ");
-		buf.append("(rule-version ").append(getVersion()).append(") ");
-		buf.append("(remember-match ").append(getRememberMatch()).append(") ");
-		buf.append("(effective-date ").append(getEffectiveDate()).append(") ");
-		buf.append("(expiration-date ").append(getExpirationDate()).append(") ");
-		buf.append(")\n ");
-		for (Condition c : conditions) {
-			buf.append(c.toClipsFormat(indent+1)).append("\n");
-		}
-		buf.append("=>");
-		for (Action a : actions) {
-			if (a instanceof FunctionAction) {
-				FunctionAction fa = (FunctionAction) a;
-				buf.append(fa.toClipsFormat(indent+1)).append("\n");
-			}
-		}
-		buf.append(")");
-		return buf.toString();
+	public String format(Formatter visitor) {
+		return visitor.visit(this);
 	}
 
 	public Rule getSuperRule() {

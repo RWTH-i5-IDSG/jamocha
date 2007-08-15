@@ -23,10 +23,11 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.jamocha.formatter.CLIPSFormatter;
+import org.jamocha.formatter.Formatter;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
+import org.jamocha.parser.ParserFactory;
 import org.jamocha.rete.Fact;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
@@ -108,7 +109,7 @@ public class Dump implements Function, Serializable {
 		return NAME;
 	}
 	
-	public boolean dumpModule(Rete engine, String modName, BufferedWriter out, CLIPSFormatter frm) {
+	public boolean dumpModule(Rete engine, String modName, BufferedWriter out, Formatter frm) {
 		
 		try {
 			
@@ -145,7 +146,7 @@ public class Dump implements Function, Serializable {
 			out.write("\n\n%		Rule definitions\n");
 			for (Object t : mod.getAllRules()) {
 				Rule rule = (Rule) t;
-				out.write(frm.formatRule(rule));
+				out.write(rule.format(frm));
 			}
 
 			
@@ -166,7 +167,7 @@ public class Dump implements Function, Serializable {
 		if (params.length>1)
 			modName = params[1].getValue(engine).getStringValue();
         BufferedWriter out;
-        CLIPSFormatter formatter = new CLIPSFormatter();
+        Formatter formatter = ParserFactory.getFormatter();
 		try {
 			out = new BufferedWriter(new FileWriter(inputfileName));
 			out.write("% Jamocha Dump.\n\n");

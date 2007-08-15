@@ -225,7 +225,7 @@ public class TemplatesPanel extends AbstractJamochaPanel implements
 						if (slot.getDefaultExpression() != null) {
 							buffer.append("\n        (default ");
 							buffer.append(ParserFactory.getFormatter()
-									.formatExpression(
+									.visit(
 											slot.getDefaultExpression()));
 							buffer.append(")");
 						}

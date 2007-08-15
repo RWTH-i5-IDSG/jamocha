@@ -16,6 +16,7 @@
  */
 package org.jamocha.rule;
 
+import org.jamocha.formatter.Formatter;
 import org.jamocha.rete.TemplateSlot;
 
 
@@ -67,6 +68,10 @@ public abstract class AbstractConstraint implements Constraint {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public String format(Formatter visitor) {
+		return visitor.visit(this);
 	}
 
 }

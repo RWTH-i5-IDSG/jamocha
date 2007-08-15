@@ -17,10 +17,10 @@
 package org.jamocha.rule;
 
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.rete.nodes.BaseNode;
 import org.jamocha.rete.Constants;
 import org.jamocha.rete.ConversionUtils;
 import org.jamocha.rete.SFRuleCompiler;
+import org.jamocha.rete.nodes.BaseNode;
 
 /**
  * @author Peter Lin
@@ -199,13 +199,5 @@ public class BoundConstraint extends AbstractConstraint {
 	
 	public int getOperator(){
 		return (negated? Constants.NOTEQUAL : Constants.EQUAL);
-	}
-
-	public String toClipsFormat(int indent) {
-		StringBuilder sb = new StringBuilder();
-		if (getNegated()) sb.append("~");
-		if (isMultislot()) sb.append('$');
-		sb.append('?').append(getValue().toClipsFormat(indent));
-		return sb.toString();
 	}
 }

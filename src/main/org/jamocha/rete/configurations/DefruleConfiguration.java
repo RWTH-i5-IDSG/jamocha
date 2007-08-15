@@ -1,5 +1,6 @@
 package org.jamocha.rete.configurations;
 
+import org.jamocha.formatter.Formatter;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.ExpressionSequence;
@@ -91,5 +92,10 @@ public class DefruleConfiguration extends AbstractConfiguration  {
 
 	public void setTotalComplexity(int totalComplexity) {
 		this.totalComplexity = totalComplexity;
+	}
+
+	public String format(Formatter visitor) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

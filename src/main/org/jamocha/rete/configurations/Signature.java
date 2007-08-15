@@ -19,7 +19,7 @@ package org.jamocha.rete.configurations;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.jamocha.formatter.IsClipsElement;
+import org.jamocha.formatter.Formatter;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.FunctionNotFoundException;
 import org.jamocha.parser.JamochaType;
@@ -37,7 +37,7 @@ import org.jamocha.rule.Rule;
  * 
  * Describe difference between the Function parameters
  */
-public class Signature extends AbstractSignature implements Cloneable, IsClipsElement{
+public class Signature extends AbstractSignature implements Cloneable {
 
 	/**
 	 * 
@@ -51,14 +51,13 @@ public class Signature extends AbstractSignature implements Cloneable, IsClipsEl
 	public Signature() {
 		super();
 	}
-	
-	public Object clone(){
+
+	public Object clone() {
 		Signature result = new Signature();
 		result.setSignatureName(this.signatureName);
 		result.setParameters(params.clone());
 		return result;
 	}
-
 
 	public Signature(String signatureName) {
 		super();
@@ -137,27 +136,14 @@ public class Signature extends AbstractSignature implements Cloneable, IsClipsEl
 	}
 
 	public String getExpressionString() {
-		return ParserFactory.getFormatter().formatExpression(this);
+		return format(ParserFactory.getFormatter());
 	}
 
-	public String toString(){
-		return getExpressionString();
+	public String toString() {
+		return format(ParserFactory.getFormatter());
 	}
 
-	public String toClipsFormat(int indent) {
-		String ind = "";
-		while (ind.length() < indent*blanksPerIndent) ind+=" ";
-		StringBuffer result = new StringBuffer();
-		
-		result.append("(");
-		result.append(getSignatureName());
-		result.append("\n");
-		
-		for (Parameter param : params) {
-			result.append(param.toClipsFormat(indent+1));
-			result.append(" ");
-		}
-		result.append(")");
-		return result.toString();
+	public String format(Formatter visitor) {
+		return visitor.visit(this);
 	}
 }

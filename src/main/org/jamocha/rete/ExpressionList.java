@@ -2,6 +2,7 @@ package org.jamocha.rete;
 
 import java.util.ArrayList;
 
+import org.jamocha.formatter.Formatter;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaValue;
 
@@ -21,5 +22,9 @@ public class ExpressionList extends ExpressionCollection {
 	}
 	return JamochaValue.newList(values);
     }
+
+	public String format(Formatter visitor) {
+		return visitor.visit(this);
+	}
 
 }

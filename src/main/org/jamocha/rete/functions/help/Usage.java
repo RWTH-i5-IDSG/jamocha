@@ -16,12 +16,11 @@
  */
 package org.jamocha.rete.functions.help;
 
-import java.io.Serializable;
-
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.parser.ParserFactory;
+import org.jamocha.rete.AbstractFunction;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
@@ -33,7 +32,9 @@ import org.jamocha.rete.functions.FunctionDescription;
  * Prints out a short usage for a function name passed as argument. If no
  * argument is passed the usage of this function itself is printed.
  */
-public class Usage implements Function, Serializable {
+public class Usage extends AbstractFunction {
+
+	private static final long serialVersionUID = 1L;
 
 	private static final class Description implements FunctionDescription {
 
@@ -70,8 +71,7 @@ public class Usage implements Function, Serializable {
 		}
 
 		public String getExample() {
-			return "(usage)\n\n" +
-					"(usage member$)";
+			return "(usage)\n\n" + "(usage member$)";
 		}
 
 		public boolean isResultAutoGeneratable() {
@@ -79,31 +79,25 @@ public class Usage implements Function, Serializable {
 		}
 	}
 
-	private static final FunctionDescription DESCRIPTION = new Description();
+	protected static final FunctionDescription DESCRIPTION = new Description();
 
-	private static final long serialVersionUID = 1L;
-
-	public static final String NAME = "usage";
-
-	public FunctionDescription getDescription() {
-		return DESCRIPTION;
-	}
-
-	public String getName() {
-		return NAME;
-	}
+	protected static final String NAME = "usage";
 
 	public JamochaValue executeFunction(Rete engine, Parameter[] params)
 			throws EvaluationException {
-		JamochaValue result = JamochaValue.newString(ParserFactory
-				.getFormatter().formatFunction(this));
+		JamochaValue result = JamochaValue.newString(this.format(ParserFactory
+				.getFormatter()));
 		if (params != null && params.length == 1) {
 			JamochaValue firstParam = params[0].getValue(engine);
 			String function = firstParam.getStringValue();
-			Function aFunction = engine.getFunctionMemory().findFunction(function);
+			Function aFunction = engine.getFunctionMemory().findFunction(
+					function);
 			if (aFunction != null) {
-				result = JamochaValue.newString(ParserFactory.getFormatter(true)
-						.formatFunction(aFunction));
+				if (aFunction instanceof AbstractFunction) {
+					result = JamochaValue
+							.newString(((AbstractFunction) aFunction)
+									.format(ParserFactory.getFormatter()));
+				}
 			}
 		}
 		return result;

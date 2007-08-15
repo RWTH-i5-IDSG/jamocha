@@ -16,9 +16,10 @@
  */
 package org.jamocha.rule;
 
-import org.jamocha.formatter.IsClipsElement;
+import org.jamocha.formatter.Formatter;
 
-public abstract class AbstractCondition implements Condition, IsClipsElement {
+
+public abstract class AbstractCondition implements Condition {
 
 	protected static int complexity = 1;
 
@@ -56,5 +57,9 @@ public abstract class AbstractCondition implements Condition, IsClipsElement {
 	}
 	
 	public abstract Object clone() throws CloneNotSupportedException;
+
+	public String format(Formatter visitor) {
+		return visitor.visit(this);
+	}
 	
 }

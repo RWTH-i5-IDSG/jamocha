@@ -16,6 +16,7 @@
  */
 package org.jamocha.rete;
 
+import org.jamocha.formatter.Formatter;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.Expression;
 import org.jamocha.parser.JamochaValue;
@@ -33,11 +34,11 @@ public class SlotParam extends AbstractSignature {
 	/**
 	 * 
 	 */
-	
-	public Object clone(){
+
+	public Object clone() {
 		return new SlotParam(name, valueExpression);
 	}
-	
+
 	private static final long serialVersionUID = 1L;
 
 	protected String name;
@@ -69,18 +70,10 @@ public class SlotParam extends AbstractSignature {
 	}
 
 	public String getExpressionString() {
-		return ParserFactory.getFormatter().formatExpression(this);
+		return ParserFactory.getFormatter().visit(this);
 	}
 
-	public String toClipsFormat(int indent) {
-		String ind = "";
-		while (ind.length() < indent*blanksPerIndent) ind+=" ";
-		StringBuilder sb = new StringBuilder();
-		sb.append('(');
-		sb.append(getName());
-		sb.append(' ');
-		sb.append(valueExpression.toClipsFormat(indent+1));
-		sb.append(')');
-		return sb.toString();
+	public String format(Formatter visitor) {
+		return visitor.visit(this);
 	}
 }

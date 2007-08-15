@@ -18,10 +18,9 @@ package org.jamocha.rule;
 
 import java.util.List;
 
-import org.jamocha.formatter.IsClipsElement;
+import org.jamocha.formatter.Formattable;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Binding;
-import org.jamocha.rete.Dumpable;
 import org.jamocha.rete.Fact;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.Scope;
@@ -39,23 +38,22 @@ import org.jamocha.rete.nodes.TerminalNode;
  * the last node in the rule. These convienance method are present to make it
  * easier to write rule parsers and compilers.
  */
-public interface Rule extends Scope, Complexity, Cloneable, IsClipsElement {
+public interface Rule extends Scope, Complexity, Cloneable, Formattable {
 	/**
 	 * if the rule is set to autofocus, it returns true
 	 * 
 	 * @return
 	 */
 	boolean getAutoFocus();
-	
+
 	Rule getSuperRule();
-	
+
 	void setSuperRule(Rule superRule);
-	
+
 	List<Rule> getSubRules();
-	
+
 	void addSubRule(Rule rule);
-	
-	
+
 	void setConditionIndex(int index, Condition c);
 
 	/**
@@ -226,13 +224,13 @@ public interface Rule extends Scope, Complexity, Cloneable, IsClipsElement {
 	void addAction(Action act);
 
 	Condition[] getConditions();
-	
+
 	Condition[] getObjectConditions();
 
 	Action[] getActions();
 
 	void SetTerminalNode(TerminalNode node);
-	
+
 	TerminalNode getTerminalNode();
 
 	/**
@@ -309,7 +307,7 @@ public interface Rule extends Scope, Complexity, Cloneable, IsClipsElement {
 	void resolveTemplates(Rete engine);
 
 	public void removeCondition(int idx);
-	
+
 	public Rule clone() throws CloneNotSupportedException;
 
 }

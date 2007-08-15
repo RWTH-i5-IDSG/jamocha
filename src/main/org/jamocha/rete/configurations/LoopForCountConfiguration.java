@@ -1,5 +1,6 @@
 package org.jamocha.rete.configurations;
 
+import org.jamocha.formatter.Formatter;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.Expression;
 import org.jamocha.parser.JamochaValue;
@@ -60,6 +61,11 @@ public class LoopForCountConfiguration extends AbstractConfiguration {
 
 	public void setStartIndex(Expression startIndex) {
 		this.startIndex = startIndex;
+	}
+
+	public String format(Formatter visitor) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

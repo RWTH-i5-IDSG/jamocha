@@ -1,5 +1,6 @@
 package org.jamocha.rete.configurations;
 
+import org.jamocha.formatter.Formatter;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Parameter;
@@ -52,6 +53,11 @@ public class DeclarationConfiguration extends AbstractConfiguration {
 
 	public void setVersion(Parameter version) {
 		this.version = version;
+	}
+
+	public String format(Formatter visitor) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

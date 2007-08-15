@@ -20,13 +20,14 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
 
-import org.jamocha.formatter.CLIPSFormatter;
+import org.jamocha.formatter.Formatter;
+import org.jamocha.formatter.SFPFormatter;
 import org.jamocha.parser.sfp.SFPParser;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.RuleCompiler;
 import org.jamocha.rete.SFRuleCompiler;
-import org.jamocha.rete.nodes.RootNode;
 import org.jamocha.rete.nodes.ReteNet;
+import org.jamocha.rete.nodes.RootNode;
 
 /**
  * The ParserFactory generates all known Parsers for CLIPS-Code or other
@@ -143,13 +144,16 @@ public class ParserFactory {
 	 */
 	public static Formatter getFormatter(String mode, boolean indentation)
 			throws ModeNotFoundException {
+		Formatter f;
 		if (mode.equalsIgnoreCase("clips")) {
-			return new CLIPSFormatter(indentation);
+			f = new SFPFormatter();
 		} else if (mode.equalsIgnoreCase("sfp")) {
-			return new CLIPSFormatter(indentation);
+			f = new SFPFormatter();
 		} else {
 			throw new ModeNotFoundException(mode);
 		}
+		f.setIntend(indentation);
+		return f;
 	}
 
 	public static RuleCompiler getRuleCompiler(Rete engine, ReteNet net,

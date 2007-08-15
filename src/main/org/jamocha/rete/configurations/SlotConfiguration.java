@@ -3,9 +3,9 @@
  */
 package org.jamocha.rete.configurations;
 
+import org.jamocha.formatter.Formatter;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.rete.BoundParam;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 
@@ -102,6 +102,11 @@ public class SlotConfiguration extends AbstractConfiguration {
 
 	public void setId(int id) {
 		this.id = id;
+	}
+
+	public String format(Formatter visitor) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }
