@@ -15,4 +15,4 @@
 
 --
 Fri Jun 22 15:16:26 CEST 2007 // KHK / ChangeLog
-Introduced the Jamocha changelog file.
+Introduced the Jamocha changelog file. 
