@@ -2,6 +2,7 @@ package org.jamocha.rete.visualisation;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
@@ -55,6 +56,7 @@ public class Visualizer extends JComponent implements ComponentListener, MouseIn
 	protected List<String> selectedRules = new ArrayList<String>();
 	protected List<BaseNode> selectedNodes;
 	protected Point pressPos;
+	protected int halfLineHeight=20;
 	protected Point offsetWhenPressed;
 	protected int linestyle = VisualizerSetup.QUARTERELLIPSE;
 	protected boolean rightScroll;
@@ -86,7 +88,7 @@ public class Visualizer extends JComponent implements ComponentListener, MouseIn
 		calculateSelectedNodes();
 		componentResized2(null);
 		node2point = new HashMap<BaseNode,Point>();
-		rootNode.drawNode(0,selectedNodes,(Graphics2D)new BufferedImage(1,1,BufferedImage.TYPE_INT_RGB).getGraphics(),setup,node2point, point2node,rowHints);
+		rootNode.drawNode(0,selectedNodes,(Graphics2D)new BufferedImage(1,1,BufferedImage.TYPE_INT_RGB).getGraphics(),setup,node2point, point2node,rowHints,halfLineHeight);
 		
 	}
 	
@@ -280,14 +282,18 @@ public class Visualizer extends JComponent implements ComponentListener, MouseIn
 		int height = (int) (8 * setup.scaleY);
 		canvas.fillOval(x - width/2, y - width/2, width+1, height+1);
 	}
+	
+	protected void loadGoodFont(Graphics2D g) {
+		int allowedHeight = (int)(BaseNode.shapeHeight * setup.scaleY * .9);
+		int dpi = getToolkit().getScreenResolution();
+		double allowedInches = ((double)allowedHeight) / ((double)dpi);
+		double allowedPoints = allowedInches * 72; // see point definition
+		Font goodFont = new Font("Helvetica",Font.BOLD,(int)allowedPoints);
+		g.setFont(goodFont);
+		halfLineHeight = (int)(allowedHeight / 2);
+	}
 
 	public void paint(Graphics g) {
-		//node2point = new HashMap<BaseNode,Point>();
-		
-		
-		//TODO: REMOVE THAT AND RECEIVE EVENTS INSTEAD OF THEM!!!!!
-		reload();
-		
 		point2node.clear();
 		Graphics2D canvas = (Graphics2D) g;
 		canvas.setColor(Color.white);
@@ -302,8 +308,8 @@ public class Visualizer extends JComponent implements ComponentListener, MouseIn
 		
 		drawConnectionLines(rootNode, node2point, canvas,false,true);
 	
-		
-		rootNode.drawNode(0,selectedNodes,canvas,setup,node2point, point2node,rowHints);
+		loadGoodFont(canvas);
+		rootNode.drawNode(0,selectedNodes,canvas,setup,node2point, point2node,rowHints, halfLineHeight);
 		
 		canvas.setStroke(widthOneStroke);
 		
@@ -425,11 +431,11 @@ public class Visualizer extends JComponent implements ComponentListener, MouseIn
 	protected void _changeVP(int x, int y){
 		ViewportChangeEvent ev = new ViewportChangeEvent();
 
-		x -= (selectionRelativeTo.getWidth() * setup.scaleX) /2;
-		y -= (selectionRelativeTo.getHeight() * setup.scaleY) /2;
+		x -= (selectionRelativeTo.getWidth() / selectionRelativeTo.setup.scaleX * setup.scaleX) /2;
+		y -= (selectionRelativeTo.getHeight() / selectionRelativeTo.setup.scaleY * setup.scaleY) /2;
 		
-		ev.x = (int)-(x / setup.scaleX);
-		ev.y = (int)-(y / setup.scaleY);
+		ev.x = (int)-(x/setup.scaleX);
+		ev.y = (int)-(y/setup.scaleY);
 		callViewportChangedListeners(ev);
 		repaint();
 		
@@ -470,14 +476,10 @@ public class Visualizer extends JComponent implements ComponentListener, MouseIn
 
 	
 	public void mouseEntered(MouseEvent arg0) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	
 	public void mouseExited(MouseEvent arg0) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	

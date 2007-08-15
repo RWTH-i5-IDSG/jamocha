@@ -11,12 +11,34 @@
 	(assert (wurst (name hanswurst)))
 )
 
+
 (defrule b
 	(wurst (name hanswurst))
 	=>
 	(printout t "hallo wurst!" crlf)
 )
 
+(defmodule schabau)
+
+(deftemplate wurst (slot name) (slot spitzname) (slot farbe)  (slot gewicht) (slot passtzusalat))
+(assert (wurst (name "gruenspanwurst") (spitzname "gruebi") (farbe "gold") (gewicht 1) (passtzusalat "gelbebohnensalat") ))
+(assert (wurst (name "bratwurst")(spitzname "bratwosch")(farbe "weiss")(gewicht 100) (passtzusalat "weissgurkensalat") ))
+(assert (wurst (name "weisswurst")(spitzname "weisswurst")(farbe "weiss")(gewicht 200) (passtzusalat "blechsalat") ))
+(assert (wurst (name "wienerwurst")(spitzname "wiener")(farbe "terracottagold")(gewicht 300) (passtzusalat "gurkensalat") ))
+(assert (wurst (name "gemuesewurst")(spitzname "gemuesewurst")(farbe "gruen")(gewicht 400) (passtzusalat "frittensalat") ))
+(assert (wurst (name "senfwurst") (spitzname "senfi") (farbe "gelb") (gewicht 200) (passtzusalat "kartoffelsalat") ))
+
+(defrule ass
+	=>
+	(assert (wurst (name hanswurste)))
+)
+
+
+(defrule bss
+	(wurst (name hanswurste))
+	=>
+	(printout t "hallo wurste!" crlf)
+)
 
 
 

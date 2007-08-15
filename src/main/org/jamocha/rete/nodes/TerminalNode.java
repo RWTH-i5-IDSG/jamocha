@@ -16,6 +16,10 @@
  */
 package org.jamocha.rete.nodes;
 
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.util.List;
+
 import org.jamocha.rete.Fact;
 import org.jamocha.rete.agenda.Activation;
 import org.jamocha.rete.exception.AssertException;
@@ -116,6 +120,16 @@ public class TerminalNode extends BaseNode {
 
 	@Override
 	protected void unmountChild(BaseNode oldChild, ReteNet net) {
+	}
+	
+	protected void drawNode(int x, int y, int height, int width, int halfLineHeight, List<BaseNode> selected, Graphics2D canvas){
+		int alpha = (selected.contains(this)) ? 255 : 20;
+		canvas.setColor( new Color(0,0,0,alpha) );
+		canvas.fillRect(x, y, width, height);
+		canvas.setColor(  new Color(40,40,40,alpha) );
+		canvas.drawRect(x, y, width, height);
+		canvas.setColor(Color.white);
+		drawId(x,y,height,width,halfLineHeight,canvas);
 	}
 
 }

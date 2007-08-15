@@ -328,22 +328,23 @@ public abstract class BaseNode implements Serializable {
 	 * representation is not the major thing in the BaseNode class. It is protected,
 	 * since it will be called from a higher-level (public) method inside BaseNode.
 	 */
-	protected void drawNode(int x, int y, int height, int width, List<BaseNode> selected, Graphics2D canvas){
+	protected void drawNode(int x, int y, int height, int width, int halfLineHeight, List<BaseNode> selected, Graphics2D canvas){
 		int alpha = (selected.contains(this)) ? 255 : 20;
-		canvas.setBackground( new Color(255,40,40,alpha) );
-		canvas.setColor(  new Color(200,15,15,alpha) );
+		canvas.setColor( new Color(255,40,40,alpha) );
 		canvas.fillRect(x, y, width, height);
+		canvas.setColor(  new Color(200,15,15,alpha) );
 		canvas.drawRect(x, y, width, height);
-		drawId(x,y,height,width,canvas);
+		canvas.setColor(Color.black);
+		drawId(x,y,height,width,halfLineHeight,canvas);
 	}
 	
-	protected void drawId(int x, int y, int height, int width, Graphics2D canvas){
-		int hth = 0;
-		int htw = 0;
-		int paintX = x + width/2 + htw;
-		int paintY = y + height/2 - hth;
-		canvas.setColor(Color.BLACK);
-		canvas.drawString( String.valueOf(nodeID) , paintX, paintY);
+	protected void drawId(int x, int y, int height, int width, int halfLineHeight, Graphics2D canvas){
+		if (height<12) return;
+		String text = String.valueOf(nodeID);
+		int halfLineWidth = canvas.getFontMetrics().stringWidth(text) /2;
+		int paintX = x + width/2 - halfLineWidth;
+		int paintY = y + height/2  + halfLineHeight;
+		canvas.drawString( text , paintX, paintY);
 	}
 	
 	
@@ -375,13 +376,13 @@ public abstract class BaseNode implements Serializable {
 	 * @param setup the setup
 	 * @return the width
 	 */
-	public int drawNode(int fromColumn, List<BaseNode> selected, Graphics2D canvas, VisualizerSetup setup, Map<BaseNode,Point> positions, Map<Point,BaseNode> p2n, Map<BaseNode,Integer> rowHints) {
+	public int drawNode(int fromColumn, List<BaseNode> selected, Graphics2D canvas, VisualizerSetup setup, Map<BaseNode,Point> positions, Map<Point,BaseNode> p2n, Map<BaseNode,Integer> rowHints, int halfLineHeight) {
 		int firstColumn = fromColumn;
 		int row = rowHints.get(this);
 		for (BaseNode child : childNodes ){
 			// only draw the child node, iff i am the "primary parent"
 			if (!(child.parentNodes[0] == this)) continue;
-			firstColumn += child.drawNode(firstColumn, selected, canvas, setup, positions,p2n,rowHints);
+			firstColumn += child.drawNode(firstColumn, selected, canvas, setup, positions,p2n,rowHints, halfLineHeight);
 		}
 		int width = firstColumn - fromColumn;
 		if (width == 0) width = 2;
@@ -402,7 +403,7 @@ public abstract class BaseNode implements Serializable {
 			positions.put(this, p1);
 			p2n.put(p1, this);
 			p2n.put(p2, this);
-			drawNode(x, y, h, w, selected, canvas);
+			drawNode(x, y, h, w, halfLineHeight, selected, canvas);
 		//
 		return width;
 	}

@@ -199,13 +199,14 @@ public class RootNode extends BaseNode {
 	/// GRAPHICS STUFF ///////////////////////////////////////////
 	//////////////////////////////////////////////////////////////	
 	
-	protected void drawNode(int x, int y, int height, int width,  List<BaseNode> selected, Graphics2D canvas){
+	protected void drawNode(int x, int y, int height, int width, int halfLineHeight, List<BaseNode> selected, Graphics2D canvas){
 		int alpha = (selected.contains(this)) ? 255 : 20;
 		canvas.setBackground( new Color(0,0,0,alpha) );
 		canvas.setColor(  new Color(40,40,40,alpha) );
 		canvas.fillOval(x,y,width,height);
 		canvas.drawOval(x,y,width,height);
-		drawId(x,y,height,width,canvas);
+		canvas.setColor(Color.white);
+		drawId(x,y,height,width,halfLineHeight,canvas);
 	}
 	
 	

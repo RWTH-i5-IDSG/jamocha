@@ -147,7 +147,7 @@ public class BetaFilterNode extends AbstractBeta {
 	/// GRAPHICS STUFF ///////////////////////////////////////////
 	//////////////////////////////////////////////////////////////	
 	
-	protected void drawNode(int x, int y, int height, int width,  List<BaseNode> selected, Graphics2D canvas){
+	protected void drawNode(int x, int y, int height, int width, int halfLineHeight, List<BaseNode> selected, Graphics2D canvas){
 		int alpha = (selected.contains(this)) ? 255 : 20;
 		int[] xpoints = { x , x+width , (int)(x+width*0.8) , x+ (int)(width*0.2)       };
 		int[] ypoints = {  y+height, y+height, y , y  };
@@ -155,7 +155,8 @@ public class BetaFilterNode extends AbstractBeta {
 		canvas.fillPolygon(xpoints, ypoints, 4);
 		canvas.setColor(  new Color(54,208,55,alpha) );
 		canvas.drawPolygon(xpoints, ypoints, 4);
-		drawId(x,y,height,width,canvas);
+		canvas.setColor(Color.black);
+		drawId(x,y,height,width,halfLineHeight,canvas);
 	}
 	
 	
