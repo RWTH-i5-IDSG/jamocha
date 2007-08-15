@@ -16,13 +16,11 @@
  */
 package org.jamocha.rete.functions.compare;
 
-import java.io.Serializable;
-
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.IllegalParameterException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.rete.Function;
+import org.jamocha.rete.AbstractFunction;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.functions.FunctionDescription;
@@ -33,7 +31,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  * Less will compare 2 or more numeric values and return true if the (n-1)th
  * value is less than the nth.
  */
-public class Less implements Function, Serializable {
+public class Less extends AbstractFunction {
 
 	private static final class Description implements FunctionDescription {
 
@@ -81,18 +79,22 @@ public class Less implements Function, Serializable {
 		}
 	}
 
-	private static final FunctionDescription DESCRIPTION = new Description();
-
 	private static final long serialVersionUID = 1L;
 
-	public static final String NAME = "less";
+	private static AbstractFunction _instance = null;
 
-	public FunctionDescription getDescription() {
-		return DESCRIPTION;
+	public static AbstractFunction getInstance() {
+		if (_instance == null) {
+			_instance = new Less();
+		}
+		return _instance;
 	}
 
-	public String getName() {
-		return NAME;
+	private Less() {
+		name = "less";
+		description = new Description();
+		aliases.add("<");
+		aliases.add("beforedate");
 	}
 
 	public JamochaValue executeFunction(Rete engine, Parameter[] params)

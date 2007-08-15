@@ -16,13 +16,11 @@
  */
 package org.jamocha.rete.functions;
 
-import java.io.Serializable;
-
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.IllegalParameterException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.rete.Function;
+import org.jamocha.rete.AbstractFunction;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.configurations.IfElseConfiguration;
@@ -34,7 +32,7 @@ import org.jamocha.rete.configurations.IfElseConfiguration;
  * result of the last then action executed if condition holds or otherwise the
  * result of the last else action executed if any.
  */
-public class If implements Function, Serializable {
+public class If extends AbstractFunction {
 
 	private static final class Description implements FunctionDescription {
 
@@ -81,18 +79,20 @@ public class If implements Function, Serializable {
 		}
 	}
 
-	private static final FunctionDescription DESCRIPTION = new Description();
-
 	private static final long serialVersionUID = 1L;
 
-	public static final String NAME = "if";
-
-	public FunctionDescription getDescription() {
-		return DESCRIPTION;
+	private static AbstractFunction _instance = null;
+	
+	public static AbstractFunction getInstance() {
+		if(_instance == null) {
+			_instance = new If();
+		}
+		return _instance;
 	}
-
-	public String getName() {
-		return NAME;
+	
+	private If() {
+		name = "if";
+		description = new Description();
 	}
 
 	public JamochaValue executeFunction(Rete engine, Parameter[] params)

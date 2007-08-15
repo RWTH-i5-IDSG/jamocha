@@ -16,13 +16,11 @@
  */
 package org.jamocha.rete.functions;
 
-import java.io.Serializable;
-
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.IllegalParameterException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.rete.Function;
+import org.jamocha.rete.AbstractFunction;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.configurations.WhileDoConfiguration;
@@ -33,7 +31,7 @@ import org.jamocha.rete.configurations.WhileDoConfiguration;
  * Implementation of the while-loop. An ActionList is executed as long as the
  * given Condition holds. Returns the result of the last action executed.
  */
-public class While implements Serializable, Function {
+public class While extends AbstractFunction {
 
 	private static final class Description implements FunctionDescription {
 
@@ -80,18 +78,20 @@ public class While implements Serializable, Function {
 		}
 	}
 
-	private static final FunctionDescription DESCRIPTION = new Description();
-
 	private static final long serialVersionUID = 1L;
 
-	public static final String NAME = "while";
-
-	public FunctionDescription getDescription() {
-		return DESCRIPTION;
+	private static AbstractFunction _instance = null;
+	
+	public static AbstractFunction getInstance() {
+		if(_instance == null) {
+			_instance = new While();
+		}
+		return _instance;
 	}
-
-	public String getName() {
-		return NAME;
+	
+	private While() {
+		name = "while";
+		description = new Description();
 	}
 
 	public JamochaValue executeFunction(Rete engine, Parameter[] params)

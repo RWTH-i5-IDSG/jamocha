@@ -34,43 +34,29 @@ public class CompareFunctions implements FunctionGroup {
 	}
 
 	public void loadFunctions(FunctionMemory functionMem) {
-		AnyEq anyeq = new AnyEq();
-		functionMem.declareFunction(anyeq);
-		funcs.add(anyeq);
+		functionMem.declareFunction(AnyEq.getInstance());
+		funcs.add(AnyEq.getInstance());
 
-		Eq eq = new Eq();
-		functionMem.declareFunction(eq);
-		funcs.add(eq);
+		functionMem.declareFunction(Eq.getInstance());
+		funcs.add(Eq.getInstance());
 
-		Greater greater = new Greater();
-		functionMem.declareFunction(greater);
-		funcs.add(greater);
+		functionMem.declareFunction(Greater.getInstance());
+		funcs.add(Greater.getInstance());
 
-		GreaterOrEqual greaterOrEqual = new GreaterOrEqual();
-		functionMem.declareFunction(greaterOrEqual);
-		funcs.add(greaterOrEqual);
+		functionMem.declareFunction(GreaterOrEqual.getInstance());
+		funcs.add(GreaterOrEqual.getInstance());
 
-		Less less = new Less();
-		functionMem.declareFunction(less);
-		funcs.add(less);
+		functionMem.declareFunction(Less.getInstance());
+		funcs.add(Less.getInstance());
 
-		LessOrEqual lessOrEqual = new LessOrEqual();
-		functionMem.declareFunction(lessOrEqual);
-		funcs.add(lessOrEqual);
+		functionMem.declareFunction(LessOrEqual.getInstance());
+		funcs.add(LessOrEqual.getInstance());
 
-		Neq neq = new Neq();
-		functionMem.declareFunction(neq);
-		funcs.add(neq);
-
-		functionMem.declareFunction(">", greater);
-		functionMem.declareFunction(">=", greaterOrEqual);
-		functionMem.declareFunction("<", less);
-		functionMem.declareFunction("<=", lessOrEqual);
-		functionMem.declareFunction("afterdate", greater);
-		functionMem.declareFunction("beforedate", less);
+		functionMem.declareFunction(Neq.getInstance());
+		funcs.add(Neq.getInstance());
 	}
 
-	public List listFunctions() {
+	public List<Function> listFunctions() {
 		return funcs;
 	}
 

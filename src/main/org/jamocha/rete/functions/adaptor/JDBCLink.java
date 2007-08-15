@@ -16,7 +16,6 @@
  */
 package org.jamocha.rete.functions.adaptor;
 
-import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
@@ -32,10 +31,10 @@ import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.IllegalParameterException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
+import org.jamocha.rete.AbstractFunction;
 import org.jamocha.rete.Deffact;
 import org.jamocha.rete.Deftemplate;
 import org.jamocha.rete.Fact;
-import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.Slot;
@@ -45,31 +44,27 @@ import org.jamocha.rete.functions.FunctionDescription;
 /**
  * @author Josef Alexander Hahn
  * 
- * Exports or imports facts to a database via a jdbc link.
- * On import for each line of the DB-table a fact of a corresponding 
- * Jamocha template is asserted. Therefore an adequate template has 
- * to be defined before an import can take place.
- * On export for each fact in a fact-list a new record is inserted into 
- * the DB-table or an existing record is updated (according to the 
- * contents of the primary key). The facts have to be based on a 
- * well-defined template. Exporting incomplete templates may cause 
- * inconsistencies. 
- * Returns true on success.
+ * Exports or imports facts to a database via a jdbc link. On import for each
+ * line of the DB-table a fact of a corresponding Jamocha template is asserted.
+ * Therefore an adequate template has to be defined before an import can take
+ * place. On export for each fact in a fact-list a new record is inserted into
+ * the DB-table or an existing record is updated (according to the contents of
+ * the primary key). The facts have to be based on a well-defined template.
+ * Exporting incomplete templates may cause inconsistencies. Returns true on
+ * success.
  */
-public class JDBCLink implements Function, Serializable {
-	
-	
+public class JDBCLink extends AbstractFunction {
 
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "Imports or exports facts to and from a database via a jdbc link.\n" +					
-					"On import for each line of the DB-table a fact of a corresponding Jamocha template is " +
-					"asserted. Therefore an adequate template has to be defined before an import can take place.\n" +
-					"On export for each fact in a fact-list a new record is inserted into the DB-table or an " +
-					"existing record is updated (according to the contents of the primary key). The facts have " +
-					"to be based on a well-defined template. Exporting incomplete templates may cause inconsistencies." +
-					"Returns true on success";					
+			return "Imports or exports facts to and from a database via a jdbc link.\n"
+					+ "On import for each line of the DB-table a fact of a corresponding Jamocha template is "
+					+ "asserted. Therefore an adequate template has to be defined before an import can take place.\n"
+					+ "On export for each fact in a fact-list a new record is inserted into the DB-table or an "
+					+ "existing record is updated (according to the contents of the primary key). The facts have "
+					+ "to be based on a well-defined template. Exporting incomplete templates may cause inconsistencies."
+					+ "Returns true on success";
 		}
 
 		public int getParameterCount() {
@@ -125,71 +120,71 @@ public class JDBCLink implements Function, Serializable {
 		}
 
 		public String getExample() {
-			return //import example
-					"(deftemplate templ (slot a) (slot b) (slot c) (slot foo) )\n" +
-					"(jdbclink-init)\n" +
-					"(bind ?mylink\n" +
-					"	(assert\n" +
-					"		(jdbclink\n" +
-					"			(JDBCdriver \"com.mysql.jdbc.Driver\")\n" +
-					"			(ConnectionName \"db\")\n" +
-					"			(TableName \"test\")\n" +
-					"			(TemplateName \"templ\")\n" +
-					"			(Username \"jamocha\")\n" +
-					"			(Password \"geheim\")\n" +
-					"			(JDBCurl \"jdbc:mysql://134.130.113.67:3306/jamocha\")\n" +
-					"		)\n" +
-					"	)\n" +
-					")\n" +
-					"(bind ?myfilter\n" +
-					"	(assert\n" +
-					"		(jdbccondition\n" +
-					"			(SlotName \"foo\")\n" +
-					"			(BooleanOperator \">\")\n" +
-					"			(Value 2007-04-27 19:00+1)\n" +
-					"		)\n" +
-					"	)\n" +
-					")\n" +
-					"(jdbclink ?mylink \"import\" (create$ ?myfilter))\n\n" +
-					"" +
-					//export example
-					"(deftemplate templ2 (slot a) (slot b) (slot c) )\n" +
-					"(jdbclink-init)\n" +
-					"(bind ?mylink\n" +
-					"	(assert\n" +
-					"		(jdbclink\n" +
-					"				(JDBCdriver \"com.mysql.jdbc.Driver\")\n" +
-					"				(ConnectionName \"db\")\n" +
-					"				(TableName \"test\")\n" +
-					"				(TemplateName \"templ2\")\n" +
-					"				(Username \"jamocha\")\n" +
-					"				(Password \"geheim\")\n" +
-					"				(JDBCurl \"jdbc:mysql://134.130.113.67:65306/jamocha\")\n" +
-					"		)\n" +
-					"	)\n" +
-					")\n" +
-					"(assert (templ2 (a 99) (b 99) (c \"neunviermal\")) )\n" +
-					"(jdbclink ?mylink \"export\" \"3\"  )";
+			return // import example
+			"(deftemplate templ (slot a) (slot b) (slot c) (slot foo) )\n"
+					+ "(jdbclink-init)\n"
+					+ "(bind ?mylink\n"
+					+ "	(assert\n"
+					+ "		(jdbclink\n"
+					+ "			(JDBCdriver \"com.mysql.jdbc.Driver\")\n"
+					+ "			(ConnectionName \"db\")\n"
+					+ "			(TableName \"test\")\n"
+					+ "			(TemplateName \"templ\")\n"
+					+ "			(Username \"jamocha\")\n"
+					+ "			(Password \"geheim\")\n"
+					+ "			(JDBCurl \"jdbc:mysql://134.130.113.67:3306/jamocha\")\n"
+					+ "		)\n"
+					+ "	)\n"
+					+ ")\n"
+					+ "(bind ?myfilter\n"
+					+ "	(assert\n"
+					+ "		(jdbccondition\n"
+					+ "			(SlotName \"foo\")\n"
+					+ "			(BooleanOperator \">\")\n"
+					+ "			(Value 2007-04-27 19:00+1)\n"
+					+ "		)\n"
+					+ "	)\n"
+					+ ")\n"
+					+ "(jdbclink ?mylink \"import\" (create$ ?myfilter))\n\n"
+					+ ""
+					+
+					// export example
+					"(deftemplate templ2 (slot a) (slot b) (slot c) )\n"
+					+ "(jdbclink-init)\n"
+					+ "(bind ?mylink\n"
+					+ "	(assert\n"
+					+ "		(jdbclink\n"
+					+ "				(JDBCdriver \"com.mysql.jdbc.Driver\")\n"
+					+ "				(ConnectionName \"db\")\n"
+					+ "				(TableName \"test\")\n"
+					+ "				(TemplateName \"templ2\")\n"
+					+ "				(Username \"jamocha\")\n"
+					+ "				(Password \"geheim\")\n"
+					+ "				(JDBCurl \"jdbc:mysql://134.130.113.67:65306/jamocha\")\n"
+					+ "		)\n" + "	)\n" + ")\n"
+					+ "(assert (templ2 (a 99) (b 99) (c \"neunviermal\")) )\n"
+					+ "(jdbclink ?mylink \"export\" \"3\"  )";
 		}
 
 		public boolean isResultAutoGeneratable() {
-			// TODO Auto-generated method stub
 			return false;
 		}
 	}
 
-	private static final FunctionDescription DESCRIPTION = new Description();
+	private static final long serialVersionUID = 1L;
 
-	static final long serialVersionUID = 0xDeadBeafCafeBabeL;
+	private static AbstractFunction _instance = null;
 
-	public static final String NAME = "jdbclink";
-
-	public FunctionDescription getDescription() {
-		return DESCRIPTION;
+	public static AbstractFunction getInstance() {
+		if (_instance == null) {
+			_instance = new JDBCLink();
+		}
+		return _instance;
 	}
 
-	public String getName() {
-		return NAME;
+	private JDBCLink() {
+		name = "jdbclink";
+		description = new Description();
 	}
 
 	public JamochaValue executeFunction(Rete engine, Parameter[] params)
@@ -236,9 +231,11 @@ public class JDBCLink implements Function, Serializable {
 							password);
 
 					if (action.equals("import")) {
-						return method_import(engine, thirdParam, table, template, slots, conn);
+						return method_import(engine, thirdParam, table,
+								template, slots, conn);
 					} else if (action.equals("export")) {
-						return method_export(engine, thirdParam, table, slots, conn);
+						return method_export(engine, thirdParam, table, slots,
+								conn);
 					} else {
 						throw new EvaluationException("Unknown action '"
 								+ action + "'");
@@ -262,7 +259,8 @@ public class JDBCLink implements Function, Serializable {
 		throw new IllegalParameterException(3, false);
 	}
 
-	private JamochaValue method_export(Rete engine, JamochaValue thirdParam, String table, Slot[] slots, Connection conn) throws SQLException {
+	private JamochaValue method_export(Rete engine, JamochaValue thirdParam,
+			String table, Slot[] slots, Connection conn) throws SQLException {
 		// get primary keys from our table
 		DatabaseMetaData meta = conn.getMetaData();
 		ResultSet rs = meta.getPrimaryKeys(null, null, table);
@@ -297,8 +295,7 @@ public class JDBCLink implements Function, Serializable {
 			firstKey = false;
 			updateStatement += key + "=?";
 		}
-		String lookupStatement = "SELECT * FROM " + table
-				+ " WHERE ";
+		String lookupStatement = "SELECT * FROM " + table + " WHERE ";
 		firstKey = true;
 		for (String key : keys) {
 			if (!firstKey) {
@@ -307,47 +304,39 @@ public class JDBCLink implements Function, Serializable {
 			firstKey = false;
 			lookupStatement += key + "=?";
 		}
-		PreparedStatement inserter = conn
-				.prepareStatement(insertStatement);
-		PreparedStatement updater = conn
-				.prepareStatement(updateStatement);
-		PreparedStatement lookuper = conn
-				.prepareStatement(lookupStatement); // any
+		PreparedStatement inserter = conn.prepareStatement(insertStatement);
+		PreparedStatement updater = conn.prepareStatement(updateStatement);
+		PreparedStatement lookuper = conn.prepareStatement(lookupStatement); // any
 		// better
 		// name ;) ?
 
 		// iterate over our facts
 		for (int i = 0; i < thirdParam.getListCount(); i++) {
-			Fact actFact = (Fact) engine
-					.getFactById((thirdParam.getListValue(i)
-							.getFactIdValue()));
+			Fact actFact = (Fact) engine.getFactById((thirdParam
+					.getListValue(i).getFactIdValue()));
 
 			// check whether to update or to insert
 			boolean insert = true;
 			if (keys.size() > 0) {
 				int keyindex = 1;
 				for (String key : keys) {
-					lookuper
-							.setObject(keyindex++, actFact
-									.getSlotValue(key)
-									.getObjectValue());
+					lookuper.setObject(keyindex++, actFact.getSlotValue(key)
+							.getObjectValue());
 				}
 				insert = !lookuper.executeQuery().next();
 			}
 
-			PreparedStatement actor = insert ? inserter
-					: updater;
+			PreparedStatement actor = insert ? inserter : updater;
 
 			// TODO: Check for the right deftemplate
 			for (int j = 1; j <= slots.length; j++) {
 				// TODO: Typechecking?!
-				Object o = actFact.getSlotValue(
-						slots[j - 1].getName())
+				Object o = actFact.getSlotValue(slots[j - 1].getName())
 						.getObjectValue();
-				
+
 				// we needs to convert a GregorianCalendar to a Date
 				if (o instanceof GregorianCalendar) {
-						o = ((GregorianCalendar)o).getTime();
+					o = ((GregorianCalendar) o).getTime();
 				}
 				actor.setObject(j, o);
 			}
@@ -355,12 +344,12 @@ public class JDBCLink implements Function, Serializable {
 				int j = slots.length + 1;
 				for (String key : keys) {
 					Object o = actFact.getSlotValue(key).getObjectValue();
-					
+
 					// we needs to convert a GregorianCalendar to a Date
 					if (o instanceof GregorianCalendar) {
-						o = ((GregorianCalendar)o).getTime();
+						o = ((GregorianCalendar) o).getTime();
 					}
-					
+
 					actor.setObject(j++, o);
 				}
 			}
@@ -369,7 +358,9 @@ public class JDBCLink implements Function, Serializable {
 		return JamochaValue.newBoolean(true);
 	}
 
-	private JamochaValue method_import(Rete engine, JamochaValue conditions, String table, Deftemplate template, Slot[] slots, Connection conn) throws SQLException, AssertException {
+	private JamochaValue method_import(Rete engine, JamochaValue conditions,
+			String table, Deftemplate template, Slot[] slots, Connection conn)
+			throws SQLException, AssertException {
 		StringBuffer statementString = new StringBuffer();
 		statementString.append("SELECT ");
 		statementString.append(slots[0].getName());
@@ -379,61 +370,63 @@ public class JDBCLink implements Function, Serializable {
 		}
 		statementString.append(" FROM ");
 		statementString.append(table);
-		
-		for (int i = 0 ; i < conditions.getListCount() ; i++ ) {
-			Fact actCondition = (Fact) engine
-			.getFactById((conditions.getListValue(i)
-					.getFactIdValue()));
-			String slotname = actCondition.getSlotValue("SlotName").getStringValue();
-			String operator = actCondition.getSlotValue("BooleanOperator").getStringValue();
+
+		for (int i = 0; i < conditions.getListCount(); i++) {
+			Fact actCondition = (Fact) engine.getFactById((conditions
+					.getListValue(i).getFactIdValue()));
+			String slotname = actCondition.getSlotValue("SlotName")
+					.getStringValue();
+			String operator = actCondition.getSlotValue("BooleanOperator")
+					.getStringValue();
 			if (i == 0) {
 				statementString.append(" WHERE (");
 			} else {
-				statementString.append(" AND (");	
+				statementString.append(" AND (");
 			}
 			statementString.append(slotname);
 			statementString.append(operator);
 			statementString.append("?) ");
 		}
-		
-		PreparedStatement stmt = conn.prepareStatement(statementString.toString());
 
-		for (int i = 0 ; i < conditions.getListCount() ; i++ ) {
-			Fact actCondition = (Fact) engine
-			.getFactById((conditions.getListValue(i)
-					.getFactIdValue()));
+		PreparedStatement stmt = conn.prepareStatement(statementString
+				.toString());
+
+		for (int i = 0; i < conditions.getListCount(); i++) {
+			Fact actCondition = (Fact) engine.getFactById((conditions
+					.getListValue(i).getFactIdValue()));
 			Object value = actCondition.getSlotValue("Value").getObjectValue();
-			
-			if (value instanceof GregorianCalendar)  {
-				GregorianCalendar gregval=((GregorianCalendar)value);
-				value = new java.sql.Date( gregval.getTimeInMillis() + gregval.get(GregorianCalendar.ZONE_OFFSET) );
-			}
-			stmt.setObject(i+1, value);
-		}
-		
 
+			if (value instanceof GregorianCalendar) {
+				GregorianCalendar gregval = ((GregorianCalendar) value);
+				value = new java.sql.Date(gregval.getTimeInMillis()
+						+ gregval.get(GregorianCalendar.ZONE_OFFSET));
+			}
+			stmt.setObject(i + 1, value);
+		}
 
 		ResultSet rs = stmt.executeQuery();
-		
+
 		while (rs.next()) {
 
 			Slot[] rowValues = new Slot[slots.length];
 			for (int i = 0; i < slots.length; i++) {
 				// TODO: Typechecking?!
 				Object o = rs.getObject(slots[i].getName());
-				
+
 				// when getting DATETIME-values, we get a Date-object here
-				// but JamochaValue detects a given object as DATETIME, iff it is
+				// but JamochaValue detects a given object as DATETIME, iff it
+				// is
 				// a GregorianCalendar-object. =>
-				// if we got a Date, we have to convert it to a GregorianCalendar
+				// if we got a Date, we have to convert it to a
+				// GregorianCalendar
 				// before putting it into a JamochaValue
-				
-				if (o instanceof Date){
+
+				if (o instanceof Date) {
 					GregorianCalendar cal = new GregorianCalendar();
-					cal.setTime((Date)o);
+					cal.setTime((Date) o);
 					o = cal;
 				}
-				
+
 				JamochaValue val = new JamochaValue(o);
 				rowValues[i] = new Slot(slots[i].getName(), val);
 			}

@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.jamocha.rete.AbstractFunction;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.FunctionGroup;
 import org.jamocha.rete.Rete;
@@ -87,6 +88,13 @@ public class FunctionMemoryImpl implements FunctionMemory {
 		if (func instanceof InterpretedFunction) {
 			this.declareFunctionInDefaultGroup(func);
 		}
+		// TODO remove this if when abstractfunction is used everywhere
+		if (func instanceof AbstractFunction) {
+			List<String> aliases = ((AbstractFunction) func).getAliases();
+			for (String alias : aliases) {
+				this.functions.put(alias, func);
+			}
+		}
 	}
 
 	public void declareFunction(Function func, String functionGroupName) {
@@ -115,6 +123,7 @@ public class FunctionMemoryImpl implements FunctionMemory {
 	 * 
 	 * @param name
 	 */
+	@SuppressWarnings("unchecked")
 	public void declareFunction(String name) throws ClassNotFoundException {
 		try {
 			Class fclaz = Class.forName(name);
@@ -136,6 +145,7 @@ public class FunctionMemoryImpl implements FunctionMemory {
 	 * 
 	 * @param name
 	 */
+	@SuppressWarnings("unchecked")
 	public void declareFunctionGroup(String name) {
 		try {
 			Class fclaz = Class.forName(name);
@@ -193,10 +203,10 @@ public class FunctionMemoryImpl implements FunctionMemory {
 		declareFunctionGroup(new HelpFunctions());
 
 		// Other builtin constructs
-		declareFunction(new If());
-		declareFunction(new LoopForCount());
-		declareFunction(new Return());
-		declareFunction(new While());
+		declareFunction(If.getInstance());
+		declareFunction(LoopForCount.getInstance());
+		declareFunction(Return.getInstance());
+		declareFunction(While.getInstance());
 	}
 
 	public void clearBuiltInFunctions() {
@@ -209,7 +219,7 @@ public class FunctionMemoryImpl implements FunctionMemory {
 	 * 
 	 * @return
 	 */
-	public Map getFunctionGroups() {
+	public Map<String, FunctionGroup> getFunctionGroups() {
 		return this.functionGroups;
 	}
 
@@ -218,11 +228,11 @@ public class FunctionMemoryImpl implements FunctionMemory {
 	 * 
 	 * @return
 	 */
-	public Collection getAllFunctions() {
+	public Collection<Function> getAllFunctions() {
 		return this.functions.values();
 	}
 
-	public List getFunctionsOfGroup(String name) {
+	public List<Function> getFunctionsOfGroup(String name) {
 		FunctionGroup group = this.functionGroups.get(name);
 		if (group != null)
 			return group.listFunctions();

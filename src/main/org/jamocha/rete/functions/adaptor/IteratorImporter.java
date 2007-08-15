@@ -16,7 +16,6 @@
  */
 package org.jamocha.rete.functions.adaptor;
 
-import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.util.HashMap;
 import java.util.Map;
@@ -25,8 +24,8 @@ import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.IllegalParameterException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
+import org.jamocha.rete.AbstractFunction;
 import org.jamocha.rete.Fact;
-import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.Slot;
@@ -51,7 +50,7 @@ import org.jamocha.rete.util.DeffactIterator;
  * DeffactIterator(java.util.Map<String,String>). This constructor is able to receive additional
  * information through the given map. It returns true, iff everything went fine.
  */
-public class IteratorImporter implements Function, Serializable {
+public class IteratorImporter extends AbstractFunction {
 
 	private static final class Description implements FunctionDescription {
 
@@ -128,18 +127,20 @@ public class IteratorImporter implements Function, Serializable {
 		}
 	}
 
-	private static final FunctionDescription DESCRIPTION = new Description();
-
 	private static final long serialVersionUID = 1L;
 
-	public static final String NAME = "iteratorimporter";
-
-	public FunctionDescription getDescription() {
-		return DESCRIPTION;
+	private static AbstractFunction _instance = null;
+	
+	public static AbstractFunction getInstance() {
+		if(_instance == null) {
+			_instance = new IteratorImporter();
+		}
+		return _instance;
 	}
-
-	public String getName() {
-		return NAME;
+	
+	private IteratorImporter() {
+		name = "iteratorimporter";
+		description = new Description();
 	}
 
 	public JamochaValue executeFunction(Rete engine, Parameter[] params)

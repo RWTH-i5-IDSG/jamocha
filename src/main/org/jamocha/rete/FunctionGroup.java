@@ -42,7 +42,7 @@ public interface FunctionGroup extends Serializable {
 	 * A convienance method for listing the functions in a given group.
 	 * @return
 	 */
-	List listFunctions();
+	List<Function> listFunctions();
 
 	void addFunction(Function function);
 }

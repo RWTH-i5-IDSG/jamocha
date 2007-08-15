@@ -16,13 +16,11 @@
  */
 package org.jamocha.rete.functions.io;
 
-import java.io.Serializable;
-
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
+import org.jamocha.rete.AbstractFunction;
 import org.jamocha.rete.Constants;
-import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.functions.FunctionDescription;
@@ -35,7 +33,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  * this is the terminal. Printout concatenates all arguments after the channel without separation marks.
  * A string, enclosed in double quotes, is handled as one single argument.
  */
-public class Printout implements Function, Serializable {
+public class Printout extends AbstractFunction {
 
 	private static final class Description implements FunctionDescription {
 
@@ -82,19 +80,21 @@ public class Printout implements Function, Serializable {
 			return true;
 		}
 	}
-
-	private static final FunctionDescription DESCRIPTION = new Description();
-
+	
 	private static final long serialVersionUID = 1L;
 
-	public static final String NAME = "printout";
-
-	public FunctionDescription getDescription() {
-		return DESCRIPTION;
+	private static AbstractFunction _instance = null;
+	
+	public static AbstractFunction getInstance() {
+		if(_instance == null) {
+			_instance = new Printout();
+		}
+		return _instance;
 	}
-
-	public String getName() {
-		return NAME;
+	
+	private Printout() {
+		name = "printout";
+		description = new Description();
 	}
 
 	public JamochaValue executeFunction(Rete engine, Parameter[] params)

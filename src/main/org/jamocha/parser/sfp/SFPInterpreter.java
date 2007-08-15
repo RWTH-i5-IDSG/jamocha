@@ -41,6 +41,9 @@ import org.jamocha.rete.configurations.ModifyConfiguration;
 import org.jamocha.rete.configurations.Signature;
 import org.jamocha.rete.configurations.SlotConfiguration;
 import org.jamocha.rete.configurations.WhileDoConfiguration;
+import org.jamocha.rete.functions.If;
+import org.jamocha.rete.functions.LoopForCount;
+import org.jamocha.rete.functions.While;
 import org.jamocha.rule.AndCondition;
 import org.jamocha.rule.AndConnectedConstraint;
 import org.jamocha.rule.BoundConstraint;
@@ -369,7 +372,8 @@ public class SFPInterpreter implements SFPParserVisitor {
 		}
 		Parameter params[] = { ifElseConf };
 		Signature funcParam = new Signature();
-		funcParam.setSignatureName(org.jamocha.rete.functions.If.NAME);
+		funcParam.setSignatureName(If.getInstance()
+				.getName());
 		funcParam.setParameters(params);
 		return funcParam;
 	}
@@ -382,7 +386,7 @@ public class SFPInterpreter implements SFPParserVisitor {
 				.jjtAccept(this, data));
 		Parameter params[] = { whileDoConf };
 		Signature funcParam = new Signature();
-		funcParam.setSignatureName(org.jamocha.rete.functions.While.NAME);
+		funcParam.setSignatureName(While.getInstance().getName());
 		funcParam.setParameters(params);
 		return funcParam;
 	}
@@ -402,8 +406,7 @@ public class SFPInterpreter implements SFPParserVisitor {
 				.jjtAccept(this, data));
 		Parameter params[] = { lfcConf };
 		Signature funcParam = new Signature();
-		funcParam
-				.setSignatureName(org.jamocha.rete.functions.LoopForCount.NAME);
+		funcParam.setSignatureName(LoopForCount.getInstance().getName());
 		funcParam.setParameters(params);
 		return funcParam;
 	}

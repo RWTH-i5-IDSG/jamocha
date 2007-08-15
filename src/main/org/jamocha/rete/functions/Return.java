@@ -16,13 +16,11 @@
  */
 package org.jamocha.rete.functions;
 
-import java.io.Serializable;
-
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.Expression;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.rete.Function;
+import org.jamocha.rete.AbstractFunction;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 
@@ -32,7 +30,7 @@ import org.jamocha.rete.Rete;
  * Return just returns the result of an Expression or the last result of a whole
  * ExpressionSequence.
  */
-public class Return implements Serializable, Function {
+public class Return extends AbstractFunction {
 
 	private static final class Description implements FunctionDescription {
 
@@ -79,18 +77,20 @@ public class Return implements Serializable, Function {
 		}
 	}
 
-	private static final FunctionDescription DESCRIPTION = new Description();
-
 	private static final long serialVersionUID = 1L;
 
-	public static final String NAME = "return";
+	private static AbstractFunction _instance = null;
 
-	public FunctionDescription getDescription() {
-		return DESCRIPTION;
+	public static AbstractFunction getInstance() {
+		if (_instance == null) {
+			_instance = new Return();
+		}
+		return _instance;
 	}
 
-	public String getName() {
-		return NAME;
+	private Return() {
+		name = "return";
+		description = new Description();
 	}
 
 	public JamochaValue executeFunction(Rete engine, Parameter[] params)

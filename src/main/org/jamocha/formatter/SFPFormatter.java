@@ -25,7 +25,8 @@ public class SFPFormatter extends Formatter {
 	public String visit(AbstractFunction object) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("(");
-		sb.append(object.getName()).append(")");
+		sb.append(object.getName());
+		sb.append(")");
 		return sb.toString();
 	}
 
@@ -121,7 +122,8 @@ public class SFPFormatter extends Formatter {
 		sb.append(object.getFunctionName());
 		if (object.getFunctionDescription() != null) {
 			newLine(sb);
-			sb.append("\"").append(object.getFunctionDescription()).append("\"");
+			sb.append("\"").append(object.getFunctionDescription())
+					.append("\"");
 		}
 		if (object.definesFunctionGroup()) {
 			newLine(sb);
@@ -201,4 +203,5 @@ public class SFPFormatter extends Formatter {
 		return null;
 	}
 }
-// (deffunction wurst "does nothing" (functiongroup miau) (?x ?y) (printout t ?x ?y))
+// (deffunction wurst "does nothing" (functiongroup miau) (?x ?y) (printout t ?x
+// ?y))

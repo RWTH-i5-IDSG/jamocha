@@ -16,13 +16,11 @@
  */
 package org.jamocha.rete.functions.compare;
 
-import java.io.Serializable;
-
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.IllegalParameterException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.rete.Function;
+import org.jamocha.rete.AbstractFunction;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.functions.FunctionDescription;
@@ -33,7 +31,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  * Greater will compare 2 or more numeric values and return true if the (n-1)th
  * value is greater than the nth.
  */
-public class Greater implements Function, Serializable {
+public class Greater extends AbstractFunction {
 
 	private static final class Description implements FunctionDescription {
 
@@ -81,18 +79,22 @@ public class Greater implements Function, Serializable {
 		}
 	}
 
-	private static final FunctionDescription DESCRIPTION = new Description();
-
 	private static final long serialVersionUID = 1L;
 
-	public static final String NAME = "greater";
-
-	public FunctionDescription getDescription() {
-		return DESCRIPTION;
+	private static AbstractFunction _instance = null;
+	
+	public static AbstractFunction getInstance() {
+		if(_instance == null) {
+			_instance = new Greater();
+		}
+		return _instance;
 	}
-
-	public String getName() {
-		return NAME;
+	
+	private Greater() {
+		name = "greater";
+		description = new Description();
+		aliases.add(">");
+		aliases.add("afterdate");
 	}
 
 	public JamochaValue executeFunction(Rete engine, Parameter[] params)

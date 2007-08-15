@@ -49,9 +49,8 @@ public class IOFunctions implements FunctionGroup, Serializable {
 		functionMem.declareFunction(loadFacts);
 		funcs.add(loadFacts);
 
-		Printout printout = new Printout();
-		functionMem.declareFunction(printout);
-		funcs.add(printout);
+		functionMem.declareFunction(Printout.getInstance());
+		funcs.add(Printout.getInstance());
 		
 		Dump dump = new Dump();
 		functionMem.declareFunction(dump);

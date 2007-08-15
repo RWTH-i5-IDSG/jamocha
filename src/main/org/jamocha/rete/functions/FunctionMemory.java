@@ -36,7 +36,7 @@ public interface FunctionMemory extends Serializable {
 	
 	public void clearBuiltInFunctions();
 	
-	public Collection getFunctionsOfGroup(String name);
+	public Collection<Function> getFunctionsOfGroup(String name);
 	
 	public Function findFunction(String name);
 	
@@ -52,7 +52,7 @@ public interface FunctionMemory extends Serializable {
 	
 	public void declareFunctionGroup(FunctionGroup functionGroup);
 	
-	public Map getFunctionGroups();
+	public Map<String,FunctionGroup> getFunctionGroups();
 	
-	public Collection getAllFunctions() ;
+	public Collection<Function> getAllFunctions() ;
 }

@@ -16,7 +16,6 @@
  */
 package org.jamocha.rete.functions.adaptor;
 
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -25,9 +24,9 @@ import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.IllegalParameterException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
+import org.jamocha.rete.AbstractFunction;
 import org.jamocha.rete.Deffact;
 import org.jamocha.rete.Fact;
-import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.Slot;
@@ -53,7 +52,7 @@ import org.jamocha.rete.util.ExportIterator;
  * ExportHandler-subclass. Then it generates a map from a given config-fact. 
  * After all, it calls export.
  */
-public class IteratorExporter implements Function, Serializable {
+public class IteratorExporter extends AbstractFunction {
 
 	private static final class Description implements FunctionDescription {
 
@@ -136,18 +135,20 @@ public class IteratorExporter implements Function, Serializable {
 		}
 	}
 
-	private static final FunctionDescription DESCRIPTION = new Description();
-
 	private static final long serialVersionUID = 1L;
 
-	public static final String NAME = "iteratorexporter";
-
-	public FunctionDescription getDescription() {
-		return DESCRIPTION;
+	private static AbstractFunction _instance = null;
+	
+	public static AbstractFunction getInstance() {
+		if(_instance == null) {
+			_instance = new IteratorExporter();
+		}
+		return _instance;
 	}
-
-	public String getName() {
-		return NAME;
+	
+	private IteratorExporter() {
+		name = "iteratorexporter";
+		description = new Description();
 	}
 
 	public JamochaValue executeFunction(Rete engine, Parameter[] params)

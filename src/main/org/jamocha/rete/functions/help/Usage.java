@@ -16,10 +16,11 @@
  */
 package org.jamocha.rete.functions.help;
 
+import org.jamocha.formatter.Formatter;
+import org.jamocha.formatter.HelpFormatter;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.parser.ParserFactory;
 import org.jamocha.rete.AbstractFunction;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
@@ -33,8 +34,6 @@ import org.jamocha.rete.functions.FunctionDescription;
  * argument is passed the usage of this function itself is printed.
  */
 public class Usage extends AbstractFunction {
-
-	private static final long serialVersionUID = 1L;
 
 	private static final class Description implements FunctionDescription {
 
@@ -79,14 +78,26 @@ public class Usage extends AbstractFunction {
 		}
 	}
 
-	protected static final FunctionDescription DESCRIPTION = new Description();
+	private static final long serialVersionUID = 1L;
 
-	protected static final String NAME = "usage";
+	private static AbstractFunction _instance = null;
+	
+	public static AbstractFunction getInstance() {
+		if(_instance == null) {
+			_instance = new Usage();
+		}
+		return _instance;
+	}
+	
+	private Usage() {
+		name = "usage";
+		description = new Description();
+	}
 
 	public JamochaValue executeFunction(Rete engine, Parameter[] params)
 			throws EvaluationException {
-		JamochaValue result = JamochaValue.newString(this.format(ParserFactory
-				.getFormatter()));
+		Formatter form = new HelpFormatter();
+		JamochaValue result = JamochaValue.newString(this.format(form));
 		if (params != null && params.length == 1) {
 			JamochaValue firstParam = params[0].getValue(engine);
 			String function = firstParam.getStringValue();
@@ -96,7 +107,7 @@ public class Usage extends AbstractFunction {
 				if (aFunction instanceof AbstractFunction) {
 					result = JamochaValue
 							.newString(((AbstractFunction) aFunction)
-									.format(ParserFactory.getFormatter()));
+									.format(form));
 				}
 			}
 		}

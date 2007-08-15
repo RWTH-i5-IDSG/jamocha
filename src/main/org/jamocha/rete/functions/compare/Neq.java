@@ -16,13 +16,11 @@
  */
 package org.jamocha.rete.functions.compare;
 
-import java.io.Serializable;
-
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.IllegalParameterException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.rete.Function;
+import org.jamocha.rete.AbstractFunction;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.functions.FunctionDescription;
@@ -33,7 +31,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  * Neq is used to compare a literal value against one or more other values. If
  * all of the values are not equal, the function returns true.
  */
-public class Neq implements Function, Serializable {
+public class Neq extends AbstractFunction {
 
 	private static final class Description implements FunctionDescription {
 
@@ -88,18 +86,20 @@ public class Neq implements Function, Serializable {
 		}
 	}
 
-	private static final FunctionDescription DESCRIPTION = new Description();
-
 	private static final long serialVersionUID = 1L;
 
-	public static final String NAME = "neq";
+	private static AbstractFunction _instance = null;
 
-	public FunctionDescription getDescription() {
-		return DESCRIPTION;
+	public static AbstractFunction getInstance() {
+		if (_instance == null) {
+			_instance = new Neq();
+		}
+		return _instance;
 	}
 
-	public String getName() {
-		return NAME;
+	private Neq() {
+		name = "neq";
+		description = new Description();
 	}
 
 	public JamochaValue executeFunction(Rete engine, Parameter[] params)
