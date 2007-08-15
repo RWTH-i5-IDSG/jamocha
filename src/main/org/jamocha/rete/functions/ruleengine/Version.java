@@ -93,7 +93,7 @@ public class Version implements Function, Serializable {
 
 	public JamochaValue executeFunction(Rete engine, Parameter[] params)
 			throws EvaluationException {
-		engine.writeMessage(Constants.VERSION + Constants.LINEBREAK,
+		engine.writeMessage(Constants.VERSION + " (" + Constants.VERSION_NAME + ")" + Constants.LINEBREAK,
 				Constants.DEFAULT_OUTPUT);
 		return JamochaValue.NIL;
 	}

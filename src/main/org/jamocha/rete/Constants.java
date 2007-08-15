@@ -117,7 +117,8 @@ public class Constants {
     public static final String CRLF = "crlf";
     public static String SHELL_PROMPT = "Jamocha> ";
     public static String DEFAULT_OUTPUT = "t";
-    public static String VERSION = "0.8";
+    public static String VERSION = "0.9 Beta 6";
+    public static String VERSION_NAME = "Schinkenkeule";
     public static String INITIAL_FACT = "_initialFact";
     
    }
