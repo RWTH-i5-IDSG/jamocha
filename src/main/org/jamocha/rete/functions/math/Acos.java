@@ -22,7 +22,7 @@ import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.functions.Function;
+import org.jamocha.rete.functions.AbstractFunction;
 import org.jamocha.rete.functions.FunctionDescription;
 
 /**
@@ -31,7 +31,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  * Returns the trigonometric arc cosine of its only argument (which should be an
  * angle as numeric expression). The return value will double.
  */
-public class Acos extends Function {
+public class Acos extends AbstractFunction {
 
 	private static final class Description implements FunctionDescription {
 

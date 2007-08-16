@@ -22,6 +22,7 @@ import org.jamocha.parser.JamochaValue;
 import org.jamocha.parser.ParserFactory;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
+import org.jamocha.rete.functions.AbstractFunction;
 import org.jamocha.rete.functions.Function;
 import org.jamocha.rete.functions.FunctionDescription;
 
@@ -31,7 +32,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  * Prints out a short usage for a function name passed as argument. If no
  * argument is passed the usage of this function itself is printed.
  */
-public class Usage extends Function {
+public class Usage extends AbstractFunction {
 
 	private static final class Description implements FunctionDescription {
 

@@ -26,7 +26,7 @@ import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.functions.Function;
+import org.jamocha.rete.functions.AbstractFunction;
 import org.jamocha.rete.functions.FunctionDescription;
 
 /**
@@ -35,7 +35,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  * Captures the output to a file, and makes it easier to record what happens. 
  * This is inspired by Oracle SqlPlus spool function.
  */
-public class Spool extends Function {
+public class Spool extends AbstractFunction {
 
 	private static final class Description implements FunctionDescription {
 

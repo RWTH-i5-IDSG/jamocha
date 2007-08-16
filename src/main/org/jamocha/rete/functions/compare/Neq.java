@@ -22,7 +22,7 @@ import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.functions.Function;
+import org.jamocha.rete.functions.AbstractFunction;
 import org.jamocha.rete.functions.FunctionDescription;
 
 /**
@@ -31,7 +31,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  * Neq is used to compare a literal value against one or more other values. If
  * all of the values are not equal, the function returns true.
  */
-public class Neq extends Function {
+public class Neq extends AbstractFunction {
 
 	private static final class Description implements FunctionDescription {
 

@@ -23,7 +23,7 @@ import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.configurations.DefmoduleConfiguration;
-import org.jamocha.rete.functions.Function;
+import org.jamocha.rete.functions.AbstractFunction;
 import org.jamocha.rete.functions.FunctionDescription;
 
 /**
@@ -38,7 +38,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  * The rules in a module fire only when that module has the focus, and only one
  * module can be in focus at a time.
  */
-public class Defmodule extends Function {
+public class Defmodule extends AbstractFunction {
 
 	private static final class Description implements FunctionDescription {
 

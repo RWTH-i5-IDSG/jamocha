@@ -23,7 +23,7 @@ import org.jamocha.parser.ModeNotFoundException;
 import org.jamocha.parser.ParserFactory;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.functions.Function;
+import org.jamocha.rete.functions.AbstractFunction;
 import org.jamocha.rete.functions.FunctionDescription;
 
 /**
@@ -36,7 +36,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  * StreamChannels must be reinitalized after changing the parser.
  * </p>
  */
-public class SetParser extends Function {
+public class SetParser extends AbstractFunction {
 
 	private static final class Description implements FunctionDescription {
 

@@ -10,10 +10,10 @@ import org.jamocha.parser.sl.ParseException;
 import org.jamocha.parser.sl.SLParser;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.functions.Function;
+import org.jamocha.rete.functions.AbstractFunction;
 import org.jamocha.rete.functions.FunctionDescription;
 
-public class SLMessageCompare extends Function {
+public class SLMessageCompare extends AbstractFunction {
 
 	private static final class Description implements FunctionDescription {
 

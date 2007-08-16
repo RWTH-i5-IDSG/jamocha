@@ -24,7 +24,7 @@ import org.jamocha.parser.RuleException;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.configurations.DefruleConfiguration;
-import org.jamocha.rete.functions.Function;
+import org.jamocha.rete.functions.AbstractFunction;
 import org.jamocha.rete.functions.FunctionDescription;
 
 /**
@@ -32,7 +32,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  * 
  * Defines a new rule in the currently focused module of the engine.
  */
-public class Defrule extends Function {
+public class Defrule extends AbstractFunction {
 
 	private static final class Description implements FunctionDescription {
 

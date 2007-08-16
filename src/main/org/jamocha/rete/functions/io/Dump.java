@@ -29,7 +29,7 @@ import org.jamocha.rete.Fact;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.Template;
-import org.jamocha.rete.functions.Function;
+import org.jamocha.rete.functions.AbstractFunction;
 import org.jamocha.rete.functions.FunctionDescription;
 import org.jamocha.rete.modules.Module;
 import org.jamocha.rule.Rule;
@@ -41,7 +41,7 @@ import org.jamocha.rule.Rule;
  * compatible to the format expected by the batch function. Returns true iff
  * everything could be dumped.
  */
-public class Dump extends Function {
+public class Dump extends AbstractFunction {
 
 	private static final class Description implements FunctionDescription {
 

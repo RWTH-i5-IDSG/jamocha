@@ -27,7 +27,7 @@ import org.jamocha.rete.Constants;
 import org.jamocha.rete.Deffact;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.functions.Function;
+import org.jamocha.rete.functions.AbstractFunction;
 import org.jamocha.rete.functions.FunctionDescription;
 import org.jamocha.rete.util.FactUtils;
 
@@ -37,7 +37,7 @@ import org.jamocha.rete.util.FactUtils;
  * Saves all facts in the engine to a file, specified in the first argument.
  * Facts can be sorted according to their deftemplates or fact-ids.
  */
-public class SaveFacts extends Function {
+public class SaveFacts extends AbstractFunction {
 
 	private static final class Description implements FunctionDescription {
 

@@ -25,7 +25,7 @@ import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Fact;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.functions.Function;
+import org.jamocha.rete.functions.AbstractFunction;
 import org.jamocha.rete.functions.FunctionDescription;
 
 /**
@@ -34,7 +34,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  * Returns the value (fact) of the given fact-id or NIL if the given id doesn't
  * exist.
  */
-public class FactId extends Function {
+public class FactId extends AbstractFunction {
 
 	private static final class FindFactByFactDescription implements
 			FunctionDescription {

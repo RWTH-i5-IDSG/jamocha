@@ -22,7 +22,7 @@ import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.functions.Function;
+import org.jamocha.rete.functions.AbstractFunction;
 import org.jamocha.rete.functions.FunctionDescription;
 
 /**
@@ -31,7 +31,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  * Degrees converts an angle measured in degrees to an approximately equivalent
  * angle measured in radians.
  */
-public class DegreesToRadians extends Function {
+public class DegreesToRadians extends AbstractFunction {
 
 	private static final class Description implements FunctionDescription {
 

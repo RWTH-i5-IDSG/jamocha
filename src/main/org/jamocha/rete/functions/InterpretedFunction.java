@@ -34,7 +34,7 @@ import org.jamocha.rete.Rete;
  * defined through Deffunction. All actions of the deffunction are evaluated
  * with the given parameters for the deffunction.
  */
-public class InterpretedFunction extends Function {
+public class InterpretedFunction extends AbstractFunction {
 
 	private class InterpretedFunctionDescription implements FunctionDescription {
 

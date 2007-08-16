@@ -22,7 +22,7 @@ import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Constants;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.functions.Function;
+import org.jamocha.rete.functions.AbstractFunction;
 import org.jamocha.rete.functions.FunctionDescription;
 
 /**
@@ -30,7 +30,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  * 
  * Prints out the Version of Jamocha. Returns NIL.
  */
-public class Version extends Function {
+public class Version extends AbstractFunction {
 
 	private static final class Description implements FunctionDescription {
 

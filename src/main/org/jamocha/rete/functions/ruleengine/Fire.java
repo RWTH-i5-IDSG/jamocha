@@ -22,7 +22,7 @@ import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.exception.ExecuteException;
-import org.jamocha.rete.functions.Function;
+import org.jamocha.rete.functions.AbstractFunction;
 import org.jamocha.rete.functions.FunctionDescription;
 
 /**
@@ -37,7 +37,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  * If the focus stack is empty the MAIN module is automatically in the
  * current focus. Returns the number of rules fired.
  */
-public class Fire extends Function {
+public class Fire extends AbstractFunction {
 
 	private static final class Description implements FunctionDescription {
 

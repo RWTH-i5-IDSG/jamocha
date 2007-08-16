@@ -23,7 +23,7 @@ import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.functions.Function;
+import org.jamocha.rete.functions.AbstractFunction;
 import org.jamocha.rete.functions.FunctionDescription;
 
 /**
@@ -33,7 +33,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  * expression). The return value will either be long or double (depending upon
  * the type the argument).
  */
-public class Abs extends Function {
+public class Abs extends AbstractFunction {
 
 	private static final class Description implements FunctionDescription {
 

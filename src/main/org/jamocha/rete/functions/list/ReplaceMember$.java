@@ -26,7 +26,7 @@ import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.functions.Function;
+import org.jamocha.rete.functions.AbstractFunction;
 import org.jamocha.rete.functions.FunctionDescription;
 
 /**
@@ -45,7 +45,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  * replacements will not be matched recursively.
  * Returns a new list consisting of untouched and replaced items.
  */
-public class ReplaceMember$ extends Function {
+public class ReplaceMember$ extends AbstractFunction {
 
 	private static final class Description implements FunctionDescription {
 

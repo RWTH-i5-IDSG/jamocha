@@ -29,7 +29,7 @@ import org.jamocha.parser.ParserFactory;
 import org.jamocha.rete.BoundParam;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.functions.Function;
+import org.jamocha.rete.functions.AbstractFunction;
 import org.jamocha.rete.functions.FunctionDescription;
 
 /**
@@ -39,7 +39,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  * prompt and returns the last result of the expression(s) (if any). An optional binding as 
  * second argument can be used to catch an exception and hold the error message.
  */
-public class Eval extends Function {
+public class Eval extends AbstractFunction {
 
 	private static final class Description implements FunctionDescription {
 

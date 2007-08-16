@@ -22,7 +22,7 @@ import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.Template;
-import org.jamocha.rete.functions.Function;
+import org.jamocha.rete.functions.AbstractFunction;
 import org.jamocha.rete.functions.FunctionDescription;
 
 /**
@@ -32,7 +32,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  * Returns true on success and false otherwise (e.g. if the template 
  * is still in use by a fact or a rule)..
  */
-public class UnDeftemplate extends Function {
+public class UnDeftemplate extends AbstractFunction {
 
 	private static final class Description implements FunctionDescription {
 

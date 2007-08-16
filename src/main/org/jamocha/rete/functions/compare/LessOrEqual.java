@@ -22,7 +22,7 @@ import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.functions.Function;
+import org.jamocha.rete.functions.AbstractFunction;
 import org.jamocha.rete.functions.FunctionDescription;
 
 /**
@@ -31,7 +31,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  * LessOrEqual will compare 2 or more numeric values and return true if the
  * (n-1)th value is less or equal to the nth value.
  */
-public class LessOrEqual extends Function {
+public class LessOrEqual extends AbstractFunction {
 
 	private static final class Description implements FunctionDescription {
 

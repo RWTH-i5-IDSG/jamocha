@@ -22,7 +22,7 @@ import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.functions.Function;
+import org.jamocha.rete.functions.AbstractFunction;
 import org.jamocha.rete.functions.FunctionDescription;
 
 /**
@@ -36,7 +36,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  * This function returns a double if any of its arguments is a double, otherwise
  * it returns an long.
  */
-public class Multiply extends Function {
+public class Multiply extends AbstractFunction {
 
 	private static final class Description implements FunctionDescription {
 

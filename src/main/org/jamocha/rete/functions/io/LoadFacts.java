@@ -31,7 +31,7 @@ import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.functions.Function;
+import org.jamocha.rete.functions.AbstractFunction;
 import org.jamocha.rete.functions.FunctionDescription;
 
 /**
@@ -42,7 +42,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  * The result will be TRUE if any of the urls could be parsed successfully and
  * FALSE otherwise. On failure an exception is thrown.
  */
-public class LoadFacts extends Function {
+public class LoadFacts extends AbstractFunction {
 
 	private static final class Description implements FunctionDescription {
 

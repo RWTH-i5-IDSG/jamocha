@@ -22,7 +22,7 @@ import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Constants;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.functions.Function;
+import org.jamocha.rete.functions.AbstractFunction;
 import org.jamocha.rete.functions.FunctionDescription;
 
 /**
@@ -33,7 +33,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  * this is the terminal. Printout concatenates all arguments after the channel without separation marks.
  * A string, enclosed in double quotes, is handled as one single argument.
  */
-public class Printout extends Function {
+public class Printout extends AbstractFunction {
 
 	private static final class Description implements FunctionDescription {
 

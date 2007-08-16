@@ -31,6 +31,7 @@ import org.jamocha.parser.sfp.SFPParser;
 import org.jamocha.rete.Constants;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
+import org.jamocha.rete.functions.AbstractFunction;
 import org.jamocha.rete.functions.Function;
 import org.jamocha.rete.functions.FunctionDescription;
 import org.jamocha.rete.functions.FunctionGroup;
@@ -40,7 +41,7 @@ import org.jamocha.rete.functions.FunctionGroup;
  * 
  * This function gets an XML-document, which describes the declared functions
  */
-public class FunctionsDescription extends Function {
+public class FunctionsDescription extends AbstractFunction {
 
 	private static final class Description implements FunctionDescription {
 

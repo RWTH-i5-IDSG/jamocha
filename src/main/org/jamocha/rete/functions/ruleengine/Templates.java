@@ -26,7 +26,7 @@ import org.jamocha.rete.Constants;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.Template;
-import org.jamocha.rete.functions.Function;
+import org.jamocha.rete.functions.AbstractFunction;
 import org.jamocha.rete.functions.FunctionDescription;
 
 /**
@@ -34,7 +34,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  * 
  * templates prints out the names of the deftemplates.
  */
-public class Templates extends Function {
+public class Templates extends AbstractFunction {
 
 	private static final class Description implements FunctionDescription {
 

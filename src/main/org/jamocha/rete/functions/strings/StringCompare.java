@@ -22,7 +22,7 @@ import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.functions.Function;
+import org.jamocha.rete.functions.AbstractFunction;
 import org.jamocha.rete.functions.FunctionDescription;
 
 /**
@@ -41,7 +41,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  * lexicographically precedes the other string. If there is no index position at which they
  * differ, then the shorter string lexicographically precedes the longer string.) 
  */
-public class StringCompare extends Function {
+public class StringCompare extends AbstractFunction {
 
 	private static final class Description implements
 			FunctionDescription {

@@ -26,7 +26,7 @@ import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.functions.Function;
+import org.jamocha.rete.functions.AbstractFunction;
 import org.jamocha.rete.functions.FunctionDescription;
 
 /**
@@ -34,7 +34,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  * 
  * Returns a new list containing all elements of the second list that are not also elements of the first list.
  */
-public class Complement$ extends Function {
+public class Complement$ extends AbstractFunction {
 
 	private static final class Description implements FunctionDescription {
 

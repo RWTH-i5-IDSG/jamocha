@@ -21,7 +21,7 @@ import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.functions.Function;
+import org.jamocha.rete.functions.AbstractFunction;
 import org.jamocha.rete.functions.FunctionDescription;
 
 /**
@@ -30,7 +30,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  * Returns the difference, measured in milliseconds, between the current time
  * and midnight, January 1, 1970 UTC.
  */
-public class MillisecondTime extends Function {
+public class MillisecondTime extends AbstractFunction {
 
 	private static final class Description implements FunctionDescription {
 

@@ -29,7 +29,7 @@ import org.jamocha.rete.Rete;
  * Return just returns the result of an Expression or the last result of a whole
  * ExpressionSequence.
  */
-public class Return extends Function {
+public class Return extends AbstractFunction {
 
 	private static final class Description implements FunctionDescription {
 

@@ -26,7 +26,7 @@ import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.functions.Function;
+import org.jamocha.rete.functions.AbstractFunction;
 import org.jamocha.rete.functions.FunctionDescription;
 
 /**
@@ -34,7 +34,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  * 
  * Returns the union of its arguments without duplicates.
  */
-public class Union$ extends Function {
+public class Union$ extends AbstractFunction {
 
 	private static final class Description implements FunctionDescription {
 

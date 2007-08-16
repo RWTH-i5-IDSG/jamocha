@@ -22,7 +22,7 @@ import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.functions.Function;
+import org.jamocha.rete.functions.AbstractFunction;
 import org.jamocha.rete.functions.FunctionDescription;
 
 /**
@@ -31,7 +31,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  * Signum returns -1.0 if the argument is negativ, 1.0 if the argument is
  * positive and 0 if the argument is 0.
  */
-public class Signum extends Function {
+public class Signum extends AbstractFunction {
 
 	private static final class Description implements FunctionDescription {
 

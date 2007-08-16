@@ -30,7 +30,7 @@ import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.Slot;
 import org.jamocha.rete.Template;
-import org.jamocha.rete.functions.Function;
+import org.jamocha.rete.functions.AbstractFunction;
 import org.jamocha.rete.functions.FunctionDescription;
 import org.jamocha.rete.util.ExportHandler;
 import org.jamocha.rete.util.ExportIterator;
@@ -52,7 +52,7 @@ import org.jamocha.rete.util.ExportIterator;
  * ExportHandler-subclass. Then it generates a map from a given config-fact. 
  * After all, it calls export.
  */
-public class IteratorExporter extends Function {
+public class IteratorExporter extends AbstractFunction {
 
 	private static final class Description implements FunctionDescription {
 
