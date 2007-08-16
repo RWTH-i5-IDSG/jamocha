@@ -37,7 +37,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  */
 public class Spool extends AbstractFunction {
 
-	private static final class Description implements FunctionDescription {
+	public static final class Description implements FunctionDescription {
 
 		public String getDescription() {
 			return "Captures the output to a file, and makes it easier to record what happens. This is " +

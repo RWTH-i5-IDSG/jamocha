@@ -36,7 +36,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  */
 public class Matches extends AbstractFunction {
 
-	private static final class Description implements FunctionDescription {
+	public static final class Description implements FunctionDescription {
 
 		public String getDescription() {
 			return "MatchesFunction will print out all partial matches including alpha and beta nodes. If the function is called without any parameters, it prints out all the memories. If parameters are passed, the output will be filtered. Returns NIL.";

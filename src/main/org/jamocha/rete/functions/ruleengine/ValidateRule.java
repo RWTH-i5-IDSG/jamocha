@@ -31,7 +31,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  */
 public class ValidateRule extends AbstractFunction {
 
-	private static final class Description implements FunctionDescription {
+	public static final class Description implements FunctionDescription {
 
 		public String getDescription() {
 			return "Sets rule validation to true or false. Returns true on success.";

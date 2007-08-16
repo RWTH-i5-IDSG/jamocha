@@ -34,7 +34,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  */
 public class Subsetp extends AbstractFunction {
 
-	private static final class Description implements FunctionDescription {
+	public static final class Description implements FunctionDescription {
 
 		public String getDescription() {
 			return "Returns true if the first list is a subset of the second list, false otherwise. The order of the lists is not considered.";

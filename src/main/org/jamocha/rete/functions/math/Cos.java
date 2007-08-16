@@ -32,7 +32,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  */
 public class Cos extends AbstractFunction {
 
-	private static final class Description implements FunctionDescription {
+	public static final class Description implements FunctionDescription {
 
 		public String getDescription() {
 			return "Returns the trigonometric cosine of an angle.";

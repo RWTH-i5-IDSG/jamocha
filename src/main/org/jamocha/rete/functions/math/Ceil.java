@@ -32,7 +32,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  */
 public class Ceil extends AbstractFunction {
 
-	private static final class Description implements FunctionDescription {
+	public static final class Description implements FunctionDescription {
 
 		public String getDescription() {			
 			return "Returns the smallest (closest to negative infinity) double value that is greater than or equal to the argument and equal to a mathematical integer.";

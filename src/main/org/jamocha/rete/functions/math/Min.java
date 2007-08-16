@@ -34,7 +34,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  */
 public class Min extends AbstractFunction {
 
-	private static final class Description implements FunctionDescription {
+	public static final class Description implements FunctionDescription {
 
 		public String getDescription() {
 			return "Returns the value of its smallest numeric argument. Each argument has to be a numeric expression. The return type is either an integer or float depending on the type of the smallest argument.";

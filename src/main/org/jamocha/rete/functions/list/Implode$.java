@@ -34,7 +34,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  */
 public class Implode$ extends AbstractFunction {
 
-	private static final class Description implements FunctionDescription {
+	public static final class Description implements FunctionDescription {
 
 		public String getDescription() {
 			return "Creates and returns a string of a given list. Optionally a separator to put in-between the items" +

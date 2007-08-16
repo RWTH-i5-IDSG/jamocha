@@ -34,7 +34,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  * 
  */
 public class SendMessageFunction implements Function {
-	private static final class Description implements FunctionDescription {
+	public static final class Description implements FunctionDescription {
 
 		public String getDescription() {
 			return "FIX ME!";

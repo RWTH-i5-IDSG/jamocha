@@ -31,7 +31,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  */
 public class Pi extends AbstractFunction {
 
-	private static final class Description implements FunctionDescription {
+	public static final class Description implements FunctionDescription {
 
 		public String getDescription() {
 			return "Returns pi, the ratio of the circumference of a circle to its diameter.";

@@ -36,7 +36,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  */
 public class Templates extends AbstractFunction {
 
-	private static final class Description implements FunctionDescription {
+	public static final class Description implements FunctionDescription {
 
 		public String getDescription() {
 			return "Prints out the names of the deftemplates.";

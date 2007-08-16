@@ -32,7 +32,7 @@ import org.jamocha.rete.functions.FunctionGroup;
  */
 public class LoadPackage extends AbstractFunction {
 
-	private static final class Description implements FunctionDescription {
+	public static final class Description implements FunctionDescription {
 
 		public String getDescription() {
 			return "Creates a Java object and returns true on success.";

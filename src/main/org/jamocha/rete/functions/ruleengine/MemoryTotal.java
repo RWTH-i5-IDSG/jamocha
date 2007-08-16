@@ -33,7 +33,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  */
 public class MemoryTotal extends AbstractFunction {
 
-	private static final class Description implements FunctionDescription {
+	public static final class Description implements FunctionDescription {
 
 		public String getDescription() {
 			return "Prints out the total memory currently available to the Java VM. Returns NIL.";

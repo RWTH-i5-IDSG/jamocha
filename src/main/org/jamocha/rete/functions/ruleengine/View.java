@@ -36,7 +36,7 @@ import org.jamocha.rete.visualisation.VisualizerPanel;
  */
 public class View extends AbstractFunction {
 
-	private static final class Description implements FunctionDescription {
+	public static final class Description implements FunctionDescription {
 
 		public String getDescription() {
 			return "Opens a visualisation window for the rete net.";

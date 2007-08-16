@@ -37,7 +37,7 @@ import org.jamocha.rete.functions.InterpretedFunction;
  */
 public class Deffunction extends AbstractFunction {
 
-	private static final class Description implements FunctionDescription {
+	public static final class Description implements FunctionDescription {
 
 		public String getDescription() {
 			return "Used to declare new functions in the shell. Deffunctions run interpreted and are mapped to " +

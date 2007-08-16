@@ -33,7 +33,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  */
 public class RadiansToDegrees extends AbstractFunction {
 
-	private static final class Description implements FunctionDescription {
+	public static final class Description implements FunctionDescription {
 
 		public String getDescription() {
 			return "Converts an angle measured in radians to an approximately equivalent angle measured in degrees.";

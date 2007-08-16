@@ -43,7 +43,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  */
 public class Example extends AbstractFunction {
 
-	private static final class Description implements FunctionDescription {
+	public static final class Description implements FunctionDescription {
 
 		public String getDescription() {
 			return "Prints out an example for the function given as argument and executes it in the rule engine. Note: Don't use this function in your production environment as templates, rules and facts might be added, removed or modified.";

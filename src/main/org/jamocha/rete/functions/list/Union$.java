@@ -36,7 +36,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  */
 public class Union$ extends AbstractFunction {
 
-	private static final class Description implements FunctionDescription {
+	public static final class Description implements FunctionDescription {
 
 		public String getDescription() {
 			return "Returns the union of its arguments without duplicates.";

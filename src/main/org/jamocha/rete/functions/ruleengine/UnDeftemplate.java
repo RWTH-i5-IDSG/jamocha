@@ -34,7 +34,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  */
 public class UnDeftemplate extends AbstractFunction {
 
-	private static final class Description implements FunctionDescription {
+	public static final class Description implements FunctionDescription {
 
 		public String getDescription() {
 			return "Removes a template wich is currentlich not in use from the engine. Returns true on success " +

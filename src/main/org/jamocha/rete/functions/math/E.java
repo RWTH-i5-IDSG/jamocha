@@ -31,7 +31,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  */
 public class E extends AbstractFunction {
 
-	private static final class Description implements FunctionDescription {
+	public static final class Description implements FunctionDescription {
 
 		public String getDescription() {
 			return "Returns e, the base of the natural logarithm.";

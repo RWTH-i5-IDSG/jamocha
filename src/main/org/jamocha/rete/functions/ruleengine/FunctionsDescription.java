@@ -43,7 +43,7 @@ import org.jamocha.rete.functions.FunctionGroup;
  */
 public class FunctionsDescription extends AbstractFunction {
 
-	private static final class Description implements
+	public static final class Description implements
 			FunctionDescription {
 
 		public String getDescription() {

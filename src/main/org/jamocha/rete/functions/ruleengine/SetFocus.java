@@ -32,7 +32,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  */
 public class SetFocus extends AbstractFunction {
 
-	private static final class Description implements FunctionDescription {
+	public static final class Description implements FunctionDescription {
 
 		public String getDescription() {
 			return "Sets the focus to the given module. If no argument is given the focus doesn't change. " +

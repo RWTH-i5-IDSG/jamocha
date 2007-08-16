@@ -31,7 +31,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  */
 public class GetCurrentModule extends AbstractFunction {
 
-	private static final class Description implements FunctionDescription {
+	public static final class Description implements FunctionDescription {
 
 		public String getDescription() {
 			return "Returns the name of the module which is currently focused.";

@@ -32,7 +32,7 @@ import org.jamocha.rete.configurations.WhileDoConfiguration;
  */
 public class While extends AbstractFunction {
 
-	private static final class Description implements FunctionDescription {
+	public static final class Description implements FunctionDescription {
 
 		public String getDescription() {
 			return "Implementation of the while-loop. An ActionList is executed as long as the given Condition holds. Returns the result of the last action executed.";

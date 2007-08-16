@@ -39,7 +39,7 @@ import org.jamocha.rule.util.GenerateFacts;
  */
 public class TestRule extends AbstractFunction {
 
-	private static final class Description implements FunctionDescription {
+	public static final class Description implements FunctionDescription {
 
 		public String getDescription() {
 			return "Generates the facts for a rule, asserts them and calls (fire).";

@@ -33,7 +33,7 @@ import org.jamocha.rete.configurations.IfElseConfiguration;
  */
 public class If extends AbstractFunction {
 
-	private static final class Description implements FunctionDescription {
+	public static final class Description implements FunctionDescription {
 
 		public String getDescription() {
 			return "Implementation of the if condition as Jamocha Function. Returns either the result of the last then action executed if condition holds or otherwise the result of the last else action executed if any.";

@@ -38,7 +38,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  */
 public class Add extends AbstractFunction {
 
-	private static final class Description implements FunctionDescription {
+	public static final class Description implements FunctionDescription {
 
 		public String getDescription() {
 			return "Returns the sum of its numeric arguments. This function can be called with the identifier 'add' or '+'. Each argument has to be a numeric expression. The return type depends on the types of the arguments, it returns a double if any of its arguments is a double, otherwise it returns a long.";

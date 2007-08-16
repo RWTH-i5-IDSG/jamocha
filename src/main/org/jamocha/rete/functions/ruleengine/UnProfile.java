@@ -33,7 +33,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  */
 public class UnProfile extends AbstractFunction {
 
-	private static final class Description implements FunctionDescription {
+	public static final class Description implements FunctionDescription {
 
 		public String getDescription() {
 			return "Turns off profiling. There is the choice to turn off profiling of assert, retract, add activation, " +

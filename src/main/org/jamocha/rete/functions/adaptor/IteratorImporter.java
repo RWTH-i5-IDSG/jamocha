@@ -52,7 +52,7 @@ import org.jamocha.rete.util.DeffactIterator;
  */
 public class IteratorImporter extends AbstractFunction {
 
-	private static final class Description implements FunctionDescription {
+	public static final class Description implements FunctionDescription {
 
 		public String getDescription() {
 			return "Imports facts from an external, user-defined iterator to the rete engine. The external iterator is" +

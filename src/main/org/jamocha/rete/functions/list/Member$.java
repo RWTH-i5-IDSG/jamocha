@@ -38,7 +38,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  */
 public class Member$ extends AbstractFunction {
 
-	private static final class Description implements FunctionDescription {
+	public static final class Description implements FunctionDescription {
 
 		public String getDescription() {
 			return "Compares if the first argument is a member of the list given in the second argument. " +

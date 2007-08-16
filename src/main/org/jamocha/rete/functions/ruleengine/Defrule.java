@@ -34,7 +34,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  */
 public class Defrule extends AbstractFunction {
 
-	private static final class Description implements FunctionDescription {
+	public static final class Description implements FunctionDescription {
 
 		public String getDescription() {
 			return "Defines a new rule in the currently focused module of the engine.\n" + "defrule has the following syntax:\n" + "(defrule rule_name \"optional_comment\"\n"

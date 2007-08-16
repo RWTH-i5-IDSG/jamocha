@@ -39,7 +39,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  */
 public class Fire extends AbstractFunction {
 
-	private static final class Description implements FunctionDescription {
+	public static final class Description implements FunctionDescription {
 
 		public String getDescription() {
 			return "Starts the execution of rules. If the optional argument is positive, execution will cease " +

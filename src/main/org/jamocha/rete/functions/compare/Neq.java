@@ -33,7 +33,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  */
 public class Neq extends AbstractFunction {
 
-	private static final class Description implements FunctionDescription {
+	public static final class Description implements FunctionDescription {
 
 		public String getDescription() {
 			return "Neq is used to compare a literal value against one or more other values. If all of the other values are not equal, the function returns true. Neq should be used if the type of its arguments is not known in adavance.";

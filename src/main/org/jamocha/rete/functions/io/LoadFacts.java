@@ -44,7 +44,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  */
 public class LoadFacts extends AbstractFunction {
 
-	private static final class Description implements FunctionDescription {
+	public static final class Description implements FunctionDescription {
 
 		public String getDescription() {
 			return "Reads a file from the given location and surrounds the content with (assert ... ). So a list "

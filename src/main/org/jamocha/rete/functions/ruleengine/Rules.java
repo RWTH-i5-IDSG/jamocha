@@ -35,7 +35,7 @@ import org.jamocha.rule.Rule;
  */
 public class Rules extends AbstractFunction {
 
-	private static final class Description implements FunctionDescription {
+	public static final class Description implements FunctionDescription {
 
 		public String getDescription() {
 			return "Prints out the names of the rules and their comments. Returns NIL.";

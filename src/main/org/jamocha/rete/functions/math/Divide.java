@@ -32,7 +32,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  */
 public class Divide extends AbstractFunction {
 
-	private static final class Description implements FunctionDescription {
+	public static final class Description implements FunctionDescription {
 
 		public String getDescription() {
 			return "Returns the value of the first argument divided by each of the subsequent arguments. This function can be called with the identifier 'divide' or '/'.";

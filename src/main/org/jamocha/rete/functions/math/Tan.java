@@ -32,7 +32,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  */
 public class Tan extends AbstractFunction {
 
-	private static final class Description implements FunctionDescription {
+	public static final class Description implements FunctionDescription {
 
 		public String getDescription() {
 			return "Returns the trigonometric tangent of an angle.";

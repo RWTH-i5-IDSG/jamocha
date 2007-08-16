@@ -33,7 +33,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  */
 public class Eq extends AbstractFunction {
 
-	private static final class Description implements FunctionDescription {
+	public static final class Description implements FunctionDescription {
 
 		public String getDescription() {
 			return "Eq is used to compare a literal value against one or more other values. If all of the other values are equal, the function returns true. Eq should be used if the type of its arguments is not known in adavance.";

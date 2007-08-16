@@ -44,7 +44,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  */
 public class Batch extends AbstractFunction {
 
-	private static final class Description implements FunctionDescription {
+	public static final class Description implements FunctionDescription {
 
 		public String getDescription() {
 			return "Loads and executes one or more given files. Multiple arguments are separated by a blank. Files can be located on a local drive or on a remote machine accessible via http or some other protocol. Returns true on success.";

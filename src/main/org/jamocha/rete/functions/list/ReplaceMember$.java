@@ -47,7 +47,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  */
 public class ReplaceMember$ extends AbstractFunction {
 
-	private static final class Description implements FunctionDescription {
+	public static final class Description implements FunctionDescription {
 
 		public String getDescription() {
 			return "Replaces specific items in a list with a given replacement. Arguments can either be single " +

@@ -42,7 +42,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  */
 public class Retract extends AbstractFunction {
 
-	private static final class Description implements FunctionDescription {
+	public static final class Description implements FunctionDescription {
 
 		public String getDescription() {
 			return "Allows the user to remove facts from the fact-list. Multiple facts may be retracted " +

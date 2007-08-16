@@ -16,7 +16,7 @@ import org.jamocha.rete.Rete;
 import org.jamocha.rete.functions.FunctionDescription;
 
 public class SLMessageCompare implements Function, Serializable {
-	private static final class Description implements FunctionDescription {
+	public static final class Description implements FunctionDescription {
 
 		public String getDescription() {
 			return "Compares two messages in SL by translating them to CLIPS and thereby receiving a kind of semantic representation. Then the result of a simple String comparison is returned.";

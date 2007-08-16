@@ -36,7 +36,7 @@ import org.jamocha.rete.modules.Module;
  */
 public class Modules extends AbstractFunction {
 
-	private static final class Description implements FunctionDescription {
+	public static final class Description implements FunctionDescription {
 
 		public String getDescription() {
 			return "Prints out all the modules which are currently defined in the rule engine.";

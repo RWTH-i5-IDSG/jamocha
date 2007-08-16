@@ -35,7 +35,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  */
 public class Member extends AbstractFunction {
 
-	private static final class Description implements FunctionDescription {
+	public static final class Description implements FunctionDescription {
 
 		public String getDescription() {
 			return "Calls a method of a specified object. Returns the resulting value of the method or false.";

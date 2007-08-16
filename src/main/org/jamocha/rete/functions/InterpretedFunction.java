@@ -36,7 +36,7 @@ import org.jamocha.rete.Rete;
  */
 public class InterpretedFunction extends AbstractFunction {
 
-	private class InterpretedFunctionDescription implements FunctionDescription {
+	public class InterpretedFunctionDescription implements FunctionDescription {
 
 		public String getDescription() {
 			return descriptionText;

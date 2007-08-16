@@ -34,7 +34,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  */
 public class CLIPS2SLFunction implements Function, Serializable {
 
-	private static final class CLIPS2SLFunctionDescription implements
+	public static final class CLIPS2SLFunctionDescription implements
 			FunctionDescription {
 
 		public String getDescription() {

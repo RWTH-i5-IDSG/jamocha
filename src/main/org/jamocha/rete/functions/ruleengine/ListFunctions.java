@@ -38,7 +38,7 @@ import org.jamocha.rete.functions.FunctionGroup;
  */
 public class ListFunctions extends AbstractFunction {
 
-	private static final class Description implements FunctionDescription {
+	public static final class Description implements FunctionDescription {
 
 		public String getDescription() {
 			return "Prints out a list of all defined functions. The return value is NIL.";

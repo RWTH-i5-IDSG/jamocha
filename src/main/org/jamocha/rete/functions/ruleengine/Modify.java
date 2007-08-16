@@ -39,7 +39,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  */
 public class Modify extends AbstractFunction {
 
-	private static final class Description implements FunctionDescription {
+	public static final class Description implements FunctionDescription {
 
 		public String getDescription() {
 			return "Allows the user to modify template facts on the fact-list. Only one fact may be modified " +

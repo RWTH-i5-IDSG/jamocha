@@ -34,7 +34,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  */
 public class GetFactId extends AbstractFunction {
 
-	private static final class FindFactByFactDescription implements
+	public static final class FindFactByFactDescription implements
 			FunctionDescription {
 
 		public String getDescription() {

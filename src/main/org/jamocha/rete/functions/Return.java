@@ -31,7 +31,7 @@ import org.jamocha.rete.Rete;
  */
 public class Return extends AbstractFunction {
 
-	private static final class Description implements FunctionDescription {
+	public static final class Description implements FunctionDescription {
 
 		public String getDescription() {
 			return "Return just returns the result of an Expression or the last result of a whole ExpressionSequence.";

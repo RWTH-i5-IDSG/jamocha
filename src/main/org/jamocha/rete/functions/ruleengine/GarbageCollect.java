@@ -31,7 +31,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  */
 public class GarbageCollect extends AbstractFunction {
 
-	private static final class Description implements FunctionDescription {
+	public static final class Description implements FunctionDescription {
 
 		public String getDescription() {
 			return "Runs the Java garbage collector.";

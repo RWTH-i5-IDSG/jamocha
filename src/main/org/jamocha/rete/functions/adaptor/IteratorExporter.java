@@ -54,7 +54,7 @@ import org.jamocha.rete.util.ExportIterator;
  */
 public class IteratorExporter extends AbstractFunction {
 
-	private static final class Description implements FunctionDescription {
+	public static final class Description implements FunctionDescription {
 
 		public String getDescription() {
 			return "Exports facts from the rete engine to an external location. The external location is specified in the " +

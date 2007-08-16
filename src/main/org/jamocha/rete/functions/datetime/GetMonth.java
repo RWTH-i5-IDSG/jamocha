@@ -35,7 +35,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  */
 public class GetMonth extends AbstractFunction {
 
-	private static final class Description implements FunctionDescription {
+	public static final class Description implements FunctionDescription {
 
 		public String getDescription() {
 			return "Returns the month-field from the given DateTime argument.";

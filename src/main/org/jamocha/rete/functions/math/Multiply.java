@@ -38,7 +38,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  */
 public class Multiply extends AbstractFunction {
 
-	private static final class Description implements FunctionDescription {
+	public static final class Description implements FunctionDescription {
 
 		public String getDescription() {
 			return "Returns the product of its numeric arguments. Each argument has to be a numeric expression. The return type is a double if any of its arguments is a double, otherwise it is a long.";

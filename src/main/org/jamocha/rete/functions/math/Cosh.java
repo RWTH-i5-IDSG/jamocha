@@ -32,7 +32,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  */
 public class Cosh extends AbstractFunction {
 
-	private static final class Description implements FunctionDescription {
+	public static final class Description implements FunctionDescription {
 
 		public String getDescription() {
 			return "Returns the hyperbolic cosine of a numeric argument. The hyperbolic cosine of x is defined to be (e^x + e^(-x))/2 where e is Euler's number.";
