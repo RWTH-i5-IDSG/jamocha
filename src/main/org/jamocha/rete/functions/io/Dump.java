@@ -19,15 +19,14 @@ package org.jamocha.rete.functions.io;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.Serializable;
 
 import org.jamocha.formatter.Formatter;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.parser.ParserFactory;
+import org.jamocha.rete.AbstractFunction;
 import org.jamocha.rete.Fact;
-import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.Template;
@@ -38,36 +37,41 @@ import org.jamocha.rule.Rule;
 /**
  * @author Josef Alexander Hahn
  * 
- * Writes engine's deftemplates, defrules and facts into a file, which is 
- * compatible to the format expected by the batch function. 
- * Returns true iff everything could be dumped.
+ * Writes engine's deftemplates, defrules and facts into a file, which is
+ * compatible to the format expected by the batch function. Returns true iff
+ * everything could be dumped.
  */
-public class Dump implements Function, Serializable {
+public class Dump extends AbstractFunction {
 
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
 			return "Writes engine's deftemplates, defrules and facts into a file, which is compatible to the format expected by the batch function. Returns true iff everything could be dumped.";
 		}
-		
+
 		public int getParameterCount() {
 			return 2;
 		}
 
 		public String getParameterDescription(int parameter) {
-			if (parameter == 0) return "Output-file where to write the dump of the module.";
-			if (parameter == 1) return "Module to be safed.";
+			if (parameter == 0)
+				return "Output-file where to write the dump of the module.";
+			if (parameter == 1)
+				return "Module to be safed.";
 			return null;
 		}
 
 		public String getParameterName(int parameter) {
-			if (parameter == 0) return "output-file";
-			if (parameter == 1) return "module";
+			if (parameter == 0)
+				return "output-file";
+			if (parameter == 1)
+				return "module";
 			return null;
 		}
 
 		public JamochaType[] getParameterTypes(int parameter) {
-			if (parameter <= 1) return JamochaType.STRINGS;
+			if (parameter <= 1)
+				return JamochaType.STRINGS;
 			return null;
 		}
 
@@ -93,9 +97,9 @@ public class Dump implements Function, Serializable {
 		}
 	}
 
-	private static final FunctionDescription DESCRIPTION = new Description();
-
 	private static final long serialVersionUID = 1L;
+
+	public static final FunctionDescription DESCRIPTION = new Description();
 
 	public static final String NAME = "dump";
 
@@ -106,40 +110,38 @@ public class Dump implements Function, Serializable {
 	public String getName() {
 		return NAME;
 	}
-	
-	public boolean dumpModule(Rete engine, String modName, BufferedWriter out, Formatter frm) {
-		
+
+	public boolean dumpModule(Rete engine, String modName, BufferedWriter out,
+			Formatter frm) {
+
 		try {
-			
+
 			Module mod = engine.findModule(modName);
-			
-//			Map additionalInformation = new HashMap();
-			
-			
-			
-			out.write("%	Dump of module "+modName+"\n");
-			
+
+			// Map additionalInformation = new HashMap();
+
+			out.write("%	Dump of module " + modName + "\n");
+
 			// dumping templates
 			out.write("\n\n%		Template definitions\n");
 			for (Object t : mod.getTemplates()) {
 				Template tmpl = (Template) t;
 				if (!(tmpl.getName().equals("_initialFact")))
-					out.write(tmpl.getDump(modName)+"\n");
+					out.write(tmpl.getDump(modName) + "\n");
 			}
 
 			// dumping facts
-			//TODO argh it would be good, if module can give a list of all facts. This solution is _horrible_!!
+			// TODO argh it would be good, if module can give a list of all
+			// facts. This solution is _horrible_!!
 			out.write("\n\n%		Fact definitions\n");
 			for (Object fObj : engine.getModules().getAllFacts()) {
 				Fact fact = (Fact) fObj;
-				if (mod.containsTemplate( fact.getTemplate() )) {
+				if (mod.containsTemplate(fact.getTemplate())) {
 					if (!(fact.getTemplate().getName().equals("_initialFact")))
-						out.write( fact.getDump(modName)+"\n" );
+						out.write(fact.getDump(modName) + "\n");
 				}
 			}
-			
-			
-			
+
 			// dumping rules
 			out.write("\n\n%		Rule definitions\n");
 			for (Object t : mod.getAllRules()) {
@@ -147,46 +149,40 @@ public class Dump implements Function, Serializable {
 				out.write(rule.format(frm));
 			}
 
-			
-			
-			
-	    } catch (IOException e) {
+		} catch (IOException e) {
 			return false;
 		}
-		
-	    return true;
-		
+
+		return true;
+
 	}
 
 	public JamochaValue executeFunction(Rete engine, Parameter[] params)
 			throws EvaluationException {
 		String inputfileName = params[0].getValue(engine).getStringValue();
 		String modName = null;
-		if (params.length>1)
+		if (params.length > 1)
 			modName = params[1].getValue(engine).getStringValue();
-        BufferedWriter out;
-        Formatter formatter = ParserFactory.getFormatter();
+		BufferedWriter out;
+		Formatter formatter = ParserFactory.getFormatter();
 		try {
 			out = new BufferedWriter(new FileWriter(inputfileName));
 			out.write("% Jamocha Dump.\n\n");
-			
-			
+
 			if (modName != null) {
-				dumpModule(engine,modName,out,formatter);
+				dumpModule(engine, modName, out, formatter);
 			} else {
 				for (Module mod : engine.getModules().getModuleList()) {
 					dumpModule(engine, mod.getModuleName(), out, formatter);
 				}
 			}
-			
-	        out.close();				
+
+			out.close();
 		} catch (IOException e) {
 			return JamochaValue.FALSE;
 		}
-        	
-		
+
 		return JamochaValue.TRUE;
 	}
-
 
 }

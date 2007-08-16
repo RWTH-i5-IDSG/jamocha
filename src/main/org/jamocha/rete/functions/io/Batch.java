@@ -21,7 +21,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.Serializable;
 import java.net.URL;
 
 import org.jamocha.parser.EvaluationException;
@@ -31,7 +30,7 @@ import org.jamocha.parser.JamochaValue;
 import org.jamocha.parser.ParseException;
 import org.jamocha.parser.Parser;
 import org.jamocha.parser.ParserFactory;
-import org.jamocha.rete.Function;
+import org.jamocha.rete.AbstractFunction;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.functions.FunctionDescription;
@@ -43,7 +42,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  * on a remote machine accessible via http or some other protocol. Returns true
  * on success.
  */
-public class Batch implements Function, Serializable {
+public class Batch extends AbstractFunction {
 
 	private static final class Description implements FunctionDescription {
 
@@ -89,9 +88,9 @@ public class Batch implements Function, Serializable {
 		}
 	}
 
-	private static final FunctionDescription DESCRIPTION = new Description();
-
 	private static final long serialVersionUID = 1L;
+
+	public static final FunctionDescription DESCRIPTION = new Description();
 
 	public static final String NAME = "batch";
 

@@ -23,14 +23,13 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.Serializable;
 import java.net.URL;
 
 import org.jamocha.messagerouter.StringChannel;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.rete.Function;
+import org.jamocha.rete.AbstractFunction;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.functions.FunctionDescription;
@@ -43,16 +42,18 @@ import org.jamocha.rete.functions.FunctionDescription;
  * The result will be TRUE if any of the urls could be parsed successfully and
  * FALSE otherwise. On failure an exception is thrown.
  */
-public class LoadFacts implements Function, Serializable {
+public class LoadFacts extends AbstractFunction {
 
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "Reads a file from the given location and surrounds the content with (assert ... ). So a list " +
-					"of facts can be asserted into the rule engine with one single call. The result is true if " +
-					"any of the given files could be parsed successfully." + // and false otherwise. On failure an exception is thrown.";
-					"Attention a corresponding Jamocha template must be defined in order to actually import the" +
-					"facts into the engine.";					
+			return "Reads a file from the given location and surrounds the content with (assert ... ). So a list "
+					+ "of facts can be asserted into the rule engine with one single call. The result is true if "
+					+ "any of the given files could be parsed successfully."
+					+ // and false otherwise. On failure an exception is
+						// thrown.";
+					"Attention a corresponding Jamocha template must be defined in order to actually import the"
+					+ "facts into the engine.";
 		}
 
 		public int getParameterCount() {
@@ -84,14 +85,13 @@ public class LoadFacts implements Function, Serializable {
 		}
 
 		public String getExample() {
-			return "(deftemplate transaction\n" +
-					"  (slot accountId (type STRING))\n" +					
-					"  (slot countryCode (type STRING))\n" +
-					"  (slot cusip (type INTEGER))\n" +					
-					"  (slot issuer (type STRING))\n" +
-					"  (slot total (type DOUBLE))\n" +
-					")\n" +
-					"(load-facts samples/data.clp)\n";			
+			return "(deftemplate transaction\n"
+					+ "  (slot accountId (type STRING))\n"
+					+ "  (slot countryCode (type STRING))\n"
+					+ "  (slot cusip (type INTEGER))\n"
+					+ "  (slot issuer (type STRING))\n"
+					+ "  (slot total (type DOUBLE))\n" + ")\n"
+					+ "(load-facts samples/data.clp)\n";
 		}
 
 		public boolean isResultAutoGeneratable() {
@@ -100,9 +100,9 @@ public class LoadFacts implements Function, Serializable {
 		}
 	}
 
-	private static final FunctionDescription DESCRIPTION = new Description();
-
 	private static final long serialVersionUID = 1L;
+
+	public static final FunctionDescription DESCRIPTION = new Description();
 
 	public static final String NAME = "load-facts";
 

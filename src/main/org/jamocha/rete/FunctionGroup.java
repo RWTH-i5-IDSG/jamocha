@@ -32,7 +32,7 @@ import org.jamocha.rete.functions.FunctionMemory;
 public abstract class FunctionGroup implements Serializable {
 
 	protected String name = "undefined";
-	
+
 	protected String description = "none";
 
 	protected List<Function> funcs = new ArrayList<Function>();
@@ -43,7 +43,7 @@ public abstract class FunctionGroup implements Serializable {
 	public String getName() {
 		return name;
 	}
-	
+
 	public String getDescription() {
 		return description;
 	}
@@ -90,6 +90,7 @@ public abstract class FunctionGroup implements Serializable {
 		funcs.add(function);
 		// TODO remove this if when abstractfunction is used everywhere
 		if (function instanceof AbstractFunction) {
+			((AbstractFunction) function).addToFunctionGroup(this);
 			List<String> aliases = ((AbstractFunction) function).getAliases();
 			for (String alias : aliases) {
 				functionMem.declareFunction(alias, function);
