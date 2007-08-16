@@ -40,7 +40,7 @@ import org.jamocha.rule.Defrule;
  */
 public class GenerateFacts extends AbstractFunction {
 
-	public static final class Description implements FunctionDescription {
+	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
 			return "Generate facts will call the utility class with the Rule object and return an Object[] " +
@@ -108,7 +108,7 @@ public class GenerateFacts extends AbstractFunction {
 		}
 	}
 
-	private static final FunctionDescription DESCRIPTION = new Description();
+	public static final FunctionDescription DESCRIPTION = new Description();
 
 	private static final long serialVersionUID = 1L;
 

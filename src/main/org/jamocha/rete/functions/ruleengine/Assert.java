@@ -44,7 +44,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  */
 public class Assert extends AbstractFunction {
 
-	public static final class Description implements FunctionDescription {
+	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
 			return "Allows the user to add a fact to the fact-list. Multiple facts may be asserted with each call. " + "If the fact-list is being watched, an inform message is printed each time a "
@@ -88,7 +88,7 @@ public class Assert extends AbstractFunction {
 		}
 	}
 
-	private static final FunctionDescription DESCRIPTION = new Description();
+	public static final FunctionDescription DESCRIPTION = new Description();
 
 	private static final long serialVersionUID = 1L;
 

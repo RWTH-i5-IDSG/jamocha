@@ -34,7 +34,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  */
 public class Bind extends AbstractFunction {
 
-	public static final class Description implements FunctionDescription {
+	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
 			return "Binds any value to a variable visible in the scope the bind takes place.";
@@ -95,7 +95,7 @@ public class Bind extends AbstractFunction {
 		}
 	}
 
-	private static final FunctionDescription DESCRIPTION = new Description();
+	public static final FunctionDescription DESCRIPTION = new Description();
 
 	private static final long serialVersionUID = 1L;
 

@@ -33,7 +33,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  */
 public class Signum extends AbstractFunction {
 
-	public static final class Description implements FunctionDescription {
+	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
 			return "Returns -1.0 if the argument is negative, 1.0 if the argument is positive and 0 if the argument is 0.";
@@ -76,7 +76,7 @@ public class Signum extends AbstractFunction {
 		}
 	}
 
-	private static final FunctionDescription DESCRIPTION = new Description();
+	public static final FunctionDescription DESCRIPTION = new Description();
 
 	private static final long serialVersionUID = 1L;
 

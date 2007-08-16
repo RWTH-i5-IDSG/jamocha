@@ -36,7 +36,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  */
 public class Nth$ extends AbstractFunction {
 
-	public static final class Description implements FunctionDescription {
+	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
 			return "Returns the item of a list at the specified index. Attention: Lists in Jamocha start with index 1.";
@@ -97,7 +97,7 @@ public class Nth$ extends AbstractFunction {
 		}
 	}
 
-	private static final FunctionDescription DESCRIPTION = new Description();
+	public static final FunctionDescription DESCRIPTION = new Description();
 
 	private static final long serialVersionUID = 1L;
 

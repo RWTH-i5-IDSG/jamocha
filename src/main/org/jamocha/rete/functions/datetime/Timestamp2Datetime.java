@@ -35,7 +35,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  */
 public class Timestamp2Datetime extends AbstractFunction {
 
-	public static final class Description implements FunctionDescription {
+	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
 			return "Returns the DateTime-Object of the given Timestamp argument.";

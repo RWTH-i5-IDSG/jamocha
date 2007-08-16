@@ -37,7 +37,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  */
 public class Intersection$ extends AbstractFunction {
 
-	public static final class Description implements FunctionDescription {
+	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
 			return "Returns the intersection of its two arguments without duplicates. The order of returned items corresponds to the one in the first list. ";
@@ -93,7 +93,7 @@ public class Intersection$ extends AbstractFunction {
 		}
 	}
 
-	private static final FunctionDescription DESCRIPTION = new Description();
+	public static final FunctionDescription DESCRIPTION = new Description();
 
 	private static final long serialVersionUID = 1L;
 

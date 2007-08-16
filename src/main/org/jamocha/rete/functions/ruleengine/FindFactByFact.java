@@ -36,7 +36,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  */
 public class FindFactByFact extends AbstractFunction {
 
-	public static final class FindFactByFactDescription implements FunctionDescription {
+	private static final class FindFactByFactDescription implements FunctionDescription {
 
 		public String getDescription() {
 			return "Returns the ID of the given fact or NIL if it wasn't found.";
@@ -83,7 +83,7 @@ public class FindFactByFact extends AbstractFunction {
 		}
 	}
 
-	private static final FunctionDescription DESCRIPTION = new FindFactByFactDescription();
+	public static final FunctionDescription DESCRIPTION = new FindFactByFactDescription();
 
 	private static final long serialVersionUID = 1L;
 

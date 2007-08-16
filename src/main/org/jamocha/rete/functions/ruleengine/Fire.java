@@ -39,7 +39,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  */
 public class Fire extends AbstractFunction {
 
-	public static final class Description implements FunctionDescription {
+	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
 			return "Starts the execution of rules. If the optional argument is positive, execution will cease " +
@@ -89,7 +89,7 @@ public class Fire extends AbstractFunction {
 		}
 	}
 
-	private static final FunctionDescription DESCRIPTION = new Description();
+	public static final FunctionDescription DESCRIPTION = new Description();
 
 	private static final long serialVersionUID = 1L;
 

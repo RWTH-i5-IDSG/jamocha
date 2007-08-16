@@ -33,7 +33,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  */
 public class GreaterOrEqual extends AbstractFunction {
 
-	public static final class Description implements FunctionDescription {
+	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
 			return "GreaterOrEqual will compare two or more numeric values and return true, if the (n-1)th value is greater than or equal to the nth value.";

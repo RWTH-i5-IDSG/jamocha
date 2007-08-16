@@ -36,7 +36,7 @@ import org.jamocha.rete.util.FactUtils;
  */
 public class Facts extends AbstractFunction {
 
-	public static final class Description implements FunctionDescription {
+	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
 			return "Prints out all the facts which are currently asserted to the rule engine.";
@@ -79,7 +79,7 @@ public class Facts extends AbstractFunction {
 		}
 	}
 
-	private static final FunctionDescription DESCRIPTION = new Description();
+	public static final FunctionDescription DESCRIPTION = new Description();
 
 	private static final long serialVersionUID = 1L;
 

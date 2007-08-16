@@ -39,7 +39,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  */
 public class Subseq$ extends AbstractFunction {
 
-	public static final class Description implements FunctionDescription {
+	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
 			return "Extracts a specified range from a list and returns a new list containing just the sub-sequence. " +
@@ -109,7 +109,7 @@ public class Subseq$ extends AbstractFunction {
 		}
 	}
 
-	private static final FunctionDescription DESCRIPTION = new Description();
+	public static final FunctionDescription DESCRIPTION = new Description();
 
 	private static final long serialVersionUID = 1L;
 

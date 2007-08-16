@@ -34,7 +34,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  */
 public class AnyEq extends AbstractFunction {
 
-	public static final class Description implements FunctionDescription {
+	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
 			return "Any-eq is used to compare a literal value against one or more bindings. If any of the bindings is equal to the constant value, the function returns true.";

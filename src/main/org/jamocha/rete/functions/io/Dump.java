@@ -43,7 +43,7 @@ import org.jamocha.rule.Rule;
  */
 public class Dump extends AbstractFunction {
 
-	public static final class Description implements FunctionDescription {
+	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
 			return "Writes engine's deftemplates, defrules and facts into a file, which is compatible to the format expected by the batch function. Returns true iff everything could be dumped.";

@@ -33,7 +33,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  * replacement from the third argument.
  */
 public class StringReplaceAll extends AbstractFunction {
-	public static final class Description implements FunctionDescription {
+	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
 			return "Replaces the all substrings of the target string, given as first argument, "
@@ -94,7 +94,7 @@ public class StringReplaceAll extends AbstractFunction {
 		}
 	}
 
-	private static final FunctionDescription DESCRIPTION = new Description();
+	public static final FunctionDescription DESCRIPTION = new Description();
 
 	private static final long serialVersionUID = 1L;
 

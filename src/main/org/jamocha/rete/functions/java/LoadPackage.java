@@ -32,7 +32,7 @@ import org.jamocha.rete.functions.FunctionGroup;
  */
 public class LoadPackage extends AbstractFunction {
 
-	public static final class Description implements FunctionDescription {
+	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
 			return "Creates a Java object and returns true on success.";
@@ -77,7 +77,7 @@ public class LoadPackage extends AbstractFunction {
 		}
 	}
 
-	private static final FunctionDescription DESCRIPTION = new Description();
+	public static final FunctionDescription DESCRIPTION = new Description();
 
 	private static final long serialVersionUID = 1L;
 

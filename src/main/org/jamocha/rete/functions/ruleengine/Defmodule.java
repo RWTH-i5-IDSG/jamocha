@@ -40,7 +40,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  */
 public class Defmodule extends AbstractFunction {
 
-	public static final class Description implements FunctionDescription {
+	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
 			return "Defines a new module in the engine.\n"
@@ -95,7 +95,7 @@ public class Defmodule extends AbstractFunction {
 		}
 	}
 
-	private static final FunctionDescription DESCRIPTION = new Description();
+	public static final FunctionDescription DESCRIPTION = new Description();
 
 	private static final long serialVersionUID = 1L;
 

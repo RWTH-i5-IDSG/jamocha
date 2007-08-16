@@ -43,7 +43,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  */
 public class DeleteMember$ extends AbstractFunction {
 
-	public static final class Description implements FunctionDescription {
+	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
 			return "Deletes specific items from a list. Arguments can either be single items or lists of " +
@@ -114,7 +114,7 @@ public class DeleteMember$ extends AbstractFunction {
 		}
 	}
 
-	private static final FunctionDescription DESCRIPTION = new Description();
+	public static final FunctionDescription DESCRIPTION = new Description();
 
 	private static final long serialVersionUID = 1L;
 

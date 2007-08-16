@@ -36,7 +36,7 @@ import org.jamocha.rete.modules.Module;
  */
 public class Modules extends AbstractFunction {
 
-	public static final class Description implements FunctionDescription {
+	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
 			return "Prints out all the modules which are currently defined in the rule engine.";
@@ -80,7 +80,7 @@ public class Modules extends AbstractFunction {
 		}
 	}
 
-	private static final FunctionDescription DESCRIPTION = new Description();
+	public static final FunctionDescription DESCRIPTION = new Description();
 
 	private static final long serialVersionUID = 1L;
 

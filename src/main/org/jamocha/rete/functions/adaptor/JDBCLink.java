@@ -57,7 +57,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  */
 public class JDBCLink extends AbstractFunction {
 	
-	public static final class Description implements FunctionDescription {
+	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
 			return "Imports or exports facts to and from a database via a jdbc link.\n" +					

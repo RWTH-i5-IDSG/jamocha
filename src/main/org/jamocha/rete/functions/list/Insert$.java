@@ -40,7 +40,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  */
 public class Insert$ extends AbstractFunction {
 
-	public static final class Description implements FunctionDescription {
+	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
 			return "Inserts one or more items into an existing list at a specific position and returns the extended list. If a list of items is inserted each item of it is inserted separately, so there are no nested lists.\n" +
@@ -102,7 +102,7 @@ public class Insert$ extends AbstractFunction {
 		}
 	}
 
-	private static final FunctionDescription DESCRIPTION = new Description();
+	public static final FunctionDescription DESCRIPTION = new Description();
 
 	private static final long serialVersionUID = 1L;
 

@@ -39,7 +39,7 @@ import org.jamocha.rete.util.FactUtils;
  */
 public class SaveFacts extends AbstractFunction {
 
-	public static final class Description implements FunctionDescription {
+	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
 			return "Saves all facts in the engine to a file, specified in the first argument." +
@@ -107,7 +107,7 @@ public class SaveFacts extends AbstractFunction {
 		}
 	}
 
-	private static final FunctionDescription DESCRIPTION = new Description();
+	public static final FunctionDescription DESCRIPTION = new Description();
 
 	private static final long serialVersionUID = 1L;
 

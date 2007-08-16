@@ -38,7 +38,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  */
 public class PPrintTemplate extends AbstractFunction {
 
-	public static final class Description implements FunctionDescription {
+	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
 			return "Prints out one or more templates of the module currently in focus in a pretty format. " +
@@ -84,7 +84,7 @@ public class PPrintTemplate extends AbstractFunction {
 		}
 	}
 
-	private static final FunctionDescription DESCRIPTION = new Description();
+	public static final FunctionDescription DESCRIPTION = new Description();
 
 	private static final long serialVersionUID = 1L;
 

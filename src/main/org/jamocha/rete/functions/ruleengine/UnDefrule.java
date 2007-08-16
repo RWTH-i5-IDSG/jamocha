@@ -32,7 +32,7 @@ import org.jamocha.rule.Defrule;
  */
 public class UnDefrule extends AbstractFunction {
 
-	public static final class Description implements FunctionDescription {
+	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
 			return "Removes a rule in the engine. Returns true on success.";
@@ -92,7 +92,7 @@ public class UnDefrule extends AbstractFunction {
 		}
 	}
 
-	private static final FunctionDescription DESCRIPTION = new Description();
+	public static final FunctionDescription DESCRIPTION = new Description();
 
 	private static final long serialVersionUID = 1L;
 

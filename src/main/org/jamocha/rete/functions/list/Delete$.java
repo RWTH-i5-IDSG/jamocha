@@ -38,7 +38,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  */
 public class Delete$ extends AbstractFunction {
 
-	public static final class Description implements FunctionDescription {
+	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
 			return "Deletes a specified number of items from a list and returns the remaining values in a new list. The first integer defines the index of the first item to be removed and the second integer defines the index of the last item to be removed. Attention: Lists in Jamocha start with index 1.";
@@ -105,7 +105,7 @@ public class Delete$ extends AbstractFunction {
 		}
 	}
 
-	private static final FunctionDescription DESCRIPTION = new Description();
+	public static final FunctionDescription DESCRIPTION = new Description();
 
 	private static final long serialVersionUID = 1L;
 

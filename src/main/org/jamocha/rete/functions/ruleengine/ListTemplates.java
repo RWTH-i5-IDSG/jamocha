@@ -37,7 +37,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  */
 public class ListTemplates extends AbstractFunction {
 
-	public static final class Description implements FunctionDescription {
+	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
 			return "Prints out all defined templates in no specific order. The return value is NIL.";
@@ -80,7 +80,7 @@ public class ListTemplates extends AbstractFunction {
 		}
 	}
 
-	private static final FunctionDescription DESCRIPTION = new Description();
+	public static final FunctionDescription DESCRIPTION = new Description();
 
 	private static final long serialVersionUID = 1L;
 

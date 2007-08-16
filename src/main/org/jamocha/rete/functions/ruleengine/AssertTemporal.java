@@ -37,7 +37,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  */
 public class AssertTemporal extends AbstractFunction {
 
-	public static final class Description implements FunctionDescription {
+	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
 			return "Allows the user to add a temporal fact to the fact-list. If the fact-list is being watched, " +
@@ -83,7 +83,7 @@ public class AssertTemporal extends AbstractFunction {
 		}
 	}
 
-	private static final FunctionDescription DESCRIPTION = new Description();
+	public static final FunctionDescription DESCRIPTION = new Description();
 
 	private static final long serialVersionUID = 1L;
 

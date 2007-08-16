@@ -36,7 +36,7 @@ import org.jamocha.rule.Rule;
  */
 public class PPrintRule extends AbstractFunction {
 
-	public static final class Description implements FunctionDescription {
+	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
 			return "Prints out one or more rules in a pretty format. Note the format may not " +
@@ -94,7 +94,7 @@ public class PPrintRule extends AbstractFunction {
 		}
 	}
 
-	private static final FunctionDescription DESCRIPTION = new Description();
+	public static final FunctionDescription DESCRIPTION = new Description();
 
 	private static final long serialVersionUID = 1L;
 	

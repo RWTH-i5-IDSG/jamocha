@@ -35,7 +35,7 @@ import org.jamocha.rete.configurations.LoopForCountConfiguration;
  */
 public class LoopForCount extends AbstractFunction {
 
-	public static final class Description implements FunctionDescription {
+	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
 			return "loop-for-count counts up a given variable from a start index to an end index and executes a list of given actions. Returns the result of the last action executed.";

@@ -33,7 +33,7 @@ import org.jamocha.rete.util.ProfileStats;
  */
 public class PrintProfile extends AbstractFunction {
 
-	public static final class Description implements FunctionDescription {
+	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
 			return "Prints out the current profile information.";
@@ -76,7 +76,7 @@ public class PrintProfile extends AbstractFunction {
 		}
 	}
 
-	private static final FunctionDescription DESCRIPTION = new Description();
+	public static final FunctionDescription DESCRIPTION = new Description();
 
 	private static final long serialVersionUID = 1L;
 
