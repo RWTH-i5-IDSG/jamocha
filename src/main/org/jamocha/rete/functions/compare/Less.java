@@ -81,20 +81,21 @@ public class Less extends AbstractFunction {
 
 	private static final long serialVersionUID = 1L;
 
-	private static AbstractFunction _instance = null;
+	public static final FunctionDescription DESCRIPTION = new Description();
 
-	public static AbstractFunction getInstance() {
-		if (_instance == null) {
-			_instance = new Less();
-		}
-		return _instance;
-	}
+	public static final String NAME = "less";
 
-	private Less() {
-		name = "less";
-		description = new Description();
+	public Less() {
 		aliases.add("<");
 		aliases.add("beforedate");
+	}
+	
+	public FunctionDescription getDescription() {
+		return DESCRIPTION;
+	}
+
+	public String getName() {
+		return NAME;
 	}
 
 	public JamochaValue executeFunction(Rete engine, Parameter[] params)

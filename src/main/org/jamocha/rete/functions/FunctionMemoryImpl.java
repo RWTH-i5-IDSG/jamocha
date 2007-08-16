@@ -203,10 +203,10 @@ public class FunctionMemoryImpl implements FunctionMemory {
 		declareFunctionGroup(new HelpFunctions());
 
 		// Other builtin constructs
-		declareFunction(If.getInstance());
-		declareFunction(LoopForCount.getInstance());
-		declareFunction(Return.getInstance());
-		declareFunction(While.getInstance());
+		declareFunction(new If());
+		declareFunction(new LoopForCount());
+		declareFunction(new Return());
+		declareFunction(new While());
 	}
 
 	public void clearBuiltInFunctions() {

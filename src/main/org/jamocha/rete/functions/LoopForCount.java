@@ -83,18 +83,16 @@ public class LoopForCount extends AbstractFunction {
 
 	private static final long serialVersionUID = 1L;
 
-	private static AbstractFunction _instance = null;
-	
-	public static AbstractFunction getInstance() {
-		if(_instance == null) {
-			_instance = new LoopForCount();
-		}
-		return _instance;
+	public static final FunctionDescription DESCRIPTION = new Description();
+
+	public static final String NAME = "loop-for-count";
+
+	public FunctionDescription getDescription() {
+		return DESCRIPTION;
 	}
-	
-	private LoopForCount() {
-		name = "loop-for-count";
-		description = new Description();
+
+	public String getName() {
+		return NAME;
 	}
 
 	public JamochaValue executeFunction(Rete engine, Parameter[] params)

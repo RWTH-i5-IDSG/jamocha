@@ -49,8 +49,9 @@ public class IOFunctions implements FunctionGroup, Serializable {
 		functionMem.declareFunction(loadFacts);
 		funcs.add(loadFacts);
 
-		functionMem.declareFunction(Printout.getInstance());
-		funcs.add(Printout.getInstance());
+		Printout printout = new Printout();
+		functionMem.declareFunction(printout);
+		funcs.add(printout);
 		
 		Dump dump = new Dump();
 		functionMem.declareFunction(dump);
@@ -59,7 +60,7 @@ public class IOFunctions implements FunctionGroup, Serializable {
 		
 	}
 
-	public List listFunctions() {
+	public List<Function> listFunctions() {
 		return funcs;
 	}
 	

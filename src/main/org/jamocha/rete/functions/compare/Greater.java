@@ -81,20 +81,21 @@ public class Greater extends AbstractFunction {
 
 	private static final long serialVersionUID = 1L;
 
-	private static AbstractFunction _instance = null;
-	
-	public static AbstractFunction getInstance() {
-		if(_instance == null) {
-			_instance = new Greater();
-		}
-		return _instance;
-	}
-	
-	private Greater() {
-		name = "greater";
-		description = new Description();
+	public static final FunctionDescription DESCRIPTION = new Description();
+
+	public static final String NAME = "greater";
+
+	public Greater() {
 		aliases.add(">");
 		aliases.add("afterdate");
+	}
+	
+	public FunctionDescription getDescription() {
+		return DESCRIPTION;
+	}
+
+	public String getName() {
+		return NAME;
 	}
 
 	public JamochaValue executeFunction(Rete engine, Parameter[] params)

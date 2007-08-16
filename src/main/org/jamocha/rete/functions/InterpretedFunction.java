@@ -21,10 +21,10 @@ import org.jamocha.parser.Expression;
 import org.jamocha.parser.IllegalParameterException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
+import org.jamocha.rete.AbstractFunction;
 import org.jamocha.rete.BlockingScope;
 import org.jamocha.rete.BoundParam;
 import org.jamocha.rete.ExpressionSequence;
-import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 
@@ -35,12 +35,12 @@ import org.jamocha.rete.Rete;
  * defined through Deffunction. All actions of the deffunction are evaluated
  * with the given parameters for the deffunction.
  */
-public class InterpretedFunction implements Function {
+public class InterpretedFunction extends AbstractFunction {
 
 	private class InterpretedFunctionDescription implements FunctionDescription {
 
 		public String getDescription() {
-			return description;
+			return descriptionText;
 		}
 
 		public int getParameterCount() {
@@ -94,28 +94,28 @@ public class InterpretedFunction implements Function {
 		}
 	}
 
-	private FunctionDescription DESCRIPTION = new InterpretedFunctionDescription();
-
 	private static final long serialVersionUID = 1L;
+
+	private FunctionDescription description = new InterpretedFunctionDescription();
 
 	private String name = null;
 
-	private String description = null;
+	private String descriptionText = null;
 
 	protected Expression[] inputParams = null;
 
 	private ExpressionSequence actions = null;
 
-	public InterpretedFunction(String name, String description,
+	public InterpretedFunction(String name, String descriptionText,
 			Expression[] params, ExpressionSequence actions) {
 		this.name = name;
-		this.description = description;
+		this.descriptionText = descriptionText;
 		this.inputParams = params;
 		this.actions = actions;
 	}
 
 	public FunctionDescription getDescription() {
-		return DESCRIPTION;
+		return description;
 	}
 
 	public String getName() {

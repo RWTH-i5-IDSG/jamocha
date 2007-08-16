@@ -129,20 +129,19 @@ public class IteratorImporter extends AbstractFunction {
 
 	private static final long serialVersionUID = 1L;
 
-	private static AbstractFunction _instance = null;
-	
-	public static AbstractFunction getInstance() {
-		if(_instance == null) {
-			_instance = new IteratorImporter();
-		}
-		return _instance;
-	}
-	
-	private IteratorImporter() {
-		name = "iteratorimporter";
-		description = new Description();
+	public static final FunctionDescription DESCRIPTION = new Description();
+
+	public static final String NAME = "iteratorimporter";
+
+	public FunctionDescription getDescription() {
+		return DESCRIPTION;
 	}
 
+	public String getName() {
+		return NAME;
+	}
+
+	@SuppressWarnings("unchecked")
 	public JamochaValue executeFunction(Rete engine, Parameter[] params)
 			throws EvaluationException {
 

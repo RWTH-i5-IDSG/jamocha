@@ -372,8 +372,7 @@ public class SFPInterpreter implements SFPParserVisitor {
 		}
 		Parameter params[] = { ifElseConf };
 		Signature funcParam = new Signature();
-		funcParam.setSignatureName(If.getInstance()
-				.getName());
+		funcParam.setSignatureName(If.NAME);
 		funcParam.setParameters(params);
 		return funcParam;
 	}
@@ -386,7 +385,7 @@ public class SFPInterpreter implements SFPParserVisitor {
 				.jjtAccept(this, data));
 		Parameter params[] = { whileDoConf };
 		Signature funcParam = new Signature();
-		funcParam.setSignatureName(While.getInstance().getName());
+		funcParam.setSignatureName(While.NAME);
 		funcParam.setParameters(params);
 		return funcParam;
 	}
@@ -406,7 +405,7 @@ public class SFPInterpreter implements SFPParserVisitor {
 				.jjtAccept(this, data));
 		Parameter params[] = { lfcConf };
 		Signature funcParam = new Signature();
-		funcParam.setSignatureName(LoopForCount.getInstance().getName());
+		funcParam.setSignatureName(LoopForCount.NAME);
 		funcParam.setParameters(params);
 		return funcParam;
 	}

@@ -43,7 +43,7 @@ public class DeffunctionGroup implements FunctionGroup {
         return this.name;
     }
 
-    public List listFunctions() {
+    public List<Function> listFunctions() {
         return funcs;
     }
 

@@ -46,8 +46,9 @@ public class HelpFunctions implements FunctionGroup, Serializable {
 		functionMem.declareFunction(example);
 		funcs.add(example);
 
-		functionMem.declareFunction(Usage.getInstance());
-		funcs.add(Usage.getInstance());
+		Usage usage = new Usage();
+		functionMem.declareFunction(usage);
+		funcs.add(usage);
 	}
 
 	public List<Function> listFunctions() {

@@ -20,8 +20,6 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.jamocha.formatter.Formatter;
 import org.jamocha.parser.EvaluationException;
@@ -115,7 +113,7 @@ public class Dump implements Function, Serializable {
 			
 			Module mod = engine.findModule(modName);
 			
-			Map additionalInformation = new HashMap();
+//			Map additionalInformation = new HashMap();
 			
 			
 			

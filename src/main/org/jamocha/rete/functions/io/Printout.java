@@ -80,21 +80,19 @@ public class Printout extends AbstractFunction {
 			return true;
 		}
 	}
-	
+
 	private static final long serialVersionUID = 1L;
 
-	private static AbstractFunction _instance = null;
-	
-	public static AbstractFunction getInstance() {
-		if(_instance == null) {
-			_instance = new Printout();
-		}
-		return _instance;
+	public static final FunctionDescription DESCRIPTION = new Description();
+
+	public static final String NAME = "printout";
+
+	public FunctionDescription getDescription() {
+		return DESCRIPTION;
 	}
-	
-	private Printout() {
-		name = "printout";
-		description = new Description();
+
+	public String getName() {
+		return NAME;
 	}
 
 	public JamochaValue executeFunction(Rete engine, Parameter[] params)

@@ -79,18 +79,16 @@ public class Return extends AbstractFunction {
 
 	private static final long serialVersionUID = 1L;
 
-	private static AbstractFunction _instance = null;
+	public static final FunctionDescription DESCRIPTION = new Description();
 
-	public static AbstractFunction getInstance() {
-		if (_instance == null) {
-			_instance = new Return();
-		}
-		return _instance;
+	public static final String NAME = "return";
+
+	public FunctionDescription getDescription() {
+		return DESCRIPTION;
 	}
 
-	private Return() {
-		name = "return";
-		description = new Description();
+	public String getName() {
+		return NAME;
 	}
 
 	public JamochaValue executeFunction(Rete engine, Parameter[] params)

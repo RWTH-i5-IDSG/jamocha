@@ -10,33 +10,18 @@ import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.functions.FunctionDescription;
 
 public abstract class AbstractFunction implements Function, Formattable {
-
-	protected FunctionDescription description = null;
-
-	protected String name = "";
-
+	
 	protected List<String> aliases = new ArrayList<String>();
 
-	protected AbstractFunction() {
+	public AbstractFunction() {
 	}
 	
-	public static AbstractFunction getInstance() {
-		return null;
-	}
-	
-	public JamochaValue executeFunction(Rete engine, Parameter[] params)
-			throws EvaluationException {
-		// TODO Auto-generated method stub
-		return null;
-	}
+	public abstract JamochaValue executeFunction(Rete engine, Parameter[] params)
+			throws EvaluationException;
 
-	public FunctionDescription getDescription() {
-		return description;
-	}
+	public abstract FunctionDescription getDescription();
 
-	public String getName() {
-		return name;
-	}
+	public abstract String getName();
 
 	public List<String> getAliases() {
 		return aliases;

@@ -81,19 +81,20 @@ public class LessOrEqual extends AbstractFunction {
 
 	private static final long serialVersionUID = 1L;
 
-	private static AbstractFunction _instance = null;
+	public static final FunctionDescription DESCRIPTION = new Description();
 
-	public static AbstractFunction getInstance() {
-		if (_instance == null) {
-			_instance = new LessOrEqual();
-		}
-		return _instance;
+	public static final String NAME = "lessOrEqual";
+
+	public LessOrEqual() {
+		aliases.add("<=");
+	}
+	
+	public FunctionDescription getDescription() {
+		return DESCRIPTION;
 	}
 
-	private LessOrEqual() {
-		name = "lessOrEqual";
-		description = new Description();
-		aliases.add("<=");
+	public String getName() {
+		return NAME;
 	}
 
 	public JamochaValue executeFunction(Rete engine, Parameter[] params)

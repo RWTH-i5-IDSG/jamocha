@@ -42,17 +42,21 @@ public class AdaptorFunctions implements FunctionGroup {
 		// jdbclink-init is called. Otherwise the template is always in the
 		// engine although it isn't needed.
 
-		functionMem.declareFunction(JDBCLink.getInstance());
-		funcs.add(JDBCLink.getInstance());
-		
-		functionMem.declareFunction(JDBCLinkInit.getInstance());
-		funcs.add(JDBCLinkInit.getInstance());
-		
-		functionMem.declareFunction(IteratorImporter.getInstance());
-		funcs.add(IteratorImporter.getInstance());
-		
-		functionMem.declareFunction(IteratorExporter.getInstance());
-		funcs.add(IteratorExporter.getInstance());
+		JDBCLink jdbcLink = new JDBCLink();
+		functionMem.declareFunction(jdbcLink);
+		funcs.add(jdbcLink);
+
+		JDBCLinkInit jdbcLinkInit = new JDBCLinkInit();
+		functionMem.declareFunction(jdbcLinkInit);
+		funcs.add(jdbcLinkInit);
+
+		IteratorImporter iteratorImporter = new IteratorImporter();
+		functionMem.declareFunction(iteratorImporter);
+		funcs.add(iteratorImporter);
+
+		IteratorExporter iteratorExporter = new IteratorExporter();
+		functionMem.declareFunction(iteratorExporter);
+		funcs.add(iteratorExporter);
 	}
 
 	public List<Function> listFunctions() {

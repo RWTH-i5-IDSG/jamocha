@@ -16,11 +16,10 @@
  */
 package org.jamocha.rete.functions.help;
 
-import org.jamocha.formatter.Formatter;
-import org.jamocha.formatter.HelpFormatter;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
+import org.jamocha.parser.ParserFactory;
 import org.jamocha.rete.AbstractFunction;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
@@ -80,24 +79,22 @@ public class Usage extends AbstractFunction {
 
 	private static final long serialVersionUID = 1L;
 
-	private static AbstractFunction _instance = null;
-	
-	public static AbstractFunction getInstance() {
-		if(_instance == null) {
-			_instance = new Usage();
-		}
-		return _instance;
+	public static final FunctionDescription DESCRIPTION = new Description();
+
+	public static final String NAME = "usage";
+
+	public FunctionDescription getDescription() {
+		return DESCRIPTION;
 	}
-	
-	private Usage() {
-		name = "usage";
-		description = new Description();
+
+	public String getName() {
+		return NAME;
 	}
 
 	public JamochaValue executeFunction(Rete engine, Parameter[] params)
 			throws EvaluationException {
-		Formatter form = new HelpFormatter();
-		JamochaValue result = JamochaValue.newString(this.format(form));
+		JamochaValue result = JamochaValue.newString(this.format(ParserFactory
+				.getFormatter()));
 		if (params != null && params.length == 1) {
 			JamochaValue firstParam = params[0].getValue(engine);
 			String function = firstParam.getStringValue();
@@ -107,7 +104,7 @@ public class Usage extends AbstractFunction {
 				if (aFunction instanceof AbstractFunction) {
 					result = JamochaValue
 							.newString(((AbstractFunction) aFunction)
-									.format(form));
+									.format(ParserFactory.getFormatter()));
 				}
 			}
 		}

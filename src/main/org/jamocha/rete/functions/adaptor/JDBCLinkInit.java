@@ -30,8 +30,7 @@ import org.jamocha.rete.functions.FunctionDescription;
 /**
  * @author Alexander Wilden
  * 
- * Initializes the JDBC adaptor by defining the jdbclink template. Returns true
- * on success.
+ * Initializes the JDBC adaptor by defining the jdbclink template. Returns true on success.
  */
 public class JDBCLinkInit extends AbstractFunction {
 
@@ -70,24 +69,26 @@ public class JDBCLinkInit extends AbstractFunction {
 		}
 
 		public String getExample() {
-			return "(deftemplate templ (slot a) (slot b) (slot c) (slot foo) )\n"
-					+ "(jdbclink-init)\n"
-					+ "(assert\n"
-					+ "	(jdbclink\n"
-					+ "		(JDBCdriver \"com.mysql.jdbc.Driver\")\n"
-					+ "		(ConnectionName \"db\")\n"
-					+ "		(TableName \"test\")\n"
-					+ "		(TemplateName \"templ\")\n"
-					+ "		(Username \"jamocha\")\n"
-					+ "		(Password \"secret\")\n"
-					+ "		(JDBCurl \"jdbc:mysql://134.130.113.67:3306/jamocha\")\n"
-					+ "	)\n"
-					+ ")\n"
-					+ "(assert\n"
-					+ "	(jdbccondition\n"
-					+ "		(SlotName \"foo\")\n"
-					+ "		(BooleanOperator \">\")\n"
-					+ "		(Value 2007-04-27 19:00+1)\n" + "	)\n" + ")";
+			return "(deftemplate templ (slot a) (slot b) (slot c) (slot foo) )\n" +
+					"(jdbclink-init)\n" +
+					"(assert\n" +
+					"	(jdbclink\n" +
+					"		(JDBCdriver \"com.mysql.jdbc.Driver\")\n" +
+					"		(ConnectionName \"db\")\n" +
+					"		(TableName \"test\")\n" +
+					"		(TemplateName \"templ\")\n" +
+					"		(Username \"jamocha\")\n" +
+					"		(Password \"secret\")\n" +
+					"		(JDBCurl \"jdbc:mysql://134.130.113.67:3306/jamocha\")\n" +
+					"	)\n" +
+					")\n" +
+					"(assert\n" +
+					"	(jdbccondition\n" +
+					"		(SlotName \"foo\")\n" +
+					"		(BooleanOperator \">\")\n" +
+					"		(Value 2007-04-27 19:00+1)\n" +
+					"	)\n" +
+					")";
 		}
 
 		public boolean isResultAutoGeneratable() {
@@ -98,25 +99,23 @@ public class JDBCLinkInit extends AbstractFunction {
 
 	private static final long serialVersionUID = 1L;
 
-	private static AbstractFunction _instance = null;
+	public static final FunctionDescription DESCRIPTION = new Description();
 
-	public static AbstractFunction getInstance() {
-		if (_instance == null) {
-			_instance = new JDBCLinkInit();
-		}
-		return _instance;
+	public static final String NAME = "jdbclink-init";
+
+	public FunctionDescription getDescription() {
+		return DESCRIPTION;
 	}
 
-	private JDBCLinkInit() {
-		name = "jdbclink-init";
-		description = new Description();
+	public String getName() {
+		return NAME;
 	}
 
 	public JamochaValue executeFunction(Rete engine, Parameter[] params)
 			throws EvaluationException {
 		// define deftemplate jdbclink
 		String templateName = "jdbclink";
-		if (engine.getCurrentFocus().getTemplate(templateName) == null) {
+		if (engine.findModule("MAIN").getTemplate(templateName) == null) {
 			TemplateSlot[] slots = new TemplateSlot[7];
 			slots[0] = new TemplateSlot("ConnectionName");
 			slots[1] = new TemplateSlot("TableName");
@@ -129,11 +128,11 @@ public class JDBCLinkInit extends AbstractFunction {
 				slots[i].setValueType(JamochaType.STRING);
 			Template jdbcConfigTemplate = new Deftemplate(templateName, null,
 					slots);
-			engine.getCurrentFocus().addTemplate(jdbcConfigTemplate);
+			engine.findModule("MAIN").addTemplate(jdbcConfigTemplate);
 		}
-		// define deftemplate jdbccondition
+		// define deftemplate jdbccondition	
 		templateName = "jdbccondition";
-		if (engine.getCurrentFocus().getTemplate(templateName) == null) {
+		if (engine.findModule("MAIN").getTemplate(templateName) == null) {
 			TemplateSlot[] slots = new TemplateSlot[3];
 			slots[0] = new TemplateSlot("SlotName");
 			slots[1] = new TemplateSlot("BooleanOperator");
@@ -141,8 +140,8 @@ public class JDBCLinkInit extends AbstractFunction {
 			slots[0].setValueType(JamochaType.STRING);
 			slots[1].setValueType(JamochaType.STRING);
 			Template jdbcConfigTemplate = new Deftemplate(templateName, null,
-					slots);
-			engine.getCurrentFocus().addTemplate(jdbcConfigTemplate);
+					slots);	
+			engine.findModule("MAIN").addTemplate(jdbcConfigTemplate);
 		}
 		return JamochaValue.TRUE;
 	}
