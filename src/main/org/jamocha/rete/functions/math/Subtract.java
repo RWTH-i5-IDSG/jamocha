@@ -85,6 +85,10 @@ public class Subtract extends Function {
 	private static final long serialVersionUID = 1L;
 
 	public static final String NAME = "subtract";
+	
+	public Subtract() {
+		aliases.add("-");
+	}
 
 	public FunctionDescription getDescription() {
 		return DESCRIPTION;

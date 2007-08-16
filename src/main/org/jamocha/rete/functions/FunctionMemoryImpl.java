@@ -79,7 +79,7 @@ public class FunctionMemoryImpl implements FunctionMemory {
 
 	public Function findFunction(String name) {
 		Function result = this.functions.get(name);
-		if(result == null)
+		if (result == null)
 			result = this.aliases.get(name);
 		return result;
 	}
@@ -92,6 +92,10 @@ public class FunctionMemoryImpl implements FunctionMemory {
 	 */
 	public void declareFunction(Function func) {
 		this.functions.put(func.getName(), func);
+		List<String> aliases = func.getAliases();
+		for (String alias : aliases) {
+			this.aliases.put(alias, func);
+		}
 		if (func instanceof InterpretedFunction) {
 			this.declareFunctionInDefaultGroup(func);
 		}
@@ -99,6 +103,10 @@ public class FunctionMemoryImpl implements FunctionMemory {
 
 	public void declareFunction(Function func, String functionGroupName) {
 		this.functions.put(func.getName(), func);
+		List<String> aliases = func.getAliases();
+		for (String alias : aliases) {
+			this.aliases.put(alias, func);
+		}
 		if (func instanceof InterpretedFunction)
 			this.declareFunctionInGroup(func, functionGroupName);
 	}
@@ -110,11 +118,11 @@ public class FunctionMemoryImpl implements FunctionMemory {
 	 * @param alias
 	 * @param func
 	 */
-	public void declareFunction(String alias, Function func) {
-		this.functions.put(alias, func);
-		if (func instanceof InterpretedFunction)
-			declareFunctionInDefaultGroup(func);
-	}
+//	public void declareFunction(String alias, Function func) {
+//		this.functions.put(alias, func);
+//		if (func instanceof InterpretedFunction)
+//			declareFunctionInDefaultGroup(func);
+//	}
 
 	/**
 	 * Method will create an instance of the function and declare it. Once a

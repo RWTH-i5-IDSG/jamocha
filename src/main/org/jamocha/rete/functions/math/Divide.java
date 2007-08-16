@@ -86,6 +86,10 @@ public class Divide extends Function {
 	private static final long serialVersionUID = 1L;
 
 	public static final String NAME = "divide";
+	
+	public Divide() {
+		aliases.add("/");
+	}
 
 	public FunctionDescription getDescription() {
 		return DESCRIPTION;

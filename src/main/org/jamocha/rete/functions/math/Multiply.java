@@ -88,6 +88,10 @@ public class Multiply extends Function {
 	private static final long serialVersionUID = 1L;
 
 	public static final String NAME = "multiply";
+	
+	public Multiply() {
+		aliases.add("*");
+	}
 
 	public FunctionDescription getDescription() {
 		return DESCRIPTION;

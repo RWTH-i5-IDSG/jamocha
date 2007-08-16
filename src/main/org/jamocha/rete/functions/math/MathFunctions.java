@@ -64,13 +64,6 @@ public class MathFunctions extends FunctionGroup {
 		addFunction(functionMem, new Subtract());
 		addFunction(functionMem, new Tan());
 		addFunction(functionMem, new Tanh());
-		
-		// now we add the functions under alias
-//		functionMem.declareFunction("+", add);
-//		functionMem.declareFunction("-", sub);
-//		functionMem.declareFunction("*", mul);
-//		functionMem.declareFunction("/", div);
-//		functionMem.declareFunction("**", pow);
 	}
 
 }

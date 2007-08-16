@@ -14,7 +14,7 @@
  * limitations under the License.
  * 
  */
-package org.jamocha.rete;
+package org.jamocha;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +24,8 @@ import org.jamocha.messagerouter.MessageRouter;
 import org.jamocha.messagerouter.StreamChannel;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.parser.ModeNotFoundException;
+import org.jamocha.rete.Constants;
+import org.jamocha.rete.Rete;
 
 /**
  * This class represents a simple command line shell on System.in / System.out.

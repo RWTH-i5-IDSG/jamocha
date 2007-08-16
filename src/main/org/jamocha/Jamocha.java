@@ -23,7 +23,6 @@ import org.jamocha.gui.JamochaGui;
 import org.jamocha.parser.ModeNotFoundException;
 import org.jamocha.parser.ParserFactory;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.Shell;
 
 /**
  * @author Alexander Wilden

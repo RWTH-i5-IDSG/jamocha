@@ -41,7 +41,7 @@ public interface FunctionMemory extends Serializable {
 	
 	public void declareFunction(Function func, String functionGroupName);
 	
-	public void declareFunction(String alias, Function func);
+//	public void declareFunction(String alias, Function func);
 	
 	public void declareFunctionGroup(String name); 
 	

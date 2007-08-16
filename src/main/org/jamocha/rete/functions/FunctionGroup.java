@@ -76,8 +76,7 @@ public abstract class FunctionGroup implements Serializable {
 	}
 
 	/**
-	 * This method adds the Functions to this Group and also all its aliases to
-	 * the FunctionMemory.
+	 * This method adds the Functions to this Group and to the FunctionMemory.
 	 * 
 	 * @param functionMem
 	 *            The FunctionMemory the Function should be added to.
@@ -87,9 +86,5 @@ public abstract class FunctionGroup implements Serializable {
 	public final void addFunction(FunctionMemory functionMem, Function function) {
 		functionMem.declareFunction(function);
 		addFunction(function);
-		List<String> aliases = ((Function) function).getAliases();
-		for (String alias : aliases) {
-			functionMem.declareFunction(alias, function);
-		}
 	}
 }
