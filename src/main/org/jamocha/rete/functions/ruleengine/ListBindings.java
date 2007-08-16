@@ -16,7 +16,6 @@
  */
 package org.jamocha.rete.functions.ruleengine;
 
-import java.io.Serializable;
 import java.util.Map;
 import java.util.Set;
 
@@ -24,9 +23,9 @@ import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Constants;
-import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
+import org.jamocha.rete.functions.AbstractFunction;
 import org.jamocha.rete.functions.FunctionDescription;
 
 /**
@@ -35,7 +34,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  * Prints out a list of all bindings and defglobals defined in the current scope. The return
  * value is NIL.
  */
-public class ListBindings implements Function, Serializable {
+public class ListBindings extends AbstractFunction {
 
 	private static final class Description implements FunctionDescription {
 

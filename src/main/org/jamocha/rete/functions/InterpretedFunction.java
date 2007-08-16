@@ -21,7 +21,6 @@ import org.jamocha.parser.Expression;
 import org.jamocha.parser.IllegalParameterException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.rete.AbstractFunction;
 import org.jamocha.rete.BlockingScope;
 import org.jamocha.rete.BoundParam;
 import org.jamocha.rete.ExpressionSequence;

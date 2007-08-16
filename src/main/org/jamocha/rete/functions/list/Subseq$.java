@@ -16,16 +16,14 @@
  */
 package org.jamocha.rete.functions.list;
 
-import java.io.Serializable;
-
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.IllegalParameterException;
 import org.jamocha.parser.IllegalTypeException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
+import org.jamocha.rete.functions.AbstractFunction;
 import org.jamocha.rete.functions.FunctionDescription;
 
 /**
@@ -39,7 +37,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  * Attention: Lists in Jamocha start with index 1.
  * </p>
  */
-public class Subseq$ implements Function, Serializable {
+public class Subseq$ extends AbstractFunction {
 
 	private static final class Description implements FunctionDescription {
 

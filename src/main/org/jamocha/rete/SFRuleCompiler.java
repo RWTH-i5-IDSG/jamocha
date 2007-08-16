@@ -31,6 +31,7 @@ import org.jamocha.logging.DefaultLogger;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.IllegalConversionException;
 import org.jamocha.parser.JamochaValue;
+import org.jamocha.parser.RuleException;
 import org.jamocha.rete.configurations.Signature;
 import org.jamocha.rete.exception.AssertException;
 import org.jamocha.rete.exception.RetractException;
@@ -94,7 +95,7 @@ import org.jamocha.rule.TestCondition;
 // TODO use ObjectType Node of InitialFact only at empty LHS rules
 // TODO implement / optimize node sharing
 // TODO clean up "node-waste" if an exception occured during rule compilation.
-//		At the moment unused nodes remain in the network.
+// At the moment unused nodes remain in the network.
 // TODO finish this todo list ;)
 public class SFRuleCompiler implements RuleCompiler {
 
@@ -104,7 +105,7 @@ public class SFRuleCompiler implements RuleCompiler {
 		public int slotIndex;
 
 		public int operator;
-		
+
 		public boolean canBePivot;
 
 		public BindingAddress(int conditionIndex, int slotIndex, int operator) {
@@ -122,8 +123,8 @@ public class SFRuleCompiler implements RuleCompiler {
 
 			return this.slotIndex - o.slotIndex;
 		}
-		
-		public String toString(){
+
+		public String toString() {
 			StringBuilder result = new StringBuilder();
 			result.append("TupleIndex: ");
 			result.append(tupleIndex);
@@ -269,7 +270,7 @@ public class SFRuleCompiler implements RuleCompiler {
 	static final long serialVersionUID = 0xDeadBeafCafeBabeL;
 
 	private Rete engine = null;
-	
+
 	private ReteNet net = null;
 
 	protected RootNode root = null;
@@ -320,7 +321,7 @@ public class SFRuleCompiler implements RuleCompiler {
 			String[] sp = text.split("::"); //$NON-NLS-1$
 			rule.setName(sp[1]);
 			String modName = sp[0].toUpperCase();
-			currentMod = engine.getModules().getModule(modName,false);
+			currentMod = engine.getModules().getModule(modName, false);
 		} else {
 			currentMod = engine.getCurrentFocus();
 		}
@@ -418,20 +419,21 @@ public class SFRuleCompiler implements RuleCompiler {
 	public void removeListener(CompilerListener listener) {
 		this.listener.remove(listener);
 	}
-	
-	public BaseNode compileRule(Rule rule) throws AssertException, StopCompileException {
+
+	public BaseNode compileRule(Rule rule) throws AssertException, StopCompileException, RuleException {
 		rule.resolveTemplates(engine);
 		this.setModule(rule);
-		if (rule.getConditions()!=null && rule.getConditions().length > 0) {
+		if (rule.getConditions() != null && rule.getConditions().length > 0) {
 			Condition[] conds = rule.getConditions();
-			for (int i = 0; i < conds.length; i++) conds[i].compile(this, rule, i);
+			for (int i = 0; i < conds.length; i++)
+				conds[i].compile(this, rule, i);
 			return compileJoins(rule);
-		} else /*if (rule.getConditions().length == 0)*/ {
+		} else /* if (rule.getConditions().length == 0) */{
 			return root.activateObjectTypeNode(engine.initFact, net);
 		}
 	}
 
-	public boolean addRule(Rule rule) throws AssertException {
+	public boolean addRule(Rule rule) throws AssertException, RuleException {
 		boolean result = false;
 		TerminalNode tnode = createTerminalNode(rule);
 		BaseNode lastNode;
@@ -450,100 +452,116 @@ public class SFRuleCompiler implements RuleCompiler {
 		result = true;
 		return result;
 	}
-	
-	protected void rearrangeConditions(Condition[] conds){
-		BindingAddressesTable bat = computeBindingAddressTable(conds);
-		for ( int i=0 ; i<conds.length ; i++ ) {
-			Condition c = conds[i];
-			
-//			if (c instanceof IsQuantorCondition){
-//				// for each constraint of our quantor condition, we have to check,
-//				// whether it is already available at the given position.
-//				for (Constraint constr : ((IsQuantorCondition)c).getObjectCondition().getConstraints()  ) {
-//					
-//					if (!(constr instanceof BoundConstraint)) continue;
-//					
-//					BoundConstraint bc = (BoundConstraint) constr;
-//					BindingAddress pivot = bat.getPivot(bc.getVariableName());
-//					
-//					if (pivot.tupleIndex > conditionIndexToTupleIndex(i, conds.length) ) {
-//						//shift them
-//						for ( int j=i ; j > 0 ; j-- ) {
-//							conds[j] = conds[j-1];
-//						}
-//						conds[0] = c;
-//						rearrangeConditions(conds); //TODO: better way? thats simple but not efficient ^^
-//						return;
-//					}
-//					
-//				}
-//			}
-			
-		}
-		
-	}
-	
 
-	protected BaseNode compileJoins(Rule rule) throws AssertException {
+	protected void rearrangeConditions(Condition[] conds) {
+		BindingAddressesTable bat = computeBindingAddressTable(conds);
+		for (int i = 0; i < conds.length; i++) {
+			Condition c = conds[i];
+
+			// if (c instanceof IsQuantorCondition){
+			// // for each constraint of our quantor condition, we have to
+			// check,
+			// // whether it is already available at the given position.
+			// for (Constraint constr :
+			// ((IsQuantorCondition)c).getObjectCondition().getConstraints() ) {
+			//					
+			// if (!(constr instanceof BoundConstraint)) continue;
+			//					
+			// BoundConstraint bc = (BoundConstraint) constr;
+			// BindingAddress pivot = bat.getPivot(bc.getVariableName());
+			//					
+			// if (pivot.tupleIndex > conditionIndexToTupleIndex(i,
+			// conds.length) ) {
+			// //shift them
+			// for ( int j=i ; j > 0 ; j-- ) {
+			// conds[j] = conds[j-1];
+			// }
+			// conds[0] = c;
+			// rearrangeConditions(conds); //TODO: better way? thats simple but
+			// not efficient ^^
+			// return;
+			// }
+			//					
+			// }
+			// }
+
+		}
+
+	}
+
+	protected BaseNode compileJoins(Rule rule) throws AssertException, RuleException {
 		// take the last node from each condition and connect them by joins
 		// regarding the complexity
-		Condition[] sortedConds = rule.getObjectConditions().clone(); Arrays.sort(sortedConds);
-		
-		rearrangeConditions(sortedConds);
-		
-		HashMap<Condition, BaseNode> conditionJoiners = new HashMap<Condition, BaseNode>();
-		BaseNode initFactNode = root.activateObjectTypeNode(engine.initFact, net);
-		
-		
-		BaseNode mostBottomNode = null;
-		
-		BaseNode fromBottom = null;
-		for (int i = 0; i < sortedConds.length; i++) {
-			
-			Condition c = sortedConds[i];
-			AbstractBeta newBeta = null;
-			
-			if (c instanceof ObjectCondition) newBeta = new BetaFilterNode(net.nextNodeId());
-			else if (c instanceof NotCondition) newBeta = new BetaQuantorFilterNode(net.nextNodeId(),true);
-			else if (c instanceof ExistCondition) newBeta = new BetaQuantorFilterNode(net.nextNodeId(),false);
-			
-			if (fromBottom == null){
-				mostBottomNode = newBeta;
-			} else {
-				newBeta.addNode(fromBottom, net);				
-			}
-			
-			fromBottom = newBeta;
-			
-			c.getLastNode().addNode(newBeta, net);
-			
-			conditionJoiners.put(c, newBeta);
-			
+		Condition[] sortedConds = rule.getObjectConditions().clone();
+		Arrays.sort(sortedConds);
+
+		if (rule.getName().equals("validateParams"))
+		{
+		System.out.println(rule.getName());
 		}
 		
-		if (fromBottom != null) initFactNode.addNode(fromBottom, net);
-		
-		if (mostBottomNode == null) mostBottomNode = sortedConds[0].getLastNode();
-		
-		
+		rearrangeConditions(sortedConds);
+
+		HashMap<Condition, BaseNode> conditionJoiners = new HashMap<Condition, BaseNode>();
+		BaseNode initFactNode = root.activateObjectTypeNode(engine.initFact, net);
+
+		BaseNode mostBottomNode = null;
+
+		BaseNode fromBottom = null;
+		for (int i = 0; i < sortedConds.length; i++) {
+
+			Condition c = sortedConds[i];
+			AbstractBeta newBeta = null;
+
+			if (c instanceof ObjectCondition)
+				newBeta = new BetaFilterNode(net.nextNodeId());
+			else if (c instanceof NotCondition)
+				newBeta = new BetaQuantorFilterNode(net.nextNodeId(), true);
+			else if (c instanceof ExistCondition)
+				newBeta = new BetaQuantorFilterNode(net.nextNodeId(), false);
+
+			if (fromBottom == null) {
+				mostBottomNode = newBeta;
+			} else {
+				newBeta.addNode(fromBottom, net);
+			}
+
+			fromBottom = newBeta;
+
+			BaseNode cLastNode = c.getLastNode();
+			if (cLastNode == null)
+				throw new RuleException("Rule Compilation Error in:" + rule.getName());
+			cLastNode.addNode(newBeta, net);
+
+			conditionJoiners.put(c, newBeta);
+
+		}
+
+		if (fromBottom != null)
+			initFactNode.addNode(fromBottom, net);
+
+		if (mostBottomNode == null)
+			mostBottomNode = sortedConds[0].getLastNode();
+
 		BaseNode ultimateMostBottomNode = compileBindings(rule, sortedConds, conditionJoiners, mostBottomNode);
-		//activate all joins
-		for (BaseNode n : conditionJoiners.values()){
-			if (n == null) continue;
-			((AbstractBeta)n).activate(net);
+		// activate all joins
+		for (BaseNode n : conditionJoiners.values()) {
+			if (n == null)
+				continue;
+			((AbstractBeta) n).activate(net);
 		}
 		return ultimateMostBottomNode;
 	}
-	
-	public int conditionIndexToTupleIndex(int cond, int condCount){
+
+	public int conditionIndexToTupleIndex(int cond, int condCount) {
 		return condCount - cond;
 	}
-	
-	public int tupleIndexToConditionIndex(int tupleInd, int condCount){
+
+	public int tupleIndexToConditionIndex(int tupleInd, int condCount) {
 		return condCount - tupleInd;
 	}
-	
-	protected BindingAddressesTable computeBindingAddressTable(Condition[] conds){
+
+	protected BindingAddressesTable computeBindingAddressTable(Condition[] conds) {
 		BindingAddressesTable bindingAddressTable = new BindingAddressesTable();
 		// Iterate of all conditions and constraints
 		for (int i = 0; i < conds.length; i++) {
@@ -552,22 +570,21 @@ public class SFRuleCompiler implements RuleCompiler {
 				ObjectCondition oc = null;
 				if (conds[i] instanceof ObjectCondition) {
 					oc = (ObjectCondition) conds[i];
-				} else if (conds[i] instanceof NotCondition){
-					oc = ((ObjectCondition)((NotCondition) conds[i]).getNestedConditionalElement().get(0));
-				} else if (conds[i] instanceof ExistCondition){
-					oc = ((ObjectCondition)((ExistCondition) conds[i]).getNestedConditionalElement().get(0));
+				} else if (conds[i] instanceof NotCondition) {
+					oc = ((ObjectCondition) ((NotCondition) conds[i]).getNestedConditionalElement().get(0));
+				} else if (conds[i] instanceof ExistCondition) {
+					oc = ((ObjectCondition) ((ExistCondition) conds[i]).getNestedConditionalElement().get(0));
 				}
-				
-				
+
 				for (Constraint c : oc.getConstraints()) {
 					// if we found a BoundConstraint
 					if (c instanceof BoundConstraint) {
 						BoundConstraint bc = (BoundConstraint) c;
 						BindingAddress ba;
 						if (bc.getIsObjectBinding()) {
-							ba = new BindingAddress( conditionIndexToTupleIndex(i, conds.length) , -1, bc.getOperator());
+							ba = new BindingAddress(conditionIndexToTupleIndex(i, conds.length), -1, bc.getOperator());
 						} else {
-							ba = new BindingAddress( conditionIndexToTupleIndex(i, conds.length) , bc.getSlot().getId(),bc.getOperator());
+							ba = new BindingAddress(conditionIndexToTupleIndex(i, conds.length), bc.getSlot().getId(), bc.getOperator());
 						}
 						ba.canBePivot = !(conds[i] instanceof ExistCondition || conds[i] instanceof NotCondition);
 						bindingAddressTable.addBindingAddress(ba, bc.getVariableName());
@@ -599,11 +616,10 @@ public class SFRuleCompiler implements RuleCompiler {
 
 		BindingAddressesTable bindingAddressTable = computeBindingAddressTable(conds);
 
-
 		// create bindings for actions:
 		for (String variable : bindingAddressTable.row.keySet()) {
 			BindingAddress pivot = bindingAddressTable.getPivot(variable);
-			
+
 			Binding b = new Binding();
 			b.leftIndex = pivot.slotIndex;
 			if (b.leftIndex == -1)
@@ -616,7 +632,7 @@ public class SFRuleCompiler implements RuleCompiler {
 
 		// get prebindings from table:
 		Vector<PreBinding> preBindings = bindingAddressTable.getPreBindings();
-		
+
 		Iterator<PreBinding> itr = preBindings.iterator();
 		PreBinding act = null;
 		if (itr.hasNext())
@@ -629,20 +645,21 @@ public class SFRuleCompiler implements RuleCompiler {
 			// traverse prebindings and try to set them to join nodes:
 			while (act != null && act.getCorrectJoinTupleIndex() == conditionIndexToTupleIndex(i, conds.length)) {
 
-				LeftFieldAddress left = new LeftFieldAddress( Math.min(act.leftIndex, act.rightIndex), act.leftSlot);
+				LeftFieldAddress left = new LeftFieldAddress(Math.min(act.leftIndex, act.rightIndex), act.leftSlot);
 				RightFieldAddress right = new RightFieldAddress(act.rightSlot);
 				FieldComparator b = new FieldComparator(act.varName, left, act.operator, right);
 				filters.add(b);
 				act = (itr.hasNext()) ? itr.next() : null;
 			}
-			
+
 			// set bindig= null if binds.size=0
-			if (filters.size()>0)((BetaFilterNode) conditionJoiner).setFilters(filters, engine);
+			if (filters.size() > 0)
+				((BetaFilterNode) conditionJoiner).setFilters(filters, engine);
 		}
 		// handle all bindings that couldn't be placed to join node.
 		while (act != null) {
 
-			Condition c = conds[ tupleIndexToConditionIndex(act.leftIndex,conds.length) ];
+			Condition c = conds[tupleIndexToConditionIndex(act.leftIndex, conds.length)];
 			if (!(c instanceof ObjectCondition))
 				continue;
 			ObjectCondition objectC = (ObjectCondition) c;
@@ -657,7 +674,7 @@ public class SFRuleCompiler implements RuleCompiler {
 			mostBottomNode = newJoin;
 
 			JoinFilter filter;
-			LeftFieldAddress left = new LeftFieldAddress( act.leftIndex, act.leftSlot);
+			LeftFieldAddress left = new LeftFieldAddress(act.leftIndex, act.leftSlot);
 			RightFieldAddress right = new RightFieldAddress(act.rightSlot);
 			filter = new FieldComparator(act.varName, left, act.operator, right);
 
@@ -666,7 +683,7 @@ public class SFRuleCompiler implements RuleCompiler {
 			act = (itr.hasNext()) ? itr.next() : null;
 		}
 		try {
-			compileTestConditions(conds, rule,bindingAddressTable, conditionJoiners);
+			compileTestConditions(conds, rule, bindingAddressTable, conditionJoiners);
 		} catch (JoinFilterException e) {
 			engine.writeMessage(e.getMessage());
 		}
@@ -674,38 +691,39 @@ public class SFRuleCompiler implements RuleCompiler {
 		return mostBottomNode;
 
 	}
-	
-	protected void compilePredicateConstraints(Rule rule, Condition[] conds, Map<Condition, BaseNode> conditionJoiners, BindingAddressesTable bindingAddressTable) throws AssertException{
+
+	protected void compilePredicateConstraints(Rule rule, Condition[] conds, Map<Condition, BaseNode> conditionJoiners, BindingAddressesTable bindingAddressTable) throws AssertException {
 		// search for predicate constraints and build filters for them
 		for (Condition c : rule.getConditions()) {
 			if (c instanceof ObjectCondition) {
-				ObjectCondition objc = (ObjectCondition)c;
+				ObjectCondition objc = (ObjectCondition) c;
 				for (Constraint constr : objc.getConstraints()) {
 					if (constr instanceof PredicateConstraint) {
-						PredicateConstraint pcon = (PredicateConstraint)constr;
-						List<Parameter> params = (List<Parameter>)pcon.getParameters().clone();
+						PredicateConstraint pcon = (PredicateConstraint) constr;
+						List<Parameter> params = (List<Parameter>) pcon.getParameters().clone();
 						// determine good row index for our test
 						int validRowIndex = 1;
 						while (!params.isEmpty()) {
-							Parameter p = params.remove(params.size()-1);
+							Parameter p = params.remove(params.size() - 1);
 							if (p instanceof Signature) {
 								Signature sig = (Signature) p;
-								for (Parameter pnew :	sig.getParameters()) params.add(pnew);
+								for (Parameter pnew : sig.getParameters())
+									params.add(pnew);
 							} else if (p instanceof BoundParam) {
 								BoundParam bp = (BoundParam) p;
 								BindingAddress pivot = bindingAddressTable.getPivot(bp.getVariableName());
-								if (pivot==null)
+								if (pivot == null)
 									throw new AssertException("Error in TestCondition: Variable " + bp.getVariableName() + " is not defined");
 								validRowIndex = Math.max(pivot.tupleIndex, validRowIndex);
 							}
 						}
 						// determine corresponding node
-						
-						BetaFilterNode validNode = (BetaFilterNode)(conditionJoiners.get( conds[tupleIndexToConditionIndex(validRowIndex, conds.length) ] ));
-						Parameter[] functionParams = recalculateParameters(conds.length, pcon.getParameters(), bindingAddressTable, tupleIndexToConditionIndex(validRowIndex,conds.length));
+
+						BetaFilterNode validNode = (BetaFilterNode) (conditionJoiners.get(conds[tupleIndexToConditionIndex(validRowIndex, conds.length)]));
+						Parameter[] functionParams = recalculateParameters(conds.length, pcon.getParameters(), bindingAddressTable, tupleIndexToConditionIndex(validRowIndex, conds.length));
 						Function function = engine.getFunctionMemory().findFunction(pcon.getFunctionName());
 						try {
-							FunctionEvaluator filter = new FunctionEvaluator(engine,function,functionParams);
+							FunctionEvaluator filter = new FunctionEvaluator(engine, function, functionParams);
 							validNode.addFilter(filter);
 						} catch (JoinFilterException e) {
 							engine.writeMessage(e.getMessage());
@@ -715,27 +733,26 @@ public class SFRuleCompiler implements RuleCompiler {
 			}
 		}
 	}
-	
-	
-	protected Parameter[] recalculateParameters(int conditionsCount, List<Parameter> params, BindingAddressesTable bindingAddressTable, int conditionIndex){
+
+	protected Parameter[] recalculateParameters(int conditionsCount, List<Parameter> params, BindingAddressesTable bindingAddressTable, int conditionIndex) {
 		Parameter[] paramsArr = new Parameter[params.size()];
 		params.toArray(paramsArr);
 		return recalculateParameters(conditionsCount, paramsArr, bindingAddressTable, conditionIndex);
 	}
-	
-	protected Parameter[] recalculateParameters(int conditionsCount, Signature s, BindingAddressesTable bindingAddressTable, int conditionIndex){
+
+	protected Parameter[] recalculateParameters(int conditionsCount, Signature s, BindingAddressesTable bindingAddressTable, int conditionIndex) {
 		return recalculateParameters(conditionsCount, s.getParameters(), bindingAddressTable, conditionIndex);
 	}
-	
-	protected Parameter[] recalculateParameters(int conditionsCount, Parameter[] params, BindingAddressesTable bindingAddressTable, int conditionIndex){
+
+	protected Parameter[] recalculateParameters(int conditionsCount, Parameter[] params, BindingAddressesTable bindingAddressTable, int conditionIndex) {
 		List<Parameter> result = new ArrayList<Parameter>();
 		for (Parameter p : params) {
 			if (p instanceof BoundParam) {
-				BoundParam bp = (BoundParam)p;
+				BoundParam bp = (BoundParam) p;
 				BindingAddress pivot = bindingAddressTable.getPivot(bp.getVariableName());
-				
+
 				FieldAddress addr = null;
-				if (pivot.tupleIndex == conditionIndexToTupleIndex(conditionIndex,conditionsCount) && conditionIndex < conditionsCount ){
+				if (pivot.tupleIndex == conditionIndexToTupleIndex(conditionIndex, conditionsCount) && conditionIndex < conditionsCount) {
 					if (pivot.slotIndex == -1) {
 						addr = new RightFieldAddress();
 					} else {
@@ -748,48 +765,45 @@ public class SFRuleCompiler implements RuleCompiler {
 						addr = new LeftFieldAddress(pivot.tupleIndex, pivot.slotIndex);
 					}
 				}
-				
+
 				result.add(addr);
-				
-				
+
 			} else if (p instanceof Signature) {
-				Signature nested = (Signature)p;
+				Signature nested = (Signature) p;
 				result.add(nested);
-				nested.setParameters( recalculateParameters(conditionsCount,nested, bindingAddressTable, conditionIndex) );
-				
+				nested.setParameters(recalculateParameters(conditionsCount, nested, bindingAddressTable, conditionIndex));
+
 			} else {
 				result.add(p);
 			}
-			
-			
+
 		}
-		
+
 		Parameter[] arr = new Parameter[0];
 		return result.toArray(arr);
 	}
-	
-	
-	//TODO: fix indices here
-	protected void compileTestConditions(Condition[] objectConditions, Rule rule,BindingAddressesTable bindingAddressTable , Map<Condition, BaseNode> conditionJoiners) throws JoinFilterException{
-		for (Condition c: rule.getConditions()){
-			if (c instanceof TestCondition){
+
+	// TODO: fix indices here
+	protected void compileTestConditions(Condition[] objectConditions, Rule rule, BindingAddressesTable bindingAddressTable, Map<Condition, BaseNode> conditionJoiners) throws JoinFilterException {
+		for (Condition c : rule.getConditions()) {
+			if (c instanceof TestCondition) {
 				TestCondition tc = (TestCondition) c;
 				List<BoundParam> boundParams = tc.getFunction().getBoundParameters();
-				
+
 				// determine good row index for our test
 				int validRowIndex = 1;
-				for ( BoundParam p : boundParams ) {
+				for (BoundParam p : boundParams) {
 					BindingAddress pivot = bindingAddressTable.getPivot(p.getVariableName());
-					if (pivot==null)
+					if (pivot == null)
 						throw new JoinFilterException("Error in TestCondition: Variable " + p.getVariableName() + " is not defined");
 					validRowIndex = Math.max(pivot.tupleIndex, validRowIndex);
 				}
-				
+
 				// determine corresponding node
-				BetaFilterNode validNode = (BetaFilterNode)(conditionJoiners.get( objectConditions[tupleIndexToConditionIndex(validRowIndex, objectConditions.length) ] ));
-				
-				Parameter[] functionParams = recalculateParameters(objectConditions.length,tc.getFunction(), bindingAddressTable, tupleIndexToConditionIndex(validRowIndex,objectConditions.length));
-				FunctionEvaluator testFilter = new FunctionEvaluator(engine,tc.getFunction().lookUpFunction(engine),functionParams);
+				BetaFilterNode validNode = (BetaFilterNode) (conditionJoiners.get(objectConditions[tupleIndexToConditionIndex(validRowIndex, objectConditions.length)]));
+
+				Parameter[] functionParams = recalculateParameters(objectConditions.length, tc.getFunction(), bindingAddressTable, tupleIndexToConditionIndex(validRowIndex, objectConditions.length));
+				FunctionEvaluator testFilter = new FunctionEvaluator(engine, tc.getFunction().lookUpFunction(engine), functionParams);
 				validNode.addFilter(testFilter);
 			}
 		}
@@ -803,7 +817,7 @@ public class SFRuleCompiler implements RuleCompiler {
 	 * @param rule
 	 * 
 	 * @return compileConditionState
-	 * @throws StopCompileException 
+	 * @throws StopCompileException
 	 */
 	public BaseNode compile(ObjectCondition condition, Rule rule, int conditionIndex) throws StopCompileException {
 		// get activated ObjectType Node:
@@ -854,7 +868,7 @@ public class SFRuleCompiler implements RuleCompiler {
 	 */
 	public BaseNode compile(ExistCondition condition, Rule rule, int conditionIndex) {
 		Object o = condition.getNestedConditionalElement().get(0);
-		AbstractCondition nested = (AbstractCondition)o;
+		AbstractCondition nested = (AbstractCondition) o;
 		try {
 			return nested.compile(this, rule, conditionIndex);
 		} catch (Exception e) {
@@ -897,12 +911,12 @@ public class SFRuleCompiler implements RuleCompiler {
 	 * @param rule
 	 * 
 	 * @return compileConditionState
-	 * @throws StopCompileException 
-	 * @throws AssertException 
+	 * @throws StopCompileException
+	 * @throws AssertException
 	 */
 	public BaseNode compile(NotCondition condition, Rule rule, int conditionIndex) {
 		Object o = condition.getNestedConditionalElement().get(0);
-		AbstractCondition nested = (AbstractCondition)o;
+		AbstractCondition nested = (AbstractCondition) o;
 		try {
 			return nested.compile(this, rule, conditionIndex);
 		} catch (Exception e) {
@@ -919,32 +933,36 @@ public class SFRuleCompiler implements RuleCompiler {
 	 * @param rule
 	 * 
 	 * @return compileConditionState
-	 * @throws AssertException 
+	 * @throws AssertException
+	 * @throws RuleException
 	 */
 	public BaseNode compile(OrCondition condition, Rule rule, int conditionIndex) throws StopCompileException, AssertException {
-		//now, we will split our rule in more different rules
-		int counter = 1;
-		boolean success = true;
-		for (Object nested : condition.getNestedConditionalElement()) {
-			Condition nestedCE = (Condition)nested;
-			Rule newRule = null;
-			try {
-				newRule = ((Defrule)rule).clone(engine);
-			} catch (CloneNotSupportedException e) {
-				engine.writeMessage(e.getMessage());
-			}
-			newRule.setConditionIndex(conditionIndex, nestedCE);
-			
-			
-			org.jamocha.rete.SFRuleCompiler compiler = new org.jamocha.rete.SFRuleCompiler(engine,root,net);
+		// now, we will split our rule in more different rules
+		try {
+			int counter = 1;
+			boolean success = true;
+			for (Object nested : condition.getNestedConditionalElement()) {
+				Condition nestedCE = (Condition) nested;
+				Rule newRule = null;
+				try {
+					newRule = ((Defrule) rule).clone(engine);
+				} catch (CloneNotSupportedException e) {
+					engine.writeMessage(e.getMessage());
+				}
+				newRule.setConditionIndex(conditionIndex, nestedCE);
 
-			newRule.setName(newRule.getName() + "-" + counter++);
-			success = success && compiler.addRule(newRule);
-			
-			
+				org.jamocha.rete.SFRuleCompiler compiler = new org.jamocha.rete.SFRuleCompiler(engine, root, net);
+
+				newRule.setName(newRule.getName() + "-" + counter++);
+				success = success && compiler.addRule(newRule);
+
+			}
+			throw new StopCompileException(success);
+		} catch (EvaluationException e) {
+			engine.writeMessage("FATAL: could not insert rule" + e.getMessage());
+			throw new StopCompileException(false);
 		}
-		throw new StopCompileException(success);
-		
+
 	}
 
 	/**
@@ -970,37 +988,38 @@ public class SFRuleCompiler implements RuleCompiler {
 	 * @param conditionIndex
 	 * 
 	 * @return BaseNode
-	 * @throws StopCompileException 
+	 * @throws StopCompileException
+	 * @throws RuleException
 	 */
 	public BaseNode compile(OrConnectedConstraint constraint, Rule rule, int conditionIndex) throws StopCompileException {
-		//now, we will split our rule in more different rules
+		// now, we will split our rule in more different rules
 		int counter = 1;
-		
+
 		boolean success = true;
-	
-		Constraint[] nestedConstraints = {constraint.getLeft(), constraint.getRight()};
-		
-		for (Constraint nested : nestedConstraints ) {
+
+		Constraint[] nestedConstraints = { constraint.getLeft(), constraint.getRight() };
+
+		for (Constraint nested : nestedConstraints) {
 			nested.setName(constraint.getName());
 
 			Rule newRule = null;
 			try {
-				newRule = ((Defrule)rule).clone(engine);
+				newRule = ((Defrule) rule).clone(engine);
 			} catch (CloneNotSupportedException e) {
 				engine.writeMessage(e.getMessage());
 			}
 
 			// search for position of the or constraint
 			Stack<Condition> conditionStack = new Stack<Condition>();
-			for (Condition c:newRule.getConditions()) conditionStack.push(c);
+			for (Condition c : newRule.getConditions())
+				conditionStack.push(c);
 
 			boolean replaced = false;
-			constraintSearchLoop:
-			while (!conditionStack.isEmpty()) {
+			constraintSearchLoop: while (!conditionStack.isEmpty()) {
 				Condition c = conditionStack.pop();
 				if (c instanceof ObjectCondition) {
-					ObjectCondition objc = (ObjectCondition)c;
-					for (int i=0 ; i< objc.getConstraints().size() ; i++) {
+					ObjectCondition objc = (ObjectCondition) c;
+					for (int i = 0; i < objc.getConstraints().size(); i++) {
 						Constraint constr = objc.getConstraints().get(i);
 						if (constr == constraint) {
 							// we've found our constraint ;)
@@ -1011,24 +1030,23 @@ public class SFRuleCompiler implements RuleCompiler {
 					}
 				}
 				if (c instanceof ConditionWithNested) {
-					ConditionWithNested cwn = (ConditionWithNested)c;
-					for (Condition c2:cwn.getNestedConditionalElement()) conditionStack.add(c2);
+					ConditionWithNested cwn = (ConditionWithNested) c;
+					for (Condition c2 : cwn.getNestedConditionalElement())
+						conditionStack.add(c2);
 				}
 			}
-			
+
 			if (!replaced) {
 				engine.writeMessage("FATAL: could not compile or connected constraint");
 			}
-				
-			
-			
-			org.jamocha.rete.SFRuleCompiler compiler = new org.jamocha.rete.SFRuleCompiler(engine,root,net);
+
+			org.jamocha.rete.SFRuleCompiler compiler = new org.jamocha.rete.SFRuleCompiler(engine, root, net);
 
 			newRule.setName(newRule.getName() + "-" + counter++);
 			try {
 				success = success && compiler.addRule(newRule);
-			} catch (AssertException e) {
-				engine.writeMessage("FATAL: could not insert rule");
+			} catch (EvaluationException e) {
+				engine.writeMessage("FATAL: could not insert rule" + e.getMessage());
 			}
 		}
 		throw new StopCompileException(success);
@@ -1058,12 +1076,12 @@ public class SFRuleCompiler implements RuleCompiler {
 		sl.value = sval;
 		node = new AlphaNode(net.nextNodeId());
 		node.setSlot(sl);
-		if (constraint.getNegated()){
+		if (constraint.getNegated()) {
 			node.setOperator(Constants.NOTEQUAL);
 		} else {
-			node.setOperator(Constants.EQUAL);	
+			node.setOperator(Constants.EQUAL);
 		}
-		
+
 		// we increment the node use count when when create a
 		// new AlphaNode for the LiteralConstraint
 		constraint.getSlot().incrementNodeCount();
@@ -1116,51 +1134,51 @@ public class SFRuleCompiler implements RuleCompiler {
 	 * @param conditionIndex
 	 * 
 	 * @return BaseNode
+	 * @throws RuleException
 	 * @throws Exception
 	 */
 
-	public BaseNode compile(AndConnectedConstraint constraint, Rule rule, int conditionIndex) throws StopCompileException{
+	public BaseNode compile(AndConnectedConstraint constraint, Rule rule, int conditionIndex) throws StopCompileException {
 		boolean success = false;
 		try {
 			constraint.getLeft().setName(constraint.getName());
 			constraint.getRight().setName(constraint.getName());
 			// search for position of the and constraint
 			Stack<Condition> conditionStack = new Stack<Condition>();
-			for (Condition c:rule.getConditions()) conditionStack.push(c);
+			for (Condition c : rule.getConditions())
+				conditionStack.push(c);
 			boolean replaced = false;
-			constraintSearchLoop:
-				while (!conditionStack.isEmpty()) {
-					Condition c = conditionStack.pop();
-					if (c instanceof ObjectCondition) {
-						ObjectCondition objc = (ObjectCondition)c;
-						for (int i=0 ; i< objc.getConstraints().size() ; i++) {
-							Constraint constr = objc.getConstraints().get(i);
-							if (constr == constraint) {
-								// we've found our constraint ;)
-								objc.getConstraints().remove(i);
-								objc.getConstraints().add(constraint.getLeft());
-								objc.getConstraints().add(constraint.getRight());
-								replaced = true;
-								break constraintSearchLoop;
-							}
+			constraintSearchLoop: while (!conditionStack.isEmpty()) {
+				Condition c = conditionStack.pop();
+				if (c instanceof ObjectCondition) {
+					ObjectCondition objc = (ObjectCondition) c;
+					for (int i = 0; i < objc.getConstraints().size(); i++) {
+						Constraint constr = objc.getConstraints().get(i);
+						if (constr == constraint) {
+							// we've found our constraint ;)
+							objc.getConstraints().remove(i);
+							objc.getConstraints().add(constraint.getLeft());
+							objc.getConstraints().add(constraint.getRight());
+							replaced = true;
+							break constraintSearchLoop;
 						}
 					}
-					if (c instanceof ConditionWithNested) {
-						ConditionWithNested cwn = (ConditionWithNested)c;
-						for (Condition c2:cwn.getNestedConditionalElement()) conditionStack.add(c2);
-					}
 				}
+				if (c instanceof ConditionWithNested) {
+					ConditionWithNested cwn = (ConditionWithNested) c;
+					for (Condition c2 : cwn.getNestedConditionalElement())
+						conditionStack.add(c2);
+				}
+			}
 
 			if (!replaced) {
 				engine.writeMessage("FATAL: could not compile or connected constraint");
 			}
 
-
-
-			org.jamocha.rete.SFRuleCompiler compiler = new org.jamocha.rete.SFRuleCompiler(engine,root,net);
+			org.jamocha.rete.SFRuleCompiler compiler = new org.jamocha.rete.SFRuleCompiler(engine, root, net);
 			success = compiler.addRule(rule);
-		} catch (AssertException e) {
-			engine.writeMessage("FATAL: could not insert rule");
+		} catch (EvaluationException e) {
+			engine.writeMessage("FATAL: could not insert rule" + e.getMessage());
 		}
 		throw new StopCompileException(success);
 

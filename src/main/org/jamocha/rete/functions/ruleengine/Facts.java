@@ -16,7 +16,6 @@
  */
 package org.jamocha.rete.functions.ruleengine;
 
-import java.io.Serializable;
 import java.util.List;
 
 import org.jamocha.parser.EvaluationException;
@@ -24,9 +23,9 @@ import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Constants;
 import org.jamocha.rete.Fact;
-import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
+import org.jamocha.rete.functions.AbstractFunction;
 import org.jamocha.rete.functions.FunctionDescription;
 import org.jamocha.rete.util.FactUtils;
 
@@ -35,7 +34,7 @@ import org.jamocha.rete.util.FactUtils;
  * 
  * Facts function will printout all the facts currently in the rule engine.
  */
-public class Facts implements Function, Serializable {
+public class Facts extends AbstractFunction {
 
 	private static final class Description implements FunctionDescription {
 

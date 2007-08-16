@@ -19,12 +19,12 @@ package org.jamocha.rete.functions.adaptor;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.rete.AbstractFunction;
 import org.jamocha.rete.Deftemplate;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.Template;
 import org.jamocha.rete.TemplateSlot;
+import org.jamocha.rete.functions.AbstractFunction;
 import org.jamocha.rete.functions.FunctionDescription;
 
 /**

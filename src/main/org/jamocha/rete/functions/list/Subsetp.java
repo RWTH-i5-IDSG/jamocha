@@ -16,16 +16,14 @@
  */
 package org.jamocha.rete.functions.list;
 
-import java.io.Serializable;
-
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.IllegalParameterException;
 import org.jamocha.parser.IllegalTypeException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
+import org.jamocha.rete.functions.AbstractFunction;
 import org.jamocha.rete.functions.FunctionDescription;
 
 /**
@@ -34,7 +32,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  * Returns true if the first list is a subset of the second list, false
  * otherwise. The order of the lists is not considered.
  */
-public class Subsetp implements Function, Serializable {
+public class Subsetp extends AbstractFunction {
 
 	private static final class Description implements FunctionDescription {
 

@@ -1,4 +1,4 @@
-package org.jamocha.rete;
+package org.jamocha.rete.functions;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -7,7 +7,9 @@ import org.jamocha.formatter.Formattable;
 import org.jamocha.formatter.Formatter;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.rete.functions.FunctionDescription;
+import org.jamocha.rete.Function;
+import org.jamocha.rete.Parameter;
+import org.jamocha.rete.Rete;
 
 public abstract class AbstractFunction implements Function, Formattable {
 

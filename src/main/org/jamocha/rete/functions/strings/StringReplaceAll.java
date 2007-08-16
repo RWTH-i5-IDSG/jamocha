@@ -16,15 +16,13 @@
  */
 package org.jamocha.rete.functions.strings;
 
-import java.io.Serializable;
-
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.IllegalParameterException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
+import org.jamocha.rete.functions.AbstractFunction;
 import org.jamocha.rete.functions.FunctionDescription;
 
 /**
@@ -34,7 +32,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  * that match the regular expression given as second argument with the
  * replacement from the third argument.
  */
-public class StringReplaceAll implements Function, Serializable {
+public class StringReplaceAll extends AbstractFunction {
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {

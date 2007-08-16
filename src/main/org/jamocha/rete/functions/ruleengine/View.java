@@ -17,21 +17,16 @@
 package org.jamocha.rete.functions.ruleengine;
 
 import java.awt.BorderLayout;
-import java.io.Serializable;
-import java.util.Date;
 
 import javax.swing.JFrame;
 
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.rete.nodes.BaseNode;
-import org.jamocha.rete.nodes.RootNode;
-import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
+import org.jamocha.rete.functions.AbstractFunction;
 import org.jamocha.rete.functions.FunctionDescription;
-import org.jamocha.rete.visualisation.Visualizer;
 import org.jamocha.rete.visualisation.VisualizerPanel;
 
 /**
@@ -39,7 +34,7 @@ import org.jamocha.rete.visualisation.VisualizerPanel;
  * 
  * Opens a visualisation window for the rete net.
  */
-public class View implements Function, Serializable {
+public class View extends AbstractFunction {
 
 	private static final class Description implements FunctionDescription {
 

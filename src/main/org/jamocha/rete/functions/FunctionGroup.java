@@ -14,13 +14,13 @@
  * limitations under the License.
  * 
  */
-package org.jamocha.rete;
+package org.jamocha.rete.functions;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.jamocha.rete.functions.FunctionMemory;
+import org.jamocha.rete.Function;
 
 /**
  * @author Peter Lin

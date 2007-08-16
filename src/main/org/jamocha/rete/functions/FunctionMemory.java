@@ -21,7 +21,6 @@ import java.util.Collection;
 import java.util.Map;
 
 import org.jamocha.rete.Function;
-import org.jamocha.rete.FunctionGroup;
 
 /**
  * @author Sebastian Reinartz

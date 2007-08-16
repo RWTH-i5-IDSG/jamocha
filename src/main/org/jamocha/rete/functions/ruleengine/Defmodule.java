@@ -16,16 +16,14 @@
  */
 package org.jamocha.rete.functions.ruleengine;
 
-import java.io.Serializable;
-
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.IllegalParameterException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.configurations.DefmoduleConfiguration;
+import org.jamocha.rete.functions.AbstractFunction;
 import org.jamocha.rete.functions.FunctionDescription;
 
 /**
@@ -40,7 +38,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  * The rules in a module fire only when that module has the focus, and only one
  * module can be in focus at a time.
  */
-public class Defmodule implements Function, Serializable {
+public class Defmodule extends AbstractFunction {
 
 	private static final class Description implements FunctionDescription {
 

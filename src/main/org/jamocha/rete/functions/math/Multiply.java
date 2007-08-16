@@ -16,15 +16,13 @@
  */
 package org.jamocha.rete.functions.math;
 
-import java.io.Serializable;
-
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.IllegalParameterException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
+import org.jamocha.rete.functions.AbstractFunction;
 import org.jamocha.rete.functions.FunctionDescription;
 
 /**
@@ -38,7 +36,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  * This function returns a double if any of its arguments is a double, otherwise
  * it returns an long.
  */
-public class Multiply implements Function, Serializable {
+public class Multiply extends AbstractFunction {
 
 	private static final class Description implements FunctionDescription {
 

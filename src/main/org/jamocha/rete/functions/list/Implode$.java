@@ -16,16 +16,14 @@
  */
 package org.jamocha.rete.functions.list;
 
-import java.io.Serializable;
-
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.IllegalParameterException;
 import org.jamocha.parser.IllegalTypeException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
+import org.jamocha.rete.functions.AbstractFunction;
 import org.jamocha.rete.functions.FunctionDescription;
 
 /**
@@ -34,7 +32,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  * Creates and returns a string of a given list. Optionally a separator to put in-between the items can be provided. 
  * Default separator is the space character.
  */
-public class Implode$ implements Function, Serializable {
+public class Implode$ extends AbstractFunction {
 
 	private static final class Description implements FunctionDescription {
 

@@ -16,7 +16,6 @@
  */
 package org.jamocha.rete.functions.ruleengine;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -24,11 +23,11 @@ import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Deffact;
-import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.exception.AssertException;
 import org.jamocha.rete.exception.ExecuteException;
+import org.jamocha.rete.functions.AbstractFunction;
 import org.jamocha.rete.functions.FunctionDescription;
 import org.jamocha.rule.Defrule;
 import org.jamocha.rule.util.GenerateFacts;
@@ -38,7 +37,7 @@ import org.jamocha.rule.util.GenerateFacts;
  * 
  * Generates the facts for a rule, asserts them and calls (fire).
  */
-public class TestRule implements Function, Serializable {
+public class TestRule extends AbstractFunction {
 
 	private static final class Description implements FunctionDescription {
 

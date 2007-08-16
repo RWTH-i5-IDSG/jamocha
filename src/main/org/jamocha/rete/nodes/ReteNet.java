@@ -3,6 +3,7 @@ package org.jamocha.rete.nodes;
 import java.io.Serializable;
 
 import org.jamocha.parser.ParserFactory;
+import org.jamocha.parser.RuleException;
 import org.jamocha.rete.Fact;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.RuleCompiler;
@@ -51,7 +52,7 @@ public class ReteNet implements Serializable {
 		this.root.retractObject(fact, this);
 	}
 	
-	public boolean addRule(Rule rule) throws AssertException{
+	public boolean addRule(Rule rule) throws AssertException, RuleException{
 		return this.compiler.addRule(rule);
 	}
 

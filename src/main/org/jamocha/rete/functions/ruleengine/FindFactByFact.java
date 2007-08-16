@@ -16,19 +16,17 @@
  */
 package org.jamocha.rete.functions.ruleengine;
 
-import java.io.Serializable;
-
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Deffact;
 import org.jamocha.rete.Fact;
-import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.configurations.AssertConfiguration;
 import org.jamocha.rete.configurations.SlotConfiguration;
 import org.jamocha.rete.exception.AssertException;
+import org.jamocha.rete.functions.AbstractFunction;
 import org.jamocha.rete.functions.FunctionDescription;
 
 /**
@@ -36,7 +34,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  * 
  * Returns the ID of the given Fact or NIL if it wasn't found.
  */
-public class FindFactByFact implements Function, Serializable {
+public class FindFactByFact extends AbstractFunction {
 
 	private static final class FindFactByFactDescription implements FunctionDescription {
 

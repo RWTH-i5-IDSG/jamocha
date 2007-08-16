@@ -1,7 +1,6 @@
 package org.jamocha.formatter;
 
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.rete.AbstractFunction;
 import org.jamocha.rete.BoundParam;
 import org.jamocha.rete.Constants;
 import org.jamocha.rete.ExpressionSequence;
@@ -15,6 +14,7 @@ import org.jamocha.rete.configurations.ModifyConfiguration;
 import org.jamocha.rete.configurations.Signature;
 import org.jamocha.rete.configurations.SlotConfiguration;
 import org.jamocha.rete.configurations.WhileDoConfiguration;
+import org.jamocha.rete.functions.AbstractFunction;
 
 public abstract class Formatter {
 

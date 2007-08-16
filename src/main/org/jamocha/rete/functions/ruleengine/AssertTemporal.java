@@ -16,8 +16,6 @@
  */
 package org.jamocha.rete.functions.ruleengine;
 
-import java.io.Serializable;
-
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.IllegalParameterException;
 import org.jamocha.parser.JamochaType;
@@ -25,10 +23,10 @@ import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Deffact;
 import org.jamocha.rete.Deftemplate;
 import org.jamocha.rete.Fact;
-import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.exception.AssertException;
+import org.jamocha.rete.functions.AbstractFunction;
 import org.jamocha.rete.functions.FunctionDescription;
 
 /**
@@ -37,7 +35,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  * Allows the user to add a temporal fact to the fact-list. If the fact-list is being watched, 
  * an inform message is printed each time a fact is asserted.
  */
-public class AssertTemporal implements Function, Serializable {
+public class AssertTemporal extends AbstractFunction {
 
 	private static final class Description implements FunctionDescription {
 

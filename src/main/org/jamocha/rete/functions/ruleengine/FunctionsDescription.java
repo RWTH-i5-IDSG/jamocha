@@ -16,42 +16,32 @@
  */
 package org.jamocha.rete.functions.ruleengine;
 
-import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
-import java.io.PrintWriter;
-import java.io.Serializable;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 
-import org.jamocha.messagerouter.MessageEvent;
-import org.jamocha.messagerouter.MessageRouter;
-import org.jamocha.messagerouter.StreamChannel;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.Expression;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.parser.ParseException;
-import org.jamocha.parser.Parser;
 import org.jamocha.parser.sfp.SFPParser;
 import org.jamocha.rete.Constants;
 import org.jamocha.rete.Function;
-import org.jamocha.rete.FunctionGroup;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
+import org.jamocha.rete.functions.AbstractFunction;
 import org.jamocha.rete.functions.FunctionDescription;
+import org.jamocha.rete.functions.FunctionGroup;
 
 /**
  * @author Josef Alexander Hahn
  * 
  * This function gets an XML-document, which describes the declared functions
  */
-public class FunctionsDescription implements Function, Serializable {
+public class FunctionsDescription extends AbstractFunction {
 
 	private static final class Description implements
 			FunctionDescription {

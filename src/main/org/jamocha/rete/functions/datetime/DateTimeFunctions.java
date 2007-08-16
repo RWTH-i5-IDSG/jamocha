@@ -16,7 +16,7 @@
  */
 package org.jamocha.rete.functions.datetime;
 
-import org.jamocha.rete.FunctionGroup;
+import org.jamocha.rete.functions.FunctionGroup;
 import org.jamocha.rete.functions.FunctionMemory;
 
 public class DateTimeFunctions extends FunctionGroup {

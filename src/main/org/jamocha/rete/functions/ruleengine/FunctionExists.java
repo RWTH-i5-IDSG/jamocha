@@ -16,7 +16,6 @@
  */
 package org.jamocha.rete.functions.ruleengine;
 
-import java.io.Serializable;
 import java.io.StringReader;
 
 import org.jamocha.parser.EvaluationException;
@@ -27,10 +26,10 @@ import org.jamocha.parser.JamochaValue;
 import org.jamocha.parser.ParseException;
 import org.jamocha.parser.Parser;
 import org.jamocha.parser.ParserFactory;
-import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.configurations.Signature;
+import org.jamocha.rete.functions.AbstractFunction;
 import org.jamocha.rete.functions.FunctionDescription;
 
 /**
@@ -42,7 +41,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  * true otherwise (or if the first statement is no function call) it returns
  * false.
  */
-public class FunctionExists implements Function, Serializable {
+public class FunctionExists extends AbstractFunction {
 
 	private static final class Description implements FunctionDescription {
 

@@ -30,9 +30,9 @@ import org.jamocha.parser.JamochaValue;
 import org.jamocha.parser.ParseException;
 import org.jamocha.parser.Parser;
 import org.jamocha.parser.ParserFactory;
-import org.jamocha.rete.AbstractFunction;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
+import org.jamocha.rete.functions.AbstractFunction;
 import org.jamocha.rete.functions.FunctionDescription;
 
 /**

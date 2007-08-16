@@ -31,7 +31,6 @@ import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.IllegalParameterException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.rete.AbstractFunction;
 import org.jamocha.rete.Deffact;
 import org.jamocha.rete.Deftemplate;
 import org.jamocha.rete.Fact;
@@ -39,6 +38,7 @@ import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.Slot;
 import org.jamocha.rete.exception.AssertException;
+import org.jamocha.rete.functions.AbstractFunction;
 import org.jamocha.rete.functions.FunctionDescription;
 
 /**

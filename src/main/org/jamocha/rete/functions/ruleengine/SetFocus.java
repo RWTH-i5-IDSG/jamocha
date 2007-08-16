@@ -16,14 +16,12 @@
  */
 package org.jamocha.rete.functions.ruleengine;
 
-import java.io.Serializable;
-
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
+import org.jamocha.rete.functions.AbstractFunction;
 import org.jamocha.rete.functions.FunctionDescription;
 
 /**
@@ -32,7 +30,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  * Sets the focus to the given module. If no argument is given the focus 
  * doesn't change. In either case the identifier of the current focus is returned.
  */
-public class SetFocus implements Function, Serializable {
+public class SetFocus extends AbstractFunction {
 
 	private static final class Description implements FunctionDescription {
 

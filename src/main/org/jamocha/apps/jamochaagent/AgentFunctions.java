@@ -18,7 +18,7 @@ package org.jamocha.apps.jamochaagent;
 import org.jamocha.adapter.sl.CLIPS2SLFunction;
 import org.jamocha.adapter.sl.SL2CLIPSFunction;
 import org.jamocha.adapter.sl.SLMessageCompare;
-import org.jamocha.rete.FunctionGroup;
+import org.jamocha.rete.functions.FunctionGroup;
 import org.jamocha.rete.functions.FunctionMemory;
 
 public class AgentFunctions extends FunctionGroup {

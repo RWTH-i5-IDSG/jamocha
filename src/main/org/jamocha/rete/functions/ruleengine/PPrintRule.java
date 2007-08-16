@@ -20,9 +20,9 @@ import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.parser.ParserFactory;
-import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
+import org.jamocha.rete.functions.AbstractFunction;
 import org.jamocha.rete.functions.FunctionDescription;
 import org.jamocha.rule.Rule;
 
@@ -34,7 +34,7 @@ import org.jamocha.rule.Rule;
  * format may not be identical to what the user wrote. It is a normalized
  * and cleaned up format.
  */
-public class PPrintRule implements Function {
+public class PPrintRule extends AbstractFunction {
 
 	private static final class Description implements FunctionDescription {
 

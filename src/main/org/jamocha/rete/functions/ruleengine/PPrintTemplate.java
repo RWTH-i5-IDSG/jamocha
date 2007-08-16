@@ -16,7 +16,6 @@
  */
 package org.jamocha.rete.functions.ruleengine;
 
-import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -24,10 +23,10 @@ import java.util.Iterator;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.Template;
+import org.jamocha.rete.functions.AbstractFunction;
 import org.jamocha.rete.functions.FunctionDescription;
 
 /**
@@ -37,7 +36,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  * format. Note the format may not be identical to what the user wrote. 
  * It is a normalized and cleaned up format.
  */
-public class PPrintTemplate implements Function, Serializable {
+public class PPrintTemplate extends AbstractFunction {
 
 	private static final class Description implements FunctionDescription {
 

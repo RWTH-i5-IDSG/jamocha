@@ -16,7 +16,6 @@
  */
 package org.jamocha.rete.functions.list;
 
-import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -25,9 +24,9 @@ import org.jamocha.parser.IllegalParameterException;
 import org.jamocha.parser.IllegalTypeException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
+import org.jamocha.rete.functions.AbstractFunction;
 import org.jamocha.rete.functions.FunctionDescription;
 
 /**
@@ -46,7 +45,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  * replacements will not be matched recursively.
  * Returns a new list consisting of untouched and replaced items.
  */
-public class ReplaceMember$ implements Function, Serializable {
+public class ReplaceMember$ extends AbstractFunction {
 
 	private static final class Description implements FunctionDescription {
 

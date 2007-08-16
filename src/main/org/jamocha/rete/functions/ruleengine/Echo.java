@@ -16,15 +16,13 @@
  */
 package org.jamocha.rete.functions.ruleengine;
 
-import java.io.Serializable;
-
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Constants;
-import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
+import org.jamocha.rete.functions.AbstractFunction;
 import org.jamocha.rete.functions.FunctionDescription;
 
 /**
@@ -34,7 +32,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  * expects an array of ShellBoundParam. The method will use StringBuffer to
  * resolve the binding and print out 1 binding per line.
  */
-public class Echo implements Function, Serializable {
+public class Echo extends AbstractFunction {
 
 	private static final class Description implements FunctionDescription {
 

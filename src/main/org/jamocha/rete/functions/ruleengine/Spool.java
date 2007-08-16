@@ -20,14 +20,13 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.io.Serializable;
 
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
+import org.jamocha.rete.functions.AbstractFunction;
 import org.jamocha.rete.functions.FunctionDescription;
 
 /**
@@ -36,7 +35,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  * Captures the output to a file, and makes it easier to record what happens. 
  * This is inspired by Oracle SqlPlus spool function.
  */
-public class Spool implements Function, Serializable {
+public class Spool extends AbstractFunction {
 
 	private static final class Description implements FunctionDescription {
 

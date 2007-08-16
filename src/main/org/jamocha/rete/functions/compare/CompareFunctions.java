@@ -16,7 +16,7 @@
  */
 package org.jamocha.rete.functions.compare;
 
-import org.jamocha.rete.FunctionGroup;
+import org.jamocha.rete.functions.FunctionGroup;
 import org.jamocha.rete.functions.FunctionMemory;
 
 public class CompareFunctions extends FunctionGroup {

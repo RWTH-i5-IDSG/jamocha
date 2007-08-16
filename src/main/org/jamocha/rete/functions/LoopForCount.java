@@ -21,7 +21,6 @@ import org.jamocha.parser.IllegalParameterException;
 import org.jamocha.parser.IllegalTypeException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.rete.AbstractFunction;
 import org.jamocha.rete.BoundParam;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;

@@ -15,7 +15,7 @@
  */
 package org.jamocha.rete.functions.adaptor;
 
-import org.jamocha.rete.FunctionGroup;
+import org.jamocha.rete.functions.FunctionGroup;
 import org.jamocha.rete.functions.FunctionMemory;
 
 public class AdaptorFunctions extends FunctionGroup {

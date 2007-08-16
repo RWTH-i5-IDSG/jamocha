@@ -16,17 +16,15 @@
  */
 package org.jamocha.rete.functions.ruleengine;
 
-import java.io.Serializable;
-
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.IllegalParameterException;
 import org.jamocha.parser.IllegalTypeException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Fact;
-import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
+import org.jamocha.rete.functions.AbstractFunction;
 import org.jamocha.rete.functions.FunctionDescription;
 
 /**
@@ -34,7 +32,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  * 
  * Returns the fact-ID of the given fact.
  */
-public class GetFactId implements Function, Serializable {
+public class GetFactId extends AbstractFunction {
 
 	private static final class FindFactByFactDescription implements
 			FunctionDescription {

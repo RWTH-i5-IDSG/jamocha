@@ -16,7 +16,7 @@
  */
 package org.jamocha.rete.functions.ruleengine;
 
-import org.jamocha.rete.FunctionGroup;
+import org.jamocha.rete.functions.FunctionGroup;
 import org.jamocha.rete.functions.FunctionMemory;
 
 /**

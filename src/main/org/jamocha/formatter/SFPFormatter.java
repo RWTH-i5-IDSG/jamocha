@@ -4,7 +4,6 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.rete.AbstractFunction;
 import org.jamocha.rete.BoundParam;
 import org.jamocha.rete.ExpressionSequence;
 import org.jamocha.rete.Parameter;
@@ -19,6 +18,7 @@ import org.jamocha.rete.configurations.ModifyConfiguration;
 import org.jamocha.rete.configurations.Signature;
 import org.jamocha.rete.configurations.SlotConfiguration;
 import org.jamocha.rete.configurations.WhileDoConfiguration;
+import org.jamocha.rete.functions.AbstractFunction;
 
 public class SFPFormatter extends Formatter {
 

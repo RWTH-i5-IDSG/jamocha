@@ -16,7 +16,6 @@
  */
 package org.jamocha.rete.functions.ruleengine;
 
-import java.io.Serializable;
 import java.io.StringReader;
 
 import org.jamocha.parser.EvaluationException;
@@ -29,9 +28,9 @@ import org.jamocha.parser.Parser;
 import org.jamocha.parser.ParserFactory;
 import org.jamocha.rete.BlockingScope;
 import org.jamocha.rete.BoundParam;
-import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
+import org.jamocha.rete.functions.AbstractFunction;
 import org.jamocha.rete.functions.FunctionDescription;
 
 /**
@@ -42,7 +41,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  * An optional binding as second argument can be used to catch an exception and
  * hold the error message.
  */
-public class EvalBlocking implements Function, Serializable {
+public class EvalBlocking extends AbstractFunction {
 
 	private static final class Description implements FunctionDescription {
 

@@ -16,7 +16,6 @@
  */
 package org.jamocha.rete.functions.ruleengine;
 
-import java.io.Serializable;
 import java.util.Collection;
 import java.util.Iterator;
 
@@ -24,9 +23,9 @@ import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Constants;
-import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
+import org.jamocha.rete.functions.AbstractFunction;
 import org.jamocha.rete.functions.FunctionDescription;
 import org.jamocha.rete.modules.Module;
 
@@ -35,7 +34,7 @@ import org.jamocha.rete.modules.Module;
  * 
  * Modules will print out all the modules currently in the rule engine.
  */
-public class Modules implements Function, Serializable {
+public class Modules extends AbstractFunction {
 
 	private static final class Description implements FunctionDescription {
 

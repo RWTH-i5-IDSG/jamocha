@@ -16,7 +16,6 @@
  */
 package org.jamocha.rete.functions;
 
-import org.jamocha.rete.FunctionGroup;
 
 /**
  * @author Peter Lin

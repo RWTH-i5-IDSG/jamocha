@@ -34,6 +34,7 @@ import org.jamocha.messagerouter.MessageEvent;
 import org.jamocha.messagerouter.MessageRouter;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaValue;
+import org.jamocha.parser.RuleException;
 import org.jamocha.rete.agenda.Agendas;
 import org.jamocha.rete.configurations.ModifyConfiguration;
 import org.jamocha.rete.configurations.SlotConfiguration;
@@ -975,7 +976,7 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 		return result;
 	}
 	
-	public boolean addRule(Rule rule) throws AssertException{
+	public boolean addRule(Rule rule) throws AssertException, RuleException{
 		if (!getCurrentFocus().containsRule(rule)) {
 			return net.addRule(rule);}
 		return false;

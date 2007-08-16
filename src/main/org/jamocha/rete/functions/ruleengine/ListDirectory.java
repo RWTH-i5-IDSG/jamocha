@@ -17,15 +17,14 @@
 package org.jamocha.rete.functions.ruleengine;
 
 import java.io.File;
-import java.io.Serializable;
 
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Constants;
-import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
+import org.jamocha.rete.functions.AbstractFunction;
 import org.jamocha.rete.functions.FunctionDescription;
 
 /**
@@ -35,7 +34,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  * command as dir in DOS and ls in Unix. 
  * The return value is NIL.";
  */
-public class ListDirectory implements Function, Serializable {
+public class ListDirectory extends AbstractFunction {
 
 	private static final class Description implements FunctionDescription {
 

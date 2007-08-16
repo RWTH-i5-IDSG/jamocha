@@ -3,7 +3,7 @@ package org.jamocha.formatter;
 import java.util.List;
 
 import org.jamocha.parser.JamochaType;
-import org.jamocha.rete.AbstractFunction;
+import org.jamocha.rete.functions.AbstractFunction;
 import org.jamocha.rete.functions.FunctionDescription;
 
 public class HelpFormatter extends SFPFormatter {

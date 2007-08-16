@@ -1,6 +1,7 @@
 package org.jamocha.rule;
 
 import org.jamocha.parser.JamochaValue;
+import org.jamocha.parser.RuleException;
 import org.jamocha.rete.SFRuleCompiler;
 import org.jamocha.rete.StopCompileException;
 import org.jamocha.rete.nodes.BaseNode;
