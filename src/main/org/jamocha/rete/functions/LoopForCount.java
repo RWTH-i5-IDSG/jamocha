@@ -33,7 +33,7 @@ import org.jamocha.rete.configurations.LoopForCountConfiguration;
  * and executes a list of given actions. Returns the result of the last action
  * executed.
  */
-public class LoopForCount extends AbstractFunction {
+public class LoopForCount extends Function {
 
 	private static final class Description implements FunctionDescription {
 

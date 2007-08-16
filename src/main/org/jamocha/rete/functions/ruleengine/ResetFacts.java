@@ -21,7 +21,7 @@ import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.functions.AbstractFunction;
+import org.jamocha.rete.functions.Function;
 import org.jamocha.rete.functions.FunctionDescription;
 
 /**
@@ -30,7 +30,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  * reset-facts will reset all deffacts only. This means that they are retracted
  * and asserted again.
  */
-public class ResetFacts extends AbstractFunction {
+public class ResetFacts extends Function {
 
 	private static final class Description implements FunctionDescription {
 

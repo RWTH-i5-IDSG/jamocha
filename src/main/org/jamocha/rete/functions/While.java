@@ -30,7 +30,7 @@ import org.jamocha.rete.configurations.WhileDoConfiguration;
  * Implementation of the while-loop. An ActionList is executed as long as the
  * given Condition holds. Returns the result of the last action executed.
  */
-public class While extends AbstractFunction {
+public class While extends Function {
 
 	private static final class Description implements FunctionDescription {
 

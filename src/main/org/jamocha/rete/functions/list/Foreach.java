@@ -24,7 +24,7 @@ import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.BoundParam;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.functions.AbstractFunction;
+import org.jamocha.rete.functions.Function;
 import org.jamocha.rete.functions.FunctionDescription;
 
 /**
@@ -32,7 +32,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  * 
  * Evaluates expressions for all items in a list.
  */
-public class Foreach extends AbstractFunction {
+public class Foreach extends Function {
 
 	private static final class Description implements
 			FunctionDescription {

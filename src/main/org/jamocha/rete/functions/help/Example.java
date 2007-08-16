@@ -28,10 +28,9 @@ import org.jamocha.parser.JamochaValue;
 import org.jamocha.parser.ParseException;
 import org.jamocha.parser.Parser;
 import org.jamocha.parser.ParserFactory;
-import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.functions.AbstractFunction;
+import org.jamocha.rete.functions.Function;
 import org.jamocha.rete.functions.FunctionDescription;
 
 /**
@@ -41,7 +40,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  * Note: Don't use this function in your production environment as templates,
  * rules and facts might be added, removed or modified.
  */
-public class Example extends AbstractFunction {
+public class Example extends Function {
 
 	private static final class Description implements FunctionDescription {
 

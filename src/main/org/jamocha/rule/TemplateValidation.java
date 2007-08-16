@@ -16,12 +16,12 @@
  */
 package org.jamocha.rule;
 
-import org.jamocha.rete.Function;
 import org.jamocha.rete.Messages;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.Slot;
 import org.jamocha.rete.Template;
 import org.jamocha.rete.configurations.Signature;
+import org.jamocha.rete.functions.Function;
 import org.jamocha.rule.util.GenerateFacts;
 
 /**

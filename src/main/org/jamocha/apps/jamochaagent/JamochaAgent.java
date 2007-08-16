@@ -39,8 +39,8 @@ import org.jamocha.messagerouter.MessageEvent;
 import org.jamocha.messagerouter.StringChannel;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.parser.ModeNotFoundException;
-import org.jamocha.rete.Function;
 import org.jamocha.rete.Rete;
+import org.jamocha.rete.functions.Function;
 import org.jamocha.rete.functions.FunctionGroup;
 
 /**

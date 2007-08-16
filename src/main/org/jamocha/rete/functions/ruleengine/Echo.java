@@ -22,7 +22,7 @@ import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Constants;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.functions.AbstractFunction;
+import org.jamocha.rete.functions.Function;
 import org.jamocha.rete.functions.FunctionDescription;
 
 /**
@@ -32,7 +32,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  * expects an array of ShellBoundParam. The method will use StringBuffer to
  * resolve the binding and print out 1 binding per line.
  */
-public class Echo extends AbstractFunction {
+public class Echo extends Function {
 
 	private static final class Description implements FunctionDescription {
 

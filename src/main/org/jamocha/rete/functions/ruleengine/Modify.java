@@ -26,7 +26,7 @@ import org.jamocha.rete.Rete;
 import org.jamocha.rete.configurations.ModifyConfiguration;
 import org.jamocha.rete.exception.AssertException;
 import org.jamocha.rete.exception.RetractException;
-import org.jamocha.rete.functions.AbstractFunction;
+import org.jamocha.rete.functions.Function;
 import org.jamocha.rete.functions.FunctionDescription;
 
 /**
@@ -37,7 +37,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  * modification of a fact is equivalent to retracting the present fact and
  * asserting the modified fact. Returns true on success.
  */
-public class Modify extends AbstractFunction {
+public class Modify extends Function {
 
 	private static final class Description implements FunctionDescription {
 

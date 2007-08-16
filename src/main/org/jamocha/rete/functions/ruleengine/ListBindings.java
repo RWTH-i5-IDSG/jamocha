@@ -25,7 +25,7 @@ import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Constants;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.functions.AbstractFunction;
+import org.jamocha.rete.functions.Function;
 import org.jamocha.rete.functions.FunctionDescription;
 
 /**
@@ -34,7 +34,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  * Prints out a list of all bindings and defglobals defined in the current scope. The return
  * value is NIL.
  */
-public class ListBindings extends AbstractFunction {
+public class ListBindings extends Function {
 
 	private static final class Description implements FunctionDescription {
 

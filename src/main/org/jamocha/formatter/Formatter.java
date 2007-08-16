@@ -14,7 +14,7 @@ import org.jamocha.rete.configurations.ModifyConfiguration;
 import org.jamocha.rete.configurations.Signature;
 import org.jamocha.rete.configurations.SlotConfiguration;
 import org.jamocha.rete.configurations.WhileDoConfiguration;
-import org.jamocha.rete.functions.AbstractFunction;
+import org.jamocha.rete.functions.Function;
 
 public abstract class Formatter {
 
@@ -39,7 +39,7 @@ public abstract class Formatter {
 	 * Here start the visitor methods
 	 */
 
-	public abstract String visit(AbstractFunction object);
+	public abstract String visit(Function object);
 
 	public abstract String visit(AssertConfiguration object);
 	

@@ -21,7 +21,7 @@ import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.functions.AbstractFunction;
+import org.jamocha.rete.functions.Function;
 import org.jamocha.rete.functions.FunctionDescription;
 
 /**
@@ -30,7 +30,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  * LoadFunctionGroup loads one or more complete functiongroups into the engine. Returns true
  * on success.
  */
-public class LoadFunctionGroup extends AbstractFunction {
+public class LoadFunctionGroup extends Function {
 
 	private static final class Description implements FunctionDescription {
 

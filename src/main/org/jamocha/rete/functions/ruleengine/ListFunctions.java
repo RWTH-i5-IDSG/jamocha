@@ -23,10 +23,9 @@ import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Constants;
-import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.functions.AbstractFunction;
+import org.jamocha.rete.functions.Function;
 import org.jamocha.rete.functions.FunctionDescription;
 import org.jamocha.rete.functions.FunctionGroup;
 
@@ -36,7 +35,7 @@ import org.jamocha.rete.functions.FunctionGroup;
  * Prints out a list of all defined functions. The return
  * value is NIL.
  */
-public class ListFunctions extends AbstractFunction {
+public class ListFunctions extends Function {
 
 	private static final class Description implements FunctionDescription {
 

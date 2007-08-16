@@ -11,7 +11,6 @@ import org.jamocha.rete.BoundParam;
 import org.jamocha.rete.Constants;
 import org.jamocha.rete.ExpressionCollection;
 import org.jamocha.rete.ExpressionSequence;
-import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Slot;
 import org.jamocha.rete.SlotParam;
@@ -27,7 +26,7 @@ import org.jamocha.rete.configurations.ModifyConfiguration;
 import org.jamocha.rete.configurations.Signature;
 import org.jamocha.rete.configurations.SlotConfiguration;
 import org.jamocha.rete.configurations.WhileDoConfiguration;
-import org.jamocha.rete.functions.AbstractFunction;
+import org.jamocha.rete.functions.Function;
 import org.jamocha.rete.functions.FunctionDescription;
 import org.jamocha.rule.Action;
 import org.jamocha.rule.AndCondition;
@@ -695,7 +694,7 @@ public class BackupOfCLIPSFormatter extends Formatter {
 	}
 
 	@Override
-	public String visit(AbstractFunction object) {
+	public String visit(Function object) {
 		// TODO Auto-generated method stub
 		return null;
 	}

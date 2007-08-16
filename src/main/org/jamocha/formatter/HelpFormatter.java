@@ -3,12 +3,12 @@ package org.jamocha.formatter;
 import java.util.List;
 
 import org.jamocha.parser.JamochaType;
-import org.jamocha.rete.functions.AbstractFunction;
+import org.jamocha.rete.functions.Function;
 import org.jamocha.rete.functions.FunctionDescription;
 
 public class HelpFormatter extends SFPFormatter {
 
-	public String visit(AbstractFunction object) {
+	public String visit(Function object) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("(");
 		sb.append(object.getName());

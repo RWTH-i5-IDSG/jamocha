@@ -29,7 +29,7 @@ import org.jamocha.parser.ParserFactory;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.configurations.Signature;
-import org.jamocha.rete.functions.AbstractFunction;
+import org.jamocha.rete.functions.Function;
 import org.jamocha.rete.functions.FunctionDescription;
 
 /**
@@ -41,7 +41,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  * true otherwise (or if the first statement is no function call) it returns
  * false.
  */
-public class FunctionExists extends AbstractFunction {
+public class FunctionExists extends Function {
 
 	private static final class Description implements FunctionDescription {
 

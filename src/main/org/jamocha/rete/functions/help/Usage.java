@@ -20,10 +20,9 @@ import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.parser.ParserFactory;
-import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.functions.AbstractFunction;
+import org.jamocha.rete.functions.Function;
 import org.jamocha.rete.functions.FunctionDescription;
 
 /**
@@ -32,7 +31,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  * Prints out a short usage for a function name passed as argument. If no
  * argument is passed the usage of this function itself is printed.
  */
-public class Usage extends AbstractFunction {
+public class Usage extends Function {
 
 	private static final class Description implements FunctionDescription {
 
@@ -98,14 +97,12 @@ public class Usage extends AbstractFunction {
 		if (params != null && params.length == 1) {
 			JamochaValue firstParam = params[0].getValue(engine);
 			String function = firstParam.getStringValue();
-			Function aFunction = engine.getFunctionMemory().findFunction(
-					function);
+			Function aFunction = engine.getFunctionMemory()
+					.findFunction(function);
 			if (aFunction != null) {
-				if (aFunction instanceof AbstractFunction) {
-					result = JamochaValue
-							.newString(((AbstractFunction) aFunction)
-									.format(ParserFactory.getFormatter()));
-				}
+				result = JamochaValue.newString(aFunction.format(ParserFactory
+						.getFormatter()));
+
 			}
 		}
 		return result;

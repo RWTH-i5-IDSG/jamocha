@@ -26,7 +26,7 @@ import org.jamocha.rete.Fact;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.exception.AssertException;
-import org.jamocha.rete.functions.AbstractFunction;
+import org.jamocha.rete.functions.Function;
 import org.jamocha.rete.functions.FunctionDescription;
 
 /**
@@ -35,7 +35,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  * Allows the user to add a temporal fact to the fact-list. If the fact-list is being watched, 
  * an inform message is printed each time a fact is asserted.
  */
-public class AssertTemporal extends AbstractFunction {
+public class AssertTemporal extends Function {
 
 	private static final class Description implements FunctionDescription {
 

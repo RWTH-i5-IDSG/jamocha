@@ -28,7 +28,7 @@ import org.jamocha.rete.Rete;
 import org.jamocha.rete.Template;
 import org.jamocha.rete.configurations.AssertConfiguration;
 import org.jamocha.rete.exception.AssertException;
-import org.jamocha.rete.functions.AbstractFunction;
+import org.jamocha.rete.functions.Function;
 import org.jamocha.rete.functions.FunctionDescription;
 
 /**
@@ -42,7 +42,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  * assert a fact.
  * </p>
  */
-public class Assert extends AbstractFunction {
+public class Assert extends Function {
 
 	private static final class Description implements FunctionDescription {
 

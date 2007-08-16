@@ -24,7 +24,7 @@ import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.Template;
 import org.jamocha.rete.TemplateSlot;
-import org.jamocha.rete.functions.AbstractFunction;
+import org.jamocha.rete.functions.Function;
 import org.jamocha.rete.functions.FunctionDescription;
 
 /**
@@ -32,7 +32,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  * 
  * Initializes the JDBC adaptor by defining the jdbclink template. Returns true on success.
  */
-public class JDBCLinkInit extends AbstractFunction {
+public class JDBCLinkInit extends Function {
 
 	private static final class Description implements FunctionDescription {
 

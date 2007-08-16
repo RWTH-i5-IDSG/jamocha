@@ -26,7 +26,7 @@ import org.jamocha.rete.Constants;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.Template;
-import org.jamocha.rete.functions.AbstractFunction;
+import org.jamocha.rete.functions.Function;
 import org.jamocha.rete.functions.FunctionDescription;
 
 /**
@@ -35,7 +35,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  * Prints out all defined templates in no specific order. 
  * The return value is NIL.
  */
-public class ListTemplates extends AbstractFunction {
+public class ListTemplates extends Function {
 
 	private static final class Description implements FunctionDescription {
 

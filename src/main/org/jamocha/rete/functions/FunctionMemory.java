@@ -20,8 +20,6 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.Map;
 
-import org.jamocha.rete.Function;
-
 /**
  * @author Sebastian Reinartz
  *

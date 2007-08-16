@@ -22,7 +22,7 @@ import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.functions.AbstractFunction;
+import org.jamocha.rete.functions.Function;
 import org.jamocha.rete.functions.FunctionDescription;
 
 /**
@@ -30,7 +30,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  * 
  * Returns the hyperbolic cosine of an angle.
  */
-public class Cosh extends AbstractFunction {
+public class Cosh extends Function {
 
 	private static final class Description implements FunctionDescription {
 

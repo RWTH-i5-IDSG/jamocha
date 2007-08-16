@@ -29,7 +29,7 @@ import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.Slot;
 import org.jamocha.rete.Template;
-import org.jamocha.rete.functions.AbstractFunction;
+import org.jamocha.rete.functions.Function;
 import org.jamocha.rete.functions.FunctionDescription;
 import org.jamocha.rete.util.DeffactIterator;
 
@@ -50,7 +50,7 @@ import org.jamocha.rete.util.DeffactIterator;
  * DeffactIterator(java.util.Map<String,String>). This constructor is able to receive additional
  * information through the given map. It returns true, iff everything went fine.
  */
-public class IteratorImporter extends AbstractFunction {
+public class IteratorImporter extends Function {
 
 	private static final class Description implements FunctionDescription {
 

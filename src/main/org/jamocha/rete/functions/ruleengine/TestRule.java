@@ -27,7 +27,7 @@ import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.exception.AssertException;
 import org.jamocha.rete.exception.ExecuteException;
-import org.jamocha.rete.functions.AbstractFunction;
+import org.jamocha.rete.functions.Function;
 import org.jamocha.rete.functions.FunctionDescription;
 import org.jamocha.rule.Defrule;
 import org.jamocha.rule.util.GenerateFacts;
@@ -37,7 +37,7 @@ import org.jamocha.rule.util.GenerateFacts;
  * 
  * Generates the facts for a rule, asserts them and calls (fire).
  */
-public class TestRule extends AbstractFunction {
+public class TestRule extends Function {
 
 	private static final class Description implements FunctionDescription {
 

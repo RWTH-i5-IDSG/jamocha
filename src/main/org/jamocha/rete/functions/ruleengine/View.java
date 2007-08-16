@@ -25,7 +25,7 @@ import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.functions.AbstractFunction;
+import org.jamocha.rete.functions.Function;
 import org.jamocha.rete.functions.FunctionDescription;
 import org.jamocha.rete.visualisation.VisualizerPanel;
 
@@ -34,7 +34,7 @@ import org.jamocha.rete.visualisation.VisualizerPanel;
  * 
  * Opens a visualisation window for the rete net.
  */
-public class View extends AbstractFunction {
+public class View extends Function {
 
 	private static final class Description implements FunctionDescription {
 

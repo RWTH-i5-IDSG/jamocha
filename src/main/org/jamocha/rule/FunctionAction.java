@@ -25,12 +25,12 @@ import org.jamocha.rete.Binding;
 import org.jamocha.rete.BoundParam;
 import org.jamocha.rete.Deffact;
 import org.jamocha.rete.Fact;
-import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.configurations.AbstractConfiguration;
 import org.jamocha.rete.configurations.Signature;
 import org.jamocha.rete.exception.ExecuteException;
+import org.jamocha.rete.functions.Function;
 import org.jamocha.rete.functions.ruleengine.Assert;
 
 /**

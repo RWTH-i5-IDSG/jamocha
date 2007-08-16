@@ -18,11 +18,11 @@ import org.jamocha.rete.configurations.ModifyConfiguration;
 import org.jamocha.rete.configurations.Signature;
 import org.jamocha.rete.configurations.SlotConfiguration;
 import org.jamocha.rete.configurations.WhileDoConfiguration;
-import org.jamocha.rete.functions.AbstractFunction;
+import org.jamocha.rete.functions.Function;
 
 public class SFPFormatter extends Formatter {
 
-	public String visit(AbstractFunction object) {
+	public String visit(Function object) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("(");
 		sb.append(object.getName());

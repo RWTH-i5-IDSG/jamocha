@@ -32,7 +32,7 @@ import org.jamocha.parser.Parser;
 import org.jamocha.parser.ParserFactory;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.functions.AbstractFunction;
+import org.jamocha.rete.functions.Function;
 import org.jamocha.rete.functions.FunctionDescription;
 
 /**
@@ -42,7 +42,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  * on a remote machine accessible via http or some other protocol. Returns true
  * on success.
  */
-public class Batch extends AbstractFunction {
+public class Batch extends Function {
 
 	private static final class Description implements FunctionDescription {
 

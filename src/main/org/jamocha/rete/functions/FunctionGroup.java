@@ -20,8 +20,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.jamocha.rete.Function;
-
 /**
  * @author Peter Lin
  * 
@@ -74,6 +72,7 @@ public abstract class FunctionGroup implements Serializable {
 	 */
 	public final void addFunction(Function function) {
 		funcs.add(function);
+		function.addToFunctionGroup(this);
 	}
 
 	/**
@@ -87,14 +86,10 @@ public abstract class FunctionGroup implements Serializable {
 	 */
 	public final void addFunction(FunctionMemory functionMem, Function function) {
 		functionMem.declareFunction(function);
-		funcs.add(function);
-		// TODO remove this if when abstractfunction is used everywhere
-		if (function instanceof AbstractFunction) {
-			((AbstractFunction) function).addToFunctionGroup(this);
-			List<String> aliases = ((AbstractFunction) function).getAliases();
-			for (String alias : aliases) {
-				functionMem.declareFunction(alias, function);
-			}
+		addFunction(function);
+		List<String> aliases = ((Function) function).getAliases();
+		for (String alias : aliases) {
+			functionMem.declareFunction(alias, function);
 		}
 	}
 }

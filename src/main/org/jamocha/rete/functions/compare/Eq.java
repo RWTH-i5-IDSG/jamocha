@@ -22,7 +22,7 @@ import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.functions.AbstractFunction;
+import org.jamocha.rete.functions.Function;
 import org.jamocha.rete.functions.FunctionDescription;
 
 /**
@@ -31,7 +31,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  * Eq is used to compare a literal value against one or more other values. If
  * all of the values are equal, the function returns true.
  */
-public class Eq extends AbstractFunction {
+public class Eq extends Function {
 
 	private static final class Description implements FunctionDescription {
 

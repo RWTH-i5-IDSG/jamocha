@@ -22,7 +22,7 @@ import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Constants;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.functions.AbstractFunction;
+import org.jamocha.rete.functions.Function;
 import org.jamocha.rete.functions.FunctionDescription;
 
 /**
@@ -31,7 +31,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  * mem-free will print out the free memory currently available to the Java VM.
  * Returns NIL.
  */
-public class MemoryFree extends AbstractFunction {
+public class MemoryFree extends Function {
 
 	private static final class Description implements FunctionDescription {
 

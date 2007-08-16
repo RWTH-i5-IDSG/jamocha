@@ -21,7 +21,7 @@ import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.functions.AbstractFunction;
+import org.jamocha.rete.functions.Function;
 import org.jamocha.rete.functions.FunctionDescription;
 
 /**
@@ -29,7 +29,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  * 
  * Sets rule validation to true or false. Returns true on success.
  */
-public class ValidateRule extends AbstractFunction {
+public class ValidateRule extends Function {
 
 	private static final class Description implements FunctionDescription {
 

@@ -21,7 +21,7 @@ import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.functions.AbstractFunction;
+import org.jamocha.rete.functions.Function;
 import org.jamocha.rete.functions.FunctionDescription;
 import org.jamocha.rule.Defrule;
 
@@ -30,7 +30,7 @@ import org.jamocha.rule.Defrule;
  * 
  * Removes a rule in the engine. Returns true on success.
  */
-public class UnDefrule extends AbstractFunction {
+public class UnDefrule extends Function {
 
 	private static final class Description implements FunctionDescription {
 

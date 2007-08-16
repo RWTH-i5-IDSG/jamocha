@@ -22,7 +22,7 @@ import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.functions.AbstractFunction;
+import org.jamocha.rete.functions.Function;
 import org.jamocha.rete.functions.FunctionDescription;
 
 /**
@@ -32,7 +32,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  * specified in the second argument. Returns true if this is the case, 
  * false otherwise.
  */
-public class Instanceof extends AbstractFunction {
+public class Instanceof extends Function {
 
 	private static final class Description implements FunctionDescription {
 

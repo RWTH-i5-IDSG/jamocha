@@ -22,7 +22,7 @@ import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.functions.AbstractFunction;
+import org.jamocha.rete.functions.Function;
 import org.jamocha.rete.functions.FunctionDescription;
 
 /**
@@ -30,7 +30,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  * 
  * Sqrt returns the square root value of a double value.
  */
-public class Sqrt extends AbstractFunction {
+public class Sqrt extends Function {
 
 	private static final class Description implements FunctionDescription {
 

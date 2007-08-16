@@ -30,7 +30,7 @@ import org.jamocha.rete.BlockingScope;
 import org.jamocha.rete.BoundParam;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.functions.AbstractFunction;
+import org.jamocha.rete.functions.Function;
 import org.jamocha.rete.functions.FunctionDescription;
 
 /**
@@ -41,7 +41,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  * An optional binding as second argument can be used to catch an exception and
  * hold the error message.
  */
-public class EvalBlocking extends AbstractFunction {
+public class EvalBlocking extends Function {
 
 	private static final class Description implements FunctionDescription {
 

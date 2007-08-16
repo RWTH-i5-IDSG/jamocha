@@ -22,7 +22,7 @@ import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.functions.AbstractFunction;
+import org.jamocha.rete.functions.Function;
 import org.jamocha.rete.functions.FunctionDescription;
 
 /**
@@ -31,7 +31,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  * Creates a list of a given string. Optionally a separator where to split the string can be provided. 
  * Default separator is the space character.
  */
-public class Explode$ extends AbstractFunction {
+public class Explode$ extends Function {
 
 	private static final class Description implements FunctionDescription {
 

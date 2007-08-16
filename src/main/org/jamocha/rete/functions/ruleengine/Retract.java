@@ -24,7 +24,7 @@ import org.jamocha.rete.Deffact;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.exception.RetractException;
-import org.jamocha.rete.functions.AbstractFunction;
+import org.jamocha.rete.functions.Function;
 import org.jamocha.rete.functions.FunctionDescription;
 
 /**
@@ -40,7 +40,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  * be printed each time a fact is retracted.
  * 
  */
-public class Retract extends AbstractFunction {
+public class Retract extends Function {
 
 	private static final class Description implements FunctionDescription {
 

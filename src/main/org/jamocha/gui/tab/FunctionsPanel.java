@@ -44,15 +44,13 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableColumnModel;
 
-import org.jamocha.formatter.BackupOfCLIPSFormatter;
 import org.jamocha.formatter.HelpFormatter;
 import org.jamocha.gui.JamochaGui;
 import org.jamocha.gui.TableModelQuickSort;
 import org.jamocha.gui.TableRowModel;
 import org.jamocha.gui.icons.IconLoader;
 import org.jamocha.messagerouter.StringChannel;
-import org.jamocha.rete.Function;
-import org.jamocha.rete.functions.AbstractFunction;
+import org.jamocha.rete.functions.Function;
 import org.jamocha.rete.functions.FunctionGroup;
 import org.jamocha.rete.functions.FunctionMemory;
 
@@ -260,14 +258,10 @@ public class FunctionsPanel extends AbstractJamochaPanel implements
 			for (Function func : funcList) {
 				if (!funcnameList.contains(func.getName())) {
 					funcnameList.add(func.getName());
-					// TODO remove this instanceof when all Functions extend
-					// AbstractFunction
-					if (func instanceof AbstractFunction) {
-						List<String> aliases = ((AbstractFunction) func)
-								.getAliases();
-						for (String alias : aliases) {
-							funcnameList.add(alias);
-						}
+					List<String> aliases = ((Function) func)
+							.getAliases();
+					for (String alias : aliases) {
+						funcnameList.add(alias);
 					}
 				}
 			}
@@ -327,15 +321,7 @@ public class FunctionsPanel extends AbstractJamochaPanel implements
 				Function function = gui.getEngine().getFunctionMemory()
 						.findFunction(functionName);
 				if (function != null) {
-					// TODO this is just as long as not all functions extend
-					// AbstractFunction
-					if (function instanceof AbstractFunction) {
-						buffer.append(((AbstractFunction) function)
-								.format(new HelpFormatter()));
-					} else {
-						BackupOfCLIPSFormatter formatter = new BackupOfCLIPSFormatter();
-						buffer.append(formatter.formatFunction(function));
-					}
+					buffer.append(function.format(new HelpFormatter()));
 				}
 			}
 			dumpAreaFunction.setText(buffer.toString());

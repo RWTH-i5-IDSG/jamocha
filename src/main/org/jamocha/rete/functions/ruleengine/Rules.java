@@ -24,7 +24,7 @@ import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.functions.AbstractFunction;
+import org.jamocha.rete.functions.Function;
 import org.jamocha.rete.functions.FunctionDescription;
 import org.jamocha.rule.Rule;
 
@@ -33,7 +33,7 @@ import org.jamocha.rule.Rule;
  * 
  * rules prints out the names of the rules and their comments. Returns NIL.
  */
-public class Rules extends AbstractFunction {
+public class Rules extends Function {
 
 	private static final class Description implements FunctionDescription {
 
