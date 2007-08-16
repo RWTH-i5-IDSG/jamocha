@@ -44,11 +44,14 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableColumnModel;
 
+import org.jamocha.formatter.BackupOfCLIPSFormatter;
+import org.jamocha.formatter.HelpFormatter;
 import org.jamocha.gui.JamochaGui;
 import org.jamocha.gui.TableModelQuickSort;
 import org.jamocha.gui.TableRowModel;
 import org.jamocha.gui.icons.IconLoader;
 import org.jamocha.messagerouter.StringChannel;
+import org.jamocha.rete.AbstractFunction;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.FunctionGroup;
 import org.jamocha.rete.functions.FunctionMemory;
@@ -316,10 +319,16 @@ public class FunctionsPanel extends AbstractJamochaPanel implements
 				Function function = (Function) funcsDataModel
 						.getRowAt(functionsTable.getSelectedRow());
 				if (function != null) {
-//					buffer.append(ParserFactory.getFormatter(true)
-//							.format(function));
-//					buffer.append("\n");
-					// TODO fix me
+					// TODO this is just as long as not all functions extend
+					// AbstractFunction
+					if (function instanceof AbstractFunction) {
+						buffer.append(((AbstractFunction) function)
+								.format(new HelpFormatter()));
+					}
+					else {
+						BackupOfCLIPSFormatter formatter = new BackupOfCLIPSFormatter();
+						buffer.append(formatter.formatFunction(function));
+					}
 				}
 			}
 			dumpAreaFunction.setText(buffer.toString());
