@@ -1,51 +1,30 @@
 package org.jamocha.rete.functions;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import org.jamocha.formatter.Formattable;
 import org.jamocha.formatter.Formatter;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 
-public abstract class Function implements Formattable {
+public interface Function {
 
-	protected List<String> aliases = new ArrayList<String>();
-
-	protected List<FunctionGroup> functionGroups = new ArrayList<FunctionGroup>(
-			1);
-
-	public Function() {
-	}
-
-	public abstract JamochaValue executeFunction(Rete engine, Parameter[] params)
+	public JamochaValue executeFunction(Rete engine, Parameter[] params)
 			throws EvaluationException;
 
-	public abstract FunctionDescription getDescription();
+	public FunctionDescription getDescription();
 
-	public abstract String getName();
+	public String getName();
 
-	public void addToFunctionGroup(FunctionGroup group) {
-		if (!functionGroups.contains(group))
-			functionGroups.add(group);
-	}
+	public void addToFunctionGroup(FunctionGroup group);
 
-	public void removeFromFunctionGroup(FunctionGroup group) {
-		functionGroups.remove(group);
-	}
+	public void removeFromFunctionGroup(FunctionGroup group);
 
-	public List<FunctionGroup> getFunctionGroups() {
-		return functionGroups;
-	}
+	public List<FunctionGroup> getFunctionGroups();
 
-	public List<String> getAliases() {
-		return aliases;
-	}
+	public List<String> getAliases();
 
-	public String format(Formatter visitor) {
-		return visitor.visit(this);
-	}
+	public String format(Formatter visitor);
 
 }
