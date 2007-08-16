@@ -16,16 +16,14 @@
  */
 package org.jamocha.adapter.sl;
 
-import java.io.Serializable;
-
 import org.jamocha.adapter.AdapterTranslationException;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.IllegalParameterException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
+import org.jamocha.rete.functions.AbstractFunction;
 import org.jamocha.rete.functions.FunctionDescription;
 
 /**
@@ -33,10 +31,9 @@ import org.jamocha.rete.functions.FunctionDescription;
  * 
  * @author Alexander Wilden
  */
-public class SL2CLIPSFunction implements Function, Serializable {
+public class SL2CLIPSFunction extends AbstractFunction {
 
-	public static final class Description implements
-			FunctionDescription {
+	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
 			return "Translates SL-Code to CLIPS-Code which then will be returned as a String.";
@@ -99,9 +96,9 @@ public class SL2CLIPSFunction implements Function, Serializable {
 		}
 	}
 
-	private static final FunctionDescription DESCRIPTION = new Description();
-
 	private static final long serialVersionUID = 1L;
+
+	public static final FunctionDescription DESCRIPTION = new Description();
 
 	public static final String NAME = "sl2clips";
 

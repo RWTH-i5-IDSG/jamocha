@@ -1,7 +1,5 @@
 package org.jamocha.adapter.sl;
 
-import java.io.Serializable;
-
 import org.jamocha.adapter.sl.configurations.ContentSLConfiguration;
 import org.jamocha.adapter.sl.configurations.SLCompileType;
 import org.jamocha.parser.EvaluationException;
@@ -10,13 +8,14 @@ import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.parser.sl.ParseException;
 import org.jamocha.parser.sl.SLParser;
-import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
+import org.jamocha.rete.functions.AbstractFunction;
 import org.jamocha.rete.functions.FunctionDescription;
 
-public class SLMessageCompare implements Function, Serializable {
-	public static final class Description implements FunctionDescription {
+public class SLMessageCompare extends AbstractFunction {
+
+	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
 			return "Compares two messages in SL by translating them to CLIPS and thereby receiving a kind of semantic representation. Then the result of a simple String comparison is returned.";
@@ -77,9 +76,9 @@ public class SLMessageCompare implements Function, Serializable {
 		}
 	}
 
-	private static final FunctionDescription DESCRIPTION = new Description();
-
 	private static final long serialVersionUID = 1L;
+
+	public static final FunctionDescription DESCRIPTION = new Description();
 
 	public static final String NAME = "SL-message-compare";
 

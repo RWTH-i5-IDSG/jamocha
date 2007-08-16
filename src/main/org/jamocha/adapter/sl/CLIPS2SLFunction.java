@@ -16,15 +16,13 @@
  */
 package org.jamocha.adapter.sl;
 
-import java.io.Serializable;
-
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.IllegalParameterException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
+import org.jamocha.rete.functions.AbstractFunction;
 import org.jamocha.rete.functions.FunctionDescription;
 
 /**
@@ -32,9 +30,9 @@ import org.jamocha.rete.functions.FunctionDescription;
  * 
  * @author Alexander Wilden
  */
-public class CLIPS2SLFunction implements Function, Serializable {
+public class CLIPS2SLFunction extends AbstractFunction {
 
-	public static final class CLIPS2SLFunctionDescription implements
+	private static final class CLIPS2SLFunctionDescription implements
 			FunctionDescription {
 
 		public String getDescription() {
@@ -80,9 +78,9 @@ public class CLIPS2SLFunction implements Function, Serializable {
 		}
 	}
 
-	private static final FunctionDescription DESCRIPTION = new CLIPS2SLFunctionDescription();
-
 	private static final long serialVersionUID = 1L;
+
+	public static final FunctionDescription DESCRIPTION = new CLIPS2SLFunctionDescription();
 
 	public static final String NAME = "clips2sl";
 

@@ -23,9 +23,9 @@ import java.util.Calendar;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
+import org.jamocha.rete.functions.AbstractFunction;
 import org.jamocha.rete.functions.FunctionDescription;
 
 /**
@@ -33,8 +33,9 @@ import org.jamocha.rete.functions.FunctionDescription;
  * 
  * 
  */
-public class SendMessageFunction implements Function {
-	public static final class Description implements FunctionDescription {
+public class SendMessageFunction extends AbstractFunction {
+	
+	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
 			return "FIX ME!";
@@ -79,13 +80,13 @@ public class SendMessageFunction implements Function {
 		}
 	}
 
-	private static final FunctionDescription DESCRIPTION = new Description();
-
 	private static final long serialVersionUID = 1L;
 
-	private JamochaAgent agent;
+	public static final FunctionDescription DESCRIPTION = new Description();
 
-	private static final String NAME = "agent-send-message";
+	public static final String NAME = "agent-send-message";
+
+	private JamochaAgent agent;
 
 	private static final int SENDER_PARAM_POS = 0;
 
@@ -169,7 +170,7 @@ public class SendMessageFunction implements Function {
 						.getStringValue().toUpperCase()));
 		String sender = params[SENDER_PARAM_POS].getValue(engine)
 				.getStringValue();
-		if(sender == null || sender.length() < 1) {
+		if (sender == null || sender.length() < 1) {
 			sender = agent.getName();
 		}
 		result.setSender(new AID(sender, true));
