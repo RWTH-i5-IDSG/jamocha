@@ -19,6 +19,7 @@ package org.jamocha.gui.tab;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
@@ -89,7 +90,17 @@ public class FunctionsPanel extends AbstractJamochaPanel implements
 		setLayout(new BorderLayout());
 
 		funcGroupsDataModel = new FunctionGroupDataModel();
-		functionGroupList = new JList(funcGroupsDataModel);
+		functionGroupList = new JList(funcGroupsDataModel) {
+
+			private static final long serialVersionUID = 1L;
+
+			public String getToolTipText(MouseEvent event) {
+				Point point = event.getPoint();
+				int index = this.locationToIndex(point);
+
+				return funcGroupsDataModel.getFunctionDescriptionAt(index);
+			}
+		};
 		functionGroupList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		functionGroupList.addListSelectionListener(this);
 		funcsDataModel = new FunctionsTableModel();
@@ -173,6 +184,10 @@ public class FunctionsPanel extends AbstractJamochaPanel implements
 			public String getName() {
 				return SHOW_ALL;
 			}
+			
+			public String getDescription() {
+				return "View the Functions of all Groups";
+			}
 
 			public void loadFunctions(FunctionMemory functionMem) {
 			}
@@ -237,6 +252,13 @@ public class FunctionsPanel extends AbstractJamochaPanel implements
 			return funcGroups.get(index).getName();
 		}
 
+		public String getFunctionDescriptionAt(int index) {
+			if (index < funcGroups.size() && index >= 0)
+				return funcGroups.get(index).getDescription();
+			else
+				return "";
+		}
+
 		public int getSize() {
 			if (funcGroups == null) {
 				return 0;
@@ -258,8 +280,7 @@ public class FunctionsPanel extends AbstractJamochaPanel implements
 			for (Function func : funcList) {
 				if (!funcnameList.contains(func.getName())) {
 					funcnameList.add(func.getName());
-					List<String> aliases = ((Function) func)
-							.getAliases();
+					List<String> aliases = ((Function) func).getAliases();
 					for (String alias : aliases) {
 						funcnameList.add(alias);
 					}
