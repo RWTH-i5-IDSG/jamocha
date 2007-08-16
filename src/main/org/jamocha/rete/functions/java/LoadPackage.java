@@ -100,6 +100,7 @@ public class LoadPackage implements Function, Serializable {
 		this.classnameResolver = classnameResolver;
 	}
 
+	@SuppressWarnings("unchecked")
 	public JamochaValue executeFunction(Rete engine, Parameter[] params)
 			throws EvaluationException {
 		JamochaValue result = JamochaValue.FALSE;

@@ -16,59 +16,27 @@
  */
 package org.jamocha.rete.functions.compare;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.jamocha.rete.Function;
 import org.jamocha.rete.FunctionGroup;
 import org.jamocha.rete.functions.FunctionMemory;
 
-public class CompareFunctions implements FunctionGroup {
+public class CompareFunctions extends FunctionGroup {
 
 	private static final long serialVersionUID = 1L;
 
-	private ArrayList<Function> funcs = new ArrayList<Function>();
-
-	public String getName() {
-		return (CompareFunctions.class.getSimpleName());
+	public CompareFunctions() {
+		super();
+		name = "CompareFunctions";
+		description = "This Group provides functions to compare one value to others.";
 	}
 
 	public void loadFunctions(FunctionMemory functionMem) {
-		
-		AnyEq anyeq = new AnyEq();
-		functionMem.declareFunction(anyeq);
-		funcs.add(anyeq);
 
-		Eq eq = new Eq();
-		functionMem.declareFunction(eq);
-		funcs.add(eq);
-
-		Greater greater = new Greater();
-		functionMem.declareFunction(greater);
-		funcs.add(greater);
-
-		GreaterOrEqual greaterOrEqual = new GreaterOrEqual();
-		functionMem.declareFunction(greaterOrEqual);
-		funcs.add(greaterOrEqual);
-
-		Less less = new Less();
-		functionMem.declareFunction(less);
-		funcs.add(less);
-
-		LessOrEqual lessOrEqual = new LessOrEqual();
-		functionMem.declareFunction(lessOrEqual);
-		funcs.add(lessOrEqual);
-
-		Neq neq = new Neq();
-		functionMem.declareFunction(neq);
-		funcs.add(neq);
-	}
-
-	public List<Function> listFunctions() {
-		return funcs;
-	}
-
-	public void addFunction(Function function) {
-		this.funcs.add(function);
+		addFunction(functionMem, new AnyEq());
+		addFunction(functionMem, new Eq());
+		addFunction(functionMem, new Greater());
+		addFunction(functionMem, new GreaterOrEqual());
+		addFunction(functionMem, new Less());
+		addFunction(functionMem, new LessOrEqual());
+		addFunction(functionMem, new Neq());
 	}
 }

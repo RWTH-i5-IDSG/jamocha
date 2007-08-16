@@ -112,6 +112,7 @@ public class New implements Function, Serializable {
 		this.classnameResolver = classnameResolver;
 	}
 
+	@SuppressWarnings("unchecked")
 	public JamochaValue executeFunction(Rete engine, Parameter[] params)
 			throws EvaluationException {
 		Object o = null;

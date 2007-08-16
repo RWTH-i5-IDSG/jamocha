@@ -16,49 +16,27 @@
  */
 package org.jamocha.rete.functions.java;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.jamocha.rete.Function;
 import org.jamocha.rete.FunctionGroup;
 import org.jamocha.rete.functions.FunctionMemory;
 
-public class JavaFunctions implements FunctionGroup {
+public class JavaFunctions extends FunctionGroup {
 
 	private static final long serialVersionUID = 1L;
 
-	private ArrayList<Function> funcs = new ArrayList<Function>();
-
-	public String getName() {
-		return (JavaFunctions.class.getSimpleName());
+	public JavaFunctions() {
+		super();
+		name = "JavaFunctions";
+		description = "This Group provides Functions to access parts of the Java-API.";
 	}
 
 	public void loadFunctions(FunctionMemory functionMem) {
 		ClassnameResolver classnameResolver = new ClassnameResolver();
 
-		Instanceof instanceOf = new Instanceof(classnameResolver);
-		functionMem.declareFunction(instanceOf);
-		funcs.add(instanceOf);
+		addFunction(functionMem, new Instanceof(classnameResolver));
+		addFunction(functionMem, new LoadPackage(classnameResolver));
+		addFunction(functionMem, new Member());
+		addFunction(functionMem, new New(classnameResolver));
 
-		LoadPackage loadPackage = new LoadPackage(classnameResolver);
-		functionMem.declareFunction(loadPackage);
-		funcs.add(loadPackage);
-
-		Member member = new Member();
-		functionMem.declareFunction(member);
-		funcs.add(member);
-
-		New newf = new New(classnameResolver);
-		functionMem.declareFunction(newf);
-		funcs.add(newf);
-	}
-
-	public List listFunctions() {
-		return funcs;
-	}
-	
-	public void addFunction(Function function) {
-		this.funcs.add(function);
 	}
 
 }

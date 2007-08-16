@@ -16,50 +16,31 @@
  */
 package org.jamocha.rete.functions;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.jamocha.rete.Function;
 import org.jamocha.rete.FunctionGroup;
 
 /**
  * @author Peter Lin
- *
+ * 
  */
-public class DeffunctionGroup implements FunctionGroup {
+public class DeffunctionGroup extends FunctionGroup {
 
 	private static final long serialVersionUID = 1L;
-	
-	private List<Function> funcs = new ArrayList<Function>();
-	
-	private String name = "Deffunctions";
 
 	public DeffunctionGroup(String name) {
 		super();
 		this.name = name;
 	}
 
-	public String getName() {
-        return this.name;
-    }
+	public DeffunctionGroup() {
+		super();
+		this.name = "Deffunctions";
+	}
 
-    public List<Function> listFunctions() {
-        return funcs;
-    }
+	/**
+	 * At engine initialization time, the function group doesn't have any
+	 * functions.
+	 */
+	public void loadFunctions(FunctionMemory functionMem) {
+	}
 
-    /**
-     * At engine initialization time, the function group doesn't
-     * have any functions.
-     */
-    public void loadFunctions(FunctionMemory functionMem) {
-    }
-
-    /**
-     * Add a function to the group
-     * @param f
-     */
-    public void addFunction(Function f) {
-        this.funcs.add(f);
-    }
-   
 }

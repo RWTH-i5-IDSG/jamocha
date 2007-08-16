@@ -16,7 +16,6 @@
  */
 package org.jamocha.rete.functions.help;
 
-import java.io.Serializable;
 import java.io.StringReader;
 import java.util.LinkedList;
 import java.util.List;
@@ -29,6 +28,7 @@ import org.jamocha.parser.JamochaValue;
 import org.jamocha.parser.ParseException;
 import org.jamocha.parser.Parser;
 import org.jamocha.parser.ParserFactory;
+import org.jamocha.rete.AbstractFunction;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
@@ -41,7 +41,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  * Note: Don't use this function in your production environment as templates,
  * rules and facts might be added, removed or modified.
  */
-public class Example implements Function, Serializable {
+public class Example extends AbstractFunction {
 
 	private static final class Description implements FunctionDescription {
 
@@ -86,9 +86,9 @@ public class Example implements Function, Serializable {
 		}
 	}
 
-	private static final FunctionDescription DESCRIPTION = new Description();
-
 	private static final long serialVersionUID = 1L;
+
+	public static final FunctionDescription DESCRIPTION = new Description();
 
 	public static final String NAME = "example";
 

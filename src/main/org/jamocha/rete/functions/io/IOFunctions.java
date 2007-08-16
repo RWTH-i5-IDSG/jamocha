@@ -16,11 +16,6 @@
  */
 package org.jamocha.rete.functions.io;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.jamocha.rete.Function;
 import org.jamocha.rete.FunctionGroup;
 import org.jamocha.rete.functions.FunctionMemory;
 
@@ -30,42 +25,21 @@ import org.jamocha.rete.functions.FunctionMemory;
  * IO Functions will initialize the IO related functions like printout, batch,
  * etc.
  */
-public class IOFunctions implements FunctionGroup, Serializable {
+public class IOFunctions extends FunctionGroup {
 
 	private static final long serialVersionUID = 0xBABABABABABABEL;
 
-	private List<Function> funcs = new ArrayList<Function>();
-
-	public String getName() {
-		return (IOFunctions.class.getSimpleName());
+	public IOFunctions() {
+		super();
+		name = "IOFunctions";
+		description = "This Group provides functions that give access to the filesystem or just print out data on the Shell.";
 	}
 
 	public void loadFunctions(FunctionMemory functionMem) {
-		Batch batch = new Batch();
-		functionMem.declareFunction(batch);
-		funcs.add(batch);
-		
-		LoadFacts loadFacts = new LoadFacts();
-		functionMem.declareFunction(loadFacts);
-		funcs.add(loadFacts);
+		addFunction(functionMem, new Batch());
+		addFunction(functionMem, new LoadFacts());
+		addFunction(functionMem, new Printout());
+		addFunction(functionMem, new Dump());
 
-		Printout printout = new Printout();
-		functionMem.declareFunction(printout);
-		funcs.add(printout);
-		
-		Dump dump = new Dump();
-		functionMem.declareFunction(dump);
-		funcs.add(dump);
-		
-		
 	}
-
-	public List<Function> listFunctions() {
-		return funcs;
-	}
-	
-	public void addFunction(Function function) {
-		this.funcs.add(function);
-	}
-
 }

@@ -16,14 +16,13 @@
  */
 package org.jamocha.rete.functions.datetime;
 
-import java.io.Serializable;
 import java.util.GregorianCalendar;
 
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.IllegalParameterException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.rete.Function;
+import org.jamocha.rete.AbstractFunction;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.functions.FunctionDescription;
@@ -33,7 +32,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  * 
  * Returns the DateTime-Object from the actual Date and Time.
  */
-public class Now implements Function, Serializable {
+public class Now extends AbstractFunction {
 
 	private static final class Description implements FunctionDescription {
 
@@ -69,9 +68,8 @@ public class Now implements Function, Serializable {
 			return false;
 		}
 
-		public String getExample() {			
-			return "(now)\n" +
-					"(getseconds (now))";
+		public String getExample() {
+			return "(now)\n" + "(getseconds (now))";
 		}
 
 		public boolean isResultAutoGeneratable() {
@@ -79,9 +77,9 @@ public class Now implements Function, Serializable {
 		}
 	}
 
-	private static final FunctionDescription DESCRIPTION = new Description();
-
 	private static final long serialVersionUID = 1L;
+
+	public static final FunctionDescription DESCRIPTION = new Description();
 
 	public static final String NAME = "now";
 

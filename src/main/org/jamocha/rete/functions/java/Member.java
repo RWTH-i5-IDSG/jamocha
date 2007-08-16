@@ -113,6 +113,7 @@ public class Member implements Function, Serializable {
 		return NAME;
 	}
 
+	@SuppressWarnings("unchecked")
 	public JamochaValue executeFunction(Rete engine, Parameter[] params)
 			throws EvaluationException {
 		Object o = null;

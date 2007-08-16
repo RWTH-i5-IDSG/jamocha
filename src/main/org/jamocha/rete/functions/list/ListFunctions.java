@@ -16,111 +16,41 @@
  */
 package org.jamocha.rete.functions.list;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.jamocha.rete.Function;
 import org.jamocha.rete.FunctionGroup;
 import org.jamocha.rete.functions.FunctionMemory;
 
-public class ListFunctions implements FunctionGroup {
+public class ListFunctions extends FunctionGroup {
 
 	private static final long serialVersionUID = 0xDEADBEAFL;
 
-	private ArrayList<Function> funcs = new ArrayList<Function>();
-
-	public String getName() {
-		return (ListFunctions.class.getSimpleName());
+	public ListFunctions() {
+		super();
+		name = "ListFunctions";
+		description = "This Group provides functions to modify, create, access or get properties of lists.";
 	}
 
 	public void loadFunctions(FunctionMemory functionMem) {
-		Complement$ complement = new Complement$();
-		functionMem.declareFunction(complement);
-		funcs.add(complement);
-
-		Create$ create = new Create$();
-		functionMem.declareFunction(create);
-		funcs.add(create);
-
-		Delete$ delete = new Delete$();
-		functionMem.declareFunction(delete);
-		funcs.add(delete);
-
-		DeleteMember$ deleteMember = new DeleteMember$();
-		functionMem.declareFunction(deleteMember);
-		funcs.add(deleteMember);
-
-		Explode$ explode = new Explode$();
-		functionMem.declareFunction(explode);
-		funcs.add(explode);
 		
-		First$ first = new First$();
-		functionMem.declareFunction(first);
-		funcs.add(first);
-
-		Foreach foreach = new Foreach();
-		functionMem.declareFunction(foreach);
-		funcs.add(foreach);
-
-		Implode$ implode = new Implode$();
-		functionMem.declareFunction(implode);
-		funcs.add(implode);
-
-		Insert$ insert = new Insert$();
-		functionMem.declareFunction(insert);
-		funcs.add(insert);
-
-		InsertList$ insertList = new InsertList$();
-		functionMem.declareFunction(insertList);
-		funcs.add(insertList);
-
-		Intersection$ intersection = new Intersection$();
-		functionMem.declareFunction(intersection);
-		funcs.add(intersection);
-
-		Length$ length = new Length$();
-		functionMem.declareFunction(length);
-		funcs.add(length);
-
-		Member$ member = new Member$();
-		functionMem.declareFunction(member);
-		funcs.add(member);
-
-		Nth$ nth = new Nth$();
-		functionMem.declareFunction(nth);
-		funcs.add(nth);
-
-		Replace$ replace = new Replace$();
-		functionMem.declareFunction(replace);
-		funcs.add(replace);
-
-		ReplaceMember$ replaceMember = new ReplaceMember$();
-		functionMem.declareFunction(replaceMember);
-		funcs.add(replaceMember);
-
-		Rest$ rest = new Rest$();
-		functionMem.declareFunction(rest);
-		funcs.add(rest);
-
-		Subseq$ subseq = new Subseq$();
-		functionMem.declareFunction(subseq);
-		funcs.add(subseq);
-
-		Subsetp subsetp = new Subsetp();
-		functionMem.declareFunction(subsetp);
-		funcs.add(subsetp);
-
-		Union$ union = new Union$();
-		functionMem.declareFunction(union);
-		funcs.add(union);
-	}
-
-	public List listFunctions() {
-		return funcs;
-	}
-	
-	public void addFunction(Function function) {
-		this.funcs.add(function);
+		addFunction(functionMem, new Complement$());
+		addFunction(functionMem, new Create$());
+		addFunction(functionMem, new Delete$());
+		addFunction(functionMem, new DeleteMember$());
+		addFunction(functionMem, new Explode$());
+		addFunction(functionMem, new First$());
+		addFunction(functionMem, new Foreach());
+		addFunction(functionMem, new Implode$());
+		addFunction(functionMem, new Insert$());
+		addFunction(functionMem, new InsertList$());
+		addFunction(functionMem, new Intersection$());
+		addFunction(functionMem, new Length$());
+		addFunction(functionMem, new Member$());
+		addFunction(functionMem, new Nth$());
+		addFunction(functionMem, new Replace$());
+		addFunction(functionMem, new ReplaceMember$());
+		addFunction(functionMem, new Rest$());
+		addFunction(functionMem, new Subseq$());
+		addFunction(functionMem, new Subsetp());
+		addFunction(functionMem, new Union$());
 	}
 
 }

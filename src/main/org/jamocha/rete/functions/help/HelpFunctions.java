@@ -16,11 +16,6 @@
  */
 package org.jamocha.rete.functions.help;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.jamocha.rete.Function;
 import org.jamocha.rete.FunctionGroup;
 import org.jamocha.rete.functions.FunctionMemory;
 
@@ -30,33 +25,20 @@ import org.jamocha.rete.functions.FunctionMemory;
  * Help Functions give additional information to the rule engine and the
  * functions and provides some examples.
  */
-public class HelpFunctions implements FunctionGroup, Serializable {
+public class HelpFunctions extends FunctionGroup {
 
 	private static final long serialVersionUID = 1L;
 
-	private List<Function> funcs = new ArrayList<Function>();
-
-	public String getName() {
-		return (HelpFunctions.class.getSimpleName());
+	public HelpFunctions() {
+		super();
+		name = "HelpFunctions";
+		description = "This Group provides functions that give some help when working with Jamocha.";
 	}
 
 	public void loadFunctions(FunctionMemory functionMem) {
 
-		Example example = new Example();
-		functionMem.declareFunction(example);
-		funcs.add(example);
-
-		Usage usage = new Usage();
-		functionMem.declareFunction(usage);
-		funcs.add(usage);
-	}
-
-	public List<Function> listFunctions() {
-		return funcs;
-	}
-	
-	public void addFunction(Function function) {
-		this.funcs.add(function);
+		addFunction(functionMem, new Example());
+		addFunction(functionMem, new Usage());
 	}
 
 }

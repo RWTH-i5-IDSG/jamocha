@@ -22,7 +22,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.jamocha.rete.AbstractFunction;
 import org.jamocha.rete.Function;
 import org.jamocha.rete.FunctionGroup;
 import org.jamocha.rete.Rete;
@@ -55,6 +54,13 @@ public class FunctionMemoryImpl implements FunctionMemory {
 	 */
 	protected Map<String, Function> functions = new HashMap<String, Function>();
 
+	/**
+	 * This Map holds aliases for the functions that have them. This is needed
+	 * because otherwise we can't differentiate between the original function
+	 * and the aliases.
+	 */
+	protected Map<String, Function> aliases = new HashMap<String, Function>();
+
 	protected final String UNDEFINED_GROUP_NAME = "UNDEFINED";
 
 	private Map<String, FunctionGroup> functionGroups = new HashMap<String, FunctionGroup>();
@@ -74,7 +80,10 @@ public class FunctionMemoryImpl implements FunctionMemory {
 	}
 
 	public Function findFunction(String name) {
-		return this.functions.get(name);
+		Function result = this.functions.get(name);
+		if(result == null)
+			result = this.aliases.get(name);
+		return result;
 	}
 
 	/**
@@ -87,13 +96,6 @@ public class FunctionMemoryImpl implements FunctionMemory {
 		this.functions.put(func.getName(), func);
 		if (func instanceof InterpretedFunction) {
 			this.declareFunctionInDefaultGroup(func);
-		}
-		// TODO remove this if when abstractfunction is used everywhere
-		if (func instanceof AbstractFunction) {
-			List<String> aliases = ((AbstractFunction) func).getAliases();
-			for (String alias : aliases) {
-				this.functions.put(alias, func);
-			}
 		}
 	}
 
@@ -211,6 +213,7 @@ public class FunctionMemoryImpl implements FunctionMemory {
 
 	public void clearBuiltInFunctions() {
 		this.functions.clear();
+		this.aliases.clear();
 	}
 
 	/**
@@ -257,8 +260,6 @@ public class FunctionMemoryImpl implements FunctionMemory {
 
 	protected void declareFunctionInDefaultGroup(Function function) {
 		FunctionGroup group = getOrCreateDefaultFunctionGroup(UNDEFINED_GROUP_NAME);
-		if (group != null)
-			group.addFunction(function);
-
+		group.addFunction(function);
 	}
 }

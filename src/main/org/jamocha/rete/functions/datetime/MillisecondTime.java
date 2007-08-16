@@ -16,12 +16,10 @@
  */
 package org.jamocha.rete.functions.datetime;
 
-import java.io.Serializable;
-
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.rete.Function;
+import org.jamocha.rete.AbstractFunction;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.functions.FunctionDescription;
@@ -32,7 +30,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  * Returns the difference, measured in milliseconds, between the current time
  * and midnight, January 1, 1970 UTC.
  */
-public class MillisecondTime implements Function, Serializable {
+public class MillisecondTime extends AbstractFunction {
 
 	private static final class Description implements FunctionDescription {
 
@@ -77,9 +75,9 @@ public class MillisecondTime implements Function, Serializable {
 		}
 	}
 
-	private static final FunctionDescription DESCRIPTION = new Description();
-
 	private static final long serialVersionUID = 1L;
+
+	public static final FunctionDescription DESCRIPTION = new Description();
 
 	public static final String NAME = "ms-time";
 

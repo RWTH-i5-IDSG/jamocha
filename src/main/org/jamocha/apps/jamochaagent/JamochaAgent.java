@@ -35,9 +35,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.jamocha.Jamocha;
-import org.jamocha.adapter.sl.CLIPS2SLFunction;
-import org.jamocha.adapter.sl.SL2CLIPSFunction;
-import org.jamocha.adapter.sl.SLMessageCompare;
 import org.jamocha.messagerouter.MessageEvent;
 import org.jamocha.messagerouter.StringChannel;
 import org.jamocha.parser.JamochaValue;
@@ -111,24 +108,8 @@ public class JamochaAgent extends ToolAgent {
 
 	private void initEngine() {
 		// register user function for sending messages
-		FunctionGroup agentFuncs = new AgentFunctions();
+		FunctionGroup agentFuncs = new AgentFunctions(this);
 		engine.getFunctionMemory().declareFunctionGroup(agentFuncs);
-
-		Function sendMessageFunction = new SendMessageFunction(this);
-		engine.getFunctionMemory().declareFunction(sendMessageFunction);
-		agentFuncs.addFunction(sendMessageFunction);
-
-		Function slMessageCompare = new SLMessageCompare();
-		engine.getFunctionMemory().declareFunction(slMessageCompare);
-		agentFuncs.addFunction(slMessageCompare);
-
-		Function sl2ClipsFunction = new SL2CLIPSFunction();
-		engine.getFunctionMemory().declareFunction(sl2ClipsFunction);
-		agentFuncs.addFunction(sl2ClipsFunction);
-
-		Function clips2SlFunction = new CLIPS2SLFunction();
-		engine.getFunctionMemory().declareFunction(clips2SlFunction);
-		agentFuncs.addFunction(clips2SlFunction);
 
 		StringBuilder buffer = new StringBuilder();
 

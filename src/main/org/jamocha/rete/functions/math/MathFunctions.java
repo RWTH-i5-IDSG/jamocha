@@ -16,142 +16,61 @@
  */
 package org.jamocha.rete.functions.math;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.jamocha.rete.Function;
 import org.jamocha.rete.FunctionGroup;
 import org.jamocha.rete.functions.FunctionMemory;
 
-public class MathFunctions implements FunctionGroup {
+public class MathFunctions extends FunctionGroup {
 
 	private static final long serialVersionUID = 1L;
-
-	private ArrayList<Function> funcs = new ArrayList<Function>();
-
-	public String getName() {
-		return (MathFunctions.class.getSimpleName());
+	
+	public MathFunctions() {
+		super();
+		name = "MathFunctions";
+		description = "This Group provides functions to do some arthmetical calculations.";
 	}
 
 	public void loadFunctions(FunctionMemory functionMem) {
-		Abs abs = new Abs();
-		functionMem.declareFunction(abs);
-		funcs.add(abs);
-		Acos acos = new Acos();
-		functionMem.declareFunction(acos);
-		funcs.add(acos);
-		Add add = new Add();
-		functionMem.declareFunction(add);
-		funcs.add(add);
-		Asin asin = new Asin();
-		functionMem.declareFunction(asin);
-		funcs.add(asin);
-		Atan atan = new Atan();
-		functionMem.declareFunction(atan);
-		funcs.add(atan);
-		Ceil ceil = new Ceil();
-		functionMem.declareFunction(ceil);
-		funcs.add(ceil);
-		Cos cos = new Cos();
-		functionMem.declareFunction(cos);
-		funcs.add(cos);
-		Cosh cosh = new Cosh();
-		functionMem.declareFunction(cosh);
-		funcs.add(cosh);
-		DegreesToRadians raddeg = new DegreesToRadians();
-		functionMem.declareFunction(raddeg);
-		funcs.add(raddeg);
-		Divide div = new Divide();
-		functionMem.declareFunction(div);
-		funcs.add(div);
-		E e = new E();
-		functionMem.declareFunction(e);
-		funcs.add(e);
-		Evenp evenp = new Evenp();
-		functionMem.declareFunction(evenp);
-		funcs.add(evenp);
-		Exp exp = new Exp();
-		functionMem.declareFunction(exp);
-		funcs.add(exp);
-		Floor floor = new Floor();
-		functionMem.declareFunction(floor);
-		funcs.add(floor);
-		Log log = new Log();
-		functionMem.declareFunction(log);
-		funcs.add(log);
-		Log10 log10 = new Log10();
-		functionMem.declareFunction(log10);
-		funcs.add(log10);
-		Max max = new Max();
-		functionMem.declareFunction(max);
-		funcs.add(max);
-		Min min = new Min();
-		functionMem.declareFunction(min);
-		funcs.add(min);
-		Mod mod = new Mod();
-		functionMem.declareFunction(mod);
-		funcs.add(mod);
-		Multiply mul = new Multiply();
-		functionMem.declareFunction(mul);
-		funcs.add(mul);
-		Oddp oddp = new Oddp();
-		functionMem.declareFunction(oddp);
-		funcs.add(oddp);
+		addFunction(functionMem, new Abs());
+		addFunction(functionMem, new Acos());
+		addFunction(functionMem, new Add());
+		addFunction(functionMem, new Asin());
+		addFunction(functionMem, new Atan());
+		addFunction(functionMem, new Ceil());
+		addFunction(functionMem, new Cos());
+		addFunction(functionMem, new Cosh());
+		addFunction(functionMem, new DegreesToRadians());
+		addFunction(functionMem, new Divide());
+		addFunction(functionMem, new E());
+		addFunction(functionMem, new Evenp());
+		addFunction(functionMem, new Exp());
+		addFunction(functionMem, new Floor());
+		addFunction(functionMem, new Log());
+		addFunction(functionMem, new Log10());
+		addFunction(functionMem, new Max());
+		addFunction(functionMem, new Min());
+		addFunction(functionMem, new Mod());
+		addFunction(functionMem, new Multiply());
+		addFunction(functionMem, new Oddp());
+		addFunction(functionMem, new Pi());
+		addFunction(functionMem, new Pow());
+		addFunction(functionMem, new RadiansToDegrees());
+		addFunction(functionMem, new Random());
+		addFunction(functionMem, new Rint());
+		addFunction(functionMem, new Round());
+		addFunction(functionMem, new Signum());
+		addFunction(functionMem, new Sin());
+		addFunction(functionMem, new Sinh());
+		addFunction(functionMem, new Sqrt());
+		addFunction(functionMem, new Subtract());
+		addFunction(functionMem, new Tan());
+		addFunction(functionMem, new Tanh());
 		
-		Pi pi = new Pi();
-		functionMem.declareFunction(pi);
-		funcs.add(pi);
-		
-		Pow pow = new Pow();
-		functionMem.declareFunction(pow);
-		funcs.add(pow);
-		RadiansToDegrees degrad = new RadiansToDegrees();
-		functionMem.declareFunction(degrad);
-		funcs.add(degrad);
-		Random random = new Random();
-		functionMem.declareFunction(random);
-		funcs.add(random);
-		Rint rint = new Rint();
-		functionMem.declareFunction(rint);
-		funcs.add(rint);
-		Round round = new Round();
-		functionMem.declareFunction(round);
-		funcs.add(round);
-		Signum signum = new Signum();
-		functionMem.declareFunction(signum);
-		funcs.add(signum);
-		Sin sin = new Sin();
-		functionMem.declareFunction(sin);
-		funcs.add(sin);
-		Sinh sinh = new Sinh();
-		functionMem.declareFunction(sinh);
-		funcs.add(sinh);
-		Sqrt sqrt = new Sqrt();
-		functionMem.declareFunction(sqrt);
-		funcs.add(sqrt);
-		Subtract sub = new Subtract();
-		functionMem.declareFunction(sub);
-		funcs.add(sub);
-		Tan tan = new Tan();
-		functionMem.declareFunction(tan);
-		funcs.add(tan);
-		Tanh tanh = new Tanh();
-		functionMem.declareFunction(tanh);
-		funcs.add(tanh);
 		// now we add the functions under alias
-		functionMem.declareFunction("+", add);
-		functionMem.declareFunction("-", sub);
-		functionMem.declareFunction("*", mul);
-		functionMem.declareFunction("/", div);
-		functionMem.declareFunction("**", pow);
-	}
-
-	public List listFunctions() {
-		return funcs;
-	}
-	
-	public void addFunction(Function function) {
-		this.funcs.add(function);
+//		functionMem.declareFunction("+", add);
+//		functionMem.declareFunction("-", sub);
+//		functionMem.declareFunction("*", mul);
+//		functionMem.declareFunction("/", div);
+//		functionMem.declareFunction("**", pow);
 	}
 
 }

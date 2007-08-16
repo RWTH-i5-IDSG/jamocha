@@ -15,38 +15,29 @@
  */
 package org.jamocha.apps.jamochaagent;
 
-
-import java.util.ArrayList;
-import java.util.List;
-
-import org.jamocha.rete.Function;
+import org.jamocha.adapter.sl.CLIPS2SLFunction;
+import org.jamocha.adapter.sl.SL2CLIPSFunction;
+import org.jamocha.adapter.sl.SLMessageCompare;
 import org.jamocha.rete.FunctionGroup;
 import org.jamocha.rete.functions.FunctionMemory;
 
-public class AgentFunctions implements FunctionGroup {
+public class AgentFunctions extends FunctionGroup {
 
 	private static final long serialVersionUID = 1L;
 
-	private ArrayList<Function> funcs = new ArrayList<Function>();
+	private JamochaAgent agent;
 
-	public AgentFunctions() {
+	public AgentFunctions(JamochaAgent agent) {
 		super();
-	}
-
-	public String getName() {
-		return (AgentFunctions.class.getSimpleName());
+		name = "AgentFunctions";
+		this.agent = agent;
 	}
 
 	public void loadFunctions(FunctionMemory functionMem) {
-
-	}
-
-	public List<Function> listFunctions() {
-		return funcs;
-	}
-
-	public void addFunction(Function function) {
-		this.funcs.add(function);
+		addFunction(functionMem, new SendMessageFunction(agent));
+		addFunction(functionMem, new SLMessageCompare());
+		addFunction(functionMem, new SL2CLIPSFunction());
+		addFunction(functionMem, new CLIPS2SLFunction());
 	}
 
 }

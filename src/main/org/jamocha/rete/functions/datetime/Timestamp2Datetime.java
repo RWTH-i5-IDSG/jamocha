@@ -16,7 +16,6 @@
  */
 package org.jamocha.rete.functions.datetime;
 
-import java.io.Serializable;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
 
@@ -24,7 +23,7 @@ import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.IllegalParameterException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.rete.Function;
+import org.jamocha.rete.AbstractFunction;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.functions.FunctionDescription;
@@ -34,7 +33,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  * 
  * Returns the DateTime-Object from the given Timestamp.
  */
-public class Timestamp2Datetime implements Function, Serializable {
+public class Timestamp2Datetime extends AbstractFunction {
 
 	private static final class Description implements FunctionDescription {
 
@@ -70,7 +69,7 @@ public class Timestamp2Datetime implements Function, Serializable {
 			return false;
 		}
 
-		public String getExample() { 
+		public String getExample() {
 			return "(timestamp2datetime 293196017000)";
 		}
 
@@ -79,9 +78,9 @@ public class Timestamp2Datetime implements Function, Serializable {
 		}
 	}
 
-	private static final FunctionDescription DESCRIPTION = new Description();
-
 	private static final long serialVersionUID = 1L;
+
+	public static final FunctionDescription DESCRIPTION = new Description();
 
 	public static final String NAME = "timestamp2datetime";
 

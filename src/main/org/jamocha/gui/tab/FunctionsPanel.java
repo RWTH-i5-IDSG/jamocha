@@ -176,14 +176,7 @@ public class FunctionsPanel extends AbstractJamochaPanel implements
 				return SHOW_ALL;
 			}
 
-			public List listFunctions() {
-				return null;
-			}
-
 			public void loadFunctions(FunctionMemory functionMem) {
-			}
-
-			public void addFunction(Function function) {
 			}
 		});
 		funcGroupsDataModel.setFunctionGroups(funcGroups);
@@ -206,8 +199,8 @@ public class FunctionsPanel extends AbstractJamochaPanel implements
 
 	public void setFocus() {
 		super.setFocus();
-		initFunctionGroupsList();
-		initFunctionsList(null);
+		// initFunctionGroupsList();
+		// initFunctionsList(null);
 	}
 
 	public void close() {
@@ -260,10 +253,24 @@ public class FunctionsPanel extends AbstractJamochaPanel implements
 
 		private static final long serialVersionUID = 1L;
 
-		private List<Function> funclist = Collections.emptyList();
+		private List<String> funcnameList = Collections.emptyList();
 
-		private void setFunctions(List<Function> funclist) {
-			this.funclist = funclist;
+		private void setFunctions(List<Function> funcList) {
+			funcnameList = new LinkedList<String>();
+			for (Function func : funcList) {
+				if (!funcnameList.contains(func.getName())) {
+					funcnameList.add(func.getName());
+					// TODO remove this instanceof when all Functions extend
+					// AbstractFunction
+					if (func instanceof AbstractFunction) {
+						List<String> aliases = ((AbstractFunction) func)
+								.getAliases();
+						for (String alias : aliases) {
+							funcnameList.add(alias);
+						}
+					}
+				}
+			}
 			fireTableDataChanged();
 		}
 
@@ -294,20 +301,19 @@ public class FunctionsPanel extends AbstractJamochaPanel implements
 		}
 
 		public int getRowCount() {
-			return funclist.size();
+			return funcnameList.size();
 		}
 
 		public Object getValueAt(int row, int column) {
-			String functionname = ((Function) getRowAt(row)).getName();
-			return functionname;
+			return getRowAt(row).toString();
 		}
 
 		public Object getRowAt(int row) {
-			return funclist.get(row);
+			return funcnameList.get(row);
 		}
 
 		public void setRowAt(Object value, int row) {
-			funclist.set(row, (Function) value);
+			funcnameList.set(row, value.toString());
 		}
 	}
 
@@ -316,16 +322,17 @@ public class FunctionsPanel extends AbstractJamochaPanel implements
 			StringBuilder buffer = new StringBuilder();
 			if (functionsTable.getSelectedColumnCount() == 1
 					&& functionsTable.getSelectedRow() > -1) {
-				Function function = (Function) funcsDataModel
-						.getRowAt(functionsTable.getSelectedRow());
+				String functionName = funcsDataModel.getRowAt(
+						functionsTable.getSelectedRow()).toString();
+				Function function = gui.getEngine().getFunctionMemory()
+						.findFunction(functionName);
 				if (function != null) {
 					// TODO this is just as long as not all functions extend
 					// AbstractFunction
 					if (function instanceof AbstractFunction) {
 						buffer.append(((AbstractFunction) function)
 								.format(new HelpFormatter()));
-					}
-					else {
+					} else {
 						BackupOfCLIPSFormatter formatter = new BackupOfCLIPSFormatter();
 						buffer.append(formatter.formatFunction(function));
 					}

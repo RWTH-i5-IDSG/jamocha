@@ -15,25 +15,17 @@
  */
 package org.jamocha.rete.functions.adaptor;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.jamocha.rete.Function;
 import org.jamocha.rete.FunctionGroup;
 import org.jamocha.rete.functions.FunctionMemory;
 
-public class AdaptorFunctions implements FunctionGroup {
+public class AdaptorFunctions extends FunctionGroup {
 
 	private static final long serialVersionUID = 1L;
 
-	private ArrayList<Function> funcs = new ArrayList<Function>();
-
 	public AdaptorFunctions() {
 		super();
-	}
-
-	public String getName() {
-		return (AdaptorFunctions.class.getSimpleName());
+		name = "AdaptorFunctions";
+		description = "This Group provides functions to connect to other data sources.";
 	}
 
 	public void loadFunctions(FunctionMemory functionMem) {
@@ -42,29 +34,10 @@ public class AdaptorFunctions implements FunctionGroup {
 		// jdbclink-init is called. Otherwise the template is always in the
 		// engine although it isn't needed.
 
-		JDBCLink jdbcLink = new JDBCLink();
-		functionMem.declareFunction(jdbcLink);
-		funcs.add(jdbcLink);
-
-		JDBCLinkInit jdbcLinkInit = new JDBCLinkInit();
-		functionMem.declareFunction(jdbcLinkInit);
-		funcs.add(jdbcLinkInit);
-
-		IteratorImporter iteratorImporter = new IteratorImporter();
-		functionMem.declareFunction(iteratorImporter);
-		funcs.add(iteratorImporter);
-
-		IteratorExporter iteratorExporter = new IteratorExporter();
-		functionMem.declareFunction(iteratorExporter);
-		funcs.add(iteratorExporter);
-	}
-
-	public List<Function> listFunctions() {
-		return funcs;
-	}
-
-	public void addFunction(Function function) {
-		this.funcs.add(function);
+		addFunction(functionMem, new JDBCLink());
+		addFunction(functionMem, new JDBCLinkInit());
+		addFunction(functionMem, new IteratorImporter());
+		addFunction(functionMem, new IteratorExporter());
 	}
 
 }

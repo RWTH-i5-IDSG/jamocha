@@ -1,5 +1,7 @@
 package org.jamocha.formatter;
 
+import java.util.List;
+
 import org.jamocha.parser.JamochaType;
 import org.jamocha.rete.AbstractFunction;
 import org.jamocha.rete.functions.FunctionDescription;
@@ -10,6 +12,10 @@ public class HelpFormatter extends SFPFormatter {
 		StringBuilder sb = new StringBuilder();
 		sb.append("(");
 		sb.append(object.getName());
+		List<String> aliases = object.getAliases();
+		for (String alias : aliases) {
+			sb.append(" | ").append(alias);
+		}
 		FunctionDescription desc = object.getDescription();
 		increaseIndent();
 		for (int i = 0; i < desc.getParameterCount(); ++i) {
@@ -27,7 +33,7 @@ public class HelpFormatter extends SFPFormatter {
 			JamochaType[] types = desc.getParameterTypes(i);
 			for (int j = 0; j < types.length; ++j) {
 				if (j > 0)
-					sb.append("|");
+					sb.append(" | ");
 				sb.append(types[j]);
 			}
 			sb.append(">");
@@ -39,7 +45,7 @@ public class HelpFormatter extends SFPFormatter {
 		decreaseIndent();
 		newLine(sb);
 		sb.append(")");
-		if(!desc.isParameterCountFixed()) {
+		if (!desc.isParameterCountFixed()) {
 			newLine(sb);
 			sb.append("(The parameter count for this function is variable)");
 		}

@@ -16,10 +16,6 @@
  */
 package org.jamocha.rete.functions.strings;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.jamocha.rete.Function;
 import org.jamocha.rete.FunctionGroup;
 import org.jamocha.rete.functions.FunctionMemory;
 
@@ -28,64 +24,27 @@ import org.jamocha.rete.functions.FunctionMemory;
  * 
  * This is the FunctionGroup for String-specific functions.
  */
-public class StringFunctions implements FunctionGroup {
-	
+public class StringFunctions extends FunctionGroup {
+
 	private static final long serialVersionUID = 1L;
-	
-	private List<Function> funcs = new ArrayList<Function>();
-	
-	public String getName() {
-		return (StringFunctions.class.getSimpleName());
+
+	public StringFunctions() {
+		super();
+		name = "StringFunctions";
+		description = "This Group provides functions to modify Strings or access some of their properties.";
 	}
 
 	public void loadFunctions(FunctionMemory functionMem) {
-		StringCat stringCat = new StringCat();
-		functionMem.declareFunction(stringCat);
-		funcs.add(stringCat);
-		
-		StringCompare stringCompare = new StringCompare();
-		functionMem.declareFunction(stringCompare);
-		funcs.add(stringCompare);
-		
-		StringIndex stringIndex = new StringIndex();
-		functionMem.declareFunction(stringIndex);
-		funcs.add(stringIndex);
-		
-		StringLength stringLength = new StringLength();
-		functionMem.declareFunction(stringLength);
-		funcs.add(stringLength);
-		
-		StringLower stringLower = new StringLower();
-		functionMem.declareFunction(stringLower);
-		funcs.add(stringLower);
-		
-		StringReplace stringReplace = new StringReplace();
-		functionMem.declareFunction(stringReplace);
-		funcs.add(stringReplace);
-
-		StringReplaceAll stringReplaceAll = new StringReplaceAll();
-		functionMem.declareFunction(stringReplaceAll);
-		funcs.add(stringReplaceAll);
-		
-		StringTrim stringTrim = new StringTrim();
-		functionMem.declareFunction(stringTrim);
-		funcs.add(stringTrim);
-		
-		StringUpper stringUpper = new StringUpper();
-		functionMem.declareFunction(stringUpper);
-		funcs.add(stringUpper);
-		
-		SubString subString = new SubString();
-		functionMem.declareFunction(subString);
-		funcs.add(subString);
+		addFunction(functionMem, new StringCat());
+		addFunction(functionMem, new StringCompare());
+		addFunction(functionMem, new StringIndex());
+		addFunction(functionMem, new StringLength());
+		addFunction(functionMem, new StringLower());
+		addFunction(functionMem, new StringReplace());
+		addFunction(functionMem, new StringReplaceAll());
+		addFunction(functionMem, new StringTrim());
+		addFunction(functionMem, new StringUpper());
+		addFunction(functionMem, new SubString());
 	}
 
-	public List listFunctions() {
-		return funcs;
-	}
-
-	public void addFunction(Function function) {
-		this.funcs.add(function);
-	}
-	
 }
