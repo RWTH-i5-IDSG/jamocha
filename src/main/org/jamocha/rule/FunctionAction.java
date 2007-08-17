@@ -155,15 +155,15 @@ public class FunctionAction implements Action {
 			throws ExecuteException {
 		// first we iterate over the parameters and pass the facts
 		// to the BoundParams.
-		for (int idx = 0; idx < this.parameters.length; idx++) {
-			
-			if (this.parameters[idx] instanceof BoundParam) {
-				((BoundParam) this.parameters[idx]).setFact(facts);
-				
-			}else if (this.parameters[idx] instanceof AbstractConfiguration) {
-				((AbstractConfiguration) this.parameters[idx]).setFact(facts);
-			}	
-		}
+//		for (int idx = 0; idx < this.parameters.length; idx++) {
+//			
+//			if (this.parameters[idx] instanceof BoundParam) {
+//				((BoundParam) this.parameters[idx]).setFact(facts);
+//				
+//			}else if (this.parameters[idx] instanceof AbstractConfiguration) {
+//				((AbstractConfiguration) this.parameters[idx]).setFact(facts);
+//			}	
+//		}
 		// we treat AssertFunction a little different
 		if (this.function instanceof Assert) {
 			((Assert) this.function).setTriggerFacts(facts);

@@ -42,7 +42,7 @@
 	
 	; Evaluate the code. The performatives are responsible for creating their specific
 	; result-facts.
-	(eval-blocking ?clipsCode ?error)
+	(eval ?clipsCode ?error)
 	
 	; Here we have to check for Errors that occured during evaluation.
 	

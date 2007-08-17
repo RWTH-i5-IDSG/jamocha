@@ -45,9 +45,12 @@ public class Activation {
 	}
 	
 	public void fire(Rete engine) throws ExecuteException{
+		engine.pushScope(rule);
+		rule.setTriggerFacts(tuple.getFacts());
 		for (Action action : rule.getActions()) {
 			action.executeAction(engine, tuple.getFacts());
 		}
+		engine.popScope();
 	}
 	
 	

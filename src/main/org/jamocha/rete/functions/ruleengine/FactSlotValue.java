@@ -19,6 +19,7 @@ import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.IllegalParameterException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
+import org.jamocha.parser.ParserFactory;
 import org.jamocha.rete.Fact;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
@@ -92,12 +93,12 @@ public class FactSlotValue extends AbstractFunction {
 		}
 
 		public String getExample() {
-			return "(deftemplate car (slot color)(slot speed))\n" +
-					"(assert (car (color \"red\")(speed 200)))\n" +
-					"(assert (car (color \"blue\")(speed 150)))\n" +
-					"(assert (car (color \"green\")(speed 100)))\n" +
-					"(fact-slot-value 1 color)\n" +
-					"(fact-slot-value 3 speed)";
+			return "(deftemplate car (slot color)(slot speed))\n"
+					+ "(assert (car (color \"red\")(speed 200)))\n"
+					+ "(assert (car (color \"blue\")(speed 150)))\n"
+					+ "(assert (car (color \"green\")(speed 100)))\n"
+					+ "(fact-slot-value 1 color)\n"
+					+ "(fact-slot-value 3 speed)";
 		}
 
 		public boolean isResultAutoGeneratable() {
@@ -126,7 +127,8 @@ public class FactSlotValue extends AbstractFunction {
 			JamochaValue slotName = params[1].getValue(engine);
 			Fact fact;
 			if (!factId.is(JamochaType.FACT)) {
-				fact = engine.getFactById(factId.getFactIdValue());
+				fact = engine.getFactById(factId
+						.implicitCast(JamochaType.FACT_ID));
 			} else {
 				fact = factId.getFactValue();
 			}
