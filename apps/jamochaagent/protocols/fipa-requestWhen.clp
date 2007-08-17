@@ -65,7 +65,7 @@
 	?inform <- (agent-message
 		(performative "inform")
 		(sender ?sender)
-		(receiver ?receivers)
+		(receivers ?receivers)
 		(content ?content)
 	)
 	(agent-requestWhen-result
