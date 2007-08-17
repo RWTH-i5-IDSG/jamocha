@@ -103,7 +103,6 @@ class Proxy extends SLPerformativeTranslator {
 		result.append(bindName);
 		result.append(")))");
 
-		System.out.println(result);
 		return result.toString();
 	}
 

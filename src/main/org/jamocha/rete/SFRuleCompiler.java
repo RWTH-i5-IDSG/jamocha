@@ -522,7 +522,7 @@ public class SFRuleCompiler implements RuleCompiler {
 
 			Condition c = sortedConds[i];
 			
-			System.out.println(c);
+			//System.out.println(c);
 			AbstractBeta newBeta = null;
 
 			if (c instanceof ObjectCondition)

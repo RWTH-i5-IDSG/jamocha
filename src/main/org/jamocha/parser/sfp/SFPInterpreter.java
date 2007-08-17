@@ -829,9 +829,6 @@ public class SFPInterpreter implements SFPParserVisitor {
 		// set name to given constraint
 		constraint.setName(slotName.getStringValue());
 
-		// System.out.println(slotName.getStringValue());
-		// System.out.println(constraint.getName());
-
 		return constraint;
 	}
 

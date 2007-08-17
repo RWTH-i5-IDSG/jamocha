@@ -66,7 +66,6 @@ class NotUnderstood extends SLPerformativeTranslator {
 		result.append("\")(proposition \"");
 		result.append(results.get(1).compile(SLCompileType.RULE_LHS));
 		result.append("\")))");
-		System.out.println(result);
 		return result.toString();
 	}
 

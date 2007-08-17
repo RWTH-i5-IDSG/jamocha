@@ -82,7 +82,6 @@ class Subscribe extends SLPerformativeTranslator {
 				.append("(assert (agent-message-rule-pairing (message %MSG%)(ruleName \"");
 		result.append(ruleName);
 		result.append("\")))");
-		System.out.println(result);
 		return result.toString();
 	}
 }

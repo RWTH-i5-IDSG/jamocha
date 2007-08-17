@@ -104,7 +104,7 @@ public class Matches extends AbstractFunction {
 				filter.put(params[idx].getValue(engine).getStringValue(), null);
 			}
 		}
-		System.out.println("sorry, i have to become reimplemented");
+		engine.writeMessage("sorry, i have to become reimplemented");
 		//TODO find an equivalent of that
 		//engine.getWorkingMemory().printWorkingMemory(filter);
 		return JamochaValue.NIL;
