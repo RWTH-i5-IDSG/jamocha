@@ -82,7 +82,7 @@ public class FunctionCallOrFactSLConfiguration implements SLConfiguration {
 			// will be asserted as a fact and not called as a function so we
 			// just switch directly to ASSERT.
 			for (String temp : isSLMessage) {
-				if (nameStr.equals(temp)) {
+				if (nameStr.equalsIgnoreCase(temp)) {
 					compileType = SLCompileType.ASSERT_MESSAGE;
 					break;
 				}
@@ -121,13 +121,15 @@ public class FunctionCallOrFactSLConfiguration implements SLConfiguration {
 			res.append(name.compile(compileType));
 			res.append(")");
 			for (SLConfiguration slotName : slotNames) {
-				String slotNameString = slotName.compile(compileType);
+				String slotNameString = slotName.compile(SLCompileType.ASSERT);
 				// Parameter performative is left out because we set it
 				// statically
-				if (!slotNameString.equals("performative")) {
-					res.append(" (").append(slotNameString).append(" ");
+				if (!slotNameString.equalsIgnoreCase("performative")) {
+					res.append(" (").append(slotNameString.toLowerCase())
+							.append(" ");
 					if (slots.get(slotName) != null)
-						res.append(slots.get(slotName).compile(compileType));
+						res.append(slots.get(slotName).compile(
+								SLCompileType.ASSERT));
 					res.append(")");
 				}
 			}

@@ -20,7 +20,7 @@
 	
 	(assert 
 		(agent-message
-			(receivers ?receivers)
+			(receiver ?receivers)
 			(performative "refuse")
 			(content (str-cat (fact-slot-value ?message "content") crlf "\"" ?error "\""))
 			(language (fact-slot-value ?message "language"))
@@ -69,7 +69,7 @@
 		
 	(assert
 		(agent-message
-			(receivers ?receivers)
+			(receiver ?receivers)
 			(performative "inform")
 			(content ?resultContent)
 			(language (fact-slot-value ?message "language"))
@@ -103,7 +103,7 @@
 	
 	(assert
 		(agent-message
-			(receivers ?receivers)
+			(receiver ?receivers)
 			(performative "refuse")
 			(content (str-cat (fact-slot-value ?message "content") crlf "\"" ?error "\""))
 			(language (fact-slot-value ?message "language"))
@@ -151,7 +151,7 @@
 	
 	(assert 
 		(agent-message
-			(receivers ?receivers)
+			(receiver ?receivers)
 			(performative "inform")
 			(content ?resultContent)
 			(language (fact-slot-value ?message "language"))
@@ -200,7 +200,7 @@
 	
 	(assert 
 		(agent-message
-			(receivers ?receivers)
+			(receiver ?receivers)
 			(performative "inform")
 			(content ?resultContent)
 			(language (fact-slot-value ?message "language"))
@@ -252,7 +252,7 @@
 		
 		(assert 
 			(agent-message
-				(receivers ?receivers)
+				(receiver ?receivers)
 				(performative "inform")
 				(content ?resultContent)
 				(language (fact-slot-value ?message "language"))
@@ -288,7 +288,7 @@
 		
 		(assert 
 			(agent-message
-				(receivers ?receivers)
+				(receiver ?receivers)
 				(performative "failure")
 				(content ?resultContent)
 				(language (fact-slot-value ?message "language"))

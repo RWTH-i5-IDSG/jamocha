@@ -7,7 +7,7 @@
 	; Only extract messages that have not been answered yet and that are incoming.
 	?message <- (agent-message
 		(performative "query-ref")
-		(receivers ?receivers)
+		(receiver ?receivers)
 		(content "ping")
 		; (language "pinging") ; needed?
 		(incoming TRUE)
@@ -23,7 +23,7 @@
 	(process-outgoing-message 
 		(assert 
 			(agent-message
-				(receivers ?newReceivers)
+				(receiver ?newReceivers)
 				(performative "inform")
 				(content "alive")
 				(language (fact-slot-value ?message "language"))
@@ -53,7 +53,7 @@
 	; Only extract messages that have not been answered yet and that are incoming.
 	?message <- (agent-message
 		(performative ?performative&~"not-understood"&~"query-ref")
-		(receivers ?receivers)
+		(receiver ?receivers)
 		; (language "pinging") ; needed?
 		(incoming TRUE)
 		(processed FALSE)
@@ -72,7 +72,7 @@
 	(process-outgoing-message 
 		(assert 
 			(agent-message
-				(receivers ?newReceivers)
+				(receiver ?newReceivers)
 				(performative "not-understood")
 				(content ?newContent)
 				(language (fact-slot-value ?message "language"))
@@ -103,7 +103,7 @@
 	; Only extract messages that have not been answered yet and that are incoming.
 	?message <- (agent-message
 		(performative "query-ref")
-		(receivers ?receivers)
+		(receiver ?receivers)
 		(content ?content&~"ping")
 		; (language "pinging") ; needed?
 		(incoming TRUE)
@@ -121,7 +121,7 @@
 	(process-outgoing-message 
 		(assert 
 			(agent-message
-				(receivers ?newReceivers)
+				(receiver ?newReceivers)
 				(performative "not-understood")
 				(content ?newContent)
 				(language (fact-slot-value ?message "language"))

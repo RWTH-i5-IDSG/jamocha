@@ -78,7 +78,7 @@
 	; Call agent-send-message with the slot values.
 	(agent-send-message
 		(fact-slot-value ?message "sender")
-		(fact-slot-value ?message "receivers")
+		(fact-slot-value ?message "receiver")
 		(fact-slot-value ?message "reply-to")
 		(fact-slot-value ?message "performative")
 		(fact-slot-value ?message "content") 
@@ -139,7 +139,7 @@
 	
 	(assert 
 		(agent-message
-			(receivers ?receivers)
+			(receiver ?receivers)
 			(performative "agree")
 			(content ?newContent)
 			(language (fact-slot-value ?message "language"))

@@ -90,7 +90,7 @@ public class SendMessageFunction extends AbstractFunction {
 
 	private static final int SENDER_PARAM_POS = 0;
 
-	private static final int RECEIVERS_PARAM_POS = 1;
+	private static final int RECEIVER_PARAM_POS = 1;
 
 	private static final int REPLY_TO_PARAM_POS = 2;
 
@@ -127,7 +127,7 @@ public class SendMessageFunction extends AbstractFunction {
 	/**
 	 * the following slot order:
 	 * <ol>
-	 * <li>receivers (List/Array)</li>
+	 * <li>receiver (List/Array)</li>
 	 * <li>reply-to (List/Array)</li>
 	 * <li>performative (int)</li>
 	 * <li>content (String)</li>
@@ -176,7 +176,7 @@ public class SendMessageFunction extends AbstractFunction {
 		result.setSender(new AID(sender, true));
 
 		// receivers are given in a LIST
-		JamochaValue receivers = params[RECEIVERS_PARAM_POS].getValue(engine)
+		JamochaValue receivers = params[RECEIVER_PARAM_POS].getValue(engine)
 				.implicitCast(JamochaType.LIST);
 		for (int i = 0; i < receivers.getListCount(); ++i) {
 			result.addReceiver(new AID(receivers.getListValue(i)

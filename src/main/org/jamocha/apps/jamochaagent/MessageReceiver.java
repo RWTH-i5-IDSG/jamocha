@@ -55,7 +55,7 @@ public class MessageReceiver extends CyclicBehaviour {
 		StringBuilder sb = new StringBuilder();
 		sb.append("(assert (").append(JamochaAgent.TEMPLATE_AGENT_MESSAGE);
 		sb.append("(sender \"").append(msg.getSender().getName()).append("\")");
-		sb.append("(receivers ");
+		sb.append("(receiver ");
 		Iterator<AID> itReceiver = msg.getAllReceiver();
 		while (itReceiver.hasNext()) {
 			sb.append('"').append(itReceiver.next().getName()).append('"')

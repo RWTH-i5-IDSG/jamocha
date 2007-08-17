@@ -53,20 +53,24 @@ public class FactDataContainer extends ModulesDataContainer {
 
 	public long add(Fact fact) {
 		long result = -1;
-		// add to map with equalityIndex:
 		if (!this.deffactMap.containsKey(fact.equalityIndex())) {
+			// Here the fact doesn't exist yet. So we add it to the map with its
+			// equalityIndex and eventually give it a new fact-id.
 			this.deffactMap.put(fact.equalityIndex(), fact);
-			// look at fact ids:
-			// does fact contain fact id <>-1 we take a new one:
-			if (fact.getFactId() != -1) {
-				result = fact.getFactId();
-			} else {
+			if (fact.getFactId() == -1) {
 				result = lastFactId;
 				fact.setFactId(result);
 				lastFactId++;
 			}
-			this.idToCLIPSElement.put(result, fact);
+			this.idToCLIPSElement.put(fact.getFactId(), fact);
+		} else {
+			// Here the fact already exists with the same equalityIndex (i.e.
+			// the same slot values). So we don't give it a new fact id but use
+			// the existing one.
+			Fact existingFact = deffactMap.get(fact.equalityIndex());
+			fact.setFactId(existingFact.getFactId());
 		}
+		result = fact.getFactId();
 		return result;
 	}
 
@@ -78,8 +82,8 @@ public class FactDataContainer extends ModulesDataContainer {
 		}
 		return result;
 	}
-	
-	public Fact getFactById(long id){
+
+	public Fact getFactById(long id) {
 		return (Fact) this.idToCLIPSElement.get(id);
 	}
 

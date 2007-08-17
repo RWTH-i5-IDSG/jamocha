@@ -15,7 +15,7 @@
 (deftemplate agent-message
 	"Definition of an agent-message."
 	(slot sender (type STRING)(default ""))
-	(multislot receivers)
+	(multislot receiver)
 	(multislot reply-to)
 	(slot performative (type STRING))
 	(slot content (type STRING))

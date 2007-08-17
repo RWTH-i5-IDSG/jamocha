@@ -270,8 +270,7 @@ public class Deftemplate implements Template, Serializable {
 		return newfact;
 	}
 
-	public Fact createFact(Object data, Rete engine)
-			throws EvaluationException {
+	public Fact createFact(Object data, Rete engine) throws EvaluationException {
 		Slot[] values = createFactSlots(engine);
 		Object[] array = (Object[]) data;
 		ArrayList<Slot> bslots = new ArrayList<Slot>();
@@ -332,18 +331,17 @@ public class Deftemplate implements Template, Serializable {
 		for (int i = 0; i < scs.length; i++) {
 			// initialize foundslotMatching to false:
 			foundSlotMatching = false;
-			
+
 			sc = scs[i];
 			for (int j = 0; j < slots.length; j++) {
 				slot = slots[j];
-				
-				//template slots name matches SlotConfiguration Name?
-				if (slot.getName().equals(sc.getSlotName())) 
-				{
-					//we found matching slots for our sc
+
+				// template slots name matches SlotConfiguration Name?
+				if (slot.getName().equals(sc.getSlotName())) {
+					// we found matching slots for our sc
 					foundSlotMatching = true;
 
-					//copy slot id:
+					// copy slot id:
 					slot.setId(sc.getId());
 
 					JamochaValue val = sc.getValue(engine);
@@ -382,29 +380,37 @@ public class Deftemplate implements Template, Serializable {
 					break;
 				}
 			}
-			//did wo found a matching slot for our slotconfiguration?
-			if (foundSlotMatching ==false){
-				throw new AssertException("Could not found a slot for given slotname " + sc.getSlotName() +  ".");
+			// did we find a matching slot for our slotconfiguration?
+			if (foundSlotMatching == false) {
+				throw new AssertException(
+						"Could not find a slot for given slotname "
+								+ sc.getSlotName() + " in Template "
+								+ templateName + ".");
 			}
 		}
 
-		// check slots with required values "(default ?NONE) for empty asserts
+		// check slots with required values "(default ?NONE)" for empty asserts
 		TemplateSlot ts = null;
-		
-		for (int i = 0; i < this.getAllSlots().length ; i++) {	
+
+		for (int i = 0; i < this.getAllSlots().length; i++) {
 			ts = this.getSlot(i);
-			
-			if(ts.isRequired()) {
+
+			if (ts.isRequired()) {
 				String slotName = ts.getName();
-				
+
 				for (int j = 0; j < slots.length; j++) {
-					if (slots[j].getName().equals(slotName) && slots[j].getValue().equals(JamochaValue.NIL)) {
-						throw new AssertException("A non-empty value is required for the slot " + ts.getName() +  "by the corresponding template.");
+					if (slots[j].getName().equals(slotName)
+							&& slots[j].getValue().equals(JamochaValue.NIL)) {
+						throw new AssertException(
+								"A non-empty value is required for the slot "
+										+ ts.getName()
+										+ " by the corresponding template"
+										+ templateName + ".");
 					}
 				}
 			}
 		}
-		
+
 		Deffact newfact = new Deffact(this, null, slots);
 		if (hasbinding) {
 			Slot[] slts2 = new Slot[bslots.size()];
@@ -566,7 +572,8 @@ public class Deftemplate implements Template, Serializable {
 		buf.append("(deftemplate " + modName + "::" + this.templateName + " ");
 		for (int idx = 0; idx < this.slots.length; idx++) {
 			buf.append("(slot " + this.slots[idx].getName());
-			if (this.slots[idx].getValueType() != JamochaType.UNDEFINED) buf.append(" (type "+ this.slots[idx].getValueType() + ") ");
+			if (this.slots[idx].getValueType() != JamochaType.UNDEFINED)
+				buf.append(" (type " + this.slots[idx].getValueType() + ") ");
 			buf.append(") ");
 		}
 		if (this.defclass != null) {

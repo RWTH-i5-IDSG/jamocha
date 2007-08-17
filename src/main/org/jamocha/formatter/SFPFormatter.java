@@ -185,6 +185,7 @@ public class SFPFormatter extends Formatter {
 	@Override
 	public String visit(AssertConfiguration object) {
 		StringBuilder sb = new StringBuilder();
+		sb.append('(');
 		sb.append(object.getTemplateName());
 		SlotConfiguration[] slots = object.getSlots();
 		increaseIndent();
@@ -204,6 +205,7 @@ public class SFPFormatter extends Formatter {
 		}
 		decreaseIndent();
 		newLine(sb);
+		sb.append(')');
 		return sb.toString();
 	}
 

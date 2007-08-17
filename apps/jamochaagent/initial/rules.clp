@@ -11,7 +11,7 @@
 	)
 	; Only extract messages that have not been answered yet and that are incoming.
 	?message <- (agent-message
-		(receivers ?receivers)
+		(receiver ?receivers)
 		(language "fipa-sl")
 		(protocol ?protocol)
 		(incoming TRUE)

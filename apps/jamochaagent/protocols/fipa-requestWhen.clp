@@ -20,7 +20,7 @@
 	
 	(assert 
 		(agent-message
-			(receivers ?receivers)
+			(receiver ?receivers)
 			(performative "refuse")
 			(content (str-cat (fact-slot-value ?message "content") crlf "\"" ?error "\""))
 			(language (fact-slot-value ?message "language"))
@@ -65,7 +65,7 @@
 	?inform <- (agent-message
 		(performative "inform")
 		(sender ?sender)
-		(receivers ?receivers)
+		(receiver ?receivers)
 		(content ?content)
 	)
 	(agent-requestWhen-result
@@ -83,7 +83,7 @@
 	(assert
 		(agent-message
 			(sender ?senderName)
-			(receivers ?receiverList)
+			(receiver ?receiverList)
 			(performative "inform")
 			(content ?content)
 			(language (fact-slot-value ?message "language"))
