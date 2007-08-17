@@ -59,6 +59,7 @@ import org.jamocha.messagerouter.MessageEvent;
 import org.jamocha.messagerouter.StreamChannel;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Constants;
+import org.jamocha.rete.functions.Function;
 
 /**
  * This class provides a panel with a command line interface to Jamocha.
@@ -185,12 +186,11 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 	private boolean channelListenerPaused = false;
 
 	private void initAutoCompletion() {
-		autoCompletion.addToken("assert");
-		autoCompletion.addToken("deftemplate");
 		autoCompletion.addToken("multislot");
-		autoCompletion.addToken("printout");
 		autoCompletion.addToken("slot");
-		autoCompletion.addToken("defrule");
+		for (Function function : gui.getEngine().getFunctionMemory().getAllFunctions()){
+			autoCompletion.addToken(function.getName());
+		}
 	}
 	
 	/**
@@ -581,8 +581,8 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 							if (autoCompletionBox.isVisible()) {
 								String txt = autoCompletionBox.getSelected().substring(autoCompletionPrefix.length());
 								int cursorPos = outputArea.getCaretPosition();
-								outputArea.insert(txt, cursorPos);
-								cursorPosition = cursorPos + txt.length();
+								outputArea.insert(txt + " ", cursorPos);
+								cursorPosition = cursorPos + txt.length() + 1;
 								scrollToCursor();
 								autoCompletionBox.hide();
 							} else {

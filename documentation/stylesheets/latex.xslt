@@ -62,7 +62,10 @@
 <xsl:for-each select="functiongroup">
 \subsection{<xsl:call-template name="clean-text"><xsl:with-param name="source" select="@name"/></xsl:call-template> function group}
 <xsl:for-each select="function">
+\index{<xsl:call-template name="clean-text"><xsl:with-param name="source" select="@name"/></xsl:call-template>}
+<!--\index{Functions!<xsl:call-template name="clean-text"><xsl:with-param name="source" select="@name"/></xsl:call-template>}-->
 \subsubsection{<xsl:call-template name="clean-text"><xsl:with-param name="source" select="@name"/></xsl:call-template>}
+
 \paragraph{Description}
 <xsl:call-template name="clean-text"><xsl:with-param name="source" select="@description"/></xsl:call-template>\\
 <xsl:if test="@fixedParameterCount = 'true'">This function \textbf{has} fixed parameter count.</xsl:if><xsl:if test="@fixedParameterCount = 'false'">This function \textbf{hasn't} fixed parameter count.</xsl:if>\\
@@ -85,6 +88,5 @@ Return type is \textbf{$&lt;$<xsl:call-template name="clean-text"><xsl:with-para
 </xsl:if>
 </xsl:for-each>
 </xsl:for-each>
-\end{document}
 </xsl:template>
 </xsl:stylesheet>

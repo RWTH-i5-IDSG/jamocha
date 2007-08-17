@@ -271,6 +271,9 @@
 			<arg value="-output-directory=documentation"/>
 			<arg value="documentation/documentation.tex"/>
 		</exec>
+		<exec executable="makeindex" searchpath="true">
+			<arg value="documentation/documentation.idx"/>
+		</exec>
 		<exec executable="latex" searchpath="true">
 			<arg value="-output-directory=documentation"/>
 			<arg value="documentation/documentation.tex"/>

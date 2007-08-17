@@ -2,6 +2,7 @@
 \usepackage[latin1]{inputenc} % encoding
 \usepackage{listings}
 \usepackage{color}
+\usepackage{makeidx}
 
 
 
@@ -18,7 +19,7 @@
 
 \lstnewenvironment{clips} { \lstset{language=clips, breaklines=true, prebreak={\mbox{\hfill$\hookleftarrow$}}  } } { }
 
-
+\makeindex
 \begin{document}
 
 \begin{titlepage}
@@ -41,7 +42,7 @@ Tim Testuser\\
 \chapter{Rule engines}
 
 \section{What a rule engine is}
-much blabla
+much blabla\index{df}
 
 \chapter{Jamocha}
 
@@ -53,5 +54,6 @@ Jamocha is a nice tool, which will be much better than Jess in about one week...
 \section{Functions}
 \input{functions-documentation.tex}
 
-
+\newpage
+\printindex
 \end{document}

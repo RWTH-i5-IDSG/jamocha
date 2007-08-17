@@ -1,15 +1,18 @@
 package org.jamocha.gui.tab;
 
+import java.awt.Dimension;
 import java.util.Vector;
 
 import javax.swing.JFrame;
 import javax.swing.JList;
+import javax.swing.JScrollPane;
 import javax.swing.Popup;
 import javax.swing.PopupFactory;
 
 public class AutoCompletionBox {
 
-	JList list;
+	JScrollPane list;
+	JList alist;
 	JFrame parent;
 	Popup listFrame =null;
 	boolean visible = false;
@@ -21,7 +24,10 @@ public class AutoCompletionBox {
 	public AutoCompletionBox(JFrame parent) {
 		this.parent = parent;
 		factory = PopupFactory.getSharedInstance();
-		list = new JList();
+		alist = new JList();
+		list = new JScrollPane(alist);
+		alist.setMinimumSize(new Dimension(70,1));
+		alist.setMaximumSize(new Dimension(1000,100));
 	}
 	
 	public boolean isVisible() {
@@ -29,17 +35,17 @@ public class AutoCompletionBox {
 	}
 	
 	public void up() {
-		int now = list.getSelectedIndex();
+		int now = alist.getSelectedIndex();
 		now --;
 		if (now < 0) now = strings.size()-1;
-		list.setSelectedIndex(now);
+		alist.setSelectedIndex(now);
 	}
 	
 	public void down() {
-		int now = list.getSelectedIndex();
+		int now = alist.getSelectedIndex();
 		now ++;
 		if (now >= strings.size()) now = 0;
-		list.setSelectedIndex(now);
+		alist.setSelectedIndex(now);
 	}
 	
 	public void hide() {
@@ -48,7 +54,7 @@ public class AutoCompletionBox {
 	}
 	
 	public String getSelected() {
-		return (String)list.getSelectedValue();
+		return (String)alist.getSelectedValue();
 	}
 	
 	public void show(Vector<String> lst, int x, int y) {
@@ -57,8 +63,8 @@ public class AutoCompletionBox {
 		numElems = lst.size();
 		visible=true;
 		strings = lst;
-		list.setListData(lst);
-		list.setSelectedIndex(0);
+		alist.setListData(lst);
+		alist.setSelectedIndex(0);
 		if (listFrame != null) listFrame.hide();
 		listFrame = factory.getPopup(parent, list, x, y);
 		listFrame.show();

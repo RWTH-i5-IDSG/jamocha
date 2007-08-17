@@ -22,8 +22,14 @@ public class AutoCompletion {
 	}
 	
 	public void addToken(String token) {
-		tokens.add(token);
+		int i = 0;
+		while (i < tokens.size()) {
+			if (token.compareTo(tokens.get(i)) <0) break;
+			i++;
+		}
+		tokens.add(i,token);
 	}
+	
 	
 	protected Vector<String> getAllBeginningWith(List<String> s, String prefix) {
 		Vector<String> result = new Vector<String>();
