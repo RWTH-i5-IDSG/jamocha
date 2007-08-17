@@ -2,6 +2,7 @@ package org.jamocha.rule;
 
 import java.util.List;
 
+import org.jamocha.formatter.Formatter;
 import org.jamocha.rete.nodes.BaseNode;
 import org.jamocha.rete.SFRuleCompiler;
 
@@ -23,5 +24,9 @@ public class NotCondition extends ConditionWithNested {
 	
 	@Override
 	protected String clipsName() {return "not";}
+
+	public String format(Formatter visitor) {
+		return visitor.visit(this);
+	}
 
 }

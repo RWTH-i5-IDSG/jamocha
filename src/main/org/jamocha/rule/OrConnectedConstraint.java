@@ -1,5 +1,6 @@
 package org.jamocha.rule;
 
+import org.jamocha.formatter.Formatter;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.SFRuleCompiler;
 import org.jamocha.rete.StopCompileException;
@@ -32,6 +33,10 @@ public class OrConnectedConstraint extends AbstractConnectedConstraint {
 	public BaseNode compile(SFRuleCompiler compiler, Rule rule,
 			int conditionIndex) throws StopCompileException {
 		return compiler.compile(this, rule, conditionIndex);
+	}
+
+	public String format(Formatter visitor) {
+		return visitor.visit(this);
 	}
 
 }

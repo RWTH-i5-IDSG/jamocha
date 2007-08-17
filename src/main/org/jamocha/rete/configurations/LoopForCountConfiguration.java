@@ -64,8 +64,7 @@ public class LoopForCountConfiguration extends AbstractConfiguration {
 	}
 
 	public String format(Formatter visitor) {
-		// TODO Auto-generated method stub
-		return null;
+		return visitor.visit(this);
 	}
 
 }

@@ -10,7 +10,6 @@ import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.BoundParam;
 import org.jamocha.rete.Constants;
 import org.jamocha.rete.ExpressionCollection;
-import org.jamocha.rete.ExpressionSequence;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Slot;
 import org.jamocha.rete.SlotParam;
@@ -18,14 +17,9 @@ import org.jamocha.rete.Template;
 import org.jamocha.rete.TemplateSlot;
 import org.jamocha.rete.configurations.AssertConfiguration;
 import org.jamocha.rete.configurations.DeffunctionConfiguration;
-import org.jamocha.rete.configurations.DefmoduleConfiguration;
 import org.jamocha.rete.configurations.DefruleConfiguration;
-import org.jamocha.rete.configurations.IfElseConfiguration;
-import org.jamocha.rete.configurations.LoopForCountConfiguration;
-import org.jamocha.rete.configurations.ModifyConfiguration;
 import org.jamocha.rete.configurations.Signature;
 import org.jamocha.rete.configurations.SlotConfiguration;
-import org.jamocha.rete.configurations.WhileDoConfiguration;
 import org.jamocha.rete.functions.Function;
 import org.jamocha.rete.functions.FunctionDescription;
 import org.jamocha.rule.Action;
@@ -45,7 +39,7 @@ import org.jamocha.rule.PredicateConstraint;
 import org.jamocha.rule.Rule;
 import org.jamocha.rule.TestCondition;
 
-public class BackupOfCLIPSFormatter extends Formatter {
+public abstract class BackupOfCLIPSFormatter extends Formatter {
 
 	public String formatExpression(Expression expression) {
 		if (expression instanceof JamochaValue) {
@@ -679,89 +673,5 @@ public class BackupOfCLIPSFormatter extends Formatter {
 			}
 		}
 		return res.toString();
-	}
-
-	@Override
-	public String visit(JamochaValue object) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String visit(Signature object) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String visit(Function object) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String visit(AssertConfiguration object) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String visit(BoundParam object) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String visit(DeffunctionConfiguration object) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String visit(DefmoduleConfiguration object) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String visit(DefruleConfiguration object) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String visit(ExpressionSequence object) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String visit(IfElseConfiguration object) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String visit(LoopForCountConfiguration object) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String visit(ModifyConfiguration object) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String visit(SlotConfiguration object) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String visit(WhileDoConfiguration object) {
-		// TODO Auto-generated method stub
-		return null;
 	}
 }

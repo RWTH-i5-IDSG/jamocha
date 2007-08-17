@@ -126,6 +126,7 @@ public class RulesPanel extends AbstractJamochaPanel implements ActionListener,
 		add(buttonPanel, BorderLayout.PAGE_END);
 
 		initPopupMenu();
+		initRulesList();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -197,10 +198,11 @@ public class RulesPanel extends AbstractJamochaPanel implements ActionListener,
 				Rule rule = (Rule) dataModel.getRowAt(rulesTable
 						.getSelectedRow());
 				if (rule != null) {
-					buffer.append(ParserFactory.getFormatter().visit(rule));
+					buffer.append(ParserFactory.getFormatter(true).visit(rule));
 				}
 			}
 			dumpArea.setText(buffer.toString());
+			dumpArea.setCaretPosition(0);
 		}
 	}
 

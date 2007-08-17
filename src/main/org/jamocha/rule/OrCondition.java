@@ -2,6 +2,7 @@ package org.jamocha.rule;
 
 import java.util.List;
 
+import org.jamocha.formatter.Formatter;
 import org.jamocha.rete.exception.AssertException;
 import org.jamocha.rete.nodes.BaseNode;
 import org.jamocha.rete.SFRuleCompiler;
@@ -23,4 +24,8 @@ public class OrCondition extends ConditionWithNested {
 	}
 	
 	protected String clipsName() {return "or";}
+
+	public String format(Formatter visitor) {
+		return visitor.visit(this);
+	}
 }

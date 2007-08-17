@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.jamocha.formatter.Formatter;
 import org.jamocha.rete.SFRuleCompiler;
 import org.jamocha.rete.StopCompileException;
 import org.jamocha.rete.Template;
@@ -226,6 +227,10 @@ public class ObjectCondition extends AbstractCondition {
 
 	public boolean hasBindings() {
 		return (!getAllBoundConstraints().isEmpty());
+	}
+
+	public String format(Formatter visitor) {
+		return visitor.visit(this);
 	}
 	
 }

@@ -57,9 +57,5 @@ public abstract class AbstractCondition implements Condition {
 	}
 	
 	public abstract Object clone() throws CloneNotSupportedException;
-
-	public String format(Formatter visitor) {
-		return visitor.visit(this);
-	}
 	
 }

@@ -70,8 +70,4 @@ public abstract class AbstractConstraint implements Constraint {
 		this.name = name;
 	}
 
-	public String format(Formatter visitor) {
-		return visitor.visit(this);
-	}
-
 }

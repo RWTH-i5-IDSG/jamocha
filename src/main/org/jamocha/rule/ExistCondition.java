@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.jamocha.formatter.Formatter;
 import org.jamocha.rete.SFRuleCompiler;
 import org.jamocha.rete.nodes.BaseNode;
 
@@ -158,5 +159,9 @@ public class ExistCondition extends ConditionWithNested {
 	}
 	
 	protected String clipsName() {return "exists";}
+
+	public String format(Formatter visitor) {
+		return visitor.visit(this);
+	}
 
 }

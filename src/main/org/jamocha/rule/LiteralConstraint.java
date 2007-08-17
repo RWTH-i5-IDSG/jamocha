@@ -16,6 +16,7 @@
  */
 package org.jamocha.rule;
 
+import org.jamocha.formatter.Formatter;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.SFRuleCompiler;
 import org.jamocha.rete.nodes.BaseNode;
@@ -102,5 +103,9 @@ public class LiteralConstraint extends AbstractConstraint {
 	
 	public BaseNode compile(SFRuleCompiler compiler, Rule rule, int conditionIndex) {
 		return compiler.compile(this, rule, conditionIndex);
+	}
+
+	public String format(Formatter visitor) {
+		return visitor.visit(this);
 	}
 }

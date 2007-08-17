@@ -16,6 +16,7 @@
  */
 package org.jamocha.rule;
 
+import org.jamocha.formatter.Formatter;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Constants;
 import org.jamocha.rete.ConversionUtils;
@@ -199,5 +200,9 @@ public class BoundConstraint extends AbstractConstraint {
 	
 	public int getOperator(){
 		return (negated? Constants.NOTEQUAL : Constants.EQUAL);
+	}
+
+	public String format(Formatter visitor) {
+		return visitor.visit(this);
 	}
 }
