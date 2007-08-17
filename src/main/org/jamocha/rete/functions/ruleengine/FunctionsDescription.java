@@ -291,6 +291,7 @@ public class FunctionsDescription extends AbstractFunction {
 				XmlTag t = new XmlTag();
 				t.setName("function");
 				t.addAttribute("name", function.getName());
+				if (desc == null) continue;
 				t.addAttribute("description", desc.getDescription());
 
 				if (desc.isParameterCountFixed()) {

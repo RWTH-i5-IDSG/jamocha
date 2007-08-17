@@ -67,7 +67,7 @@ public class Evenp extends AbstractFunction {
 		}
 
 		public String getExample() {
-			return "(even 42)";
+			return "(evenp 42)";
 		}
 
 		public boolean isResultAutoGeneratable() {

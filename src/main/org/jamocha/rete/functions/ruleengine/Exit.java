@@ -70,7 +70,8 @@ public class Exit extends AbstractFunction {
 		}
 
 		public boolean isResultAutoGeneratable() {
-			return true;
+			// NEVER RETURN TRUE HERE IN EXIT FUNCTION!
+			return false;
 		}
 	}
 

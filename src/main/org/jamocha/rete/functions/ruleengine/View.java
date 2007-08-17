@@ -75,7 +75,7 @@ public class View extends AbstractFunction {
 		}
 
 		public boolean isResultAutoGeneratable() {
-			return true;
+			return false;
 		}
 	}
 
