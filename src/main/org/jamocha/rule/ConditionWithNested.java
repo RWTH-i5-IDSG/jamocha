@@ -49,7 +49,7 @@ public abstract class ConditionWithNested extends AbstractCondition {
 		if (nodes.size() > 0) {
 			return nodes.get(nodes.size()-1);
 		} else {
-			return null;
+			return nestedCE.get(0).getLastNode();
 		}
 	}
 

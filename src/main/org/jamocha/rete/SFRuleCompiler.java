@@ -462,40 +462,40 @@ public class SFRuleCompiler implements RuleCompiler {
 		return result;
 	}
 
+	protected boolean isQuantorCondition(Condition c) {
+		return (c instanceof ExistCondition || c instanceof NotCondition);
+	}
+	
+	public ObjectCondition getObjectCondition(Condition c) {
+		if (c instanceof ExistCondition) {
+			return (ObjectCondition) ( ((ExistCondition)c).getNestedConditionalElement().get(0) );
+		} else if (c instanceof NotCondition) {
+			return (ObjectCondition) (((NotCondition)c).getNestedConditionalElement().get(0));
+		} else return null;
+	}
+	
 	protected void rearrangeConditions(Condition[] conds) {
 		BindingAddressesTable bat = computeBindingAddressTable(conds);
 		for (int i = 0; i < conds.length; i++) {
 			Condition c = conds[i];
-
-			// if (c instanceof IsQuantorCondition){
-			// // for each constraint of our quantor condition, we have to
-			// check,
-			// // whether it is already available at the given position.
-			// for (Constraint constr :
-			// ((IsQuantorCondition)c).getObjectCondition().getConstraints() ) {
-			//					
-			// if (!(constr instanceof BoundConstraint)) continue;
-			//					
-			// BoundConstraint bc = (BoundConstraint) constr;
-			// BindingAddress pivot = bat.getPivot(bc.getVariableName());
-			//					
-			// if (pivot.tupleIndex > conditionIndexToTupleIndex(i,
-			// conds.length) ) {
-			// //shift them
-			// for ( int j=i ; j > 0 ; j-- ) {
-			// conds[j] = conds[j-1];
-			// }
-			// conds[0] = c;
-			// rearrangeConditions(conds); //TODO: better way? thats simple but
-			// not efficient ^^
-			// return;
-			// }
-			//					
-			// }
-			// }
-
+			if (isQuantorCondition(c)){
+				for (Constraint constr :
+					getObjectCondition(c).getConstraints() ) {
+					if (!(constr instanceof BoundConstraint)) continue;
+					BoundConstraint bc = (BoundConstraint) constr;
+					BindingAddress pivot = bat.getPivot(bc.getVariableName());
+					if (pivot.tupleIndex > conditionIndexToTupleIndex(i,
+							conds.length) ) {
+						for ( int j=i ; j > 0 ; j-- ) {
+							conds[j] = conds[j-1];
+						}
+						conds[0] = c;
+						rearrangeConditions(conds);
+						return;
+					}
+				}
+			}
 		}
-
 	}
 
 	protected BaseNode compileJoins(Rule rule) throws AssertException,
@@ -521,6 +521,8 @@ public class SFRuleCompiler implements RuleCompiler {
 		for (int i = 0; i < sortedConds.length; i++) {
 
 			Condition c = sortedConds[i];
+			
+			System.out.println(c);
 			AbstractBeta newBeta = null;
 
 			if (c instanceof ObjectCondition)
