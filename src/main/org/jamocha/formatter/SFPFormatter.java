@@ -202,6 +202,8 @@ public class SFPFormatter extends Formatter {
 			sb.append(')');
 
 		}
+		decreaseIndent();
+		newLine(sb);
 		return sb.toString();
 	}
 
