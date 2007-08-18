@@ -48,9 +48,9 @@ import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.Timer;
-import javax.swing.plaf.basic.BasicTextUI.BasicCaret;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Caret;
+import javax.swing.text.DefaultCaret;
 
 import org.jamocha.gui.ClipboardUtil;
 import org.jamocha.gui.JamochaGui;
@@ -723,7 +723,7 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 		
 		if (!suggestions.isEmpty()) {
 			Caret c = outputArea.getCaret();
-			BasicCaret bc = (BasicCaret)c;
+			DefaultCaret bc = (DefaultCaret)c;
 			int x = bc.x + outputArea.getLocationOnScreen().x;
 			int y = bc.y + bc.height  + outputArea.getLocationOnScreen().y;
 			autoCompletionBox.show(suggestions,x,y);
