@@ -84,7 +84,7 @@ public class FunctionEvaluator implements JoinFilter {
 		return clone;
 	}
 
-	public boolean evaluate(Fact right, FactTuple left) throws JoinFilterException {
+	public boolean evaluate(Fact right, FactTuple left, Rete engine) throws JoinFilterException {
 		Parameter[] callParams = semicloneParameters(parameters);
 		substitute(callParams, right, left);
 

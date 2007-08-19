@@ -2,7 +2,7 @@
 ; Initial data that is essential to run the JamochaAgent.
 ; ===================================================
 
-(defmodule Agent)
+;(defmodule Agent)
 
 (batch (str-cat ?init-folder "templates.clp"))
 

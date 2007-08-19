@@ -18,7 +18,7 @@
 	
 	(bind ?receivers (prepare-receivers ?message))
 	
-	(assert 
+	(assert
 		(agent-message
 			(receiver ?receivers)
 			(performative "refuse")
@@ -44,7 +44,7 @@
 		(performative "request")
 	)
 	(agent-request-result
-		(message ?message)
+		;(message ?message)
 		(result ?result)
 	)
 	

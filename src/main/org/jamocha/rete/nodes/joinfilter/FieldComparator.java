@@ -18,11 +18,13 @@ package org.jamocha.rete.nodes.joinfilter;
 
 import java.io.Serializable;
 
+import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Constants;
 import org.jamocha.rete.ConversionUtils;
 import org.jamocha.rete.Evaluate;
 import org.jamocha.rete.Fact;
+import org.jamocha.rete.Rete;
 import org.jamocha.rete.nodes.FactTuple;
 
 /**
@@ -34,66 +36,94 @@ public class FieldComparator implements Serializable, Cloneable, JoinFilter {
 	private static final long serialVersionUID = 1L;
 
 	protected int operator = Constants.EQUAL;
+
 	protected String varName = null;
-    protected RightFieldAddress right = null;
-    protected LeftFieldAddress  left  = null;
-    
-	public FieldComparator(String varName, LeftFieldAddress left, int operator, RightFieldAddress right) {
-		this(varName,left,right);
+
+	protected RightFieldAddress right = null;
+
+	protected LeftFieldAddress left = null;
+
+	public FieldComparator(String varName, LeftFieldAddress left, int operator,
+			RightFieldAddress right) {
+		this(varName, left, right);
 		this.operator = operator;
 	}
 
-	public FieldComparator(String varName, LeftFieldAddress left, RightFieldAddress right) {
+	public FieldComparator(String varName, LeftFieldAddress left,
+			RightFieldAddress right) {
 		super();
-		this.varName=varName;
-		this.left=left;
-		this.right=right;
+		this.varName = varName;
+		this.left = left;
+		this.right = right;
 	}
 
 	public int getOperator() {
 		return this.operator;
 	}
-	
+
 	public void setOperator(int operator) {
 		this.operator = operator;
 	}
-	
-	public boolean evaluate(Fact rightinput, FactTuple leftinput) throws JoinFilterException {
+
+	public boolean evaluate(Fact rightinput, FactTuple leftinput, Rete engine)
+			throws JoinFilterException {
 		JamochaValue rightValue = null, leftValue = null;
 		if (right.refersWholeFact()) {
 			rightValue = JamochaValue.newFact(rightinput);
-			//rightValue = rightinput.getSlotValue( -1 );
+			// rightValue = rightinput.getSlotValue( -1 );
 		} else {
-			rightValue = rightinput.getSlotValue( right.getSlotIndex() );			
+			rightValue = rightinput.getSlotValue(right.getSlotIndex());
 		}
-		
+
 		if (left.refersWholeFact()) {
-			leftValue = JamochaValue.newFact(leftinput.getFacts()[left.getRowIndex()]);
+			leftValue = JamochaValue.newFact(leftinput.getFacts()[left
+					.getRowIndex()]);
 		} else {
-			leftValue = leftinput.getFacts()[left.getRowIndex()].getSlotValue( left.getSlotIndex() );			
+			leftValue = leftinput.getFacts()[left.getRowIndex()]
+					.getSlotValue(left.getSlotIndex());
 		}
+		leftValue = resolveFact(leftValue, engine);
+		rightValue = resolveFact(rightValue, engine);
 
 		return Evaluate.evaluate(operator, leftValue, rightValue);
 	}
-    
-    public String getVarName(){
-        return this.varName;
-    }
-    
-    public void setVarName(String name){
-        this.varName = name;
-    }
 
-  
-    public String toPPString() {
-        StringBuffer buf = new StringBuffer();
-        buf.append("?" + varName + " ");
-        buf.append(left.toPPString());
-        buf.append(" ");
-        buf.append(ConversionUtils.getOperatorDescription(operator));
-        buf.append(" ");
-        buf.append(right.toPPString());
-        return buf.toString();
-    }
+	/**
+	 * This function takes a JamochaValue and if it is of type FACT_ID it return
+	 * the JamochaValue of type FACT with the corresponding fact.
+	 * <p>
+	 * If the value is no FACT_ID it is just returned.
+	 * 
+	 * @param value
+	 *            The possible fact-id to resolve.
+	 * @param engine
+	 *            Needed to find the fact to a given fact-id.
+	 * @return The original value or a fact if value was a fact-id
+	 */
+	private JamochaValue resolveFact(JamochaValue value, Rete engine) {
+		if (value.is(JamochaType.FACT_ID)) {
+			return JamochaValue.newFact(engine.getFactById(value));
+		} else
+			return value;
+	}
+
+	public String getVarName() {
+		return this.varName;
+	}
+
+	public void setVarName(String name) {
+		this.varName = name;
+	}
+
+	public String toPPString() {
+		StringBuffer buf = new StringBuffer();
+		buf.append("?" + varName + " ");
+		buf.append(left.toPPString());
+		buf.append(" ");
+		buf.append(ConversionUtils.getOperatorDescription(operator));
+		buf.append(" ");
+		buf.append(right.toPPString());
+		return buf.toString();
+	}
 
 }

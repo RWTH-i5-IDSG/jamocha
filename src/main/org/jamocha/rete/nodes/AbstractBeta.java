@@ -54,7 +54,7 @@ public abstract class AbstractBeta extends BaseNode {
 		}
 		for (BaseNode b : parentNodes) {
 			if (b instanceof AbstractBeta) {
-				AbstractBeta beta = (AbstractBeta)b;
+				AbstractBeta beta = (AbstractBeta) b;
 				beta.activate(net);
 			}
 		}
@@ -63,11 +63,12 @@ public abstract class AbstractBeta extends BaseNode {
 	// protected abstract void evaluateBeta(FactTuple tuple, Rete engine) throws
 	// AssertException;
 
-	protected void evaluateBeta(FactTuple tuple, ReteNet net) throws AssertException {
+	protected void evaluateBeta(FactTuple tuple, ReteNet net)
+			throws AssertException {
 		Iterator<Fact> itr = alphaMemory.iterator();
 		while (itr.hasNext()) {
 			Fact rfcts = itr.next();
-			if (this.evaluate(tuple, rfcts)) {
+			if (this.evaluate(tuple, rfcts, net.getEngine())) {
 				FactTuple newTuple = tuple.addFact(rfcts);
 				mergeMemory.add(newTuple);
 				this.propogateAssert(newTuple, net);
@@ -92,7 +93,7 @@ public abstract class AbstractBeta extends BaseNode {
 		}
 	}
 
-	protected abstract boolean evaluate(FactTuple tuple, Fact rfcts);
+	protected abstract boolean evaluate(FactTuple tuple, Fact rfcts, Rete engine);
 
 	/**
 	 * @param id
@@ -107,7 +108,8 @@ public abstract class AbstractBeta extends BaseNode {
 	}
 
 	@Override
-	public void assertFact(Assertable fact, ReteNet net, BaseNode sender) throws AssertException {
+	public void assertFact(Assertable fact, ReteNet net, BaseNode sender)
+			throws AssertException {
 		if (sender.isRightNode()) {
 			assertRight((Fact) fact, net);
 		} else
@@ -121,7 +123,7 @@ public abstract class AbstractBeta extends BaseNode {
 			Iterator<FactTuple> itr = betaMemory.iterator();
 			while (itr.hasNext()) {
 				FactTuple tuple = itr.next();
-				if (this.evaluate(tuple, fact)) {
+				if (this.evaluate(tuple, fact, net.getEngine())) {
 					// now we propogate
 					FactTuple newTuple = tuple.addFact(fact);
 					mergeMemory.add(newTuple);
@@ -132,7 +134,8 @@ public abstract class AbstractBeta extends BaseNode {
 	}
 
 	@Override
-	public void retractFact(Assertable fact, ReteNet net, BaseNode sender) throws RetractException {
+	public void retractFact(Assertable fact, ReteNet net, BaseNode sender)
+			throws RetractException {
 		if (sender.isRightNode()) {
 			retractRight((Fact) fact, net);
 
@@ -150,7 +153,8 @@ public abstract class AbstractBeta extends BaseNode {
 	}
 
 	@Override
-	protected void mountChild(BaseNode newChild, ReteNet net) throws AssertException {
+	protected void mountChild(BaseNode newChild, ReteNet net)
+			throws AssertException {
 		// TODO Auto-generated method stub
 
 	}
@@ -161,13 +165,15 @@ public abstract class AbstractBeta extends BaseNode {
 	 * @param factInstance
 	 * @param engine
 	 */
-	public void retractLeft(FactTuple tuple, ReteNet net) throws RetractException {
+	public void retractLeft(FactTuple tuple, ReteNet net)
+			throws RetractException {
 		if (betaMemory.contains(tuple)) {
 			betaMemory.remove(tuple);
 			// now we propogate the retract. To do that, we have
 			// merge each item in the list with the Fact array
 			// and call retract in the successor nodes
-			Vector<FactTuple> matchings = mergeMemory.getPrefixMatchingTuples(tuple);
+			Vector<FactTuple> matchings = mergeMemory
+					.getPrefixMatchingTuples(tuple);
 			for (FactTuple toRemove : matchings) {
 				mergeMemory.remove(toRemove);
 				propogateRetract(toRemove, net);
@@ -187,7 +193,8 @@ public abstract class AbstractBeta extends BaseNode {
 	public void retractRight(Fact fact, ReteNet net) throws RetractException {
 		if (alphaMemory.contains(fact)) {
 			alphaMemory.remove(fact);
-			Vector<FactTuple> matchings = mergeMemory.getPostfixMatchingTuples(fact);
+			Vector<FactTuple> matchings = mergeMemory
+					.getPostfixMatchingTuples(fact);
 			for (FactTuple toRemove : matchings) {
 				mergeMemory.remove(toRemove);
 				propogateRetract(toRemove, net);
@@ -196,7 +203,8 @@ public abstract class AbstractBeta extends BaseNode {
 	}
 
 	@Override
-	protected void unmountChild(BaseNode oldChild, ReteNet net) throws RetractException {
+	protected void unmountChild(BaseNode oldChild, ReteNet net)
+			throws RetractException {
 		// TODO Auto-generated method stub
 
 	}
@@ -215,7 +223,8 @@ public abstract class AbstractBeta extends BaseNode {
 		// to the child)
 		// we want to test whether we need a new LIANode between child and
 		// parent
-		if (this.parentNodes.length > 0 && this.parentNodes[0].isRightNode() && newParentNode.isRightNode()) {
+		if (this.parentNodes.length > 0 && this.parentNodes[0].isRightNode()
+				&& newParentNode.isRightNode()) {
 			// now, indeed, we need a new LIANode between them
 			LIANode adaptor = new LIANode(net.nextNodeId());
 			try {
@@ -234,11 +243,11 @@ public abstract class AbstractBeta extends BaseNode {
 
 	}
 
-	
 	public String toPPString() {
 		StringBuffer sb = new StringBuffer();
 		sb.append(super.toPPString());
-		if (!activated) sb.append("not ");
+		if (!activated)
+			sb.append("not ");
 		sb.append("activated\n");
 		sb.append("Alpha-Input: ");
 		sb.append(alphaMemory.toPPString(5));

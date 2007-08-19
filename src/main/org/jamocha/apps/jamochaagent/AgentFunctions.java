@@ -34,6 +34,7 @@ public class AgentFunctions extends FunctionGroup {
 	}
 
 	public void loadFunctions(FunctionMemory functionMem) {
+		addFunction(functionMem, new AgentName(agent));
 		addFunction(functionMem, new SendMessageFunction(agent));
 		addFunction(functionMem, new SLMessageCompare());
 		addFunction(functionMem, new SL2CLIPSFunction());

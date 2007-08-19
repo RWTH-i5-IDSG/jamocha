@@ -87,11 +87,20 @@ public class JamochaAgent extends ToolAgent {
 		addBehaviour(new MessageReceiver(this));
 		sendingBehaviour = new MessageSender(this);
 		addBehaviour(sendingBehaviour);
+		List<String> batchFiles = new LinkedList<String>();
+		String batchString = getProperties().getProperty("jamocha.batch", "");
+		if (!batchString.equals("")) {
+			String[] batchArr = batchString.split(",");
+			for (String batchFile : batchArr) {
+				batchFiles.add(batchFile);
+			}
+		}
+
 		try {
 			jamocha = new Jamocha(engine, getProperties().getBooleanProperty(
 					"jamocha.gui", false), getProperties().getBooleanProperty(
 					"jamoche.shell", false), getProperties().getProperty(
-					"jamocha.mode", ""));
+					"jamocha.mode", ""), batchFiles);
 			if (getProperties().getBooleanProperty("jamocha.gui", false)) {
 				jamocha.getJamochaGui().setExitOnClose(false);
 				jamocha.setGUITitle("JamochaAgent - " + getName());
