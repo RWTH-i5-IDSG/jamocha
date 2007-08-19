@@ -44,7 +44,7 @@
 		(performative "request")
 	)
 	(agent-request-result
-		;(message ?message)
+		(message ?message)
 		(result ?result)
 	)
 	

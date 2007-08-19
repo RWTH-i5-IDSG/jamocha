@@ -89,8 +89,10 @@ public class FieldComparator implements Serializable, Cloneable, JoinFilter {
 	}
 
 	/**
-	 * This function takes a JamochaValue and if it is of type FACT_ID it return
-	 * the JamochaValue of type FACT with the corresponding fact.
+	 * This function takes a JamochaValue and if it is of type FACT_ID it
+	 * returns the JamochaValue of type FACT with the corresponding fact. If we
+	 * have a fact we get the current version of the fact out of the engine and
+	 * return it.
 	 * <p>
 	 * If the value is no FACT_ID it is just returned.
 	 * 
@@ -103,8 +105,11 @@ public class FieldComparator implements Serializable, Cloneable, JoinFilter {
 	private JamochaValue resolveFact(JamochaValue value, Rete engine) {
 		if (value.is(JamochaType.FACT_ID)) {
 			return JamochaValue.newFact(engine.getFactById(value));
-		} else
-			return value;
+		} else if (value.is(JamochaType.FACT)) {
+			return JamochaValue.newFact(engine.getFactById(value.getFactValue()
+					.getFactId()));
+		}
+		return value;
 	}
 
 	public String getVarName() {
