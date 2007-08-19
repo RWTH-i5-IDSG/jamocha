@@ -40,14 +40,13 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableColumnModel;
 
+import org.jamocha.formatter.HelpFormatter;
 import org.jamocha.gui.JamochaGui;
 import org.jamocha.gui.TableModelQuickSort;
 import org.jamocha.gui.TableRowModel;
 import org.jamocha.gui.editor.FactEditor;
 import org.jamocha.gui.icons.IconLoader;
-import org.jamocha.parser.JamochaType;
 import org.jamocha.rete.Fact;
-import org.jamocha.rete.Slot;
 import org.jamocha.rete.exception.RetractException;
 
 /**
@@ -200,27 +199,7 @@ public class FactsPanel extends AbstractJamochaPanel implements ActionListener,
 				Fact fact = (Fact) dataModel.getRowAt(factsTable
 						.getSelectedRow());
 				if (fact != null) {
-					buffer.append("f-" + fact.getFactId() + "("
-							+ fact.getTemplate().getName());
-					Slot[] slots = fact.getTemplate().getAllSlots();
-					for (Slot slot : slots) {
-						buffer.append("\n    (" + slot.getName() + " ");
-						if (slot.getValueType() == JamochaType.LIST) {
-							for (int i = 0; i < slot.getValue().getListCount(); ++i) {
-								if (i > 0)
-									buffer.append(" ");
-								buffer.append(slot.getValue().getListValue(i)
-										.getStringValue());
-							}
-						} else {
-							String value = fact.getSlotValue(slot.getId())
-									.toString();
-							if (!value.equals(""))
-								buffer.append(value);
-						}
-						buffer.append(")");
-					}
-					buffer.append("\n)");
+					buffer.append(fact.format(new HelpFormatter()));
 				}
 			}
 			dumpArea.setText(buffer.toString());

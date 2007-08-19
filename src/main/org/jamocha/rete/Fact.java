@@ -16,6 +16,7 @@
  */
 package org.jamocha.rete;
 
+import org.jamocha.formatter.Formattable;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.configurations.SlotConfiguration;
@@ -27,75 +28,93 @@ import org.jamocha.rule.Rule;
  * 
  * Base interface for Facts
  */
-public interface Fact extends Assertable, Dumpable {
+public interface Fact extends Assertable, Dumpable, Formattable {
 
-    /**
-     * Return the value at the given slot id
-     * @param id
-     * @return
-     */
-    JamochaValue getSlotValue(int id);
-    /**
-     * Return the value at the given slot id
-     * @param id
-     * @return
-     */
-    JamochaValue getSlotValue(String name);
-    /**
-     * Return id of the given slot name
-     * @param name
-     * @return
-     */
-    int getSlotId(String name);
-    /**
-     * Return the object instance linked to the fact
-     * @return
-     */
-    Object getObjectInstance();
-    /**
-     * Method will return the fact in a string format.
-     * @return
-     */
-    String toFactString();
-    /**
-     * Return the unique ID for the fact
-     * @return
-     */
-    long getFactId();
-    /**
-     * If we need to update slots
-     * @param slots
-     */
-    void updateSlots(Rete engine, Slot[] slots);
-    
-	void updateSlots(Rete engine, SlotConfiguration[] slots) throws EvaluationException;
-	
-    /**
-     * Return the Deftemplate for the fact
-     * @return
-     */
-    Template getTemplate();
-    
+	/**
+	 * Return the value at the given slot id
+	 * 
+	 * @param id
+	 * @return
+	 */
+	JamochaValue getSlotValue(int id);
+
+	/**
+	 * Return the value at the given slot id
+	 * 
+	 * @param id
+	 * @return
+	 */
+	JamochaValue getSlotValue(String name);
+
+	/**
+	 * Return id of the given slot name
+	 * 
+	 * @param name
+	 * @return
+	 */
+	int getSlotId(String name);
+
+	/**
+	 * Return the object instance linked to the fact
+	 * 
+	 * @return
+	 */
+	Object getObjectInstance();
+
+	/**
+	 * Method will return the fact in a string format.
+	 * 
+	 * @return
+	 */
+	String toFactString();
+
+	/**
+	 * Return the unique ID for the fact
+	 * 
+	 * @return
+	 */
+	long getFactId();
+
+	/**
+	 * If we need to update slots
+	 * 
+	 * @param slots
+	 */
+	void updateSlots(Rete engine, Slot[] slots);
+
+	void updateSlots(Rete engine, SlotConfiguration[] slots)
+			throws EvaluationException;
+
+	/**
+	 * Return the Deftemplate for the fact
+	 * 
+	 * @return
+	 */
+	Template getTemplate();
+
 	void compileBinding(Rule util);
 
-    /**
-     * finalize the object and make it ready for GC
-     */
-    void clear();
-    /**
-     * the timestamp for the fact
-     * @return
-     */
-    long timeStamp();
-    /**
-     * 
-     */
-    EqualityIndex equalityIndex();
-    
+	/**
+	 * finalize the object and make it ready for GC
+	 */
+	void clear();
+
+	/**
+	 * the timestamp for the fact
+	 * 
+	 * @return
+	 */
+	long timeStamp();
+
+	/**
+	 * 
+	 */
+	EqualityIndex equalityIndex();
+
 	void setFactId(long id);
 
 	public boolean getSlotSilence(int idx);
-	
+
 	public boolean getSlotSilence(String slotName);
-	
+
 }

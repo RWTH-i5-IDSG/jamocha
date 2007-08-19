@@ -3,6 +3,7 @@ package org.jamocha.formatter;
 import java.util.List;
 
 import org.jamocha.parser.JamochaType;
+import org.jamocha.rete.Fact;
 import org.jamocha.rete.functions.Function;
 import org.jamocha.rete.functions.FunctionDescription;
 
@@ -64,6 +65,13 @@ public class HelpFormatter extends SFPFormatter {
 			newLine(sb);
 			sb.append(example);
 		}
+		return sb.toString();
+	}
+
+	public String visit(Fact object) {
+		StringBuilder sb = new StringBuilder();
+		sb.append("f-").append(object.getFactId());
+		sb.append(super.visit(object));
 		return sb.toString();
 	}
 

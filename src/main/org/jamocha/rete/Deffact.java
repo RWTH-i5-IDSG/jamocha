@@ -18,9 +18,11 @@ package org.jamocha.rete;
 
 import java.util.ArrayList;
 
+import org.jamocha.formatter.Formatter;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
+import org.jamocha.parser.ParserFactory;
 import org.jamocha.rete.configurations.SlotConfiguration;
 import org.jamocha.rule.Rule;
 
@@ -79,7 +81,8 @@ public class Deffact implements Fact {
 			if (this.slots[idx].value.getType().equals(JamochaType.BINDING)) {
 				this.hasBinding = true;
 				list.add(this.slots[idx]);
-				BoundParam bp = (BoundParam) this.slots[idx].value.getObjectValue();
+				BoundParam bp = (BoundParam) this.slots[idx].value
+						.getObjectValue();
 				Binding bd = util.getBinding(bp.getVariableName());
 				if (bd != null) {
 					bp.rowId = bd.getLeftRow();
@@ -110,14 +113,20 @@ public class Deffact implements Fact {
 				for (int mdx = 0; mdx < mvals.getListCount(); mdx++) {
 					JamochaValue jv = mvals.getListValue(mdx);
 					BoundParam bp = (BoundParam) jv.getObjectValue();
-					bp.setResolvedValue(engine.getBinding(bp.getVariableName()));
+					bp
+							.setResolvedValue(engine.getBinding(bp
+									.getVariableName()));
 				}
-			} else if (this.boundSlots[idx].value.getType().equals(JamochaType.BINDING)) {
-				BoundParam bp = (BoundParam) this.boundSlots[idx].value.getObjectValue();
+			} else if (this.boundSlots[idx].value.getType().equals(
+					JamochaType.BINDING)) {
+				BoundParam bp = (BoundParam) this.boundSlots[idx].value
+						.getObjectValue();
 				if (bp.column > -1) {
 					bp.setFact(triggerFacts);
 				} else {
-					bp.setResolvedValue(engine.getBinding(bp.getVariableName()));
+					bp
+							.setResolvedValue(engine.getBinding(bp
+									.getVariableName()));
 				}
 			}
 		}
@@ -179,16 +188,7 @@ public class Deffact implements Fact {
 	 * @return
 	 */
 	public String toFactString() {
-		StringBuffer buf = new StringBuffer();
-		buf.append("f-" + id + " (" + this.template.getName());
-		if (this.slots.length > 0) {
-			buf.append(" ");
-		}
-		for (int idx = 0; idx < this.slots.length; idx++) {
-			buf.append("(" + this.slots[idx].getName() + " " + ConversionUtils.formatSlot(this.slots[idx].value) + ") ");
-		}
-		buf.append(")");
-		return buf.toString();
+		return format(ParserFactory.getFormatter(false));
 	}
 
 	public String toPPString() {
@@ -199,10 +199,14 @@ public class Deffact implements Fact {
 		}
 		for (int idx = 0; idx < this.slots.length; idx++) {
 			if (this.slots[idx].value.getType().equals(JamochaType.BINDING)) {
-				BoundParam bp = (BoundParam) this.slots[idx].value.getObjectValue();
-				buf.append("(" + this.slots[idx].getName() + " ?" + bp.getVariableName() + ") ");
+				BoundParam bp = (BoundParam) this.slots[idx].value
+						.getObjectValue();
+				buf.append("(" + this.slots[idx].getName() + " ?"
+						+ bp.getVariableName() + ") ");
 			} else {
-				buf.append("(" + this.slots[idx].getName() + " " + ConversionUtils.formatSlot(this.slots[idx].value) + ") ");
+				buf.append("(" + this.slots[idx].getName() + " "
+						+ ConversionUtils.formatSlot(this.slots[idx].value)
+						+ ") ");
 			}
 		}
 		buf.append(")");
@@ -235,7 +239,8 @@ public class Deffact implements Fact {
 	public int hashCode() {
 		int hash = 0;
 		for (int idx = 0; idx < this.slots.length; idx++) {
-			hash += this.slots[idx].getName().hashCode() + this.slots[idx].value.hashCode();
+			hash += this.slots[idx].getName().hashCode()
+					+ this.slots[idx].value.hashCode();
 		}
 		return hash;
 	}
@@ -283,7 +288,8 @@ public class Deffact implements Fact {
 		}
 	}
 
-	public void updateSlots(Rete engine, SlotConfiguration[] slotConfigs) throws EvaluationException {
+	public void updateSlots(Rete engine, SlotConfiguration[] slotConfigs)
+			throws EvaluationException {
 		SlotConfiguration slotConfig = null;
 		JamochaValue newValue = null;
 		for (int idx = 0; idx < slotConfigs.length; idx++) {
@@ -341,7 +347,8 @@ public class Deffact implements Fact {
 	 * @return
 	 */
 	public Deffact cloneFact(Rete engine) {
-		Deffact newfact = new Deffact(this.template, this.objInstance, cloneAllSlots());
+		Deffact newfact = new Deffact(this.template, this.objInstance,
+				cloneAllSlots());
 		Slot[] slts = newfact.slots;
 		for (int idx = 0; idx < slts.length; idx++) {
 			// probably need to revisit this and make sure
@@ -351,21 +358,25 @@ public class Deffact implements Fact {
 				JamochaValue[] rvals = new JamochaValue[mval.getListCount()];
 				for (int mdx = 0; mdx < mval.getListCount(); mdx++) {
 					JamochaValue v2 = mval.getListValue(mdx);
-					if (v2.getType().equals(JamochaType.BINDING)){
+					if (v2.getType().equals(JamochaType.BINDING)) {
 						try {
-							rvals[mdx] = JamochaValue.newObject(((BoundParam) v2.getObjectValue()).getValue(engine));
+							rvals[mdx] = JamochaValue
+									.newObject(((BoundParam) v2
+											.getObjectValue()).getValue(engine));
 						} catch (EvaluationException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
-					}else{
+					} else {
 						rvals[mdx] = v2;
 					}
 				}
 				slts[idx].value = JamochaValue.newList(rvals);
-			} else if (this.slots[idx].value.getType().equals(JamochaType.BINDING)) {
+			} else if (this.slots[idx].value.getType().equals(
+					JamochaType.BINDING)) {
 				try {
-					slts[idx].value = ((BoundParam) this.slots[idx].value.getObjectValue()).getValue(engine);
+					slts[idx].value = ((BoundParam) this.slots[idx].value
+							.getObjectValue()).getValue(engine);
 				} catch (EvaluationException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -416,10 +427,15 @@ public class Deffact implements Fact {
 			buf.append(" ");
 		}
 		for (int idx = 0; idx < this.slots.length; idx++) {
-			buf.append("(" + this.slots[idx].getName() + " " + ConversionUtils.formatSlot(this.slots[idx].value) + ") ");
+			buf.append("(" + this.slots[idx].getName() + " "
+					+ ConversionUtils.formatSlot(this.slots[idx].value) + ") ");
 		}
 		buf.append(") )");
 		return buf.toString();
 	}
-	
+
+	public String format(Formatter visitor) {
+		return visitor.visit(this);
+	}
+
 }

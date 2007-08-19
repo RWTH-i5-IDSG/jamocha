@@ -18,6 +18,7 @@ package org.jamocha.rete;
 
 import java.io.Serializable;
 
+import org.jamocha.formatter.Formatter;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.configurations.SlotConfiguration;
@@ -233,6 +234,10 @@ public class NSFact implements Fact, Serializable {
 
 	public String getDump(String modName) {
 		return "";
+	}
+
+	public String format(Formatter visitor) {
+		return visitor.visit(this);
 	}
 	
 }

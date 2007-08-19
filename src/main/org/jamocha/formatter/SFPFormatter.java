@@ -9,6 +9,7 @@ import org.jamocha.parser.Expression;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.BoundParam;
 import org.jamocha.rete.ExpressionSequence;
+import org.jamocha.rete.Fact;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Slot;
 import org.jamocha.rete.configurations.AssertConfiguration;
@@ -97,9 +98,15 @@ public class SFPFormatter extends Formatter {
 			sb.append(slot.getValue().format(this));
 			sb.append(')');
 			break;
-
-		default:
+		case FACT:
+			break;
+		case LONG:
+		case DOUBLE:
+		case BOOLEAN:
 			sb.append(object.getObjectValue().toString());
+			break;
+		default:
+			sb.append(object.getStringValue());
 			break;
 		}
 		return sb.toString();
@@ -417,6 +424,24 @@ public class SFPFormatter extends Formatter {
 			sb.append(condition.format(this));
 		}
 		sb.append(')');
+		return sb.toString();
+	}
+
+	@Override
+	public String visit(Fact object) {
+		StringBuilder sb = new StringBuilder();
+		sb.append("(" + object.getTemplate().getName());
+		Slot[] slots = object.getTemplate().getAllSlots();
+		increaseIndent();
+		for (int i = 0; i < slots.length; ++i) {
+			newLine(sb);
+			sb.append("(" + slots[i].getName() + " ");
+			sb.append(object.getSlotValue(i).format(this));
+			sb.append(")");
+		}
+		decreaseIndent();
+		newLine(sb);
+		sb.append(")");
 		return sb.toString();
 	}
 }

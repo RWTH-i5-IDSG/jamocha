@@ -4,6 +4,7 @@ import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.BoundParam;
 import org.jamocha.rete.Constants;
 import org.jamocha.rete.ExpressionSequence;
+import org.jamocha.rete.Fact;
 import org.jamocha.rete.configurations.AssertConfiguration;
 import org.jamocha.rete.configurations.DeclarationConfiguration;
 import org.jamocha.rete.configurations.DeffunctionConfiguration;
@@ -66,6 +67,8 @@ public abstract class Formatter {
 	public abstract String visit(DefruleConfiguration object);
 
 	public abstract String visit(ExpressionSequence object);
+
+	public abstract String visit(Fact object);
 
 	public abstract String visit(FunctionAction object);
 
