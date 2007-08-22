@@ -103,10 +103,13 @@ public class SFPFormatter extends Formatter {
 		case LONG:
 		case DOUBLE:
 		case BOOLEAN:
-			sb.append(object.getObjectValue().toString());
-			break;
 		default:
-			sb.append(object.getStringValue());
+			Object obj = object.getObjectValue();
+			if (obj instanceof Formattable) {
+				sb.append(((Formattable) obj).format(this));
+			} else {
+				sb.append(obj.toString());
+			}
 			break;
 		}
 		return sb.toString();

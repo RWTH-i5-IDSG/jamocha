@@ -125,17 +125,10 @@
 (deffunction send-agree
 	"Sends an agree to a message using the same protocol with optional propositions."
 	(functiongroup AgentFunctions)
-	(?message ?propositions)
+	(?message ?action ?proposition)
 	
 	(bind ?receivers (prepare-receivers ?message))
-	(bind ?newContent (fact-slot-value ?message "content"))
-	(if
-		(neq ?propositions NIL)
-	 then
-		(bind ?newContent
-			(str-cat ?newContent ?propositions)
-		)
-	)
+	(bind ?newContent (str-cat "(" ?action ?proposition ")"))
 	
 	(assert 
 		(agent-message

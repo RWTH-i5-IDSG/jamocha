@@ -50,12 +50,13 @@
 	
 	=>
 	
-	(send-agree ?message "")
+	(send-agree ?message (strip-braces (fact-slot-value ?message "content")) "true")
 	
 	(bind ?receivers (prepare-receivers ?message))
 	
 	(bind ?resultContent
-		(str-cat (fact-slot-value ?message "content") (clips2sl ?result))
+		;(str-cat (fact-slot-value ?message "content") (clips2sl ?result))
+		(str-cat "(" (clips2sl ?result) ")")
 	)
 		
 	(assert
