@@ -1,3 +1,8 @@
+(batch apps/jamochaagent/samples/MissManners/common.clp)
+
+
+; (register "PartyHost@amufusims-mac.local:1099/JADE" "heinz" "m" (create$ "wurst" "bier" "senf"))
+
 (deffunction register
 ;params:
 	(?partyHost ?name ?sex ?hobbies)
@@ -11,9 +16,15 @@
 			)
 		)
 	)
-	(bind ?content
-		(clips2sl (str-cat "(resolvePartyAnnouncement " ?announcementFact ")") )
-	)
+	
+	(bind ?content (str-cat
+		"((action (agent-identifier :name "
+		(clips2sl ?partyHost)
+		")"
+		"(resolvePartyAnnouncement "
+		(clips2sl ?announcementFact)
+		")))"
+   ))
 	(assert 
 		(agent-message
 			(receiver ?partyHost)

@@ -1,3 +1,4 @@
+(batch apps/jamochaagent/samples/MissManners/common.clp)
 ;;; The Manners Benchmark implemented using CLIPS
 ;;; The original source for the OPS5 benchmark suite is available
 ;;; at http://www.cs.utexas.edu/ftp/pub/ops5-benchmark-suite/
@@ -159,7 +160,7 @@
 
    
 ;;; ********
-;;; Painrings
+;;; Pairings
 ;;; ********
 
 (deffunction resolvePartyAnnouncement
