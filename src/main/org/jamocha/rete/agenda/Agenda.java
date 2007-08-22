@@ -70,6 +70,7 @@ public class Agenda implements Serializable {
 
 	public void addActivation(Activation a) {
 		strategy.addActivation(activations, a);
+		if (removed != null) removed.remove(a);
 	}
 
 	public void removeActivation(Activation a) {
@@ -98,9 +99,9 @@ public class Agenda implements Serializable {
 	protected int fireActivationList() throws ExecuteException {
 		try {
 			int result = 0;
-			removed = new HashSet<Activation>();
 			for (Activation activation : currentFireActivations) {
 				//only if valid we can fire:
+				System.out.println(activation.toString()+" in "+removed+" ? "+removed.contains(activation));
 				if (!removed.contains(activation)) {
 					activation.fire(engine);
 					result++;
@@ -113,6 +114,7 @@ public class Agenda implements Serializable {
 	}
 
 	public int fire() throws ExecuteException {
+		removed = new HashSet<Activation>();
 		if (chainFiring) {
 			int count2 = 0;
 			while (activations.size() > 0) {
