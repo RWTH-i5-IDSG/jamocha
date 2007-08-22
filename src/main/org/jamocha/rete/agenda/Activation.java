@@ -25,6 +25,8 @@ public class Activation {
 		return false;
 	}
 	
+	
+	
 	public Activation(Rule rule, FactTuple tuple){
 		setRule(rule);
 		setTuple(tuple);
@@ -63,6 +65,4 @@ public class Activation {
 		this.valid = valid;
 	}
 
-	
-	
 }

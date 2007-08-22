@@ -18,7 +18,9 @@ package org.jamocha.rete.agenda;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.exception.ExecuteException;
@@ -36,6 +38,8 @@ public class Agenda implements Serializable {
 	protected ConflictResolutionStrategy strategy = null;
 
 	protected List<Activation> activations;
+	
+	protected Set<Activation> removed;
 	
 	protected List<Activation> currentFireActivations;
 
@@ -70,17 +74,21 @@ public class Agenda implements Serializable {
 
 	public void removeActivation(Activation a) {
 //		we have to invalidate activation so fire won't execute it!
-		for (Activation i : currentFireActivations) {
-			if (a.equals(i))
-				i.setValid(false);
-		}
-		List<Activation> forDelete = new ArrayList<Activation>();
-		for (Activation i : activations) {
-			if (a.equals(i))
-				forDelete.add(i);
-		}
-		for (Activation del : forDelete)
-			strategy.removeActivation(activations, del);
+//		for (Activation i : currentFireActivations) {
+//			if (a.equals(i))
+//				i.setValid(false);
+//			break;
+//		}
+//		List<Activation> forDelete = new ArrayList<Activation>();
+//		for (Activation i : activations) {
+//			if (a.equals(i))
+//				forDelete.add(i);
+//			break;
+//		}
+//		for (Activation del : forDelete)
+//			strategy.removeActivation(activations, del);
+		removed.add(a);
+		
 	}
 
 	public boolean activationExists(Activation a) {
@@ -90,9 +98,10 @@ public class Agenda implements Serializable {
 	protected int fireActivationList() throws ExecuteException {
 		try {
 			int result = 0;
+			removed = new HashSet<Activation>();
 			for (Activation activation : currentFireActivations) {
 				//only if valid we can fire:
-				if (activation.isValid()) {
+				if (!removed.contains(activation)) {
 					activation.fire(engine);
 					result++;
 				}
