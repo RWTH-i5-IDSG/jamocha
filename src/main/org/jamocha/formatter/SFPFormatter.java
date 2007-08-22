@@ -266,8 +266,15 @@ public class SFPFormatter extends Formatter {
 
 	@Override
 	public String visit(ModifyConfiguration object) {
-		// TODO Auto-generated method stub
-		return null;
+		StringBuilder sb = new StringBuilder();
+		sb.append("?");
+		sb.append(object.getFactBinding().getVariableName());
+		SlotConfiguration[] scArray = object.getSlots();
+		for(SlotConfiguration sc : scArray) {
+			sb.append(" ");
+			sb.append(sc.format(this));
+		}
+		return sb.toString();
 	}
 
 	@Override
