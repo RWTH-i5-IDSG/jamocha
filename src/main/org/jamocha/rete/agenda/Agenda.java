@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2006 Peter Lin
+ * Copyright 2007 Josef Alexander Hahn
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://ruleml-dev.sourceforge.net/
+ *   http://www.jamocha.org/
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,7 +18,9 @@ package org.jamocha.rete.agenda;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.List; 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.exception.ExecuteException;
@@ -36,6 +38,8 @@ public class Agenda implements Serializable {
 	protected ConflictResolutionStrategy strategy = null;
 
 	protected List<Activation> activations;
+	
+	protected Set<Activation> removed;
 	
 	protected List<Activation> currentFireActivations;
 
@@ -66,21 +70,26 @@ public class Agenda implements Serializable {
 
 	public void addActivation(Activation a) {
 		strategy.addActivation(activations, a);
+		if (removed != null) removed.remove(a);
 	}
 
 	public void removeActivation(Activation a) {
 //		we have to invalidate activation so fire won't execute it!
-		for (Activation i : currentFireActivations) {
-			if (a.equals(i))
-				i.setValid(false);
-		}
-		List<Activation> forDelete = new ArrayList<Activation>();
-		for (Activation i : activations) {
-			if (a.equals(i))
-				forDelete.add(i);
-		}
-		for (Activation del : forDelete)
-			strategy.removeActivation(activations, del);
+//		for (Activation i : currentFireActivations) {
+//			if (a.equals(i))
+//				i.setValid(false);
+//			break;
+//		}
+//		List<Activation> forDelete = new ArrayList<Activation>();
+//		for (Activation i : activations) {
+//			if (a.equals(i))
+//				forDelete.add(i);
+//			break;
+//		}
+//		for (Activation del : forDelete)
+//			strategy.removeActivation(activations, del);
+		removed.add(a);
+		
 	}
 
 	public boolean activationExists(Activation a) {
@@ -92,7 +101,8 @@ public class Agenda implements Serializable {
 			int result = 0;
 			for (Activation activation : currentFireActivations) {
 				//only if valid we can fire:
-				if (activation.isValid()) {
+				//System.out.println(activation.toString()+" in "+removed+" ? "+removed.contains(activation));
+				if (!removed.contains(activation)) {
 					activation.fire(engine);
 					result++;
 				}
@@ -104,6 +114,7 @@ public class Agenda implements Serializable {
 	}
 
 	public int fire() throws ExecuteException {
+		removed = new HashSet<Activation>();
 		if (chainFiring) {
 			int count2 = 0;
 			while (activations.size() > 0) {
