@@ -221,8 +221,7 @@ public class SFPFormatter extends Formatter {
 
 	@Override
 	public String visit(DefmoduleConfiguration object) {
-		// TODO Auto-generated method stub
-		return null;
+		return object.getModuleName();
 	}
 
 	@Override
@@ -270,7 +269,7 @@ public class SFPFormatter extends Formatter {
 		sb.append("?");
 		sb.append(object.getFactBinding().getVariableName());
 		SlotConfiguration[] scArray = object.getSlots();
-		for(SlotConfiguration sc : scArray) {
+		for (SlotConfiguration sc : scArray) {
 			sb.append(" ");
 			sb.append(sc.format(this));
 		}
