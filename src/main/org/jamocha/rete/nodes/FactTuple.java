@@ -16,6 +16,8 @@
  */
 package org.jamocha.rete.nodes;
 
+import java.util.Arrays;
+
 import org.jamocha.rete.Fact;
 
 public class FactTuple implements Assertable {
@@ -85,6 +87,19 @@ public class FactTuple implements Assertable {
 	
 	public boolean isMyLastFact(Fact input){
 		return (facts[facts.length-1]==input);
+	}
+
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		final FactTuple other = (FactTuple) obj;
+		if (!Arrays.equals(facts, other.facts))
+			return false;
+		return true;
 	}
 
 }

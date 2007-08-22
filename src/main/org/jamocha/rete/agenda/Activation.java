@@ -20,7 +20,7 @@ public class Activation {
 	public boolean equals(Object o) {
 		if (o instanceof Activation) {
 			Activation that = (Activation)o;
-			return this.rule == that.rule && this.tuple == that.tuple;
+			return this.rule == that.rule && this.tuple.equals(that);
 		}
 		return false;
 	}
