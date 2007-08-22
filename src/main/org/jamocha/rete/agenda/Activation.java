@@ -13,6 +13,8 @@ public class Activation {
 
 	protected Rule rule;
 	
+	protected boolean valid = true;
+	
 	protected FactTuple tuple;
 	
 	public boolean equals(Object o) {
@@ -52,6 +54,15 @@ public class Activation {
 		}
 		engine.popScope();
 	}
+
+	public boolean isValid() {
+		return valid;
+	}
+
+	public void setValid(boolean valid) {
+		this.valid = valid;
+	}
+
 	
 	
 }

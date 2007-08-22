@@ -23,7 +23,6 @@ import java.util.List;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.exception.ExecuteException;
 
-
 /**
  * @author Josef Alexander Hahn
  */
@@ -33,78 +32,90 @@ public class Agenda implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	protected Rete engine;
-	
+
 	protected ConflictResolutionStrategy strategy = null;
 
 	protected List<Activation> activations;
 	
+	protected List<Activation> currentFireActivations;
+
 	protected boolean chainFiring = true;
 
 	public Agenda(Rete engine, ConflictResolutionStrategy strategy) {
 		this.engine = engine;
 		activations = new ArrayList<Activation>();
-		this.strategy=strategy;
+		this.strategy = strategy;
 	}
-	
+
 	public Agenda(Rete engine) {
 		this(engine, new FifoConflictResolutionStrategy());
 	}
-	
+
 	public void setConflictResolutionStrategy(ConflictResolutionStrategy strat) {
 		strategy = strat;
 		// we need to recompute the activation list
 		List<Activation> oldList = activations;
 		activations = new ArrayList<Activation>();
-		for(Activation a : oldList) strategy.addActivation(activations, a);
+		for (Activation a : oldList)
+			strategy.addActivation(activations, a);
 	}
-	
-	public ConflictResolutionStrategy getConflictResolutionStrategy(){
+
+	public ConflictResolutionStrategy getConflictResolutionStrategy() {
 		return strategy;
 	}
-	
+
 	public void addActivation(Activation a) {
-		strategy.addActivation(activations,a);
+		strategy.addActivation(activations, a);
 	}
-	
-	public void removeActivation(Activation a){
+
+	public void removeActivation(Activation a) {
+//		we have to invalidate activation so fire won't execute it!
+		for (Activation i : currentFireActivations) {
+			if (a.equals(i))
+				i.setValid(false);
+		}
 		List<Activation> forDelete = new ArrayList<Activation>();
 		for (Activation i : activations) {
-			if (a.equals(i)) forDelete.add(i);
+			if (a.equals(i))
+				forDelete.add(i);
 		}
 		for (Activation del : forDelete)
-			strategy.removeActivation(activations,del);
+			strategy.removeActivation(activations, del);
 	}
-	
-	public boolean activationExists(Activation a){
+
+	public boolean activationExists(Activation a) {
 		return activations.contains(a);
 	}
 
-	protected int fireActivationList(List<Activation> activ) throws ExecuteException{
+	protected int fireActivationList() throws ExecuteException {
 		try {
-			int result=0;
-			for (Activation activation : activ) {
-				activation.fire(engine);
-				result++;
+			int result = 0;
+			for (Activation activation : currentFireActivations) {
+				//only if valid we can fire:
+				if (activation.isValid()) {
+					activation.fire(engine);
+					result++;
+				}
 			}
 			return result;
 		} finally {
-			activ.clear();
+			currentFireActivations.clear();
 		}
 	}
-	
-	public int fire() throws ExecuteException{
+
+	public int fire() throws ExecuteException {
 		if (chainFiring) {
 			int count2 = 0;
 			while (activations.size() > 0) {
-				List<Activation> act = activations;
+				currentFireActivations = activations;
 				activations = new ArrayList<Activation>();
-				count2 += fireActivationList(act);
+				count2 += fireActivationList();
 			}
 			return count2;
 		} else {
-			List<Activation> act = activations;
+			currentFireActivations = activations;
 			activations = new ArrayList<Activation>();
-			return fireActivationList(act);
+			return fireActivationList();
 		}
 	}
 
@@ -115,6 +126,5 @@ public class Agenda implements Serializable {
 	public void setChainFiring(boolean chainFiring) {
 		this.chainFiring = chainFiring;
 	}
-	
 
 }

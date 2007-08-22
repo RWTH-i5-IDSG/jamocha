@@ -2,6 +2,8 @@
 
 
 ; (register "PartyHost@amufusims-mac.local:1099/JADE" "heinz" "m" (create$ "wurst" "bier" "senf"))
+; (register "PartyHost@amufusims-mac.local:1099/JADE" "lissbett" "w" (create$  "bier" "senf"))
+; (register "PartyHost@amufusims-mac.local:1099/JADE" "will" "m" (create$ "wurst" ))
 
 (deffunction register
 ;params:
