@@ -454,7 +454,7 @@ public class SFPInterpreter implements SFPParserVisitor {
 		Deftemplate tpl = new Deftemplate(templName.getStringValue(), null, s);
 
 		if (descr != null) {
-			tpl.setDescription(descr.toString());
+			tpl.setDescription(descr.getStringValue());
 		}
 
 		Signature defTemplate = new Signature();
@@ -549,7 +549,7 @@ public class SFPInterpreter implements SFPParserVisitor {
 		AssertConfiguration ac = new AssertConfiguration();
 		// get the Template name
 		String templateName = ((JamochaValue) node.jjtGetChild(0).jjtAccept(
-				this, data)).toString();
+				this, data)).getStringValue();
 
 		// get the slots from subnodes:
 		SlotConfiguration[] slots = new SlotConfiguration[node
@@ -573,7 +573,7 @@ public class SFPInterpreter implements SFPParserVisitor {
 
 		// get the slot name
 		String slotName = ((JamochaValue) node.jjtGetChild(0).jjtAccept(this,
-				data)).toString();
+				data)).getStringValue();
 
 		// get the slots values:
 		Parameter[] slotValues = new Parameter[node.jjtGetNumChildren() - 1];
@@ -640,14 +640,14 @@ public class SFPInterpreter implements SFPParserVisitor {
 
 		// setup a new DefruleConfiguration
 		DefruleConfiguration rc = new DefruleConfiguration();
-		rc.setRuleName(ruleName.toString());
+		rc.setRuleName(ruleName.getStringValue());
 		rc.setTotalComplexity(totalComplexity);
 		rc.setDeclarationConfiguration(dc);
 		rc.seConditions(conditionList);
 		rc.setActions(actions);
 
 		if (ruleDescription != null) {
-			rc.setRuleDescription(ruleDescription.toString());
+			rc.setRuleDescription(ruleDescription.getStringValue());
 		}
 
 		// create the resulting signature
@@ -805,7 +805,7 @@ public class SFPInterpreter implements SFPParserVisitor {
 		// get Template Name
 		JamochaValue templateName = (JamochaValue) node.jjtGetChild(0)
 				.jjtAccept(this, data);
-		objectCond.setTemplateName(templateName.toString());
+		objectCond.setTemplateName(templateName.getStringValue());
 
 		// constraints
 		Constraint constr;
@@ -894,7 +894,7 @@ public class SFPInterpreter implements SFPParserVisitor {
 			constraint = pred;
 
 			String functionName = ((JamochaValue) n.jjtGetChild(0).jjtGetChild(
-					0).jjtAccept(this, null)).toString();
+					0).jjtAccept(this, null)).getStringValue();
 			pred.setFunctionName(functionName);
 
 			for (int i = 1; i < n.jjtGetChild(0).jjtGetNumChildren(); i++) {
@@ -992,14 +992,14 @@ public class SFPInterpreter implements SFPParserVisitor {
 		DeffunctionConfiguration dc = new DeffunctionConfiguration();
 
 		// set the function's name
-		dc.setFunctionName(functionName.toString());
+		dc.setFunctionName(functionName.getStringValue());
 
 		// set the function's group name
 		if (functionGroup != null)
-			dc.setFunctionGroup(functionGroup.toString());
+			dc.setFunctionGroup(functionGroup.getStringValue());
 
 		// set the function's description
-		dc.setFunctionDescription(functionDescription.toString());
+		dc.setFunctionDescription(functionDescription.getStringValue());
 
 		// set the function's params
 		dc.setParams(params);
@@ -1123,11 +1123,11 @@ public class SFPInterpreter implements SFPParserVisitor {
 		DefmoduleConfiguration defmodconf = new DefmoduleConfiguration();
 		JamochaValue name = (JamochaValue) node.jjtGetChild(0).jjtAccept(this,
 				data);
-		defmodconf.setModuleName(name.toString());
+		defmodconf.setModuleName(name.getStringValue());
 		if (node.jjtGetNumChildren() > 1) {
 			JamochaValue description = (JamochaValue) node.jjtGetChild(1)
 					.jjtAccept(this, data);
-			defmodconf.setModuleDescription(description.toString());
+			defmodconf.setModuleDescription(description.getStringValue());
 		}
 		Signature functionParam = new Signature();
 		functionParam

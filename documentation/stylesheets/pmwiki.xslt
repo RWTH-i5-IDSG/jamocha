@@ -24,7 +24,7 @@
 		<xsl:param name="source" />
 		<xsl:call-template name="str-replace">
 	        <xsl:with-param name="sub" select="'&#10;'"/>
-	        <xsl:with-param name="rep" select="'\\'"/>
+	        <xsl:with-param name="rep" select="'\\&#10;'"/>
        		<xsl:with-param name="string">
 			<xsl:value-of select="$source"/>
 		    </xsl:with-param>
@@ -53,7 +53,7 @@ This function [+hasn't+] fixed parameter count.\\
 </xsl:for-each>
 <xsl:if test="count(example) &gt; 0">
 !!!!Example
-<xsl:call-template name="clean-text"><xsl:with-param name="source" select="example"/></xsl:call-template>\\
+@@<xsl:call-template name="clean-text"><xsl:with-param name="source" select="example"/></xsl:call-template>@@
 </xsl:if>
 ----
 </xsl:for-each>

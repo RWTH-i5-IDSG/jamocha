@@ -70,6 +70,15 @@
    (assert (path (id ?id) (name ?n1) (seat ?s) ) )
    (printout t "make_path - id=" ?id " name=" ?n1 " seat=" ?s crlf)
 )
+
+(defrule are_we_done "are we done?"
+   ?context <- (context (name "check_done") )
+   (last_seat (seat ?lseat) )
+   (seating (seat2 ?lseat) )
+=>
+   (printout t "Yes, we are done:  Print Results!!" crlf)
+   (modify ?context (name "all_done") )
+)
 (defrule path_done "path is done"
    ?context <- (context (name "make_path") )
    ?seating <- (seating (path_done FALSE) )
@@ -83,14 +92,6 @@
 =>
    (modify ?context (name "assign_seats") )
    (printout t "assign seats again" crlf) 
-)
-(defrule are_we_done "are we done?"
-   ?context <- (context (name "check_done") )
-   (last_seat (seat ?lseat) )
-   (seating (seat2 ?lseat) )
-=>
-   (printout t "Yes, we are done:  Print Results!!" crlf)
-   (modify ?context (name "all_done") )
 )
 (defrule all_done "all done with test"
   ?context <- (context (name "all_done") )
