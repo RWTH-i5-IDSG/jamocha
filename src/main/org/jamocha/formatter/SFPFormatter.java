@@ -229,7 +229,7 @@ public class SFPFormatter extends Formatter {
 		StringBuilder sb = new StringBuilder();
 		sb.append(object.getRuleName());
 		increaseIndent();
-		if (!object.getRuleDescription().equals("")) {
+		if (object.getRuleDescription()!= null) {
 			newLine(sb);
 			sb.append("\"").append(object.getRuleDescription()).append("\"");
 		}
@@ -376,19 +376,27 @@ public class SFPFormatter extends Formatter {
 	@Override
 	public String visit(BoundConstraint object) {
 		StringBuilder sb = new StringBuilder();
-		sb.append('(').append(object.getSlot().getName());
+		Slot slot = object.getSlot();
+		if (slot != null){
+		sb.append('(').append(slot.getName());
 		sb.append(" ?").append(object.getVariableName());
 		sb.append(')');
-		return sb.toString();
+		return sb.toString();}
+		else
+			return "UNDEFINED SLOT";
 	}
 
 	@Override
 	public String visit(LiteralConstraint object) {
 		StringBuilder sb = new StringBuilder();
-		sb.append('(').append(object.getSlot().getName());
+		Slot slot = object.getSlot();
+		if (slot != null){
+		sb.append('(').append(slot.getName());
 		sb.append(' ').append(object.getValue().format(this));
 		sb.append(')');
-		return sb.toString();
+		return sb.toString();}
+		else
+			return "UNDEFINED SLOT";
 	}
 
 	@Override
