@@ -1,6 +1,5 @@
 package org.jamocha.rete.agenda;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,42 +10,60 @@ import java.util.Set;
  */
 public abstract class ConflictResolutionStrategy {
 
-	public abstract void addActivation(List<Activation> activations, Activation a);
-	
-	public abstract void removeActivation(List<Activation> activations, Activation a);
-	
-	public static String getName() {return "abstract-strategy";}
-	
+	public abstract void addActivation(List<Activation> activations,
+			Activation a);
+
+	public abstract void removeActivation(List<Activation> activations,
+			Activation a);
+
+	public abstract String getName();
+
+	public static String getNameStatic() {
+		return "abstract-strategy";
+	}
+
 	private static boolean initialized;
-	
-	private static Map<String,Class> map;
-	
+
+	@SuppressWarnings("unchecked")
+	private static Map<String, Class> map;
+
+	@SuppressWarnings("unchecked")
 	private static void registerStrategy(Class strategy) {
 		try {
-			String stratName = (String)strategy.getMethod("getName", new Class[0]).invoke(ConflictResolutionStrategy.class, new Class[0]);
+			String stratName = (String) strategy.getMethod("getNameStatic",
+					new Class[0]).invoke(ConflictResolutionStrategy.class,
+					new Class[0]);
 			map.put(stratName, strategy);
-		} catch(Exception e){
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
-	
+
+	@SuppressWarnings("unchecked")
 	private static void init() {
-		if (initialized) return;
+		if (initialized)
+			return;
 		map = new HashMap<String, Class>();
-		registerStrategy(LifoConflictResolutionStrategy.class);
-		registerStrategy(FifoConflictResolutionStrategy.class);
-		initialized=true;
+		registerStrategy(LastComeFirstServeStrategy.class);
+		registerStrategy(FirstComeFirstServeStrategy.class);
+		registerStrategy(HighestPriorityFirstStrategy.class);
+		registerStrategy(HighestComplexityFirstStrategy.class);
+		initialized = true;
 	}
-	
-	public static ConflictResolutionStrategy getStrategy(String strategy) throws InstantiationException, IllegalAccessException {
+
+	@SuppressWarnings("unchecked")
+	public static ConflictResolutionStrategy getStrategy(String strategy)
+			throws InstantiationException, IllegalAccessException {
 		init();
 		Class stratCls = map.get(strategy);
-		return (ConflictResolutionStrategy)(stratCls.newInstance());
+		if (stratCls == null)
+			return null;
+		return (ConflictResolutionStrategy) (stratCls.newInstance());
 	}
-	
+
 	public static Set<String> getStrategies() {
 		init();
 		return map.keySet();
 	}
-	
+
 }

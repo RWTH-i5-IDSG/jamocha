@@ -30,6 +30,7 @@ public class TableModelQuickSort {
 
 	private int column;
 
+	@SuppressWarnings("unchecked")
 	private Class clazz;
 
 	/**

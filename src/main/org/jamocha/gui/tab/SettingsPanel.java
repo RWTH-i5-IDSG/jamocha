@@ -108,6 +108,7 @@ public class SettingsPanel extends AbstractJamochaPanel implements
 		if (event.getSource() == saveButton) {
 			for (AbstractSettingsPanel panel : panels) {
 				panel.save();
+				panel.loadSettings();
 			}
 			gui.settingsChanged();
 			try {

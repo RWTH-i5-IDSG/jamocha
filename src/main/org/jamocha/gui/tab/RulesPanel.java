@@ -132,15 +132,17 @@ public class RulesPanel extends AbstractJamochaPanel implements ActionListener,
 	@SuppressWarnings("unchecked")
 	private void initRulesList() {
 		dataModel.clear();
-		Collection<Module> modules = gui.getEngine().getModules().getModuleList();
+		Collection<Module> modules = gui.getEngine().getModules()
+				.getModuleList();
 		for (Module module : modules) {
 			Collection rules = module.getAllRules();
 			dataModel.addRules(rules);
 		}
 		rulesTable.getColumnModel().getColumn(0).setPreferredWidth(100);
 		rulesTable.getColumnModel().getColumn(1).setPreferredWidth(150);
-		rulesTable.getColumnModel().getColumn(2).setPreferredWidth(
-				rulesTable.getWidth() - 250);
+		rulesTable.getColumnModel().getColumn(2).setPreferredWidth(100);
+		rulesTable.getColumnModel().getColumn(3).setPreferredWidth(
+				rulesTable.getWidth() - 350);
 	}
 
 	private void initPopupMenu() {
@@ -220,10 +222,11 @@ public class RulesPanel extends AbstractJamochaPanel implements ActionListener,
 
 		private void addRules(Collection<Rule> rules) {
 			List<Rule> alreadyAdded = new ArrayList<Rule>();
-			for (Rule rule : rules) {	
+			for (Rule rule : rules) {
 				Rule superRule = rule.getSuperRule();
 				if (superRule != null) {
-					if (alreadyAdded.contains(superRule)) continue;
+					if (alreadyAdded.contains(superRule))
+						continue;
 					alreadyAdded.add(superRule);
 					this.rules.add(superRule);
 				} else {
@@ -241,6 +244,8 @@ public class RulesPanel extends AbstractJamochaPanel implements ActionListener,
 			case 1:
 				return "Name";
 			case 2:
+				return "Complexity";
+			case 3:
 				return "Comment";
 			default:
 				return null;
@@ -248,7 +253,7 @@ public class RulesPanel extends AbstractJamochaPanel implements ActionListener,
 		}
 
 		public int getColumnCount() {
-			return 3;
+			return 4;
 		}
 
 		public boolean isCellEditable(int row, int col) {
@@ -257,6 +262,8 @@ public class RulesPanel extends AbstractJamochaPanel implements ActionListener,
 
 		@SuppressWarnings("unchecked")
 		public Class getColumnClass(int aColumn) {
+			if (aColumn == 2)
+				return java.lang.Integer.class;
 			return java.lang.String.class;
 		}
 
@@ -272,6 +279,8 @@ public class RulesPanel extends AbstractJamochaPanel implements ActionListener,
 			case 1:
 				return rule.getName();
 			case 2:
+				return rule.getTotalComplexity();
+			case 3:
 				return rule.getDescription();
 			}
 			return null;

@@ -28,6 +28,7 @@ import java.lang.reflect.Method;
  */
 public class BrowserControl {
 
+	@SuppressWarnings("unchecked")
 	public static void displayURL(String url) {
 		String osName = System.getProperty("os.name");
 		try {

@@ -38,9 +38,9 @@ public class Agenda implements Serializable {
 	protected ConflictResolutionStrategy strategy = null;
 
 	protected List<Activation> activations;
-	
-	protected Set<Activation> removed;
-	
+
+	protected Set<Activation> removed = new HashSet<Activation>();
+
 	protected List<Activation> currentFireActivations;
 
 	protected boolean chainFiring = true;
@@ -52,16 +52,18 @@ public class Agenda implements Serializable {
 	}
 
 	public Agenda(Rete engine) {
-		this(engine, new FifoConflictResolutionStrategy());
+		this(engine, new FirstComeFirstServeStrategy());
 	}
 
 	public void setConflictResolutionStrategy(ConflictResolutionStrategy strat) {
-		strategy = strat;
-		// we need to recompute the activation list
-		List<Activation> oldList = activations;
-		activations = new ArrayList<Activation>();
-		for (Activation a : oldList)
-			strategy.addActivation(activations, a);
+		if (strat != null) {
+			strategy = strat;
+			// we need to recompute the activation list
+			List<Activation> oldList = activations;
+			activations = new ArrayList<Activation>(oldList.size());
+			for (Activation a : oldList)
+				strategy.addActivation(activations, a);
+		}
 	}
 
 	public ConflictResolutionStrategy getConflictResolutionStrategy() {
@@ -70,26 +72,31 @@ public class Agenda implements Serializable {
 
 	public void addActivation(Activation a) {
 		strategy.addActivation(activations, a);
-		if (removed != null) removed.remove(a);
+		if (removed != null)
+			removed.remove(a);
 	}
 
 	public void removeActivation(Activation a) {
-//		we have to invalidate activation so fire won't execute it!
-//		for (Activation i : currentFireActivations) {
-//			if (a.equals(i))
-//				i.setValid(false);
-//			break;
-//		}
-//		List<Activation> forDelete = new ArrayList<Activation>();
-//		for (Activation i : activations) {
-//			if (a.equals(i))
-//				forDelete.add(i);
-//			break;
-//		}
-//		for (Activation del : forDelete)
-//			strategy.removeActivation(activations, del);
+		// we have to invalidate activation so fire won't execute it!
+		// for (Activation i : currentFireActivations) {
+		// if (a.equals(i))
+		// i.setValid(false);
+		// break;
+		// }
+		// List<Activation> forDelete = new ArrayList<Activation>();
+		// for (Activation i : activations) {
+		// if (a.equals(i))
+		// forDelete.add(i);
+		// break;
+		// }
+		// for (Activation del : forDelete)
+		// strategy.removeActivation(activations, del);
 		removed.add(a);
-		
+
+	}
+
+	public List<Activation> getActivations() {
+		return activations;
 	}
 
 	public boolean activationExists(Activation a) {
@@ -100,8 +107,9 @@ public class Agenda implements Serializable {
 		try {
 			int result = 0;
 			for (Activation activation : currentFireActivations) {
-				//only if valid we can fire:
-				//System.out.println(activation.toString()+" in "+removed+" ? "+removed.contains(activation));
+				// only if valid we can fire:
+				// System.out.println(activation.toString()+" in "+removed+" ?
+				// "+removed.contains(activation));
 				if (!removed.contains(activation)) {
 					activation.fire(engine);
 					result++;

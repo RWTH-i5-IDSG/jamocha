@@ -31,6 +31,7 @@ public interface TableRowModel {
 
 	public void setValueAt(Object value, int row, int column);
 
+	@SuppressWarnings("unchecked")
 	public Class getColumnClass(int column);
 
 	public int getRowCount();

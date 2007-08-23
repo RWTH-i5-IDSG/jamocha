@@ -58,7 +58,6 @@ import org.jamocha.rete.Rete;
 import org.jamocha.rete.Template;
 import org.jamocha.rete.TemplateSlot;
 import org.jamocha.rete.modules.Module;
-import org.jamocha.rete.modules.Modules;
 
 /**
  * Editor for Facts. First the user selects the module, then a template and
@@ -206,7 +205,7 @@ public class FactEditor extends AbstractJamochaEditor implements
 		String selected = String.valueOf(moduleList.getSelectedValue());
 		Module module = engine.getModules().getModule(selected,false);
 		if (module != null) {
-			Collection templates = module.getTemplates();
+			List<Template> templates = module.getTemplates();
 			for (Object obj : templates) {
 				Template tmp = (Template) obj;
 				if (!module.getModuleName().equals("MAIN")

@@ -51,7 +51,6 @@ import org.jamocha.gui.TableModelQuickSort;
 import org.jamocha.gui.TableRowModel;
 import org.jamocha.gui.icons.IconLoader;
 import org.jamocha.messagerouter.StringChannel;
-import org.jamocha.rete.functions.AbstractFunction;
 import org.jamocha.rete.functions.Function;
 import org.jamocha.rete.functions.FunctionGroup;
 import org.jamocha.rete.functions.FunctionMemory;

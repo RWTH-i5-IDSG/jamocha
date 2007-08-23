@@ -2,7 +2,7 @@ package org.jamocha.rete.agenda;
 
 import java.util.List;
 
-public class FifoConflictResolutionStrategy extends ConflictResolutionStrategy {
+public class FirstComeFirstServeStrategy extends ConflictResolutionStrategy {
 
 	public void addActivation(List<Activation> activations, Activation a) {
 		activations.add(a);
@@ -12,8 +12,12 @@ public class FifoConflictResolutionStrategy extends ConflictResolutionStrategy {
 		activations.remove(a);
 	}
 
-	public static String getName() {
-		return "FifoStrategy";
+	public String getName() {
+		return "FirstComeFirstServeStrategy";
+	}
+
+	public static String getNameStatic() {
+		return "FirstComeFirstServeStrategy";
 	}
 
 }

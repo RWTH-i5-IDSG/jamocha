@@ -43,6 +43,7 @@ import javax.swing.event.ChangeListener;
 import org.jamocha.BatchThread;
 import org.jamocha.gui.icons.IconLoader;
 import org.jamocha.gui.tab.AbstractJamochaPanel;
+import org.jamocha.gui.tab.AgendaPanel;
 import org.jamocha.gui.tab.FactsPanel;
 import org.jamocha.gui.tab.FunctionsPanel;
 import org.jamocha.gui.tab.LogPanel;
@@ -140,22 +141,31 @@ public class JamochaGui extends JFrame implements ChangeListener,
 				.getImageIcon("application_osx_terminal"), shellPanel,
 				"Jamocha Shell");
 		panels.add(shellPanel);
+		
 		FactsPanel factsPanel = new FactsPanel(this);
 		tabbedPane.addTab("Facts", IconLoader.getImageIcon("database"),
 				factsPanel, "View or modify Facts");
 		panels.add(factsPanel);
+		
 		TemplatesPanel templatesPanel = new TemplatesPanel(this);
 		tabbedPane.addTab("Templates", IconLoader.getImageIcon("brick"),
 				templatesPanel, "View or modify Templates");
 		panels.add(templatesPanel);
+		
 		RulesPanel rulesPanel = new RulesPanel(this);
 		tabbedPane.addTab("Rules", IconLoader.getImageIcon("car"), rulesPanel,
 				"View or modify Rules");
 		panels.add(rulesPanel);
+		
 		FunctionsPanel functionsPanel = new FunctionsPanel(this);
 		tabbedPane.addTab("Functions", IconLoader.getImageIcon("cog"),
 				functionsPanel, "View Functions");
 		panels.add(functionsPanel);
+		
+		AgendaPanel agendaPanel = new AgendaPanel(this);
+		tabbedPane.addTab("Agenda", IconLoader.getImageIcon("sport_8ball"), agendaPanel,
+		"View all Activations");
+		panels.add(agendaPanel);
 	
 		ViewerPanel viewerPanel = new ViewerPanel(this);
 		tabbedPane.addTab("Rete viewer", IconLoader.getImageIcon("eye"), viewerPanel,
@@ -166,6 +176,7 @@ public class JamochaGui extends JFrame implements ChangeListener,
 		tabbedPane.addTab("Log", IconLoader.getImageIcon("monitor"), logPanel,
 				"View alle messages from or to the Rete-engine");
 		panels.add(logPanel);
+		
 		SettingsPanel settingsPanel = new SettingsPanel(this);
 		tabbedPane.addTab("Settings", IconLoader.getImageIcon("wrench"),
 				settingsPanel, "Settings for Jamocha");

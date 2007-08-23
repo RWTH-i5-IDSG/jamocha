@@ -34,6 +34,7 @@ public class DefaultLogger implements Serializable {
 	/**
 	 * 
 	 */
+	@SuppressWarnings("unchecked")
 	public DefaultLogger(Class theclazz) {
 		super();
 		log = Logger.getLogger(theclazz);
