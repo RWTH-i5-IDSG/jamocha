@@ -664,7 +664,7 @@ public class SFRuleCompiler implements RuleCompiler {
 		JoinFilter[] bindArray = new JoinFilter[0];
 		// traverse conditions and get their join node:
 		for (int i = conds.length - 1; i >= 0; i--) {
-			Vector<JoinFilter> filters = new Vector<JoinFilter>();
+			ArrayList<JoinFilter> filters = new ArrayList<JoinFilter>();
 			BaseNode conditionJoiner = conditionJoiners.get(conds[i]);
 			// traverse prebindings and try to set them to join nodes:
 			while (act != null

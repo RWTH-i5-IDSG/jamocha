@@ -3,7 +3,7 @@ package org.jamocha.rete.memory;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.Vector;
+import java.util.List;
 
 import org.jamocha.rete.Fact;
 import org.jamocha.rete.nodes.FactTuple;
@@ -72,16 +72,16 @@ public class BetaMemory extends AbstractMemory implements Iterable<FactTuple> {
 		return factTuples.size();
 	}
 
-	public Vector<FactTuple> getPrefixMatchingTuples(FactTuple input){
-		Vector<FactTuple> result= new Vector<FactTuple>();
+	public List<FactTuple> getPrefixMatchingTuples(FactTuple input){
+		ArrayList<FactTuple> result= new ArrayList<FactTuple>();
 		for (FactTuple ourTuple : factTuples){
 			if (ourTuple.isMySubTuple(input)) result.add(ourTuple);
 		}
 		return result;
 	}
 	
-	public Vector<FactTuple> getPostfixMatchingTuples(Fact input){
-		Vector<FactTuple> result= new Vector<FactTuple>();
+	public List<FactTuple> getPostfixMatchingTuples(Fact input){
+		ArrayList<FactTuple> result= new ArrayList<FactTuple>();
 		for (FactTuple ourTuple : factTuples){
 			if (ourTuple.isMyLastFact(input)) result.add(ourTuple);
 		}
