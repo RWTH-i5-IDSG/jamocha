@@ -40,7 +40,7 @@ public class AlphaMemory extends AbstractMemory implements Iterable<Fact>{
 		StringBuffer result = new StringBuffer();
 		for ( Fact t : facts ){
 			result.append("   ");
-			result.append(t.toPPString());
+			result.append(t.toString());
 			result.append("\n");
 		}
 		return result.toString();
@@ -55,7 +55,7 @@ public class AlphaMemory extends AbstractMemory implements Iterable<Fact>{
 				break;
 			}
 			result.append("   ");
-			result.append(t.toPPString());
+			result.append(t.toString());
 			result.append("\n");
 			i++;
 		}

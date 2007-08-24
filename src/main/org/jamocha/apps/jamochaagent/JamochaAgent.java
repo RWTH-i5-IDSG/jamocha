@@ -87,20 +87,12 @@ public class JamochaAgent extends ToolAgent {
 		addBehaviour(new MessageReceiver(this));
 		sendingBehaviour = new MessageSender(this);
 		addBehaviour(sendingBehaviour);
-		List<String> batchFiles = new LinkedList<String>();
-		String batchString = getProperties().getProperty("jamocha.batch", "");
-		if (!batchString.equals("")) {
-			String[] batchArr = batchString.split(",");
-			for (String batchFile : batchArr) {
-				batchFiles.add(batchFile);
-			}
-		}
 
 		try {
 			jamocha = new Jamocha(engine, getProperties().getBooleanProperty(
 					"jamocha.gui", false), getProperties().getBooleanProperty(
 					"jamoche.shell", false), getProperties().getProperty(
-					"jamocha.mode", ""), batchFiles);
+					"jamocha.mode", ""), null);
 			if (getProperties().getBooleanProperty("jamocha.gui", false)) {
 				jamocha.getJamochaGui().setExitOnClose(false);
 				jamocha.setGUITitle("JamochaAgent - " + getName());
@@ -110,12 +102,22 @@ public class JamochaAgent extends ToolAgent {
 			System.exit(1);
 		}
 
-		initEngine();
+		initEngine(getProperties().getProperty("jamocha.clips", ""));
 
 		initAgentWithProperties();
+
+		List<String> batchFiles = new LinkedList<String>();
+		String batchString = getProperties().getProperty("jamocha.batch", "");
+		if (!batchString.equals("")) {
+			String[] batchArr = batchString.split(",");
+			for (String batchFile : batchArr) {
+				batchFiles.add(batchFile);
+			}
+		}
+		jamocha.batchFiles(batchFiles);
 	}
 
-	private void initEngine() {
+	private void initEngine(String additionalClips) {
 		// register user function for sending messages
 		FunctionGroup agentFuncs = new AgentFunctions(this);
 		engine.getFunctionMemory().declareFunctionGroup(agentFuncs);
@@ -156,6 +158,16 @@ public class JamochaAgent extends ToolAgent {
 			initChannel.executeCommand(buffer.toString(), true);
 		} catch (NullPointerException e) {
 			e.printStackTrace();
+		}
+
+		// execute possible additional clips code
+		if (additionalClips != null) {
+			try {
+				initChannel.executeCommand(additionalClips, true);
+			} catch (NullPointerException e) {
+				e.printStackTrace();
+			}
+
 		}
 		List<MessageEvent> events = new LinkedList<MessageEvent>();
 		initChannel.fillEventList(events);

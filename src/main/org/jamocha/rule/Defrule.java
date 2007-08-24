@@ -52,9 +52,9 @@ public class Defrule implements Rule {
 	private static final long serialVersionUID = 1L;
 
 	protected Rule superRule;
-	
+
 	protected List<Rule> subRules;
-	
+
 	protected String name = null;
 
 	protected List<Condition> conditions = null;
@@ -69,8 +69,6 @@ public class Defrule implements Rule {
 
 	protected boolean rememberMatch = true;
 
-
-	
 	/**
 	 * by default noAgenda is false
 	 */
@@ -134,7 +132,8 @@ public class Defrule implements Rule {
 		setName(name);
 	}
 
-	public Defrule(DefruleConfiguration configuration, Rete engine) throws EvaluationException {
+	public Defrule(DefruleConfiguration configuration, Rete engine)
+			throws EvaluationException {
 		this();
 		totalComplexity = configuration.getTotalComplexity();
 		// set rule name:
@@ -198,7 +197,9 @@ public class Defrule implements Rule {
 		this.watch = watch;
 	}
 
-	public void setDeclaration(DeclarationConfiguration declarationConfiguration, Rete engine) throws EvaluationException {
+	public void setDeclaration(
+			DeclarationConfiguration declarationConfiguration, Rete engine)
+			throws EvaluationException {
 		if (declarationConfiguration != null) {
 			Parameter param = null;
 
@@ -304,7 +305,7 @@ public class Defrule implements Rule {
 	public void setConditions(List<Condition> conds) {
 		this.conditions = conds;
 	}
-	
+
 	public void setConditions(Condition[] conds) {
 		Condition cond = null;
 		for (int i = 0; i < conds.length; i++) {
@@ -354,11 +355,9 @@ public class Defrule implements Rule {
 		for (Condition c : this.conditions) {
 			if (c instanceof ObjectCondition) {
 				ocs.add((Condition) c);
-			}
-			else if (c instanceof NotCondition) {
+			} else if (c instanceof NotCondition) {
 				ocs.add((Condition) c);
-			}
-			else if (c instanceof ExistCondition) {
+			} else if (c instanceof ExistCondition) {
 				ocs.add((Condition) c);
 			}
 		}
@@ -491,8 +490,9 @@ public class Defrule implements Rule {
 				oc.setTemplate(dft);
 			}
 		} else if (cond instanceof ConditionWithNested) {
-			//reslove all templates from nested conditions:
-			List<Condition> nestedConds = ((ConditionWithNested) cond).getNestedConditionalElement();
+			// reslove all templates from nested conditions:
+			List<Condition> nestedConds = ((ConditionWithNested) cond)
+					.getNestedConditionalElement();
 			for (Condition nestedCond : nestedConds) {
 				resolveTemplate(engine, nestedCond);
 			}
@@ -509,13 +509,16 @@ public class Defrule implements Rule {
 				setSalience(declaration.getIntValue());
 			} else if (declaration.getName().equals(RuleProperty.VERSION)) {
 				setVersion(declaration.getValue());
-			} else if (declaration.getName().equals(RuleProperty.REMEMBER_MATCH)) {
+			} else if (declaration.getName()
+					.equals(RuleProperty.REMEMBER_MATCH)) {
 				setRememberMatch(declaration.getBooleanValue());
 			} else if (declaration.getName().equals(RuleProperty.NO_AGENDA)) {
 				setNoAgenda(declaration.getBooleanValue());
-			} else if (declaration.getName().equals(RuleProperty.EFFECTIVE_DATE)) {
+			} else if (declaration.getName()
+					.equals(RuleProperty.EFFECTIVE_DATE)) {
 				this.effectiveDate = getDateTime(declaration.getValue());
-			} else if (declaration.getName().equals(RuleProperty.EXPIRATION_DATE)) {
+			} else if (declaration.getName().equals(
+					RuleProperty.EXPIRATION_DATE)) {
 				this.expirationDate = getDateTime(declaration.getValue());
 			}
 		}
@@ -525,7 +528,8 @@ public class Defrule implements Rule {
 	public static long getDateTime(String date) {
 		if (date != null && date.length() > 0) {
 			try {
-				java.text.SimpleDateFormat df = new java.text.SimpleDateFormat("mm/dd/yyyy HH:mm");
+				java.text.SimpleDateFormat df = new java.text.SimpleDateFormat(
+						"mm/dd/yyyy HH:mm");
 				return df.parse(date).getTime();
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -588,17 +592,17 @@ public class Defrule implements Rule {
 		newRule.setName(getName());
 		// set rule description:
 		newRule.setDescription(getDescription());
-		
+
 		// set super rule:
-		
+
 		if (this.superRule != null) {
 			this.superRule.addSubRule(newRule);
-			newRule.superRule = this.superRule; 
+			newRule.superRule = this.superRule;
 		} else {
 			subRules.add(newRule);
 			newRule.superRule = this;
 		}
-		
+
 		// set rule declaration:
 
 		DeclarationConfiguration newDecl = new DeclarationConfiguration();
@@ -615,7 +619,7 @@ public class Defrule implements Rule {
 
 		List<Condition> conditions = new ArrayList<Condition>();
 		for (Condition c : getConditions()) {
-			conditions.add((Condition)c.clone());
+			conditions.add((Condition) c.clone());
 		}
 		// set conditions:
 		newRule.setConditions(conditions);
@@ -631,45 +635,46 @@ public class Defrule implements Rule {
 	public void removeCondition(int idx) {
 		conditions.remove(idx);
 	}
-	
+
 	public Defrule clone() throws CloneNotSupportedException {
-		
+
 		// since it is not needed and old implementation
 		// is wrong at some points
 		throw new CloneNotSupportedException();
-		
-//		Defrule newRule = new Defrule();
-//		newRule.name = name;
-//		newRule.conditions = (ArrayList<Condition>)((ArrayList<Condition>) conditions).clone();
-//
-//		newRule.superRule = this.superRule;
-//		
-//		ArrayList actions = new ArrayList();
-//		newRule.actions = actions;
-//
-//		for (Action a : this.actions)
-//			actions.add(a.clone());
-//
-//		newRule.terminal = terminal;
-//		newRule.salience = salience;
-//		newRule.auto = auto;
-//		newRule.rememberMatch = rememberMatch;
-//		newRule.noAgenda = noAgenda;
-//		newRule.version = version;
-//		newRule.themodule = themodule;
-//		newRule.bindValues = bindValues;
-//		newRule.outerScope = outerScope;
-//		newRule.bindings = bindings;
-//		newRule.description = description;
-//		newRule.active = active;
-//		newRule.direction = direction;
-//		newRule.watch = watch;
-//		newRule.effectiveDate = effectiveDate;
-//		newRule.expirationDate = expirationDate;
-//		newRule.triggerFacts = triggerFacts;
-//		newRule.complexity = complexity;
-//		newRule.totalComplexity = totalComplexity;
-//		return newRule;
+
+		// Defrule newRule = new Defrule();
+		// newRule.name = name;
+		// newRule.conditions = (ArrayList<Condition>)((ArrayList<Condition>)
+		// conditions).clone();
+		//
+		// newRule.superRule = this.superRule;
+		//		
+		// ArrayList actions = new ArrayList();
+		// newRule.actions = actions;
+		//
+		// for (Action a : this.actions)
+		// actions.add(a.clone());
+		//
+		// newRule.terminal = terminal;
+		// newRule.salience = salience;
+		// newRule.auto = auto;
+		// newRule.rememberMatch = rememberMatch;
+		// newRule.noAgenda = noAgenda;
+		// newRule.version = version;
+		// newRule.themodule = themodule;
+		// newRule.bindValues = bindValues;
+		// newRule.outerScope = outerScope;
+		// newRule.bindings = bindings;
+		// newRule.description = description;
+		// newRule.active = active;
+		// newRule.direction = direction;
+		// newRule.watch = watch;
+		// newRule.effectiveDate = effectiveDate;
+		// newRule.expirationDate = expirationDate;
+		// newRule.triggerFacts = triggerFacts;
+		// newRule.complexity = complexity;
+		// newRule.totalComplexity = totalComplexity;
+		// return newRule;
 	}
 
 	public String format(Formatter visitor) {
@@ -692,5 +697,8 @@ public class Defrule implements Rule {
 		return subRules;
 	}
 
+	public String toString() {
+		return getModule().getModuleName() + "::" + getName();
+	}
 
 }

@@ -91,7 +91,7 @@ public class Activation {
 	}
 	
 	public String toString(){
-		return rule.toString() + " " + tuple.toPPString();
+		return rule.toString() + " " + tuple.toString();
 	}
 
 }

@@ -45,7 +45,7 @@ public class BetaMemory extends AbstractMemory implements Iterable<FactTuple> {
 				break;
 			}
 			result.append("   ");
-			result.append(t.toPPString());
+			result.append(t.toString());
 			result.append("\n");
 			i++;
 		}
@@ -59,7 +59,7 @@ public class BetaMemory extends AbstractMemory implements Iterable<FactTuple> {
 		StringBuffer result = new StringBuffer();
 		for (FactTuple t : factTuples) {
 			result.append("   ");
-			result.append(t.toPPString());
+			result.append(t.toString());
 			result.append("\n");
 		}
 		return result.toString();

@@ -17,10 +17,7 @@
 package org.jamocha.rete.agenda;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.exception.ExecuteException;
@@ -39,15 +36,11 @@ public class Agenda implements Serializable {
 
 	protected List<Activation> activations;
 
-	protected Set<Activation> removed = new HashSet<Activation>();
-
-	protected List<Activation> currentFireActivations;
-
-	protected boolean chainFiring = true;
+	protected boolean watch = false;
 
 	public Agenda(Rete engine, ConflictResolutionStrategy strategy) {
 		this.engine = engine;
-		activations = new ArrayList<Activation>();
+		activations = strategy.getEmptyActivationList(0);
 		this.strategy = strategy;
 	}
 
@@ -60,7 +53,7 @@ public class Agenda implements Serializable {
 			strategy = strat;
 			// we need to recompute the activation list
 			List<Activation> oldList = activations;
-			activations = new ArrayList<Activation>(oldList.size());
+			activations = strat.getEmptyActivationList(oldList.size());
 			for (Activation a : oldList)
 				strategy.addActivation(activations, a);
 		}
@@ -72,27 +65,16 @@ public class Agenda implements Serializable {
 
 	public void addActivation(Activation a) {
 		strategy.addActivation(activations, a);
-		if (removed != null)
-			removed.remove(a);
+		if (watch) {
+			engine.writeMessage("==> Activation: " + a.toString());
+		}
 	}
 
 	public void removeActivation(Activation a) {
-		// we have to invalidate activation so fire won't execute it!
-		// for (Activation i : currentFireActivations) {
-		// if (a.equals(i))
-		// i.setValid(false);
-		// break;
-		// }
-		// List<Activation> forDelete = new ArrayList<Activation>();
-		// for (Activation i : activations) {
-		// if (a.equals(i))
-		// forDelete.add(i);
-		// break;
-		// }
-		// for (Activation del : forDelete)
-		// strategy.removeActivation(activations, del);
-		removed.add(a);
-
+		activations.remove(a);
+		if (watch) {
+			engine.writeMessage("<== Activation: " + a.toString());
+		}
 	}
 
 	public List<Activation> getActivations() {
@@ -103,47 +85,30 @@ public class Agenda implements Serializable {
 		return activations.contains(a);
 	}
 
-	protected int fireActivationList() throws ExecuteException {
-		try {
-			int result = 0;
-			for (Activation activation : currentFireActivations) {
-				// only if valid we can fire:
-				// System.out.println(activation.toString()+" in "+removed+" ?
-				// "+removed.contains(activation));
-				if (!removed.contains(activation)) {
-					activation.fire(engine);
-					result++;
-				}
-			}
-			return result;
-		} finally {
-			currentFireActivations.clear();
-		}
-	}
-
-	public int fire() throws ExecuteException {
-		removed = new HashSet<Activation>();
-		if (chainFiring) {
-			int count2 = 0;
+	public int fire(int maxFire) throws ExecuteException {
+		int fireCount = 0;
+		if (maxFire == -1) {
 			while (activations.size() > 0) {
-				currentFireActivations = activations;
-				activations = new ArrayList<Activation>();
-				count2 += fireActivationList();
+				Activation act = activations.remove(0);
+				act.fire(engine);
+				fireCount++;
 			}
-			return count2;
 		} else {
-			currentFireActivations = activations;
-			activations = new ArrayList<Activation>();
-			return fireActivationList();
+			while (activations.size() > 0 && fireCount < maxFire) {
+				Activation act = activations.remove(0);
+				act.fire(engine);
+				fireCount++;
+			}
 		}
+		return fireCount;
 	}
 
-	public boolean isChainFiring() {
-		return chainFiring;
+	public boolean isWatch() {
+		return watch;
 	}
 
-	public void setChainFiring(boolean chainFiring) {
-		this.chainFiring = chainFiring;
+	public void setWatch(boolean watch) {
+		this.watch = watch;
 	}
 
 }

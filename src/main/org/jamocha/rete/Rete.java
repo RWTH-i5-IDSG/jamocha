@@ -232,7 +232,7 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 	 * @return
 	 */
 	public int fire(int count) throws ExecuteException {
-		return agendas.fireFocus();
+		return agendas.fireFocus(count);
 	}
 
 	/**
@@ -243,7 +243,7 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 	 * @throws ExecuteException
 	 */
 	public int fire() throws ExecuteException {
-		return agendas.fireFocus();
+		return agendas.fireFocus(-1);
 	}
 
 	// ----- defmodule related methods ----- //

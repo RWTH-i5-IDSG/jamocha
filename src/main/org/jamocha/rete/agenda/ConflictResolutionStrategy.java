@@ -1,5 +1,6 @@
 package org.jamocha.rete.agenda;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -64,6 +65,21 @@ public abstract class ConflictResolutionStrategy {
 	public static Set<String> getStrategies() {
 		init();
 		return map.keySet();
+	}
+
+	/**
+	 * This method returns the optimal List type for the given strategy. LIFO
+	 * for example makes many add(item,0) calls which is very inefficient for
+	 * ArrayLists.
+	 * 
+	 * @param initialSize
+	 *            initial size for the list. Is only used for ArrayLists.
+	 * @return The optimal List for this strategy.
+	 */
+	public List<Activation> getEmptyActivationList(int initialSize) {
+		if (initialSize > 0)
+			return new ArrayList<Activation>(initialSize);
+		return new ArrayList<Activation>();
 	}
 
 }

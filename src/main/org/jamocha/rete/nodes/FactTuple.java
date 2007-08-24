@@ -55,22 +55,12 @@ public class FactTuple implements Assertable {
 		return new FactTuple(facts);
 	}
 
-	public String toPPString() {
-		StringBuilder sb = new StringBuilder();
-		sb.append("[ ");
-		for (Fact fact : facts) {
-			sb.append(fact.toPPString());
-			sb.append(" | ");
-		}
-		sb.append("] ");
-		return sb.toString();
-	}
-
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("[ ");
 		for (Fact fact : facts) {
-			sb.append(fact.toString());
+			// sb.append(fact.toString());
+			sb.append("f-").append(fact.getFactId());
 			sb.append(" | ");
 		}
 		sb.append("] ");
@@ -84,9 +74,9 @@ public class FactTuple implements Assertable {
 		}
 		return true;
 	}
-	
-	public boolean isMyLastFact(Fact input){
-		return (facts[facts.length-1]==input);
+
+	public boolean isMyLastFact(Fact input) {
+		return (facts[facts.length - 1] == input);
 	}
 
 	public boolean equals(Object obj) {

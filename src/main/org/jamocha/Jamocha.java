@@ -174,10 +174,16 @@ public class Jamocha {
 			}
 		}
 	}
-	
+
 	public void setGUITitle(String title) {
-		if(jamochaGui != null) {
+		if (jamochaGui != null) {
 			jamochaGui.setTitle(title);
+		}
+	}
+
+	public void batchFiles(List<String> batchFiles) {
+		if (batchFiles != null) {
+			batchThread.processBatchFiles(batchFiles);
 		}
 	}
 
