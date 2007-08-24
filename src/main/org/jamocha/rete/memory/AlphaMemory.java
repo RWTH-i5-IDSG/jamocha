@@ -1,18 +1,19 @@
 package org.jamocha.rete.memory;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
-import java.util.Vector;
 
 import org.jamocha.rete.Fact;
 
 
 public class AlphaMemory extends AbstractMemory implements Iterable<Fact>{
 
-	protected Vector<Fact> facts = null;
+	protected Collection<Fact> facts = null;
 	
 	public AlphaMemory() {
 		super();
-		facts = new Vector<Fact>();
+		facts = new ArrayList<Fact>();
 	}
 	
 	public boolean contains(Fact forTest){

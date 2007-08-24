@@ -1,5 +1,7 @@
 package org.jamocha.rete.memory;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.Vector;
 
@@ -8,11 +10,11 @@ import org.jamocha.rete.nodes.FactTuple;
 
 public class BetaMemory extends AbstractMemory implements Iterable<FactTuple> {
 
-	protected Vector<FactTuple> factTuples = null;
+	protected Collection<FactTuple> factTuples = null;
 
 	public BetaMemory() {
 		super();
-		factTuples = new Vector<FactTuple>();
+		factTuples = new ArrayList<FactTuple>();
 	}
 
 	public boolean contains(FactTuple forTest) {
