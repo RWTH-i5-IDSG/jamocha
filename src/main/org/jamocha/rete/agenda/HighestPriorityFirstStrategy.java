@@ -2,19 +2,35 @@ package org.jamocha.rete.agenda;
 
 import java.util.List;
 
-public class HighestPriorityFirstStrategy extends
-		ConflictResolutionStrategy {
+public class HighestPriorityFirstStrategy extends ConflictResolutionStrategy {
 
 	@Override
 	public void addActivation(List<Activation> activations, Activation a) {
-		int salience = a.getRule().getSalience();
-		for (int i = 0; i < activations.size(); ++i) {
-			if(salience > activations.get(i).getRule().getSalience()) {
-				activations.add(i,a);
-				return;
-			}
+		if (activations.isEmpty()) {
+			activations.add(a);
+			return;
 		}
-		activations.add(a);
+		int salience = a.getRule().getSalience();
+		int low = 0;
+		int high = activations.size() - 1;
+		int mid;
+		boolean found = false;
+		do {
+			mid = (low + high) / 2;
+			if (high < low) {
+				mid = low;
+				found = true;
+			} else if (activations.get(mid).getRule().getSalience() >= salience) {
+				low = mid + 1;
+			}
+			// could have used else here without if, but this is better readable
+			else if (activations.get(mid).getRule().getSalience() < salience) {
+				high = mid - 1;
+			} else {
+				// we'll never come here
+			}
+		} while (!found);
+		activations.add(mid, a);
 	}
 
 	@Override
