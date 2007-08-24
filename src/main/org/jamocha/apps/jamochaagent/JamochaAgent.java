@@ -39,6 +39,7 @@ import org.jamocha.messagerouter.MessageEvent;
 import org.jamocha.messagerouter.StringChannel;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.parser.ModeNotFoundException;
+import org.jamocha.parser.ParserUtils;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.functions.Function;
 import org.jamocha.rete.functions.FunctionGroup;
@@ -76,6 +77,8 @@ public class JamochaAgent extends ToolAgent {
 
 	private Jamocha jamocha;
 
+	StringChannel initChannel;
+
 	/** Is called when agent is started. */
 	@Override
 	public void toolSetup() {
@@ -83,6 +86,9 @@ public class JamochaAgent extends ToolAgent {
 		engine = new Rete();
 		// Load the properties and merge them with possible arguments
 		initProperties();
+
+		initChannel = engine.getMessageRouter().openChannel(
+				getProperties().getProperty("agent.name", "Agent") + "init");
 
 		addBehaviour(new MessageReceiver(this));
 		sendingBehaviour = new MessageSender(this);
@@ -102,7 +108,7 @@ public class JamochaAgent extends ToolAgent {
 			System.exit(1);
 		}
 
-		initEngine(getProperties().getProperty("jamocha.clips", ""));
+		initEngine();
 
 		initAgentWithProperties();
 
@@ -115,9 +121,27 @@ public class JamochaAgent extends ToolAgent {
 			}
 		}
 		jamocha.batchFiles(batchFiles);
+
+		initChannel.executeCommand(ParserUtils.getStringLiteral(getProperties()
+				.getProperty("jamocha.clips", "")), true);
+		engine.getMessageRouter().closeChannel(initChannel);
+
+		if (getProperties().getBooleanProperty("agent.debug", false)) {
+			List<MessageEvent> events = new LinkedList<MessageEvent>();
+			initChannel.fillEventList(events);
+			for (MessageEvent event : events) {
+				if (event.getMessage() instanceof Exception) {
+					((Exception) event.getMessage()).printStackTrace();
+				} else if (event.getMessage() instanceof Function) {
+					System.out.println(((Function) event.getMessage())
+							.getName());
+				} else
+					System.out.println(event.getMessage());
+			}
+		}
 	}
 
-	private void initEngine(String additionalClips) {
+	private void initEngine() {
 		// register user function for sending messages
 		FunctionGroup agentFuncs = new AgentFunctions(this);
 		engine.getFunctionMemory().declareFunctionGroup(agentFuncs);
@@ -152,35 +176,11 @@ public class JamochaAgent extends ToolAgent {
 		buffer.append("(assert (" + TEMPLATE_AGENT_DESCRIPTION + "(name \""
 				+ getName() + "\")(local TRUE)))");
 
-		StringChannel initChannel = engine.getMessageRouter().openChannel(
-				getProperties().getProperty("agent.name", "Agent") + "init");
 		try {
 			initChannel.executeCommand(buffer.toString(), true);
 		} catch (NullPointerException e) {
 			e.printStackTrace();
 		}
-
-		// execute possible additional clips code
-		if (additionalClips != null) {
-			try {
-				initChannel.executeCommand(additionalClips, true);
-			} catch (NullPointerException e) {
-				e.printStackTrace();
-			}
-
-		}
-		List<MessageEvent> events = new LinkedList<MessageEvent>();
-		initChannel.fillEventList(events);
-		for (MessageEvent event : events) {
-			if (event.getMessage() instanceof Exception) {
-				((Exception) event.getMessage()).printStackTrace();
-			} else if (event.getMessage() instanceof Function) {
-				System.out.println(((Function) event.getMessage()).getName());
-			} else
-				System.out.println(event.getMessage());
-
-		}
-		engine.getMessageRouter().closeChannel(initChannel);
 	}
 
 	private void initAgentWithProperties() {
