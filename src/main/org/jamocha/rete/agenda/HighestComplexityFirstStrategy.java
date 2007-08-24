@@ -6,14 +6,31 @@ public class HighestComplexityFirstStrategy extends ConflictResolutionStrategy {
 
 	@Override
 	public void addActivation(List<Activation> activations, Activation a) {
-		int complexity = a.getRule().getTotalComplexity();
-		for (int i = 0; i < activations.size(); ++i) {
-			if(complexity > activations.get(i).getRule().getComplexity()) {
-				activations.add(i,a);
-				return;
-			}
+		if (activations.isEmpty()) {
+			activations.add(a);
+			return;
 		}
-		activations.add(a);
+		int complexity = a.getRule().getTotalComplexity();
+		int low = 0;
+		int high = activations.size() - 1;
+		int mid;
+		boolean found = false;
+		do {
+			mid = (low + high) / 2;
+			if (high < low) {
+				mid = low;
+				found = true;
+			} else if (activations.get(mid).getRule().getTotalComplexity() >= complexity) {
+				low = mid + 1;
+			}
+			// could have used else here without if, but this is better readable
+			else if (activations.get(mid).getRule().getTotalComplexity() < complexity) {
+				high = mid - 1;
+			} else {
+				// we'll never come here
+			}
+		} while (!found);
+		activations.add(mid, a);
 	}
 
 	@Override
