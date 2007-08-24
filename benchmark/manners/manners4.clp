@@ -9,8 +9,8 @@
 (deftemplate seating
    (slot seat1 (type INTEGER))
    (slot name1 (type STRING))
-   (slot name2 (type STRING))
    (slot seat2 (type INTEGER))
+   (slot name2 (type STRING))
    (slot id (type INTEGER))
    (slot pid (type INTEGER))
    (slot path_done (type BOOLEAN)) )
@@ -61,6 +61,14 @@
    (modify ?context (name "make_path") )
    (printout t "seat1=" ?s2 " : name1=" ?n2 " : seat2=" ?s2plus1 " : name2=" ?g2 " : id=" ?cnt " : pid=" ?id " : path_done=FALSE" crlf)
 )
+(defrule path_done "path is done"
+   ?context <- (context (name "make_path") )
+   ?seating <- (seating (path_done FALSE) )
+=>
+   (modify ?seating (path_done TRUE) )
+   (modify ?context (name "check_done") )
+   (printout t "path is done " crlf)
+)
 (defrule make_path
    ?context <- (context (name "make_path") )
    (seating (id ?id) (pid ?sPID) (path_done FALSE) )
@@ -70,7 +78,12 @@
    (assert (path (id ?id) (name ?n1) (seat ?s) ) )
    (printout t "make_path - id=" ?id " name=" ?n1 " seat=" ?s crlf)
 )
-
+(defrule continue "continue matching"
+   ?context <- (context (name "check_done") )
+=>
+   (modify ?context (name "assign_seats") )
+   (printout t "assign seats again" crlf) 
+)
 (defrule are_we_done "are we done?"
    ?context <- (context (name "check_done") )
    (last_seat (seat ?lseat) )
@@ -79,20 +92,7 @@
    (printout t "Yes, we are done:  Print Results!!" crlf)
    (modify ?context (name "all_done") )
 )
-(defrule path_done "path is done"
-   ?context <- (context (name "make_path") )
-   ?seating <- (seating (path_done FALSE) )
-=>
-   (modify ?seating (path_done TRUE) )
-   (modify ?context (name "check_done") )
-   (printout t "path is done " crlf)
-)
-(defrule continue "continue matching"
-   ?context <- (context (name "check_done") )
-=>
-   (modify ?context (name "assign_seats") )
-   (printout t "assign seats again" crlf) 
-)
+
 (defrule all_done "all done with test"
   ?context <- (context (name "all_done") )
 =>
@@ -111,6 +111,8 @@
 
 (assert (context (name "startup") ) )
 (assert (count (c 1) ) )
+
+
 (assert (guest (name "1") (sex "m") (hobby "3") ) )
 (assert (guest (name "1") (sex "m") (hobby "2") ) )
 (assert (guest (name "2") (sex "m") (hobby "2") ) )
