@@ -191,8 +191,7 @@ public abstract class AbstractBeta extends BaseNode {
 	 * @param engine
 	 */
 	public void retractRight(Fact fact, ReteNet net) throws RetractException {
-		if (alphaMemory.contains(fact)) {
-			alphaMemory.remove(fact);
+		if (alphaMemory.remove(fact) !=null){
 			Collection<FactTuple> matchings = mergeMemory
 					.getPostfixMatchingTuples(fact);
 			for (FactTuple toRemove : matchings) {

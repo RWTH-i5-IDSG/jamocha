@@ -56,8 +56,7 @@ public class LIANode extends AbstractAlpha {
 	@Override
 	public void retractFact(Assertable fact, ReteNet net, BaseNode sender)
 			throws RetractException {
-		assert (fact instanceof Fact);
-		if (facts.remove((Fact) fact)) {
+		if (facts.remove((Fact) fact) != null){
 			FactTuple tuple = new FactTuple((Fact) fact);
 			propogateRetract(tuple, net);
 		}

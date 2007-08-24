@@ -96,7 +96,7 @@ public class ObjectTypeNode extends AbstractAlpha implements Serializable {
 	@Override
 	public void retractFact(Assertable fact, ReteNet net, BaseNode sender)
 			throws RetractException {
-		if (facts.remove((Fact) fact))
+		if (facts.remove((Fact) fact) != null)
 			propogateRetract(fact, net);
 	}
 

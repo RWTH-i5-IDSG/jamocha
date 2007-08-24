@@ -2,26 +2,25 @@ package org.jamocha.rete.memory;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 import org.jamocha.rete.Fact;
 
 
 public class AlphaMemory extends AbstractMemory implements Iterable<Fact>{
 
-	protected Collection<Fact> facts = null;
+	protected Map<Long,Fact> facts = null;
 	
 	public AlphaMemory() {
 		super();
-		facts = new ArrayList<Fact>();
+		facts = new HashMap<Long,Fact>();
 	}
 	
-	public boolean contains(Fact forTest){
-		return facts.contains(forTest);
-	}
 	
-	public boolean remove(Fact forRemove){
-		return facts.remove(forRemove);
+	public Fact remove(Fact forRemove){
+		return facts.remove(forRemove.getFactId());
 	}
 	
 	public void clear(){
@@ -29,17 +28,17 @@ public class AlphaMemory extends AbstractMemory implements Iterable<Fact>{
 	}
 	
 	public void add(Fact newTuple) {
-		facts.add(newTuple);
+		facts.put(newTuple.getFactId(), newTuple);
 	}
 	
 	public Iterator<Fact> iterator() {
-		return facts.iterator();
+		return facts.values().iterator();
 	}
 
 	@Override
 	protected String contentToString() {
 		StringBuffer result = new StringBuffer();
-		for ( Fact t : facts ){
+		for ( Fact t : facts.values() ){
 			result.append("   ");
 			result.append(t.toString());
 			result.append("\n");
@@ -50,7 +49,7 @@ public class AlphaMemory extends AbstractMemory implements Iterable<Fact>{
 	protected String contentToString(int length) {
 		StringBuffer result = new StringBuffer();
 		int i = 0;
-		for ( Fact t : facts ){
+		for ( Fact t : facts.values() ){
 			if (i == length) {
 				result.append("and ").append(facts.size()-length).append(" more");
 				break;

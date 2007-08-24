@@ -17,8 +17,15 @@ public class ExpressionSequence extends ExpressionCollection {
 	
 	public JamochaValue getValue(Rete engine) throws EvaluationException {
 		JamochaValue result = JamochaValue.NIL;
+		Parameter param ;
 		for (int i = 0; i < parameterList.size(); ++i) {
-			result = parameterList.get(i).getValue(engine);
+			param = parameterList.get(i);
+			try{
+			result = param.getValue(engine);
+			} catch (Exception e) {
+				throw new EvaluationException("Error in: "
+						+ param.toString(), e);
+			}
 		}
 		return result;
 	}
