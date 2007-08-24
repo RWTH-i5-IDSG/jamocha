@@ -114,6 +114,16 @@
    (modify ?f2 (path_done yes))
    (modify ?f1 (state check_done)))
 
+;;; ********
+;;; continue
+;;; ********
+
+(defrule continue
+   ?f1 <- (context (state check_done))
+   =>
+   (modify ?f1 (state assign_seats))
+)
+
 ;;; ***********
 ;;; are_we_done
 ;;; ***********
@@ -125,16 +135,6 @@
    =>
    (printout ?*output* crlf "Yes, we are done!!" crlf)
    (modify ?f1 (state print_results)))
-
-;;; ********
-;;; continue
-;;; ********
-
-(defrule continue
-   ?f1 <- (context (state check_done))
-   =>
-   (modify ?f1 (state assign_seats))
-)
 
 ;;; *************
 ;;; print_results
@@ -178,9 +178,9 @@
 (guest (name n2) (sex m) (hobby h3))
 
 
-;(guest (name n3) (sex m) (hobby h1))
-;(guest (name n3) (sex m) (hobby h2))
-;(guest (name n3) (sex m) (hobby h3))
+(guest (name n3) (sex m) (hobby h1))
+(guest (name n3) (sex m) (hobby h2))
+(guest (name n3) (sex m) (hobby h3))
 
 (guest (name n4) (sex f) (hobby h3))
 (guest (name n4) (sex f) (hobby h2))
@@ -192,17 +192,17 @@
 (guest (name n5) (sex f) (hobby h2))
 (guest (name n5) (sex f) (hobby h3))
 
-;(guest (name n6) (sex f) (hobby h3))
-;(guest (name n6) (sex f) (hobby h1))
-;(guest (name n6) (sex f) (hobby h2))
+(guest (name n6) (sex f) (hobby h3))
+(guest (name n6) (sex f) (hobby h1))
+(guest (name n6) (sex f) (hobby h2))
 
-;(guest (name n7) (sex f) (hobby h3))
-;(guest (name n7) (sex f) (hobby h2))
+(guest (name n7) (sex f) (hobby h3))
+(guest (name n7) (sex f) (hobby h2))
 
-;(guest (name n8) (sex m) (hobby h3))
-;(guest (name n8) (sex m) (hobby h1))
+(guest (name n8) (sex m) (hobby h3))
+(guest (name n8) (sex m) (hobby h1))
 
-(last_seat (seat 4))
+(last_seat (seat 8))
 (count (c 1))
 (context (state start)))
    

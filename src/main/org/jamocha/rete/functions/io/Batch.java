@@ -49,7 +49,7 @@ public class Batch extends AbstractFunction {
 		public String getDescription() {
 			return "Loads and executes one or more given files. Multiple arguments are separated by a blank. Files can be located on a local drive or on a remote machine accessible via http or some other protocol. Returns true on success.";
 		}
-		
+
 		public int getParameterCount() {
 			return 1;
 		}
@@ -118,6 +118,16 @@ public class Batch extends AbstractFunction {
 						inStream = url.openConnection().getInputStream();
 						// Otherwise treat it as normal file on the Filesystem
 					} else {
+						File file = new File(input);
+						if (!file.exists()) {
+							String[] paths = Rete.getJamochaSearchPaths();
+							for (String path : paths) {
+								file = new File(path + input);
+								if (file.exists()) {
+									break;
+								}
+							}
+						}
 						inStream = new FileInputStream(new File(input));
 					}
 					result = this.parse(engine, inStream);

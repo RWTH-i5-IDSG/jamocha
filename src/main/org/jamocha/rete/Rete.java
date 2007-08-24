@@ -985,4 +985,12 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 	public ReteNet getNet(){
 		return this.net;
 	}
+	
+	public static String[] getJamochaSearchPaths() {
+		String path = System.getenv("JAMOCHA_PATH");
+		if(path != null && path.length() > 0) {
+			return path.split(System.getProperty("path.separator"));
+		}
+		return null;
+	}
 }
