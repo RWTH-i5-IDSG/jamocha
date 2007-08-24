@@ -701,4 +701,18 @@ public class Defrule implements Rule {
 		return getModule().getModuleName() + "::" + getName();
 	}
 
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		final Rule other = (Rule) obj;
+		if (!other.getName().equals(name))
+			return false;
+		if (!other.getModule().getModuleName()
+				.equals(themodule.getModuleName()))
+			return false;
+		return true;
+	}
 }

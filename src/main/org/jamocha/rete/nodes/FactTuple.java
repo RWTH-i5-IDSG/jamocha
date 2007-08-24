@@ -26,9 +26,11 @@ public class FactTuple implements Assertable {
 
 	protected Fact[] facts = null;
 
+	protected int index = 0;
+
 	public FactTuple(Fact[] facts) {
 		super();
-		this.facts = facts;
+		setFacts(facts);
 	}
 
 	public int length() {
@@ -46,6 +48,12 @@ public class FactTuple implements Assertable {
 
 	public void setFacts(Fact[] facts) {
 		this.facts = facts;
+		if (facts.length > 0) {
+			index = facts[0].equalityIndex().hashCode();
+			for (Fact fact : facts) {
+				index += fact.equalityIndex().hashCode();
+			}
+		}
 	}
 
 	public FactTuple addFact(Fact fact) {
@@ -79,14 +87,20 @@ public class FactTuple implements Assertable {
 		return (facts[facts.length - 1] == input);
 	}
 
+	public int getIndex() {
+		return index;
+	}
+
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
 		if (obj == null)
 			return false;
-		if (getClass() != obj.getClass())
-			return false;
+		// if (getClass() != obj.getClass())
+		// return false;
 		final FactTuple other = (FactTuple) obj;
+		if (index != other.getIndex())
+			return false;
 		if (!Arrays.equals(facts, other.facts))
 			return false;
 		return true;

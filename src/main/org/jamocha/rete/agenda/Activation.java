@@ -34,8 +34,8 @@ public class Activation {
 			return true;
 		if (obj == null)
 			return false;
-		if (getClass() != obj.getClass())
-			return false;
+//		if (getClass() != obj.getClass())
+//			return false;
 		final Activation other = (Activation) obj;
 		if (rule == null) {
 			if (other.rule != null)
