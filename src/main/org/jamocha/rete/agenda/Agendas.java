@@ -17,6 +17,12 @@ public class Agendas {
 
 	protected Rete engine;
 
+	/**
+	 * Flag if Activations should be watched. If set to true an engine message
+	 * will be send each time an activation is added or removed.
+	 */
+	protected boolean watch = false;
+
 	public Agendas(Rete engine) {
 		this.engine = engine;
 		agendas = new HashMap<Module, Agenda>();
@@ -26,6 +32,8 @@ public class Agendas {
 		Agenda a = agendas.get(module);
 		if (a == null) {
 			a = new Agenda(engine);
+			if (watch)
+				a.setWatch(watch);
 			agendas.put(module, a);
 		}
 		return a;
@@ -43,6 +51,7 @@ public class Agendas {
 	}
 
 	public void setWatch(boolean watch) {
+		this.watch = watch;
 		Collection<Agenda> ags = agendas.values();
 		for (Agenda agenda : ags) {
 			agenda.setWatch(watch);
