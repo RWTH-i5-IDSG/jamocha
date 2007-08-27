@@ -6,6 +6,7 @@ import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import javax.swing.JButton;
@@ -98,7 +99,7 @@ public class AgendaPanel extends AbstractJamochaPanel implements
 	}
 
 	private void initActivationsList() {
-		List<Activation> activations = gui.getEngine().getAgendas().getAgenda(
+		Collection<Activation> activations = gui.getEngine().getAgendas().getAgenda(
 				gui.getEngine().findModule("MAIN")).getActivations();
 		dataModel.setActivations(activations);
 		agendaTable.getColumnModel().getColumn(0).setPreferredWidth(150);
@@ -113,7 +114,7 @@ public class AgendaPanel extends AbstractJamochaPanel implements
 
 		private List<Activation> activations;
 
-		private void setActivations(List<Activation> activations) {
+		private void setActivations(Collection<Activation> activations) {
 			this.activations = new ArrayList<Activation>(activations.size());
 			for (Activation activation : activations) {
 				this.activations.add(activation);

@@ -1,5 +1,6 @@
 package org.jamocha.rete.agenda;
 
+import org.jamocha.rete.Fact;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.exception.ExecuteException;
 import org.jamocha.rete.nodes.FactTuple;
@@ -16,6 +17,8 @@ public class Activation {
 	protected boolean valid = true;
 	
 	protected FactTuple tuple;
+	
+	protected long aggregatedTime = 0;
 	
 	@Override
 	public int hashCode() {
@@ -71,6 +74,14 @@ public class Activation {
 
 	public void setTuple(FactTuple tuple) {
 		this.tuple = tuple;
+		Fact[] facts = tuple.getFacts();
+		for(Fact fact : facts) {
+			aggregatedTime += fact.timeStamp();
+		}
+	}
+	
+	public long getAggregatedTime() {
+		return aggregatedTime;
 	}
 	
 	public void fire(Rete engine) throws ExecuteException{

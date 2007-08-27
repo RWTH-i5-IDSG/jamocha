@@ -1,21 +1,14 @@
 package org.jamocha.rete.agenda;
 
-import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 /**
  * @author Josef Alexander Hahn
  */
-public abstract class ConflictResolutionStrategy {
-
-	public abstract void addActivation(List<Activation> activations,
-			Activation a);
-
-	public abstract void removeActivation(List<Activation> activations,
-			Activation a);
+public abstract class ConflictResolutionStrategy implements Comparator<Activation> {
 
 	public abstract String getName();
 
@@ -45,8 +38,8 @@ public abstract class ConflictResolutionStrategy {
 		if (initialized)
 			return;
 		map = new HashMap<String, Class>();
-		registerStrategy(LastComeFirstServeStrategy.class);
-		registerStrategy(FirstComeFirstServeStrategy.class);
+		registerStrategy(DepthStrategy.class);
+		registerStrategy(BreadthStrategy.class);
 		registerStrategy(HighestPriorityFirstStrategy.class);
 		registerStrategy(HighestComplexityFirstStrategy.class);
 		initialized = true;
@@ -65,21 +58,6 @@ public abstract class ConflictResolutionStrategy {
 	public static Set<String> getStrategies() {
 		init();
 		return map.keySet();
-	}
-
-	/**
-	 * This method returns the optimal List type for the given strategy. LIFO
-	 * for example makes many add(item,0) calls which is very inefficient for
-	 * ArrayLists.
-	 * 
-	 * @param initialSize
-	 *            initial size for the list. Is only used for ArrayLists.
-	 * @return The optimal List for this strategy.
-	 */
-	public List<Activation> getEmptyActivationList(int initialSize) {
-		if (initialSize > 0)
-			return new ArrayList<Activation>(initialSize);
-		return new ArrayList<Activation>();
 	}
 
 }

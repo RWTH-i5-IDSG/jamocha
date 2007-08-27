@@ -17,7 +17,9 @@
 package org.jamocha.rete.agenda;
 
 import java.io.Serializable;
-import java.util.List;
+import java.util.Collection;
+import java.util.PriorityQueue;
+import java.util.Queue;
 
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.exception.ExecuteException;
@@ -28,34 +30,38 @@ import org.jamocha.rete.exception.ExecuteException;
 
 public class Agenda implements Serializable {
 
+	private static final int INITIAL_CAPACITY = 10;
+
 	private static final long serialVersionUID = 1L;
 
 	protected Rete engine;
 
 	protected ConflictResolutionStrategy strategy = null;
 
-	protected List<Activation> activations;
+	protected Queue<Activation> activations;
 
 	protected boolean watch = false;
 
 	public Agenda(Rete engine, ConflictResolutionStrategy strategy) {
 		this.engine = engine;
-		activations = strategy.getEmptyActivationList(0);
+		activations = new PriorityQueue<Activation>(INITIAL_CAPACITY, strategy);
 		this.strategy = strategy;
 	}
 
 	public Agenda(Rete engine) {
-		this(engine, new FirstComeFirstServeStrategy());
+		this(engine, new BreadthStrategy());
 	}
 
 	public void setConflictResolutionStrategy(ConflictResolutionStrategy strat) {
 		if (strat != null) {
 			strategy = strat;
 			// we need to recompute the activation list
-			List<Activation> oldList = activations;
-			activations = strat.getEmptyActivationList(oldList.size());
-			for (Activation a : oldList)
-				strategy.addActivation(activations, a);
+			Queue<Activation> oldList = activations;
+			int oldListSize = oldList.size();
+			activations = new PriorityQueue<Activation>(
+					(oldListSize > 0) ? oldListSize : INITIAL_CAPACITY, strategy);
+			if (oldListSize > 0)
+				activations.addAll(oldList);
 		}
 	}
 
@@ -64,7 +70,7 @@ public class Agenda implements Serializable {
 	}
 
 	public void addActivation(Activation a) {
-		strategy.addActivation(activations, a);
+		activations.offer(a);
 		if (watch) {
 			engine.writeMessage("==> Activation: " + a.toString());
 		}
@@ -77,7 +83,7 @@ public class Agenda implements Serializable {
 		}
 	}
 
-	public List<Activation> getActivations() {
+	public Collection<Activation> getActivations() {
 		return activations;
 	}
 
@@ -89,13 +95,13 @@ public class Agenda implements Serializable {
 		int fireCount = 0;
 		if (maxFire == -1) {
 			while (activations.size() > 0) {
-				Activation act = activations.remove(0);
+				Activation act = activations.poll();
 				act.fire(engine);
 				fireCount++;
 			}
 		} else {
 			while (activations.size() > 0 && fireCount < maxFire) {
-				Activation act = activations.remove(0);
+				Activation act = activations.poll();
 				act.fire(engine);
 				fireCount++;
 			}

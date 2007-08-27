@@ -62,6 +62,7 @@ public class RuleEngineFunctions extends FunctionGroup {
 		addFunction(functionMem, new GenerateFacts());
 		addFunction(functionMem, new GetCurrentModule());
 		addFunction(functionMem, new GetFactId());
+		addFunction(functionMem, new GetStrategy());
 		addFunction(functionMem, new LazyAgenda());
 		addFunction(functionMem, new ListBindings());
 		addFunction(functionMem, new ListDirectory());
@@ -87,6 +88,7 @@ public class RuleEngineFunctions extends FunctionGroup {
 		addFunction(functionMem, new SaveFacts());
 		addFunction(functionMem, new SetFocus());
 		addFunction(functionMem, new SetParser());
+		addFunction(functionMem, new SetStrategy());
 		addFunction(functionMem, new Sleep());
 		addFunction(functionMem, new Spool());
 		addFunction(functionMem, new Templates());

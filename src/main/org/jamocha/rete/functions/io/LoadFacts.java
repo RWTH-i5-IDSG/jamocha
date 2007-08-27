@@ -23,12 +23,17 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.StringReader;
 import java.net.URL;
 
 import org.jamocha.messagerouter.StringChannel;
 import org.jamocha.parser.EvaluationException;
+import org.jamocha.parser.Expression;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
+import org.jamocha.parser.ParseException;
+import org.jamocha.parser.Parser;
+import org.jamocha.parser.ParserFactory;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.functions.AbstractFunction;
@@ -51,7 +56,7 @@ public class LoadFacts extends AbstractFunction {
 					+ "of facts can be asserted into the rule engine with one single call. The result is true if "
 					+ "any of the given files could be parsed successfully."
 					+ // and false otherwise. On failure an exception is
-						// thrown.";
+					// thrown.";
 					"Attention a corresponding Jamocha template must be defined in order to actually import the"
 					+ "facts into the engine.";
 		}
@@ -138,7 +143,12 @@ public class LoadFacts extends AbstractFunction {
 							new InputStreamReader(inStream)));
 					inStream.close();
 				} catch (FileNotFoundException e) {
+					throw new EvaluationException(
+							"Error while loading facts from: " + input, e);
 				} catch (IOException e) {
+					throw new EvaluationException(
+							"Error while loading facts from: " + input, e);
+				} catch (ParseException e) {
 					throw new EvaluationException(
 							"Error while loading facts from: " + input, e);
 				}
@@ -148,7 +158,7 @@ public class LoadFacts extends AbstractFunction {
 	}
 
 	public JamochaValue assertFacts(Rete engine, BufferedReader reader)
-			throws IOException {
+			throws IOException, ParseException, EvaluationException {
 		if (loadFactsChannel == null) {
 			loadFactsChannel = engine.getMessageRouter().openChannel(
 					"loadFactsChannel");
@@ -158,7 +168,16 @@ public class LoadFacts extends AbstractFunction {
 			buffer.append(reader.readLine());
 		}
 		buffer.append(")");
-		loadFactsChannel.executeCommand(buffer.toString());
+		Parser parser = ParserFactory.getParser(new StringReader(buffer
+				.toString()));
+		Expression expr;
+		buffer = new StringBuilder();
+		JamochaValue result;
+		while (null != (expr = parser.nextExpression())) {
+			result = expr.getValue(engine);
+			buffer.append(result.toString());
+		}
+		engine.writeMessage(buffer.toString());
 		return JamochaValue.TRUE;
 	}
 }
