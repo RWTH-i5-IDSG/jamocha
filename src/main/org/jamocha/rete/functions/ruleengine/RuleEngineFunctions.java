@@ -31,7 +31,7 @@ public class RuleEngineFunctions extends FunctionGroup {
 
 	public RuleEngineFunctions() {
 		super();
-		name = "RuleEngingeFunctions";
+		name = "RuleEngineFunctions";
 		description = "This Group provides functions that give access to the rule engine.";
 	}
 
