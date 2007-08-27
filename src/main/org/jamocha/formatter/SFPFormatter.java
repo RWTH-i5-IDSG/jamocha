@@ -99,7 +99,6 @@ public class SFPFormatter extends Formatter {
 			sb.append(')');
 			break;
 		case FACT:
-			break;
 		case LONG:
 		case DOUBLE:
 		case BOOLEAN:

@@ -107,8 +107,8 @@ public class PPrintTemplate extends AbstractFunction {
 				filter.put(df, df);
 			}
 		}
-		Collection templ = engine.getCurrentFocus().getTemplates();
-		Iterator itr = templ.iterator();
+		Collection<Template> templ = engine.getCurrentFocus().getTemplates();
+		Iterator<Template> itr = templ.iterator();
 		while (itr.hasNext()) {
 			Template tp = (Template) itr.next();
 			if (filter.get(tp.getName()) != null) {

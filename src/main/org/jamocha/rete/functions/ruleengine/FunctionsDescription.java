@@ -274,15 +274,15 @@ public class FunctionsDescription extends AbstractFunction {
 		StringBuilder xmlDocument = new StringBuilder();
 		xmlDocument.append("<?xml version=\"1.0\" encoding=\"utf-8\" ?> ");
 		xmlDocument.append("<functiongroups>");
-		Iterator itGroup = engine.getFunctionMemory().getFunctionGroups()
-				.values().iterator();
+		Iterator<FunctionGroup> itGroup = engine.getFunctionMemory()
+				.getFunctionGroups().values().iterator();
 		while (itGroup.hasNext()) {
 			XmlTag groupTag = new XmlTag();
 			FunctionGroup group = (FunctionGroup) itGroup.next();
 			groupTag.setName("functiongroup");
 			groupTag.addAttribute("name", group.getName());
 
-			Iterator itFunc = group.listFunctions().iterator();
+			Iterator<Function> itFunc = group.listFunctions().iterator();
 			while (itFunc.hasNext()) {
 
 				Function function = (Function) itFunc.next();
@@ -291,7 +291,8 @@ public class FunctionsDescription extends AbstractFunction {
 				XmlTag t = new XmlTag();
 				t.setName("function");
 				t.addAttribute("name", function.getName());
-				if (desc == null) continue;
+				if (desc == null)
+					continue;
 				t.addAttribute("description", desc.getDescription());
 
 				if (desc.isParameterCountFixed()) {

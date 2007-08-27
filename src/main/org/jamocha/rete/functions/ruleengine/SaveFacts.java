@@ -25,6 +25,7 @@ import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Constants;
 import org.jamocha.rete.Deffact;
+import org.jamocha.rete.Fact;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.functions.AbstractFunction;
@@ -134,7 +135,7 @@ public class SaveFacts extends AbstractFunction {
 			}
 			try {
 				FileWriter writer = new FileWriter(firstParam.getStringValue());
-				List facts = engine.getModules().getAllFacts();
+				List<Fact> facts = engine.getModules().getAllFacts();
 				Object[] sorted = null;
 				if (sortid) {
 					sorted = FactUtils.sortFacts(facts);

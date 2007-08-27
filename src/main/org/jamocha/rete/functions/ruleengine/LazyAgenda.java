@@ -27,7 +27,7 @@ import org.jamocha.rete.functions.FunctionDescription;
 /**
  * @author Peter Lin
  * 
- * Used to turn on/off lazy agenda. That means the activations are not sorted 
+ * Used to turn on/off lazy agenda. That means the activations are not sorted
  * when added to the agenda. Instead it is sorted when they are removed.
  */
 public class LazyAgenda extends AbstractFunction {
@@ -93,15 +93,9 @@ public class LazyAgenda extends AbstractFunction {
 	public JamochaValue executeFunction(Rete engine, Parameter[] params)
 			throws EvaluationException {
 		if (params != null && params.length == 1) {
-			JamochaValue firstParam = params[0].getValue(engine);
-//			if (firstParam.getBooleanValue()) {
-//				engine.getAgendas().getAgenda(engine.getCurrentFocus()).
-//				engine.getCurrentFocus().setLazy(true);
-//				engine.writeMessage("TRUE");
-//			} else {
-//				engine.getCurrentFocus().setLazy(false);
-//				engine.writeMessage("FALSE");
-//			}
+			//JamochaValue firstParam = params[0].getValue(engine);
+			engine
+					.writeMessage("This functionality is not yet implemented in Jamocha.");
 		}
 		return JamochaValue.NIL;
 	}

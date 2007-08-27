@@ -95,7 +95,7 @@ public class Facts extends AbstractFunction {
 
 	public JamochaValue executeFunction(Rete engine, Parameter[] params)
 			throws EvaluationException {
-		List facts = engine.getModules().getAllFacts();
+		List<Fact> facts = engine.getModules().getAllFacts();
 		Object[] sorted = FactUtils.sortFacts(facts);
 		StringBuilder sb = new StringBuilder();
 		for (int idx = 0; idx < sorted.length; idx++) {

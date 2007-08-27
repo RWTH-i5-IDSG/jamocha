@@ -47,7 +47,7 @@ public class GenerateFacts {
 		super();
 	}
 	
-	public static ArrayList generateFacts(Rule rule, Rete engine) {
+	public static ArrayList<Object> generateFacts(Rule rule, Rete engine) {
 		ArrayList<Object> facts = new ArrayList<Object>();
 		if (rule != null) {
 			Condition[] conditions = rule.getConditions();
@@ -81,6 +81,7 @@ public class GenerateFacts {
 	 * @param engine
 	 * @return
 	 */
+	@SuppressWarnings("unchecked")
 	public static Object generateJavaFacts(ObjectCondition cond, Deftemplate templ, Rete engine) {
 		try {
 			Class theclz = Class.forName(templ.getClassName());

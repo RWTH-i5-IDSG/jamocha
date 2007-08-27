@@ -126,7 +126,7 @@ public class GenerateFacts extends AbstractFunction {
 			throws EvaluationException {
 		JamochaValue result = JamochaValue.FALSE;
 		boolean echo = false;
-		ArrayList facts = null;
+		ArrayList<Object> facts = null;
 		if (params != null && params.length >= 1) {
 			JamochaValue firstParam = params[0].getValue(engine);
 			Defrule r = (Defrule) engine.getCurrentFocus().findRule(
@@ -140,7 +140,7 @@ public class GenerateFacts extends AbstractFunction {
 					.generateFacts(r, engine);
 			if (facts.size() > 0) {
 				if (echo) {
-					Iterator itr = facts.iterator();
+					Iterator<Object> itr = facts.iterator();
 					while (itr.hasNext()) {
 						Object data = itr.next();
 						if (data instanceof Deffact) {

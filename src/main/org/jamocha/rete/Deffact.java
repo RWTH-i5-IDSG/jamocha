@@ -188,7 +188,7 @@ public class Deffact implements Fact {
 	 * @return
 	 */
 	public String toFactString() {
-		return format(ParserFactory.getFormatter(false));
+		return format(ParserFactory.getFormatter(true));
 	}
 
 	public String toPPString() {

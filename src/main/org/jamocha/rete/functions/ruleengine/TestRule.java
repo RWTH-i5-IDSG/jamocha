@@ -104,11 +104,11 @@ public class TestRule extends AbstractFunction {
 		if (params != null && params.length == 1) {
 			String rlz = params[0].getValue(engine).getStringValue();
 			Defrule r = (Defrule) engine.getCurrentFocus().findRule(rlz);
-			ArrayList facts = GenerateFacts.generateFacts(r, engine);
+			ArrayList<Object> facts = GenerateFacts.generateFacts(r, engine);
 			if (facts.size() > 0) {
 				try {
 					engine.setWatch(Rete.WATCH_ALL);
-					Iterator itr = facts.iterator();
+					Iterator<Object> itr = facts.iterator();
 					while (itr.hasNext()) {
 						Object data = itr.next();
 						if (data instanceof Deffact) {
