@@ -59,7 +59,8 @@ public class Agenda implements Serializable {
 			Queue<Activation> oldList = activations;
 			int oldListSize = oldList.size();
 			activations = new PriorityQueue<Activation>(
-					(oldListSize > 0) ? oldListSize : INITIAL_CAPACITY, strategy);
+					(oldListSize > 0) ? oldListSize : INITIAL_CAPACITY,
+					strategy);
 			if (oldListSize > 0)
 				activations.addAll(oldList);
 		}
@@ -93,7 +94,7 @@ public class Agenda implements Serializable {
 
 	public int fire(int maxFire) throws ExecuteException {
 		int fireCount = 0;
-		if (maxFire == -1) {
+		if (maxFire < 1) {
 			while (activations.size() > 0) {
 				Activation act = activations.poll();
 				act.fire(engine);

@@ -13,13 +13,13 @@ import org.jamocha.rule.Rule;
 public class Activation {
 
 	protected Rule rule;
-	
+
 	protected boolean valid = true;
-	
+
 	protected FactTuple tuple;
-	
+
 	protected long aggregatedTime = 0;
-	
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -29,16 +29,14 @@ public class Activation {
 		return result;
 	}
 
-
-
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
 		if (obj == null)
 			return false;
-//		if (getClass() != obj.getClass())
-//			return false;
+		// if (getClass() != obj.getClass())
+		// return false;
 		final Activation other = (Activation) obj;
 		if (rule == null) {
 			if (other.rule != null)
@@ -52,19 +50,17 @@ public class Activation {
 			return false;
 		return true;
 	}
-	
-	
-	
-	public Activation(Rule rule, FactTuple tuple){
+
+	public Activation(Rule rule, FactTuple tuple) {
 		setRule(rule);
 		setTuple(tuple);
 	}
-	
-	public void setRule(Rule rule){
-		this.rule=rule;
+
+	public void setRule(Rule rule) {
+		this.rule = rule;
 	}
-	
-	public Rule getRule(){
+
+	public Rule getRule() {
 		return rule;
 	}
 
@@ -75,16 +71,18 @@ public class Activation {
 	public void setTuple(FactTuple tuple) {
 		this.tuple = tuple;
 		Fact[] facts = tuple.getFacts();
-		for(Fact fact : facts) {
+		for (Fact fact : facts) {
 			aggregatedTime += fact.timeStamp();
 		}
+		if (facts.length > 0)
+			aggregatedTime /= facts.length;
 	}
-	
+
 	public long getAggregatedTime() {
 		return aggregatedTime;
 	}
-	
-	public void fire(Rete engine) throws ExecuteException{
+
+	public void fire(Rete engine) throws ExecuteException {
 		engine.pushScope(rule);
 		rule.setTriggerFacts(tuple.getFacts());
 		for (Action action : rule.getActions()) {
@@ -100,8 +98,8 @@ public class Activation {
 	public void setValid(boolean valid) {
 		this.valid = valid;
 	}
-	
-	public String toString(){
+
+	public String toString() {
 		return rule.toString() + " " + tuple.toString();
 	}
 

@@ -8,7 +8,8 @@ import java.util.Set;
 /**
  * @author Josef Alexander Hahn
  */
-public abstract class ConflictResolutionStrategy implements Comparator<Activation> {
+public abstract class ConflictResolutionStrategy implements
+		Comparator<Activation> {
 
 	public abstract String getName();
 
@@ -26,7 +27,7 @@ public abstract class ConflictResolutionStrategy implements Comparator<Activatio
 		try {
 			String stratName = (String) strategy.getMethod("getNameStatic",
 					new Class[0]).invoke(ConflictResolutionStrategy.class,
-					new Class[0]);
+					(Object[]) new Class[0]);
 			map.put(stratName, strategy);
 		} catch (Exception e) {
 			e.printStackTrace();

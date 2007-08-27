@@ -115,18 +115,18 @@ public class Defclass extends AbstractFunction {
 			throws EvaluationException {
 		JamochaValue result = JamochaValue.FALSE;
 		if (params.length > 0) {
-			String clazz = params[0].getValue(engine).implicitCast(
-					JamochaType.IDENTIFIER).getIdentifierValue();
-			String template = null;
-			if (params[1] != null) {
-				template = params[1].getValue(engine).implicitCast(
-						JamochaType.IDENTIFIER).getIdentifierValue();
-			}
-			String parent = null;
-			if (params.length == 3) {
-				parent = params[2].getValue(engine).implicitCast(
-						JamochaType.IDENTIFIER).getIdentifierValue();
-			}
+//			String clazz = params[0].getValue(engine).implicitCast(
+//					JamochaType.IDENTIFIER).getIdentifierValue();
+//			String template = null;
+//			if (params[1] != null) {
+//				template = params[1].getValue(engine).implicitCast(
+//						JamochaType.IDENTIFIER).getIdentifierValue();
+//			}
+//			String parent = null;
+//			if (params.length == 3) {
+//				parent = params[2].getValue(engine).implicitCast(
+//						JamochaType.IDENTIFIER).getIdentifierValue();
+//			}
 			//try {
 				//engine.declareObject(clazz, template, parent);
 				result = JamochaValue.TRUE;

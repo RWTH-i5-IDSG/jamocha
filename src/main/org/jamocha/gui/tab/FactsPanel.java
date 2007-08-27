@@ -203,6 +203,7 @@ public class FactsPanel extends AbstractJamochaPanel implements ActionListener,
 				}
 			}
 			dumpArea.setText(buffer.toString());
+			dumpArea.setCaretPosition(0);
 		}
 	}
 

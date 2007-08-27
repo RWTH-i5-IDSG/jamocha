@@ -15,14 +15,19 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
+import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
 
+import org.jamocha.formatter.Formatter;
+import org.jamocha.formatter.HelpFormatter;
 import org.jamocha.gui.JamochaGui;
 import org.jamocha.gui.TableRowModel;
 import org.jamocha.gui.icons.IconLoader;
+import org.jamocha.rete.Fact;
 import org.jamocha.rete.agenda.Activation;
+import org.jamocha.rule.Rule;
 
 public class AgendaPanel extends AbstractJamochaPanel implements
 		ListSelectionListener, ActionListener {
@@ -45,6 +50,8 @@ public class AgendaPanel extends AbstractJamochaPanel implements
 		dataModel = new AgendaTableModel();
 		agendaTable = new JTable(dataModel);
 
+		agendaTable.getSelectionModel().addListSelectionListener(this);
+		agendaTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		agendaTable.setShowHorizontalLines(true);
 		agendaTable.setRowSelectionAllowed(true);
 		agendaTable.getTableHeader().setReorderingAllowed(false);
@@ -99,8 +106,8 @@ public class AgendaPanel extends AbstractJamochaPanel implements
 	}
 
 	private void initActivationsList() {
-		Collection<Activation> activations = gui.getEngine().getAgendas().getAgenda(
-				gui.getEngine().findModule("MAIN")).getActivations();
+		Collection<Activation> activations = gui.getEngine().getAgendas()
+				.getAgenda(gui.getEngine().findModule("MAIN")).getActivations();
 		dataModel.setActivations(activations);
 		agendaTable.getColumnModel().getColumn(0).setPreferredWidth(150);
 		agendaTable.getColumnModel().getColumn(1).setPreferredWidth(
@@ -177,8 +184,31 @@ public class AgendaPanel extends AbstractJamochaPanel implements
 		}
 	}
 
-	public void valueChanged(ListSelectionEvent arg0) {
-		// TODO Auto-generated method stub
+	public void valueChanged(ListSelectionEvent event) {
+		if (event.getSource().equals(agendaTable.getSelectionModel())) {
+			StringBuilder buffer = new StringBuilder();
+			if (agendaTable.getSelectedRow() >= 0) {
+				Activation act = (Activation) dataModel.getRowAt(agendaTable
+						.getSelectedRow());
+				if (act != null) {
+					Rule rule = act.getRule();
+					Formatter formatter = new HelpFormatter();
+					buffer.append(rule.format(formatter));
+					buffer.append("\n\n");
+					buffer.append("Aggregated Time: ").append(
+							act.getAggregatedTime());
+					buffer.append("\n");
+					buffer.append("Fact-Tuple:\n");
+					Fact[] facts = act.getTuple().getFacts();
+					for (Fact fact : facts) {
+						buffer.append("\n--------------------------\n");
+						buffer.append(fact.format(formatter));
+					}
+				}
+			}
+			dumpArea.setText(buffer.toString());
+			dumpArea.setCaretPosition(0);
+		}
 
 	}
 

@@ -8,7 +8,7 @@ public class HighestPriorityFirstStrategy extends ConflictResolutionStrategy {
 		if (sal1 == sal2) {
 			// for same salience the decision is arbitrary
 			return 0;
-		} else if (sal1 < sal2) {
+		} else if (sal1 > sal2) {
 			return -1;
 		} else {
 			return 1;

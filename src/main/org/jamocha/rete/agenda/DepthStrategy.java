@@ -15,7 +15,7 @@ public class DepthStrategy extends ConflictResolutionStrategy {
 			} else {
 				return 0;
 			}
-		} else if (sal1 < sal2) {
+		} else if (sal1 > sal2) {
 			return -1;
 		} else {
 			return 1;
