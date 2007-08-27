@@ -67,6 +67,7 @@ public class RuleEngineFunctions extends FunctionGroup {
 		addFunction(functionMem, new ListBindings());
 		addFunction(functionMem, new ListDirectory());
 		addFunction(functionMem, new ListFunctions());
+		addFunction(functionMem, new ListRules());
 		addFunction(functionMem, new ListTemplates());
 		addFunction(functionMem, new LoadFunctionGroup());
 		addFunction(functionMem, new LoadFunctions());
@@ -84,14 +85,13 @@ public class RuleEngineFunctions extends FunctionGroup {
 		addFunction(functionMem, new ResetFacts());
 		addFunction(functionMem, new ResetObjects());
 		addFunction(functionMem, new Retract());
-		addFunction(functionMem, new Rules());
+		addFunction(functionMem, new ListRules());
 		addFunction(functionMem, new SaveFacts());
 		addFunction(functionMem, new SetFocus());
 		addFunction(functionMem, new SetParser());
 		addFunction(functionMem, new SetStrategy());
 		addFunction(functionMem, new Sleep());
 		addFunction(functionMem, new Spool());
-		addFunction(functionMem, new Templates());
 		addFunction(functionMem, new TestRule());
 		addFunction(functionMem, new UnDefrule());
 		addFunction(functionMem, new UnDeftemplate());
@@ -101,12 +101,6 @@ public class RuleEngineFunctions extends FunctionGroup {
 		addFunction(functionMem, new Version());
 		addFunction(functionMem, new View());
 		addFunction(functionMem, new Watch());
-
-//		functionMem.declareFunction("focus", getCurrentModule);
-//		functionMem.declareFunction("get-focus", getCurrentModule);
-//		functionMem.declareFunction("functions", listFunctions);
-//		functionMem.declareFunction("list-rules", rules);
-//		functionMem.declareFunction("list-deftemplates", templates);
 	}
 
 }

@@ -33,8 +33,7 @@ import org.jamocha.rete.functions.FunctionGroup;
 /**
  * @author Peter Lin
  * 
- * Prints out a list of all defined functions. The return
- * value is NIL.
+ * Prints out a list of all defined functions. The return value is NIL.
  */
 public class ListFunctions extends AbstractFunction {
 
@@ -73,7 +72,7 @@ public class ListFunctions extends AbstractFunction {
 		}
 
 		public String getExample() {
-			return "(list-deffunctions)";
+			return "(list-functions)";
 		}
 
 		public boolean isResultAutoGeneratable() {
@@ -85,7 +84,13 @@ public class ListFunctions extends AbstractFunction {
 
 	private static final long serialVersionUID = 1L;
 
-	public static final String NAME = "list-deffunctions";
+	public static final String NAME = "list-functions";
+
+	public ListFunctions() {
+		super();
+		aliases.add("list-deffunctions");
+		aliases.add("functions");
+	}
 
 	public FunctionDescription getDescription() {
 		return DESCRIPTION;
@@ -97,19 +102,21 @@ public class ListFunctions extends AbstractFunction {
 
 	public JamochaValue executeFunction(Rete engine, Parameter[] params)
 			throws EvaluationException {
-		Map fgroups = engine.getFunctionMemory().getFunctionGroups();
-		Iterator itr = fgroups.values().iterator();
+		Map<String, FunctionGroup> fgroups = engine.getFunctionMemory()
+				.getFunctionGroups();
+		Iterator<FunctionGroup> itr = fgroups.values().iterator();
 		int counter = 0;
+		FunctionGroup fg;
+		Function f;
 		while (itr.hasNext()) {
 			// we iterate over the function groups and print out the
 			// functions in each group
-			FunctionGroup fg = (FunctionGroup) itr.next();
-			engine.writeMessage("++++ " + fg.getName() + " ++++"
-					+ Constants.LINEBREAK, "t");
-			Iterator listitr = fg.listFunctions().iterator();
+			fg = itr.next();
+			engine.writeMessage(fg.getName() + ":" + Constants.LINEBREAK, "t");
+			Iterator<Function> listitr = fg.listFunctions().iterator();
 			while (listitr.hasNext()) {
-				Function f = (Function) listitr.next();
-				engine.writeMessage("  " + f.getName() + Constants.LINEBREAK,
+				f = listitr.next();
+				engine.writeMessage(" - " + f.getName() + Constants.LINEBREAK,
 						"t");
 				counter++;
 			}

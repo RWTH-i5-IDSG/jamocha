@@ -80,6 +80,12 @@ public class GetCurrentModule extends AbstractFunction {
 
 	public static final String NAME = "get-current-module";
 
+	public GetCurrentModule() {
+		super();
+		aliases.add("focus");
+		aliases.add("get-focus");
+	}
+	
 	public FunctionDescription getDescription() {
 		return DESCRIPTION;
 	}

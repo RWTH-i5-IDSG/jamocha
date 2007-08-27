@@ -22,24 +22,23 @@ import java.util.Iterator;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.rete.Constants;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.Template;
 import org.jamocha.rete.functions.AbstractFunction;
 import org.jamocha.rete.functions.FunctionDescription;
+import org.jamocha.rule.Rule;
 
 /**
  * @author Peter Lin
  * 
- * templates prints out the names of the deftemplates.
+ * rules prints out the names of the rules and their comments. Returns NIL.
  */
-public class Templates extends AbstractFunction {
+public class ListRules extends AbstractFunction {
 
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "Prints out the names of the deftemplates.";
+			return "Prints out the names of the rules and their comments. Returns NIL.";
 		}
 
 		public int getParameterCount() {
@@ -71,9 +70,7 @@ public class Templates extends AbstractFunction {
 		}
 
 		public String getExample() {
-			return "(deftemplate car (slot color)(slot speed))\n" +
-					"(deftemplate bike (slot color)(slot kind))\n" +
-					"(templates)";
+			return "(list-rules)";
 		}
 
 		public boolean isResultAutoGeneratable() {
@@ -85,7 +82,13 @@ public class Templates extends AbstractFunction {
 
 	private static final long serialVersionUID = 1L;
 
-	public static final String NAME = "templates";
+	public static final String NAME = "list-rules";
+
+	public ListRules() {
+		super();
+		aliases.add("list-defrules");
+		aliases.add("rules");
+	}
 
 	public FunctionDescription getDescription() {
 		return DESCRIPTION;
@@ -97,15 +100,18 @@ public class Templates extends AbstractFunction {
 
 	public JamochaValue executeFunction(Rete engine, Parameter[] params)
 			throws EvaluationException {
-		Collection templates = engine.getCurrentFocus().getTemplates();
-		int count = templates.size();
-		Iterator itr = templates.iterator();
+		Collection<Rule> rules = engine.getCurrentFocus().getAllRules();
+		int count = rules.size();
+		Iterator<Rule> itr = rules.iterator();
+		Rule temp;
 		while (itr.hasNext()) {
-			Template r = (Template) itr.next();
-			engine.writeMessage(r.getName() + Constants.LINEBREAK, "t");
+			temp = itr.next();
+			engine.writeMessage(temp.getName() + " \"" + temp.getDescription()
+					+ "\" salience:" + temp.getSalience() + " version:"
+					+ temp.getVersion() + " no-agenda:" + temp.getNoAgenda()
+					+ "\r\n", "t");
 		}
-		engine.writeMessage("for a total of " + count + Constants.LINEBREAK,
-				"t");
+		engine.writeMessage("for a total of " + count + "\r\n", "t");
 		return JamochaValue.NIL;
 	}
 }

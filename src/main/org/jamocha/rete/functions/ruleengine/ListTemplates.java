@@ -32,8 +32,8 @@ import org.jamocha.rete.functions.FunctionDescription;
 /**
  * @author Peter Lin
  * 
- * Prints out all defined templates in no specific order. 
- * The return value is NIL.
+ * Prints out all defined templates in no specific order. The return value is
+ * NIL.
  */
 public class ListTemplates extends AbstractFunction {
 
@@ -72,7 +72,7 @@ public class ListTemplates extends AbstractFunction {
 		}
 
 		public String getExample() {
-			return "(list-deftemplates)";
+			return "(list-templates)";
 		}
 
 		public boolean isResultAutoGeneratable() {
@@ -84,7 +84,13 @@ public class ListTemplates extends AbstractFunction {
 
 	private static final long serialVersionUID = 1L;
 
-	public static final String NAME = "list-deftemplates";
+	public static final String NAME = "list-templates";
+
+	public ListTemplates() {
+		super();
+		aliases.add("list-deftemplates");
+		aliases.add("templates");
+	}
 
 	public FunctionDescription getDescription() {
 		return DESCRIPTION;
@@ -96,12 +102,17 @@ public class ListTemplates extends AbstractFunction {
 
 	public JamochaValue executeFunction(Rete engine, Parameter[] params)
 			throws EvaluationException {
-		Collection templ = engine.getCurrentFocus().getTemplates();
-		Iterator itr = templ.iterator();
+		Collection<Template> templates = engine.getCurrentFocus()
+				.getTemplates();
+		int count = templates.size();
+		Iterator<Template> itr = templates.iterator();
+		Template temp;
 		while (itr.hasNext()) {
-			Template tp = (Template) itr.next();
-			engine.writeMessage(tp.toPPString() + Constants.LINEBREAK, "t");
+			temp = itr.next();
+			engine.writeMessage(temp.getName() + Constants.LINEBREAK, "t");
 		}
+		engine.writeMessage("for a total of " + count + Constants.LINEBREAK,
+				"t");
 		return JamochaValue.NIL;
 	}
 }
