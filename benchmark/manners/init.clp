@@ -9,9 +9,11 @@
 ;;;     is sent to a global variable so that the program
 ;;;     output can be easily enabled/disabled.
 
+
 ;;; ##########
 ;;; Defglobals
 ;;; ##########
+
 
 (bind ?*output*  t) ; Disabled = nil Enabled = t
 
@@ -92,18 +94,6 @@
    (modify ?f1 (state make_path)))
 
 ;;; *********
-;;; make_path
-;;; *********
-
-(defrule make_path
-   (context (state make_path))
-   (seating (id ?id) (pid ?pid) (path_done no))
-   (path (id ?pid) (name ?n1) (seat ?s))
-   (not (path (id ?id) (name ?n1)))
-   =>
-   (assert (path (id ?id) (name ?n1) (seat ?s))))
-
-;;; *********
 ;;; path_done
 ;;; *********
 
@@ -114,15 +104,19 @@
    (modify ?f2 (path_done yes))
    (modify ?f1 (state check_done)))
 
-;;; ********
-;;; continue
-;;; ********
+;;; *********
+;;; make_path
+;;; *********
 
-(defrule continue
-   ?f1 <- (context (state check_done))
+(defrule make_path
+	(declare (salience 150))
+   (context (state make_path))
+   (seating (id ?id) (pid ?pid) (path_done no))
+   (path (id ?pid) (name ?n1) (seat ?s))
+   (not (path (id ?id) (name ?n1)))
    =>
-   (modify ?f1 (state assign_seats))
-)
+   (assert (path (id ?id) (name ?n1) (seat ?s))))
+
 
 ;;; ***********
 ;;; are_we_done
@@ -135,6 +129,16 @@
    =>
    (printout ?*output* crlf "Yes, we are done!!" crlf)
    (modify ?f1 (state print_results)))
+
+;;; ********
+;;; continue
+;;; ********
+
+(defrule continue
+   ?f1 <- (context (state check_done))
+   =>
+   (modify ?f1 (state assign_seats))
+)
 
 ;;; *************
 ;;; print_results
@@ -156,53 +160,5 @@
 (defrule all_done
    (context (state print_results))
    =>
-(printout t "ALL DONE")
+	(printout t "ALL DONE")
 )
-
-   
-   
-   
-   
-   
-   
-   
-(assert 
-(guest (name n1) (sex m) (hobby h3))
-(guest (name n1) (sex m) (hobby h2))
-
-(guest (name n1) (sex m) (hobby h4))
-(guest (name n1) (sex m) (hobby h5))
-(guest (name n1) (sex m) (hobby h6))
-
-(guest (name n2) (sex m) (hobby h2))
-(guest (name n2) (sex m) (hobby h3))
-
-
-(guest (name n3) (sex m) (hobby h1))
-(guest (name n3) (sex m) (hobby h2))
-(guest (name n3) (sex m) (hobby h3))
-
-(guest (name n4) (sex f) (hobby h3))
-(guest (name n4) (sex f) (hobby h2))
-
-(guest (name n4) (sex f) (hobby h5))
-(guest (name n4) (sex f) (hobby h6))
-
-(guest (name n5) (sex f) (hobby h1))
-(guest (name n5) (sex f) (hobby h2))
-(guest (name n5) (sex f) (hobby h3))
-
-(guest (name n6) (sex f) (hobby h3))
-(guest (name n6) (sex f) (hobby h1))
-(guest (name n6) (sex f) (hobby h2))
-
-(guest (name n7) (sex f) (hobby h3))
-(guest (name n7) (sex f) (hobby h2))
-
-(guest (name n8) (sex m) (hobby h3))
-(guest (name n8) (sex m) (hobby h1))
-
-(last_seat (seat 8))
-(count (c 1))
-(context (state start)))
-   
