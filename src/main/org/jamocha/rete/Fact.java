@@ -100,6 +100,14 @@ public interface Fact extends Assertable, Dumpable, Formattable {
 	 * finalize the object and make it ready for GC
 	 */
 	void clear();
+	
+	/**
+	 * Returns the unique ticket of this fact. This is used to sort the
+	 * activations by their "time" of arrival.
+	 * 
+	 * @return the facts ticket.
+	 */
+	public long getTicket();
 
 	/**
 	 * the timestamp for the fact

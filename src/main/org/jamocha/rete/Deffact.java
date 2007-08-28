@@ -52,7 +52,9 @@ public class Deffact implements Fact {
 	 */
 	protected long id = -1;
 
-	private long timeStamp = 0;
+	private long ticket;
+
+	private long timeStamp;
 
 	protected boolean hasBinding = false;
 
@@ -69,6 +71,7 @@ public class Deffact implements Fact {
 		this.objInstance = instance;
 		this.slots = values;
 		this.timeStamp = System.nanoTime();
+		this.ticket = Rete.drawTicket();
 	}
 
 	/**
@@ -304,9 +307,19 @@ public class Deffact implements Fact {
 	}
 
 	/**
+	 * Returns the unique ticket of this fact. This is used to sort the
+	 * activations by their "time" of arrival.
+	 * 
+	 * @return the facts ticket.
+	 */
+	public final long getTicket() {
+		return ticket;
+	}
+
+	/**
 	 * the implementation returns nano time
 	 */
-	public long timeStamp() {
+	public final long timeStamp() {
 		return this.timeStamp;
 	}
 

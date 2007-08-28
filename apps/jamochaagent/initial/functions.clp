@@ -128,7 +128,8 @@
 	(?message ?action ?proposition)
 	
 	(bind ?receivers (prepare-receivers ?message))
-	(bind ?newContent (str-cat "(" ?action ?proposition ")"))
+	(bind ?newContent ?proposition)
+	(if (neq ?action "") then (bind ?newContent (str-cat "(" ?action ?newContent ")")))
 	
 	(assert 
 		(agent-message

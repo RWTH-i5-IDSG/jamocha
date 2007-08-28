@@ -52,7 +52,7 @@
 
 	=>
 	
-	(send-agree ?message "")
+	(send-agree ?message "" (fact-slot-value ?message "content"))
 	
 )
 

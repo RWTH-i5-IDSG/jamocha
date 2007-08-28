@@ -11,14 +11,14 @@
 	)
 	; Only extract messages that have not been answered yet and that are incoming.
 	?message <- (agent-message
-		(receiver ?receivers)
+		(receiver $?receivers)
 		(language "fipa-sl")
 		(protocol ?protocol)
 		(incoming TRUE)
 		(processed FALSE)
 	)
 	; The receiver of the message must be local.
-	(test (> (member$ ?receiver ?receivers) 0))
+	(test (> (member$ ?receiver $?receivers) 0))
 	
 	=>
 	

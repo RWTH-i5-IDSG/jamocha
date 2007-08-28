@@ -38,4 +38,4 @@
 	(return (str-cat "\"" ?*lastGameNumber* "\""))
 )
 
-; (new-game "server@nocturna:1099/JADE" 1000 0)
+; (new-game "server@nocturna.local:1099/JADE" 1000 0)

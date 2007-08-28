@@ -50,7 +50,7 @@
 	
 	=>
 	
-	(send-agree ?message "")
+	(send-agree ?message "" (fact-slot-value ?message "content"))
 	
 	(bind ?receivers (prepare-receivers ?message))
 	

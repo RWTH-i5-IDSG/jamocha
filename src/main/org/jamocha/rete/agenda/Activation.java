@@ -72,10 +72,8 @@ public class Activation {
 		this.tuple = tuple;
 		Fact[] facts = tuple.getFacts();
 		for (Fact fact : facts) {
-			aggregatedTime += fact.timeStamp();
+			aggregatedTime += fact.getTicket();
 		}
-		if (facts.length > 0)
-			aggregatedTime /= facts.length;
 	}
 
 	public long getAggregatedTime() {

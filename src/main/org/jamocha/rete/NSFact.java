@@ -61,7 +61,9 @@ public class NSFact implements Fact, Serializable {
 	 */
 	private long id;
 
-	private long timeStamp = 0;
+	private long timeStamp;
+	
+	private long ticket;
 	
 	private EqualityIndex equalityIndex = null;
 
@@ -76,6 +78,7 @@ public class NSFact implements Fact, Serializable {
 		this.slots = values;
 		this.id = id;
 		this.timeStamp = System.nanoTime();
+		this.ticket = Rete.drawTicket();
 	}
 
 	/**
@@ -238,6 +241,16 @@ public class NSFact implements Fact, Serializable {
 
 	public String format(Formatter visitor) {
 		return visitor.visit(this);
+	}
+
+	/**
+	 * Returns the unique ticket of this fact. This is used to sort the
+	 * activations by their "time" of arrival.
+	 * 
+	 * @return the facts ticket.
+	 */
+	public final long getTicket() {
+		return ticket;
 	}
 	
 }

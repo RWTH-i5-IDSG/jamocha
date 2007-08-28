@@ -96,13 +96,14 @@ public class Agenda implements Serializable {
 		int fireCount = 0;
 		if (maxFire < 1) {
 			while (activations.size() > 0) {
-				Activation act = activations.poll();
+				Activation act = (Activation) activations.poll();
+				// System.out.println(act.getRule().getName());
 				act.fire(engine);
 				fireCount++;
 			}
 		} else {
 			while (activations.size() > 0 && fireCount < maxFire) {
-				Activation act = activations.poll();
+				Activation act = (Activation) activations.poll();
 				act.fire(engine);
 				fireCount++;
 			}

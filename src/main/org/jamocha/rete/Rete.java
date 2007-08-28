@@ -137,6 +137,8 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 	private MessageRouter router = new MessageRouter(this);
 
 	protected InitialFact initFact = new InitialFact();
+	
+	private static long ticket = 0;
 
 	/**
 	 * 
@@ -802,6 +804,10 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 			this.modules.addFact(modifiedFact);
 			assertFact(modifiedFact);
 		}
+	}
+	
+	public static long drawTicket() {
+		return ticket++;
 	}
 
 	/**
