@@ -235,11 +235,7 @@ public abstract class BaseNode implements Serializable {
 	public int shareNodes(Rule rule, ReteNet net) {
 		int resultMergedNodes = 0;
 		
-		if (this instanceof ObjectTypeNode) {
-			ObjectTypeNode otn = (ObjectTypeNode) this;
-			if (otn.getDeftemplate().getName().equals("context"))
-				System.out.println(rule.getName());
-		}
+
 		// first implementation:
 		// we have to check if all our parents have been merged: otherwise we
 		// have to wait.

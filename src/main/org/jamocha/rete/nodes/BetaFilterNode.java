@@ -20,6 +20,7 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -136,16 +137,38 @@ public class BetaFilterNode extends AbstractBeta {
 
 	@Override
 	public boolean mergableTo(BaseNode other) {
+		// equals if same type
+		if (!(other instanceof BetaFilterNode))
+			return false;
+
+		// check sam parents:
+		boolean result = this.parentNodes.length == other.parentNodes.length;
+		if (result) {
+			for (BaseNode n1 : this.parentNodes) {
+				boolean found = false;
+				for (BaseNode n2 : other.parentNodes) {
+					if (n1.equals(n2)) {
+						found = true;
+						break;
+					}
+				}
+
+				if (!found) {
+					result = false;
+					break;
+				}
+			}
+		}
+
+		if (result) {
+			// same filters:
+			BetaFilterNode bf = (BetaFilterNode) other;
+			if (filters == null)
+				return (bf.filters == null);
+
+			return (this.filters.equals(bf.filters));
+		}
 		return false;
-		// equals if same type, same filters
-//		if (!(other instanceof BetaFilterNode))
-//			return false;
-//
-//		BetaFilterNode bf = (BetaFilterNode) other;
-//		if (filters == null)
-//			return (bf.filters == null);
-//
-//		return (this.filters.equals(bf.filters));
 	}
 
 	// ////////////////////////////////////////////////////////////
