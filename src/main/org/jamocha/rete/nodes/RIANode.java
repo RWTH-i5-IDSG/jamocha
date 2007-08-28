@@ -149,6 +149,12 @@ public class RIANode extends AbstractBeta {
 		return true;
 	}
 
+	@Override
+	public boolean mergableTo(BaseNode other) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
 	// TODO: output is not display correctly. it is displayed empty every time
 	// public String toPPString() {
 	// StringBuffer sb = new StringBuffer();

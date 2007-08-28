@@ -172,7 +172,7 @@ public class FunctionAction implements Action {
 		try {
 			return this.function.executeFunction(engine, this.parameters);
 		} catch (Exception e) {
-			throw new ExecuteException(e);
+			throw new ExecuteException(this.functionName, e);
 		}
 	}
 

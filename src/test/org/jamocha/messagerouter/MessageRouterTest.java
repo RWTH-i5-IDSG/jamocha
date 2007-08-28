@@ -14,7 +14,6 @@
  * limitations under the License.
  * 
  */
-package org.jamocha.messagerouter;
 
 import java.util.ArrayList;
 import java.util.List;

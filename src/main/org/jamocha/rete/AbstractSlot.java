@@ -105,4 +105,8 @@ public abstract class AbstractSlot implements Serializable, Cloneable {
 	public String toString(){
 		return "Slot "+ this.getName() + " Type: " + this.getValueType();
 	}
+	
+	public boolean mergableTo(AbstractSlot other){
+		return this.getValueType().equals(other.getValueType()) && this.getName().equals(other.getName());
+	}
 }

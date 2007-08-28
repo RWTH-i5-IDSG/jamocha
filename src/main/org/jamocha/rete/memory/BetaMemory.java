@@ -73,7 +73,7 @@ public class BetaMemory extends AbstractMemory implements Iterable<FactTuple> {
 	}
 
 	public List<FactTuple> getPrefixMatchingTuples(FactTuple input){
-		ArrayList<FactTuple> result= new ArrayList<FactTuple>();
+		ArrayList<FactTuple> result= new ArrayList<FactTuple>(getSize());
 		for (FactTuple ourTuple : factTuples){
 			if (ourTuple.isMySubTuple(input)) result.add(ourTuple);
 		}
@@ -81,7 +81,7 @@ public class BetaMemory extends AbstractMemory implements Iterable<FactTuple> {
 	}
 	
 	public List<FactTuple> getPostfixMatchingTuples(Fact input){
-		ArrayList<FactTuple> result= new ArrayList<FactTuple>();
+		ArrayList<FactTuple> result= new ArrayList<FactTuple>(getSize());
 		for (FactTuple ourTuple : factTuples){
 			if (ourTuple.isMyLastFact(input)) result.add(ourTuple);
 		}

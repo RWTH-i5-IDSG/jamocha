@@ -39,7 +39,7 @@ public class FunctionEvaluator implements JoinFilter {
 	}
 
 	
-	private void substitute(Parameter[] params, Fact right, FactTuple left) throws FieldAddressingException{
+	private void substitute(Parameter[] params, Fact right, FactTuple left) throws FieldAddressingException, EvaluationException{
 		for (int i = 0 ; i < params.length ; i++) {
 			Parameter p = params[i];
 			if (p instanceof RightFieldAddress) {
@@ -84,7 +84,7 @@ public class FunctionEvaluator implements JoinFilter {
 		return clone;
 	}
 
-	public boolean evaluate(Fact right, FactTuple left, Rete engine) throws JoinFilterException {
+	public boolean evaluate(Fact right, FactTuple left, Rete engine) throws JoinFilterException, EvaluationException {
 		Parameter[] callParams = semicloneParameters(parameters);
 		substitute(callParams, right, left);
 

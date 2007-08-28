@@ -421,7 +421,12 @@ public class Defrule implements Rule {
 				if (bd.getIsObjectVar()) {
 					val = JamochaValue.newFact(left);
 				} else {
-					val = left.getSlotValue(bd.getLeftIndex());
+					try {
+						val = left.getSlotValue(bd.getLeftIndex());
+					} catch (EvaluationException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 				}
 			}
 		}

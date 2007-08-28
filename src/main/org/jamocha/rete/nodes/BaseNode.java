@@ -27,6 +27,7 @@ import org.jamocha.rete.ConversionUtils;
 import org.jamocha.rete.exception.AssertException;
 import org.jamocha.rete.exception.RetractException;
 import org.jamocha.rete.visualisation.VisualizerSetup;
+import org.jamocha.rule.Rule;
 
 /**
  * @author Sebastian Reinartz
@@ -44,6 +45,8 @@ public abstract class BaseNode implements Serializable {
 	protected BaseNode[] childNodes = new BaseNode[0];
 
 	protected BaseNode[] parentNodes = new BaseNode[0];
+
+	protected boolean isMerged = false;
 
 	// override these values in subclasses:
 	protected int maxParentCount = 1;
@@ -65,6 +68,14 @@ public abstract class BaseNode implements Serializable {
 
 	public BaseNode[] getChildNodes() {
 		return childNodes;
+	}
+
+	public BaseNode getChild(int child) {
+		return this.childNodes[child];
+	}
+
+	public BaseNode getParent(int parent) {
+		return this.parentNodes[parent];
 	}
 
 	public int getChildCount() {
@@ -91,13 +102,11 @@ public abstract class BaseNode implements Serializable {
 			BaseNode weWillAddThisNode = n.evAdded(this, net);
 			if (weWillAddThisNode != null) {
 				// add to own list:
-				this.childNodes = ConversionUtils.add(this.childNodes,
-						weWillAddThisNode);
+				this.childNodes = ConversionUtils.add(this.childNodes, weWillAddThisNode);
 				mountChild(weWillAddThisNode, net);
 				add = true;
 			} else {
-				throw new AssertException(
-						"Adding Node not Possible, Child does not want to be added");
+				throw new AssertException("Adding Node not Possible, Child does not want to be added");
 			}
 		}
 
@@ -110,8 +119,7 @@ public abstract class BaseNode implements Serializable {
 		return add;
 	}
 
-	protected abstract void mountChild(BaseNode newChild, ReteNet net)
-			throws AssertException;
+	protected abstract void mountChild(BaseNode newChild, ReteNet net) throws AssertException;
 
 	/**
 	 * This node has been added to the given parant node
@@ -121,11 +129,9 @@ public abstract class BaseNode implements Serializable {
 	 */
 	protected BaseNode evAdded(BaseNode newParentNode, ReteNet Net) {
 		// we have been added to the new parent, add parent to own list:
-		if (!containsNode(this.parentNodes, newParentNode)
-				&& parentNodes.length < maxParentCount) {
+		if (!containsNode(this.parentNodes, newParentNode) && parentNodes.length < maxParentCount) {
 			// add to own list:
-			this.parentNodes = ConversionUtils.add(this.parentNodes,
-					newParentNode);
+			this.parentNodes = ConversionUtils.add(this.parentNodes, newParentNode);
 			return this;
 		}
 		return null;
@@ -153,8 +159,7 @@ public abstract class BaseNode implements Serializable {
 		return rem;
 	}
 
-	protected abstract void unmountChild(BaseNode oldChild, ReteNet net)
-			throws RetractException;
+	protected abstract void unmountChild(BaseNode oldChild, ReteNet net) throws RetractException;
 
 	public void destroy(ReteNet net) throws RetractException {
 		for (BaseNode node : parentNodes) {
@@ -176,8 +181,7 @@ public abstract class BaseNode implements Serializable {
 		// we have been added to the new parent, add parent to own list:
 		if (containsNode(this.parentNodes, oldParentNode)) {
 			// add to own list:
-			this.parentNodes = ConversionUtils.remove(this.parentNodes,
-					oldParentNode);
+			this.parentNodes = ConversionUtils.remove(this.parentNodes, oldParentNode);
 			return true;
 		}
 		return false;
@@ -210,6 +214,78 @@ public abstract class BaseNode implements Serializable {
 	}
 
 	public abstract void clear();
+	
+	public abstract boolean mergableTo(BaseNode other);
+
+	public void mergeNode(BaseNode toMerge, ReteNet net) {
+		// we trust that an equals check has been done, and parents are equal
+		try {
+			for (BaseNode child : toMerge.getChildNodes()) {
+				toMerge.removeNode(child, net);
+				this.addNode(child, net);
+			}
+			for (BaseNode parent : toMerge.getParentNodes()) {
+				toMerge.removeNode(parent, net);
+			}
+		} catch (Exception e) {
+			// should not occure
+		}
+	}
+
+	public int shareNodes(Rule rule, ReteNet net) {
+		int resultMergedNodes = 0;
+		
+		if (this instanceof ObjectTypeNode) {
+			ObjectTypeNode otn = (ObjectTypeNode) this;
+			if (otn.getDeftemplate().getName().equals("context"))
+				System.out.println(rule.getName());
+		}
+		// first implementation:
+		// we have to check if all our parents have been merged: otherwise we
+		// have to wait.
+		boolean canProcess = true;
+		for (int k = 0; k < this.getParentCount(); k++) {
+			if (!getParent(k).isMerged) {
+				canProcess = false;
+				break;
+			}
+		}
+
+		// we ask all subnodes:
+		// TODO: laster on we can use the rule to identify its nodes, and then
+		// we don't check all subs
+		if (canProcess) {
+			this.isMerged = true;
+
+			int i = 0;
+			while (i < this.getChildCount()) {
+				BaseNode c1 = getChild(i);
+				int j = i + 1;
+				while (j < this.getChildCount()) {
+					BaseNode c2 = getChild(j);
+					if (c1.mergableTo(c2)) {
+						c1.mergeNode(c2, net);
+						resultMergedNodes++;
+					}
+					j++;
+				}
+				i++;
+			}
+
+			// second loop: propagate share nodes tu all childs:
+			for (int k = 0; k < this.getChildCount(); k++) {
+				resultMergedNodes += getChild(k).shareNodes(rule, net);
+			}
+		}
+		return resultMergedNodes;
+	}
+
+	public void propagateEndMerging() {
+		this.isMerged = false;
+		for (int k = 0; k < this.getChildCount(); k++) {
+			getChild(k).propagateEndMerging();
+		}
+	}
 
 	/**
 	 * toPPString should return a string format, but formatted nicely so it's
@@ -222,7 +298,7 @@ public abstract class BaseNode implements Serializable {
 	public String toPPString() {
 		return toString();
 	}
-	
+
 	public String toSmallPPString() {
 		return toString();
 	}
@@ -256,8 +332,7 @@ public abstract class BaseNode implements Serializable {
 	 * @param fact
 	 * @param engine
 	 */
-	protected void propogateRetract(Assertable fact, ReteNet net)
-			throws RetractException {
+	protected void propogateRetract(Assertable fact, ReteNet net) throws RetractException {
 		for (BaseNode nNode : childNodes) {
 			nNode.retractFact(fact, net, this);
 		}
@@ -269,23 +344,22 @@ public abstract class BaseNode implements Serializable {
 	 * @param fact
 	 * @param engine
 	 */
-	protected void propogateAssert(Assertable fact, ReteNet net)
-			throws AssertException {
+	protected void propogateAssert(Assertable fact, ReteNet net) throws AssertException {
 		for (BaseNode nNode : childNodes) {
 			nNode.assertFact(fact, net, this);
 		}
 	}
 
 	// use of good old Delphi sender...
-	public abstract void assertFact(Assertable fact, ReteNet net,
-			BaseNode sender) throws AssertException;
+	public abstract void assertFact(Assertable fact, ReteNet net, BaseNode sender) throws AssertException;
 
-	public abstract void retractFact(Assertable fact, ReteNet net,
-			BaseNode sender) throws RetractException;
+	public abstract void retractFact(Assertable fact, ReteNet net, BaseNode sender) throws RetractException;
 
 	public boolean isRightNode() {
 		return true;
 	}
+
+	// public abstract boolean equals(Object obj);
 
 	public int getNodeId() {
 		return this.nodeID;
@@ -299,117 +373,125 @@ public abstract class BaseNode implements Serializable {
 	protected void checkForConsistence() throws Exception {
 		for (BaseNode child : childNodes) {
 			if (!containsNode(child.parentNodes, this)) {
-				throw new Exception("Array inconsistent. my("
-						+ this.getNodeId() + ") child-array contains "
-						+ child.getNodeId()
-						+ " but it doesnt holds me as parent!");
+				throw new Exception("Array inconsistent. my(" + this.getNodeId() + ") child-array contains " + child.getNodeId() + " but it doesnt holds me as parent!");
 			}
 		}
 		for (BaseNode parent : parentNodes) {
 			if (!containsNode(parent.childNodes, this)) {
-				throw new Exception("Array inconsistent. my("
-						+ this.getNodeId() + ") parent-array contains "
-						+ parent.getNodeId()
-						+ " but it doesnt holds me as child!");
+				throw new Exception("Array inconsistent. my(" + this.getNodeId() + ") parent-array contains " + parent.getNodeId() + " but it doesnt holds me as child!");
 			}
 		}
 	}
 
-	//////////////////////////////////////////////////////////////
-	/// GRAPHICS STUFF ///////////////////////////////////////////
-	//////////////////////////////////////////////////////////////
-	
-	
-	
+	// ////////////////////////////////////////////////////////////
+	// / GRAPHICS STUFF ///////////////////////////////////////////
+	// ////////////////////////////////////////////////////////////
+
 	/**
-	 * this method draws itself onto a Graphics2D canvas. The alternative
-	 * is to extend JComponent here, but imho, that would be overkill here.
+	 * this method draws itself onto a Graphics2D canvas. The alternative is to
+	 * extend JComponent here, but imho, that would be overkill here.
 	 * Furthermore, that would be conceptionally wrong, since the JComponent
-	 * representation is not the major thing in the BaseNode class. It is protected,
-	 * since it will be called from a higher-level (public) method inside BaseNode.
+	 * representation is not the major thing in the BaseNode class. It is
+	 * protected, since it will be called from a higher-level (public) method
+	 * inside BaseNode.
 	 */
-	protected void drawNode(int x, int y, int height, int width, int halfLineHeight, List<BaseNode> selected, Graphics2D canvas){
+	protected void drawNode(int x, int y, int height, int width, int halfLineHeight, List<BaseNode> selected, Graphics2D canvas) {
 		int alpha = (selected.contains(this)) ? 255 : 20;
-		canvas.setColor( new Color(255,40,40,alpha) );
+		canvas.setColor(new Color(255, 40, 40, alpha));
 		canvas.fillRect(x, y, width, height);
-		canvas.setColor(  new Color(200,15,15,alpha) );
+		canvas.setColor(new Color(200, 15, 15, alpha));
 		canvas.drawRect(x, y, width, height);
-		canvas.setColor( new Color(0,0,0,alpha) );
-		drawId(x,y,height,width,halfLineHeight,canvas);
+		canvas.setColor(new Color(0, 0, 0, alpha));
+		drawId(x, y, height, width, halfLineHeight, canvas);
 	}
-	
-	protected void drawId(int x, int y, int height, int width, int halfLineHeight, Graphics2D canvas){
-		if (height<12) return;
+
+	protected void drawId(int x, int y, int height, int width, int halfLineHeight, Graphics2D canvas) {
+		if (height < 12)
+			return;
 		String text = String.valueOf(nodeID);
-		int halfLineWidth = canvas.getFontMetrics().stringWidth(text) /2;
-		int paintX = x + width/2 - halfLineWidth;
-		int paintY = y + height/2  + halfLineHeight;
-		canvas.drawString( text , paintX, paintY);
+		int halfLineWidth = canvas.getFontMetrics().stringWidth(text) / 2;
+		int paintX = x + width / 2 - halfLineWidth;
+		int paintY = y + height / 2 + halfLineHeight;
+		canvas.drawString(text, paintX, paintY);
 	}
-	
-	
+
 	public final static int shapeWidth = 64;
+
 	public final static int shapeHeight = 24;
+
 	public final static int shapeGapWidth = 25;
+
 	public final static int shapeGapHeight = 25;
 
-	
 	// THIS STUFF IS FOR CALCULATING SOME DRAWING INTERNALS
-	protected static Point bottomLeft = new Point(-shapeWidth/2 ,  -shapeHeight/2);
-	protected static Point bottomRight = new Point(shapeWidth/2 , -shapeHeight/2);
-	protected static Point topLeft = new Point(-shapeWidth/2 ,  shapeHeight/2);
-	protected static Point topRight = new Point(shapeWidth/2 ,  shapeHeight/2);
-	
+	protected static Point bottomLeft = new Point(-shapeWidth / 2, -shapeHeight / 2);
+
+	protected static Point bottomRight = new Point(shapeWidth / 2, -shapeHeight / 2);
+
+	protected static Point topLeft = new Point(-shapeWidth / 2, shapeHeight / 2);
+
+	protected static Point topRight = new Point(shapeWidth / 2, shapeHeight / 2);
+
 	protected static double angleTopLeft = atan3(topLeft.y, topLeft.x);
+
 	protected static double angleTopRight = atan3(topRight.y, topRight.x);
+
 	protected static double angleBottomLeft = atan3(bottomLeft.y, bottomLeft.x);
+
 	protected static double angleBottomRight = atan3(bottomRight.y, bottomRight.x);
-	
+
 	/**
-	 * draws a node. here, the row gives a logical y position
-	 * (1 for first row, 2 for second and so on) and the column
-	 * is analog but only the half width is one unit here.
-	 * @param row the row to paint (from 0 to infinite)
-	 * @param fromColumn the first column you can paint
-	 * @param alpha alpha value
-	 * @param canvas the canvas
-	 * @param setup the setup
+	 * draws a node. here, the row gives a logical y position (1 for first row,
+	 * 2 for second and so on) and the column is analog but only the half width
+	 * is one unit here.
+	 * 
+	 * @param row
+	 *            the row to paint (from 0 to infinite)
+	 * @param fromColumn
+	 *            the first column you can paint
+	 * @param alpha
+	 *            alpha value
+	 * @param canvas
+	 *            the canvas
+	 * @param setup
+	 *            the setup
 	 * @return the width
 	 */
-	public int drawNode(int fromColumn, List<BaseNode> selected, Graphics2D canvas, VisualizerSetup setup, Map<BaseNode,Point> positions, Map<Point,BaseNode> p2n, Map<BaseNode,Integer> rowHints, int halfLineHeight) {
+	public int drawNode(int fromColumn, List<BaseNode> selected, Graphics2D canvas, VisualizerSetup setup, Map<BaseNode, Point> positions, Map<Point, BaseNode> p2n, Map<BaseNode, Integer> rowHints,
+			int halfLineHeight) {
 		int firstColumn = fromColumn;
 		int row = rowHints.get(this);
-		for (BaseNode child : childNodes ){
+		for (BaseNode child : childNodes) {
 			// only draw the child node, iff i am the "primary parent"
-			if (!(child.parentNodes[0] == this)) continue;
-			firstColumn += child.drawNode(firstColumn, selected, canvas, setup, positions,p2n,rowHints, halfLineHeight);
+			if (!(child.parentNodes[0] == this))
+				continue;
+			firstColumn += child.drawNode(firstColumn, selected, canvas, setup, positions, p2n, rowHints, halfLineHeight);
 		}
 		int width = firstColumn - fromColumn;
-		if (width == 0) width = 2;
+		if (width == 0)
+			width = 2;
 		// calculate real positions and draw them
-			int column = fromColumn + width/2 -1;
-			int y = (shapeHeight+shapeGapHeight)*row + shapeGapHeight/2;
-			int x = ((shapeWidth+shapeGapWidth)/2)  *column + shapeGapWidth/2;
-			x += setup.offsetX;
-			y += setup.offsetY;
-			x *= setup.scaleX;
-			y *= setup.scaleY;
-			int w = shapeWidth;
-			int h = shapeHeight;
-			h *= setup.scaleY;
-			w *= setup.scaleX;
-			Point p1 = new Point(column, row);
-			Point p2 = new Point(column+1, row);
-			positions.put(this, p1);
-			p2n.put(p1, this);
-			p2n.put(p2, this);
-			drawNode(x, y, h, w, halfLineHeight, selected, canvas);
+		int column = fromColumn + width / 2 - 1;
+		int y = (shapeHeight + shapeGapHeight) * row + shapeGapHeight / 2;
+		int x = ((shapeWidth + shapeGapWidth) / 2) * column + shapeGapWidth / 2;
+		x += setup.offsetX;
+		y += setup.offsetY;
+		x *= setup.scaleX;
+		y *= setup.scaleY;
+		int w = shapeWidth;
+		int h = shapeHeight;
+		h *= setup.scaleY;
+		w *= setup.scaleX;
+		Point p1 = new Point(column, row);
+		Point p2 = new Point(column + 1, row);
+		positions.put(this, p1);
+		p2n.put(p1, this);
+		p2n.put(p2, this);
+		drawNode(x, y, h, w, halfLineHeight, selected, canvas);
 		//
 		return width;
 	}
 
-
-	
 	protected static Point intersectionPoint(Point l1p1, Point l1p2, Point l2p1, Point l2p2) {
 		Point result = new Point();
 		double x1 = l1p1.x;
@@ -420,38 +502,36 @@ public abstract class BaseNode implements Serializable {
 		double y2 = l1p2.y;
 		double y3 = l2p1.y;
 		double y4 = l2p2.y;
-		double denom = ( (y4-y3)*(x2-x1)-(x4-x3)*(y2-y1)  );
-		double ua = ( (x4-x3)*(y1-y3)-(y4-y3)*(x1-x3) ) / denom;
-		result.x = (int) (x1+ua*(x2-x1));
-		result.y = (int) (y1+ua*(y2-y1));
+		double denom = ((y4 - y3) * (x2 - x1) - (x4 - x3) * (y2 - y1));
+		double ua = ((x4 - x3) * (y1 - y3) - (y4 - y3) * (x1 - x3)) / denom;
+		result.x = (int) (x1 + ua * (x2 - x1));
+		result.y = (int) (y1 + ua * (y2 - y1));
 		return result;
 	}
-	
+
 	public static double atan3(double y, double x) {
 		double result = Math.atan2(y, x);
-		if (result<0) result += 2*Math.PI;
+		if (result < 0)
+			result += 2 * Math.PI;
 		return result;
 	}
-	
-	public Point getHorizontalEndPoint(Point target, Point me, VisualizerSetup setup){
-		Point target2 = new Point (target.x, me.y);
+
+	public Point getHorizontalEndPoint(Point target, Point me, VisualizerSetup setup) {
+		Point target2 = new Point(target.x, me.y);
 		return getLineEndPoint(target2, me, setup);
 	}
-	
-	public Point getVerticalEndPoint(Point target, Point me, VisualizerSetup setup){
-		Point target2 = new Point (me.x, target.y);
+
+	public Point getVerticalEndPoint(Point target, Point me, VisualizerSetup setup) {
+		Point target2 = new Point(me.x, target.y);
 		return getLineEndPoint(target2, me, setup);
 	}
-	
+
 	public Point getLineEndPoint(Point target, Point me, VisualizerSetup setup) {
-		return getLineEndPoint2(target,me,setup,
-				angleTopRight, angleTopLeft, angleBottomRight, angleBottomLeft,
-				topRight,topLeft,bottomRight,bottomLeft
-		);
+		return getLineEndPoint2(target, me, setup, angleTopRight, angleTopLeft, angleBottomRight, angleBottomLeft, topRight, topLeft, bottomRight, bottomLeft);
 	}
-	
-	public Point getLineEndPoint2(Point target, Point me, VisualizerSetup setup,double atr, double atl, double abr, double abl, Point ptr, Point ptl, Point pbr, Point pbl) {
-		double angle = atan3(-target.y+me.y, target.x-me.x);
+
+	public Point getLineEndPoint2(Point target, Point me, VisualizerSetup setup, double atr, double atl, double abr, double abl, Point ptr, Point ptl, Point pbr, Point pbl) {
+		double angle = atan3(-target.y + me.y, target.x - me.x);
 		Point p1;
 		Point p2;
 		if (angle < atr || angle >= abr) {
@@ -471,20 +551,20 @@ public abstract class BaseNode implements Serializable {
 			p1 = pbr;
 			p2 = pbl;
 		}
-		
+
 		Point pp1 = new Point(p1);
 		Point pp2 = new Point(p2);
-		
+
 		pp1.x *= setup.scaleX;
 		pp1.y *= setup.scaleY;
 		pp2.x *= setup.scaleX;
 		pp2.y *= setup.scaleY;
-		
+
 		pp1.x += me.x;
 		pp1.y = me.y - pp1.y;
 		pp2.x += me.x;
 		pp2.y = me.y - pp2.y;
-		
+
 		return intersectionPoint(pp1, pp2, target, me);
 	}
 

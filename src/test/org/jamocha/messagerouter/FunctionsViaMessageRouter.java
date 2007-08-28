@@ -14,7 +14,7 @@
  * limitations under the License.
  * 
  */
-package test.org.jamocha.messagerouter;
+
 
 import java.util.ArrayList;
 import java.util.List;
@@ -355,6 +355,7 @@ public class FunctionsViaMessageRouter extends TestCase{
 
 	
 	public static void main(String[] args) {
+		junit.swingui.TestRunner.run(new FunctionsViaMessageRouter().getClass());
 		FunctionsViaMessageRouter test = new FunctionsViaMessageRouter();
 		int loop = 1;
 		for (int idx=0; idx < loop; idx++) {

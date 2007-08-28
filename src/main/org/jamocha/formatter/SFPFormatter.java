@@ -5,6 +5,7 @@ import java.util.GregorianCalendar;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.Expression;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.BoundParam;
@@ -452,7 +453,12 @@ public class SFPFormatter extends Formatter {
 		for (int i = 0; i < slots.length; ++i) {
 			newLine(sb);
 			sb.append("(" + slots[i].getName() + " ");
-			sb.append(object.getSlotValue(i).format(this));
+			try {
+				sb.append(object.getSlotValue(i).format(this));
+			} catch (EvaluationException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			sb.append(")");
 		}
 		decreaseIndent();

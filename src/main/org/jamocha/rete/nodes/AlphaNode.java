@@ -16,6 +16,7 @@
  */
 package org.jamocha.rete.nodes;
 
+import org.jamocha.parser.EvaluationException;
 import org.jamocha.rete.CompositeIndex;
 import org.jamocha.rete.ConversionUtils;
 import org.jamocha.rete.Evaluate;
@@ -81,8 +82,7 @@ public class AlphaNode extends SlotAlpha {
 	 * @param factInstance
 	 */
 	@Override
-	public void assertFact(Assertable fact, ReteNet net, BaseNode sender)
-			throws AssertException {
+	public void assertFact(Assertable fact, ReteNet net, BaseNode sender) throws AssertException {
 		if (evaluate((Fact) fact)) {
 			facts.add((Fact) fact);
 			propogateAssert(fact, net);
@@ -96,15 +96,13 @@ public class AlphaNode extends SlotAlpha {
 	 * @param engine
 	 */
 	@Override
-	public void retractFact(Assertable fact, ReteNet net, BaseNode sender)
-			throws RetractException {
+	public void retractFact(Assertable fact, ReteNet net, BaseNode sender) throws RetractException {
 		facts.remove((Fact) fact);
 		propogateRetract(fact, net);
 	}
 
 	@Override
-	protected void mountChild(BaseNode newChild, ReteNet net)
-			throws AssertException {
+	protected void mountChild(BaseNode newChild, ReteNet net) throws AssertException {
 		for (Fact fact : facts)
 			// eval before send down:
 			if (evaluate((Fact) fact))
@@ -112,8 +110,7 @@ public class AlphaNode extends SlotAlpha {
 	}
 
 	@Override
-	protected void unmountChild(BaseNode oldChild, ReteNet net)
-			throws RetractException {
+	protected void unmountChild(BaseNode oldChild, ReteNet net) throws RetractException {
 		for (Fact fact : facts)
 			// eval before send down:
 			if (evaluate((Fact) fact))
@@ -129,8 +126,13 @@ public class AlphaNode extends SlotAlpha {
 	 * @return
 	 */
 	protected boolean evaluate(Fact factInstance) {
-		return Evaluate.evaluate(this.operator, factInstance
-				.getSlotValue(this.slot.getId()), this.slot.getValue());
+		try {
+			return Evaluate.evaluate(this.operator, factInstance.getSlotValue(this.slot.getId()), this.slot.getValue());
+		} catch (EvaluationException e) {
+			//should not occur
+			e.printStackTrace();
+			return false;
+		}
 	}
 
 	/**
@@ -151,6 +153,17 @@ public class AlphaNode extends SlotAlpha {
 		sb.append(ConversionUtils.formatSlot(this.slot.getValue()));
 		sb.append("\n");
 		return sb.toString();
+	}
+
+	@Override
+	public boolean mergableTo(BaseNode other) {
+		boolean result = false;
+		// equals if same type, same operator, same slot
+		if (other instanceof AlphaNode) {
+			AlphaNode an = (AlphaNode) other;
+			result = ((this.operator == an.operator) && (this.slot.mergableTo(an.slot)));
+		}
+		return result;
 	}
 
 }

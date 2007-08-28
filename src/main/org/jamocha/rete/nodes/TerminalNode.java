@@ -122,6 +122,7 @@ public class TerminalNode extends BaseNode {
 	protected void unmountChild(BaseNode oldChild, ReteNet net) {
 	}
 	
+	
 	protected void drawNode(int x, int y, int height, int width, int halfLineHeight, List<BaseNode> selected, Graphics2D canvas){
 		int alpha = (selected.contains(this)) ? 255 : 20;
 		canvas.setColor( new Color(0,0,0,alpha) );
@@ -130,6 +131,12 @@ public class TerminalNode extends BaseNode {
 		canvas.drawRect(x, y, width, height);
 		canvas.setColor( new Color(255,255,255,alpha) );
 		drawId(x,y,height,width,halfLineHeight,canvas);
+	}
+
+	@Override
+	public boolean mergableTo(BaseNode other) {
+		//we don't want to merge terminals!!
+		return false;
 	}
 
 }

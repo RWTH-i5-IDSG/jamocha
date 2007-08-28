@@ -15,6 +15,7 @@
  */
 package org.jamocha.adapter.sl;
 
+import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Fact;
@@ -64,8 +65,13 @@ public class CLIPS2SL {
 			Template tmpl = fact.getTemplate();
 			res.append("(" + tmpl.getName() + "\n");
 			for (int i = 0; i < tmpl.getNumberOfSlots(); i++) {
-				res.append("		:" + tmpl.getSlot(i).getName() + " "
-						+ getSL(fact.getSlotValue(i), engine));
+				try {
+					res.append("		:" + tmpl.getSlot(i).getName() + " "
+							+ getSL(fact.getSlotValue(i), engine));
+				} catch (EvaluationException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 			res.append(" )\n");
 		} else if (value.getType().equals(JamochaType.FACT_ID)) {
@@ -74,8 +80,13 @@ public class CLIPS2SL {
 				Template tmpl = fact.getTemplate();
 				res.append("(" + tmpl.getName() + "\n");
 				for (int i = 0; i < tmpl.getNumberOfSlots(); i++) {
-					res.append("		:" + tmpl.getSlot(i).getName() + " "
-							+ getSL(fact.getSlotValue(i), engine));
+					try {
+						res.append("		:" + tmpl.getSlot(i).getName() + " "
+								+ getSL(fact.getSlotValue(i), engine));
+					} catch (EvaluationException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 				}
 				res.append(" )\n");
 			}

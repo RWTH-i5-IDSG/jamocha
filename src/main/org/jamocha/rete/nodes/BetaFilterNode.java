@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.jamocha.rete.Constants;
+import org.jamocha.parser.EvaluationException;
 import org.jamocha.rete.Fact;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.exception.AssertException;
@@ -58,12 +58,6 @@ public class BetaFilterNode extends AbstractBeta {
 	 */
 	protected List<JoinFilter> filters = null;
 
-	/**
-	 * The operator for the join by default is equal. The the join doesn't
-	 * comparing values, the operator should be set to -1.
-	 */
-	protected int operator = Constants.EQUAL;
-
 	public BetaFilterNode(int id) {
 		super(id);
 	}
@@ -74,8 +68,7 @@ public class BetaFilterNode extends AbstractBeta {
 	 * @param binds
 	 * @throws AssertException
 	 */
-	public void setFilters(List<JoinFilter> filters, Rete engine)
-			throws AssertException {
+	public void setFilters(List<JoinFilter> filters, Rete engine) throws AssertException {
 		this.filters = filters;
 	}
 
@@ -98,6 +91,9 @@ public class BetaFilterNode extends AbstractBeta {
 				} catch (JoinFilterException e) {
 					// TODO make good error output
 					e.printStackTrace();
+				} catch (EvaluationException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
 				}
 			}
 		}
@@ -111,8 +107,7 @@ public class BetaFilterNode extends AbstractBeta {
 	}
 
 	@Override
-	protected void mountChild(BaseNode newChild, ReteNet net)
-			throws AssertException {
+	protected void mountChild(BaseNode newChild, ReteNet net) throws AssertException {
 		Iterator<FactTuple> itr = mergeMemory.iterator();
 		while (itr.hasNext()) {
 			newChild.assertFact(itr.next(), net, this);
@@ -120,8 +115,7 @@ public class BetaFilterNode extends AbstractBeta {
 	}
 
 	@Override
-	protected void unmountChild(BaseNode oldChild, ReteNet net)
-			throws RetractException {
+	protected void unmountChild(BaseNode oldChild, ReteNet net) throws RetractException {
 		Iterator<FactTuple> itr = mergeMemory.iterator();
 		while (itr.hasNext()) {
 			oldChild.retractFact(itr.next(), net, this);
@@ -140,15 +134,27 @@ public class BetaFilterNode extends AbstractBeta {
 		return sb.toString();
 	}
 
+	@Override
+	public boolean mergableTo(BaseNode other) {
+		return false;
+		// equals if same type, same filters
+//		if (!(other instanceof BetaFilterNode))
+//			return false;
+//
+//		BetaFilterNode bf = (BetaFilterNode) other;
+//		if (filters == null)
+//			return (bf.filters == null);
+//
+//		return (this.filters.equals(bf.filters));
+	}
+
 	// ////////////////////////////////////////////////////////////
 	// / GRAPHICS STUFF ///////////////////////////////////////////
 	// ////////////////////////////////////////////////////////////
 
-	protected void drawNode(int x, int y, int height, int width,
-			int halfLineHeight, List<BaseNode> selected, Graphics2D canvas) {
+	protected void drawNode(int x, int y, int height, int width, int halfLineHeight, List<BaseNode> selected, Graphics2D canvas) {
 		int alpha = (selected.contains(this)) ? 255 : 20;
-		int[] xpoints = { x, x + width, (int) (x + width * 0.8),
-				x + (int) (width * 0.2) };
+		int[] xpoints = { x, x + width, (int) (x + width * 0.8), x + (int) (width * 0.2) };
 		int[] ypoints = { y + height, y + height, y, y };
 		canvas.setColor(new Color(0, 255, 0, alpha));
 		canvas.fillPolygon(xpoints, ypoints, 4);
@@ -159,17 +165,13 @@ public class BetaFilterNode extends AbstractBeta {
 	}
 
 	// THIS STUFF IS FOR CALCULATING SOME DRAWING INTERNALS
-	protected static Point topLeft = new Point((int) (-shapeWidth / 2.8),
-			shapeHeight / 2);
+	protected static Point topLeft = new Point((int) (-shapeWidth / 2.8), shapeHeight / 2);
 
-	protected static Point topRight = new Point((int) (shapeWidth / 2.8),
-			shapeHeight / 2);
+	protected static Point topRight = new Point((int) (shapeWidth / 2.8), shapeHeight / 2);
 
-	protected static Point bottomLeft = new Point(-shapeWidth / 2,
-			-shapeHeight / 2);
+	protected static Point bottomLeft = new Point(-shapeWidth / 2, -shapeHeight / 2);
 
-	protected static Point bottomRight = new Point(shapeWidth / 2,
-			-shapeHeight / 2);
+	protected static Point bottomRight = new Point(shapeWidth / 2, -shapeHeight / 2);
 
 	protected static double angleTopLeft = atan3(topLeft.y, topLeft.x);
 
@@ -177,13 +179,10 @@ public class BetaFilterNode extends AbstractBeta {
 
 	protected static double angleBottomLeft = atan3(bottomLeft.y, bottomLeft.x);
 
-	protected static double angleBottomRight = atan3(bottomRight.y,
-			bottomRight.x);
+	protected static double angleBottomRight = atan3(bottomRight.y, bottomRight.x);
 
 	public Point getLineEndPoint(Point target, Point me, VisualizerSetup setup) {
-		return getLineEndPoint2(target, me, setup, angleTopRight, angleTopLeft,
-				angleBottomRight, angleBottomLeft, topRight, topLeft,
-				bottomRight, bottomLeft);
+		return getLineEndPoint2(target, me, setup, angleTopRight, angleTopLeft, angleBottomRight, angleBottomLeft, topRight, topLeft, bottomRight, bottomLeft);
 	}
 
 }

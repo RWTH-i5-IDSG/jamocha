@@ -141,4 +141,19 @@ public class Slot extends AbstractSlot {
 		result += this.valueToString();
 		return result;
 	}
+	
+	@Override
+	public boolean mergableTo(AbstractSlot other){
+		//1. ask superclass:
+		boolean result = super.mergableTo(other);
+		//2. slot instance?
+		if (result){
+			result = other instanceof Slot;
+		}
+		//3. same value:
+		if (result){
+			result =  this.getValue().equals( ((Slot)other).getValue());
+		}
+		return result;
+	}
 }

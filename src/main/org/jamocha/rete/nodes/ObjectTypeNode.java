@@ -28,7 +28,6 @@ import javax.swing.ImageIcon;
 import org.jamocha.gui.icons.IconLoader;
 import org.jamocha.rete.Constants;
 import org.jamocha.rete.Fact;
-import org.jamocha.rete.Rete;
 import org.jamocha.rete.Template;
 import org.jamocha.rete.exception.AssertException;
 import org.jamocha.rete.exception.RetractException;
@@ -92,6 +91,15 @@ public class ObjectTypeNode extends AbstractAlpha implements Serializable {
 			propogateAssert(fact, net);
 		}
 	}
+	
+	@Override
+	public boolean mergableTo(BaseNode other) {
+		//obj also OTN and same template?
+		if (other instanceof ObjectTypeNode)
+		return this.deftemplate.equals(((ObjectTypeNode)other).deftemplate);
+		return false;
+	}
+
 
 	@Override
 	public void retractFact(Assertable fact, ReteNet net, BaseNode sender)
@@ -147,5 +155,4 @@ public class ObjectTypeNode extends AbstractAlpha implements Serializable {
 		
 		
 	}
-
 }

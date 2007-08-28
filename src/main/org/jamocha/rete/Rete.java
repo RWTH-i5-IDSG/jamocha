@@ -977,9 +977,13 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 	}
 	
 	public boolean addRule(Rule rule) throws AssertException, RuleException{
+		boolean result = false;
 		if (!getCurrentFocus().containsRule(rule)) {
-			return net.addRule(rule);}
-		return false;
+			result = net.addRule(rule);
+		int merged =	net.shareNodes(rule);
+		System.out.println(merged);
+		}
+		return result;
 	}
 	
 	public ReteNet getNet(){

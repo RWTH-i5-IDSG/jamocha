@@ -35,16 +35,18 @@ public interface Fact extends Assertable, Dumpable, Formattable {
 	 * 
 	 * @param id
 	 * @return
+	 * @throws EvaluationException 
 	 */
-	JamochaValue getSlotValue(int id);
+	JamochaValue getSlotValue(int id) throws EvaluationException;
 
 	/**
 	 * Return the value at the given slot id
 	 * 
 	 * @param id
 	 * @return
+	 * @throws EvaluationException 
 	 */
-	JamochaValue getSlotValue(String name);
+	JamochaValue getSlotValue(String name) throws EvaluationException;
 
 	/**
 	 * Return id of the given slot name

@@ -505,10 +505,6 @@ public class SFRuleCompiler implements RuleCompiler {
 		Condition[] sortedConds = rule.getObjectConditions().clone();
 		Arrays.sort(sortedConds);
 
-		if (rule.getName().equals("validateParams")) {
-			System.out.println(rule.getName());
-		}
-
 		rearrangeConditions(sortedConds);
 
 		HashMap<Condition, BaseNode> conditionJoiners = new HashMap<Condition, BaseNode>();

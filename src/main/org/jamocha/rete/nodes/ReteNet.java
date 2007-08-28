@@ -21,7 +21,7 @@ public class ReteNet implements Serializable {
 	protected RootNode root = null;
 
 	protected RuleCompiler compiler = null;
-	
+
 	private int lastNodeId = 0;
 
 	/**
@@ -51,8 +51,8 @@ public class ReteNet implements Serializable {
 	public synchronized void retractObject(Fact fact) throws RetractException {
 		this.root.retractObject(fact, this);
 	}
-	
-	public boolean addRule(Rule rule) throws AssertException, RuleException{
+
+	public boolean addRule(Rule rule) throws AssertException, RuleException {
 		return this.compiler.addRule(rule);
 	}
 
@@ -63,17 +63,17 @@ public class ReteNet implements Serializable {
 
 	public void setValidateRule(boolean val) {
 		this.compiler.setValidateRule(val);
-		
+
 	}
 
 	public boolean getValidateRule() {
 		return this.compiler.getValidateRule();
 	}
-	
-	public void addTemplate(Template template){
+
+	public void addTemplate(Template template) {
 		this.compiler.addObjectTypeNode(template);
 	}
-	
+
 	/**
 	 * return the next rete node id for a new node
 	 * 
@@ -82,13 +82,20 @@ public class ReteNet implements Serializable {
 	public int nextNodeId() {
 		return ++this.lastNodeId;
 	}
-	
-	public RootNode getRoot(){
+
+	public RootNode getRoot() {
 		return this.root;
 	}
-	
-	public Rete getEngine(){
+
+	public Rete getEngine() {
 		return this.engine;
 	}
-	
+
+	public int shareNodes(Rule rule) {
+		// first implementation:
+		int result = root.shareNodes(rule, this);
+		root.propagateEndMerging();
+		return result;
+	}
+
 }

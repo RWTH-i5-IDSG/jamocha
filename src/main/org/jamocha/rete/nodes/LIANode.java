@@ -81,9 +81,12 @@ public class LIANode extends AbstractAlpha {
 	}
 
 	
-	
-	
-	
+	@Override
+	public boolean mergableTo(BaseNode other) {
+		//return true: we should be equal to an other LIA-node 
+		//(we may check if parent node (OTN) has same template)
+		return other instanceof LIANode;
+	}	
 	
 	//////////////////////////////////////////////////////////////
 	/// GRAPHICS STUFF ///////////////////////////////////////////
@@ -120,5 +123,6 @@ public class LIANode extends AbstractAlpha {
 				topRight,topLeft,bottomRight,bottomLeft
 		);
 	}
+
 	
 }

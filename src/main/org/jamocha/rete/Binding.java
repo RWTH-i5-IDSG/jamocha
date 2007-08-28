@@ -18,6 +18,7 @@ package org.jamocha.rete;
 
 import java.io.Serializable;
 
+import org.jamocha.parser.EvaluationException;
 import org.jamocha.rete.nodes.FactTuple;
 
 /**
@@ -97,7 +98,7 @@ public class Binding implements Serializable, Cloneable {
 		return this.operator;
 	}
 	
-	public boolean evaluate(Fact right, FactTuple left) {
+	public boolean evaluate(Fact right, FactTuple left) throws EvaluationException {
 			return Evaluate.evaluate(operator, left.getFacts()[leftrow].getSlotValue(leftIndex), right.getSlotValue(rightIndex));
 	}
     

@@ -14,19 +14,21 @@
  * limitations under the License.
  * 
  */
-package test.org.jamocha.messagerouter;
+
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 
+import junit.framework.TestCase;
+
 import org.jamocha.messagerouter.MessageEvent;
 import org.jamocha.messagerouter.MessageRouter;
 import org.jamocha.messagerouter.StringChannel;
 import org.jamocha.rete.Rete;
 
-import junit.framework.TestCase;
+
 
 public class FunctionsViaMessageRouterTest extends TestCase{
 	

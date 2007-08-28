@@ -221,7 +221,11 @@ public class RootNode extends BaseNode {
 		result.y = (int)(-unitCircleY * (BaseNode.shapeHeight * setup.scaleY /2) + me.y);
 		return result;
 	}
-	
-	
-	
+
+	@Override
+	public boolean mergableTo(BaseNode other) {
+		// root is the only one!!
+		return false;
+	}
+
 }

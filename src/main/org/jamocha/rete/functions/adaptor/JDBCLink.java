@@ -259,7 +259,7 @@ public class JDBCLink extends AbstractFunction {
 		throw new IllegalParameterException(3, false);
 	}
 
-	private JamochaValue method_export(Rete engine, JamochaValue thirdParam, String table, Slot[] slots, Connection conn) throws SQLException {
+	private JamochaValue method_export(Rete engine, JamochaValue thirdParam, String table, Slot[] slots, Connection conn) throws SQLException, EvaluationException {
 		// get primary keys from our table
 		DatabaseMetaData meta = conn.getMetaData();
 		ResultSet rs = meta.getPrimaryKeys(null, null, table);
@@ -366,7 +366,7 @@ public class JDBCLink extends AbstractFunction {
 		return JamochaValue.newBoolean(true);
 	}
 
-	private JamochaValue method_import(Rete engine, JamochaValue conditions, String table, Deftemplate template, Slot[] slots, Connection conn) throws SQLException, AssertException {
+	private JamochaValue method_import(Rete engine, JamochaValue conditions, String table, Deftemplate template, Slot[] slots, Connection conn) throws SQLException, EvaluationException {
 		StringBuffer statementString = new StringBuffer();
 		statementString.append("SELECT ");
 		statementString.append(slots[0].getName());

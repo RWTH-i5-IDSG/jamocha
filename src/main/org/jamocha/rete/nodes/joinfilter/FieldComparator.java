@@ -18,6 +18,7 @@ package org.jamocha.rete.nodes.joinfilter;
 
 import java.io.Serializable;
 
+import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Constants;
@@ -43,14 +44,12 @@ public class FieldComparator implements Serializable, Cloneable, JoinFilter {
 
 	protected LeftFieldAddress left = null;
 
-	public FieldComparator(String varName, LeftFieldAddress left, int operator,
-			RightFieldAddress right) {
+	public FieldComparator(String varName, LeftFieldAddress left, int operator, RightFieldAddress right) {
 		this(varName, left, right);
 		this.operator = operator;
 	}
 
-	public FieldComparator(String varName, LeftFieldAddress left,
-			RightFieldAddress right) {
+	public FieldComparator(String varName, LeftFieldAddress left, RightFieldAddress right) {
 		super();
 		this.varName = varName;
 		this.left = left;
@@ -65,25 +64,27 @@ public class FieldComparator implements Serializable, Cloneable, JoinFilter {
 		this.operator = operator;
 	}
 
-	public boolean evaluate(Fact rightinput, FactTuple leftinput, Rete engine)
-			throws JoinFilterException {
+	public boolean evaluate(Fact rightinput, FactTuple leftinput, Rete engine) throws JoinFilterException {
 		JamochaValue rightValue = null, leftValue = null;
-		if (right.refersWholeFact()) {
-			rightValue = JamochaValue.newFact(rightinput);
-			// rightValue = rightinput.getSlotValue( -1 );
-		} else {
-			rightValue = rightinput.getSlotValue(right.getSlotIndex());
-		}
+		try {
+			if (right.refersWholeFact()) {
+				rightValue = JamochaValue.newFact(rightinput);
+				// rightValue = rightinput.getSlotValue( -1 );
+			} else {
+				rightValue = rightinput.getSlotValue(right.getSlotIndex());
+			}
 
-		if (left.refersWholeFact()) {
-			leftValue = JamochaValue.newFact(leftinput.getFacts()[left
-					.getRowIndex()]);
-		} else {
-			leftValue = leftinput.getFacts()[left.getRowIndex()]
-					.getSlotValue(left.getSlotIndex());
+			if (left.refersWholeFact()) {
+				leftValue = JamochaValue.newFact(leftinput.getFacts()[left.getRowIndex()]);
+			} else {
+				leftValue = leftinput.getFacts()[left.getRowIndex()].getSlotValue(left.getSlotIndex());
+			}
+			leftValue = resolveFact(leftValue, engine);
+			rightValue = resolveFact(rightValue, engine);
+		} catch (EvaluationException e) {
+			// get slot value exception, should not occur
+			e.printStackTrace();
 		}
-		leftValue = resolveFact(leftValue, engine);
-		rightValue = resolveFact(rightValue, engine);
 
 		return Evaluate.evaluate(operator, leftValue, rightValue);
 	}
@@ -106,8 +107,7 @@ public class FieldComparator implements Serializable, Cloneable, JoinFilter {
 		if (value.is(JamochaType.FACT_ID)) {
 			return JamochaValue.newFact(engine.getFactById(value));
 		} else if (value.is(JamochaType.FACT)) {
-			return JamochaValue.newFact(engine.getFactById(value.getFactValue()
-					.getFactId()));
+			return JamochaValue.newFact(engine.getFactById(value.getFactValue().getFactId()));
 		}
 		return value;
 	}
@@ -129,6 +129,16 @@ public class FieldComparator implements Serializable, Cloneable, JoinFilter {
 		buf.append(" ");
 		buf.append(right.toPPString());
 		return buf.toString();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		// equals if same type, same operator, same slot
+		if (obj instanceof FieldComparator) {
+			FieldComparator fc = (FieldComparator) obj;
+			return (this.operator == fc.operator) && (this.varName.equals(fc.varName)) && (this.right.equals(fc.right)) && (this.left.equals(fc.left));
+		}
+		return false;
 	}
 
 }

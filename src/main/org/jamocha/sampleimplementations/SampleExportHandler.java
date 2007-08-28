@@ -3,6 +3,7 @@ package org.jamocha.sampleimplementations;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.jamocha.parser.EvaluationException;
 import org.jamocha.rete.Deffact;
 import org.jamocha.rete.util.ExportHandler;
 
@@ -13,11 +14,16 @@ public class SampleExportHandler implements ExportHandler {
 		while (iterator.hasNext()) {
 			Deffact a = iterator.next();
 			
-			if (a.getSlotValue( config.get("removeSlot") ) != null) {
-				iterator.remove();
-				deleted++;
-			} else {
-				System.out.println("fact :" + a.toPPString().toUpperCase());
+			try {
+				if (a.getSlotValue( config.get("removeSlot") ) != null) {
+					iterator.remove();
+					deleted++;
+				} else {
+					System.out.println("fact :" + a.toPPString().toUpperCase());
+				}
+			} catch (EvaluationException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 			
 		}
