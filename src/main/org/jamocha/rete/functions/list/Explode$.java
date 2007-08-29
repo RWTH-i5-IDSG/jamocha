@@ -131,7 +131,7 @@ public class Explode$ extends AbstractFunction {
 			String[] tmp = string.split(separator);
 			JamochaValue[] res = new JamochaValue[tmp.length];
 			for (int i = 0; i < res.length; ++i) {
-				res[i] = new JamochaValue(tmp[i]);
+				res[i] = JamochaValue.newString(tmp[i]);
 			}
 			return JamochaValue.newList(res);
 		}

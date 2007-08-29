@@ -151,7 +151,7 @@ public class Batch extends AbstractFunction {
 			}
 			return JamochaValue.TRUE;
 		} catch (ParseException e) {
-			return new JamochaValue(JamochaType.STRING, e.getMessage());
+			return JamochaValue.newString(e.getMessage());
 		}
 	}
 }

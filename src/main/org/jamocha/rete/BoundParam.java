@@ -146,7 +146,7 @@ public class BoundParam extends AbstractSignature implements Formattable {
 		if (fact != null && !this.objBinding) {
 			return this.fact.getSlotValue(this.column);
 		} else if (fact != null) {
-			return new JamochaValue(this.fact);
+			return JamochaValue.newFact(this.fact);
 		} else {
 			return engine.getBinding(this.variableName);
 		}

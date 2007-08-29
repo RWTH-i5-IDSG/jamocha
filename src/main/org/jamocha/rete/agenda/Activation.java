@@ -44,11 +44,9 @@ public class Activation {
 		} else if (!rule.equals(other.rule))
 			return false;
 		if (tuple == null) {
-			if (other.tuple != null)
-				return false;
-		} else if (!tuple.equals(other.tuple))
-			return false;
-		return true;
+			return other.tuple == null;
+		} 
+		return tuple.equals(other.tuple);
 	}
 
 	public Activation(Rule rule, FactTuple tuple) {

@@ -233,7 +233,7 @@ public class Deftemplate implements Template, Serializable {
 			if (val == null) {
 				values[idx].value = JamochaValue.NIL;
 			} else {
-				values[idx].value = new JamochaValue(val);
+				values[idx].value = JamochaValue.newValueAutoType(val);
 			}
 		}
 		Deffact newfact = new Deffact(this, data, values);

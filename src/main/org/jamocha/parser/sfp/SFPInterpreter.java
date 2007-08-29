@@ -255,7 +255,7 @@ public class SFPInterpreter implements SFPParserVisitor {
 
 		// Create FunctionParam as result:
 		Signature funcParam = new Signature();
-		funcParam.setSignatureName(fctName.getStringValue());
+		funcParam.setSignatureName(fctName.getIdentifierValue());
 		funcParam.setParameters(params);
 		return funcParam;
 	}

@@ -8,7 +8,7 @@ public class LeftFieldAddress extends FieldAddress {
 	protected int rowIndex;
 	
 	public Object clone(){
-		return new LeftFieldAddress(rowIndex,slotIndex);
+		return this;
 	}
 	
 	public LeftFieldAddress(int rowIndex) {

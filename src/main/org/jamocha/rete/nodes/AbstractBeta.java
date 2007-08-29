@@ -16,7 +16,6 @@
  */
 package org.jamocha.rete.nodes;
 
-import java.util.Collection;
 import java.util.Iterator;
 
 import org.jamocha.rete.Fact;
@@ -172,9 +171,9 @@ public abstract class AbstractBeta extends BaseNode {
 			// now we propogate the retract. To do that, we have
 			// merge each item in the list with the Fact array
 			// and call retract in the successor nodes
-			Collection<FactTuple> matchings = mergeMemory
-					.getPrefixMatchingTuples(tuple);
-			for (FactTuple toRemove : matchings) {
+			FactTuple[] matchings = mergeMemory.getPrefixMatchingTuples(tuple);
+			for (int i = 0; i < matchings.length && matchings[i] != null; ++i) {
+				FactTuple toRemove = matchings[i];
 				mergeMemory.remove(toRemove);
 				propogateRetract(toRemove, net);
 			}
@@ -191,10 +190,10 @@ public abstract class AbstractBeta extends BaseNode {
 	 * @param engine
 	 */
 	public void retractRight(Fact fact, ReteNet net) throws RetractException {
-		if (alphaMemory.remove(fact) !=null){
-			Collection<FactTuple> matchings = mergeMemory
-					.getPostfixMatchingTuples(fact);
-			for (FactTuple toRemove : matchings) {
+		if (alphaMemory.remove(fact) != null) {
+			FactTuple[] matchings = mergeMemory.getPostfixMatchingTuples(fact);
+			for (int i = 0; i < matchings.length && matchings[i] != null; ++i) {
+				FactTuple toRemove = matchings[i];
 				mergeMemory.remove(toRemove);
 				propogateRetract(toRemove, net);
 			}

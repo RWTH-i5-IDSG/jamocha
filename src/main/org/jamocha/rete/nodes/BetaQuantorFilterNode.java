@@ -67,8 +67,9 @@ public class BetaQuantorFilterNode extends BetaFilterNode {
 	protected void unPropagateNewTuple(FactTuple t, ReteNet net)
 			throws RetractException {
 		propagatedMarker.unmark(t);
-
-		for (FactTuple tuple : mergeMemory.getPrefixMatchingTuples(t)) {
+		FactTuple[] matchings = mergeMemory.getPrefixMatchingTuples(t);
+		for (int i = 0; i < matchings.length && matchings[i] != null; ++i) {
+			FactTuple tuple = matchings[i];
 			mergeMemory.remove(tuple);
 			propogateRetract(tuple, net);
 		}
@@ -82,8 +83,9 @@ public class BetaQuantorFilterNode extends BetaFilterNode {
 		// mark tuple as propagated somewhere
 
 		boolean thereIsAFact = false;
+		Rete engine = net.getEngine();
 		for (Fact alphaFact : alphaMemory) {
-			if (evaluate(tuple, alphaFact, net.getEngine())) {
+			if (evaluate(tuple, alphaFact, engine)) {
 				thereIsAFact = true;
 				break;
 			}

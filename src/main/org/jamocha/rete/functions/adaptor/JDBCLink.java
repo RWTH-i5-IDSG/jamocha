@@ -431,7 +431,7 @@ public class JDBCLink extends AbstractFunction {
 					o = cal;
 				}
 				
-				JamochaValue val = new JamochaValue(o);
+				JamochaValue val = JamochaValue.newValueAutoType(o);
 				rowValues[i] = new Slot(slots[i].getName(), val);
 			}
 

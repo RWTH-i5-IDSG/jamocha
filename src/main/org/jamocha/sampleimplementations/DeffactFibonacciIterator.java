@@ -12,31 +12,31 @@ import org.jamocha.rete.util.DeffactIterator;
 
 public class DeffactFibonacciIterator extends DeffactIterator {
 
-	int i,j,max;
-	
+	int i, j, max;
+
 	public DeffactFibonacciIterator(Map<String, String> config) {
 		super(config);
-		i=0;
-		j=1;
-		max=Integer.parseInt( config.get("max") );
+		i = 0;
+		j = 1;
+		max = Integer.parseInt(config.get("max"));
 	}
 
 	public boolean hasNext() {
-		return (i<max);
+		return (i < max);
 	}
 
 	public Deffact next() {
-		int temp=i;
+		int temp = i;
 		i = j;
 		j = temp + j;
-		
+
 		TemplateSlot[] slots = new TemplateSlot[1];
 		slots[0] = new TemplateSlot("number");
 		Deftemplate t = new Deftemplate("fib", null, slots);
 		Slot[] values = new Slot[1];
-		values[0] = new Slot("number", new JamochaValue(JamochaType.LONG, new Long(temp)));
-		Deffact fact = new Deffact(t,null,values);
-		
+		values[0] = new Slot("number", JamochaValue.newLong(temp));
+		Deffact fact = new Deffact(t, null, values);
+
 		return fact;
 	}
 

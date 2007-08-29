@@ -85,9 +85,10 @@ public class BetaFilterNode extends AbstractBeta {
 	protected boolean evaluate(FactTuple tuple, Fact right, Rete engine) {
 		if (filters != null) {
 			// we iterate over the binds and evaluate the facts
-			for (JoinFilter filter : filters) {
+			int count = filters.size();
+			for (int i=0;i<count;++i) {
 				try {
-					if (!filter.evaluate(right, tuple, engine))
+					if (!filters.get(i).evaluate(right, tuple, engine))
 						return false;
 				} catch (JoinFilterException e) {
 					// TODO make good error output

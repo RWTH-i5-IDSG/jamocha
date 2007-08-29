@@ -46,7 +46,7 @@ public class FunctionEvaluator implements JoinFilter {
 				RightFieldAddress addr = (RightFieldAddress) p;
 				JamochaValue val;
 				if (addr.refersWholeFact()) {
-					val = new JamochaValue(right);
+					val = JamochaValue.newFact(right);
 				} else {
 					val = right.getSlotValue(addr.getSlotIndex());	
 				}
@@ -55,7 +55,7 @@ public class FunctionEvaluator implements JoinFilter {
 				LeftFieldAddress addr = (LeftFieldAddress) p;
 				JamochaValue val;
 				if (addr.refersWholeFact()) {
-					val = new JamochaValue(left.getFacts()[addr.getRowIndex()]);
+					val = JamochaValue.newFact(left.getFacts()[addr.getRowIndex()]);
 				} else {
 					Fact[] facts = left.getFacts();
 					Fact fact = facts[addr.getRowIndex()];

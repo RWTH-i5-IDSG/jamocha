@@ -48,11 +48,10 @@ public class FactTuple implements Assertable {
 
 	public void setFacts(Fact[] facts) {
 		this.facts = facts;
-		if (facts.length > 0) {
-			index = facts[0].equalityIndex().hashCode();
-			for (Fact fact : facts) {
-				index += fact.equalityIndex().hashCode();
-			}
+		int count = facts.length;
+		index = 0;
+		for (int i = 0; i < count; ++i) {
+			index += facts[i].equalityIndex().hashCode();
 		}
 	}
 
@@ -76,7 +75,8 @@ public class FactTuple implements Assertable {
 	}
 
 	public boolean isMySubTuple(FactTuple possibleSub) {
-		for (int i = 0; i < possibleSub.length(); i++) {
+		int count = possibleSub.facts.length;
+		for (int i = 0; i < count; i++) {
 			if (possibleSub.facts[i] != this.facts[i])
 				return false;
 		}
@@ -99,7 +99,7 @@ public class FactTuple implements Assertable {
 		// if (getClass() != obj.getClass())
 		// return false;
 		final FactTuple other = (FactTuple) obj;
-		if (index != other.getIndex())
+		if (index != other.index)
 			return false;
 		if (!Arrays.equals(facts, other.facts))
 			return false;

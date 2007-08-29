@@ -34,7 +34,7 @@ import org.jamocha.rete.Slot;
 public class JamochaValue implements Parameter, Formattable {
 
 	public Object clone() {
-		return new JamochaValue(this.value);
+		return this;
 	}
 
 	public static final JamochaValue NIL = new JamochaValue(JamochaType.NIL,
@@ -112,11 +112,15 @@ public class JamochaValue implements Parameter, Formattable {
 		return new JamochaValue(JamochaType.SLOT, value);
 	}
 
+	public static JamochaValue newValueAutoType(Object value) {
+		return new JamochaValue(value);
+	}
+
 	private JamochaType type;
 
 	private Object value;
 
-	public JamochaValue(JamochaType type, Object value) {
+	protected JamochaValue(JamochaType type, Object value) {
 		if (type == null) {
 			throw new IllegalArgumentException("type of a value can't be null.");
 		}
@@ -191,7 +195,7 @@ public class JamochaValue implements Parameter, Formattable {
 	}
 
 	@SuppressWarnings("unchecked")
-	public JamochaValue(Object object) {
+	protected JamochaValue(Object object) {
 		if (object == null) {
 			type = JamochaType.NIL;
 		} else if (object instanceof Long || object instanceof Integer
@@ -235,57 +239,57 @@ public class JamochaValue implements Parameter, Formattable {
 	}
 
 	public Slot getSlotValue() {
-		assert (type.equals(JamochaType.SLOT));
+		// assert (type.equals(JamochaType.SLOT));
 		return (Slot) value;
 	}
 
 	public boolean getBooleanValue() {
-		assert (type.equals(JamochaType.BOOLEAN));
+		// assert (type.equals(JamochaType.BOOLEAN));
 		return ((Boolean) value).booleanValue();
 	}
 
 	public double getDoubleValue() {
-		assert (type.equals(JamochaType.DOUBLE));
+		// assert (type.equals(JamochaType.DOUBLE));
 		return ((Number) value).doubleValue();
 	}
 
 	public long getLongValue() {
-		assert (type.equals(JamochaType.LONG));
+		// assert (type.equals(JamochaType.LONG));
 		return ((Number) value).longValue();
 	}
 
 	public String getStringValue() {
-		assert (type.equals(JamochaType.STRING));
+		// assert (type.equals(JamochaType.STRING));
 		return (String) value;
 	}
 
 	public GregorianCalendar getDateValue() {
-		assert (type.equals(JamochaType.DATETIME));
+		// assert (type.equals(JamochaType.DATETIME));
 		return (GregorianCalendar) value;
 	}
 
 	public String getIdentifierValue() {
-		assert (type.equals(JamochaType.IDENTIFIER));
+		// assert (type.equals(JamochaType.IDENTIFIER));
 		return (String) value;
 	}
 
 	public Fact getFactValue() {
-		assert (type.equals(JamochaType.FACT));
+		// assert (type.equals(JamochaType.FACT));
 		return (Fact) value;
 	}
 
 	public long getFactIdValue() {
-		assert (type.equals(JamochaType.FACT_ID));
+		// assert (type.equals(JamochaType.FACT_ID));
 		return ((Number) value).longValue();
 	}
 
 	public JamochaValue getListValue(int index) {
-		assert (type.equals(JamochaType.LIST));
+		// assert (type.equals(JamochaType.LIST));
 		return ((JamochaValue[]) value)[index];
 	}
 
 	public int getListCount() {
-		assert (type.equals(JamochaType.LIST));
+		// assert (type.equals(JamochaType.LIST));
 		return ((JamochaValue[]) value).length;
 	}
 
@@ -388,10 +392,7 @@ public class JamochaValue implements Parameter, Formattable {
 	}
 
 	public boolean is(JamochaType type) {
-		if (this.type.equals(type)) {
-			return true;
-		}
-		return false;
+		return this.type == type;
 	}
 
 	@Override
@@ -411,11 +412,9 @@ public class JamochaValue implements Parameter, Formattable {
 			return false;
 		final JamochaValue other = (JamochaValue) obj;
 		if (value == null) {
-			if (other.value != null || other.value != "NIL")
-				return false;
-		} else if (!value.equals(other.value))
-			return false;
-		return true;
+			return other.value == null || other.value == "NIL";
+		}
+		return value.equals(other.value);
 	}
 
 	public boolean isObjectBinding() {

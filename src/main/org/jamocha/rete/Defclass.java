@@ -215,7 +215,7 @@ public class Defclass implements Serializable {
 	 */
 	public JamochaValue getSlotValue(int col, Object data) {
 		try {
-			return new JamochaValue(this.PROPS[col].getReadMethod().invoke(data, (Object[]) null));
+			return JamochaValue.newValueAutoType(this.PROPS[col].getReadMethod().invoke(data, (Object[]) null));
 		} catch (IllegalAccessException e) {
 			return null;
 		} catch (IllegalArgumentException e) {

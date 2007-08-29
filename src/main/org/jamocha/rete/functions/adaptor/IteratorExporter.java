@@ -38,29 +38,30 @@ import org.jamocha.rete.util.ExportIterator;
 /**
  * @author Josef Alexander Hahn
  * 
- * Exports facts from the rete engine to an external location. The external location is 
- * specified in the first argument and needs to be an user-implementation of org.jamocha.rete.util.ExportHandler.
- * The function first generates a mapping from the config-fact given in the second argument. 
- * After that it exports all facts from the facts-list in the third argument through the iterator.
+ * Exports facts from the rete engine to an external location. The external
+ * location is specified in the first argument and needs to be an
+ * user-implementation of org.jamocha.rete.util.ExportHandler. The function
+ * first generates a mapping from the config-fact given in the second argument.
+ * After that it exports all facts from the facts-list in the third argument
+ * through the iterator.
  * 
- * Former developers description:
- * Exports facts from the rete engine to an external location. This external location needs 
- * to be an user-implementation of org.jamocha.rete.util.ExportHandler.
- * This interface defines the function 
+ * Former developers description: Exports facts from the rete engine to an
+ * external location. This external location needs to be an user-implementation
+ * of org.jamocha.rete.util.ExportHandler. This interface defines the function
  * long export(java.util.Iterator<org.jamocha.rete.Deffact>, java.util.Map<String,String>).
- * When calling iteratorexporter, similar to iteratorimporter, it creates an instance of an 
- * ExportHandler-subclass. Then it generates a map from a given config-fact. 
- * After all, it calls export.
+ * When calling iteratorexporter, similar to iteratorimporter, it creates an
+ * instance of an ExportHandler-subclass. Then it generates a map from a given
+ * config-fact. After all, it calls export.
  */
 public class IteratorExporter extends AbstractFunction {
 
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "Exports facts from the rete engine to an external location. The external location is specified in the " +
-					"first argument and needs to be an user-implementation of a subclass of org.jamocha.rete.util.ExportHandler. " +
-					"The function first generates a mapping from the config-fact given in the second argument. After " +
-					"that it exports all facts from the fact-list given as third argument via the iterator.";					
+			return "Exports facts from the rete engine to an external location. The external location is specified in the "
+					+ "first argument and needs to be an user-implementation of a subclass of org.jamocha.rete.util.ExportHandler. "
+					+ "The function first generates a mapping from the config-fact given in the second argument. After "
+					+ "that it exports all facts from the fact-list given as third argument via the iterator.";
 		}
 
 		public int getParameterCount() {
@@ -74,7 +75,10 @@ public class IteratorExporter extends AbstractFunction {
 			case 1:
 				return "Config-fact, to generate the mapping for the export from.";
 			case 2:
-				return "Fact-list to export via the iterator.";// These facts are piped to the Iterator.";
+				return "Fact-list to export via the iterator.";// These facts
+																// are piped to
+																// the
+																// Iterator.";
 			}
 			return "";
 		}
@@ -115,22 +119,22 @@ public class IteratorExporter extends AbstractFunction {
 			return false;
 		}
 
-		public String getExample() {			
-			return "(deftemplate a 	(slot horst))\n" +
-					"(deftemplate b	(slot heiner))\n" +
-					"(deftemplate c	(slot ory))\n" +
-					"(deftemplate d	(slot krautsalat))\n" +
-					"(bind ?horst (assert (a (horst 1))))\n" +
-					"(bind ?heiner1 (assert	(b (heiner 13))))\n" +
-					"(bind ?heiner2	(assert	(b (heiner 1))))\n" +
-					"(bind ?ory	(assert	(c (ory 4711))))\n" +
-					"(bind ?krautsalat (assert (d (krautsalat 11))))\n" +
-					"(deftemplate config (slot removeSlot))\n" +
-					"(bind ?config (assert (config (removeSlot \"heiner\"))))\n" +
-					"(iteratorexporter \"org.jamocha.sampleimplementations.SampleExportHandler\"  ?config (create$ ?horst ?heiner1 ?ory ?krautsalat))";
+		public String getExample() {
+			return "(deftemplate a 	(slot horst))\n"
+					+ "(deftemplate b	(slot heiner))\n"
+					+ "(deftemplate c	(slot ory))\n"
+					+ "(deftemplate d	(slot krautsalat))\n"
+					+ "(bind ?horst (assert (a (horst 1))))\n"
+					+ "(bind ?heiner1 (assert	(b (heiner 13))))\n"
+					+ "(bind ?heiner2	(assert	(b (heiner 1))))\n"
+					+ "(bind ?ory	(assert	(c (ory 4711))))\n"
+					+ "(bind ?krautsalat (assert (d (krautsalat 11))))\n"
+					+ "(deftemplate config (slot removeSlot))\n"
+					+ "(bind ?config (assert (config (removeSlot \"heiner\"))))\n"
+					+ "(iteratorexporter \"org.jamocha.sampleimplementations.SampleExportHandler\"  ?config (create$ ?horst ?heiner1 ?ory ?krautsalat))";
 		}
 
-		public boolean isResultAutoGeneratable() {			
+		public boolean isResultAutoGeneratable() {
 			return true;
 		}
 	}
@@ -166,7 +170,7 @@ public class IteratorExporter extends AbstractFunction {
 					handlerclass = Class.forName(params[0].getValue(engine)
 							.getStringValue());
 				} catch (ClassNotFoundException e1) {
-					return new JamochaValue(JamochaType.LONG, new Long(-1));
+					return JamochaValue.newLong(-1);
 				}
 
 				/*
@@ -188,7 +192,7 @@ public class IteratorExporter extends AbstractFunction {
 				try {
 					handler = (ExportHandler) handlerclass.newInstance();
 				} catch (Exception e1) {
-					return new JamochaValue(JamochaType.LONG, new Long(-1));
+					return JamochaValue.newLong(-1);
 				}
 
 				JamochaValue forExport = params[2].getValue(engine);
@@ -205,7 +209,7 @@ public class IteratorExporter extends AbstractFunction {
 				 */
 
 				long result = handler.export(iterator, configMap);
-				return new JamochaValue(JamochaType.LONG, new Long(result));
+				return JamochaValue.newLong(result);
 			}
 		}
 		throw new IllegalParameterException(3, false);

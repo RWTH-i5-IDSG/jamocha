@@ -1,9 +1,7 @@
 package org.jamocha.rete.memory;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.jamocha.rete.Fact;
@@ -15,7 +13,7 @@ public class AlphaMemory extends AbstractMemory implements Iterable<Fact>{
 	
 	public AlphaMemory() {
 		super();
-		facts = new HashMap<Long,Fact>();
+		facts = new LinkedHashMap<Long,Fact>();
 	}
 	
 	

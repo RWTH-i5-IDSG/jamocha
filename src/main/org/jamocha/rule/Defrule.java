@@ -612,9 +612,9 @@ public class Defrule implements Rule {
 
 		DeclarationConfiguration newDecl = new DeclarationConfiguration();
 
-		newDecl.setAutoFocus(new JamochaValue(this.getAutoFocus()));
-		newDecl.setSalience(new JamochaValue(this.getSalience()));
-		newDecl.setVersion(new JamochaValue(this.getVersion()));
+		newDecl.setAutoFocus(JamochaValue.newBoolean(this.getAutoFocus()));
+		newDecl.setSalience(JamochaValue.newLong(this.getSalience()));
+		newDecl.setVersion(JamochaValue.newString(this.getVersion()));
 
 		try {
 			newRule.setDeclaration(newDecl, engine);

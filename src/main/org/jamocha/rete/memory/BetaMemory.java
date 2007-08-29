@@ -10,7 +10,7 @@ import org.jamocha.rete.nodes.FactTuple;
 
 public class BetaMemory extends AbstractMemory implements Iterable<FactTuple> {
 
-	protected Collection<FactTuple> factTuples = null;
+	protected List<FactTuple> factTuples = null;
 
 	public BetaMemory() {
 		super();
@@ -37,13 +37,13 @@ public class BetaMemory extends AbstractMemory implements Iterable<FactTuple> {
 		return factTuples.iterator();
 	}
 
-	
 	protected String contentToString(int length) {
 		StringBuffer result = new StringBuffer();
 		int i = 0;
 		for (FactTuple t : factTuples) {
 			if (i == length) {
-				result.append("and ").append(factTuples.size()-length).append(" more...");
+				result.append("and ").append(factTuples.size() - length)
+						.append(" more...");
 				break;
 			}
 			result.append("   ");
@@ -54,8 +54,6 @@ public class BetaMemory extends AbstractMemory implements Iterable<FactTuple> {
 		return result.toString();
 	}
 
-	
-	
 	@Override
 	protected String contentToString() {
 		StringBuffer result = new StringBuffer();
@@ -72,18 +70,26 @@ public class BetaMemory extends AbstractMemory implements Iterable<FactTuple> {
 		return factTuples.size();
 	}
 
-	public List<FactTuple> getPrefixMatchingTuples(FactTuple input){
-		ArrayList<FactTuple> result= new ArrayList<FactTuple>(getSize());
-		for (FactTuple ourTuple : factTuples){
-			if (ourTuple.isMySubTuple(input)) result.add(ourTuple);
+	public FactTuple[] getPrefixMatchingTuples(FactTuple input) {
+		FactTuple[] result = new FactTuple[getSize()];
+		int count = factTuples.size();
+		int resCount = 0;
+		for (int i = 0; i < count; ++i) {
+			if (factTuples.get(i).isMySubTuple(input)) {
+				result[resCount++] = factTuples.get(i);
+			}
 		}
 		return result;
 	}
-	
-	public List<FactTuple> getPostfixMatchingTuples(Fact input){
-		ArrayList<FactTuple> result= new ArrayList<FactTuple>(getSize());
-		for (FactTuple ourTuple : factTuples){
-			if (ourTuple.isMyLastFact(input)) result.add(ourTuple);
+
+	public FactTuple[] getPostfixMatchingTuples(Fact input) {
+		FactTuple[] result = new FactTuple[getSize()];
+		int count = factTuples.size();
+		int resCount = 0;
+		for (int i = 0; i < count; ++i) {
+			if (factTuples.get(i).isMyLastFact(input)) {
+				result[resCount++] = factTuples.get(i);
+			}
 		}
 		return result;
 	}

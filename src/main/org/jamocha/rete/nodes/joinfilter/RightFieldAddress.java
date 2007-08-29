@@ -7,7 +7,7 @@ public class RightFieldAddress extends FieldAddress {
 	protected int slotIndex;
 	
 	public Object clone(){
-		return new RightFieldAddress(slotIndex);
+		return this;
 	}
 	
 	public RightFieldAddress() {
