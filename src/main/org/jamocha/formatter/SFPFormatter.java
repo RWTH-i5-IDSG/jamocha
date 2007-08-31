@@ -9,10 +9,13 @@ import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.Expression;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.BoundParam;
-import org.jamocha.rete.ExpressionSequence;
+import org.jamocha.rete.Deftemplate;
+import org.jamocha.rete.ExpressionCollection;
 import org.jamocha.rete.Fact;
+import org.jamocha.rete.MultiSlot;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Slot;
+import org.jamocha.rete.TemplateSlot;
 import org.jamocha.rete.configurations.AssertConfiguration;
 import org.jamocha.rete.configurations.DeclarationConfiguration;
 import org.jamocha.rete.configurations.DeffunctionConfiguration;
@@ -182,11 +185,11 @@ public class SFPFormatter extends Formatter {
 	}
 
 	@Override
-	public String visit(ExpressionSequence object) {
+	public String visit(ExpressionCollection object) {
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < object.size(); ++i) {
 			if (i > 0)
-				newLine(sb);
+				sb.append(' ');
 			sb.append(object.get(i).format(this));
 		}
 		return sb.toString();
@@ -447,12 +450,12 @@ public class SFPFormatter extends Formatter {
 	@Override
 	public String visit(Fact object) {
 		StringBuilder sb = new StringBuilder();
-		sb.append("(" + object.getTemplate().getName());
+		sb.append('(').append(object.getTemplate().getName());
 		Slot[] slots = object.getTemplate().getAllSlots();
 		increaseIndent();
 		for (int i = 0; i < slots.length; ++i) {
 			newLine(sb);
-			sb.append("(" + slots[i].getName() + " ");
+			sb.append('(').append(slots[i].getName()).append(' ');
 			try {
 				sb.append(object.getSlotValue(i).format(this));
 			} catch (EvaluationException e) {
@@ -464,6 +467,64 @@ public class SFPFormatter extends Formatter {
 		decreaseIndent();
 		newLine(sb);
 		sb.append(")");
+		return sb.toString();
+	}
+
+	@Override
+	public String visit(Deftemplate object) {
+		StringBuilder sb = new StringBuilder();
+		sb.append('(').append(object.getName()).append(' ');
+		Slot[] slots = object.getAllSlots();
+		increaseIndent();
+		for (int idx = 0; idx < slots.length; idx++) {
+			newLine(sb);
+			sb.append(slots[idx].format(this));
+		}
+		decreaseIndent();
+		newLine(sb);
+		if (object.getClassName() != null) {
+			sb.append("[" + object.getClassName() + "] ");
+		}
+		sb.append(")");
+		return sb.toString();
+	}
+
+	@Override
+	public String visit(MultiSlot object) {
+		return "ms";
+	}
+
+	@Override
+	public String visit(Slot object) {
+		return "s";
+	}
+
+	@Override
+	public String visit(TemplateSlot object) {
+		StringBuilder sb = new StringBuilder();
+		sb.append('(');
+		if (object.isSilent())
+			sb.append("silent ");
+		if (object.isMultiSlot())
+			sb.append("multislot ");
+		else
+			sb.append("slot ");
+		sb.append(object.getName());
+		increaseIndent();
+		newLine(sb);
+		sb.append("(type ").append(object.getValueType()).append(')');
+		newLine(sb);
+		sb.append("(default ");
+		if (object.isRequired())
+			sb.append("?NONE");
+		else if (object.getDefaultExpression() != null)
+			sb.append(object.getDefaultExpression().format(this));
+		else
+			sb.append("NIL");
+		sb.append(')');
+		decreaseIndent();
+		newLine(sb);
+		sb.append(')');
 		return sb.toString();
 	}
 }

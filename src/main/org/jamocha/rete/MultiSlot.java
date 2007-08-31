@@ -16,6 +16,7 @@
  */
 package org.jamocha.rete;
 
+import org.jamocha.formatter.Formatter;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 
@@ -70,5 +71,9 @@ public class MultiSlot extends Slot {
 		newms.setName(this.getName());
 		newms.value = this.value;
 		return newms;
+	}
+
+	public String format(Formatter visitor) {
+		return visitor.visit(this);
 	}
 }

@@ -21,9 +21,11 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.jamocha.formatter.Formatter;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
+import org.jamocha.parser.ParserFactory;
 import org.jamocha.rete.configurations.SlotConfiguration;
 import org.jamocha.rete.exception.AssertException;
 import org.jamocha.rete.modules.Module;
@@ -506,17 +508,7 @@ public class Deftemplate implements Template, Serializable {
 	 * type
 	 */
 	public String toString() {
-		StringBuffer buf = new StringBuffer();
-		buf.append("(" + this.templateName + " ");
-		for (int idx = 0; idx < this.slots.length; idx++) {
-			buf.append("(" + this.slots[idx].getName() + " (type "
-					+ this.slots[idx].getValueType() + ") ) ");
-		}
-		if (this.defclass != null) {
-			buf.append("[" + this.defclass + "] ");
-		}
-		buf.append(")");
-		return buf.toString();
+		return this.format(ParserFactory.getFormatter());
 	}
 
 	/**
@@ -581,5 +573,9 @@ public class Deftemplate implements Template, Serializable {
 		}
 		buf.append(")");
 		return buf.toString();
+	}
+	
+	public String format(Formatter visitor){
+		 return visitor.visit(this);
 	}
 }

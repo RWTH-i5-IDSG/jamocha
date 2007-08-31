@@ -18,6 +18,7 @@ package org.jamocha.rete;
 
 import java.io.Serializable;
 
+import org.jamocha.formatter.Formattable;
 import org.jamocha.parser.EvaluationException;
 
 /**
@@ -27,7 +28,7 @@ import org.jamocha.parser.EvaluationException;
  * equivalent of un-ordered facts. It defines all the necessary
  * methods for Deftemplate.
  */
-public interface Template extends Serializable, Dumpable {
+public interface Template extends Serializable, Dumpable, Formattable {
 	/**
 	 * The name of the template may be the fully qualified
 	 * class name, or an alias.

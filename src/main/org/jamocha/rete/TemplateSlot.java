@@ -1,5 +1,6 @@
 package org.jamocha.rete;
 
+import org.jamocha.formatter.Formatter;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.Expression;
 import org.jamocha.parser.JamochaType;
@@ -146,6 +147,10 @@ public class TemplateSlot extends Slot {
 
 	public void setSilent(boolean silent) {
 		this.silent = silent;
+	}
+
+	public String format(Formatter visitor) {
+		return visitor.visit(this);
 	}
 
 }

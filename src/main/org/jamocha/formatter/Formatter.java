@@ -3,8 +3,12 @@ package org.jamocha.formatter;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.BoundParam;
 import org.jamocha.rete.Constants;
-import org.jamocha.rete.ExpressionSequence;
+import org.jamocha.rete.Deftemplate;
+import org.jamocha.rete.ExpressionCollection;
 import org.jamocha.rete.Fact;
+import org.jamocha.rete.MultiSlot;
+import org.jamocha.rete.Slot;
+import org.jamocha.rete.TemplateSlot;
 import org.jamocha.rete.configurations.AssertConfiguration;
 import org.jamocha.rete.configurations.DeclarationConfiguration;
 import org.jamocha.rete.configurations.DeffunctionConfiguration;
@@ -66,7 +70,9 @@ public abstract class Formatter {
 
 	public abstract String visit(DefruleConfiguration object);
 
-	public abstract String visit(ExpressionSequence object);
+	public abstract String visit(Deftemplate object);
+
+	public abstract String visit(ExpressionCollection object);
 
 	public abstract String visit(Fact object);
 
@@ -84,6 +90,8 @@ public abstract class Formatter {
 
 	public abstract String visit(ModifyConfiguration object);
 
+	public abstract String visit(MultiSlot object);
+
 	public abstract String visit(NotCondition object);
 
 	public abstract String visit(ObjectCondition object);
@@ -94,9 +102,13 @@ public abstract class Formatter {
 
 	public abstract String visit(Signature object);
 
+	public abstract String visit(Slot object);
+
 	public abstract String visit(SlotConfiguration object);
 
 	public abstract String visit(TestCondition object);
+
+	public abstract String visit(TemplateSlot object);
 
 	public abstract String visit(WhileDoConfiguration object);
 

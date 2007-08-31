@@ -313,6 +313,7 @@ public class JamochaValue implements Parameter, Formattable {
 		if (type.equals(JamochaType.STRING)) {
 			if (value != null)
 				return JamochaValue.newString(value.toString());
+			//TODO needs big fix!
 			else
 				return JamochaValue.newString("");
 		}

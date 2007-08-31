@@ -18,6 +18,7 @@ package org.jamocha.rete;
 
 import java.io.Serializable;
 
+import org.jamocha.formatter.Formattable;
 import org.jamocha.parser.JamochaType;
 
 /**
@@ -30,7 +31,7 @@ import org.jamocha.parser.JamochaType;
  * <br>
  * 
  */
-public abstract class AbstractSlot implements Serializable, Cloneable {
+public abstract class AbstractSlot implements Serializable, Cloneable, Formattable {
 
 	/**
 	 * The name of the slot

@@ -16,6 +16,7 @@
  */
 package org.jamocha.rete;
 
+import org.jamocha.formatter.Formatter;
 import org.jamocha.parser.IllegalConversionException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
@@ -141,6 +142,11 @@ public class Slot extends AbstractSlot {
 		result += this.valueToString();
 		return result;
 	}
+
+	public String format(Formatter visitor) {
+		return visitor.visit(this);
+	}
+	
 	
 	@Override
 	public boolean mergableTo(AbstractSlot other){
