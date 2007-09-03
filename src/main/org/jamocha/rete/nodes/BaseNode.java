@@ -228,7 +228,7 @@ public abstract class BaseNode implements Serializable {
 				toMerge.removeNode(parent, net);
 			}
 		} catch (Exception e) {
-			// should not occure
+			// should not occur
 		}
 	}
 
@@ -268,7 +268,7 @@ public abstract class BaseNode implements Serializable {
 				i++;
 			}
 
-			// second loop: propagate share nodes tu all childs:
+			// second loop: propagate share nodes to all childs:
 			for (int k = 0; k < this.getChildCount(); k++) {
 				resultMergedNodes += getChild(k).shareNodes(rule, net);
 			}

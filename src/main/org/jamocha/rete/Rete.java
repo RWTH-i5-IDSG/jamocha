@@ -60,7 +60,8 @@ import org.jamocha.rule.Rule;
  * This is the main Rete engine class. For now it's called Rete, but I may
  * change it to Engine to be more generic.
  */
-public class Rete implements PropertyChangeListener, CompilerListener, Serializable {
+public class Rete implements PropertyChangeListener, CompilerListener,
+		Serializable {
 
 	/**
 	 * 
@@ -137,7 +138,7 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 	private MessageRouter router = new MessageRouter(this);
 
 	protected InitialFact initFact = new InitialFact();
-	
+
 	private static long ticket = 0;
 
 	/**
@@ -186,7 +187,7 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 	 * Clear the objects from the working memory
 	 */
 	public void clearObjects() {
-		//TODO: we don't support objects
+		// TODO: we don't support objects
 	}
 
 	/**
@@ -320,10 +321,9 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 	 * @return
 	 */
 	public Defclass findDefclass(Object key) {
-		//TODO: we don't support Classes
+		// TODO: we don't support Classes
 		return null;
 	}
-
 
 	/**
 	 * pass a filename to load the rules. The implementation uses BatchFunction
@@ -570,7 +570,8 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 	 */
 	public void writeMessage(String msg, String output) {
 		MessageRouter router = getMessageRouter();
-		router.postMessageEvent(new MessageEvent(MessageEvent.ENGINE, msg, "t".equals(output) ? router.getCurrentChannelId() : output));
+		router.postMessageEvent(new MessageEvent(MessageEvent.ENGINE, msg, "t"
+				.equals(output) ? router.getCurrentChannelId() : output));
 		if (this.outputStreams.size() > 0) {
 			Iterator itr = this.outputStreams.values().iterator();
 			while (itr.hasNext()) {
@@ -600,12 +601,15 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 	 */
 	public void assertEvent(BaseNode node, Fact fact) {
 		if (debug) {
-			System.out.println("\"assert at nodeid=" + node.getNodeId() + " - " + node.toString().replaceAll("\"", "'") + ":: with fact -" + fact.toFactString().replaceAll("\"", "'") + "::\"");
+			System.out.println("\"assert at nodeid=" + node.getNodeId() + " - "
+					+ node.toString().replaceAll("\"", "'") + ":: with fact -"
+					+ fact.toFactString().replaceAll("\"", "'") + "::\"");
 		}
 		Iterator itr = this.listeners.iterator();
 		while (itr.hasNext()) {
 			EngineEventListener eel = (EngineEventListener) itr.next();
-			eel.eventOccurred(new EngineEvent(this, EngineEvent.ASSERT_EVENT, node, new Fact[] { fact }));
+			eel.eventOccurred(new EngineEvent(this, EngineEvent.ASSERT_EVENT,
+					node, new Fact[] { fact }));
 		}
 	}
 
@@ -616,14 +620,16 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 		Iterator itr = this.listeners.iterator();
 		while (itr.hasNext()) {
 			EngineEventListener eel = (EngineEventListener) itr.next();
-			eel.eventOccurred(new EngineEvent(this, EngineEvent.NEWRULE_EVENT, rule));
+			eel.eventOccurred(new EngineEvent(this, EngineEvent.NEWRULE_EVENT,
+					rule));
 		}
 	}
 
 	public void assertEvent(BaseNode node, Fact[] facts) {
 		if (debug) {
 			if (node instanceof TerminalNode) {
-				System.out.println(((TerminalNode) node).getRule().getName() + " fired");
+				System.out.println(((TerminalNode) node).getRule().getName()
+						+ " fired");
 			} else {
 
 			}
@@ -631,7 +637,8 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 		Iterator itr = this.listeners.iterator();
 		while (itr.hasNext()) {
 			EngineEventListener eel = (EngineEventListener) itr.next();
-			eel.eventOccurred(new EngineEvent(this, EngineEvent.ASSERT_EVENT, node, facts));
+			eel.eventOccurred(new EngineEvent(this, EngineEvent.ASSERT_EVENT,
+					node, facts));
 		}
 	}
 
@@ -645,7 +652,8 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 		Iterator itr = this.listeners.iterator();
 		while (itr.hasNext()) {
 			EngineEventListener eel = (EngineEventListener) itr.next();
-			eel.eventOccurred(new EngineEvent(this, EngineEvent.RETRACT_EVENT, node, new Fact[] { fact }));
+			eel.eventOccurred(new EngineEvent(this, EngineEvent.RETRACT_EVENT,
+					node, new Fact[] { fact }));
 		}
 	}
 
@@ -658,7 +666,8 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 		Iterator itr = this.listeners.iterator();
 		while (itr.hasNext()) {
 			EngineEventListener eel = (EngineEventListener) itr.next();
-			eel.eventOccurred(new EngineEvent(this, EngineEvent.ASSERT_EVENT, node, facts));
+			eel.eventOccurred(new EngineEvent(this, EngineEvent.ASSERT_EVENT,
+					node, facts));
 		}
 	}
 
@@ -677,8 +686,9 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 	 * @param shadow
 	 * @throws AssertException
 	 */
-	public void assertObject(Object data, String template, boolean statc, boolean shadow) throws AssertException {
-		//TODO: we don't support Classes
+	public void assertObject(Object data, String template, boolean statc,
+			boolean shadow) throws AssertException {
+		// TODO: we don't support Classes
 	}
 
 	/**
@@ -700,7 +710,7 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 	 * @param data
 	 */
 	public void retractObject(Object data) throws RetractException {
-		//TODO: we don't support Classes
+		// TODO: we don't support Classes
 	}
 
 	/**
@@ -715,7 +725,8 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 			this.assertFactWProfile(fact);
 		} else {
 			if (watchFact) {
-				this.writeMessage("==> " + fact.toFactString() + Constants.LINEBREAK, "t");
+				this.writeMessage("==> " + fact.toFactString()
+						+ Constants.LINEBREAK, "t");
 			}
 			this.net.assertObject(fact);
 		}
@@ -758,7 +769,8 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 			this.retractFactWProfile(fact);
 		} else {
 			if (watchFact) {
-				this.writeMessage("<== " + fact.toFactString() + Constants.LINEBREAK, "t");
+				this.writeMessage("<== " + fact.toFactString()
+						+ Constants.LINEBREAK, "t");
 			}
 			this.net.retractObject(fact);
 		}
@@ -787,7 +799,8 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 
 	// TODO not really efficient to pre-traverse the whole slot-list just for
 	// determining whether we must retract/assert or not
-	public void modifyFact(Fact old, ModifyConfiguration mc) throws EvaluationException {
+	public void modifyFact(Fact old, ModifyConfiguration mc)
+			throws EvaluationException {
 		boolean allSilent = true;
 
 		for (SlotConfiguration slot : mc.getSlots()) {
@@ -805,7 +818,7 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 			assertFact(modifiedFact);
 		}
 	}
-	
+
 	public static long drawTicket() {
 		return ticket++;
 	}
@@ -823,7 +836,7 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 	 * deffacts.
 	 */
 	public void resetObjects() {
-		//TODO: we don't support Classes
+		// TODO: we don't support Classes
 	}
 
 	/**
@@ -863,7 +876,8 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 	 * @return
 	 */
 	protected Fact createNSFact(Object data, Defclass dclass, long id) {
-		Deftemplate dft = (Deftemplate) getCurrentFocus().getTemplate(dclass.getClassObject().getName());
+		Deftemplate dft = (Deftemplate) getCurrentFocus().getTemplate(
+				dclass.getClassObject().getName());
 		NSFact fact = new NSFact(dft, dclass, data, dft.getAllSlots(), id);
 		return fact;
 	}
@@ -971,34 +985,36 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 		scopes = scope;
 	}
 
-	public boolean addTemplate(Deftemplate tpl) throws EvaluationException{
+	public boolean addTemplate(Deftemplate tpl) throws EvaluationException {
 		tpl.evaluateStaticDefaults(this);
 		Module mod = tpl.checkName(this);
 		if (mod == null) {
 			mod = getCurrentFocus();
 		}
-		Boolean result=  mod.addTemplate(tpl);
-		if (result) this.net.addTemplate(tpl);
+		Boolean result = mod.addTemplate(tpl);
+		if (result)
+			this.net.addTemplate(tpl);
 		return result;
 	}
-	
-	public boolean addRule(Rule rule) throws AssertException, RuleException{
+
+	public boolean addRule(Rule rule) throws AssertException, RuleException {
 		boolean result = false;
 		if (!getCurrentFocus().containsRule(rule)) {
 			result = net.addRule(rule);
-		int merged =	net.shareNodes(rule);
-		System.out.println(merged);
+			// int merged =
+			net.shareNodes(rule);
+			// System.out.println(merged);
 		}
 		return result;
 	}
-	
-	public ReteNet getNet(){
+
+	public ReteNet getNet() {
 		return this.net;
 	}
-	
+
 	public static String[] getJamochaSearchPaths() {
 		String path = System.getenv("JAMOCHA_PATH");
-		if(path != null && path.length() > 0) {
+		if (path != null && path.length() > 0) {
 			return path.split(System.getProperty("path.separator"));
 		}
 		return null;

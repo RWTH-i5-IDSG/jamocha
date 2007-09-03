@@ -38,7 +38,9 @@ class Confirm extends SLPerformativeTranslator {
 	 * Translates SL code of a confirm to CLIPS code. A confirm has a
 	 * proposition that the sender believes is true. The receiver can decide if
 	 * he also adopts this belief or not according to the ontology and other
-	 * parameters.
+	 * parameters. What we do here is assert a fact. If the receiver also
+	 * believed this Proposition nothing will change otherwise the receiver now
+	 * knows that this fact holds.
 	 * 
 	 * @param slContent
 	 *            The SL content we have to translate.
@@ -60,9 +62,10 @@ class Confirm extends SLPerformativeTranslator {
 
 		StringBuilder result = new StringBuilder();
 		result
-				.append("(assert (agent-confirm-result (message %MSG%)(proposition \"");
-		result.append(results.get(0).compile(SLCompileType.RULE_LHS));
-		result.append("\")))");
+				.append("(assert (agent-confirm-result (message %MSG%)(proposition ");
+		// result.append("\"").append(results.get(0).compile(SLCompileType.RULE_LHS)).append("\"");
+		result.append(results.get(0).compile(SLCompileType.ASSERT));
+		result.append(")))");
 		return result.toString();
 	}
 
