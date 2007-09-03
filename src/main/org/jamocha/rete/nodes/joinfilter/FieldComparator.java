@@ -106,13 +106,8 @@ public class FieldComparator implements Serializable, Cloneable, JoinFilter {
 	private JamochaValue resolveFact(JamochaValue value, Rete engine) {
 		if (value.is(JamochaType.FACT_ID)) {
 			return JamochaValue.newFact(engine.getFactById(value));
-			/*
-			 * The assertion holds for manners_064. So, do we leave this commented out?
-			 * TODO Check if assertion always holds
-			 */
-//		} else if (value.is(JamochaType.FACT)) {
-//			assert(value.getFactValue() == engine.getFactById(value.getFactValue().getFactId()));
-//			return JamochaValue.newFact(engine.getFactById(value.getFactValue().getFactId()));
+		} else if (value.is(JamochaType.FACT)) {
+			return JamochaValue.newFact(engine.getFactById(value.getFactValue().getFactId()));
 		}
 		return value;
 	}
