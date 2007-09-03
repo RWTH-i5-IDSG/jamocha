@@ -1,4 +1,4 @@
-(batch apps/jamochaagent/samples/MissManners/common.clp)
+(batch /Users/amufsuism/Documents/eclipse_workspace/jamocha/apps/jamochaagent/samples/MissManners/common.clp)
 ;;; The Manners Benchmark implemented using CLIPS
 ;;; The original source for the OPS5 benchmark suite is available
 ;;; at http://www.cs.utexas.edu/ftp/pub/ops5-benchmark-suite/
@@ -26,7 +26,8 @@
    (slot hobby))
    
 (deftemplate last_seat 
-   (slot seat))
+   (slot seat)
+   (silent slot arrivedGuests (default 0)))
    
 (deftemplate seating 
    (slot seat1)
@@ -147,21 +148,77 @@
    ?f4 <- (path (id ?id) (name ?n) (seat ?s))
    =>
    (retract ?f4)
-   (printout ?*output* ?n " " ?s crlf))
+   (printout ?*output* ?n " " ?s crlf)
+   (assert (AssignedSeat (name ?n)(seatNumber ?s)))	   
+)
+
 
 ;;; ********
-;;; all_done
+;;; send results
 ;;; ********
-
-(defrule all_done
-   (context (state print_results))
-   =>
-   (halt))
-
+(defrule sendResults
+	?assSeat <- (AssignedSeat (name ?n))
+	(PartyAnnouncement (name ?n) (address ?adr))
+	=>
+	(bind ?content (str-cat
+		"((action (agent-identifier :name "
+		(clips2sl ?adr)
+		")"
+		"(resolveSeatingResults "
+		(clips2sl ?assSeat)
+		")))"
+   ))
+	(assert 
+		(agent-message
+			(receiver ?adr)
+			(performative "request")
+			(protocol "fipa-request")
+			(content ?content)
+			(language "fipa-sl")
+			(encoding "")
+			(ontology "MissManners")
+			(conversation-id (str-cat (agent-name) (ms-time)))
+			(in-reply-to "")
+			(reply-with "123")
+			(reply-by 0)
+			(timestamp (datetime2timestamp (now)))
+			(incoming FALSE)
+		)
+	)
+)	
    
 ;;; ********
 ;;; Pairings
 ;;; ********
+
+(assert (last_seat (seat 10)))
+
+(defrule increaseGuestCounter
+	(PartyAnnouncement) 
+	?guestCounter <- (last_seat (arrivedGuests ?x))
+	=>
+	(bind ?x (+ ?x 1))
+	(modify ?guestCounter (arrivedGuests ?x))
+)
+
+(defrule allArrived
+	(last_seat 
+		(seat ?x)
+		(arrivedGuests ?x)
+	)
+	;(test (>= ?y ?x))
+=>
+	(assert (context (state "start") ) )
+)
+
+
+(assert (count (c 1) ) )
+
+(deffunction startseating
+	()
+	(assert (context (state "start") ) )
+	(fire)
+)
 
 (deffunction resolvePartyAnnouncement
 	(?GuestAnnouncement)
@@ -176,15 +233,15 @@
 	)
 
 ;create guest-pairings
-(foreach ?item ?hobbies 
-	(assert 
-		(guest
-			(name ?name)
-			(sex ?sex)
-			(hobby	?item)
+	(foreach ?item ?hobbies 
+		(assert 
+			(guest
+				(name ?name)
+				(sex ?sex)
+				(hobby	?item)
+			)
 		)
-	)
-)	
+	)	
 	
 
 ;result:	

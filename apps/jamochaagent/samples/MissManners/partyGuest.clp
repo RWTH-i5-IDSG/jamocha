@@ -1,19 +1,25 @@
-(batch apps/jamochaagent/samples/MissManners/common.clp)
+;default file:
+(batch /Users/amufsuism/Documents/eclipse_workspace/jamocha/apps/jamochaagent/samples/MissManners/common.clp)
 
 
-; (register "PartyHost@amufusims-mac.local:1099/JADE" "heinz" "m" (create$ "wurst" "bier" "senf"))
-; (register "PartyHost@amufusims-mac.local:1099/JADE" "lissbett" "w" (create$  "bier" "senf"))
-; (register "PartyHost@amufusims-mac.local:1099/JADE" "will" "m" (create$ "wurst" ))
+(bind ?*Gender* "w")
+
+(deffunction SetGender
+	(?Gender)
+	(bind ?*Gender* ?Gender)
+)
+
 
 (deffunction register
 ;params:
-	(?partyHost ?name ?sex ?hobbies)
+	(?partyHost ?hobbies)
 	
 	(bind ?announcementFact
 		(assert
 			(PartyAnnouncement
-				(name ?name)
-				(sex ?sex)
+				(name (local-agent-name))
+				(address (agent-name))
+				(sex ?*Gender*)
 				(hobbies ?hobbies)
 			)
 		)
@@ -45,4 +51,15 @@
 		)
 	)
 	(fire)
+)
+
+
+(deffunction registerNow
+()
+(register "MissManners@amufusims-mac.local:1099/JADE"  (create$ "wurst" "bier" "senf"))
+)
+
+(deffunction resolveSeatingResults
+(?assSeat)
+(printout t "Got result, my seatnumber is:" (fact-slot-value ?assSeat "seatNumber"))
 )
