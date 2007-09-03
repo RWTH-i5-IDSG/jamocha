@@ -79,12 +79,17 @@ public class Activation {
 	}
 
 	public void fire(Rete engine) throws ExecuteException {
+		try{
 		engine.pushScope(rule);
 		rule.setTriggerFacts(tuple.getFacts());
 		for (Action action : rule.getActions()) {
 			action.executeAction(engine, tuple.getFacts());
 		}
 		engine.popScope();
+		}catch (ExecuteException e){
+			throw new ExecuteException("Error in Rule "+ rule.getName() ,e);
+		}
+		
 	}
 
 	public boolean isValid() {
