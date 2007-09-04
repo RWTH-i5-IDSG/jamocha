@@ -16,7 +16,10 @@
  */
 package org.jamocha.gui;
 
+import java.awt.Component;
 import java.lang.reflect.Method;
+
+import javax.swing.JOptionPane;
 
 /**
  * This Class provides system dependend access to the Browser. For Unix and
@@ -29,7 +32,7 @@ import java.lang.reflect.Method;
 public class BrowserControl {
 
 	@SuppressWarnings("unchecked")
-	public static void displayURL(String url) {
+	public static void displayURL(String url, Component opener) {
 		String osName = System.getProperty("os.name");
 		try {
 			if (osName.startsWith("Mac OS")) {
@@ -58,6 +61,10 @@ public class BrowserControl {
 		} catch (Exception e) {
 			// just ignore it. We don't want to bother the user just because we
 			// can't open an url ...
+			JOptionPane.showMessageDialog(opener,
+					"Jamocha could not open your webbrowser and browse to: \n\n"
+							+ url + ".", "Error opening webbrowser.",
+					JOptionPane.ERROR_MESSAGE);
 		}
 
 	}

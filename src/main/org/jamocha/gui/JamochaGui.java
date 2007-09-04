@@ -99,7 +99,7 @@ public class JamochaGui extends JFrame implements ChangeListener,
 		// set up the frame
 		setLayout(new BorderLayout());
 		setTitle("Jamocha");
-		//setLookAndFeel(SYSTEM_LOOK_AND_FEEL);
+		// setLookAndFeel(SYSTEM_LOOK_AND_FEEL);
 		setSizeAndLocation();
 
 		// show logo
@@ -109,7 +109,7 @@ public class JamochaGui extends JFrame implements ChangeListener,
 		logoLabel.setToolTipText("visit www.jamocha.org");
 		logoLabel.addMouseListener(new MouseAdapter() {
 			public void mouseReleased(MouseEvent e) {
-				BrowserControl.displayURL("http://www.jamocha.org");
+				BrowserControl.displayURL("http://www.jamocha.org", JamochaGui.this);
 			}
 		});
 		logoPanel.add(logoLabel, BorderLayout.EAST);
@@ -141,42 +141,42 @@ public class JamochaGui extends JFrame implements ChangeListener,
 				.getImageIcon("application_osx_terminal"), shellPanel,
 				"Jamocha Shell");
 		panels.add(shellPanel);
-		
+
 		FactsPanel factsPanel = new FactsPanel(this);
 		tabbedPane.addTab("Facts", IconLoader.getImageIcon("database"),
 				factsPanel, "View or modify Facts");
 		panels.add(factsPanel);
-		
+
 		TemplatesPanel templatesPanel = new TemplatesPanel(this);
 		tabbedPane.addTab("Templates", IconLoader.getImageIcon("brick"),
 				templatesPanel, "View or modify Templates");
 		panels.add(templatesPanel);
-		
+
 		RulesPanel rulesPanel = new RulesPanel(this);
 		tabbedPane.addTab("Rules", IconLoader.getImageIcon("car"), rulesPanel,
 				"View or modify Rules");
 		panels.add(rulesPanel);
-		
+
 		FunctionsPanel functionsPanel = new FunctionsPanel(this);
 		tabbedPane.addTab("Functions", IconLoader.getImageIcon("cog"),
 				functionsPanel, "View Functions");
 		panels.add(functionsPanel);
-		
+
 		AgendaPanel agendaPanel = new AgendaPanel(this);
-		tabbedPane.addTab("Agenda", IconLoader.getImageIcon("sport_8ball"), agendaPanel,
-		"View all Activations");
+		tabbedPane.addTab("Agenda", IconLoader.getImageIcon("sport_8ball"),
+				agendaPanel, "View all Activations");
 		panels.add(agendaPanel);
-	
+
 		ViewerPanel viewerPanel = new ViewerPanel(this);
-		tabbedPane.addTab("Rete viewer", IconLoader.getImageIcon("eye"), viewerPanel,
-		"View the Rete-network");
+		tabbedPane.addTab("Rete viewer", IconLoader.getImageIcon("eye"),
+				viewerPanel, "View the Rete-network");
 		panels.add(viewerPanel);
-		
+
 		LogPanel logPanel = new LogPanel(this);
 		tabbedPane.addTab("Log", IconLoader.getImageIcon("monitor"), logPanel,
 				"View alle messages from or to the Rete-engine");
 		panels.add(logPanel);
-		
+
 		SettingsPanel settingsPanel = new SettingsPanel(this);
 		tabbedPane.addTab("Settings", IconLoader.getImageIcon("wrench"),
 				settingsPanel, "Settings for Jamocha");

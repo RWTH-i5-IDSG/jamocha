@@ -64,6 +64,8 @@ public class JamochaMenuBar extends JMenuBar implements ActionListener {
 
 	private JMenuItem helpMenuAbout;
 
+	private JMenuItem helpMenuDocu;
+
 	private JDialog aboutDialog;
 
 	public JamochaMenuBar(JamochaGui gui) {
@@ -75,11 +77,14 @@ public class JamochaMenuBar extends JMenuBar implements ActionListener {
 		fileMenuBatch = new JMenuItem("Batch File ...", IconLoader
 				.getImageIcon("lorry"));
 		fileMenuBatch.addActionListener(this);
+
 		fileMenuCloseGui = new JMenuItem("Close Gui", IconLoader
 				.getImageIcon("disconnect"));
 		fileMenuCloseGui.addActionListener(this);
+
 		fileMenuQuit = new JMenuItem("Quit", IconLoader.getImageIcon("door_in"));
 		fileMenuQuit.addActionListener(this);
+
 		fileMenu.add(fileMenuBatch);
 		fileMenu.addSeparator();
 		fileMenu.add(fileMenuCloseGui);
@@ -88,9 +93,15 @@ public class JamochaMenuBar extends JMenuBar implements ActionListener {
 
 		// adding the help menu
 		helpMenu = new JMenu("Help");
+		helpMenuDocu = new JMenuItem("Online Documentation", IconLoader
+				.getImageIcon("help"));
+		helpMenuDocu.addActionListener(this);
+
 		helpMenuAbout = new JMenuItem("About", IconLoader
 				.getImageIcon("comment"));
 		helpMenuAbout.addActionListener(this);
+
+		helpMenu.add(helpMenuDocu);
 		helpMenu.add(helpMenuAbout);
 		add(helpMenu);
 	}
@@ -119,7 +130,7 @@ public class JamochaMenuBar extends JMenuBar implements ActionListener {
 				if (file != null && file.isFile()) {
 					gui.getPreferences().put("menubar.batchLastPath",
 							file.getAbsolutePath());
-					
+
 					List<String> files = new ArrayList<String>(1);
 					files.add(file.getPath());
 					gui.processBatchFiles(files);
@@ -129,9 +140,18 @@ public class JamochaMenuBar extends JMenuBar implements ActionListener {
 									"Batch process started.\nPlease check the log for Messages.\nThe process might be running in the background for a while.");
 				}
 			}
+		} else if (event.getSource() == helpMenuDocu) {
+			BrowserControl
+					.displayURL(
+							"http://www.jamocha.org/wiki/pmwiki.php?n=Documentation.Documentation",
+							gui);
 		} else if (event.getSource() == helpMenuAbout) {
 			String aboutText = "\u00A9 2007 by Jamocha Developer Group.\n\n"
-					+ "Version " + Constants.VERSION + " (" + Constants.VERSION_NAME+")\n\n"
+					+ "Version "
+					+ Constants.VERSION
+					+ " ("
+					+ Constants.VERSION_NAME
+					+ ")\n\n"
 					+ "Jamocha is an open source rule engine released under the Apache Software License.\n\n"
 					+ "For more information visit http://www.jamocha.org\n\n"
 					+ "Credits for the Icons used in the GUI go to Marc James (http://www.famfamfam.com/lab/icons/silk/). They are released under a Creative Commons Attribution 2.5 License.\n\n"
@@ -139,14 +159,22 @@ public class JamochaMenuBar extends JMenuBar implements ActionListener {
 					+ "Developers (in alphabetical order):\n"
 					+ "- Alexander Wilden\n"
 					+ "- Ananda Sumadha Markus Widyadharma\n"
-					+ "- Andreas Eberhart\n" + "- Benjamin Zimmermann\n"
-					+ "- Christian Ebert\n" + "- Christoph Emonds\n"
-					+ "- Emmanuel Bonnet\n" + "- Josef-Alexander Hahn\n"
-					+ "- Karl-Heinz Krempels\n" + "- Martin Krebs\n"
-					+ "- Michael Neale\n" + "- Nikolaus Koemm\n"
-					+ "- Ory Chowaw-Liebman\n" + "- Peter Lin\n"
-					+ "- Sebastian Reinartz\n" + "- Sven Lilienthal\n"
-					+ "- Tim Niemueller\n" + "- Ulrich Loup\n"
+					+ "- Andreas Eberhart\n"
+					+ "- Benjamin Zimmermann\n"
+					+ "- Christian Ebert\n"
+					+ "- Christoph Emonds\n"
+					+ "- Emmanuel Bonnet\n"
+					+ "- Josef-Alexander Hahn\n"
+					+ "- Karl-Heinz Krempels\n"
+					+ "- Martin Krebs\n"
+					+ "- Michael Neale\n"
+					+ "- Nikolaus Koemm\n"
+					+ "- Ory Chowaw-Liebman\n"
+					+ "- Peter Lin\n"
+					+ "- Sebastian Reinartz\n"
+					+ "- Sven Lilienthal\n"
+					+ "- Tim Niemueller\n"
+					+ "- Ulrich Loup\n"
 					+ "- Volker Wetzelaer";
 			aboutDialog = new JDialog(gui, "About Jamocha", true);
 			aboutDialog.setLocationByPlatform(true);
