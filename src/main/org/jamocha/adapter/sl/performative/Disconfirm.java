@@ -62,8 +62,9 @@ class Disconfirm extends SLPerformativeTranslator {
 		StringBuilder result = new StringBuilder();
 		result
 				.append("(assert (agent-disconfirm-result (message %MSG%)(proposition ");
-		// result.append("\"").append(results.get(0).compile(SLCompileType.RULE_LHS)).append("\"");
-		result.append(results.get(0).compile(SLCompileType.ASSERT));
+		result.append("\"").append(
+				results.get(0).compile(SLCompileType.RULE_LHS)).append("\"");
+		// result.append(results.get(0).compile(SLCompileType.ASSERT));
 		result.append(")))");
 		return result.toString();
 	}

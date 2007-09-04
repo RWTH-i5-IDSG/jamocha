@@ -47,8 +47,7 @@ class Inform extends SLPerformativeTranslator {
 	 *             if the SLParser throws an Exception or anything else abnormal
 	 *             happens.
 	 */
-	public String getCLIPS(String slContent)
-			throws AdapterTranslationException {
+	public String getCLIPS(String slContent) throws AdapterTranslationException {
 		ContentSLConfiguration contentConf;
 		try {
 			contentConf = SLParser.parse(slContent);
@@ -62,8 +61,9 @@ class Inform extends SLPerformativeTranslator {
 		StringBuilder result = new StringBuilder();
 		result
 				.append("(assert (agent-inform-result (message %MSG%)(proposition ");
-		// result.append("\"").append(results.get(0).compile(SLCompileType.RULE_LHS)).append("\"");
-		result.append(results.get(0).compile(SLCompileType.ASSERT));
+		result.append("\"").append(
+				results.get(0).compile(SLCompileType.RULE_LHS)).append("\"");
+		// result.append(results.get(0).compile(SLCompileType.ASSERT));
 		result.append(")))");
 		return result.toString();
 	}
