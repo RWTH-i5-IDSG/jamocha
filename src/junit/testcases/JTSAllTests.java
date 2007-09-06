@@ -8,8 +8,8 @@ public class JTSAllTests {
 	public static Test suite() {
 		TestSuite suite = new TestSuite("Test for testcases");
 		// $JUnit-BEGIN$
+		suite.addTestSuite(JTCSimpleAdd.class);
 		suite.addTestSuite(JTCDeftemplate.class);
-		suite.addTestSuite(JamochaTest.class);
 		// $JUnit-END$
 		return suite;
 	}
