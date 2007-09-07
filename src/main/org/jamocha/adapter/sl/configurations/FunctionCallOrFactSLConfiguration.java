@@ -77,13 +77,14 @@ public class FunctionCallOrFactSLConfiguration implements SLConfiguration {
 	public String compile(SLCompileType compileType) {
 		StringBuilder res = new StringBuilder();
 		String nameStr = name.compile(compileType);
+		boolean messageAsTemplate = false;
 		if (compileType.equals(SLCompileType.ACTION_AND_ASSERT)) {
 			// Here we treat inform different than a normal function. Inform
 			// will be asserted as a fact and not called as a function so we
 			// just switch directly to ASSERT.
 			for (String temp : isSLMessage) {
 				if (nameStr.equalsIgnoreCase(temp)) {
-					compileType = SLCompileType.ASSERT_MESSAGE;
+					compileType = SLCompileType.ASSERT_MESSAGE_AS_TEMPLATE;
 					break;
 				}
 			}
@@ -116,10 +117,21 @@ public class FunctionCallOrFactSLConfiguration implements SLConfiguration {
 			}
 			res.append("))");
 			break;
+		case ASSERT_MESSAGE_AS_TEMPLATE:
+			messageAsTemplate = true;
 		case ASSERT_MESSAGE:
 			res.append("(assert (agent-message (performative ");
 			res.append(name.compile(compileType));
 			res.append(")");
+			if (messageAsTemplate) {
+				// if we wouldn't set this, the message would directly be seen
+				// as incoming or outgoing and processed by the engine.
+				res.append("(is-template TRUE)");
+			} else {
+				// otherwise we set the message to incoming to have it processed
+				// by the rule engine. We need this for propagate
+				res.append("(incoming TRUE)");
+			}
 			for (SLConfiguration slotName : slotNames) {
 				String slotNameString = slotName.compile(SLCompileType.ASSERT);
 				// Parameter performative is left out because we set it

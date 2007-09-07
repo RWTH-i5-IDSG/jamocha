@@ -37,8 +37,9 @@ class Proxy extends SLPerformativeTranslator {
 
 	/**
 	 * Translates SL code of a proxy to CLIPS code. A proxy contains a
-	 * referential expression denoting the agents the message should be send to
-	 * and an ACL-communicative act that should be send out.
+	 * referential expression denoting the agents the message should be send to,
+	 * an ACL-communicative act that should be send out and a Proposition giving
+	 * additional conditions allowing the message to be send.
 	 * 
 	 * @param slContent
 	 *            The SL content we have to translate.
@@ -56,7 +57,7 @@ class Proxy extends SLPerformativeTranslator {
 					"Could not translate from SL to CLIPS.", e);
 		}
 		List<SLConfiguration> results = contentConf.getExpressions();
-		checkContentItemCount(results, 2);
+		checkContentItemCount(results, 3);
 
 		int uniqueId = getUniqueId();
 		String ruleName = "proxy-" + uniqueId;
@@ -68,17 +69,20 @@ class Proxy extends SLPerformativeTranslator {
 		String binding = conf.getTermOrIE().compile(SLCompileType.RULE_RESULT);
 
 		ActionSLConfiguration actConf = (ActionSLConfiguration) results.get(1);
-		String proxyMessage = actConf.compile(SLCompileType.ACTION_AND_ASSERT);
+		String proxyMessage = actConf.compile(SLCompileType.ASSERT_MESSAGE_AS_TEMPLATE);
 
 		StringBuilder result = new StringBuilder();
+		// binding an empty list
 		result.append("(bind ");
 		result.append(bindName);
 		result.append(" (create$ ))");
 
+		// creating the rule to get the addressees and check the proposition
 		result.append("(defrule ");
 		result.append(ruleName);
 		result.append(" ");
 		result.append(conf.getWff().compile(SLCompileType.RULE_LHS));
+		result.append(results.get(2).compile(SLCompileType.RULE_LHS));
 		result.append(" => ");
 		result.append("(bind ");
 		result.append(bindName);
@@ -94,10 +98,13 @@ class Proxy extends SLPerformativeTranslator {
 		result.append(ruleName);
 		result.append("\")");
 
+		// so the result will have target agents if agents could be found that
+		// matched the wff AND the second proposition allowed the message to be
+		// send at all.
 		result.append("(assert (agent-proxy-result (message %MSG%)");
-		result.append("(proxyMessage \"");
+		result.append("(proxyMessage ");
 		result.append(proxyMessage);
-		result.append("\")(refOp \"");
+		result.append(")(refOp \"");
 		result.append(refOp);
 		result.append("\")(agents ");
 		result.append(bindName);

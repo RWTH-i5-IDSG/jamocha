@@ -31,6 +31,7 @@
 	(silent slot timestamp (type LONG))
 	(slot incoming (type BOOLEAN)(default FALSE))
 	(slot processed (type BOOLEAN)(default FALSE))
+	(slot is-template (type BOOLEAN)(default FALSE))
 )
 
 
@@ -137,6 +138,15 @@
 )
 
 
+(deftemplate agent-propagate-result
+	"Result-Template for propagate performatives."
+	(slot message)
+	(slot propagateMessage)
+	(slot refOp (type STRING))
+	(multislot agents)
+)
+
+
 (deftemplate agent-propose-result
 	"Result-Template for propose performatives."
 	(slot message)
@@ -148,7 +158,7 @@
 (deftemplate agent-proxy-result
 	"Result-Template for proxy performatives."
 	(slot message)
-	(slot proxyMessage (type STRING))
+	(slot proxyMessage)
 	(slot refOp (type STRING))
 	(multislot agents)
 )

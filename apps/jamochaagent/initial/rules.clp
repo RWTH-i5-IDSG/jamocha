@@ -16,6 +16,7 @@
 		(protocol ?protocol)
 		(incoming TRUE)
 		(processed FALSE)
+		(is-template FALSE)
 	)
 	; The receiver of the message must be local.
 	(test (> (member$ ?receiver $?receivers) 0))
@@ -34,6 +35,7 @@
 		(language "fipa-sl")
 		(incoming FALSE)
 		(processed FALSE)
+		(is-template FALSE)
 	)
 	
 	=>
