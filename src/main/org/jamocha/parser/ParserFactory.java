@@ -28,6 +28,7 @@ import org.jamocha.rete.RuleCompiler;
 import org.jamocha.rete.SFRuleCompiler;
 import org.jamocha.rete.nodes.ReteNet;
 import org.jamocha.rete.nodes.RootNode;
+import org.jamocha.rete.rulecompiler.hokifisch.HokifischRuleCompiler;
 
 /**
  * The ParserFactory generates all known Parsers for CLIPS-Code or other
@@ -76,7 +77,7 @@ public class ParserFactory {
 
 	public static Parser getParser(String mode, Reader reader)
 			throws ModeNotFoundException {
-		if (mode.equalsIgnoreCase("sfp")) {
+		if (mode.equalsIgnoreCase("sfp") | mode.equalsIgnoreCase("sfp-hokifisch")) {
 			return new SFPParser(reader);
 		} else {
 			throw new ModeNotFoundException(mode);
@@ -85,7 +86,7 @@ public class ParserFactory {
 
 	public static Parser getParser(String mode, InputStream stream)
 			throws ModeNotFoundException {
-		if (mode.equalsIgnoreCase("sfp")) {
+		if (mode.equalsIgnoreCase("sfp") | mode.equalsIgnoreCase("sfp-hokifisch")) {
 			return new SFPParser(stream);
 		} else {
 			throw new ModeNotFoundException(mode);
@@ -147,7 +148,7 @@ public class ParserFactory {
 		Formatter f;
 		if (mode.equalsIgnoreCase("clips")) {
 			f = new SFPFormatter();
-		} else if (mode.equalsIgnoreCase("sfp")) {
+		} else if (mode.equalsIgnoreCase("sfp") | mode.equalsIgnoreCase("sfp-hokifisch")) {
 			f = new SFPFormatter();
 		} else {
 			throw new ModeNotFoundException(mode);
@@ -178,6 +179,8 @@ public class ParserFactory {
 			//return new BasicRuleCompiler(engine, wmem, root.getObjectTypeNodes());
 		} else if (mode.equalsIgnoreCase("sfp")) {
 			return new SFRuleCompiler(engine, root,net);
+		}  else if (mode.equalsIgnoreCase("sfp-hokifisch")) {
+			return new HokifischRuleCompiler(engine, root,net);
 		} else {
 			throw new ModeNotFoundException(mode);
 		}

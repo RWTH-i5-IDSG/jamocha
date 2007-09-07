@@ -87,7 +87,7 @@ public class Jamocha {
 		}
 		Jamocha jamocha = null;
 		try {
-			jamocha = new Jamocha(new Rete(), startGui, startShell, mode,
+			jamocha = new Jamocha(startGui, startShell, mode,
 					batchFiles);
 		} catch (ModeNotFoundException e) {
 			// This really is a fatal error so we stop everything.
@@ -125,9 +125,9 @@ public class Jamocha {
 	 * @throws ModeNotFoundException
 	 *             if the specified Mode in <code>mode</code> was not found.
 	 */
-	public Jamocha(Rete engine, boolean startGui, boolean startShell,
+	public Jamocha(boolean startGui, boolean startShell,
 			String mode) throws ModeNotFoundException {
-		this(engine, startGui, startShell, mode, null);
+		this(startGui, startShell, mode, null);
 	}
 
 	/**
@@ -136,9 +136,7 @@ public class Jamocha {
 	 * <p>
 	 * Additionally accepts a List of files that should be batch-processed at
 	 * startup. This only works with the GUI!
-	 * 
-	 * @param engine
-	 *            The engine that should be used for the Shell / GUI.
+
 	 * @param startGui
 	 *            If <code>true</code> a GUI will be started.
 	 * @param startShell
@@ -153,14 +151,14 @@ public class Jamocha {
 	 * @throws ModeNotFoundException
 	 *             if the specified Mode in <code>mode</code> was not found.
 	 */
-	public Jamocha(Rete engine, boolean startGui, boolean startShell,
+	public Jamocha(boolean startGui, boolean startShell,
 			String mode, List<String> batchFiles) throws ModeNotFoundException {
-		this.engine = engine;
-		batchThread = new BatchThread(engine);
-		batchThread.start();
 		if (mode != null && mode.length() > 0) {
 			ParserFactory.setDefaultMode(mode);
 		}
+		this.engine = new Rete();
+		batchThread = new BatchThread(engine);
+		batchThread.start();
 		if (startShell) {
 			startShell();
 		}

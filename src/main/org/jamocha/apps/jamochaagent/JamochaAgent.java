@@ -83,7 +83,6 @@ public class JamochaAgent extends ToolAgent {
 	@Override
 	public void toolSetup() {
 		// Initialize the Rule-engine
-		engine = new Rete();
 		// Load the properties and merge them with possible arguments
 		initProperties();
 
@@ -95,7 +94,7 @@ public class JamochaAgent extends ToolAgent {
 		addBehaviour(sendingBehaviour);
 
 		try {
-			jamocha = new Jamocha(engine, getProperties().getBooleanProperty(
+			jamocha = new Jamocha(getProperties().getBooleanProperty(
 					"jamocha.gui", false), getProperties().getBooleanProperty(
 					"jamoche.shell", false), getProperties().getProperty(
 					"jamocha.mode", ""), null);
