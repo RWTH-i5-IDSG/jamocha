@@ -164,11 +164,8 @@ public abstract class BaseNode implements Serializable {
 	public void destroy(ReteNet net) throws RetractException {
 		for (BaseNode node : parentNodes) {
 			node.removeNode(this, net);
-
 		}
-		// for (int i = 0; i < parentNodes.length; i++) {
-		// parentNodes[i].removeNode(this, engine);
-		// }
+
 	}
 
 	/**

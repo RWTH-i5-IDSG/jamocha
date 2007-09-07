@@ -105,7 +105,7 @@ public class RootNode extends BaseNode {
 	 * 
 	 * @return
 	 */
-	public Map getObjectTypeNodes() {
+	public Map<Template, ObjectTypeNode> getObjectTypeNodes() {
 		return this.inputNodes;
 	}
 
