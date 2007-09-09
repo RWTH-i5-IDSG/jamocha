@@ -14,7 +14,7 @@
  * limitations under the License.
  * 
  */
-package testcases;
+package testframework;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -30,16 +30,16 @@ import junit.framework.TestCase;
  * @author Sebastian Reinartz
  * 
  */
-public class JamochaTest extends TestCase {
+public abstract class AbstractJamochaTest extends TestCase {
 
-	protected Rete engine;
+	private Rete engine;
 
-	protected StringChannel channel;
+	private StringChannel channel;
 
 	/**
 	 * @param arg0
 	 */
-	public JamochaTest(String arg0) {
+	public AbstractJamochaTest(String arg0) {
 		super(arg0);
 	}
 
@@ -60,10 +60,8 @@ public class JamochaTest extends TestCase {
 	 * 
 	 * @param arg0
 	 */
-	protected List executeCommand(String command) {
-		channel.executeCommand(command, true);
-		List<MessageEvent> events = new LinkedList<MessageEvent>();
-		channel.fillEventList(events);
+	protected List<MessageEvent> executeCommandReturnAll(String command) {
+		List<MessageEvent> events = executeCommand(command);
 		for (MessageEvent event : events) {
 			assertFalse(event.getMessage() instanceof Exception);
 		}
@@ -77,15 +75,25 @@ public class JamochaTest extends TestCase {
 	 */
 
 	protected String executeCommandReturnLast(String command) {
-		String result=null;
+		String result = null;
+		List<MessageEvent> events = executeCommand(command);
+		for (MessageEvent event : events) {
+			assertFalse(event.getMessage() instanceof Exception);
+			result = (String) event.getMessage().toString();
+		}
+		return result;
+	}
+
+	private List<MessageEvent> executeCommand(String command) {
 		channel.executeCommand(command, true);
 		List<MessageEvent> events = new LinkedList<MessageEvent>();
 		channel.fillEventList(events);
-		for (MessageEvent event : events) {
-			assertFalse(event.getMessage() instanceof Exception);
-			result = (String)event.getMessage().toString();
-		}
-		return result;
+		return events;
+	}
+
+	protected void executeTestEquals(String inputCommand, String expectedLastResult) {
+		String result = this.executeCommandReturnLast(inputCommand);
+		assertEquals(expectedLastResult, result);
 	}
 
 	/*

@@ -1,14 +1,15 @@
 package testcases;
 
-public class JTCDeftemplate extends JamochaTest {
+import testframework.AbstractJamochaTest;
+
+public class JTCDeftemplate extends AbstractJamochaTest {
 
 	public JTCDeftemplate(String arg0) {
 		super(arg0);
 	}
 
-	public void testDeftemplate() {
-		String result = this.executeCommandReturnLast("(deftemplate wurst(slot name)(slot size))");
-		assertEquals("true", result);
+	public void test() {
+		executeTestEquals("(deftemplate wurst(slot name)(slot size))", "true");
 	}
 
 }

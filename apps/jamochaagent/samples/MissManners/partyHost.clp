@@ -193,13 +193,6 @@
 
 (assert (last_seat (seat 10)))
 
-(defrule increaseGuestCounter
-	(PartyAnnouncement) 
-	?guestCounter <- (last_seat (arrivedGuests ?x))
-	=>
-	(bind ?x (+ ?x 1))
-	(modify ?guestCounter (arrivedGuests ?x))
-)
 
 (defrule allArrived
 	(last_seat 
@@ -210,6 +203,14 @@
 =>
 	(assert (context (state "start") ) )
 )
+(defrule increaseGuestCounter
+	(PartyAnnouncement) 
+	?guestCounter <- (last_seat (arrivedGuests ?x))
+	=>
+	(bind ?x (+ ?x 1))
+	(modify ?guestCounter (arrivedGuests ?x))
+)
+
 
 
 (assert (count (c 1) ) )

@@ -1,5 +1,7 @@
-package testcases;
+package testframework;
 
+import testcases.JTCDeftemplate;
+import testcases.JTCSimpleAdd;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 

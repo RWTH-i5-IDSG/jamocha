@@ -67,4 +67,6 @@ object-support
 tests for:
 	assert-temporal
 	deffacts
+batch:
+	set of possible pathes where batch may find files
 			
