@@ -41,6 +41,11 @@ public abstract class AbstractFunction implements Function {
 	 * @see org.jamocha.rete.functions.Function#getName()
 	 */
 	public abstract String getName();
+	
+	public String toString(){
+		return "("+ this.getName() +")"; 
+		
+	}
 
 	/*
 	 * (non-Javadoc)

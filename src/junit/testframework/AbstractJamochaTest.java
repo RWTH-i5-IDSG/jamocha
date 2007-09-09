@@ -32,7 +32,7 @@ import junit.framework.TestCase;
  */
 public abstract class AbstractJamochaTest extends TestCase {
 
-	private Rete engine;
+	protected Rete engine;
 
 	private StringChannel channel;
 
@@ -60,7 +60,7 @@ public abstract class AbstractJamochaTest extends TestCase {
 	 * 
 	 * @param arg0
 	 */
-	protected List<MessageEvent> executeCommandReturnAll(String command) {
+	private List<MessageEvent> executeCommandReturnAll(String command) {
 		List<MessageEvent> events = executeCommand(command);
 		for (MessageEvent event : events) {
 			assertFalse(event.getMessage() instanceof Exception);
@@ -74,11 +74,11 @@ public abstract class AbstractJamochaTest extends TestCase {
 	 * @param arg0
 	 */
 
-	protected String executeCommandReturnLast(String command) {
+	private String executeCommandReturnLast(String command, String errorString) {
 		String result = null;
 		List<MessageEvent> events = executeCommand(command);
 		for (MessageEvent event : events) {
-			assertFalse(event.getMessage() instanceof Exception);
+			assertFalse(errorString, event.getMessage() instanceof Exception);
 			result = (String) event.getMessage().toString();
 		}
 		return result;
@@ -91,9 +91,20 @@ public abstract class AbstractJamochaTest extends TestCase {
 		return events;
 	}
 
-	protected void executeTestEquals(String inputCommand, String expectedLastResult) {
-		String result = this.executeCommandReturnLast(inputCommand);
+	
+	protected void executeTestEquals(String inputCommand, String expectedLastResult, String errorString) {
+		String result = this.executeCommandReturnLast(inputCommand, errorString);
 		assertEquals(expectedLastResult, result);
+	}
+	protected void executeTestEquals(String inputCommand, String expectedLastResult) {
+		this.executeTestEquals(inputCommand, expectedLastResult, "");
+	}
+
+	protected void executeTestException(String inputCommand, String errorString) {
+		this.executeCommandReturnLast(inputCommand, errorString);
+	}
+	protected void executeTestException(String inputCommand) {
+		this.executeTestException(inputCommand,"");
 	}
 
 	/*
@@ -105,7 +116,5 @@ public abstract class AbstractJamochaTest extends TestCase {
 		super.tearDown();
 	}
 
-	public void test() {
-
-	}
+	public abstract void test();
 }

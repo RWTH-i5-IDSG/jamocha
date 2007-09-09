@@ -1,6 +1,7 @@
 package testframework;
 
 import testcases.JTCDeftemplate;
+import testcases.JTCEngineFunctionTests;
 import testcases.JTCSimpleAdd;
 import junit.framework.Test;
 import junit.framework.TestSuite;
@@ -8,11 +9,13 @@ import junit.framework.TestSuite;
 public class JTSAllTests {
 
 	public static Test suite() {
-		TestSuite suite = new TestSuite("Test for testcases");
-		// $JUnit-BEGIN$
+		TestSuite suite = new TestSuite("Jamocha Tests");
+		//add all test cases below:
+		
 		suite.addTestSuite(JTCSimpleAdd.class);
 		suite.addTestSuite(JTCDeftemplate.class);
-		// $JUnit-END$
+		suite.addTestSuite(JTCEngineFunctionTests.class);
+
 		return suite;
 	}
 
