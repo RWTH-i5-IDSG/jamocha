@@ -176,6 +176,10 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 			log.info(e);
 		}
 	}
+	
+	public InitialFact getInitialTemplate(){
+		return this.initFact;
+	}
 
 	public Fact getInitialFact() {
 		return initFact.getInitialFact();
