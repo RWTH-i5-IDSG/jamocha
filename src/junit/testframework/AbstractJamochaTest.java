@@ -1,5 +1,5 @@
 /*
- * Copyright 2006 Sebastian Reinartz
+ * Copyright 2007 Sebastian Reinartz
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,11 +27,11 @@ import org.jamocha.rete.Rete;
 import junit.framework.TestCase;
 
 /**
- * @author Sebastian Reinartz
- * 
  * The class provides basic methods to be used for junit tests. The setup method creates a 
  * jamocha engine tha can be used. The executeTest... functions can be used by extended classes
  * to execute CLIPS-statements and compare returning with expected results. 
+ * 
+ * @author Sebastian Reinartz
  */
 public abstract class AbstractJamochaTest extends TestCase {
 
