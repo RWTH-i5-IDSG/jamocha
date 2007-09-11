@@ -204,7 +204,7 @@ public class HokifischRuleCompiler implements RuleCompiler {
 	 */
 	private void compileObjectCondition(CompileCallInformation information, ObjectCondition condition) throws RuleCompilingException {
 		//determine the root of our subnet
-		BaseNode relativeRoot = getObjectTypeNode(condition.getTemplate());
+		BaseNode relativeRoot = getObjectTypeNode(information.getTemplate(condition));
 		ReteSubnet subnet = new ReteSubnet(relativeRoot, relativeRoot);
 		// compile each constraint and append nodes to the subnet
 		for (Constraint constraint : condition.getConstraints()) {
@@ -220,8 +220,7 @@ public class HokifischRuleCompiler implements RuleCompiler {
 	
 	private void compileConstraint(CompileCallInformation information, Constraint constraint) throws RuleCompilingException {
 		// set slot
-		Condition cond = information.constraint2condition.get(constraint);
-		Template template = information.condition2template.get(cond);
+		Template template = information.getTemplate(constraint);
 		TemplateSlot slot = template.getSlot(constraint.getName());
 		information.constraint2templateSlot.put(constraint,slot);
 		if (constraint instanceof LiteralConstraint) {
