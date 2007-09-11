@@ -77,20 +77,6 @@ public class TestCondition extends AbstractCondition {
 		return compiler.compile(this, rule, conditionIndex);
 	}
 
-	public List getAllBoundConstraints() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public List getBoundConstraints() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public boolean hasBindings() {
-		return false;
-	}
-
 	public BaseNode getLastNode() {
 		// TODO Auto-generated method stub
 		return null;

@@ -115,7 +115,7 @@ public class ExistCondition extends ConditionWithNested {
 		return has;
 	}
 
-
+	@Deprecated
 	public List<BoundConstraint> getAllBoundConstraints() {
 		ArrayList<BoundConstraint> bindings = new ArrayList<BoundConstraint>();
 		Iterator itr = nestedCE.iterator();
