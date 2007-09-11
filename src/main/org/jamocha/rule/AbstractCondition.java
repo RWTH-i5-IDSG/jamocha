@@ -16,9 +16,6 @@
  */
 package org.jamocha.rule;
 
-import org.jamocha.formatter.Formatter;
-
-
 public abstract class AbstractCondition implements Condition {
 
 	protected static int complexity = 1;
@@ -40,22 +37,21 @@ public abstract class AbstractCondition implements Condition {
 	public void setComplexity(int value) {
 		AbstractCondition.complexity = value;
 	}
-	
+
 	public int compareTo(Object o) {
-		return this.getTotalComplexity() - ((Condition)o).getTotalComplexity();
+		return this.getTotalComplexity() - ((Condition) o).getTotalComplexity();
 	}
-	
+
 	protected boolean negated;
 
 	public boolean getNegated() {
 		return negated;
 	}
-	
 
 	public void setNegated(boolean negated) {
 		this.negated = negated;
 	}
-	
+
 	public abstract Object clone() throws CloneNotSupportedException;
-	
+
 }

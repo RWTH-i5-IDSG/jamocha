@@ -77,10 +77,6 @@ public class TestCondition extends AbstractCondition {
 		return compiler.compile(this, rule, conditionIndex);
 	}
 
-	public List<Constraint> getConstraints() {
-		return null;
-	}
-
 	public List getAllBoundConstraints() {
 		// TODO Auto-generated method stub
 		return null;
@@ -112,6 +108,11 @@ public class TestCondition extends AbstractCondition {
 		result.func = (Signature)this.func.clone();
 		
 		return result;
+	}
+
+	public List<Constraint> getConstraints() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 	
 

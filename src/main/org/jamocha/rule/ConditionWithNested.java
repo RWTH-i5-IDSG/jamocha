@@ -41,10 +41,6 @@ public abstract class ConditionWithNested extends AbstractCondition {
 		nodes.add(node);
 	}
 
-	public boolean hasBindings() {
-		return false;
-	}
-
 	public BaseNode getLastNode() {
 		if (nodes.size() > 0) {
 			return nodes.get(nodes.size()-1);
@@ -59,14 +55,6 @@ public abstract class ConditionWithNested extends AbstractCondition {
 		} else {
 			return null;
 		}
-	}
-	
-	public List getAllBoundConstraints() {
-		return null;
-	}
-
-	public List getBoundConstraints() {
-		return null;
 	}
 
 	public void clear() {

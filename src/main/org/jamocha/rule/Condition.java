@@ -41,28 +41,6 @@ public interface Condition extends Serializable, Complexity, Compileable,
 	boolean compare(Complexity cond);
 
 	/**
-	 * It's convienant to have a method which rule compilers can call to find
-	 * out if a condition has bindings.
-	 * 
-	 * @return
-	 */
-	boolean hasBindings();
-
-	/**
-	 * convienance method for getting the bindings
-	 * 
-	 * @return
-	 */
-	List getAllBoundConstraints();
-
-	/**
-	 * method to get just the bindings excluding predicate constraints
-	 * 
-	 * @return
-	 */
-	List getBoundConstraints();
-
-	/**
 	 * clear the condition
 	 */
 	void clear();
@@ -70,5 +48,7 @@ public interface Condition extends Serializable, Complexity, Compileable,
 	BaseNode getLastNode();
 
 	public Object clone() throws CloneNotSupportedException;
+	
+	public List<Constraint> getConstraints();
 
 }

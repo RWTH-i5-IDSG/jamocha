@@ -87,7 +87,6 @@ public class ObjectCondition extends AbstractCondition {
 		this.varname = name;
 	}
 
-
 	public List<Constraint> getConstraints() {
 		return propConditions;
 	}
@@ -225,10 +224,6 @@ public class ObjectCondition extends AbstractCondition {
 		
 		
 		return result;
-	}
-
-	public boolean hasBindings() {
-		return (!getAllBoundConstraints().isEmpty());
 	}
 
 	public String format(Formatter visitor) {
