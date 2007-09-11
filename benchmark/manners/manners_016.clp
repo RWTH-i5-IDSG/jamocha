@@ -9,3 +9,4 @@
 ; start the manners benchmark
 (printout t "starting manners benchmark")
 (batch benchmark/manners/start.clp)
+(printout t "elpasedTime=" ?et "ms" crlf)

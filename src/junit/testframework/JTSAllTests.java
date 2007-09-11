@@ -16,11 +16,11 @@
  */
 package testframework;
 
+import junit.framework.Test;
+import junit.framework.TestSuite;
 import testframework.testcases.JTCDeftemplate;
 import testframework.testcases.JTCEngineFunctionTests;
 import testframework.testcases.JTCSimpleAdd;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 
 /**
  * JUnit TestSuite for all Jamocha test cases and suites

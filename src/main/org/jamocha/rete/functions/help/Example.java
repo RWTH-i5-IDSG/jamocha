@@ -78,7 +78,7 @@ public class Example extends AbstractFunction {
 		}
 
 		public String getExample() {
-			return "(example load-facts)";
+			return "(example add)";
 		}
 
 		public boolean isResultAutoGeneratable() {
