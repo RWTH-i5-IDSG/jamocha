@@ -34,11 +34,12 @@ import org.jamocha.rule.Rule;
  */
 public class HokifischRuleCompiler implements RuleCompiler {
 
-	Rete engine;
-	RootNode rootNode;
-	ReteNet network;
-	boolean validate; // true, iff our rule compiler must validate given rules
-	Set<CompilerListener> listeners; // listeners
+	private static final long serialVersionUID = 1L;
+	private Rete engine;
+	private RootNode rootNode;
+	private ReteNet network;
+	private boolean validate; // true, iff our rule compiler must validate given rules
+	private Set<CompilerListener> listeners; // listeners
 	
 	public HokifischRuleCompiler(Rete engine, ReteNet net) {
 		this(engine,net.getRoot(),net);

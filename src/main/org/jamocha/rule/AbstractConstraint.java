@@ -16,7 +16,6 @@
  */
 package org.jamocha.rule;
 
-import org.jamocha.formatter.Formatter;
 import org.jamocha.rete.TemplateSlot;
 
 

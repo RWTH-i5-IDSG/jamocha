@@ -19,6 +19,7 @@ package org.jamocha.rule;
 import org.jamocha.formatter.Formatter;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.SFRuleCompiler;
+import org.jamocha.rete.Template;
 import org.jamocha.rete.nodes.BaseNode;
 
 /**
@@ -39,6 +40,8 @@ public class LiteralConstraint extends AbstractConstraint {
 	protected JamochaValue value;
 
 	protected boolean negated = false;
+
+	private Template template;
 
 	/**
 	 * 
@@ -107,5 +110,12 @@ public class LiteralConstraint extends AbstractConstraint {
 
 	public String format(Formatter visitor) {
 		return visitor.visit(this);
+	}
+	public Template getTemplate() {
+		return this.template;
+	}
+
+	public void setTemplate(Template template) {
+		this.template = template;
 	}
 }

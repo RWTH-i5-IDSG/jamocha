@@ -22,6 +22,7 @@ import org.jamocha.formatter.Formatter;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.SFRuleCompiler;
+import org.jamocha.rete.Template;
 import org.jamocha.rete.nodes.BaseNode;
 
 /**
@@ -41,6 +42,8 @@ public class PredicateConstraint extends AbstractConstraint {
 	protected String functionName = null;
 
 	protected ArrayList<Parameter> parameters = new ArrayList<Parameter>();
+
+	private Template template;
 
 	/**
 	 * 
@@ -101,5 +104,13 @@ public class PredicateConstraint extends AbstractConstraint {
 
 	public ArrayList<Parameter> getParameters() {
 		return parameters;
+	}
+	
+	public Template getTemplate() {
+		return this.template;
+	}
+
+	public void setTemplate(Template template) {
+		this.template = template;
 	}
 }

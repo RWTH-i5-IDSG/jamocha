@@ -1,5 +1,7 @@
 package org.jamocha.rule;
 
+import org.jamocha.rete.Template;
+
 
 public abstract class AbstractConnectedConstraint extends AbstractConstraint {
 	
@@ -31,6 +33,15 @@ public abstract class AbstractConnectedConstraint extends AbstractConstraint {
 		if (right != null) result.append(right.toString());
 		result.append("}");
 		return result.toString();
+	}
+
+	public Template getTemplate() {
+		return left.getTemplate();
+	}
+
+	public void setTemplate(Template template) {
+		left.setTemplate(template);
+		right.setTemplate(template);
 	}
 	
 }

@@ -20,6 +20,7 @@ import java.io.Serializable;
 
 import org.jamocha.formatter.Formattable;
 import org.jamocha.parser.JamochaValue;
+import org.jamocha.rete.Template;
 import org.jamocha.rete.TemplateSlot;
 
 /**
@@ -80,8 +81,14 @@ public interface Constraint extends Serializable, Complexity, Compileable,
 	 */
 	boolean getNegated();
 
+	@Deprecated
 	void setSlot(TemplateSlot slot);
 
+	@Deprecated
 	TemplateSlot getSlot();
+	
+	void setTemplate(Template template);
+	
+	Template getTemplate();
 
 }

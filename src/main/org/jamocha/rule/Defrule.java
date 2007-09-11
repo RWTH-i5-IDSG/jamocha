@@ -132,8 +132,7 @@ public class Defrule implements Rule {
 		setName(name);
 	}
 
-	public Defrule(DefruleConfiguration configuration, Rete engine)
-			throws EvaluationException {
+	public Defrule(DefruleConfiguration configuration, Rete engine) throws EvaluationException {
 		this();
 		totalComplexity = configuration.getTotalComplexity();
 		// set rule name:
@@ -197,9 +196,7 @@ public class Defrule implements Rule {
 		this.watch = watch;
 	}
 
-	public void setDeclaration(
-			DeclarationConfiguration declarationConfiguration, Rete engine)
-			throws EvaluationException {
+	public void setDeclaration(DeclarationConfiguration declarationConfiguration, Rete engine) throws EvaluationException {
 		if (declarationConfiguration != null) {
 			Parameter param = null;
 
@@ -493,11 +490,13 @@ public class Defrule implements Rule {
 			Template dft = (Template) engine.findTemplate(oc.getTemplateName());
 			if (dft != null) {
 				oc.setTemplate(dft);
+				for (Constraint constraint : oc.getConstraints()) {
+					constraint.setTemplate(dft);
+				}
 			}
 		} else if (cond instanceof ConditionWithNested) {
 			// reslove all templates from nested conditions:
-			List<Condition> nestedConds = ((ConditionWithNested) cond)
-					.getNestedConditionalElement();
+			List<Condition> nestedConds = ((ConditionWithNested) cond).getNestedConditionalElement();
 			for (Condition nestedCond : nestedConds) {
 				resolveTemplate(engine, nestedCond);
 			}
@@ -514,16 +513,13 @@ public class Defrule implements Rule {
 				setSalience(declaration.getIntValue());
 			} else if (declaration.getName().equals(RuleProperty.VERSION)) {
 				setVersion(declaration.getValue());
-			} else if (declaration.getName()
-					.equals(RuleProperty.REMEMBER_MATCH)) {
+			} else if (declaration.getName().equals(RuleProperty.REMEMBER_MATCH)) {
 				setRememberMatch(declaration.getBooleanValue());
 			} else if (declaration.getName().equals(RuleProperty.NO_AGENDA)) {
 				setNoAgenda(declaration.getBooleanValue());
-			} else if (declaration.getName()
-					.equals(RuleProperty.EFFECTIVE_DATE)) {
+			} else if (declaration.getName().equals(RuleProperty.EFFECTIVE_DATE)) {
 				this.effectiveDate = getDateTime(declaration.getValue());
-			} else if (declaration.getName().equals(
-					RuleProperty.EXPIRATION_DATE)) {
+			} else if (declaration.getName().equals(RuleProperty.EXPIRATION_DATE)) {
 				this.expirationDate = getDateTime(declaration.getValue());
 			}
 		}
@@ -533,8 +529,7 @@ public class Defrule implements Rule {
 	public static long getDateTime(String date) {
 		if (date != null && date.length() > 0) {
 			try {
-				java.text.SimpleDateFormat df = new java.text.SimpleDateFormat(
-						"mm/dd/yyyy HH:mm");
+				java.text.SimpleDateFormat df = new java.text.SimpleDateFormat("mm/dd/yyyy HH:mm");
 				return df.parse(date).getTime();
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -715,8 +710,7 @@ public class Defrule implements Rule {
 		final Rule other = (Rule) obj;
 		if (!other.getName().equals(name))
 			return false;
-		if (!other.getModule().getModuleName()
-				.equals(themodule.getModuleName()))
+		if (!other.getModule().getModuleName().equals(themodule.getModuleName()))
 			return false;
 		return true;
 	}
