@@ -34,14 +34,5 @@ public abstract class AbstractConnectedConstraint extends AbstractConstraint {
 		result.append("}");
 		return result.toString();
 	}
-
-	public Template getTemplate() {
-		return left.getTemplate();
-	}
-
-	public void setTemplate(Template template) {
-		left.setTemplate(template);
-		right.setTemplate(template);
-	}
 	
 }

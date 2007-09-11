@@ -69,10 +69,12 @@ public class ObjectCondition extends AbstractCondition {
 		this.templateName = name;
 	}
 
+	@Deprecated
 	public Template getTemplate() {
 		return this.template;
 	}
 
+	@Deprecated
 	public void setTemplate(Template tmpl) {
 		this.template = tmpl;
 	}

@@ -21,7 +21,6 @@ import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Constants;
 import org.jamocha.rete.ConversionUtils;
 import org.jamocha.rete.SFRuleCompiler;
-import org.jamocha.rete.Template;
 import org.jamocha.rete.nodes.BaseNode;
 
 /**
@@ -43,8 +42,6 @@ public class BoundConstraint extends AbstractConstraint {
 	 */
 	protected JamochaValue value;
 	
-	protected Template template;
-
 	protected boolean isObjectBinding = false;
 
 	protected boolean negated = false;
@@ -207,13 +204,5 @@ public class BoundConstraint extends AbstractConstraint {
 
 	public String format(Formatter visitor) {
 		return visitor.visit(this);
-	}
-
-	public Template getTemplate() {
-		return this.template;
-	}
-
-	public void setTemplate(Template template) {
-		this.template = template;
 	}
 }

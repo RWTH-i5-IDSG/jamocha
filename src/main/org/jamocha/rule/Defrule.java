@@ -490,9 +490,6 @@ public class Defrule implements Rule {
 			Template dft = (Template) engine.findTemplate(oc.getTemplateName());
 			if (dft != null) {
 				oc.setTemplate(dft);
-				for (Constraint constraint : oc.getConstraints()) {
-					constraint.setTemplate(dft);
-				}
 			}
 		} else if (cond instanceof ConditionWithNested) {
 			// reslove all templates from nested conditions:
