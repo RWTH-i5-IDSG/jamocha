@@ -29,6 +29,9 @@ import junit.framework.TestCase;
 /**
  * @author Sebastian Reinartz
  * 
+ * The class provides basic methods to be used for junit tests. The setup method creates a 
+ * jamocha engine tha can be used. The executeTest... functions can be used by extended classes
+ * to execute CLIPS-statements and compare returning with expected results. 
  */
 public abstract class AbstractJamochaTest extends TestCase {
 
@@ -91,18 +94,45 @@ public abstract class AbstractJamochaTest extends TestCase {
 		return events;
 	}
 
-	
+	/**
+	 * The method executes the input CLIPS-command,checks return statements for 
+	 * jamocha exceptions and compares last result with given expectedLastResult 
+	 * @param CLIPS command
+	 * @param expectedLastResult
+	 * @param possible error string
+	 * @return
+	 */	
 	protected void executeTestEquals(String inputCommand, String expectedLastResult, String errorString) {
 		String result = this.executeCommandReturnLast(inputCommand, errorString);
 		assertEquals(expectedLastResult, result);
 	}
+	
+	/**
+	 * The method executes the input CLIPS-command,checks return statements for 
+	 * jamocha exceptions and compares last result with given expectedLastResult 
+	 * @param CLIPS command
+	 * @param expectedLastResult
+	 * @return
+	 */
 	protected void executeTestEquals(String inputCommand, String expectedLastResult) {
 		this.executeTestEquals(inputCommand, expectedLastResult, "");
 	}
 
+	/**
+	 * The method executes the input CLIPS-command and checks return statements for jamocha exceptions
+	 * @param CLIPS command
+	 * @param possible error string
+	 * @return
+	 */
 	protected void executeTestException(String inputCommand, String errorString) {
 		this.executeCommandReturnLast(inputCommand, errorString);
 	}
+	
+	/**
+	 * The method executes the input CLIPS-command and checks return statements for jamocha exceptions
+	 * @param CLIPS command
+	 * @return
+	 */
 	protected void executeTestException(String inputCommand) {
 		this.executeTestException(inputCommand,"");
 	}
