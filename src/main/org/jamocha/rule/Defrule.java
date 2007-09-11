@@ -476,6 +476,7 @@ public class Defrule implements Rule {
 		return this.bindings.get(varName);
 	}
 
+	@Deprecated
 	public void resolveTemplates(Rete engine) {
 		Condition[] cnds = this.getConditions();
 		for (int idx = 0; idx < cnds.length; idx++) {
@@ -484,6 +485,7 @@ public class Defrule implements Rule {
 		}
 	}
 
+	@Deprecated
 	public void resolveTemplate(Rete engine, Condition cond) {
 		if (cond instanceof ObjectCondition) {
 			ObjectCondition oc = (ObjectCondition) cond;

@@ -453,7 +453,8 @@ public abstract class BaseNode implements Serializable {
 	public int drawNode(int fromColumn, List<BaseNode> selected, Graphics2D canvas, VisualizerSetup setup, Map<BaseNode, Point> positions, Map<Point, BaseNode> p2n, Map<BaseNode, Integer> rowHints,
 			int halfLineHeight) {
 		int firstColumn = fromColumn;
-		int row = rowHints.get(this);
+		Integer row = rowHints.get(this);
+		if (row == null ) row =0;
 		for (BaseNode child : childNodes) {
 			// only draw the child node, iff i am the "primary parent"
 			if (!(child.parentNodes[0] == this))

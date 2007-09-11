@@ -25,6 +25,12 @@ public class ReteSubnet {
 		this.root = root;
 		this.last = last;
 	}
+	
+	public ReteSubnet(ReteSubnet n1, ReteSubnet n2) {
+		super();
+		this.root = n1.root;
+		this.last = n2.last;
+	}
 
 	public void setRoot(BaseNode root) {
 		this.root = root;

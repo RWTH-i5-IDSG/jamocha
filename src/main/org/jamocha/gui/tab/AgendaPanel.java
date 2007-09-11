@@ -29,6 +29,7 @@ import org.jamocha.rete.Fact;
 import org.jamocha.rete.agenda.Activation;
 import org.jamocha.rule.Rule;
 
+@Sexy
 public class AgendaPanel extends AbstractJamochaPanel implements
 		ListSelectionListener, ActionListener {
 

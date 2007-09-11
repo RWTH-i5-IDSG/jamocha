@@ -12,6 +12,7 @@ import org.jamocha.rete.Rete;
 import org.jamocha.rete.RuleCompiler;
 import org.jamocha.rete.Slot;
 import org.jamocha.rete.Template;
+import org.jamocha.rete.TemplateSlot;
 import org.jamocha.rete.exception.AssertException;
 import org.jamocha.rete.exception.RetractException;
 import org.jamocha.rete.nodes.AbstractAlpha;
@@ -22,6 +23,7 @@ import org.jamocha.rete.nodes.ObjectTypeNode;
 import org.jamocha.rete.nodes.ReteNet;
 import org.jamocha.rete.nodes.RootNode;
 import org.jamocha.rule.Condition;
+import org.jamocha.rule.ConditionWithNested;
 import org.jamocha.rule.Constraint;
 import org.jamocha.rule.LiteralConstraint;
 import org.jamocha.rule.ObjectCondition;
@@ -73,13 +75,42 @@ public class HokifischRuleCompiler implements RuleCompiler {
 	public boolean addRule(Rule rule) throws AssertException, RuleException {
 		CompileCallInformation information = new CompileCallInformation(rule);
 		try {
+			preCompile(information);
 			compileConditions(information);
 			compileActions(information);
 		} catch (RuleCompilingException e) {
 			throw new RuleException("error while compiling rule "+rule.getName()+": "+e.getMessage());
 		}
-		for (CompilerListener l : listeners) l.ruleAdded(new CompileEvent(null,0));
+		for (CompilerListener l : listeners) l.ruleAdded(new CompileEvent(rule,CompileEvent.ADD_RULE_EVENT));
 		return true;
+	}
+
+	private void preCompileCondition(CompileCallInformation information, Condition c) {
+		
+		if (c.getConstraints() != null) {
+			for (Constraint constr : c.getConstraints() ){
+				information.constraint2condition.put(constr, c);
+			}
+		}
+		
+		if (c instanceof ObjectCondition) {
+			ObjectCondition oc = (ObjectCondition) c;
+			Template t = engine.findTemplate( oc.getTemplateName() );
+			information.condition2template.put(c, t);
+		} else if (c instanceof ConditionWithNested) {
+			ConditionWithNested cwn = (ConditionWithNested) c;
+			for (Condition sub : cwn.getNestedConditionalElement()) {
+				preCompileCondition(information, sub);
+			}
+		}
+	}
+	
+	private void preCompile(CompileCallInformation information) {
+		// feed CompileCallInformation.condition2template
+		Rule rule = information.rule;
+		for (Condition c : rule.getConditions()){
+			preCompileCondition(information,c);
+		}
 	}
 
 	private void compileActions(CompileCallInformation information) throws RuleCompilingException {
@@ -125,7 +156,13 @@ public class HokifischRuleCompiler implements RuleCompiler {
 		// at first, we take an initialfact for having beta input
 		// from all of our condition's last nodes (like also done
 		// in old rule compiler)
-		AbstractAlpha initialFact = getObjectTypeNode(engine.findTemplate("_initialFact"));
+		Template initFact = engine.getInitialTemplate();
+		try {
+			rootNode.activateObjectTypeNode(initFact, network);
+		} catch (AssertException e) {
+			throw new RuleCompilingException(e);
+		}
+		AbstractAlpha initialFact = getObjectTypeNode(initFact);
 		joinConditions(information, information.rule.getConditions(), initialFact);
 		
 	}
@@ -171,15 +208,29 @@ public class HokifischRuleCompiler implements RuleCompiler {
 		ReteSubnet subnet = new ReteSubnet(relativeRoot, relativeRoot);
 		// compile each constraint and append nodes to the subnet
 		for (Constraint constraint : condition.getConstraints()) {
-			if (constraint instanceof LiteralConstraint) {
-				BaseNode literalComparisonNode = compileLiteralConstraint((LiteralConstraint) constraint);
-				appendToSubnet(literalComparisonNode, subnet);
-			} else {
-				throw new ConstraintTypeNotImplementedException(constraint.getClass().getSimpleName());
+			compileConstraint(information,constraint);
+			ReteSubnet newConstraintSubnet = information.constraintSubnets.get(constraint);
+			if (newConstraintSubnet != null) {
+				subnet = new ReteSubnet(subnet,newConstraintSubnet);
 			}
 		}
 		// set the subnet into our information object
 		information.conditionSubnets.put(condition, subnet);
+	}
+	
+	private void compileConstraint(CompileCallInformation information, Constraint constraint) throws RuleCompilingException {
+		// set slot
+		Condition cond = information.constraint2condition.get(constraint);
+		Template template = information.condition2template.get(cond);
+		TemplateSlot slot = template.getSlot(constraint.getName());
+		information.constraint2templateSlot.put(constraint,slot);
+		if (constraint instanceof LiteralConstraint) {
+			BaseNode literalComparisonNode = compileLiteralConstraint(information,(LiteralConstraint) constraint);
+			ReteSubnet net = new ReteSubnet(literalComparisonNode,literalComparisonNode);
+			information.constraintSubnets.put(constraint,net);
+		} else {
+			throw new ConstraintTypeNotImplementedException(constraint.getClass().getSimpleName());
+		}
 	}
 
 	/**
@@ -188,9 +239,10 @@ public class HokifischRuleCompiler implements RuleCompiler {
 	 * @return
 	 * @throws RuleCompilingException
 	 */
-	private BaseNode compileLiteralConstraint(LiteralConstraint constraint) throws RuleCompilingException{
+	private BaseNode compileLiteralConstraint(CompileCallInformation information,LiteralConstraint constraint) throws RuleCompilingException{
 		// get an empty slot and put in the reference value
-		Slot sl = (Slot) constraint.getSlot().clone();
+		TemplateSlot templateSlot = information.constraint2templateSlot.get(constraint);
+		Slot sl = (Slot) templateSlot.clone();
 		JamochaValue sval;
 		try {
 			sval = constraint.getValue().implicitCast(sl.getValueType());
