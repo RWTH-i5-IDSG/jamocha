@@ -33,18 +33,16 @@ import org.jamocha.rete.functions.FunctionDescription;
 /**
  * @author Christoph Emonds, Sebastian Reinartz, Alexander Wilden
  * 
- * 
+ * This Function takes a simple agent-message fact and sends it out via the
+ * JamochaAgent. If no sender is given the local agent is taken as sender.
+ * Always returns true if no error occured.
  */
-public class SendMessageFunction extends AbstractFunction {
-
-	private static final String AGENT_IDENTIFIER = "agent-identifier";
-
-	private static final String AGENT_MESSAGE = "agent-message";
+public class AgentSendMessage extends AbstractFunction {
 
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "FIX ME!";
+			return "This Function takes a simple agent-message fact and sends it out via the JamochaAgent. If no sender is given the local agent is taken as sender. Always returns true if no error occured.";
 		}
 
 		public int getParameterCount() {
@@ -52,19 +50,19 @@ public class SendMessageFunction extends AbstractFunction {
 		}
 
 		public String getParameterDescription(int parameter) {
-			return "Directory whose files and folders will be listed.";
+			return "An agent-message fact that should be send out as acl message.";
 		}
 
 		public String getParameterName(int parameter) {
-			return "dir";
+			return "aclMessage";
 		}
 
 		public JamochaType[] getParameterTypes(int parameter) {
-			return JamochaType.STRINGS;
+			return JamochaType.FACTS;
 		}
 
 		public JamochaType[] getReturnType() {
-			return JamochaType.NONE;
+			return JamochaType.BOOLEANS;
 		}
 
 		public boolean isParameterCountFixed() {
@@ -81,7 +79,6 @@ public class SendMessageFunction extends AbstractFunction {
 		}
 
 		public boolean isResultAutoGeneratable() {
-			// TODO Auto-generated method stub
 			return false;
 		}
 	}
@@ -102,9 +99,13 @@ public class SendMessageFunction extends AbstractFunction {
 		return NAME;
 	}
 
-	public SendMessageFunction(JamochaAgent agent) {
+	public AgentSendMessage(JamochaAgent agent) {
 		this.agent = agent;
 	}
+
+	private static final String AGENT_IDENTIFIER = "agent-identifier";
+
+	private static final String AGENT_MESSAGE = "agent-message";
 
 	public JamochaValue executeFunction(Rete engine, Parameter[] params)
 			throws EvaluationException {
