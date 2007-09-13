@@ -74,7 +74,7 @@ class Propagate extends SLPerformativeTranslator {
 		ActionSLConfiguration actConf = (ActionSLConfiguration) results.get(1);
 		// In difference to proxy we handle this message as incoming and later
 		// will work on this as template for the message to forward.
-		String proxyMessage = actConf.compile(SLCompileType.ASSERT_MESSAGE);
+		String propagateMessage = actConf.compile(SLCompileType.ASSERT_MESSAGE);
 
 		StringBuilder result = new StringBuilder();
 		// binding an empty list
@@ -108,7 +108,7 @@ class Propagate extends SLPerformativeTranslator {
 		// send at all.
 		result.append("(assert (agent-propagate-result (message %MSG%)");
 		result.append("(propagateMessage ");
-		result.append(proxyMessage);
+		result.append(propagateMessage);
 		result.append(")(refOp \"");
 		result.append(refOp);
 		result.append("\")(agents ");
