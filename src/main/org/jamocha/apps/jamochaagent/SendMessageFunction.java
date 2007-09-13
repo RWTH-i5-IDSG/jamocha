@@ -21,8 +21,10 @@ import jade.lang.acl.ACLMessage;
 import java.util.Calendar;
 
 import org.jamocha.parser.EvaluationException;
+import org.jamocha.parser.IllegalParameterException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
+import org.jamocha.rete.Fact;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.functions.AbstractFunction;
@@ -34,7 +36,11 @@ import org.jamocha.rete.functions.FunctionDescription;
  * 
  */
 public class SendMessageFunction extends AbstractFunction {
-	
+
+	private static final String AGENT_IDENTIFIER = "agent-identifier";
+
+	private static final String AGENT_MESSAGE = "agent-message";
+
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
@@ -88,34 +94,6 @@ public class SendMessageFunction extends AbstractFunction {
 
 	private JamochaAgent agent;
 
-	private static final int SENDER_PARAM_POS = 0;
-
-	private static final int RECEIVER_PARAM_POS = 1;
-
-	private static final int REPLY_TO_PARAM_POS = 2;
-
-	private static final int PERFORMATIVE_PARAM_POS = 3;
-
-	private static final int CONTENT_PARAM_POS = 4;
-
-	private static final int LANGUAGE_PARAM_POS = 5;
-
-	private static final int ENCODING_PARAM_POS = 6;
-
-	private static final int ONTOLOGY_PARAM_POS = 7;
-
-	private static final int PROTOCOL_PARAM_POS = 8;
-
-	private static final int CONVERSATION_PARAM_POS = 9;
-
-	private static final int IN_REPLY_TO_PARAM_POS = 10;
-
-	private static final int REPLY_WITH_PARAM_POS = 11;
-
-	private static final int REPLY_BY_PARAM_POS = 12;
-
-	private static final int PARAM_COUNT = 13;
-
 	public FunctionDescription getDescription() {
 		return DESCRIPTION;
 	}
@@ -124,92 +102,70 @@ public class SendMessageFunction extends AbstractFunction {
 		return NAME;
 	}
 
-	/**
-	 * the following slot order:
-	 * <ol>
-	 * <li>receiver (List/Array)</li>
-	 * <li>reply-to (List/Array)</li>
-	 * <li>performative (int)</li>
-	 * <li>content (String)</li>
-	 * <li>language (String)</li>
-	 * <li>encoding (String)</li>
-	 * <li>ontology (String)</li>
-	 * <li>protocol (String)</li>
-	 * <li>conversation-id (String)</li>
-	 * <li>in-reply-to (String)</li>
-	 * <li>reply-with (String)</li>
-	 * <li>reply-by (Datetime)</li>
-	 * </ol>
-	 */
-
-	/*
-	 * <pre> (agent-send-message "DA@35-232.mops.rwth-aachen.de:1099/JADE"
-	 * "keiner" 1 "all" "fipa" "encoding" "ontolo" "proto" "muelll" "inrepto"
-	 * "repwith" "repby") </pre>
-	 */
-
 	public SendMessageFunction(JamochaAgent agent) {
 		this.agent = agent;
 	}
 
 	public JamochaValue executeFunction(Rete engine, Parameter[] params)
 			throws EvaluationException {
-		ACLMessage message = fillAclMessage(engine, params);
-		agent.getMessageSender().enqueueMessage(message);
-		return JamochaValue.TRUE;
+		if (params.length == 1) {
+			JamochaValue val = params[0].getValue(engine);
+			Fact messageFact;
+			if (val.is(JamochaType.FACT))
+				messageFact = val.getFactValue();
+			else if (val.is(JamochaType.FACT_ID) || val.is(JamochaType.LONG))
+				messageFact = engine.getFactById(val.getLongValue());
+			else
+				throw new EvaluationException(
+						"The only parameter of (send-message) must be of type FACT or FACT_ID.");
+			if (!messageFact.getTemplate().getName().equals(AGENT_MESSAGE))
+				throw new EvaluationException(
+						"(send-message) expects a fact of type agent-message as parameter.");
+			ACLMessage message = fillAclMessage(engine, messageFact);
+			agent.getMessageSender().enqueueMessage(message);
+			return JamochaValue.TRUE;
+
+		}
+		throw new IllegalParameterException(1);
 	}
 
-	private ACLMessage fillAclMessage(Rete engine, Parameter[] params)
+	private ACLMessage fillAclMessage(Rete engine, Fact messageFact)
 			throws EvaluationException {
-		if (params.length < PARAM_COUNT) {
-			throw new EvaluationException(
-					"Not enough parameters for sending a message.");
-		}
-		ACLMessage result = new ACLMessage(ACLMessage
-				.getInteger(params[PERFORMATIVE_PARAM_POS].getValue(engine)
-						.getStringValue().toUpperCase()));
-		String sender = params[SENDER_PARAM_POS].getValue(engine)
-				.getStringValue();
-		if (sender == null || sender.length() < 1) {
+
+		ACLMessage result = new ACLMessage(ACLMessage.getInteger(slotToString(
+				messageFact, "performative")));
+		String sender = identifierToString(messageFact.getSlotValue("sender"),
+				engine);
+		if (sender.equals(""))
 			sender = agent.getName();
-		}
 		result.setSender(new AID(sender, true));
 
 		// receivers are given in a LIST
-		JamochaValue receivers = params[RECEIVER_PARAM_POS].getValue(engine)
-				.implicitCast(JamochaType.LIST);
+		JamochaValue receivers = messageFact.getSlotValue("receiver");
+		String recv;
 		for (int i = 0; i < receivers.getListCount(); ++i) {
-			result.addReceiver(new AID(receivers.getListValue(i)
-					.getStringValue(), true));
+			recv = identifierToString(receivers.getListValue(i), engine);
+			if (!recv.equals(""))
+				result.addReceiver(new AID(recv, true));
 		}
 
 		// replyTo are given in a LIST
-		JamochaValue replyTo = params[REPLY_TO_PARAM_POS].getValue(engine)
-				.implicitCast(JamochaType.LIST);
+		JamochaValue replyTo = messageFact.getSlotValue("reply-to");
+		String repl;
 		for (int i = 0; i < replyTo.getListCount(); ++i) {
-			if (!replyTo.getListValue(i).equals(JamochaValue.NIL)) {
-				result.addReplyTo(new AID(replyTo.getListValue(i)
-						.getStringValue(), true));
-			}
+			repl = identifierToString(replyTo.getListValue(i), engine);
+			if (!repl.equals(""))
+				result.addReplyTo(new AID(repl, true));
 		}
-		result
-				.setContent(params[CONTENT_PARAM_POS].getValue(engine)
-						.toString());
-		result.setLanguage(params[LANGUAGE_PARAM_POS].getValue(engine)
-				.getStringValue());
-		result.setEncoding(params[ENCODING_PARAM_POS].getValue(engine)
-				.getStringValue());
-		result.setOntology(params[ONTOLOGY_PARAM_POS].getValue(engine)
-				.getStringValue());
-		result.setProtocol(params[PROTOCOL_PARAM_POS].getValue(engine)
-				.getStringValue());
-		result.setConversationId(params[CONVERSATION_PARAM_POS]
-				.getValue(engine).getStringValue());
-		result.setInReplyTo(params[IN_REPLY_TO_PARAM_POS].getValue(engine)
-				.getStringValue());
-		result.setReplyWith(params[REPLY_WITH_PARAM_POS].getValue(engine)
-				.getStringValue());
-		JamochaValue repBy = params[REPLY_BY_PARAM_POS].getValue(engine);
+		result.setContent(slotToString(messageFact, "content"));
+		result.setLanguage(slotToString(messageFact, "language"));
+		result.setEncoding(slotToString(messageFact, "encoding"));
+		result.setOntology(slotToString(messageFact, "ontology"));
+		result.setProtocol(slotToString(messageFact, "protocol"));
+		result.setConversationId(slotToString(messageFact, "conversation-id"));
+		result.setInReplyTo(slotToString(messageFact, "in-reply-to"));
+		result.setReplyWith(slotToString(messageFact, "reply-with"));
+		JamochaValue repBy = messageFact.getSlotValue("reply-by");
 		if (repBy.is(JamochaType.LONG)) {
 			Calendar cal = Calendar.getInstance();
 			cal.setTimeInMillis(repBy.getLongValue());
@@ -218,4 +174,26 @@ public class SendMessageFunction extends AbstractFunction {
 		return result;
 	}
 
+	private String slotToString(Fact messageFact, String slotName)
+			throws EvaluationException {
+		return messageFact.getSlotValue(slotName).getStringValue();
+	}
+
+	private String identifierToString(JamochaValue idVal, Rete engine)
+			throws EvaluationException {
+		String res = "";
+		if (!idVal.is(JamochaType.NIL)) {
+			Fact idFact = null;
+			if (idVal.is(JamochaType.FACT))
+				idFact = idVal.getFactValue();
+			else if (idVal.is(JamochaType.FACT_ID)
+					|| idVal.is(JamochaType.LONG))
+				idFact = engine.getFactById(idVal.getLongValue());
+			if (idFact != null
+					&& idFact.getTemplate().getName().equals(AGENT_IDENTIFIER)) {
+				res = idFact.getSlotValue("name").getStringValue();
+			}
+		}
+		return res;
+	}
 }

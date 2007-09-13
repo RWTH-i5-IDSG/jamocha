@@ -54,19 +54,22 @@ public class MessageReceiver extends CyclicBehaviour {
 	private String createAssertString(ACLMessage msg) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("(assert (").append(JamochaAgent.TEMPLATE_AGENT_MESSAGE);
-		sb.append("(sender \"").append(msg.getSender().getName()).append("\")");
+		sb.append("(sender (assert (agent-identifier (name \"");
+		sb.append(msg.getSender().getName()).append("\"))))");
 		sb.append("(receiver ");
 		Iterator<AID> itReceiver = msg.getAllReceiver();
 		while (itReceiver.hasNext()) {
-			sb.append('"').append(itReceiver.next().getName()).append('"')
-					.append(' ');
+			sb.append("(assert (agent-identifier (name \"");
+			sb.append(itReceiver.next().getName());
+			sb.append("\"))) ");
 		}
 		sb.append(")");
 		sb.append("(reply-to ");
 		Iterator<AID> itReplyTo = msg.getAllReplyTo();
 		while (itReplyTo.hasNext()) {
-			sb.append('"').append(itReplyTo.next().getName()).append('"')
-					.append(' ');
+			sb.append("(assert (agent-identifier (name \"");
+			sb.append(itReplyTo.next().getName());
+			sb.append("\"))) ");
 		}
 		sb.append(")");
 		sb.append("(performative \"")

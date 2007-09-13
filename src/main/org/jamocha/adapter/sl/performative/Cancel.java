@@ -54,16 +54,7 @@ class Cancel extends SLPerformativeTranslator {
 	/**
 	 * Translates SL code of a cancel to CLIPS code. A cancel informs the
 	 * receiver that an ongoing or outstanding action isn't necessary any more
-	 * and should be canceled. There are different ways to find out which action
-	 * should be canceled. On the one hand one could cancel any action started
-	 * by a message with the same conversation-id as this cancel speech act. On
-	 * the other hand one can check the message content against the content of
-	 * the other messages to find out the message whose action should be
-	 * canceled.
-	 * <p>
-	 * As the second method requires a slow string comparison we prefer the
-	 * first one. Here we just assert a fact with all the information to cancel
-	 * an action in both ways.
+	 * and should be canceled.
 	 * <p>
 	 * As an action we here define a rule defined by another performative like
 	 * request-when. A generic cancel rule than checks for
@@ -88,28 +79,21 @@ class Cancel extends SLPerformativeTranslator {
 		}
 		List<SLConfiguration> results = contentConf.getExpressions();
 		checkContentItemCount(results, 1);
-
-		ActionSLConfiguration actConf = (ActionSLConfiguration) results.get(0);
-		FunctionCallOrFactSLConfiguration functionConf = (FunctionCallOrFactSLConfiguration) actConf
+		ActionSLConfiguration act = (ActionSLConfiguration) results.get(0);
+		FunctionCallOrFactSLConfiguration funcCall = (FunctionCallOrFactSLConfiguration) act
 				.getAction();
-		String performative = functionConf.getName().compile(
-				SLCompileType.ASSERT);
-		String oldContent = functionConf.getSlot("content",
-				SLCompileType.ASSERT).compile(SLCompileType.ASSERT);
-		FunctionCallOrFactSLConfiguration agentConf = (FunctionCallOrFactSLConfiguration) actConf
-				.getAgent();
-		String agent = agentConf.getSlot("name", SLCompileType.ASSERT).compile(
-				SLCompileType.ASSERT);
-		
+		String actString = "";
+		String msg = "";
+		if (funcCall.isSLMessage())
+			msg = funcCall.compile(SLCompileType.ASSERT_MESSAGE_AS_TEMPLATE);
+		else
+			actString = funcCall.compile(SLCompileType.ACTION_AND_ASSERT);
+
 		StringBuilder result = new StringBuilder();
-		result
-				.append("(assert (agent-cancel-result (message %MSG%)(initiator \"");
-		result.append(agent);
-		result.append("\")(performative \"");
-		result.append(performative);
-		result.append("\")(messageContent \"");
-		result.append(oldContent);
-		result.append("\")))");
+		result.append("(assert (agent-cancel-result (message %MSG%)");
+		result.append("(cancelAction \"").append(actString).append("\")");
+		result.append("(cancelMessage ").append(msg).append(")");
+		result.append("))");
 
 		return result.toString();
 	}

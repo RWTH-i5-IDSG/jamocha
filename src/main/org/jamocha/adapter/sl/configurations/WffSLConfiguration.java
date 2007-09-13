@@ -43,6 +43,16 @@ public class WffSLConfiguration implements SLConfiguration {
 
 	public String compile(SLCompileType compileType) {
 		StringBuilder res = new StringBuilder();
+		// If we just have boolean constants we have to transform them to
+		// regular CLIPS expressions. Here we use simple testconditions.
+		if (!braces && expressions.size() == 1
+				&& compileType == SLCompileType.RULE_LHS) {
+			String possBoolean = expressions.get(0).compile(compileType);
+			if (possBoolean.equalsIgnoreCase("true"))
+				return "(test (eq true true))";
+			else if (possBoolean.equalsIgnoreCase("false"))
+				return "(test (eq true false))";
+		}
 		if (braces)
 			res.append("(");
 		for (int i = 0; i < expressions.size(); ++i) {

@@ -6,14 +6,18 @@
 	"A template defining an agent."
 	; Name / address of an agent.
     (slot name (type STRING))
-    
-    ; Flag indicating if this agent is running locally or not.
-    (slot local (type BOOLEAN)(default FALSE))
+)
+
+
+(deftemplate agent-is-local
+	"A template defining an agent as running locally."
+	; agent-identifier of the agent that runs locally
+	(slot agent)
 )
 
 
 (deftemplate agent-message
-	"Definition of an agent-message."
+	"Definition of an ACL message."
 	(slot sender)
 	(multislot receiver)
 	(multislot reply-to)
@@ -72,9 +76,8 @@
 (deftemplate agent-cancel-result
 	"Result template for cancel performatives."
 	(slot message)
-	(slot initiator (type STRING))
-	(slot performative (type STRING))
-	(slot messageContent (type STRING))
+	(slot cancelAction (type STRING))
+	(slot cancelMessage)
 )
 
 

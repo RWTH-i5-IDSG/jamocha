@@ -86,13 +86,6 @@ public class JamochaAgent extends ToolAgent {
 		// Load the properties and merge them with possible arguments
 		initProperties();
 
-		initChannel = engine.getMessageRouter().openChannel(
-				getProperties().getProperty("agent.name", "Agent") + "init");
-
-		addBehaviour(new MessageReceiver(this));
-		sendingBehaviour = new MessageSender(this);
-		addBehaviour(sendingBehaviour);
-
 		try {
 			jamocha = new Jamocha(getProperties().getBooleanProperty(
 					"jamocha.gui", false), getProperties().getBooleanProperty(
@@ -106,6 +99,14 @@ public class JamochaAgent extends ToolAgent {
 			e.printStackTrace();
 			System.exit(1);
 		}
+		engine = jamocha.getEngine();
+
+		addBehaviour(new MessageReceiver(this));
+		sendingBehaviour = new MessageSender(this);
+		addBehaviour(sendingBehaviour);
+
+		initChannel = engine.getMessageRouter().openChannel(
+				getProperties().getProperty("agent.name", "Agent") + "init");
 
 		initEngine();
 
@@ -171,9 +172,10 @@ public class JamochaAgent extends ToolAgent {
 			System.exit(1);
 		}
 
-		// store agent name as fact
-		buffer.append("(assert (" + TEMPLATE_AGENT_DESCRIPTION + "(name \""
-				+ getName() + "\")(local TRUE)))");
+		// store agent as fact
+		buffer.append("(assert (agent-is-local (agent (assert (");
+		buffer.append(TEMPLATE_AGENT_DESCRIPTION).append("(name \"");
+		buffer.append(getName()).append("\"))))))");
 
 		try {
 			initChannel.executeCommand(buffer.toString(), true);

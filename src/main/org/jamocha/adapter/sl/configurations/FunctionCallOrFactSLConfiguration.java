@@ -74,20 +74,31 @@ public class FunctionCallOrFactSLConfiguration implements SLConfiguration {
 		this.name = templateName;
 	}
 
+	/**
+	 * for given speech act types (FIPA standard) this function tests if an
+	 * action is one of them. If so it returns true, false otherwise.
+	 * 
+	 * @return True if the action is a SL-message, false otherwise.
+	 */
+	public boolean isSLMessage() {
+		String nameStr = name.compile(SLCompileType.ACTION_AND_ASSERT);
+		for (String temp : isSLMessage) {
+			if (nameStr.equalsIgnoreCase(temp)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	public String compile(SLCompileType compileType) {
 		StringBuilder res = new StringBuilder();
-		String nameStr = name.compile(compileType);
 		boolean messageAsTemplate = false;
 		if (compileType.equals(SLCompileType.ACTION_AND_ASSERT)) {
-			// Here we treat inform different than a normal function. Inform
-			// will be asserted as a fact and not called as a function so we
-			// just switch directly to ASSERT.
-			for (String temp : isSLMessage) {
-				if (nameStr.equalsIgnoreCase(temp)) {
-					compileType = SLCompileType.ASSERT_MESSAGE_AS_TEMPLATE;
-					break;
-				}
-			}
+			// Here we treat sl messages different than a normal function.
+			// The message will be asserted as a fact and not called as a
+			// function so we just switch directly to ASSERT.
+			if (isSLMessage())
+				compileType = SLCompileType.ASSERT_MESSAGE_AS_TEMPLATE;
 		}
 		switch (compileType) {
 		case ACTION_AND_ASSERT:

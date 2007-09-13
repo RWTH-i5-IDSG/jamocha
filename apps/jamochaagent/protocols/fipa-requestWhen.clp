@@ -62,40 +62,17 @@
 		(protocol "fipa-request-when")
 		(performative "request-when")
 	)
-	?inform <- (agent-message
-		(performative "inform")
-		(sender ?sender)
-		(receiver ?receivers)
-		(content ?content)
+	?msgTemplate <- (agent-message
+		(is-template TRUE)
 	)
-	(agent-requestWhen-result
+	(not (agent-requestWhen-result
 		(message ?message)
-		(result ?result)
-	)
-	(test (eq ?inform (fact-id ?result)))
+		(result ?msgTemplate)
+	))
 	
 	=>
 	
-	(bind ?senderName (fact-slot-value ?sender "name"))
-	
 	(bind ?receiverList (agent-identifiers-to-names ?receivers))
 		
-	(assert
-		(agent-message
-			(sender ?senderName)
-			(receiver ?receiverList)
-			(performative "inform")
-			(content ?content)
-			(language (fact-slot-value ?message "language"))
-			(encoding (fact-slot-value ?message "encoding"))
-			(ontology (fact-slot-value ?message "ontology"))
-			(protocol (fact-slot-value ?message "protocol"))
-			(conversation-id (fact-slot-value ?message "conversation-id"))
-			(in-reply-to (fact-slot-value ?message "reply-with"))
-			(reply-with "")
-			(reply-by 0)
-			(timestamp (datetime2timestamp (now)))
-			(incoming FALSE)
-		)
-	)
+	(modify ?msgTemplate (is-template FALSE))
 )

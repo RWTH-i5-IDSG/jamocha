@@ -7,18 +7,6 @@
 	(functiongroup AgentFunctions)
 	(?message)
 	
-	; Assert the agent that sent the message if he is unknown.
-	(bind ?agent
-		(fact-id 
-			(assert
-				(agent-identifier
-					(name (fact-slot-value ?message "sender"))
-					(local FALSE)
-				)
-			)
-		)
-	)
-	
 	; Translate the Code according to the given performative.
 	(bind ?clipsCode
 	    (sl2clips
@@ -76,21 +64,7 @@
 	(?message)
 	
 	; Call agent-send-message with the slot values.
-	(agent-send-message
-		(fact-slot-value ?message "sender")
-		(fact-slot-value ?message "receiver")
-		(fact-slot-value ?message "reply-to")
-		(fact-slot-value ?message "performative")
-		(fact-slot-value ?message "content") 
-		(fact-slot-value ?message "language")
-		(fact-slot-value ?message "encoding")
-		(fact-slot-value ?message "ontology")
-		(fact-slot-value ?message "protocol")
-		(fact-slot-value ?message "conversation-id")
-		(fact-slot-value ?message "in-reply-to")
-		(fact-slot-value ?message "reply-with")
-		(fact-slot-value ?message "reply-by")
-	)
+	(agent-send-message ?message)
 	
 	; Set the message to processed.
 	(modify ?message (processed TRUE))

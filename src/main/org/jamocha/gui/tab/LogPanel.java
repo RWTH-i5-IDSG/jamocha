@@ -393,19 +393,32 @@ public class LogPanel extends AbstractJamochaPanel implements ActionListener,
 				Object message = event.getMessage();
 				if (message instanceof Exception) {
 					Throwable ex = (Throwable) message;
-					boolean first = true;
-					do {
-						if (!first) {
-							buffer.append("\n\ncaused by:\n");
+					buffer.append("List of Exception messages:\n");
+					while(ex.getCause()!= null) {
+						ex = ex.getCause();
+						if(ex.getMessage()!=null) {
+							buffer.append("\n- ").append(ex.getMessage());
 						}
-						StackTraceElement[] str = ex.getStackTrace();
-						buffer.append(ex.getClass().getName() + ": "
-								+ ex.getMessage());
-						for (StackTraceElement strelem : str) {
-							buffer.append("\n").append(strelem);
-						}
-						first = false;
-					} while ((ex = ex.getCause()) != null);
+					}
+					buffer.append("\n\nStacktrace of innermost cause:\n\n");
+					StackTraceElement[] str = ex.getStackTrace();
+					buffer.append(ex.getClass().getName()).append("\n");
+					for (StackTraceElement strelem : str) {
+						buffer.append("\n").append(strelem);
+					}
+//					boolean first = true;
+//					do {
+//						if (!first) {
+//							buffer.append("\n\ncaused by:\n");
+//						}
+//						StackTraceElement[] str = ex.getStackTrace();
+//						buffer.append(ex.getClass().getName() + ": "
+//								+ ex.getMessage());
+//						for (StackTraceElement strelem : str) {
+//							buffer.append("\n").append(strelem);
+//						}
+//						first = false;
+//					} while ((ex = ex.getCause()) != null);
 				} else if (message instanceof Expression) {
 					buffer.append(((Expression) message).format(ParserFactory
 							.getFormatter(true)));

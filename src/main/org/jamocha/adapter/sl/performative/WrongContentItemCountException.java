@@ -31,7 +31,7 @@ public class WrongContentItemCountException extends AdapterTranslationException 
 
 	public WrongContentItemCountException(int isCount, int hasToBeCount) {
 		super("Wrong number of content elements. Expected " + hasToBeCount
-				+ " elements and found" + isCount + " elements.");
+				+ " elements and found " + isCount + " elements.");
 	}
 
 }
