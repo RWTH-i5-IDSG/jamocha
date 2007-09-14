@@ -99,12 +99,16 @@ public class JamochaSettings {
 		return (Long) get(key);
 	}
 
-	public void set(String key, String value) {
+	public boolean set(String key, String value) {
 		preferences.put(key, value);
 		JamochaSetting setting = settings.get(key);
 		if (setting != null) {
-			setting.setCurrentValue(value);
+			Object oldValue = setting.currentValue;
+			Object newValue = setting.setCurrentValue(value);
+			informListeners(key, oldValue, newValue);
+			return true;
 		}
+		return false;
 	}
 
 	private void readSettings() {
@@ -141,6 +145,12 @@ public class JamochaSettings {
 	 */
 	public void removeListener(SettingsChangedListener listener) {
 		listeners.remove(listener);
+	}
+
+	public void informListeners(String PropertyName, Object oldValue, Object newValue) {
+		for (SettingsChangedListener l : listeners) {
+			l.settingsChanged(PropertyName, oldValue, newValue);
+		}
 	}
 
 	private void addProperty(String name, String friendlyName, String defaultValue, String currentValue, String type) {
@@ -223,8 +233,9 @@ public class JamochaSettings {
 			this.currentValue = this.defaultValue;
 		}
 
-		public void setCurrentValue(String newValue) {
+		public Object setCurrentValue(String newValue) {
 			this.currentValue = getValue(newValue);
+			return this.currentValue;
 		}
 	}
 
