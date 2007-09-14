@@ -24,16 +24,19 @@ public class AutoCompletionBox {
 	int numElems = 0;
 
 	Vector<String> strings = null;
+	
+	AutoCompletion ac;
 
 	PopupFactory factory;
 
-	public AutoCompletionBox(JFrame parent) {
+	public AutoCompletionBox(JFrame parent, AutoCompletion ac) {
 		this.parent = parent;
 		factory = PopupFactory.getSharedInstance();
 		alist = new JList();
 		list = new JScrollPane(alist);
 		alist.setMinimumSize(new Dimension(70, 1));
 		alist.setMaximumSize(new Dimension(1000, 100));
+		this.ac=ac;
 	}
 
 	public boolean isVisible() {
@@ -62,8 +65,10 @@ public class AutoCompletionBox {
 			listFrame.hide();
 	}
 
-	public String getSelected() {
-		return (String) alist.getSelectedValue();
+	public String getSelected(boolean full) {
+		String s = (String) alist.getSelectedValue();
+		if (!full) return s;
+		return ac.getFullText(s);
 	}
 
 	public void show(Vector<String> lst, int x, int y) {

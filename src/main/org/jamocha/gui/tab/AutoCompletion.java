@@ -1,11 +1,15 @@
 package org.jamocha.gui.tab;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 
 public class AutoCompletion {
 
 	protected final int cacheSize = 20;
+	
+	protected Map<String,String> fullText;
 
 	protected Vector<String> tokens;
 
@@ -18,6 +22,7 @@ public class AutoCompletion {
 	@SuppressWarnings("unchecked")
 	public AutoCompletion() {
 		tokens = new Vector<String>();
+		fullText = new HashMap<String, String>();
 		cache = new Vector[cacheSize];
 		cachePrefixes = new String[cacheSize];
 		useCounter = new int[cacheSize];
@@ -26,6 +31,11 @@ public class AutoCompletion {
 
 	}
 
+	public void addToken(String token, String fullText) {
+		addToken(token);
+		this.fullText.put(token, fullText);
+	}
+	
 	public void addToken(String token) {
 		int i = 0;
 		while (i < tokens.size()) {
@@ -45,6 +55,12 @@ public class AutoCompletion {
 		return result;
 	}
 
+	public String getFullText(String token) {
+		String res = fullText.get(token);
+		if (res==null) return token;
+		return res;
+	}
+	
 	public Vector<String> getAllBeginningWith(String prefix) {
 		// search in cache
 		int found = -1;

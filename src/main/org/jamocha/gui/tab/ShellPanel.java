@@ -189,7 +189,13 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 		autoCompletion.addToken("multislot");
 		autoCompletion.addToken("slot");
 		for (Function function : gui.getEngine().getFunctionMemory().getAllFunctions()){
-			autoCompletion.addToken(function.getName());
+			StringBuilder longName = new StringBuilder();
+			longName.append(function.getName());
+			for(int i=0;i<function.getDescription().getParameterCount();i++){
+				longName.append(" ").append(function.getDescription().getParameterName(i));
+			}
+			longName.append(")");
+			autoCompletion.addToken(function.getName(),longName.toString());
 		}
 	}
 	
@@ -202,7 +208,7 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 	public ShellPanel(JamochaGui gui) {
 		super(gui);
 		autoCompletion = new AutoCompletion();
-		autoCompletionBox = new AutoCompletionBox(gui);
+		autoCompletionBox = new AutoCompletionBox(gui,autoCompletion);
 		// GUI construction
 		// create the output area
 		outputArea = new JTextArea();
@@ -577,12 +583,20 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 							}
 							break;
 						case KeyEvent.VK_ENTER:
-							
+							boolean full=( (e.getModifiers()&KeyEvent.CTRL_MASK) != 0);
 							if (autoCompletionBox.isVisible()) {
-								String txt = autoCompletionBox.getSelected().substring(autoCompletionPrefix.length());
-								int cursorPos = outputArea.getCaretPosition();
-								outputArea.insert(txt + " ", cursorPos);
-								cursorPosition = cursorPos + txt.length() + 1;
+								if (full) {
+									String txt = autoCompletionBox.getSelected(true).substring(autoCompletionPrefix.length());
+									String shorttxt = autoCompletionBox.getSelected(false).substring(autoCompletionPrefix.length());
+									int cursorPos = outputArea.getCaretPosition();
+									outputArea.insert(txt , cursorPos);
+									cursorPosition = cursorPos + shorttxt.length() + 1;
+								} else {
+									String txt = autoCompletionBox.getSelected(false).substring(autoCompletionPrefix.length());
+									int cursorPos = outputArea.getCaretPosition();
+									outputArea.insert(txt + " ", cursorPos);
+									cursorPosition = cursorPos + txt.length() + 1;
+								}
 								scrollToCursor();
 								autoCompletionBox.hide();
 							} else {
