@@ -232,7 +232,7 @@ public class SFPFormatter extends Formatter {
 		StringBuilder sb = new StringBuilder();
 		sb.append(object.getRuleName());
 		increaseIndent();
-		if (object.getRuleDescription()!= null) {
+		if (object.getRuleDescription() != null) {
 			newLine(sb);
 			sb.append("\"").append(object.getRuleDescription()).append("\"");
 		}
@@ -256,14 +256,42 @@ public class SFPFormatter extends Formatter {
 
 	@Override
 	public String visit(IfElseConfiguration object) {
-		// TODO Auto-generated method stub
-		return null;
+		StringBuilder sb = new StringBuilder();
+		sb.append(object.getCondition().format(this));
+		sb.append(" then ");
+		increaseIndent();
+		newLine(sb);
+		sb.append(object.getThenActions().format(this));
+		decreaseIndent();
+		newLine(sb);
+		ExpressionCollection elseActions = object.getElseActions();
+		if (elseActions != null) {
+			sb.append("else");
+			increaseIndent();
+			newLine(sb);
+			sb.append(object.getElseActions().format(this));
+			decreaseIndent();
+			newLine(sb);
+		}
+		return sb.toString();
 	}
 
 	@Override
 	public String visit(LoopForCountConfiguration object) {
-		// TODO Auto-generated method stub
-		return null;
+		StringBuilder sb = new StringBuilder();
+		sb.append("(");
+		sb.append(object.getLoopVar().format(this));
+		sb.append(" ");
+		sb.append(object.getStartIndex().format(this));
+		sb.append(" ");
+		sb.append(object.getEndIndex().format(this));
+		sb.append(") do");
+		increaseIndent();
+		newLine(sb);
+		sb.append(object.getActions().format(this));
+		decreaseIndent();
+		newLine(sb);
+		return sb.toString();
 	}
 
 	@Override
@@ -281,8 +309,19 @@ public class SFPFormatter extends Formatter {
 
 	@Override
 	public String visit(WhileDoConfiguration object) {
-		// TODO Auto-generated method stub
-		return null;
+		StringBuilder sb = new StringBuilder();
+		increaseIndent();
+		newLine(sb);
+		sb.append(object.getCondition().format(this));
+		decreaseIndent();
+		newLine(sb);
+		sb.append(" do ");
+		increaseIndent();
+		newLine(sb);
+		sb.append(object.getWhileActions().format(this));
+		decreaseIndent();
+		newLine(sb);
+		return sb.toString();
 	}
 
 	@Override
@@ -380,12 +419,12 @@ public class SFPFormatter extends Formatter {
 	public String visit(BoundConstraint object) {
 		StringBuilder sb = new StringBuilder();
 		Slot slot = object.getSlot();
-		if (slot != null){
-		sb.append('(').append(slot.getName());
-		sb.append(" ?").append(object.getVariableName());
-		sb.append(')');
-		return sb.toString();}
-		else
+		if (slot != null) {
+			sb.append('(').append(slot.getName());
+			sb.append(" ?").append(object.getVariableName());
+			sb.append(')');
+			return sb.toString();
+		} else
 			return "UNDEFINED SLOT";
 	}
 
@@ -393,12 +432,12 @@ public class SFPFormatter extends Formatter {
 	public String visit(LiteralConstraint object) {
 		StringBuilder sb = new StringBuilder();
 		Slot slot = object.getSlot();
-		if (slot != null){
-		sb.append('(').append(slot.getName());
-		sb.append(' ').append(object.getValue().format(this));
-		sb.append(')');
-		return sb.toString();}
-		else
+		if (slot != null) {
+			sb.append('(').append(slot.getName());
+			sb.append(' ').append(object.getValue().format(this));
+			sb.append(')');
+			return sb.toString();
+		} else
 			return "UNDEFINED SLOT";
 	}
 
@@ -430,8 +469,22 @@ public class SFPFormatter extends Formatter {
 
 	@Override
 	public String visit(DeclarationConfiguration object) {
-		// TODO Auto-generated method stub
-		return null;
+		StringBuilder sb = new StringBuilder();
+		sb.append("(declare");
+		increaseIndent();
+		newLine(sb);
+		sb.append("(salience ").append(object.getSalience().format(this))
+				.append(") ");
+		newLine(sb);
+		sb.append("(rule-version ").append(object.getVersion().format(this))
+				.append(") ");
+		newLine(sb);
+		sb.append("(auto-focus ").append(object.getAutoFocus().format(this))
+				.append(") ");
+		decreaseIndent();
+		newLine(sb);
+		sb.append(')');
+		return sb.toString();
 	}
 
 	@Override
@@ -548,5 +601,3 @@ public class SFPFormatter extends Formatter {
 		return sb.toString();
 	}
 }
-// (deffunction wurst "does nothing" (functiongroup miau) (?x ?y) (printout t ?x
-// ?y))
