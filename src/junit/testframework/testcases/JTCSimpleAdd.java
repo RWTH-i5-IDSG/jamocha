@@ -33,8 +33,13 @@ public class JTCSimpleAdd extends AbstractJamochaTest {
 	 * function to execute a test for a simple add example.
 	 * 
 	 */
+	@Override
 	public void test() {
 		executeTestEquals("(+ 2 2)", "4");
+		executeTestEquals("(+ -1 2)", "1");
+		executeTestEquals("(+ -1 -1)", "-2");
+		executeTestEquals("(+ 2.5 2.5)", "5.0");
+		executeTestEquals("(+ -2.5 2)", "-0.5");
 	}
 
 }

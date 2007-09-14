@@ -104,7 +104,7 @@ public abstract class AbstractJamochaTest extends TestCase {
 	 */	
 	protected void executeTestEquals(String inputCommand, String expectedLastResult, String errorString) {
 		String result = this.executeCommandReturnLast(inputCommand, errorString);
-		assertEquals(expectedLastResult, result);
+		assertEquals(errorString,expectedLastResult, result);
 	}
 	
 	/**

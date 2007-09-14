@@ -43,8 +43,6 @@ public class JTCEngineFunctionTests extends AbstractJamochaTest {
 	public void test() {
 		List<Function> functions = new LinkedList<Function>(engine.getFunctionMemory().getAllFunctions());
 
-		// Collection<Function> functions =
-		// this.engine.getFunctionMemory().getAllFunctions();
 		FunctionDescription descr;
 
 		// traverse all functions and execute their example if possible.
