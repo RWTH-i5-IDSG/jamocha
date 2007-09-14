@@ -96,7 +96,9 @@ public class SetSettings extends AbstractFunction {
 	public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
 		if (params != null && params.length == 2) {
 			String property = params[0].getValue(engine).getStringValue();
-			String value = params[1].getValue(engine).getStringValue();
+			//test: TODO: implement mappin jamochatype ->settings type:
+			String value = params[1].getValue(engine).implicitCast(JamochaType.STRING).toString();
+			
 			boolean result = JamochaSettings.getInstance().set(property, value);
 			return (result) ? JamochaValue.TRUE : JamochaValue.FALSE;
 		}

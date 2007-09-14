@@ -38,6 +38,8 @@ public class JamochaSettings {
 
 	private Map<String, JamochaSetting> settings;
 
+	private Map<String, String> friendlyName2Name;
+
 	private Set<SettingsChangedListener> listeners; // listeners
 
 	private JamochaSettings() {
@@ -101,7 +103,16 @@ public class JamochaSettings {
 
 	public boolean set(String key, String value) {
 		preferences.put(key, value);
+		// try to read settings:
 		JamochaSetting setting = settings.get(key);
+		// nor found? try to read friendlyNames:
+		if (setting == null) {
+			String name = friendlyName2Name.get(key);
+			if (name != null) {
+				setting = settings.get(name);
+			}
+		}
+		// action:
 		if (setting != null) {
 			Object oldValue = setting.currentValue;
 			Object newValue = setting.setCurrentValue(value);
@@ -112,7 +123,11 @@ public class JamochaSettings {
 	}
 
 	private void readSettings() {
+		// setup maps:
 		this.settings = new HashMap<String, JamochaSetting>();
+		this.friendlyName2Name = new HashMap<String, String>();
+
+		// read defaults:
 		Set keys = defaults.keySet();
 		String[] splits;
 		String type;
@@ -155,6 +170,9 @@ public class JamochaSettings {
 
 	private void addProperty(String name, String friendlyName, String defaultValue, String currentValue, String type) {
 		this.settings.put(name, new JamochaSetting(name, friendlyName, defaultValue, currentValue, type));
+		//do we hav a friendly name? -> add to second hashmap:
+		if (!friendlyName.equals("") && friendlyName != null)
+			this.friendlyName2Name.put(friendlyName, name);
 	}
 
 	// private class:
