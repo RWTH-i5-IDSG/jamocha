@@ -18,8 +18,8 @@ package org.jamocha.rule;
 
 import org.jamocha.formatter.Formatter;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.rete.SFRuleCompiler;
 import org.jamocha.rete.nodes.BaseNode;
+import org.jamocha.rete.rulecompiler.sfp.SFRuleCompiler;
 
 /**
  * @author Peter Lin

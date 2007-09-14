@@ -23,9 +23,9 @@ import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.SFRuleCompiler;
 import org.jamocha.rete.configurations.Signature;
 import org.jamocha.rete.nodes.BaseNode;
+import org.jamocha.rete.rulecompiler.sfp.SFRuleCompiler;
 
 /**
  * @author Peter Lin

@@ -2,7 +2,7 @@ package org.jamocha.rule;
 
 import org.jamocha.rete.exception.AssertException;
 import org.jamocha.rete.nodes.BaseNode;
-import org.jamocha.rete.SFRuleCompiler;
+import org.jamocha.rete.rulecompiler.sfp.SFRuleCompiler;
 import org.jamocha.rete.StopCompileException;
 
 public interface Compileable {

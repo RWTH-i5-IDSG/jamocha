@@ -15,7 +15,7 @@
  * limitations under the License.
  * 
  */
-package org.jamocha.rete;
+package org.jamocha.rete.rulecompiler.sfp;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -32,8 +32,23 @@ import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.IllegalConversionException;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.parser.RuleException;
+import org.jamocha.rete.Binding;
+import org.jamocha.rete.BoundParam;
+import org.jamocha.rete.CompileEvent;
+import org.jamocha.rete.CompilerListener;
+import org.jamocha.rete.Constants;
+import org.jamocha.rete.ConversionUtils;
+import org.jamocha.rete.Messages;
+import org.jamocha.rete.Parameter;
+import org.jamocha.rete.Rete;
+import org.jamocha.rete.RuleCompiler;
+import org.jamocha.rete.Slot;
+import org.jamocha.rete.StopCompileException;
+import org.jamocha.rete.Template;
+import org.jamocha.rete.TemplateSlot;
 import org.jamocha.rete.configurations.Signature;
 import org.jamocha.rete.exception.AssertException;
+import org.jamocha.rete.exception.ConstraintViolationException;
 import org.jamocha.rete.exception.RetractException;
 import org.jamocha.rete.functions.Function;
 import org.jamocha.rete.modules.Module;
@@ -438,7 +453,7 @@ public class SFRuleCompiler implements RuleCompiler {
 				conds[i].compile(this, rule, i);
 			return compileJoins(rule);
 		} else /* if (rule.getConditions().length == 0) */{
-			return root.activateObjectTypeNode(engine.initFact, net);
+			return root.activateObjectTypeNode(engine.getInitialTemplate(), net);
 		}
 	}
 
@@ -508,7 +523,7 @@ public class SFRuleCompiler implements RuleCompiler {
 		rearrangeConditions(sortedConds);
 
 		HashMap<Condition, BaseNode> conditionJoiners = new HashMap<Condition, BaseNode>();
-		BaseNode initFactNode = root.activateObjectTypeNode(engine.initFact,
+		BaseNode initFactNode = root.activateObjectTypeNode(engine.getInitialTemplate(),
 				net);
 
 		BaseNode mostBottomNode = null;
@@ -641,11 +656,11 @@ public class SFRuleCompiler implements RuleCompiler {
 			BindingAddress pivot = bindingAddressTable.getPivot(variable);
 
 			Binding b = new Binding();
-			b.leftIndex = pivot.slotIndex;
-			if (b.leftIndex == -1)
-				b.isObjVar = true;
-			b.leftrow = pivot.tupleIndex;
-			b.varName = variable;
+			b.setLeftIndex(pivot.slotIndex);
+			if (b.getLeftIndex() == -1)
+				b.setIsObjectVar(true);
+			b.setLeftRow(pivot.tupleIndex);
+			b.setVarName(variable);
 			rule.addBinding(variable, b);
 
 		}
@@ -1029,7 +1044,7 @@ public class SFRuleCompiler implements RuleCompiler {
 				}
 				newRule.setConditionIndex(conditionIndex, nestedCE);
 
-				org.jamocha.rete.SFRuleCompiler compiler = new org.jamocha.rete.SFRuleCompiler(
+				org.jamocha.rete.rulecompiler.sfp.SFRuleCompiler compiler = new org.jamocha.rete.rulecompiler.sfp.SFRuleCompiler(
 						engine, root, net);
 
 				newRule.setName(newRule.getName() + "-" + counter++);
@@ -1125,7 +1140,7 @@ public class SFRuleCompiler implements RuleCompiler {
 						.writeMessage("FATAL: could not compile or connected constraint");
 			}
 
-			org.jamocha.rete.SFRuleCompiler compiler = new org.jamocha.rete.SFRuleCompiler(
+			org.jamocha.rete.rulecompiler.sfp.SFRuleCompiler compiler = new org.jamocha.rete.rulecompiler.sfp.SFRuleCompiler(
 					engine, root, net);
 
 			newRule.setName(newRule.getName() + "-" + counter++);
@@ -1161,7 +1176,11 @@ public class SFRuleCompiler implements RuleCompiler {
 			e.printStackTrace();
 			return null;
 		}
-		sl.value = sval;
+		try {
+			sl.setValue(sval);
+		} catch (ConstraintViolationException e) {
+			engine.writeMessage(e.getMessage());
+		}
 		node = new AlphaNode(net.nextNodeId());
 		node.setSlot(sl);
 		if (constraint.getNegated()) {
@@ -1266,7 +1285,7 @@ public class SFRuleCompiler implements RuleCompiler {
 						.writeMessage("FATAL: could not compile or connected constraint");
 			}
 
-			org.jamocha.rete.SFRuleCompiler compiler = new org.jamocha.rete.SFRuleCompiler(
+			org.jamocha.rete.rulecompiler.sfp.SFRuleCompiler compiler = new org.jamocha.rete.rulecompiler.sfp.SFRuleCompiler(
 					engine, root, net);
 			success = compiler.addRule(rule);
 		} catch (EvaluationException e) {

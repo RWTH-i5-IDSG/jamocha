@@ -25,10 +25,10 @@ import org.jamocha.formatter.SFPFormatter;
 import org.jamocha.parser.sfp.SFPParser;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.RuleCompiler;
-import org.jamocha.rete.SFRuleCompiler;
 import org.jamocha.rete.nodes.ReteNet;
 import org.jamocha.rete.nodes.RootNode;
 import org.jamocha.rete.rulecompiler.hokifisch.HokifischRuleCompiler;
+import org.jamocha.rete.rulecompiler.sfp.SFRuleCompiler;
 
 /**
  * The ParserFactory generates all known Parsers for CLIPS-Code or other

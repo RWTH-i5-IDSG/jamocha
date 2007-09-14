@@ -20,8 +20,8 @@ import org.jamocha.formatter.Formatter;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Constants;
 import org.jamocha.rete.ConversionUtils;
-import org.jamocha.rete.SFRuleCompiler;
 import org.jamocha.rete.nodes.BaseNode;
+import org.jamocha.rete.rulecompiler.sfp.SFRuleCompiler;
 
 /**
  * @author Peter Lin

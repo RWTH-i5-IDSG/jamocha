@@ -21,10 +21,10 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.jamocha.formatter.Formatter;
-import org.jamocha.rete.SFRuleCompiler;
 import org.jamocha.rete.StopCompileException;
 import org.jamocha.rete.Template;
 import org.jamocha.rete.nodes.BaseNode;
+import org.jamocha.rete.rulecompiler.sfp.SFRuleCompiler;
 
 /**
  * @author Peter Lin
