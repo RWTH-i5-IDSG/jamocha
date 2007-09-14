@@ -53,6 +53,7 @@ import org.jamocha.rete.nodes.ReteNet;
 import org.jamocha.rete.nodes.TerminalNode;
 import org.jamocha.rete.util.ProfileStats;
 import org.jamocha.rule.Rule;
+import org.jamocha.settings.JamochaSettings;
 
 /**
  * @author Peter Lin
@@ -146,6 +147,8 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 	 */
 	public Rete() {
 		super();
+
+		JamochaSettings.getInstance();
 		this.net = new ReteNet(this);
 		this.functionMem = new FunctionMemoryImpl(this);
 		this.agendas = new Agendas(this);
