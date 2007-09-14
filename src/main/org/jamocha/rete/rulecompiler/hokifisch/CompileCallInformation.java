@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.jamocha.rete.Template;
 import org.jamocha.rete.TemplateSlot;
+import org.jamocha.rete.nodes.BaseNode;
 import org.jamocha.rete.nodes.TerminalNode;
 import org.jamocha.rule.Condition;
 import org.jamocha.rule.Constraint;
@@ -37,6 +38,8 @@ public class CompileCallInformation {
 
 	// holds the slot for each constraints
 	Map<Constraint, TemplateSlot> constraint2templateSlot;
+	
+	BaseNode lastJoin;
 
 	public CompileCallInformation(Rule rule) {
 		this.rule = rule;

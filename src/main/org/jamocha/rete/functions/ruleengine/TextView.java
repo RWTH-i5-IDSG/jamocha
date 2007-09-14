@@ -93,9 +93,14 @@ public class TextView extends AbstractFunction {
 	public void dump(BaseNode n,StringBuilder s,int indent) {
 		for (int i=0;i<indent;i++) s.append(" ");
 		s.append(n.getClass().getSimpleName());
-		s.append(" (id:").append(n.getNodeId()).append(" ");
+		s.append("id:").append(n.getNodeId()).append(" ");
 		s.append( "childs:").append(n.getChildCount()).append(" parents:");
-		s.append(n.getParentCount()).append(")\n");
+		s.append(n.getParentCount()).append(" [");
+		for (BaseNode parent : n.getParentNodes()){
+			s.append(parent.getNodeId()).append("|");
+		}
+		s.append("]");
+		s.append(")\n");
 		for (BaseNode child:n.getChildNodes()){
 			dump(child,s,indent+3);
 		}

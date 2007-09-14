@@ -22,6 +22,7 @@ import org.jamocha.rete.nodes.BetaFilterNode;
 import org.jamocha.rete.nodes.ObjectTypeNode;
 import org.jamocha.rete.nodes.ReteNet;
 import org.jamocha.rete.nodes.RootNode;
+import org.jamocha.rete.nodes.TerminalNode;
 import org.jamocha.rule.Condition;
 import org.jamocha.rule.ConditionWithNested;
 import org.jamocha.rule.Constraint;
@@ -128,9 +129,19 @@ public class HokifischRuleCompiler implements RuleCompiler {
 			compileCondition(information,condition);
 		}
 		compileJoins(information);
+		addTerminalNode(information);
 	}
 
 	
+	private void addTerminalNode(CompileCallInformation information) throws RuleCompilingException {
+		TerminalNode tnode = new TerminalNode(network.nextNodeId(),information.rule);
+		try {
+			information.lastJoin.addNode(tnode, network);
+		} catch (AssertException e) {
+			throw new RuleCompilingException(e);
+		}
+	}
+
 	/** 
 	 * it joins all the conditions given to one (using only simple join nodes)
 	 * and returns the bottom join node
@@ -168,8 +179,7 @@ public class HokifischRuleCompiler implements RuleCompiler {
 			throw new RuleCompilingException(e);
 		}
 		AbstractAlpha initialFact = getObjectTypeNode(initFact);
-		joinConditions(information, information.rule.getConditions(), initialFact);
-		
+		information.lastJoin=joinConditions(information, information.rule.getConditions(), initialFact);
 	}
 
 	private void compileCondition(CompileCallInformation information,Condition condition) throws RuleCompilingException{
@@ -211,10 +221,16 @@ public class HokifischRuleCompiler implements RuleCompiler {
 		//determine the root of our subnet
 		BaseNode relativeRoot = getObjectTypeNode(information.getTemplate(condition));
 		ReteSubnet subnet = new ReteSubnet(relativeRoot, relativeRoot);
+		BaseNode last = relativeRoot;
 		// compile each constraint and append nodes to the subnet
 		for (Constraint constraint : condition.getConstraints()) {
 			compileConstraint(information,constraint);
 			ReteSubnet newConstraintSubnet = information.constraintSubnets.get(constraint);
+			try {
+				last.addNode(newConstraintSubnet.getRoot(), network);
+			} catch (AssertException e) {
+				throw new RuleCompilingException(e);
+			}
 			if (newConstraintSubnet != null) {
 				subnet = new ReteSubnet(subnet,newConstraintSubnet);
 			}
