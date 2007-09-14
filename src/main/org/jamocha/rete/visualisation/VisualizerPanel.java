@@ -5,6 +5,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Graphics;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -113,6 +114,7 @@ public class VisualizerPanel extends JPanel implements ClickListener, ListSelect
 		public List<String> getSelectedValues(){
 			return selected;
 		}
+
 		
 	}
 	
@@ -124,6 +126,13 @@ public class VisualizerPanel extends JPanel implements ClickListener, ListSelect
 		int numRules;
 
 		List<ListSelectionListener> listeners;
+		
+
+		// ONLY WHILE EVENT HANDLING DOESNT WORK
+		public void paint(Graphics g) {
+			reload();
+			super.paint(g);
+		}
 
 		public RuleSelectorPanel(Vector<String> rules) {
 			listeners = new ArrayList<ListSelectionListener>();

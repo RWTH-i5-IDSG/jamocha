@@ -228,8 +228,8 @@ public class Visualizer extends JComponent implements ComponentListener, MouseIn
 
 	protected void drawConnectionLines(BaseNode root, Map<BaseNode, Point> positions, Graphics2D canvas, boolean selected, boolean unselected) {
 		for (BaseNode child : root.getChildNodes()) {
-			Point rootPos = positions.get(root);
 			Point childPos = positions.get(child);
+			Point rootPos = positions.get(root);
 			rootPos = toPhysical(rootPos, setup);
 			childPos = toPhysical(childPos, setup);
 
