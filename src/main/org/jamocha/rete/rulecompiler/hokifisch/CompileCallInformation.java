@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.jamocha.rete.Template;
 import org.jamocha.rete.TemplateSlot;
+import org.jamocha.rete.nodes.AbstractBeta;
 import org.jamocha.rete.nodes.BaseNode;
 import org.jamocha.rete.nodes.TerminalNode;
 import org.jamocha.rule.Condition;
@@ -41,6 +42,8 @@ public class CompileCallInformation {
 	
 	BaseNode lastJoin;
 
+	Map<Condition, AbstractBeta> condition2join;
+
 	public CompileCallInformation(Rule rule) {
 		this.rule = rule;
 		conditionSubnets = new HashMap<Condition, ReteSubnet>();
@@ -48,6 +51,7 @@ public class CompileCallInformation {
 		constraint2condition = new HashMap<Constraint, Condition>();
 		condition2template = new HashMap<Condition, Template>();
 		constraint2templateSlot = new HashMap<Constraint, TemplateSlot>();
+		condition2join = new HashMap<Condition, AbstractBeta>();
 	}
 
 	public Template getTemplate(Constraint constr) {

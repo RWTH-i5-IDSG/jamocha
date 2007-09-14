@@ -16,6 +16,7 @@ import org.jamocha.rete.TemplateSlot;
 import org.jamocha.rete.exception.AssertException;
 import org.jamocha.rete.exception.RetractException;
 import org.jamocha.rete.nodes.AbstractAlpha;
+import org.jamocha.rete.nodes.AbstractBeta;
 import org.jamocha.rete.nodes.AlphaNode;
 import org.jamocha.rete.nodes.BaseNode;
 import org.jamocha.rete.nodes.BetaFilterNode;
@@ -75,17 +76,35 @@ public class HokifischRuleCompiler implements RuleCompiler {
 	 */
 	public boolean addRule(Rule rule) throws AssertException, RuleException {
 		CompileCallInformation information = new CompileCallInformation(rule);
+		determineModule(information);
 		try {
 			preCompile(information);
 			compileConditions(information);
 			compileActions(information);
+			activateAllConditionJoins(information);
 		} catch (RuleCompilingException e) {
 			throw new RuleException("error while compiling rule "+rule.getName()+": "+e.getMessage());
 		}
+		rule.getModule().addRule(rule);
 		for (CompilerListener l : listeners) l.ruleAdded(new CompileEvent(rule,CompileEvent.ADD_RULE_EVENT));
 		return true;
 	}
 
+	private void determineModule(CompileCallInformation information) {
+		Rule rule = information.rule;
+		// we check the name of the rule to see if it is for a specific
+		// module. if it is, we have to add it to that module
+		if (rule.getName().indexOf("::") > 0) { //$NON-NLS-1$
+			String text = rule.getName();
+			String[] sp = text.split("::"); //$NON-NLS-1$
+			rule.setName(sp[1]);
+			String modName = sp[0].toUpperCase();
+			rule.setModule(engine.getModules().getModule(modName, false));
+		} else {
+			rule.setModule(engine.getCurrentFocus());
+		}
+	}
+	
 	private void preCompileCondition(CompileCallInformation information, Condition c) throws RuleCompilingException {
 		
 		if (c.getConstraints() != null) {
@@ -151,16 +170,27 @@ public class HokifischRuleCompiler implements RuleCompiler {
 	private BaseNode joinConditions(CompileCallInformation information, Condition[] conditions, AbstractAlpha fromAbove) throws RuleCompilingException{
 		BaseNode foo = fromAbove;
 		for (Condition condition : information.rule.getConditions()) {
-			BaseNode newJoin = new BetaFilterNode(network.nextNodeId());
+			AbstractBeta newJoin = new BetaFilterNode(network.nextNodeId());
 			try {
 				fromAbove.addNode(newJoin, network);
 				information.conditionSubnets.get(condition).getLast().addNode(newJoin, network);
+				information.condition2join.put(condition,newJoin);
 				foo = newJoin;
 			} catch (AssertException e) {
 				throw new RuleCompilingException(e);
 			}
 		}
 		return foo;
+	}
+	
+	private void activateAllConditionJoins(CompileCallInformation information) throws RuleCompilingException {
+		for (AbstractBeta n : information.condition2join.values()) {
+			try {
+				n.activate(network);
+			} catch (AssertException e) {
+				throw new RuleCompilingException(e);
+			}
+		}
 	}
 	
 	/**

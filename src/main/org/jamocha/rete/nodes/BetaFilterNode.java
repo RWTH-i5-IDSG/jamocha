@@ -20,7 +20,6 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -61,6 +60,7 @@ public class BetaFilterNode extends AbstractBeta {
 
 	public BetaFilterNode(int id) {
 		super(id);
+		filters = new ArrayList<JoinFilter>();
 	}
 
 	/**

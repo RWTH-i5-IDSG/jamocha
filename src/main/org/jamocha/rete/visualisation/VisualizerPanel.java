@@ -128,12 +128,6 @@ public class VisualizerPanel extends JPanel implements ClickListener, ListSelect
 		List<ListSelectionListener> listeners;
 		
 
-		// ONLY WHILE EVENT HANDLING DOESNT WORK
-		public void paint(Graphics g) {
-			reload();
-			super.paint(g);
-		}
-
 		public RuleSelectorPanel(Vector<String> rules) {
 			listeners = new ArrayList<ListSelectionListener>();
 			this.setLayout(new GridLayout(1,1));
