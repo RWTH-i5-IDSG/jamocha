@@ -493,13 +493,10 @@ public class SFPFormatter extends Formatter {
 	public String visit(MultiSlot object) {
 		StringBuilder sb = new StringBuilder();
 		sb.append('(');
-		if (object.isSilent())
-			sb.append("silent ");
-		sb.append("multislot ");
 		sb.append(object.getName());
 		increaseIndent();
 		newLine(sb);
-		sb.append("(type ").append(object.getValueType()).append(')');
+		sb.append(object.getValue().format(this));
 		newLine(sb);
 		decreaseIndent();
 		newLine(sb);
@@ -511,13 +508,10 @@ public class SFPFormatter extends Formatter {
 	public String visit(Slot object) {
 		StringBuilder sb = new StringBuilder();
 		sb.append('(');
-		if (object.isSilent())
-			sb.append("silent ");
-		sb.append("slot ");
 		sb.append(object.getName());
 		increaseIndent();
 		newLine(sb);
-		sb.append("(type ").append(object.getValueType()).append(')');
+		sb.append(object.getValue().format(this));
 		newLine(sb);
 		decreaseIndent();
 		newLine(sb);
