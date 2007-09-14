@@ -52,7 +52,8 @@ public enum JamochaType {
 
     public static final JamochaType[] LISTS = new JamochaType[] { LIST };
 
-    public static JamochaType getMappingType(Class clzz) {
+    @SuppressWarnings("unchecked")
+	public static JamochaType getMappingType(Class clzz) {
 	if (clzz.isArray()) {
 	    return LIST;
 	} else if (clzz.isPrimitive()) {

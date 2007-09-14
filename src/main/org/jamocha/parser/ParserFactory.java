@@ -77,7 +77,8 @@ public class ParserFactory {
 
 	public static Parser getParser(String mode, Reader reader)
 			throws ModeNotFoundException {
-		if (mode.equalsIgnoreCase("sfp") | mode.equalsIgnoreCase("sfp-hokifisch")) {
+		if (mode.equalsIgnoreCase("sfp")
+				| mode.equalsIgnoreCase("sfp-hokifisch")) {
 			return new SFPParser(reader);
 		} else {
 			throw new ModeNotFoundException(mode);
@@ -86,7 +87,8 @@ public class ParserFactory {
 
 	public static Parser getParser(String mode, InputStream stream)
 			throws ModeNotFoundException {
-		if (mode.equalsIgnoreCase("sfp") | mode.equalsIgnoreCase("sfp-hokifisch")) {
+		if (mode.equalsIgnoreCase("sfp")
+				| mode.equalsIgnoreCase("sfp-hokifisch")) {
 			return new SFPParser(stream);
 		} else {
 			throw new ModeNotFoundException(mode);
@@ -148,7 +150,8 @@ public class ParserFactory {
 		Formatter f;
 		if (mode.equalsIgnoreCase("clips")) {
 			f = new SFPFormatter();
-		} else if (mode.equalsIgnoreCase("sfp") | mode.equalsIgnoreCase("sfp-hokifisch")) {
+		} else if (mode.equalsIgnoreCase("sfp")
+				| mode.equalsIgnoreCase("sfp-hokifisch")) {
 			f = new SFPFormatter();
 		} else {
 			throw new ModeNotFoundException(mode);
@@ -173,14 +176,17 @@ public class ParserFactory {
 			ReteNet net, RootNode root) throws ModeNotFoundException {
 		if (mode.equalsIgnoreCase("clips")) {
 			throw new ModeNotFoundException("clips-mode not supported anymore");
-			/* BasicRuleCompiler is deleted since we refactored and deleted many classes,
-			 * which were used in BasicRuleCompiler, which leaded to errors.
-			 */ 
-			//return new BasicRuleCompiler(engine, wmem, root.getObjectTypeNodes());
+			/*
+			 * BasicRuleCompiler is deleted since we refactored and deleted many
+			 * classes, which were used in BasicRuleCompiler, which leaded to
+			 * errors.
+			 */
+			// return new BasicRuleCompiler(engine, wmem,
+			// root.getObjectTypeNodes());
 		} else if (mode.equalsIgnoreCase("sfp")) {
-			return new SFRuleCompiler(engine, root,net);
-		}  else if (mode.equalsIgnoreCase("sfp-hokifisch")) {
-			return new HokifischRuleCompiler(engine, root,net);
+			return new SFRuleCompiler(engine, root, net);
+		} else if (mode.equalsIgnoreCase("sfp-hokifisch")) {
+			return new HokifischRuleCompiler(engine, net);
 		} else {
 			throw new ModeNotFoundException(mode);
 		}
