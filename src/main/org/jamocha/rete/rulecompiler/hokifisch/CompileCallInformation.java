@@ -13,11 +13,12 @@ import org.jamocha.rule.Constraint;
 import org.jamocha.rule.Rule;
 
 /**
- * @author Josef Alexander Hahn This class holds all information, which is
- *         needed over method-borders. its a casual compound of some hashtables
- *         and something like that... furthermore, all rete-stuff, which was
- *         stored in the rule before (like terminalnode and so on) should now be
- *         stored here!
+ * @author Josef Alexander Hahn
+ * This class holds all information, which is
+ * needed over method-borders. its a casual compound of some hashtables
+ * and something like that... furthermore, all rete-stuff, which was
+ * stored in the rule before (like terminalnode and so on) should now be
+ * stored here!
  */
 public class CompileCallInformation {
 
@@ -64,7 +65,6 @@ public class CompileCallInformation {
 	
 	public Template getTemplate(Condition cond){
 		return condition2template.get(cond);		
-		
 	}
 
 }

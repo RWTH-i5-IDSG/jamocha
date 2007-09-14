@@ -14,5 +14,5 @@
 (defrule bar
 		(wurst (name senfwurst))
 =>
-	(printout t "es gibt keine senfwurst!")
+	(printout t "es gibt eine senfwurst!")
 )
