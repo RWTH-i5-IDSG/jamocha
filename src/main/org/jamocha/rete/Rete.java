@@ -23,7 +23,6 @@ import java.io.PrintWriter;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -64,9 +63,6 @@ import org.jamocha.settings.JamochaSettings;
 public class Rete implements PropertyChangeListener, CompilerListener,
 		Serializable {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 
 	public static final int WATCH_ACTIVATIONS = 001;
@@ -88,8 +84,6 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 	public static final int PROFILE_RETRACT = 105;
 
 	public static final int PROFILE_RM_ACTIVATION = 106;
-
-	protected Hashtable contexts = new Hashtable();
 
 	protected ArrayList focusStack = new ArrayList();
 
@@ -228,7 +222,6 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 	public void close() {
 		this.modules.clearAll();
 		this.net.clear();
-		this.contexts.clear();
 		this.focusStack.clear();
 		this.functionMem.clearBuiltInFunctions();
 		this.listeners.clear();

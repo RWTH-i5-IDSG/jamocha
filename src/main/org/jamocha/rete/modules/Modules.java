@@ -58,7 +58,7 @@ public class Modules implements Serializable {
 	private TemplateDataContainer templates = new TemplateDataContainer();
 
 	protected Rete engine;
-
+	
 	/**
 	 * The HashMap for the modules.
 	 */
