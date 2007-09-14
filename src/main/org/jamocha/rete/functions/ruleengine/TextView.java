@@ -16,10 +16,6 @@
  */
 package org.jamocha.rete.functions.ruleengine;
 
-import java.awt.BorderLayout;
-
-import javax.swing.JFrame;
-
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
@@ -27,19 +23,20 @@ import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.functions.AbstractFunction;
 import org.jamocha.rete.functions.FunctionDescription;
-import org.jamocha.rete.visualisation.VisualizerPanel;
+import org.jamocha.rete.nodes.BaseNode;
+import org.jamocha.rete.nodes.RootNode;
 
 /**
  * @author Josef Alexander Hahn
  * 
  * Opens a visualisation window for the rete net.
  */
-public class View extends AbstractFunction {
+public class TextView extends AbstractFunction {
 
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "Prints the rete network in text mode";
+			return "Prints the rete network in text view";
 		}
 
 		public int getParameterCount() {
@@ -71,7 +68,7 @@ public class View extends AbstractFunction {
 		}
 
 		public String getExample() {
-			return "(view)";
+			return "(text-view)";
 		}
 
 		public boolean isResultAutoGeneratable() {
@@ -83,7 +80,7 @@ public class View extends AbstractFunction {
 
 	private static final long serialVersionUID = 1L;
 
-	public static final String NAME = "view";
+	public static final String NAME = "text-view";
 
 	public FunctionDescription getDescription() {
 		return DESCRIPTION;
@@ -93,19 +90,22 @@ public class View extends AbstractFunction {
 		return NAME;
 	}
 
+	public void dump(BaseNode n,StringBuilder s,int indent) {
+		for (int i=0;i<indent;i++) s.append(" ");
+		s.append(n.getClass().getSimpleName());
+		s.append(" (id:").append(n.getNodeId()).append(" ");
+		s.append( "childs:").append(n.getChildCount()).append(" parents:");
+		s.append(n.getParentCount()).append(")\n");
+		for (BaseNode child:n.getChildNodes()){
+			dump(child,s,indent+3);
+		}
+	}
+	
 	public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
-
-		VisualizerPanel visualizer = new VisualizerPanel(engine);
-		
-		JFrame frame = new JFrame("Jamocha - Rete net viewer");
-		frame.getContentPane().add(visualizer, BorderLayout.CENTER);
-		frame.pack();
-		frame.setLocationByPlatform(true);
-		frame.setVisible(true);
-		frame.setSize(700, 500);
-
-		
-		
+		RootNode root = engine.getNet().getRoot();
+		StringBuilder s = new StringBuilder();
+		dump(root,s,0);
+		engine.writeMessage(s.toString());
 		return JamochaValue.NIL;
 	}
 

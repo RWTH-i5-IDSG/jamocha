@@ -100,6 +100,7 @@ public class RuleEngineFunctions extends FunctionGroup {
 		addFunction(functionMem, new ValidateRule());
 		addFunction(functionMem, new Version());
 		addFunction(functionMem, new View());
+		addFunction(functionMem, new TextView());
 		addFunction(functionMem, new Watch());
 	}
 
