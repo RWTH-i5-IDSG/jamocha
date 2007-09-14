@@ -18,6 +18,7 @@ package testframework;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
+import testframework.testcases.JTCBierWurstSenf;
 import testframework.testcases.JTCDeftemplate;
 import testframework.testcases.JTCEngineFunctionTests;
 import testframework.testcases.JTCSimpleAdd;
@@ -37,6 +38,7 @@ public class JTSAllTests {
 		TestSuite suite = new TestSuite("Jamocha Tests");
 		
 		//add all test cases below:
+		suite.addTestSuite(JTCBierWurstSenf.class);
 		suite.addTestSuite(JTCSimpleAdd.class);
 		suite.addTestSuite(JTCDeftemplate.class);
 		suite.addTestSuite(JTCEngineFunctionTests.class);
