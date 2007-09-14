@@ -85,7 +85,7 @@ public class HokifischRuleCompiler implements RuleCompiler {
 		return true;
 	}
 
-	private void preCompileCondition(CompileCallInformation information, Condition c) {
+	private void preCompileCondition(CompileCallInformation information, Condition c) throws RuleCompilingException {
 		
 		if (c.getConstraints() != null) {
 			for (Constraint constr : c.getConstraints() ){
@@ -96,6 +96,11 @@ public class HokifischRuleCompiler implements RuleCompiler {
 		if (c instanceof ObjectCondition) {
 			ObjectCondition oc = (ObjectCondition) c;
 			Template t = engine.findTemplate( oc.getTemplateName() );
+			try {
+				rootNode.activateObjectTypeNode(t, network);
+			} catch (AssertException e) {
+				throw new RuleCompilingException(e);
+			}
 			information.condition2template.put(c, t);
 		} else if (c instanceof ConditionWithNested) {
 			ConditionWithNested cwn = (ConditionWithNested) c;
@@ -105,7 +110,7 @@ public class HokifischRuleCompiler implements RuleCompiler {
 		}
 	}
 	
-	private void preCompile(CompileCallInformation information) {
+	private void preCompile(CompileCallInformation information) throws RuleCompilingException {
 		// feed CompileCallInformation.condition2template
 		Rule rule = information.rule;
 		for (Condition c : rule.getConditions()){
