@@ -3,6 +3,7 @@ package org.jamocha.rete.rulecompiler.hokifisch;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.parser.RuleException;
 import org.jamocha.rete.CompileEvent;
@@ -24,9 +25,11 @@ import org.jamocha.rete.nodes.ObjectTypeNode;
 import org.jamocha.rete.nodes.ReteNet;
 import org.jamocha.rete.nodes.RootNode;
 import org.jamocha.rete.nodes.TerminalNode;
+import org.jamocha.rule.Action;
 import org.jamocha.rule.Condition;
 import org.jamocha.rule.ConditionWithNested;
 import org.jamocha.rule.Constraint;
+import org.jamocha.rule.FunctionAction;
 import org.jamocha.rule.LiteralConstraint;
 import org.jamocha.rule.ObjectCondition;
 import org.jamocha.rule.Rule;
@@ -71,6 +74,7 @@ public class HokifischRuleCompiler implements RuleCompiler {
 		rootNode.addObjectTypeNode(template, engine);
 	}
 
+	
 	/**
 	 * adds a rule in the rete network
 	 */
@@ -139,8 +143,19 @@ public class HokifischRuleCompiler implements RuleCompiler {
 	}
 
 	private void compileActions(CompileCallInformation information) throws RuleCompilingException {
-		// TODO Auto-generated method stub
-		
+		Rule rule = information.rule;
+		for (Action action : rule.getActions()) {
+			if (action instanceof FunctionAction) {
+				FunctionAction fa = (FunctionAction) action;
+				try {
+					fa.configure(this.engine, rule);
+				} catch (EvaluationException e) {
+					throw new RuleCompilingException(e);
+				}
+			} else {
+				throw new RuleCompilingException("unknown action type "+action.getClass().getSimpleName());
+			}
+		}
 	}
 
 	private void compileConditions(CompileCallInformation information) throws RuleCompilingException {
