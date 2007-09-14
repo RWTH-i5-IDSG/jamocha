@@ -491,12 +491,38 @@ public class SFPFormatter extends Formatter {
 
 	@Override
 	public String visit(MultiSlot object) {
-		return "ms";
+		StringBuilder sb = new StringBuilder();
+		sb.append('(');
+		if (object.isSilent())
+			sb.append("silent ");
+		sb.append("multislot ");
+		sb.append(object.getName());
+		increaseIndent();
+		newLine(sb);
+		sb.append("(type ").append(object.getValueType()).append(')');
+		newLine(sb);
+		decreaseIndent();
+		newLine(sb);
+		sb.append(')');
+		return sb.toString();
 	}
 
 	@Override
 	public String visit(Slot object) {
-		return "s";
+		StringBuilder sb = new StringBuilder();
+		sb.append('(');
+		if (object.isSilent())
+			sb.append("silent ");
+		sb.append("slot ");
+		sb.append(object.getName());
+		increaseIndent();
+		newLine(sb);
+		sb.append("(type ").append(object.getValueType()).append(')');
+		newLine(sb);
+		decreaseIndent();
+		newLine(sb);
+		sb.append(')');
+		return sb.toString();
 	}
 
 	@Override
