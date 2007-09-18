@@ -47,7 +47,7 @@ public class SettingsPanel extends AbstractJamochaPanel implements
 
 	private JTabbedPane tabbedPane;
 
-	private JButton saveButton;
+	private JButton allDefaultButton;
 
 	private List<AbstractSettingsPanel> panels = new LinkedList<AbstractSettingsPanel>();
 
@@ -65,13 +65,17 @@ public class SettingsPanel extends AbstractJamochaPanel implements
 		tabbedPane.addTab("GUI", null, guiSettingsPanel, "GUI Settings");
 		panels.add(guiSettingsPanel);
 
+		for (AbstractSettingsPanel panel : panels) {
+			panel.refresh();
+		}
+
 		add(tabbedPane, BorderLayout.CENTER);
 
 		JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 1));
-		saveButton = new JButton("Save Changes", IconLoader
-				.getImageIcon("disk"));
-		saveButton.addActionListener(this);
-		buttonPanel.add(saveButton);
+		allDefaultButton = new JButton("All back to default", IconLoader
+				.getImageIcon("cog_go"));
+		allDefaultButton.addActionListener(this);
+		buttonPanel.add(allDefaultButton);
 		add(buttonPanel, BorderLayout.SOUTH);
 
 		loadSettings();
@@ -105,16 +109,9 @@ public class SettingsPanel extends AbstractJamochaPanel implements
 	}
 
 	public void actionPerformed(ActionEvent event) {
-		if (event.getSource() == saveButton) {
+		if (event.getSource() == allDefaultButton) {
 			for (AbstractSettingsPanel panel : panels) {
-				panel.save();
-				panel.loadSettings();
-			}
-			try {
-				gui.getPreferences().flush();
-			} catch (BackingStoreException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				panel.setDefaults();
 			}
 		}
 	}

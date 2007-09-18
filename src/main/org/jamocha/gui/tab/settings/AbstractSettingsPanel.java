@@ -56,9 +56,9 @@ public abstract class AbstractSettingsPanel extends JPanel {
 	 * focus and is used to initialize the comboboxes etc. with possibly new
 	 * values.
 	 */
-	public void refresh() {
+	public abstract void refresh();
 
-	}
+	public abstract void setDefaults();
 
 	public void addLabel(JPanel parent, JLabel label, GridBagLayout gridbag,
 			GridBagConstraints c, int row) {

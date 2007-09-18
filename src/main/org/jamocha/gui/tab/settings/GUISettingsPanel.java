@@ -48,8 +48,6 @@ import javax.swing.event.ChangeListener;
 
 import org.jamocha.gui.JamochaGui;
 import org.jamocha.gui.icons.IconLoader;
-import org.jamocha.settings.JamochaSettings;
-import org.jamocha.settings.SettingsChangedListener;
 
 /**
  * With this Panel the User can change the look of the Shell.
@@ -58,7 +56,11 @@ import org.jamocha.settings.SettingsChangedListener;
  * @author Alexander Wilden <october.rust@gmx.de>
  */
 public class GUISettingsPanel extends AbstractSettingsPanel implements
-		ActionListener, ItemListener, ChangeListener, SettingsChangedListener {
+		ActionListener, ItemListener, ChangeListener {
+
+	private static final String GUI_FACTS_AUTOSORT_DIR = "gui.facts.autosort_dir";
+
+	private static final String GUI_FACTS_AUTOSORT_BY = "gui.facts.autosort_by";
 
 	private static final String GUI_SHELL_AUTOCOMPLETION = "gui.shell.autocompletion";
 
@@ -84,13 +86,13 @@ public class GUISettingsPanel extends AbstractSettingsPanel implements
 
 	private JTextField backgroundColorChooserPreview;
 
-	private JComboBox factSortOptionsCombo;
+	private JComboBox factSortByCombo;
+
+	private JComboBox factSortDirectionCombo;
 
 	private JCheckBox autoCompletion;
 
-	private String[] interestedSettings = { GUI_SHELL_FONT,
-			GUI_SHELL_FONTSIZE, GUI_SHELL_FONTCOLOR,
-			GUI_SHELL_BACKGROUNDCOLOR, GUI_SHELL_AUTOCOMPLETION };
+	private Font allFonts[];
 
 	public GUISettingsPanel(JamochaGui gui) {
 		super(gui);
@@ -113,19 +115,9 @@ public class GUISettingsPanel extends AbstractSettingsPanel implements
 		addLabel(shellPanel, new JLabel("Font:"), gridbag, c, 0);
 		GraphicsEnvironment ge = GraphicsEnvironment
 				.getLocalGraphicsEnvironment();
-		Font allFonts[] = ge.getAllFonts();
-		fonts = new JComboBox(filterFonts(allFonts));
-		Font selFont = null;
-		String selFontName = settings.getString(GUI_SHELL_FONT);
-		for (Font curFont : allFonts) {
-			if (curFont.getFontName().equals(selFontName)) {
-				selFont = curFont;
-				break;
-			}
-		}
-		if (selFont != null) {
-			fonts.setSelectedItem(selFont);
-		}
+		allFonts = ge.getAllFonts();
+		filterFonts(allFonts);
+		fonts = new JComboBox(allFonts);
 		fonts.setRenderer(new FontListCellRenderer());
 		fonts.addItemListener(this);
 		JPanel fontsPanel = new JPanel(new BorderLayout());
@@ -179,7 +171,8 @@ public class GUISettingsPanel extends AbstractSettingsPanel implements
 		// Autocompletion
 		addLabel(shellPanel, new JLabel(""), gridbag, c, 4);
 		autoCompletion = new JCheckBox("Enable Auto-Completion");
-		autoCompletion.setSelected(settings.getBoolean(GUI_SHELL_AUTOCOMPLETION));
+		autoCompletion.setSelected(settings
+				.getBoolean(GUI_SHELL_AUTOCOMPLETION));
 		autoCompletion.addChangeListener(this);
 		addInputComponent(shellPanel, autoCompletion, gridbag, c, 4);
 
@@ -196,23 +189,32 @@ public class GUISettingsPanel extends AbstractSettingsPanel implements
 		factsPanel.setLayout(gridbag);
 		factsPanel.setBorder(BorderFactory.createTitledBorder("Facts"));
 
-		// Sort Facts on Load
-		addLabel(factsPanel, new JLabel("Auto sort Facts by ID:"), gridbag, c,
-				1);
-		String[] factSortOptions = { "No sorting", "Sort ascending",
-				"Sort descending" };
-		factSortOptionsCombo = new JComboBox(factSortOptions);
-		factSortOptionsCombo.setSelectedItem(gui.getPreferences().get(
-				"facts.autoSort", "No sorting"));
-		JPanel factSortOptionsPanel = new JPanel(new BorderLayout());
-		factSortOptionsPanel.add(factSortOptionsCombo, BorderLayout.WEST);
-		addInputComponent(factsPanel, factSortOptionsPanel, gridbag, c, 1);
+		// Sort Facts on Load By
+		addLabel(factsPanel, new JLabel("Auto sort Facts by:"), gridbag, c, 1);
+		String[] factSortBy = { "no sorting", "id", "template", "fact" };
+		factSortByCombo = new JComboBox(factSortBy);
+		factSortByCombo.setSelectedItem(settings
+				.getString(GUI_FACTS_AUTOSORT_BY));
+		factSortByCombo.addItemListener(this);
+		JPanel factSortByPanel = new JPanel(new BorderLayout());
+		factSortByPanel.add(factSortByCombo, BorderLayout.WEST);
+		addInputComponent(factsPanel, factSortByPanel, gridbag, c, 1);
+
+		// Sort Facts on Load Direction
+		addLabel(factsPanel, new JLabel("direction:"), gridbag, c, 2);
+		String[] factSortDirection = { "ascending",
+				"descending" };
+		factSortDirectionCombo = new JComboBox(factSortDirection);
+		factSortDirectionCombo.setSelectedItem(settings
+				.getString(GUI_FACTS_AUTOSORT_DIR));
+		factSortDirectionCombo.addItemListener(this);
+		JPanel factSortDirectionPanel = new JPanel(new BorderLayout());
+		factSortDirectionPanel.add(factSortDirectionCombo, BorderLayout.WEST);
+		addInputComponent(factsPanel, factSortDirectionPanel, gridbag, c, 2);
 
 		mainPanel.add(factsPanel);
 
 		add(new JScrollPane(mainPanel));
-
-		settings.addListener(this, interestedSettings);
 	}
 
 	private class FontListCellRenderer extends DefaultListCellRenderer {
@@ -280,19 +282,54 @@ public class GUISettingsPanel extends AbstractSettingsPanel implements
 		} else if (event.getSource().equals(fontsizes)) {
 			settings.set(GUI_SHELL_FONTSIZE, (Integer) fontsizes
 					.getSelectedItem());
+		} else if (event.getSource().equals(factSortByCombo)) {
+			settings.set(GUI_FACTS_AUTOSORT_BY, factSortByCombo
+					.getSelectedItem().toString());
+		} else if (event.getSource().equals(factSortDirectionCombo)) {
+			settings.set(GUI_FACTS_AUTOSORT_DIR, factSortDirectionCombo
+					.getSelectedItem().toString());
 		}
 	}
 
 	public void stateChanged(ChangeEvent event) {
 		if (event.getSource().equals(autoCompletion)) {
-			settings.set(GUI_SHELL_AUTOCOMPLETION, autoCompletion
-					.isSelected());
+			settings.set(GUI_SHELL_AUTOCOMPLETION, autoCompletion.isSelected());
 		}
 	}
 
-	public void settingsChanged(String propertyName) {
-		// TODO Auto-generated method stub
+	@Override
+	public void refresh() {
+		// set font
+		String selFontName = settings.getString(GUI_SHELL_FONT);
+		for (Font curFont : allFonts) {
+			if (curFont.getFontName().equals(selFontName)) {
+				fonts.setSelectedItem(curFont);
+				break;
+			}
+		}
+		// set fontsize
+		fontsizes.setSelectedItem(settings.getInt(GUI_SHELL_FONTSIZE));
+		// set fontcolor
+		fontColorChooserPreview.setBackground(new Color(settings
+				.getInt(GUI_SHELL_FONTCOLOR)));
+		// set backgroundcolor
+		backgroundColorChooserPreview.setBackground(new Color(settings
+				.getInt(GUI_SHELL_BACKGROUNDCOLOR)));
+		// set autocompletion
+		autoCompletion.setSelected(settings
+				.getBoolean(GUI_SHELL_AUTOCOMPLETION));
+		// set factsorting by
+		factSortByCombo.setSelectedItem(settings
+				.getString(GUI_FACTS_AUTOSORT_BY));
+		// set factsorting dir
+		factSortDirectionCombo.setSelectedItem(settings
+				.getString(GUI_FACTS_AUTOSORT_DIR));
+	}
 
+	@Override
+	public void setDefaults() {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

@@ -261,25 +261,25 @@ public class EngineSettingsPanel extends AbstractSettingsPanel implements
 
 	@Override
 	public void loadSettings() {
-		String strategyName = gui.getPreferences().get("engine.mainStrategy",
-				"-empty-");
-		if (!strategyName.equals("-empty-")) {
-			Module module = gui.getEngine().getModule("MAIN");
-			try {
-				gui.getEngine().getAgendas().getAgenda(module)
-						.setConflictResolutionStrategy(
-								ConflictResolutionStrategy
-										.getStrategy(strategyName));
-			} catch (InstantiationException e) {
-				JOptionPane.showMessageDialog(this, e,
-						"Error setting the strategy for MAIN.",
-						JOptionPane.ERROR_MESSAGE);
-			} catch (IllegalAccessException e) {
-				JOptionPane.showMessageDialog(this, e,
-						"Error setting the strategy for MAIN.",
-						JOptionPane.ERROR_MESSAGE);
-			}
-		}
+//		String strategyName = gui.getPreferences().get("engine.mainStrategy",
+//				"-empty-");
+//		if (!strategyName.equals("-empty-")) {
+//			Module module = gui.getEngine().getModule("MAIN");
+//			try {
+//				gui.getEngine().getAgendas().getAgenda(module)
+//						.setConflictResolutionStrategy(
+//								ConflictResolutionStrategy
+//										.getStrategy(strategyName));
+//			} catch (InstantiationException e) {
+//				JOptionPane.showMessageDialog(this, e,
+//						"Error setting the strategy for MAIN.",
+//						JOptionPane.ERROR_MESSAGE);
+//			} catch (IllegalAccessException e) {
+//				JOptionPane.showMessageDialog(this, e,
+//						"Error setting the strategy for MAIN.",
+//						JOptionPane.ERROR_MESSAGE);
+//			}
+//		}
 	}
 
 	public void actionPerformed(ActionEvent event) {
@@ -410,5 +410,11 @@ public class EngineSettingsPanel extends AbstractSettingsPanel implements
 				strategySelectorMain.setSelectedItem(strategyName);
 			}
 		}
+	}
+
+	@Override
+	public void setDefaults() {
+		// TODO Auto-generated method stub
+		
 	}
 }

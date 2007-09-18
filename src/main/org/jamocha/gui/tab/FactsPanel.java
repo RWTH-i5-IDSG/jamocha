@@ -56,9 +56,12 @@ import org.jamocha.rete.exception.RetractException;
  * @author Karl-Heinz Krempels <krempels@cs.rwth-aachen.de>
  * @author Alexander Wilden <october.rust@gmx.de>
  */
-public class FactsPanel extends AbstractJamochaPanel implements ActionListener, ListSelectionListener {
+public class FactsPanel extends AbstractJamochaPanel implements ActionListener,
+		ListSelectionListener {
 
-	private static final String GUI_FACTS_AUTO_SORT = "gui.facts.autoSort";
+	private static final String GUI_FACTS_AUTOSORT_DIR = "gui.facts.autosort_dir";
+
+	private static final String GUI_FACTS_AUTOSORT_BY = "gui.facts.autosort_by";
 
 	private static final String FACTS_DIVIDERLOCATION = "gui.facts.dividerlocation";
 
@@ -98,7 +101,10 @@ public class FactsPanel extends AbstractJamochaPanel implements ActionListener, 
 		factsTable.setShowHorizontalLines(true);
 		factsTable.setRowSelectionAllowed(true);
 		factsTable.getTableHeader().setReorderingAllowed(false);
-		factsTable.getTableHeader().setToolTipText("Click to sort ascending. Click while pressing the shift-key down to sort descending");
+		factsTable
+				.getTableHeader()
+				.setToolTipText(
+						"Click to sort ascending. Click while pressing the shift-key down to sort descending");
 		factsTable.getSelectionModel().addListSelectionListener(this);
 		dumpArea = new JTextArea();
 		dumpArea.setLineWrap(true);
@@ -106,12 +112,15 @@ public class FactsPanel extends AbstractJamochaPanel implements ActionListener, 
 		dumpArea.setEditable(false);
 		dumpArea.setFont(new Font("Courier", Font.PLAIN, 12));
 
-		pane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, new JScrollPane(factsTable), new JScrollPane(dumpArea));
+		pane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, new JScrollPane(
+				factsTable), new JScrollPane(dumpArea));
 		add(pane, BorderLayout.CENTER);
 		pane.setDividerLocation(settings.getInt(FACTS_DIVIDERLOCATION));
-		reloadButton = new JButton("Reload Facts", IconLoader.getImageIcon("database_refresh"));
+		reloadButton = new JButton("Reload Facts", IconLoader
+				.getImageIcon("database_refresh"));
 		reloadButton.addActionListener(this);
-		assertButton = new JButton("Assert Fact", IconLoader.getImageIcon("database_add"));
+		assertButton = new JButton("Assert Fact", IconLoader
+				.getImageIcon("database_add"));
 		assertButton.addActionListener(this);
 		JPanel buttonPanel = new JPanel();
 		buttonPanel.setLayout(new FlowLayout(FlowLayout.RIGHT, 5, 1));
@@ -127,18 +136,31 @@ public class FactsPanel extends AbstractJamochaPanel implements ActionListener, 
 		dataModel.setFacts(facts);
 		factsTable.getColumnModel().getColumn(0).setPreferredWidth(50);
 		factsTable.getColumnModel().getColumn(1).setPreferredWidth(150);
-		factsTable.getColumnModel().getColumn(2).setPreferredWidth(factsTable.getWidth() - 200);
-		String autoSort = settings.getString(GUI_FACTS_AUTO_SORT);
-		if (autoSort.contains("ascending")) {
-			TableModelQuickSort.sort(dataModel, true, 0);
-		} else if (autoSort.contains("descending")) {
-			TableModelQuickSort.sort(dataModel, false, 0);
+		factsTable.getColumnModel().getColumn(2).setPreferredWidth(
+				factsTable.getWidth() - 200);
+		String autoSortBy = settings.getString(GUI_FACTS_AUTOSORT_BY);
+		String autoSortDir = settings.getString(GUI_FACTS_AUTOSORT_DIR);
+		int col = -1;
+		if (autoSortBy.equalsIgnoreCase("id"))
+			col = 0;
+		else if (autoSortBy.equalsIgnoreCase("template"))
+			col = 1;
+		else if (autoSortBy.equalsIgnoreCase("fact"))
+			col = 2;
+		if (col >= 0) {
+			if (autoSortDir.contains("descending")) {
+				TableModelQuickSort.sort(dataModel, false, col);
+			} else {
+				TableModelQuickSort.sort(dataModel, true, col);
+			}
 		}
+
 	}
 
 	private void initPopupMenu() {
 		JPopupMenu menu = new JPopupMenu();
-		JMenuItem retractItem = new JMenuItem("Retract selected Fact(s)", IconLoader.getImageIcon("database_delete"));
+		JMenuItem retractItem = new JMenuItem("Retract selected Fact(s)",
+				IconLoader.getImageIcon("database_delete"));
 		retractItem.addMouseListener(new MouseAdapter() {
 			public void mouseReleased(MouseEvent event) {
 				int[] selCols = factsTable.getSelectedRows();
@@ -181,8 +203,10 @@ public class FactsPanel extends AbstractJamochaPanel implements ActionListener, 
 	public void valueChanged(ListSelectionEvent arg0) {
 		if (arg0.getSource() == factsTable.getSelectionModel()) {
 			StringBuilder buffer = new StringBuilder();
-			if (factsTable.getSelectedColumnCount() == 1 && factsTable.getSelectedRow() > -1) {
-				Fact fact = (Fact) dataModel.getRowAt(factsTable.getSelectedRow());
+			if (factsTable.getSelectedColumnCount() == 1
+					&& factsTable.getSelectedRow() > -1) {
+				Fact fact = (Fact) dataModel.getRowAt(factsTable
+						.getSelectedRow());
 				if (fact != null) {
 					buffer.append(fact.format(new HelpFormatter()));
 				}
@@ -192,7 +216,8 @@ public class FactsPanel extends AbstractJamochaPanel implements ActionListener, 
 		}
 	}
 
-	private final class FactsTableModel extends AbstractTableModel implements TableRowModel {
+	private final class FactsTableModel extends AbstractTableModel implements
+			TableRowModel {
 
 		private static final long serialVersionUID = 1L;
 

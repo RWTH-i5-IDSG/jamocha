@@ -32,6 +32,8 @@ import org.jamocha.rule.Rule;
 public class AgendaPanel extends AbstractJamochaPanel implements
 		ListSelectionListener, ActionListener {
 
+	private static final String GUI_AGENDA_DIVIDERLOCATION = "gui.agenda.dividerlocation";
+
 	private static final long serialVersionUID = 1L;
 
 	private JSplitPane pane;
@@ -69,7 +71,7 @@ public class AgendaPanel extends AbstractJamochaPanel implements
 		pane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, new JScrollPane(
 				agendaTable), new JScrollPane(dumpArea));
 		add(pane, BorderLayout.CENTER);
-		pane.setDividerLocation(settings.getInt("gui.agendapanel.dividerlocation"));
+		pane.setDividerLocation(settings.getInt(GUI_AGENDA_DIVIDERLOCATION));
 		reloadButton = new JButton("Reload Activationlist", IconLoader
 				.getImageIcon("arrow_refresh"));
 		reloadButton.addActionListener(this);
@@ -88,7 +90,7 @@ public class AgendaPanel extends AbstractJamochaPanel implements
 
 	@Override
 	public void close() {
-		settings.set("gui.agendapanel.dividerlocation", pane.getDividerLocation());
+		settings.set(GUI_AGENDA_DIVIDERLOCATION, pane.getDividerLocation());
 	}
 
 	@Override
