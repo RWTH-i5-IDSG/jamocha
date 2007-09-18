@@ -139,11 +139,7 @@ public class Retract extends AbstractFunction {
 				} else if (param.getType().equals(JamochaType.FACT)) {
 					Deffact fact = (Deffact) param.getFactValue();
 					try {
-						if (params[idx].isObjectBinding()) {
-							engine.retractObject(fact.getObjectInstance());
-						} else {
-							engine.retractFact(fact);
-						}
+						engine.retractFact(fact);
 						result = JamochaValue.TRUE;
 					} catch (RetractException e) {
 					}
