@@ -162,6 +162,8 @@ public class JamochaSettings {
 				this.name2SettingsChangedListener.put(settingName, listeners);
 			}
 			listeners.add(listener);
+			listener.settingsChanged(settingName);
+			
 		}
 	}
 
