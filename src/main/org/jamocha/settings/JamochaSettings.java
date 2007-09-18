@@ -18,8 +18,9 @@ package org.jamocha.settings;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -40,10 +41,10 @@ public class JamochaSettings {
 
 	private Map<String, String> friendlyName2Name;
 
-	private Set<SettingsChangedListener> listeners; // listeners
+	private Map<String, List<SettingsChangedListener>> name2SettingsChangedListener;
 
 	private JamochaSettings() {
-		listeners = new HashSet<SettingsChangedListener>();
+		name2SettingsChangedListener = new HashMap<String, List<SettingsChangedListener>>();
 
 		preferences = Preferences.userRoot().node("org/jamocha/gui");
 		defaults = new Properties();
@@ -110,13 +111,12 @@ public class JamochaSettings {
 			String name = friendlyName2Name.get(key);
 			if (name != null) {
 				setting = settings.get(name);
+				key = name;
 			}
 		}
 		// action:
 		if (setting != null) {
-			Object oldValue = setting.currentValue;
-			Object newValue = setting.setCurrentValue(value);
-			informListeners(key, oldValue, newValue);
+			informListeners(key);
 			return true;
 		}
 		return false;
@@ -149,28 +149,43 @@ public class JamochaSettings {
 	}
 
 	/**
-	 * adds a listener
+	 * @param listener
+	 * @param settingNames
 	 */
-	public void addListener(SettingsChangedListener listener) {
-		listeners.add(listener);
+	public void addListener(SettingsChangedListener listener, String[] settingNames) {
+		// traverse all settingNames:
+		for (String settingName : settingNames) {
+			// do we have a listener list for this setting?
+			List<SettingsChangedListener> listeners = this.name2SettingsChangedListener.get(settingName);
+			if (listeners == null) {
+				listeners = new ArrayList<SettingsChangedListener>();
+				this.name2SettingsChangedListener.put(settingName, listeners);
+			}
+			listeners.add(listener);
+		}
 	}
 
 	/**
-	 * removes a listener
+	 * 
+	 * @param listener
 	 */
 	public void removeListener(SettingsChangedListener listener) {
-		listeners.remove(listener);
+		assert (false);
+		// TODO: implement me!
 	}
 
-	public void informListeners(String PropertyName, Object oldValue, Object newValue) {
-		for (SettingsChangedListener l : listeners) {
-			l.settingsChanged(PropertyName, oldValue, newValue);
+	protected void informListeners(String propertyName) {
+		List<SettingsChangedListener> listeners = this.name2SettingsChangedListener.get(propertyName);
+		if (listeners != null) {
+			for (SettingsChangedListener l : listeners) {
+				l.settingsChanged(propertyName);
+			}
 		}
 	}
 
 	private void addProperty(String name, String friendlyName, String defaultValue, String currentValue, String type) {
 		this.settings.put(name, new JamochaSetting(name, friendlyName, defaultValue, currentValue, type));
-		//do we hav a friendly name? -> add to second hashmap:
+		// do we hav a friendly name? -> add to second hashmap:
 		if (!friendlyName.equals("") && friendlyName != null)
 			this.friendlyName2Name.put(friendlyName, name);
 	}
