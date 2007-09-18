@@ -87,6 +87,7 @@ public class RuleEngineFunctions extends FunctionGroup {
 		addFunction(functionMem, new Retract());
 		addFunction(functionMem, new ListRules());
 		addFunction(functionMem, new SaveFacts());
+		addFunction(functionMem, new SetDefault());
 		addFunction(functionMem, new SetFocus());
 		addFunction(functionMem, new SetParser());
 		addFunction(functionMem, new SetSettings());

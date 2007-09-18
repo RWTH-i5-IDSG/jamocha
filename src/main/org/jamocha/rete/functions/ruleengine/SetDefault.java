@@ -16,8 +16,6 @@
  */
 package org.jamocha.rete.functions.ruleengine;
 
-import java.util.Set;
-
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
@@ -28,32 +26,28 @@ import org.jamocha.rete.functions.FunctionDescription;
 import org.jamocha.settings.JamochaSettings;
 
 /**
- * set the setting value for given setting name
+ * resets a given setting to its default value
  * 
  * @author Sebastian Reinartz
  */
-public class SetSettings extends AbstractFunction {
+public class SetDefault extends AbstractFunction {
 
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "Jamocha settings can be set by this function.";
+			return "A given Jamocha setting will be set to its default value.";
 		}
 
 		public int getParameterCount() {
-			return 2;
+			return 1;
 		}
 
 		public String getParameterDescription(int parameter) {
-			if (parameter == 0)
-				return "Name of property to be set";
-			return "Property value";
+			return "Name of property to be reset";
 		}
 
 		public String getParameterName(int parameter) {
-			if (parameter == 0)
-				return "property name";
-			return "property value";
+			return "property name";
 		}
 
 		public JamochaType[] getParameterTypes(int parameter) {
@@ -73,7 +67,7 @@ public class SetSettings extends AbstractFunction {
 		}
 
 		public String getExample() {
-			return "(set watch-activations true)";
+			return "(set-default watch-activations)";
 		}
 
 		public boolean isResultAutoGeneratable() {
@@ -85,7 +79,7 @@ public class SetSettings extends AbstractFunction {
 
 	private static final long serialVersionUID = 1L;
 
-	public static final String NAME = "set";
+	public static final String NAME = "set-default";
 
 	public FunctionDescription getDescription() {
 		return DESCRIPTION;
@@ -97,25 +91,12 @@ public class SetSettings extends AbstractFunction {
 
 	public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
 		JamochaSettings prefs = JamochaSettings.getInstance();
-		// do we want to set specific setting?
-		if (params != null && params.length == 2) {
+		
+		if (params != null && params.length == 1) {
 			String property = params[0].getValue(engine).getStringValue();
-			// test: TODO: implement mappin jamochatype ->settings type:
-			String value = params[1].getValue(engine).implicitCast(JamochaType.STRING).toString();
 
-			boolean result = prefs.set(property, value);
+			boolean result = prefs.toDefault(property);
 			return (result) ? JamochaValue.TRUE : JamochaValue.FALSE;
-		}
-		// no params: list all settings:
-		else if (params != null && params.length == 0) {
-			Set<String> allprefs = prefs.getSettings();
-			for (String pref : allprefs) {
-				String preffriendlyName = prefs.getFriendlyName(pref);
-				String currentValue = prefs.get(pref).toString();
-				String defaultValue = prefs.getDefault(pref).toString();
-				engine.writeMessage("NAME: "+ pref + " FRIENDLY NAME: " + preffriendlyName + " CURRENT VALUE: " + currentValue + " DEFAULT VALUE: " + defaultValue);
-			}
-			return JamochaValue.TRUE;
 		}
 
 		return JamochaValue.FALSE;
