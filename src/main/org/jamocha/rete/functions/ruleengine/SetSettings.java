@@ -113,7 +113,7 @@ public class SetSettings extends AbstractFunction {
 				String preffriendlyName = prefs.getFriendlyName(pref);
 				String currentValue = prefs.get(pref).toString();
 				String defaultValue = prefs.getDefault(pref).toString();
-				engine.writeMessage(pref + " " + preffriendlyName + " " + currentValue + " " + defaultValue);
+				engine.writeMessage("NAME: "+ pref + " FRIENDLY NAME: " + preffriendlyName + " CURRENT VALUE: " + currentValue + " DEFAULT VALUE: " + defaultValue);
 			}
 			return JamochaValue.TRUE;
 		}
