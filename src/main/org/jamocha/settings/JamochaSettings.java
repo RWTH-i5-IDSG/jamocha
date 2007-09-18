@@ -46,7 +46,7 @@ public class JamochaSettings {
 	private JamochaSettings() {
 		name2SettingsChangedListener = new HashMap<String, List<SettingsChangedListener>>();
 
-		preferences = Preferences.userRoot().node("org/jamocha/gui");
+		preferences = Preferences.userRoot().node("org/jamocha");
 		defaults = new Properties();
 		String defaultPropName = "default.properties";
 		try {
@@ -116,6 +116,7 @@ public class JamochaSettings {
 		}
 		// action:
 		if (setting != null) {
+			setting.setCurrentValue(value);
 			informListeners(key);
 			return true;
 		}
@@ -163,7 +164,6 @@ public class JamochaSettings {
 			}
 			listeners.add(listener);
 			listener.settingsChanged(settingName);
-			
 		}
 	}
 
