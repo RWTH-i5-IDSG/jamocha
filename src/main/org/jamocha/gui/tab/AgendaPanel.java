@@ -70,7 +70,7 @@ public class AgendaPanel extends AbstractJamochaPanel implements
 		pane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, new JScrollPane(
 				agendaTable), new JScrollPane(dumpArea));
 		add(pane, BorderLayout.CENTER);
-		pane.setDividerLocation(JamochaSettings.getInstance().get("gui.agendapanel.dividerlocation"));
+		pane.setDividerLocation(JamochaSettings.getInstance().getInt("gui.agendapanel.dividerlocation"));
 		reloadButton = new JButton("Reload Activationlist", IconLoader
 				.getImageIcon("arrow_refresh"));
 		reloadButton.addActionListener(this);
