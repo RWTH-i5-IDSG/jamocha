@@ -26,6 +26,8 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -41,9 +43,13 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import org.jamocha.gui.JamochaGui;
 import org.jamocha.gui.icons.IconLoader;
+import org.jamocha.settings.JamochaSettings;
+import org.jamocha.settings.SettingsChangedListener;
 
 /**
  * With this Panel the User can change the look of the Shell.
@@ -52,7 +58,17 @@ import org.jamocha.gui.icons.IconLoader;
  * @author Alexander Wilden <october.rust@gmx.de>
  */
 public class GUISettingsPanel extends AbstractSettingsPanel implements
-		ActionListener {
+		ActionListener, ItemListener, ChangeListener, SettingsChangedListener {
+
+	private static final String GUI_SHELL_AUTOCOMPLETION = "gui.shell.autocompletion";
+
+	private static final String GUI_SHELL_BACKGROUNDCOLOR = "gui.shell.backgroundcolor";
+
+	private static final String GUI_SHELL_FONTCOLOR = "gui.shell.fontcolor";
+
+	private static final String GUI_SHELL_FONTSIZE = "gui.shell.fontsize";
+
+	private static final String GUI_SHELL_FONT = "gui.shell.font";
 
 	private static final long serialVersionUID = -7136144663514250335L;
 
@@ -69,8 +85,12 @@ public class GUISettingsPanel extends AbstractSettingsPanel implements
 	private JTextField backgroundColorChooserPreview;
 
 	private JComboBox factSortOptionsCombo;
-	
+
 	private JCheckBox autoCompletion;
+
+	private String[] interestedSettings = { GUI_SHELL_FONT,
+			GUI_SHELL_FONTSIZE, GUI_SHELL_FONTCOLOR,
+			GUI_SHELL_BACKGROUNDCOLOR, GUI_SHELL_AUTOCOMPLETION };
 
 	public GUISettingsPanel(JamochaGui gui) {
 		super(gui);
@@ -84,7 +104,7 @@ public class GUISettingsPanel extends AbstractSettingsPanel implements
 		// -------------------
 		// Shell Settings
 		// -------------------
-		
+
 		JPanel shellPanel = new JPanel();
 		shellPanel.setLayout(gridbag);
 		shellPanel.setBorder(BorderFactory.createTitledBorder("Shell"));
@@ -96,7 +116,7 @@ public class GUISettingsPanel extends AbstractSettingsPanel implements
 		Font allFonts[] = ge.getAllFonts();
 		fonts = new JComboBox(filterFonts(allFonts));
 		Font selFont = null;
-		String selFontName = gui.getPreferences().get("shell.font", "Courier");
+		String selFontName = settings.getString(GUI_SHELL_FONT);
 		for (Font curFont : allFonts) {
 			if (curFont.getFontName().equals(selFontName)) {
 				selFont = curFont;
@@ -107,6 +127,7 @@ public class GUISettingsPanel extends AbstractSettingsPanel implements
 			fonts.setSelectedItem(selFont);
 		}
 		fonts.setRenderer(new FontListCellRenderer());
+		fonts.addItemListener(this);
 		JPanel fontsPanel = new JPanel(new BorderLayout());
 		fontsPanel.add(fonts, BorderLayout.WEST);
 		addInputComponent(shellPanel, fontsPanel, gridbag, c, 0);
@@ -118,8 +139,8 @@ public class GUISettingsPanel extends AbstractSettingsPanel implements
 			sizes[i] = 8 + i;
 		}
 		fontsizes = new JComboBox(sizes);
-		fontsizes.setSelectedItem(gui.getPreferences().getInt("shell.fontsize",
-				12));
+		fontsizes.setSelectedItem(settings.getInt(GUI_SHELL_FONTSIZE));
+		fontsizes.addItemListener(this);
 		JPanel fontsizesPanel = new JPanel(new BorderLayout());
 		fontsizesPanel.add(fontsizes, BorderLayout.WEST);
 		addInputComponent(shellPanel, fontsizesPanel, gridbag, c, 1);
@@ -130,8 +151,8 @@ public class GUISettingsPanel extends AbstractSettingsPanel implements
 				FlowLayout.LEFT));
 		fontColorChooserPreview = new JTextField(5);
 		fontColorChooserPreview.setEditable(false);
-		fontColorChooserPreview.setBackground(new Color(gui.getPreferences()
-				.getInt("shell.fontcolor", Color.WHITE.getRGB())));
+		fontColorChooserPreview.setBackground(new Color(settings
+				.getInt(GUI_SHELL_FONTCOLOR)));
 		fontColorChooserButton = new JButton("Choose Color", IconLoader
 				.getImageIcon("color_swatch"));
 		fontColorChooserButton.addActionListener(this);
@@ -145,9 +166,8 @@ public class GUISettingsPanel extends AbstractSettingsPanel implements
 				FlowLayout.LEFT));
 		backgroundColorChooserPreview = new JTextField(5);
 		backgroundColorChooserPreview.setEditable(false);
-		backgroundColorChooserPreview.setBackground(new Color(gui
-				.getPreferences().getInt("shell.backgroundcolor",
-						Color.BLACK.getRGB())));
+		backgroundColorChooserPreview.setBackground(new Color(settings
+				.getInt(GUI_SHELL_BACKGROUNDCOLOR)));
 		backgroundColorChooserButton = new JButton("Choose Color", IconLoader
 				.getImageIcon("color_swatch"));
 		backgroundColorChooserButton.addActionListener(this);
@@ -155,12 +175,16 @@ public class GUISettingsPanel extends AbstractSettingsPanel implements
 		backgroundColorChooserPanel.add(backgroundColorChooserButton);
 		addInputComponent(shellPanel, backgroundColorChooserPanel, gridbag, c,
 				3);
+
+		// Autocompletion
+		addLabel(shellPanel, new JLabel(""), gridbag, c, 4);
 		autoCompletion = new JCheckBox("Enable Auto-Completion");
-		autoCompletion.setSelected(gui.getPreferences().getBoolean("shell.autocompletion", false));
+		autoCompletion.setSelected(settings.getBoolean(GUI_SHELL_AUTOCOMPLETION));
+		autoCompletion.addChangeListener(this);
 		addInputComponent(shellPanel, autoCompletion, gridbag, c, 4);
 
 		mainPanel.add(shellPanel);
-		
+
 		// -------------------
 		// Factspanel Settings
 		// -------------------
@@ -187,6 +211,8 @@ public class GUISettingsPanel extends AbstractSettingsPanel implements
 		mainPanel.add(factsPanel);
 
 		add(new JScrollPane(mainPanel));
+
+		settings.addListener(this, interestedSettings);
 	}
 
 	@Override
@@ -203,7 +229,8 @@ public class GUISettingsPanel extends AbstractSettingsPanel implements
 						.getRGB());
 		gui.getPreferences().put("facts.autoSort",
 				factSortOptionsCombo.getSelectedItem().toString());
-		gui.getPreferences().putBoolean("shell.autocompletion", autoCompletion.isSelected());
+		gui.getPreferences().putBoolean("shell.autocompletion",
+				autoCompletion.isSelected());
 	}
 
 	private class FontListCellRenderer extends DefaultListCellRenderer {
@@ -221,25 +248,6 @@ public class GUISettingsPanel extends AbstractSettingsPanel implements
 			setFont(((Font) value).deriveFont(12.0f));
 			setText(((Font) value).getFontName());
 			return this;
-		}
-	}
-
-	public void actionPerformed(ActionEvent event) {
-		if (event.getSource() == fontColorChooserButton) {
-			Color newColor = JColorChooser.showDialog(this,
-					"Choose a Fontcolor", new Color(gui.getPreferences()
-							.getInt("shell.fontcolor", Color.WHITE.getRGB())));
-			if (newColor != null) {
-				fontColorChooserPreview.setBackground(newColor);
-			}
-		} else if (event.getSource() == backgroundColorChooserButton) {
-			Color newColor = JColorChooser.showDialog(this,
-					"Choose a Backgroundcolor", new Color(gui.getPreferences()
-							.getInt("shell.backgroundcolor",
-									Color.BLACK.getRGB())));
-			if (newColor != null) {
-				backgroundColorChooserPreview.setBackground(newColor);
-			}
 		}
 	}
 
@@ -261,6 +269,48 @@ public class GUISettingsPanel extends AbstractSettingsPanel implements
 			fonts[i] = res.get(i);
 		}
 		return fonts;
+	}
+
+	public void actionPerformed(ActionEvent event) {
+		if (event.getSource() == fontColorChooserButton) {
+			Color newColor = JColorChooser.showDialog(this,
+					"Choose a Fontcolor", new Color(settings
+							.getInt(GUI_SHELL_FONTCOLOR)));
+			if (newColor != null) {
+				fontColorChooserPreview.setBackground(newColor);
+				settings.set(GUI_SHELL_FONTCOLOR, newColor.getRGB());
+			}
+		} else if (event.getSource() == backgroundColorChooserButton) {
+			Color newColor = JColorChooser.showDialog(this,
+					"Choose a Backgroundcolor", new Color(settings
+							.getInt(GUI_SHELL_BACKGROUNDCOLOR)));
+			if (newColor != null) {
+				backgroundColorChooserPreview.setBackground(newColor);
+				settings.set(GUI_SHELL_BACKGROUNDCOLOR, newColor.getRGB());
+			}
+		}
+	}
+
+	public void itemStateChanged(ItemEvent event) {
+		if (event.getSource().equals(fonts)) {
+			settings.set(GUI_SHELL_FONT, ((Font) fonts.getSelectedItem())
+					.getFontName());
+		} else if (event.getSource().equals(fontsizes)) {
+			settings.set(GUI_SHELL_FONTSIZE, (Integer) fontsizes
+					.getSelectedItem());
+		}
+	}
+
+	public void stateChanged(ChangeEvent event) {
+		if (event.getSource().equals(autoCompletion)) {
+			settings.set(GUI_SHELL_AUTOCOMPLETION, autoCompletion
+					.isSelected());
+		}
+	}
+
+	public void settingsChanged(String propertyName) {
+		// TODO Auto-generated method stub
+
 	}
 
 }

@@ -94,12 +94,6 @@ public class AgendaPanel extends AbstractJamochaPanel implements
 	}
 
 	@Override
-	public void settingsChanged() {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
 	public void setFocus() {
 		super.setFocus();
 		initActivationsList();

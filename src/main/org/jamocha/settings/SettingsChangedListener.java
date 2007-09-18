@@ -16,12 +16,10 @@
  */
 package org.jamocha.settings;
 
-
-
 /**
  * @author Sebastian Reinartz
  */
 public interface SettingsChangedListener {
-    void settingsChanged(String PropertyName);
-    
+	void settingsChanged(String propertyName);
+
 }

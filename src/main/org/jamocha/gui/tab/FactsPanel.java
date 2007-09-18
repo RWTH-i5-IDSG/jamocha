@@ -177,10 +177,6 @@ public class FactsPanel extends AbstractJamochaPanel implements ActionListener,
 				pane.getDividerLocation());
 	}
 
-	public void settingsChanged() {
-
-	}
-
 	public void actionPerformed(ActionEvent event) {
 		if (event.getSource().equals(reloadButton)) {
 			initFactsList();

@@ -20,6 +20,7 @@ import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
 import org.jamocha.gui.JamochaGui;
+import org.jamocha.settings.JamochaSettings;
 
 /**
  * This is an abstract panel that covers all common functions of the panels in
@@ -34,6 +35,7 @@ public abstract class AbstractJamochaPanel extends JPanel {
 	 * purposes.
 	 */
 	protected JamochaGui gui;
+	protected JamochaSettings settings;
 
 	/**
 	 * The constructor expecting a JamochaGui as argument.
@@ -43,6 +45,7 @@ public abstract class AbstractJamochaPanel extends JPanel {
 	 */
 	public AbstractJamochaPanel(JamochaGui gui) {
 		this.gui = gui;
+		settings = JamochaSettings.getInstance();
 	}
 
 	/**
@@ -69,12 +72,5 @@ public abstract class AbstractJamochaPanel extends JPanel {
 	 * 
 	 */
 	public abstract void close();
-
-	/**
-	 * This function will be called by the gui whenever settings are changed in
-	 * the SettingsPanel.
-	 * 
-	 */
-	public abstract void settingsChanged();
 
 }

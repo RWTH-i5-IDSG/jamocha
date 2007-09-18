@@ -133,7 +133,7 @@ public class JamochaGui extends JFrame implements ChangeListener, ActionListener
 		this.engine = engine;
 
 		// create a shell tab and add it to the tabbed pane
-		ShellPanel shellPanel = new ShellPanel(this);
+		AbstractJamochaPanel shellPanel = new ShellPanel(this);
 		tabbedPane.addTab("Shell", IconLoader.getImageIcon("application_osx_terminal"), shellPanel, "Jamocha Shell");
 		panels.add(shellPanel);
 
@@ -285,16 +285,6 @@ public class JamochaGui extends JFrame implements ChangeListener, ActionListener
 			res.append(str[i] + System.getProperty("line.separator"));
 		}
 		return res.toString();
-	}
-
-	/**
-	 * Informs all Panels, that some Settings might have changed.
-	 * 
-	 */
-	public void settingsChanged() {
-		for (AbstractJamochaPanel panel : panels) {
-			panel.settingsChanged();
-		}
 	}
 
 	/**

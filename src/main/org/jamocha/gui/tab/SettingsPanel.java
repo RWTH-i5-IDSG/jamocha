@@ -110,7 +110,6 @@ public class SettingsPanel extends AbstractJamochaPanel implements
 				panel.save();
 				panel.loadSettings();
 			}
-			gui.settingsChanged();
 			try {
 				gui.getPreferences().flush();
 			} catch (BackingStoreException e) {

@@ -44,12 +44,6 @@ public class ViewerPanel extends AbstractJamochaPanel {
 		// TODO Auto-generated method stub
 		
 	}
-
-	@Override
-	public void settingsChanged() {
-		// TODO Auto-generated method stub
-		
-	}
 	
 	
 

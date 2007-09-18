@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
 /**
@@ -50,17 +51,21 @@ public class JamochaSettings {
 		defaults = new Properties();
 		String defaultPropName = "default.properties";
 		try {
-			defaultPropName = this.getClass().getPackage().getName().replace('.', '/') + "/" + defaultPropName;
+			defaultPropName = this.getClass().getPackage().getName().replace(
+					'.', '/')
+					+ "/" + defaultPropName;
 			// System.out.println(defaultPropName);
 		} catch (Exception any) {
 			// ignore - likely class not in package.
 		}
-		InputStream propertyStream = this.getClass().getClassLoader().getResourceAsStream(defaultPropName);
+		InputStream propertyStream = this.getClass().getClassLoader()
+				.getResourceAsStream(defaultPropName);
 		if (propertyStream != null) {
 			try {
 				defaults.load(propertyStream);
 			} catch (IOException ioe) {
-				System.err.println("Error reading default properties:" + defaultPropName);
+				System.err.println("Error reading default properties:"
+						+ defaultPropName);
 				System.exit(-1);
 			}
 		}
@@ -82,6 +87,10 @@ public class JamochaSettings {
 		return settings.get(key).defaultValue;
 	}
 
+	public String getString(String key) {
+		return (String) get(key);
+	}
+
 	public boolean getBoolean(String key) {
 		return (Boolean) get(key);
 	}
@@ -94,7 +103,7 @@ public class JamochaSettings {
 		return (Float) get(key);
 	}
 
-	public int getInteger(String key) {
+	public int getInt(String key) {
 		return (Integer) get(key);
 	}
 
@@ -123,6 +132,14 @@ public class JamochaSettings {
 		return false;
 	}
 
+	public boolean set(String key, int value) {
+		return set(key, "" + value);
+	}
+
+	public boolean set(String key, boolean value) {
+		return set(key, "" + value);
+	}
+
 	private void readSettings() {
 		// setup maps:
 		this.settings = new HashMap<String, JamochaSetting>();
@@ -144,7 +161,8 @@ public class JamochaSettings {
 			// look for value in preferences:
 			currentValue = preferences.get(key.toString(), defaultValue);
 
-			addProperty(key.toString(), friendlyName, defaultValue, currentValue, type);
+			addProperty(key.toString(), friendlyName, defaultValue,
+					currentValue, type);
 		}
 
 	}
@@ -153,11 +171,13 @@ public class JamochaSettings {
 	 * @param listener
 	 * @param settingNames
 	 */
-	public void addListener(SettingsChangedListener listener, String[] settingNames) {
+	public void addListener(SettingsChangedListener listener,
+			String[] settingNames) {
 		// traverse all settingNames:
 		for (String settingName : settingNames) {
 			// do we have a listener list for this setting?
-			List<SettingsChangedListener> listeners = this.name2SettingsChangedListener.get(settingName);
+			List<SettingsChangedListener> listeners = this.name2SettingsChangedListener
+					.get(settingName);
 			if (listeners == null) {
 				listeners = new ArrayList<SettingsChangedListener>();
 				this.name2SettingsChangedListener.put(settingName, listeners);
@@ -177,7 +197,8 @@ public class JamochaSettings {
 	}
 
 	protected void informListeners(String propertyName) {
-		List<SettingsChangedListener> listeners = this.name2SettingsChangedListener.get(propertyName);
+		List<SettingsChangedListener> listeners = this.name2SettingsChangedListener
+				.get(propertyName);
 		if (listeners != null) {
 			for (SettingsChangedListener l : listeners) {
 				l.settingsChanged(propertyName);
@@ -185,11 +206,21 @@ public class JamochaSettings {
 		}
 	}
 
-	private void addProperty(String name, String friendlyName, String defaultValue, String currentValue, String type) {
-		this.settings.put(name, new JamochaSetting(name, friendlyName, defaultValue, currentValue, type));
+	private void addProperty(String name, String friendlyName,
+			String defaultValue, String currentValue, String type) {
+		this.settings.put(name, new JamochaSetting(name, friendlyName,
+				defaultValue, currentValue, type));
 		// do we hav a friendly name? -> add to second hashmap:
 		if (!friendlyName.equals("") && friendlyName != null)
 			this.friendlyName2Name.put(friendlyName, name);
+	}
+
+	protected void finalize() {
+		try {
+			preferences.flush();
+		} catch (BackingStoreException e) {
+			e.printStackTrace();
+		}
 	}
 
 	// private class:
@@ -219,7 +250,8 @@ public class JamochaSettings {
 
 		Object currentValue;
 
-		public JamochaSetting(String name, String friendlyName, String defaultValue, String currentValue, String type) {
+		public JamochaSetting(String name, String friendlyName,
+				String defaultValue, String currentValue, String type) {
 			super();
 			this.type = getType(type);
 			this.name = name;

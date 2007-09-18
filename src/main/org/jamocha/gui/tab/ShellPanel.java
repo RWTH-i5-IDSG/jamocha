@@ -60,6 +60,8 @@ import org.jamocha.messagerouter.StreamChannel;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Constants;
 import org.jamocha.rete.functions.Function;
+import org.jamocha.settings.JamochaSettings;
+import org.jamocha.settings.SettingsChangedListener;
 
 /**
  * This class provides a panel with a command line interface to Jamocha.
@@ -68,16 +70,28 @@ import org.jamocha.rete.functions.Function;
  * @author Alexander Wilden <october.rust@gmx.de>
  */
 public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
-		AdjustmentListener {
+		AdjustmentListener, SettingsChangedListener {
+
+	private static final String GUI_SHELL_FONTSTYLE = "gui.shell.fontstyle";
+
+	private static final String GUI_SHELL_AUTOCOMPLETION = "gui.shell.autocompletion";
+
+	private static final String GUI_SHELL_BACKGROUNDCOLOR = "gui.shell.backgroundcolor";
+
+	private static final String GUI_SHELL_FONTCOLOR = "gui.shell.fontcolor";
+
+	private static final String GUI_SHELL_FONTSIZE = "gui.shell.fontsize";
+
+	private static final String GUI_SHELL_FONT = "gui.shell.font";
 
 	private AutoCompletion autoCompletion;
-	
+
 	private AutoCompletionBox autoCompletionBox;
-	
+
 	private String autoCompletionPrefix;
-	
+
 	private boolean enableAutoCompletion = false;
-	
+
 	private static final long serialVersionUID = 1777454004380892575L;
 
 	/**
@@ -185,20 +199,26 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 
 	private boolean channelListenerPaused = false;
 
+	private String[] interestedSettings = { GUI_SHELL_FONT,
+			GUI_SHELL_FONTSIZE, GUI_SHELL_FONTCOLOR,
+			GUI_SHELL_BACKGROUNDCOLOR, GUI_SHELL_AUTOCOMPLETION };
+
 	private void initAutoCompletion() {
 		autoCompletion.addToken("multislot");
 		autoCompletion.addToken("slot");
-		for (Function function : gui.getEngine().getFunctionMemory().getAllFunctions()){
+		for (Function function : gui.getEngine().getFunctionMemory()
+				.getAllFunctions()) {
 			StringBuilder longName = new StringBuilder();
 			longName.append(function.getName());
-			for(int i=0;i<function.getDescription().getParameterCount();i++){
-				longName.append(" ").append(function.getDescription().getParameterName(i));
+			for (int i = 0; i < function.getDescription().getParameterCount(); i++) {
+				longName.append(" ").append(
+						function.getDescription().getParameterName(i));
 			}
 			longName.append(")");
-			autoCompletion.addToken(function.getName(),longName.toString());
+			autoCompletion.addToken(function.getName(), longName.toString());
 		}
 	}
-	
+
 	/**
 	 * The main constructor for a ShellPanel.
 	 * 
@@ -208,15 +228,14 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 	public ShellPanel(JamochaGui gui) {
 		super(gui);
 		autoCompletion = new AutoCompletion();
-		autoCompletionBox = new AutoCompletionBox(gui,autoCompletion);
+		autoCompletionBox = new AutoCompletionBox(gui, autoCompletion);
 		// GUI construction
 		// create the output area
 		outputArea = new JTextArea();
 		outputArea.setEditable(false);
 		outputArea.setLineWrap(true);
 		outputArea.setWrapStyleWord(true);
-		// set the font and the colors
-		settingsChanged();
+		
 		// create a scroll pane to embedd the output area
 		scrollPane = new JScrollPane(outputArea,
 				JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
@@ -240,7 +259,7 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 		initChannel();
 
 		initAutoCompletion();
-		
+
 		printPrompt();
 		moveCursorToEnd();
 		showCursor();
@@ -254,6 +273,8 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 
 		// initialize the mouselistener for the context menu
 		initPopupMenu();
+
+		settings.addListener(this, interestedSettings);
 	}
 
 	private void initChannel() {
@@ -540,7 +561,7 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 							if (autoCompletionBox.isVisible()) {
 								autoCompletionBox.up();
 							} else {
-								
+
 								// Here we walk through the history
 								int old_offset = history_offset;
 								history_offset += delta;
@@ -559,7 +580,8 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 										String currLine = "";
 										try {
 											currLine = outputArea.getText(
-													lastPromptIndex, getOffset()
+													lastPromptIndex,
+													getOffset()
 															- lastPromptIndex);
 										} catch (BadLocationException e1) {
 											e1.printStackTrace();
@@ -572,43 +594,55 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 									}
 									int index = history.size() - history_offset;
 									if (index >= 0 && history.size() > 0) {
-	
+
 										String tmp = history.get(index);
 										printMessage(tmp, false);
 									}
-	
+
 								}
 								moveCursorToEnd();
 								scrollToCursor();
 							}
 							break;
 						case KeyEvent.VK_ENTER:
-							boolean full=( (e.getModifiers()&KeyEvent.CTRL_MASK) != 0);
+							boolean full = ((e.getModifiers() & KeyEvent.CTRL_MASK) != 0);
 							if (autoCompletionBox.isVisible()) {
 								if (full) {
-									String txt = autoCompletionBox.getSelected(true).substring(autoCompletionPrefix.length());
-									String shorttxt = autoCompletionBox.getSelected(false).substring(autoCompletionPrefix.length());
-									int cursorPos = outputArea.getCaretPosition();
-									outputArea.insert(txt , cursorPos);
-									cursorPosition = cursorPos + shorttxt.length() + 1;
+									String txt = autoCompletionBox.getSelected(
+											true).substring(
+											autoCompletionPrefix.length());
+									String shorttxt = autoCompletionBox
+											.getSelected(false).substring(
+													autoCompletionPrefix
+															.length());
+									int cursorPos = outputArea
+											.getCaretPosition();
+									outputArea.insert(txt, cursorPos);
+									cursorPosition = cursorPos
+											+ shorttxt.length() + 1;
 								} else {
-									String txt = autoCompletionBox.getSelected(false).substring(autoCompletionPrefix.length());
-									int cursorPos = outputArea.getCaretPosition();
+									String txt = autoCompletionBox.getSelected(
+											false).substring(
+											autoCompletionPrefix.length());
+									int cursorPos = outputArea
+											.getCaretPosition();
 									outputArea.insert(txt + " ", cursorPos);
-									cursorPosition = cursorPos + txt.length() + 1;
+									cursorPosition = cursorPos + txt.length()
+											+ 1;
 								}
 								scrollToCursor();
 								autoCompletionBox.hide();
 							} else {
-								
+
 								moveCursorToEnd();
-	
+
 								if (lastPromptIndex < getOffset()) {
 									String currLine = "";
 									try {
 										try {
 											currLine = outputArea.getText(
-													lastPromptIndex, getOffset()
+													lastPromptIndex,
+													getOffset()
 															- lastPromptIndex);
 										} catch (BadLocationException e1) {
 											e1.printStackTrace();
@@ -649,7 +683,7 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 						// Moving the Cursor in the current line
 						case KeyEvent.VK_RIGHT:
 						case KeyEvent.VK_KP_RIGHT:
-						
+
 							if (!e.isShiftDown()) {
 								if (cursorPosition < getOffset()) {
 									moveCursorTo(cursorPosition + 1);
@@ -720,32 +754,37 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 	}
 
 	protected void handleAutoCompletion() {
-		if (!enableAutoCompletion) return;
+		if (!enableAutoCompletion)
+			return;
 		int i = 0;
 		Vector<String> suggestions = null;
 		try {
-			while (outputArea.getText().charAt(cursorPosition-i) != '(' && outputArea.getText().charAt(cursorPosition-i) != ' ') i++;
-			if (outputArea.getText().charAt(cursorPosition-i) == '(') {
-				autoCompletionPrefix = outputArea.getText(cursorPosition-i+1, i-1);
-				suggestions = autoCompletion.getAllBeginningWith(autoCompletionPrefix);
+			while (outputArea.getText().charAt(cursorPosition - i) != '('
+					&& outputArea.getText().charAt(cursorPosition - i) != ' ')
+				i++;
+			if (outputArea.getText().charAt(cursorPosition - i) == '(') {
+				autoCompletionPrefix = outputArea.getText(cursorPosition - i
+						+ 1, i - 1);
+				suggestions = autoCompletion
+						.getAllBeginningWith(autoCompletionPrefix);
 			} else {
 				suggestions = new Vector<String>();
 			}
 		} catch (Exception e) {
 			suggestions = new Vector<String>();
 		}
-		
+
 		if (!suggestions.isEmpty()) {
 			Caret c = outputArea.getCaret();
-			DefaultCaret bc = (DefaultCaret)c;
+			DefaultCaret bc = (DefaultCaret) c;
 			int x = bc.x + outputArea.getLocationOnScreen().x;
-			int y = bc.y + bc.height  + outputArea.getLocationOnScreen().y;
-			autoCompletionBox.show(suggestions,x,y);
-			
+			int y = bc.y + bc.height + outputArea.getLocationOnScreen().y;
+			autoCompletionBox.show(suggestions, x, y);
+
 		} else {
 			autoCompletionBox.hide();
 		}
-		
+
 	}
 
 	private void scrollToCursor() {
@@ -918,21 +957,6 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 		running = false;
 	}
 
-	public void settingsChanged() {
-		outputArea
-				.setFont(new Font(gui.getPreferences().get("shell.font",
-						"Courier"), gui.getPreferences().getInt(
-						"shell.fontstyle", Font.PLAIN), gui.getPreferences()
-						.getInt("shell.fontsize", 12)));
-		outputArea.setBackground(new Color(gui.getPreferences().getInt(
-				"shell.backgroundcolor", Color.BLACK.getRGB())));
-		outputArea.setForeground(new Color(gui.getPreferences().getInt(
-				"shell.fontcolor", Color.WHITE.getRGB())));
-		outputArea.setBorder(BorderFactory.createLineBorder(outputArea
-				.getBackground(), 2));
-		enableAutoCompletion = gui.getPreferences().getBoolean("shell.autocompletion", false);
-	}
-
 	/**
 	 * Catches events for Buttons and the Timer in this Panel.
 	 */
@@ -954,6 +978,23 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 		else {
 			lastScrollBarPosition = event.getValue();
 			startTimer();
+		}
+	}
+
+	public void settingsChanged(String propertyName) {
+		if (propertyName.startsWith(GUI_SHELL_FONT)) {
+			outputArea.setFont(new Font(settings.getString(GUI_SHELL_FONT), settings
+					.getInt(GUI_SHELL_FONTSTYLE), settings
+					.getInt(GUI_SHELL_FONTSIZE)));
+			outputArea.setForeground(new Color(settings
+					.getInt(GUI_SHELL_FONTCOLOR)));
+		} else if (propertyName.equals(GUI_SHELL_BACKGROUNDCOLOR)) {
+			outputArea.setBackground(new Color(settings
+					.getInt(GUI_SHELL_BACKGROUNDCOLOR)));
+			outputArea.setBorder(BorderFactory.createLineBorder(outputArea
+					.getBackground(), 2));
+		} else if (propertyName.equals(GUI_SHELL_AUTOCOMPLETION)) {
+			enableAutoCompletion = settings.getBoolean(GUI_SHELL_AUTOCOMPLETION);
 		}
 	}
 

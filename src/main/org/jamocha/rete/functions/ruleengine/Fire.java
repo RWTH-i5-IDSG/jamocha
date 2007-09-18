@@ -95,6 +95,11 @@ public class Fire extends AbstractFunction {
 
 	public static final String NAME = "fire";
 
+	public Fire() {
+		super();
+		aliases.add("run");
+	}
+	
 	public FunctionDescription getDescription() {
 		return DESCRIPTION;
 	}
