@@ -28,7 +28,6 @@ import org.jamocha.gui.icons.IconLoader;
 import org.jamocha.rete.Fact;
 import org.jamocha.rete.agenda.Activation;
 import org.jamocha.rule.Rule;
-import org.jamocha.settings.JamochaSettings;
 
 public class AgendaPanel extends AbstractJamochaPanel implements
 		ListSelectionListener, ActionListener {
@@ -70,7 +69,7 @@ public class AgendaPanel extends AbstractJamochaPanel implements
 		pane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, new JScrollPane(
 				agendaTable), new JScrollPane(dumpArea));
 		add(pane, BorderLayout.CENTER);
-		pane.setDividerLocation(JamochaSettings.getInstance().getInt("gui.agendapanel.dividerlocation"));
+		pane.setDividerLocation(settings.getInt("gui.agendapanel.dividerlocation"));
 		reloadButton = new JButton("Reload Activationlist", IconLoader
 				.getImageIcon("arrow_refresh"));
 		reloadButton.addActionListener(this);
@@ -89,7 +88,7 @@ public class AgendaPanel extends AbstractJamochaPanel implements
 
 	@Override
 	public void close() {
-		JamochaSettings.getInstance().set("gui.agendapanel.dividerlocation", pane.getDividerLocation());
+		settings.set("gui.agendapanel.dividerlocation", pane.getDividerLocation());
 	}
 
 	@Override
