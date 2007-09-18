@@ -22,7 +22,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.prefs.BackingStoreException;
 
 import javax.swing.JButton;
 import javax.swing.JPanel;

@@ -202,8 +202,7 @@ public class GUISettingsPanel extends AbstractSettingsPanel implements
 
 		// Sort Facts on Load Direction
 		addLabel(factsPanel, new JLabel("direction:"), gridbag, c, 2);
-		String[] factSortDirection = { "ascending",
-				"descending" };
+		String[] factSortDirection = { "ascending", "descending" };
 		factSortDirectionCombo = new JComboBox(factSortDirection);
 		factSortDirectionCombo.setSelectedItem(settings
 				.getString(GUI_FACTS_AUTOSORT_DIR));
@@ -328,8 +327,14 @@ public class GUISettingsPanel extends AbstractSettingsPanel implements
 
 	@Override
 	public void setDefaults() {
-		// TODO Auto-generated method stub
-		
+		settings.toDefault(GUI_SHELL_FONT);
+		settings.toDefault(GUI_SHELL_FONTSIZE);
+		settings.toDefault(GUI_SHELL_FONTCOLOR);
+		settings.toDefault(GUI_SHELL_BACKGROUNDCOLOR);
+		settings.toDefault(GUI_SHELL_AUTOCOMPLETION);
+		settings.toDefault(GUI_FACTS_AUTOSORT_BY);
+		settings.toDefault(GUI_FACTS_AUTOSORT_DIR);
+		refresh();
 	}
 
 }
