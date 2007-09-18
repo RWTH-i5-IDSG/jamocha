@@ -42,7 +42,6 @@ public abstract class AbstractSettingsPanel extends JPanel {
 		this.settings = JamochaSettings.getInstance();
 	}
 
-	public abstract void save();
 
 	/**
 	 * This function is called right when the GUI is starting up. It's purpose

@@ -215,24 +215,6 @@ public class GUISettingsPanel extends AbstractSettingsPanel implements
 		settings.addListener(this, interestedSettings);
 	}
 
-	@Override
-	public void save() {
-		gui.getPreferences().put("shell.font",
-				((Font) fonts.getSelectedItem()).getFontName());
-		gui.getPreferences().putInt("shell.fontsize",
-				(Integer) fontsizes.getSelectedItem());
-		gui.getPreferences().putInt("shell.fontcolor",
-				(Integer) fontColorChooserPreview.getBackground().getRGB());
-		gui.getPreferences().putInt(
-				"shell.backgroundcolor",
-				(Integer) backgroundColorChooserPreview.getBackground()
-						.getRGB());
-		gui.getPreferences().put("facts.autoSort",
-				factSortOptionsCombo.getSelectedItem().toString());
-		gui.getPreferences().putBoolean("shell.autocompletion",
-				autoCompletion.isSelected());
-	}
-
 	private class FontListCellRenderer extends DefaultListCellRenderer {
 
 		private static final long serialVersionUID = 1L;

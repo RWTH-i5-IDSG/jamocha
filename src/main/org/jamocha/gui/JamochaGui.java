@@ -27,8 +27,6 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.prefs.BackingStoreException;
-import java.util.prefs.Preferences;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -65,6 +63,14 @@ import org.jamocha.settings.JamochaSettings;
  * @author Alexander Wilden <october.rust@gmx.de>
  */
 public class JamochaGui extends JFrame implements ChangeListener, ActionListener {
+
+	private static final String GUI_LOCY = "gui.locy";
+
+	private static final String GUI_LOCX = "gui.locx";
+
+	private static final String GUI_HEIGHT = "gui.height";
+
+	private static final String GUI_WIDTH = "gui.width";
 
 	static final long serialVersionUID = 1L;
 
@@ -192,11 +198,11 @@ public class JamochaGui extends JFrame implements ChangeListener, ActionListener
 	}
 
 	private void setSizeAndLocation() {
-		JamochaSettings prefs =JamochaSettings.getInstance();
-		int width = prefs.getInteger("gui.width");
-		int height = prefs.getInteger("gui.height");
-		int locx = prefs.getInteger("gui.locx");
-		int locy = prefs.getInteger("gui.locy");
+		JamochaSettings prefs = JamochaSettings.getInstance();
+		int width = prefs.getInt(GUI_WIDTH);
+		int height = prefs.getInt(GUI_HEIGHT);
+		int locx = prefs.getInt(GUI_LOCX);
+		int locy = prefs.getInt(GUI_LOCY);
 		if (locx == -1 || locy == -1) {
 			this.setLocationByPlatform(true);
 		} else {
@@ -294,14 +300,14 @@ public class JamochaGui extends JFrame implements ChangeListener, ActionListener
 	public void close() {
 		if (stringChannel != null)
 			getEngine().getMessageRouter().closeChannel(stringChannel);
-		
+
 		JamochaSettings prefs = JamochaSettings.getInstance();
 		// save position and size
-		
-		prefs.setInt("gui.width", getWidth());
-		prefs.setInt("gui.height", getHeight());
-		prefs.setInt("gui.locx", getX());
-		prefs.setInt("gui.locy", getY());
+
+		prefs.set(GUI_WIDTH, getWidth());
+		prefs.set(GUI_HEIGHT, getHeight());
+		prefs.set(GUI_LOCX, getX());
+		prefs.set(GUI_LOCY, getY());
 
 		// inform other panels
 		for (AbstractJamochaPanel panel : panels) {
