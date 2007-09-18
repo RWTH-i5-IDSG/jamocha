@@ -55,8 +55,9 @@ import org.jamocha.parser.ParserFactory;
  * 
  * @author Alexander Wilden <october.rust@gmx.de>
  */
-public class LogPanel extends AbstractJamochaPanel implements ActionListener,
-		ListSelectionListener {
+public class LogPanel extends AbstractJamochaPanel implements ActionListener, ListSelectionListener {
+
+	private static final String GUI_LOG_DIVIDERLOCATION = "gui.log.dividerlocation";
 
 	private static final long serialVersionUID = 4811690181744862051L;
 
@@ -79,8 +80,7 @@ public class LogPanel extends AbstractJamochaPanel implements ActionListener,
 	public LogPanel(JamochaGui gui) {
 		super(gui);
 		setLayout(new BorderLayout());
-		logChannel = gui.getEngine().getMessageRouter().openChannel("gui_log",
-				InterestType.ALL);
+		logChannel = gui.getEngine().getMessageRouter().openChannel("gui_log", InterestType.ALL);
 		detailView = new JTextArea();
 		detailView.setEditable(false);
 		detailView.setFont(new Font("Courier", Font.PLAIN, 12));
@@ -95,10 +95,8 @@ public class LogPanel extends AbstractJamochaPanel implements ActionListener,
 		};
 		logTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		logTable.getSelectionModel().addListSelectionListener(this);
-		pane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, new JScrollPane(
-				logTable), new JScrollPane(detailView));
-		pane.setDividerLocation(gui.getPreferences().getInt(
-				"log.dividerlocation", 300));
+		pane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, new JScrollPane(logTable), new JScrollPane(detailView));
+		pane.setDividerLocation(settings.getInt(GUI_LOG_DIVIDERLOCATION));
 		add(pane, BorderLayout.CENTER);
 
 		Thread logThread = new Thread() {
@@ -117,13 +115,11 @@ public class LogPanel extends AbstractJamochaPanel implements ActionListener,
 						}
 					}
 				}
-				LogPanel.this.gui.getEngine().getMessageRouter().closeChannel(
-						logChannel);
+				LogPanel.this.gui.getEngine().getMessageRouter().closeChannel(logChannel);
 			}
 		};
 		logThread.start();
-		clearButton = new JButton("Clear Log", IconLoader
-				.getImageIcon("monitor"));
+		clearButton = new JButton("Clear Log", IconLoader.getImageIcon("monitor"));
 		clearButton.addActionListener(this);
 		JPanel buttonPanel = new JPanel();
 		buttonPanel.setLayout(new FlowLayout(FlowLayout.RIGHT, 5, 1));
@@ -133,8 +129,7 @@ public class LogPanel extends AbstractJamochaPanel implements ActionListener,
 
 	public void close() {
 		running = false;
-		gui.getPreferences().putInt("log.dividerlocation",
-				pane.getDividerLocation());
+		settings.set(GUI_LOG_DIVIDERLOCATION, pane.getDividerLocation());
 	}
 
 	public void settingsChanged() {
@@ -242,16 +237,11 @@ public class LogPanel extends AbstractJamochaPanel implements ActionListener,
 		public String getDatetimeFormatted() {
 			StringBuilder res = new StringBuilder();
 			res.append(datetime.get(Calendar.YEAR) + "/");
-			res.append(((datetime.get(Calendar.MONTH) + 1 > 9) ? "" : "0")
-					+ (datetime.get(Calendar.MONTH) + 1) + "/");
-			res.append(((datetime.get(Calendar.DAY_OF_MONTH) > 9) ? "" : "0")
-					+ datetime.get(Calendar.DAY_OF_MONTH) + " - ");
-			res.append(((datetime.get(Calendar.HOUR_OF_DAY) > 9) ? "" : "0")
-					+ datetime.get(Calendar.HOUR_OF_DAY) + ":");
-			res.append(((datetime.get(Calendar.MINUTE) > 9) ? "" : "0")
-					+ datetime.get(Calendar.MINUTE) + ":");
-			res.append(((datetime.get(Calendar.SECOND) > 9) ? "" : "0")
-					+ datetime.get(Calendar.SECOND));
+			res.append(((datetime.get(Calendar.MONTH) + 1 > 9) ? "" : "0") + (datetime.get(Calendar.MONTH) + 1) + "/");
+			res.append(((datetime.get(Calendar.DAY_OF_MONTH) > 9) ? "" : "0") + datetime.get(Calendar.DAY_OF_MONTH) + " - ");
+			res.append(((datetime.get(Calendar.HOUR_OF_DAY) > 9) ? "" : "0") + datetime.get(Calendar.HOUR_OF_DAY) + ":");
+			res.append(((datetime.get(Calendar.MINUTE) > 9) ? "" : "0") + datetime.get(Calendar.MINUTE) + ":");
+			res.append(((datetime.get(Calendar.SECOND) > 9) ? "" : "0") + datetime.get(Calendar.SECOND));
 			return res.toString();
 		}
 
@@ -271,14 +261,9 @@ public class LogPanel extends AbstractJamochaPanel implements ActionListener,
 
 		private Color colorEvent = Color.BLUE;
 
-		public Component getTableCellRendererComponent(JTable table,
-				Object value, boolean isSelected, boolean hasFocus, int row,
-				int column) {
-			JComponent returnComponent = (JComponent) super
-					.getTableCellRendererComponent(table, value, isSelected,
-							hasFocus, row, column);
-			switch (((LogTableModel) table.getModel()).getRow(row)
-					.getSuperType()) {
+		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+			JComponent returnComponent = (JComponent) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+			switch (((LogTableModel) table.getModel()).getRow(row).getSuperType()) {
 			case LogMessageEvent.TYPE_ERROR:
 				setForeground(colorError);
 				break;
@@ -306,8 +291,7 @@ public class LogPanel extends AbstractJamochaPanel implements ActionListener,
 
 			logTable.getColumnModel().getColumn(0).setPreferredWidth(180);
 			logTable.getColumnModel().getColumn(1).setPreferredWidth(180);
-			logTable.getColumnModel().getColumn(2).setPreferredWidth(
-					logTable.getWidth() - 360);
+			logTable.getColumnModel().getColumn(2).setPreferredWidth(logTable.getWidth() - 360);
 			for (MessageEvent event : events) {
 				this.events.add(new LogMessageEvent(event));
 			}
@@ -384,19 +368,15 @@ public class LogPanel extends AbstractJamochaPanel implements ActionListener,
 		if (arg0.getSource() == logTable.getSelectionModel()) {
 			StringBuilder buffer = new StringBuilder();
 			if (logTable.getSelectedRow() > -1) {
-				LogMessageEvent event = dataModel.getRow(logTable
-						.getSelectedRow());
-				buffer.append("Date-Time:    " + event.getDatetimeFormatted()
-						+ "\nChannel:      " + event.getChannelId()
-						+ "\nMessage-Type: " + event.getTypeFormatted()
-						+ "\n\nMessage:\n========\n");
+				LogMessageEvent event = dataModel.getRow(logTable.getSelectedRow());
+				buffer.append("Date-Time:    " + event.getDatetimeFormatted() + "\nChannel:      " + event.getChannelId() + "\nMessage-Type: " + event.getTypeFormatted() + "\n\nMessage:\n========\n");
 				Object message = event.getMessage();
 				if (message instanceof Exception) {
 					Throwable ex = (Throwable) message;
 					buffer.append("List of Exception messages:\n");
-					while(ex.getCause()!= null) {
+					while (ex.getCause() != null) {
 						ex = ex.getCause();
-						if(ex.getMessage()!=null) {
+						if (ex.getMessage() != null) {
 							buffer.append("\n- ").append(ex.getMessage());
 						}
 					}
@@ -406,22 +386,21 @@ public class LogPanel extends AbstractJamochaPanel implements ActionListener,
 					for (StackTraceElement strelem : str) {
 						buffer.append("\n").append(strelem);
 					}
-//					boolean first = true;
-//					do {
-//						if (!first) {
-//							buffer.append("\n\ncaused by:\n");
-//						}
-//						StackTraceElement[] str = ex.getStackTrace();
-//						buffer.append(ex.getClass().getName() + ": "
-//								+ ex.getMessage());
-//						for (StackTraceElement strelem : str) {
-//							buffer.append("\n").append(strelem);
-//						}
-//						first = false;
-//					} while ((ex = ex.getCause()) != null);
+					// boolean first = true;
+					// do {
+					// if (!first) {
+					// buffer.append("\n\ncaused by:\n");
+					// }
+					// StackTraceElement[] str = ex.getStackTrace();
+					// buffer.append(ex.getClass().getName() + ": "
+					// + ex.getMessage());
+					// for (StackTraceElement strelem : str) {
+					// buffer.append("\n").append(strelem);
+					// }
+					// first = false;
+					// } while ((ex = ex.getCause()) != null);
 				} else if (message instanceof Expression) {
-					buffer.append(((Expression) message).format(ParserFactory
-							.getFormatter(true)));
+					buffer.append(((Expression) message).format(ParserFactory.getFormatter(true)));
 				} else if (message != null) {
 					buffer.append(message.toString());
 				}

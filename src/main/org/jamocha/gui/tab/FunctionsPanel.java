@@ -60,8 +60,11 @@ import org.jamocha.rete.functions.FunctionMemory;
  * 
  * @author Nikolaus Koemm
  */
-public class FunctionsPanel extends AbstractJamochaPanel implements
-		ActionListener, ListSelectionListener {
+public class FunctionsPanel extends AbstractJamochaPanel implements ActionListener, ListSelectionListener {
+
+	private static final String GUI_FUNCTIONS_DIVIDERLOCATION = "gui.functions.dividerlocation";
+
+	private static final String GUI_FUNCTIONS_FUNCTIONGROUPS_DIVIDERLOCATION = "gui.functions.functiongroups_dividerlocation";
 
 	private static final long serialVersionUID = 23;
 
@@ -110,8 +113,7 @@ public class FunctionsPanel extends AbstractJamochaPanel implements
 			public void mouseClicked(MouseEvent e) {
 				TableColumnModel columnModel = functionsTable.getColumnModel();
 				int viewColumn = columnModel.getColumnIndexAtX(e.getX());
-				int column = functionsTable
-						.convertColumnIndexToModel(viewColumn);
+				int column = functionsTable.convertColumnIndexToModel(viewColumn);
 				if (e.getClickCount() == 1 && column != -1) {
 					int shiftPressed = e.getModifiers() & InputEvent.SHIFT_MASK;
 					boolean ascending = (shiftPressed == 0);
@@ -123,15 +125,10 @@ public class FunctionsPanel extends AbstractJamochaPanel implements
 		functionsTable.setShowHorizontalLines(false);
 		functionsTable.setRowSelectionAllowed(true);
 		functionsTable.getTableHeader().setReorderingAllowed(false);
-		functionsTable
-				.getTableHeader()
-				.setToolTipText(
-						"Click to sort ascending. Click while pressing the shift-key down to sort descending");
+		functionsTable.getTableHeader().setToolTipText("Click to sort ascending. Click while pressing the shift-key down to sort descending");
 		functionsTable.getSelectionModel().addListSelectionListener(this);
-		listPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, new JScrollPane(
-				functionGroupList), new JScrollPane(functionsTable));
-		listPane.setDividerLocation(gui.getPreferences().getInt(
-				"functions.functiongroups_dividerlocation", 200));
+		listPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, new JScrollPane(functionGroupList), new JScrollPane(functionsTable));
+		listPane.setDividerLocation(settings.getInt(GUI_FUNCTIONS_FUNCTIONGROUPS_DIVIDERLOCATION));
 
 		dumpAreaFunction = new JTextArea();
 		dumpAreaFunction.setLineWrap(true);
@@ -139,14 +136,11 @@ public class FunctionsPanel extends AbstractJamochaPanel implements
 		dumpAreaFunction.setEditable(false);
 		dumpAreaFunction.setFont(new Font("Courier", Font.PLAIN, 12));
 
-		pane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, listPane,
-				new JScrollPane(dumpAreaFunction));
+		pane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, listPane, new JScrollPane(dumpAreaFunction));
 		add(pane, BorderLayout.CENTER);
-		pane.setDividerLocation(gui.getPreferences().getInt(
-				"functions.dividerlocation", 300));
+		pane.setDividerLocation(settings.getInt(GUI_FUNCTIONS_DIVIDERLOCATION));
 
-		reloadButton = new JButton("Reload Functions", IconLoader
-				.getImageIcon("arrow_refresh"));
+		reloadButton = new JButton("Reload Functions", IconLoader.getImageIcon("arrow_refresh"));
 		reloadButton.addActionListener(this);
 		JPanel buttonPanel = new JPanel();
 		buttonPanel.setLayout(new FlowLayout(FlowLayout.RIGHT, 5, 1));
@@ -160,15 +154,13 @@ public class FunctionsPanel extends AbstractJamochaPanel implements
 	@SuppressWarnings("unchecked")
 	private void initFunctionGroupsList() {
 		functionGroupList.setSelectedIndex(0);
-		List<FunctionGroup> funcGroups = new LinkedList<FunctionGroup>(gui
-				.getEngine().getFunctionMemory().getFunctionGroups().values());
+		List<FunctionGroup> funcGroups = new LinkedList<FunctionGroup>(gui.getEngine().getFunctionMemory().getFunctionGroups().values());
 		int n = funcGroups.size() - 1;
 		boolean swap;
 		do {
 			swap = false;
 			for (int i = 0; i < n; ++i) {
-				if (funcGroups.get(i).getName().compareToIgnoreCase(
-						funcGroups.get(i + 1).getName()) > 0) {
+				if (funcGroups.get(i).getName().compareToIgnoreCase(funcGroups.get(i + 1).getName()) > 0) {
 					FunctionGroup temp = funcGroups.get(i);
 					funcGroups.set(i, funcGroups.get(i + 1));
 					funcGroups.set(i + 1, temp);
@@ -184,7 +176,7 @@ public class FunctionsPanel extends AbstractJamochaPanel implements
 			public String getName() {
 				return SHOW_ALL;
 			}
-			
+
 			public String getDescription() {
 				return "View the Functions of all Groups";
 			}
@@ -201,8 +193,7 @@ public class FunctionsPanel extends AbstractJamochaPanel implements
 		if (funcGroupName == null || funcGroupName.equals(SHOW_ALL)) {
 			c = gui.getEngine().getFunctionMemory().getAllFunctions();
 		} else {
-			c = gui.getEngine().getFunctionMemory().getFunctionsOfGroup(
-					funcGroupName);
+			c = gui.getEngine().getFunctionMemory().getFunctionsOfGroup(funcGroupName);
 		}
 		funcsDataModel.setFunctions(new ArrayList(c));
 
@@ -220,10 +211,8 @@ public class FunctionsPanel extends AbstractJamochaPanel implements
 		if (editorChannel != null) {
 			gui.getEngine().getMessageRouter().closeChannel(editorChannel);
 		}
-		gui.getPreferences().putInt("functions.dividerlocation",
-				pane.getDividerLocation());
-		gui.getPreferences().putInt("functions.functiongroups_dividerlocation",
-				listPane.getDividerLocation());
+		settings.set(GUI_FUNCTIONS_DIVIDERLOCATION, pane.getDividerLocation());
+		settings.set(GUI_FUNCTIONS_FUNCTIONGROUPS_DIVIDERLOCATION, listPane.getDividerLocation());
 	}
 
 	public void settingsChanged() {
@@ -268,8 +257,7 @@ public class FunctionsPanel extends AbstractJamochaPanel implements
 
 	}
 
-	private final class FunctionsTableModel extends AbstractTableModel
-			implements TableRowModel {
+	private final class FunctionsTableModel extends AbstractTableModel implements TableRowModel {
 
 		private static final long serialVersionUID = 1L;
 
@@ -335,12 +323,9 @@ public class FunctionsPanel extends AbstractJamochaPanel implements
 	public void valueChanged(ListSelectionEvent arg0) {
 		if (arg0.getSource() == functionsTable.getSelectionModel()) {
 			StringBuilder buffer = new StringBuilder();
-			if (functionsTable.getSelectedColumnCount() == 1
-					&& functionsTable.getSelectedRow() > -1) {
-				String functionName = funcsDataModel.getRowAt(
-						functionsTable.getSelectedRow()).toString();
-				Function function = gui.getEngine().getFunctionMemory()
-						.findFunction(functionName);
+			if (functionsTable.getSelectedColumnCount() == 1 && functionsTable.getSelectedRow() > -1) {
+				String functionName = funcsDataModel.getRowAt(functionsTable.getSelectedRow()).toString();
+				Function function = gui.getEngine().getFunctionMemory().findFunction(functionName);
 				if (function != null) {
 					buffer.append(function.format(new HelpFormatter()));
 				}

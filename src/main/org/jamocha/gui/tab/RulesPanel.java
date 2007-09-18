@@ -58,8 +58,9 @@ import org.jamocha.rule.Rule;
  * 
  * @author Alexander Wilden <october.rust@gmx.de>
  */
-public class RulesPanel extends AbstractJamochaPanel implements ActionListener,
-		ListSelectionListener {
+public class RulesPanel extends AbstractJamochaPanel implements ActionListener, ListSelectionListener {
+
+	private static final String GUI_RULES_DIVIDERLOCATION = "gui.rules.dividerlocation";
 
 	private static final long serialVersionUID = -5732131176258158968L;
 
@@ -97,10 +98,7 @@ public class RulesPanel extends AbstractJamochaPanel implements ActionListener,
 		rulesTable.setShowHorizontalLines(true);
 		rulesTable.setRowSelectionAllowed(true);
 		rulesTable.getTableHeader().setReorderingAllowed(false);
-		rulesTable
-				.getTableHeader()
-				.setToolTipText(
-						"Click to sort ascending. Click while pressing the shift-key down to sort descending");
+		rulesTable.getTableHeader().setToolTipText("Click to sort ascending. Click while pressing the shift-key down to sort descending");
 		rulesTable.getSelectionModel().addListSelectionListener(this);
 		dumpArea = new JTextArea();
 		dumpArea.setLineWrap(true);
@@ -108,16 +106,12 @@ public class RulesPanel extends AbstractJamochaPanel implements ActionListener,
 		dumpArea.setEditable(false);
 		dumpArea.setFont(new Font("Courier", Font.PLAIN, 12));
 
-		pane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, new JScrollPane(
-				rulesTable), new JScrollPane(dumpArea));
+		pane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, new JScrollPane(rulesTable), new JScrollPane(dumpArea));
 		add(pane, BorderLayout.CENTER);
-		pane.setDividerLocation(gui.getPreferences().getInt(
-				"rules.dividerlocation", 300));
-		reloadButton = new JButton("Reload Rules", IconLoader
-				.getImageIcon("arrow_refresh"));
+		pane.setDividerLocation(settings.getInt(GUI_RULES_DIVIDERLOCATION));
+		reloadButton = new JButton("Reload Rules", IconLoader.getImageIcon("arrow_refresh"));
 		reloadButton.addActionListener(this);
-		addRuleButton = new JButton("Add new Rule", IconLoader
-				.getImageIcon("car_add"));
+		addRuleButton = new JButton("Add new Rule", IconLoader.getImageIcon("car_add"));
 		addRuleButton.addActionListener(this);
 		JPanel buttonPanel = new JPanel();
 		buttonPanel.setLayout(new FlowLayout(FlowLayout.RIGHT, 5, 1));
@@ -132,8 +126,7 @@ public class RulesPanel extends AbstractJamochaPanel implements ActionListener,
 	@SuppressWarnings("unchecked")
 	private void initRulesList() {
 		dataModel.clear();
-		Collection<Module> modules = gui.getEngine().getModules()
-				.getModuleList();
+		Collection<Module> modules = gui.getEngine().getModules().getModuleList();
 		for (Module module : modules) {
 			Collection rules = module.getAllRules();
 			dataModel.addRules(rules);
@@ -141,14 +134,12 @@ public class RulesPanel extends AbstractJamochaPanel implements ActionListener,
 		rulesTable.getColumnModel().getColumn(0).setPreferredWidth(100);
 		rulesTable.getColumnModel().getColumn(1).setPreferredWidth(150);
 		rulesTable.getColumnModel().getColumn(2).setPreferredWidth(100);
-		rulesTable.getColumnModel().getColumn(3).setPreferredWidth(
-				rulesTable.getWidth() - 350);
+		rulesTable.getColumnModel().getColumn(3).setPreferredWidth(rulesTable.getWidth() - 350);
 	}
 
 	private void initPopupMenu() {
 		JPopupMenu menu = new JPopupMenu();
-		JMenuItem retractItem = new JMenuItem("Delete selected Rule(s)",
-				IconLoader.getImageIcon("car_delete"));
+		JMenuItem retractItem = new JMenuItem("Delete selected Rule(s)", IconLoader.getImageIcon("car_delete"));
 		retractItem.addMouseListener(new MouseAdapter() {
 			public void mouseReleased(MouseEvent event) {
 				int[] selCols = rulesTable.getSelectedRows();
@@ -174,8 +165,7 @@ public class RulesPanel extends AbstractJamochaPanel implements ActionListener,
 	}
 
 	public void close() {
-		gui.getPreferences().putInt("rules.dividerlocation",
-				pane.getDividerLocation());
+		settings.set(GUI_RULES_DIVIDERLOCATION, pane.getDividerLocation());
 	}
 
 	public void settingsChanged() {
@@ -195,10 +185,8 @@ public class RulesPanel extends AbstractJamochaPanel implements ActionListener,
 	public void valueChanged(ListSelectionEvent arg0) {
 		if (arg0.getSource() == rulesTable.getSelectionModel()) {
 			StringBuilder buffer = new StringBuilder();
-			if (rulesTable.getSelectedColumnCount() == 1
-					&& rulesTable.getSelectedRow() > -1) {
-				Rule rule = (Rule) dataModel.getRowAt(rulesTable
-						.getSelectedRow());
+			if (rulesTable.getSelectedColumnCount() == 1 && rulesTable.getSelectedRow() > -1) {
+				Rule rule = (Rule) dataModel.getRowAt(rulesTable.getSelectedRow());
 				if (rule != null) {
 					buffer.append(ParserFactory.getFormatter(true).visit(rule));
 				}
@@ -208,8 +196,7 @@ public class RulesPanel extends AbstractJamochaPanel implements ActionListener,
 		}
 	}
 
-	private final class RulesTableModel extends AbstractTableModel implements
-			TableRowModel {
+	private final class RulesTableModel extends AbstractTableModel implements TableRowModel {
 
 		private static final long serialVersionUID = 1L;
 

@@ -60,10 +60,11 @@ import org.jamocha.rete.modules.Module;
  * @author Alexander Wilden <october.rust@gmx.de>
  */
 
-//TODO: it would be better to use ClipsFormatter for printing templates and so on, wouldnt it? jh
+// TODO: it would be better to use ClipsFormatter for printing templates and so
+// on, wouldnt it? jh
+public class TemplatesPanel extends AbstractJamochaPanel implements ListSelectionListener, ActionListener {
 
-public class TemplatesPanel extends AbstractJamochaPanel implements
-		ListSelectionListener, ActionListener {
+	private static final String GUI_TEMPLATES_DIVIDERLOCATION = "gui.templates.dividerlocation";
 
 	private static final long serialVersionUID = -5732131176258158968L;
 
@@ -89,8 +90,7 @@ public class TemplatesPanel extends AbstractJamochaPanel implements
 			public void mouseClicked(MouseEvent e) {
 				TableColumnModel columnModel = templatesTable.getColumnModel();
 				int viewColumn = columnModel.getColumnIndexAtX(e.getX());
-				int column = templatesTable
-						.convertColumnIndexToModel(viewColumn);
+				int column = templatesTable.convertColumnIndexToModel(viewColumn);
 				if (e.getClickCount() == 1 && column != -1) {
 					int shiftPressed = e.getModifiers() & InputEvent.SHIFT_MASK;
 					boolean ascending = (shiftPressed == 0);
@@ -102,10 +102,7 @@ public class TemplatesPanel extends AbstractJamochaPanel implements
 		templatesTable.setShowHorizontalLines(true);
 		templatesTable.setRowSelectionAllowed(true);
 		templatesTable.getTableHeader().setReorderingAllowed(false);
-		templatesTable
-				.getTableHeader()
-				.setToolTipText(
-						"Click to sort ascending. Click while pressing the shift-key down to sort descending");
+		templatesTable.getTableHeader().setToolTipText("Click to sort ascending. Click while pressing the shift-key down to sort descending");
 		templatesTable.getSelectionModel().addListSelectionListener(this);
 		dumpArea = new JTextArea();
 		dumpArea.setLineWrap(true);
@@ -113,16 +110,12 @@ public class TemplatesPanel extends AbstractJamochaPanel implements
 		dumpArea.setEditable(false);
 		dumpArea.setFont(new Font("Courier", Font.PLAIN, 12));
 
-		pane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, new JScrollPane(
-				templatesTable), new JScrollPane(dumpArea));
+		pane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, new JScrollPane(templatesTable), new JScrollPane(dumpArea));
 		add(pane, BorderLayout.CENTER);
-		pane.setDividerLocation(gui.getPreferences().getInt(
-				"templates.dividerlocation", 300));
-		reloadButton = new JButton("Reload Templates", IconLoader
-				.getImageIcon("arrow_refresh"));
+		pane.setDividerLocation(settings.getInt(GUI_TEMPLATES_DIVIDERLOCATION));
+		reloadButton = new JButton("Reload Templates", IconLoader.getImageIcon("arrow_refresh"));
 		reloadButton.addActionListener(this);
-		createNewButton = new JButton("Create new Template", IconLoader
-				.getImageIcon("brick_add"));
+		createNewButton = new JButton("Create new Template", IconLoader.getImageIcon("brick_add"));
 		createNewButton.addActionListener(this);
 		JPanel buttonPanel = new JPanel();
 		buttonPanel.setLayout(new FlowLayout(FlowLayout.RIGHT, 5, 1));
@@ -143,25 +136,18 @@ public class TemplatesPanel extends AbstractJamochaPanel implements
 			dataModel.addTemplates(templates, module);
 		}
 		templatesTable.getColumnModel().getColumn(0).setPreferredWidth(100);
-		templatesTable.getColumnModel().getColumn(1).setPreferredWidth(
-				templatesTable.getWidth() - 100);
+		templatesTable.getColumnModel().getColumn(1).setPreferredWidth(templatesTable.getWidth() - 100);
 	}
 
 	private void initPopupMenu() {
 		JPopupMenu menu = new JPopupMenu();
-		JMenuItem removeItem = new JMenuItem("Remove selected Template(s)",
-				IconLoader.getImageIcon("brick_delete"));
+		JMenuItem removeItem = new JMenuItem("Remove selected Template(s)", IconLoader.getImageIcon("brick_delete"));
 		removeItem.addMouseListener(new MouseAdapter() {
 			public void mouseReleased(MouseEvent event) {
 				int[] selCols = templatesTable.getSelectedRows();
 				for (int i = 0; i < selCols.length; ++i) {
-					String modName = (String) dataModel.getValueAt(selCols[i],
-							0);
-					gui.getEngine().findModule(modName)
-							.removeTemplate(
-									((ExtTemplate) dataModel
-											.getRowAt(selCols[i]))
-											.getTemplate());
+					String modName = (String) dataModel.getValueAt(selCols[i], 0);
+					gui.getEngine().findModule(modName).removeTemplate(((ExtTemplate) dataModel.getRowAt(selCols[i])).getTemplate());
 				}
 				initTemplatesList();
 			}
@@ -176,8 +162,7 @@ public class TemplatesPanel extends AbstractJamochaPanel implements
 	}
 
 	public void close() {
-		gui.getPreferences().putInt("templates.dividerlocation",
-				pane.getDividerLocation());
+		settings.set(GUI_TEMPLATES_DIVIDERLOCATION, pane.getDividerLocation());
 	}
 
 	public void settingsChanged() {
@@ -193,40 +178,32 @@ public class TemplatesPanel extends AbstractJamochaPanel implements
 			editor.init();
 		}
 	}
-	
-
 
 	public void valueChanged(ListSelectionEvent arg0) {
 		if (arg0.getSource() == templatesTable.getSelectionModel()) {
 			StringBuilder buffer = new StringBuilder();
-			if (templatesTable.getSelectedColumnCount() == 1
-					&& templatesTable.getSelectedRow() > -1) {
-				ExtTemplate template = (ExtTemplate) dataModel
-						.getRowAt(templatesTable.getSelectedRow());
+			if (templatesTable.getSelectedColumnCount() == 1 && templatesTable.getSelectedRow() > -1) {
+				ExtTemplate template = (ExtTemplate) dataModel.getRowAt(templatesTable.getSelectedRow());
 				if (template != null) {
-					buffer.append("(").append(
-							template.getModule().getModuleName()).append("::")
-							.append(template.getTemplate().getName());
-					String description = ((Deftemplate)template.getTemplate()).getDescription();
-					if(description!=null && description.length() >0) {
+					buffer.append("(").append(template.getModule().getModuleName()).append("::").append(template.getTemplate().getName());
+					String description = ((Deftemplate) template.getTemplate()).getDescription();
+					if (description != null && description.length() > 0) {
 						buffer.append("\n   Description: ").append(description).append("\n");
 					}
 					TemplateSlot[] slots = template.getTemplate().getAllSlots();
 					for (TemplateSlot slot : slots) {
 						buffer.append("\n    (");
-						if (slot.isSilent()) buffer.append("silent ");
+						if (slot.isSilent())
+							buffer.append("silent ");
 						if (slot.isMultiSlot()) {
 							buffer.append("multislot ").append(slot.getName());
 						} else {
 							buffer.append("slot ").append(slot.getName());
 						}
-						buffer.append("\n        (type ").append(
-								slot.getValueType().toString()).append(")");
+						buffer.append("\n        (type ").append(slot.getValueType().toString()).append(")");
 						if (slot.getDefaultExpression() != null) {
 							buffer.append("\n        (default ");
-							buffer.append(ParserFactory.getFormatter()
-									.visit(
-											slot.getDefaultExpression()));
+							buffer.append(ParserFactory.getFormatter().visit(slot.getDefaultExpression()));
 							buffer.append(")");
 						}
 						buffer.append("\n    )");
@@ -238,8 +215,7 @@ public class TemplatesPanel extends AbstractJamochaPanel implements
 		}
 	}
 
-	private final class TemplatesTableModel extends AbstractTableModel
-			implements TableRowModel {
+	private final class TemplatesTableModel extends AbstractTableModel implements TableRowModel {
 
 		private static final long serialVersionUID = 1L;
 
