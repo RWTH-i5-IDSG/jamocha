@@ -60,7 +60,7 @@ public class FactsPanel extends AbstractJamochaPanel implements ActionListener, 
 
 	private static final String GUI_FACTS_AUTO_SORT = "gui.facts.autoSort";
 
-	private static final String FACTS_DIVIDERLOCATION = "facts.dividerlocation";
+	private static final String FACTS_DIVIDERLOCATION = "gui.facts.dividerlocation";
 
 	private static final long serialVersionUID = -5732131176258158968L;
 

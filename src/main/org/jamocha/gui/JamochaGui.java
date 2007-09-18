@@ -171,9 +171,9 @@ public class JamochaGui extends JFrame implements ChangeListener, ActionListener
 		tabbedPane.addTab("Log", IconLoader.getImageIcon("monitor"), logPanel, "View alle messages from or to the Rete-engine");
 		panels.add(logPanel);
 
-		SettingsPanel settingsPanel = new SettingsPanel(this);
-		tabbedPane.addTab("Settings", IconLoader.getImageIcon("wrench"), settingsPanel, "Settings for Jamocha");
-		panels.add(settingsPanel);
+		//SettingsPanel settingsPanel = new SettingsPanel(this);
+		//tabbedPane.addTab("Settings", IconLoader.getImageIcon("wrench"), settingsPanel, "Settings for Jamocha");
+		//panels.add(settingsPanel);
 
 		// add the tab pane to the frame
 		add(tabbedPane, BorderLayout.CENTER);
