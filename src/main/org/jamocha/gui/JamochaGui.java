@@ -55,6 +55,7 @@ import org.jamocha.gui.tab.ViewerPanel;
 import org.jamocha.messagerouter.InterestType;
 import org.jamocha.messagerouter.StringChannel;
 import org.jamocha.rete.Rete;
+import org.jamocha.settings.JamochaSettings;
 
 /**
  * 
@@ -63,13 +64,9 @@ import org.jamocha.rete.Rete;
  * @author Karl-Heinz Krempels <krempels@cs.rwth-aachen.de>
  * @author Alexander Wilden <october.rust@gmx.de>
  */
-public class JamochaGui extends JFrame implements ChangeListener,
-		ActionListener {
+public class JamochaGui extends JFrame implements ChangeListener, ActionListener {
 
 	static final long serialVersionUID = 1L;
-
-	static final Preferences preferences = Preferences.userRoot().node(
-			"org.jamocha.gui");
 
 	private Rete engine;
 
@@ -137,49 +134,39 @@ public class JamochaGui extends JFrame implements ChangeListener,
 
 		// create a shell tab and add it to the tabbed pane
 		ShellPanel shellPanel = new ShellPanel(this);
-		tabbedPane.addTab("Shell", IconLoader
-				.getImageIcon("application_osx_terminal"), shellPanel,
-				"Jamocha Shell");
+		tabbedPane.addTab("Shell", IconLoader.getImageIcon("application_osx_terminal"), shellPanel, "Jamocha Shell");
 		panels.add(shellPanel);
 
 		FactsPanel factsPanel = new FactsPanel(this);
-		tabbedPane.addTab("Facts", IconLoader.getImageIcon("database"),
-				factsPanel, "View or modify Facts");
+		tabbedPane.addTab("Facts", IconLoader.getImageIcon("database"), factsPanel, "View or modify Facts");
 		panels.add(factsPanel);
 
 		TemplatesPanel templatesPanel = new TemplatesPanel(this);
-		tabbedPane.addTab("Templates", IconLoader.getImageIcon("brick"),
-				templatesPanel, "View or modify Templates");
+		tabbedPane.addTab("Templates", IconLoader.getImageIcon("brick"), templatesPanel, "View or modify Templates");
 		panels.add(templatesPanel);
 
 		RulesPanel rulesPanel = new RulesPanel(this);
-		tabbedPane.addTab("Rules", IconLoader.getImageIcon("car"), rulesPanel,
-				"View or modify Rules");
+		tabbedPane.addTab("Rules", IconLoader.getImageIcon("car"), rulesPanel, "View or modify Rules");
 		panels.add(rulesPanel);
 
 		FunctionsPanel functionsPanel = new FunctionsPanel(this);
-		tabbedPane.addTab("Functions", IconLoader.getImageIcon("cog"),
-				functionsPanel, "View Functions");
+		tabbedPane.addTab("Functions", IconLoader.getImageIcon("cog"), functionsPanel, "View Functions");
 		panels.add(functionsPanel);
 
 		AgendaPanel agendaPanel = new AgendaPanel(this);
-		tabbedPane.addTab("Agenda", IconLoader.getImageIcon("sport_8ball"),
-				agendaPanel, "View all Activations");
+		tabbedPane.addTab("Agenda", IconLoader.getImageIcon("sport_8ball"), agendaPanel, "View all Activations");
 		panels.add(agendaPanel);
 
 		ViewerPanel viewerPanel = new ViewerPanel(this);
-		tabbedPane.addTab("Rete viewer", IconLoader.getImageIcon("eye"),
-				viewerPanel, "View the Rete-network");
+		tabbedPane.addTab("Rete viewer", IconLoader.getImageIcon("eye"), viewerPanel, "View the Rete-network");
 		panels.add(viewerPanel);
 
 		LogPanel logPanel = new LogPanel(this);
-		tabbedPane.addTab("Log", IconLoader.getImageIcon("monitor"), logPanel,
-				"View alle messages from or to the Rete-engine");
+		tabbedPane.addTab("Log", IconLoader.getImageIcon("monitor"), logPanel, "View alle messages from or to the Rete-engine");
 		panels.add(logPanel);
 
 		SettingsPanel settingsPanel = new SettingsPanel(this);
-		tabbedPane.addTab("Settings", IconLoader.getImageIcon("wrench"),
-				settingsPanel, "Settings for Jamocha");
+		tabbedPane.addTab("Settings", IconLoader.getImageIcon("wrench"), settingsPanel, "Settings for Jamocha");
 		panels.add(settingsPanel);
 
 		// add the tab pane to the frame
@@ -205,10 +192,11 @@ public class JamochaGui extends JFrame implements ChangeListener,
 	}
 
 	private void setSizeAndLocation() {
-		int width = preferences.getInt("gui.width", 0);
-		int height = preferences.getInt("gui.height", 0);
-		int locx = preferences.getInt("gui.locx", -1);
-		int locy = preferences.getInt("gui.locy", -1);
+		JamochaSettings prefs =JamochaSettings.getInstance();
+		int width = prefs.getInteger("gui.width");
+		int height = prefs.getInteger("gui.height");
+		int locx = prefs.getInteger("gui.locx");
+		int locy = prefs.getInteger("gui.locy");
 		if (locx == -1 || locy == -1) {
 			this.setLocationByPlatform(true);
 		} else {
@@ -259,8 +247,7 @@ public class JamochaGui extends JFrame implements ChangeListener,
 	 */
 	public StringChannel getStringChannel() {
 		if (stringChannel == null)
-			stringChannel = getEngine().getMessageRouter().openChannel(
-					"gui_string_channel", InterestType.NONE);
+			stringChannel = getEngine().getMessageRouter().openChannel("gui_string_channel", InterestType.NONE);
 		return stringChannel;
 	}
 
@@ -281,15 +268,6 @@ public class JamochaGui extends JFrame implements ChangeListener,
 	public void showGui() {
 		setVisible(true);
 		panels.get(0).setFocus();
-	}
-
-	/**
-	 * Returns the preferences for the JamochaGui
-	 * 
-	 * @return The Preferences-Node
-	 */
-	public Preferences getPreferences() {
-		return preferences;
 	}
 
 	/**
@@ -326,20 +304,18 @@ public class JamochaGui extends JFrame implements ChangeListener,
 	public void close() {
 		if (stringChannel != null)
 			getEngine().getMessageRouter().closeChannel(stringChannel);
+		
+		JamochaSettings prefs = JamochaSettings.getInstance();
 		// save position and size
-		preferences.putInt("gui.width", getWidth());
-		preferences.putInt("gui.height", getHeight());
-		preferences.putInt("gui.locx", getX());
-		preferences.putInt("gui.locy", getY());
+		
+		prefs.setInt("gui.width", getWidth());
+		prefs.setInt("gui.height", getHeight());
+		prefs.setInt("gui.locx", getX());
+		prefs.setInt("gui.locy", getY());
 
 		// inform other panels
 		for (AbstractJamochaPanel panel : panels) {
 			panel.close();
-		}
-		try {
-			preferences.flush();
-		} catch (BackingStoreException e) {
-			e.printStackTrace();
 		}
 		setVisible(false);
 		dispose();
@@ -366,19 +342,16 @@ public class JamochaGui extends JFrame implements ChangeListener,
 	public void setLookAndFeel(String lookAndFeelClassName) {
 		try {
 			if (lookAndFeelClassName.equals(CROSS_PLATFORM_LOOK_AND_FEEL))
-				lookAndFeelClassName = UIManager
-						.getCrossPlatformLookAndFeelClassName();
+				lookAndFeelClassName = UIManager.getCrossPlatformLookAndFeelClassName();
 			else if (lookAndFeelClassName.equals(SYSTEM_LOOK_AND_FEEL))
-				lookAndFeelClassName = UIManager
-						.getSystemLookAndFeelClassName();
+				lookAndFeelClassName = UIManager.getSystemLookAndFeelClassName();
 
 			UIManager.setLookAndFeel(lookAndFeelClassName);
 			SwingUtilities.updateComponentTreeUI(this);
 		} catch (Exception exc) {
 			// look & feel not found, use the cross-platform look and feel
 			try {
-				UIManager.setLookAndFeel(UIManager
-						.getCrossPlatformLookAndFeelClassName());
+				UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
 			} catch (Exception exc2) {
 				// even the platform look and feel is not available, something
 				// must be wrong with the
@@ -396,8 +369,7 @@ public class JamochaGui extends JFrame implements ChangeListener,
 
 	public void actionPerformed(ActionEvent event) {
 		if (event.getSource() == batchResultsButton) {
-			BatchResultBrowser browser = new BatchResultBrowser(
-					batchResultsButton);
+			BatchResultBrowser browser = new BatchResultBrowser(batchResultsButton);
 			browser.setResults(batchThread.getBatchResults());
 			browser.setVisible(true);
 		}
