@@ -1,11 +1,8 @@
 package org.jamocha.rete.rulecompiler.hokifisch;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
-
-import org.jamocha.rete.Constants;
 
 public class BindingAddressTable {
 	private Map<String, Vector<BindingAddress>> row = new HashMap<String, Vector<BindingAddress>>();

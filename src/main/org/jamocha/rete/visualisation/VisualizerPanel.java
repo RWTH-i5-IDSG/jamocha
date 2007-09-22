@@ -41,8 +41,11 @@ import org.jamocha.rule.Rule;
 
 public class VisualizerPanel extends JPanel implements ClickListener, ListSelectionListener, MouseListener, ModuleChangedListener, ActionListener, ModulesChangeListener {
 
+	private static final long serialVersionUID = 1L;
+
 	class JCheckBoxList extends JPanel implements ActionListener{
 		
+		private static final long serialVersionUID = 1L;
 		Vector<JCheckBox> boxes;
 		List<ListSelectionListener> listeners;
 		List<String> selected;

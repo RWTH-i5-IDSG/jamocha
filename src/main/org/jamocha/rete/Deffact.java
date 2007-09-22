@@ -139,10 +139,10 @@ public class Deffact implements Fact {
 		try {
 			return this.slots[id].value;
 		} catch (ArrayIndexOutOfBoundsException e) {
-			String templName = "";
+			String templName = null;
 			if (this.template != null)
 				templName = this.template.getName();
-			throw new EvaluationException("Error in getSlotValue, Template: " + this.getTemplate().getName() + " Index does not exist: " + id, e);
+			throw new EvaluationException("Error in getSlotValue, Template: " + templName + " Index does not exist: " + id, e);
 		}
 
 	}

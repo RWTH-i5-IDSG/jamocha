@@ -18,7 +18,6 @@ package org.jamocha.rete.modules;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -90,9 +89,7 @@ public class FactDataContainer extends ModulesDataContainer {
 	public List<Fact> getFacts() {
 		List<Fact> facts = new ArrayList<Fact>();
 		// clearadd all templates from hashmap to resulting list:
-		Iterator itr = this.idToCLIPSElement.keySet().iterator();
-		while (itr.hasNext()) {
-			Object key = itr.next();
+		for (Object key : idToCLIPSElement.keySet()) {
 			Fact fact = (Fact) this.idToCLIPSElement.get(key);
 			facts.add(fact);
 		}

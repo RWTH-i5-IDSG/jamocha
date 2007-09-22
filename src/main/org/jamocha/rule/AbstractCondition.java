@@ -38,8 +38,8 @@ public abstract class AbstractCondition implements Condition {
 		AbstractCondition.complexity = value;
 	}
 
-	public int compareTo(Object o) {
-		return this.getTotalComplexity() - ((Condition) o).getTotalComplexity();
+	public int compareTo(Condition o) {
+		return this.getTotalComplexity() - o.getTotalComplexity();
 	}
 
 	protected boolean negated;

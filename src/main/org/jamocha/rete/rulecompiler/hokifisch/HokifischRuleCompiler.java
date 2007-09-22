@@ -255,6 +255,7 @@ public class HokifischRuleCompiler implements RuleCompiler {
 	/**
 	 * appends some nodes to a given subnet.
 	 */
+	@SuppressWarnings("unused")
 	private void appendToSubnet(BaseNode node, ReteSubnet subnet) throws RuleCompilingException {
 		appendToSubnet(node, node, subnet);
 	}

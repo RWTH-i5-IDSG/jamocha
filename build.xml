@@ -51,6 +51,7 @@
 		<available file="/usr/share/java/" property="javacc.home" value="/usr/share/java/" />
 		<available file="/usr/share/javacc/lib" property="javacc.home" value="/usr/share/javacc/lib" />
 		<available file="/sw/share/java/javacc/" property="javacc.home" value="/sw/share/java/javacc/" />
+
 		<!--Fail if we haven't found it-->
 		<fail message="No javaCC found. Please update the build.xml.">
 			<condition>
@@ -63,7 +64,7 @@
 		<!-- sl parser -->
 		<jjtree javacchome="${javacc.home}" target="${src}/main/org/jamocha/parser/sl/SL.jjt" outputdirectory="${src}/main/org/jamocha/parser/sl/" nodeusesparser="true" />
 
-		<javacc target="${src}/main/org/jamocha/parser/sl/SL.jj" outputdirectory="${src}/main/org/jamocha/parser/sl/" javacchome="${javacc.home}" />
+		<javacc target="${src}/main/org/jamocha/parser/sl/SL.jj" outputdirectory="${src}/main/org/jamocha/parser/sl/" javacchome="${javacc.home}" jdkversion="1.5" />
 
 		<!-- sfp parser -->
 

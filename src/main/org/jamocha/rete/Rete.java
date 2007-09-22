@@ -686,10 +686,9 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 	 * @param objs
 	 * @throws AssertException
 	 */
-	public void assertObjects(List objs) throws AssertException {
-		Iterator itr = objs.iterator();
-		while (itr.hasNext()) {
-			assertObject(itr.next(), null, false, false);
+	public void assertObjects(List<?> objs) throws AssertException {
+		for (Object obj : objs) {
+			assertObject(obj, null, false, false);
 		}
 	}
 

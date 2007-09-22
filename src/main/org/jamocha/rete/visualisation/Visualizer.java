@@ -30,6 +30,8 @@ import org.jamocha.rete.nodes.TerminalNode;
 
 public class Visualizer extends JComponent implements ComponentListener, MouseInputListener, ViewportChangedListener, MouseWheelListener {
 
+	private static final long serialVersionUID = 1L;
+
 	BaseNode rootNode;
 
 	VisualizerSetup setup;

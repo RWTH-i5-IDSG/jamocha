@@ -2,7 +2,6 @@ package org.jamocha.sampleimplementations;
 
 import java.util.Map;
 
-import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Deffact;
 import org.jamocha.rete.Deftemplate;

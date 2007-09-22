@@ -74,6 +74,7 @@ public class TemplateValidation implements Analysis {
 		return this.warning;
 	}
 
+	@SuppressWarnings("deprecation")
 	public int analyze(Rule rule) {
 		int result = Analysis.VALIDATION_PASSED;
 		this.error = new ErrorSummary();

@@ -63,6 +63,7 @@ public abstract class AbstractJamochaTest extends TestCase {
 	 * 
 	 * @param arg0
 	 */
+	@SuppressWarnings("unused")
 	private List<MessageEvent> executeCommandReturnAll(String command) {
 		List<MessageEvent> events = executeCommand(command);
 		for (MessageEvent event : events) {

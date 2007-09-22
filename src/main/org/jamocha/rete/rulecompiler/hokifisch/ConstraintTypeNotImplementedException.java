@@ -3,6 +3,8 @@ package org.jamocha.rete.rulecompiler.hokifisch;
 public class ConstraintTypeNotImplementedException extends
 		RuleCompilingException {
 
+	private static final long serialVersionUID = 1L;
+
 	public ConstraintTypeNotImplementedException() {
 		super();
 	}

@@ -180,7 +180,7 @@ public class ObjectCondition extends AbstractCondition {
 	}
 
 	@Deprecated
-	public List getBoundConstraints() {
+	public List<Constraint> getBoundConstraints() {
 		ArrayList<Constraint> binds = new ArrayList<Constraint>();
 		Iterator<Constraint> itr = propConditions.iterator();
 		while (itr.hasNext()) {

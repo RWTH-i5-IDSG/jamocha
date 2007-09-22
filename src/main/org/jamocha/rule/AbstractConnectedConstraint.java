@@ -1,6 +1,5 @@
 package org.jamocha.rule;
 
-import org.jamocha.rete.Template;
 
 
 public abstract class AbstractConnectedConstraint extends AbstractConstraint {

@@ -9,6 +9,7 @@ import org.jamocha.parser.JamochaValue;
 public class ExpressionSequence extends ExpressionCollection {
 
 	public Object clone(){
+		@SuppressWarnings("unchecked")
 		ArrayList<Parameter> paramList = (ArrayList<Parameter>)parameterList.clone();
 		ExpressionCollection result = new ExpressionSequence();
 		result.parameterList = paramList;
