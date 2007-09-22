@@ -572,13 +572,9 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 		MessageRouter router = getMessageRouter();
 		router.postMessageEvent(new MessageEvent(MessageEvent.ENGINE, msg, "t"
 				.equals(output) ? router.getCurrentChannelId() : output));
-		if (this.outputStreams.size() > 0) {
-			Iterator itr = this.outputStreams.values().iterator();
-			while (itr.hasNext()) {
-				PrintWriter wr = (PrintWriter) itr.next();
-				wr.write(msg);
-				wr.flush();
-			}
+		for (PrintWriter wr : outputStreams.values()) {
+			wr.write(msg);
+			wr.flush();
 		}
 	}
 
@@ -605,9 +601,7 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 					+ node.toString().replaceAll("\"", "'") + ":: with fact -"
 					+ fact.toFactString().replaceAll("\"", "'") + "::\"");
 		}
-		Iterator itr = this.listeners.iterator();
-		while (itr.hasNext()) {
-			EngineEventListener eel = (EngineEventListener) itr.next();
+		for (EngineEventListener eel : listeners) {
 			eel.eventOccurred(new EngineEvent(this, EngineEvent.ASSERT_EVENT,
 					node, new Fact[] { fact }));
 		}
@@ -617,9 +611,7 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 		if (debug) {
 			System.out.println("\"new rule added=" + rule.toString());
 		}
-		Iterator itr = this.listeners.iterator();
-		while (itr.hasNext()) {
-			EngineEventListener eel = (EngineEventListener) itr.next();
+		for (EngineEventListener eel : listeners) {
 			eel.eventOccurred(new EngineEvent(this, EngineEvent.NEWRULE_EVENT,
 					rule));
 		}
@@ -634,9 +626,9 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 
 			}
 		}
-		Iterator itr = this.listeners.iterator();
+		Iterator<EngineEventListener> itr = this.listeners.iterator();
 		while (itr.hasNext()) {
-			EngineEventListener eel = (EngineEventListener) itr.next();
+			EngineEventListener eel = itr.next();
 			eel.eventOccurred(new EngineEvent(this, EngineEvent.ASSERT_EVENT,
 					node, facts));
 		}
@@ -649,9 +641,7 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 	 * @param fact
 	 */
 	public void retractEvent(BaseNode node, Fact fact) {
-		Iterator itr = this.listeners.iterator();
-		while (itr.hasNext()) {
-			EngineEventListener eel = (EngineEventListener) itr.next();
+		for (EngineEventListener eel : listeners) {
 			eel.eventOccurred(new EngineEvent(this, EngineEvent.RETRACT_EVENT,
 					node, new Fact[] { fact }));
 		}
@@ -663,9 +653,7 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 	 * @param facts
 	 */
 	public void retractEvent(BaseNode node, Fact[] facts) {
-		Iterator itr = this.listeners.iterator();
-		while (itr.hasNext()) {
-			EngineEventListener eel = (EngineEventListener) itr.next();
+		for (EngineEventListener eel : listeners) {
 			eel.eventOccurred(new EngineEvent(this, EngineEvent.ASSERT_EVENT,
 					node, facts));
 		}
@@ -846,15 +834,11 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 	 */
 	public void resetFacts() {
 		try {
-			List facts = this.modules.getAllFacts();
-			Iterator itr = facts.iterator();
-			while (itr.hasNext()) {
-				Deffact ft = (Deffact) itr.next();
+			List<Fact> facts = this.modules.getAllFacts();
+			for (Fact ft: facts) {
 				this.net.retractObject(ft);
 			}
-			itr = facts.iterator();
-			while (itr.hasNext()) {
-				Deffact ft = (Deffact) itr.next();
+			for (Fact ft: facts) {
 				this.net.assertObject(ft);
 			}
 		} catch (RetractException e) {

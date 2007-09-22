@@ -30,7 +30,7 @@ public abstract class ConditionWithNested extends AbstractCondition {
 		return this.nestedCE;
 	}
 
-	public List getNodes() {
+	public List<BaseNode> getNodes() {
 		return nodes;
 	}
 

@@ -21,7 +21,7 @@ import java.util.Comparator;
 import org.jamocha.rete.Deffact;
 
 
-public class DeffactSort implements Comparator {
+public class DeffactSort implements Comparator<Deffact> {
 
 	public static DeffactSort Comparator = new DeffactSort();
 	
@@ -29,10 +29,10 @@ public class DeffactSort implements Comparator {
 		super();
 	}
 
-	public int compare(Object left, Object right) {
-		if ( ((Deffact)left).getFactId() > ((Deffact)right).getFactId()) {
+	public int compare(Deffact left, Deffact right) {
+		if ( left.getFactId() > right.getFactId() ) {
 			return 1;
-		} else if (((Deffact)left).getFactId() == ((Deffact)right).getFactId()) {
+		} else if ( left.getFactId() == right.getFactId() ) {
 			return 0;
 		} else {
 			return -1;

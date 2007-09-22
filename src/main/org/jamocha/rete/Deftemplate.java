@@ -18,8 +18,8 @@ package org.jamocha.rete;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
 
 import org.jamocha.formatter.Formatter;
 import org.jamocha.parser.EvaluationException;
@@ -250,12 +250,12 @@ public class Deftemplate implements Template, Serializable {
 	 * @return
 	 * @throws EvaluationException
 	 */
-	public Fact createFact(List data, long id, Rete engine)
+	public Fact createFact(Collection<Slot> data, long id, Rete engine)
 			throws EvaluationException {
 		Slot[] values = createFactSlots(engine);
-		Iterator itr = data.iterator();
+		Iterator<Slot> itr = data.iterator();
 		while (itr.hasNext()) {
-			Slot s = (Slot) itr.next();
+			Slot s = itr.next();
 			for (int idx = 0; idx < values.length; idx++) {
 				if (values[idx].getName().equals(s.getName())) {
 					if (s.value == null) {

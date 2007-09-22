@@ -33,7 +33,7 @@ public class ExistCondition extends ConditionWithNested {
 
 	static final long serialVersionUID = 0xDeadBeafCafeBabeL;
 
-	protected List nestedCE = new ArrayList();
+	protected List<Condition> nestedCE = new ArrayList<Condition>();
 
 	protected List<BaseNode> nodes = new ArrayList<BaseNode>();
 
@@ -60,24 +60,17 @@ public class ExistCondition extends ConditionWithNested {
 		return false;
 	}
 
-	public void addNestedConditionElement(Object ce) {
-		if (ce instanceof List) {
-			List l = (List) ce;
-			Iterator itr = l.iterator();
-			while (itr.hasNext()) {
-				this.nestedCE.add(itr.next());
-			}
-		} else {
-			this.nestedCE.add(ce);
-		}
+	
+	public void addNestedConditionElement(Condition ce) {
+		this.nestedCE.add(ce);
 	}
 
-	public List getNestedConditionalElement() {
+	public List<Condition> getNestedConditionalElement() {
 		return this.nestedCE;
 	}
 
-	public List getNodes() {
-		return new ArrayList();
+	public List<BaseNode> getNodes() {
+		return new ArrayList<BaseNode>();
 	}
 
 	/**
@@ -105,7 +98,7 @@ public class ExistCondition extends ConditionWithNested {
 	 */
 	public boolean hasObjectCondition() {
 		boolean has = false;
-		Iterator itr = nestedCE.iterator();
+		Iterator<Condition> itr = nestedCE.iterator();
 		while (itr.hasNext()) {
 			if (itr.next() instanceof ObjectCondition) {
 				has = true;
@@ -118,7 +111,7 @@ public class ExistCondition extends ConditionWithNested {
 	@Deprecated
 	public List<BoundConstraint> getAllBoundConstraints() {
 		ArrayList<BoundConstraint> bindings = new ArrayList<BoundConstraint>();
-		Iterator itr = nestedCE.iterator();
+		Iterator<Condition> itr = nestedCE.iterator();
 		while (itr.hasNext()) {
 			Complexity con = (Complexity) itr.next();
 			if (con instanceof ObjectCondition) {
@@ -137,7 +130,7 @@ public class ExistCondition extends ConditionWithNested {
 		return bindings;
 	}
 
-	public List getBoundConstraints() {
+	public List<?> getBoundConstraints() {
 		return null;
 	}
 

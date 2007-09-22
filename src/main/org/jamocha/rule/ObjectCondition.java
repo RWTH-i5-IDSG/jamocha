@@ -162,7 +162,7 @@ public class ObjectCondition extends AbstractCondition {
 	 * Method will return a list of all the BoundConstraints
 	 */
 	@Deprecated
-	public List getAllBoundConstraints() {
+	public List<Constraint> getAllBoundConstraints() {
 		ArrayList<Constraint> binds = new ArrayList<Constraint>();
 		Iterator<Constraint> itr = propConditions.iterator();
 		while (itr.hasNext()) {

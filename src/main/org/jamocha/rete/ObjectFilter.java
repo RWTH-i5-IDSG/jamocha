@@ -24,7 +24,7 @@ package org.jamocha.rete;
  */
 public class ObjectFilter {
 
-    public static BeanFilter lookupFilter(Class clazz){
+    public static BeanFilter lookupFilter(Class<?> clazz){
         return null;
     }
     

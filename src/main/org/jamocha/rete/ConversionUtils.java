@@ -157,7 +157,7 @@ public class ConversionUtils {
      * @param clzz
      * @return
      */
-    public static int getTypeCode(Class clzz){
+    public static int getTypeCode(Class<?> clzz){
         if (clzz.isArray()){
             return Constants.ARRAY_TYPE;
         } else if (clzz.isPrimitive()){

@@ -48,7 +48,7 @@ public class Defclass implements Serializable {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	private Class OBJECT_CLASS = null;
+	private Class<?> OBJECT_CLASS = null;
 
 	private BeanInfo INFO = null;
 
@@ -65,7 +65,7 @@ public class Defclass implements Serializable {
 	/**
 	 * 
 	 */
-	public Defclass(Class obj) {
+	public Defclass(Class<?> obj) {
 		super();
 		this.OBJECT_CLASS = obj;
 		init();
@@ -199,7 +199,7 @@ public class Defclass implements Serializable {
 		return this.INFO;
 	}
 
-	public Class getClassObject() {
+	public Class<?> getClassObject() {
 		return this.OBJECT_CLASS;
 	}
 

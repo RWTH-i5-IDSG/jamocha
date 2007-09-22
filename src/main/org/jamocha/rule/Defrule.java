@@ -502,10 +502,8 @@ public class Defrule implements Rule {
 		}
 	}
 
-	public void setRuleProperties(List props) {
-		Iterator itr = props.iterator();
-		while (itr.hasNext()) {
-			RuleProperty declaration = (RuleProperty) itr.next();
+	public void setRuleProperties(List<RuleProperty> props) {
+		for (RuleProperty declaration : props) {
 			if (declaration.getName().equals(RuleProperty.AUTO_FOCUS)) {
 				setAutoFocus(declaration.getBooleanValue());
 			} else if (declaration.getName().equals(RuleProperty.SALIENCE)) {
@@ -624,7 +622,7 @@ public class Defrule implements Rule {
 		newRule.setConditions(conditions);
 
 		// set actions:
-		ArrayList actions = new ArrayList();
+		ArrayList<Action> actions = new ArrayList<Action>();
 		for (Action a : this.actions)
 			actions.add(a.clone());
 		newRule.actions = actions;

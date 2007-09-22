@@ -56,5 +56,5 @@ public interface Action extends Serializable, Cloneable, Formattable {
      */
     JamochaValue executeAction(Rete engine, Fact[] facts) throws ExecuteException;
     
-    public Object clone() throws CloneNotSupportedException;
+    public Action clone() throws CloneNotSupportedException;
 }

@@ -38,13 +38,12 @@ public class EventCounter implements EngineEventListener {
     private ArrayList<EngineEvent> asserts = new ArrayList<EngineEvent>();
     private ArrayList<EngineEvent> retracts = new ArrayList<EngineEvent>();
     private ArrayList<EngineEvent> profiles = new ArrayList<EngineEvent>();
-    private Map<BaseNode,ArrayList> nodeFilter = new HashMap<BaseNode,ArrayList>();
+    private Map<BaseNode,ArrayList<EngineEvent>> nodeFilter = new HashMap<BaseNode,ArrayList<EngineEvent>>();
 
 
 	/* (non-Javadoc)
 	 * @see woolfel.engine.rete.EngineEventListener#eventOccurred(woolfel.engine.rete.EngineEvent)
 	 */
-	@SuppressWarnings("unchecked")
 	public void eventOccurred(EngineEvent event) {
         if (event.getEventType() == EngineEvent.ASSERT_EVENT) {
             asserts.add(event);
@@ -63,9 +62,9 @@ public class EventCounter implements EngineEventListener {
         } else if (event.getEventType() == EngineEvent.RETRACT_EVENT) {
             retracts.add(event);
         }
-        Object val = this.nodeFilter.get(event.getSourceNode());
+        ArrayList<EngineEvent> val = this.nodeFilter.get(event.getSourceNode());
         if (val != null) {
-            ((ArrayList)val).add(event);
+            val.add(event);
         }
 	}
 
@@ -86,10 +85,10 @@ public class EventCounter implements EngineEventListener {
      * @param node
      */
     public void addNodeFilter(BaseNode node) {
-        this.nodeFilter.put(node,new ArrayList());
+        this.nodeFilter.put(node,new ArrayList<EngineEvent>());
     }
     
-    public List getNodeEvents(BaseNode node) {
-        return (List)this.nodeFilter.get(node);
+    public ArrayList<EngineEvent> getNodeEvents(BaseNode node) {
+        return this.nodeFilter.get(node);
     }
 }

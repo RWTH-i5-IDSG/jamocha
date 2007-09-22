@@ -42,7 +42,7 @@ import org.jamocha.rete.functions.ruleengine.Assert;
  */
 public class FunctionAction implements Action {
 
-	public Object clone() throws CloneNotSupportedException {
+	public Action clone() throws CloneNotSupportedException {
 		FunctionAction result = new FunctionAction();
 		
 		result.function = function;

@@ -19,6 +19,8 @@ package org.jamocha.rete.util;
 import java.util.Arrays;
 import java.util.List;
 
+import org.jamocha.rete.Fact;
+
 /**
  * @author Peter Lin
  * 
@@ -35,16 +37,16 @@ public class FactUtils {
 		super();
 	}
 
-	@SuppressWarnings("unchecked")
-	public static Object[] sortFacts(List facts) {
-		Object[] sorted = facts.toArray();
+	public static Fact[] sortFacts(List<Fact> facts) {
+		Fact[] sorted = new Fact[facts.size()];
+		sorted = facts.toArray(sorted);
 		Arrays.sort(sorted,COMPARATOR);
 		return sorted;
 	}
 	
-	@SuppressWarnings("unchecked")
-	public static Object[] sortFactsByTemplate(List facts) {
-		Object[] sorted = facts.toArray();
+	public static Fact[] sortFactsByTemplate(List<Fact> facts) {
+		Fact[] sorted = new Fact[facts.size()];
+		sorted = facts.toArray(sorted);
 		Arrays.sort(sorted,TEMPLATECOMP);
 		return sorted;
 	}
