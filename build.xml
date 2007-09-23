@@ -64,11 +64,11 @@
 		<!-- sl parser -->
 		<jjtree javacchome="${javacc.home}" target="${src}/main/org/jamocha/parser/sl/SL.jjt" outputdirectory="${src}/main/org/jamocha/parser/sl/" nodeusesparser="true" />
 
-		<javacc target="${src}/main/org/jamocha/parser/sl/SL.jj" outputdirectory="${src}/main/org/jamocha/parser/sl/" javacchome="${javacc.home}" jdkversion="1.5" />
+		<javacc target="${src}/main/org/jamocha/parser/sl/SL.jj" outputdirectory="${src}/main/org/jamocha/parser/sl/" javacchome="${javacc.home}"/>
 
 		<!-- sfp parser -->
 
-		<jjtree javacchome="${javacc.home}" target="${src}/main/org/jamocha/parser/sfp/SFP.jjt" outputdirectory="${src}/main/org/jamocha/parser/sfp/" nodeusesparser="true" />
+		<jjtree javacchome="${javacc.home}" target="${src}/main/org/jamocha/parser/sfp/SFP.jjt" outputdirectory="${src}/main/org/jamocha/parser/sfp/" nodeusesparser="true"/>
 
 		<javacc target="${src}/main/org/jamocha/parser/sfp/SFP.jj" outputdirectory="${src}/main/org/jamocha/parser/sfp/" javacchome="${javacc.home}" />
 	</target>
