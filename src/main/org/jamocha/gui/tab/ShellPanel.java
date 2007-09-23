@@ -212,7 +212,7 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 			longName.append(function.getName());
 			for (int i = 0; i < function.getDescription().getParameterCount(); i++) {
 				longName.append(" ").append(
-						function.getDescription().getParameterName(i));
+						function.getDescription().getParameterName(i).replace(" ", "_"));
 			}
 			longName.append(")");
 			autoCompletion.addToken(function.getName(), longName.toString());

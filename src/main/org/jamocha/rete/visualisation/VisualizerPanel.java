@@ -361,48 +361,40 @@ public class VisualizerPanel extends JPanel implements ClickListener, ListSelect
 	public void mouseClicked(MouseEvent arg0) {
 		Component c = arg0.getComponent();
 		if (c == lineBtn){
-			miniMap.setLineStyle( VisualizerSetup.LINE );
-			mainVis.setLineStyle( VisualizerSetup.LINE );
+			try {setConnectorType("lines");} catch (UnknownConnectorTypeException e) {engine.writeMessage(e.toString());}
 		} else if (c == lineQuarterEllipse){
-			miniMap.setLineStyle( VisualizerSetup.QUARTERELLIPSE );
-			mainVis.setLineStyle( VisualizerSetup.QUARTERELLIPSE );
+			try {setConnectorType("quarterellipse");} catch (UnknownConnectorTypeException e) {engine.writeMessage(e.toString());}
 		}
 		
 	}
 
 
 	public void mouseEntered(MouseEvent arg0) {
-		// TODO Auto-generated method stub
-		
+	
 	}
 
 
 	public void mouseExited(MouseEvent arg0) {
-		// TODO Auto-generated method stub
 		
 	}
 
 
 	public void mousePressed(MouseEvent arg0) {
-		// TODO Auto-generated method stub
 		
 	}
 
 
 	public void mouseReleased(MouseEvent arg0) {
-		// TODO Auto-generated method stub
 		
 	}
 
 
 	public void factAdded(ModuleChangedEvent ev) {
-		// TODO Auto-generated method stub
 		
 	}
 
 
 	public void factRemoved(ModuleChangedEvent ev) {
-		// TODO Auto-generated method stub
 		
 	}
 
@@ -418,13 +410,11 @@ public class VisualizerPanel extends JPanel implements ClickListener, ListSelect
 
 
 	public void templateAdded(ModuleChangedEvent ev) {
-		// TODO Auto-generated method stub
 		
 	}
 
 
 	public void templateRemoved(ModuleChangedEvent ev) {
-		// TODO Auto-generated method stub
 		
 	}
 
@@ -441,6 +431,32 @@ public class VisualizerPanel extends JPanel implements ClickListener, ListSelect
 
 	public void evModuleRemoved(Module oldModule) {
 		moduleChooser.removeItem(oldModule.getModuleName());
+	}
+
+
+	public void setConnectorType(String connType) throws UnknownConnectorTypeException {
+		if (connType.equalsIgnoreCase("lines")){
+			miniMap.setLineStyle( VisualizerSetup.LINE );
+			mainVis.setLineStyle( VisualizerSetup.LINE );
+			lineBtn.setSelected(true);
+			lineQuarterEllipse.setSelected(false);
+		} else if (connType.equalsIgnoreCase("quarterellipse")){
+			miniMap.setLineStyle( VisualizerSetup.QUARTERELLIPSE );
+			mainVis.setLineStyle( VisualizerSetup.QUARTERELLIPSE );
+			lineBtn.setSelected(false);
+			lineQuarterEllipse.setSelected(true);
+		} else throw new UnknownConnectorTypeException(connType);
+		
+	}
+
+
+	public String getConnectorType() {
+		if (mainVis.getLineStyle() == VisualizerSetup.LINE)
+			return "lines";
+		if (mainVis.getLineStyle() == VisualizerSetup.QUARTERELLIPSE)
+			return "quarterellipse";
+		
+		return "unknown";
 	}
 	
 	

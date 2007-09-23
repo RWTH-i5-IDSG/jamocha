@@ -19,7 +19,9 @@ package org.jamocha.gui.tab;
 import java.awt.BorderLayout;
 
 import org.jamocha.gui.JamochaGui;
+import org.jamocha.rete.visualisation.UnknownConnectorTypeException;
 import org.jamocha.rete.visualisation.VisualizerPanel;
+import org.jamocha.settings.SettingsChangedListener;
 
 /**
  * This Panel shows the viewer
@@ -30,6 +32,16 @@ public class ViewerPanel extends AbstractJamochaPanel {
 
 	private static final long serialVersionUID = -5732131176258158968L;
 
+	private static final String GUI_VIEWER_CONNECTORTYPE = "gui.viewer.connectortype";
+	
+	private class ViewerSettingsChangedListener implements SettingsChangedListener {
+
+		public void settingsChanged(String propertyName) {
+			readSettings();
+		}
+		
+	}
+	
 	VisualizerPanel visualizer;
 	
 	public ViewerPanel(JamochaGui gui) {
@@ -37,12 +49,25 @@ public class ViewerPanel extends AbstractJamochaPanel {
 		visualizer = new VisualizerPanel(gui.getEngine());
 		setLayout(new BorderLayout());
 		this.add(visualizer, BorderLayout.CENTER);
+		
+		String[] settingNames = {GUI_VIEWER_CONNECTORTYPE};
+		SettingsChangedListener listener = new ViewerSettingsChangedListener();
+		settings.addListener(listener, settingNames);
+		readSettings();
+	}
+
+	protected void readSettings() {
+		String connType = settings.getString(GUI_VIEWER_CONNECTORTYPE);
+		try {
+			visualizer.setConnectorType(connType);
+		} catch (UnknownConnectorTypeException e) {
+			gui.getEngine().writeMessage(e.toString());
+		}
 	}
 
 	@Override
 	public void close() {
-		// TODO Auto-generated method stub
-		
+		settings.set(GUI_VIEWER_CONNECTORTYPE, visualizer.getConnectorType());		
 	}
 	
 	

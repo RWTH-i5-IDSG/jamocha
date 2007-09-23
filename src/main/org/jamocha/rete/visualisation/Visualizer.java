@@ -138,6 +138,10 @@ public class Visualizer extends JComponent implements ComponentListener, MouseIn
 		linestyle = style;
 		repaint();
 	}
+	
+	public int getLineStyle() {
+		return linestyle;
+	}
 
 	public Visualizer(Rete e) {
 		rootNode = e.getNet().getRoot();
