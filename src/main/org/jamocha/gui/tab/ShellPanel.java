@@ -228,7 +228,7 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 	public ShellPanel(JamochaGui gui) {
 		super(gui);
 		autoCompletion = new AutoCompletion();
-		autoCompletionBox = new AutoCompletionBox(gui, autoCompletion);
+		autoCompletionBox = new AutoCompletionBox(gui, autoCompletion, this);
 		// GUI construction
 		// create the output area
 		outputArea = new JTextArea();
@@ -605,33 +605,8 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 							}
 							break;
 						case KeyEvent.VK_ENTER:
-							boolean full = ((e.getModifiers() & KeyEvent.CTRL_MASK) != 0);
 							if (autoCompletionBox.isVisible()) {
-								if (full) {
-									String txt = autoCompletionBox.getSelected(
-											true).substring(
-											autoCompletionPrefix.length());
-									String shorttxt = autoCompletionBox
-											.getSelected(false).substring(
-													autoCompletionPrefix
-															.length());
-									int cursorPos = outputArea
-											.getCaretPosition();
-									outputArea.insert(txt, cursorPos);
-									cursorPosition = cursorPos
-											+ shorttxt.length() + 1;
-								} else {
-									String txt = autoCompletionBox.getSelected(
-											false).substring(
-											autoCompletionPrefix.length());
-									int cursorPos = outputArea
-											.getCaretPosition();
-									outputArea.insert(txt + " ", cursorPos);
-									cursorPosition = cursorPos + txt.length()
-											+ 1;
-								}
-								scrollToCursor();
-								autoCompletionBox.hide();
+								autoCompletionBox.keyPressed(e);
 							} else {
 
 								moveCursorToEnd();
@@ -787,7 +762,7 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 
 	}
 
-	private void scrollToCursor() {
+	void scrollToCursor() {
 		outputArea.setCaretPosition(cursorPosition);
 	}
 
@@ -996,6 +971,22 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 		} else if (propertyName.equals(GUI_SHELL_AUTOCOMPLETION)) {
 			enableAutoCompletion = settings.getBoolean(GUI_SHELL_AUTOCOMPLETION);
 		}
+	}
+
+	public String getAutoCompletionPrefix() {
+		return autoCompletionPrefix;
+	}
+
+	public JTextArea getOutputArea() {
+		return outputArea;
+	}
+
+	public int getCursorPosition() {
+		return cursorPosition;
+	}
+
+	public void setCursorPosition(int cursorPosition) {
+		this.cursorPosition = cursorPosition;
 	}
 
 }
