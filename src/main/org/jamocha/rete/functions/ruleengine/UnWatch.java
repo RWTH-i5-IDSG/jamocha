@@ -19,6 +19,7 @@ package org.jamocha.rete.functions.ruleengine;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
+import org.jamocha.rete.Constants;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.functions.AbstractFunction;
@@ -111,13 +112,13 @@ public class UnWatch extends AbstractFunction {
 
 	protected void setUnWatch(Rete engine, String cmd) {
 		if (cmd.equals("all")) {
-			engine.setUnWatch(Rete.WATCH_ALL);
+			engine.setUnWatch(Constants.WATCH_ALL);
 		} else if (cmd.equals("facts")) {
-			engine.setUnWatch(Rete.WATCH_FACTS);
+			engine.setUnWatch(Constants.WATCH_FACTS);
 		} else if (cmd.equals("activations")) {
-			engine.setUnWatch(Rete.WATCH_ACTIVATIONS);
+			engine.setUnWatch(Constants.WATCH_ACTIVATIONS);
 		} else if (cmd.equals("rules")) {
-			engine.setUnWatch(Rete.WATCH_RULES);
+			engine.setUnWatch(Constants.WATCH_RULES);
 		}
 	}
 }

@@ -41,6 +41,10 @@ import org.jamocha.rule.Rule;
 public class Modules implements Serializable {
 
 	private static final long serialVersionUID = 1L;
+	
+	private boolean watchFact = false;
+
+	private boolean watchRules = false;
 
 	private Module currentModule = null;
 
@@ -164,7 +168,7 @@ public class Modules implements Serializable {
 		Fact ft = null;
 		try {
 			ft = ((Deftemplate) tmpl).createFact(data, engine);
-			facts.add(ft);
+			this.addFact(ft);
 		} catch (EvaluationException e) {
 			throw new AssertException(e);
 		}
@@ -179,7 +183,7 @@ public class Modules implements Serializable {
 					+ " could not be found");
 		Fact ft = null;
 		ft = ((Deftemplate) tmpl).createFact(scs, engine);
-		facts.add(ft);
+		this.addFact(ft);
 		return ft;
 	}
 
@@ -239,10 +243,18 @@ public class Modules implements Serializable {
 	}
 
 	public long addFact(Fact fact) {
+		if (watchFact) {
+			engine.writeMessage("==> " + fact.toFactString() + Constants.LINEBREAK, "t");
+		}
+		
 		return facts.add(fact);
 	}
 
 	public void removeFact(Fact fact) {
+		if (watchFact) {
+			engine.writeMessage("<== " + fact.toFactString() + Constants.LINEBREAK, "t");
+		}
+		
 		this.facts.remove(fact.getFactId());
 	}
 
@@ -293,5 +305,13 @@ public class Modules implements Serializable {
 
 	public void clearAllTemplates() {
 		templates.clear();
+	}
+
+	public void setWatchFact(boolean watchFact) {
+		this.watchFact = watchFact;
+	}
+
+	public void setWatchRules(boolean watchRules) {
+		this.watchRules = watchRules;
 	}
 }

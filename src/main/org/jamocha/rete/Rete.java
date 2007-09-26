@@ -60,30 +60,9 @@ import org.jamocha.settings.JamochaSettings;
  * This is the main Rete engine class. For now it's called Rete, but I may
  * change it to Engine to be more generic.
  */
-public class Rete implements PropertyChangeListener, CompilerListener,
-		Serializable {
+public class Rete implements PropertyChangeListener, CompilerListener, Serializable {
 
 	private static final long serialVersionUID = 1L;
-
-	public static final int WATCH_ACTIVATIONS = 001;
-
-	public static final int WATCH_ALL = 002;
-
-	public static final int WATCH_FACTS = 003;
-
-	public static final int WATCH_RULES = 004;
-
-	public static final int PROFILE_ADD_ACTIVATION = 101;
-
-	public static final int PROFILE_ASSERT = 102;
-
-	public static final int PROFILE_ALL = 103;
-
-	public static final int PROFILE_FIRE = 104;
-
-	public static final int PROFILE_RETRACT = 105;
-
-	public static final int PROFILE_RM_ACTIVATION = 106;
 
 	protected ArrayList focusStack = new ArrayList();
 
@@ -117,10 +96,6 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 	private Modules modules = null;
 
 	private boolean debug = false;
-
-	private boolean watchFact = false;
-
-	private boolean watchRules = false;
 
 	private boolean profileFire = false;
 
@@ -173,8 +148,8 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 			log.info(e);
 		}
 	}
-	
-	public InitialFact getInitialTemplate(){
+
+	public InitialFact getInitialTemplate() {
 		return this.initFact;
 	}
 
@@ -428,16 +403,16 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 	 * @param type
 	 */
 	public void setWatch(int type) {
-		if (type == WATCH_ACTIVATIONS) {
-			this.agendas.setWatch(true);
-		} else if (type == WATCH_ALL) {
-			this.agendas.setWatch(true);
-			this.watchFact = true;
-			this.watchRules = true;
-		} else if (type == WATCH_FACTS) {
-			this.watchFact = true;
-		} else if (type == WATCH_RULES) {
-			this.watchRules = true;
+		if (type == Constants.WATCH_ALL) {
+			this.agendas.setWatchActivations(true);
+			this.modules.setWatchFact(true);
+			this.modules.setWatchRules(true);
+		} else if (type == Constants.WATCH_ACTIVATIONS) {
+			this.agendas.setWatchActivations(true);
+		} else if (type == Constants.WATCH_FACTS) {
+			this.modules.setWatchFact(true);
+		} else if (type == Constants.WATCH_RULES) {
+			this.modules.setWatchRules(true);
 		}
 	}
 
@@ -448,16 +423,16 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 	 * @param type
 	 */
 	public void setUnWatch(int type) {
-		if (type == WATCH_ACTIVATIONS) {
-			this.agendas.setWatch(false);
-		} else if (type == WATCH_ALL) {
-			this.agendas.setWatch(false);
-			this.watchFact = false;
-			this.watchRules = false;
-		} else if (type == WATCH_FACTS) {
-			this.watchFact = false;
-		} else if (type == WATCH_RULES) {
-			this.watchRules = false;
+		if (type == Constants.WATCH_ALL) {
+			this.agendas.setWatchActivations(false);
+			this.modules.setWatchFact(false);
+			this.modules.setWatchRules(false);
+		} else if (type == Constants.WATCH_ACTIVATIONS) {
+			this.agendas.setWatchActivations(false);
+		} else if (type == Constants.WATCH_FACTS) {
+			this.modules.setWatchFact(false);
+		} else if (type == Constants.WATCH_RULES) {
+			this.modules.setWatchRules(false);
 		}
 	}
 
@@ -468,21 +443,21 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 	 * @param type
 	 */
 	public void setProfile(int type) {
-		if (type == PROFILE_ADD_ACTIVATION) {
+		if (type == Constants.PROFILE_ADD_ACTIVATION) {
 			this.agendas.setProfileAdd(true);
-		} else if (type == PROFILE_ASSERT) {
+		} else if (type == Constants.PROFILE_ASSERT) {
 			this.profileAssert = true;
-		} else if (type == PROFILE_ALL) {
+		} else if (type == Constants.PROFILE_ALL) {
 			this.agendas.setProfileAdd(true);
 			this.profileAssert = true;
 			this.profileFire = true;
 			this.profileRetract = true;
 			this.agendas.setProfileRemove(true);
-		} else if (type == PROFILE_FIRE) {
+		} else if (type == Constants.PROFILE_FIRE) {
 			this.profileFire = true;
-		} else if (type == PROFILE_RETRACT) {
+		} else if (type == Constants.PROFILE_RETRACT) {
 			this.profileRetract = true;
-		} else if (type == PROFILE_RM_ACTIVATION) {
+		} else if (type == Constants.PROFILE_RM_ACTIVATION) {
 			this.agendas.setProfileRemove(true);
 		}
 	}
@@ -494,21 +469,21 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 	 * @param type
 	 */
 	public void setProfileOff(int type) {
-		if (type == PROFILE_ADD_ACTIVATION) {
+		if (type == Constants.PROFILE_ADD_ACTIVATION) {
 			this.agendas.setProfileAdd(false);
-		} else if (type == PROFILE_ASSERT) {
+		} else if (type == Constants.PROFILE_ASSERT) {
 			this.profileAssert = false;
-		} else if (type == PROFILE_ALL) {
+		} else if (type == Constants.PROFILE_ALL) {
 			this.agendas.setProfileAdd(false);
 			this.profileAssert = false;
 			this.profileFire = false;
 			this.profileRetract = false;
 			this.agendas.setProfileRemove(false);
-		} else if (type == PROFILE_FIRE) {
+		} else if (type == Constants.PROFILE_FIRE) {
 			this.profileFire = false;
-		} else if (type == PROFILE_RETRACT) {
+		} else if (type == Constants.PROFILE_RETRACT) {
 			this.profileRetract = false;
-		} else if (type == PROFILE_RM_ACTIVATION) {
+		} else if (type == Constants.PROFILE_RM_ACTIVATION) {
 			this.agendas.setProfileRemove(false);
 		}
 	}
@@ -570,8 +545,7 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 	 */
 	public void writeMessage(String msg, String output) {
 		MessageRouter router = getMessageRouter();
-		router.postMessageEvent(new MessageEvent(MessageEvent.ENGINE, msg, "t"
-				.equals(output) ? router.getCurrentChannelId() : output));
+		router.postMessageEvent(new MessageEvent(MessageEvent.ENGINE, msg, "t".equals(output) ? router.getCurrentChannelId() : output));
 		for (PrintWriter wr : outputStreams.values()) {
 			wr.write(msg);
 			wr.flush();
@@ -597,13 +571,10 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 	 */
 	public void assertEvent(BaseNode node, Fact fact) {
 		if (debug) {
-			System.out.println("\"assert at nodeid=" + node.getNodeId() + " - "
-					+ node.toString().replaceAll("\"", "'") + ":: with fact -"
-					+ fact.toFactString().replaceAll("\"", "'") + "::\"");
+			System.out.println("\"assert at nodeid=" + node.getNodeId() + " - " + node.toString().replaceAll("\"", "'") + ":: with fact -" + fact.toFactString().replaceAll("\"", "'") + "::\"");
 		}
 		for (EngineEventListener eel : listeners) {
-			eel.eventOccurred(new EngineEvent(this, EngineEvent.ASSERT_EVENT,
-					node, new Fact[] { fact }));
+			eel.eventOccurred(new EngineEvent(this, EngineEvent.ASSERT_EVENT, node, new Fact[] { fact }));
 		}
 	}
 
@@ -612,16 +583,14 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 			System.out.println("\"new rule added=" + rule.toString());
 		}
 		for (EngineEventListener eel : listeners) {
-			eel.eventOccurred(new EngineEvent(this, EngineEvent.NEWRULE_EVENT,
-					rule));
+			eel.eventOccurred(new EngineEvent(this, EngineEvent.NEWRULE_EVENT, rule));
 		}
 	}
 
 	public void assertEvent(BaseNode node, Fact[] facts) {
 		if (debug) {
 			if (node instanceof TerminalNode) {
-				System.out.println(((TerminalNode) node).getRule().getName()
-						+ " fired");
+				System.out.println(((TerminalNode) node).getRule().getName() + " fired");
 			} else {
 
 			}
@@ -629,8 +598,7 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 		Iterator<EngineEventListener> itr = this.listeners.iterator();
 		while (itr.hasNext()) {
 			EngineEventListener eel = itr.next();
-			eel.eventOccurred(new EngineEvent(this, EngineEvent.ASSERT_EVENT,
-					node, facts));
+			eel.eventOccurred(new EngineEvent(this, EngineEvent.ASSERT_EVENT, node, facts));
 		}
 	}
 
@@ -642,8 +610,7 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 	 */
 	public void retractEvent(BaseNode node, Fact fact) {
 		for (EngineEventListener eel : listeners) {
-			eel.eventOccurred(new EngineEvent(this, EngineEvent.RETRACT_EVENT,
-					node, new Fact[] { fact }));
+			eel.eventOccurred(new EngineEvent(this, EngineEvent.RETRACT_EVENT, node, new Fact[] { fact }));
 		}
 	}
 
@@ -654,8 +621,7 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 	 */
 	public void retractEvent(BaseNode node, Fact[] facts) {
 		for (EngineEventListener eel : listeners) {
-			eel.eventOccurred(new EngineEvent(this, EngineEvent.ASSERT_EVENT,
-					node, facts));
+			eel.eventOccurred(new EngineEvent(this, EngineEvent.ASSERT_EVENT, node, facts));
 		}
 	}
 
@@ -674,8 +640,7 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 	 * @param shadow
 	 * @throws AssertException
 	 */
-	public void assertObject(Object data, String template, boolean statc,
-			boolean shadow) throws AssertException {
+	public void assertObject(Object data, String template, boolean statc, boolean shadow) throws AssertException {
 		// TODO: we don't support Classes
 	}
 
@@ -709,28 +674,13 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 	 */
 	public Fact assertFact(Fact fact) throws AssertException {
 		if (this.profileAssert) {
-			this.assertFactWProfile(fact);
+			ProfileStats.startAssert();
+			this.net.assertObject(fact);
+			ProfileStats.endAssert();
 		} else {
-			if (watchFact) {
-				this.writeMessage("==> " + fact.toFactString()
-						+ Constants.LINEBREAK, "t");
-			}
 			this.net.assertObject(fact);
 		}
 		return fact;
-	}
-
-	/**
-	 * Assert with profiling will use the ProfileStats class to measure the time
-	 * to assert facts
-	 * 
-	 * @param fact
-	 * @throws AssertException
-	 */
-	protected void assertFactWProfile(Fact fact) throws AssertException {
-		ProfileStats.startAssert();
-		this.net.assertObject(fact);
-		ProfileStats.endAssert();
 	}
 
 	/**
@@ -753,25 +703,12 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 	public void retractFact(Fact fact) throws RetractException {
 		this.modules.removeFact(fact);
 		if (this.profileRetract) {
-			this.retractFactWProfile(fact);
+			ProfileStats.startRetract();
+			this.net.retractObject(fact);
+			ProfileStats.endRetract();
 		} else {
-			if (watchFact) {
-				this.writeMessage("<== " + fact.toFactString()
-						+ Constants.LINEBREAK, "t");
-			}
 			this.net.retractObject(fact);
 		}
-	}
-
-	/**
-	 * 
-	 * @param fact
-	 * @throws RetractException
-	 */
-	protected void retractFactWProfile(Fact fact) throws RetractException {
-		ProfileStats.startRetract();
-		this.net.retractObject(fact);
-		ProfileStats.endRetract();
 	}
 
 	/**
@@ -786,8 +723,7 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 
 	// TODO not really efficient to pre-traverse the whole slot-list just for
 	// determining whether we must retract/assert or not
-	public void modifyFact(Fact old, ModifyConfiguration mc)
-			throws EvaluationException {
+	public void modifyFact(Fact old, ModifyConfiguration mc) throws EvaluationException {
 		boolean allSilent = true;
 
 		for (SlotConfiguration slot : mc.getSlots()) {
@@ -834,10 +770,10 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 	public void resetFacts() {
 		try {
 			List<Fact> facts = this.modules.getAllFacts();
-			for (Fact ft: facts) {
+			for (Fact ft : facts) {
 				this.net.retractObject(ft);
 			}
-			for (Fact ft: facts) {
+			for (Fact ft : facts) {
 				this.net.assertObject(ft);
 			}
 		} catch (RetractException e) {
@@ -859,8 +795,7 @@ public class Rete implements PropertyChangeListener, CompilerListener,
 	 * @return
 	 */
 	protected Fact createNSFact(Object data, Defclass dclass, long id) {
-		Deftemplate dft = (Deftemplate) getCurrentFocus().getTemplate(
-				dclass.getClassObject().getName());
+		Deftemplate dft = (Deftemplate) getCurrentFocus().getTemplate(dclass.getClassObject().getName());
 		NSFact fact = new NSFact(dft, dclass, data, dft.getAllSlots(), id);
 		return fact;
 	}

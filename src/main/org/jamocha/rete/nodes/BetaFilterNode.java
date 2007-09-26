@@ -142,7 +142,7 @@ public class BetaFilterNode extends AbstractBeta {
 		if (!(other instanceof BetaFilterNode))
 			return false;
 
-		// check sam parents:
+		// check same parents:
 		boolean result = this.parentNodes.length == other.parentNodes.length;
 		if (result) {
 			for (BaseNode n1 : this.parentNodes) {

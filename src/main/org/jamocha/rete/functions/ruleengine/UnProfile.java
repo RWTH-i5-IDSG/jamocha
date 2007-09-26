@@ -19,6 +19,7 @@ package org.jamocha.rete.functions.ruleengine;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
+import org.jamocha.rete.Constants;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.functions.AbstractFunction;
@@ -101,17 +102,17 @@ public class UnProfile extends AbstractFunction {
 			for (int idx = 0; idx < params.length; idx++) {
 				JamochaValue param = params[idx].getValue(engine);
 				if (param.getStringValue().equals("all")) {
-					engine.setProfile(Rete.PROFILE_ALL);
+					engine.setProfile(Constants.PROFILE_ALL);
 				} else if (param.getStringValue().equals("assert-fact")) {
-					engine.setProfile(Rete.PROFILE_ASSERT);
+					engine.setProfile(Constants.PROFILE_ASSERT);
 				} else if (param.getStringValue().equals("add-activation")) {
-					engine.setProfile(Rete.PROFILE_ADD_ACTIVATION);
+					engine.setProfile(Constants.PROFILE_ADD_ACTIVATION);
 				} else if (param.getStringValue().equals("fire")) {
-					engine.setProfile(Rete.PROFILE_FIRE);
+					engine.setProfile(Constants.PROFILE_FIRE);
 				} else if (param.getStringValue().equals("retract-fact")) {
-					engine.setProfile(Rete.PROFILE_RETRACT);
+					engine.setProfile(Constants.PROFILE_RETRACT);
 				} else if (param.getStringValue().equals("remove-activation")) {
-					engine.setProfile(Rete.PROFILE_RM_ACTIVATION);
+					engine.setProfile(Constants.PROFILE_RM_ACTIVATION);
 				}
 			}
 		}

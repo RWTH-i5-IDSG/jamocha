@@ -22,6 +22,7 @@ import java.util.Iterator;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
+import org.jamocha.rete.Constants;
 import org.jamocha.rete.Deffact;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
@@ -107,7 +108,7 @@ public class TestRule extends AbstractFunction {
 			ArrayList<Object> facts = GenerateFacts.generateFacts(r, engine);
 			if (facts.size() > 0) {
 				try {
-					engine.setWatch(Rete.WATCH_ALL);
+					engine.setWatch(Constants.WATCH_ALL);
 					Iterator<Object> itr = facts.iterator();
 					while (itr.hasNext()) {
 						Object data = itr.next();
@@ -118,7 +119,7 @@ public class TestRule extends AbstractFunction {
 						}
 					}
 					engine.fire();
-					engine.setUnWatch(Rete.WATCH_ALL);
+					engine.setUnWatch(Constants.WATCH_ALL);
 					result = JamochaValue.TRUE;
 				} catch (AssertException e) {
 					throw new EvaluationException("Error during assert. ",e);

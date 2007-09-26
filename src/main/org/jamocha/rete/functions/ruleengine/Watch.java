@@ -19,6 +19,7 @@ package org.jamocha.rete.functions.ruleengine;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
+import org.jamocha.rete.Constants;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.functions.AbstractFunction;
@@ -43,7 +44,7 @@ public class Watch extends AbstractFunction {
 		}
 
 		public String getParameterDescription(int parameter) {
-			return "What to watch. One or several of: all, facts, activations or rules.";
+			return "What to watch. One or several of: all, facts, activations, rules or none." + "Value is not stored. If you want to do so use (set) function or GUI settings instead.";
 		}
 
 		public String getParameterName(int parameter) {
@@ -67,9 +68,7 @@ public class Watch extends AbstractFunction {
 		}
 
 		public String getExample() {
-			return "(watch facts)\n" +
-					"(deftemplate templ2 (slot name))\n" +
-					"(assert (templ2 (name test1)) (templ2 (name test2)))";
+			return "(watch facts)\n" + "(deftemplate templ2 (slot name))\n" + "(assert (templ2 (name test1)) (templ2 (name test2)))";
 		}
 
 		public boolean isResultAutoGeneratable() {
@@ -91,14 +90,12 @@ public class Watch extends AbstractFunction {
 		return NAME;
 	}
 
-	public JamochaValue executeFunction(Rete engine, Parameter[] params)
-			throws EvaluationException {
+	public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
 		if (params != null) {
 			// the params are not null, now check the parameter count
 			if (params.length > 0) {
 				for (int idx = 0; idx < params.length; idx++) {
-					String cmd = params[idx].getValue(engine)
-							.getIdentifierValue();
+					String cmd = params[idx].getValue(engine).getIdentifierValue();
 					setWatch(engine, cmd);
 				}
 			} else {
@@ -108,15 +105,19 @@ public class Watch extends AbstractFunction {
 		return JamochaValue.NIL;
 	}
 
-	protected void setWatch(Rete engine, String cmd) {
+	protected boolean setWatch(Rete engine, String cmd) {
+		boolean result = true;
 		if (cmd.equals("all")) {
-			engine.setWatch(Rete.WATCH_ALL);
+			engine.setWatch(Constants.WATCH_ALL);
 		} else if (cmd.equals("facts")) {
-			engine.setWatch(Rete.WATCH_FACTS);
+			engine.setWatch(Constants.WATCH_FACTS);
 		} else if (cmd.equals("activations")) {
-			engine.setWatch(Rete.WATCH_ACTIVATIONS);
+			engine.setWatch(Constants.WATCH_ACTIVATIONS);
 		} else if (cmd.equals("rules")) {
-			engine.setWatch(Rete.WATCH_RULES);
+			engine.setWatch(Constants.WATCH_RULES);
+		} else {
+			result = false;
 		}
+		return result;
 	}
 }
