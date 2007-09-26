@@ -20,6 +20,7 @@ package org.jamocha.settings;
  * @author Sebastian Reinartz
  */
 public interface SettingsChangedListener {
+	//TODO: mabe change propertyName to const int.
 	void settingsChanged(String propertyName);
 
 }

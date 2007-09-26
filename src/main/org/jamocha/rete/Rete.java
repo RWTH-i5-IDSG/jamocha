@@ -53,6 +53,7 @@ import org.jamocha.rete.nodes.TerminalNode;
 import org.jamocha.rete.util.ProfileStats;
 import org.jamocha.rule.Rule;
 import org.jamocha.settings.JamochaSettings;
+import org.jamocha.settings.SettingsChangedListener;
 
 /**
  * @author Peter Lin
@@ -60,9 +61,17 @@ import org.jamocha.settings.JamochaSettings;
  * This is the main Rete engine class. For now it's called Rete, but I may
  * change it to Engine to be more generic.
  */
-public class Rete implements PropertyChangeListener, CompilerListener, Serializable {
+public class Rete implements SettingsChangedListener, PropertyChangeListener, CompilerListener, Serializable {
+
+	private static final String WATCH_RULES = "engine.general_settings.watch_rules";
+
+	private static final String WATCH_FACTS = "engine.general_settings.watch_facts";
+
+	private static final String WATCH_ACTIVATIONS = "engine.general_settings.watch_activations";
 
 	private static final long serialVersionUID = 1L;
+
+	private String[] interestedProperties = { WATCH_RULES, WATCH_FACTS, WATCH_ACTIVATIONS };
 
 	protected ArrayList focusStack = new ArrayList();
 
@@ -117,7 +126,6 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 	public Rete() {
 		super();
 
-		JamochaSettings.getInstance();
 		this.net = new ReteNet(this);
 		this.functionMem = new FunctionMemoryImpl(this);
 		this.agendas = new Agendas(this);
@@ -132,6 +140,7 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 		modules = new Modules(this);
 		functionMem.init();
 		declareInitialFact();
+		JamochaSettings.getInstance().addListener(this, interestedProperties);
 	}
 
 	protected void startLog() {
@@ -936,5 +945,19 @@ public class Rete implements PropertyChangeListener, CompilerListener, Serializa
 			return path.split(System.getProperty("path.separator"));
 		}
 		return null;
+	}
+
+	public void settingsChanged(String propertyName) {
+		JamochaSettings settings = JamochaSettings.getInstance();
+		// watch activations
+		if (propertyName.equals(WATCH_ACTIVATIONS)) {
+			agendas.setWatchActivations(settings.getBoolean(propertyName));
+			// watch facts
+		} else if (propertyName.equals(WATCH_FACTS)) {
+			modules.setWatchFact(settings.getBoolean(propertyName));
+			// watch rules
+		} else if (propertyName.equals(WATCH_RULES)) {
+			modules.setWatchRules(settings.getBoolean(propertyName));
+		}
 	}
 }
