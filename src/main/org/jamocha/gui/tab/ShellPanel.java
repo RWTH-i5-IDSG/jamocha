@@ -60,7 +60,6 @@ import org.jamocha.messagerouter.StreamChannel;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Constants;
 import org.jamocha.rete.functions.Function;
-import org.jamocha.settings.JamochaSettings;
 import org.jamocha.settings.SettingsChangedListener;
 
 /**

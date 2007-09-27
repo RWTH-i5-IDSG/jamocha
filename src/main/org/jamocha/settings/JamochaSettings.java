@@ -31,6 +31,25 @@ import java.util.prefs.Preferences;
  * @author Sebastian Reinartz, Alexander Wilden
  */
 public class JamochaSettings {
+	
+	public static final String ENGINE_GENERAL_SETTINGS_WATCH_RULES = "engine.general_settings.watch_rules";
+
+	public static final String ENGINE_GENERAL_SETTINGS_WATCH_FACTS = "engine.general_settings.watch_facts";
+
+	public static final String ENGINE_GENERAL_SETTINGS_WATCH_ACTIVATIONS = "engine.general_settings.watch_activations";
+
+	public static final String ENGINE_GENERAL_SETTINGS_PROFILE_REMOVE_ACTIVATION = "engine.general_settings.profile_remove_activation";
+
+	public static final String ENGINE_GENERAL_SETTINGS_PROFILE_ADD_ACTIVATION = "engine.general_settings.profile_add_activation";
+
+	public static final String ENGINE_GENERAL_SETTINGS_PROFILE_FIRE = "engine.general_settings.profile_fire";
+
+	public static final String ENGINE_GENERAL_SETTINGS_PROFILE_RETRACT = "engine.general_settings.profile_retract";
+
+	public static final String ENGINE_GENERAL_SETTINGS_PROFILE_ASSERT = "engine.general_settings.profile_assert";
+
+	public static final String ENGINE_GENERAL_SETTINGS_EVALUATION = "engine.general_settings.evaluation";
+
 
 	private static JamochaSettings singleton = null;
 

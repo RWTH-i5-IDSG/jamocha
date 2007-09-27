@@ -77,15 +77,8 @@ public class SettingsPanel extends AbstractJamochaPanel implements
 		buttonPanel.add(allDefaultButton);
 		add(buttonPanel, BorderLayout.SOUTH);
 
-		loadSettings();
-
 	}
 
-	private void loadSettings() {
-		for (AbstractSettingsPanel panel : panels) {
-			panel.loadSettings();
-		}
-	}
 
 	public void close() {
 	}

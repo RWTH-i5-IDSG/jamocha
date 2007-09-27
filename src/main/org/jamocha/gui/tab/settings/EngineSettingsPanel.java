@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 Karl-Heinz Krempels, Alexander Wilden
+ * Copyright 2007 Karl-Heinz Krempels, Sebastian Reinartz, Alexander Wilden
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,18 +35,18 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
 import org.jamocha.gui.JamochaGui;
-import org.jamocha.messagerouter.StringChannel;
 import org.jamocha.rete.agenda.ConflictResolutionStrategy;
 import org.jamocha.rete.modules.Module;
+import org.jamocha.settings.JamochaSettings;
 
 /**
  * This Panel allows changes in the engines settings.
  * 
  * @author Karl-Heinz Krempels <krempels@cs.rwth-aachen.de>
+ * @author Sebastian Reinartz <sebastian@beggendorf.de>
  * @author Alexander Wilden <october.rust@gmx.de>
  */
-public class EngineSettingsPanel extends AbstractSettingsPanel implements
-		ActionListener {
+public class EngineSettingsPanel extends AbstractSettingsPanel implements ActionListener {
 
 	private static final long serialVersionUID = -7136144663514250335L;
 
@@ -89,8 +89,7 @@ public class EngineSettingsPanel extends AbstractSettingsPanel implements
 
 		JPanel generalSettingsPanel = new JPanel();
 		generalSettingsPanel.setLayout(gridbag);
-		generalSettingsPanel.setBorder(BorderFactory
-				.createTitledBorder("General Settings"));
+		generalSettingsPanel.setBorder(BorderFactory.createTitledBorder("General Settings"));
 
 		// Evaluation
 		addLabel(generalSettingsPanel, new JLabel("Evaluation"), gridbag, c, 0);
@@ -102,30 +101,25 @@ public class EngineSettingsPanel extends AbstractSettingsPanel implements
 		addInputComponent(generalSettingsPanel, evaluationPanel, gridbag, c, 0);
 
 		// Profile Assert
-		addLabel(generalSettingsPanel, new JLabel("Profile Assert:"), gridbag,
-				c, 1);
+		addLabel(generalSettingsPanel, new JLabel("Profile Assert:"), gridbag, c, 1);
 		JPanel profileAssertPanel = new JPanel(new BorderLayout());
 
 		profileAssertCheckBox = new JCheckBox();
 		profileAssertCheckBox.addActionListener(this);
 		profileAssertPanel.add(profileAssertCheckBox, BorderLayout.WEST);
-		addInputComponent(generalSettingsPanel, profileAssertPanel, gridbag, c,
-				1);
+		addInputComponent(generalSettingsPanel, profileAssertPanel, gridbag, c, 1);
 
 		// Profile Retract
-		addLabel(generalSettingsPanel, new JLabel("Profile Retract:"), gridbag,
-				c, 2);
+		addLabel(generalSettingsPanel, new JLabel("Profile Retract:"), gridbag, c, 2);
 		JPanel profileRetractPanel = new JPanel(new BorderLayout());
 
 		profileRetractCheckBox = new JCheckBox();
 		profileRetractCheckBox.addActionListener(this);
 		profileRetractPanel.add(profileRetractCheckBox, BorderLayout.WEST);
-		addInputComponent(generalSettingsPanel, profileRetractPanel, gridbag,
-				c, 2);
+		addInputComponent(generalSettingsPanel, profileRetractPanel, gridbag, c, 2);
 
 		// Profile Fire
-		addLabel(generalSettingsPanel, new JLabel("Profile Fire:"), gridbag, c,
-				3);
+		addLabel(generalSettingsPanel, new JLabel("Profile Fire:"), gridbag, c, 3);
 		JPanel profileFirePanel = new JPanel(new BorderLayout());
 
 		profileFireCheckBox = new JCheckBox();
@@ -134,43 +128,34 @@ public class EngineSettingsPanel extends AbstractSettingsPanel implements
 		addInputComponent(generalSettingsPanel, profileFirePanel, gridbag, c, 3);
 
 		// Profile Add Activation
-		addLabel(generalSettingsPanel, new JLabel("Profile Add Activation:"),
-				gridbag, c, 4);
+		addLabel(generalSettingsPanel, new JLabel("Profile Add Activation:"), gridbag, c, 4);
 		JPanel profileAddActivationPanel = new JPanel(new BorderLayout());
 
 		profileAddActivationCheckBox = new JCheckBox();
 		profileAddActivationCheckBox.addActionListener(this);
-		profileAddActivationPanel.add(profileAddActivationCheckBox,
-				BorderLayout.WEST);
-		addInputComponent(generalSettingsPanel, profileAddActivationPanel,
-				gridbag, c, 4);
+		profileAddActivationPanel.add(profileAddActivationCheckBox, BorderLayout.WEST);
+		addInputComponent(generalSettingsPanel, profileAddActivationPanel, gridbag, c, 4);
 
 		// Profile Remove Activation
-		addLabel(generalSettingsPanel,
-				new JLabel("Profile Remove Activation:"), gridbag, c, 5);
+		addLabel(generalSettingsPanel, new JLabel("Profile Remove Activation:"), gridbag, c, 5);
 		JPanel profileRemoveActivationPanel = new JPanel(new BorderLayout());
 
 		profileRemoveActivationCheckBox = new JCheckBox();
 		profileRemoveActivationCheckBox.addActionListener(this);
-		profileRemoveActivationPanel.add(profileRemoveActivationCheckBox,
-				BorderLayout.WEST);
-		addInputComponent(generalSettingsPanel, profileRemoveActivationPanel,
-				gridbag, c, 5);
+		profileRemoveActivationPanel.add(profileRemoveActivationCheckBox, BorderLayout.WEST);
+		addInputComponent(generalSettingsPanel, profileRemoveActivationPanel, gridbag, c, 5);
 
 		// Activations
-		addLabel(generalSettingsPanel, new JLabel("Watch Activations:"),
-				gridbag, c, 6);
+		addLabel(generalSettingsPanel, new JLabel("Watch Activations:"), gridbag, c, 6);
 		JPanel watchActivationsPanel = new JPanel(new BorderLayout());
 
 		watchActivationsCheckBox = new JCheckBox();
 		watchActivationsCheckBox.addActionListener(this);
 		watchActivationsPanel.add(watchActivationsCheckBox, BorderLayout.WEST);
-		addInputComponent(generalSettingsPanel, watchActivationsPanel, gridbag,
-				c, 6);
+		addInputComponent(generalSettingsPanel, watchActivationsPanel, gridbag, c, 6);
 
 		// Facts
-		addLabel(generalSettingsPanel, new JLabel("Watch Facts:"), gridbag, c,
-				7);
+		addLabel(generalSettingsPanel, new JLabel("Watch Facts:"), gridbag, c, 7);
 		JPanel watchFactsPanel = new JPanel(new BorderLayout());
 
 		watchFactsCheckBox = new JCheckBox();
@@ -179,8 +164,7 @@ public class EngineSettingsPanel extends AbstractSettingsPanel implements
 		addInputComponent(generalSettingsPanel, watchFactsPanel, gridbag, c, 7);
 
 		// Rules
-		addLabel(generalSettingsPanel, new JLabel("Watch Rules:"), gridbag, c,
-				8);
+		addLabel(generalSettingsPanel, new JLabel("Watch Rules:"), gridbag, c, 8);
 		JPanel watchRulesPanel = new JPanel(new BorderLayout());
 
 		watchRulesCheckBox = new JCheckBox();
@@ -200,12 +184,10 @@ public class EngineSettingsPanel extends AbstractSettingsPanel implements
 
 		JPanel moduleSettingsPanel = new JPanel();
 		moduleSettingsPanel.setLayout(gridbag);
-		moduleSettingsPanel.setBorder(BorderFactory
-				.createTitledBorder("Strategy Settings"));
+		moduleSettingsPanel.setBorder(BorderFactory.createTitledBorder("Strategy Settings"));
 
 		// Setting for main (is the default)
-		addLabel(moduleSettingsPanel, new JLabel("Strategy for MAIN:"),
-				gridbag, c, 0);
+		addLabel(moduleSettingsPanel, new JLabel("Strategy for MAIN:"), gridbag, c, 0);
 		JPanel strategyPanelMain = new JPanel(new BorderLayout());
 
 		strategySelectorMain = new JComboBox();
@@ -214,8 +196,7 @@ public class EngineSettingsPanel extends AbstractSettingsPanel implements
 		addInputComponent(moduleSettingsPanel, strategyPanelMain, gridbag, c, 0);
 
 		// Preselect the module
-		addLabel(moduleSettingsPanel, new JLabel("Other Modules:"), gridbag, c,
-				1);
+		addLabel(moduleSettingsPanel, new JLabel("Other Modules:"), gridbag, c, 1);
 		JPanel modulePanel = new JPanel(new BorderLayout());
 
 		moduleSelector = new JComboBox();
@@ -242,8 +223,7 @@ public class EngineSettingsPanel extends AbstractSettingsPanel implements
 		attentionField.setEditable(false);
 		attentionField.setBorder(BorderFactory.createEmptyBorder());
 		attentionField.setBackground(gui.getBackground());
-		attentionField
-				.setText("Changes you make here are lost after a restart.\nOnly the settings for MAIN-module are made persistent.");
+		attentionField.setText("Changes you make here are lost after a restart.\nOnly the settings for MAIN-module are made persistent.");
 
 		addInputComponent(moduleSettingsPanel, attentionField, gridbag, c, 3);
 
@@ -257,112 +237,80 @@ public class EngineSettingsPanel extends AbstractSettingsPanel implements
 		initStrategySelectorMain();
 		initModuleSelector();
 		initStrategySelector();
-	}
 
-	@Override
-	public void loadSettings() {
-//		String strategyName = gui.getPreferences().get("engine.mainStrategy",
-//				"-empty-");
-//		if (!strategyName.equals("-empty-")) {
-//			Module module = gui.getEngine().getModule("MAIN");
-//			try {
-//				gui.getEngine().getAgendas().getAgenda(module)
-//						.setConflictResolutionStrategy(
-//								ConflictResolutionStrategy
-//										.getStrategy(strategyName));
-//			} catch (InstantiationException e) {
-//				JOptionPane.showMessageDialog(this, e,
-//						"Error setting the strategy for MAIN.",
-//						JOptionPane.ERROR_MESSAGE);
-//			} catch (IllegalAccessException e) {
-//				JOptionPane.showMessageDialog(this, e,
-//						"Error setting the strategy for MAIN.",
-//						JOptionPane.ERROR_MESSAGE);
-//			}
-//		}
+		// check boxes:
+		evaluationCheckBox.setSelected(settings.getBoolean(JamochaSettings.ENGINE_GENERAL_SETTINGS_EVALUATION));
+		profileAssertCheckBox.setSelected(settings.getBoolean(JamochaSettings.ENGINE_GENERAL_SETTINGS_PROFILE_ASSERT));
+		profileRetractCheckBox.setSelected(settings.getBoolean(JamochaSettings.ENGINE_GENERAL_SETTINGS_PROFILE_RETRACT));
+		profileFireCheckBox.setSelected(settings.getBoolean(JamochaSettings.ENGINE_GENERAL_SETTINGS_PROFILE_FIRE));
+		profileAddActivationCheckBox.setSelected(settings.getBoolean(JamochaSettings.ENGINE_GENERAL_SETTINGS_PROFILE_ADD_ACTIVATION));
+		profileRemoveActivationCheckBox.setSelected(settings.getBoolean(JamochaSettings.ENGINE_GENERAL_SETTINGS_PROFILE_REMOVE_ACTIVATION));
+		watchActivationsCheckBox.setSelected(settings.getBoolean(JamochaSettings.ENGINE_GENERAL_SETTINGS_WATCH_ACTIVATIONS));
+		watchFactsCheckBox.setSelected(settings.getBoolean(JamochaSettings.ENGINE_GENERAL_SETTINGS_WATCH_FACTS));
+		watchRulesCheckBox.setSelected(settings.getBoolean(JamochaSettings.ENGINE_GENERAL_SETTINGS_WATCH_RULES));
+
 	}
 
 	public void actionPerformed(ActionEvent event) {
 
-		StringChannel guiStringChannel = gui.getStringChannel();
-
+		// checkboxes:
 		if (event.getSource() == evaluationCheckBox) {
-			if (evaluationCheckBox.isSelected())
-				guiStringChannel.executeCommand("(watch evaluation)");
-			else
-				guiStringChannel.executeCommand("(unwatch evaluation)");
+			performSettingsChange(JamochaSettings.ENGINE_GENERAL_SETTINGS_EVALUATION, evaluationCheckBox.isSelected());
 		} else if (event.getSource() == profileAssertCheckBox) {
-			if (profileAssertCheckBox.isSelected())
-				guiStringChannel.executeCommand("(profile assert)");
-			else
-				guiStringChannel.executeCommand("(unprofile assert)");
+			performSettingsChange(JamochaSettings.ENGINE_GENERAL_SETTINGS_PROFILE_ASSERT, profileAssertCheckBox.isSelected());
 		} else if (event.getSource() == profileRetractCheckBox) {
-			if (profileRetractCheckBox.isSelected())
-				guiStringChannel.executeCommand("(profile retract)");
-			else
-				guiStringChannel.executeCommand("(unprofile retract)");
+			performSettingsChange(JamochaSettings.ENGINE_GENERAL_SETTINGS_PROFILE_RETRACT, profileRetractCheckBox.isSelected());
 		} else if (event.getSource() == profileFireCheckBox) {
-			if (profileFireCheckBox.isSelected())
-				guiStringChannel.executeCommand("(profile fire)");
-			else
-				guiStringChannel.executeCommand("(unprofile fire)");
+			performSettingsChange(JamochaSettings.ENGINE_GENERAL_SETTINGS_PROFILE_FIRE, profileFireCheckBox.isSelected());
 		} else if (event.getSource() == profileAddActivationCheckBox) {
-			if (profileAddActivationCheckBox.isSelected())
-				guiStringChannel.executeCommand("(profile add-activation)");
-			else
-				guiStringChannel.executeCommand("(unprofile add-activation)");
+			performSettingsChange(JamochaSettings.ENGINE_GENERAL_SETTINGS_PROFILE_ADD_ACTIVATION, profileAddActivationCheckBox.isSelected());
 		} else if (event.getSource() == profileRemoveActivationCheckBox) {
-			if (profileRemoveActivationCheckBox.isSelected())
-				guiStringChannel.executeCommand("(profile remove-activation)");
-			else
-				guiStringChannel
-						.executeCommand("(unprofile remove-activation)");
+			performSettingsChange(JamochaSettings.ENGINE_GENERAL_SETTINGS_PROFILE_REMOVE_ACTIVATION, profileRemoveActivationCheckBox.isSelected());
 		} else if (event.getSource() == watchActivationsCheckBox) {
-			if (profileRemoveActivationCheckBox.isSelected())
-				guiStringChannel.executeCommand("(watch activations)");
-			else
-				guiStringChannel.executeCommand("(unwatch activations)");
+			performSettingsChange(JamochaSettings.ENGINE_GENERAL_SETTINGS_WATCH_ACTIVATIONS, watchActivationsCheckBox.isSelected());
 		} else if (event.getSource() == watchFactsCheckBox) {
-			if (profileRemoveActivationCheckBox.isSelected())
-				guiStringChannel.executeCommand("(watch facts)");
-			else
-				guiStringChannel.executeCommand("(unwatch facts)");
+			performSettingsChange(JamochaSettings.ENGINE_GENERAL_SETTINGS_WATCH_FACTS, watchFactsCheckBox.isSelected());
 		} else if (event.getSource() == watchRulesCheckBox) {
-			if (profileRemoveActivationCheckBox.isSelected())
-				guiStringChannel.executeCommand("(watch rules)");
-			else
-				guiStringChannel.executeCommand("(unwatch rules)");
-		} else if (event.getSource().equals(moduleSelector)) {
+			performSettingsChange(JamochaSettings.ENGINE_GENERAL_SETTINGS_WATCH_RULES, watchRulesCheckBox.isSelected());
+		}
+		// combo boxes:
+		else if (event.getSource().equals(moduleSelector)) {
 			initStrategySelector();
 		} else if (event.getSource().equals(strategySelector)) {
-			if (strategySelector.getSelectedItem() != null
-					&& moduleSelector.getSelectedItem() != null) {
-				String strategyName = strategySelector.getSelectedItem()
-						.toString();
+			if (strategySelector.getSelectedItem() != null && moduleSelector.getSelectedItem() != null) {
+				String strategyName = strategySelector.getSelectedItem().toString();
 				String moduleName = moduleSelector.getSelectedItem().toString();
 				Module module = gui.getEngine().getModule(moduleName);
 				try {
-					gui.getEngine().getAgendas().getAgenda(module)
-							.setConflictResolutionStrategy(
-									ConflictResolutionStrategy
-											.getStrategy(strategyName));
+					gui.getEngine().getAgendas().getAgenda(module).setConflictResolutionStrategy(ConflictResolutionStrategy.getStrategy(strategyName));
 				} catch (InstantiationException e) {
-					JOptionPane.showMessageDialog(this, e,
-							"Error setting the strategy.",
-							JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(this, e, "Error setting the strategy.", JOptionPane.ERROR_MESSAGE);
 				} catch (IllegalAccessException e) {
-					JOptionPane.showMessageDialog(this, e,
-							"Error setting the strategy.",
-							JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(this, e, "Error setting the strategy.", JOptionPane.ERROR_MESSAGE);
 				}
 			}
 		}
 	}
 
+	private void performSettingsChange(String settingName, boolean newValue) {
+		// TODO: do we should use chanel to perform changes or write directly to
+		// settings object?
+		// care for threads!!
+		StringBuilder command = new StringBuilder();
+		// build statement:
+		command.append("(set ");
+		command.append(settingName);
+		command.append(" ");
+		command.append(newValue);
+		command.append(" )");
+
+		// execute:
+		gui.getStringChannel().executeCommand(command.toString());
+	}
+
 	private void initModuleSelector() {
 		moduleSelector.removeAllItems();
-		Collection<Module> modules = gui.getEngine().getModules()
-				.getModuleList();
+		Collection<Module> modules = gui.getEngine().getModules().getModuleList();
 		for (Module module : modules) {
 			if (!module.getModuleName().equals("MAIN"))
 				moduleSelector.addItem(module.getModuleName());
@@ -382,9 +330,7 @@ public class EngineSettingsPanel extends AbstractSettingsPanel implements
 			strategySelector.setEnabled(true);
 			String moduleName = moduleSelector.getSelectedItem().toString();
 			Module module = gui.getEngine().getModule(moduleName);
-			ConflictResolutionStrategy currentStrategy = gui.getEngine()
-					.getAgendas().getAgenda(module)
-					.getConflictResolutionStrategy();
+			ConflictResolutionStrategy currentStrategy = gui.getEngine().getAgendas().getAgenda(module).getConflictResolutionStrategy();
 			Set<String> strategies = ConflictResolutionStrategy.getStrategies();
 			for (String strategyName : strategies) {
 				strategySelector.addItem(strategyName);
@@ -401,8 +347,7 @@ public class EngineSettingsPanel extends AbstractSettingsPanel implements
 	private void initStrategySelectorMain() {
 		strategySelectorMain.removeAllItems();
 		Module module = gui.getEngine().getModule("MAIN");
-		ConflictResolutionStrategy currentStrategy = gui.getEngine()
-				.getAgendas().getAgenda(module).getConflictResolutionStrategy();
+		ConflictResolutionStrategy currentStrategy = gui.getEngine().getAgendas().getAgenda(module).getConflictResolutionStrategy();
 		Set<String> strategies = ConflictResolutionStrategy.getStrategies();
 		for (String strategyName : strategies) {
 			strategySelectorMain.addItem(strategyName);
@@ -415,6 +360,6 @@ public class EngineSettingsPanel extends AbstractSettingsPanel implements
 	@Override
 	public void setDefaults() {
 		// TODO Auto-generated method stub
-		
+
 	}
 }
