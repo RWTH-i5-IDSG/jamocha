@@ -19,6 +19,7 @@ package org.jamocha.settings;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,11 +28,13 @@ import java.util.Set;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
+import org.jamocha.rete.Constants;
+
 /**
  * @author Sebastian Reinartz, Alexander Wilden
  */
 public class JamochaSettings {
-	
+
 	public static final String ENGINE_GENERAL_SETTINGS_WATCH_RULES = "engine.general_settings.watch_rules";
 
 	public static final String ENGINE_GENERAL_SETTINGS_WATCH_FACTS = "engine.general_settings.watch_facts";
@@ -49,7 +52,6 @@ public class JamochaSettings {
 	public static final String ENGINE_GENERAL_SETTINGS_PROFILE_ASSERT = "engine.general_settings.profile_assert";
 
 	public static final String ENGINE_GENERAL_SETTINGS_EVALUATION = "engine.general_settings.evaluation";
-
 
 	private static JamochaSettings singleton = null;
 
@@ -216,6 +218,56 @@ public class JamochaSettings {
 
 	}
 
+	public String getSettingsTable() {
+		StringBuilder res = new StringBuilder();
+		int firstColWidth = 0, secondColWidth = 0, thirdColWidth = 0, forthColWidth = 0;
+		Collection<String> keys = friendlyName2Name.values();
+		JamochaSetting sett;
+		for (String key : keys) {
+			sett = settings.get(key);
+			firstColWidth = Math.max(firstColWidth, sett.friendlyName.length());
+			secondColWidth = Math.max(secondColWidth, sett.getTypeString()
+					.length());
+			thirdColWidth = Math.max(thirdColWidth, sett.defaultValue
+					.toString().length());
+			forthColWidth = Math.max(forthColWidth, sett.currentValue
+					.toString().length());
+		}
+		firstColWidth = Math.max(firstColWidth, "Name:".length());
+		secondColWidth = Math.max(secondColWidth, "Type:".length());
+		thirdColWidth = Math.max(thirdColWidth, "Default value:".length());
+		forthColWidth = Math.max(forthColWidth, "Current value:".length());
+		res.append("| Name:");
+		appendCharChain(res, ' ', firstColWidth - 5);
+		res.append(" | Type:");
+		appendCharChain(res, ' ', secondColWidth - 5);
+		res.append(" | Default value:");
+		appendCharChain(res, ' ', thirdColWidth - 14);
+		res.append(" | Current value: |");
+		appendCharChain(res, ' ', forthColWidth - 14);
+		res.append(Constants.LINEBREAK);
+		appendCharChain(res, '=', res.length() - 1);
+		res.append(Constants.LINEBREAK);
+		String type;
+		for (String key : keys) {
+			sett = settings.get(key);
+			res.append("| ").append(sett.friendlyName);
+			appendCharChain(res, ' ', firstColWidth
+					- sett.friendlyName.length());
+			type = sett.getTypeString();
+			res.append(" | ").append(type);
+			appendCharChain(res, ' ', secondColWidth - type.length());
+			res.append(" | ").append(sett.defaultValue);
+			appendCharChain(res, ' ', thirdColWidth
+					- sett.defaultValue.toString().length());
+			res.append(" | ").append(sett.currentValue);
+			appendCharChain(res, ' ', forthColWidth
+					- sett.currentValue.toString().length());
+			res.append(" |").append(Constants.LINEBREAK);
+		}
+		return res.toString();
+	}
+
 	/**
 	 * @param listener
 	 * @param settingNames
@@ -272,6 +324,11 @@ public class JamochaSettings {
 		}
 	}
 
+	protected void appendCharChain(StringBuilder sb, char c, int length) {
+		for (int i = 0; i < length; ++i)
+			sb.append(c);
+	}
+
 	// private class:
 	private class JamochaSetting {
 
@@ -311,6 +368,25 @@ public class JamochaSettings {
 
 		public void toDefault() {
 			currentValue = defaultValue;
+		}
+
+		public String getTypeString() {
+			switch (type) {
+			case TYPE_INT:
+				return "Integer";
+			case TYPE_LONG:
+				return "Long";
+			case TYPE_DOUBLE:
+				return "Double";
+			case TYPE_FLOAT:
+				return "Float";
+			case TYPE_STRING:
+				return "String";
+			case TYPE_BOOLEAN:
+				return "Boolean";
+			default:
+				return "Unknown";
+			}
 		}
 
 		private int getType(String typeString) {

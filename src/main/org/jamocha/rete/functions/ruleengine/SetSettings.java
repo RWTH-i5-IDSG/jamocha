@@ -16,8 +16,6 @@
  */
 package org.jamocha.rete.functions.ruleengine;
 
-import java.util.Set;
-
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
@@ -85,7 +83,11 @@ public class SetSettings extends AbstractFunction {
 
 	private static final long serialVersionUID = 1L;
 
-	public static final String NAME = "set";
+	public static final String NAME = "set-settings";
+
+	public SetSettings() {
+		aliases.add("set");
+	}
 
 	public FunctionDescription getDescription() {
 		return DESCRIPTION;
@@ -95,26 +97,22 @@ public class SetSettings extends AbstractFunction {
 		return NAME;
 	}
 
-	public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
+	public JamochaValue executeFunction(Rete engine, Parameter[] params)
+			throws EvaluationException {
 		JamochaSettings prefs = JamochaSettings.getInstance();
 		// do we want to set specific setting?
 		if (params != null && params.length == 2) {
 			String property = params[0].getValue(engine).getStringValue();
 			// test: TODO: implement mappin jamochatype ->settings type:
-			String value = params[1].getValue(engine).implicitCast(JamochaType.STRING).toString();
+			String value = params[1].getValue(engine).implicitCast(
+					JamochaType.STRING).toString();
 
 			boolean result = prefs.set(property, value);
 			return (result) ? JamochaValue.TRUE : JamochaValue.FALSE;
 		}
 		// no params: list all settings:
 		else if (params != null && params.length == 0) {
-			Set<String> allprefs = prefs.getSettings();
-			for (String pref : allprefs) {
-				String preffriendlyName = prefs.getFriendlyName(pref);
-				String currentValue = prefs.get(pref).toString();
-				String defaultValue = prefs.getDefault(pref).toString();
-				engine.writeMessage("NAME: "+ pref + " FRIENDLY NAME: " + preffriendlyName + " CURRENT VALUE: " + currentValue + " DEFAULT VALUE: " + defaultValue);
-			}
+			engine.writeMessage(prefs.getSettingsTable());
 			return JamochaValue.TRUE;
 		}
 
