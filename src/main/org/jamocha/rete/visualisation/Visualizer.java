@@ -1,3 +1,19 @@
+/*
+ * Copyright 2007 Josef Alexander Hahn
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.jamocha.org/
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ */
 package org.jamocha.rete.visualisation;
 
 import java.awt.BasicStroke;
@@ -28,7 +44,8 @@ import org.jamocha.rete.nodes.BaseNode;
 import org.jamocha.rete.nodes.LIANode;
 import org.jamocha.rete.nodes.TerminalNode;
 
-public class Visualizer extends JComponent implements ComponentListener, MouseInputListener, ViewportChangedListener, MouseWheelListener {
+public class Visualizer extends JComponent implements ComponentListener,
+		MouseInputListener, ViewportChangedListener, MouseWheelListener {
 
 	private static final long serialVersionUID = 1L;
 
@@ -112,7 +129,9 @@ public class Visualizer extends JComponent implements ComponentListener, MouseIn
 		calculateSelectedNodes();
 		componentResized2(null);
 		node2point = new HashMap<BaseNode, Point>();
-		rootNode.drawNode(0, selectedNodes, (Graphics2D) new BufferedImage(1, 1, BufferedImage.TYPE_INT_RGB).getGraphics(), setup, node2point, point2node, rowHints, halfLineHeight);
+		rootNode.drawNode(0, selectedNodes, (Graphics2D) new BufferedImage(1,
+				1, BufferedImage.TYPE_INT_RGB).getGraphics(), setup,
+				node2point, point2node, rowHints, halfLineHeight);
 
 	}
 
@@ -138,7 +157,7 @@ public class Visualizer extends JComponent implements ComponentListener, MouseIn
 		linestyle = style;
 		repaint();
 	}
-	
+
 	public int getLineStyle() {
 		return linestyle;
 	}
@@ -232,14 +251,17 @@ public class Visualizer extends JComponent implements ComponentListener, MouseIn
 		repaint();
 	}
 
-	protected void drawConnectionLines(BaseNode root, Map<BaseNode, Point> positions, Graphics2D canvas, boolean selected, boolean unselected) {
+	protected void drawConnectionLines(BaseNode root,
+			Map<BaseNode, Point> positions, Graphics2D canvas,
+			boolean selected, boolean unselected) {
 		for (BaseNode child : root.getChildNodes()) {
 			Point childPos = positions.get(child);
 			Point rootPos = positions.get(root);
 			rootPos = toPhysical(rootPos, setup);
 			childPos = toPhysical(childPos, setup);
 
-			if (isNodeSelected(child) && selected || !isNodeSelected(child) && unselected) {
+			if (isNodeSelected(child) && selected || !isNodeSelected(child)
+					&& unselected) {
 
 				if (isNodeSelected(child)) {
 					if (root instanceof AbstractBeta || root instanceof LIANode) {
@@ -257,14 +279,18 @@ public class Visualizer extends JComponent implements ComponentListener, MouseIn
 
 				if (linestyle == VisualizerSetup.QUARTERELLIPSE) {
 					if (childPos.x == rootPos.x) {
-						rootPos = root.getVerticalEndPoint(childPos, rootPos, setup);
+						rootPos = root.getVerticalEndPoint(childPos, rootPos,
+								setup);
 					} else {
-						rootPos = root.getHorizontalEndPoint(childPos, rootPos, setup);
+						rootPos = root.getHorizontalEndPoint(childPos, rootPos,
+								setup);
 					}
 					if (childPos.y == rootPos.y) {
-						childPos = child.getHorizontalEndPoint(rootPos, childPos, setup);
+						childPos = child.getHorizontalEndPoint(rootPos,
+								childPos, setup);
 					} else {
-						childPos = child.getVerticalEndPoint(rootPos, childPos, setup);
+						childPos = child.getVerticalEndPoint(rootPos, childPos,
+								setup);
 					}
 					int arcX, arcY, midX, midY, w, h;
 					w = Math.abs(rootPos.x - childPos.x);
@@ -288,16 +314,19 @@ public class Visualizer extends JComponent implements ComponentListener, MouseIn
 					int originToChildX = childPos.x - midX;
 					int originToChildY = childPos.y - midY;
 					int startAngle = atan4(-originToRootY, originToRootX);
-					int arcAngle = atan4(-originToChildY, originToChildX) - startAngle;
+					int arcAngle = atan4(-originToChildY, originToChildX)
+							- startAngle;
 					canvas.drawArc(arcX, arcY, w, h, startAngle, arcAngle);
 				} else if (linestyle == VisualizerSetup.LINE) {
 					rootPos = root.getLineEndPoint(childPos, rootPos, setup);
 					childPos = child.getLineEndPoint(rootPos, childPos, setup);
-					canvas.drawLine(rootPos.x, rootPos.y, childPos.x, childPos.y);
+					canvas.drawLine(rootPos.x, rootPos.y, childPos.x,
+							childPos.y);
 
 				}
 
-				double angle = Math.atan2((childPos.y - rootPos.y), (childPos.x - rootPos.x));
+				double angle = Math.atan2((childPos.y - rootPos.y),
+						(childPos.x - rootPos.x));
 				drawArrowHead(childPos.x, childPos.y, angle, canvas);
 			}
 			drawConnectionLines(child, positions, canvas, selected, unselected);
@@ -329,12 +358,14 @@ public class Visualizer extends JComponent implements ComponentListener, MouseIn
 		BasicStroke widthOneStroke = new BasicStroke(1 * setup.scaleX);
 		canvas.setStroke(widthOneStroke);
 
-		canvas.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+		canvas.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+				RenderingHints.VALUE_ANTIALIAS_ON);
 
 		drawConnectionLines(rootNode, node2point, canvas, false, true);
 
 		loadGoodFont(canvas);
-		rootNode.drawNode(0, selectedNodes, canvas, setup, node2point, point2node, rowHints, halfLineHeight);
+		rootNode.drawNode(0, selectedNodes, canvas, setup, node2point,
+				point2node, rowHints, halfLineHeight);
 
 		canvas.setStroke(widthOneStroke);
 
@@ -396,8 +427,10 @@ public class Visualizer extends JComponent implements ComponentListener, MouseIn
 		if (autoScale) {
 			int w = this.getWidth();
 			int h = this.getHeight();
-			int graphWidth = logicalWidth * (BaseNode.shapeWidth + BaseNode.shapeGapWidth);
-			int graphHeight = logicalHeight * (BaseNode.shapeHeight + BaseNode.shapeGapHeight);
+			int graphWidth = logicalWidth
+					* (BaseNode.shapeWidth + BaseNode.shapeGapWidth);
+			int graphHeight = logicalHeight
+					* (BaseNode.shapeHeight + BaseNode.shapeGapHeight);
 			double scaleW = ((double) w) / ((double) graphWidth);
 			double scaleH = ((double) h) / ((double) graphHeight);
 			setup.scaleX = setup.scaleY = (float) Math.min(scaleW, scaleH);
@@ -438,8 +471,10 @@ public class Visualizer extends JComponent implements ComponentListener, MouseIn
 			y -= setup.offsetY;
 		}
 
-		double normalizedWidth = selectionRelativeTo.getWidth() / selectionRelativeTo.setup.scaleX;
-		double normalizedHeight = selectionRelativeTo.getHeight() / selectionRelativeTo.setup.scaleY;
+		double normalizedWidth = selectionRelativeTo.getWidth()
+				/ selectionRelativeTo.setup.scaleX;
+		double normalizedHeight = selectionRelativeTo.getHeight()
+				/ selectionRelativeTo.setup.scaleY;
 
 		x -= normalizedWidth / 2;
 		y -= normalizedHeight / 2;
@@ -453,7 +488,8 @@ public class Visualizer extends JComponent implements ComponentListener, MouseIn
 		ViewportChangeEvent ev = new ViewportChangeEvent();
 
 		x -= (selectionRelativeTo.getWidth() / selectionRelativeTo.setup.scaleX * setup.scaleX) / 2;
-		y -= (selectionRelativeTo.getHeight() / selectionRelativeTo.setup.scaleY * setup.scaleY) / 2;
+		y -= (selectionRelativeTo.getHeight()
+				/ selectionRelativeTo.setup.scaleY * setup.scaleY) / 2;
 
 		ev.x = (int) -(x / setup.scaleX);
 		ev.y = (int) -(y / setup.scaleY);
@@ -477,9 +513,14 @@ public class Visualizer extends JComponent implements ComponentListener, MouseIn
 			}
 		} else if (arg0.getButton() == MouseEvent.BUTTON2) {
 			final float margin = 5.0f;
-			Point lp = node2point.get(point2node.get(getLogicalPosition(arg0.getX(), arg0.getY())));
-			int midX = (BaseNode.shapeGapWidth / 2) + ((lp.x) * (BaseNode.shapeGapWidth + BaseNode.shapeWidth)) / 2 + (BaseNode.shapeWidth / 2);
-			int midY = (BaseNode.shapeGapHeight / 2) + (lp.y) * (BaseNode.shapeGapHeight + BaseNode.shapeHeight) + (BaseNode.shapeHeight / 2);
+			Point lp = node2point.get(point2node.get(getLogicalPosition(arg0
+					.getX(), arg0.getY())));
+			int midX = (BaseNode.shapeGapWidth / 2)
+					+ ((lp.x) * (BaseNode.shapeGapWidth + BaseNode.shapeWidth))
+					/ 2 + (BaseNode.shapeWidth / 2);
+			int midY = (BaseNode.shapeGapHeight / 2) + (lp.y)
+					* (BaseNode.shapeGapHeight + BaseNode.shapeHeight)
+					+ (BaseNode.shapeHeight / 2);
 			float scaleX = getWidth() / (BaseNode.shapeWidth * margin);
 			float scaleY = getHeight() / (BaseNode.shapeHeight * margin);
 			float scale = Math.min(scaleX, scaleY);
@@ -538,8 +579,12 @@ public class Visualizer extends JComponent implements ComponentListener, MouseIn
 	}
 
 	protected void correctOffsets() {
-		int maxOffsetX = (int) (-logicalWidth * (BaseNode.shapeGapWidth + BaseNode.shapeWidth) + getWidth() / setup.scaleX);
-		int maxOffsetY = (int) (-logicalHeight * (BaseNode.shapeGapHeight + BaseNode.shapeHeight) + getHeight() / setup.scaleY);
+		int maxOffsetX = (int) (-logicalWidth
+				* (BaseNode.shapeGapWidth + BaseNode.shapeWidth) + getWidth()
+				/ setup.scaleX);
+		int maxOffsetY = (int) (-logicalHeight
+				* (BaseNode.shapeGapHeight + BaseNode.shapeHeight) + getHeight()
+				/ setup.scaleY);
 
 		if (setup.offsetX < maxOffsetX)
 			setup.offsetX = maxOffsetX;
@@ -606,9 +651,9 @@ public class Visualizer extends JComponent implements ComponentListener, MouseIn
 		int dir = arg0.getWheelRotation();
 		double d = 1;
 		if (dir > 0) {
-			d =  1.1;
+			d = 1.1;
 		} else {
-			d =  0.9;
+			d = 0.9;
 		}
 		zoom(d, d, true);
 	}

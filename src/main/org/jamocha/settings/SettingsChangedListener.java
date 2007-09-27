@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 Sebastian Reinartz
+ * Copyright 2007 Sebastian Reinartz, Alexander Wilden
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,10 +17,10 @@
 package org.jamocha.settings;
 
 /**
- * @author Sebastian Reinartz
+ * @author Sebastian Reinartz, Alexander Wilden
  */
 public interface SettingsChangedListener {
-	//TODO: mabe change propertyName to const int.
+	// TODO: mabe change propertyName to const int.
 	void settingsChanged(String propertyName);
 
 }

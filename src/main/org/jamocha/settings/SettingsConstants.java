@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 Alexander Wilden
+ * Copyright 2007 Sebastian Reinartz, Alexander Wilden
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ package org.jamocha.settings;
 /**
  * This class holds all settings strings as constants.
  * 
- * @author Alexander Wilden
+ * @author Sebastian Reinartz, Alexander Wilden
  */
 public class SettingsConstants {
 	
