@@ -912,9 +912,6 @@ public class Rete implements SettingsChangedListener, PropertyChangeListener, Co
 		boolean result = false;
 		if (!getCurrentFocus().containsRule(rule)) {
 			result = net.addRule(rule);
-			// int merged =
-			net.shareNodes(rule);
-			// System.out.println(merged);
 		}
 		return result;
 	}

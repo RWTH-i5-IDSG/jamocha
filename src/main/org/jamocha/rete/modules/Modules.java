@@ -219,6 +219,10 @@ public class Modules implements SettingsChangedListener, Serializable {
 	public List<Rule> getRules(Module module) {
 		return this.rules.getRules(module);
 	}
+	
+	public List<Rule> getAllRules() {
+		return this.rules.getRules();
+	}
 
 	public boolean containsRule(Module defmodule, Rule rl) {
 		return rules.containsRule(rl, defmodule);

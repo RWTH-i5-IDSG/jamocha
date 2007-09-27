@@ -1,6 +1,7 @@
 package org.jamocha.rete.nodes;
 
 import java.io.Serializable;
+import java.util.List;
 
 import org.jamocha.parser.ParserFactory;
 import org.jamocha.parser.RuleException;
@@ -61,7 +62,9 @@ public class ReteNet implements SettingsChangedListener, Serializable {
 	}
 
 	public boolean addRule(Rule rule) throws AssertException, RuleException {
-		return this.compiler.addRule(rule);
+		boolean result =compiler.addRule(rule);
+		shareNodes(rule);
+		return result;
 	}
 
 	public void clear() {
@@ -99,21 +102,39 @@ public class ReteNet implements SettingsChangedListener, Serializable {
 		return this.engine;
 	}
 
-	public int shareNodes(Rule rule) {
+	private int shareNodes(Rule rule) {
 		// first implementation:
 		if (this.shareNodes) {
 			int result = root.shareNodes(rule, this);
 			root.propagateEndMerging();
 			return result;
 		} else
-			return -1;
+			return 0;
+	}
+	
+	private int shareAllNodes(){
+		int result = 0;
+		List<Rule> rules =this.engine.getModules().getAllRules();
+		for (Rule rule: rules){
+			result +=shareNodes(rule);
+		}
+		return result;
+	}
+	
+	private void setShareNodes(boolean newValue){
+		boolean oldValue =this.shareNodes;
+		this.shareNodes = newValue;
+		
+		if (!oldValue && newValue){
+			this.shareAllNodes();
+		}
 	}
 
 	public void settingsChanged(String propertyName) {
 		JamochaSettings settings = JamochaSettings.getInstance();
 		// share nodes
 		if (propertyName.equals(SettingsConstants.ENGINE_NET_SETTINGS_SHARE_NODES)) {
-			this.shareNodes = settings.getBoolean(propertyName);
+			setShareNodes(settings.getBoolean(propertyName));
 		}
 
 	}

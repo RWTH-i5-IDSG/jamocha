@@ -98,4 +98,14 @@ public class RuleDataContainer extends ModulesDataContainer {
 		return rules;
 	}
 
+	public List<Rule> getRules() {
+		List<Rule> rules = new ArrayList<Rule>();
+		// clearadd all templates from hashmap to resulting list:
+		for (Object key : idToCLIPSElement.keySet()) {
+			Rule rule = (Rule) this.idToCLIPSElement.get(key);
+			rules.add(rule);
+		}
+		return rules;
+	}
+
 }
