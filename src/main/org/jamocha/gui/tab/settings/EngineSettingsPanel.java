@@ -359,7 +359,16 @@ public class EngineSettingsPanel extends AbstractSettingsPanel implements Action
 
 	@Override
 	public void setDefaults() {
-		// TODO Auto-generated method stub
+		settings.toDefault(JamochaSettings.ENGINE_GENERAL_SETTINGS_EVALUATION);
+		settings.toDefault(JamochaSettings.ENGINE_GENERAL_SETTINGS_PROFILE_ASSERT);
+		settings.toDefault(JamochaSettings.ENGINE_GENERAL_SETTINGS_PROFILE_RETRACT);
+		settings.toDefault(JamochaSettings.ENGINE_GENERAL_SETTINGS_PROFILE_FIRE);
+		settings.toDefault(JamochaSettings.ENGINE_GENERAL_SETTINGS_PROFILE_ADD_ACTIVATION);
+		settings.toDefault(JamochaSettings.ENGINE_GENERAL_SETTINGS_PROFILE_REMOVE_ACTIVATION);
+		settings.toDefault(JamochaSettings.ENGINE_GENERAL_SETTINGS_WATCH_ACTIVATIONS);
+		settings.toDefault(JamochaSettings.ENGINE_GENERAL_SETTINGS_WATCH_FACTS);
+		settings.toDefault(JamochaSettings.ENGINE_GENERAL_SETTINGS_WATCH_RULES);
 
+		refresh();
 	}
 }
