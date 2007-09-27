@@ -63,6 +63,6 @@ public class SettingsConstants {
 	
 	public static final String ENGINE_STRATEGY_SETTINGS_STRATEGY_MAIN = "engine.strategy_settings.strategy_main";
 
-	
+	public static final String ENGINE_NET_SETTINGS_SHARE_NODES = "engine.net_settings.share_nodes";
 
 }

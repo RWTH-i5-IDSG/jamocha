@@ -11,8 +11,11 @@ import org.jamocha.rete.Template;
 import org.jamocha.rete.exception.AssertException;
 import org.jamocha.rete.exception.RetractException;
 import org.jamocha.rule.Rule;
+import org.jamocha.settings.JamochaSettings;
+import org.jamocha.settings.SettingsChangedListener;
+import org.jamocha.settings.SettingsConstants;
 
-public class ReteNet implements Serializable {
+public class ReteNet implements SettingsChangedListener, Serializable {
 
 	private static final long serialVersionUID = 1L;
 
@@ -24,6 +27,10 @@ public class ReteNet implements Serializable {
 
 	private int lastNodeId = 0;
 
+	private boolean shareNodes = true;
+
+	private String[] interestedProperties = { SettingsConstants.ENGINE_NET_SETTINGS_SHARE_NODES };
+
 	/**
 	 * 
 	 */
@@ -33,6 +40,7 @@ public class ReteNet implements Serializable {
 		this.root = new RootNode(nextNodeId());
 		this.compiler = ParserFactory.getRuleCompiler(engine, this, this.root);
 		this.compiler.addListener(engine);
+		JamochaSettings.getInstance().addListener(this, interestedProperties);
 	}
 
 	public synchronized void assertObject(Fact fact) throws AssertException {
@@ -93,9 +101,21 @@ public class ReteNet implements Serializable {
 
 	public int shareNodes(Rule rule) {
 		// first implementation:
-		int result = root.shareNodes(rule, this);
-		root.propagateEndMerging();
-		return result;
+		if (this.shareNodes) {
+			int result = root.shareNodes(rule, this);
+			root.propagateEndMerging();
+			return result;
+		} else
+			return -1;
+	}
+
+	public void settingsChanged(String propertyName) {
+		JamochaSettings settings = JamochaSettings.getInstance();
+		// share nodes
+		if (propertyName.equals(SettingsConstants.ENGINE_NET_SETTINGS_SHARE_NODES)) {
+			this.shareNodes = settings.getBoolean(propertyName);
+		}
+
 	}
 
 }
