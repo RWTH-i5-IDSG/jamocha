@@ -16,10 +16,12 @@
  */
 package org.jamocha.gui.tab;
 
+import java.awt.AWTKeyStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.KeyboardFocusManager;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.AdjustmentEvent;
@@ -28,15 +30,18 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
 import java.io.IOException;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.io.PrintWriter;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
+import java.util.Set;
 import java.util.Vector;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -198,9 +203,9 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 
 	private boolean channelListenerPaused = false;
 
-	private String[] interestedSettings = { GUI_SHELL_FONT,
-			GUI_SHELL_FONTSIZE, GUI_SHELL_FONTCOLOR,
-			GUI_SHELL_BACKGROUNDCOLOR, GUI_SHELL_AUTOCOMPLETION };
+	private String[] interestedSettings = { GUI_SHELL_FONT, GUI_SHELL_FONTSIZE,
+			GUI_SHELL_FONTCOLOR, GUI_SHELL_BACKGROUNDCOLOR,
+			GUI_SHELL_AUTOCOMPLETION };
 
 	private void initAutoCompletion() {
 		autoCompletion.addToken("multislot");
@@ -211,7 +216,8 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 			longName.append(function.getName());
 			for (int i = 0; i < function.getDescription().getParameterCount(); i++) {
 				longName.append(" ").append(
-						function.getDescription().getParameterName(i).replace(" ", "_"));
+						function.getDescription().getParameterName(i).replace(
+								" ", "_"));
 			}
 			longName.append(")");
 			autoCompletion.addToken(function.getName(), longName.toString());
@@ -230,12 +236,22 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 		autoCompletionBox = new AutoCompletionBox(gui, autoCompletion, this);
 		// GUI construction
 		// create the output area
-		outputArea = new JTextArea();
+		outputArea = new JTextArea() {
+			private static final long serialVersionUID = 1L;
+
+			public Set<AWTKeyStroke> getFocusTraversalKeys(int id) {
+				if (id == KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS
+						|| id == KeyboardFocusManager.BACKWARD_TRAVERSAL_KEYS) {
+					return Collections.emptySet();
+				} else
+					return super.getFocusTraversalKeys(id);
+			}
+		};
 		outputArea.setEditable(false);
 		outputArea.setLineWrap(true);
 		outputArea.setWrapStyleWord(true);
-		
-		// create a scroll pane to embedd the output area
+
+		// create a scroll pane to embed the output area
 		scrollPane = new JScrollPane(outputArea,
 				JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
 				JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
@@ -675,6 +691,9 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 								scrollToCursor();
 							}
 							break;
+						case KeyEvent.VK_TAB:
+							handleFindPath();
+							break;
 						// ignore special keys
 						case KeyEvent.VK_ALT:
 						case KeyEvent.VK_CONTROL:
@@ -759,6 +778,41 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 			autoCompletionBox.hide();
 		}
 
+	}
+
+	protected void handleFindPath() {
+		String currLine = "";
+		try {
+			currLine = outputArea.getText(lastPromptIndex, getOffset()
+					- lastPromptIndex);
+		} catch (BadLocationException e1) {
+			e1.printStackTrace();
+		}
+		int offset = currLine.lastIndexOf(" ") + 1;
+		currLine = currLine.substring(offset);
+		offset = currLine.lastIndexOf(File.separator) + 1;
+		File path = new File("."+File.separator);
+		String remainder = currLine.substring(offset, currLine.length());
+		if (remainder.length() > 0) {
+			if (offset > 0) {
+				path = new File(currLine.substring(0, offset));
+			}
+			File[] children = path.listFiles();
+			if (children != null) {
+				String childName;
+				for (File child : children) {
+					childName = child.getName();
+					if (childName.startsWith(remainder)) {
+						if (child.isDirectory())
+							childName += File.separator;
+						printMessage(childName.substring(remainder.length()),
+								false);
+						scrollToCursor();
+						return;
+					}
+				}
+			}
+		}
 	}
 
 	void scrollToCursor() {
@@ -957,9 +1011,9 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 
 	public void settingsChanged(String propertyName) {
 		if (propertyName.startsWith(GUI_SHELL_FONT)) {
-			outputArea.setFont(new Font(settings.getString(GUI_SHELL_FONT), settings
-					.getInt(GUI_SHELL_FONTSTYLE), settings
-					.getInt(GUI_SHELL_FONTSIZE)));
+			outputArea.setFont(new Font(settings.getString(GUI_SHELL_FONT),
+					settings.getInt(GUI_SHELL_FONTSTYLE), settings
+							.getInt(GUI_SHELL_FONTSIZE)));
 			outputArea.setForeground(new Color(settings
 					.getInt(GUI_SHELL_FONTCOLOR)));
 		} else if (propertyName.equals(GUI_SHELL_BACKGROUNDCOLOR)) {
@@ -968,7 +1022,8 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 			outputArea.setBorder(BorderFactory.createLineBorder(outputArea
 					.getBackground(), 2));
 		} else if (propertyName.equals(GUI_SHELL_AUTOCOMPLETION)) {
-			enableAutoCompletion = settings.getBoolean(GUI_SHELL_AUTOCOMPLETION);
+			enableAutoCompletion = settings
+					.getBoolean(GUI_SHELL_AUTOCOMPLETION);
 		}
 	}
 

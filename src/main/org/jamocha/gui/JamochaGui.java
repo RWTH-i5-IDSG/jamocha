@@ -16,17 +16,21 @@
  */
 package org.jamocha.gui;
 
+import java.awt.AWTKeyStroke;
 import java.awt.BorderLayout;
 import java.awt.Cursor;
 import java.awt.Dimension;
+import java.awt.KeyboardFocusManager;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -62,7 +66,8 @@ import org.jamocha.settings.JamochaSettings;
  * @author Karl-Heinz Krempels <krempels@cs.rwth-aachen.de>
  * @author Alexander Wilden <october.rust@gmx.de>
  */
-public class JamochaGui extends JFrame implements ChangeListener, ActionListener {
+public class JamochaGui extends JFrame implements ChangeListener,
+		ActionListener {
 
 	private static final String GUI_LOCY = "gui.locy";
 
@@ -112,7 +117,8 @@ public class JamochaGui extends JFrame implements ChangeListener, ActionListener
 		logoLabel.setToolTipText("visit www.jamocha.org");
 		logoLabel.addMouseListener(new MouseAdapter() {
 			public void mouseReleased(MouseEvent e) {
-				BrowserControl.displayURL("http://www.jamocha.org", JamochaGui.this);
+				BrowserControl.displayURL("http://www.jamocha.org",
+						JamochaGui.this);
 			}
 		});
 		logoPanel.add(logoLabel, BorderLayout.EAST);
@@ -130,6 +136,7 @@ public class JamochaGui extends JFrame implements ChangeListener, ActionListener
 		// create a tabbed pane
 		tabbedPane = new JTabbedPane();
 		this.add(tabbedPane, BorderLayout.CENTER);
+		tabbedPane.setFocusTraversalKeysEnabled(true);
 
 		// add MenuBar
 		menuBar = new JamochaMenuBar(this);
@@ -140,39 +147,49 @@ public class JamochaGui extends JFrame implements ChangeListener, ActionListener
 
 		// create a shell tab and add it to the tabbed pane
 		AbstractJamochaPanel shellPanel = new ShellPanel(this);
-		tabbedPane.addTab("Shell", IconLoader.getImageIcon("application_osx_terminal"), shellPanel, "Jamocha Shell");
+		tabbedPane.addTab("Shell", IconLoader
+				.getImageIcon("application_osx_terminal"), shellPanel,
+				"Jamocha Shell");
 		panels.add(shellPanel);
 
 		FactsPanel factsPanel = new FactsPanel(this);
-		tabbedPane.addTab("Facts", IconLoader.getImageIcon("database"), factsPanel, "View or modify Facts");
+		tabbedPane.addTab("Facts", IconLoader.getImageIcon("database"),
+				factsPanel, "View or modify Facts");
 		panels.add(factsPanel);
 
 		TemplatesPanel templatesPanel = new TemplatesPanel(this);
-		tabbedPane.addTab("Templates", IconLoader.getImageIcon("brick"), templatesPanel, "View or modify Templates");
+		tabbedPane.addTab("Templates", IconLoader.getImageIcon("brick"),
+				templatesPanel, "View or modify Templates");
 		panels.add(templatesPanel);
 
 		RulesPanel rulesPanel = new RulesPanel(this);
-		tabbedPane.addTab("Rules", IconLoader.getImageIcon("car"), rulesPanel, "View or modify Rules");
+		tabbedPane.addTab("Rules", IconLoader.getImageIcon("car"), rulesPanel,
+				"View or modify Rules");
 		panels.add(rulesPanel);
 
 		FunctionsPanel functionsPanel = new FunctionsPanel(this);
-		tabbedPane.addTab("Functions", IconLoader.getImageIcon("cog"), functionsPanel, "View Functions");
+		tabbedPane.addTab("Functions", IconLoader.getImageIcon("cog"),
+				functionsPanel, "View Functions");
 		panels.add(functionsPanel);
 
 		AgendaPanel agendaPanel = new AgendaPanel(this);
-		tabbedPane.addTab("Agenda", IconLoader.getImageIcon("sport_8ball"), agendaPanel, "View all Activations");
+		tabbedPane.addTab("Agenda", IconLoader.getImageIcon("sport_8ball"),
+				agendaPanel, "View all Activations");
 		panels.add(agendaPanel);
 
 		ViewerPanel viewerPanel = new ViewerPanel(this);
-		tabbedPane.addTab("Rete viewer", IconLoader.getImageIcon("eye"), viewerPanel, "View the Rete-network");
+		tabbedPane.addTab("Rete viewer", IconLoader.getImageIcon("eye"),
+				viewerPanel, "View the Rete-network");
 		panels.add(viewerPanel);
 
 		LogPanel logPanel = new LogPanel(this);
-		tabbedPane.addTab("Log", IconLoader.getImageIcon("monitor"), logPanel, "View alle messages from or to the Rete-engine");
+		tabbedPane.addTab("Log", IconLoader.getImageIcon("monitor"), logPanel,
+				"View alle messages from or to the Rete-engine");
 		panels.add(logPanel);
 
 		SettingsPanel settingsPanel = new SettingsPanel(this);
-		tabbedPane.addTab("Settings", IconLoader.getImageIcon("wrench"), settingsPanel, "Settings for Jamocha");
+		tabbedPane.addTab("Settings", IconLoader.getImageIcon("wrench"),
+				settingsPanel, "Settings for Jamocha");
 		panels.add(settingsPanel);
 
 		// add the tab pane to the frame
@@ -253,7 +270,8 @@ public class JamochaGui extends JFrame implements ChangeListener, ActionListener
 	 */
 	public StringChannel getStringChannel() {
 		if (stringChannel == null)
-			stringChannel = getEngine().getMessageRouter().openChannel("gui_string_channel", InterestType.NONE);
+			stringChannel = getEngine().getMessageRouter().openChannel(
+					"gui_string_channel", InterestType.NONE);
 		return stringChannel;
 	}
 
@@ -338,22 +356,33 @@ public class JamochaGui extends JFrame implements ChangeListener, ActionListener
 	public void setLookAndFeel(String lookAndFeelClassName) {
 		try {
 			if (lookAndFeelClassName.equals(CROSS_PLATFORM_LOOK_AND_FEEL))
-				lookAndFeelClassName = UIManager.getCrossPlatformLookAndFeelClassName();
+				lookAndFeelClassName = UIManager
+						.getCrossPlatformLookAndFeelClassName();
 			else if (lookAndFeelClassName.equals(SYSTEM_LOOK_AND_FEEL))
-				lookAndFeelClassName = UIManager.getSystemLookAndFeelClassName();
+				lookAndFeelClassName = UIManager
+						.getSystemLookAndFeelClassName();
 
 			UIManager.setLookAndFeel(lookAndFeelClassName);
 			SwingUtilities.updateComponentTreeUI(this);
 		} catch (Exception exc) {
 			// look & feel not found, use the cross-platform look and feel
 			try {
-				UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
+				UIManager.setLookAndFeel(UIManager
+						.getCrossPlatformLookAndFeelClassName());
 			} catch (Exception exc2) {
 				// even the platform look and feel is not available, something
 				// must be wrong with the
 				// installation of the java-runtime-environment
 			}
 		}
+	}
+
+	public Set<AWTKeyStroke> getFocusTraversalKeys(int id) {
+		if (id == KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS
+				|| id == KeyboardFocusManager.BACKWARD_TRAVERSAL_KEYS) {
+			return Collections.emptySet();
+		} else
+			return super.getFocusTraversalKeys(id);
 	}
 
 	/**
@@ -365,7 +394,8 @@ public class JamochaGui extends JFrame implements ChangeListener, ActionListener
 
 	public void actionPerformed(ActionEvent event) {
 		if (event.getSource() == batchResultsButton) {
-			BatchResultBrowser browser = new BatchResultBrowser(batchResultsButton);
+			BatchResultBrowser browser = new BatchResultBrowser(
+					batchResultsButton);
 			browser.setResults(batchThread.getBatchResults());
 			browser.setVisible(true);
 		}
