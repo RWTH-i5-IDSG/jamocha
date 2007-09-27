@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -231,7 +232,9 @@ public class JamochaSettings {
 		appendCharChain(res, '=', res.length() - 1);
 		res.append(Constants.LINEBREAK);
 		String type;
-		for (String key : keys) {
+		List<String> keyList = new ArrayList<String>(keys);
+		Collections.sort(keyList);
+		for (String key : keyList) {
 			sett = settings.get(key);
 			res.append("| ").append(sett.friendlyName);
 			appendCharChain(res, ' ', firstColWidth
