@@ -24,6 +24,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import javax.swing.JButton;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
@@ -79,7 +80,6 @@ public class SettingsPanel extends AbstractJamochaPanel implements
 
 	}
 
-
 	public void close() {
 	}
 
@@ -102,8 +102,13 @@ public class SettingsPanel extends AbstractJamochaPanel implements
 
 	public void actionPerformed(ActionEvent event) {
 		if (event.getSource() == allDefaultButton) {
-			for (AbstractSettingsPanel panel : panels) {
-				panel.setDefaults();
+			int sel = JOptionPane.showConfirmDialog(this,
+					"Do you really want to set everything to default?",
+					"Attention", JOptionPane.YES_NO_OPTION);
+			if (sel == JOptionPane.YES_OPTION) {
+				for (AbstractSettingsPanel panel : panels) {
+					panel.setDefaults();
+				}
 			}
 		}
 	}
