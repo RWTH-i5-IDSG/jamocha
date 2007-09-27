@@ -94,7 +94,7 @@ public class EngineSettingsPanel extends AbstractSettingsPanel implements Action
 		generalSettingsPanel.setBorder(BorderFactory.createTitledBorder("General Settings"));
 
 		// Evaluation
-		addLabel(generalSettingsPanel, new JLabel("Evaluation"), gridbag, c, 0);
+		addLabel(generalSettingsPanel, new JLabel("Evaluation:"), gridbag, c, 0);
 		JPanel evaluationPanel = new JPanel(new BorderLayout());
 
 		evaluationCheckBox = new JCheckBox();
