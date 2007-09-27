@@ -23,15 +23,24 @@ import java.util.Map;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.exception.ExecuteException;
 import org.jamocha.rete.modules.Module;
+import org.jamocha.rete.util.ProfileStats;
+import org.jamocha.settings.JamochaSettings;
+import org.jamocha.settings.SettingsChangedListener;
 
 /**
  * @author Josef Alexander Hahn, Sebastian Reinartz
  */
-public class Agendas {
+public class Agendas implements SettingsChangedListener {
 
 	protected Map<Module, Agenda> agendas;
 
 	protected Rete engine;
+	
+	private String[] interestedProperties = { 
+			JamochaSettings.ENGINE_GENERAL_SETTINGS_PROFILE_FIRE, 
+			JamochaSettings.ENGINE_GENERAL_SETTINGS_PROFILE_ADD_ACTIVATION, 
+			JamochaSettings.ENGINE_GENERAL_SETTINGS_PROFILE_REMOVE_ACTIVATION,
+			JamochaSettings.ENGINE_GENERAL_SETTINGS_WATCH_ACTIVATIONS };
 
 	/**
 	 * Flag if Activations should be watched. If set to true an engine message
@@ -39,9 +48,16 @@ public class Agendas {
 	 */
 	protected boolean watchActivations = false;
 
+	protected boolean profileFire = false;
+	
+	protected boolean profileAddActivation = false;
+	
+	protected boolean profileRemoveActivation = false;
+
 	public Agendas(Rete engine) {
 		this.engine = engine;
 		agendas = new HashMap<Module, Agenda>();
+		JamochaSettings.getInstance().addListener(this, interestedProperties);
 	}
 
 	public Agenda getAgenda(Module module) {
@@ -56,9 +72,17 @@ public class Agendas {
 	}
 
 	public int fireFocus(int maxFire) throws ExecuteException {
+		int result = 0;
 		Module focus = engine.getCurrentFocus();
 		Agenda agendaFocus = getAgenda(focus);
-		return agendaFocus.fire(maxFire);
+		if (profileFire) {
+			ProfileStats.startFire();
+			result = agendaFocus.fire(maxFire);
+			ProfileStats.endFire();
+		} else {
+			result = agendaFocus.fire(maxFire);
+		}
+		return result;
 	}
 
 	public void clear() {
@@ -74,13 +98,34 @@ public class Agendas {
 		}
 	}
 
-	public void setProfileAdd(boolean b) {
-		// TODO Auto-generated method stub
-
+	public void setProfileAddActivation(boolean b) {
+		profileAddActivation = b;
 	}
 
-	public void setProfileRemove(boolean b) {
-		// TODO Auto-generated method stub
+	public void setProfileRemoveActivation(boolean b) {
+		profileRemoveActivation = b;
+	}
+
+	public void setProfileFire(boolean profileFire) {
+		this.profileFire = profileFire;
+	}
+
+	public void settingsChanged(String propertyName) {
+		JamochaSettings settings = JamochaSettings.getInstance();
+		// watch activations
+		if (propertyName.equals(JamochaSettings.ENGINE_GENERAL_SETTINGS_WATCH_ACTIVATIONS)) {
+			setWatchActivations(settings.getBoolean(propertyName));
+		}
+		// profile:
+		else if (propertyName.equals(JamochaSettings.ENGINE_GENERAL_SETTINGS_PROFILE_FIRE)) {
+			setProfileFire(settings.getBoolean(propertyName));
+		}
+		else if (propertyName.equals(JamochaSettings.ENGINE_GENERAL_SETTINGS_PROFILE_ADD_ACTIVATION)) {
+			setProfileAddActivation(settings.getBoolean(propertyName));
+		}
+		else if (propertyName.equals(JamochaSettings.ENGINE_GENERAL_SETTINGS_PROFILE_REMOVE_ACTIVATION)) {
+			setProfileRemoveActivation(settings.getBoolean(propertyName));
+		}
 
 	}
 

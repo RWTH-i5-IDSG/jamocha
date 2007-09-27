@@ -65,10 +65,7 @@ public class Rete implements SettingsChangedListener, PropertyChangeListener, Co
 
 	private static final long serialVersionUID = 1L;
 
-	private String[] interestedProperties = { 
-			JamochaSettings.ENGINE_GENERAL_SETTINGS_WATCH_RULES, 
-			JamochaSettings.ENGINE_GENERAL_SETTINGS_WATCH_FACTS, 
-			JamochaSettings.ENGINE_GENERAL_SETTINGS_WATCH_ACTIVATIONS };
+	private String[] interestedProperties = {};
 
 	protected ArrayList focusStack = new ArrayList();
 
@@ -102,8 +99,6 @@ public class Rete implements SettingsChangedListener, PropertyChangeListener, Co
 	private Modules modules = null;
 
 	private boolean debug = false;
-
-	private boolean profileFire = false;
 
 	private boolean profileAssert = false;
 
@@ -449,22 +444,22 @@ public class Rete implements SettingsChangedListener, PropertyChangeListener, Co
 	 * @param type
 	 */
 	public void setProfile(int type) {
-		if (type == Constants.PROFILE_ADD_ACTIVATION) {
-			this.agendas.setProfileAdd(true);
+		if (type == Constants.PROFILE_ALL) {
+			this.agendas.setProfileAddActivation(true);
+			this.agendas.setProfileRemoveActivation(true);
+			this.agendas.setProfileFire(true);
+			this.profileAssert = true;
+			this.profileRetract = true;
 		} else if (type == Constants.PROFILE_ASSERT) {
 			this.profileAssert = true;
-		} else if (type == Constants.PROFILE_ALL) {
-			this.agendas.setProfileAdd(true);
-			this.profileAssert = true;
-			this.profileFire = true;
-			this.profileRetract = true;
-			this.agendas.setProfileRemove(true);
-		} else if (type == Constants.PROFILE_FIRE) {
-			this.profileFire = true;
 		} else if (type == Constants.PROFILE_RETRACT) {
 			this.profileRetract = true;
+		} else if (type == Constants.PROFILE_ADD_ACTIVATION) {
+			this.agendas.setProfileAddActivation(true);
 		} else if (type == Constants.PROFILE_RM_ACTIVATION) {
-			this.agendas.setProfileRemove(true);
+			this.agendas.setProfileRemoveActivation(true);
+		} else if (type == Constants.PROFILE_FIRE) {
+			this.agendas.setProfileFire(true);
 		}
 	}
 
@@ -475,22 +470,22 @@ public class Rete implements SettingsChangedListener, PropertyChangeListener, Co
 	 * @param type
 	 */
 	public void setProfileOff(int type) {
-		if (type == Constants.PROFILE_ADD_ACTIVATION) {
-			this.agendas.setProfileAdd(false);
+		if (type == Constants.PROFILE_ALL) {
+			this.agendas.setProfileAddActivation(false);
+			this.agendas.setProfileRemoveActivation(false);
+			this.agendas.setProfileFire(false);
+			this.profileAssert = false;
+			this.profileRetract = false;
 		} else if (type == Constants.PROFILE_ASSERT) {
 			this.profileAssert = false;
-		} else if (type == Constants.PROFILE_ALL) {
-			this.agendas.setProfileAdd(false);
-			this.profileAssert = false;
-			this.profileFire = false;
-			this.profileRetract = false;
-			this.agendas.setProfileRemove(false);
-		} else if (type == Constants.PROFILE_FIRE) {
-			this.profileFire = false;
 		} else if (type == Constants.PROFILE_RETRACT) {
 			this.profileRetract = false;
+		} else if (type == Constants.PROFILE_ADD_ACTIVATION) {
+			this.agendas.setProfileAddActivation(false);
 		} else if (type == Constants.PROFILE_RM_ACTIVATION) {
-			this.agendas.setProfileRemove(false);
+			this.agendas.setProfileRemoveActivation(false);
+		} else if (type == Constants.PROFILE_FIRE) {
+			this.agendas.setProfileFire(false);
 		}
 	}
 
@@ -945,16 +940,6 @@ public class Rete implements SettingsChangedListener, PropertyChangeListener, Co
 	}
 
 	public void settingsChanged(String propertyName) {
-		JamochaSettings settings = JamochaSettings.getInstance();
-		// watch activations
-		if (propertyName.equals(JamochaSettings.ENGINE_GENERAL_SETTINGS_WATCH_ACTIVATIONS)) {
-			agendas.setWatchActivations(settings.getBoolean(propertyName));
-			// watch facts
-		} else if (propertyName.equals(JamochaSettings.ENGINE_GENERAL_SETTINGS_WATCH_FACTS)) {
-			modules.setWatchFact(settings.getBoolean(propertyName));
-			// watch rules
-		} else if (propertyName.equals(JamochaSettings.ENGINE_GENERAL_SETTINGS_WATCH_RULES)) {
-			modules.setWatchRules(settings.getBoolean(propertyName));
-		}
+
 	}
 }

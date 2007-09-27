@@ -33,18 +33,22 @@ import org.jamocha.rete.configurations.SlotConfiguration;
 import org.jamocha.rete.eventhandling.ModulesChangeListener;
 import org.jamocha.rete.exception.AssertException;
 import org.jamocha.rule.Rule;
+import org.jamocha.settings.JamochaSettings;
+import org.jamocha.settings.SettingsChangedListener;
 
 /**
  * @author Sebastian Reinartz
  * 
  */
-public class Modules implements Serializable {
+public class Modules implements SettingsChangedListener, Serializable {
 
 	private static final long serialVersionUID = 1L;
-	
+
 	private boolean watchFact = false;
 
 	private boolean watchRules = false;
+
+	private String[] interestedProperties = { JamochaSettings.ENGINE_GENERAL_SETTINGS_WATCH_FACTS, JamochaSettings.ENGINE_GENERAL_SETTINGS_WATCH_RULES };
 
 	private Module currentModule = null;
 
@@ -62,7 +66,7 @@ public class Modules implements Serializable {
 	private TemplateDataContainer templates = new TemplateDataContainer();
 
 	protected Rete engine;
-	
+
 	/**
 	 * The HashMap for the modules.
 	 */
@@ -77,6 +81,7 @@ public class Modules implements Serializable {
 		initMain();
 		this.engine = engine;
 		this.listeners = new Vector<ModulesChangeListener>();
+		JamochaSettings.getInstance().addListener(this, interestedProperties);
 	}
 
 	public void addModulesChangeListener(ModulesChangeListener l) {
@@ -163,8 +168,7 @@ public class Modules implements Serializable {
 	public Fact createFact(Object data, String template) throws AssertException {
 		Template tmpl = this.getTemplate(currentModule, template);
 		if (tmpl == null)
-			throw new AssertException("Template " + template
-					+ " could not be found");
+			throw new AssertException("Template " + template + " could not be found");
 		Fact ft = null;
 		try {
 			ft = ((Deftemplate) tmpl).createFact(data, engine);
@@ -175,12 +179,10 @@ public class Modules implements Serializable {
 		return ft;
 	}
 
-	public Fact createFact(SlotConfiguration[] scs, String template)
-			throws EvaluationException {
+	public Fact createFact(SlotConfiguration[] scs, String template) throws EvaluationException {
 		Template tmpl = this.getTemplate(currentModule, template);
 		if (tmpl == null)
-			throw new AssertException("Template " + template
-					+ " could not be found");
+			throw new AssertException("Template " + template + " could not be found");
 		Fact ft = null;
 		ft = ((Deftemplate) tmpl).createFact(scs, engine);
 		this.addFact(ft);
@@ -252,7 +254,7 @@ public class Modules implements Serializable {
 		if (watchFact) {
 			engine.writeMessage("==> " + fact.toFactString() + Constants.LINEBREAK, "t");
 		}
-		
+
 		return facts.add(fact);
 	}
 
@@ -260,13 +262,12 @@ public class Modules implements Serializable {
 		if (watchFact) {
 			engine.writeMessage("<== " + fact.toFactString() + Constants.LINEBREAK, "t");
 		}
-		
+
 		this.facts.remove(fact.getFactId());
 	}
 
 	public String toString() {
-		return "Modules Current Module:"
-				+ this.getCurrentModule().getModuleName();
+		return "Modules Current Module:" + this.getCurrentModule().getModuleName();
 
 	}
 
@@ -319,5 +320,16 @@ public class Modules implements Serializable {
 
 	public void setWatchRules(boolean watchRules) {
 		this.watchRules = watchRules;
+	}
+
+	public void settingsChanged(String propertyName) {
+		JamochaSettings settings = JamochaSettings.getInstance();
+		// watch facts
+		if (propertyName.equals(JamochaSettings.ENGINE_GENERAL_SETTINGS_WATCH_FACTS)) {
+			setWatchFact(settings.getBoolean(propertyName));
+			// watch rules
+		} else if (propertyName.equals(JamochaSettings.ENGINE_GENERAL_SETTINGS_WATCH_RULES)) {
+			setWatchRules(settings.getBoolean(propertyName));
+		}
 	}
 }
