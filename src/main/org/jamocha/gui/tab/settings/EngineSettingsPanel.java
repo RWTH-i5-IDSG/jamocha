@@ -293,19 +293,21 @@ public class EngineSettingsPanel extends AbstractSettingsPanel implements Action
 	}
 
 	private void performSettingsChange(String settingName, boolean newValue) {
+		// ok we set settings change direct to settings object!
+		settings.set(settingName, newValue);
 		// TODO: do we should use chanel to perform changes or write directly to
 		// settings object?
 		// care for threads!!
-		StringBuilder command = new StringBuilder();
-		// build statement:
-		command.append("(set ");
-		command.append(settingName);
-		command.append(" ");
-		command.append(newValue);
-		command.append(" )");
-
-		// execute:
-		gui.getStringChannel().executeCommand(command.toString());
+		// StringBuilder command = new StringBuilder();
+		// // build statement:
+		// command.append("(set ");
+		// command.append(settingName);
+		// command.append(" ");
+		// command.append(newValue);
+		// command.append(" )");
+		//
+		// // execute:
+		// gui.getStringChannel().executeCommand(command.toString());
 	}
 
 	private void initModuleSelector() {

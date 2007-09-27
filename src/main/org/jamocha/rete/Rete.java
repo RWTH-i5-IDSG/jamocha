@@ -63,15 +63,12 @@ import org.jamocha.settings.SettingsChangedListener;
  */
 public class Rete implements SettingsChangedListener, PropertyChangeListener, CompilerListener, Serializable {
 
-	private static final String WATCH_RULES = "engine.general_settings.watch_rules";
-
-	private static final String WATCH_FACTS = "engine.general_settings.watch_facts";
-
-	private static final String WATCH_ACTIVATIONS = "engine.general_settings.watch_activations";
-
 	private static final long serialVersionUID = 1L;
 
-	private String[] interestedProperties = { WATCH_RULES, WATCH_FACTS, WATCH_ACTIVATIONS };
+	private String[] interestedProperties = { 
+			JamochaSettings.ENGINE_GENERAL_SETTINGS_WATCH_RULES, 
+			JamochaSettings.ENGINE_GENERAL_SETTINGS_WATCH_FACTS, 
+			JamochaSettings.ENGINE_GENERAL_SETTINGS_WATCH_ACTIVATIONS };
 
 	protected ArrayList focusStack = new ArrayList();
 
@@ -950,13 +947,13 @@ public class Rete implements SettingsChangedListener, PropertyChangeListener, Co
 	public void settingsChanged(String propertyName) {
 		JamochaSettings settings = JamochaSettings.getInstance();
 		// watch activations
-		if (propertyName.equals(WATCH_ACTIVATIONS)) {
+		if (propertyName.equals(JamochaSettings.ENGINE_GENERAL_SETTINGS_WATCH_ACTIVATIONS)) {
 			agendas.setWatchActivations(settings.getBoolean(propertyName));
 			// watch facts
-		} else if (propertyName.equals(WATCH_FACTS)) {
+		} else if (propertyName.equals(JamochaSettings.ENGINE_GENERAL_SETTINGS_WATCH_FACTS)) {
 			modules.setWatchFact(settings.getBoolean(propertyName));
 			// watch rules
-		} else if (propertyName.equals(WATCH_RULES)) {
+		} else if (propertyName.equals(JamochaSettings.ENGINE_GENERAL_SETTINGS_WATCH_RULES)) {
 			modules.setWatchRules(settings.getBoolean(propertyName));
 		}
 	}

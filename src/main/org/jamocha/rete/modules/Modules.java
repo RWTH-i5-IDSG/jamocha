@@ -217,11 +217,17 @@ public class Modules implements Serializable {
 	}
 
 	public void removeRule(Module defmodule, Rule rl) {
+		if (watchRules) {
+			engine.writeMessage("<== Rule: " + rl.getName() + Constants.LINEBREAK, "t");
+		}
 		rules.remove(rl.getName(), defmodule);
 
 	}
 
 	public void addRule(Module defmodule, Rule rl) {
+		if (watchRules) {
+			engine.writeMessage("==> Rule: " + rl.getName() + Constants.LINEBREAK, "t");
+		}
 		rules.add(rl, defmodule);
 
 	}
