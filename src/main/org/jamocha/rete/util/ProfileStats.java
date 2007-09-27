@@ -195,4 +195,23 @@ public class ProfileStats {
 		addcount = 0;
 		rmcount = 0;
 	}
+	
+	public static String printResults(){
+		StringBuilder result = new StringBuilder();
+		result.append("assertTime: ");
+		result.append(assertTime);
+		result.append(" retractTime: ");
+		result.append(retractTime);
+		result.append(" addActivation: ");
+		result.append(addActivation);
+		result.append(" rmActivation: ");
+		result.append(rmActivation);
+		result.append(" addcount: ");
+		result.append(addcount);
+		result.append(" rmcount: ");
+		result.append(rmcount);
+		result.append(" fireTime: ");
+		result.append(fireTime);
+		return result.toString();
+	}
 }

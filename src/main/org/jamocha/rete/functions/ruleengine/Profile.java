@@ -24,20 +24,20 @@ import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.functions.AbstractFunction;
 import org.jamocha.rete.functions.FunctionDescription;
+import org.jamocha.rete.util.ProfileStats;
 
 /**
  * @author Peter Lin
  * 
- * Turns on profiling. Provides basic profiling of assert, retract, add activation, 
- * remove activation, and fire. Returns NIL.
+ * Turns on profiling. Provides basic profiling of assert, retract, add
+ * activation, remove activation, and fire. Returns NIL.
  */
 public class Profile extends AbstractFunction {
 
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "Turns on profiling. Provides basic profiling of assert, retract, add activation, " +
-					"remove activation, and fire. Returns NIL.";
+			return "Turns on profiling. Provides basic profiling of assert, retract, add activation, " + "remove activation, and fire. Returns NIL.";
 		}
 
 		public int getParameterCount() {
@@ -92,25 +92,28 @@ public class Profile extends AbstractFunction {
 		return NAME;
 	}
 
-	public JamochaValue executeFunction(Rete engine, Parameter[] params)
-			throws EvaluationException {
-		if (params != null && params.length > 0) {
-			for (int idx = 0; idx < params.length; idx++) {
-				JamochaValue param = params[idx].getValue(engine);
-				if (param.getIdentifierValue().equals("all")) {
-					engine.setProfile(Constants.PROFILE_ALL);
-				} else if (param.getIdentifierValue().equals("assert-fact")) {
-					engine.setProfile(Constants.PROFILE_ASSERT);
-				} else if (param.getIdentifierValue().equals("add-activation")) {
-					engine.setProfile(Constants.PROFILE_ADD_ACTIVATION);
-				} else if (param.getIdentifierValue().equals("fire")) {
-					engine.setProfile(Constants.PROFILE_FIRE);
-				} else if (param.getIdentifierValue().equals("retract-fact")) {
-					engine.setProfile(Constants.PROFILE_RETRACT);
-				} else if (param.getIdentifierValue().equals(
-						"remove-activation")) {
-					engine.setProfile(Constants.PROFILE_RM_ACTIVATION);
+	public JamochaValue executeFunction(Rete engine, Parameter[] params) throws EvaluationException {
+		if (params != null) {
+			if (params.length > 0) {
+				for (int idx = 0; idx < params.length; idx++) {
+					JamochaValue param = params[idx].getValue(engine);
+					if (param.getIdentifierValue().equals("all")) {
+						engine.setProfile(Constants.PROFILE_ALL);
+					} else if (param.getIdentifierValue().equals("assert-fact")) {
+						engine.setProfile(Constants.PROFILE_ASSERT);
+					} else if (param.getIdentifierValue().equals("add-activation")) {
+						engine.setProfile(Constants.PROFILE_ADD_ACTIVATION);
+					} else if (param.getIdentifierValue().equals("fire")) {
+						engine.setProfile(Constants.PROFILE_FIRE);
+					} else if (param.getIdentifierValue().equals("retract-fact")) {
+						engine.setProfile(Constants.PROFILE_RETRACT);
+					} else if (param.getIdentifierValue().equals("remove-activation")) {
+						engine.setProfile(Constants.PROFILE_RM_ACTIVATION);
+					}
 				}
+			}else {
+				//printout results:
+				engine.writeMessage(ProfileStats.printResults());
 			}
 		}
 		return JamochaValue.NIL;
