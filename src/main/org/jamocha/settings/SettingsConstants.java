@@ -39,6 +39,8 @@ public class SettingsConstants {
 
 	public static final String GUI_SHELL_FONT = "gui.shell.font";
 	
+	public static final String GUI_VIEWER_CONNECTORTYPE = "gui.viewer.connectortype";
+	
 	// Engine Settings
 
 	public static final String ENGINE_GENERAL_SETTINGS_WATCH_RULES = "engine.general_settings.watch_rules";
@@ -60,5 +62,7 @@ public class SettingsConstants {
 	public static final String ENGINE_GENERAL_SETTINGS_EVALUATION = "engine.general_settings.evaluation";
 	
 	public static final String ENGINE_STRATEGY_SETTINGS_STRATEGY_MAIN = "engine.strategy_settings.strategy_main";
+
+	
 
 }
