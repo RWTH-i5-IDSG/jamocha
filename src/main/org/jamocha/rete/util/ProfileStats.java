@@ -206,9 +206,9 @@ public class ProfileStats {
 		result.append(addActivation);
 		result.append(" rmActivation: ");
 		result.append(rmActivation);
-		result.append(" addcount: ");
+		result.append(" ActivationAddcount: ");
 		result.append(addcount);
-		result.append(" rmcount: ");
+		result.append(" ActivationRmcount: ");
 		result.append(rmcount);
 		result.append(" fireTime: ");
 		result.append(fireTime);

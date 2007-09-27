@@ -23,6 +23,7 @@ import java.util.Queue;
 
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.exception.ExecuteException;
+import org.jamocha.rete.util.ProfileStats;
 
 /**
  * @author Josef Alexander Hahn
@@ -40,12 +41,23 @@ public class Agenda implements Serializable {
 
 	protected Queue<Activation> activations;
 
-	protected boolean watch = false;
+	protected boolean watchActivations = false;
 
-	public Agenda(Rete engine, ConflictResolutionStrategy strategy) {
+	protected boolean profileFire = false;
+
+	protected boolean profileAddActivation = false;
+
+	protected boolean profileRemoveActivation = false;
+
+	public Agenda(Rete engine, ConflictResolutionStrategy strategy, boolean watch, boolean profileFire, boolean profileAddActivation, boolean profileRemoveActivation) {
+		super();
 		this.engine = engine;
-		activations = new PriorityQueue<Activation>(INITIAL_CAPACITY, strategy);
 		this.strategy = strategy;
+		this.watchActivations = watch;
+		this.profileFire = profileFire;
+		this.profileAddActivation = profileAddActivation;
+		this.profileRemoveActivation = profileRemoveActivation;
+		this.activations = new PriorityQueue<Activation>(INITIAL_CAPACITY, strategy);
 	}
 
 	public void setConflictResolutionStrategy(ConflictResolutionStrategy strat) {
@@ -54,9 +66,7 @@ public class Agenda implements Serializable {
 			// we need to recompute the activation list
 			Queue<Activation> oldList = activations;
 			int oldListSize = oldList.size();
-			activations = new PriorityQueue<Activation>(
-					(oldListSize > 0) ? oldListSize : INITIAL_CAPACITY,
-					strategy);
+			activations = new PriorityQueue<Activation>((oldListSize > 0) ? oldListSize : INITIAL_CAPACITY, strategy);
 			if (oldListSize > 0)
 				activations.addAll(oldList);
 		}
@@ -67,16 +77,32 @@ public class Agenda implements Serializable {
 	}
 
 	public void addActivation(Activation a) {
-		activations.offer(a);
-		if (watch) {
+		//Watch?
+		if (watchActivations) {
 			engine.writeMessage("==> Activation: " + a.toString());
+		}
+		//profile?
+		if (profileAddActivation) {
+			ProfileStats.startAddActivation();
+			activations.offer(a);
+			ProfileStats.endAddActivation();
+		} else {
+			activations.offer(a);
 		}
 	}
 
 	public void removeActivation(Activation a) {
-		activations.remove(a);
-		if (watch) {
+		//wath?
+		if (watchActivations) {
 			engine.writeMessage("<== Activation: " + a.toString());
+		}
+		//profile?
+		if (profileAddActivation) {
+			ProfileStats.startRemoveActivation();
+			activations.remove(a);
+			ProfileStats.endRemoveActivation();
+		} else {
+			activations.remove(a);
 		}
 	}
 
@@ -90,6 +116,9 @@ public class Agenda implements Serializable {
 
 	public int fire(int maxFire) throws ExecuteException {
 		int fireCount = 0;
+		if (profileFire) {
+			ProfileStats.startFire();
+		}
 		if (maxFire < 1) {
 			while (activations.size() > 0) {
 				Activation act = (Activation) activations.poll();
@@ -104,15 +133,26 @@ public class Agenda implements Serializable {
 				fireCount++;
 			}
 		}
+		if (profileFire) {
+			ProfileStats.endFire();
+		}
 		return fireCount;
 	}
 
-	public boolean isWatch() {
-		return watch;
+	public void setWatchActivations(boolean watch) {
+		this.watchActivations = watch;
 	}
 
-	public void setWatch(boolean watch) {
-		this.watch = watch;
+	public void setProfileAddActivation(boolean profileAddActivation) {
+		this.profileAddActivation = profileAddActivation;
+	}
+
+	public void setProfileFire(boolean profileFire) {
+		this.profileFire = profileFire;
+	}
+
+	public void setProfileRemoveActivation(boolean profileRemoveActivation) {
+		this.profileRemoveActivation = profileRemoveActivation;
 	}
 
 }

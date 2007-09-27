@@ -55,6 +55,7 @@ import org.jamocha.rete.util.ProfileStats;
 import org.jamocha.rule.Rule;
 import org.jamocha.settings.JamochaSettings;
 import org.jamocha.settings.SettingsChangedListener;
+import org.jamocha.settings.SettingsConstants;
 
 /**
  * @author Peter Lin
@@ -66,11 +67,7 @@ public class Rete implements SettingsChangedListener, PropertyChangeListener, Co
 
 	private static final long serialVersionUID = 1L;
 
-	private String[] interestedProperties = {};
-
-	protected boolean halt = true;
-
-	protected boolean prettyPrint = false;
+	private String[] interestedProperties = { SettingsConstants.ENGINE_GENERAL_SETTINGS_PROFILE_ASSERT, SettingsConstants.ENGINE_GENERAL_SETTINGS_PROFILE_RETRACT };
 
 	protected ReteNet net = null;
 
@@ -90,9 +87,6 @@ public class Rete implements SettingsChangedListener, PropertyChangeListener, Co
 	 */
 	protected List<EngineEventListener> listeners = new ArrayList<EngineEventListener>();
 
-	/**
-	 * Each engine instance only has 1 agenda
-	 */
 	private Agendas agendas = null;
 
 	private Modules modules = null;
@@ -938,6 +932,14 @@ public class Rete implements SettingsChangedListener, PropertyChangeListener, Co
 	}
 
 	public void settingsChanged(String propertyName) {
-
+		JamochaSettings settings = JamochaSettings.getInstance();
+		// watch activations
+		if (propertyName.equals(SettingsConstants.ENGINE_GENERAL_SETTINGS_PROFILE_ASSERT)) {
+			this.profileAssert = (settings.getBoolean(propertyName));
+		}
+		// profile:
+		else if (propertyName.equals(SettingsConstants.ENGINE_GENERAL_SETTINGS_PROFILE_RETRACT)) {
+			this.profileRetract = (settings.getBoolean(propertyName));
+		}
 	}
 }
