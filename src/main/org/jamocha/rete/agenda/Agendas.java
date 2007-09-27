@@ -20,6 +20,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.jamocha.parser.EvaluationException;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.exception.ExecuteException;
 import org.jamocha.rete.modules.Module;
@@ -41,7 +42,8 @@ public class Agendas implements SettingsChangedListener {
 			SettingsConstants.ENGINE_GENERAL_SETTINGS_PROFILE_FIRE,
 			SettingsConstants.ENGINE_GENERAL_SETTINGS_PROFILE_ADD_ACTIVATION,
 			SettingsConstants.ENGINE_GENERAL_SETTINGS_PROFILE_REMOVE_ACTIVATION,
-			SettingsConstants.ENGINE_GENERAL_SETTINGS_WATCH_ACTIVATIONS };
+			SettingsConstants.ENGINE_GENERAL_SETTINGS_WATCH_ACTIVATIONS,
+			SettingsConstants.ENGINE_STRATEGY_SETTINGS_STRATEGY_MAIN};
 
 	/**
 	 * Flag if Activations should be watched. If set to true an engine message
@@ -54,6 +56,8 @@ public class Agendas implements SettingsChangedListener {
 	protected boolean profileAddActivation = false;
 
 	protected boolean profileRemoveActivation = false;
+	
+	protected ConflictResolutionStrategy strategy = new BreadthStrategy();
 
 	public Agendas(Rete engine) {
 		this.engine = engine;
@@ -64,7 +68,7 @@ public class Agendas implements SettingsChangedListener {
 	public Agenda getAgenda(Module module) {
 		Agenda a = agendas.get(module);
 		if (a == null) {
-			a = new Agenda(engine);
+			a = new Agenda(engine, strategy);
 			if (watchActivations)
 				a.setWatch(watchActivations);
 			agendas.put(module, a);
@@ -110,6 +114,27 @@ public class Agendas implements SettingsChangedListener {
 	public void setProfileFire(boolean profileFire) {
 		this.profileFire = profileFire;
 	}
+	
+	public void setStrategy(String strategyName) throws EvaluationException {
+		try {
+			//set new strategy:
+			strategy = ConflictResolutionStrategy.getStrategy(strategyName);
+			Collection<Agenda> ags = agendas.values();
+			for (Agenda agenda : ags) {
+				agenda.setConflictResolutionStrategy(strategy);
+			}
+			
+		} catch (InstantiationException e) {
+			throw new EvaluationException(
+					"Error while setting the strategy to " + strategyName,
+					e);
+		} catch (IllegalAccessException e) {
+			throw new EvaluationException(
+					"Error while setting the strategy to " + strategyName,
+					e);
+		}
+		
+	}
 
 	public void settingsChanged(String propertyName) {
 		JamochaSettings settings = JamochaSettings.getInstance();
@@ -129,6 +154,15 @@ public class Agendas implements SettingsChangedListener {
 				.equals(SettingsConstants.ENGINE_GENERAL_SETTINGS_PROFILE_REMOVE_ACTIVATION)) {
 			setProfileRemoveActivation(settings.getBoolean(propertyName));
 		}
+		// strategie:
+		else if (propertyName
+				.equals(SettingsConstants.ENGINE_STRATEGY_SETTINGS_STRATEGY_MAIN)) {
+			try {
+				setStrategy(settings.getString(propertyName));
+			} catch (EvaluationException e) {
+				e.printStackTrace();
+			}
+		}		
 
 	}
 

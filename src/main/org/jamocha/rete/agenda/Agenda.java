@@ -48,10 +48,6 @@ public class Agenda implements Serializable {
 		this.strategy = strategy;
 	}
 
-	public Agenda(Rete engine) {
-		this(engine, new BreadthStrategy());
-	}
-
 	public void setConflictResolutionStrategy(ConflictResolutionStrategy strat) {
 		if (strat != null) {
 			strategy = strat;
