@@ -125,7 +125,6 @@ public class JamochaSettings {
 	}
 
 	public boolean set(String key, String value) {
-		preferences.put(key, value);
 		// try to read settings:
 		JamochaSetting setting = settings.get(key);
 		// nor found? try to read friendlyNames:
@@ -139,6 +138,7 @@ public class JamochaSettings {
 		// action:
 		if (setting != null) {
 			setting.setCurrentValue(value);
+			preferences.put(key, value);
 			informListeners(key);
 			return true;
 		}
