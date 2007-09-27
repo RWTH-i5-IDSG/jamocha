@@ -4,11 +4,11 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
 
+import org.jamocha.Constants;
 import org.jamocha.parser.Expression;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.BoundParam;
-import org.jamocha.rete.Constants;
 import org.jamocha.rete.ExpressionCollection;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Slot;

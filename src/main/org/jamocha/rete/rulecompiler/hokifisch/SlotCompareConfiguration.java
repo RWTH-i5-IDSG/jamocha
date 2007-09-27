@@ -1,6 +1,6 @@
 package org.jamocha.rete.rulecompiler.hokifisch;
 
-import org.jamocha.rete.Constants;
+import org.jamocha.Constants;
 import org.jamocha.rete.ConversionUtils;
 
 /**

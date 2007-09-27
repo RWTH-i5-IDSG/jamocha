@@ -19,10 +19,10 @@ package org.jamocha.rete.functions.ruleengine;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import org.jamocha.Constants;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.rete.Constants;
 import org.jamocha.rete.Deffact;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;

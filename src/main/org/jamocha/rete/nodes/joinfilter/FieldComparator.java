@@ -18,10 +18,10 @@ package org.jamocha.rete.nodes.joinfilter;
 
 import java.io.Serializable;
 
+import org.jamocha.Constants;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.rete.Constants;
 import org.jamocha.rete.ConversionUtils;
 import org.jamocha.rete.Evaluate;
 import org.jamocha.rete.Fact;

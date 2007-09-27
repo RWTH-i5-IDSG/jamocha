@@ -16,7 +16,7 @@
  */
 package org.jamocha.rule;
 
-import org.jamocha.rete.Constants;
+import org.jamocha.Constants;
 
 /**
  * @author Peter Lin

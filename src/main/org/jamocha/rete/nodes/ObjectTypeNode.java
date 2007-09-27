@@ -25,8 +25,8 @@ import java.util.List;
 
 import javax.swing.ImageIcon;
 
+import org.jamocha.Constants;
 import org.jamocha.gui.icons.IconLoader;
-import org.jamocha.rete.Constants;
 import org.jamocha.rete.Fact;
 import org.jamocha.rete.Template;
 import org.jamocha.rete.exception.AssertException;

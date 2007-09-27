@@ -30,7 +30,7 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 
-import org.jamocha.rete.Constants;
+import org.jamocha.Constants;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.eventhandling.ModuleChangedEvent;
 import org.jamocha.rete.eventhandling.ModuleChangedListener;

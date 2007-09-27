@@ -18,6 +18,7 @@ package org.jamocha.rete;
 
 import java.util.HashMap;
 
+import org.jamocha.Constants;
 import org.jamocha.rete.nodes.BaseNode;
 
 /**

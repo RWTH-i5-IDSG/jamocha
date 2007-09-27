@@ -1,8 +1,8 @@
 package org.jamocha.formatter;
 
+import org.jamocha.Constants;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.BoundParam;
-import org.jamocha.rete.Constants;
 import org.jamocha.rete.Deftemplate;
 import org.jamocha.rete.ExpressionCollection;
 import org.jamocha.rete.Fact;

@@ -18,6 +18,7 @@ package org.jamocha.rete;
 
 import java.math.BigDecimal;
 
+import org.jamocha.Constants;
 import org.jamocha.parser.JamochaValue;
 
 /**

@@ -24,12 +24,12 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.jamocha.Constants;
 import org.jamocha.formatter.Formatter;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.Expression;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Binding;
-import org.jamocha.rete.Constants;
 import org.jamocha.rete.ExpressionSequence;
 import org.jamocha.rete.Fact;
 import org.jamocha.rete.Parameter;

@@ -37,8 +37,8 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
+import org.jamocha.Constants;
 import org.jamocha.gui.icons.IconLoader;
-import org.jamocha.rete.Constants;
 import org.jamocha.settings.JamochaSettings;
 
 /**

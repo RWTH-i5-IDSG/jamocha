@@ -18,6 +18,7 @@ package org.jamocha.rete;
 
 import java.io.Serializable;
 
+import org.jamocha.Constants;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.rete.nodes.FactTuple;
 

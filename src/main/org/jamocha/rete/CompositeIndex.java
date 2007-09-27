@@ -18,6 +18,8 @@ package org.jamocha.rete;
 
 import java.io.Serializable;
 
+import org.jamocha.Constants;
+
 /**
  * @author Peter Lin
  * 

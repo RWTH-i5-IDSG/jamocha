@@ -16,7 +16,7 @@
  */
 package org.jamocha.rete.nodes;
 
-import org.jamocha.rete.Constants;
+import org.jamocha.Constants;
 import org.jamocha.rete.Fact;
 import org.jamocha.rete.exception.AssertException;
 import org.jamocha.rete.exception.RetractException;

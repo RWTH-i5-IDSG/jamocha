@@ -26,6 +26,7 @@ import org.jamocha.rete.modules.Module;
 import org.jamocha.rete.util.ProfileStats;
 import org.jamocha.settings.JamochaSettings;
 import org.jamocha.settings.SettingsChangedListener;
+import org.jamocha.settings.SettingsConstants;
 
 /**
  * @author Josef Alexander Hahn, Sebastian Reinartz
@@ -35,12 +36,12 @@ public class Agendas implements SettingsChangedListener {
 	protected Map<Module, Agenda> agendas;
 
 	protected Rete engine;
-	
-	private String[] interestedProperties = { 
-			JamochaSettings.ENGINE_GENERAL_SETTINGS_PROFILE_FIRE, 
-			JamochaSettings.ENGINE_GENERAL_SETTINGS_PROFILE_ADD_ACTIVATION, 
-			JamochaSettings.ENGINE_GENERAL_SETTINGS_PROFILE_REMOVE_ACTIVATION,
-			JamochaSettings.ENGINE_GENERAL_SETTINGS_WATCH_ACTIVATIONS };
+
+	private String[] interestedProperties = {
+			SettingsConstants.ENGINE_GENERAL_SETTINGS_PROFILE_FIRE,
+			SettingsConstants.ENGINE_GENERAL_SETTINGS_PROFILE_ADD_ACTIVATION,
+			SettingsConstants.ENGINE_GENERAL_SETTINGS_PROFILE_REMOVE_ACTIVATION,
+			SettingsConstants.ENGINE_GENERAL_SETTINGS_WATCH_ACTIVATIONS };
 
 	/**
 	 * Flag if Activations should be watched. If set to true an engine message
@@ -49,9 +50,9 @@ public class Agendas implements SettingsChangedListener {
 	protected boolean watchActivations = false;
 
 	protected boolean profileFire = false;
-	
+
 	protected boolean profileAddActivation = false;
-	
+
 	protected boolean profileRemoveActivation = false;
 
 	public Agendas(Rete engine) {
@@ -113,17 +114,19 @@ public class Agendas implements SettingsChangedListener {
 	public void settingsChanged(String propertyName) {
 		JamochaSettings settings = JamochaSettings.getInstance();
 		// watch activations
-		if (propertyName.equals(JamochaSettings.ENGINE_GENERAL_SETTINGS_WATCH_ACTIVATIONS)) {
+		if (propertyName
+				.equals(SettingsConstants.ENGINE_GENERAL_SETTINGS_WATCH_ACTIVATIONS)) {
 			setWatchActivations(settings.getBoolean(propertyName));
 		}
 		// profile:
-		else if (propertyName.equals(JamochaSettings.ENGINE_GENERAL_SETTINGS_PROFILE_FIRE)) {
+		else if (propertyName
+				.equals(SettingsConstants.ENGINE_GENERAL_SETTINGS_PROFILE_FIRE)) {
 			setProfileFire(settings.getBoolean(propertyName));
-		}
-		else if (propertyName.equals(JamochaSettings.ENGINE_GENERAL_SETTINGS_PROFILE_ADD_ACTIVATION)) {
+		} else if (propertyName
+				.equals(SettingsConstants.ENGINE_GENERAL_SETTINGS_PROFILE_ADD_ACTIVATION)) {
 			setProfileAddActivation(settings.getBoolean(propertyName));
-		}
-		else if (propertyName.equals(JamochaSettings.ENGINE_GENERAL_SETTINGS_PROFILE_REMOVE_ACTIVATION)) {
+		} else if (propertyName
+				.equals(SettingsConstants.ENGINE_GENERAL_SETTINGS_PROFILE_REMOVE_ACTIVATION)) {
 			setProfileRemoveActivation(settings.getBoolean(propertyName));
 		}
 

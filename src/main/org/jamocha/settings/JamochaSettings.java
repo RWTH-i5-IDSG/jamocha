@@ -28,30 +28,12 @@ import java.util.Set;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
-import org.jamocha.rete.Constants;
+import org.jamocha.Constants;
 
 /**
  * @author Sebastian Reinartz, Alexander Wilden
  */
 public class JamochaSettings {
-
-	public static final String ENGINE_GENERAL_SETTINGS_WATCH_RULES = "engine.general_settings.watch_rules";
-
-	public static final String ENGINE_GENERAL_SETTINGS_WATCH_FACTS = "engine.general_settings.watch_facts";
-
-	public static final String ENGINE_GENERAL_SETTINGS_WATCH_ACTIVATIONS = "engine.general_settings.watch_activations";
-
-	public static final String ENGINE_GENERAL_SETTINGS_PROFILE_REMOVE_ACTIVATION = "engine.general_settings.profile_remove_activation";
-
-	public static final String ENGINE_GENERAL_SETTINGS_PROFILE_ADD_ACTIVATION = "engine.general_settings.profile_add_activation";
-
-	public static final String ENGINE_GENERAL_SETTINGS_PROFILE_FIRE = "engine.general_settings.profile_fire";
-
-	public static final String ENGINE_GENERAL_SETTINGS_PROFILE_RETRACT = "engine.general_settings.profile_retract";
-
-	public static final String ENGINE_GENERAL_SETTINGS_PROFILE_ASSERT = "engine.general_settings.profile_assert";
-
-	public static final String ENGINE_GENERAL_SETTINGS_EVALUATION = "engine.general_settings.evaluation";
 
 	private static JamochaSettings singleton = null;
 
@@ -243,9 +225,9 @@ public class JamochaSettings {
 		appendCharChain(res, ' ', secondColWidth - 5);
 		res.append(" | Default value:");
 		appendCharChain(res, ' ', thirdColWidth - 14);
-		res.append(" | Current value: |");
+		res.append(" | Current value:");
 		appendCharChain(res, ' ', forthColWidth - 14);
-		res.append(Constants.LINEBREAK);
+		res.append(" |").append(Constants.LINEBREAK);
 		appendCharChain(res, '=', res.length() - 1);
 		res.append(Constants.LINEBREAK);
 		String type;

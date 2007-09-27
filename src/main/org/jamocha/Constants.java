@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2006 Peter Lin
+ * Copyright 2002-2006 Peter Lin, 2007 Alexander Wilden
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://ruleml-dev.sourceforge.net/
+ *   http://www.jamocha.org/
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,7 +14,7 @@
  * limitations under the License.
  * 
  */
-package org.jamocha.rete;
+package org.jamocha;
 
 /**
  * @author Peter Lin
@@ -177,17 +177,16 @@ public class Constants {
 
 	public static final String CRLF = "crlf";
 
-	public static String SHELL_PROMPT = "Jamocha> ";
+	public static final String SHELL_PROMPT = "Jamocha> ";
 
-	public static String DEFAULT_OUTPUT = "t";
+	public static final String DEFAULT_OUTPUT = "t";
 
-	public static String VERSION = "0.9 Beta 6";
+	public static final String VERSION = "0.9 Beta 6";
 
-	public static String VERSION_NAME = "Schinkenkeule";
+	public static final String VERSION_NAME = "Schinkenkeule";
 
-	public static String INITIAL_FACT = "_initialFact";
+	public static final String INITIAL_FACT = "_initialFact";
 
-	// / ----------- settings types -------///
 	public static final int WATCH_ACTIVATIONS = 001;
 
 	public static final int WATCH_ALL = 002;

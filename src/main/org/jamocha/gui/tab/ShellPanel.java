@@ -52,13 +52,13 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.Caret;
 import javax.swing.text.DefaultCaret;
 
+import org.jamocha.Constants;
 import org.jamocha.gui.ClipboardUtil;
 import org.jamocha.gui.JamochaGui;
 import org.jamocha.gui.icons.IconLoader;
 import org.jamocha.messagerouter.MessageEvent;
 import org.jamocha.messagerouter.StreamChannel;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.rete.Constants;
 import org.jamocha.rete.functions.Function;
 import org.jamocha.settings.SettingsChangedListener;
 

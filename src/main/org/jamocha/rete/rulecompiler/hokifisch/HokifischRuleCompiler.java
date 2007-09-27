@@ -3,12 +3,12 @@ package org.jamocha.rete.rulecompiler.hokifisch;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.jamocha.Constants;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.parser.RuleException;
 import org.jamocha.rete.CompileEvent;
 import org.jamocha.rete.CompilerListener;
-import org.jamocha.rete.Constants;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.RuleCompiler;
 import org.jamocha.rete.Slot;

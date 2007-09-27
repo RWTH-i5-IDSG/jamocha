@@ -16,6 +16,7 @@
  */
 package org.jamocha.rete;
 
+import org.jamocha.Constants;
 import org.jamocha.parser.EvaluationException;
 
 /**

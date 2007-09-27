@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.jamocha.Constants;
 import org.jamocha.logging.DefaultLogger;
 import org.jamocha.messagerouter.MessageEvent;
 import org.jamocha.messagerouter.MessageRouter;
@@ -66,8 +67,6 @@ public class Rete implements SettingsChangedListener, PropertyChangeListener, Co
 	private static final long serialVersionUID = 1L;
 
 	private String[] interestedProperties = {};
-
-	protected ArrayList focusStack = new ArrayList();
 
 	protected boolean halt = true;
 
@@ -198,7 +197,6 @@ public class Rete implements SettingsChangedListener, PropertyChangeListener, Co
 	public void close() {
 		this.modules.clearAll();
 		this.net.clear();
-		this.focusStack.clear();
 		this.functionMem.clearBuiltInFunctions();
 		this.listeners.clear();
 	}

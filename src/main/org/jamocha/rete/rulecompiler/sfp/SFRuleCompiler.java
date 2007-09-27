@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Stack;
 import java.util.Vector;
 
+import org.jamocha.Constants;
 import org.jamocha.logging.DefaultLogger;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.IllegalConversionException;
@@ -36,7 +37,6 @@ import org.jamocha.rete.Binding;
 import org.jamocha.rete.BoundParam;
 import org.jamocha.rete.CompileEvent;
 import org.jamocha.rete.CompilerListener;
-import org.jamocha.rete.Constants;
 import org.jamocha.rete.ConversionUtils;
 import org.jamocha.rete.Messages;
 import org.jamocha.rete.Parameter;

@@ -30,6 +30,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.jamocha.Constants;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 

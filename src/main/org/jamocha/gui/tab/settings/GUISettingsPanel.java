@@ -48,6 +48,7 @@ import javax.swing.event.ChangeListener;
 
 import org.jamocha.gui.JamochaGui;
 import org.jamocha.gui.icons.IconLoader;
+import org.jamocha.settings.SettingsConstants;
 
 /**
  * With this Panel the User can change the look of the Shell.
@@ -57,20 +58,6 @@ import org.jamocha.gui.icons.IconLoader;
  */
 public class GUISettingsPanel extends AbstractSettingsPanel implements
 		ActionListener, ItemListener, ChangeListener {
-
-	private static final String GUI_FACTS_AUTOSORT_DIR = "gui.facts.autosort_dir";
-
-	private static final String GUI_FACTS_AUTOSORT_BY = "gui.facts.autosort_by";
-
-	private static final String GUI_SHELL_AUTOCOMPLETION = "gui.shell.autocompletion";
-
-	private static final String GUI_SHELL_BACKGROUNDCOLOR = "gui.shell.backgroundcolor";
-
-	private static final String GUI_SHELL_FONTCOLOR = "gui.shell.fontcolor";
-
-	private static final String GUI_SHELL_FONTSIZE = "gui.shell.fontsize";
-
-	private static final String GUI_SHELL_FONT = "gui.shell.font";
 
 	private static final long serialVersionUID = -7136144663514250335L;
 
@@ -131,7 +118,8 @@ public class GUISettingsPanel extends AbstractSettingsPanel implements
 			sizes[i] = 8 + i;
 		}
 		fontsizes = new JComboBox(sizes);
-		fontsizes.setSelectedItem(settings.getInt(GUI_SHELL_FONTSIZE));
+		fontsizes.setSelectedItem(settings
+				.getInt(SettingsConstants.GUI_SHELL_FONTSIZE));
 		fontsizes.addItemListener(this);
 		JPanel fontsizesPanel = new JPanel(new BorderLayout());
 		fontsizesPanel.add(fontsizes, BorderLayout.WEST);
@@ -144,7 +132,7 @@ public class GUISettingsPanel extends AbstractSettingsPanel implements
 		fontColorChooserPreview = new JTextField(5);
 		fontColorChooserPreview.setEditable(false);
 		fontColorChooserPreview.setBackground(new Color(settings
-				.getInt(GUI_SHELL_FONTCOLOR)));
+				.getInt(SettingsConstants.GUI_SHELL_FONTCOLOR)));
 		fontColorChooserButton = new JButton("Choose Color", IconLoader
 				.getImageIcon("color_swatch"));
 		fontColorChooserButton.addActionListener(this);
@@ -159,7 +147,7 @@ public class GUISettingsPanel extends AbstractSettingsPanel implements
 		backgroundColorChooserPreview = new JTextField(5);
 		backgroundColorChooserPreview.setEditable(false);
 		backgroundColorChooserPreview.setBackground(new Color(settings
-				.getInt(GUI_SHELL_BACKGROUNDCOLOR)));
+				.getInt(SettingsConstants.GUI_SHELL_BACKGROUNDCOLOR)));
 		backgroundColorChooserButton = new JButton("Choose Color", IconLoader
 				.getImageIcon("color_swatch"));
 		backgroundColorChooserButton.addActionListener(this);
@@ -172,7 +160,7 @@ public class GUISettingsPanel extends AbstractSettingsPanel implements
 		addLabel(shellPanel, new JLabel(""), gridbag, c, 4);
 		autoCompletion = new JCheckBox("Enable Auto-Completion");
 		autoCompletion.setSelected(settings
-				.getBoolean(GUI_SHELL_AUTOCOMPLETION));
+				.getBoolean(SettingsConstants.GUI_SHELL_AUTOCOMPLETION));
 		autoCompletion.addChangeListener(this);
 		addInputComponent(shellPanel, autoCompletion, gridbag, c, 4);
 
@@ -194,7 +182,7 @@ public class GUISettingsPanel extends AbstractSettingsPanel implements
 		String[] factSortBy = { "no sorting", "id", "template", "fact" };
 		factSortByCombo = new JComboBox(factSortBy);
 		factSortByCombo.setSelectedItem(settings
-				.getString(GUI_FACTS_AUTOSORT_BY));
+				.getString(SettingsConstants.GUI_FACTS_AUTOSORT_BY));
 		factSortByCombo.addItemListener(this);
 		JPanel factSortByPanel = new JPanel(new BorderLayout());
 		factSortByPanel.add(factSortByCombo, BorderLayout.WEST);
@@ -205,7 +193,7 @@ public class GUISettingsPanel extends AbstractSettingsPanel implements
 		String[] factSortDirection = { "ascending", "descending" };
 		factSortDirectionCombo = new JComboBox(factSortDirection);
 		factSortDirectionCombo.setSelectedItem(settings
-				.getString(GUI_FACTS_AUTOSORT_DIR));
+				.getString(SettingsConstants.GUI_FACTS_AUTOSORT_DIR));
 		factSortDirectionCombo.addItemListener(this);
 		JPanel factSortDirectionPanel = new JPanel(new BorderLayout());
 		factSortDirectionPanel.add(factSortDirectionCombo, BorderLayout.WEST);
@@ -258,48 +246,56 @@ public class GUISettingsPanel extends AbstractSettingsPanel implements
 		if (event.getSource() == fontColorChooserButton) {
 			Color newColor = JColorChooser.showDialog(this,
 					"Choose a Fontcolor", new Color(settings
-							.getInt(GUI_SHELL_FONTCOLOR)));
+							.getInt(SettingsConstants.GUI_SHELL_FONTCOLOR)));
 			if (newColor != null) {
 				fontColorChooserPreview.setBackground(newColor);
-				settings.set(GUI_SHELL_FONTCOLOR, newColor.getRGB());
+				settings.set(SettingsConstants.GUI_SHELL_FONTCOLOR, newColor
+						.getRGB());
 			}
 		} else if (event.getSource() == backgroundColorChooserButton) {
-			Color newColor = JColorChooser.showDialog(this,
-					"Choose a Backgroundcolor", new Color(settings
-							.getInt(GUI_SHELL_BACKGROUNDCOLOR)));
+			Color newColor = JColorChooser
+					.showDialog(
+							this,
+							"Choose a Backgroundcolor",
+							new Color(
+									settings
+											.getInt(SettingsConstants.GUI_SHELL_BACKGROUNDCOLOR)));
 			if (newColor != null) {
 				backgroundColorChooserPreview.setBackground(newColor);
-				settings.set(GUI_SHELL_BACKGROUNDCOLOR, newColor.getRGB());
+				settings.set(SettingsConstants.GUI_SHELL_BACKGROUNDCOLOR,
+						newColor.getRGB());
 			}
 		}
 	}
 
 	public void itemStateChanged(ItemEvent event) {
 		if (event.getSource().equals(fonts)) {
-			settings.set(GUI_SHELL_FONT, ((Font) fonts.getSelectedItem())
-					.getFontName());
+			settings.set(SettingsConstants.GUI_SHELL_FONT, ((Font) fonts
+					.getSelectedItem()).getFontName());
 		} else if (event.getSource().equals(fontsizes)) {
-			settings.set(GUI_SHELL_FONTSIZE, (Integer) fontsizes
-					.getSelectedItem());
+			settings.set(SettingsConstants.GUI_SHELL_FONTSIZE,
+					(Integer) fontsizes.getSelectedItem());
 		} else if (event.getSource().equals(factSortByCombo)) {
-			settings.set(GUI_FACTS_AUTOSORT_BY, factSortByCombo
-					.getSelectedItem().toString());
+			settings.set(SettingsConstants.GUI_FACTS_AUTOSORT_BY,
+					factSortByCombo.getSelectedItem().toString());
 		} else if (event.getSource().equals(factSortDirectionCombo)) {
-			settings.set(GUI_FACTS_AUTOSORT_DIR, factSortDirectionCombo
-					.getSelectedItem().toString());
+			settings.set(SettingsConstants.GUI_FACTS_AUTOSORT_DIR,
+					factSortDirectionCombo.getSelectedItem().toString());
 		}
 	}
 
 	public void stateChanged(ChangeEvent event) {
 		if (event.getSource().equals(autoCompletion)) {
-			settings.set(GUI_SHELL_AUTOCOMPLETION, autoCompletion.isSelected());
+			settings.set(SettingsConstants.GUI_SHELL_AUTOCOMPLETION,
+					autoCompletion.isSelected());
 		}
 	}
 
 	@Override
 	public void refresh() {
 		// set font
-		String selFontName = settings.getString(GUI_SHELL_FONT);
+		String selFontName = settings
+				.getString(SettingsConstants.GUI_SHELL_FONT);
 		for (Font curFont : allFonts) {
 			if (curFont.getFontName().equals(selFontName)) {
 				fonts.setSelectedItem(curFont);
@@ -307,33 +303,34 @@ public class GUISettingsPanel extends AbstractSettingsPanel implements
 			}
 		}
 		// set fontsize
-		fontsizes.setSelectedItem(settings.getInt(GUI_SHELL_FONTSIZE));
+		fontsizes.setSelectedItem(settings
+				.getInt(SettingsConstants.GUI_SHELL_FONTSIZE));
 		// set fontcolor
 		fontColorChooserPreview.setBackground(new Color(settings
-				.getInt(GUI_SHELL_FONTCOLOR)));
+				.getInt(SettingsConstants.GUI_SHELL_FONTCOLOR)));
 		// set backgroundcolor
 		backgroundColorChooserPreview.setBackground(new Color(settings
-				.getInt(GUI_SHELL_BACKGROUNDCOLOR)));
+				.getInt(SettingsConstants.GUI_SHELL_BACKGROUNDCOLOR)));
 		// set autocompletion
 		autoCompletion.setSelected(settings
-				.getBoolean(GUI_SHELL_AUTOCOMPLETION));
+				.getBoolean(SettingsConstants.GUI_SHELL_AUTOCOMPLETION));
 		// set factsorting by
 		factSortByCombo.setSelectedItem(settings
-				.getString(GUI_FACTS_AUTOSORT_BY));
+				.getString(SettingsConstants.GUI_FACTS_AUTOSORT_BY));
 		// set factsorting dir
 		factSortDirectionCombo.setSelectedItem(settings
-				.getString(GUI_FACTS_AUTOSORT_DIR));
+				.getString(SettingsConstants.GUI_FACTS_AUTOSORT_DIR));
 	}
 
 	@Override
 	public void setDefaults() {
-		settings.toDefault(GUI_SHELL_FONT);
-		settings.toDefault(GUI_SHELL_FONTSIZE);
-		settings.toDefault(GUI_SHELL_FONTCOLOR);
-		settings.toDefault(GUI_SHELL_BACKGROUNDCOLOR);
-		settings.toDefault(GUI_SHELL_AUTOCOMPLETION);
-		settings.toDefault(GUI_FACTS_AUTOSORT_BY);
-		settings.toDefault(GUI_FACTS_AUTOSORT_DIR);
+		settings.toDefault(SettingsConstants.GUI_SHELL_FONT);
+		settings.toDefault(SettingsConstants.GUI_SHELL_FONTSIZE);
+		settings.toDefault(SettingsConstants.GUI_SHELL_FONTCOLOR);
+		settings.toDefault(SettingsConstants.GUI_SHELL_BACKGROUNDCOLOR);
+		settings.toDefault(SettingsConstants.GUI_SHELL_AUTOCOMPLETION);
+		settings.toDefault(SettingsConstants.GUI_FACTS_AUTOSORT_BY);
+		settings.toDefault(SettingsConstants.GUI_FACTS_AUTOSORT_DIR);
 		refresh();
 	}
 
