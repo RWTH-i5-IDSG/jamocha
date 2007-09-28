@@ -2,7 +2,7 @@
 <project name="jamocha" basedir="." default="all">
 
 	<target name="init">
-		<property name="releasever" value="beta.1548"/>
+		<property name="releasever" value="beta.1656"/>
 		<property name="lib.home" value="lib" />
 		<property name="app.name" value="jamocha" />
 		<property name="src" value="${basedir}/src" />
