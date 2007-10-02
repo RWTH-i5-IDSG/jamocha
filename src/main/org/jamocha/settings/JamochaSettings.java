@@ -84,7 +84,11 @@ public class JamochaSettings {
 	}
 
 	public Object get(String key) {
-		return settings.get(key).currentValue;
+		JamochaSetting prop = settings.get(key);
+		if (prop!= null)
+		return prop.currentValue;
+		else
+			return null;
 	}
 
 	public Object getDefault(String key) {
@@ -269,6 +273,9 @@ public class JamochaSettings {
 				this.name2SettingsChangedListener.put(settingName, listeners);
 			}
 			listeners.add(listener);
+			//is this setting registered? 
+			if (get(settingName) != null)
+			//if so send changed message to new listener:	
 			listener.settingsChanged(settingName);
 		}
 	}
