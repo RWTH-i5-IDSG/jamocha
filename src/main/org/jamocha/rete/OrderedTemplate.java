@@ -115,5 +115,4 @@ public class OrderedTemplate implements Template {
 	public String getDescription() {
 		return "(implied)";
 	}
-
 }

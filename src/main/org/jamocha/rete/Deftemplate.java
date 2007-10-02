@@ -205,21 +205,6 @@ public class Deftemplate implements Template, Serializable {
 	}
 
 	/**
-	 * Look up the column index of the slot
-	 * 
-	 * @param name
-	 * @return
-	 */
-	public int getColumnIndex(String name) {
-		for (int idx = 0; idx < this.slots.length; idx++) {
-			if (this.slots[idx].getName().equals(name)) {
-				return idx;
-			}
-		}
-		return -1;
-	}
-
-	/**
 	 * Method will create a Fact from the given object instance
 	 * 
 	 * @param data

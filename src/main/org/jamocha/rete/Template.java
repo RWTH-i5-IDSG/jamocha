@@ -63,13 +63,6 @@ public interface Template extends Serializable, Dumpable, Formattable {
 	TemplateSlot getSlot(int column);
 
 	/**
-	 * Get the column index with the given name
-	 * @param name
-	 * @return
-	 */
-	int getColumnIndex(String name);
-
-	/**
 	 * if watch is set to true, the rule engine will pass events
 	 * when the fact traverses the network.
 	 * @return
