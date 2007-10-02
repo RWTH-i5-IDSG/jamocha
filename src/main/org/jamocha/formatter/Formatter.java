@@ -35,9 +35,9 @@ public abstract class Formatter {
 
 	private StringBuilder prefix;
 
-	protected int intendationWidth = 4;
+	protected int indentationWidth = 4;
 
-	protected boolean intend = true;
+	protected boolean indent = true;
 
 	protected boolean lineBreak = true;
 
@@ -116,20 +116,20 @@ public abstract class Formatter {
 	 * Here end the visitor methods
 	 */
 
-	public int getIntendationWidth() {
-		return intendationWidth;
+	public int getIndentationWidth() {
+		return indentationWidth;
 	}
 
-	public void setIntendationWidth(int intendationWidth) {
-		this.intendationWidth = intendationWidth;
+	public void setIndentationWidth(int indentationWidth) {
+		this.indentationWidth = indentationWidth;
 	}
 
-	public boolean isIntend() {
-		return intend;
+	public boolean isIndent() {
+		return indent;
 	}
 
-	public void setIntend(boolean intend) {
-		this.intend = intend;
+	public void setIndent(boolean indent) {
+		this.indent = indent;
 	}
 
 	public boolean isLineBreak() {
@@ -141,24 +141,24 @@ public abstract class Formatter {
 	}
 
 	protected final void increaseIndent() {
-		for (int i = 0; i < intendationWidth; ++i) {
+		for (int i = 0; i < indentationWidth; ++i) {
 			prefix.append(' ');
 		}
 	}
 
 	protected final void decreaseIndent() {
-		prefix.setLength(Math.max(0, prefix.length() - intendationWidth));
+		prefix.setLength(Math.max(0, prefix.length() - indentationWidth));
 	}
 
 	protected final void newLine(StringBuilder sb) {
 		if (lineBreak) {
 			sb.append(Constants.LINEBREAK);
 		}
-		if (intend) {
+		if (indent) {
 			sb.append(prefix);
 		}
 		// we need at least a space as separation between two items
-		if (!lineBreak && (!intend || prefix.length() < 1)) {
+		if (!lineBreak && (!indent || prefix.length() < 1)) {
 			sb.append(" ");
 		}
 	}

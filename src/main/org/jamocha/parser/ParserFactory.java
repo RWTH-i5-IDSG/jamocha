@@ -156,7 +156,7 @@ public class ParserFactory {
 		} else {
 			throw new ModeNotFoundException(mode);
 		}
-		f.setIntend(indentation);
+		f.setIndent(indentation);
 		return f;
 	}
 

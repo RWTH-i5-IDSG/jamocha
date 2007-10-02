@@ -295,7 +295,7 @@ public abstract class BackupOfCLIPSFormatter extends Formatter {
 			for (Parameter param : params) {
 				String exp = formatExpression(param);
 				lineLength += exp.length();
-				if (intend && lineLength > 80) {
+				if (indent && lineLength > 80) {
 					newLine(res);
 					lineLength = exp.length();
 				}
