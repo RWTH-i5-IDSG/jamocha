@@ -108,4 +108,14 @@ public class SlotConfiguration extends AbstractConfiguration {
 		return visitor.visit(this);
 	}
 
+	public SlotConfiguration(String slotName, int id, Parameter[] slotValues) {
+		super();
+		this.slotName = slotName;
+		this.id = id;
+		this.slotValues = slotValues;
+	}
+
+	public SlotConfiguration() {
+	}
+
 }

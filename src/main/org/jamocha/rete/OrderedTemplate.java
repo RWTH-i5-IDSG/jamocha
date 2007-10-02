@@ -19,6 +19,8 @@ package org.jamocha.rete;
 import org.jamocha.Constants;
 import org.jamocha.formatter.Formatter;
 import org.jamocha.parser.EvaluationException;
+import org.jamocha.parser.JamochaType;
+import org.jamocha.parser.JamochaValue;
 
 /**
  * @author Sebastian Reinartz, Alexander Wilden
@@ -40,9 +42,36 @@ public class OrderedTemplate implements Template {
 
 	}
 
-	public Fact createFact(Object data, Rete engine) throws EvaluationException {
-		// TODO Auto-generated method stub
-		return null;
+	public Fact createFact(Parameter[] params, Rete engine) throws EvaluationException {
+		Slot slot = new Slot(data.getName());
+		slot.setId(0);
+
+		Slot bslot;
+		boolean hasbinding = false;
+
+		JamochaValue[] list = new JamochaValue[params.length];
+		for (int i = 0; i < params.length; i++) {
+			list[i] = params[i].getValue(engine);
+			if (list[i].getType() == JamochaType.BINDING) {
+
+				hasbinding = true;
+			}
+		}
+
+		JamochaValue val = JamochaValue.newList(list);
+		slot.setValue(val);
+
+		Deffact newfact = new Deffact(this, null, new Slot[] { slot });
+		if (hasbinding) {
+			bslot = (Slot) slot.clone();
+			bslot.setValue(val);
+			newfact.boundSlots = new Slot[] { bslot };
+			newfact.hasBinding = true;
+		}
+
+		// we call this to create the string used to map the fact.
+		newfact.equalityIndex();
+		return newfact;
 	}
 
 	public TemplateSlot[] getAllSlots() {

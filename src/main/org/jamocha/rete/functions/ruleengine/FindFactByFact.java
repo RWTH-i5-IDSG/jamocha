@@ -126,7 +126,7 @@ public class FindFactByFact extends AbstractFunction {
 				} else {
 
 					// get the slot configurations
-					scArray = ac.getSlots();
+					scArray = ac.getSlotConfigurations();
 
 					// create the fact
 					fact = (Deffact) template.createFact(scArray, engine);

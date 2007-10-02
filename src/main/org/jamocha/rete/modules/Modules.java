@@ -27,8 +27,10 @@ import org.jamocha.Constants;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.rete.Deftemplate;
 import org.jamocha.rete.Fact;
+import org.jamocha.rete.OrderedTemplate;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.Template;
+import org.jamocha.rete.configurations.AssertConfiguration;
 import org.jamocha.rete.configurations.SlotConfiguration;
 import org.jamocha.rete.eventhandling.ModulesChangeListener;
 import org.jamocha.rete.exception.AssertException;
@@ -49,9 +51,7 @@ public class Modules implements SettingsChangedListener, Serializable {
 
 	private boolean watchRules = false;
 
-	private String[] interestedProperties = {
-			SettingsConstants.ENGINE_GENERAL_SETTINGS_WATCH_FACTS,
-			SettingsConstants.ENGINE_GENERAL_SETTINGS_WATCH_RULES };
+	private String[] interestedProperties = { SettingsConstants.ENGINE_GENERAL_SETTINGS_WATCH_FACTS, SettingsConstants.ENGINE_GENERAL_SETTINGS_WATCH_RULES };
 
 	private Module currentModule = null;
 
@@ -168,31 +168,29 @@ public class Modules implements SettingsChangedListener, Serializable {
 		return (Module) this.modules.get(name);
 	}
 
-	public Fact createFact(Object data, String template) throws AssertException {
-		Template tmpl = this.getTemplate(currentModule, template);
-		if (tmpl == null)
-			throw new AssertException("Template " + template
-					+ " could not be found");
+	private Fact createFact(AssertConfiguration ac, Deftemplate tmpl) throws EvaluationException {
 		Fact ft = null;
-		try {
-			ft = ((Deftemplate) tmpl).createFact(data, engine);
-			this.addFact(ft);
-		} catch (EvaluationException e) {
-			throw new AssertException(e);
-		}
+		ft = tmpl.createFact(ac.getSlotConfigurations(), engine);
+		this.addFact(ft);
 		return ft;
 	}
 
-	public Fact createFact(SlotConfiguration[] scs, String template)
-			throws EvaluationException {
-		Template tmpl = this.getTemplate(currentModule, template);
-		if (tmpl == null)
-			throw new AssertException("Template " + template
-					+ " could not be found");
+	private Fact createFact(AssertConfiguration ac, OrderedTemplate tmpl) throws EvaluationException {
 		Fact ft = null;
-		ft = ((Deftemplate) tmpl).createFact(scs, engine);
+		ft = tmpl.createFact(ac.getData(), engine);
 		this.addFact(ft);
 		return ft;
+	}
+
+	public Fact createFact(AssertConfiguration ac) throws EvaluationException {
+		Template tmpl = this.getTemplate(currentModule, ac.getTemplateName());
+
+		if (tmpl == null)
+			return createFact(ac, new OrderedTemplate(ac.getTemplateName()));
+		else if (tmpl instanceof Deftemplate)
+			return createFact(ac, (Deftemplate) tmpl);
+		else 
+			return createFact(ac, (OrderedTemplate) tmpl);
 	}
 
 	public Rule findRule(Module module, String ruleName) {
@@ -219,7 +217,7 @@ public class Modules implements SettingsChangedListener, Serializable {
 	public List<Rule> getRules(Module module) {
 		return this.rules.getRules(module);
 	}
-	
+
 	public List<Rule> getAllRules() {
 		return this.rules.getRules();
 	}
@@ -230,8 +228,7 @@ public class Modules implements SettingsChangedListener, Serializable {
 
 	public void removeRule(Module defmodule, Rule rl) {
 		if (watchRules) {
-			engine.writeMessage("<== Rule: " + rl.getName()
-					+ Constants.LINEBREAK, "t");
+			engine.writeMessage("<== Rule: " + rl.getName() + Constants.LINEBREAK, "t");
 		}
 		rules.remove(rl.getName(), defmodule);
 
@@ -239,8 +236,7 @@ public class Modules implements SettingsChangedListener, Serializable {
 
 	public void addRule(Module defmodule, Rule rl) {
 		if (watchRules) {
-			engine.writeMessage("==> Rule: " + rl.getName()
-					+ Constants.LINEBREAK, "t");
+			engine.writeMessage("==> Rule: " + rl.getName() + Constants.LINEBREAK, "t");
 		}
 		rules.add(rl, defmodule);
 
@@ -264,8 +260,7 @@ public class Modules implements SettingsChangedListener, Serializable {
 
 	public long addFact(Fact fact) {
 		if (watchFact) {
-			engine.writeMessage("==> " + fact.toFactString()
-					+ Constants.LINEBREAK, "t");
+			engine.writeMessage("==> " + fact.toFactString() + Constants.LINEBREAK, "t");
 		}
 
 		return facts.add(fact);
@@ -273,16 +268,14 @@ public class Modules implements SettingsChangedListener, Serializable {
 
 	public void removeFact(Fact fact) {
 		if (watchFact) {
-			engine.writeMessage("<== " + fact.toFactString()
-					+ Constants.LINEBREAK, "t");
+			engine.writeMessage("<== " + fact.toFactString() + Constants.LINEBREAK, "t");
 		}
 
 		this.facts.remove(fact.getFactId());
 	}
 
 	public String toString() {
-		return "Modules Current Module:"
-				+ this.getCurrentModule().getModuleName();
+		return "Modules Current Module:" + this.getCurrentModule().getModuleName();
 
 	}
 
@@ -340,12 +333,10 @@ public class Modules implements SettingsChangedListener, Serializable {
 	public void settingsChanged(String propertyName) {
 		JamochaSettings settings = JamochaSettings.getInstance();
 		// watch facts
-		if (propertyName
-				.equals(SettingsConstants.ENGINE_GENERAL_SETTINGS_WATCH_FACTS)) {
+		if (propertyName.equals(SettingsConstants.ENGINE_GENERAL_SETTINGS_WATCH_FACTS)) {
 			setWatchFact(settings.getBoolean(propertyName));
 			// watch rules
-		} else if (propertyName
-				.equals(SettingsConstants.ENGINE_GENERAL_SETTINGS_WATCH_RULES)) {
+		} else if (propertyName.equals(SettingsConstants.ENGINE_GENERAL_SETTINGS_WATCH_RULES)) {
 			setWatchRules(settings.getBoolean(propertyName));
 		}
 	}

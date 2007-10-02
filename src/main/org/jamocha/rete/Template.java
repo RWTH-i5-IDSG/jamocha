@@ -19,7 +19,6 @@ package org.jamocha.rete;
 import java.io.Serializable;
 
 import org.jamocha.formatter.Formattable;
-import org.jamocha.parser.EvaluationException;
 
 /**
  * @author Peter Lin
@@ -75,13 +74,6 @@ public interface Template extends Serializable, Dumpable, Formattable {
 	 */
 	void setWatch(boolean watch);
 
-	/**
-	 * 
-	 * @param data
-	 * @param id
-	 * @return
-	 */
-	Fact createFact(Object data, Rete engine) throws EvaluationException;
 
 	/**
 	 * If a template has a parent, the method should

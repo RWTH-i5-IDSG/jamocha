@@ -18,8 +18,6 @@ package org.jamocha.rete;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
 
 import org.jamocha.Constants;
 import org.jamocha.formatter.Formatter;
@@ -225,83 +223,6 @@ public class Deftemplate implements Template, Serializable {
 			}
 		}
 		Deffact newfact = new Deffact(this, data, values);
-		return newfact;
-	}
-
-	/**
-	 * Method takes a list of Slots and creates a deffact from it.
-	 * 
-	 * @param data
-	 * @param id
-	 * @return
-	 * @throws EvaluationException
-	 */
-	public Fact createFact(Collection<Slot> data, long id, Rete engine)
-			throws EvaluationException {
-		Slot[] values = createFactSlots(engine);
-		Iterator<Slot> itr = data.iterator();
-		while (itr.hasNext()) {
-			Slot s = itr.next();
-			for (int idx = 0; idx < values.length; idx++) {
-				if (values[idx].getName().equals(s.getName())) {
-					if (s.value == null) {
-						values[idx].value = JamochaValue.NIL;
-					} else {
-						values[idx].value = s.value;
-					}
-				}
-			}
-		}
-		Deffact newfact = new Deffact(this, null, values);
-		// we call this to create the string used to map the fact.
-		newfact.equalityIndex();
-		return newfact;
-	}
-
-	public Fact createFact(Object data, Rete engine) throws EvaluationException {
-		Slot[] values = createFactSlots(engine);
-		Object[] array = (Object[]) data;
-		ArrayList<Slot> bslots = new ArrayList<Slot>();
-		boolean hasbinding = false;
-		for (int idz = 0; idz < array.length; idz++) {
-			Slot s = (Slot) array[idz];
-			for (int idx = 0; idx < values.length; idx++) {
-				if (values[idx].getName().equals(s.getName())) {
-					if (s.getValue().getType() == JamochaType.LIST) {
-						JamochaValue mval = s.getValue();
-						// check the list to see if there's any bindings
-						for (int mdx = 0; mdx < mval.getListCount(); mdx++) {
-							JamochaValue v2 = mval.getListValue(mdx);
-							if (v2.getType() == JamochaType.BINDING) {
-								bslots.add((Slot) s.clone());
-								hasbinding = true;
-								break;
-							}
-						}
-						values[idx].setValue(s.value);
-					} else {
-						if (s.value == null) {
-							values[idx].setValue(JamochaValue.NIL);
-						} else if (s.getValue().getType() == JamochaType.BINDING) {
-							values[idx].setValue(s.value);
-							bslots.add((Slot) s.clone());
-							hasbinding = true;
-						} else {
-							values[idx].setValue(s.value);
-						}
-					}
-					break;
-				}
-			}
-		}
-		Deffact newfact = new Deffact(this, null, values);
-		if (hasbinding) {
-			Slot[] slts2 = new Slot[bslots.size()];
-			newfact.boundSlots = (Slot[]) bslots.toArray(slts2);
-			newfact.hasBinding = true;
-		}
-		// we call this to create the string used to map the fact.
-		newfact.equalityIndex();
 		return newfact;
 	}
 

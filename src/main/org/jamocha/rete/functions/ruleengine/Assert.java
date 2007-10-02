@@ -17,15 +17,12 @@
 package org.jamocha.rete.functions.ruleengine;
 
 import org.jamocha.parser.EvaluationException;
-import org.jamocha.parser.IllegalParameterException;
-import org.jamocha.parser.IllegalTypeException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Deffact;
 import org.jamocha.rete.Fact;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.Template;
 import org.jamocha.rete.configurations.AssertConfiguration;
 import org.jamocha.rete.exception.AssertException;
 import org.jamocha.rete.functions.AbstractFunction;
@@ -113,63 +110,28 @@ public class Assert extends AbstractFunction {
 		if (params.length > 0) {
 			Deffact fact = null;
 
-			// get all the assert configuration from params
-			if (params[0] instanceof AssertConfiguration) {
+			AssertConfiguration ac = null;
 
-				AssertConfiguration ac = null;
-				String templateName = null;
+			for (int i = 0; i < params.length; i++) {
+				ac = (AssertConfiguration) params[i];
 
-				for (int i = 0; i < params.length; i++) {
-					ac = (AssertConfiguration) params[i];
-
-					// get the template name
-					templateName = ac.getTemplateName();
-					fact = (Deffact) engine.getModules().createFact(ac.getSlots(), templateName);
-					//TODO: check if binding handling can be moved to create fact
-					if (fact.hasBinding()) {
-						fact.resolveValues(engine, this.triggerFacts);
-						fact = fact.cloneFact(engine);
-					}
-					Fact assertedFact = engine.assertFact(fact);
-					// if the fact id is still -1, it means it wasn't
-					// asserted
-					// if it was asserted, we return the fact id, otherwise
-					// we return "false".
-					if (assertedFact.getFactId() > 0) {
-						result = JamochaValue.newFactId(assertedFact.getFactId());
-					} else {
-						throw new AssertException("Fact could not be asserted for an unknown reason.");
-					}
-				}
-
-				// no assert configuration:
-			} else {
-				assert (false);
-				JamochaValue firstParam = params[0].getValue(engine);
-
-				if (firstParam.getType().equals(JamochaType.IDENTIFIER)) {
-					JamochaValue secondParam = params[1].getValue(engine);
-					Template tmpl = (Template) engine.getCurrentFocus().getTemplate(firstParam.getIdentifierValue());
-					fact = (Deffact) tmpl.createFact((Object[]) secondParam.getObjectValue(), engine);
-				} else if (firstParam.getType().equals(JamochaType.FACT)) {
-					fact = (Deffact) firstParam.getFactValue();
-				} else {
-					throw new IllegalTypeException(new JamochaType[] { JamochaType.FACT, JamochaType.IDENTIFIER }, firstParam.getType());
-				}
-
+				fact = (Deffact) engine.getModules().createFact(ac);
+				// TODO: check if binding handling can be moved to create
+				// fact
 				if (fact.hasBinding()) {
 					fact.resolveValues(engine, this.triggerFacts);
 					fact = fact.cloneFact(engine);
 				}
-
 				Fact assertedFact = engine.assertFact(fact);
-				// if the fact id is still -1, it means it wasn't asserted
+				// if the fact id is still -1, it means it wasn't
+				// asserted
 				// if it was asserted, we return the fact id, otherwise
 				// we return "false".
-				if (assertedFact == fact) {
-					result = JamochaValue.newFactId(fact.getFactId());
+				if (assertedFact.getFactId() > 0) {
+					result = JamochaValue.newFactId(assertedFact.getFactId());
 				} else {
-					throw new IllegalParameterException(1);
+					throw new AssertException("Fact could not be asserted for an unknown reason.");
+
 				}
 			}
 		}

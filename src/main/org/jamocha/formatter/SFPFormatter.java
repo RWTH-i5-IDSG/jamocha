@@ -200,20 +200,11 @@ public class SFPFormatter extends Formatter {
 		StringBuilder sb = new StringBuilder();
 		sb.append('(');
 		sb.append(object.getTemplateName());
-		SlotConfiguration[] slots = object.getSlots();
+		Parameter[] slots = object.getData();
 		increaseIndent();
-		for (SlotConfiguration slot : slots) {
+		for (Parameter slot : slots) {
 			newLine(sb);
-			sb.append('(');
-			sb.append(slot.getSlotName());
-			sb.append(' ');
-			Parameter[] slotValues = slot.getSlotValues();
-			for (int i = 0; i < slotValues.length; ++i) {
-				if (i > 0)
-					sb.append(' ');
-				sb.append(slotValues[i].format(this));
-			}
-			sb.append(')');
+			sb.append(slot.format(this));
 
 		}
 		decreaseIndent();

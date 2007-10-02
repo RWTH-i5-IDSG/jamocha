@@ -19,7 +19,6 @@ import org.jamocha.rete.configurations.AssertConfiguration;
 import org.jamocha.rete.configurations.DeffunctionConfiguration;
 import org.jamocha.rete.configurations.DefruleConfiguration;
 import org.jamocha.rete.configurations.Signature;
-import org.jamocha.rete.configurations.SlotConfiguration;
 import org.jamocha.rete.functions.Function;
 import org.jamocha.rete.functions.FunctionDescription;
 import org.jamocha.rule.Action;
@@ -96,20 +95,11 @@ public abstract class BackupOfCLIPSFormatter extends Formatter {
 			AssertConfiguration assertConf = (AssertConfiguration) funcParam
 					.getParameters()[0];
 			res.append(assertConf.getTemplateName());
-			SlotConfiguration[] slots = assertConf.getSlots();
+			Parameter[] slots = assertConf.getData();
 			increaseIndent();
-			for (SlotConfiguration slot : slots) {
+			for (Parameter slot : slots) {
 				newLine(res);
-				res.append("(");
-				res.append(slot.getSlotName());
-				res.append(" ");
-				Parameter[] slotValues = slot.getSlotValues();
-				for (int i = 0; i < slotValues.length; ++i) {
-					if (i > 0)
-						res.append(" ");
-					res.append(formatExpression(slotValues[i]));
-				}
-				res.append(")");
+				res.append(formatExpression(slot));
 
 			}
 		} else {

@@ -1,20 +1,17 @@
-
-
 package org.jamocha.rete.configurations;
 
 import org.jamocha.formatter.Formatter;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaValue;
+import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 
 public class AssertConfiguration extends AbstractConfiguration {
 
-	
 	private String templateName = null;
-	
-	private SlotConfiguration[] slots = null;
-	
-	
+
+	private Parameter[] data = null;
+
 	public boolean isObjectBinding() {
 		// TODO Auto-generated method stub
 		return false;
@@ -30,12 +27,26 @@ public class AssertConfiguration extends AbstractConfiguration {
 		return null;
 	}
 
-	public SlotConfiguration[] getSlots() {
+	public SlotConfiguration[] getSlotConfigurations() throws EvaluationException {
+		SlotConfiguration[] slots = new SlotConfiguration[data.length];
+		Signature sig;
+		for (int i = 0; i < data.length; i++) {
+
+			if (!(data[i] instanceof Signature))
+				throw new EvaluationException("wrong syntax for assert of unordered fact");
+			sig = (Signature) data[i];
+			slots[i] = new SlotConfiguration(sig.signatureName, i, sig.getParameters());
+		}
 		return slots;
+
 	}
 
-	public void setSlots(SlotConfiguration[] slots) {
-		this.slots = slots;
+	public Parameter[] getData() {
+		return data;
+	}
+
+	public void setData(Parameter[] data) {
+		this.data = data;
 	}
 
 	public String getTemplateName() {

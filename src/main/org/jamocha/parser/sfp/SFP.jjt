@@ -1205,43 +1205,6 @@ SimpleNode DynamicAttribute() :
 }
 
 
-
-/**
-*		Fact Construct
-**/
-
-/* Fact Specification
-<ordered-RHS-pattern> ::= ( <symbol> <RHS-field>+ )
-
-<template-RHS-pattern> ::= ( <deftemplate-name> <RHS-slot>* )
-
-<RHS-slot> ::= <single-field-RHS-slot> | <multifield-RHS-slot>
-
-<single-field-RHS-slot> ::= (<slot-name> <RHS-field>)
-
-<multifield-RHS-slot> ::= (<slot-name> <RHS-field>*)
-
-<RHS-field> ::= <variable> | <constant> | <function-call>
-*/
-
-
-
-/**
-*		Right Hand Site Pattern
-**/
-// <RHS-pattern> ::= <ordered-RHS-pattern> | <template-RHS-pattern>
-
-void RHSPattern() #void : 
-{}
-{ 
-	<LBRACE>
-		TemplateRHSPattern()
-	// currently ordered RHS aren't implemented
-	//	| 	OrderedRHSPattern(t.image);
-	<RBRACE> 
-    
-}
-
 SimpleNode ModifyPattern() : 
 {}
 {
@@ -1252,48 +1215,41 @@ SimpleNode ModifyPattern() :
 	{ return jjtThis; }
 }
 
-/**
-*		Template Right Hand Site Pattern
-**/
-//<template-RHS-pattern> ::= (<deftemplate-name> <RHS-slot>*)
-
-SimpleNode TemplateRHSPattern() :
-{}
-{
-    (
-	    Symbol() //Template Name
-        ( 
-        	RHSSlot() 
-        )*
-    )
-    
-    { return jjtThis; }
-}
-
-
-
-/**
-*		Right Hand Site Slot
-**/
-//<RHS-slot> ::= <single-field-RHS-slot> | <multifield-RHS-slot>
-//<single-field-RHS-slot> ::= (<slot-name> <RHS-field>)
-//<multifield-RHS-slot> ::= (<slot-name> <RHS-field>*)
-
 SimpleNode RHSSlot() : 
 {}
-{
-    <LBRACE> 
-        (	
-        	Symbol() // slot-name
-        	(
-        		RHSField() 
-        	)*
-        )
-    <RBRACE>
-    
-    { return jjtThis; }
+{ 
+	<LBRACE>
+		Symbol() // slot name
+		(
+		    RHSField()
+		)*
+	<RBRACE> 
+	
+	{ return jjtThis; }
 }
 
+/**
+*		Fact Construct
+**/
+
+
+/**
+*		Right Hand Site Pattern
+**/
+// <RHS-pattern> ::= <ordered-RHS-pattern> | <template-RHS-pattern>
+
+SimpleNode RHSPattern() : 
+{}
+{ 
+	<LBRACE>
+		Symbol() //Template Name 
+		(
+		    RHSField()
+		)*
+	<RBRACE> 
+	
+	{ return jjtThis; }
+}
 
 
 /**

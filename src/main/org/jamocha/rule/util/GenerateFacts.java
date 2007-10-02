@@ -24,8 +24,10 @@ import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Defclass;
 import org.jamocha.rete.Deftemplate;
 import org.jamocha.rete.Fact;
+import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.Slot;
+import org.jamocha.rete.configurations.SlotConfiguration;
 import org.jamocha.rule.BoundConstraint;
 import org.jamocha.rule.Condition;
 import org.jamocha.rule.Constraint;
@@ -118,18 +120,18 @@ public class GenerateFacts {
 	 * @return
 	 */
 	public static Object generateDeffact(ObjectCondition cond, Deftemplate templ, Rete engine) {
-		ArrayList<Slot> list = new ArrayList<Slot>();
-		for (Constraint cn : cond.getConstraints()) {
+		SlotConfiguration[] list = new SlotConfiguration[cond.getConstraints().size()];
+		Constraint cn;
+		for (int i = 0; i< cond.getConstraints().size() ; i++){
+			cn = cond.getConstraints().get(i);
 			if (cn instanceof LiteralConstraint) {
-				Slot s = new Slot(cn.getName(),cn.getValue());
-				list.add(s);
+				list[i] = new SlotConfiguration(cn.getName(),i, new Parameter[]{cn.getValue()} );
 			} else if (cn instanceof PredicateConstraint) {
 				
 			} else if (cn instanceof BoundConstraint) {
 				// for now we do the simple thing and just set
 				// any bound slots to 1
-				Slot s = new Slot(cn.getName(),JamochaValue.newLong(Integer.valueOf(1)));
-				list.add(s);
+				list[i] = new SlotConfiguration(cn.getName(),i, new Parameter[]{JamochaValue.newLong(Integer.valueOf(1))} );
 			}
 		}
 		Fact f = null;
