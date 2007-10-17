@@ -63,7 +63,7 @@ public class FactsPanel extends AbstractJamochaPanel implements ActionListener,
 
 	private static final String GUI_FACTS_AUTOSORT_BY = "gui.facts.autosort_by";
 
-	private static final String FACTS_DIVIDERLOCATION = "gui.facts.dividerlocation";
+	private static final String GUI_FACTS_DIVIDERLOCATION = "gui.facts.dividerlocation";
 
 	private static final long serialVersionUID = -5732131176258158968L;
 
@@ -115,7 +115,7 @@ public class FactsPanel extends AbstractJamochaPanel implements ActionListener,
 		pane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, new JScrollPane(
 				factsTable), new JScrollPane(dumpArea));
 		add(pane, BorderLayout.CENTER);
-		pane.setDividerLocation(settings.getInt(FACTS_DIVIDERLOCATION));
+		pane.setDividerLocation(settings.getInt(GUI_FACTS_DIVIDERLOCATION));
 		reloadButton = new JButton("Reload Facts", IconLoader
 				.getImageIcon("database_refresh"));
 		reloadButton.addActionListener(this);
@@ -187,7 +187,7 @@ public class FactsPanel extends AbstractJamochaPanel implements ActionListener,
 	}
 
 	public void close() {
-		settings.set(FACTS_DIVIDERLOCATION, pane.getDividerLocation());
+		settings.set(GUI_FACTS_DIVIDERLOCATION, pane.getDividerLocation());
 	}
 
 	public void actionPerformed(ActionEvent event) {

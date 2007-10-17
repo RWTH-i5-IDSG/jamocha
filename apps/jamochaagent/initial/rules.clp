@@ -4,10 +4,6 @@
 
 (defrule incoming-message
 	"Fires when a message in FIPA-SL arrives, that is addressed to a local Agent."
-	; Only look for messages addressed to the local agent.
-	(agent-is-local
-		(agent ?receiver)
-	)
 	; Only extract messages that have not been answered yet and that are incoming.
 	?message <- (agent-message
 		(receiver $?receivers)
@@ -16,6 +12,10 @@
 		(incoming TRUE)
 		(processed FALSE)
 		(is-template FALSE)
+	)
+	; Only look for messages addressed to the local agent.
+	(agent-is-local
+		(agent ?receiver)
 	)
 	; The receiver of the message must be local.
 	(test (> (member$ ?receiver $?receivers) 0))

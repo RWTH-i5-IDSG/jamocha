@@ -66,6 +66,7 @@ import org.jamocha.messagerouter.StreamChannel;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.functions.Function;
 import org.jamocha.settings.SettingsChangedListener;
+import org.jamocha.settings.SettingsConstants;
 
 /**
  * This class provides a panel with a command line interface to Jamocha.
@@ -76,17 +77,7 @@ import org.jamocha.settings.SettingsChangedListener;
 public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 		AdjustmentListener, SettingsChangedListener {
 
-	private static final String GUI_SHELL_FONTSTYLE = "gui.shell.fontstyle";
-
-	private static final String GUI_SHELL_AUTOCOMPLETION = "gui.shell.autocompletion";
-
-	private static final String GUI_SHELL_BACKGROUNDCOLOR = "gui.shell.backgroundcolor";
-
-	private static final String GUI_SHELL_FONTCOLOR = "gui.shell.fontcolor";
-
-	private static final String GUI_SHELL_FONTSIZE = "gui.shell.fontsize";
-
-	private static final String GUI_SHELL_FONT = "gui.shell.font";
+	private static final long serialVersionUID = 1777454004380892575L;
 
 	private AutoCompletion autoCompletion;
 
@@ -95,8 +86,6 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 	private String autoCompletionPrefix;
 
 	private boolean enableAutoCompletion = false;
-
-	private static final long serialVersionUID = 1777454004380892575L;
 
 	/**
 	 * Flag for the ChannelListener and the eventThread to know if they should
@@ -179,6 +168,9 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 	 */
 	private boolean cursorShowing = false;
 
+	/**
+	 * last position of the scrollbar
+	 */
 	private int lastScrollBarPosition = 0;
 
 	/**
@@ -203,9 +195,12 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 
 	private boolean channelListenerPaused = false;
 
-	private String[] interestedSettings = { GUI_SHELL_FONT, GUI_SHELL_FONTSIZE,
-			GUI_SHELL_FONTCOLOR, GUI_SHELL_BACKGROUNDCOLOR,
-			GUI_SHELL_AUTOCOMPLETION };
+	private String[] interestedSettings = { 
+			SettingsConstants.GUI_SHELL_FONT,
+			SettingsConstants.GUI_SHELL_FONTSIZE,
+			SettingsConstants.GUI_SHELL_FONTCOLOR,
+			SettingsConstants.GUI_SHELL_BACKGROUNDCOLOR,
+			SettingsConstants.GUI_SHELL_AUTOCOMPLETION };
 
 	private void initAutoCompletion() {
 		autoCompletion.addToken("multislot");
@@ -791,7 +786,7 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 		int offset = currLine.lastIndexOf(" ") + 1;
 		currLine = currLine.substring(offset);
 		offset = currLine.lastIndexOf(File.separator) + 1;
-		File path = new File("."+File.separator);
+		File path = new File("." + File.separator);
 		String remainder = currLine.substring(offset, currLine.length());
 		if (remainder.length() > 0) {
 			if (offset > 0) {
@@ -1010,20 +1005,20 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 	}
 
 	public void settingsChanged(String propertyName) {
-		if (propertyName.startsWith(GUI_SHELL_FONT)) {
-			outputArea.setFont(new Font(settings.getString(GUI_SHELL_FONT),
-					settings.getInt(GUI_SHELL_FONTSTYLE), settings
-							.getInt(GUI_SHELL_FONTSIZE)));
+		if (propertyName.startsWith(SettingsConstants.GUI_SHELL_FONT)) {
+			outputArea.setFont(new Font(settings.getString(SettingsConstants.GUI_SHELL_FONT),
+					settings.getInt(SettingsConstants.GUI_SHELL_FONTSTYLE), settings
+							.getInt(SettingsConstants.GUI_SHELL_FONTSIZE)));
 			outputArea.setForeground(new Color(settings
-					.getInt(GUI_SHELL_FONTCOLOR)));
-		} else if (propertyName.equals(GUI_SHELL_BACKGROUNDCOLOR)) {
+					.getInt(SettingsConstants.GUI_SHELL_FONTCOLOR)));
+		} else if (propertyName.equals(SettingsConstants.GUI_SHELL_BACKGROUNDCOLOR)) {
 			outputArea.setBackground(new Color(settings
-					.getInt(GUI_SHELL_BACKGROUNDCOLOR)));
+					.getInt(SettingsConstants.GUI_SHELL_BACKGROUNDCOLOR)));
 			outputArea.setBorder(BorderFactory.createLineBorder(outputArea
 					.getBackground(), 2));
-		} else if (propertyName.equals(GUI_SHELL_AUTOCOMPLETION)) {
+		} else if (propertyName.equals(SettingsConstants.GUI_SHELL_AUTOCOMPLETION)) {
 			enableAutoCompletion = settings
-					.getBoolean(GUI_SHELL_AUTOCOMPLETION);
+					.getBoolean(SettingsConstants.GUI_SHELL_AUTOCOMPLETION);
 		}
 	}
 

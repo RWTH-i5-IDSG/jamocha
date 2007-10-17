@@ -39,6 +39,8 @@ public class SettingsConstants {
 
 	public static final String GUI_SHELL_FONT = "gui.shell.font";
 	
+	public static final String GUI_SHELL_FONTSTYLE = "gui.shell.fontstyle";
+	
 	public static final String GUI_VIEWER_CONNECTORTYPE = "gui.viewer.connectortype";
 	
 	// Engine Settings
