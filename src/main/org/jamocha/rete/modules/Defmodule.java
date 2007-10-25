@@ -17,10 +17,17 @@
 package org.jamocha.rete.modules;
 
 import java.io.Serializable;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import javax.xml.transform.Templates;
+
+import org.jamocha.rete.Deftemplate;
 import org.jamocha.rete.Template;
+import org.jamocha.rete.TemplateSlot;
 import org.jamocha.rete.eventhandling.ModuleChangedEvent;
 import org.jamocha.rete.eventhandling.ModuleChangedListener;
 import org.jamocha.rule.Rule;
@@ -40,6 +47,7 @@ public class Defmodule implements Module, Serializable {
 	private static final long serialVersionUID = 0xDEADBEAFL;
 
 	protected int id;
+
 
 	protected void callListenersAddRule(Rule rule) {
 		ModuleChangedEvent ev = new ModuleChangedEvent();
@@ -131,6 +139,42 @@ public class Defmodule implements Module, Serializable {
 		return modules.containsTemplate(this,key);
 	}
 
+	@Override
+	/**
+	 * this method generates a deftemplate out of a
+	 * java class. furthermore, it caches results, so,
+	 * for repeated call with the same parameter class,
+	 * it is guaranteed to receive the same template object.
+	 * 
+	 * NOTE: we use the canonical from the class c as
+	 * the template's name.
+	 */
+	public Template getTemplate(Class c) {
+		Template t = getTemplate(c.getCanonicalName());
+		if (t == null) {
+
+			List<TemplateSlot> slots = new ArrayList<TemplateSlot>();
+			for (Field field : c.getFields()) {
+				String slotName = field.getName();
+				//TODO handle data type
+				
+				TemplateSlot tslot = new TemplateSlot(slotName);
+				
+				slots.add(tslot);
+			}
+			
+			TemplateSlot[] slotsArray = new TemplateSlot[slots.size()];
+			slotsArray = slots.toArray(slotsArray);
+			
+			Deftemplate newtempl = new Deftemplate(c.getCanonicalName(),"",slotsArray);
+			
+			addTemplate(newtempl);
+			return newtempl;
+		} else {
+			return t;
+		}
+	}
+	
 	public Template getTemplate(String key) {
 		return modules.getTemplate(this,key);
 	}
@@ -169,5 +213,7 @@ public class Defmodule implements Module, Serializable {
 	public void removeModuleChangedEventListener(ModuleChangedListener listener) {
 		listeners.remove(listener);
 	}
+
+
 
 }

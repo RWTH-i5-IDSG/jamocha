@@ -21,9 +21,11 @@ import java.beans.PropertyChangeListener;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.Serializable;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -675,6 +677,35 @@ public class Rete implements SettingsChangedListener, PropertyChangeListener, Co
 		}
 		return fact;
 	}
+	
+	public Fact assertFact(Object o) throws AssertException {
+		Template t = getCurrentFocus().getTemplate(o.getClass());
+		
+		List<Slot> valuesList = new LinkedList<Slot>();
+		for (Field f : o.getClass().getFields()) {
+			
+			try {
+				Slot s = t.getSlot(f.getName()).createSlot(this);
+				s.value = JamochaValue.newValueAutoType(f.get(o));
+				valuesList.add(s);
+			} catch (EvaluationException e) {
+				throw new AssertException(e);
+			} catch (IllegalArgumentException e) {
+				throw new AssertException(e);
+			} catch (IllegalAccessException e) {
+				throw new AssertException(e);
+			}
+		}
+		
+		Slot[] values = new Slot[valuesList.size()];
+		values = valuesList.toArray(values);
+		
+		Fact newFact = new Deffact(t,null,values);
+
+		assertFact(newFact);
+		
+		return newFact;
+	}
 
 	/**
 	 * retract by fact id is slower than retracting by the deffact instance. the
@@ -939,4 +970,6 @@ public class Rete implements SettingsChangedListener, PropertyChangeListener, Co
 			this.profileRetract = (settings.getBoolean(propertyName));
 		}
 	}
+
+
 }

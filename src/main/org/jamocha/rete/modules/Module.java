@@ -86,6 +86,12 @@ public interface Module extends Serializable {
      * @return
      */
     Template getTemplate(String key);
+    
+    /**
+     * generates a template corresponding to a given java class
+     */
+    Template getTemplate(Class c);
+    
     /**
      * Return the Deftemplates in a collection
      * @return

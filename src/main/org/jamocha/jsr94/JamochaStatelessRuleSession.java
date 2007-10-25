@@ -80,7 +80,12 @@ public class JamochaStatelessRuleSession implements StatelessRuleSession {
 	public List executeRules(List objects, ObjectFilter filter)	throws InvalidRuleSessionException, RemoteException {
 		for (Object o : objects) {
 			// TODO do something with the filter
-			session.getEngine().assertFact(o);
+			try {
+				session.getEngine().assertFact(o);
+			} catch (AssertException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 		List<Fact> results = new LinkedList<Fact>();
 		// TODO it would be nice to return the results. otherwise, its senseless ;)
