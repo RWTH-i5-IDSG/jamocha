@@ -9,6 +9,10 @@ import javax.rules.RuleExecutionSetMetadata;
 import javax.rules.RuleRuntime;
 import javax.rules.StatelessRuleSession;
 
+/**
+ * @author Josef Alexander Hahn
+ */
+
 public class JamochaStatelessRuleSession implements StatelessRuleSession {
 
 	@Override
