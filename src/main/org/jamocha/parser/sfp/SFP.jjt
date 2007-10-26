@@ -1674,15 +1674,23 @@ SimpleNode TemplatePatternCE():
 {
     (
     	Symbol() //template Name
-		(	
-			LOOKAHEAD(2)
+    	(LOOKAHEAD(2)
+    		(
+    			(
+    				<LBRACE>
 	
-			<LBRACE>
-
-				LHSSlot()
-
-			<RBRACE>
-		)*
+					LHSSlot()
+	
+					<RBRACE>
+				)*
+			)
+	    	|
+	    	(
+		    	(
+		    		Constraint()
+		    	)*
+	    	)
+		)
     )
     
    { return jjtThis; }

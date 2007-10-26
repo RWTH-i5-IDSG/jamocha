@@ -3032,14 +3032,12 @@ protected SimpleCharStream input_stream;
 private final int[] jjrounds = new int[112];
 private final int[] jjstateSet = new int[224];
 protected char curChar;
-public SFPParserTokenManager(SimpleCharStream stream)
-{
+public SFPParserTokenManager(SimpleCharStream stream){
    if (SimpleCharStream.staticFlag)
       throw new Error("ERROR: Cannot use a static CharStream class with a non-static lexical analyzer.");
    input_stream = stream;
 }
-public SFPParserTokenManager(SimpleCharStream stream, int lexState)
-{
+public SFPParserTokenManager(SimpleCharStream stream, int lexState){
    this(stream);
    SwitchTo(lexState);
 }

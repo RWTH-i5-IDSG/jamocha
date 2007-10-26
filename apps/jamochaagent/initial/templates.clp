@@ -4,8 +4,10 @@
 
 (deftemplate agent-identifier
 	"A template defining an agent."
-	; Name / address of an agent.
-    (slot name (type STRING))
+	; Name / address of an agent (required)
+    (slot name (type STRING)(default ?NONE))
+    ; Other addresses of this agent
+    (multislot addresses)
 )
 
 
