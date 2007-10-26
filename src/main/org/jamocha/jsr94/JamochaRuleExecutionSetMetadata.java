@@ -14,17 +14,15 @@ public class JamochaRuleExecutionSetMetadata implements	RuleExecutionSetMetadata
 		this.uri = uri;
 	}
 	
-	@Override
+
 	public String getDescription() {
 		return res.getDescription();
 	}
 
-	@Override
 	public String getName() {
 		return res.getName();
 	}
 
-	@Override
 	public String getUri() {
 		return uri;
 	}

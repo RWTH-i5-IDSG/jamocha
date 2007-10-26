@@ -18,17 +18,14 @@ public class JamochaRule implements javax.rules.admin.Rule {
 		this.rule = rule;
 	}
 	
-	@Override
 	public String getDescription() {
 		return rule.getDescription();
 	}
 
-	@Override
 	public String getName() {
 		return rule.getName();
 	}
 
-	@Override
 	public Object getProperty(Object arg0) {
 		if (arg0.equals(JAMOCHA_RULE_OBJECT)) {
 			return rule;
@@ -38,7 +35,6 @@ public class JamochaRule implements javax.rules.admin.Rule {
 		return null;
 	}
 
-	@Override
 	public void setProperty(Object arg0, Object arg1) {
 		//TODO do something useful with this method
 	}

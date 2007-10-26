@@ -54,7 +54,6 @@ public class JamochaStatelessRuleSession implements StatelessRuleSession {
 
 
 
-	@Override
 	public List executeRules(List objects) throws InvalidRuleSessionException,	RemoteException {
 		ObjectFilter filter = null;
 		if (res.getDefaultObjectFilter() != null) {
@@ -76,7 +75,6 @@ public class JamochaStatelessRuleSession implements StatelessRuleSession {
 		return executeRules(objects, filter);
 	}
 
-	@Override
 	public List executeRules(List objects, ObjectFilter filter)	throws InvalidRuleSessionException, RemoteException {
 		for (Object o : objects) {
 			// TODO do something with the filter
@@ -94,17 +92,15 @@ public class JamochaStatelessRuleSession implements StatelessRuleSession {
 		return results;
 	}
 
-	@Override
+
 	public RuleExecutionSetMetadata getRuleExecutionSetMetadata() throws InvalidRuleSessionException, RemoteException {
 		return new JamochaRuleExecutionSetMetadata(res, uri);
 	}
 
-	@Override
 	public int getType() throws RemoteException, InvalidRuleSessionException {
 		return RuleRuntime.STATELESS_SESSION_TYPE;
 	}
 
-	@Override
 	public void release() throws RemoteException, InvalidRuleSessionException {
 		session.release();
 	}

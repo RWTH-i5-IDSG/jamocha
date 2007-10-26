@@ -24,7 +24,6 @@ public class JamochaRuleRuntime implements RuleRuntime {
 		this.ruleSets = ruleSets;
 	}
 	
-	@Override
 	public RuleSession createRuleSession(String uri, Map properties, int sessionType) throws RuleSessionTypeUnsupportedException, RuleSessionCreateException, RuleExecutionSetNotFoundException,RemoteException {
 		switch (sessionType) {
 		case RuleRuntime.STATELESS_SESSION_TYPE:
@@ -36,7 +35,6 @@ public class JamochaRuleRuntime implements RuleRuntime {
 		}
 	}
 
-	@Override
 	public List getRegistrations() throws RemoteException {
 		// TODO Auto-generated method stub
 		return null;
