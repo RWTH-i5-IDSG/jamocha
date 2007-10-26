@@ -16,6 +16,7 @@
  */
 package org.jamocha.parser;
 
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.GregorianCalendar;
@@ -414,6 +415,11 @@ public class JamochaValue implements Parameter, Formattable {
 		final JamochaValue other = (JamochaValue) obj;
 		if (value == null) {
 			return other.value == null || other.value == "NIL";
+		}
+		if (value instanceof JamochaValue[] && other.value instanceof JamochaValue[]) {
+			JamochaValue[] a1 = (JamochaValue[]) value;
+			JamochaValue[] a2 = (JamochaValue[]) other.value;
+			return Arrays.equals(a1, a2);
 		}
 		return value.equals(other.value);
 	}
