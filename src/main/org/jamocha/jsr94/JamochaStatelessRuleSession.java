@@ -86,6 +86,8 @@ public class JamochaStatelessRuleSession implements StatelessRuleSession {
 			}
 		}
 		List<Fact> results = new LinkedList<Fact>();
+		
+		// TODO compute it... fire here...
 		// TODO it would be nice to return the results. otherwise, its senseless ;)
 		
 		session.rollback();

@@ -45,7 +45,7 @@ public class JamochaRuleServiceProvider extends RuleServiceProvider {
 	@Override
 	public RuleRuntime getRuleRuntime() throws ConfigurationException {
 		if (ruleRuntime == null) {
-			//TODO initialize it
+			ruleRuntime = new JamochaRuleRuntime(getRuleSets());
 		}
 		return ruleRuntime;
 	}
