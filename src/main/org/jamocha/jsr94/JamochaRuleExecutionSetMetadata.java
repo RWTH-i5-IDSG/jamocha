@@ -5,6 +5,8 @@ import javax.rules.admin.RuleExecutionSet;
 
 public class JamochaRuleExecutionSetMetadata implements	RuleExecutionSetMetadata {
 
+	private static final long serialVersionUID = 1L;
+
 	private RuleExecutionSet res;
 	
 	private String uri;

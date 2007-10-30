@@ -1,7 +1,5 @@
 package org.jamocha.jsr94;
 
-import org.jamocha.rule.Rule;
-
 /**
  * @author Josef Alexander Hahn
  */

@@ -9,6 +9,8 @@ import org.jamocha.rule.Rule;
 
 public class JamochaRuleExecutionSet implements RuleExecutionSet {
 
+	private static final long serialVersionUID = 1L;
+
 	private String description;
 	
 	private String name;
@@ -40,6 +42,7 @@ public class JamochaRuleExecutionSet implements RuleExecutionSet {
 		return null;
 	}
 
+	@SuppressWarnings("unchecked")
 	public List getRules() {
 		List result = new ArrayList(rules.length);
 		for (Rule r : rules) {
