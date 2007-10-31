@@ -186,6 +186,8 @@ public class Constants {
 	public static final String VERSION_NAME = "Kartoffelsalat";
 
 	public static final String INITIAL_FACT = "_initialFact";
+	
+	public static final String ORDERED_FACT_SLOT = "__data";
 
 	public static final int WATCH_ACTIVATIONS = 001;
 

@@ -139,7 +139,6 @@ public class Defmodule implements Module, Serializable {
 		return modules.containsTemplate(this,key);
 	}
 
-	@Override
 	/**
 	 * this method generates a deftemplate out of a
 	 * java class. furthermore, it caches results, so,

@@ -37,7 +37,7 @@ public class OrderedTemplate implements Template {
 
 	public OrderedTemplate(String name) {
 		this.templateName = name;
-		this.data = new TemplateSlot("__data");
+		this.data = new TemplateSlot(Constants.ORDERED_FACT_SLOT);
 		this.data.setMultiSlot(true);
 
 	}

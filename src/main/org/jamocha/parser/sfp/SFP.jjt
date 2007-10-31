@@ -1662,7 +1662,6 @@ SimpleNode ForallCE() :
 }
 
 
-
 /**
 *		Template Pattern CE
 **/
@@ -1675,27 +1674,33 @@ SimpleNode TemplatePatternCE():
     (
     	Symbol() //template Name
     	(LOOKAHEAD(2)
-    		(
-    			(
-    				<LBRACE>
-	
-					LHSSlot()
-	
-					<RBRACE>
-				)*
-			)
-	    	|
-	    	(
-		    	(
-		    		Constraint()
-		    	)*
-	    	)
+    			(UnorderedLHSFactBody())+
+	    	|	(OrderedLHSFactBody())*
 		)
     )
     
    { return jjtThis; }
 }
 
+
+
+SimpleNode UnorderedLHSFactBody(): 
+{}
+{
+	<LBRACE>
+	LHSSlot()
+	<RBRACE>
+	
+	{ return jjtThis; }
+}
+
+SimpleNode OrderedLHSFactBody(): 
+{}
+{
+    Constraint()
+	
+	{ return jjtThis; }
+}
 
 
 /**

@@ -1224,4 +1224,12 @@ public class SFPInterpreter implements SFPParserVisitor {
 		return ts;
 	}
 
+	public Object visit(SFPUnorderedLHSFactBody node, Object data) {
+		return node.jjtGetChild(0);
+	}
+
+	public Object visit(SFPOrderedLHSFactBody node, Object data) {
+		return node.jjtGetChild(0);
+	}
+
 }

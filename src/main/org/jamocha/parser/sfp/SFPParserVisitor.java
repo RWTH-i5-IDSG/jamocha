@@ -72,6 +72,8 @@ public interface SFPParserVisitor
   public Object visit(SFPExistsCE node, Object data);
   public Object visit(SFPForallCE node, Object data);
   public Object visit(SFPTemplatePatternCE node, Object data);
+  public Object visit(SFPUnorderedLHSFactBody node, Object data);
+  public Object visit(SFPOrderedLHSFactBody node, Object data);
   public Object visit(SFPLHSSlot node, Object data);
   public Object visit(SFPSingleFieldWildcard node, Object data);
   public Object visit(SFPMultiFieldWildcard node, Object data);
