@@ -28,6 +28,7 @@ import org.jamocha.rule.FunctionAction;
 import org.jamocha.rule.LiteralConstraint;
 import org.jamocha.rule.NotCondition;
 import org.jamocha.rule.ObjectCondition;
+import org.jamocha.rule.OrderedFactConstraint;
 import org.jamocha.rule.Rule;
 import org.jamocha.rule.TestCondition;
 
@@ -95,6 +96,8 @@ public abstract class Formatter {
 	public abstract String visit(NotCondition object);
 
 	public abstract String visit(ObjectCondition object);
+
+	public abstract String visit(OrderedFactConstraint object);
 
 	public abstract String visit(RightFieldAddress object);
 

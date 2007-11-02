@@ -38,6 +38,7 @@ import org.jamocha.rule.FunctionAction;
 import org.jamocha.rule.LiteralConstraint;
 import org.jamocha.rule.NotCondition;
 import org.jamocha.rule.ObjectCondition;
+import org.jamocha.rule.OrderedFactConstraint;
 import org.jamocha.rule.Rule;
 import org.jamocha.rule.TestCondition;
 
@@ -589,6 +590,17 @@ public class SFPFormatter extends Formatter {
 		decreaseIndent();
 		newLine(sb);
 		sb.append(')');
+		return sb.toString();
+	}
+
+	@Override
+	public String visit(OrderedFactConstraint object) {
+		StringBuilder sb = new StringBuilder();
+		Constraint[] constrList = object.getConstraints();
+		for (Constraint c : constrList) {
+			sb.append(c.getValue().format(this));
+			sb.append(" ");
+		}
 		return sb.toString();
 	}
 }
