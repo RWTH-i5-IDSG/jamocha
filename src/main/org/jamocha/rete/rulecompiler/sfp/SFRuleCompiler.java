@@ -573,7 +573,7 @@ public class SFRuleCompiler implements RuleCompiler {
 
 			Condition c = sortedConds[i];
 			
-			//System.out.println(c);
+
 			AbstractBeta newBeta = null;
 
 			if (c instanceof ObjectCondition)
@@ -592,9 +592,10 @@ public class SFRuleCompiler implements RuleCompiler {
 			fromBottom = newBeta;
 
 			BaseNode cLastNode = c.getLastNode();
-			if (cLastNode == null)
-				throw new RuleException("Rule Compilation Error in:"
-						+ rule.getName());
+			if (cLastNode == null) {
+				cLastNode = root.activateObjectTypeNode(engine.getInitialTemplate(), net);
+			}
+				
 			cLastNode.addNode(newBeta, net);
 
 			conditionJoiners.put(c, newBeta);
