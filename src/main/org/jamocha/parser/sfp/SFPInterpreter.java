@@ -18,6 +18,7 @@
 package org.jamocha.parser.sfp;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.jamocha.parser.Expression;
 import org.jamocha.parser.JamochaType;
@@ -55,6 +56,7 @@ import org.jamocha.rule.NotCondition;
 import org.jamocha.rule.ObjectCondition;
 import org.jamocha.rule.OrCondition;
 import org.jamocha.rule.OrConnectedConstraint;
+import org.jamocha.rule.OrderedFactConstraint;
 import org.jamocha.rule.PredicateConstraint;
 import org.jamocha.rule.TestCondition;
 
@@ -549,45 +551,44 @@ public class SFPInterpreter implements SFPParserVisitor {
 		// get the Template name
 		String templateName = ((JamochaValue) node.jjtGetChild(0).jjtAccept(
 				this, data)).getStringValue();
-		//Data:
+		// Data:
 		Parameter param = null;
-		Parameter[] params = new Parameter[node
-		.jjtGetNumChildren() - 1];
-		
+		Parameter[] params = new Parameter[node.jjtGetNumChildren() - 1];
+
 		for (int i = 1; i < node.jjtGetNumChildren(); i++) {
-			
-		param =  (Parameter) node.jjtGetChild(i).jjtAccept(this, data);
-		params[i - 1] = param;
-	}
+
+			param = (Parameter) node.jjtGetChild(i).jjtAccept(this, data);
+			params[i - 1] = param;
+		}
 		ac.setTemplateName(templateName);
 		ac.setData(params);
 
 		return ac;
 	}
-	
-//	public Object visit(SFPTemplateRHSPattern node, Object data) {
-//
-//		AssertConfiguration ac = new AssertConfiguration();
-//		// get the Template name
-//		String templateName = ((JamochaValue) node.jjtGetChild(0).jjtAccept(
-//				this, data)).getStringValue();
-//
-//		// get the slots from subnodes:
-//		SlotConfiguration[] slots = new SlotConfiguration[node
-//				.jjtGetNumChildren() - 1];
-//		SlotConfiguration slot = null;
-//		for (int i = 1; i < node.jjtGetNumChildren(); i++) {
-//			slot = (SlotConfiguration) node.jjtGetChild(i)
-//					.jjtAccept(this, data);
-//			slot.setId(i - 1);
-//			slots[i - 1] = slot;
-//		}
-//
-//		ac.setTemplateName(templateName);
-//		ac.setSlots(slots);
-//
-//		return ac;
-//	}
+
+	// public Object visit(SFPTemplateRHSPattern node, Object data) {
+	//
+	// AssertConfiguration ac = new AssertConfiguration();
+	// // get the Template name
+	// String templateName = ((JamochaValue) node.jjtGetChild(0).jjtAccept(
+	// this, data)).getStringValue();
+	//
+	// // get the slots from subnodes:
+	// SlotConfiguration[] slots = new SlotConfiguration[node
+	// .jjtGetNumChildren() - 1];
+	// SlotConfiguration slot = null;
+	// for (int i = 1; i < node.jjtGetNumChildren(); i++) {
+	// slot = (SlotConfiguration) node.jjtGetChild(i)
+	// .jjtAccept(this, data);
+	// slot.setId(i - 1);
+	// slots[i - 1] = slot;
+	// }
+	//
+	// ac.setTemplateName(templateName);
+	// ac.setSlots(slots);
+	//
+	// return ac;
+	// }
 
 	public Object visit(SFPRHSSlot node, Object data) {
 		SlotConfiguration sc = new SlotConfiguration();
@@ -1225,11 +1226,22 @@ public class SFPInterpreter implements SFPParserVisitor {
 	}
 
 	public Object visit(SFPUnorderedLHSFactBody node, Object data) {
-		return node.jjtGetChild(0);
+		return node.jjtGetChild(0).jjtAccept(this, data);
 	}
 
 	public Object visit(SFPOrderedLHSFactBody node, Object data) {
-		return node.jjtGetChild(0);
+		// constraints
+		JamochaValue[] constrList = new JamochaValue[node.jjtGetNumChildren()];
+		Constraint constr;
+		for (int i = 0; i < node.jjtGetNumChildren(); i++) {
+			constr = (Constraint) node.jjtGetChild(i).jjtAccept(this, data);
+			constrList[i] = JamochaValue.newObject(constr);
+		}
+		JamochaValue container = JamochaValue.newList(constrList);
+		OrderedFactConstraint ofc = new OrderedFactConstraint();
+		ofc.setValue(container);
+
+		return ofc;
 	}
 
 }
