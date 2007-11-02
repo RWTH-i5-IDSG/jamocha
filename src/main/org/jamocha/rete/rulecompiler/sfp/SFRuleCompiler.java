@@ -85,6 +85,7 @@ import org.jamocha.rule.NotCondition;
 import org.jamocha.rule.ObjectCondition;
 import org.jamocha.rule.OrCondition;
 import org.jamocha.rule.OrConnectedConstraint;
+import org.jamocha.rule.OrderedFactConstraint;
 import org.jamocha.rule.PredicateConstraint;
 import org.jamocha.rule.Rule;
 import org.jamocha.rule.TemplateValidation;
@@ -920,22 +921,26 @@ public class SFRuleCompiler implements RuleCompiler {
 			SlotAlpha current = null;
 
 			if (otn != null) {
-				TemplateSlot slot;
 				for (Constraint constraint : condition.getConstraints()) {
 
-					slot = template.getSlot(constraint.getName());
+					if (constraint instanceof OrderedFactConstraint) {
 
-					constraint.setSlot(slot);
-					current = (SlotAlpha) constraint.compile(this, rule,
-							conditionIndex);
-
-					// we add the node to the previous
-					if (current != null) {
-						prev.addNode(current, net);
-						condition.addNode(current);
-						// now set the previous to current
+						OrderedFactConstraint ofc = (OrderedFactConstraint) constraint;
+						
+						Constraint[] content = ofc.getConstraints();
+						
+						for (Constraint c : content) {
+							current = prepareConstraintCompile(condition, rule, conditionIndex, template, prev, c);
+							prev = current;
+						}
+						
+						current = prepareConstraintCompile(condition, rule, conditionIndex, template, prev, constraint);
 						prev = current;
+						
 					}
+					
+					current = prepareConstraintCompile(condition, rule, conditionIndex, template, prev, constraint);
+					prev = current;
 				}
 			}
 			return current;
@@ -943,6 +948,23 @@ public class SFRuleCompiler implements RuleCompiler {
 			engine.writeMessage("ERROR: " + e1.getMessage());
 			return null;
 		}
+	}
+
+	private SlotAlpha prepareConstraintCompile(ObjectCondition condition, Rule rule, int conditionIndex, Template template, BaseNode prev, Constraint constraint) throws AssertException, StopCompileException {
+		SlotAlpha current;
+		TemplateSlot slot;
+		slot = template.getSlot(constraint.getName());
+		constraint.setSlot(slot);
+		current = (SlotAlpha) constraint.compile(this, rule,
+				conditionIndex);
+
+		// we add the node to the previous
+		if (current != null) {
+			prev.addNode(current, net);
+			condition.addNode(current);
+			// now set the previous to current
+		}
+		return current;
 	}
 
 	/**
@@ -1194,6 +1216,10 @@ public class SFRuleCompiler implements RuleCompiler {
 		constraint.getSlot().incrementNodeCount();
 
 		return node;
+	}
+	
+	public BaseNode compile(OrderedFactConstraint constraint, Rule rule, int conditionIndex) {
+		return null;
 	}
 
 	/**
