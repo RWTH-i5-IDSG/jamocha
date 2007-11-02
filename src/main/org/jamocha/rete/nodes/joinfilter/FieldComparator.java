@@ -72,12 +72,18 @@ public class FieldComparator implements Serializable, Cloneable, JoinFilter {
 				// rightValue = rightinput.getSlotValue( -1 );
 			} else {
 				rightValue = rightinput.getSlotValue(right.getSlotIndex());
+				if (right.posIndex != -1) {
+					//TODO implement it
+				}
 			}
 
 			if (left.refersWholeFact()) {
 				leftValue = JamochaValue.newFact(leftinput.getFacts()[left.getRowIndex()]);
 			} else {
 				leftValue = leftinput.getFacts()[left.getRowIndex()].getSlotValue(left.getSlotIndex());
+				if (left.posIndex != -1) {
+					//TODO implement it
+				}
 			}
 			leftValue = resolveFact(leftValue, engine);
 			rightValue = resolveFact(rightValue, engine);

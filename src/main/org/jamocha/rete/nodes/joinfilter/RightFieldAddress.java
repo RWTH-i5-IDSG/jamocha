@@ -5,17 +5,23 @@ import org.jamocha.formatter.Formatter;
 public class RightFieldAddress extends FieldAddress {
 
 	protected int slotIndex;
+	protected int posIndex;
 	
 	public Object clone(){
 		return this;
 	}
 	
 	public RightFieldAddress() {
-		this(-1);
+		this(-1, -1);
 	}
 	
 	public RightFieldAddress(int slotIndex) {
+		this(slotIndex, -1);
+	}
+	
+	public RightFieldAddress(int slotIndex, int posIndex) {
 		this.slotIndex = slotIndex;
+		this.posIndex = posIndex;
 	}
 	
 	public boolean refersWholeFact() {

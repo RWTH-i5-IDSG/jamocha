@@ -116,6 +116,33 @@ import org.jamocha.rule.TestCondition;
 // TODO finish this todo list ;)
 public class SFRuleCompiler implements RuleCompiler {
 
+	private class OrderedFactBindingAddress extends BindingAddress {
+		
+		public int positionIndex;
+		
+		public OrderedFactBindingAddress(int conditionIndex, int slotIndex, int positionIndex, int operator) {
+			super(conditionIndex,slotIndex,operator);
+			this.positionIndex = positionIndex;
+		}
+		
+		public String toString() {
+			StringBuilder result = new StringBuilder();
+			result.append("TupleIndex: ");
+			result.append(tupleIndex);
+			result.append(" SlotIndex: ");
+			result.append(slotIndex);
+			result.append(" PositionIndex: ");
+			result.append(positionIndex);
+			result.append(" Operator: ");
+			result.append(ConversionUtils.getOperator(operator));
+			result.append(" canBePivot: ");
+			result.append(canBePivot);
+			return result.toString();
+		}
+		
+	}
+	
+	
 	private class BindingAddress implements Comparable<BindingAddress> {
 		public int tupleIndex;
 
@@ -164,6 +191,10 @@ public class SFRuleCompiler implements RuleCompiler {
 		public int leftSlot;
 
 		public int rightSlot;
+		
+		public int rightPosition;
+		
+		public int leftPosition;
 
 		public int operator;
 
@@ -194,6 +225,14 @@ public class SFRuleCompiler implements RuleCompiler {
 			this.rightIndex = right.tupleIndex;
 			this.leftSlot = left.slotIndex;
 			this.rightSlot = right.slotIndex;
+			if (left instanceof OrderedFactBindingAddress) {
+				OrderedFactBindingAddress ofba = (OrderedFactBindingAddress) left;
+				this.leftPosition = ofba.positionIndex;
+			} else this.leftPosition = -1;
+			if (right instanceof OrderedFactBindingAddress) {
+				OrderedFactBindingAddress ofba = (OrderedFactBindingAddress) right;
+				this.rightPosition = ofba.positionIndex;
+			} else this.rightPosition = -1;
 			if (left.operator == Constants.EQUAL) {
 				this.operator = right.operator;
 			} else if (right.operator == Constants.EQUAL) {
@@ -610,23 +649,48 @@ public class SFRuleCompiler implements RuleCompiler {
 					// if we found a BoundConstraint
 					if (c instanceof BoundConstraint) {
 						BoundConstraint bc = (BoundConstraint) c;
-						BindingAddress ba;
-						if (bc.getIsObjectBinding()) {
-							ba = new BindingAddress(conditionIndexToTupleIndex(
-									i, conds.length), -1, bc.getOperator());
-						} else {
-							ba = new BindingAddress(conditionIndexToTupleIndex(
-									i, conds.length), bc.getSlot().getId(), bc
-									.getOperator());
+						bindingEntry(conds, bindingAddressTable, i, bc);
+					} else if (c instanceof OrderedFactConstraint) {
+						OrderedFactConstraint ofc = (OrderedFactConstraint) c;
+						for (int pos=0; pos<ofc.getConstraints().length; pos++) {
+							Constraint co = ofc.getConstraints()[pos];
+							if (co instanceof BoundConstraint) {
+								BoundConstraint bco = (BoundConstraint) co;
+								bindingEntry(conds, bindingAddressTable, i, pos, bco);
+							}
 						}
-						ba.canBePivot = !(conds[i] instanceof ExistCondition || conds[i] instanceof NotCondition);
-						bindingAddressTable.addBindingAddress(ba, bc
-								.getVariableName());
 					}
 				}
 			}
 		}
 		return bindingAddressTable;
+	}
+
+	private void bindingEntry(Condition[] conds, BindingAddressesTable bindingAddressTable, int i, BoundConstraint bc) {
+		BindingAddress ba;
+		if (bc.getIsObjectBinding()) {
+			ba = new BindingAddress(conditionIndexToTupleIndex(
+					i, conds.length), -1, bc.getOperator());
+		} else {
+				ba = new BindingAddress(conditionIndexToTupleIndex(
+					i, conds.length), bc.getSlot().getId(), bc
+					.getOperator());
+		}
+		ba.canBePivot = !(conds[i] instanceof ExistCondition || conds[i] instanceof NotCondition);
+		bindingAddressTable.addBindingAddress(ba, bc
+				.getVariableName());
+	}
+	
+	private void bindingEntry(Condition[] conds, BindingAddressesTable bat, int i, int po, BoundConstraint bc) {
+		BindingAddress ba;
+		if (!bc.getIsObjectBinding()) {
+			ba = new OrderedFactBindingAddress(conditionIndexToTupleIndex(
+				i, conds.length), 0, po, bc
+				.getOperator());
+			ba.canBePivot = !(conds[i] instanceof ExistCondition || conds[i] instanceof NotCondition);
+			bat.addBindingAddress(ba, bc
+					.getVariableName());
+		}
 	}
 
 	protected BaseNode compileBindings(Rule rule, Condition[] conds,
@@ -683,9 +747,10 @@ public class SFRuleCompiler implements RuleCompiler {
 					&& act.getCorrectJoinTupleIndex() == conditionIndexToTupleIndex(
 							i, conds.length)) {
 
+				
 				LeftFieldAddress left = new LeftFieldAddress(Math.min(
-						act.leftIndex, act.rightIndex), act.leftSlot);
-				RightFieldAddress right = new RightFieldAddress(act.rightSlot);
+						act.leftIndex, act.rightIndex), act.leftSlot, act.leftPosition);
+				RightFieldAddress right = new RightFieldAddress(act.rightSlot, act.rightPosition);
 				FieldComparator b = new FieldComparator(act.varName, left,
 						act.operator, right);
 				filters.add(b);
@@ -715,6 +780,7 @@ public class SFRuleCompiler implements RuleCompiler {
 			mostBottomNode = newJoin;
 
 			JoinFilter filter;
+			
 			LeftFieldAddress left = new LeftFieldAddress(act.leftIndex,
 					act.leftSlot);
 			RightFieldAddress right = new RightFieldAddress(act.rightSlot);

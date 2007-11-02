@@ -6,18 +6,24 @@ import org.jamocha.formatter.Formatter;
 public class LeftFieldAddress extends FieldAddress {
 	protected int slotIndex;
 	protected int rowIndex;
+	protected int posIndex;
 	
 	public Object clone(){
 		return this;
 	}
 	
 	public LeftFieldAddress(int rowIndex) {
-		this(rowIndex, -1);
+		this(rowIndex, -1, -1);
 	}
 	
 	public LeftFieldAddress(int rowIndex, int slotIndex) {
+		this(rowIndex, slotIndex, -1);
+	}
+	
+	public LeftFieldAddress(int rowIndex, int slotIndex, int posIndex) {
 		this.slotIndex = slotIndex;
 		this.rowIndex = rowIndex;
+		this.posIndex = posIndex;
 	}
 	
 	public boolean refersWholeFact() {
@@ -31,6 +37,10 @@ public class LeftFieldAddress extends FieldAddress {
 	
 	public int getRowIndex() {
 		return rowIndex;
+	}
+	
+	public int getPositionIndex() {
+		return posIndex;
 	}
 	
 	public String toPPString(){
