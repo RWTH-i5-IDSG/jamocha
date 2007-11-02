@@ -8,18 +8,26 @@ import org.jamocha.rete.nodes.BaseNode;
 import org.jamocha.rete.rulecompiler.sfp.SFRuleCompiler;
 
 public class OrderedFactConstraint extends AbstractConstraint {
-	
+
 	private static final long serialVersionUID = 1L;
-	
-	private JamochaValue val;
+
+	private Constraint[] constraints;
 
 	public boolean getNegated() {
 		// does nothing
 		return false;
 	}
 
+	public void setConstraints(Constraint[] constraints) {
+		this.constraints = constraints;
+	}
+
+	public Constraint[] getConstraints() {
+		return constraints;
+	}
+
 	public JamochaValue getValue() {
-		return val;
+		return null;
 	}
 
 	public void setNegated(boolean negate) {
@@ -27,7 +35,7 @@ public class OrderedFactConstraint extends AbstractConstraint {
 	}
 
 	public void setValue(JamochaValue val) {
-		this.val = val;
+		// does nothing
 	}
 
 	public BaseNode compile(SFRuleCompiler compiler, Rule rule,

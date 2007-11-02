@@ -1231,15 +1231,13 @@ public class SFPInterpreter implements SFPParserVisitor {
 
 	public Object visit(SFPOrderedLHSFactBody node, Object data) {
 		// constraints
-		JamochaValue[] constrList = new JamochaValue[node.jjtGetNumChildren()];
-		Constraint constr;
+		Constraint[] constrList = new Constraint[node.jjtGetNumChildren()];
 		for (int i = 0; i < node.jjtGetNumChildren(); i++) {
-			constr = (Constraint) node.jjtGetChild(i).jjtAccept(this, data);
-			constrList[i] = JamochaValue.newObject(constr);
+			constrList[i] = (Constraint) node.jjtGetChild(i).jjtAccept(this,
+					data);
 		}
-		JamochaValue container = JamochaValue.newList(constrList);
 		OrderedFactConstraint ofc = new OrderedFactConstraint();
-		ofc.setValue(container);
+		ofc.setConstraints(constrList);
 
 		return ofc;
 	}
