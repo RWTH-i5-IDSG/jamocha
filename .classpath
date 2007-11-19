@@ -7,8 +7,8 @@
 	<classpathentry kind="lib" path="apps/jamochaagent/lib/jadeTools.jar"/>
 	<classpathentry kind="lib" path="apps/jamochaagent/lib/jade.jar"/>
 	<classpathentry kind="lib" path="apps/jamochaagent/lib/http.jar"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/junit.jar"/>
 	<classpathentry kind="lib" path="lib/jsr94.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

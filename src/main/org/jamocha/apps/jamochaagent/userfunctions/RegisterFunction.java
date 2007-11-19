@@ -13,8 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jamocha.apps.jamochaagent;
+package org.jamocha.apps.jamochaagent.userfunctions;
 
+import org.jamocha.apps.jamochaagent.JamochaAgent;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
@@ -28,47 +29,47 @@ import org.jamocha.rete.functions.FunctionDescription;
  * 
  * 
  */
-public class AgentLocalName extends AbstractFunction {
+public class RegisterFunction extends AbstractFunction {
 	
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "Return the local name of the agent";
+			return ""; //TODO
 		}
 
 		public int getParameterCount() {
-			return 0;
+			return 0; //TODO
 		}
 
 		public String getParameterDescription(int parameter) {
-			return "";
+			return ""; //TODO
 		}
 
 		public String getParameterName(int parameter) {
-			return "";
+			return ""; //TODO
 		}
 
 		public JamochaType[] getParameterTypes(int parameter) {
-			return JamochaType.STRINGS;
+			return JamochaType.STRINGS; //TODO
 		}
 
 		public JamochaType[] getReturnType() {
-			return JamochaType.STRINGS;
+			return JamochaType.STRINGS; //TODO
 		}
 
 		public boolean isParameterCountFixed() {
-			return true;
+			return true; //TODO
 		}
 
 		public boolean isParameterOptional(int parameter) {
-			return false;
+			return false; //TODO
 		}
 
-		public String getExample() {
+		public String getExample() { //TODO
 			return "(local-agent-name)";
 		}
 
-		public boolean isResultAutoGeneratable() {
+		public boolean isResultAutoGeneratable() { //TODO
 			// TODO Auto-generated method stub
 			return false;
 		}
@@ -78,7 +79,7 @@ public class AgentLocalName extends AbstractFunction {
 
 	public static final FunctionDescription DESCRIPTION = new Description();
 
-	public static final String NAME = "local-agent-name";
+	public static final String NAME = "local-agent-name"; //TODO
 
 	private JamochaAgent agent;
 
@@ -90,13 +91,17 @@ public class AgentLocalName extends AbstractFunction {
 		return NAME;
 	}
 
-	public AgentLocalName(JamochaAgent agent) {
+	public RegisterFunction(JamochaAgent agent) {
 		this.agent = agent;
 	}
 
 	public JamochaValue executeFunction(Rete engine, Parameter[] params)
 			throws EvaluationException {
-		return JamochaValue.newString(agent.getLocalName());
+		
+		//TODO
+		return null;
+		
+		
 	}
 
 }

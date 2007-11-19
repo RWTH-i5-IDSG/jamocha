@@ -13,13 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jamocha.apps.jamochaagent;
+package org.jamocha.apps.jamochaagent.userfunctions;
 
 import jade.core.AID;
 import jade.lang.acl.ACLMessage;
 
 import java.util.Calendar;
 
+import org.jamocha.apps.jamochaagent.JamochaAgent;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.IllegalParameterException;
 import org.jamocha.parser.JamochaType;

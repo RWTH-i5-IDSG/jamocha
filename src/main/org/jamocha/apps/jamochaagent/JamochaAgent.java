@@ -35,6 +35,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.jamocha.Jamocha;
+import org.jamocha.apps.jamochaagent.userfunctions.AgentFunctions;
 import org.jamocha.messagerouter.MessageEvent;
 import org.jamocha.messagerouter.StringChannel;
 import org.jamocha.parser.JamochaValue;

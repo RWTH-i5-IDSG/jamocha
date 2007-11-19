@@ -13,11 +13,12 @@
  * limitations under the License.
  * 
  */
-package org.jamocha.apps.jamochaagent;
+package org.jamocha.apps.jamochaagent.userfunctions;
 
 import org.jamocha.adapter.sl.CLIPS2SLFunction;
 import org.jamocha.adapter.sl.SL2CLIPSFunction;
 import org.jamocha.adapter.sl.SLMessageCompare;
+import org.jamocha.apps.jamochaagent.JamochaAgent;
 import org.jamocha.rete.functions.FunctionGroup;
 import org.jamocha.rete.functions.FunctionMemory;
 
@@ -40,6 +41,10 @@ public class AgentFunctions extends FunctionGroup {
 		addFunction(functionMem, new SLMessageCompare());
 		addFunction(functionMem, new SL2CLIPSFunction());
 		addFunction(functionMem, new CLIPS2SLFunction());
+		
+		addFunction(functionMem, new RegisterFunction(agent));
+		addFunction(functionMem, new UnregisterFunction(agent));
+		addFunction(functionMem, new SearchFunction(agent));
 	}
 
 }

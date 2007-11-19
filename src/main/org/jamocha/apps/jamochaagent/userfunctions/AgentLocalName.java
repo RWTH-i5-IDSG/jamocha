@@ -13,8 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jamocha.apps.jamochaagent;
+package org.jamocha.apps.jamochaagent.userfunctions;
 
+import org.jamocha.apps.jamochaagent.JamochaAgent;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
@@ -28,12 +29,12 @@ import org.jamocha.rete.functions.FunctionDescription;
  * 
  * 
  */
-public class AgentName extends AbstractFunction {
+public class AgentLocalName extends AbstractFunction {
 	
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "FIX ME!";
+			return "Return the local name of the agent";
 		}
 
 		public int getParameterCount() {
@@ -41,11 +42,11 @@ public class AgentName extends AbstractFunction {
 		}
 
 		public String getParameterDescription(int parameter) {
-			return "Directory whose files and folders will be listed.";
+			return "";
 		}
 
 		public String getParameterName(int parameter) {
-			return "dir";
+			return "";
 		}
 
 		public JamochaType[] getParameterTypes(int parameter) {
@@ -65,8 +66,7 @@ public class AgentName extends AbstractFunction {
 		}
 
 		public String getExample() {
-			// TODO Auto-generated method stub
-			return null;
+			return "(local-agent-name)";
 		}
 
 		public boolean isResultAutoGeneratable() {
@@ -79,7 +79,7 @@ public class AgentName extends AbstractFunction {
 
 	public static final FunctionDescription DESCRIPTION = new Description();
 
-	public static final String NAME = "agent-name";
+	public static final String NAME = "local-agent-name";
 
 	private JamochaAgent agent;
 
@@ -91,13 +91,13 @@ public class AgentName extends AbstractFunction {
 		return NAME;
 	}
 
-	public AgentName(JamochaAgent agent) {
+	public AgentLocalName(JamochaAgent agent) {
 		this.agent = agent;
 	}
 
 	public JamochaValue executeFunction(Rete engine, Parameter[] params)
 			throws EvaluationException {
-		return JamochaValue.newString(agent.getName());
+		return JamochaValue.newString(agent.getLocalName());
 	}
 
 }
