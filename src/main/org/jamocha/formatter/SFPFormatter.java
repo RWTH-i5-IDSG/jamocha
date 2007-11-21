@@ -412,8 +412,10 @@ public class SFPFormatter extends Formatter {
 		StringBuilder sb = new StringBuilder();
 		Slot slot = object.getSlot();
 		if (slot != null) {
-			sb.append('(').append(slot.getName());
-			sb.append(" ?").append(object.getVariableName());
+			sb.append('(').append(slot.getName()).append(" ");
+			if(object.isMultislot())
+				sb.append("$");
+			sb.append("?").append(object.getVariableName());
 			sb.append(')');
 			return sb.toString();
 		} else
