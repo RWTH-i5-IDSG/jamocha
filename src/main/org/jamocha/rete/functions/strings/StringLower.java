@@ -32,8 +32,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  */
 public class StringLower extends AbstractFunction {
 
-	private static final class Description implements
-			FunctionDescription {
+	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
 			return "Returns the given string in lowercase alphabetic characters.";
@@ -95,7 +94,10 @@ public class StringLower extends AbstractFunction {
 		String txt = null;
 		if (params != null && params.length == 1) {
 			txt = params[0].getValue(engine).getStringValue();
-			txt = txt.toLowerCase();
+			if (txt != null)
+				txt = txt.toLowerCase();
+			else
+				txt = "";
 		} else {
 			throw new IllegalParameterException(1);
 		}

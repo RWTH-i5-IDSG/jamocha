@@ -117,14 +117,15 @@ import org.jamocha.rule.TestCondition;
 public class SFRuleCompiler implements RuleCompiler {
 
 	private class OrderedFactBindingAddress extends BindingAddress {
-		
+
 		public int positionIndex;
-		
-		public OrderedFactBindingAddress(int conditionIndex, int slotIndex, int positionIndex, int operator) {
-			super(conditionIndex,slotIndex,operator);
+
+		public OrderedFactBindingAddress(int conditionIndex, int slotIndex,
+				int positionIndex, int operator) {
+			super(conditionIndex, slotIndex, operator);
 			this.positionIndex = positionIndex;
 		}
-		
+
 		public String toString() {
 			StringBuilder result = new StringBuilder();
 			result.append("TupleIndex: ");
@@ -139,10 +140,9 @@ public class SFRuleCompiler implements RuleCompiler {
 			result.append(canBePivot);
 			return result.toString();
 		}
-		
+
 	}
-	
-	
+
 	private class BindingAddress implements Comparable<BindingAddress> {
 		public int tupleIndex;
 
@@ -191,9 +191,9 @@ public class SFRuleCompiler implements RuleCompiler {
 		public int leftSlot;
 
 		public int rightSlot;
-		
+
 		public int rightPosition;
-		
+
 		public int leftPosition;
 
 		public int operator;
@@ -228,11 +228,13 @@ public class SFRuleCompiler implements RuleCompiler {
 			if (left instanceof OrderedFactBindingAddress) {
 				OrderedFactBindingAddress ofba = (OrderedFactBindingAddress) left;
 				this.leftPosition = ofba.positionIndex;
-			} else this.leftPosition = -1;
+			} else
+				this.leftPosition = -1;
 			if (right instanceof OrderedFactBindingAddress) {
 				OrderedFactBindingAddress ofba = (OrderedFactBindingAddress) right;
 				this.rightPosition = ofba.positionIndex;
-			} else this.rightPosition = -1;
+			} else
+				this.rightPosition = -1;
 			if (left.operator == Constants.EQUAL) {
 				this.operator = right.operator;
 			} else if (right.operator == Constants.EQUAL) {
@@ -493,7 +495,8 @@ public class SFRuleCompiler implements RuleCompiler {
 				conds[i].compile(this, rule, i);
 			return compileJoins(rule);
 		} else /* if (rule.getConditions().length == 0) */{
-			return root.activateObjectTypeNode(engine.getInitialTemplate(), net);
+			return root
+					.activateObjectTypeNode(engine.getInitialTemplate(), net);
 		}
 	}
 
@@ -520,29 +523,32 @@ public class SFRuleCompiler implements RuleCompiler {
 	protected boolean isQuantorCondition(Condition c) {
 		return (c instanceof ExistCondition || c instanceof NotCondition);
 	}
-	
+
 	public ObjectCondition getObjectCondition(Condition c) {
 		if (c instanceof ExistCondition) {
-			return (ObjectCondition) ( ((ExistCondition)c).getNestedConditionalElement().get(0) );
+			return (ObjectCondition) (((ExistCondition) c)
+					.getNestedConditionalElement().get(0));
 		} else if (c instanceof NotCondition) {
-			return (ObjectCondition) (((NotCondition)c).getNestedConditionalElement().get(0));
-		} else return null;
+			return (ObjectCondition) (((NotCondition) c)
+					.getNestedConditionalElement().get(0));
+		} else
+			return null;
 	}
-	
+
 	protected void rearrangeConditions(Condition[] conds) {
 		BindingAddressesTable bat = computeBindingAddressTable(conds);
 		for (int i = 0; i < conds.length; i++) {
 			Condition c = conds[i];
-			if (isQuantorCondition(c)){
-				for (Constraint constr :
-					getObjectCondition(c).getConstraints() ) {
-					if (!(constr instanceof BoundConstraint)) continue;
+			if (isQuantorCondition(c)) {
+				for (Constraint constr : getObjectCondition(c).getConstraints()) {
+					if (!(constr instanceof BoundConstraint))
+						continue;
 					BoundConstraint bc = (BoundConstraint) constr;
 					BindingAddress pivot = bat.getPivot(bc.getVariableName());
 					if (pivot.tupleIndex > conditionIndexToTupleIndex(i,
-							conds.length) ) {
-						for ( int j=i ; j > 0 ; j-- ) {
-							conds[j] = conds[j-1];
+							conds.length)) {
+						for (int j = i; j > 0; j--) {
+							conds[j] = conds[j - 1];
 						}
 						conds[0] = c;
 						rearrangeConditions(conds);
@@ -563,8 +569,8 @@ public class SFRuleCompiler implements RuleCompiler {
 		rearrangeConditions(sortedConds);
 
 		HashMap<Condition, BaseNode> conditionJoiners = new HashMap<Condition, BaseNode>();
-		BaseNode initFactNode = root.activateObjectTypeNode(engine.getInitialTemplate(),
-				net);
+		BaseNode initFactNode = root.activateObjectTypeNode(engine
+				.getInitialTemplate(), net);
 
 		BaseNode mostBottomNode = null;
 
@@ -572,7 +578,6 @@ public class SFRuleCompiler implements RuleCompiler {
 		for (int i = 0; i < sortedConds.length; i++) {
 
 			Condition c = sortedConds[i];
-			
 
 			AbstractBeta newBeta = null;
 
@@ -593,9 +598,10 @@ public class SFRuleCompiler implements RuleCompiler {
 
 			BaseNode cLastNode = c.getLastNode();
 			if (cLastNode == null) {
-				cLastNode = root.activateObjectTypeNode(engine.getInitialTemplate(), net);
+				cLastNode = root.activateObjectTypeNode(engine
+						.getInitialTemplate(), net);
 			}
-				
+
 			cLastNode.addNode(newBeta, net);
 
 			conditionJoiners.put(c, newBeta);
@@ -653,11 +659,12 @@ public class SFRuleCompiler implements RuleCompiler {
 						bindingEntry(conds, bindingAddressTable, i, bc);
 					} else if (c instanceof OrderedFactConstraint) {
 						OrderedFactConstraint ofc = (OrderedFactConstraint) c;
-						for (int pos=0; pos<ofc.getConstraints().length; pos++) {
+						for (int pos = 0; pos < ofc.getConstraints().length; pos++) {
 							Constraint co = ofc.getConstraints()[pos];
 							if (co instanceof BoundConstraint) {
 								BoundConstraint bco = (BoundConstraint) co;
-								bindingEntry(conds, bindingAddressTable, i, pos, bco);
+								bindingEntry(conds, bindingAddressTable, i,
+										pos, bco);
 							}
 						}
 					}
@@ -667,30 +674,30 @@ public class SFRuleCompiler implements RuleCompiler {
 		return bindingAddressTable;
 	}
 
-	private void bindingEntry(Condition[] conds, BindingAddressesTable bindingAddressTable, int i, BoundConstraint bc) {
+	private void bindingEntry(Condition[] conds,
+			BindingAddressesTable bindingAddressTable, int i, BoundConstraint bc) {
 		BindingAddress ba;
 		if (bc.getIsObjectBinding()) {
-			ba = new BindingAddress(conditionIndexToTupleIndex(
-					i, conds.length), -1, bc.getOperator());
+			ba = new BindingAddress(
+					conditionIndexToTupleIndex(i, conds.length), -1, bc
+							.getOperator());
 		} else {
-				ba = new BindingAddress(conditionIndexToTupleIndex(
-					i, conds.length), bc.getSlot().getId(), bc
-					.getOperator());
+			ba = new BindingAddress(
+					conditionIndexToTupleIndex(i, conds.length), bc.getSlot()
+							.getId(), bc.getOperator());
 		}
 		ba.canBePivot = !(conds[i] instanceof ExistCondition || conds[i] instanceof NotCondition);
-		bindingAddressTable.addBindingAddress(ba, bc
-				.getVariableName());
+		bindingAddressTable.addBindingAddress(ba, bc.getVariableName());
 	}
-	
-	private void bindingEntry(Condition[] conds, BindingAddressesTable bat, int i, int po, BoundConstraint bc) {
+
+	private void bindingEntry(Condition[] conds, BindingAddressesTable bat,
+			int i, int po, BoundConstraint bc) {
 		BindingAddress ba;
 		if (!bc.getIsObjectBinding()) {
-			ba = new OrderedFactBindingAddress(conditionIndexToTupleIndex(
-				i, conds.length), 0, po, bc
-				.getOperator());
+			ba = new OrderedFactBindingAddress(conditionIndexToTupleIndex(i,
+					conds.length), 0, po, bc.getOperator());
 			ba.canBePivot = !(conds[i] instanceof ExistCondition || conds[i] instanceof NotCondition);
-			bat.addBindingAddress(ba, bc
-					.getVariableName());
+			bat.addBindingAddress(ba, bc.getVariableName());
 		}
 	}
 
@@ -748,10 +755,11 @@ public class SFRuleCompiler implements RuleCompiler {
 					&& act.getCorrectJoinTupleIndex() == conditionIndexToTupleIndex(
 							i, conds.length)) {
 
-				
 				LeftFieldAddress left = new LeftFieldAddress(Math.min(
-						act.leftIndex, act.rightIndex), act.leftSlot, act.leftPosition);
-				RightFieldAddress right = new RightFieldAddress(act.rightSlot, act.rightPosition);
+						act.leftIndex, act.rightIndex), act.leftSlot,
+						act.leftPosition);
+				RightFieldAddress right = new RightFieldAddress(act.rightSlot,
+						act.rightPosition);
 				FieldComparator b = new FieldComparator(act.varName, left,
 						act.operator, right);
 				filters.add(b);
@@ -781,7 +789,7 @@ public class SFRuleCompiler implements RuleCompiler {
 			mostBottomNode = newJoin;
 
 			JoinFilter filter;
-			
+
 			LeftFieldAddress left = new LeftFieldAddress(act.leftIndex,
 					act.leftSlot);
 			RightFieldAddress right = new RightFieldAddress(act.rightSlot);
@@ -993,21 +1001,30 @@ public class SFRuleCompiler implements RuleCompiler {
 					if (constraint instanceof OrderedFactConstraint) {
 
 						OrderedFactConstraint ofc = (OrderedFactConstraint) constraint;
-						
+
 						Constraint[] content = ofc.getConstraints();
-						
+
 						for (Constraint c : content) {
-							current = prepareConstraintCompile(condition, rule, conditionIndex, template, prev, c);
+							current = prepareConstraintCompile(condition, rule,
+									conditionIndex, template, prev, c);
 							prev = current;
 						}
-						
-						current = prepareConstraintCompile(condition, rule, conditionIndex, template, prev, constraint);
-						prev = current;
-						
+
+						current = prepareConstraintCompile(condition, rule,
+								conditionIndex, template, prev, constraint);
+						// TODO: This check is just a preliminary fix. There
+						// might be something better.
+						if (current != null)
+							prev = current;
+
 					}
-					
-					current = prepareConstraintCompile(condition, rule, conditionIndex, template, prev, constraint);
-					prev = current;
+
+					current = prepareConstraintCompile(condition, rule,
+							conditionIndex, template, prev, constraint);
+					// TODO: This check is just a preliminary fix. There might
+					// be something better.
+					if (current != null)
+						prev = current;
 				}
 			}
 			return current;
@@ -1017,19 +1034,19 @@ public class SFRuleCompiler implements RuleCompiler {
 		}
 	}
 
-	private SlotAlpha prepareConstraintCompile(ObjectCondition condition, Rule rule, int conditionIndex, Template template, BaseNode prev, Constraint constraint) throws AssertException, StopCompileException {
+	private SlotAlpha prepareConstraintCompile(ObjectCondition condition,
+			Rule rule, int conditionIndex, Template template, BaseNode prev,
+			Constraint constraint) throws AssertException, StopCompileException {
 		SlotAlpha current;
 		TemplateSlot slot;
 		slot = template.getSlot(constraint.getName());
 		constraint.setSlot(slot);
-		current = (SlotAlpha) constraint.compile(this, rule,
-				conditionIndex);
+		current = (SlotAlpha) constraint.compile(this, rule, conditionIndex);
 
 		// we add the node to the previous
 		if (current != null) {
 			prev.addNode(current, net);
 			condition.addNode(current);
-			// now set the previous to current
 		}
 		return current;
 	}
@@ -1284,8 +1301,9 @@ public class SFRuleCompiler implements RuleCompiler {
 
 		return node;
 	}
-	
-	public BaseNode compile(OrderedFactConstraint constraint, Rule rule, int conditionIndex) {
+
+	public BaseNode compile(OrderedFactConstraint constraint, Rule rule,
+			int conditionIndex) {
 		return null;
 	}
 
