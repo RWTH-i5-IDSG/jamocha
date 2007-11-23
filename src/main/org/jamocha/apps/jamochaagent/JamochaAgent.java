@@ -186,18 +186,17 @@ public class JamochaAgent extends ToolAgent {
 	}
 
 	private void initAgentWithProperties() {
-
 		// register the agent with the DF
 		String dfName = getProperties().getProperty("agent.df.name",
 				"undefined");
 		String dfAddress = getProperties().getProperty("agent.df.address",
 				"undefined");
-		System.out.println("df name: " + dfName + " Address: " + dfAddress);
 
-		AID myDF = new AID(dfName, true);
-		myDF.addAddresses(dfAddress);
 		if (!dfName.equals("undefined") && !dfAddress.equals("undefined")) {
 
+			AID myDF = new AID(dfName, true);
+			myDF.addAddresses(dfAddress);
+			
 			DFAgentDescription dfd = new DFAgentDescription();
 			ServiceDescription sd = new ServiceDescription();
 			sd.setName(getName());
