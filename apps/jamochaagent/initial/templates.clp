@@ -8,6 +8,8 @@
     (slot name (type STRING)(default ?NONE))
     ; Other addresses of this agent
     (multislot addresses)
+    ; name resolvers for the agent's addresses
+    (multislot resolvers)
 )
 
 
@@ -51,7 +53,7 @@
 (deftemplate agent-message-rule-pairing
 	"Generic pairing to connect a rule to the message that caused its definition."
 	(slot message)
-	(slot ruleName (type STRING))
+	(slot rule-name (type STRING))
 )
 
 

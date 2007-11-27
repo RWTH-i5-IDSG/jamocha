@@ -75,7 +75,7 @@ class RequestWhen extends SLPerformativeTranslator {
 		result.append("\"))");
 
 		result
-				.append("(assert (agent-message-rule-pairing (message %MSG%)(ruleName \"");
+				.append("(assert (agent-message-rule-pairing (message %MSG%)(rule-name \"");
 		result.append(ruleName);
 		result.append("\")))");
 		return result.toString();

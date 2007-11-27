@@ -5,7 +5,7 @@
 	)
 	(agent-message-rule-pairing
 		(message ?ruleMessage)
-		(ruleName ?ruleName)
+		(rule-name ?ruleName)
 	)
 	(test
 		(eq

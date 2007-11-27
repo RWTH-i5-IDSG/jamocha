@@ -66,8 +66,8 @@
 	; Call agent-send-message with the slot values.
 	(agent-send-message ?message)
 	
-	; Set the message to processed.
-	(modify ?message (processed TRUE))
+	; Set the message to processed and set the timestamp to now.
+	(modify ?message (processed TRUE)(timestamp (ms-time)))
 )
 
 
