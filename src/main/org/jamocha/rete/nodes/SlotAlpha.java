@@ -17,6 +17,7 @@
 package org.jamocha.rete.nodes;
 
 import org.jamocha.rete.Slot;
+import org.jamocha.rete.memory.WorkingMemory;
 
 /**
  * @author Peter Lin
@@ -29,8 +30,8 @@ public abstract class SlotAlpha extends AbstractAlpha {
 	/**
 	 * @param id
 	 */
-	public SlotAlpha(int id) {
-		super(id);
+	public SlotAlpha(int id, WorkingMemory memory) {
+		super(id, memory);
 	}
 
 	/**

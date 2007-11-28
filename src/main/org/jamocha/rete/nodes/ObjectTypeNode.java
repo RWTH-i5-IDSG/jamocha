@@ -31,6 +31,7 @@ import org.jamocha.rete.Fact;
 import org.jamocha.rete.Template;
 import org.jamocha.rete.exception.AssertException;
 import org.jamocha.rete.exception.RetractException;
+import org.jamocha.rete.memory.WorkingMemory;
 import org.jamocha.rete.memory.WorkingMemoryElement;
 
 /**
@@ -64,8 +65,8 @@ public class ObjectTypeNode extends AbstractAlpha implements Serializable {
 	/**
 	 * 
 	 */
-	public ObjectTypeNode(int id, Template deftemp) {
-		super(id);
+	public ObjectTypeNode(int id, Template deftemp, WorkingMemory memory) {
+		super(id, memory);
 		this.deftemplate = deftemp;
 		String templname = deftemp.getName();
 		if (templname.equals(Constants.INITIAL_FACT)) templname="initialFact";

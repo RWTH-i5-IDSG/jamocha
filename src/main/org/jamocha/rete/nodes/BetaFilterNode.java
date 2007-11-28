@@ -28,6 +28,7 @@ import org.jamocha.rete.Fact;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.exception.AssertException;
 import org.jamocha.rete.exception.RetractException;
+import org.jamocha.rete.memory.WorkingMemory;
 import org.jamocha.rete.nodes.joinfilter.JoinFilter;
 import org.jamocha.rete.nodes.joinfilter.JoinFilterException;
 import org.jamocha.rete.visualisation.VisualizerSetup;
@@ -58,8 +59,8 @@ public class BetaFilterNode extends AbstractBeta {
 	 */
 	protected List<JoinFilter> filters = null;
 
-	public BetaFilterNode(int id) {
-		super(id);
+	public BetaFilterNode(int id, WorkingMemory memory) {
+		super(id, memory);
 		filters = new ArrayList<JoinFilter>();
 	}
 

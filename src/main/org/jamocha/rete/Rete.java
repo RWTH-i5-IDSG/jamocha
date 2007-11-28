@@ -48,6 +48,7 @@ import org.jamocha.rete.exception.RetractException;
 import org.jamocha.rete.functions.FunctionMemory;
 import org.jamocha.rete.functions.FunctionMemoryImpl;
 import org.jamocha.rete.functions.io.Batch;
+import org.jamocha.rete.memory.WorkingMemory;
 import org.jamocha.rete.modules.Module;
 import org.jamocha.rete.modules.Modules;
 import org.jamocha.rete.nodes.BaseNode;
@@ -106,7 +107,7 @@ public class Rete implements SettingsChangedListener, PropertyChangeListener, Co
 	protected InitialFact initFact = new InitialFact();
 
 	private static long ticket = 0;
-
+	
 	/**
 	 * 
 	 */
@@ -969,6 +970,15 @@ public class Rete implements SettingsChangedListener, PropertyChangeListener, Co
 		else if (propertyName.equals(SettingsConstants.ENGINE_GENERAL_SETTINGS_PROFILE_RETRACT)) {
 			this.profileRetract = (settings.getBoolean(propertyName));
 		}
+	}
+
+	/**
+	 * this is a conveniance method for getting the network's working
+	 * memory
+	 * @return
+	 */
+	public WorkingMemory getWorkingMemory() {
+		return net.getWorkingMemory();
 	}
 
 

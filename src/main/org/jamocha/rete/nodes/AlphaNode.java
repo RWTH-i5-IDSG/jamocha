@@ -24,6 +24,7 @@ import org.jamocha.rete.Fact;
 import org.jamocha.rete.Slot;
 import org.jamocha.rete.exception.AssertException;
 import org.jamocha.rete.exception.RetractException;
+import org.jamocha.rete.memory.WorkingMemory;
 import org.jamocha.rete.memory.WorkingMemoryElement;
 
 /**
@@ -51,8 +52,8 @@ public class AlphaNode extends SlotAlpha {
 	/**
 	 * 
 	 */
-	public AlphaNode(int id) {
-		super(id);
+	public AlphaNode(int id, WorkingMemory memory) {
+		super(id, memory);
 	}
 
 	/**

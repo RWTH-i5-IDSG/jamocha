@@ -21,6 +21,7 @@ import org.jamocha.rete.Fact;
 import org.jamocha.rete.exception.AssertException;
 import org.jamocha.rete.exception.RetractException;
 import org.jamocha.rete.memory.AlphaMemory;
+import org.jamocha.rete.memory.WorkingMemory;
 
 /**
  * @author Peter Lin
@@ -87,8 +88,8 @@ public abstract class AbstractAlpha extends BaseNode {
 
 	protected AlphaMemory facts = null;
 
-	public AbstractAlpha(int id) {
-		super(id);
+	public AbstractAlpha(int id, WorkingMemory memory) {
+		super(id, memory);
 		this.maxChildCount = Integer.MAX_VALUE;
 		facts = new AlphaMemory();
 	}

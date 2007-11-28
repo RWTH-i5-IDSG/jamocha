@@ -11,6 +11,8 @@ import org.jamocha.rete.RuleCompiler;
 import org.jamocha.rete.Template;
 import org.jamocha.rete.exception.AssertException;
 import org.jamocha.rete.exception.RetractException;
+import org.jamocha.rete.memory.WorkingMemory;
+import org.jamocha.rete.memory.implementations.defaultimpl.WorkingMemoryImpl;
 import org.jamocha.rule.Rule;
 import org.jamocha.settings.JamochaSettings;
 import org.jamocha.settings.SettingsChangedListener;
@@ -25,6 +27,8 @@ public class ReteNet implements SettingsChangedListener, Serializable {
 	protected RootNode root = null;
 
 	protected RuleCompiler compiler = null;
+	
+	protected WorkingMemory workingMemory;
 
 	private int lastNodeId = 0;
 
@@ -38,7 +42,13 @@ public class ReteNet implements SettingsChangedListener, Serializable {
 	public ReteNet(Rete engine) {
 		super();
 		this.engine = engine;
-		this.root = new RootNode(nextNodeId());
+		
+		/* for now, choose the implementation is hard coded, since
+		 * there is only this one.
+		 */
+		this.workingMemory = WorkingMemoryImpl.getWorkingMemory();
+
+		this.root = new RootNode(nextNodeId(), engine.getWorkingMemory() );
 		this.compiler = ParserFactory.getRuleCompiler(engine, this, this.root);
 		this.compiler.addListener(engine);
 		JamochaSettings.getInstance().addListener(this, interestedProperties);
@@ -137,6 +147,10 @@ public class ReteNet implements SettingsChangedListener, Serializable {
 			setShareNodes(settings.getBoolean(propertyName));
 		}
 
+	}
+
+	public WorkingMemory getWorkingMemory() {
+		return workingMemory;
 	}
 
 }

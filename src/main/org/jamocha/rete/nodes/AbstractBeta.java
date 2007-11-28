@@ -24,6 +24,7 @@ import org.jamocha.rete.exception.AssertException;
 import org.jamocha.rete.exception.RetractException;
 import org.jamocha.rete.memory.AlphaMemory;
 import org.jamocha.rete.memory.BetaMemory;
+import org.jamocha.rete.memory.WorkingMemory;
 import org.jamocha.rete.memory.WorkingMemoryElement;
 
 /**
@@ -98,8 +99,8 @@ public abstract class AbstractBeta extends BaseNode {
 	/**
 	 * @param id
 	 */
-	public AbstractBeta(int id) {
-		super(id);
+	public AbstractBeta(int id, WorkingMemory memory) {
+		super(id, memory);
 		this.maxChildCount = Integer.MAX_VALUE;
 		this.maxParentCount = 2;
 		alphaMemory = new AlphaMemory();
@@ -225,7 +226,7 @@ public abstract class AbstractBeta extends BaseNode {
 		if (this.parentNodes.length > 0 && this.parentNodes[0].isRightNode()
 				&& newParentNode.isRightNode()) {
 			// now, indeed, we need a new LIANode between them
-			LIANode adaptor = new LIANode(net.nextNodeId());
+			LIANode adaptor = new LIANode(net.nextNodeId(), workingMemory);
 			try {
 				adaptor.addNode(this, net);
 				return adaptor.evAdded(newParentNode, net);

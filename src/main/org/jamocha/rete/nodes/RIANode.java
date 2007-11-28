@@ -11,14 +11,15 @@ import org.jamocha.rete.Slot;
 import org.jamocha.rete.exception.AssertException;
 import org.jamocha.rete.exception.RetractException;
 import org.jamocha.rete.memory.AlphaMemory;
+import org.jamocha.rete.memory.WorkingMemory;
 import org.jamocha.rete.memory.WorkingMemoryElement;
 
 public class RIANode extends AbstractBeta {
 
 	private static final long serialVersionUID = 1L;
 
-	public RIANode(int id) {
-		super(id);
+	public RIANode(int id, WorkingMemory memory) {
+		super(id, memory);
 		mapping = new HashMap<FactTuple, Fact>();
 		mergeMemory = new AlphaMemory();
 	}

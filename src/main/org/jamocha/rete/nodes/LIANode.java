@@ -24,6 +24,7 @@ import java.util.List;
 import org.jamocha.rete.Fact;
 import org.jamocha.rete.exception.AssertException;
 import org.jamocha.rete.exception.RetractException;
+import org.jamocha.rete.memory.WorkingMemory;
 import org.jamocha.rete.memory.WorkingMemoryElement;
 import org.jamocha.rete.visualisation.VisualizerSetup;
 
@@ -38,8 +39,8 @@ import org.jamocha.rete.visualisation.VisualizerSetup;
 //TODO: is LIANode really an alpha node? -jh
 public class LIANode extends AbstractAlpha {
 
-	public LIANode(int id) {
-		super(id);
+	public LIANode(int id, WorkingMemory memory) {
+		super(id, memory);
 	}
 
 	private static final long serialVersionUID = 1L;

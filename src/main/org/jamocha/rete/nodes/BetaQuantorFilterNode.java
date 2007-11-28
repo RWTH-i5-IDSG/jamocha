@@ -7,6 +7,7 @@ import org.jamocha.rete.Fact;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.exception.AssertException;
 import org.jamocha.rete.exception.RetractException;
+import org.jamocha.rete.memory.WorkingMemory;
 
 public class BetaQuantorFilterNode extends BetaFilterNode {
 
@@ -47,13 +48,13 @@ public class BetaQuantorFilterNode extends BetaFilterNode {
 
 	protected Marker<FactTuple> propagatedMarker = new Marker<FactTuple>(false);
 
-	public BetaQuantorFilterNode(int id, boolean negated) {
-		super(id);
+	public BetaQuantorFilterNode(int id, WorkingMemory memory, boolean negated) {
+		super(id, memory);
 		this.negated = negated;
 	}
 
-	public BetaQuantorFilterNode(int id) {
-		this(id, false);
+	public BetaQuantorFilterNode(int id, WorkingMemory memory) {
+		this(id, memory, false);
 	}
 
 	protected void propagateNewTuple(FactTuple t, ReteNet net)

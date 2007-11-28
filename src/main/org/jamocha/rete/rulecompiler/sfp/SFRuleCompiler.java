@@ -400,7 +400,7 @@ public class SFRuleCompiler implements RuleCompiler {
 	 * @return TerminalNode
 	 */
 	protected TerminalNode createTerminalNode(Rule rule) {
-		TerminalNode node = new TerminalNode(net.nextNodeId(), rule);
+		TerminalNode node = new TerminalNode(net.nextNodeId(), rule, engine.getWorkingMemory());
 		rule.SetTerminalNode(node);
 		return node;
 		/*
@@ -582,11 +582,11 @@ public class SFRuleCompiler implements RuleCompiler {
 			AbstractBeta newBeta = null;
 
 			if (c instanceof ObjectCondition)
-				newBeta = new BetaFilterNode(net.nextNodeId());
+				newBeta = new BetaFilterNode(net.nextNodeId(), engine.getWorkingMemory());
 			else if (c instanceof NotCondition)
-				newBeta = new BetaQuantorFilterNode(net.nextNodeId(), true);
+				newBeta = new BetaQuantorFilterNode(net.nextNodeId(), engine.getWorkingMemory(), true);
 			else if (c instanceof ExistCondition)
-				newBeta = new BetaQuantorFilterNode(net.nextNodeId(), false);
+				newBeta = new BetaQuantorFilterNode(net.nextNodeId(), engine.getWorkingMemory(), false);
 
 			if (fromBottom == null) {
 				mostBottomNode = newBeta;
@@ -781,7 +781,7 @@ public class SFRuleCompiler implements RuleCompiler {
 			Template template = objectC.getTemplate();
 			ObjectTypeNode otn = root.activateObjectTypeNode(template, net);
 
-			BetaFilterNode newJoin = new BetaFilterNode(net.nextNodeId());
+			BetaFilterNode newJoin = new BetaFilterNode(net.nextNodeId(), engine.getWorkingMemory());
 
 			mostBottomNode.addNode(newJoin, net);
 			otn.addNode(newJoin, net);
@@ -1287,7 +1287,7 @@ public class SFRuleCompiler implements RuleCompiler {
 		} catch (ConstraintViolationException e) {
 			engine.writeMessage(e.getMessage());
 		}
-		node = new AlphaNode(net.nextNodeId());
+		node = new AlphaNode(net.nextNodeId(), engine.getWorkingMemory());
 		node.setSlot(sl);
 		if (constraint.getNegated()) {
 			node.setOperator(Constants.NOTEQUAL);

@@ -26,6 +26,7 @@ import java.util.Map;
 import org.jamocha.rete.ConversionUtils;
 import org.jamocha.rete.exception.AssertException;
 import org.jamocha.rete.exception.RetractException;
+import org.jamocha.rete.memory.WorkingMemory;
 import org.jamocha.rete.memory.WorkingMemoryElement;
 import org.jamocha.rete.visualisation.VisualizerSetup;
 import org.jamocha.rule.Rule;
@@ -53,14 +54,17 @@ public abstract class BaseNode implements Serializable {
 	protected int maxParentCount = 1;
 
 	protected int maxChildCount = 1;
+	
+	protected WorkingMemory workingMemory;
 
 	/**
 	 * BaseNode has only one constructor which takes an unique node id. All
 	 * subclasses need to call the constructor.
 	 */
-	public BaseNode(int id) {
+	public BaseNode(int id, WorkingMemory memory) {
 		super();
 		this.nodeID = id;
+		this.workingMemory = memory;
 	}
 
 	public BaseNode[] getParentNodes() {

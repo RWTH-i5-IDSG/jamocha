@@ -28,13 +28,14 @@ import org.jamocha.rete.Rete;
 import org.jamocha.rete.Template;
 import org.jamocha.rete.exception.AssertException;
 import org.jamocha.rete.exception.RetractException;
+import org.jamocha.rete.memory.WorkingMemory;
 import org.jamocha.rete.memory.WorkingMemoryElement;
 import org.jamocha.rete.visualisation.VisualizerSetup;
 
 public class RootNode extends BaseNode {
 
-	public RootNode(int id) {
-		super(id);
+	public RootNode(int id, WorkingMemory memory) {
+		super(id, memory);
 		this.maxChildCount = Integer.MAX_VALUE;
 		this.maxParentCount = 0;
 	}
@@ -60,7 +61,7 @@ public class RootNode extends BaseNode {
 		if (!inputNodes.containsKey(template)
 				&& !tempInputNodes.containsKey(template)) {
 			ObjectTypeNode node = new ObjectTypeNode(engine.getNet().nextNodeId(),
-					template);
+					template, workingMemory);
 			tempInputNodes.put(template, node);
 		}
 	}

@@ -168,7 +168,7 @@ public class HokifischRuleCompiler implements RuleCompiler {
 
 	
 	private void addTerminalNode(CompileCallInformation information) throws RuleCompilingException {
-		TerminalNode tnode = new TerminalNode(network.nextNodeId(),information.rule);
+		TerminalNode tnode = new TerminalNode(network.nextNodeId() ,information.rule, engine.getWorkingMemory());
 		try {
 			information.lastJoin.addNode(tnode, network);
 		} catch (AssertException e) {
@@ -185,7 +185,7 @@ public class HokifischRuleCompiler implements RuleCompiler {
 	private BaseNode joinConditions(CompileCallInformation information, Condition[] conditions, AbstractAlpha fromAbove) throws RuleCompilingException{
 		BaseNode foo = fromAbove;
 		for (Condition condition : information.rule.getConditions()) {
-			AbstractBeta newJoin = new BetaFilterNode(network.nextNodeId());
+			AbstractBeta newJoin = new BetaFilterNode(network.nextNodeId(), engine.getWorkingMemory());
 			try {
 				fromAbove.addNode(newJoin, network);
 				information.conditionSubnets.get(condition).getLast().addNode(newJoin, network);
@@ -317,7 +317,7 @@ public class HokifischRuleCompiler implements RuleCompiler {
 			throw new RuleCompilingException(e);
 		}
 		// generate a new node and put in the slot
-		AlphaNode node = new AlphaNode(network.nextNodeId());
+		AlphaNode node = new AlphaNode(network.nextNodeId(), engine.getWorkingMemory());
 		node.setSlot(sl);
 		// set the operator
 		node.setOperator(

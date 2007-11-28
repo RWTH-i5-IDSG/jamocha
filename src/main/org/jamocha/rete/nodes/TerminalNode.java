@@ -24,6 +24,7 @@ import org.jamocha.rete.Fact;
 import org.jamocha.rete.agenda.Activation;
 import org.jamocha.rete.exception.AssertException;
 import org.jamocha.rete.exception.RetractException;
+import org.jamocha.rete.memory.WorkingMemory;
 import org.jamocha.rete.memory.WorkingMemoryElement;
 import org.jamocha.rete.modules.Module;
 import org.jamocha.rule.Rule;
@@ -55,8 +56,8 @@ public class TerminalNode extends BaseNode {
 		}
 	}
 	
-	public TerminalNode(int id, Rule rl) {
-		super(id);
+	public TerminalNode(int id, Rule rl, WorkingMemory memory) {
+		super(id,memory);
 		this.theRule = rl;
 		this.maxChildCount = 0;
 		this.maxParentCount = 1;

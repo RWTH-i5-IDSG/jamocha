@@ -2,14 +2,22 @@ package org.jamocha.rete.memory.implementations.defaultimpl;
 
 import org.jamocha.rete.memory.WmeIterator;
 import org.jamocha.rete.memory.WorkingMemory;
+import org.jamocha.rete.memory.WorkingMemoryListener;
 import org.jamocha.rete.nodes.BaseNode;
 
 public class WorkingMemoryImpl implements WorkingMemory {
 
-	@Override
-	public void addFact(BaseNode owner) {
-		// TODO Auto-generated method stub
+	private WorkingMemoryImpl() {
 		
+	}
+	
+	private static WorkingMemoryImpl instance;
+	
+	public static WorkingMemoryImpl getWorkingMemory() {
+		if (instance == null) {
+			instance = new WorkingMemoryImpl();
+		}
+		return instance;
 	}
 
 	@Override
@@ -20,6 +28,25 @@ public class WorkingMemoryImpl implements WorkingMemory {
 
 	@Override
 	public void removeFact(BaseNode owner) {
+		// TODO Auto-generated method stub
+		
+	}
+	
+
+	@Override
+	public void addAlpha(BaseNode owner) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void addBeta(BaseNode owner) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void addWorkingMemoryListener(WorkingMemoryListener listener) {
 		// TODO Auto-generated method stub
 		
 	}
