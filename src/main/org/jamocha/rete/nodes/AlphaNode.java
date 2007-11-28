@@ -24,6 +24,7 @@ import org.jamocha.rete.Fact;
 import org.jamocha.rete.Slot;
 import org.jamocha.rete.exception.AssertException;
 import org.jamocha.rete.exception.RetractException;
+import org.jamocha.rete.memory.WorkingMemoryElement;
 
 /**
  * @author Peter Lin
@@ -82,7 +83,7 @@ public class AlphaNode extends SlotAlpha {
 	 * @param factInstance
 	 */
 	@Override
-	public void assertFact(Assertable fact, ReteNet net, BaseNode sender) throws AssertException {
+	public void assertFact(WorkingMemoryElement fact, ReteNet net, BaseNode sender) throws AssertException {
 		if (evaluate((Fact) fact)) {
 			facts.add((Fact) fact);
 			propogateAssert(fact, net);
@@ -96,7 +97,7 @@ public class AlphaNode extends SlotAlpha {
 	 * @param engine
 	 */
 	@Override
-	public void retractFact(Assertable fact, ReteNet net, BaseNode sender) throws RetractException {
+	public void retractFact(WorkingMemoryElement fact, ReteNet net, BaseNode sender) throws RetractException {
 		facts.remove((Fact) fact);
 		propogateRetract(fact, net);
 	}

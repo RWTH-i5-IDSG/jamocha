@@ -20,7 +20,7 @@ import org.jamocha.formatter.Formattable;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.configurations.SlotConfiguration;
-import org.jamocha.rete.nodes.Assertable;
+import org.jamocha.rete.memory.WorkingMemoryElement;
 import org.jamocha.rule.Rule;
 
 /**
@@ -28,7 +28,7 @@ import org.jamocha.rule.Rule;
  * 
  * Base interface for Facts
  */
-public interface Fact extends Assertable, Dumpable, Formattable {
+public interface Fact extends WorkingMemoryElement, Dumpable, Formattable {
 
 	/**
 	 * Return the value at the given slot id

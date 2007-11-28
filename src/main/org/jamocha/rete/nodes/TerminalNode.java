@@ -24,6 +24,7 @@ import org.jamocha.rete.Fact;
 import org.jamocha.rete.agenda.Activation;
 import org.jamocha.rete.exception.AssertException;
 import org.jamocha.rete.exception.RetractException;
+import org.jamocha.rete.memory.WorkingMemoryElement;
 import org.jamocha.rete.modules.Module;
 import org.jamocha.rule.Rule;
 
@@ -76,7 +77,7 @@ public class TerminalNode extends BaseNode {
 	 * @param engine
 	 * @param idx
 	 */
-	public void assertFact(Assertable fact, ReteNet net, BaseNode sender)
+	public void assertFact(WorkingMemoryElement fact, ReteNet net, BaseNode sender)
 			throws AssertException {
 		FactTuple tuple = null;
 		if (sender.isRightNode())
@@ -97,7 +98,7 @@ public class TerminalNode extends BaseNode {
 	 * @param idx
 	 */
 	@Override
-	public void retractFact(Assertable fact, ReteNet net, BaseNode sender)
+	public void retractFact(WorkingMemoryElement fact, ReteNet net, BaseNode sender)
 			throws RetractException {
 		FactTuple tuple = null;
 		if (sender.isRightNode())

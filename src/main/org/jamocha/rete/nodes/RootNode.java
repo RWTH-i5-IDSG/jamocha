@@ -28,6 +28,7 @@ import org.jamocha.rete.Rete;
 import org.jamocha.rete.Template;
 import org.jamocha.rete.exception.AssertException;
 import org.jamocha.rete.exception.RetractException;
+import org.jamocha.rete.memory.WorkingMemoryElement;
 import org.jamocha.rete.visualisation.VisualizerSetup;
 
 public class RootNode extends BaseNode {
@@ -150,7 +151,7 @@ public class RootNode extends BaseNode {
 	}
 
 	@Override
-	public void assertFact(Assertable fact, ReteNet net, BaseNode sender)
+	public void assertFact(WorkingMemoryElement fact, ReteNet net, BaseNode sender)
 			throws AssertException {
 		Fact fct = (Fact) fact;
 		ObjectTypeNode otn = (ObjectTypeNode) this.inputNodes.get(fct
@@ -170,7 +171,7 @@ public class RootNode extends BaseNode {
 	}
 
 	@Override
-	public void retractFact(Assertable fact, ReteNet net, BaseNode sender)
+	public void retractFact(WorkingMemoryElement fact, ReteNet net, BaseNode sender)
 			throws RetractException {
 		Fact fct = (Fact) fact;
 		ObjectTypeNode otn = (ObjectTypeNode) this.inputNodes.get(fct

@@ -26,6 +26,7 @@ import java.util.Map;
 import org.jamocha.rete.ConversionUtils;
 import org.jamocha.rete.exception.AssertException;
 import org.jamocha.rete.exception.RetractException;
+import org.jamocha.rete.memory.WorkingMemoryElement;
 import org.jamocha.rete.visualisation.VisualizerSetup;
 import org.jamocha.rule.Rule;
 
@@ -325,7 +326,7 @@ public abstract class BaseNode implements Serializable {
 	 * @param fact
 	 * @param engine
 	 */
-	protected void propogateRetract(Assertable fact, ReteNet net) throws RetractException {
+	protected void propogateRetract(WorkingMemoryElement fact, ReteNet net) throws RetractException {
 		for (BaseNode nNode : childNodes) {
 			nNode.retractFact(fact, net, this);
 		}
@@ -337,16 +338,16 @@ public abstract class BaseNode implements Serializable {
 	 * @param fact
 	 * @param engine
 	 */
-	protected void propogateAssert(Assertable fact, ReteNet net) throws AssertException {
+	protected void propogateAssert(WorkingMemoryElement fact, ReteNet net) throws AssertException {
 		for (BaseNode nNode : childNodes) {
 			nNode.assertFact(fact, net, this);
 		}
 	}
 
 	// use of good old Delphi sender...
-	public abstract void assertFact(Assertable fact, ReteNet net, BaseNode sender) throws AssertException;
+	public abstract void assertFact(WorkingMemoryElement fact, ReteNet net, BaseNode sender) throws AssertException;
 
-	public abstract void retractFact(Assertable fact, ReteNet net, BaseNode sender) throws RetractException;
+	public abstract void retractFact(WorkingMemoryElement fact, ReteNet net, BaseNode sender) throws RetractException;
 
 	public boolean isRightNode() {
 		return true;

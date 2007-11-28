@@ -24,6 +24,7 @@ import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.parser.ParserFactory;
 import org.jamocha.rete.configurations.SlotConfiguration;
+import org.jamocha.rete.nodes.FactTuple;
 import org.jamocha.rule.Rule;
 
 /**
@@ -37,6 +38,8 @@ public class Deffact implements Fact {
 	/**
 	 * 
 	 */
+	
+	
 	private static final long serialVersionUID = 1L;
 
 	protected Template template = null;
@@ -448,6 +451,12 @@ public class Deffact implements Fact {
 
 	public String format(Formatter visitor) {
 		return visitor.visit(this);
+	}
+
+	@Override
+	public FactTuple getFactTuple() {
+		FactTuple tuple = new FactTuple(this);
+		return tuple;
 	}
 
 }

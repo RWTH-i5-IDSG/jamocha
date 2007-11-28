@@ -24,6 +24,7 @@ import org.jamocha.rete.exception.AssertException;
 import org.jamocha.rete.exception.RetractException;
 import org.jamocha.rete.memory.AlphaMemory;
 import org.jamocha.rete.memory.BetaMemory;
+import org.jamocha.rete.memory.WorkingMemoryElement;
 
 /**
  * @author Peter Lin
@@ -107,7 +108,7 @@ public abstract class AbstractBeta extends BaseNode {
 	}
 
 	@Override
-	public void assertFact(Assertable fact, ReteNet net, BaseNode sender)
+	public void assertFact(WorkingMemoryElement fact, ReteNet net, BaseNode sender)
 			throws AssertException {
 		if (sender.isRightNode()) {
 			assertRight((Fact) fact, net);
@@ -133,7 +134,7 @@ public abstract class AbstractBeta extends BaseNode {
 	}
 
 	@Override
-	public void retractFact(Assertable fact, ReteNet net, BaseNode sender)
+	public void retractFact(WorkingMemoryElement fact, ReteNet net, BaseNode sender)
 			throws RetractException {
 		if (sender.isRightNode()) {
 			retractRight((Fact) fact, net);

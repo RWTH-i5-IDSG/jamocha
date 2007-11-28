@@ -19,8 +19,9 @@ package org.jamocha.rete.nodes;
 import java.util.Arrays;
 
 import org.jamocha.rete.Fact;
+import org.jamocha.rete.memory.WorkingMemoryElement;
 
-public class FactTuple implements Assertable {
+public class FactTuple implements WorkingMemoryElement {
 
 	private static final long serialVersionUID = 1L;
 
@@ -104,6 +105,11 @@ public class FactTuple implements Assertable {
 		if (!Arrays.equals(facts, other.facts))
 			return false;
 		return true;
+	}
+	
+	@Override
+	public FactTuple getFactTuple() {
+		return this;
 	}
 
 }

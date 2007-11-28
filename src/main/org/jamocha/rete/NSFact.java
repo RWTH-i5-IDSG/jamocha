@@ -22,6 +22,7 @@ import org.jamocha.formatter.Formatter;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.configurations.SlotConfiguration;
+import org.jamocha.rete.nodes.FactTuple;
 import org.jamocha.rule.Rule;
 
 /**
@@ -253,4 +254,10 @@ public class NSFact implements Fact, Serializable {
 		return ticket;
 	}
 	
+	
+	@Override
+	public FactTuple getFactTuple() {
+		FactTuple tuple = new FactTuple(this);
+		return tuple;
+	}
 }

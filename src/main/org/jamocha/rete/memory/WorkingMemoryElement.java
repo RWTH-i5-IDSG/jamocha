@@ -14,12 +14,16 @@
  * limitations under the License.
  * 
  */
-package org.jamocha.rete.nodes;
+package org.jamocha.rete.memory;
 
 import java.io.Serializable;
 
-public interface Assertable extends Serializable {
+import org.jamocha.rete.nodes.FactTuple;
+
+public interface WorkingMemoryElement extends Serializable {
 
 	public String toString();
 
+	public FactTuple getFactTuple();
+	
 }

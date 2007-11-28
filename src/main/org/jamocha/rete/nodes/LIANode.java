@@ -24,6 +24,7 @@ import java.util.List;
 import org.jamocha.rete.Fact;
 import org.jamocha.rete.exception.AssertException;
 import org.jamocha.rete.exception.RetractException;
+import org.jamocha.rete.memory.WorkingMemoryElement;
 import org.jamocha.rete.visualisation.VisualizerSetup;
 
 /**
@@ -44,7 +45,7 @@ public class LIANode extends AbstractAlpha {
 	private static final long serialVersionUID = 1L;
 
 	@Override
-	public void assertFact(Assertable fact, ReteNet net, BaseNode sender)
+	public void assertFact(WorkingMemoryElement fact, ReteNet net, BaseNode sender)
 			throws AssertException {
 		// add to own buffer list:
 		facts.add((Fact) fact);
@@ -54,7 +55,7 @@ public class LIANode extends AbstractAlpha {
 	}
 
 	@Override
-	public void retractFact(Assertable fact, ReteNet net, BaseNode sender)
+	public void retractFact(WorkingMemoryElement fact, ReteNet net, BaseNode sender)
 			throws RetractException {
 		if (facts.remove((Fact) fact) != null){
 			FactTuple tuple = new FactTuple((Fact) fact);

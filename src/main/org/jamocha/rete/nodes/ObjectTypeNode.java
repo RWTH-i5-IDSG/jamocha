@@ -31,6 +31,7 @@ import org.jamocha.rete.Fact;
 import org.jamocha.rete.Template;
 import org.jamocha.rete.exception.AssertException;
 import org.jamocha.rete.exception.RetractException;
+import org.jamocha.rete.memory.WorkingMemoryElement;
 
 /**
  * @author Peter Lin
@@ -84,7 +85,7 @@ public class ObjectTypeNode extends AbstractAlpha implements Serializable {
 	}
 
 	@Override
-	public void assertFact(Assertable fact, ReteNet net, BaseNode sender)
+	public void assertFact(WorkingMemoryElement fact, ReteNet net, BaseNode sender)
 			throws AssertException {
 		if (((Fact) fact).getTemplate().equals(this.getDeftemplate())) {
 			this.facts.add((Fact) fact);
@@ -102,7 +103,7 @@ public class ObjectTypeNode extends AbstractAlpha implements Serializable {
 
 
 	@Override
-	public void retractFact(Assertable fact, ReteNet net, BaseNode sender)
+	public void retractFact(WorkingMemoryElement fact, ReteNet net, BaseNode sender)
 			throws RetractException {
 		if (facts.remove((Fact) fact) != null)
 			propogateRetract(fact, net);
