@@ -25,6 +25,7 @@ import org.jamocha.parser.JamochaValue;
 import org.jamocha.parser.ParserFactory;
 import org.jamocha.rete.configurations.SlotConfiguration;
 import org.jamocha.rete.nodes.FactTuple;
+import org.jamocha.rete.nodes.FactTupleImpl;
 import org.jamocha.rule.Rule;
 
 /**
@@ -455,7 +456,7 @@ public class Deffact implements Fact {
 
 	@Override
 	public FactTuple getFactTuple() {
-		FactTuple tuple = new FactTuple(this);
+		FactTuple tuple = new FactTupleImpl(this);
 		return tuple;
 	}
 

@@ -7,6 +7,7 @@ import java.util.List;
 import org.jamocha.rete.Fact;
 import org.jamocha.rete.nodes.FactTuple;
 
+@Deprecated
 public class BetaMemory extends AbstractMemory implements Iterable<FactTuple> {
 
 	protected List<FactTuple> factTuples = null;

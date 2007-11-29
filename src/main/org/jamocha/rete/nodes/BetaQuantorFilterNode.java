@@ -59,7 +59,7 @@ public class BetaQuantorFilterNode extends BetaFilterNode {
 
 	protected void propagateNewTuple(FactTuple t, ReteNet net)
 			throws AssertException {
-		FactTuple newTuple = t.addFact(net.getEngine().getInitialFact());
+		FactTuple newTuple = t.appendFact(net.getEngine().getInitialFact());
 		propagatedMarker.mark(t);
 		mergeMemory.add(newTuple);
 		propogateAssert(newTuple, net);

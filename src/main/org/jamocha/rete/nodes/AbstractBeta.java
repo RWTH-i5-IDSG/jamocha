@@ -70,7 +70,7 @@ public abstract class AbstractBeta extends BaseNode {
 		while (itr.hasNext()) {
 			Fact rfcts = itr.next();
 			if (this.evaluate(tuple, rfcts, net.getEngine())) {
-				FactTuple newTuple = tuple.addFact(rfcts);
+				FactTuple newTuple = tuple.appendFact(rfcts);
 				mergeMemory.add(newTuple);
 				this.propogateAssert(newTuple, net);
 			}
@@ -126,7 +126,7 @@ public abstract class AbstractBeta extends BaseNode {
 				FactTuple tuple = itr.next();
 				if (this.evaluate(tuple, fact, net.getEngine())) {
 					// now we propogate
-					FactTuple newTuple = tuple.addFact(fact);
+					FactTuple newTuple = tuple.appendFact(fact);
 					mergeMemory.add(newTuple);
 					this.propogateAssert(newTuple, net);
 				}

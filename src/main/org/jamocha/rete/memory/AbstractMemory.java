@@ -1,6 +1,6 @@
 package org.jamocha.rete.memory;
 
-
+@Deprecated
 public abstract class AbstractMemory {
 
 	public AbstractMemory() {

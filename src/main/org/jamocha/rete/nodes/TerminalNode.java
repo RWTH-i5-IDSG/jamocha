@@ -82,7 +82,7 @@ public class TerminalNode extends BaseNode {
 			throws AssertException {
 		FactTuple tuple = null;
 		if (sender.isRightNode())
-			tuple = new FactTuple((Fact) fact);
+			tuple = new FactTupleImpl((Fact) fact);
 		else
 			tuple = (FactTuple) fact;
 
@@ -103,7 +103,7 @@ public class TerminalNode extends BaseNode {
 			throws RetractException {
 		FactTuple tuple = null;
 		if (sender.isRightNode())
-			tuple = new FactTuple((Fact) fact);
+			tuple = new FactTupleImpl((Fact) fact);
 		else
 			tuple = (FactTuple) fact;
 

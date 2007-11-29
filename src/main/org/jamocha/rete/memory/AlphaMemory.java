@@ -6,7 +6,7 @@ import java.util.Map;
 
 import org.jamocha.rete.Fact;
 
-
+@Deprecated
 public class AlphaMemory extends AbstractMemory implements Iterable<Fact>{
 
 	protected Map<Long,Fact> facts = null;
