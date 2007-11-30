@@ -17,12 +17,43 @@
 package org.jamocha.rete.nodes;
 
 import java.util.Arrays;
+import java.util.Iterator;
 
 import org.jamocha.rete.Fact;
 import org.jamocha.rete.memory.WorkingMemoryElement;
 
 public class FactTupleImpl implements FactTuple {
 
+	public class FactTupleIterator implements Iterator<Fact> {
+
+		private Fact[] arr;
+		
+		int ind;
+		
+		public FactTupleIterator(Fact[] arr) {
+			ind=0;
+			this.arr=arr;
+		}
+		
+		@Override
+		public boolean hasNext() {
+			return (ind < arr.length);
+		}
+
+		@Override
+		public Fact next() {
+			Fact result = arr[ind];
+			ind++;
+			return result;
+		}
+
+		@Override
+		public void remove() {
+			throw new UnsupportedOperationException();
+		}
+		
+	}
+	
 	private static final long serialVersionUID = 1L;
 
 	protected Fact[] facts = null;
@@ -68,9 +99,8 @@ public class FactTupleImpl implements FactTuple {
 
 	public boolean isMySubTuple(FactTuple possibleSub) {
 		int count = possibleSub.length();
-		Fact[] f = possibleSub.getFacts();
 		for (int i = 0; i < count; i++) {
-			if (f[i] != this.facts[i])
+			if (possibleSub.getFact(i) != this.facts[i])
 				return false;
 		}
 		return true;
@@ -97,6 +127,16 @@ public class FactTupleImpl implements FactTuple {
 	@Override
 	public FactTuple getFactTuple() {
 		return this;
+	}
+
+	@Override
+	public Fact getFact(int index) {
+		return facts[index];
+	}
+
+	@Override
+	public Iterator<Fact> iterator() {
+		return new FactTupleIterator(facts);
 	}
 
 }

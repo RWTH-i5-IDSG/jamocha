@@ -78,9 +78,9 @@ public class FieldComparator implements Serializable, Cloneable, JoinFilter {
 			}
 
 			if (left.refersWholeFact()) {
-				leftValue = JamochaValue.newFact(leftinput.getFacts()[left.getRowIndex()]);
+				leftValue = JamochaValue.newFact(leftinput.getFact(left.getRowIndex()));
 			} else {
-				leftValue = leftinput.getFacts()[left.getRowIndex()].getSlotValue(left.getSlotIndex());
+				leftValue = leftinput.getFact(left.getRowIndex()).getSlotValue(left.getSlotIndex());
 				if (left.posIndex != -1) {
 					//TODO implement it
 				}

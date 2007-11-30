@@ -100,7 +100,7 @@ public class Binding implements Serializable, Cloneable {
 	}
 	
 	public boolean evaluate(Fact right, FactTuple left) throws EvaluationException {
-			return Evaluate.evaluate(operator, left.getFacts()[leftrow].getSlotValue(leftIndex), right.getSlotValue(rightIndex));
+			return Evaluate.evaluate(operator, left.getFact(leftrow).getSlotValue(leftIndex), right.getSlotValue(rightIndex));
 	}
     
     /**

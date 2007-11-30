@@ -193,8 +193,7 @@ public class AgendaPanel extends AbstractJamochaPanel implements
 							act.getAggregatedTime());
 					buffer.append("\n");
 					buffer.append("Fact-Tuple:\n");
-					Fact[] facts = act.getTuple().getFacts();
-					for (Fact fact : facts) {
+					for (Fact fact : act.getTuple()) {
 						buffer.append("\n--------------------------\n");
 						buffer.append(fact.format(formatter));
 					}

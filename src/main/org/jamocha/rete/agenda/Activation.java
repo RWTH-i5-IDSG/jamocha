@@ -68,8 +68,7 @@ public class Activation {
 
 	public void setTuple(FactTuple tuple) {
 		this.tuple = tuple;
-		Fact[] facts = tuple.getFacts();
-		for (Fact fact : facts) {
+		for (Fact fact : tuple) {
 			aggregatedTime += fact.getTicket();
 		}
 	}
