@@ -1,5 +1,7 @@
 package org.jamocha.rete.memory;
 
+import java.util.Iterator;
+
 import org.jamocha.rete.nodes.BaseNode;
 
 public interface WorkingMemory {
@@ -8,7 +10,9 @@ public interface WorkingMemory {
 	
 	public void addAlpha(BaseNode owner, WorkingMemoryElement element);
 	
-	public WmeIterator getWorkingMemoryElementIterator(BaseNode owner);
+	public Iterator<WorkingMemoryElement> getAlphaWorkingMemoryElementIterator(BaseNode owner);
+	
+	public Iterator<WorkingMemoryElement> getBetaWorkingMemoryElementIterator(BaseNode owner);
 	
 	public void removeAlpha(BaseNode owner, WorkingMemoryElement element);
 	
