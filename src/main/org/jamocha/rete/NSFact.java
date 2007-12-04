@@ -255,8 +255,6 @@ public class NSFact implements Fact, Serializable {
 		return ticket;
 	}
 	
-	
-	@Override
 	public FactTuple getFactTuple() {
 		FactTuple tuple = new FactTupleImpl(this);
 		return tuple;

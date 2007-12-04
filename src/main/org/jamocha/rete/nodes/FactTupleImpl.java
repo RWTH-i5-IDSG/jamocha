@@ -35,19 +35,16 @@ public class FactTupleImpl implements FactTuple {
 			this.arr=arr;
 		}
 		
-		@Override
 		public boolean hasNext() {
 			return (ind < arr.length);
 		}
 
-		@Override
 		public Fact next() {
 			Fact result = arr[ind];
 			ind++;
 			return result;
 		}
 
-		@Override
 		public void remove() {
 			throw new UnsupportedOperationException();
 		}
@@ -124,17 +121,14 @@ public class FactTupleImpl implements FactTuple {
 		return (Arrays.equals(facts, other.getFactTuple().getFacts() ));
 	}
 	
-	@Override
 	public FactTuple getFactTuple() {
 		return this;
 	}
 
-	@Override
 	public Fact getFact(int index) {
 		return facts[index];
 	}
 
-	@Override
 	public Iterator<Fact> iterator() {
 		return new FactTupleIterator(facts);
 	}

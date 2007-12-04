@@ -36,7 +36,7 @@
 		(processed FALSE)
 		(is-template FALSE)
 	)
-	; (test (eq (str-lower ?language) "fipa-sl"))
+	(test (eq (str-lower ?language) "fipa-sl"))
 	
 	=>
 	

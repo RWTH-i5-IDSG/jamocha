@@ -454,7 +454,6 @@ public class Deffact implements Fact {
 		return visitor.visit(this);
 	}
 
-	@Override
 	public FactTuple getFactTuple() {
 		FactTuple tuple = new FactTupleImpl(this);
 		return tuple;
