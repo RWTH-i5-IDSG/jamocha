@@ -38,6 +38,7 @@ public class AgentFunctions extends FunctionGroup {
 		addFunction(functionMem, new AgentName(agent));
 		addFunction(functionMem, new AgentLocalName(agent));
 		addFunction(functionMem, new AgentSendMessage(agent));
+		addFunction(functionMem, new NewConversationId(agent));
 		addFunction(functionMem, new SLMessageCompare());
 		addFunction(functionMem, new SL2CLIPSFunction());
 		addFunction(functionMem, new CLIPS2SLFunction());

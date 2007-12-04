@@ -37,6 +37,7 @@ public class IOFunctions extends FunctionGroup {
 
 	public void loadFunctions(FunctionMemory functionMem) {
 		addFunction(functionMem, new Batch());
+		addFunction(functionMem, new Load());
 		addFunction(functionMem, new LoadFacts());
 		addFunction(functionMem, new Printout());
 		addFunction(functionMem, new Dump());

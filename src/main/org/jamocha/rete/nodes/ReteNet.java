@@ -48,7 +48,7 @@ public class ReteNet implements SettingsChangedListener, Serializable {
 		 */
 		this.workingMemory = WorkingMemoryImpl.getWorkingMemory();
 
-		this.root = new RootNode(nextNodeId(), engine.getWorkingMemory() );
+		this.root = new RootNode(nextNodeId(), workingMemory );
 		this.compiler = ParserFactory.getRuleCompiler(engine, this, this.root);
 		this.compiler.addListener(engine);
 		JamochaSettings.getInstance().addListener(this, interestedProperties);

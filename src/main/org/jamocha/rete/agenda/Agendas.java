@@ -19,6 +19,7 @@ package org.jamocha.rete.agenda;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.rete.Rete;
@@ -154,6 +155,13 @@ public class Agendas implements SettingsChangedListener {
 			}
 		}
 
+	}
+
+	public void removeActivations() {
+		Collection<Agenda> temp = agendas.values();
+		for(Agenda agenda : temp) {
+			agenda.removeActivation();
+		}
 	}
 
 }

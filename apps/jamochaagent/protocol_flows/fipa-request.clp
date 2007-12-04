@@ -1,69 +1,91 @@
 (bind ?fipa-request-0 (assert
 	(ip-state
 		(protocol-name "fipa-request") 
-		(state-name 0) 
-		(incoming-speechact NIL) 
-		(agent-type NIL) 
-		(previous-state NIL)
+		(state-name 0)
 	)
 ))
 
+; got request
 (bind ?fipa-request-1 (assert
 	(ip-state
 		(protocol-name "fipa-request") 
-		(state-name 1) 
-		(incoming-speechact "request") 
-		(agent-type "initiator") 
-		(previous-state ?fipa-request-0)
+		(state-name 1)
 	)
 ))
 
+(assert
+	(ip-transition
+		(from-state ?fipa-request-0)
+		(to-state ?fipa-request-1)
+		(speechact "request")
+		(agent-type "initiator")
+	)
+)
+
+; refused
 (bind ?fipa-request-2 (assert
 	(ip-state
 		(protocol-name "fipa-request") 
-		(state-name 2) 
-		(incoming-speechact "refuse") 
-		(agent-type "participant") 
-		(previous-state ?fipa-request-1)
+		(state-name 2)
 	)
 ))
 
+(assert
+	(ip-transition
+		(from-state ?fipa-request-1)
+		(to-state ?fipa-request-2)
+		(speechact "refuse")
+		(agent-type "participant")
+	)
+)
+
+; agreed
 (bind ?fipa-request-3 (assert
 	(ip-state
 		(protocol-name "fipa-request") 
-		(state-name 3) 
-		(incoming-speechact "agree") 
-		(agent-type "participant") 
-		(previous-state ?fipa-request-1)
+		(state-name 3)
 	)
 ))
 
+(assert
+	(ip-transition
+		(from-state ?fipa-request-1)
+		(to-state ?fipa-request-3)
+		(speechact "agree")
+		(agent-type "participant")
+	)
+)
+
+; failed
 (bind ?fipa-request-4 (assert
 	(ip-state
 		(protocol-name "fipa-request") 
-		(state-name 4) 
-		(incoming-speechact "failure") 
-		(agent-type "participant") 
-		(previous-state ?fipa-request-3)
+		(state-name 4)
 	)
 ))
 
+(assert
+	(ip-transition
+		(from-state ?fipa-request-3)
+		(to-state ?fipa-request-4)
+		(speechact "failure")
+		(agent-type "participant")
+	)
+)
+
+; informed
 (bind ?fipa-request-5 (assert
 	(ip-state
 		(protocol-name "fipa-request") 
-		(state-name 5) 
-		(incoming-speechact "inform-done") 
-		(agent-type "participant") 
-		(previous-state ?fipa-request-3)
+		(state-name 5)
 	)
 ))
 
-(bind ?fipa-request-6 (assert
-	(ip-state
-		(protocol-name "fipa-request") 
-		(state-name 6) 
-		(incoming-speechact "inform-result") 
-		(agent-type "participant") 
-		(previous-state ?fipa-request-3)
+(assert
+	(ip-transition
+		(from-state ?fipa-request-3)
+		(to-state ?fipa-request-5)
+		(speechact "inform")
+		(agent-type "participant")
 	)
-))
+)

@@ -155,4 +155,8 @@ public class Agenda implements Serializable {
 		this.profileRemoveActivation = profileRemoveActivation;
 	}
 
+	void removeActivation() {
+		activations.clear();
+	}
+
 }

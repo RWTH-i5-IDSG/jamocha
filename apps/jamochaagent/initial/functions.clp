@@ -67,7 +67,8 @@
 	(agent-send-message ?message)
 	
 	; Set the message to processed and set the timestamp to now.
-	(modify ?message (processed TRUE)(timestamp (ms-time)))
+	(modify ?message (processed TRUE))
+	(modify ?message (timestamp (ms-time)))
 )
 
 

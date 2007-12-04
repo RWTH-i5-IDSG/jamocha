@@ -1,21 +1,25 @@
 (deftemplate ip-state 
 	(slot protocol-name) 
-	(slot state-name) 
-	(slot incoming-speechact) 
-	(slot agent-type) 
-	(slot previous-state) 
+	(slot state-name)
 )
 
-(deftemplate ip-run 
-	(slot conversation-id) 
+(deftemplate ip-transition
+	(slot from-state)
+	(slot to-state)
+	(slot speechact)
+	(slot agent-type)
+)
+
+(deftemplate ip-run
+	(slot conversation-id)
 	(slot current-state)
 )
 
-(deftemplate ip-run-role 
-	(slot ip-run) 
-	(slot agent-type) 
-	(slot agent) 
-) 
+(deftemplate ip-run-role
+	(slot ip-run)
+	(slot agent-type)
+	(slot agent)
+)
 
 
 (defrule ip-check-correct 
@@ -33,12 +37,12 @@
 		(current-state ?current-state) 
 	) 
 	; Suche des Folgezustands 
-	?state <- (ip-state 
-		(protocol-name ?protocol) 
-		(incoming-speechact ?performative) 
-		(agent-type ?agent-type) 
-		(previous-state ?current-state) 
-	) 
+	(ip-transition
+		(from-state ?current-state)
+		(to-state ?state)
+		(speechact ?performative)
+		(agent-type ?agent-type)
+	)
 	; †berprŸfe, ob der richtige Agententyp in diesem Lauf gesendet hat 
 	(ip-run-role 
 		(ip-run ?run) 
@@ -61,15 +65,8 @@
 	)
 	; Finden des Startzustands
 	?startState <- (ip-state 
-		(protocol-name ?protocol) 
-		(incoming-speechact NIL)
-		(previous-state NIL) 
-	)
-	; †berprŸfen, ob der Sprechakt gŸltig ist
-	?nextState <- (ip-state 
-		(protocol-name ?protocol) 
-		(incoming-speechact ?performative)
-		(previous-state ?startState) 
+		(protocol-name ?protocol)
+		(state-name 0)
 	)
 	; Es existiert noch kein Lauf zu der angegebenen conversation-id
 	(not

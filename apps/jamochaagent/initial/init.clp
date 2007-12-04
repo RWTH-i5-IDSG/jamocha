@@ -9,3 +9,5 @@
 (batch (str-cat ?init-folder "functions.clp"))
 
 (batch (str-cat ?init-folder "rules.clp"))
+
+(batch (str-cat ?init-folder "protocol_flow.clp"))
