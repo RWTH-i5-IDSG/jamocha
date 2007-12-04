@@ -89,7 +89,7 @@ public class ObjectTypeNode extends AbstractAlpha implements Serializable {
 	public void assertFact(WorkingMemoryElement fact, ReteNet net, BaseNode sender)
 			throws AssertException {
 		if (((Fact) fact).getTemplate().equals(this.getDeftemplate())) {
-			this.facts.add((Fact) fact);
+			workingMemory.addAlpha(this, fact);
 			propogateAssert(fact, net);
 		}
 	}
@@ -106,7 +106,7 @@ public class ObjectTypeNode extends AbstractAlpha implements Serializable {
 	@Override
 	public void retractFact(WorkingMemoryElement fact, ReteNet net, BaseNode sender)
 			throws RetractException {
-		if (facts.remove((Fact) fact) != null)
+		if (workingMemory.removeAlpha(this,fact))
 			propogateRetract(fact, net);
 	}
 

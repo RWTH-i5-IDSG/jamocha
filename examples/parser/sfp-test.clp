@@ -26,6 +26,15 @@
 	)
 )
 
+(defrule simple
+	(wurst
+	(gewicht 200)
+	(laenge ?x)
+	)
+	=>
+	(printout t ?x)
+)
+
 (defrule test-node-rule 
 	(wurst (gewicht ?x) (name ?y))
 	(wurst (zutaten $?v))

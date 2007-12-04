@@ -35,10 +35,10 @@ public class WorkingMemoryImpl implements WorkingMemory {
 		l.add(element);
 	}
 
-	private void removeFrom(Map<BaseNode, List<WorkingMemoryElement>> map,
+	private boolean removeFrom(Map<BaseNode, List<WorkingMemoryElement>> map,
 			BaseNode node, WorkingMemoryElement element) {
 		List<WorkingMemoryElement> l = getList(map, node);
-		l.remove(element);
+		return l.remove(element);
 	}
 
 	public static WorkingMemoryImpl getWorkingMemory() {
@@ -54,16 +54,6 @@ public class WorkingMemoryImpl implements WorkingMemory {
 		listeners = new ArrayList<WorkingMemoryListener>();
 		alphaMem = new HashMap<BaseNode, List<WorkingMemoryElement>>();
 		betaMem = new HashMap<BaseNode, List<WorkingMemoryElement>>();
-	}
-
-	public Iterator<WorkingMemoryElement> getAlphaWorkingMemoryElementIterator(
-			BaseNode owner) {
-		return getList(alphaMem, owner).iterator();
-	}
-
-	public Iterator<WorkingMemoryElement> getBetaWorkingMemoryElementIterator(
-			BaseNode owner) {
-		return getList(betaMem, owner).iterator();
 	}
 
 	public void addWorkingMemoryListener(WorkingMemoryListener listener) {
@@ -82,16 +72,31 @@ public class WorkingMemoryImpl implements WorkingMemory {
 			l.addedToBeta(element);
 	}
 
-	public void removeAlpha(BaseNode owner, WorkingMemoryElement element) {
-		removeFrom(alphaMem, owner, element);
+	public boolean removeAlpha(BaseNode owner, WorkingMemoryElement element) {
+		boolean result = removeFrom(alphaMem, owner, element);
 		for (WorkingMemoryListener l : listeners)
 			l.removedFromAlpha(element);
+		return result;
 	}
 
-	public void removeBeta(BaseNode owner, WorkingMemoryElement element) {
-		removeFrom(betaMem, owner, element);
+	public boolean removeBeta(BaseNode owner, WorkingMemoryElement element) {
+		boolean result = removeFrom(betaMem, owner, element);
 		for (WorkingMemoryListener l : listeners)
 			l.removedFromBeta(element);
+		return result;
+	}
+
+	public void clear() {
+		alphaMem.clear();
+		betaMem.clear();
+	}
+
+	public Iterable<WorkingMemoryElement> getAlpha(BaseNode owner) {
+		return getList(alphaMem, owner);
+	}
+
+	public Iterable<WorkingMemoryElement> getBeta(BaseNode owner) {
+		return getList(betaMem, owner);
 	}
 
 }

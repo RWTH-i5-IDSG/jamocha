@@ -49,7 +49,7 @@ public class LIANode extends AbstractAlpha {
 	public void assertFact(WorkingMemoryElement fact, ReteNet net, BaseNode sender)
 			throws AssertException {
 		// add to own buffer list:
-		facts.add((Fact) fact);
+		workingMemory.addAlpha(this,fact);
 		// build tuple and propagate:
 		FactTuple tuple = new FactTupleImpl((Fact) fact);
 		propogateAssert(tuple, net);
@@ -58,7 +58,7 @@ public class LIANode extends AbstractAlpha {
 	@Override
 	public void retractFact(WorkingMemoryElement fact, ReteNet net, BaseNode sender)
 			throws RetractException {
-		if (facts.remove((Fact) fact) != null){
+		if ( workingMemory.removeAlpha(this,fact) ){
 			FactTuple tuple = new FactTupleImpl((Fact) fact);
 			propogateRetract(tuple, net);
 		}
@@ -66,14 +66,14 @@ public class LIANode extends AbstractAlpha {
 
 	protected void mountChild(BaseNode newChild, ReteNet net)
 			throws AssertException {
-		for (Fact fact : facts)
+		for (WorkingMemoryElement fact : workingMemory.getAlpha(this))
 			// we have to send down a fact tuple:
 			newChild.assertFact(new FactTupleImpl((Fact) fact), net, this);
 	}
 
 	protected void unmountChild(BaseNode oldChild, ReteNet net)
 			throws RetractException {
-		for (Fact fact : facts)
+		for (WorkingMemoryElement fact : workingMemory.getAlpha(this))
 			// we have to send down a fact tuple:
 			oldChild.retractFact(new FactTupleImpl((Fact) fact), net, this);
 	}

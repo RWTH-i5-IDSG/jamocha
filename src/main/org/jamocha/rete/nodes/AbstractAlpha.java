@@ -22,6 +22,7 @@ import org.jamocha.rete.exception.AssertException;
 import org.jamocha.rete.exception.RetractException;
 import org.jamocha.rete.memory.AlphaMemory;
 import org.jamocha.rete.memory.WorkingMemory;
+import org.jamocha.rete.memory.WorkingMemoryElement;
 
 /**
  * @author Peter Lin
@@ -76,7 +77,9 @@ public abstract class AbstractAlpha extends BaseNode {
 		StringBuffer result = new StringBuffer();
 		result.append(super.toPPString());
 		result.append("Alpha-Memory: ");
-		result.append(facts.toPPString(10));
+		for (WorkingMemoryElement elem : workingMemory.getAlpha(this)) {
+			result.append(elem.toString());
+		}
 		result.append("\n");
 		return result.toString();
 	}
@@ -86,12 +89,9 @@ public abstract class AbstractAlpha extends BaseNode {
 	 */
 	protected int operator = Constants.EQUAL;
 
-	protected AlphaMemory facts = null;
-
 	public AbstractAlpha(int id, WorkingMemory memory) {
 		super(id, memory);
 		this.maxChildCount = Integer.MAX_VALUE;
-		facts = new AlphaMemory();
 	}
 
 	/**
@@ -104,18 +104,18 @@ public abstract class AbstractAlpha extends BaseNode {
 
 	protected void mountChild(BaseNode newChild, ReteNet net)
 			throws AssertException {
-		for (Fact fact : facts)
+		for (WorkingMemoryElement fact : workingMemory.getAlpha(this))
 			newChild.assertFact(fact, net, this);
 	}
 
 	protected void unmountChild(BaseNode oldChild, ReteNet net)
 			throws RetractException {
-		for (Fact fact : facts)
+		for (WorkingMemoryElement fact : workingMemory.getAlpha(this))
 			oldChild.retractFact(fact, net, this);
 	}
 
 	public void clear() {
-		facts.clear();
+		workingMemory.clear();
 	}
 
 }

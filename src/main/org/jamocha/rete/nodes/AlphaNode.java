@@ -86,7 +86,7 @@ public class AlphaNode extends SlotAlpha {
 	@Override
 	public void assertFact(WorkingMemoryElement fact, ReteNet net, BaseNode sender) throws AssertException {
 		if (evaluate((Fact) fact)) {
-			facts.add((Fact) fact);
+			workingMemory.addAlpha(this,fact);
 			propogateAssert(fact, net);
 		}
 	}
@@ -99,13 +99,13 @@ public class AlphaNode extends SlotAlpha {
 	 */
 	@Override
 	public void retractFact(WorkingMemoryElement fact, ReteNet net, BaseNode sender) throws RetractException {
-		facts.remove((Fact) fact);
+		workingMemory.removeAlpha(this,fact);
 		propogateRetract(fact, net);
 	}
 
 	@Override
 	protected void mountChild(BaseNode newChild, ReteNet net) throws AssertException {
-		for (Fact fact : facts)
+		for (WorkingMemoryElement fact : workingMemory.getAlpha(this))
 			// eval before send down:
 			if (evaluate((Fact) fact))
 				newChild.assertFact(fact, net, this);
@@ -113,7 +113,7 @@ public class AlphaNode extends SlotAlpha {
 
 	@Override
 	protected void unmountChild(BaseNode oldChild, ReteNet net) throws RetractException {
-		for (Fact fact : facts)
+		for (WorkingMemoryElement fact : workingMemory.getAlpha(this))
 			// eval before send down:
 			if (evaluate((Fact) fact))
 				oldChild.retractFact(fact, net, this);
