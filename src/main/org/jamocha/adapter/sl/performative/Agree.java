@@ -67,7 +67,7 @@ class Agree extends SLPerformativeTranslator {
 		result.append("(assert (agent-agree-result (message %MSG%)(action \"");
 		result.append(results.get(0).compile(SLCompileType.ACTION_AND_ASSERT));
 		result.append("\")(proposition \"");
-		result.append(results.get(1).compile(SLCompileType.RULE_LHS));
+		result.append(results.get(1).compile(SLCompileType.ASSERT));
 		result.append("\")))");
 		return result.toString();
 	}

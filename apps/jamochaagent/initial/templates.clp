@@ -7,9 +7,9 @@
 	; Name / address of an agent (required)
     (slot name (type STRING)(default ?NONE))
     ; Other addresses of this agent
-    (multislot addresses)
+   ; (multislot addresses)
     ; name resolvers for the agent's addresses
-    (multislot resolvers)
+   ; (multislot resolvers)
 )
 
 

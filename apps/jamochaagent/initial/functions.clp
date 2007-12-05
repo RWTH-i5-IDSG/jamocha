@@ -50,25 +50,22 @@
 	)
 	
 	
-	; Add the translated code to the initial message.
-	(modify ?message (content-clips ?clipsCode))
-	
-	; Set the message to processed.
-	(modify ?message (processed TRUE))
+	; Add the translated code to the initial message and set the message to processed.
+	(modify ?message (content-clips ?clipsCode) (processed TRUE))
 )
 
 
 (deffunction process-outgoing-message
 	"Processes (= sends) outgoing messages."
 	(functiongroup AgentFunctions)
-	(?message)
+	(?message ?sender)
 	
-	; Call agent-send-message with the slot values.
+	(if (eq NIL (fact-slot-value ?message "sender")) then
+		(modify ?message (sender ?sender) (timestamp (ms-time)) (processed TRUE))
+	else
+		(modify ?message (timestamp (ms-time)) (processed TRUE))
+	)
 	(agent-send-message ?message)
-	
-	; Set the message to processed and set the timestamp to now.
-	(modify ?message (processed TRUE))
-	(modify ?message (timestamp (ms-time)))
 )
 
 
@@ -76,9 +73,7 @@
 	"Removes a brace from the left and the right end of a String."
 	(functiongroup AgentFunctions)
 	(?aString)
-	(return 
-		(sub-string 1 (- (str-length ?aString) 1) ?aString)
-	)
+	(sub-string 1 (- (str-length ?aString) 1) ?aString)
 )
 
 
@@ -95,7 +90,6 @@
 	; delete NIL values in the list.
 	(return (delete-member$ ?receivers NIL))
 )
-
 
 (deffunction send-agree
 	"Sends an agree to a message using the same protocol with optional propositions."
@@ -125,6 +119,30 @@
 	)
 	
 	(fire)
+)
+
+
+(deffunction create-reply
+	"Creates a simple reply by using all fields in the original message that are suitable."
+	(functiongroup AgentFunctions)
+	(?message)
+	
+	(bind ?receivers (prepare-receivers ?message))
+	(assert 
+		(agent-message
+			(receiver ?receivers)
+			(performative "")
+			(content "")
+			(language (fact-slot-value ?message "language"))
+			(encoding (fact-slot-value ?message "encoding"))
+			(ontology (fact-slot-value ?message "ontology"))
+			(protocol (fact-slot-value ?message "protocol"))
+			(conversation-id (fact-slot-value ?message "conversation-id"))
+			(in-reply-to (fact-slot-value ?message "reply-with"))
+			(incoming FALSE)
+			(is-template TRUE)
+		)
+	)
 )
 
 

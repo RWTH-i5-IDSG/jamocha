@@ -400,7 +400,8 @@ public class SFRuleCompiler implements RuleCompiler {
 	 * @return TerminalNode
 	 */
 	protected TerminalNode createTerminalNode(Rule rule) {
-		TerminalNode node = new TerminalNode(net.nextNodeId(), rule, engine.getWorkingMemory());
+		TerminalNode node = new TerminalNode(net.nextNodeId(), rule, engine
+				.getWorkingMemory());
 		rule.SetTerminalNode(node);
 		return node;
 		/*
@@ -582,11 +583,14 @@ public class SFRuleCompiler implements RuleCompiler {
 			AbstractBeta newBeta = null;
 
 			if (c instanceof ObjectCondition)
-				newBeta = new BetaFilterNode(net.nextNodeId(), engine.getWorkingMemory());
+				newBeta = new BetaFilterNode(net.nextNodeId(), engine
+						.getWorkingMemory());
 			else if (c instanceof NotCondition)
-				newBeta = new BetaQuantorFilterNode(net.nextNodeId(), engine.getWorkingMemory(), true);
+				newBeta = new BetaQuantorFilterNode(net.nextNodeId(), engine
+						.getWorkingMemory(), true);
 			else if (c instanceof ExistCondition)
-				newBeta = new BetaQuantorFilterNode(net.nextNodeId(), engine.getWorkingMemory(), false);
+				newBeta = new BetaQuantorFilterNode(net.nextNodeId(), engine
+						.getWorkingMemory(), false);
 
 			if (fromBottom == null) {
 				mostBottomNode = newBeta;
@@ -676,15 +680,18 @@ public class SFRuleCompiler implements RuleCompiler {
 
 	private void bindingEntry(Condition[] conds,
 			BindingAddressesTable bindingAddressTable, int i, BoundConstraint bc) {
-		BindingAddress ba;
+		BindingAddress ba = null;
 		if (bc.getIsObjectBinding()) {
 			ba = new BindingAddress(
 					conditionIndexToTupleIndex(i, conds.length), -1, bc
 							.getOperator());
 		} else {
-			ba = new BindingAddress(
-					conditionIndexToTupleIndex(i, conds.length), bc.getSlot()
-							.getId(), bc.getOperator());
+			try {
+				ba = new BindingAddress(conditionIndexToTupleIndex(i,
+						conds.length), bc.getSlot().getId(), bc.getOperator());
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 		ba.canBePivot = !(conds[i] instanceof ExistCondition || conds[i] instanceof NotCondition);
 		bindingAddressTable.addBindingAddress(ba, bc.getVariableName());
@@ -781,7 +788,8 @@ public class SFRuleCompiler implements RuleCompiler {
 			Template template = objectC.getTemplate();
 			ObjectTypeNode otn = root.activateObjectTypeNode(template, net);
 
-			BetaFilterNode newJoin = new BetaFilterNode(net.nextNodeId(), engine.getWorkingMemory());
+			BetaFilterNode newJoin = new BetaFilterNode(net.nextNodeId(),
+					engine.getWorkingMemory());
 
 			mostBottomNode.addNode(newJoin, net);
 			otn.addNode(newJoin, net);

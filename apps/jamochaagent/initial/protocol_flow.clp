@@ -13,95 +13,142 @@
 (deftemplate ip-run
 	(slot conversation-id)
 	(slot current-state)
-)
-
-(deftemplate ip-run-role
-	(slot ip-run)
-	(slot agent-type)
-	(slot agent)
+	(slot initiator)
+	(slot participant)
 )
 
 
-(defrule ip-check-correct 
-	; Hole die nötigen Informationen aus der neuen Nachricht 
-	(agent-message 
-		(sender ?sender) 
-		(receiver $?receiver) 
-		(performative ?performative) 
-		(protocol ?protocol) 
-		(conversation-id ?conversation-id) 
-	) 
-	; Lese den aktuellen Status des Automatenlaufs aus 
-	?run <- (ip-run 
-		(conversation-id ?conversation-id) 
-		(current-state ?current-state) 
-	) 
-	; Suche des Folgezustands 
+(defrule ip-check-from-participant
+	; Hole die nötigen Informationen aus der neuen Nachricht
+	(agent-message
+		(sender ?sender)
+		(receiver $?receiver)
+		(performative ?performative)
+		(conversation-id ?conversation-id)
+	)
+	; Lese den aktuellen Status des Automatenlaufs aus
+	?run <- (ip-run
+		(conversation-id ?conversation-id)
+		(current-state ?current-state)
+		(participant ?sender)
+		(initiator ?otherAgent)
+	)
+	; Suche des Folgezustands
 	(ip-transition
 		(from-state ?current-state)
 		(to-state ?state)
 		(speechact ?performative)
-		(agent-type ?agent-type)
+		(agent-type "participant")
 	)
-	; Überprüfe, ob der richtige Agententyp in diesem Lauf gesendet hat 
-	(ip-run-role 
-		(ip-run ?run) 
-		(agent-type ?agent-type) 
-		(agent ?sender) 
-	) 
-	=> 
-	; Lasse den Automaten einen Schritt laufen 
-	(modify ?run (current-state ?state)) 
-) 
+	; Teste, ob einer der Receiver der Initiator des Laufs ist
+	(test (> (member$ ?otherAgent $?receiver) 0))
+	=>
+	; Lasse den Automaten einen Schritt laufen
+	(modify ?run (current-state ?state))
+)
 
-(defrule ip-start
-	; Hole die nötigen Informationen aus der neuen Nachricht 
-	(agent-message 
-		(sender ?sender) 
-		(receiver $?receiver) 
-		(performative ?performative) 
-		(protocol ?protocol) 
-		(conversation-id ?conversation-id) 
+(defrule ip-check-from-initiator
+	; Hole die nötigen Informationen aus der neuen Nachricht
+	(agent-message
+		(sender ?sender)
+		(receiver $?receiver)
+		(performative ?performative)
+		(conversation-id ?conversation-id)
+	)
+	; Lese den aktuellen Status des Automatenlaufs aus
+	?run <- (ip-run
+		(conversation-id ?conversation-id)
+		(current-state ?current-state)
+		(participant ?otherAgent)
+		(initiator ?sender)
+	)
+	; Suche des Folgezustands
+	(ip-transition
+		(from-state ?current-state)
+		(to-state ?state)
+		(speechact ?performative)
+		(agent-type "initiator")
+	)
+	; Teste, ob einer der Receiver der Participant des Laufs ist
+	(test (> (member$ ?otherAgent $?receiver) 0))
+	=>
+	; Lasse den Automaten einen Schritt laufen
+	(modify ?run (current-state ?state))
+)
+
+(defrule ip-start-initiator
+	; Hole die nötigen Informationen aus der neuen Nachricht
+	(agent-message
+		(sender ?sender)
+		(receiver $?receiver)
+		(protocol ?protocol)
+		(conversation-id ?conversation-id)
 	)
 	; Finden des Startzustands
-	?startState <- (ip-state 
+	?start-state <- (ip-state
 		(protocol-name ?protocol)
 		(state-name 0)
 	)
+	; Der Sender ist lokal, also der Initiator
+	(agent-is-local
+		(agent ?sender)
+	)
 	; Es existiert noch kein Lauf zu der angegebenen conversation-id
 	(not
-		(ip-run 
+		(ip-run
 			(conversation-id ?conversation-id)
 		)
 	)
-	=>
-	; Der neue Lauf wird angelegt
-	(bind ?run
+	=> 
+	; Für jeden Empfänger der Nachricht wird ein Lauf angelegt
+	(bind $?rest $?receiver)
+	(while (greater (length$ $?rest) 0) do
 		(assert
 			(ip-run
 				(conversation-id ?conversation-id)
-				(current-state ?startState)
-			)
-		)
-	)
-	; Der Sender der Nachricht wird als Initiator hinzugefügt
-	(assert
-		(ip-run-role
-			(ip-run ?run) 
-			(agent-type "initiator") 
-			(agent ?sender)
-		)
-	)
-	; Alle Empfänger der Nachricht werden als Participant des Laufs hinzugefügt
-	(bind $?rest $?receiver)
-	(while (greater (length$ $?rest) 0 ) do
-		(assert
-			(ip-run-role
-				(ip-run ?run) 
-				(agent-type "participant") 
-				(agent (first$ $?rest))
+				(current-state ?start-state)
+				(initiator ?sender)
+				(participant (first$ $?rest))
 			)
 		)
 		(bind $?rest (rest$ $?rest))
+	)
+)
+
+
+(defrule ip-start-participant
+	; Hole die nötigen Informationen aus der neuen Nachricht
+	(agent-message
+		(sender ?sender)
+		(receiver $?receiver)
+		(protocol ?protocol)
+		(conversation-id ?conversation-id)
+	)
+	; Finden des Startzustands
+	?start-state <- (ip-state
+		(protocol-name ?protocol)
+		(state-name 0)
+	)
+	; Suche lokale Agenten
+	(agent-is-local
+		(agent ?agent)
+	)
+	; Es existiert noch kein Lauf zu der angegebenen conversation-id
+	(not
+		(ip-run
+			(conversation-id ?conversation-id)
+		)
+	)
+	; Teste ob der lokale Agent zu den Empfängern gehört, also Participant ist
+	(test (> (member$ ?agent $?receiver) 0))
+	=> 
+	; Lege nur für den lokale Agenten einen Lauf an
+	(assert
+		(ip-run
+			(conversation-id ?conversation-id)
+			(current-state ?start-state)
+			(initiator ?sender)
+			(participant ?agent)
+		)
 	)
 )

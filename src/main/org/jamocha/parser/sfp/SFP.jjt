@@ -806,9 +806,7 @@ SimpleNode Modify() :
 {}
 {
 	<MODIFY>
-	(
-		ModifyPattern()
-	)+
+	ModifyPattern()
 	{ return jjtThis; }
 }
 
@@ -1208,9 +1206,10 @@ SimpleNode DynamicAttribute() :
 SimpleNode ModifyPattern() : 
 {}
 {
-	(	Variable() 
-		RHSSlot() 
-	)
+	Variable()
+	(
+		RHSSlot()
+	)+
 	
 	{ return jjtThis; }
 }

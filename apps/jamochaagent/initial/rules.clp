@@ -29,6 +29,9 @@
 
 (defrule outgoing-message
 	"Fires when a message in FIPA-SL has to be send."
+	(declare
+		(salience 200)
+	)
 	; Only extract messages that have not been sent yet and that are outgoing.
 	?message <- (agent-message
 		(language ?language)
@@ -36,10 +39,13 @@
 		(processed FALSE)
 		(is-template FALSE)
 	)
+	(agent-is-local
+		(agent ?sender)
+	)
 	(test (eq (str-lower ?language) "fipa-sl"))
 	
 	=>
 	
 	; Process the message.
-	(process-outgoing-message ?message)
+	(process-outgoing-message ?message ?sender)
 )
