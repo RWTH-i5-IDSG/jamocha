@@ -4,10 +4,14 @@
 
 ;(defmodule Agent)
 
-(batch (str-cat ?init-folder "templates.clp"))
+(batch (str-cat ?*init-folder* "templates.clp"))
 
-(batch (str-cat ?init-folder "functions.clp"))
+(batch (str-cat ?*init-folder* "functions.clp"))
 
-(batch (str-cat ?init-folder "rules.clp"))
+(batch (str-cat ?*init-folder* "rules.clp"))
 
-(batch (str-cat ?init-folder "protocol_flow.clp"))
+(batch (str-cat ?*init-folder* "protocol_flow.clp"))
+
+(batch (str-cat ?*init-folder* "protocol_flows/fipa-query.clp"))
+
+(batch (str-cat ?*init-folder* "protocol_flows/fipa-request.clp"))

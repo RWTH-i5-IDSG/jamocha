@@ -79,7 +79,7 @@ public class AgentLocalName extends AbstractFunction {
 
 	public static final FunctionDescription DESCRIPTION = new Description();
 
-	public static final String NAME = "local-agent-name";
+	public static final String NAME = "agent-local-name";
 
 	private JamochaAgent agent;
 
@@ -93,6 +93,8 @@ public class AgentLocalName extends AbstractFunction {
 
 	public AgentLocalName(JamochaAgent agent) {
 		this.agent = agent;
+		// just for backwards compatibility
+		aliases.add("local-agent-name");
 	}
 
 	public JamochaValue executeFunction(Rete engine, Parameter[] params)

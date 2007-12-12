@@ -31,6 +31,10 @@ public interface FunctionMemory extends Serializable {
 
 	void clear();
 	
+	public void registerBuildInFunctionGroup(FunctionGroup funcGroup);
+	
+	public void registerBuildInFunction(Function func);
+	
 	public void clearBuiltInFunctions();
 	
 	public Collection<Function> getFunctionsOfGroup(String name);

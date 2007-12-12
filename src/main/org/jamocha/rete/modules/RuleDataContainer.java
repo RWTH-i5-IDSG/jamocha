@@ -33,22 +33,25 @@ import org.jamocha.rule.Rule;
  */
 public class RuleDataContainer extends ModulesDataContainer {
 
-	private Map<String, Set> moduleToRules;
+	private Map<String, Set<Rule>> moduleToRules;
 
 	public RuleDataContainer() {
 		super();
 		idToCLIPSElement = new HashMap<String, Rule>();
-		moduleToRules = new HashMap<String, Set>();
+		moduleToRules = new HashMap<String, Set<Rule>>();
 	}
 
 	@Override
 	protected void handleClear() {
-		// TODO: we have to remove from all modules
-		// TODO Auto-generated method stub
+		Set<String> keys = moduleToRules.keySet();
+		for (String key : keys) {
+			moduleToRules.remove(key);
+		}
 	}
 
 	public Rule get(String ruleName, Module module) {
-		return (Rule) idToCLIPSElement.get(toKeyString(ruleName, module.getModuleName()));
+		return (Rule) idToCLIPSElement.get(toKeyString(ruleName, module
+				.getModuleName()));
 	}
 
 	public boolean add(Rule rule, Module module) {
@@ -58,7 +61,8 @@ public class RuleDataContainer extends ModulesDataContainer {
 		else {
 			this.idToCLIPSElement.put(ruleKey, rule);
 			// add to modules templateset
-			Set moduleSet = (Set) this.moduleToRules.get(module.getModuleName());
+			Set moduleSet = (Set) this.moduleToRules
+					.get(module.getModuleName());
 			// Does this Set exists?
 			if (moduleSet == null) {
 				moduleSet = new HashSet<Template>();
@@ -70,14 +74,16 @@ public class RuleDataContainer extends ModulesDataContainer {
 	}
 
 	public Rule remove(String ruleName, Module module) {
-		Rule result = (Rule) idToCLIPSElement.remove(toKeyString(ruleName, module.getModuleName()));
+		Rule result = (Rule) idToCLIPSElement.remove(toKeyString(ruleName,
+				module.getModuleName()));
 		Set moduleSet = (Set) this.moduleToRules.get(module.getModuleName());
 		moduleSet.remove(result);
 		return result;
 	}
 
 	public boolean containsRule(Rule rule, Module module) {
-		return this.idToCLIPSElement.containsKey(toKeyString(rule.getName(), module.getModuleName()));
+		return this.idToCLIPSElement.containsKey(toKeyString(rule.getName(),
+				module.getModuleName()));
 	}
 
 	private String toKeyString(String ruleName, String moduleName) {

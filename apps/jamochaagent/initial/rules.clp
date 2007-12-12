@@ -34,7 +34,7 @@
 	)
 	; Only extract messages that have not been sent yet and that are outgoing.
 	?message <- (agent-message
-		(language ?language)
+		;(language ?language)
 		(incoming FALSE)
 		(processed FALSE)
 		(is-template FALSE)
@@ -42,7 +42,7 @@
 	(agent-is-local
 		(agent ?sender)
 	)
-	(test (eq (str-lower ?language) "fipa-sl"))
+	;(test (eq (str-lower ?language) "fipa-sl"))
 	
 	=>
 	

@@ -38,8 +38,12 @@ public class Agendas implements SettingsChangedListener {
 
 	protected Rete engine;
 
-	private String[] interestedProperties = { SettingsConstants.ENGINE_GENERAL_SETTINGS_PROFILE_FIRE, SettingsConstants.ENGINE_GENERAL_SETTINGS_PROFILE_ADD_ACTIVATION,
-			SettingsConstants.ENGINE_GENERAL_SETTINGS_PROFILE_REMOVE_ACTIVATION, SettingsConstants.ENGINE_GENERAL_SETTINGS_WATCH_ACTIVATIONS, SettingsConstants.ENGINE_STRATEGY_SETTINGS_STRATEGY_MAIN };
+	private String[] interestedProperties = {
+			SettingsConstants.ENGINE_GENERAL_SETTINGS_PROFILE_FIRE,
+			SettingsConstants.ENGINE_GENERAL_SETTINGS_PROFILE_ADD_ACTIVATION,
+			SettingsConstants.ENGINE_GENERAL_SETTINGS_PROFILE_REMOVE_ACTIVATION,
+			SettingsConstants.ENGINE_GENERAL_SETTINGS_WATCH_ACTIVATIONS,
+			SettingsConstants.ENGINE_STRATEGY_SETTINGS_STRATEGY_MAIN };
 
 	/**
 	 * Flag if Activations should be watched. If set to true an engine message
@@ -64,7 +68,8 @@ public class Agendas implements SettingsChangedListener {
 	public Agenda getAgenda(Module module) {
 		Agenda a = agendas.get(module);
 		if (a == null) {
-			a = new Agenda(engine, strategy, watchActivations, profileFire, profileAddActivation, profileRemoveActivation);
+			a = new Agenda(engine, strategy, watchActivations, profileFire,
+					profileAddActivation, profileRemoveActivation);
 			if (watchActivations)
 				a.setWatchActivations(watchActivations);
 			agendas.put(module, a);
@@ -80,7 +85,7 @@ public class Agendas implements SettingsChangedListener {
 
 	public void clear() {
 		// TODO Auto-generated method stub
-
+		removeActivations();
 	}
 
 	public void setWatchActivations(boolean watch) {
@@ -125,9 +130,11 @@ public class Agendas implements SettingsChangedListener {
 			}
 
 		} catch (InstantiationException e) {
-			throw new EvaluationException("Error while setting the strategy to " + strategyName, e);
+			throw new EvaluationException(
+					"Error while setting the strategy to " + strategyName, e);
 		} catch (IllegalAccessException e) {
-			throw new EvaluationException("Error while setting the strategy to " + strategyName, e);
+			throw new EvaluationException(
+					"Error while setting the strategy to " + strategyName, e);
 		}
 
 	}
@@ -135,19 +142,24 @@ public class Agendas implements SettingsChangedListener {
 	public void settingsChanged(String propertyName) {
 		JamochaSettings settings = JamochaSettings.getInstance();
 		// watch activations
-		if (propertyName.equals(SettingsConstants.ENGINE_GENERAL_SETTINGS_WATCH_ACTIVATIONS)) {
+		if (propertyName
+				.equals(SettingsConstants.ENGINE_GENERAL_SETTINGS_WATCH_ACTIVATIONS)) {
 			setWatchActivations(settings.getBoolean(propertyName));
 		}
 		// profile:
-		else if (propertyName.equals(SettingsConstants.ENGINE_GENERAL_SETTINGS_PROFILE_FIRE)) {
+		else if (propertyName
+				.equals(SettingsConstants.ENGINE_GENERAL_SETTINGS_PROFILE_FIRE)) {
 			setProfileFire(settings.getBoolean(propertyName));
-		} else if (propertyName.equals(SettingsConstants.ENGINE_GENERAL_SETTINGS_PROFILE_ADD_ACTIVATION)) {
+		} else if (propertyName
+				.equals(SettingsConstants.ENGINE_GENERAL_SETTINGS_PROFILE_ADD_ACTIVATION)) {
 			setProfileAddActivation(settings.getBoolean(propertyName));
-		} else if (propertyName.equals(SettingsConstants.ENGINE_GENERAL_SETTINGS_PROFILE_REMOVE_ACTIVATION)) {
+		} else if (propertyName
+				.equals(SettingsConstants.ENGINE_GENERAL_SETTINGS_PROFILE_REMOVE_ACTIVATION)) {
 			setProfileRemoveActivation(settings.getBoolean(propertyName));
 		}
 		// strategie:
-		else if (propertyName.equals(SettingsConstants.ENGINE_STRATEGY_SETTINGS_STRATEGY_MAIN)) {
+		else if (propertyName
+				.equals(SettingsConstants.ENGINE_STRATEGY_SETTINGS_STRATEGY_MAIN)) {
 			try {
 				setStrategy(settings.getString(propertyName));
 			} catch (EvaluationException e) {
@@ -159,7 +171,7 @@ public class Agendas implements SettingsChangedListener {
 
 	public void removeActivations() {
 		Collection<Agenda> temp = agendas.values();
-		for(Agenda agenda : temp) {
+		for (Agenda agenda : temp) {
 			agenda.removeActivation();
 		}
 	}

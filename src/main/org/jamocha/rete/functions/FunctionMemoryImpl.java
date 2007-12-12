@@ -16,6 +16,7 @@
  */
 package org.jamocha.rete.functions;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -63,13 +64,64 @@ public class FunctionMemoryImpl implements FunctionMemory {
 
 	private Map<String, FunctionGroup> functionGroups = new HashMap<String, FunctionGroup>();
 
+	private List<FunctionGroup> builtInFunctionGroups;
+	private List<Function> builtInFunctions;
+
 	public FunctionMemoryImpl(Rete engine) {
 		super();
 		this.engine = engine;
 	}
 
 	public void init() {
+		builtInFunctionGroups = new ArrayList<FunctionGroup>();
+		builtInFunctions = new ArrayList<Function>();
+		registerStaticallyBuiltInFunctions();
 		loadBuiltInFunctions();
+	}
+	
+	public void registerBuildInFunctionGroup(FunctionGroup funcGroup) {
+		builtInFunctionGroups.add(funcGroup);
+	}
+	
+	public void registerBuildInFunction(Function func) {
+		builtInFunctions.add(func);
+	}
+
+	private void registerStaticallyBuiltInFunctions() {
+		builtInFunctionGroups.add(new IOFunctions());
+
+		// load the math functions
+		builtInFunctionGroups.add(new MathFunctions());
+
+		// load the Compare functions
+		builtInFunctionGroups.add(new CompareFunctions());
+
+		// load the date/time functions
+		builtInFunctionGroups.add(new DateTimeFunctions());
+
+		// load the list functions
+		builtInFunctionGroups.add(new ListFunctions());
+
+		// load the database functions
+		builtInFunctionGroups.add(new AdaptorFunctions());
+
+		// load the engine relate functions like declaring rules, templates, etc
+		builtInFunctionGroups.add(new RuleEngineFunctions());
+
+		// load string functions
+		builtInFunctionGroups.add(new StringFunctions());
+
+		// load java functions
+		builtInFunctionGroups.add(new JavaFunctions());
+
+		// load java functions
+		builtInFunctionGroups.add(new HelpFunctions());
+
+		// Other builtin constructs
+		builtInFunctions.add(new If());
+		builtInFunctions.add(new LoopForCount());
+		builtInFunctions.add(new Return());
+		builtInFunctions.add(new While());
 	}
 
 	public void clear() {
@@ -118,12 +170,11 @@ public class FunctionMemoryImpl implements FunctionMemory {
 	 * @param alias
 	 * @param func
 	 */
-//	public void declareFunction(String alias, Function func) {
-//		this.functions.put(alias, func);
-//		if (func instanceof InterpretedFunction)
-//			declareFunctionInDefaultGroup(func);
-//	}
-
+	// public void declareFunction(String alias, Function func) {
+	// this.functions.put(alias, func);
+	// if (func instanceof InterpretedFunction)
+	// declareFunctionInDefaultGroup(func);
+	// }
 	/**
 	 * Method will create an instance of the function and declare it. Once a
 	 * function is declared, it can be used. All custom functions must be
@@ -180,45 +231,17 @@ public class FunctionMemoryImpl implements FunctionMemory {
 	}
 
 	protected void loadBuiltInFunctions() {
-		// load the IO functions
-		declareFunctionGroup(new IOFunctions());
-
-		// load the math functions
-		declareFunctionGroup(new MathFunctions());
-
-		// load the Compare functions
-		declareFunctionGroup(new CompareFunctions());
-
-		// load the date/time functions
-		declareFunctionGroup(new DateTimeFunctions());
-
-		// load the list functions
-		declareFunctionGroup(new ListFunctions());
-
-		// load the database functions
-		declareFunctionGroup(new AdaptorFunctions());
-
-		// load the engine relate functions like declaring rules, templates, etc
-		declareFunctionGroup(new RuleEngineFunctions());
-
-		// load string functions
-		declareFunctionGroup(new StringFunctions());
-
-		// load java functions
-		declareFunctionGroup(new JavaFunctions());
-
-		// load java functions
-		declareFunctionGroup(new HelpFunctions());
-
-		// Other builtin constructs
-		declareFunction(new If());
-		declareFunction(new LoopForCount());
-		declareFunction(new Return());
-		declareFunction(new While());
+		for(FunctionGroup funcGroup : builtInFunctionGroups) {
+			declareFunctionGroup(funcGroup);
+		}
+		for(Function func : builtInFunctions) {
+			declareFunction(func);
+		}
 	}
 
 	public void clearBuiltInFunctions() {
 		this.functions.clear();
+		this.functionGroups.clear();
 		this.aliases.clear();
 	}
 

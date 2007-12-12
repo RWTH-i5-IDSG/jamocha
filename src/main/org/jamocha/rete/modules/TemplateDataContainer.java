@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.jamocha.rete.Template;
+import org.jamocha.rule.Rule;
 
 /**
  * @author Josef Alexander Hahn, Sebastian Reinartz
@@ -32,32 +33,37 @@ import org.jamocha.rete.Template;
  */
 public class TemplateDataContainer extends ModulesDataContainer {
 
-	private Map<String, Set> moduleToTemplates;
+	private Map<String, Set<Template>> moduleToTemplates;
 
 	public TemplateDataContainer() {
 		super();
 		idToCLIPSElement = new HashMap<String, Template>();
-		moduleToTemplates = new HashMap<String, Set>();
+		moduleToTemplates = new HashMap<String, Set<Template>>();
 	}
 
 	@Override
 	protected void handleClear() {
-		// TODO: we have to remove from all modules
-		// TODO Auto-generated method stub
+		Set<String> keys = moduleToTemplates.keySet();
+		for (String key : keys) {
+			moduleToTemplates.remove(key);
+		}
 	}
 
 	public Template get(String templateName, Module module) {
-		return (Template) idToCLIPSElement.get(toKeyString(templateName, module.getModuleName()));
+		return (Template) idToCLIPSElement.get(toKeyString(templateName, module
+				.getModuleName()));
 	}
 
 	public boolean add(Template template, Module module) {
-		String templateKey = toKeyString(template.getName(), module.getModuleName());
+		String templateKey = toKeyString(template.getName(), module
+				.getModuleName());
 		if (this.idToCLIPSElement.containsKey(templateKey))
 			return false;
 		else {
 			this.idToCLIPSElement.put(templateKey, template);
 			// add to modules templateset
-			Set moduleSet = (Set) this.moduleToTemplates.get(module.getModuleName());
+			Set moduleSet = (Set) this.moduleToTemplates.get(module
+					.getModuleName());
 			// Does this Set exists?
 			if (moduleSet == null) {
 				moduleSet = new HashSet<Template>();
@@ -69,8 +75,10 @@ public class TemplateDataContainer extends ModulesDataContainer {
 	}
 
 	public Template remove(String templateName, Module module) {
-		Template result = (Template) idToCLIPSElement.remove(toKeyString(templateName, module.getModuleName()));
-		Set moduleSet = (Set) this.moduleToTemplates.get(module.getModuleName());
+		Template result = (Template) idToCLIPSElement.remove(toKeyString(
+				templateName, module.getModuleName()));
+		Set moduleSet = (Set) this.moduleToTemplates
+				.get(module.getModuleName());
 		moduleSet.remove(result);
 		return result;
 	}
@@ -80,13 +88,15 @@ public class TemplateDataContainer extends ModulesDataContainer {
 	}
 
 	public boolean containsTemplate(Module defmodule, Template template) {
-		return idToCLIPSElement.containsKey(toKeyString(template.getName(), defmodule.getModuleName()));
+		return idToCLIPSElement.containsKey(toKeyString(template.getName(),
+				defmodule.getModuleName()));
 	}
 
 	public List<Template> getTemplates(Module defmodule) {
 		List<Template> templates = new ArrayList<Template>();
 		// get set of templates from hashmap
-		Set templs = (Set) this.moduleToTemplates.get(defmodule.getModuleName());
+		Set templs = (Set) this.moduleToTemplates
+				.get(defmodule.getModuleName());
 		if (templs != null) {
 			Iterator itr = templs.iterator();
 			while (itr.hasNext()) {

@@ -107,9 +107,8 @@ public class Batch extends AbstractFunction {
 		JamochaValue result = JamochaValue.FALSE;
 		if (params != null && params.length > 0) {
 			for (int idx = 0; idx < params.length; idx++) {
+				String input = params[idx].getValue(engine).getStringValue();
 				try {
-					String input = params[idx].getValue(engine)
-							.getStringValue();
 					InputStream inStream;
 					// Check for a protocol indicator at the beginning of the
 					// String. If we have one use a URL.
@@ -133,8 +132,14 @@ public class Batch extends AbstractFunction {
 					result = this.parse(engine, inStream);
 					inStream.close();
 				} catch (FileNotFoundException e) {
+					throw new EvaluationException("File not found: "
+							+ input, e);
 				} catch (IOException e) {
-					throw new EvaluationException(e);
+					throw new EvaluationException("Error reading file: "
+							+ input, e);
+				}catch (Exception e) {
+					throw new EvaluationException("Error while parsing file: "
+							+ input, e);
 				}
 			}
 		}

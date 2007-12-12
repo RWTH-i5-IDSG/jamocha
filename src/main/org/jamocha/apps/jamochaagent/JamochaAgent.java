@@ -146,6 +146,7 @@ public class JamochaAgent extends ToolAgent {
 		// register user function for sending messages
 		FunctionGroup agentFuncs = new AgentFunctions(this);
 		engine.getFunctionMemory().declareFunctionGroup(agentFuncs);
+		engine.getFunctionMemory().registerBuildInFunctionGroup(agentFuncs);
 
 		StringBuilder buffer = new StringBuilder();
 
@@ -154,12 +155,13 @@ public class JamochaAgent extends ToolAgent {
 		String initFolderName = getProperties().getProperty("agent.initFolder",
 				"apps/jamochaagent/initial/");
 		try {
-			engine.setBinding("init-folder", JamochaValue
+			engine.setBinding("*init-folder*", JamochaValue
 					.newString(initFolderName));
 			readFile(buffer, initFolderName + INIT_FILE_NAME);
 			String pathProtocols = getProperties().getProperty(
-					"agent.protocols", "apps/jamochaagent/protocols/");
-			readPath(buffer, pathProtocols);
+					"agent.protocols", "");
+			if (pathProtocols.equals(""))
+				readPath(buffer, pathProtocols);
 
 			String pathPerformatives = getProperties().getProperty(
 					"agent.performatives", "apps/jamochaagent/performatives/");
@@ -196,7 +198,7 @@ public class JamochaAgent extends ToolAgent {
 
 			AID myDF = new AID(dfName, true);
 			myDF.addAddresses(dfAddress);
-			
+
 			DFAgentDescription dfd = new DFAgentDescription();
 			ServiceDescription sd = new ServiceDescription();
 			sd.setName(getName());
