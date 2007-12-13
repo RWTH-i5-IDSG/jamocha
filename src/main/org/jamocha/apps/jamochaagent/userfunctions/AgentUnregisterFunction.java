@@ -29,7 +29,7 @@ import org.jamocha.rete.functions.FunctionDescription;
  * 
  * 
  */
-public class SearchFunction extends AbstractFunction {
+public class AgentUnregisterFunction extends AbstractFunction {
 	
 	private static final class Description implements FunctionDescription {
 
@@ -79,7 +79,7 @@ public class SearchFunction extends AbstractFunction {
 
 	public static final FunctionDescription DESCRIPTION = new Description();
 
-	public static final String NAME = "local-agent-name"; //TODO
+	public static final String NAME = "agent-unregister"; //TODO
 
 	private JamochaAgent agent;
 
@@ -91,7 +91,7 @@ public class SearchFunction extends AbstractFunction {
 		return NAME;
 	}
 
-	public SearchFunction(JamochaAgent agent) {
+	public AgentUnregisterFunction(JamochaAgent agent) {
 		this.agent = agent;
 	}
 

@@ -43,9 +43,9 @@ public class AgentFunctions extends FunctionGroup {
 		addFunction(functionMem, new SL2CLIPSFunction());
 		addFunction(functionMem, new CLIPS2SLFunction());
 		
-		addFunction(functionMem, new RegisterFunction(agent));
-		addFunction(functionMem, new UnregisterFunction(agent));
-		addFunction(functionMem, new SearchFunction(agent));
+		addFunction(functionMem, new AgentRegisterFunction(agent));
+		addFunction(functionMem, new AgentUnregisterFunction(agent));
+		addFunction(functionMem, new AgentSearchFunction(agent));
 	}
 
 }
