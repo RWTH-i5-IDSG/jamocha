@@ -1,13 +1,13 @@
 package org.jamocha.rete.memory;
 
+/**
+ * @author Josef Alexander Hahn <mail@josef-hahn.de>
+ * listener interface for working memory changes
+ */
 public interface WorkingMemoryListener {
 
-	void addedToBeta(WorkingMemoryElement element);
+	void added(WorkingMemoryElement element);
 	
-	void addedeToAlpha(WorkingMemoryElement element);
-	
-	void removedFromBeta(WorkingMemoryElement element);
-	
-	void removedFromAlpha(WorkingMemoryElement element);
+	void removed(WorkingMemoryElement element);
 	
 }

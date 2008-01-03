@@ -48,7 +48,7 @@ public class ReteNet implements SettingsChangedListener, Serializable {
 		 */
 		this.workingMemory = WorkingMemoryImpl.getWorkingMemory();
 
-		this.root = new RootNode(nextNodeId(), workingMemory );
+		this.root = new RootNode(nextNodeId(), workingMemory, this );
 		this.compiler = ParserFactory.getRuleCompiler(engine, this, this.root);
 		this.compiler.addListener(engine);
 		JamochaSettings.getInstance().addListener(this, interestedProperties);
@@ -57,9 +57,11 @@ public class ReteNet implements SettingsChangedListener, Serializable {
 	public synchronized void assertObject(Fact fact) throws AssertException {
 		// we assume Rete has already checked to see if the object
 		// has been added to the working memory, so we just assert.
-		// we need to lookup the defclass and deftemplate to assert
-		// the object to the network
-		this.root.assertObject(fact, this);
+		try {
+			this.root.addWME(fact);
+		} catch (NodeException e) {
+			throw new AssertException(e);
+		}
 	}
 
 	/**
@@ -68,7 +70,11 @@ public class ReteNet implements SettingsChangedListener, Serializable {
 	 * @param objInstance
 	 */
 	public synchronized void retractObject(Fact fact) throws RetractException {
-		this.root.retractObject(fact, this);
+		try {
+			this.root.removeWME(fact);
+		} catch (NodeException e) {
+			throw new RetractException(e);
+		}
 	}
 
 	public boolean addRule(Rule rule) throws AssertException, RuleException {
@@ -79,7 +85,11 @@ public class ReteNet implements SettingsChangedListener, Serializable {
 
 	public void clear() {
 		this.lastNodeId = 1;
-		this.root.clear();
+		try {
+			this.root.flush();
+		} catch (NodeException e) {
+			engine.writeMessage("error while flushing rete network");
+		}
 	}
 
 	public void setValidateRule(boolean val) {
@@ -113,12 +123,13 @@ public class ReteNet implements SettingsChangedListener, Serializable {
 	}
 
 	private int shareNodes(Rule rule) {
+		//TODO: re-implement it
 		// first implementation:
-		if (this.shareNodes) {
-			int result = root.shareNodes(rule, this);
-			root.propagateEndMerging();
-			return result;
-		} else
+		//if (this.shareNodes) {
+		//	int result = root.shareNodes(rule, this);
+		//	root.propagateEndMerging();
+		//	return result;
+		//} else
 			return 0;
 	}
 	

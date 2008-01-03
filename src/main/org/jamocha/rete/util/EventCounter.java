@@ -16,13 +16,15 @@
  */
 package org.jamocha.rete.util;
 
+import jade.core.BaseNode;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.jamocha.rete.eventhandling.EngineEvent;
 import org.jamocha.rete.eventhandling.EngineEventListener;
-import org.jamocha.rete.nodes.BaseNode;
+import org.jamocha.rete.nodes.Node;
 
 
 /**
@@ -37,7 +39,7 @@ public class EventCounter implements EngineEventListener {
     private ArrayList<EngineEvent> asserts = new ArrayList<EngineEvent>();
     private ArrayList<EngineEvent> retracts = new ArrayList<EngineEvent>();
     private ArrayList<EngineEvent> profiles = new ArrayList<EngineEvent>();
-    private Map<BaseNode,ArrayList<EngineEvent>> nodeFilter = new HashMap<BaseNode,ArrayList<EngineEvent>>();
+    private Map<Node,ArrayList<EngineEvent>> nodeFilter = new HashMap<Node,ArrayList<EngineEvent>>();
 
 
 	/* (non-Javadoc)
@@ -83,7 +85,7 @@ public class EventCounter implements EngineEventListener {
      * To listen to a specific node, add the node to the filter
      * @param node
      */
-    public void addNodeFilter(BaseNode node) {
+    public void addNodeFilter(Node node) {
         this.nodeFilter.put(node,new ArrayList<EngineEvent>());
     }
     

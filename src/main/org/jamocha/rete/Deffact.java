@@ -24,6 +24,7 @@ import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.parser.ParserFactory;
 import org.jamocha.rete.configurations.SlotConfiguration;
+import org.jamocha.rete.memory.WorkingMemoryElement;
 import org.jamocha.rete.nodes.FactTuple;
 import org.jamocha.rete.nodes.FactTupleImpl;
 import org.jamocha.rule.Rule;
@@ -342,6 +343,9 @@ public class Deffact implements Fact {
 	public boolean equals(Object object) {
 		if (object instanceof Fact) {
 			Fact fact = (Fact) object;
+			
+			if (!fact.getTemplate().equals(getTemplate())) return false;
+			
 			boolean eq = true;
 
 			try {
@@ -457,6 +461,20 @@ public class Deffact implements Fact {
 	public FactTuple getFactTuple() {
 		FactTuple tuple = new FactTupleImpl(this);
 		return tuple;
+	}
+	
+	public Fact getFirstFact() {
+		return this;
+	}
+
+	@Override
+	public Fact getLastFact() {
+		return this;
+	}
+
+	@Override
+	public boolean isStandaloneFact() {
+		return true;
 	}
 
 }

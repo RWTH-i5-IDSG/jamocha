@@ -1,6 +1,10 @@
 package org.jamocha.rete.rulecompiler.hokifisch;
 
-import org.jamocha.rete.nodes.BaseNode;
+import jade.core.BaseNode;
+
+import org.jamocha.rete.nodes.Node;
+
+
 
 /**
  * @author Josef Alexander Hahn
@@ -9,18 +13,18 @@ import org.jamocha.rete.nodes.BaseNode;
  */
 public class ReteSubnet {
 	
-	private BaseNode root;
-	private BaseNode last;
+	private Node root;
+	private Node last;
 	
-	public BaseNode getRoot() {
+	public Node getRoot() {
 		return root;
 	}
 
-	public BaseNode getLast() {
+	public Node getLast() {
 		return last;
 	}
 
-	public ReteSubnet(BaseNode root, BaseNode last) {
+	public ReteSubnet(Node root, Node last) {
 		super();
 		this.root = root;
 		this.last = last;
@@ -32,11 +36,11 @@ public class ReteSubnet {
 		this.last = n2.last;
 	}
 
-	public void setRoot(BaseNode root) {
+	public void setRoot(Node root) {
 		this.root = root;
 	}
 
-	public void setLast(BaseNode last) {
+	public void setLast(Node last) {
 		this.last = last;
 	}
 	

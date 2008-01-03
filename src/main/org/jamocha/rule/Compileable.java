@@ -1,9 +1,9 @@
 package org.jamocha.rule;
 
-import org.jamocha.rete.exception.AssertException;
-import org.jamocha.rete.nodes.BaseNode;
-import org.jamocha.rete.rulecompiler.sfp.SFRuleCompiler;
 import org.jamocha.rete.StopCompileException;
+import org.jamocha.rete.exception.AssertException;
+import org.jamocha.rete.nodes.Node;
+import org.jamocha.rete.rulecompiler.sfp.SFRuleCompiler;
 
 public interface Compileable {
 
@@ -16,5 +16,5 @@ public interface Compileable {
 	 * @throws StopCompileException 
 	 * @throws AssertException 
 	 */
-	BaseNode compile(SFRuleCompiler compiler, Rule rule, int conditionIndex) throws AssertException, StopCompileException;
+	Node compile(SFRuleCompiler compiler, Rule rule, int conditionIndex) throws AssertException, StopCompileException;
 }

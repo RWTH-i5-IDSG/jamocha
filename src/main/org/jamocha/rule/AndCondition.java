@@ -19,10 +19,10 @@ package org.jamocha.rule;
 import java.util.List;
 
 import org.jamocha.formatter.Formatter;
-import org.jamocha.rete.exception.AssertException;
-import org.jamocha.rete.nodes.BaseNode;
-import org.jamocha.rete.rulecompiler.sfp.SFRuleCompiler;
 import org.jamocha.rete.StopCompileException;
+import org.jamocha.rete.exception.AssertException;
+import org.jamocha.rete.nodes.Node;
+import org.jamocha.rete.rulecompiler.sfp.SFRuleCompiler;
 
 /**
  * @author Peter Lin
@@ -44,7 +44,7 @@ public class AndCondition extends ConditionWithNested {
 		super();
 	}
 
-	public BaseNode compile(SFRuleCompiler compiler, Rule rule, int conditionIndex) throws AssertException, StopCompileException {
+	public Node compile(SFRuleCompiler compiler, Rule rule, int conditionIndex) throws AssertException, StopCompileException {
 		return compiler.compile(this, rule, conditionIndex);
 	}
 

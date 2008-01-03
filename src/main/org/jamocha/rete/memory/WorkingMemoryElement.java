@@ -17,13 +17,38 @@
 package org.jamocha.rete.memory;
 
 import java.io.Serializable;
-
+import org.jamocha.rete.Fact;
 import org.jamocha.rete.nodes.FactTuple;
 
+/**
+ * @author Josef Alexander Hahn <mail@josef-hahn.de>
+ * a (alpha- or beta-) working memory element. 
+ */
 public interface WorkingMemoryElement extends Serializable {
 
+	/**
+	 * returns the complete description string with all its content
+	 */
 	public String toString();
 
+	/**
+	 * returns the wme as fact tuple (maybe with length 1 for alpha wme)
+	 */
 	public FactTuple getFactTuple();
+
+	/**
+	 * returns the first fact (for alpha wme, this is the fact itself)
+	 */
+	public Fact getFirstFact();
+
+	/**
+	 * returns the last fact (for alpha wme, this is the fact itself)
+	 */
+	public Fact getLastFact();
+	
+	/**
+	 * determines, whether this is a standalone (alpha-)fact or a beta-fact.
+	 */
+	public boolean isStandaloneFact();
 	
 }

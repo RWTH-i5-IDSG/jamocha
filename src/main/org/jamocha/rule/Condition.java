@@ -20,7 +20,7 @@ import java.io.Serializable;
 import java.util.List;
 
 import org.jamocha.formatter.Formattable;
-import org.jamocha.rete.nodes.BaseNode;
+import org.jamocha.rete.nodes.Node;
 
 /**
  * @author Peter Lin
@@ -44,7 +44,7 @@ public interface Condition extends Serializable, Complexity, Compileable, Compar
 	 */
 	void clear();
 
-	BaseNode getLastNode();
+	Node getLastNode();
 
 	public Object clone() throws CloneNotSupportedException;
 	

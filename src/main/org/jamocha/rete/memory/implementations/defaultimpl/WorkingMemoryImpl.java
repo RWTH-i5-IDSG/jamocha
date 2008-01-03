@@ -2,42 +2,38 @@ package org.jamocha.rete.memory.implementations.defaultimpl;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.jamocha.rete.memory.WorkingMemory;
 import org.jamocha.rete.memory.WorkingMemoryElement;
 import org.jamocha.rete.memory.WorkingMemoryListener;
-import org.jamocha.rete.nodes.BaseNode;
+import org.jamocha.rete.nodes.Node;
 
 public class WorkingMemoryImpl implements WorkingMemory {
 
 	private static WorkingMemoryImpl instance;
 
-	private Map<BaseNode, List<WorkingMemoryElement>> alphaMem;
+	private Map<Node, Set<WorkingMemoryElement>> mem;
 
-	private Map<BaseNode, List<WorkingMemoryElement>> betaMem;
-
-	private List<WorkingMemoryElement> getList(
-			Map<BaseNode, List<WorkingMemoryElement>> map, BaseNode node) {
-		List<WorkingMemoryElement> l = map.get(node);
+	private Set<WorkingMemoryElement> getList(Map<Node, Set<WorkingMemoryElement>> map, Node node) {
+		Set<WorkingMemoryElement> l = map.get(node);
 		if (l == null) {
-			l = new ArrayList<WorkingMemoryElement>();
+			l = new HashSet<WorkingMemoryElement>();
 			map.put(node, l);
 		}
 		return l;
 	}
 
-	private void addTo(Map<BaseNode, List<WorkingMemoryElement>> map,
-			BaseNode node, WorkingMemoryElement element) {
-		List<WorkingMemoryElement> l = getList(map, node);
-		l.add(element);
+	private boolean addTo(Map<Node, Set<WorkingMemoryElement>> map, Node node, WorkingMemoryElement element) {
+		Set<WorkingMemoryElement> l = getList(map, node);
+		return l.add(element);
 	}
 
-	private boolean removeFrom(Map<BaseNode, List<WorkingMemoryElement>> map,
-			BaseNode node, WorkingMemoryElement element) {
-		List<WorkingMemoryElement> l = getList(map, node);
+	private boolean removeFrom(Map<Node, Set<WorkingMemoryElement>> map, Node node, WorkingMemoryElement element) {
+		Set<WorkingMemoryElement> l = getList(map, node);
 		return l.remove(element);
 	}
 
@@ -52,51 +48,40 @@ public class WorkingMemoryImpl implements WorkingMemory {
 
 	private WorkingMemoryImpl() {
 		listeners = new ArrayList<WorkingMemoryListener>();
-		alphaMem = new HashMap<BaseNode, List<WorkingMemoryElement>>();
-		betaMem = new HashMap<BaseNode, List<WorkingMemoryElement>>();
+		mem = new HashMap<Node, Set<WorkingMemoryElement>>();
 	}
 
 	public void addWorkingMemoryListener(WorkingMemoryListener listener) {
 		listeners.add(listener);
 	}
 
-	public void addAlpha(BaseNode owner, WorkingMemoryElement element) {
-		addTo(alphaMem, owner, element);
+	public boolean add(Node owner, WorkingMemoryElement element) {
+		boolean result = addTo(mem, owner, element);
 		for (WorkingMemoryListener l : listeners)
-			l.addedeToAlpha(element);
-	}
-
-	public void addBeta(BaseNode owner, WorkingMemoryElement element) {
-		addTo(betaMem, owner, element);
-		for (WorkingMemoryListener l : listeners)
-			l.addedToBeta(element);
-	}
-
-	public boolean removeAlpha(BaseNode owner, WorkingMemoryElement element) {
-		boolean result = removeFrom(alphaMem, owner, element);
-		for (WorkingMemoryListener l : listeners)
-			l.removedFromAlpha(element);
+			l.added(element);
 		return result;
 	}
 
-	public boolean removeBeta(BaseNode owner, WorkingMemoryElement element) {
-		boolean result = removeFrom(betaMem, owner, element);
+
+	public boolean remove(Node owner, WorkingMemoryElement element) {
+		boolean result = removeFrom(mem, owner, element);
 		for (WorkingMemoryListener l : listeners)
-			l.removedFromBeta(element);
+			l.removed(element);
 		return result;
 	}
+
 
 	public void clear() {
-		alphaMem.clear();
-		betaMem.clear();
+		mem.clear();
 	}
 
-	public Iterable<WorkingMemoryElement> getAlpha(BaseNode owner) {
-		return getList(alphaMem, owner);
+	public Iterable<WorkingMemoryElement> getMemory(Node owner) {
+		return getList(mem, owner);
 	}
 
-	public Iterable<WorkingMemoryElement> getBeta(BaseNode owner) {
-		return getList(betaMem, owner);
+	@Override
+	public int size(Node owner) {
+		return getList(mem, owner).size();
 	}
 
 }

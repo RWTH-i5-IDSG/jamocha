@@ -1,5 +1,7 @@
 package org.jamocha.rete.rulecompiler.hokifisch;
 
+import jade.core.BaseNode;
+
 import java.util.HashSet;
 import java.util.Set;
 
@@ -16,15 +18,16 @@ import org.jamocha.rete.Template;
 import org.jamocha.rete.TemplateSlot;
 import org.jamocha.rete.exception.AssertException;
 import org.jamocha.rete.exception.RetractException;
-import org.jamocha.rete.nodes.AbstractAlpha;
-import org.jamocha.rete.nodes.AbstractBeta;
-import org.jamocha.rete.nodes.AlphaNode;
-import org.jamocha.rete.nodes.BaseNode;
-import org.jamocha.rete.nodes.BetaFilterNode;
+import org.jamocha.rete.nodes.Node;
+import org.jamocha.rete.nodes.NodeException;
 import org.jamocha.rete.nodes.ObjectTypeNode;
+import org.jamocha.rete.nodes.OneInputNode;
 import org.jamocha.rete.nodes.ReteNet;
 import org.jamocha.rete.nodes.RootNode;
+import org.jamocha.rete.nodes.SimpleBetaFilterNode;
+import org.jamocha.rete.nodes.SlotFilterNode;
 import org.jamocha.rete.nodes.TerminalNode;
+import org.jamocha.rete.nodes.TwoInputNode;
 import org.jamocha.rule.Action;
 import org.jamocha.rule.Condition;
 import org.jamocha.rule.ConditionWithNested;
@@ -69,9 +72,16 @@ public class HokifischRuleCompiler implements RuleCompiler {
 
 	/**
 	 * adds an object type node for a given template
+	 * @throws  
 	 */
 	public void addObjectTypeNode(Template template) {
-		rootNode.addObjectTypeNode(template, engine);
+		int newid = network.nextNodeId();
+		ObjectTypeNode newOtn = new ObjectTypeNode(newid,engine.getWorkingMemory(),network,template);
+		try {
+			rootNode.addChild(newOtn);
+		} catch (NodeException e) {
+			engine.writeMessage(e.getMessage());
+		}
 	}
 
 	
@@ -85,7 +95,6 @@ public class HokifischRuleCompiler implements RuleCompiler {
 			preCompile(information);
 			compileConditions(information);
 			compileActions(information);
-			activateAllConditionJoins(information);
 		} catch (RuleCompilingException e) {
 			throw new RuleException("error while compiling rule "+rule.getName()+": "+e.getMessage());
 		}
@@ -120,11 +129,6 @@ public class HokifischRuleCompiler implements RuleCompiler {
 		if (c instanceof ObjectCondition) {
 			ObjectCondition oc = (ObjectCondition) c;
 			Template t = engine.findTemplate( oc.getTemplateName() );
-			try {
-				rootNode.activateObjectTypeNode(t, network);
-			} catch (AssertException e) {
-				throw new RuleCompilingException(e);
-			}
 			information.condition2template.put(c, t);
 		} else if (c instanceof ConditionWithNested) {
 			ConditionWithNested cwn = (ConditionWithNested) c;
@@ -168,11 +172,11 @@ public class HokifischRuleCompiler implements RuleCompiler {
 
 	
 	private void addTerminalNode(CompileCallInformation information) throws RuleCompilingException {
-		TerminalNode tnode = new TerminalNode(network.nextNodeId() ,information.rule, engine.getWorkingMemory());
+		TerminalNode tnode = new TerminalNode(network.nextNodeId() , engine.getWorkingMemory(), information.rule, engine.getNet());
 		try {
-			information.lastJoin.addNode(tnode, network);
-		} catch (AssertException e) {
-			throw new RuleCompilingException(e);
+			information.lastJoin.addChild(tnode);
+		} catch (NodeException e) {
+			engine.writeMessage(e.getMessage());
 		}
 	}
 
@@ -182,32 +186,22 @@ public class HokifischRuleCompiler implements RuleCompiler {
 	 * @return
 	 * @throws RuleCompilingException 
 	 */
-	private BaseNode joinConditions(CompileCallInformation information, Condition[] conditions, AbstractAlpha fromAbove) throws RuleCompilingException{
-		BaseNode foo = fromAbove;
-		for (Condition condition : information.rule.getConditions()) {
-			AbstractBeta newJoin = new BetaFilterNode(network.nextNodeId(), engine.getWorkingMemory());
-			try {
-				fromAbove.addNode(newJoin, network);
-				information.conditionSubnets.get(condition).getLast().addNode(newJoin, network);
+	private Node joinConditions(CompileCallInformation information, Condition[] conditions, Node fromAbove) throws RuleCompilingException{
+		Node foo = fromAbove;
+		try{
+			for (Condition condition : information.rule.getConditions()) {
+				TwoInputNode newJoin = new SimpleBetaFilterNode(network.nextNodeId(), engine.getWorkingMemory(), network);
+				fromAbove.addChild(newJoin);
+				information.conditionSubnets.get(condition).getLast().addChild(newJoin);
 				information.condition2join.put(condition,newJoin);
 				foo = newJoin;
-			} catch (AssertException e) {
-				throw new RuleCompilingException(e);
 			}
+		} catch (NodeException e) {
+			engine.writeMessage(e.getMessage());
 		}
 		return foo;
 	}
-	
-	private void activateAllConditionJoins(CompileCallInformation information) throws RuleCompilingException {
-		for (AbstractBeta n : information.condition2join.values()) {
-			try {
-				n.activate(network);
-			} catch (AssertException e) {
-				throw new RuleCompilingException(e);
-			}
-		}
-	}
-	
+
 	/**
 	 * compiles the seperated condition nodes to one network by using
 	 * joins
@@ -218,12 +212,7 @@ public class HokifischRuleCompiler implements RuleCompiler {
 		// from all of our condition's last nodes (like also done
 		// in old rule compiler)
 		Template initFact = engine.getInitialTemplate();
-		try {
-			rootNode.activateObjectTypeNode(initFact, network);
-		} catch (AssertException e) {
-			throw new RuleCompilingException(e);
-		}
-		AbstractAlpha initialFact = getObjectTypeNode(initFact);
+		Node initialFact = getObjectTypeNode(initFact);
 		information.lastJoin=joinConditions(information, information.rule.getConditions(), initialFact);
 	}
 
@@ -243,20 +232,20 @@ public class HokifischRuleCompiler implements RuleCompiler {
 	/**
 	 *
 	 */ 
-	private void appendToSubnet(BaseNode first, BaseNode last, ReteSubnet subnet) throws RuleCompilingException{
+	private void appendToSubnet(Node first, Node last, ReteSubnet subnet) throws RuleCompilingException{
 		try {
-			subnet.getLast().addNode(first, network);
-			subnet.setLast(last);
-		} catch (AssertException e) {
+			subnet.getLast().addChild(first);
+		} catch (NodeException e) {
 			throw new RuleCompilingException(e);
 		}
+		subnet.setLast(last);
 	}
 	
 	/**
 	 * appends some nodes to a given subnet.
 	 */
 	@SuppressWarnings("unused")
-	private void appendToSubnet(BaseNode node, ReteSubnet subnet) throws RuleCompilingException {
+	private void appendToSubnet(Node node, ReteSubnet subnet) throws RuleCompilingException {
 		appendToSubnet(node, node, subnet);
 	}
 	
@@ -265,17 +254,17 @@ public class HokifischRuleCompiler implements RuleCompiler {
 	 */
 	private void compileObjectCondition(CompileCallInformation information, ObjectCondition condition) throws RuleCompilingException {
 		//determine the root of our subnet
-		BaseNode relativeRoot = getObjectTypeNode(information.getTemplate(condition));
+		Node relativeRoot = getObjectTypeNode(information.getTemplate(condition));
 		ReteSubnet subnet = new ReteSubnet(relativeRoot, relativeRoot);
-		BaseNode last = relativeRoot;
+		Node last = relativeRoot;
 		// compile each constraint and append nodes to the subnet
 		for (Constraint constraint : condition.getConstraints()) {
 			compileConstraint(information,constraint);
 			ReteSubnet newConstraintSubnet = information.constraintSubnets.get(constraint);
-			try {
-				last.addNode(newConstraintSubnet.getRoot(), network);
-			} catch (AssertException e) {
-				throw new RuleCompilingException(e);
+			try{
+				last.addChild(newConstraintSubnet.getRoot());
+			} catch (NodeException e) {
+				engine.writeMessage(e.getMessage());
 			}
 			if (newConstraintSubnet != null) {
 				subnet = new ReteSubnet(subnet,newConstraintSubnet);
@@ -291,7 +280,7 @@ public class HokifischRuleCompiler implements RuleCompiler {
 		TemplateSlot slot = template.getSlot(constraint.getName());
 		information.constraint2templateSlot.put(constraint,slot);
 		if (constraint instanceof LiteralConstraint) {
-			BaseNode literalComparisonNode = compileLiteralConstraint(information,(LiteralConstraint) constraint);
+			Node literalComparisonNode = compileLiteralConstraint(information,(LiteralConstraint) constraint);
 			ReteSubnet net = new ReteSubnet(literalComparisonNode,literalComparisonNode);
 			information.constraintSubnets.put(constraint,net);
 		} else {
@@ -305,7 +294,7 @@ public class HokifischRuleCompiler implements RuleCompiler {
 	 * @return
 	 * @throws RuleCompilingException
 	 */
-	private BaseNode compileLiteralConstraint(CompileCallInformation information,LiteralConstraint constraint) throws RuleCompilingException{
+	private Node compileLiteralConstraint(CompileCallInformation information,LiteralConstraint constraint) throws RuleCompilingException{
 		// get an empty slot and put in the reference value
 		TemplateSlot templateSlot = information.constraint2templateSlot.get(constraint);
 		Slot sl = (Slot) templateSlot.clone();
@@ -317,13 +306,8 @@ public class HokifischRuleCompiler implements RuleCompiler {
 			throw new RuleCompilingException(e);
 		}
 		// generate a new node and put in the slot
-		AlphaNode node = new AlphaNode(network.nextNodeId(), engine.getWorkingMemory());
-		node.setSlot(sl);
-		// set the operator
-		node.setOperator(
-			constraint.getNegated() ? Constants.NOTEQUAL : Constants.EQUAL
-		);
-		// return our new literal constraint compare node
+		int op = constraint.getNegated() ? Constants.NOTEQUAL : Constants.EQUAL;
+		Node node = new SlotFilterNode(network.nextNodeId(), engine.getWorkingMemory(), op, sl, network);
 		return node;
 	}
 
@@ -331,7 +315,15 @@ public class HokifischRuleCompiler implements RuleCompiler {
 	 *  gets the object type node for given template
 	 */
 	public ObjectTypeNode getObjectTypeNode(Template template) {
-		return rootNode.getObjectTypeNodes().get(template);
+		for (Node n: rootNode.getParentNodes()) {
+			if (n instanceof ObjectTypeNode) {
+				ObjectTypeNode otn = (ObjectTypeNode)n;
+				if ( otn.getTemplate().equals(template) ) {
+					return otn;
+				}
+			}
+		}
+		return null;
 	}
 
 	/**
@@ -352,9 +344,7 @@ public class HokifischRuleCompiler implements RuleCompiler {
 	 * removes an object type node
 	 */
 	public void removeObjectTypeNode(ObjectTypeNode node) throws RetractException {
-		rootNode.removeObjectTypeNode(node);
-		node.clear();
-		node.destroy(network);
+		//TODO implement me
 	}
 
 	/**

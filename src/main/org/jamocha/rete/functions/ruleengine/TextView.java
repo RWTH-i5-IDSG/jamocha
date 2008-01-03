@@ -23,7 +23,7 @@ import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.functions.AbstractFunction;
 import org.jamocha.rete.functions.FunctionDescription;
-import org.jamocha.rete.nodes.BaseNode;
+import org.jamocha.rete.nodes.Node;
 import org.jamocha.rete.nodes.RootNode;
 
 /**
@@ -90,18 +90,15 @@ public class TextView extends AbstractFunction {
 		return NAME;
 	}
 
-	public void dump(BaseNode n,StringBuilder s,int indent) {
-		for (int i=0;i<indent;i++) s.append(" ");
-		s.append(n.getClass().getSimpleName());
-		s.append("id:").append(n.getNodeId()).append(" ");
-		s.append( "childs:").append(n.getChildCount()).append(" parents:");
-		s.append(n.getParentCount()).append(" [");
-		for (BaseNode parent : n.getParentNodes()){
-			s.append(parent.getNodeId()).append("|");
+	public void dump(Node n,StringBuilder s,int indent) {
+		StringBuilder s2 = new StringBuilder();
+		for (int i=0;i<indent;i++) {
+			s2.append(" ");
 		}
-		s.append("]");
-		s.append(")\n");
-		for (BaseNode child:n.getChildNodes()){
+		s.append(s2);
+		String ind = "\n"+s2;
+		s.append(n.toString().replace("\n", ind).trim()).append("\n");
+		for (Node child:n.getChildNodes()){
 			dump(child,s,indent+3);
 		}
 	}

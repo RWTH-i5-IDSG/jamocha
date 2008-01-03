@@ -16,6 +16,8 @@
  */
 package org.jamocha.rule;
 
+import jade.core.BaseNode;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -23,7 +25,7 @@ import java.util.List;
 import org.jamocha.formatter.Formatter;
 import org.jamocha.rete.StopCompileException;
 import org.jamocha.rete.Template;
-import org.jamocha.rete.nodes.BaseNode;
+import org.jamocha.rete.nodes.Node;
 import org.jamocha.rete.rulecompiler.sfp.SFRuleCompiler;
 
 /**
@@ -50,7 +52,7 @@ public class ObjectCondition extends AbstractCondition {
 	/**
 	 * a list for the RETE nodes created by RuleCompiler
 	 */
-	protected List<BaseNode> nodes = new ArrayList<BaseNode>();
+	protected List<Node> nodes = new ArrayList<Node>();
 
 	protected Template template = null;
 
@@ -119,7 +121,7 @@ public class ObjectCondition extends AbstractCondition {
 		return this.nodes;
 	}
 
-	public BaseNode getNode(int idx){
+	public Node getNode(int idx){
 		if (idx < nodes.size())
 		return nodes.get(idx);
 		else
@@ -131,7 +133,7 @@ public class ObjectCondition extends AbstractCondition {
 	 * Add a node to an ObjectCondition. the node should only be AlphaNodes and
 	 * not join nodes.
 	 */
-	public void addNode(BaseNode node) {
+	public void addNode(Node node) {
 		if (!this.nodes.contains(node)) {
 			this.nodes.add(node);
 		}
@@ -140,7 +142,7 @@ public class ObjectCondition extends AbstractCondition {
 	/**
 	 * Return the last alphaNode for the object pattern
 	 */
-	public BaseNode getLastNode() {
+	public Node getLastNode() {
 		if (this.nodes.size() > 0) {
 			return nodes.get(nodes.size()-1);
 		} else {
@@ -148,9 +150,9 @@ public class ObjectCondition extends AbstractCondition {
 		}
 	}
 
-	public BaseNode getFirstNode() {
+	public Node getFirstNode() {
 		if (this.nodes.size() > 0) {
-			return (BaseNode) this.nodes.get(0);
+			return (Node) this.nodes.get(0);
 		} else {
 			return null;
 		}
@@ -202,7 +204,7 @@ public class ObjectCondition extends AbstractCondition {
 		nodes.clear();
 	}
 	
-	public BaseNode compile(SFRuleCompiler compiler, Rule rule, int conditionIndex) throws StopCompileException {
+	public Node compile(SFRuleCompiler compiler, Rule rule, int conditionIndex) throws StopCompileException {
 		return compiler.compile(this, rule, conditionIndex);
 	}
 	
@@ -219,8 +221,8 @@ public class ObjectCondition extends AbstractCondition {
 		result.propConditions = new ArrayList<Constraint>();
 		for (Constraint c : propConditions) result.propConditions.add(c);
 
-		result.nodes = new ArrayList<BaseNode>();
-		for (BaseNode b : nodes) result.nodes.add(b);
+		result.nodes = new ArrayList<Node>();
+		for (Node b : nodes) result.nodes.add(b);
 		
 		
 		return result;

@@ -21,7 +21,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.jamocha.formatter.Formatter;
-import org.jamocha.rete.nodes.BaseNode;
+import org.jamocha.rete.nodes.Node;
 import org.jamocha.rete.rulecompiler.sfp.SFRuleCompiler;
 
 /**
@@ -35,7 +35,7 @@ public class ExistCondition extends ConditionWithNested {
 
 	protected List<Condition> nestedCE = new ArrayList<Condition>();
 
-	protected List<BaseNode> nodes = new ArrayList<BaseNode>();
+	protected List<Node> nodes = new ArrayList<Node>();
 
 	protected boolean isFirstCE = false;
 
@@ -69,14 +69,14 @@ public class ExistCondition extends ConditionWithNested {
 		return this.nestedCE;
 	}
 
-	public List<BaseNode> getNodes() {
-		return new ArrayList<BaseNode>();
+	public List<Node> getNodes() {
+		return new ArrayList<Node>();
 	}
 
 	/**
 	 * the method doesn't apply and isn't implemented currently
 	 */
-	public void addNode(BaseNode node) {
+	public void addNode(Node node) {
 		nodes.add(node);
 	}
 
@@ -84,7 +84,7 @@ public class ExistCondition extends ConditionWithNested {
 		return false;
 	}
 
-	public BaseNode getFirstNode() {
+	public Node getFirstNode() {
 		if (nodes.size() > 0)
 			return nodes.get(0);
 		else
@@ -138,7 +138,7 @@ public class ExistCondition extends ConditionWithNested {
 		nodes.clear();
 	}
 
-	public BaseNode compile(SFRuleCompiler compiler, Rule rule, int conditionIndex) {
+	public Node compile(SFRuleCompiler compiler, Rule rule, int conditionIndex) {
 		return compiler.compile(this, rule, conditionIndex);
 	}
 
@@ -147,7 +147,7 @@ public class ExistCondition extends ConditionWithNested {
 	}
 
 
-	public BaseNode getLastNode() {
+	public Node getLastNode() {
 		return ((ObjectCondition)nestedCE.get(0)).getLastNode();
 	}
 	

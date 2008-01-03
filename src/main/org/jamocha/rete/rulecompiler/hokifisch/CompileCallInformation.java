@@ -5,9 +5,9 @@ import java.util.Map;
 
 import org.jamocha.rete.Template;
 import org.jamocha.rete.TemplateSlot;
-import org.jamocha.rete.nodes.AbstractBeta;
-import org.jamocha.rete.nodes.BaseNode;
+import org.jamocha.rete.nodes.Node;
 import org.jamocha.rete.nodes.TerminalNode;
+import org.jamocha.rete.nodes.TwoInputNode;
 import org.jamocha.rule.Condition;
 import org.jamocha.rule.Constraint;
 import org.jamocha.rule.Rule;
@@ -41,9 +41,9 @@ public class CompileCallInformation {
 	// holds the slot for each constraints
 	Map<Constraint, TemplateSlot> constraint2templateSlot;
 	
-	BaseNode lastJoin;
+	Node lastJoin;
 
-	Map<Condition, AbstractBeta> condition2join;
+	Map<Condition, TwoInputNode> condition2join;
 
 	public CompileCallInformation(Rule rule) {
 		this.rule = rule;
@@ -52,7 +52,7 @@ public class CompileCallInformation {
 		constraint2condition = new HashMap<Constraint, Condition>();
 		condition2template = new HashMap<Condition, Template>();
 		constraint2templateSlot = new HashMap<Constraint, TemplateSlot>();
-		condition2join = new HashMap<Condition, AbstractBeta>();
+		condition2join = new HashMap<Condition, TwoInputNode>();
 	}
 
 	public Template getTemplate(Constraint constr) {

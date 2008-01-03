@@ -19,7 +19,7 @@ package org.jamocha.rete;
 import java.util.HashMap;
 
 import org.jamocha.Constants;
-import org.jamocha.rete.nodes.BaseNode;
+import org.jamocha.rete.nodes.Node;
 
 /**
  * @author Peter Lin
@@ -126,8 +126,8 @@ public class ConversionUtils {
      * @param nobj
      * @return
      */
-    public static BaseNode[] add(BaseNode[] list, BaseNode nobj) {
-        BaseNode[] newlist = new BaseNode[list.length + 1];
+    public static Node[] add(Node[] list, Node nobj) {
+    	Node[] newlist = new Node[list.length + 1];
     	System.arraycopy(list,0,newlist,0,list.length);
     	newlist[list.length] = nobj;
     	return newlist;
@@ -141,8 +141,8 @@ public class ConversionUtils {
      * @return
      */
     
-    public static BaseNode[] remove(BaseNode[] list, BaseNode nobj) {
-    	BaseNode[] newlist = new BaseNode[list.length - 1];
+    public static Node[] remove(Node[] list, Node nobj) {
+    	Node[] newlist = new Node[list.length - 1];
     	int pos = 0;
     	for (int idx=0; idx < list.length; idx++) {
     		if (list[idx] != nobj) {

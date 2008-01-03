@@ -259,4 +259,16 @@ public class NSFact implements Fact, Serializable {
 		FactTuple tuple = new FactTupleImpl(this);
 		return tuple;
 	}
+
+	public Fact getFirstFact() {
+		return this;
+	}
+
+	public Fact getLastFact() {
+		return this;
+	}
+
+	public boolean isStandaloneFact() {
+		return true;
+	}
 }

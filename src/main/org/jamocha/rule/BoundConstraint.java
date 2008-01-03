@@ -20,7 +20,7 @@ import org.jamocha.Constants;
 import org.jamocha.formatter.Formatter;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.ConversionUtils;
-import org.jamocha.rete.nodes.BaseNode;
+import org.jamocha.rete.nodes.Node;
 import org.jamocha.rete.rulecompiler.sfp.SFRuleCompiler;
 
 /**
@@ -194,7 +194,7 @@ public class BoundConstraint extends AbstractConstraint {
 		return res.toString();
 	}
 	
-	public BaseNode compile(SFRuleCompiler compiler, Rule rule, int conditionIndex) {
+	public Node compile(SFRuleCompiler compiler, Rule rule, int conditionIndex) {
 		return compiler.compile(this, rule, conditionIndex);
 	}
 	

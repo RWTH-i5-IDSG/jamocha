@@ -24,7 +24,7 @@ import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.configurations.Signature;
-import org.jamocha.rete.nodes.BaseNode;
+import org.jamocha.rete.nodes.Node;
 import org.jamocha.rete.rulecompiler.sfp.SFRuleCompiler;
 
 /**
@@ -73,11 +73,11 @@ public class TestCondition extends AbstractCondition {
 	public void clear() {
 	}
 	
-	public BaseNode compile(SFRuleCompiler compiler, Rule rule, int conditionIndex) {
+	public Node compile(SFRuleCompiler compiler, Rule rule, int conditionIndex) {
 		return compiler.compile(this, rule, conditionIndex);
 	}
 
-	public BaseNode getLastNode() {
+	public Node getLastNode() {
 		// TODO Auto-generated method stub
 		return null;
 	}

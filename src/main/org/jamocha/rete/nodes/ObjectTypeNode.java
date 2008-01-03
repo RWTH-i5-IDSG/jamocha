@@ -1,160 +1,65 @@
-/*
- * Copyright 2002-2007 Peter Lin
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *   http://ruleml-dev.sourceforge.net/
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- * 
- */
 package org.jamocha.rete.nodes;
 
-import java.awt.Color;
-import java.awt.Graphics2D;
-import java.awt.Image;
-import java.awt.MediaTracker;
-import java.io.Serializable;
-import java.util.List;
-
-import javax.swing.ImageIcon;
-
-import org.jamocha.Constants;
-import org.jamocha.gui.icons.IconLoader;
-import org.jamocha.rete.Fact;
-import org.jamocha.rete.Template;
-import org.jamocha.rete.exception.AssertException;
-import org.jamocha.rete.exception.RetractException;
 import org.jamocha.rete.memory.WorkingMemory;
 import org.jamocha.rete.memory.WorkingMemoryElement;
+import org.jamocha.rete.visualisation.NodeDrawer;
+import org.jamocha.rete.visualisation.nodedrawers.ObjectTypeNodeDrawer;
+import org.jamocha.rete.visualisation.nodedrawers.RootNodeDrawer;
+import org.jamocha.rete.Template;
 
 /**
- * @author Peter Lin
- * 
- * ObjectTypeNode is the input node for a specific type. The node is created
- * with the appropriate Class. A couple of important notes about the
- * implementation of ObjectTypeNode.
- * 
- * <ul>
- * <li> the assertFact method does not check the deftemplate matches the fact.
- * this is because of inheritance.
- * <li> WorkingMemoryImpl checks to see if the fact's deftemplate has parents.
- * If it does, it will keep checking to see if there is an ObjectTypeNode for
- * the parent.
- * <li> if the template has a parent, it will assert it. this means
- * <li> any patterns for parent templates will attempt to pattern match
- * </ul>
+ * @author Josef Alexander Hahn <mail@josef-hahn.de>
+ * this node type filters by the object type (the deftemplate)
  */
-public class ObjectTypeNode extends AbstractAlpha implements Serializable {
+public class ObjectTypeNode extends OneInputNode {
 
-	private static final long serialVersionUID = 1L;
-
-	/**
-	 * The Class that defines object type
-	 */
-	private Template deftemplate = null;
+	protected Template template;
 	
-	private Image icon = null;
-
-	/**
-	 * 
-	 */
-	public ObjectTypeNode(int id, Template deftemp, WorkingMemory memory) {
-		super(id, memory);
-		this.deftemplate = deftemp;
-		String templname = deftemp.getName();
-		if (templname.equals(Constants.INITIAL_FACT)) templname="initialFact";
-		ImageIcon ii = IconLoader.getImageIcon(templname,this.getClass());
-		if (ii != null) {
-			while (ii.getImageLoadStatus() == MediaTracker.LOADING)
-				try {
-					Thread.sleep(50);
-				} catch (InterruptedException e) {
-				}
-				icon = ii.getImage();
-		}
+	public ObjectTypeNode(int id, WorkingMemory memory, ReteNet net) {
+		super(id, memory, net);
 	}
-
-	public Template getDeftemplate() {
-		return this.deftemplate;
+	
+	public ObjectTypeNode(int id, WorkingMemory memory, ReteNet net, Template templ){
+		this(id,memory,net);
+		this.template = templ;
 	}
 
 	@Override
-	public void assertFact(WorkingMemoryElement fact, ReteNet net, BaseNode sender)
-			throws AssertException {
-		if (((Fact) fact).getTemplate().equals(this.getDeftemplate())) {
-			workingMemory.addAlpha(this, fact);
-			propogateAssert(fact, net);
+	public void addWME(WorkingMemoryElement newElem) throws NodeException {
+		Template t = newElem.getFirstFact().getTemplate();
+		if (t.equals(template)) {
+			addAndPropagate(newElem);
+		}
+	}
+
+	@Override
+	public void removeWME(WorkingMemoryElement oldElem) throws NodeException {
+		Template t = oldElem.getFirstFact().getTemplate();
+		if (t.equals(template)) {
+			removeAndPropagate(oldElem);
 		}
 	}
 	
+	/**
+	 * returns the template, which this node will let pass
+	 */
+	public Template getTemplate() {
+		return template;
+	}
+
 	@Override
-	public boolean mergableTo(BaseNode other) {
-		//obj also OTN and same template?
-		if (other instanceof ObjectTypeNode)
-		return this.deftemplate.equals(((ObjectTypeNode)other).deftemplate);
+	public boolean outputsBeta() {
 		return false;
 	}
 
+	protected NodeDrawer newNodeDrawer() {
+		return new ObjectTypeNodeDrawer(this);
+	}
 
 	@Override
-	public void retractFact(WorkingMemoryElement fact, ReteNet net, BaseNode sender)
-			throws RetractException {
-		if (workingMemory.removeAlpha(this,fact))
-			propogateRetract(fact, net);
-	}
-
-	public RootNode getRootNode() {
-		// we only have one parent. this must be the rootnode
-		if (getParentCount() > 0)
-			return (RootNode) this.parentNodes[0];
-		else
-			return null;
-
-	}
-
-	/**
-	 * this returns name of the deftemplate
-	 */
-	public String toPPString() {
-		return super.toPPString() + "Template: " + this.deftemplate.getName()
-				+ "\n";
-	}
-
-	protected void evZeroUseCount(ReteNet net) {
-		try {
-			getRootNode().deactivateObjectTypeNode(this, net);
-		} catch (RetractException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+	public void getDescriptionString(StringBuilder sb) {
+		super.getDescriptionString(sb);
+		sb.append("|template:").append(template.getName());
 	}
 	
-	
-	protected void drawNode(int x, int y, int height, int width, int halfLineHeight, List<BaseNode> selected, Graphics2D canvas){
-		boolean isSelected=selected.contains(this);
-		int alpha = (isSelected) ? 255 : 20;
-		canvas.setColor( new Color(255,215,15,alpha) );
-		canvas.fillRect(x, y, width, height);
-		canvas.setColor(  new Color(208,181,44,alpha) );
-		canvas.drawRect(x, y, width, height);
-		canvas.setColor( new Color(0,0,0,alpha) );
-		drawId(x,y,height,width, halfLineHeight,canvas);
-		if (icon != null && isSelected) {
-			float aspectRatio = icon.getWidth(null) / icon.getHeight(null);
-			int w = (int) (height * aspectRatio);
-			int h = height;
-			int x1 = x + width - w/2;
-			int y1 = y;
-			canvas.drawImage(icon, x1, y1, w, h, null);
-		}
-		
-		
-	}
 }

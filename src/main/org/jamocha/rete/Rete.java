@@ -1,4 +1,4 @@
-/*
+ /*
  * Copyright 2002-2006 Peter Lin
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -51,7 +51,7 @@ import org.jamocha.rete.functions.io.Batch;
 import org.jamocha.rete.memory.WorkingMemory;
 import org.jamocha.rete.modules.Module;
 import org.jamocha.rete.modules.Modules;
-import org.jamocha.rete.nodes.BaseNode;
+import org.jamocha.rete.nodes.Node;
 import org.jamocha.rete.nodes.ReteNet;
 import org.jamocha.rete.nodes.TerminalNode;
 import org.jamocha.rete.util.ProfileStats;
@@ -555,7 +555,7 @@ public class Rete implements SettingsChangedListener, PropertyChangeListener, Co
 	 * 
 	 * @param node
 	 */
-	public void writeMessage(BaseNode node) {
+	public void writeMessage(Node node) {
 
 	}
 
@@ -565,9 +565,9 @@ public class Rete implements SettingsChangedListener, PropertyChangeListener, Co
 	 * @param node
 	 * @param fact
 	 */
-	public void assertEvent(BaseNode node, Fact fact) {
+	public void assertEvent(Node node, Fact fact) {
 		if (debug) {
-			System.out.println("\"assert at nodeid=" + node.getNodeId() + " - " + node.toString().replaceAll("\"", "'") + ":: with fact -" + fact.toFactString().replaceAll("\"", "'") + "::\"");
+			System.out.println("\"assert at nodeid=" + node.getId() + " - " + node.toString().replaceAll("\"", "'") + ":: with fact -" + fact.toFactString().replaceAll("\"", "'") + "::\"");
 		}
 		for (EngineEventListener eel : listeners) {
 			eel.eventOccurred(new EngineEvent(this, EngineEvent.ASSERT_EVENT, node, new Fact[] { fact }));
@@ -583,7 +583,7 @@ public class Rete implements SettingsChangedListener, PropertyChangeListener, Co
 		}
 	}
 
-	public void assertEvent(BaseNode node, Fact[] facts) {
+	public void assertEvent(Node node, Fact[] facts) {
 		if (debug) {
 			if (node instanceof TerminalNode) {
 				System.out.println(((TerminalNode) node).getRule().getName() + " fired");
@@ -604,7 +604,7 @@ public class Rete implements SettingsChangedListener, PropertyChangeListener, Co
 	 * @param node
 	 * @param fact
 	 */
-	public void retractEvent(BaseNode node, Fact fact) {
+	public void retractEvent(Node node, Fact fact) {
 		for (EngineEventListener eel : listeners) {
 			eel.eventOccurred(new EngineEvent(this, EngineEvent.RETRACT_EVENT, node, new Fact[] { fact }));
 		}
@@ -615,7 +615,7 @@ public class Rete implements SettingsChangedListener, PropertyChangeListener, Co
 	 * @param node
 	 * @param facts
 	 */
-	public void retractEvent(BaseNode node, Fact[] facts) {
+	public void retractEvent(Node node, Fact[] facts) {
 		for (EngineEventListener eel : listeners) {
 			eel.eventOccurred(new EngineEvent(this, EngineEvent.ASSERT_EVENT, node, facts));
 		}

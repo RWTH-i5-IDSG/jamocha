@@ -16,10 +16,12 @@
  */
 package org.jamocha.rete.eventhandling;
 
+import jade.core.BaseNode;
+
 import java.util.EventObject;
 
 import org.jamocha.rete.Fact;
-import org.jamocha.rete.nodes.BaseNode;
+import org.jamocha.rete.nodes.Node;
 import org.jamocha.rule.Rule;
 
 /**
@@ -43,7 +45,7 @@ public class EngineEvent extends EventObject {
      * the default value is assert event
      */
     private int typeCode = ASSERT_EVENT;
-    private BaseNode sourceNode = null;
+    private Node sourceNode = null;
     private Fact[] facts = null;
     private Rule rule = null;
 
@@ -53,7 +55,7 @@ public class EngineEvent extends EventObject {
      * @param typeCode - event type
      * @param sourceNode - the node which initiated the event
      */
-	public EngineEvent(Object source, int typeCode, BaseNode sourceNode, Fact[] facts) {
+	public EngineEvent(Object source, int typeCode, Node sourceNode, Fact[] facts) {
 		super(source);
         this.typeCode = typeCode;
         this.sourceNode = sourceNode;
@@ -74,11 +76,11 @@ public class EngineEvent extends EventObject {
         this.typeCode = type;
     }
 
-    public BaseNode getSourceNode() {
+    public Node getSourceNode() {
         return this.sourceNode;
     }
     
-    public void setSourceNode(BaseNode node) {
+    public void setSourceNode(Node node) {
         this.sourceNode = node;
     }
     

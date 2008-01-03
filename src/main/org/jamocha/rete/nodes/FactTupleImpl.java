@@ -86,18 +86,17 @@ public class FactTupleImpl implements FactTuple {
 		StringBuilder sb = new StringBuilder();
 		sb.append("[ ");
 		for (Fact fact : facts) {
-			// sb.append(fact.toString());
-			sb.append("f-").append(fact.getFactId());
+			sb.append(fact.toString());
 			sb.append(" | ");
 		}
 		sb.append("] ");
 		return sb.toString();
 	}
 
-	public boolean isMySubTuple(FactTuple possibleSub) {
-		int count = possibleSub.length();
+	public boolean isMySubTuple(FactTuple smallerOne) {
+		int count = smallerOne.length();
 		for (int i = 0; i < count; i++) {
-			if (possibleSub.getFact(i) != this.facts[i])
+			if (smallerOne.getFact(i) != this.facts[i])
 				return false;
 		}
 		return true;
@@ -112,8 +111,6 @@ public class FactTupleImpl implements FactTuple {
 			return true;
 		if (obj == null)
 			return false;
-		// if (getClass() != obj.getClass())
-		// return false;
 		if (!(obj instanceof WorkingMemoryElement)) return false;
 		
 		final WorkingMemoryElement other = (WorkingMemoryElement) obj;
@@ -133,4 +130,23 @@ public class FactTupleImpl implements FactTuple {
 		return new FactTupleIterator(facts);
 	}
 
+	@Override
+	public boolean isStandaloneFact() {
+		return false;
+	}
+
+	@Override
+	public Fact getFirstFact() {
+		return facts[0];
+	}
+
+	public Fact getLastFact() {
+		return facts[facts.length-1];
+	}
+	
+	public int hashCode() {
+		int hash = 0;
+		for (Fact f : facts) hash += f.hashCode();
+		return hash;
+	}
 }

@@ -3,7 +3,7 @@ package org.jamocha.rule;
 import org.jamocha.formatter.Formatter;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.StopCompileException;
-import org.jamocha.rete.nodes.BaseNode;
+import org.jamocha.rete.nodes.Node;
 import org.jamocha.rete.rulecompiler.sfp.SFRuleCompiler;
 
 public class OrConnectedConstraint extends AbstractConnectedConstraint {
@@ -30,7 +30,7 @@ public class OrConnectedConstraint extends AbstractConnectedConstraint {
 
 	}
 
-	public BaseNode compile(SFRuleCompiler compiler, Rule rule,
+	public Node compile(SFRuleCompiler compiler, Rule rule,
 			int conditionIndex) throws StopCompileException {
 		return compiler.compile(this, rule, conditionIndex);
 	}
