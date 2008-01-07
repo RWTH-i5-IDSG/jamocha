@@ -4,6 +4,7 @@
 	<target name="init">
 		<property name="releasever" value="beta.1656"/>
 		<property name="lib.home" value="lib" />
+		<property name="lib.apps.jamochaagent" value="apps/jamochaagent/lib" />
 		<property name="app.name" value="jamocha" />
 		<property name="src" value="${basedir}/src" />
 		<property name="bin" value="${basedir}/bin" />
@@ -18,6 +19,10 @@
 		<path id="classpath">
 		    <pathelement path="${bin}" />
 		    <fileset dir="${lib.home}">
+			    <include name="**/*.jar" />
+			    <include name="**/*.zip" />
+		    </fileset>
+		    <fileset dir="${lib.apps.jamochaagent}">
 			    <include name="**/*.jar" />
 			    <include name="**/*.zip" />
 		    </fileset>
