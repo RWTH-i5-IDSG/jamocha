@@ -40,7 +40,6 @@
 		<fail message="You need to put a log4j jar in the lib/ directory to build jamocha" unless="log4j.present"/>
 		<!-- check for junit -->
 		<available classname="junit.framework.TestCase" property="junit.present" classpathref="classpath" />
-		<fail message="You need to put a junit jar in the lib/ directory to build jamocha" unless="log4j.present"/>
 	</target>
 
 	<target name="svninfo" depends="init">
@@ -78,13 +77,13 @@
 		<javacc target="${src}/main/org/jamocha/parser/sfp/SFP.jj" outputdirectory="${src}/main/org/jamocha/parser/sfp/" javacchome="${javacc.home}" />
 	</target>
 
-	<target name="compile-apps" depends="init" if="jade.present">
+	<target name="compile-apps" depends="compile-libs" if="jade.present">
 		<javac srcdir="${src}/main" destdir="${bin}" encoding="UTF-8" classpathref="classpath">
 		    <include name="org/jamocha/apps/"/>
 		</javac>
 	</target>
 
-	<target name="compile" depends="compile-apps" description="Compile the jamocha main sources">
+	<target name="compile-libs" depends="init" description="Compile the jamocha main sources">
 		<javac srcdir="${src}/main" destdir="${bin}" encoding="UTF-8" classpathref="classpath" >
 		    <exclude name="org/jamocha/apps/**"/>
 		</javac>
@@ -96,6 +95,8 @@
 		</copy>
 	</target>
 
+	<target name="compile" depends="compile-libs,compile-apps" description="Legacy target" />
+	
 	<target name="compile-tests" depends="compile" description="Compile the jamocha tests" if="junit.present">
 		<javac srcdir="${src}/test" destdir="${bin}" encoding="UTF-8" classpathref="classpath" />
 		<copy todir="${bin}">
