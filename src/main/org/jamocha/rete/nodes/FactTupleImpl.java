@@ -130,12 +130,10 @@ public class FactTupleImpl implements FactTuple {
 		return new FactTupleIterator(facts);
 	}
 
-	@Override
 	public boolean isStandaloneFact() {
 		return false;
 	}
 
-	@Override
 	public Fact getFirstFact() {
 		return facts[0];
 	}

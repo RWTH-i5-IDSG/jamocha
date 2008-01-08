@@ -79,7 +79,6 @@ public class WorkingMemoryImpl implements WorkingMemory {
 		return getList(mem, owner);
 	}
 
-	@Override
 	public int size(Node owner) {
 		return getList(mem, owner).size();
 	}

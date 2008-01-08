@@ -467,12 +467,10 @@ public class Deffact implements Fact {
 		return this;
 	}
 
-	@Override
 	public Fact getLastFact() {
 		return this;
 	}
 
-	@Override
 	public boolean isStandaloneFact() {
 		return true;
 	}
