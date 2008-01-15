@@ -11,48 +11,57 @@ import org.jamocha.rete.visualisation.nodedrawers.RootNodeDrawer;
 import org.jamocha.rete.visualisation.nodedrawers.SimpleBetaFilterNodeDrawer;
 
 /**
- * @author Josef Alexander Hahn <mail@josef-hahn.de>
- * this node has an alpha- and a beta-input. each combination
- * (which means the Cartesian product "BETA-INPUT x ALPHA-INPUT")
- * will be evaluated by the given join filters. if all filters
- * accept a combination, it will pass this node.
+ * @author Josef Alexander Hahn <mail@josef-hahn.de> this node has an alpha- and
+ *         a beta-input. each combination (which means the Cartesian product
+ *         "BETA-INPUT x ALPHA-INPUT") will be evaluated by the given join
+ *         filters. if all filters accept a combination, it will pass this node.
  */
 public class SimpleBetaFilterNode extends AbstractBetaFilterNode {
 
 	public SimpleBetaFilterNode(int id, WorkingMemory memory, ReteNet net) {
-		super(id, memory,net);
+		super(id, memory, net);
 	}
-	
-	public SimpleBetaFilterNode(int id, WorkingMemory memory,ReteNet net, JoinFilter[] filters) {
-		super(id, memory,net,filters);
+
+	public SimpleBetaFilterNode(int id, WorkingMemory memory, ReteNet net,
+			JoinFilter[] filters) {
+		super(id, memory, net, filters);
 	}
 
 	@Override
-	protected void addAlpha(WorkingMemoryElement newElem) throws JoinFilterException, EvaluationException, NodeException {
-		for(WorkingMemoryElement beta : betaInput.workingMemory.getMemory(betaInput)) {
-			if ( applyFilters(newElem, beta) ) {
-				WorkingMemoryElement newTuple = beta.getFactTuple().appendFact(newElem.getFirstFact());
-				addAndPropagate(newTuple);
-			}
-		}
-	}
-
-
-
-	@Override
-	protected void addBeta(WorkingMemoryElement newElem) throws JoinFilterException, EvaluationException, NodeException {
-		for(WorkingMemoryElement alpha : alphaInput.workingMemory.getMemory(alphaInput)) {
-			if ( applyFilters(alpha, newElem) ) {
-				WorkingMemoryElement newTuple = newElem.getFactTuple().appendFact(alpha.getFirstFact());
-				addAndPropagate(newTuple);
+	protected void addAlpha(WorkingMemoryElement newElem)
+			throws JoinFilterException, EvaluationException, NodeException {
+		if (betaInput != null && betaInput.workingMemory != null) {
+			for (WorkingMemoryElement beta : betaInput.workingMemory
+					.getMemory(betaInput)) {
+				if (applyFilters(newElem, beta)) {
+					WorkingMemoryElement newTuple = beta.getFactTuple()
+							.appendFact(newElem.getFirstFact());
+					addAndPropagate(newTuple);
+				}
 			}
 		}
 	}
 
 	@Override
-	protected void removeAlpha(WorkingMemoryElement oldElem) throws JoinFilterException, EvaluationException, NodeException {
+	protected void addBeta(WorkingMemoryElement newElem)
+			throws JoinFilterException, EvaluationException, NodeException {
+		if (alphaInput != null && alphaInput.workingMemory != null) {
+			for (WorkingMemoryElement alpha : alphaInput.workingMemory
+					.getMemory(alphaInput)) {
+				if (applyFilters(alpha, newElem)) {
+					WorkingMemoryElement newTuple = newElem.getFactTuple()
+							.appendFact(alpha.getFirstFact());
+					addAndPropagate(newTuple);
+				}
+			}
+		}
+	}
+
+	@Override
+	protected void removeAlpha(WorkingMemoryElement oldElem)
+			throws JoinFilterException, EvaluationException, NodeException {
 		Iterator<WorkingMemoryElement> i = memory().iterator();
-		while (i.hasNext()){
+		while (i.hasNext()) {
 			WorkingMemoryElement wme = i.next();
 			if (wme.getLastFact().equals(oldElem)) {
 				i.remove();
@@ -62,17 +71,18 @@ public class SimpleBetaFilterNode extends AbstractBetaFilterNode {
 	}
 
 	@Override
-	protected void removeBeta(WorkingMemoryElement oldElem) throws JoinFilterException, EvaluationException, NodeException {
+	protected void removeBeta(WorkingMemoryElement oldElem)
+			throws JoinFilterException, EvaluationException, NodeException {
 		Iterator<WorkingMemoryElement> i = memory().iterator();
-		while (i.hasNext()){
+		while (i.hasNext()) {
 			WorkingMemoryElement wme = i.next();
-			if ( wme.getFactTuple().isMySubTuple(oldElem.getFactTuple()) ){
+			if (wme.getFactTuple().isMySubTuple(oldElem.getFactTuple())) {
 				i.remove();
 				propagateRemoval(wme);
 			}
 		}
 	}
-	
+
 	protected NodeDrawer newNodeDrawer() {
 		return new SimpleBetaFilterNodeDrawer(this);
 	}
@@ -81,7 +91,8 @@ public class SimpleBetaFilterNode extends AbstractBetaFilterNode {
 	public void getDescriptionString(StringBuilder sb) {
 		super.getDescriptionString(sb);
 		sb.append("|filters:");
-		for (JoinFilter f : getFilters()) sb.append(f.toPPString()+" & ");
+		for (JoinFilter f : getFilters())
+			sb.append(f.toPPString() + " & ");
 	}
 
 }
