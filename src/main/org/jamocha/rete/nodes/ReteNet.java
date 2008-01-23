@@ -3,6 +3,7 @@ package org.jamocha.rete.nodes;
 import java.io.Serializable;
 import java.util.List;
 
+import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.ParserFactory;
 import org.jamocha.parser.RuleException;
 import org.jamocha.rete.Fact;
@@ -77,7 +78,7 @@ public class ReteNet implements SettingsChangedListener, Serializable {
 		}
 	}
 
-	public boolean addRule(Rule rule) throws AssertException, RuleException {
+	public boolean addRule(Rule rule) throws EvaluationException, RuleException {
 		boolean result =compiler.addRule(rule);
 		shareNodes(rule);
 		return result;

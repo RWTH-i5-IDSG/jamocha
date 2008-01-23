@@ -11,6 +11,7 @@ import javax.rules.RuleRuntime;
 import javax.rules.StatelessRuleSession;
 import javax.rules.admin.RuleExecutionSet;
 
+import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.RuleException;
 import org.jamocha.rete.Fact;
 import org.jamocha.rete.exception.AssertException;
@@ -35,17 +36,14 @@ public class JamochaStatelessRuleSession implements StatelessRuleSession {
 		this.uri = uri;
 		try {
 			addRules(res);
-		} catch (AssertException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (RuleException e) {
+		} catch (EvaluationException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		session.commit();
 	}
 	
-	private void addRules(RuleExecutionSet res2) throws AssertException, RuleException {
+	private void addRules(RuleExecutionSet res2) throws EvaluationException, RuleException {
 		for(Object orule : res2.getRules()) {
 			JamochaRule rule = (JamochaRule) orule;
 			session.getEngine().addRule((Rule)rule.getProperty(JamochaRule.JAMOCHA_RULE_OBJECT));

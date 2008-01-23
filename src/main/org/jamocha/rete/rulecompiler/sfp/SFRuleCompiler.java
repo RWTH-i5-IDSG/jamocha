@@ -455,7 +455,7 @@ public class SFRuleCompiler implements RuleCompiler {
 	 */
 	public ObjectTypeNode getObjectTypeNode(Template template) {
 		for (Node n: root.getChildNodes()) {
-			if (n instanceof ObjectTypeNode) {
+			if (n instanceof ObjectTypeNode && n != null) {
 				ObjectTypeNode otn = (ObjectTypeNode)n;
 				if ( otn.getTemplate().equals(template) ) {
 					return otn;
@@ -492,7 +492,7 @@ public class SFRuleCompiler implements RuleCompiler {
 		this.listener.remove(listener);
 	}
 	
-	public Node compileRule(Rule rule) throws AssertException,
+	public Node compileRule(Rule rule) throws EvaluationException,
 			StopCompileException, RuleException {
 		rule.resolveTemplates(engine);
 		this.setModule(rule);
@@ -506,7 +506,7 @@ public class SFRuleCompiler implements RuleCompiler {
 		}
 	}
 
-	public boolean addRule(Rule rule) throws AssertException, RuleException {
+	public boolean addRule(Rule rule) throws EvaluationException, RuleException {
 		boolean result = false;
 		TerminalNode tnode = createTerminalNode(rule);
 		Node lastNode;
@@ -1004,7 +1004,7 @@ public class SFRuleCompiler implements RuleCompiler {
 	 * @throws StopCompileException
 	 */
 	public Node compile(ObjectCondition condition, Rule rule,
-			int conditionIndex) throws StopCompileException {
+			int conditionIndex) throws EvaluationException,StopCompileException {
 		// get activated ObjectType Node:
 		Template template = condition.getTemplate();
 		ObjectTypeNode otn = null;
@@ -1058,7 +1058,7 @@ public class SFRuleCompiler implements RuleCompiler {
 
 	private OneInputNode prepareConstraintCompile(ObjectCondition condition,
 			Rule rule, int conditionIndex, Template template, Node prev,
-			Constraint constraint) throws AssertException, StopCompileException {
+			Constraint constraint) throws EvaluationException, StopCompileException {
 		OneInputNode current;
 		TemplateSlot slot;
 		slot = template.getSlot(constraint.getName());
@@ -1295,10 +1295,14 @@ public class SFRuleCompiler implements RuleCompiler {
 	 * @param conditionIndex
 	 * 
 	 * @return BaseNode
+	 * @throws EvaluationException 
 	 */
 	public Node compile(LiteralConstraint constraint, Rule rule,
-			int conditionIndex) {
+			int conditionIndex) throws EvaluationException {
 		OneInputNode node = null;
+		if(constraint.getSlot()==null) {
+			throw new EvaluationException("The Slot "+constraint.getName()+" doesnt exist.");
+		}
 		Slot sl = (Slot) constraint.getSlot().clone();
 		JamochaValue sval;
 		try {

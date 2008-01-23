@@ -16,13 +16,12 @@
  */
 package org.jamocha.rule;
 
-import jade.core.BaseNode;
-
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 import org.jamocha.formatter.Formatter;
+import org.jamocha.parser.EvaluationException;
 import org.jamocha.rete.StopCompileException;
 import org.jamocha.rete.Template;
 import org.jamocha.rete.nodes.Node;
@@ -47,7 +46,6 @@ public class ObjectCondition extends AbstractCondition {
 	protected String varname = null;
 
 	protected List<Constraint> propConditions = new ArrayList<Constraint>();
-
 
 	/**
 	 * a list for the RETE nodes created by RuleCompiler
@@ -121,14 +119,13 @@ public class ObjectCondition extends AbstractCondition {
 		return this.nodes;
 	}
 
-	public Node getNode(int idx){
+	public Node getNode(int idx) {
 		if (idx < nodes.size())
-		return nodes.get(idx);
+			return nodes.get(idx);
 		else
 			return null;
 	}
 
-	
 	/**
 	 * Add a node to an ObjectCondition. the node should only be AlphaNodes and
 	 * not join nodes.
@@ -144,7 +141,7 @@ public class ObjectCondition extends AbstractCondition {
 	 */
 	public Node getLastNode() {
 		if (this.nodes.size() > 0) {
-			return nodes.get(nodes.size()-1);
+			return nodes.get(nodes.size() - 1);
 		} else {
 			return null;
 		}
@@ -157,8 +154,6 @@ public class ObjectCondition extends AbstractCondition {
 			return null;
 		}
 	}
-
-
 
 	/**
 	 * Method will return a list of all the BoundConstraints
@@ -203,11 +198,12 @@ public class ObjectCondition extends AbstractCondition {
 	public void clear() {
 		nodes.clear();
 	}
-	
-	public Node compile(SFRuleCompiler compiler, Rule rule, int conditionIndex) throws StopCompileException {
+
+	public Node compile(SFRuleCompiler compiler, Rule rule, int conditionIndex)
+			throws EvaluationException, StopCompileException {
 		return compiler.compile(this, rule, conditionIndex);
 	}
-	
+
 	public Object clone() throws CloneNotSupportedException {
 		ObjectCondition result = new ObjectCondition();
 
@@ -219,17 +215,18 @@ public class ObjectCondition extends AbstractCondition {
 		result.varname = this.varname;
 
 		result.propConditions = new ArrayList<Constraint>();
-		for (Constraint c : propConditions) result.propConditions.add(c);
+		for (Constraint c : propConditions)
+			result.propConditions.add(c);
 
 		result.nodes = new ArrayList<Node>();
-		for (Node b : nodes) result.nodes.add(b);
-		
-		
+		for (Node b : nodes)
+			result.nodes.add(b);
+
 		return result;
 	}
 
 	public String format(Formatter visitor) {
 		return visitor.visit(this);
 	}
-	
+
 }

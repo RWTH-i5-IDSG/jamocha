@@ -940,7 +940,7 @@ public class Rete implements SettingsChangedListener, PropertyChangeListener, Co
 		return result;
 	}
 
-	public boolean addRule(Rule rule) throws AssertException, RuleException {
+	public boolean addRule(Rule rule) throws EvaluationException, RuleException {
 		boolean result = false;
 		if (!getCurrentFocus().containsRule(rule)) {
 			result = net.addRule(rule);

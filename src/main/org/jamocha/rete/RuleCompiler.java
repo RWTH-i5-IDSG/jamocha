@@ -18,6 +18,7 @@ package org.jamocha.rete;
 
 import java.io.Serializable;
 
+import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.RuleException;
 import org.jamocha.rete.exception.AssertException;
 import org.jamocha.rete.exception.RetractException;
@@ -55,8 +56,9 @@ public interface RuleCompiler extends Serializable {
 	 * will throw an exception.
 	 * @param rule
 	 * @throws AssertException 
+	 * @throws EvaluationException 
 	 */
-	boolean addRule(Rule rule) throws AssertException, RuleException;
+	boolean addRule(Rule rule) throws AssertException, RuleException, EvaluationException;
 
 	/**
 	 * Add a new ObjectTypeNode to the network

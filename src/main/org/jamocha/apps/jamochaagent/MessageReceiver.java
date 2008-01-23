@@ -44,7 +44,11 @@ public class MessageReceiver extends CyclicBehaviour {
 		ACLMessage msg = agent.receive();
 		if (msg != null) {
 			String assertion = createAssertString(msg);
-			channel.executeCommand(assertion + "(fire)");
+			if (agent.getProperties()
+					.getBooleanProperty("agent.autofire", true)) {
+				assertion += "(fire)";
+			}
+			channel.executeCommand(assertion);
 		} else {
 			block(100);
 		}
