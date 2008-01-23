@@ -15,7 +15,7 @@ public class ObjectTypeNode extends OneInputNode {
 
 	protected Template template;
 	
-	public ObjectTypeNode(int id, WorkingMemory memory, ReteNet net) {
+	private ObjectTypeNode(int id, WorkingMemory memory, ReteNet net) {
 		super(id, memory, net);
 	}
 	

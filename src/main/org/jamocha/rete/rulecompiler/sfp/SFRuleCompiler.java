@@ -401,7 +401,8 @@ public class SFRuleCompiler implements RuleCompiler {
 	 * @return TerminalNode
 	 */
 	protected TerminalNode createTerminalNode(Rule rule) {
-		TerminalNode node = new TerminalNode(net.nextNodeId(), engine.getWorkingMemory(), rule, net);
+		TerminalNode node = new TerminalNode(net.nextNodeId(), engine
+				.getWorkingMemory(), rule, net);
 		rule.SetTerminalNode(node);
 		return node;
 		/*
@@ -426,8 +427,9 @@ public class SFRuleCompiler implements RuleCompiler {
 	 */
 	public void addObjectTypeNode(Template template) {
 		int newid = engine.getNet().nextNodeId();
-		ObjectTypeNode newOtn = new ObjectTypeNode(newid,engine.getWorkingMemory(),net,template);
-		try{
+		ObjectTypeNode newOtn = new ObjectTypeNode(newid, engine
+				.getWorkingMemory(), net, template);
+		try {
 			root.addChild(newOtn);
 		} catch (NodeException e) {
 			engine.writeMessage(e.getMessage());
@@ -442,8 +444,9 @@ public class SFRuleCompiler implements RuleCompiler {
 	 * @return void
 	 * @throws RetractException
 	 */
-	public void removeObjectTypeNode(ObjectTypeNode node) throws RetractException {
-		//TODO: implement it
+	public void removeObjectTypeNode(ObjectTypeNode node)
+			throws RetractException {
+		// TODO: implement it
 	}
 
 	/**
@@ -454,11 +457,14 @@ public class SFRuleCompiler implements RuleCompiler {
 	 * @return ObjectTypeNode
 	 */
 	public ObjectTypeNode getObjectTypeNode(Template template) {
-		for (Node n: root.getChildNodes()) {
-			if (n instanceof ObjectTypeNode && n != null) {
-				ObjectTypeNode otn = (ObjectTypeNode)n;
-				if ( otn.getTemplate().equals(template) ) {
-					return otn;
+		Node[] nodes = root.getChildNodes();
+		for (Node n : nodes) {
+			if (n instanceof ObjectTypeNode) {
+				if (n != null) {
+					ObjectTypeNode otn = (ObjectTypeNode) n;
+					if (otn.getTemplate().equals(template)) {
+						return otn;
+					}
 				}
 			}
 		}
@@ -491,7 +497,7 @@ public class SFRuleCompiler implements RuleCompiler {
 	public void removeListener(CompilerListener listener) {
 		this.listener.remove(listener);
 	}
-	
+
 	public Node compileRule(Rule rule) throws EvaluationException,
 			StopCompileException, RuleException {
 		rule.resolveTemplates(engine);
@@ -591,11 +597,14 @@ public class SFRuleCompiler implements RuleCompiler {
 			TwoInputNode newBeta = null;
 
 			if (c instanceof ObjectCondition)
-				newBeta = new SimpleBetaFilterNode(net.nextNodeId(), engine.getWorkingMemory(), net);
+				newBeta = new SimpleBetaFilterNode(net.nextNodeId(), engine
+						.getWorkingMemory(), net);
 			else if (c instanceof NotCondition)
-				newBeta = new QuantorBetaFilterNode(net.nextNodeId(), engine.getWorkingMemory(), net, true);
+				newBeta = new QuantorBetaFilterNode(net.nextNodeId(), engine
+						.getWorkingMemory(), net, true);
 			else if (c instanceof ExistCondition)
-				newBeta = new QuantorBetaFilterNode(net.nextNodeId(), engine.getWorkingMemory(), net, false);
+				newBeta = new QuantorBetaFilterNode(net.nextNodeId(), engine
+						.getWorkingMemory(), net, false);
 
 			if (fromBottom == null) {
 				mostBottomNode = newBeta;
@@ -799,7 +808,8 @@ public class SFRuleCompiler implements RuleCompiler {
 			Template template = objectC.getTemplate();
 			ObjectTypeNode otn = getObjectTypeNode(template);
 
-			SimpleBetaFilterNode newJoin = new SimpleBetaFilterNode(net.nextNodeId(), engine.getWorkingMemory(), engine.getNet());
+			SimpleBetaFilterNode newJoin = new SimpleBetaFilterNode(net
+					.nextNodeId(), engine.getWorkingMemory(), engine.getNet());
 
 			try {
 				mostBottomNode.addChild(newJoin);
@@ -956,8 +966,7 @@ public class SFRuleCompiler implements RuleCompiler {
 	// TODO: fix indices here
 	protected void compileTestConditions(Condition[] objectConditions,
 			Rule rule, BindingAddressesTable bindingAddressTable,
-			Map<Condition, Node> conditionJoiners)
-			throws JoinFilterException {
+			Map<Condition, Node> conditionJoiners) throws JoinFilterException {
 		for (Condition c : rule.getConditions()) {
 			if (c instanceof TestCondition) {
 				TestCondition tc = (TestCondition) c;
@@ -1003,8 +1012,8 @@ public class SFRuleCompiler implements RuleCompiler {
 	 * @return compileConditionState
 	 * @throws StopCompileException
 	 */
-	public Node compile(ObjectCondition condition, Rule rule,
-			int conditionIndex) throws EvaluationException,StopCompileException {
+	public Node compile(ObjectCondition condition, Rule rule, int conditionIndex)
+			throws EvaluationException, StopCompileException {
 		// get activated ObjectType Node:
 		Template template = condition.getTemplate();
 		ObjectTypeNode otn = null;
@@ -1058,7 +1067,8 @@ public class SFRuleCompiler implements RuleCompiler {
 
 	private OneInputNode prepareConstraintCompile(ObjectCondition condition,
 			Rule rule, int conditionIndex, Template template, Node prev,
-			Constraint constraint) throws EvaluationException, StopCompileException {
+			Constraint constraint) throws EvaluationException,
+			StopCompileException {
 		OneInputNode current;
 		TemplateSlot slot;
 		slot = template.getSlot(constraint.getName());
@@ -1086,8 +1096,7 @@ public class SFRuleCompiler implements RuleCompiler {
 	 * 
 	 * @return compileConditionState
 	 */
-	public Node compile(ExistCondition condition, Rule rule,
-			int conditionIndex) {
+	public Node compile(ExistCondition condition, Rule rule, int conditionIndex) {
 		Object o = condition.getNestedConditionalElement().get(0);
 		AbstractCondition nested = (AbstractCondition) o;
 		try {
@@ -1107,8 +1116,7 @@ public class SFRuleCompiler implements RuleCompiler {
 	 * 
 	 * @return compileConditionState
 	 */
-	public Node compile(TestCondition condition, Rule rule,
-			int conditionIndex) {
+	public Node compile(TestCondition condition, Rule rule, int conditionIndex) {
 		return null;
 	}
 
@@ -1121,8 +1129,7 @@ public class SFRuleCompiler implements RuleCompiler {
 	 * 
 	 * @return compileConditionState
 	 */
-	public Node compile(AndCondition condition, Rule rule,
-			int conditionIndex) {
+	public Node compile(AndCondition condition, Rule rule, int conditionIndex) {
 		return null;
 	}
 
@@ -1137,8 +1144,7 @@ public class SFRuleCompiler implements RuleCompiler {
 	 * @throws StopCompileException
 	 * @throws AssertException
 	 */
-	public Node compile(NotCondition condition, Rule rule,
-			int conditionIndex) {
+	public Node compile(NotCondition condition, Rule rule, int conditionIndex) {
 		Object o = condition.getNestedConditionalElement().get(0);
 		AbstractCondition nested = (AbstractCondition) o;
 		try {
@@ -1295,13 +1301,14 @@ public class SFRuleCompiler implements RuleCompiler {
 	 * @param conditionIndex
 	 * 
 	 * @return BaseNode
-	 * @throws EvaluationException 
+	 * @throws EvaluationException
 	 */
 	public Node compile(LiteralConstraint constraint, Rule rule,
 			int conditionIndex) throws EvaluationException {
 		OneInputNode node = null;
-		if(constraint.getSlot()==null) {
-			throw new EvaluationException("The Slot "+constraint.getName()+" doesnt exist.");
+		if (constraint.getSlot() == null) {
+			throw new EvaluationException("The Slot " + constraint.getName()
+					+ " doesnt exist.");
 		}
 		Slot sl = (Slot) constraint.getSlot().clone();
 		JamochaValue sval;
@@ -1318,7 +1325,8 @@ public class SFRuleCompiler implements RuleCompiler {
 			engine.writeMessage(e.getMessage());
 		}
 		int op = constraint.getNegated() ? Constants.NOTEQUAL : Constants.EQUAL;
-		node = new SlotFilterNode(net.nextNodeId(), engine.getWorkingMemory(), op, sl, net);
+		node = new SlotFilterNode(net.nextNodeId(), engine.getWorkingMemory(),
+				op, sl, net);
 
 		// we increment the node use count when when create a
 		// new AlphaNode for the LiteralConstraint
