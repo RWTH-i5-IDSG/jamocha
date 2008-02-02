@@ -46,6 +46,7 @@ public class AgentFunctions extends FunctionGroup {
 		addFunction(functionMem, new AgentRegisterFunction(agent));
 		addFunction(functionMem, new AgentUnregisterFunction(agent));
 		addFunction(functionMem, new AgentSearchFunction(agent));
+		//addFunction(functionMem, new AgentTestFunction(agent));
 	}
 
 }
