@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin
+   id="org.jamocha.apps.eclipse.editor"
+   name="Eclipse Editor Plugin"
+   version="0.1.0"
+   provider-name="RWTH Aachen i4"
+   class="org.jamocha.apps.eclipse.editor.Activator">
+   
+<runtime>
+	<library name="jamocha_editor.jar"/>
+</runtime>
+
+<requires>
+	<import plugin="org.eclipse.ui"/>
+ <import plugin="org.eclipse.ui.editors"/>
+</requires>
+
+<!--  Jamocha Editor Menue -->
+	 <extension
+	 	point="org.eclipse.ui.actionSets">
+     <actionSet
+            label="Jamocha Editor"
+            description="The action set for the Jamocha Editor Plugin"
+            visible="true"
+            id="org.jamocha.apps.eclipse.editor.actions.EditorActionSet">
+         <menu
+               label="JAMOCHA"
+               id="org.jamocha.apps.eclipse.editor.actions.JamochaMenue">
+           <separator
+                  name="Jamocha">
+           </separator>
+        </menu>
+       <action
+               label="Count Brackets"
+               tooltip="Counts Jamocha Brackets"
+               class="org.jamocha.apps.eclipse.editor.actions.JamochaMenue"
+               menubarPath="org.jamocha.apps.eclipse.editor.actions.JamochaMenue/Jamocha"
+               toolbarPath="Normal"
+               id="org.jamocha.apps.eclipse.apps.editor.actions.JamochaMenue">
+        </action>
+     </actionSet>
+  </extension>
+  <extension
+        point="org.eclipse.ui.editors">
+     <editor
+           class="org.jamocha.apps.eclipse.editor.Activator"
+           extensions="clips, jamocha, jm "
+           id="org.jamocha.apps.eclipse.editor.editor1"
+           launcher="org.jamocha.apps.eclipse.editor.Activator"
+           name="name">
+     </editor>
+  </extension>
+</plugin>
+
+
+
+
+
