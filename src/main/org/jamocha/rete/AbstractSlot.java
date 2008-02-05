@@ -36,17 +36,17 @@ public abstract class AbstractSlot implements Serializable, Cloneable, Formattab
 	/**
 	 * The name of the slot
 	 */
-	private String name;
+	protected String name;
 
 	/**
 	 * the id of the slot
 	 */
-	private int id;
+	protected int id;
 
 	/**
 	 * The type of the value
 	 */
-	private JamochaType type = JamochaType.UNDEFINED;
+	protected JamochaType type = JamochaType.UNDEFINED;
 
 	/**
 	 * depth is a place holder for ordered facts, which is a list

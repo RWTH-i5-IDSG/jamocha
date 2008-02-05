@@ -314,7 +314,7 @@ public class JamochaValue implements Parameter, Formattable {
 		if (type.equals(JamochaType.STRING)) {
 			if (value != null)
 				return JamochaValue.newString(value.toString());
-			//TODO needs big fix!
+			// TODO needs big fix!
 			else
 				return JamochaValue.newString("");
 		}
@@ -402,7 +402,14 @@ public class JamochaValue implements Parameter, Formattable {
 		final int PRIME = 31;
 		int result = 1;
 		result = PRIME * result + ((type == null) ? 0 : type.hashCode());
-		result = PRIME * result + ((value == null) ? 0 : value.hashCode());
+		if (type == JamochaType.LIST) {
+			JamochaValue[] temp = (JamochaValue[]) value;
+			for (JamochaValue obj : temp) {
+				result = PRIME * result + ((obj == null) ? 0 : obj.hashCode());
+			}
+		} else {
+			result = PRIME * result + ((value == null) ? 0 : value.hashCode());
+		}
 		return result;
 	}
 
@@ -416,7 +423,8 @@ public class JamochaValue implements Parameter, Formattable {
 		if (value == null) {
 			return other.value == null || other.value == "NIL";
 		}
-		if (value instanceof JamochaValue[] && other.value instanceof JamochaValue[]) {
+		if (value instanceof JamochaValue[]
+				&& other.value instanceof JamochaValue[]) {
 			JamochaValue[] a1 = (JamochaValue[]) value;
 			JamochaValue[] a2 = (JamochaValue[]) other.value;
 			return Arrays.equals(a1, a2);
