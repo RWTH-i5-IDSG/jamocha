@@ -3,7 +3,7 @@ package org.jamocha.jsr94;
 import org.jamocha.rete.Rete;
 
 /**
- * @author Josef Alexander Hahn <mail@josef-hahn.de>
+ * @author Josef Alexander Hahn <http://www.josef-hahn.de>
  */
 public class JamochaTransactionBasedSession {
 

@@ -1,12 +1,26 @@
-(deftemplate bier (slot name))
+(deftemplate bier (slot name) (slot gewicht) )
+
+(assert (bier (name "bitburger") (gewicht 200)  ))
+(assert (bier (name "diebels") (gewicht 300)  ))
+(assert (bier (name "amstel") (gewicht 400)  ))
 
 (defrule baz
-	(bier (name ?x))
+	?bier <- (bier (name ?x) (gewicht 300) )
 	=>
-	(printout t ?x crlf)
+	(printout t ?bier crlf)
 )
 
 (assert (bier (name bitburger)))
+
+
+
+
+
+
+
+
+
+
 
 
 

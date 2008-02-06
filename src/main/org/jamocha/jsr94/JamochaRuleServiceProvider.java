@@ -7,8 +7,10 @@ import javax.rules.RuleServiceProviderManager;
 import javax.rules.admin.RuleAdministrator;
 
 /**
- * @author Josef Alexander Hahn <mail@josef-hahn.de>
+ * @author Josef Alexander Hahn <http://www.josef-hahn.de>
  */
+
+//TODO thread-safety
 public class JamochaRuleServiceProvider extends RuleServiceProvider {
 
 	private static String RULE_SERVICE_PROVIDER = "org.jamocha.jsr94";
@@ -36,7 +38,7 @@ public class JamochaRuleServiceProvider extends RuleServiceProvider {
     @Override
 	public RuleAdministrator getRuleAdministrator()	throws ConfigurationException {
     	if (ruleAdministrator == null) {
-    		//TODO initialize it
+    		ruleAdministrator = new JamochaRuleAdministrator(getRuleSets());
     	}
     	return ruleAdministrator;
 	}
@@ -49,6 +51,4 @@ public class JamochaRuleServiceProvider extends RuleServiceProvider {
 		return ruleRuntime;
 	}
 	
-
-
 }

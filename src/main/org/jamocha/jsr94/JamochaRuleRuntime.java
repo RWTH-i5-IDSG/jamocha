@@ -11,7 +11,7 @@ import javax.rules.RuleSessionCreateException;
 import javax.rules.RuleSessionTypeUnsupportedException;
 
 /**
- * @author Josef Alexander Hahn <mail@josef-hahn.de>
+ * @author Josef Alexander Hahn <http://www.josef-hahn.de>
  */
 public class JamochaRuleRuntime implements RuleRuntime {
 

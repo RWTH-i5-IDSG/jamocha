@@ -6,7 +6,7 @@ import java.util.Map;
 import javax.rules.admin.RuleExecutionSet;
 
 /**
- * @author Josef Alexander Hahn <mail@josef-hahn.de>
+ * @author Josef Alexander Hahn <http://www.josef-hahn.de>
  */
 public class JamochaRuleExecutionSetMap {
 

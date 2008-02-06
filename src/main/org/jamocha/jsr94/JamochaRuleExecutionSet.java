@@ -8,7 +8,7 @@ import javax.rules.admin.RuleExecutionSet;
 import org.jamocha.rule.Rule;
 
 /**
- * @author Josef Alexander Hahn <mail@josef-hahn.de>
+ * @author Josef Alexander Hahn <http://www.josef-hahn.de>
  */
 public class JamochaRuleExecutionSet implements RuleExecutionSet {
 

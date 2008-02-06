@@ -1,7 +1,7 @@
 package org.jamocha.jsr94;
 
 /**
- * @author Josef Alexander Hahn <mail@josef-hahn.de>
+ * @author Josef Alexander Hahn <http://www.josef-hahn.de>
  */
 
 public class JamochaRule implements javax.rules.admin.Rule {
