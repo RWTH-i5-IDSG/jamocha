@@ -18,9 +18,8 @@ import org.jamocha.rete.exception.AssertException;
 import org.jamocha.rule.Rule;
 
 /**
- * @author Josef Alexander Hahn
+ * @author Josef Alexander Hahn <mail@josef-hahn.de>
  */
-
 @SuppressWarnings("unchecked")
 public class JamochaStatelessRuleSession implements StatelessRuleSession {
 

@@ -8,6 +8,9 @@ import javax.rules.RuleServiceProvider;
 import javax.rules.RuleServiceProviderManager;
 import javax.rules.StatelessRuleSession;
 
+/**
+ * @author Josef Alexander Hahn <mail@josef-hahn.de>
+ */
 public class SimpleJsr94TestClass {
 
 	public static void main(String[] args) throws Exception{

@@ -7,6 +7,9 @@ import javax.rules.admin.RuleExecutionSet;
 
 import org.jamocha.rule.Rule;
 
+/**
+ * @author Josef Alexander Hahn <mail@josef-hahn.de>
+ */
 public class JamochaRuleExecutionSet implements RuleExecutionSet {
 
 	private static final long serialVersionUID = 1L;

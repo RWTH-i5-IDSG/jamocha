@@ -3,6 +3,9 @@ package org.jamocha.jsr94;
 import javax.rules.RuleExecutionSetMetadata;
 import javax.rules.admin.RuleExecutionSet;
 
+/**
+ * @author Josef Alexander Hahn <mail@josef-hahn.de>
+ */
 public class JamochaRuleExecutionSetMetadata implements	RuleExecutionSetMetadata {
 
 	private static final long serialVersionUID = 1L;

@@ -7,9 +7,8 @@ import javax.rules.RuleServiceProviderManager;
 import javax.rules.admin.RuleAdministrator;
 
 /**
- * @author Josef Alexander Hahn
+ * @author Josef Alexander Hahn <mail@josef-hahn.de>
  */
-
 public class JamochaRuleServiceProvider extends RuleServiceProvider {
 
 	private static String RULE_SERVICE_PROVIDER = "org.jamocha.jsr94";
