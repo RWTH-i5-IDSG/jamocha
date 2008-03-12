@@ -20,7 +20,7 @@ import java.io.Serializable;
 
 import org.jamocha.formatter.Formattable;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.rete.TemplateSlot;
+import org.jamocha.rete.wme.TemplateSlot;
 
 /**
  * @author Peter Lin

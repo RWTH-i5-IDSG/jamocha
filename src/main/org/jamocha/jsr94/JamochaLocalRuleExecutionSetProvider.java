@@ -3,13 +3,19 @@ package org.jamocha.jsr94;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
+import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import javax.rules.admin.LocalRuleExecutionSetProvider;
 import javax.rules.admin.RuleExecutionSet;
 import javax.rules.admin.RuleExecutionSetCreateException;
 
-import org.jamocha.rule.Rule;
+import org.jamocha.parser.Expression;
+import org.jamocha.parser.sfp.SFPParser;
+import org.jamocha.rete.configurations.DefruleConfiguration;
+import org.jamocha.rete.configurations.Signature;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.InputSource;
@@ -24,18 +30,29 @@ public class JamochaLocalRuleExecutionSetProvider implements LocalRuleExecutionS
 	public RuleExecutionSet createRuleExecutionSet(InputStream istream, Map properties) throws RuleExecutionSetCreateException, IOException {
 		
 		try {
-            DOMParser parser = new DOMParser();
-            parser.parse(new InputSource(istream));
-            Document doc = parser.getDocument();
+            DOMParser domparser = new DOMParser();
+            domparser.parse(new InputSource(istream));
+            Document doc = domparser.getDocument();
 
             Element root = doc.getDocumentElement();
             String name = root.getElementsByTagName("name").item(0).getTextContent();
             String description = root.getElementsByTagName("description").item(0).getTextContent();
             String code = root.getElementsByTagName("code").item(0).getTextContent();
             
-            Rule[] rules = {};
             
-            RuleExecutionSet res = new JamochaRuleExecutionSet(description,name,rules);
+            //TODO: here, sfp parser is hardcoded now
+            SFPParser sfpparser = new SFPParser( new StringReader(code) );
+            Expression e;
+            
+            List<Expression> _drcs= new ArrayList<Expression>();
+            while ( (e = sfpparser.nextExpression()) != null) {
+            	_drcs.add(e);
+            }
+            
+            Expression[] expressions = new Expression[_drcs.size()];
+            expressions = _drcs.toArray(expressions);
+            
+            RuleExecutionSet res = new JamochaRuleExecutionSet(description,name,expressions);
             
             return res;
             

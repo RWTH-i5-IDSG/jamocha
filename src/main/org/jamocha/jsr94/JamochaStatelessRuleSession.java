@@ -1,8 +1,11 @@
 package org.jamocha.jsr94;
 
 import java.rmi.RemoteException;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import javax.rules.InvalidRuleSessionException;
 import javax.rules.ObjectFilter;
@@ -11,11 +14,18 @@ import javax.rules.RuleRuntime;
 import javax.rules.StatelessRuleSession;
 import javax.rules.admin.RuleExecutionSet;
 
+import org.jamocha.jsr94.internal.Template2JavaClassAdaptor;
+import org.jamocha.jsr94.internal.Template2JavaClassAdaptorException;
+import org.jamocha.jsr94.internal.TemplateFromJavaClassTag;
 import org.jamocha.parser.EvaluationException;
+import org.jamocha.parser.Expression;
 import org.jamocha.parser.RuleException;
-import org.jamocha.rete.Fact;
 import org.jamocha.rete.exception.AssertException;
-import org.jamocha.rule.Rule;
+import org.jamocha.rete.exception.ExecuteException;
+import org.jamocha.rete.memory.WorkingMemoryElement;
+import org.jamocha.rete.wme.Fact;
+import org.jamocha.rete.wme.Template;
+import org.jamocha.rete.wme.tags.Tag;
 
 /**
  * @author Josef Alexander Hahn <http://www.josef-hahn.de>
@@ -23,16 +33,37 @@ import org.jamocha.rule.Rule;
 @SuppressWarnings("unchecked")
 public class JamochaStatelessRuleSession implements StatelessRuleSession {
 
-	JamochaTransactionBasedSession session;
+	private JamochaTransactionBasedSession session;
 	
 	private RuleExecutionSet res;
 	
 	private String uri;
 	
-	public JamochaStatelessRuleSession(RuleExecutionSet res, String uri) {
+	private Map<Class,Template2JavaClassAdaptor> javaClassAdaptor;
+	
+	protected Template2JavaClassAdaptor getJavaClassAdaptor(Class c) {
+		Template2JavaClassAdaptor res = javaClassAdaptor.get(c);
+		if (res == null) {
+			String templName = c.getCanonicalName();
+			Template t = session.getEngine().findTemplate(templName);
+			if (t == null) return null;
+			Iterator<Tag> tags= t.getTags(TemplateFromJavaClassTag.class);
+			if (tags.hasNext()){
+				TemplateFromJavaClassTag tfjct = (TemplateFromJavaClassTag) tags.next();
+				Template2JavaClassAdaptor adaptor = tfjct.getAdaptor();
+				javaClassAdaptor.put(c, adaptor);
+				return adaptor;
+			}
+			return null;
+		}
+		return res;
+	}
+	
+	public JamochaStatelessRuleSession(JamochaRuleExecutionSet res, String uri) {
 		session = new JamochaTransactionBasedSession();
 		this.res = res;
 		this.uri = uri;
+		this.javaClassAdaptor = new HashMap<Class, Template2JavaClassAdaptor>();
 		try {
 			addRules(res);
 		} catch (EvaluationException e) {
@@ -42,10 +73,10 @@ public class JamochaStatelessRuleSession implements StatelessRuleSession {
 		session.commit();
 	}
 	
-	private void addRules(RuleExecutionSet res2) throws EvaluationException, RuleException {
-		for(Object orule : res2.getRules()) {
-			JamochaRule rule = (JamochaRule) orule;
-			session.getEngine().addRule((Rule)rule.getProperty(JamochaRule.JAMOCHA_RULE_OBJECT));
+	private void addRules(JamochaRuleExecutionSet res2) throws EvaluationException, RuleException {
+		Expression[] exprs = res2.getExpressions();
+		for (Expression e : exprs) {
+			e.getValue(session.getEngine());
 		}
 	}
 
@@ -73,20 +104,61 @@ public class JamochaStatelessRuleSession implements StatelessRuleSession {
 	}
 
 	public List executeRules(List objects, ObjectFilter filter)	throws InvalidRuleSessionException, RemoteException {
+
+		
+		// put facts into the engine
 		for (Object o : objects) {
 			// TODO do something with the filter
 			try {
-				session.getEngine().assertFact(o);
+				if (o instanceof Fact) {
+					session.getEngine().assertFact((Fact)o);
+				} else {
+					Fact f = getJavaClassAdaptor(o.getClass()).getFactFromObject(o,session.getEngine());
+					session.getEngine().assertFact(f);
+				}
 			} catch (AssertException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (Template2JavaClassAdaptorException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
-		List<Fact> results = new LinkedList<Fact>();
+
+	
+		// fire rules
+		try {
+			session.getEngine().fire();
+		} catch (ExecuteException e) {
+			throw new InvalidRuleSessionException("error while firing rules",e);
+		}
 		
-		// TODO compute it... fire here...
-		// TODO it would be nice to return the results. otherwise, its senseless ;)
+		// collect facts and return them as a list
+		List<Object> results = new LinkedList<Object>();
 		
+		for(WorkingMemoryElement f : session.getEngine().getNet().getRoot().memory()  ) {
+			Iterator<Tag> itr = f.getFirstFact().getTemplate().getTags(TemplateFromJavaClassTag.class);
+			if (itr.hasNext()) {
+				TemplateFromJavaClassTag ttag = (TemplateFromJavaClassTag) itr.next();
+				Class cl = ttag.getJavaClass();
+				Object o = null;
+				try {
+					o = cl.newInstance();
+				} catch (Exception e) {
+					//TODO exception handling
+				}
+				try {
+					ttag.getAdaptor().storeToObject(f.getFirstFact(), o, session.getEngine());
+					results.add(o);
+				} catch (Template2JavaClassAdaptorException e) {
+					results.add(f);
+				}
+			} else {
+				results.add(f);
+			}
+		}
+		
+		// rollback session since we make stateless rule evaluation here
 		session.rollback();
 		return results;
 	}

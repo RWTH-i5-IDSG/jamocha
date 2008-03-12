@@ -14,10 +14,12 @@
  * limitations under the License.
  * 
  */
-package org.jamocha.rete;
+package org.jamocha.rete.wme;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 import org.jamocha.Constants;
 import org.jamocha.formatter.Formatter;
@@ -25,12 +27,16 @@ import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.parser.ParserFactory;
+import org.jamocha.rete.Rete;
 import org.jamocha.rete.configurations.SlotConfiguration;
 import org.jamocha.rete.exception.AssertException;
 import org.jamocha.rete.modules.Module;
+import org.jamocha.rete.wme.tags.Tag;
+import org.jamocha.rete.wme.tags.TagIterator;
 
 /**
- * @author Peter Lin Deftemplate is equivalent to CLIPS deftemplate<br/>
+ * @author Peter Lin 
+ * Deftemplate is equivalent to CLIPS deftemplate<br/>
  * 
  * Deftemplate contains an array of slots that represent un-ordered facts.
  * Currently, deftemplate does not have a reference to the corresponding
@@ -65,6 +71,8 @@ public class Deftemplate implements Template, Serializable {
 	private Template parent = null;
 
 	private String description = null;
+	
+	protected List<Tag> tags;
 
 	/**
 	 * Defclass and Deftemplate are decoupled, so it uses a string to look up
@@ -77,6 +85,7 @@ public class Deftemplate implements Template, Serializable {
 		this.templateName = name;
 		this.defclass = defclass;
 		this.slots = slots;
+		this.tags = new ArrayList<Tag>();
 
 	}
 
@@ -87,15 +96,15 @@ public class Deftemplate implements Template, Serializable {
 	}
 
 	public Deftemplate(String name) {
-		this.templateName = name;
+		this(name,null,null);
 	}
 
 	public Deftemplate(String name, Template parent) {
-		this.templateName = name;
-		this.parent = parent;
+		this(name,null,null,parent);
 	}
 
 	public Deftemplate() {
+		this(null,null,null,null);
 	}
 
 	/**
@@ -484,5 +493,20 @@ public class Deftemplate implements Template, Serializable {
 	
 	public String format(Formatter visitor){
 		 return visitor.visit(this);
+	}
+	
+
+	public Iterator<Tag> getTags() {
+		return getTags(Tag.class);
+	}
+
+
+	public void addTag(Tag t) {
+		tags.add(t);
+	}
+
+
+	public Iterator<Tag> getTags(Class<? extends Tag> tagClass) {
+		return new TagIterator(tagClass, tags);
 	}
 }

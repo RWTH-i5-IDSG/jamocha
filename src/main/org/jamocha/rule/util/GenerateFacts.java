@@ -21,13 +21,13 @@ import java.util.ArrayList;
 
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.rete.Defclass;
-import org.jamocha.rete.Deftemplate;
-import org.jamocha.rete.Fact;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.Slot;
 import org.jamocha.rete.configurations.SlotConfiguration;
+import org.jamocha.rete.wme.Defclass;
+import org.jamocha.rete.wme.Deftemplate;
+import org.jamocha.rete.wme.Fact;
+import org.jamocha.rete.wme.Slot;
 import org.jamocha.rule.BoundConstraint;
 import org.jamocha.rule.Condition;
 import org.jamocha.rule.Constraint;

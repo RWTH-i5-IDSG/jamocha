@@ -14,11 +14,14 @@
  * limitations under the License.
  * 
  */
-package org.jamocha.rete;
+package org.jamocha.rete.wme;
 
 import java.io.Serializable;
+import java.util.Iterator;
 
 import org.jamocha.formatter.Formattable;
+import org.jamocha.rete.Dumpable;
+import org.jamocha.rete.wme.tags.Tag;
 
 /**
  * @author Peter Lin
@@ -113,4 +116,10 @@ public interface Template extends Serializable, Dumpable, Formattable {
 	 * @return
 	 */
 	String toPPString();
+	
+	public Iterator<Tag> getTags();
+	
+	public Iterator<Tag> getTags(Class<? extends Tag> tagClass);
+	
+	public void addTag(Tag t);
 }

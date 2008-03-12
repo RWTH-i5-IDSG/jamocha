@@ -55,6 +55,13 @@ import org.jamocha.rete.nodes.Node;
 import org.jamocha.rete.nodes.ReteNet;
 import org.jamocha.rete.nodes.TerminalNode;
 import org.jamocha.rete.util.ProfileStats;
+import org.jamocha.rete.wme.Defclass;
+import org.jamocha.rete.wme.Deffact;
+import org.jamocha.rete.wme.Deftemplate;
+import org.jamocha.rete.wme.Fact;
+import org.jamocha.rete.wme.InitialFact;
+import org.jamocha.rete.wme.Slot;
+import org.jamocha.rete.wme.Template;
 import org.jamocha.rule.Rule;
 import org.jamocha.settings.JamochaSettings;
 import org.jamocha.settings.SettingsChangedListener;
@@ -668,44 +675,15 @@ public class Rete implements SettingsChangedListener, PropertyChangeListener, Co
 	 * @param statc -
 	 *            if the fact should be static, assert with true
 	 */
-	public Fact assertFact(Fact fact) throws AssertException {
+	public Fact assertFact(Fact o) throws AssertException {
 		if (this.profileAssert) {
 			ProfileStats.startAssert();
-			this.net.assertObject(fact);
+			this.net.assertObject( (Fact)o );
 			ProfileStats.endAssert();
 		} else {
-			this.net.assertObject(fact);
+			this.net.assertObject((Fact)o);
 		}
-		return fact;
-	}
-	
-	public Fact assertFact(Object o) throws AssertException {
-		Template t = getCurrentFocus().getTemplate(o.getClass());
-		
-		List<Slot> valuesList = new LinkedList<Slot>();
-		for (Field f : o.getClass().getFields()) {
-			
-			try {
-				Slot s = t.getSlot(f.getName()).createSlot(this);
-				s.value = JamochaValue.newValueAutoType(f.get(o));
-				valuesList.add(s);
-			} catch (EvaluationException e) {
-				throw new AssertException(e);
-			} catch (IllegalArgumentException e) {
-				throw new AssertException(e);
-			} catch (IllegalAccessException e) {
-				throw new AssertException(e);
-			}
-		}
-		
-		Slot[] values = new Slot[valuesList.size()];
-		values = valuesList.toArray(values);
-		
-		Fact newFact = new Deffact(t,null,values);
-
-		assertFact(newFact);
-		
-		return newFact;
+		return (Fact)o;
 	}
 
 	/**
@@ -810,19 +788,6 @@ public class Rete implements SettingsChangedListener, PropertyChangeListener, Co
 
 	public Modules getModules() {
 		return modules;
-	}
-
-	/**
-	 * convienance method for creating a Non-Shadow fact.
-	 * 
-	 * @param data
-	 * @param id
-	 * @return
-	 */
-	protected Fact createNSFact(Object data, Defclass dclass, long id) {
-		Deftemplate dft = (Deftemplate) getCurrentFocus().getTemplate(dclass.getClassObject().getName());
-		NSFact fact = new NSFact(dft, dclass, data, dft.getAllSlots(), id);
-		return fact;
 	}
 
 	public Agendas getAgendas() {

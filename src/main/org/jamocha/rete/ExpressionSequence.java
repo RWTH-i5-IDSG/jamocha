@@ -2,11 +2,13 @@ package org.jamocha.rete;
 
 import java.util.ArrayList;
 
+import org.jamocha.formatter.Formattable;
 import org.jamocha.formatter.Formatter;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaValue;
+import org.jamocha.parser.ParserFactory;
 
-public class ExpressionSequence extends ExpressionCollection {
+public class ExpressionSequence extends ExpressionCollection implements Formattable {
 
 	public Object clone(){
 		@SuppressWarnings("unchecked")
@@ -33,6 +35,10 @@ public class ExpressionSequence extends ExpressionCollection {
 
 	public String format(Formatter visitor) {
 		return visitor.visit(this);
+	}
+
+	public String getExpressionString() {
+		return ParserFactory.getFormatter().visit(this);
 	}
 
 }

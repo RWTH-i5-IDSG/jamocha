@@ -18,7 +18,7 @@ package org.jamocha.rete.util;
 
 import java.util.Comparator;
 
-import org.jamocha.rete.Deffact;
+import org.jamocha.rete.wme.Deffact;
 
 
 public class DeffactSort implements Comparator<Deffact> {

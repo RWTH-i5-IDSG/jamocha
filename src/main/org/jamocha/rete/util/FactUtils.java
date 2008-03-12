@@ -19,7 +19,7 @@ package org.jamocha.rete.util;
 import java.util.Arrays;
 import java.util.List;
 
-import org.jamocha.rete.Fact;
+import org.jamocha.rete.wme.Fact;
 
 /**
  * @author Peter Lin

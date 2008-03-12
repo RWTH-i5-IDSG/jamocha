@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.jamocha.rete.EqualityIndex;
-import org.jamocha.rete.Fact;
+import org.jamocha.rete.wme.Fact;
 
 /**
  * @author Josef Alexander Hahn, Sebastian Reinartz

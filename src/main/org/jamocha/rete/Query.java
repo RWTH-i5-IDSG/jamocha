@@ -18,6 +18,9 @@ package org.jamocha.rete;
 
 import java.io.Serializable;
 
+import org.jamocha.rete.wme.Slot;
+import org.jamocha.rete.wme.Template;
+
 /**
  * @author Peter Lin</p>
  * 

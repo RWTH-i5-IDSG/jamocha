@@ -1,9 +1,9 @@
 package org.jamocha.rete.nodes.joinfilter;
 
 import org.jamocha.parser.EvaluationException;
-import org.jamocha.rete.Fact;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.nodes.FactTuple;
+import org.jamocha.rete.wme.Fact;
 
 public interface JoinFilter {
 

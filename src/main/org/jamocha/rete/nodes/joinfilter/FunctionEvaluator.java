@@ -4,12 +4,12 @@ import java.util.List;
 
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.rete.Fact;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.configurations.Signature;
 import org.jamocha.rete.functions.Function;
 import org.jamocha.rete.nodes.FactTuple;
+import org.jamocha.rete.wme.Fact;
 
 public class FunctionEvaluator implements JoinFilter {
 

@@ -23,6 +23,7 @@ import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.parser.ParserFactory;
 import org.jamocha.rete.configurations.AbstractSignature;
+import org.jamocha.rete.wme.Fact;
 
 /**
  * @author Peter Lin
@@ -255,5 +256,13 @@ public class BoundParam extends AbstractSignature implements Formattable {
 
 	public String format(Formatter visitor) {
 		return visitor.visit(this);
+	}
+
+	public int getColumn() {
+		return column;
+	}
+
+	public int getRow() {
+		return rowId;
 	}
 }

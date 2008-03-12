@@ -36,12 +36,12 @@ public class JamochaRuleAdministrator implements RuleAdministrator {
 	}
 
 	public RuleExecutionSetProvider getRuleExecutionSetProvider(Map properties) throws RemoteException {
-		// TODO Auto-generated method stub
+		//TODO: implement it
 		return null;
 	}
 
 	public void registerRuleExecutionSet(String uri, RuleExecutionSet execSet, Map properties) throws RuleExecutionSetRegisterException, RemoteException {
-		ruleExecutionSets.putRuleExecutionSet(uri, execSet);
+		ruleExecutionSets.putRuleExecutionSet(uri, (JamochaRuleExecutionSet) execSet);
 	}
 
 }

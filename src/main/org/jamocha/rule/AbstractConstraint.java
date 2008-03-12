@@ -16,7 +16,7 @@
  */
 package org.jamocha.rule;
 
-import org.jamocha.rete.TemplateSlot;
+import org.jamocha.rete.wme.TemplateSlot;
 
 
 public abstract class AbstractConstraint implements Constraint {

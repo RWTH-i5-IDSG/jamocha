@@ -1,6 +1,8 @@
-package org.jamocha.rete;
+package org.jamocha.rete.wme;
 
 import org.jamocha.parser.JamochaType;
+import org.jamocha.rete.BoundParam;
+import org.jamocha.rete.ConversionUtils;
 
 public class TemporalDeffact extends Deffact implements TemporalFact {
 

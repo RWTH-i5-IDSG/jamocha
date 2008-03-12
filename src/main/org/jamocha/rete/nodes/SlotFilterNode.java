@@ -3,12 +3,12 @@ package org.jamocha.rete.nodes;
 import org.jamocha.Constants;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.rete.Evaluate;
-import org.jamocha.rete.Slot;
 import org.jamocha.rete.memory.WorkingMemory;
 import org.jamocha.rete.memory.WorkingMemoryElement;
 import org.jamocha.rete.visualisation.NodeDrawer;
 import org.jamocha.rete.visualisation.nodedrawers.RootNodeDrawer;
 import org.jamocha.rete.visualisation.nodedrawers.SlotFilterNodeDrawer;
+import org.jamocha.rete.wme.Slot;
 
 /**
  * @author Josef Alexander Hahn <mail@josef-hahn.de>

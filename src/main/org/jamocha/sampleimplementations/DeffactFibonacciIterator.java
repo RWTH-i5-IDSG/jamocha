@@ -3,11 +3,11 @@ package org.jamocha.sampleimplementations;
 import java.util.Map;
 
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.rete.Deffact;
-import org.jamocha.rete.Deftemplate;
-import org.jamocha.rete.Slot;
-import org.jamocha.rete.TemplateSlot;
 import org.jamocha.rete.util.DeffactIterator;
+import org.jamocha.rete.wme.Deffact;
+import org.jamocha.rete.wme.Deftemplate;
+import org.jamocha.rete.wme.Slot;
+import org.jamocha.rete.wme.TemplateSlot;
 
 public class DeffactFibonacciIterator extends DeffactIterator {
 

@@ -21,9 +21,9 @@ import java.io.Serializable;
 import org.jamocha.formatter.Formattable;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.rete.Fact;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.exception.ExecuteException;
+import org.jamocha.rete.wme.Fact;
 
 
 /**

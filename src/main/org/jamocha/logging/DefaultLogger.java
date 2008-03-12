@@ -17,9 +17,9 @@
 package org.jamocha.logging;
 
 import java.io.Serializable;
+import java.util.logging.Logger;
 
-import org.apache.log4j.Logger;
-import org.apache.log4j.PropertyConfigurator;
+
 
 /**
  * @author Peter Lin
@@ -37,39 +37,40 @@ public class DefaultLogger implements Serializable {
 	@SuppressWarnings("unchecked")
 	public DefaultLogger(Class theclazz) {
 		super();
-		log = Logger.getLogger(theclazz);
-		PropertyConfigurator.configure("log4j.properties");
+		log = Logger.getLogger(theclazz.getCanonicalName());
+		//TODO re-introduce log configuration
+//		PropertyConfigurator.configure("log4j.properties");
 	}
 
 	public void debug(String msg) {
-		this.log.debug(msg);
+		log.log(java.util.logging.Level.FINE, msg);
 	}
 	
 	public void debug(Exception exc) {
-		this.log.debug(exc);
+		log.log(java.util.logging.Level.FINE, exc.getMessage() , exc);
 	}
 	
 	public void fatal(String msg) {
-		this.log.fatal(msg);
+		log.log(java.util.logging.Level.SEVERE, msg);
 	}
 	
 	public void fatal(Exception exc) {
-		this.log.fatal(exc);
+		log.log(java.util.logging.Level.SEVERE, exc.getMessage() , exc);
 	}
 	
 	public void info(String msg) {
-		this.log.info(msg);
+		log.log(java.util.logging.Level.INFO, msg);
 	}
 	
 	public void info(Exception exc) {
-		this.log.info(exc);
+		log.log(java.util.logging.Level.INFO, exc.getMessage() , exc);
 	}
 	
 	public void warn(String msg) {
-		this.log.warn(msg);
+		log.log(java.util.logging.Level.WARNING, msg);
 	}
 	
-	public void warn(Exception msg) {
-		this.log.warn(msg);
+	public void warn(Exception exc) {
+		log.log(java.util.logging.Level.WARNING, exc.getMessage() , exc);
 	}
 }

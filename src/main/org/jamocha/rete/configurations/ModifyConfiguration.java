@@ -5,8 +5,8 @@ import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Binding;
 import org.jamocha.rete.BoundParam;
-import org.jamocha.rete.Fact;
 import org.jamocha.rete.Rete;
+import org.jamocha.rete.wme.Fact;
 import org.jamocha.rule.Rule;
 
 public class ModifyConfiguration extends AbstractConfiguration {

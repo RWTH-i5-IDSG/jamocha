@@ -19,8 +19,6 @@ package org.jamocha.rete.functions.ruleengine;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.rete.Deffact;
-import org.jamocha.rete.Fact;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.configurations.AssertConfiguration;
@@ -28,6 +26,8 @@ import org.jamocha.rete.configurations.SlotConfiguration;
 import org.jamocha.rete.exception.AssertException;
 import org.jamocha.rete.functions.AbstractFunction;
 import org.jamocha.rete.functions.FunctionDescription;
+import org.jamocha.rete.wme.Deffact;
+import org.jamocha.rete.wme.Fact;
 
 /**
  * @author Peter Lin
@@ -120,7 +120,7 @@ public class FindFactByFact extends AbstractFunction {
 				templateName = ac.getTemplateName();
 
 				// check if the needed template exists in the engine
-				org.jamocha.rete.Deftemplate template = (org.jamocha.rete.Deftemplate) engine.getCurrentFocus().getTemplate(templateName);
+				org.jamocha.rete.wme.Deftemplate template = (org.jamocha.rete.wme.Deftemplate) engine.getCurrentFocus().getTemplate(templateName);
 				if (template == null) {
 					throw new AssertException("Template " + template.getName() + "could not be found");
 				} else {

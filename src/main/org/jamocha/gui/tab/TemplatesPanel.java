@@ -47,10 +47,10 @@ import org.jamocha.gui.TableRowModel;
 import org.jamocha.gui.editor.TemplateEditor;
 import org.jamocha.gui.icons.IconLoader;
 import org.jamocha.parser.ParserFactory;
-import org.jamocha.rete.Deftemplate;
-import org.jamocha.rete.Template;
-import org.jamocha.rete.TemplateSlot;
 import org.jamocha.rete.modules.Module;
+import org.jamocha.rete.wme.Deftemplate;
+import org.jamocha.rete.wme.Template;
+import org.jamocha.rete.wme.TemplateSlot;
 
 /**
  * This Panel shows all Templates of all Modules currently in the Engine. You
@@ -203,7 +203,7 @@ public class TemplatesPanel extends AbstractJamochaPanel implements ListSelectio
 						buffer.append("\n        (type ").append(slot.getValueType().toString()).append(")");
 						if (slot.getDefaultExpression() != null) {
 							buffer.append("\n        (default ");
-							buffer.append(ParserFactory.getFormatter().visit(slot.getDefaultExpression()));
+							buffer.append(slot.getDefaultExpression().format(ParserFactory.getFormatter()));
 							buffer.append(")");
 						}
 						buffer.append("\n    )");

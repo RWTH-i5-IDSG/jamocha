@@ -3,10 +3,7 @@ package org.jamocha.rete;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.jamocha.formatter.Formattable;
-import org.jamocha.parser.ParserFactory;
-
-public abstract class ExpressionCollection implements Parameter, Formattable {
+public abstract class ExpressionCollection implements Parameter {
 
 	protected ArrayList<Parameter> parameterList = new ArrayList<Parameter>();
 
@@ -45,10 +42,6 @@ public abstract class ExpressionCollection implements Parameter, Formattable {
 
 	public int size() {
 		return parameterList.size();
-	}
-
-	public String getExpressionString() {
-		return ParserFactory.getFormatter().visit(this);
 	}
 	
 }

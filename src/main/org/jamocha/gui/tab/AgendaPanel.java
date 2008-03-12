@@ -25,8 +25,8 @@ import org.jamocha.formatter.HelpFormatter;
 import org.jamocha.gui.JamochaGui;
 import org.jamocha.gui.TableRowModel;
 import org.jamocha.gui.icons.IconLoader;
-import org.jamocha.rete.Fact;
 import org.jamocha.rete.agenda.Activation;
+import org.jamocha.rete.wme.Fact;
 import org.jamocha.rule.Rule;
 
 public class AgendaPanel extends AbstractJamochaPanel implements

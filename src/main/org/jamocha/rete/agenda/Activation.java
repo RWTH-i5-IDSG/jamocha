@@ -1,9 +1,9 @@
 package org.jamocha.rete.agenda;
 
-import org.jamocha.rete.Fact;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.exception.ExecuteException;
 import org.jamocha.rete.nodes.FactTuple;
+import org.jamocha.rete.wme.Fact;
 import org.jamocha.rule.Action;
 import org.jamocha.rule.Rule;
 

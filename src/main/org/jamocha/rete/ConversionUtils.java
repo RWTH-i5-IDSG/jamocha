@@ -20,6 +20,8 @@ import java.util.HashMap;
 
 import org.jamocha.Constants;
 import org.jamocha.rete.nodes.Node;
+import org.jamocha.rete.wme.Fact;
+import org.jamocha.rete.wme.Template;
 
 /**
  * @author Peter Lin

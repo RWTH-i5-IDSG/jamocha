@@ -17,8 +17,8 @@
 package org.jamocha.rete.memory;
 
 import java.io.Serializable;
-import org.jamocha.rete.Fact;
 import org.jamocha.rete.nodes.FactTuple;
+import org.jamocha.rete.wme.Fact;
 
 /**
  * @author Josef Alexander Hahn <mail@josef-hahn.de>

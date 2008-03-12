@@ -20,8 +20,8 @@ import jade.core.BaseNode;
 
 import java.util.EventObject;
 
-import org.jamocha.rete.Fact;
 import org.jamocha.rete.nodes.Node;
+import org.jamocha.rete.wme.Fact;
 import org.jamocha.rule.Rule;
 
 /**

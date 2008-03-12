@@ -4,8 +4,8 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.jamocha.parser.EvaluationException;
-import org.jamocha.rete.Deffact;
 import org.jamocha.rete.util.ExportHandler;
+import org.jamocha.rete.wme.Deffact;
 
 public class SampleExportHandler implements ExportHandler {
 

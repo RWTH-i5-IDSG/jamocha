@@ -14,19 +14,27 @@
  * limitations under the License.
  * 
  */
-package org.jamocha.rete;
+package org.jamocha.rete.wme;
 
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 import org.jamocha.formatter.Formatter;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.parser.ParserFactory;
+import org.jamocha.rete.Binding;
+import org.jamocha.rete.BoundParam;
+import org.jamocha.rete.ConversionUtils;
+import org.jamocha.rete.EqualityIndex;
+import org.jamocha.rete.Rete;
 import org.jamocha.rete.configurations.SlotConfiguration;
-import org.jamocha.rete.memory.WorkingMemoryElement;
 import org.jamocha.rete.nodes.FactTuple;
 import org.jamocha.rete.nodes.FactTupleImpl;
+import org.jamocha.rete.wme.tags.Tag;
+import org.jamocha.rete.wme.tags.TagIterator;
 import org.jamocha.rule.Rule;
 
 /**
@@ -41,6 +49,7 @@ public class Deffact implements Fact {
 	 * 
 	 */
 	
+	protected List<Tag> tags;
 	
 	private static final long serialVersionUID = 1L;
 
@@ -77,6 +86,7 @@ public class Deffact implements Fact {
 		this.slots = values;
 		this.timeStamp = System.nanoTime();
 		this.ticket = Rete.drawTicket();
+		this.tags = new ArrayList<Tag>();
 	}
 
 	/**
@@ -92,8 +102,8 @@ public class Deffact implements Fact {
 				BoundParam bp = (BoundParam) this.slots[idx].value.getObjectValue();
 				Binding bd = util.getBinding(bp.getVariableName());
 				if (bd != null) {
-					bp.rowId = bd.getLeftRow();
-					bp.column = bd.getLeftIndex();
+					bp.setRow( bd.getLeftRow() );
+					bp.setColumn( bd.getLeftIndex() );
 				}
 			}
 		}
@@ -124,7 +134,7 @@ public class Deffact implements Fact {
 				}
 			} else if (this.boundSlots[idx].value.getType().equals(JamochaType.BINDING)) {
 				BoundParam bp = (BoundParam) this.boundSlots[idx].value.getObjectValue();
-				if (bp.column > -1) {
+				if (bp.getColumn() > -1) {
 					bp.setFact(triggerFacts);
 				} else {
 					bp.setResolvedValue(engine.getBinding(bp.getVariableName()));
@@ -474,5 +484,23 @@ public class Deffact implements Fact {
 	public boolean isStandaloneFact() {
 		return true;
 	}
+	
+	
+
+
+	public Iterator<Tag> getTags() {
+		return getTags(Tag.class);
+	}
+
+
+	public void addTag(Tag t) {
+		tags.add(t);
+	}
+
+
+	public Iterator<Tag> getTags(Class<Tag> tagClass) {
+		return new TagIterator(tagClass, tags);
+	}
+
 
 }

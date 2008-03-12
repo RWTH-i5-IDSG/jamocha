@@ -10,17 +10,17 @@ import javax.rules.admin.RuleExecutionSet;
  */
 public class JamochaRuleExecutionSetMap {
 
-	private Map<String,RuleExecutionSet> map;
+	private Map<String,JamochaRuleExecutionSet> map;
 	
 	public JamochaRuleExecutionSetMap() {
-		map = new HashMap<String, RuleExecutionSet>();
+		map = new HashMap<String, JamochaRuleExecutionSet>();
 	}
 
-	public RuleExecutionSet getRuleExecutionSet(String uri) {
+	public JamochaRuleExecutionSet getRuleExecutionSet(String uri) {
 		return map.get(uri);
 	}
 	
-	public void putRuleExecutionSet(String uri, RuleExecutionSet res) {
+	public void putRuleExecutionSet(String uri, JamochaRuleExecutionSet res) {
 		map.put(uri, res);
 	}
 	

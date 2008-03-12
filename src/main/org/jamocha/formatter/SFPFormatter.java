@@ -9,13 +9,10 @@ import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.Expression;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.BoundParam;
-import org.jamocha.rete.Deftemplate;
 import org.jamocha.rete.ExpressionCollection;
-import org.jamocha.rete.Fact;
-import org.jamocha.rete.MultiSlot;
+import org.jamocha.rete.ExpressionList;
+import org.jamocha.rete.ExpressionSequence;
 import org.jamocha.rete.Parameter;
-import org.jamocha.rete.Slot;
-import org.jamocha.rete.TemplateSlot;
 import org.jamocha.rete.configurations.AssertConfiguration;
 import org.jamocha.rete.configurations.DeclarationConfiguration;
 import org.jamocha.rete.configurations.DeffunctionConfiguration;
@@ -30,6 +27,11 @@ import org.jamocha.rete.configurations.WhileDoConfiguration;
 import org.jamocha.rete.functions.Function;
 import org.jamocha.rete.nodes.joinfilter.LeftFieldAddress;
 import org.jamocha.rete.nodes.joinfilter.RightFieldAddress;
+import org.jamocha.rete.wme.Deftemplate;
+import org.jamocha.rete.wme.Fact;
+import org.jamocha.rete.wme.MultiSlot;
+import org.jamocha.rete.wme.Slot;
+import org.jamocha.rete.wme.TemplateSlot;
 import org.jamocha.rule.Action;
 import org.jamocha.rule.BoundConstraint;
 import org.jamocha.rule.Condition;
@@ -186,7 +188,18 @@ public class SFPFormatter extends Formatter {
 	}
 
 	@Override
-	public String visit(ExpressionCollection object) {
+	public String visit(ExpressionList object) {
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < object.size(); ++i) {
+			if (i > 0)
+				sb.append(' ');
+			sb.append(object.get(i).format(this));
+		}
+		return sb.toString();
+	}
+
+	@Override
+	public String visit(ExpressionSequence object) {
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < object.size(); ++i) {
 			if (i > 0)

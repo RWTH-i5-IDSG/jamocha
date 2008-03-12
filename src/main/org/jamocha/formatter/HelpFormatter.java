@@ -3,9 +3,9 @@ package org.jamocha.formatter;
 import java.util.List;
 
 import org.jamocha.parser.JamochaType;
-import org.jamocha.rete.Fact;
 import org.jamocha.rete.functions.Function;
 import org.jamocha.rete.functions.FunctionDescription;
+import org.jamocha.rete.wme.Fact;
 
 public class HelpFormatter extends SFPFormatter {
 

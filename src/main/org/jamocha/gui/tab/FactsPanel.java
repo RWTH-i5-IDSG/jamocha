@@ -46,8 +46,8 @@ import org.jamocha.gui.TableModelQuickSort;
 import org.jamocha.gui.TableRowModel;
 import org.jamocha.gui.editor.FactEditor;
 import org.jamocha.gui.icons.IconLoader;
-import org.jamocha.rete.Fact;
 import org.jamocha.rete.exception.RetractException;
+import org.jamocha.rete.wme.Fact;
 
 /**
  * This Panel shows all facts currently in the Jamocha engine. You can assert

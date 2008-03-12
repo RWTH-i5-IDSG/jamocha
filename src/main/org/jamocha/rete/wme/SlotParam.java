@@ -14,13 +14,14 @@
  * limitations under the License.
  * 
  */
-package org.jamocha.rete;
+package org.jamocha.rete.wme;
 
 import org.jamocha.formatter.Formatter;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.Expression;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.parser.ParserFactory;
+import org.jamocha.rete.Rete;
 import org.jamocha.rete.configurations.AbstractSignature;
 
 /**

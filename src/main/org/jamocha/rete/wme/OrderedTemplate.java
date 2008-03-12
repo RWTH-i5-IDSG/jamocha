@@ -14,13 +14,21 @@
  * limitations under the License.
  * 
  */
-package org.jamocha.rete;
+package org.jamocha.rete.wme;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 import org.jamocha.Constants;
 import org.jamocha.formatter.Formatter;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
+import org.jamocha.rete.Parameter;
+import org.jamocha.rete.Rete;
+import org.jamocha.rete.wme.tags.Tag;
+import org.jamocha.rete.wme.tags.TagIterator;
 
 /**
  * @author Sebastian Reinartz, Alexander Wilden
@@ -34,11 +42,14 @@ public class OrderedTemplate implements Template {
 	private String templateName = null;
 
 	private boolean watch = false;
+	
+	protected List<Tag> tags;
 
 	public OrderedTemplate(String name) {
 		this.templateName = name;
 		this.data = new TemplateSlot(Constants.ORDERED_FACT_SLOT);
 		this.data.setMultiSlot(true);
+		this.tags = new ArrayList<Tag>();
 
 	}
 
@@ -143,5 +154,21 @@ public class OrderedTemplate implements Template {
 
 	public String getDescription() {
 		return "(implied)";
+	}
+	
+	
+
+	public Iterator<Tag> getTags() {
+		return getTags(Tag.class);
+	}
+
+
+	public void addTag(Tag t) {
+		tags.add(t);
+	}
+
+
+	public Iterator<Tag> getTags(Class<? extends Tag> tagClass) {
+		return new TagIterator(tagClass, tags);
 	}
 }

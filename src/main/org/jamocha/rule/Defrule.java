@@ -31,16 +31,16 @@ import org.jamocha.parser.Expression;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.Binding;
 import org.jamocha.rete.ExpressionSequence;
-import org.jamocha.rete.Fact;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.Scope;
-import org.jamocha.rete.Template;
 import org.jamocha.rete.configurations.DeclarationConfiguration;
 import org.jamocha.rete.configurations.DefruleConfiguration;
 import org.jamocha.rete.configurations.Signature;
 import org.jamocha.rete.modules.Module;
 import org.jamocha.rete.nodes.TerminalNode;
+import org.jamocha.rete.wme.Fact;
+import org.jamocha.rete.wme.Template;
 
 /**
  * @author Peter Lin

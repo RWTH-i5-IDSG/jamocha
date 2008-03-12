@@ -2,7 +2,6 @@
 <classpath>
 	<classpathentry kind="src" path="src/main"/>
 	<classpathentry kind="src" path="src/junit"/>
-	<classpathentry kind="lib" path="lib/log4j-1.2.14.jar"/>
 	<classpathentry kind="lib" path="lib/jms.jar"/>
 	<classpathentry kind="lib" path="apps/jamochaagent/lib/jadeTools.jar"/>
 	<classpathentry kind="lib" path="apps/jamochaagent/lib/jade.jar"/>

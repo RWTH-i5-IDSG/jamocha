@@ -18,6 +18,8 @@ package org.jamocha.rete;
 
 import java.io.Serializable;
 
+import org.jamocha.rete.wme.Fact;
+
 /**
  * @author Peter Lin<p/>
  *

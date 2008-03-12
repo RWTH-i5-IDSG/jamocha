@@ -1,10 +1,11 @@
-package org.jamocha.rete;
+package org.jamocha.rete.wme;
 
 import org.jamocha.formatter.Formatter;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.Expression;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
+import org.jamocha.rete.Rete;
 
 public class TemplateSlot extends Slot {
 

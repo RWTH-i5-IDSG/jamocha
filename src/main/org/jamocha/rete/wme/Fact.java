@@ -14,13 +14,20 @@
  * limitations under the License.
  * 
  */
-package org.jamocha.rete;
+package org.jamocha.rete.wme;
+
+import java.util.Iterator;
+import java.util.List;
 
 import org.jamocha.formatter.Formattable;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaValue;
+import org.jamocha.rete.Dumpable;
+import org.jamocha.rete.EqualityIndex;
+import org.jamocha.rete.Rete;
 import org.jamocha.rete.configurations.SlotConfiguration;
 import org.jamocha.rete.memory.WorkingMemoryElement;
+import org.jamocha.rete.wme.tags.Tag;
 import org.jamocha.rule.Rule;
 
 /**
@@ -126,5 +133,11 @@ public interface Fact extends WorkingMemoryElement, Dumpable, Formattable {
 	public boolean getSlotSilence(int idx);
 
 	public boolean getSlotSilence(String slotName);
+	
+	public Iterator<Tag> getTags();
+	
+	public Iterator<Tag> getTags(Class<Tag> tagClass);
+	
+	public void addTag(Tag t);
 
 }

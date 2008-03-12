@@ -23,6 +23,7 @@ import org.jamocha.parser.RuleException;
 import org.jamocha.rete.exception.AssertException;
 import org.jamocha.rete.exception.RetractException;
 import org.jamocha.rete.nodes.ObjectTypeNode;
+import org.jamocha.rete.wme.Template;
 import org.jamocha.rule.Rule;
 
 

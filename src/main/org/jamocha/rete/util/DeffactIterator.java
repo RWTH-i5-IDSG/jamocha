@@ -4,7 +4,7 @@ package org.jamocha.rete.util;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.jamocha.rete.Deffact;
+import org.jamocha.rete.wme.Deffact;
 
 public abstract class DeffactIterator implements Iterator<Deffact>{
 

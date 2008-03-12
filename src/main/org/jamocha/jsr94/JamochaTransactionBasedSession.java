@@ -32,7 +32,10 @@ public class JamochaTransactionBasedSession {
 
 	public void release() {
 		engine.close();	engine = null;
-		backup.close();	backup = null;
+		if (backup!=null) {
+			backup.close();
+			backup = null;
+		}
 	}
 
 	

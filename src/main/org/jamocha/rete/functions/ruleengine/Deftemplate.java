@@ -113,8 +113,8 @@ public class Deftemplate extends AbstractFunction {
 		JamochaValue result = JamochaValue.FALSE;
 		if (params != null && params.length == 1) {
 			JamochaValue firstParam = params[0].getValue(engine);
-			if (firstParam.getObjectValue() instanceof org.jamocha.rete.Deftemplate) {
-				org.jamocha.rete.Deftemplate tpl = (org.jamocha.rete.Deftemplate) firstParam
+			if (firstParam.getObjectValue() instanceof org.jamocha.rete.wme.Deftemplate) {
+				org.jamocha.rete.wme.Deftemplate tpl = (org.jamocha.rete.wme.Deftemplate) firstParam
 						.getObjectValue();
 					//add template:
 					result = engine.addTemplate(tpl) ? JamochaValue.TRUE

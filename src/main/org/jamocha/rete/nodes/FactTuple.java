@@ -1,7 +1,7 @@
 package org.jamocha.rete.nodes;
 
-import org.jamocha.rete.Fact;
 import org.jamocha.rete.memory.WorkingMemoryElement;
+import org.jamocha.rete.wme.Fact;
 
 /**
  * @author Josef Alexander Hahn <mail@josef-hahn.de>

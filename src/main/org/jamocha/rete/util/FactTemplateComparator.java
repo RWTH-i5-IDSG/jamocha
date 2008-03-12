@@ -2,7 +2,7 @@ package org.jamocha.rete.util;
 
 import java.util.Comparator;
 
-import org.jamocha.rete.Fact;
+import org.jamocha.rete.wme.Fact;
 
 public class FactTemplateComparator implements Comparator<Fact> {
 

@@ -47,6 +47,7 @@ public class RuleEngineFunctions extends FunctionGroup {
 		addFunction(functionMem, new Defmodule());
 		addFunction(functionMem, new Defrule());
 		addFunction(functionMem, new Deftemplate());
+		addFunction(functionMem, new DeftemplateFromJavaClass());
 		addFunction(functionMem, new Echo());
 		addFunction(functionMem, new Eval());
 		addFunction(functionMem, new EvalBlocking());

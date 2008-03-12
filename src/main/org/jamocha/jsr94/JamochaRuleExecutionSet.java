@@ -5,7 +5,8 @@ import java.util.List;
 
 import javax.rules.admin.RuleExecutionSet;
 
-import org.jamocha.rule.Rule;
+import org.jamocha.parser.Expression;
+import org.jamocha.rete.configurations.DefruleConfiguration;
 
 /**
  * @author Josef Alexander Hahn <http://www.josef-hahn.de>
@@ -20,12 +21,12 @@ public class JamochaRuleExecutionSet implements RuleExecutionSet {
 	
 	private String defaultFilter;
 	
-	private Rule[] rules;
+	private Expression[] exprs;
 	
-	public JamochaRuleExecutionSet(String description, String name, Rule[] rules) {
+	public JamochaRuleExecutionSet(String description, String name, Expression[] exprs) {
 		this.description = description;
 		this.name = name;
-		this.rules = rules;
+		this.exprs = exprs;
 	}
 	
 	public String getDefaultObjectFilter() {
@@ -47,8 +48,8 @@ public class JamochaRuleExecutionSet implements RuleExecutionSet {
 
 	@SuppressWarnings("unchecked")
 	public List getRules() {
-		List result = new ArrayList(rules.length);
-		for (Rule r : rules) {
+		List result = new ArrayList(exprs.length);
+		for (Expression r : exprs) {
 			result.add(r);
 		}
 		return result;
@@ -60,6 +61,10 @@ public class JamochaRuleExecutionSet implements RuleExecutionSet {
 
 	public void setProperty(Object arg0, Object arg1) {
 		// TODO do something useful with them
+	}
+
+	public Expression[] getExpressions() {
+		return exprs;
 	}
 
 }

@@ -5,7 +5,7 @@ import org.jamocha.rete.memory.WorkingMemoryElement;
 import org.jamocha.rete.visualisation.NodeDrawer;
 import org.jamocha.rete.visualisation.nodedrawers.ObjectTypeNodeDrawer;
 import org.jamocha.rete.visualisation.nodedrawers.RootNodeDrawer;
-import org.jamocha.rete.Template;
+import org.jamocha.rete.wme.Template;
 
 /**
  * @author Josef Alexander Hahn <mail@josef-hahn.de>

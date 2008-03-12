@@ -14,7 +14,7 @@
  * limitations under the License.
  * 
  */
-package org.jamocha.rete;
+package org.jamocha.rete.wme;
 
 import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
@@ -33,6 +33,8 @@ import java.util.Map;
 import org.jamocha.Constants;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
+import org.jamocha.rete.BeanFilter;
+import org.jamocha.rete.ObjectFilter;
 
 
 /**

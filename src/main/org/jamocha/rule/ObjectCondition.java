@@ -23,9 +23,9 @@ import java.util.List;
 import org.jamocha.formatter.Formatter;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.rete.StopCompileException;
-import org.jamocha.rete.Template;
 import org.jamocha.rete.nodes.Node;
 import org.jamocha.rete.rulecompiler.sfp.SFRuleCompiler;
+import org.jamocha.rete.wme.Template;
 
 /**
  * @author Peter Lin

@@ -19,6 +19,7 @@ package org.jamocha.rete;
 import java.util.List;
 
 import org.jamocha.parser.JamochaValue;
+import org.jamocha.rete.wme.Slot;
 
 public class ParameterUtils {
 	

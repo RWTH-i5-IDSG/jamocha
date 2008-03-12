@@ -2,9 +2,9 @@ package org.jamocha.rete.util;
 
 import java.util.Iterator;
 
-import org.jamocha.rete.Deffact;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.exception.RetractException;
+import org.jamocha.rete.wme.Deffact;
 
 public class ExportIterator implements Iterator<Deffact> {
 

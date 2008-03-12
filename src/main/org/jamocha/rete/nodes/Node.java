@@ -76,7 +76,7 @@ public abstract class Node {
 	/**
 	 * returns the node's working memory (which is the output of the node) 
 	 */
-	protected Iterable<WorkingMemoryElement> memory() {
+	public Iterable<WorkingMemoryElement> memory() {
 		return workingMemory.getMemory(this);
 	}
 	

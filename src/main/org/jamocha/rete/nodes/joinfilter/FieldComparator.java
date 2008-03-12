@@ -24,9 +24,9 @@ import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rete.ConversionUtils;
 import org.jamocha.rete.Evaluate;
-import org.jamocha.rete.Fact;
 import org.jamocha.rete.Rete;
 import org.jamocha.rete.nodes.FactTuple;
+import org.jamocha.rete.wme.Fact;
 
 /**
  * @author Josef Alexander Hahn

@@ -3,11 +3,11 @@ package org.jamocha.rete.rulecompiler.hokifisch;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.jamocha.rete.Template;
-import org.jamocha.rete.TemplateSlot;
 import org.jamocha.rete.nodes.Node;
 import org.jamocha.rete.nodes.TerminalNode;
 import org.jamocha.rete.nodes.TwoInputNode;
+import org.jamocha.rete.wme.Template;
+import org.jamocha.rete.wme.TemplateSlot;
 import org.jamocha.rule.Condition;
 import org.jamocha.rule.Constraint;
 import org.jamocha.rule.Rule;

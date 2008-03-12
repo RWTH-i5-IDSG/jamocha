@@ -14,7 +14,7 @@
  * limitations under the License.
  * 
  */
-package org.jamocha.rete;
+package org.jamocha.rete.wme;
 
 import org.jamocha.Constants;
 import org.jamocha.parser.EvaluationException;

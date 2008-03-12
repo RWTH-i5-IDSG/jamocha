@@ -27,10 +27,10 @@ import java.util.TimeZone;
 import org.jamocha.formatter.Formattable;
 import org.jamocha.formatter.Formatter;
 import org.jamocha.rete.BoundParam;
-import org.jamocha.rete.Fact;
 import org.jamocha.rete.Parameter;
 import org.jamocha.rete.Rete;
-import org.jamocha.rete.Slot;
+import org.jamocha.rete.wme.Fact;
+import org.jamocha.rete.wme.Slot;
 
 public class JamochaValue implements Parameter, Formattable {
 

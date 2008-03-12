@@ -19,8 +19,8 @@ package org.jamocha.rete.modules;
 import java.io.Serializable;
 import java.util.List;
 
-import org.jamocha.rete.Template;
 import org.jamocha.rete.eventhandling.ModuleChangedListener;
+import org.jamocha.rete.wme.Template;
 import org.jamocha.rule.Rule;
 
 
@@ -86,11 +86,6 @@ public interface Module extends Serializable {
      * @return
      */
     Template getTemplate(String key);
-    
-    /**
-     * generates a template corresponding to a given java class
-     */
-    Template getTemplate(Class c);
     
     /**
      * Return the Deftemplates in a collection

@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.jamocha.rete.Template;
+import org.jamocha.rete.wme.Template;
 import org.jamocha.rule.Rule;
 
 /**
