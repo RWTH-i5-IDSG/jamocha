@@ -174,9 +174,9 @@ public class Constants {
 
 	public static final String DEFAULT_OUTPUT = "t";
 
-	public static final String VERSION = "0.9 Beta 8";
+	public static final String VERSION = "0.9 Beta 9";
 
-	public static final String VERSION_NAME = "Kartoffelsalat";
+	public static final String VERSION_NAME = "Schweinegulasch";
 
 	public static final String INITIAL_FACT = "_initialFact";
 	

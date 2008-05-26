@@ -1,6 +1,6 @@
 /*
+ * Copyright 2002-2008 Peter Lin & The Jamocha Team
  * 
- * Copyright 2002-2006 Peter Lin
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  * limitations under the License.
  * 
  */
+
 package org.jamocha.rules;
 
 import java.util.ArrayList;

@@ -1,11 +1,12 @@
 /*
- * Copyright 2007 Alexander Wilden
+ * Copyright 2002-2008 Peter Lin & The Jamocha Team
+ * 
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://jamocha.sourceforge.net/
+ *   http://www.jamocha.org/
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,6 +15,7 @@
  * limitations under the License.
  * 
  */
+
 package org.jamocha.languages.sl.sl2clips_adapter;
 
 import org.jamocha.parser.EvaluationException;

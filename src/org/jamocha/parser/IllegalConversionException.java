@@ -1,5 +1,6 @@
 /*
- * Copyright 2007 Christoph Emonds
+ * Copyright 2002-2008 Peter Lin & The Jamocha Team
+ * 
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,6 +15,7 @@
  * limitations under the License.
  * 
  */
+
 package org.jamocha.parser;
 
 public class IllegalConversionException extends EvaluationException {
