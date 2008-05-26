@@ -3,13 +3,14 @@
 
 	<target name="init">
 		<property environment="env"/>
-		<property name="releasever" value="beta.1656"/>
+		<property name="releasever" value="beta.2152"/>
 		<property name="lib.home" value="lib" />
 		<property name="app.name" value="Jamocha" />
 		<property name="src" value="${basedir}/src" />
 		<property name="unittests.src" value="${basedir}/tests" />
 		<property name="bin" value="${basedir}/bin" />
 		<property name="dist" value="${basedir}/dist" />
+		<property name="packages" value="${basedir}/packages" />
 		<property name="javacc.home" value="${env.JAVACC}"/>
 		<mkdir dir="${bin}" />
 		<mkdir dir="${dist}" />
@@ -126,6 +127,74 @@
 				</fileset>
 			</batchtest>
 		</junit>
+	</target>
+	
+	<target name ="packages-src" depends="init">
+	    <copy todir="${packages}/src/jamocha-src-${releasever}/src">
+		<fileset dir="${src}"/>
+	    </copy>
+	    <copy todir="${packages}/src/jamocha-src-${releasever}/license">
+		<fileset file="LICENSE"/>
+	    <fileset dir="lib/licenses"/>	    	
+	    </copy>
+	    <copy todir="${packages}/src/jamocha-src-${releasever}">
+		<fileset file="build.xml"/>
+		<fileset file="README"/>
+	    </copy>
+	    <tar destfile="${packages}/jamocha-src-${releasever}.tar.gz"
+		compression="gzip"
+		basedir="${packages}/src"
+	    />
+	    <zip destfile="${packages}/jamocha-src-${releasever}.zip"
+		basedir="${packages}/src/"
+	    />
+	    <delete dir="${packages}/src" />
+	</target>
+
+	<target name="packages-bin" depends="jars">
+	<!-- This target builds a tar.gz with the compiled tree and startup scripts -->
+	    <copy todir="${packages}/bin/jamocha-bin-${releasever}">
+		<fileset file="${dist}/jamocha.jar"/>
+		<fileset file="README"/>
+	    </copy>
+	    <copy todir="${packages}/bin/jamocha-bin-${releasever}/license">
+			<fileset file="LICENSE"/>
+		    <fileset dir="lib/licenses"/>	 
+	    </copy>
+	    <tar destfile="${packages}/jamocha-bin-${releasever}.tar.gz"
+		compression="gzip"
+		basedir="${packages}/bin/"
+	    />
+	    <zip destfile="${packages}/jamocha-bin-${releasever}.zip"
+		basedir="${packages}/bin/"
+	    />
+	    <delete dir="${packages}/bin" />
+	</target>
+
+	<target name="packages-all" depends="jars">
+	    <copy todir="${packages}/all/jamocha-all-${releasever}">
+		<fileset file="${dist}/jamocha.jar"/>
+	    <fileset file="build.xml"/>
+	    </copy>
+	    <copy todir="${packages}/all/jamocha-all-${releasever}/src">
+		<fileset dir="${src}"/>
+	    </copy>
+	    <copy todir="${packages}/all/jamocha-all-${releasever}/license">
+			<fileset file="LICENSE"/>
+		    <fileset dir="lib/licenses"/>	 
+	    </copy>
+	    <tar destfile="${packages}/jamocha-all-${releasever}.tar.gz"
+		compression="gzip"
+		basedir="${packages}/all/"
+	    />
+	    <zip destfile="${packages}/jamocha-all-${releasever}.zip"
+		basedir="${packages}/all/"
+	    />
+	    <delete dir="${packages}/all" />
+	</target>
+
+	<target name="packages" depends="packages-bin, packages-src, packages-all">
+		<mkdir dir="${packages}" />
 	</target>
 
 
