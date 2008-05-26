@@ -257,7 +257,11 @@ public class JamochaValue implements Parameter, Formattable {
 	}
 
 	public long getLongValue() {
-		// assert (type.equals(JamochaType.LONG));
+		// if we have a date, we can compute the timestamp here
+		if (type==JamochaType.DATETIME) {
+			return getDateValue().getTimeInMillis();
+		}
+		
 		return ((Number) value).longValue();
 	}
 
