@@ -1,4 +1,0 @@
-Required jars for Sumatra
-
-log4j.jar
-javolution.jar

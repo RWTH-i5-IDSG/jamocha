@@ -6,36 +6,83 @@
  
  Jamocha is written in Java (TM) and is open source. The source code is provided
  under the Apache Public License 2.0.
+
+
  
- Package description:
-  - jamocha-bin-<version>.tar.gz
-    Contains the jamocha.jar, readme.txt, and the APL 2.0 
-  - jamocha-src-<version>.tar.gz
-    Contains the jamocha.jar, readme.txt, the jamocha source code and the APL 2.0
-  - jamocha-all-<version>.tar.gz
-    Contains the jamocha.jar, readme.txt, the jamocha source code and the APL 2.0
 
- Starting Jamocha:
-    java -jar jamocha.jar [-shell|-gui] [-batch URL]
-   -shell 
-    Starts a shell command prompt
-   -gui
-    Starts the Jamocha GUI with a command shell, inspectors for templates
-    facts, rules, and log channels. Furthermore, it provides a sophisticated
-    rete viewerx
-   -batch
-    Loads a CLIPS file and will  process it on time. The link to the file could
-    be provided as file name or URL.
+1. GETTING JAMOCHA
 
- Example:
-   - Running Miss Manners Benchmark
-     1. Starting Jamocha
-     java -jar jamocha.jar -gui 
-     
-     2. Loading the batch file
-     (batch benchmark/manners/manners_032.clp)
+Download our latest source code from our Sourceforge page
+	http://sourceforge.net/projects/jamocha/
+and unzip it. There are the bin-releases with the compiled and
+ready-to-use program and the src-releases with the sourcecode
+(in general you are advised to use the src one)
 
- Web-Site: 
-   http://www.jamocha.org/
+
+
+2. COMPILING JAMOCHA
+
+You can simply compile jamocha with the provided Ant-script. You
+only need a version of Ant installed on your machine and to run
+	ant jars
+in the root Jamocha directory, which will generate the jarfile
+"jamocha.jar" for you in "dist/".
+
+
+
+3. STARTING JAMOCHA
+
+To start Jamocha, you can one of this ways:
+
+	a. run "ant run-gui" in the root Jamocha directory (will start
+	   jamocha in the GUI mode)
+	b. ensure all jars in our lib-dir and the jamocha.jar itself
+	   are in the classpath and run org.jamocha.application.Jamocha
+	   with the parameter "-gui" or "-shell". Furthermore, you can
+	   optionally add the "-batch [FILE]" parameter in order to
+	   instruct Jamocha to batch the given CLIPS-file at the beginning. 
+
+
+
+4. ADVANCED STUFF
+
+More informations and instructions can be found in our documentation
+on our website http://www.jamocha.org and the documentation files inside
+the doc/ subtree.
+
+
+
+5. INTERNALS
+
+This section maybe is not that interesting for end users. Nevertheless,
+for people hacking on and with Jamocha, those informations can be useful:
+
+- Internally, CLIPS-code is parsed by a JJTree-generated parser. All stuff
+  for that is in the package "org.jamocha.language.clips.parser". You don't
+  need to have a copy of JJTree for compiling Jamocha, because the parser
+  is already attached in the generated form. For rebuilding the parser
+  (which is required after changes in the SFP.jjt parser descriptor file),
+  you need to have a working JJTree 3 (or maybe higher - but untested) copy
+  and have to invoke the "parser" target in our Ant-script. Therefore, the
+  JAVACC environmental variable has to be set to the location of your
+  JavaCC installation. This will only generate new class files, if the old
+  ones are removed before.
+  
+- For running the JUnit4 unit-tests, you have to invoke the "tests" target
+  in our Ant-script
+  
+- The content in our doc/ subtree is partially auto-generated. To run the
+  generation-process, you have to invoke the "generate-doc" target in our
+  Ant-script. This requires a working Latex installation, which the "exec"
+  task is able to find by calling with 'executable="latex"'. This seems
+  not to work on MacOS, is untested on Windows and works on (at least all
+  of mine) Linux installations.
+
+	
+	
+
+
+
  
  Enjoy your rules - the Jamocha Developer Team.
+  http://www.jamocha.org

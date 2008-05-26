@@ -1,134 +1,51 @@
 <?xml version="1.0"?>
-<project name="jamocha" basedir="." default="all">
+<project name="Jamocha" basedir="." default="jars">
 
 	<target name="init">
+		<property environment="env"/>
 		<property name="releasever" value="beta.1656"/>
 		<property name="lib.home" value="lib" />
-		<property name="lib.apps.jamochaagent" value="apps/jamochaagent/lib" />
-		<property name="app.name" value="jamocha" />
+		<property name="app.name" value="Jamocha" />
 		<property name="src" value="${basedir}/src" />
+		<property name="unittests.src" value="${basedir}/tests" />
 		<property name="bin" value="${basedir}/bin" />
-		<property name="bin-dbg" value="${basedir}/bin-dbg" />
-		<property name="reports.tests" value="${basedir}/test-reports" />
 		<property name="dist" value="${basedir}/dist" />
+		<property name="javacc.home" value="${env.JAVACC}"/>
 		<mkdir dir="${bin}" />
-		<mkdir dir="${bin-dbg}" />
-		<mkdir dir="${reports.tests}" />
 		<mkdir dir="${dist}" />
-		<mkdir dir="${lib.home}" />
 		<path id="classpath">
-		    <pathelement path="${bin}" />
-		    <fileset dir="${lib.home}">
-			    <include name="**/*.jar" />
-			    <include name="**/*.zip" />
-		    </fileset>
-		    <fileset dir="${lib.apps.jamochaagent}">
-			    <include name="**/*.jar" />
-			    <include name="**/*.zip" />
-		    </fileset>
+			<pathelement path="${bin}" />
+			<fileset dir="${lib.home}">
+				<include name="**/*.jar" />
+				<include name="**/*.zip" />
+			</fileset>
 		</path>
-		<!-- check if jade is available -->
-		<available classname="jade.core.Agent" property="jade.present" classpathref="classpath" />
-		<!-- check if FastMap is available -->
-		<available classname="javolution.util.FastMap" property="javolution.present" classpathref="classpath" />
-		<fail message="You need to put a javolution jar in the lib/ directory to build jamocha" unless="javolution.present"/>
-		<!-- check for jms -->
-		<available classname="javax.jms.JMSException" property="jms.present" classpathref="classpath" />
-		<fail message="You need to put a jms jar in the lib/ directory to build jamocha" unless="jms.present"/>
-		<!-- check for log4j -->
-		<available classname="org.apache.log4j.Logger" property="log4j.present" classpathref="classpath" />
-		<fail message="You need to put a log4j jar in the lib/ directory to build jamocha" unless="log4j.present"/>
-		<!-- check for junit -->
-		<available classname="junit.framework.TestCase" property="junit.present" classpathref="classpath" />
-	</target>
-
-	<target name="svninfo" depends="init">
-	<!-- If this target is depended on, you can use ${sv.Revision} to retrieve the current svn revision of the repo -->
-		<exec executable="svn" output="${dist}/svn.properties">
-		    <arg value="info" />
-		</exec>
-		<property prefix="svn" file="${dist}/svn.properties"/>
 	</target>
 
 	<target name="parser" depends="init" description="Generate parser description for javacc">
-		<!-- Find javacc. Here's a list of known places to search-->
-		<available file="/usr/share/java/" property="javacc.home" value="/usr/share/java/" />
-		<available file="/usr/share/javacc/lib" property="javacc.home" value="/usr/share/javacc/lib" />
-		<available file="/sw/share/java/javacc/" property="javacc.home" value="/sw/share/java/javacc/" />
-
-		<!--Fail if we haven't found it-->
-		<fail message="No javaCC found. Please update the build.xml.">
-			<condition>
-				<not>
-					<isset property="javacc.home" />
-				</not>
-			</condition>
-		</fail>
-
+		<echo message="${javacc.home}">
+		</echo>
 		<!-- sl parser -->
-		<jjtree javacchome="${javacc.home}" target="${src}/main/org/jamocha/parser/sl/SL.jjt" outputdirectory="${src}/main/org/jamocha/parser/sl/" nodeusesparser="true" />
-
-		<javacc target="${src}/main/org/jamocha/parser/sl/SL.jj" outputdirectory="${src}/main/org/jamocha/parser/sl/" javacchome="${javacc.home}"/>
-
+		<jjtree javacchome="${javacc.home}"  target="${src}/org/jamocha/languages/sl/parser/SL.jjt" outputdirectory="${src}/org/jamocha/languages/sl/parser/" nodeusesparser="true" />
+		<javacc javacchome="${javacc.home}" target="${src}/org/jamocha/languages/sl/parser/SL.jj" outputdirectory="${src}/org/jamocha/languages/sl/parser/"/>
 		<!-- sfp parser -->
-
-		<jjtree javacchome="${javacc.home}" target="${src}/main/org/jamocha/parser/sfp/SFP.jjt" outputdirectory="${src}/main/org/jamocha/parser/sfp/" nodeusesparser="true"/>
-
-		<javacc target="${src}/main/org/jamocha/parser/sfp/SFP.jj" outputdirectory="${src}/main/org/jamocha/parser/sfp/" javacchome="${javacc.home}" />
+		<jjtree javacchome="${javacc.home}" target="${src}/org/jamocha/languages/clips/parser/SFP.jjt" outputdirectory="${src}/org/jamocha/languages/clips/parser/" nodeusesparser="true" />
+		<javacc javacchome="${javacc.home}" target="${src}/org/jamocha/languages/clips/parser/SFP.jj" outputdirectory="${src}/org/jamocha/languages/clips/parser/" />
 	</target>
 
-	<target name="compile-apps" depends="compile-libs" if="jade.present">
-		<javac srcdir="${src}/main" destdir="${bin}" encoding="UTF-8" classpathref="classpath">
-		    <include name="org/jamocha/apps/"/>
-		</javac>
+	<target name="run-gui" depends="jars">
+		<java jar="${dist}/jamocha.jar" fork="true">
+			<arg value="-gui"/>
+		</java>
 	</target>
 
-	<target name="compile-libs" depends="init" description="Compile the jamocha main sources">
-		<javac srcdir="${src}/main" destdir="${bin}" encoding="UTF-8" classpathref="classpath" >
-		    <exclude name="org/jamocha/apps/**"/>
-		</javac>
-
+	<target name="compile" depends="init" description="Compile the jamocha main sources">
+		<javac srcdir="${src}" destdir="${bin}" encoding="UTF-8" classpathref="classpath" />
 		<!-- copy all files within the source directory (except the sources themselves)
 			to the bin directory. This is e.g. mandatory for the icons in the gui -->
 		<copy todir="${bin}">
-			<fileset dir="${src}/main" excludes="**/*.java" />
+			<fileset dir="${src}" excludes="**/*.java" />
 		</copy>
-	</target>
-
-	<target name="compile" depends="compile-libs,compile-apps" description="Legacy target" />
-	
-	<target name="compile-tests" depends="compile" description="Compile the jamocha tests" if="junit.present">
-		<javac srcdir="${src}/test" destdir="${bin}" encoding="UTF-8" classpathref="classpath" />
-		<copy todir="${bin}">
-			<fileset dir="${src}/test" includes="**/*.properties" />
-		</copy>
-	</target>
-
-	<target name="run-tests" depends="compile-tests" description="Run the junit test for jamocha">
-		<junit printsummary="yes" fork="yes" haltonfailure="no">
-			<classpath>
-				<pathelement path="${bin}" />
-			</classpath>
-			<formatter type="plain" />
-			<batchtest fork="yes" todir="${reports.tests}">
-				<fileset dir="${src}/test">
-					<include name="**/*Test.java" />
-				</fileset>
-			</batchtest>
-		</junit>
-	</target>
-
-	<target name="compile-debug" depends="init,clean" description="Clean and compile with debug symbols and extra checks">
-		<javac srcdir="${src}" destdir="${bin-dbg}" encoding="UTF-8" debug="on" deprecation="on">
-			<compilerarg value="-Xlint" />
-			<classpath>
-				<pathelement path="${bin-dbg}" />
-			</classpath>
-		</javac>
-	</target>
-
-	<target name="run" depends="jars">
-		<java jar="jamocha.jar" fork="true" />
 	</target>
 
 	<target name="jars" depends="compile" description="Generate the jar files">
@@ -141,7 +58,6 @@
 					<globmapper from="*" to="lib/*" />
 				</chainedmapper>
 			</mapper>
-
 			<path>
 				<!-- lib.home contains all jar files, in several subdirectories -->
 				<fileset dir="${lib.home}">
@@ -150,146 +66,67 @@
 			</path>
 		</pathconvert>
 
-		<jar jarfile="jamocha.jar" basedir="${bin}">
+		<jar jarfile="${dist}/jamocha.jar" basedir="${bin}">
 			<manifest>
 				<attribute name="Built-By" value="${user.name}" />
-				<attribute name="Main-Class" value="org.jamocha.Jamocha" />
+				<attribute name="Main-Class" value="org.jamocha.application.Jamocha" />
 				<attribute name="Class-Path" value="${libs.project}" />
 			</manifest>
 		</jar>
 	</target>
 
-	<target name ="packages-src" depends="init">
-	    <copy todir="${dist}/src/jamocha-src-${releasever}/src">
-		<fileset dir="${src}"/>
-	    </copy>
-	    <copy todir="${dist}/src/jamocha-src-${releasever}/license">
-		<fileset dir="license"/>
-	    </copy>
-	    <copy todir="${dist}/src/jamocha-src-${releasever}">
-		<fileset file="build.xml"/>
-		<fileset file="README"/>
-	    </copy>
-	    <tar destfile="${dist}/jamocha-src-${releasever}.tar.gz"
-		compression="gzip"
-		basedir="${dist}/src"
-	    />
-	    <zip destfile="${dist}/jamocha-src-${releasever}.zip"
-		basedir="${dist}/src/"
-	    />
-	    <delete dir="${dist}/src" />
-	</target>
-
-	<target name="packages-bin" depends="jars">
-	<!-- This target builds a tar.gz with the compiled tree and startup scripts -->
-	    <copy todir="${dist}/bin/jamocha-bin-${releasever}">
-		<fileset file="jamocha.jar"/>
-		<fileset file="README"/>
-	    </copy>
-	    <copy todir="${dist}/bin/jamocha-bin-${releasever}/license">
-		<fileset dir="license"/>
-	    </copy>
-	    <tar destfile="${dist}/jamocha-bin-${releasever}.tar.gz"
-		compression="gzip"
-		basedir="${dist}/bin/"
-	    />
-	    <zip destfile="${dist}/jamocha-bin-${releasever}.zip"
-		basedir="${dist}/bin/"
-	    />
-	    <delete dir="${dist}/bin" />
-	</target>
-
-	<target name="packages-all" depends="jars">
-	    <copy todir="${dist}/all/jamocha-all-${releasever}">
-		<fileset file="jamocha.jar"/>
-	    </copy>
-	    <copy todir="${dist}/all/jamocha-all-${releasever}/src">
-		<fileset dir="${src}"/>
-	    </copy>
-	    <copy todir="${dist}/all/jamocha-all-${releasever}/license">
-		<fileset dir="license"/>
-	    </copy>
-	    <tar destfile="${dist}/jamocha-all-${releasever}.tar.gz"
-		compression="gzip"
-		basedir="${dist}/all/"
-	    />
-	    <zip destfile="${dist}/jamocha-all-${releasever}.zip"
-		basedir="${dist}/all/"
-	    />
-	    <delete dir="${dist}/all" />
-	</target>
-
-	<target name="packages" depends="packages-bin, packages-src, packages-all">
-	</target>
-
-	<target name="all" depends="packages" description="Build everything.">
-		<echo message="Application ${app.name} built!" />
-	</target>
-
 	<target name="clean" depends="init" description="Clean the binary output directories.">
-		<delete dir="bin" />
-		<delete dir="bin-dbg" />
+		<delete dir="${bin}" />
 	</target>
 
 	<target name="distclean" depends="init" description="Clean the binary output directories, the created jars and the junit report directory.">
 		<delete dir="${bin}" />
-		<delete dir="${bin-dbg}" />
 		<delete dir="${dist}" />
-		<delete dir="${reports.tests}" />
-		<delete>
-			<fileset dir=".">
-				<include name="jamocha*.jar" />
-			</fileset>
-		</delete>
 	</target>
-	
-	<target name="bierwurstsalat-tests" depends="jars" description="runs the tests from examples/bierwurstsalat.">
-		<java jar="jamocha.jar" fork="true" output="bierwursttest1.tmp" input="examples/bierwurstsalat/forauto.clp">
+
+	<target name="generate-doc" depends="jars">
+		<java jar="dist/jamocha.jar" fork="true" inputstring="(functions-description doc/functions.xml)(exit)">
 			<arg value="-shell"/>
 		</java>
-		<exec executable="grep" output="bierwursttest2.tmp">
-			<arg value="^\[" />
-			<arg value="bierwursttest1.tmp" />
-		</exec>
-		<exec executable="grep" output="bierwursttest3.tmp">
-			<arg value="^;;" />
-			<arg value="examples/bierwurstsalat/rules.clp" />
-		</exec>
-		<replaceregexp file="bierwursttest3.tmp" match="^;;" replace="" flags="gs" byline="true"/>
-		<exec executable="sort" output="bierwursttest4.tmp"  input="bierwursttest2.tmp"/>
-		<exec executable="sort" output="bierwursttest5.tmp"  input="bierwursttest3.tmp"/>
-		<exec executable="diff" output="test.diff.tmp" failonerror="false" resultproperty="diffresult">
-			<arg value="bierwursttest4.tmp"/>
-			<arg value="bierwursttest5.tmp"/>
-		</exec>
-		<echo message="return of diff is ${diffresult}. if 0, everything is fine. else, see test.diff.tmp for problems!"/>
-	</target>
-	
-	
-	<target name="doc" depends="jars">
-		<java jar="jamocha.jar" fork="true" inputstring="(functions-description documentation/functions.xml)(exit)">
-			<arg value="-shell"/>
-		</java>
-		
-		<xslt style="documentation/stylesheets/latex.xslt" out="documentation/functions-documentation.tex" in="documentation/functions.xml"/>
-		<xslt style="documentation/stylesheets/pmwiki.xslt" out="documentation/pmwiki.out" in="documentation/functions.xml"/>
-		
+
+		<xslt style="doc/stylesheets/latex.xslt" out="doc/functions-documentation.tex" in="doc/functions.xml"/>
+		<xslt style="doc/stylesheets/pmwiki.xslt" out="doc/pmwiki.out" in="doc/functions.xml"/>
+
 		<exec executable="latex" searchpath="true">
-			<arg value="-output-directory=documentation"/>
-			<arg value="documentation/documentation.tex"/>
+			<arg value="-output-directory=doc"/>
+			<arg value="doc/documentation.tex"/>
 		</exec>
 		<exec executable="makeindex" searchpath="true">
-			<arg value="documentation/documentation.idx"/>
+			<arg value="doc/documentation.idx"/>
 		</exec>
 		<exec executable="latex" searchpath="true">
-			<arg value="-output-directory=documentation"/>
-			<arg value="documentation/documentation.tex"/>
+			<arg value="-output-directory=doc"/>
+			<arg value="doc/documentation.tex"/>
 		</exec>
 		<exec executable="latex" searchpath="true">
-			<arg value="-output-directory=documentation"/>
-			<arg value="documentation/documentation.tex"/>
+			<arg value="-output-directory=doc"/>
+			<arg value="doc/documentation.tex"/>
 		</exec>
-		
+
 	</target>
-	
+
+	<target name="compile-tests" depends="compile">
+		<javac srcdir="${unittests.src}" destdir="${bin}" encoding="UTF-8" classpathref="classpath" />
+	</target>
+
+	<target name="run-junit-tests" depends="jars,compile-tests">
+		<mkdir dir="tests/reports" />
+		<junit printsummary="yes" fork="yes" haltonfailure="no">
+			<classpath refid="classpath">
+			</classpath>
+			<formatter type="plain" />
+			<batchtest fork="yes" todir="tests/reports">
+				<fileset dir="tests">
+					<include name="**/JTC*.java" />
+				</fileset>
+			</batchtest>
+		</junit>
+	</target>
+
+
 </project>

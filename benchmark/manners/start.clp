@@ -1,7 +1,0 @@
-(assert (context (state "start") ) )
-(assert (count (c 1) ) )
-(bind ?*start* (ms-time) )
-(fire)
-(bind ?*end* (ms-time) )
-(bind ?et (- ?*end* ?*start*) )
-(printout t "elpasedTime=" ?et "ms" crlf)
