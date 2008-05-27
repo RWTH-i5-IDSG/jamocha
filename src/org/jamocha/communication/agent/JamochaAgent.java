@@ -32,6 +32,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.Charset;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -143,7 +144,6 @@ public class JamochaAgent extends ToolAgent {
 	private void initEngine() {
 		// register user function for sending messages
 		FunctionGroup agentFuncs = new AgentFunctions(this);
-		System.out.println("gemacht");
 		engine.getFunctionMemory().declareFunctionGroup(agentFuncs);
 		engine.getFunctionMemory().registerBuildInFunctionGroup(agentFuncs);
 
@@ -168,11 +168,12 @@ public class JamochaAgent extends ToolAgent {
 			System.exit(1);
 		}
 
+		
 		// store agent as fact
 		buffer.append("(assert (agent-is-local (agent (assert (");
 		buffer.append(TEMPLATE_AGENT_DESCRIPTION).append("(name \"");
 		buffer.append(getName()).append("\"))))))");
-
+		
 		try {
 			initChannel.executeCommand(buffer.toString(), true);
 		} catch (NullPointerException e) {
@@ -322,10 +323,13 @@ public class JamochaAgent extends ToolAgent {
 
 		InputStream is = org.jamocha.Constants.class
 				.getResourceAsStream(fileName);
-		BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+		
+		
+		
+		BufferedReader reader = new BufferedReader(new InputStreamReader(is,Charset.defaultCharset()));
 
 		while (reader.ready())
-			buffer.append(reader.read() + "\n");
+			buffer.append(reader.readLine()+"\n");
 		reader.close();
 
 	}

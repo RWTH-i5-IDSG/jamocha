@@ -23,8 +23,12 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
+import java.net.URI;
 
+import org.jamocha.engine.Engine;
+import org.jamocha.engine.Parameter;
+import org.jamocha.engine.functions.AbstractFunction;
+import org.jamocha.engine.functions.FunctionDescription;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.Expression;
 import org.jamocha.parser.JamochaType;
@@ -32,10 +36,6 @@ import org.jamocha.parser.JamochaValue;
 import org.jamocha.parser.ParseException;
 import org.jamocha.parser.Parser;
 import org.jamocha.parser.ParserFactory;
-import org.jamocha.engine.Parameter;
-import org.jamocha.engine.Engine;
-import org.jamocha.engine.functions.AbstractFunction;
-import org.jamocha.engine.functions.FunctionDescription;
 
 /**
  * @author Peter Lin
@@ -123,12 +123,13 @@ public class Batch extends AbstractFunction {
 					// Check for a protocol indicator at the beginning of the
 					// String. If we have one use a URL.
 					if (input.matches("^[a-zA-Z]+://.*")) {
-						URL url = new URL(input);
-						if (url.getProtocol().equals("internal"))
-							inStream = org.jamocha.Constants.class
-									.getResourceAsStream(url.getPath());
-						else
-							inStream = url.openConnection().getInputStream();
+						URI url = new URI(input);
+						if (url.getScheme().equals("internal")) {
+							String intPath = url.getAuthority()+url.getPath();
+							inStream = org.jamocha.Constants.class.getResourceAsStream(intPath);
+						} else {
+							inStream = url.toURL().openConnection().getInputStream();
+						}
 					} else {
 						File file = new File(input);
 						if (!file.exists()) {
