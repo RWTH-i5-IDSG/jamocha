@@ -18,6 +18,7 @@
 
 package org.jamocha.rules;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.jamocha.communication.logging.Logging;
@@ -27,6 +28,7 @@ import org.jamocha.engine.Engine;
 import org.jamocha.engine.ExecuteException;
 import org.jamocha.engine.Parameter;
 import org.jamocha.engine.configurations.AbstractConfiguration;
+import org.jamocha.engine.configurations.Signature;
 import org.jamocha.engine.functions.Function;
 import org.jamocha.engine.functions.FunctionNotFoundException;
 import org.jamocha.engine.nodes.FactTuple;
@@ -102,7 +104,7 @@ public class FunctionAction implements Action {
 //		}
 //	}
 	
-	protected void configureBoundParams(Parameter[] params, FactTuple tuple) {
+	protected void configureBoundParams(Parameter[] params, FactTuple tuple) throws FunctionNotFoundException, ExecuteException {
 		for(int idx = 0; idx < params.length ; idx++) {
 			Parameter param = params[idx];
 			if (param instanceof BoundParam) {
@@ -115,15 +117,24 @@ public class FunctionAction implements Action {
 					} else {
 						newObj = tuple.getFact(binding.getLeftRow()).getSlotValue(binding.getLeftIndex());
 					}
-					params[idx] = JamochaValue.newObject(newObj);
+					params[idx] = JamochaValue.newValueAutoType(newObj);
 				} catch (EvaluationException e) {
 					Logging.logger(this.getClass()).fatal(e);
 				}
 			} else if (param instanceof AbstractConfiguration) {
-				assert false;				
+
 			} else if (param instanceof JamochaValue) {
-				assert false;
-			} 
+
+			} else if (param instanceof Signature) {
+				// we have to call the inner function at first
+				Signature iSig = (Signature) param;
+				Function iFunc = iSig.lookUpFunction(engine);
+				List<Parameter> iParams = new ArrayList<Parameter>();
+				for (Parameter p : iSig.getParameters()) iParams.add(p);
+				FunctionAction iFuncAction = new FunctionAction(iFunc, engine, parent,iParams);
+				JamochaValue iRes = iFuncAction.executeAction(tuple);
+				params[idx] = iRes;
+			}
 		}
 	}
 
