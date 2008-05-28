@@ -22,6 +22,7 @@ import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rules.Defrule;
+import org.jamocha.communication.logging.Logging;
 import org.jamocha.engine.Parameter;
 import org.jamocha.engine.Engine;
 import org.jamocha.engine.functions.AbstractFunction;
@@ -119,6 +120,7 @@ public class UnDefrule extends AbstractFunction {
 		JamochaValue result = JamochaValue.FALSE;
 		if (params.length == 1) {
 			String rl = params[0].getValue(engine).getStringValue();
+			Logging.logger(this.getClass()).debug("undefining rule "+rl);
 			Defrule defrl = (Defrule) engine.getCurrentFocus().findRule(rl);
 			if (defrl != null) {
 				engine.getCurrentFocus().removeRule(defrl);

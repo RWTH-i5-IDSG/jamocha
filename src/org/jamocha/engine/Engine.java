@@ -489,7 +489,6 @@ public class Engine implements Dumpable {
 	 */
 	public void writeMessage(String msg, String output) {
 		MessageRouter router = getMessageRouter();
-		System.out.println(router.getCurrentChannelId());
 		router.postMessageEvent(new MessageEvent(
 				MessageEvent.MessageEventType.ENGINE, msg,
 				"t".equals(output) ? router.getCurrentChannelId() : output));

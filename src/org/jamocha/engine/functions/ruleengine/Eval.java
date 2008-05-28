@@ -28,6 +28,7 @@ import org.jamocha.parser.JamochaValue;
 import org.jamocha.parser.ParseException;
 import org.jamocha.parser.Parser;
 import org.jamocha.parser.ParserFactory;
+import org.jamocha.communication.logging.Logging;
 import org.jamocha.engine.BoundParam;
 import org.jamocha.engine.Parameter;
 import org.jamocha.engine.Engine;
@@ -141,6 +142,7 @@ public class Eval extends AbstractFunction {
 		JamochaValue result = JamochaValue.NIL;
 		if (params != null && params.length >= 1) {
 			String command = params[0].getValue(engine).getStringValue();
+			Logging.logger(this.getClass()).debug("evaluating '"+command+"'");
 			String bindName = null;
 			// if an additionall Binding is provided we reset it
 			if (params.length > 1 && params[1] instanceof BoundParam) {
@@ -149,7 +151,9 @@ public class Eval extends AbstractFunction {
 			}
 			try {
 				result = eval(engine, command);
+				Logging.logger(this.getClass()).debug("evaluated successfully'");
 			} catch (EvaluationException e) {
+				Logging.logger(this.getClass()).debug("evaluation error: "+e.getMessage());
 				// if an additionall Binding is provided we set the error
 				// message in it.
 				if (bindName != null)

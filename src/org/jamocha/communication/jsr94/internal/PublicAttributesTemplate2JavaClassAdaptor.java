@@ -114,7 +114,6 @@ public class PublicAttributesTemplate2JavaClassAdaptor implements
 					JamochaValue value = f.getSlotValue(name);
 					setField(fi, o, value);
 				} catch (Exception e) {
-					System.out.println("foo");
 					// TODO better exception handling
 				}
 			}

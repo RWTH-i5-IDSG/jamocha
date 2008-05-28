@@ -51,6 +51,7 @@
 	
 	
 	; Add the translated code to the initial message and set the message to processed.
+
 	(modify ?message (content-clips ?clipsCode) (processed TRUE))
 )
 

@@ -21,6 +21,7 @@ package org.jamocha.engine.functions.ruleengine;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
+import org.jamocha.communication.logging.Logging;
 import org.jamocha.engine.ExecuteException;
 import org.jamocha.engine.Parameter;
 import org.jamocha.engine.Engine;
@@ -123,13 +124,17 @@ public class Fire extends AbstractFunction {
 			long fc = params[0].getValue(engine).implicitCast(JamochaType.LONG)
 					.getLongValue();
 			try {
+				Logging.logger(this.getClass()).debug("Start firing "+ fc+" times");
 				count = engine.fire((int) fc);
+				Logging.logger(this.getClass()).debug("finished firing");
 			} catch (ExecuteException e) {
 				throw new EvaluationException(e);
 			}
 		} else
 			try {
+				Logging.logger(this.getClass()).debug("Start firing (unbounded)");
 				count = engine.fire();
+				Logging.logger(this.getClass()).debug("finished firing");
 			} catch (ExecuteException e) {
 				throw new EvaluationException("Error during fire. ", e);
 			}

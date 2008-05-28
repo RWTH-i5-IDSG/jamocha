@@ -19,7 +19,7 @@
 
 
 (defrule ip-check-from-participant
-	; Hole die nštigen Informationen aus der neuen Nachricht
+	; Hole die noetigen Informationen aus der neuen Nachricht
 	(agent-message
 		(sender ?sender)
 		(receiver $?receiver)
@@ -48,7 +48,7 @@
 )
 
 (defrule ip-check-from-initiator
-	; Hole die nštigen Informationen aus der neuen Nachricht
+	; Hole die noetigen Informationen aus der neuen Nachricht
 	(agent-message
 		(sender ?sender)
 		(receiver $?receiver)
@@ -77,7 +77,7 @@
 )
 
 (defrule ip-start-initiator
-	; Hole die nštigen Informationen aus der neuen Nachricht
+	; Hole die noetigen Informationen aus der neuen Nachricht
 	(agent-message
 		(sender ?sender)
 		(receiver $?receiver)
@@ -100,7 +100,7 @@
 		)
 	)
 	=> 
-	; FŸr jeden EmpfŠnger der Nachricht wird ein Lauf angelegt
+	; Fuer jeden Empfaenger der Nachricht wird ein Lauf angelegt
 	(bind $?rest $?receiver)
 	(while (greater (length$ $?rest) 0) do
 		(assert
@@ -117,7 +117,7 @@
 
 
 (defrule ip-start-participant
-	; Hole die nštigen Informationen aus der neuen Nachricht
+	; Hole die noetigen Informationen aus der neuen Nachricht
 	(agent-message
 		(sender ?sender)
 		(receiver $?receiver)
@@ -139,10 +139,10 @@
 			(conversation-id ?conversation-id)
 		)
 	)
-	; Teste ob der lokale Agent zu den EmpfŠngern gehšrt, also Participant ist
+	; Teste ob der lokale Agent zu den Empfaengern gehoert, also Participant ist
 	(test (> (member$ ?agent $?receiver) 0))
 	=> 
-	; Lege nur fŸr den lokale Agenten einen Lauf an
+	; Lege nur fuer den lokale Agenten einen Lauf an
 	(assert
 		(ip-run
 			(conversation-id ?conversation-id)

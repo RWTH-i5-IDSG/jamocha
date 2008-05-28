@@ -18,6 +18,7 @@
 
 package org.jamocha.engine.nodes;
 
+import org.jamocha.communication.logging.Logging;
 import org.jamocha.engine.ReteNet;
 import java.util.List;
 
@@ -72,6 +73,7 @@ public abstract class AbstractBetaFilterNode extends TwoInputNode {
 		if (!isActivated())
 			return;
 		try {
+			Logging.logger(this.getClass()).debug("add wme "+newElem+" to node "+this);
 			if (newElem.isStandaloneFact())
 				addAlpha(newElem);
 			else

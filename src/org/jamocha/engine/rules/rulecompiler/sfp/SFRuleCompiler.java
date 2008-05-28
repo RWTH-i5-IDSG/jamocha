@@ -575,6 +575,11 @@ public class SFRuleCompiler implements RuleCompiler {
 		for (Condition c: rule.getConditions()) {
 			if (c instanceof ObjectCondition)
 				objectConditions.add(c);
+			if (c instanceof ExistsCondition)
+				objectConditions.add(c);
+			if (c instanceof NotExistsCondition)
+				objectConditions.add(c);
+
 		}
 		
 		Condition[] sortedConds = new Condition[objectConditions.size()];
@@ -1122,7 +1127,9 @@ public class SFRuleCompiler implements RuleCompiler {
 		final Object o = condition.getNestedConditions().get(0);
 		final AbstractCondition nested = (AbstractCondition) o;
 		try {
-			return nested.compile(this, rule, conditionIndex);
+			Node resultNode =  nested.compile(this, rule, conditionIndex);
+			lastNodes.put(condition, resultNode);
+			return resultNode;
 		} catch (final Exception e) {
 			engine.writeMessage(e.getMessage());
 			return null /* or LONG_OBJECT */;
@@ -1173,7 +1180,9 @@ public class SFRuleCompiler implements RuleCompiler {
 		final Object o = condition.getNestedConditions().get(0);
 		final AbstractCondition nested = (AbstractCondition) o;
 		try {
-			return nested.compile(this, rule, conditionIndex);
+			Node resultNode =  nested.compile(this, rule, conditionIndex);
+			lastNodes.put(condition, resultNode);
+			return resultNode;
 		} catch (final Exception e) {
 			engine.writeMessage(e.getMessage());
 			return null /* or LONG_OBJECT */;

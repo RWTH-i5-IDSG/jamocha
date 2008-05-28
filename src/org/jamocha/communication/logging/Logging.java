@@ -40,18 +40,22 @@ public class Logging {
 
 		public void debug(final String msg) {
 			log.log(java.util.logging.Level.FINE, msg);
+			warn(msg); //TODO remove that later!!!
 		}
 
 		public void debug(final Exception exc) {
 			log.log(java.util.logging.Level.FINE, exc.getMessage(), exc);
+			warn(exc); //TODO remove that later!!!
 		}
 
 		public void info(final String msg) {
 			log.log(java.util.logging.Level.INFO, msg);
+			warn(msg); //TODO remove that later!!!
 		}
 
 		public void info(final Exception exc) {
 			log.log(java.util.logging.Level.INFO, exc.getMessage(), exc);
+			warn(exc); //TODO remove that later!!!
 		}
 
 		public void warn(final String msg) {
