@@ -571,8 +571,14 @@ public class SFRuleCompiler implements RuleCompiler {
 			RuleException {
 		// take the last node from each condition and connect them by joins
 		// regarding the complexity
-		Condition[] sortedConds = new Condition[rule.getConditions().size()];
-		sortedConds = rule.getConditions().toArray(sortedConds);
+		List<Condition> objectConditions = new ArrayList<Condition>();
+		for (Condition c: rule.getConditions()) {
+			if (c instanceof ObjectCondition)
+				objectConditions.add(c);
+		}
+		
+		Condition[] sortedConds = new Condition[objectConditions.size()];
+		sortedConds = objectConditions.toArray(sortedConds);
 		Arrays.sort(sortedConds, new ConditionComparator());
 
 		rearrangeConditions(sortedConds);
