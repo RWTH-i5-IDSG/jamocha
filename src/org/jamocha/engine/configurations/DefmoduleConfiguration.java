@@ -45,7 +45,7 @@ public class DefmoduleConfiguration extends AbstractConfiguration {
 		this.moduleName = moduleName;
 	}
 
-	public boolean isObjectBinding() {
+	public boolean isFactBinding() {
 		// TODO Auto-generated method stub
 		return false;
 	}

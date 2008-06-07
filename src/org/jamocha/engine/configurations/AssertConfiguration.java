@@ -30,7 +30,7 @@ public class AssertConfiguration extends AbstractConfiguration {
 
 	private Parameter[] data = null;
 
-	public boolean isObjectBinding() {
+	public boolean isFactBinding() {
 		// TODO Auto-generated method stub
 		return false;
 	}

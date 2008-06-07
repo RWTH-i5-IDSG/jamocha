@@ -797,8 +797,7 @@ public class SFRuleCompiler implements RuleCompiler {
 							i, conds.length)) {
 
 				final LeftFieldAddress left = new LeftFieldAddress(Math.min(
-						act.leftIndex, act.rightIndex), act.leftSlot,
-						act.leftPosition);
+						act.leftIndex, act.rightIndex), act.leftSlot);
 				final RightFieldAddress right = new RightFieldAddress(
 						act.rightSlot, act.rightPosition);
 				final FieldComparator b = new FieldComparator(act.varName,

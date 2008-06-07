@@ -438,7 +438,7 @@ public class JamochaValue implements Parameter, Formattable {
 		return value.equals(other.value);
 	}
 
-	public boolean isObjectBinding() {
+	public boolean isFactBinding() {
 		return false;
 	}
 

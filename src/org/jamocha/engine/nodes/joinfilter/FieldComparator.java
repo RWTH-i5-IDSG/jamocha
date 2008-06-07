@@ -24,6 +24,7 @@ import org.jamocha.Constants;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
+import org.jamocha.communication.logging.Logging;
 import org.jamocha.engine.ConversionUtils;
 import org.jamocha.engine.Evaluate;
 import org.jamocha.engine.Engine;
@@ -72,33 +73,11 @@ public class FieldComparator implements Serializable, Cloneable, JoinFilter {
 			final Engine engine) throws JoinFilterException {
 		JamochaValue rightValue = null, leftValue = null;
 		try {
-			if (right.refersWholeFact())
-				rightValue = JamochaValue.newFact(rightinput);
-			// rightValue = rightinput.getSlotValue( -1 );
-			else {
-				rightValue = rightinput.getSlotValue(right.getSlotIndex());
-				if (right.posIndex != -1) {
-					// TODO implement it
-				}
-			}
-
-			if (left.refersWholeFact())
-				leftValue = JamochaValue.newFact(leftinput.getFact(left
-						.getRowIndex()));
-			else {
-				leftValue = leftinput.getFact(left.getRowIndex()).getSlotValue(
-						left.getSlotIndex());
-				if (left.posIndex != -1) {
-					// TODO implement it
-				}
-			}
-			leftValue = resolveFact(leftValue, engine);
-			rightValue = resolveFact(rightValue, engine);
+			rightValue = right.getIndexedValue(rightinput);
+			leftValue  =  left.getIndexedValue(leftinput);
 		} catch (final EvaluationException e) {
-			// get slot value exception, should not occur
-			e.printStackTrace();
+			Logging.logger(this.getClass()).warn(e);
 		}
-
 		return Evaluate.evaluate(operator, leftValue, rightValue);
 	}
 

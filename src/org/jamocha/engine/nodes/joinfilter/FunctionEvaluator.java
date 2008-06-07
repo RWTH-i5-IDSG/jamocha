@@ -62,24 +62,9 @@ public class FunctionEvaluator implements JoinFilter {
 		for (int i = 0; i < params.length; i++) {
 			final Parameter p = params[i];
 			if (p instanceof RightFieldAddress) {
-				final RightFieldAddress addr = (RightFieldAddress) p;
-				JamochaValue val;
-				if (addr.refersWholeFact())
-					val = JamochaValue.newFact(right);
-				else
-					val = right.getSlotValue(addr.getSlotIndex());
-				params[i] = val;
+				params[i] = ((FieldAddress)p).getIndexedValue(right);
 			} else if (p instanceof LeftFieldAddress) {
-				final LeftFieldAddress addr = (LeftFieldAddress) p;
-				JamochaValue val;
-				if (addr.refersWholeFact())
-					val = JamochaValue.newFact(left.getFacts()[addr
-							.getRowIndex()]);
-				else {
-					final Fact fact = left.getFact(addr.getRowIndex());
-					val = fact.getSlotValue(addr.getSlotIndex());
-				}
-				params[i] = val;
+				params[i] = ((FieldAddress)p).getIndexedValue(left);
 			} else if (p instanceof Signature) {
 				final Signature sig = (Signature) p;
 				substitute(sig.getParameters(), right, left);

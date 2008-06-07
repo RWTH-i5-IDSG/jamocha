@@ -33,7 +33,7 @@ public interface Parameter extends Expression, Cloneable {
 	 * 
 	 * @return
 	 */
-	boolean isObjectBinding();
+	boolean isFactBinding();
 
 	public Object clone() throws CloneNotSupportedException;
 

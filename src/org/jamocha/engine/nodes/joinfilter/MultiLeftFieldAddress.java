@@ -18,28 +18,37 @@
 
 package org.jamocha.engine.nodes.joinfilter;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.jamocha.engine.workingmemory.WorkingMemoryElement;
 import org.jamocha.formatter.Formatter;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaValue;
 
-public class LeftFieldAddress extends FieldAddress {
-	protected int slotIndex;
-	protected int rowIndex;
-	protected int posIndex;
-
+/**
+ * @author Josef Alexander Hahn
+ *
+ * A MultiLeftFieldAddress is a kind of hack, which is used
+ * for or-conditions. in an or-condition, it can happen, that
+ * one bound value can be found at different places inside the
+ * tuple.
+ */
+public class MultiLeftFieldAddress extends FieldAddress {
+	
+	protected List<LeftFieldAddress> alternatives;
+	
 	@Override
 	public Object clone() {
 		return this;
 	}
 
-	public LeftFieldAddress(final int rowIndex) {
-		this(rowIndex, -1);
+	public MultiLeftFieldAddress() {
+		alternatives = new ArrayList<LeftFieldAddress>();
 	}
 
-	public LeftFieldAddress(final int rowIndex, final int slotIndex) {
-		this.slotIndex = slotIndex;
-		this.rowIndex = rowIndex;
+	public void addAlternativeField(LeftFieldAddress alt) {
+		alternatives.add(alt);
 	}
 
 	@Override
@@ -49,12 +58,11 @@ public class LeftFieldAddress extends FieldAddress {
 
 	public String getExpressionString() {
 		final StringBuffer result = new StringBuffer();
-		result.append("left(row=");
-		result.append(rowIndex);
-		if (slotIndex == -1)
-			result.append(";whole fact)");
-		else
-			result.append(";slot=").append(slotIndex).append(")");
+
+		result.append("[[OR:");
+		for (LeftFieldAddress alt: alternatives) result.append(alt.getExpressionString());
+		result.append("]]");
+		
 		return result.toString();
 	}
 
@@ -64,11 +72,11 @@ public class LeftFieldAddress extends FieldAddress {
 
 	@Override
 	public JamochaValue getIndexedValue(WorkingMemoryElement wme) throws EvaluationException {
-		if (slotIndex == -1) {
-			return JamochaValue.newFact(wme.getFactTuple().getFact(rowIndex));
-		} else {
-			return wme.getFactTuple().getFact(rowIndex).getSlotValue(slotIndex);
+		for (LeftFieldAddress a : alternatives) {
+			JamochaValue aval = a.getIndexedValue(wme);
+			if (aval != JamochaValue.NIL) return aval;
 		}
+		return JamochaValue.NIL;
 	}
 
 }

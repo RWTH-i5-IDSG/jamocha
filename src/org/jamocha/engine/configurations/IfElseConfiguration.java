@@ -33,7 +33,7 @@ public class IfElseConfiguration extends AbstractConfiguration {
 
 	private ExpressionCollection elseActions = null;
 
-	public boolean isObjectBinding() {
+	public boolean isFactBinding() {
 		return false;
 	}
 

@@ -37,7 +37,7 @@ public abstract class AbstractSignature implements Parameter, Serializable {
 	/**
 	 * subclasses have to implement the method
 	 */
-	public boolean isObjectBinding() {
+	public boolean isFactBinding() {
 		return objBinding;
 	}
 

@@ -32,7 +32,7 @@ public class DeclarationConfiguration extends AbstractConfiguration {
 
 	private Parameter autoFocus = null;
 
-	public boolean isObjectBinding() {
+	public boolean isFactBinding() {
 		// TODO Auto-generated method stub
 		return false;
 	}

@@ -36,7 +36,7 @@ public class LoopForCountConfiguration extends AbstractConfiguration {
 
 	private ExpressionCollection actions = null;
 
-	public boolean isObjectBinding() {
+	public boolean isFactBinding() {
 		return false;
 	}
 

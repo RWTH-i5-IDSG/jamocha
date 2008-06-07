@@ -44,7 +44,7 @@ public class DefruleConfiguration extends AbstractConfiguration {
 	 * 
 	 * @see org.jamocha.rete.Parameter#isObjectBinding()
 	 */
-	public boolean isObjectBinding() {
+	public boolean isFactBinding() {
 		// TODO Auto-generated method stub
 		return false;
 	}

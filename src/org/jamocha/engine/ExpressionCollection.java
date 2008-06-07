@@ -34,10 +34,10 @@ public abstract class ExpressionCollection implements Parameter {
 		super();
 	}
 
-	public boolean isObjectBinding() {
+	public boolean isFactBinding() {
 		boolean objectBinding = false;
 		for (int i = 0; i < parameterList.size() && !objectBinding; ++i)
-			objectBinding |= parameterList.get(i).isObjectBinding();
+			objectBinding |= parameterList.get(i).isFactBinding();
 		return objectBinding;
 	}
 

@@ -18,7 +18,10 @@
 
 package org.jamocha.engine.nodes.joinfilter;
 
+import org.jamocha.engine.workingmemory.WorkingMemoryElement;
 import org.jamocha.formatter.Formatter;
+import org.jamocha.parser.EvaluationException;
+import org.jamocha.parser.JamochaValue;
 
 public class RightFieldAddress extends FieldAddress {
 
@@ -44,18 +47,6 @@ public class RightFieldAddress extends FieldAddress {
 	}
 
 	@Override
-	public boolean refersWholeFact() {
-		return slotIndex == -1;
-	}
-
-	@Override
-	public int getSlotIndex() throws FieldAddressingException {
-		if (slotIndex == -1)
-			throw new FieldAddressingException();
-		return slotIndex;
-	}
-
-	@Override
 	public String toPPString() {
 		return getExpressionString();
 	}
@@ -72,6 +63,15 @@ public class RightFieldAddress extends FieldAddress {
 
 	public String format(final Formatter visitor) {
 		return visitor.visit(this);
+	}
+
+	@Override
+	public JamochaValue getIndexedValue(WorkingMemoryElement wme) throws EvaluationException {
+		if (slotIndex == -1) {
+			return  JamochaValue.newFact(wme.getFirstFact()) ;
+		} else {
+			return wme.getFirstFact().getSlotValue(slotIndex);
+		}
 	}
 
 }

@@ -18,15 +18,18 @@
 
 package org.jamocha.engine.nodes.joinfilter;
 
+import org.jamocha.engine.Engine;
+import org.jamocha.engine.Parameter;
+import org.jamocha.engine.workingmemory.WorkingMemoryElement;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.engine.Parameter;
-import org.jamocha.engine.Engine;
 
 /**
- * @author Josef Alexander Hahn This is the first step for replacing our 101
- *         binding-like classes by a more systematic structure of classes. a
- *         FieldAddress is immutable, because that world sound so good ;)
+ * @author Josef Alexander Hahn 
+ * 
+ * This is the first step for replacing our 101
+ * binding-like classes by a more systematic structure of classes. a
+ * FieldAddress is immutable, because that word sound so good ;)
  */
 
 public abstract class FieldAddress implements Parameter {
@@ -36,18 +39,20 @@ public abstract class FieldAddress implements Parameter {
 		throw new CloneNotSupportedException(); // abstract class
 	}
 
-	public abstract boolean refersWholeFact();
-
-	public abstract int getSlotIndex() throws FieldAddressingException;
-
 	public abstract String toPPString();
 
-	public boolean isObjectBinding() {
-		return refersWholeFact();
+	/**
+	 * for a FieldAddess, this method ALWAYS RETURNS FALSE!
+	 * the class cannot determine, whether it refers to a
+	 * fact or just a slot.
+	 */
+	public boolean isFactBinding() {
+		return false;
 	}
 
-	public JamochaValue getValue(final Engine engine)
-			throws EvaluationException {
+	public JamochaValue getValue(Engine e) throws EvaluationException{
 		return null;
 	}
+	
+	public abstract JamochaValue getIndexedValue(final WorkingMemoryElement wme) throws EvaluationException;
 }

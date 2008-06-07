@@ -32,7 +32,7 @@ public class ModifyConfiguration extends AbstractConfiguration {
 
 	private SlotConfiguration[] slots = null;
 
-	public boolean isObjectBinding() {
+	public boolean isFactBinding() {
 		// TODO Auto-generated method stub
 		return false;
 	}

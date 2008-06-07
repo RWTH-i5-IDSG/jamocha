@@ -188,7 +188,7 @@ public class BoundParam extends AbstractSignature implements Formattable {
 	 * @return
 	 */
 	@Override
-	public boolean isObjectBinding() {
+	public boolean isFactBinding() {
 		return objBinding;
 	}
 

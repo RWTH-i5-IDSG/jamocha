@@ -31,7 +31,7 @@ public class WhileDoConfiguration extends AbstractConfiguration {
 
 	private ExpressionCollection whileActions = null;
 
-	public boolean isObjectBinding() {
+	public boolean isFactBinding() {
 		return false;
 	}
 
