@@ -29,6 +29,7 @@ import org.jamocha.engine.Engine;
 import org.jamocha.engine.RuleCompiler;
 import org.jamocha.engine.ReteNet;
 import org.jamocha.engine.nodes.RootNode;
+import org.jamocha.engine.rules.rulecompiler.beffy.BeffyRuleCompiler;
 import org.jamocha.engine.rules.rulecompiler.sfp.SFRuleCompiler;
 
 /**
@@ -79,7 +80,7 @@ public class ParserFactory {
 	public static Parser getParser(String mode, Reader reader)
 	throws ModeNotFoundException {
 		if (mode.equalsIgnoreCase("sfp")
-				| mode.equalsIgnoreCase("sfp-hokifisch")) {
+				| mode.equalsIgnoreCase("beffy")) {
 			return new SFPParser(reader);
 		} else {
 			throw new ModeNotFoundException(mode);
@@ -89,7 +90,7 @@ public class ParserFactory {
 	public static Parser getParser(String mode, InputStream stream)
 	throws ModeNotFoundException {
 		if (mode.equalsIgnoreCase("sfp")
-				| mode.equalsIgnoreCase("sfp-hokifisch")) {
+				| mode.equalsIgnoreCase("beffy")) {
 			return new SFPParser(stream);
 		} else {
 			throw new ModeNotFoundException(mode);
@@ -152,7 +153,7 @@ public class ParserFactory {
 		if (mode.equalsIgnoreCase("clips")) {
 			f = new SFPFormatter();
 		} else if (mode.equalsIgnoreCase("sfp")
-				| mode.equalsIgnoreCase("sfp-hokifisch")) {
+				| mode.equalsIgnoreCase("beffy")) {
 			f = new SFPFormatter();
 		} else {
 			throw new ModeNotFoundException(mode);
@@ -178,6 +179,8 @@ public class ParserFactory {
 			throw new ModeNotFoundException("clips-mode not supported anymore");
 		} else if (mode.equalsIgnoreCase("sfp")) {
 			return new SFRuleCompiler(engine, root, net);
+		} else if (mode.equalsIgnoreCase("beffy")) {
+			return new BeffyRuleCompiler(engine, root, net);
 		}
 		throw new ModeNotFoundException(mode);
 	}
