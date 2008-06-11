@@ -535,13 +535,13 @@ public class SFRuleCompiler implements RuleCompiler {
 			return null;
 	}
 
+
 	protected void rearrangeConditions(final Condition[] conds) {
 		final BindingAddressesTable bat = computeBindingAddressTable(conds);
 		for (int i = 0; i < conds.length; i++) {
 			final Condition c = conds[i];
 			if (isQuantorCondition(c))
-				for (final Constraint constr : getObjectCondition(c)
-						.getConstraints()) {
+				for (final Constraint constr : getObjectCondition(c).getConstraints()) {
 					if (!(constr instanceof BoundConstraint))
 						continue;
 					final BoundConstraint bc = (BoundConstraint) constr;
@@ -586,7 +586,7 @@ public class SFRuleCompiler implements RuleCompiler {
 		sortedConds = objectConditions.toArray(sortedConds);
 		Arrays.sort(sortedConds, new ConditionComparator());
 
-		rearrangeConditions(sortedConds);
+		//rearrangeConditions(sortedConds);
 
 		final HashMap<Condition, Node> conditionJoiners = new HashMap<Condition, Node>();
 		final Node initFactNode = getObjectTypeNode(engine.getInitialTemplate());

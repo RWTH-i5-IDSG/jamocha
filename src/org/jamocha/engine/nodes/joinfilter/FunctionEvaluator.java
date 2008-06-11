@@ -102,8 +102,8 @@ public class FunctionEvaluator implements JoinFilter {
 	}
 
 	public String toPPString() {
-		// TODO thats not really good since FieldAdresses only were printed if
-		// in first level since clipsformatter doesnt format it
+		/* TODO thats not really good since FieldAdresses only were printed if
+	 	in first level since the clips-formatter doesn't format it */
 		final StringBuffer result = new StringBuffer();
 		result.append("test: ");
 		result.append(function.getName());

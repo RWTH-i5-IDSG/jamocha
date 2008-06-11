@@ -50,7 +50,8 @@
 			?salat_name <- (_initialFact)
 		)
 
-		; a meal with a gemuese and a bier, where gemuese-farbe must also exist as ampelfarbe or as nl-soccer-farbe and bier is a pilsener-typ
+		; a meal with a gemuese and a bier, where gemuese-farbe must also exist as ampelfarbe or as nl-soccer-farbe and bier is a 
+		; pilsener-typ
 		(and
 			(gemuese (name ?gemue_name) (kalorien ?gemue_kal) (preis ?gemue_preis) (gewicht ?gemue_gewicht) (farbe ?gemue_farbe) )
 			(bier    (name ?bier_name)  (kalorien ?bier_kal)  (preis ?bier_preis)  (menge ?bier_gewicht)  )
@@ -64,14 +65,15 @@
 			?wurst_name <- (_initialFact)
 		)
 
-		; a meal with only a salat. it must be a salat, which has so much calories, that there exists a wurst with less calories. this wurst must be so large, that there exists no bier, which has more weight.
+		; a meal with only a salat. it must be a salat, which has so much calories, that there exists a wurst with less calories.
+		; this wurst must be so large, that there exists no bier, which has more weight.
 		(and
 			(salat (name ?salat_name) (kalorien ?salat_kal) )
 			(exists
 				(wurst (kalorien ?wurst_kal) (gewicht ?wurst_gewicht) )
 				(test (< ?wurst_kal ?salat_kal) )
 				(not
-					(bier (menge ?bier_menge&:(< ?wurst_gewicht ?bier_menge) ) ) ; TODO: connected constraint here
+					(bier (menge ?bier_menge&:(< ?wurst_gewicht ?bier_menge) ) )
 				)
 			)
 			?wurst_name <- (_initialFact)

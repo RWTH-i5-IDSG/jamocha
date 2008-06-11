@@ -17,6 +17,11 @@
  */
 package org.jamocha.engine.rules.rulecompiler.beffy;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.jamocha.communication.events.CompilerListener;
 import org.jamocha.engine.AssertException;
 import org.jamocha.engine.Binding;
@@ -30,6 +35,7 @@ import org.jamocha.engine.nodes.TerminalNode;
 import org.jamocha.engine.workingmemory.elements.Template;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.RuleException;
+import org.jamocha.rules.Condition;
 import org.jamocha.rules.Rule;
 
 
@@ -47,6 +53,84 @@ import org.jamocha.rules.Rule;
  */
 public class BeffyRuleCompiler implements RuleCompiler {
 
+	/**
+	 * this class holds some information about the rule, like
+	 * mapping between join-nodes <> Conditions <> Condition-Indices
+	 * and some more information.
+	 */
+	protected class RuleCompilation {
+		
+		private Rule rule;
+		
+		public RuleCompilation(Rule r) {
+			
+		}
+		
+		int getConditionIndex(Condition c) {
+			return 0;
+		}
+		
+		
+	}
+	
+	/**
+	 * this class represents the occurence of a binding
+	 */
+	protected class BindingOccurence {
+		
+		public BindingOccurence(int condIdx, boolean ident) {
+			this.conditionIndex = condIdx;
+			this.ident = ident;
+		}
+		
+		int conditionIndex;
+		
+		boolean ident;
+		
+	}
+
+	
+	protected class BindingTableau {
+		
+		private Map<String, List<BindingOccurence> > bindingOccurences;
+		
+		private RuleCompilation rule;
+		
+		public BindingTableau(RuleCompilation rule) {
+			this.rule = rule;
+			bindingOccurences = new HashMap<String, List<BindingOccurence>>();
+			computePivots();
+		}
+		
+		private void computePivots() {
+			// TODO Auto-generated method stub
+			
+		}
+		
+		public int getPivotCondition(String binding) {
+			//TODO
+			return 0;
+		}
+
+		protected List<BindingOccurence> getOccurencesList(String b) {
+			List<BindingOccurence> result = bindingOccurences.get(b);
+			if (result == null) {
+				result = new ArrayList<BindingOccurence>();
+				bindingOccurences.put(b, result);
+			}
+			return result;
+		}
+		
+		protected void addBinding(Condition cond, String binding, boolean ident) {
+			List<BindingOccurence> oclist = getOccurencesList(binding);
+			BindingOccurence occ = new BindingOccurence(rule.getConditionIndex(cond), ident);
+			oclist.add(occ);
+		}
+		
+	}
+	
+	
+	
 	public BeffyRuleCompiler(Engine engine, RootNode root, ReteNet net) {
 		// TODO Auto-generated constructor stub
 	}

@@ -18,17 +18,19 @@
 
 package org.jamocha.rules;
 
+import java.util.ArrayList;
 import java.util.List;
 
-import org.jamocha.formatter.Formatter;
-import org.jamocha.parser.EvaluationException;
-import org.jamocha.parser.JamochaValue;
-import org.jamocha.engine.Complexity;
-import org.jamocha.engine.Parameter;
+import org.jamocha.communication.logging.Logging;
+import org.jamocha.engine.BoundParam;
 import org.jamocha.engine.Engine;
+import org.jamocha.engine.Parameter;
 import org.jamocha.engine.configurations.Signature;
 import org.jamocha.engine.nodes.Node;
 import org.jamocha.engine.rules.rulecompiler.sfp.SFRuleCompiler;
+import org.jamocha.formatter.Formatter;
+import org.jamocha.parser.EvaluationException;
+import org.jamocha.parser.JamochaValue;
 
 /**
  * @author Peter Lin
@@ -77,16 +79,37 @@ public class TestCondition extends AbstractCondition {
 		return result;
 	}
 
+	
+	
 	public List<Constraint> getConstraints() {
-		// TODO Auto-generated method stub
-		return null;
+		List<Constraint> result = new ArrayList<Constraint>();
+		evaluateConstraints(func.getParameters(), result);
+		Logging.logger(this.getClass()).debug("List of constraints:");
+		for (Constraint cc : result) {
+			Logging.logger(this.getClass()).debug(cc.toString());
+		}
+		
+		return result;
+	}
+
+	private void evaluateConstraints(Parameter[] parameters, List<Constraint> result) {
+		for (Parameter p : parameters) {
+			if (p instanceof BoundParam) {
+				BoundParam bp = (BoundParam) p;
+				BoundConstraint bc = new BoundConstraint(null, bp.getVariableName(), false);
+				result.add(bc);
+			} else if (p instanceof Signature) {
+				Signature s = (Signature) p;
+				evaluateConstraints(s.getParameters(), result);
+			}
+		}
 	}
 
 	public int getComplexity() {
 		/* here, we can't say good things about the complexity,
 		 * since we can't know, what the underlying function will do
 		 */
-		return 100;
+		return 10000;
 	}
 	
 
