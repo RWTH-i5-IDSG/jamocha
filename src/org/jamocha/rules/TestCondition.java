@@ -84,11 +84,6 @@ public class TestCondition extends AbstractCondition {
 	public List<Constraint> getConstraints() {
 		List<Constraint> result = new ArrayList<Constraint>();
 		evaluateConstraints(func.getParameters(), result);
-		Logging.logger(this.getClass()).debug("List of constraints:");
-		for (Constraint cc : result) {
-			Logging.logger(this.getClass()).debug(cc.toString());
-		}
-		
 		return result;
 	}
 
@@ -110,6 +105,10 @@ public class TestCondition extends AbstractCondition {
 		 * since we can't know, what the underlying function will do
 		 */
 		return 10000;
+	}
+
+	public List<Constraint> getFlatConstraints() {
+		return getConstraints();
 	}
 	
 

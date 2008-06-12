@@ -23,11 +23,13 @@ import org.jamocha.parser.IllegalParameterException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.parser.RuleException;
+import org.jamocha.communication.logging.Logging;
 import org.jamocha.engine.Parameter;
 import org.jamocha.engine.Engine;
 import org.jamocha.engine.configurations.DefruleConfiguration;
 import org.jamocha.engine.functions.AbstractFunction;
 import org.jamocha.engine.functions.FunctionDescription;
+import org.jamocha.engine.rules.rulecompiler.CompileRuleException;
 
 /**
  * @author Peter Lin
@@ -153,10 +155,14 @@ public class Defrule extends AbstractFunction {
 				throw new RuleException(
 						"Parameter 1 is no Defrule Configuration.");
 			// compile Defrule:
-			if (engine.addRule(defrule)) {
-				result = JamochaValue.TRUE;
-				engine.writeMessage("added rule with complexity "
-						+ defrule.getComplexity());
+			try {
+				if (engine.addRule(defrule)) {
+					result = JamochaValue.TRUE;
+					engine.writeMessage("added rule with complexity "
+							+ defrule.getComplexity());
+				}
+			} catch (CompileRuleException e) {
+				Logging.logger(this.getClass()).warn(e);
 			}
 		} else
 			throw new IllegalParameterException(1);

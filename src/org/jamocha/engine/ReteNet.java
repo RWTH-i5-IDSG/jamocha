@@ -23,6 +23,7 @@ import java.util.List;
 
 import org.jamocha.engine.nodes.NodeException;
 import org.jamocha.engine.nodes.RootNode;
+import org.jamocha.engine.rules.rulecompiler.CompileRuleException;
 import org.jamocha.engine.workingmemory.WorkingMemory;
 import org.jamocha.engine.workingmemory.WorkingMemoryImpl;
 import org.jamocha.engine.workingmemory.elements.Fact;
@@ -94,7 +95,7 @@ public class ReteNet implements SettingsChangedListener, Serializable {
 		}
 	}
 
-	public boolean addRule(Rule rule) throws EvaluationException, RuleException {
+	public boolean addRule(Rule rule) throws EvaluationException, RuleException, CompileRuleException {
 		boolean result = compiler.addRule(rule);
 		shareNodes(rule);
 		return result;

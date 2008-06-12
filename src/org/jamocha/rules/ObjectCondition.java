@@ -72,7 +72,9 @@ public class ObjectCondition extends AbstractCondition {
 	}
 	
 	private void registerAsParentCondition() {
-		for (Constraint c : constraints) c.setParentCondition(this);
+		for (Constraint c : constraints) {
+			c.setParentCondition(this);
+		}
 	}
 
 	public String getTemplateName() {
@@ -122,6 +124,10 @@ public class ObjectCondition extends AbstractCondition {
 	@Deprecated
 	public void addConstraint(Constraint c) {
 		constraints.add(c);
+	}
+
+	public List<Constraint> getFlatConstraints() {
+		return getConstraints();
 	}
 
 }

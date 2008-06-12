@@ -39,6 +39,13 @@ public interface Condition extends Compileable, Complexity, Formattable {
 	 * @return
 	 */
 	public List<Constraint> getConstraints();
+	
+	/**
+	 * returns all constraints in this condition without taking
+	 * sub-conditions into account
+	 * @return
+	 */
+	public List<Constraint> getFlatConstraints();
 
 	/**
 	 * returns a positive value, if this is more complex, a negative
@@ -46,5 +53,15 @@ public interface Condition extends Compileable, Complexity, Formattable {
 	 * equal
 	 */
 	public int compareComplexity(Complexity other);
+
+	public Condition getParentCondition();
 	
+	/**
+	 * Argh, i really really hate it to introduce this method inside
+	 * the interface. But there is no better way. DONT CALL IT!!!
+	 * it is called by some internal methods only...
+	 */
+	public void setParentCondition(Condition c);
+	
+
 }

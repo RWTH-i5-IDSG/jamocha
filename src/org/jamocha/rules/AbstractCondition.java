@@ -32,12 +32,22 @@ import org.jamocha.formatter.Formatter;
  */
 public abstract class AbstractCondition implements Condition {
 
+	private Condition parent = null;
+	
+	public void setParentCondition(Condition c) {
+		parent = c;
+	}
+	
 	public int compareComplexity(Complexity other) {
 		return this.getComplexity() - other.getComplexity();
 	}
 
 	public String format(Formatter visitor) {
 		return visitor.visit(this);
+	}
+	
+	public Condition getParentCondition() {
+		return parent;
 	}
 	
 }

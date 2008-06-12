@@ -35,6 +35,7 @@ import org.jamocha.engine.functions.FunctionMemory;
 import org.jamocha.engine.functions.FunctionMemoryImpl;
 import org.jamocha.engine.modules.Module;
 import org.jamocha.engine.modules.Modules;
+import org.jamocha.engine.rules.rulecompiler.CompileRuleException;
 import org.jamocha.engine.scope.BlockingScope;
 import org.jamocha.engine.scope.DefaultScope;
 import org.jamocha.engine.scope.Scope;
@@ -660,8 +661,9 @@ public class Engine implements Dumpable {
 	 * @return
 	 * @throws org.jamocha.parser.EvaluationException
 	 * @throws org.jamocha.parser.RuleException
+	 * @throws CompileRuleException 
 	 */
-	public boolean addRule(Rule rule) throws EvaluationException, RuleException {
+	public boolean addRule(Rule rule) throws EvaluationException, RuleException, CompileRuleException {
 		boolean result = false;
 
 		// compile the rule

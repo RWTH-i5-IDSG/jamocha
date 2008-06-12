@@ -3,7 +3,7 @@
 (deftemplate gemuese (slot name) (slot gewicht) (slot preis) (slot kalorien) (slot farbe) )
 (deftemplate bier (slot name) (slot preis) (slot menge) (slot typ) (slot kalorien) )
 (deftemplate ampelfarbe (slot farbname) (slot bedeutung) )
-(deftemplate nl-soccer-farbe (slot farbe) )
+(deftemplate nl_soccer_farbe (slot farbe) )
 
 (assert (wurst (name "bratwurst") (gewicht 60) (preis 2.5) (kalorien 200) ) )
 (assert (wurst (name "grillwurst") (gewicht 50) (preis 0.7) (kalorien 180) ) )
@@ -28,7 +28,7 @@
 (assert (ampelfarbe (farbname "gelb") (bedeutung "achtung") ) )
 (assert (ampelfarbe (farbname "gruen") (bedeutung "freigabe") ) )
 
-(assert (nl-soccer-farbe (farbe "orange") ) )
+(assert (nl_soccer_farbe (farbe "orange") ) )
 
 (defrule reference-rule
 	(or
@@ -57,7 +57,7 @@
 			(bier    (name ?bier_name)  (kalorien ?bier_kal)  (preis ?bier_preis)  (menge ?bier_gewicht)  )
 			(exists
 				(or
-					(nl-soccer-farbe (farbe ?gemue_farbe))
+					(nl_soccer_farbe (farbe ?gemue_farbe))
 					(ampelfarbe (farbname ?gemue_farbe))
 				)
 			)
@@ -82,9 +82,9 @@
 		)
 
 		; a meal with only a beer for 40ct ;)
-		(and	
+		(and
+			(bier (name ?bier_name) (preis =(/ ?bitpreis 2.0) ) )	
 			(bier (name "bitburger") (preis ?bitpreis) )
-			(bier (name ?bier_name) (preis =(/ ?bitpreis 2.0) ) )
 			?wurst_name <- (_initialFact)
 			?gemue_name <- (_initialFact)
 			?salat_name <- (_initialFact)

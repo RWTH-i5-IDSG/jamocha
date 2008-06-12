@@ -58,6 +58,7 @@ import org.jamocha.rules.OrCondition;
 import org.jamocha.rules.OrConnectedConstraint;
 import org.jamocha.rules.OrderedFactConstraint;
 import org.jamocha.rules.PredicateConstraint;
+import org.jamocha.rules.ReturnValueConstraint;
 import org.jamocha.rules.TestCondition;
 
 public class SFPInterpreter implements SFPParserVisitor {
@@ -895,7 +896,7 @@ public class SFPInterpreter implements SFPParserVisitor {
 			constraint = new LiteralConstraint((JamochaValue) obj, slotName);
 
 		} else if (n instanceof SFPColon) {
-
+			// predicate constraint
 			String functionName = ((JamochaValue) n.jjtGetChild(0).jjtGetChild(
 					0).jjtAccept(this, null)).getStringValue();
 			List<Parameter> params = new ArrayList<Parameter>();
@@ -910,8 +911,15 @@ public class SFPInterpreter implements SFPParserVisitor {
 			constraint = pred;
 
 		} else if (n instanceof SFPEquals) {
-			// TODO: constraint = new PredicateConstraint();
-			// predicate can't handle functions containing functioncalls
+			// return value constraint
+			String functionName = ((JamochaValue) n.jjtGetChild(0).jjtGetChild(0).jjtAccept(this, null)).getStringValue();
+			List<Parameter> params = new ArrayList<Parameter>();
+			for (int i = 1; i < n.jjtGetChild(0).jjtGetNumChildren(); i++) {
+				Parameter param = (Parameter) n.jjtGetChild(0).jjtGetChild(i).jjtAccept(this, null);
+				params.add(param);
+			}
+			ReturnValueConstraint rvc = new ReturnValueConstraint(functionName,params);
+			constraint = rvc;
 		} else if (n instanceof SFPSingleVariable
 				| n instanceof SFPMultiVariable) {
 			String varName = ((BoundParam) obj).getVariableName();

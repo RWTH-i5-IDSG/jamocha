@@ -23,6 +23,7 @@ import java.util.List;
 
 import org.jamocha.engine.Engine;
 import org.jamocha.engine.Parameter;
+import org.jamocha.engine.rules.rulecompiler.CompileRuleException;
 import org.jamocha.formatter.Formatter;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaValue;
@@ -37,8 +38,7 @@ public abstract class AbstractFunction implements Function {
 	public AbstractFunction() {
 	}
 
-	public abstract JamochaValue executeFunction(Engine engine,
-			Parameter[] params) throws EvaluationException;
+	public abstract JamochaValue executeFunction(Engine engine,	Parameter[] params) throws EvaluationException;
 
 	public abstract FunctionDescription getDescription();
 

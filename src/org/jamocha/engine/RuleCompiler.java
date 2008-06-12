@@ -23,6 +23,7 @@ import java.io.Serializable;
 import org.jamocha.communication.events.CompilerListener;
 import org.jamocha.engine.nodes.ObjectTypeNode;
 import org.jamocha.engine.nodes.TerminalNode;
+import org.jamocha.engine.rules.rulecompiler.CompileRuleException;
 import org.jamocha.engine.workingmemory.elements.Template;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.RuleException;
@@ -35,7 +36,7 @@ import org.jamocha.rules.Rule;
  * appropriate RETE network. We have a generic interface, so that others can
  * implement their own RuleCompiler.
  */
-public interface RuleCompiler extends Serializable {
+public interface RuleCompiler {
 	public class SFRuleCompiler {
 
 	}
@@ -63,9 +64,10 @@ public interface RuleCompiler extends Serializable {
 	 * @param rule
 	 * @throws AssertException
 	 * @throws EvaluationException
+	 * @throws CompileRuleException 
 	 */
 	boolean addRule(Rule rule) throws AssertException, RuleException,
-			EvaluationException;
+			EvaluationException, CompileRuleException;
 
 	/**
 	 * Add a new ObjectTypeNode to the network
