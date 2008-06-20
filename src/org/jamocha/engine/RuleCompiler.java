@@ -77,25 +77,6 @@ public interface RuleCompiler {
 	void addObjectTypeNode(Template template);
 
 	/**
-	 * Remove an ObjectTypeNode from the network. This should be when the rule
-	 * engine isn't running. When an ObjectTypeNode is removed, all nodes and
-	 * rules using the ObjectTypeNode need to be removed.
-	 * 
-	 * @param node
-	 * @throws RetractException
-	 * @throws RetractException
-	 */
-	void removeObjectTypeNode(ObjectTypeNode node) throws RetractException;
-
-	/**
-	 * Look up the ObjectTypeNode using the Template
-	 * 
-	 * @param template
-	 * @return
-	 */
-	ObjectTypeNode getObjectTypeNode(Template template);
-
-	/**
 	 * If an user wants to listen to the various events in the compiler, add a
 	 * listener and then handle the events accordingly.
 	 * 

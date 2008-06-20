@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -32,15 +33,14 @@ import org.jamocha.engine.AssertException;
 import org.jamocha.engine.Binding;
 import org.jamocha.engine.Engine;
 import org.jamocha.engine.ReteNet;
-import org.jamocha.engine.RetractException;
 import org.jamocha.engine.RuleCompiler;
-import org.jamocha.engine.nodes.ObjectTypeNode;
 import org.jamocha.engine.nodes.RootNode;
 import org.jamocha.engine.nodes.TerminalNode;
 import org.jamocha.engine.rules.rulecompiler.CompileRuleException;
 import org.jamocha.engine.workingmemory.elements.Template;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.RuleException;
+import org.jamocha.rules.AndCondition;
 import org.jamocha.rules.BoundConstraint;
 import org.jamocha.rules.Condition;
 import org.jamocha.rules.ConditionWithNested;
@@ -48,8 +48,8 @@ import org.jamocha.rules.Constraint;
 import org.jamocha.rules.ExistsCondition;
 import org.jamocha.rules.NotExistsCondition;
 import org.jamocha.rules.ObjectCondition;
-import org.jamocha.rules.OrCondition;
 import org.jamocha.rules.Rule;
+import org.jamocha.rules.TestCondition;
 
 
 /**
@@ -78,7 +78,9 @@ public class BeffyRuleCompiler implements RuleCompiler {
 	 * this class represents one binding-scope in our rule. While
 	 * our org.jamocha.engine.scope.Scope class is a runtime-scope
 	 * (with values for the bindings) we need a simpler construct
-	 * here for just mapping the compiletime-structure
+	 * here for just mapping the compiletime-structure.
+	 * One scope is simply a set of conditions. Each scope has a parent
+	 * scope and some child scopes. 
 	 */
 	protected class Scope {
 		
@@ -135,6 +137,17 @@ public class BeffyRuleCompiler implements RuleCompiler {
 			return result;
 		}
 		
+		public Set<String> getIntroducedBindings() {
+			Set<String> result = getUsedBindings();
+			Scope parent = this.parent;
+			while (parent != null) {
+				Set<String> introducedEarlier = parent.getUsedBindings();
+				result.removeAll(introducedEarlier);
+				parent = parent.parent;
+			}
+			return result;
+		}
+		
 	}
 	
 	/**
@@ -154,7 +167,6 @@ public class BeffyRuleCompiler implements RuleCompiler {
 		
 		public RuleCompilation(Rule r) throws CompileRuleException {
 			rule = r;
-			rearrangeConditions();
 			computeConditionIndices();
 			bindingTableau = new BindingTableau(this);
 		}
@@ -195,10 +207,6 @@ public class BeffyRuleCompiler implements RuleCompiler {
 			computeConditionIndices(rule.getConditions(), 0, rootScope);
 		}
 
-		private void rearrangeConditions() {
-			// TODO Auto-generated method stub
-			
-		}
 
 		int getConditionIndex(Condition c) {
 			return conditionIndices.get(c);
@@ -303,13 +311,9 @@ public class BeffyRuleCompiler implements RuleCompiler {
 		
 		private void computePivots(Scope scope) throws CompileRuleException {
 			//compute all pivot elements here
-			Set<String> bindingsHere = scope.getUsedBindings();
+			Set<String> bindingsHere = scope.getIntroducedBindings();
 			for (String bind : bindingsHere){
 				List<BindingOccurence> occurences = getOccurencesList(bind);
-				
-				/* if we already have a pivot element from a higher scope, we dont need
-				 * anonther one		*/
-				if (pivotElements.get(bind) != null) continue;
 				
 				BindingOccurence pivot = null;
 				// first, we try to find a pivot element outside an or-condition
@@ -321,34 +325,15 @@ public class BeffyRuleCompiler implements RuleCompiler {
 					BoundConstraint bc = occ.getConstraint();
 					Condition c = bc.getParentCondition();
 					assert(c instanceof ObjectCondition);
-					boolean insideOr = false;
-					while (c != null) {
-						c = c.getParentCondition();
-						if (c instanceof OrCondition) {
-							insideOr = true;
-							break;
-						}
-					}
-					if (insideOr) continue;
 					
 					if (spivot == null) {
-						spivot = occ; //we we dont have any pivot element until here, we take everything
+						//if we dont have any pivot element until here, we take everything
+						spivot = occ; 
 					} else {
 						// else, we have to check, whether the new one is better than the old one (better = lower index)
 						if (occ.conditionIndex < spivot.conditionIndex) spivot = occ;
 					}
 				}
-				
-				if (pivot == null) {
-					// not much luck, we have to handle multiple occurences inside
-					// an or-condition
-					//brf();
-				}
-				
-				
-				
-				
-				
 				
 				if (pivot == null) throw new CompileRuleException("Sorry, but the rule compiler was" +
 																  "not able to determine a pivot element" +
@@ -368,8 +353,7 @@ public class BeffyRuleCompiler implements RuleCompiler {
 		}
 
 		public int getPivotCondition(String binding) {
-			//TODO
-			return 0;
+			return pivotElements.get(binding).getConditionIndex();
 		}
 
 		private List<BindingOccurence> getOccurencesList(String b) {
@@ -408,10 +392,80 @@ public class BeffyRuleCompiler implements RuleCompiler {
 		// TODO Auto-generated method stub
 
 	}
+	
+	protected void compileSubRule(Rule r) throws CompileRuleException {
+		RuleCompilation ruleCompilation = new RuleCompilation(r);
+		// we assume, that our precompiler created a rule, which has only one
+		// and-condition at top-level
+		Condition topLevel = r.getConditions().get(0);
+		compile(ruleCompilation, topLevel);
+	}
 
-	public boolean addRule(Rule rule) throws AssertException, RuleException, EvaluationException, CompileRuleException {
-		RuleCompilation ruleCompilation = new RuleCompilation(rule);
+	private boolean compileObjectCondition(RuleCompilation ruleComp, ObjectCondition cond) {
+		return false;
+	}
+
+	private boolean compileTestCondition(RuleCompilation ruleComp, TestCondition cond) {
+		return false;
+	}
+
+	private boolean compileAndCondition(RuleCompilation ruleComp, AndCondition cond) throws CompileRuleException {
+		/* This is some kind of entry point in our real compilation effort.
+		 * At this point, we assume, that all nested CEs are object-conditions, test conditions
+		 * and not-exists-conditions. we have no further nested and-condition here (since this 
+		 * would not play any role inside an and condition) and no or-conditions (since they are
+		 * replaced by a number of subrules).
+		 */
+		List<Condition> conds= cond.getNestedConditions();
+		boolean weMadeProgress = true;
+		while (weMadeProgress && !conds.isEmpty() ) {
+			weMadeProgress = false;
+			Iterator<Condition> iterC = conds.iterator();
+			while (iterC.hasNext()) {
+				Condition c = iterC.next();
+				if (compile(ruleComp,c)) {
+					weMadeProgress = true;
+					iterC.remove();
+				}
+			}
+		}
+		return (conds.isEmpty());
+	}
+
+	private boolean compileNotExistsCondition(RuleCompilation ruleComp, NotExistsCondition cond) {
+		return false;
+	}
+
+	private boolean compile(RuleCompilation ruleCompilation, Condition condition) throws CompileRuleException {
+		if (condition instanceof ObjectCondition) {
+			return compileObjectCondition( ruleCompilation, (ObjectCondition) condition);
+		} else if (condition instanceof TestCondition) {
+			return compileTestCondition( ruleCompilation, (TestCondition) condition);
+		} else if (condition instanceof AndCondition) {
+			return compileAndCondition( ruleCompilation, (AndCondition) condition);
+		} else if (condition instanceof NotExistsCondition) {
+			return compileNotExistsCondition( ruleCompilation, (NotExistsCondition) condition);
+		} else {
+			throw new CompileRuleException("unimplemented condition type "+condition.getClass().getSimpleName()+" found");
+		}
+	}
+
+	protected List<Rule> precompile(Rule rule) {
+		List<Rule> result = new ArrayList<Rule>();
 		
+		AndCondition topLevelAnd = new AndCondition();
+		for(Condition c:rule.getConditions()) topLevelAnd.addNestedCondition(c);
+		rule.getConditions().clear();
+		rule.getConditions().add(topLevelAnd);
+		
+		return result;
+	}
+	
+	public boolean addRule(Rule rule) throws AssertException, RuleException, EvaluationException, CompileRuleException {
+		
+		List<Rule> subRules = precompile(rule);
+		
+		for (Rule r : subRules)	compileSubRule(r);
 		
 		return true;
 	}
@@ -421,10 +475,6 @@ public class BeffyRuleCompiler implements RuleCompiler {
 		return null;
 	}
 
-	public ObjectTypeNode getObjectTypeNode(Template template) {
-		// TODO Auto-generated method stub
-		return null;
-	}
 
 	public TerminalNode getTerminalNode(Rule rule) {
 		// TODO Auto-generated method stub
@@ -441,11 +491,6 @@ public class BeffyRuleCompiler implements RuleCompiler {
 
 	}
 
-	public void removeObjectTypeNode(ObjectTypeNode node)
-			throws RetractException {
-		// TODO Auto-generated method stub
-
-	}
 
 	public void setValidateRule(boolean validate) {
 		// TODO Auto-generated method stub
