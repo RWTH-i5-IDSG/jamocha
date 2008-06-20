@@ -212,39 +212,9 @@ public class BeffyRuleCompiler implements RuleCompiler {
 	}
 	
 	/**
-	 * normally, we only need one SingleBindingOccurence.
-	 * But there are or-conditions, which invalidates this plan.
-	 * We need to store more than one location for only one
-	 * occurence inside an or-condition.
-	 *
-	 */
-	protected class BindingOccurence {
-		
-		private List<SingleBindingOccurence> occs;
-		
-		public BindingOccurence(boolean ident, int condIdx, BoundConstraint bc) {
-			this();
-			addOccurence(new SingleBindingOccurence(condIdx,ident,bc));
-		}
-		
-		public BindingOccurence() {
-			occs = new ArrayList<SingleBindingOccurence>();
-		}
-		
-		public void addOccurence(SingleBindingOccurence oc) {
-			occs.add(oc);
-		}
-		
-		public List<SingleBindingOccurence> getOccurences() {
-			return Collections.unmodifiableList(occs);
-		}
-		
-	}
-	
-	/**
 	 * this class represents the occurence of a binding.
 	 */
-	protected class SingleBindingOccurence {
+	protected class BindingOccurence {
 		
 		private int conditionIndex;
 		
@@ -252,7 +222,7 @@ public class BeffyRuleCompiler implements RuleCompiler {
 		
 		private BoundConstraint constr;
 		
-		public SingleBindingOccurence(int condIdx, boolean ident, BoundConstraint bc) {
+		public BindingOccurence(int condIdx, boolean ident, BoundConstraint bc) {
 			this.conditionIndex = condIdx;
 			this.ident = ident;
 			this.constr = bc;
@@ -283,7 +253,7 @@ public class BeffyRuleCompiler implements RuleCompiler {
 	 */
 	protected class BindingTableau {
 		
-		private Map<String, List<SingleBindingOccurence> > bindingOccurences;
+		private Map<String, List<BindingOccurence> > bindingOccurences;
 		
 		private Map<String, BindingOccurence> pivotElements;
 		
@@ -291,7 +261,7 @@ public class BeffyRuleCompiler implements RuleCompiler {
 		
 		public BindingTableau(RuleCompilation rule) throws CompileRuleException {
 			this.ruleCompilation = rule;
-			bindingOccurences = new HashMap<String, List<SingleBindingOccurence>>();
+			bindingOccurences = new HashMap<String, List<BindingOccurence>>();
 			computeBindingOccurences();
 			computePivots();
 		}
@@ -335,12 +305,16 @@ public class BeffyRuleCompiler implements RuleCompiler {
 			//compute all pivot elements here
 			Set<String> bindingsHere = scope.getUsedBindings();
 			for (String bind : bindingsHere){
-				List<SingleBindingOccurence> occurences = getOccurencesList(bind);
+				List<BindingOccurence> occurences = getOccurencesList(bind);
+				
+				/* if we already have a pivot element from a higher scope, we dont need
+				 * anonther one		*/
+				if (pivotElements.get(bind) != null) continue;
 				
 				BindingOccurence pivot = null;
 				// first, we try to find a pivot element outside an or-condition
-				SingleBindingOccurence spivot = null;
-				for (SingleBindingOccurence occ : occurences) {
+				BindingOccurence spivot = null;
+				for (BindingOccurence occ : occurences) {
 					if (!occ.ident) continue; // we only need occurences, which are not negated or anything like that
 					
 					// we check whether our occurence is inside an or-condition. we want to drop it for now, if so!
@@ -363,10 +337,6 @@ public class BeffyRuleCompiler implements RuleCompiler {
 						// else, we have to check, whether the new one is better than the old one (better = lower index)
 						if (occ.conditionIndex < spivot.conditionIndex) spivot = occ;
 					}
-				}
-				if (spivot != null) {
-					pivot = new BindingOccurence();
-					pivot.addOccurence(spivot);
 				}
 				
 				if (pivot == null) {
@@ -402,18 +372,18 @@ public class BeffyRuleCompiler implements RuleCompiler {
 			return 0;
 		}
 
-		private List<SingleBindingOccurence> getOccurencesList(String b) {
-			List<SingleBindingOccurence> result = bindingOccurences.get(b);
+		private List<BindingOccurence> getOccurencesList(String b) {
+			List<BindingOccurence> result = bindingOccurences.get(b);
 			if (result == null) {
-				result = new ArrayList<SingleBindingOccurence>();
+				result = new ArrayList<BindingOccurence>();
 				bindingOccurences.put(b, result);
 			}
 			return result;
 		}
 		
 		private void addSingleBindingOccurence(Condition cond, String binding, BoundConstraint bc,  boolean ident) {
-			List<SingleBindingOccurence> oclist = getOccurencesList(binding);
-			SingleBindingOccurence occ = new SingleBindingOccurence(ruleCompilation.getConditionIndex(cond), ident, bc);
+			List<BindingOccurence> oclist = getOccurencesList(binding);
+			BindingOccurence occ = new BindingOccurence(ruleCompilation.getConditionIndex(cond), ident, bc);
 			oclist.add(occ);
 		}
 		
