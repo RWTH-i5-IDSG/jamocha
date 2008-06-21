@@ -210,6 +210,8 @@ public class VisualizerPanel extends JPanel implements ClickListener,
 			ModulesChangedEventListener {
 
 		public void modulesChanged(final ModulesChangedEvent event) {
+			registerAsModulesListener();
+			reload();
 			if (event.getType() == ModulesChangedEventType.MODULE_ADDED) {
 				moduleChooser.addItem(event.getModule().getName());
 			} else if (event.getType() == ModulesChangedEventType.MODULE_REMOVED) {
@@ -241,12 +243,18 @@ public class VisualizerPanel extends JPanel implements ClickListener,
 
 	protected JPanel moduleChooserPanel;
 
+	protected void registerAsModulesListener() {
+		for (Module m : engine.getModules().getModuleList()) {
+			m.addModuleChangedEventListener(this);
+		}
+	}
+	
 	protected void setModule(final Module module) {
 		// TODO: Module event handling reactivation
-		if (this.module != null) {
-			this.module.removeModuleChangedEventListener(this);
-		}
-		module.addModuleChangedEventListener(this);
+//		if (this.module != null) {
+//			this.module.removeModuleChangedEventListener(this);
+//		}
+//		module.addModuleChangedEventListener(this);
 		this.module = module;
 	}
 
@@ -291,6 +299,7 @@ public class VisualizerPanel extends JPanel implements ClickListener,
 		loadModuleList();
 		engine.getModules().addModulesChangeListener(
 				new VisualizerModulesChangeListener());
+		registerAsModulesListener();
 
 		generateRulesList();
 		optionsPanel.add(rulePanel);
@@ -467,11 +476,11 @@ public class VisualizerPanel extends JPanel implements ClickListener,
 	}
 
 	public void templateAdded(final ModuleChangedEvent ev) {
-
+		reload();
 	}
 
 	public void templateRemoved(final ModuleChangedEvent ev) {
-
+		reload();
 	}
 
 	public void actionPerformed(final ActionEvent arg0) {

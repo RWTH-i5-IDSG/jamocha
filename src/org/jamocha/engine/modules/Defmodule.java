@@ -140,7 +140,10 @@ public class Defmodule implements Module {
 
 	public boolean addTemplate(final Template temp) {
 		final boolean result = modules.addTemplate(this, temp);
-		callListenersAddTemplate(temp);
+		if (result) {
+			modules.engine.getNet().addTemplate(temp);
+			callListenersAddTemplate(temp);
+		}
 		return result;
 	}
 

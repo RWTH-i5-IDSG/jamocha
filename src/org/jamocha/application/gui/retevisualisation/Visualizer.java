@@ -184,6 +184,7 @@ public class Visualizer extends JComponent implements ComponentListener,
 	}
 
 	protected Point toPhysical(final Point p, final VisualizerSetup setup) {
+		assert (p != null);
 		final Point result = new Point(p);
 		result.x *= (NodeDrawer.shapeWidth + NodeDrawer.shapeGapWidth) / 2;
 		result.x += (NodeDrawer.shapeGapWidth + NodeDrawer.shapeWidth) / 2;

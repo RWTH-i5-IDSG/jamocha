@@ -73,12 +73,13 @@ public class Modules implements SettingsChangedListener, Serializable {
 	private final TemplateDataContainer templates = new TemplateDataContainer();
 
 	protected Engine engine;
-
+	
 	/**
 	 * The HashMap for the modules.
 	 */
 	protected Map<String, Module> modules = new HashMap<String, Module>();
-
+	
+	
 	public Collection<Module> getModuleList() {
 		return modules.values();
 	}
@@ -228,12 +229,12 @@ public class Modules implements SettingsChangedListener, Serializable {
 		return rules.get(ruleName, module);
 	}
 
-	public void removeTemplate(final Module module, final Template temp) {
+	protected void removeTemplate(final Module module, final Template temp) {
 		templates.remove(temp.getName(), module);
 
 	}
 
-	public boolean addTemplate(final Module defmodule, final Template temp) {
+	protected boolean addTemplate(final Module defmodule, final Template temp) {
 		return templates.add(temp, defmodule);
 	}
 

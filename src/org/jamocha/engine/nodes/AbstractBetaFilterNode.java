@@ -130,34 +130,18 @@ public abstract class AbstractBetaFilterNode extends TwoInputNode {
 		return empty;
 	}
 
-	@Deprecated
-	/**
-	 * this method should never be called! Only exception is the usage from the
-	 * old SFRuleCompiler. New rule compilers must determine the filter array
-	 * before and use the constructor argument for setting it
-	 */
 	public void setFilter(final JoinFilter[] filter) {
 		filters = filter;
 	}
 
-	@Deprecated
-	/**
-	 * this method should never be called! Only exception is the usage from the
-	 * old SFRuleCompiler. New rule compilers must determine the filter array
-	 * before and use the constructor argument for setting it
-	 */
+
 	public void setFilter(final List<JoinFilter> filter) {
 		JoinFilter[] arr = new JoinFilter[filter.size()];
 		arr = filter.toArray(arr);
 		setFilter(arr);
 	}
 
-	@Deprecated
-	/**
-	 * this method should never be called! Only exception is the usage from the
-	 * old SFRuleCompiler. New rule compilers must determine the filter array
-	 * before and use the constructor argument for setting it
-	 */
+
 	public void addFilter(final JoinFilter filter) {
 		final JoinFilter[] tmpFilters = getFilters();
 		final JoinFilter[] arr = new JoinFilter[tmpFilters.length + 1];

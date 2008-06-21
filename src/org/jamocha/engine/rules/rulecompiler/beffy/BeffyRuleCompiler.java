@@ -33,17 +33,28 @@ import org.jamocha.communication.logging.Logging.JamochaLogger;
 import org.jamocha.engine.AssertException;
 import org.jamocha.engine.Binding;
 import org.jamocha.engine.Engine;
+import org.jamocha.engine.Parameter;
 import org.jamocha.engine.ReteNet;
 import org.jamocha.engine.RuleCompiler;
+import org.jamocha.engine.functions.Function;
+import org.jamocha.engine.functions.FunctionNotFoundException;
+import org.jamocha.engine.nodes.AbstractBetaFilterNode;
+import org.jamocha.engine.nodes.AlphaSlotComparatorNode;
 import org.jamocha.engine.nodes.Node;
 import org.jamocha.engine.nodes.NodeException;
 import org.jamocha.engine.nodes.ObjectTypeNode;
 import org.jamocha.engine.nodes.RootNode;
 import org.jamocha.engine.nodes.SlotFilterNode;
 import org.jamocha.engine.nodes.TerminalNode;
+import org.jamocha.engine.nodes.joinfilter.FieldComparator;
+import org.jamocha.engine.nodes.joinfilter.FunctionEvaluator;
+import org.jamocha.engine.nodes.joinfilter.JoinFilterException;
+import org.jamocha.engine.nodes.joinfilter.LeftFieldAddress;
+import org.jamocha.engine.nodes.joinfilter.RightFieldAddress;
 import org.jamocha.engine.rules.rulecompiler.CompileRuleException;
 import org.jamocha.engine.workingmemory.elements.Slot;
 import org.jamocha.engine.workingmemory.elements.Template;
+import org.jamocha.engine.workingmemory.elements.TemplateSlot;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.RuleException;
 import org.jamocha.rules.AndCondition;
@@ -237,6 +248,11 @@ public class BeffyRuleCompiler implements RuleCompiler {
 		public Scope getRootScope() {
 			return rootScope;
 		}
+
+		public AbstractBetaFilterNode getJoinNode(ObjectCondition cond) {
+			// TODO Auto-generated method stub
+			return null;
+		}
 		
 		
 	}
@@ -252,14 +268,21 @@ public class BeffyRuleCompiler implements RuleCompiler {
 		
 		private BoundConstraint constr;
 		
-		public BindingOccurence(int condIdx, boolean ident, BoundConstraint bc) {
+		private Condition cond;
+		
+		public BindingOccurence(int condIdx, boolean ident, BoundConstraint bc, Condition cond) {
 			this.conditionIndex = condIdx;
 			this.ident = ident;
 			this.constr = bc;
+			this.cond = cond;
 		}
 		
 		public String toString() {
 			return "["+conditionIndex+"id:"+ident+"]";
+		}
+		
+		public Condition getCondition() {
+			return cond;
 		}
 		
 		public int getConditionIndex() {
@@ -378,6 +401,10 @@ public class BeffyRuleCompiler implements RuleCompiler {
 			return pivotElements.get(binding).getConditionIndex();
 		}
 
+		public BindingOccurence getPivotOccurence(String binding) {
+			return pivotElements.get(binding);
+		}
+		
 		private List<BindingOccurence> getOccurencesList(String b) {
 			List<BindingOccurence> result = bindingOccurences.get(b);
 			if (result == null) {
@@ -389,7 +416,7 @@ public class BeffyRuleCompiler implements RuleCompiler {
 		
 		private void addSingleBindingOccurence(Condition cond, String binding, BoundConstraint bc,  boolean ident) {
 			List<BindingOccurence> oclist = getOccurencesList(binding);
-			BindingOccurence occ = new BindingOccurence(ruleCompilation.getConditionIndex(cond), ident, bc);
+			BindingOccurence occ = new BindingOccurence(ruleCompilation.getConditionIndex(cond), ident, bc, cond);
 			oclist.add(occ);
 		}
 		
@@ -448,8 +475,23 @@ public class BeffyRuleCompiler implements RuleCompiler {
 		 ruleComp.setConditionsLastNode(cond, sfn);
 	}
 	
-	private void compilePredicateConstraint(RuleCompilation ruleComp, ObjectCondition cond, PredicateConstraint constraint) {
+	private void substituteBindings(RuleCompilation ruleComp, ObjectCondition cond, PredicateConstraint constraint, List<Parameter> params) {
 		
+	}
+	
+	private void compilePredicateConstraint(RuleCompilation ruleComp, ObjectCondition cond, PredicateConstraint constraint) throws CompileRuleException {
+		try {
+			AbstractBetaFilterNode ourJoinNode = ruleComp.getJoinNode(cond);
+			Function function = engine.getFunctionMemory().findFunction(constraint.getFunctionName());
+			List<Parameter> parameters = constraint.getParameters();
+			substituteBindings(ruleComp,cond,constraint,parameters);
+			FunctionEvaluator evaluator = new FunctionEvaluator(engine, function, parameters);
+			ourJoinNode.addFilter(evaluator);
+		} catch (JoinFilterException e) {
+			throw new CompileRuleException(e);
+		} catch (FunctionNotFoundException e) {
+			throw new CompileRuleException("Function "+constraint.getFunctionName()+" not found.",e);
+		}
 	}
 
 	private void compileReturnValueConstraint(RuleCompilation ruleComp, ObjectCondition cond, ReturnValueConstraint constraint) {
@@ -464,11 +506,53 @@ public class BeffyRuleCompiler implements RuleCompiler {
 		
 	}
 	
-	private void compileBoundConstraint(RuleCompilation ruleComp, ObjectCondition cond, BoundConstraint constraint) {
+	private void compileBoundConstraint(RuleCompilation ruleComp, ObjectCondition cond, BoundConstraint constraint) throws NodeException {
+		AbstractBetaFilterNode ourJoinNode = ruleComp.getJoinNode(cond);
 		
+		String bindingName = constraint.getConstraintName();
+		BindingOccurence pivot = ruleComp.bindingTableau.getPivotOccurence(bindingName);
+		
+		if (pivot.constr == constraint) {
+			// CASE 1: The binding is our pivot element => nothing to do
+
+		} else if ( pivot.conditionIndex == ruleComp.getConditionIndex(cond) ) {
+			// CASE 2: The binding is not the pivot element, but is in the same condition
+			int operator = constraint.isNegated() ? Constants.NOTEQUAL : Constants.EQUAL;
+			Template t = engine.findTemplate(cond.getTemplateName());
+			TemplateSlot slot1 = t.getSlot(pivot.constr.getSlotName());
+			TemplateSlot slot2 = t.getSlot(constraint.getSlotName());
+			AlphaSlotComparatorNode comparatorNode = new AlphaSlotComparatorNode(
+					reteNet.nextNodeId(),engine.getWorkingMemory(), operator,slot1,slot2,reteNet);
+			Node lastNode = ruleComp.getConditionsLastNode(cond);
+			lastNode.addChild(comparatorNode);
+			ruleComp.setConditionsLastNode(cond, comparatorNode);
+			
+		} else {
+			// CASE 3: The binding is in another condition than the pivot's condition
+			
+			LeftFieldAddress left;
+			RightFieldAddress right;
+			{ // determine left field address
+				BindingOccurence piv = ruleComp.bindingTableau.getPivotOccurence(constraint.getConstraintName());
+				assert (piv.cond instanceof ObjectCondition); //because a pivot element can occur only in an object type condition
+				ObjectCondition pivotCondition = (ObjectCondition)piv.cond;
+				Template t = engine.findTemplate(pivotCondition.getTemplateName());
+				TemplateSlot tslot = t.getSlot(piv.constr.getSlotName());
+				left = new LeftFieldAddress(piv.conditionIndex, tslot.getId());
+			}
+			{ // determine right field address
+				Template t = engine.findTemplate(cond.getTemplateName());
+				TemplateSlot tslot = t.getSlot(constraint.getSlotName());
+				right = new RightFieldAddress(tslot.getId());
+			}
+			int op = constraint.isNegated() ? Constants.NOTEQUAL : Constants.EQUAL;
+			FieldComparator comp= new FieldComparator(constraint.getConstraintName(),left,op,right);
+			ourJoinNode.addFilter(comp);
+		}
+
 	}
 	
-	private boolean compileObjectCondition(RuleCompilation ruleComp, ObjectCondition cond) throws NodeException {
+	private boolean compileObjectCondition(RuleCompilation ruleComp, ObjectCondition cond) throws NodeException, CompileRuleException {
 		/* we assume that we have all bindind's pivot elements available at this moment,
 		 * because we already have rearranged our rule in order to achieve that  */
 		ObjectTypeNode otn = getObjectTypeNode(cond.getTemplateName());
@@ -559,6 +643,8 @@ public class BeffyRuleCompiler implements RuleCompiler {
 		for(Condition c:rule.getConditions()) topLevelAnd.addNestedCondition(c);
 		rule.getConditions().clear();
 		rule.getConditions().add(topLevelAnd);
+		
+		result.add(rule);
 		
 		return result;
 	}

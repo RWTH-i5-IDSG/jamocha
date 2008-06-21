@@ -648,8 +648,6 @@ public class Engine implements Dumpable {
 		if (mod == null)
 			mod = getCurrentFocus();
 		Boolean result = mod.addTemplate(tpl);
-		if (result)
-			net.addTemplate(tpl);
 		return result;
 	}
 
