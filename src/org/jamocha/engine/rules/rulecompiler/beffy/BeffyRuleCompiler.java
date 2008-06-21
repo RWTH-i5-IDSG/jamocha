@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.jamocha.Constants;
 import org.jamocha.communication.events.CompilerListener;
 import org.jamocha.communication.logging.Logging;
 import org.jamocha.communication.logging.Logging.JamochaLogger;
@@ -34,20 +35,30 @@ import org.jamocha.engine.Binding;
 import org.jamocha.engine.Engine;
 import org.jamocha.engine.ReteNet;
 import org.jamocha.engine.RuleCompiler;
+import org.jamocha.engine.nodes.Node;
+import org.jamocha.engine.nodes.NodeException;
+import org.jamocha.engine.nodes.ObjectTypeNode;
 import org.jamocha.engine.nodes.RootNode;
+import org.jamocha.engine.nodes.SlotFilterNode;
 import org.jamocha.engine.nodes.TerminalNode;
 import org.jamocha.engine.rules.rulecompiler.CompileRuleException;
+import org.jamocha.engine.workingmemory.elements.Slot;
 import org.jamocha.engine.workingmemory.elements.Template;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.RuleException;
 import org.jamocha.rules.AndCondition;
+import org.jamocha.rules.AndConnectedConstraint;
 import org.jamocha.rules.BoundConstraint;
 import org.jamocha.rules.Condition;
 import org.jamocha.rules.ConditionWithNested;
 import org.jamocha.rules.Constraint;
 import org.jamocha.rules.ExistsCondition;
+import org.jamocha.rules.LiteralConstraint;
 import org.jamocha.rules.NotExistsCondition;
 import org.jamocha.rules.ObjectCondition;
+import org.jamocha.rules.OrConnectedConstraint;
+import org.jamocha.rules.PredicateConstraint;
+import org.jamocha.rules.ReturnValueConstraint;
 import org.jamocha.rules.Rule;
 import org.jamocha.rules.TestCondition;
 
@@ -161,6 +172,8 @@ public class BeffyRuleCompiler implements RuleCompiler {
 		
 		private Map<Condition,Integer> conditionIndices;
 		
+		private Map<Condition,Node> conditionsLastNode;
+		
 		private Scope rootScope;
 		
 		private BindingTableau bindingTableau;
@@ -169,8 +182,17 @@ public class BeffyRuleCompiler implements RuleCompiler {
 			rule = r;
 			computeConditionIndices();
 			bindingTableau = new BindingTableau(this);
+			conditionsLastNode = new HashMap<Condition, Node>();
 		}
 
+		public void setConditionsLastNode(Condition c, Node n) {
+			conditionsLastNode.put(c, n);
+		}
+		
+		public Node getConditionsLastNode(Condition c) {
+			return conditionsLastNode.get(c);
+		}
+		
 		/**
 		 * here all condition indices are computed. this includes
 		 * a mapping Condition->index, Scopes and some more
@@ -375,8 +397,20 @@ public class BeffyRuleCompiler implements RuleCompiler {
 	
 	private JamochaLogger l;
 	
+	private Engine engine;
+	
+	private RootNode rootNode;
+	
+	private ReteNet reteNet;
+	
+	private Map<String,ObjectTypeNode> objectTypeNodes;
+	
 	public BeffyRuleCompiler(Engine engine, RootNode root, ReteNet net) {
 		l = Logging.logger(this.getClass());
+		this.engine = engine;
+		this.rootNode = root;
+		this.reteNet = net;
+		this.objectTypeNodes = new HashMap<String, ObjectTypeNode>();
 	}
 	
 	private void log(String message) {
@@ -388,9 +422,8 @@ public class BeffyRuleCompiler implements RuleCompiler {
 
 	}
 
-	public void addObjectTypeNode(Template template) {
-		// TODO Auto-generated method stub
-
+	public ObjectTypeNode getObjectTypeNode(String template) {
+		return objectTypeNodes.get(template);
 	}
 	
 	protected void compileSubRule(Rule r) throws CompileRuleException {
@@ -401,12 +434,77 @@ public class BeffyRuleCompiler implements RuleCompiler {
 		compile(ruleCompilation, topLevel);
 	}
 
-	private boolean compileObjectCondition(RuleCompilation ruleComp, ObjectCondition cond) {
+	private SlotFilterNode literalConstraint2SlotFilterNode(LiteralConstraint lc, ObjectCondition cond) {
+		Slot slot = new Slot(lc.getSlotName(), lc.getValue());
+		int operator = lc.isNegated() ?  Constants.NOTEQUAL : Constants.EQUAL;
+		SlotFilterNode slotfilter = new SlotFilterNode(reteNet.nextNodeId(),engine.getWorkingMemory(), operator, slot, reteNet);
+		return slotfilter;
+	}
+	
+	private void compileLiteralConstraint(RuleCompilation ruleComp, ObjectCondition cond, LiteralConstraint constraint) throws NodeException {
+		 SlotFilterNode sfn = literalConstraint2SlotFilterNode(constraint, cond);
+		 Node lastNode = ruleComp.getConditionsLastNode(cond);
+		 lastNode.addChild(sfn);
+		 ruleComp.setConditionsLastNode(cond, sfn);
+	}
+	
+	private void compilePredicateConstraint(RuleCompilation ruleComp, ObjectCondition cond, PredicateConstraint constraint) {
+		
+	}
+
+	private void compileReturnValueConstraint(RuleCompilation ruleComp, ObjectCondition cond, ReturnValueConstraint constraint) {
+		
+	}
+
+	private void compileAndConnectedConstraint(RuleCompilation ruleComp, ObjectCondition cond, AndConnectedConstraint constraint) {
+		
+	}
+
+	private void compileOrConnectedConstraint(RuleCompilation ruleComp, ObjectCondition cond, OrConnectedConstraint constraint) {
+		
+	}
+	
+	private void compileBoundConstraint(RuleCompilation ruleComp, ObjectCondition cond, BoundConstraint constraint) {
+		
+	}
+	
+	private boolean compileObjectCondition(RuleCompilation ruleComp, ObjectCondition cond) throws NodeException {
+		/* we assume that we have all bindind's pivot elements available at this moment,
+		 * because we already have rearranged our rule in order to achieve that  */
+		ObjectTypeNode otn = getObjectTypeNode(cond.getTemplateName());
+		
+		ruleComp.setConditionsLastNode(cond, otn);
+		
+		for (Constraint constr : cond.getConstraints()) {
+			if (constr instanceof LiteralConstraint) {
+				compileLiteralConstraint(ruleComp, cond, (LiteralConstraint)constr);
+			} else if (constr instanceof PredicateConstraint) {
+				compilePredicateConstraint(ruleComp, cond, (PredicateConstraint)constr);
+			} else if (constr instanceof ReturnValueConstraint) {
+				compileReturnValueConstraint(ruleComp, cond, (ReturnValueConstraint)constr);
+			} else if (constr instanceof AndConnectedConstraint) {
+				compileAndConnectedConstraint(ruleComp, cond, (AndConnectedConstraint)constr);
+			} else if (constr instanceof OrConnectedConstraint) {
+				compileOrConnectedConstraint(ruleComp, cond, (OrConnectedConstraint)constr);
+			} else if (constr instanceof BoundConstraint) {
+				compileBoundConstraint(ruleComp, cond, (BoundConstraint)constr);
+			}
+		}
 		return false;
 	}
 
 	private boolean compileTestCondition(RuleCompilation ruleComp, TestCondition cond) {
 		return false;
+	}
+	
+	private List<String> getUsedBindings(Condition c) {
+		List<String> result = new ArrayList<String>();
+		for (Constraint constr : c.getFlatConstraints() ) {
+			if (constr instanceof BoundConstraint) {
+				result.add(constr.getConstraintName());
+			}
+		}
+		return result;
 	}
 
 	private boolean compileAndCondition(RuleCompilation ruleComp, AndCondition cond) throws CompileRuleException {
@@ -437,16 +535,20 @@ public class BeffyRuleCompiler implements RuleCompiler {
 	}
 
 	private boolean compile(RuleCompilation ruleCompilation, Condition condition) throws CompileRuleException {
-		if (condition instanceof ObjectCondition) {
-			return compileObjectCondition( ruleCompilation, (ObjectCondition) condition);
-		} else if (condition instanceof TestCondition) {
-			return compileTestCondition( ruleCompilation, (TestCondition) condition);
-		} else if (condition instanceof AndCondition) {
-			return compileAndCondition( ruleCompilation, (AndCondition) condition);
-		} else if (condition instanceof NotExistsCondition) {
-			return compileNotExistsCondition( ruleCompilation, (NotExistsCondition) condition);
-		} else {
-			throw new CompileRuleException("unimplemented condition type "+condition.getClass().getSimpleName()+" found");
+		try{
+			if (condition instanceof ObjectCondition) {
+				return compileObjectCondition( ruleCompilation, (ObjectCondition) condition);
+			} else if (condition instanceof TestCondition) {
+				return compileTestCondition( ruleCompilation, (TestCondition) condition);
+			} else if (condition instanceof AndCondition) {
+				return compileAndCondition( ruleCompilation, (AndCondition) condition);
+			} else if (condition instanceof NotExistsCondition) {
+				return compileNotExistsCondition( ruleCompilation, (NotExistsCondition) condition);
+			} else {
+				throw new CompileRuleException("unimplemented condition type "+condition.getClass().getSimpleName()+" found");
+			}
+		} catch (NodeException e) {
+			throw new CompileRuleException("error while building the rete network. must be a bug :(",e);
 		}
 	}
 
@@ -495,6 +597,18 @@ public class BeffyRuleCompiler implements RuleCompiler {
 	public void setValidateRule(boolean validate) {
 		// TODO Auto-generated method stub
 
+	}
+
+	public void addObjectTypeNode(Template template) {
+		if (getObjectTypeNode(template.getName()) != null ) return;
+		ObjectTypeNode otn = new ObjectTypeNode(reteNet.nextNodeId(), engine.getWorkingMemory(),reteNet, template);
+		objectTypeNodes.put(template.getName(), otn);
+		try {
+			rootNode.addChild(otn);
+			otn.activate();
+		} catch (NodeException e) {
+			Logging.logger(this.getClass()).fatal(e);
+		}
 	}
 
 }
