@@ -264,6 +264,10 @@ public class Visualizer extends JComponent implements ComponentListener,
 		for (final Node child : root.getChildNodes()) {
 			Point childPos = positions.get(child);
 			Point rootPos = positions.get(root);
+			if (childPos == null || rootPos == null) {
+				reload();
+				return;
+			}
 			rootPos = toPhysical(rootPos, setup);
 			childPos = toPhysical(childPos, setup);
 

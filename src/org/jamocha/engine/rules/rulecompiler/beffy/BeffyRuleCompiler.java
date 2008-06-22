@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.jamocha.Constants;
+import org.jamocha.communication.events.CompileEvent;
 import org.jamocha.communication.events.CompilerListener;
 import org.jamocha.communication.logging.Logging;
 import org.jamocha.communication.logging.Logging.JamochaLogger;
@@ -40,10 +41,12 @@ import org.jamocha.engine.functions.Function;
 import org.jamocha.engine.functions.FunctionNotFoundException;
 import org.jamocha.engine.nodes.AbstractBetaFilterNode;
 import org.jamocha.engine.nodes.AlphaSlotComparatorNode;
+import org.jamocha.engine.nodes.LeftInputAdaptorNode;
 import org.jamocha.engine.nodes.Node;
 import org.jamocha.engine.nodes.NodeException;
 import org.jamocha.engine.nodes.ObjectTypeNode;
 import org.jamocha.engine.nodes.RootNode;
+import org.jamocha.engine.nodes.SimpleBetaFilterNode;
 import org.jamocha.engine.nodes.SlotFilterNode;
 import org.jamocha.engine.nodes.TerminalNode;
 import org.jamocha.engine.nodes.joinfilter.FieldComparator;
@@ -185,6 +188,8 @@ public class BeffyRuleCompiler implements RuleCompiler {
 		
 		private Map<Condition,Node> conditionsLastNode;
 		
+		private Map<Condition,AbstractBetaFilterNode> conditionJoiners;
+		
 		private Scope rootScope;
 		
 		private BindingTableau bindingTableau;
@@ -194,6 +199,7 @@ public class BeffyRuleCompiler implements RuleCompiler {
 			computeConditionIndices();
 			bindingTableau = new BindingTableau(this);
 			conditionsLastNode = new HashMap<Condition, Node>();
+			conditionJoiners = new HashMap<Condition, AbstractBetaFilterNode>();
 		}
 
 		public void setConditionsLastNode(Condition c, Node n) {
@@ -202,6 +208,14 @@ public class BeffyRuleCompiler implements RuleCompiler {
 		
 		public Node getConditionsLastNode(Condition c) {
 			return conditionsLastNode.get(c);
+		}
+		
+		public void setConditionJoiner(Condition c, AbstractBetaFilterNode joiner) {
+			conditionJoiners.put(c,joiner);
+		}
+		
+		public AbstractBetaFilterNode getConditionJoiner(Condition c) {
+			return conditionJoiners.get(c);
 		}
 		
 		/**
@@ -249,10 +263,6 @@ public class BeffyRuleCompiler implements RuleCompiler {
 			return rootScope;
 		}
 
-		public AbstractBetaFilterNode getJoinNode(ObjectCondition cond) {
-			// TODO Auto-generated method stub
-			return null;
-		}
 		
 		
 	}
@@ -295,6 +305,13 @@ public class BeffyRuleCompiler implements RuleCompiler {
 		
 		public BoundConstraint getConstraint() {
 			return constr;
+		}
+
+		public int getSlotIndex() {
+			ObjectCondition oc = (ObjectCondition) getCondition();
+			Template templ = engine.findTemplate(oc.getTemplateName());
+			TemplateSlot ts = templ.getSlot(getConstraint().getSlotName());
+			return ts.getId();
 		}
 		
 	}
@@ -361,8 +378,6 @@ public class BeffyRuleCompiler implements RuleCompiler {
 				List<BindingOccurence> occurences = getOccurencesList(bind);
 				
 				BindingOccurence pivot = null;
-				// first, we try to find a pivot element outside an or-condition
-				BindingOccurence spivot = null;
 				for (BindingOccurence occ : occurences) {
 					if (!occ.ident) continue; // we only need occurences, which are not negated or anything like that
 					
@@ -371,12 +386,12 @@ public class BeffyRuleCompiler implements RuleCompiler {
 					Condition c = bc.getParentCondition();
 					assert(c instanceof ObjectCondition);
 					
-					if (spivot == null) {
+					if (pivot == null) {
 						//if we dont have any pivot element until here, we take everything
-						spivot = occ; 
+						pivot = occ; 
 					} else {
 						// else, we have to check, whether the new one is better than the old one (better = lower index)
-						if (occ.conditionIndex < spivot.conditionIndex) spivot = occ;
+						if (occ.conditionIndex < pivot.conditionIndex) pivot = occ;
 					}
 				}
 				
@@ -432,12 +447,26 @@ public class BeffyRuleCompiler implements RuleCompiler {
 	
 	private Map<String,ObjectTypeNode> objectTypeNodes;
 	
+	private Map<Rule,RuleCompilation> compiledRules;
+
+	private List<CompilerListener> listeners;
+	
 	public BeffyRuleCompiler(Engine engine, RootNode root, ReteNet net) {
 		l = Logging.logger(this.getClass());
 		this.engine = engine;
 		this.rootNode = root;
 		this.reteNet = net;
 		this.objectTypeNodes = new HashMap<String, ObjectTypeNode>();
+		this.compiledRules = new HashMap<Rule, RuleCompilation>();
+		this.listeners = new ArrayList<CompilerListener>();
+	}
+	
+	private void signalListeners(Rule r) {
+		CompileEvent event = new CompileEvent(this, CompileEvent.CompileEventType.RULE_ADDED);
+		event.setRule(r);
+		for (CompilerListener l : listeners) {
+			l.compileEventOccured(event);
+		}
 	}
 	
 	private void log(String message) {
@@ -445,20 +474,41 @@ public class BeffyRuleCompiler implements RuleCompiler {
 	}
 
 	public void addListener(CompilerListener listener) {
-		// TODO Auto-generated method stub
-
+		listeners.add(listener);
 	}
 
 	public ObjectTypeNode getObjectTypeNode(String template) {
 		return objectTypeNodes.get(template);
 	}
 	
-	protected void compileSubRule(Rule r) throws CompileRuleException {
+	protected void compileSubRule(Rule r) throws CompileRuleException, NodeException {
 		RuleCompilation ruleCompilation = new RuleCompilation(r);
 		// we assume, that our precompiler created a rule, which has only one
 		// and-condition at top-level
 		Condition topLevel = r.getConditions().get(0);
+		assert (topLevel instanceof AndCondition);
 		compile(ruleCompilation, topLevel);
+		
+		// we determine our last condition joiner
+		List<Condition> conditions = ((AndCondition)topLevel).getNestedConditions();
+		Condition lastCondition = conditions.get(conditions.size()-1);
+		Node lastJoiner = ruleCompilation.getConditionJoiner(lastCondition);
+		assert (lastJoiner.getChildNodes().length==0);
+		
+		TerminalNode terminal = compileTerminalNode(ruleCompilation);
+		lastJoiner.addChild(terminal);
+		compiledRules.put(r, ruleCompilation);
+		
+		r.parentModule().addRule(r);
+		signalListeners(r);
+	}
+	
+	
+
+	private TerminalNode compileTerminalNode(RuleCompilation ruleCompilation) {
+		TerminalNode result = new TerminalNode(reteNet.nextNodeId(),engine.getWorkingMemory(),ruleCompilation.rule,reteNet);
+		
+		return result;
 	}
 
 	private SlotFilterNode literalConstraint2SlotFilterNode(LiteralConstraint lc, ObjectCondition cond) {
@@ -481,7 +531,7 @@ public class BeffyRuleCompiler implements RuleCompiler {
 	
 	private void compilePredicateConstraint(RuleCompilation ruleComp, ObjectCondition cond, PredicateConstraint constraint) throws CompileRuleException {
 		try {
-			AbstractBetaFilterNode ourJoinNode = ruleComp.getJoinNode(cond);
+			AbstractBetaFilterNode ourJoinNode = ruleComp.getConditionJoiner(cond);
 			Function function = engine.getFunctionMemory().findFunction(constraint.getFunctionName());
 			List<Parameter> parameters = constraint.getParameters();
 			substituteBindings(ruleComp,cond,constraint,parameters);
@@ -507,7 +557,7 @@ public class BeffyRuleCompiler implements RuleCompiler {
 	}
 	
 	private void compileBoundConstraint(RuleCompilation ruleComp, ObjectCondition cond, BoundConstraint constraint) throws NodeException {
-		AbstractBetaFilterNode ourJoinNode = ruleComp.getJoinNode(cond);
+		AbstractBetaFilterNode ourJoinNode = ruleComp.getConditionJoiner(cond);
 		
 		String bindingName = constraint.getConstraintName();
 		BindingOccurence pivot = ruleComp.bindingTableau.getPivotOccurence(bindingName);
@@ -599,6 +649,11 @@ public class BeffyRuleCompiler implements RuleCompiler {
 		 * replaced by a number of subrules).
 		 */
 		List<Condition> conds= cond.getNestedConditions();
+		try {
+			generateJoinNodes(ruleComp,conds);
+		} catch (NodeException e) {
+			Logging.logger(this.getClass()).fatal(e);
+		}
 		boolean weMadeProgress = true;
 		while (weMadeProgress && !conds.isEmpty() ) {
 			weMadeProgress = false;
@@ -611,7 +666,33 @@ public class BeffyRuleCompiler implements RuleCompiler {
 				}
 			}
 		}
+		try {
+			mountJoinNodes(ruleComp,conds);
+		} catch (NodeException e) {
+			Logging.logger(this.getClass()).fatal(e);
+		}
 		return (conds.isEmpty());
+	}
+
+	private void mountJoinNodes(RuleCompilation ruleComp, List<Condition> conds) throws NodeException {
+		for (Condition c : conds) {
+			AbstractBetaFilterNode j = ruleComp.getConditionJoiner(c);
+			Node last = ruleComp.getConditionsLastNode(c);
+			last.addChild(j);
+		}
+	}
+
+	private void generateJoinNodes(RuleCompilation ruleComp, List<Condition> conds) throws NodeException {
+		ObjectTypeNode initialFact = getObjectTypeNode(Constants.INITIAL_FACT);
+		Node init = new LeftInputAdaptorNode(reteNet.nextNodeId(),engine.getWorkingMemory(),reteNet);
+		initialFact.addChild(init);
+		Node before = init;
+		for (Condition c : conds) {
+			AbstractBetaFilterNode j = new SimpleBetaFilterNode(reteNet.nextNodeId(),engine.getWorkingMemory(),reteNet);
+			before.addChild(j);
+			ruleComp.setConditionJoiner(c, j);
+			before = j;
+		}
 	}
 
 	private boolean compileNotExistsCondition(RuleCompilation ruleComp, NotExistsCondition cond) {
@@ -653,14 +734,27 @@ public class BeffyRuleCompiler implements RuleCompiler {
 		
 		List<Rule> subRules = precompile(rule);
 		
-		for (Rule r : subRules)	compileSubRule(r);
+		try {
+			for (Rule r : subRules)	compileSubRule(r);
+			reteNet.getRoot().activate();
+		} catch (NodeException e) {
+			throw new CompileRuleException(e);
+		}
+		
+		
 		
 		return true;
 	}
 
 	public Binding getBinding(String varName, Rule r) {
-		// TODO Auto-generated method stub
-		return null;
+		RuleCompilation rc = compiledRules.get(r);
+		BindingOccurence pivot = rc.bindingTableau.getPivotOccurence(varName);
+		assert (pivot != null);
+		Binding b = new Binding();
+		b.setLeftIndex(pivot.getSlotIndex());
+		b.setLeftRow(pivot.getConditionIndex());
+		//TODO cache that
+		return b;
 	}
 
 
@@ -675,8 +769,7 @@ public class BeffyRuleCompiler implements RuleCompiler {
 	}
 
 	public void removeListener(CompilerListener listener) {
-		// TODO Auto-generated method stub
-
+		listeners.remove(listener);
 	}
 
 

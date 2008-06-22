@@ -94,9 +94,6 @@ public abstract class Node {
 		final StringBuilder sb = new StringBuilder();
 		sb.append("[").append(this.getClass().getSimpleName());
 		getDescriptionString(sb);
-		sb.append("|working-memory:\n");
-		for (final WorkingMemoryElement wme : memory())
-			sb.append(wme).append("\n");
 		sb.append("]\n");
 		return sb.toString();
 	}
