@@ -46,12 +46,6 @@ public class ObjectCondition extends AbstractCondition {
 
 	protected String templateName = null;
 
-	/* varname is the optional binding name for the whole fact
-	 * example:
-	 * ?x <- (beer (name "Baron Pils") )
-	 */
-	protected String varname = null;
-
 	protected List<Constraint> constraints = new ArrayList<Constraint>();
 
 	protected Template template = null;
@@ -59,16 +53,11 @@ public class ObjectCondition extends AbstractCondition {
 	/**
 	 * 
 	 */
-	public ObjectCondition(List<Constraint> constraints, String templateName, String variableName) {
+	public ObjectCondition(List<Constraint> constraints, String templateName) {
 		super();
 		this.constraints = constraints;
 		this.templateName = templateName;
-		this.varname = variableName;
 		registerAsParentCondition();
-	}
-	
-	public ObjectCondition(List<Constraint> constraints, String templateName) {
-		this(constraints, templateName, null);
 	}
 	
 	private void registerAsParentCondition() {
@@ -79,14 +68,6 @@ public class ObjectCondition extends AbstractCondition {
 
 	public String getTemplateName() {
 		return this.templateName;
-	}
-
-	public String getVariableName() {
-		return this.varname;
-	}
-	
-	public void setVariableName(String varname) {
-		this.varname = varname;
 	}
 
 	public Node compile(SFRuleCompiler compiler, Rule rule, int conditionIndex)
@@ -110,20 +91,12 @@ public class ObjectCondition extends AbstractCondition {
 	}
 
 	public List<Constraint> getConstraints() {
-		if (varname == null) {
-			return Collections.unmodifiableList(constraints);
-		} else {
-			List<Constraint> result = new ArrayList<Constraint>(constraints.size()+1);
-			for (Constraint c : constraints) result.add(c);
-			BoundConstraint objectBc = new BoundConstraint(varname,false);
-			result.add(objectBc);
-			return result;
-		}
+		return Collections.unmodifiableList(constraints);
 	}
 	
-	@Deprecated
 	public void addConstraint(Constraint c) {
 		constraints.add(c);
+		c.setParentCondition(this);
 	}
 
 	public List<Constraint> getFlatConstraints() {

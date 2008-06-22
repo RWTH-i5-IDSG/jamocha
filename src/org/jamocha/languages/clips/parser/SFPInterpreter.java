@@ -756,7 +756,11 @@ public class SFPInterpreter implements SFPParserVisitor {
 		// get the object condition from subnode:
 		ObjectCondition objectCond = (ObjectCondition) node.jjtGetChild(1)
 				.jjtAccept(this, data);
-		objectCond.setVariableName(variable.getStringValue());
+		
+		if (variable.getStringValue() != null && variable.getStringValue().length()>0) {
+			BoundConstraint factBinding = new BoundConstraint(variable.getStringValue(),false);
+			objectCond.addConstraint(factBinding);
+		}
 
 		// create boundconstraint
 		// TODO remove BoundConstraint bc = new

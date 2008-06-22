@@ -96,6 +96,18 @@ import org.jamocha.rules.TestCondition;
  * it wouldn't be possible for me to implement all the features. 
  * 
  */
+
+/* TODO:
+ * 
+ * And-Connected-Constraints
+ * Or-Connected-Constraints
+ * Return-Value-Constraints
+ * Not-Exists-CE
+ * Exists-CE
+ * Test-Conditions 
+ * 
+ */
+
 public class BeffyRuleCompiler implements RuleCompiler {
 
 	
@@ -280,6 +292,22 @@ public class BeffyRuleCompiler implements RuleCompiler {
 		
 		private Condition cond;
 		
+		public LeftFieldAddress toLeftFieldAddress() {
+			if (constr.isFactBinding()) {
+				return new LeftFieldAddress(getConditionIndex());
+			} else {
+				return new LeftFieldAddress(getConditionIndex(),getSlotIndex());
+			}
+		}
+		
+		public RightFieldAddress toRightFieldAddress() {
+			if (constr.isFactBinding()) {
+				return new RightFieldAddress();
+			} else {
+				return new RightFieldAddress(getSlotIndex());
+			}
+		}
+		
 		public BindingOccurence(int condIdx, boolean ident, BoundConstraint bc, Condition cond) {
 			this.conditionIndex = condIdx;
 			this.ident = ident;
@@ -307,7 +335,12 @@ public class BeffyRuleCompiler implements RuleCompiler {
 			return constr;
 		}
 
+		public boolean isFactBinding() {
+			return constr.isFactBinding();
+		}
+		
 		public int getSlotIndex() {
+			assert !isFactBinding();
 			ObjectCondition oc = (ObjectCondition) getCondition();
 			Template templ = engine.findTemplate(oc.getTemplateName());
 			TemplateSlot ts = templ.getSlot(getConstraint().getSlotName());
@@ -580,21 +613,18 @@ public class BeffyRuleCompiler implements RuleCompiler {
 		} else {
 			// CASE 3: The binding is in another condition than the pivot's condition
 			
-			LeftFieldAddress left;
+			BindingOccurence piv = ruleComp.bindingTableau.getPivotOccurence(constraint.getConstraintName());
+			LeftFieldAddress left = piv.toLeftFieldAddress();
+			
 			RightFieldAddress right;
-			{ // determine left field address
-				BindingOccurence piv = ruleComp.bindingTableau.getPivotOccurence(constraint.getConstraintName());
-				assert (piv.cond instanceof ObjectCondition); //because a pivot element can occur only in an object type condition
-				ObjectCondition pivotCondition = (ObjectCondition)piv.cond;
-				Template t = engine.findTemplate(pivotCondition.getTemplateName());
-				TemplateSlot tslot = t.getSlot(piv.constr.getSlotName());
-				left = new LeftFieldAddress(piv.conditionIndex, tslot.getId());
-			}
-			{ // determine right field address
+			if (constraint.isFactBinding()) {
+				right = new RightFieldAddress();
+			} else {
 				Template t = engine.findTemplate(cond.getTemplateName());
 				TemplateSlot tslot = t.getSlot(constraint.getSlotName());
 				right = new RightFieldAddress(tslot.getId());
 			}
+
 			int op = constraint.isNegated() ? Constants.NOTEQUAL : Constants.EQUAL;
 			FieldComparator comp= new FieldComparator(constraint.getConstraintName(),left,op,right);
 			ourJoinNode.addFilter(comp);
@@ -751,7 +781,11 @@ public class BeffyRuleCompiler implements RuleCompiler {
 		BindingOccurence pivot = rc.bindingTableau.getPivotOccurence(varName);
 		assert (pivot != null);
 		Binding b = new Binding();
-		b.setLeftIndex(pivot.getSlotIndex());
+		if (pivot.constr.isFactBinding()) {
+			b.setIsObjectVar(true);
+		} else {
+			b.setLeftIndex(pivot.getSlotIndex());
+		}
 		b.setLeftRow(pivot.getConditionIndex());
 		//TODO cache that
 		return b;
