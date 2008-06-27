@@ -110,15 +110,6 @@ public class ReteNet implements SettingsChangedListener, Serializable {
 		}
 	}
 
-	public void setValidateRule(boolean val) {
-		compiler.setValidateRule(val);
-
-	}
-
-	public boolean getValidateRule() {
-		return compiler.getValidateRule();
-	}
-
 	public void addTemplate(Template template) {
 		compiler.addObjectTypeNode(template);
 	}

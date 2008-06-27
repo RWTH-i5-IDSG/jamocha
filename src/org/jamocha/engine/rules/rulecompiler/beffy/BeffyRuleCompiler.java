@@ -202,6 +202,8 @@ public class BeffyRuleCompiler implements RuleCompiler {
 		
 		private Map<Condition,AbstractBetaFilterNode> conditionJoiners;
 		
+		private Map<String,Binding> bindingCache;
+		
 		private Scope rootScope;
 		
 		private BindingTableau bindingTableau;
@@ -212,6 +214,7 @@ public class BeffyRuleCompiler implements RuleCompiler {
 			bindingTableau = new BindingTableau(this);
 			conditionsLastNode = new HashMap<Condition, Node>();
 			conditionJoiners = new HashMap<Condition, AbstractBetaFilterNode>();
+			bindingCache = new HashMap<String, Binding>();
 		}
 
 		public void setConditionsLastNode(Condition c, Node n) {
@@ -530,6 +533,9 @@ public class BeffyRuleCompiler implements RuleCompiler {
 		
 		TerminalNode terminal = compileTerminalNode(ruleCompilation);
 		lastJoiner.addChild(terminal);
+		
+		//ruleCompilation.
+		
 		compiledRules.put(r, ruleCompilation);
 		
 		r.parentModule().addRule(r);
@@ -778,6 +784,8 @@ public class BeffyRuleCompiler implements RuleCompiler {
 
 	public Binding getBinding(String varName, Rule r) {
 		RuleCompilation rc = compiledRules.get(r);
+		Binding result = rc.bindingCache.get(varName);
+		if (result !=null) return result;
 		BindingOccurence pivot = rc.bindingTableau.getPivotOccurence(varName);
 		assert (pivot != null);
 		Binding b = new Binding();
@@ -787,29 +795,12 @@ public class BeffyRuleCompiler implements RuleCompiler {
 			b.setLeftIndex(pivot.getSlotIndex());
 		}
 		b.setLeftRow(pivot.getConditionIndex());
-		//TODO cache that
+		rc.bindingCache.put(varName, b);
 		return b;
-	}
-
-
-	public TerminalNode getTerminalNode(Rule rule) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public boolean getValidateRule() {
-		// TODO Auto-generated method stub
-		return false;
 	}
 
 	public void removeListener(CompilerListener listener) {
 		listeners.remove(listener);
-	}
-
-
-	public void setValidateRule(boolean validate) {
-		// TODO Auto-generated method stub
-
 	}
 
 	public void addObjectTypeNode(Template template) {

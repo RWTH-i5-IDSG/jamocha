@@ -42,22 +42,6 @@ public interface RuleCompiler {
 	}
 
 	/**
-	 * for the runtime, the default should be false. For the development the
-	 * setting should be set to true.
-	 * 
-	 * @param validate
-	 */
-	void setValidateRule(boolean validate);
-
-	/**
-	 * return whether the rule compiler is set to validate the rule before
-	 * compiling it.
-	 * 
-	 * @return
-	 */
-	boolean getValidateRule();
-
-	/**
 	 * A rule can be added dynamically at runtime to an existing engine. If the
 	 * engine wasn't able to add the rule, it will throw an exception.
 	 * 
@@ -90,15 +74,6 @@ public interface RuleCompiler {
 	 * @param listener
 	 */
 	void removeListener(CompilerListener listener);
-
-	/**
-	 * Returns the terminal node for a given rule, which must be already
-	 * compiled
-	 * 
-	 * @param rule
-	 * @return
-	 */
-	TerminalNode getTerminalNode(Rule rule);
 
 	Binding getBinding(String varName, Rule r);
 
