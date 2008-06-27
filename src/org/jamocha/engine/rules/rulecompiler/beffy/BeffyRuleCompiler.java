@@ -90,10 +90,11 @@ import org.jamocha.rules.TestCondition;
  * 
  * As you can see at many places in the code: This rule compiler is 
  * _NOT_ optimized for memory-usage, for the speed of rule-compiling
- * or the size size of the resulting rete network. At many places,
+ * or the size of the resulting rete network. At many places,
  * my code makes redundant things. In exchange, the code is more readable,
- * more understandable and more powerful, since with efficiency in mind,
- * it wouldn't be possible for me to implement all the features. 
+ * more understandable and more powerful than the old one, since with 
+ * efficiency in mind, it wouldn't be possible for me to implement all
+ * the features :-p
  * 
  */
 
