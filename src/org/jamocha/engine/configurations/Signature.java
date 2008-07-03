@@ -96,6 +96,14 @@ public class Signature extends AbstractSignature implements Cloneable {
 	public void setParameters(Parameter[] params) {
 		this.params = params;
 	}
+	
+	public void setParameters(List<Parameter> p) {
+		Parameter[] params = new Parameter[p.size()];
+		for (int i=0; i<p.size(); i++) {
+			params[i] = p.get(i);
+		}
+		setParameters(params);
+	}
 
 	public List<BoundParam> getBoundParameters() {
 		ArrayList<BoundParam> result = new ArrayList<BoundParam>();

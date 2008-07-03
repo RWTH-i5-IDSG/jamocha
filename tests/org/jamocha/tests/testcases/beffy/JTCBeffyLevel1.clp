@@ -35,6 +35,8 @@
 	?y <- (gemuese)
 	?y <- (gemuese (name ?wn) (gewicht ?g) )
 	(salat (name ?sn) (gewicht ?g) )
+	(test (eq (str-length ?wn) 10 ) )
+	(test (greater (str-length ?sn) 13 ) )
 =>
 	(bind *?result (str-cat ?wn ?g ?sn) )
 	(printout t (str-cat ?wn ?g ?sn) crlf)

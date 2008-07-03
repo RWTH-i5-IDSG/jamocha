@@ -33,10 +33,12 @@ import org.jamocha.communication.logging.Logging;
 import org.jamocha.communication.logging.Logging.JamochaLogger;
 import org.jamocha.engine.AssertException;
 import org.jamocha.engine.Binding;
+import org.jamocha.engine.BoundParam;
 import org.jamocha.engine.Engine;
 import org.jamocha.engine.Parameter;
 import org.jamocha.engine.ReteNet;
 import org.jamocha.engine.RuleCompiler;
+import org.jamocha.engine.configurations.Signature;
 import org.jamocha.engine.functions.Function;
 import org.jamocha.engine.functions.FunctionNotFoundException;
 import org.jamocha.engine.nodes.AbstractBetaFilterNode;
@@ -75,7 +77,6 @@ import org.jamocha.rules.PredicateConstraint;
 import org.jamocha.rules.ReturnValueConstraint;
 import org.jamocha.rules.Rule;
 import org.jamocha.rules.TestCondition;
-
 
 /**
  * @author Josef Alexander Hahn
@@ -661,13 +662,51 @@ public class BeffyRuleCompiler implements RuleCompiler {
 				compileBoundConstraint(ruleComp, cond, (BoundConstraint)constr);
 			}
 		}
-		return false;
+		return true;
 	}
 
 	private boolean compileTestCondition(RuleCompilation ruleComp, TestCondition cond) {
-		return false;
+		try{
+			ruleComp.setConditionsLastNode(cond, getObjectTypeNode("_initialFact"));
+			Function function = cond.getFunction().lookUpFunction(engine);
+			List<Parameter> parameters = substituteBoundParams(ruleComp, cond.getFunction().getParameters());
+			FunctionEvaluator evaluator = new FunctionEvaluator(engine, function, parameters);
+			AbstractBetaFilterNode join = ruleComp.getConditionJoiner(cond);
+			join.addFilter(evaluator);
+		} catch (FunctionNotFoundException f) {
+			Logging.logger(this.getClass()).info(f);
+			return false;
+		} catch (JoinFilterException e) {
+			Logging.logger(this.getClass()).info(e);
+			return false;
+		}
+		return true;
 	}
 	
+	private List<Parameter> substituteBoundParams(RuleCompilation rc, Parameter[] parameters) {
+		ArrayList<Parameter> result = new ArrayList<Parameter>();
+		for(Parameter p : parameters) {
+			if (p instanceof Signature) {
+				Signature s1 = (Signature) p;
+				Signature s2 = new Signature(s1.getSignatureName());
+				s2.setParameters( substituteBoundParams(rc, s1.getParameters()));
+				result.add(s2);
+			} else if (p instanceof BoundParam) {
+				BindingOccurence boc = rc.bindingTableau.getPivotOccurence(((BoundParam)p).getVariableName());
+				LeftFieldAddress lfa;
+				if (boc.constr.isFactBinding()) {
+					lfa = new LeftFieldAddress(boc.getConditionIndex());
+				} else {
+					lfa = new LeftFieldAddress(boc.getConditionIndex(), boc.getSlotIndex());
+				}
+				result.add(lfa);
+			} else {
+				result.add(p);
+			}
+		}
+		return result;
+	}
+
 	private List<String> getUsedBindings(Condition c) {
 		List<String> result = new ArrayList<String>();
 		for (Constraint constr : c.getFlatConstraints() ) {
@@ -685,7 +724,8 @@ public class BeffyRuleCompiler implements RuleCompiler {
 		 * would not play any role inside an and condition) and no or-conditions (since they are
 		 * replaced by a number of subrules).
 		 */
-		List<Condition> conds= cond.getNestedConditions();
+		List<Condition> conds= new ArrayList<Condition>();
+		conds.addAll(cond.getNestedConditions());
 		try {
 			generateJoinNodes(ruleComp,conds);
 		} catch (NodeException e) {
@@ -704,7 +744,7 @@ public class BeffyRuleCompiler implements RuleCompiler {
 			}
 		}
 		try {
-			mountJoinNodes(ruleComp,conds);
+			mountJoinNodes(ruleComp,cond.getNestedConditions());
 		} catch (NodeException e) {
 			Logging.logger(this.getClass()).fatal(e);
 		}
