@@ -26,11 +26,12 @@ import org.jamocha.engine.nodes.Node;
 import org.jamocha.engine.rules.rulecompiler.sfp.SFRuleCompiler;
 
 /**
- * @author Peter Lin
  * 
  * BoundConstraint is a basic implementation of Constraint interface for bound
  * constraints. When a rule declares a slot as a binding, a BoundConstraint is
  * used.
+ * @author Peter Lin
+ * @author Josef Alexander Hahn <http://www.josef-hahn.de>
  */
 public class BoundConstraint extends AbstractConstraint {
 

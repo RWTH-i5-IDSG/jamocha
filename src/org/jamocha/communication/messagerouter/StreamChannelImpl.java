@@ -18,14 +18,12 @@
 
 package org.jamocha.communication.messagerouter;
 
-import org.jamocha.communication.events.MessageEvent;
-
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 
+import org.jamocha.communication.events.MessageEvent;
 import org.jamocha.parser.Expression;
-import org.jamocha.parser.ModeNotFoundException;
 import org.jamocha.parser.ParseException;
 import org.jamocha.parser.ParserFactory;
 
@@ -62,18 +60,15 @@ class StreamChannelImpl extends AbstractCommunicationChannel implements
 		streamChannelThread = new StreamChannelThread();
 	}
 
-	public void init(InputStream inputStream, String parserName)
-			throws ModeNotFoundException {
-		init(new InputStreamReader(inputStream), parserName);
+	public void init(InputStream inputStream) {
+		init(new InputStreamReader(inputStream));
 	}
 
-	public void init(Reader reader, String parserName)
-			throws ModeNotFoundException {
+	public void init(Reader reader) {
 		this.reader = reader;
-		this.parserName = parserName;
 		streamChannelThread.setStopped();
 		streamChannelThread = new StreamChannelThread();
-		parser = ParserFactory.getParser(parserName, reader);
+		parser = ParserFactory.getParser(reader);
 		streamChannelThread.start();
 		initDone = true;
 	}

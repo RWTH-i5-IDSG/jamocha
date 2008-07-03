@@ -30,12 +30,11 @@ import org.jamocha.formatter.Formatter;
 import org.jamocha.parser.EvaluationException;
 
 /**
- * @author Peter Lin
- * @author Josef Alexander Hahn <http://www.josef-hahn.de>
- * 
  * ObjectCondition is equivalent to RuleML 0.83 resourceType. ObjectCondition
  * matches on the fields of an object. The patterns may be simple value
  * comparisons, or joins against other objects.
+ * @author Peter Lin
+ * @author Josef Alexander Hahn <http://www.josef-hahn.de>
  */
 public class ObjectCondition extends AbstractCondition {
 

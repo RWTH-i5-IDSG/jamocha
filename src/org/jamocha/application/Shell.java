@@ -26,9 +26,8 @@ import org.jamocha.Constants;
 import org.jamocha.communication.events.MessageEvent;
 import org.jamocha.communication.messagerouter.MessageRouter;
 import org.jamocha.communication.messagerouter.StreamChannel;
-import org.jamocha.parser.JamochaValue;
-import org.jamocha.parser.ModeNotFoundException;
 import org.jamocha.engine.Engine;
+import org.jamocha.parser.JamochaValue;
 
 /**
  * This class represents a simple command line shell on System.in / System.out.
@@ -44,7 +43,7 @@ public class Shell {
 
 	private StreamChannel channel;
 
-	public Shell(Engine engine) throws ModeNotFoundException {
+	public Shell(Engine engine) {
 		router = engine.getMessageRouter();
 		channel = router.openChannel(CHANNELNAME, System.in);
 	}

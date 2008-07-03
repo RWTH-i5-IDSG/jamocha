@@ -18,8 +18,6 @@
 
 package org.jamocha.communication.messagerouter;
 
-import org.jamocha.communication.events.MessageEvent;
-
 import java.io.InputStream;
 import java.io.Reader;
 import java.io.Serializable;
@@ -30,11 +28,11 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import org.jamocha.communication.events.MessageEvent;
+import org.jamocha.engine.Engine;
 import org.jamocha.parser.Expression;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.parser.ModeNotFoundException;
 import org.jamocha.parser.ParserFactory;
-import org.jamocha.engine.Engine;
 
 /**
  * A MessageRouter is responsible for sending messages to the Rete-engine and
@@ -151,59 +149,6 @@ public class MessageRouter implements Serializable {
 	}
 
 	/**
-	 * Opens a <code>StreamChannel</code> with an <code>InputStream</code>
-	 * and a preferred parser.
-	 * <p>
-	 * The <code>InterestType</code> will be the default
-	 * <code>InterestType.MINE</code>.
-	 * 
-	 * @param channelName
-	 *            Preferred name of the channel. Will be completed to the unique
-	 *            channel ID with the current value of the
-	 *            <code>idCounter</code>.
-	 * @param inputStream
-	 *            The Stream to read from.
-	 * @param parserName
-	 *            Name of the Parser to use. Have a look at
-	 *            {@link ParserFactory} for available Parsers.
-	 * @return Instance of the new channel.
-	 * @throws ParserNotFoundException
-	 *             if the preferred Parser is not available.
-	 */
-	public StreamChannel openChannel(String channelName,
-			InputStream inputStream, String parserName)
-			throws ModeNotFoundException {
-		return openChannel(channelName, inputStream, InterestType.MINE,
-				parserName);
-	}
-
-	/**
-	 * Opens a <code>StreamChannel</code> with an <code>InputStream</code>
-	 * and a specific <code>InterestType</code>.
-	 * 
-	 * @param channelName
-	 *            Preferred name of the channel. Will be completed to the unique
-	 *            channel ID with the current value of the
-	 *            <code>idCounter</code>.
-	 * @param inputStream
-	 *            The Stream to read from.
-	 * @param interestType
-	 *            Type of interest for incoming messages. Have a look at
-	 *            {@link InterestType} for possible types.
-	 * @return Instance of the new channel.
-	 */
-	public StreamChannel openChannel(String channelName,
-			InputStream inputStream, InterestType interestType) {
-		try {
-			return openChannel(channelName, inputStream, interestType,
-					ParserFactory.getDefaultParser());
-		} catch (ModeNotFoundException e) {
-			// ignore it here, because the default parser is always available
-		}
-		return null;
-	}
-
-	/**
 	 * Opens a <code>StreamChannel</code> with an <code>InputStream</code>,
 	 * a specific <code>InterestType</code> and a preferred Parser.
 	 * 
@@ -224,11 +169,10 @@ public class MessageRouter implements Serializable {
 	 *             if the prefered Parser is not available.
 	 */
 	public StreamChannel openChannel(String channelName,
-			InputStream inputStream, InterestType interestType,
-			String parserName) throws ModeNotFoundException {
+			InputStream inputStream, InterestType interestType)  {
 		StreamChannel channel = new StreamChannelImpl(channelName + "_"
 				+ idCounter++, this, interestType);
-		channel.init(inputStream, parserName);
+		channel.init(inputStream);
 		registerChannel(channel);
 		return channel;
 	}
@@ -253,31 +197,6 @@ public class MessageRouter implements Serializable {
 
 	/**
 	 * Opens a <code>StreamChannel</code> directly with a <code>Reader</code>
-	 * and a preferred Parser.
-	 * <p>
-	 * The <code>InterestType</code> will be the default
-	 * <code>InterestType.MINE</code>.
-	 * 
-	 * @param channelName
-	 *            Preferred name of the channel. Will be completed to the unique
-	 *            channel ID with the current value of the
-	 *            <code>idCounter</code>.
-	 * @param reader
-	 *            The Reader used to read from an underlying Stream.
-	 * @param parserName
-	 *            Name of the Parser to use. Have a look at
-	 *            {@link ParserFactory} for available Parsers.
-	 * @return Instance of the new channel.
-	 * @throws ParserNotFoundException
-	 *             if the preferred Parser is not available.
-	 */
-	public StreamChannel openChannel(String channelName, Reader reader,
-			String parserName) throws ModeNotFoundException {
-		return openChannel(channelName, reader, InterestType.MINE, parserName);
-	}
-
-	/**
-	 * Opens a <code>StreamChannel</code> directly with a <code>Reader</code>
 	 * and a specific <code>InterestType</code>.
 	 * 
 	 * @param channelName
@@ -291,43 +210,10 @@ public class MessageRouter implements Serializable {
 	 *            {@link InterestType} for possible types.
 	 * @return Instance of the new channel.
 	 */
-	public StreamChannel openChannel(String channelName, Reader reader,
-			InterestType interestType) {
-		try {
-			return openChannel(channelName, reader, interestType, ParserFactory
-					.getDefaultParser());
-		} catch (ModeNotFoundException e) {
-			// ignore it here, because the default parser is always available
-		}
-		return null;
-	}
-
-	/**
-	 * Opens a <code>StreamChannel</code> directly with a <code>Reader</code>,
-	 * a specific <code>InterestType</code> and a preferred Parser.
-	 * 
-	 * @param channelName
-	 *            Preferred name of the channel. Will be completed to the unique
-	 *            channel ID with the current value of the
-	 *            <code>idCounter</code>.
-	 * @param reader
-	 *            The Reader used to read from an underlying Stream.
-	 * @param interestType
-	 *            Type of interest for incoming messages. Have a look at
-	 *            {@link InterestType} for possible types.
-	 * @param parserName
-	 *            Name of the Parser to use. Have a look at
-	 *            {@link ParserFactory} for available Parsers.
-	 * @return Instance of the new channel.
-	 * @throws ParserNotFoundException
-	 *             if the preferred Parser is not available.
-	 */
-	public StreamChannel openChannel(String channelName, Reader reader,
-			InterestType interestType, String parserName)
-			throws ModeNotFoundException {
+	public StreamChannel openChannel(String channelName, Reader reader, InterestType interestType) {
 		StreamChannel channel = new StreamChannelImpl(channelName + "_"
 				+ idCounter++, this, interestType);
-		channel.init(reader, parserName);
+		channel.init(reader);
 		registerChannel(channel);
 		return channel;
 	}
@@ -351,29 +237,6 @@ public class MessageRouter implements Serializable {
 
 	/**
 	 * Opens a <code>StringChannel</code> that accepts simple Strings as Input
-	 * with a preferred Parser.
-	 * <p>
-	 * The <code>InterestType</code> will be the default
-	 * <code>InterestType.MINE</code>.
-	 * 
-	 * @param channelName
-	 *            Preferred name of the channel. Will be completed to the unique
-	 *            channel ID with the current value of the
-	 *            <code>idCounter</code>.
-	 * @param parserName
-	 *            Name of the Parser to use. Have a look at
-	 *            {@link ParserFactory} for available Parsers.
-	 * @return Instance of the new channel.
-	 * @throws ParserNotFoundException
-	 *             if the preferred Parser is not available.
-	 */
-	public StringChannel openChannel(String channelName, String parserName)
-			throws ModeNotFoundException {
-		return openChannel(channelName, InterestType.MINE, parserName);
-	}
-
-	/**
-	 * Opens a <code>StringChannel</code> that accepts simple Strings as Input
 	 * with a specific <code>InterestType</code>.
 	 * 
 	 * @param channelName
@@ -385,40 +248,9 @@ public class MessageRouter implements Serializable {
 	 *            {@link InterestType} for possible types.
 	 * @return Instance of the new channel.
 	 */
-	public StringChannel openChannel(String channelName,
-			InterestType interestType) {
-		try {
-			return openChannel(channelName, interestType, ParserFactory
-					.getDefaultParser());
-		} catch (ModeNotFoundException e) {
-			// ignore it here, because the default parser is always available
-		}
-		return null;
-	}
-
-	/**
-	 * Opens a <code>StringChannel</code> that accepts simple Strings as Input
-	 * with a specific <code>InterestType</code> and a preferred Parser.
-	 * 
-	 * @param channelName
-	 *            Preferred name of the channel. Will be completed to the unique
-	 *            channel ID with the current value of the
-	 *            <code>idCounter</code>.
-	 * @param interestType
-	 *            Type of interest for incoming messages. Have a look at
-	 *            {@link InterestType} for possible types.
-	 * @param parserName
-	 *            Name of the Parser to use. Have a look at
-	 *            {@link ParserFactory} for available Parsers.
-	 * @return Instance of the new channel.
-	 * @throws ParserNotFoundException
-	 *             if the preferred Parser is not available.
-	 */
-	public StringChannel openChannel(String channelName,
-			InterestType interestType, String parserName)
-			throws ModeNotFoundException {
+	public StringChannel openChannel(String channelName, InterestType interestType) {
 		StringChannel channel = new StringChannelImpl(channelName + "_"
-				+ idCounter++, this, interestType, parserName);
+				+ idCounter++, this, interestType);
 		registerChannel(channel);
 		return channel;
 	}

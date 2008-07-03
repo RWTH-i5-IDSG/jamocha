@@ -18,12 +18,10 @@
 
 package org.jamocha.communication.messagerouter;
 
-import org.jamocha.communication.events.MessageEvent;
-
 import java.io.Reader;
 import java.util.List;
 
-import org.jamocha.parser.ModeNotFoundException;
+import org.jamocha.communication.events.MessageEvent;
 import org.jamocha.parser.Parser;
 import org.jamocha.parser.ParserFactory;
 
@@ -43,12 +41,6 @@ abstract class AbstractCommunicationChannel implements CommunicationChannel {
 	 * <code>reader</code>.
 	 */
 	protected Parser parser;
-
-	/**
-	 * Name of the <code>Parser</code> we use. We need it when we restart the
-	 * <code>Parser</code>.
-	 */
-	protected String parserName;
 
 	/**
 	 * Unique ID of this channel.
@@ -113,12 +105,6 @@ abstract class AbstractCommunicationChannel implements CommunicationChannel {
 	}
 
 	protected void restartParser(Reader reader) {
-		try {
-			parser = ParserFactory.getParser(parserName, reader);
-		} catch (ModeNotFoundException e1) {
-			// we ignore this Exception here, because if the Parser
-			// didn't exist init() would already have thrown an
-			// Exception.
-		}
+		parser = ParserFactory.getParser(reader);
 	}
 }

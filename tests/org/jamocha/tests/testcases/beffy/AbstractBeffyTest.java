@@ -14,7 +14,7 @@
  * limitations under the License.
  * 
  */
-package org.jamocha.tests.testcases;
+package org.jamocha.tests.testcases.beffy;
 
 
 import java.io.BufferedReader;
@@ -26,17 +26,17 @@ import java.nio.charset.Charset;
 import org.jamocha.tests.AbstractJamochaTest;
 
 /**
- * @author Sebastian Reinartz
+ * @author Josef Alexander Hahn <http://www.josef-hahn.de>
  */
-public class JTCBeffyTests extends AbstractJamochaTest {
+public abstract class AbstractBeffyTest extends AbstractJamochaTest {
 
-	public JTCBeffyTests(String arg0) {
+	public AbstractBeffyTest(String arg0) {
 		super(arg0);
 	}
 	
-	private String getExpressionsString(String ext) throws IOException {
+	private String getExpressionsString(String file) throws IOException {
 		StringBuilder result = new StringBuilder();
-		InputStream istream = this.getClass().getResourceAsStream("JTCBeffyTests."+ext);
+		InputStream istream = this.getClass().getResourceAsStream(file);
 		BufferedReader reader = new BufferedReader(new InputStreamReader(istream,Charset.forName("UTF-8")));
 		while (reader.ready()) result.append(reader.readLine()+"\n");
 		reader.close();
@@ -45,8 +45,9 @@ public class JTCBeffyTests extends AbstractJamochaTest {
 
 	@Override
 	public void test() {
+		String className = this.getClass().getSimpleName();
 		try {
-			executeTestEquals(getExpressionsString("clp"), getExpressionsString("result") );
+			executeTestEquals(getExpressionsString(className + ".clp"), getExpressionsString(className + ".result") );
 		} catch (IOException e) {
 			fail(e.getMessage());
 		}

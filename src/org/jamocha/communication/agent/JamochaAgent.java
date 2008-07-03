@@ -43,7 +43,6 @@ import org.jamocha.engine.Engine;
 import org.jamocha.engine.functions.Function;
 import org.jamocha.engine.functions.FunctionGroup;
 import org.jamocha.engine.functions.agent.AgentFunctions;
-import org.jamocha.parser.ModeNotFoundException;
 import org.jamocha.parser.ParserUtils;
 
 /**
@@ -88,19 +87,14 @@ public class JamochaAgent extends ToolAgent {
 		// Load the properties and merge them with possible arguments
 		initProperties();
 
-		try {
-			jamocha = new Jamocha(getProperties().getBooleanProperty(
-					"jamocha.gui", false), getProperties().getBooleanProperty(
-					"jamoche.shell", false), getProperties().getProperty(
-					"jamocha.mode", ""), null);
-			if (getProperties().getBooleanProperty("jamocha.gui", false)) {
-				jamocha.getJamochaGui().setExitOnClose(false);
-				jamocha.setGUITitle("JamochaAgent - " + getName());
-			}
-		} catch (ModeNotFoundException e) {
-			e.printStackTrace();
-			System.exit(1);
+		jamocha = new Jamocha(getProperties().getBooleanProperty(
+				"jamocha.gui", false), getProperties().getBooleanProperty(
+				"jamoche.shell", false), null);
+		if (getProperties().getBooleanProperty("jamocha.gui", false)) {
+			jamocha.getJamochaGui().setExitOnClose(false);
+			jamocha.setGUITitle("JamochaAgent - " + getName());
 		}
+
 		engine = jamocha.getEngine();
 
 		addBehaviour(new MessageReceiver(this));

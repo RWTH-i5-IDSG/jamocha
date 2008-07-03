@@ -22,7 +22,6 @@ package org.jamocha.application;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.jamocha.parser.ModeNotFoundException;
 import org.jamocha.parser.ParserFactory;
 import org.jamocha.application.gui.JamochaGui;
 import org.jamocha.communication.BatchThread;
@@ -67,15 +66,13 @@ public class Jamocha {
 		List<String> batchFiles = new LinkedList<String>();
 		String mode = "";
 		if (null != args) {
-			boolean inBatchFiles = false, inMode = false;
+			boolean inBatchFiles = false;
 			for (int i = 0; i < args.length; ++i) {
 				if (args[i].startsWith("-")) {
-					inBatchFiles = inMode = false;
+					inBatchFiles = false;
 				}
 				if (inBatchFiles) {
 					batchFiles.add(args[i]);
-				} else if (inMode) {
-					mode = args[i];
 				} else {
 					if (args[i].equalsIgnoreCase("-gui")) {
 						startGui = true;
@@ -83,20 +80,11 @@ public class Jamocha {
 						startShell = true;
 					} else if (args[i].equals("-batch")) {
 						inBatchFiles = true;
-					} else if (args[i].equals("-mode")) {
-						inMode = true;
 					}
 				}
 			}
 		}
-		Jamocha jamocha = null;
-		try {
-			jamocha = new Jamocha(startGui, startShell, mode, batchFiles);
-		} catch (ModeNotFoundException e) {
-			// This really is a fatal error so we stop everything.
-			e.printStackTrace();
-			System.exit(1);
-		}
+		Jamocha jamocha  = new Jamocha(startGui, startShell, batchFiles);
 		// if no arguments were given or by another cause neither gui nor shell
 		// were started, we show a usage guide.
 		if (!startShell && !startGui) {
@@ -110,28 +98,6 @@ public class Jamocha {
 		}
 	}
 
-	/**
-	 * Constructor for a new Jamocha-Object. A Jamocha-Object encapsulates the
-	 * Rete engine and a possible Shell / GUI.
-	 * 
-	 * @param engine
-	 *            The engine that should be used for the Shell / GUI.
-	 * @param startGui
-	 *            If <code>true</code> a GUI will be started.
-	 * @param startShell
-	 *            If <code>true</code> a simple commandline Shell working on
-	 *            System.in and System.out will be started.
-	 * @param mode
-	 *            Name of the Mode to use. If none is given the default one will
-	 *            be used. If the Mode is unknown a
-	 *            <code>ModeNotFoundException</code> will be thrown.
-	 * @throws ModeNotFoundException
-	 *             if the specified Mode in <code>mode</code> was not found.
-	 */
-	public Jamocha(boolean startGui, boolean startShell,
-			String mode) throws ModeNotFoundException {
-		this(startGui, startShell, mode, null);
-	}
 
 	/**
 	 * Constructor for a new Jamocha-Object. A Jamocha-Object encapsulates the
@@ -154,11 +120,7 @@ public class Jamocha {
 	 * @throws ModeNotFoundException
 	 *             if the specified Mode in <code>mode</code> was not found.
 	 */
-	public Jamocha(boolean startGui, boolean startShell,
-			String mode, List<String> batchFiles) throws ModeNotFoundException {
-		if (mode != null && mode.length() > 0) {
-			ParserFactory.setDefaultMode(mode);
-		}
+	public Jamocha(boolean startGui, boolean startShell, List<String> batchFiles) {
 		this.engine = new Engine();
 		batchThread = new BatchThread(engine);
 		batchThread.start();
@@ -204,7 +166,7 @@ public class Jamocha {
 	 * @throws ParserNotFoundException
 	 *             if the specified Parser was not found
 	 */
-	public void startShell() throws ModeNotFoundException {
+	public void startShell()  {
 		if (shell == null) {
 			shell = new Shell(engine);
 
@@ -286,11 +248,7 @@ public class Jamocha {
 						+ sep
 						+ "-batch [batchfile...]:"
 						+ sep
-						+ "     Processes a list of given files (separated by blanks) as batch-files."
-						+ sep
-						+ "-mode [modename]:"
-						+ sep
-						+ "     Uses the given mode for the Parser, Formatter and RuleCompiler. Default is sfp.");
+						+ "     Processes a list of given files (separated by blanks) as batch-files.");
 		System.exit(0);
 	}
 
