@@ -102,6 +102,7 @@ public class TemplateSlot extends Slot {
 					result.setValue(value);
 			}
 		}
+		result.setId(this.getId());
 		return result;
 	}
 

@@ -25,6 +25,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Stack;
 
 import org.jamocha.Constants;
 import org.jamocha.communication.events.CompileEvent;
@@ -78,6 +79,8 @@ import org.jamocha.rules.ReturnValueConstraint;
 import org.jamocha.rules.Rule;
 import org.jamocha.rules.TestCondition;
 
+import com.sun.org.apache.bcel.internal.generic.INSTANCEOF;
+
 /**
  * @author Josef Alexander Hahn
  * We have the old SlimFast-RuleCompiler, which is buggy and not that
@@ -106,7 +109,6 @@ import org.jamocha.rules.TestCondition;
  * Return-Value-Constraints
  * Not-Exists-CE
  * Exists-CE
- * Test-Conditions 
  * 
  */
 
@@ -170,6 +172,15 @@ public class BeffyRuleCompiler implements RuleCompiler {
 					if (constr instanceof BoundConstraint) {
 						BoundConstraint bc = (BoundConstraint) constr;
 						result.add(bc.getConstraintName());
+					} else if (constr instanceof AndConnectedConstraint) {
+						for (Constraint ac : flattenAndConnectedConstraint((AndConnectedConstraint)constr)) {
+							if (ac instanceof BoundConstraint) {
+								BoundConstraint bc = (BoundConstraint) ac;
+								result.add(bc.getConstraintName());
+							}
+						}
+						
+						
 					}
 				}
 			}
@@ -355,6 +366,26 @@ public class BeffyRuleCompiler implements RuleCompiler {
 	}
 
 	/**
+	 * the purpose is to generate a list of all constraints inside an
+	 * and-connected-constraint (which normally is a tree-like structure)
+	 */
+	protected static List<Constraint> flattenAndConnectedConstraint(AndConnectedConstraint c) {
+		List<Constraint> insideAndCC = new ArrayList<Constraint>();
+		Stack<Constraint> ccStack = new Stack<Constraint>();
+		ccStack.push(c);
+		while (!ccStack.isEmpty()) {
+			Constraint co = ccStack.pop();
+			if (co instanceof AndConnectedConstraint) {
+				ccStack.push(((AndConnectedConstraint)co).getLeft());
+				ccStack.push(((AndConnectedConstraint)co).getRight());
+			} else {
+				insideAndCC.add(co);
+			}
+		}
+		return insideAndCC;
+	}
+	
+	/**
 	 * this tableau holds the information, where to find the "pivot"-element
 	 * for a binding (means: a non-negated, most-top-level-scoped occurence,
 	 * which can be used as reference in all comparison operations later on
@@ -382,17 +413,12 @@ public class BeffyRuleCompiler implements RuleCompiler {
 			for (Condition c : conditions) {
 				for (Constraint con : c.getFlatConstraints()) {
 					if (con instanceof BoundConstraint) {
-						BoundConstraint bc = (BoundConstraint) con;
-						String bindingName = bc.getConstraintName();
-						boolean ident;
-						if (c instanceof ObjectCondition) {
-							// in an object condition, an occurence is "ident", iff it is not negated
-							ident = !bc.isNegated();
-						} else {
-							// in all other condition types (test, and so on) it can't be ident
-							ident = false;
+						extractOccurence(c, (BoundConstraint)con);
+					} else if (con instanceof AndConnectedConstraint) {
+						for (Constraint bconst: flattenAndConnectedConstraint((AndConnectedConstraint)con)) {
+							if (bconst instanceof BoundConstraint)
+								extractOccurence(c, (BoundConstraint)bconst);
 						}
-						addSingleBindingOccurence(c, bindingName, bc, ident);
 					}
 				}
 				if (c instanceof ConditionWithNested) {
@@ -400,6 +426,19 @@ public class BeffyRuleCompiler implements RuleCompiler {
 					computeBindingOccurences(cwn.getNestedConditions());
 				}
 			}
+		}
+
+		private void extractOccurence(Condition c, BoundConstraint bc) {
+			String bindingName = bc.getConstraintName();
+			boolean ident;
+			if (c instanceof ObjectCondition) {
+				// in an object condition, an occurence is "ident", iff it is not negated
+				ident = !bc.isNegated();
+			} else {
+				// in all other condition types (test, and so on) it can't be ident
+				ident = false;
+			}
+			addSingleBindingOccurence(c, bindingName, bc, ident);
 		}
 
 		private void computePivots() throws CompileRuleException {
@@ -552,30 +591,33 @@ public class BeffyRuleCompiler implements RuleCompiler {
 		return result;
 	}
 
-	private SlotFilterNode literalConstraint2SlotFilterNode(LiteralConstraint lc, ObjectCondition cond) {
-		Slot slot = new Slot(lc.getSlotName(), lc.getValue());
+	private SlotFilterNode literalConstraint2SlotFilterNode(LiteralConstraint lc, ObjectCondition cond) throws EvaluationException {
+		ObjectCondition ocond = (ObjectCondition) lc.getParentCondition();
+		TemplateSlot tslot = engine.findTemplate(ocond.getTemplateName()).getSlot(lc.getSlotName());
+		Slot slot = tslot.createSlot(engine);
+		slot.setValue(lc.getValue());
 		int operator = lc.isNegated() ?  Constants.NOTEQUAL : Constants.EQUAL;
 		SlotFilterNode slotfilter = new SlotFilterNode(reteNet.nextNodeId(),engine.getWorkingMemory(), operator, slot, reteNet);
 		return slotfilter;
 	}
 	
-	private void compileLiteralConstraint(RuleCompilation ruleComp, ObjectCondition cond, LiteralConstraint constraint) throws NodeException {
-		 SlotFilterNode sfn = literalConstraint2SlotFilterNode(constraint, cond);
-		 Node lastNode = ruleComp.getConditionsLastNode(cond);
-		 lastNode.addChild(sfn);
-		 ruleComp.setConditionsLastNode(cond, sfn);
-	}
-	
-	private void substituteBindings(RuleCompilation ruleComp, ObjectCondition cond, PredicateConstraint constraint, List<Parameter> params) {
-		
+	private void compileLiteralConstraint(RuleCompilation ruleComp, ObjectCondition cond, LiteralConstraint constraint) throws NodeException, CompileRuleException {
+		 SlotFilterNode sfn;
+		try {
+			sfn = literalConstraint2SlotFilterNode(constraint, cond);
+			Node lastNode = ruleComp.getConditionsLastNode(cond);
+			lastNode.addChild(sfn);
+			ruleComp.setConditionsLastNode(cond, sfn);
+		} catch (EvaluationException e) {
+			throw new CompileRuleException(e);
+		}
 	}
 	
 	private void compilePredicateConstraint(RuleCompilation ruleComp, ObjectCondition cond, PredicateConstraint constraint) throws CompileRuleException {
 		try {
 			AbstractBetaFilterNode ourJoinNode = ruleComp.getConditionJoiner(cond);
 			Function function = engine.getFunctionMemory().findFunction(constraint.getFunctionName());
-			List<Parameter> parameters = constraint.getParameters();
-			substituteBindings(ruleComp,cond,constraint,parameters);
+			List<Parameter> parameters = substituteBoundParams(ruleComp,constraint.getParameters(), cond);
 			FunctionEvaluator evaluator = new FunctionEvaluator(engine, function, parameters);
 			ourJoinNode.addFilter(evaluator);
 		} catch (JoinFilterException e) {
@@ -589,8 +631,9 @@ public class BeffyRuleCompiler implements RuleCompiler {
 		
 	}
 
-	private void compileAndConnectedConstraint(RuleCompilation ruleComp, ObjectCondition cond, AndConnectedConstraint constraint) {
-		
+	private void compileAndConnectedConstraint(RuleCompilation ruleComp, ObjectCondition cond, AndConnectedConstraint constraint) throws CompileRuleException, NodeException {
+		compileConstraint(ruleComp, cond, constraint.getLeft());
+		compileConstraint(ruleComp, cond, constraint.getRight());
 	}
 
 	private void compileOrConnectedConstraint(RuleCompilation ruleComp, ObjectCondition cond, OrConnectedConstraint constraint) {
@@ -640,6 +683,22 @@ public class BeffyRuleCompiler implements RuleCompiler {
 
 	}
 	
+	private void compileConstraint(RuleCompilation ruleComp, ObjectCondition cond, Constraint constraint) throws CompileRuleException, NodeException {
+		if (constraint instanceof LiteralConstraint) {
+			compileLiteralConstraint(ruleComp, cond, (LiteralConstraint)constraint);
+		} else if (constraint instanceof PredicateConstraint) {
+			compilePredicateConstraint(ruleComp, cond, (PredicateConstraint)constraint);
+		} else if (constraint instanceof ReturnValueConstraint) {
+			compileReturnValueConstraint(ruleComp, cond, (ReturnValueConstraint)constraint);
+		} else if (constraint instanceof AndConnectedConstraint) {
+			compileAndConnectedConstraint(ruleComp, cond, (AndConnectedConstraint)constraint);
+		} else if (constraint instanceof OrConnectedConstraint) {
+			compileOrConnectedConstraint(ruleComp, cond, (OrConnectedConstraint)constraint);
+		} else if (constraint instanceof BoundConstraint) {
+			compileBoundConstraint(ruleComp, cond, (BoundConstraint)constraint);
+		}
+	}
+	
 	private boolean compileObjectCondition(RuleCompilation ruleComp, ObjectCondition cond) throws NodeException, CompileRuleException {
 		/* we assume that we have all bindind's pivot elements available at this moment,
 		 * because we already have rearranged our rule in order to achieve that  */
@@ -648,19 +707,7 @@ public class BeffyRuleCompiler implements RuleCompiler {
 		ruleComp.setConditionsLastNode(cond, otn);
 		
 		for (Constraint constr : cond.getConstraints()) {
-			if (constr instanceof LiteralConstraint) {
-				compileLiteralConstraint(ruleComp, cond, (LiteralConstraint)constr);
-			} else if (constr instanceof PredicateConstraint) {
-				compilePredicateConstraint(ruleComp, cond, (PredicateConstraint)constr);
-			} else if (constr instanceof ReturnValueConstraint) {
-				compileReturnValueConstraint(ruleComp, cond, (ReturnValueConstraint)constr);
-			} else if (constr instanceof AndConnectedConstraint) {
-				compileAndConnectedConstraint(ruleComp, cond, (AndConnectedConstraint)constr);
-			} else if (constr instanceof OrConnectedConstraint) {
-				compileOrConnectedConstraint(ruleComp, cond, (OrConnectedConstraint)constr);
-			} else if (constr instanceof BoundConstraint) {
-				compileBoundConstraint(ruleComp, cond, (BoundConstraint)constr);
-			}
+			compileConstraint(ruleComp, cond, constr);
 		}
 		return true;
 	}
@@ -669,7 +716,7 @@ public class BeffyRuleCompiler implements RuleCompiler {
 		try{
 			ruleComp.setConditionsLastNode(cond, getObjectTypeNode("_initialFact"));
 			Function function = cond.getFunction().lookUpFunction(engine);
-			List<Parameter> parameters = substituteBoundParams(ruleComp, cond.getFunction().getParameters());
+			List<Parameter> parameters = substituteBoundParams(ruleComp, cond.getFunction().getParameters(),cond);
 			FunctionEvaluator evaluator = new FunctionEvaluator(engine, function, parameters);
 			AbstractBetaFilterNode join = ruleComp.getConditionJoiner(cond);
 			join.addFilter(evaluator);
@@ -683,28 +730,31 @@ public class BeffyRuleCompiler implements RuleCompiler {
 		return true;
 	}
 	
-	private List<Parameter> substituteBoundParams(RuleCompilation rc, Parameter[] parameters) {
+	private List<Parameter> substituteBoundParams(RuleCompilation rc, Parameter[] parameters, Condition occurence) {
 		ArrayList<Parameter> result = new ArrayList<Parameter>();
 		for(Parameter p : parameters) {
 			if (p instanceof Signature) {
 				Signature s1 = (Signature) p;
 				Signature s2 = new Signature(s1.getSignatureName());
-				s2.setParameters( substituteBoundParams(rc, s1.getParameters()));
+				s2.setParameters( substituteBoundParams(rc, s1.getParameters(), occurence));
 				result.add(s2);
 			} else if (p instanceof BoundParam) {
 				BindingOccurence boc = rc.bindingTableau.getPivotOccurence(((BoundParam)p).getVariableName());
-				LeftFieldAddress lfa;
-				if (boc.constr.isFactBinding()) {
-					lfa = new LeftFieldAddress(boc.getConditionIndex());
+				// left or right field address?
+				if (occurence == null || occurence!=boc.cond) {
+					result.add(boc.toLeftFieldAddress());
 				} else {
-					lfa = new LeftFieldAddress(boc.getConditionIndex(), boc.getSlotIndex());
+					result.add(boc.toRightFieldAddress());
 				}
-				result.add(lfa);
 			} else {
 				result.add(p);
 			}
 		}
 		return result;
+	}
+	
+	private List<Parameter> substituteBoundParams(RuleCompilation rc, List<Parameter> parameters, Condition occurence) {
+		return substituteBoundParams(rc, parameters.toArray(new Parameter[0]), occurence);
 	}
 
 	private List<String> getUsedBindings(Condition c) {

@@ -146,7 +146,6 @@ public class Agenda implements Serializable {
 
 	protected void fireNextActivation() throws ExecuteException {
 		Activation a = activations.poll();
-		Logging.logger(this.getClass()).debug("Fire activation "+a+" now");
 		a.fire(parentEngine);
 	}
 
