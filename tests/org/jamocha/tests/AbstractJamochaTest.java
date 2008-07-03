@@ -128,6 +128,21 @@ public abstract class AbstractJamochaTest extends TestCase {
 	}
 
 	/**
+	 * The method executes the input CLIPS-command,checks return statements for
+	 * jamocha exceptions and compares last result with given expectedLastResult
+	 * 
+	 * @param CLIPS
+	 *            command
+	 * @param expectedLastResult
+	 * @return
+	 */
+	protected void executeTestCompareToBoundResult(String inputCommand,	String expectedLastResult, String errorString) {
+		executeCommand(inputCommand);
+		String result = engine.getBinding("*?result").getStringValue();
+		assertEquals(errorString, expectedLastResult, result);
+	}
+	
+	/**
 	 * The method executes the input CLIPS-command and checks return statements
 	 * for jamocha exceptions
 	 * 

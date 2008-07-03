@@ -59,19 +59,20 @@ public abstract class Node {
 		return activated;
 	}
 
-	public void activate() throws NodeException {
+	protected void activate2() throws NodeException {
 		// we are activated
 		activated = true;
-
 		// activate subnodes recursively
 		for (final Node n : getChildNodes())
-			n.activate();
-
+			n.activate2();
+	}
+	
+	public void activate() throws NodeException {
+		activate2();
 		// fetch working memory elements from above and evaluate them
-		for (final Node n : getParentNodes())
-			for (final WorkingMemoryElement wme : n.memory())
-				addWME(wme);
-
+		for (final Node child : getChildNodes())
+			for (final WorkingMemoryElement wme : child.memory())
+				child.propagateAddition(wme);
 	}
 
 	protected void getDescriptionString(final StringBuilder sb) {
@@ -83,6 +84,8 @@ public abstract class Node {
 		sb.append("parents:");
 		for (final Node parent : getParentNodes())
 			sb.append(parent.getId()).append(",");
+		int len = net.getEngine().getWorkingMemory().size(this);
+		sb.append("|elements-in-memory:").append(len);
 
 	}
 

@@ -47,7 +47,7 @@ public abstract class AbstractBeffyTest extends AbstractJamochaTest {
 	public void test() {
 		String className = this.getClass().getSimpleName();
 		try {
-			executeTestEquals(getExpressionsString(className + ".clp"), getExpressionsString(className + ".result") );
+			executeTestCompareToBoundResult(getExpressionsString(className + ".clp"), getExpressionsString(className + ".result"), "" );
 		} catch (IOException e) {
 			fail(e.getMessage());
 		}
