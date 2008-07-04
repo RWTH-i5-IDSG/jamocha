@@ -575,8 +575,6 @@ public class BeffyRuleCompiler implements RuleCompiler {
 		TerminalNode terminal = compileTerminalNode(ruleCompilation);
 		lastJoiner.addChild(terminal);
 		
-		//ruleCompilation.
-		
 		compiledRules.put(r, ruleCompilation);
 		
 		r.parentModule().addRule(r);
@@ -823,6 +821,33 @@ public class BeffyRuleCompiler implements RuleCompiler {
 	}
 
 	private boolean compileNotExistsCondition(RuleCompilation ruleComp, NotExistsCondition cond) {
+		return compileQuantorCondition(ruleComp, cond, true);
+	}
+	
+	private boolean compileQuantorCondition(RuleCompilation ruleComp, ConditionWithNested cond, boolean negated) {
+		List<Condition> innerConditionList;
+		List<Condition> outerConditionList;
+		{
+			List<Condition> inner = cond.getNestedConditions();
+			List<Condition> outer = null;
+			AndCondition innerCondition = new AndCondition();
+			for (Condition c:inner) innerCondition.addNestedCondition(c);
+			AndCondition outerCondition = new AndCondition();
+			for (Condition c:outer) outerCondition.addNestedCondition(c);
+			innerConditionList = new ArrayList<Condition>();
+			outerConditionList = new ArrayList<Condition>();
+			innerConditionList.add(innerCondition);
+			outerConditionList.add(outerCondition);
+		}
+		
+		RuleCompilation innerCompilation = new RuleCompilation(innerConditionList);
+		RuleCompilation outerCompilation = new RuleCompilation(outerConditionList);
+		
+		Node innerEndNode = innerCompilation.getLastNode();
+		Node outerEndNode = innerCompilation.getLastNode();
+		
+		
+		
 		return false;
 	}
 
