@@ -104,12 +104,12 @@ import com.sun.org.apache.bcel.internal.generic.INSTANCEOF;
 
 /* TODO:
  * 
- * And-Connected-Constraints
  * Or-Connected-Constraints
  * Return-Value-Constraints
  * Not-Exists-CE
  * Exists-CE
- * 
+ * Or-Conditions
+ * And-Conditions (where?)
  */
 
 public class BeffyRuleCompiler implements RuleCompiler {
