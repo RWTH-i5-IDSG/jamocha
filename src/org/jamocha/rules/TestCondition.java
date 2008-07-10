@@ -73,9 +73,10 @@ public class TestCondition extends AbstractCondition {
 		return visitor.visit(this);
 	}
 	
-	public Condition clone() throws CloneNotSupportedException {
+	public Condition clone() {
 		TestCondition result = new TestCondition();
 		result.func = (Signature)this.func.clone();
+		result.id=id;
 		return result;
 	}
 

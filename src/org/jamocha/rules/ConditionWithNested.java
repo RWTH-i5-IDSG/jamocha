@@ -55,5 +55,23 @@ public abstract class ConditionWithNested extends AbstractCondition {
 		for (Condition child:nested) comp += child.getComplexity();
 		return comp;
 	}
+	
+	public Condition clone() {
+		ConditionWithNested newCwn;
+		try {
+			newCwn = this.getClass().newInstance();
+		} catch (InstantiationException e) {
+			return null;
+		} catch (IllegalAccessException e) {
+			return null;
+		}
+		for (Condition c: nested) newCwn.addNestedCondition(c.clone());
+		newCwn.id=id;
+		return newCwn;
+	}
+
+	public void removeNestedCondition(Condition c) {
+		nested.remove(c);
+	}
 
 }

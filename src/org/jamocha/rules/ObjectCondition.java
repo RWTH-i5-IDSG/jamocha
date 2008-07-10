@@ -74,11 +74,13 @@ public class ObjectCondition extends AbstractCondition {
 		return compiler.compile(this, rule, conditionIndex);
 	}
 
-	public Condition clone() throws CloneNotSupportedException {
+	public Condition clone() {
 		List<Constraint> newConstr = new ArrayList<Constraint>();
 		for (Constraint c : constraints)
 			newConstr.add(c);
-		return new ObjectCondition(newConstr,templateName);
+		ObjectCondition result = new ObjectCondition(newConstr,templateName);
+		result.id=id;
+		return result;
 	}
 
 	public String format(Formatter visitor) {

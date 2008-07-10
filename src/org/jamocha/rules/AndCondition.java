@@ -49,13 +49,6 @@ public class AndCondition extends ConditionWithNested {
 		return compiler.compile(this, rule, conditionIndex);
 	}
 
-	@Override
-	public Condition clone() throws CloneNotSupportedException {
-		AndCondition result = new AndCondition();
-		for (Condition n: nested) result.nested.add(n);
-		return result;
-	}
-
 	
 	
 }

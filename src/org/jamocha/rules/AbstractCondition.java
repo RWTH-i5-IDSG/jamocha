@@ -34,6 +34,21 @@ public abstract class AbstractCondition implements Condition {
 
 	private Condition parent = null;
 	
+	private static int idCounter = 0;
+	
+	protected int id;
+	
+	public AbstractCondition() {
+		id = idCounter++;
+	}
+	
+	public boolean equals(Object o) {
+		if (o==null) return false;
+		if (!(o instanceof AbstractCondition)) return false;
+		AbstractCondition oc = (AbstractCondition)o;
+		return (this.id == oc.id);
+	}
+	
 	public void setParentCondition(Condition c) {
 		parent = c;
 	}
@@ -48,6 +63,10 @@ public abstract class AbstractCondition implements Condition {
 	
 	public Condition getParentCondition() {
 		return parent;
+	}
+	
+	public Condition clone() {
+		return null;
 	}
 	
 }

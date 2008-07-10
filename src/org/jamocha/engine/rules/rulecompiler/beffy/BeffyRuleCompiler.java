@@ -48,6 +48,7 @@ import org.jamocha.engine.nodes.LeftInputAdaptorNode;
 import org.jamocha.engine.nodes.Node;
 import org.jamocha.engine.nodes.NodeException;
 import org.jamocha.engine.nodes.ObjectTypeNode;
+import org.jamocha.engine.nodes.RightInputAdaptorNode;
 import org.jamocha.engine.nodes.RootNode;
 import org.jamocha.engine.nodes.SimpleBetaFilterNode;
 import org.jamocha.engine.nodes.SlotFilterNode;
@@ -78,8 +79,6 @@ import org.jamocha.rules.PredicateConstraint;
 import org.jamocha.rules.ReturnValueConstraint;
 import org.jamocha.rules.Rule;
 import org.jamocha.rules.TestCondition;
-
-import com.sun.org.apache.bcel.internal.generic.INSTANCEOF;
 
 /**
  * @author Josef Alexander Hahn
@@ -221,6 +220,8 @@ public class BeffyRuleCompiler implements RuleCompiler {
 		
 		private BindingTableau bindingTableau;
 		
+		private Node lastNode;
+		
 		public RuleCompilation(Rule r) throws CompileRuleException {
 			rule = r;
 			computeConditionIndices();
@@ -244,6 +245,10 @@ public class BeffyRuleCompiler implements RuleCompiler {
 		
 		public AbstractBetaFilterNode getConditionJoiner(Condition c) {
 			return conditionJoiners.get(c);
+		}
+		
+		public Node getLastNode() {
+			return lastNode;
 		}
 		
 		/**
@@ -804,6 +809,7 @@ public class BeffyRuleCompiler implements RuleCompiler {
 			AbstractBetaFilterNode j = ruleComp.getConditionJoiner(c);
 			Node last = ruleComp.getConditionsLastNode(c);
 			last.addChild(j);
+			ruleComp.lastNode = j;
 		}
 	}
 
@@ -825,28 +831,65 @@ public class BeffyRuleCompiler implements RuleCompiler {
 	}
 	
 	private boolean compileQuantorCondition(RuleCompilation ruleComp, ConditionWithNested cond, boolean negated) {
-		List<Condition> innerConditionList;
-		List<Condition> outerConditionList;
+		/*
+		 * here we create a new condition tree, which is the same as the old one,
+		 * but with "exploded" exists (or not-exists) condition. that means,
+		 * the exists-condition itself will become replaced by its nested
+		 * child conditions.
+		 */
+
+		/* since all our trees start with a single and-condition at the
+		 * top level, we can clone the whole condition tree this way:
+		 */
+		Condition newRootClone;
 		{
-			List<Condition> inner = cond.getNestedConditions();
-			List<Condition> outer = null;
-			AndCondition innerCondition = new AndCondition();
-			for (Condition c:inner) innerCondition.addNestedCondition(c);
-			AndCondition outerCondition = new AndCondition();
-			for (Condition c:outer) outerCondition.addNestedCondition(c);
-			innerConditionList = new ArrayList<Condition>();
-			outerConditionList = new ArrayList<Condition>();
-			innerConditionList.add(innerCondition);
-			outerConditionList.add(outerCondition);
+			Condition root = cond;
+			while (root.getParentCondition() != null) root = root.getParentCondition();
+			newRootClone = root.clone();
 		}
+
+		/*
+		 * now, we have to search for our exists condition and replace it
+		 */
+		Stack<Condition> stack = new Stack<Condition>();
+		stack.push(newRootClone);
+
+		while (!stack.isEmpty()) {
+			Condition c = stack.pop();
+
+			// is it our condition => make the replacement and break
+			if (c.equals(cond)) {
+				ConditionWithNested parent = (ConditionWithNested)c.getParentCondition();
+				parent.removeNestedCondition(c);
+				for (Condition sameLvl : ((ConditionWithNested)c).getNestedConditions())
+					parent.addNestedCondition(sameLvl);
+			}
+			break;
+
+			// is it another ConditionWithNested => add childs to stack
+			if (c instanceof ConditionWithNested) {
+				for (Condition child : ((ConditionWithNested)c).getNestedConditions())
+					stack.push(child);
+			}
+
+			// elsewise => dr0p it
+			//
+
+		}
+
 		
-		RuleCompilation innerCompilation = new RuleCompilation(innerConditionList);
-		RuleCompilation outerCompilation = new RuleCompilation(outerConditionList);
+		RuleCompilation innerCompilation = new RuleCompilation(((ConditionWithNested)newRootClone).getNestedConditions());
 		
 		Node innerEndNode = innerCompilation.getLastNode();
-		Node outerEndNode = innerCompilation.getLastNode();
 		
+		RightInputAdaptorNode rightInputAdaptor = new RightInputAdaptorNode(reteNet.nextNodeId(),engine.getWorkingMemory(),reteNet);
 		
+		innerEndNode.addChild(rightInputAdaptor);
+		
+		//TODO the join node must become a quantor node
+		
+		AbstractBetaFilterNode joiner = ruleComp.getConditionJoiner(cond);
+		rightInputAdaptor.addChild(joiner);
 		
 		return false;
 	}

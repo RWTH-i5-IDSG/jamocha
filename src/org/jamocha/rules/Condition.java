@@ -63,5 +63,6 @@ public interface Condition extends Compileable, Complexity, Formattable {
 	 */
 	public void setParentCondition(Condition c);
 	
-
+	public Condition clone();
+	
 }
