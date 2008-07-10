@@ -33,7 +33,7 @@ public abstract class ConditionWithNested extends AbstractCondition {
 
 	public void addNestedCondition(Condition ce) {
 		nested.add((Condition) ce);
-		ce.setParentCondition(ce);
+		ce.setParentCondition(this);
 	}
 
 	public List<Condition> getNestedConditions() {

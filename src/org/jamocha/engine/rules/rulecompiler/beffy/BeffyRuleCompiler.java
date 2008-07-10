@@ -70,6 +70,7 @@ import org.jamocha.rules.BoundConstraint;
 import org.jamocha.rules.Condition;
 import org.jamocha.rules.ConditionWithNested;
 import org.jamocha.rules.Constraint;
+import org.jamocha.rules.Defrule;
 import org.jamocha.rules.ExistsCondition;
 import org.jamocha.rules.LiteralConstraint;
 import org.jamocha.rules.NotExistsCondition;
@@ -230,7 +231,7 @@ public class BeffyRuleCompiler implements RuleCompiler {
 			conditionJoiners = new HashMap<Condition, AbstractBetaFilterNode>();
 			bindingCache = new HashMap<String, Binding>();
 		}
-
+		
 		public void setConditionsLastNode(Condition c, Node n) {
 			conditionsLastNode.put(c, n);
 		}
@@ -826,11 +827,16 @@ public class BeffyRuleCompiler implements RuleCompiler {
 		}
 	}
 
-	private boolean compileNotExistsCondition(RuleCompilation ruleComp, NotExistsCondition cond) {
+	private boolean compileNotExistsCondition(RuleCompilation ruleComp, NotExistsCondition cond) throws CompileRuleException {
 		return compileQuantorCondition(ruleComp, cond, true);
 	}
 	
-	private boolean compileQuantorCondition(RuleCompilation ruleComp, ConditionWithNested cond, boolean negated) {
+	private boolean compileExistsCondition(RuleCompilation ruleComp, ExistsCondition cond) throws CompileRuleException {
+		return compileQuantorCondition(ruleComp, cond, false);
+	}
+
+	
+	private boolean compileQuantorCondition(RuleCompilation ruleComp, ConditionWithNested cond, boolean negated) throws CompileRuleException {
 		/*
 		 * here we create a new condition tree, which is the same as the old one,
 		 * but with "exploded" exists (or not-exists) condition. that means,
@@ -863,8 +869,8 @@ public class BeffyRuleCompiler implements RuleCompiler {
 				parent.removeNestedCondition(c);
 				for (Condition sameLvl : ((ConditionWithNested)c).getNestedConditions())
 					parent.addNestedCondition(sameLvl);
+				break;
 			}
-			break;
 
 			// is it another ConditionWithNested => add childs to stack
 			if (c instanceof ConditionWithNested) {
@@ -877,21 +883,26 @@ public class BeffyRuleCompiler implements RuleCompiler {
 
 		}
 
-		
-		RuleCompilation innerCompilation = new RuleCompilation(((ConditionWithNested)newRootClone).getNestedConditions());
+		List<Condition> lc = new ArrayList<Condition>();
+		lc.add(newRootClone);
+		Rule helperRule = new Defrule(null,"",lc, null);
+		RuleCompilation innerCompilation = new RuleCompilation(helperRule);
+		compile(innerCompilation,newRootClone);
 		
 		Node innerEndNode = innerCompilation.getLastNode();
 		
 		RightInputAdaptorNode rightInputAdaptor = new RightInputAdaptorNode(reteNet.nextNodeId(),engine.getWorkingMemory(),reteNet);
 		
-		innerEndNode.addChild(rightInputAdaptor);
+		try {
+			innerEndNode.addChild(rightInputAdaptor);
+			//TODO the join node must become a quantor node
+			AbstractBetaFilterNode joiner = ruleComp.getConditionJoiner(cond);
+			rightInputAdaptor.addChild(joiner);
+		} catch (NodeException e) {
+			throw new CompileRuleException(e);
+		}
 		
-		//TODO the join node must become a quantor node
-		
-		AbstractBetaFilterNode joiner = ruleComp.getConditionJoiner(cond);
-		rightInputAdaptor.addChild(joiner);
-		
-		return false;
+		return true;
 	}
 
 	private boolean compile(RuleCompilation ruleCompilation, Condition condition) throws CompileRuleException {
@@ -904,6 +915,8 @@ public class BeffyRuleCompiler implements RuleCompiler {
 				return compileAndCondition( ruleCompilation, (AndCondition) condition);
 			} else if (condition instanceof NotExistsCondition) {
 				return compileNotExistsCondition( ruleCompilation, (NotExistsCondition) condition);
+			} else if (condition instanceof ExistsCondition) {
+				return compileExistsCondition( ruleCompilation, (ExistsCondition) condition);
 			} else {
 				throw new CompileRuleException("unimplemented condition type "+condition.getClass().getSimpleName()+" found");
 			}
