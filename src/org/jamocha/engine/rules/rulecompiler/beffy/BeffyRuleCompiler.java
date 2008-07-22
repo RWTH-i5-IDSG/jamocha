@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2008 Peter Lin & The Jamocha Team
+ * Copyright 2002-2008 The Jamocha Team
  * 
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -897,7 +897,7 @@ public class BeffyRuleCompiler implements RuleCompiler {
 			innerEndNode.addChild(rightInputAdaptor);
 			//TODO the join node must become a quantor node
 			AbstractBetaFilterNode joiner = ruleComp.getConditionJoiner(cond);
-			rightInputAdaptor.addChild(joiner);
+			ruleComp.setConditionsLastNode(cond, rightInputAdaptor);
 		} catch (NodeException e) {
 			throw new CompileRuleException(e);
 		}

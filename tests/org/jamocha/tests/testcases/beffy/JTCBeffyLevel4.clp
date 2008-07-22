@@ -15,8 +15,8 @@
 (assert (salat (name "gurkensalat") (gewicht 100) (preis 1.8) (kalorien 140) (vegetarisch true)  ) )
 (assert (salat (name "kartoffelsalat") (gewicht 100) (preis 2.8) (kalorien 128) (vegetarisch true)  ) )
 
-(assert (gemuese (name "moehren") (gewicht 80) (preis 1) (kalorien 40) (farbe "orange") ) )
-(assert (gemuese (name "erbsen") (gewicht 90) (preis 2) (kalorien 60)  (farbe "gruen") ) )
+(assert (gemuese (name "moehren") (gewicht 85) (preis 1) (kalorien 40) (farbe "orange") ) )
+(assert (gemuese (name "erbsen") (gewicht 95) (preis 2) (kalorien 60)  (farbe "gruen") ) )
 (assert (gemuese (name "sauerkraut") (gewicht 100) (preis 1.8) (kalorien 80) (farbe "weiss") ) )
 
 (assert (bier (name "bitburger") (preis .8) (menge 500) (typ "pilsener") (kalorien 200) ) )
