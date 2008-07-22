@@ -73,7 +73,7 @@ Return type is [+<STRING>+]
 
 !!!!Example
 @@Jamocha> (str-cat 'Jamocha ' 'rulez' '!!!')\\
-Jamocha 'rulez'!!!\\
+Jamocha rulez!!!\\
 @@
 
 ----
@@ -118,12 +118,12 @@ Return type is [+<STRING>+]
 [+<STRING>+] secondStringSubstring to search for.\\
 
 !!!!Example
-@@Jamocha> (str-index 'Jamocha' 'mocha')\\
-2\\
-Jamocha> (str-index 'Jamocha' 'Jam')\\
+@@Jamocha> (str-index 'Jamocha' 'Jam')\\
 0\\
 Jamocha> (str-index 'Jamocha' 'Mocha')\\
 -1\\
+Jamocha> (str-index 'Jamocha' 'mocha')\\
+2\\
 @@
 
 ----
@@ -177,8 +177,8 @@ Return type is [+<STRING>+]
 [+<STRING>+] replStringReplacement string.\\
 
 !!!!Example
-@@Jamocha> (str-replace 'Jamocha' 'm[^io]ch' 'maic')\\
-Jamocha\\
+@@Jamocha> (str-replace 'Jamocha' 'm[io]ch' 'maic')\\
+Jamaica\\
 @@
 
 ----
@@ -375,8 +375,8 @@ Return type is [+<DOUBLE>+]
 [+<NUMBER>+] angleAngle, in radians.\\
 
 !!!!Example
-@@Jamocha> (cos -1.5567)\\
-0.014095859961074654\\
+@@Jamocha> (cos 0)\\
+1.0\\
 @@
 
 ----
@@ -392,7 +392,7 @@ Return type is [+<DOUBLE>+]
 [+<NUMBER>+] numberNumeric value to get the hyperbolic cosine from.\\
 
 !!!!Example
-@@Jamocha> (cosh -.08646678676)\\
+@@Jamocha> (cosh -0.08646678676)\\
 1.0037405822755834\\
 @@
 
@@ -443,8 +443,8 @@ Return type is [+<DOUBLE>+]
 !!!!Parameter
 "none"
 !!!!Example
-@@Jamocha> (log (e))\\
-1.0\\
+@@Jamocha> (e)\\
+2.718281828459045\\
 @@
 
 ----
@@ -640,7 +640,7 @@ Return type is [+<DOUBLE>+]
 !!!!Description
 Returns the value of the first mumeric argument raised to the power of the following numeric arguments.\\
 
-This function [+has+] fixed parameter count.\\
+This function [+hasn't+] fixed parameter count.\\
 Return type is [+<DOUBLE>+]
 !!!!Parameter
 
@@ -682,7 +682,7 @@ Return type is [+<DOUBLE>+]
 "none"
 !!!!Example
 @@Jamocha> (asin (random))\\
-1.0638976588526594\\
+1.003272512687898\\
 @@
 
 ----
@@ -836,8 +836,8 @@ Return type is [+<DOUBLE>+]
 [+<NUMBER>+] angleNumeric value to get the hyperbolic tangent from.\\
 
 !!!!Example
-@@Jamocha> (tan -6.98263)\\
--0.8413395544584249\\
+@@Jamocha> (tanh -6.98263)\\
+-0.999998278154161\\
 @@
 
 ----
@@ -1210,7 +1210,7 @@ Return type is [+<LONG>+]
 "none"
 !!!!Example
 @@Jamocha> (ms-time)\\
-1209829708585\\
+1216742988894\\
 @@
 
 ----
@@ -1225,9 +1225,9 @@ Return type is [+<DATETIME>+]
 "none"
 !!!!Example
 @@Jamocha> (now)\\
-2008-05-03 17:48:28+01\\
+2008-07-22 18:09:48+01\\
 Jamocha> (getseconds (now))\\
-28\\
+48\\
 @@
 
 ----
@@ -1843,22 +1843,6 @@ true\\
 
 ----
 
-!!!defclass
-!!!!Description
-TODO\\
-
-This function [+hasn't+] fixed parameter count.\\
-Return type is [+<BOOLEAN>+]
-!!!!Parameter
-
-[+<IDENTIFIER>+] classnameClassname TODO.\\
-
-[+<IDENTIFIER>+] templateTemplate TODO.\\
-
-[+<IDENTIFIER>+] parentTemplateParent Template TODO.\\
-
-----
-
 !!!deffunction
 !!!!Description
 Used to declare new functions in the shell. Deffunctions run interpreted and are mapped to existing functions. Returns true if the function could be declared. Returns false if the functioncould not be declared or already existed.Deffunction is used for functions that are declared in the shell. It is different than a function written in java. Deffunctions run interpreted and are mapped to existing functions. Returns true if the Function could be declared and false if not or if it already existed.\\
@@ -2122,12 +2106,17 @@ Return type is [+<unknown>+]
 [+<IDENTIFIER>+] slotNameName of the slot to get the value from.\\
 
 !!!!Example
-@@(deftemplate car (slot color)(slot speed))\\
-(assert (car (color 'red')(speed 200)))\\
-(assert (car (color 'blue')(speed 150)))\\
-(assert (car (color 'green')(speed 100)))\\
-(fact-slot-value 1 color)\\
-(fact-slot-value 3 speed)@@
+@@Jamocha> (deftemplate car (slot color)(slot speed))\\
+true\\
+Jamocha> (assert (car (color 'red')(speed 200)))\\
+f-2\\
+Jamocha> (assert (car (color 'blue')(speed 150)))\\
+f-3\\
+Jamocha> (assert (car (color 'green')(speed 100)))\\
+f-4\\
+Jamocha> (fact-slot-value 3 color)\\
+blue\\
+@@
 
 ----
 
@@ -2255,24 +2244,7 @@ Return type is [+<STRING>+]
 "none"
 !!!!Example
 @@Jamocha> (get-strategy)\\
-DepthStrategy\\
-@@
-
-----
-
-!!!lazy-agenda
-!!!!Description
-Used to turn on/off lazy agenda. That means the activations are not sorted when added to the agenda. Instead it is sorted when they are removed.\\
-
-This function [+has+] fixed parameter count.\\
-Return type is [+<NONE>+]
-!!!!Parameter
-
-[+<BOOLEAN>+] lazyIf true lazy agenda is turned on.\\
-
-!!!!Example
-@@Jamocha> (lazy-agenda)\\
-NIL\\
+HighestComplexityFirstStrategy\\
 @@
 
 ----
@@ -2755,21 +2727,6 @@ MAIN\\
 
 ----
 
-!!!set-parser
-!!!!Description
-Sets the default parser to the one given as first argument or prints out the current default parser, if no argument is given. Note: Changing the parser during runtime only makes sense for StringChannels. StreamChannels must be reinitalized after changing the parser.\\
-
-This function [+hasn't+] fixed parameter count.\\
-Return type is [+<STRING>+]
-!!!!Parameter
-
-[+<STRING>+] parserNew default parser to use.\\
-
-!!!!Example
-@@(set-parser)@@
-
-----
-
 !!!set-settings
 !!!!Description
 Jamocha settings can be set by this function.\\
@@ -2967,7 +2924,7 @@ NIL\\
 
 !!!view
 !!!!Description
-Prints the rete network in text mode\\
+Shows the rete visualization.\\
 
 This function [+has+] fixed parameter count.\\
 Return type is [+<NONE>+]
@@ -3038,6 +2995,11 @@ Return type is [+<BOOLEAN>+]
 [+<unknown>+] valueLiteral value to be compared to all other parameters.\\
 
 [+<unknown>+] valueValue to be compared to the first parameter.\\
+
+!!!!Example
+@@Jamocha> (eq 4 4)\\
+true\\
+@@
 
 ----
 
@@ -3128,5 +3090,10 @@ Return type is [+<BOOLEAN>+]
 [+<unknown>+] valueLiteral value to be compared to all other parameters.\\
 
 [+<unknown>+] valueValue to be compared to the first parameter.\\
+
+!!!!Example
+@@Jamocha> (neq 47 11)\\
+true\\
+@@
 
 ----

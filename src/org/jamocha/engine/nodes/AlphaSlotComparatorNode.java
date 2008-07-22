@@ -31,8 +31,7 @@ import org.jamocha.parser.JamochaValue;
 
 /**
  * @author Josef Alexander Hahn <mail@josef-hahn.de> this node type is an
- *         alpha-node. it filters the input by a given slot, an operator and a
- *         constant value.
+ *         alpha-node. it filters the input by an operator and two slot names.
  */
 public class AlphaSlotComparatorNode extends OneInputNode {
 
