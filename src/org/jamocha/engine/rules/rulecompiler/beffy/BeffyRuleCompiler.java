@@ -926,6 +926,8 @@ public class BeffyRuleCompiler implements RuleCompiler {
 	}
 
 	protected List<Rule> precompile(Rule rule) {
+		// TODO: move all optimizations to the class RuleOptimizer and call it in this method.
+		
 		List<Rule> result = new ArrayList<Rule>();
 		
 		AndCondition topLevelAnd = new AndCondition();
@@ -986,5 +988,4 @@ public class BeffyRuleCompiler implements RuleCompiler {
 			Logging.logger(this.getClass()).fatal(e);
 		}
 	}
-
 }

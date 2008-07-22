@@ -49,5 +49,11 @@ public class OrCondition extends ConditionWithNested {
 	}
 
 
+	/**
+	 * @see org.jamocha.rules.Condition#acceptVisitor(org.jamocha.rules.LHSVisitor, java.lang.Object)
+	 */
+	public <T> T acceptVisitor(LHSVisitor<T> visitor, T data) {
+		return visitor.visit(this, data);
+	}
 	
 }

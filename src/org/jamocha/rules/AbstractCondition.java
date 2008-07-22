@@ -32,7 +32,7 @@ import org.jamocha.formatter.Formatter;
  */
 public abstract class AbstractCondition implements Condition {
 
-	private Condition parent = null;
+	private ConditionWithNested parent = null;
 	
 	private static int idCounter = 0;
 	
@@ -49,7 +49,7 @@ public abstract class AbstractCondition implements Condition {
 		return (this.id == oc.id);
 	}
 	
-	public void setParentCondition(Condition c) {
+	public void setParentCondition(ConditionWithNested c) {
 		parent = c;
 	}
 	
@@ -61,7 +61,7 @@ public abstract class AbstractCondition implements Condition {
 		return visitor.visit(this);
 	}
 	
-	public Condition getParentCondition() {
+	public ConditionWithNested getParentCondition() {
 		return parent;
 	}
 	

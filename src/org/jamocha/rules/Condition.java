@@ -54,14 +54,19 @@ public interface Condition extends Compileable, Complexity, Formattable {
 	 */
 	public int compareComplexity(Complexity other);
 
-	public Condition getParentCondition();
+	public ConditionWithNested getParentCondition();
 	
 	/**
 	 * Argh, i really really hate it to introduce this method inside
 	 * the interface. But there is no better way. DONT CALL IT!!!
 	 * it is called by some internal methods only...
 	 */
-	public void setParentCondition(Condition c);
+	public void setParentCondition(ConditionWithNested c);
+	
+	/**
+	 * Visitor pattern support for the BeffyRuleOptimizer Class.
+	 */
+	public <T extends Object> T acceptVisitor(LHSVisitor <T> visitor, T data);
 	
 	public Condition clone();
 	

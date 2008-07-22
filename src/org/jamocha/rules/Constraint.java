@@ -60,4 +60,10 @@ public interface Constraint extends Complexity, Compileable, Formattable {
 	Condition getParentCondition();
 	
 	void setParentCondition(Condition c);
+
+	/**
+	 * Visitor pattern support for the BeffyRuleOptimizer Class.
+	 */
+	public <T extends Object> T acceptVisitor(LHSVisitor <T> visitor, T data);
+
 }
