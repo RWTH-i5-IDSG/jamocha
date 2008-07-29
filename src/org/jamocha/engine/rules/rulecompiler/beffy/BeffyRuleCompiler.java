@@ -173,7 +173,7 @@ public class BeffyRuleCompiler implements RuleCompiler {
 						BoundConstraint bc = (BoundConstraint) constr;
 						result.add(bc.getConstraintName());
 					} else if (constr instanceof AndConnectedConstraint) {
-						for (Constraint ac : flattenAndConnectedConstraint((AndConnectedConstraint)constr)) {
+						for (Constraint ac : deepConstraintList((AndConnectedConstraint)constr)) {
 							if (ac instanceof BoundConstraint) {
 								BoundConstraint bc = (BoundConstraint) ac;
 								result.add(bc.getConstraintName());
@@ -302,7 +302,12 @@ public class BeffyRuleCompiler implements RuleCompiler {
 	}
 	
 	/**
-	 * this class represents the occurence of a binding.
+	 * this class represents the occurence of one binding in
+	 * a condition. So, its more or less a bean which stores
+	 * - what is the index of the occurence's condition
+	 * - the instance of the concrete BoundConstraint itself
+	 * - the instance of the Condition
+	 * - whether this occurence is in "identical" manner or negated, behind exists and so on
 	 */
 	protected class BindingOccurence {
 		
@@ -375,7 +380,7 @@ public class BeffyRuleCompiler implements RuleCompiler {
 	 * the purpose is to generate a list of all constraints inside an
 	 * and-connected-constraint (which normally is a tree-like structure)
 	 */
-	protected static List<Constraint> flattenAndConnectedConstraint(AndConnectedConstraint c) {
+	protected static List<Constraint> deepConstraintList(AndConnectedConstraint c) {
 		List<Constraint> insideAndCC = new ArrayList<Constraint>();
 		Stack<Constraint> ccStack = new Stack<Constraint>();
 		ccStack.push(c);
@@ -421,7 +426,7 @@ public class BeffyRuleCompiler implements RuleCompiler {
 					if (con instanceof BoundConstraint) {
 						extractOccurence(c, (BoundConstraint)con);
 					} else if (con instanceof AndConnectedConstraint) {
-						for (Constraint bconst: flattenAndConnectedConstraint((AndConnectedConstraint)con)) {
+						for (Constraint bconst: deepConstraintList((AndConnectedConstraint)con)) {
 							if (bconst instanceof BoundConstraint)
 								extractOccurence(c, (BoundConstraint)bconst);
 						}
@@ -777,6 +782,10 @@ public class BeffyRuleCompiler implements RuleCompiler {
 		 * and not-exists-conditions. we have no further nested and-condition here (since this 
 		 * would not play any role inside an and condition) and no or-conditions (since they are
 		 * replaced by a number of subrules).
+		 * 
+		 * Later on, maybe this is not only the entry point but a also a hook
+		 * for inside and-condition. Then, maybe we have to refactor this method
+		 * here a bit ;)
 		 */
 		List<Condition> conds= new ArrayList<Condition>();
 		conds.addAll(cond.getNestedConditions());
@@ -939,23 +948,20 @@ public class BeffyRuleCompiler implements RuleCompiler {
 		
 		return result;
 	}
-	
+
+	//@Override
 	public boolean addRule(Rule rule) throws AssertException, RuleException, EvaluationException, CompileRuleException {
-		
 		List<Rule> subRules = precompile(rule);
-		
 		try {
 			for (Rule r : subRules)	compileSubRule(r);
 			reteNet.getRoot().activate();
 		} catch (NodeException e) {
 			throw new CompileRuleException(e);
 		}
-		
-		
-		
 		return true;
 	}
 
+	//@Override
 	public Binding getBinding(String varName, Rule r) {
 		RuleCompilation rc = compiledRules.get(r);
 		Binding result = rc.bindingCache.get(varName);
@@ -973,10 +979,18 @@ public class BeffyRuleCompiler implements RuleCompiler {
 		return b;
 	}
 
+	//@Override
 	public void removeListener(CompilerListener listener) {
 		listeners.remove(listener);
 	}
 
+
+	/**
+	 * adds an object type node for the given template. if it already
+	 * exists, it does nothing at all. so it is safe to call it multiple
+	 * times for the same template
+	 */
+	//@Override
 	public void addObjectTypeNode(Template template) {
 		if (getObjectTypeNode(template.getName()) != null ) return;
 		ObjectTypeNode otn = new ObjectTypeNode(reteNet.nextNodeId(), engine.getWorkingMemory(),reteNet, template);
