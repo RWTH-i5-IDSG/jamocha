@@ -23,6 +23,13 @@ import org.jamocha.engine.Engine;
 import org.jamocha.engine.nodes.FactTuple;
 import org.jamocha.engine.workingmemory.elements.Fact;
 
+/**
+ * The generalized join filters are used with the multi-join-nodes. here we
+ * don't have right- and left-inputs but mixed input. so, the whole resulting
+ * fact tuple will be evaluated instead of the combination of left- and right
+ * input 
+ * @author Josef Alexander Hahn
+ */
 public interface GeneralizedJoinFilter {
 
 	boolean evaluate(FactTuple t, Engine engine)

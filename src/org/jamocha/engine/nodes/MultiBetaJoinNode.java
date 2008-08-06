@@ -69,6 +69,20 @@ public class MultiBetaJoinNode extends Node {
 		return true;
 	}
 	
+	protected List<WorkingMemoryElement> getResultedTuples(Node sender, WorkingMemoryElement elem) {
+		List<WorkingMemoryElement> result = new ArrayList<WorkingMemoryElement>();
+		List<Object> otherNodes = new ArrayList<Object>();
+		for (Node n : inputs) {
+			if (n != sender) {
+				otherNodes.add(n);
+			} else {
+				otherNodes.add(elem);
+			}
+		}
+		cartesian(otherNodes, result);	
+		return result;
+	}
+	
 	@Override
 	public void addWME(Node sender, WorkingMemoryElement newElem) throws NodeException {
 		/* so, now we have to generate Cartesian product from the new WME
@@ -76,17 +90,7 @@ public class MultiBetaJoinNode extends Node {
 		 */
 		if (!isActivated())
 			return;
-		
-		List<WorkingMemoryElement> result = new ArrayList<WorkingMemoryElement>();
-		List<Object> otherNodes = new ArrayList<Object>();
-		for (Node n : inputs) {
-			if (n != sender) {
-				otherNodes.add(n);
-			} else {
-				otherNodes.add(newElem);
-			}
-		}
-		cartesian(otherNodes, result);	
+		List<WorkingMemoryElement> result = getResultedTuples(sender,newElem);
 		for (WorkingMemoryElement wme : result) {
 			try {
 				if (applyFilters(wme)) addAndPropagate(wme);
@@ -183,8 +187,21 @@ public class MultiBetaJoinNode extends Node {
 
 	@Override
 	public void removeWME(Node sender, WorkingMemoryElement oldElem) throws NodeException {
-		// TODO Auto-generated method stub
-
+		/* so, now we have to generate Cartesian product from the new WME
+		 * and all WMEs from all other inputs != sender
+		 */
+		if (!isActivated())
+			return;
+		List<WorkingMemoryElement> result = getResultedTuples(sender,oldElem);
+		for (WorkingMemoryElement wme : result) {
+			try {
+				if (applyFilters(wme)) removeAndPropagate(wme);
+			} catch (JoinFilterException e) {
+				Logging.logger(this.getClass()).fatal(e);
+			} catch (EvaluationException e) {
+				Logging.logger(this.getClass()).fatal(e);
+			}
+		}
 	}
 
 }

@@ -23,6 +23,12 @@ import org.jamocha.engine.Engine;
 import org.jamocha.engine.nodes.FactTuple;
 import org.jamocha.engine.workingmemory.elements.Fact;
 
+/**
+ * this is the interface for all class join filters for traditional beta-nodes
+ * (one left input and one right input)
+ * @author Josef Alexander Hahn
+ *
+ */
 public interface JoinFilter {
 
 	boolean evaluate(Fact right, FactTuple left, Engine engine)
