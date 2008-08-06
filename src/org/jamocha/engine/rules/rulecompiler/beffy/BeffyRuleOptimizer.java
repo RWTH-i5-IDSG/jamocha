@@ -1,0 +1,50 @@
+/*
+ * Copyright 2002-2008 The Jamocha Team
+ * 
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.jamocha.org/
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ */
+
+/**
+ * 
+ */
+package org.jamocha.engine.rules.rulecompiler.beffy;
+
+import java.util.List;
+
+import org.jamocha.rules.Condition;
+
+/**
+ * @author Christoph Terwelp
+ * @author Janno von Stuelpnagel
+ *
+ */
+public class BeffyRuleOptimizer {
+	
+	BeffyRuleOptimizerPassOne passone;
+	BeffyRuleOptimizerPassTwo passtwo;
+	
+	public BeffyRuleOptimizer() {
+		passone = new BeffyRuleOptimizerPassOne();
+		passtwo = new BeffyRuleOptimizerPassTwo();
+	}
+	
+	public Condition optimize(List<Condition> cons) {
+		Condition con;
+		con = passone.optimize(cons);
+		con = passtwo.optimize(con);
+		return con;
+	}
+
+}
