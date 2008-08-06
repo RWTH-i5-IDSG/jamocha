@@ -69,6 +69,17 @@ public class JTCBeffyRuleOptimizer extends TestCase {
 		return result;
 	}
 	
+	private Condition runPassTwo(Condition cond) {
+		System.out.println("\n\nBefore pass two:");
+		System.out.println(cond.dump());
+		
+		Condition result = passtwo.optimize(cond);
+		
+		System.out.println("\nAfter pass two");
+		System.out.println(result.dump());
+		return result;
+	}
+	
 	private List<Condition> initPassOneSimple1() {
 		List<Condition> list = new LinkedList<Condition>();
 		List<Constraint> constlist = new ArrayList<Constraint>();
@@ -173,18 +184,32 @@ public class JTCBeffyRuleOptimizer extends TestCase {
 //		runPassOne(list);
 //	}
 	
-	public void testPassOneSimple2() {
-		List<Condition> list = initPassOneSimple2();
-		runPassOne(list);
-	}
-	
-//	public void testPassOneComplete() {
-//		List<Condition> list = initPassOneComplete();
-//		
-//		Condition result = runPassOne(list);
-//		
-//		assertTrue(initPassOneCompleteResult().testEquals(result));
+//	public void testPassOneSimple2() {
+//		List<Condition> list = initPassOneSimple2();
+//		runPassOne(list);
 //	}
+	
+	public void testPassOneComplete() {
+		List<Condition> list = initPassOneComplete();
+		List<Condition> list2 = initPassOneComplete();
+		
+		Condition result = runPassOne(list);
+		Condition result2 = runPassOne(list2);
+		
+		//assertTrue(initPassOneCompleteResult().testEquals(result));
+		
+		result = runPassTwo(result);
+		result2 = runPassTwo(result2);
+		
+		assertTrue("two runs do not return same result", result.testEquals(result2));
+		
+		list = new ArrayList<Condition>();
+		list.add(result2);
+		result2 = runPassOne(list);
+		result2 = runPassTwo(result2);
+		
+		assertTrue("running twice does not return same result", result.testEquals(result2));
+	}
 	
 	public void testPassTwo() {
 	}
