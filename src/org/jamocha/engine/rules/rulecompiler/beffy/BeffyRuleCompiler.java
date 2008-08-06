@@ -53,7 +53,7 @@ import org.jamocha.engine.nodes.RootNode;
 import org.jamocha.engine.nodes.SimpleBetaFilterNode;
 import org.jamocha.engine.nodes.SlotFilterNode;
 import org.jamocha.engine.nodes.TerminalNode;
-import org.jamocha.engine.nodes.joinfilter.FieldComparator;
+import org.jamocha.engine.nodes.joinfilter.LeftRightFieldComparator;
 import org.jamocha.engine.nodes.joinfilter.FunctionEvaluator;
 import org.jamocha.engine.nodes.joinfilter.JoinFilterException;
 import org.jamocha.engine.nodes.joinfilter.LeftFieldAddress;
@@ -686,7 +686,7 @@ public class BeffyRuleCompiler implements RuleCompiler {
 			}
 
 			int op = constraint.isNegated() ? Constants.NOTEQUAL : Constants.EQUAL;
-			FieldComparator comp= new FieldComparator(constraint.getConstraintName(),left,op,right);
+			LeftRightFieldComparator comp= new LeftRightFieldComparator(constraint.getConstraintName(),left,op,right);
 			ourJoinNode.addFilter(comp);
 		}
 

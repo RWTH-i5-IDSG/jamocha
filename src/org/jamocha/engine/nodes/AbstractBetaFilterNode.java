@@ -69,7 +69,7 @@ public abstract class AbstractBetaFilterNode extends TwoInputNode {
 	}
 
 	@Override
-	public void addWME(final WorkingMemoryElement newElem) throws NodeException {
+	public void addWME(Node sender, final WorkingMemoryElement newElem) throws NodeException {
 		if (!isActivated())
 			return;
 		try {
@@ -97,7 +97,7 @@ public abstract class AbstractBetaFilterNode extends TwoInputNode {
 			throws JoinFilterException, EvaluationException, NodeException;
 
 	@Override
-	public void removeWME(final WorkingMemoryElement oldElem)
+	public void removeWME(Node sender, final WorkingMemoryElement oldElem)
 			throws NodeException {
 		try {
 			if (oldElem.isStandaloneFact())

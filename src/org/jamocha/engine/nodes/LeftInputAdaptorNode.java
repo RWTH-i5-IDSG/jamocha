@@ -37,7 +37,7 @@ public class LeftInputAdaptorNode extends OneInputNode {
 	}
 
 	@Override
-	public void addWME(final WorkingMemoryElement elem) throws NodeException {
+	public void addWME(Node sender, final WorkingMemoryElement elem) throws NodeException {
 		if (!isActivated())
 			return;
 		final WorkingMemoryElement newElem = elem.getFactTuple();
@@ -45,7 +45,7 @@ public class LeftInputAdaptorNode extends OneInputNode {
 	}
 
 	@Override
-	public void removeWME(final WorkingMemoryElement elem) throws NodeException {
+	public void removeWME(Node sender, final WorkingMemoryElement elem) throws NodeException {
 		final WorkingMemoryElement newElem = elem.getFactTuple();
 		removeAndPropagate(newElem);
 	}

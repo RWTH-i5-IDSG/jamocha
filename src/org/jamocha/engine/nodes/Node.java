@@ -111,7 +111,7 @@ public abstract class Node {
 		newArr[childs.length] = newChild;
 		childs = newArr;
 		for (final WorkingMemoryElement wme : memory())
-			newChild.addWME(wme);
+			newChild.addWME(this,wme);
 	}
 
 	/**
@@ -145,7 +145,7 @@ public abstract class Node {
 	 * whether this wme comes from the alpha- or beta-input is determined
 	 * automatically.
 	 */
-	public abstract void addWME(WorkingMemoryElement newElem)
+	public abstract void addWME(Node sender, WorkingMemoryElement newElem)
 			throws NodeException;
 
 	/**
@@ -153,7 +153,7 @@ public abstract class Node {
 	 * whether this wme comes from the alpha- or beta-input is determined
 	 * automatically.
 	 */
-	public abstract void removeWME(WorkingMemoryElement oldElem)
+	public abstract void removeWME(Node sender, WorkingMemoryElement oldElem)
 			throws NodeException;
 
 	/**
@@ -162,7 +162,7 @@ public abstract class Node {
 	protected void propagateAddition(final WorkingMemoryElement elem)
 			throws NodeException {
 		for (final Node child : getChildNodes())
-			child.addWME(elem);
+			child.addWME(this,elem);
 	}
 
 	/**
@@ -171,7 +171,7 @@ public abstract class Node {
 	protected void propagateRemoval(final WorkingMemoryElement elem)
 			throws NodeException {
 		for (final Node child : getChildNodes())
-			child.removeWME(elem);
+			child.removeWME(this,elem);
 	}
 
 	/**

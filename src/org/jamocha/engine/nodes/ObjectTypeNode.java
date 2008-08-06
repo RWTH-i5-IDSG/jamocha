@@ -45,7 +45,7 @@ public class ObjectTypeNode extends OneInputNode {
 	}
 
 	@Override
-	public void addWME(final WorkingMemoryElement newElem) throws NodeException {
+	public void addWME(Node sender, final WorkingMemoryElement newElem) throws NodeException {
 		if (!isActivated())
 			return;
 		final Template t = newElem.getFirstFact().getTemplate();
@@ -54,7 +54,7 @@ public class ObjectTypeNode extends OneInputNode {
 	}
 
 	@Override
-	public void removeWME(final WorkingMemoryElement oldElem)
+	public void removeWME(Node sender, final WorkingMemoryElement oldElem)
 			throws NodeException {
 		final Template t = oldElem.getFirstFact().getTemplate();
 		if (t.equals(template))

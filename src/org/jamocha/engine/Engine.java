@@ -647,7 +647,7 @@ public class Engine implements Dumpable {
 		Module mod = tpl.checkName(this);
 		if (mod == null)
 			mod = getCurrentFocus();
-		Boolean result = mod.addTemplate(tpl);
+		boolean result = mod.addTemplate(tpl);
 		return result;
 	}
 

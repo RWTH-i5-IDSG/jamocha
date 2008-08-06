@@ -76,7 +76,7 @@ public class ReteNet implements SettingsChangedListener, Serializable {
 		// we assume Rete has already checked to see if the object
 		// has been added to the working memory, so we just assert.
 		try {
-			root.addWME(fact);
+			root.addWME(null,fact);
 		} catch (NodeException e) {
 			throw new AssertException(e);
 		}
@@ -89,7 +89,7 @@ public class ReteNet implements SettingsChangedListener, Serializable {
 	 */
 	public synchronized void retractObject(Fact fact) throws RetractException {
 		try {
-			root.removeWME(fact);
+			root.removeWME(null, fact);
 		} catch (NodeException e) {
 			throw new RetractException(e);
 		}

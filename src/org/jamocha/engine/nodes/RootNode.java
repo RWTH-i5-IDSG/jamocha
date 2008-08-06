@@ -36,7 +36,7 @@ public class RootNode extends Node {
 	}
 
 	@Override
-	public void addWME(final WorkingMemoryElement newElem) throws NodeException {
+	public void addWME(Node sender, final WorkingMemoryElement newElem) throws NodeException {
 		// the root note must not ignore new WMEs while deactivated!
 		addAndPropagate(newElem);
 	}
@@ -48,7 +48,7 @@ public class RootNode extends Node {
 	}
 
 	@Override
-	public void removeWME(final WorkingMemoryElement oldElem)
+	public void removeWME(Node sender, final WorkingMemoryElement oldElem)
 			throws NodeException {
 		removeAndPropagate(oldElem);
 	}

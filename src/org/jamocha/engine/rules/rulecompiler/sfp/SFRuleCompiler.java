@@ -58,7 +58,7 @@ import org.jamocha.engine.nodes.SlotFilterNode;
 import org.jamocha.engine.nodes.TerminalNode;
 import org.jamocha.engine.nodes.TwoInputNode;
 import org.jamocha.engine.nodes.joinfilter.FieldAddress;
-import org.jamocha.engine.nodes.joinfilter.FieldComparator;
+import org.jamocha.engine.nodes.joinfilter.LeftRightFieldComparator;
 import org.jamocha.engine.nodes.joinfilter.FunctionEvaluator;
 import org.jamocha.engine.nodes.joinfilter.JoinFilter;
 import org.jamocha.engine.nodes.joinfilter.JoinFilterException;
@@ -800,7 +800,7 @@ public class SFRuleCompiler implements RuleCompiler {
 						act.leftIndex, act.rightIndex), act.leftSlot);
 				final RightFieldAddress right = new RightFieldAddress(
 						act.rightSlot, act.rightPosition);
-				final FieldComparator b = new FieldComparator(act.varName,
+				final LeftRightFieldComparator b = new LeftRightFieldComparator(act.varName,
 						left, act.operator, right);
 				filters.add(b);
 				act = itr.hasNext() ? itr.next() : null;
@@ -839,7 +839,7 @@ public class SFRuleCompiler implements RuleCompiler {
 			final LeftFieldAddress left = new LeftFieldAddress(act.leftIndex,
 					act.leftSlot);
 			final RightFieldAddress right = new RightFieldAddress(act.rightSlot);
-			filter = new FieldComparator(act.varName, left, act.operator, right);
+			filter = new LeftRightFieldComparator(act.varName, left, act.operator, right);
 
 			newJoin.addFilter(filter);
 

@@ -19,20 +19,19 @@
 package org.jamocha.engine.nodes;
 
 import org.jamocha.application.gui.retevisualisation.NodeDrawer;
-import org.jamocha.application.gui.retevisualisation.nodedrawers.RIANodeDrawer;
+import org.jamocha.application.gui.retevisualisation.nodedrawers.LIANodeDrawer;
 import org.jamocha.engine.ReteNet;
 import org.jamocha.engine.workingmemory.WorkingMemory;
 import org.jamocha.engine.workingmemory.WorkingMemoryElement;
 
 /**
- * @author Josef Alexander Hahn <mail@josef-hahn.de>
- *  A right input adaptor node
- *  converts incoming beta-wmes to alpha-wmes by truncating each
- *  wme to only its first tuple-element
+ * This is a dummy node, which only should be used for debugging
+ * purposes and for test cases.
+ * @author Josef Alexander Hahn <mail@josef-hahn.de> 
  */
-public class RightInputAdaptorNode extends OneInputNode {
+public class DummyNode extends OneInputNode {
 
-	public RightInputAdaptorNode(final int id, final WorkingMemory memory,
+	public DummyNode(final int id, final WorkingMemory memory,
 			final ReteNet net) {
 		super(id, memory, net);
 	}
@@ -41,14 +40,12 @@ public class RightInputAdaptorNode extends OneInputNode {
 	public void addWME(Node sender, final WorkingMemoryElement elem) throws NodeException {
 		if (!isActivated())
 			return;
-		final WorkingMemoryElement newElem = elem.getFirstFact();
-		addAndPropagate(newElem);
+		addAndPropagate(elem);
 	}
 
 	@Override
 	public void removeWME(Node sender, final WorkingMemoryElement elem) throws NodeException {
-		final WorkingMemoryElement newElem = elem.getFactTuple();
-		removeAndPropagate(newElem);
+		removeAndPropagate(elem);
 	}
 
 	@Override
@@ -58,7 +55,7 @@ public class RightInputAdaptorNode extends OneInputNode {
 
 	@Override
 	protected NodeDrawer newNodeDrawer() {
-		return new RIANodeDrawer(this);
+		return new LIANodeDrawer(this);
 	}
 
 }

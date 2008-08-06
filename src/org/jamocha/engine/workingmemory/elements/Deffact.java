@@ -18,11 +18,16 @@
 
 package org.jamocha.engine.workingmemory.elements;
 
+import java.util.HashMap;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
+import org.jamocha.communication.logging.Logging;
 import org.jamocha.engine.BoundParam;
+import org.jamocha.engine.ConstraintViolationException;
 import org.jamocha.engine.Engine;
 import org.jamocha.engine.EqualityIndex;
 import org.jamocha.engine.configurations.SlotConfiguration;
@@ -82,6 +87,71 @@ public class Deffact implements Fact {
 		timeStamp = System.nanoTime();
 		tags = new ArrayList<Tag>();
 	}
+	
+	
+	/**
+	 * this constructor should only be used for debugging purposes
+	 * and for writing test-cases. this is not the usual way
+	 * of creating facts in jamocha!
+	 * 
+	 * This string format is "templatename;att1=val1;att2=val2;..."
+	 * @param factdef
+	 */
+	public Deffact(String factdef, Engine e) {
+		
+		String[] split = factdef.split(";");
+		
+		String templateName = split[0];
+		
+		Map<String,String> slots = new HashMap<String, String>();
+		for (int i=1; i< split.length; i++) {
+			String field = split[i];
+			String[] foo = field.split("=");
+			String name = foo[0];
+			String value = foo[1];
+			slots.put(name, value);
+		}
+		
+		TemplateSlot[] tslotArr = new TemplateSlot[slots.keySet().size()];
+		Slot[] slotArr = new Slot[slots.keySet().size()];
+		int i = 0;
+		
+		for (String key : slots.keySet()) {
+			tslotArr[i++] = new TemplateSlot(key);
+		}
+
+		Deftemplate t = new Deftemplate(templateName, templateName, tslotArr);
+
+		try {
+			e.addTemplate(t);
+		} catch (EvaluationException e1) {
+			Logging.logger(this.getClass()).fatal(e1);
+		}
+
+		try {
+			i = 0;
+			for (String key : slots.keySet()) {
+				slotArr[i] = tslotArr[i].createSlot(e);
+
+				slotArr[i].setValue(JamochaValue.newString(slots.get(key)));
+				i++;
+			}		
+		} catch (ConstraintViolationException e1) {
+			Logging.logger(this.getClass()).fatal(e1);
+		} catch (EvaluationException e2) {
+			Logging.logger(this.getClass()).fatal(e2);
+		}
+
+		this.template = t;
+		this.slots = slotArr;
+		timeStamp = System.nanoTime();
+		tags = new ArrayList<Tag>();
+
+		
+		
+		
+	}
+	
 
 	/**
 	 * 

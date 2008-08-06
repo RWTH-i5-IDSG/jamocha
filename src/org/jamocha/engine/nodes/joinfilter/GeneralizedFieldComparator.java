@@ -35,7 +35,7 @@ import org.jamocha.engine.workingmemory.elements.Fact;
  * @author Josef Alexander Hahn
  */
 
-public class FieldComparator implements Serializable, Cloneable, JoinFilter {
+public class GeneralizedFieldComparator implements Serializable, Cloneable, GeneralizedJoinFilter {
 
 	private static final long serialVersionUID = 1L;
 
@@ -43,18 +43,18 @@ public class FieldComparator implements Serializable, Cloneable, JoinFilter {
 
 	protected String varName = null;
 
-	protected RightFieldAddress right = null;
+	protected FieldAddress right = null;
 
-	protected LeftFieldAddress left = null;
+	protected FieldAddress left = null;
 
-	public FieldComparator(final String varName, final LeftFieldAddress left,
-			final int operator, final RightFieldAddress right) {
-		this(varName, left, right);
+	public GeneralizedFieldComparator(final String varName, final FieldAddress fa1,
+			final int operator, final FieldAddress fa2) {
+		this(varName, fa1, fa2);
 		this.operator = operator;
 	}
 
-	public FieldComparator(final String varName, final LeftFieldAddress left,
-			final RightFieldAddress right) {
+	public GeneralizedFieldComparator(final String varName, final FieldAddress left,
+			final FieldAddress right) {
 		super();
 		this.varName = varName;
 		this.left = left;
@@ -69,41 +69,17 @@ public class FieldComparator implements Serializable, Cloneable, JoinFilter {
 		this.operator = operator;
 	}
 
-	public boolean evaluate(final Fact rightinput, final FactTuple leftinput,
-			final Engine engine) throws JoinFilterException {
+	public boolean evaluate(FactTuple t,final Engine engine) throws JoinFilterException {
 		JamochaValue rightValue = null, leftValue = null;
 		try {
-			rightValue = right.getIndexedValue(rightinput);
-			leftValue  =  left.getIndexedValue(leftinput);
+			rightValue = right.getIndexedValue(t);
+			leftValue  =  left.getIndexedValue(t);
 		} catch (final EvaluationException e) {
 			Logging.logger(this.getClass()).warn(e);
 		}
 		return Evaluate.evaluate(operator, leftValue, rightValue);
 	}
 
-	/**
-	 * This function takes a JamochaValue and if it is of type FACT_ID it
-	 * returns the JamochaValue of type FACT with the corresponding fact. If we
-	 * have a fact we get the current version of the fact out of the engine and
-	 * return it.
-	 * <p>
-	 * If the value is no FACT_ID it is just returned.
-	 * 
-	 * @param value
-	 *            The possible fact-id to resolve.
-	 * @param engine
-	 *            Needed to find the fact to a given fact-id.
-	 * @return The original value or a fact if value was a fact-id
-	 */
-	private JamochaValue resolveFact(final JamochaValue value,
-			final Engine engine) {
-		if (value.is(JamochaType.FACT_ID))
-			return JamochaValue.newFact(engine.getFactById(value));
-		else if (value.is(JamochaType.FACT))
-			return JamochaValue.newFact(engine.getFactById(value.getFactValue()
-					.getFactId()));
-		return value;
-	}
 
 	public String getVarName() {
 		return varName;
@@ -127,8 +103,8 @@ public class FieldComparator implements Serializable, Cloneable, JoinFilter {
 	@Override
 	public boolean equals(final Object obj) {
 		// equals if same type, same operator, same slot
-		if (obj instanceof FieldComparator) {
-			final FieldComparator fc = (FieldComparator) obj;
+		if (obj instanceof GeneralizedFieldComparator) {
+			final GeneralizedFieldComparator fc = (GeneralizedFieldComparator) obj;
 			return operator == fc.operator && varName.equals(fc.varName)
 					&& right.equals(fc.right) && left.equals(fc.left);
 		}

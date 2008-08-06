@@ -64,7 +64,7 @@ public class AlphaSlotComparatorNode extends OneInputNode {
 	}
 
 	@Override
-	public void addWME(final WorkingMemoryElement newElem) throws NodeException {
+	public void addWME(Node sender, final WorkingMemoryElement newElem) throws NodeException {
 		if (!isActivated())
 			return;
 		if (evaluate(newElem))
@@ -72,7 +72,7 @@ public class AlphaSlotComparatorNode extends OneInputNode {
 	}
 
 	@Override
-	public void removeWME(final WorkingMemoryElement oldElem)
+	public void removeWME(Node sender, final WorkingMemoryElement oldElem)
 			throws NodeException {
 		if (evaluate(oldElem))
 			removeAndPropagate(oldElem);
