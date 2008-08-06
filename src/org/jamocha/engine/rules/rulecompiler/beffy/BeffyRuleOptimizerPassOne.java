@@ -22,53 +22,57 @@
  */
 package org.jamocha.engine.rules.rulecompiler.beffy;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.jamocha.rules.AndCondition;
-import org.jamocha.rules.AndConnectedConstraint;
-import org.jamocha.rules.BoundConstraint;
 import org.jamocha.rules.Condition;
 import org.jamocha.rules.ConditionWithNested;
 import org.jamocha.rules.ExistsCondition;
 import org.jamocha.rules.LHSVisitor;
-import org.jamocha.rules.LiteralConstraint;
 import org.jamocha.rules.NotExistsCondition;
 import org.jamocha.rules.ObjectCondition;
 import org.jamocha.rules.OrCondition;
-import org.jamocha.rules.OrConnectedConstraint;
-import org.jamocha.rules.OrderedFactConstraint;
-import org.jamocha.rules.PredicateConstraint;
-import org.jamocha.rules.ReturnValueConstraint;
 import org.jamocha.rules.TestCondition;
 
 /**
  * 
  * @author Josef Hahn
  * @author Karl-Heinz Krempels
- * @author Janno von St�lpnagel
+ * @author Janno von Stuelpnagel
  * @author Christoph Terwelp
  */
-class BeffyRuleOptimizer implements LHSVisitor<BeffyRuleOptimizerData> {
+public class BeffyRuleOptimizerPassOne implements LHSVisitor<BeffyRuleOptimizerDataPassOne, Condition> {
+	
+	public Condition optimize(List<Condition> cons) {
+		ConditionWithNested con = new AndCondition();
+		for (Condition condition : cons)
+			con.addNestedCondition(condition);
+		Condition con2;
+		con2 = con.acceptVisitor(this, new BeffyRuleOptimizerDataPassOne());
+		return con2;
+	}
 	
 	private void insertNots(int count, Condition c) {
 		if (count == 0) return;
 		if (count > 1) count = count % 2;
 		
 		ConditionWithNested parent = c.getParentCondition();
-		ConditionWithNested notCon = new NotExistsCondition();
-		notCon.addNestedCondition(c);
-		if (count == 0) {
-			ConditionWithNested n2 = new NotExistsCondition();
-			n2.addNestedCondition(notCon);
-			notCon = n2;
-		}
-		parent.replaceNestedCondition(c, notCon);
+		ConditionWithNested n;
+		if (count == 0)
+			n = new ExistsCondition();
+		else
+			n = new NotExistsCondition();
+		n.addNestedCondition(c);
+		parent.replaceNestedCondition(c, n);
 	}
 
 	/**
 	 * Convert AndCondition to OrCondition if the Condition is nested in an odd number of NotExistsConditions.
 	 * (De Morgan)
 	 */
-	public BeffyRuleOptimizerData visit(AndCondition c,
-			BeffyRuleOptimizerData data) {
+	public Condition visit(AndCondition c,
+			BeffyRuleOptimizerDataPassOne data) {
 		ConditionWithNested con = c;
 		if (data.nestedNots % 2 == 1) {
 			ConditionWithNested parent = c.getParentCondition();
@@ -78,30 +82,18 @@ class BeffyRuleOptimizer implements LHSVisitor<BeffyRuleOptimizerData> {
 			}
 			parent.replaceNestedCondition(c, con);
 		}
-		for (Condition ce : con.getNestedConditions()) {
+		for (Condition ce : new ArrayList<Condition>(con.getNestedConditions())) {
 			ce.acceptVisitor(this, data);
 		}
-		return null;
-	}
-
-	public BeffyRuleOptimizerData visit(AndConnectedConstraint c,
-			BeffyRuleOptimizerData data) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public BeffyRuleOptimizerData visit(BoundConstraint c,
-			BeffyRuleOptimizerData data) {
-		// TODO Auto-generated method stub
-		return null;
+		return c;
 	}
 
 	/**
 	 * Transform exists(CE) to equivalent not(not(CE)).
 	 * Nots are only counted and not inserted.
 	 */
-	public BeffyRuleOptimizerData visit(ExistsCondition c,
-			BeffyRuleOptimizerData data) {
+	public Condition visit(ExistsCondition c,
+			BeffyRuleOptimizerDataPassOne data) {
 		ConditionWithNested parent = c.getParentCondition();
 		AndCondition andcon = new AndCondition();
 		for (Condition ce : c.getNestedConditions()) {
@@ -111,20 +103,14 @@ class BeffyRuleOptimizer implements LHSVisitor<BeffyRuleOptimizerData> {
 		data.nestedNots += 2;
 		andcon.acceptVisitor(this, data);
 		data.nestedNots -= 2;
-		return null;
-	}
-
-	public BeffyRuleOptimizerData visit(LiteralConstraint c,
-			BeffyRuleOptimizerData data) {
-		// TODO Auto-generated method stub
-		return null;
+		return c;
 	}
 
 	/**
 	 * Replace not(CE1, CE2, ...) by and(CE1, CE2, ...) and increase the not counter.
 	 */
-	public BeffyRuleOptimizerData visit(NotExistsCondition c,
-			BeffyRuleOptimizerData data) {
+	public Condition visit(NotExistsCondition c,
+			BeffyRuleOptimizerDataPassOne data) {
 		ConditionWithNested parent = c.getParentCondition();
 		AndCondition andcon = new AndCondition();
 		for (Condition ce : c.getNestedConditions()) {
@@ -134,24 +120,24 @@ class BeffyRuleOptimizer implements LHSVisitor<BeffyRuleOptimizerData> {
 		data.nestedNots++;
 		andcon.acceptVisitor(this, data);
 		data.nestedNots--;
-		return null;
+		return c;
 	}
 
 	/**
 	 * Insert nots before ObjectCondition because they are leafs.
 	 */
-	public BeffyRuleOptimizerData visit(ObjectCondition c,
-			BeffyRuleOptimizerData data) {
+	public Condition visit(ObjectCondition c,
+			BeffyRuleOptimizerDataPassOne data) {
 		insertNots(data.nestedNots, c);
-		return null;
+		return c;
 	}
 
 	/**
 	 * Convert OrCondition to AndCondition if the Condition is nested in an odd number of NotExistsConditions.
 	 * (De Morgan)
 	 */
-	public BeffyRuleOptimizerData visit(OrCondition c,
-			BeffyRuleOptimizerData data) {
+	public Condition visit(OrCondition c,
+			BeffyRuleOptimizerDataPassOne data) {
 		ConditionWithNested con = c;
 		if (data.nestedNots % 2 == 1) {
 			ConditionWithNested parent = c.getParentCondition();
@@ -161,43 +147,19 @@ class BeffyRuleOptimizer implements LHSVisitor<BeffyRuleOptimizerData> {
 			}
 			parent.replaceNestedCondition(c, con);
 		}
-		for (Condition ce : con.getNestedConditions()) {
+		for (Condition ce : new ArrayList<Condition>(con.getNestedConditions())) {
 			ce.acceptVisitor(this, data);
 		}
-		return null;
-	}
-
-	public BeffyRuleOptimizerData visit(OrConnectedConstraint c,
-			BeffyRuleOptimizerData data) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public BeffyRuleOptimizerData visit(OrderedFactConstraint c,
-			BeffyRuleOptimizerData data) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public BeffyRuleOptimizerData visit(PredicateConstraint c,
-			BeffyRuleOptimizerData data) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public BeffyRuleOptimizerData visit(ReturnValueConstraint c,
-			BeffyRuleOptimizerData data) {
-		// TODO Auto-generated method stub
-		return null;
+		return c;
 	}
 
 	/**
 	 * Insert nots before TestCondition because they are leafs.
 	 */
-	public BeffyRuleOptimizerData visit(TestCondition c,
-			BeffyRuleOptimizerData data) {
+	public Condition visit(TestCondition c,
+			BeffyRuleOptimizerDataPassOne data) {
 		insertNots(data.nestedNots, c);
-		return null;
+		return c;
 	}
 
 }

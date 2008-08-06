@@ -66,8 +66,14 @@ public interface Condition extends Compileable, Complexity, Formattable {
 	/**
 	 * Visitor pattern support for the BeffyRuleOptimizer Class.
 	 */
-	public <T extends Object> T acceptVisitor(LHSVisitor <T> visitor, T data);
+	public <T, S> S acceptVisitor(LHSVisitor <T, S> visitor, T data);
 	
 	public Condition clone();
+	
+	public boolean testEquals(Condition o);
+	
+	public String dump();
+	
+	public String dump(String prefix);
 	
 }

@@ -116,8 +116,16 @@ public class TestCondition extends AbstractCondition {
 	/**
 	 * @see org.jamocha.rules.Condition#acceptVisitor(org.jamocha.rules.LHSVisitor, java.lang.Object)
 	 */
-	public <T> T acceptVisitor(LHSVisitor<T> visitor, T data) {
+	public <T, S> S acceptVisitor(LHSVisitor<T, S> visitor, T data) {
 		return visitor.visit(this, data);
+	}
+
+	public boolean testEquals(Condition o) {
+		return false;
+	}
+
+	public String dump(String prefix) {
+		return prefix + "test";
 	}
 
 

@@ -18,6 +18,8 @@
 
 package org.jamocha.rules;
 
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.jamocha.formatter.Formatter;
@@ -53,10 +55,17 @@ public class AndCondition extends ConditionWithNested {
 	/**
 	 * @see org.jamocha.rules.Condition#acceptVisitor(org.jamocha.rules.LHSVisitor, java.lang.Object)
 	 */
-	public <T> T acceptVisitor(LHSVisitor<T> visitor, T data) {
+	public <T, S> S acceptVisitor(LHSVisitor<T, S> visitor, T data) {
 		return visitor.visit(this, data);
 	}
-
 	
+
+	public String format(Formatter visitor) {
+		return visitor.visit(this);
+	}
+
+	public String dump(String prefix) {
+		return dump(prefix, "and");
+	}
 	
 }

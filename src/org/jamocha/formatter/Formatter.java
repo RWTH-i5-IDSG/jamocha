@@ -42,11 +42,13 @@ import org.jamocha.engine.workingmemory.elements.MultiSlot;
 import org.jamocha.engine.workingmemory.elements.Slot;
 import org.jamocha.engine.workingmemory.elements.TemplateSlot;
 import org.jamocha.parser.JamochaValue;
+import org.jamocha.rules.AndCondition;
 import org.jamocha.rules.BoundConstraint;
 import org.jamocha.rules.FunctionAction;
 import org.jamocha.rules.LiteralConstraint;
 import org.jamocha.rules.NotExistsCondition;
 import org.jamocha.rules.ObjectCondition;
+import org.jamocha.rules.OrCondition;
 import org.jamocha.rules.OrderedFactConstraint;
 import org.jamocha.rules.Rule;
 import org.jamocha.rules.TestCondition;
@@ -115,6 +117,10 @@ public abstract class Formatter {
 	public abstract String visit(MultiSlot object);
 
 	public abstract String visit(NotExistsCondition object);
+	
+	public abstract String visit(AndCondition object);
+	
+	public abstract String visit(OrCondition object);
 
 	public abstract String visit(ObjectCondition object);
 

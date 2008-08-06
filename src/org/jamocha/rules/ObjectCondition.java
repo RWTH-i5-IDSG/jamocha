@@ -108,10 +108,21 @@ public class ObjectCondition extends AbstractCondition {
 	/**
 	 * @see org.jamocha.rules.Condition#acceptVisitor(org.jamocha.rules.LHSVisitor, java.lang.Object)
 	 */
-	public <T> T acceptVisitor(LHSVisitor<T> visitor, T data) {
+	public <T, S> S acceptVisitor(LHSVisitor<T, S> visitor, T data) {
 		return visitor.visit(this, data);
 	}
 
+	public boolean testEquals(Condition o) {
+		if (o == null) return false;
+		if (! (o instanceof ObjectCondition)) return false;
+		
+		ObjectCondition objectcon = (ObjectCondition) o;
+		
+		return (objectcon.templateName.equals(this.templateName));
+	}
 
+	public String dump(String prefix) {
+		return prefix + "(object " + templateName + ")";
+	}
 	
 }

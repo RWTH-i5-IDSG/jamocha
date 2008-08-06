@@ -64,6 +64,6 @@ public interface Constraint extends Complexity, Compileable, Formattable {
 	/**
 	 * Visitor pattern support for the BeffyRuleOptimizer Class.
 	 */
-	public <T extends Object> T acceptVisitor(LHSVisitor <T> visitor, T data);
+//	public <T, S> S acceptVisitor(LHSVisitor <T, S> visitor, T data);
 
 }

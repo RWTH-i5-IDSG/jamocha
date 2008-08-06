@@ -69,4 +69,8 @@ public abstract class AbstractCondition implements Condition {
 		return null;
 	}
 	
+	public String dump() {
+		return dump("");
+	}
+	
 }

@@ -51,6 +51,7 @@ import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.Expression;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rules.Action;
+import org.jamocha.rules.AndCondition;
 import org.jamocha.rules.BoundConstraint;
 import org.jamocha.rules.Condition;
 import org.jamocha.rules.Constraint;
@@ -58,6 +59,7 @@ import org.jamocha.rules.FunctionAction;
 import org.jamocha.rules.LiteralConstraint;
 import org.jamocha.rules.NotExistsCondition;
 import org.jamocha.rules.ObjectCondition;
+import org.jamocha.rules.OrCondition;
 import org.jamocha.rules.OrderedFactConstraint;
 import org.jamocha.rules.Rule;
 import org.jamocha.rules.TestCondition;
@@ -503,6 +505,32 @@ public class SFPFormatter extends Formatter {
 	public String visit(NotExistsCondition object) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("(not");
+		List<Condition> conditions = object.getNestedConditions();
+		for (Condition condition : conditions) {
+			sb.append(' ');
+			sb.append(condition.format(this));
+		}
+		sb.append(')');
+		return sb.toString();
+	}
+	
+	@Override
+	public String visit(AndCondition object) {
+		StringBuilder sb = new StringBuilder();
+		sb.append("(and");
+		List<Condition> conditions = object.getNestedConditions();
+		for (Condition condition : conditions) {
+			sb.append(' ');
+			sb.append(condition.format(this));
+		}
+		sb.append(')');
+		return sb.toString();
+	}
+	
+	@Override
+	public String visit(OrCondition object) {
+		StringBuilder sb = new StringBuilder();
+		sb.append("(or");
 		List<Condition> conditions = object.getNestedConditions();
 		for (Condition condition : conditions) {
 			sb.append(' ');

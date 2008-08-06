@@ -21,6 +21,8 @@ package org.jamocha.rules;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 
 public abstract class ConditionWithNested extends AbstractCondition {
@@ -79,6 +81,41 @@ public abstract class ConditionWithNested extends AbstractCondition {
 
 	public void removeNestedCondition(Condition c) {
 		nested.remove(c);
+	}
+	
+	public boolean testEquals(Condition o) {
+		if (o==null) return false;
+		if (! (o instanceof AndCondition)) return false;
+		AndCondition andcon = (AndCondition) o;
+		List<Condition> list1 = new LinkedList<Condition>(this.getNestedConditions());
+		List<Condition> list2 = new LinkedList<Condition>(andcon.getNestedConditions());
+		
+		if (list1.size() != list2.size()) return false;
+		
+		Iterator<Condition> i = list1.iterator();
+		while (i.hasNext()) {
+			Condition condition1 = i.next();
+			Iterator<Condition> j = list2.iterator();
+			while (j.hasNext()) {
+				Condition condition2 = j.next();
+				if (condition1.testEquals(condition2)) {
+					i.remove();
+					j.remove();
+				}
+			}
+		}
+		
+		return (list1.isEmpty() && list2.isEmpty());
+	}
+	
+	public String dump(String prefix, String name) {
+		String out = "";
+		out += prefix + "(" + name + "\n";
+		for (Condition condition : nested) {
+			out += condition.dump(prefix + "   ") + "\n";
+		}
+		out += prefix + ")";
+		return out;
 	}
 
 }
