@@ -261,6 +261,9 @@ public class JamochaValue implements Parameter, Formattable {
 		if (type==JamochaType.DATETIME) {
 			return getDateValue().getTimeInMillis();
 		}
+		if (type==JamochaType.STRING) {
+			return Long.parseLong(value.toString());
+		}
 		
 		return ((Number) value).longValue();
 	}
