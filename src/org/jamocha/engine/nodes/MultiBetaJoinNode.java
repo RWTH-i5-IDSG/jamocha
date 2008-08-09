@@ -204,4 +204,9 @@ public class MultiBetaJoinNode extends Node {
 		}
 	}
 
+	@Override
+	protected void unbindFromParents() {
+		inputs = new ArrayList<Node>();
+	}
+
 }

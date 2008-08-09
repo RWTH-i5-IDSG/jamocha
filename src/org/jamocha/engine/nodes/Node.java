@@ -225,4 +225,11 @@ public abstract class Node {
 	 * this method is called from a node, which tries to add us as a new child.
 	 */
 	protected abstract Node registerParent(Node n) throws NodeException;
+
+	public void unmount() {
+		childs = new Node[0];
+		unbindFromParents();
+	}
+
+	protected abstract void unbindFromParents();
 }

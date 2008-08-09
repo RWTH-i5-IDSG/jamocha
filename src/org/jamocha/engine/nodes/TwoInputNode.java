@@ -97,5 +97,11 @@ public abstract class TwoInputNode extends OneInputNode {
 			return getBetaInput().memory();
 		return null;
 	}
+	
+	@Override
+	protected void unbindFromParents() {
+		super.unbindFromParents();
+		betaInput = null;
+	}
 
 }

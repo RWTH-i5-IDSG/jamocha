@@ -69,4 +69,9 @@ public class RootNode extends Node {
 		return new RootNodeDrawer(this);
 	}
 
+	@Override
+	protected void unbindFromParents() {
+		// the root node has no parents!
+	}
+
 }

@@ -19,10 +19,17 @@
 package org.jamocha.engine;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.Stack;
 
+import org.jamocha.engine.nodes.Node;
 import org.jamocha.engine.nodes.NodeException;
 import org.jamocha.engine.nodes.RootNode;
+import org.jamocha.engine.nodes.TerminalNode;
 import org.jamocha.engine.rules.rulecompiler.CompileRuleException;
 import org.jamocha.engine.workingmemory.WorkingMemory;
 import org.jamocha.engine.workingmemory.WorkingMemoryImpl;
@@ -170,5 +177,59 @@ public class ReteNet implements SettingsChangedListener, Serializable {
 	public WorkingMemory getWorkingMemory() {
 		return workingMemory;
 	}
+	
+	public Set<Node> getAllNodes() {
+		Stack<Node> active = new Stack<Node>();
+		Set<Node> result = new HashSet<Node>();
+		active.add(root);
+		result.add(root);
+		while (!active.isEmpty()) {
+			Node n = active.pop();
+			for (Node child : n.getChildNodes()) {
+				active.add(child);
+				result.add(child);
+			}
+		}
+		return result;
+	}
+	
+	/**
+	 * removes unused nodes. a node n is unused, iff
+	 * there is no path from n to a terminal node.
+	 */
+	public void cleanup() {
+		Collection<Node> allNodes = getAllNodes();
+		
+		// at first, we push all terminal nodes on the usedStack
+		Stack<Node> usedStack;
+		{
+			usedStack = new Stack<Node>();
+			for (Node n : allNodes) {
+				if (n instanceof TerminalNode) {
+					usedStack.push((TerminalNode)n);
+				}
+			}
+		}
+		
+		/* in each iteration, we take one node n from the usedStack.
+		 * this node is used. since all its parents are also used,
+		 * we put its parents on the usedStack, too. and, we remove n
+		 * from the allNodes list. in the end, allNodes containts all
+		 * unused nodes. 
+		 */
+		while (!usedStack.isEmpty()) {
+			Node n = usedStack.pop();
+			allNodes.remove(n);
+			for (Node parent : n.getParentNodes()) usedStack.push(parent);
+		}
+		
+		for (Node unusedNode : allNodes) {
+			unusedNode.unmount();
+		}
+		
+		
+		
+	}
+	
 
 }

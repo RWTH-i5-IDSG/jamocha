@@ -74,4 +74,9 @@ public abstract class OneInputNode extends Node {
 		return getAlphaInput().memory();
 	}
 
+	@Override
+	protected void unbindFromParents() {
+		alphaInput = null;
+	}
+	
 }
