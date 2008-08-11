@@ -19,6 +19,7 @@
 package org.jamocha.engine.workingmemory;
 
 import java.io.Serializable;
+
 import org.jamocha.engine.nodes.FactTuple;
 import org.jamocha.engine.workingmemory.elements.Fact;
 

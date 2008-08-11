@@ -20,10 +20,10 @@ package org.jamocha.formatter;
 
 import java.util.List;
 
-import org.jamocha.parser.JamochaType;
 import org.jamocha.engine.functions.Function;
 import org.jamocha.engine.functions.FunctionDescription;
 import org.jamocha.engine.workingmemory.elements.Fact;
+import org.jamocha.parser.JamochaType;
 
 public class HelpFormatter extends SFPFormatter {
 

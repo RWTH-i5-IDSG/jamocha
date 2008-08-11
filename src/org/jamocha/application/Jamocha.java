@@ -22,7 +22,6 @@ package org.jamocha.application;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.jamocha.parser.ParserFactory;
 import org.jamocha.application.gui.JamochaGui;
 import org.jamocha.communication.BatchThread;
 import org.jamocha.engine.Engine;

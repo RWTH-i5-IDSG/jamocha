@@ -20,14 +20,12 @@ package org.jamocha.engine.nodes.joinfilter;
 
 import java.util.List;
 
-import org.jamocha.parser.EvaluationException;
-import org.jamocha.parser.JamochaValue;
-import org.jamocha.engine.Parameter;
 import org.jamocha.engine.Engine;
+import org.jamocha.engine.Parameter;
 import org.jamocha.engine.configurations.Signature;
 import org.jamocha.engine.functions.Function;
 import org.jamocha.engine.nodes.FactTuple;
-import org.jamocha.engine.workingmemory.elements.Fact;
+import org.jamocha.parser.EvaluationException;
 
 public class GeneralizedFunctionEvaluator implements GeneralizedJoinFilter {
 

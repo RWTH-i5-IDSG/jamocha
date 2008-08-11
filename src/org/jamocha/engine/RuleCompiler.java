@@ -18,11 +18,7 @@
 
 package org.jamocha.engine;
 
-import java.io.Serializable;
-
 import org.jamocha.communication.events.CompilerListener;
-import org.jamocha.engine.nodes.ObjectTypeNode;
-import org.jamocha.engine.nodes.TerminalNode;
 import org.jamocha.engine.rules.rulecompiler.CompileRuleException;
 import org.jamocha.engine.workingmemory.elements.Template;
 import org.jamocha.parser.EvaluationException;

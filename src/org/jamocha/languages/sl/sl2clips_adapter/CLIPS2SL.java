@@ -18,12 +18,12 @@
 
 package org.jamocha.languages.sl.sl2clips_adapter;
 
-import org.jamocha.parser.EvaluationException;
-import org.jamocha.parser.JamochaType;
-import org.jamocha.parser.JamochaValue;
 import org.jamocha.engine.Engine;
 import org.jamocha.engine.workingmemory.elements.Fact;
 import org.jamocha.engine.workingmemory.elements.Template;
+import org.jamocha.parser.EvaluationException;
+import org.jamocha.parser.JamochaType;
+import org.jamocha.parser.JamochaValue;
 
 /**
  * This class translates CLIPS-Code resp. JamochaValues to SL.

@@ -29,8 +29,8 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import org.jamocha.application.gui.JamochaGui;
 import org.jamocha.communication.events.MessageEvent;
 import org.jamocha.communication.messagerouter.StringChannel;
-import org.jamocha.parser.JamochaValue;
 import org.jamocha.engine.Engine;
+import org.jamocha.parser.JamochaValue;
 
 /**
  * @author Alexander Wilden

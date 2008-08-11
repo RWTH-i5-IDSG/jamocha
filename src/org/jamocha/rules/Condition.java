@@ -18,13 +18,11 @@
 
 package org.jamocha.rules;
 
-import java.io.Serializable;
 import java.util.List;
 
-import org.jamocha.formatter.Formattable;
 import org.jamocha.engine.Complexity;
-import org.jamocha.engine.nodes.Node;
 import org.jamocha.engine.rules.rulecompiler.sfp.Compileable;
+import org.jamocha.formatter.Formattable;
 
 /**
  * @author Peter Lin
@@ -32,7 +30,7 @@ import org.jamocha.engine.rules.rulecompiler.sfp.Compileable;
  * Conditions are patterns. It may be a simple fact pattern, test function, or
  * an object pattern.
  */
-public interface Condition extends Compileable, Complexity, Formattable {
+public interface Condition extends Compileable, Complexity, Formattable, Cloneable {
 
 	/**
 	 * returns all constraints in this condition (including sub-conditions)

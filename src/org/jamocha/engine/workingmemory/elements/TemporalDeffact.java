@@ -18,9 +18,9 @@
 
 package org.jamocha.engine.workingmemory.elements;
 
-import org.jamocha.parser.JamochaType;
 import org.jamocha.engine.BoundParam;
 import org.jamocha.engine.ConversionUtils;
+import org.jamocha.parser.JamochaType;
 
 public class TemporalDeffact extends Deffact implements TemporalFact {
 

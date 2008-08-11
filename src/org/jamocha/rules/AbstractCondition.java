@@ -18,11 +18,7 @@
 
 package org.jamocha.rules;
 
-import org.jamocha.engine.AssertException;
 import org.jamocha.engine.Complexity;
-import org.jamocha.engine.StopCompileException;
-import org.jamocha.engine.nodes.Node;
-import org.jamocha.engine.rules.rulecompiler.sfp.SFRuleCompiler;
 import org.jamocha.formatter.Formatter;
 
 /**
@@ -40,6 +36,11 @@ public abstract class AbstractCondition implements Condition {
 	
 	public AbstractCondition() {
 		id = idCounter++;
+	}
+	
+	public AbstractCondition(AbstractCondition c) {
+		id = idCounter++;
+		parent = c.parent;
 	}
 	
 	public boolean equals(Object o) {

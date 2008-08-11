@@ -21,15 +21,13 @@ package org.jamocha.engine.nodes.joinfilter;
 import java.io.Serializable;
 
 import org.jamocha.Constants;
-import org.jamocha.parser.EvaluationException;
-import org.jamocha.parser.JamochaType;
-import org.jamocha.parser.JamochaValue;
 import org.jamocha.communication.logging.Logging;
 import org.jamocha.engine.ConversionUtils;
-import org.jamocha.engine.Evaluate;
 import org.jamocha.engine.Engine;
+import org.jamocha.engine.Evaluate;
 import org.jamocha.engine.nodes.FactTuple;
-import org.jamocha.engine.workingmemory.elements.Fact;
+import org.jamocha.parser.EvaluationException;
+import org.jamocha.parser.JamochaValue;
 
 /**
  * @author Josef Alexander Hahn

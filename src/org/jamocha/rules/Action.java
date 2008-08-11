@@ -18,7 +18,6 @@
 
 package org.jamocha.rules;
 
-import org.jamocha.engine.Engine;
 import org.jamocha.engine.ExecuteException;
 import org.jamocha.engine.nodes.FactTuple;
 import org.jamocha.formatter.Formattable;

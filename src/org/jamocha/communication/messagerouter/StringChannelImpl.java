@@ -18,13 +18,12 @@
 
 package org.jamocha.communication.messagerouter;
 
-import org.jamocha.communication.events.MessageEvent;
-
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.jamocha.communication.events.MessageEvent;
 import org.jamocha.languages.clips.parser.TokenMgrError;
 import org.jamocha.parser.Expression;
 import org.jamocha.parser.ParseException;

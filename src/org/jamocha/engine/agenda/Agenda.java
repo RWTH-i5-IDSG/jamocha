@@ -23,7 +23,6 @@ import java.util.Collection;
 import java.util.PriorityQueue;
 import java.util.Queue;
 
-import org.jamocha.communication.logging.Logging;
 import org.jamocha.engine.Engine;
 import org.jamocha.engine.ExecuteException;
 import org.jamocha.engine.util.ProfileStats;

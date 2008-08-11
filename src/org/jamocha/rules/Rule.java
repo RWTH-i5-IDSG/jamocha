@@ -20,17 +20,10 @@ package org.jamocha.rules;
 
 import java.util.List;
 
-import org.jamocha.formatter.Formattable;
-import org.jamocha.parser.JamochaValue;
-import org.jamocha.engine.Binding;
 import org.jamocha.engine.Complexity;
 import org.jamocha.engine.Dumpable;
-import org.jamocha.engine.Engine;
-import org.jamocha.engine.ExpressionSequence;
 import org.jamocha.engine.modules.Module;
-import org.jamocha.engine.nodes.TerminalNode;
-import org.jamocha.engine.scope.Scope;
-import org.jamocha.engine.workingmemory.elements.Fact;
+import org.jamocha.formatter.Formattable;
 
 /**
  * @author Josef Alexander Hahn

@@ -18,7 +18,6 @@
 
 package org.jamocha.rules;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.jamocha.engine.Parameter;

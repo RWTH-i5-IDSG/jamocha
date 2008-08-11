@@ -53,13 +53,13 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
-import org.jamocha.parser.JamochaType;
 import org.jamocha.application.gui.icons.IconLoader;
 import org.jamocha.communication.messagerouter.StringChannel;
 import org.jamocha.engine.Engine;
 import org.jamocha.engine.modules.Module;
 import org.jamocha.engine.workingmemory.elements.Template;
 import org.jamocha.engine.workingmemory.elements.TemplateSlot;
+import org.jamocha.parser.JamochaType;
 
 /**
  * Editor for Facts. First the user selects the module, then a template and

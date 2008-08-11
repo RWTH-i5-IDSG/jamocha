@@ -59,6 +59,13 @@ public class ObjectCondition extends AbstractCondition {
 		registerAsParentCondition();
 	}
 	
+	public ObjectCondition(ObjectCondition c) {
+		super(c);
+		this.constraints = new ArrayList<Constraint>();
+		this.templateName = c.templateName;
+		registerAsParentCondition();
+	}
+	
 	private void registerAsParentCondition() {
 		for (Constraint c : constraints) {
 			c.setParentCondition(this);
@@ -79,7 +86,7 @@ public class ObjectCondition extends AbstractCondition {
 		for (Constraint c : constraints)
 			newConstr.add(c);
 		ObjectCondition result = new ObjectCondition(newConstr,templateName);
-		result.id=id;
+		//result.id=id;
 		return result;
 	}
 

@@ -20,8 +20,8 @@ package org.jamocha.engine;
 
 import java.util.List;
 
-import org.jamocha.parser.JamochaValue;
 import org.jamocha.engine.workingmemory.elements.Slot;
+import org.jamocha.parser.JamochaValue;
 
 public class ParameterUtils {
 

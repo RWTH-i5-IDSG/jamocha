@@ -27,7 +27,6 @@ import org.jamocha.application.gui.retevisualisation.nodedrawers.QuantorBetaFilt
 import org.jamocha.engine.ReteNet;
 import org.jamocha.engine.workingmemory.WorkingMemory;
 import org.jamocha.engine.workingmemory.WorkingMemoryElement;
-import org.jamocha.engine.workingmemory.elements.Fact;
 import org.jamocha.parser.EvaluationException;
 
 public class AlphaQuantorDistinctionNode extends OneInputNode {

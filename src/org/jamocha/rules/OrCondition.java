@@ -18,13 +18,11 @@
 
 package org.jamocha.rules;
 
-import java.util.List;
-
-import org.jamocha.formatter.Formatter;
 import org.jamocha.engine.AssertException;
 import org.jamocha.engine.StopCompileException;
 import org.jamocha.engine.nodes.Node;
 import org.jamocha.engine.rules.rulecompiler.sfp.SFRuleCompiler;
+import org.jamocha.formatter.Formatter;
 
 /**
  * @author Peter Lin

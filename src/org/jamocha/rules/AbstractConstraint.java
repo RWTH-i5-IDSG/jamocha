@@ -18,12 +18,6 @@
 
 package org.jamocha.rules;
 
-import org.jamocha.engine.AssertException;
-import org.jamocha.engine.StopCompileException;
-import org.jamocha.engine.nodes.Node;
-import org.jamocha.engine.rules.rulecompiler.sfp.SFRuleCompiler;
-import org.jamocha.engine.workingmemory.elements.TemplateSlot;
-import org.jamocha.formatter.Formatter;
 
 
 public abstract class AbstractConstraint implements Constraint {

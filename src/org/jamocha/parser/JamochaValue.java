@@ -26,13 +26,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.TimeZone;
 
-import org.jamocha.formatter.Formattable;
-import org.jamocha.formatter.Formatter;
 import org.jamocha.engine.BoundParam;
-import org.jamocha.engine.Parameter;
 import org.jamocha.engine.Engine;
+import org.jamocha.engine.Parameter;
 import org.jamocha.engine.workingmemory.elements.Fact;
 import org.jamocha.engine.workingmemory.elements.Slot;
+import org.jamocha.formatter.Formattable;
+import org.jamocha.formatter.Formatter;
 
 public class JamochaValue implements Parameter, Formattable {
 

@@ -18,12 +18,10 @@
 
 package org.jamocha.rules;
 
-import org.jamocha.Constants;
-import org.jamocha.formatter.Formatter;
-import org.jamocha.parser.JamochaValue;
-import org.jamocha.engine.ConversionUtils;
 import org.jamocha.engine.nodes.Node;
 import org.jamocha.engine.rules.rulecompiler.sfp.SFRuleCompiler;
+import org.jamocha.formatter.Formatter;
+import org.jamocha.parser.JamochaValue;
 
 /**
  * 

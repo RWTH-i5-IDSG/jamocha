@@ -18,15 +18,14 @@
 
 package org.jamocha.engine.nodes;
 
-import org.jamocha.communication.logging.Logging;
-import org.jamocha.engine.ReteNet;
 import java.util.List;
 
-import org.jamocha.parser.EvaluationException;
+import org.jamocha.engine.ReteNet;
 import org.jamocha.engine.nodes.joinfilter.JoinFilter;
 import org.jamocha.engine.nodes.joinfilter.JoinFilterException;
 import org.jamocha.engine.workingmemory.WorkingMemory;
 import org.jamocha.engine.workingmemory.WorkingMemoryElement;
+import org.jamocha.parser.EvaluationException;
 
 /**
  * @author Josef Alexander Hahn <http://www.josef-hahn.de> This class provides

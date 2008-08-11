@@ -18,10 +18,10 @@
 
 package org.jamocha.engine.configurations;
 
+import org.jamocha.engine.Engine;
 import org.jamocha.formatter.Formatter;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.engine.Engine;
 
 public class DefmoduleConfiguration extends AbstractConfiguration {
 

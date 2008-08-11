@@ -32,6 +32,12 @@ public abstract class ConditionWithNested extends AbstractCondition {
 	public ConditionWithNested() {
 		super();
 	}
+	
+	public ConditionWithNested(ConditionWithNested c) {
+		super(c);
+		for (Condition condition : c.nested)
+			this.addNestedCondition(condition.clone());
+	}
 
 	public void addNestedCondition(Condition ce) {
 		nested.add(ce);
@@ -75,7 +81,7 @@ public abstract class ConditionWithNested extends AbstractCondition {
 			return null;
 		}
 		for (Condition c: nested) newCwn.addNestedCondition(c.clone());
-		newCwn.id=id;
+		//newCwn.id=id;
 		return newCwn;
 	}
 
@@ -85,8 +91,9 @@ public abstract class ConditionWithNested extends AbstractCondition {
 	
 	public boolean testEquals(Condition o) {
 		if (o==null) return false;
-		if (! (o instanceof AndCondition)) return false;
-		AndCondition andcon = (AndCondition) o;
+		if (this.getClass() != o.getClass()) return false;
+		if (! (o instanceof ConditionWithNested)) return false;
+		ConditionWithNested andcon = (ConditionWithNested) o;
 		List<Condition> list1 = new LinkedList<Condition>(this.getNestedConditions());
 		List<Condition> list2 = new LinkedList<Condition>(andcon.getNestedConditions());
 		

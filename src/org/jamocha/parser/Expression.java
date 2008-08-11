@@ -18,8 +18,8 @@
 
 package org.jamocha.parser;
 
-import org.jamocha.formatter.Formattable;
 import org.jamocha.engine.Engine;
+import org.jamocha.formatter.Formattable;
 
 /**
  * Defines an interface, which has to be returned by all parsers. Every

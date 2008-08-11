@@ -21,7 +21,6 @@ package org.jamocha.rules;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.jamocha.communication.logging.Logging;
 import org.jamocha.engine.BoundParam;
 import org.jamocha.engine.Engine;
 import org.jamocha.engine.Parameter;
@@ -76,7 +75,7 @@ public class TestCondition extends AbstractCondition {
 	public Condition clone() {
 		TestCondition result = new TestCondition();
 		result.func = (Signature)this.func.clone();
-		result.id=id;
+		//result.id=id;
 		return result;
 	}
 

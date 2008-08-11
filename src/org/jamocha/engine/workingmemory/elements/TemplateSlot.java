@@ -18,12 +18,12 @@
 
 package org.jamocha.engine.workingmemory.elements;
 
+import org.jamocha.engine.Engine;
 import org.jamocha.formatter.Formatter;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.Expression;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.engine.Engine;
 
 public class TemplateSlot extends Slot {
 

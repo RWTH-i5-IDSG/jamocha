@@ -48,7 +48,6 @@ import org.jamocha.engine.workingmemory.elements.MultiSlot;
 import org.jamocha.engine.workingmemory.elements.Slot;
 import org.jamocha.engine.workingmemory.elements.TemplateSlot;
 import org.jamocha.parser.EvaluationException;
-import org.jamocha.parser.Expression;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.rules.Action;
 import org.jamocha.rules.AndCondition;

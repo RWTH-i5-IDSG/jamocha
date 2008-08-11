@@ -19,8 +19,6 @@
 package org.jamocha.engine.nodes;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 
 import org.jamocha.application.gui.retevisualisation.NodeDrawer;
@@ -28,7 +26,6 @@ import org.jamocha.application.gui.retevisualisation.nodedrawers.SimpleBetaFilte
 import org.jamocha.communication.logging.Logging;
 import org.jamocha.engine.ReteNet;
 import org.jamocha.engine.nodes.joinfilter.GeneralizedJoinFilter;
-import org.jamocha.engine.nodes.joinfilter.JoinFilter;
 import org.jamocha.engine.nodes.joinfilter.JoinFilterException;
 import org.jamocha.engine.workingmemory.WorkingMemory;
 import org.jamocha.engine.workingmemory.WorkingMemoryElement;

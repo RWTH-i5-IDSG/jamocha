@@ -18,13 +18,13 @@
 
 package org.jamocha.engine.functions;
 
+import org.jamocha.engine.Engine;
+import org.jamocha.engine.Parameter;
+import org.jamocha.engine.configurations.WhileDoConfiguration;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.IllegalParameterException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.engine.Parameter;
-import org.jamocha.engine.Engine;
-import org.jamocha.engine.configurations.WhileDoConfiguration;
 
 /**
  * @author Alexander Wilden

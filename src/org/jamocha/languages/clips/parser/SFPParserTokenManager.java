@@ -16,11 +16,6 @@
  * 
  */
 package org.jamocha.languages.clips.parser;
-import org.jamocha.parser.Parser;
-import org.jamocha.parser.ParserUtils;
-import org.jamocha.parser.Expression;
-import org.jamocha.parser.JamochaValue;
-import org.jamocha.engine.Engine;
 
 public class SFPParserTokenManager implements SFPParserConstants
 {

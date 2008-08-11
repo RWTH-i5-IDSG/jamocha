@@ -18,9 +18,8 @@
 
 package org.jamocha.engine.workingmemory.elements;
 
-import java.util.HashMap;
-
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;

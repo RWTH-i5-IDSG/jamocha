@@ -18,12 +18,12 @@
 
 package org.jamocha.engine.functions;
 
+import org.jamocha.engine.Engine;
+import org.jamocha.engine.Parameter;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.Expression;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.engine.Parameter;
-import org.jamocha.engine.Engine;
 
 /**
  * @author Alexander Wilden

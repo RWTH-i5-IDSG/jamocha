@@ -20,17 +20,15 @@ package org.jamocha.parser;
 
 import java.io.InputStream;
 import java.io.Reader;
-import java.io.StringReader;
 
+import org.jamocha.engine.Engine;
+import org.jamocha.engine.ReteNet;
+import org.jamocha.engine.RuleCompiler;
+import org.jamocha.engine.nodes.RootNode;
+import org.jamocha.engine.rules.rulecompiler.beffy.BeffyRuleCompiler;
 import org.jamocha.formatter.Formatter;
 import org.jamocha.formatter.SFPFormatter;
 import org.jamocha.languages.clips.parser.SFPParser;
-import org.jamocha.engine.Engine;
-import org.jamocha.engine.RuleCompiler;
-import org.jamocha.engine.ReteNet;
-import org.jamocha.engine.nodes.RootNode;
-import org.jamocha.engine.rules.rulecompiler.beffy.BeffyRuleCompiler;
-import org.jamocha.engine.rules.rulecompiler.sfp.SFRuleCompiler;
 
 /**
  * The ParserFactory generates all known Parsers for CLIPS-Code or other

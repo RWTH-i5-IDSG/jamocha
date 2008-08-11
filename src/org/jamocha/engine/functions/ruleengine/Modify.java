@@ -18,18 +18,18 @@
 
 package org.jamocha.engine.functions.ruleengine;
 
-import org.jamocha.parser.EvaluationException;
-import org.jamocha.parser.JamochaType;
-import org.jamocha.parser.JamochaValue;
 import org.jamocha.engine.AssertException;
 import org.jamocha.engine.BoundParam;
-import org.jamocha.engine.Parameter;
 import org.jamocha.engine.Engine;
+import org.jamocha.engine.Parameter;
 import org.jamocha.engine.RetractException;
 import org.jamocha.engine.configurations.ModifyConfiguration;
 import org.jamocha.engine.functions.AbstractFunction;
 import org.jamocha.engine.functions.FunctionDescription;
 import org.jamocha.engine.workingmemory.elements.Fact;
+import org.jamocha.parser.EvaluationException;
+import org.jamocha.parser.JamochaType;
+import org.jamocha.parser.JamochaValue;
 
 /**
  * @author Peter Lin

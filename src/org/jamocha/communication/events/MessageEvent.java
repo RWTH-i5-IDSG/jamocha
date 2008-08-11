@@ -18,7 +18,6 @@
 
 package org.jamocha.communication.events;
 
-import org.jamocha.communication.events.AbstractEvent;
 
 /**
  * The Class for MessageEvents.

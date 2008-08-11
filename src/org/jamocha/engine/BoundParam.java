@@ -19,13 +19,13 @@
 package org.jamocha.engine;
 
 import org.jamocha.Constants;
+import org.jamocha.engine.configurations.AbstractSignature;
+import org.jamocha.engine.workingmemory.elements.Fact;
 import org.jamocha.formatter.Formattable;
 import org.jamocha.formatter.Formatter;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.parser.ParserFactory;
-import org.jamocha.engine.configurations.AbstractSignature;
-import org.jamocha.engine.workingmemory.elements.Fact;
 
 /**
  * @author Peter Lin

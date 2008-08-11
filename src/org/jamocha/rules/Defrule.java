@@ -20,10 +20,8 @@ package org.jamocha.rules;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
 
 import org.jamocha.communication.logging.Logging;
-import org.jamocha.communication.logging.Logging.JamochaLogger;
 import org.jamocha.engine.Engine;
 import org.jamocha.engine.ExpressionSequence;
 import org.jamocha.engine.Parameter;

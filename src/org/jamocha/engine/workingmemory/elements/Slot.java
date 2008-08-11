@@ -18,11 +18,11 @@
 
 package org.jamocha.engine.workingmemory.elements;
 
+import org.jamocha.engine.ConstraintViolationException;
 import org.jamocha.formatter.Formatter;
 import org.jamocha.parser.IllegalConversionException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.engine.ConstraintViolationException;
 
 /**
  * @author Peter Lin

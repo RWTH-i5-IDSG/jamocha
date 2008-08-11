@@ -22,18 +22,18 @@ import java.lang.reflect.Constructor;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.jamocha.parser.EvaluationException;
-import org.jamocha.parser.IllegalParameterException;
-import org.jamocha.parser.JamochaType;
-import org.jamocha.parser.JamochaValue;
-import org.jamocha.engine.Parameter;
 import org.jamocha.engine.Engine;
+import org.jamocha.engine.Parameter;
 import org.jamocha.engine.functions.AbstractFunction;
 import org.jamocha.engine.functions.FunctionDescription;
 import org.jamocha.engine.util.DeffactIterator;
 import org.jamocha.engine.workingmemory.elements.Fact;
 import org.jamocha.engine.workingmemory.elements.Slot;
 import org.jamocha.engine.workingmemory.elements.Template;
+import org.jamocha.parser.EvaluationException;
+import org.jamocha.parser.IllegalParameterException;
+import org.jamocha.parser.JamochaType;
+import org.jamocha.parser.JamochaValue;
 
 /**
  * @author Josef Alexander Hahn

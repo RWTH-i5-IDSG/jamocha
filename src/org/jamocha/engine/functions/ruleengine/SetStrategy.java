@@ -21,14 +21,14 @@ package org.jamocha.engine.functions.ruleengine;
 import java.util.Set;
 
 import org.jamocha.Constants;
-import org.jamocha.parser.EvaluationException;
-import org.jamocha.parser.JamochaType;
-import org.jamocha.parser.JamochaValue;
-import org.jamocha.engine.Parameter;
 import org.jamocha.engine.Engine;
+import org.jamocha.engine.Parameter;
 import org.jamocha.engine.agenda.ConflictResolutionStrategy;
 import org.jamocha.engine.functions.AbstractFunction;
 import org.jamocha.engine.functions.FunctionDescription;
+import org.jamocha.parser.EvaluationException;
+import org.jamocha.parser.JamochaType;
+import org.jamocha.parser.JamochaValue;
 
 /**
  * @author Alexander Wilden

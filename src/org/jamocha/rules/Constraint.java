@@ -18,13 +18,10 @@
 
 package org.jamocha.rules;
 
-import java.io.Serializable;
-
-import org.jamocha.formatter.Formattable;
-import org.jamocha.parser.JamochaValue;
 import org.jamocha.engine.Complexity;
 import org.jamocha.engine.rules.rulecompiler.sfp.Compileable;
-import org.jamocha.engine.workingmemory.elements.TemplateSlot;
+import org.jamocha.formatter.Formattable;
+import org.jamocha.parser.JamochaValue;
 
 /**
  * @author Peter Lin

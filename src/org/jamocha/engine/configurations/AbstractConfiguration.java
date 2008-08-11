@@ -18,8 +18,8 @@
 
 package org.jamocha.engine.configurations;
 
-import org.jamocha.engine.Parameter;
 import org.jamocha.engine.Engine;
+import org.jamocha.engine.Parameter;
 import org.jamocha.engine.workingmemory.elements.Fact;
 import org.jamocha.rules.Rule;
 

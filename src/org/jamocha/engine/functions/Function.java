@@ -20,12 +20,11 @@ package org.jamocha.engine.functions;
 
 import java.util.List;
 
+import org.jamocha.engine.Engine;
+import org.jamocha.engine.Parameter;
 import org.jamocha.formatter.Formatter;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.engine.Parameter;
-import org.jamocha.engine.Engine;
-import org.jamocha.engine.rules.rulecompiler.CompileRuleException;
 
 public interface Function {
 

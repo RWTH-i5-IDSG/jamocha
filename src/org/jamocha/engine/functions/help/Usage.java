@@ -18,16 +18,16 @@
 
 package org.jamocha.engine.functions.help;
 
-import org.jamocha.parser.EvaluationException;
-import org.jamocha.parser.JamochaType;
-import org.jamocha.parser.JamochaValue;
-import org.jamocha.parser.ParserFactory;
-import org.jamocha.engine.Parameter;
 import org.jamocha.engine.Engine;
+import org.jamocha.engine.Parameter;
 import org.jamocha.engine.functions.AbstractFunction;
 import org.jamocha.engine.functions.Function;
 import org.jamocha.engine.functions.FunctionDescription;
 import org.jamocha.engine.functions.FunctionNotFoundException;
+import org.jamocha.parser.EvaluationException;
+import org.jamocha.parser.JamochaType;
+import org.jamocha.parser.JamochaValue;
+import org.jamocha.parser.ParserFactory;
 
 /**
  * @author Karl-Heinz Krempels

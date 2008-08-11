@@ -18,9 +18,9 @@
 
 package org.jamocha.communication.messagerouter;
 
-import org.jamocha.communication.events.MessageEvent;
-
 import java.util.List;
+
+import org.jamocha.communication.events.MessageEvent;
 
 /**
  * Interface for all possible Communication Channels used in the

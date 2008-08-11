@@ -21,9 +21,9 @@ package org.jamocha.engine;
 import java.io.Serializable;
 
 import org.jamocha.Constants;
-import org.jamocha.parser.EvaluationException;
 import org.jamocha.engine.nodes.FactTuple;
 import org.jamocha.engine.workingmemory.elements.Fact;
+import org.jamocha.parser.EvaluationException;
 
 /**
  * @author Peter Lin

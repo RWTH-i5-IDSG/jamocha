@@ -17,12 +17,10 @@
  */
 package org.jamocha.languages.clips.parser;
 
+import org.jamocha.engine.Engine;
+import org.jamocha.parser.Expression;
 import org.jamocha.parser.Parser;
 import org.jamocha.parser.ParserUtils;
-import org.jamocha.parser.Expression;
-import org.jamocha.parser.JamochaValue;
-
-import org.jamocha.engine.Engine;
 
 public class SFPParser implements/*@bgen(jjtree)*/ SFPParserTreeConstants,Parser, SFPParserConstants {/*@bgen(jjtree)*/
   protected JJTSFPParserState jjtree = new JJTSFPParserState();

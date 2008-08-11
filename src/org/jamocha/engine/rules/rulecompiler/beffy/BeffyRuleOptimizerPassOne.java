@@ -36,6 +36,9 @@ import org.jamocha.rules.OrCondition;
 import org.jamocha.rules.TestCondition;
 
 /**
+ * Pass one of the rule optimizer brings all Exists and
+ * NotExists Conditions to the lowest possible level in
+ * the condition tree.
  * 
  * @author Josef Hahn
  * @author Karl-Heinz Krempels

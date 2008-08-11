@@ -20,6 +20,12 @@ package org.jamocha.engine.functions.ruleengine;
 
 import java.io.StringReader;
 
+import org.jamocha.engine.BoundParam;
+import org.jamocha.engine.Engine;
+import org.jamocha.engine.Parameter;
+import org.jamocha.engine.functions.AbstractFunction;
+import org.jamocha.engine.functions.FunctionDescription;
+import org.jamocha.engine.scope.BlockingScope;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.Expression;
 import org.jamocha.parser.IllegalParameterException;
@@ -28,12 +34,6 @@ import org.jamocha.parser.JamochaValue;
 import org.jamocha.parser.ParseException;
 import org.jamocha.parser.Parser;
 import org.jamocha.parser.ParserFactory;
-import org.jamocha.engine.BoundParam;
-import org.jamocha.engine.Parameter;
-import org.jamocha.engine.Engine;
-import org.jamocha.engine.functions.AbstractFunction;
-import org.jamocha.engine.functions.FunctionDescription;
-import org.jamocha.engine.scope.BlockingScope;
 
 /**
  * @author Sebastian Reinartz, Alexander Wilden

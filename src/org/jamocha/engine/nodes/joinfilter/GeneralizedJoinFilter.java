@@ -18,10 +18,9 @@
 
 package org.jamocha.engine.nodes.joinfilter;
 
-import org.jamocha.parser.EvaluationException;
 import org.jamocha.engine.Engine;
 import org.jamocha.engine.nodes.FactTuple;
-import org.jamocha.engine.workingmemory.elements.Fact;
+import org.jamocha.parser.EvaluationException;
 
 /**
  * The generalized join filters are used with the multi-join-nodes. here we

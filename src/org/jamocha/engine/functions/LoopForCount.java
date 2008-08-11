@@ -18,15 +18,15 @@
 
 package org.jamocha.engine.functions;
 
+import org.jamocha.engine.BoundParam;
+import org.jamocha.engine.Engine;
+import org.jamocha.engine.Parameter;
+import org.jamocha.engine.configurations.LoopForCountConfiguration;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.IllegalParameterException;
 import org.jamocha.parser.IllegalTypeException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
-import org.jamocha.engine.BoundParam;
-import org.jamocha.engine.Parameter;
-import org.jamocha.engine.Engine;
-import org.jamocha.engine.configurations.LoopForCountConfiguration;
 
 /**
  * @author Alexander Wilden

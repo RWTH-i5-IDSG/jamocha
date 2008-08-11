@@ -18,11 +18,11 @@
 
 package org.jamocha.engine.rules.rulecompiler.sfp;
 
-import org.jamocha.parser.EvaluationException;
-import org.jamocha.rules.Rule;
 import org.jamocha.engine.AssertException;
 import org.jamocha.engine.StopCompileException;
 import org.jamocha.engine.nodes.Node;
+import org.jamocha.parser.EvaluationException;
+import org.jamocha.rules.Rule;
 
 @Deprecated
 /**

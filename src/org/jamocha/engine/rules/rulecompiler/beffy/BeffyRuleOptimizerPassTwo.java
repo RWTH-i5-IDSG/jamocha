@@ -35,9 +35,17 @@ import org.jamocha.rules.OrCondition;
 import org.jamocha.rules.TestCondition;
 
 /**
+ * Pass two of the rule optimizer transforms the result
+ * of pass one into a DNF like form.
+ * 
+ * The root node of the resulting tree is an OrCondition
+ * which contains only Object and And conditions. The and
+ * conditions only contain Object, Test, Exists and NotExits
+ * conditions. Exists and NotExists conditions only contain
+ * one Object or Test condition.
+ * 
  * @author Christoph Terwelp
  * @author Janno von Stuelpnagel
- *
  */
 public class BeffyRuleOptimizerPassTwo implements LHSVisitor<BeffyRuleOptimizerDataPassTwo, List<Condition>> {
 	
@@ -67,21 +75,20 @@ public class BeffyRuleOptimizerPassTwo implements LHSVisitor<BeffyRuleOptimizerD
 		for (Condition condition1 : list1) {
 			for (Condition condition2 : list2) {
 				AndCondition tmp = new AndCondition();
-				
 				if (condition1 instanceof AndCondition) {
 					AndCondition andcondition = (AndCondition) condition1;
 					for (Condition condition : andcondition.getNestedConditions())
-						tmp.addNestedCondition(condition);
+						tmp.addNestedCondition(condition.clone());
 				} else {
-					tmp.addNestedCondition(condition1);
+					tmp.addNestedCondition(condition1.clone());
 				}
 				
 				if (condition2 instanceof AndCondition) {
 					AndCondition andcondition = (AndCondition) condition2;
 					for (Condition condition : andcondition.getNestedConditions())
-						tmp.addNestedCondition(condition);
+						tmp.addNestedCondition(condition.clone());
 				} else {
-					tmp.addNestedCondition(condition2);
+					tmp.addNestedCondition(condition2.clone());
 				}
 				
 				List<Condition> l = tmp.getNestedConditions();

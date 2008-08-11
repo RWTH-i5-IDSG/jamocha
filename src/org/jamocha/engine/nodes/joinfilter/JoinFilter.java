@@ -18,10 +18,10 @@
 
 package org.jamocha.engine.nodes.joinfilter;
 
-import org.jamocha.parser.EvaluationException;
 import org.jamocha.engine.Engine;
 import org.jamocha.engine.nodes.FactTuple;
 import org.jamocha.engine.workingmemory.elements.Fact;
+import org.jamocha.parser.EvaluationException;
 
 /**
  * this is the interface for all class join filters for traditional beta-nodes

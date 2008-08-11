@@ -21,8 +21,6 @@ package org.jamocha.communication.messagerouter;
 import java.io.InputStream;
 import java.io.Reader;
 
-import org.jamocha.parser.ParserFactory;
-
 /**
  * Interface for Channels using Streams as input source.
  * 

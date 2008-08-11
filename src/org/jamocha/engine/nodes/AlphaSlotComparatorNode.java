@@ -21,7 +21,6 @@ package org.jamocha.engine.nodes;
 import org.jamocha.Constants;
 import org.jamocha.application.gui.retevisualisation.NodeDrawer;
 import org.jamocha.application.gui.retevisualisation.nodedrawers.SlotFilterNodeDrawer;
-import org.jamocha.engine.Evaluate;
 import org.jamocha.engine.ReteNet;
 import org.jamocha.engine.workingmemory.WorkingMemory;
 import org.jamocha.engine.workingmemory.WorkingMemoryElement;

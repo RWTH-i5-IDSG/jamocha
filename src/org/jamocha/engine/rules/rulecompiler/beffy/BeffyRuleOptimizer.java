@@ -26,9 +26,22 @@ import java.util.List;
 import org.jamocha.rules.Condition;
 
 /**
+ * The rule optimizer converts any valid condition tree
+ * into a optimized form. Which can be understood by the
+ * rule compiler. You find a documentation of the
+ * requirements this tree has to meet in the documentation
+ * of BeffyRuleCompiler.
+ * 
+ * The rule optimizer consists of three passes:
+ * 
+ * @see BeffyRuleOptimizerPassOne
+ * @see BeffyRuleOptimizerPassTwo
+ * TODO Pass three still missing
+ * 
  * @author Christoph Terwelp
  * @author Janno von Stuelpnagel
- *
+ * 
+ * @see BeffyRuleCompiler
  */
 public class BeffyRuleOptimizer {
 	

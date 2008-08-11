@@ -43,11 +43,11 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
-import org.jamocha.parser.JamochaType;
 import org.jamocha.application.gui.icons.IconLoader;
 import org.jamocha.communication.messagerouter.StringChannel;
 import org.jamocha.engine.Engine;
 import org.jamocha.engine.modules.Module;
+import org.jamocha.parser.JamochaType;
 
 /**
  * An editor for Templates.

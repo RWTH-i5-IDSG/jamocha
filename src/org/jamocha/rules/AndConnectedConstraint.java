@@ -18,11 +18,10 @@
 
 package org.jamocha.rules;
 
-import org.jamocha.formatter.Formatter;
-import org.jamocha.parser.JamochaValue;
 import org.jamocha.engine.StopCompileException;
 import org.jamocha.engine.nodes.Node;
 import org.jamocha.engine.rules.rulecompiler.sfp.SFRuleCompiler;
+import org.jamocha.formatter.Formatter;
 
 public class AndConnectedConstraint extends AbstractConnectedConstraint {
 
