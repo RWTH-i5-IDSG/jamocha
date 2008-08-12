@@ -22,6 +22,8 @@
 package org.jamocha.engine.rules.rulecompiler.beffy;
 
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.jamocha.engine.rules.rulecompiler.CompileRuleException;
@@ -65,13 +67,22 @@ public class BeffyRuleOptimizerPassThree implements
 	}
 	
 	private AndCondition optimizeAnd(AndCondition cond) throws CompileRuleException {
-		List<BeffyRuleOptimizerDataPassThree> data = new ArrayList<BeffyRuleOptimizerDataPassThree>(cond.getNestedConditions().size());
+		List<BeffyRuleOptimizerDataPassThree> nonvirtual = new LinkedList<BeffyRuleOptimizerDataPassThree>();
+		List<BeffyRuleOptimizerDataPassThree> virtual = new LinkedList<BeffyRuleOptimizerDataPassThree>();
 		for (Condition condition : cond.getNestedConditions()) {
 			BeffyRuleOptimizerDataPassThree d = condition.acceptVisitor(this, null);
 			if (d == null)
 				throw new CompileRuleException("Invalid element in AndCondition. Tried to use PassThree without PassOne and PassTwo?");
-			data.add(d);
+			d.setCondition(condition);
+			if (d.isVirtual())
+				virtual.add(d);
+			else
+				nonvirtual.add(d);
 		}
+		
+		for (BeffyRuleOptimizerDataPassThree data : virtual) {
+		}
+		
 		return cond;
 	}
 

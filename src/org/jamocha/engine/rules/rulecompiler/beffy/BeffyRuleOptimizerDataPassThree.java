@@ -24,6 +24,8 @@ package org.jamocha.engine.rules.rulecompiler.beffy;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.jamocha.rules.Condition;
+
 /**
  * @author Christoph Terwelp
  *
@@ -46,6 +48,7 @@ public class BeffyRuleOptimizerDataPassThree {
 	
 	List<Binding> bindings = new LinkedList<Binding>();
 	boolean virtual = false;
+	Condition condition = null;
 
 	public void combine(BeffyRuleOptimizerDataPassThree d) {
 		for (Binding binding : d.bindings) {
@@ -58,9 +61,21 @@ public class BeffyRuleOptimizerDataPassThree {
 		this.virtual = true;
 	}
 	
+	public boolean isVirtual() {
+		return this.virtual;
+	}
+	
 	public void add(String name, boolean negated) {
 		Binding binding = new Binding(name, negated);
 		if (bindings.indexOf(binding) == -1)
 			bindings.add(binding);
+	}
+	
+	public void setCondition(Condition condition) {
+		this.condition = condition;
+	}
+	
+	public Condition getCondition() {
+		return this.condition;
 	}
 }
