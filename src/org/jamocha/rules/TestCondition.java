@@ -75,7 +75,7 @@ public class TestCondition extends AbstractCondition {
 	public Condition clone() {
 		TestCondition result = new TestCondition();
 		result.func = (Signature)this.func.clone();
-		//result.id=id;
+		result.id=id;
 		return result;
 	}
 
@@ -113,9 +113,9 @@ public class TestCondition extends AbstractCondition {
 	
 
 	/**
-	 * @see org.jamocha.rules.Condition#acceptVisitor(org.jamocha.rules.LHSVisitor, java.lang.Object)
+	 * @see org.jamocha.rules.Condition#acceptVisitor(org.jamocha.rules.ConditionVisitor, java.lang.Object)
 	 */
-	public <T, S> S acceptVisitor(LHSVisitor<T, S> visitor, T data) {
+	public <T, S> S acceptVisitor(ConditionVisitor<T, S> visitor, T data) {
 		return visitor.visit(this, data);
 	}
 

@@ -86,7 +86,7 @@ public class ObjectCondition extends AbstractCondition {
 		for (Constraint c : constraints)
 			newConstr.add(c);
 		ObjectCondition result = new ObjectCondition(newConstr,templateName);
-		//result.id=id;
+		result.id=id;
 		return result;
 	}
 
@@ -113,9 +113,9 @@ public class ObjectCondition extends AbstractCondition {
 
 
 	/**
-	 * @see org.jamocha.rules.Condition#acceptVisitor(org.jamocha.rules.LHSVisitor, java.lang.Object)
+	 * @see org.jamocha.rules.Condition#acceptVisitor(org.jamocha.rules.ConditionVisitor, java.lang.Object)
 	 */
-	public <T, S> S acceptVisitor(LHSVisitor<T, S> visitor, T data) {
+	public <T, S> S acceptVisitor(ConditionVisitor<T, S> visitor, T data) {
 		return visitor.visit(this, data);
 	}
 

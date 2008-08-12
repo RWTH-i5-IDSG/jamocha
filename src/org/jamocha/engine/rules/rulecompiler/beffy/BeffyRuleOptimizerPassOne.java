@@ -29,7 +29,7 @@ import org.jamocha.rules.AndCondition;
 import org.jamocha.rules.Condition;
 import org.jamocha.rules.ConditionWithNested;
 import org.jamocha.rules.ExistsCondition;
-import org.jamocha.rules.LHSVisitor;
+import org.jamocha.rules.ConditionVisitor;
 import org.jamocha.rules.NotExistsCondition;
 import org.jamocha.rules.ObjectCondition;
 import org.jamocha.rules.OrCondition;
@@ -45,7 +45,7 @@ import org.jamocha.rules.TestCondition;
  * @author Janno von Stuelpnagel
  * @author Christoph Terwelp
  */
-public class BeffyRuleOptimizerPassOne implements LHSVisitor<BeffyRuleOptimizerDataPassOne, Condition> {
+public class BeffyRuleOptimizerPassOne implements ConditionVisitor<BeffyRuleOptimizerDataPassOne, Condition> {
 	
 	public Condition optimize(List<Condition> cons) {
 		ConditionWithNested con = new AndCondition();

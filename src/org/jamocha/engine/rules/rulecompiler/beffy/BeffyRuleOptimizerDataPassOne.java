@@ -22,8 +22,8 @@
 package org.jamocha.engine.rules.rulecompiler.beffy;
 
 /**
- * @author charlie
- *
+ * @author Christoph Terwelp
+ * 
  */
 class BeffyRuleOptimizerDataPassOne {
 	public int nestedNots = 0;

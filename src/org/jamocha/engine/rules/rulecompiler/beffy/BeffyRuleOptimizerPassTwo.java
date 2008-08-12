@@ -28,7 +28,7 @@ import java.util.List;
 import org.jamocha.rules.AndCondition;
 import org.jamocha.rules.Condition;
 import org.jamocha.rules.ExistsCondition;
-import org.jamocha.rules.LHSVisitor;
+import org.jamocha.rules.ConditionVisitor;
 import org.jamocha.rules.NotExistsCondition;
 import org.jamocha.rules.ObjectCondition;
 import org.jamocha.rules.OrCondition;
@@ -47,7 +47,7 @@ import org.jamocha.rules.TestCondition;
  * @author Christoph Terwelp
  * @author Janno von Stuelpnagel
  */
-public class BeffyRuleOptimizerPassTwo implements LHSVisitor<BeffyRuleOptimizerDataPassTwo, List<Condition>> {
+public class BeffyRuleOptimizerPassTwo implements ConditionVisitor<BeffyRuleOptimizerDataPassTwo, List<Condition>> {
 	
 	public Condition optimize(Condition con) {
 		List<Condition> cons = con.acceptVisitor(this, null);

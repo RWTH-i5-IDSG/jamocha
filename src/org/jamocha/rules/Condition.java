@@ -64,7 +64,7 @@ public interface Condition extends Compileable, Complexity, Formattable, Cloneab
 	/**
 	 * Visitor pattern support for the BeffyRuleOptimizer Class.
 	 */
-	public <T, S> S acceptVisitor(LHSVisitor <T, S> visitor, T data);
+	public <T, S> S acceptVisitor(ConditionVisitor <T, S> visitor, T data);
 	
 	public Condition clone();
 	

@@ -23,6 +23,7 @@ package org.jamocha.engine.rules.rulecompiler.beffy;
 
 import java.util.List;
 
+import org.jamocha.engine.rules.rulecompiler.CompileRuleException;
 import org.jamocha.rules.Condition;
 
 /**
@@ -47,16 +48,24 @@ public class BeffyRuleOptimizer {
 	
 	BeffyRuleOptimizerPassOne passone;
 	BeffyRuleOptimizerPassTwo passtwo;
+	BeffyRuleOptimizerPassThree passthree;
 	
 	public BeffyRuleOptimizer() {
 		passone = new BeffyRuleOptimizerPassOne();
 		passtwo = new BeffyRuleOptimizerPassTwo();
+		passthree = new BeffyRuleOptimizerPassThree();
 	}
 	
 	public Condition optimize(List<Condition> cons) {
 		Condition con;
 		con = passone.optimize(cons);
 		con = passtwo.optimize(con);
+		try {
+			con = passthree.optimize(con);
+		} catch (CompileRuleException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		return con;
 	}
 

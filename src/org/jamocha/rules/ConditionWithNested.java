@@ -81,7 +81,7 @@ public abstract class ConditionWithNested extends AbstractCondition {
 			return null;
 		}
 		for (Condition c: nested) newCwn.addNestedCondition(c.clone());
-		//newCwn.id=id;
+		newCwn.id=id;
 		return newCwn;
 	}
 
