@@ -17,8 +17,10 @@
  */
 package org.jamocha.engine.rules.rulecompiler.beffy;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.jamocha.communication.events.CompileEvent;
 import org.jamocha.communication.events.CompilerListener;
@@ -27,12 +29,22 @@ import org.jamocha.engine.Binding;
 import org.jamocha.engine.Engine;
 import org.jamocha.engine.ReteNet;
 import org.jamocha.engine.RuleCompiler;
+import org.jamocha.engine.nodes.NodeException;
+import org.jamocha.engine.nodes.ObjectTypeNode;
 import org.jamocha.engine.nodes.RootNode;
 import org.jamocha.engine.rules.rulecompiler.CompileRuleException;
 import org.jamocha.engine.workingmemory.elements.Template;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.RuleException;
+import org.jamocha.rules.AndCondition;
+import org.jamocha.rules.Condition;
+import org.jamocha.rules.ConditionVisitor;
+import org.jamocha.rules.ExistsCondition;
+import org.jamocha.rules.NotExistsCondition;
+import org.jamocha.rules.ObjectCondition;
+import org.jamocha.rules.OrCondition;
 import org.jamocha.rules.Rule;
+import org.jamocha.rules.TestCondition;
 
 /**
  * @author Josef Alexander Hahn
@@ -96,6 +108,54 @@ import org.jamocha.rules.Rule;
 
 public class BeffyRuleCompiler implements RuleCompiler {
 	
+	private class ObjectTypeNodeManager {
+		
+		Map<Template, ObjectTypeNode> typeNodes;
+		
+		public ObjectTypeNodeManager() {
+			typeNodes = new HashMap<Template,ObjectTypeNode>();
+		}
+		
+		public ObjectTypeNode getObjectTypeNode(Template template) throws NodeException {
+			ObjectTypeNode otn = typeNodes.get(template);
+			if (otn == null) {
+				otn = new ObjectTypeNode(reteNet.nextNodeId(), engine.getWorkingMemory(), reteNet, template);
+				rootNode.addChild(otn);
+				typeNodes.put(template, otn);
+			}
+			return otn;
+		}
+		
+	}
+	
+	private class BindingManager {
+		
+		private Map< Rule, Map<String,Binding> >  rule2bindings;
+		
+		private Map<String,Binding> getBindings(Rule r) {
+			Map<String,Binding> bindings = rule2bindings.get(r);
+			if (bindings == null) {
+				bindings = new HashMap<String, Binding>();
+				rule2bindings.put(r, bindings);
+			}
+			return bindings;
+		}
+		
+		public Binding getBinding(Rule r, String varName) {
+			return getBindings(r).get(varName);
+		}
+		
+		public void putBinding(Rule r, String varName, Binding binding) {
+			getBindings(r).put(varName, binding);
+		}
+		
+		public BindingManager() {
+			rule2bindings = new HashMap<Rule, Map<String,Binding>>();			
+		}
+		
+		
+	}
+	
 	private class CompileTableau {
 		
 		private Rule rule;
@@ -103,9 +163,60 @@ public class BeffyRuleCompiler implements RuleCompiler {
 		public CompileTableau(Rule r) {
 			this.rule = r;
 		}
+
+		public boolean hadSuccess() {
+			// TODO Auto-generated method stub
+			return false;
+		}
 		
 	}
 	
+	private class BeffyRuleConditionVisitor implements ConditionVisitor<CompileTableau, CompileTableau> {
+
+		public CompileTableau visit(AndCondition c, CompileTableau data) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		public CompileTableau visit(ExistsCondition c, CompileTableau data) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		public CompileTableau visit(NotExistsCondition c, CompileTableau data) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		public CompileTableau visit(ObjectCondition c, CompileTableau data) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		public CompileTableau visit(OrCondition c, CompileTableau data) {
+			/* this is our entry point. here we branch the rule into
+			 * some new rules.
+			 */
+			for (Condition subCondition : c.getNestedConditions()) {
+				/* for this sub-condition, we have to generate a new sub-rule,
+				 * compile it and create a terminal node for it
+				 */
+				
+				
+			}
+			return data;
+		}
+
+		public CompileTableau visit(TestCondition c, CompileTableau data) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+		
+	}
+	
+	private ObjectTypeNodeManager objectTypeNodes;
+	
+	private BindingManager bindings;
 
 	private List<CompilerListener> listeners;
 	
@@ -120,6 +231,8 @@ public class BeffyRuleCompiler implements RuleCompiler {
 		this.rootNode=root;
 		this.reteNet=net;
 		this.listeners=new LinkedList<CompilerListener>();
+		this.objectTypeNodes = new ObjectTypeNodeManager();
+		this.bindings = new BindingManager();
 	}
 
 	public void addListener(CompilerListener listener) {
@@ -127,16 +240,29 @@ public class BeffyRuleCompiler implements RuleCompiler {
 	}
 
 	public void addObjectTypeNode(Template template) {
-		// TODO Auto-generated method stub
-		
-	}
+		/*
+		 * we will do exactly nothing here, because we will
+		 * create object type nodes on the fly when we need
+		 * them in a condition.
+		 */	
 
+	}
+	
 	public boolean addRule(Rule rule) throws AssertException, RuleException, EvaluationException, CompileRuleException {
-		boolean success = (true | false); //TODO laaaater on, this nonsense must be removed
-		CompileTableau tableau = new CompileTableau(rule);
+		CompileTableau ruleCompileTableau = new CompileTableau(rule);
+		
+		//HERE WE SHOULD START PROCESSING - MAYBE THE HATED VISITOR PATTERN
+		
+		BeffyRuleConditionVisitor visitor = new BeffyRuleConditionVisitor();
+		
+		// this is our one-and-only or-condition at the root
+		OrCondition rootCondition = (OrCondition) rule.getConditions().get(0);
+		
+		visitor.visit(rootCondition, ruleCompileTableau);
 		
 		
-		if (success) {
+		
+		if (ruleCompileTableau.hadSuccess()) {
 			notifyListeners(rule);
 			return true;
 		} else {
@@ -146,8 +272,7 @@ public class BeffyRuleCompiler implements RuleCompiler {
 	}
 
 	public Binding getBinding(String varName, Rule r) {
-		// TODO Auto-generated method stub
-		return null;
+		return bindings.getBinding(r, varName);
 	}
 
 	public void removeListener(CompilerListener listener) {
