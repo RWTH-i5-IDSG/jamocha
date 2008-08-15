@@ -30,24 +30,11 @@ public abstract class AbstractCondition implements Condition {
 
 	private ConditionWithNested parent = null;
 	
-	private static int idCounter = 0;
-	
-	protected int id;
-	
 	public AbstractCondition() {
-		id = idCounter++;
 	}
 	
 	public AbstractCondition(AbstractCondition c) {
-		id = idCounter++;
 		parent = c.parent;
-	}
-	
-	public boolean equals(Object o) {
-		if (o==null) return false;
-		if (!(o instanceof AbstractCondition)) return false;
-		AbstractCondition oc = (AbstractCondition)o;
-		return (this.id == oc.id);
 	}
 	
 	public void setParentCondition(ConditionWithNested c) {

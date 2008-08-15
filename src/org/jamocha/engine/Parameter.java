@@ -19,6 +19,7 @@
 package org.jamocha.engine;
 
 import org.jamocha.parser.Expression;
+import org.jamocha.rules.ConditionVisitor;
 
 /**
  * @author Peter Lin
@@ -36,5 +37,10 @@ public interface Parameter extends Expression, Cloneable {
 	boolean isFactBinding();
 
 	public Object clone() throws CloneNotSupportedException;
+	
+	/**
+	 * Visitor pattern support for the BeffyRuleOptimizer Class.
+	 */
+	//public <T, S> S acceptVisitor(ParameterVisitor <T, S> visitor, T data);
 
 }

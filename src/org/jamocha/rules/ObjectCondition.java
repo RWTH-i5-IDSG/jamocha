@@ -86,7 +86,6 @@ public class ObjectCondition extends AbstractCondition {
 		for (Constraint c : constraints)
 			newConstr.add(c);
 		ObjectCondition result = new ObjectCondition(newConstr,templateName);
-		result.id=id;
 		return result;
 	}
 

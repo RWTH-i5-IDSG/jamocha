@@ -21,11 +21,10 @@
  */
 package org.jamocha.engine.rules.rulecompiler.beffy;
 
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.jamocha.engine.Parameter;
 import org.jamocha.engine.rules.rulecompiler.CompileRuleException;
 import org.jamocha.rules.AndCondition;
 import org.jamocha.rules.AndConnectedConstraint;
@@ -47,11 +46,15 @@ import org.jamocha.rules.TestCondition;
 
 /**
  * @author Christoph Terwelp
+ * @author Janno von Stuelpnagel
  *
  */
 public class BeffyRuleOptimizerPassThree implements
 		ConditionVisitor<Object, BeffyRuleOptimizerDataPassThree>, ConstraintVisitor<Object, BeffyRuleOptimizerDataPassThree> {
 	
+	/*
+	 * Call optimizeAnd for every AndCondition in the toplevel OrCondition
+	 */
 	public Condition optimize(Condition cond) throws CompileRuleException {
 		if (! (cond instanceof OrCondition))
 			throw new CompileRuleException(
@@ -66,23 +69,28 @@ public class BeffyRuleOptimizerPassThree implements
 		return cond;
 	}
 	
+	/*
+	 * Analyse every Condition in an AndCondition where which variable is bound and used.
+	 * Split Ands in two and multi Ands, depending on the analysis.
+	 */
 	private AndCondition optimizeAnd(AndCondition cond) throws CompileRuleException {
-		List<BeffyRuleOptimizerDataPassThree> nonvirtual = new LinkedList<BeffyRuleOptimizerDataPassThree>();
-		List<BeffyRuleOptimizerDataPassThree> virtual = new LinkedList<BeffyRuleOptimizerDataPassThree>();
-		for (Condition condition : cond.getNestedConditions()) {
-			BeffyRuleOptimizerDataPassThree d = condition.acceptVisitor(this, null);
-			if (d == null)
-				throw new CompileRuleException("Invalid element in AndCondition. Tried to use PassThree without PassOne and PassTwo?");
-			d.setCondition(condition);
-			if (d.isVirtual())
-				virtual.add(d);
-			else
-				nonvirtual.add(d);
-		}
-		
-		for (BeffyRuleOptimizerDataPassThree data : virtual) {
-		}
-		
+//		List<BeffyRuleOptimizerDataPassThree> nonvirtual = new LinkedList<BeffyRuleOptimizerDataPassThree>();
+//		List<BeffyRuleOptimizerDataPassThree> virtual = new LinkedList<BeffyRuleOptimizerDataPassThree>();
+//		for (Condition condition : cond.getNestedConditions()) {
+//			BeffyRuleOptimizerDataPassThree d = condition.acceptVisitor(this, null);
+//			if (d == null)
+//				throw new CompileRuleException("Invalid element in AndCondition. Tried to use PassThree without PassOne and PassTwo?");
+//			d.setCondition(condition);
+//			if (d.isVirtual())
+//				virtual.add(d);
+//			else
+//				nonvirtual.add(d);
+//		}
+//		
+//		for (BeffyRuleOptimizerDataPassThree data : virtual) {
+//			
+//		}
+//		
 		return cond;
 	}
 
@@ -160,12 +168,18 @@ public class BeffyRuleOptimizerPassThree implements
 
 	public BeffyRuleOptimizerDataPassThree visit(PredicateConstraint c,
 			Object data) {
-		return new BeffyRuleOptimizerDataPassThree();
+		BeffyRuleOptimizerDataPassThree d = new BeffyRuleOptimizerDataPassThree();
+		for (Parameter parameter : c.getParameters()) {
+		}
+		return d;
 	}
 
 	public BeffyRuleOptimizerDataPassThree visit(ReturnValueConstraint c,
 			Object data) {
-		return new BeffyRuleOptimizerDataPassThree();
+		BeffyRuleOptimizerDataPassThree d = new BeffyRuleOptimizerDataPassThree();
+		for (Parameter parameter : c.getParameters()) {
+		}
+		return d;
 	}
 
 }

@@ -75,7 +75,6 @@ public class TestCondition extends AbstractCondition {
 	public Condition clone() {
 		TestCondition result = new TestCondition();
 		result.func = (Signature)this.func.clone();
-		result.id=id;
 		return result;
 	}
 

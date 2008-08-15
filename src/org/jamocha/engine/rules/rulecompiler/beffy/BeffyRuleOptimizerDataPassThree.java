@@ -32,43 +32,42 @@ import org.jamocha.rules.Condition;
  */
 public class BeffyRuleOptimizerDataPassThree {
 	
-	public class Binding {
-		public boolean negated = false;
+	public class VariableUsage {
+		public boolean virtual = false;
 		public String name = "";
 		
-		public Binding(String name, boolean negated) {
+		public VariableUsage(String name, boolean virtual) {
 			this.name = name;
-			this.negated = negated;
+			this.virtual = virtual;
 		}
 		
-		public boolean equals(Binding b) {
-			return (b.name == this.name && b.negated == this.negated);
+		public boolean equals(VariableUsage b) {
+			return (b.name == this.name && b.virtual == this.virtual);
+		}
+		
+		public void markVirtual() {
+			this.virtual = true;
+		}
+		
+		public boolean isVirtual() {
+			return this.virtual;
 		}
 	}
 	
-	List<Binding> bindings = new LinkedList<Binding>();
-	boolean virtual = false;
+	List<VariableUsage> usages = new LinkedList<VariableUsage>();
 	Condition condition = null;
 
 	public void combine(BeffyRuleOptimizerDataPassThree d) {
-		for (Binding binding : d.bindings) {
-			if (bindings.indexOf(binding) == -1)
-				bindings.add(binding);			
+		for (VariableUsage usage : d.usages) {
+			if (usages.indexOf(usage) == -1)
+				usages.add(usage);			
 		}
 	}
 	
-	public void markVirtual() {
-		this.virtual = true;
-	}
-	
-	public boolean isVirtual() {
-		return this.virtual;
-	}
-	
-	public void add(String name, boolean negated) {
-		Binding binding = new Binding(name, negated);
-		if (bindings.indexOf(binding) == -1)
-			bindings.add(binding);
+	public void add(String name, boolean virtual) {
+		VariableUsage usage = new VariableUsage(name, virtual);
+		if (usages.indexOf(usage) == -1)
+			usages.add(usage);
 	}
 	
 	public void setCondition(Condition condition) {
@@ -77,5 +76,11 @@ public class BeffyRuleOptimizerDataPassThree {
 	
 	public Condition getCondition() {
 		return this.condition;
+	}
+	
+	public void markVirtual() {
+		for (VariableUsage usage : this.usages) {
+			usage.markVirtual();
+		}
 	}
 }
