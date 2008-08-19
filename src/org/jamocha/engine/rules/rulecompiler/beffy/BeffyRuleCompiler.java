@@ -24,14 +24,20 @@ import java.util.Map;
 
 import org.jamocha.communication.events.CompileEvent;
 import org.jamocha.communication.events.CompilerListener;
+import org.jamocha.communication.logging.Logging;
 import org.jamocha.engine.AssertException;
 import org.jamocha.engine.Binding;
 import org.jamocha.engine.Engine;
 import org.jamocha.engine.ReteNet;
 import org.jamocha.engine.RuleCompiler;
+import org.jamocha.engine.nodes.LeftInputAdaptorNode;
+import org.jamocha.engine.nodes.MultiBetaJoinNode;
+import org.jamocha.engine.nodes.Node;
 import org.jamocha.engine.nodes.NodeException;
 import org.jamocha.engine.nodes.ObjectTypeNode;
 import org.jamocha.engine.nodes.RootNode;
+import org.jamocha.engine.nodes.SimpleBetaFilterNode;
+import org.jamocha.engine.nodes.TerminalNode;
 import org.jamocha.engine.rules.rulecompiler.CompileRuleException;
 import org.jamocha.engine.workingmemory.elements.Template;
 import org.jamocha.parser.EvaluationException;
@@ -160,22 +166,84 @@ public class BeffyRuleCompiler implements RuleCompiler {
 		
 		private Rule rule;
 		
+		private boolean success;
+		
+		private Map<Condition, Node> lastNodes;
+		
 		public CompileTableau(Rule r) {
 			this.rule = r;
+			this.success = true;
+			this.lastNodes = new HashMap<Condition, Node>();
 		}
 
 		public boolean hadSuccess() {
-			// TODO Auto-generated method stub
-			return false;
+			return success;
 		}
+
+		public void setSuccess(boolean v) {
+			success = v;
+		}
+		
+		public Rule getRule() {
+			return rule;
+		}
+		
+		public Node getLastNode(Condition c) {
+			return lastNodes.get(c);
+		}
+
+		public void setLastNode(Condition c, Node node) {
+			lastNodes.put(c, node);
+		}
+		
 		
 	}
 	
 	private class BeffyRuleConditionVisitor implements ConditionVisitor<CompileTableau, CompileTableau> {
 
+		private boolean isAlpha(Condition c) {
+			return (c instanceof ObjectCondition || c instanceof ExistsCondition);
+		}
+		
 		public CompileTableau visit(AndCondition c, CompileTableau data) {
-			// TODO Auto-generated method stub
-			return null;
+			for (Condition subCondition : c.getNestedConditions()) {
+				subCondition.acceptVisitor(this, data);
+			}
+			
+			if (c.getNestedConditions().size() == 1) {
+				// i think, that should not happen?!
+				//TODO check and discuss that
+				logAndFail(new NodeException("only one subcondition in AND", null), data);
+			} else if (c.getNestedConditions().size() == 2 &&
+							(isAlpha(c.getNestedConditions().get(0)) || isAlpha(c.getNestedConditions().get(1)))		
+							) {
+				/* this is the classic case with just 2 subconditions and at least
+				 * one alpha subcondition
+				 */
+				SimpleBetaFilterNode joinNode = new SimpleBetaFilterNode(reteNet.nextNodeId(), engine.getWorkingMemory(), reteNet);
+				try {
+					Condition c1 = c.getNestedConditions().get(0);
+					Condition c2 = c.getNestedConditions().get(1);
+					data.getLastNode(c1).addChild(joinNode);
+					data.getLastNode(c2).addChild(joinNode);
+				} catch (NodeException e) {
+					logAndFail(e, data);
+				}
+				data.setLastNode(c, joinNode);
+			} else {
+				// we need a fat-join node
+				MultiBetaJoinNode joinNode = new MultiBetaJoinNode(reteNet.nextNodeId(), engine.getWorkingMemory(), reteNet);
+				for (Condition sub : c.getNestedConditions()) {
+					Node n = data.getLastNode(sub);
+					try {
+						n.addChild(joinNode);
+					} catch (NodeException e) {
+						logAndFail(e,data);
+					}
+				}
+				data.setLastNode(c, joinNode);
+			}
+			return data;
 		}
 
 		public CompileTableau visit(ExistsCondition c, CompileTableau data) {
@@ -195,14 +263,21 @@ public class BeffyRuleCompiler implements RuleCompiler {
 
 		public CompileTableau visit(OrCondition c, CompileTableau data) {
 			/* this is our entry point. here we branch the rule into
-			 * some new rules.
+			 * some new rules!
 			 */
 			for (Condition subCondition : c.getNestedConditions()) {
 				/* for this sub-condition, we have to generate a new sub-rule,
 				 * compile it and create a terminal node for it
 				 */
-				
-				
+				subCondition.acceptVisitor(this, data);
+				TerminalNode terminal = new TerminalNode(reteNet.nextNodeId(), engine.getWorkingMemory(), data.getRule(), reteNet);
+				Node last = data.getLastNode(subCondition);
+				try {
+					last.addChild(terminal);
+					rootNode.activate();
+				} catch (NodeException e) {
+					logAndFail(e,data);
+				}			
 			}
 			return data;
 		}
@@ -235,6 +310,11 @@ public class BeffyRuleCompiler implements RuleCompiler {
 		this.bindings = new BindingManager();
 	}
 
+	private void logAndFail(Exception e, CompileTableau data) {
+		data.setSuccess(false);
+		Logging.logger(this.getClass()).warn(e);
+	}
+	
 	public void addListener(CompilerListener listener) {
 			listeners.add(listener);
 	}
@@ -251,16 +331,12 @@ public class BeffyRuleCompiler implements RuleCompiler {
 	public boolean addRule(Rule rule) throws AssertException, RuleException, EvaluationException, CompileRuleException {
 		CompileTableau ruleCompileTableau = new CompileTableau(rule);
 		
-		//HERE WE SHOULD START PROCESSING - MAYBE THE HATED VISITOR PATTERN
-		
 		BeffyRuleConditionVisitor visitor = new BeffyRuleConditionVisitor();
 		
 		// this is our one-and-only or-condition at the root
 		OrCondition rootCondition = (OrCondition) rule.getConditions().get(0);
 		
-		visitor.visit(rootCondition, ruleCompileTableau);
-		
-		
+		rootCondition.acceptVisitor(visitor, ruleCompileTableau);
 		
 		if (ruleCompileTableau.hadSuccess()) {
 			notifyListeners(rule);
