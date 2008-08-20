@@ -21,12 +21,14 @@ package org.jamocha.engine.nodes;
 import org.jamocha.Constants;
 import org.jamocha.application.gui.retevisualisation.NodeDrawer;
 import org.jamocha.application.gui.retevisualisation.nodedrawers.SlotFilterNodeDrawer;
+import org.jamocha.engine.Engine;
 import org.jamocha.engine.Evaluate;
 import org.jamocha.engine.ReteNet;
 import org.jamocha.engine.workingmemory.WorkingMemory;
 import org.jamocha.engine.workingmemory.WorkingMemoryElement;
 import org.jamocha.engine.workingmemory.elements.Slot;
 import org.jamocha.parser.EvaluationException;
+import org.jamocha.rules.Rule;
 
 /**
  * @author Josef Alexander Hahn <mail@josef-hahn.de> this node type is an
@@ -39,12 +41,18 @@ public class SlotFilterNode extends OneInputNode {
 
 	private final Slot slot;
 
+	@Deprecated
 	public SlotFilterNode(final int id, final WorkingMemory memory,
 			final int operator, final Slot slot, final ReteNet net) {
 		super(id, memory, net);
 		this.operator = operator;
 		this.slot = slot;
 	}
+	
+	public SlotFilterNode(Engine e, int operator, Slot slot) {
+		this(e.getNet().nextNodeId(), e.getWorkingMemory(), operator, slot, e.getNet());
+	}
+
 
 	protected boolean evaluate(final WorkingMemoryElement elem)
 			throws NodeException {

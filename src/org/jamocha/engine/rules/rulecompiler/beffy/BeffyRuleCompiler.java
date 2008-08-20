@@ -18,10 +18,13 @@
 package org.jamocha.engine.rules.rulecompiler.beffy;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
+import org.jamocha.Constants;
 import org.jamocha.communication.events.CompileEvent;
 import org.jamocha.communication.events.CompilerListener;
 import org.jamocha.communication.logging.Logging;
@@ -30,22 +33,26 @@ import org.jamocha.engine.Binding;
 import org.jamocha.engine.Engine;
 import org.jamocha.engine.ReteNet;
 import org.jamocha.engine.RuleCompiler;
-import org.jamocha.engine.nodes.LeftInputAdaptorNode;
+import org.jamocha.engine.nodes.AlphaQuantorDistinctionNode;
 import org.jamocha.engine.nodes.MultiBetaJoinNode;
 import org.jamocha.engine.nodes.Node;
 import org.jamocha.engine.nodes.NodeException;
 import org.jamocha.engine.nodes.ObjectTypeNode;
 import org.jamocha.engine.nodes.RootNode;
 import org.jamocha.engine.nodes.SimpleBetaFilterNode;
+import org.jamocha.engine.nodes.SlotFilterNode;
 import org.jamocha.engine.nodes.TerminalNode;
 import org.jamocha.engine.rules.rulecompiler.CompileRuleException;
+import org.jamocha.engine.workingmemory.elements.Slot;
 import org.jamocha.engine.workingmemory.elements.Template;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.RuleException;
 import org.jamocha.rules.AndCondition;
 import org.jamocha.rules.Condition;
 import org.jamocha.rules.ConditionVisitor;
+import org.jamocha.rules.Constraint;
 import org.jamocha.rules.ExistsCondition;
+import org.jamocha.rules.LiteralConstraint;
 import org.jamocha.rules.NotExistsCondition;
 import org.jamocha.rules.ObjectCondition;
 import org.jamocha.rules.OrCondition;
@@ -125,7 +132,7 @@ public class BeffyRuleCompiler implements RuleCompiler {
 		public ObjectTypeNode getObjectTypeNode(Template template) throws NodeException {
 			ObjectTypeNode otn = typeNodes.get(template);
 			if (otn == null) {
-				otn = new ObjectTypeNode(reteNet.nextNodeId(), engine.getWorkingMemory(), reteNet, template);
+				otn = new ObjectTypeNode(engine, template);
 				rootNode.addChild(otn);
 				typeNodes.put(template, otn);
 			}
@@ -170,12 +177,23 @@ public class BeffyRuleCompiler implements RuleCompiler {
 		
 		private Map<Condition, Node> lastNodes;
 		
+		private Set<Constraint> handled;
+		
 		public CompileTableau(Rule r) {
 			this.rule = r;
 			this.success = true;
 			this.lastNodes = new HashMap<Condition, Node>();
+			this.handled = new HashSet<Constraint>();
 		}
 
+		public void markAsHandled(Constraint c) {
+			handled.add(c);
+		}
+		
+		public boolean isMarkedAsHandled(Constraint c) {
+			return handled.contains(c);
+		}
+		
 		public boolean hadSuccess() {
 			return success;
 		}
@@ -195,8 +213,7 @@ public class BeffyRuleCompiler implements RuleCompiler {
 		public void setLastNode(Condition c, Node node) {
 			lastNodes.put(c, node);
 		}
-		
-		
+
 	}
 	
 	private class BeffyRuleConditionVisitor implements ConditionVisitor<CompileTableau, CompileTableau> {
@@ -220,7 +237,7 @@ public class BeffyRuleCompiler implements RuleCompiler {
 				/* this is the classic case with just 2 subconditions and at least
 				 * one alpha subcondition
 				 */
-				SimpleBetaFilterNode joinNode = new SimpleBetaFilterNode(reteNet.nextNodeId(), engine.getWorkingMemory(), reteNet);
+				SimpleBetaFilterNode joinNode = new SimpleBetaFilterNode(engine);
 				try {
 					Condition c1 = c.getNestedConditions().get(0);
 					Condition c2 = c.getNestedConditions().get(1);
@@ -232,7 +249,7 @@ public class BeffyRuleCompiler implements RuleCompiler {
 				data.setLastNode(c, joinNode);
 			} else {
 				// we need a fat-join node
-				MultiBetaJoinNode joinNode = new MultiBetaJoinNode(reteNet.nextNodeId(), engine.getWorkingMemory(), reteNet);
+				MultiBetaJoinNode joinNode = new MultiBetaJoinNode(engine);
 				for (Condition sub : c.getNestedConditions()) {
 					Node n = data.getLastNode(sub);
 					try {
@@ -247,18 +264,57 @@ public class BeffyRuleCompiler implements RuleCompiler {
 		}
 
 		public CompileTableau visit(ExistsCondition c, CompileTableau data) {
-			// TODO Auto-generated method stub
-			return null;
+			assert c.getNestedConditions().size() == 1;
+			Condition nested = c.getNestedConditions().get(0);
+			nested.acceptVisitor(this, data);
+			Node lastNode = data.getLastNode(nested);
+			//TODO discuss, how the stuff must go on here
+			int distinctionSlotIdx = 0;
+			AlphaQuantorDistinctionNode quantorNode = new AlphaQuantorDistinctionNode(engine, distinctionSlotIdx);
+			try {
+				lastNode.addChild(quantorNode);
+			} catch (NodeException e) {
+				logAndFail(e, data);
+			}
+			data.setLastNode(c, quantorNode);
+			return data;
 		}
 
 		public CompileTableau visit(NotExistsCondition c, CompileTableau data) {
 			// TODO Auto-generated method stub
-			return null;
+			return data;
 		}
 
 		public CompileTableau visit(ObjectCondition c, CompileTableau data) {
-			// TODO Auto-generated method stub
-			return null;
+			//ObjectConditions are alpha-networks and begin at the root node
+			Node lastNode = null;
+			
+			//at first, we need the ObjectTypeNode
+			Template template = engine.findTemplate(c.getTemplateName());
+			try {
+				lastNode = objectTypeNodes.getObjectTypeNode(template);
+				
+				/* iterate over all constraints and mark each constraint, we 
+				 * can handle here */
+				for (Constraint constr : c.getFlatConstraints()) {
+					if (constr instanceof LiteralConstraint) {
+						LiteralConstraint lc = (LiteralConstraint) constr;
+						int operator = lc.isNegated() ? Constants.NOTEQUAL : Constants.EQUAL;
+						Slot slot = template.getSlot(lc.getSlotName()).createSlot(engine);
+						slot.setValue(lc.getValue());
+						SlotFilterNode filterNode = new SlotFilterNode(engine, operator, slot);
+						lastNode.addChild(filterNode);
+						lastNode = filterNode;
+						data.markAsHandled(lc);
+					}
+				}
+			} catch (NodeException e) {
+				logAndFail(e, data);
+			} catch (EvaluationException e) {
+				logAndFail(e, data);
+			}
+			data.setLastNode(c, lastNode);
+			return data;
 		}
 
 		public CompileTableau visit(OrCondition c, CompileTableau data) {
@@ -270,7 +326,7 @@ public class BeffyRuleCompiler implements RuleCompiler {
 				 * compile it and create a terminal node for it
 				 */
 				subCondition.acceptVisitor(this, data);
-				TerminalNode terminal = new TerminalNode(reteNet.nextNodeId(), engine.getWorkingMemory(), data.getRule(), reteNet);
+				TerminalNode terminal = new TerminalNode(engine, data.getRule());
 				Node last = data.getLastNode(subCondition);
 				try {
 					last.addChild(terminal);
@@ -284,7 +340,7 @@ public class BeffyRuleCompiler implements RuleCompiler {
 
 		public CompileTableau visit(TestCondition c, CompileTableau data) {
 			// TODO Auto-generated method stub
-			return null;
+			return data;
 		}
 		
 	}
@@ -301,6 +357,8 @@ public class BeffyRuleCompiler implements RuleCompiler {
 	
 	private ReteNet reteNet;
 	
+	private BeffyRuleOptimizer ruleOptimizer;
+	
 	public BeffyRuleCompiler(Engine engine, RootNode root, ReteNet net) {
 		this.engine=engine;
 		this.rootNode=root;
@@ -308,6 +366,7 @@ public class BeffyRuleCompiler implements RuleCompiler {
 		this.listeners=new LinkedList<CompilerListener>();
 		this.objectTypeNodes = new ObjectTypeNodeManager();
 		this.bindings = new BindingManager();
+		this.ruleOptimizer = new BeffyRuleOptimizer();
 	}
 
 	private void logAndFail(Exception e, CompileTableau data) {
@@ -329,6 +388,15 @@ public class BeffyRuleCompiler implements RuleCompiler {
 	}
 	
 	public boolean addRule(Rule rule) throws AssertException, RuleException, EvaluationException, CompileRuleException {
+		
+		// at the very beginning, we have to pipe our rule through the optimizer
+		Condition optimizedCondition = ruleOptimizer.optimize(rule.getConditions());
+		rule.getConditions().clear();
+		rule.getConditions().add(optimizedCondition);
+		
+		
+		
+		
 		CompileTableau ruleCompileTableau = new CompileTableau(rule);
 		
 		BeffyRuleConditionVisitor visitor = new BeffyRuleConditionVisitor();
@@ -339,7 +407,14 @@ public class BeffyRuleCompiler implements RuleCompiler {
 		rootCondition.acceptVisitor(visitor, ruleCompileTableau);
 		
 		if (ruleCompileTableau.hadSuccess()) {
+			try {
+				rootNode.activate();
+			} catch (NodeException e) {
+				reteNet.cleanup();
+				throw new CompileRuleException(e);
+			}
 			notifyListeners(rule);
+			rule.parentModule().addRule(rule);
 			return true;
 		} else {
 			reteNet.cleanup();

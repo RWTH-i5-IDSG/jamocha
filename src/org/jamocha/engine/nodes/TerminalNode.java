@@ -20,6 +20,7 @@ package org.jamocha.engine.nodes;
 
 import org.jamocha.application.gui.retevisualisation.NodeDrawer;
 import org.jamocha.application.gui.retevisualisation.nodedrawers.TerminalNodeDrawer;
+import org.jamocha.engine.Engine;
 import org.jamocha.engine.ReteNet;
 import org.jamocha.engine.agenda.Activation;
 import org.jamocha.engine.modules.Module;
@@ -36,10 +37,15 @@ public class TerminalNode extends OneInputNode {
 
 	private final Rule rule;
 
+	@Deprecated
 	public TerminalNode(final int id, final WorkingMemory memory,
 			final Rule rule, final ReteNet net) {
 		super(id, memory, net);
 		this.rule = rule;
+	}
+	
+	public TerminalNode(Engine e, Rule r) {
+		this(e.getNet().nextNodeId(), e.getWorkingMemory(), r, e.getNet());
 	}
 
 	@Override

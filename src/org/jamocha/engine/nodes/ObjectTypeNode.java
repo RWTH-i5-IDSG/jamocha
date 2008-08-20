@@ -20,6 +20,7 @@ package org.jamocha.engine.nodes;
 
 import org.jamocha.application.gui.retevisualisation.NodeDrawer;
 import org.jamocha.application.gui.retevisualisation.nodedrawers.ObjectTypeNodeDrawer;
+import org.jamocha.engine.Engine;
 import org.jamocha.engine.ReteNet;
 import org.jamocha.engine.workingmemory.WorkingMemory;
 import org.jamocha.engine.workingmemory.WorkingMemoryElement;
@@ -33,16 +34,27 @@ public class ObjectTypeNode extends OneInputNode {
 
 	protected Template template;
 
+	@Deprecated
 	private ObjectTypeNode(final int id, final WorkingMemory memory,
 			final ReteNet net) {
 		super(id, memory, net);
 	}
 
+	@Deprecated
 	public ObjectTypeNode(final int id, final WorkingMemory memory,
 			final ReteNet net, final Template templ) {
 		this(id, memory, net);
 		template = templ;
 	}
+	
+	public ObjectTypeNode(Engine e) {
+		this(e.getNet().nextNodeId(), e.getWorkingMemory(), e.getNet());
+	}
+	
+	public ObjectTypeNode(Engine e, Template template) {
+		this(e.getNet().nextNodeId(), e.getWorkingMemory(), e.getNet(), template);
+	}
+	
 
 	@Override
 	public void addWME(Node sender, final WorkingMemoryElement newElem) throws NodeException {

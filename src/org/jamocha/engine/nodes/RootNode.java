@@ -20,6 +20,7 @@ package org.jamocha.engine.nodes;
 
 import org.jamocha.application.gui.retevisualisation.NodeDrawer;
 import org.jamocha.application.gui.retevisualisation.nodedrawers.RootNodeDrawer;
+import org.jamocha.engine.Engine;
 import org.jamocha.engine.ReteNet;
 import org.jamocha.engine.workingmemory.WorkingMemory;
 import org.jamocha.engine.workingmemory.WorkingMemoryElement;
@@ -31,8 +32,13 @@ import org.jamocha.engine.workingmemory.WorkingMemoryElement;
  */
 public class RootNode extends Node {
 
+	@Deprecated
 	public RootNode(final int id, final WorkingMemory memory, final ReteNet net) {
 		super(id, memory, net);
+	}
+	
+	public RootNode(Engine e) {
+		this(e.getNet().nextNodeId(), e.getWorkingMemory(), e.getNet());
 	}
 
 	@Override

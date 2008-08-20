@@ -24,6 +24,7 @@ import java.util.Map;
 
 import org.jamocha.application.gui.retevisualisation.NodeDrawer;
 import org.jamocha.application.gui.retevisualisation.nodedrawers.QuantorBetaFilterNodeDrawer;
+import org.jamocha.engine.Engine;
 import org.jamocha.engine.ReteNet;
 import org.jamocha.engine.workingmemory.WorkingMemory;
 import org.jamocha.engine.workingmemory.WorkingMemoryElement;
@@ -56,9 +57,14 @@ public class AlphaQuantorDistinctionNode extends OneInputNode {
 		return (sizeBefore == 1 && factList.size() == 0);		
 	}
 	
+	@Deprecated
 	public AlphaQuantorDistinctionNode(int id, WorkingMemory memory, ReteNet net, int distinctSlot) {
 		super(id, memory, net);
 		this.distinctionSlot = distinctSlot;
+	}
+	
+	public AlphaQuantorDistinctionNode(Engine e, int distinctSlot) {
+		this(e.getNet().nextNodeId(), e.getWorkingMemory(), e.getNet(), distinctSlot);
 	}
 
 	@Override

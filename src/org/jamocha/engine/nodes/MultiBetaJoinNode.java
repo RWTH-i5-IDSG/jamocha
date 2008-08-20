@@ -24,6 +24,7 @@ import java.util.List;
 import org.jamocha.application.gui.retevisualisation.NodeDrawer;
 import org.jamocha.application.gui.retevisualisation.nodedrawers.SimpleBetaFilterNodeDrawer;
 import org.jamocha.communication.logging.Logging;
+import org.jamocha.engine.Engine;
 import org.jamocha.engine.ReteNet;
 import org.jamocha.engine.nodes.joinfilter.GeneralizedJoinFilter;
 import org.jamocha.engine.nodes.joinfilter.JoinFilterException;
@@ -49,10 +50,15 @@ public class MultiBetaJoinNode extends Node {
 	
 	private List<GeneralizedJoinFilter> filters;
 	
+	@Deprecated
 	public MultiBetaJoinNode(int id, WorkingMemory memory, ReteNet net) {
 		super(id, memory, net);
 		inputs = new ArrayList<Node>();
 		filters = new ArrayList<GeneralizedJoinFilter>();
+	}
+	
+	public MultiBetaJoinNode(Engine e) {
+		this(e.getNet().nextNodeId(), e.getWorkingMemory(), e.getNet());
 	}
 
 	public void addFilter(GeneralizedJoinFilter filter) {

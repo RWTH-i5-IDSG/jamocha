@@ -21,6 +21,7 @@ package org.jamocha.engine.nodes;
 import org.jamocha.Constants;
 import org.jamocha.application.gui.retevisualisation.NodeDrawer;
 import org.jamocha.application.gui.retevisualisation.nodedrawers.SlotFilterNodeDrawer;
+import org.jamocha.engine.Engine;
 import org.jamocha.engine.ReteNet;
 import org.jamocha.engine.workingmemory.WorkingMemory;
 import org.jamocha.engine.workingmemory.WorkingMemoryElement;
@@ -40,6 +41,7 @@ public class AlphaSlotComparatorNode extends OneInputNode {
 	
 	private int id1, id2;
 
+	@Deprecated
 	public AlphaSlotComparatorNode(final int id, final WorkingMemory memory,
 			final int operator, final TemplateSlot slot1, TemplateSlot slot2, final ReteNet net) {
 		super(id, memory, net);
@@ -48,6 +50,10 @@ public class AlphaSlotComparatorNode extends OneInputNode {
 		this.slot2 = slot2;
 		id1 = slot1.getId();
 		id2 = slot2.getId();
+	}
+	
+	public AlphaSlotComparatorNode(Engine e, int operator, TemplateSlot slot1, TemplateSlot slot2) {
+		this(e.getNet().nextNodeId(), e.getWorkingMemory(), operator,slot1, slot2, e.getNet());
 	}
 
 	protected boolean evaluate(final WorkingMemoryElement elem)	throws NodeException {

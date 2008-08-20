@@ -20,6 +20,7 @@ package org.jamocha.engine.nodes;
 
 import org.jamocha.application.gui.retevisualisation.NodeDrawer;
 import org.jamocha.application.gui.retevisualisation.nodedrawers.LIANodeDrawer;
+import org.jamocha.engine.Engine;
 import org.jamocha.engine.ReteNet;
 import org.jamocha.engine.workingmemory.WorkingMemory;
 import org.jamocha.engine.workingmemory.WorkingMemoryElement;
@@ -31,9 +32,14 @@ import org.jamocha.engine.workingmemory.WorkingMemoryElement;
  */
 public class LeftInputAdaptorNode extends OneInputNode {
 
+	@Deprecated
 	public LeftInputAdaptorNode(final int id, final WorkingMemory memory,
 			final ReteNet net) {
 		super(id, memory, net);
+	}
+	
+	public LeftInputAdaptorNode(Engine e) {
+		this(e.getNet().nextNodeId(), e.getWorkingMemory(), e.getNet());
 	}
 
 	@Override

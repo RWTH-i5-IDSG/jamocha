@@ -22,11 +22,13 @@ import java.util.Iterator;
 
 import org.jamocha.application.gui.retevisualisation.NodeDrawer;
 import org.jamocha.application.gui.retevisualisation.nodedrawers.SimpleBetaFilterNodeDrawer;
+import org.jamocha.engine.Engine;
 import org.jamocha.engine.ReteNet;
 import org.jamocha.engine.nodes.joinfilter.JoinFilter;
 import org.jamocha.engine.nodes.joinfilter.JoinFilterException;
 import org.jamocha.engine.workingmemory.WorkingMemory;
 import org.jamocha.engine.workingmemory.WorkingMemoryElement;
+import org.jamocha.engine.workingmemory.elements.Slot;
 import org.jamocha.parser.EvaluationException;
 
 /**
@@ -37,15 +39,26 @@ import org.jamocha.parser.EvaluationException;
  */
 public class SimpleBetaFilterNode extends AbstractBetaFilterNode {
 
+	@Deprecated
 	public SimpleBetaFilterNode(final int id, final WorkingMemory memory,
 			final ReteNet net) {
 		super(id, memory, net);
 	}
 
+	@Deprecated
 	public SimpleBetaFilterNode(final int id, final WorkingMemory memory,
 			final ReteNet net, final JoinFilter[] filters) {
 		super(id, memory, net, filters);
 	}
+	
+	public SimpleBetaFilterNode(Engine e) {
+		this(e.getNet().nextNodeId(), e.getWorkingMemory(), e.getNet());
+	}
+	
+	public SimpleBetaFilterNode(Engine e, JoinFilter[] filters) {
+		this(e.getNet().nextNodeId(), e.getWorkingMemory(), e.getNet(), filters);
+	}
+	
 
 	@Override
 	protected void addAlpha(final WorkingMemoryElement newElem)
