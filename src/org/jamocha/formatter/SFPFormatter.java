@@ -503,39 +503,45 @@ public class SFPFormatter extends Formatter {
 	@Override
 	public String visit(NotExistsCondition object) {
 		StringBuilder sb = new StringBuilder();
-		sb.append("(not");
+		sb.append("(not\n");
+		increaseIndent();
 		List<Condition> conditions = object.getNestedConditions();
 		for (Condition condition : conditions) {
 			sb.append(' ');
 			sb.append(condition.format(this));
 		}
-		sb.append(')');
+		decreaseIndent();
+		sb.append("\n)\n");
 		return sb.toString();
 	}
 	
 	@Override
 	public String visit(AndCondition object) {
 		StringBuilder sb = new StringBuilder();
-		sb.append("(and");
+		sb.append("(and\n");
+		increaseIndent();
 		List<Condition> conditions = object.getNestedConditions();
 		for (Condition condition : conditions) {
 			sb.append(' ');
 			sb.append(condition.format(this));
 		}
-		sb.append(')');
+		decreaseIndent();
+		sb.append("\n)\n");
 		return sb.toString();
 	}
 	
 	@Override
 	public String visit(OrCondition object) {
 		StringBuilder sb = new StringBuilder();
-		sb.append("(or");
+		sb.append("(or\n");
+		increaseIndent();
 		List<Condition> conditions = object.getNestedConditions();
 		for (Condition condition : conditions) {
 			sb.append(' ');
 			sb.append(condition.format(this));
 		}
-		sb.append(')');
+		decreaseIndent();
+		sb.append("\n)\n");
 		return sb.toString();
 	}
 

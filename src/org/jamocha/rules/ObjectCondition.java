@@ -98,7 +98,7 @@ public class ObjectCondition extends AbstractCondition {
 	}
 
 	public List<Constraint> getConstraints() {
-		return Collections.unmodifiableList(constraints);
+		return constraints;
 	}
 	
 	public void addConstraint(Constraint c) {
