@@ -33,25 +33,64 @@ import org.jamocha.rules.Condition;
 public class BeffyRuleOptimizerDataPassThree {
 	
 	public class VariableUsage {
-		public boolean virtual = false;
+		public boolean unbound = false;
 		public String name = "";
 		
 		public VariableUsage(String name, boolean virtual) {
 			this.name = name;
-			this.virtual = virtual;
+			this.unbound = virtual;
 		}
 		
 		public boolean equals(VariableUsage b) {
-			return (b.name == this.name && b.virtual == this.virtual);
+			return (b.name == this.name && b.unbound == this.unbound);
 		}
 		
-		public void markVirtual() {
-			this.virtual = true;
+		public void markUnbound() {
+			this.unbound = true;
 		}
 		
-		public boolean isVirtual() {
-			return this.virtual;
+		public boolean isUnbound() {
+			return this.unbound;
 		}
+
+		/* (non-Javadoc)
+		 * @see java.lang.Object#hashCode()
+		 */
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + getOuterType().hashCode();
+			result = prime * result + ((name == null) ? 0 : name.hashCode());
+			return result;
+		}
+
+		/* (non-Javadoc)
+		 * @see java.lang.Object#equals(java.lang.Object)
+		 */
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (obj == null)
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			VariableUsage other = (VariableUsage) obj;
+			if (!getOuterType().equals(other.getOuterType()))
+				return false;
+			if (name == null) {
+				if (other.name != null)
+					return false;
+			} else if (!name.equals(other.name))
+				return false;
+			return true;
+		}
+
+		private BeffyRuleOptimizerDataPassThree getOuterType() {
+			return BeffyRuleOptimizerDataPassThree.this;
+		}
+		
 	}
 	
 	List<VariableUsage> usages = new LinkedList<VariableUsage>();
@@ -59,15 +98,21 @@ public class BeffyRuleOptimizerDataPassThree {
 
 	public void combine(BeffyRuleOptimizerDataPassThree d) {
 		for (VariableUsage usage : d.usages) {
-			if (usages.indexOf(usage) == -1)
-				usages.add(usage);			
+			this.add(usage);			
+		}
+	}
+	
+	public void add(VariableUsage usage) {
+		if (usages.indexOf(usage) == -1)
+			usages.add(usage);
+		else if (!usage.isUnbound()) {
+			usages.get(usages.indexOf(usage)).unbound = false;
 		}
 	}
 	
 	public void add(String name, boolean virtual) {
 		VariableUsage usage = new VariableUsage(name, virtual);
-		if (usages.indexOf(usage) == -1)
-			usages.add(usage);
+		this.add(usage);
 	}
 	
 	public void setCondition(Condition condition) {
@@ -80,7 +125,7 @@ public class BeffyRuleOptimizerDataPassThree {
 	
 	public void markVirtual() {
 		for (VariableUsage usage : this.usages) {
-			usage.markVirtual();
+			usage.markUnbound();
 		}
 	}
 }

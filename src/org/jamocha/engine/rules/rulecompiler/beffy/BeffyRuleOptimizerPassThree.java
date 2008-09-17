@@ -21,6 +21,9 @@
  */
 package org.jamocha.engine.rules.rulecompiler.beffy;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import org.jamocha.engine.Parameter;
 import org.jamocha.engine.rules.rulecompiler.CompileRuleException;
 import org.jamocha.rules.AndCondition;
@@ -52,16 +55,16 @@ public class BeffyRuleOptimizerPassThree implements
 	/*
 	 * Call optimizeAnd for every AndCondition in the toplevel OrCondition
 	 */
-	public Condition optimize(Condition cond) throws CompileRuleException {
+	public Condition optimize(Condition cond) throws OptimizeRuleException {
 		if (! (cond instanceof OrCondition))
-			throw new CompileRuleException(
+			throw new OptimizeRuleException(
 					"Invalid root in condition tree. Tried to use PassThree without PassOne and PassTwo?");
 		OrCondition orCondition = (OrCondition) cond;
 		for (Condition condition : orCondition.getNestedConditions()) {
 			if (condition instanceof AndCondition) {
 				optimizeAnd((AndCondition) condition);
 			} else if (! (condition instanceof ObjectCondition))
-				throw new CompileRuleException("Invalid condition directly below root in condition tree. Tried to use PassThree without PassOne and PassTwo?");
+				throw new OptimizeRuleException("Invalid condition directly below root in condition tree. Tried to use PassThree without PassOne and PassTwo?");
 		}
 		return cond;
 	}
@@ -70,24 +73,20 @@ public class BeffyRuleOptimizerPassThree implements
 	 * Analyse every Condition in an AndCondition where which variable is bound and used.
 	 * Split Ands in two and multi Ands, depending on the analysis.
 	 */
-	private AndCondition optimizeAnd(AndCondition cond) throws CompileRuleException {
-//		List<BeffyRuleOptimizerDataPassThree> nonvirtual = new LinkedList<BeffyRuleOptimizerDataPassThree>();
+	private AndCondition optimizeAnd(AndCondition cond) throws OptimizeRuleException {
+		List<BeffyRuleOptimizerDataPassThree> bindings = new LinkedList<BeffyRuleOptimizerDataPassThree>();
 //		List<BeffyRuleOptimizerDataPassThree> virtual = new LinkedList<BeffyRuleOptimizerDataPassThree>();
-//		for (Condition condition : cond.getNestedConditions()) {
-//			BeffyRuleOptimizerDataPassThree d = condition.acceptVisitor(this, null);
-//			if (d == null)
-//				throw new CompileRuleException("Invalid element in AndCondition. Tried to use PassThree without PassOne and PassTwo?");
-//			d.setCondition(condition);
-//			if (d.isVirtual())
-//				virtual.add(d);
-//			else
-//				nonvirtual.add(d);
-//		}
-//		
+		for (Condition condition : cond.getNestedConditions()) {
+			BeffyRuleOptimizerDataPassThree d = condition.acceptVisitor(this, null);
+			if (d == null)
+				throw new OptimizeRuleException("Invalid element in AndCondition. Tried to use PassThree without PassOne and PassTwo?");
+			d.setCondition(condition);
+		}
+		
 //		for (BeffyRuleOptimizerDataPassThree data : virtual) {
 //			
 //		}
-//		
+		
 		return cond;
 	}
 
@@ -149,10 +148,11 @@ public class BeffyRuleOptimizerPassThree implements
 
 	public BeffyRuleOptimizerDataPassThree visit(OrConnectedConstraint c,
 			Object data) {
-		BeffyRuleOptimizerDataPassThree d = c.getLeft().acceptVisitor(this, null);
-		d.combine(c.getRight().acceptVisitor(this, null));
-		d.markVirtual();
-		return d;
+//		BeffyRuleOptimizerDataPassThree d = c.getLeft().acceptVisitor(this, null);
+//		d.combine(c.getRight().acceptVisitor(this, null));
+//		d.markVirtual();
+//		return d;
+		return null;
 	} 
 
 	public BeffyRuleOptimizerDataPassThree visit(OrderedFactConstraint c,
@@ -166,19 +166,21 @@ public class BeffyRuleOptimizerPassThree implements
 
 	public BeffyRuleOptimizerDataPassThree visit(PredicateConstraint c,
 			Object data) {
-		BeffyRuleOptimizerDataPassThree d = new BeffyRuleOptimizerDataPassThree();
-		for (Parameter parameter : c.getParameters()) {
-		}
-		return d;
+//		BeffyRuleOptimizerDataPassThree d = new BeffyRuleOptimizerDataPassThree();
+//		for (Parameter parameter : c.getParameters()) {
+//		}
+//		return d;
+		return new BeffyRuleOptimizerDataPassThree();
 	}
 
 	public BeffyRuleOptimizerDataPassThree visit(ReturnValueConstraint c,
 			Object data) {
 		// Not implemented
-		//BeffyRuleOptimizerDataPassThree d = new BeffyRuleOptimizerDataPassThree();
-		//for (Parameter parameter : c.getParameters()) {
-		//}
-		return d;
+//		BeffyRuleOptimizerDataPassThree d = new BeffyRuleOptimizerDataPassThree();
+//		for (Parameter parameter : c.getParameters()) {
+//		}
+//		return d;
+		return new BeffyRuleOptimizerDataPassThree();
 	}
 
 }
