@@ -61,7 +61,7 @@ public class BeffyRuleOptimizer {
 	public Condition optimize(List<Condition> cons) throws OptimizeRuleException {
 		Condition con;
 		con = passzero.optimize(cons);
-		con = passone.optimize(cons);
+		con = passone.optimize(con);
 		con = passtwo.optimize(con);
 		con = passthree.optimize(con);
 		return con;

@@ -47,10 +47,7 @@ import org.jamocha.rules.TestCondition;
  */
 public class BeffyRuleOptimizerPassOne implements ConditionVisitor<BeffyRuleOptimizerDataPassOne, Condition> {
 	
-	public Condition optimize(List<Condition> cons) {
-		ConditionWithNested con = new AndCondition();
-		for (Condition condition : cons)
-			con.addNestedCondition(condition);
+	public Condition optimize(Condition con) {
 		Condition con2;
 		con2 = con.acceptVisitor(this, new BeffyRuleOptimizerDataPassOne());
 		return con2;
