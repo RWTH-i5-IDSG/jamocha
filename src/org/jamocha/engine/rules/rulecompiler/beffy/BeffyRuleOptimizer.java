@@ -46,26 +46,24 @@ import org.jamocha.rules.Condition;
  */
 public class BeffyRuleOptimizer {
 	
+	BeffyRuleOptimizerPassZero passzero;
 	BeffyRuleOptimizerPassOne passone;
 	BeffyRuleOptimizerPassTwo passtwo;
 	BeffyRuleOptimizerPassThree passthree;
 	
 	public BeffyRuleOptimizer() {
+		passzero = new BeffyRuleOptimizerPassZero();
 		passone = new BeffyRuleOptimizerPassOne();
 		passtwo = new BeffyRuleOptimizerPassTwo();
 		passthree = new BeffyRuleOptimizerPassThree();
 	}
 	
-	public Condition optimize(List<Condition> cons) {
+	public Condition optimize(List<Condition> cons) throws OptimizeRuleException {
 		Condition con;
+		cons = passzero.optimize(cons);
 		con = passone.optimize(cons);
 		con = passtwo.optimize(con);
-		try {
-			con = passthree.optimize(con);
-		} catch (CompileRuleException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		con = passthree.optimize(con);
 		return con;
 	}
 

@@ -394,9 +394,6 @@ public class BeffyRuleCompiler implements RuleCompiler {
 		rule.getConditions().clear();
 		rule.getConditions().add(optimizedCondition);
 		
-		
-		
-		
 		CompileTableau ruleCompileTableau = new CompileTableau(rule);
 		
 		BeffyRuleConditionVisitor visitor = new BeffyRuleConditionVisitor();

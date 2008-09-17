@@ -21,6 +21,10 @@
  */
 package org.jamocha.engine.rules.rulecompiler.beffy;
 
+import java.util.List;
+
+import org.jamocha.rules.Condition;
+
 /**
  * Translates OrConnectedConstraints to OrConditions
  * and PredicateConstraints to TestConditions.
@@ -28,5 +32,10 @@ package org.jamocha.engine.rules.rulecompiler.beffy;
  * @author Josef Hahn
  */
 public class BeffyRuleOptimizerPassZero {
+
+	public List<Condition> optimize(List<Condition> cons) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
 }
