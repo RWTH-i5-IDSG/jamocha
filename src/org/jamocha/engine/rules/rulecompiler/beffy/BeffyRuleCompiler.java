@@ -390,7 +390,12 @@ public class BeffyRuleCompiler implements RuleCompiler {
 	public boolean addRule(Rule rule) throws AssertException, RuleException, EvaluationException, CompileRuleException {
 		
 		// at the very beginning, we have to pipe our rule through the optimizer
-		Condition optimizedCondition = ruleOptimizer.optimize(rule.getConditions());
+		Condition optimizedCondition;
+		try {
+			optimizedCondition = ruleOptimizer.optimize(rule.getConditions());
+		} catch (OptimizeRuleException e1) {
+			throw new CompileRuleException(e1);
+		}
 		rule.getConditions().clear();
 		rule.getConditions().add(optimizedCondition);
 		
