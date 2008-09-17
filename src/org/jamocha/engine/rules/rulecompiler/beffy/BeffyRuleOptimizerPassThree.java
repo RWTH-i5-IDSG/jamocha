@@ -21,9 +21,6 @@
  */
 package org.jamocha.engine.rules.rulecompiler.beffy;
 
-import java.util.LinkedList;
-import java.util.List;
-
 import org.jamocha.engine.Parameter;
 import org.jamocha.engine.rules.rulecompiler.CompileRuleException;
 import org.jamocha.rules.AndCondition;
@@ -154,8 +151,9 @@ public class BeffyRuleOptimizerPassThree implements
 			Object data) {
 		BeffyRuleOptimizerDataPassThree d = c.getLeft().acceptVisitor(this, null);
 		d.combine(c.getRight().acceptVisitor(this, null));
+		d.markVirtual();
 		return d;
-	}
+	} 
 
 	public BeffyRuleOptimizerDataPassThree visit(OrderedFactConstraint c,
 			Object data) {
@@ -176,9 +174,10 @@ public class BeffyRuleOptimizerPassThree implements
 
 	public BeffyRuleOptimizerDataPassThree visit(ReturnValueConstraint c,
 			Object data) {
-		BeffyRuleOptimizerDataPassThree d = new BeffyRuleOptimizerDataPassThree();
-		for (Parameter parameter : c.getParameters()) {
-		}
+		// Not implemented
+		//BeffyRuleOptimizerDataPassThree d = new BeffyRuleOptimizerDataPassThree();
+		//for (Parameter parameter : c.getParameters()) {
+		//}
 		return d;
 	}
 
