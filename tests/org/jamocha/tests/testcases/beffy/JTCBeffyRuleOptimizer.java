@@ -57,13 +57,13 @@ public class JTCBeffyRuleOptimizer extends TestCase {
 		passtwo = new BeffyRuleOptimizerPassTwo();
 	}
 	
-	private Condition runPassOne(List<Condition> list) {
+	private Condition runPassOne(Condition cond) {
 //		System.out.println("\n\nBefore pass one:");
 //		for (Condition condition : list) {
 //			System.out.println(condition.dump());
 //		}
 		
-		Condition result = passone.optimize(list);
+		Condition result = passone.optimize(cond);
 		
 //		System.out.println("\nAfter pass one");
 //		System.out.println(result.dump());
@@ -81,28 +81,28 @@ public class JTCBeffyRuleOptimizer extends TestCase {
 		return result;
 	}
 	
-	private List<Condition> initPassOneSimple1() {
-		List<Condition> list = new LinkedList<Condition>();
+	private Condition initPassOneSimple1() {
+		AndCondition and = new AndCondition();
 		List<Constraint> constlist = new ArrayList<Constraint>();
-		list.add(new ObjectCondition(constlist, "Test1"));
-		list.add(new ObjectCondition(constlist, "Test2"));
-		list.add(new ObjectCondition(constlist, "Test3"));
-		return list;
+		and.addNestedCondition(new ObjectCondition(constlist, "Test1"));
+		and.addNestedCondition(new ObjectCondition(constlist, "Test2"));
+		and.addNestedCondition(new ObjectCondition(constlist, "Test3"));
+		return and;
 	}
 	
-	private List<Condition> initPassOneSimple2() {
-		List<Condition> list = new LinkedList<Condition>();
+	private Condition initPassOneSimple2() {
+		AndCondition and = new AndCondition();
 		List<Constraint> constlist = new ArrayList<Constraint>();
 		ConditionWithNested cond = new AndCondition();
 		ConditionWithNested cond2 = new ExistsCondition();
 		cond2.addNestedCondition(new ObjectCondition(constlist, "Test1"));
 		cond.addNestedCondition(cond2);
-		list.add(cond);
-		return list;
+		and.addNestedCondition(cond);
+		return and;
 	}
 	
-	private List<Condition> initPassOneComplete() {
-		List<Condition> list = new LinkedList<Condition>();
+	private Condition initPassOneComplete() {
+		AndCondition and = new AndCondition();
 		List<Constraint> constlist = new ArrayList<Constraint>();
 		
 		ConditionWithNested cond = new NotExistsCondition();
@@ -115,7 +115,7 @@ public class JTCBeffyRuleOptimizer extends TestCase {
 		cond2 = new OrCondition();
 		cond2.addNestedCondition(cond);
 		cond2.addNestedCondition(new ObjectCondition(constlist, "Test3"));
-		list.add(cond2);
+		and.addNestedCondition(cond2);
 		
 		cond = new NotExistsCondition();
 		cond.addNestedCondition(new ObjectCondition(constlist, "Test6"));
@@ -127,7 +127,7 @@ public class JTCBeffyRuleOptimizer extends TestCase {
 		cond.addNestedCondition(cond2);
 		cond2 = new NotExistsCondition();
 		cond2.addNestedCondition(cond);
-		list.add(cond2);
+		and.addNestedCondition(cond2);
 		
 		cond = new NotExistsCondition();
 		cond.addNestedCondition(new ObjectCondition(constlist, "Test8"));
@@ -136,9 +136,9 @@ public class JTCBeffyRuleOptimizer extends TestCase {
 		cond2.addNestedCondition(cond);
 		cond = new ExistsCondition();
 		cond.addNestedCondition(cond2);
-		list.add(cond);
+		and.addNestedCondition(cond);
 		
-		return list;
+		return and;
 	}
 	
 	public Condition initPassTwoCompleteResult() {
@@ -259,22 +259,14 @@ public class JTCBeffyRuleOptimizer extends TestCase {
 //	}
 	
 	public void testPassOneTwoComplete() {
-		List<Condition> list = initPassOneComplete();
-		List<Condition> list2 = initPassOneComplete();
+		Condition cond = initPassOneComplete();
+		Condition cond2 = initPassOneComplete();
 		
-		Iterator<Condition> i2 = list2.iterator();
-		Iterator<Condition> i1 = list.iterator();
+		assertTrue("testEquals does not correctly compare two Conditions", cond.testEquals(cond2));
+		assertTrue("clone does not correctly clone a Condition", cond.testEquals(cond2.clone()));
 		
-		while (i1.hasNext() && i2.hasNext()) {
-			Condition c1 = i1.next();
-			Condition c2 = i2.next();
-			Condition c3 = c1.clone();
-			assertTrue("testEquals does not correctly compare two Conditions", c1.testEquals(c2));
-			assertTrue("clone does not correctly clone a Condition", c1.testEquals(c3));
-		}
-		
-		Condition result = runPassOne(list);
-		Condition result2 = runPassOne(list2);
+		Condition result = runPassOne(cond);
+		Condition result2 = runPassOne(cond2);
 		
 		//assertTrue(initPassOneCompleteResult().testEquals(result));
 		
@@ -283,9 +275,7 @@ public class JTCBeffyRuleOptimizer extends TestCase {
 		
 		assertTrue("two runs do not return same result", result.testEquals(result2));
 		
-		list = new ArrayList<Condition>();
-		list.add(result);
-		result = runPassOne(list);
+		result = runPassOne(result);
 		result = runPassTwo(result);
 		
 		assertTrue("running twice does not return same result", result.testEquals(result2));
