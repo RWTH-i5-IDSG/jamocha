@@ -21,7 +21,9 @@
  */
 package org.jamocha.engine.rules.rulecompiler.beffy;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -45,6 +47,8 @@ import org.jamocha.rules.ReturnValueConstraint;
 import org.jamocha.rules.TestCondition;
 
 /**
+ * PassThree of the RuleOptimizer splits all Ands in the smallest usable Ands.
+ * 
  * @author Christoph Terwelp
  * @author Janno von Stuelpnagel
  *
@@ -60,13 +64,16 @@ public class BeffyRuleOptimizerPassThree implements
 			throw new OptimizeRuleException(
 					"Invalid root in condition tree. Tried to use PassThree without PassOne and PassTwo?");
 		OrCondition orCondition = (OrCondition) cond;
+		OrCondition newCondition = new OrCondition();
 		for (Condition condition : orCondition.getNestedConditions()) {
 			if (condition instanceof AndCondition) {
-				optimizeAnd((AndCondition) condition);
+				condition = optimizeAnd((AndCondition) condition);
 			} else if (! (condition instanceof ObjectCondition))
 				throw new OptimizeRuleException("Invalid condition directly below root in condition tree. Tried to use PassThree without PassOne and PassTwo?");
+			if (condition != null)
+				newCondition.addNestedCondition(condition);
 		}
-		return cond;
+		return newCondition;
 	}
 	
 	/*
@@ -76,14 +83,14 @@ public class BeffyRuleOptimizerPassThree implements
 	 */
 	private boolean combine(Set<BeffyRuleOptimizerDataPassThree> set,
 			int i,
-			List<BeffyRuleOptimizerDataPassThree> newBindings,
+			ArrayList<BeffyRuleOptimizerDataPassThree> newBindings,
+			int newBindingsPos,
 			List<BeffyRuleOptimizerDataPassThree> oldBindings,
 			List<BeffyRuleOptimizerDataPassThree> veryNewBindings) {
 		if (i == 0) {
 			BeffyRuleOptimizerDataPassThree res = BeffyRuleOptimizerDataPassThree.combine(set);
 			if (res.isBound()) {
 				oldBindings.removeAll(set);
-				newBindings.removeAll(set);
 				AndCondition and = new AndCondition();
 				for (BeffyRuleOptimizerDataPassThree d : set) {
 					and.addNestedCondition(d.getCondition());
@@ -96,12 +103,18 @@ public class BeffyRuleOptimizerPassThree implements
 		}
 		for (BeffyRuleOptimizerDataPassThree d : oldBindings) {
 			set.add(d);
-			if (combine(set, i-1, oldBindings, newBindings, veryNewBindings)) return true;
+			if (combine(set, i-1, newBindings, newBindingsPos, oldBindings, veryNewBindings)) return true;
 			set.remove(d);
 		}
-		for (BeffyRuleOptimizerDataPassThree d : newBindings) {
+		int j = newBindingsPos;
+		while (j < newBindings.size()) {
+			BeffyRuleOptimizerDataPassThree d = newBindings.get(j);
 			set.add(d);
-			if (combine(set, i-1, oldBindings, newBindings, veryNewBindings)) return true;
+			if (combine(set, i-1, newBindings, j + 1, oldBindings, veryNewBindings)) {
+				newBindings.remove(j);
+				return true;
+			}
+			j++;
 			set.remove(d);
 		}
 		return false;
@@ -112,7 +125,7 @@ public class BeffyRuleOptimizerPassThree implements
 	 * Split Ands in two and multi Ands, depending on the analysis.
 	 */
 	private Condition optimizeAnd(AndCondition cond) throws OptimizeRuleException {
-		List<BeffyRuleOptimizerDataPassThree> newBindings = new LinkedList<BeffyRuleOptimizerDataPassThree>();
+		ArrayList<BeffyRuleOptimizerDataPassThree> newBindings = new ArrayList<BeffyRuleOptimizerDataPassThree>();
 		for (Condition condition : cond.getNestedConditions()) {
 			BeffyRuleOptimizerDataPassThree d = condition.acceptVisitor(this, null);
 			if (d == null)
@@ -122,20 +135,28 @@ public class BeffyRuleOptimizerPassThree implements
 		}
 		
 		List<BeffyRuleOptimizerDataPassThree> oldBindings = new LinkedList<BeffyRuleOptimizerDataPassThree>();
-		List<BeffyRuleOptimizerDataPassThree> veryNewBindings = new LinkedList<BeffyRuleOptimizerDataPassThree>();
+		ArrayList<BeffyRuleOptimizerDataPassThree> veryNewBindings = new ArrayList<BeffyRuleOptimizerDataPassThree>();
 		int i = 2;
-		while (!(oldBindings.size() == 1 && newBindings.isEmpty())) {
-			for (BeffyRuleOptimizerDataPassThree numberOne : newBindings) {
+		System.out.println("old:" + oldBindings.size() + " new:" + newBindings.size() + "\n");
+		while (!(oldBindings.size() <= 1 && newBindings.isEmpty())) {
+			int j = 0;
+			while (j < newBindings.size()) {
+				BeffyRuleOptimizerDataPassThree numberOne = newBindings.get(j);
 				Set<BeffyRuleOptimizerDataPassThree> set = new HashSet<BeffyRuleOptimizerDataPassThree>();
 				set.add(numberOne);
-				combine(set, i-1, oldBindings, newBindings, veryNewBindings);
+				if (combine(set, i-1, newBindings, j + 1, oldBindings, veryNewBindings))
+					newBindings.remove(j);
+				else {
+					j++;
+				}
 			}
 			oldBindings.addAll(newBindings);
 			newBindings = veryNewBindings;
 			if (newBindings.isEmpty()) i++;
-			veryNewBindings = new LinkedList<BeffyRuleOptimizerDataPassThree>();
+			veryNewBindings = new ArrayList<BeffyRuleOptimizerDataPassThree>();
 		}
 		
+		if (oldBindings.isEmpty()) return null;
 		return oldBindings.get(0).getCondition();
 	}
 

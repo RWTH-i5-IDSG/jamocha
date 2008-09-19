@@ -29,8 +29,11 @@ import java.util.List;
 import junit.framework.TestCase;
 
 import org.jamocha.engine.rules.rulecompiler.beffy.BeffyRuleOptimizer;
+import org.jamocha.engine.rules.rulecompiler.beffy.BeffyRuleOptimizerDataPassTwo;
 import org.jamocha.engine.rules.rulecompiler.beffy.BeffyRuleOptimizerPassOne;
+import org.jamocha.engine.rules.rulecompiler.beffy.BeffyRuleOptimizerPassThree;
 import org.jamocha.engine.rules.rulecompiler.beffy.BeffyRuleOptimizerPassTwo;
+import org.jamocha.engine.rules.rulecompiler.beffy.OptimizeRuleException;
 import org.jamocha.rules.AndCondition;
 import org.jamocha.rules.Condition;
 import org.jamocha.rules.ConditionWithNested;
@@ -50,11 +53,13 @@ public class JTCBeffyRuleOptimizer extends TestCase {
 	private BeffyRuleOptimizer optimizer;
 	private BeffyRuleOptimizerPassOne passone;
 	private BeffyRuleOptimizerPassTwo passtwo;
+	private BeffyRuleOptimizerPassThree passthree;
 	
 	public void setUp() {
 		optimizer = new BeffyRuleOptimizer();
 		passone = new BeffyRuleOptimizerPassOne();
 		passtwo = new BeffyRuleOptimizerPassTwo();
+		passthree = new BeffyRuleOptimizerPassThree();
 	}
 	
 	private Condition runPassOne(Condition cond) {
@@ -78,6 +83,11 @@ public class JTCBeffyRuleOptimizer extends TestCase {
 		
 //		System.out.println("\nAfter pass two");
 //		System.out.println(result.dump());
+		return result;
+	}
+	
+	private Condition runPassThree(Condition cond) throws OptimizeRuleException {
+		Condition result = passthree.optimize(cond);
 		return result;
 	}
 	
@@ -240,6 +250,73 @@ public class JTCBeffyRuleOptimizer extends TestCase {
 		return orCondition;
 	}
 	
+	public Condition initPassThreeSimple1() {
+		OrCondition orCond = new OrCondition();
+		AndCondition andCond = new AndCondition();
+		List<Constraint> constList = new LinkedList<Constraint>();
+		orCond.addNestedCondition(new AndCondition());
+		orCond.addNestedCondition(new ObjectCondition(constList, "somename"));
+		andCond.addNestedCondition(new ObjectCondition(constList, "1"));
+		andCond.addNestedCondition(new ObjectCondition(constList, "2"));
+		andCond.addNestedCondition(new ObjectCondition(constList, "3"));
+		andCond.addNestedCondition(new ObjectCondition(constList, "4"));
+		orCond.addNestedCondition(andCond);
+		return orCond;
+	}
+	
+	public void checkPassThreeSimple1(Condition cond) {
+		assertTrue(cond instanceof OrCondition);
+		OrCondition orCond = (OrCondition) cond;
+		List<Condition> conds = orCond.getNestedConditions();
+		Iterator<Condition> i = conds.iterator();
+		assertTrue(i.hasNext());
+		cond = i.next();
+		assertTrue(cond instanceof ObjectCondition);
+		assertTrue(((ObjectCondition)cond).getTemplateName().equals("somename"));
+		assertTrue(i.hasNext());
+		cond = i.next();
+		assertTrue(cond instanceof AndCondition);
+		AndCondition andCond = (AndCondition)cond;
+		checkSizeLimit(andCond, 2);
+		andCond = flattenAndCondition(andCond);
+		List<String> list = new LinkedList<String>();
+		list.add("1");
+		list.add("2");
+		list.add("3");
+		list.add("4");
+		for (Condition c : andCond.getNestedConditions()) {
+			assertTrue(c instanceof ObjectCondition);
+			assertTrue(list.remove(((ObjectCondition)c).getTemplateName()));
+		}
+		assertTrue(list.isEmpty());
+		assertTrue(!i.hasNext());
+	}
+	
+	public void checkSizeLimit(AndCondition cond, int limit) {
+		assertTrue(cond.getNestedConditions().size() <= limit);
+		for (Condition c : cond.getNestedConditions()) {
+			if (c instanceof AndCondition) {
+				checkSizeLimit(((AndCondition) c), limit);
+			}
+		}
+	}
+	
+	public void flattenAndCondition(AndCondition cond, AndCondition newAnd) {
+		for (Condition c : cond.getNestedConditions()) {
+			if (c instanceof AndCondition) {
+				flattenAndCondition((AndCondition)c, newAnd);
+			} else {
+				newAnd.addNestedCondition(c);
+			}
+		}
+	}
+	
+	public AndCondition flattenAndCondition(AndCondition cond) {
+		AndCondition result = new AndCondition();
+		flattenAndCondition(cond, result);
+		return result;
+	}
+	
 	public Condition initPassThreeComplete() {
 		return null;
 	}
@@ -248,15 +325,15 @@ public class JTCBeffyRuleOptimizer extends TestCase {
 		return null;
 	}
 	
-//	public void testPassOneSimple1() {
-//		List<Condition> list = initPassOneSimple1();
-//		runPassOne(list);
-//	}
+	public void testPassOneSimple1() {
+		Condition cond = initPassOneSimple1();
+		runPassOne(cond);
+	}
 	
-//	public void testPassOneSimple2() {
-//		List<Condition> list = initPassOneSimple2();
-//		runPassOne(list);
-//	}
+	public void testPassOneSimple2() {
+		Condition cond = initPassOneSimple2();
+		runPassOne(cond);
+	}
 	
 	public void testPassOneTwoComplete() {
 		Condition cond = initPassOneComplete();
@@ -285,6 +362,12 @@ public class JTCBeffyRuleOptimizer extends TestCase {
 //		System.out.println(assumedresult.dump());
 		
 		assertTrue("result does not equal assumed result", result.testEquals(assumedresult));
+	}
+	
+	public void testPassThreeSimple1() throws OptimizeRuleException {
+		Condition cond = initPassThreeSimple1();
+		Condition result = runPassThree(cond);
+		checkPassThreeSimple1(result);
 	}
 	
 	public void testPassThreeComplete() {
