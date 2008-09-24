@@ -19,6 +19,7 @@
 package org.jamocha.engine.nodes;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -29,14 +30,55 @@ import org.jamocha.engine.ReteNet;
 import org.jamocha.engine.workingmemory.WorkingMemory;
 import org.jamocha.engine.workingmemory.WorkingMemoryElement;
 import org.jamocha.parser.EvaluationException;
+import org.jamocha.parser.JamochaValue;
 
 public class AlphaQuantorDistinctionNode extends OneInputNode {
 
-	private int distinctionSlot;
+	private List<Integer> distinctionSlots;
 	
-	Map<Object,List<WorkingMemoryElement>> facts;
+	Map<Key,List<WorkingMemoryElement>> facts;
 	
-	private boolean addFact(Object key, WorkingMemoryElement f) {
+	private class Key {
+		
+		public JamochaValue[] v;
+		
+		public Key(JamochaValue[] v) {
+			this.v=v;
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + getOuterType().hashCode();
+			result = prime * result + Arrays.hashCode(v);
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (obj == null)
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			Key other = (Key) obj;
+			if (!getOuterType().equals(other.getOuterType()))
+				return false;
+			if (!Arrays.equals(v, other.v))
+				return false;
+			return true;
+		}
+
+		private AlphaQuantorDistinctionNode getOuterType() {
+			return AlphaQuantorDistinctionNode.this;
+		}
+		
+		
+	}
+	
+	private boolean addFact(Key key, WorkingMemoryElement f) {
 		List<WorkingMemoryElement> factList = facts.get(key);
 		if (factList == null) {
 			factList = new ArrayList<WorkingMemoryElement>();
@@ -47,7 +89,7 @@ public class AlphaQuantorDistinctionNode extends OneInputNode {
 		return ( sizeBefore == 0 );
 	}
 	
-	private boolean removeFact(Object key, WorkingMemoryElement f) {
+	private boolean removeFact(Key key, WorkingMemoryElement f) {
 		List<WorkingMemoryElement> factList = facts.get(key);
 		if (factList == null) {
 			return false;
@@ -58,12 +100,12 @@ public class AlphaQuantorDistinctionNode extends OneInputNode {
 	}
 	
 	@Deprecated
-	public AlphaQuantorDistinctionNode(int id, WorkingMemory memory, ReteNet net, int distinctSlot) {
+	public AlphaQuantorDistinctionNode(int id, WorkingMemory memory, ReteNet net, List<Integer> distinctSlot) {
 		super(id, memory, net);
-		this.distinctionSlot = distinctSlot;
+		this.distinctionSlots = distinctSlot;
 	}
 	
-	public AlphaQuantorDistinctionNode(Engine e, int distinctSlot) {
+	public AlphaQuantorDistinctionNode(Engine e, List<Integer> distinctSlot) {
 		this(e.getNet().nextNodeId(), e.getWorkingMemory(), e.getNet(), distinctSlot);
 	}
 
@@ -103,11 +145,13 @@ public class AlphaQuantorDistinctionNode extends OneInputNode {
 		}
 	}
 
-	private Object key(WorkingMemoryElement oldElem) throws EvaluationException {
-		return (distinctionSlot == -1 ) ?
-					oldElem.getFirstFact()
-				:
-					oldElem.getFirstFact().getSlotValue(distinctionSlot);
+	private Key key(WorkingMemoryElement oldElem) throws EvaluationException {
+		Key key = new Key(new JamochaValue[distinctionSlots.size()]);
+		for(int i=0; i< key.v.length; i++) {
+			int slotIdx = distinctionSlots.get(i);
+			key.v[i] = oldElem.getFirstFact().getSlotValue(slotIdx);
+		}
+		return key;
 	}
 
 }
