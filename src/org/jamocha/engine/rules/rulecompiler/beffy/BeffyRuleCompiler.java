@@ -17,6 +17,7 @@
  */
 package org.jamocha.engine.rules.rulecompiler.beffy;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -269,8 +270,9 @@ public class BeffyRuleCompiler implements RuleCompiler {
 			nested.acceptVisitor(this, data);
 			Node lastNode = data.getLastNode(nested);
 			//TODO discuss, how the stuff must go on here
-			int distinctionSlotIdx = 0;
-			AlphaQuantorDistinctionNode quantorNode = new AlphaQuantorDistinctionNode(engine, distinctionSlotIdx);
+			List<Integer> distinctionSlots = new ArrayList<Integer>();
+			
+			AlphaQuantorDistinctionNode quantorNode = new AlphaQuantorDistinctionNode(engine, distinctionSlots);
 			try {
 				lastNode.addChild(quantorNode);
 			} catch (NodeException e) {
