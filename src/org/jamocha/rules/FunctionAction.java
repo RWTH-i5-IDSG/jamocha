@@ -112,10 +112,10 @@ public class FunctionAction implements Action {
 				Binding binding = engine.getRuleCompiler().getBinding(bp.getVariableName(), parent);
 				try {
 					Object newObj;
-					if (binding.isObjectBinding()){
-						newObj = tuple.getFact(binding.getLeftRow());
+					if (binding.isWholeFactBinding()){
+						newObj = tuple.getFact(binding.getTupleIndex());
 					} else {
-						newObj = tuple.getFact(binding.getLeftRow()).getSlotValue(binding.getLeftIndex());
+						newObj = tuple.getFact(binding.getTupleIndex()).getSlotValue(binding.getSlotIndex());
 					}
 					params[idx] = JamochaValue.newValueAutoType(newObj);
 				} catch (EvaluationException e) {

@@ -35,6 +35,7 @@ import org.jamocha.engine.Engine;
 import org.jamocha.engine.ReteNet;
 import org.jamocha.engine.RuleCompiler;
 import org.jamocha.engine.nodes.AlphaQuantorDistinctionNode;
+import org.jamocha.engine.nodes.LeftInputAdaptorNode;
 import org.jamocha.engine.nodes.MultiBetaJoinNode;
 import org.jamocha.engine.nodes.Node;
 import org.jamocha.engine.nodes.NodeException;
@@ -44,11 +45,13 @@ import org.jamocha.engine.nodes.SimpleBetaFilterNode;
 import org.jamocha.engine.nodes.SlotFilterNode;
 import org.jamocha.engine.nodes.TerminalNode;
 import org.jamocha.engine.rules.rulecompiler.CompileRuleException;
+import org.jamocha.engine.util.MutableInteger;
 import org.jamocha.engine.workingmemory.elements.Slot;
 import org.jamocha.engine.workingmemory.elements.Template;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.RuleException;
 import org.jamocha.rules.AndCondition;
+import org.jamocha.rules.BoundConstraint;
 import org.jamocha.rules.Condition;
 import org.jamocha.rules.ConditionVisitor;
 import org.jamocha.rules.Constraint;
@@ -143,28 +146,94 @@ public class BeffyRuleCompiler implements RuleCompiler {
 	}
 	
 	private class BindingManager {
+
+		private class BindingInformation{
+			Binding b;
+			int level;
+			
+			public BindingInformation(Binding b, int level) {
+				this.b=b;
+				this.level=level;
+			}
+			
+		}
 		
-		private Map< Rule, Map<String,Binding> >  rule2bindings;
+		private Map< Rule, Map<String,BindingInformation> >  rule2bindings;
 		
-		private Map<String,Binding> getBindings(Rule r) {
-			Map<String,Binding> bindings = rule2bindings.get(r);
+		private Map<String,BindingInformation> getBindings(Rule r) {
+			Map<String,BindingInformation> bindings = rule2bindings.get(r);
 			if (bindings == null) {
-				bindings = new HashMap<String, Binding>();
+				bindings = new HashMap<String, BindingInformation>();
 				rule2bindings.put(r, bindings);
 			}
 			return bindings;
 		}
 		
-		public Binding getBinding(Rule r, String varName) {
+		private BindingInformation getBindingInformation(Rule r, String varName) {
 			return getBindings(r).get(varName);
 		}
 		
-		public void putBinding(Rule r, String varName, Binding binding) {
+		public Binding getBinding(Rule r, String varName) {
+			return getBindingInformation(r,varName).b;
+		}
+		
+		private void putBinding(Rule r, String varName, BindingInformation binding) {
 			getBindings(r).put(varName, binding);
 		}
 		
 		public BindingManager() {
-			rule2bindings = new HashMap<Rule, Map<String,Binding>>();			
+			rule2bindings = new HashMap<Rule, Map<String,BindingInformation>>();			
+		}
+
+		private void boundConstraintOccurs(BoundConstraint bc, CompileTableau data) {
+			// we don't need negated occurences, since we only use them as
+			// value provider in the action part
+			if (bc.isNegated()) return;
+			
+			// we don't need occurences e.g. in test-conditions and so on
+			if (!(bc.getParentCondition() instanceof ObjectCondition)) return;
+			
+			// some convenience variables
+			Rule r = data.rule;
+			ObjectCondition ocond = (ObjectCondition) ( bc.getParentCondition());
+			String varName = bc.getConstraintName();
+			
+			// compute the scope-level of this occurence
+			int level = 0;
+			{
+				Condition ccond = bc.getParentCondition();
+				while (ccond != null) {
+					level++;
+					ccond = ccond.getParentCondition();
+				}
+			}
+			
+			// if our occurence is deeper inside than the existing occurence,
+			// throw the new one away,
+			BindingInformation bin = bindings.getBindingInformation(r, varName);
+			if (bin!=null && bin.level<level) return;
+			
+			// get the tuple index from our new occurence
+			// (its a mutable integer, because at this moment, the concrete
+			// position inside the tuple is unknown)
+			MutableInteger tupleIdx = data.getTupleIndexFromCondition(bc.getParentCondition());
+			
+			// determine the slot index (-1 for whole-fact binding)
+			int slotIdx = -1;
+			if (!bc.isFactBinding()) {
+				Template t = engine.findTemplate(ocond.getTemplateName());
+				Slot s = t.getSlot(bc.getSlotName());
+				slotIdx = s.getId();
+			}
+
+			// generate new binding and its binding-information record
+			Binding b = new Binding(tupleIdx, slotIdx);
+			BindingInformation binf = new BindingInformation(b,level);
+			
+			// store it
+			putBinding(r,varName, binf);
+			
+			
 		}
 		
 		
@@ -180,11 +249,23 @@ public class BeffyRuleCompiler implements RuleCompiler {
 		
 		private Set<Constraint> handled;
 		
+		private Map<Condition, MutableInteger> condition2TupleIdx;
+		
 		public CompileTableau(Rule r) {
 			this.rule = r;
 			this.success = true;
 			this.lastNodes = new HashMap<Condition, Node>();
 			this.handled = new HashSet<Constraint>();
+			this.condition2TupleIdx = new HashMap<Condition, MutableInteger>();
+		}
+
+		public MutableInteger getTupleIndexFromCondition(Condition condition) {
+			MutableInteger val = condition2TupleIdx.get(condition);
+			if (val == null) {
+				val = new MutableInteger(0);
+				condition2TupleIdx.put(condition, val);
+			}
+			return val;
 		}
 
 		public void markAsHandled(Constraint c) {
@@ -242,8 +323,18 @@ public class BeffyRuleCompiler implements RuleCompiler {
 				try {
 					Condition c1 = c.getNestedConditions().get(0);
 					Condition c2 = c.getNestedConditions().get(1);
+					LeftInputAdaptorNode lia = new LeftInputAdaptorNode(engine);
+					Condition alphaCond = (isAlpha(c1)) ? c1 : c2;
+					Node n = data.getLastNode(alphaCond);
+					n.addChild(lia);
+					data.setLastNode(alphaCond, lia);
 					data.getLastNode(c1).addChild(joinNode);
 					data.getLastNode(c2).addChild(joinNode);
+					// fix the tuple indices for c1 and c2
+					MutableInteger oldIdxC1 = data.getTupleIndexFromCondition(c1);
+					MutableInteger oldIdxC2 = data.getTupleIndexFromCondition(c2);
+					oldIdxC2.set(oldIdxC1.get() + 1);
+					
 				} catch (NodeException e) {
 					logAndFail(e, data);
 				}
@@ -307,8 +398,12 @@ public class BeffyRuleCompiler implements RuleCompiler {
 						SlotFilterNode filterNode = new SlotFilterNode(engine, operator, slot);
 						lastNode.addChild(filterNode);
 						lastNode = filterNode;
-						data.markAsHandled(lc);
+					} else if (constr instanceof BoundConstraint) {
+						BoundConstraint bc = (BoundConstraint) constr;
+						bindings.boundConstraintOccurs(bc, data);
+						
 					}
+					data.markAsHandled(constr);
 				}
 			} catch (NodeException e) {
 				logAndFail(e, data);
@@ -341,6 +436,7 @@ public class BeffyRuleCompiler implements RuleCompiler {
 		}
 
 		public CompileTableau visit(TestCondition c, CompileTableau data) {
+			
 			// TODO Auto-generated method stub
 			return data;
 		}
@@ -425,7 +521,7 @@ public class BeffyRuleCompiler implements RuleCompiler {
 			return false;
 		}
 	}
-
+	
 	public Binding getBinding(String varName, Rule r) {
 		return bindings.getBinding(r, varName);
 	}

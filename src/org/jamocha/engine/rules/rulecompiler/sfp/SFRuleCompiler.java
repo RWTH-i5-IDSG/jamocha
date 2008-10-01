@@ -769,14 +769,14 @@ public class SFRuleCompiler implements RuleCompiler {
 
 		// create bindings for actions:
 		for (final String variable : bindingAddressTable.row.keySet()) {
-			final BindingAddress pivot = bindingAddressTable.getPivot(variable);
-			final Binding b = new Binding();
-			b.setLeftIndex(pivot.slotIndex);
-			if (b.getLeftIndex() == -1)
-				b.setIsObjectVar(true);
-			b.setLeftRow(pivot.tupleIndex);
-			b.setVarName(variable);
-			addRuleBinding(rule, b);
+//			final BindingAddress pivot = bindingAddressTable.getPivot(variable);
+//			final Binding b = new Binding();
+//			b.setLeftIndex(pivot.slotIndex);
+//			if (b.getLeftIndex() == -1)
+//				b.setIsObjectVar(true);
+//			b.setLeftRow(pivot.tupleIndex);
+//			b.setVarName(variable);
+//			addRuleBinding(rule, b);
 		}
 
 		// get prebindings from table:
@@ -1527,9 +1527,6 @@ public class SFRuleCompiler implements RuleCompiler {
 	}
 
 	public Binding getBinding(final String varName, final Rule r) {
-		for (final Binding b : getRuleBindings(r))
-			if (b.getVarName().equals(varName))
-				return b;
 		return null;
 	}
 }
