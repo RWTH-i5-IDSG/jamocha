@@ -176,6 +176,15 @@ TOKEN :
 | < ARROW: "=>">
 | < DECLARE: "declare" >
 | < SALIENCE: "salience" >
+| < TEMPORALVALIDITY: "temporal-validity" >
+| < SECOND: "second" >
+| < MINUTE: "minute" >
+| < HOUR: "hour" >
+| < DAY: "day" >
+| < MONTH: "month" >
+| < YEAR: "year" >
+| < WEEKDAY: "weekday" >
+| < DURATION: "duration" >
 | < AUTOFOCUS: "auto-focus" >
 | <RULEVERSION: "rule-version">
 | <	TYPE: "type" >
@@ -1243,6 +1252,9 @@ SimpleNode RHSPattern() :
 { 
 	<LBRACE>
 		Symbol() //Template Name 
+		[
+			TemporalValidity()
+		]
 		(
 		    RHSField()
 		)*
@@ -1394,9 +1406,113 @@ void RuleProperty() #void:
      		Salience()		
      	| 	AutoFocus()
      	|	RuleVersion()
+     	|   TemporalValidity()
 	)
 	<RBRACE>
 }
+
+
+/**
+*		Temporal Validity
+**/
+
+SimpleNode TemporalValidity() :
+{}
+{
+	<TEMPORALVALIDITY>
+	(
+	    LOOKAHEAD(2)
+      	TemporalAttribute()
+    )+
+	{ return jjtThis; }
+}
+
+/**
+*		Temporal Attribute
+**/
+
+void TemporalAttribute() #void: 
+{}
+{
+    <LBRACE>
+     	(
+     		TASecond()		
+     	| 	TAMinute()
+     	|	TAHour()
+     	|   TADay()
+     	|   TAMonth()
+     	|   TAYear()
+     	|   TAWeekday()
+     	|   TADuration()
+	)
+	<RBRACE>
+}
+
+SimpleNode TASecond(): 
+{}
+{
+	<SECOND>
+	Expression()
+	{ return jjtThis; }
+}
+
+SimpleNode TAMinute(): 
+{}
+{
+	<MINUTE>
+	Expression()
+	{ return jjtThis; }
+}
+
+SimpleNode TAHour(): 
+{}
+{
+	<HOUR>
+	Expression()
+	{ return jjtThis; }
+}
+
+SimpleNode TADay(): 
+{}
+{
+	<DAY>
+	Expression()
+	{ return jjtThis; }
+}
+
+SimpleNode TAMonth(): 
+{}
+{
+	<MONTH>
+	Expression()
+	{ return jjtThis; }
+}
+
+SimpleNode TAYear(): 
+{}
+{
+	<YEAR>
+	Expression()
+	{ return jjtThis; }
+}
+
+SimpleNode TAWeekday(): 
+{}
+{
+	<WEEKDAY>
+	Expression()
+	{ return jjtThis; }
+}
+
+SimpleNode TADuration(): 
+{}
+{
+	<DURATION>
+	Expression()
+	{ return jjtThis; }
+}
+
+
 
 
 

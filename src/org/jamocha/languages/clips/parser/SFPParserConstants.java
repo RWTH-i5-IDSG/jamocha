@@ -57,72 +57,81 @@ public interface SFPParserConstants {
   int ARROW = 39;
   int DECLARE = 40;
   int SALIENCE = 41;
-  int AUTOFOCUS = 42;
-  int RULEVERSION = 43;
-  int TYPE = 44;
-  int TRUE = 45;
-  int FALSE = 46;
-  int NIL = 47;
-  int NOT = 48;
-  int AND = 49;
-  int OR = 50;
-  int OF = 51;
-  int LOGICAL = 52;
-  int TEST = 53;
-  int EXISTS = 54;
-  int FORALL = 55;
-  int OBJECT = 56;
-  int ASSIGN = 57;
-  int TILDE = 58;
-  int AMPERSAND = 59;
-  int LINE = 60;
-  int COLON = 61;
-  int EQUALS = 62;
-  int VARIABLE_TYPE = 63;
-  int SYMBOL_TYPE = 64;
-  int STRING_TYPE = 65;
-  int DATETIME_TYPE = 66;
-  int LEXEME_TYPE = 67;
-  int INTEGER_TYPE = 68;
-  int SHORT_TYPE = 69;
-  int LONG_TYPE = 70;
-  int FLOAT_TYPE = 71;
-  int DOUBLE_TYPE = 72;
-  int NUMBER_TYPE = 73;
-  int BOOLEAN_TYPE = 74;
-  int EXTERNAL_ADDRESS_TYPE = 75;
-  int FACT_ADDRESS_TYPE = 76;
-  int ALLOWED_SYMBOLS = 77;
-  int ALLOWED_STRINGS = 78;
-  int ALLOWED_LEXEMES = 79;
-  int ALLOWED_INTEGERS = 80;
-  int ALLOWED_LONGS = 81;
-  int ALLOWED_SHORTS = 82;
-  int ALLOWED_FLOATS = 83;
-  int ALLOWED_DOUBLES = 84;
-  int ALLOWED_NUMBERS = 85;
-  int ALLOWED_VALUES = 86;
-  int RANGE = 87;
-  int CARDINALITY = 88;
-  int ACTIVE = 89;
-  int ASSERT = 90;
-  int RETRACT = 91;
-  int FIND_FACT_BY_FACT = 92;
-  int MODIFY = 93;
-  int DUPLICATE = 94;
-  int FACT_RELATION = 95;
-  int IF = 96;
-  int THEN = 97;
-  int ELSE = 98;
-  int WHILE = 99;
-  int DO = 100;
-  int LOOP_FOR_COUNT = 101;
-  int SWITCH = 102;
-  int CASE = 103;
-  int VARSYMBOL = 104;
-  int SINGLEVAR = 105;
-  int MULTIVAR = 106;
-  int SYMBOL = 107;
+  int TEMPORALVALIDITY = 42;
+  int SECOND = 43;
+  int MINUTE = 44;
+  int HOUR = 45;
+  int DAY = 46;
+  int MONTH = 47;
+  int YEAR = 48;
+  int WEEKDAY = 49;
+  int DURATION = 50;
+  int AUTOFOCUS = 51;
+  int RULEVERSION = 52;
+  int TYPE = 53;
+  int TRUE = 54;
+  int FALSE = 55;
+  int NIL = 56;
+  int NOT = 57;
+  int AND = 58;
+  int OR = 59;
+  int OF = 60;
+  int LOGICAL = 61;
+  int TEST = 62;
+  int EXISTS = 63;
+  int FORALL = 64;
+  int OBJECT = 65;
+  int ASSIGN = 66;
+  int TILDE = 67;
+  int AMPERSAND = 68;
+  int LINE = 69;
+  int COLON = 70;
+  int EQUALS = 71;
+  int VARIABLE_TYPE = 72;
+  int SYMBOL_TYPE = 73;
+  int STRING_TYPE = 74;
+  int DATETIME_TYPE = 75;
+  int LEXEME_TYPE = 76;
+  int INTEGER_TYPE = 77;
+  int SHORT_TYPE = 78;
+  int LONG_TYPE = 79;
+  int FLOAT_TYPE = 80;
+  int DOUBLE_TYPE = 81;
+  int NUMBER_TYPE = 82;
+  int BOOLEAN_TYPE = 83;
+  int EXTERNAL_ADDRESS_TYPE = 84;
+  int FACT_ADDRESS_TYPE = 85;
+  int ALLOWED_SYMBOLS = 86;
+  int ALLOWED_STRINGS = 87;
+  int ALLOWED_LEXEMES = 88;
+  int ALLOWED_INTEGERS = 89;
+  int ALLOWED_LONGS = 90;
+  int ALLOWED_SHORTS = 91;
+  int ALLOWED_FLOATS = 92;
+  int ALLOWED_DOUBLES = 93;
+  int ALLOWED_NUMBERS = 94;
+  int ALLOWED_VALUES = 95;
+  int RANGE = 96;
+  int CARDINALITY = 97;
+  int ACTIVE = 98;
+  int ASSERT = 99;
+  int RETRACT = 100;
+  int FIND_FACT_BY_FACT = 101;
+  int MODIFY = 102;
+  int DUPLICATE = 103;
+  int FACT_RELATION = 104;
+  int IF = 105;
+  int THEN = 106;
+  int ELSE = 107;
+  int WHILE = 108;
+  int DO = 109;
+  int LOOP_FOR_COUNT = 110;
+  int SWITCH = 111;
+  int CASE = 112;
+  int VARSYMBOL = 113;
+  int SINGLEVAR = 114;
+  int MULTIVAR = 115;
+  int SYMBOL = 116;
 
   int DEFAULT = 0;
 
@@ -169,6 +178,15 @@ public interface SFPParserConstants {
     "\"=>\"",
     "\"declare\"",
     "\"salience\"",
+    "\"temporal-validity\"",
+    "\"second\"",
+    "\"minute\"",
+    "\"hour\"",
+    "\"day\"",
+    "\"month\"",
+    "\"year\"",
+    "\"weekday\"",
+    "\"duration\"",
     "\"auto-focus\"",
     "\"rule-version\"",
     "\"type\"",

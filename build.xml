@@ -11,7 +11,6 @@
 		<property name="bin" value="${basedir}/bin" />
 		<property name="dist" value="${basedir}/dist" />
 		<property name="packages" value="${basedir}/packages" />
-		<property name="javacc.home" value="${env.JAVACC}"/>
 		<mkdir dir="${bin}" />
 		<mkdir dir="${dist}" />
 		<path id="classpath">
@@ -24,7 +23,7 @@
 	</target>
 
 	<target name="parser" depends="init" description="Generate parser description for javacc">
-		<echo message="${javacc.home}">
+		<echo message="INFORMATION: You need to set up the property javacc.home in your Ant Environment!">
 		</echo>
 		<!-- sl parser -->
 		<jjtree javacchome="${javacc.home}"  target="${src}/org/jamocha/languages/sl/parser/SL.jjt" outputdirectory="${src}/org/jamocha/languages/sl/parser/" nodeusesparser="true" />

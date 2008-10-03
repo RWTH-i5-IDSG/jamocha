@@ -1230,4 +1230,49 @@ public class SFPInterpreter implements SFPParserVisitor {
 		return ofc;
 	}
 
+	public Object visit(SFPTemporalValidity node, Object data) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public Object visit(SFPTASecond node, Object data) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public Object visit(SFPTAMinute node, Object data) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public Object visit(SFPTAHour node, Object data) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public Object visit(SFPTADay node, Object data) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public Object visit(SFPTAMonth node, Object data) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public Object visit(SFPTAYear node, Object data) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public Object visit(SFPTAWeekday node, Object data) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public Object visit(SFPTADuration node, Object data) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }
