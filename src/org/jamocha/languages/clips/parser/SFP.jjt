@@ -1335,18 +1335,14 @@ SimpleNode DefruleConstruct() :
     		[ 
     		  	ConstructDescription()	
     		]
-    		( LOOKAHEAD(3)
-    			(
+    		( 
+    			[
+    				LOOKAHEAD(3)
     				Declaration()
-    				(
+    			]
+   				(
     					ConditionalElement()
-    				)* 
-    			) |
-    			(
-    				(
-    					ConditionalElement()
-    				)* 
-    			)
+   				)* 
     		)
     			<ARROW>
         		ActionList()
