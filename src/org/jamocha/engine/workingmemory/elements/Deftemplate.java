@@ -309,53 +309,6 @@ public class Deftemplate implements Template, Serializable {
 		return newfact;
 	}
 
-	public Fact createTemporalFact(final Object[] data, final long id,
-			final Engine engine) throws EvaluationException {
-		final Slot[] values = createFactSlots(engine);
-		long expire = 0;
-		String source = "";
-		String service = "";
-		long valid = 0;
-		for (int idz = 0; idz < data.length; idz++) {
-			final Slot s = (Slot) data[idz];
-			// check to see if the slot is a temporal fact attribute
-			if (isTemporalAttribute(s)) {
-				if (s.getName().equals(TemporalFact.EXPIRATION))
-					expire = s.getValue().getLongValue();
-				else if (s.getName().equals(TemporalFact.SERVICE_TYPE))
-					service = s.getValue().getStringValue();
-				else if (s.getName().equals(TemporalFact.SOURCE))
-					source = s.getValue().getStringValue();
-				else if (s.getName().equals(TemporalFact.VALIDITY))
-					valid = s.getValue().getLongValue();
-			} else
-				for (int idx = 0; idx < values.length; idx++)
-					if (values[idx].getName().equals(s.getName()))
-						if (s.value == null)
-							values[idx].value = JamochaValue.NIL;
-						else
-							values[idx].value = s.value;
-		}
-		final TemporalDeffact newfact = new TemporalDeffact(this, values, id);
-		// we call this to create the string used to map the fact.
-		newfact.setExpirationTime(expire);
-		newfact.setServiceType(service);
-		newfact.setSource(source);
-		newfact.setValidity((int) valid);
-		newfact.equalityIndex();
-		return newfact;
-	}
-
-	public static boolean isTemporalAttribute(final Slot s) {
-		if (s.getName().equals(TemporalFact.EXPIRATION)
-				|| s.getName().equals(TemporalFact.SERVICE_TYPE)
-				|| s.getName().equals(TemporalFact.SOURCE)
-				|| s.getName().equals(TemporalFact.VALIDITY))
-			return true;
-		else
-			return false;
-	}
-
 	/**
 	 * Create the facts for the slots
 	 * 

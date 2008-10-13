@@ -41,7 +41,6 @@ public class RuleEngineFunctions extends FunctionGroup {
 	public void loadFunctions(FunctionMemory functionMem) {
 		addFunction(functionMem, new Apply());
 		addFunction(functionMem, new Assert());
-		addFunction(functionMem, new AssertTemporal());
 		addFunction(functionMem, new Bind());
 		addFunction(functionMem, new Clear());
 		addFunction(functionMem, new Deffunction());
