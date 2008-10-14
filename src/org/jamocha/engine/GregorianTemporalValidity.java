@@ -1,5 +1,6 @@
 package org.jamocha.engine;
 
+import java.util.Arrays;
 import java.util.GregorianCalendar;
 
 /* TODO:
@@ -10,6 +11,60 @@ import java.util.GregorianCalendar;
 
 public class GregorianTemporalValidity implements TemporalValidity {
 
+	// einen Monat maximales Vorwärtsfenster
+	public final long MAXIMUM_FORWARD_WINDOW = 60 * 60 * 24 * 30;
+
+	class IntervalLayer {
+		
+		private int field;
+		
+		private int[] beginPoints;
+		
+		/**
+		 * erstellt eine Intervallebene. Mit 'field' wird eine Konstante aus
+		 * GregorianCalendar übergeben, die den Typ der Ebene angibt (Monat,
+		 * Jahr, usw). 'beginPoints' sind die Startpunkte dieser Intervallebene.
+		 * Es wird davon ausgegangen, dass diese Startpunkte sortiert sind.
+		 */
+		public IntervalLayer(int field, int[] beginPoints) {
+			this.field=field;
+			this.beginPoints=beginPoints;
+		}
+
+		/**
+		 * gibt true zurück, gdw 'timestamp' in dieser Intervallebene aktiviert
+		 * ist
+		 */
+		public boolean isActivated(long timestamp) {
+			GregorianCalendar b = new GregorianCalendar();
+			b.setTimeInMillis(timestamp);
+			int f = b.get(field);
+			return ( Arrays.binarySearch(beginPoints, f) >= 0 );
+		}
+		
+		public long nextActivatedFrom(long timestamp) {
+			GregorianCalendar b = new GregorianCalendar();
+			b.setTimeInMillis(timestamp);
+			int f = b.get(field);
+			// bestimme nächstmöglichen Eintrag
+			int idx = 0;
+			while (beginPoints[idx] < f) {
+				idx++;
+				if (idx == beginPoints.length) {
+					idx = 0;
+					break;
+				}
+			}
+			int newFieldval = beginPoints[idx];
+			while (f != newFieldval) {
+				b.add(field, 1);
+				f = b.get(field);
+			}
+			return b.getTimeInMillis();
+		}
+	}
+	
+	
 	/**
 	 * expandiert eine Eingabe im "crontab"-Format, beispielsweise '* /5'
 	 * zu einer Liste von Ganzzahlen.
@@ -20,8 +75,9 @@ public class GregorianTemporalValidity implements TemporalValidity {
 	 * @param cronStyle 	Der Eingabestring
 	 * @param dBegin 		Der Beginn des Wertebereichs
 	 * @param dEnd			Das Ende des Wertebereichs (inklusiv)
+	 * @param type			Die GregorianCalendar-Konstante für das Feld
 	 */
-	private static int[] expand(String cronStyle, int dBegin, int dEnd) 
+	private IntervalLayer expand(String cronStyle, int dBegin, int dEnd, int type) 
 			throws NumberFormatException{
 		if (cronStyle.startsWith("*")) {
 			int stepSize;
@@ -44,7 +100,7 @@ public class GregorianTemporalValidity implements TemporalValidity {
 			int[] result = new int[cnt];
 			int j=0;
 			for (int i=dBegin; i<=dEnd; i+=stepSize) result[j++]=i;
-			return result;
+			return new IntervalLayer(type,result);
 		} else {
 			// FALL "n,m,o,p,q,..."
 			String[] values = cronStyle.split(",");
@@ -55,25 +111,76 @@ public class GregorianTemporalValidity implements TemporalValidity {
 				if (result[i] < dBegin || result[i] > dEnd)
 					throw new NumberFormatException();
 			}
-			return result;
+			return new IntervalLayer(type,result);
 		}
 	}
 	
-	private int[] secs, mins, hours,days,months,years,weekdays;
+	private IntervalLayer[] intervalLayers;
+	
 	private long duration;
 	
 	public GregorianTemporalValidity(
 			String sec, String min, String hour, String day, String month,
 			String year, String weekday, long duration) {
-		this.secs     = expand(sec,0,59);
-		this.mins     = expand(min,0,59);
-		this.hours    = expand(hour,0,23);
-		this.days     = expand(day,1,31);
-		this.months   = expand(month,1,12);
-		this.years    = expand(year,1980,3000); // hier lauert der y3k-bug :-)
-		this.weekdays = expand(weekday,0,6);
+		
+		IntervalLayer secs, mins, hours,days,months,years,weekdays;
+		
+		secs     = expand(sec,0,59,GregorianCalendar.SECOND);
+		mins     = expand(min,0,59,GregorianCalendar.MINUTE);
+		hours    = expand(hour,0,23,GregorianCalendar.HOUR_OF_DAY);
+		days     = expand(day,1,31,GregorianCalendar.DAY_OF_MONTH);
+		months   = expand(month,1,12,GregorianCalendar.MONTH);
+		years    = expand(year,1980,3000,GregorianCalendar.YEAR); // hier lauert der y3k-bug :-)
+		weekdays = expand(weekday,0,6,GregorianCalendar.DAY_OF_WEEK);
+		
+		intervalLayers = new IntervalLayer[7];
+		intervalLayers[0] = years;
+		intervalLayers[1] = months;
+		intervalLayers[2] = days;
+		intervalLayers[3] = weekdays;
+		intervalLayers[4] = hours;
+		intervalLayers[5] = mins;
+		intervalLayers[6] = secs;
+		
 		this.duration = duration;
 	}
+	
+	private long getNextEventHelper(long from, long forward_distance) {
+
+		/* Gebe MAXIMUM_FORWARD_DISTANCE+1 zurück, wenn wir über das maximale
+		 * Vorwärtsfenster hinaus geraten sind. Es dient hier als
+		 * Ersatz für "unendlich".
+		 * Man kann hier nicht Long.MAX_VALUE benutzen, da sonst die weitere
+		 * Arithmetik in getNextEvent(long) nicht funktionieren würde.
+		 */
+		if (forward_distance> MAXIMUM_FORWARD_WINDOW) return MAXIMUM_FORWARD_WINDOW;
+		
+		long t = from;
+		
+		/*
+		 * "Durchhangeln" über die Intervallebenen
+		 */
+		for(IntervalLayer layer : intervalLayers) {
+			if (!layer.isActivated(t)) {
+				t = layer.nextActivatedFrom(t);
+			}
+		}
+		
+		/* Überprüfe, ob der Wert immernoch in allen Intervallebenen aktivierend
+		 * ist */
+		boolean isIn=true;
+		for(IntervalLayer layer : intervalLayers) {
+			isIn = isIn && layer.isActivated(t);
+		}
+		
+		if (isIn) {
+			return t;
+		} else {
+			return getNextEventHelper(t, t-from);
+		}
+
+	}
+	
 	
 	/**
 	 * Ein Ereigniszeitpunkt ist ein Zeitpunkt, an dem ein Intervall beginnt
@@ -81,34 +188,15 @@ public class GregorianTemporalValidity implements TemporalValidity {
 	 * Ereigniszeitpunkt.
 	 */
 	public EventPoint getNextEvent(long from) {
-		// Bestimme aus dem Timestamp die verschiedenen Zeitfelder.
-		GregorianCalendar t = new GregorianCalendar();
-		t.setTimeInMillis(from);
-		int sec = t.get(GregorianCalendar.SECOND);
-		int min = t.get(GregorianCalendar.MINUTE);
-		int hour = t.get(GregorianCalendar.HOUR_OF_DAY);
-		int day = t.get(GregorianCalendar.DAY_OF_MONTH);
-		int month = t.get(GregorianCalendar.MONTH)+1;
-		int year = t.get(GregorianCalendar.YEAR);
-		int weekday;
-		/* Da der Rückgabewert für Wochentage eine der Wochentags-Konstanten
-		 * ist, deren Werte in der Java-API Dokumentation nicht klar definiert
-		 * sind, muss man hier diese switch-Anweisung durchführen.
-		 */
-		switch (GregorianCalendar.DAY_OF_WEEK) {
-		case GregorianCalendar.MONDAY:    weekday=0; break;
-		case GregorianCalendar.TUESDAY:   weekday=1; break;
-		case GregorianCalendar.WEDNESDAY: weekday=2; break;
-		case GregorianCalendar.THURSDAY:  weekday=3; break;
-		case GregorianCalendar.FRIDAY:    weekday=4; break;
-		case GregorianCalendar.SATURDAY:  weekday=5; break;
-		case GregorianCalendar.SUNDAY:    weekday=6; break;
-		}
+	
+		long r1 = getNextEventHelper(from, 0);
+		long r2 = getNextEventHelper(from-duration, 0) + duration;
 		
+		EventPoint result = (r1 < r2) ? 
+						new EventPoint(EventPoint.Type.START, r1) :
+						new EventPoint(EventPoint.Type.STOP,  r2) ;
 		
-		
-
-		return null;
+		return result;
 	}
 
 }

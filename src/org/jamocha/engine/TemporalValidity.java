@@ -6,9 +6,22 @@ public interface TemporalValidity {
 		
 		public enum Type {START, STOP};
 		
-		long timestamp;
+		private long timestamp;
 		
-		Type type;
+		private Type type;
+		
+		public EventPoint(Type type, long timestamp) {
+			this.type = type;
+			this.timestamp = timestamp;
+		}
+		
+		public long getTimestamp() {
+			return timestamp;
+		}
+		
+		public Type getType() {
+			return type;
+		}
 		
 	}
 	
