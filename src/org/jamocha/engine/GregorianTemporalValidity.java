@@ -12,7 +12,7 @@ import java.util.GregorianCalendar;
 public class GregorianTemporalValidity implements TemporalValidity {
 
 	// einen Monat maximales Vorwärtsfenster
-	public final long MAXIMUM_FORWARD_WINDOW = 60 * 60 * 24 * 30;
+	public final long MAXIMUM_FORWARD_WINDOW = 60l * 60l * 24l * 30l * 1000l;
 
 	class IntervalLayer {
 		
@@ -30,6 +30,12 @@ public class GregorianTemporalValidity implements TemporalValidity {
 			this.field=field;
 			this.beginPoints=beginPoints;
 		}
+		
+		private int getFromField(GregorianCalendar g, int field) {
+			int result = g.get(field);
+			if (field == GregorianCalendar.MONTH) result++;
+			return result;
+		}
 
 		/**
 		 * gibt true zurück, gdw 'timestamp' in dieser Intervallebene aktiviert
@@ -37,15 +43,15 @@ public class GregorianTemporalValidity implements TemporalValidity {
 		 */
 		public boolean isActivated(long timestamp) {
 			GregorianCalendar b = new GregorianCalendar();
-			b.setTimeInMillis(timestamp);
-			int f = b.get(field);
+			b.setTimeInMillis(timestamp*1000);
+			int f = getFromField(b,field);
 			return ( Arrays.binarySearch(beginPoints, f) >= 0 );
 		}
 		
 		public long nextActivatedFrom(long timestamp) {
 			GregorianCalendar b = new GregorianCalendar();
-			b.setTimeInMillis(timestamp);
-			int f = b.get(field);
+			b.setTimeInMillis(timestamp*1000);
+			int f = getFromField(b,field);
 			// bestimme nächstmöglichen Eintrag
 			int idx = 0;
 			while (beginPoints[idx] < f) {
@@ -58,9 +64,9 @@ public class GregorianTemporalValidity implements TemporalValidity {
 			int newFieldval = beginPoints[idx];
 			while (f != newFieldval) {
 				b.add(field, 1);
-				f = b.get(field);
+				f = getFromField(b,field);
 			}
-			return b.getTimeInMillis();
+			return b.getTimeInMillis()/1000;
 		}
 	}
 	
@@ -79,6 +85,7 @@ public class GregorianTemporalValidity implements TemporalValidity {
 	 */
 	private IntervalLayer expand(String cronStyle, int dBegin, int dEnd, int type) 
 			throws NumberFormatException{
+		if (cronStyle.isEmpty()) cronStyle="*";
 		if (cronStyle.startsWith("*")) {
 			int stepSize;
 			if (cronStyle.equals("*")) {
@@ -153,7 +160,7 @@ public class GregorianTemporalValidity implements TemporalValidity {
 		 * Man kann hier nicht Long.MAX_VALUE benutzen, da sonst die weitere
 		 * Arithmetik in getNextEvent(long) nicht funktionieren würde.
 		 */
-		if (forward_distance> MAXIMUM_FORWARD_WINDOW) return MAXIMUM_FORWARD_WINDOW;
+		if (forward_distance > MAXIMUM_FORWARD_WINDOW) return Long.MAX_VALUE/2;
 		
 		long t = from;
 		
