@@ -26,7 +26,7 @@ public class JTCGregorianTemporalValidity extends TestCase {
 		long tinm = t.getTimeInMillis() / 1000;
 		
 		for (int i=0; i< 10; i++) {
-			TemporalValidity.EventPoint next = gtv.getNextEvent(tinm);
+			TemporalValidity.EventPoint next = gtv.getNextEvent(tinm+1);
 			tinm=next.getTimestamp();
 			
 			t.setTimeInMillis(tinm*1000);

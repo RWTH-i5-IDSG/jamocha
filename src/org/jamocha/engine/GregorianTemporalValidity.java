@@ -43,14 +43,14 @@ public class GregorianTemporalValidity implements TemporalValidity {
 		 */
 		public boolean isActivated(long timestamp) {
 			GregorianCalendar b = new GregorianCalendar();
-			b.setTimeInMillis(timestamp*1000);
+			b.setTimeInMillis(timestamp);
 			int f = getFromField(b,field);
 			return ( Arrays.binarySearch(beginPoints, f) >= 0 );
 		}
 		
 		public long nextActivatedFrom(long timestamp) {
 			GregorianCalendar b = new GregorianCalendar();
-			b.setTimeInMillis(timestamp*1000);
+			b.setTimeInMillis(timestamp);
 			int f = getFromField(b,field);
 			// bestimme nächstmöglichen Eintrag
 			int idx = 0;
@@ -66,8 +66,22 @@ public class GregorianTemporalValidity implements TemporalValidity {
 				b.add(field, 1);
 				f = getFromField(b,field);
 			}
-			return b.getTimeInMillis()/1000;
+			return b.getTimeInMillis();
 		}
+		
+		public long setToBegin(long time) {
+			GregorianCalendar t = new GregorianCalendar();
+			t.setTimeInMillis(time);
+			switch(field) {
+			case GregorianCalendar.MONTH: t.set(GregorianCalendar.MONTH, 0);
+			case GregorianCalendar.DAY_OF_MONTH: t.set(GregorianCalendar.DAY_OF_MONTH, 1);
+			case GregorianCalendar.HOUR_OF_DAY: t.set(GregorianCalendar.HOUR_OF_DAY, 0);
+			case GregorianCalendar.MINUTE: t.set(GregorianCalendar.MINUTE, 0);
+			case GregorianCalendar.SECOND: t.set(GregorianCalendar.SECOND, 0);
+			}
+			return t.getTimeInMillis();
+		}
+		
 	}
 	
 	
@@ -167,9 +181,11 @@ public class GregorianTemporalValidity implements TemporalValidity {
 		/*
 		 * "Durchhangeln" über die Intervallebenen
 		 */
-		for(IntervalLayer layer : intervalLayers) {
+		for(int i=0; i< intervalLayers.length; i++) {
+			IntervalLayer layer = intervalLayers[i];
 			if (!layer.isActivated(t)) {
 				t = layer.nextActivatedFrom(t);
+				for (int j=i+1; j < intervalLayers.length; j++) t=intervalLayers[j].setToBegin(t);
 			}
 		}
 		
@@ -196,12 +212,15 @@ public class GregorianTemporalValidity implements TemporalValidity {
 	 */
 	public EventPoint getNextEvent(long from) {
 	
-		long r1 = getNextEventHelper(from, 0);
-		long r2 = getNextEventHelper(from-duration, 0) + duration;
+		long r1 = getNextEventHelper(from*1000, 0);
+		long r2 = getNextEventHelper((from-duration)*1000, 0) + duration*1000;
+		
+		assert r1 % 1000 == 0;
+		assert r2 % 1000 == 0;
 		
 		EventPoint result = (r1 < r2) ? 
-						new EventPoint(EventPoint.Type.START, r1) :
-						new EventPoint(EventPoint.Type.STOP,  r2) ;
+						new EventPoint(EventPoint.Type.START, r1/1000) :
+						new EventPoint(EventPoint.Type.STOP,  r2/1000) ;
 		
 		return result;
 	}
