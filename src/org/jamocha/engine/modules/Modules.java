@@ -31,6 +31,7 @@ import org.jamocha.communication.events.ModulesChangedEventListener;
 import org.jamocha.communication.events.ModulesChangedEvent.ModulesChangedEventType;
 import org.jamocha.engine.Engine;
 import org.jamocha.engine.configurations.AssertConfiguration;
+import org.jamocha.engine.configurations.TemporalValidityConfiguration;
 import org.jamocha.engine.workingmemory.elements.Deftemplate;
 import org.jamocha.engine.workingmemory.elements.Fact;
 import org.jamocha.engine.workingmemory.elements.OrderedTemplate;
@@ -216,13 +217,21 @@ public class Modules implements SettingsChangedListener, Serializable {
 	public Fact createFact(final AssertConfiguration ac)
 			throws EvaluationException {
 		final Template tmpl = getTemplate(currentModule, ac.getTemplateName());
-
+		Fact result;
 		if (tmpl == null)
-			return createFact(ac, new OrderedTemplate(ac.getTemplateName()));
+			result= createFact(ac, new OrderedTemplate(ac.getTemplateName()));
 		else if (tmpl instanceof Deftemplate)
-			return createFact(ac, (Deftemplate) tmpl);
+			result= createFact(ac, (Deftemplate) tmpl);
 		else
-			return createFact(ac, (OrderedTemplate) tmpl);
+			result= createFact(ac, (OrderedTemplate) tmpl);
+		
+		if (ac.getTemporalValidity() != null) {
+			TemporalValidityConfiguration tvc = 
+					(TemporalValidityConfiguration) ac.getTemporalValidity();
+			result.setTemporalValidity(tvc.getTemporalValidity(engine));
+		}
+		
+		return result;
 	}
 
 	public Rule findRule(final Module module, final String ruleName) {

@@ -23,6 +23,7 @@ import java.util.Iterator;
 import org.jamocha.engine.Dumpable;
 import org.jamocha.engine.Engine;
 import org.jamocha.engine.EqualityIndex;
+import org.jamocha.engine.TemporalValidity;
 import org.jamocha.engine.configurations.SlotConfiguration;
 import org.jamocha.engine.workingmemory.WorkingMemoryElement;
 import org.jamocha.engine.workingmemory.elements.tags.Tag;
@@ -115,4 +116,8 @@ public interface Fact extends WorkingMemoryElement, Formattable, Dumpable {
 
 	public void addTag(Tag t);
 
+	public void setTemporalValidity(TemporalValidity val);
+	
+	public TemporalValidity getTemporalValidity();
+	
 }

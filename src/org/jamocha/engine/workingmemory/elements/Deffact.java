@@ -29,6 +29,7 @@ import org.jamocha.engine.BoundParam;
 import org.jamocha.engine.ConstraintViolationException;
 import org.jamocha.engine.Engine;
 import org.jamocha.engine.EqualityIndex;
+import org.jamocha.engine.TemporalValidity;
 import org.jamocha.engine.configurations.SlotConfiguration;
 import org.jamocha.engine.nodes.FactTuple;
 import org.jamocha.engine.nodes.FactTupleImpl;
@@ -73,6 +74,18 @@ public class Deffact implements Fact {
 	protected boolean hasBinding = false;
 
 	private EqualityIndex Eindex = null;
+	
+	private TemporalValidity temporalValidity;
+
+	public TemporalValidity getTemporalValidity() {
+		return temporalValidity;
+	}
+
+
+	public void setTemporalValidity(TemporalValidity temporalValidity) {
+		this.temporalValidity = temporalValidity;
+	}
+
 
 	/**
 	 * this is the default constructor

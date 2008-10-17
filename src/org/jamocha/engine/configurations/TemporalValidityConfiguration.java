@@ -1,7 +1,9 @@
 package org.jamocha.engine.configurations;
 
 import org.jamocha.engine.Engine;
+import org.jamocha.engine.GregorianTemporalValidity;
 import org.jamocha.engine.Parameter;
+import org.jamocha.engine.TemporalValidity;
 import org.jamocha.formatter.Formatter;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaValue;
@@ -90,4 +92,18 @@ public class TemporalValidityConfiguration extends AbstractConfiguration {
 		this.duration = duration;
 	}
 
+	public TemporalValidity getTemporalValidity(Engine engine) throws EvaluationException {
+		TemporalValidityConfiguration tvc = this;
+		GregorianTemporalValidity temporalValidity = new GregorianTemporalValidity();
+		temporalValidity.setDays(tvc.getDay().getValue(engine).getStringValue());
+		temporalValidity.setHours(tvc.getHour().getValue(engine).getStringValue());
+		temporalValidity.setMinutes(tvc.getMinute().getValue(engine).getStringValue());
+		temporalValidity.setSeconds(tvc.getSecond().getValue(engine).getStringValue());
+		temporalValidity.setWeekdays(tvc.getWeekday().getValue(engine).getStringValue());
+		temporalValidity.setMonths(tvc.getMonth().getValue(engine).getStringValue());
+		temporalValidity.setYears(tvc.getYear().getValue(engine).getStringValue());
+		temporalValidity.setDuration((int)tvc.getDuration().getValue(engine).getLongValue());
+		return temporalValidity;
+	}
+	
 }

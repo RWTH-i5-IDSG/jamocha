@@ -24,10 +24,13 @@ import java.util.List;
 import org.jamocha.communication.logging.Logging;
 import org.jamocha.engine.Engine;
 import org.jamocha.engine.ExpressionSequence;
+import org.jamocha.engine.GregorianTemporalValidity;
 import org.jamocha.engine.Parameter;
+import org.jamocha.engine.TemporalValidity;
 import org.jamocha.engine.configurations.DeclarationConfiguration;
 import org.jamocha.engine.configurations.DefruleConfiguration;
 import org.jamocha.engine.configurations.Signature;
+import org.jamocha.engine.configurations.TemporalValidityConfiguration;
 import org.jamocha.engine.functions.Function;
 import org.jamocha.engine.functions.FunctionNotFoundException;
 import org.jamocha.engine.modules.Module;
@@ -74,6 +77,16 @@ public class Defrule implements Rule {
 	protected long effectiveDate = 0;
 
 	protected long expirationDate = 0;
+	
+	protected TemporalValidity temporalValidity;
+
+	public TemporalValidity getTemporalValidity() {
+		return temporalValidity;
+	}
+
+	public void setTemporalValidity(TemporalValidity temporalValidity) {
+		this.temporalValidity = temporalValidity;
+	}
 
 	/**
 	 * 
@@ -141,6 +154,15 @@ public class Defrule implements Rule {
 			param = declarationConfiguration.getSalience();
 			if (param != null)
 				setSalience(param.getValue(engine).getLongValue());
+			
+			// set temporal validity
+			param = declarationConfiguration.getTemporalValidity();
+			if (param != null) {
+				TemporalValidityConfiguration tvc = (TemporalValidityConfiguration) param;
+				this.setTemporalValidity(tvc.getTemporalValidity(engine));
+			}
+				
+			
 		}
 	}
 
