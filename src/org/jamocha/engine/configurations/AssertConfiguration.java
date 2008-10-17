@@ -29,6 +29,8 @@ public class AssertConfiguration extends AbstractConfiguration {
 	private String templateName = null;
 
 	private Parameter[] data = null;
+	
+	private TemporalValidityConfiguration temporalValidity = null;
 
 	public boolean isFactBinding() {
 		// TODO Auto-generated method stub
@@ -80,6 +82,14 @@ public class AssertConfiguration extends AbstractConfiguration {
 
 	public String format(Formatter visitor) {
 		return visitor.visit(this);
+	}
+
+	public TemporalValidityConfiguration getTemporalValidity() {
+		return temporalValidity;
+	}
+
+	public void setTemporalValidity(TemporalValidityConfiguration temporalValidity) {
+		this.temporalValidity = temporalValidity;
 	}
 
 }

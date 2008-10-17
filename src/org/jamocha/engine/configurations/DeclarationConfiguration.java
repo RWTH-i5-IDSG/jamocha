@@ -31,6 +31,16 @@ public class DeclarationConfiguration extends AbstractConfiguration {
 	private Parameter salience = null;
 
 	private Parameter autoFocus = null;
+	
+	private TemporalValidityConfiguration temporalValidity = null;
+
+	public TemporalValidityConfiguration getTemporalValidity() {
+		return temporalValidity;
+	}
+
+	public void setTemporalValidity(TemporalValidityConfiguration temporalValidity) {
+		this.temporalValidity = temporalValidity;
+	}
 
 	public boolean isFactBinding() {
 		// TODO Auto-generated method stub

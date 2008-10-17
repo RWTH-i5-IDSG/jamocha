@@ -1405,9 +1405,16 @@ void RuleProperty() #void:
      		Salience()		
      	| 	AutoFocus()
      	|	RuleVersion()
-     	|   TemporalValidity()
+     	|   TemporalValidityDeclaration()
 	)
 	<RBRACE>
+}
+
+SimpleNode TemporalValidityDeclaration() :
+{}
+{
+	TemporalValidity()
+	{ return jjtThis;}	
 }
 
 

@@ -10,26 +10,27 @@ import org.jamocha.engine.TemporalValidity;
 public class JTCGregorianTemporalValidity extends TestCase {
 
 	public void test() {
-		String sec = "0";
-		String hour = "15";
-		String year = "";
-		String month = "10";
-		long duration = 60;
-		String min = "30";
-		String day = "";
-		String weekday = "3";
-		GregorianTemporalValidity gtv = new GregorianTemporalValidity(
-				sec,min,hour,day,month,year,weekday,duration);
+		GregorianTemporalValidity gtv = new GregorianTemporalValidity();
+		
+		gtv.setSeconds("0");
+		gtv.setHours("15");
+		gtv.setYears("");
+		gtv.setMonths("10");
+		gtv.setMinutes("30");
+		gtv.setDays("*");
+		gtv.setWeekdays("3");
+		gtv.setDuration(10);
+		
 		
 		GregorianCalendar t = new GregorianCalendar();
 		System.out.println(t.getTime());
-		long tinm = t.getTimeInMillis() / 1000;
+		long tinm = t.getTimeInMillis();
 		
 		for (int i=0; i< 10; i++) {
-			TemporalValidity.EventPoint next = gtv.getNextEvent(tinm+1);
+			TemporalValidity.EventPoint next = gtv.getNextEvent(tinm+1000);
 			tinm=next.getTimestamp();
 			
-			t.setTimeInMillis(tinm*1000);
+			t.setTimeInMillis(tinm);
 			
 			System.out.println(t.getTime()+" "+next.getType());
 			

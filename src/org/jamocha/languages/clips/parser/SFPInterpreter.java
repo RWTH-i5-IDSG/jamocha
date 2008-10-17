@@ -24,7 +24,9 @@ import org.jamocha.engine.BoundParam;
 import org.jamocha.engine.ExpressionCollection;
 import org.jamocha.engine.ExpressionList;
 import org.jamocha.engine.ExpressionSequence;
+import org.jamocha.engine.GregorianTemporalValidity;
 import org.jamocha.engine.Parameter;
+import org.jamocha.engine.TemporalValidity;
 import org.jamocha.engine.configurations.AssertConfiguration;
 import org.jamocha.engine.configurations.DeclarationConfiguration;
 import org.jamocha.engine.configurations.DeffunctionConfiguration;
@@ -35,6 +37,7 @@ import org.jamocha.engine.configurations.LoopForCountConfiguration;
 import org.jamocha.engine.configurations.ModifyConfiguration;
 import org.jamocha.engine.configurations.Signature;
 import org.jamocha.engine.configurations.SlotConfiguration;
+import org.jamocha.engine.configurations.TemporalValidityConfiguration;
 import org.jamocha.engine.configurations.WhileDoConfiguration;
 import org.jamocha.engine.functions.If;
 import org.jamocha.engine.functions.LoopForCount;
@@ -541,11 +544,23 @@ public class SFPInterpreter implements SFPParserVisitor {
 		// get the Template name
 		String templateName = ((JamochaValue) node.jjtGetChild(0).jjtAccept(
 				this, data)).getStringValue();
+		
+		Object secondChild = node.jjtGetChild(1).jjtAccept(this,null);
+		int beginData;
+		if (secondChild instanceof TemporalValidityConfiguration) {
+			beginData = 2;
+			TemporalValidityConfiguration tvc = 
+									(TemporalValidityConfiguration) secondChild;
+			ac.setTemporalValidity(tvc);
+		} else {
+			beginData = 1;
+		}
+		
 		// Data:
 		Parameter param = null;
-		Parameter[] params = new Parameter[node.jjtGetNumChildren() - 1];
+		Parameter[] params = new Parameter[node.jjtGetNumChildren() - beginData];
 
-		for (int i = 1; i < node.jjtGetNumChildren(); i++) {
+		for (int i = beginData; i <= node.jjtGetNumChildren() - beginData; i++) {
 
 			param = (Parameter) node.jjtGetChild(i).jjtAccept(this, data);
 			params[i - 1] = param;
@@ -1231,47 +1246,74 @@ public class SFPInterpreter implements SFPParserVisitor {
 	}
 
 	public Object visit(SFPTemporalValidity node, Object data) {
-		// TODO Auto-generated method stub
-		return null;
+		TemporalValidityConfiguration tv = new TemporalValidityConfiguration();
+		for (int i=0 ; i < node.jjtGetNumChildren() ; i++) {
+			node.jjtGetChild(i).jjtAccept(this, tv);
+		}
+		return tv;
 	}
 
 	public Object visit(SFPTASecond node, Object data) {
-		// TODO Auto-generated method stub
-		return null;
+		TemporalValidityConfiguration tv = (TemporalValidityConfiguration)data;
+		Parameter parameter = (Parameter) node.jjtGetChild(0).jjtAccept(this, data);
+		tv.setSecond(parameter);
+		return data;
 	}
 
 	public Object visit(SFPTAMinute node, Object data) {
-		// TODO Auto-generated method stub
-		return null;
+		TemporalValidityConfiguration tv = (TemporalValidityConfiguration)data;
+		Parameter parameter = (Parameter) node.jjtGetChild(0).jjtAccept(this, data);
+		tv.setMinute(parameter);
+		return data;
 	}
 
 	public Object visit(SFPTAHour node, Object data) {
-		// TODO Auto-generated method stub
-		return null;
+		TemporalValidityConfiguration tv = (TemporalValidityConfiguration)data;
+		Parameter parameter = (Parameter) node.jjtGetChild(0).jjtAccept(this, data);
+		tv.setHour(parameter);
+		return data;
 	}
 
 	public Object visit(SFPTADay node, Object data) {
-		// TODO Auto-generated method stub
-		return null;
+		TemporalValidityConfiguration tv = (TemporalValidityConfiguration)data;
+		Parameter parameter = (Parameter) node.jjtGetChild(0).jjtAccept(this, data);
+		tv.setDay(parameter);
+		return data;
 	}
 
 	public Object visit(SFPTAMonth node, Object data) {
-		// TODO Auto-generated method stub
-		return null;
+		TemporalValidityConfiguration tv = (TemporalValidityConfiguration)data;
+		Parameter parameter = (Parameter) node.jjtGetChild(0).jjtAccept(this, data);
+		tv.setSecond(parameter);
+		return data;
 	}
 
 	public Object visit(SFPTAYear node, Object data) {
-		// TODO Auto-generated method stub
-		return null;
+		TemporalValidityConfiguration tv = (TemporalValidityConfiguration)data;
+		Parameter parameter = (Parameter) node.jjtGetChild(0).jjtAccept(this, data);
+		tv.setYear(parameter);
+		return data;
 	}
 
 	public Object visit(SFPTAWeekday node, Object data) {
-		// TODO Auto-generated method stub
-		return null;
+		TemporalValidityConfiguration tv = (TemporalValidityConfiguration)data;
+		Parameter parameter = (Parameter) node.jjtGetChild(0).jjtAccept(this, data);
+		tv.setWeekday(parameter);
+		return data;
 	}
 
 	public Object visit(SFPTADuration node, Object data) {
-		// TODO Auto-generated method stub
+		TemporalValidityConfiguration tv = (TemporalValidityConfiguration)data;
+		Parameter parameter = (Parameter) node.jjtGetChild(0).jjtAccept(this, data);
+		tv.setDuration(parameter);
+		return data;
+	}
+
+	public Object visit(SFPTemporalValidityDeclaration node, Object data) {
+		DeclarationConfiguration dc = (DeclarationConfiguration) data;
+		TemporalValidityConfiguration tvc = (TemporalValidityConfiguration)
+									node.jjtGetChild(0).jjtAccept(this, null);
+		dc.setTemporalValidity(tvc);
 		return null;
 	}
 

@@ -34,6 +34,15 @@ public class GregorianTemporalValidity implements TemporalValidity {
 		private int getFromField(GregorianCalendar g, int field) {
 			int result = g.get(field);
 			if (field == GregorianCalendar.MONTH) result++;
+			if (field == GregorianCalendar.DAY_OF_WEEK) {
+				if (result == GregorianCalendar.MONDAY) return 1;
+				if (result == GregorianCalendar.TUESDAY) return 2;
+				if (result == GregorianCalendar.WEDNESDAY) return 3;
+				if (result == GregorianCalendar.THURSDAY) return 4;
+				if (result == GregorianCalendar.FRIDAY) return 5;
+				if (result == GregorianCalendar.SATURDAY) return 6;
+				if (result == GregorianCalendar.SUNDAY) return 7;
+			}
 			return result;
 		}
 
@@ -140,29 +149,48 @@ public class GregorianTemporalValidity implements TemporalValidity {
 	
 	private long duration;
 	
-	public GregorianTemporalValidity(
-			String sec, String min, String hour, String day, String month,
-			String year, String weekday, long duration) {
-		
-		IntervalLayer secs, mins, hours,days,months,years,weekdays;
-		
-		secs     = expand(sec,0,59,GregorianCalendar.SECOND);
-		mins     = expand(min,0,59,GregorianCalendar.MINUTE);
-		hours    = expand(hour,0,23,GregorianCalendar.HOUR_OF_DAY);
-		days     = expand(day,1,31,GregorianCalendar.DAY_OF_MONTH);
-		months   = expand(month,1,12,GregorianCalendar.MONTH);
-		years    = expand(year,1980,3000,GregorianCalendar.YEAR); // hier lauert der y3k-bug :-)
-		weekdays = expand(weekday,0,6,GregorianCalendar.DAY_OF_WEEK);
-		
+	public GregorianTemporalValidity() {
 		intervalLayers = new IntervalLayer[7];
-		intervalLayers[0] = years;
-		intervalLayers[1] = months;
-		intervalLayers[2] = days;
-		intervalLayers[3] = weekdays;
-		intervalLayers[4] = hours;
-		intervalLayers[5] = mins;
-		intervalLayers[6] = secs;
-		
+		setSeconds("*");
+		setMinutes("*");
+		setHours("*");
+		setWeekdays("*");
+		setDays("*");
+		setMonths("*");
+		setYears("*");
+		this.duration = 1;
+	}
+	
+	public void setSeconds(String sec) {
+		intervalLayers[6] = expand(sec,0,59,GregorianCalendar.SECOND);
+	}
+	
+	public void setMinutes(String min) {
+		intervalLayers[5] = expand(min,0,59,GregorianCalendar.MINUTE);
+	}
+	
+	public void setHours(String hour) {
+		intervalLayers[4] = expand(hour,0,23,GregorianCalendar.HOUR_OF_DAY);
+	}
+	
+	public void setWeekdays(String weekday) {
+		intervalLayers[3] = expand(weekday,0,6,GregorianCalendar.DAY_OF_WEEK);
+	}
+	
+	public void setDays(String day) {
+		intervalLayers[2] = expand(day,1,31,GregorianCalendar.DAY_OF_MONTH);
+	}
+	
+	public void setMonths(String month) {
+		intervalLayers[1] = expand(month,1,12,GregorianCalendar.MONTH);
+	}
+	
+	public void setYears(String year) {
+		// hier lauert der y3k-bug :-)
+		intervalLayers[0] = expand(year,1980,3000,GregorianCalendar.YEAR);
+	}
+	
+	public void setDuration(int duration) {
 		this.duration = duration;
 	}
 	
@@ -212,15 +240,15 @@ public class GregorianTemporalValidity implements TemporalValidity {
 	 */
 	public EventPoint getNextEvent(long from) {
 	
-		long r1 = getNextEventHelper(from*1000, 0);
-		long r2 = getNextEventHelper((from-duration)*1000, 0) + duration*1000;
+		long r1 = getNextEventHelper(from, 0);
+		long r2 = getNextEventHelper((from-duration*1000), 0) + duration*1000;
 		
 		assert r1 % 1000 == 0;
 		assert r2 % 1000 == 0;
 		
 		EventPoint result = (r1 < r2) ? 
-						new EventPoint(EventPoint.Type.START, r1/1000) :
-						new EventPoint(EventPoint.Type.STOP,  r2/1000) ;
+						new EventPoint(EventPoint.Type.START, r1) :
+						new EventPoint(EventPoint.Type.STOP,  r2) ;
 		
 		return result;
 	}

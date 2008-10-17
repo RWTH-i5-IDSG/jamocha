@@ -36,7 +36,7 @@ public class DefruleConfiguration extends AbstractConfiguration {
 	private Condition[] conditions = null;
 
 	private ExpressionSequence actions = null;
-
+	
 	private int totalComplexity = 0;
 
 	/*
