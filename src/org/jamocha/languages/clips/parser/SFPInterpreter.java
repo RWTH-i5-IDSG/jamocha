@@ -560,10 +560,10 @@ public class SFPInterpreter implements SFPParserVisitor {
 		Parameter param = null;
 		Parameter[] params = new Parameter[node.jjtGetNumChildren() - beginData];
 
-		for (int i = beginData; i <= node.jjtGetNumChildren() - beginData; i++) {
+		for (int i = beginData; i < node.jjtGetNumChildren() ; i++) {
 
 			param = (Parameter) node.jjtGetChild(i).jjtAccept(this, data);
-			params[i - 1] = param;
+			params[i - beginData] = param;
 		}
 		ac.setTemplateName(templateName);
 		ac.setData(params);
