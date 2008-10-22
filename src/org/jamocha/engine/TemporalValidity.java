@@ -23,6 +23,10 @@ public interface TemporalValidity {
 			return type;
 		}
 		
+		public String toString() {
+			return "[EventPoint; Timestamp="+timestamp+"; Type="+type+"]";
+		}
+		
 	}
 	
 	EventPoint getNextEvent(long from);

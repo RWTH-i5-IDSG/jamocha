@@ -93,7 +93,7 @@ public class ReteNet implements SettingsChangedListener, Serializable {
 	 * 
 	 * @param objInstance
 	 */
-	public synchronized void retractObject(Fact fact) throws RetractException {
+	public synchronized void retractFact(Fact fact) throws RetractException {
 		try {
 			root.removeWME(null, fact);
 		} catch (NodeException e) {

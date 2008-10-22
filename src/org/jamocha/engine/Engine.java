@@ -18,6 +18,7 @@
 
 package org.jamocha.engine;
 
+import java.beans.ExceptionListener;
 import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.List;
@@ -77,6 +78,14 @@ public class Engine implements Dumpable {
 		}
 	}
 
+	private class TemporalThreadExceptionHandler implements ExceptionListener {
+
+		public void exceptionThrown(Exception e) {
+			log.fatal(e);
+		}
+		
+	}
+	
 	private static final long serialVersionUID = 1L;
 
 	protected String[] interestedProperties = {
@@ -106,6 +115,8 @@ public class Engine implements Dumpable {
 	protected InitialFact initFact = new InitialFact();
 
 	protected Map<String, JamochaValue> defglobals;
+	
+	protected TemporalFactThread temporalFactThread;
 
 	/**
 	 * 
@@ -113,6 +124,9 @@ public class Engine implements Dumpable {
 	public Engine() {
 		super();
 		net = new ReteNet(this);
+		temporalFactThread = new TemporalFactThread(this);
+		temporalFactThread.registerExceptionListener(new TemporalThreadExceptionHandler());
+		temporalFactThread.start();
 		functionMem = new FunctionMemoryImpl(this);
 		agendas = new Agendas(this);
 		modules = new Modules(this);
@@ -502,14 +516,31 @@ public class Engine implements Dumpable {
 	/**
 	 * This method is explicitly used to assert facts.
 	 */
-	public Fact assertFact(Fact o) throws AssertException {
+	public void assertFact(Fact o) throws AssertException {
+		if (o.getTemporalValidity() == null) {
+			hardAssertFact(o, temporalFactThread);
+		} else {
+			temporalFactThread.insertFact(o);
+		}
+	}
+
+	/**
+	 * This method is called to really hard-assert a fact.
+	 * All temporal validity specs will be ignored!
+	 * WARNING: This method should only be called from the
+	 * TemporalFactThread, therefore it needs an instance
+	 * of it as pseudo-parameter. Think about it as simulated
+	 * friend-function from C++. I think it's overkill to use
+	 * the Observer-pattern for that here.    -jh 
+	 */
+	public void hardAssertFact(Fact o, TemporalFactThread t) throws AssertException {
+		if (t==null) throw new AssertException("hardAssertFact misused! Read it's javadoc!");
 		if (profileAssert)
 			ProfileStats.startAssert();
 		modules.addFact(o);
 		net.assertObject(o);
 		if (profileAssert)
 			ProfileStats.endAssert();
-		return o;
 	}
 
 	/**
@@ -521,14 +552,23 @@ public class Engine implements Dumpable {
 	}
 
 	/**
-	 * retracts a fact directly
+	 * READ hardAssertFact!! here it's analogous!!
 	 */
-	public void retractFact(Fact fact) throws RetractException {
+	public void hardRetractFact(Fact fact, TemporalFactThread t) throws RetractException {
 		if (profileAssert)
 			ProfileStats.startRetract();
-		net.retractObject(fact);
+		modules.removeFact(fact);
+		net.retractFact(fact);
 		if (profileAssert)
 			ProfileStats.endRetract();
+	}
+	
+	public void retractFact(Fact fact) throws RetractException {
+		if (fact.getTemporalValidity() == null) {
+			hardRetractFact(fact, temporalFactThread);
+		} else {
+			temporalFactThread.removeFact(fact);
+		}
 	}
 
 	/**
@@ -569,7 +609,7 @@ public class Engine implements Dumpable {
 		try {
 			List<Fact> facts = modules.getAllFacts();
 			for (Fact ft : facts)
-				net.retractObject(ft);
+				net.retractFact(ft);
 			for (Fact ft : facts)
 				net.assertObject(ft);
 		} catch (RetractException e) {

@@ -127,24 +127,9 @@ public class Assert extends AbstractFunction {
 
 			for (int i = 0; i < params.length; i++) {
 				ac = (AssertConfiguration) params[i];
-
 				fact = (Deffact) engine.getModules().createFact(ac);
-				// TODO: check if binding handling can be moved to create
-				// fact
-				// if (fact.hasBinding()) {
-				// fact.resolveValues(engine, this.triggerFacts);
-				// fact = fact.cloneFact(engine);
-				// }
-				Fact assertedFact = engine.assertFact(fact);
-				// if the fact id is still -1, it means it wasn't
-				// asserted
-				// if it was asserted, we return the fact id, otherwise
-				// we return "false".
-				if (assertedFact.getFactId() > 0)
-					result = JamochaValue.newFactId(assertedFact.getFactId());
-				else
-					throw new AssertException(
-							"Fact could not be asserted for an unknown reason.");
+				engine.assertFact(fact);
+				result = JamochaValue.newFactId(fact.getFactId());
 			}
 		}
 		return result;
