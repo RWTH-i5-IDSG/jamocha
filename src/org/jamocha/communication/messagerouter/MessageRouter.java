@@ -53,6 +53,8 @@ public class MessageRouter implements Serializable {
 	 */
 	private final Map<String, CommunicationChannel> idToChannel = new HashMap<String, CommunicationChannel>();
 
+	private CommunicationChannel defaultChannel;
+	
 	/**
 	 * Mapping of channel IDs to MessageEvents held for the underlying channel.
 	 */
@@ -401,4 +403,13 @@ public class MessageRouter implements Serializable {
 		}
 
 	}
+
+	public void setDefaultChannel(StreamChannel channel) {
+		defaultChannel = channel;
+	}
+	
+	public String getDefaultChannelId() {
+		return defaultChannel.getChannelId();
+	}
+	
 }

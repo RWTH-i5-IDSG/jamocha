@@ -424,6 +424,11 @@ public class BeffyRuleCompiler implements RuleCompiler {
 				 */
 				subCondition.acceptVisitor(this, data);
 				TerminalNode terminal = new TerminalNode(engine, data.getRule());
+				
+				if (data.getRule().getAutoFocus()) {
+					terminal.autoFocus();
+				}
+				
 				Node last = data.getLastNode(subCondition);
 				try {
 					last.addChild(terminal);

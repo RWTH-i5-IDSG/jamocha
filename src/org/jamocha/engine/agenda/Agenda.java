@@ -237,4 +237,10 @@ public class Agenda implements Serializable {
 	void removeActivation() {
 		activations.clear();
 	}
+
+	public void autoFire(Activation act) throws ExecuteException {
+		if (profileFire) ProfileStats.startFire();
+		act.fire(parentEngine);
+		if (profileFire) ProfileStats.endFire();
+	}
 }

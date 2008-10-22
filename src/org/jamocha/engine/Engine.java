@@ -506,7 +506,7 @@ public class Engine implements Dumpable {
 		MessageRouter router = getMessageRouter();
 		router.postMessageEvent(new MessageEvent(
 				MessageEvent.MessageEventType.ENGINE, msg,
-				"t".equals(output) ? router.getCurrentChannelId() : output));
+				"t".equals(output) ? router.getDefaultChannelId() : output));
 		for (PrintWriter wr : outputStreams.values()) {
 			wr.write(msg);
 			wr.flush();
@@ -552,7 +552,7 @@ public class Engine implements Dumpable {
 	}
 
 	/**
-	 * READ hardAssertFact!! here it's analogous!!
+	 * READ hardAssertFact's JavaDoc!! here it's analogous!!
 	 */
 	public void hardRetractFact(Fact fact, TemporalFactThread t) throws RetractException {
 		if (profileAssert)

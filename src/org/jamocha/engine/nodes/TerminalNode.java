@@ -21,6 +21,7 @@ package org.jamocha.engine.nodes;
 import org.jamocha.application.gui.retevisualisation.NodeDrawer;
 import org.jamocha.application.gui.retevisualisation.nodedrawers.TerminalNodeDrawer;
 import org.jamocha.engine.Engine;
+import org.jamocha.engine.ExecuteException;
 import org.jamocha.engine.ReteNet;
 import org.jamocha.engine.agenda.Activation;
 import org.jamocha.engine.modules.Module;
@@ -36,6 +37,8 @@ import org.jamocha.rules.Rule;
 public class TerminalNode extends OneInputNode {
 
 	private final Rule rule;
+	
+	private boolean autoFocus;
 
 	@Deprecated
 	public TerminalNode(final int id, final WorkingMemory memory,
@@ -46,6 +49,7 @@ public class TerminalNode extends OneInputNode {
 	
 	public TerminalNode(Engine e, Rule r) {
 		this(e.getNet().nextNodeId(), e.getWorkingMemory(), r, e.getNet());
+		autoFocus = false;
 	}
 
 	@Override
@@ -54,7 +58,15 @@ public class TerminalNode extends OneInputNode {
 			return;
 		final Activation act = new Activation(rule, newElem.getFactTuple());
 		final Module module = rule.parentModule();
-		net.getEngine().getAgendas().getAgenda(module).addActivation(act);
+		if (autoFocus) {
+			try {
+				net.getEngine().getAgendas().getAgenda(module).autoFire(act);
+			} catch (ExecuteException e) {
+				throw new NodeException("error while auto-fire an activation",e,this);
+			}
+		} else {
+			net.getEngine().getAgendas().getAgenda(module).addActivation(act);
+		}
 	}
 
 	@Override
@@ -78,6 +90,10 @@ public class TerminalNode extends OneInputNode {
 	@Override
 	protected NodeDrawer newNodeDrawer() {
 		return new TerminalNodeDrawer(this);
+	}
+
+	public void autoFocus() {
+		autoFocus = true;
 	}
 
 }
