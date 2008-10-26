@@ -124,9 +124,11 @@ public class Engine implements Dumpable {
 	public Engine() {
 		super();
 		net = new ReteNet(this);
-		temporalFactThread = new TemporalFactThread(this);
-		temporalFactThread.registerExceptionListener(new TemporalThreadExceptionHandler());
-		temporalFactThread.start();
+		if (Constants.TEMPORAL_STRATEGY.equals("TRIGGER_FACT")) {
+			temporalFactThread = new TemporalFactThread(this);
+			temporalFactThread.registerExceptionListener(new TemporalThreadExceptionHandler());
+			temporalFactThread.start();
+		}
 		functionMem = new FunctionMemoryImpl(this);
 		agendas = new Agendas(this);
 		modules = new Modules(this);
@@ -517,11 +519,19 @@ public class Engine implements Dumpable {
 	 * This method is explicitly used to assert facts.
 	 */
 	public void assertFact(Fact o) throws AssertException {
-		if (o.getTemporalValidity() == null) {
-			hardAssertFact(o, temporalFactThread);
+		if (Constants.TEMPORAL_STRATEGY.equals("TRIGGER_FACT")) {
+			
+		
+			if (o.getTemporalValidity() == null) {
+				hardAssertFact(o, temporalFactThread);
+			} else {
+				temporalFactThread.insertFact(o);
+			}
+			
 		} else {
-			temporalFactThread.insertFact(o);
+			hardAssertFact(o, null);
 		}
+		
 	}
 
 	/**
@@ -534,7 +544,6 @@ public class Engine implements Dumpable {
 	 * the Observer-pattern for that here.    -jh 
 	 */
 	public void hardAssertFact(Fact o, TemporalFactThread t) throws AssertException {
-		if (t==null) throw new AssertException("hardAssertFact misused! Read it's javadoc!");
 		if (profileAssert)
 			ProfileStats.startAssert();
 		modules.addFact(o);
@@ -564,12 +573,20 @@ public class Engine implements Dumpable {
 	}
 	
 	public void retractFact(Fact fact) throws RetractException {
-		if (fact.getTemporalValidity() == null) {
-			hardRetractFact(fact, temporalFactThread);
+		
+		if (Constants.TEMPORAL_STRATEGY.equals("TRIGGER_FACT")) {
+		
+			if (fact.getTemporalValidity() == null) {
+				hardRetractFact(fact, temporalFactThread);
+			} else {
+				temporalFactThread.removeFact(fact);
+			}
+		
 		} else {
-			temporalFactThread.removeFact(fact);
+			hardRetractFact(fact, null);
 		}
-	}
+	
+}
 
 	/**
 	 * Modify retracts the old fact and asserts the new fact. Unlike assertFact,

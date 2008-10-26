@@ -84,7 +84,15 @@ public class TemporalFactThread extends Thread {
 					} catch (InterruptedException e) {}
 					
 					if (to - now() <= 0) {
-						// Wir müssen jetzt handeln
+						/* Wir müssen jetzt handeln. Hier ist jetzt potentiell
+						 * ein Ereignispunkt erreicht.
+						 * 
+						 * Es kann aber sein, dass das korrespondierende Fakt
+						 * inzwischen gelöscht wurde. Deshalb holen wir den
+						 * Kopf der Queue nochmal
+						 */
+						nextEventPoint = eventPoints.peek();						
+						
 						while (nextEventPoint.getTimestamp() == to) {
 							eventPoints.remove();
 							handle(nextEventPoint);

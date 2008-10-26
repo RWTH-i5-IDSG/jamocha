@@ -201,5 +201,7 @@ public class Constants {
 	public static final int PROFILE_RETRACT = 105;
 
 	public static final int PROFILE_RM_ACTIVATION = 106;
+	
+	public static final String TEMPORAL_STRATEGY = "TRIGGER_FACT"; // can be "TRIGGER_FACT", "SEPARATE_RETE" or "TIME_FACT"
 
 }
