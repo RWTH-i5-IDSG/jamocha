@@ -31,9 +31,13 @@ import org.jamocha.communication.events.CompilerListener;
 import org.jamocha.communication.logging.Logging;
 import org.jamocha.engine.AssertException;
 import org.jamocha.engine.Binding;
+import org.jamocha.engine.BoundParam;
 import org.jamocha.engine.Engine;
+import org.jamocha.engine.Parameter;
 import org.jamocha.engine.ReteNet;
 import org.jamocha.engine.RuleCompiler;
+import org.jamocha.engine.configurations.Signature;
+import org.jamocha.engine.functions.Function;
 import org.jamocha.engine.nodes.AlphaQuantorDistinctionNode;
 import org.jamocha.engine.nodes.LeftInputAdaptorNode;
 import org.jamocha.engine.nodes.MultiBetaJoinNode;
@@ -44,11 +48,14 @@ import org.jamocha.engine.nodes.RootNode;
 import org.jamocha.engine.nodes.SimpleBetaFilterNode;
 import org.jamocha.engine.nodes.SlotFilterNode;
 import org.jamocha.engine.nodes.TerminalNode;
+import org.jamocha.engine.nodes.joinfilter.FunctionEvaluator;
+import org.jamocha.engine.nodes.joinfilter.JoinFilter;
 import org.jamocha.engine.rules.rulecompiler.CompileRuleException;
 import org.jamocha.engine.util.MutableInteger;
 import org.jamocha.engine.workingmemory.elements.Slot;
 import org.jamocha.engine.workingmemory.elements.Template;
 import org.jamocha.parser.EvaluationException;
+import org.jamocha.parser.JamochaValue;
 import org.jamocha.parser.RuleException;
 import org.jamocha.rules.AndCondition;
 import org.jamocha.rules.BoundConstraint;
@@ -251,12 +258,23 @@ public class BeffyRuleCompiler implements RuleCompiler {
 		
 		private Map<Condition, MutableInteger> condition2TupleIdx;
 		
+		private Map<Condition,Node> correspondingJoins;
+		
 		public CompileTableau(Rule r) {
 			this.rule = r;
 			this.success = true;
 			this.lastNodes = new HashMap<Condition, Node>();
 			this.handled = new HashSet<Constraint>();
+			this.correspondingJoins = new HashMap<Condition, Node>();
 			this.condition2TupleIdx = new HashMap<Condition, MutableInteger>();
+		}
+		
+		public void setCorrespondingJoin(Condition c, Node join) {
+			correspondingJoins.put(c,join);
+		}
+		
+		public Node getCorrespondingJoin(Condition c) {
+			return correspondingJoins.get(c);
 		}
 
 		public MutableInteger getTupleIndexFromCondition(Condition condition) {
@@ -334,7 +352,7 @@ public class BeffyRuleCompiler implements RuleCompiler {
 					MutableInteger oldIdxC1 = data.getTupleIndexFromCondition(c1);
 					MutableInteger oldIdxC2 = data.getTupleIndexFromCondition(c2);
 					oldIdxC2.set(oldIdxC1.get() + 1);
-					
+					data.setCorrespondingJoin(alphaCond, joinNode);
 				} catch (NodeException e) {
 					logAndFail(e, data);
 				}
@@ -349,6 +367,7 @@ public class BeffyRuleCompiler implements RuleCompiler {
 					} catch (NodeException e) {
 						logAndFail(e,data);
 					}
+					if (isAlpha(sub)) data.setCorrespondingJoin(sub, joinNode);
 				}
 				data.setLastNode(c, joinNode);
 			}
@@ -441,8 +460,24 @@ public class BeffyRuleCompiler implements RuleCompiler {
 		}
 
 		public CompileTableau visit(TestCondition c, CompileTableau data) {
-			
-			// TODO Auto-generated method stub
+			try {
+				data.setLastNode(c, objectTypeNodes.getObjectTypeNode(engine.getInitialTemplate()));
+				
+				Node correspondingJoin = data.getCorrespondingJoin(c);
+				if (correspondingJoin instanceof SimpleBetaFilterNode){
+					SimpleBetaFilterNode n = (SimpleBetaFilterNode) correspondingJoin;
+					Function function = c.getFunction().lookUpFunction(engine);
+					List<Parameter> params = substituteBoundParamsForFunctionCall(c.getFunction().getParameters(), data.getRule());					
+					JoinFilter testFilter = new FunctionEvaluator(engine,function,params);
+					n.addFilter(testFilter);
+				} else if (correspondingJoin instanceof MultiBetaJoinNode) {
+					
+				}
+				
+				
+			} catch (Exception e) {
+				logAndFail(e,data);
+			}
 			return data;
 		}
 		
@@ -461,6 +496,28 @@ public class BeffyRuleCompiler implements RuleCompiler {
 	private ReteNet reteNet;
 	
 	private BeffyRuleOptimizer ruleOptimizer;
+	
+	private List<Parameter> substituteBoundParamsForFunctionCall(Parameter[] original, Rule rule) {
+		List<Parameter> result = new ArrayList<Parameter>();
+		for (Parameter p : original) {
+			if (p instanceof BoundParam) {
+				BoundParam bp = (BoundParam) p;
+				Binding bnd = bindings.getBinding(rule, bp.getVariableName());
+				System.out.println(bp.getVariableName()+" "+bnd);
+			} else if (p instanceof JamochaValue) {
+				result.add(p);
+			} else if (p instanceof Signature) {
+				Signature orig = (Signature)p;
+				Signature newSig = new Signature(orig.getSignatureName());
+				newSig.setParameters(substituteBoundParamsForFunctionCall(orig.getParameters(),rule));
+				result.add(newSig);
+			} else {
+				logAndFail(new CompileRuleException("parameter substitution for this type is not implemented: "+p.getClass().getCanonicalName()), null);
+			}
+			
+		}
+		return result;
+	}
 	
 	public BeffyRuleCompiler(Engine engine, RootNode root, ReteNet net) {
 		this.engine=engine;
