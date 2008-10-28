@@ -25,6 +25,7 @@ import java.util.List;
 import org.jamocha.Constants;
 import org.jamocha.engine.Engine;
 import org.jamocha.engine.Parameter;
+import org.jamocha.engine.modules.Module;
 import org.jamocha.engine.workingmemory.elements.tags.Tag;
 import org.jamocha.engine.workingmemory.elements.tags.TagIterator;
 import org.jamocha.formatter.Formatter;
@@ -175,5 +176,14 @@ public class OrderedTemplate implements Template {
 	 */
 	public String getDump() {
 		return toString();
+	}
+
+	public Module checkUserDefinedModuleName(Engine engine) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public void evaluateStaticDefaults(Engine engine) throws EvaluationException {
+		// TODO Auto-generated method stub
 	}
 }

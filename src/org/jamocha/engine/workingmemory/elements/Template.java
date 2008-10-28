@@ -22,8 +22,11 @@ import java.io.Serializable;
 import java.util.Iterator;
 
 import org.jamocha.engine.Dumpable;
+import org.jamocha.engine.Engine;
+import org.jamocha.engine.modules.Module;
 import org.jamocha.engine.workingmemory.elements.tags.Tag;
 import org.jamocha.formatter.Formattable;
+import org.jamocha.parser.EvaluationException;
 
 /**
  * @author Peter Lin
@@ -130,4 +133,9 @@ public interface Template extends Serializable, Dumpable, Formattable {
 	public Iterator<Tag> getTags(Class<? extends Tag> tagClass);
 
 	public void addTag(Tag t);
+	
+	public void evaluateStaticDefaults(final Engine engine) throws EvaluationException;
+	
+	public Module checkUserDefinedModuleName(final Engine engine);
+	
 }

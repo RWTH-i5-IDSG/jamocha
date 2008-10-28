@@ -118,6 +118,8 @@ public class Engine implements Dumpable {
 	
 	protected TemporalFactThread temporalFactThread;
 
+	protected TimerFact timerFact;
+	
 	/**
 	 * 
 	 */
@@ -129,12 +131,24 @@ public class Engine implements Dumpable {
 			temporalFactThread.registerExceptionListener(new TemporalThreadExceptionHandler());
 			temporalFactThread.start();
 		}
+
+		
 		functionMem = new FunctionMemoryImpl(this);
 		agendas = new Agendas(this);
 		modules = new Modules(this);
 		defglobals = new HashMap<String, JamochaValue>();
 		functionMem.init();
 		establishInitialFact();
+		
+		if (Constants.TEMPORAL_STRATEGY.equals("TIME_FACT")) {
+			try {
+				timerFact = new TimerFact(this);
+			} catch (EvaluationException e) {
+				Logging.logger(this.getClass()).fatal(e);
+			}
+			timerFact.start();
+		}
+		
 		JamochaSettings.getInstance().addListener(
 				new EngineSettingsChangedListener(), interestedProperties);
 		log = Logging.logger(this.getClass());
@@ -547,7 +561,7 @@ public class Engine implements Dumpable {
 		if (profileAssert)
 			ProfileStats.startAssert();
 		modules.addFact(o);
-		net.assertObject(o);
+		net.assertFact(o);
 		if (profileAssert)
 			ProfileStats.endAssert();
 	}
@@ -628,7 +642,7 @@ public class Engine implements Dumpable {
 			for (Fact ft : facts)
 				net.retractFact(ft);
 			for (Fact ft : facts)
-				net.assertObject(ft);
+				net.assertFact(ft);
 		} catch (RetractException e) {
 			log.warn(e);
 		} catch (AssertException e) {
@@ -699,9 +713,9 @@ public class Engine implements Dumpable {
 	 * @return
 	 * @throws org.jamocha.parser.EvaluationException
 	 */
-	public boolean addTemplate(Deftemplate tpl) throws EvaluationException {
+	public boolean addTemplate(Template tpl) throws EvaluationException {
 		tpl.evaluateStaticDefaults(this);
-		Module mod = tpl.checkName(this);
+		Module mod = tpl.checkUserDefinedModuleName(this);
 		if (mod == null)
 			mod = getCurrentFocus();
 		boolean result = mod.addTemplate(tpl);

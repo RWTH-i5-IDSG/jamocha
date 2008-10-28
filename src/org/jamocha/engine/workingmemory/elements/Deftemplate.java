@@ -116,7 +116,7 @@ public class Deftemplate implements Template, Serializable {
 	 * @param engine
 	 * @return
 	 */
-	public Module checkName(final Engine engine) {
+	public Module checkUserDefinedModuleName(final Engine engine) {
 		if (templateName.indexOf("::") > 0) {
 			final String[] sp = templateName.split("::");
 			templateName = sp[1];

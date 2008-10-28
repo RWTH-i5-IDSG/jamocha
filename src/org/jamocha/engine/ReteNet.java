@@ -78,7 +78,7 @@ public class ReteNet implements SettingsChangedListener, Serializable {
 		JamochaSettings.getInstance().addListener(this, interestedProperties);
 	}
 
-	public synchronized void assertObject(Fact fact) throws AssertException {
+	public synchronized void assertFact(Fact fact) throws AssertException {
 		// we assume Rete has already checked to see if the object
 		// has been added to the working memory, so we just assert.
 		try {
