@@ -380,7 +380,7 @@ public class BeffyRuleCompiler implements RuleCompiler {
 				data.setLastNode(c, joinNode);
 			}
 			
-			// here we can put tests and bindings in the join node.
+			// here we can put tests in the join node.
 			for (Condition nest : c.getNestedConditions()) {
 				if (nest instanceof TestCondition) {
 					try {
@@ -394,7 +394,16 @@ public class BeffyRuleCompiler implements RuleCompiler {
 					}
 					
 				}
-				
+			}
+			
+			// here we put field comparators in the join node
+			for (Condition nest : c.getNestedConditions()){
+				if (nest instanceof ObjectCondition) {
+					ObjectCondition oc = (ObjectCondition) nest;
+					
+					
+					
+				}
 			}
 			
 			return data;
