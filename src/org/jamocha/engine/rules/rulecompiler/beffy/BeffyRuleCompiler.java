@@ -37,6 +37,8 @@ import org.jamocha.engine.Parameter;
 import org.jamocha.engine.ReteNet;
 import org.jamocha.engine.RuleCompiler;
 import org.jamocha.engine.configurations.Signature;
+import org.jamocha.engine.functions.Function;
+import org.jamocha.engine.nodes.AbstractBetaFilterNode;
 import org.jamocha.engine.nodes.AlphaQuantorDistinctionNode;
 import org.jamocha.engine.nodes.LeftInputAdaptorNode;
 import org.jamocha.engine.nodes.MultiBetaJoinNode;
@@ -47,6 +49,9 @@ import org.jamocha.engine.nodes.RootNode;
 import org.jamocha.engine.nodes.SimpleBetaFilterNode;
 import org.jamocha.engine.nodes.SlotFilterNode;
 import org.jamocha.engine.nodes.TerminalNode;
+import org.jamocha.engine.nodes.joinfilter.FieldAddress;
+import org.jamocha.engine.nodes.joinfilter.GeneralizedFunctionEvaluator;
+import org.jamocha.engine.nodes.joinfilter.LeftFieldAddress;
 import org.jamocha.engine.rules.rulecompiler.CompileRuleException;
 import org.jamocha.engine.util.MutableInteger;
 import org.jamocha.engine.workingmemory.elements.Slot;
@@ -324,6 +329,9 @@ public class BeffyRuleCompiler implements RuleCompiler {
 				subCondition.acceptVisitor(this, data);
 			}
 			
+			// we need that after the if-expression for putting tests into it
+			AbstractBetaFilterNode join=null;
+			
 			if (c.getNestedConditions().size() == 1) {
 				// i think, that should not happen?!
 				//TODO check and discuss that
@@ -335,6 +343,7 @@ public class BeffyRuleCompiler implements RuleCompiler {
 				 * one alpha subcondition
 				 */
 				SimpleBetaFilterNode joinNode = new SimpleBetaFilterNode(engine);
+				join=joinNode;
 				try {
 					Condition c1 = c.getNestedConditions().get(0);
 					Condition c2 = c.getNestedConditions().get(1);
@@ -356,7 +365,9 @@ public class BeffyRuleCompiler implements RuleCompiler {
 				data.setLastNode(c, joinNode);
 			} else {
 				// we need a fat-join node
+				// TODO tuple index fix
 				MultiBetaJoinNode joinNode = new MultiBetaJoinNode(engine);
+				join=joinNode;
 				for (Condition sub : c.getNestedConditions()) {
 					Node n = data.getLastNode(sub);
 					try {
@@ -368,6 +379,24 @@ public class BeffyRuleCompiler implements RuleCompiler {
 				}
 				data.setLastNode(c, joinNode);
 			}
+			
+			// here we can put tests and bindings in the join node.
+			for (Condition nest : c.getNestedConditions()) {
+				if (nest instanceof TestCondition) {
+					try {
+						TestCondition test = (TestCondition) nest;
+						Function function = test.getFunction().lookUpFunction(engine);
+						List<Parameter> parameters = substituteBoundParamsForFunctionCall(test.getFunction().getParameters(),data);
+						GeneralizedFunctionEvaluator filter=new GeneralizedFunctionEvaluator(engine,function,parameters);
+						join.addFilter(filter);
+					} catch (Exception e) {
+						logAndFail(e, data);
+					}
+					
+				}
+				
+			}
+			
 			return data;
 		}
 
@@ -486,24 +515,29 @@ public class BeffyRuleCompiler implements RuleCompiler {
 	
 	private BeffyRuleOptimizer ruleOptimizer;
 	
-	private List<Parameter> substituteBoundParamsForFunctionCall(Parameter[] original, Rule rule) {
+	private List<Parameter> substituteBoundParamsForFunctionCall(Parameter[] original, CompileTableau tableau) {
 		List<Parameter> result = new ArrayList<Parameter>();
 		for (Parameter p : original) {
 			if (p instanceof BoundParam) {
 				BoundParam bp = (BoundParam) p;
-				Binding bnd = bindings.getBinding(rule, bp.getVariableName());
-				System.out.println(bp.getVariableName()+" "+bnd);
+				Binding bnd = bindings.getBinding(tableau.getRule(), bp.getVariableName());
+				FieldAddress fa;
+				if (bnd.isWholeFactBinding()) {
+					fa = new LeftFieldAddress(bnd.getTupleIndex());
+				} else {
+					fa= new LeftFieldAddress(bnd.getTupleIndex(),bnd.getSlotIndex());
+				}
+				result.add(fa);
 			} else if (p instanceof JamochaValue) {
 				result.add(p);
 			} else if (p instanceof Signature) {
 				Signature orig = (Signature)p;
 				Signature newSig = new Signature(orig.getSignatureName());
-				newSig.setParameters(substituteBoundParamsForFunctionCall(orig.getParameters(),rule));
+				newSig.setParameters(substituteBoundParamsForFunctionCall(orig.getParameters(),tableau));
 				result.add(newSig);
 			} else {
 				logAndFail(new CompileRuleException("parameter substitution for this type is not implemented: "+p.getClass().getCanonicalName()), null);
 			}
-			
 		}
 		return result;
 	}

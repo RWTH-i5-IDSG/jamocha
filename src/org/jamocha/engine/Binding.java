@@ -43,8 +43,8 @@ public class Binding {
 		return (slotIndex==-1);
 	}
 
-	public int getTupleIndex() {
-		return tupleIndex.get();
+	public MutableInteger getTupleIndex() {
+		return tupleIndex;
 	}
 
 	public int getSlotIndex() {

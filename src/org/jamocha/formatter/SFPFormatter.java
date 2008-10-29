@@ -456,8 +456,7 @@ public class SFPFormatter extends Formatter {
 
 	@Override
 	public String visit(LeftFieldAddress object) {
-		// TODO Auto-generated method stub
-		return null;
+		return "[inTuple|elem="+object.getTupleIndex().get()+"|slot="+object.getSlotIndex()+"]";
 	}
 
 	@Override

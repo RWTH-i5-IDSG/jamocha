@@ -76,6 +76,7 @@ public class RuleEngineFunctions extends FunctionGroup {
 		addFunction(functionMem, new MemoryUsed());
 		addFunction(functionMem, new Modify());
 		addFunction(functionMem, new Modules());
+		addFunction(functionMem, new NodeMemory());
 		addFunction(functionMem, new PPrintRule());
 		addFunction(functionMem, new PPrintTemplate());
 		addFunction(functionMem, new PrintProfile());

@@ -18,6 +18,7 @@
 
 package org.jamocha.engine.nodes.joinfilter;
 
+import org.jamocha.engine.util.MutableInteger;
 import org.jamocha.engine.workingmemory.WorkingMemoryElement;
 import org.jamocha.formatter.Formatter;
 import org.jamocha.parser.EvaluationException;
@@ -25,8 +26,7 @@ import org.jamocha.parser.JamochaValue;
 
 public class LeftFieldAddress extends FieldAddress {
 	protected int slotIndex;
-	protected int rowIndex;
-	protected int posIndex;
+	protected MutableInteger rowIndex;
 
 	@Override
 	public Object clone() {
@@ -39,9 +39,18 @@ public class LeftFieldAddress extends FieldAddress {
 
 	public LeftFieldAddress(final int rowIndex, final int slotIndex) {
 		this.slotIndex = slotIndex;
-		this.rowIndex = rowIndex;
+		this.rowIndex = new MutableInteger(rowIndex);
+	}
+	
+	public LeftFieldAddress(MutableInteger row, int slot) {
+		rowIndex=row;
+		slotIndex=slot;
 	}
 
+	public LeftFieldAddress(MutableInteger row) {
+		this(row,-1);
+	}
+	
 	@Override
 	public String toPPString() {
 		return getExpressionString();
@@ -50,7 +59,7 @@ public class LeftFieldAddress extends FieldAddress {
 	public String getExpressionString() {
 		final StringBuffer result = new StringBuffer();
 		result.append("left(row=");
-		result.append(rowIndex);
+		result.append(rowIndex.get());
 		if (slotIndex == -1)
 			result.append(";whole fact)");
 		else
@@ -65,10 +74,18 @@ public class LeftFieldAddress extends FieldAddress {
 	@Override
 	public JamochaValue getIndexedValue(WorkingMemoryElement wme) throws EvaluationException {
 		if (slotIndex == -1) {
-			return JamochaValue.newFact(wme.getFactTuple().getFact(rowIndex));
+			return JamochaValue.newFact(wme.getFactTuple().getFact(rowIndex.get()));
 		} else {
-			return wme.getFactTuple().getFact(rowIndex).getSlotValue(slotIndex);
+			return wme.getFactTuple().getFact(rowIndex.get()).getSlotValue(slotIndex);
 		}
+	}
+
+	public MutableInteger getTupleIndex() {
+		return rowIndex;
+	}
+
+	public int getSlotIndex() {
+		return slotIndex;
 	}
 
 }

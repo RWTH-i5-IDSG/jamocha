@@ -20,6 +20,7 @@ import org.jamocha.engine.workingmemory.elements.tags.Tag;
 import org.jamocha.formatter.Formatter;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaValue;
+import org.jamocha.parser.ParserFactory;
 
 public class TimerFact implements Fact {
 
@@ -104,8 +105,8 @@ public class TimerFact implements Fact {
 			return null;
 		}
 
-		public String format(Formatter visitor) {
-			return null;
+		public String format(final Formatter visitor) {
+			return visitor.visit(this);
 		}
 
 		public void evaluateStaticDefaults(Engine engine) {
@@ -155,6 +156,10 @@ public class TimerFact implements Fact {
 	}
 
 	public void clear() {
+	}
+	
+	public String toString() {
+		return format(ParserFactory.getFormatter(true));
 	}
 
 	public EqualityIndex equalityIndex() {
@@ -237,8 +242,9 @@ public class TimerFact implements Fact {
 		return true;
 	}
 
-	public String format(Formatter visitor) {
-		return "";
+
+	public String format(final Formatter visitor) {
+		return visitor.visit(this);
 	}
 
 	public String getDump() {

@@ -113,9 +113,9 @@ public class FunctionAction implements Action {
 				try {
 					Object newObj;
 					if (binding.isWholeFactBinding()){
-						newObj = tuple.getFact(binding.getTupleIndex());
+						newObj = tuple.getFact(binding.getTupleIndex().get());
 					} else {
-						newObj = tuple.getFact(binding.getTupleIndex()).getSlotValue(binding.getSlotIndex());
+						newObj = tuple.getFact(binding.getTupleIndex().get()).getSlotValue(binding.getSlotIndex());
 					}
 					params[idx] = JamochaValue.newValueAutoType(newObj);
 				} catch (EvaluationException e) {

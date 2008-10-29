@@ -71,8 +71,8 @@ public abstract class Node {
 		activate2();
 		// fetch working memory elements from above and evaluate them
 		for (final Node child : getChildNodes())
-			for (final WorkingMemoryElement wme : child.memory())
-				child.propagateAddition(wme);
+			for (final WorkingMemoryElement wme : memory())
+				child.addWME(this, wme);
 	}
 
 	protected void getDescriptionString(final StringBuilder sb) {
