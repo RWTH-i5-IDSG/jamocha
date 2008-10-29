@@ -50,6 +50,7 @@ import org.jamocha.engine.nodes.SimpleBetaFilterNode;
 import org.jamocha.engine.nodes.SlotFilterNode;
 import org.jamocha.engine.nodes.TerminalNode;
 import org.jamocha.engine.nodes.joinfilter.FieldAddress;
+import org.jamocha.engine.nodes.joinfilter.GeneralizedFieldComparator;
 import org.jamocha.engine.nodes.joinfilter.GeneralizedFunctionEvaluator;
 import org.jamocha.engine.nodes.joinfilter.LeftFieldAddress;
 import org.jamocha.engine.rules.rulecompiler.CompileRuleException;
@@ -347,11 +348,13 @@ public class BeffyRuleCompiler implements RuleCompiler {
 				try {
 					Condition c1 = c.getNestedConditions().get(0);
 					Condition c2 = c.getNestedConditions().get(1);
-					LeftInputAdaptorNode lia = new LeftInputAdaptorNode(engine);
 					Condition alphaCond = (isAlpha(c1)) ? c1 : c2;
-					Node n = data.getLastNode(alphaCond);
-					n.addChild(lia);
-					data.setLastNode(alphaCond, lia);
+					if (isAlpha(c1) && isAlpha(c2)) {
+						LeftInputAdaptorNode lia = new LeftInputAdaptorNode(engine);
+						Node n = data.getLastNode(alphaCond);
+						n.addChild(lia);
+						data.setLastNode(alphaCond, lia);
+					}
 					data.getLastNode(c1).addChild(joinNode);
 					data.getLastNode(c2).addChild(joinNode);
 					// fix the tuple indices for c1 and c2
@@ -400,9 +403,35 @@ public class BeffyRuleCompiler implements RuleCompiler {
 			for (Condition nest : c.getNestedConditions()){
 				if (nest instanceof ObjectCondition) {
 					ObjectCondition oc = (ObjectCondition) nest;
-					
-					
-					
+					for (Constraint constr : oc.getConstraints()) {
+						if (constr instanceof BoundConstraint) {
+							BoundConstraint bc = (BoundConstraint) constr;
+							MutableInteger tupleIdx = data.getTupleIndexFromCondition(oc);
+							Template templ = engine.findTemplate(oc.getTemplateName());
+							int slotIdx = templ.getSlot(bc.getSlotName()).getId();
+							// 'tupleIdx' and 'slotIdx' are our field-address for the actual bound-param
+							
+							Binding pivot=bindings.getBinding(data.getRule(), bc.getConstraintName());
+							// 'pivot' is the field-address for the pivot element
+							
+							if (pivot.getSlotIndex() == slotIdx && pivot.getTupleIndex().equals(tupleIdx)) {
+								// the actual bound-param IS the pivot element. do nothing here.
+							} else if (pivot.getTupleIndex().equals(tupleIdx)) {
+								// occurence in the same condition as the pivot element. =>alpha slot comparator
+								//TODO implement
+							} else {
+								LeftFieldAddress f1 = new LeftFieldAddress(tupleIdx,slotIdx);
+								LeftFieldAddress f2 = new LeftFieldAddress(pivot.getTupleIndex(),pivot.getSlotIndex());
+								int op = (bc.isNegated())? Constants.NOTEQUAL : Constants.EQUAL;
+								GeneralizedFieldComparator filter = new GeneralizedFieldComparator(bc.getConstraintName(),f1,op,f2);
+								join.addFilter(filter);
+							}
+							
+							
+							
+							
+						}
+					}
 				}
 			}
 			

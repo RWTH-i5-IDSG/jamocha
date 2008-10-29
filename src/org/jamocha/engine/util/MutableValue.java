@@ -16,4 +16,9 @@ public class MutableValue<T extends Object> {
 		this.v=v;
 	}
 	
+	@Override
+	public boolean equals(Object o) {
+		return v.equals(o);
+	}
+	
 }

@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.jamocha.application.gui.retevisualisation.NodeDrawer;
-import org.jamocha.application.gui.retevisualisation.nodedrawers.SimpleBetaFilterNodeDrawer;
+import org.jamocha.application.gui.retevisualisation.nodedrawers.MultiBetaFilterNodeDrawer;
 import org.jamocha.communication.logging.Logging;
 import org.jamocha.engine.Engine;
 import org.jamocha.engine.ReteNet;
@@ -169,7 +169,7 @@ public class MultiBetaJoinNode extends AbstractBetaFilterNode {
 
 	@Override
 	protected NodeDrawer newNodeDrawer() {
-		return new SimpleBetaFilterNodeDrawer(this);
+		return new MultiBetaFilterNodeDrawer(this);
 	}
 
 	@Override
