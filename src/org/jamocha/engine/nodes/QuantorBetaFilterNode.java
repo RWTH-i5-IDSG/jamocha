@@ -24,7 +24,7 @@ import java.util.Map;
 import org.jamocha.application.gui.retevisualisation.NodeDrawer;
 import org.jamocha.application.gui.retevisualisation.nodedrawers.QuantorBetaFilterNodeDrawer;
 import org.jamocha.engine.ReteNet;
-import org.jamocha.engine.nodes.joinfilter.JoinFilter;
+import org.jamocha.engine.nodes.joinfilter.GeneralizedJoinFilter;
 import org.jamocha.engine.nodes.joinfilter.JoinFilterException;
 import org.jamocha.engine.workingmemory.WorkingMemory;
 import org.jamocha.engine.workingmemory.WorkingMemoryElement;
@@ -98,7 +98,7 @@ public class QuantorBetaFilterNode extends SimpleBetaFilterNode {
 	}
 
 	public QuantorBetaFilterNode(final int id, final WorkingMemory memory,
-			final ReteNet net, final JoinFilter[] filter, final boolean negated) {
+			final ReteNet net, final GeneralizedJoinFilter[] filter, final boolean negated) {
 		super(id, memory, net, filter);
 		this.negated = negated;
 		counter = new Counter<WorkingMemoryElement>();

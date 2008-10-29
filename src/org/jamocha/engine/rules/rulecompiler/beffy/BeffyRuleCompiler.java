@@ -37,7 +37,6 @@ import org.jamocha.engine.Parameter;
 import org.jamocha.engine.ReteNet;
 import org.jamocha.engine.RuleCompiler;
 import org.jamocha.engine.configurations.Signature;
-import org.jamocha.engine.functions.Function;
 import org.jamocha.engine.nodes.AlphaQuantorDistinctionNode;
 import org.jamocha.engine.nodes.LeftInputAdaptorNode;
 import org.jamocha.engine.nodes.MultiBetaJoinNode;
@@ -48,8 +47,6 @@ import org.jamocha.engine.nodes.RootNode;
 import org.jamocha.engine.nodes.SimpleBetaFilterNode;
 import org.jamocha.engine.nodes.SlotFilterNode;
 import org.jamocha.engine.nodes.TerminalNode;
-import org.jamocha.engine.nodes.joinfilter.FunctionEvaluator;
-import org.jamocha.engine.nodes.joinfilter.JoinFilter;
 import org.jamocha.engine.rules.rulecompiler.CompileRuleException;
 import org.jamocha.engine.util.MutableInteger;
 import org.jamocha.engine.workingmemory.elements.Slot;
@@ -319,7 +316,7 @@ public class BeffyRuleCompiler implements RuleCompiler {
 	private class BeffyRuleConditionVisitor implements ConditionVisitor<CompileTableau, CompileTableau> {
 
 		private boolean isAlpha(Condition c) {
-			return (c instanceof ObjectCondition || c instanceof ExistsCondition);
+			return (c instanceof ObjectCondition || c instanceof ExistsCondition || c instanceof TestCondition);
 		}
 		
 		public CompileTableau visit(AndCondition c, CompileTableau data) {
@@ -462,19 +459,11 @@ public class BeffyRuleCompiler implements RuleCompiler {
 		public CompileTableau visit(TestCondition c, CompileTableau data) {
 			try {
 				data.setLastNode(c, objectTypeNodes.getObjectTypeNode(engine.getInitialTemplate()));
-				
-				Node correspondingJoin = data.getCorrespondingJoin(c);
-				if (correspondingJoin instanceof SimpleBetaFilterNode){
-					SimpleBetaFilterNode n = (SimpleBetaFilterNode) correspondingJoin;
-					Function function = c.getFunction().lookUpFunction(engine);
-					List<Parameter> params = substituteBoundParamsForFunctionCall(c.getFunction().getParameters(), data.getRule());					
-					JoinFilter testFilter = new FunctionEvaluator(engine,function,params);
-					n.addFilter(testFilter);
-				} else if (correspondingJoin instanceof MultiBetaJoinNode) {
-					
-				}
-				
-				
+				/*
+				 * we can't really handle the test here, because the needed
+				 * FunctionEvaluator must be added to the corresponding join-
+				 * node which doesn't exist here!
+				 */
 			} catch (Exception e) {
 				logAndFail(e,data);
 			}

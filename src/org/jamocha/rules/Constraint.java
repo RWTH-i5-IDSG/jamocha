@@ -19,7 +19,6 @@
 package org.jamocha.rules;
 
 import org.jamocha.engine.Complexity;
-import org.jamocha.engine.rules.rulecompiler.sfp.Compileable;
 import org.jamocha.formatter.Formattable;
 import org.jamocha.parser.JamochaValue;
 
@@ -30,7 +29,7 @@ import org.jamocha.parser.JamochaValue;
  * Constraints are "values" in a rule. this can be a variable-binding "?x"
  * or a value "13" and so on... Furthermore, it can be negated.
  */
-public interface Constraint extends Complexity, Compileable, Formattable {
+public interface Constraint extends Complexity, Formattable {
 
 	/**
 	 * This should be the name of the constraint.

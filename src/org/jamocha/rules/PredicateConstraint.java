@@ -21,8 +21,6 @@ package org.jamocha.rules;
 import java.util.List;
 
 import org.jamocha.engine.Parameter;
-import org.jamocha.engine.nodes.Node;
-import org.jamocha.engine.rules.rulecompiler.sfp.SFRuleCompiler;
 import org.jamocha.formatter.Formatter;
 import org.jamocha.parser.JamochaValue;
 
@@ -56,10 +54,6 @@ public class PredicateConstraint extends AbstractConstraint {
 
 	public boolean isNegated() {
 		return false;
-	}
-
-	public Node compile(SFRuleCompiler compiler, Rule rule, int conditionIndex) {
-		return compiler.compile(this, rule, conditionIndex);
 	}
 
 	public String format(Formatter visitor) {

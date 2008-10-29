@@ -24,9 +24,9 @@ import java.util.List;
 import org.jamocha.engine.BoundParam;
 import org.jamocha.engine.Engine;
 import org.jamocha.engine.Parameter;
+import org.jamocha.engine.RuleCompiler.SFRuleCompiler;
 import org.jamocha.engine.configurations.Signature;
 import org.jamocha.engine.nodes.Node;
-import org.jamocha.engine.rules.rulecompiler.sfp.SFRuleCompiler;
 import org.jamocha.formatter.Formatter;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaValue;
@@ -62,10 +62,6 @@ public class TestCondition extends AbstractCondition {
 		func.setParameters(params);
 		JamochaValue rv = func.getValue(engine);
 		return rv.getBooleanValue();
-	}
-
-	public Node compile(SFRuleCompiler compiler, Rule rule, int conditionIndex) {
-		return compiler.compile(this, rule, conditionIndex);
 	}
 
 	public String format(Formatter visitor) {
@@ -110,17 +106,17 @@ public class TestCondition extends AbstractCondition {
 		return getConstraints();
 	}
 	
-
+	public boolean testEquals(Condition o) {
+		return false;
+	}
+	
 	/**
-	 * @see org.jamocha.rules.Condition#acceptVisitor(org.jamocha.rules.ConditionVisitor, java.lang.Object)
+	 * @see org.jamocha.rules.Condition#acceptVisitor(org.jamocha.rules.LHSVisitor, java.lang.Object)
 	 */
 	public <T, S> S acceptVisitor(ConditionVisitor<T, S> visitor, T data) {
 		return visitor.visit(this, data);
 	}
 
-	public boolean testEquals(Condition o) {
-		return false;
-	}
 
 	public String dump(String prefix) {
 		return prefix + "test";

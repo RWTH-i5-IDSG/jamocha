@@ -19,15 +19,10 @@
 package org.jamocha.rules;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
-import org.jamocha.engine.StopCompileException;
-import org.jamocha.engine.nodes.Node;
-import org.jamocha.engine.rules.rulecompiler.sfp.SFRuleCompiler;
 import org.jamocha.engine.workingmemory.elements.Template;
 import org.jamocha.formatter.Formatter;
-import org.jamocha.parser.EvaluationException;
 
 /**
  * ObjectCondition is equivalent to RuleML 0.83 resourceType. ObjectCondition
@@ -49,6 +44,14 @@ public class ObjectCondition extends AbstractCondition {
 
 	protected Template template = null;
 
+	/**
+	 * @see org.jamocha.rules.Condition#acceptVisitor(org.jamocha.rules.LHSVisitor, java.lang.Object)
+	 */
+	public <T, S> S acceptVisitor(ConditionVisitor<T, S> visitor, T data) {
+		return visitor.visit(this, data);
+	}
+
+	
 	/**
 	 * 
 	 */
@@ -74,11 +77,6 @@ public class ObjectCondition extends AbstractCondition {
 
 	public String getTemplateName() {
 		return this.templateName;
-	}
-
-	public Node compile(SFRuleCompiler compiler, Rule rule, int conditionIndex)
-			throws EvaluationException, StopCompileException {
-		return compiler.compile(this, rule, conditionIndex);
 	}
 
 	public Condition clone() {
@@ -111,12 +109,6 @@ public class ObjectCondition extends AbstractCondition {
 	}
 
 
-	/**
-	 * @see org.jamocha.rules.Condition#acceptVisitor(org.jamocha.rules.ConditionVisitor, java.lang.Object)
-	 */
-	public <T, S> S acceptVisitor(ConditionVisitor<T, S> visitor, T data) {
-		return visitor.visit(this, data);
-	}
 
 	public boolean testEquals(Condition o) {
 		if (o == null) return false;

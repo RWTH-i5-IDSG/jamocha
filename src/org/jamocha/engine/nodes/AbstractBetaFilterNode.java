@@ -21,7 +21,7 @@ package org.jamocha.engine.nodes;
 import java.util.List;
 
 import org.jamocha.engine.ReteNet;
-import org.jamocha.engine.nodes.joinfilter.JoinFilter;
+import org.jamocha.engine.nodes.joinfilter.GeneralizedJoinFilter;
 import org.jamocha.engine.nodes.joinfilter.JoinFilterException;
 import org.jamocha.engine.workingmemory.WorkingMemory;
 import org.jamocha.engine.workingmemory.WorkingMemoryElement;
@@ -34,7 +34,7 @@ import org.jamocha.parser.EvaluationException;
  */
 public abstract class AbstractBetaFilterNode extends TwoInputNode {
 
-	protected JoinFilter[] filters;
+	protected GeneralizedJoinFilter[] filters;
 
 	public AbstractBetaFilterNode(final int id, final WorkingMemory memory,
 			final ReteNet net) {
@@ -42,7 +42,7 @@ public abstract class AbstractBetaFilterNode extends TwoInputNode {
 	}
 
 	public AbstractBetaFilterNode(final int id, final WorkingMemory memory,
-			final ReteNet net, final JoinFilter[] filters) {
+			final ReteNet net, final GeneralizedJoinFilter[] filters) {
 		super(id, memory, net);
 		this.filters = filters;
 	}
@@ -60,89 +60,40 @@ public abstract class AbstractBetaFilterNode extends TwoInputNode {
 	protected boolean applyFilters(final WorkingMemoryElement alpha,
 			final WorkingMemoryElement beta) throws JoinFilterException,
 			EvaluationException {
-		for (final JoinFilter f : getFilters())
+		for (final GeneralizedJoinFilter f : getFilters())
 			if (!f.evaluate(alpha.getFirstFact(), beta.getFactTuple(), net
 					.getEngine()))
 				return false;
 		return true;
 	}
 
-	@Override
-	public void addWME(Node sender, final WorkingMemoryElement newElem) throws NodeException {
-		if (!isActivated())
-			return;
-		try {
-			if (newElem.isStandaloneFact())
-				addAlpha(newElem);
-			else
-				addBeta(newElem);
-		} catch (final Exception e) {
-			e.printStackTrace();
-			throw new NodeException(
-					"error while adding working memory element. ", e, this);
-		}
-	}
+	public abstract void addWME(Node sender, final WorkingMemoryElement newElem) throws NodeException;
 
-	/**
-	 * this method is called, when a new beta wme is added.
-	 */
-	protected abstract void addBeta(WorkingMemoryElement newElem)
-			throws JoinFilterException, EvaluationException, NodeException;
+	public abstract void removeWME(Node sender, final WorkingMemoryElement oldElem) throws NodeException;
+	
 
-	/**
-	 * this method is called, when a new alpha wme is added.
-	 */
-	protected abstract void addAlpha(WorkingMemoryElement newElem)
-			throws JoinFilterException, EvaluationException, NodeException;
-
-	@Override
-	public void removeWME(Node sender, final WorkingMemoryElement oldElem)
-			throws NodeException {
-		try {
-			if (oldElem.isStandaloneFact())
-				removeAlpha(oldElem);
-			else
-				removeBeta(oldElem);
-		} catch (final Exception e) {
-			throw new NodeException(
-					"error while removing working memory element. ", e, this);
-		}
-	}
-
-	/**
-	 * this method is called, when an alpha wme is removed.
-	 */
-	protected abstract void removeBeta(WorkingMemoryElement oldElem)
-			throws JoinFilterException, EvaluationException, NodeException;
-
-	/**
-	 * this method is called, when a beta wme is removed.
-	 */
-	protected abstract void removeAlpha(WorkingMemoryElement oldElem)
-			throws JoinFilterException, EvaluationException, NodeException;
-
-	protected JoinFilter[] getFilters() {
+	protected GeneralizedJoinFilter[] getFilters() {
 		if (filters != null)
 			return filters;
-		final JoinFilter[] empty = {};
+		final GeneralizedJoinFilter[] empty = {};
 		return empty;
 	}
 
-	public void setFilter(final JoinFilter[] filter) {
+	public void setFilter(final GeneralizedJoinFilter[] filter) {
 		filters = filter;
 	}
 
 
-	public void setFilter(final List<JoinFilter> filter) {
-		JoinFilter[] arr = new JoinFilter[filter.size()];
+	public void setFilter(final List<GeneralizedJoinFilter> filter) {
+		GeneralizedJoinFilter[] arr = new GeneralizedJoinFilter[filter.size()];
 		arr = filter.toArray(arr);
 		setFilter(arr);
 	}
 
 
-	public void addFilter(final JoinFilter filter) {
-		final JoinFilter[] tmpFilters = getFilters();
-		final JoinFilter[] arr = new JoinFilter[tmpFilters.length + 1];
+	public void addFilter(final GeneralizedJoinFilter filter) {
+		final GeneralizedJoinFilter[] tmpFilters = getFilters();
+		final GeneralizedJoinFilter[] arr = new GeneralizedJoinFilter[tmpFilters.length + 1];
 		if (tmpFilters.length > 0)
 			System.arraycopy(tmpFilters, 0, arr, 0, tmpFilters.length);
 		arr[tmpFilters.length] = filter;

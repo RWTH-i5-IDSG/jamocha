@@ -18,8 +18,6 @@
 
 package org.jamocha.rules;
 
-import org.jamocha.engine.nodes.Node;
-import org.jamocha.engine.rules.rulecompiler.sfp.SFRuleCompiler;
 import org.jamocha.formatter.Formatter;
 import org.jamocha.parser.JamochaValue;
 
@@ -86,10 +84,6 @@ public class BoundConstraint extends AbstractConstraint {
 		return this.negated;
 	}
 
-	public Node compile(SFRuleCompiler compiler, Rule rule, int conditionIndex) {
-		return compiler.compile(this, rule, conditionIndex);
-	}
-	
 	public String format(Formatter visitor) {
 		return visitor.visit(this);
 	}

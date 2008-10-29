@@ -18,10 +18,6 @@
 
 package org.jamocha.rules;
 
-import org.jamocha.engine.AssertException;
-import org.jamocha.engine.StopCompileException;
-import org.jamocha.engine.nodes.Node;
-import org.jamocha.engine.rules.rulecompiler.sfp.SFRuleCompiler;
 import org.jamocha.formatter.Formatter;
 import org.jamocha.parser.JamochaValue;
 
@@ -49,10 +45,6 @@ public class OrderedFactConstraint extends AbstractConstraint {
 	}
 
 	public JamochaValue getValue() {
-		return null;
-	}
-
-	public Node compile(SFRuleCompiler compiler, Rule rule, 	int conditionIndex) throws AssertException, StopCompileException {
 		return null;
 	}
 

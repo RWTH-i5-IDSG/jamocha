@@ -25,6 +25,7 @@ import org.jamocha.engine.Parameter;
 import org.jamocha.engine.configurations.Signature;
 import org.jamocha.engine.functions.Function;
 import org.jamocha.engine.nodes.FactTuple;
+import org.jamocha.engine.workingmemory.elements.Fact;
 import org.jamocha.parser.EvaluationException;
 
 public class GeneralizedFunctionEvaluator implements GeneralizedJoinFilter {
@@ -110,6 +111,11 @@ public class GeneralizedFunctionEvaluator implements GeneralizedJoinFilter {
 		}
 		result.append(")");
 		return result.toString();
+	}
+
+	public boolean evaluate(Fact right, FactTuple left, Engine engine)
+			throws JoinFilterException, EvaluationException {
+		return evaluate(left.appendFact(right), engine);
 	}
 
 }

@@ -20,6 +20,7 @@ package org.jamocha.engine.nodes.joinfilter;
 
 import org.jamocha.engine.Engine;
 import org.jamocha.engine.nodes.FactTuple;
+import org.jamocha.engine.workingmemory.elements.Fact;
 import org.jamocha.parser.EvaluationException;
 
 /**
@@ -33,6 +34,8 @@ public interface GeneralizedJoinFilter {
 
 	boolean evaluate(FactTuple t, Engine engine)
 			throws JoinFilterException, EvaluationException;
+	
+	boolean evaluate(Fact right, FactTuple left, Engine engine) throws JoinFilterException, EvaluationException;
 
 	public String toPPString();
 

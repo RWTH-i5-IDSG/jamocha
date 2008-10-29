@@ -24,11 +24,10 @@ import org.jamocha.application.gui.retevisualisation.NodeDrawer;
 import org.jamocha.application.gui.retevisualisation.nodedrawers.SimpleBetaFilterNodeDrawer;
 import org.jamocha.engine.Engine;
 import org.jamocha.engine.ReteNet;
-import org.jamocha.engine.nodes.joinfilter.JoinFilter;
+import org.jamocha.engine.nodes.joinfilter.GeneralizedJoinFilter;
 import org.jamocha.engine.nodes.joinfilter.JoinFilterException;
 import org.jamocha.engine.workingmemory.WorkingMemory;
 import org.jamocha.engine.workingmemory.WorkingMemoryElement;
-import org.jamocha.engine.workingmemory.elements.Slot;
 import org.jamocha.parser.EvaluationException;
 
 /**
@@ -47,7 +46,7 @@ public class SimpleBetaFilterNode extends AbstractBetaFilterNode {
 
 	@Deprecated
 	public SimpleBetaFilterNode(final int id, final WorkingMemory memory,
-			final ReteNet net, final JoinFilter[] filters) {
+			final ReteNet net, final GeneralizedJoinFilter[] filters) {
 		super(id, memory, net, filters);
 	}
 	
@@ -55,12 +54,11 @@ public class SimpleBetaFilterNode extends AbstractBetaFilterNode {
 		this(e.getNet().nextNodeId(), e.getWorkingMemory(), e.getNet());
 	}
 	
-	public SimpleBetaFilterNode(Engine e, JoinFilter[] filters) {
+	public SimpleBetaFilterNode(Engine e, GeneralizedJoinFilter[] filters) {
 		this(e.getNet().nextNodeId(), e.getWorkingMemory(), e.getNet(), filters);
 	}
 	
 
-	@Override
 	protected void addAlpha(final WorkingMemoryElement newElem)
 			throws JoinFilterException, EvaluationException, NodeException {
 		if (betaInput != null && betaInput.workingMemory != null)
@@ -73,7 +71,6 @@ public class SimpleBetaFilterNode extends AbstractBetaFilterNode {
 				}
 	}
 
-	@Override
 	protected void addBeta(final WorkingMemoryElement newElem)
 			throws JoinFilterException, EvaluationException, NodeException {
 		if (alphaInput != null && alphaInput.workingMemory != null)
@@ -86,7 +83,20 @@ public class SimpleBetaFilterNode extends AbstractBetaFilterNode {
 				}
 	}
 
-	@Override
+	public void removeWME(Node sender, final WorkingMemoryElement oldElem)
+			throws NodeException {
+		try {
+			if (oldElem.isStandaloneFact())
+				removeAlpha(oldElem);
+			else
+				removeBeta(oldElem);
+		} catch (final Exception e) {
+			throw new NodeException(
+					"error while removing working memory element. ", e, this);
+		}
+	}
+
+	
 	protected void removeAlpha(final WorkingMemoryElement oldElem)
 			throws JoinFilterException, EvaluationException, NodeException {
 		final Iterator<WorkingMemoryElement> i = memory().iterator();
@@ -99,7 +109,6 @@ public class SimpleBetaFilterNode extends AbstractBetaFilterNode {
 		}
 	}
 
-	@Override
 	protected void removeBeta(final WorkingMemoryElement oldElem)
 			throws JoinFilterException, EvaluationException, NodeException {
 		final Iterator<WorkingMemoryElement> i = memory().iterator();
@@ -121,7 +130,23 @@ public class SimpleBetaFilterNode extends AbstractBetaFilterNode {
 	public void getDescriptionString(final StringBuilder sb) {
 		super.getDescriptionString(sb);
 		sb.append("|filters:");
-		for (final JoinFilter f : getFilters())
+		for (final GeneralizedJoinFilter f : getFilters())
 			sb.append(f.toPPString() + " & ");
 	}
+	@Override
+	public void addWME(Node sender, final WorkingMemoryElement newElem) throws NodeException {
+		if (!isActivated())
+			return;
+		try {
+			if (newElem.isStandaloneFact())
+				addAlpha(newElem);
+			else
+				addBeta(newElem);
+		} catch (final Exception e) {
+			e.printStackTrace();
+			throw new NodeException(
+					"error while adding working memory element. ", e, this);
+		}
+	}
+
 }

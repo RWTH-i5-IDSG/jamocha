@@ -26,6 +26,7 @@ import org.jamocha.engine.ConversionUtils;
 import org.jamocha.engine.Engine;
 import org.jamocha.engine.Evaluate;
 import org.jamocha.engine.nodes.FactTuple;
+import org.jamocha.engine.workingmemory.elements.Fact;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaValue;
 
@@ -107,6 +108,11 @@ public class GeneralizedFieldComparator implements Serializable, Cloneable, Gene
 					&& right.equals(fc.right) && left.equals(fc.left);
 		}
 		return false;
+	}
+
+	public boolean evaluate(Fact right, FactTuple left, Engine engine)
+			throws JoinFilterException, EvaluationException {
+		return evaluate(left.appendFact(right), engine);
 	}
 
 }

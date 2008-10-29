@@ -18,10 +18,8 @@
 
 package org.jamocha.rules;
 
-import org.jamocha.engine.AssertException;
-import org.jamocha.engine.StopCompileException;
+import org.jamocha.engine.RuleCompiler.SFRuleCompiler;
 import org.jamocha.engine.nodes.Node;
-import org.jamocha.engine.rules.rulecompiler.sfp.SFRuleCompiler;
 import org.jamocha.formatter.Formatter;
 
 /**
@@ -42,19 +40,6 @@ public class AndCondition extends ConditionWithNested {
 		super();
 	}
 
-	@Deprecated
-	public Node compile(SFRuleCompiler compiler, Rule rule, int conditionIndex) throws AssertException, StopCompileException {
-		return compiler.compile(this, rule, conditionIndex);
-	}
-
-
-	/**
-	 * @see org.jamocha.rules.Condition#acceptVisitor(org.jamocha.rules.ConditionVisitor, java.lang.Object)
-	 */
-	public <T, S> S acceptVisitor(ConditionVisitor<T, S> visitor, T data) {
-		return visitor.visit(this, data);
-	}
-	
 
 	public String format(Formatter visitor) {
 		return visitor.visit(this);
@@ -62,6 +47,14 @@ public class AndCondition extends ConditionWithNested {
 
 	public String dump(String prefix) {
 		return dump(prefix, "and");
+	}
+
+
+	/**
+	 * @see org.jamocha.rules.Condition#acceptVisitor(org.jamocha.rules.LHSVisitor, java.lang.Object)
+	 */
+	public <T, S> S acceptVisitor(ConditionVisitor<T, S> visitor, T data) {
+		return visitor.visit(this, data);
 	}
 	
 }

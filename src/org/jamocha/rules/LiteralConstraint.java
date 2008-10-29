@@ -18,10 +18,7 @@
 
 package org.jamocha.rules;
 
-import org.jamocha.engine.nodes.Node;
-import org.jamocha.engine.rules.rulecompiler.sfp.SFRuleCompiler;
 import org.jamocha.formatter.Formatter;
-import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaValue;
 
 /**
@@ -78,10 +75,6 @@ public class LiteralConstraint extends AbstractConstraint {
 		return super.toString()+value.toString();
 	}
 	
-	public Node compile(SFRuleCompiler compiler, Rule rule, int conditionIndex) throws EvaluationException {
-		return compiler.compile(this, rule, conditionIndex);
-	}
-
 	public String format(Formatter visitor) {
 		return visitor.visit(this);
 		

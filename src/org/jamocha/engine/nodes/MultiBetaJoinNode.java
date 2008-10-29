@@ -44,33 +44,28 @@ import org.jamocha.parser.EvaluationException;
  *  
  * @author Josef Alexander Hahn
  */
-public class MultiBetaJoinNode extends Node {
+public class MultiBetaJoinNode extends AbstractBetaFilterNode {
 
 	private List<Node> inputs;
-	
-	private List<GeneralizedJoinFilter> filters;
 	
 	@Deprecated
 	public MultiBetaJoinNode(int id, WorkingMemory memory, ReteNet net) {
 		super(id, memory, net);
 		inputs = new ArrayList<Node>();
-		filters = new ArrayList<GeneralizedJoinFilter>();
 	}
 	
 	public MultiBetaJoinNode(Engine e) {
 		this(e.getNet().nextNodeId(), e.getWorkingMemory(), e.getNet());
 	}
 
-	public void addFilter(GeneralizedJoinFilter filter) {
-		filters.add(filter);
-	}
-	
 	protected boolean applyFilters(WorkingMemoryElement t) throws JoinFilterException,
 			EvaluationException {
 		for (final GeneralizedJoinFilter f : filters)
 			if (!f.evaluate(t.getFactTuple(), net.getEngine() )) return false;
 		return true;
 	}
+
+	
 	
 	protected List<WorkingMemoryElement> getResultedTuples(Node sender, WorkingMemoryElement elem) {
 		List<WorkingMemoryElement> result = new ArrayList<WorkingMemoryElement>();

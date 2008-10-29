@@ -18,9 +18,6 @@
 
 package org.jamocha.rules;
 
-import org.jamocha.engine.StopCompileException;
-import org.jamocha.engine.nodes.Node;
-import org.jamocha.engine.rules.rulecompiler.sfp.SFRuleCompiler;
 import org.jamocha.formatter.Formatter;
 
 public class OrConnectedConstraint extends AbstractConnectedConstraint {
@@ -30,11 +27,6 @@ public class OrConnectedConstraint extends AbstractConnectedConstraint {
 	}
 
 	private static final long serialVersionUID = 1L;
-
-	public Node compile(SFRuleCompiler compiler, Rule rule,
-			int conditionIndex) throws StopCompileException {
-		return compiler.compile(this, rule, conditionIndex);
-	}
 
 	public String format(Formatter visitor) {
 		return visitor.visit(this);
