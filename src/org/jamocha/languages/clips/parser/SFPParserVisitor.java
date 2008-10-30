@@ -72,6 +72,7 @@ public interface SFPParserVisitor
   public Object visit(SFPTADuration node, Object data);
   public Object visit(SFPSalience node, Object data);
   public Object visit(SFPAutoFocus node, Object data);
+  public Object visit(SFPSlowCompile node, Object data);
   public Object visit(SFPRuleVersion node, Object data);
   public Object visit(SFPNotFunction node, Object data);
   public Object visit(SFPAndFunction node, Object data);

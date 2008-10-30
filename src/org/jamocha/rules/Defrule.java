@@ -72,6 +72,8 @@ public class Defrule implements Rule {
 
 	private boolean active = true;
 
+	private boolean slowCompile = false;
+	
 	protected boolean watch = false;
 
 	protected long effectiveDate = 0;
@@ -116,6 +118,7 @@ public class Defrule implements Rule {
 		// set conditions:
 		conditions = new ArrayList<Condition>();
 		
+	
 		Condition[] arrConds = configuration.getConditions();
 
 		for (Condition c : arrConds) conditions.add(c);
@@ -145,6 +148,11 @@ public class Defrule implements Rule {
 			if (param != null)
 				setAutoFocus(param.getValue(engine).getBooleanValue());
 
+			param = declarationConfiguration.getSlowCompile();
+			if (param != null)
+				setSlowCompile(param.getValue(engine).getBooleanValue());
+
+			
 			// set version
 			//TODO remove lines here param = declarationConfiguration.getVersion();
 			//if (param != null)
@@ -368,6 +376,14 @@ public class Defrule implements Rule {
 				this.actions.add(faction);
 			}
 		}
+	}
+
+	public boolean getSlowCompile() {
+		return slowCompile;
+	}
+
+	public void setSlowCompile(boolean slowCompile) {
+		this.slowCompile = slowCompile;
 	}
 
 }

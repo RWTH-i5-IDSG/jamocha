@@ -10,4 +10,5 @@
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="org.jamocha.application.Jamocha"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="-gui"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="Jamocha"/>
+<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Djava.util.logging.config.file=src/org/jamocha/communication/logging/logging.properties"/>
 </launchConfiguration>

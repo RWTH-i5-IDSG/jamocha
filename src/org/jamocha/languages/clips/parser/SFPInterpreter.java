@@ -1317,4 +1317,13 @@ public class SFPInterpreter implements SFPParserVisitor {
 		return null;
 	}
 
+	public Object visit(SFPSlowCompile node, Object data) {
+		// get the node's expression and set it to the DeclarationConfiguration
+		Parameter parameter = (Parameter) node.jjtGetChild(0).jjtAccept(this,
+				null);
+		((DeclarationConfiguration) data).setSlowCompile(parameter);
+
+		return null;
+	}
+
 }

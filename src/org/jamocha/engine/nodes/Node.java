@@ -232,4 +232,23 @@ public abstract class Node {
 	}
 
 	protected abstract void unbindFromParents();
+
+	public void removeChild(Node child) {
+		int idx = -1;
+		for (int i=0;i<childs.length;i++){
+			if (childs[i]==child) {
+				idx = i;
+				break;
+			}
+		}
+		if (idx==-1) return;
+		Node[] newArr = new Node[childs.length - 1];
+		int j=0;
+		for (int i=0;i<childs.length;i++) {
+			if (i!=idx) {
+				newArr[j++] = childs[i];
+			}
+		}
+		childs=newArr;
+	}
 }

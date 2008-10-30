@@ -32,6 +32,8 @@ public class DeclarationConfiguration extends AbstractConfiguration {
 
 	private Parameter autoFocus = null;
 	
+	private Parameter slowCompile = null;
+	
 	private TemporalValidityConfiguration temporalValidity = null;
 
 	public TemporalValidityConfiguration getTemporalValidity() {
@@ -83,6 +85,14 @@ public class DeclarationConfiguration extends AbstractConfiguration {
 
 	public String format(Formatter visitor) {
 		return visitor.visit(this);
+	}
+
+	public Parameter getSlowCompile() {
+		return slowCompile;
+	}
+
+	public void setSlowCompile(Parameter slowCompile) {
+		this.slowCompile = slowCompile;
 	}
 
 }
