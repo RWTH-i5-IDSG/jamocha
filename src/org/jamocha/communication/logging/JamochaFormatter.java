@@ -18,10 +18,13 @@ public class JamochaFormatter extends SimpleFormatter {
 	public synchronized String format(LogRecord record) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(formatter.format(new Date()));
+		int lvl = record.getLevel().intValue();
+		sb.append(" ").append(lvl);
 		String logger = record.getLoggerName();
 		logger = logger.substring(logger.lastIndexOf(".")+1);
 		sb.append(" ").append(logger).append(": ");
-		sb.append(record.getMessage()).append("\n");
+		String msg = (record.getMessage() !=null) ? record.getMessage() : "EXCEPTION: "+ record.getThrown().getClass().getSimpleName() +" "+record.getThrown().getMessage(); 
+		sb.append(msg).append("\n");
 		return sb.toString();
 	}
 

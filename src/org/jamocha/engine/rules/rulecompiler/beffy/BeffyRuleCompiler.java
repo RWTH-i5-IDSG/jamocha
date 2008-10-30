@@ -18,6 +18,7 @@
 package org.jamocha.engine.rules.rulecompiler.beffy;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -62,6 +63,7 @@ import org.jamocha.engine.workingmemory.elements.TemplateSlot;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
+import org.jamocha.parser.ParserFactory;
 import org.jamocha.parser.RuleException;
 import org.jamocha.rules.AndCondition;
 import org.jamocha.rules.BoundConstraint;
@@ -555,6 +557,29 @@ public class BeffyRuleCompiler implements RuleCompiler {
 			/* this is our entry point. here we branch the rule into
 			 * some new rules!
 			 */
+			
+			/*
+			 * for each subcondition C, which is not an and-condition,
+			 * replace C by (and C (_initialFact)). so we can assume, that
+			 * we have an or-condition of and-conditions. i think, its overkill
+			 * to write a new optimizer-pass just for that.
+			 */
+			List<Condition> cons = c.getNestedConditions();
+			for (int i=0; i<cons.size(); i++) {
+				Condition co = cons.get(i);
+				if (co instanceof AndCondition) continue;
+				AndCondition n = new AndCondition();
+				n.addNestedCondition(co);
+				ObjectCondition ifact = new ObjectCondition(Collections.EMPTY_LIST, "_initialFact");
+				n.addNestedCondition(ifact);
+				cons.remove(co);
+				cons.add(i, n);
+			}
+			String struct = c.format(ParserFactory.getFormatter());
+			log("we will begin to compile the rule '%s' with the following structure:\n %s", data.getRule().getName(), struct);
+			
+			
+			
 			int p = getNumber();
 			log("(%d) i enter an or-condition now. at first, i will handle the sub conditions...",p);
 			for (Condition subCondition : c.getNestedConditions()) {

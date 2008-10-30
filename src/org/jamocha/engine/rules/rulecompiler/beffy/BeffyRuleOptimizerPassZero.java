@@ -52,25 +52,7 @@ import org.jamocha.rules.TestCondition;
 public class BeffyRuleOptimizerPassZero {
 
 	public Condition optimize(List<Condition> cons) {
-		/*
-		 * for each subcondition C, which is not an and-condition,
-		 * replace C by (and C (_initialFact)). so we can assume, that
-		 * we have an or-condition of and-condition 
-		 */
-//		for (int i=0; i<cons.size(); i++) {
-//			Condition c = cons.get(i);
-//			if (c instanceof AndCondition) continue;
-//			AndCondition n = new AndCondition();
-//			n.addNestedCondition(c);
-//			ObjectCondition ifact = new ObjectCondition(Collections.EMPTY_LIST, "_initialFact");
-//			n.addNestedCondition(ifact);
-//			cons.remove(c);
-//			cons.add(i, n);
-//		}
-//		
-		//TODO BUT NOT HERE. DO IT AT THE LAST STEPS. OR HANDLE IT DIRECTLY IN THE COMPILER!
-		
-		
+	
 		/* find constraints. all constraints we are searching for,
 		 * will only exist inside an object condition
 		 */
