@@ -90,7 +90,7 @@ public class DefruleConfiguration extends AbstractConfiguration {
 		return conditions;
 	}
 
-	public void seConditions(Condition[] conditions) {
+	public void setConditions(Condition[] conditions) {
 		this.conditions = conditions;
 	}
 

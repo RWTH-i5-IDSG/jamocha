@@ -667,7 +667,7 @@ public class SFPInterpreter implements SFPParserVisitor {
 		rc.setRuleName(ruleName.getStringValue());
 		rc.setTotalComplexity(totalComplexity);
 		rc.setDeclarationConfiguration(dc);
-		rc.seConditions(conditionList);
+		rc.setConditions(conditionList);
 		rc.setActions(actions);
 
 		if (ruleDescription != null)
