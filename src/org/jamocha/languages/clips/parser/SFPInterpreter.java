@@ -551,7 +551,7 @@ public class SFPInterpreter implements SFPParserVisitor {
 			beginData = 2;
 			TemporalValidityConfiguration tvc = 
 									(TemporalValidityConfiguration) secondChild;
-			ac.setTemporalValidity(tvc);
+			ac.setTemporalValidityConfiguration(tvc);
 		} else {
 			beginData = 1;
 		}

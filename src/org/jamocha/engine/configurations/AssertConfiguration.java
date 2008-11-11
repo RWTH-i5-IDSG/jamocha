@@ -20,6 +20,7 @@ package org.jamocha.engine.configurations;
 
 import org.jamocha.engine.Engine;
 import org.jamocha.engine.Parameter;
+import org.jamocha.engine.TemporalValidity;
 import org.jamocha.formatter.Formatter;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaValue;
@@ -30,7 +31,17 @@ public class AssertConfiguration extends AbstractConfiguration {
 
 	private Parameter[] data = null;
 	
-	private TemporalValidityConfiguration temporalValidity = null;
+	private TemporalValidityConfiguration temporalValidityConf = null;
+	
+	private TemporalValidity temporalValidity = null;
+
+	public TemporalValidity getTemporalValidity() {
+		return temporalValidity;
+	}
+
+	public void setTemporalValidity(TemporalValidity temporalValidity) {
+		this.temporalValidity = temporalValidity;
+	}
 
 	public boolean isFactBinding() {
 		// TODO Auto-generated method stub
@@ -84,12 +95,12 @@ public class AssertConfiguration extends AbstractConfiguration {
 		return visitor.visit(this);
 	}
 
-	public TemporalValidityConfiguration getTemporalValidity() {
-		return temporalValidity;
+	public TemporalValidityConfiguration getTemporalValidityConfiguration() {
+		return temporalValidityConf;
 	}
 
-	public void setTemporalValidity(TemporalValidityConfiguration temporalValidity) {
-		this.temporalValidity = temporalValidity;
+	public void setTemporalValidityConfiguration(TemporalValidityConfiguration temporalValidity) {
+		this.temporalValidityConf = temporalValidity;
 	}
 
 }

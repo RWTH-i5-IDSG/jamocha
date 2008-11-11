@@ -22,6 +22,7 @@ import java.util.List;
 
 import org.jamocha.engine.Complexity;
 import org.jamocha.engine.Dumpable;
+import org.jamocha.engine.TemporalValidity;
 import org.jamocha.engine.modules.Module;
 import org.jamocha.formatter.Formattable;
 
@@ -84,41 +85,11 @@ public interface Rule extends Cloneable, Complexity, Formattable, Dumpable {
 	 */
 	void setDescription(String text);
 
-	/**
-	 * Be default classes implementing the interface should set the effective
-	 * date to zero. only when the user sets the date should it have a non-zero
-	 * positive long value.
-	 * 
-	 * @param mstime
-	 */
-	void setEffectiveDate(long mstime);
-
-	/**
-	 * return the effective date in milliseconds
-	 * 
-	 * @return
-	 */
-	long getEffectiveDate();
-
-	/**
-	 * by default classes implementing the interface should set the expiration
-	 * date to zero. only when the user sets the date should it have a non-zero
-	 * positive value greater than the effective date.
-	 * 
-	 * @param mstime
-	 */
-	void setExpirationDate(long mstime);
 	
 //	TODO remove it void setVersion(String v);
 //	
 //	String getVersion();
 
-	/**
-	 * return the expiration date in milliseconds
-	 * 
-	 * @return
-	 */
-	long getExpirationDate();
 
 	/**
 	 * add a conditional element to the rule
@@ -158,5 +129,9 @@ public interface Rule extends Cloneable, Complexity, Formattable, Dumpable {
 	 * later rule compiler should not use this! -jh
 	 */
 	public Rule clone() throws CloneNotSupportedException;
+	
+	public TemporalValidity getTemporalValidity();
+	
+	public void setTemporalValidity(TemporalValidity tval);
 
 }

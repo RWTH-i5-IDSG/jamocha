@@ -225,10 +225,12 @@ public class Modules implements SettingsChangedListener, Serializable {
 		else
 			result= createFact(ac, (OrderedTemplate) tmpl);
 		
-		if (ac.getTemporalValidity() != null) {
+		if (ac.getTemporalValidityConfiguration() != null) {
 			TemporalValidityConfiguration tvc = 
-					(TemporalValidityConfiguration) ac.getTemporalValidity();
+					(TemporalValidityConfiguration) ac.getTemporalValidityConfiguration();
 			result.setTemporalValidity(tvc.getTemporalValidity(engine));
+		} else if (ac.getTemporalValidity() != null) {
+			result.setTemporalValidity(ac.getTemporalValidity());
 		}
 		
 		return result;

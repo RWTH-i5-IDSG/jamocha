@@ -361,11 +361,6 @@ public class SFPFormatter extends Formatter {
 		newLine(buf);
 		buf.append("(salience ").append(object.getSalience()).append(") ");
 		newLine(buf);
-		buf.append("(effective-date ").append(object.getEffectiveDate())
-				.append(") ");
-		newLine(buf);
-		buf.append("(expiration-date ").append(object.getExpirationDate())
-				.append(") ");
 		decreaseIndent();
 		newLine(buf);
 		buf.append(") ");

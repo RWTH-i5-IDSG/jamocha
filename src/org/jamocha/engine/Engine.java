@@ -20,6 +20,7 @@ package org.jamocha.engine;
 
 import java.beans.ExceptionListener;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,7 +31,9 @@ import org.jamocha.communication.logging.Logging;
 import org.jamocha.communication.logging.Logging.JamochaLogger;
 import org.jamocha.communication.messagerouter.MessageRouter;
 import org.jamocha.engine.agenda.Agendas;
+import org.jamocha.engine.configurations.AssertConfiguration;
 import org.jamocha.engine.configurations.ModifyConfiguration;
+import org.jamocha.engine.configurations.Signature;
 import org.jamocha.engine.configurations.SlotConfiguration;
 import org.jamocha.engine.functions.FunctionMemory;
 import org.jamocha.engine.functions.FunctionMemoryImpl;
@@ -47,14 +50,18 @@ import org.jamocha.engine.workingmemory.elements.Deftemplate;
 import org.jamocha.engine.workingmemory.elements.Fact;
 import org.jamocha.engine.workingmemory.elements.InitialFact;
 import org.jamocha.engine.workingmemory.elements.Template;
+import org.jamocha.engine.workingmemory.elements.TemplateSlot;
 import org.jamocha.parser.EvaluationException;
+import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 import org.jamocha.parser.RuleException;
+import org.jamocha.rules.Constraint;
+import org.jamocha.rules.LiteralConstraint;
+import org.jamocha.rules.ObjectCondition;
 import org.jamocha.rules.Rule;
 import org.jamocha.settings.JamochaSettings;
 import org.jamocha.settings.SettingsChangedListener;
 import org.jamocha.settings.SettingsConstants;
-
 /**
  * @author Peter Lin
  * @author Josef Alexander Hahn
@@ -120,6 +127,8 @@ public class Engine implements Dumpable {
 
 	protected TimerFact timerFact;
 	
+	protected Template triggerFactsTemplate;
+	
 	/**
 	 * 
 	 */
@@ -130,9 +139,11 @@ public class Engine implements Dumpable {
 			temporalFactThread = new TemporalFactThread(this);
 			temporalFactThread.registerExceptionListener(new TemporalThreadExceptionHandler());
 			temporalFactThread.start();
+			TemplateSlot[] slots = new TemplateSlot[1];
+			slots[0] = new TemplateSlot("rule-name");
+			slots[0].setValueType(JamochaType.STRING);
+			triggerFactsTemplate = new Deftemplate("temporal-trigger", null, slots);
 		}
-
-		
 		functionMem = new FunctionMemoryImpl(this);
 		agendas = new Agendas(this);
 		modules = new Modules(this);
@@ -147,6 +158,10 @@ public class Engine implements Dumpable {
 				Logging.logger(this.getClass()).fatal(e);
 			}
 			timerFact.start();
+		}
+		
+		if (Constants.TEMPORAL_STRATEGY.equals("TRIGGER_FACT")) {
+			findModule("MAIN").addTemplate(triggerFactsTemplate);
 		}
 		
 		JamochaSettings.getInstance().addListener(
@@ -735,6 +750,31 @@ public class Engine implements Dumpable {
 	public boolean addRule(Rule rule) throws EvaluationException, RuleException, CompileRuleException {
 		boolean result = false;
 
+		// make some temporal adoptions
+		if (Constants.TEMPORAL_STRATEGY.equals("TRIGGER_FACT")) {
+			AssertConfiguration triggerConf = new AssertConfiguration();
+			triggerConf.setTemplateName("temporal-trigger");
+			Parameter[] data = new Parameter[1];
+			JamochaValue rulename = JamochaValue.newString(rule.parentModule().getName()+":"+rule.getName());
+			Signature slot1 = new Signature("rule-name");
+			Parameter[] params = new Parameter[1];
+			slot1.setParameters(params);
+			data[0]=slot1;
+			params[0]=rulename;
+			triggerConf.setData(data);
+			triggerConf.setTemporalValidity(rule.getTemporalValidity());
+			List<Constraint> constraints = new ArrayList<Constraint>();
+			LiteralConstraint lc = new LiteralConstraint(rulename,"rule-name");
+			constraints.add(lc);
+			ObjectCondition triggerCondition = new ObjectCondition(constraints,"temporal-trigger");
+			rule.getConditions().add(triggerCondition);
+			Fact trigger = getModules().createFact(triggerConf);
+			assertFact(trigger);
+		} else if (Constants.TEMPORAL_STRATEGY.equals("TIME_FACT")) {
+			
+		}
+		
+		
 		// compile the rule
 		if (!getCurrentFocus().containsRule(rule))
 			result = net.addRule(rule);
