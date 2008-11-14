@@ -771,7 +771,7 @@ public class Engine implements Dumpable {
 			Fact trigger = getModules().createFact(triggerConf);
 			assertFact(trigger);
 		} else if (Constants.TEMPORAL_STRATEGY.equals("TIME_FACT")) {
-			
+			// WE WILL FAKE THAT HERE
 		}
 		
 		
