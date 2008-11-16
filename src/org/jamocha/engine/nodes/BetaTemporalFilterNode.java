@@ -18,112 +18,75 @@
 
 package org.jamocha.engine.nodes;
 
-import java.util.Iterator;
-
 import org.jamocha.application.gui.retevisualisation.NodeDrawer;
-import org.jamocha.application.gui.retevisualisation.nodedrawers.SimpleBetaFilterNodeDrawer;
+import org.jamocha.application.gui.retevisualisation.nodedrawers.TemporalNodeDrawer;
 import org.jamocha.engine.Engine;
 import org.jamocha.engine.ReteNet;
+import org.jamocha.engine.TemporalThread;
+import org.jamocha.engine.TemporalValidity;
+import org.jamocha.engine.TemporalValidity.EventPoint;
 import org.jamocha.engine.nodes.joinfilter.GeneralizedJoinFilter;
-import org.jamocha.engine.nodes.joinfilter.JoinFilterException;
 import org.jamocha.engine.workingmemory.WorkingMemory;
 import org.jamocha.engine.workingmemory.WorkingMemoryElement;
-import org.jamocha.parser.EvaluationException;
 
-/**
- * @author Josef Alexander Hahn <mail@josef-hahn.de> this node has an alpha- and
- *         a beta-input. each combination (which means the Cartesian product
- *         "BETA-INPUT x ALPHA-INPUT") will be evaluated by the given join
- *         filters. if all filters accept a combination, it will pass this node.
- */
 public class BetaTemporalFilterNode extends AbstractBetaFilterNode {
 
+	protected class BetaTemporalThread extends TemporalThread {
+
+		TemporalValidity tv;
+		
+		public BetaTemporalThread(Engine e, TemporalValidity tv) {
+			super(e);
+			this.tv=tv;
+			EventPoint ep = tv.getNextEvent(now());
+			eventPoints.add(ep);
+		}
+
+		@Override
+		protected void handle(EventPoint nextEventPoint) {
+			try{
+				if (nextEventPoint.getType().equals(EventPoint.Type.START)) {
+					temporalStart();
+				} else {
+					temporalStop();
+				}
+			} catch (NodeException e) {
+				notifyForException(e);
+			}
+		}
+
+		@Override
+		protected void skipToNextEventPoint(EventPoint actEventPoint) {
+			EventPoint newEP = tv.getNextEvent(actEventPoint.getTimestamp()+1000l);
+			eventPoints.add(newEP);
+		}
+		
+	}
+	
+	protected BetaTemporalThread thread;
+	
 	@Deprecated
-	public BetaTemporalFilterNode(final int id, final WorkingMemory memory,
+	private BetaTemporalFilterNode(final int id, final WorkingMemory memory,
 			final ReteNet net) {
 		super(id, memory, net);
 	}
 
-	@Deprecated
-	public BetaTemporalFilterNode(final int id, final WorkingMemory memory,
-			final ReteNet net, final GeneralizedJoinFilter[] filters) {
-		super(id, memory, net, filters);
-	}
-	
-	public BetaTemporalFilterNode(Engine e) {
+	public BetaTemporalFilterNode(Engine e, TemporalValidity tv) {
 		this(e.getNet().nextNodeId(), e.getWorkingMemory(), e.getNet());
-	}
-	
-	public BetaTemporalFilterNode(Engine e, GeneralizedJoinFilter[] filters) {
-		this(e.getNet().nextNodeId(), e.getWorkingMemory(), e.getNet(), filters);
-	}
-	
-
-	protected void addAlpha(final WorkingMemoryElement newElem)
-			throws JoinFilterException, EvaluationException, NodeException {
-		if (betaInput != null && betaInput.workingMemory != null)
-			for (final WorkingMemoryElement beta : betaInput.workingMemory
-					.getMemory(betaInput))
-				if (applyFilters(newElem, beta)) {
-					final WorkingMemoryElement newTuple = beta.getFactTuple()
-							.appendFact(newElem.getFirstFact());
-					addAndPropagate(newTuple);
-				}
-	}
-
-	protected void addBeta(final WorkingMemoryElement newElem)
-			throws JoinFilterException, EvaluationException, NodeException {
-		if (alphaInput != null && alphaInput.workingMemory != null)
-			for (final WorkingMemoryElement alpha : alphaInput.workingMemory
-					.getMemory(alphaInput))
-				if (applyFilters(alpha, newElem)) {
-					final WorkingMemoryElement newTuple = newElem
-							.getFactTuple().appendFact(alpha.getFirstFact());
-					addAndPropagate(newTuple);
-				}
+		thread = new BetaTemporalThread(e,tv);
+		thread.start();
 	}
 
 	public void removeWME(Node sender, final WorkingMemoryElement oldElem)
 			throws NodeException {
-		try {
-			if (oldElem.isStandaloneFact())
-				removeAlpha(oldElem);
-			else
-				removeBeta(oldElem);
-		} catch (final Exception e) {
-			throw new NodeException(
-					"error while removing working memory element. ", e, this);
-		}
+	
 	}
 
 	
-	protected void removeAlpha(final WorkingMemoryElement oldElem)
-			throws JoinFilterException, EvaluationException, NodeException {
-		final Iterator<WorkingMemoryElement> i = memory().iterator();
-		while (i.hasNext()) {
-			final WorkingMemoryElement wme = i.next();
-			if (wme.getLastFact().equals(oldElem)) {
-				i.remove();
-				propagateRemoval(wme);
-			}
-		}
-	}
-
-	protected void removeBeta(final WorkingMemoryElement oldElem)
-			throws JoinFilterException, EvaluationException, NodeException {
-		final Iterator<WorkingMemoryElement> i = memory().iterator();
-		while (i.hasNext()) {
-			final WorkingMemoryElement wme = i.next();
-			if (wme.getFactTuple().isMySubTuple(oldElem.getFactTuple())) {
-				i.remove();
-				propagateRemoval(wme);
-			}
-		}
-	}
 
 	@Override
 	protected NodeDrawer newNodeDrawer() {
-		return new SimpleBetaFilterNodeDrawer(this);
+		return new TemporalNodeDrawer(this);
 	}
 
 	@Override
@@ -133,19 +96,23 @@ public class BetaTemporalFilterNode extends AbstractBetaFilterNode {
 		for (final GeneralizedJoinFilter f : getFilters())
 			sb.append(f.toPPString() + " & ");
 	}
+	
 	@Override
 	public void addWME(Node sender, final WorkingMemoryElement newElem) throws NodeException {
-		if (!isActivated())
-			return;
-		try {
-			if (newElem.isStandaloneFact())
-				addAlpha(newElem);
-			else
-				addBeta(newElem);
-		} catch (final Exception e) {
-			e.printStackTrace();
-			throw new NodeException(
-					"error while adding working memory element. ", e, this);
+	
+	}
+	
+	protected void temporalStart() throws NodeException {
+		Node parent = getParentNodes()[0];
+		for (WorkingMemoryElement wme : workingMemory.getMemory(parent)) {
+			addAndPropagate(wme);
+		}
+	}
+	
+	protected void temporalStop() throws NodeException {
+		Node parent = getParentNodes()[0];
+		for (WorkingMemoryElement wme : workingMemory.getMemory(parent) ){
+			removeAndPropagate(wme);
 		}
 	}
 

@@ -43,6 +43,7 @@ import org.jamocha.engine.nodes.AbstractBetaFilterNode;
 import org.jamocha.engine.nodes.AlphaQuantorDistinctionNode;
 import org.jamocha.engine.nodes.AlphaSlotComparatorNode;
 import org.jamocha.engine.nodes.AlphaTemporalFilterNode;
+import org.jamocha.engine.nodes.BetaTemporalFilterNode;
 import org.jamocha.engine.nodes.LeftInputAdaptorNode;
 import org.jamocha.engine.nodes.MultiBetaJoinNode;
 import org.jamocha.engine.nodes.Node;
@@ -603,6 +604,22 @@ public class BeffyRuleCompiler implements RuleCompiler {
 				}
 				
 				Node last = data.getLastNode(subCondition);
+				
+				// temporal stuff
+				if (Constants.TEMPORAL_STRATEGY.equals("SEPARATE_RETE")){
+					if (data.getRule().getTemporalValidity()!= null) {
+						BetaTemporalFilterNode btfn = new BetaTemporalFilterNode(engine,data.getRule().getTemporalValidity());
+						try {
+							last.addChild(btfn);
+						} catch (NodeException e) {
+							logAndFail(e,data);
+						}
+						last = btfn;
+						data.setLastNode(subCondition, btfn);
+					}
+				}
+				
+				
 				try {
 					log("(%d) add terminal node for '%s'",p,data.getRule().getName());
 					last.addChild(terminal);slow(data);
