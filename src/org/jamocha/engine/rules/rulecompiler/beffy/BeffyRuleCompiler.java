@@ -42,6 +42,7 @@ import org.jamocha.engine.functions.Function;
 import org.jamocha.engine.nodes.AbstractBetaFilterNode;
 import org.jamocha.engine.nodes.AlphaQuantorDistinctionNode;
 import org.jamocha.engine.nodes.AlphaSlotComparatorNode;
+import org.jamocha.engine.nodes.AlphaTemporalFilterNode;
 import org.jamocha.engine.nodes.LeftInputAdaptorNode;
 import org.jamocha.engine.nodes.MultiBetaJoinNode;
 import org.jamocha.engine.nodes.Node;
@@ -522,6 +523,13 @@ public class BeffyRuleCompiler implements RuleCompiler {
 			log("(%d) i enter an object-condition for template '%s' now.",p, template.getName());
 			try {
 				lastNode = objectTypeNodes.getObjectTypeNode(template);
+				
+				//temporal stuff
+				if (Constants.TEMPORAL_STRATEGY.equals("SEPARATE_RETE")) {
+					AlphaTemporalFilterNode tempoNode = new AlphaTemporalFilterNode(engine);
+					lastNode.addChild(tempoNode);
+					lastNode = tempoNode;
+				}
 				
 				/* iterate over all constraints and mark each constraint, we 
 				 * can handle here */

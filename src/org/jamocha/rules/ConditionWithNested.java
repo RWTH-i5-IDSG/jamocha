@@ -52,7 +52,7 @@ public abstract class ConditionWithNested extends AbstractCondition {
 	}
 
 	public List<Condition> getNestedConditions() {
-		return Collections.unmodifiableList(this.nested);
+		return this.nested;
 	}
 
 	public List<Constraint> getConstraints() {

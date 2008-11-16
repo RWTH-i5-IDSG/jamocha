@@ -750,30 +750,32 @@ public class Engine implements Dumpable {
 	public boolean addRule(Rule rule) throws EvaluationException, RuleException, CompileRuleException {
 		boolean result = false;
 
-		// make some temporal adoptions
-		if (Constants.TEMPORAL_STRATEGY.equals("TRIGGER_FACT")) {
-			AssertConfiguration triggerConf = new AssertConfiguration();
-			triggerConf.setTemplateName("temporal-trigger");
-			Parameter[] data = new Parameter[1];
-			JamochaValue rulename = JamochaValue.newString(rule.parentModule().getName()+":"+rule.getName());
-			Signature slot1 = new Signature("rule-name");
-			Parameter[] params = new Parameter[1];
-			slot1.setParameters(params);
-			data[0]=slot1;
-			params[0]=rulename;
-			triggerConf.setData(data);
-			triggerConf.setTemporalValidity(rule.getTemporalValidity());
-			List<Constraint> constraints = new ArrayList<Constraint>();
-			LiteralConstraint lc = new LiteralConstraint(rulename,"rule-name");
-			constraints.add(lc);
-			ObjectCondition triggerCondition = new ObjectCondition(constraints,"temporal-trigger");
-			rule.getConditions().add(triggerCondition);
-			Fact trigger = getModules().createFact(triggerConf);
-			assertFact(trigger);
-		} else if (Constants.TEMPORAL_STRATEGY.equals("TIME_FACT")) {
-			// WE WILL FAKE THAT HERE
+		if (rule.getTemporalValidity() != null) {
+			// make some temporal adoptions
+			if (Constants.TEMPORAL_STRATEGY.equals("TRIGGER_FACT")) {
+				AssertConfiguration triggerConf = new AssertConfiguration();
+				triggerConf.setTemplateName("temporal-trigger");
+				Parameter[] data = new Parameter[1];
+				JamochaValue rulename = JamochaValue.newString(rule.parentModule().getName()+":"+rule.getName());
+				Signature slot1 = new Signature("rule-name");
+				Parameter[] params = new Parameter[1];
+				slot1.setParameters(params);
+				data[0]=slot1;
+				params[0]=rulename;
+				triggerConf.setData(data);
+				triggerConf.setTemporalValidity(rule.getTemporalValidity());
+				List<Constraint> constraints = new ArrayList<Constraint>();
+				LiteralConstraint lc = new LiteralConstraint(rulename,"rule-name");
+				constraints.add(lc);
+				ObjectCondition triggerCondition = new ObjectCondition(constraints,"temporal-trigger");
+				rule.getConditions().add(triggerCondition);
+				Fact trigger = getModules().createFact(triggerConf);
+				assertFact(trigger);
+			} else if (Constants.TEMPORAL_STRATEGY.equals("TIME_FACT")) {
+				// WE WILL FAKE THAT HERE
+			}
+
 		}
-		
 		
 		// compile the rule
 		if (!getCurrentFocus().containsRule(rule))

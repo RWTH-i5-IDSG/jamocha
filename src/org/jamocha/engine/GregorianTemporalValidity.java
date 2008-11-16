@@ -35,13 +35,13 @@ public class GregorianTemporalValidity implements TemporalValidity {
 			int result = g.get(field);
 			if (field == GregorianCalendar.MONTH) result++;
 			if (field == GregorianCalendar.DAY_OF_WEEK) {
-				if (result == GregorianCalendar.MONDAY) return 1;
-				if (result == GregorianCalendar.TUESDAY) return 2;
-				if (result == GregorianCalendar.WEDNESDAY) return 3;
-				if (result == GregorianCalendar.THURSDAY) return 4;
-				if (result == GregorianCalendar.FRIDAY) return 5;
-				if (result == GregorianCalendar.SATURDAY) return 6;
-				if (result == GregorianCalendar.SUNDAY) return 7;
+				if (result == GregorianCalendar.MONDAY) return 0;
+				if (result == GregorianCalendar.TUESDAY) return 1;
+				if (result == GregorianCalendar.WEDNESDAY) return 2;
+				if (result == GregorianCalendar.THURSDAY) return 3;
+				if (result == GregorianCalendar.FRIDAY) return 4;
+				if (result == GregorianCalendar.SATURDAY) return 5;
+				if (result == GregorianCalendar.SUNDAY) return 6;
 			}
 			return result;
 		}

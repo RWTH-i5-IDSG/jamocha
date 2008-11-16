@@ -19,20 +19,44 @@
 package org.jamocha.engine.nodes;
 
 import org.jamocha.application.gui.retevisualisation.NodeDrawer;
-import org.jamocha.application.gui.retevisualisation.nodedrawers.ObjectTypeNodeDrawer;
+import org.jamocha.application.gui.retevisualisation.nodedrawers.TemporalNodeDrawer;
 import org.jamocha.engine.Engine;
 import org.jamocha.engine.ReteNet;
+import org.jamocha.engine.TemporalFactThread;
+import org.jamocha.engine.TemporalValidity.EventPoint;
+import org.jamocha.engine.TemporalValidity.EventPoint.Type;
 import org.jamocha.engine.workingmemory.WorkingMemory;
 import org.jamocha.engine.workingmemory.WorkingMemoryElement;
-import org.jamocha.engine.workingmemory.elements.Template;
+import org.jamocha.engine.workingmemory.elements.Fact;
 
-/**
- * @author Josef Alexander Hahn <mail@josef-hahn.de> this node type filters by
- *         the object type (the deftemplate)
- */
 public class AlphaTemporalFilterNode extends OneInputNode {
 
-	protected Template template;
+	private class AlphaTemporalFilterThread extends TemporalFactThread {
+
+		public AlphaTemporalFilterThread(Engine e) {
+			super(e);
+		}
+		
+		protected void handle(EventPoint nextEventPoint) {
+			Fact f = eventPoint2Fact.get(nextEventPoint);
+			if (nextEventPoint.getType() == Type.START) {
+				try {
+					addAndPropagate(f);
+				} catch (NodeException e) {
+					notifyForException(e);
+				}
+			} else {
+				try {
+					removeAndPropagate(f);
+				} catch (NodeException e) {
+					notifyForException(e);
+				}
+			}
+		}
+		
+	}
+	
+	protected AlphaTemporalFilterThread thread;
 
 	@Deprecated
 	private AlphaTemporalFilterNode(final int id, final WorkingMemory memory,
@@ -40,19 +64,10 @@ public class AlphaTemporalFilterNode extends OneInputNode {
 		super(id, memory, net);
 	}
 
-	@Deprecated
-	public AlphaTemporalFilterNode(final int id, final WorkingMemory memory,
-			final ReteNet net, final Template templ) {
-		this(id, memory, net);
-		template = templ;
-	}
-	
 	public AlphaTemporalFilterNode(Engine e) {
 		this(e.getNet().nextNodeId(), e.getWorkingMemory(), e.getNet());
-	}
-	
-	public AlphaTemporalFilterNode(Engine e, Template template) {
-		this(e.getNet().nextNodeId(), e.getWorkingMemory(), e.getNet(), template);
+		thread = new AlphaTemporalFilterThread(e);
+		thread.start();
 	}
 	
 
@@ -60,24 +75,19 @@ public class AlphaTemporalFilterNode extends OneInputNode {
 	public void addWME(Node sender, final WorkingMemoryElement newElem) throws NodeException {
 		if (!isActivated())
 			return;
-		final Template t = newElem.getFirstFact().getTemplate();
-		if (t.equals(template))
+		if (newElem.getFirstFact().getTemporalValidity()==null) {
 			addAndPropagate(newElem);
+		} else 
+			thread.insertFact(newElem.getFirstFact());
 	}
 
 	@Override
 	public void removeWME(Node sender, final WorkingMemoryElement oldElem)
 			throws NodeException {
-		final Template t = oldElem.getFirstFact().getTemplate();
-		if (t.equals(template))
+		if (oldElem.getFirstFact().getTemporalValidity()==null) {
 			removeAndPropagate(oldElem);
-	}
-
-	/**
-	 * returns the template, which this node will let pass
-	 */
-	public Template getTemplate() {
-		return template;
+		} else
+			thread.removeFact(oldElem.getFirstFact());
 	}
 
 	@Override
@@ -87,13 +97,12 @@ public class AlphaTemporalFilterNode extends OneInputNode {
 
 	@Override
 	protected NodeDrawer newNodeDrawer() {
-		return new ObjectTypeNodeDrawer(this);
+		return new TemporalNodeDrawer(this);
 	}
 
 	@Override
 	public void getDescriptionString(final StringBuilder sb) {
 		super.getDescriptionString(sb);
-		sb.append("|template:").append(template.getName());
 	}
 
 }
