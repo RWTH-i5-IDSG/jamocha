@@ -1,14 +1,7 @@
 package org.jamocha.engine;
 
-import java.beans.ExceptionListener;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.GregorianCalendar;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.PriorityQueue;
-import java.util.Queue;
 
 import org.jamocha.engine.TemporalValidity.EventPoint;
 import org.jamocha.engine.TemporalValidity.EventPoint.Type;

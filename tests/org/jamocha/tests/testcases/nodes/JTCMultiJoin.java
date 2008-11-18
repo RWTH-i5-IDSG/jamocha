@@ -30,7 +30,7 @@ public class JTCMultiJoin extends TestCase {
 	public void test1() {
 		Engine e = new Engine();
 		
-		MultiBetaJoinNode node = new MultiBetaJoinNode(1, e.getWorkingMemory(), e.getNet() );
+		MultiBetaJoinNode node = new MultiBetaJoinNode(e);
 
 		
 		

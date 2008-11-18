@@ -18,8 +18,6 @@
 
 package org.jamocha.rules;
 
-import org.jamocha.engine.RuleCompiler.SFRuleCompiler;
-import org.jamocha.engine.nodes.Node;
 import org.jamocha.formatter.Formatter;
 
 /**

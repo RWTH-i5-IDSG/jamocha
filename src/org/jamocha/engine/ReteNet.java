@@ -63,6 +63,7 @@ public class ReteNet implements SettingsChangedListener, Serializable {
 	/**
 	 * 
 	 */
+	@SuppressWarnings("deprecation")
 	public ReteNet(Engine engine) {
 		super();
 		this.engine = engine;

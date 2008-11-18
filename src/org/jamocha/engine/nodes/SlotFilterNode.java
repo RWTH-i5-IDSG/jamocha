@@ -28,7 +28,6 @@ import org.jamocha.engine.workingmemory.WorkingMemory;
 import org.jamocha.engine.workingmemory.WorkingMemoryElement;
 import org.jamocha.engine.workingmemory.elements.Slot;
 import org.jamocha.parser.EvaluationException;
-import org.jamocha.rules.Rule;
 
 /**
  * @author Josef Alexander Hahn <mail@josef-hahn.de> this node type is an

@@ -23,14 +23,12 @@ package org.jamocha.engine.rules.rulecompiler.beffy;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Stack;
 
 import org.jamocha.engine.configurations.Signature;
 import org.jamocha.rules.AbstractConnectedConstraint;
 import org.jamocha.rules.AndCondition;
-import org.jamocha.rules.AndConnectedConstraint;
 import org.jamocha.rules.Condition;
 import org.jamocha.rules.ConditionWithNested;
 import org.jamocha.rules.Constraint;

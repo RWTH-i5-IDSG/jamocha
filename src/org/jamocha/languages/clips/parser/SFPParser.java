@@ -42,7 +42,6 @@ public class SFPParser implements/*@bgen(jjtree)*/ SFPParserTreeConstants,Parser
                 boolean verbose = (args != null && args.length == 1 && "verbose".equals(args[0]));
                 if(!verbose)System.out.println("Note: For verbose output type \"java Main verbose\".\n");
                 System.out.print("SFP> ");
-                Engine engine = new Engine();
                 SFPParser p = new SFPParser(System.in);
                 try
                 {

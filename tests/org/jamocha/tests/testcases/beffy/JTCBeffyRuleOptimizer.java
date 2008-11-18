@@ -29,7 +29,6 @@ import java.util.List;
 import junit.framework.TestCase;
 
 import org.jamocha.engine.rules.rulecompiler.beffy.BeffyRuleOptimizer;
-import org.jamocha.engine.rules.rulecompiler.beffy.BeffyRuleOptimizerDataPassTwo;
 import org.jamocha.engine.rules.rulecompiler.beffy.BeffyRuleOptimizerPassOne;
 import org.jamocha.engine.rules.rulecompiler.beffy.BeffyRuleOptimizerPassThree;
 import org.jamocha.engine.rules.rulecompiler.beffy.BeffyRuleOptimizerPassTwo;

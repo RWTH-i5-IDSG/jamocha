@@ -19,7 +19,6 @@
 package org.jamocha.engine;
 
 import org.jamocha.parser.Expression;
-import org.jamocha.rules.ConditionVisitor;
 
 /**
  * @author Peter Lin

@@ -23,8 +23,6 @@ import org.jamocha.engine.Parameter;
 import org.jamocha.engine.functions.AbstractFunction;
 import org.jamocha.engine.functions.FunctionDescription;
 import org.jamocha.engine.nodes.Node;
-import org.jamocha.engine.nodes.RootNode;
-import org.jamocha.engine.workingmemory.WorkingMemory;
 import org.jamocha.engine.workingmemory.WorkingMemoryElement;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaType;

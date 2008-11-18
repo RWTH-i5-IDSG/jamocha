@@ -28,7 +28,6 @@ import java.util.List;
 import org.jamocha.engine.Engine;
 import org.jamocha.engine.configurations.DefruleConfiguration;
 import org.jamocha.engine.configurations.Signature;
-import org.jamocha.engine.rules.rulecompiler.CompileRuleException;
 import org.jamocha.languages.clips.parser.SFPInterpreter;
 import org.jamocha.languages.clips.parser.SFPParser;
 import org.jamocha.languages.clips.parser.SFPStart;

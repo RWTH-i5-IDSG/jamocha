@@ -229,18 +229,8 @@ public class RulesPanel extends AbstractJamochaPanel implements ActionListener,
 		}
 
 		private void addRules(final Collection<Rule> rules) {
-			final List<Rule> alreadyAdded = new ArrayList<Rule>();
 			for (final Rule rule : rules) {
-				final Rule superRule = rule.getSuperRule();
-				if (superRule != null) {
-					if (alreadyAdded.contains(superRule)) {
-						continue;
-					}
-					alreadyAdded.add(superRule);
-					this.rules.add(superRule);
-				} else {
-					this.rules.add(rule);
-				}
+				this.rules.add(rule);
 			}
 			fireTableDataChanged();
 		}

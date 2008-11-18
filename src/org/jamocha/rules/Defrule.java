@@ -24,7 +24,6 @@ import java.util.List;
 import org.jamocha.communication.logging.Logging;
 import org.jamocha.engine.Engine;
 import org.jamocha.engine.ExpressionSequence;
-import org.jamocha.engine.GregorianTemporalValidity;
 import org.jamocha.engine.Parameter;
 import org.jamocha.engine.TemporalValidity;
 import org.jamocha.engine.configurations.DeclarationConfiguration;
@@ -49,10 +48,6 @@ import org.jamocha.parser.JamochaValue;
 public class Defrule implements Rule {
 
 	private static final long serialVersionUID = 1L;
-
-	protected Rule superRule;
-
-	protected List<Rule> subRules;
 
 	protected String name = null;
 
@@ -95,7 +90,6 @@ public class Defrule implements Rule {
 	 */
 	protected Defrule() {
 		super();
-		subRules = new ArrayList<Rule>();
 	}
 
 	public Defrule(Module module, String name, List<Condition> lhs, List<Action> rhs) {
@@ -287,16 +281,6 @@ public class Defrule implements Rule {
 		
 		newRule.setDescription(getDescription());
 		
-		// set super rule:
-		
-		if (this.superRule != null) {
-			this.superRule.addSubRule(newRule);
-			newRule.superRule = this.superRule;
-		} else {
-			subRules.add(newRule);
-			newRule.superRule = this;
-		}
-
 		return newRule;
 	}
 
@@ -307,22 +291,6 @@ public class Defrule implements Rule {
 
 	public String format(Formatter visitor) {
 		return visitor.visit(this);
-	}
-
-	public Rule getSuperRule() {
-		return superRule;
-	}
-
-	public void setSuperRule(Rule superRule) {
-		this.superRule = superRule;
-	}
-
-	public void addSubRule(Rule rule) {
-		subRules.add(rule);
-	}
-
-	public List<Rule> getSubRules() {
-		return subRules;
 	}
 
 	public String toString() {
@@ -354,10 +322,6 @@ public class Defrule implements Rule {
 		description = text;
 	}
 
-	public void setName(String name) {
-		this.name = name;
-	}
-	
 	private void setActions(ExpressionSequence actions, Engine engine) {
 		this.actions = new ArrayList<Action>();
 		for (int i = 0; i < actions.size(); ++i) {

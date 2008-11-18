@@ -73,7 +73,6 @@ public abstract class AbstractConnectedConstraint extends AbstractConstraint {
 	 * We should set this value in the constructor only!
 	 * @param left
 	 */
-	@Deprecated
 	public void setLeft(Constraint left) {
 		this.left = left;
 	}
@@ -85,7 +84,6 @@ public abstract class AbstractConnectedConstraint extends AbstractConstraint {
 	 * We should set this value in the constructor only!
 	 * @param right
 	 */
-	@Deprecated
 	public void setRight(Constraint right) {
 		this.right = right;
 	}

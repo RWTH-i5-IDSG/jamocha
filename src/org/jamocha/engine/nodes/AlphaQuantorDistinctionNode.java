@@ -137,8 +137,8 @@ public class AlphaQuantorDistinctionNode extends OneInputNode {
 		try{
 			if (!isActivated())
 				return;
-			if ( addFact(key(oldElem) , oldElem)) {
-				addAndPropagate(oldElem);
+			if ( removeFact( key(oldElem) , oldElem)) {
+				removeAndPropagate(oldElem);
 			}
 		} catch (EvaluationException e) {
 			throw new NodeException(e,this);

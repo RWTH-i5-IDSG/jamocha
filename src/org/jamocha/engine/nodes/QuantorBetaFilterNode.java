@@ -97,6 +97,7 @@ public class QuantorBetaFilterNode extends SimpleBetaFilterNode {
 		this(id, memory, net, null, negated);
 	}
 
+	@Deprecated
 	public QuantorBetaFilterNode(final int id, final WorkingMemory memory,
 			final ReteNet net, final GeneralizedJoinFilter[] filter, final boolean negated) {
 		super(id, memory, net, filter);

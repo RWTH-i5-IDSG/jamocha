@@ -46,21 +46,6 @@ public interface Rule extends Cloneable, Complexity, Formattable, Dumpable {
 	 */
 	boolean getAutoFocus();
 
-	@Deprecated
-	Rule getSuperRule();
-
-	@Deprecated
-	void setSuperRule(Rule superRule);
-
-	@Deprecated
-	List<Rule> getSubRules();
-
-	@Deprecated
-	void addSubRule(Rule rule);
-	
-	@Deprecated
-	void setName(String name);
-
 	/**
 	 * if the rule should fire even when the module is not in focus, call the
 	 * method with true
