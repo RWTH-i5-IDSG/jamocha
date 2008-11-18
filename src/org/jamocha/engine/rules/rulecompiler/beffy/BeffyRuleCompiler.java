@@ -192,7 +192,10 @@ public class BeffyRuleCompiler implements RuleCompiler {
 		}
 		
 		public Binding getBinding(Rule r, String varName) {
-			return getBindingInformation(r,varName).b;
+			BindingInformation bi = getBindingInformation(r,varName);
+			if (bi != null) {
+				return getBindingInformation(r,varName).b;				
+			} else return null;
 		}
 		
 		private void putBinding(Rule r, String varName, BindingInformation binding) {

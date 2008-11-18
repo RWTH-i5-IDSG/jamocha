@@ -21,6 +21,7 @@ package org.jamocha.engine;
 import java.beans.ExceptionListener;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,6 +31,7 @@ import org.jamocha.communication.events.MessageEvent;
 import org.jamocha.communication.logging.Logging;
 import org.jamocha.communication.logging.Logging.JamochaLogger;
 import org.jamocha.communication.messagerouter.MessageRouter;
+import org.jamocha.engine.TemporalValidity.EventPoint;
 import org.jamocha.engine.agenda.Agendas;
 import org.jamocha.engine.configurations.AssertConfiguration;
 import org.jamocha.engine.configurations.ModifyConfiguration;
@@ -49,6 +51,7 @@ import org.jamocha.engine.workingmemory.elements.Deffact;
 import org.jamocha.engine.workingmemory.elements.Deftemplate;
 import org.jamocha.engine.workingmemory.elements.Fact;
 import org.jamocha.engine.workingmemory.elements.InitialFact;
+import org.jamocha.engine.workingmemory.elements.Slot;
 import org.jamocha.engine.workingmemory.elements.Template;
 import org.jamocha.engine.workingmemory.elements.TemplateSlot;
 import org.jamocha.parser.EvaluationException;
@@ -152,6 +155,17 @@ public class Engine implements Dumpable {
 		establishInitialFact();
 		
 		if (Constants.TEMPORAL_STRATEGY.equals("TIME_FACT")) {
+			
+			TemplateSlot[] temporalFactContainerTemplateSlots = new TemplateSlot[3];
+			temporalFactContainerTemplateSlots[0] = new TemplateSlot("next_event_point");
+			temporalFactContainerTemplateSlots[1] = new TemplateSlot("ep_type");
+			temporalFactContainerTemplateSlots[2] = new TemplateSlot("fact");
+			temporalFactContainerTemplateSlots[0].setId(0);
+			temporalFactContainerTemplateSlots[1].setId(1);
+			temporalFactContainerTemplateSlots[2].setId(2);
+			Template temporalFactContainerTemplate = new Deftemplate("temporal-fact-container",null,temporalFactContainerTemplateSlots);
+			findModule("MAIN").addTemplate(temporalFactContainerTemplate);
+			
 			try {
 				timerFact = new TimerFact(this);
 			} catch (EvaluationException e) {
@@ -548,17 +562,38 @@ public class Engine implements Dumpable {
 	 * This method is explicitly used to assert facts.
 	 */
 	public void assertFact(Fact o) throws AssertException {
-		if (Constants.TEMPORAL_STRATEGY.equals("TRIGGER_FACT")) {
+		if (Constants.TEMPORAL_STRATEGY.equals("TRIGGER_FACT") && o.getTemporalValidity()!=null) {
 			
-		
-			if (o.getTemporalValidity() == null) {
-				hardAssertFact(o, temporalFactThread);
-			} else {
 				temporalFactThread.insertFact(o);
-			}
-			
-		} else {
-			hardAssertFact(o, null);
+				
+		} else if (Constants.TEMPORAL_STRATEGY.equals("TIME_FACT") && o.getTemporalValidity()!= null) {
+			/*
+			 * (assert (wurst (temporal-validity (duration 1) (second 20) ) (name "bratwurst" ))
+			 *
+			 *          ===>
+			 *			 
+			 * (assert
+			 *	 (temporal-fact-container
+			 *	 	(next_event_point 3235345346356)
+			 *		(type START) ;START|STOP|WINDOW_EXCEEDED
+			 *		(fact (wurst...) )
+			 *	 )
+			 * )
+			 */
+			Template containerTemplate = findModule("MAIN").getTemplate("temporal-fact-container");
+			Slot[] slots = new Slot[3];
+			Date dNow = new Date();
+			long now = dNow.getTime(); 
+			EventPoint nextEp = o.getTemporalValidity().getNextEvent(now);
+			slots[0] = new Slot("next_event_point", JamochaValue.newLong(nextEp.getTimestamp()));
+			slots[1] = new Slot("ep_type", JamochaValue.newString(nextEp.getType().toString()));
+			slots[2] = new Slot("fact", JamochaValue.newObject(o));
+			slots[0].setId(0);	slots[1].setId(1);	slots[2].setId(2);
+			Fact container = new Deffact(containerTemplate,slots);
+			hardAssertFact(container);			
+		}
+		else {
+			hardAssertFact(o);
 		}
 		
 	}
@@ -566,13 +601,8 @@ public class Engine implements Dumpable {
 	/**
 	 * This method is called to really hard-assert a fact.
 	 * All temporal validity specs will be ignored!
-	 * WARNING: This method should only be called from the
-	 * TemporalFactThread, therefore it needs an instance
-	 * of it as pseudo-parameter. Think about it as simulated
-	 * friend-function from C++. I think it's overkill to use
-	 * the Observer-pattern for that here.    -jh 
 	 */
-	public void hardAssertFact(Fact o, TemporalFactThread t) throws AssertException {
+	public void hardAssertFact(Fact o) throws AssertException {
 		if (profileAssert)
 			ProfileStats.startAssert();
 		modules.addFact(o);
@@ -589,10 +619,7 @@ public class Engine implements Dumpable {
 		retractFact(ft);
 	}
 
-	/**
-	 * READ hardAssertFact's JavaDoc!! here it's analogous!!
-	 */
-	public void hardRetractFact(Fact fact, TemporalFactThread t) throws RetractException {
+	public void hardRetractFact(Fact fact) throws RetractException {
 		if (profileAssert)
 			ProfileStats.startRetract();
 		modules.removeFact(fact);
@@ -606,13 +633,13 @@ public class Engine implements Dumpable {
 		if (Constants.TEMPORAL_STRATEGY.equals("TRIGGER_FACT")) {
 		
 			if (fact.getTemporalValidity() == null) {
-				hardRetractFact(fact, temporalFactThread);
+				hardRetractFact(fact);
 			} else {
 				temporalFactThread.removeFact(fact);
 			}
 		
 		} else {
-			hardRetractFact(fact, null);
+			hardRetractFact(fact);
 		}
 	
 }
@@ -641,9 +668,9 @@ public class Engine implements Dumpable {
 			Fact modifiedFact = ((Deffact) old).cloneFact(this);
 			modifiedFact.setFactId(old.getFactId());
 			modifiedFact.updateSlots(this, mc.getSlots());
-			retractFact(old);
+			hardRetractFact(old);
 			// TODO remove this.modules.addFact(modifiedFact);
-			assertFact(modifiedFact);
+			hardAssertFact(modifiedFact);
 		}
 	}
 

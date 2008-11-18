@@ -322,7 +322,7 @@ public class SFPFormatter extends Formatter {
 	public String visit(ModifyConfiguration object) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("?");
-		sb.append(object.getFactBinding().getVariableName());
+		sb.append(((BoundParam)object.getFactBinding()).getVariableName());
 		SlotConfiguration[] scArray = object.getSlots();
 		for (SlotConfiguration sc : scArray) {
 			sb.append(" ");

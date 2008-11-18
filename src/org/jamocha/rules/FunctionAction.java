@@ -27,8 +27,9 @@ import org.jamocha.engine.BoundParam;
 import org.jamocha.engine.Engine;
 import org.jamocha.engine.ExecuteException;
 import org.jamocha.engine.Parameter;
-import org.jamocha.engine.configurations.AbstractConfiguration;
+import org.jamocha.engine.configurations.ModifyConfiguration;
 import org.jamocha.engine.configurations.Signature;
+import org.jamocha.engine.configurations.SlotConfiguration;
 import org.jamocha.engine.functions.Function;
 import org.jamocha.engine.functions.FunctionNotFoundException;
 import org.jamocha.engine.nodes.FactTuple;
@@ -104,27 +105,70 @@ public class FunctionAction implements Action {
 //		}
 //	}
 	
-	protected void configureBoundParams(Parameter[] params, FactTuple tuple) throws FunctionNotFoundException, ExecuteException {
+	protected void substituteBoundParams(Parameter[] params, FactTuple tuple) throws FunctionNotFoundException, ExecuteException {
+		/*
+		 * TODO
+		 * For the moment, we have to handle different types of parameters here.
+		 * in particular, this is horrible for the different types of configurations.
+		 * 
+		 * later on, we must do one of the following:
+		 * 
+		 * 1) each parameter can substitute itself with a substitute()-call instead
+		 *    of doint the substitution here.
+		 *    
+		 * 2) we introduce a global binding manager and some further magic, so
+		 *    we don't need to substitute anything here
+		 *    
+		 * 3) we get rid of the masses of configuration classes, so we can handle
+		 *    substitution here in a less painful manner
+		 *    
+		 * 4) we implement everything here and keep silent about that :-)
+		 * 
+		 */
 		for(int idx = 0; idx < params.length ; idx++) {
 			Parameter param = params[idx];
 			if (param instanceof BoundParam) {
 				BoundParam bp = (BoundParam) param;
 				Binding binding = engine.getRuleCompiler().getBinding(bp.getVariableName(), parent);
-				try {
-					Object newObj;
-					if (binding.isWholeFactBinding()){
-						newObj = tuple.getFact(binding.getTupleIndex().get());
-					} else {
-						newObj = tuple.getFact(binding.getTupleIndex().get()).getSlotValue(binding.getSlotIndex());
+				if (binding == null) {
+					params[idx] = bp;
+				} else {
+					try {
+						JamochaValue newObj;
+						if (binding.isWholeFactBinding()){
+							newObj = JamochaValue.newFact(tuple.getFact(binding.getTupleIndex().get()));
+						} else {
+							newObj = tuple.getFact(binding.getTupleIndex().get()).getSlotValue(binding.getSlotIndex());
+						}
+						params[idx] = newObj;
+					} catch (EvaluationException e) {
+						Logging.logger(this.getClass()).fatal(e);
 					}
-					params[idx] = JamochaValue.newValueAutoType(newObj);
-				} catch (EvaluationException e) {
-					Logging.logger(this.getClass()).fatal(e);
 				}
-			} else if (param instanceof AbstractConfiguration) {
-
+			} else if (param instanceof ModifyConfiguration) {
+				ModifyConfiguration mc = (ModifyConfiguration) param;
+				mc = (ModifyConfiguration) mc.clone();
+				params[idx] = mc;
+				BoundParam factBp = (BoundParam) mc.getFactBinding();
+				Binding binding = engine.getRuleCompiler().getBinding(factBp.getVariableName(), parent);
+				JamochaValue newObj=null;
+				if (binding.isWholeFactBinding()){
+					newObj = JamochaValue.newFact(tuple.getFact(binding.getTupleIndex().get()));
+				} else {
+					try {
+						newObj = tuple.getFact(binding.getTupleIndex().get()).getSlotValue(binding.getSlotIndex());
+					} catch (EvaluationException e) {
+						Logging.logger(this.getClass()).fatal(e);
+					}
+				}
+				mc.setFactBinding(newObj);
+				for (SlotConfiguration sc : mc.getSlots()) {
+					Parameter[] p = sc.getSlotValues();
+					substituteBoundParams(p, tuple);
+				}
+				
 			} else if (param instanceof JamochaValue) {
-
+				
 			} else if (param instanceof Signature) {
 				// we have to call the inner function at first
 				Signature iSig = (Signature) param;
@@ -134,6 +178,8 @@ public class FunctionAction implements Action {
 				FunctionAction iFuncAction = new FunctionAction(iFunc, engine, parent,iParams);
 				JamochaValue iRes = iFuncAction.executeAction(tuple);
 				params[idx] = iRes;
+			} else {
+				Logging.logger(this.getClass()).fatal("cannot handle parameter "+param);
 			}
 		}
 	}
@@ -147,7 +193,7 @@ public class FunctionAction implements Action {
 			//TODO: this is a flat-copy. me must make a deep copy here!!
 			Parameter[] params = new Parameter[parameters.size()];
 			params = parameters.toArray(params);
-			configureBoundParams(params, facts);
+			substituteBoundParams(params, facts);
 			return this.function.executeFunction(engine, params);
 		} catch (Exception e) {
 			throw new ExecuteException("Error executing function '"+function.getName()+"'", e);

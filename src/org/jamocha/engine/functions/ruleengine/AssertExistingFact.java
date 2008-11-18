@@ -19,13 +19,12 @@
 package org.jamocha.engine.functions.ruleengine;
 
 import org.jamocha.engine.AssertException;
-import org.jamocha.engine.BoundParam;
 import org.jamocha.engine.Engine;
 import org.jamocha.engine.Parameter;
-import org.jamocha.engine.RetractException;
-import org.jamocha.engine.configurations.ModifyConfiguration;
+import org.jamocha.engine.configurations.AssertConfiguration;
 import org.jamocha.engine.functions.AbstractFunction;
 import org.jamocha.engine.functions.FunctionDescription;
+import org.jamocha.engine.workingmemory.elements.Deffact;
 import org.jamocha.engine.workingmemory.elements.Fact;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaType;
@@ -34,51 +33,43 @@ import org.jamocha.parser.JamochaValue;
 /**
  * @author Peter Lin
  * 
- * The modify action allows the user to modify template facts on the fact-list.
- * Only one fact may be modified with a single modify statement. The
- * modification of a fact is equivalent to retracting the present fact and
- * asserting the modified fact. Returns true on success.
+ * Allows the user to add a fact to the fact-list. Multiple facts may be
+ * asserted with each call. If the fact-list is being watched, then an inform
+ * message will be printed each time a fact is asserted.
+ * <p>
+ * Attention: In Jamocha there has to exist a corresponding template in order to
+ * assert a fact.
+ * </p>
  */
-public class Modify extends AbstractFunction {
+public class AssertExistingFact extends AbstractFunction {
 
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "Allows the user to modify template facts on the fact-list. Only one fact may be modified "
-					+ "with a single modify statement. The modification of a fact is equivalent to retracting "
-					+ "the present fact and asserting the modified fact. Returns true on success.";
+			return "Allows the user to add a fact to the fact-list. Multiple facts may be asserted with each call. "
+					+ "If the fact-list is being watched, an inform message is printed each time a "
+					+ "fact is asserted.\n"
+					+ "Attention: In Jamocha there has to exist a corresponding template in order to assert a fact. ";
 		}
 
 		public int getParameterCount() {
-			return 2;
+			return 1;
 		}
 
 		public String getParameterDescription(int parameter) {
-			if (parameter == 0)
-				return "Fact to modify.";
-			else
-				return "Slot and new value which is changed in the given fact.";
+			return "Fact(s) to be asserted.";
 		}
 
 		public String getParameterName(int parameter) {
-			if (parameter == 0)
-				return "fact";
-			else
-				return "slot";
+			return "fact";
 		}
 
 		public JamochaType[] getParameterTypes(int parameter) {
-			switch (parameter) {
-			case 0:
-				return JamochaType.FACTS;
-			case 1:
-				return JamochaType.SLOTS;
-			}
-			return JamochaType.NONE;
+			return JamochaType.ANY;
 		}
 
 		public JamochaType[] getReturnType() {
-			return JamochaType.BOOLEANS;
+			return JamochaType.FACT_IDS;
 		}
 
 		public boolean isParameterCountFixed() {
@@ -86,16 +77,11 @@ public class Modify extends AbstractFunction {
 		}
 
 		public boolean isParameterOptional(int parameter) {
-			return parameter > 1 && parameter < 0;
+			return false;
 		}
 
 		public String getExample() {
-			return "(deftemplate car (slot color)(slot speed))\n"
-					+ "(assert (car (color \"red\")(speed 200)))\n"
-					+ "(assert (car (color \"blue\")(speed 150)))\n"
-					+ "(assert (car (color \"green\")(speed 100)))\n"
-					+ "(bind ?fact (fact-id 2))\n" + "(echo ?fact)\n"
-					+ "(modify ?fact (speed 500))\n" + "(facts)";
+			return "(deftemplate car (slot color)(slot speed)) \n (assert (car (color \"red\")(speed 200))) \n (facts)";
 		}
 
 		public boolean isResultAutoGeneratable() {
@@ -112,7 +98,9 @@ public class Modify extends AbstractFunction {
 
 	private static final long serialVersionUID = 1L;
 
-	public static final String NAME = "modify";
+	public static final String NAME = "assert-existing-fact";
+
+	// protected Fact[] triggerFacts = null;
 
 	@Override
 	public FunctionDescription getDescription() {
@@ -124,29 +112,18 @@ public class Modify extends AbstractFunction {
 		return NAME;
 	}
 
+	// public void setTriggerFacts(Fact[] facts) {
+	// this.triggerFacts = facts;
+	// }
+
 	@Override
 	public JamochaValue executeFunction(Engine engine, Parameter[] params)
 			throws EvaluationException {
-		JamochaValue result = JamochaValue.FALSE;
-		if (engine != null && params != null && params.length > 0) {
-			Fact fact = null;
-			// grather all infos:
-			try {
-				// modificonfiguration
-				if (params[0] instanceof ModifyConfiguration) {
-					ModifyConfiguration mc = (ModifyConfiguration) params[0];
-					fact = ((JamochaValue)mc.getFactBinding()).getFactValue() ;
-					engine.modifyFact(fact, mc);
-					result = JamochaValue.TRUE;
-				}
-
-			} catch (RetractException e) {
-				engine.writeMessage(e.getMessage());
-			} catch (AssertException e) {
-				engine.writeMessage(e.getMessage());
-			}
+		if (params.length == 1) {
+			Fact f = params[0].getValue(engine).getFactValue();
+			engine.hardAssertFact(f);
+			return JamochaValue.TRUE;
 		}
-
-		return result;
+		return JamochaValue.FALSE;
 	}
 }

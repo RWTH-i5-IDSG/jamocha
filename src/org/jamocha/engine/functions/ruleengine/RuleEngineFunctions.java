@@ -41,6 +41,7 @@ public class RuleEngineFunctions extends FunctionGroup {
 	public void loadFunctions(FunctionMemory functionMem) {
 		addFunction(functionMem, new Apply());
 		addFunction(functionMem, new Assert());
+		addFunction(functionMem, new AssertExistingFact());
 		addFunction(functionMem, new Bind());
 		addFunction(functionMem, new Clear());
 		addFunction(functionMem, new Deffunction());
@@ -59,6 +60,7 @@ public class RuleEngineFunctions extends FunctionGroup {
 		addFunction(functionMem, new Fire());
 		addFunction(functionMem, new FunctionExists());
 		addFunction(functionMem, new FunctionsDescription());
+		addFunction(functionMem, new GetNextEventPoint());
 		addFunction(functionMem, new GarbageCollect());
 		addFunction(functionMem, new GetCurrentModule());
 		addFunction(functionMem, new GetFactId());

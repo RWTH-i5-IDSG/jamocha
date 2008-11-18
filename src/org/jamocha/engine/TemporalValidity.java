@@ -4,7 +4,7 @@ public interface TemporalValidity {
 
 	public class EventPoint {
 		
-		public enum Type {START, STOP};
+		public enum Type {START, STOP, WINDOW_EXCEEDED};
 		
 		private long timestamp;
 		

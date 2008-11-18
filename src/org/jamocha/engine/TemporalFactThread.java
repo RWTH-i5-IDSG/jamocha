@@ -31,13 +31,13 @@ public class TemporalFactThread extends TemporalThread {
 		Fact f = eventPoint2Fact.get(nextEventPoint);
 		if (nextEventPoint.getType() == Type.START) {
 			try {
-				engine.hardAssertFact(f, this);
+				engine.hardAssertFact(f);
 			} catch (AssertException e) {
 				notifyForException(e);
 			}
 		} else {
 			try {
-				engine.hardRetractFact(f, this);
+				engine.hardRetractFact(f);
 			} catch (RetractException e) {
 				notifyForException(e);
 			}

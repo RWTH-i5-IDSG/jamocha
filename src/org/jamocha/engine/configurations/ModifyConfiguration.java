@@ -18,9 +18,8 @@
 
 package org.jamocha.engine.configurations;
 
-import org.jamocha.engine.BoundParam;
 import org.jamocha.engine.Engine;
-import org.jamocha.engine.workingmemory.elements.Fact;
+import org.jamocha.engine.Parameter;
 import org.jamocha.formatter.Formatter;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaValue;
@@ -28,7 +27,15 @@ import org.jamocha.rules.Rule;
 
 public class ModifyConfiguration extends AbstractConfiguration {
 
-	private BoundParam factBinding = null;
+	@Override
+	public Object clone() {
+		ModifyConfiguration mc = new ModifyConfiguration();
+		mc.factBinding = factBinding;
+		mc.slots = slots;
+		return mc;
+	}
+
+	private Parameter factBinding = null;
 
 	private SlotConfiguration[] slots = null;
 
@@ -55,17 +62,12 @@ public class ModifyConfiguration extends AbstractConfiguration {
 		this.slots = slots;
 	}
 
-	public BoundParam getFactBinding() {
+	public Parameter getFactBinding() {
 		return factBinding;
 	}
 
-	public void setFactBinding(BoundParam factBinding) {
+	public void setFactBinding(Parameter factBinding) {
 		this.factBinding = factBinding;
-	}
-
-	@Override
-	public void setFact(Fact[] facts) {
-		factBinding.setFact(facts);
 	}
 
 	@Override

@@ -397,6 +397,15 @@ public class JamochaValue implements Parameter, Formattable {
 			case FACT_ID:
 				return JamochaValue.newFactId(((Fact) value).getFactId());
 			}
+			
+		case OBJECT:
+			switch (type) {
+			case BOOLEAN: return JamochaValue.newBoolean((Boolean) value);
+			case DOUBLE:  return JamochaValue.newDouble((Double) value);
+			case LONG:    return JamochaValue.newLong((Long) value);
+			}
+			
+			break;
 		}
 		throw new IllegalConversionException("Unable to cast " + this.type
 				+ " to type " + type + ".");
