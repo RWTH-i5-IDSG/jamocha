@@ -145,7 +145,7 @@ public class Engine implements Dumpable {
 	public Engine() {
 		super();
 		net = new ReteNet(this);
-		if (Constants.TEMPORAL_STRATEGY.equals("TRIGGER_FACT")) {
+		if (Constants.TEMPORAL_STRATEGY.equals("TRIGGER_FACT")||Constants.TEMPORAL_STRATEGY.equals("TIME_FACT")) {
 			temporalFactThread = new TemporalFactThread(this);
 			temporalFactThread.registerExceptionListener(new TemporalThreadExceptionHandler());
 			temporalFactThread.start();
@@ -220,7 +220,7 @@ public class Engine implements Dumpable {
 			timerFact.start();
 		}
 		
-		if (Constants.TEMPORAL_STRATEGY.equals("TRIGGER_FACT")) {
+		if (Constants.TEMPORAL_STRATEGY.equals("TRIGGER_FACT")||Constants.TEMPORAL_STRATEGY.equals("TIME_FACT")) {
 			findModule("MAIN").addTemplate(triggerFactsTemplate);
 		}
 		
@@ -825,7 +825,7 @@ public class Engine implements Dumpable {
 
 		if (rule.getTemporalValidity() != null) {
 			// make some temporal adoptions
-			if (Constants.TEMPORAL_STRATEGY.equals("TRIGGER_FACT")) {
+			if (Constants.TEMPORAL_STRATEGY.equals("TRIGGER_FACT") || Constants.TEMPORAL_STRATEGY.equals("TIME_FACT")) {
 				AssertConfiguration triggerConf = new AssertConfiguration();
 				triggerConf.setTemplateName("temporal-trigger");
 				Parameter[] data = new Parameter[1];
@@ -844,10 +844,7 @@ public class Engine implements Dumpable {
 				rule.getConditions().add(triggerCondition);
 				Fact trigger = getModules().createFact(triggerConf);
 				assertFact(trigger);
-			} else if (Constants.TEMPORAL_STRATEGY.equals("TIME_FACT")) {
-				// WE WILL FAKE THAT HERE
 			}
-
 		}
 		
 		// compile the rule
