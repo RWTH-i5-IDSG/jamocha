@@ -87,7 +87,13 @@ public class JTCBeffyRuleOptimizer extends TestCase {
 	}
 	
 	private Condition runPassThree(Condition cond) throws OptimizeRuleException {
+//		System.out.println("\nBefore pass three");
+//		System.out.println(cond.dump());
+		
 		Condition result = passthree.optimize(cond);
+		
+//		System.out.println("\nAfter pass three");
+//		System.out.println(result.dump());
 		return result;
 	}
 	

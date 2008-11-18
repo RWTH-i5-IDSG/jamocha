@@ -21,9 +21,17 @@
  */
 package org.jamocha.engine.rules.rulecompiler.beffy;
 
+import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 
+import org.jamocha.engine.Engine;
+import org.jamocha.engine.configurations.DefruleConfiguration;
+import org.jamocha.engine.configurations.Signature;
 import org.jamocha.engine.rules.rulecompiler.CompileRuleException;
+import org.jamocha.languages.clips.parser.SFPInterpreter;
+import org.jamocha.languages.clips.parser.SFPParser;
+import org.jamocha.languages.clips.parser.SFPStart;
 import org.jamocha.rules.Condition;
 
 /**
@@ -65,6 +73,30 @@ public class BeffyRuleOptimizer {
 		con = passtwo.optimize(con);
 		con = passthree.optimize(con);
 		return con;
+	}
+	
+	public static void main(String[] args) {
+		Engine engine = new Engine();
+        SFPParser p = new SFPParser(System.in);
+        try
+        {
+        while (true)
+                {
+                        SFPStart n = p.Start();
+                        if (n==null) System.exit(0);
+                        n.dump(" ");
+                        Signature val = null;
+                        val = (Signature)n.jjtAccept(new SFPInterpreter(), null);
+                        BeffyRuleOptimizer optimizer = new BeffyRuleOptimizer();
+                        Condition con = optimizer.optimize(new ArrayList(Arrays.asList(((DefruleConfiguration)(val.getParameters()[0])).getConditions())));
+                        con.dump();
+                }
+        }
+        catch (Exception e)
+        {
+                System.err.println("ERROR: " + e.getMessage());
+                e.printStackTrace();
+        }
 	}
 
 }

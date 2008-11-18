@@ -137,7 +137,6 @@ public class BeffyRuleOptimizerPassThree implements
 		List<BeffyRuleOptimizerDataPassThree> oldBindings = new LinkedList<BeffyRuleOptimizerDataPassThree>();
 		ArrayList<BeffyRuleOptimizerDataPassThree> veryNewBindings = new ArrayList<BeffyRuleOptimizerDataPassThree>();
 		int i = 2;
-		System.out.println("old:" + oldBindings.size() + " new:" + newBindings.size() + "\n");
 		while (!(oldBindings.size() <= 1 && newBindings.isEmpty())) {
 			int j = 0;
 			while (j < newBindings.size()) {

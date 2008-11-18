@@ -53,6 +53,7 @@ public class SFPParser implements/*@bgen(jjtree)*/ SFPParserTreeConstants,Parser
                                 n.dump(" ");
                                 org.jamocha.parser.Expression val = null;
                                 val = (org.jamocha.parser.Expression)n.jjtAccept(new SFPInterpreter(), null);
+                                n.dump("");
                         }
                 }
                 catch (Exception e)

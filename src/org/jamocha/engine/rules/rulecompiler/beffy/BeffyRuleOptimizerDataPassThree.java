@@ -83,6 +83,7 @@ public class BeffyRuleOptimizerDataPassThree implements Cloneable {
 		for (String name : boundVariables) {
 			unboundVariables.add(name);
 		}
+		boundVariables.clear();
 	}
 	
 	@SuppressWarnings("unchecked")
