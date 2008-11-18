@@ -19,7 +19,6 @@
 package org.jamocha.engine.functions.ruleengine;
 
 import org.jamocha.engine.AssertException;
-import org.jamocha.engine.BoundParam;
 import org.jamocha.engine.Engine;
 import org.jamocha.engine.Parameter;
 import org.jamocha.engine.RetractException;

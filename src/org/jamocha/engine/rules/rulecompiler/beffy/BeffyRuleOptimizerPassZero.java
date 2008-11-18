@@ -59,7 +59,7 @@ public class BeffyRuleOptimizerPassZero {
 		AndCondition bigMasterAnd = new AndCondition();
 		for (Condition c : cons) bigMasterAnd.addNestedCondition(c);
 		
-		Stack<Condition> conditionStack = new Stack();
+		Stack<Condition> conditionStack = new Stack<Condition>();
 		conditionStack.addAll(cons);
 		
 		while (!conditionStack.isEmpty()) {

@@ -139,13 +139,26 @@ public class Engine implements Dumpable {
 	
 	protected Template triggerFactsTemplate;
 	
+
+	// can be "TRIGGER_FACT", "SEPARATE_RETE" or "TIME_FACT"
+	protected String temporalStrategy;
+	
+	public String getTemporalStrategy() {
+		return temporalStrategy;
+	}
+	
+	public Engine() {
+		this("TRIGGER_FACT");
+	}
+	
 	/**
 	 * 
 	 */
-	public Engine() {
+	public Engine(String tempStrat) {
 		super();
+		temporalStrategy = tempStrat;
 		net = new ReteNet(this);
-		if (Constants.TEMPORAL_STRATEGY.equals("TRIGGER_FACT")||Constants.TEMPORAL_STRATEGY.equals("TIME_FACT")) {
+		if (temporalStrategy.equals("TRIGGER_FACT")||temporalStrategy.equals("TIME_FACT")) {
 			temporalFactThread = new TemporalFactThread(this);
 			temporalFactThread.registerExceptionListener(new TemporalThreadExceptionHandler());
 			temporalFactThread.start();
@@ -161,7 +174,7 @@ public class Engine implements Dumpable {
 		functionMem.init();
 		establishInitialFact();
 		
-		if (Constants.TEMPORAL_STRATEGY.equals("TIME_FACT")) {
+		if (temporalStrategy.equals("TIME_FACT")) {
 			
 			TemplateSlot[] temporalFactContainerTemplateSlots = new TemplateSlot[3];
 			temporalFactContainerTemplateSlots[0] = new TemplateSlot("next_event_point");
@@ -220,7 +233,7 @@ public class Engine implements Dumpable {
 			timerFact.start();
 		}
 		
-		if (Constants.TEMPORAL_STRATEGY.equals("TRIGGER_FACT")||Constants.TEMPORAL_STRATEGY.equals("TIME_FACT")) {
+		if (temporalStrategy.equals("TRIGGER_FACT")||temporalStrategy.equals("TIME_FACT")) {
 			findModule("MAIN").addTemplate(triggerFactsTemplate);
 		}
 		
@@ -608,11 +621,11 @@ public class Engine implements Dumpable {
 	 * This method is explicitly used to assert facts.
 	 */
 	public void assertFact(Fact o) throws AssertException {
-		if (Constants.TEMPORAL_STRATEGY.equals("TRIGGER_FACT") && o.getTemporalValidity()!=null) {
+		if (temporalStrategy.equals("TRIGGER_FACT") && o.getTemporalValidity()!=null) {
 			
 				temporalFactThread.insertFact(o);
 				
-		} else if (Constants.TEMPORAL_STRATEGY.equals("TIME_FACT") && o.getTemporalValidity()!= null) {
+		} else if (temporalStrategy.equals("TIME_FACT") && o.getTemporalValidity()!= null) {
 			/*
 			 * (assert (wurst (temporal-validity (duration 1) (second 20) ) (name "bratwurst" ))
 			 *
@@ -676,7 +689,7 @@ public class Engine implements Dumpable {
 	
 	public void retractFact(Fact fact) throws RetractException {
 		
-		if (Constants.TEMPORAL_STRATEGY.equals("TRIGGER_FACT")) {
+		if (temporalStrategy.equals("TRIGGER_FACT")) {
 		
 			if (fact.getTemporalValidity() == null) {
 				hardRetractFact(fact);
@@ -825,7 +838,7 @@ public class Engine implements Dumpable {
 
 		if (rule.getTemporalValidity() != null) {
 			// make some temporal adoptions
-			if (Constants.TEMPORAL_STRATEGY.equals("TRIGGER_FACT") || Constants.TEMPORAL_STRATEGY.equals("TIME_FACT")) {
+			if (temporalStrategy.equals("TRIGGER_FACT") || temporalStrategy.equals("TIME_FACT")) {
 				AssertConfiguration triggerConf = new AssertConfiguration();
 				triggerConf.setTemplateName("temporal-trigger");
 				Parameter[] data = new Parameter[1];

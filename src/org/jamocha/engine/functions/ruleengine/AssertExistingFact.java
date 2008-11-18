@@ -18,38 +18,26 @@
 
 package org.jamocha.engine.functions.ruleengine;
 
-import org.jamocha.engine.AssertException;
 import org.jamocha.engine.Engine;
 import org.jamocha.engine.Parameter;
-import org.jamocha.engine.configurations.AssertConfiguration;
 import org.jamocha.engine.functions.AbstractFunction;
 import org.jamocha.engine.functions.FunctionDescription;
-import org.jamocha.engine.workingmemory.elements.Deffact;
 import org.jamocha.engine.workingmemory.elements.Fact;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
 
 /**
- * @author Peter Lin
+ * @author Josef Hahn
  * 
- * Allows the user to add a fact to the fact-list. Multiple facts may be
- * asserted with each call. If the fact-list is being watched, then an inform
- * message will be printed each time a fact is asserted.
- * <p>
- * Attention: In Jamocha there has to exist a corresponding template in order to
- * assert a fact.
- * </p>
+ * Allows to assert facts, which already exist as java objects.
  */
 public class AssertExistingFact extends AbstractFunction {
 
 	private static final class Description implements FunctionDescription {
 
 		public String getDescription() {
-			return "Allows the user to add a fact to the fact-list. Multiple facts may be asserted with each call. "
-					+ "If the fact-list is being watched, an inform message is printed each time a "
-					+ "fact is asserted.\n"
-					+ "Attention: In Jamocha there has to exist a corresponding template in order to assert a fact. ";
+			return "Allows to assert facts, which already exist as java objects.";
 		}
 
 		public int getParameterCount() {
@@ -69,7 +57,7 @@ public class AssertExistingFact extends AbstractFunction {
 		}
 
 		public JamochaType[] getReturnType() {
-			return JamochaType.FACT_IDS;
+			return JamochaType.BOOLEANS;
 		}
 
 		public boolean isParameterCountFixed() {
@@ -81,11 +69,11 @@ public class AssertExistingFact extends AbstractFunction {
 		}
 
 		public String getExample() {
-			return "(deftemplate car (slot color)(slot speed)) \n (assert (car (color \"red\")(speed 200))) \n (facts)";
+			return "(assert-existing-fact ?f)";
 		}
 
 		public boolean isResultAutoGeneratable() {
-			return true;
+			return false;
 		}
 
 		public Object getExpectedResult() {
@@ -100,8 +88,6 @@ public class AssertExistingFact extends AbstractFunction {
 
 	public static final String NAME = "assert-existing-fact";
 
-	// protected Fact[] triggerFacts = null;
-
 	@Override
 	public FunctionDescription getDescription() {
 		return DESCRIPTION;
@@ -111,10 +97,6 @@ public class AssertExistingFact extends AbstractFunction {
 	public String getName() {
 		return NAME;
 	}
-
-	// public void setTriggerFacts(Fact[] facts) {
-	// this.triggerFacts = facts;
-	// }
 
 	@Override
 	public JamochaValue executeFunction(Engine engine, Parameter[] params)

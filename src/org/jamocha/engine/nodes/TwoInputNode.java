@@ -80,8 +80,7 @@ public abstract class TwoInputNode extends OneInputNode {
 			alphaInput = n;
 			return this;
 		} else {
-			final LeftInputAdaptorNode lia = new LeftInputAdaptorNode(net
-					.nextNodeId(), workingMemory, net);
+			final LeftInputAdaptorNode lia = new LeftInputAdaptorNode(net.getEngine());
 			lia.addChild(this);
 			lia.registerParent(n);
 			betaInput = lia;

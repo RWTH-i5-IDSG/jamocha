@@ -23,13 +23,12 @@
 package org.jamocha.engine.rules.rulecompiler.beffy;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import org.jamocha.rules.AndCondition;
 import org.jamocha.rules.Condition;
+import org.jamocha.rules.ConditionVisitor;
 import org.jamocha.rules.ConditionWithNested;
 import org.jamocha.rules.ExistsCondition;
-import org.jamocha.rules.ConditionVisitor;
 import org.jamocha.rules.NotExistsCondition;
 import org.jamocha.rules.ObjectCondition;
 import org.jamocha.rules.OrCondition;

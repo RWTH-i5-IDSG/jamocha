@@ -61,7 +61,7 @@ public class FunctionAction implements Action {
 		this.engine = engine;
 		this.parent = parentRule;
 		this.parameters = params;
-		Function f = engine.getFunctionMemory().findFunction(functionName);
+		engine.getFunctionMemory().findFunction(functionName);
 	}
 
 	public FunctionAction(Function function, Engine engine, Rule parentRule, List<Parameter> params) {

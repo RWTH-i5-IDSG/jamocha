@@ -529,7 +529,7 @@ public class BeffyRuleCompiler implements RuleCompiler {
 				lastNode = objectTypeNodes.getObjectTypeNode(template);
 				
 				//temporal stuff
-				if (Constants.TEMPORAL_STRATEGY.equals("SEPARATE_RETE")) {
+				if (engine.getTemporalStrategy().equals("SEPARATE_RETE")) {
 					AlphaTemporalFilterNode tempoNode = new AlphaTemporalFilterNode(engine);
 					lastNode.addChild(tempoNode);
 					lastNode = tempoNode;
@@ -609,7 +609,7 @@ public class BeffyRuleCompiler implements RuleCompiler {
 				Node last = data.getLastNode(subCondition);
 				
 				// temporal stuff
-				if (Constants.TEMPORAL_STRATEGY.equals("SEPARATE_RETE")){
+				if (engine.getTemporalStrategy().equals("SEPARATE_RETE")){
 					if (data.getRule().getTemporalValidity()!= null) {
 						BetaTemporalFilterNode btfn = new BetaTemporalFilterNode(engine,data.getRule().getTemporalValidity());
 						try {

@@ -464,7 +464,6 @@ public class SFPFormatter extends Formatter {
 	public String visit(FunctionAction object) {
 		StringBuilder sb = new StringBuilder();
 		sb.append('(').append(object.getFunction().getName());
-		List<Parameter> parameters = object.getParameters();
 		for (Parameter param : object.getParameters()) {
 			sb.append(' ');
 			sb.append(param.format(this));
