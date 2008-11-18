@@ -20,6 +20,7 @@ package org.jamocha.engine;
 
 import java.beans.ExceptionListener;
 import java.io.PrintWriter;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -34,6 +35,7 @@ import org.jamocha.communication.messagerouter.MessageRouter;
 import org.jamocha.engine.TemporalValidity.EventPoint;
 import org.jamocha.engine.agenda.Agendas;
 import org.jamocha.engine.configurations.AssertConfiguration;
+import org.jamocha.engine.configurations.DefruleConfiguration;
 import org.jamocha.engine.configurations.ModifyConfiguration;
 import org.jamocha.engine.configurations.Signature;
 import org.jamocha.engine.configurations.SlotConfiguration;
@@ -55,10 +57,15 @@ import org.jamocha.engine.workingmemory.elements.Slot;
 import org.jamocha.engine.workingmemory.elements.Template;
 import org.jamocha.engine.workingmemory.elements.TemplateSlot;
 import org.jamocha.parser.EvaluationException;
+import org.jamocha.parser.Expression;
 import org.jamocha.parser.JamochaType;
 import org.jamocha.parser.JamochaValue;
+import org.jamocha.parser.ParseException;
+import org.jamocha.parser.Parser;
+import org.jamocha.parser.ParserFactory;
 import org.jamocha.parser.RuleException;
 import org.jamocha.rules.Constraint;
+import org.jamocha.rules.Defrule;
 import org.jamocha.rules.LiteralConstraint;
 import org.jamocha.rules.ObjectCondition;
 import org.jamocha.rules.Rule;
@@ -166,11 +173,50 @@ public class Engine implements Dumpable {
 			Template temporalFactContainerTemplate = new Deftemplate("temporal-fact-container",null,temporalFactContainerTemplateSlots);
 			findModule("MAIN").addTemplate(temporalFactContainerTemplate);
 			
+			String factStarterStopperRules=
+"(defrule temporal-facts-starter"+
+"	(declare (auto-focus true) )"+
+"	?container <- (temporal-fact-container (next_event_point ?ep) (ep_type \"START\") (fact ?fact) )"+
+"	(point-in-time (time ?now) )"+
+"	(test (lessOrEqual ?ep ?now ) )"+
+"	=>"+
+"	(bind ?next_ep (get-next-eventpoint ?fact (+ ?ep 1000) ) )"+
+"	(bind ?next_ep_timestamp (member ?next_ep getTimestamp))"+
+"	(bind ?next_ep_type (member (member ?next_ep getType) toString) )"+ 
+"	(modify ?container (next_event_point ?next_ep_timestamp) (ep_type ?next_ep_type ) )"+
+"	(assert-existing-fact ?fact)"+
+")"+
+"(defrule temporal-facts-stopper"+
+"	(declare (auto-focus true) )"+
+"	?container <- (temporal-fact-container (next_event_point ?ep) (ep_type \"STOP\") (fact ?fact) )"+
+"	(point-in-time (time ?now) )"+
+"	(test (lessOrEqual ?ep ?now ) )"+
+"	=>"+
+"	(bind ?next_ep (get-next-eventpoint ?fact (+ ?ep 1000) ) )"+
+"	(bind ?next_ep_timestamp (member ?next_ep getTimestamp))"+
+"	(bind ?next_ep_type (member (member ?next_ep getType) toString) )"+ 
+"	(modify ?container (next_event_point ?next_ep_timestamp) (ep_type ?next_ep_type ) )"+
+"	(retract ?fact)"+
+")";
+			
+			Parser parser = ParserFactory.getParser(new StringReader(factStarterStopperRules));
+			Expression expr;
 			try {
 				timerFact = new TimerFact(this);
+				while (( expr = parser.nextExpression()) != null) {
+					Signature s = (Signature) expr;
+					DefruleConfiguration defruleConfig=(DefruleConfiguration)s.getParameters()[0];
+					Defrule defrule = new Defrule(findModule("MAIN"),defruleConfig,this);
+					addRule(defrule);
+				}
+			} catch (ParseException e1) {
+				log.fatal(e1);
 			} catch (EvaluationException e) {
-				Logging.logger(this.getClass()).fatal(e);
+				log.fatal(e);
+			} catch (CompileRuleException e) {
+				log.fatal(e);
 			}
+			
 			timerFact.start();
 		}
 		

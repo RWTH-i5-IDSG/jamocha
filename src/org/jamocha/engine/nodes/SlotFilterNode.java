@@ -68,15 +68,17 @@ public class SlotFilterNode extends OneInputNode {
 	public void addWME(Node sender, final WorkingMemoryElement newElem) throws NodeException {
 		if (!isActivated())
 			return;
-		if (evaluate(newElem))
+		if (evaluate(newElem)) {
 			addAndPropagate(newElem);
+		}
 	}
 
 	@Override
 	public void removeWME(Node sender, final WorkingMemoryElement oldElem)
 			throws NodeException {
-		if (evaluate(oldElem))
+		if (evaluate(oldElem)) {
 			removeAndPropagate(oldElem);
+		}
 	}
 
 	@Override

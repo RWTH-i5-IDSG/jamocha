@@ -147,7 +147,15 @@ public class Retract extends AbstractFunction {
 						result = JamochaValue.TRUE;
 					} catch (RetractException e) {
 					}
+				} else if (param.getType().equals(JamochaType.OBJECT)) {
+					Deffact fact = (Deffact) param.getObjectValue();
+					try {
+						engine.retractFact(fact);
+						result = JamochaValue.TRUE;
+					} catch (RetractException e) {
+					}
 				}
+				
 			}
 		else
 			throw new IllegalParameterException(1, true);

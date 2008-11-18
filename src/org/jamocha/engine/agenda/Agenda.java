@@ -132,19 +132,9 @@ public class Agenda implements Serializable {
 	public Collection<Activation> getActivations() {
 		return activations;
 	}
-
-	/**
-	 * tests, whether an activation exists in the agenda
-	 * 
-	 * @param a
-	 * @return
-	 */
-	public boolean activationExists(Activation a) {
-		return activations.contains(a);
-	}
-
-	protected void fireNextActivation() throws ExecuteException {
-		Activation a = activations.poll();
+	
+	protected void fireNextActivation(Queue<Activation> acts) throws ExecuteException {
+		Activation a = acts.poll();
 		a.fire(parentEngine);
 	}
 
@@ -163,7 +153,7 @@ public class Agenda implements Serializable {
 		if (profileFire)
 			ProfileStats.startFire();
 		while (activations.size() > 0 && fireCount < maxFire) {
-			fireNextActivation();
+			fireNextActivation(activations);
 			fireCount++;
 		}
 		if (profileFire)
@@ -182,11 +172,13 @@ public class Agenda implements Serializable {
 	 * @throws org.jamocha.rete.exception.ExecuteException
 	 */
 	public int fire() throws ExecuteException {
+		Queue<Activation> acts = activations;
+		activations = new PriorityQueue<Activation>(INITIAL_CAPACITY,strategy);
 		int fireCount = 0;
 		if (profileFire)
 			ProfileStats.startFire();
 		while (!activations.isEmpty()) {
-			fireNextActivation();
+			fireNextActivation(acts);
 			fireCount++;
 		}
 		if (profileFire)
