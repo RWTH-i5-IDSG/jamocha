@@ -177,7 +177,7 @@ public class Agenda implements Serializable {
 		int fireCount = 0;
 		if (profileFire)
 			ProfileStats.startFire();
-		while (!activations.isEmpty()) {
+		while (!acts.isEmpty()) {
 			fireNextActivation(acts);
 			fireCount++;
 		}
