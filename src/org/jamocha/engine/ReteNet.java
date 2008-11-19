@@ -108,6 +108,10 @@ public class ReteNet implements SettingsChangedListener, Serializable {
 		return result;
 	}
 
+	public void removeRule(Rule rule) {
+		compiler.removeRule(rule);
+	}
+	
 	public void clear() {
 		lastNodeId = 1;
 		try {

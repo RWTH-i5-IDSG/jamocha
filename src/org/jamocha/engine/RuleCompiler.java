@@ -73,4 +73,6 @@ public interface RuleCompiler {
 
 	Binding getBinding(String varName, Rule r);
 
+	void removeRule(Rule rule);
+
 }

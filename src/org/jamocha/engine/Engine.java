@@ -24,6 +24,7 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -33,6 +34,8 @@ import org.jamocha.communication.logging.Logging;
 import org.jamocha.communication.logging.Logging.JamochaLogger;
 import org.jamocha.communication.messagerouter.MessageRouter;
 import org.jamocha.engine.TemporalValidity.EventPoint;
+import org.jamocha.engine.agenda.Activation;
+import org.jamocha.engine.agenda.Agenda;
 import org.jamocha.engine.agenda.Agendas;
 import org.jamocha.engine.configurations.AssertConfiguration;
 import org.jamocha.engine.configurations.DefruleConfiguration;
@@ -823,6 +826,18 @@ public class Engine implements Dumpable {
 		return result;
 	}
 
+	public void removeRule(Rule rule) {
+		net.removeRule(rule);
+		rule.parentModule().removeRule(rule);
+		Agenda a = agendas.getAgenda(rule.parentModule());
+		Iterator<Activation> it = a.getActivations().iterator();
+		while(it.hasNext()) {
+			Activation act = it.next();
+			if (act.getRule() == rule) it.remove();
+		}
+		
+	}
+	
 	/**
 	 * adds the rule and compiles it into the rete network. also, the listeners
 	 * are signalled for the newrule-event

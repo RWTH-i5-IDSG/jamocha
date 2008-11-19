@@ -626,6 +626,7 @@ public class BeffyRuleCompiler implements RuleCompiler {
 				try {
 					log("(%d) add terminal node for '%s'",p,data.getRule().getName());
 					last.addChild(terminal);slow(data);
+					terminalNodes.put(data.getRule(), terminal);
 					log("(%d) activate nodes for '%s'",p,data.getRule().getName());
 					rootNode.activate();
 				} catch (NodeException e) {
@@ -653,6 +654,8 @@ public class BeffyRuleCompiler implements RuleCompiler {
 		}
 		
 	}
+	
+	private Map<Rule,TerminalNode> terminalNodes;
 	
 	private ObjectTypeNodeManager objectTypeNodes;
 	
@@ -705,6 +708,7 @@ public class BeffyRuleCompiler implements RuleCompiler {
 		this.objectTypeNodes = new ObjectTypeNodeManager();
 		this.bindings = new BindingManager();
 		this.ruleOptimizer = new BeffyRuleOptimizer();
+		this.terminalNodes = new HashMap<Rule, TerminalNode>();
 	}
 
 	private void logAndFail(Exception e, CompileTableau data) {
@@ -763,7 +767,7 @@ public class BeffyRuleCompiler implements RuleCompiler {
 				reteNet.cleanup();
 				throw new CompileRuleException(e);
 			}
-			notifyListeners(rule);
+			notifyListenersAdd(rule);
 			rule.parentModule().addRule(rule);
 			return true;
 		} else {
@@ -781,8 +785,14 @@ public class BeffyRuleCompiler implements RuleCompiler {
 			listeners.remove(listener);
 	}
 
-	private void notifyListeners(Rule newRule) {
+	private void notifyListenersAdd(Rule newRule) {
 		CompileEvent event = new CompileEvent(this, CompileEvent.CompileEventType.RULE_ADDED);
+		event.setRule(newRule);
+		notifyListeners(event);
+	}
+	
+	private void notifyListenersRemove(Rule newRule) {
+		CompileEvent event = new CompileEvent(this, CompileEvent.CompileEventType.RULE_REMOVED);
 		event.setRule(newRule);
 		notifyListeners(event);
 	}
@@ -801,6 +811,16 @@ public class BeffyRuleCompiler implements RuleCompiler {
 				}
 			}
 		}
+	}
+
+	public void removeRule(Rule rule) {
+		TerminalNode tnode = terminalNodes.get(rule);
+		terminalNodes.remove(rule);
+		for (Node parent : tnode.getParentNodes()) {
+			parent.removeChild(tnode);
+		}
+		reteNet.cleanup();
+		notifyListenersRemove(rule);
 	}
 
 }

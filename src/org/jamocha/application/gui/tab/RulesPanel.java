@@ -162,10 +162,7 @@ public class RulesPanel extends AbstractJamochaPanel implements ActionListener,
 				for (int i = 0; i < selCols.length; ++i) {
 					final Rule rule = (Rule) dataModel.getRowAt(selCols[i]);
 					if (rule != null) {
-						final Module module = rule.parentModule();
-						if (module != null) {
-							module.removeRule(rule);
-						}
+						gui.getEngine().removeRule(rule);
 					}
 				}
 				initRulesList();

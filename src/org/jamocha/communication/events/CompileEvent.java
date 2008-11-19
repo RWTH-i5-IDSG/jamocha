@@ -29,7 +29,7 @@ import org.jamocha.rules.Rule;
 public class CompileEvent extends AbstractEvent {
 
 	public enum CompileEventType {
-		RULE_ADDED
+		RULE_ADDED, RULE_REMOVED
 	}
 	
     private static final long serialVersionUID = 1L;
