@@ -108,7 +108,7 @@ public class GregorianTemporalValidity implements TemporalValidity {
 	 */
 	private IntervalLayer expand(String cronStyle, int dBegin, int dEnd, int type) 
 			throws NumberFormatException{
-		if (cronStyle.isEmpty()) cronStyle="*";
+		if (cronStyle.length()==0) cronStyle="*";
 		if (cronStyle.startsWith("*")) {
 			int stepSize;
 			if (cronStyle.equals("*")) {
