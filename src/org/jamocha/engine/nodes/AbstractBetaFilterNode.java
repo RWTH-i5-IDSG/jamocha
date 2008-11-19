@@ -38,7 +38,7 @@ public abstract class AbstractBetaFilterNode extends TwoInputNode {
 
 	public AbstractBetaFilterNode(final int id, final WorkingMemory memory,
 			final ReteNet net) {
-		this(id, memory, net, null);
+		this(id, memory, net, new GeneralizedJoinFilter[0]);
 	}
 
 	public AbstractBetaFilterNode(final int id, final WorkingMemory memory,

@@ -25,6 +25,7 @@ import org.jamocha.communication.events.MessageEvent;
 import org.jamocha.communication.messagerouter.MessageRouter;
 import org.jamocha.communication.messagerouter.StringChannel;
 import org.jamocha.engine.Engine;
+import org.jamocha.parser.JamochaValue;
 
 /**
  * The class provides basic methods to be used for junit tests. The setup method

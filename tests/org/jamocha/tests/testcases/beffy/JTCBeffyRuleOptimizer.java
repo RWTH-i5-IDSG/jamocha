@@ -17,7 +17,7 @@
  */
 
 /**
- * 
+ * @author Christoph Terwelp
  */
 package org.jamocha.tests.testcases.beffy;
 
@@ -28,12 +28,16 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
+import org.jamocha.engine.BoundParam;
+import org.jamocha.engine.Parameter;
+import org.jamocha.engine.configurations.Signature;
 import org.jamocha.engine.rules.rulecompiler.beffy.BeffyRuleOptimizer;
 import org.jamocha.engine.rules.rulecompiler.beffy.BeffyRuleOptimizerPassOne;
 import org.jamocha.engine.rules.rulecompiler.beffy.BeffyRuleOptimizerPassThree;
 import org.jamocha.engine.rules.rulecompiler.beffy.BeffyRuleOptimizerPassTwo;
 import org.jamocha.engine.rules.rulecompiler.beffy.OptimizeRuleException;
 import org.jamocha.rules.AndCondition;
+import org.jamocha.rules.BoundConstraint;
 import org.jamocha.rules.Condition;
 import org.jamocha.rules.ConditionWithNested;
 import org.jamocha.rules.Constraint;
@@ -41,6 +45,7 @@ import org.jamocha.rules.ExistsCondition;
 import org.jamocha.rules.NotExistsCondition;
 import org.jamocha.rules.ObjectCondition;
 import org.jamocha.rules.OrCondition;
+import org.jamocha.rules.TestCondition;
 
 /**
  *  
@@ -297,6 +302,157 @@ public class JTCBeffyRuleOptimizer extends TestCase {
 		assertTrue(!i.hasNext());
 	}
 	
+	public Condition initPassThreeSimple2() {
+		Signature sig;
+		Parameter[] params;
+		AndCondition andCon;
+		OrCondition orCon;
+		LinkedList<Constraint> constList;
+		Condition con1;
+		
+		andCon = new AndCondition();
+		
+		// Test 1: requires Object 1
+		params = new Parameter[1];
+		params[0] = new BoundParam("var1");
+		sig = new Signature("test1");
+		sig.setParameters(params);
+		con1 = new TestCondition(sig);
+		andCon.addNestedCondition(con1);
+		
+		// Test 2: requires Object 2 and Object 3
+		params = new Parameter[2];
+		params[0] = new BoundParam("var2");
+		params[1] = new BoundParam("var3");
+		sig = new Signature("test2");
+		sig.setParameters(params);
+		con1 = new TestCondition(sig);
+		andCon.addNestedCondition(con1);
+		
+		// Object 1
+		constList = new LinkedList<Constraint>();
+		constList.add(new BoundConstraint("var1", false));
+		con1 = new ObjectCondition(constList, "object1");
+		andCon.addNestedCondition(con1);
+		
+		// Object 2
+		constList = new LinkedList<Constraint>();
+		constList.add(new BoundConstraint("var2", false));
+		con1 = new ObjectCondition(constList, "object2");
+		andCon.addNestedCondition(con1);
+		
+		// Object 3
+		constList = new LinkedList<Constraint>();
+		constList.add(new BoundConstraint("var3", false));
+		con1 = new ObjectCondition(constList, "object3");
+		andCon.addNestedCondition(con1);
+		
+		// Object 4
+		constList = new LinkedList<Constraint>();
+		constList.add(new BoundConstraint("var4", false));
+		con1 = new ObjectCondition(constList, "object4");
+		andCon.addNestedCondition(con1);
+		
+		// Object 5: requires Object 4
+		constList = new LinkedList<Constraint>();
+		constList.add(new BoundConstraint("var4", true));
+		con1 = new ObjectCondition(constList, "object5");
+		andCon.addNestedCondition(con1);
+		
+		orCon = new OrCondition();
+		orCon.addNestedCondition(andCon);
+		
+		return orCon;
+	}
+	
+	public boolean searchObjectCondition(Condition container, String name) {
+		if (container instanceof ObjectCondition) 
+			if (((ObjectCondition)container).getTemplateName() == name) return true;
+		
+		if (container instanceof ConditionWithNested) {
+			for (Condition c:((ConditionWithNested)container).getNestedConditions()) {
+				if (searchObjectCondition(c,name)) return true;
+			}
+		}
+		
+		return false;
+	}
+	
+	public int[] addIntArray(int[] o, int[] p) {
+		int length = 0;
+		if (o.length > p.length) {
+			length = p.length;
+		} else {
+			length = o.length;
+		}
+		int[] out = new int[length];
+		for (int i = 0; i < length; i++) {
+			out[i] = o[i] + p[i];
+		}
+		return out;
+	}
+	
+	public int[] checkPassThreeSimple2Sub(Condition cond, int[] a) {
+		if (cond instanceof TestCondition) {
+			TestCondition testCond = (TestCondition)cond;
+			String name = testCond.getFunction().getSignatureName();
+			if (name == "test1") {
+				assertTrue(searchObjectCondition(testCond.getParentCondition(), "object1"));
+				a[0]++;
+				return a;
+			}
+			if (name == "test2") {
+				assertTrue(searchObjectCondition(testCond.getParentCondition(), "object2"));
+				assertTrue(searchObjectCondition(testCond.getParentCondition(), "object3"));
+				a[1]++;
+				return a;
+			}
+		}
+		if (cond instanceof ObjectCondition) {
+			ObjectCondition objCond = (ObjectCondition)cond;
+			String name = objCond.getTemplateName();
+			if (name == "object1") {
+				a[2]++;
+				return a;
+			}
+			if (name == "object2") {
+				a[3]++;
+				return a;
+			}
+			if (name == "object3") {
+				a[4]++;
+				return a;
+			}
+			if (name == "object4") {
+				a[5]++;
+				return a;
+			}
+			if (name == "object5") {
+				assertTrue(searchObjectCondition(objCond.getParentCondition(), "object4"));
+				a[6]++;
+				return a;
+			}
+			assertTrue("Object with unknown name: \"" + name + "\"", false);
+			return null;
+		}
+		if (cond instanceof ConditionWithNested) {
+			ConditionWithNested cwn = (ConditionWithNested)cond;
+			for (Condition c: cwn.getNestedConditions()) {
+				a = checkPassThreeSimple2Sub(c, a);
+			}
+			return a;
+		}
+		assertTrue("Unknown object in resulting tree: \"" + cond.toString() + "\"", false);
+		return null;
+	}
+	
+	public void checkPassThreeSimple2(Condition cond) {
+		int[] ret = checkPassThreeSimple2Sub(cond, new int[7]);
+		for (int i: ret) {
+			assertEquals(i, 1);
+		}
+	}
+	
 	public void checkSizeLimit(AndCondition cond, int limit) {
 		assertTrue(cond.getNestedConditions().size() <= limit);
 		for (Condition c : cond.getNestedConditions()) {
@@ -320,14 +476,6 @@ public class JTCBeffyRuleOptimizer extends TestCase {
 		AndCondition result = new AndCondition();
 		flattenAndCondition(cond, result);
 		return result;
-	}
-	
-	public Condition initPassThreeComplete() {
-		return null;
-	}
-	
-	public Condition initPassThreeCompleteResult() {
-		return null;
 	}
 	
 	public void testPassOneSimple1() {
@@ -375,6 +523,9 @@ public class JTCBeffyRuleOptimizer extends TestCase {
 		checkPassThreeSimple1(result);
 	}
 	
-	public void testPassThreeComplete() {
+	public void testPassThreeSimple2() throws OptimizeRuleException {
+		Condition cond = initPassThreeSimple2();
+		Condition result = runPassThree(cond);
+		checkPassThreeSimple2(result);
 	}
 }
