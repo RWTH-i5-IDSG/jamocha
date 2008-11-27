@@ -24,6 +24,8 @@ package org.jamocha.engine.rules.rulecompiler.beffy;
 
 import java.util.ArrayList;
 
+import org.jamocha.engine.Parameter;
+import org.jamocha.engine.configurations.Signature;
 import org.jamocha.rules.AndCondition;
 import org.jamocha.rules.Condition;
 import org.jamocha.rules.ConditionVisitor;
@@ -55,6 +57,16 @@ public class BeffyRuleOptimizerPassOne implements ConditionVisitor<BeffyRuleOpti
 	private void insertNots(int count, Condition c) {
 		if (count == 0) return;
 		if (count > 1) count = count % 2;
+		
+		if (c instanceof TestCondition) {
+			if (count == 0) return;
+			TestCondition tc = (TestCondition)c;
+			Signature sig = new Signature("not");
+			Parameter p[] = {tc.getFunction()};
+			sig.setParameters(p);
+			tc.getParentCondition().replaceNestedCondition(tc, new TestCondition(sig));
+			return;
+		}
 		
 		ConditionWithNested parent = c.getParentCondition();
 		ConditionWithNested n;
