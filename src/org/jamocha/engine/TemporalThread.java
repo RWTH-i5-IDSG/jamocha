@@ -6,6 +6,7 @@ import java.util.GregorianCalendar;
 import java.util.PriorityQueue;
 import java.util.Queue;
 
+import org.jamocha.communication.logging.Logging;
 import org.jamocha.engine.TemporalValidity.EventPoint;
 
 public abstract class TemporalThread extends Thread {
@@ -69,7 +70,8 @@ public abstract class TemporalThread extends Thread {
 						if (distance>0) this.wait(distance); //until notified
 					} catch (InterruptedException e) {}
 					
-					if (to - now() <= 0) {
+					long d = to-now();
+					if (d <= 0) {
 						/* Wir müssen jetzt handeln. Hier ist jetzt potentiell
 						 * ein Ereignispunkt erreicht.
 						 * 
@@ -77,6 +79,7 @@ public abstract class TemporalThread extends Thread {
 						 * inzwischen gelöscht wurde. Deshalb holen wir den
 						 * Kopf der Queue nochmal
 						 */
+						Logging.logger(this.getClass()).info("Lag: "+(-d)+"ms");
 						nextEventPoint = eventPoints.peek();						
 						
 						while (nextEventPoint.getTimestamp() == to) {

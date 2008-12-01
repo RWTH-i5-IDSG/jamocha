@@ -76,68 +76,7 @@ public class SFPFormatter extends Formatter {
 
 	@Override
 	public String visit(JamochaValue object) {
-		StringBuilder sb = new StringBuilder();
-		switch (object.getType()) {
-		case NIL:
-			return "NIL";
-		case STRING:
-			return "\"" + object.getStringValue() + "\"";
-		case FACT_ID:
-			return "f-" + object.getFactIdValue();
-		case DATETIME:
-			GregorianCalendar c = object.getDateValue();
-			sb.append(fillToFixedLength(c.get(Calendar.YEAR), "0", 4)).append(
-					'-');
-			sb.append(fillToFixedLength(c.get(Calendar.MONTH) + 1, "0", 2))
-					.append('-');
-			sb.append(fillToFixedLength(c.get(Calendar.DAY_OF_MONTH), "0", 2))
-					.append(' ');
-			sb.append(fillToFixedLength(c.get(Calendar.HOUR_OF_DAY), "0", 2))
-					.append(':');
-			sb.append(fillToFixedLength(c.get(Calendar.MINUTE), "0", 2))
-					.append(':');
-			sb.append(fillToFixedLength(c.get(Calendar.SECOND), "0", 2));
-			int gmtOffsetMillis = c.get(Calendar.ZONE_OFFSET);
-			if (gmtOffsetMillis >= 0) {
-				sb.append('+');
-			} else {
-				sb.append('-');
-			}
-			int gmtOffsetHours = gmtOffsetMillis / (1000 * 60 * 60);
-			sb.append(fillToFixedLength(gmtOffsetHours, "0", 2));
-			break;
-		case LIST:
-			sb.append('[');
-			for (int i = 0; i < object.getListCount(); ++i) {
-				if (i > 0) {
-					sb.append(", ");
-				}
-				sb.append(object.getListValue(i).format(this));
-			}
-			sb.append(']');
-			break;
-		case SLOT:
-			sb.append('(');
-			Slot slot = object.getSlotValue();
-			sb.append(slot.getName());
-			sb.append(' ');
-			sb.append(slot.getValue().format(this));
-			sb.append(')');
-			break;
-		case FACT:
-		case LONG:
-		case DOUBLE:
-		case BOOLEAN:
-		default:
-			Object obj = object.getObjectValue();
-			if (obj instanceof Formattable) {
-				sb.append(((Formattable) obj).format(this));
-			} else {
-				sb.append(obj.toString());
-			}
-			break;
-		}
-		return sb.toString();
+		return object.getExpressionString();
 	}
 
 	@Override

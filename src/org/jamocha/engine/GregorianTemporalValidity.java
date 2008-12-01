@@ -3,6 +3,8 @@ package org.jamocha.engine;
 import java.util.Arrays;
 import java.util.GregorianCalendar;
 
+import org.jamocha.communication.logging.Logging;
+
 /* TODO:
  * translate it to english. it's in german here, because its easier to use it
  * in my diploma thesis ;)
@@ -13,6 +15,8 @@ public class GregorianTemporalValidity implements TemporalValidity {
 
 	// einen Monat maximales Vorwärtsfenster
 	public final long MAXIMUM_FORWARD_WINDOW = 60l * 60l * 24l * 30l * 1000l;
+	
+	public final long WINDOW_EXCEEDED = Long.MAX_VALUE / 2;
 
 	class IntervalLayer {
 		
@@ -138,7 +142,7 @@ public class GregorianTemporalValidity implements TemporalValidity {
 			int[] result = new int[values.length];
 			for (int i=0; i< values.length; i++) {
 				result[i] = Integer.parseInt(values[i]);
-				// prüfe auf gültigkeit
+				// prüfe auf Gültigkeit
 				if (result[i] < dBegin || result[i] > dEnd)
 					throw new NumberFormatException();
 			}
@@ -208,7 +212,7 @@ public class GregorianTemporalValidity implements TemporalValidity {
 		 * Man kann hier nicht Long.MAX_VALUE benutzen, da sonst die weitere
 		 * Arithmetik in getNextEvent(long) nicht funktionieren würde.
 		 */
-		if (forward_distance > MAXIMUM_FORWARD_WINDOW) return Long.MAX_VALUE/2;
+		if (forward_distance > MAXIMUM_FORWARD_WINDOW) return WINDOW_EXCEEDED;
 		
 		long t = from;
 		
@@ -248,6 +252,19 @@ public class GregorianTemporalValidity implements TemporalValidity {
 	
 		long r1 = getNextEventHelper(from, 0);
 		long r2 = getNextEventHelper((from-duration), 0) + duration;
+		
+		
+		/*
+		 * Wenn das Vorwärtsfenster überschritten wurde, geben wir einen 
+		 * speziellen Ereignispunkt zurück, der den Ereignistyp WINDOW_EXCEEDED 
+		 * hat. Der temporale Thread wird diesen Ereignispunkt ebenfalls 
+		 * abwarten und beim Erreichen den nächsten Ereignispunkt versuchen zu 
+		 * bestimmen. 
+		 */
+		if (r1==WINDOW_EXCEEDED && r2==WINDOW_EXCEEDED) {
+			Logging.logger(this.getClass()).debug("Forward window exceeded");
+			return new EventPoint(EventPoint.Type.WINDOW_EXCEEDED,MAXIMUM_FORWARD_WINDOW);
+		}
 		
 		EventPoint result = (r1 < r2) ? 
 						new EventPoint(EventPoint.Type.START, r1) :

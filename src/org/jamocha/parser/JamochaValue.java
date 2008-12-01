@@ -482,14 +482,15 @@ public class JamochaValue implements Parameter, Formattable {
 					.append(':');
 			sb.append(fillToFixedLength(c.get(Calendar.MINUTE), "0", 2))
 					.append(':');
-			sb.append(fillToFixedLength(c.get(Calendar.SECOND), "0", 2));
+			sb.append(fillToFixedLength(c.get(Calendar.SECOND), "0", 2)).append(".");
+			sb.append(fillToFixedLength(c.get(Calendar.MILLISECOND),"0",3));
 			int gmtOffsetMillis = c.get(Calendar.ZONE_OFFSET);
 			if (gmtOffsetMillis >= 0) {
 				sb.append('+');
 			} else {
 				sb.append('-');
 			}
-			int gmtOffsetHours = gmtOffsetMillis / (1000 * 60 * 60);
+			int gmtOffsetHours = Math.abs(gmtOffsetMillis / (1000 * 60 * 60));
 			sb.append(fillToFixedLength(gmtOffsetHours, "0", 2));
 			break;
 		case LIST:
