@@ -55,7 +55,7 @@ public class TemporalFactThread extends TemporalThread {
 	
 	protected void skipToNextEventPoint(EventPoint actEventPoint) {
 		Fact f = eventPoint2Fact.get(actEventPoint);
-		EventPoint newEP = f.getTemporalValidity().getNextEvent(actEventPoint.getTimestamp()+1000l);
+		EventPoint newEP = f.getTemporalValidity().getNextEvent(actEventPoint.getTimestamp()+1l);
 		eventPoints.add(newEP);
 		eventPoint2Fact.put(newEP, f);
 		fact2nextEventPoint.put(f, newEP);

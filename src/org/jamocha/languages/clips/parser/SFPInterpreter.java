@@ -1250,6 +1250,14 @@ public class SFPInterpreter implements SFPParserVisitor {
 		}
 		return tv;
 	}
+	
+
+	public Object visit(SFPTAMillisecond node, Object data) {
+		TemporalValidityConfiguration tv = (TemporalValidityConfiguration)data;
+		Parameter parameter = (Parameter) node.jjtGetChild(0).jjtAccept(this, data);
+		tv.setMillisecond(parameter);
+		return data;
+	}
 
 	public Object visit(SFPTASecond node, Object data) {
 		TemporalValidityConfiguration tv = (TemporalValidityConfiguration)data;
@@ -1323,5 +1331,6 @@ public class SFPInterpreter implements SFPParserVisitor {
 
 		return null;
 	}
+
 
 }

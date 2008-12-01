@@ -62,6 +62,7 @@ public interface SFPParserVisitor
   public Object visit(SFPDeclaration node, Object data);
   public Object visit(SFPTemporalValidityDeclaration node, Object data);
   public Object visit(SFPTemporalValidity node, Object data);
+  public Object visit(SFPTAMillisecond node, Object data);
   public Object visit(SFPTASecond node, Object data);
   public Object visit(SFPTAMinute node, Object data);
   public Object visit(SFPTAHour node, Object data);

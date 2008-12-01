@@ -178,6 +178,7 @@ TOKEN :
 | < DECLARE: "declare" >
 | < SALIENCE: "salience" >
 | < TEMPORALVALIDITY: "temporal-validity" >
+| < MILLISECOND: "millisecond" >
 | < SECOND: "second" >
 | < MINUTE: "minute" >
 | < HOUR: "hour" >
@@ -1444,7 +1445,8 @@ void TemporalAttribute() #void:
 {
     <LBRACE>
      	(
-     		TASecond()		
+     	    TAMillisecond()
+     	|	TASecond()		
      	| 	TAMinute()
      	|	TAHour()
      	|   TADay()
@@ -1454,6 +1456,14 @@ void TemporalAttribute() #void:
      	|   TADuration()
 	)
 	<RBRACE>
+}
+
+SimpleNode TAMillisecond(): 
+{}
+{
+    <MILLISECOND>
+    Expression()
+    { return jjtThis; }
 }
 
 SimpleNode TASecond(): 

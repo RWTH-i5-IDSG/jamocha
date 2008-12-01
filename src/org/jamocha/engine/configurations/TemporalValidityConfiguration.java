@@ -11,7 +11,7 @@ import org.jamocha.parser.JamochaValue;
 
 public class TemporalValidityConfiguration extends AbstractConfiguration {
 
-	private Parameter year,month,day,weekday,hour,minute,second,duration;
+	private Parameter year,month,day,weekday,hour,minute,second,ms,duration;
 	
 	private static Parameter star = JamochaValue.newString("*");
 	
@@ -86,6 +86,14 @@ public class TemporalValidityConfiguration extends AbstractConfiguration {
 	public void setSecond(Parameter second) {
 		this.second = second;
 	}
+	
+	public Parameter getMillisecond() {
+		return (ms==null) ? star : ms;
+	}
+
+	public void setMillisecond(Parameter ms) {
+		this.ms = ms;
+	}
 
 	public Parameter getDuration() {
 		return (duration==null) ? star : duration;
@@ -102,6 +110,7 @@ public class TemporalValidityConfiguration extends AbstractConfiguration {
 		temporalValidity.setHours(tvc.getHour().getValue(engine).implicitCast(JamochaType.STRING).getStringValue());
 		temporalValidity.setMinutes(tvc.getMinute().getValue(engine).implicitCast(JamochaType.STRING).getStringValue());
 		temporalValidity.setSeconds(tvc.getSecond().getValue(engine).implicitCast(JamochaType.STRING).getStringValue());
+		temporalValidity.setMilliseconds(tvc.getMillisecond().getValue(engine).implicitCast(JamochaType.STRING).getStringValue());
 		temporalValidity.setWeekdays(tvc.getWeekday().getValue(engine).implicitCast(JamochaType.STRING).getStringValue());
 		temporalValidity.setMonths(tvc.getMonth().getValue(engine).implicitCast(JamochaType.STRING).getStringValue());
 		temporalValidity.setYears(tvc.getYear().getValue(engine).implicitCast(JamochaType.STRING).getStringValue());

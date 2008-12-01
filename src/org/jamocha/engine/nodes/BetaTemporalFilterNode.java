@@ -57,7 +57,7 @@ public class BetaTemporalFilterNode extends AbstractBetaFilterNode {
 
 		@Override
 		protected void skipToNextEventPoint(EventPoint actEventPoint) {
-			EventPoint newEP = tv.getNextEvent(actEventPoint.getTimestamp()+1000l);
+			EventPoint newEP = tv.getNextEvent(actEventPoint.getTimestamp()+1l);
 			eventPoints.add(newEP);
 		}
 		

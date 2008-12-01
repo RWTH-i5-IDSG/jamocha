@@ -87,6 +87,7 @@ public class GregorianTemporalValidity implements TemporalValidity {
 			case GregorianCalendar.HOUR_OF_DAY: t.set(GregorianCalendar.HOUR_OF_DAY, 0);
 			case GregorianCalendar.MINUTE: t.set(GregorianCalendar.MINUTE, 0);
 			case GregorianCalendar.SECOND: t.set(GregorianCalendar.SECOND, 0);
+			case GregorianCalendar.MILLISECOND: t.set(GregorianCalendar.MILLISECOND, 0);
 			}
 			return t.getTimeInMillis();
 		}
@@ -150,7 +151,8 @@ public class GregorianTemporalValidity implements TemporalValidity {
 	private long duration;
 	
 	public GregorianTemporalValidity() {
-		intervalLayers = new IntervalLayer[7];
+		intervalLayers = new IntervalLayer[8];
+		setMilliseconds("*");
 		setSeconds("*");
 		setMinutes("*");
 		setHours("*");
@@ -158,7 +160,11 @@ public class GregorianTemporalValidity implements TemporalValidity {
 		setDays("*");
 		setMonths("*");
 		setYears("*");
-		this.duration = 1;
+		this.duration = 1000;
+	}
+	
+	public void setMilliseconds(String msec) {
+		intervalLayers[7] = expand(msec,0,999,GregorianCalendar.MILLISECOND);
 	}
 	
 	public void setSeconds(String sec) {
@@ -241,10 +247,7 @@ public class GregorianTemporalValidity implements TemporalValidity {
 	public EventPoint getNextEvent(long from) {
 	
 		long r1 = getNextEventHelper(from, 0);
-		long r2 = getNextEventHelper((from-duration*1000), 0) + duration*1000;
-		
-		assert r1 % 1000 == 0;
-		assert r2 % 1000 == 0;
+		long r2 = getNextEventHelper((from-duration), 0) + duration;
 		
 		EventPoint result = (r1 < r2) ? 
 						new EventPoint(EventPoint.Type.START, r1) :
