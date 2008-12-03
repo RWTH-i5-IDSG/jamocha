@@ -79,7 +79,7 @@ public class ObjectCondition extends AbstractCondition {
 		return this.templateName;
 	}
 
-	public Condition clone() {
+	public ObjectCondition clone() {
 		List<Constraint> newConstr = new ArrayList<Constraint>();
 		for (Constraint c : constraints)
 			newConstr.add(c);
@@ -97,6 +97,15 @@ public class ObjectCondition extends AbstractCondition {
 
 	public List<Constraint> getConstraints() {
 		return constraints;
+	}
+	
+	public boolean replaceConstraint(Constraint old, Constraint n) {
+		int i = constraints.indexOf(old);
+		if (i==-1) return false;
+		constraints.remove(i);
+		constraints.add(n);
+		n.setParentCondition(this);
+		return true;
 	}
 	
 	public void addConstraint(Constraint c) {

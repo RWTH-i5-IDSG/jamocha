@@ -207,6 +207,7 @@ public class Deftemplate implements Template, Serializable {
 	 * @return
 	 */
 	public TemplateSlot getSlot(final int id) {
+		if (id == -1 || id >= slots.length ) return null;
 		return slots[id];
 	}
 

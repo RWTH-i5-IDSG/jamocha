@@ -906,8 +906,11 @@ public class SFPInterpreter implements SFPParserVisitor {
 		n = node.jjtGetChild(j);
 		Object obj = n.jjtAccept(this, data);
 		if (n instanceof SFPConstant) {
-			SFPLHSSlot slot = (SFPLHSSlot) n.jjtGetParent().jjtGetParent()
-					.jjtGetParent();
+			Node m = n;
+			while (!(m instanceof SFPLHSSlot)) {
+				m=m.jjtGetParent();
+			}
+			SFPLHSSlot slot = (SFPLHSSlot) m;
 			String slotName = slot.jjtGetChild(0).jjtAccept(this, data)
 					.toString();
 			constraint = new LiteralConstraint((JamochaValue) obj, slotName);
@@ -940,8 +943,11 @@ public class SFPInterpreter implements SFPParserVisitor {
 		} else if (n instanceof SFPSingleVariable
 				| n instanceof SFPMultiVariable) {
 			String varName = ((BoundParam) obj).getVariableName();
-			SFPLHSSlot slot = (SFPLHSSlot) n.jjtGetParent().jjtGetParent()
-					.jjtGetParent();
+			Node m = n;
+			while (!(m instanceof SFPLHSSlot)) {
+				m=m.jjtGetParent();
+			}
+			SFPLHSSlot slot = (SFPLHSSlot) m;
 			String slotName = slot.jjtGetChild(0).jjtAccept(this, data)
 					.toString();
 			constraint = new BoundConstraint(slotName, varName, isNegated);
