@@ -32,6 +32,40 @@ import org.jamocha.parser.JamochaValue;
  */
 public class ReturnValueConstraint extends AbstractConstraint {
 
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result
+				+ ((functionName == null) ? 0 : functionName.hashCode());
+		result = prime * result
+				+ ((parameters == null) ? 0 : parameters.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (!super.equals(obj))
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		ReturnValueConstraint other = (ReturnValueConstraint) obj;
+		if (functionName == null) {
+			if (other.functionName != null)
+				return false;
+		} else if (!functionName.equals(other.functionName))
+			return false;
+		if (parameters == null) {
+			if (other.parameters != null)
+				return false;
+		} else if (!parameters.equals(other.parameters))
+			return false;
+		return true;
+	}
+
+
 	static final long serialVersionUID = 1;
 
 	/**
@@ -46,6 +80,10 @@ public class ReturnValueConstraint extends AbstractConstraint {
 		this.parameters = parameters;
 	}
 
+	public ReturnValueConstraint clone() {
+		return new ReturnValueConstraint(functionName, parameters);
+	}
+	
 	public String getFunctionName() {
 		return this.functionName;
 	}

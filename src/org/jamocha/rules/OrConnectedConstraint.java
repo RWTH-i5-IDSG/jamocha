@@ -40,5 +40,8 @@ public class OrConnectedConstraint extends AbstractConnectedConstraint {
 		return visitor.visit(this, data);
 	}
 
-
+	public OrConnectedConstraint clone() {
+		return new OrConnectedConstraint(left,right,negated);
+	}
+	
 }

@@ -32,6 +32,38 @@ import org.jamocha.parser.JamochaValue;
  */
 public class LiteralConstraint extends AbstractConstraint {
 
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result
+				+ ((slotName == null) ? 0 : slotName.hashCode());
+		result = prime * result + ((value == null) ? 0 : value.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (!super.equals(obj))
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		LiteralConstraint other = (LiteralConstraint) obj;
+		if (slotName == null) {
+			if (other.slotName != null)
+				return false;
+		} else if (!slotName.equals(other.slotName))
+			return false;
+		if (value == null) {
+			if (other.value != null)
+				return false;
+		} else if (!value.equals(other.value))
+			return false;
+		return true;
+	}
+
 	static final long serialVersionUID = 0xDeadBeafCafeBabeL;
 
 	protected JamochaValue value;

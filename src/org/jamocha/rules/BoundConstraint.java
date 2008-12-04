@@ -31,6 +31,42 @@ import org.jamocha.parser.JamochaValue;
  */
 public class BoundConstraint extends AbstractConstraint {
 
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + ((name == null) ? 0 : name.hashCode());
+		result = prime * result + (negated ? 1231 : 1237);
+		result = prime * result
+				+ ((slotName == null) ? 0 : slotName.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (!super.equals(obj))
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		BoundConstraint other = (BoundConstraint) obj;
+		if (name == null) {
+			if (other.name != null)
+				return false;
+		} else if (!name.equals(other.name))
+			return false;
+		if (negated != other.negated)
+			return false;
+		if (slotName == null) {
+			if (other.slotName != null)
+				return false;
+		} else if (!slotName.equals(other.slotName))
+			return false;
+		return true;
+	}
+
+
 	private static final long serialVersionUID = 1L;
 
 	protected String name;

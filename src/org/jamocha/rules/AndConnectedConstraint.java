@@ -40,5 +40,8 @@ public class AndConnectedConstraint extends AbstractConnectedConstraint {
 		return visitor.visit(this, data);
 	}
 
+	public AndConnectedConstraint clone() {
+		return new AndConnectedConstraint(left,right,negated);
+	}
 
 }

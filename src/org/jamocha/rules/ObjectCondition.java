@@ -58,6 +58,7 @@ public class ObjectCondition extends AbstractCondition {
 	public ObjectCondition(List<Constraint> constraints, String templateName) {
 		super();
 		this.constraints = constraints;
+		for (Constraint cs : constraints) cs.setParentCondition(this);
 		this.templateName = templateName;
 		registerAsParentCondition();
 	}
@@ -82,7 +83,7 @@ public class ObjectCondition extends AbstractCondition {
 	public ObjectCondition clone() {
 		List<Constraint> newConstr = new ArrayList<Constraint>();
 		for (Constraint c : constraints)
-			newConstr.add(c);
+			newConstr.add(c.clone());
 		ObjectCondition result = new ObjectCondition(newConstr,templateName);
 		return result;
 	}

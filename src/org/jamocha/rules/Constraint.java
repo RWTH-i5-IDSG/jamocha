@@ -29,7 +29,7 @@ import org.jamocha.parser.JamochaValue;
  * Constraints are "values" in a rule. this can be a variable-binding "?x"
  * or a value "13" and so on... Furthermore, it can be negated.
  */
-public interface Constraint extends Complexity, Formattable {
+public interface Constraint extends Complexity, Formattable, Cloneable {
 
 	/**
 	 * This should be the name of the constraint.
@@ -62,4 +62,7 @@ public interface Constraint extends Complexity, Formattable {
 	 */
 	public <T, S> S acceptVisitor(ConstraintVisitor <T, S> visitor, T data);
 
+
+	public Constraint clone();
+	
 }

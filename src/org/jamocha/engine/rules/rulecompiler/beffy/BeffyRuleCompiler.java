@@ -247,6 +247,8 @@ public class BeffyRuleCompiler implements RuleCompiler {
 				slotIdx = s.getId();
 			}
 
+			log("Potential pivot element for %s found at tuple=%d,slot=%d (tuple-index may vary later on!)",varName,tupleIdx.get(),slotIdx);
+			
 			// generate new binding and its binding-information record
 			Binding b = new Binding(tupleIdx, slotIdx);
 			BindingInformation binf = new BindingInformation(b,level);
@@ -346,7 +348,7 @@ public class BeffyRuleCompiler implements RuleCompiler {
 		
 		public CompileTableau visit(AndCondition c, CompileTableau data) {
 			int p = getNumber();
-			log("(%d) i enter an and-condition now. at first, i will handle the sub conditions...",p);
+			log("(%d) i enter and-condition %d now. at first, i will handle the sub conditions...",p,c.hashCode());
 			for (Condition subCondition : c.getNestedConditions()) {
 				subCondition.acceptVisitor(this, data);
 			}
@@ -372,20 +374,24 @@ public class BeffyRuleCompiler implements RuleCompiler {
 					Condition c1 = c.getNestedConditions().get(0);
 					Condition c2 = c.getNestedConditions().get(1);
 					Condition alphaCond = (isAlpha(c1)) ? c1 : c2;
+					Condition betaCond = (isAlpha(c1)) ? c2 : c1;
 					if (isAlpha(c1) && isAlpha(c2)) {
-						log("(%d) building left-input-adaptor, because both inputs are alpha",p);
+						log("(%d) building left-input-adaptor for condition %d, because both inputs are alpha",p,betaCond.hashCode());
 						LeftInputAdaptorNode lia = new LeftInputAdaptorNode(engine);
-						Node n = data.getLastNode(alphaCond);
+						Node n = data.getLastNode(betaCond);
 						n.addChild(lia); slow(data);
-						data.setLastNode(alphaCond, lia);
+						data.setLastNode(betaCond, lia);
 					}
 					log("(%d) add new join to both subcondition's last nodes and fix the tuple indices",p);
 					data.getLastNode(c1).addChild(joinNode);slow(data);
 					data.getLastNode(c2).addChild(joinNode);slow(data);
 					// fix the tuple indices for c1 and c2
-					MutableInteger oldIdxC1 = data.getTupleIndexFromCondition(c1);
-					MutableInteger oldIdxC2 = data.getTupleIndexFromCondition(c2);
-					oldIdxC2.set(oldIdxC1.get() + 1);
+					MutableInteger oldIdxC1 = data.getTupleIndexFromCondition(betaCond);
+					MutableInteger oldIdxC2 = data.getTupleIndexFromCondition(alphaCond);
+					log("(%d) before fixing: tuple index from condition %d is %d and from %d is %d.",p,betaCond.hashCode(),oldIdxC1.get(),alphaCond.hashCode(),oldIdxC2.get());
+					int res = oldIdxC1.get() + 1;
+					oldIdxC2.set(res);
+					log("(%d) fixing tuple index from condition %d to %d",p,alphaCond.hashCode(),res);
 					log("(%d) set %d as corresponding join for the condition %d",p, joinNode.getId(), alphaCond.hashCode());
 					data.setCorrespondingJoin(alphaCond, joinNode);
 				} catch (NodeException e) {
@@ -492,7 +498,7 @@ public class BeffyRuleCompiler implements RuleCompiler {
 
 		public CompileTableau visit(ExistsCondition c, CompileTableau data) {
 			int p = getNumber();
-			log("(%d) i enter an exists-condition now. i will visit the (hopefully only) sub-condition now.",p);
+			log("(%d) i enter exists-condition %d now. i will visit the (hopefully only) sub-condition now.",p,c.hashCode());
 			assert c.getNestedConditions().size() == 1;
 			Condition nested = c.getNestedConditions().get(0);
 			nested.acceptVisitor(this, data);
@@ -512,7 +518,7 @@ public class BeffyRuleCompiler implements RuleCompiler {
 		}
 
 		public CompileTableau visit(NotExistsCondition c, CompileTableau data) {
-			log("(%d) i enter an not-exists-condition now. but this is not yet implemented :(",getNumber());
+			log("(%d) i enter not-exists-condition %d now. but this is not yet implemented :(",getNumber(), c.hashCode());
 			return data;
 		}
 
@@ -524,7 +530,7 @@ public class BeffyRuleCompiler implements RuleCompiler {
 			
 			//at first, we need the ObjectTypeNode
 			Template template = engine.findTemplate(c.getTemplateName());
-			log("(%d) i enter an object-condition for template '%s' now.",p, template.getName());
+			log("(%d) i enter object-condition %d for template '%s' now.",p, c.hashCode(),template.getName());
 			try {
 				lastNode = objectTypeNodes.getObjectTypeNode(template);
 				
@@ -549,7 +555,7 @@ public class BeffyRuleCompiler implements RuleCompiler {
 						lastNode = filterNode;
 					} else if (constr instanceof BoundConstraint) {
 						BoundConstraint bc = (BoundConstraint) constr;
-						log("(%d) found bound-constraint '%s'. i will only notify the binding manager for it here. it will be handled in the and-condition.", p, bc.getConstraintName() );
+						log("(%d) found bound-constraint '%s' . i will only notify the binding manager for it here. it will be handled in the and-condition.", p, bc.getConstraintName() );
 						bindings.boundConstraintOccurs(bc, data);
 					} else {
 						log("(%d) found %s. is not implemented yet :(",p, constr.getClass().getSimpleName());
@@ -593,7 +599,7 @@ public class BeffyRuleCompiler implements RuleCompiler {
 			
 			
 			int p = getNumber();
-			log("(%d) i enter an or-condition now. at first, i will handle the sub conditions...",p);
+			log("(%d) i enter or-condition %d now. at first, i will handle the sub conditions...",p,c.hashCode());
 			for (Condition subCondition : c.getNestedConditions()) {
 				/* for this sub-condition, we have to generate a new sub-rule,
 				 * compile it and create a terminal node for it
@@ -639,7 +645,7 @@ public class BeffyRuleCompiler implements RuleCompiler {
 
 		public CompileTableau visit(TestCondition c, CompileTableau data) {
 			int p = getNumber();
-			log("(%d) i enter an test-condition now. tests are handled later in the and-condition. we will just add the initial-fact-node as condition's last node here.",p);
+			log("(%d) i enter test-condition %d now. tests are handled later in the and-condition. we will just add the initial-fact-node as condition's last node here.",p,c.hashCode());
 			try {
 				data.setLastNode(c, objectTypeNodes.getObjectTypeNode(engine.getInitialTemplate()));
 				/*

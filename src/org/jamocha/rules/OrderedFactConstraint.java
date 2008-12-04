@@ -18,6 +18,8 @@
 
 package org.jamocha.rules;
 
+import java.util.Arrays;
+
 import org.jamocha.formatter.Formatter;
 import org.jamocha.parser.JamochaValue;
 
@@ -27,6 +29,29 @@ import org.jamocha.parser.JamochaValue;
  *
  */
 public class OrderedFactConstraint extends AbstractConstraint {
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + Arrays.hashCode(constraints);
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (!super.equals(obj))
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		OrderedFactConstraint other = (OrderedFactConstraint) obj;
+		if (!Arrays.equals(constraints, other.constraints))
+			return false;
+		return true;
+	}
+
 
 	private static final long serialVersionUID = 1L;
 

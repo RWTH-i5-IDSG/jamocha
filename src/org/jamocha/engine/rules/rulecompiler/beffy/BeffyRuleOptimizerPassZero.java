@@ -118,7 +118,8 @@ public class BeffyRuleOptimizerPassZero {
 						OrCondition newOrCond = new OrCondition();
 						for (Constraint i: insides) {
 							ObjectCondition noc = oc.clone();
-							noc.replaceConstraint(constr, i);
+							boolean s=noc.replaceConstraint(constr, i);
+							if (!s) Logging.logger(this.getClass()).fatal("Internal error in RuleOptimizer: cannot replace a constraint "+constr.getClass().getSimpleName());
 							newOrCond.addNestedCondition(noc);
 						}
 						conditionStack.add(newOrCond);
@@ -187,9 +188,7 @@ public class BeffyRuleOptimizerPassZero {
 							} else {
 								Logging.logger(this.getClass()).fatal("unable to handle "+ot.getClass().getSimpleName()+" inside a connective-constraint!");
 							}
-							
 						}
-						
 						conditionStack.add(newAndCond);
 						parent.replaceNestedCondition(oc, newAndCond);
 						break;
@@ -198,9 +197,6 @@ public class BeffyRuleOptimizerPassZero {
 				
 			}
 		}
-		
-		
-		
 		return bigMasterAnd;
 	}
 
@@ -215,7 +211,7 @@ public class BeffyRuleOptimizerPassZero {
 				stack.add(andcc.getLeft());
 				stack.add(andcc.getRight());
 			} else {
-				result.add(c);
+				result.add(c.clone());
 			}
 		}
 		return result;
@@ -232,110 +228,10 @@ public class BeffyRuleOptimizerPassZero {
 				stack.add(andcc.getLeft());
 				stack.add(andcc.getRight());
 			} else {
-				result.add(c);
+				result.add(c.clone());
 			}
 		}
 		return result;
 	}
-
-	
-	
-	
-	
-//	private void handleAndConnectedConstraint(AndConnectedConstraint constr) {
-//		/* explanation by example:
-//		 * 
-//		 * (wurst (name FOO&BAR) )
-//		 * 
-//		 * with FOO and BAR can be
-//		 * - literals
-//		 * - bindings
-//		 * - predicates
-//		 * 
-//		 * =>
-//		 * 
-//		 * (
-//		 * 
-//		 * 
-//		 */
-//		
-//	}
-//
-//	private void handlePredicateConstraint(PredicateConstraint constr) {
-//		// generate new test condition
-//		TestCondition tCond = predConstr2testCond(constr);
-//		
-//		// remove predicate constraint
-//		ObjectCondition owner = (ObjectCondition) constr.getParentCondition();
-//		owner.getConstraints().remove(constr);
-//		
-//		// generate and-condition with old objectcondition and testcondition
-//		AndCondition substituter = new AndCondition();
-//		substituter.addNestedCondition(owner);
-//		substituter.addNestedCondition(tCond);
-//		
-//		// replace old objectcondition with the new generated and-condition
-//		ConditionWithNested upper = owner.getParentCondition();
-//		upper.replaceNestedCondition(owner, substituter);
-//		
-//	}
-//	
-//	private TestCondition predConstr2testCond(PredicateConstraint constr) {
-//		Signature function = new Signature();
-//		function.setParameters(constr.getParameters());
-//		function.setSignatureName(constr.getFunctionName());
-//		TestCondition result = new TestCondition(function);
-//		return result;
-//	}
-//
-//	private <J extends AbstractConnectedConstraint> Collection<Constraint> split (J constr) {
-//		Stack<Constraint> junctionStack = new Stack<Constraint>();
-//		List<Constraint> result = new ArrayList<Constraint>();
-//		junctionStack.push(constr.getLeft());
-//		junctionStack.push(constr.getRight());
-//		
-//		while (!junctionStack.isEmpty()) {
-//			Constraint c = junctionStack.pop();
-//			
-//			/*
-//			 * this condition is a replacement for (c instanceof J),
-//			 * which is forbidden because of the java backward compatibility
-//			 * (for more infos, search for "type erasure")
-//			 */
-//			if (c.getClass().equals(constr.getClass())) {
-//				AbstractConnectedConstraint acc = (AbstractConnectedConstraint) c;
-//				junctionStack.push(acc.getLeft());
-//				junctionStack.push(acc.getRight());
-//			} else {
-//				result.add(c);
-//			}
-//		}
-//		return result;
-//	}
-//	
-//	
-//	private void handleOrConnectedConstraint(OrConnectedConstraint constr) {
-//		OrCondition newNested = new OrCondition();
-//		// we translate it into an or/and-_condition_-construct
-//		Collection<Constraint> connectedBy = split(constr); 
-//		
-//		// get the object condition, we process now
-//		Condition main = constr.getParentCondition();
-//		
-//		// fork this object condition and put all clones into a new nested node
-//		for (Constraint sub : connectedBy) {
-//			assert main instanceof ObjectCondition;
-//			ObjectCondition cloned = (ObjectCondition)main.clone();
-//			cloned.getConstraints().remove(constr);
-//			cloned.getConstraints().add(sub);
-//			newNested.addNestedCondition(cloned);
-//		}
-//		
-//		// get the parent condition-with-nested and replace here the
-//		// "main"-condition with the newNested one
-//		ConditionWithNested cwn = main.getParentCondition();
-//		cwn.replaceNestedCondition(main, newNested);
-//	}
-//
 
 }

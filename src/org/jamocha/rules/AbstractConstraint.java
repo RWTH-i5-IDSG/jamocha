@@ -35,4 +35,27 @@ public abstract class AbstractConstraint implements Constraint {
 	public Condition getParentCondition() {
 		return parent;
 	}
+	
+	public Constraint clone() {
+		try {
+			return (Constraint) super.clone();
+		} catch (CloneNotSupportedException e) {
+			throw new InternalError();
+		}
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * WARNING:
+	 * the parent fact is not interesting for equality.
+	 * Constraints with different parents can be equal!
+	 * @see java.lang.Object#hashCode()
+	 */
+	public int hashCode() {
+		return 1;
+	}
+	public boolean equals(Object other) {
+		return (other instanceof Constraint);
+	}
+
 }
