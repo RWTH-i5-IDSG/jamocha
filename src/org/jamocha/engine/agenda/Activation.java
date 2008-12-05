@@ -21,6 +21,7 @@ package org.jamocha.engine.agenda;
 import org.jamocha.engine.Engine;
 import org.jamocha.engine.ExecuteException;
 import org.jamocha.engine.nodes.FactTuple;
+import org.jamocha.engine.nodes.TerminalNode;
 import org.jamocha.engine.workingmemory.elements.Fact;
 import org.jamocha.rules.Action;
 import org.jamocha.rules.Rule;
@@ -36,10 +37,11 @@ public class Activation {
 	protected boolean valid = true;
 	protected FactTuple tuple;
 	protected long aggregatedTime = 0;
-
+	protected TerminalNode tnode;
+	
 	@Override
 	public int hashCode() {
-		return rule.hashCode() + tuple.hashCode();
+		return rule.hashCode() + tuple.hashCode() + tnode.getId();
 	}
 
 	@Override
@@ -52,13 +54,14 @@ public class Activation {
 			return false;
 		if (obj instanceof Activation) {
 			Activation other = (Activation) obj;
-			return tuple.equals(other.tuple) && rule.equals(other.rule);
+			return tuple.equals(other.tuple) && rule.equals(other.rule) && tnode==other.tnode;
 		} else
 			return false;
 	}
 
-	public Activation(Rule rule, FactTuple tuple) {
+	public Activation(Rule rule, FactTuple tuple, TerminalNode tnode) {
 		this.rule = rule;
+		this.tnode = tnode;
 		setTuple(tuple);
 	}
 
@@ -97,7 +100,7 @@ public class Activation {
 		engine.pushScope(rule);
 		// TODO remove that line rule.setTriggerFacts(tuple.getFacts());
 		for (Action action : rule.getActions())
-			action.executeAction(tuple);
+			action.executeAction(tuple,tnode);
 		engine.popScope();
 	}
 

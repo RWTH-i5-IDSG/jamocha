@@ -33,6 +33,7 @@ import org.jamocha.engine.configurations.SlotConfiguration;
 import org.jamocha.engine.functions.Function;
 import org.jamocha.engine.functions.FunctionNotFoundException;
 import org.jamocha.engine.nodes.FactTuple;
+import org.jamocha.engine.nodes.TerminalNode;
 import org.jamocha.formatter.Formatter;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaValue;
@@ -105,7 +106,7 @@ public class FunctionAction implements Action {
 //		}
 //	}
 	
-	protected void substituteBoundParams(Parameter[] params, FactTuple tuple) throws FunctionNotFoundException, ExecuteException {
+	protected void substituteBoundParams(Parameter[] params,TerminalNode tnode, FactTuple tuple) throws FunctionNotFoundException, ExecuteException {
 		/*
 		 * TODO
 		 * For the moment, we have to handle different types of parameters here.
@@ -129,7 +130,7 @@ public class FunctionAction implements Action {
 			Parameter param = params[idx];
 			if (param instanceof BoundParam) {
 				BoundParam bp = (BoundParam) param;
-				Binding binding = engine.getRuleCompiler().getBinding(bp.getVariableName(), parent);
+				Binding binding = engine.getRuleCompiler().getBinding(bp.getVariableName(),tnode, parent);
 				if (binding == null) {
 					params[idx] = bp;
 				} else {
@@ -150,7 +151,7 @@ public class FunctionAction implements Action {
 				mc = (ModifyConfiguration) mc.clone();
 				params[idx] = mc;
 				BoundParam factBp = (BoundParam) mc.getFactBinding();
-				Binding binding = engine.getRuleCompiler().getBinding(factBp.getVariableName(), parent);
+				Binding binding = engine.getRuleCompiler().getBinding(factBp.getVariableName(),tnode, parent);
 				JamochaValue newObj=null;
 				if (binding.isWholeFactBinding()){
 					newObj = JamochaValue.newFact(tuple.getFact(binding.getTupleIndex().get()));
@@ -164,7 +165,7 @@ public class FunctionAction implements Action {
 				mc.setFactBinding(newObj);
 				for (SlotConfiguration sc : mc.getSlots()) {
 					Parameter[] p = sc.getSlotValues();
-					substituteBoundParams(p, tuple);
+					substituteBoundParams(p,tnode,tuple);
 				}
 				
 			} else if (param instanceof JamochaValue) {
@@ -176,7 +177,7 @@ public class FunctionAction implements Action {
 				List<Parameter> iParams = new ArrayList<Parameter>();
 				for (Parameter p : iSig.getParameters()) iParams.add(p);
 				FunctionAction iFuncAction = new FunctionAction(iFunc, engine, parent,iParams);
-				JamochaValue iRes = iFuncAction.executeAction(tuple);
+				JamochaValue iRes = iFuncAction.executeAction(tuple,tnode);
 				params[idx] = iRes;
 			} else {
 				Logging.logger(this.getClass()).fatal("cannot handle parameter "+param);
@@ -184,7 +185,7 @@ public class FunctionAction implements Action {
 		}
 	}
 
-	public JamochaValue executeAction(FactTuple facts) throws ExecuteException {
+	public JamochaValue executeAction(FactTuple facts, TerminalNode tnode) throws ExecuteException {
 		// we treat AssertFunction a little different
 //		if (this.function instanceof Assert) {
 //			((Assert) this.function).setTriggerFacts(facts);
@@ -193,7 +194,7 @@ public class FunctionAction implements Action {
 			//TODO: this is a flat-copy. me must make a deep copy here!!
 			Parameter[] params = new Parameter[parameters.size()];
 			params = parameters.toArray(params);
-			substituteBoundParams(params, facts);
+			substituteBoundParams(params,tnode,facts);
 			return this.function.executeFunction(engine, params);
 		} catch (Exception e) {
 			throw new ExecuteException("Error executing function '"+function.getName()+"'", e);

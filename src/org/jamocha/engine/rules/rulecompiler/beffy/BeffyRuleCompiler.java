@@ -176,37 +176,79 @@ public class BeffyRuleCompiler implements RuleCompiler {
 			
 		}
 		
-		private Map< Rule, Map<String,BindingInformation> >  rule2bindings;
+		/*
+		 * in former times, the key for a binding is the binding
+		 * variable name itself, e.g. "?x". but since we handle or-
+		 * conditions this is not enough. a binding variable can have
+		 * two different BindingInformations dependent on the or-child
+		 * it contains.
+		 */
+		private class BindingKey {
+			
+			private String name;
+			
+			public String getName() {
+				return name;
+			}
+
+			public TerminalNode getTnode() {
+				return tnode;
+			}
+
+			private TerminalNode tnode;
+			
+			public BindingKey(String name, TerminalNode tnode) {
+				this.name= name;
+				this.tnode = tnode;
+			}
+			
+			public boolean equals(Object other) {
+				if (other == null) return false;
+				if (other instanceof BindingKey) {
+					BindingKey bo = (BindingKey) other;
+					if (!bo.name.equals(name)) return false;
+					if (tnode==bo.tnode) return true;
+				}
+				return false;
+			}
+			
+			public int hashCode() {
+				return name.hashCode() * tnode.getId();
+			}
+			
+		}
 		
-		private Map<String,BindingInformation> getBindings(Rule r) {
-			Map<String,BindingInformation> bindings = rule2bindings.get(r);
+		private Map< Rule, Map<BindingKey,BindingInformation> >  rule2bindings;
+		
+		private Map<BindingKey,BindingInformation> getBindings(Rule r) {
+			Map<BindingKey,BindingInformation> bindings = rule2bindings.get(r);
 			if (bindings == null) {
-				bindings = new HashMap<String, BindingInformation>();
+				bindings = new HashMap<BindingKey, BindingInformation>();
 				rule2bindings.put(r, bindings);
 			}
 			return bindings;
 		}
 		
-		private BindingInformation getBindingInformation(Rule r, String varName) {
-			return getBindings(r).get(varName);
+		private BindingInformation getBindingInformation(Rule r, String varName, TerminalNode focus) {
+			return getBindings(r).get(new BindingKey(varName,focus));
 		}
 		
-		public Binding getBinding(Rule r, String varName) {
-			BindingInformation bi = getBindingInformation(r,varName);
+		public Binding getBinding(Rule r, String varName, TerminalNode focus) {
+			BindingInformation bi = getBindingInformation(r,varName,focus);
 			if (bi != null) {
-				return getBindingInformation(r,varName).b;				
+				return getBindingInformation(r,varName,focus).b;				
 			} else return null;
 		}
 		
-		private void putBinding(Rule r, String varName, BindingInformation binding) {
-			getBindings(r).put(varName, binding);
+		private void putBinding(Rule r, TerminalNode focus, String varName, BindingInformation binding) {
+			getBindings(r).put(new BindingKey(varName,focus), binding);
 		}
 		
 		public BindingManager() {
-			rule2bindings = new HashMap<Rule, Map<String,BindingInformation>>();			
+			rule2bindings = new HashMap<Rule, Map<BindingKey,BindingInformation>>();			
 		}
 
-		private void boundConstraintOccurs(BoundConstraint bc, CompileTableau data) {
+		private void boundConstraintOccurs(BoundConstraint bc, TerminalNode focus, CompileTableau data) {
 			// we don't need negated occurences, since we only use them as
 			// value provider in the action part
 			if (bc.isNegated()) return;
@@ -231,7 +273,7 @@ public class BeffyRuleCompiler implements RuleCompiler {
 			
 			// if our occurence is deeper or as deep as inside than the existing
 			// occurence, throw the new one away,
-			BindingInformation bin = bindings.getBindingInformation(r, varName);
+			BindingInformation bin = bindings.getBindingInformation(r, varName, focus);
 			if (bin!=null && bin.level<=level) return;
 			
 			// get the tuple index from our new occurence
@@ -254,7 +296,7 @@ public class BeffyRuleCompiler implements RuleCompiler {
 			BindingInformation binf = new BindingInformation(b,level);
 			
 			// store it
-			putBinding(r,varName, binf);
+			putBinding(r,focus,varName, binf);
 			
 			
 		}
@@ -276,6 +318,28 @@ public class BeffyRuleCompiler implements RuleCompiler {
 		
 		private Map<Condition,Node> correspondingJoins;
 		
+		private TerminalNode currentFocus;
+		
+		/**
+		 * the current focus is the terminal node of the current or-branch we handle
+		 * at the moment. this is needed for storing the bindings from different
+		 * or-branches separated from each other (the binding informations can differ
+		 * in tuple- and slot-index in different or-branches)
+		 */
+		public TerminalNode getCurrentFocus() {
+			return currentFocus;
+		}
+
+		/**
+		 * the current focus is the terminal node of the current or-branch we handle
+		 * at the moment. this is needed for storing the bindings from different
+		 * or-branches separated from each other (the binding informations can differ
+		 * in tuple- and slot-index in different or-branches)
+		 */
+		public void setCurrentFocus(TerminalNode currentFocus) {
+			this.currentFocus = currentFocus;
+		}
+
 		public CompileTableau(Rule r) {
 			this.rule = r;
 			this.success = true;
@@ -446,7 +510,7 @@ public class BeffyRuleCompiler implements RuleCompiler {
 							int slotIdx = bc.isFactBinding() ? -1 : templ.getSlot(bc.getSlotName()).getId();
 							// 'tupleIdx' and 'slotIdx' are our field-address for the actual bound-param
 							
-							Binding pivot=bindings.getBinding(data.getRule(), bc.getConstraintName());
+							Binding pivot=bindings.getBinding(data.getRule(), bc.getConstraintName(), data.getCurrentFocus());
 							// 'pivot' is the field-address for the pivot element
 							
 							log("(%d) processing bound-constraint '%s' in tuple=%d and slot=%d (pivot is tuple=%d and slot=%d)...",p,bc.getConstraintName(), tupleIdx.get(), slotIdx, pivot.getTupleIndex().get(), pivot.getSlotIndex());
@@ -556,7 +620,7 @@ public class BeffyRuleCompiler implements RuleCompiler {
 					} else if (constr instanceof BoundConstraint) {
 						BoundConstraint bc = (BoundConstraint) constr;
 						log("(%d) found bound-constraint '%s' . i will only notify the binding manager for it here. it will be handled in the and-condition.", p, bc.getConstraintName() );
-						bindings.boundConstraintOccurs(bc, data);
+						bindings.boundConstraintOccurs(bc, data.getCurrentFocus(), data);
 					} else {
 						log("(%d) found %s. is not implemented yet :(",p, constr.getClass().getSimpleName());
 					}
@@ -604,8 +668,9 @@ public class BeffyRuleCompiler implements RuleCompiler {
 				/* for this sub-condition, we have to generate a new sub-rule,
 				 * compile it and create a terminal node for it
 				 */
-				subCondition.acceptVisitor(this, data);
 				TerminalNode terminal = new TerminalNode(engine, data.getRule());
+				data.setCurrentFocus(terminal);
+				subCondition.acceptVisitor(this, data);
 				
 				if (data.getRule().getAutoFocus()) {
 					log("(%d) set '%s' as auto-focus",p,data.getRule().getName());
@@ -684,7 +749,7 @@ public class BeffyRuleCompiler implements RuleCompiler {
 		for (Parameter p : original) {
 			if (p instanceof BoundParam) {
 				BoundParam bp = (BoundParam) p;
-				Binding bnd = bindings.getBinding(tableau.getRule(), bp.getVariableName());
+				Binding bnd = bindings.getBinding(tableau.getRule(), bp.getVariableName(), tableau.getCurrentFocus());
 				FieldAddress fa;
 				if (bnd.isWholeFactBinding()) {
 					fa = new LeftFieldAddress(bnd.getTupleIndex());
@@ -783,8 +848,8 @@ public class BeffyRuleCompiler implements RuleCompiler {
 		}
 	}
 	
-	public Binding getBinding(String varName, Rule r) {
-		return bindings.getBinding(r, varName);
+	public Binding getBinding(String varName, TerminalNode focus, Rule r) {
+		return bindings.getBinding(r, varName, focus);
 	}
 
 	public void removeListener(CompilerListener listener) {

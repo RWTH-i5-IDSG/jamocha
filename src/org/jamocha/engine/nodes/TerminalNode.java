@@ -56,7 +56,7 @@ public class TerminalNode extends OneInputNode {
 	public void addWME(Node sender, final WorkingMemoryElement newElem) throws NodeException {
 		if (!isActivated())
 			return;
-		final Activation act = new Activation(rule, newElem.getFactTuple());
+		final Activation act = new Activation(rule, newElem.getFactTuple(), this);
 		final Module module = rule.parentModule();
 		if (autoFocus) {
 			try {
@@ -72,7 +72,7 @@ public class TerminalNode extends OneInputNode {
 	@Override
 	public void removeWME(Node sender, final WorkingMemoryElement oldElem)
 			throws NodeException {
-		final Activation act = new Activation(rule, oldElem.getFactTuple());
+		final Activation act = new Activation(rule, oldElem.getFactTuple(),this);
 		final Module module = rule.parentModule();
 		net.getEngine().getAgendas().getAgenda(module).removeActivation(act);
 	}

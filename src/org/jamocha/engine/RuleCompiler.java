@@ -19,6 +19,7 @@
 package org.jamocha.engine;
 
 import org.jamocha.communication.events.CompilerListener;
+import org.jamocha.engine.nodes.TerminalNode;
 import org.jamocha.engine.rules.rulecompiler.CompileRuleException;
 import org.jamocha.engine.workingmemory.elements.Template;
 import org.jamocha.parser.EvaluationException;
@@ -71,7 +72,7 @@ public interface RuleCompiler {
 	 */
 	void removeListener(CompilerListener listener);
 
-	Binding getBinding(String varName, Rule r);
+	Binding getBinding(String varName, TerminalNode tnode, Rule r);
 
 	void removeRule(Rule rule);
 
