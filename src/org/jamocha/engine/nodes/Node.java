@@ -19,8 +19,11 @@
 package org.jamocha.engine.nodes;
 
 import java.util.Iterator;
+import java.util.Queue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import org.jamocha.application.gui.retevisualisation.NodeDrawer;
+import org.jamocha.communication.logging.Logging;
 import org.jamocha.engine.ReteNet;
 import org.jamocha.engine.workingmemory.WorkingMemory;
 import org.jamocha.engine.workingmemory.WorkingMemoryElement;
@@ -62,17 +65,51 @@ public abstract class Node {
 	protected void activate2() throws NodeException {
 		// we are activated
 		activated = true;
+		Logging.logger(this.getClass()).debug("Node "+nodeId+" activated");
 		// activate subnodes recursively
 		for (final Node n : getChildNodes())
 			n.activate2();
 	}
 	
+	protected void activate3() throws NodeException {
+		for (final Node child : getChildNodes()) {
+			if (child.isActivated()) {
+				for (final WorkingMemoryElement wme : memory())
+					child.addWME(this, wme);
+			}
+			child.activate3();
+		}
+	}
+	
 	public void activate() throws NodeException {
-		activate2();
-		// fetch working memory elements from above and evaluate them
-		for (final Node child : getChildNodes())
-			for (final WorkingMemoryElement wme : memory())
-				child.addWME(this, wme);
+		Queue<Node> queue = new LinkedBlockingQueue<Node>();
+		queue.add(this);
+		while(!queue.isEmpty()) {
+			Node actNode = queue.poll();
+			for (Node child: actNode.getChildNodes()) {
+				queue.add(child);
+				boolean actd = child.isActivated();
+				child.activated = true;
+				if (!actd) {
+					for (WorkingMemoryElement wme: actNode.memory() ) {
+						child.addWME(actNode, wme);
+					}
+				}
+			}
+			
+			
+			
+			
+		}
+		
+		
+		for (Node child: getChildNodes()) {
+			boolean act = child.isActivated();
+			child.activated=true;
+			if (!act) {
+				for (WorkingMemoryElement wme : memory()) child.addWME(this, wme);
+			}
+		}
 	}
 
 	protected void getDescriptionString(final StringBuilder sb) {

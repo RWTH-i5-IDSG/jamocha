@@ -409,7 +409,7 @@ public class MessageRouter implements Serializable {
 	}
 	
 	public String getDefaultChannelId() {
-		return defaultChannel.getChannelId();
+		return (defaultChannel != null) ? defaultChannel.getChannelId() : "" ;
 	}
 	
 }
