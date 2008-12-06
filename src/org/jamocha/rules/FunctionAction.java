@@ -27,6 +27,7 @@ import org.jamocha.engine.BoundParam;
 import org.jamocha.engine.Engine;
 import org.jamocha.engine.ExecuteException;
 import org.jamocha.engine.Parameter;
+import org.jamocha.engine.configurations.AssertConfiguration;
 import org.jamocha.engine.configurations.ModifyConfiguration;
 import org.jamocha.engine.configurations.Signature;
 import org.jamocha.engine.configurations.SlotConfiguration;
@@ -106,7 +107,14 @@ public class FunctionAction implements Action {
 //		}
 //	}
 	
-	protected void substituteBoundParams(Parameter[] params,TerminalNode tnode, FactTuple tuple) throws FunctionNotFoundException, ExecuteException {
+	protected void substituteBoundParams(List<Parameter> params,TerminalNode tnode, FactTuple tuple) {
+		Parameter p[] = new Parameter[params.size()];
+		for(int i=0;i< params.size();i++) p[i] = params.get(i);
+		substituteBoundParams(p, tnode, tuple);
+		for(int i=0;i< params.size();i++) params.set(i,p[i]);
+	}
+	
+	protected void substituteBoundParams(Parameter[] params,TerminalNode tnode, FactTuple tuple) {
 		/*
 		 * TODO
 		 * For the moment, we have to handle different types of parameters here.
@@ -115,7 +123,7 @@ public class FunctionAction implements Action {
 		 * later on, we must do one of the following:
 		 * 
 		 * 1) each parameter can substitute itself with a substitute()-call instead
-		 *    of doint the substitution here.
+		 *    of doing the substitution here.
 		 *    
 		 * 2) we introduce a global binding manager and some further magic, so
 		 *    we don't need to substitute anything here
@@ -168,17 +176,31 @@ public class FunctionAction implements Action {
 					substituteBoundParams(p,tnode,tuple);
 				}
 				
+			} else if (param instanceof AssertConfiguration) {
+				AssertConfiguration ac = (AssertConfiguration)(((AssertConfiguration)param).clone());
+				params[idx] = ac;
+				substituteBoundParams(ac.getData(), tnode, tuple);
 			} else if (param instanceof JamochaValue) {
-				
+				// leave this parameter as is
 			} else if (param instanceof Signature) {
 				// we have to call the inner function at first
-				Signature iSig = (Signature) param;
-				Function iFunc = iSig.lookUpFunction(engine);
-				List<Parameter> iParams = new ArrayList<Parameter>();
-				for (Parameter p : iSig.getParameters()) iParams.add(p);
-				FunctionAction iFuncAction = new FunctionAction(iFunc, engine, parent,iParams);
-				JamochaValue iRes = iFuncAction.executeAction(tuple,tnode);
-				params[idx] = iRes;
+				JamochaValue iRes = null;
+				boolean subst = true;
+				try {
+					Signature iSig = (Signature) ((Signature) param).clone();
+					params[idx] = iSig;
+					substituteBoundParams(iSig.getParameters(), tnode, tuple);
+					List<Parameter> iParams = new ArrayList<Parameter>();
+					for (Parameter p : iSig.getParameters()) iParams.add(p);
+					Function iFunc = iSig.lookUpFunction(engine);
+					FunctionAction iFuncAction = new FunctionAction(iFunc, engine, parent,iParams);
+					iRes = iFuncAction.executeAction(tuple,tnode);
+				} catch (FunctionNotFoundException e) {
+					subst = false;
+				} catch (ExecuteException e) {
+					subst = false;
+				}
+				if (subst) params[idx] = iRes;
 			} else {
 				Logging.logger(this.getClass()).fatal("cannot handle parameter "+param);
 			}

@@ -103,4 +103,14 @@ public class AssertConfiguration extends AbstractConfiguration {
 		this.temporalValidityConf = temporalValidity;
 	}
 
+	@Override
+	public Object clone() {
+		AssertConfiguration ac = new AssertConfiguration();
+		ac.templateName = templateName;
+		ac.data = data.clone();
+		ac.temporalValidity = temporalValidity;
+		ac.temporalValidityConf = temporalValidityConf;
+		return ac;
+	}
+	
 }

@@ -658,7 +658,7 @@ public class BeffyRuleCompiler implements RuleCompiler {
 				cons.add(i, n);
 			}
 			String struct = c.format(ParserFactory.getFormatter());
-			log("we will begin to compile the rule '%s' with the following structure:\n %s", data.getRule().getName(), struct);
+			log("we will begin to compile the rule '%s' with the following structure:\n%s", data.getRule().getName(), struct);
 			
 			
 			
