@@ -19,7 +19,11 @@
 package org.jamocha.engine;
 
 import java.beans.ExceptionListener;
+import java.io.IOException;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
 import java.io.PrintWriter;
+import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Date;
@@ -33,6 +37,7 @@ import org.jamocha.communication.events.MessageEvent;
 import org.jamocha.communication.logging.Logging;
 import org.jamocha.communication.logging.Logging.JamochaLogger;
 import org.jamocha.communication.messagerouter.MessageRouter;
+import org.jamocha.communication.messagerouter.StreamChannel;
 import org.jamocha.engine.TemporalValidity.EventPoint;
 import org.jamocha.engine.agenda.Activation;
 import org.jamocha.engine.agenda.Agenda;
@@ -142,7 +147,10 @@ public class Engine implements Dumpable {
 	
 	protected Template triggerFactsTemplate;
 	
-
+	protected int lag;
+	
+	protected PrintWriter evalWriter; 
+	
 	// can be "TRIGGER_FACT", "SEPARATE_RETE" or "TIME_FACT"
 	protected String temporalStrategy;
 	
@@ -154,12 +162,26 @@ public class Engine implements Dumpable {
 		this("TRIGGER_FACT");
 	}
 	
+	public void eval(String s) {
+		evalWriter.write(s+"\n");
+		evalWriter.flush();
+	}
+	
 	/**
 	 * 
 	 */
 	public Engine(String tempStrat) {
 		super();
 		temporalStrategy = tempStrat;
+		final PipedOutputStream outStream = new PipedOutputStream();
+		final PipedInputStream inStream = new PipedInputStream();
+		evalWriter = new PrintWriter(outStream);
+		try {
+			inStream.connect(outStream);
+		} catch (final IOException e) {
+			Logging.logger(this.getClass()).fatal(e);
+		}
+		StreamChannel channel = router.openChannel("evalChannel",inStream);
 		net = new ReteNet(this);
 		if (temporalStrategy.equals("TRIGGER_FACT")||temporalStrategy.equals("TIME_FACT")) {
 			temporalFactThread = new TemporalFactThread(this);
@@ -176,7 +198,7 @@ public class Engine implements Dumpable {
 		defglobals = new HashMap<String, JamochaValue>();
 		functionMem.init();
 		establishInitialFact();
-		
+
 		if (temporalStrategy.equals("TIME_FACT")) {
 			
 			TemplateSlot[] temporalFactContainerTemplateSlots = new TemplateSlot[3];
@@ -935,4 +957,15 @@ public class Engine implements Dumpable {
 		return net.compiler;
 	}
 
+	/**
+	 * @return the lag in temporal processing in milliseconds
+	 */
+	public int getLag() {
+		return lag;
+	}
+
+	public void setLag(int lag) {
+		this.lag=lag;
+	}
+	
 }

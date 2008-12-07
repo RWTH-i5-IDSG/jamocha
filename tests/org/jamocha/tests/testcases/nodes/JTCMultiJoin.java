@@ -156,7 +156,6 @@ public class JTCMultiJoin extends TestCase {
 					fail(e1.getMessage());
 				}
 			}
-			System.out.println(s);
 			resStrings.add(s);
 		}
 		

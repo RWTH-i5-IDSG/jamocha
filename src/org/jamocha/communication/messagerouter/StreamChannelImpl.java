@@ -42,7 +42,7 @@ class StreamChannelImpl extends AbstractCommunicationChannel implements
 	 * The <code>Reader</code> we read from.
 	 */
 	private Reader reader;
-
+	
 	/**
 	 * Thread reading from the <code>reader</code>, parsing the content and
 	 * sending the Expressions to the <code>MessageRouter</code>.

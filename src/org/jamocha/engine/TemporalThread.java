@@ -71,6 +71,7 @@ public abstract class TemporalThread extends Thread {
 					} catch (InterruptedException e) {}
 					
 					long d = to-now();
+					engine.setLag(-(int)d);
 					if (d <= 0) {
 						/* Wir müssen jetzt handeln. Hier ist jetzt potentiell
 						 * ein Ereignispunkt erreicht.
@@ -79,7 +80,6 @@ public abstract class TemporalThread extends Thread {
 						 * inzwischen gelöscht wurde. Deshalb holen wir den
 						 * Kopf der Queue nochmal
 						 */
-						Logging.logger(this.getClass()).info("Lag: "+(-d)+"ms");
 						nextEventPoint = eventPoints.peek();						
 						
 						while (nextEventPoint.getTimestamp() == to) {

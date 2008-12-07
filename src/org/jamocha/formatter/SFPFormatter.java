@@ -480,7 +480,6 @@ public class SFPFormatter extends Formatter {
 		newLine(sb);
 		sb.append(")");
 		newLine(sb);
-		System.out.println(sb.toString());
 		return sb.toString();
 	}
 

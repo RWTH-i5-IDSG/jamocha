@@ -72,40 +72,6 @@ public class FunctionAction implements Action {
 		this.parent = parentRule;
 		this.parameters = params;
 	}
-
-	
-//TODO remove	public void configure(Engine engine, Rule rule) throws EvaluationException {
-//		if (this.functionName != null){
-//			Function func = engine.getFunctionMemory().findFunction(this.functionName);
-//			if (func != null){
-//				this.function = func;
-//			}
-//		}
-//		// now setup the BoundParameters if there are any
-//		for (int idx = 0; idx < this.parameters.length; idx++) {
-//			if (this.parameters[idx] instanceof BoundParam) {
-//				BoundParam bp = (BoundParam) this.parameters[idx];
-//				Binding bd = rule.getBinding(bp.getVariableName());
-//				if (bd != null) {
-//					bp.setRow(bd.getLeftRow());
-//					bp.setColumn(bd.getLeftIndex());
-//				}
-//			} else if (this.parameters[idx] instanceof Signature) {
-//				Signature fp2 = (Signature) this.parameters[idx];
-//				fp2.configure(engine, rule);
-//			} else if (this.parameters[idx] instanceof AbstractConfiguration) {
-//				AbstractConfiguration ac = (AbstractConfiguration) this.parameters[idx];
-//				ac.configure(engine, rule);
-//			} else if (this.parameters[idx] instanceof JamochaValue) {
-//				// if the value is a deffact, we need to check and make sure
-//				// the slots with BoundParam value are compiled properly
-//				JamochaValue value = (JamochaValue) this.parameters[idx];
-//				if (value.getType().equals(JamochaType.FACT)) {
-//					((Deffact) value.getFactValue()).compileBinding(rule);
-//				}
-//			}
-//		}
-//	}
 	
 	protected void substituteBoundParams(List<Parameter> params,TerminalNode tnode, FactTuple tuple) {
 		Parameter p[] = new Parameter[params.size()];
