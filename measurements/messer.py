@@ -67,7 +67,7 @@ for strat in ("TIME_FACT","TRIGGER_FACT","SEPARATE_RETE"):
 	
 	print (cmd)
 
-	os.system("gnome-terminal -e '  bash -c \"    %s   \"  '   " % (cmd) )
+	os.system("gnome-terminal -e '  bash -c \"    %s ; sleep 1   \"  '   " % (cmd) )
 	
-os.system("rm "+basedir+path+"*")
+os.system ("sleep 5; rm "+basedir+path+"*")
 	
