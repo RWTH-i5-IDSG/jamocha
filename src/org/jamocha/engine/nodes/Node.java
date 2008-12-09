@@ -82,32 +82,28 @@ public abstract class Node {
 	}
 	
 	public void activate() throws NodeException {
-		Queue<Node> queue = new LinkedBlockingQueue<Node>();
-		queue.add(this);
-		while(!queue.isEmpty()) {
-			Node actNode = queue.poll();
-			for (Node child: actNode.getChildNodes()) {
-				queue.add(child);
-				boolean actd = child.isActivated();
-				child.activated = true;
-				if (!actd) {
-					for (WorkingMemoryElement wme: actNode.memory() ) {
-						child.addWME(actNode, wme);
+		synchronized (RootNode.class) {
+			Queue<Node> queue = new LinkedBlockingQueue<Node>();
+			queue.add(this);
+			while(!queue.isEmpty()) {
+				Node actNode = queue.poll();
+				for (Node child: actNode.getChildNodes()) {
+					queue.add(child);
+					boolean actd = child.isActivated();
+					child.activated = true;
+					if (!actd) {
+						for (WorkingMemoryElement wme: actNode.memory() ) {
+							child.addWME(actNode, wme);
+						}
 					}
 				}
 			}
-			
-			
-			
-			
-		}
-		
-		
-		for (Node child: getChildNodes()) {
-			boolean act = child.isActivated();
-			child.activated=true;
-			if (!act) {
-				for (WorkingMemoryElement wme : memory()) child.addWME(this, wme);
+			for (Node child: getChildNodes()) {
+				boolean act = child.isActivated();
+				child.activated=true;
+				if (!act) {
+					for (WorkingMemoryElement wme : memory()) child.addWME(this, wme);
+				}
 			}
 		}
 	}

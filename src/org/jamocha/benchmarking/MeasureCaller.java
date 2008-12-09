@@ -1,5 +1,7 @@
 package org.jamocha.benchmarking;
 
+import java.io.FileWriter;
+import java.io.IOException;
 import java.lang.reflect.Constructor;
 
 public class MeasureCaller {
@@ -14,7 +16,7 @@ public class MeasureCaller {
 		String size = args[3];
 		String measurement = args[4];
 		String outputfile = args[5];
-		
+		int max=0;
 		try {
 			Class<KnowledgebaseProvider> measureClass = (Class<KnowledgebaseProvider>) Class.forName("org.jamocha.benchmarking."+measurement);
 			KnowledgebaseProvider provider = measureClass.newInstance();
@@ -22,14 +24,19 @@ public class MeasureCaller {
 			int iTime = Integer.parseInt(time);
 			int iStep = Integer.parseInt(step);
 			Benchmark b = new Benchmark(provider, iSize, iTime, iStep, strat);
-			b.measure(outputfile);
+			max=b.measure(outputfile);
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.exit(1);
 		}
+		FileWriter w;
+		try {
+			w = new FileWriter(outputfile+"-max");
+			w.write(max+"\n");
+			w.close();
+		} catch (IOException e) {
+		}
 		System.exit(0);
-		
-		
 	}
 
 }

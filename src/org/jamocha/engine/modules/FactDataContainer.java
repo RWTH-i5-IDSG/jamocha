@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.jamocha.communication.logging.Logging;
 import org.jamocha.engine.EqualityIndex;
 import org.jamocha.engine.workingmemory.elements.Fact;
 
@@ -52,7 +53,7 @@ public class FactDataContainer extends ModulesDataContainer {
 		lastFactId = 1;
 	}
 
-	public long add(final Fact fact) {
+	public synchronized long add(final Fact fact) {
 		long result = -1;
 		if (!deffactMap.containsKey(fact.equalityIndex())) {
 			// Here the fact doesn't exist yet. So we add it to the map with its
@@ -75,7 +76,7 @@ public class FactDataContainer extends ModulesDataContainer {
 		return result;
 	}
 
-	public Fact remove(final long factId) {
+	public synchronized Fact remove(final long factId) {
 		Fact result = null;
 		if (idToCLIPSElement.containsKey(factId)) {
 			result = (Fact) idToCLIPSElement.remove(factId);
@@ -84,11 +85,11 @@ public class FactDataContainer extends ModulesDataContainer {
 		return result;
 	}
 
-	public Fact getFactById(final long id) {
+	protected Fact getFactById(final long id) {
 		return (Fact) idToCLIPSElement.get(id);
 	}
 
-	public List<Fact> getFacts() {
+	public synchronized List<Fact> getFacts() {
 		final List<Fact> facts = new ArrayList<Fact>();
 		// clearadd all templates from hashmap to resulting list:
 		for (final Object key : idToCLIPSElement.keySet()) {
@@ -98,7 +99,7 @@ public class FactDataContainer extends ModulesDataContainer {
 		return facts;
 	}
 
-	public Fact getFactByFact(final Fact fact) {
+	protected Fact getFactByFact(final Fact fact) {
 		return deffactMap.get(fact.equalityIndex());
 	}
 

@@ -184,6 +184,12 @@ public class Engine implements Dumpable {
 		}
 		StreamChannel channel = router.openChannel("evalChannel",inStream);
 		net = new ReteNet(this);
+		functionMem = new FunctionMemoryImpl(this);
+		agendas = new Agendas(this);
+		modules = new Modules(this);
+		defglobals = new HashMap<String, JamochaValue>();
+		functionMem.init();
+		establishInitialFact();
 		if (temporalStrategy.equals("TRIGGER_FACT")||temporalStrategy.equals("TIME_FACT")) {
 			temporalFactThread = new TemporalFactThread(this);
 			temporalFactThread.registerExceptionListener(new TemporalThreadExceptionHandler());
@@ -193,12 +199,7 @@ public class Engine implements Dumpable {
 			slots[0].setValueType(JamochaType.STRING);
 			triggerFactsTemplate = new Deftemplate("temporal-trigger", null, slots);
 		}
-		functionMem = new FunctionMemoryImpl(this);
-		agendas = new Agendas(this);
-		modules = new Modules(this);
-		defglobals = new HashMap<String, JamochaValue>();
-		functionMem.init();
-		establishInitialFact();
+
 
 		if (temporalStrategy.equals("TIME_FACT")) {
 			
@@ -219,7 +220,7 @@ public class Engine implements Dumpable {
 "	(point-in-time (time ?now) )"+
 "	(test (lessOrEqual ?ep ?now ) )"+
 "	=>"+
-"	(bind ?next_ep (get-next-eventpoint ?fact (+ ?ep 1000) ) )"+
+"	(bind ?next_ep (get-next-eventpoint ?fact (+ ?ep 1) ) )"+
 "	(bind ?next_ep_timestamp (member ?next_ep getTimestamp))"+
 "	(bind ?next_ep_type (member (member ?next_ep getType) toString) )"+ 
 "	(modify ?container (next_event_point ?next_ep_timestamp) (ep_type ?next_ep_type ) )"+
@@ -231,7 +232,7 @@ public class Engine implements Dumpable {
 "	(point-in-time (time ?now) )"+
 "	(test (lessOrEqual ?ep ?now ) )"+
 "	=>"+
-"	(bind ?next_ep (get-next-eventpoint ?fact (+ ?ep 1000) ) )"+
+"	(bind ?next_ep (get-next-eventpoint ?fact (+ ?ep 1) ) )"+
 "	(bind ?next_ep_timestamp (member ?next_ep getTimestamp))"+
 "	(bind ?next_ep_type (member (member ?next_ep getType) toString) )"+ 
 "	(modify ?container (next_event_point ?next_ep_timestamp) (ep_type ?next_ep_type ) )"+
@@ -967,9 +968,11 @@ public class Engine implements Dumpable {
 		} else if (temporalStrategy.equals("TIME_FACT")) {
 			return lg;
 		} else /* SEPARATE_RETE*/ {
-			int m=0;
-			for (Integer i: lags.values()) if (i>m) m=i;
-			return m;
+			synchronized (lags) {
+				int m=0;
+				for (Integer i: lags.values()) if (i>m) m=i;
+				return m;
+			}
 		}
 	}
 
@@ -983,7 +986,9 @@ public class Engine implements Dumpable {
 		} else if (temporalStrategy.equals("TIME_FACT")) {
 			this.lg = lag;
 		} else /* SEPARATE_RETE*/ {
-			lags.put(sender, lag);
+			synchronized (lags) {
+				lags.put(sender, lag);
+			}
 		}
 	}
 	

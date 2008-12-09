@@ -45,7 +45,7 @@ public class Agenda implements Serializable {
 			this.act = act;
 		}
 		
-		public void start() {
+		public void run() {
 			try {
 				act.fire(parentEngine);
 			} catch (ExecuteException e) {

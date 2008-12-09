@@ -85,7 +85,7 @@ public class Benchmark {
 		this.tempstrat = strategy;
 	}
 	
-	public void measure(String outputFile) throws IOException {
+	public int measure(String outputFile) throws IOException {
 		File f = new File(outputFile);
 		FileWriter ow = new FileWriter(f);
 		int s=maxsize;
@@ -94,11 +94,14 @@ public class Benchmark {
 		measure.start();
 		while (!measure.isFinished())try {Thread.sleep(500);} catch (InterruptedException e) {}
 		int[] values = measure.getValues();
+		int max=0;
 		for(int i=0; i< values.length; i++) {
+			max = (values[i] > max) ? values[i] : max;
 			//ow.write(String.format("   <value size=\"%d\" strategy=\"%s\" time=\"%d\" lag=\"%d\" />\n", s, tempstrat, i*step,values[i]));
 			ow.write(i*step+" "+s+" "+values[i]+"\n");
 		}
 		ow.close();
+		return max;
 	}
 	
 	
