@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.io.PrintWriter;
-import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Date;
@@ -51,6 +50,7 @@ import org.jamocha.engine.functions.FunctionMemory;
 import org.jamocha.engine.functions.FunctionMemoryImpl;
 import org.jamocha.engine.modules.Module;
 import org.jamocha.engine.modules.Modules;
+import org.jamocha.engine.nodes.Node;
 import org.jamocha.engine.rules.rulecompiler.CompileRuleException;
 import org.jamocha.engine.scope.BlockingScope;
 import org.jamocha.engine.scope.DefaultScope;
@@ -172,6 +172,7 @@ public class Engine implements Dumpable {
 	 */
 	public Engine(String tempStrat) {
 		super();
+		lags = new HashMap<Node,Integer>();
 		temporalStrategy = tempStrat;
 		final PipedOutputStream outStream = new PipedOutputStream();
 		final PipedInputStream inStream = new PipedInputStream();
@@ -961,11 +962,29 @@ public class Engine implements Dumpable {
 	 * @return the lag in temporal processing in milliseconds
 	 */
 	public int getLag() {
-		return lag;
+		if (temporalStrategy.equals("TRIGGER_FACT")) {
+			return temporalFactThread.getLag();
+		} else if (temporalStrategy.equals("TIME_FACT")) {
+			return lg;
+		} else /* SEPARATE_RETE*/ {
+			int m=0;
+			for (Integer i: lags.values()) if (i>m) m=i;
+			return m;
+		}
 	}
 
-	public void setLag(int lag) {
-		this.lag=lag;
+	Map<Node,Integer> lags;
+	
+	int lg;
+	
+	public void setLag(int lag, Node sender) {
+		if (temporalStrategy.equals("TRIGGER_FACT")) {
+			
+		} else if (temporalStrategy.equals("TIME_FACT")) {
+			this.lg = lag;
+		} else /* SEPARATE_RETE*/ {
+			lags.put(sender, lag);
+		}
 	}
 	
 }

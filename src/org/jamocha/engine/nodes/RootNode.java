@@ -20,6 +20,7 @@ package org.jamocha.engine.nodes;
 
 import org.jamocha.application.gui.retevisualisation.NodeDrawer;
 import org.jamocha.application.gui.retevisualisation.nodedrawers.RootNodeDrawer;
+import org.jamocha.communication.logging.Logging;
 import org.jamocha.engine.Engine;
 import org.jamocha.engine.ReteNet;
 import org.jamocha.engine.workingmemory.WorkingMemory;
@@ -41,10 +42,19 @@ public class RootNode extends Node {
 		this(e.getNet().nextNodeId(), e.getWorkingMemory(), e.getNet());
 	}
 
+	int drin=0;
+	
 	@Override
 	public void addWME(Node sender, final WorkingMemoryElement newElem) throws NodeException {
 		// the root note must not ignore new WMEs while deactivated!
-		addAndPropagate(newElem);
+		synchronized (RootNode.class) {
+			try {
+				addAndPropagate(newElem);
+			} catch (Throwable t) {
+				t.printStackTrace();
+			}
+		}
+
 	}
 
 	@Override
@@ -52,11 +62,16 @@ public class RootNode extends Node {
 		final Node[] empty = {};
 		return empty;
 	}
-
+	
 	@Override
-	public void removeWME(Node sender, final WorkingMemoryElement oldElem)
-			throws NodeException {
-		removeAndPropagate(oldElem);
+	public void removeWME(Node sender, final WorkingMemoryElement oldElem) throws NodeException {
+		synchronized (RootNode.class) {
+			try {
+				removeAndPropagate(oldElem);
+			} catch (Throwable t) {
+				t.printStackTrace();
+			}
+		}
 	}
 
 	@Override

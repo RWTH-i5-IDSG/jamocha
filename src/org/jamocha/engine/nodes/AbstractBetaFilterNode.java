@@ -67,11 +67,6 @@ public abstract class AbstractBetaFilterNode extends TwoInputNode {
 		return true;
 	}
 
-	public abstract void addWME(Node sender, final WorkingMemoryElement newElem) throws NodeException;
-
-	public abstract void removeWME(Node sender, final WorkingMemoryElement oldElem) throws NodeException;
-	
-
 	protected GeneralizedJoinFilter[] getFilters() {
 		if (filters != null)
 			return filters;

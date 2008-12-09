@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.PriorityQueue;
 import java.util.Queue;
 
+import org.jamocha.communication.logging.Logging;
 import org.jamocha.engine.Engine;
 import org.jamocha.engine.ExecuteException;
 import org.jamocha.engine.util.ProfileStats;
@@ -35,6 +36,25 @@ import org.jamocha.engine.util.ProfileStats;
  *         processing the rule's actions of the activations.
  */
 public class Agenda implements Serializable {
+	
+	protected class AutofireThread extends Thread {
+		
+		Activation act;
+		
+		public AutofireThread(Activation act) {
+			this.act = act;
+		}
+		
+		public void start() {
+			try {
+				act.fire(parentEngine);
+			} catch (ExecuteException e) {
+				Logging.logger(this.getClass()).info(e);
+			}
+		}
+		
+	}
+	
 
 	private static final int INITIAL_CAPACITY = 10;
 	private static final long serialVersionUID = 1L;
@@ -231,8 +251,10 @@ public class Agenda implements Serializable {
 	}
 
 	public void autoFire(Activation act) throws ExecuteException {
-		if (profileFire) ProfileStats.startFire();
-		act.fire(parentEngine);
-		if (profileFire) ProfileStats.endFire();
+		// we never may fire here directly.
+		// this method is called (indirectly) from a fact assertion.
+		// when the action also is going to asserts or retract facts, we have a
+		// concurrent modification of the fact base.
+		new AutofireThread(act).start();
 	}
 }

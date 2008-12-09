@@ -7,6 +7,8 @@ import java.util.GregorianCalendar;
 import java.util.Iterator;
 import java.util.LinkedList;
 
+import javax.print.attribute.ResolutionSyntax;
+
 import org.jamocha.communication.logging.Logging;
 import org.jamocha.engine.configurations.SlotConfiguration;
 import org.jamocha.engine.modules.Module;
@@ -120,12 +122,21 @@ public class TimerFact implements Fact {
 	
 	private class TimerFactThread extends Thread {
 		
-		public void run() {	
+		public void run() {
+			long weare = System.currentTimeMillis();
+			long wemust = weare;
 			while (true) {
 				try {
 					engine.getNet().retractFact(TimerFact.this);
 					engine.getNet().assertFact(TimerFact.this);
-					this.sleep(1000);
+					wemust+=RESOLUTION;
+					weare = System.currentTimeMillis();
+					long delta = wemust-weare;
+					if (delta>0) {
+						this.sleep(delta);
+					} else {
+						engine.setLag(-(int)delta, null);
+					}
 				} catch (Exception e) {
 					Logging.logger(this.getClass()).fatal(e);
 				}
@@ -133,6 +144,8 @@ public class TimerFact implements Fact {
 		}
 		
 	}
+	
+	protected final int RESOLUTION = 5;
 	
 	private long factId;
 	

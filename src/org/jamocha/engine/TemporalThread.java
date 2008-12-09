@@ -27,6 +27,8 @@ public abstract class TemporalThread extends Thread {
 	
 	protected ExceptionListener exceptionListener;
 	
+	protected int threadLag;
+	
 	public TemporalThread(Engine e) {
 		engine = e;
 		eventPoints = new PriorityQueue<EventPoint>(100, new EventPointComparator());
@@ -46,6 +48,10 @@ public abstract class TemporalThread extends Thread {
 	protected static long now() {
 		GregorianCalendar now = new GregorianCalendar();
 		return now.getTimeInMillis();
+	}
+	
+	public int getLag(){
+		return threadLag;
 	}
 	
 	public void run() {
@@ -71,7 +77,7 @@ public abstract class TemporalThread extends Thread {
 					} catch (InterruptedException e) {}
 					
 					long d = to-now();
-					engine.setLag(-(int)d);
+					threadLag = -(int)d;
 					if (d <= 0) {
 						/* Wir müssen jetzt handeln. Hier ist jetzt potentiell
 						 * ein Ereignispunkt erreicht.

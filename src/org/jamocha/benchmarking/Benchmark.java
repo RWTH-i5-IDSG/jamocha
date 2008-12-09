@@ -88,7 +88,6 @@ public class Benchmark {
 	public void measure(String outputFile) throws IOException {
 		File f = new File(outputFile);
 		FileWriter ow = new FileWriter(f);
-		ow.write(String.format("<measure name=\"%s\">\n", provider.getClass().getSimpleName()));
 		int s=maxsize;
 		Engine problem = provider.getProblemInstance(s, tempstrat);
 		MeasureThread measure = new MeasureThread(problem,maxtime,step);
@@ -96,9 +95,9 @@ public class Benchmark {
 		while (!measure.isFinished())try {Thread.sleep(500);} catch (InterruptedException e) {}
 		int[] values = measure.getValues();
 		for(int i=0; i< values.length; i++) {
-			ow.write(String.format("   <value size=\"%d\" strategy=\"%s\" time=\"%d\" lag=\"%d\" />\n", s, tempstrat, i*step,values[i]));
+			//ow.write(String.format("   <value size=\"%d\" strategy=\"%s\" time=\"%d\" lag=\"%d\" />\n", s, tempstrat, i*step,values[i]));
+			ow.write(i*step+" "+s+" "+values[i]+"\n");
 		}
-		ow.write("</measure>\n");
 		ow.close();
 	}
 	

@@ -38,6 +38,7 @@ public class AlphaTemporalFilterNode extends OneInputNode {
 		}
 		
 		protected void handle(EventPoint nextEventPoint) {
+			engine.setLag(threadLag, AlphaTemporalFilterNode.this);
 			Fact f = eventPoint2Fact.get(nextEventPoint);
 			if (nextEventPoint.getType() == Type.START) {
 				try {
@@ -70,6 +71,20 @@ public class AlphaTemporalFilterNode extends OneInputNode {
 		thread.start();
 	}
 	
+
+	@Override
+	protected void propagateAddition(WorkingMemoryElement elem)	throws NodeException {
+		synchronized (RootNode.class) {
+			super.propagateAddition(elem);
+		}
+	}
+
+	@Override
+	protected void propagateRemoval(WorkingMemoryElement elem)	throws NodeException {
+		synchronized (RootNode.class) {
+			super.propagateRemoval(elem);
+		}
+	}
 
 	@Override
 	public void addWME(Node sender, final WorkingMemoryElement newElem) throws NodeException {

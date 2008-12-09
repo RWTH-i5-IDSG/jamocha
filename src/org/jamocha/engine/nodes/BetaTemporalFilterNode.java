@@ -45,6 +45,7 @@ public class BetaTemporalFilterNode extends AbstractBetaFilterNode {
 		@Override
 		protected void handle(EventPoint nextEventPoint) {
 			try{
+				engine.setLag(threadLag, BetaTemporalFilterNode.this);
 				if (nextEventPoint.getType().equals(EventPoint.Type.START)) {
 					temporalStart();
 				} else {
@@ -103,16 +104,22 @@ public class BetaTemporalFilterNode extends AbstractBetaFilterNode {
 	}
 	
 	protected void temporalStart() throws NodeException {
-		Node parent = getParentNodes()[0];
-		for (WorkingMemoryElement wme : workingMemory.getMemory(parent)) {
-			addAndPropagate(wme);
+		synchronized (RootNode.class) {
+			if (!activated) return;
+			Node parent = getParentNodes()[0];
+			for (WorkingMemoryElement wme : workingMemory.getMemory(parent)) {
+				addAndPropagate(wme);
+			}
 		}
 	}
 	
 	protected void temporalStop() throws NodeException {
-		Node parent = getParentNodes()[0];
-		for (WorkingMemoryElement wme : workingMemory.getMemory(parent) ){
-			removeAndPropagate(wme);
+		synchronized (RootNode.class) {
+			if (!activated) return;
+			Node parent = getParentNodes()[0];
+			for (WorkingMemoryElement wme : workingMemory.getMemory(parent) ){
+				removeAndPropagate(wme);
+			}
 		}
 	}
 

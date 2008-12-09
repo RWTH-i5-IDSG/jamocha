@@ -83,7 +83,7 @@ public class TerminalNode extends OneInputNode {
 
 	@Override
 	public boolean outputsBeta() {
-		// they wont output anything, so it doesnt care what to return here
+		// they wont output anything, so it doesn't matter what we return here
 		return true;
 	}
 
