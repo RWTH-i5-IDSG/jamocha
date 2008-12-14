@@ -167,6 +167,10 @@ public class Engine implements Dumpable {
 		evalWriter.flush();
 	}
 	
+	public void eval(String s, Object... entries) {
+		eval(String.format(s, entries));
+	}
+	
 	/**
 	 * 
 	 */
