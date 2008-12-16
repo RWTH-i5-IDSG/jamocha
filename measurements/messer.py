@@ -19,7 +19,7 @@ jamochabindir=sys.argv[7]
 maxi={}
 
 for strat in ("TIME_FACT","TRIGGER_FACT","SEPARATE_RETE"):
-	maxi[strat]=0
+	maxi[strat]=1
 	for size in range(1,int(sizemax)+1):
 		outputfile=basedir+path+"-"+strat+"-"+str(size)
 		os.system("cd "+jamochabindir+" && java org.jamocha.benchmarking.MeasureCaller "+strat+" "+timemax+" "+timestep+" "+str(size)+" "+measurement+" "+outputfile)
@@ -33,41 +33,42 @@ for strat in ("TIME_FACT","TRIGGER_FACT","SEPARATE_RETE"):
 
 for strat in ("TIME_FACT","TRIGGER_FACT","SEPARATE_RETE"):
 
-        header="""
-        set terminal postscript
+	header="""
+        set terminal postscript eps
         set xrange [0:%s]
         set yrange [0:%s]
-        set zrange [0:%d]
+        #set zrange [0:%d]
+        #set zrange [*:*] 
         set data style lines
-        set contour base
+        #set contour base
         set dgrid3d %d,%d,1
         set hidden3d
         #show contour
         #set view 45,20,1.0,2.5
-        """ % (timemax,sizemax,maxi[strat],int(sizemax)+1,(int(timemax)/int(timestep))+1)
-
-
-	ofile = open(basedir+path+"-"+strat,'w')
-	ofile.write(header)
-	ofile.write("set terminal postscript\n")
-	ofile.write("set output \"%s\"\n" % (basedir+"graph-"+path+"-"+strat+".ps"))
+	""" % (timemax,sizemax,maxi[strat],int(sizemax)+1,(int(timemax)/int(timestep))+1)
 
 	ffile = open(basedir+path+"-"+strat+"-ALL",'w')
 	for size in range(1,int(sizemax)+1):
 		efile = open(basedir+path+"-"+strat+"-"+str(size),'r')
 		for l in efile.readlines(): ffile.write(l)
 		efile.close
-		ffile.close		
+	ffile.close
+	
+	ofile = os.popen("gnuplot",'w')
+	ofile.write(header)
+	ofile.write("set terminal postscript eps\n")
+	ofile.write("set output \"%s\"\n" % (basedir+"graph-"+path+"-"+strat+".eps"))
+			
 	ofile.write("splot \"%s\" \n" % (basedir+path+"-"+strat+"-ALL") )
-	ofile.write("replot\n\n")
+	#ofile.write("replot\n\n")
 	ofile.flush
 	ofile.close
 
 	cmd="gnuplot "+basedir+path+"-"+strat
 	
-	print (cmd)
+	#print (cmd)
 
-	os.system("gnome-terminal -e '  bash -c \"    %s ; sleep 1   \"  '   " % (cmd) )
+	#os.system("gnome-terminal -e '  bash -c \"    %s ; sleep 1   \"  '   " % (cmd) )
 	
-os.system ("sleep 5; rm "+basedir+path+"*")
+#os.system ("sleep 5; rm "+basedir+path+"*")
 	
