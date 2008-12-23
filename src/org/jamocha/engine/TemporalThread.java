@@ -95,6 +95,7 @@ public abstract class TemporalThread extends Thread {
 							nextEventPoint = eventPoints.peek();
 							if (nextEventPoint == null) break;
 						}
+						if (eventPoints.isEmpty()) threadLag=0;
 					}
 					/*
 					 * else {

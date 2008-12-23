@@ -176,7 +176,7 @@ public class Engine implements Dumpable {
 	 */
 	public Engine(String tempStrat) {
 		super();
-		lags = new HashMap<Node,Integer>();
+		lags = new ArrayList<TemporalThread>();
 		temporalStrategy = tempStrat;
 		final PipedOutputStream outStream = new PipedOutputStream();
 		final PipedInputStream inStream = new PipedInputStream();
@@ -974,24 +974,27 @@ public class Engine implements Dumpable {
 		} else /* SEPARATE_RETE*/ {
 			synchronized (lags) {
 				int m=0;
-				for (Integer i: lags.values()) if (i>m) m=i;
+				for (TemporalThread n:lags) {
+					int i = n.getLag();
+					if (i>m) m=i;
+				}
 				return m;
 			}
 		}
 	}
 
-	Map<Node,Integer> lags;
+	List<TemporalThread> lags;
 	
 	int lg;
 	
-	public void setLag(int lag, Node sender) {
+	public void setLag(int lag, TemporalThread sender) {
 		if (temporalStrategy.equals("TRIGGER_FACT")) {
 			
 		} else if (temporalStrategy.equals("TIME_FACT")) {
 			this.lg = lag;
 		} else /* SEPARATE_RETE*/ {
 			synchronized (lags) {
-				lags.put(sender, lag);
+				lags.add(sender);
 			}
 		}
 	}

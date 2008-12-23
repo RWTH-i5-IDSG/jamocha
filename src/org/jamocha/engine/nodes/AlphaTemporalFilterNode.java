@@ -38,7 +38,7 @@ public class AlphaTemporalFilterNode extends OneInputNode {
 		}
 		
 		protected void handle(EventPoint nextEventPoint) {
-			engine.setLag(threadLag, AlphaTemporalFilterNode.this);
+			engine.setLag(threadLag, this);
 			Fact f = eventPoint2Fact.get(nextEventPoint);
 			if (nextEventPoint.getType() == Type.START) {
 				try {

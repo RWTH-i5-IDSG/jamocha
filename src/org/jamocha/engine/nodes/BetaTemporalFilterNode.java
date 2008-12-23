@@ -45,7 +45,7 @@ public class BetaTemporalFilterNode extends AbstractBetaFilterNode {
 		@Override
 		protected void handle(EventPoint nextEventPoint) {
 			try{
-				engine.setLag(threadLag, BetaTemporalFilterNode.this);
+				engine.setLag(threadLag, this);
 				if (nextEventPoint.getType().equals(EventPoint.Type.START)) {
 					temporalStart();
 				} else {

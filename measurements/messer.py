@@ -59,7 +59,7 @@ for strat in ("TIME_FACT","TRIGGER_FACT","SEPARATE_RETE"):
 	ofile.write("set terminal postscript eps\n")
 	ofile.write("set output \"%s\"\n" % (basedir+"graph-"+path+"-"+strat+".eps"))
 			
-	ofile.write("splot \"%s\" \n" % (basedir+path+"-"+strat+"-ALL") )
+	ofile.write("splot \"%s\" title 'Lag in ms' \n" % (basedir+path+"-"+strat+"-ALL") )
 	#ofile.write("replot\n\n")
 	ofile.flush
 	ofile.close
