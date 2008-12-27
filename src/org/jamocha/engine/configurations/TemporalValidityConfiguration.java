@@ -114,7 +114,7 @@ public class TemporalValidityConfiguration extends AbstractConfiguration {
 		temporalValidity.setWeekdays(tvc.getWeekday().getValue(engine).implicitCast(JamochaType.STRING).getStringValue());
 		temporalValidity.setMonths(tvc.getMonth().getValue(engine).implicitCast(JamochaType.STRING).getStringValue());
 		temporalValidity.setYears(tvc.getYear().getValue(engine).implicitCast(JamochaType.STRING).getStringValue());
-		temporalValidity.setDuration((int)tvc.getDuration().getValue(engine).implicitCast(JamochaType.LONG).getLongValue());
+		temporalValidity.setDuration(tvc.getDuration().getValue(engine).implicitCast(JamochaType.STRING).getStringValue());
 		return temporalValidity;
 	}
 	

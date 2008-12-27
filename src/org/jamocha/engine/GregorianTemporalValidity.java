@@ -200,8 +200,22 @@ public class GregorianTemporalValidity implements TemporalValidity {
 		intervalLayers[0] = expand(year,1980,3000,GregorianCalendar.YEAR);
 	}
 	
-	public void setDuration(int duration) {
-		this.duration = duration;
+	public void setDuration(String duration) {
+		String unit = duration.substring(duration.length()-1);
+		String val  = duration.substring(0, duration.length()-1);
+		int v;
+		if (unit.equals("s")) {
+			v = 1000 * Integer.parseInt(val);
+		} else if (unit.equals("m")) {
+			v = 60 * 1000 * Integer.parseInt(val);
+		} else if (unit.equals("h")) {
+			v = 60 * 60 * 1000 * Integer.parseInt(val);
+		} else if (unit.equals("d")) {
+			v = 24 * 60 * 60 * 1000 * Integer.parseInt(val);
+		} else {
+			v = Integer.parseInt(duration);
+		}
+		this.duration = v;
 	}
 	
 	private long getNextEventHelper(long from, long forward_distance) {

@@ -19,7 +19,7 @@ public class JTCGregorianTemporalValidity extends TestCase {
 		gtv.setMinutes("30");
 		gtv.setDays("*");
 		gtv.setWeekdays("3");
-		gtv.setDuration(10);
+		gtv.setDuration("10");
 		
 		
 		GregorianCalendar t = new GregorianCalendar();
