@@ -125,6 +125,7 @@ public class TimerFact implements Fact {
 		public void run() {
 			long weare = System.currentTimeMillis();
 			long wemust = weare;
+			setName("Timer Fact");
 			while (true) {
 				try {
 					engine.getNet().retractFact(TimerFact.this);

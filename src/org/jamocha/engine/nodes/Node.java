@@ -82,7 +82,7 @@ public abstract class Node {
 	}
 	
 	public void activate() throws NodeException {
-		synchronized (RootNode.class) {
+		//synchronized (RootNode.class) {
 			Queue<Node> queue = new LinkedBlockingQueue<Node>();
 			queue.add(this);
 			while(!queue.isEmpty()) {
@@ -105,7 +105,7 @@ public abstract class Node {
 					for (WorkingMemoryElement wme : memory()) child.addWME(this, wme);
 				}
 			}
-		}
+		//}
 	}
 
 	protected void getDescriptionString(final StringBuilder sb) {

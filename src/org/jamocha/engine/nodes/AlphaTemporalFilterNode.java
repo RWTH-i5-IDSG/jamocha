@@ -38,6 +38,8 @@ public class AlphaTemporalFilterNode extends OneInputNode {
 		}
 		
 		protected void handle(EventPoint nextEventPoint) {
+			System.out.print(threadLag);
+			System.out.flush();
 			engine.setLag(threadLag, this);
 			Fact f = eventPoint2Fact.get(nextEventPoint);
 			if (nextEventPoint.getType() == Type.START) {
@@ -53,8 +55,9 @@ public class AlphaTemporalFilterNode extends OneInputNode {
 					notifyForException(e);
 				}
 			}
+			System.out.println("fertiggehandelt");
+			System.out.flush();
 		}
-		
 	}
 	
 	protected AlphaTemporalFilterThread thread;
@@ -68,22 +71,23 @@ public class AlphaTemporalFilterNode extends OneInputNode {
 	public AlphaTemporalFilterNode(Engine e) {
 		this(e.getNet().nextNodeId(), e.getWorkingMemory(), e.getNet());
 		thread = new AlphaTemporalFilterThread(e);
+		thread.setName("Alpha Temporal Thread for Node "+nodeId);
 		thread.start();
 	}
 	
-
+	
 	@Override
 	protected void propagateAddition(WorkingMemoryElement elem)	throws NodeException {
-		synchronized (RootNode.class) {
+		//synchronized (RootNode.class) {
 			super.propagateAddition(elem);
-		}
+		//}
 	}
 
 	@Override
 	protected void propagateRemoval(WorkingMemoryElement elem)	throws NodeException {
-		synchronized (RootNode.class) {
+		//synchronized (RootNode.class) {
 			super.propagateRemoval(elem);
-		}
+		//}
 	}
 
 	@Override

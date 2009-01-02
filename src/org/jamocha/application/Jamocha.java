@@ -175,7 +175,7 @@ public class Jamocha {
 		if (shell == null) {
 			shell = new Shell(engine);
 
-			Thread shellThread = new Thread() {
+			Thread shellThread = new Thread("Shell Thread") {
 
 				public void run() {
 					shell.run();
@@ -193,7 +193,7 @@ public class Jamocha {
 	public void startGui() {
 		if (jamochaGui == null) {
 			jamochaGui = new JamochaGui(engine, batchThread);
-			Thread guiThread = new Thread() {
+			Thread guiThread = new Thread("GUI Thread") {
 
 				public void run() {
 					jamochaGui.showGui();

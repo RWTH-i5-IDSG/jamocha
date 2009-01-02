@@ -36,7 +36,7 @@ public class BetaTemporalFilterNode extends AbstractBetaFilterNode {
 		TemporalValidity tv;
 		
 		public BetaTemporalThread(Engine e, TemporalValidity tv) {
-			super(e);
+			super(e, "Beta Temporal Thread for Node "+nodeId);
 			this.tv=tv;
 			EventPoint ep = tv.getNextEvent(now());
 			eventPoints.add(ep);

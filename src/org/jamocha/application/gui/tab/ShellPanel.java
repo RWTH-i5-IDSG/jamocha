@@ -458,7 +458,7 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 	 */
 	private void initChannelListener() {
 		gui.getEngine().getMessageRouter().setDefaultChannel(channel);
-		channelListener = new Thread() {
+		channelListener = new Thread("Shell Panel Channel Listener") {
 
 			/**
 			 * Simply runs the ChannelListener and lets it process Events.
@@ -559,7 +559,7 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 		addKeyListener(adapter);
 		outputArea.addKeyListener(adapter);
 
-		final Thread eventThread = new Thread() {
+		final Thread eventThread = new Thread("Shell Panel Key Listener") {
 
 			@Override
 			public void run() {

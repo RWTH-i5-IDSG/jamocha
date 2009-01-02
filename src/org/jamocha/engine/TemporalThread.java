@@ -29,8 +29,9 @@ public abstract class TemporalThread extends Thread {
 	
 	protected int threadLag;
 	
-	public TemporalThread(Engine e) {
+	public TemporalThread(Engine e, String name) {
 		engine = e;
+		this.setName(name);
 		eventPoints = new PriorityQueue<EventPoint>(100, new EventPointComparator());
 		exceptionListener = null;
 	}

@@ -105,7 +105,7 @@ public class LogPanel extends AbstractJamochaPanel implements ActionListener,
 		pane.setDividerLocation(settings.getInt(GUI_LOG_DIVIDERLOCATION));
 		add(pane, BorderLayout.CENTER);
 
-		final Thread logThread = new Thread() {
+		final Thread logThread = new Thread("GUI Log") {
 			@Override
 			public void run() {
 				List<MessageEvent> msgEvents = new LinkedList<MessageEvent>();

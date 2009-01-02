@@ -27,9 +27,11 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.jamocha.Constants;
 import org.jamocha.communication.events.MessageEvent;
@@ -50,7 +52,6 @@ import org.jamocha.engine.functions.FunctionMemory;
 import org.jamocha.engine.functions.FunctionMemoryImpl;
 import org.jamocha.engine.modules.Module;
 import org.jamocha.engine.modules.Modules;
-import org.jamocha.engine.nodes.Node;
 import org.jamocha.engine.rules.rulecompiler.CompileRuleException;
 import org.jamocha.engine.scope.BlockingScope;
 import org.jamocha.engine.scope.DefaultScope;
@@ -176,7 +177,7 @@ public class Engine implements Dumpable {
 	 */
 	public Engine(String tempStrat) {
 		super();
-		lags = new ArrayList<TemporalThread>();
+		lags = new HashSet<TemporalThread>();
 		temporalStrategy = tempStrat;
 		final PipedOutputStream outStream = new PipedOutputStream();
 		final PipedInputStream inStream = new PipedInputStream();
@@ -983,7 +984,7 @@ public class Engine implements Dumpable {
 		}
 	}
 
-	List<TemporalThread> lags;
+	Set<TemporalThread> lags;
 	
 	int lg;
 	

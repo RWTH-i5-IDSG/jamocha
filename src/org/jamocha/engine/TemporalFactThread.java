@@ -14,7 +14,7 @@ public class TemporalFactThread extends TemporalThread {
 	protected Map<Fact, TemporalValidity.EventPoint> fact2nextEventPoint;
 	
 	public TemporalFactThread(Engine e) {
-		super(e);
+		super(e, "Temporal Fact Thread");
 		eventPoint2Fact = new HashMap<EventPoint, Fact>();
 		fact2nextEventPoint = new HashMap<Fact, EventPoint>();
 	}

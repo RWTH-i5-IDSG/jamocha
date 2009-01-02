@@ -43,6 +43,7 @@ public class Benchmark {
 			this.step=step;
 			this.lag=new int[maxtime/step +1];
 			this.finished=false;
+			this.setName("Measure");
 		}
 		
 		public void run() {
