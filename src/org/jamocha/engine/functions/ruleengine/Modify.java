@@ -69,7 +69,7 @@ public class Modify extends AbstractFunction {
 		public JamochaType[] getParameterTypes(int parameter) {
 			switch (parameter) {
 			case 0:
-				return JamochaType.FACTS;
+				return JamochaType.FACT_IDS;
 			case 1:
 				return JamochaType.SLOTS;
 			}
@@ -134,7 +134,7 @@ public class Modify extends AbstractFunction {
 				// modificonfiguration
 				if (params[0] instanceof ModifyConfiguration) {
 					ModifyConfiguration mc = (ModifyConfiguration) params[0];
-					fact = ((JamochaValue)mc.getFactBinding()).getFactValue() ;
+					fact = engine.getFactById(((JamochaValue)mc.getFactBinding()).getFactIdValue());
 					engine.modifyFact(fact, mc);
 					result = JamochaValue.TRUE;
 				}

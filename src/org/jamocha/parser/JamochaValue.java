@@ -284,8 +284,9 @@ public class JamochaValue implements Parameter, Formattable {
 	}
 
 	public Fact getFactValue() {
-		// assert (type.equals(JamochaType.FACT));
-		return (Fact) value;
+		if (type.equals(JamochaType.FACT)) {
+			return (Fact) value;
+		} else return null;
 	}
 
 	public long getFactIdValue() {
@@ -520,11 +521,11 @@ public class JamochaValue implements Parameter, Formattable {
 
 	}
 
-	public JamochaValue getValue(Engine engine) throws EvaluationException {
-		return this;
-	}
-
 	public String format(Formatter visitor) {
 		return visitor.visit(this);
+	}
+
+	public JamochaValue getValue(Engine engine) throws EvaluationException {
+		return this;
 	}
 }

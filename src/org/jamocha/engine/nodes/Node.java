@@ -18,7 +18,9 @@
 
 package org.jamocha.engine.nodes;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -81,8 +83,13 @@ public abstract class Node {
 		}
 	}
 	
+	protected void afterActivationHook() {
+		
+	}
+	
 	public void activate() throws NodeException {
-		//synchronized (RootNode.class) {
+		List<Node> toBeActivated = new ArrayList<Node>();
+		synchronized (RootNode.class) {
 			Queue<Node> queue = new LinkedBlockingQueue<Node>();
 			queue.add(this);
 			while(!queue.isEmpty()) {
@@ -92,6 +99,7 @@ public abstract class Node {
 					boolean actd = child.isActivated();
 					child.activated = true;
 					if (!actd) {
+						toBeActivated.add(child);
 						for (WorkingMemoryElement wme: actNode.memory() ) {
 							child.addWME(actNode, wme);
 						}
@@ -105,7 +113,10 @@ public abstract class Node {
 					for (WorkingMemoryElement wme : memory()) child.addWME(this, wme);
 				}
 			}
-		//}
+		}
+		for (Node child: toBeActivated) {
+			child.afterActivationHook();
+		}
 	}
 
 	protected void getDescriptionString(final StringBuilder sb) {

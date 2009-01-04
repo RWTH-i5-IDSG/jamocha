@@ -111,7 +111,7 @@ public class FunctionAction implements Action {
 					try {
 						JamochaValue newObj;
 						if (binding.isWholeFactBinding()){
-							newObj = JamochaValue.newFact(tuple.getFact(binding.getTupleIndex().get()));
+							newObj = JamochaValue.newFactId(tuple.getFact(binding.getTupleIndex().get()).getFactId());
 						} else {
 							newObj = tuple.getFact(binding.getTupleIndex().get()).getSlotValue(binding.getSlotIndex());
 						}
@@ -128,7 +128,7 @@ public class FunctionAction implements Action {
 				Binding binding = engine.getRuleCompiler().getBinding(factBp.getVariableName(),tnode, parent);
 				JamochaValue newObj=null;
 				if (binding.isWholeFactBinding()){
-					newObj = JamochaValue.newFact(tuple.getFact(binding.getTupleIndex().get()));
+					newObj = JamochaValue.newFactId(tuple.getFact(binding.getTupleIndex().get()).getFactId());
 				} else {
 					try {
 						newObj = tuple.getFact(binding.getTupleIndex().get()).getSlotValue(binding.getSlotIndex());

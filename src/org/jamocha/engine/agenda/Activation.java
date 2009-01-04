@@ -98,7 +98,6 @@ public class Activation {
 	 */
 	public void fire(Engine engine) throws ExecuteException {
 		engine.pushScope(rule);
-		// TODO remove that line rule.setTriggerFacts(tuple.getFacts());
 		for (Action action : rule.getActions())
 			action.executeAction(tuple,tnode);
 		engine.popScope();

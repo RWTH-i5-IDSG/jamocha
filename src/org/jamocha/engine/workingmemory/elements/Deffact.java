@@ -336,22 +336,6 @@ public class Deffact implements Fact {
 		id = fact.getFactId();
 	}
 
-	/**
-	 * update the slots
-	 */
-	public void updateSlots(final Engine engine, final Slot[] updates) {
-		for (int idx = 0; idx < updates.length; idx++) {
-			final Slot uslot = updates[idx];
-			if (uslot.value.getType().equals(JamochaType.BINDING)) {
-				final BoundParam bp = (BoundParam) uslot.value.getObjectValue();
-				final JamochaValue val = engine
-						.getBinding(bp.getVariableName());
-				slots[uslot.getId()].value = val;
-			} else
-				slots[uslot.getId()].value = uslot.value;
-		}
-	}
-
 	public void updateSlots(final Engine engine,
 			final SlotConfiguration[] slotConfigs) throws EvaluationException {
 		SlotConfiguration slotConfig = null;

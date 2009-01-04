@@ -212,6 +212,9 @@ public class Engine implements Dumpable {
 			temporalFactContainerTemplateSlots[0] = new TemplateSlot("next_event_point");
 			temporalFactContainerTemplateSlots[1] = new TemplateSlot("ep_type");
 			temporalFactContainerTemplateSlots[2] = new TemplateSlot("fact");
+			temporalFactContainerTemplateSlots[0].setSilent(true);
+			temporalFactContainerTemplateSlots[1].setSilent(true);
+			temporalFactContainerTemplateSlots[2].setSilent(true);
 			temporalFactContainerTemplateSlots[0].setId(0);
 			temporalFactContainerTemplateSlots[1].setId(1);
 			temporalFactContainerTemplateSlots[2].setId(2);

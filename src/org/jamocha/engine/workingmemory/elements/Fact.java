@@ -72,11 +72,6 @@ public interface Fact extends WorkingMemoryElement, Formattable, Dumpable {
 	 */
 	long getFactId();
 
-	/**
-	 * update the slots
-	 */
-	void updateSlots(Engine engine, Slot[] slots);
-
 	void updateSlots(Engine engine, SlotConfiguration[] slots)
 			throws EvaluationException;
 
