@@ -34,8 +34,6 @@ public class JavaFunctions extends FunctionGroup {
 	@Override
 	public void loadFunctions(FunctionMemory functionMem) {
 		ClassnameResolver classnameResolver = new ClassnameResolver();
-
-		addFunction(functionMem, new GetJamochaType());
 		addFunction(functionMem, new Instanceof(classnameResolver));
 		addFunction(functionMem, new LoadPackage(classnameResolver));
 		addFunction(functionMem, new Member());

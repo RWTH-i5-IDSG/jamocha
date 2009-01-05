@@ -255,6 +255,7 @@ public class Agenda implements Serializable {
 		// this method is called (indirectly) from a fact assertion.
 		// when the action also is going to asserts or retract facts, we have a
 		// concurrent modification of the fact base.
+		//act.fire(parentEngine);
 		new AutofireThread(act).start();
 	}
 }

@@ -134,15 +134,15 @@ public class Modify extends AbstractFunction {
 				// modificonfiguration
 				if (params[0] instanceof ModifyConfiguration) {
 					ModifyConfiguration mc = (ModifyConfiguration) params[0];
-					fact = engine.getFactById(((JamochaValue)mc.getFactBinding()).getFactIdValue());
+					fact = ((JamochaValue)mc.getFactBinding()).getFactValue(engine);
 					engine.modifyFact(fact, mc);
 					result = JamochaValue.TRUE;
 				}
 
 			} catch (RetractException e) {
-				engine.writeMessage(e.getMessage());
+				throw new EvaluationException(e);
 			} catch (AssertException e) {
-				engine.writeMessage(e.getMessage());
+				throw new EvaluationException(e);
 			}
 		}
 

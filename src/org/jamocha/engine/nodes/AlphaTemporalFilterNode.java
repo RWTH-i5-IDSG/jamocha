@@ -46,7 +46,7 @@ public class AlphaTemporalFilterNode extends OneInputNode {
 				} catch (NodeException e) {
 					notifyForException(e);
 				}
-			} else {
+			} else if (nextEventPoint.getType() == Type.STOP) {
 				try {
 					removeAndPropagate(f);
 				} catch (NodeException e) {
@@ -73,7 +73,6 @@ public class AlphaTemporalFilterNode extends OneInputNode {
 	
 	@Override
 	protected void afterActivationHook() {
-		System.out.println("started fred");
 		thread.start();
 	}
 	
@@ -97,8 +96,9 @@ public class AlphaTemporalFilterNode extends OneInputNode {
 			return;
 		if (newElem.getFirstFact().getTemporalValidity()==null) {
 			addAndPropagate(newElem);
-		} else 
+		} else {
 			thread.insertFact(newElem.getFirstFact());
+		}
 	}
 
 	@Override

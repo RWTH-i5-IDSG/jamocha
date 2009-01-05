@@ -102,7 +102,7 @@ public class AssertExistingFact extends AbstractFunction {
 	public JamochaValue executeFunction(Engine engine, Parameter[] params)
 			throws EvaluationException {
 		if (params.length == 1) {
-			Fact f = params[0].getValue(engine).getFactValue();
+			Fact f = params[0].getValue(engine).getFactValue(engine);
 			engine.hardAssertFact(f);
 			return JamochaValue.TRUE;
 		}

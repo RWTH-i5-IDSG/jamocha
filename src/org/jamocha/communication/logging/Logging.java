@@ -22,6 +22,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
+import org.jamocha.engine.Engine;
+
 /**
  * @author Peter Lin
  * @author Josef Alexander Hahn
@@ -44,6 +46,7 @@ public class Logging {
 
 		public void debug(final Exception exc) {
 			log.log(java.util.logging.Level.FINE, exc.getMessage(), exc);
+			exc.printStackTrace();
 		}
 
 		public void info(final String msg) {
@@ -52,6 +55,7 @@ public class Logging {
 
 		public void info(final Exception exc) {
 			log.log(java.util.logging.Level.INFO, exc.getMessage(), exc);
+			exc.printStackTrace();
 		}
 
 		public void warn(final String msg) {
@@ -60,6 +64,7 @@ public class Logging {
 
 		public void warn(final Exception exc) {
 			log.log(java.util.logging.Level.WARNING, exc.getMessage(), exc);
+			exc.printStackTrace();
 		}
 
 		public void fatal(final String msg) {
@@ -68,6 +73,7 @@ public class Logging {
 
 		public void fatal(final Exception exc) {
 			log.log(java.util.logging.Level.SEVERE, exc.getMessage(), exc);
+			exc.printStackTrace();
 		}
 
 	}

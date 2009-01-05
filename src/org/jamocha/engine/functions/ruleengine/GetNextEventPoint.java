@@ -99,11 +99,12 @@ public class GetNextEventPoint extends AbstractFunction {
 			throws EvaluationException {
 		if (params != null)
 			if (params.length == 2) {
-				Fact fact = (Fact) params[0].getValue(engine).getFactValue();
-				long from = params[1].getValue(engine).getLongValue();
-				
-				EventPoint result = fact.getTemporalValidity().getNextEvent(from);
-				return JamochaValue.newObject(result);
+				synchronized (params[0]) {
+					Fact fact = (Fact) params[0].getValue(engine).getFactValue(engine);
+					long from = params[1].getValue(engine).getLongValue();
+					EventPoint result = fact.getTemporalValidity().getNextEvent(from);
+					return JamochaValue.newObject(result);
+				}
 			}
 		throw new IllegalParameterException(1);
 	}

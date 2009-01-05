@@ -18,7 +18,8 @@ jamochabindir=sys.argv[7]
 
 maxi={}
 
-for strat in ("TIME_FACT","TRIGGER_FACT","SEPARATE_RETE"):
+#for strat in ("TIME_FACT","TRIGGER_FACT","SEPARATE_RETE"):
+for strat in ("SEPARATE_RETE","TRIGGER_FACT"):
 	maxi[strat]=1
 	for size in range(1,int(sizemax)+1):
 		outputfile=basedir+path+"-"+strat+"-"+str(size)
@@ -31,7 +32,8 @@ for strat in ("TIME_FACT","TRIGGER_FACT","SEPARATE_RETE"):
 #X TIME     Y SIZE       Z LAG
 
 
-for strat in ("TIME_FACT","TRIGGER_FACT","SEPARATE_RETE"):
+#for strat in ("TIME_FACT","TRIGGER_FACT","SEPARATE_RETE"):
+for strat in ("SEPARATE_RETE","TRIGGER_FACT"):
 
 	header="""
         set terminal postscript eps

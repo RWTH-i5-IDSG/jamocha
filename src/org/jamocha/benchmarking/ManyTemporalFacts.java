@@ -9,12 +9,7 @@ public class ManyTemporalFacts implements KnowledgebaseProvider {
 		Engine engine = new Engine(tempStrat);
 
 		engine.eval("(deftemplate tmpl1 (slot a) (slot b) )");
-		engine.eval("(defrule rule1 (declare (auto-focus true) )"+
-				"(tmpl1 (a ?a) (b ?b) )"+
-				"=>"+
-				"(less ?a ?b)"+
-				")"
-				);
+
 		for (int i=0; i<size; i++) {
 			engine.eval("(assert (tmpl1 (temporal-validity(duration 5) (millisecond */10) ) (a %d) (b %d) ) )", i, 18);		
 //			engine.eval("(assert (tmpl1 (temporal-validity(duration 1) (millisecond */2) ) (a %d) (b %d) ) )", i, 19);
@@ -30,6 +25,13 @@ public class ManyTemporalFacts implements KnowledgebaseProvider {
 //			engine.eval("(assert (tmpl1 (temporal-validity(duration 1) (millisecond */2) ) (a %d) (b %d) ) )", i, 5318);
 //
 		}
+		
+		engine.eval("(defrule rule1 (declare (auto-focus true) )"+
+				"(tmpl1 (a ?a) (b ?b) )"+
+				"=>"+
+				"(less ?a ?b)"+
+				")"
+		);
 		
 		return engine;
 	}

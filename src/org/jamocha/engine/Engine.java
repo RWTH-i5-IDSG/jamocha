@@ -89,6 +89,15 @@ import org.jamocha.settings.SettingsConstants;
  */
 public class Engine implements Dumpable {
 
+	/**
+	 * this class is used for modifying facts in multithreaded environments.
+	 * since modifying is realized as retracting and re-asserting a fact,
+	 * there is a small timespan, where the facts which we modify seems to be
+	 * nonexistant. so we must make that stuff atomic.
+	 */
+	private class ModifySynchronizer {
+	}
+	
 	private class EngineSettingsChangedListener implements
 			SettingsChangedListener {
 
@@ -150,6 +159,12 @@ public class Engine implements Dumpable {
 	
 	protected int lag;
 	
+	protected ModifySynchronizer modifySynchronizer;
+	
+	public ModifySynchronizer getModifySynchronizer() {
+		return modifySynchronizer;
+	}
+
 	protected PrintWriter evalWriter; 
 	
 	// can be "TRIGGER_FACT", "SEPARATE_RETE" or "TIME_FACT"
@@ -177,6 +192,7 @@ public class Engine implements Dumpable {
 	 */
 	public Engine(String tempStrat) {
 		super();
+		modifySynchronizer = new ModifySynchronizer();
 		lags = new HashSet<TemporalThread>();
 		temporalStrategy = tempStrat;
 		final PipedOutputStream outStream = new PipedOutputStream();
@@ -212,9 +228,6 @@ public class Engine implements Dumpable {
 			temporalFactContainerTemplateSlots[0] = new TemplateSlot("next_event_point");
 			temporalFactContainerTemplateSlots[1] = new TemplateSlot("ep_type");
 			temporalFactContainerTemplateSlots[2] = new TemplateSlot("fact");
-			temporalFactContainerTemplateSlots[0].setSilent(true);
-			temporalFactContainerTemplateSlots[1].setSilent(true);
-			temporalFactContainerTemplateSlots[2].setSilent(true);
 			temporalFactContainerTemplateSlots[0].setId(0);
 			temporalFactContainerTemplateSlots[1].setId(1);
 			temporalFactContainerTemplateSlots[2].setId(2);
@@ -747,24 +760,24 @@ public class Engine implements Dumpable {
 	 * @param newfact
 	 * @throws EvaluationException
 	 */
-	public void modifyFact(Fact old, ModifyConfiguration mc)
-			throws EvaluationException {
-		boolean allSilent = true;
-
-		for (SlotConfiguration slot : mc.getSlots())
-			allSilent &= old.isSlotSilent(slot.getId());
-
-		if (allSilent)
-			// for only silent slots changed, we dont have to put some
-			// activations into the agenda, so we can do it this way
-			old.updateSlots(this, mc.getSlots());
-		else {
-			Fact modifiedFact = ((Deffact) old).cloneFact(this);
-			modifiedFact.setFactId(old.getFactId());
-			modifiedFact.updateSlots(this, mc.getSlots());
-			hardRetractFact(old);
-			// TODO remove this.modules.addFact(modifiedFact);
-			hardAssertFact(modifiedFact);
+	public void modifyFact(Fact old, ModifyConfiguration mc) throws EvaluationException {
+		synchronized (modifySynchronizer) {
+			boolean allSilent = true;
+			for (SlotConfiguration slot : mc.getSlots()) {
+				allSilent &= old.isSlotSilent(slot.getId());
+			}
+			if (allSilent) {
+				// for only silent slots changed, we dont have to put some
+				// activations into the agenda, so we can do it this way
+				old.updateSlots(this, mc.getSlots());
+			}
+			else {
+				Fact modifiedFact = ((Deffact) old).cloneFact(this);
+				modifiedFact.setFactId(old.getFactId());
+				modifiedFact.updateSlots(this, mc.getSlots());
+				hardRetractFact(old);
+				hardAssertFact(modifiedFact);
+			}
 		}
 	}
 

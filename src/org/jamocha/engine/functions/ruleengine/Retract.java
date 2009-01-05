@@ -48,11 +48,11 @@ public class Retract extends AbstractFunction {
 
 		public String getDescription() {
 			return "Allows the user to remove facts from the fact-list. Multiple facts may be retracted "
-					+ "with a single retract statement. The retraction of a fact also removes all rules that "
-					+ "depend upon that fact for activation from the agenda. Retraction of a fact may also "
-					+ "cause the retraction of other facts which receive logical support from the retracted "
-					+ "fact. If the facts item is being watched, then an informational message will be printed "
-					+ "each time a fact is retracted.";
+			+ "with a single retract statement. The retraction of a fact also removes all rules that "
+			+ "depend upon that fact for activation from the agenda. Retraction of a fact may also "
+			+ "cause the retraction of other facts which receive logical support from the retracted "
+			+ "fact. If the facts item is being watched, then an informational message will be printed "
+			+ "each time a fact is retracted.";
 		}
 
 		public int getParameterCount() {
@@ -69,7 +69,7 @@ public class Retract extends AbstractFunction {
 
 		public JamochaType[] getParameterTypes(int parameter) {
 			JamochaType[] res = new JamochaType[JamochaType.FACT_IDS.length
-					+ JamochaType.FACTS.length + JamochaType.LONGS.length];
+			                                    + JamochaType.FACTS.length + JamochaType.LONGS.length];
 			int count = 0;
 			for (int i = 0; i < JamochaType.FACT_IDS.length; ++i)
 				res[count++] = JamochaType.FACT_IDS[i];
@@ -94,10 +94,10 @@ public class Retract extends AbstractFunction {
 
 		public String getExample() {
 			return "(clear)" + "(deftemplate car (slot color)(slot speed))\n"
-					+ "(assert (car (color \"red\")(speed 200)))\n"
-					+ "(assert (car (color \"blue\")(speed 150)))\n"
-					+ "(assert (car (color \"green\")(speed 100)))\n"
-					+ "(facts)\n" + "(retract 2)\n" + "(facts)";
+			+ "(assert (car (color \"red\")(speed 200)))\n"
+			+ "(assert (car (color \"blue\")(speed 150)))\n"
+			+ "(assert (car (color \"green\")(speed 100)))\n"
+			+ "(facts)\n" + "(retract 2)\n" + "(facts)";
 		}
 
 		public boolean isResultAutoGeneratable() {
@@ -128,34 +128,16 @@ public class Retract extends AbstractFunction {
 
 	@Override
 	public JamochaValue executeFunction(Engine engine, Parameter[] params)
-			throws EvaluationException {
+	throws EvaluationException {
 		JamochaValue result = JamochaValue.FALSE;
 		if (params != null && params.length >= 1)
 			for (int idx = 0; idx < params.length; idx++) {
 				JamochaValue param = params[idx].getValue(engine);
-				if (param.is(JamochaType.FACT_ID) || param.is(JamochaType.LONG)) {
-					long factId = param.getFactIdValue();
-					try {
-						engine.retractById(factId);
-						result = JamochaValue.TRUE;
-					} catch (RetractException e) {
-					}
-				} else if (param.getType().equals(JamochaType.FACT)) {
-					Deffact fact = (Deffact) param.getFactValue();
-					try {
-						engine.retractFact(fact);
-						result = JamochaValue.TRUE;
-					} catch (RetractException e) {
-					}
-				} else if (param.getType().equals(JamochaType.OBJECT)) {
-					Deffact fact = (Deffact) param.getObjectValue();
-					try {
-						engine.retractFact(fact);
-						result = JamochaValue.TRUE;
-					} catch (RetractException e) {
-					}
+				try {
+					engine.retractFact(param.getFactValue(engine));
+					result = JamochaValue.TRUE;
+				} catch (RetractException e) {
 				}
-				
 			}
 		else
 			throw new IllegalParameterException(1, true);

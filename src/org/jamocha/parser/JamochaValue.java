@@ -29,6 +29,7 @@ import java.util.TimeZone;
 import org.jamocha.engine.BoundParam;
 import org.jamocha.engine.Engine;
 import org.jamocha.engine.Parameter;
+import org.jamocha.engine.workingmemory.elements.Deffact;
 import org.jamocha.engine.workingmemory.elements.Fact;
 import org.jamocha.engine.workingmemory.elements.Slot;
 import org.jamocha.formatter.Formattable;
@@ -283,10 +284,34 @@ public class JamochaValue implements Parameter, Formattable {
 		return (String) value;
 	}
 
+	
+	/**
+	 * this method returns the value as fact, iff it is stored as such one
+	 * internally. this method is stupid, because it can not handle the case,
+	 * that the value is stored as fact-id.
+	 */
+	@Deprecated
 	public Fact getFactValue() {
 		if (type.equals(JamochaType.FACT)) {
 			return (Fact) value;
 		} else return null;
+	}
+	
+	/**
+	 * this method auto-probes, whether the value is stores as a fact or as a
+	 * fact-id. if it is a fact-id, it resolves this id to the corresponding
+	 * fact automatically.
+	 */
+	public Fact getFactValue(Engine e) {
+		synchronized (e.getModifySynchronizer()) {
+			if (type.equals(JamochaType.FACT)) {
+				return (Fact)value;
+			} else if (type.equals(JamochaType.FACT_ID) || type.equals(JamochaType.LONG)) {
+				return e.getFactById((Long)value);
+			} else if (value instanceof Fact) {
+				return (Fact)value;
+			} else return new Deffact("foo;bar=1",e);
+		}
 	}
 
 	public long getFactIdValue() {

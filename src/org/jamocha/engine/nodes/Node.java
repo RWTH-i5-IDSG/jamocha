@@ -223,8 +223,7 @@ public abstract class Node {
 	 */
 	protected void addAndPropagate(final WorkingMemoryElement e)
 			throws NodeException {
-		if (workingMemory.add(this, e))
-			propagateAddition(e);
+		if (workingMemory.add(this, e))	propagateAddition(e);
 	}
 
 	/**
