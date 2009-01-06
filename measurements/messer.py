@@ -19,7 +19,7 @@ jamochabindir=sys.argv[7]
 maxi={}
 
 #for strat in ("TIME_FACT","TRIGGER_FACT","SEPARATE_RETE"):
-for strat in ("SEPARATE_RETE","TRIGGER_FACT"):
+for strat in ("TRIGGER_FACT","SEPARATE_RETE"):
 	maxi[strat]=1
 	for size in range(1,int(sizemax)+1):
 		outputfile=basedir+path+"-"+strat+"-"+str(size)
@@ -33,21 +33,26 @@ for strat in ("SEPARATE_RETE","TRIGGER_FACT"):
 
 
 #for strat in ("TIME_FACT","TRIGGER_FACT","SEPARATE_RETE"):
-for strat in ("SEPARATE_RETE","TRIGGER_FACT"):
+for strat in ("TRIGGER_FACT","SEPARATE_RETE"):
 
 	header="""
         set terminal postscript eps
         set xrange [0:%s]
         set yrange [0:%s]
-        #set zrange [0:%d]
-        #set zrange [*:*] 
-        set data style lines
-        #set contour base
+        set ytics 5,5,%s
+        #set zrange [0:%s]
+        set label "Zeit in s" at screen 0.2, screen 0.08 rotate by -7
+        set label "Lag in ms" at screen 0.01, screen 0.30 rotate by 90
+        set label "Anzahl temp. Elemente" at screen 0.80, screen 0.05 rotate by 45
+        #set xlabel "Zeit in s" offset -1,0 rotate by -10.0
+        #set ylabel "Anzahl temp. Elemente" rotate by 30.0
+        #set zlabel "Lag in ms" rotate by 90.0
+        set  style data lines
+        set ticslevel 0.0
         set dgrid3d %d,%d,1
+        set view 60,20,1.1,1.4
         set hidden3d
-        #show contour
-        #set view 45,20,1.0,2.5
-	""" % (timemax,sizemax,maxi[strat],int(sizemax)+1,(int(timemax)/int(timestep))+1)
+	""" % (timemax,sizemax,sizemax,maxi[strat],int(sizemax)+1,(int(timemax)/int(timestep))+1)
 
 	ffile = open(basedir+path+"-"+strat+"-ALL",'w')
 	for size in range(1,int(sizemax)+1):
@@ -61,7 +66,7 @@ for strat in ("SEPARATE_RETE","TRIGGER_FACT"):
 	ofile.write("set terminal postscript eps\n")
 	ofile.write("set output \"%s\"\n" % (basedir+"graph-"+path+"-"+strat+".eps"))
 			
-	ofile.write("splot \"%s\" title 'Lag in ms' \n" % (basedir+path+"-"+strat+"-ALL") )
+	ofile.write("splot \"%s\" notitle \n" % (basedir+path+"-"+strat+"-ALL") )
 	#ofile.write("replot\n\n")
 	ofile.flush
 	ofile.close
