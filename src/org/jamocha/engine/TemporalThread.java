@@ -47,8 +47,7 @@ public abstract class TemporalThread extends Thread {
 	}
 	
 	protected static long now() {
-		GregorianCalendar now = new GregorianCalendar();
-		return now.getTimeInMillis();
+		return System.currentTimeMillis();
 	}
 	
 	public int getLag(){

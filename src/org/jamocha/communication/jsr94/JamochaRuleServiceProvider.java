@@ -31,7 +31,7 @@ import javax.rules.admin.RuleAdministrator;
 // TODO thread-safety
 public class JamochaRuleServiceProvider extends RuleServiceProvider {
 
-	private static String RULE_SERVICE_PROVIDER = "org.jamocha.jsr94";
+	private static String RULE_SERVICE_PROVIDER = "http://www.jamocha.org";
 
 	private JamochaRuleExecutionSetMap ruleSets;
 
