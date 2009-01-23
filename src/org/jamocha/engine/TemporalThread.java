@@ -51,7 +51,7 @@ public abstract class TemporalThread extends Thread {
 	}
 	
 	public int getLag(){
-		return threadLag;
+		return (threadLag < 0) ? 0 : threadLag;
 	}
 	
 	public void run() {

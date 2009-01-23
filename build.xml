@@ -8,7 +8,7 @@
 		<property name="app.name" value="Jamocha" />
 		<property name="src" value="${basedir}/src" />
 		<property name="unittests.src" value="${basedir}/tests" />
-		<property name="bin" value="${basedir}/bin" />
+		<property name="bin" value="${basedir}/dist/bin" />
 		<property name="dist" value="${basedir}/dist" />
 		<property name="packages" value="${basedir}/packages" />
 		<mkdir dir="${bin}" />
@@ -40,7 +40,7 @@
 	</target>
 
 	<target name="compile" depends="init" description="Compile the jamocha main sources">
-		<javac srcdir="${src}" destdir="${bin}" encoding="UTF-8" classpathref="classpath" />
+		<javac srcdir="${src}" destdir="${bin}" encoding="UTF-8" classpathref="classpath" target="1.5" />
 		<!-- copy all files within the source directory (except the sources themselves)
 			to the bin directory. This is e.g. mandatory for the icons in the gui -->
 		<copy todir="${bin}">

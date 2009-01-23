@@ -50,8 +50,7 @@ public class JamochaRuleRuntime implements RuleRuntime {
 			return new JamochaStatelessRuleSession(ruleSets
 					.getRuleExecutionSet(uri), uri, properties);
 		case RuleRuntime.STATEFUL_SESSION_TYPE:
-			throw new RuleSessionTypeUnsupportedException(
-					"Stateful sessions not implemented yet");
+			return new JamochaStatefulRuleSession(ruleSets.getRuleExecutionSet(uri), uri, properties);
 		default:
 			throw new RuleSessionTypeUnsupportedException(
 					"unknown session type.");
