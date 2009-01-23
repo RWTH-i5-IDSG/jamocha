@@ -17,7 +17,9 @@
  */
 package org.jamocha.communication.jsr94;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -41,6 +43,14 @@ public class JamochaRuleExecutionSetMap {
 
 	public void removeRuleExecutionSet(String uri) {
 		map.remove(uri);
+	}
+	
+	public List getRegistrators() {
+		List result = new ArrayList();
+		for (String s : map.keySet()) {
+			result.add(s);
+		}
+		return result;
 	}
 
 }

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<rule-execution-set>
+
+   <name>TestRuleExecutionSet</name>
+   <description>Ich bin ein Haufen Testregeln</description>
+
+   <code>
+
+	; the first boolean parameter tells the deftemplate-function
+	; to handle the class as bean. if true, getter/setter will be
+	; used. if false, public attributes will be used
+       (deftemplate-from-javaclass true org.jamocha.jsr94.test.Customer)
+       (deftemplate-from-javaclass true org.jamocha.jsr94.test.Invoice)
+
+
+       (defrule rule-1
+         ?customer &lt;- 
+         		(org.jamocha.jsr94.test.Customer (creditLimit ?limit))
+         		
+         ?invoice &lt;-
+         		(org.jamocha.jsr94.test.Invoice (amount ?amt&amp;:(&gt; ?limit ?amt) ) (status "unpaid") )
+         		
+         =&gt;
+
+         (modify ?customer (creditLimit (- (fact-slot-value ?customer creditLimit)  ?amt)))
+         (modify ?invoice (status "paid"))
+	 )
+
+   </code>
+</rule-execution-set>

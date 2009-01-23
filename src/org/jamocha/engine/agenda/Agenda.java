@@ -192,19 +192,29 @@ public class Agenda implements Serializable {
 	 * @throws org.jamocha.rete.exception.ExecuteException
 	 */
 	public int fire() throws ExecuteException {
-		Queue<Activation> acts = activations;
-		activations = new PriorityQueue<Activation>(INITIAL_CAPACITY,strategy);
+//            TODO: remove this old implementation
+//		Queue<Activation> acts = activations;
+//		activations = new PriorityQueue<Activation>(INITIAL_CAPACITY,strategy);
+//		int fireCount = 0;
+//		if (profileFire)
+//			ProfileStats.startFire();
+//		while (!acts.isEmpty()) {
+//			fireNextActivation(acts);
+//			fireCount++;
+//		}
+//		if (profileFire)
+//			ProfileStats.endFire();
+//		return fireCount;
+		
 		int fireCount = 0;
-		if (profileFire)
-			ProfileStats.startFire();
-		while (!acts.isEmpty()) {
-			fireNextActivation(acts);
+		while (!activations.isEmpty()) {
+			fireNextActivation(activations);
 			fireCount++;
 		}
-		if (profileFire)
-			ProfileStats.endFire();
 		return fireCount;
 	}
+	
+	
 
 	/**
 	 * sets whether this agenda should output activation insertions and removals

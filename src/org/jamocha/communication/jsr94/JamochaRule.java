@@ -18,6 +18,9 @@
 
 package org.jamocha.communication.jsr94;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * @author Josef Alexander Hahn <http://www.josef-hahn.de>
  */
@@ -29,9 +32,12 @@ public class JamochaRule implements javax.rules.admin.Rule {
 	private static final long serialVersionUID = 1L;
 
 	private final org.jamocha.rules.Rule rule;
+	
+	private Map<Object,Object> properties;
 
 	public JamochaRule(org.jamocha.rules.Rule rule) {
 		this.rule = rule;
+		properties = new HashMap<Object, Object>();
 	}
 
 	public String getDescription() {
@@ -46,12 +52,11 @@ public class JamochaRule implements javax.rules.admin.Rule {
 		if (arg0.equals(JAMOCHA_RULE_OBJECT))
 			return rule;
 
-		// TODO do something useful with this method
-		return null;
+		return properties.get(arg0);
 	}
 
 	public void setProperty(Object arg0, Object arg1) {
-		// TODO do something useful with this method
+		properties.put(arg0, arg1);
 	}
 
 }

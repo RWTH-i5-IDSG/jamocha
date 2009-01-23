@@ -135,10 +135,10 @@ public class FactSlotValue extends AbstractFunction {
 			JamochaValue slotName = params[1].getValue(engine);
 			Fact fact;
 			if (!factId.is(JamochaType.FACT))
-				fact = engine.getFactById(factId
-						.implicitCast(JamochaType.FACT_ID));
+				fact = engine.getFactById(factId.implicitCast(JamochaType.FACT_ID));
 			else
 				fact = factId.getFactValue();
+			
 			int slotId = fact.getSlotId(slotName.getIdentifierValue());
 			if (slotId < 0)
 				throw new EvaluationException("Error no slot " + slotName);

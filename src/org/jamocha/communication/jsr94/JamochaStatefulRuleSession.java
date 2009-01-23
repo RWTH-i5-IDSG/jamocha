@@ -32,8 +32,10 @@ import javax.rules.RuleRuntime;
 import javax.rules.StatefulRuleSession;
 import javax.rules.admin.RuleExecutionSet;
 
+import org.jamocha.communication.logging.Logging;
 import org.jamocha.engine.AssertException;
 import org.jamocha.engine.Engine;
+import org.jamocha.engine.ExecuteException;
 import org.jamocha.engine.RetractException;
 import org.jamocha.engine.workingmemory.elements.Deffact;
 import org.jamocha.engine.workingmemory.elements.Fact;
@@ -85,13 +87,19 @@ public class JamochaStatefulRuleSession extends JamochaAbstractRuleSession imple
 	}
 
 	public Handle addObject(Object o) throws RemoteException, InvalidRuleSessionException {
+		return addObject(o,-1);
+	}
+	
+	protected Handle addObject(Object o, long id) throws RemoteException, InvalidRuleSessionException {
 		try{
 			if (o instanceof Fact) {
 				Fact f = (Fact) o;
+				if (id > 0) f.setFactId(id);
 				engine.assertFact(f);
 				return new JamochaFactHandle(f.getFactId());
 			} else {
 				Fact f = new JavaFact(o,getEngine());
+				if (id > 0) f.setFactId(id);
 				engine.assertFact(f);
 				return new JamochaFactHandle(f.getFactId());
 			}
@@ -107,13 +115,15 @@ public class JamochaStatefulRuleSession extends JamochaAbstractRuleSession imple
 	}
 
 	public boolean containsObject(Handle arg0) throws RemoteException, InvalidRuleSessionException, InvalidHandleException {
-		// TODO Auto-generated method stub
-		return false;
+		return (getEngine().getFactById( ((JamochaFactHandle)arg0).getId() ) != null  );
 	}
 
 	public void executeRules() throws RemoteException,	InvalidRuleSessionException {
-		// TODO Auto-generated method stub
-		
+		try {
+			getEngine().fire();
+		} catch (ExecuteException e) {
+			throw new InvalidRuleSessionException("error while firing engine",e);
+		}
 	}
 
 	public List getHandles() throws RemoteException, InvalidRuleSessionException {
@@ -169,16 +179,20 @@ public class JamochaStatefulRuleSession extends JamochaAbstractRuleSession imple
 	}
 
 	public void reset() throws RemoteException, InvalidRuleSessionException {
-		engine.resetFacts();
-		for(Rule r: engine.getModules().getAllRules()) {
-			engine.removeRule(r);
+		for (Fact f : getEngine().getModules().getAllFacts()) {
+			try {
+				getEngine().retractFact(f);
+			} catch (RetractException e) {
+				Logging.logger(this.getClass()).warn("Error while resetting session. Cannot retract fact "+f);
+			}
 		}
 	}
 
 	public void updateObject(Handle arg0, Object arg1) throws RemoteException,
 			InvalidRuleSessionException, InvalidHandleException {
+		long id = ((JamochaFactHandle)arg0).getId();
 		removeObject(arg0);
-		addObject(arg1);
+		addObject(arg1,id);
 	}
 
 	@Override

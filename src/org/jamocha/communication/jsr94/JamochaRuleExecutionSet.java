@@ -19,7 +19,9 @@
 package org.jamocha.communication.jsr94;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.rules.admin.RuleExecutionSet;
 
@@ -39,12 +41,15 @@ public class JamochaRuleExecutionSet implements RuleExecutionSet {
 	private String defaultFilter;
 
 	private final Expression[] exprs;
+	
+	private Map<Object,Object> properties;
 
 	public JamochaRuleExecutionSet(String description, String name,
 			Expression[] exprs) {
 		this.description = description;
 		this.name = name;
 		this.exprs = exprs;
+		this.properties = new HashMap<Object,Object>();
 	}
 
 	public String getDefaultObjectFilter() {
@@ -60,8 +65,7 @@ public class JamochaRuleExecutionSet implements RuleExecutionSet {
 	}
 
 	public Object getProperty(Object arg0) {
-		// TODO do something useful with them
-		return null;
+		return properties.get(arg0);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -77,7 +81,7 @@ public class JamochaRuleExecutionSet implements RuleExecutionSet {
 	}
 
 	public void setProperty(Object arg0, Object arg1) {
-		// TODO do something useful with them
+		properties.put(arg0, arg1);
 	}
 
 	public Expression[] getExpressions() {

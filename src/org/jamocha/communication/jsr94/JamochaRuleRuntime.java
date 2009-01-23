@@ -59,8 +59,7 @@ public class JamochaRuleRuntime implements RuleRuntime {
 
 	@SuppressWarnings("unchecked")
 	public List getRegistrations() throws RemoteException {
-		// TODO Auto-generated method stub
-		return null;
+		return ruleSets.getRegistrators();
 	}
 
 }

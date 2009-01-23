@@ -76,10 +76,10 @@ public class JavaFact implements Fact {
 	}
 
 	public int getSlotId(String name) {
-		Template t = getTemplate();
 		int i=0;
 		for(TemplateSlot ts : t.getAllSlots()) {
 			if (ts.getName().equals(name)) return i;
+			i++;
 		}
 		return -1;
 	}
@@ -213,6 +213,20 @@ public class JavaFact implements Fact {
 
 	public Object getObject() {
 		return o;
+	}
+	
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append( "["+t.getName()+";");
+		for (TemplateSlot field: t.getAllSlots()) {
+			try {
+				sb.append( field.getName() + "=" + this.getSlotValue(field.getId()) + ";" );
+			} catch (EvaluationException e) {
+				sb.append("an unevaluateable slot;");
+			}
+		}
+		sb.append("]");
+		return sb.toString();
 	}
 
 }

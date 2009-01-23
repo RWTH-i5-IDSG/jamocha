@@ -779,8 +779,8 @@ public class Engine implements Dumpable {
 					modifiedFact = old;
 				}
 				modifiedFact.setFactId(old.getFactId());
-				modifiedFact.updateSlots(this, mc.getSlots());
 				hardRetractFact(old);
+				modifiedFact.updateSlots(this, mc.getSlots());
 				hardAssertFact(modifiedFact);
 			}
 		}
