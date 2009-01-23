@@ -125,32 +125,6 @@ public class Deftemplate implements Template, Serializable {
 			return null;
 	}
 
-	public Template getParent() {
-		return parent;
-	}
-
-	public void setParent(final Template parent) {
-		this.parent = parent;
-	}
-
-	/**
-	 * return whether the deftemplate should be watched
-	 * 
-	 * @return
-	 */
-	public boolean getWatch() {
-		return watch;
-	}
-
-	/**
-	 * set whether the deftemplate should be watched
-	 * 
-	 * @param watch
-	 */
-	public void setWatch(final boolean watch) {
-		this.watch = watch;
-	}
-
 	/**
 	 * the template name is an alias for an object
 	 * 
@@ -158,15 +132,6 @@ public class Deftemplate implements Template, Serializable {
 	 */
 	public String getName() {
 		return templateName;
-	}
-
-	/**
-	 * Get the class the deftemplate represents
-	 * 
-	 * @return
-	 */
-	public String getClassName() {
-		return defclass;
 	}
 
 	/**

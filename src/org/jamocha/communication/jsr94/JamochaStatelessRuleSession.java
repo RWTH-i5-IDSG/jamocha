@@ -31,19 +31,17 @@ import javax.rules.RuleRuntime;
 import javax.rules.StatelessRuleSession;
 import javax.rules.admin.RuleExecutionSet;
 
-import org.jamocha.communication.jsr94.internal.JavaClassAdaptor;
 import org.jamocha.communication.jsr94.internal.Template2JavaClassAdaptorException;
 import org.jamocha.communication.jsr94.internal.TemplateFromJavaClassTag;
 import org.jamocha.engine.AssertException;
 import org.jamocha.engine.Engine;
 import org.jamocha.engine.ExecuteException;
 import org.jamocha.engine.workingmemory.WorkingMemoryElement;
+import org.jamocha.engine.workingmemory.elements.Deffact;
 import org.jamocha.engine.workingmemory.elements.Fact;
-import org.jamocha.engine.workingmemory.elements.Template;
+import org.jamocha.engine.workingmemory.elements.JavaFact;
 import org.jamocha.engine.workingmemory.elements.tags.Tag;
 import org.jamocha.parser.EvaluationException;
-import org.jamocha.parser.Expression;
-import org.jamocha.parser.RuleException;
 
 /**
  * @author Josef Alexander Hahn <http://www.josef-hahn.de>
@@ -113,18 +111,13 @@ public class JamochaStatelessRuleSession extends JamochaAbstractRuleSession impl
 				if (o instanceof Fact)
 					session.getEngine().assertFact((Fact) o);
 				else {
-					Fact f = getJavaClassAdaptor(o.getClass())
-							.getFactFromObject(o, session.getEngine());
-					session.getEngine().assertFact(f);
+					session.getEngine().assertFact(new JavaFact(o,getEngine()));
 				}
 			} catch (AssertException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-			} catch (Template2JavaClassAdaptorException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			}
-
+			
 		// fire rules
 		try {
 			session.getEngine().fire();
@@ -135,29 +128,12 @@ public class JamochaStatelessRuleSession extends JamochaAbstractRuleSession impl
 		// collect facts and return them as a list
 		List<Object> results = new LinkedList<Object>();
 
-		for (WorkingMemoryElement f : session.getEngine().getNet().getRoot()
-				.memory()) {
-			Iterator<Tag> itr = f.getFirstFact().getTemplate().getTags(
-					TemplateFromJavaClassTag.class);
-			if (itr.hasNext()) {
-				TemplateFromJavaClassTag ttag = (TemplateFromJavaClassTag) itr
-						.next();
-				Class cl = ttag.getJavaClass();
-				Object o = null;
-				try {
-					o = cl.newInstance();
-				} catch (Exception e) {
-					// TODO exception handling
-				}
-				try {
-					Object j = ttag.getAdaptor().storeToObject(f.getFirstFact(), o,
-							session.getEngine());
-					results.add( (j==null)?o: j );
-				} catch (Template2JavaClassAdaptorException e) {
-					results.add(f);
-				}
-			} else if (!onlyJavaObjects)
-				results.add(f);
+		for (WorkingMemoryElement f : session.getEngine().getModules().getAllFacts()) {
+			if (f instanceof Deffact) {
+				if (!onlyJavaObjects) results.add(f);
+			} else if (f instanceof JavaFact) {
+				results.add(((JavaFact)f).getObject());
+			}
 		}
 
 		// rollback session since we make stateless rule evaluation here

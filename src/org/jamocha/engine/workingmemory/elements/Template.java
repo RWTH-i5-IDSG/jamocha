@@ -74,41 +74,6 @@ public interface Template extends Serializable, Dumpable, Formattable {
 	TemplateSlot getSlot(int column);
 
 	/**
-	 * if watch is set to true, the rule engine will pass events when the fact
-	 * traverses the network.
-	 * 
-	 * @return
-	 */
-	boolean getWatch();
-
-	/**
-	 * Set the watch flag
-	 * 
-	 * @param watch
-	 */
-	void setWatch(boolean watch);
-
-	/**
-	 * If a template has a parent, the method should return the parent,
-	 * otherwise it should return null
-	 * 
-	 * @return
-	 */
-	Template getParent();
-
-	/**
-	 * set the parent template
-	 * 
-	 * @param parent
-	 */
-	void setParent(Template parent);
-
-	/**
-	 * @return
-	 */
-	String getClassName();
-
-	/**
 	 * If the template is currently in use, we should not remove it until all
 	 * the dependent rules are removed first.
 	 * 
@@ -136,6 +101,9 @@ public interface Template extends Serializable, Dumpable, Formattable {
 	
 	public void evaluateStaticDefaults(final Engine engine) throws EvaluationException;
 	
+	/**
+	 * returns a user defined module, if there is one set up. otherwise return null
+	 */
 	public Module checkUserDefinedModuleName(final Engine engine);
 	
 }

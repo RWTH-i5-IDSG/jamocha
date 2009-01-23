@@ -20,7 +20,6 @@ package org.jamocha.communication.jsr94;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -33,18 +32,13 @@ import javax.rules.RuleRuntime;
 import javax.rules.StatefulRuleSession;
 import javax.rules.admin.RuleExecutionSet;
 
-import org.jamocha.communication.jsr94.internal.JavaClassAdaptor;
-import org.jamocha.communication.jsr94.internal.Template2JavaClassAdaptorException;
-import org.jamocha.communication.jsr94.internal.TemplateFromJavaClassTag;
 import org.jamocha.engine.AssertException;
 import org.jamocha.engine.Engine;
 import org.jamocha.engine.RetractException;
+import org.jamocha.engine.workingmemory.elements.Deffact;
 import org.jamocha.engine.workingmemory.elements.Fact;
-import org.jamocha.engine.workingmemory.elements.Template;
-import org.jamocha.engine.workingmemory.elements.tags.Tag;
+import org.jamocha.engine.workingmemory.elements.JavaFact;
 import org.jamocha.parser.EvaluationException;
-import org.jamocha.parser.Expression;
-import org.jamocha.parser.RuleException;
 import org.jamocha.rules.Rule;
 
 /**
@@ -97,13 +91,11 @@ public class JamochaStatefulRuleSession extends JamochaAbstractRuleSession imple
 				engine.assertFact(f);
 				return new JamochaFactHandle(f.getFactId());
 			} else {
-				Fact f = getJavaClassAdaptor(o.getClass()).getFactFromObject(o, engine);
+				Fact f = new JavaFact(o,getEngine());
 				engine.assertFact(f);
 				return new JamochaFactHandle(f.getFactId());
 			}
 		} catch (AssertException e) {
-			throw new InvalidRuleSessionException("error while adding object", e);
-		} catch (Template2JavaClassAdaptorException e) {
 			throw new InvalidRuleSessionException("error while adding object", e);
 		}
 	}
@@ -135,7 +127,13 @@ public class JamochaStatefulRuleSession extends JamochaAbstractRuleSession imple
 	public Object getObject(Handle arg0) throws RemoteException,
 			InvalidHandleException, InvalidRuleSessionException {
 		Fact f = engine.getFactById( ((JamochaFactHandle)arg0).getId() );
-		return fact2Object(f);
+		if (f instanceof Deffact) {
+			return f;
+		} else if (f instanceof JavaFact) {
+			JavaFact jaf = (JavaFact) f;
+			return jaf.getObject();
+		}
+		throw new InvalidHandleException("no known type of fact");
 	}
 
 	public List getObjects() throws RemoteException,

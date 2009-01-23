@@ -33,6 +33,7 @@ import org.jamocha.engine.Parameter;
 import org.jamocha.engine.functions.AbstractFunction;
 import org.jamocha.engine.functions.FunctionDescription;
 import org.jamocha.engine.workingmemory.elements.Deftemplate;
+import org.jamocha.engine.workingmemory.elements.JavaTemplate;
 import org.jamocha.engine.workingmemory.elements.Template;
 import org.jamocha.engine.workingmemory.elements.TemplateSlot;
 import org.jamocha.parser.EvaluationException;
@@ -138,6 +139,11 @@ public class DeftemplateFromJavaClass extends AbstractFunction {
 			final String javaClass = params[1].getValue(engine)
 					.getStringValue();
 
+			if (!beanStyle) {
+				log.warn("The 'public attributes' way of interpreting a java class as template is not implemented anymore. Using Beans is the recommended and supported way!");
+				return JamochaValue.FALSE;
+			}
+			
 			log.debug("Trying to generate deftemplate from '"
 					+ javaClass
 					+ "'"
@@ -154,46 +160,18 @@ public class DeftemplateFromJavaClass extends AbstractFunction {
 			// get the class from the parameter string
 			Class<? extends Object> cls;
 			try {
-				cls = Class.forName(javaClass, true, Thread.currentThread()
-						.getContextClassLoader());
+				cls = Class.forName(javaClass, true, Thread.currentThread().getContextClassLoader());
 			} catch (final ClassNotFoundException e) {
 				log.warn("class '" + javaClass + "' not found");
 				engine.writeMessage("class not found");
 				return JamochaValue.FALSE;
 			}
 			log.debug("found class '" + javaClass + "'");
-
-			// determine slots
-			JavaClassAdaptor adaptor = null;
-			if (beanStyle)
-				adaptor = BeanStyleJavaClassAdaptor.getAdaptor();
-			else
-				adaptor = PublicAttributesStyleJavaClassAdaptor
-						.getAdaptor();
-
-			final List<TemplateSlot> slots = new ArrayList<TemplateSlot>();
-			int id = 0;
-			try {
-				for (final String slotName : adaptor.getFields(cls)) {
-					// TODO handle data type
-					final TemplateSlot tslot = new TemplateSlot(slotName);
-					tslot.setId(id++);
-					log.debug("in class '" + cls.getCanonicalName()
-							+ "' found attribute '" + slotName + "'");
-					slots.add(tslot);
-				}
-			} catch (final Template2JavaClassAdaptorException e) {
-				throw new EvaluationException("error while getting fields", e);
-			}
-
-			TemplateSlot[] slotsArray = new TemplateSlot[slots.size()];
-			slotsArray = slots.toArray(slotsArray);
-			final Deftemplate newtempl = new Deftemplate(
-					cls.getCanonicalName(), "", slotsArray);
-			newtempl.addTag(new TemplateFromJavaClassTag(cls, adaptor));
-
-			if (engine.addTemplate(newtempl)) {
-				log.debug("deftemplate '" + newtempl.getName()
+			
+			JavaTemplate newTmpl = new JavaTemplate(cls);
+			
+			if (engine.addTemplate(newTmpl)) {
+				log.debug("deftemplate '" + newTmpl.getName()
 						+ "' successfully defined");
 				return JamochaValue.TRUE;
 			} else {

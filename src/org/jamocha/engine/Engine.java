@@ -772,7 +772,12 @@ public class Engine implements Dumpable {
 				old.updateSlots(this, mc.getSlots());
 			}
 			else {
-				Fact modifiedFact = ((Deffact) old).cloneFact(this);
+				Fact modifiedFact;
+				if (old instanceof Deffact) {
+					modifiedFact = ((Deffact) old).cloneFact(this);
+				} else {
+					modifiedFact = old;
+				}
 				modifiedFact.setFactId(old.getFactId());
 				modifiedFact.updateSlots(this, mc.getSlots());
 				hardRetractFact(old);

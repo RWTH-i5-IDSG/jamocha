@@ -518,9 +518,6 @@ public class SFPFormatter extends Formatter {
 		}
 		decreaseIndent();
 		newLine(sb);
-		if (object.getClassName() != null) {
-			sb.append("[" + object.getClassName() + "] ");
-		}
 		sb.append(")");
 		return sb.toString();
 	}

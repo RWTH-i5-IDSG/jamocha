@@ -1,6 +1,5 @@
 package org.jamocha.communication.jsr94.internal;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;

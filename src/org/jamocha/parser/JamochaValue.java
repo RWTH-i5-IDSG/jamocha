@@ -310,7 +310,7 @@ public class JamochaValue implements Parameter, Formattable {
 				return e.getFactById((Long)value);
 			} else if (value instanceof Fact) {
 				return (Fact)value;
-			} else return new Deffact("foo;bar=1",e);
+			} else return null;
 		}
 	}
 
