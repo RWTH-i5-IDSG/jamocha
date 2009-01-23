@@ -21,9 +21,9 @@ package org.jamocha.engine.functions.ruleengine;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.jamocha.communication.jsr94.internal.BeanTemplate2JavaClassAdaptor;
-import org.jamocha.communication.jsr94.internal.PublicAttributesTemplate2JavaClassAdaptor;
-import org.jamocha.communication.jsr94.internal.Template2JavaClassAdaptor;
+import org.jamocha.communication.jsr94.internal.BeanStyleJavaClassAdaptor;
+import org.jamocha.communication.jsr94.internal.PublicAttributesStyleJavaClassAdaptor;
+import org.jamocha.communication.jsr94.internal.JavaClassAdaptor;
 import org.jamocha.communication.jsr94.internal.Template2JavaClassAdaptorException;
 import org.jamocha.communication.jsr94.internal.TemplateFromJavaClassTag;
 import org.jamocha.communication.logging.Logging;
@@ -164,11 +164,11 @@ public class DeftemplateFromJavaClass extends AbstractFunction {
 			log.debug("found class '" + javaClass + "'");
 
 			// determine slots
-			Template2JavaClassAdaptor adaptor = null;
+			JavaClassAdaptor adaptor = null;
 			if (beanStyle)
-				adaptor = BeanTemplate2JavaClassAdaptor.getAdaptor();
+				adaptor = BeanStyleJavaClassAdaptor.getAdaptor();
 			else
-				adaptor = PublicAttributesTemplate2JavaClassAdaptor
+				adaptor = PublicAttributesStyleJavaClassAdaptor
 						.getAdaptor();
 
 			final List<TemplateSlot> slots = new ArrayList<TemplateSlot>();

@@ -38,18 +38,18 @@ import org.jamocha.parser.JamochaValue;
  *         It directly accesses these attributes when reading and writing
  *         java-objects and when generating templates from a class.
  */
-public class PublicAttributesTemplate2JavaClassAdaptor implements
-		Template2JavaClassAdaptor {
+public class PublicAttributesStyleJavaClassAdaptor implements
+		JavaClassAdaptor {
 
-	protected static PublicAttributesTemplate2JavaClassAdaptor instance = null;
+	protected static PublicAttributesStyleJavaClassAdaptor instance = null;
 
-	public static PublicAttributesTemplate2JavaClassAdaptor getAdaptor() {
+	public static PublicAttributesStyleJavaClassAdaptor getAdaptor() {
 		if (instance == null)
-			instance = new PublicAttributesTemplate2JavaClassAdaptor();
+			instance = new PublicAttributesStyleJavaClassAdaptor();
 		return instance;
 	}
 
-	protected PublicAttributesTemplate2JavaClassAdaptor() {
+	protected PublicAttributesStyleJavaClassAdaptor() {
 	}
 
 	public Fact getFactFromObject(Object o, Engine engine) {
@@ -101,7 +101,7 @@ public class PublicAttributesTemplate2JavaClassAdaptor implements
 		fi.set(o, v);
 	}
 
-	public void storeToObject(Fact f, Object o, Engine engine) {
+	public Object storeToObject(Fact f, Object o, Engine engine) {
 		Iterator<Tag> titr = f.getTemplate().getTags(
 				TemplateFromJavaClassTag.class);
 		Class<? extends Object> c = null;
@@ -118,6 +118,7 @@ public class PublicAttributesTemplate2JavaClassAdaptor implements
 				}
 			}
 		}
+		return null;
 	}
 
 }

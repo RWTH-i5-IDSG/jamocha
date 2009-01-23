@@ -44,17 +44,17 @@ import org.jamocha.parser.JamochaValue;
  *         So, in that case, you've to provide setters e.g. via an
  *         adaptor-class...
  */
-public class BeanTemplate2JavaClassAdaptor implements Template2JavaClassAdaptor {
+public class BeanStyleJavaClassAdaptor implements JavaClassAdaptor {
 
-	protected static BeanTemplate2JavaClassAdaptor instance = null;
+	protected static BeanStyleJavaClassAdaptor instance = null;
 
-	public static BeanTemplate2JavaClassAdaptor getAdaptor() {
+	public static BeanStyleJavaClassAdaptor getAdaptor() {
 		if (instance == null)
-			instance = new BeanTemplate2JavaClassAdaptor();
+			instance = new BeanStyleJavaClassAdaptor();
 		return instance;
 	}
 
-	protected BeanTemplate2JavaClassAdaptor() {
+	protected BeanStyleJavaClassAdaptor() {
 	}
 
 	// TODO document interface!
@@ -183,7 +183,7 @@ public class BeanTemplate2JavaClassAdaptor implements Template2JavaClassAdaptor 
 	}
 
 	// TODO: what does the "c" here?
-	public void storeToObject(final Fact f, final Object o, final Engine engine)
+	public Object storeToObject(final Fact f, final Object o, final Engine engine)
 			throws Template2JavaClassAdaptorException {
 		final Iterator<Tag> titr = f.getTemplate().getTags(
 				TemplateFromJavaClassTag.class);
@@ -201,6 +201,7 @@ public class BeanTemplate2JavaClassAdaptor implements Template2JavaClassAdaptor 
 							"error while storing fact to object", e);
 				}
 		}
+		return null;
 	}
 
 }

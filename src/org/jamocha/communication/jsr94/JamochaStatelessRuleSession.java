@@ -31,7 +31,7 @@ import javax.rules.RuleRuntime;
 import javax.rules.StatelessRuleSession;
 import javax.rules.admin.RuleExecutionSet;
 
-import org.jamocha.communication.jsr94.internal.Template2JavaClassAdaptor;
+import org.jamocha.communication.jsr94.internal.JavaClassAdaptor;
 import org.jamocha.communication.jsr94.internal.Template2JavaClassAdaptorException;
 import org.jamocha.communication.jsr94.internal.TemplateFromJavaClassTag;
 import org.jamocha.engine.AssertException;
@@ -150,9 +150,9 @@ public class JamochaStatelessRuleSession extends JamochaAbstractRuleSession impl
 					// TODO exception handling
 				}
 				try {
-					ttag.getAdaptor().storeToObject(f.getFirstFact(), o,
+					Object j = ttag.getAdaptor().storeToObject(f.getFirstFact(), o,
 							session.getEngine());
-					results.add(o);
+					results.add( (j==null)?o: j );
 				} catch (Template2JavaClassAdaptorException e) {
 					results.add(f);
 				}

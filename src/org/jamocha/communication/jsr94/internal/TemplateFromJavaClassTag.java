@@ -29,10 +29,10 @@ public class TemplateFromJavaClassTag implements Tag {
 
 	private final Class<? extends Object> javaClass;
 
-	private final Template2JavaClassAdaptor adaptor;
+	private final JavaClassAdaptor adaptor;
 
 	public TemplateFromJavaClassTag(final Class<? extends Object> javaClass,
-			final Template2JavaClassAdaptor adaptor) {
+			final JavaClassAdaptor adaptor) {
 		this.javaClass = javaClass;
 		this.adaptor = adaptor;
 	}
@@ -41,7 +41,7 @@ public class TemplateFromJavaClassTag implements Tag {
 		return javaClass;
 	}
 
-	public Template2JavaClassAdaptor getAdaptor() {
+	public JavaClassAdaptor getAdaptor() {
 		return adaptor;
 	}
 

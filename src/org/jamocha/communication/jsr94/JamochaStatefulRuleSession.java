@@ -33,7 +33,7 @@ import javax.rules.RuleRuntime;
 import javax.rules.StatefulRuleSession;
 import javax.rules.admin.RuleExecutionSet;
 
-import org.jamocha.communication.jsr94.internal.Template2JavaClassAdaptor;
+import org.jamocha.communication.jsr94.internal.JavaClassAdaptor;
 import org.jamocha.communication.jsr94.internal.Template2JavaClassAdaptorException;
 import org.jamocha.communication.jsr94.internal.TemplateFromJavaClassTag;
 import org.jamocha.engine.AssertException;

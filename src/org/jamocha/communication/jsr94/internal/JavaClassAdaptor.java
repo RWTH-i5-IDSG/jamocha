@@ -28,7 +28,7 @@ import org.jamocha.engine.workingmemory.elements.Fact;
  *         this interface help translating between Jamocha-facts <->
  *         Java-objects and Jamocha-templates <-> Java-classes
  */
-public interface Template2JavaClassAdaptor {
+public interface JavaClassAdaptor {
 
 	public List<String> getFields(Class<? extends Object> c)
 			throws Template2JavaClassAdaptorException;
@@ -36,7 +36,11 @@ public interface Template2JavaClassAdaptor {
 	public Object getFieldValue(String field, Object o)
 			throws Template2JavaClassAdaptorException;
 
-	public void storeToObject(Fact f, Object o, Engine engine)
+	/**
+	 * this method can fill the values into the parameter 'o' or can
+	 * return a new object. the caller has to handle both ways!
+	 */
+	public Object storeToObject(Fact f, Object o, Engine engine)
 			throws Template2JavaClassAdaptorException;
 
 	public Fact getFactFromObject(Object o, Engine engine)
