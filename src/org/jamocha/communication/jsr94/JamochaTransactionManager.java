@@ -23,13 +23,13 @@ import org.jamocha.engine.Engine;
 /**
  * @author Josef Alexander Hahn <http://www.josef-hahn.de>
  */
-public class JamochaTransactionBasedSession {
+public class JamochaTransactionManager {
 
 	private Engine engine;
 
 	private Engine backup;
 
-	public JamochaTransactionBasedSession() {
+	public JamochaTransactionManager() {
 		engine = new Engine();
 		commit();
 	}

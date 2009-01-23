@@ -2,10 +2,12 @@ package org.jamocha.communication.jsr94;
 
 import javax.rules.Handle;
 
-import org.jamocha.parser.JamochaValue;
-
 public class JamochaFactHandle implements Handle {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	long id;
 	
 	public JamochaFactHandle(long id) {

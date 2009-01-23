@@ -35,6 +35,7 @@ import org.jamocha.communication.jsr94.internal.Template2JavaClassAdaptor;
 import org.jamocha.communication.jsr94.internal.Template2JavaClassAdaptorException;
 import org.jamocha.communication.jsr94.internal.TemplateFromJavaClassTag;
 import org.jamocha.engine.AssertException;
+import org.jamocha.engine.Engine;
 import org.jamocha.engine.ExecuteException;
 import org.jamocha.engine.workingmemory.WorkingMemoryElement;
 import org.jamocha.engine.workingmemory.elements.Fact;
@@ -48,45 +49,23 @@ import org.jamocha.parser.RuleException;
  * @author Josef Alexander Hahn <http://www.josef-hahn.de>
  */
 @SuppressWarnings("unchecked")
-public class JamochaStatelessRuleSession implements StatelessRuleSession {
+public class JamochaStatelessRuleSession extends JamochaAbstractRuleSession implements StatelessRuleSession {
 
-	private final JamochaTransactionBasedSession session;
+	private final JamochaTransactionManager session;
 
 	private final RuleExecutionSet res;
 
 	private final String uri;
 
-	private final Map<Class, Template2JavaClassAdaptor> javaClassAdaptor;
-
 	protected Map properties;
-
-	protected Template2JavaClassAdaptor getJavaClassAdaptor(Class c) {
-		Template2JavaClassAdaptor res = javaClassAdaptor.get(c);
-		if (res == null) {
-			String templName = c.getCanonicalName();
-			Template t = session.getEngine().findTemplate(templName);
-			if (t == null)
-				return null;
-			Iterator<Tag> tags = t.getTags(TemplateFromJavaClassTag.class);
-			if (tags.hasNext()) {
-				TemplateFromJavaClassTag tfjct = (TemplateFromJavaClassTag) tags
-						.next();
-				Template2JavaClassAdaptor adaptor = tfjct.getAdaptor();
-				javaClassAdaptor.put(c, adaptor);
-				return adaptor;
-			}
-			return null;
-		}
-		return res;
-	}
 
 	public JamochaStatelessRuleSession(JamochaRuleExecutionSet res, String uri,
 			Map properties) {
-		session = new JamochaTransactionBasedSession();
+		super();
+		session = new JamochaTransactionManager();
 		this.res = res;
 		this.uri = uri;
 		this.properties = properties != null ? properties : new HashMap();
-		javaClassAdaptor = new HashMap<Class, Template2JavaClassAdaptor>();
 		try {
 			addRules(res);
 		} catch (EvaluationException e) {
@@ -95,14 +74,6 @@ public class JamochaStatelessRuleSession implements StatelessRuleSession {
 		}
 		session.commit();
 	}
-
-	private void addRules(JamochaRuleExecutionSet res2)
-			throws EvaluationException, RuleException {
-		Expression[] exprs = res2.getExpressions();
-		for (Expression e : exprs)
-			e.getValue(session.getEngine());
-	}
-
 	public List executeRules(List objects) throws InvalidRuleSessionException,
 			RemoteException {
 		ObjectFilter filter = null;
@@ -205,6 +176,11 @@ public class JamochaStatelessRuleSession implements StatelessRuleSession {
 
 	public void release() throws RemoteException, InvalidRuleSessionException {
 		session.release();
+	}
+
+	@Override
+	protected Engine getEngine() {
+		return session.getEngine();
 	}
 
 }

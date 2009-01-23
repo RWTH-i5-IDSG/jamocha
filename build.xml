@@ -40,7 +40,7 @@
 	</target>
 
 	<target name="compile" depends="init" description="Compile the jamocha main sources">
-		<javac srcdir="${src}" destdir="${bin}" encoding="UTF-8" classpathref="classpath" target="1.5" />
+		<javac srcdir="${src}" destdir="${bin}" encoding="UTF-8" classpathref="classpath" target="1.5" debug="yes" />
 		<!-- copy all files within the source directory (except the sources themselves)
 			to the bin directory. This is e.g. mandatory for the icons in the gui -->
 		<copy todir="${bin}">

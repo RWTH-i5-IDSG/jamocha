@@ -51,45 +51,23 @@ import org.jamocha.rules.Rule;
  * @author Josef Alexander Hahn <http://www.josef-hahn.de>
  */
 @SuppressWarnings("unchecked")
-public class JamochaStatefulRuleSession implements StatefulRuleSession {
+public class JamochaStatefulRuleSession extends JamochaAbstractRuleSession implements StatefulRuleSession{
 
 	private final RuleExecutionSet res;
 
 	private final String uri;
 
 	private Engine engine;
-	
-	private final Map<Class, Template2JavaClassAdaptor> javaClassAdaptor;
 
 	protected Map properties;
 
-	protected Template2JavaClassAdaptor getJavaClassAdaptor(Class c) {
-		Template2JavaClassAdaptor res = javaClassAdaptor.get(c);
-		if (res == null) {
-			String templName = c.getCanonicalName();
-			Template t = engine.findTemplate(templName);
-			if (t == null)
-				return null;
-			Iterator<Tag> tags = t.getTags(TemplateFromJavaClassTag.class);
-			if (tags.hasNext()) {
-				TemplateFromJavaClassTag tfjct = (TemplateFromJavaClassTag) tags
-						.next();
-				Template2JavaClassAdaptor adaptor = tfjct.getAdaptor();
-				javaClassAdaptor.put(c, adaptor);
-				return adaptor;
-			}
-			return null;
-		}
-		return res;
-	}
-
 	public JamochaStatefulRuleSession(JamochaRuleExecutionSet res, String uri,
 			Map properties) {
+		super();
 		engine = new Engine();
 		this.res = res;
 		this.uri = uri;
 		this.properties = properties != null ? properties : new HashMap();
-		javaClassAdaptor = new HashMap<Class, Template2JavaClassAdaptor>();
 		try {
 			addRules(res);
 		} catch (EvaluationException e) {
@@ -98,109 +76,6 @@ public class JamochaStatefulRuleSession implements StatefulRuleSession {
 		}
 	}
 
-	private void addRules(JamochaRuleExecutionSet res2)
-			throws EvaluationException, RuleException {
-		Expression[] exprs = res2.getExpressions();
-		for (Expression e : exprs)
-			e.getValue(engine);
-	}
-
-//	public List executeRules(List objects) throws InvalidRuleSessionException,
-//			RemoteException {
-//		ObjectFilter filter = null;
-//		if (res.getDefaultObjectFilter() != null) {
-//			Class<? extends ObjectFilter> defaultFilterClass;
-//			try {
-//				defaultFilterClass = (Class<? extends ObjectFilter>) Class
-//						.forName(res.getDefaultObjectFilter());
-//				filter = defaultFilterClass.newInstance();
-//			} catch (ClassNotFoundException e) {
-//				// TODO do something more nice with this exception
-//				e.printStackTrace();
-//			} catch (InstantiationException e) {
-//				// TODO do something more nice with this exception
-//				e.printStackTrace();
-//			} catch (IllegalAccessException e) {
-//				// TODO do something more nice with this exception
-//				e.printStackTrace();
-//			}
-//		}
-//		return executeRules(objects, filter);
-//	}
-
-//	public List executeRules(List objects, ObjectFilter filter)
-//			throws InvalidRuleSessionException, RemoteException {
-//		boolean onlyJavaObjects = true;
-//		{
-//			Object onlyJO = properties.get("only-java-objects");
-//			if (onlyJO != null && onlyJO instanceof Boolean
-//					&& !((Boolean) onlyJO))
-//				onlyJavaObjects = false;
-//		}
-//		// put facts into the engine
-//		for (Object o : objects)
-//			// TODO do something with the filter
-//			addObject(o);
-//
-//
-//		// fire rules
-//		try {
-//			engine.fire();
-//		} catch (ExecuteException e) {
-//			throw new InvalidRuleSessionException("error while firing rules", e);
-//		}
-//
-//		// collect facts and return them as a list
-//		List<Object> results = new LinkedList<Object>();
-//
-//		for (WorkingMemoryElement f : engine.getNet().getRoot()
-//				.memory()) {
-//			Iterator<Tag> itr = f.getFirstFact().getTemplate().getTags(
-//					TemplateFromJavaClassTag.class);
-//			if (itr.hasNext()) {
-//				TemplateFromJavaClassTag ttag = (TemplateFromJavaClassTag) itr
-//						.next();
-//				Class cl = ttag.getJavaClass();
-//				Object o = null;
-//				try {
-//					o = cl.newInstance();
-//				} catch (Exception e) {
-//					// TODO exception handling
-//				}
-//				try {
-//					ttag.getAdaptor().storeToObject(f.getFirstFact(), o,
-//							engine);
-//					results.add(o);
-//				} catch (Template2JavaClassAdaptorException e) {
-//					results.add(f);
-//				}
-//			} else if (!onlyJavaObjects)
-//				results.add(f);
-//		}
-//
-//		return results;
-//	}
-	
-	private Object fact2Object(Fact f) {
-		Iterator<Tag> itr = f.getFirstFact().getTemplate().getTags(TemplateFromJavaClassTag.class);
-		if (itr.hasNext()) {
-			TemplateFromJavaClassTag ttag = (TemplateFromJavaClassTag) itr.next();
-			Class cl = ttag.getJavaClass();
-			Object o = null;
-			try {
-				o = cl.newInstance();
-			} catch (Exception e) {
-				// TODO exception handling
-			}
-			try {
-				ttag.getAdaptor().storeToObject(f.getFirstFact(), o, engine);
-				return o;
-			} catch (Template2JavaClassAdaptorException e) {
-				return f;
-			}
-		}
-		return null;
-	}
 
 	public RuleExecutionSetMetadata getRuleExecutionSetMetadata()
 			throws InvalidRuleSessionException, RemoteException {
@@ -306,6 +181,11 @@ public class JamochaStatefulRuleSession implements StatefulRuleSession {
 			InvalidRuleSessionException, InvalidHandleException {
 		removeObject(arg0);
 		addObject(arg1);
+	}
+
+	@Override
+	protected Engine getEngine() {
+		return engine;
 	}
 
 }
