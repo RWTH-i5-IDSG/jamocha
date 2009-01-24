@@ -28,6 +28,7 @@ import org.jamocha.engine.configurations.SlotConfiguration;
 import org.jamocha.engine.functions.AbstractFunction;
 import org.jamocha.engine.functions.FunctionDescription;
 import org.jamocha.engine.workingmemory.elements.Deffact;
+import org.jamocha.engine.workingmemory.elements.Deftemplate;
 import org.jamocha.engine.workingmemory.elements.JavaFact;
 import org.jamocha.engine.workingmemory.elements.JavaTemplate;
 import org.jamocha.engine.workingmemory.elements.Template;
@@ -134,7 +135,7 @@ public class Assert extends AbstractFunction {
 				ac = (AssertConfiguration) params[i];
 				
 				Template t= engine.findTemplate(ac.getTemplateName());
-				if (t instanceof Deftemplate) {
+				if (t instanceof org.jamocha.engine.workingmemory.elements.Deftemplate) {
 					fact = (Deffact) engine.getModules().createFact(ac);
 					engine.assertFact(fact);
 					result = JamochaValue.newFactId(fact.getFactId());

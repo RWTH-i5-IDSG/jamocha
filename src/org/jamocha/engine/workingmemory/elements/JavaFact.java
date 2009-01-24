@@ -19,6 +19,7 @@ import org.jamocha.engine.workingmemory.elements.tags.TagIterator;
 import org.jamocha.formatter.Formatter;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.JamochaValue;
+import org.jamocha.parser.ParserFactory;
 
 public class JavaFact implements Fact {
 
@@ -216,17 +217,7 @@ public class JavaFact implements Fact {
 	}
 	
 	public String toString() {
-		StringBuilder sb = new StringBuilder();
-		sb.append( "["+t.getName()+";");
-		for (TemplateSlot field: t.getAllSlots()) {
-			try {
-				sb.append( field.getName() + "=" + this.getSlotValue(field.getId()) + ";" );
-			} catch (EvaluationException e) {
-				sb.append("an unevaluateable slot;");
-			}
-		}
-		sb.append("]");
-		return sb.toString();
+		return format(ParserFactory.getFormatter(true));
 	}
 
 }
