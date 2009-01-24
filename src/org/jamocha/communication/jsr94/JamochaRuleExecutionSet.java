@@ -18,6 +18,8 @@
 
 package org.jamocha.communication.jsr94;
 
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -25,6 +27,7 @@ import java.util.Map;
 
 import javax.rules.admin.RuleExecutionSet;
 
+import org.jamocha.engine.configurations.Signature;
 import org.jamocha.parser.Expression;
 
 /**
@@ -43,6 +46,8 @@ public class JamochaRuleExecutionSet implements RuleExecutionSet {
 	private final Expression[] exprs;
 	
 	private Map<Object,Object> properties;
+	
+	private FileWriter fw;
 
 	public JamochaRuleExecutionSet(String description, String name,
 			Expression[] exprs) {
@@ -50,6 +55,12 @@ public class JamochaRuleExecutionSet implements RuleExecutionSet {
 		this.name = name;
 		this.exprs = exprs;
 		this.properties = new HashMap<Object,Object>();
+		try {
+			fw = new FileWriter("/home/free-radical/foo");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	public String getDefaultObjectFilter() {
@@ -71,8 +82,14 @@ public class JamochaRuleExecutionSet implements RuleExecutionSet {
 	@SuppressWarnings("unchecked")
 	public List getRules() {
 		List result = new ArrayList(exprs.length);
-		for (Expression r : exprs)
-			result.add(r);
+		for (Expression r : exprs) {
+			if (r instanceof Signature) {
+				Signature s = (Signature)r;
+				if (s.getSignatureName().equals("defrule")) {
+					result.add( new JamochaRule(s) );
+				}
+			}
+		}
 		return result;
 	}
 

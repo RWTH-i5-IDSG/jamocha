@@ -49,8 +49,7 @@ public class JamochaRuleAdministrator implements RuleAdministrator {
 	}
 
 	@SuppressWarnings("unchecked")
-	public LocalRuleExecutionSetProvider getLocalRuleExecutionSetProvider(
-			Map properties) throws RemoteException {
+	public LocalRuleExecutionSetProvider getLocalRuleExecutionSetProvider(Map properties) throws RemoteException {
 		if (localREprov == null)
 			localREprov = new JamochaLocalRuleExecutionSetProvider();
 		return localREprov;

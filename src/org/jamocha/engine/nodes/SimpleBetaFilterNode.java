@@ -102,7 +102,7 @@ public class SimpleBetaFilterNode extends AbstractBetaFilterNode {
 		final Iterator<WorkingMemoryElement> i = memory().iterator();
 		while (i.hasNext()) {
 			final WorkingMemoryElement wme = i.next();
-			if (wme.getLastFact().equals(oldElem)) {
+			if (wme.getLastFact().getFactId()==oldElem.getFirstFact().getFactId()) {
 				i.remove();
 				propagateRemoval(wme);
 			}

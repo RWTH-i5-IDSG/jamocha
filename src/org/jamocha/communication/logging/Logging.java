@@ -18,11 +18,12 @@
 
 package org.jamocha.communication.logging;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
-
-import org.jamocha.engine.Engine;
 
 /**
  * @author Peter Lin
@@ -36,6 +37,49 @@ public class Logging {
 
 		private final Logger log;
 
+		
+//		File f;
+//		FileWriter fw;
+//		private JamochaLogger(final Logger log) {
+//			this.log = null;
+//			f = new File("/home/free-radical/jam.log"+log.getName());
+//			try {
+//				fw = new FileWriter(f,true);
+//			} catch (IOException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
+//		}
+//		public void debug(String msg)  {
+//			try {		fw.write(msg+"\n");fw.flush();	} catch (IOException e) {				e.printStackTrace();			}
+//		}
+//		public void info(String msg)  {
+//			try {		fw.write(msg+"\n");fw.flush();	} catch (IOException e) {				e.printStackTrace();			}
+//		}
+//		public void fatal(String msg)  {
+//			try {		fw.write(msg+"\n");fw.flush();	} catch (IOException e) {				e.printStackTrace();			}
+//		}
+//		public void warn(String msg)  {
+//			try {		fw.write(msg+"\n");fw.flush();	} catch (IOException e) {				e.printStackTrace();			}
+//		}
+//		public void debug(Exception e)  {
+//			debug(e.getMessage());
+//		}
+//		public void info(Exception e)  {
+//			debug(e.getMessage());
+//		}
+//		public void fatal(Exception e)  {
+//			debug(e.getMessage());
+//		}
+//		public void warn(Exception e)  {
+//			debug(e.getMessage());
+//		}
+
+		
+		
+		
+		
+		
 		private JamochaLogger(final Logger log) {
 			this.log = log;
 		}

@@ -31,7 +31,10 @@ public class ModifyConfiguration extends AbstractConfiguration {
 	public Object clone() {
 		ModifyConfiguration mc = new ModifyConfiguration();
 		mc.factBinding = factBinding;
-		mc.slots = slots;
+		mc.slots = new SlotConfiguration[slots.length];
+		for (int i=0 ; i < slots.length; i++) {
+			mc.slots[i] = (SlotConfiguration)( slots[i].clone() );
+		}
 		return mc;
 	}
 

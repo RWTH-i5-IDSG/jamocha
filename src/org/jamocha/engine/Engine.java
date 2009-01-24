@@ -669,37 +669,9 @@ public class Engine implements Dumpable {
 	 * This method is explicitly used to assert facts.
 	 */
 	public void assertFact(Fact o) throws AssertException {
-		if (temporalStrategy.equals("TRIGGER_FACT") && o.getTemporalValidity()!=null) {
-			
+		if (o.getTemporalValidity()!=null) {
 				temporalFactThread.insertFact(o);
-				
-		} else if (temporalStrategy.equals("TIME_FACT") && o.getTemporalValidity()!= null) {
-			/*
-			 * (assert (wurst (temporal-validity (duration 1) (second 20) ) (name "bratwurst" ))
-			 *
-			 *          ===>
-			 *			 
-			 * (assert
-			 *	 (temporal-fact-container
-			 *	 	(next_event_point 3235345346356)
-			 *		(type START) ;START|STOP|WINDOW_EXCEEDED
-			 *		(fact (wurst...) )
-			 *	 )
-			 * )
-			 */
-			Template containerTemplate = findModule("MAIN").getTemplate("temporal-fact-container");
-			Slot[] slots = new Slot[3];
-			Date dNow = new Date();
-			long now = dNow.getTime(); 
-			EventPoint nextEp = o.getTemporalValidity().getNextEvent(now);
-			slots[0] = new Slot("next_event_point", JamochaValue.newLong(nextEp.getTimestamp()));
-			slots[1] = new Slot("ep_type", JamochaValue.newString(nextEp.getType().toString()));
-			slots[2] = new Slot("fact", JamochaValue.newObject(o));
-			slots[0].setId(0);	slots[1].setId(1);	slots[2].setId(2);
-			Fact container = new Deffact(containerTemplate,slots);
-			hardAssertFact(container);			
-		}
-		else {
+		} else {
 			hardAssertFact(o);
 		}
 		
@@ -782,6 +754,11 @@ public class Engine implements Dumpable {
 				hardRetractFact(old);
 				modifiedFact.updateSlots(this, mc.getSlots());
 				hardAssertFact(modifiedFact);
+				String msg="modified a "+old.getTemplate().getName()+":";
+				for (SlotConfiguration sc : mc.getSlots()) {
+					msg+=sc.getSlotName()+"="+sc.getValue(this)+";";
+				}
+				Logging.logger(this.getClass()).debug(msg);
 			}
 		}
 	}

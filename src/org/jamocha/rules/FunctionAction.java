@@ -73,12 +73,6 @@ public class FunctionAction implements Action {
 		this.parameters = params;
 	}
 	
-	protected void substituteBoundParams(List<Parameter> params,TerminalNode tnode, FactTuple tuple) {
-		Parameter p[] = new Parameter[params.size()];
-		for(int i=0;i< params.size();i++) p[i] = params.get(i);
-		substituteBoundParams(p, tnode, tuple);
-		for(int i=0;i< params.size();i++) params.set(i,p[i]);
-	}
 	
 	protected void substituteBoundParams(Parameter[] params,TerminalNode tnode, FactTuple tuple) {
 		/*

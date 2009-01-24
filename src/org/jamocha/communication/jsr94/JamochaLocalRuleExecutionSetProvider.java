@@ -20,6 +20,7 @@ package org.jamocha.communication.jsr94;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
@@ -45,12 +46,12 @@ public class JamochaLocalRuleExecutionSetProvider implements
 		LocalRuleExecutionSetProvider {
 
 	@SuppressWarnings("unchecked")
-	public RuleExecutionSet createRuleExecutionSet(InputStream istream,
+	public RuleExecutionSet createRuleExecutionSet(Reader r,
 			Map properties) throws RuleExecutionSetCreateException, IOException {
 
 		try {
 			DOMParser domparser = new DOMParser();
-			domparser.parse(new InputSource(istream));
+			domparser.parse(new InputSource(r));
 			Document doc = domparser.getDocument();
 
 			Element root = doc.getDocumentElement();
@@ -84,15 +85,13 @@ public class JamochaLocalRuleExecutionSetProvider implements
 	}
 
 	@SuppressWarnings("unchecked")
-	public RuleExecutionSet createRuleExecutionSet(Reader reader, Map properties)
-			throws RuleExecutionSetCreateException, IOException {
-		// TODO Auto-generated method stub
-		return null;
+	public RuleExecutionSet createRuleExecutionSet(InputStream i, Map properties) throws RuleExecutionSetCreateException, IOException {
+		InputStreamReader r = new InputStreamReader(i);
+		return createRuleExecutionSet(r, properties);
 	}
 
 	@SuppressWarnings("unchecked")
-	public RuleExecutionSet createRuleExecutionSet(Object object, Map properties)
-			throws RuleExecutionSetCreateException {
+	public RuleExecutionSet createRuleExecutionSet(Object object, Map properties) throws RuleExecutionSetCreateException {
 		// TODO Auto-generated method stub
 		return null;
 	}

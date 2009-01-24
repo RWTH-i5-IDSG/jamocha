@@ -49,6 +49,11 @@ public class SlotConfiguration extends AbstractConfiguration {
 		return false;
 	}
 
+	
+	public SlotConfiguration clone() {
+		SlotConfiguration sc = new SlotConfiguration(slotName,id, slotValues.clone());
+		return sc;
+	}
 	/*
 	 * (non-Javadoc)
 	 * 

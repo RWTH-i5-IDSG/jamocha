@@ -21,6 +21,11 @@ package org.jamocha.communication.jsr94;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.rules.RuleException;
+
+import org.jamocha.engine.configurations.DefruleConfiguration;
+import org.jamocha.engine.configurations.Signature;
+
 /**
  * @author Josef Alexander Hahn <http://www.josef-hahn.de>
  */
@@ -31,21 +36,24 @@ public class JamochaRule implements javax.rules.admin.Rule {
 
 	private static final long serialVersionUID = 1L;
 
-	private final org.jamocha.rules.Rule rule;
+	private final Signature rule;
 	
 	private Map<Object,Object> properties;
 
-	public JamochaRule(org.jamocha.rules.Rule rule) {
+	public JamochaRule(Signature rule) {
 		this.rule = rule;
 		properties = new HashMap<Object, Object>();
 	}
 
 	public String getDescription() {
-		return rule.getDescription();
+		DefruleConfiguration drc = ((DefruleConfiguration)rule.getParameters()[0]);
+		String desc = drc.getRuleDescription();
+		return (desc!=null) ? desc : "";
 	}
 
 	public String getName() {
-		return rule.getName();
+		DefruleConfiguration drc = ((DefruleConfiguration)rule.getParameters()[0]);
+		return drc.getRuleName();
 	}
 
 	public Object getProperty(Object arg0) {

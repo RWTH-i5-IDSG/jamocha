@@ -37,17 +37,22 @@ import org.jamocha.engine.AssertException;
 import org.jamocha.engine.Engine;
 import org.jamocha.engine.ExecuteException;
 import org.jamocha.engine.RetractException;
+import org.jamocha.engine.functions.FunctionNotFoundException;
 import org.jamocha.engine.workingmemory.elements.Deffact;
 import org.jamocha.engine.workingmemory.elements.Fact;
 import org.jamocha.engine.workingmemory.elements.JavaFact;
 import org.jamocha.parser.EvaluationException;
+import org.jamocha.parser.Expression;
+import org.jamocha.parser.RuleException;
 import org.jamocha.rules.Rule;
+
+import com.sun.org.apache.bcel.internal.Constants;
 
 /**
  * @author Josef Alexander Hahn <http://www.josef-hahn.de>
  */
 @SuppressWarnings("unchecked")
-public class JamochaStatefulRuleSession extends JamochaAbstractRuleSession implements StatefulRuleSession{
+public class JamochaStatefulRuleSession implements StatefulRuleSession{
 
 	private final RuleExecutionSet res;
 
@@ -67,11 +72,15 @@ public class JamochaStatefulRuleSession extends JamochaAbstractRuleSession imple
 		try {
 			addRules(res);
 		} catch (EvaluationException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 
+	protected void addRules(JamochaRuleExecutionSet res2) throws EvaluationException, RuleException {
+		Expression[] exprs = res2.getExpressions();
+		for (Expression e : exprs)
+			e.getValue(getEngine());
+	}
 
 	public RuleExecutionSetMetadata getRuleExecutionSetMetadata()
 			throws InvalidRuleSessionException, RemoteException {
@@ -129,7 +138,8 @@ public class JamochaStatefulRuleSession extends JamochaAbstractRuleSession imple
 	public List getHandles() throws RemoteException, InvalidRuleSessionException {
 		List result = new ArrayList();
 		for (Fact f : engine.getModules().getAllFacts()) {
-			result.add(new JamochaFactHandle(f.getFactId()));
+			if (!(f instanceof Deffact))
+				result.add(new JamochaFactHandle(f.getFactId()));
 		}
 		return result;
 	}
@@ -152,7 +162,8 @@ public class JamochaStatefulRuleSession extends JamochaAbstractRuleSession imple
 		for (Object h : getHandles() ){
 			JamochaFactHandle fh = (JamochaFactHandle) h;
 			try {
-				result.add( getObject(fh) );
+				if (!(getObject(fh) instanceof Deffact))
+					result.add( getObject(fh) );
 			} catch (InvalidHandleException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -165,7 +176,8 @@ public class JamochaStatefulRuleSession extends JamochaAbstractRuleSession imple
 		List result = new ArrayList();
 		List all = getObjects();
 		for ( Object o : all) {
-			result.add( arg0.filter(o) );
+			Object r = arg0.filter(o);
+			if (r!=null) result.add(r);
 		}
 		return result;
 	}
@@ -180,6 +192,7 @@ public class JamochaStatefulRuleSession extends JamochaAbstractRuleSession imple
 
 	public void reset() throws RemoteException, InvalidRuleSessionException {
 		for (Fact f : getEngine().getModules().getAllFacts()) {
+			if (f.getTemplate().getName().equals(org.jamocha.Constants.INITIAL_FACT)) continue;
 			try {
 				getEngine().retractFact(f);
 			} catch (RetractException e) {
@@ -195,7 +208,6 @@ public class JamochaStatefulRuleSession extends JamochaAbstractRuleSession imple
 		addObject(arg1,id);
 	}
 
-	@Override
 	protected Engine getEngine() {
 		return engine;
 	}

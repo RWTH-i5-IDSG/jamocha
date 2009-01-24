@@ -42,108 +42,45 @@ import org.jamocha.engine.workingmemory.elements.Fact;
 import org.jamocha.engine.workingmemory.elements.JavaFact;
 import org.jamocha.engine.workingmemory.elements.tags.Tag;
 import org.jamocha.parser.EvaluationException;
+import org.jamocha.parser.Expression;
+import org.jamocha.parser.RuleException;
 
 /**
  * @author Josef Alexander Hahn <http://www.josef-hahn.de>
  */
 @SuppressWarnings("unchecked")
-public class JamochaStatelessRuleSession extends JamochaAbstractRuleSession implements StatelessRuleSession {
+public class JamochaStatelessRuleSession implements StatelessRuleSession {
 
-	private final JamochaTransactionManager session;
+	private JamochaStatefulRuleSession statefulSession;
 
-	private final RuleExecutionSet res;
 
-	private final String uri;
-
-	protected Map properties;
-
-	public JamochaStatelessRuleSession(JamochaRuleExecutionSet res, String uri,
-			Map properties) {
-		super();
-		session = new JamochaTransactionManager();
-		this.res = res;
-		this.uri = uri;
-		this.properties = properties != null ? properties : new HashMap();
-		try {
-			addRules(res);
-		} catch (EvaluationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		session.commit();
-	}
-	public List executeRules(List objects) throws InvalidRuleSessionException,
-			RemoteException {
-		ObjectFilter filter = null;
-		if (res.getDefaultObjectFilter() != null) {
-			Class<? extends ObjectFilter> defaultFilterClass;
-			try {
-				defaultFilterClass = (Class<? extends ObjectFilter>) Class
-						.forName(res.getDefaultObjectFilter());
-				filter = defaultFilterClass.newInstance();
-			} catch (ClassNotFoundException e) {
-				// TODO do something more nice with this exception
-				e.printStackTrace();
-			} catch (InstantiationException e) {
-				// TODO do something more nice with this exception
-				e.printStackTrace();
-			} catch (IllegalAccessException e) {
-				// TODO do something more nice with this exception
-				e.printStackTrace();
-			}
-		}
-		return executeRules(objects, filter);
+	public JamochaStatelessRuleSession(JamochaRuleExecutionSet ruleExecutionSet, String uri, Map properties) {
+		statefulSession = new JamochaStatefulRuleSession(ruleExecutionSet, uri, properties);
 	}
 
-	public List executeRules(List objects, ObjectFilter filter)
-			throws InvalidRuleSessionException, RemoteException {
-		boolean onlyJavaObjects = true;
+	public List executeRules(List arg0) throws InvalidRuleSessionException,	RemoteException {
+		statefulSession.addObjects(arg0);
+		statefulSession.executeRules();
+		List result = statefulSession.getObjects();
+		statefulSession.reset();
+		return result;
+	}
+
+	public List executeRules(List arg0, ObjectFilter arg1) throws InvalidRuleSessionException, RemoteException {
+		for (Object o: arg0)
 		{
-			Object onlyJO = properties.get("only-java-objects");
-			if (onlyJO != null && onlyJO instanceof Boolean
-					&& !((Boolean) onlyJO))
-				onlyJavaObjects = false;
+			Object r = arg1.filter(o);
+			if (r == null) continue;
+			statefulSession.addObject(r);
 		}
-		// put facts into the engine
-		for (Object o : objects)
-			// TODO do something with the filter
-			try {
-				if (o instanceof Fact)
-					session.getEngine().assertFact((Fact) o);
-				else {
-					session.getEngine().assertFact(new JavaFact(o,getEngine()));
-				}
-			} catch (AssertException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			
-		// fire rules
-		try {
-			session.getEngine().fire();
-		} catch (ExecuteException e) {
-			throw new InvalidRuleSessionException("error while firing rules", e);
-		}
-
-		// collect facts and return them as a list
-		List<Object> results = new LinkedList<Object>();
-
-		for (WorkingMemoryElement f : session.getEngine().getModules().getAllFacts()) {
-			if (f instanceof Deffact) {
-				if (!onlyJavaObjects) results.add(f);
-			} else if (f instanceof JavaFact) {
-				results.add(((JavaFact)f).getObject());
-			}
-		}
-
-		// rollback session since we make stateless rule evaluation here
-		session.rollback();
-		return results;
+		statefulSession.executeRules();
+		List result = statefulSession.getObjects();
+		statefulSession.reset();
+		return result;
 	}
 
-	public RuleExecutionSetMetadata getRuleExecutionSetMetadata()
-			throws InvalidRuleSessionException, RemoteException {
-		return new JamochaRuleExecutionSetMetadata(res, uri);
+	public RuleExecutionSetMetadata getRuleExecutionSetMetadata()throws InvalidRuleSessionException, RemoteException {
+		return statefulSession.getRuleExecutionSetMetadata();
 	}
 
 	public int getType() throws RemoteException, InvalidRuleSessionException {
@@ -151,12 +88,9 @@ public class JamochaStatelessRuleSession extends JamochaAbstractRuleSession impl
 	}
 
 	public void release() throws RemoteException, InvalidRuleSessionException {
-		session.release();
+		statefulSession.release();
+		statefulSession = null;
 	}
 
-	@Override
-	protected Engine getEngine() {
-		return session.getEngine();
-	}
 
 }
