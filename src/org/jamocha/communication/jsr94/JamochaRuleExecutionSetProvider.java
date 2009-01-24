@@ -18,59 +18,55 @@
 
 package org.jamocha.communication.jsr94;
 
+import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.io.Serializable;
 import java.io.StringReader;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import javax.rules.admin.LocalRuleExecutionSetProvider;
 import javax.rules.admin.RuleExecutionSet;
 import javax.rules.admin.RuleExecutionSetCreateException;
+import javax.rules.admin.RuleExecutionSetProvider;
 
 import org.jamocha.languages.clips.parser.SFPParser;
 import org.jamocha.parser.Expression;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
 
-//TODO com.sun.org.apache.xerces.internal.parsers.DOMParser is Sun proprietary API and may be removed in a future release
 import com.sun.org.apache.xerces.internal.parsers.DOMParser;
 
 /**
  * @author Josef Alexander Hahn <http://www.josef-hahn.de>
  */
-public class JamochaLocalRuleExecutionSetProvider implements LocalRuleExecutionSetProvider {
+public class JamochaRuleExecutionSetProvider implements	RuleExecutionSetProvider {
 
-	static RuleExecutionSet createRuleExecutionSetAutoprobe(Reader r, Map properties) throws IOException, RuleExecutionSetCreateException {
-		DOMParser domparser = new DOMParser();
-		try {
-			domparser.parse(new InputSource(r));
-		} catch (SAXException e) {
-			throw new RuleExecutionSetCreateException("error while parsing");
-		}
-		Document doc = domparser.getDocument();
-		Element root = doc.getDocumentElement();
-		return createRuleExecutionSetFromXML(root, properties);
-	}
-	
 	@SuppressWarnings("unchecked")
-	static RuleExecutionSet createRuleExecutionSetFromXML(Element root,
+	public RuleExecutionSet createRuleExecutionSet(Reader r,
 			Map properties) throws RuleExecutionSetCreateException, IOException {
 
 		try {
-			String name = root.getElementsByTagName("name").item(0).getChildNodes().item(0).getNodeValue();
-			String description = root.getElementsByTagName("description").item(0).getChildNodes().item(0).getNodeValue();
-			String code = root.getElementsByTagName("code").item(0).getChildNodes().item(0).getNodeValue();
+			DOMParser domparser = new DOMParser();
+			domparser.parse(new InputSource(r));
+			Document doc = domparser.getDocument();
 
-			System.out.println(name);
-			System.out.println(description);
-			System.out.println(code);
-			
+			Element root = doc.getDocumentElement();
+			String name = root.getElementsByTagName("name").item(0)
+					.getTextContent();
+			String description = root.getElementsByTagName("description").item(
+					0).getTextContent();
+			String code = root.getElementsByTagName("code").item(0)
+					.getTextContent();
+
 			// TODO: here, sfp parser is hardcoded now
 			SFPParser sfpparser = new SFPParser(new StringReader(code));
 			Expression e;
@@ -100,13 +96,31 @@ public class JamochaLocalRuleExecutionSetProvider implements LocalRuleExecutionS
 	}
 
 	@SuppressWarnings("unchecked")
-	public RuleExecutionSet createRuleExecutionSet(Object object, Map properties) throws RuleExecutionSetCreateException {
+	public RuleExecutionSet createRuleExecutionSet(Serializable object, Map properties) throws RuleExecutionSetCreateException {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	public RuleExecutionSet createRuleExecutionSet(Reader r, Map properties)	throws RuleExecutionSetCreateException, IOException {
-		return createRuleExecutionSetAutoprobe(r, properties);
+	public RuleExecutionSet createRuleExecutionSet(Element root, Map properties)	throws RuleExecutionSetCreateException, RemoteException {
+		try {
+			return JamochaLocalRuleExecutionSetProvider.createRuleExecutionSetFromXML(root, properties);
+		} catch (IOException e) {
+			throw new RuleExecutionSetCreateException("error while reading",e);
+		}
+	}
+
+	public RuleExecutionSet createRuleExecutionSet(String url, Map properties)throws RuleExecutionSetCreateException, IOException,	RemoteException {
+		URL sourceUrl = new URL(url);
+		Reader r=null;
+		if (sourceUrl.getProtocol().equals("file")) {
+			try {
+				r = new FileReader(new File(sourceUrl.toURI()));
+			} catch (URISyntaxException e) {
+				throw new RuleExecutionSetCreateException("wrong url syntax",e);
+			}
+		} else
+			throw new RuleExecutionSetCreateException(sourceUrl.getProtocol()+" protocol is not supported");
+		return JamochaLocalRuleExecutionSetProvider.createRuleExecutionSetAutoprobe(r, properties);
 	}
 
 }

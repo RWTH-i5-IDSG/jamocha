@@ -18,8 +18,7 @@
 
 package org.jamocha.communication.jsr94;
 
-import java.io.FileWriter;
-import java.io.IOException;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -47,20 +46,12 @@ public class JamochaRuleExecutionSet implements RuleExecutionSet {
 	
 	private Map<Object,Object> properties;
 	
-	private FileWriter fw;
-
 	public JamochaRuleExecutionSet(String description, String name,
 			Expression[] exprs) {
 		this.description = description;
 		this.name = name;
 		this.exprs = exprs;
 		this.properties = new HashMap<Object,Object>();
-		try {
-			fw = new FileWriter("/home/free-radical/foo");
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 	}
 
 	public String getDefaultObjectFilter() {

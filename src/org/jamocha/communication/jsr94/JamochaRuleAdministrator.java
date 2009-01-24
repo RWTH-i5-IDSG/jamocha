@@ -35,7 +35,9 @@ public class JamochaRuleAdministrator implements RuleAdministrator {
 
 	private final JamochaRuleExecutionSetMap ruleExecutionSets;
 
-	private JamochaLocalRuleExecutionSetProvider localREprov;
+	private JamochaLocalRuleExecutionSetProvider localRuleExecSetprovider;
+	
+	private JamochaRuleExecutionSetProvider ruleExecSetprovider;
 
 	public JamochaRuleAdministrator(JamochaRuleExecutionSetMap ruleExecutionSets) {
 		super();
@@ -50,16 +52,16 @@ public class JamochaRuleAdministrator implements RuleAdministrator {
 
 	@SuppressWarnings("unchecked")
 	public LocalRuleExecutionSetProvider getLocalRuleExecutionSetProvider(Map properties) throws RemoteException {
-		if (localREprov == null)
-			localREprov = new JamochaLocalRuleExecutionSetProvider();
-		return localREprov;
+		if (localRuleExecSetprovider == null)
+			localRuleExecSetprovider = new JamochaLocalRuleExecutionSetProvider();
+		return localRuleExecSetprovider;
 	}
 
 	@SuppressWarnings("unchecked")
-	public RuleExecutionSetProvider getRuleExecutionSetProvider(Map properties)
-			throws RemoteException {
-		// TODO: implement it
-		return null;
+	public RuleExecutionSetProvider getRuleExecutionSetProvider(Map properties)	throws RemoteException {
+		if (ruleExecSetprovider == null)
+			ruleExecSetprovider = new JamochaRuleExecutionSetProvider();
+		return ruleExecSetprovider;
 	}
 
 	@SuppressWarnings("unchecked")
