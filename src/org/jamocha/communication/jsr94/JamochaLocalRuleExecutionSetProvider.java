@@ -31,14 +31,19 @@ import javax.rules.admin.LocalRuleExecutionSetProvider;
 import javax.rules.admin.RuleExecutionSet;
 import javax.rules.admin.RuleExecutionSetCreateException;
 
+import org.jamocha.communication.logging.Logging;
+import org.jamocha.engine.configurations.Signature;
+import org.jamocha.engine.functions.ruleengine.JsrRulesetDescription;
+import org.jamocha.engine.functions.ruleengine.JsrRulesetName;
+import org.jamocha.languages.clips.parser.ParseException;
 import org.jamocha.languages.clips.parser.SFPParser;
+import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.Expression;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-//TODO com.sun.org.apache.xerces.internal.parsers.DOMParser is Sun proprietary API and may be removed in a future release
 import com.sun.org.apache.xerces.internal.parsers.DOMParser;
 
 /**
@@ -47,15 +52,83 @@ import com.sun.org.apache.xerces.internal.parsers.DOMParser;
 public class JamochaLocalRuleExecutionSetProvider implements LocalRuleExecutionSetProvider {
 
 	static RuleExecutionSet createRuleExecutionSetAutoprobe(Reader r, Map properties) throws IOException, RuleExecutionSetCreateException {
-		DOMParser domparser = new DOMParser();
-		try {
-			domparser.parse(new InputSource(r));
-		} catch (SAXException e) {
-			throw new RuleExecutionSetCreateException("error while parsing");
+		RuleExecutionSet res=null;
+		/*
+		 * TODO: for the auto probing, we read the whole content into a string
+		 * at the moment. when we have that string, we can decide whether it
+		 * is a xml or a plain clp.
+		 * maybe it would make sense to make that better (a new reader subclass
+		 * for it, which avoids reading the complete input beforehead)
+		 */
+		StringBuilder sb = new StringBuilder();
+		int read;
+		char[] buffer = new char[1000];
+		while ( (read = r.read(buffer, 0, buffer.length)) > 0) {
+			sb.append(buffer, 0, read);
 		}
-		Document doc = domparser.getDocument();
-		Element root = doc.getDocumentElement();
-		return createRuleExecutionSetFromXML(root, properties);
+		String content = sb.toString().trim();
+		if (content.startsWith("<?xml ")){
+			// content is XML
+			DOMParser domparser = new DOMParser();
+			try {
+				domparser.parse(new InputSource( new StringReader(content) ));
+			} catch (SAXException e) {
+				throw new RuleExecutionSetCreateException("error while parsing");
+			}
+			Document doc = domparser.getDocument();
+			Element root = doc.getDocumentElement();
+			res =  createRuleExecutionSetFromXML(root, properties);
+		} else {
+			// content is CLIPS-code
+			res= createRuleExecutionSetFromCLIPS(content, properties, null, null,true);
+		}
+		return res;
+	}
+	
+	static RuleExecutionSet createRuleExecutionSetFromCLIPS(String code, Map properties, String name, String description, boolean parseForNameAndDesc) throws RuleExecutionSetCreateException {
+		// TODO: here, sfp parser is hardcoded now
+		
+		SFPParser sfpparser = new SFPParser(new StringReader(code));
+		Expression e;
+
+		List<Expression> _drcs = new ArrayList<Expression>();
+		try {
+			while ((e = sfpparser.nextExpression()) != null) 
+			{
+				_drcs.add(e);
+				if (parseForNameAndDesc) {
+					if (e instanceof Signature) {
+						Signature s = (Signature) e;
+						if (s.getSignatureName().equals(JsrRulesetDescription.NAME)) {
+							try {
+								name = s.getParameters()[0].getValue(null).getStringValue();
+							} catch (EvaluationException e1) {
+								Logging.logger(RuleExecutionSet.class).warn("error retrieving rule execution set's name");
+							}
+						} else if (s.getSignatureName().equals(JsrRulesetName.NAME)) {
+							try {
+								description = s.getParameters()[0].getValue(null).getStringValue();
+							} catch (EvaluationException e1) {
+								Logging.logger(RuleExecutionSet.class).warn("error retrieving rule execution set's description");
+							}
+						}
+						if (name != null && description != null) parseForNameAndDesc = false; // just optimization
+					}
+				}
+			}
+		} catch (ParseException e1) {
+			throw new RuleExecutionSetCreateException("error while parsing",e1);
+		}
+
+		Expression[] expressions = new Expression[_drcs.size()];
+		expressions = _drcs.toArray(expressions);
+
+		if (description == null) description = "";
+		if (name == null) name = "ruleset-"+(int)(10000.*Math.random());
+
+		RuleExecutionSet res = new JamochaRuleExecutionSet(description,	name, expressions);
+
+		return res;
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -67,24 +140,8 @@ public class JamochaLocalRuleExecutionSetProvider implements LocalRuleExecutionS
 			String description = root.getElementsByTagName("description").item(0).getChildNodes().item(0).getNodeValue();
 			String code = root.getElementsByTagName("code").item(0).getChildNodes().item(0).getNodeValue();
 
-			System.out.println(name);
-			System.out.println(description);
-			System.out.println(code);
+			RuleExecutionSet res = createRuleExecutionSetFromCLIPS(code, properties, name, description, false);
 			
-			// TODO: here, sfp parser is hardcoded now
-			SFPParser sfpparser = new SFPParser(new StringReader(code));
-			Expression e;
-
-			List<Expression> _drcs = new ArrayList<Expression>();
-			while ((e = sfpparser.nextExpression()) != null)
-				_drcs.add(e);
-
-			Expression[] expressions = new Expression[_drcs.size()];
-			expressions = _drcs.toArray(expressions);
-
-			RuleExecutionSet res = new JamochaRuleExecutionSet(description,
-					name, expressions);
-
 			return res;
 
 		} catch (Exception ex) {

@@ -102,6 +102,8 @@ public class RuleEngineFunctions extends FunctionGroup {
 		addFunction(functionMem, new View());
 		addFunction(functionMem, new TextView());
 		addFunction(functionMem, new Watch());
+		addFunction(functionMem, new JsrRulesetDescription());
+		addFunction(functionMem, new JsrRulesetName());
 	}
 
 }
