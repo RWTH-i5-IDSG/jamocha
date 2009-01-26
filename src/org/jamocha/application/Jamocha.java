@@ -22,6 +22,8 @@ package org.jamocha.application;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.swing.UIManager;
+
 import org.jamocha.application.gui.JamochaGui;
 import org.jamocha.communication.BatchThread;
 import org.jamocha.engine.Engine;
@@ -192,6 +194,11 @@ public class Jamocha {
 	 */
 	public void startGui() {
 		if (jamochaGui == null) {
+			try{ 
+				UIManager.setLookAndFeel( UIManager.getSystemLookAndFeelClassName() ); 
+			}catch( Exception e ){
+				e.printStackTrace();
+			}
 			jamochaGui = new JamochaGui(engine, batchThread);
 			Thread guiThread = new Thread("GUI Thread") {
 
