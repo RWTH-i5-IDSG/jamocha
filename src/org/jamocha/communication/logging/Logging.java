@@ -43,24 +43,23 @@ public class Logging {
 //		private JamochaLogger(final Logger log) {
 //			this.log = null;
 //			f = new File("/home/free-radical/jam.log"+log.getName());
-//			try {
-//				fw = new FileWriter(f,true);
-//			} catch (IOException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
+//		}
+//		public void write(String msg) throws IOException {
+//			FileWriter fw = new FileWriter(f,true);
+//			fw.write(msg+"\n");
+//			fw.close();
 //		}
 //		public void debug(String msg)  {
-//			try {		fw.write(msg+"\n");fw.flush();	} catch (IOException e) {				e.printStackTrace();			}
+//			try {		write(msg);	} catch (IOException e) {				e.printStackTrace();			}
 //		}
 //		public void info(String msg)  {
-//			try {		fw.write(msg+"\n");fw.flush();	} catch (IOException e) {				e.printStackTrace();			}
+//			try {		write(msg);	} catch (IOException e) {				e.printStackTrace();			}
 //		}
 //		public void fatal(String msg)  {
-//			try {		fw.write(msg+"\n");fw.flush();	} catch (IOException e) {				e.printStackTrace();			}
+//			try {		write(msg);	} catch (IOException e) {				e.printStackTrace();			}
 //		}
 //		public void warn(String msg)  {
-//			try {		fw.write(msg+"\n");fw.flush();	} catch (IOException e) {				e.printStackTrace();			}
+//			try {		write(msg);	} catch (IOException e) {				e.printStackTrace();			}
 //		}
 //		public void debug(Exception e)  {
 //			debug(e.getMessage());

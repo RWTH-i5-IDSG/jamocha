@@ -50,6 +50,7 @@ import org.jamocha.engine.configurations.Signature;
 import org.jamocha.engine.configurations.SlotConfiguration;
 import org.jamocha.engine.functions.FunctionMemory;
 import org.jamocha.engine.functions.FunctionMemoryImpl;
+import org.jamocha.engine.functions.FunctionNotFoundException;
 import org.jamocha.engine.modules.Module;
 import org.jamocha.engine.modules.Modules;
 import org.jamocha.engine.rules.rulecompiler.CompileRuleException;
@@ -374,6 +375,11 @@ public class Engine implements Dumpable {
 	 * @throws ExecuteException
 	 */
 	public int fire() throws ExecuteException {
+		Logging.logger(this.getClass()).debug("Starting firing engine with "+getCurrentFocus().getRuleCount()+" rules and "+getModules().getAllFacts().size()+" facts and "+getAgendas().getAgenda(getCurrentFocus()).getActivations().size()+" activations.");
+		Logging.logger(this.getClass()).debug("facts are from:");
+		for (Fact f : getModules().getAllFacts()) {
+			Logging.logger(this.getClass()).debug(f.getTemplate().getName()+" ("+f.getClass().getSimpleName()+")");
+		}
 		return agendas.fireFocus();
 	}
 

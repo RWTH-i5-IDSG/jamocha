@@ -113,11 +113,7 @@ public class JamochaRuleExecutionSetProvider implements	RuleExecutionSetProvider
 		URL sourceUrl = new URL(url);
 		Reader r=null;
 		if (sourceUrl.getProtocol().equals("file")) {
-			try {
-				r = new FileReader(new File(sourceUrl.toURI()));
-			} catch (URISyntaxException e) {
-				throw new RuleExecutionSetCreateException("wrong url syntax",e);
-			}
+			r = new FileReader(new File(sourceUrl.getFile() ));
 		} else
 			throw new RuleExecutionSetCreateException(sourceUrl.getProtocol()+" protocol is not supported");
 		return JamochaLocalRuleExecutionSetProvider.createRuleExecutionSetAutoprobe(r, properties);

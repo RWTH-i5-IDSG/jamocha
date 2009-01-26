@@ -18,12 +18,20 @@
 
 package org.jamocha.engine.nodes;
 
+import java.util.logging.Logger;
+
 import org.jamocha.application.gui.retevisualisation.NodeDrawer;
 import org.jamocha.application.gui.retevisualisation.nodedrawers.ObjectTypeNodeDrawer;
+import org.jamocha.communication.logging.Logging;
 import org.jamocha.engine.Engine;
 import org.jamocha.engine.ReteNet;
 import org.jamocha.engine.workingmemory.WorkingMemory;
 import org.jamocha.engine.workingmemory.WorkingMemoryElement;
+import org.jamocha.engine.workingmemory.elements.Deffact;
+import org.jamocha.engine.workingmemory.elements.Deftemplate;
+import org.jamocha.engine.workingmemory.elements.Fact;
+import org.jamocha.engine.workingmemory.elements.JavaFact;
+import org.jamocha.engine.workingmemory.elements.JavaTemplate;
 import org.jamocha.engine.workingmemory.elements.Template;
 
 /**
@@ -54,23 +62,46 @@ public class ObjectTypeNode extends OneInputNode {
 	public ObjectTypeNode(Engine e, Template template) {
 		this(e.getNet().nextNodeId(), e.getWorkingMemory(), e.getNet(), template);
 	}
-	
+
+	//TODO: this logic should be in the template- and/or fact-classes
+	private boolean eval(Fact f) {
+		if (template instanceof Deftemplate) {
+			Logging.logger(this.getClass()).debug("evaluating a "+f.getClass().getSimpleName()+" in a deftemplate situation");
+			return (f.getTemplate().getName().equals(template.getName()));
+		} else if (template instanceof JavaTemplate) {
+			
+			if (f instanceof Deffact) {
+				Logging.logger(this.getClass()).debug("evaluating a "+f.getClass().getSimpleName()+" in a javatemplate/deffact situation");
+				return (f.getTemplate().getName().equals(template.getName()));
+			} else {
+				Logging.logger(this.getClass()).debug("evaluating a "+f.getClass().getSimpleName()+" in a javatemplate/javafact situation");
+				Class<? extends Object> concrete = ((JavaFact)f).getObject().getClass();
+				Class<? extends Object> upper = ((JavaTemplate)template).getJavaClass();
+				
+				Logging.logger(this.getClass()).debug(upper.getCanonicalName()+" is"+(upper.isAssignableFrom(concrete)? "": " not")+" assignable from "+concrete.getCanonicalName());
+				
+				return upper.isAssignableFrom(concrete);
+			}
+			
+		} else {
+			Logging.logger(this.getClass()).debug("evaluating a "+f.getClass().getSimpleName()+" in an unknown situation");
+			return false;
+		}
+	}
 
 	@Override
 	public void addWME(Node sender, final WorkingMemoryElement newElem) throws NodeException {
 		if (!isActivated())
 			return;
 		final Template t = newElem.getFirstFact().getTemplate();
-		if (t.equals(template))
-			addAndPropagate(newElem);
+		if ( eval(newElem.getFirstFact()) ) addAndPropagate(newElem);
 	}
 
 	@Override
 	public void removeWME(Node sender, final WorkingMemoryElement oldElem)
 			throws NodeException {
 		final Template t = oldElem.getFirstFact().getTemplate();
-		if (t.equals(template))
-			removeAndPropagate(oldElem);
+		if ( eval(oldElem.getFirstFact()) ) removeAndPropagate(oldElem);
 	}
 
 	/**

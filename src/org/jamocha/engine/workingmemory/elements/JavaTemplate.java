@@ -25,6 +25,12 @@ public class JavaTemplate implements Template {
 	
 	private List<Tag> tags;
 	
+	private Class<? extends Object> javaClass;
+	
+	public Class<? extends Object> getJavaClass() {
+		return javaClass;
+	}
+
 	protected static String lowerCaseFirstLetter(final String s) {
 		if (s.length() == 0)
 			return s;
@@ -81,6 +87,7 @@ public class JavaTemplate implements Template {
 	public JavaTemplate(Class<? extends Object> c) {
 		slots = getTemplateSlotsFromClass(c);
 		name = c.getCanonicalName();
+		javaClass = c;
 		tags = new ArrayList<Tag>();
 		name2ts = new HashMap<String,TemplateSlot>();
 		for (TemplateSlot ts : slots) name2ts.put(ts.getName(),ts);
