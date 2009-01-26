@@ -18,24 +18,14 @@
 
 package org.jamocha.engine.functions.ruleengine;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.jamocha.communication.jsr94.internal.BeanStyleJavaClassAdaptor;
-import org.jamocha.communication.jsr94.internal.PublicAttributesStyleJavaClassAdaptor;
-import org.jamocha.communication.jsr94.internal.JavaClassAdaptor;
-import org.jamocha.communication.jsr94.internal.Template2JavaClassAdaptorException;
-import org.jamocha.communication.jsr94.internal.TemplateFromJavaClassTag;
 import org.jamocha.communication.logging.Logging;
 import org.jamocha.communication.logging.Logging.JamochaLogger;
 import org.jamocha.engine.Engine;
 import org.jamocha.engine.Parameter;
 import org.jamocha.engine.functions.AbstractFunction;
 import org.jamocha.engine.functions.FunctionDescription;
-import org.jamocha.engine.workingmemory.elements.Deftemplate;
 import org.jamocha.engine.workingmemory.elements.JavaTemplate;
 import org.jamocha.engine.workingmemory.elements.Template;
-import org.jamocha.engine.workingmemory.elements.TemplateSlot;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.IllegalParameterException;
 import org.jamocha.parser.JamochaType;

@@ -64,7 +64,6 @@ public class Jamocha {
 	public static void main(String[] args) {
 		boolean startGui = false;
 		boolean startShell = false;
-		String tempStrat = "TRIGGER_FACT";
 		List<String> batchFiles = new LinkedList<String>();
 		if (null != args) {
 			boolean inBatchFiles = false;
@@ -81,14 +80,11 @@ public class Jamocha {
 						startShell = true;
 					} else if (args[i].equals("-batch")) {
 						inBatchFiles = true;
-					} if (args[i].equals("-temporal")) {
-						i++;
-						tempStrat = args[i];
 					}
 				}
 			}
 		}
-		Jamocha jamocha  = new Jamocha(startGui, startShell, batchFiles, tempStrat);
+		Jamocha jamocha  = new Jamocha(startGui, startShell, batchFiles);
 		// if no arguments were given or by another cause neither gui nor shell
 		// were started, we show a usage guide.
 		if (!startShell && !startGui) {
@@ -100,10 +96,6 @@ public class Jamocha {
 			// a click on the x on windows or red dot on mac quits everything
 			jamocha.getJamochaGui().setExitOnClose(true);
 		}
-	}
-
-	public Jamocha(boolean startGui, boolean startShell, List<String> batchFiles) {
-		this(startGui,startShell, batchFiles, "TRIGGER_FACT");
 	}
 
 	/**
@@ -127,8 +119,8 @@ public class Jamocha {
 	 * @throws ModeNotFoundException
 	 *             if the specified Mode in <code>mode</code> was not found.
 	 */
-	public Jamocha(boolean startGui, boolean startShell, List<String> batchFiles, String tempStrat) {
-		this.engine = new Engine(tempStrat);
+	public Jamocha(boolean startGui, boolean startShell, List<String> batchFiles) {
+		this.engine = new Engine();
 		batchThread = new BatchThread(engine);
 		batchThread.start();
 		if (startShell) {

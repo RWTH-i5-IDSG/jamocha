@@ -154,8 +154,6 @@ public class Engine implements Dumpable {
 	
 	protected TemporalFactThread temporalFactThread;
 
-	protected TimerFact timerFact;
-	
 	protected Template triggerFactsTemplate;
 	
 	protected int lag;
@@ -167,17 +165,6 @@ public class Engine implements Dumpable {
 	}
 
 	protected PrintWriter evalWriter; 
-	
-	// can be "TRIGGER_FACT", "SEPARATE_RETE" or "TIME_FACT"
-	protected String temporalStrategy;
-	
-	public String getTemporalStrategy() {
-		return temporalStrategy;
-	}
-	
-	public Engine() {
-		this("TRIGGER_FACT");
-	}
 	
 	public void eval(String s) {
 		evalWriter.write(s+"\n");
@@ -191,11 +178,10 @@ public class Engine implements Dumpable {
 	/**
 	 * 
 	 */
-	public Engine(String tempStrat) {
+	public Engine() {
 		super();
 		modifySynchronizer = new ModifySynchronizer();
 		lags = new HashSet<TemporalThread>();
-		temporalStrategy = tempStrat;
 		final PipedOutputStream outStream = new PipedOutputStream();
 		final PipedInputStream inStream = new PipedInputStream();
 		evalWriter = new PrintWriter(outStream);
@@ -212,79 +198,15 @@ public class Engine implements Dumpable {
 		defglobals = new HashMap<String, JamochaValue>();
 		functionMem.init();
 		establishInitialFact();
-		if (temporalStrategy.equals("TRIGGER_FACT")||temporalStrategy.equals("TIME_FACT")) {
-			temporalFactThread = new TemporalFactThread(this);
-			temporalFactThread.registerExceptionListener(new TemporalThreadExceptionHandler());
-			temporalFactThread.start();
-			TemplateSlot[] slots = new TemplateSlot[1];
-			slots[0] = new TemplateSlot("rule-name");
-			slots[0].setValueType(JamochaType.STRING);
-			triggerFactsTemplate = new Deftemplate("temporal-trigger", null, slots);
-		}
-
-
-		if (temporalStrategy.equals("TIME_FACT")) {
-			
-			TemplateSlot[] temporalFactContainerTemplateSlots = new TemplateSlot[3];
-			temporalFactContainerTemplateSlots[0] = new TemplateSlot("next_event_point");
-			temporalFactContainerTemplateSlots[1] = new TemplateSlot("ep_type");
-			temporalFactContainerTemplateSlots[2] = new TemplateSlot("fact");
-			temporalFactContainerTemplateSlots[0].setId(0);
-			temporalFactContainerTemplateSlots[1].setId(1);
-			temporalFactContainerTemplateSlots[2].setId(2);
-			Template temporalFactContainerTemplate = new Deftemplate("temporal-fact-container",null,temporalFactContainerTemplateSlots);
-			findModule("MAIN").addTemplate(temporalFactContainerTemplate);
-			
-			String factStarterStopperRules=
-"(defrule temporal-facts-starter"+
-"	(declare (auto-focus true) )"+
-"	?container <- (temporal-fact-container (next_event_point ?ep) (ep_type \"START\") (fact ?fact) )"+
-"	(point-in-time (time ?now) )"+
-"	(test (lessOrEqual ?ep ?now ) )"+
-"	=>"+
-"	(bind ?next_ep (get-next-eventpoint ?fact (+ ?ep 1) ) )"+
-"	(bind ?next_ep_timestamp (member ?next_ep getTimestamp))"+
-"	(bind ?next_ep_type (member (member ?next_ep getType) toString) )"+ 
-"	(modify ?container (next_event_point ?next_ep_timestamp) (ep_type ?next_ep_type ) )"+
-"	(assert-existing-fact ?fact)"+
-")"+
-"(defrule temporal-facts-stopper"+
-"	(declare (auto-focus true) )"+
-"	?container <- (temporal-fact-container (next_event_point ?ep) (ep_type \"STOP\") (fact ?fact) )"+
-"	(point-in-time (time ?now) )"+
-"	(test (lessOrEqual ?ep ?now ) )"+
-"	=>"+
-"	(bind ?next_ep (get-next-eventpoint ?fact (+ ?ep 1) ) )"+
-"	(bind ?next_ep_timestamp (member ?next_ep getTimestamp))"+
-"	(bind ?next_ep_type (member (member ?next_ep getType) toString) )"+ 
-"	(modify ?container (next_event_point ?next_ep_timestamp) (ep_type ?next_ep_type ) )"+
-"	(retract ?fact)"+
-")";
-			
-			Parser parser = ParserFactory.getParser(new StringReader(factStarterStopperRules));
-			Expression expr;
-			try {
-				timerFact = new TimerFact(this);
-				while (( expr = parser.nextExpression()) != null) {
-					Signature s = (Signature) expr;
-					DefruleConfiguration defruleConfig=(DefruleConfiguration)s.getParameters()[0];
-					Defrule defrule = new Defrule(findModule("MAIN"),defruleConfig,this);
-					addRule(defrule);
-				}
-			} catch (ParseException e1) {
-				log.fatal(e1);
-			} catch (EvaluationException e) {
-				log.fatal(e);
-			} catch (CompileRuleException e) {
-				log.fatal(e);
-			}
-			
-			timerFact.start();
-		}
 		
-		if (temporalStrategy.equals("TRIGGER_FACT")||temporalStrategy.equals("TIME_FACT")) {
-			findModule("MAIN").addTemplate(triggerFactsTemplate);
-		}
+		temporalFactThread = new TemporalFactThread(this);
+		temporalFactThread.registerExceptionListener(new TemporalThreadExceptionHandler());
+		temporalFactThread.start();
+		TemplateSlot[] slots = new TemplateSlot[1];
+		slots[0] = new TemplateSlot("rule-name");
+		slots[0].setValueType(JamochaType.STRING);
+		triggerFactsTemplate = new Deftemplate("temporal-trigger", null, slots);
+		findModule("MAIN").addTemplate(triggerFactsTemplate);
 		
 		JamochaSettings.getInstance().addListener(
 				new EngineSettingsChangedListener(), interestedProperties);
@@ -714,20 +636,12 @@ public class Engine implements Dumpable {
 	}
 	
 	public void retractFact(Fact fact) throws RetractException {
-		
-		if (temporalStrategy.equals("TRIGGER_FACT")) {
-		
-			if (fact.getTemporalValidity() == null) {
-				hardRetractFact(fact);
-			} else {
-				temporalFactThread.removeFact(fact);
-			}
-		
-		} else {
+		if (fact.getTemporalValidity() == null) {
 			hardRetractFact(fact);
+		} else {
+			temporalFactThread.removeFact(fact);
 		}
-	
-}
+	}
 
 	/**
 	 * Modify retracts the old fact and asserts the new fact. Unlike assertFact,
@@ -886,26 +800,24 @@ public class Engine implements Dumpable {
 
 		if (rule.getTemporalValidity() != null) {
 			// make some temporal adoptions
-			if (temporalStrategy.equals("TRIGGER_FACT") || temporalStrategy.equals("TIME_FACT")) {
-				AssertConfiguration triggerConf = new AssertConfiguration();
-				triggerConf.setTemplateName("temporal-trigger");
-				Parameter[] data = new Parameter[1];
-				JamochaValue rulename = JamochaValue.newString(rule.parentModule().getName()+":"+rule.getName());
-				Signature slot1 = new Signature("rule-name");
-				Parameter[] params = new Parameter[1];
-				slot1.setParameters(params);
-				data[0]=slot1;
-				params[0]=rulename;
-				triggerConf.setData(data);
-				triggerConf.setTemporalValidity(rule.getTemporalValidity());
-				List<Constraint> constraints = new ArrayList<Constraint>();
-				LiteralConstraint lc = new LiteralConstraint(rulename,"rule-name");
-				constraints.add(lc);
-				ObjectCondition triggerCondition = new ObjectCondition(constraints,"temporal-trigger");
-				rule.getConditions().add(triggerCondition);
-				Fact trigger = getModules().createFact(triggerConf);
-				assertFact(trigger);
-			}
+			AssertConfiguration triggerConf = new AssertConfiguration();
+			triggerConf.setTemplateName("temporal-trigger");
+			Parameter[] data = new Parameter[1];
+			JamochaValue rulename = JamochaValue.newString(rule.parentModule().getName()+":"+rule.getName());
+			Signature slot1 = new Signature("rule-name");
+			Parameter[] params = new Parameter[1];
+			slot1.setParameters(params);
+			data[0]=slot1;
+			params[0]=rulename;
+			triggerConf.setData(data);
+			triggerConf.setTemporalValidity(rule.getTemporalValidity());
+			List<Constraint> constraints = new ArrayList<Constraint>();
+			LiteralConstraint lc = new LiteralConstraint(rulename,"rule-name");
+			constraints.add(lc);
+			ObjectCondition triggerCondition = new ObjectCondition(constraints,"temporal-trigger");
+			rule.getConditions().add(triggerCondition);
+			Fact trigger = getModules().createFact(triggerConf);
+			assertFact(trigger);
 		}
 		
 		// compile the rule
@@ -972,36 +884,11 @@ public class Engine implements Dumpable {
 	 * @return the lag in temporal processing in milliseconds
 	 */
 	public int getLag() {
-		if (temporalStrategy.equals("TRIGGER_FACT")) {
-			return temporalFactThread.getLag();
-		} else if (temporalStrategy.equals("TIME_FACT")) {
-			return lg;
-		} else /* SEPARATE_RETE*/ {
-			synchronized (lags) {
-				int m=0;
-				for (TemporalThread n:lags) {
-					int i = n.getLag();
-					if (i>m) m=i;
-				}
-				return m;
-			}
-		}
+		return temporalFactThread.getLag();
 	}
 
 	Set<TemporalThread> lags;
 	
 	int lg;
-	
-	public void setLag(int lag, TemporalThread sender) {
-		if (temporalStrategy.equals("TRIGGER_FACT")) {
-			
-		} else if (temporalStrategy.equals("TIME_FACT")) {
-			this.lg = lag;
-		} else /* SEPARATE_RETE*/ {
-			synchronized (lags) {
-				lags.add(sender);
-			}
-		}
-	}
 	
 }

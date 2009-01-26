@@ -18,9 +18,6 @@
 package org.jamocha.communication.jsr94;
 
 import java.rmi.RemoteException;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -29,21 +26,6 @@ import javax.rules.ObjectFilter;
 import javax.rules.RuleExecutionSetMetadata;
 import javax.rules.RuleRuntime;
 import javax.rules.StatelessRuleSession;
-import javax.rules.admin.RuleExecutionSet;
-
-import org.jamocha.communication.jsr94.internal.Template2JavaClassAdaptorException;
-import org.jamocha.communication.jsr94.internal.TemplateFromJavaClassTag;
-import org.jamocha.engine.AssertException;
-import org.jamocha.engine.Engine;
-import org.jamocha.engine.ExecuteException;
-import org.jamocha.engine.workingmemory.WorkingMemoryElement;
-import org.jamocha.engine.workingmemory.elements.Deffact;
-import org.jamocha.engine.workingmemory.elements.Fact;
-import org.jamocha.engine.workingmemory.elements.JavaFact;
-import org.jamocha.engine.workingmemory.elements.tags.Tag;
-import org.jamocha.parser.EvaluationException;
-import org.jamocha.parser.Expression;
-import org.jamocha.parser.RuleException;
 
 /**
  * @author Josef Alexander Hahn <http://www.josef-hahn.de>
