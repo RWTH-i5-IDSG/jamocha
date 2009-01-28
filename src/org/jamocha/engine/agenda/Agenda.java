@@ -115,7 +115,7 @@ public class Agenda implements Serializable {
 	 * @param a
 	 */
 	public void addActivation(Activation a) {
-		Logging.logger(this.getClass()).info("adding activation "+a);
+		Logging.logger(this.getClass()).debug("adding activation "+a);
 		if (profileAddActivation)
 			ProfileStats.startAddActivation();
 		activations.offer(a);
@@ -129,7 +129,7 @@ public class Agenda implements Serializable {
 	 * @param a
 	 */
 	public void removeActivation(Activation a) {
-		Logging.logger(this.getClass()).info("removing activation "+a);
+		Logging.logger(this.getClass()).debug("removing activation "+a);
 		if (profileAddActivation)
 			ProfileStats.startAddActivation();
 		activations.remove(a);
