@@ -19,8 +19,6 @@
 package org.jamocha.engine.nodes;
 
 import org.jamocha.Constants;
-import org.jamocha.application.gui.retevisualisation.NodeDrawer;
-import org.jamocha.application.gui.retevisualisation.nodedrawers.SlotFilterNodeDrawer;
 import org.jamocha.engine.Engine;
 import org.jamocha.engine.ReteNet;
 import org.jamocha.engine.workingmemory.WorkingMemory;
@@ -94,11 +92,6 @@ public class AlphaSlotComparatorNode extends OneInputNode {
 		sb.append("|").append(slot1.getId()).append(
 				(operator == Constants.EQUAL ? "==" : "!=")).append(
 				slot2.getId());
-	}
-
-	@Override
-	protected NodeDrawer newNodeDrawer() {
-		return new SlotFilterNodeDrawer(this);
 	}
 
 }

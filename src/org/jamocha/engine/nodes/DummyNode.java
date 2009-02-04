@@ -18,8 +18,6 @@
 
 package org.jamocha.engine.nodes;
 
-import org.jamocha.application.gui.retevisualisation.NodeDrawer;
-import org.jamocha.application.gui.retevisualisation.nodedrawers.LIANodeDrawer;
 import org.jamocha.engine.ReteNet;
 import org.jamocha.engine.workingmemory.WorkingMemory;
 import org.jamocha.engine.workingmemory.WorkingMemoryElement;
@@ -51,11 +49,6 @@ public class DummyNode extends OneInputNode {
 	@Override
 	public boolean outputsBeta() {
 		return false;
-	}
-
-	@Override
-	protected NodeDrawer newNodeDrawer() {
-		return new LIANodeDrawer(this);
 	}
 
 }

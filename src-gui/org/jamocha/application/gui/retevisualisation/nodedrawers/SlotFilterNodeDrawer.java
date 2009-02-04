@@ -21,8 +21,8 @@ import org.jamocha.engine.nodes.Node;
 
 public class SlotFilterNodeDrawer extends AbstractNodeDrawer {
 
-	public SlotFilterNodeDrawer(final Node owner) {
-		super(owner);
+	public SlotFilterNodeDrawer() {
+		super();
 	}
 
 }

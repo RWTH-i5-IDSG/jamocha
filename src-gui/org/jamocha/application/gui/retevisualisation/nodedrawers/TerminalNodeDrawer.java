@@ -25,12 +25,12 @@ import org.jamocha.engine.nodes.Node;
 
 public class TerminalNodeDrawer extends AbstractNodeDrawer {
 
-	public TerminalNodeDrawer(final Node owner) {
-		super(owner);
+	public TerminalNodeDrawer() {
+		super();
 	}
 
 	@Override
-	protected void drawNode(final int x, final int y, final int height,
+	protected void drawNode(Node node, final int x, final int y, final int height,
 			final int width, final int halfLineHeight,
 			final List<Node> selected, final Graphics2D canvas) {
 		final int alpha = selected.contains(node) ? 255 : 20;
@@ -39,6 +39,6 @@ public class TerminalNodeDrawer extends AbstractNodeDrawer {
 		canvas.setColor(new Color(40, 40, 40, alpha));
 		canvas.drawRect(x, y, width, height);
 		canvas.setColor(new Color(255, 255, 255, alpha));
-		drawId(x, y, height, width, halfLineHeight, canvas);
+		drawId(node, x, y, height, width, halfLineHeight, canvas);
 	}
 }

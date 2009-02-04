@@ -29,7 +29,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
-import org.jamocha.application.gui.JamochaGui;
+import org.jamocha.application.gui.JamochaMainFrame;
 import org.jamocha.application.gui.icons.IconLoader;
 import org.jamocha.application.gui.tab.settings.AbstractSettingsPanel;
 import org.jamocha.application.gui.tab.settings.EngineSettingsPanel;
@@ -52,7 +52,7 @@ public class SettingsPanel extends AbstractJamochaPanel implements
 
 	private final List<AbstractSettingsPanel> panels = new LinkedList<AbstractSettingsPanel>();
 
-	public SettingsPanel(final JamochaGui gui) {
+	public SettingsPanel(final JamochaMainFrame gui) {
 		super(gui);
 		setLayout(new BorderLayout());
 		tabbedPane = new JTabbedPane();

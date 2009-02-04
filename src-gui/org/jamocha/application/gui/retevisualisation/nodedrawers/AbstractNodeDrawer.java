@@ -29,10 +29,7 @@ import org.jamocha.engine.nodes.Node;
 
 public class AbstractNodeDrawer implements NodeDrawer {
 
-	protected Node node;
-
-	public AbstractNodeDrawer(final Node owner) {
-		node = owner;
+	public AbstractNodeDrawer() {
 	}
 
 	/**
@@ -43,7 +40,7 @@ public class AbstractNodeDrawer implements NodeDrawer {
 	 * protected, since it will be called from a higher-level (public) method
 	 * inside BaseNode.
 	 */
-	protected void drawNode(final int x, final int y, final int height,
+	protected void drawNode(Node node, final int x, final int y, final int height,
 			final int width, final int halfLineHeight,
 			final List<Node> selected, final Graphics2D canvas) {
 		final int alpha = selected.contains(node) ? 255 : 20;
@@ -52,10 +49,10 @@ public class AbstractNodeDrawer implements NodeDrawer {
 		canvas.setColor(new Color(200, 15, 15, alpha));
 		canvas.drawRect(x, y, width, height);
 		canvas.setColor(new Color(0, 0, 0, alpha));
-		drawId(x, y, height, width, halfLineHeight, canvas);
+		drawId(node, x, y, height, width, halfLineHeight, canvas);
 	}
 
-	protected void drawId(final int x, final int y, final int height,
+	protected void drawId(Node node, final int x, final int y, final int height,
 			final int width, final int halfLineHeight, final Graphics2D canvas) {
 		if (height < 12) {
 			return;
@@ -112,7 +109,7 @@ public class AbstractNodeDrawer implements NodeDrawer {
 	 *            the setup
 	 * @return the width
 	 */
-	public int drawNode(final int fromColumn, final List<Node> selected,
+	public int drawNode(Node node, final int fromColumn, final List<Node> selected,
 			final Graphics2D canvas, final VisualizerSetup setup,
 			final Map<Node, Point> positions, final Map<Point, Node> p2n,
 			final Map<Node, Integer> rowHints, final int halfLineHeight) {
@@ -126,7 +123,8 @@ public class AbstractNodeDrawer implements NodeDrawer {
 			if (!(child.getParentNodes()[0] == node)) {
 				continue;
 			}
-			firstColumn += child.getNodeDrawer().drawNode(firstColumn,
+			firstColumn += NodeDrawerFactory.getInstance().getDrawer(child)
+			.drawNode(child,firstColumn,
 					selected, canvas, setup, positions, p2n, rowHints,
 					halfLineHeight);
 		}
@@ -151,7 +149,7 @@ public class AbstractNodeDrawer implements NodeDrawer {
 		positions.put(node, p1);
 		p2n.put(p1, node);
 		p2n.put(p2, node);
-		drawNode(x, y, h, w, halfLineHeight, selected, canvas);
+		drawNode(node, x, y, h, w, halfLineHeight, selected, canvas);
 		//
 		return width;
 	}

@@ -18,8 +18,6 @@
 
 package org.jamocha.engine.nodes;
 
-import org.jamocha.application.gui.retevisualisation.NodeDrawer;
-import org.jamocha.application.gui.retevisualisation.nodedrawers.RootNodeDrawer;
 import org.jamocha.communication.logging.Logging;
 import org.jamocha.engine.Engine;
 import org.jamocha.engine.ReteNet;
@@ -85,10 +83,6 @@ public class RootNode extends Node {
 		// do nothing here, because a RootNode never can become a parent
 	}
 
-	@Override
-	protected NodeDrawer newNodeDrawer() {
-		return new RootNodeDrawer(this);
-	}
 
 	@Override
 	protected void unbindFromParents() {

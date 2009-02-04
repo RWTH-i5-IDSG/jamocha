@@ -21,8 +21,6 @@ package org.jamocha.engine.nodes;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.jamocha.application.gui.retevisualisation.NodeDrawer;
-import org.jamocha.application.gui.retevisualisation.nodedrawers.QuantorBetaFilterNodeDrawer;
 import org.jamocha.engine.ReteNet;
 import org.jamocha.engine.nodes.joinfilter.GeneralizedJoinFilter;
 import org.jamocha.engine.nodes.joinfilter.JoinFilterException;
@@ -174,11 +172,6 @@ public class QuantorBetaFilterNode extends SimpleBetaFilterNode {
 		removeAndPropagate(oldElem.getFactTuple().appendFact(
 				net.getEngine().getInitialFact()));
 		counter.set(oldElem, 0);
-	}
-
-	@Override
-	protected NodeDrawer newNodeDrawer() {
-		return new QuantorBetaFilterNodeDrawer(this);
 	}
 
 }

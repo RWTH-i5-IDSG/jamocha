@@ -53,7 +53,7 @@ public class JamochaMenuBar extends JMenuBar implements ActionListener {
 
 	private static final long serialVersionUID = 2908247560107956066L;
 
-	private final JamochaGui gui;
+	private final JamochaMainFrame gui;
 
 	private final JMenu fileMenu;
 
@@ -71,7 +71,7 @@ public class JamochaMenuBar extends JMenuBar implements ActionListener {
 
 	private JDialog aboutDialog;
 
-	public JamochaMenuBar(final JamochaGui gui) {
+	public JamochaMenuBar(final JamochaMainFrame gui) {
 		super();
 		this.gui = gui;
 

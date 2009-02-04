@@ -37,7 +37,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
 
-import org.jamocha.application.gui.JamochaGui;
+import org.jamocha.application.gui.JamochaMainFrame;
 import org.jamocha.application.gui.TableRowModel;
 import org.jamocha.application.gui.icons.IconLoader;
 import org.jamocha.engine.agenda.Activation;
@@ -63,7 +63,7 @@ public class AgendaPanel extends AbstractJamochaPanel implements
 
 	private final JTextArea dumpArea;
 
-	public AgendaPanel(final JamochaGui gui) {
+	public AgendaPanel(final JamochaMainFrame gui) {
 		super(gui);
 		setLayout(new BorderLayout());
 		dataModel = new AgendaTableModel();

@@ -18,8 +18,6 @@
 
 package org.jamocha.engine.nodes;
 
-import org.jamocha.application.gui.retevisualisation.NodeDrawer;
-import org.jamocha.application.gui.retevisualisation.nodedrawers.TerminalNodeDrawer;
 import org.jamocha.engine.Engine;
 import org.jamocha.engine.ExecuteException;
 import org.jamocha.engine.ReteNet;
@@ -85,11 +83,6 @@ public class TerminalNode extends OneInputNode {
 	public boolean outputsBeta() {
 		// they wont output anything, so it doesn't matter what we return here
 		return true;
-	}
-
-	@Override
-	protected NodeDrawer newNodeDrawer() {
-		return new TerminalNodeDrawer(this);
 	}
 
 	public void autoFocus() {

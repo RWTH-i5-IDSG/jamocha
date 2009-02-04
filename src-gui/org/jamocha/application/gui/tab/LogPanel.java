@@ -42,7 +42,7 @@ import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 
-import org.jamocha.application.gui.JamochaGui;
+import org.jamocha.application.gui.JamochaMainFrame;
 import org.jamocha.application.gui.icons.IconLoader;
 import org.jamocha.communication.events.MessageEvent;
 import org.jamocha.communication.messagerouter.InterestType;
@@ -79,7 +79,7 @@ public class LogPanel extends AbstractJamochaPanel implements ActionListener,
 
 	private boolean running = true;
 
-	public LogPanel(final JamochaGui gui) {
+	public LogPanel(final JamochaMainFrame gui) {
 		super(gui);
 		setLayout(new BorderLayout());
 		logChannel = gui.getEngine().getMessageRouter().openChannel("gui_log",

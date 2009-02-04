@@ -35,7 +35,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
-import org.jamocha.application.gui.JamochaGui;
+import org.jamocha.application.gui.JamochaMainFrame;
 import org.jamocha.engine.agenda.ConflictResolutionStrategy;
 import org.jamocha.engine.modules.Module;
 import org.jamocha.settings.SettingsConstants;
@@ -78,7 +78,7 @@ public class EngineSettingsPanel extends AbstractSettingsPanel implements
 
 	private final JComboBox strategySelector;
 
-	public EngineSettingsPanel(final JamochaGui gui) {
+	public EngineSettingsPanel(final JamochaMainFrame gui) {
 		super(gui);
 		final JPanel mainPanel = new JPanel();
 		mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.PAGE_AXIS));

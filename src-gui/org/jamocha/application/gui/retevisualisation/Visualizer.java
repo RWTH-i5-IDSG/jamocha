@@ -40,6 +40,7 @@ import java.util.Stack;
 import javax.swing.JComponent;
 import javax.swing.event.MouseInputListener;
 
+import org.jamocha.application.gui.retevisualisation.nodedrawers.NodeDrawerFactory;
 import org.jamocha.engine.Engine;
 import org.jamocha.engine.nodes.LeftInputAdaptorNode;
 import org.jamocha.engine.nodes.Node;
@@ -105,6 +106,10 @@ public class Visualizer extends JComponent implements ComponentListener,
 
 	protected boolean rightScroll;
 
+	private NodeDrawer drawer(Node n) {
+		return NodeDrawerFactory.getInstance().getDrawer(n);
+	}
+	
 	public void computeRowHints() {
 		rowHints.clear();
 		int actLvl = 0;
@@ -130,9 +135,7 @@ public class Visualizer extends JComponent implements ComponentListener,
 		calculateSelectedNodes();
 		componentResized2(null);
 		node2point = new HashMap<Node, Point>();
-		rootNode
-				.getNodeDrawer()
-				.drawNode(
+		drawer(rootNode).drawNode(rootNode,
 						0,
 						selectedNodes,
 						(Graphics2D) new BufferedImage(1, 1,
@@ -288,16 +291,16 @@ public class Visualizer extends JComponent implements ComponentListener,
 
 				if (linestyle == VisualizerSetup.QUARTERELLIPSE) {
 					if (childPos.x == rootPos.x)
-						rootPos = root.getNodeDrawer().getVerticalEndPoint(
+						rootPos = drawer(root).getVerticalEndPoint(
 								childPos, rootPos, setup);
 					else
-						rootPos = root.getNodeDrawer().getHorizontalEndPoint(
+						rootPos = drawer(root).getHorizontalEndPoint(
 								childPos, rootPos, setup);
 					if (childPos.y == rootPos.y)
-						childPos = child.getNodeDrawer().getHorizontalEndPoint(
+						childPos = drawer(root).getHorizontalEndPoint(
 								rootPos, childPos, setup);
 					else
-						childPos = child.getNodeDrawer().getVerticalEndPoint(
+						childPos = drawer(root).getVerticalEndPoint(
 								rootPos, childPos, setup);
 					int arcX, arcY, midX, midY, w, h;
 					w = Math.abs(rootPos.x - childPos.x);
@@ -325,9 +328,9 @@ public class Visualizer extends JComponent implements ComponentListener,
 							- startAngle;
 					canvas.drawArc(arcX, arcY, w, h, startAngle, arcAngle);
 				} else if (linestyle == VisualizerSetup.LINE) {
-					rootPos = root.getNodeDrawer().getLineEndPoint(childPos,
+					rootPos = drawer(root).getLineEndPoint(childPos,
 							rootPos, setup);
-					childPos = child.getNodeDrawer().getLineEndPoint(rootPos,
+					childPos = drawer(child).getLineEndPoint(rootPos,
 							childPos, setup);
 					canvas.drawLine(rootPos.x, rootPos.y, childPos.x,
 							childPos.y);
@@ -377,7 +380,7 @@ public class Visualizer extends JComponent implements ComponentListener,
 		drawConnectionLines(rootNode, node2point, canvas, false, true);
 
 		loadGoodFont(canvas);
-		rootNode.getNodeDrawer().drawNode(0, selectedNodes, canvas, setup,
+		drawer(rootNode).drawNode(rootNode, 0, selectedNodes, canvas, setup,
 				node2point, point2node, rowHints, halfLineHeight);
 
 		canvas.setStroke(widthOneStroke);

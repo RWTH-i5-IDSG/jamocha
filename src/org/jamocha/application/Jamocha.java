@@ -24,7 +24,6 @@ import java.util.List;
 
 import javax.swing.UIManager;
 
-import org.jamocha.application.gui.JamochaGui;
 import org.jamocha.communication.BatchThread;
 import org.jamocha.engine.Engine;
 
@@ -35,11 +34,6 @@ import org.jamocha.engine.Engine;
  * Depending on the arguments this Class starts the GUI and / or the Shell.
  */
 public class Jamocha {
-
-	/**
-	 * The GUI (if started).
-	 */
-	private JamochaGui jamochaGui;
 
 	/**
 	 * The Shell (if started).
@@ -74,28 +68,13 @@ public class Jamocha {
 				if (inBatchFiles) {
 					batchFiles.add(args[i]);
 				} else {
-					if (args[i].equalsIgnoreCase("-gui")) {
-						startGui = true;
-					} else if (args[i].equalsIgnoreCase("-shell")) {
-						startShell = true;
-					} else if (args[i].equals("-batch")) {
+					if (args[i].equalsIgnoreCase("-batch")) {
 						inBatchFiles = true;
 					}
 				}
 			}
 		}
-		Jamocha jamocha  = new Jamocha(startGui, startShell, batchFiles);
-		// if no arguments were given or by another cause neither gui nor shell
-		// were started, we show a usage guide.
-		if (!startShell && !startGui) {
-			jamocha.showUsage();
-			return;
-		} else if (!startShell) {
-			// we only show the quit-button
-			jamocha.getJamochaGui().showCloseGuiMenuItem(false);
-			// a click on the x on windows or red dot on mac quits everything
-			jamocha.getJamochaGui().setExitOnClose(true);
-		}
+		Jamocha jamocha  = new Jamocha(batchFiles);
 	}
 
 	/**
@@ -119,27 +98,15 @@ public class Jamocha {
 	 * @throws ModeNotFoundException
 	 *             if the specified Mode in <code>mode</code> was not found.
 	 */
-	public Jamocha(boolean startGui, boolean startShell, List<String> batchFiles) {
+	public Jamocha(List<String> batchFiles) {
 		this.engine = new Engine();
 		batchThread = new BatchThread(engine);
 		batchThread.start();
-		if (startShell) {
-			startShell();
-		}
-		if (startGui) {
-			startGui();
-			batchThread.setGui(getJamochaGui());
-		}
+		startShell();
 		if (batchFiles != null) {
 			if (!batchFiles.isEmpty()) {
 				batchThread.processBatchFiles(batchFiles);
 			}
-		}
-	}
-
-	public void setGUITitle(String title) {
-		if (jamochaGui != null) {
-			jamochaGui.setTitle(title);
 		}
 	}
 
@@ -177,29 +144,6 @@ public class Jamocha {
 
 			};
 			shellThread.start();
-		}
-	}
-
-	/**
-	 * Starts a single GUI.
-	 * 
-	 */
-	public void startGui() {
-		if (jamochaGui == null) {
-			try{ 
-				UIManager.setLookAndFeel( UIManager.getSystemLookAndFeelClassName() ); 
-			}catch( Exception e ){
-				e.printStackTrace();
-			}
-			jamochaGui = new JamochaGui(engine, batchThread);
-			Thread guiThread = new Thread("GUI Thread") {
-
-				public void run() {
-					jamochaGui.showGui();
-				}
-
-			};
-			guiThread.start();
 		}
 	}
 
@@ -254,15 +198,6 @@ public class Jamocha {
 						+ sep
 						+ "     Processes a list of given files (separated by blanks) as batch-files.");
 		System.exit(0);
-	}
-
-	/**
-	 * Returns the one and only GUI (if started).
-	 * 
-	 * @return The Jamocha GUI.
-	 */
-	public JamochaGui getJamochaGui() {
-		return jamochaGui;
 	}
 
 	/**

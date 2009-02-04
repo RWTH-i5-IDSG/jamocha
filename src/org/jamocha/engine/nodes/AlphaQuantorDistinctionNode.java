@@ -22,9 +22,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-
-import org.jamocha.application.gui.retevisualisation.NodeDrawer;
-import org.jamocha.application.gui.retevisualisation.nodedrawers.QuantorBetaFilterNodeDrawer;
 import org.jamocha.engine.Engine;
 import org.jamocha.engine.ReteNet;
 import org.jamocha.engine.workingmemory.WorkingMemory;
@@ -120,11 +117,6 @@ public class AlphaQuantorDistinctionNode extends OneInputNode {
 		} catch (EvaluationException e) {
 			throw new NodeException(e,this);
 		}
-	}
-
-	@Override
-	protected NodeDrawer newNodeDrawer() {
-		return new QuantorBetaFilterNodeDrawer(this);
 	}
 
 	@Override

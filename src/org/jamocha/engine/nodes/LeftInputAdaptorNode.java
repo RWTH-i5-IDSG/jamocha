@@ -18,8 +18,6 @@
 
 package org.jamocha.engine.nodes;
 
-import org.jamocha.application.gui.retevisualisation.NodeDrawer;
-import org.jamocha.application.gui.retevisualisation.nodedrawers.LIANodeDrawer;
 import org.jamocha.communication.logging.Logging;
 import org.jamocha.engine.Engine;
 import org.jamocha.engine.ReteNet;
@@ -60,11 +58,6 @@ public class LeftInputAdaptorNode extends OneInputNode {
 	@Override
 	public boolean outputsBeta() {
 		return true;
-	}
-
-	@Override
-	protected NodeDrawer newNodeDrawer() {
-		return new LIANodeDrawer(this);
 	}
 
 }

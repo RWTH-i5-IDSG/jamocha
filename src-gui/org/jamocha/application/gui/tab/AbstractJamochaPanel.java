@@ -20,7 +20,7 @@ package org.jamocha.application.gui.tab;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
-import org.jamocha.application.gui.JamochaGui;
+import org.jamocha.application.gui.JamochaMainFrame;
 import org.jamocha.settings.JamochaSettings;
 
 /**
@@ -35,7 +35,7 @@ public abstract class AbstractJamochaPanel extends JPanel {
 	 * The JamochaGui Object. We need it to get the engine or other future
 	 * purposes.
 	 */
-	protected JamochaGui gui;
+	protected JamochaMainFrame gui;
 	protected JamochaSettings settings;
 
 	/**
@@ -44,7 +44,7 @@ public abstract class AbstractJamochaPanel extends JPanel {
 	 * @param gui
 	 *            The active JamocheGui.
 	 */
-	public AbstractJamochaPanel(final JamochaGui gui) {
+	public AbstractJamochaPanel(final JamochaMainFrame gui) {
 		this.gui = gui;
 		settings = JamochaSettings.getInstance();
 	}

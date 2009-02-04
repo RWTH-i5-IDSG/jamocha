@@ -26,7 +26,6 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import org.jamocha.application.gui.JamochaGui;
 import org.jamocha.communication.events.MessageEvent;
 import org.jamocha.communication.messagerouter.StringChannel;
 import org.jamocha.engine.Engine;
@@ -43,7 +42,7 @@ public class BatchThread extends Thread {
 
 	private final Engine engine;
 
-	private JamochaGui gui = null;
+	private List<BatchExecutionListener> listeners;
 
 	private boolean running = true;
 
@@ -52,9 +51,27 @@ public class BatchThread extends Thread {
 	Queue<String> batchFiles = new ConcurrentLinkedQueue<String>();
 
 	private final Map<String, String> batchResults = new HashMap<String, String>();
-
+	
+	/**
+	 * Converts an Exception to a String namely turns the StackTrace to a
+	 * String.
+	 * 
+	 * @param exception
+	 *            The Exception
+	 * @return A nice String representation of the Exception
+	 */
+	public static String exceptionToString(final Exception exception) {
+		final StringBuilder res = new StringBuilder();
+		final StackTraceElement[] str = exception.getStackTrace();
+		for (int i = 0; i < str.length; ++i) {
+			res.append(str[i] + System.getProperty("line.separator"));
+		}
+		return res.toString();
+	}
+	
 	public BatchThread(Engine engine) {
 		this.engine = engine;
+		this.listeners = new ArrayList<BatchExecutionListener>();
 		batchChannel = engine.getMessageRouter().openChannel("batch_channel");
 	}
 
@@ -67,7 +84,7 @@ public class BatchThread extends Thread {
 			if (!messages.isEmpty())
 				for (MessageEvent event : messages) {
 					if (event.getType() == MessageEvent.MessageEventType.ERROR)
-						buffer.append(JamochaGui.exceptionToString(
+						buffer.append(exceptionToString(
 								(Exception) event.getMessage()).trim()
 								+ System.getProperty("line.separator"));
 					if (event.getType() != MessageEvent.MessageEventType.COMMAND
@@ -81,8 +98,8 @@ public class BatchThread extends Thread {
 							|| event.getType() == MessageEvent.MessageEventType.RESULT) {
 						batchResults.put(batchFiles.poll(), buffer.toString());
 						buffer = new StringBuilder();
-						if (gui != null)
-							gui.informOfNewBatchResults();
+						for (BatchExecutionListener bel: listeners)
+							bel.newBatchResults();
 					}
 				}
 			else
@@ -95,10 +112,14 @@ public class BatchThread extends Thread {
 		engine.getMessageRouter().closeChannel(batchChannel);
 	}
 
-	public void setGui(JamochaGui gui) {
-		this.gui = gui;
+	public void addBatchExecutionListener(BatchExecutionListener bel) {
+		listeners.add(bel);
 	}
 
+	public void removeBatchExecutionListener(BatchExecutionListener bel) {
+		listeners.remove(bel);
+	}
+	
 	public void stopThread() {
 		running = false;
 	}

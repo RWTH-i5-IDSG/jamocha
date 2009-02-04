@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import org.jamocha.application.gui.retevisualisation.NodeDrawer;
 import org.jamocha.communication.logging.Logging;
 import org.jamocha.engine.ReteNet;
 import org.jamocha.engine.workingmemory.WorkingMemory;
@@ -44,8 +43,6 @@ public abstract class Node {
 	protected WorkingMemory workingMemory;
 
 	protected ReteNet net;
-
-	protected NodeDrawer drawer;
 
 	protected boolean activated = false;
 
@@ -247,17 +244,6 @@ public abstract class Node {
 			i.remove();
 		}
 	}
-
-	/**
-	 * returns the NodeDrawer for this node. It is used by the visualizer.
-	 */
-	public NodeDrawer getNodeDrawer() {
-		if (drawer == null)
-			drawer = newNodeDrawer();
-		return drawer;
-	}
-
-	protected abstract NodeDrawer newNodeDrawer();
 
 	/**
 	 * returns true, iff the output is a beta one.

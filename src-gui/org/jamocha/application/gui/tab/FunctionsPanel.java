@@ -46,7 +46,7 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableColumnModel;
 
-import org.jamocha.application.gui.JamochaGui;
+import org.jamocha.application.gui.JamochaMainFrame;
 import org.jamocha.application.gui.TableModelQuickSort;
 import org.jamocha.application.gui.TableRowModel;
 import org.jamocha.application.gui.icons.IconLoader;
@@ -91,7 +91,7 @@ public class FunctionsPanel extends AbstractJamochaPanel implements
 
 	private final JButton reloadButton;
 
-	public FunctionsPanel(final JamochaGui gui) {
+	public FunctionsPanel(final JamochaMainFrame gui) {
 		super(gui);
 		setLayout(new BorderLayout());
 

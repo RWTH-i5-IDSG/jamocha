@@ -19,8 +19,6 @@
 package org.jamocha.engine.nodes;
 
 import org.jamocha.Constants;
-import org.jamocha.application.gui.retevisualisation.NodeDrawer;
-import org.jamocha.application.gui.retevisualisation.nodedrawers.SlotFilterNodeDrawer;
 import org.jamocha.engine.Engine;
 import org.jamocha.engine.Evaluate;
 import org.jamocha.engine.ReteNet;
@@ -91,11 +89,6 @@ public class SlotFilterNode extends OneInputNode {
 		sb.append("|").append(slot.getId()).append(
 				(operator == Constants.EQUAL ? "==" : "!=")).append(
 				slot.getValue());
-	}
-
-	@Override
-	protected NodeDrawer newNodeDrawer() {
-		return new SlotFilterNodeDrawer(this);
 	}
 
 }

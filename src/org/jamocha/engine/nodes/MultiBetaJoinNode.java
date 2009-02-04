@@ -21,8 +21,6 @@ package org.jamocha.engine.nodes;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.jamocha.application.gui.retevisualisation.NodeDrawer;
-import org.jamocha.application.gui.retevisualisation.nodedrawers.MultiBetaFilterNodeDrawer;
 import org.jamocha.communication.logging.Logging;
 import org.jamocha.engine.Engine;
 import org.jamocha.engine.ReteNet;
@@ -165,11 +163,6 @@ public class MultiBetaJoinNode extends AbstractBetaFilterNode {
 		Node[] result = new Node[inputs.size()];
 		result = inputs.toArray(result);
 		return result;
-	}
-
-	@Override
-	protected NodeDrawer newNodeDrawer() {
-		return new MultiBetaFilterNodeDrawer(this);
 	}
 
 	@Override

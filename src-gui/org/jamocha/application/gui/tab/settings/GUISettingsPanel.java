@@ -47,7 +47,7 @@ import javax.swing.JTextField;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import org.jamocha.application.gui.JamochaGui;
+import org.jamocha.application.gui.JamochaMainFrame;
 import org.jamocha.application.gui.icons.IconLoader;
 import org.jamocha.settings.SettingsConstants;
 
@@ -82,7 +82,7 @@ public class GUISettingsPanel extends AbstractSettingsPanel implements
 
 	private final Font allFonts[];
 
-	public GUISettingsPanel(final JamochaGui gui) {
+	public GUISettingsPanel(final JamochaMainFrame gui) {
 		super(gui);
 		final JPanel mainPanel = new JPanel();
 		mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.PAGE_AXIS));

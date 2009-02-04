@@ -87,13 +87,21 @@ public class JamochaAgent extends ToolAgent {
 		// Load the properties and merge them with possible arguments
 		initProperties();
 
-		jamocha = new Jamocha(getProperties().getBooleanProperty(
+		/* TODO:
+		 * now, we can handle only the shell here.
+		 * we must read the jamocha.gui property and must start
+		 * a gui instead of a shell when it is true
+		 *
+		 *		jamocha = new Jamocha(getProperties().getBooleanProperty(
 				"jamocha.gui", false), getProperties().getBooleanProperty(
 				"jamoche.shell", false), null);
 		if (getProperties().getBooleanProperty("jamocha.gui", false)) {
 			jamocha.getJamochaGui().setExitOnClose(false);
 			jamocha.setGUITitle("JamochaAgent - " + getName());
 		}
+		 */
+		
+		jamocha = new Jamocha(null);
 
 		engine = jamocha.getEngine();
 

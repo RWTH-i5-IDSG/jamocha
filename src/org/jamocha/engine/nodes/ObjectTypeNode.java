@@ -20,8 +20,6 @@ package org.jamocha.engine.nodes;
 
 import java.util.logging.Logger;
 
-import org.jamocha.application.gui.retevisualisation.NodeDrawer;
-import org.jamocha.application.gui.retevisualisation.nodedrawers.ObjectTypeNodeDrawer;
 import org.jamocha.communication.logging.Logging;
 import org.jamocha.engine.Engine;
 import org.jamocha.engine.ReteNet;
@@ -114,11 +112,6 @@ public class ObjectTypeNode extends OneInputNode {
 	@Override
 	public boolean outputsBeta() {
 		return false;
-	}
-
-	@Override
-	protected NodeDrawer newNodeDrawer() {
-		return new ObjectTypeNodeDrawer(this);
 	}
 
 	@Override

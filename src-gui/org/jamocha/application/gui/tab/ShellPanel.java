@@ -60,7 +60,7 @@ import javax.swing.text.DefaultCaret;
 
 import org.jamocha.Constants;
 import org.jamocha.application.gui.ClipboardUtil;
-import org.jamocha.application.gui.JamochaGui;
+import org.jamocha.application.gui.JamochaMainFrame;
 import org.jamocha.application.gui.icons.IconLoader;
 import org.jamocha.communication.events.MessageEvent;
 import org.jamocha.communication.messagerouter.StreamChannel;
@@ -226,7 +226,7 @@ public class ShellPanel extends AbstractJamochaPanel implements ActionListener,
 	 * @param engine
 	 *            The Jamocha engine that should be used with this GUI.
 	 */
-	public ShellPanel(final JamochaGui gui) {
+	public ShellPanel(final JamochaMainFrame gui) {
 		super(gui);
 		autoCompletion = new AutoCompletion();
 		autoCompletionBox = new AutoCompletionBox(gui, autoCompletion, this);

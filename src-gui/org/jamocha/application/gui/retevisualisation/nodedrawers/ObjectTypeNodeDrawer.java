@@ -32,29 +32,12 @@ import org.jamocha.engine.nodes.ObjectTypeNode;
 
 public class ObjectTypeNodeDrawer extends AbstractNodeDrawer {
 
-	private Image icon = null;
-
-	public ObjectTypeNodeDrawer(final Node owner) {
-		super(owner);
-
-		String templname = ((ObjectTypeNode) owner).getTemplate().getName();
-		if (templname.equals(Constants.INITIAL_FACT)) {
-			templname = "initialFact";
-		}
-		final ImageIcon ii = IconLoader.getImageIcon(templname, this.getClass());
-		if (ii != null) {
-			while (ii.getImageLoadStatus() == MediaTracker.LOADING) {
-				try {
-					Thread.sleep(50);
-				} catch (final InterruptedException e) {
-				}
-			}
-			icon = ii.getImage();
-		}
+	public ObjectTypeNodeDrawer() {
+		super();
 	}
 
 	@Override
-	protected void drawNode(final int x, final int y, final int height,
+	protected void drawNode(Node node, final int x, final int y, final int height,
 			final int width, final int halfLineHeight,
 			final List<Node> selected, final Graphics2D canvas) {
 		final boolean isSelected = selected.contains(node);
@@ -64,17 +47,7 @@ public class ObjectTypeNodeDrawer extends AbstractNodeDrawer {
 		canvas.setColor(new Color(208, 181, 44, alpha));
 		canvas.drawRect(x, y, width, height);
 		canvas.setColor(new Color(0, 0, 0, alpha));
-		drawId(x, y, height, width, halfLineHeight, canvas);
-		if (icon != null && isSelected) {
-			final float aspectRatio = icon.getWidth(null)
-					/ icon.getHeight(null);
-			final int w = (int) (height * aspectRatio);
-			final int h = height;
-			final int x1 = x + width - w / 2;
-			final int y1 = y;
-			canvas.drawImage(icon, x1, y1, w, h, null);
-		}
-
+		drawId(node, x, y, height, width, halfLineHeight, canvas);
 	}
 
 }

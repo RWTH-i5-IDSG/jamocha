@@ -27,12 +27,12 @@ import org.jamocha.engine.nodes.Node;
 
 public class MultiBetaFilterNodeDrawer extends AbstractNodeDrawer {
 
-	public MultiBetaFilterNodeDrawer(final Node owner) {
-		super(owner);
+	public MultiBetaFilterNodeDrawer() {
+		super();
 	}
 
 	@Override
-	protected void drawNode(final int x, final int y, final int height,
+	protected void drawNode(Node node, final int x, final int y, final int height,
 			final int width, final int halfLineHeight,
 			final List<Node> selected, final Graphics2D canvas) {
 		final int alpha = selected.contains(node) ? 255 : 20;
@@ -44,7 +44,7 @@ public class MultiBetaFilterNodeDrawer extends AbstractNodeDrawer {
 		canvas.setColor(new Color(154, 208, 55, alpha));
 		canvas.drawPolygon(xpoints, ypoints, 4);
 		canvas.setColor(new Color(0, 0, 0, alpha));
-		drawId(x, y, height, width, halfLineHeight, canvas);
+		drawId(node, x, y, height, width, halfLineHeight, canvas);
 	}
 
 	// THIS STUFF IS FOR CALCULATING SOME DRAWING INTERNALS

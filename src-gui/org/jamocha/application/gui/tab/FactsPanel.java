@@ -41,7 +41,7 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableColumnModel;
 
-import org.jamocha.application.gui.JamochaGui;
+import org.jamocha.application.gui.JamochaMainFrame;
 import org.jamocha.application.gui.TableModelQuickSort;
 import org.jamocha.application.gui.TableRowModel;
 import org.jamocha.application.gui.editor.FactEditor;
@@ -80,7 +80,7 @@ public class FactsPanel extends AbstractJamochaPanel implements ActionListener,
 
 	private final JTextArea dumpArea;
 
-	public FactsPanel(final JamochaGui gui) {
+	public FactsPanel(final JamochaMainFrame gui) {
 		super(gui);
 		setLayout(new BorderLayout());
 

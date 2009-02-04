@@ -20,8 +20,6 @@ package org.jamocha.engine.nodes;
 
 import java.util.Iterator;
 
-import org.jamocha.application.gui.retevisualisation.NodeDrawer;
-import org.jamocha.application.gui.retevisualisation.nodedrawers.SimpleBetaFilterNodeDrawer;
 import org.jamocha.engine.Engine;
 import org.jamocha.engine.ReteNet;
 import org.jamocha.engine.nodes.joinfilter.GeneralizedJoinFilter;
@@ -119,11 +117,6 @@ public class SimpleBetaFilterNode extends AbstractBetaFilterNode {
 				propagateRemoval(wme);
 			}
 		}
-	}
-
-	@Override
-	protected NodeDrawer newNodeDrawer() {
-		return new SimpleBetaFilterNodeDrawer(this);
 	}
 
 	@Override

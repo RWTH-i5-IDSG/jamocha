@@ -19,7 +19,7 @@ package org.jamocha.application.gui.tab;
 
 import java.awt.BorderLayout;
 
-import org.jamocha.application.gui.JamochaGui;
+import org.jamocha.application.gui.JamochaMainFrame;
 import org.jamocha.application.gui.retevisualisation.UnknownConnectorTypeException;
 import org.jamocha.application.gui.retevisualisation.VisualizerPanel;
 import org.jamocha.settings.SettingsChangedListener;
@@ -45,7 +45,7 @@ public class ViewerPanel extends AbstractJamochaPanel {
 
 	VisualizerPanel visualizer;
 
-	public ViewerPanel(final JamochaGui gui) {
+	public ViewerPanel(final JamochaMainFrame gui) {
 		super(gui);
 		visualizer = new VisualizerPanel(gui.getEngine());
 		setLayout(new BorderLayout());

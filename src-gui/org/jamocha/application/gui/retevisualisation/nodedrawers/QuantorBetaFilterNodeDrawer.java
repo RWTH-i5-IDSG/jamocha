@@ -27,12 +27,12 @@ import org.jamocha.engine.nodes.Node;
 
 public class QuantorBetaFilterNodeDrawer extends AbstractNodeDrawer {
 
-	public QuantorBetaFilterNodeDrawer(final Node owner) {
-		super(owner);
+	public QuantorBetaFilterNodeDrawer() {
+		super();
 	}
 
 	@Override
-	protected void drawNode(final int x, final int y, final int height,
+	protected void drawNode(Node node, final int x, final int y, final int height,
 			final int width, final int halfLineHeight,
 			final List<Node> selected, final Graphics2D canvas) {
 		final int alpha = selected.contains(node) ? 255 : 20;
@@ -44,7 +44,7 @@ public class QuantorBetaFilterNodeDrawer extends AbstractNodeDrawer {
 		canvas.setColor(new Color(54, 208, 130, alpha));
 		canvas.drawPolygon(xpoints, ypoints, 4);
 		canvas.setColor(new Color(0, 0, 0, alpha));
-		drawId(x, y, height, width, halfLineHeight, canvas);
+		drawId(node, x, y, height, width, halfLineHeight, canvas);
 
 	}
 

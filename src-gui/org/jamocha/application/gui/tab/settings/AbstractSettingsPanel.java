@@ -24,7 +24,7 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import org.jamocha.application.gui.JamochaGui;
+import org.jamocha.application.gui.JamochaMainFrame;
 import org.jamocha.settings.JamochaSettings;
 
 /**
@@ -34,11 +34,11 @@ import org.jamocha.settings.JamochaSettings;
  */
 public abstract class AbstractSettingsPanel extends JPanel {
 
-	protected JamochaGui gui;
+	protected JamochaMainFrame gui;
 
 	protected JamochaSettings settings;
 
-	public AbstractSettingsPanel(final JamochaGui gui) {
+	public AbstractSettingsPanel(final JamochaMainFrame gui) {
 		this.gui = gui;
 		settings = JamochaSettings.getInstance();
 	}

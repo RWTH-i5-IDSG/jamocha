@@ -35,7 +35,7 @@ public interface NodeDrawer {
 
 	final static int shapeGapHeight = 25;
 
-	int drawNode(int fromColumn, List<Node> selected, Graphics2D canvas,
+	int drawNode(Node node, int fromColumn, List<Node> selected, Graphics2D canvas,
 			VisualizerSetup setup, Map<Node, Point> positions,
 			Map<Point, Node> p2n, Map<Node, Integer> rowHints,
 			int halfLineHeight);
