@@ -59,9 +59,6 @@
 	<target name="run-shell" depends="jars-core">
         <java jar="${dist}/jamocha.jar" fork="true">
         	<jvmarg value="-Djava.util.logging.config.file=src/org/jamocha/communication/logging/logging.properties" />
-            <classpath>
-                <path refid="classpath"/>
-            </classpath>
         </java>
 	</target>
 
@@ -112,6 +109,7 @@
             <manifest>
                 <attribute name="Built-By" value="${user.name}" />
                 <attribute name="Main-Class" value="org.jamocha.application.Jamocha" />
+            	<attribute name="Class-Path" value="${libs.project}" />
             </manifest>
         </jar>
 	</target>
@@ -137,7 +135,7 @@
 	        <manifest>
 	            <attribute name="Built-By" value="${user.name}" />
 	            <attribute name="Main-Class" value="org.jamocha.application.gui.JamochaGui" />
-	        	<attribute name="Class-Path" value=". ./jamocha.jar" />
+	        	<attribute name="Class-Path" value="${libs.project} jamocha.jar" />
 	        </manifest>
 	    </jar>
 	</target>
