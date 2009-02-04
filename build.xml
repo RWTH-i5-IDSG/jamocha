@@ -1,18 +1,30 @@
 <?xml version="1.0"?>
 <project name="Jamocha" basedir="." default="jars">
 
-	<target name="init">
+	<target name="init" description="sets properties and creates some paths">
+		
 		<property environment="env"/>
+		
 		<property name="releasever" value="beta.2152"/>
+		
 		<property name="lib.home" value="lib" />
 		<property name="app.name" value="Jamocha" />
-		<property name="src" value="${basedir}/src" />
+		
+		<property name="core.src" value="${basedir}/src" />
+		<property name="gui.src" value ="${basedir}/src-gui" />
 		<property name="unittests.src" value="${basedir}/tests" />
+			
 		<property name="bin" value="${basedir}/dist/bin" />
+		
+		<property name="packages" value="${basedir}/packages/" />
+		
 		<property name="dist" value="${basedir}/dist" />
-		<property name="packages" value="${basedir}/packages" />
+		
+		<!-- create some dirs -->
 		<mkdir dir="${bin}" />
 		<mkdir dir="${dist}" />
+		
+		<!-- set the classpath -->
 		<path id="classpath">
 			<pathelement path="${bin}" />
 			<fileset dir="${lib.home}">
@@ -20,6 +32,7 @@
 				<include name="**/*.zip" />
 			</fileset>
 		</path>
+		
 	</target>
 
 	<target name="parser" depends="init" description="Generate parser description for javacc">
@@ -33,48 +46,104 @@
 		<javacc javacchome="${javacc.home}" target="${src}/org/jamocha/languages/clips/parser/SFP.jj" outputdirectory="${src}/org/jamocha/languages/clips/parser/" />
 	</target>
 
-	<target name="run-gui" depends="jars">
-		<java jar="${dist}/jamocha.jar" fork="true">
-			<arg value="-gui"/>
+	<target name="run-gui" depends="jars-core, jars-gui">
+		<java jar="${dist}/jamocha-gui.jar" fork="true">
+            <jvmarg value="-Djava.util.logging.config.file=src/org/jamocha/communication/logging/logging.properties" />
+            <classpath>
+                <path refid="classpath"/>
+                <path location="${dist}/jamocha.jar"/>
+            </classpath>
 		</java>
 	</target>
+	
+	<target name="run-shell" depends="jars-core">
+        <java jar="${dist}/jamocha.jar" fork="true">
+        	<jvmarg value="-Djava.util.logging.config.file=src/org/jamocha/communication/logging/logging.properties" />
+            <classpath>
+                <path refid="classpath"/>
+            </classpath>
+        </java>
+	</target>
 
-	<target name="compile" depends="init" description="Compile the jamocha main sources">
-		<javac srcdir="${src}" destdir="${bin}" encoding="UTF-8" classpathref="classpath" debug="yes" />
+	<target name="compile-core" depends="init" description="Compile the jamocha main sources">
+		<javac srcdir="${core.src}" destdir="${bin}" encoding="UTF-8" classpathref="classpath" debug="yes" />
 		<!-- copy all files within the source directory (except the sources themselves)
 			to the bin directory. This is e.g. mandatory for the icons in the gui -->
 		<copy todir="${bin}">
-			<fileset dir="${src}" excludes="**/*.java" />
+			<fileset dir="${core.src}" excludes="**/*.java" />
 		</copy>
 	</target>
+	
+   <target name="compile-gui" depends="init" description="Compile the jamocha gui sources">
+        <javac srcdir="${gui.src}" destdir="${bin}" encoding="UTF-8" debug="yes">
+            <classpath>
+                <path refid="classpath"/>
+                <path location="${dist}/jamocha.jar"/>
+            </classpath>
+        </javac>
+        <!-- copy all files within the source directory (except the sources themselves)
+            to the bin directory. This is e.g. mandatory for the icons in the gui -->
+        <copy todir="${bin}">
+            <fileset dir="${gui.src}" excludes="**/*.java" />
+        </copy>
+    </target>
 
-	<target name="jars" depends="compile" description="Generate the jar files">
-		<pathconvert property="libs.project" pathsep=" ">
-			<mapper>
-				<chainedmapper>
-					<!-- remove absolute path -->
-					<flattenmapper />
-					<!-- add lib/ prefix -->
-					<globmapper from="*" to="lib/*" />
-				</chainedmapper>
-			</mapper>
-			<path>
-				<!-- lib.home contains all jar files, in several subdirectories -->
-				<fileset dir="${lib.home}">
-					<include name="**/*.jar" />
-				</fileset>
-			</path>
-		</pathconvert>
+    <target name="compile" depends="compile-core, compile-gui" description="Compile jamocha" />
 
-		<jar jarfile="${dist}/jamocha.jar" basedir="${bin}">
-			<manifest>
-				<attribute name="Built-By" value="${user.name}" />
-				<attribute name="Main-Class" value="org.jamocha.application.Jamocha" />
-				<attribute name="Class-Path" value="${libs.project}" />
-			</manifest>
-		</jar>
+	<target name="jars-core" depends="compile-core">
+        <pathconvert property="libs.project" pathsep=" ">
+            <mapper>
+                <chainedmapper>
+                    <!-- remove absolute path -->
+                    <flattenmapper />
+                    <!-- add lib/ prefix -->
+                    <globmapper from="*" to="lib/*" />
+                </chainedmapper>
+            </mapper>
+            <path>
+                <!-- lib.home contains all jar files, in several subdirectories -->
+                <fileset dir="${lib.home}">
+                    <include name="**/*.jar" />
+                </fileset>
+            </path>
+        </pathconvert>
+
+        <jar jarfile="${dist}/jamocha.jar" basedir="${bin}" excludes="org/jamocha/application/gui/**">
+            <manifest>
+                <attribute name="Built-By" value="${user.name}" />
+                <attribute name="Main-Class" value="org.jamocha.application.Jamocha" />
+            </manifest>
+        </jar>
+	</target>
+	
+	<target name="jars-gui" depends="compile-gui">
+	    <pathconvert property="libs.project" pathsep=" ">
+	        <mapper>
+	            <chainedmapper>
+	                <!-- remove absolute path -->
+	                <flattenmapper />
+	                 <!-- add lib/ prefix -->
+	                 <globmapper from="*" to="lib/*" />
+	            </chainedmapper>
+	        </mapper>
+	        <path>
+	            <!-- lib.home contains all jar files, in several subdirectories -->
+	            <fileset dir="${lib.home}">
+	                <include name="**/*.jar" />
+	            </fileset>
+	        </path>
+	    </pathconvert>
+	    <jar jarfile="${dist}/jamocha-gui.jar" basedir="${bin}" excludes="*" includes="org/jamocha/application/gui/**" >
+	        <manifest>
+	            <attribute name="Built-By" value="${user.name}" />
+	            <attribute name="Main-Class" value="org.jamocha.application.gui.JamochaGui" />
+	        	<attribute name="Class-Path" value=". ./jamocha.jar" />
+	        </manifest>
+	    </jar>
 	</target>
 
+	<target name="jars" depends="jars-core, jars-gui" />
+	
 	<target name="clean" depends="init" description="Clean the binary output directories.">
 		<delete dir="${bin}" />
 	</target>
@@ -130,7 +199,7 @@
 	
 	<target name ="packages-src" depends="init">
 	    <copy todir="${packages}/src/jamocha-src-${releasever}/src">
-		<fileset dir="${src}"/>
+		<fileset dir="${core.src}}"/>
 	    </copy>
 	    <copy todir="${packages}/src/jamocha-src-${releasever}/license">
 		<fileset file="LICENSE"/>
@@ -176,7 +245,7 @@
 	    <fileset file="build.xml"/>
 	    </copy>
 	    <copy todir="${packages}/all/jamocha-all-${releasever}/src">
-		<fileset dir="${src}"/>
+		<fileset dir="${core.src}"/>
 	    </copy>
 	    <copy todir="${packages}/all/jamocha-all-${releasever}/license">
 			<fileset file="LICENSE"/>
