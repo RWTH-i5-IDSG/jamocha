@@ -41,8 +41,7 @@ public class ObjectTypeNodeDrawer extends AbstractNodeDrawer {
 		if (templname.equals(Constants.INITIAL_FACT)) {
 			templname = "initialFact";
 		}
-		final ImageIcon ii = IconLoader
-				.getImageIcon(templname, this.getClass());
+		final ImageIcon ii = IconLoader.getImageIcon(templname, this.getClass());
 		if (ii != null) {
 			while (ii.getImageLoadStatus() == MediaTracker.LOADING) {
 				try {
