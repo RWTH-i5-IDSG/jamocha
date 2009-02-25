@@ -47,7 +47,12 @@ public class Deftemplate extends AbstractFunction {
 					+ "	(slot slot2name		;name of 2nd field\n"
 					+ "	(type SYMBOL))		;type of field\n"
 					+ "		...\n"
-					+ ")						;close deftemplate";
+					+ ")						;close deftemplate\n"
+					+ "\n"
+					+ "You can use (silent slot SLOTNAME) instead of (slot SLOTNAME).\n"
+					+ "A so-called silent slot is not observed by the rete engine, i.e."
+					+ "a change in a silent slot will not lead to a new evaluation whether\n"
+					+ "the fact matches to other rules now.";
 		}
 
 		public int getParameterCount() {
@@ -85,7 +90,7 @@ public class Deftemplate extends AbstractFunction {
 					+ "  (slot currentPrice (type DOUBLE))\n"
 					+ "  (slot issuer (type STRING))\n"
 					+ "  (slot lastPrice (type DOUBLE))\n"
-					+ "  (slot purchaseDate (type STRING))\n"
+					+ "  (silent slot purchaseDate (type STRING))\n"
 					+ "  (slot total (type DOUBLE))\n" + ")";
 		}
 
