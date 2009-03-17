@@ -24,6 +24,7 @@ import java.util.PriorityQueue;
 import java.util.Queue;
 
 import org.jamocha.communication.logging.Logging;
+import org.jamocha.engine.Dumpable;
 import org.jamocha.engine.Engine;
 import org.jamocha.engine.ExecuteException;
 import org.jamocha.engine.util.ProfileStats;
@@ -35,7 +36,7 @@ import org.jamocha.engine.util.ProfileStats;
  *         activations. furthermore, you can "fire" the agenda, which starts
  *         processing the rule's actions of the activations.
  */
-public class Agenda implements Serializable {
+public class Agenda implements Dumpable {
 	
 	protected class AutofireThread extends Thread {
 		
@@ -261,5 +262,9 @@ public class Agenda implements Serializable {
 		// concurrent modification of the fact base.
 		//act.fire(parentEngine);
 		new AutofireThread(act).start();
+	}
+
+	public String getDump() {
+		return "";
 	}
 }
