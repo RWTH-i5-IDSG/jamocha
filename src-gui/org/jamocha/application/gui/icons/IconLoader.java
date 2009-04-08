@@ -24,6 +24,8 @@ import java.util.Map;
 
 import javax.swing.ImageIcon;
 
+import org.jamocha.application.Jamocha;
+
 /**
  * The IconLoader loads all ImageIcons used in the GUI. To save memory it caches
  * used icons and loads them from the cache when reused.

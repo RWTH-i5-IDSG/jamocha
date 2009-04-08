@@ -264,7 +264,18 @@ public class BeffyRuleCompiler implements RuleCompiler {
 			{
 				Condition ccond = bc.getParentCondition();
 				while (ccond != null) {
-					level++;
+					/*
+					 * we have weighted level increment, because
+					 * e.g. an exists-condition in the chain must 
+					 * leave to a level which is higher than all chains
+					 * without an exists
+					 */
+					int weight=1;
+					
+					if (ccond instanceof ExistsCondition) weight=100;
+					if (ccond instanceof NotExistsCondition) weight=100;
+					
+					level+=weight;
 					ccond = ccond.getParentCondition();
 				}
 			}
@@ -438,8 +449,8 @@ public class BeffyRuleCompiler implements RuleCompiler {
 					Condition alphaCond = (isAlpha(c1)) ? c1 : c2;
 					Condition betaCond = (isAlpha(c1)) ? c2 : c1;
 					if (isAlpha(c1) && isAlpha(c2)) {
-						log("(%d) building left-input-adaptor for condition %d, because both inputs are alpha",p,betaCond.hashCode());
 						LeftInputAdaptorNode lia = new LeftInputAdaptorNode(engine);
+						log("(%d) building left-input-adaptor %d for condition %d, because both inputs are alpha",p,lia.getId(),betaCond.hashCode());
 						Node n = data.getLastNode(betaCond);
 						n.addChild(lia); slow(data);
 						data.setLastNode(betaCond, lia);
@@ -563,11 +574,21 @@ public class BeffyRuleCompiler implements RuleCompiler {
 			log("(%d) i enter exists-condition %d now. i will visit the (hopefully only) sub-condition now.",p,c.hashCode());
 			assert c.getNestedConditions().size() == 1;
 			Condition nested = c.getNestedConditions().get(0);
+			assert nested instanceof ObjectCondition;
 			nested.acceptVisitor(this, data);
 			Node lastNode = data.getLastNode(nested);
 			//TODO discuss, how the stuff must go on here
 			log("(%d) do some other magic and wrong stuff here...",p);
 			List<Integer> distinctionSlots = new ArrayList<Integer>();
+			ObjectCondition oc = (ObjectCondition)nested;
+			for (Constraint constr: nested.getFlatConstraints()) {
+				if (constr instanceof BoundConstraint) {
+					BoundConstraint bc = (BoundConstraint)constr;
+					Template t = engine.findTemplate(oc.getTemplateName());
+					int id=t.getSlot(bc.getSlotName()).getId();
+					distinctionSlots.add(id);
+				}
+			}
 			
 			AlphaQuantorDistinctionNode quantorNode = new AlphaQuantorDistinctionNode(engine, distinctionSlots);
 			try {

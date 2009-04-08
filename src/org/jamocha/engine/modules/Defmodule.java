@@ -179,8 +179,10 @@ public class Defmodule implements Module {
 
 		sb.append("(def-module \"").append(getName()).append("\")");
 
+		sb.append("\n");
+		
 		for (final Rule r : getAllRules())
-			sb.append(r.getDump());
+			sb.append(r.getDump()).append("\n");
 
 		return sb.toString();
 	}

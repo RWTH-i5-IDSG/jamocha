@@ -682,7 +682,7 @@ Return type is [+<DOUBLE>+]
 "none"
 !!!!Example
 @@Jamocha> (asin (random))\\
-1.003272512687898\\
+0.7262562794088415\\
 @@
 
 ----
@@ -1210,7 +1210,7 @@ Return type is [+<LONG>+]
 "none"
 !!!!Example
 @@Jamocha> (ms-time)\\
-1216742988894\\
+1236164094771\\
 @@
 
 ----
@@ -1225,9 +1225,9 @@ Return type is [+<DATETIME>+]
 "none"
 !!!!Example
 @@Jamocha> (now)\\
-2008-07-22 18:09:48+01\\
+2009-03-04 11:54:54.773+01\\
 Jamocha> (getseconds (now))\\
-48\\
+54\\
 @@
 
 ----
@@ -1244,7 +1244,7 @@ Return type is [+<DATETIME>+]
 
 !!!!Example
 @@Jamocha> (timestamp2datetime 293196017000)\\
-1979-04-17 11:20:17+00\\
+1979-04-17 11:20:17.000+00\\
 @@
 
 ----
@@ -1793,15 +1793,18 @@ for a total of 2\\
 
 ----
 
-!!!assert-temporal
+!!!assert-existing-fact
 !!!!Description
-Allows the user to add a temporal fact to the fact-list. If the fact-list is being watched, an inform message is printed each time a fact is asserted.\\
+Allows to assert facts, which already exist as java objects.\\
 
 This function [+hasn't+] fixed parameter count.\\
-Return type is [+<FACT_ID>+]
+Return type is [+<BOOLEAN>+]
 !!!!Parameter
 
-[+<unknown>+] temporalFactTemporal fact(s) to be asserted.\\
+[+<unknown>+] factFact(s) to be asserted.\\
+
+!!!!Example
+@@(assert-existing-fact ?f)@@
 
 ----
 
@@ -1925,7 +1928,7 @@ Jamocha> (fire)\\
 
 !!!deftemplate
 !!!!Description
-Defines a new template in the currently focused module of the engine. A template has the following syntax: (deftemplate templ  ;name of deftemplate relation  'comment'   ;optional comment in quotes  (slot slot1name  ;name of 1st field  (type STRING)  ;type of field (optional)  (default ?someVar)) ;default value of 1st field (optional)  (slot slot2name  ;name of 2nd field  (type SYMBOL))  ;type of field   ... )      ;close deftemplate\\
+Defines a new template in the currently focused module of the engine. A template has the following syntax: (deftemplate templ  ;name of deftemplate relation  'comment'   ;optional comment in quotes  (slot slot1name  ;name of 1st field  (type STRING)  ;type of field (optional)  (default ?someVar)) ;default value of 1st field (optional)  (slot slot2name  ;name of 2nd field  (type SYMBOL))  ;type of field   ... )      ;close deftemplate  You can use (silent slot SLOTNAME) instead of (slot SLOTNAME). A so-called silent slot is not observed by the rete engine, i.e.a change in a silent slot will not lead to a new evaluation whether the fact matches to other rules now.\\
 
 This function [+has+] fixed parameter count.\\
 Return type is [+<BOOLEAN>+]
@@ -1940,7 +1943,7 @@ Return type is [+<BOOLEAN>+]
   (slot currentPrice (type DOUBLE))\\
   (slot issuer (type STRING))\\
   (slot lastPrice (type DOUBLE))\\
-  (slot purchaseDate (type STRING))\\
+  (silent slot purchaseDate (type STRING))\\
   (slot total (type DOUBLE))\\
 )\\
 true\\
@@ -2069,8 +2072,8 @@ Jamocha> (assert (car (color 'green')(speed 100)))\\
 f-4\\
 Jamocha> (fact-id 2)\\
 (car\\
-(color 'red')\\
-(speed 200)\\
+    (color 'red')\\
+    (speed 200)\\
 )\\
 @@
 
@@ -2192,6 +2195,23 @@ Return type is [+<STRING>+]
 
 ----
 
+!!!get-next-eventpoint
+!!!!Description
+\\
+
+This function [+has+] fixed parameter count.\\
+Return type is [+<DOUBLE>+]
+!!!!Parameter
+
+[+<NUMBER>+] \\
+
+!!!!Example
+@@Jamocha> (tan (/ (pi) 2))\\
+1.633123935319537E16\\
+@@
+
+----
+
 !!!gc
 !!!!Description
 Runs the Java garbage collector.\\
@@ -2244,7 +2264,7 @@ Return type is [+<STRING>+]
 "none"
 !!!!Example
 @@Jamocha> (get-strategy)\\
-HighestComplexityFirstStrategy\\
+DepthStrategy\\
 @@
 
 ----
@@ -2424,46 +2444,19 @@ This function [+hasn't+] fixed parameter count.\\
 Return type is [+<BOOLEAN>+]
 !!!!Parameter
 
-[+<FACT>+] factFact to modify.\\
+[+<FACT_ID>+] factFact to modify.\\
 
 [+<SLOT>+] slotSlot and new value which is changed in the given fact.\\
 
 !!!!Example
-@@Jamocha> (deftemplate car (slot color)(slot speed))\\
-true\\
-Jamocha> (assert (car (color 'red')(speed 200)))\\
-f-2\\
-Jamocha> (assert (car (color 'blue')(speed 150)))\\
-f-3\\
-Jamocha> (assert (car (color 'green')(speed 100)))\\
-f-4\\
-Jamocha> (bind ?fact (fact-id 2))\\
-true\\
-Jamocha> (echo ?fact)\\
-(car\\
-(color 'red')\\
-(speed 200)\\
-)\\
-\\
-Jamocha> (modify ?fact (speed 500))\\
-true\\
-Jamocha> (facts)\\
-(_initialFact\\
-)\\
-(car\\
-    (color 'red')\\
-    (speed 500)\\
-)\\
-(car\\
-    (color 'blue')\\
-    (speed 150)\\
-)\\
-(car\\
-    (color 'green')\\
-    (speed 100)\\
-)\\
-for a total of 4\\
-@@
+@@(deftemplate car (slot color)(slot speed))\\
+(assert (car (color 'red')(speed 200)))\\
+(assert (car (color 'blue')(speed 150)))\\
+(assert (car (color 'green')(speed 100)))\\
+(bind ?fact (fact-id 2))\\
+(echo ?fact)\\
+(modify ?fact (speed 500))\\
+(facts)@@
 
 ----
 
@@ -2484,6 +2477,21 @@ MAIN\\
 for a total of 2\\
 \\
 @@
+
+----
+
+!!!node-memory
+!!!!Description
+Prints the memory content of a node. Returns 'True', iff there was a node with the given id.\\
+
+This function [+has+] fixed parameter count.\\
+Return type is [+<BOOLEAN>+]
+!!!!Parameter
+
+[+<LONG>+] node-idThe node ID\\
+
+!!!!Example
+@@(node-memory 0)@@
 
 ----
 
@@ -2635,14 +2643,10 @@ Jamocha> (facts)\\
     (speed 200)\\
 )\\
 (car\\
-    (color 'blue')\\
-    (speed 150)\\
-)\\
-(car\\
     (color 'green')\\
     (speed 100)\\
 )\\
-for a total of 3\\
+for a total of 2\\
 @@
 
 ----
@@ -2922,19 +2926,6 @@ NIL\\
 
 ----
 
-!!!view
-!!!!Description
-Shows the rete visualization.\\
-
-This function [+has+] fixed parameter count.\\
-Return type is [+<NONE>+]
-!!!!Parameter
-"none"
-!!!!Example
-@@(view)@@
-
-----
-
 !!!text-view
 !!!!Description
 Prints the rete network in text view\\
@@ -2966,6 +2957,32 @@ true\\
 Jamocha> (assert (templ2 (name test1)) (templ2 (name test2)))\\
 f-3\\
 @@
+
+----
+
+!!!jsr94-ruleset-description
+!!!!Description
+Sets the ruleset description inside a JSR-94 ruleset\\
+
+This function [+has+] fixed parameter count.\\
+Return type is [+<NONE>+]
+!!!!Parameter
+"none"
+!!!!Example
+@@(jsr94-ruleset-description)@@
+
+----
+
+!!!jsr94-ruleset-name
+!!!!Description
+Sets the ruleset name inside a JSR-94 ruleset\\
+
+This function [+has+] fixed parameter count.\\
+Return type is [+<NONE>+]
+!!!!Parameter
+"none"
+!!!!Example
+@@(jsr94-ruleset-name)@@
 
 ----
 

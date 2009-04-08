@@ -38,6 +38,7 @@ import org.jamocha.formatter.Formatter;
 import org.jamocha.parser.EvaluationException;
 import org.jamocha.parser.Expression;
 import org.jamocha.parser.JamochaValue;
+import org.jamocha.parser.ParserFactory;
 
 /**
  * @author Peter Lin
@@ -315,7 +316,8 @@ public class Defrule implements Rule {
 	 * generates text-dump from rule
 	 */
 	public String getDump() {
-		return toString();
+		String result=ParserFactory.getFormatter().visit(this);
+		return result;
 	}
 
 	public void setDescription(String text) {
