@@ -56,8 +56,6 @@ public class Jamocha {
 	 * @see #showUsage()
 	 */
 	public static void main(String[] args) {
-		boolean startGui = false;
-		boolean startShell = false;
 		List<String> batchFiles = new LinkedList<String>();
 		if (null != args) {
 			boolean inBatchFiles = false;

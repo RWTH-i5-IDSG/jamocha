@@ -64,10 +64,10 @@ public class ObjectTypeNode extends OneInputNode {
 	//TODO: this logic should be in the template- and/or fact-classes
 	private boolean eval(Fact f) {
 		if (template instanceof Deftemplate) {
-			Logging.logger(this.getClass()).debug("evaluating a "+f.getClass().getSimpleName()+" in a deftemplate situation");
+			if (!(f instanceof Deffact)) Logging.logger(this.getClass()).debug("evaluating a "+f.getClass().getSimpleName()+" in a deftemplate situation");
 			return (f.getTemplate().getName().equals(template.getName()));
 		} else if (template instanceof JavaTemplate) {
-			
+
 			if (f instanceof Deffact) {
 				Logging.logger(this.getClass()).debug("evaluating a "+f.getClass().getSimpleName()+" in a javatemplate/deffact situation");
 				return (f.getTemplate().getName().equals(template.getName()));

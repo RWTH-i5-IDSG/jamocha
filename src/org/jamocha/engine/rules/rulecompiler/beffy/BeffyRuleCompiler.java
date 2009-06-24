@@ -233,9 +233,7 @@ public class BeffyRuleCompiler implements RuleCompiler {
 		
 		public Binding getBinding(Rule r, String varName, TerminalNode focus) {
 			BindingInformation bi = getBindingInformation(r,varName,focus);
-			if (bi != null) {
-				return getBindingInformation(r,varName,focus).b;				
-			} else return null;
+			return (bi!=null) ? bi.b : null;
 		}
 		
 		private void putBinding(Rule r, TerminalNode focus, String varName, BindingInformation binding) {
@@ -415,6 +413,9 @@ public class BeffyRuleCompiler implements RuleCompiler {
 	
 	private class BeffyRuleConditionVisitor implements ConditionVisitor<CompileTableau, CompileTableau> {
 
+		/**
+		 * @return true, iff c is a Object-, Exists- or TestCondition
+		 */
 		private boolean isAlpha(Condition c) {
 			return (c instanceof ObjectCondition || c instanceof ExistsCondition || c instanceof TestCondition);
 		}
@@ -452,12 +453,12 @@ public class BeffyRuleCompiler implements RuleCompiler {
 						LeftInputAdaptorNode lia = new LeftInputAdaptorNode(engine);
 						log("(%d) building left-input-adaptor %d for condition %d, because both inputs are alpha",p,lia.getId(),betaCond.hashCode());
 						Node n = data.getLastNode(betaCond);
-						n.addChild(lia); slow(data);
+						n.addChild(lia); 
 						data.setLastNode(betaCond, lia);
 					}
 					log("(%d) add new join to both subcondition's last nodes and fix the tuple indices",p);
-					data.getLastNode(c1).addChild(joinNode);slow(data);
-					data.getLastNode(c2).addChild(joinNode);slow(data);
+					data.getLastNode(c1).addChild(joinNode);
+					data.getLastNode(c2).addChild(joinNode);
 					// fix the tuple indices for c1 and c2
 					MutableInteger oldIdxC1 = data.getTupleIndexFromCondition(betaCond);
 					MutableInteger oldIdxC2 = data.getTupleIndexFromCondition(alphaCond);
@@ -480,7 +481,7 @@ public class BeffyRuleCompiler implements RuleCompiler {
 				for (Condition sub : c.getNestedConditions()) {
 					Node n = data.getLastNode(sub);
 					try {
-						n.addChild(joinNode);slow(data);
+						n.addChild(joinNode);
 					} catch (NodeException e) {
 						logAndFail(e,data);
 					}
@@ -540,11 +541,11 @@ public class BeffyRuleCompiler implements RuleCompiler {
 								TemplateSlot s2 = t2.getSlot(pivot.getSlotIndex());
 								AlphaSlotComparatorNode comp = new AlphaSlotComparatorNode(engine,op,s1,s2);
 								Node lastNode = data.getLastNode(nest);
-								lastNode.removeChild(join);slow(data);
+								lastNode.removeChild(join);
 								try {
-									lastNode.addChild(comp);slow(data);
+									lastNode.addChild(comp);
 									data.setLastNode(nest, comp);
-									comp.addChild(join);slow(data);
+									comp.addChild(join);
 								} catch (NodeException e) {
 									logAndFail(e,data);
 								}
@@ -592,7 +593,7 @@ public class BeffyRuleCompiler implements RuleCompiler {
 			
 			AlphaQuantorDistinctionNode quantorNode = new AlphaQuantorDistinctionNode(engine, distinctionSlots);
 			try {
-				lastNode.addChild(quantorNode);slow(data);
+				lastNode.addChild(quantorNode);
 			} catch (NodeException e) {
 				logAndFail(e, data);
 			}
@@ -627,7 +628,7 @@ public class BeffyRuleCompiler implements RuleCompiler {
 						slot.setValue(lc.getValue());
 						log("(%d) found literal constraint (%s %s %s). i'll generate a SlotFilterNode for it.",p, slot.getName(), (lc.isNegated()?"!=":"==") , slot.getValue().implicitCast(JamochaType.STRING).getStringValue() );
 						SlotFilterNode filterNode = new SlotFilterNode(engine, operator, slot);
-						lastNode.addChild(filterNode);slow(data);
+						lastNode.addChild(filterNode);
 						lastNode = filterNode;
 					} else if (constr instanceof BoundConstraint) {
 						BoundConstraint bc = (BoundConstraint) constr;
@@ -694,7 +695,7 @@ public class BeffyRuleCompiler implements RuleCompiler {
 				
 				try {
 					log("(%d) add terminal node for '%s'",p,data.getRule().getName());
-					last.addChild(terminal);slow(data);
+					last.addChild(terminal);
 					terminalNodes.put(data.getRule(), terminal);
 					log("(%d) activate nodes for '%s'",p,data.getRule().getName());
 					rootNode.activate();
@@ -868,18 +869,6 @@ public class BeffyRuleCompiler implements RuleCompiler {
 	
 	private void notifyListeners(CompileEvent ev) {
 		for (CompilerListener li : listeners) li.compileEventOccured(ev);
-	}
-	
-	private void slow(CompileTableau t) {
-		if (t.getRule() instanceof Defrule) {
-			Defrule r = (Defrule) t.getRule();
-			if (r.getSlowCompile()){
-				try {
-					Thread.currentThread().sleep(2500);
-				} catch (InterruptedException e) {
-				}
-			}
-		}
 	}
 
 	public void removeRule(Rule rule) {

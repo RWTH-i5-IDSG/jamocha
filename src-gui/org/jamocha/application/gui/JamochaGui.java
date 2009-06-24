@@ -26,6 +26,7 @@ import javax.swing.UIManager;
 
 import org.jamocha.application.gui.JamochaMainFrame;
 import org.jamocha.communication.BatchThread;
+import org.jamocha.communication.logging.Logging;
 import org.jamocha.engine.Engine;
 
 /**
@@ -148,7 +149,7 @@ public class JamochaGui {
 			try{ 
 				UIManager.setLookAndFeel( UIManager.getSystemLookAndFeelClassName() ); 
 			}catch( Exception e ){
-				e.printStackTrace();
+				Logging.logger(this.getClass()).info(e);
 			}
 			jamochaGui = new JamochaMainFrame(engine, batchThread);
 			Thread guiThread = new Thread("GUI Thread") {
