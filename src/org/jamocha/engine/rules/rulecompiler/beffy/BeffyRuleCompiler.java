@@ -465,6 +465,9 @@ public class BeffyRuleCompiler implements RuleCompiler {
 					log("(%d) before fixing: tuple index from condition %d is %d and from %d is %d.",p,betaCond.hashCode(),oldIdxC1.get(),alphaCond.hashCode(),oldIdxC2.get());
 					int res = oldIdxC1.get() + 1;
 					oldIdxC2.set(res);
+					
+					data.getTupleIndexFromCondition(c).set(res);
+					
 					log("(%d) fixing tuple index from condition %d to %d",p,alphaCond.hashCode(),res);
 					log("(%d) set %d as corresponding join for the condition %d",p, joinNode.getId(), alphaCond.hashCode());
 					data.setCorrespondingJoin(alphaCond, joinNode);
