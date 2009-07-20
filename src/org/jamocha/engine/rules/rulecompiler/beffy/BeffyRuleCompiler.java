@@ -481,8 +481,17 @@ public class BeffyRuleCompiler implements RuleCompiler {
 				MultiBetaJoinNode joinNode = new MultiBetaJoinNode(engine);
 				log("(%d) i will build a fat join %d",p,joinNode.getId());
 				join=joinNode;
+				int indexOffset = 0;
 				for (Condition sub : c.getNestedConditions()) {
 					Node n = data.getLastNode(sub);
+					
+					if (indexOffset>0) {
+						// increase all indices for condition on top of "sub"
+						// by "indexOffset"
+					}
+					MutableInteger forConditionOffset = data.getTupleIndexFromCondition(sub);
+					indexOffset += forConditionOffset.get();
+				
 					try {
 						n.addChild(joinNode);
 					} catch (NodeException e) {
@@ -491,6 +500,7 @@ public class BeffyRuleCompiler implements RuleCompiler {
 					if (isAlpha(sub)) data.setCorrespondingJoin(sub, joinNode);
 				}
 				data.setLastNode(c, joinNode);
+				data.getTupleIndexFromCondition(c).set(indexOffset);
 			}
 			
 			// here we can put tests in the join node.
