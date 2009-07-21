@@ -25,6 +25,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Stack;
 
 import org.jamocha.Constants;
 import org.jamocha.communication.events.CompileEvent;
@@ -69,8 +70,8 @@ import org.jamocha.rules.AndCondition;
 import org.jamocha.rules.BoundConstraint;
 import org.jamocha.rules.Condition;
 import org.jamocha.rules.ConditionVisitor;
+import org.jamocha.rules.ConditionWithNested;
 import org.jamocha.rules.Constraint;
-import org.jamocha.rules.Defrule;
 import org.jamocha.rules.ExistsCondition;
 import org.jamocha.rules.LiteralConstraint;
 import org.jamocha.rules.NotExistsCondition;
@@ -483,21 +484,50 @@ public class BeffyRuleCompiler implements RuleCompiler {
 				join=joinNode;
 				int indexOffset = 0;
 				for (Condition sub : c.getNestedConditions()) {
+					log("(%d) new iteration.",p);
+					int agg=0;
 					Node n = data.getLastNode(sub);
-					
-					if (indexOffset>0) {
-						// increase all indices for condition on top of "sub"
-						// by "indexOffset"
+
+					// increase all indices for condition on top of "sub"
+					// by "indexOffset"
+					List<Condition> alphaConditions = new ArrayList<Condition>();
+					Stack<ConditionWithNested> betaConditions = new Stack<ConditionWithNested>();
+
+					if (sub instanceof ConditionWithNested) {
+						betaConditions.push((ConditionWithNested)sub);
+					} else {
+						alphaConditions.add(sub);
 					}
-					MutableInteger forConditionOffset = data.getTupleIndexFromCondition(sub);
-					indexOffset += forConditionOffset.get();
-				
+					
+					while (!betaConditions.isEmpty()) {
+						ConditionWithNested betacond = betaConditions.pop();
+						for (Condition ssub: betacond.getNestedConditions()) {
+							if (ssub instanceof ConditionWithNested) {
+								betaConditions.add((ConditionWithNested)ssub);
+							} else {
+								alphaConditions.add(ssub);
+							}
+						}
+					}
+						
+					// new indices
+					for (Condition cc: alphaConditions) {
+						MutableInteger idx = data.getTupleIndexFromCondition(cc);
+						int iidx = idx.get();
+						iidx += indexOffset;
+						agg++;
+						idx.set(iidx);
+						log("(%d) condition %d gets new index %d because indexoffset was %d.",p,cc.hashCode(),iidx,indexOffset);
+					}
+
+					
 					try {
 						n.addChild(joinNode);
 					} catch (NodeException e) {
 						logAndFail(e,data);
 					}
 					if (isAlpha(sub)) data.setCorrespondingJoin(sub, joinNode);
+					indexOffset += agg;
 				}
 				data.setLastNode(c, joinNode);
 				data.getTupleIndexFromCondition(c).set(indexOffset);
