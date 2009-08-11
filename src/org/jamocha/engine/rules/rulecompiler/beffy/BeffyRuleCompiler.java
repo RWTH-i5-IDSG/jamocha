@@ -558,7 +558,7 @@ public class BeffyRuleCompiler implements RuleCompiler {
 					for (Constraint constr : oc.getConstraints()) {
 						if (constr instanceof BoundConstraint) {
 							BoundConstraint bc = (BoundConstraint) constr;
-							MutableInteger tupleIdx = data.getTupleIndexFromCondition(oc);
+							MutableInteger tupleIdx = data.getTupleIndexFromCondition(oc).clone();
 							Template templ = engine.findTemplate(oc.getTemplateName());
 							int slotIdx = bc.isFactBinding() ? -1 : templ.getSlot(bc.getSlotName()).getId();
 							// 'tupleIdx' and 'slotIdx' are our field-address for the actual bound-param
@@ -595,8 +595,8 @@ public class BeffyRuleCompiler implements RuleCompiler {
 								
 							} else {
 								log("(%d) ...its not the pivot and in another condition. write a filter in the join %d",p,join.getId());
-								LeftFieldAddress f1 = new LeftFieldAddress(tupleIdx,slotIdx);
-								LeftFieldAddress f2 = new LeftFieldAddress(pivot.getTupleIndex(),pivot.getSlotIndex());
+								LeftFieldAddress f1 = new LeftFieldAddress(tupleIdx.clone(),slotIdx);
+								LeftFieldAddress f2 = new LeftFieldAddress(pivot.getTupleIndex().clone(),pivot.getSlotIndex());
 								int op = (bc.isNegated())? Constants.NOTEQUAL : Constants.EQUAL;
 								GeneralizedFieldComparator filter = new GeneralizedFieldComparator(bc.getConstraintName(),f1,op,f2);
 								join.addFilter(filter);
@@ -794,9 +794,9 @@ public class BeffyRuleCompiler implements RuleCompiler {
 				Binding bnd = bindings.getBinding(tableau.getRule(), bp.getVariableName(), tableau.getCurrentFocus());
 				FieldAddress fa;
 				if (bnd.isWholeFactBinding()) {
-					fa = new LeftFieldAddress(bnd.getTupleIndex());
+					fa = new LeftFieldAddress(bnd.getTupleIndex().clone());
 				} else {
-					fa= new LeftFieldAddress(bnd.getTupleIndex(),bnd.getSlotIndex());
+					fa= new LeftFieldAddress(bnd.getTupleIndex().clone(),bnd.getSlotIndex());
 				}
 				result.add(fa);
 			} else if (p instanceof JamochaValue) {

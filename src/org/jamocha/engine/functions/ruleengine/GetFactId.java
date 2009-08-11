@@ -110,7 +110,7 @@ public class GetFactId extends AbstractFunction {
 		if (params != null && params.length == 1) {
 			JamochaValue param = params[0].getValue(engine);
 			if (param.is(JamochaType.FACT)) {
-				Fact fact = param.getFactValue();
+				Fact fact = param.getFactValue(engine);
 				if (fact == null)
 					return JamochaValue.newFactId(0);
 				else

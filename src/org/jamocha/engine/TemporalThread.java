@@ -2,11 +2,9 @@ package org.jamocha.engine;
 
 import java.beans.ExceptionListener;
 import java.util.Comparator;
-import java.util.GregorianCalendar;
 import java.util.PriorityQueue;
 import java.util.Queue;
 
-import org.jamocha.communication.logging.Logging;
 import org.jamocha.engine.TemporalValidity.EventPoint;
 
 public abstract class TemporalThread extends Thread {

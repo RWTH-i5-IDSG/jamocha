@@ -72,7 +72,7 @@ public class Jamocha {
 				}
 			}
 		}
-		Jamocha jamocha  = new Jamocha(batchFiles);
+		new Jamocha(batchFiles);
 	}
 
 	/**

@@ -137,7 +137,7 @@ public class FactSlotValue extends AbstractFunction {
 			if (!factId.is(JamochaType.FACT))
 				fact = engine.getFactById(factId.implicitCast(JamochaType.FACT_ID));
 			else
-				fact = factId.getFactValue();
+				fact = factId.getFactValue(engine);
 			
 			int slotId = fact.getSlotId(slotName.getIdentifierValue());
 			if (slotId < 0)

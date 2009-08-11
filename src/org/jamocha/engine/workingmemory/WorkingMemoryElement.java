@@ -27,7 +27,7 @@ import org.jamocha.engine.workingmemory.elements.Fact;
  * @author Josef Alexander Hahn <mail@josef-hahn.de> a (alpha- or beta-) working
  *         memory element.
  */
-public interface WorkingMemoryElement extends Serializable {
+public interface WorkingMemoryElement {
 
 	/**
 	 * returns the complete description string with all its content

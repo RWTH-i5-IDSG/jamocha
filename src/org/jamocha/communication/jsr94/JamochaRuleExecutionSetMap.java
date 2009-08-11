@@ -45,6 +45,7 @@ public class JamochaRuleExecutionSetMap {
 		map.remove(uri);
 	}
 	
+	@SuppressWarnings("unchecked")
 	public List getRegistrators() {
 		List result = new ArrayList();
 		for (String s : map.keySet()) {

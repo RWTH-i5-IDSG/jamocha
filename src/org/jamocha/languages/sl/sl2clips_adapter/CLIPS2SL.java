@@ -64,7 +64,7 @@ public class CLIPS2SL {
 			}
 			res.append(")");
 		} else if (value.getType().equals(JamochaType.FACT)) {
-			Fact fact = value.getFactValue();
+			Fact fact = value.getFactValue(engine);
 			Template tmpl = fact.getTemplate();
 			res.append("(" + tmpl.getName() + "\n");
 			for (int i = 0; i < tmpl.getNumberOfSlots(); i++) {

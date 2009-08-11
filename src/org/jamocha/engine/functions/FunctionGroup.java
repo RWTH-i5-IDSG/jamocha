@@ -29,7 +29,7 @@ import java.util.List;
  * one might want to group mathematic functions together. Or IO functions
  * together into a group.
  */
-public abstract class FunctionGroup implements Serializable {
+public abstract class FunctionGroup {
 
 	protected String name = "undefined";
 

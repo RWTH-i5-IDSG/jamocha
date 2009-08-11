@@ -31,8 +31,7 @@ import org.jamocha.parser.JamochaType;
  * necessary because slots are used to parse CLIPS and for the RETE nodes. <br>
  * 
  */
-public abstract class AbstractSlot implements Serializable, Cloneable,
-		Formattable {
+public abstract class AbstractSlot implements Cloneable, Formattable {
 
 	/**
 	 * The name of the slot

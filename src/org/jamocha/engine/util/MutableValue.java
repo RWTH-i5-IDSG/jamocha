@@ -2,7 +2,7 @@ package org.jamocha.engine.util;
 
 public class MutableValue<T extends Object> {
 
-	private T v;
+	protected T v;
 	
 	public MutableValue(T v) {
 		this.v=v;
@@ -14,6 +14,10 @@ public class MutableValue<T extends Object> {
 	
 	public void set(T v) {
 		this.v=v;
+	}
+	
+	public MutableValue<T> clone() {
+		return new MutableValue<T>(v);
 	}
 	
 	@Override

@@ -157,7 +157,7 @@ public class Member$ extends AbstractFunction {
 					}
 			} else {
 				if (first.is(JamochaType.FACT))
-					first = JamochaValue.newFactId(first.getFactValue()
+					first = JamochaValue.newFactId(first.getFactValue(engine)
 							.getFactId());
 				for (int i = 0; i < second.getListCount(); i++)
 					if (first.equals(second.getListValue(i))) {

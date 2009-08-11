@@ -136,7 +136,7 @@ public class AgentSearchFunction extends AbstractFunction {
 		if (params.length != 3)
 			if (params.length == 1) {
 				if (params[0].getValue(engine).is(JamochaType.FACT)) {
-					Fact answer = params[0].getValue(engine).getFactValue();
+					Fact answer = params[0].getValue(engine).getFactValue(engine);
 					if (checkanswer(answer, engine)) {
 						engine.writeMessage("true", output);
 						return JamochaValue.TRUE;

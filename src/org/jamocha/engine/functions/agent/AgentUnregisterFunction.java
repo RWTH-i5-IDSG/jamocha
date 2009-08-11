@@ -143,7 +143,7 @@ public class AgentUnregisterFunction extends AbstractFunction {
 			if (params.length == 1) {
 				// engine.writeMessage("Ein Parameter");
 				if (params[0].getValue(engine).is(JamochaType.FACT)) {
-					Fact answer = params[0].getValue(engine).getFactValue();
+					Fact answer = params[0].getValue(engine).getFactValue(engine);
 					if (checkanswer(answer, engine)) {
 						/*
 						 * if (output.contains("JamochaGui"))

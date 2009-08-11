@@ -166,7 +166,6 @@ public class FunctionsPanel extends AbstractJamochaPanel implements
 		initFunctionsList(null);
 	}
 
-	@SuppressWarnings("unchecked")
 	private void initFunctionGroupsList() {
 		functionGroupList.setSelectedIndex(0);
 		final List<FunctionGroup> funcGroups = new LinkedList<FunctionGroup>(

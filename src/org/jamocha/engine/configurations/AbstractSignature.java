@@ -26,7 +26,8 @@ import org.jamocha.engine.Parameter;
  * @author Peter Lin AbstractSignature provides the common implementation of
  *         Parameter interface.
  */
-public abstract class AbstractSignature implements Parameter, Serializable {
+public abstract class AbstractSignature implements Parameter {
+	
 	protected boolean objBinding = false;
 
 	@Override

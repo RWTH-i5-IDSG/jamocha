@@ -408,7 +408,6 @@ public class EngineSettingsPanel extends AbstractSettingsPanel implements
 		}
 	}
 
-	@SuppressWarnings("static-access")
 	private void initStrategySelector() {
 		strategySelector.removeAllItems();
 		if (moduleSelector.getSelectedItem() != null) {
@@ -432,7 +431,6 @@ public class EngineSettingsPanel extends AbstractSettingsPanel implements
 		}
 	}
 
-	@SuppressWarnings("static-access")
 	private void initStrategySelectorMain() {
 		strategySelectorMain.removeAllItems();
 		final String currName = settings

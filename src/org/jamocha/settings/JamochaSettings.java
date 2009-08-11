@@ -419,10 +419,6 @@ public class JamochaSettings {
 			}
 		}
 
-		public void resetValue() {
-			this.currentValue = this.defaultValue;
-		}
-
 		public Object setCurrentValue(String newValue) {
 			this.currentValue = getValue(newValue);
 			return this.currentValue;

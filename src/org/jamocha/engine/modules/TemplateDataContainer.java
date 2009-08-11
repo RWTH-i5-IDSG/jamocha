@@ -54,6 +54,7 @@ public class TemplateDataContainer extends ModulesDataContainer {
 				.getName()));
 	}
 
+	@SuppressWarnings("unchecked")
 	public boolean add(final Template template, final Module module) {
 		final String templateKey = toKeyString(template.getName(), module
 				.getName());
@@ -62,7 +63,7 @@ public class TemplateDataContainer extends ModulesDataContainer {
 		else {
 			idToCLIPSElement.put(templateKey, template);
 			// add to modules templateset
-			Set moduleSet = moduleToTemplates.get(module.getName());
+			Set<Template> moduleSet = moduleToTemplates.get(module.getName());
 			// Does this Set exists?
 			if (moduleSet == null) {
 				moduleSet = new HashSet<Template>();
@@ -76,7 +77,7 @@ public class TemplateDataContainer extends ModulesDataContainer {
 	public Template remove(final String templateName, final Module module) {
 		final Template result = (Template) idToCLIPSElement.remove(toKeyString(
 				templateName, module.getName()));
-		final Set moduleSet = moduleToTemplates.get(module.getName());
+		final Set<Template> moduleSet = moduleToTemplates.get(module.getName());
 		moduleSet.remove(result);
 		return result;
 	}

@@ -125,7 +125,7 @@ public class AgentSendMessage extends AbstractFunction {
 			JamochaValue val = params[0].getValue(engine);
 			Fact messageFact;
 			if (val.is(JamochaType.FACT))
-				messageFact = val.getFactValue();
+				messageFact = val.getFactValue(engine);
 			else if (val.is(JamochaType.FACT_ID) || val.is(JamochaType.LONG))
 				messageFact = engine.getFactById(val.getLongValue());
 			else
@@ -198,7 +198,7 @@ public class AgentSendMessage extends AbstractFunction {
 		if (!idVal.is(JamochaType.NIL)) {
 			Fact idFact = null;
 			if (idVal.is(JamochaType.FACT))
-				idFact = idVal.getFactValue();
+				idFact = idVal.getFactValue(engine);
 			else if (idVal.is(JamochaType.FACT_ID)
 					|| idVal.is(JamochaType.LONG))
 				idFact = engine.getFactById(idVal.getLongValue());
