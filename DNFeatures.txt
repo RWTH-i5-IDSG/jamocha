@@ -1,0 +1,11 @@
+Knoten clonebar
+Netzwerk clonebar
+Wurzelknoten als Repräsentant des Netzwerks
+Speicher im Knoten
+	bildet transparent Indizes
+	dummy Speicher -> virtueller Knoten
+Knoten sollten Statistiken führen
+	evtl exponentiell gewichtetes moving average
+	keine Zeitrelation, sondern Frequenz des Wurzelknotens (evtl Token)
+Veränderbarkeit des Netzwerks im Betrieb
+neue Filter
