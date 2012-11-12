@@ -1,0 +1,9 @@
+bin
+dist
+tests/reports/*
+*.aux
+*.idx
+*.log
+*.toc
+*.pdf
+
