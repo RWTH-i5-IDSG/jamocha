@@ -18,75 +18,55 @@
 
 package org.jamocha.engine.nodes;
 
-import org.jamocha.communication.logging.Logging;
-import org.jamocha.engine.Engine;
-import org.jamocha.engine.ReteNet;
-import org.jamocha.engine.workingmemory.WorkingMemory;
-import org.jamocha.engine.workingmemory.WorkingMemoryElement;
+import java.lang.ref.WeakReference;
+import java.util.Set;
+
+import org.jamocha.engine.nodes.Token.MinusToken;
+import org.jamocha.engine.nodes.Token.PlusToken;
 
 /**
- * @author Josef Alexander Hahn <mail@josef-hahn.de> the root in our rete
- *         network. here, all facts will come into play and will be propagated
- *         to the child nodes. so, here, no filter logic is implemented.
  */
 public class RootNode extends Node {
 
-	@Deprecated
-	public RootNode(final int id, final WorkingMemory memory, final ReteNet net) {
-		super(id, memory, net);
-	}
-	
-	public RootNode(Engine e) {
-		this(e.getNet().nextNodeId(), e.getWorkingMemory(), e.getNet());
-	}
+	protected class RootNodeInputImpl extends NodeInputImpl {
 
-	int drin=0;
-	
-	@Override
-	public void addWME(Node sender, final WorkingMemoryElement newElem) throws NodeException {
-		// the root note must not ignore new WMEs while deactivated!
-		synchronized (RootNode.class) {
-			try {
-				addAndPropagate(newElem);
-			} catch (Throwable t) {
-				t.printStackTrace();
+		public RootNodeInputImpl(final WeakReference<Node> shelteringNode,
+				final WeakReference<Node> parent) {
+			super(shelteringNode, parent);
+		}
+
+		@Override
+		public Message[] acceptPlusToken(final PlusToken token) {
+			final Set<NodeInput> nodeInputs = this.shelteringNode.get()
+					.getChildren();
+			final Message[] messages = new Message[nodeInputs.size()];
+			int index = 0;
+			for (final NodeInput nodeInput : nodeInputs) {
+				messages[index] = new Message(nodeInput.getWeakReference(),
+						token);
+				++index;
 			}
+			return messages;
+		}
+
+		@Override
+		public Message[] acceptMinusToken(final MinusToken token) {
+			final Set<NodeInput> nodeInputs = this.shelteringNode.get()
+					.getChildren();
+			final Message[] messages = new Message[nodeInputs.size()];
+			int index = 0;
+			for (final NodeInput nodeInput : nodeInputs) {
+				messages[index] = new Message(nodeInput.getWeakReference(),
+						token);
+				++index;
+			}
+			return messages;
 		}
 
 	}
 
 	@Override
-	public Node[] getParentNodes() {
-		final Node[] empty = {};
-		return empty;
+	protected NodeInputImpl newNodeInput(final WeakReference<Node> parent) {
+		return new RootNodeInputImpl(this.weakReference, parent);
 	}
-	
-	@Override
-	public void removeWME(Node sender, final WorkingMemoryElement oldElem) throws NodeException {
-		synchronized (RootNode.class) {
-			try {
-				removeAndPropagate(oldElem);
-			} catch (Throwable t) {
-				t.printStackTrace();
-			}
-		}
-	}
-
-	@Override
-	public boolean outputsBeta() {
-		return true;
-	}
-
-	@Override
-	public Node registerParent(final Node n) {
-		return this;
-		// do nothing here, because a RootNode never can become a parent
-	}
-
-
-	@Override
-	protected void unbindFromParents() {
-		// the root node has no parents!
-	}
-
 }
