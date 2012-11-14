@@ -73,6 +73,11 @@ public abstract class Node {
 			.newSetFromMap(new WeakHashMap<NodeInput, Boolean>());
 	final protected WeakReference<Node> weakReference = new WeakReference<Node>(
 			this);
+	final protected Memory memory;
+
+	public Node(final Memory memory) {
+		this.memory = memory;
+	}
 
 	/**
 	 * Connects the parent node given to the input with the index given.
@@ -109,6 +114,14 @@ public abstract class Node {
 
 	protected Set<NodeInput> getChildren() {
 		return this.children;
+	}
+
+	public Memory getMemory() {
+		return this.memory;
+	}
+
+	public void flushMemory() {
+		this.memory.flush();
 	}
 
 }

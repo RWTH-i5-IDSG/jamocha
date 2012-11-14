@@ -29,6 +29,11 @@ public class AlphaNode extends Node {
 
 	}
 
+	public AlphaNode(final Memory memory) {
+		super(memory);
+		// TODO Auto-generated constructor stub
+	}
+
 	@Override
 	protected NodeInputImpl newNodeInput(final WeakReference<Node> parent) {
 		// TODO Auto-generated method stub
