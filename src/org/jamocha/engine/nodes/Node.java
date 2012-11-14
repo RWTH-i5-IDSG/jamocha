@@ -20,6 +20,7 @@ package org.jamocha.engine.nodes;
 
 import java.lang.ref.WeakReference;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.WeakHashMap;
 
@@ -67,7 +68,7 @@ public abstract class Node {
 		}
 	}
 
-	final protected WeakHashMap<Node, NodeInput> parentToInput = new WeakHashMap<>();
+	final protected HashSet<NodeInput> inputs = new HashSet<NodeInput>();
 	final protected Set<NodeInput> children = Collections
 			.newSetFromMap(new WeakHashMap<NodeInput, Boolean>());
 	final protected WeakReference<Node> weakReference = new WeakReference<Node>(
@@ -87,16 +88,20 @@ public abstract class Node {
 	final public WeakReference<NodeInput> connectTo(
 			final WeakReference<Node> parent) {
 		final NodeInputImpl input = newNodeInput(parent);
-		this.parentToInput.put(parent.get(), input);
+		this.inputs.add(input);
 		return input.getWeakReference();
 	}
 
 	/**
+	 * Disconnects the nodeInput from the formerly connected node. Hopefully the
+	 * last strong reference to the input is lost after the call to this
+	 * function and the NodeInput vanishes.
 	 * 
-	 * @param parent
+	 * @param nodeInput
+	 *            input to disconnect a node from
 	 */
-	final public void disconnectFrom(final Node parent) {
-		this.parentToInput.remove(parent);
+	final public void disconnect(final WeakReference<NodeInput> nodeInput) {
+		this.inputs.remove(nodeInput.get());
 	}
 
 	abstract protected NodeInputImpl newNodeInput(
@@ -105,4 +110,5 @@ public abstract class Node {
 	protected Set<NodeInput> getChildren() {
 		return this.children;
 	}
+
 }
