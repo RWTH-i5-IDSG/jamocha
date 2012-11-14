@@ -105,7 +105,7 @@ public class OrderedTemplate implements Template {
 		return 1;
 	}
 
-	public Template getParent() {
+	public Template getParentTemplate() {
 		return null;
 	}
 

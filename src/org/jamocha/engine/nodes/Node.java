@@ -36,19 +36,20 @@ public abstract class Node {
 
 		public WeakReference<NodeInput> getWeakReference();
 
-		public WeakReference<Node> getSourceNode();
+		public WeakReference<? extends Node> getSourceNode();
 
-		public WeakReference<Node> getTargetNode();
+		public WeakReference<? extends Node> getTargetNode();
 	}
 
 	abstract protected class NodeInputImpl implements NodeInput {
 		protected final WeakReference<NodeInput> weakReference = new WeakReference<NodeInput>(
 				this);
-		protected final WeakReference<Node> shelteringNode;
-		protected final WeakReference<Node> parent;
+		protected final WeakReference<? extends Node> shelteringNode;
+		protected final WeakReference<? extends Node> parent;
 
-		public NodeInputImpl(final WeakReference<Node> shelteringNode,
-				final WeakReference<Node> parent) {
+		public NodeInputImpl(
+				final WeakReference<? extends Node> shelteringNode,
+				final WeakReference<? extends Node> parent) {
 			this.shelteringNode = shelteringNode;
 			this.parent = parent;
 		}
@@ -58,20 +59,20 @@ public abstract class Node {
 		}
 
 		@Override
-		public WeakReference<Node> getSourceNode() {
+		public WeakReference<? extends Node> getSourceNode() {
 			return this.parent;
 		}
 
 		@Override
-		public WeakReference<Node> getTargetNode() {
+		public WeakReference<? extends Node> getTargetNode() {
 			return this.shelteringNode;
 		}
 	}
 
-	final protected HashSet<NodeInput> inputs = new HashSet<NodeInput>();
+	final protected HashSet<NodeInput> inputs = new HashSet<>();
 	final protected Set<NodeInput> children = Collections
 			.newSetFromMap(new WeakHashMap<NodeInput, Boolean>());
-	final protected WeakReference<Node> weakReference = new WeakReference<Node>(
+	final protected WeakReference<? extends Node> weakReference = new WeakReference<>(
 			this);
 	final protected Memory memory;
 
@@ -91,10 +92,19 @@ public abstract class Node {
 	 * 
 	 */
 	final public WeakReference<NodeInput> connectTo(
-			final WeakReference<Node> parent) {
-		final NodeInputImpl input = newNodeInput(parent);
+			final WeakReference<? extends Node> parent) {
+		final NodeInput input = newNodeInput(parent);
 		this.inputs.add(input);
-		return input.getWeakReference();
+		final WeakReference<NodeInput> weakInput = input.getWeakReference();
+		final Node parentNode = parent.get();
+		if (null != parentNode) {
+			parentNode.acceptChild(weakInput);
+		}
+		return weakInput;
+	}
+
+	protected void acceptChild(final WeakReference<NodeInput> child) {
+		this.children.add(child.get());
 	}
 
 	/**
@@ -110,7 +120,7 @@ public abstract class Node {
 	}
 
 	abstract protected NodeInputImpl newNodeInput(
-			final WeakReference<Node> parent);
+			final WeakReference<? extends Node> parent);
 
 	protected Set<NodeInput> getChildren() {
 		return this.children;

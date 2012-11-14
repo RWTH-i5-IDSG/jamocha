@@ -9,8 +9,9 @@ public class AlphaNode extends Node {
 
 	protected class AlphaNodeInputImpl extends NodeInputImpl {
 
-		public AlphaNodeInputImpl(final WeakReference<Node> shelteringNode,
-				final WeakReference<Node> parent) {
+		public AlphaNodeInputImpl(
+				final WeakReference<? extends Node> shelteringNode,
+				final WeakReference<? extends Node> parent) {
 			super(shelteringNode, parent);
 			// TODO Auto-generated constructor stub
 		}
@@ -35,7 +36,8 @@ public class AlphaNode extends Node {
 	}
 
 	@Override
-	protected NodeInputImpl newNodeInput(final WeakReference<Node> parent) {
+	protected NodeInputImpl newNodeInput(
+			final WeakReference<? extends Node> parent) {
 		// TODO Auto-generated method stub
 		return new AlphaNodeInputImpl(this.weakReference, parent);
 	}

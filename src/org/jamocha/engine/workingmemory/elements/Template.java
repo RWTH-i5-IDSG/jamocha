@@ -31,8 +31,9 @@ import org.jamocha.parser.EvaluationException;
 /**
  * @author Peter Lin
  * 
- * Template defines the methods to access an object, which is the equivalent of
- * un-ordered facts. It defines all the necessary methods for Deftemplate.
+ *         Template defines the methods to access an object, which is the
+ *         equivalent of un-ordered facts. It defines all the necessary methods
+ *         for Deftemplate.
  */
 public interface Template extends Serializable, Dumpable, Formattable {
 	/**
@@ -98,12 +99,16 @@ public interface Template extends Serializable, Dumpable, Formattable {
 	public Iterator<Tag> getTags(Class<? extends Tag> tagClass);
 
 	public void addTag(Tag t);
-	
-	public void evaluateStaticDefaults(final Engine engine) throws EvaluationException;
-	
+
+	public void evaluateStaticDefaults(final Engine engine)
+			throws EvaluationException;
+
 	/**
-	 * returns a user defined module, if there is one set up. otherwise return null
+	 * returns a user defined module, if there is one set up. otherwise return
+	 * null
 	 */
 	public Module checkUserDefinedModuleName(final Engine engine);
-	
+
+	public Template getParentTemplate();
+
 }

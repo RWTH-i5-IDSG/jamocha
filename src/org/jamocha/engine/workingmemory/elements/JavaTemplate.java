@@ -18,17 +18,29 @@ import org.jamocha.parser.EvaluationException;
 public class JavaTemplate implements Template {
 
 	private String name;
-	
+
 	private TemplateSlot[] slots;
-	
-	private Map<String,TemplateSlot> name2ts;
-	
+
+	private Map<String, TemplateSlot> name2ts;
+
 	private List<Tag> tags;
-	
+
 	private Class<? extends Object> javaClass;
-	
+
 	public Class<? extends Object> getJavaClass() {
 		return javaClass;
+	}
+
+	@Override
+	public Template getParentTemplate() {
+		if (javaClass.isAssignableFrom(Object.class)) {
+			return null;
+		}
+		final Class<?> superClass = javaClass.getSuperclass();
+		if (null == superClass) {
+			return null;
+		}
+		return new JavaTemplate(superClass);
 	}
 
 	protected static String lowerCaseFirstLetter(final String s) {
@@ -36,8 +48,8 @@ public class JavaTemplate implements Template {
 			return s;
 		return s.substring(0, 1).toLowerCase() + s.substring(1);
 	}
-  
-  	public static List<String> getFieldsFromBean(final Class<? extends Object> c) {
+
+	public static List<String> getFieldsFromBean(final Class<? extends Object> c) {
 		final List<String> fields = new ArrayList<String>();
 		for (final Method getter : c.getMethods())
 			if (getter.getName().startsWith("get")
@@ -63,36 +75,39 @@ public class JavaTemplate implements Template {
 					continue;
 				}
 				assert setter != null;
-				
+
 				fields.add(lowerCaseFirstLetter(potetialAttrName));
 			}
 		return fields;
 	}
-	
-	public static TemplateSlot[] getTemplateSlotsFromClass(Class<? extends Object> c) {
+
+	public static TemplateSlot[] getTemplateSlotsFromClass(
+			Class<? extends Object> c) {
 		final List<TemplateSlot> slots = new ArrayList<TemplateSlot>();
 		int id = 0;
 		for (final String slotName : getFieldsFromBean(c)) {
 			// TODO handle data type
 			final TemplateSlot tslot = new TemplateSlot(slotName);
 			tslot.setId(id++);
-			Logging.logger(JavaTemplate.class).debug("in class '" + c.getCanonicalName()
-					+ "' found attribute '" + slotName + "'");
+			Logging.logger(JavaTemplate.class).debug(
+					"in class '" + c.getCanonicalName() + "' found attribute '"
+							+ slotName + "'");
 			slots.add(tslot);
 		}
 		TemplateSlot[] slotsArray = new TemplateSlot[slots.size()];
 		return slots.toArray(slotsArray);
 	}
-	
+
 	public JavaTemplate(Class<? extends Object> c) {
 		slots = getTemplateSlotsFromClass(c);
 		name = c.getCanonicalName();
 		javaClass = c;
 		tags = new ArrayList<Tag>();
-		name2ts = new HashMap<String,TemplateSlot>();
-		for (TemplateSlot ts : slots) name2ts.put(ts.getName(),ts);
+		name2ts = new HashMap<String, TemplateSlot>();
+		for (TemplateSlot ts : slots)
+			name2ts.put(ts.getName(), ts);
 	}
-	
+
 	public void addTag(Tag t) {
 		tags.add(t);
 	}
@@ -102,7 +117,8 @@ public class JavaTemplate implements Template {
 		return null;
 	}
 
-	public void evaluateStaticDefaults(Engine engine) throws EvaluationException {
+	public void evaluateStaticDefaults(Engine engine)
+			throws EvaluationException {
 	}
 
 	public TemplateSlot[] getAllSlots() {
@@ -116,7 +132,6 @@ public class JavaTemplate implements Template {
 	public int getNumberOfSlots() {
 		return slots.length;
 	}
-
 
 	public TemplateSlot getSlot(String name) {
 		return name2ts.get(name);
@@ -139,11 +154,11 @@ public class JavaTemplate implements Template {
 	}
 
 	public String toPPString() {
-		return "[Template from java class '"+name+"']";
+		return "[Template from java class '" + name + "']";
 	}
 
 	public String getDump() {
-		//TODO think about dumping in general and about that
+		// TODO think about dumping in general and about that
 		return "";
 	}
 

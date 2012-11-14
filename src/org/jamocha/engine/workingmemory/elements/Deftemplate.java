@@ -39,22 +39,24 @@ import org.jamocha.parser.ParserFactory;
 /**
  * @author Peter Lin Deftemplate is equivalent to CLIPS deftemplate<br/>
  * 
- * Deftemplate contains an array of slots that represent un-ordered facts.
- * Currently, deftemplate does not have a reference to the corresponding
- * Defclass, since many objects in java.beans and java.lang.reflect are not
- * serializable. This means when ever we need to lookup the defclass from the
- * deftemplate, we have to use the String form and do the lookup.
+ *         Deftemplate contains an array of slots that represent un-ordered
+ *         facts. Currently, deftemplate does not have a reference to the
+ *         corresponding Defclass, since many objects in java.beans and
+ *         java.lang.reflect are not serializable. This means when ever we need
+ *         to lookup the defclass from the deftemplate, we have to use the
+ *         String form and do the lookup.
  * 
- * Some general design notes about the current implementation. In the case where
- * a class is declared to create the deftemplate, the order of the slots are
- * based on java Introspection. In the case where an user declares the
- * deftemplate from console or directly, the order is the same as the string
- * equivalent. The current implementation does not address redeclaring a
- * deftemplate for a couple of reasons. The primary one is how does it affect
- * the existing RETE nodes. One possible approach is to always add new slots to
- * the end of the deftemplate and ignore the explicit order. Another is to
- * recompute the deftemplate, binds and all nodes. The second approach is very
- * costly and would make redeclaring a deftemplate undesirable.
+ *         Some general design notes about the current implementation. In the
+ *         case where a class is declared to create the deftemplate, the order
+ *         of the slots are based on java Introspection. In the case where an
+ *         user declares the deftemplate from console or directly, the order is
+ *         the same as the string equivalent. The current implementation does
+ *         not address redeclaring a deftemplate for a couple of reasons. The
+ *         primary one is how does it affect the existing RETE nodes. One
+ *         possible approach is to always add new slots to the end of the
+ *         deftemplate and ignore the explicit order. Another is to recompute
+ *         the deftemplate, binds and all nodes. The second approach is very
+ *         costly and would make redeclaring a deftemplate undesirable.
  */
 public class Deftemplate implements Template, Serializable {
 
@@ -172,7 +174,8 @@ public class Deftemplate implements Template, Serializable {
 	 * @return
 	 */
 	public TemplateSlot getSlot(final int id) {
-		if (id == -1 || id >= slots.length ) return null;
+		if (id == -1 || id >= slots.length)
+			return null;
 		return slots[id];
 	}
 
@@ -388,5 +391,10 @@ public class Deftemplate implements Template, Serializable {
 	 */
 	public String getDump() {
 		return toString();
+	}
+
+	@Override
+	public Template getParentTemplate() {
+		return this.parent;
 	}
 }

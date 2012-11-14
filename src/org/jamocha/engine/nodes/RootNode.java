@@ -18,11 +18,19 @@
 
 package org.jamocha.engine.nodes;
 
+import java.lang.ref.Reference;
+import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.jamocha.engine.nodes.Token.MinusToken;
 import org.jamocha.engine.nodes.Token.PlusToken;
+import org.jamocha.engine.workingmemory.elements.Fact;
+import org.jamocha.engine.workingmemory.elements.Template;
 
 /**
  */
@@ -30,48 +38,120 @@ public class RootNode extends Node {
 
 	protected class RootNodeInputImpl extends NodeInputImpl {
 
-		public RootNodeInputImpl(final WeakReference<Node> shelteringNode,
-				final WeakReference<Node> parent) {
+		private class TemplateToInput {
+			private class WeakList<T> {
+				private final List<WeakReference<T>> inputs = new ArrayList<>();
+				private final ReferenceQueue<T> referenceQueue = new ReferenceQueue<>();
+
+				public List<WeakReference<T>> get() {
+					Reference<? extends T> reference = this.referenceQueue
+							.poll();
+					while (null != reference) {
+						this.inputs.remove(reference);
+						reference = this.referenceQueue.poll();
+					}
+					return this.inputs;
+				}
+
+				public void append(final WeakReference<T> nodeInput) {
+					this.inputs.add(new WeakReference<>(nodeInput.get(),
+							this.referenceQueue));
+				}
+			}
+
+			private final Map<Template, WeakList<NodeInput>> map = new HashMap<>();
+
+			public void append(final Template template,
+					final WeakReference<NodeInput> nodeInput) {
+				WeakList<NodeInput> inputs = this.map.get(template);
+				if (null == inputs) {
+					inputs = new WeakList<>();
+					this.map.put(template, inputs);
+				}
+				inputs.append(nodeInput);
+			}
+
+			public List<WeakReference<NodeInput>> get(final Template template) {
+				return this.map.get(template).get();
+			}
+		}
+
+		final TemplateToInput templateToInput = new TemplateToInput();
+
+		public RootNodeInputImpl(
+				final WeakReference<? extends Node> shelteringNode,
+				final WeakReference<? extends Node> parent) {
 			super(shelteringNode, parent);
+		}
+
+		private Message[] acceptToken(final Token token) {
+			final List<Message> messages = new ArrayList<>();
+			final Set<FactTuple> factTuples = token.getFactTuples();
+			for (final FactTuple factTuple : factTuples) {
+				assert 1 == factTuple.length();
+				final Fact fact = factTuple.getFirstFact();
+				Template template = fact.getTemplate();
+				do {
+					final List<WeakReference<NodeInput>> inputs = this.templateToInput
+							.get(template);
+					for (final WeakReference<NodeInput> input : inputs) {
+						messages.add(new Message(input, token));
+					}
+					template = template.getParentTemplate();
+				} while (null != template);
+			}
+			return messages.toArray(new Message[messages.size()]);
 		}
 
 		@Override
 		public Message[] acceptPlusToken(final PlusToken token) {
-			final Set<NodeInput> nodeInputs = this.shelteringNode.get()
-					.getChildren();
-			final Message[] messages = new Message[nodeInputs.size()];
-			int index = 0;
-			for (final NodeInput nodeInput : nodeInputs) {
-				messages[index] = new Message(nodeInput.getWeakReference(),
-						token);
-				++index;
-			}
-			return messages;
+			return acceptToken(token);
 		}
 
 		@Override
 		public Message[] acceptMinusToken(final MinusToken token) {
-			final Set<NodeInput> nodeInputs = this.shelteringNode.get()
-					.getChildren();
-			final Message[] messages = new Message[nodeInputs.size()];
-			int index = 0;
-			for (final NodeInput nodeInput : nodeInputs) {
-				messages[index] = new Message(nodeInput.getWeakReference(),
-						token);
-				++index;
-			}
-			return messages;
+			return acceptToken(token);
 		}
 
 	}
 
+	final RootNodeInputImpl nodeInput = new RootNodeInputImpl(
+			this.weakReference, null);
+
 	public RootNode(final Memory memory) {
 		super(memory);
-		// TODO Auto-generated constructor stub
 	}
 
 	@Override
-	protected NodeInputImpl newNodeInput(final WeakReference<Node> parent) {
-		return new RootNodeInputImpl(this.weakReference, parent);
+	protected void acceptChild(final WeakReference<NodeInput> child) {
+		super.acceptChild(child);
+		try {
+			final ObjectTypeNode otn = (ObjectTypeNode) child.get()
+					.getTargetNode().get();
+			final Template template = otn.getTemplate();
+			this.nodeInput.templateToInput.append(template, child);
+		} catch (final ClassCastException e) {
+			// child of root node can not be cast to ObjectTypeNode
+			// TODO allow?
+		}
 	}
+
+	/**
+	 * Returns the single input of the root node.
+	 * 
+	 * @return root node input
+	 */
+	public WeakReference<NodeInput> getNetworkInput() {
+		return this.nodeInput.weakReference;
+	}
+
+	@Override
+	protected NodeInputImpl newNodeInput(
+			final WeakReference<? extends Node> parent) {
+		throw new UnsupportedOperationException(
+				"The root node can only have one single input! "
+						+ "This single valid input is created in its ctor "
+						+ "and can be accessed via getNetworkInput()");
+	}
+
 }
