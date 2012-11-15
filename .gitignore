@@ -1,7 +1,5 @@
 bin
 dist
-.settings
-=======
 tests/reports/*
 *.aux
 *.idx
