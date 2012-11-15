@@ -13,37 +13,39 @@ neue Filter
 Durchlauf wie Breitensuche => Schlange für Tokens
 
 RootNode:
-   Verteilung entsprechend der FactTemplates über Map (Template -> NodeInputs)
+	Verteilung entsprechend der FactTemplates über Map (Template -> NodeInputs)
 
 Memory:
-   Speichert Fakttupelmengen
-   Verfügt ggf. über verschiedene Indizes <- Entscheidung bei Netzkonstruktion
-   Nutzt Indizes bei entsprechenden Anfragen
+	Speichert Fakttupelmengen
+	Verfügt ggf. über verschiedene Indizes <- Entscheidung bei Netzkonstruktion
+	Nutzt Indizes bei entsprechenden Anfragen
+	
+MemoryIterator:
 
 Token: immutable (insb. die Menge)
-   Menge von Fakttupeln
-   + oder -
+	Menge von Fakttupeln
+	+ oder -
 
 Message:
-   Token
-   NodeInput
+	Token
+	NodeInput
 
 NodeInput: Innere Klasse von Node
 
 Interface NodeInput runtime:
-   Message[] acceptToken(Token t)
+	Message[] acceptToken(Token t)
 
 Interface NodeInput compiletime:
-   connectTo(Node parent)
-   connectToNew(Node parent)
+	connectTo(Node parent)
+	connectToNew(Node parent)
 
 Node:
-   long id
+	long id
 
 Interface für Node DN runtime:
-   Memory getMemory()
-   void flush
+	Memory getMemory()
+	void flush
 
 Interface für Node DN compiletime:
-   NodeInput getInput(int id)
-   Node()
+	NodeInput getInput(int id)
+	Node()
