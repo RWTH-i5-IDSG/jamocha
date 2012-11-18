@@ -24,6 +24,8 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.WeakHashMap;
 
+import org.jamocha.engine.util.WeakList;
+
 /**
  * Base class for all node types
  */
@@ -39,6 +41,37 @@ public abstract class Node {
 		public WeakReference<? extends Node> getSourceNode();
 
 		public WeakReference<? extends Node> getTargetNode();
+	}
+
+	public class FactTupleSubSetIdentifier {
+		final private WeakList<NodeInput> walk = new WeakList<>();
+		int hashCode = 1;
+		private static final int PRIME = 31;
+
+		protected FactTupleSubSetIdentifier(final Iterable<WeakReference<NodeInput>> inputs) {
+			for (final WeakReference<NodeInput> input : inputs) {
+				this.walk.append(input);
+			}
+			rehash();
+		}
+
+		private void rehash() {
+			int hashCode = 1;
+			for (final WeakReference<NodeInput> nodeInput : this.walk.get()) {
+				hashCode = (hashCode * PRIME) + nodeInput.hashCode();
+			}
+			this.hashCode = hashCode;
+		}
+
+		@Override
+		public int hashCode() {
+			return this.hashCode;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			return this == obj;
+		}
 	}
 
 	abstract protected class NodeInputImpl implements NodeInput {
@@ -66,6 +99,16 @@ public abstract class Node {
 		@Override
 		public WeakReference<? extends Node> getTargetNode() {
 			return this.shelteringNode;
+		}
+
+		@Override
+		final public boolean equals(final Object obj) {
+			return this == obj;
+		}
+
+		@Override
+		final public int hashCode() {
+			return super.hashCode();
 		}
 	}
 
