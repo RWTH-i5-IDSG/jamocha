@@ -18,8 +18,6 @@
 
 package org.jamocha.engine.nodes;
 
-import java.lang.ref.Reference;
-import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -29,6 +27,7 @@ import java.util.Set;
 
 import org.jamocha.engine.nodes.Token.MinusToken;
 import org.jamocha.engine.nodes.Token.PlusToken;
+import org.jamocha.engine.util.WeakList;
 import org.jamocha.engine.workingmemory.elements.Fact;
 import org.jamocha.engine.workingmemory.elements.Template;
 
@@ -39,26 +38,6 @@ public class RootNode extends Node {
 	protected class RootNodeInputImpl extends NodeInputImpl {
 
 		private class TemplateToInput {
-			private class WeakList<T> {
-				private final List<WeakReference<T>> inputs = new ArrayList<>();
-				private final ReferenceQueue<T> referenceQueue = new ReferenceQueue<>();
-
-				public List<WeakReference<T>> get() {
-					Reference<? extends T> reference = this.referenceQueue
-							.poll();
-					while (null != reference) {
-						this.inputs.remove(reference);
-						reference = this.referenceQueue.poll();
-					}
-					return this.inputs;
-				}
-
-				public void append(final WeakReference<T> nodeInput) {
-					this.inputs.add(new WeakReference<>(nodeInput.get(),
-							this.referenceQueue));
-				}
-			}
-
 			private final Map<Template, WeakList<NodeInput>> map = new HashMap<>();
 
 			public void append(final Template template,
