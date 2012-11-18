@@ -13,6 +13,12 @@ public class WeakList<T> {
 	private final List<WeakReference<T>> inputs;
 	private final ReferenceQueue<T> referenceQueue = new ReferenceQueue<>();
 
+	public static interface AdditionalAction<T> {
+		void act(final Reference<? extends T> element);
+	}
+
+	private AdditionalAction<T> additionalAction = null;
+
 	/**
 	 * Constructs a new WeakList using an ArrayList with its default ctor
 	 */
@@ -52,6 +58,9 @@ public class WeakList<T> {
 		Reference<? extends T> reference = this.referenceQueue.poll();
 		while (null != reference) {
 			this.inputs.remove(reference);
+			if (null != this.additionalAction) {
+				this.additionalAction.act(reference);
+			}
 			reference = this.referenceQueue.poll();
 		}
 		return this.inputs;
@@ -60,5 +69,9 @@ public class WeakList<T> {
 	public void append(final WeakReference<T> nodeInput) {
 		this.inputs.add(new WeakReference<>(nodeInput.get(),
 				this.referenceQueue));
+	}
+
+	public void setAdditionalAction(final AdditionalAction<T> additionalAction) {
+		this.additionalAction = additionalAction;
 	}
 }
