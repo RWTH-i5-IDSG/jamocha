@@ -37,6 +37,14 @@ public abstract class Node {
 		public Node getSourceNode();
 
 		public Node getTargetNode();
+		
+		public FactAddress getAddress(FactAddress add);
+	}
+	
+	protected static class FactAddress {
+		protected FactAddress() {
+			
+		}
 	}
 
 	abstract protected class NodeInputImpl implements NodeInput {

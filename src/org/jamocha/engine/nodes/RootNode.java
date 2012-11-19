@@ -98,6 +98,10 @@ public class RootNode extends Node {
 			return acceptToken(token);
 		}
 
+		@Override
+		public FactAddress getAddress(FactAddress add) {
+			throw new Error("The Input of the RootNode is not supposed to be used as an address");
+		}
 	}
 
 	final RootNodeInputImpl nodeInput = new RootNodeInputImpl(

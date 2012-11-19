@@ -1,15 +1,19 @@
 package org.jamocha.engine.nodes;
 
 import java.lang.ref.WeakReference;
+import java.util.WeakHashMap;
 
 import org.jamocha.engine.nodes.Token.MinusToken;
 import org.jamocha.engine.nodes.Token.PlusToken;
 
-public class AlphaNode extends Node {
-
-	protected class AlphaNodeInputImpl extends NodeInputImpl {
+public class BetaNode extends Node {
+	
+	protected class BetaNodeInputImpl extends NodeInputImpl {
 		
-		public AlphaNodeInputImpl(
+		protected final WeakHashMap<FactAddress, FactAddress> factAddresses = new WeakHashMap<>();
+		protected final FactAddress factAddress = new FactAddress();
+
+		public BetaNodeInputImpl(
 				final Node shelteringNode,
 				final Node parent) {
 			super(shelteringNode, parent);
@@ -27,24 +31,31 @@ public class AlphaNode extends Node {
 			// TODO Auto-generated method stub
 			return null;
 		}
-
+		
 		@Override
 		public FactAddress getAddress(FactAddress add) {
-			throw new Error("The Input of an AlphaNode is not supposed to be used as an address");
+			if (add == null) {
+				return factAddress;
+			}
+			FactAddress returnAddress = factAddresses.get(add);
+			if (returnAddress == null) {
+				returnAddress = new FactAddress();
+				factAddresses.put(add, returnAddress);
+			}
+			return returnAddress;
 		}
 
 	}
 
-	public AlphaNode(final Memory memory) {
+	public BetaNode(final Memory memory) {
 		super(memory);
 		// TODO Auto-generated constructor stub
 	}
-
+	
 	@Override
-	protected NodeInputImpl newNodeInput(
-			final Node parent) {
+	protected NodeInputImpl newNodeInput(Node parent) {
 		// TODO Auto-generated method stub
-		return new AlphaNodeInputImpl(this, parent);
+		return new BetaNodeInputImpl(this, parent);
 	}
 
 }
