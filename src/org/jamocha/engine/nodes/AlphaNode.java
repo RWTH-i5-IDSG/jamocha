@@ -8,10 +8,10 @@ import org.jamocha.engine.nodes.Token.PlusToken;
 public class AlphaNode extends Node {
 
 	protected class AlphaNodeInputImpl extends NodeInputImpl {
-
+		
 		public AlphaNodeInputImpl(
-				final WeakReference<? extends Node> shelteringNode,
-				final WeakReference<? extends Node> parent) {
+				final Node shelteringNode,
+				final Node parent) {
 			super(shelteringNode, parent);
 			// TODO Auto-generated constructor stub
 		}
@@ -37,9 +37,9 @@ public class AlphaNode extends Node {
 
 	@Override
 	protected NodeInputImpl newNodeInput(
-			final WeakReference<? extends Node> parent) {
+			final Node parent) {
 		// TODO Auto-generated method stub
-		return new AlphaNodeInputImpl(this.weakReference, parent);
+		return new AlphaNodeInputImpl(this, parent);
 	}
 
 }

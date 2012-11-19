@@ -39,48 +39,33 @@ public class RootNode extends Node {
 	protected class RootNodeInputImpl extends NodeInputImpl {
 
 		private class TemplateToInput {
-			private class WeakList<T> {
-				private final List<WeakReference<T>> inputs = new ArrayList<>();
-				private final ReferenceQueue<T> referenceQueue = new ReferenceQueue<>();
 
-				public List<WeakReference<T>> get() {
-					Reference<? extends T> reference = this.referenceQueue
-							.poll();
-					while (null != reference) {
-						this.inputs.remove(reference);
-						reference = this.referenceQueue.poll();
-					}
-					return this.inputs;
-				}
+			private final Map<Template, List<NodeInput>> map = new HashMap<>();
 
-				public void append(final WeakReference<T> nodeInput) {
-					this.inputs.add(new WeakReference<>(nodeInput.get(),
-							this.referenceQueue));
-				}
-			}
-
-			private final Map<Template, WeakList<NodeInput>> map = new HashMap<>();
-
-			public void append(final Template template,
-					final WeakReference<NodeInput> nodeInput) {
-				WeakList<NodeInput> inputs = this.map.get(template);
+			public void add(final Template template,
+					final NodeInput nodeInput) {
+				List<NodeInput> inputs = this.map.get(template);
 				if (null == inputs) {
-					inputs = new WeakList<>();
+					inputs = new ArrayList<>();
 					this.map.put(template, inputs);
 				}
-				inputs.append(nodeInput);
+				inputs.add(nodeInput);
 			}
-
-			public List<WeakReference<NodeInput>> get(final Template template) {
-				return this.map.get(template).get();
+			
+			public void remove(final Template template, final NodeInput nodeInput) {
+				this.map.get(template).remove(nodeInput);
+			}
+			
+			public List<NodeInput> get(final Template template) {
+				return this.map.get(template);
 			}
 		}
 
 		final TemplateToInput templateToInput = new TemplateToInput();
 
 		public RootNodeInputImpl(
-				final WeakReference<? extends Node> shelteringNode,
-				final WeakReference<? extends Node> parent) {
+				final Node shelteringNode,
+				final Node parent) {
 			super(shelteringNode, parent);
 		}
 
@@ -88,13 +73,13 @@ public class RootNode extends Node {
 			final List<Message> messages = new ArrayList<>();
 			final Set<FactTuple> factTuples = token.getFactTuples();
 			for (final FactTuple factTuple : factTuples) {
-				assert 1 == factTuple.length();
+				assert 1 == factTuple.length();// TODO error
 				final Fact fact = factTuple.getFirstFact();
 				Template template = fact.getTemplate();
 				do {
-					final List<WeakReference<NodeInput>> inputs = this.templateToInput
+					final List<NodeInput> inputs = this.templateToInput
 							.get(template);
-					for (final WeakReference<NodeInput> input : inputs) {
+					for (final NodeInput input : inputs) {
 						messages.add(new Message(input, token));
 					}
 					template = template.getParentTemplate();
@@ -116,23 +101,34 @@ public class RootNode extends Node {
 	}
 
 	final RootNodeInputImpl nodeInput = new RootNodeInputImpl(
-			this.weakReference, null);
+			this, null);
 
 	public RootNode(final Memory memory) {
 		super(memory);
 	}
 
 	@Override
-	protected void acceptChild(final WeakReference<NodeInput> child) {
+	protected void acceptChild(final NodeInput child) {
 		super.acceptChild(child);
 		try {
-			final ObjectTypeNode otn = (ObjectTypeNode) child.get()
-					.getTargetNode().get();
+			final ObjectTypeNode otn = (ObjectTypeNode) child
+					.getTargetNode();
 			final Template template = otn.getTemplate();
-			this.nodeInput.templateToInput.append(template, child);
+			this.nodeInput.templateToInput.add(template, child);
 		} catch (final ClassCastException e) {
-			// child of root node can not be cast to ObjectTypeNode
-			// TODO allow?
+			throw new Error("Only ObjectTypeNodes are supposed to be connected to the RootNode.");
+		}
+	}
+	
+	protected void removeChild(final NodeInput child) {
+		super.removeChild(child);
+		try {
+			final ObjectTypeNode otn = (ObjectTypeNode) child
+					.getTargetNode();
+			final Template template = otn.getTemplate();
+			this.nodeInput.templateToInput.remove(template, child);
+		} catch (final ClassCastException e) {
+			throw new Error("Only ObjectTypeNodes are supposed to be connected to the RootNode.");
 		}
 	}
 
@@ -147,7 +143,7 @@ public class RootNode extends Node {
 
 	@Override
 	protected NodeInputImpl newNodeInput(
-			final WeakReference<? extends Node> parent) {
+			final Node parent) {
 		throw new UnsupportedOperationException(
 				"The root node can only have one single input! "
 						+ "This single valid input is created in its ctor "

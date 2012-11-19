@@ -28,43 +28,37 @@ import java.util.WeakHashMap;
  * Base class for all node types
  */
 public abstract class Node {
-
+	
 	public static interface NodeInput {
 		public Message[] acceptPlusToken(final Token.PlusToken token);
 
 		public Message[] acceptMinusToken(final Token.MinusToken token);
 
-		public WeakReference<NodeInput> getWeakReference();
+		public Node getSourceNode();
 
-		public WeakReference<? extends Node> getSourceNode();
-
-		public WeakReference<? extends Node> getTargetNode();
+		public Node getTargetNode();
 	}
 
 	abstract protected class NodeInputImpl implements NodeInput {
 		protected final WeakReference<NodeInput> weakReference = new WeakReference<NodeInput>(
 				this);
-		protected final WeakReference<? extends Node> shelteringNode;
-		protected final WeakReference<? extends Node> parent;
+		protected final Node shelteringNode;
+		protected final Node parent;
 
 		public NodeInputImpl(
-				final WeakReference<? extends Node> shelteringNode,
-				final WeakReference<? extends Node> parent) {
+				final Node shelteringNode,
+				final Node parent) {
 			this.shelteringNode = shelteringNode;
 			this.parent = parent;
 		}
 
-		public WeakReference<NodeInput> getWeakReference() {
-			return this.weakReference;
-		}
-
 		@Override
-		public WeakReference<? extends Node> getSourceNode() {
+		public Node getSourceNode() {
 			return this.parent;
 		}
 
 		@Override
-		public WeakReference<? extends Node> getTargetNode() {
+		public Node getTargetNode() {
 			return this.shelteringNode;
 		}
 	}
@@ -91,20 +85,20 @@ public abstract class Node {
 	 *             if the index is out of range
 	 * 
 	 */
-	final public WeakReference<NodeInput> connectTo(
-			final WeakReference<? extends Node> parent) {
+	final public NodeInput connectTo(
+			final Node parent) {
 		final NodeInput input = newNodeInput(parent);
 		this.inputs.add(input);
-		final WeakReference<NodeInput> weakInput = input.getWeakReference();
-		final Node parentNode = parent.get();
-		if (null != parentNode) {
-			parentNode.acceptChild(weakInput);
-		}
-		return weakInput;
+		parent.acceptChild(input);
+		return input;
 	}
 
-	protected void acceptChild(final WeakReference<NodeInput> child) {
-		this.children.add(child.get());
+	protected void acceptChild(NodeInput child) {
+		this.children.add(child);
+	}
+	
+	protected void removeChild(final NodeInput child) {
+		this.children.remove(child);
 	}
 
 	/**
@@ -115,15 +109,16 @@ public abstract class Node {
 	 * @param nodeInput
 	 *            input to disconnect a node from
 	 */
-	final public void disconnect(final WeakReference<NodeInput> nodeInput) {
-		this.inputs.remove(nodeInput.get());
+	final public void disconnect(final NodeInput nodeInput) {
+		this.inputs.remove(nodeInput);
+		nodeInput.getSourceNode().removeChild(nodeInput);
 	}
 
 	abstract protected NodeInputImpl newNodeInput(
-			final WeakReference<? extends Node> parent);
+			final Node parent);
 
 	protected Set<NodeInput> getChildren() {
-		return this.children;
+		return Collections.unmodifiableSet(this.children);
 	}
 
 	public Memory getMemory() {
