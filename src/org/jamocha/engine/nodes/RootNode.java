@@ -61,10 +61,8 @@ public class RootNode extends Node {
 
 		final TemplateToInput templateToInput = new TemplateToInput();
 
-		public RootNodeInputImpl(
-				final Node shelteringNode,
-				final Node parent) {
-			super(shelteringNode, parent);
+		public RootNodeInputImpl(final Node sourceNode, final Node targetNode) {
+			super(sourceNode, targetNode);
 		}
 
 		private Message[] acceptToken(final Token token) {
@@ -144,8 +142,7 @@ public class RootNode extends Node {
 	}
 
 	@Override
-	protected NodeInputImpl newNodeInput(
-			final Node parent) {
+	protected NodeInputImpl newNodeInput(final Node source) {
 		throw new UnsupportedOperationException(
 				"The root node can only have one single input! "
 						+ "This single valid input is created in its ctor "

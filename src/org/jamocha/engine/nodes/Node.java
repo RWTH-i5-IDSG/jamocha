@@ -50,24 +50,22 @@ public abstract class Node {
 	abstract protected class NodeInputImpl implements NodeInput {
 		protected final WeakReference<NodeInput> weakReference = new WeakReference<NodeInput>(
 				this);
-		protected final Node shelteringNode;
-		protected final Node parent;
+		protected final Node targetNode;
+		protected final Node sourceNode;
 
-		public NodeInputImpl(
-				final Node shelteringNode,
-				final Node parent) {
-			this.shelteringNode = shelteringNode;
-			this.parent = parent;
+		public NodeInputImpl(final Node sourceNode, final Node targetNode) {
+			this.targetNode = targetNode;
+			this.sourceNode = sourceNode;
 		}
 
 		@Override
 		public Node getSourceNode() {
-			return this.parent;
+			return this.sourceNode;
 		}
 
 		@Override
 		public Node getTargetNode() {
-			return this.shelteringNode;
+			return this.targetNode;
 		}
 	}
 
@@ -122,8 +120,7 @@ public abstract class Node {
 		nodeInput.getSourceNode().removeChild(nodeInput);
 	}
 
-	abstract protected NodeInputImpl newNodeInput(
-			final Node parent);
+	abstract protected NodeInputImpl newNodeInput(final Node source);
 
 	protected Set<NodeInput> getChildren() {
 		return Collections.unmodifiableSet(this.children);

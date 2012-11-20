@@ -1,6 +1,5 @@
 package org.jamocha.engine.nodes;
 
-import java.lang.ref.WeakReference;
 import java.util.WeakHashMap;
 
 import org.jamocha.engine.nodes.Token.MinusToken;
@@ -13,10 +12,8 @@ public class BetaNode extends Node {
 		protected final WeakHashMap<FactAddress, FactAddress> factAddresses = new WeakHashMap<>();
 		protected final FactAddress factAddress = new FactAddress();
 
-		public BetaNodeInputImpl(
-				final Node shelteringNode,
-				final Node parent) {
-			super(shelteringNode, parent);
+		public BetaNodeInputImpl(final Node sourceNode, final Node targetNode) {
+			super(sourceNode, targetNode);
 			// TODO Auto-generated constructor stub
 		}
 
@@ -53,9 +50,9 @@ public class BetaNode extends Node {
 	}
 	
 	@Override
-	protected NodeInputImpl newNodeInput(Node parent) {
+	protected NodeInputImpl newNodeInput(final Node source) {
 		// TODO Auto-generated method stub
-		return new BetaNodeInputImpl(this, parent);
+		return new BetaNodeInputImpl(source, this);
 	}
 
 }

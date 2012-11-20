@@ -7,10 +7,8 @@ public class AlphaNode extends Node {
 
 	protected class AlphaNodeInputImpl extends NodeInputImpl {
 		
-		public AlphaNodeInputImpl(
-				final Node shelteringNode,
-				final Node parent) {
-			super(shelteringNode, parent);
+		public AlphaNodeInputImpl(final Node sourceNode, final Node targetNode) {
+			super(sourceNode, targetNode);
 			// TODO Auto-generated constructor stub
 		}
 
@@ -39,10 +37,9 @@ public class AlphaNode extends Node {
 	}
 
 	@Override
-	protected NodeInputImpl newNodeInput(
-			final Node parent) {
+	protected NodeInputImpl newNodeInput(final Node source) {
 		// TODO Auto-generated method stub
-		return new AlphaNodeInputImpl(this, parent);
+		return new AlphaNodeInputImpl(source, this);
 	}
 
 }
