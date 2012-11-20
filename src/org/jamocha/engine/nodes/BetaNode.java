@@ -65,8 +65,7 @@ public class BetaNode extends Node {
 						"FactAdress objects can only localize fact addresses local to their source nodes!");
 			}
 			try {
-				return this.localAddresses[addressInParent.localIndex
-						- this.startIndex];
+				return this.localAddresses[addressInParent.localIndex];
 			} catch (final IndexOutOfBoundsException e) {
 				// new Input added to sourceNode
 				final FactAddress localizedAddress = new FactAddress(
