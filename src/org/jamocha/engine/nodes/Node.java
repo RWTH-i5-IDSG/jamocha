@@ -28,7 +28,7 @@ import java.util.WeakHashMap;
  * Base class for all node types
  */
 public abstract class Node {
-	
+
 	public static interface NodeInput {
 		public Message[] acceptPlusToken(final Token.PlusToken token);
 
@@ -37,13 +37,17 @@ public abstract class Node {
 		public Node getSourceNode();
 
 		public Node getTargetNode();
-		
-		public FactAddress getAddress(FactAddress add);
+
+		public FactAddress localizeAddress(final FactAddress addressInParent);
 	}
-	
-	protected static class FactAddress {
-		protected FactAddress() {
-			
+
+	protected class FactAddress {
+		final int localIndex;
+		final Node localNode;
+
+		public FactAddress(final Node localNode, final int localIndex) {
+			this.localNode = localNode;
+			this.localIndex = localIndex;
 		}
 	}
 
@@ -75,6 +79,7 @@ public abstract class Node {
 	final protected WeakReference<? extends Node> weakReference = new WeakReference<>(
 			this);
 	final protected Memory memory;
+	protected int factTupleCardinality = 0;
 
 	public Node(final Memory memory) {
 		this.memory = memory;
@@ -91,8 +96,7 @@ public abstract class Node {
 	 *             if the index is out of range
 	 * 
 	 */
-	final public NodeInput connectTo(
-			final Node parent) {
+	final public NodeInput connectTo(final Node parent) {
 		final NodeInput input = newNodeInput(parent);
 		this.inputs.add(input);
 		parent.acceptChild(input);
@@ -102,7 +106,7 @@ public abstract class Node {
 	protected void acceptChild(NodeInput child) {
 		this.children.add(child);
 	}
-	
+
 	protected void removeChild(final NodeInput child) {
 		this.children.remove(child);
 	}

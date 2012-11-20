@@ -40,8 +40,7 @@ public class RootNode extends Node {
 
 			private final Map<Template, List<NodeInput>> map = new HashMap<>();
 
-			public void add(final Template template,
-					final NodeInput nodeInput) {
+			public void add(final Template template, final NodeInput nodeInput) {
 				List<NodeInput> inputs = this.map.get(template);
 				if (null == inputs) {
 					inputs = new ArrayList<>();
@@ -49,11 +48,12 @@ public class RootNode extends Node {
 				}
 				inputs.add(nodeInput);
 			}
-			
-			public void remove(final Template template, final NodeInput nodeInput) {
+
+			public void remove(final Template template,
+					final NodeInput nodeInput) {
 				this.map.get(template).remove(nodeInput);
 			}
-			
+
 			public List<NodeInput> get(final Template template) {
 				return this.map.get(template);
 			}
@@ -95,40 +95,41 @@ public class RootNode extends Node {
 		}
 
 		@Override
-		public FactAddress getAddress(FactAddress add) {
-			throw new UnsupportedOperationException("The Input of the RootNode is not supposed to be used as an address");
+		public FactAddress localizeAddress(FactAddress add) {
+			throw new UnsupportedOperationException(
+					"The Input of the RootNode is not supposed to be used as an address");
 		}
 	}
 
-	final RootNodeInputImpl nodeInput = new RootNodeInputImpl(
-			this, null);
+	final RootNodeInputImpl nodeInput = new RootNodeInputImpl(this, null);
 
 	public RootNode(final Memory memory) {
 		super(memory);
+		this.factTupleCardinality = 1;
 	}
 
 	@Override
 	protected void acceptChild(final NodeInput child) {
 		super.acceptChild(child);
 		try {
-			final ObjectTypeNode otn = (ObjectTypeNode) child
-					.getTargetNode();
+			final ObjectTypeNode otn = (ObjectTypeNode) child.getTargetNode();
 			final Template template = otn.getTemplate();
 			this.nodeInput.templateToInput.add(template, child);
 		} catch (final ClassCastException e) {
-			throw new Error("Only ObjectTypeNodes are supposed to be connected to the RootNode.");
+			throw new Error(
+					"Only ObjectTypeNodes are supposed to be connected to the RootNode.");
 		}
 	}
-	
+
 	protected void removeChild(final NodeInput child) {
 		super.removeChild(child);
 		try {
-			final ObjectTypeNode otn = (ObjectTypeNode) child
-					.getTargetNode();
+			final ObjectTypeNode otn = (ObjectTypeNode) child.getTargetNode();
 			final Template template = otn.getTemplate();
 			this.nodeInput.templateToInput.remove(template, child);
 		} catch (final ClassCastException e) {
-			throw new Error("Only ObjectTypeNodes are supposed to be connected to the RootNode.");
+			throw new Error(
+					"Only ObjectTypeNodes are supposed to be connected to the RootNode.");
 		}
 	}
 

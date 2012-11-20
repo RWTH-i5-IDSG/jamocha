@@ -23,7 +23,7 @@ import org.jamocha.engine.nodes.Token.PlusToken;
 public class AlphaNode extends Node {
 
 	protected class AlphaNodeInputImpl extends NodeInputImpl {
-		
+
 		public AlphaNodeInputImpl(final Node sourceNode, final Node targetNode) {
 			super(sourceNode, targetNode);
 			// TODO Auto-generated constructor stub
@@ -42,14 +42,16 @@ public class AlphaNode extends Node {
 		}
 
 		@Override
-		public FactAddress getAddress(FactAddress add) {
-			throw new UnsupportedOperationException("The Input of an AlphaNode is not supposed to be used as an address");
+		public FactAddress localizeAddress(FactAddress add) {
+			throw new UnsupportedOperationException(
+					"The Input of an AlphaNode is not supposed to be used as an address");
 		}
 
 	}
 
 	public AlphaNode(final Memory memory) {
 		super(memory);
+		this.factTupleCardinality = 1;
 		// TODO Auto-generated constructor stub
 	}
 
