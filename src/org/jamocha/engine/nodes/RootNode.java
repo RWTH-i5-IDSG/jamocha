@@ -18,8 +18,6 @@
 
 package org.jamocha.engine.nodes;
 
-import java.lang.ref.Reference;
-import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -100,7 +98,7 @@ public class RootNode extends Node {
 
 		@Override
 		public FactAddress getAddress(FactAddress add) {
-			throw new Error("The Input of the RootNode is not supposed to be used as an address");
+			throw new UnsupportedOperationException("The Input of the RootNode is not supposed to be used as an address");
 		}
 	}
 

@@ -1,7 +1,5 @@
 package org.jamocha.engine.nodes;
 
-import java.lang.ref.WeakReference;
-
 import org.jamocha.engine.nodes.Token.MinusToken;
 import org.jamocha.engine.nodes.Token.PlusToken;
 
@@ -30,7 +28,7 @@ public class AlphaNode extends Node {
 
 		@Override
 		public FactAddress getAddress(FactAddress add) {
-			throw new Error("The Input of an AlphaNode is not supposed to be used as an address");
+			throw new UnsupportedOperationException("The Input of an AlphaNode is not supposed to be used as an address");
 		}
 
 	}
