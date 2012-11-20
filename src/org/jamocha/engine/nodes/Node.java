@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2008 The Jamocha Team
+ * Copyright 2002-2012 The Jamocha Team
  * 
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
