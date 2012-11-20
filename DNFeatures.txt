@@ -12,6 +12,16 @@ neue Filter
 
 Durchlauf wie Breitensuche => Schlange für Tokens
 
+mögliche Veränderungen im Netzwerk:
+	Knoten hinzufügen & Kanten hinzufügen
+	Knoten löschen:
+		Knoten (ohne Kinder) kappt alle Verbindungen nach oben (Richtung Wurzel)
+	Kante umbiegen:
+		Knoten ersetzt Eingangskante durch neue Eingangskante
+		Dabei werden alle relevanten Adressen ersetzt angepasst auf neue Eingangskante
+		Speicher kann transferiert werden
+		Netzwerk ist derweil gesperrt (Ausführung pausiert)
+
 RootNode:
 	Verteilung entsprechend der FactTemplates über Map (Template -> NodeInputs)
 
