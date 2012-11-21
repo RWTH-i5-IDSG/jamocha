@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2008 The Jamocha Team
+ * Copyright 2002-2012 The Jamocha Team
  * 
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,106 +18,70 @@
 
 package org.jamocha.engine.nodes;
 
-import java.util.logging.Logger;
+import java.util.Set;
 
-import org.jamocha.communication.logging.Logging;
-import org.jamocha.engine.Engine;
-import org.jamocha.engine.ReteNet;
-import org.jamocha.engine.workingmemory.WorkingMemory;
-import org.jamocha.engine.workingmemory.WorkingMemoryElement;
-import org.jamocha.engine.workingmemory.elements.Deffact;
-import org.jamocha.engine.workingmemory.elements.Deftemplate;
-import org.jamocha.engine.workingmemory.elements.Fact;
-import org.jamocha.engine.workingmemory.elements.JavaFact;
-import org.jamocha.engine.workingmemory.elements.JavaTemplate;
+import org.jamocha.engine.nodes.Token.MinusToken;
+import org.jamocha.engine.nodes.Token.PlusToken;
 import org.jamocha.engine.workingmemory.elements.Template;
+import org.junit.Ignore;
 
-/**
- * @author Josef Alexander Hahn <mail@josef-hahn.de> this node type filters by
- *         the object type (the deftemplate)
- */
-public class ObjectTypeNode extends OneInputNode {
+public class ObjectTypeNode extends AlphaNode {
 
-	protected Template template;
+	protected class ObjectTypeNodeInputImpl extends AlphaNodeInputImpl {
 
-	@Deprecated
-	private ObjectTypeNode(final int id, final WorkingMemory memory,
-			final ReteNet net) {
-		super(id, memory, net);
-	}
-
-	@Deprecated
-	public ObjectTypeNode(final int id, final WorkingMemory memory,
-			final ReteNet net, final Template templ) {
-		this(id, memory, net);
-		template = templ;
-	}
-	
-	public ObjectTypeNode(Engine e) {
-		this(e.getNet().nextNodeId(), e.getWorkingMemory(), e.getNet());
-	}
-	
-	public ObjectTypeNode(Engine e, Template template) {
-		this(e.getNet().nextNodeId(), e.getWorkingMemory(), e.getNet(), template);
-	}
-
-	//TODO: this logic should be in the template- and/or fact-classes
-	private boolean eval(Fact f) {
-		if (template instanceof Deftemplate) {
-			if (!(f instanceof Deffact)) Logging.logger(this.getClass()).debug("evaluating a "+f.getClass().getSimpleName()+" in a deftemplate situation");
-			return (f.getTemplate().getName().equals(template.getName()));
-		} else if (template instanceof JavaTemplate) {
-
-			if (f instanceof Deffact) {
-				Logging.logger(this.getClass()).debug("evaluating a "+f.getClass().getSimpleName()+" in a javatemplate/deffact situation");
-				return (f.getTemplate().getName().equals(template.getName()));
-			} else {
-				Logging.logger(this.getClass()).debug("evaluating a "+f.getClass().getSimpleName()+" in a javatemplate/javafact situation");
-				Class<? extends Object> concrete = ((JavaFact)f).getObject().getClass();
-				Class<? extends Object> upper = ((JavaTemplate)template).getJavaClass();
-				
-				Logging.logger(this.getClass()).debug(upper.getCanonicalName()+" is"+(upper.isAssignableFrom(concrete)? "": " not")+" assignable from "+concrete.getCanonicalName());
-				
-				return upper.isAssignableFrom(concrete);
-			}
-			
-		} else {
-			Logging.logger(this.getClass()).debug("evaluating a "+f.getClass().getSimpleName()+" in an unknown situation");
-			return false;
+		public ObjectTypeNodeInputImpl(final Node sourceNode,
+				final Node targetNode) {
+			super(sourceNode, targetNode);
 		}
+
+		/**
+		 * Method only needed if the RootNode does not skip the OTNs directly
+		 * 
+		 * @param token
+		 * @return
+		 */
+		@Ignore("unused")
+		private Message[] acceptToken(final Token token) {
+			final Set<NodeInput> children = this.targetNode.children;
+			final Message[] messages = new Message[children.size()];
+			int i = 0;
+			for (final NodeInput child : children) {
+				messages[i++] = new Message(child, token);
+			}
+			return messages;
+		}
+
+		@Override
+		public Message[] acceptMinusToken(final MinusToken token) {
+			throw new UnsupportedOperationException(
+					"The RootNode has to accept the Tokens for OTNs!");
+		}
+
+		@Override
+		public Message[] acceptPlusToken(final PlusToken token) {
+			throw new UnsupportedOperationException(
+					"The RootNode has to accept the Tokens for OTNs!");
+		}
+
 	}
 
-	@Override
-	public void addWME(Node sender, final WorkingMemoryElement newElem) throws NodeException {
-		if (!isActivated())
-			return;
-		final Template t = newElem.getFirstFact().getTemplate();
-		if ( eval(newElem.getFirstFact()) ) addAndPropagate(newElem);
-	}
+	protected final Template template;
 
-	@Override
-	public void removeWME(Node sender, final WorkingMemoryElement oldElem)
-			throws NodeException {
-		final Template t = oldElem.getFirstFact().getTemplate();
-		if ( eval(oldElem.getFirstFact()) ) removeAndPropagate(oldElem);
+	public ObjectTypeNode(final Memory memory, final Template template) {
+		super(memory);
+		this.template = template;
 	}
 
 	/**
-	 * returns the template, which this node will let pass
+	 * returns the template belonging to this node
 	 */
 	public Template getTemplate() {
 		return template;
 	}
 
 	@Override
-	public boolean outputsBeta() {
-		return false;
-	}
-
-	@Override
-	public void getDescriptionString(final StringBuilder sb) {
-		super.getDescriptionString(sb);
-		sb.append("|template:").append(template.getName());
+	protected NodeInputImpl newNodeInput(final Node source) {
+		return new ObjectTypeNodeInputImpl(source, this);
 	}
 
 }

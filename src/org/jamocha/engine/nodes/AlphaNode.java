@@ -20,9 +20,9 @@ package org.jamocha.engine.nodes;
 import org.jamocha.engine.nodes.Token.MinusToken;
 import org.jamocha.engine.nodes.Token.PlusToken;
 
-public class AlphaNode extends Node {
+public abstract class AlphaNode extends Node {
 
-	protected class AlphaNodeInputImpl extends NodeInputImpl {
+	protected abstract class AlphaNodeInputImpl extends NodeInputImpl {
 
 		public AlphaNodeInputImpl(final Node sourceNode, final Node targetNode) {
 			super(sourceNode, targetNode);
@@ -53,12 +53,6 @@ public class AlphaNode extends Node {
 		super(memory);
 		this.factTupleCardinality = 1;
 		// TODO Auto-generated constructor stub
-	}
-
-	@Override
-	protected NodeInputImpl newNodeInput(final Node source) {
-		// TODO Auto-generated method stub
-		return new AlphaNodeInputImpl(source, this);
 	}
 
 }

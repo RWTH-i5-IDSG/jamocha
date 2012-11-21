@@ -69,14 +69,20 @@ public class RootNode extends Node {
 			final List<Message> messages = new ArrayList<>();
 			final Set<FactTuple> factTuples = token.getFactTuples();
 			for (final FactTuple factTuple : factTuples) {
-				assert 1 == factTuple.length();// TODO error
+				if (1 != factTuple.length()) {
+					throw new UnsupportedOperationException(
+							"Only FactTuples of length 1 (e.g. Facts) are allowed to be passed to the RootNode!");
+				}
 				final Fact fact = factTuple.getFirstFact();
 				Template template = fact.getTemplate();
 				do {
-					final List<NodeInput> inputs = this.templateToInput
+					final List<NodeInput> matchingOTNs = this.templateToInput
 							.get(template);
-					for (final NodeInput input : inputs) {
-						messages.add(new Message(input, token));
+					for (final NodeInput matchingOTN : matchingOTNs) {
+						for (final NodeInput matchingOTNsChild : matchingOTN
+								.getTargetNode().children) {
+							messages.add(new Message(matchingOTNsChild, token));
+						}
 					}
 					template = template.getParentTemplate();
 				} while (null != template);
@@ -116,7 +122,7 @@ public class RootNode extends Node {
 			final Template template = otn.getTemplate();
 			this.nodeInput.templateToInput.add(template, child);
 		} catch (final ClassCastException e) {
-			throw new Error(
+			throw new UnsupportedOperationException(
 					"Only ObjectTypeNodes are supposed to be connected to the RootNode.");
 		}
 	}
@@ -128,7 +134,7 @@ public class RootNode extends Node {
 			final Template template = otn.getTemplate();
 			this.nodeInput.templateToInput.remove(template, child);
 		} catch (final ClassCastException e) {
-			throw new Error(
+			throw new UnsupportedOperationException(
 					"Only ObjectTypeNodes are supposed to be connected to the RootNode.");
 		}
 	}
