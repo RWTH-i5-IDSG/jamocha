@@ -542,23 +542,22 @@ public class SFPInterpreter implements SFPParserVisitor {
 		// get the Template name
 		String templateName = ((JamochaValue) node.jjtGetChild(0).jjtAccept(
 				this, data)).getStringValue();
-		
-		Object secondChild = node.jjtGetChild(1).jjtAccept(this,null);
+
+		Object secondChild = node.jjtGetChild(1).jjtAccept(this, null);
 		int beginData;
 		if (secondChild instanceof TemporalValidityConfiguration) {
 			beginData = 2;
-			TemporalValidityConfiguration tvc = 
-									(TemporalValidityConfiguration) secondChild;
+			TemporalValidityConfiguration tvc = (TemporalValidityConfiguration) secondChild;
 			ac.setTemporalValidityConfiguration(tvc);
 		} else {
 			beginData = 1;
 		}
-		
+
 		// Data:
 		Parameter param = null;
 		Parameter[] params = new Parameter[node.jjtGetNumChildren() - beginData];
 
-		for (int i = beginData; i < node.jjtGetNumChildren() ; i++) {
+		for (int i = beginData; i < node.jjtGetNumChildren(); i++) {
 
 			param = (Parameter) node.jjtGetChild(i).jjtAccept(this, data);
 			params[i - beginData] = param;
@@ -769,9 +768,11 @@ public class SFPInterpreter implements SFPParserVisitor {
 		// get the object condition from subnode:
 		ObjectCondition objectCond = (ObjectCondition) node.jjtGetChild(1)
 				.jjtAccept(this, data);
-		
-		if (variable.getStringValue() != null && variable.getStringValue().length()>0) {
-			BoundConstraint factBinding = new BoundConstraint(variable.getStringValue(),false);
+
+		if (variable.getStringValue() != null
+				&& variable.getStringValue().length() > 0) {
+			BoundConstraint factBinding = new BoundConstraint(
+					variable.getStringValue(), false);
 			objectCond.addConstraint(factBinding);
 		}
 
@@ -830,8 +831,8 @@ public class SFPInterpreter implements SFPParserVisitor {
 			constr.add(c);
 		}
 
-		ObjectCondition objectCond = new ObjectCondition(constr, templateName
-				.getStringValue());
+		ObjectCondition objectCond = new ObjectCondition(constr,
+				templateName.getStringValue());
 
 		return objectCond;
 	}
@@ -908,7 +909,7 @@ public class SFPInterpreter implements SFPParserVisitor {
 		if (n instanceof SFPConstant) {
 			Node m = n;
 			while (!(m instanceof SFPLHSSlot)) {
-				m=m.jjtGetParent();
+				m = m.jjtGetParent();
 			}
 			SFPLHSSlot slot = (SFPLHSSlot) m;
 			String slotName = slot.jjtGetChild(0).jjtAccept(this, data)
@@ -917,8 +918,8 @@ public class SFPInterpreter implements SFPParserVisitor {
 
 		} else if (n instanceof SFPColon) {
 			// predicate constraint
-			String functionName = ((JamochaValue) n.jjtGetChild(0).jjtGetChild(
-					0).jjtAccept(this, null)).getStringValue();
+			String functionName = ((JamochaValue) n.jjtGetChild(0)
+					.jjtGetChild(0).jjtAccept(this, null)).getStringValue();
 			List<Parameter> params = new ArrayList<Parameter>();
 
 			for (int i = 1; i < n.jjtGetChild(0).jjtGetNumChildren(); i++) {
@@ -932,20 +933,23 @@ public class SFPInterpreter implements SFPParserVisitor {
 
 		} else if (n instanceof SFPEquals) {
 			// return value constraint
-			String functionName = ((JamochaValue) n.jjtGetChild(0).jjtGetChild(0).jjtAccept(this, null)).getStringValue();
+			String functionName = ((JamochaValue) n.jjtGetChild(0)
+					.jjtGetChild(0).jjtAccept(this, null)).getStringValue();
 			List<Parameter> params = new ArrayList<Parameter>();
 			for (int i = 1; i < n.jjtGetChild(0).jjtGetNumChildren(); i++) {
-				Parameter param = (Parameter) n.jjtGetChild(0).jjtGetChild(i).jjtAccept(this, null);
+				Parameter param = (Parameter) n.jjtGetChild(0).jjtGetChild(i)
+						.jjtAccept(this, null);
 				params.add(param);
 			}
-			ReturnValueConstraint rvc = new ReturnValueConstraint(functionName,params);
+			ReturnValueConstraint rvc = new ReturnValueConstraint(functionName,
+					params);
 			constraint = rvc;
 		} else if (n instanceof SFPSingleVariable
 				| n instanceof SFPMultiVariable) {
 			String varName = ((BoundParam) obj).getVariableName();
 			Node m = n;
 			while (!(m instanceof SFPLHSSlot)) {
-				m=m.jjtGetParent();
+				m = m.jjtGetParent();
 			}
 			SFPLHSSlot slot = (SFPLHSSlot) m;
 			String slotName = slot.jjtGetChild(0).jjtAccept(this, data)
@@ -1251,80 +1255,88 @@ public class SFPInterpreter implements SFPParserVisitor {
 
 	public Object visit(SFPTemporalValidity node, Object data) {
 		TemporalValidityConfiguration tv = new TemporalValidityConfiguration();
-		for (int i=0 ; i < node.jjtGetNumChildren() ; i++) {
+		for (int i = 0; i < node.jjtGetNumChildren(); i++) {
 			node.jjtGetChild(i).jjtAccept(this, tv);
 		}
 		return tv;
 	}
-	
 
 	public Object visit(SFPTAMillisecond node, Object data) {
-		TemporalValidityConfiguration tv = (TemporalValidityConfiguration)data;
-		Parameter parameter = (Parameter) node.jjtGetChild(0).jjtAccept(this, data);
+		TemporalValidityConfiguration tv = (TemporalValidityConfiguration) data;
+		Parameter parameter = (Parameter) node.jjtGetChild(0).jjtAccept(this,
+				data);
 		tv.setMillisecond(parameter);
 		return data;
 	}
 
 	public Object visit(SFPTASecond node, Object data) {
-		TemporalValidityConfiguration tv = (TemporalValidityConfiguration)data;
-		Parameter parameter = (Parameter) node.jjtGetChild(0).jjtAccept(this, data);
+		TemporalValidityConfiguration tv = (TemporalValidityConfiguration) data;
+		Parameter parameter = (Parameter) node.jjtGetChild(0).jjtAccept(this,
+				data);
 		tv.setSecond(parameter);
 		return data;
 	}
 
 	public Object visit(SFPTAMinute node, Object data) {
-		TemporalValidityConfiguration tv = (TemporalValidityConfiguration)data;
-		Parameter parameter = (Parameter) node.jjtGetChild(0).jjtAccept(this, data);
+		TemporalValidityConfiguration tv = (TemporalValidityConfiguration) data;
+		Parameter parameter = (Parameter) node.jjtGetChild(0).jjtAccept(this,
+				data);
 		tv.setMinute(parameter);
 		return data;
 	}
 
 	public Object visit(SFPTAHour node, Object data) {
-		TemporalValidityConfiguration tv = (TemporalValidityConfiguration)data;
-		Parameter parameter = (Parameter) node.jjtGetChild(0).jjtAccept(this, data);
+		TemporalValidityConfiguration tv = (TemporalValidityConfiguration) data;
+		Parameter parameter = (Parameter) node.jjtGetChild(0).jjtAccept(this,
+				data);
 		tv.setHour(parameter);
 		return data;
 	}
 
 	public Object visit(SFPTADay node, Object data) {
-		TemporalValidityConfiguration tv = (TemporalValidityConfiguration)data;
-		Parameter parameter = (Parameter) node.jjtGetChild(0).jjtAccept(this, data);
+		TemporalValidityConfiguration tv = (TemporalValidityConfiguration) data;
+		Parameter parameter = (Parameter) node.jjtGetChild(0).jjtAccept(this,
+				data);
 		tv.setDay(parameter);
 		return data;
 	}
 
 	public Object visit(SFPTAMonth node, Object data) {
-		TemporalValidityConfiguration tv = (TemporalValidityConfiguration)data;
-		Parameter parameter = (Parameter) node.jjtGetChild(0).jjtAccept(this, data);
+		TemporalValidityConfiguration tv = (TemporalValidityConfiguration) data;
+		Parameter parameter = (Parameter) node.jjtGetChild(0).jjtAccept(this,
+				data);
 		tv.setSecond(parameter);
 		return data;
 	}
 
 	public Object visit(SFPTAYear node, Object data) {
-		TemporalValidityConfiguration tv = (TemporalValidityConfiguration)data;
-		Parameter parameter = (Parameter) node.jjtGetChild(0).jjtAccept(this, data);
+		TemporalValidityConfiguration tv = (TemporalValidityConfiguration) data;
+		Parameter parameter = (Parameter) node.jjtGetChild(0).jjtAccept(this,
+				data);
 		tv.setYear(parameter);
 		return data;
 	}
 
 	public Object visit(SFPTAWeekday node, Object data) {
-		TemporalValidityConfiguration tv = (TemporalValidityConfiguration)data;
-		Parameter parameter = (Parameter) node.jjtGetChild(0).jjtAccept(this, data);
+		TemporalValidityConfiguration tv = (TemporalValidityConfiguration) data;
+		Parameter parameter = (Parameter) node.jjtGetChild(0).jjtAccept(this,
+				data);
 		tv.setWeekday(parameter);
 		return data;
 	}
 
 	public Object visit(SFPTADuration node, Object data) {
-		TemporalValidityConfiguration tv = (TemporalValidityConfiguration)data;
-		Parameter parameter = (Parameter) node.jjtGetChild(0).jjtAccept(this, data);
+		TemporalValidityConfiguration tv = (TemporalValidityConfiguration) data;
+		Parameter parameter = (Parameter) node.jjtGetChild(0).jjtAccept(this,
+				data);
 		tv.setDuration(parameter);
 		return data;
 	}
 
 	public Object visit(SFPTemporalValidityDeclaration node, Object data) {
 		DeclarationConfiguration dc = (DeclarationConfiguration) data;
-		TemporalValidityConfiguration tvc = (TemporalValidityConfiguration)
-									node.jjtGetChild(0).jjtAccept(this, null);
+		TemporalValidityConfiguration tvc = (TemporalValidityConfiguration) node
+				.jjtGetChild(0).jjtAccept(this, null);
 		dc.setTemporalValidity(tvc);
 		return null;
 	}
@@ -1337,6 +1349,5 @@ public class SFPInterpreter implements SFPParserVisitor {
 
 		return null;
 	}
-
 
 }

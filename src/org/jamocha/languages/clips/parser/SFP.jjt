@@ -792,8 +792,8 @@ SimpleNode Expression() :
 
 
 /****
-**		 Special functions wich are defined by CLIPS to have
-**		a non-standart syntax (e.g. not all parameters are expressions)
+**		 Special functions which are defined by CLIPS to have
+**		a non-standard syntax (e.g. not all parameters are expressions)
 ****/
 
 /**
