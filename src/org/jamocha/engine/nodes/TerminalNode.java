@@ -18,13 +18,8 @@
 
 package org.jamocha.engine.nodes;
 
-import org.jamocha.engine.Engine;
-import org.jamocha.engine.ExecuteException;
-import org.jamocha.engine.ReteNet;
-import org.jamocha.engine.agenda.Activation;
-import org.jamocha.engine.modules.Module;
-import org.jamocha.engine.workingmemory.WorkingMemory;
-import org.jamocha.engine.workingmemory.WorkingMemoryElement;
+import org.jamocha.engine.nodes.Token.MinusToken;
+import org.jamocha.engine.nodes.Token.PlusToken;
 import org.jamocha.rules.Rule;
 
 /**
@@ -32,61 +27,52 @@ import org.jamocha.rules.Rule;
  *         network. each fact-tuple, which arrives here, adds a new entry in the
  *         agenda.
  */
-public class TerminalNode extends OneInputNode {
+public class TerminalNode extends BetaNode {
 
-	private final Rule rule;
-	
-	private boolean autoFocus;
+	protected class TerminalNodeInputImpl extends BetaNodeInputImpl {
 
-	@Deprecated
-	public TerminalNode(final int id, final WorkingMemory memory,
-			final Rule rule, final ReteNet net) {
-		super(id, memory, net);
-		this.rule = rule;
-	}
-	
-	public TerminalNode(Engine e, Rule r) {
-		this(e.getNet().nextNodeId(), e.getWorkingMemory(), r, e.getNet());
-		autoFocus = false;
-	}
+		public TerminalNodeInputImpl(final Node sourceNode,
+				final Node targetNode, final int startIndex,
+				final int numberOfFactTuples) {
+			super(sourceNode, targetNode, startIndex, numberOfFactTuples);
+		}
 
-	@Override
-	public void addWME(Node sender, final WorkingMemoryElement newElem) throws NodeException {
-		if (!isActivated())
-			return;
-		final Activation act = new Activation(rule, newElem.getFactTuple(), this);
-		final Module module = rule.parentModule();
-		if (autoFocus) {
-			try {
-				net.getEngine().getAgendas().getAgenda(module).autoFire(act);
-			} catch (ExecuteException e) {
-				throw new NodeException("error while auto-fire an activation",e,this);
-			}
-		} else {
-			net.getEngine().getAgendas().getAgenda(module).addActivation(act);
+		@Override
+		public Message[] acceptPlusToken(final PlusToken token) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public Message[] acceptMinusToken(final MinusToken token) {
+			// TODO Auto-generated method stub
+			return null;
 		}
 	}
 
-	@Override
-	public void removeWME(Node sender, final WorkingMemoryElement oldElem)
-			throws NodeException {
-		final Activation act = new Activation(rule, oldElem.getFactTuple(),this);
-		final Module module = rule.parentModule();
-		net.getEngine().getAgendas().getAgenda(module).removeActivation(act);
+	private final Rule rule;
+
+	private boolean autoFocus;
+
+	public TerminalNode(final Memory memory, final Rule rule) {
+		super(memory);
+		this.rule = rule;
+		// TODO Auto-generated constructor stub
 	}
 
 	public Rule getRule() {
 		return rule;
 	}
 
-	@Override
-	public boolean outputsBeta() {
-		// they wont output anything, so it doesn't matter what we return here
-		return true;
-	}
-
 	public void autoFocus() {
 		autoFocus = true;
+	}
+
+	@Override
+	protected TerminalNodeInputImpl newBetaNodeInput(Node sourceNode,
+			Node targetNode, int startIndex, int numberOfFactTuples) {
+		return new TerminalNodeInputImpl(sourceNode, targetNode, startIndex,
+				numberOfFactTuples);
 	}
 
 }

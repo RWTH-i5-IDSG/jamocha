@@ -20,12 +20,9 @@ package org.jamocha.engine.nodes;
 
 import java.util.Arrays;
 
-import org.jamocha.engine.nodes.Token.MinusToken;
-import org.jamocha.engine.nodes.Token.PlusToken;
+public abstract class BetaNode extends Node {
 
-public class BetaNode extends Node {
-
-	protected class BetaNodeInputImpl extends NodeInputImpl {
+	protected abstract class BetaNodeInputImpl extends NodeInputImpl {
 
 		protected int startIndex;
 		protected FactAddress[] localAddresses;
@@ -41,18 +38,6 @@ public class BetaNode extends Node {
 				this.localAddresses[index] = new FactAddress(targetNode,
 						startIndex + index);
 			}
-		}
-
-		@Override
-		public Message[] acceptPlusToken(final PlusToken token) {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public Message[] acceptMinusToken(final MinusToken token) {
-			// TODO Auto-generated method stub
-			return null;
 		}
 
 		@Override
@@ -84,11 +69,15 @@ public class BetaNode extends Node {
 		// TODO Auto-generated constructor stub
 	}
 
+	protected abstract BetaNodeInputImpl newBetaNodeInput(
+			final Node sourceNode, final Node targetNode, final int startIndex,
+			final int numberOfFactTuples);
+
 	@Override
-	protected NodeInputImpl newNodeInput(final Node source) {
+	protected BetaNodeInputImpl newNodeInput(final Node source) {
 		final int startIndex = this.factTupleCardinality;
 		this.factTupleCardinality += source.factTupleCardinality;
-		return new BetaNodeInputImpl(source, this, startIndex,
+		return newBetaNodeInput(source, this, startIndex,
 				source.factTupleCardinality);
 	}
 }
