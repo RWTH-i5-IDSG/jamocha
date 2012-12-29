@@ -76,38 +76,21 @@ public class SFPInterpreter implements SFPParserVisitor {
 			return result.append("}").toString();
 		}
 
-		public Constraint getRootConstraint() {
-			Constraint root = null;
-			AndConnectedConstraint act = null;
-			if (size() == 1)
-				// we dont need any OR-Constraints
-				root = get(0);
-			else {
-				for (int i = 0; i < size() - 1; i++) {
-
-					// create new AND node
-					AndConnectedConstraint newAndNode = new AndConnectedConstraint(
-							null, null, false);
-
-					// mount our constraint on our new AND node
-					Constraint actConstr = get(i);
-					newAndNode.setLeft(actConstr);
-
-					// store new AND node as root, we root is null now
-					if (root == null)
-						root = newAndNode;
-
-					// if we have an actual AND node, we mount our new one to
-					// the old one
-					if (act != null)
-						act.setRight(newAndNode);
-
-					act = newAndNode;
-				}
-				act.setRight(get(size() - 1));
-
+		private Constraint getRootConstraint(final int index, final int size) {
+			switch (size - index) {
+			case 0:
+				return null;
+			case 1:
+				return get(index);
+			default:
+				return new AndConnectedConstraint(get(index),
+						getRootConstraint(index + 1, size), false);
 			}
-			return root;
+
+		}
+
+		public Constraint getRootConstraint() {
+			return getRootConstraint(0, size());
 		}
 
 	}
@@ -134,37 +117,21 @@ public class SFPInterpreter implements SFPParserVisitor {
 			return result;
 		}
 
-		Constraint getRootConstraint() {
-			Constraint root = null;
-			OrConnectedConstraint act = null;
-			if (size() == 1)
-				// we dont need any OR-Constraints
-				root = get(0).getRootConstraint();
-			else {
-				for (int i = 0; i < size() - 1; i++) {
-
-					// create new OR node
-					OrConnectedConstraint newOrNode = new OrConnectedConstraint(
-							null, null, false);
-
-					// mount our constraint on our new OR node
-					Constraint actConstr = get(i).getRootConstraint();
-					newOrNode.setLeft(actConstr);
-
-					// store new OR node as root, we root is null now
-					if (root == null)
-						root = newOrNode;
-
-					// if we have an actual OR node, we mount our new one to the
-					// old one
-					if (act != null)
-						act.setRight(newOrNode);
-
-					act = newOrNode;
-				}
-				act.setRight(getLastGroup().getRootConstraint());
+		private Constraint getRootConstraint(final int index, final int size) {
+			switch (size - index) {
+			case 0:
+				return null;
+			case 1:
+				return get(index).getRootConstraint();
+			default:
+				return new OrConnectedConstraint(get(index).getRootConstraint(),
+						getRootConstraint(index + 1, size), false);
 			}
-			return root;
+
+		}
+
+		Constraint getRootConstraint() {
+			return getRootConstraint(0, size());
 		}
 
 	}

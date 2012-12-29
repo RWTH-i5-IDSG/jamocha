@@ -24,11 +24,11 @@ import org.jamocha.parser.JamochaValue;
 
 public abstract class AbstractConnectedConstraint extends AbstractConstraint {
 		
-	protected Constraint left;
+	protected final Constraint left;
 	
-	protected Constraint right;
+	protected final Constraint right;
 	
-	protected boolean negated;
+	protected final boolean negated;
 	
 	@Override
 	public int hashCode() {
@@ -99,28 +99,5 @@ public abstract class AbstractConnectedConstraint extends AbstractConstraint {
 	public JamochaValue getValue() {
 		return null;
 	}
-	
-	/**
-	 * this method is wrong here, because it sets the left
-	 * sub-constraint for a "immutable" constraint class.
-	 * it is only here, because our SFP-Interpreter uses it.
-	 * We should set this value in the constructor only!
-	 * @param left
-	 */
-	public void setLeft(Constraint left) {
-		this.left = left;
-	}
-	
-	/**
-	 * this method is wrong here, because it sets the right
-	 * sub-constraint for a "immutable" constraint class.
-	 * it is only here, because our SFP-Interpreter uses it.
-	 * We should set this value in the constructor only!
-	 * @param right
-	 */
-	public void setRight(Constraint right) {
-		this.right = right;
-	}
-	
 	
 }
