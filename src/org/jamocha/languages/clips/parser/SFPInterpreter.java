@@ -76,21 +76,15 @@ public class SFPInterpreter implements SFPParserVisitor {
 			return result.append("}").toString();
 		}
 
-		private Constraint getRootConstraint(final int index, final int size) {
-			switch (size - index) {
-			case 0:
-				return null;
-			case 1:
-				return get(index);
-			default:
-				return new AndConnectedConstraint(get(index),
-						getRootConstraint(index + 1, size), false);
-			}
-
-		}
-
 		public Constraint getRootConstraint() {
-			return getRootConstraint(0, size());
+			final int size = size();
+			if (size < 1)
+				return null;
+			Constraint root = get(size - 1);
+			for (int i = 2; i <= size; ++i) {
+				root = new AndConnectedConstraint(get(size - i), root, false);
+			}
+			return root;
 		}
 
 	}
@@ -117,21 +111,16 @@ public class SFPInterpreter implements SFPParserVisitor {
 			return result;
 		}
 
-		private Constraint getRootConstraint(final int index, final int size) {
-			switch (size - index) {
-			case 0:
-				return null;
-			case 1:
-				return get(index).getRootConstraint();
-			default:
-				return new OrConnectedConstraint(get(index).getRootConstraint(),
-						getRootConstraint(index + 1, size), false);
-			}
-
-		}
-
 		Constraint getRootConstraint() {
-			return getRootConstraint(0, size());
+			final int size = size();
+			if (size < 1)
+				return null;
+			Constraint root = get(size - 1).getRootConstraint();
+			for (int i = 2; i <= size; ++i) {
+				root = new OrConnectedConstraint(get(size - i)
+						.getRootConstraint(), root, false);
+			}
+			return root;
 		}
 
 	}
@@ -912,7 +901,7 @@ public class SFPInterpreter implements SFPParserVisitor {
 					params);
 			constraint = rvc;
 		} else if (n instanceof SFPSingleVariable
-				| n instanceof SFPMultiVariable) {
+				|| n instanceof SFPMultiVariable) {
 			String varName = ((BoundParam) obj).getVariableName();
 			Node m = n;
 			while (!(m instanceof SFPLHSSlot)) {
