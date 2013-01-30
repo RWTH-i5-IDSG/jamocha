@@ -18,11 +18,9 @@
 
 package org.jamocha.engine.nodes;
 
-import java.lang.ref.WeakReference;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.WeakHashMap;
 
 /**
  * Base class for all node types
@@ -39,6 +37,14 @@ public abstract class Node {
 		public Node getTargetNode();
 
 		public FactAddress localizeAddress(final FactAddress addressInParent);
+
+		/**
+		 * Disconnects the nodeInput from the formerly connected nodes. This
+		 * will remove the input from the target node inputs as well as from the
+		 * source node children.
+		 * 
+		 */
+		public void disconnect();
 	}
 
 	protected class FactAddress {
@@ -69,6 +75,12 @@ public abstract class Node {
 		public Node getTargetNode() {
 			return this.targetNode;
 		}
+
+		@Override
+		public void disconnect() {
+			this.sourceNode.removeChild(this);
+			this.targetNode.removeInput(this);
+		}
 	}
 
 	final protected HashSet<NodeInput> inputs = new HashSet<>();
@@ -81,46 +93,81 @@ public abstract class Node {
 	}
 
 	/**
-	 * Connects the parent node given to the input with the index given.
+	 * Connects the child node given to this node.
 	 * 
 	 * @param parent
 	 *            parent node to connect
-	 * @param index
-	 *            index of the input to connect to
-	 * @throws IndexOutOfBoundsException
-	 *             if the index is out of range
-	 * 
+	 * @return the corresponding input
 	 */
-	final public NodeInput connectTo(final Node parent) {
-		final NodeInput input = newNodeInput(parent);
-		this.inputs.add(input);
-		parent.acceptChild(input);
+	final public NodeInput connectTo(final Node child) {
+		final NodeInput input = child.createAndAddNodeInput(this);
+		acceptChild(input);
 		return input;
 	}
 
-	protected void acceptChild(NodeInput child) {
+	/**
+	 * Creates a new NodeInput for the parent given, adds it to its inputs and
+	 * returns the input created.
+	 * 
+	 * @param parent
+	 *            parent node
+	 * @return input created
+	 */
+	final private NodeInput createAndAddNodeInput(final Node parent) {
+		final NodeInput input = newNodeInput(parent);
+		this.inputs.add(input);
+		return input;
+	}
+
+	/**
+	 * Called when a child is added. Defaults to adding the child to the
+	 * children.
+	 * 
+	 * @param child
+	 *            the child to be added
+	 */
+	protected void acceptChild(final NodeInput child) {
 		this.children.add(child);
 	}
 
+	/**
+	 * Called when a child is removed. Defaults to removing the child from the
+	 * children.
+	 * 
+	 * @param child
+	 *            child to be removed
+	 */
 	protected void removeChild(final NodeInput child) {
 		this.children.remove(child);
 	}
 
 	/**
-	 * Disconnects the nodeInput from the formerly connected node. Hopefully the
-	 * last strong reference to the input is lost after the call to this
-	 * function and the NodeInput vanishes.
+	 * Called when an input is removed. Defaults to removing the input from the
+	 * inputs.
 	 * 
-	 * @param nodeInput
-	 *            input to disconnect a node from
+	 * @param input
+	 *            node input to be removed
 	 */
-	final public void disconnect(final NodeInput nodeInput) {
-		this.inputs.remove(nodeInput);
-		nodeInput.getSourceNode().removeChild(nodeInput);
+	protected void removeInput(final NodeInput input) {
+		this.inputs.remove(input);
 	}
 
+	/**
+	 * Creates a new NodeInput which will connect this node (as the input's
+	 * target node) and the given source node (as its parent).
+	 * 
+	 * @param source
+	 *            source node to connect to this node via a nodeInput to be
+	 *            constructed
+	 * @return NodeInput connecting the given source node with this node
+	 */
 	abstract protected NodeInputImpl newNodeInput(final Node source);
 
+	/**
+	 * Returns an unmodifiable set of the children.
+	 * 
+	 * @return an unmodifiable set of the children
+	 */
 	protected Set<NodeInput> getChildren() {
 		return Collections.unmodifiableSet(this.children);
 	}
