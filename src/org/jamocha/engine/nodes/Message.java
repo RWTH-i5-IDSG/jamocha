@@ -1,7 +1,5 @@
 package org.jamocha.engine.nodes;
 
-import java.lang.ref.WeakReference;
-
 import org.jamocha.engine.nodes.Node.NodeInput;
 
 public class Message {
