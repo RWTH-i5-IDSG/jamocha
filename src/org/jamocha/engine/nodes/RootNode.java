@@ -18,7 +18,6 @@
 
 package org.jamocha.engine.nodes;
 
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -144,8 +143,8 @@ public class RootNode extends Node {
 	 * 
 	 * @return root node input
 	 */
-	public WeakReference<NodeInput> getNetworkInput() {
-		return this.nodeInput.weakReference;
+	public NodeInput getNetworkInput() {
+		return this.nodeInput;
 	}
 
 	@Override
