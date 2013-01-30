@@ -22,11 +22,6 @@ import org.jamocha.engine.nodes.Token.MinusToken;
 import org.jamocha.engine.nodes.Token.PlusToken;
 import org.jamocha.rules.Rule;
 
-/**
- * @author Josef Alexander Hahn <mail@josef-hahn.de> the sink in our rete
- *         network. each fact-tuple, which arrives here, adds a new entry in the
- *         agenda.
- */
 public class TerminalNode extends BetaNode {
 
 	protected class TerminalNodeInputImpl extends BetaNodeInputImpl {
@@ -52,8 +47,6 @@ public class TerminalNode extends BetaNode {
 
 	private final Rule rule;
 
-	private boolean autoFocus;
-
 	public TerminalNode(final Memory memory, final Rule rule) {
 		super(memory);
 		this.rule = rule;
@@ -62,10 +55,6 @@ public class TerminalNode extends BetaNode {
 
 	public Rule getRule() {
 		return rule;
-	}
-
-	public void autoFocus() {
-		autoFocus = true;
 	}
 
 	@Override
