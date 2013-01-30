@@ -52,8 +52,6 @@ public abstract class Node {
 	}
 
 	abstract protected class NodeInputImpl implements NodeInput {
-		protected final WeakReference<NodeInput> weakReference = new WeakReference<NodeInput>(
-				this);
 		protected final Node targetNode;
 		protected final Node sourceNode;
 
@@ -74,10 +72,7 @@ public abstract class Node {
 	}
 
 	final protected HashSet<NodeInput> inputs = new HashSet<>();
-	final protected Set<NodeInput> children = Collections
-			.newSetFromMap(new WeakHashMap<NodeInput, Boolean>());
-	final protected WeakReference<? extends Node> weakReference = new WeakReference<>(
-			this);
+	final protected Set<NodeInput> children = new HashSet<>();
 	final protected Memory memory;
 	protected int factTupleCardinality = 0;
 
