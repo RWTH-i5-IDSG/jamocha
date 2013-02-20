@@ -48,12 +48,14 @@ public abstract class Node {
 	}
 
 	protected class FactAddress {
-		final int localIndex;
-		final Node localNode;
+		final NodeInput nodeInput;
+		final FactAddress addressInSourceNode;
+		final int addressInTargetNode;
 
-		public FactAddress(final Node localNode, final int localIndex) {
-			this.localNode = localNode;
-			this.localIndex = localIndex;
+		public FactAddress(final NodeInput nodeInput, final FactAddress addressInSourceNode, final int addressInTargetNode) {
+			this.nodeInput = nodeInput;
+			this.addressInSourceNode = addressInSourceNode;
+			this.addressInTargetNode = addressInTargetNode;
 		}
 	}
 
