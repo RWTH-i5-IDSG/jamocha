@@ -142,4 +142,9 @@ public class SimpleBetaFilterNode extends AbstractBetaFilterNode {
 		}
 	}
 
+	@Override
+	public void accept(final NodeVisitor visitor) {
+		visitor.visit(this);
+	}
+
 }

@@ -174,4 +174,8 @@ public class QuantorBetaFilterNode extends SimpleBetaFilterNode {
 		counter.set(oldElem, 0);
 	}
 
+	@Override
+	public void accept(final NodeVisitor visitor) {
+		visitor.visit(this);
+	}
 }

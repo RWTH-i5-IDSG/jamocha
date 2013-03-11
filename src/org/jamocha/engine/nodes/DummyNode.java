@@ -51,4 +51,9 @@ public class DummyNode extends OneInputNode {
 		return false;
 	}
 
+	@Override
+	public void accept(final NodeVisitor visitor) {
+		visitor.visit(this);
+	}
+
 }

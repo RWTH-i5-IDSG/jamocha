@@ -91,4 +91,9 @@ public class SlotFilterNode extends OneInputNode {
 				slot.getValue());
 	}
 
+	@Override
+	public void accept(final NodeVisitor visitor) {
+		visitor.visit(this);
+	}
+
 }

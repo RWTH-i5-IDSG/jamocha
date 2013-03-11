@@ -200,4 +200,9 @@ public class MultiBetaJoinNode extends AbstractBetaFilterNode {
 		inputs = new ArrayList<Node>();
 	}
 
+	@Override
+	public void accept(final NodeVisitor visitor) {
+		visitor.visit(this);
+	}
+
 }

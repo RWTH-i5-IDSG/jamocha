@@ -280,4 +280,5 @@ public abstract class Node {
 		}
 		childs=newArr;
 	}
+	public abstract void accept(final NodeVisitor visitor);
 }

@@ -94,4 +94,8 @@ public class AlphaSlotComparatorNode extends OneInputNode {
 				slot2.getId());
 	}
 
+	@Override
+	public void accept(final NodeVisitor visitor) {
+		visitor.visit(this);
+	}
 }

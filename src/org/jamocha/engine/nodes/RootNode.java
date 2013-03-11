@@ -89,4 +89,8 @@ public class RootNode extends Node {
 		// the root node has no parents!
 	}
 
+	@Override
+	public void accept(final NodeVisitor visitor) {
+		visitor.visit(this);
+	}
 }

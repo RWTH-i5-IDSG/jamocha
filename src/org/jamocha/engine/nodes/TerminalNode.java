@@ -89,4 +89,9 @@ public class TerminalNode extends OneInputNode {
 		autoFocus = true;
 	}
 
+	@Override
+	public void accept(final NodeVisitor visitor) {
+		visitor.visit(this);
+	}
+
 }

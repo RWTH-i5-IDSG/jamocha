@@ -146,4 +146,9 @@ public class AlphaQuantorDistinctionNode extends OneInputNode {
 		return key;
 	}
 
+	@Override
+	public void accept(final NodeVisitor visitor) {
+		visitor.visit(this);
+	}
+
 }

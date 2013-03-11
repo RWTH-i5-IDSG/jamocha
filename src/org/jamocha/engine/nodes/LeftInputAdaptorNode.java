@@ -60,4 +60,8 @@ public class LeftInputAdaptorNode extends OneInputNode {
 		return true;
 	}
 
+	@Override
+	public void accept(final NodeVisitor visitor) {
+		visitor.visit(this);
+	}
 }

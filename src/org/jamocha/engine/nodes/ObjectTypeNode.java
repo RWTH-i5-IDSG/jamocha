@@ -120,4 +120,9 @@ public class ObjectTypeNode extends OneInputNode {
 		sb.append("|template:").append(template.getName());
 	}
 
+	@Override
+	public void accept(final NodeVisitor visitor) {
+		visitor.visit(this);
+	}
+
 }
