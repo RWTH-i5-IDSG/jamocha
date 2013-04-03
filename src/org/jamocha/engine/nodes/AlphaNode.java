@@ -17,8 +17,8 @@
  */
 package org.jamocha.engine.nodes;
 
-import org.jamocha.engine.nodes.Token.MinusToken;
-import org.jamocha.engine.nodes.Token.PlusToken;
+import org.jamocha.engine.memory.Memory;
+import org.jamocha.engine.memory.MemoryHandler;
 
 public abstract class AlphaNode extends Node {
 
@@ -30,15 +30,13 @@ public abstract class AlphaNode extends Node {
 		}
 
 		@Override
-		public Message[] acceptPlusToken(final PlusToken token) {
+		public void processPlusToken(final MemoryHandler memory) {
 			// TODO Auto-generated method stub
-			return null;
 		}
 
 		@Override
-		public Message[] acceptMinusToken(final MinusToken token) {
+		public void processMinusToken(final MemoryHandler memory) {
 			// TODO Auto-generated method stub
-			return null;
 		}
 
 		@Override

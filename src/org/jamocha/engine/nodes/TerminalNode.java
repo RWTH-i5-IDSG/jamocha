@@ -18,32 +18,10 @@
 
 package org.jamocha.engine.nodes;
 
-import org.jamocha.engine.nodes.Token.MinusToken;
-import org.jamocha.engine.nodes.Token.PlusToken;
+import org.jamocha.engine.memory.Memory;
 import org.jamocha.rules.Rule;
 
 public class TerminalNode extends BetaNode {
-
-	protected class TerminalNodeInputImpl extends BetaNodeInputImpl {
-
-		public TerminalNodeInputImpl(final Node sourceNode,
-				final Node targetNode, final int startIndex,
-				final int numberOfFactTuples) {
-			super(sourceNode, targetNode, startIndex, numberOfFactTuples);
-		}
-
-		@Override
-		public Message[] acceptPlusToken(final PlusToken token) {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public Message[] acceptMinusToken(final MinusToken token) {
-			// TODO Auto-generated method stub
-			return null;
-		}
-	}
 
 	private final Rule rule;
 
@@ -58,10 +36,9 @@ public class TerminalNode extends BetaNode {
 	}
 
 	@Override
-	protected TerminalNodeInputImpl newBetaNodeInput(Node sourceNode,
-			Node targetNode, int startIndex, int numberOfFactTuples) {
-		return new TerminalNodeInputImpl(sourceNode, targetNode, startIndex,
-				numberOfFactTuples);
+	protected NodeInputImpl newNodeInput(Node source) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

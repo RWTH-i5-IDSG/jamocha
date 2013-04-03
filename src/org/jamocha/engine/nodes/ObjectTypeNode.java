@@ -18,52 +18,11 @@
 
 package org.jamocha.engine.nodes;
 
-import java.util.Set;
-
-import org.jamocha.engine.nodes.Token.MinusToken;
-import org.jamocha.engine.nodes.Token.PlusToken;
+import org.jamocha.engine.memory.Memory;
+import org.jamocha.engine.workingmemory.elements.Fact;
 import org.jamocha.engine.workingmemory.elements.Template;
-import org.junit.Ignore;
 
 public class ObjectTypeNode extends AlphaNode {
-
-	protected class ObjectTypeNodeInputImpl extends AlphaNodeInputImpl {
-
-		public ObjectTypeNodeInputImpl(final Node sourceNode,
-				final Node targetNode) {
-			super(sourceNode, targetNode);
-		}
-
-		/**
-		 * Method only needed if the RootNode does not skip the OTNs directly
-		 * 
-		 * @param token
-		 * @return
-		 */
-		@Ignore("unused")
-		private Message[] acceptToken(final Token token) {
-			final Set<NodeInput> children = this.targetNode.children;
-			final Message[] messages = new Message[children.size()];
-			int i = 0;
-			for (final NodeInput child : children) {
-				messages[i++] = new Message(child, token);
-			}
-			return messages;
-		}
-
-		@Override
-		public Message[] acceptMinusToken(final MinusToken token) {
-			throw new UnsupportedOperationException(
-					"The RootNode has to accept the Tokens for OTNs!");
-		}
-
-		@Override
-		public Message[] acceptPlusToken(final PlusToken token) {
-			throw new UnsupportedOperationException(
-					"The RootNode has to accept the Tokens for OTNs!");
-		}
-
-	}
 
 	protected final Template template;
 
@@ -81,7 +40,16 @@ public class ObjectTypeNode extends AlphaNode {
 
 	@Override
 	protected NodeInputImpl newNodeInput(final Node source) {
-		return new ObjectTypeNodeInputImpl(source, this);
+		throw new UnsupportedOperationException(
+				"ObjectTypeNodes can not have inputs!");
+	}
+
+	public void assertFact(final Fact fact) {
+		// TODO
+	}
+
+	public void retractFact(final Fact fact) {
+		// TODO
 	}
 
 }

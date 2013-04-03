@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2012 The Jamocha Team
+ * Copyright 2002-2013 The Jamocha Team
  * 
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,15 +16,13 @@
  * 
  */
 
-package org.jamocha.engine.nodes;
+package org.jamocha.engine.memory;
 
-import org.jamocha.engine.memory.Memory;
+public interface Memory {
+	// Speichert Fakttupelmengen
+	// Verfügt ggf. über verschiedene Indizes <- Entscheidung bei
+	// Netzkonstruktion
+	// Nutzt Indizes bei entsprechenden Anfragen
 
-public abstract class BetaNode extends Node {
-
-	public BetaNode(final Memory memory) {
-		super(memory);
-		// TODO Auto-generated constructor stub
-	}
-
+	public void flush();
 }

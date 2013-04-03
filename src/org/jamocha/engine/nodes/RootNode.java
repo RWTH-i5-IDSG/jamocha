@@ -22,137 +22,83 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
-import org.jamocha.engine.nodes.Token.MinusToken;
-import org.jamocha.engine.nodes.Token.PlusToken;
 import org.jamocha.engine.workingmemory.elements.Fact;
 import org.jamocha.engine.workingmemory.elements.Template;
 
 /**
  */
-public class RootNode extends Node {
+public class RootNode {
 
-	protected class RootNodeInputImpl extends NodeInputImpl {
+	private class TemplateToInput {
 
-		private class TemplateToInput {
+		private final Map<Template, List<ObjectTypeNode>> map = new HashMap<>();
 
-			private final Map<Template, List<NodeInput>> map = new HashMap<>();
-
-			public void add(final Template template, final NodeInput nodeInput) {
-				List<NodeInput> inputs = this.map.get(template);
-				if (null == inputs) {
-					inputs = new ArrayList<>();
-					this.map.put(template, inputs);
-				}
-				inputs.add(nodeInput);
+		public void add(final Template template, final ObjectTypeNode nodeInput) {
+			List<ObjectTypeNode> inputs = this.map.get(template);
+			if (null == inputs) {
+				inputs = new ArrayList<>();
+				this.map.put(template, inputs);
 			}
+			inputs.add(nodeInput);
+		}
 
-			public void remove(final Template template,
-					final NodeInput nodeInput) {
-				this.map.get(template).remove(nodeInput);
+		public void remove(final Template template,
+				final ObjectTypeNode nodeInput) {
+			this.map.get(template).remove(nodeInput);
+		}
+
+		public List<ObjectTypeNode> get(final Template template) {
+			return this.map.get(template);
+		}
+	}
+
+	final TemplateToInput templateToInput = new TemplateToInput();
+
+	private interface AssertOrRetractInterface {
+		public void call(final ObjectTypeNode otn, final Fact fact);
+
+		static AssertOrRetractInterface assertCall = new AssertOrRetractInterface() {
+			@Override
+			public void call(final ObjectTypeNode otn, final Fact fact) {
+				otn.assertFact(fact);
 			}
+		};
 
-			public List<NodeInput> get(final Template template) {
-				return this.map.get(template);
+		static AssertOrRetractInterface retractCall = new AssertOrRetractInterface() {
+			@Override
+			public void call(final ObjectTypeNode otn, final Fact fact) {
+				otn.retractFact(fact);
 			}
-		}
+		};
+	}
 
-		final TemplateToInput templateToInput = new TemplateToInput();
-
-		public RootNodeInputImpl(final Node sourceNode, final Node targetNode) {
-			super(sourceNode, targetNode);
-		}
-
-		private Message[] acceptToken(final Token token) {
-			final List<Message> messages = new ArrayList<>();
-			final Set<FactTuple> factTuples = token.getFactTuples();
-			for (final FactTuple factTuple : factTuples) {
-				if (1 != factTuple.length()) {
-					throw new UnsupportedOperationException(
-							"Only FactTuples of length 1 (e.g. Facts) are allowed to be passed to the RootNode!");
-				}
-				final Fact fact = factTuple.getFirstFact();
-				Template template = fact.getTemplate();
-				do {
-					final List<NodeInput> matchingOTNs = this.templateToInput
-							.get(template);
-					for (final NodeInput matchingOTN : matchingOTNs) {
-						for (final NodeInput matchingOTNsChild : matchingOTN
-								.getTargetNode().children) {
-							messages.add(new Message(matchingOTNsChild, token));
-						}
-					}
-					template = template.getParentTemplate();
-				} while (null != template);
+	private void processFact(final Fact fact,
+			final AssertOrRetractInterface methodPointer) {
+		Template template = fact.getTemplate();
+		do {
+			final List<ObjectTypeNode> matchingOTNs = this.templateToInput
+					.get(template);
+			for (final ObjectTypeNode matchingOTN : matchingOTNs) {
+				methodPointer.call(matchingOTN, fact);
 			}
-			return messages.toArray(new Message[messages.size()]);
-		}
-
-		@Override
-		public Message[] acceptPlusToken(final PlusToken token) {
-			return acceptToken(token);
-		}
-
-		@Override
-		public Message[] acceptMinusToken(final MinusToken token) {
-			return acceptToken(token);
-		}
-
-		@Override
-		public FactAddress localizeAddress(FactAddress add) {
-			throw new UnsupportedOperationException(
-					"The Input of the RootNode is not supposed to be used as an address");
-		}
+			template = template.getParentTemplate();
+		} while (null != template);
 	}
 
-	final RootNodeInputImpl nodeInput = new RootNodeInputImpl(this, null);
-
-	public RootNode(final Memory memory) {
-		super(memory);
-		this.factTupleCardinality = 1;
+	public void assertFact(final Fact fact) {
+		processFact(fact, AssertOrRetractInterface.assertCall);
 	}
 
-	@Override
-	protected void acceptChild(final NodeInput child) {
-		super.acceptChild(child);
-		try {
-			final ObjectTypeNode otn = (ObjectTypeNode) child.getTargetNode();
-			final Template template = otn.getTemplate();
-			this.nodeInput.templateToInput.add(template, child);
-		} catch (final ClassCastException e) {
-			throw new UnsupportedOperationException(
-					"Only ObjectTypeNodes are supposed to be connected to the RootNode.");
-		}
+	public void retractFact(final Fact fact) {
+		processFact(fact, AssertOrRetractInterface.retractCall);
 	}
 
-	protected void removeChild(final NodeInput child) {
-		super.removeChild(child);
-		try {
-			final ObjectTypeNode otn = (ObjectTypeNode) child.getTargetNode();
-			final Template template = otn.getTemplate();
-			this.nodeInput.templateToInput.remove(template, child);
-		} catch (final ClassCastException e) {
-			throw new UnsupportedOperationException(
-					"Only ObjectTypeNodes are supposed to be connected to the RootNode.");
-		}
+	public void addOTN(final ObjectTypeNode otn) {
+		this.templateToInput.add(otn.template, otn);
 	}
 
-	/**
-	 * Returns the single input of the root node.
-	 * 
-	 * @return root node input
-	 */
-	public NodeInput getNetworkInput() {
-		return this.nodeInput;
+	public void removeOTN(final ObjectTypeNode otn) {
+		this.templateToInput.remove(otn.template, otn);
 	}
-
-	@Override
-	protected NodeInputImpl newNodeInput(final Node source) {
-		throw new UnsupportedOperationException(
-				"The root node can only have one single input! "
-						+ "This single valid input is created in its ctor "
-						+ "and can be accessed via getNetworkInput()");
-	}
-
 }

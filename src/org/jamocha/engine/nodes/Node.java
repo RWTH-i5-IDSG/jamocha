@@ -22,15 +22,19 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.jamocha.engine.Engine;
+import org.jamocha.engine.memory.Memory;
+import org.jamocha.engine.memory.MemoryHandler;
+
 /**
  * Base class for all node types
  */
 public abstract class Node {
 
 	public static interface NodeInput {
-		public Message[] acceptPlusToken(final Token.PlusToken token);
+		public void processPlusToken(final MemoryHandler memory);
 
-		public Message[] acceptMinusToken(final Token.MinusToken token);
+		public void processMinusToken(final MemoryHandler memory);
 
 		public Node getSourceNode();
 
@@ -45,6 +49,10 @@ public abstract class Node {
 		 * 
 		 */
 		public void disconnect();
+
+		public void setFilter(final Filter filter);
+
+		public Filter getFilter();
 	}
 
 	protected class FactAddress {
@@ -52,7 +60,9 @@ public abstract class Node {
 		final FactAddress addressInSourceNode;
 		final int addressInTargetNode;
 
-		public FactAddress(final NodeInput nodeInput, final FactAddress addressInSourceNode, final int addressInTargetNode) {
+		public FactAddress(final NodeInput nodeInput,
+				final FactAddress addressInSourceNode,
+				final int addressInTargetNode) {
 			this.nodeInput = nodeInput;
 			this.addressInSourceNode = addressInSourceNode;
 			this.addressInTargetNode = addressInTargetNode;
@@ -62,6 +72,7 @@ public abstract class Node {
 	abstract protected class NodeInputImpl implements NodeInput {
 		protected final Node targetNode;
 		protected final Node sourceNode;
+		protected Filter filter;
 
 		public NodeInputImpl(final Node sourceNode, final Node targetNode) {
 			this.targetNode = targetNode;
@@ -83,12 +94,23 @@ public abstract class Node {
 			this.sourceNode.removeChild(this);
 			this.targetNode.removeInput(this);
 		}
+
+		@Override
+		public void setFilter(final Filter filter) {
+			this.filter = filter;
+		}
+
+		@Override
+		public Filter getFilter() {
+			return this.filter;
+		}
 	}
 
 	final protected HashSet<NodeInput> inputs = new HashSet<>();
 	final protected Set<NodeInput> children = new HashSet<>();
 	final protected Memory memory;
 	protected int factTupleCardinality = 0;
+	protected Engine net;
 
 	public Node(final Memory memory) {
 		this.memory = memory;
