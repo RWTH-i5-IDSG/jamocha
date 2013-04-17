@@ -18,6 +18,11 @@
 
 package org.jamocha.engine.memory;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
+import org.jamocha.engine.workingmemory.elements.Template;
+
 public interface Memory {
 	// Speichert Fakttupelmengen
 	// Verfügt ggf. über verschiedene Indizes <- Entscheidung bei
@@ -25,4 +30,13 @@ public interface Memory {
 	// Nutzt Indizes bei entsprechenden Anfragen
 
 	public void flush();
+
+	@RequiredArgsConstructor
+	static class DoubleMemoryHandler {
+		@Getter
+		final MemoryHandler memory, tempMemory;
+	}
+
+	public DoubleMemoryHandler getMemory(final Template template);
+
 }

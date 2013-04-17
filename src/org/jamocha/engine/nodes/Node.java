@@ -22,9 +22,12 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.jamocha.engine.Engine;
+import lombok.RequiredArgsConstructor;
+
 import org.jamocha.engine.memory.Memory;
+import org.jamocha.engine.memory.Memory.DoubleMemoryHandler;
 import org.jamocha.engine.memory.MemoryHandler;
+import org.jamocha.engine.workingmemory.elements.Template;
 
 /**
  * Base class for all node types
@@ -92,7 +95,6 @@ public abstract class Node {
 		@Override
 		public void disconnect() {
 			this.sourceNode.removeChild(this);
-			this.targetNode.removeInput(this);
 		}
 
 		@Override
@@ -106,41 +108,70 @@ public abstract class Node {
 		}
 	}
 
-	final protected HashSet<NodeInput> inputs = new HashSet<>();
+	protected NodeInput[] inputs;
 	final protected Set<NodeInput> children = new HashSet<>();
-	final protected Memory memory;
-	protected int factTupleCardinality = 0;
-	protected Engine net;
+	final protected Template template;
+	final protected Memory memoryModule;
+	final protected MemoryHandler memory, tempMemory;
 
-	public Node(final Memory memory) {
-		this.memory = memory;
+	@RequiredArgsConstructor
+	static class NodeWithFilter {
+		final Node node;
+		final FilterTemplate filter;
 	}
 
-	/**
-	 * Connects the child node given to this node.
-	 * 
-	 * @param parent
-	 *            parent node to connect
-	 * @return the corresponding input
-	 */
-	final public NodeInput connectTo(final Node child) {
-		final NodeInput input = child.createAndAddNodeInput(this);
-		acceptChild(input);
-		return input;
+	public Node(final Template template, final Memory memoryModule,
+			final NodeWithFilter[] parentsWithFilters) {
+		this.template = template;
+		this.memoryModule = memoryModule;
+		final DoubleMemoryHandler dmh = memoryModule.getMemory(template);
+		this.memory = dmh.getMemory();
+		this.tempMemory = dmh.getTempMemory();
+
+		connectNewParents(parentsWithFilters);
+		setFilters(parentsWithFilters);
 	}
 
-	/**
-	 * Creates a new NodeInput for the parent given, adds it to its inputs and
-	 * returns the input created.
-	 * 
-	 * @param parent
-	 *            parent node
-	 * @return input created
-	 */
-	final private NodeInput createAndAddNodeInput(final Node parent) {
+	private void connectNewParents(final NodeWithFilter[] parentsWithFilters) {
+		this.inputs = new NodeInput[parentsWithFilters.length];
+		for (int i = 0; i < parentsWithFilters.length; ++i) {
+			final NodeWithFilter nwf = parentsWithFilters[i];
+			final NodeInput input = connectParent(nwf.node);
+			inputs[i] = input;
+		}
+	}
+
+	private void setFilters(final NodeWithFilter[] parentsWithFilters) {
+		for (int i = 0; i < parentsWithFilters.length; ++i) {
+			final NodeWithFilter nwf = parentsWithFilters[i];
+			final Filter filter = nwf.filter.create(inputs);
+			inputs[i].setFilter(filter);
+		}
+	}
+
+	private NodeInput connectParent(final Node parent) {
 		final NodeInput input = newNodeInput(parent);
-		this.inputs.add(input);
+		parent.acceptChild(input);
 		return input;
+	}
+
+	/**
+	 * Connects the current node to the parents given. Nodes can occur multiple
+	 * times in <code>parents</code>.
+	 * 
+	 * @param parentsWithFilters
+	 *            parent nodes to connect and their filter templates
+	 */
+	public void rebuild(final NodeWithFilter[] parentsWithFilters) {
+		// FIXME acquire read lock on main memory of every old parent
+		for (final NodeInput input : this.inputs) {
+			input.disconnect();
+		}
+		this.memory.flush();
+		this.tempMemory.flush();
+		connectNewParents(parentsWithFilters);
+		setFilters(parentsWithFilters);
+		// FIXME release read lock on main memory of every old parent
 	}
 
 	/**
@@ -166,17 +197,6 @@ public abstract class Node {
 	}
 
 	/**
-	 * Called when an input is removed. Defaults to removing the input from the
-	 * inputs.
-	 * 
-	 * @param input
-	 *            node input to be removed
-	 */
-	protected void removeInput(final NodeInput input) {
-		this.inputs.remove(input);
-	}
-
-	/**
 	 * Creates a new NodeInput which will connect this node (as the input's
 	 * target node) and the given source node (as its parent).
 	 * 
@@ -196,12 +216,12 @@ public abstract class Node {
 		return Collections.unmodifiableSet(this.children);
 	}
 
-	public Memory getMemory() {
-		return this.memory;
+	public void distributeTempFacts() {
+
 	}
 
-	public void flushMemory() {
-		this.memory.flush();
+	public MemoryHandler getMemory() {
+		return this.memory;
 	}
 
 }
