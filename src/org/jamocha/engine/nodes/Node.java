@@ -58,20 +58,6 @@ public abstract class Node {
 		public Filter getFilter();
 	}
 
-	protected class FactAddress {
-		final NodeInput nodeInput;
-		final FactAddress addressInSourceNode;
-		final int addressInTargetNode;
-
-		public FactAddress(final NodeInput nodeInput,
-				final FactAddress addressInSourceNode,
-				final int addressInTargetNode) {
-			this.nodeInput = nodeInput;
-			this.addressInSourceNode = addressInSourceNode;
-			this.addressInTargetNode = addressInTargetNode;
-		}
-	}
-
 	abstract protected class NodeInputImpl implements NodeInput {
 		protected final Node targetNode;
 		protected final Node sourceNode;
