@@ -2479,6 +2479,15 @@ public class SFPParser implements /* @bgen(jjtree) */SFPParserTreeConstants,
 	 * Right Hand Site Pattern
 	 **/
 	// <RHS-pattern> ::= <ordered-RHS-pattern> | <template-RHS-pattern>
+	// <ordered-RHS-pattern> ::= (<symbol> <RHS-field>+)
+	// <template-RHS-pattern> ::= (<deftemplate-name> <RHS-slot>*)
+	// <RHS-slot> ::= <single-field-RHS-slot> | <multifield-RHS-slot>
+	// <single-field-RHS-slot> ::= (<slot-name> <RHS-field>)
+	// <multifield-RHS-slot> ::= (<slot-name> <RHS-field>*)
+	// <RHS-field> ::= <variable> | <constant> | <function-call>
+	// <RHS-slot> ::= <single-field-RHS-slot> | <multifield-RHS-slot>
+	// <single-field-RHS-slot> ::= (<slot-name> <RHS-field>)
+	// <multifield-RHS-slot> ::= (<slot-name> <RHS-field>*)
 	final public SimpleNode RHSPattern() throws ParseException {
 		/* @bgen(jjtree) RHSPattern */
 		SFPRHSPattern jjtn000 = new SFPRHSPattern(this, JJTRHSPATTERN);
@@ -2497,24 +2506,13 @@ public class SFPParser implements /* @bgen(jjtree) */SFPParserTreeConstants,
 			label_11: while (true) {
 				switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
 				case LBRACE:
-				case INTEGER:
-				case FLOAT:
-				case DATETIME:
-				case STRING:
-				case GLOBALVAR:
-				case TRUE:
-				case FALSE:
-				case NIL:
-				case SINGLEVAR:
-				case MULTIVAR:
-				case SYMBOL:
 					;
 					break;
 				default:
 					jj_la1[27] = jj_gen;
 					break label_11;
 				}
-				RHSField();
+				RHSSlot();
 			}
 			jj_consume_token(RBRACE);
 			jjtree.closeNodeScope(jjtn000, true);
@@ -6768,20 +6766,9 @@ public class SFPParser implements /* @bgen(jjtree) */SFPParserTreeConstants,
 		}
 	}
 
-	private boolean jj_3R_105() {
-		if (jj_scan_token(WEEKDAY))
+	private boolean jj_3R_104() {
+		if (jj_scan_token(YEAR))
 			return true;
-		return false;
-	}
-
-	private boolean jj_3R_81() {
-		Token xsp;
-		xsp = jj_scanpos;
-		if (jj_3R_115()) {
-			jj_scanpos = xsp;
-			if (jj_3R_116())
-				return true;
-		}
 		return false;
 	}
 
@@ -6797,8 +6784,16 @@ public class SFPParser implements /* @bgen(jjtree) */SFPParserTreeConstants,
 		return false;
 	}
 
-	private boolean jj_3R_104() {
-		if (jj_scan_token(YEAR))
+	private boolean jj_3R_103() {
+		if (jj_scan_token(MONTH))
+			return true;
+		return false;
+	}
+
+	private boolean jj_3R_50() {
+		if (jj_scan_token(TYPE))
+			return true;
+		if (jj_3R_81())
 			return true;
 		return false;
 	}
@@ -6849,28 +6844,8 @@ public class SFPParser implements /* @bgen(jjtree) */SFPParserTreeConstants,
 		return false;
 	}
 
-	private boolean jj_3R_103() {
-		if (jj_scan_token(MONTH))
-			return true;
-		return false;
-	}
-
-	private boolean jj_3R_50() {
-		if (jj_scan_token(TYPE))
-			return true;
-		if (jj_3R_81())
-			return true;
-		return false;
-	}
-
 	private boolean jj_3R_102() {
 		if (jj_scan_token(DAY))
-			return true;
-		return false;
-	}
-
-	private boolean jj_3R_139() {
-		if (jj_scan_token(VARIABLE_TYPE))
 			return true;
 		return false;
 	}
@@ -6881,20 +6856,38 @@ public class SFPParser implements /* @bgen(jjtree) */SFPParserTreeConstants,
 		return false;
 	}
 
+	private boolean jj_3_19() {
+		if (jj_3R_50())
+			return true;
+		return false;
+	}
+
+	private boolean jj_3R_139() {
+		if (jj_scan_token(VARIABLE_TYPE))
+			return true;
+		return false;
+	}
+
+	private boolean jj_3R_100() {
+		if (jj_scan_token(MINUTE))
+			return true;
+		return false;
+	}
+
 	private boolean jj_3R_89() {
 		if (jj_scan_token(INTEGER))
 			return true;
 		return false;
 	}
 
-	private boolean jj_3R_122() {
-		if (jj_3R_142())
+	private boolean jj_3R_114() {
+		if (jj_3R_62())
 			return true;
 		return false;
 	}
 
-	private boolean jj_3_19() {
-		if (jj_3R_50())
+	private boolean jj_3R_122() {
+		if (jj_3R_142())
 			return true;
 		return false;
 	}
@@ -6911,14 +6904,8 @@ public class SFPParser implements /* @bgen(jjtree) */SFPParserTreeConstants,
 		return false;
 	}
 
-	private boolean jj_3R_100() {
-		if (jj_scan_token(MINUTE))
-			return true;
-		return false;
-	}
-
-	private boolean jj_3R_114() {
-		if (jj_3R_62())
+	private boolean jj_3R_99() {
+		if (jj_scan_token(SECOND))
 			return true;
 		return false;
 	}
@@ -6934,18 +6921,6 @@ public class SFPParser implements /* @bgen(jjtree) */SFPParserTreeConstants,
 					return true;
 			}
 		}
-		return false;
-	}
-
-	private boolean jj_3R_99() {
-		if (jj_scan_token(SECOND))
-			return true;
-		return false;
-	}
-
-	private boolean jj_3R_90() {
-		if (jj_scan_token(FLOAT))
-			return true;
 		return false;
 	}
 
@@ -6991,12 +6966,6 @@ public class SFPParser implements /* @bgen(jjtree) */SFPParserTreeConstants,
 		return false;
 	}
 
-	private boolean jj_3R_49() {
-		if (jj_scan_token(MULTIVAR))
-			return true;
-		return false;
-	}
-
 	private boolean jj_3R_74() {
 		if (jj_3R_103())
 			return true;
@@ -7005,6 +6974,12 @@ public class SFPParser implements /* @bgen(jjtree) */SFPParserTreeConstants,
 
 	private boolean jj_3R_70() {
 		if (jj_3R_99())
+			return true;
+		return false;
+	}
+
+	private boolean jj_3R_90() {
+		if (jj_scan_token(FLOAT))
 			return true;
 		return false;
 	}
@@ -7029,8 +7004,8 @@ public class SFPParser implements /* @bgen(jjtree) */SFPParserTreeConstants,
 		return false;
 	}
 
-	private boolean jj_3R_142() {
-		if (jj_scan_token(GLOBALVAR))
+	private boolean jj_3R_49() {
+		if (jj_scan_token(MULTIVAR))
 			return true;
 		return false;
 	}
@@ -7083,12 +7058,6 @@ public class SFPParser implements /* @bgen(jjtree) */SFPParserTreeConstants,
 		return false;
 	}
 
-	private boolean jj_3_1() {
-		if (jj_3R_36())
-			return true;
-		return false;
-	}
-
 	private boolean jj_3_18() {
 		if (jj_3R_49())
 			return true;
@@ -7101,8 +7070,20 @@ public class SFPParser implements /* @bgen(jjtree) */SFPParserTreeConstants,
 		return false;
 	}
 
+	private boolean jj_3R_142() {
+		if (jj_scan_token(GLOBALVAR))
+			return true;
+		return false;
+	}
+
 	private boolean jj_3R_132() {
 		if (jj_3R_62())
+			return true;
+		return false;
+	}
+
+	private boolean jj_3_1() {
+		if (jj_3R_36())
 			return true;
 		return false;
 	}
@@ -7113,14 +7094,14 @@ public class SFPParser implements /* @bgen(jjtree) */SFPParserTreeConstants,
 		return false;
 	}
 
-	private boolean jj_3R_48() {
-		if (jj_scan_token(SINGLEVAR))
+	private boolean jj_3_14() {
+		if (jj_3R_46())
 			return true;
 		return false;
 	}
 
-	private boolean jj_3_14() {
-		if (jj_3R_46())
+	private boolean jj_3R_48() {
+		if (jj_scan_token(SINGLEVAR))
 			return true;
 		return false;
 	}
@@ -7139,6 +7120,18 @@ public class SFPParser implements /* @bgen(jjtree) */SFPParserTreeConstants,
 
 	private boolean jj_3_17() {
 		if (jj_3R_48())
+			return true;
+		return false;
+	}
+
+	private boolean jj_3_13() {
+		if (jj_3R_46())
+			return true;
+		return false;
+	}
+
+	private boolean jj_3R_97() {
+		if (jj_scan_token(LBRACE))
 			return true;
 		return false;
 	}
@@ -7187,8 +7180,8 @@ public class SFPParser implements /* @bgen(jjtree) */SFPParserTreeConstants,
 		return false;
 	}
 
-	private boolean jj_3_13() {
-		if (jj_3R_46())
+	private boolean jj_3R_68() {
+		if (jj_3R_97())
 			return true;
 		return false;
 	}
@@ -7217,8 +7210,8 @@ public class SFPParser implements /* @bgen(jjtree) */SFPParserTreeConstants,
 		return false;
 	}
 
-	private boolean jj_3R_97() {
-		if (jj_scan_token(LBRACE))
+	private boolean jj_3R_136() {
+		if (jj_scan_token(EXISTS))
 			return true;
 		return false;
 	}
@@ -7231,12 +7224,6 @@ public class SFPParser implements /* @bgen(jjtree) */SFPParserTreeConstants,
 
 	private boolean jj_3_4() {
 		if (jj_3R_39())
-			return true;
-		return false;
-	}
-
-	private boolean jj_3R_68() {
-		if (jj_3R_97())
 			return true;
 		return false;
 	}
@@ -7260,34 +7247,6 @@ public class SFPParser implements /* @bgen(jjtree) */SFPParserTreeConstants,
 									return true;
 							}
 						}
-					}
-				}
-			}
-		}
-		return false;
-	}
-
-	private boolean jj_3R_136() {
-		if (jj_scan_token(EXISTS))
-			return true;
-		return false;
-	}
-
-	private boolean jj_3R_36() {
-		if (jj_scan_token(LBRACE))
-			return true;
-		Token xsp;
-		xsp = jj_scanpos;
-		if (jj_3_4()) {
-			jj_scanpos = xsp;
-			if (jj_3R_51()) {
-				jj_scanpos = xsp;
-				if (jj_3R_52()) {
-					jj_scanpos = xsp;
-					if (jj_3R_53()) {
-						jj_scanpos = xsp;
-						if (jj_3R_54())
-							return true;
 					}
 				}
 			}
@@ -7319,6 +7278,28 @@ public class SFPParser implements /* @bgen(jjtree) */SFPParserTreeConstants,
 		return false;
 	}
 
+	private boolean jj_3R_36() {
+		if (jj_scan_token(LBRACE))
+			return true;
+		Token xsp;
+		xsp = jj_scanpos;
+		if (jj_3_4()) {
+			jj_scanpos = xsp;
+			if (jj_3R_51()) {
+				jj_scanpos = xsp;
+				if (jj_3R_52()) {
+					jj_scanpos = xsp;
+					if (jj_3R_53()) {
+						jj_scanpos = xsp;
+						if (jj_3R_54())
+							return true;
+					}
+				}
+			}
+		}
+		return false;
+	}
+
 	private boolean jj_3_9() {
 		if (jj_3R_41())
 			return true;
@@ -7331,14 +7312,20 @@ public class SFPParser implements /* @bgen(jjtree) */SFPParserTreeConstants,
 		return false;
 	}
 
+	private boolean jj_3_12() {
+		if (jj_3R_46())
+			return true;
+		return false;
+	}
+
 	private boolean jj_3R_141() {
 		if (jj_scan_token(FALSE))
 			return true;
 		return false;
 	}
 
-	private boolean jj_3_12() {
-		if (jj_3R_46())
+	private boolean jj_3R_134() {
+		if (jj_scan_token(LOGICAL))
 			return true;
 		return false;
 	}
@@ -7347,12 +7334,6 @@ public class SFPParser implements /* @bgen(jjtree) */SFPParserTreeConstants,
 		if (jj_scan_token(LBRACE))
 			return true;
 		if (jj_scan_token(CASE))
-			return true;
-		return false;
-	}
-
-	private boolean jj_3R_134() {
-		if (jj_scan_token(LOGICAL))
 			return true;
 		return false;
 	}
@@ -7381,16 +7362,16 @@ public class SFPParser implements /* @bgen(jjtree) */SFPParserTreeConstants,
 		return false;
 	}
 
-	private boolean jj_3R_176() {
-		if (jj_scan_token(DOUBLE_TYPE))
-			return true;
-		return false;
-	}
-
 	private boolean jj_3R_113() {
 		if (jj_3R_48())
 			return true;
 		if (jj_scan_token(ASSIGN))
+			return true;
+		return false;
+	}
+
+	private boolean jj_3R_176() {
+		if (jj_scan_token(DOUBLE_TYPE))
 			return true;
 		return false;
 	}
@@ -7401,14 +7382,14 @@ public class SFPParser implements /* @bgen(jjtree) */SFPParserTreeConstants,
 		return false;
 	}
 
-	private boolean jj_3R_175() {
-		if (jj_scan_token(FLOAT_TYPE))
+	private boolean jj_3R_156() {
+		if (jj_scan_token(OR))
 			return true;
 		return false;
 	}
 
-	private boolean jj_3R_156() {
-		if (jj_scan_token(OR))
+	private boolean jj_3R_175() {
+		if (jj_scan_token(FLOAT_TYPE))
 			return true;
 		return false;
 	}
@@ -7419,26 +7400,20 @@ public class SFPParser implements /* @bgen(jjtree) */SFPParserTreeConstants,
 		return false;
 	}
 
-	private boolean jj_3R_149() {
-		if (jj_scan_token(LOOP_FOR_COUNT))
-			return true;
-		return false;
-	}
-
 	private boolean jj_3R_155() {
 		if (jj_scan_token(AND))
 			return true;
 		return false;
 	}
 
-	private boolean jj_3R_173() {
-		if (jj_scan_token(LONG_TYPE))
+	private boolean jj_3R_82() {
+		if (jj_scan_token(DEFGLOBAL))
 			return true;
 		return false;
 	}
 
-	private boolean jj_3R_82() {
-		if (jj_scan_token(DEFGLOBAL))
+	private boolean jj_3R_149() {
+		if (jj_scan_token(LOOP_FOR_COUNT))
 			return true;
 		return false;
 	}
@@ -7457,6 +7432,12 @@ public class SFPParser implements /* @bgen(jjtree) */SFPParserTreeConstants,
 
 	private boolean jj_3R_110() {
 		if (jj_3R_135())
+			return true;
+		return false;
+	}
+
+	private boolean jj_3R_173() {
+		if (jj_scan_token(LONG_TYPE))
 			return true;
 		return false;
 	}
@@ -7487,18 +7468,6 @@ public class SFPParser implements /* @bgen(jjtree) */SFPParserTreeConstants,
 		return false;
 	}
 
-	private boolean jj_3R_172() {
-		if (jj_scan_token(INTEGER_TYPE))
-			return true;
-		return false;
-	}
-
-	private boolean jj_3R_148() {
-		if (jj_scan_token(WHILE))
-			return true;
-		return false;
-	}
-
 	private boolean jj_3R_153() {
 		if (jj_3R_156())
 			return true;
@@ -7519,20 +7488,26 @@ public class SFPParser implements /* @bgen(jjtree) */SFPParserTreeConstants,
 		return false;
 	}
 
+	private boolean jj_3R_172() {
+		if (jj_scan_token(INTEGER_TYPE))
+			return true;
+		return false;
+	}
+
 	private boolean jj_3R_79() {
 		if (jj_3R_113())
 			return true;
 		return false;
 	}
 
-	private boolean jj_3_11() {
-		if (jj_3R_45())
+	private boolean jj_3R_148() {
+		if (jj_scan_token(WHILE))
 			return true;
 		return false;
 	}
 
-	private boolean jj_3R_178() {
-		if (jj_scan_token(BOOLEAN_TYPE))
+	private boolean jj_3_11() {
+		if (jj_3R_45())
 			return true;
 		return false;
 	}
@@ -7551,14 +7526,8 @@ public class SFPParser implements /* @bgen(jjtree) */SFPParserTreeConstants,
 		return false;
 	}
 
-	private boolean jj_3R_147() {
-		if (jj_scan_token(IF))
-			return true;
-		return false;
-	}
-
-	private boolean jj_3R_171() {
-		if (jj_scan_token(LEXEME_TYPE))
+	private boolean jj_3R_178() {
+		if (jj_scan_token(BOOLEAN_TYPE))
 			return true;
 		return false;
 	}
@@ -7588,6 +7557,18 @@ public class SFPParser implements /* @bgen(jjtree) */SFPParserTreeConstants,
 		return false;
 	}
 
+	private boolean jj_3R_147() {
+		if (jj_scan_token(IF))
+			return true;
+		return false;
+	}
+
+	private boolean jj_3R_171() {
+		if (jj_scan_token(LEXEME_TYPE))
+			return true;
+		return false;
+	}
+
 	private boolean jj_3R_46() {
 		Token xsp;
 		xsp = jj_scanpos;
@@ -7605,20 +7586,14 @@ public class SFPParser implements /* @bgen(jjtree) */SFPParserTreeConstants,
 		return false;
 	}
 
-	private boolean jj_3R_145() {
-		if (jj_scan_token(RETRACT))
-			return true;
-		return false;
-	}
-
 	private boolean jj_3_16() {
 		if (jj_3R_37())
 			return true;
 		return false;
 	}
 
-	private boolean jj_3R_169() {
-		if (jj_scan_token(STRING_TYPE))
+	private boolean jj_3R_145() {
+		if (jj_scan_token(RETRACT))
 			return true;
 		return false;
 	}
@@ -7635,12 +7610,6 @@ public class SFPParser implements /* @bgen(jjtree) */SFPParserTreeConstants,
 		return false;
 	}
 
-	private boolean jj_3R_146() {
-		if (jj_scan_token(FIND_FACT_BY_FACT))
-			return true;
-		return false;
-	}
-
 	private boolean jj_3R_91() {
 		Token xsp;
 		xsp = jj_scanpos;
@@ -7649,6 +7618,18 @@ public class SFPParser implements /* @bgen(jjtree) */SFPParserTreeConstants,
 			if (jj_3R_118())
 				return true;
 		}
+		return false;
+	}
+
+	private boolean jj_3R_169() {
+		if (jj_scan_token(STRING_TYPE))
+			return true;
+		return false;
+	}
+
+	private boolean jj_3R_146() {
+		if (jj_scan_token(FIND_FACT_BY_FACT))
+			return true;
 		return false;
 	}
 
@@ -7676,20 +7657,14 @@ public class SFPParser implements /* @bgen(jjtree) */SFPParserTreeConstants,
 		return false;
 	}
 
-	private boolean jj_3R_143() {
-		if (jj_scan_token(ASSERT))
-			return true;
-		return false;
-	}
-
-	private boolean jj_3R_140() {
-		if (jj_scan_token(TRUE))
-			return true;
-		return false;
-	}
-
 	private boolean jj_3R_167() {
 		if (jj_3R_178())
+			return true;
+		return false;
+	}
+
+	private boolean jj_3R_143() {
+		if (jj_scan_token(ASSERT))
 			return true;
 		return false;
 	}
@@ -7706,20 +7681,8 @@ public class SFPParser implements /* @bgen(jjtree) */SFPParserTreeConstants,
 		return false;
 	}
 
-	private boolean jj_3R_67() {
-		if (jj_3R_96())
-			return true;
-		return false;
-	}
-
 	private boolean jj_3R_164() {
 		if (jj_3R_175())
-			return true;
-		return false;
-	}
-
-	private boolean jj_3R_66() {
-		if (jj_3R_95())
 			return true;
 		return false;
 	}
@@ -7730,20 +7693,14 @@ public class SFPParser implements /* @bgen(jjtree) */SFPParserTreeConstants,
 		return false;
 	}
 
-	private boolean jj_3R_92() {
-		if (jj_scan_token(ATR_DERIVE))
-			return true;
-		return false;
-	}
-
 	private boolean jj_3R_162() {
 		if (jj_3R_173())
 			return true;
 		return false;
 	}
 
-	private boolean jj_3_2() {
-		if (jj_3R_37())
+	private boolean jj_3R_140() {
+		if (jj_scan_token(TRUE))
 			return true;
 		return false;
 	}
@@ -7772,14 +7729,38 @@ public class SFPParser implements /* @bgen(jjtree) */SFPParserTreeConstants,
 		return false;
 	}
 
-	private boolean jj_3R_65() {
-		if (jj_3R_94())
+	private boolean jj_3R_157() {
+		if (jj_3R_168())
 			return true;
 		return false;
 	}
 
-	private boolean jj_3R_157() {
-		if (jj_3R_168())
+	private boolean jj_3R_67() {
+		if (jj_3R_96())
+			return true;
+		return false;
+	}
+
+	private boolean jj_3R_66() {
+		if (jj_3R_95())
+			return true;
+		return false;
+	}
+
+	private boolean jj_3R_92() {
+		if (jj_scan_token(ATR_DERIVE))
+			return true;
+		return false;
+	}
+
+	private boolean jj_3_2() {
+		if (jj_3R_37())
+			return true;
+		return false;
+	}
+
+	private boolean jj_3R_65() {
+		if (jj_3R_94())
 			return true;
 		return false;
 	}
@@ -7813,28 +7794,6 @@ public class SFPParser implements /* @bgen(jjtree) */SFPParserTreeConstants,
 					return true;
 			}
 		}
-		return false;
-	}
-
-	private boolean jj_3R_40() {
-		if (jj_scan_token(DEFAULT_ATR))
-			return true;
-		Token xsp;
-		xsp = jj_scanpos;
-		if (jj_3R_63()) {
-			jj_scanpos = xsp;
-			if (jj_3R_64()) {
-				jj_scanpos = xsp;
-				if (jj_3R_65())
-					return true;
-			}
-		}
-		return false;
-	}
-
-	private boolean jj_3R_94() {
-		if (jj_3R_119())
-			return true;
 		return false;
 	}
 
@@ -7876,12 +7835,6 @@ public class SFPParser implements /* @bgen(jjtree) */SFPParserTreeConstants,
 		return false;
 	}
 
-	private boolean jj_3R_62() {
-		if (jj_scan_token(SYMBOL))
-			return true;
-		return false;
-	}
-
 	private boolean jj_3R_116() {
 		if (jj_3R_139())
 			return true;
@@ -7891,6 +7844,54 @@ public class SFPParser implements /* @bgen(jjtree) */SFPParserTreeConstants,
 	private boolean jj_3R_138() {
 		if (jj_3R_154())
 			return true;
+		return false;
+	}
+
+	private boolean jj_3R_40() {
+		if (jj_scan_token(DEFAULT_ATR))
+			return true;
+		Token xsp;
+		xsp = jj_scanpos;
+		if (jj_3R_63()) {
+			jj_scanpos = xsp;
+			if (jj_3R_64()) {
+				jj_scanpos = xsp;
+				if (jj_3R_65())
+					return true;
+			}
+		}
+		return false;
+	}
+
+	private boolean jj_3R_94() {
+		if (jj_3R_119())
+			return true;
+		return false;
+	}
+
+	private boolean jj_3R_106() {
+		if (jj_scan_token(DURATION))
+			return true;
+		return false;
+	}
+
+	private boolean jj_3R_62() {
+		if (jj_scan_token(SYMBOL))
+			return true;
+		return false;
+	}
+
+	private boolean jj_3R_115() {
+		Token xsp;
+		if (jj_3R_138())
+			return true;
+		while (true) {
+			xsp = jj_scanpos;
+			if (jj_3R_138()) {
+				jj_scanpos = xsp;
+				break;
+			}
+		}
 		return false;
 	}
 
@@ -7930,8 +7931,8 @@ public class SFPParser implements /* @bgen(jjtree) */SFPParserTreeConstants,
 		return false;
 	}
 
-	private boolean jj_3R_106() {
-		if (jj_scan_token(DURATION))
+	private boolean jj_3R_105() {
+		if (jj_scan_token(WEEKDAY))
 			return true;
 		return false;
 	}
@@ -7948,6 +7949,17 @@ public class SFPParser implements /* @bgen(jjtree) */SFPParserTreeConstants,
 		return false;
 	}
 
+	private boolean jj_3R_81() {
+		Token xsp;
+		xsp = jj_scanpos;
+		if (jj_3R_115()) {
+			jj_scanpos = xsp;
+			if (jj_3R_116())
+				return true;
+		}
+		return false;
+	}
+
 	private boolean jj_3R_123() {
 		if (jj_3R_143())
 			return true;
@@ -7957,20 +7969,6 @@ public class SFPParser implements /* @bgen(jjtree) */SFPParserTreeConstants,
 	private boolean jj_3_6() {
 		if (jj_3R_41())
 			return true;
-		return false;
-	}
-
-	private boolean jj_3R_115() {
-		Token xsp;
-		if (jj_3R_138())
-			return true;
-		while (true) {
-			xsp = jj_scanpos;
-			if (jj_3R_138()) {
-				jj_scanpos = xsp;
-				break;
-			}
-		}
 		return false;
 	}
 
@@ -8007,27 +8005,27 @@ public class SFPParser implements /* @bgen(jjtree) */SFPParserTreeConstants,
 		jj_la1_0 = new int[] { 0x128640, 0x128641, 0x600, 0x20000, 0x28600,
 				0x100000, 0x0, 0x128640, 0x100040, 0x40, 0x128640, 0x0, 0x0,
 				0x128640, 0x0, 0x40, 0x33000000, 0x20000, 0x40, 0x10000, 0x0,
-				0x40, 0x40, 0x80000000, 0x0, 0x40, 0x128640, 0x128640,
-				0x128640, 0x20000, 0x40, 0x40, 0x0, 0x0, 0x0, 0x0, 0x40, 0x0,
-				0x40, 0x40, 0x40, 0xe8600, 0xe8600, 0x0, 0x0, 0x0, 0x0, 0x0,
-				0x0, 0x0, 0x0, 0x0, 0x100000, 0x20000, 0x4000000, 0x0, 0x0,
-				0x20000, 0x0, 0x100040, 0x40, 0x0, 0x100040, 0x40, 0x100040,
-				0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x20000, 0x20000, 0x20000,
-				0x20000, 0x200, 0x200, 0x400, 0x400, 0x600, 0x600, 0x28600,
-				0x28600, 0x600, 0x200, 0x20000, };
+				0x40, 0x40, 0x80000000, 0x0, 0x40, 0x128640, 0x40, 0x128640,
+				0x20000, 0x40, 0x40, 0x0, 0x0, 0x0, 0x0, 0x40, 0x0, 0x40, 0x40,
+				0x40, 0xe8600, 0xe8600, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+				0x0, 0x100000, 0x20000, 0x4000000, 0x0, 0x0, 0x20000, 0x0,
+				0x100040, 0x40, 0x0, 0x100040, 0x40, 0x100040, 0x0, 0x0, 0x0,
+				0x0, 0x0, 0x0, 0x0, 0x20000, 0x20000, 0x20000, 0x20000, 0x200,
+				0x200, 0x400, 0x400, 0x600, 0x600, 0x28600, 0x28600, 0x600,
+				0x200, 0x20000, };
 	}
 
 	private static void jj_la1_init_1() {
 		jj_la1_1 = new int[] { 0x7000000, 0x7000000, 0x0, 0x0, 0x7000000, 0x0,
 				0x0, 0x7000000, 0x0, 0x0, 0x7000000, 0x0, 0x0, 0x7000000, 0x0,
 				0x0, 0x0, 0x0, 0x0, 0x0, 0x50, 0x0, 0x0, 0x800000, 0x6, 0x0,
-				0x7000000, 0x7000000, 0x7000000, 0x0, 0x0, 0x0, 0x600d00,
-				0x1ff000, 0x3000000, 0xb8000000, 0x0, 0x30000000, 0x0, 0x0,
-				0x0, 0x7000000, 0x7000000, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+				0x7000000, 0x0, 0x7000000, 0x0, 0x0, 0x0, 0x600d00, 0x1ff000,
+				0x3000000, 0xb8000000, 0x0, 0x30000000, 0x0, 0x0, 0x0,
+				0x7000000, 0x7000000, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
 				0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
 				0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
-				0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x7000000, 0x7000000,
-				0x0, 0x0, 0x0, };
+				0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x7000000, 0x7000000, 0x0,
+				0x0, 0x0, };
 	}
 
 	private static void jj_la1_init_2() {
@@ -8046,14 +8044,14 @@ public class SFPParser implements /* @bgen(jjtree) */SFPParserTreeConstants,
 		jj_la1_3 = new int[] { 0x700000, 0x700000, 0x0, 0x400000, 0x400000,
 				0x300000, 0x4349e0, 0x700000, 0x300000, 0x0, 0x700000, 0x2000,
 				0x8000, 0x700000, 0x8000, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
-				0x0, 0xf, 0x0, 0x0, 0x700000, 0x700000, 0x700000, 0x0,
-				0x100000, 0x0, 0x0, 0x0, 0x0, 0x400000, 0x100000, 0x0,
-				0x100000, 0x100000, 0x0, 0x700000, 0x700000, 0x0, 0x0, 0x0,
-				0x0, 0x0, 0x0, 0x0, 0x300000, 0x400000, 0x0, 0x0, 0x0,
-				0x100000, 0x200000, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
-				0xf, 0x0, 0x0, 0x0, 0x3, 0x400000, 0x400000, 0x0, 0x0,
-				0x400000, 0x400000, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x400000,
-				0x400000, 0x0, 0x0, 0x0, };
+				0x0, 0xf, 0x0, 0x0, 0x700000, 0x0, 0x700000, 0x0, 0x100000,
+				0x0, 0x0, 0x0, 0x0, 0x400000, 0x100000, 0x0, 0x100000,
+				0x100000, 0x0, 0x700000, 0x700000, 0x0, 0x0, 0x0, 0x0, 0x0,
+				0x0, 0x0, 0x300000, 0x400000, 0x0, 0x0, 0x0, 0x100000,
+				0x200000, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0xf, 0x0,
+				0x0, 0x0, 0x3, 0x400000, 0x400000, 0x0, 0x0, 0x400000,
+				0x400000, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x400000, 0x400000,
+				0x0, 0x0, 0x0, };
 	}
 
 	final private JJCalls[] jj_2_rtns = new JJCalls[19];
