@@ -35,7 +35,7 @@ import org.jamocha.formatter.Formattable;
  * as a bridge between a Rule Parser, which parses some text and produces the
  * necessary artifacts and a rule compiler which generates RETE nodes. For that
  * reason, the interface defines methods for adding Join nodes and retrieving
- * the last node in the rule. These convienance method are present to make it
+ * the last node in the rule. These convenience methods are present to make it
  * easier to write rule parsers and compilers.
  */
 public interface Rule extends Cloneable, Complexity, Formattable, Dumpable {
@@ -69,11 +69,6 @@ public interface Rule extends Cloneable, Complexity, Formattable, Dumpable {
 	 * @param text
 	 */
 	void setDescription(String text);
-
-	
-//	TODO remove it void setVersion(String v);
-//	
-//	String getVersion();
 
 
 	/**
