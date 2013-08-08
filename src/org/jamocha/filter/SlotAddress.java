@@ -23,9 +23,9 @@ public class SlotAddress {
 	public SlotAddress(int index) {
 		this.index = index;
 	}
-	
-	public int getIndex(){
+
+	public int getIndex() {
 		return index;
 	}
-	
+
 }

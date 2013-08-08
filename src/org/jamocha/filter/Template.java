@@ -19,12 +19,12 @@ package org.jamocha.filter;
 
 public class Template {
 	final SlotType slots[];
-	
+
 	public Template(final SlotType... slots) {
 		this.slots = slots;
 	}
-	
-	public SlotType getSlotType(final SlotAddress a){
+
+	public SlotType getSlotType(final SlotAddress a) {
 		return slots[a.getIndex()];
 	}
 }

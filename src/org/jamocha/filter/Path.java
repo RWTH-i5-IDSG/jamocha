@@ -20,12 +20,12 @@ package org.jamocha.filter;
 public class Path {
 	final Template template;
 
-	public Path(Template template) {
+	public Path(final Template template) {
 		super();
 		this.template = template;
 	}
-	
-	public SlotType getTemplateSlotType(final SlotAddress a){
+
+	public SlotType getTemplateSlotType(final SlotAddress a) {
 		return template.getSlotType(a);
 	}
 }
