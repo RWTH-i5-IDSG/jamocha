@@ -15,26 +15,19 @@
  * limitations under the License.
  * 
  */
-package org.jamocha.filter;
+package org.jamocha.filter.impls;
+
+import org.jamocha.filter.TODODatenkrakeFunktionen;
+import org.jamocha.filter.impls.predicates.Less;
 
 /**
  * @author Fabian Ohler (ohler@dbis.rwth-aachen.de)
  * 
  */
-public abstract class Predicate implements Function {
+public class Predicates {
 
-	/*
-	 * @see org.jamocha.filter.Function#returnType()
-	 */
-	@Override
-	public SlotType returnType() {
-		return SlotType.BOOLEAN;
+	static {
+		TODODatenkrakeFunktionen.addImpl(Less.class);
 	}
-
-	/*
-	 * @see org.jamocha.filter.Function#evaluate(java.lang.Object[])
-	 */
-	@Override
-	public abstract Boolean evaluate(final Object... params);
 
 }

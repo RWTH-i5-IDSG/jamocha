@@ -17,24 +17,28 @@
  */
 package org.jamocha.filter;
 
-/**
- * @author Fabian Ohler (ohler@dbis.rwth-aachen.de)
- * 
- */
-public abstract class Predicate implements Function {
-
-	/*
-	 * @see org.jamocha.filter.Function#returnType()
+public interface Function {
+	/**
+	 * @return list of the corresponding parameter types for the function
 	 */
-	@Override
-	public SlotType returnType() {
-		return SlotType.BOOLEAN;
-	}
+	public SlotType[] paramTypes();
 
-	/*
-	 * @see org.jamocha.filter.Function#evaluate(java.lang.Object[])
+	/**
+	 * @return return type of the function
 	 */
-	@Override
-	public abstract Boolean evaluate(final Object... params);
+	public SlotType returnType();
 
+	/**
+	 * @return name of the corresponding function in CLIPS
+	 */
+	public String inClips();
+
+	/**
+	 * Evaluates the function for the given parameters and returns the result
+	 * 
+	 * @param params
+	 *            parameters for the function call
+	 * @return result of the function call
+	 */
+	public Object evaluate(final Object... params);
 }

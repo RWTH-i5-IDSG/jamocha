@@ -19,5 +19,5 @@ package org.jamocha.filter;
 
 //TODO Slot enum umbenennen?
 public enum SlotType {
-	LONG, DOUBLE, STRING;
+	LONG, DOUBLE, STRING, BOOLEAN;
 }
