@@ -17,6 +17,6 @@
  */
 package org.jamocha.filter;
 
-public class Variable {
+public class Path {
 	// vllt template des zugrundeliegenden Fakts speichern?
 }
