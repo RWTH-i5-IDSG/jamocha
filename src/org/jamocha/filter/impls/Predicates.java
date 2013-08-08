@@ -19,6 +19,7 @@ package org.jamocha.filter.impls;
 
 import org.jamocha.filter.TODODatenkrakeFunktionen;
 import org.jamocha.filter.impls.predicates.Less;
+import org.jamocha.filter.impls.predicates.Equals;
 
 /**
  * @author Fabian Ohler
@@ -28,6 +29,7 @@ public class Predicates {
 
 	static {
 		TODODatenkrakeFunktionen.addImpl(Less.class);
+		TODODatenkrakeFunktionen.addImpl(Equals.class);
 	}
 
 }
