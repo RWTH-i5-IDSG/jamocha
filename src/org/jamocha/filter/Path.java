@@ -18,5 +18,14 @@
 package org.jamocha.filter;
 
 public class Path {
-	// vllt template des zugrundeliegenden Fakts speichern?
+	final Template template;
+
+	public Path(Template template) {
+		super();
+		this.template = template;
+	}
+	
+	public SlotType getTemplateSlotType(final SlotAddress a){
+		return template.getSlotType(a);
+	}
 }

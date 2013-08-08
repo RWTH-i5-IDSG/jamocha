@@ -17,8 +17,32 @@
  */
 package org.jamocha.filter;
 
-public class Filter {
-	// enthält Prädikate in einer geordneten Liste, die von vorne nach hinten
-	// abgearbeitet wird
-	FunctionWithArguments preds[];
+public class ConstantLeaf extends FunctionWithArguments {
+	final Object value;
+	final SlotType type;
+	final String representation;
+
+	public ConstantLeaf(final String representation, final Object value,
+			final SlotType type) {
+		super();
+		this.representation = representation;
+		this.value = value;
+		this.type = type;
+	}
+
+	@Override
+	public SlotType returnType() {
+		return type;
+	}
+
+	@Override
+	public String toString() {
+		return representation;
+	}
+
+	@Override
+	public Object evaluate(final Object... params) {
+		return value;
+	}
+
 }

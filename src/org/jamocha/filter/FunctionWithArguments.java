@@ -17,8 +17,13 @@
  */
 package org.jamocha.filter;
 
-public class Filter {
-	// enthält Prädikate in einer geordneten Liste, die von vorne nach hinten
-	// abgearbeitet wird
-	FunctionWithArguments preds[];
+/**
+ * @author Fabian Ohler
+ * 
+ */
+public abstract class FunctionWithArguments implements Function {
+	@Override
+	public SlotType[] paramTypes() {
+		return SlotType.empty;
+	}
 }

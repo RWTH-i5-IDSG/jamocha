@@ -24,7 +24,7 @@ public class Template {
 		this.slots = slots;
 	}
 	
-	public SlotType getSlot(final SlotAddress a){
+	public SlotType getSlotType(final SlotAddress a){
 		return slots[a.getIndex()];
 	}
 }

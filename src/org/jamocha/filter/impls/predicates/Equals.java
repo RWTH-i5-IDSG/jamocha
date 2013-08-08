@@ -34,7 +34,7 @@ public class Equals {
 			}
 
 			@Override
-			public String inClips() {
+			public String toString() {
 				return "=";
 			}
 
@@ -50,7 +50,7 @@ public class Equals {
 			}
 
 			@Override
-			public String inClips() {
+			public String toString() {
 				return "=";
 			}
 

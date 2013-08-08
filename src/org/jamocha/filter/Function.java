@@ -31,7 +31,8 @@ public interface Function {
 	/**
 	 * @return name of the corresponding function in CLIPS
 	 */
-	public String inClips();
+	@Override
+	public String toString();
 
 	/**
 	 * Evaluates the function for the given parameters and returns the result
