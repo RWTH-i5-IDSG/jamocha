@@ -31,6 +31,11 @@ public class ConstantLeaf extends FunctionWithArguments {
 	}
 
 	@Override
+	public SlotType[] paramTypes() {
+		return SlotType.empty;
+	}
+
+	@Override
 	public SlotType returnType() {
 		return type;
 	}

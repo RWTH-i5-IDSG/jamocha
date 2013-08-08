@@ -22,8 +22,5 @@ package org.jamocha.filter;
  * 
  */
 public abstract class FunctionWithArguments implements Function {
-	@Override
-	public SlotType[] paramTypes() {
-		return SlotType.empty;
-	}
+
 }

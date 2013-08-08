@@ -17,6 +17,9 @@
  */
 package org.jamocha.filter;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 public class FunctionWithArgumentsComposite extends FunctionWithArguments {
 
 	final Function function;
@@ -27,6 +30,17 @@ public class FunctionWithArgumentsComposite extends FunctionWithArguments {
 		super();
 		this.function = function;
 		this.args = args;
+	}
+
+	@Override
+	public SlotType[] paramTypes() {
+		final ArrayList<SlotType> types = new ArrayList<>();
+		for (FunctionWithArguments fwa : args) {
+			for (SlotType type : fwa.paramTypes()) {
+				types.add(type);
+			}
+		}
+		return types.toArray(new SlotType[types.size()]);
 	}
 
 	@Override
@@ -53,8 +67,13 @@ public class FunctionWithArgumentsComposite extends FunctionWithArguments {
 	@Override
 	public Object evaluate(final Object... params) {
 		final Object evaluatedArgs[] = new Object[args.length];
-		for (int i = 0; i < args.length; ++i) {
-			evaluatedArgs[i] = args[i].evaluate((Object[]) null);
+		int k = 0;
+		for (int i = 0; i < args.length; i++) {
+			final FunctionWithArguments fwa = args[i];
+			final SlotType[] types = fwa.paramTypes();
+			evaluatedArgs[i] = fwa.evaluate(Arrays.copyOfRange(params, k, k
+					+ types.length));
+			k += types.length;
 		}
 		return function.evaluate(evaluatedArgs);
 	}

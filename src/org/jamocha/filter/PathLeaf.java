@@ -43,6 +43,11 @@ public class PathLeaf extends FunctionWithArguments {
 	}
 
 	@Override
+	public SlotType[] paramTypes() {
+		return new SlotType[] { path.template.getSlotType(slot) };
+	}
+
+	@Override
 	public SlotType returnType() {
 		return path.template.getSlotType(slot);
 	}
