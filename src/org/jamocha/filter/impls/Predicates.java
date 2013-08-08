@@ -21,7 +21,7 @@ import org.jamocha.filter.TODODatenkrakeFunktionen;
 import org.jamocha.filter.impls.predicates.Less;
 
 /**
- * @author Fabian Ohler (ohler@dbis.rwth-aachen.de)
+ * @author Fabian Ohler
  * 
  */
 public class Predicates {

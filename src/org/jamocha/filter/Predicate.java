@@ -18,7 +18,7 @@
 package org.jamocha.filter;
 
 /**
- * @author Fabian Ohler (ohler@dbis.rwth-aachen.de)
+ * @author Fabian Ohler
  * 
  */
 public abstract class Predicate implements Function {

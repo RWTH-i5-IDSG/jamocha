@@ -22,7 +22,7 @@ import org.jamocha.filter.SlotType;
 import org.jamocha.filter.TODODatenkrakeFunktionen;
 
 /**
- * @author Fabian Ohler (ohler@dbis.rwth-aachen.de)
+ * @author Fabian Ohler
  */
 public class Less {
 
