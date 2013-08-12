@@ -15,31 +15,12 @@
  * limitations under the License.
  * 
  */
-package org.jamocha.filter;
-
-import org.jamocha.engine.nodes.Node;
+package org.jamocha.engine.memory;
 
 /**
  * @author Fabian Ohler
  * 
  */
-public interface FunctionWithArguments extends Function {
-
-	/**
-	 * Visitor Patter: accept the visitor
-	 * 
-	 * @param visitor
-	 *            visitor to accept
-	 */
-	public <Proxy> Proxy accept(
-			final FunctionWithArgumentsVisitor<Proxy> visitor, final Proxy proxy);
-
-	/**
-	 * 
-	 * @param translation
-	 * @param childNode
-	 * @return
-	 */
-	public FunctionWithArguments translatePath(
-			final PathTranslation translation, final Node childNode);
+public interface MemoryHandlerTemp extends MemoryHandler {
+	public void releaseLock();
 }

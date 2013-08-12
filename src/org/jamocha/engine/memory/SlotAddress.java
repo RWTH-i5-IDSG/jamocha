@@ -15,11 +15,12 @@
  * limitations under the License.
  * 
  */
-package org.jamocha.filter;
+package org.jamocha.engine.memory;
 
-//TODO Slot enum umbenennen?
-public enum SlotType {
-	LONG, DOUBLE, STRING, BOOLEAN;
-
-	public static SlotType[] empty = new SlotType[] {};
+/**
+ * @author Fabian Ohler
+ * 
+ */
+public interface SlotAddress {
+	public SlotType getSlotType(final Template template);
 }

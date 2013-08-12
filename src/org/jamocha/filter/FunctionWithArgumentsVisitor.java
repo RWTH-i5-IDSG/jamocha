@@ -17,29 +17,20 @@
  */
 package org.jamocha.filter;
 
-import org.jamocha.engine.nodes.Node;
+import org.jamocha.filter.PathLeaf.AddressLeaf;
 
 /**
  * @author Fabian Ohler
  * 
  */
-public interface FunctionWithArguments extends Function {
+public interface FunctionWithArgumentsVisitor<Proxy> {
+	public Proxy visit(final FunctionWithArgumentsComposite function,
+			final Proxy proxy);
 
-	/**
-	 * Visitor Patter: accept the visitor
-	 * 
-	 * @param visitor
-	 *            visitor to accept
-	 */
-	public <Proxy> Proxy accept(
-			final FunctionWithArgumentsVisitor<Proxy> visitor, final Proxy proxy);
+	public Proxy visit(final PathLeaf function, final Proxy proxy);
 
-	/**
-	 * 
-	 * @param translation
-	 * @param childNode
-	 * @return
-	 */
-	public FunctionWithArguments translatePath(
-			final PathTranslation translation, final Node childNode);
+	public Proxy visit(final AddressLeaf function, final Proxy proxy);
+
+	public Proxy visit(final ConstantLeaf function, final Proxy proxy);
+
 }

@@ -15,17 +15,22 @@
  * limitations under the License.
  * 
  */
-package org.jamocha.filter;
+package org.jamocha.engine.memory;
 
-public class SlotAddress {
-	int index;
+/**
+ * @author Fabian Ohler
+ * 
+ */
 
-	public SlotAddress(int index) {
-		this.index = index;
+public class Template {
+	final SlotType slots[];
+
+	public Template(final SlotType... slots) {
+		this.slots = slots;
 	}
 
-	public int getIndex() {
-		return index;
+	public SlotType getSlotsType(int index) {
+		return slots[index];
 	}
 
 }

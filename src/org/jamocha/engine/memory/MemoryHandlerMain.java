@@ -15,16 +15,18 @@
  * limitations under the License.
  * 
  */
-package org.jamocha.filter;
+package org.jamocha.engine.memory;
 
-public class Template {
-	final SlotType slots[];
+/**
+ * @author Fabian Ohler
+ * 
+ */
+public interface MemoryHandlerMain extends MemoryHandler {
+	public boolean tryReadLock();
 
-	public Template(final SlotType... slots) {
-		this.slots = slots;
-	}
+	public void releaseReadLock();
 
-	public SlotType getSlotType(final SlotAddress a) {
-		return slots[a.getIndex()];
-	}
+	public void acquireWriteLock();
+
+	public void releaseWriteLock();
 }

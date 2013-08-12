@@ -21,8 +21,8 @@
  */
 package org.jamocha.filter.impls.predicates;
 
+import org.jamocha.engine.memory.SlotType;
 import org.jamocha.filter.Predicate;
-import org.jamocha.filter.SlotType;
 import org.jamocha.filter.TODODatenkrakeFunktionen;
 
 public class Equals {

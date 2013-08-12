@@ -17,13 +17,15 @@
  */
 package org.jamocha.filter;
 
+import org.jamocha.engine.memory.SlotType;
+
 /**
  * @author Fabian Ohler
  * 
  */
 public abstract class Predicate implements Function {
 
-	/*
+	/**
 	 * @see org.jamocha.filter.Function#returnType()
 	 */
 	@Override
@@ -31,7 +33,7 @@ public abstract class Predicate implements Function {
 		return SlotType.BOOLEAN;
 	}
 
-	/*
+	/**
 	 * @see org.jamocha.filter.Function#evaluate(java.lang.Object[])
 	 */
 	@Override

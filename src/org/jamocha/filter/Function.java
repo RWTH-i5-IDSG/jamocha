@@ -17,6 +17,8 @@
  */
 package org.jamocha.filter;
 
+import org.jamocha.engine.memory.SlotType;
+
 public interface Function {
 	/**
 	 * @return list of the corresponding parameter types for the function
@@ -42,4 +44,5 @@ public interface Function {
 	 * @return result of the function call
 	 */
 	public Object evaluate(final Object... params);
+
 }

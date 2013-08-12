@@ -18,7 +18,14 @@
 package org.jamocha.filter;
 
 public class Filter {
-	// enthält Prädikate in einer geordneten Liste, die von vorne nach hinten
-	// abgearbeitet wird
-	FunctionWithArguments preds[];
+	/**
+	 * Contains Predicates in an ordered list, which is processed from front to
+	 * back. Note: Hierarchy doesn't enforce the filterSteps to be Predicates,
+	 * ctor needs to do this
+	 */
+	FunctionWithArguments filterSteps[];
+
+	public FunctionWithArguments[] getFilterSteps() {
+		return filterSteps;
+	}
 }

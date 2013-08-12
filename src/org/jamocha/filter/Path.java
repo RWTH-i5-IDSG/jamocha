@@ -17,6 +17,10 @@
  */
 package org.jamocha.filter;
 
+import org.jamocha.engine.memory.SlotAddress;
+import org.jamocha.engine.memory.SlotType;
+import org.jamocha.engine.memory.Template;
+
 public class Path {
 	final Template template;
 
@@ -25,7 +29,7 @@ public class Path {
 		this.template = template;
 	}
 
-	public SlotType getTemplateSlotType(final SlotAddress a) {
-		return template.getSlotType(a);
+	public SlotType getTemplateSlotType(final SlotAddress addr) {
+		return addr.getSlotType(this.template);
 	}
 }

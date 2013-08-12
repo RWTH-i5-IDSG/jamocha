@@ -17,15 +17,15 @@
  */
 package org.jamocha.filter;
 
-public class ConstantLeaf extends FunctionWithArguments {
+import org.jamocha.engine.memory.SlotType;
+import org.jamocha.engine.nodes.Node;
+
+public class ConstantLeaf implements FunctionWithArguments {
 	final Object value;
 	final SlotType type;
-	final String representation;
 
-	public ConstantLeaf(final String representation, final Object value,
-			final SlotType type) {
+	public ConstantLeaf(final Object value, final SlotType type) {
 		super();
-		this.representation = representation;
 		this.value = value;
 		this.type = type;
 	}
@@ -42,7 +42,7 @@ public class ConstantLeaf extends FunctionWithArguments {
 
 	@Override
 	public String toString() {
-		return representation;
+		return value.toString();
 	}
 
 	@Override
@@ -50,4 +50,18 @@ public class ConstantLeaf extends FunctionWithArguments {
 		return value;
 	}
 
+	@Override
+	public FunctionWithArguments translatePath(
+			final PathTranslation translation, final Node childNode) {
+		return this;
+	}
+
+	/**
+	 * @see org.jamocha.filter.Function#accept(org.jamocha.filter.FunctionVisitor)
+	 */
+	@Override
+	public <Proxy> Proxy accept(
+			final FunctionWithArgumentsVisitor<Proxy> visitor, final Proxy proxy) {
+		return visitor.visit(this, proxy);
+	}
 }

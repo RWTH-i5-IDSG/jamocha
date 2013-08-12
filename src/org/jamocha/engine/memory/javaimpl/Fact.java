@@ -15,31 +15,20 @@
  * limitations under the License.
  * 
  */
-package org.jamocha.filter;
+package org.jamocha.engine.memory.javaimpl;
 
-import org.jamocha.engine.nodes.Node;
+import lombok.RequiredArgsConstructor;
 
-/**
- * @author Fabian Ohler
- * 
- */
-public interface FunctionWithArguments extends Function {
 
-	/**
-	 * Visitor Patter: accept the visitor
-	 * 
-	 * @param visitor
-	 *            visitor to accept
-	 */
-	public <Proxy> Proxy accept(
-			final FunctionWithArgumentsVisitor<Proxy> visitor, final Proxy proxy);
-
-	/**
-	 * 
-	 * @param translation
-	 * @param childNode
-	 * @return
-	 */
-	public FunctionWithArguments translatePath(
-			final PathTranslation translation, final Node childNode);
+@RequiredArgsConstructor
+public class Fact {
+	final Object slotValues[];
+	
+	public Object getValue(final SlotAddress slot){
+		return slotValues[slot.getIndex()];
+	}
+	
+	public void setValue(final SlotAddress slot, final Object value) {
+		slotValues[slot.getIndex()] = value;
+	}
 }

@@ -43,7 +43,8 @@ public abstract class Node {
 
 		public Node getTargetNode();
 
-		public FactAddress localizeAddress(final FactAddress addressInParent);
+		public NetworkFactAddress localizeAddress(
+				final NetworkFactAddress addressInParent);
 
 		/**
 		 * Disconnects the nodeInput from the formerly connected nodes. This
@@ -103,7 +104,7 @@ public abstract class Node {
 	@RequiredArgsConstructor
 	static class NodeWithFilter {
 		final Node node;
-		final FilterTemplate filter;
+		final Filter filter;
 	}
 
 	public Node(final Template template, final Memory memoryModule,
@@ -130,8 +131,7 @@ public abstract class Node {
 	private void setFilters(final NodeWithFilter[] parentsWithFilters) {
 		for (int i = 0; i < parentsWithFilters.length; ++i) {
 			final NodeWithFilter nwf = parentsWithFilters[i];
-			final Filter filter = nwf.filter.create(inputs);
-			inputs[i].setFilter(filter);
+			inputs[i].setFilter(nwf.filter);
 		}
 	}
 

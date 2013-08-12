@@ -21,6 +21,7 @@ import java.util.HashMap;
 
 import lombok.EqualsAndHashCode;
 
+import org.jamocha.engine.memory.SlotType;
 import org.jamocha.filter.impls.Predicates;
 
 public class TODODatenkrakeFunktionen {

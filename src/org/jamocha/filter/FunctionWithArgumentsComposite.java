@@ -20,7 +20,10 @@ package org.jamocha.filter;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class FunctionWithArgumentsComposite extends FunctionWithArguments {
+import org.jamocha.engine.memory.SlotType;
+import org.jamocha.engine.nodes.Node;
+
+public class FunctionWithArgumentsComposite implements FunctionWithArguments {
 
 	final Function function;
 	final FunctionWithArguments args[];
@@ -76,6 +79,31 @@ public class FunctionWithArgumentsComposite extends FunctionWithArguments {
 			k += types.length;
 		}
 		return function.evaluate(evaluatedArgs);
+	}
+
+	public void replace(final FunctionWithArguments oldFwa,
+			final FunctionWithArguments newFwa) {
+		for (int i = 0; i < this.args.length; ++i) {
+			if (this.args[i] == oldFwa) {
+				this.args[i] = newFwa;
+				return;
+			}
+		}
+	}
+
+	@Override
+	public FunctionWithArguments translatePath(
+			final PathTranslation translation, final Node childNode) {
+		return this;
+	}
+
+	/**
+	 * @see org.jamocha.filter.Function#accept(org.jamocha.filter.FunctionVisitor)
+	 */
+	@Override
+	public <Proxy> Proxy accept(
+			final FunctionWithArgumentsVisitor<Proxy> visitor, final Proxy proxy) {
+		return visitor.visit(this, proxy);
 	}
 
 }

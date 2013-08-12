@@ -15,31 +15,11 @@
  * limitations under the License.
  * 
  */
-package org.jamocha.filter;
+package org.jamocha.engine.memory;
 
-import org.jamocha.engine.nodes.Node;
+//TODO Slot enum umbenennen?
+public enum SlotType {
+	LONG, DOUBLE, STRING, BOOLEAN;
 
-/**
- * @author Fabian Ohler
- * 
- */
-public interface FunctionWithArguments extends Function {
-
-	/**
-	 * Visitor Patter: accept the visitor
-	 * 
-	 * @param visitor
-	 *            visitor to accept
-	 */
-	public <Proxy> Proxy accept(
-			final FunctionWithArgumentsVisitor<Proxy> visitor, final Proxy proxy);
-
-	/**
-	 * 
-	 * @param translation
-	 * @param childNode
-	 * @return
-	 */
-	public FunctionWithArguments translatePath(
-			final PathTranslation translation, final Node childNode);
+	public static SlotType[] empty = new SlotType[] {};
 }

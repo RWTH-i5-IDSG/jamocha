@@ -15,31 +15,25 @@
  * limitations under the License.
  * 
  */
-package org.jamocha.filter;
+package org.jamocha.engine.memory.javaimpl;
 
-import org.jamocha.engine.nodes.Node;
+import org.jamocha.engine.memory.SlotType;
+import org.jamocha.engine.memory.Template;
 
-/**
- * @author Fabian Ohler
- * 
- */
-public interface FunctionWithArguments extends Function {
+public class SlotAddress implements org.jamocha.engine.memory.SlotAddress {
+	int index;
 
-	/**
-	 * Visitor Patter: accept the visitor
-	 * 
-	 * @param visitor
-	 *            visitor to accept
-	 */
-	public <Proxy> Proxy accept(
-			final FunctionWithArgumentsVisitor<Proxy> visitor, final Proxy proxy);
+	public SlotAddress(int index) {
+		this.index = index;
+	}
 
-	/**
-	 * 
-	 * @param translation
-	 * @param childNode
-	 * @return
-	 */
-	public FunctionWithArguments translatePath(
-			final PathTranslation translation, final Node childNode);
+	public int getIndex() {
+		return index;
+	}
+
+	@Override
+	public SlotType getSlotType(final Template template) {
+		return template.getSlotsType(this.index);
+	}
+
 }
