@@ -17,13 +17,8 @@
  */
 package org.jamocha.engine.memory.javaimpl;
 
-import org.jamocha.filter.ConstantLeaf;
 import org.jamocha.filter.Filter;
 import org.jamocha.filter.FunctionWithArguments;
-import org.jamocha.filter.FunctionWithArgumentsComposite;
-import org.jamocha.filter.FunctionWithArgumentsVisitor;
-import org.jamocha.filter.PathLeaf;
-import org.jamocha.filter.PathLeaf.ParameterLeaf;
 
 /**
  * @author Fabian Ohler
@@ -50,7 +45,6 @@ public class MemoryHandlerTemp implements
 
 		}
 	}
-
 
 	/*
 	 * (non-Javadoc)
