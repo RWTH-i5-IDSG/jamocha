@@ -19,7 +19,6 @@ package org.jamocha.filter;
 
 import org.jamocha.engine.memory.SlotAddress;
 import org.jamocha.engine.memory.SlotType;
-import org.jamocha.engine.nodes.NetworkFactAddress;
 import org.jamocha.engine.nodes.Node;
 
 /**
@@ -64,24 +63,11 @@ public class PathLeaf implements FunctionWithArguments {
 	}
 
 	public static class ParameterLeaf implements FunctionWithArguments {
-		final NetworkFactAddress addr;
-		final SlotAddress slotAddr;
 		final SlotType type;
 
-		public ParameterLeaf(final NetworkFactAddress addr,
-				final SlotAddress slotAddr, final SlotType type) {
+		public ParameterLeaf(final SlotType type) {
 			super();
-			this.addr = addr;
-			this.slotAddr = slotAddr;
 			this.type = type;
-		}
-
-		public NetworkFactAddress getNetworkFactAddress() {
-			return addr;
-		}
-
-		public SlotAddress getSlotAddress() {
-			return slotAddr;
 		}
 
 		@Override
@@ -114,16 +100,6 @@ public class PathLeaf implements FunctionWithArguments {
 			return this;
 		}
 
-		/**
-		 * @see org.jamocha.filter.Function#accept(org.jamocha.filter.FunctionVisitor)
-		 */
-		@Override
-		public <Proxy> Proxy accept(
-				final FunctionWithArgumentsVisitor<Proxy> visitor,
-				final Proxy proxy) {
-			return visitor.visit(this, proxy);
-		}
-
 	}
 
 	@Override
@@ -131,15 +107,6 @@ public class PathLeaf implements FunctionWithArguments {
 			final Node childNode) {
 		// TODO impl Christoph's algorithm
 		return null;
-	}
-
-	/**
-	 * @see org.jamocha.filter.Function#accept(org.jamocha.filter.FunctionVisitor)
-	 */
-	@Override
-	public <Proxy> Proxy accept(
-			final FunctionWithArgumentsVisitor<Proxy> visitor, final Proxy proxy) {
-		return visitor.visit(this, proxy);
 	}
 
 }

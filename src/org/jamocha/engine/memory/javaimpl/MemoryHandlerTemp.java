@@ -51,45 +51,6 @@ public class MemoryHandlerTemp implements
 		}
 	}
 
-	static interface TR {
-
-	}
-
-	static class Joiner implements FunctionWithArgumentsVisitor<TR> {
-		int depth = 0;
-
-		@Override
-		public TR visit(final FunctionWithArgumentsComposite function,
-				final TR proxy) {
-			// TODO join as described above
-			++depth;
-			if (1 == depth) {
-				// predicate behaviour
-			} else {
-				// function behaviour
-			}
-			return null;
-		}
-
-		@Override
-		public TR visit(final PathLeaf function, final TR proxy) {
-			throw new UnsupportedOperationException(
-					"Joins can not be performed on PathLeafs!");
-		}
-
-		@Override
-		public TR visit(final ParameterLeaf function, final TR proxy) {
-			return null;
-			// TODO Auto-generated method stub
-		}
-
-		@Override
-		public TR visit(final ConstantLeaf function, final TR proxy) {
-			return null;
-			// TODO Auto-generated method stub
-		}
-
-	}
 
 	/*
 	 * (non-Javadoc)

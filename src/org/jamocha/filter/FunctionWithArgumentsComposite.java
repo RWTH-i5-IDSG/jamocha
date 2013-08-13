@@ -97,13 +97,4 @@ public class FunctionWithArgumentsComposite implements FunctionWithArguments {
 		return this;
 	}
 
-	/**
-	 * @see org.jamocha.filter.Function#accept(org.jamocha.filter.FunctionVisitor)
-	 */
-	@Override
-	public <Proxy> Proxy accept(
-			final FunctionWithArgumentsVisitor<Proxy> visitor, final Proxy proxy) {
-		return visitor.visit(this, proxy);
-	}
-
 }

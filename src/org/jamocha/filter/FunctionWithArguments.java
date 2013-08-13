@@ -26,15 +26,6 @@ import org.jamocha.engine.nodes.Node;
 public interface FunctionWithArguments extends Function {
 
 	/**
-	 * Visitor Patter: accept the visitor
-	 * 
-	 * @param visitor
-	 *            visitor to accept
-	 */
-	public <Proxy> Proxy accept(
-			final FunctionWithArgumentsVisitor<Proxy> visitor, final Proxy proxy);
-
-	/**
 	 * 
 	 * @param translation
 	 * @param childNode
