@@ -17,16 +17,20 @@
  */
 package org.jamocha.engine.memory;
 
+import org.jamocha.engine.memory.javaimpl.MemoryHandlerTemp;
+
 /**
  * @author Fabian Ohler
  * 
  */
 public interface MemoryHandlerMain extends MemoryHandler {
-	public boolean tryReadLock();
+	public boolean tryReadLock() throws InterruptedException;
 
 	public void releaseReadLock();
 
 	public void acquireWriteLock();
 
 	public void releaseWriteLock();
+	
+	public void add(final MemoryHandlerTemp toAdd);
 }

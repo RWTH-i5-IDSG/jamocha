@@ -17,6 +17,7 @@
  */
 package org.jamocha.engine.memory.javaimpl;
 
+import org.jamocha.engine.memory.Template;
 import org.jamocha.filter.Filter;
 import org.jamocha.filter.FunctionWithArguments;
 
@@ -27,11 +28,31 @@ import org.jamocha.filter.FunctionWithArguments;
 public class MemoryHandlerTemp implements
 		org.jamocha.engine.memory.MemoryHandlerTemp {
 
-	final Fact facts[][];
+	static class Semaphore {
+		int count;
 
-	public MemoryHandlerTemp(final Filter filter) {
+		public Semaphore(int count) {
+			super();
+			this.count = count;
+		}
+		
+		public synchronized boolean release() {
+			return --count != 0;
+		}
+	}
+	
+	final MemoryHandlerMain originatingMainHandler;
+	final Fact facts[][];
+	final Semaphore lock;
+	boolean valid;
+
+	public MemoryHandlerTemp(final MemoryHandlerMain originatingMainHandler,
+			final Filter filter) {
 		super();
+		this.originatingMainHandler = originatingMainHandler;
+		this.lock = new Semaphore(numberOfChildren);
 		this.facts = null;
+		this.valid = true;
 		// TODO visit the elements of the list in the filter (visitor-pattern)
 		// as the number of inputs needed for a join may vary, we emulate
 		// recursive joining:
@@ -64,8 +85,15 @@ public class MemoryHandlerTemp implements
 	 */
 	@Override
 	public void releaseLock() {
-		// TODO Auto-generated method stub
+		if (this.lock.release()) return;
+		// all children have processed the temp memory, now we have to write its content to main memory
+		originatingMainHandler.add(this);
+		
+	}
 
+	@Override
+	public Template[] getTemplate() {
+		return this.originatingMainHandler.getTemplate();
 	}
 
 }
