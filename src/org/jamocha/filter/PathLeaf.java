@@ -49,7 +49,7 @@ public class PathLeaf implements FunctionWithArguments {
 
 	@Override
 	public SlotType[] paramTypes() {
-		return SlotType.empty;
+		return new SlotType[] { slot.getSlotType(path.template) };
 	}
 
 	@Override
@@ -63,15 +63,17 @@ public class PathLeaf implements FunctionWithArguments {
 				"Evaluate not allowed for PathLeafs!");
 	}
 
-	public static class AddressLeaf implements FunctionWithArguments {
+	public static class ParameterLeaf implements FunctionWithArguments {
 		final NetworkFactAddress addr;
 		final SlotAddress slotAddr;
+		final SlotType type;
 
-		public AddressLeaf(final NetworkFactAddress addr,
-				final SlotAddress slotAddr) {
+		public ParameterLeaf(final NetworkFactAddress addr,
+				final SlotAddress slotAddr, final SlotType type) {
 			super();
 			this.addr = addr;
 			this.slotAddr = slotAddr;
+			this.type = type;
 		}
 
 		public NetworkFactAddress getNetworkFactAddress() {
@@ -84,26 +86,26 @@ public class PathLeaf implements FunctionWithArguments {
 
 		@Override
 		public String toString() {
-			// TODO Auto-generated method stub
-			return super.toString();
+			final StringBuilder sb = new StringBuilder();
+			sb.append("[");
+			sb.append(type);
+			sb.append("]");
+			return sb.toString();
 		}
 
 		@Override
 		public SlotType[] paramTypes() {
-			// TODO Auto-generated method stub
-			return null;
+			return new SlotType[] { this.type };
 		}
 
 		@Override
 		public SlotType returnType() {
-			// TODO Auto-generated method stub
-			return null;
+			return this.type;
 		}
 
 		@Override
 		public Object evaluate(Object... params) {
-			// TODO Auto-generated method stub
-			return null;
+			return params[0];
 		}
 
 		@Override
@@ -125,7 +127,7 @@ public class PathLeaf implements FunctionWithArguments {
 	}
 
 	@Override
-	public AddressLeaf translatePath(final PathTranslation translation,
+	public ParameterLeaf translatePath(final PathTranslation translation,
 			final Node childNode) {
 		// TODO impl Christoph's algorithm
 		return null;

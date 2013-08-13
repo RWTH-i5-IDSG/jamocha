@@ -53,7 +53,7 @@ public class FunctionWithArgumentsComposite implements FunctionWithArguments {
 
 	@Override
 	public String toString() {
-		StringBuilder sb = new StringBuilder();
+		final StringBuilder sb = new StringBuilder();
 		sb.append(function.toString());
 		sb.append("(");
 		if (args.length > 0) {

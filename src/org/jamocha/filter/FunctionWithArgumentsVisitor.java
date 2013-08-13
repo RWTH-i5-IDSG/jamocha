@@ -17,7 +17,7 @@
  */
 package org.jamocha.filter;
 
-import org.jamocha.filter.PathLeaf.AddressLeaf;
+import org.jamocha.filter.PathLeaf.ParameterLeaf;
 
 /**
  * @author Fabian Ohler
@@ -29,7 +29,7 @@ public interface FunctionWithArgumentsVisitor<Proxy> {
 
 	public Proxy visit(final PathLeaf function, final Proxy proxy);
 
-	public Proxy visit(final AddressLeaf function, final Proxy proxy);
+	public Proxy visit(final ParameterLeaf function, final Proxy proxy);
 
 	public Proxy visit(final ConstantLeaf function, final Proxy proxy);
 

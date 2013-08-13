@@ -23,7 +23,7 @@ import org.jamocha.filter.FunctionWithArguments;
 import org.jamocha.filter.FunctionWithArgumentsComposite;
 import org.jamocha.filter.FunctionWithArgumentsVisitor;
 import org.jamocha.filter.PathLeaf;
-import org.jamocha.filter.PathLeaf.AddressLeaf;
+import org.jamocha.filter.PathLeaf.ParameterLeaf;
 
 /**
  * @author Fabian Ohler
@@ -78,7 +78,7 @@ public class MemoryHandlerTemp implements
 		}
 
 		@Override
-		public TR visit(final AddressLeaf function, final TR proxy) {
+		public TR visit(final ParameterLeaf function, final TR proxy) {
 			return null;
 			// TODO Auto-generated method stub
 		}
