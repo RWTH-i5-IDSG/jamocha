@@ -17,7 +17,7 @@
  */
 package org.jamocha.engine.nodes;
 
-import org.jamocha.engine.memory.Memory;
+import org.jamocha.engine.memory.MemoryFactory;
 import org.jamocha.engine.memory.MemoryHandler;
 
 public abstract class AlphaNode extends Node {
@@ -47,7 +47,7 @@ public abstract class AlphaNode extends Node {
 
 	}
 
-	public AlphaNode(final Memory memory) {
+	public AlphaNode(final MemoryFactory memory) {
 		super(memory);
 		this.factTupleCardinality = 1;
 		// TODO Auto-generated constructor stub

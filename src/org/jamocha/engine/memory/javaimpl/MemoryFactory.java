@@ -15,28 +15,26 @@
  * limitations under the License.
  * 
  */
+package org.jamocha.engine.memory.javaimpl;
 
-package org.jamocha.engine.memory;
+import org.jamocha.engine.memory.MemoryHandler;
+import org.jamocha.engine.memory.Template;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+/**
+ * @author Fabian Ohler
+ * 
+ */
+public class MemoryFactory implements org.jamocha.engine.memory.MemoryFactory {
 
-import org.jamocha.engine.workingmemory.elements.Template;
-
-public interface Memory {
-	// Speichert Fakttupelmengen
-	// Verfügt ggf. über verschiedene Indizes <- Entscheidung bei
-	// Netzkonstruktion
-	// Nutzt Indizes bei entsprechenden Anfragen
-
-	public void flush();
-
-	@RequiredArgsConstructor
-	static class DoubleMemoryHandler {
-		@Getter
-		final MemoryHandler memory, tempMemory;
+	@Override
+	public MemoryHandlerMain newMemoryHandlerMain(final Template template) {
+		return new MemoryHandlerMain(template);
 	}
 
-	public DoubleMemoryHandler getMemory(final Template template);
+	@Override
+	public MemoryHandlerMain newMemoryHandlerMain(
+			final MemoryHandler... handlersToBeJoined) {
+		return new MemoryHandlerMain(handlersToBeJoined);
+	}
 
 }

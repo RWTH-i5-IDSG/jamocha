@@ -22,7 +22,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import org.jamocha.engine.memory.MemoryFactAddress;
 import org.jamocha.engine.memory.MemoryHandler;
+import org.jamocha.engine.memory.SlotAddress;
 import org.jamocha.engine.memory.Template;
 
 /**
@@ -38,7 +40,11 @@ public class MemoryHandlerMain implements
 	final ArrayList<Fact[]> facts = new ArrayList<>();
 	final Template[] template;
 
-	public MemoryHandlerMain(final MemoryHandler[] handlersToBeJoined) {
+	public MemoryHandlerMain(final Template template) {
+		this.template = new Template[] { template };
+	}
+
+	public MemoryHandlerMain(final MemoryHandler... handlersToBeJoined) {
 		this.template = handlersToTemplate(handlersToBeJoined);
 	}
 
@@ -81,10 +87,18 @@ public class MemoryHandlerMain implements
 	public void releaseWriteLock() {
 		this.lock.writeLock().unlock();
 	}
-	
+
 	@Override
-	public void add(final MemoryHandlerTemp toAdd){
-		
+	public void add(final MemoryHandlerTemp toAdd) {
+		// TODO
+	}
+
+	@Override
+	public Object getValue(final MemoryFactAddress address,
+			final SlotAddress slot, final int row) {
+		return this.facts.get(row)[((org.jamocha.engine.memory.javaimpl.MemoryFactAddress) address)
+				.getIndex()]
+				.getValue((org.jamocha.engine.memory.javaimpl.SlotAddress) slot);
 	}
 
 }

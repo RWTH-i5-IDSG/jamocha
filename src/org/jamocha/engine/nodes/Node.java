@@ -20,14 +20,16 @@ package org.jamocha.engine.nodes;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.Set;
 
 import lombok.RequiredArgsConstructor;
 
-import org.jamocha.engine.memory.Memory;
-import org.jamocha.engine.memory.Memory.DoubleMemoryHandler;
+import org.jamocha.engine.memory.MemoryFactory;
 import org.jamocha.engine.memory.MemoryHandler;
-import org.jamocha.engine.workingmemory.elements.Template;
+import org.jamocha.engine.memory.MemoryHandlerMain;
+import org.jamocha.engine.memory.MemoryHandlerTemp;
+import org.jamocha.engine.memory.Template;
 
 /**
  * Base class for all node types
@@ -57,6 +59,8 @@ public abstract class Node {
 		public void setFilter(final Filter filter);
 
 		public Filter getFilter();
+
+		public LinkedList<MemoryHandlerTemp> getTempMemories();
 	}
 
 	abstract protected class NodeInputImpl implements NodeInput {
@@ -98,8 +102,7 @@ public abstract class Node {
 	protected NodeInput[] inputs;
 	final protected Set<NodeInput> children = new HashSet<>();
 	final protected Template template;
-	final protected Memory memoryModule;
-	final protected MemoryHandler memory, tempMemory;
+	final protected MemoryHandlerMain memory;
 
 	@RequiredArgsConstructor
 	static class NodeWithFilter {
@@ -107,13 +110,10 @@ public abstract class Node {
 		final Filter filter;
 	}
 
-	public Node(final Template template, final Memory memoryModule,
+	public Node(final Template template, final MemoryFactory memoryFactory,
 			final NodeWithFilter[] parentsWithFilters) {
 		this.template = template;
-		this.memoryModule = memoryModule;
-		final DoubleMemoryHandler dmh = memoryModule.getMemory(template);
-		this.memory = dmh.getMemory();
-		this.tempMemory = dmh.getTempMemory();
+		this.memory = memoryFactory.newMemoryHandlerMain(template);
 
 		connectNewParents(parentsWithFilters);
 		setFilters(parentsWithFilters);
@@ -153,8 +153,7 @@ public abstract class Node {
 		for (final NodeInput input : this.inputs) {
 			input.disconnect();
 		}
-		this.memory.flush();
-		this.tempMemory.flush();
+		// flush memory
 		connectNewParents(parentsWithFilters);
 		setFilters(parentsWithFilters);
 		// FIXME release read lock on main memory of every old parent
@@ -198,16 +197,29 @@ public abstract class Node {
 	 * 
 	 * @return an unmodifiable set of the children
 	 */
-	protected Set<NodeInput> getChildren() {
+	public Set<NodeInput> getChildren() {
 		return Collections.unmodifiableSet(this.children);
+	}
+
+	/**
+	 * Returns the list of the children.
+	 * 
+	 * @return the list of the children
+	 */
+	public NodeInput[] getInputs() {
+		return this.inputs;
 	}
 
 	public void distributeTempFacts() {
 
 	}
 
-	public MemoryHandler getMemory() {
+	public MemoryHandlerMain getMemory() {
 		return this.memory;
+	}
+
+	public int numChildren() {
+		return this.children.size();
 	}
 
 }

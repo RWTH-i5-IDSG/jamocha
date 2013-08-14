@@ -18,11 +18,15 @@
 
 package org.jamocha.engine.nodes;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
 import org.jamocha.engine.memory.MemoryFactAddress;
 import org.jamocha.engine.nodes.Node.NodeInput;
 
-public interface NetworkFactAddress {
-	public NodeInput getNodeInput();
-
-	public MemoryFactAddress getMemoryFactAddress();
+@Getter
+@RequiredArgsConstructor
+public class NetworkFactAddress {
+	final NodeInput nodeInput;
+	final MemoryFactAddress memoryFactAddress;
 }

@@ -18,10 +18,6 @@
 
 package org.jamocha.engine.memory;
 
-public class MemoryFactAddress {
-	int index;
+public interface MemoryFactAddress {
 
-	public MemoryFactAddress(int index) {
-		this.index = index;
-	}
 }

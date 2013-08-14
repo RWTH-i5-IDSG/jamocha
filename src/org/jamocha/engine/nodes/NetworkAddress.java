@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2008 The Jamocha Team
+ * Copyright 2002-2013 The Jamocha Team
  * 
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,27 +15,20 @@
  * limitations under the License.
  * 
  */
+package org.jamocha.engine.nodes;
 
-package org.jamocha.engine.nodes.joinfilter;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
-public class FieldAddressingException extends JoinFilterException {
+import org.jamocha.engine.memory.SlotAddress;
 
-	private static final long serialVersionUID = 1L;
-
-	public FieldAddressingException() {
-		super();
-	}
-
-	public FieldAddressingException(final String message, final Throwable cause) {
-		super(message, cause);
-	}
-
-	public FieldAddressingException(final String message) {
-		super(message);
-	}
-
-	public FieldAddressingException(final Throwable cause) {
-		super(cause);
-	}
-
+/**
+ * @author Fabian Ohler
+ * 
+ */
+@Getter
+@RequiredArgsConstructor
+public class NetworkAddress {
+	final NetworkFactAddress networkFactAddress;
+	final SlotAddress slotAddress;
 }

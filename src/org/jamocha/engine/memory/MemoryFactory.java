@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2012 The Jamocha Team
+ * Copyright 2002-2013 The Jamocha Team
  * 
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,15 +16,11 @@
  * 
  */
 
-package org.jamocha.engine.nodes;
+package org.jamocha.engine.memory;
 
-import org.jamocha.engine.memory.MemoryFactory;
+public interface MemoryFactory {
+	public MemoryHandlerMain newMemoryHandlerMain(final Template template);
 
-public abstract class BetaNode extends Node {
-
-	public BetaNode(final MemoryFactory memory) {
-		super(memory);
-		// TODO Auto-generated constructor stub
-	}
-
+	public MemoryHandlerMain newMemoryHandlerMain(
+			final MemoryHandler... handlersToBeJoined);
 }

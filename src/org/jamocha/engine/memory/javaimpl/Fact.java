@@ -19,15 +19,14 @@ package org.jamocha.engine.memory.javaimpl;
 
 import lombok.RequiredArgsConstructor;
 
-
 @RequiredArgsConstructor
 public class Fact {
 	final Object slotValues[];
-	
-	public Object getValue(final SlotAddress slot){
+
+	public Object getValue(final SlotAddress slot) {
 		return slotValues[slot.getIndex()];
 	}
-	
+
 	public void setValue(final SlotAddress slot, final Object value) {
 		slotValues[slot.getIndex()] = value;
 	}
