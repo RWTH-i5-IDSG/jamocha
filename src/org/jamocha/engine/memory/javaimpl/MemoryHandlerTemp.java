@@ -189,8 +189,19 @@ public class MemoryHandlerTemp implements
 						break outerloop;
 					element.memIndex = 0;
 				}
-				// TODO point all inputs that were joint during this turn to the TR StackElement
-				// TODO overwrite TR with current temporary result and reset all row- and mem-indices
+				// point all inputs that were joint during this turn to the TR StackElement
+				final StackElement originElement = inputToStack.get(originInput);
+				for (final NetworkAddress address : addresses) {
+					final NodeInput input = address.getNetworkFactAddress().getNodeInput();
+					if (inputToStack.get(input) == originElement) continue;
+					inputToStack.put(input, originElement);
+				}
+				// TODO replace TR in originElement with new temporary result
+				// reset all indices in the StackElements
+				for (final /* geil */ StackElement elem : stack) {
+					elem.rowIndex = 0;
+					elem.memIndex = 0;
+				}
 			}
 			for (final NodeInput input : nodeInputs) {
 				input.getSourceNode().getMemory().releaseReadLock();
@@ -232,7 +243,7 @@ public class MemoryHandlerTemp implements
 	@Override
 	public Object getValue(final MemoryFactAddress address,
 			final SlotAddress slot, final int row) {
-		return this.facts[row][((org.jamocha.engine.memory.javaimpl.MemoryFactAddress) address)
+		return this.facts.get(row)[((org.jamocha.engine.memory.javaimpl.MemoryFactAddress) address)
 				.getIndex()]
 				.getValue((org.jamocha.engine.memory.javaimpl.SlotAddress) slot);
 	}
