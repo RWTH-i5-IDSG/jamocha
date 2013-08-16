@@ -40,7 +40,7 @@ public abstract class AlphaNode extends Node {
 		}
 
 		@Override
-		public FactAddress localizeAddress(FactAddress add) {
+		public NetworkFactAddress localizeAddress(final NetworkFactAddress add) {
 			throw new UnsupportedOperationException(
 					"The Input of an AlphaNode is not supposed to be used as an address");
 		}
