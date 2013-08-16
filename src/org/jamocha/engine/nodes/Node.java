@@ -45,6 +45,14 @@ public abstract class Node {
 
 		public Node getTargetNode();
 
+		/**
+		 * Transforms an address valid for the source node of the input into the
+		 * corresponding address valid for the target node of the input.
+		 * 
+		 * @param addressInParent
+		 *            an address valid in the source node of the input
+		 * @return an address valid in the target node of the input
+		 */
 		public NetworkFactAddress localizeAddress(
 				final NetworkFactAddress addressInParent);
 
@@ -221,5 +229,16 @@ public abstract class Node {
 	public int numChildren() {
 		return this.children.size();
 	}
+
+	/**
+	 * Transforms an address valid for the target node of its inputs into the
+	 * corresponding address valid for the source node of its input.
+	 * 
+	 * @param localMemoryFactAddress
+	 *            an address valid in the current node
+	 * @return an address valid in the parent node
+	 */
+	public abstract NetworkFactAddress delocalizeAddress(
+			NetworkFactAddress localNetworkFactAddress);
 
 }

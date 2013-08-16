@@ -28,5 +28,5 @@ import org.jamocha.engine.nodes.Node.NodeInput;
 @RequiredArgsConstructor
 public class NetworkFactAddress {
 	final NodeInput nodeInput;
-	final MemoryFactAddress memoryFactAddress;
+	final MemoryFactAddress memoryFactAddressInTarget;
 }

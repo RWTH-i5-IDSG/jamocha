@@ -19,11 +19,12 @@
 package org.jamocha.engine.nodes;
 
 import org.jamocha.engine.memory.MemoryFactory;
+import org.jamocha.engine.memory.Template;
 
 public abstract class BetaNode extends Node {
 
-	public BetaNode(final MemoryFactory memory) {
-		super(memory);
+	public BetaNode(final Template template, final MemoryFactory memoryFactory) {
+		super(template, memoryFactory);
 		// TODO Auto-generated constructor stub
 	}
 

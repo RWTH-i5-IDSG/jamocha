@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 
 import org.jamocha.engine.memory.MemoryFactAddress;
@@ -69,7 +70,7 @@ public class MemoryHandlerTemp implements
 		this.valid = true;
 	}
 
-	static class StackElement {
+	static abstract class StackElement {
 		int rowIndex;
 		int memIndex;
 		final ArrayList<ArrayList<Fact[]>> memStack;
@@ -89,24 +90,40 @@ public class MemoryHandlerTemp implements
 			for (final MemoryHandler temp : temps) {
 				memStack.add(((org.jamocha.engine.memory.javaimpl.MemoryHandlerTemp) temp).facts);
 			}
-			return new StackElement(memStack);
+			return new StackElement(memStack) {
+				@Override
+				Object getValue(final NetworkFactAddress addr,
+						final SlotAddress slot) {
+					return this.getTable().get(this.rowIndex)[((org.jamocha.engine.memory.javaimpl.MemoryFactAddress) addr
+							.getNodeInput().getTargetNode()
+							.delocalizeAddress(addr)
+							.getMemoryFactAddressInTarget()).index]
+							.getValue(((org.jamocha.engine.memory.javaimpl.SlotAddress) slot));
+				}
+			};
 		}
 
 		public static StackElement originInput(final MemoryHandlerTemp token) {
 			ArrayList<ArrayList<Fact[]>> list = new ArrayList<ArrayList<Fact[]>>(
 					1);
 			list.add(((org.jamocha.engine.memory.javaimpl.MemoryHandlerTemp) token).facts);
-			return new StackElement(list);
+			return new StackElement(list) {
+				@Override
+				Object getValue(final NetworkFactAddress addr,
+						final SlotAddress slot) {
+					return this.getTable().get(this.rowIndex)[((org.jamocha.engine.memory.javaimpl.MemoryFactAddress) addr
+							.getMemoryFactAddressInTarget()).index]
+							.getValue(((org.jamocha.engine.memory.javaimpl.SlotAddress) slot));
+				}
+			};
 		}
 
 		ArrayList<Fact[]> getTable() {
 			return this.memStack.get(this.memIndex);
 		}
 
-		Object getValue(final MemoryFactAddress fact, final SlotAddress slot) {
-			return this.getTable().get(this.rowIndex)[((org.jamocha.engine.memory.javaimpl.MemoryFactAddress) fact).index]
-					.getValue(((org.jamocha.engine.memory.javaimpl.SlotAddress) slot));
-		}
+		abstract Object getValue(final NetworkFactAddress addr,
+				final SlotAddress slot);
 
 		boolean checkMemBounds() {
 			return memStack.size() > memIndex && memIndex >= 0;
@@ -144,6 +161,9 @@ public class MemoryHandlerTemp implements
 
 		// get filter steps
 		final FilterElement filterSteps[] = filter.getFilterSteps();
+		final int columns = originInput.getTargetNode().getMemory()
+				.getTemplate().length;
+		final ArrayList<Fact[]> TR = new ArrayList<Fact[]>();
 
 		final Collection<StackElement> stack = inputToStack.values();
 		for (final FilterElement filterElement : filterSteps) {
@@ -161,11 +181,13 @@ public class MemoryHandlerTemp implements
 								.getNetworkFactAddress();
 						final StackElement se = inputToStack.get(fact
 								.getNodeInput());
-						params[i] = se.getValue(fact.getMemoryFactAddress(),
-								address.getSlotAddress());
+						params[i] = se.getValue(fact, address.getSlotAddress());
 					}
 					if ((boolean) function.evaluate(params)) {
+						// copy result to new TR
+						final Fact[] row = new Fact[columns];
 						// TODO Copy the result to the new temporary result
+						TR.add(row);
 					}
 
 					for (final Iterator<StackElement> iter = stack.iterator(); iter
@@ -189,16 +211,20 @@ public class MemoryHandlerTemp implements
 						break outerloop;
 					element.memIndex = 0;
 				}
-				// point all inputs that were joint during this turn to the TR StackElement
-				final StackElement originElement = inputToStack.get(originInput);
+				// point all inputs that were joint during this turn to the TR
+				// StackElement
+				final StackElement originElement = inputToStack
+						.get(originInput);
 				for (final NetworkAddress address : addresses) {
-					final NodeInput input = address.getNetworkFactAddress().getNodeInput();
-					if (inputToStack.get(input) == originElement) continue;
+					final NodeInput input = address.getNetworkFactAddress()
+							.getNodeInput();
+					if (inputToStack.get(input) == originElement)
+						continue;
 					inputToStack.put(input, originElement);
 				}
 				// TODO replace TR in originElement with new temporary result
 				// reset all indices in the StackElements
-				for (final /* geil */ StackElement elem : stack) {
+				for (final StackElement elem : stack) {
 					elem.rowIndex = 0;
 					elem.memIndex = 0;
 				}
@@ -246,6 +272,18 @@ public class MemoryHandlerTemp implements
 		return this.facts.get(row)[((org.jamocha.engine.memory.javaimpl.MemoryFactAddress) address)
 				.getIndex()]
 				.getValue((org.jamocha.engine.memory.javaimpl.SlotAddress) slot);
+	}
+
+	public static void main(String[] args) {
+		final LinkedHashMap<Integer, Integer> map = new LinkedHashMap<>();
+		map.put(Integer.valueOf(1), Integer.valueOf(10));
+		map.put(Integer.valueOf(2), Integer.valueOf(20));
+		map.put(Integer.valueOf(3), Integer.valueOf(30));
+		map.put(Integer.valueOf(4), Integer.valueOf(40));
+		map.put(Integer.valueOf(5), Integer.valueOf(50));
+		System.out.println(map.values());
+		map.put(Integer.valueOf(2), map.get(Integer.valueOf(1)));
+		System.out.println(new LinkedHashSet<Integer>(map.values()));
 	}
 
 }
