@@ -17,8 +17,7 @@
  */
 package org.jamocha.engine.memory.javaimpl;
 
-import org.jamocha.engine.memory.MemoryHandler;
-import org.jamocha.engine.memory.Template;
+import org.jamocha.engine.nodes.Node.NodeInput;
 
 /**
  * @author Fabian Ohler
@@ -27,14 +26,9 @@ import org.jamocha.engine.memory.Template;
 public class MemoryFactory implements org.jamocha.engine.memory.MemoryFactory {
 
 	@Override
-	public MemoryHandlerMain newMemoryHandlerMain(final Template template) {
-		return new MemoryHandlerMain(template);
-	}
-
-	@Override
 	public MemoryHandlerMain newMemoryHandlerMain(
-			final MemoryHandler... handlersToBeJoined) {
-		return new MemoryHandlerMain(handlersToBeJoined);
+			final NodeInput... inputsToBeJoined) {
+		return new MemoryHandlerMain(inputsToBeJoined);
 	}
 
 }

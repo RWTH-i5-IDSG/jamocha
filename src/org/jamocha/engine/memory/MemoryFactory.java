@@ -18,9 +18,9 @@
 
 package org.jamocha.engine.memory;
 
-public interface MemoryFactory {
-	public MemoryHandlerMain newMemoryHandlerMain(final Template template);
+import org.jamocha.engine.nodes.Node.NodeInput;
 
+public interface MemoryFactory {
 	public MemoryHandlerMain newMemoryHandlerMain(
-			final MemoryHandler... handlersToBeJoined);
+			final NodeInput... inputsToBeJoined);
 }

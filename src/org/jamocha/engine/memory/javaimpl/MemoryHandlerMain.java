@@ -18,14 +18,13 @@
 package org.jamocha.engine.memory.javaimpl;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.WeakHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.jamocha.engine.memory.MemoryFactAddress;
-import org.jamocha.engine.memory.MemoryHandler;
 import org.jamocha.engine.memory.SlotAddress;
 import org.jamocha.engine.memory.Template;
 import org.jamocha.engine.nodes.Node.NodeInput;
@@ -43,20 +42,20 @@ public class MemoryHandlerMain implements
 	final ArrayList<Fact[]> facts = new ArrayList<>();
 	final Template[] template;
 
-	final Map<NodeInput, org.jamocha.engine.memory.javaimpl.MemoryFactAddress> inputToStartingAddress = new HashMap<>();
+	final static Map<NodeInput, org.jamocha.engine.memory.javaimpl.MemoryFactAddress> inputToStartingAddress = new WeakHashMap<>();
 
-	public MemoryHandlerMain(final Template template) {
-		this.template = new Template[] { template };
+	public MemoryHandlerMain(final NodeInput... inputsToBeJoined) {
+		this.template = inputsToTemplate(inputsToBeJoined);
 	}
 
-	public MemoryHandlerMain(final MemoryHandler... handlersToBeJoined) {
-		this.template = handlersToTemplate(handlersToBeJoined);
-	}
-
-	private static Template[] handlersToTemplate(final MemoryHandler[] handlers) {
+	private static Template[] inputsToTemplate(final NodeInput[] inputs) {
 		final ArrayList<Template> templates = new ArrayList<>();
-		for (final MemoryHandler mh : handlers) {
-			for (final Template t : mh.getTemplate()) {
+		for (final NodeInput input : inputs) {
+			inputToStartingAddress.put(input,
+					new org.jamocha.engine.memory.javaimpl.MemoryFactAddress(
+							templates.size()));
+			for (final Template t : input.getSourceNode().getMemory()
+					.getTemplate()) {
 				templates.add(t);
 			}
 		}
@@ -108,8 +107,7 @@ public class MemoryHandlerMain implements
 
 	public org.jamocha.engine.memory.javaimpl.MemoryFactAddress startingAddressOfInput(
 			final NodeInput input) {
-		// FIXME ctor: get entries, add entries
-		return this.inputToStartingAddress.get(input);
+		return inputToStartingAddress.get(input);
 	}
 
 }

@@ -121,9 +121,8 @@ public abstract class Node {
 	public Node(final Template template, final MemoryFactory memoryFactory,
 			final NodeWithFilter[] parentsWithFilters) {
 		this.template = template;
-		this.memory = memoryFactory.newMemoryHandlerMain(template);
-
 		connectNewParents(parentsWithFilters);
+		this.memory = memoryFactory.newMemoryHandlerMain(inputs);
 		setFilters(parentsWithFilters);
 	}
 
