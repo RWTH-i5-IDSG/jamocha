@@ -18,6 +18,8 @@
 package org.jamocha.engine.memory.javaimpl;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -26,6 +28,7 @@ import org.jamocha.engine.memory.MemoryFactAddress;
 import org.jamocha.engine.memory.MemoryHandler;
 import org.jamocha.engine.memory.SlotAddress;
 import org.jamocha.engine.memory.Template;
+import org.jamocha.engine.nodes.Node.NodeInput;
 
 /**
  * @author Fabian Ohler
@@ -39,6 +42,8 @@ public class MemoryHandlerMain implements
 	final ReadWriteLock lock = new ReentrantReadWriteLock(true);
 	final ArrayList<Fact[]> facts = new ArrayList<>();
 	final Template[] template;
+
+	final Map<NodeInput, org.jamocha.engine.memory.javaimpl.MemoryFactAddress> inputToStartingAddress = new HashMap<>();
 
 	public MemoryHandlerMain(final Template template) {
 		this.template = new Template[] { template };
@@ -99,6 +104,12 @@ public class MemoryHandlerMain implements
 		return this.facts.get(row)[((org.jamocha.engine.memory.javaimpl.MemoryFactAddress) address)
 				.getIndex()]
 				.getValue((org.jamocha.engine.memory.javaimpl.SlotAddress) slot);
+	}
+
+	public org.jamocha.engine.memory.javaimpl.MemoryFactAddress startingAddressOfInput(
+			final NodeInput input) {
+		// FIXME ctor: get entries, add entries
+		return this.inputToStartingAddress.get(input);
 	}
 
 }
