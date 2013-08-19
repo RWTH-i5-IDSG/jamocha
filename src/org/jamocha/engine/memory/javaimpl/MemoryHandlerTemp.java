@@ -23,6 +23,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.Set;
 
 import org.jamocha.engine.memory.MemoryFactAddress;
@@ -157,6 +158,51 @@ public class MemoryHandlerTemp implements
 
 	}
 
+	static interface FunctionPointer {
+		public void apply(final ArrayList<Fact[]> TR,
+				final Collection<StackElement> stack,
+				final StackElement originElement);
+	}
+
+	private static void loop(final FunctionPointer functionPointer,
+			final Collection<StackElement> stack,
+			final StackElement originElement) {
+		final ArrayList<Fact[]> TR = new ArrayList<Fact[]>();
+		outerloop: while (true) {
+			innerloop: while (true) {
+				functionPointer.apply(TR, stack, originElement);
+				// increment row indices
+				for (final Iterator<StackElement> iter = stack.iterator(); iter
+						.hasNext();) {
+					final StackElement element = iter.next();
+					element.rowIndex++;
+					if (element.checkRowBounds())
+						break;
+					if (!iter.hasNext())
+						break innerloop;
+					element.rowIndex = 0;
+				}
+			}
+			// increment memory indices
+			for (final Iterator<StackElement> iter = stack.iterator(); iter
+					.hasNext();) {
+				final StackElement element = iter.next();
+				element.memIndex++;
+				if (element.checkMemBounds())
+					break;
+				if (!iter.hasNext())
+					break outerloop;
+				element.memIndex = 0;
+			}
+		}
+		// reset all indices in the StackElements
+		for (final StackElement elem : stack) {
+			elem.resetIndices();
+		}
+		// replace TR in originElement with new temporary result
+		originElement.memStack.set(0, TR);
+	}
+
 	private static ArrayList<Fact[]> performJoin(
 			final MemoryHandlerMain originatingMainHandler,
 			final Filter filter, final MemoryHandlerTemp token,
@@ -209,17 +255,17 @@ public class MemoryHandlerTemp implements
 				}
 			}
 
-			final int paramLength = addresses.length;
-			final Object params[] = new Object[paramLength];
-
-			final ArrayList<Fact[]> TR = new ArrayList<Fact[]>();
-			outerloop: while (true) {
-				innerloop: while (true) {
+			loop(new FunctionPointer() {
+				@Override
+				public void apply(final ArrayList<Fact[]> TR,
+						final Collection<StackElement> stack,
+						final StackElement originElement) {
+					final int paramLength = addresses.length;
+					final Object params[] = new Object[paramLength];
 					// determine parameters
 					for (int i = 0; i < paramLength; ++i) {
 						final NetworkAddress address = addresses[i];
-						final NetworkFactAddress fact = address
-								.getNetworkFactAddress();
+						final NetworkFactAddress fact = address.getNetworkFactAddress();
 						final StackElement se = inputToStack.get(fact
 								.getNodeInput());
 						params[i] = se.getValue(fact, address.getSlotAddress());
@@ -241,47 +287,43 @@ public class MemoryHandlerTemp implements
 						// copy the result to new TR
 						TR.add(row);
 					}
-					// increment indices
-					for (final Iterator<StackElement> iter = stack.iterator(); iter
-							.hasNext();) {
-						final StackElement element = iter.next();
-						element.rowIndex++;
-						if (element.checkRowBounds())
-							break;
-						if (!iter.hasNext())
-							break innerloop;
-						element.rowIndex = 0;
-					}
 				}
-				// increment indices
-				for (final Iterator<StackElement> iter = stack.iterator(); iter
-						.hasNext();) {
-					final StackElement element = iter.next();
-					element.memIndex++;
-					if (element.checkMemBounds())
-						break;
-					if (!iter.hasNext())
-						break outerloop;
-					element.memIndex = 0;
-				}
-			}
+			}, stack, originElement);
 			// point all inputs that were joint during this turn to the TR
 			// StackElement
 			for (final NodeInput input : newInputs) {
 				inputToStack.put(input, originElement);
 			}
-			// replace TR in originElement with new temporary result
-			originElement.memStack.set(0, TR);
-			// reset all indices in the StackElements
-			for (final StackElement elem : stack) {
-				elem.resetIndices();
-			}
 		}
+
 		// full join with all inputs not pointing to TR now
-		for (final StackElement element : inputToStack.values()) {
-			if (element == originElement)
+		for (final Map.Entry<NodeInput, StackElement> entry : inputToStack
+				.entrySet()) {
+			if (entry.getValue() == originElement)
 				continue;
-			// TODO perform full join
+			final NodeInput nodeInput = entry.getKey();
+			final StackElement se = entry.getValue();
+			loop(new FunctionPointer() {
+				@Override
+				public void apply(final ArrayList<Fact[]> TR,
+						final Collection<StackElement> stack,
+						final StackElement originElement) {
+					// copy result to new TR
+					// copy current row from old TR
+					final Fact[] row = originElement.getRow();
+					// insert information from new input
+					// source is some temp, destination new TR
+					final int offset = ((org.jamocha.engine.memory.javaimpl.MemoryFactAddress) nodeInput.getMemoryFactAddress()).getIndex();
+					final Fact[] newRowPart = se.getRow();
+					System.arraycopy(newRowPart, 0, row, offset,
+							newRowPart.length);
+					// copy the result to new TR
+					TR.add(row);
+				}
+			}, stack, originElement);
+			// point all inputs that were joint during this turn to the TR
+			// StackElement
+			inputToStack.put(nodeInput, originElement);
 		}
 		// release lock
 		for (final NodeInput input : nodeInputs) {
