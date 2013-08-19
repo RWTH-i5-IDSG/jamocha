@@ -192,7 +192,8 @@ public class MemoryHandlerTemp implements
 		final Collection<StackElement> stack = inputToStack.values();
 		for (final FilterElement filterElement : filterSteps) {
 			final FunctionWithArguments function = filterElement.getFunction();
-			final NetworkAddress addresses[] = filterElement.getAddresses();
+			final NetworkAddress addresses[] = filterElement
+					.getAddressesInTarget();
 
 			// determine new inputs
 			final Set<NodeInput> newInputs = new HashSet<>();

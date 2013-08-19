@@ -41,7 +41,7 @@ public class Filter {
 	@RequiredArgsConstructor
 	public static class FilterElement {
 		final FunctionWithArguments function;
-		final NetworkAddress addresses[];
+		final NetworkAddress addressesInTarget[];
 	}
 
 }
