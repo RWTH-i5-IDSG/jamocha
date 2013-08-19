@@ -180,9 +180,10 @@ public class MemoryHandlerTemp implements
 		}
 		final int columns = originInput.getTargetNode().getMemory()
 				.getTemplate().length;
-		inputToStack.put(originInput, StackElement.originInput(columns,
-				originatingMainHandler.startingAddressOfInput(originInput),
-				token));
+		inputToStack.put(
+				originInput,
+				StackElement.originInput(columns,
+						originInput.getMemoryFactAddress(), token));
 		final StackElement originElement = inputToStack.get(originInput);
 
 		// get filter steps
@@ -229,9 +230,8 @@ public class MemoryHandlerTemp implements
 						for (final NodeInput nodeInput : newInputs) {
 							// source is some temp, destination new TR
 							final StackElement se = inputToStack.get(nodeInput);
-							final int offset = originatingMainHandler
-									.startingAddressOfInput(nodeInput)
-									.getIndex();
+							final int offset = ((org.jamocha.engine.memory.javaimpl.MemoryFactAddress) nodeInput
+									.getMemoryFactAddress()).getIndex();
 							final Fact[] newRowPart = se.getRow();
 							System.arraycopy(newRowPart, 0, row, offset,
 									newRowPart.length);

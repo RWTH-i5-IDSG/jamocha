@@ -18,8 +18,6 @@
 package org.jamocha.engine.memory.javaimpl;
 
 import java.util.ArrayList;
-import java.util.Map;
-import java.util.WeakHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -42,8 +40,6 @@ public class MemoryHandlerMain implements
 	final ArrayList<Fact[]> facts = new ArrayList<>();
 	final Template[] template;
 
-	final static Map<NodeInput, org.jamocha.engine.memory.javaimpl.MemoryFactAddress> inputToStartingAddress = new WeakHashMap<>();
-
 	public MemoryHandlerMain(final NodeInput... inputsToBeJoined) {
 		this.template = inputsToTemplate(inputsToBeJoined);
 	}
@@ -51,11 +47,10 @@ public class MemoryHandlerMain implements
 	private static Template[] inputsToTemplate(final NodeInput[] inputs) {
 		final ArrayList<Template> templates = new ArrayList<>();
 		for (final NodeInput input : inputs) {
-			inputToStartingAddress.put(input,
-					new org.jamocha.engine.memory.javaimpl.MemoryFactAddress(
-							templates.size()));
 			for (final Template t : input.getSourceNode().getMemory()
 					.getTemplate()) {
+				input.setMemoryFactAddress(new org.jamocha.engine.memory.javaimpl.MemoryFactAddress(
+						templates.size()));
 				templates.add(t);
 			}
 		}
@@ -104,10 +99,4 @@ public class MemoryHandlerMain implements
 				.getIndex()]
 				.getValue((org.jamocha.engine.memory.javaimpl.SlotAddress) slot);
 	}
-
-	public org.jamocha.engine.memory.javaimpl.MemoryFactAddress startingAddressOfInput(
-			final NodeInput input) {
-		return inputToStartingAddress.get(input);
-	}
-
 }

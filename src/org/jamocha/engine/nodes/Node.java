@@ -25,6 +25,7 @@ import java.util.Set;
 
 import lombok.RequiredArgsConstructor;
 
+import org.jamocha.engine.memory.MemoryFactAddress;
 import org.jamocha.engine.memory.MemoryFactory;
 import org.jamocha.engine.memory.MemoryHandler;
 import org.jamocha.engine.memory.MemoryHandlerMain;
@@ -69,12 +70,18 @@ public abstract class Node {
 		public Filter getFilter();
 
 		public LinkedList<MemoryHandlerTemp> getTempMemories();
+
+		public MemoryFactAddress getMemoryFactAddress();
+
+		public void setMemoryFactAddress(
+				final MemoryFactAddress memoryFactAddress);
 	}
 
 	abstract protected class NodeInputImpl implements NodeInput {
 		protected final Node targetNode;
 		protected final Node sourceNode;
 		protected Filter filter;
+		protected MemoryFactAddress memoryFactAddress;
 
 		public NodeInputImpl(final Node sourceNode, final Node targetNode) {
 			this.targetNode = targetNode;
@@ -104,6 +111,17 @@ public abstract class Node {
 		@Override
 		public Filter getFilter() {
 			return this.filter;
+		}
+
+		@Override
+		public MemoryFactAddress getMemoryFactAddress() {
+			return this.memoryFactAddress;
+		}
+
+		@Override
+		public void setMemoryFactAddress(
+				final MemoryFactAddress memoryFactAddress) {
+			this.memoryFactAddress = memoryFactAddress;
 		}
 	}
 
@@ -237,6 +255,7 @@ public abstract class Node {
 	 *            an address valid in the current node
 	 * @return an address valid in the parent node
 	 */
+	// TODO add the map: address-here -> address in parent
 	public abstract NetworkFactAddress delocalizeAddress(
 			NetworkFactAddress localNetworkFactAddress);
 
