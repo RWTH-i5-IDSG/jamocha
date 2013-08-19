@@ -191,7 +191,6 @@ public class MemoryHandlerTemp implements
 
 		// get filter steps
 		final FilterElement filterSteps[] = filter.getFilterSteps();
-		final ArrayList<Fact[]> TR = new ArrayList<Fact[]>();
 
 		final Collection<StackElement> stack = inputToStack.values();
 		for (final FilterElement filterElement : filterSteps) {
@@ -213,6 +212,7 @@ public class MemoryHandlerTemp implements
 			final int paramLength = addresses.length;
 			final Object params[] = new Object[paramLength];
 
+			final ArrayList<Fact[]> TR = new ArrayList<Fact[]>();
 			outerloop: while (true) {
 				innerloop: while (true) {
 					// determine parameters
