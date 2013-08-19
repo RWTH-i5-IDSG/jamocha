@@ -57,41 +57,68 @@ public class MemoryHandlerMain implements
 		return templates.toArray(new Template[templates.size()]);
 	}
 
+	/**
+	 * @see org.jamocha.engine.memory.MemoryHandler#size()
+	 */
 	@Override
 	public int size() {
 		return this.facts.size();
 	}
 
+	/**
+	 * @see org.jamocha.engine.memory.MemoryHandler#getTemplate()
+	 */
 	@Override
 	public Template[] getTemplate() {
 		return template;
 	}
 
+	/**
+	 * @see org.jamocha.engine.memory.MemoryHandlerMain#tryReadLock()
+	 */
 	@Override
 	public boolean tryReadLock() throws InterruptedException {
 		return this.lock.readLock().tryLock(tryLockTimeout, tu);
 	}
 
+	/**
+	 * @see org.jamocha.engine.memory.MemoryHandlerMain#releaseReadLock()
+	 */
 	@Override
 	public void releaseReadLock() {
 		this.lock.readLock().unlock();
 	}
 
+	/**
+	 * @see org.jamocha.engine.memory.MemoryHandlerMain#acquireWriteLock()
+	 */
 	@Override
 	public void acquireWriteLock() {
 		this.lock.writeLock().lock();
 	}
 
+	/**
+	 * @see org.jamocha.engine.memory.MemoryHandlerMain#releaseWriteLock()
+	 */
 	@Override
 	public void releaseWriteLock() {
 		this.lock.writeLock().unlock();
 	}
 
+	/**
+	 * @see org.jamocha.engine.memory.MemoryHandlerMain#add(MemoryHandlerTemp)
+	 */
 	@Override
 	public void add(final MemoryHandlerTemp toAdd) {
-		// TODO
+		for (final Fact[] row : toAdd.facts) {
+			this.facts.add(row);
+		}
 	}
 
+	/**
+	 * @see org.jamocha.engine.memory.MemoryHandler#getValue(MemoryFactAddress,
+	 *      SlotAddress, int)
+	 */
 	@Override
 	public Object getValue(final MemoryFactAddress address,
 			final SlotAddress slot, final int row) {

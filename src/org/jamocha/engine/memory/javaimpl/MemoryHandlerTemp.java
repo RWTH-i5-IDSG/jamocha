@@ -332,15 +332,12 @@ public class MemoryHandlerTemp implements
 		return null;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
+	/**
 	 * @see org.jamocha.engine.memory.MemoryHandler#size()
 	 */
 	@Override
 	public int size() {
-		// TODO Auto-generated method stub
-		return 0;
+		return this.facts.size();
 	}
 
 	/**
@@ -353,14 +350,21 @@ public class MemoryHandlerTemp implements
 		// all children have processed the temp memory, now we have to write its
 		// content to main memory
 		originatingMainHandler.add(this);
-
+		// TODO invalidate and use the invalidation info at corresponding points
 	}
 
+	/**
+	 * @see org.jamocha.engine.memory.MemoryHandlerMain#getTemplate()
+	 */
 	@Override
 	public Template[] getTemplate() {
 		return this.originatingMainHandler.getTemplate();
 	}
 
+	/**
+	 * @see org.jamocha.engine.memory.MemoryHandler#getValue(MemoryFactAddress,
+	 *      SlotAddress, int)
+	 */
 	@Override
 	public Object getValue(final MemoryFactAddress address,
 			final SlotAddress slot, final int row) {
