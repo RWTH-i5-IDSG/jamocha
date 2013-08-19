@@ -24,6 +24,8 @@ import lombok.EqualsAndHashCode;
 import org.jamocha.engine.memory.SlotType;
 import org.jamocha.filter.impls.Predicates;
 
+import sun.security.pkcs11.wrapper.Functions;
+
 public class TODODatenkrakeFunktionen {
 
 	@EqualsAndHashCode
@@ -43,6 +45,7 @@ public class TODODatenkrakeFunktionen {
 
 	static {
 		addImpl(Predicates.class);
+		addImpl(Functions.class);
 		// hier weitere funktionspakete angeben
 	}
 
