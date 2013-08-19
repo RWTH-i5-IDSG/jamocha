@@ -59,7 +59,7 @@ public class MemoryHandlerTemp implements
 	final MemoryHandlerMain originatingMainHandler;
 	final ArrayList<Fact[]> facts;
 	final Semaphore lock;
-	boolean valid;
+	boolean valid = true;
 
 	public MemoryHandlerTemp(final MemoryHandlerMain originatingMainHandler,
 			final MemoryHandlerTemp token, final NodeInput originInput,
@@ -69,7 +69,6 @@ public class MemoryHandlerTemp implements
 		this.lock = new Semaphore(originInput.getTargetNode().numChildren());
 		this.facts = performJoin(originatingMainHandler, filter, token,
 				originInput);
-		this.valid = true;
 	}
 
 	static abstract class StackElement {
@@ -151,6 +150,11 @@ public class MemoryHandlerTemp implements
 			return getTable().size() > rowIndex && rowIndex >= 0;
 		}
 
+		void resetIndices() {
+			this.rowIndex = 0;
+			this.memIndex = 0;
+		}
+
 	}
 
 	private static ArrayList<Fact[]> performJoin(
@@ -165,7 +169,6 @@ public class MemoryHandlerTemp implements
 
 		// set locks and create stack
 		final NodeInput[] nodeInputs = originInput.getTargetNode().getInputs();
-		final Set<NodeInput> joinedInputs = new HashSet<>();
 		final LinkedHashMap<NodeInput, StackElement> inputToStack = new LinkedHashMap<>();
 		for (final NodeInput input : nodeInputs) {
 			if (input == originInput) {
@@ -224,8 +227,7 @@ public class MemoryHandlerTemp implements
 					// copy result to new TR if facts match predicate
 					if ((boolean) function.evaluate(params)) {
 						// copy current row from old TR
-						final Fact[] row = inputToStack.get(originInput)
-								.getRow();
+						final Fact[] row = originElement.getRow();
 						// insert information from new inputs
 						for (final NodeInput nodeInput : newInputs) {
 							// source is some temp, destination new TR
@@ -267,14 +269,12 @@ public class MemoryHandlerTemp implements
 			// StackElement
 			for (final NodeInput input : newInputs) {
 				inputToStack.put(input, originElement);
-				joinedInputs.add(input);
 			}
 			// replace TR in originElement with new temporary result
 			originElement.memStack.set(0, TR);
 			// reset all indices in the StackElements
 			for (final StackElement elem : stack) {
-				elem.rowIndex = 0;
-				elem.memIndex = 0;
+				elem.resetIndices();
 			}
 		}
 		// full join with all inputs not pointing to TR now
