@@ -106,7 +106,7 @@ public class PathLeaf implements FunctionWithArguments {
 	public ParameterLeaf translatePath(final PathTranslation translation,
 			final Node childNode) {
 		// TODO impl Christoph's algorithm
-		return null;
+		return new ParameterLeaf(returnType());
 	}
 
 }
