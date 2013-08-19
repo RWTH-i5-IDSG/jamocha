@@ -15,23 +15,29 @@
  * limitations under the License.
  * 
  */
-package org.jamocha.filter.impls;
+package org.jamocha.filter.impls.predicates;
 
+import org.jamocha.engine.memory.SlotType;
+import org.jamocha.filter.Predicate;
 import org.jamocha.filter.TODODatenkrakeFunktionen;
-import org.jamocha.filter.impls.predicates.And;
-import org.jamocha.filter.impls.predicates.Less;
-import org.jamocha.filter.impls.predicates.Equals;
 
-/**
- * @author Fabian Ohler
- * 
- */
-public class Predicates {
-
+public class And {
 	static {
-		TODODatenkrakeFunktionen.addImpl(Less.class);
-		TODODatenkrakeFunktionen.addImpl(Equals.class);
-		TODODatenkrakeFunktionen.addImpl(And.class);
-	}
+		TODODatenkrakeFunktionen.addImpl(new Predicate() {
+			@Override
+			public SlotType[] paramTypes() {
+				return new SlotType[] { SlotType.BOOLEAN, SlotType.BOOLEAN };
+			}
 
+			@Override
+			public String toString() {
+				return "AND";
+			}
+
+			@Override
+			public Boolean evaluate(final Object... params) {
+				return (Boolean) params[0] && (Boolean) params[1];
+			}
+		});
+	}
 }
