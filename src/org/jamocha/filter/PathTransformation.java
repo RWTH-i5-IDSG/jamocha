@@ -37,11 +37,31 @@ public class PathTransformation {
 	@Setter
 	@AllArgsConstructor
 	public static class PathInfo {
-		NetworkFactAddress[] addresses;
+		/**
+		 * node, the path is currently produced by
+		 */
 		Node currentlyLowestNode;
+		/**
+		 * set of other paths the path corresponding to this PathInfo has been
+		 * joined with
+		 */
 		Set<Path> joinedWith;
 	}
 
-	static Set<Set<Path>> joinedPaths;
-	static Map<Path, PathInfo> addressMapping;
+	/**
+	 * Set of paths that are currently joined. Initially this contains sets of
+	 * one-element-sets (the paths). These sets are then merged step by step.
+	 */
+	public static Set<Set<Path>> joinedPaths;
+	/**
+	 * Maps paths to their addresses, the corresponding node of the addresses,
+	 * and the set of other paths they have been joined with.
+	 */
+	public static Map<Path, PathInfo> addressMapping;
+
+	/*
+	 * The Node ctor gets a Filter with PathLeafs. It uses the information
+	 * stored here to transform the PathLeafs to ParameterLeafs. It will create
+	 * NodeInputs as needed.
+	 */
 }

@@ -17,6 +17,8 @@
  */
 package org.jamocha.filter;
 
+import java.util.Set;
+
 import org.jamocha.engine.memory.SlotAddress;
 import org.jamocha.engine.memory.SlotType;
 import org.jamocha.engine.nodes.Node;
@@ -90,7 +92,7 @@ public class PathLeaf implements FunctionWithArguments {
 		}
 
 		@Override
-		public Object evaluate(Object... params) {
+		public Object evaluate(final Object... params) {
 			return params[0];
 		}
 
@@ -100,6 +102,10 @@ public class PathLeaf implements FunctionWithArguments {
 			return this;
 		}
 
+		@Override
+		public void gatherPaths(final Set<Path> paths) {
+		}
+
 	}
 
 	@Override
@@ -107,6 +113,11 @@ public class PathLeaf implements FunctionWithArguments {
 			final Node childNode) {
 		// TODO impl Christoph's algorithm
 		return new ParameterLeaf(returnType());
+	}
+
+	@Override
+	public void gatherPaths(final Set<Path> paths) {
+		paths.add(this.path);
 	}
 
 }

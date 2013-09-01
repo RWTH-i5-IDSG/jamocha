@@ -17,9 +17,8 @@
  */
 package org.jamocha.filter;
 
-import lombok.RequiredArgsConstructor;
+import java.util.Set;
 
-import org.jamocha.engine.memory.SlotType;
 import org.jamocha.engine.nodes.Node;
 
 /**
@@ -27,6 +26,8 @@ import org.jamocha.engine.nodes.Node;
  * 
  */
 public interface FunctionWithArguments extends Function {
+
+	public void gatherPaths(final Set<Path> paths);
 
 	/**
 	 * 
@@ -36,34 +37,5 @@ public interface FunctionWithArguments extends Function {
 	 */
 	public FunctionWithArguments translatePath(
 			final PathTranslation translation, final Node childNode);
-	
-	@RequiredArgsConstructor
-	public class FunctionWithArgumentsFullJoinDummy implements FunctionWithArguments {
-		
-		SlotType [] paramTypes;
-		
-		@Override
-		public SlotType[] paramTypes() {
-			return paramTypes;
-		}
 
-		@Override
-		public SlotType returnType() {
-			return SlotType.BOOLEAN;
-		}
-
-		@Override
-		public Object evaluate(Object... params) {
-			return true;
-		}
-
-		@Override
-		public FunctionWithArguments translatePath(PathTranslation translation,
-				Node childNode) {
-			// TODO Auto-generated method stub
-			return this;
-		}
-		
-	}
 }
-

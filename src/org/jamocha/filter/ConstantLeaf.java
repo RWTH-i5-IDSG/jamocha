@@ -17,6 +17,8 @@
  */
 package org.jamocha.filter;
 
+import java.util.Set;
+
 import org.jamocha.engine.memory.SlotType;
 import org.jamocha.engine.nodes.Node;
 
@@ -54,6 +56,10 @@ public class ConstantLeaf implements FunctionWithArguments {
 	public FunctionWithArguments translatePath(
 			final PathTranslation translation, final Node childNode) {
 		return this;
+	}
+
+	@Override
+	public void gatherPaths(final Set<Path> paths) {
 	}
 
 }

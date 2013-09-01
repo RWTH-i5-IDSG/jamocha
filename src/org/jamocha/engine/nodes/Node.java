@@ -18,19 +18,23 @@
 
 package org.jamocha.engine.nodes;
 
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.Set;
-
-import lombok.RequiredArgsConstructor;
 
 import org.jamocha.engine.memory.MemoryFactAddress;
 import org.jamocha.engine.memory.MemoryFactory;
 import org.jamocha.engine.memory.MemoryHandler;
 import org.jamocha.engine.memory.MemoryHandlerMain;
 import org.jamocha.engine.memory.MemoryHandlerTemp;
-import org.jamocha.engine.memory.Template;
+import org.jamocha.filter.Filter;
+import org.jamocha.filter.Path;
+import org.jamocha.filter.PathTransformation;
+import org.jamocha.filter.PathTransformation.PathInfo;
 
 /**
  * Base class for all node types
@@ -127,37 +131,51 @@ public abstract class Node {
 
 	protected NodeInput[] inputs;
 	final protected Set<NodeInput> children = new HashSet<>();
-	final protected Template template;
 	final protected MemoryHandlerMain memory;
+	/**
+	 * there usually is only one output, but for self-joins there may be
+	 * alternative addresses
+	 */
+	NetworkFactAddress[] outputs;
 
-	@RequiredArgsConstructor
-	static class NodeWithFilter {
-		final Node node;
-		final Filter filter;
+	NetworkFactAddress getOutput(final int index) {
+		final int oldLength = this.outputs.length;
+		if (oldLength <= index) {
+			final int newLength = index + 1;
+			this.outputs = Arrays.copyOf(this.outputs, newLength);
+			final NetworkFactAddress first = this.outputs[0];
+			for (int i = oldLength; i < newLength; ++i) {
+				this.outputs[i] = new NetworkFactAddress(first.nodeInput,
+						first.memoryFactAddressInTarget);
+			}
+		}
+		return this.outputs[index];
 	}
 
-	public Node(final Template template, final MemoryFactory memoryFactory,
-			final NodeWithFilter[] parentsWithFilters) {
-		this.template = template;
-		connectNewParents(parentsWithFilters);
+	public Node(final MemoryFactory memoryFactory, final Filter filter) {
+		final Set<Path> paths = filter.gatherPaths();
+		final Map<Node, Integer> nodesUsed = new HashMap<>();
+		while (!paths.isEmpty()) {
+			// get next path
+			final Path path = paths.iterator().next();
+			final PathInfo pathInfo = PathTransformation.addressMapping
+					.get(path);
+			// mark all paths as done
+			final Set<Path> joinedWith = pathInfo.getJoinedWith();
+			paths.removeAll(joinedWith);
+			final Node clNode = pathInfo.getCurrentlyLowestNode();
+			// get corresponding output
+			final Integer stored = nodesUsed.get(clNode);
+			final Integer used = (stored == null ? 0 : stored);
+			final NetworkFactAddress output = clNode.getOutput(used);
+			nodesUsed.put(clNode, used + 1);
+			// create input
+			final NodeInput nodeInput = connectParent(clNode);
+			nodeInput.setMemoryFactAddress(output.memoryFactAddressInTarget);
+			
+			
+		}
 		this.memory = memoryFactory.newMemoryHandlerMain(inputs);
-		setFilters(parentsWithFilters);
-	}
-
-	private void connectNewParents(final NodeWithFilter[] parentsWithFilters) {
-		this.inputs = new NodeInput[parentsWithFilters.length];
-		for (int i = 0; i < parentsWithFilters.length; ++i) {
-			final NodeWithFilter nwf = parentsWithFilters[i];
-			final NodeInput input = connectParent(nwf.node);
-			inputs[i] = input;
-		}
-	}
-
-	private void setFilters(final NodeWithFilter[] parentsWithFilters) {
-		for (int i = 0; i < parentsWithFilters.length; ++i) {
-			final NodeWithFilter nwf = parentsWithFilters[i];
-			inputs[i].setFilter(nwf.filter);
-		}
 	}
 
 	private NodeInput connectParent(final Node parent) {
@@ -166,23 +184,17 @@ public abstract class Node {
 		return input;
 	}
 
-	/**
-	 * Connects the current node to the parents given. Nodes can occur multiple
-	 * times in <code>parents</code>.
-	 * 
-	 * @param parentsWithFilters
-	 *            parent nodes to connect and their filter templates
-	 */
-	public void rebuild(final NodeWithFilter[] parentsWithFilters) {
-		// FIXME acquire read lock on main memory of every old parent
-		for (final NodeInput input : this.inputs) {
-			input.disconnect();
-		}
-		// flush memory
-		connectNewParents(parentsWithFilters);
-		setFilters(parentsWithFilters);
-		// FIXME release read lock on main memory of every old parent
-	}
+	// FIXME re-think, rewrite
+	// public void rebuild(final Filter filter) {
+	// TODO acquire read lock on main memory of every old parent
+	// for (final NodeInput input : this.inputs) {
+	// input.disconnect();
+	// }
+	// flush memory
+	// connectNewParents(parentsWithFilters);
+	// setFilters(parentsWithFilters);
+	// TODO release read lock on main memory of every old parent
+	// }
 
 	/**
 	 * Called when a child is added. Defaults to adding the child to the

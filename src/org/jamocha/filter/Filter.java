@@ -17,12 +17,16 @@
  */
 package org.jamocha.filter;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
+import org.jamocha.engine.memory.SlotType;
 import org.jamocha.engine.nodes.NetworkAddress;
 
 @Getter
@@ -42,6 +46,27 @@ public class Filter {
 	public static class FilterElement {
 		final FunctionWithArguments function;
 		final NetworkAddress addressesInTarget[];
+	}
+
+	public Filter(final FunctionWithArguments[] predicates) {
+		final int length = predicates.length;
+		this.filterSteps = new FilterElement[length];
+		for (int i = 0; i < length; ++i) {
+			final FunctionWithArguments predicate = predicates[i];
+			if (predicate.returnType() != SlotType.BOOLEAN) {
+				throw new IllegalArgumentException(
+						"The top-level FunctionWithArguments of a Filter have to be predicates!");
+			}
+			this.filterSteps[i] = new FilterElement(predicate, null);
+		}
+	}
+
+	public Set<Path> gatherPaths() {
+		final Set<Path> paths = new HashSet<>();
+		for (final FilterElement step : filterSteps) {
+			step.function.gatherPaths(paths);
+		}
+		return paths;
 	}
 
 }
