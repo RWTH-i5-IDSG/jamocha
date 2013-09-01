@@ -18,6 +18,7 @@
 package org.jamocha.engine.memory.javaimpl;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -178,9 +179,9 @@ public class MemoryHandlerTemp implements
 					element.rowIndex++;
 					if (element.checkRowBounds())
 						break;
+					element.rowIndex = 0;
 					if (!iter.hasNext())
 						break innerloop;
-					element.rowIndex = 0;
 				}
 			}
 			// increment memory indices
@@ -190,9 +191,9 @@ public class MemoryHandlerTemp implements
 				element.memIndex++;
 				if (element.checkMemBounds())
 					break;
+				element.memIndex = 0;
 				if (!iter.hasNext())
 					break outerloop;
-				element.memIndex = 0;
 			}
 		}
 		// reset all indices in the StackElements
@@ -238,8 +239,9 @@ public class MemoryHandlerTemp implements
 		// get filter steps
 		final FilterElement filterSteps[] = filter.getFilterSteps();
 
-		final Collection<StackElement> stack = inputToStack.values();
 		for (final FilterElement filterElement : filterSteps) {
+			final Collection<StackElement> stack = new ArrayList<>(
+					filterSteps.length);
 			final FunctionWithArguments function = filterElement.getFunction();
 			final NetworkAddress addresses[] = filterElement
 					.getAddressesInTarget();
@@ -249,9 +251,11 @@ public class MemoryHandlerTemp implements
 			for (final NetworkAddress address : addresses) {
 				final NodeInput nodeInput = address.getNetworkFactAddress()
 						.getNodeInput();
-				if (inputToStack.get(nodeInput) != inputToStack
-						.get(originInput)) {
-					newInputs.add(nodeInput);
+				final StackElement element = inputToStack.get(nodeInput);
+				if (element != originElement) {
+					if (newInputs.add(nodeInput)) {
+						stack.add(element);
+					}
 				}
 			}
 
@@ -303,6 +307,8 @@ public class MemoryHandlerTemp implements
 				continue;
 			final NodeInput nodeInput = entry.getKey();
 			final StackElement se = entry.getValue();
+			final Collection<StackElement> stack = Arrays.asList(originElement,
+					se);
 			loop(new FunctionPointer() {
 				@Override
 				public void apply(final ArrayList<Fact[]> TR,
