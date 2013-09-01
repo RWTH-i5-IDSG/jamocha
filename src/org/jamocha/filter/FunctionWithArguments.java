@@ -36,6 +36,6 @@ public interface FunctionWithArguments extends Function {
 	 * @return
 	 */
 	public FunctionWithArguments translatePath(
-			final PathTranslation translation, final Node childNode);
+			final PathTransformation translation, final Node childNode);
 
 }

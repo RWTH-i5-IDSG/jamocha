@@ -98,7 +98,7 @@ public class PathLeaf implements FunctionWithArguments {
 
 		@Override
 		public FunctionWithArguments translatePath(
-				final PathTranslation translation, final Node childNode) {
+				final PathTransformation translation, final Node childNode) {
 			return this;
 		}
 
@@ -109,7 +109,7 @@ public class PathLeaf implements FunctionWithArguments {
 	}
 
 	@Override
-	public ParameterLeaf translatePath(final PathTranslation translation,
+	public ParameterLeaf translatePath(final PathTransformation translation,
 			final Node childNode) {
 		// TODO impl Christoph's algorithm
 		return new ParameterLeaf(returnType());
