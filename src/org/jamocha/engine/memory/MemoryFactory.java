@@ -18,9 +18,9 @@
 
 package org.jamocha.engine.memory;
 
-import org.jamocha.engine.nodes.Node.NodeInput;
+import org.jamocha.engine.nodes.Node.Edge;
 
 public interface MemoryFactory {
 	public MemoryHandlerMain newMemoryHandlerMain(
-			final NodeInput... inputsToBeJoined);
+			final Edge... inputsToBeJoined);
 }

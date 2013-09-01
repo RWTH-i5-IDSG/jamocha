@@ -33,7 +33,7 @@ import org.jamocha.engine.memory.SlotAddress;
 import org.jamocha.engine.memory.Template;
 import org.jamocha.engine.nodes.NetworkAddress;
 import org.jamocha.engine.nodes.NetworkFactAddress;
-import org.jamocha.engine.nodes.Node.NodeInput;
+import org.jamocha.engine.nodes.Node.Edge;
 import org.jamocha.filter.Filter;
 import org.jamocha.filter.Filter.FilterElement;
 import org.jamocha.filter.FunctionWithArguments;
@@ -64,7 +64,7 @@ public class MemoryHandlerTemp implements
 	boolean valid = true;
 
 	public MemoryHandlerTemp(final MemoryHandlerMain originatingMainHandler,
-			final MemoryHandlerTemp token, final NodeInput originInput,
+			final MemoryHandlerTemp token, final Edge originInput,
 			final Filter filter) throws InterruptedException {
 		super();
 		this.originatingMainHandler = originatingMainHandler;
@@ -82,7 +82,7 @@ public class MemoryHandlerTemp implements
 			this.memStack = memStack;
 		}
 
-		public static StackElement ordinaryInput(final NodeInput input) {
+		public static StackElement ordinaryInput(final Edge input) {
 			final LinkedList<? extends MemoryHandler> temps = input
 					.getTempMemories();
 
@@ -207,7 +207,7 @@ public class MemoryHandlerTemp implements
 	private static ArrayList<Fact[]> performJoin(
 			final MemoryHandlerMain originatingMainHandler,
 			final Filter filter, final MemoryHandlerTemp token,
-			final NodeInput originInput) throws InterruptedException {
+			final Edge originInput) throws InterruptedException {
 		// get a fixed-size array of indices (size: #inputs of the node),
 		// determine number of inputs for the current join as maxIndex
 		// loop through the inputs line-wise using array[0] .. array[maxIndex]
@@ -215,9 +215,9 @@ public class MemoryHandlerTemp implements
 		// increment to lower indices when input-size is reached
 
 		// set locks and create stack
-		final NodeInput[] nodeInputs = originInput.getTargetNode().getInputs();
-		final LinkedHashMap<NodeInput, StackElement> inputToStack = new LinkedHashMap<>();
-		for (final NodeInput input : nodeInputs) {
+		final Edge[] nodeInputs = originInput.getTargetNode().getInputs();
+		final LinkedHashMap<Edge, StackElement> inputToStack = new LinkedHashMap<>();
+		for (final Edge input : nodeInputs) {
 			if (input == originInput) {
 				// don't lock the originInput
 				continue;
@@ -247,9 +247,9 @@ public class MemoryHandlerTemp implements
 					.getAddressesInTarget();
 
 			// determine new inputs
-			final Set<NodeInput> newInputs = new HashSet<>();
+			final Set<Edge> newInputs = new HashSet<>();
 			for (final NetworkAddress address : addresses) {
-				final NodeInput nodeInput = address.getNetworkFactAddress()
+				final Edge nodeInput = address.getNetworkFactAddress()
 						.getNodeInput();
 				final StackElement element = inputToStack.get(nodeInput);
 				if (element != originElement) {
@@ -279,7 +279,7 @@ public class MemoryHandlerTemp implements
 						// copy current row from old TR
 						final Fact[] row = originElement.getRow();
 						// insert information from new inputs
-						for (final NodeInput nodeInput : newInputs) {
+						for (final Edge nodeInput : newInputs) {
 							// source is some temp, destination new TR
 							final StackElement se = inputToStack.get(nodeInput);
 							final int offset = ((org.jamocha.engine.memory.javaimpl.MemoryFactAddress) nodeInput
@@ -295,17 +295,17 @@ public class MemoryHandlerTemp implements
 			}, stack, originElement);
 			// point all inputs that were joint during this turn to the TR
 			// StackElement
-			for (final NodeInput input : newInputs) {
+			for (final Edge input : newInputs) {
 				inputToStack.put(input, originElement);
 			}
 		}
 
 		// full join with all inputs not pointing to TR now
-		for (final Map.Entry<NodeInput, StackElement> entry : inputToStack
+		for (final Map.Entry<Edge, StackElement> entry : inputToStack
 				.entrySet()) {
 			if (entry.getValue() == originElement)
 				continue;
-			final NodeInput nodeInput = entry.getKey();
+			final Edge nodeInput = entry.getKey();
 			final StackElement se = entry.getValue();
 			final Collection<StackElement> stack = Arrays.asList(originElement,
 					se);
@@ -332,7 +332,7 @@ public class MemoryHandlerTemp implements
 			inputToStack.put(nodeInput, originElement);
 		}
 		// release lock
-		for (final NodeInput input : nodeInputs) {
+		for (final Edge input : nodeInputs) {
 			input.getSourceNode().getMemory().releaseReadLock();
 		}
 		return null;

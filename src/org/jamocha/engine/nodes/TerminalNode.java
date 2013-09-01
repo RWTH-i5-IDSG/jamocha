@@ -28,7 +28,7 @@ public class TerminalNode extends BetaNode {
 	}
 
 	@Override
-	protected NodeInputImpl newNodeInput(Node source) {
+	protected EdgeImpl newEdge(Node source) {
 		// TODO Auto-generated method stub
 		return null;
 	}

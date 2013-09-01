@@ -25,7 +25,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.jamocha.engine.memory.MemoryFactAddress;
 import org.jamocha.engine.memory.SlotAddress;
 import org.jamocha.engine.memory.Template;
-import org.jamocha.engine.nodes.Node.NodeInput;
+import org.jamocha.engine.nodes.Node.Edge;
 
 /**
  * @author Fabian Ohler
@@ -40,13 +40,13 @@ public class MemoryHandlerMain implements
 	final ArrayList<Fact[]> facts = new ArrayList<>();
 	final Template[] template;
 
-	public MemoryHandlerMain(final NodeInput... inputsToBeJoined) {
+	public MemoryHandlerMain(final Edge... inputsToBeJoined) {
 		this.template = inputsToTemplate(inputsToBeJoined);
 	}
 
-	private static Template[] inputsToTemplate(final NodeInput[] inputs) {
+	private static Template[] inputsToTemplate(final Edge[] inputs) {
 		final ArrayList<Template> templates = new ArrayList<>();
-		for (final NodeInput input : inputs) {
+		for (final Edge input : inputs) {
 			for (final Template t : input.getSourceNode().getMemory()
 					.getTemplate()) {
 				input.setMemoryFactAddress(new org.jamocha.engine.memory.javaimpl.MemoryFactAddress(

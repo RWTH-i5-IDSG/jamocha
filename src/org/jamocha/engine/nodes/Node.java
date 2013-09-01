@@ -40,7 +40,7 @@ import org.jamocha.filter.PathTransformation.PathInfo;
  */
 public abstract class Node {
 
-	public static interface NodeInput {
+	public static interface Edge {
 		public void processPlusToken(final MemoryHandler memory);
 
 		public void processMinusToken(final MemoryHandler memory);
@@ -80,13 +80,13 @@ public abstract class Node {
 				final MemoryFactAddress memoryFactAddress);
 	}
 
-	abstract protected class NodeInputImpl implements NodeInput {
+	abstract protected class EdgeImpl implements Edge {
 		protected final Node targetNode;
 		protected final Node sourceNode;
 		protected Filter filter;
 		protected MemoryFactAddress memoryFactAddress;
 
-		public NodeInputImpl(final Node sourceNode, final Node targetNode) {
+		public EdgeImpl(final Node sourceNode, final Node targetNode) {
 			this.targetNode = targetNode;
 			this.sourceNode = sourceNode;
 		}
@@ -128,8 +128,8 @@ public abstract class Node {
 		}
 	}
 
-	protected NodeInput[] inputs;
-	final protected Set<NodeInput> children = new HashSet<>();
+	protected Edge[] inputs;
+	final protected Set<Edge> children = new HashSet<>();
 	final protected MemoryHandlerMain memory;
 
 	public Node(final MemoryFactory memoryFactory, final Filter filter) {
@@ -150,15 +150,15 @@ public abstract class Node {
 			//final NetworkFactAddress output = clNode.getOutput(used);
 			nodesUsed.put(clNode, used + 1);
 			// create input
-			final NodeInput nodeInput = connectParent(clNode);
+			final Edge nodeInput = connectParent(clNode);
 			//nodeInput.setMemoryFactAddress(output.memoryFactAddressInTarget);
 
 		}
 		this.memory = memoryFactory.newMemoryHandlerMain(inputs);
 	}
 
-	private NodeInput connectParent(final Node parent) {
-		final NodeInput input = newNodeInput(parent);
+	private Edge connectParent(final Node parent) {
+		final Edge input = newEdge(parent);
 		parent.acceptChild(input);
 		return input;
 	}
@@ -182,7 +182,7 @@ public abstract class Node {
 	 * @param child
 	 *            the child to be added
 	 */
-	protected void acceptChild(final NodeInput child) {
+	protected void acceptChild(final Edge child) {
 		this.children.add(child);
 	}
 
@@ -193,7 +193,7 @@ public abstract class Node {
 	 * @param child
 	 *            child to be removed
 	 */
-	protected void removeChild(final NodeInput child) {
+	protected void removeChild(final Edge child) {
 		this.children.remove(child);
 	}
 
@@ -206,14 +206,14 @@ public abstract class Node {
 	 *            constructed
 	 * @return NodeInput connecting the given source node with this node
 	 */
-	abstract protected NodeInputImpl newNodeInput(final Node source);
+	abstract protected EdgeImpl newEdge(final Node source);
 
 	/**
 	 * Returns an unmodifiable set of the children.
 	 * 
 	 * @return an unmodifiable set of the children
 	 */
-	public Set<NodeInput> getChildren() {
+	public Set<Edge> getChildren() {
 		return Collections.unmodifiableSet(this.children);
 	}
 
@@ -222,7 +222,7 @@ public abstract class Node {
 	 * 
 	 * @return the list of the children
 	 */
-	public NodeInput[] getInputs() {
+	public Edge[] getInputs() {
 		return this.inputs;
 	}
 

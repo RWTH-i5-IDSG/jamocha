@@ -23,9 +23,9 @@ import org.jamocha.engine.memory.Template;
 
 public abstract class AlphaNode extends Node {
 
-	protected abstract class AlphaNodeInputImpl extends NodeInputImpl {
+	protected abstract class AlphaEdgeImpl extends EdgeImpl {
 
-		public AlphaNodeInputImpl(final Node sourceNode, final Node targetNode) {
+		public AlphaEdgeImpl(final Node sourceNode, final Node targetNode) {
 			super(sourceNode, targetNode);
 			// TODO Auto-generated constructor stub
 		}

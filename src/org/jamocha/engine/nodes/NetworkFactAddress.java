@@ -22,11 +22,11 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import org.jamocha.engine.memory.MemoryFactAddress;
-import org.jamocha.engine.nodes.Node.NodeInput;
+import org.jamocha.engine.nodes.Node.Edge;
 
 @Getter
 @RequiredArgsConstructor
 public class NetworkFactAddress {
-	final NodeInput nodeInput;
+	final Edge nodeInput;
 	final MemoryFactAddress memoryFactAddressInTarget;
 }

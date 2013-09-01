@@ -17,7 +17,7 @@
  */
 package org.jamocha.engine.memory.javaimpl;
 
-import org.jamocha.engine.nodes.Node.NodeInput;
+import org.jamocha.engine.nodes.Node.Edge;
 
 /**
  * @author Fabian Ohler
@@ -27,7 +27,7 @@ public class MemoryFactory implements org.jamocha.engine.memory.MemoryFactory {
 
 	@Override
 	public MemoryHandlerMain newMemoryHandlerMain(
-			final NodeInput... inputsToBeJoined) {
+			final Edge... inputsToBeJoined) {
 		return new MemoryHandlerMain(inputsToBeJoined);
 	}
 

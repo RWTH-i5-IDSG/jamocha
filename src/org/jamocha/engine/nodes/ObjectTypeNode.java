@@ -39,7 +39,7 @@ public class ObjectTypeNode extends AlphaNode {
 	}
 
 	@Override
-	protected NodeInputImpl newNodeInput(final Node source) {
+	protected EdgeImpl newEdge(final Node source) {
 		throw new UnsupportedOperationException(
 				"ObjectTypeNodes can not have inputs!");
 	}
