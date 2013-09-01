@@ -49,6 +49,14 @@ public class TODODatenkrakeFunktionen {
 		// hier weitere funktionspakete angeben
 	}
 
+	public static void load() {
+		try {
+			Class.forName(TODODatenkrakeFunktionen.class.getName());
+		} catch (ClassNotFoundException e) {
+			// will never ever happen!
+		}
+	}
+
 	public static void addImpl(Class<?> clazz) {
 		try {
 			Class.forName(clazz.getName());
