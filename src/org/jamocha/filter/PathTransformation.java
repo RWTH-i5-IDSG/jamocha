@@ -24,6 +24,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
+import org.jamocha.engine.nodes.NetworkFactAddress;
 import org.jamocha.engine.nodes.Node;
 
 /**
@@ -40,6 +41,10 @@ public class PathTransformation {
 		 * node, the path is currently produced by
 		 */
 		Node currentlyLowestNode;
+		/**
+		 * identifies fact in current node
+		 */
+		NetworkFactAddress networkFactAddressInCurrentlyLowestNode;
 		/**
 		 * set of other paths the path corresponding to this PathInfo has been
 		 * joined with

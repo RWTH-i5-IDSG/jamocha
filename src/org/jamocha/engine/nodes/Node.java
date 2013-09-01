@@ -18,7 +18,6 @@
 
 package org.jamocha.engine.nodes;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -132,25 +131,6 @@ public abstract class Node {
 	protected NodeInput[] inputs;
 	final protected Set<NodeInput> children = new HashSet<>();
 	final protected MemoryHandlerMain memory;
-	/**
-	 * there usually is only one output, but for self-joins there may be
-	 * alternative addresses
-	 */
-	NetworkFactAddress[] outputs;
-
-	NetworkFactAddress getOutput(final int index) {
-		final int oldLength = this.outputs.length;
-		if (oldLength <= index) {
-			final int newLength = index + 1;
-			this.outputs = Arrays.copyOf(this.outputs, newLength);
-			final NetworkFactAddress first = this.outputs[0];
-			for (int i = oldLength; i < newLength; ++i) {
-				this.outputs[i] = new NetworkFactAddress(first.nodeInput,
-						first.memoryFactAddressInTarget);
-			}
-		}
-		return this.outputs[index];
-	}
 
 	public Node(final MemoryFactory memoryFactory, final Filter filter) {
 		final Set<Path> paths = filter.gatherPaths();
@@ -164,16 +144,15 @@ public abstract class Node {
 			final Set<Path> joinedWith = pathInfo.getJoinedWith();
 			paths.removeAll(joinedWith);
 			final Node clNode = pathInfo.getCurrentlyLowestNode();
-			// get corresponding output
+			// FIXME
 			final Integer stored = nodesUsed.get(clNode);
 			final Integer used = (stored == null ? 0 : stored);
-			final NetworkFactAddress output = clNode.getOutput(used);
+			//final NetworkFactAddress output = clNode.getOutput(used);
 			nodesUsed.put(clNode, used + 1);
 			// create input
 			final NodeInput nodeInput = connectParent(clNode);
-			nodeInput.setMemoryFactAddress(output.memoryFactAddressInTarget);
-			
-			
+			//nodeInput.setMemoryFactAddress(output.memoryFactAddressInTarget);
+
 		}
 		this.memory = memoryFactory.newMemoryHandlerMain(inputs);
 	}
