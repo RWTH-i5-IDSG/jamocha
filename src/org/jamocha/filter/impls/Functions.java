@@ -23,7 +23,7 @@ import org.jamocha.filter.impls.functions.Plus;
 
 /**
  * @author Kai Schwarz
- *
+ * 
  */
 public class Functions {
 

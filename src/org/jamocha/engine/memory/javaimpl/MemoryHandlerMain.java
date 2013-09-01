@@ -33,8 +33,8 @@ import org.jamocha.engine.nodes.Node.Edge;
  */
 public class MemoryHandlerMain implements
 		org.jamocha.engine.memory.MemoryHandlerMain {
-	static long tryLockTimeout = 1L;
-	static TimeUnit tu = TimeUnit.SECONDS;
+	static final long tryLockTimeout = 1L;
+	static final TimeUnit tu = TimeUnit.SECONDS;
 
 	final ReadWriteLock lock = new ReentrantReadWriteLock(true);
 	final ArrayList<Fact[]> facts = new ArrayList<>();

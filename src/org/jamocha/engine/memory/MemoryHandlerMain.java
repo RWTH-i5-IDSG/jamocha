@@ -31,6 +31,6 @@ public interface MemoryHandlerMain extends MemoryHandler {
 	public void acquireWriteLock();
 
 	public void releaseWriteLock();
-	
+
 	public void add(final MemoryHandlerTemp toAdd);
 }

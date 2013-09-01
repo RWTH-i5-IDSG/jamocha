@@ -29,7 +29,7 @@ public abstract class Predicate implements Function {
 	 * @see org.jamocha.filter.Function#returnType()
 	 */
 	@Override
-	public SlotType returnType() {
+	public final SlotType returnType() {
 		return SlotType.BOOLEAN;
 	}
 

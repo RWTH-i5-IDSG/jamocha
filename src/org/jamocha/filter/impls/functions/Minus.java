@@ -21,26 +21,25 @@ import org.jamocha.engine.memory.SlotType;
 import org.jamocha.filter.Function;
 import org.jamocha.filter.TODODatenkrakeFunktionen;
 
-
 /**
  * @author Kai Schwarz
- *
+ * 
  */
 public class Minus {
 	static {
-		TODODatenkrakeFunktionen.addImpl(new Function() {		
+		TODODatenkrakeFunktionen.addImpl(new Function() {
 			public SlotType[] paramTypes() {
 				return new SlotType[] { SlotType.LONG, SlotType.LONG };
 			}
-			
+
 			public String toString() {
 				return "-";
 			}
-			
+
 			public SlotType returnType() {
 				return SlotType.LONG;
 			}
-			
+
 			public Long evaluate(final Object... params) {
 				return (Long) params[0] - (Long) params[1];
 			}
@@ -49,18 +48,15 @@ public class Minus {
 			public SlotType[] paramTypes() {
 				return new SlotType[] { SlotType.DOUBLE, SlotType.DOUBLE };
 			}
-		
-			
+
 			public String toString() {
 				return "-";
 			}
-			
-			
+
 			public SlotType returnType() {
 				return SlotType.DOUBLE;
 			}
-		
-			
+
 			public Double evaluate(final Object... params) {
 				return (Double) params[0] - (Double) params[1];
 			}

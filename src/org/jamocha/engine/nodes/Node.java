@@ -147,11 +147,11 @@ public abstract class Node {
 			// FIXME
 			final Integer stored = nodesUsed.get(clNode);
 			final Integer used = (stored == null ? 0 : stored);
-			//final NetworkFactAddress output = clNode.getOutput(used);
+			// final NetworkFactAddress output = clNode.getOutput(used);
 			nodesUsed.put(clNode, used + 1);
 			// create input
 			final Edge nodeInput = connectParent(clNode);
-			//nodeInput.setMemoryFactAddress(output.memoryFactAddressInTarget);
+			// nodeInput.setMemoryFactAddress(output.memoryFactAddressInTarget);
 
 		}
 		this.memory = memoryFactory.newMemoryHandlerMain(inputs);
