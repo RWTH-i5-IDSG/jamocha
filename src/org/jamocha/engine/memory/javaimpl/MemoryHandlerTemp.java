@@ -72,6 +72,14 @@ public class MemoryHandlerTemp implements
 		this.facts = performJoin(originatingMainHandler, filter, token,
 				originInput);
 	}
+	
+	public MemoryHandlerTemp(final MemoryHandlerMain originatingMainHandler, final int numChildren, Object... values) {
+		super();
+		this.originatingMainHandler = originatingMainHandler;
+		this.lock = new Semaphore(numChildren);
+		this.facts = new ArrayList<Fact[]>(1);
+		this.facts.add(new Fact[]{new Fact(values)});
+	}
 
 	static abstract class StackElement {
 		int rowIndex;
@@ -335,7 +343,7 @@ public class MemoryHandlerTemp implements
 		for (final Edge input : nodeInputs) {
 			input.getSourceNode().getMemory().releaseReadLock();
 		}
-		return null;
+		return originElement.getTable();
 	}
 
 	/**
