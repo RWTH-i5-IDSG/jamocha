@@ -19,8 +19,8 @@
 package org.jamocha.engine.nodes;
 
 import org.jamocha.engine.memory.MemoryFactory;
-import org.jamocha.engine.workingmemory.elements.Fact;
-import org.jamocha.engine.workingmemory.elements.Template;
+import org.jamocha.engine.memory.Template;
+import org.jamocha.engine.memory.javaimpl.Fact;
 
 public class ObjectTypeNode extends AlphaNode {
 

@@ -20,6 +20,8 @@ package org.jamocha.engine.nodes;
 
 public class NodeException extends Exception {
 
+	private static final long serialVersionUID = -4977631238178038291L;
+	
 	private Node node;
 
 	public NodeException() {

@@ -24,7 +24,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
-import org.jamocha.engine.nodes.NetworkFactAddress;
 import org.jamocha.engine.nodes.Node;
 
 /**

@@ -19,20 +19,12 @@
 package org.jamocha.engine.nodes;
 
 import org.jamocha.engine.memory.MemoryFactory;
-import org.jamocha.rules.Rule;
 
 public class TerminalNode extends BetaNode {
 
-	private final Rule rule;
-
-	public TerminalNode(final MemoryFactory memory, final Rule rule) {
+	public TerminalNode(final MemoryFactory memory) {
 		super(memory);
-		this.rule = rule;
 		// TODO Auto-generated constructor stub
-	}
-
-	public Rule getRule() {
-		return rule;
 	}
 
 	@Override
