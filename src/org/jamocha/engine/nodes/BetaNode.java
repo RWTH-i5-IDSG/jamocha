@@ -18,8 +18,6 @@
 
 package org.jamocha.engine.nodes;
 
-import lombok.NoArgsConstructor;
-
 import org.jamocha.engine.memory.MemoryFactory;
 import org.jamocha.filter.Filter;
 

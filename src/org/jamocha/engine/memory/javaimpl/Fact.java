@@ -18,7 +18,6 @@
 package org.jamocha.engine.memory.javaimpl;
 
 import lombok.RequiredArgsConstructor;
-import lombok.ToString;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
