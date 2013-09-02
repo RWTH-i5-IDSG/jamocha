@@ -73,6 +73,8 @@ public class TODODatenkrakeFunktionen {
 
 	public static Function lookup(final String inClips,
 			final SlotType... params) {
-		return clipsFunctions.get(new CombinedClipsAndParams(inClips, params));
+		final Function function = clipsFunctions.get(new CombinedClipsAndParams(inClips, params));
+		if (function == null) throw new UnsupportedOperationException("Function \"" + inClips + "\" not loaded or implemented.");
+		return function;
 	}
 }

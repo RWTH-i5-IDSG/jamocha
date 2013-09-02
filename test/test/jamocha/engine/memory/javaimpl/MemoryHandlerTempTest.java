@@ -278,6 +278,8 @@ public class MemoryHandlerTempTest {
 				filter);
 		assertEquals(1, token1.size());
 		assertEquals(2, token1.getTemplate().length);
+		assertEquals("Fakt1", (String)token1.getValue(fa[0], slotAddress, 0));
+		assertEquals("Fakt1", (String)token1.getValue(fa[1], slotAddress, 0));
 	}
 
 	/**
