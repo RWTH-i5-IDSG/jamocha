@@ -50,7 +50,6 @@ public class MemoryHandlerTempTest {
 	private static Node node;
 	private static org.jamocha.engine.memory.javaimpl.FactAddress factAddress;
 	private static SlotAddress slotAddress;
-	private static FilterMockup filter;
 
 	private class NodeMockup extends Node {
 
@@ -90,7 +89,6 @@ public class MemoryHandlerTempTest {
 				.getMemoryFactory();
 		factAddress = new org.jamocha.engine.memory.javaimpl.FactAddress(0);
 		slotAddress = new SlotAddress(0);
-		filter = new FilterMockup();
 	}
 
 	/**
@@ -139,8 +137,11 @@ public class MemoryHandlerTempTest {
 		MemoryHandlerTemp token = factory.newToken(memoryHandlerMain, node,
 				new Fact(new Template(SlotType.STRING), "Test"));
 		MemoryHandlerTemp memoryTempHandler = factory.processTokenInAlpha(
-				memoryHandlerMain, token, node, filter);
+				memoryHandlerMain, token, node, FilterMockup.alwaysTrue());
 		assertEquals(1, memoryTempHandler.size());
+		memoryTempHandler = factory.processTokenInAlpha(
+				memoryHandlerMain, token, node, FilterMockup.alwaysFalse());
+		assertEquals(0, memoryTempHandler.size());
 	}
 
 	/**
