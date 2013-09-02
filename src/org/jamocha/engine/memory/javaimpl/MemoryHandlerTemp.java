@@ -106,7 +106,7 @@ public class MemoryHandlerTemp implements
 		return new MemoryHandlerTemp(originatingMainHandler, factList,
 				new Semaphore(alphaNode.numChildren()));
 	}
-	
+
 	static MemoryHandlerTemp newRootTemp(
 			final MemoryHandlerMain originatingMainHandler, final Node otn,
 			final org.jamocha.engine.memory.Fact... facts)
@@ -123,23 +123,26 @@ public class MemoryHandlerTemp implements
 		int rowIndex;
 		int memIndex;
 		final ArrayList<ArrayList<Fact[]>> memStack;
+		final int offset;
 
-		private StackElement(final ArrayList<ArrayList<Fact[]>> memStack) {
+		private StackElement(final ArrayList<ArrayList<Fact[]>> memStack,
+				final int offset) {
 			this.memStack = memStack;
+			this.offset = offset;
 		}
 
-		public static StackElement ordinaryInput(final Edge input) {
-			final LinkedList<? extends MemoryHandler> temps = input
+		public static StackElement ordinaryInput(final Edge edge,
+				final int offset) {
+			final LinkedList<? extends MemoryHandler> temps = edge
 					.getTempMemories();
-
 			final ArrayList<ArrayList<Fact[]>> memStack = new ArrayList<ArrayList<Fact[]>>(
 					temps.size() + 1);
-			memStack.add(((org.jamocha.engine.memory.javaimpl.MemoryHandlerMain) input
+			memStack.add(((org.jamocha.engine.memory.javaimpl.MemoryHandlerMain) edge
 					.getSourceNode().getMemory()).facts);
 			for (final MemoryHandler temp : temps) {
 				memStack.add(((org.jamocha.engine.memory.javaimpl.MemoryHandlerTemp) temp).facts);
 			}
-			return new StackElement(memStack) {
+			return new StackElement(memStack, offset) {
 				@Override
 				Object getValue(final AddressPredecessor addr,
 						final SlotAddress slot) {
@@ -151,12 +154,11 @@ public class MemoryHandlerTemp implements
 		}
 
 		public static StackElement originInput(int columns,
-				final FactAddress offsetAddress, final MemoryHandlerTemp token) {
+				final Edge originEdge, final MemoryHandlerTemp token,
+				final int offset) {
 			final org.jamocha.engine.memory.javaimpl.MemoryHandlerTemp temp = (org.jamocha.engine.memory.javaimpl.MemoryHandlerTemp) token;
 			final ArrayList<Fact[]> listWithHoles = new ArrayList<>(
 					temp.facts.size());
-			final int offset = ((org.jamocha.engine.memory.javaimpl.FactAddress) offsetAddress)
-					.getIndex();
 			for (final Fact[] facts : temp.facts) {
 				final Fact[] row = new Fact[columns];
 				System.arraycopy(facts, 0, row, offset, facts.length);
@@ -165,7 +167,7 @@ public class MemoryHandlerTemp implements
 			final ArrayList<ArrayList<Fact[]>> memStack = new ArrayList<ArrayList<Fact[]>>(
 					1);
 			memStack.add(listWithHoles);
-			return new StackElement(memStack) {
+			return new StackElement(memStack, offset) {
 				@Override
 				Object getValue(final AddressPredecessor addr,
 						final SlotAddress slot) {
@@ -198,6 +200,10 @@ public class MemoryHandlerTemp implements
 		void resetIndices() {
 			this.rowIndex = 0;
 			this.memIndex = 0;
+		}
+
+		int getOffset() {
+			return this.offset;
 		}
 
 	}
@@ -260,8 +266,16 @@ public class MemoryHandlerTemp implements
 		// set locks and create stack
 		final Edge[] nodeInputs = originInput.getTargetNode().getInputs();
 		final LinkedHashMap<Edge, StackElement> inputToStack = new LinkedHashMap<>();
+		final int columns = originInput.getTargetNode().getMemory()
+				.getTemplate().length;
+		StackElement tempOriginElement = null;
+		final StackElement originElement;
+		int offset = 0;
 		for (final Edge input : nodeInputs) {
 			if (input == originInput) {
+				tempOriginElement = StackElement.originInput(columns,
+						originInput, token, offset);
+				offset += input.getSourceNode().getMemory().getTemplate().length;
 				// don't lock the originInput
 				continue;
 			}
@@ -269,15 +283,11 @@ public class MemoryHandlerTemp implements
 				// FIXME throw some exception hinting the user to return
 				// the join job to the global queue
 			}
-			inputToStack.put(input, StackElement.ordinaryInput(input));
+			inputToStack.put(input, StackElement.ordinaryInput(input, offset));
+			offset += input.getSourceNode().getMemory().getTemplate().length;
 		}
-		final int columns = originInput.getTargetNode().getMemory()
-				.getTemplate().length;
-		inputToStack.put(
-				originInput,
-				StackElement.originInput(columns,
-						originInput.getMemoryFactAddress(), token));
-		final StackElement originElement = inputToStack.get(originInput);
+		originElement = tempOriginElement;
+		inputToStack.put(originInput, originElement);
 		final Node targetNode = originInput.getTargetNode();
 
 		// get filter steps
@@ -323,14 +333,12 @@ public class MemoryHandlerTemp implements
 						// copy current row from old TR
 						final Fact[] row = originElement.getRow();
 						// insert information from new inputs
-						for (final Edge nodeInput : newEdges) {
+						for (final Edge edge : newEdges) {
 							// source is some temp, destination new TR
-							final StackElement se = inputToStack.get(nodeInput);
-							final int offset = ((org.jamocha.engine.memory.javaimpl.FactAddress) nodeInput
-									.getMemoryFactAddress()).getIndex();
+							final StackElement se = inputToStack.get(edge);
 							final Fact[] newRowPart = se.getRow();
-							System.arraycopy(newRowPart, 0, row, offset,
-									newRowPart.length);
+							System.arraycopy(newRowPart, 0, row,
+									se.getOffset(), newRowPart.length);
 						}
 						// copy the result to new TR
 						TR.add(row);
@@ -363,9 +371,8 @@ public class MemoryHandlerTemp implements
 					final Fact[] row = originElement.getRow();
 					// insert information from new input
 					// source is some temp, destination new TR
-					final int offset = ((org.jamocha.engine.memory.javaimpl.FactAddress) nodeInput.getMemoryFactAddress()).getIndex();
 					final Fact[] newRowPart = se.getRow();
-					System.arraycopy(newRowPart, 0, row, offset,
+					System.arraycopy(newRowPart, 0, row, se.getOffset(),
 							newRowPart.length);
 					// copy the result to new TR
 					TR.add(row);

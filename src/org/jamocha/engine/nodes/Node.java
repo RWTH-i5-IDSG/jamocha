@@ -37,6 +37,7 @@ import org.jamocha.filter.PathTransformation.PathInfo;
 
 /**
  * Base class for all node types
+ * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  * @author Kai Schwarz <kai.schwarz@rwth-aachen.de>
  */
@@ -59,8 +60,7 @@ public abstract class Node {
 		 *            an address valid in the source node of the input
 		 * @return an address valid in the target node of the input
 		 */
-		public FactAddress localizeAddress(
-				final FactAddress addressInParent);
+		public FactAddress localizeAddress(final FactAddress addressInParent);
 
 		/**
 		 * Disconnects the nodeInput from the formerly connected nodes. This
@@ -75,18 +75,12 @@ public abstract class Node {
 		public Filter getFilter();
 
 		public LinkedList<MemoryHandlerTemp> getTempMemories();
-
-		public FactAddress getMemoryFactAddress();
-
-		public void setMemoryFactAddress(
-				final FactAddress memoryFactAddress);
 	}
 
 	abstract protected class EdgeImpl implements Edge {
 		protected final Node targetNode;
 		protected final Node sourceNode;
 		protected Filter filter;
-		protected FactAddress memoryFactAddress;
 
 		public EdgeImpl(final Node sourceNode, final Node targetNode) {
 			this.targetNode = targetNode;
@@ -117,17 +111,6 @@ public abstract class Node {
 		public Filter getFilter() {
 			return this.filter;
 		}
-
-		@Override
-		public FactAddress getMemoryFactAddress() {
-			return this.memoryFactAddress;
-		}
-
-		@Override
-		public void setMemoryFactAddress(
-				final FactAddress memoryFactAddress) {
-			this.memoryFactAddress = memoryFactAddress;
-		}
 	}
 
 	protected Edge[] inputs;
@@ -135,7 +118,7 @@ public abstract class Node {
 	//FIXME delocalizeMap needs to be filled!
 	final protected Map<FactAddress, AddressPredecessor> delocalizeMap = new HashMap<>();
 	final protected MemoryHandlerMain memory;
-	
+
 	protected Node() {
 		memory = null;
 	}
