@@ -35,7 +35,7 @@ public class FunctionWithArgumentsComposite implements FunctionWithArguments {
 	final FunctionWithArguments args[];
 
 	public FunctionWithArgumentsComposite(final Function function,
-			final FunctionWithArguments[] args) {
+			final FunctionWithArguments... args) {
 		super();
 		this.function = function;
 		this.args = args;

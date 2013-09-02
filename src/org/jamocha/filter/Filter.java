@@ -47,10 +47,14 @@ public class Filter {
 	FilterElement filterElements[];
 
 	@Getter
-	@RequiredArgsConstructor
 	public static class FilterElement {
 		final FunctionWithArguments function;
 		final SlotInFactAddress addressesInTarget[];
+		
+		public FilterElement(FunctionWithArguments function, SlotInFactAddress... addressesInTarget) {
+			this.function = function;
+			this.addressesInTarget = addressesInTarget;
+		}
 	}
 
 	public Filter(final FunctionWithArguments[] predicates) {

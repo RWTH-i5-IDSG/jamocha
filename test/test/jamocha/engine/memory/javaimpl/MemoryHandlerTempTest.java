@@ -19,6 +19,7 @@ package test.jamocha.engine.memory.javaimpl;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -35,6 +36,13 @@ import org.jamocha.engine.memory.javaimpl.SlotAddress;
 import org.jamocha.engine.nodes.AddressPredecessor;
 import org.jamocha.engine.nodes.Node;
 import org.jamocha.engine.nodes.Node.Edge;
+import org.jamocha.engine.nodes.SlotInFactAddress;
+import org.jamocha.filter.Filter;
+import org.jamocha.filter.FunctionWithArguments;
+import org.jamocha.filter.FunctionWithArgumentsComposite;
+import org.jamocha.filter.PathLeaf;
+import org.jamocha.filter.TODODatenkrakeFunktionen;
+import org.jamocha.filter.Filter.FilterElement;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -148,7 +156,9 @@ public class MemoryHandlerTempTest {
 					originEdge = edge;
 					break;
 				}
+				pos += edge.getSourceNode().getMemory().getTemplate().length;
 			}
+			assert originEdge != null;
 			return new AddressPredecessor(originEdge, fa[factAddress.getIndex()
 					- pos]);
 		}
@@ -207,7 +217,7 @@ public class MemoryHandlerTempTest {
 	 * @throws InterruptedException
 	 */
 	@Test
-	public void testNewBetaTemp() throws InterruptedException {
+	public void testNewBetaTempFullJoin() throws InterruptedException {
 		MemoryHandlerTemp token = factory.newToken(memoryHandlerMainRight,
 				nodeLeft, new Fact(new Template(SlotType.STRING), "Fakt1"),
 				new Fact(new Template(SlotType.STRING), "Fakt2"));
@@ -219,6 +229,55 @@ public class MemoryHandlerTempTest {
 				memoryHandlerMain, token, originInput,
 				FilterMockup.alwaysTrue());
 		assertEquals(4, token1.size());
+		assertEquals(2, token1.getTemplate().length);
+		String s = (String)token1.getValue(fa[0], slotAddress, 0);
+		assertTrue(s.equals("Fakt3") || s.equals("Fakt4"));
+		s = (String)token1.getValue(fa[0], slotAddress, 1);
+		assertTrue(s.equals("Fakt3") || s.equals("Fakt4"));
+		s = (String)token1.getValue(fa[0], slotAddress, 2);
+		assertTrue(s.equals("Fakt3") || s.equals("Fakt4"));
+		s = (String)token1.getValue(fa[0], slotAddress, 3);
+		assertTrue(s.equals("Fakt3") || s.equals("Fakt4"));
+		s = (String)token1.getValue(fa[1], slotAddress, 0);
+		assertTrue(s.equals("Fakt1") || s.equals("Fakt2"));
+		s = (String)token1.getValue(fa[1], slotAddress, 1);
+		assertTrue(s.equals("Fakt1") || s.equals("Fakt2"));
+		s = (String)token1.getValue(fa[1], slotAddress, 2);
+		assertTrue(s.equals("Fakt1") || s.equals("Fakt2"));
+		s = (String)token1.getValue(fa[1], slotAddress, 3);
+		assertTrue(s.equals("Fakt1") || s.equals("Fakt2"));
+	}
+	
+	/**
+	 * Test method for
+	 * {@link org.jamocha.engine.memory.javaimpl.MemoryHandlerTemp#newBetaTemp(org.jamocha.engine.memory.javaimpl.MemoryHandlerMain, org.jamocha.engine.memory.javaimpl.MemoryHandlerTemp, org.jamocha.engine.nodes.Node.Edge, org.jamocha.filter.Filter)}
+	 * .
+	 * 
+	 * @throws InterruptedException
+	 */
+	@Test
+	public void testNewBetaTempSelectiveJoin() throws InterruptedException {
+		TODODatenkrakeFunktionen.load();
+		FunctionWithArguments pl1 = new PathLeaf.ParameterLeaf(SlotType.STRING);
+		FunctionWithArguments pl2 = new PathLeaf.ParameterLeaf(SlotType.STRING);
+		FunctionWithArguments faw = new FunctionWithArgumentsComposite(TODODatenkrakeFunktionen.lookup("=", SlotType.STRING, SlotType.STRING), pl1, pl2);
+		FilterElement fe = new FilterElement(faw,
+				new SlotInFactAddress(new org.jamocha.engine.memory.javaimpl.FactAddress(0), new SlotAddress(0)),
+				new SlotInFactAddress(new org.jamocha.engine.memory.javaimpl.FactAddress(1), new SlotAddress(0))
+		);
+		Filter filter = new Filter(new FilterElement[]{fe});
+		MemoryHandlerTemp token = factory.newToken(memoryHandlerMainRight,
+				nodeLeft, new Fact(new Template(SlotType.STRING), "Fakt1"),
+				new Fact(new Template(SlotType.STRING), "Fakt2"));
+		token.releaseLock();
+		token = factory.newToken(memoryHandlerMainLeft, nodeRight, new Fact(
+				new Template(SlotType.STRING), "Fakt1"), new Fact(new Template(
+				SlotType.STRING), "Fakt3"));
+		MemoryHandlerTemp token1 = factory.processTokenInBeta(
+				memoryHandlerMain, token, originInput,
+				filter);
+		assertEquals(1, token1.size());
+		assertEquals(2, token1.getTemplate().length);
 	}
 
 	/**
