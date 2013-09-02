@@ -25,6 +25,8 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
 
+import lombok.AllArgsConstructor;
+
 import org.jamocha.engine.memory.FactAddress;
 import org.jamocha.engine.memory.MemoryFactory;
 import org.jamocha.engine.memory.MemoryHandler;
@@ -77,14 +79,14 @@ public abstract class Node {
 		public LinkedList<MemoryHandlerTemp> getTempMemories();
 	}
 
+	@AllArgsConstructor
 	abstract protected class EdgeImpl implements Edge {
 		protected final Node targetNode;
 		protected final Node sourceNode;
 		protected Filter filter;
 
 		public EdgeImpl(final Node sourceNode, final Node targetNode) {
-			this.targetNode = targetNode;
-			this.sourceNode = sourceNode;
+			this(sourceNode, targetNode, null);
 		}
 
 		@Override
