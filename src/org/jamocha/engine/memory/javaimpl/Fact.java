@@ -36,17 +36,17 @@ class Fact {
 			final Object value) {
 		slotValues[((SlotAddress) slot).getIndex()] = value;
 	}
-	
+
 	public String toString() {
- 		StringBuilder sb = new StringBuilder();
- 		sb.append("Fact: ");
- 		if (slotValues.length > 0) {
- 			sb.append(slotValues[0].toString());
- 		}
- 		for (int i = 1; i < slotValues.length; i++) {
- 			sb.append(", " + slotValues[i].toString());
- 		}
- 		return sb.toString();
+		StringBuilder sb = new StringBuilder();
+		sb.append("Fact: ");
+		if (slotValues.length > 0) {
+			sb.append(slotValues[0].toString());
+		}
+		for (int i = 1; i < slotValues.length; i++) {
+			sb.append(", " + slotValues[i].toString());
+		}
+		return sb.toString();
 	}
-	
+
 }

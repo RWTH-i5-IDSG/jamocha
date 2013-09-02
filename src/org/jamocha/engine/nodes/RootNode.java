@@ -23,8 +23,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.jamocha.engine.memory.Template;
 import org.jamocha.engine.memory.Fact;
+import org.jamocha.engine.memory.Template;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>

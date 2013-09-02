@@ -23,7 +23,7 @@ import org.jamocha.engine.memory.MemoryFactory;
 /**
  * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
- *
+ * 
  */
 public class TerminalNode extends BetaNode {
 

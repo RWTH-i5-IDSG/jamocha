@@ -50,15 +50,16 @@ import test.jamocha.engine.filter.FilterMockup;
 public class MemoryHandlerTempTest {
 
 	private static MemoryFactory factory;
-	private static MemoryHandlerMain memoryHandlerMain, memoryHandlerMainLeft, memoryHandlerMainRight;
+	private static MemoryHandlerMain memoryHandlerMain, memoryHandlerMainLeft,
+			memoryHandlerMainRight;
 	private static NodeMockup node, nodeLeft, nodeRight;
 	private static org.jamocha.engine.memory.javaimpl.FactAddress factAddress;
 	private static SlotAddress slotAddress;
 	private static Edge originInput;
-	
+
 	static final int faSize = 10;
 	static final FactAddress[] fa = new FactAddress[faSize];
-	
+
 	static {
 		for (int i = 0; i < 10; i++) {
 			fa[i] = new org.jamocha.engine.memory.javaimpl.FactAddress(i);
@@ -66,11 +67,11 @@ public class MemoryHandlerTempTest {
 	}
 
 	private static class NodeMockup extends Node {
-		
+
 		private class EdgeMockup extends EdgeImpl {
-			
+
 			final int offset;
-			
+
 			public EdgeMockup(Node sourceNode, Node targetNode, int offset) {
 				super(sourceNode, targetNode);
 				this.offset = offset;
@@ -86,7 +87,8 @@ public class MemoryHandlerTempTest {
 
 			@Override
 			public FactAddress localizeAddress(FactAddress addressInParent) {
-				return fa[((org.jamocha.engine.memory.javaimpl.FactAddress)addressInParent).getIndex() + offset];
+				return fa[((org.jamocha.engine.memory.javaimpl.FactAddress) addressInParent)
+						.getIndex() + offset];
 			}
 
 			@Override
@@ -99,12 +101,13 @@ public class MemoryHandlerTempTest {
 		int numChildern;
 		int currentOffset = 0;
 
-		public NodeMockup(int numChildren, org.jamocha.engine.memory.MemoryHandlerMain memoryHandlerMain) {
+		public NodeMockup(int numChildren,
+				org.jamocha.engine.memory.MemoryHandlerMain memoryHandlerMain) {
 			super(memoryHandlerMain);
 			this.numChildern = numChildren;
 			this.inputs = new Edge[0];
 		}
-		
+
 		public NodeMockup(int numChildren) {
 			super(null);
 			this.numChildern = numChildren;
@@ -118,11 +121,11 @@ public class MemoryHandlerTempTest {
 
 		@Override
 		protected EdgeImpl newEdge(Node source) {
-			EdgeImpl edge = new EdgeMockup(source, this, currentOffset); 
+			EdgeImpl edge = new EdgeMockup(source, this, currentOffset);
 			currentOffset += source.getMemory().getTemplate().length;
 			return edge;
 		}
-		
+
 		@Override
 		public Edge connectParent(final Node parent) {
 			Edge edge = super.connectParent(parent);
@@ -134,17 +137,20 @@ public class MemoryHandlerTempTest {
 		@Override
 		public AddressPredecessor delocalizeAddress(
 				FactAddress localNetworkFactAddress) {
-			org.jamocha.engine.memory.javaimpl.FactAddress factAddress = (org.jamocha.engine.memory.javaimpl.FactAddress)localNetworkFactAddress;
+			org.jamocha.engine.memory.javaimpl.FactAddress factAddress = (org.jamocha.engine.memory.javaimpl.FactAddress) localNetworkFactAddress;
 			int pos = 0;
 			Edge originEdge = null;
 			for (Edge edge : inputs) {
-				if (pos > factAddress.getIndex()) break;
-				if (pos + edge.getSourceNode().getMemory().getTemplate().length > factAddress.getIndex()) {
+				if (pos > factAddress.getIndex())
+					break;
+				if (pos + edge.getSourceNode().getMemory().getTemplate().length > factAddress
+						.getIndex()) {
 					originEdge = edge;
 					break;
 				}
 			}
-			return new AddressPredecessor(originEdge, fa[factAddress.getIndex() - pos]);
+			return new AddressPredecessor(originEdge, fa[factAddress.getIndex()
+					- pos]);
 		}
 
 	}
@@ -172,9 +178,12 @@ public class MemoryHandlerTempTest {
 	 */
 	@Before
 	public void setUp() throws Exception {
-		memoryHandlerMainRight = new MemoryHandlerMain(new Template(SlotType.STRING));
-		memoryHandlerMainLeft = new MemoryHandlerMain(new Template(SlotType.STRING));
-		memoryHandlerMain = new MemoryHandlerMain(new Template(SlotType.STRING), new Template(SlotType.STRING));
+		memoryHandlerMainRight = new MemoryHandlerMain(new Template(
+				SlotType.STRING));
+		memoryHandlerMainLeft = new MemoryHandlerMain(new Template(
+				SlotType.STRING));
+		memoryHandlerMain = new MemoryHandlerMain(
+				new Template(SlotType.STRING), new Template(SlotType.STRING));
 		node = new NodeMockup(1, memoryHandlerMain);
 		nodeLeft = new NodeMockup(1, memoryHandlerMainLeft);
 		nodeRight = new NodeMockup(1, memoryHandlerMainRight);
@@ -194,18 +203,21 @@ public class MemoryHandlerTempTest {
 	 * Test method for
 	 * {@link org.jamocha.engine.memory.javaimpl.MemoryHandlerTemp#newBetaTemp(org.jamocha.engine.memory.javaimpl.MemoryHandlerMain, org.jamocha.engine.memory.javaimpl.MemoryHandlerTemp, org.jamocha.engine.nodes.Node.Edge, org.jamocha.filter.Filter)}
 	 * .
-	 * @throws InterruptedException 
+	 * 
+	 * @throws InterruptedException
 	 */
 	@Test
 	public void testNewBetaTemp() throws InterruptedException {
-		MemoryHandlerTemp token = factory.newToken(memoryHandlerMainRight, nodeLeft,
-				new Fact(new Template(SlotType.STRING), "Fakt1"),
+		MemoryHandlerTemp token = factory.newToken(memoryHandlerMainRight,
+				nodeLeft, new Fact(new Template(SlotType.STRING), "Fakt1"),
 				new Fact(new Template(SlotType.STRING), "Fakt2"));
 		token.releaseLock();
-		token = factory.newToken(memoryHandlerMainLeft, nodeRight,
-				new Fact(new Template(SlotType.STRING), "Fakt3"),
-				new Fact(new Template(SlotType.STRING), "Fakt4"));
-		MemoryHandlerTemp token1 = factory.processTokenInBeta(memoryHandlerMain, token, originInput, FilterMockup.alwaysTrue());
+		token = factory.newToken(memoryHandlerMainLeft, nodeRight, new Fact(
+				new Template(SlotType.STRING), "Fakt3"), new Fact(new Template(
+				SlotType.STRING), "Fakt4"));
+		MemoryHandlerTemp token1 = factory.processTokenInBeta(
+				memoryHandlerMain, token, originInput,
+				FilterMockup.alwaysTrue());
 		assertEquals(4, token1.size());
 	}
 
@@ -223,8 +235,8 @@ public class MemoryHandlerTempTest {
 		MemoryHandlerTemp memoryTempHandler = factory.processTokenInAlpha(
 				memoryHandlerMain, token, node, FilterMockup.alwaysTrue());
 		assertEquals(1, memoryTempHandler.size());
-		memoryTempHandler = factory.processTokenInAlpha(
-				memoryHandlerMain, token, node, FilterMockup.alwaysFalse());
+		memoryTempHandler = factory.processTokenInAlpha(memoryHandlerMain,
+				token, node, FilterMockup.alwaysFalse());
 		assertEquals(0, memoryTempHandler.size());
 	}
 

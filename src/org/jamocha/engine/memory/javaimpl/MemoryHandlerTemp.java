@@ -217,6 +217,8 @@ public class MemoryHandlerTemp implements
 	private static void loop(final FunctionPointer functionPointer,
 			final Collection<StackElement> stack,
 			final StackElement originElement) {
+		if (stack.isEmpty())
+			return;
 		final ArrayList<Fact[]> TR = new ArrayList<Fact[]>();
 		outerloop: while (true) {
 			innerloop: while (true) {
@@ -280,6 +282,7 @@ public class MemoryHandlerTemp implements
 				continue;
 			}
 			if (!input.getSourceNode().getMemory().tryReadLock()) {
+				throw new Error();
 				// FIXME throw some exception hinting the user to return
 				// the join job to the global queue
 			}
@@ -384,6 +387,8 @@ public class MemoryHandlerTemp implements
 		}
 		// release lock
 		for (final Edge input : nodeInputs) {
+			if (input == originInput)
+				continue;
 			input.getSourceNode().getMemory().releaseReadLock();
 		}
 		return originElement.getTable();

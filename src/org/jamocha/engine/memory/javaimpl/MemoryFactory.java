@@ -27,9 +27,9 @@ import org.jamocha.filter.Filter;
  * 
  */
 public class MemoryFactory implements org.jamocha.engine.memory.MemoryFactory {
-	
+
 	private final static MemoryFactory singleton = new MemoryFactory();
-	
+
 	public static org.jamocha.engine.memory.MemoryFactory getMemoryFactory() {
 		return singleton;
 	}

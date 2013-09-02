@@ -28,7 +28,7 @@ import org.jamocha.filter.Filter;
  * 
  * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
- *
+ * 
  */
 public interface MemoryFactory {
 	public MemoryHandlerMain newMemoryHandlerMain(
@@ -42,7 +42,6 @@ public interface MemoryFactory {
 			MemoryHandlerMain originatingMainHandler, MemoryHandlerTemp token,
 			Node alphaNode, Filter filter) throws InterruptedException;
 
-	public MemoryHandlerTemp newToken(
-			MemoryHandlerMain originatingMainHandler, Node otn, Fact... facts)
-			throws InterruptedException;
+	public MemoryHandlerTemp newToken(MemoryHandlerMain originatingMainHandler,
+			Node otn, Fact... facts) throws InterruptedException;
 }

@@ -19,8 +19,8 @@ package org.jamocha.filter.impls;
 
 import org.jamocha.filter.TODODatenkrakeFunktionen;
 import org.jamocha.filter.impls.predicates.And;
-import org.jamocha.filter.impls.predicates.Less;
 import org.jamocha.filter.impls.predicates.Equals;
+import org.jamocha.filter.impls.predicates.Less;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>

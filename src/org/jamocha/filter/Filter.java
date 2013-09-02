@@ -32,7 +32,7 @@ import org.jamocha.engine.nodes.SlotInFactAddress;
 /**
  * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
- *
+ * 
  */
 @Getter
 @Setter

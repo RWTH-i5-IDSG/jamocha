@@ -25,7 +25,7 @@ import org.jamocha.engine.nodes.Node;
 /**
  * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
- *
+ * 
  */
 public class ConstantLeaf implements FunctionWithArguments {
 	final Object value;
