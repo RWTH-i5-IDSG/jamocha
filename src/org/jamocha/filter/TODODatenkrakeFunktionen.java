@@ -70,4 +70,9 @@ public class TODODatenkrakeFunktionen {
 				new CombinedClipsAndParams(impl.toString(), impl.paramTypes()),
 				impl);
 	}
+
+	public static Function lookup(final String inClips,
+			final SlotType... params) {
+		return clipsFunctions.get(new CombinedClipsAndParams(inClips, params));
+	}
 }
