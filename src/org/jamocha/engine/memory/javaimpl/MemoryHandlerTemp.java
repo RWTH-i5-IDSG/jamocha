@@ -43,6 +43,7 @@ import org.jamocha.filter.FunctionWithArguments;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+ * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
  * 
  */
 @RequiredArgsConstructor

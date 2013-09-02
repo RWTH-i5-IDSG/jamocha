@@ -19,6 +19,11 @@ package org.jamocha.engine.memory.javaimpl;
 
 import lombok.RequiredArgsConstructor;
 
+/**
+ * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+ * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
+ * 
+ */
 @RequiredArgsConstructor
 class Fact {
 	final Object slotValues[];
