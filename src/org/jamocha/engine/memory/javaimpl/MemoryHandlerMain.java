@@ -40,7 +40,7 @@ public class MemoryHandlerMain implements
 	final ReadWriteLock lock = new ReentrantReadWriteLock(true);
 	final ArrayList<Fact[]> facts = new ArrayList<>();
 	final Template[] template;
-	
+
 	public MemoryHandlerMain(final Template... templates) {
 		this.template = templates;
 	}
@@ -54,8 +54,9 @@ public class MemoryHandlerMain implements
 		for (final Edge input : inputs) {
 			for (final Template t : input.getSourceNode().getMemory()
 					.getTemplate()) {
-				input.setMemoryFactAddress(new org.jamocha.engine.memory.javaimpl.FactAddress(
-						templates.size()));
+				// input.setMemoryFactAddress(new
+				// org.jamocha.engine.memory.javaimpl.FactAddress(
+				// templates.size()));
 				templates.add(t);
 			}
 		}
@@ -125,8 +126,8 @@ public class MemoryHandlerMain implements
 	 *      SlotAddress, int)
 	 */
 	@Override
-	public Object getValue(final FactAddress address,
-			final SlotAddress slot, final int row) {
+	public Object getValue(final FactAddress address, final SlotAddress slot,
+			final int row) {
 		return this.facts.get(row)[((org.jamocha.engine.memory.javaimpl.FactAddress) address)
 				.getIndex()]
 				.getValue((org.jamocha.engine.memory.javaimpl.SlotAddress) slot);

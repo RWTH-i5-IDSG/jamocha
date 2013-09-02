@@ -28,13 +28,12 @@ import org.jamocha.filter.Filter;
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  * @author Kai Schwarz <kai.schwarz@rwth-aachen.de>
  */
-@NoArgsConstructor
+
 public abstract class BetaNode extends Node {
 
 	public BetaNode(final MemoryFactory memoryFactory, final Filter filter) {
 		super(memoryFactory, filter);
 		// TODO Auto-generated constructor stub
 	}
-	
 
 }

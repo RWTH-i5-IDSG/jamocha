@@ -17,8 +17,6 @@
  */
 package org.jamocha.engine.nodes;
 
-import lombok.NoArgsConstructor;
-
 import org.jamocha.engine.memory.FactAddress;
 import org.jamocha.engine.memory.MemoryFactory;
 import org.jamocha.engine.memory.MemoryHandler;
@@ -29,7 +27,6 @@ import org.jamocha.filter.Filter;
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  * @author Kai Schwarz <kai.schwarz@rwth-aachen.de>
  */
-@NoArgsConstructor
 public abstract class AlphaNode extends Node {
 
 	protected abstract class AlphaEdgeImpl extends EdgeImpl {
