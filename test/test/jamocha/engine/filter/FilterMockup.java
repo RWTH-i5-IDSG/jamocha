@@ -67,7 +67,7 @@ public class FilterMockup extends Filter {
 	}
 
 	public static FilterMockup alwaysFalse() {
-		return new FilterMockup(true);
+		return new FilterMockup(false);
 	}
 
 }
