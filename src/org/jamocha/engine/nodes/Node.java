@@ -25,7 +25,7 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
 
-import org.jamocha.engine.memory.MemoryFactAddress;
+import org.jamocha.engine.memory.FactAddress;
 import org.jamocha.engine.memory.MemoryFactory;
 import org.jamocha.engine.memory.MemoryHandler;
 import org.jamocha.engine.memory.MemoryHandlerMain;
@@ -58,8 +58,8 @@ public abstract class Node {
 		 *            an address valid in the source node of the input
 		 * @return an address valid in the target node of the input
 		 */
-		public NetworkFactAddress localizeAddress(
-				final NetworkFactAddress addressInParent);
+		public FactAddress localizeAddress(
+				final FactAddress addressInParent);
 
 		/**
 		 * Disconnects the nodeInput from the formerly connected nodes. This
@@ -75,17 +75,17 @@ public abstract class Node {
 
 		public LinkedList<MemoryHandlerTemp> getTempMemories();
 
-		public MemoryFactAddress getMemoryFactAddress();
+		public FactAddress getMemoryFactAddress();
 
 		public void setMemoryFactAddress(
-				final MemoryFactAddress memoryFactAddress);
+				final FactAddress memoryFactAddress);
 	}
 
 	abstract protected class EdgeImpl implements Edge {
 		protected final Node targetNode;
 		protected final Node sourceNode;
 		protected Filter filter;
-		protected MemoryFactAddress memoryFactAddress;
+		protected FactAddress memoryFactAddress;
 
 		public EdgeImpl(final Node sourceNode, final Node targetNode) {
 			this.targetNode = targetNode;
@@ -118,13 +118,13 @@ public abstract class Node {
 		}
 
 		@Override
-		public MemoryFactAddress getMemoryFactAddress() {
+		public FactAddress getMemoryFactAddress() {
 			return this.memoryFactAddress;
 		}
 
 		@Override
 		public void setMemoryFactAddress(
-				final MemoryFactAddress memoryFactAddress) {
+				final FactAddress memoryFactAddress) {
 			this.memoryFactAddress = memoryFactAddress;
 		}
 	}
@@ -248,7 +248,7 @@ public abstract class Node {
 	 * @return an address valid in the parent node
 	 */
 	// TODO add the map: address-here -> address in parent
-	public abstract NetworkFactAddress delocalizeAddress(
-			NetworkFactAddress localNetworkFactAddress);
+	public abstract AddressPredecessor delocalizeAddress(
+			FactAddress localNetworkFactAddress);
 
 }

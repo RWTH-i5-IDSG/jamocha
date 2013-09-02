@@ -20,7 +20,7 @@ package org.jamocha.engine.nodes;
 
 import org.jamocha.engine.memory.MemoryFactory;
 import org.jamocha.engine.memory.Template;
-import org.jamocha.engine.memory.javaimpl.Fact;
+import org.jamocha.engine.memory.Fact;
 
 /**
  * 

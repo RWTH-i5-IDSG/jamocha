@@ -15,20 +15,25 @@
  * limitations under the License.
  * 
  */
-package org.jamocha.engine.memory.javaimpl;
+package org.jamocha.engine.memory;
 
-import lombok.RequiredArgsConstructor;
+import lombok.Getter;
 
-@RequiredArgsConstructor
-class Fact {
+/**
+ * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+ * 
+ */
+@Getter
+public class Fact {
+	final Template template;
 	final Object slotValues[];
 
-	public Object getValue(final org.jamocha.engine.memory.SlotAddress slot) {
-		return slotValues[((SlotAddress) slot).getIndex()];
+	public Fact(final Template template, final Object... slotValues) {
+		this.template = template;
+		this.slotValues = slotValues;
 	}
 
-	public void setValue(final org.jamocha.engine.memory.SlotAddress slot,
-			final Object value) {
-		slotValues[((SlotAddress) slot).getIndex()] = value;
+	public Object getValue(int index) {
+		return this.slotValues[index];
 	}
 }

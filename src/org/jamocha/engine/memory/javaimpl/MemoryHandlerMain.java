@@ -22,7 +22,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import org.jamocha.engine.memory.MemoryFactAddress;
+import org.jamocha.engine.memory.FactAddress;
 import org.jamocha.engine.memory.SlotAddress;
 import org.jamocha.engine.memory.Template;
 import org.jamocha.engine.nodes.Node.Edge;
@@ -49,7 +49,7 @@ public class MemoryHandlerMain implements
 		for (final Edge input : inputs) {
 			for (final Template t : input.getSourceNode().getMemory()
 					.getTemplate()) {
-				input.setMemoryFactAddress(new org.jamocha.engine.memory.javaimpl.MemoryFactAddress(
+				input.setMemoryFactAddress(new org.jamocha.engine.memory.javaimpl.FactAddress(
 						templates.size()));
 				templates.add(t);
 			}
@@ -116,13 +116,13 @@ public class MemoryHandlerMain implements
 	}
 
 	/**
-	 * @see org.jamocha.engine.memory.MemoryHandler#getValue(MemoryFactAddress,
+	 * @see org.jamocha.engine.memory.MemoryHandler#getValue(FactAddress,
 	 *      SlotAddress, int)
 	 */
 	@Override
-	public Object getValue(final MemoryFactAddress address,
+	public Object getValue(final FactAddress address,
 			final SlotAddress slot, final int row) {
-		return this.facts.get(row)[((org.jamocha.engine.memory.javaimpl.MemoryFactAddress) address)
+		return this.facts.get(row)[((org.jamocha.engine.memory.javaimpl.FactAddress) address)
 				.getIndex()]
 				.getValue((org.jamocha.engine.memory.javaimpl.SlotAddress) slot);
 	}

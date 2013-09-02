@@ -15,21 +15,9 @@
  * limitations under the License.
  * 
  */
-package org.jamocha.engine.memory.javaimpl;
 
-/**
- * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
- * 
- */
-public class MemoryFactAddress implements
-		org.jamocha.engine.memory.MemoryFactAddress {
-	int index;
+package org.jamocha.engine.memory;
 
-	public MemoryFactAddress(int index) {
-		this.index = index;
-	}
+public interface FactAddress {
 
-	public int getIndex() {
-		return index;
-	}
 }

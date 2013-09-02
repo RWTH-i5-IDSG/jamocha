@@ -15,20 +15,20 @@
  * limitations under the License.
  * 
  */
-package org.jamocha.engine.nodes;
-
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-
-import org.jamocha.engine.memory.SlotAddress;
+package org.jamocha.engine.memory.javaimpl;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  * 
  */
-@Getter
-@RequiredArgsConstructor
-public class NetworkAddress {
-	final NetworkFactAddress networkFactAddress;
-	final SlotAddress slotAddress;
+public class FactAddress implements org.jamocha.engine.memory.FactAddress {
+	int index;
+
+	public FactAddress(int index) {
+		this.index = index;
+	}
+
+	public int getIndex() {
+		return index;
+	}
 }

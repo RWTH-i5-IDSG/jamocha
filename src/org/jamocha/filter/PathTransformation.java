@@ -24,7 +24,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
-import org.jamocha.engine.nodes.NetworkFactAddress;
+import org.jamocha.engine.nodes.AddressPredecessor;
 import org.jamocha.engine.nodes.Node;
 
 /**
@@ -44,7 +44,7 @@ public class PathTransformation {
 		/**
 		 * identifies fact in current node
 		 */
-		NetworkFactAddress networkFactAddressInCurrentlyLowestNode;
+		AddressPredecessor networkFactAddressInCurrentlyLowestNode;
 		/**
 		 * set of other paths the path corresponding to this PathInfo has been
 		 * joined with
