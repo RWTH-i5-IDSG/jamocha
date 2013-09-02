@@ -60,5 +60,22 @@ public class Equals {
 				return (Double) params[0] == (Double) params[1];
 			}
 		});
+		TODODatenkrakeFunktionen.addImpl(new Predicate() {
+			@Override
+			public SlotType[] paramTypes() {
+				return new SlotType[] { SlotType.STRING, SlotType.STRING };
+			}
+
+			@Override
+			public String toString() {
+				return "=";
+			}
+
+			@Override
+			public Boolean evaluate(final Object... params) {
+				return ((String)params[0]).equals((String)params[1]);
+			}
+		});
+
 	}
 }
