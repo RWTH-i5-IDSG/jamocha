@@ -32,7 +32,7 @@ import org.jamocha.filter.PathTransformation;
  * 
  */
 public class FilterMockup extends Filter {
-	public FilterMockup() {
+	public FilterMockup(final boolean returnValue) {
 		super(new FilterElement[] { new FilterElement(
 				new FunctionWithArguments() {
 					@Override
@@ -47,7 +47,7 @@ public class FilterMockup extends Filter {
 
 					@Override
 					public Object evaluate(final Object... params) {
-						return true;
+						return returnValue;
 					}
 
 					@Override
@@ -61,4 +61,13 @@ public class FilterMockup extends Filter {
 					}
 				}, new SlotInFactAddress[] {}) });
 	}
+
+	public static FilterMockup alwaysTrue() {
+		return new FilterMockup(true);
+	}
+
+	public static FilterMockup alwaysFalse() {
+		return new FilterMockup(true);
+	}
+
 }
