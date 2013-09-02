@@ -132,6 +132,10 @@ public abstract class Node {
 	protected Edge[] inputs;
 	final protected Set<Edge> children = new HashSet<>();
 	final protected MemoryHandlerMain memory;
+	
+	protected Node() {
+		memory = null;
+	}
 
 	public Node(final MemoryFactory memoryFactory, final Filter filter) {
 		final Set<Path> paths = filter.gatherPaths();
