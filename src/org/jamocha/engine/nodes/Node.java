@@ -122,8 +122,8 @@ public abstract class Node {
 	/**
 	 * Only for testing purposes.
 	 */
-	protected Node() {
-		memory = null;
+	protected Node(MemoryHandlerMain memory) {
+		this.memory = memory;
 	}
 
 	public Node(final MemoryFactory memoryFactory, final Filter filter) {
@@ -151,7 +151,7 @@ public abstract class Node {
 		this.memory = memoryFactory.newMemoryHandlerMain(inputs);
 	}
 
-	private Edge connectParent(final Node parent) {
+	protected Edge connectParent(final Node parent) {
 		final Edge input = newEdge(parent);
 		parent.acceptChild(input);
 		return input;

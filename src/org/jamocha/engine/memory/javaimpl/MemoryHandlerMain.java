@@ -40,6 +40,10 @@ public class MemoryHandlerMain implements
 	final ReadWriteLock lock = new ReentrantReadWriteLock(true);
 	final ArrayList<Fact[]> facts = new ArrayList<>();
 	final Template[] template;
+	
+	public MemoryHandlerMain(final Template... templates) {
+		this.template = templates;
+	}
 
 	public MemoryHandlerMain(final Edge... inputsToBeJoined) {
 		this.template = inputsToTemplate(inputsToBeJoined);

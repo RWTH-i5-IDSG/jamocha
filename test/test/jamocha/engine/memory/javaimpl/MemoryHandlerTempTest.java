@@ -19,11 +19,13 @@ package test.jamocha.engine.memory.javaimpl;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
+
+import java.util.LinkedList;
 
 import org.jamocha.engine.memory.Fact;
 import org.jamocha.engine.memory.FactAddress;
 import org.jamocha.engine.memory.MemoryFactory;
+import org.jamocha.engine.memory.MemoryHandler;
 import org.jamocha.engine.memory.SlotType;
 import org.jamocha.engine.memory.Template;
 import org.jamocha.engine.memory.javaimpl.MemoryHandlerMain;
@@ -31,6 +33,7 @@ import org.jamocha.engine.memory.javaimpl.MemoryHandlerTemp;
 import org.jamocha.engine.memory.javaimpl.SlotAddress;
 import org.jamocha.engine.nodes.AddressPredecessor;
 import org.jamocha.engine.nodes.Node;
+import org.jamocha.engine.nodes.Node.Edge;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -46,17 +49,62 @@ import test.jamocha.engine.filter.FilterMockup;
 public class MemoryHandlerTempTest {
 
 	private static MemoryFactory factory;
-	private static MemoryHandlerMain memoryHandlerMain;
-	private static Node node;
+	private static MemoryHandlerMain memoryHandlerMain, memoryHandlerMainLeft, memoryHandlerMainRight;
+	private static NodeMockup node, nodeLeft, nodeRight;
 	private static org.jamocha.engine.memory.javaimpl.FactAddress factAddress;
 	private static SlotAddress slotAddress;
+	private static Edge originInput;
+	
+	static final int faSize = 10;
+	static final FactAddress[] fa = new FactAddress[faSize];
+	
+	static {
+		for (int i = 0; i < 10; i++) {
+			fa[i] = new org.jamocha.engine.memory.javaimpl.FactAddress(i);
+		}
+	}
 
-	private class NodeMockup extends Node {
+	private static class NodeMockup extends Node {
+		
+		private class EdgeMockup extends EdgeImpl {
+			
+			final int offset;
+			
+			public EdgeMockup(Node sourceNode, Node targetNode, int offset) {
+				super(sourceNode, targetNode);
+				this.offset = offset;
+			}
+
+			@Override
+			public void processPlusToken(MemoryHandler memory) {
+			}
+
+			@Override
+			public void processMinusToken(MemoryHandler memory) {
+			}
+
+			@Override
+			public FactAddress localizeAddress(FactAddress addressInParent) {
+				return fa[((org.jamocha.engine.memory.javaimpl.FactAddress)addressInParent).getIndex() + offset];
+			}
+
+			@Override
+			public LinkedList<org.jamocha.engine.memory.MemoryHandlerTemp> getTempMemories() {
+				return new LinkedList<>();
+			}
+
+		}
 
 		int numChildern;
+		int currentOffset = 0;
 
+		public NodeMockup(int numChildren, org.jamocha.engine.memory.MemoryHandlerMain memoryHandlerMain) {
+			super(memoryHandlerMain);
+			this.numChildern = numChildren;
+		}
+		
 		public NodeMockup(int numChildren) {
-			super();
+			super(null);
 			this.numChildern = numChildren;
 		}
 
@@ -67,15 +115,30 @@ public class MemoryHandlerTempTest {
 
 		@Override
 		protected EdgeImpl newEdge(Node source) {
-			// TODO Auto-generated method stub
-			return null;
+			EdgeImpl edge = new EdgeMockup(source, this, currentOffset); 
+			currentOffset += source.getMemory().getTemplate().length;
+			return edge;
+		}
+		
+		@Override
+		public Edge connectParent(final Node parent) {
+			return super.connectParent(parent);
 		}
 
 		@Override
 		public AddressPredecessor delocalizeAddress(
 				FactAddress localNetworkFactAddress) {
-			// TODO Auto-generated method stub
-			return null;
+			org.jamocha.engine.memory.javaimpl.FactAddress factAddress = (org.jamocha.engine.memory.javaimpl.FactAddress)localNetworkFactAddress;
+			int pos = 0;
+			Edge originEdge = null;
+			for (Edge edge : inputs) {
+				if (pos > factAddress.getIndex()) break;
+				if (pos + edge.getSourceNode().getMemory().getTemplate().length > factAddress.getIndex()) {
+					originEdge = edge;
+					break;
+				}
+			}
+			return new AddressPredecessor(originEdge, fa[factAddress.getIndex() - pos]);
 		}
 
 	}
@@ -103,8 +166,14 @@ public class MemoryHandlerTempTest {
 	 */
 	@Before
 	public void setUp() throws Exception {
-		memoryHandlerMain = new MemoryHandlerMain();
-		node = new NodeMockup(1);
+		memoryHandlerMainRight = new MemoryHandlerMain(new Template(SlotType.STRING));
+		memoryHandlerMainLeft = new MemoryHandlerMain(new Template(SlotType.STRING));
+		memoryHandlerMain = new MemoryHandlerMain(new Template(SlotType.STRING), new Template(SlotType.STRING));
+		node = new NodeMockup(1, memoryHandlerMain);
+		nodeLeft = new NodeMockup(1, memoryHandlerMainLeft);
+		nodeRight = new NodeMockup(1, memoryHandlerMainRight);
+		originInput = node.connectParent(nodeLeft);
+		node.connectParent(nodeRight);
 	}
 
 	/**
@@ -119,10 +188,19 @@ public class MemoryHandlerTempTest {
 	 * Test method for
 	 * {@link org.jamocha.engine.memory.javaimpl.MemoryHandlerTemp#newBetaTemp(org.jamocha.engine.memory.javaimpl.MemoryHandlerMain, org.jamocha.engine.memory.javaimpl.MemoryHandlerTemp, org.jamocha.engine.nodes.Node.Edge, org.jamocha.filter.Filter)}
 	 * .
+	 * @throws InterruptedException 
 	 */
 	@Test
-	public void testNewBetaTemp() {
-		fail("Not yet implemented"); // TODO
+	public void testNewBetaTemp() throws InterruptedException {
+		MemoryHandlerTemp token = factory.newToken(memoryHandlerMainRight, nodeLeft,
+				new Fact(new Template(SlotType.STRING), "Fakt1"),
+				new Fact(new Template(SlotType.STRING), "Fakt2"));
+		token.releaseLock();
+		token = factory.newToken(memoryHandlerMainLeft, nodeRight,
+				new Fact(new Template(SlotType.STRING), "Fakt3"),
+				new Fact(new Template(SlotType.STRING), "Fakt4"));
+		MemoryHandlerTemp token1 = factory.processTokenInBeta(memoryHandlerMain, token, originInput, FilterMockup.alwaysTrue());
+		assertEquals(4, token1.size());
 	}
 
 	/**
@@ -205,7 +283,7 @@ public class MemoryHandlerTempTest {
 		assertEquals(1, memoryHandlerMain.size());
 		memoryHandlerTemp.releaseLock();
 		assertEquals(2, memoryHandlerMain.size());
-		memoryHandlerMain = new MemoryHandlerMain();
+		memoryHandlerMain = new MemoryHandlerMain(new Template[0]);
 	}
 
 	/**
