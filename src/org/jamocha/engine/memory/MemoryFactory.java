@@ -18,9 +18,31 @@
 
 package org.jamocha.engine.memory;
 
+import org.jamocha.engine.memory.javaimpl.MemoryHandlerMain;
+import org.jamocha.engine.memory.javaimpl.MemoryHandlerTemp;
+import org.jamocha.engine.nodes.Node;
 import org.jamocha.engine.nodes.Node.Edge;
+import org.jamocha.filter.Filter;
 
+/**
+ * 
+ * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
+ * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+ *
+ */
 public interface MemoryFactory {
 	public MemoryHandlerMain newMemoryHandlerMain(
 			final Edge... inputsToBeJoined);
+
+	public MemoryHandlerTemp processTokenInBeta(
+			MemoryHandlerMain originatingMainHandler, MemoryHandlerTemp token,
+			Edge originInput, Filter filter) throws InterruptedException;
+
+	public MemoryHandlerTemp processTokenInAlpha(
+			MemoryHandlerMain originatingMainHandler, MemoryHandlerTemp token,
+			Node alphaNode, Filter filter) throws InterruptedException;
+
+	public MemoryHandlerTemp newToken(
+			MemoryHandlerMain originatingMainHandler, Node otn, Fact... facts)
+			throws InterruptedException;
 }

@@ -27,6 +27,7 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
 
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
 import org.jamocha.engine.memory.FactAddress;
@@ -46,7 +47,7 @@ import org.jamocha.filter.FunctionWithArguments;
  * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
  * 
  */
-@RequiredArgsConstructor
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class MemoryHandlerTemp implements
 		org.jamocha.engine.memory.MemoryHandlerTemp {
 
@@ -105,25 +106,17 @@ public class MemoryHandlerTemp implements
 		return new MemoryHandlerTemp(originatingMainHandler, factList,
 				new Semaphore(alphaNode.numChildren()));
 	}
-
+	
 	static MemoryHandlerTemp newRootTemp(
-			final MemoryHandlerMain originatingMainHandler,
-			final org.jamocha.engine.memory.Fact fact, final Node otn)
+			final MemoryHandlerMain originatingMainHandler, final Node otn,
+			final org.jamocha.engine.memory.Fact... facts)
 			throws InterruptedException {
-		final Fact convertedFact = new Fact(fact.getSlotValues());
-		final ArrayList<Fact[]> factList = new ArrayList<>(1);
-		factList.add(new Fact[] { convertedFact });
+		final ArrayList<Fact[]> factList = new ArrayList<>();
+		for (org.jamocha.engine.memory.Fact fact : facts) {
+			factList.add(new Fact[] { new Fact(fact.getSlotValues()) });
+		}
 		return new MemoryHandlerTemp(originatingMainHandler, factList,
 				new Semaphore(otn.numChildren()));
-	}
-
-	public MemoryHandlerTemp(final MemoryHandlerMain originatingMainHandler,
-			final int numChildren, Object... values) {
-		super();
-		this.originatingMainHandler = originatingMainHandler;
-		this.lock = new Semaphore(numChildren);
-		this.facts = new ArrayList<Fact[]>(1);
-		this.facts.add(new Fact[] { new Fact(values) });
 	}
 
 	static abstract class StackElement {
