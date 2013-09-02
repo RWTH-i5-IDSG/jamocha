@@ -118,7 +118,10 @@ public abstract class Node {
 	//FIXME delocalizeMap needs to be filled!
 	final protected Map<FactAddress, AddressPredecessor> delocalizeMap = new HashMap<>();
 	final protected MemoryHandlerMain memory;
-
+	
+	/**
+	 * Only for testing purposes.
+	 */
 	protected Node() {
 		memory = null;
 	}
