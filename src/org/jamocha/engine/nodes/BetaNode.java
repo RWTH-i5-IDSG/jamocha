@@ -18,18 +18,23 @@
 
 package org.jamocha.engine.nodes;
 
+import lombok.NoArgsConstructor;
+
 import org.jamocha.engine.memory.MemoryFactory;
-import org.jamocha.engine.memory.Template;
+import org.jamocha.filter.Filter;
 
 /**
  * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+ * @author Kai Schwarz <kai.schwarz@rwth-aachen.de>
  */
+@NoArgsConstructor
 public abstract class BetaNode extends Node {
 
-	public BetaNode(final Template template, final MemoryFactory memoryFactory) {
-		super(template, memoryFactory);
+	public BetaNode(final MemoryFactory memoryFactory, final Filter filter) {
+		super(memoryFactory, filter);
 		// TODO Auto-generated constructor stub
 	}
+	
 
 }

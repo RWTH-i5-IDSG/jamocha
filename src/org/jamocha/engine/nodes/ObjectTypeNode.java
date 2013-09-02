@@ -18,9 +18,9 @@
 
 package org.jamocha.engine.nodes;
 
+import org.jamocha.engine.memory.Fact;
 import org.jamocha.engine.memory.MemoryFactory;
 import org.jamocha.engine.memory.Template;
-import org.jamocha.engine.memory.Fact;
 
 /**
  * 
@@ -32,7 +32,7 @@ public class ObjectTypeNode extends AlphaNode {
 	protected final Template template;
 
 	public ObjectTypeNode(final MemoryFactory memory, final Template template) {
-		super(memory);
+		super();
 		this.template = template;
 	}
 

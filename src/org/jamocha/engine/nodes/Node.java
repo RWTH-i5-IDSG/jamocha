@@ -38,6 +38,7 @@ import org.jamocha.filter.PathTransformation.PathInfo;
 /**
  * Base class for all node types
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+ * @author Kai Schwarz <kai.schwarz@rwth-aachen.de>
  */
 public abstract class Node {
 

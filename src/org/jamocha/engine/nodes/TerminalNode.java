@@ -28,7 +28,7 @@ import org.jamocha.engine.memory.MemoryFactory;
 public class TerminalNode extends BetaNode {
 
 	public TerminalNode(final MemoryFactory memory) {
-		super(memory);
+		super();
 		// TODO Auto-generated constructor stub
 	}
 

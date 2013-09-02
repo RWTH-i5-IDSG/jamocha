@@ -17,14 +17,19 @@
  */
 package org.jamocha.engine.nodes;
 
+import lombok.NoArgsConstructor;
+
+import org.jamocha.engine.memory.FactAddress;
 import org.jamocha.engine.memory.MemoryFactory;
 import org.jamocha.engine.memory.MemoryHandler;
-import org.jamocha.engine.memory.Template;
+import org.jamocha.filter.Filter;
 
 /**
  * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+ * @author Kai Schwarz <kai.schwarz@rwth-aachen.de>
  */
+@NoArgsConstructor
 public abstract class AlphaNode extends Node {
 
 	protected abstract class AlphaEdgeImpl extends EdgeImpl {
@@ -45,16 +50,15 @@ public abstract class AlphaNode extends Node {
 		}
 
 		@Override
-		public AddressPredecessor localizeAddress(final AddressPredecessor add) {
+		public FactAddress localizeAddress(final FactAddress addressInParent) {
 			throw new UnsupportedOperationException(
 					"The Input of an AlphaNode is not supposed to be used as an address");
 		}
 
 	}
 
-	public AlphaNode(final Template template, final MemoryFactory memoryFactory) {
-		super(template, memoryFactory);
-		this.factTupleCardinality = 1;
+	public AlphaNode(final MemoryFactory memoryFactory, final Filter filter) {
+		super(memoryFactory, filter);
 		// TODO Auto-generated constructor stub
 	}
 

@@ -83,7 +83,6 @@ public class RootNode {
 			for (final ObjectTypeNode matchingOTN : matchingOTNs) {
 				methodPointer.call(matchingOTN, fact);
 			}
-			template = template.getParentTemplate();
 		} while (null != template);
 	}
 
