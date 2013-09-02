@@ -131,6 +131,8 @@ public abstract class Node {
 
 	protected Edge[] inputs;
 	final protected Set<Edge> children = new HashSet<>();
+	//FIXME delocalizeMap needs to be filled!
+	final protected Map<FactAddress, AddressPredecessor> delocalizeMap = new HashMap<>();
 	final protected MemoryHandlerMain memory;
 	
 	protected Node() {
@@ -252,7 +254,9 @@ public abstract class Node {
 	 * @return an address valid in the parent node
 	 */
 	// TODO add the map: address-here -> address in parent
-	public abstract AddressPredecessor delocalizeAddress(
-			FactAddress localNetworkFactAddress);
+	public AddressPredecessor delocalizeAddress(
+			FactAddress localFactAddress) {
+		return delocalizeMap.get(localFactAddress);
+	}
 
 }
