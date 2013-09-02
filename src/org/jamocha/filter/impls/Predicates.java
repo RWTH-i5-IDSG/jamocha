@@ -23,7 +23,7 @@ import org.jamocha.filter.impls.predicates.Less;
 import org.jamocha.filter.impls.predicates.Equals;
 
 /**
- * @author Fabian Ohler
+ * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  * 
  */
 public class Predicates {

@@ -39,7 +39,7 @@ import org.jamocha.filter.Filter.FilterElement;
 import org.jamocha.filter.FunctionWithArguments;
 
 /**
- * @author Fabian Ohler
+ * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  * 
  */
 public class MemoryHandlerTemp implements

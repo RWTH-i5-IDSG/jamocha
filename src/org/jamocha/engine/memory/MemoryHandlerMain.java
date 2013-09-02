@@ -20,7 +20,7 @@ package org.jamocha.engine.memory;
 import org.jamocha.engine.memory.javaimpl.MemoryHandlerTemp;
 
 /**
- * @author Fabian Ohler
+ * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  * 
  */
 public interface MemoryHandlerMain extends MemoryHandler {

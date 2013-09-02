@@ -23,7 +23,7 @@ import lombok.RequiredArgsConstructor;
 import org.jamocha.engine.memory.SlotAddress;
 
 /**
- * @author Fabian Ohler
+ * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  * 
  */
 @Getter

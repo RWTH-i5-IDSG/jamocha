@@ -20,7 +20,7 @@ package org.jamocha.filter;
 import org.jamocha.engine.memory.SlotType;
 
 /**
- * @author Fabian Ohler
+ * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  * 
  */
 public abstract class Predicate implements Function {

@@ -18,7 +18,7 @@
 package org.jamocha.engine.memory.javaimpl;
 
 /**
- * @author Fabian Ohler
+ * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  * 
  */
 public class MemoryFactAddress implements

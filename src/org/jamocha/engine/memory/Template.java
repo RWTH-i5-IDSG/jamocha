@@ -18,7 +18,7 @@
 package org.jamocha.engine.memory;
 
 /**
- * @author Fabian Ohler
+ * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  * 
  */
 

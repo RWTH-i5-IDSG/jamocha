@@ -21,6 +21,10 @@ import org.jamocha.engine.memory.MemoryFactory;
 import org.jamocha.engine.memory.MemoryHandler;
 import org.jamocha.engine.memory.Template;
 
+/**
+ * 
+ * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+ */
 public abstract class AlphaNode extends Node {
 
 	protected abstract class AlphaEdgeImpl extends EdgeImpl {

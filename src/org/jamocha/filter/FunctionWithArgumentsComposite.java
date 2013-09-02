@@ -23,7 +23,11 @@ import java.util.Set;
 
 import org.jamocha.engine.memory.SlotType;
 import org.jamocha.engine.nodes.Node;
-
+/**
+ * 
+ * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+ *
+ */
 public class FunctionWithArgumentsComposite implements FunctionWithArguments {
 
 	final Function function;

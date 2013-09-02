@@ -29,6 +29,11 @@ import lombok.Setter;
 import org.jamocha.engine.memory.SlotType;
 import org.jamocha.engine.nodes.NetworkAddress;
 
+/**
+ * 
+ * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+ *
+ */
 @Getter
 @Setter
 @NoArgsConstructor

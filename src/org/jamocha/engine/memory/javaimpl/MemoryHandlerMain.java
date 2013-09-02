@@ -28,7 +28,7 @@ import org.jamocha.engine.memory.Template;
 import org.jamocha.engine.nodes.Node.Edge;
 
 /**
- * @author Fabian Ohler
+ * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  * 
  */
 public class MemoryHandlerMain implements

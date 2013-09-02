@@ -16,15 +16,16 @@
  * 
  */
 
-/**
- * @author Fabian Ohler (ohler@dbis.rwth-aachen.de)
- */
 package org.jamocha.filter.impls.predicates;
 
 import org.jamocha.engine.memory.SlotType;
 import org.jamocha.filter.Predicate;
 import org.jamocha.filter.TODODatenkrakeFunktionen;
 
+/**
+ * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+ * 
+ */
 public class Equals {
 	static {
 		TODODatenkrakeFunktionen.addImpl(new Predicate() {

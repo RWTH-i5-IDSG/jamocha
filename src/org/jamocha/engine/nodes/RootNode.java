@@ -27,6 +27,7 @@ import org.jamocha.engine.memory.Template;
 import org.jamocha.engine.memory.javaimpl.Fact;
 
 /**
+ * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
 public class RootNode {
 

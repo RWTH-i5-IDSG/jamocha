@@ -21,6 +21,10 @@ package org.jamocha.engine.nodes;
 import org.jamocha.engine.memory.MemoryFactory;
 import org.jamocha.engine.memory.Template;
 
+/**
+ * 
+ * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+ */
 public abstract class BetaNode extends Node {
 
 	public BetaNode(final Template template, final MemoryFactory memoryFactory) {

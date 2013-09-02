@@ -22,6 +22,11 @@ import org.jamocha.engine.memory.MemoryFactory;
 import org.jamocha.engine.memory.Template;
 import org.jamocha.engine.memory.javaimpl.Fact;
 
+/**
+ * 
+ * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+ *
+ */
 public class ObjectTypeNode extends AlphaNode {
 
 	protected final Template template;
