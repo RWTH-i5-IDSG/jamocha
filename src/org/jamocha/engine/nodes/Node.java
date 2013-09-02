@@ -18,6 +18,7 @@
 
 package org.jamocha.engine.nodes;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -42,6 +43,7 @@ import org.jamocha.filter.PathTransformation.PathInfo;
  * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  * @author Kai Schwarz <kai.schwarz@rwth-aachen.de>
+ * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
  */
 public abstract class Node {
 
@@ -75,6 +77,8 @@ public abstract class Node {
 		public void setFilter(final Filter filter);
 
 		public Filter getFilter();
+		
+		public void setAddressMap(final Map<? extends FactAddress, ? extends FactAddress> map);
 
 		public LinkedList<MemoryHandlerTemp> getTempMemories();
 	}
@@ -115,7 +119,7 @@ public abstract class Node {
 		}
 	}
 
-	protected Edge[] inputs;
+	protected Edge[] incomingEdges;
 	final protected Set<Edge> children = new HashSet<>();
 	// FIXME delocalizeMap needs to be filled!
 	final protected Map<FactAddress, AddressPredecessor> delocalizeMap = new HashMap<>();
@@ -130,7 +134,9 @@ public abstract class Node {
 
 	public Node(final MemoryFactory memoryFactory, final Filter filter) {
 		final Set<Path> paths = filter.gatherPaths();
-		final Map<Node, Integer> nodesUsed = new HashMap<>();
+		final Map<Edge, Set<Path>> edgesAndPaths = new HashMap<>();
+		final ArrayList<Edge> edges = new ArrayList<>();
+		final Set<Path> joinedPaths = new HashSet<>();
 		while (!paths.isEmpty()) {
 			// get next path
 			final Path path = paths.iterator().next();
@@ -138,19 +144,26 @@ public abstract class Node {
 					.get(path);
 			// mark all paths as done
 			final Set<Path> joinedWith = pathInfo.getJoinedWith();
+			joinedPaths.addAll(joinedWith);
 			paths.removeAll(joinedWith);
 			final Node clNode = pathInfo.getCurrentlyLowestNode();
-			// FIXME
-			final Integer stored = nodesUsed.get(clNode);
-			final Integer used = (stored == null ? 0 : stored);
-			// final NetworkFactAddress output = clNode.getOutput(used);
-			nodesUsed.put(clNode, used + 1);
-			// create input
-			final Edge nodeInput = connectParent(clNode);
-			// nodeInput.setMemoryFactAddress(output.memoryFactAddressInTarget);
-
+			// create new edge from clNode to this
+			final Edge edge = connectParent(clNode);
+			edges.add(edge);
+			edgesAndPaths.put(edge, joinedWith);
 		}
-		this.memory = memoryFactory.newMemoryHandlerMain(inputs);
+		this.memory = memoryFactory.newMemoryHandlerMain(incomingEdges);
+		// update all Paths from joinedWith to new addresses
+		for(final Edge edge : edges) {
+			final Set<Path> joinedWith = edgesAndPaths.get(edge);
+			for (final Path path : joinedWith) {
+				PathInfo pi = PathTransformation.addressMapping.get(path);
+				pi.setCurrentlyLowestNode(this);
+				pi.setFactAddressInCurrentlyLowestNode(edge.localizeAddress(pi.getFactAddressInCurrentlyLowestNode()));
+				pi.setJoinedWith(joinedPaths);
+			}
+		}
+		incomingEdges = (Edge[]) edges.toArray();
 	}
 
 	protected Edge connectParent(final Node parent) {
@@ -219,7 +232,7 @@ public abstract class Node {
 	 * @return the list of the children
 	 */
 	public Edge[] getInputs() {
-		return this.inputs;
+		return this.incomingEdges;
 	}
 
 	public void distributeTempFacts() {

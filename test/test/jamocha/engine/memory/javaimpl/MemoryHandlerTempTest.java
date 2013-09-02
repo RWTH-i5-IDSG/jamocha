@@ -113,13 +113,13 @@ public class MemoryHandlerTempTest {
 				org.jamocha.engine.memory.MemoryHandlerMain memoryHandlerMain) {
 			super(memoryHandlerMain);
 			this.numChildern = numChildren;
-			this.inputs = new Edge[0];
+			this.incomingEdges = new Edge[0];
 		}
 
 		public NodeMockup(int numChildren) {
 			super(null);
 			this.numChildern = numChildren;
-			this.inputs = new Edge[0];
+			this.incomingEdges = new Edge[0];
 		}
 
 		@Override
@@ -137,8 +137,8 @@ public class MemoryHandlerTempTest {
 		@Override
 		public Edge connectParent(final Node parent) {
 			Edge edge = super.connectParent(parent);
-			inputs = Arrays.copyOf(inputs, inputs.length + 1);
-			inputs[inputs.length - 1] = edge;
+			incomingEdges = Arrays.copyOf(incomingEdges, incomingEdges.length + 1);
+			incomingEdges[incomingEdges.length - 1] = edge;
 			return edge;
 		}
 
@@ -148,7 +148,7 @@ public class MemoryHandlerTempTest {
 			org.jamocha.engine.memory.javaimpl.FactAddress factAddress = (org.jamocha.engine.memory.javaimpl.FactAddress) localNetworkFactAddress;
 			int pos = 0;
 			Edge originEdge = null;
-			for (Edge edge : inputs) {
+			for (Edge edge : incomingEdges) {
 				if (pos > factAddress.getIndex())
 					break;
 				if (pos + edge.getSourceNode().getMemory().getTemplate().length > factAddress

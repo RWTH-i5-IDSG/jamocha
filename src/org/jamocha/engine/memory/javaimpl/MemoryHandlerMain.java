@@ -18,12 +18,13 @@
 package org.jamocha.engine.memory.javaimpl;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import org.jamocha.engine.memory.FactAddress;
-import org.jamocha.engine.memory.SlotAddress;
+import lombok.experimental.Value;
+
 import org.jamocha.engine.memory.Template;
 import org.jamocha.engine.nodes.Node.Edge;
 
@@ -40,27 +41,34 @@ public class MemoryHandlerMain implements
 	final ReadWriteLock lock = new ReentrantReadWriteLock(true);
 	final ArrayList<Fact[]> facts = new ArrayList<>();
 	final Template[] template;
+	final FactAddress[] addresses;
 
 	public MemoryHandlerMain(final Template... templates) {
+		this.addresses = new FactAddress[templates.length];
 		this.template = templates;
+		for (int i = 0; i < this.addresses.length; i++) {
+			this.addresses[i] = null; // TODO
+		}
 	}
 
 	public MemoryHandlerMain(final Edge... inputsToBeJoined) {
-		this.template = inputsToTemplate(inputsToBeJoined);
-	}
-
-	private static Template[] inputsToTemplate(final Edge[] inputs) {
-		final ArrayList<Template> templates = new ArrayList<>();
-		for (final Edge input : inputs) {
-			for (final Template t : input.getSourceNode().getMemory()
-					.getTemplate()) {
-				// input.setMemoryFactAddress(new
-				// org.jamocha.engine.memory.javaimpl.FactAddress(
-				// templates.size()));
-				templates.add(t);
+		final ArrayList<Template> template = new ArrayList<>();
+		final ArrayList<FactAddress> addresses = new ArrayList<>();
+		for (final Edge input : inputsToBeJoined) {
+			final HashMap<FactAddress, FactAddress> fMap = new HashMap<>();
+			final MemoryHandlerMain memoryHandlerMain = (MemoryHandlerMain)input.getSourceNode().getMemory();
+			for (int i = 0; i < memoryHandlerMain.template.length; i++) {
+				final Template t = memoryHandlerMain.template[i];
+				final FactAddress oldFactAddress = memoryHandlerMain.addresses[i];
+				final FactAddress newFactAddress = new FactAddress(addresses.size());
+				fMap.put(oldFactAddress, newFactAddress);
+				template.add(t);
+				addresses.add(newFactAddress);
 			}
+			input.setAddressMap(fMap);
 		}
-		return templates.toArray(new Template[templates.size()]);
+		this.template = template.toArray(new Template[template.size()]);
+		this.addresses = addresses.toArray(new FactAddress[addresses.size()]);
 	}
 
 	/**
@@ -126,7 +134,7 @@ public class MemoryHandlerMain implements
 	 *      SlotAddress, int)
 	 */
 	@Override
-	public Object getValue(final FactAddress address, final SlotAddress slot,
+	public Object getValue(final org.jamocha.engine.memory.FactAddress address, final org.jamocha.engine.memory.SlotAddress slot,
 			final int row) {
 		return this.facts.get(row)[((org.jamocha.engine.memory.javaimpl.FactAddress) address)
 				.getIndex()]
