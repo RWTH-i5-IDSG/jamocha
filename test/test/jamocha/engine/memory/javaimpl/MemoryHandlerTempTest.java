@@ -129,7 +129,7 @@ public class MemoryHandlerTempTest {
 	@Test
 	public void testNewToken() throws InterruptedException {
 		MemoryHandlerTemp memoryHandlerTemp = factory.newToken(memoryHandlerMain, node, new Fact(new Template(SlotType.STRING), "Test"));
-		// TODO assert something
+		assertNotNull(memoryHandlerTemp);
 	}
 
 	/**
