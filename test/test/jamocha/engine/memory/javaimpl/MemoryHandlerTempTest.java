@@ -20,6 +20,7 @@ package test.jamocha.engine.memory.javaimpl;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+import java.util.Arrays;
 import java.util.LinkedList;
 
 import org.jamocha.engine.memory.Fact;
@@ -101,11 +102,13 @@ public class MemoryHandlerTempTest {
 		public NodeMockup(int numChildren, org.jamocha.engine.memory.MemoryHandlerMain memoryHandlerMain) {
 			super(memoryHandlerMain);
 			this.numChildern = numChildren;
+			this.inputs = new Edge[0];
 		}
 		
 		public NodeMockup(int numChildren) {
 			super(null);
 			this.numChildern = numChildren;
+			this.inputs = new Edge[0];
 		}
 
 		@Override
@@ -122,7 +125,10 @@ public class MemoryHandlerTempTest {
 		
 		@Override
 		public Edge connectParent(final Node parent) {
-			return super.connectParent(parent);
+			Edge edge = super.connectParent(parent);
+			inputs = Arrays.copyOf(inputs, inputs.length + 1);
+			inputs[inputs.length - 1] = edge;
+			return edge;
 		}
 
 		@Override
