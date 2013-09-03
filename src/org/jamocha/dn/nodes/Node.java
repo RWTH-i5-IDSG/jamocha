@@ -153,7 +153,6 @@ public abstract class Node {
 			final boolean empty = this.tokenQueue.isEmpty();
 			this.tokenQueue.add(token);
 			if (empty) {
-				// TODO change to real network
 				network.getScheduler().enqueue(this);
 			}
 		}
@@ -176,7 +175,6 @@ public abstract class Node {
 					return;
 				}
 				if (!moreThanOne) {
-					// TODO change to real network
 					network.getScheduler().enqueue(this);
 				}
 			}
