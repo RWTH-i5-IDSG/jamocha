@@ -87,8 +87,8 @@ public abstract class Node {
 
 	@AllArgsConstructor
 	abstract protected class EdgeImpl implements Edge {
-		protected final Node targetNode;
 		protected final Node sourceNode;
+		protected final Node targetNode;
 		protected Filter filter;
 
 		public EdgeImpl(final Node sourceNode, final Node targetNode) {
