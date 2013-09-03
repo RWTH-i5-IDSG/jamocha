@@ -75,7 +75,8 @@ public class RootNode {
 	}
 
 	private void processFact(final Fact fact,
-			final AssertOrRetractInterface methodPointer) {
+			final AssertOrRetractInterface methodPointer)
+			throws InterruptedException {
 		Template template = fact.getTemplate();
 		do {
 			final List<ObjectTypeNode> matchingOTNs = this.templateToInput
@@ -86,11 +87,11 @@ public class RootNode {
 		} while (null != template);
 	}
 
-	public void assertFact(final Fact fact) {
+	public void assertFact(final Fact fact) throws InterruptedException {
 		processFact(fact, AssertOrRetractInterface.assertCall);
 	}
 
-	public void retractFact(final Fact fact) {
+	public void retractFact(final Fact fact) throws InterruptedException {
 		processFact(fact, AssertOrRetractInterface.retractCall);
 	}
 

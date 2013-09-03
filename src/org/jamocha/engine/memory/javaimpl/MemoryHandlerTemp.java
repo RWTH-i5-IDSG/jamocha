@@ -35,6 +35,7 @@ import org.jamocha.engine.memory.MemoryHandler;
 import org.jamocha.engine.memory.SlotAddress;
 import org.jamocha.engine.memory.Template;
 import org.jamocha.engine.nodes.AddressPredecessor;
+import org.jamocha.engine.nodes.CouldNotAcquireLockException;
 import org.jamocha.engine.nodes.Node;
 import org.jamocha.engine.nodes.Node.Edge;
 import org.jamocha.engine.nodes.SlotInFactAddress;
@@ -72,7 +73,7 @@ public class MemoryHandlerTemp implements
 	static MemoryHandlerTemp newBetaTemp(
 			final MemoryHandlerMain originatingMainHandler,
 			final MemoryHandlerTemp token, final Edge originInput,
-			final Filter filter) throws InterruptedException {
+			final Filter filter) throws CouldNotAcquireLockException {
 		return new MemoryHandlerTemp(originatingMainHandler, performJoin(
 				originatingMainHandler, filter, token, originInput),
 				new Semaphore(originInput.getTargetNode().numChildren()));
@@ -81,7 +82,7 @@ public class MemoryHandlerTemp implements
 	static MemoryHandlerTemp newAlphaTemp(
 			final MemoryHandlerMain originatingMainHandler,
 			final MemoryHandlerTemp token, final Node alphaNode,
-			final Filter filter) throws InterruptedException {
+			final Filter filter) throws CouldNotAcquireLockException {
 		final ArrayList<Fact[]> factList = new ArrayList<>(1);
 		factLoop: for (final Fact[] fact : token.facts) {
 			assert fact.length == 1;
@@ -109,8 +110,7 @@ public class MemoryHandlerTemp implements
 
 	static MemoryHandlerTemp newRootTemp(
 			final MemoryHandlerMain originatingMainHandler, final Node otn,
-			final org.jamocha.engine.memory.Fact... facts)
-			throws InterruptedException {
+			final org.jamocha.engine.memory.Fact... facts) {
 		final ArrayList<Fact[]> factList = new ArrayList<>();
 		for (org.jamocha.engine.memory.Fact fact : facts) {
 			factList.add(new Fact[] { new Fact(fact.getSlotValues()) });
@@ -268,7 +268,7 @@ public class MemoryHandlerTemp implements
 	private static ArrayList<Fact[]> performJoin(
 			final MemoryHandlerMain originatingMainHandler,
 			final Filter filter, final MemoryHandlerTemp token,
-			final Edge originInput) throws InterruptedException {
+			final Edge originInput) throws CouldNotAcquireLockException {
 		// get a fixed-size array of indices (size: #inputs of the node),
 		// determine number of inputs for the current join as maxIndex
 		// loop through the inputs line-wise using array[0] .. array[maxIndex]
@@ -292,10 +292,13 @@ public class MemoryHandlerTemp implements
 					// don't lock the originInput
 					continue;
 				}
-				if (!input.getSourceNode().getMemory().tryReadLock()) {
-					throw new Error();
-					// FIXME throw some exception hinting the user to return
-					// the join job to the global queue
+				try {
+					if (!input.getSourceNode().getMemory().tryReadLock()) {
+						throw new CouldNotAcquireLockException();
+					}
+				} catch (final InterruptedException ex) {
+					throw new Error(
+							"Should not happen, interruption of this method is not supported!");
 				}
 				inputToStack.put(input,
 						StackElement.ordinaryInput(input, offset));

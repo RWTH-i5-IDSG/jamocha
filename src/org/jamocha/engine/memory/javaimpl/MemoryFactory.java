@@ -18,6 +18,7 @@
 package org.jamocha.engine.memory.javaimpl;
 
 import org.jamocha.engine.memory.Template;
+import org.jamocha.engine.nodes.CouldNotAcquireLockException;
 import org.jamocha.engine.nodes.Node;
 import org.jamocha.engine.nodes.Node.Edge;
 import org.jamocha.filter.Filter;
@@ -63,7 +64,7 @@ public class MemoryFactory implements org.jamocha.engine.memory.MemoryFactory {
 			final org.jamocha.engine.memory.MemoryHandlerMain originatingMainHandler,
 			final org.jamocha.engine.memory.MemoryHandlerTemp token,
 			final Edge originInput, final Filter filter)
-			throws InterruptedException {
+			throws CouldNotAcquireLockException {
 		return MemoryHandlerTemp.newBetaTemp(
 				(MemoryHandlerMain) originatingMainHandler,
 				(MemoryHandlerTemp) token, originInput, filter);
@@ -78,7 +79,7 @@ public class MemoryFactory implements org.jamocha.engine.memory.MemoryFactory {
 			final org.jamocha.engine.memory.MemoryHandlerMain originatingMainHandler,
 			final org.jamocha.engine.memory.MemoryHandlerTemp token,
 			final Node alphaNode, final Filter filter)
-			throws InterruptedException {
+			throws CouldNotAcquireLockException {
 		return MemoryHandlerTemp.newAlphaTemp(
 				(MemoryHandlerMain) originatingMainHandler,
 				(MemoryHandlerTemp) token, alphaNode, filter);
@@ -91,8 +92,7 @@ public class MemoryFactory implements org.jamocha.engine.memory.MemoryFactory {
 	@Override
 	public MemoryHandlerTemp newToken(
 			final org.jamocha.engine.memory.MemoryHandlerMain originatingMainHandler,
-			final Node otn, final org.jamocha.engine.memory.Fact... facts)
-			throws InterruptedException {
+			final Node otn, final org.jamocha.engine.memory.Fact... facts) {
 		return MemoryHandlerTemp.newRootTemp(
 				(MemoryHandlerMain) originatingMainHandler, otn, facts);
 	}

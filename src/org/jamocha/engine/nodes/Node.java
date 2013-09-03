@@ -134,6 +134,7 @@ public abstract class Node {
 	/**
 	 * Only for testing purposes.
 	 */
+	@Deprecated
 	protected Node(final MemoryFactory memoryFactory, final Node... parents) {
 		this.memoryFactory = memoryFactory;
 		this.incomingEdges = new Edge[parents.length];
@@ -142,12 +143,13 @@ public abstract class Node {
 		}
 		this.memory = memoryFactory.newMemoryHandlerMain(incomingEdges);
 	}
-	
-	protected Node(final MemoryFactory memoryFactory, final Template template, final Path...paths) {
+
+	protected Node(final MemoryFactory memoryFactory, final Template template,
+			final Path... paths) {
 		this.memoryFactory = memoryFactory;
 		this.incomingEdges = new Edge[0];
 		this.memory = memoryFactory.newMemoryHandlerMain(template, paths);
-}
+	}
 
 	public Node(final MemoryFactory memoryFactory, final Filter filter) {
 		this.memoryFactory = memoryFactory;
