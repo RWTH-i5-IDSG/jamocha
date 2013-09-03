@@ -135,9 +135,12 @@ public class BetaNodeTest {
 		Path p2 = new Path(Template.STRING);
 		Path p3 = new Path(Template.STRING);
 		Path p4 = new Path(Template.STRING);
-		@SuppressWarnings("unused")
+		Path p5 = new Path(Template.STRING);
+		Path p6 = new Path(Template.STRING);
+		Path p7 = new Path(Template.STRING);
+		Path p8 = new Path(Template.STRING);
 		ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, p1, p2,
-				p3, p4);
+				p3, p4, p5, p6, p7, p8);
 		BetaNode beta = new BetaNode(Network.DEFAULTNETWORK, new FilterMockup(
 				true, p1, p2));
 		assertSame(otn, PathTransformation.getCurrentlyLowestNode(p3));
@@ -163,6 +166,27 @@ public class BetaNodeTest {
 		assertNotSame(
 				PathTransformation.getFactAddressInCurrentlyLowestNode(p2),
 				PathTransformation.getFactAddressInCurrentlyLowestNode(p4));
+		beta.shareNode(p5, p6);
+		beta.shareNode(p7, p8);
+		betaB.shareNode(p5, p7);
+		assertSame(betaB, PathTransformation.getCurrentlyLowestNode(p5));
+		assertSame(betaB, PathTransformation.getCurrentlyLowestNode(p6));
+		assertSame(betaB, PathTransformation.getCurrentlyLowestNode(p7));
+		assertSame(betaB, PathTransformation.getCurrentlyLowestNode(p8));
+		assertNotSame(
+				PathTransformation.getFactAddressInCurrentlyLowestNode(p5),
+				PathTransformation.getFactAddressInCurrentlyLowestNode(p7));
+		assertNotSame(
+				PathTransformation.getFactAddressInCurrentlyLowestNode(p6),
+				PathTransformation.getFactAddressInCurrentlyLowestNode(p8));
+		assertSame(PathTransformation.getFactAddressInCurrentlyLowestNode(p1),
+				PathTransformation.getFactAddressInCurrentlyLowestNode(p5));
+		assertSame(PathTransformation.getFactAddressInCurrentlyLowestNode(p2),
+				PathTransformation.getFactAddressInCurrentlyLowestNode(p6));
+		assertSame(PathTransformation.getFactAddressInCurrentlyLowestNode(p3),
+				PathTransformation.getFactAddressInCurrentlyLowestNode(p7));
+		assertSame(PathTransformation.getFactAddressInCurrentlyLowestNode(p4),
+				PathTransformation.getFactAddressInCurrentlyLowestNode(p8));
 	}
 
 	/**

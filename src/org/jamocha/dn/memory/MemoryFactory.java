@@ -53,7 +53,8 @@ public interface MemoryFactory {
 
 	public MemoryHandlerTemp processTokenInAlpha(
 			MemoryHandlerMain originatingMainHandler, MemoryHandlerTemp token,
-			Edge originInput, Filter filter) throws CouldNotAcquireLockException;
+			Edge originInput, Filter filter)
+			throws CouldNotAcquireLockException;
 
 	public MemoryHandlerTemp newToken(MemoryHandlerMain originatingMainHandler,
 			Node otn, Fact... facts);
