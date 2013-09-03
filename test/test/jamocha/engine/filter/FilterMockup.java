@@ -37,7 +37,7 @@ import org.junit.Test;
 public class FilterMockup extends Filter {
 	@Deprecated
 	public FilterMockup() {
-		super((FunctionWithArguments[]) null);
+		super(new FunctionWithArguments[] {});
 	}
 
 	public FilterMockup(final boolean returnValue) {
