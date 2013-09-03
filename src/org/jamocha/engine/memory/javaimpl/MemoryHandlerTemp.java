@@ -276,33 +276,34 @@ public class MemoryHandlerTemp implements
 		// increment to lower indices when input-size is reached
 
 		// set locks and create stack
-		final Edge[] nodeInputs = originInput.getTargetNode()
-				.getIncomingEdges();
-		final LinkedHashMap<Edge, StackElement> inputToStack = new LinkedHashMap<>();
-		final int columns = originInput.getTargetNode().getMemory()
-				.getTemplate().length;
-		StackElement tempOriginElement = null;
-		final StackElement originElement;
-		int offset = 0;
-		for (final Edge input : nodeInputs) {
-			if (input == originInput) {
-				tempOriginElement = StackElement.originInput(columns,
-						originInput, token, offset);
-				offset += input.getSourceNode().getMemory().getTemplate().length;
-				// don't lock the originInput
-				continue;
-			}
-			if (!input.getSourceNode().getMemory().tryReadLock()) {
-				throw new Error();
-				// FIXME throw some exception hinting the user to return
-				// the join job to the global queue
-			}
-			inputToStack.put(input, StackElement.ordinaryInput(input, offset));
-			offset += input.getSourceNode().getMemory().getTemplate().length;
-		}
-		originElement = tempOriginElement;
-		inputToStack.put(originInput, originElement);
 		final Node targetNode = originInput.getTargetNode();
+		final Edge[] nodeInputs = targetNode.getIncomingEdges();
+		final LinkedHashMap<Edge, StackElement> inputToStack = new LinkedHashMap<>();
+		final int columns = targetNode.getMemory().getTemplate().length;
+		final StackElement originElement;
+		{
+			StackElement tempOriginElement = null;
+			int offset = 0;
+			for (final Edge input : nodeInputs) {
+				if (input == originInput) {
+					tempOriginElement = StackElement.originInput(columns,
+							originInput, token, offset);
+					offset += input.getSourceNode().getMemory().getTemplate().length;
+					// don't lock the originInput
+					continue;
+				}
+				if (!input.getSourceNode().getMemory().tryReadLock()) {
+					throw new Error();
+					// FIXME throw some exception hinting the user to return
+					// the join job to the global queue
+				}
+				inputToStack.put(input,
+						StackElement.ordinaryInput(input, offset));
+				offset += input.getSourceNode().getMemory().getTemplate().length;
+			}
+			originElement = tempOriginElement;
+		}
+		inputToStack.put(originInput, originElement);
 
 		// get filter steps
 		final FilterElement filterSteps[] = filter.getFilterElements();
