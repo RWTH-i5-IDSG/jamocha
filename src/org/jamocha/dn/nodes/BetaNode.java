@@ -18,9 +18,11 @@
 
 package org.jamocha.dn.nodes;
 
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.jamocha.dn.Network;
 import org.jamocha.dn.Token;
@@ -28,6 +30,7 @@ import org.jamocha.dn.memory.FactAddress;
 import org.jamocha.dn.memory.MemoryHandlerTemp;
 import org.jamocha.filter.Filter;
 import org.jamocha.filter.Path;
+import org.jamocha.filter.PathTransformation;
 
 /**
  * 
@@ -100,7 +103,36 @@ public class BetaNode extends Node {
 
 	@Override
 	public void shareNode(final Path... paths) {
-		// TODO implement
+		assert 0 < this.delocalizeMap.size();
+		assert 0 < this.incomingEdges.length;
+		assert this.incomingEdges[0].getFilter().countParameters() == paths.length;
+		final LinkedHashSet<Path> pathSet = new LinkedHashSet<>();
+		for (final Path path : paths) {
+			pathSet.add(path);
+		}
+		final boolean used[] = new boolean[this.incomingEdges.length];
+		while (!pathSet.isEmpty()) {
+			final Path path = pathSet.iterator().next();
+			final Node currentlyLowestNode = PathTransformation
+					.getCurrentlyLowestNode(path);
+			final Set<Path> joinedWith = PathTransformation.getJoinedWith(path);
+			for (int i = 0; i < this.incomingEdges.length; ++i) {
+				final Edge edge = this.incomingEdges[i];
+				if (edge.getSourceNode() != currentlyLowestNode
+						|| used[i] == true)
+					continue;
+				for (final Path join : joinedWith) {
+					final FactAddress localizedAddress = edge
+							.localizeAddress(PathTransformation
+									.getFactAddressInCurrentlyLowestNode(join));
+					PathTransformation.setCurrentlyLowestNode(join, this);
+					PathTransformation.setFactAddressInCurrentlyLowestNode(
+							join, localizedAddress);
+					pathSet.remove(join);
+				}
+				used[i] = true;
+				break;
+			}
+		}
 	}
-
 }
