@@ -96,8 +96,7 @@ public class AlphaNodeTest {
 		Path p1 = new Path(Template.BOOLEAN);
 		Path p2 = new Path(Template.BOOLEAN);
 		@SuppressWarnings("unused")
-		ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK,
-				Template.BOOLEAN, p1, p2);
+		ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, p1, p2);
 		AlphaNode alpha = new AlphaNode(Network.DEFAULTNETWORK,
 				new FilterMockup(true, p1));
 		alpha.shareNode(p2);
@@ -126,8 +125,7 @@ public class AlphaNodeTest {
 	public void testGetMemory() {
 		Path p1 = new Path(Template.BOOLEAN);
 		@SuppressWarnings("unused")
-		ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK,
-				Template.BOOLEAN, p1);
+		ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, p1);
 		AlphaNode alpha = new AlphaNode(Network.DEFAULTNETWORK,
 				new FilterMockup(true, p1));
 		final MemoryHandlerMain memory = alpha.getMemory();
@@ -145,8 +143,7 @@ public class AlphaNodeTest {
 		Path p1 = new Path(Template.BOOLEAN);
 		Path p2 = new Path(Template.BOOLEAN);
 		@SuppressWarnings("unused")
-		ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK,
-				Template.BOOLEAN, p1, p2);
+		ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, p1, p2);
 		AlphaNode alpha = new AlphaNode(Network.DEFAULTNETWORK,
 				new FilterMockup(true, p1));
 		assertEquals(0, alpha.numChildren());
@@ -172,8 +169,7 @@ public class AlphaNodeTest {
 		Path p1 = new Path(Template.BOOLEAN);
 		Path p2 = new Path(Template.BOOLEAN);
 		@SuppressWarnings("unused")
-		ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK,
-				Template.BOOLEAN, p1, p2);
+		ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, p1, p2);
 		FactAddress fa1 = PathTransformation
 				.getFactAddressInCurrentlyLowestNode(p1);
 		AlphaNode alpha = new AlphaNode(Network.DEFAULTNETWORK,
@@ -196,8 +192,7 @@ public class AlphaNodeTest {
 	public void testGetIncomingEdges() {
 		Path p1 = new Path(Template.BOOLEAN);
 		Path p2 = new Path(Template.BOOLEAN);
-		ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK,
-				Template.BOOLEAN, p1, p2);
+		ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, p1, p2);
 		AlphaNode alpha = new AlphaNode(Network.DEFAULTNETWORK,
 				new FilterMockup(true, p1));
 		Edge[] incomingEdges = alpha.getIncomingEdges();

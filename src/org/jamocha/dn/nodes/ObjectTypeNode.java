@@ -42,7 +42,7 @@ public class ObjectTypeNode extends AlphaNode {
 	}
 
 	public ObjectTypeNode(final Network network, final Path... paths) {
-		super(network, getTemplateFromPaths(paths));
+		super(network, getTemplateFromPaths(paths), paths);
 		this.template = this.memory.getTemplate()[0];
 		for (final Path path : paths) {
 			PathTransformation.setCurrentlyLowestNode(path, this);

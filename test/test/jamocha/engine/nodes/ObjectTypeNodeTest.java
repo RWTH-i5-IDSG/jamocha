@@ -80,7 +80,7 @@ public class ObjectTypeNodeTest {
 	public void testObjectTypeNode() {
 		Path p1 = new Path(Template.STRING);
 		Path p2 = new Path(Template.STRING);
-		ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, Template.STRING, p1, p2);
+		ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, p1, p2);
 		assertEquals(otn, PathTransformation.getCurrentlyLowestNode(p1));
 		Set<Path> joinedWith = PathTransformation.getJoinedWith(p1);
 		assertEquals(1, joinedWith.size());
@@ -97,10 +97,10 @@ public class ObjectTypeNodeTest {
 	@Test
 	public void testGetTemplate() {
 		Path p1 = new Path(Template.STRING);
-		ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK,
-				Template.STRING, p1);
+		ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, p1);
 		assertEquals(Template.STRING, otn.getTemplate());
-		otn = new ObjectTypeNode(Network.DEFAULTNETWORK, Template.DOUBLE, p1);
+		p1 = new Path(Template.DOUBLE);
+		otn = new ObjectTypeNode(Network.DEFAULTNETWORK, p1);
 		assertEquals(Template.DOUBLE, otn.getTemplate());
 	}
 
@@ -112,8 +112,7 @@ public class ObjectTypeNodeTest {
 	@Test
 	public void testAssertFact() {
 		Path p1 = new Path(Template.STRING);
-		ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK,
-				Template.STRING, p1);
+		ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, p1);
 		otn.assertFact(new Fact(Template.STRING, "TestValue 1"));
 	}
 
@@ -126,8 +125,7 @@ public class ObjectTypeNodeTest {
 	public void testRetractFact() {
 		Path p1 = new Path(Template.STRING);
 		@SuppressWarnings("unused")
-		ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK,
-				Template.STRING, p1);
+		ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, p1);
 		// TODO implement when retractfact is done
 	}
 
@@ -137,8 +135,7 @@ public class ObjectTypeNodeTest {
 	@Test
 	public void testGetChildren() {
 		final Path p1 = new Path(Template.STRING);
-		ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK,
-				Template.STRING, p1);
+		ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, p1);
 		final Collection<Edge> outgoingEdges = otn.getOutgoingEdges();
 		assertNotNull(outgoingEdges);
 		assertEquals(0, outgoingEdges.size());
@@ -150,8 +147,7 @@ public class ObjectTypeNodeTest {
 	@Test
 	public void testGetMemory() {
 		Path p1 = new Path(Template.STRING);
-		ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK,
-				Template.STRING, p1);
+		ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, p1);
 		assertEquals(0, otn.getMemory().size());
 	}
 
@@ -161,8 +157,7 @@ public class ObjectTypeNodeTest {
 	@Test
 	public void testNumChildren() {
 		Path p1 = new Path(Template.STRING);
-		ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK,
-				Template.STRING, p1);
+		ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, p1);
 		assertEquals(0, otn.numChildren());
 	}
 
@@ -174,8 +169,7 @@ public class ObjectTypeNodeTest {
 	@Test(expected = UnsupportedOperationException.class)
 	public void testDelocalizeAddress() {
 		Path p1 = new Path(Template.STRING);
-		ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK,
-				Template.STRING, p1);
+		ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, p1);
 		otn.delocalizeAddress(PathTransformation
 				.getFactAddressInCurrentlyLowestNode(p1));
 	}
@@ -186,8 +180,7 @@ public class ObjectTypeNodeTest {
 	@Test(expected = UnsupportedOperationException.class)
 	public void testGetIncomingEdges() {
 		Path p1 = new Path(Template.STRING);
-		ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK,
-				Template.STRING, p1);
+		ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, p1);
 		otn.getIncomingEdges();
 	}
 

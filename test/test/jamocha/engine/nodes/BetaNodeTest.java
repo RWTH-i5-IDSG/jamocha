@@ -103,8 +103,8 @@ public class BetaNodeTest {
 		Path p1 = new Path(Template.STRING);
 		Path p2 = new Path(Template.STRING);
 		Path p3 = new Path(Template.STRING);
-		ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK,
-				Template.STRING, p1, p2, p3);
+		ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, p1, p2,
+				p3);
 		BetaNode beta = new BetaNode(Network.DEFAULTNETWORK, new FilterMockup(
 				true, p1, p2));
 		Edge[] incomingEdges = beta.getIncomingEdges();
@@ -171,7 +171,7 @@ public class BetaNodeTest {
 		final Path p2 = new Path(Template.STRING);
 		@SuppressWarnings("unused")
 		final ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK,
-				Template.STRING, p1, p2);
+				p1, p2);
 		final FactAddress fa1 = PathTransformation
 				.getFactAddressInCurrentlyLowestNode(p1);
 		final FactAddress fa2 = PathTransformation
