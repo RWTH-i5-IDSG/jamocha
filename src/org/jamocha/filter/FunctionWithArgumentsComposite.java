@@ -22,7 +22,7 @@ import java.util.Arrays;
 import java.util.Set;
 
 import org.jamocha.engine.memory.SlotType;
-import org.jamocha.engine.nodes.Node;
+import org.jamocha.engine.nodes.SlotInFactAddress;
 
 /**
  * 
@@ -99,7 +99,10 @@ public class FunctionWithArgumentsComposite implements FunctionWithArguments {
 
 	@Override
 	public FunctionWithArguments translatePath(
-			final PathTransformation translation, final Node childNode) {
+			final ArrayList<SlotInFactAddress> addressesInTarget) {
+		for (int i = 0; i < this.args.length; ++i) {
+			args[i] = args[i].translatePath(addressesInTarget);
+		}
 		return this;
 	}
 

@@ -17,10 +17,11 @@
  */
 package org.jamocha.filter;
 
+import java.util.ArrayList;
 import java.util.Set;
 
 import org.jamocha.engine.memory.SlotType;
-import org.jamocha.engine.nodes.Node;
+import org.jamocha.engine.nodes.SlotInFactAddress;
 
 /**
  * 
@@ -59,7 +60,7 @@ public class ConstantLeaf implements FunctionWithArguments {
 
 	@Override
 	public FunctionWithArguments translatePath(
-			final PathTransformation translation, final Node childNode) {
+			final ArrayList<SlotInFactAddress> addressesInTarget) {
 		return this;
 	}
 

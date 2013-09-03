@@ -17,11 +17,14 @@
  */
 package org.jamocha.filter;
 
+import java.util.ArrayList;
 import java.util.Set;
 
+import org.jamocha.engine.memory.FactAddress;
 import org.jamocha.engine.memory.SlotAddress;
 import org.jamocha.engine.memory.SlotType;
-import org.jamocha.engine.nodes.Node;
+import org.jamocha.engine.nodes.SlotInFactAddress;
+import org.jamocha.filter.PathTransformation.PathInfo;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -98,7 +101,7 @@ public class PathLeaf implements FunctionWithArguments {
 
 		@Override
 		public FunctionWithArguments translatePath(
-				final PathTransformation translation, final Node childNode) {
+				final ArrayList<SlotInFactAddress> addressesInTarget) {
 			return this;
 		}
 
@@ -109,9 +112,14 @@ public class PathLeaf implements FunctionWithArguments {
 	}
 
 	@Override
-	public ParameterLeaf translatePath(final PathTransformation translation,
-			final Node childNode) {
-		// TODO impl Christoph's algorithm
+	public ParameterLeaf translatePath(
+			final ArrayList<SlotInFactAddress> addressesInTarget) {
+		final PathInfo pathInfo = PathTransformation.addressMapping
+				.get(this.path);
+		final FactAddress factAddressInCurrentlyLowestNode = pathInfo
+				.getFactAddressInCurrentlyLowestNode();
+		addressesInTarget.add(new SlotInFactAddress(
+				factAddressInCurrentlyLowestNode, this.slot));
 		return new ParameterLeaf(returnType());
 	}
 

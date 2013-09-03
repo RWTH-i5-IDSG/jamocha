@@ -20,15 +20,14 @@ package test.jamocha.engine.filter;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.util.ArrayList;
 import java.util.Set;
 
 import org.jamocha.engine.memory.SlotType;
-import org.jamocha.engine.nodes.Node;
 import org.jamocha.engine.nodes.SlotInFactAddress;
 import org.jamocha.filter.Filter;
 import org.jamocha.filter.FunctionWithArguments;
 import org.jamocha.filter.Path;
-import org.jamocha.filter.PathTransformation;
 import org.junit.Test;
 
 /**
@@ -36,37 +35,33 @@ import org.junit.Test;
  * 
  */
 public class FilterMockup extends Filter {
-	public FilterMockup() {
-	}
-
 	public FilterMockup(final boolean returnValue) {
-		super(new FilterElement[] { new FilterElement(
-				new FunctionWithArguments() {
-					@Override
-					public SlotType returnType() {
-						return SlotType.BOOLEAN;
-					}
+		super(new FunctionWithArguments[] { new FunctionWithArguments() {
+			@Override
+			public SlotType returnType() {
+				return SlotType.BOOLEAN;
+			}
 
-					@Override
-					public SlotType[] paramTypes() {
-						return SlotType.empty;
-					}
+			@Override
+			public SlotType[] paramTypes() {
+				return SlotType.empty;
+			}
 
-					@Override
-					public Object evaluate(final Object... params) {
-						return returnValue;
-					}
+			@Override
+			public Object evaluate(final Object... params) {
+				return returnValue;
+			}
 
-					@Override
-					public FunctionWithArguments translatePath(
-							final PathTransformation translation, Node childNode) {
-						return this;
-					}
+			@Override
+			public FunctionWithArguments translatePath(
+					final ArrayList<SlotInFactAddress> addressesInTarget) {
+				return this;
+			}
 
-					@Override
-					public void gatherPaths(final Set<Path> paths) {
-					}
-				}, new SlotInFactAddress[] {}) });
+			@Override
+			public void gatherPaths(final Set<Path> paths) {
+			}
+		} });
 	}
 
 	public static FilterMockup alwaysTrue() {

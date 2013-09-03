@@ -17,14 +17,12 @@
  */
 package org.jamocha.filter;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 
 import org.jamocha.engine.memory.SlotType;
 import org.jamocha.engine.nodes.SlotInFactAddress;
@@ -35,25 +33,43 @@ import org.jamocha.engine.nodes.SlotInFactAddress;
  * 
  */
 @Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
 public class Filter {
 	/**
 	 * Contains Predicates in an ordered list, which is processed from front to
 	 * back. Note: Hierarchy doesn't enforce the filterSteps to be Predicates,
 	 * ctor needs to do this
 	 */
-	FilterElement filterElements[];
+	final FilterElement filterElements[];
 
 	@Getter
+	@RequiredArgsConstructor
 	public static class FilterElement {
 		final FunctionWithArguments function;
-		final SlotInFactAddress addressesInTarget[];
-		
-		public FilterElement(FunctionWithArguments function, SlotInFactAddress... addressesInTarget) {
+		SlotInFactAddress addressesInTarget[];
+
+		/**
+		 * For Unit-Tests only!
+		 */
+		@Deprecated
+		public FilterElement(final FunctionWithArguments function,
+				final SlotInFactAddress... addressesInTarget) {
 			this.function = function;
 			this.addressesInTarget = addressesInTarget;
+		}
+	}
+
+	/**
+	 * For Unit-Tests only!
+	 */
+	@Deprecated
+	public Filter(final FilterElement filterElements[]) {
+		this.filterElements = filterElements;
+		for (final FilterElement filterElement : filterElements) {
+			final FunctionWithArguments predicate = filterElement.getFunction();
+			if (predicate.returnType() != SlotType.BOOLEAN) {
+				throw new IllegalArgumentException(
+						"The top-level FunctionWithArguments of a Filter have to be predicates!");
+			}
 		}
 	}
 
@@ -66,7 +82,16 @@ public class Filter {
 				throw new IllegalArgumentException(
 						"The top-level FunctionWithArguments of a Filter have to be predicates!");
 			}
-			this.filterElements[i] = new FilterElement(predicate, null);
+			this.filterElements[i] = new FilterElement(predicate);
+		}
+	}
+
+	public void translatePath() {
+		for (final FilterElement filterElement : this.filterElements) {
+			final ArrayList<SlotInFactAddress> addressesInTarget = new ArrayList<>();
+			filterElement.function.translatePath(addressesInTarget);
+			filterElement.addressesInTarget = addressesInTarget
+					.toArray(new SlotInFactAddress[addressesInTarget.size()]);
 		}
 	}
 
