@@ -332,8 +332,4 @@ public abstract class Node {
 		this.tokenQueue.enqueue(token);
 	}
 
-	public Runnable getTokenQueue() {
-		return this.tokenQueue;
-	}
-
 }
