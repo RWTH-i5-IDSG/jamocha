@@ -127,6 +127,45 @@ public class BetaNodeTest {
 	}
 
 	/**
+	 * 
+	 */
+	@Test
+	public void testNodeSharing() {
+		Path p1 = new Path(Template.STRING);
+		Path p2 = new Path(Template.STRING);
+		Path p3 = new Path(Template.STRING);
+		Path p4 = new Path(Template.STRING);
+		@SuppressWarnings("unused")
+		ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, p1, p2,
+				p3, p4);
+		BetaNode beta = new BetaNode(Network.DEFAULTNETWORK, new FilterMockup(
+				true, p1, p2));
+		assertSame(otn, PathTransformation.getCurrentlyLowestNode(p3));
+		assertSame(otn, PathTransformation.getCurrentlyLowestNode(p4));
+		beta.shareNode(p3, p4);
+		assertSame(beta, PathTransformation.getCurrentlyLowestNode(p1));
+		assertSame(beta, PathTransformation.getCurrentlyLowestNode(p2));
+		assertSame(beta, PathTransformation.getCurrentlyLowestNode(p3));
+		assertSame(beta, PathTransformation.getCurrentlyLowestNode(p4));
+		assertSame(PathTransformation.getFactAddressInCurrentlyLowestNode(p1),
+				PathTransformation.getFactAddressInCurrentlyLowestNode(p3));
+		assertSame(PathTransformation.getFactAddressInCurrentlyLowestNode(p2),
+				PathTransformation.getFactAddressInCurrentlyLowestNode(p4));
+		BetaNode betaB = new BetaNode(Network.DEFAULTNETWORK, new FilterMockup(
+				true, p1, p3));
+		assertSame(betaB, PathTransformation.getCurrentlyLowestNode(p1));
+		assertSame(betaB, PathTransformation.getCurrentlyLowestNode(p2));
+		assertSame(betaB, PathTransformation.getCurrentlyLowestNode(p3));
+		assertSame(betaB, PathTransformation.getCurrentlyLowestNode(p4));
+		assertNotSame(
+				PathTransformation.getFactAddressInCurrentlyLowestNode(p1),
+				PathTransformation.getFactAddressInCurrentlyLowestNode(p3));
+		assertNotSame(
+				PathTransformation.getFactAddressInCurrentlyLowestNode(p2),
+				PathTransformation.getFactAddressInCurrentlyLowestNode(p4));
+	}
+
+	/**
 	 * Test method for {@link org.jamocha.dn.nodes.Node#getChildren()}.
 	 */
 	@Test
