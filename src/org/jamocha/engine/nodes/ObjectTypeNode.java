@@ -20,6 +20,7 @@ package org.jamocha.engine.nodes;
 
 import org.jamocha.engine.memory.Fact;
 import org.jamocha.engine.memory.MemoryFactory;
+import org.jamocha.engine.memory.MemoryHandlerTemp;
 import org.jamocha.engine.memory.Template;
 import org.jamocha.filter.Path;
 
@@ -52,8 +53,11 @@ public class ObjectTypeNode extends AlphaNode {
 	}
 
 	public void assertFact(final Fact fact) {
-		memoryFactory.newToken(this.memory, this, fact);
-		// TODO deliver token to children
+		final MemoryHandlerTemp token = memoryFactory.newToken(this.memory,
+				this, fact);
+		for (final Edge edge : this.children) {
+			edge.processPlusToken(token);
+		}
 	}
 
 	public void retractFact(final Fact fact) {
