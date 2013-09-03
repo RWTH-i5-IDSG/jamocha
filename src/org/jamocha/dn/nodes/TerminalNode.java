@@ -29,12 +29,12 @@ public class TerminalNode extends BetaNode {
 
 	public TerminalNode(final Network network) {
 		super(network, null);
-		// TODO Auto-generated constructor stub
+		// FIXME TerminalNode constructor
 	}
 
 	@Override
 	protected EdgeImpl newEdge(Node source) {
-		// TODO Auto-generated method stub
+		// TODO Implement edges for TerminalNode
 		return null;
 	}
 

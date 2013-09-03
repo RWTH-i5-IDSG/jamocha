@@ -81,7 +81,7 @@ public class MemoryHandlerTemp implements
 
 	static MemoryHandlerTemp newAlphaTemp(
 			final MemoryHandlerMain originatingMainHandler,
-			final MemoryHandlerTemp token, final Node alphaNode,
+			final MemoryHandlerTemp token, final Edge originInput,
 			final Filter filter) throws CouldNotAcquireLockException {
 		final ArrayList<Fact[]> factList = new ArrayList<>(1);
 		factLoop: for (final Fact[] fact : token.facts) {
@@ -105,7 +105,7 @@ public class MemoryHandlerTemp implements
 			factList.add(fact);
 		}
 		return new MemoryHandlerTemp(originatingMainHandler, factList,
-				new Semaphore(alphaNode.numChildren()));
+				new Semaphore(originInput.getTargetNode().numChildren()));
 	}
 
 	static MemoryHandlerTemp newRootTemp(

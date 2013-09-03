@@ -79,17 +79,17 @@ public class MemoryHandlerTempTest {
 
 			final int offset;
 
-			public EdgeMockup(Node sourceNode, Node targetNode, int offset) {
-				super(sourceNode, targetNode);
+			public EdgeMockup(Network network, Node sourceNode, Node targetNode, int offset) {
+				super(network, sourceNode, targetNode);
 				this.offset = offset;
 			}
 
 			@Override
-			public void processPlusToken(MemoryHandler memory) {
+			public void processPlusToken(org.jamocha.dn.memory.MemoryHandlerTemp memory) {
 			}
 
 			@Override
-			public void processMinusToken(MemoryHandler memory) {
+			public void processMinusToken(org.jamocha.dn.memory.MemoryHandlerTemp memory) {
 			}
 
 			@Override
@@ -137,7 +137,7 @@ public class MemoryHandlerTempTest {
 
 		@Override
 		protected EdgeImpl newEdge(Node source) {
-			EdgeImpl edge = new EdgeMockup(source, this, currentOffset);
+			EdgeImpl edge = new EdgeMockup(Network.DEFAULTNETWORK, source, this, currentOffset);
 			currentOffset += source.getMemory().getTemplate().length;
 			return edge;
 		}

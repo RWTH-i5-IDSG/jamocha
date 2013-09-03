@@ -17,7 +17,6 @@
  */
 package org.jamocha.dn.memory;
 
-//TODO Slot enum umbenennen?
 public enum SlotType {
 	LONG, DOUBLE, STRING, BOOLEAN;
 

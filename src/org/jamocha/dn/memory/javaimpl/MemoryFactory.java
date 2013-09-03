@@ -81,11 +81,11 @@ public class MemoryFactory implements org.jamocha.dn.memory.MemoryFactory {
 	public MemoryHandlerTemp processTokenInAlpha(
 			final org.jamocha.dn.memory.MemoryHandlerMain originatingMainHandler,
 			final org.jamocha.dn.memory.MemoryHandlerTemp token,
-			final Node alphaNode, final Filter filter)
+			final Edge originInput, final Filter filter)
 			throws CouldNotAcquireLockException {
 		return MemoryHandlerTemp.newAlphaTemp(
 				(MemoryHandlerMain) originatingMainHandler,
-				(MemoryHandlerTemp) token, alphaNode, filter);
+				(MemoryHandlerTemp) token, originInput, filter);
 	}
 
 	/**

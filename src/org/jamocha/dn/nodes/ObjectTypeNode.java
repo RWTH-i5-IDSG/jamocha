@@ -65,7 +65,7 @@ public class ObjectTypeNode extends AlphaNode {
 	public void retractFact(final Fact fact) {
 		throw new UnsupportedOperationException(
 				"retraction of facts not implemented yet");
-		// TODO
+		// TODO retract Fact
 	}
 
 	@Override

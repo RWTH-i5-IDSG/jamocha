@@ -23,8 +23,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.jamocha.dn.Network;
+import org.jamocha.dn.Token;
 import org.jamocha.dn.memory.FactAddress;
-import org.jamocha.dn.memory.MemoryHandler;
 import org.jamocha.dn.memory.MemoryHandlerTemp;
 import org.jamocha.filter.Filter;
 
@@ -42,23 +42,25 @@ public class BetaNode extends Node {
 		private Map<? extends FactAddress, ? extends FactAddress> addressMap;
 		private final LinkedList<MemoryHandlerTemp> tempMemories = new LinkedList<>();
 
-		public BetaEdgeImpl(final Node sourceNode, final Node targetNode) {
-			super(sourceNode, targetNode);
-			// TODO Auto-generated constructor stub
+		public BetaEdgeImpl(final Network network, final Node sourceNode,
+				final Node targetNode) {
+			super(network, sourceNode, targetNode);
 		}
 
 		@Override
-		public void processPlusToken(final MemoryHandler memory)
+		public void processPlusToken(final MemoryHandlerTemp memory)
 				throws CouldNotAcquireLockException {
-			// TODO Auto-generated method stub
-
+			final MemoryHandlerTemp mem = this.network.getMemoryFactory()
+					.processTokenInBeta(targetNode.memory, memory, this,
+							this.filter);
+			for (final Edge edge : targetNode.children) {
+				edge.getTargetNode().enqueue(new Token.PlusToken(mem, edge));
+			}
 		}
 
 		@Override
-		public void processMinusToken(final MemoryHandler memory)
+		public void processMinusToken(final MemoryHandlerTemp memory)
 				throws CouldNotAcquireLockException {
-			// TODO Auto-generated method stub
-
 		}
 
 		@Override
@@ -88,12 +90,11 @@ public class BetaNode extends Node {
 
 	public BetaNode(final Network network, final Filter filter) {
 		super(network, filter);
-		// TODO Auto-generated constructor stub
 	}
 
 	@Override
 	protected EdgeImpl newEdge(Node source) {
-		return new BetaEdgeImpl(source, this);
+		return new BetaEdgeImpl(this.network, source, this);
 	}
 
 }

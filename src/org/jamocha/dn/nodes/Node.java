@@ -34,7 +34,6 @@ import lombok.RequiredArgsConstructor;
 import org.jamocha.dn.Network;
 import org.jamocha.dn.Token;
 import org.jamocha.dn.memory.FactAddress;
-import org.jamocha.dn.memory.MemoryHandler;
 import org.jamocha.dn.memory.MemoryHandlerMain;
 import org.jamocha.dn.memory.MemoryHandlerTemp;
 import org.jamocha.dn.memory.Template;
@@ -53,10 +52,10 @@ import org.jamocha.filter.PathTransformation.PathInfo;
 public abstract class Node {
 
 	public static interface Edge {
-		public void processPlusToken(final MemoryHandler memory)
+		public void processPlusToken(final MemoryHandlerTemp memory)
 				throws CouldNotAcquireLockException;
 
-		public void processMinusToken(final MemoryHandler memory)
+		public void processMinusToken(final MemoryHandlerTemp memory)
 				throws CouldNotAcquireLockException;
 
 		public Node getSourceNode();
@@ -99,12 +98,13 @@ public abstract class Node {
 
 	@AllArgsConstructor
 	abstract protected class EdgeImpl implements Edge {
+		protected final Network network;
 		protected final Node sourceNode;
 		protected final Node targetNode;
 		protected Filter filter;
 
-		public EdgeImpl(final Node sourceNode, final Node targetNode) {
-			this(sourceNode, targetNode, null);
+		public EdgeImpl(final Network network, final Node sourceNode, final Node targetNode) {
+			this(network, sourceNode, targetNode, null);
 		}
 
 		@Override

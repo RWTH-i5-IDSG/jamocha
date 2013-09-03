@@ -66,7 +66,7 @@ public class TerminalNodeTest {
 	 */
 	@Test
 	public void testNewEdge() {
-		fail("Not yet implemented"); // TODO
+		fail("Not yet implemented"); // TODO Test
 	}
 
 	/**
@@ -76,7 +76,7 @@ public class TerminalNodeTest {
 	 */
 	@Test
 	public void testTerminalNode() {
-		fail("Not yet implemented"); // TODO
+		fail("Not yet implemented"); // TODO Test
 	}
 
 	/**
@@ -84,7 +84,7 @@ public class TerminalNodeTest {
 	 */
 	@Test
 	public void testGetChildren() {
-		fail("Not yet implemented"); // TODO
+		fail("Not yet implemented"); // TODO Test
 	}
 
 	/**
@@ -92,7 +92,7 @@ public class TerminalNodeTest {
 	 */
 	@Test
 	public void testGetMemory() {
-		fail("Not yet implemented"); // TODO
+		fail("Not yet implemented"); // TODO Test
 	}
 
 	/**
@@ -100,7 +100,7 @@ public class TerminalNodeTest {
 	 */
 	@Test
 	public void testNumChildren() {
-		fail("Not yet implemented"); // TODO
+		fail("Not yet implemented"); // TODO Test
 	}
 
 	/**
@@ -110,7 +110,7 @@ public class TerminalNodeTest {
 	 */
 	@Test
 	public void testDelocalizeAddress() {
-		fail("Not yet implemented"); // TODO
+		fail("Not yet implemented"); // TODO Test
 	}
 
 	/**
@@ -119,7 +119,7 @@ public class TerminalNodeTest {
 	 */
 	@Test
 	public void testEnqueue() {
-		fail("Not yet implemented"); // TODO
+		fail("Not yet implemented"); // TODO Test
 	}
 
 	/**
@@ -127,7 +127,7 @@ public class TerminalNodeTest {
 	 */
 	@Test
 	public void testGetTokenQueue() {
-		fail("Not yet implemented"); // TODO
+		fail("Not yet implemented"); // TODO Test
 	}
 
 	/**
@@ -135,7 +135,7 @@ public class TerminalNodeTest {
 	 */
 	@Test
 	public void testGetIncomingEdges() {
-		fail("Not yet implemented"); // TODO
+		fail("Not yet implemented"); // TODO Test
 	}
 
 }
