@@ -65,11 +65,15 @@ public class FilterMockup extends Filter {
 	}
 
 	public static FilterMockup alwaysTrue() {
-		return new FilterMockup(true);
+		final FilterMockup filterMockup = new FilterMockup(true);
+		filterMockup.translatePath();
+		return filterMockup;
 	}
 
 	public static FilterMockup alwaysFalse() {
-		return new FilterMockup(false);
+		final FilterMockup filterMockup = new FilterMockup(false);
+		filterMockup.translatePath();
+		return filterMockup;
 	}
 
 	/**
