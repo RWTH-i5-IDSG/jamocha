@@ -50,6 +50,7 @@ public class MemoryHandlerMain implements
 		for (final Path path : paths) {
 			PathTransformation.setFactAddressInCurrentlyLowestNode(path,
 					address);
+			PathTransformation.setJoinedWith(path);
 		}
 	}
 

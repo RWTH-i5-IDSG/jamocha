@@ -35,35 +35,6 @@ import org.junit.Test;
  */
 public class FilterMockup extends Filter {
 
-	public FilterMockup(final boolean returnValue) {
-		super(new FunctionWithArguments[] { new FunctionWithArguments() {
-			@Override
-			public SlotType getReturnType() {
-				return SlotType.BOOLEAN;
-			}
-
-			@Override
-			public SlotType[] getParamTypes() {
-				return SlotType.empty;
-			}
-
-			@Override
-			public Object evaluate(final Object... params) {
-				return returnValue;
-			}
-
-			@Override
-			public FunctionWithArguments translatePath(
-					final ArrayList<SlotInFactAddress> addressesInTarget) {
-				return this;
-			}
-
-			@Override
-			public void gatherPaths(final Set<Path> paths) {
-			}
-		} });
-	}
-
 	public FilterMockup(final boolean returnValue, final Path... paths) {
 		super(new FunctionWithArguments[] { new FunctionWithArguments() {
 			@Override

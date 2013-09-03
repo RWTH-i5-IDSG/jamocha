@@ -25,6 +25,7 @@ import org.jamocha.dn.memory.FactAddress;
 import org.jamocha.dn.memory.MemoryHandlerTemp;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.filter.Path;
+import org.jamocha.filter.PathTransformation;
 
 /**
  * 
@@ -39,6 +40,9 @@ public class ObjectTypeNode extends AlphaNode {
 			final Path... paths) {
 		super(network, template, paths);
 		this.template = template;
+		for (final Path path : paths) {
+			PathTransformation.setCurrentlyLowestNode(path, this);
+		}
 	}
 
 	/**
@@ -76,7 +80,7 @@ public class ObjectTypeNode extends AlphaNode {
 	@Override
 	public AddressPredecessor delocalizeAddress(FactAddress localFactAddress) {
 		throw new UnsupportedOperationException(
-				"No previouse addresses for addresses in an OTN.");
+				"No previous addresses for addresses in an OTN.");
 	}
 
 }

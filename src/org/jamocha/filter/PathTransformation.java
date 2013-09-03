@@ -95,6 +95,16 @@ public class PathTransformation {
 		getPathInfo(path).setJoinedWith(joinedWith);
 	}
 
+	public static void setJoinedWith(final Path... joined) {
+		assert 0 < joined.length;
+		final Path path = joined[0];
+		final Set<Path> newPaths = new HashSet<>();
+		for (final Path newPath : joined) {
+			newPaths.add(newPath);
+		}
+		getPathInfo(path).setJoinedWith(newPaths);
+	}
+
 	public static void setPathInfo(final Path path, final PathInfo pathInfo) {
 		if (pathInfo != null)
 			addressMapping.put(path, pathInfo);
