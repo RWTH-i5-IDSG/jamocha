@@ -24,13 +24,16 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Set;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
+import org.jamocha.dn.Network;
+import org.jamocha.dn.Token;
 import org.jamocha.dn.memory.FactAddress;
-import org.jamocha.dn.memory.MemoryFactory;
 import org.jamocha.dn.memory.MemoryHandler;
 import org.jamocha.dn.memory.MemoryHandlerMain;
 import org.jamocha.dn.memory.MemoryHandlerTemp;
@@ -135,30 +138,76 @@ public abstract class Node {
 	// in other children!
 	final protected Map<FactAddress, AddressPredecessor> delocalizeMap = new HashMap<>();
 	final protected MemoryHandlerMain memory;
-	final protected MemoryFactory memoryFactory;
+	final protected Network network;
+	final protected TokenQueue tokenQueue;
+
+	@RequiredArgsConstructor
+	public class TokenQueue implements Runnable {
+		final static int tokenQueueCapacity = Integer.MAX_VALUE;
+		final Queue<Token> tokenQueue = new LinkedList<>();
+		final Network network;
+
+		synchronized public void enqueue(final Token token) {
+			final boolean empty = this.tokenQueue.isEmpty();
+			this.tokenQueue.add(token);
+			if (empty) {
+				// TODO change to real network
+				network.getScheduler().enqueue(this);
+			}
+		}
+
+		@Override
+		public void run() {
+			final Token token = this.tokenQueue.peek();
+			assert null != token; // queue shouldn't have been in the work queue
+			boolean success = true;
+			try {
+				token.run();
+			} catch (final CouldNotAcquireLockException ex) {
+				success = false;
+			}
+			synchronized (this) {
+				boolean moreThanOne = this.tokenQueue.size() > 1;
+				this.tokenQueue.remove();
+				if (!success) {
+					enqueue(token);
+					return;
+				}
+				if (!moreThanOne) {
+					// TODO change to real network
+					network.getScheduler().enqueue(this);
+				}
+			}
+		}
+	}
 
 	/**
 	 * Only for testing purposes.
 	 */
 	@Deprecated
-	protected Node(final MemoryFactory memoryFactory, final Node... parents) {
-		this.memoryFactory = memoryFactory;
+	protected Node(final Network network, final Node... parents) {
+		this.network = network;
+		this.tokenQueue = new TokenQueue(network);
 		this.incomingEdges = new Edge[parents.length];
 		for (int i = 0; i < parents.length; i++) {
 			this.incomingEdges[i] = this.connectParent(parents[i]);
 		}
-		this.memory = memoryFactory.newMemoryHandlerMain(incomingEdges);
+		this.memory = network.getMemoryFactory().newMemoryHandlerMain(
+				incomingEdges);
 	}
 
-	protected Node(final MemoryFactory memoryFactory, final Template template,
+	protected Node(final Network network, final Template template,
 			final Path... paths) {
-		this.memoryFactory = memoryFactory;
+		this.network = network;
+		this.tokenQueue = new TokenQueue(network);
 		this.incomingEdges = new Edge[0];
-		this.memory = memoryFactory.newMemoryHandlerMain(template, paths);
+		this.memory = network.getMemoryFactory().newMemoryHandlerMain(template,
+				paths);
 	}
 
-	public Node(final MemoryFactory memoryFactory, final Filter filter) {
-		this.memoryFactory = memoryFactory;
+	public Node(final Network network, final Filter filter) {
+		this.network = network;
+		this.tokenQueue = new TokenQueue(network);
 		final Set<Path> paths = filter.gatherPaths();
 		final Map<Edge, Set<Path>> edgesAndPaths = new HashMap<>();
 		final ArrayList<Edge> edges = new ArrayList<>();
@@ -177,7 +226,8 @@ public abstract class Node {
 			edgesAndPaths.put(edge, joinedWith);
 		}
 		incomingEdges = edges.toArray(new Edge[edges.size()]);
-		this.memory = memoryFactory.newMemoryHandlerMain(incomingEdges);
+		this.memory = network.getMemoryFactory().newMemoryHandlerMain(
+				incomingEdges);
 		// update all Paths from joinedWith to new addresses
 		for (final Edge edge : edges) {
 			final Set<Path> joinedWith = edgesAndPaths.get(edge);
@@ -274,6 +324,14 @@ public abstract class Node {
 	 */
 	public AddressPredecessor delocalizeAddress(FactAddress localFactAddress) {
 		return delocalizeMap.get(localFactAddress);
+	}
+
+	public void enqueue(final Token token) {
+		this.tokenQueue.enqueue(token);
+	}
+
+	public Runnable getTokenQueue() {
+		return this.tokenQueue;
 	}
 
 }

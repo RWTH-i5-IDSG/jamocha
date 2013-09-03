@@ -18,9 +18,9 @@
 
 package org.jamocha.dn.nodes;
 
+import org.jamocha.dn.Network;
 import org.jamocha.dn.memory.Fact;
 import org.jamocha.dn.memory.FactAddress;
-import org.jamocha.dn.memory.MemoryFactory;
 import org.jamocha.dn.memory.MemoryHandlerTemp;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.filter.Path;
@@ -34,9 +34,9 @@ public class ObjectTypeNode extends AlphaNode {
 
 	protected final Template template;
 
-	public ObjectTypeNode(final MemoryFactory memory, final Template template,
+	public ObjectTypeNode(final Network network, final Template template,
 			final Path... paths) {
-		super(memory, template, paths);
+		super(network, template, paths);
 		this.template = template;
 	}
 
@@ -54,8 +54,8 @@ public class ObjectTypeNode extends AlphaNode {
 	}
 
 	public void assertFact(final Fact fact) {
-		final MemoryHandlerTemp token = memoryFactory.newToken(this.memory,
-				this, fact);
+		final MemoryHandlerTemp token = this.network.getMemoryFactory()
+				.newToken(this.memory, this, fact);
 		for (final Edge edge : this.children) {
 			edge.processPlusToken(token);
 		}
@@ -66,15 +66,16 @@ public class ObjectTypeNode extends AlphaNode {
 				"retraction of facts not implemented yet");
 		// TODO
 	}
-	
+
 	@Override
 	public Edge[] getIncomingEdges() {
 		throw new UnsupportedOperationException("No incoming edges in an OTN.");
 	}
-	
+
 	@Override
 	public AddressPredecessor delocalizeAddress(FactAddress localFactAddress) {
-		throw new UnsupportedOperationException("No previouse addresses for addresses in an OTN.");
+		throw new UnsupportedOperationException(
+				"No previouse addresses for addresses in an OTN.");
 	}
 
 }

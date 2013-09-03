@@ -21,8 +21,8 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.jamocha.dn.Network;
 import org.jamocha.dn.memory.FactAddress;
-import org.jamocha.dn.memory.MemoryFactory;
 import org.jamocha.dn.memory.MemoryHandler;
 import org.jamocha.dn.memory.MemoryHandlerTemp;
 import org.jamocha.dn.memory.Template;
@@ -80,13 +80,13 @@ public class AlphaNode extends Node {
 
 	}
 
-	public AlphaNode(final MemoryFactory memoryFactory,
-			final Template template, final Path... paths) {
-		super(memoryFactory, template, paths);
+	public AlphaNode(final Network network, final Template template,
+			final Path... paths) {
+		super(network, template, paths);
 	}
 
-	public AlphaNode(final MemoryFactory memoryFactory, final Filter filter) {
-		super(memoryFactory, filter);
+	public AlphaNode(final Network network, final Filter filter) {
+		super(network, filter);
 	}
 
 	@Override

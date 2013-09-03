@@ -22,8 +22,8 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.jamocha.dn.Network;
 import org.jamocha.dn.memory.FactAddress;
-import org.jamocha.dn.memory.MemoryFactory;
 import org.jamocha.dn.memory.MemoryHandler;
 import org.jamocha.dn.memory.MemoryHandlerTemp;
 import org.jamocha.filter.Filter;
@@ -84,8 +84,8 @@ public class BetaNode extends Node {
 
 	}
 
-	public BetaNode(final MemoryFactory memoryFactory, final Filter filter) {
-		super(memoryFactory, filter);
+	public BetaNode(final Network network, final Filter filter) {
+		super(network, filter);
 		// TODO Auto-generated constructor stub
 	}
 

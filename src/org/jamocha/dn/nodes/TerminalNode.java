@@ -18,7 +18,7 @@
 
 package org.jamocha.dn.nodes;
 
-import org.jamocha.dn.memory.MemoryFactory;
+import org.jamocha.dn.Network;
 
 /**
  * 
@@ -27,8 +27,8 @@ import org.jamocha.dn.memory.MemoryFactory;
  */
 public class TerminalNode extends BetaNode {
 
-	public TerminalNode(final MemoryFactory memory) {
-		super();
+	public TerminalNode(final Network network) {
+		super(network);
 		// TODO Auto-generated constructor stub
 	}
 

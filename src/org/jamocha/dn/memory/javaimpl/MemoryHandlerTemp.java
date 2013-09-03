@@ -37,8 +37,8 @@ import org.jamocha.dn.memory.Template;
 import org.jamocha.dn.nodes.AddressPredecessor;
 import org.jamocha.dn.nodes.CouldNotAcquireLockException;
 import org.jamocha.dn.nodes.Node;
-import org.jamocha.dn.nodes.SlotInFactAddress;
 import org.jamocha.dn.nodes.Node.Edge;
+import org.jamocha.dn.nodes.SlotInFactAddress;
 import org.jamocha.filter.Filter;
 import org.jamocha.filter.Filter.FilterElement;
 import org.jamocha.filter.FunctionWithArguments;
@@ -304,7 +304,8 @@ public class MemoryHandlerTemp implements
 					}
 				} catch (final InterruptedException ex) {
 					throw new Error(
-							"Should not happen, interruption of this method is not supported!");
+							"Should not happen, interruption of this method is not supported!",
+							ex);
 				}
 				inputToStack.put(input,
 						StackElement.ordinaryInput(input, offset));
