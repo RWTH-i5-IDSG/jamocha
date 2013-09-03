@@ -41,7 +41,7 @@ public class Equals {
 
 			@Override
 			public Boolean evaluate(final Object... params) {
-				return (Long) params[0] == (Long) params[1];
+				return ((Long) params[0]).equals((Long) params[1]);
 			}
 		});
 		TODODatenkrakeFunktionen.addImpl(new Predicate() {
@@ -57,7 +57,23 @@ public class Equals {
 
 			@Override
 			public Boolean evaluate(final Object... params) {
-				return (Double) params[0] == (Double) params[1];
+				return ((Double) params[0]).equals((Double) params[1]);
+			}
+		});
+		TODODatenkrakeFunktionen.addImpl(new Predicate() {
+			@Override
+			public SlotType[] paramTypes() {
+				return new SlotType[] { SlotType.BOOLEAN, SlotType.BOOLEAN };
+			}
+
+			@Override
+			public String toString() {
+				return "=";
+			}
+
+			@Override
+			public Boolean evaluate(final Object... params) {
+				return ((Boolean) params[0]).equals((Boolean) params[1]);
 			}
 		});
 		TODODatenkrakeFunktionen.addImpl(new Predicate() {

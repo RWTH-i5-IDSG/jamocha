@@ -6,7 +6,8 @@ import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
 @SuiteClasses({ test.jamocha.engine.filter.FilterMockup.class,
-		test.jamocha.engine.memory.javaimpl.MemoryHandlerTempTest.class })
+		test.jamocha.engine.memory.javaimpl.MemoryHandlerTempTest.class,
+		test.jamocha.engine.filter.AllFilterTests.class})
 public class AllTests {
 
 }
