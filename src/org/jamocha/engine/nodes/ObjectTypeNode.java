@@ -21,6 +21,7 @@ package org.jamocha.engine.nodes;
 import org.jamocha.engine.memory.Fact;
 import org.jamocha.engine.memory.MemoryFactory;
 import org.jamocha.engine.memory.Template;
+import org.jamocha.filter.Path;
 
 /**
  * 
@@ -31,8 +32,8 @@ public class ObjectTypeNode extends AlphaNode {
 
 	protected final Template template;
 
-	public ObjectTypeNode(final MemoryFactory memory, final Template template) {
-		super();
+	public ObjectTypeNode(final MemoryFactory memory, final Template template, final Path... paths) {
+		super(memory, template, paths);
 		this.template = template;
 	}
 
@@ -49,11 +50,13 @@ public class ObjectTypeNode extends AlphaNode {
 				"ObjectTypeNodes can not have inputs!");
 	}
 
-	public void assertFact(final Fact fact) {
-		// TODO
+	public void assertFact(final Fact fact) throws InterruptedException {
+		memoryFactory.newToken(this.memory, this, fact);
+		// TODO deliver token to children
 	}
 
 	public void retractFact(final Fact fact) {
+		throw new UnsupportedOperationException("retraction of facts not implemented yet");
 		// TODO
 	}
 

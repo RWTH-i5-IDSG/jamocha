@@ -20,7 +20,9 @@ package org.jamocha.engine.nodes;
 import org.jamocha.engine.memory.FactAddress;
 import org.jamocha.engine.memory.MemoryFactory;
 import org.jamocha.engine.memory.MemoryHandler;
+import org.jamocha.engine.memory.Template;
 import org.jamocha.filter.Filter;
+import org.jamocha.filter.Path;
 
 /**
  * 
@@ -52,6 +54,10 @@ public abstract class AlphaNode extends Node {
 					"The Input of an AlphaNode is not supposed to be used as an address");
 		}
 
+	}
+	
+	public AlphaNode(final MemoryFactory memory, final Template template, final Path... paths) {
+		super(memory, template, paths);
 	}
 
 	public AlphaNode(final MemoryFactory memoryFactory, final Filter filter) {

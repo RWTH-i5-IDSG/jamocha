@@ -129,11 +129,13 @@ public abstract class Node {
 	// in other children!
 	final protected Map<FactAddress, AddressPredecessor> delocalizeMap = new HashMap<>();
 	final protected MemoryHandlerMain memory;
+	final protected MemoryFactory memoryFactory;
 
 	/**
 	 * Only for testing purposes.
 	 */
 	protected Node(final MemoryFactory memoryFactory, final Node... parents) {
+		this.memoryFactory = memoryFactory;
 		this.incomingEdges = new Edge[parents.length];
 		for (int i = 0; i < parents.length; i++) {
 			this.incomingEdges[i] = this.connectParent(parents[i]);
@@ -142,11 +144,13 @@ public abstract class Node {
 	}
 	
 	protected Node(final MemoryFactory memoryFactory, final Template template, final Path...paths) {
+		this.memoryFactory = memoryFactory;
 		this.incomingEdges = new Edge[0];
 		this.memory = memoryFactory.newMemoryHandlerMain(template, paths);
-	}
+}
 
 	public Node(final MemoryFactory memoryFactory, final Filter filter) {
+		this.memoryFactory = memoryFactory;
 		final Set<Path> paths = filter.gatherPaths();
 		final Map<Edge, Set<Path>> edgesAndPaths = new HashMap<>();
 		final ArrayList<Edge> edges = new ArrayList<>();
