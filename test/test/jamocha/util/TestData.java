@@ -64,7 +64,7 @@ public class TestData {
 				ParameterSignature signature) {
 			ArrayList<PotentialAssignment> list = new ArrayList<>();
 			Random randomGen = new Random();
-			for (int i = 0; i < 100; ++i) {
+			for (int i = 0; i < 20; ++i) {
 				list.add(PotentialAssignment.forValue("", randomGen.nextLong()));
 			}
 			return list;
@@ -149,7 +149,7 @@ public class TestData {
 				ParameterSignature signature) {
 			ArrayList<PotentialAssignment> list = new ArrayList<>();
 			Random randomGen = new Random();
-			for (int i = 0; i < 100; ++i) {
+			for (int i = 0; i < 20; ++i) {
 				list.add(PotentialAssignment.forValue("",
 						randomGen.nextGaussian()));
 			}
