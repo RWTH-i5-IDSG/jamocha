@@ -19,6 +19,7 @@
 package org.jamocha.dn.nodes;
 
 import org.jamocha.dn.Network;
+import org.jamocha.dn.Token;
 import org.jamocha.dn.memory.Fact;
 import org.jamocha.dn.memory.FactAddress;
 import org.jamocha.dn.memory.MemoryHandlerTemp;
@@ -54,10 +55,10 @@ public class ObjectTypeNode extends AlphaNode {
 	}
 
 	public void assertFact(final Fact fact) {
-		final MemoryHandlerTemp token = this.network.getMemoryFactory()
+		final MemoryHandlerTemp mem = this.network.getMemoryFactory()
 				.newToken(this.memory, this, fact);
 		for (final Edge edge : this.children) {
-			edge.processPlusToken(token);
+			edge.getTargetNode().enqueue(new Token.PlusToken(mem, edge));
 		}
 	}
 
