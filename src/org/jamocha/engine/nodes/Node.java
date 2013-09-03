@@ -78,8 +78,9 @@ public abstract class Node {
 		public void setFilter(final Filter filter);
 
 		public Filter getFilter();
-		
-		public void setAddressMap(final Map<? extends FactAddress, ? extends FactAddress> map);
+
+		public void setAddressMap(
+				final Map<? extends FactAddress, ? extends FactAddress> map);
 
 		public LinkedList<MemoryHandlerTemp> getTempMemories();
 	}
@@ -156,16 +157,18 @@ public abstract class Node {
 		}
 		this.memory = memoryFactory.newMemoryHandlerMain(incomingEdges);
 		// update all Paths from joinedWith to new addresses
-		for(final Edge edge : edges) {
+		for (final Edge edge : edges) {
 			final Set<Path> joinedWith = edgesAndPaths.get(edge);
 			for (final Path path : joinedWith) {
 				PathInfo pi = PathTransformation.addressMapping.get(path);
 				pi.setCurrentlyLowestNode(this);
-				pi.setFactAddressInCurrentlyLowestNode(edge.localizeAddress(pi.getFactAddressInCurrentlyLowestNode()));
+				pi.setFactAddressInCurrentlyLowestNode(edge.localizeAddress(pi
+						.getFactAddressInCurrentlyLowestNode()));
 				pi.setJoinedWith(joinedPaths);
 			}
 		}
 		incomingEdges = (Edge[]) edges.toArray();
+		filter.translatePath();
 	}
 
 	protected Edge connectParent(final Node parent) {
@@ -227,7 +230,6 @@ public abstract class Node {
 	public Set<Edge> getChildren() {
 		return Collections.unmodifiableSet(this.children);
 	}
-
 
 	public void distributeTempFacts() {
 
