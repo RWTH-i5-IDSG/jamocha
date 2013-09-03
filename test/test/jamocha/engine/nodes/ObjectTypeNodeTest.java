@@ -20,7 +20,7 @@ package test.jamocha.engine.nodes;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-import java.util.Set;
+import java.util.Queue;
 
 import org.jamocha.dn.Network;
 import org.jamocha.dn.memory.Fact;
@@ -125,12 +125,12 @@ public class ObjectTypeNodeTest {
 	 */
 	@Test
 	public void testGetChildren() {
-		Path p1 = new Path(Template.STRING);
+		final Path p1 = new Path(Template.STRING);
 		ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK,
 				Template.STRING, p1);
-		final Set<Edge> children = otn.getChildren();
-		assertNotNull(children);
-		assertEquals(0, children.size());
+		final Queue<Edge> outgoingEdges = otn.getOutgoingEdges();
+		assertNotNull(outgoingEdges);
+		assertEquals(0, outgoingEdges.size());
 	}
 
 	/**

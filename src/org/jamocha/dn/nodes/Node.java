@@ -19,7 +19,6 @@
 package org.jamocha.dn.nodes;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -103,7 +102,8 @@ public abstract class Node {
 		protected final Node targetNode;
 		protected Filter filter;
 
-		public EdgeImpl(final Network network, final Node sourceNode, final Node targetNode) {
+		public EdgeImpl(final Network network, final Node sourceNode,
+				final Node targetNode) {
 			this(network, sourceNode, targetNode, null);
 		}
 
@@ -135,7 +135,7 @@ public abstract class Node {
 
 	@Getter
 	final protected Edge[] incomingEdges;
-	final protected Set<Edge> children = new HashSet<>();
+	final protected Queue<Edge> outgoingEdges = new LinkedList<>();
 	// TODO is filled in BetaNode#BetaEdgeImpl#setAddressMap, has to be filled
 	// in other children!
 	final protected Map<FactAddress, AddressPredecessor> delocalizeMap = new HashMap<>();
@@ -248,7 +248,7 @@ public abstract class Node {
 
 	protected Edge connectParent(final Node parent) {
 		final Edge edge = newEdge(parent);
-		parent.acceptChild(edge);
+		parent.acceptEdgeToChild(edge);
 		return edge;
 	}
 
@@ -265,25 +265,25 @@ public abstract class Node {
 	// }
 
 	/**
-	 * Called when a child is added. Defaults to adding the child to the
-	 * children.
+	 * Called when a child is added. Defaults to adding the edge to the child to
+	 * the list of outgoing edges.
 	 * 
-	 * @param child
-	 *            the child to be added
+	 * @param edgeToChild
+	 *            the edge to the child to be added
 	 */
-	protected void acceptChild(final Edge child) {
-		this.children.add(child);
+	protected void acceptEdgeToChild(final Edge edgeToChild) {
+		this.outgoingEdges.add(edgeToChild);
 	}
 
 	/**
-	 * Called when a child is removed. Defaults to removing the child from the
-	 * children.
+	 * Called when a child is removed. Defaults to removing the edge to the
+	 * child from the list of outgoing edges.
 	 * 
-	 * @param child
-	 *            child to be removed
+	 * @param edgeToChild
+	 *            the edge to the child to be removed
 	 */
-	protected void removeChild(final Edge child) {
-		this.children.remove(child);
+	protected void removeChild(final Edge edgeToChild) {
+		this.outgoingEdges.remove(edgeToChild);
 	}
 
 	/**
@@ -298,12 +298,12 @@ public abstract class Node {
 	abstract protected EdgeImpl newEdge(final Node source);
 
 	/**
-	 * Returns an unmodifiable set of the children.
+	 * Returns an unmodifiable set of the outgoing edges.
 	 * 
-	 * @return an unmodifiable set of the children
+	 * @return an unmodifiable set of the outgoing edges
 	 */
-	public Set<Edge> getChildren() {
-		return Collections.unmodifiableSet(this.children);
+	public Queue<Edge> getOutgoingEdges() {
+		return this.outgoingEdges;
 	}
 
 	public MemoryHandlerMain getMemory() {
@@ -311,7 +311,7 @@ public abstract class Node {
 	}
 
 	public int numChildren() {
-		return this.children.size();
+		return this.outgoingEdges.size();
 	}
 
 	/**
