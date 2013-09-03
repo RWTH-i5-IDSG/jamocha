@@ -53,9 +53,11 @@ import org.jamocha.filter.PathTransformation.PathInfo;
 public abstract class Node {
 
 	public static interface Edge {
-		public void processPlusToken(final MemoryHandler memory);
+		public void processPlusToken(final MemoryHandler memory)
+				throws CouldNotAcquireLockException;
 
-		public void processMinusToken(final MemoryHandler memory);
+		public void processMinusToken(final MemoryHandler memory)
+				throws CouldNotAcquireLockException;
 
 		public Node getSourceNode();
 

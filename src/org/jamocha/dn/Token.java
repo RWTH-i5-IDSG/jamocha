@@ -21,6 +21,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import org.jamocha.dn.memory.MemoryHandlerTemp;
+import org.jamocha.dn.nodes.CouldNotAcquireLockException;
 import org.jamocha.dn.nodes.Node.Edge;
 
 /**
@@ -28,9 +29,11 @@ import org.jamocha.dn.nodes.Node.Edge;
  */
 @Getter
 @AllArgsConstructor
-public abstract class Token implements Runnable {
+public abstract class Token {
 	final MemoryHandlerTemp temp;
 	final Edge edge;
+
+	public abstract void run() throws CouldNotAcquireLockException;
 
 	public static class PlusToken extends Token {
 		public PlusToken(final MemoryHandlerTemp temp, final Edge edge) {
@@ -38,7 +41,7 @@ public abstract class Token implements Runnable {
 		}
 
 		@Override
-		public void run() {
+		public void run() throws CouldNotAcquireLockException {
 			this.edge.processPlusToken(temp);
 		}
 	}
@@ -49,7 +52,7 @@ public abstract class Token implements Runnable {
 		}
 
 		@Override
-		public void run() {
+		public void run() throws CouldNotAcquireLockException {
 			this.edge.processMinusToken(temp);
 		}
 	}

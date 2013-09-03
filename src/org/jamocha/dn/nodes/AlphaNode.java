@@ -44,12 +44,14 @@ public class AlphaNode extends Node {
 		}
 
 		@Override
-		public void processPlusToken(final MemoryHandler memory) {
+		public void processPlusToken(final MemoryHandler memory)
+				throws CouldNotAcquireLockException {
 			// TODO Auto-generated method stub
 		}
 
 		@Override
-		public void processMinusToken(final MemoryHandler memory) {
+		public void processMinusToken(final MemoryHandler memory)
+				throws CouldNotAcquireLockException {
 			// TODO Auto-generated method stub
 		}
 
