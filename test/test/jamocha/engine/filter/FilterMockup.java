@@ -35,10 +35,6 @@ import org.junit.Test;
  * 
  */
 public class FilterMockup extends Filter {
-	@Deprecated
-	public FilterMockup() {
-		super(new FunctionWithArguments[] {});
-	}
 
 	public FilterMockup(final boolean returnValue) {
 		super(new FunctionWithArguments[] { new FunctionWithArguments() {
@@ -69,6 +65,38 @@ public class FilterMockup extends Filter {
 		} });
 	}
 
+	public FilterMockup(final boolean returnValue, final Path... paths) {
+		super(new FunctionWithArguments[] { new FunctionWithArguments() {
+			@Override
+			public SlotType getReturnType() {
+				return SlotType.BOOLEAN;
+			}
+
+			@Override
+			public SlotType[] getParamTypes() {
+				return SlotType.empty;
+			}
+
+			@Override
+			public Object evaluate(final Object... params) {
+				return returnValue;
+			}
+
+			@Override
+			public FunctionWithArguments translatePath(
+					final ArrayList<SlotInFactAddress> addressesInTarget) {
+				return this;
+			}
+
+			@Override
+			public void gatherPaths(final Set<Path> p) {
+				for (Path path : paths) {
+					p.add(path);
+				}
+			}
+		} });
+	}
+
 	public static FilterMockup alwaysTrue() {
 		final FilterMockup filterMockup = new FilterMockup(true);
 		filterMockup.translatePath();
@@ -81,40 +109,45 @@ public class FilterMockup extends Filter {
 		return filterMockup;
 	}
 
-	/**
-	 * Test method for
-	 * {@link test.jamocha.engine.filter.FilterMockup#alwaysTrue()} .
-	 */
-	@Test
-	public void testAlwaysTrue() {
-		final Filter alwaysTrue = FilterMockup.alwaysTrue();
-		for (final FilterElement filterElement : alwaysTrue.getFilterElements()) {
-			assertTrue((Boolean) filterElement.getFunction().evaluate(1, 2, 3));
-			assertTrue((Boolean) filterElement.getFunction().evaluate(
-					(Object) null));
-			assertTrue((Boolean) filterElement.getFunction().evaluate(
-					new Object[] {}));
-			assertTrue((Boolean) filterElement.getFunction().evaluate(
-					"Hello World", "!"));
+	public static class FilterMockupTest {
+		/**
+		 * Test method for
+		 * {@link test.jamocha.engine.filter.FilterMockup#alwaysTrue()} .
+		 */
+		@Test
+		public void testAlwaysTrue() {
+			final Filter alwaysTrue = FilterMockup.alwaysTrue();
+			for (final FilterElement filterElement : alwaysTrue
+					.getFilterElements()) {
+				assertTrue((Boolean) filterElement.getFunction().evaluate(1, 2,
+						3));
+				assertTrue((Boolean) filterElement.getFunction().evaluate(
+						(Object) null));
+				assertTrue((Boolean) filterElement.getFunction().evaluate(
+						new Object[] {}));
+				assertTrue((Boolean) filterElement.getFunction().evaluate(
+						"Hello World", "!"));
+			}
 		}
-	}
 
-	/**
-	 * Test method for
-	 * {@link test.jamocha.engine.filter.FilterMockup#alwaysFalse()} .
-	 */
-	@Test
-	public void testAlwaysFalse() {
-		final Filter alwaysFalse = FilterMockup.alwaysFalse();
-		for (final FilterElement filterElement : alwaysFalse
-				.getFilterElements()) {
-			assertFalse((Boolean) filterElement.getFunction().evaluate(1, 2, 3));
-			assertFalse((Boolean) filterElement.getFunction().evaluate(
-					(Object) null));
-			assertFalse((Boolean) filterElement.getFunction().evaluate(
-					new Object[] {}));
-			assertFalse((Boolean) filterElement.getFunction().evaluate(
-					"Hello World", "!"));
+		/**
+		 * Test method for
+		 * {@link test.jamocha.engine.filter.FilterMockup#alwaysFalse()} .
+		 */
+		@Test
+		public void testAlwaysFalse() {
+			final Filter alwaysFalse = FilterMockup.alwaysFalse();
+			for (final FilterElement filterElement : alwaysFalse
+					.getFilterElements()) {
+				assertFalse((Boolean) filterElement.getFunction().evaluate(1,
+						2, 3));
+				assertFalse((Boolean) filterElement.getFunction().evaluate(
+						(Object) null));
+				assertFalse((Boolean) filterElement.getFunction().evaluate(
+						new Object[] {}));
+				assertFalse((Boolean) filterElement.getFunction().evaluate(
+						"Hello World", "!"));
+			}
 		}
 	}
 }
