@@ -17,7 +17,9 @@
  */
 package org.jamocha.dn;
 
-import org.jamocha.dn.nodes.Node;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+
 
 /**
  * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
@@ -25,7 +27,14 @@ import org.jamocha.dn.nodes.Node;
  */
 public class Scheduler {
 	
-	public void enqueue(Node node) {
+	final Executor executor;
+	
+	public Scheduler(int nThreads) {
+		executor = Executors.newFixedThreadPool(nThreads);
+	}
+	
+	public void enqueue(Runnable runnable) {
+		executor.execute(runnable);
 	}
 
 }

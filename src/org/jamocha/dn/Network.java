@@ -31,7 +31,7 @@ import org.jamocha.dn.memory.MemoryFactory;
 public class Network {
 	
 	private final MemoryFactory memoryFactory;
-	private final Scheduler scheduler = new Scheduler();
+	private final Scheduler scheduler = new Scheduler(10);
 	
 	public final static Network DEFAULTNETWORK = new Network(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory());
 
