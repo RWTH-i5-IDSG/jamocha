@@ -19,6 +19,7 @@
 package org.jamocha.dn.nodes;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -135,7 +136,7 @@ public abstract class Node {
 
 	@Getter
 	final protected Edge[] incomingEdges;
-	final protected Queue<Edge> outgoingEdges = new LinkedList<>();
+	final protected Collection<Edge> outgoingEdges = new LinkedList<>();
 	// TODO is filled in BetaNode#BetaEdgeImpl#setAddressMap, has to be filled
 	// in other children!
 	final protected Map<FactAddress, AddressPredecessor> delocalizeMap = new HashMap<>();
@@ -302,7 +303,7 @@ public abstract class Node {
 	 * 
 	 * @return an unmodifiable set of the outgoing edges
 	 */
-	public Queue<Edge> getOutgoingEdges() {
+	public Collection<Edge> getOutgoingEdges() {
 		return this.outgoingEdges;
 	}
 

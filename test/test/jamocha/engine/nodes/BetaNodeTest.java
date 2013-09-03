@@ -20,8 +20,8 @@ package test.jamocha.engine.nodes;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+import java.util.Collection;
 import java.util.HashSet;
-import java.util.Queue;
 import java.util.Set;
 
 import org.jamocha.dn.Network;
@@ -100,7 +100,7 @@ public class BetaNodeTest {
 	public void testGetChildren() {
 		BetaNode beta = new BetaNode(Network.DEFAULTNETWORK,
 				FilterMockup.alwaysTrue());
-		final Queue<Edge> outgoingEdges = beta.getOutgoingEdges();
+		final Collection<Edge> outgoingEdges = beta.getOutgoingEdges();
 		assertNotNull(outgoingEdges);
 		assertEquals(0, outgoingEdges.size());
 	}

@@ -20,7 +20,7 @@ package test.jamocha.engine.nodes;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-import java.util.Queue;
+import java.util.Collection;
 
 import org.jamocha.dn.Network;
 import org.jamocha.dn.memory.Fact;
@@ -128,7 +128,7 @@ public class ObjectTypeNodeTest {
 		final Path p1 = new Path(Template.STRING);
 		ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK,
 				Template.STRING, p1);
-		final Queue<Edge> outgoingEdges = otn.getOutgoingEdges();
+		final Collection<Edge> outgoingEdges = otn.getOutgoingEdges();
 		assertNotNull(outgoingEdges);
 		assertEquals(0, outgoingEdges.size());
 	}

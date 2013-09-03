@@ -17,9 +17,12 @@
  */
 package test.jamocha.engine.nodes;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
-import java.util.Set;
+import java.util.Collection;
 
 import org.jamocha.dn.Network;
 import org.jamocha.dn.memory.Template;
@@ -87,18 +90,22 @@ public class AlphaNodeTest {
 		Path p1 = new Path(Template.BOOLEAN);
 		Path p2 = new Path(Template.BOOLEAN);
 		@SuppressWarnings("unused")
-		ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, Template.BOOLEAN, p1, p2);
-		AlphaNode alpha = new AlphaNode(Network.DEFAULTNETWORK, new FilterMockup(true, p1, p2));
-		Set<Edge> children = alpha.getChildren();
+		ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK,
+				Template.BOOLEAN, p1, p2);
+		AlphaNode alpha = new AlphaNode(Network.DEFAULTNETWORK,
+				new FilterMockup(true, p1, p2));
+		Collection<Edge> children = alpha.getOutgoingEdges();
 		assertNotNull(children);
 		assertEquals(0, children.size());
-		AlphaNode alphaB1 = new AlphaNode(Network.DEFAULTNETWORK, new FilterMockup(true, p1));
-		children = alpha.getChildren();
+		AlphaNode alphaB1 = new AlphaNode(Network.DEFAULTNETWORK,
+				new FilterMockup(true, p1));
+		children = alpha.getOutgoingEdges();
 		assertNotNull(children);
 		assertEquals(1, children.size());
 		assertTrue(children.contains(alphaB1.getIncomingEdges()[0]));
-		AlphaNode alphaB2 = new AlphaNode(Network.DEFAULTNETWORK, new FilterMockup(true, p2));
-		children = alpha.getChildren();
+		AlphaNode alphaB2 = new AlphaNode(Network.DEFAULTNETWORK,
+				new FilterMockup(true, p2));
+		children = alpha.getOutgoingEdges();
 		assertNotNull(children);
 		assertEquals(2, children.size());
 		assertTrue(children.contains(alphaB1.getIncomingEdges()[0]));
