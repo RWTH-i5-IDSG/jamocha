@@ -219,6 +219,15 @@ public class MemoryHandlerTemp implements
 			final StackElement originElement) {
 		if (stack.isEmpty())
 			return;
+		for (final Iterator<StackElement> iter = stack.iterator(); iter
+				.hasNext();) {
+			final StackElement element = iter.next();
+			while (!element.checkRowBounds()) {
+				if (!element.checkMemBounds())
+					return;
+				element.memIndex++;
+			}
+		}
 		final ArrayList<Fact[]> TR = new ArrayList<Fact[]>();
 		outerloop: while (true) {
 			innerloop: while (true) {
