@@ -86,6 +86,7 @@ public class AlphaNodeTest {
 	public void testGetChildren() {
 		Path p1 = new Path(Template.BOOLEAN);
 		Path p2 = new Path(Template.BOOLEAN);
+		@SuppressWarnings("unused")
 		ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, Template.BOOLEAN, p1, p2);
 		AlphaNode alpha = new AlphaNode(Network.DEFAULTNETWORK, new FilterMockup(true, p1, p2));
 		Set<Edge> children = alpha.getChildren();
@@ -95,13 +96,13 @@ public class AlphaNodeTest {
 		children = alpha.getChildren();
 		assertNotNull(children);
 		assertEquals(1, children.size());
-		assertTrue(children.contains(alphaB1));
+		assertTrue(children.contains(alphaB1.getIncomingEdges()[0]));
 		AlphaNode alphaB2 = new AlphaNode(Network.DEFAULTNETWORK, new FilterMockup(true, p2));
 		children = alpha.getChildren();
 		assertNotNull(children);
 		assertEquals(2, children.size());
-		assertTrue(children.contains(alphaB1));
-		assertTrue(children.contains(alphaB2));
+		assertTrue(children.contains(alphaB1.getIncomingEdges()[0]));
+		assertTrue(children.contains(alphaB2.getIncomingEdges()[0]));
 	}
 
 	/**
