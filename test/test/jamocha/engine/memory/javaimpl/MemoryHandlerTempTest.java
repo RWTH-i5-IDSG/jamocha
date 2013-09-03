@@ -39,11 +39,11 @@ import org.jamocha.engine.nodes.Node;
 import org.jamocha.engine.nodes.Node.Edge;
 import org.jamocha.engine.nodes.SlotInFactAddress;
 import org.jamocha.filter.Filter;
+import org.jamocha.filter.Filter.FilterElement;
 import org.jamocha.filter.FunctionWithArguments;
 import org.jamocha.filter.FunctionWithArgumentsComposite;
 import org.jamocha.filter.PathLeaf;
 import org.jamocha.filter.TODODatenkrakeFunktionen;
-import org.jamocha.filter.Filter.FilterElement;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -107,7 +107,8 @@ public class MemoryHandlerTempTest {
 
 			@Override
 			public void setAddressMap(
-					Map<? extends FactAddress, ? extends FactAddress> map) {}
+					Map<? extends FactAddress, ? extends FactAddress> map) {
+			}
 
 		}
 
@@ -142,7 +143,8 @@ public class MemoryHandlerTempTest {
 		@Override
 		public Edge connectParent(final Node parent) {
 			Edge edge = super.connectParent(parent);
-			incomingEdges = Arrays.copyOf(incomingEdges, incomingEdges.length + 1);
+			incomingEdges = Arrays.copyOf(incomingEdges,
+					incomingEdges.length + 1);
 			incomingEdges[incomingEdges.length - 1] = edge;
 			return edge;
 		}
@@ -204,7 +206,7 @@ public class MemoryHandlerTempTest {
 		nodeRight = new NodeMockup(1, memoryHandlerMainRight);
 		originInput = node.connectParent(nodeLeft);
 		node.connectParent(nodeRight);
-		assert node.getInputs().length == 2;
+		assert node.getIncomingEdges().length == 2;
 	}
 
 	/**
@@ -236,24 +238,24 @@ public class MemoryHandlerTempTest {
 				FilterMockup.alwaysTrue());
 		assertEquals(4, token1.size());
 		assertEquals(2, token1.getTemplate().length);
-		String s = (String)token1.getValue(fa[0], slotAddress, 0);
+		String s = (String) token1.getValue(fa[0], slotAddress, 0);
 		assertTrue(s.equals("Fakt3") || s.equals("Fakt4"));
-		s = (String)token1.getValue(fa[0], slotAddress, 1);
+		s = (String) token1.getValue(fa[0], slotAddress, 1);
 		assertTrue(s.equals("Fakt3") || s.equals("Fakt4"));
-		s = (String)token1.getValue(fa[0], slotAddress, 2);
+		s = (String) token1.getValue(fa[0], slotAddress, 2);
 		assertTrue(s.equals("Fakt3") || s.equals("Fakt4"));
-		s = (String)token1.getValue(fa[0], slotAddress, 3);
+		s = (String) token1.getValue(fa[0], slotAddress, 3);
 		assertTrue(s.equals("Fakt3") || s.equals("Fakt4"));
-		s = (String)token1.getValue(fa[1], slotAddress, 0);
+		s = (String) token1.getValue(fa[1], slotAddress, 0);
 		assertTrue(s.equals("Fakt1") || s.equals("Fakt2"));
-		s = (String)token1.getValue(fa[1], slotAddress, 1);
+		s = (String) token1.getValue(fa[1], slotAddress, 1);
 		assertTrue(s.equals("Fakt1") || s.equals("Fakt2"));
-		s = (String)token1.getValue(fa[1], slotAddress, 2);
+		s = (String) token1.getValue(fa[1], slotAddress, 2);
 		assertTrue(s.equals("Fakt1") || s.equals("Fakt2"));
-		s = (String)token1.getValue(fa[1], slotAddress, 3);
+		s = (String) token1.getValue(fa[1], slotAddress, 3);
 		assertTrue(s.equals("Fakt1") || s.equals("Fakt2"));
 	}
-	
+
 	/**
 	 * Test method for
 	 * {@link org.jamocha.engine.memory.javaimpl.MemoryHandlerTemp#newBetaTemp(org.jamocha.engine.memory.javaimpl.MemoryHandlerMain, org.jamocha.engine.memory.javaimpl.MemoryHandlerTemp, org.jamocha.engine.nodes.Node.Edge, org.jamocha.filter.Filter)}
@@ -266,12 +268,15 @@ public class MemoryHandlerTempTest {
 		TODODatenkrakeFunktionen.load();
 		FunctionWithArguments pl1 = new PathLeaf.ParameterLeaf(SlotType.STRING);
 		FunctionWithArguments pl2 = new PathLeaf.ParameterLeaf(SlotType.STRING);
-		FunctionWithArguments faw = new FunctionWithArgumentsComposite(TODODatenkrakeFunktionen.lookup("=", SlotType.STRING, SlotType.STRING), pl1, pl2);
-		FilterElement fe = new FilterElement(faw,
-				new SlotInFactAddress(new org.jamocha.engine.memory.javaimpl.FactAddress(0), new SlotAddress(0)),
-				new SlotInFactAddress(new org.jamocha.engine.memory.javaimpl.FactAddress(1), new SlotAddress(0))
-		);
-		Filter filter = new Filter(new FilterElement[]{fe});
+		FunctionWithArguments faw = new FunctionWithArgumentsComposite(
+				TODODatenkrakeFunktionen.lookup("=", SlotType.STRING,
+						SlotType.STRING), pl1, pl2);
+		FilterElement fe = new FilterElement(faw, new SlotInFactAddress(
+				new org.jamocha.engine.memory.javaimpl.FactAddress(0),
+				new SlotAddress(0)), new SlotInFactAddress(
+				new org.jamocha.engine.memory.javaimpl.FactAddress(1),
+				new SlotAddress(0)));
+		Filter filter = new Filter(new FilterElement[] { fe });
 		MemoryHandlerTemp token = factory.newToken(memoryHandlerMainRight,
 				nodeLeft, new Fact(new Template(SlotType.STRING), "Fakt1"),
 				new Fact(new Template(SlotType.STRING), "Fakt2"));
@@ -280,12 +285,11 @@ public class MemoryHandlerTempTest {
 				new Template(SlotType.STRING), "Fakt1"), new Fact(new Template(
 				SlotType.STRING), "Fakt3"));
 		MemoryHandlerTemp token1 = factory.processTokenInBeta(
-				memoryHandlerMain, token, originInput,
-				filter);
+				memoryHandlerMain, token, originInput, filter);
 		assertEquals(1, token1.size());
 		assertEquals(2, token1.getTemplate().length);
-		assertEquals("Fakt1", (String)token1.getValue(fa[0], slotAddress, 0));
-		assertEquals("Fakt1", (String)token1.getValue(fa[1], slotAddress, 0));
+		assertEquals("Fakt1", (String) token1.getValue(fa[0], slotAddress, 0));
+		assertEquals("Fakt1", (String) token1.getValue(fa[1], slotAddress, 0));
 	}
 
 	/**
