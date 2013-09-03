@@ -18,11 +18,14 @@
 package org.jamocha.filter;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.Set;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+import org.jamocha.dn.memory.FactAddress;
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.dn.nodes.SlotInFactAddress;
 import org.jamocha.filter.PathLeaf.ParameterLeaf;
@@ -120,6 +123,20 @@ public class Filter {
 			step.function.gatherPaths(paths);
 		}
 		return paths;
+	}
+
+	/**
+	 * Counts the number of paths that originally went into this Filter for
+	 * assertion purposes.
+	 */
+	public int countParameters() {
+		final Set<FactAddress> parameters = new HashSet<>();
+		for (final FilterElement filterElement : this.filterElements) {
+			for (final SlotInFactAddress slotInFactAddress : filterElement.addressesInTarget) {
+				parameters.add(slotInFactAddress.getFactAddress());
+			}
+		}
+		return parameters.size();
 	}
 
 }
