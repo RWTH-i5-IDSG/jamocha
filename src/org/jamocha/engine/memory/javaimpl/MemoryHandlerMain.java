@@ -43,7 +43,7 @@ public class MemoryHandlerMain implements
 	final Template[] template;
 	final FactAddress[] addresses;
 
-	public MemoryHandlerMain(final Template template, final Path... paths) {
+	MemoryHandlerMain(final Template template, final Path... paths) {
 		final FactAddress address = new FactAddress(0);
 		this.addresses = new FactAddress[] { address };
 		this.template = new Template[] { template };
@@ -53,7 +53,7 @@ public class MemoryHandlerMain implements
 		}
 	}
 
-	public MemoryHandlerMain(final Edge... inputsToBeJoined) {
+	MemoryHandlerMain(final Edge... inputsToBeJoined) {
 		final ArrayList<Template> template = new ArrayList<>();
 		final ArrayList<FactAddress> addresses = new ArrayList<>();
 		for (final Edge input : inputsToBeJoined) {

@@ -195,7 +195,8 @@ public class MemoryHandlerTempTest {
 		nodeRight = new NodeMockup(factory, 1, new Template(SlotType.STRING));
 		node = new NodeMockup(factory, 1, nodeLeft, nodeRight);
 		originInput = node.getIncomingEdges()[0];
-		memoryHandlerMain = new MemoryHandlerMain(new Template(SlotType.STRING));
+		memoryHandlerMain = (MemoryHandlerMain) factory
+				.newMemoryHandlerMain(new Template(SlotType.STRING));
 		assert node.getIncomingEdges().length == 2;
 	}
 

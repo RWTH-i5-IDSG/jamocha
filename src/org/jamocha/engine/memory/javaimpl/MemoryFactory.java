@@ -37,6 +37,9 @@ public class MemoryFactory implements org.jamocha.engine.memory.MemoryFactory {
 		return singleton;
 	}
 
+	private MemoryFactory() {
+	}
+
 	/**
 	 * @see MemoryFactory#newMemoryHandlerMain(Template, Path...)
 	 */

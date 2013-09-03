@@ -17,19 +17,17 @@
  */
 package test.jamocha.engine.nodes;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import org.jamocha.engine.memory.FactAddress;
+import org.jamocha.engine.memory.MemoryFactory;
 import org.jamocha.engine.memory.MemoryHandlerMain;
-import org.jamocha.engine.memory.SlotType;
 import org.jamocha.engine.memory.Template;
-import org.jamocha.engine.memory.javaimpl.MemoryFactory;
 import org.jamocha.engine.nodes.BetaNode;
 import org.jamocha.engine.nodes.Node.Edge;
 import org.jamocha.engine.nodes.ObjectTypeNode;
@@ -42,19 +40,17 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.sun.xml.internal.bind.v2.runtime.unmarshaller.XsiNilLoader.Array;
-
 import test.jamocha.engine.filter.FilterMockup;
 
 /**
  * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
- *
+ * 
  */
 public class BetaNodeTest {
-	
+
 	private static class FactAddressMockup implements FactAddress {
 	}
-	
+
 	private static MemoryFactory memoryFactory;
 
 	/**
@@ -62,7 +58,8 @@ public class BetaNodeTest {
 	 */
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		memoryFactory = new MemoryFactory();
+		memoryFactory = org.jamocha.engine.memory.javaimpl.MemoryFactory
+				.getMemoryFactory();
 	}
 
 	/**
@@ -87,7 +84,9 @@ public class BetaNodeTest {
 	}
 
 	/**
-	 * Test method for {@link org.jamocha.engine.nodes.BetaNode#BetaNode(org.jamocha.engine.memory.MemoryFactory, org.jamocha.filter.Filter)}.
+	 * Test method for
+	 * {@link org.jamocha.engine.nodes.BetaNode#BetaNode(org.jamocha.engine.memory.MemoryFactory, org.jamocha.filter.Filter)}
+	 * .
 	 */
 	@Test
 	public void testBetaNode() {
@@ -106,7 +105,8 @@ public class BetaNodeTest {
 	}
 
 	/**
-	 * Test method for {@link org.jamocha.engine.nodes.Node#distributeTempFacts()}.
+	 * Test method for
+	 * {@link org.jamocha.engine.nodes.Node#distributeTempFacts()}.
 	 */
 	@Test
 	public void testDistributeTempFacts() {
@@ -121,7 +121,7 @@ public class BetaNodeTest {
 		BetaNode beta = new BetaNode(memoryFactory, FilterMockup.alwaysTrue());
 		final MemoryHandlerMain memory = beta.getMemory();
 		assertNotNull(memory);
-		assertEquals(0,memory.size());
+		assertEquals(0, memory.size());
 	}
 
 	/**
@@ -134,7 +134,9 @@ public class BetaNodeTest {
 	}
 
 	/**
-	 * Test method for {@link org.jamocha.engine.nodes.Node#delocalizeAddress(org.jamocha.engine.memory.FactAddress)}.
+	 * Test method for
+	 * {@link org.jamocha.engine.nodes.Node#delocalizeAddress(org.jamocha.engine.memory.FactAddress)}
+	 * .
 	 */
 	@Test
 	public void testDelocalizeAddress() {
@@ -149,9 +151,12 @@ public class BetaNodeTest {
 		joinedWith = new HashSet<>();
 		joinedWith.add(p2);
 		PathTransformation.setPathInfo(p2, new PathInfo(otn, fa2, joinedWith));
-		BetaNode beta = new BetaNode(memoryFactory, new FilterMockup(true, p1, p2));
-		assertEquals(fa1, beta.delocalizeAddress(PathTransformation.getFactAddressInCurrentlyLowestNode(p1)));
-		assertEquals(fa2, beta.delocalizeAddress(PathTransformation.getFactAddressInCurrentlyLowestNode(p2)));
+		BetaNode beta = new BetaNode(memoryFactory, new FilterMockup(true, p1,
+				p2));
+		assertEquals(fa1, beta.delocalizeAddress(PathTransformation
+				.getFactAddressInCurrentlyLowestNode(p1)));
+		assertEquals(fa2, beta.delocalizeAddress(PathTransformation
+				.getFactAddressInCurrentlyLowestNode(p2)));
 	}
 
 	/**
@@ -159,18 +164,17 @@ public class BetaNodeTest {
 	 */
 	@Test
 	public void testGetIncomingEdges() {
-		Map<Path, PathInfo> addressMapping = new HashMap<> ();
-		PathTransformation.addressMapping = addressMapping;
 		Path p1 = new Path(Template.STRING);
 		Path p2 = new Path(Template.STRING);
 		ObjectTypeNode otn = new ObjectTypeNode(memoryFactory, Template.STRING);
 		Set<Path> joinedWith = new HashSet<>();
 		joinedWith.add(p1);
-		addressMapping.put(p1, new PathInfo(otn, null, joinedWith));
+		PathTransformation.setPathInfo(p1, new PathInfo(otn, null, joinedWith));
 		joinedWith = new HashSet<>();
 		joinedWith.add(p2);
-		addressMapping.put(p2, new PathInfo(otn, null, joinedWith));
-		BetaNode beta = new BetaNode(memoryFactory, new FilterMockup(true, p1, p2));
+		PathTransformation.setPathInfo(p2, new PathInfo(otn, null, joinedWith));
+		BetaNode beta = new BetaNode(memoryFactory, new FilterMockup(true, p1,
+				p2));
 		final Edge[] incomingEdges = beta.getIncomingEdges();
 		assertEquals(2, incomingEdges.length);
 		assertEquals(beta, incomingEdges[0].getTargetNode());
