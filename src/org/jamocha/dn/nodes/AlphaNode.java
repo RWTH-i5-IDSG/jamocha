@@ -24,10 +24,8 @@ import java.util.Map.Entry;
 import org.jamocha.dn.Network;
 import org.jamocha.dn.Token;
 import org.jamocha.dn.memory.FactAddress;
-import org.jamocha.dn.memory.MemoryHandler;
 import org.jamocha.dn.memory.MemoryHandlerTemp;
 import org.jamocha.dn.memory.Template;
-import org.jamocha.dn.nodes.Node.Edge;
 import org.jamocha.filter.Filter;
 import org.jamocha.filter.Path;
 

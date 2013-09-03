@@ -27,7 +27,6 @@ import java.util.Map;
 import org.jamocha.dn.Network;
 import org.jamocha.dn.memory.Fact;
 import org.jamocha.dn.memory.FactAddress;
-import org.jamocha.dn.memory.MemoryHandler;
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.dn.memory.javaimpl.MemoryHandlerMain;
@@ -79,17 +78,20 @@ public class MemoryHandlerTempTest {
 
 			final int offset;
 
-			public EdgeMockup(Network network, Node sourceNode, Node targetNode, int offset) {
+			public EdgeMockup(Network network, Node sourceNode,
+					Node targetNode, int offset) {
 				super(network, sourceNode, targetNode);
 				this.offset = offset;
 			}
 
 			@Override
-			public void processPlusToken(org.jamocha.dn.memory.MemoryHandlerTemp memory) {
+			public void processPlusToken(
+					org.jamocha.dn.memory.MemoryHandlerTemp memory) {
 			}
 
 			@Override
-			public void processMinusToken(org.jamocha.dn.memory.MemoryHandlerTemp memory) {
+			public void processMinusToken(
+					org.jamocha.dn.memory.MemoryHandlerTemp memory) {
 			}
 
 			@Override
@@ -137,7 +139,8 @@ public class MemoryHandlerTempTest {
 
 		@Override
 		protected EdgeImpl newEdge(Node source) {
-			EdgeImpl edge = new EdgeMockup(Network.DEFAULTNETWORK, source, this, currentOffset);
+			EdgeImpl edge = new EdgeMockup(Network.DEFAULTNETWORK, source,
+					this, currentOffset);
 			currentOffset += source.getMemory().getTemplate().length;
 			return edge;
 		}
@@ -301,11 +304,13 @@ public class MemoryHandlerTempTest {
 						new Fact(new Template(SlotType.STRING), "Test"));
 		MemoryHandlerTemp memoryTempHandler = (MemoryHandlerTemp) Network.DEFAULTNETWORK
 				.getMemoryFactory().processTokenInAlpha(memoryHandlerMain,
-						token, node, FilterMockup.alwaysTrue());
+						token, node.getIncomingEdges()[0],
+						FilterMockup.alwaysTrue());
 		assertEquals(1, memoryTempHandler.size());
 		memoryTempHandler = (MemoryHandlerTemp) Network.DEFAULTNETWORK
 				.getMemoryFactory().processTokenInAlpha(memoryHandlerMain,
-						token, node, FilterMockup.alwaysFalse());
+						token, node.getIncomingEdges()[0],
+						FilterMockup.alwaysFalse());
 		assertEquals(0, memoryTempHandler.size());
 	}
 
