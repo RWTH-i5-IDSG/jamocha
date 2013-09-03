@@ -24,6 +24,7 @@ import static org.junit.Assert.fail;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.jamocha.dn.Network;
 import org.jamocha.dn.memory.FactAddress;
 import org.jamocha.dn.memory.MemoryFactory;
 import org.jamocha.dn.memory.MemoryHandlerMain;
@@ -51,15 +52,11 @@ public class BetaNodeTest {
 	private static class FactAddressMockup implements FactAddress {
 	}
 
-	private static MemoryFactory memoryFactory;
-
 	/**
 	 * @throws java.lang.Exception
 	 */
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		memoryFactory = org.jamocha.dn.memory.javaimpl.MemoryFactory
-				.getMemoryFactory();
 	}
 
 	/**
@@ -90,7 +87,7 @@ public class BetaNodeTest {
 	 */
 	@Test
 	public void testBetaNode() {
-		BetaNode beta = new BetaNode(memoryFactory, FilterMockup.alwaysTrue());
+		BetaNode beta = new BetaNode(Network.DEFAULTNETWORK, FilterMockup.alwaysTrue());
 	}
 
 	/**
@@ -98,7 +95,7 @@ public class BetaNodeTest {
 	 */
 	@Test
 	public void testGetChildren() {
-		BetaNode beta = new BetaNode(memoryFactory, FilterMockup.alwaysTrue());
+		BetaNode beta = new BetaNode(Network.DEFAULTNETWORK, FilterMockup.alwaysTrue());
 		final Set<Edge> children = beta.getChildren();
 		assertNotNull(children);
 		assertEquals(0, children.size());
@@ -109,7 +106,7 @@ public class BetaNodeTest {
 	 */
 	@Test
 	public void testGetMemory() {
-		BetaNode beta = new BetaNode(memoryFactory, FilterMockup.alwaysTrue());
+		BetaNode beta = new BetaNode(Network.DEFAULTNETWORK, FilterMockup.alwaysTrue());
 		final MemoryHandlerMain memory = beta.getMemory();
 		assertNotNull(memory);
 		assertEquals(0, memory.size());
@@ -120,7 +117,7 @@ public class BetaNodeTest {
 	 */
 	@Test
 	public void testNumChildren() {
-		BetaNode beta = new BetaNode(memoryFactory, FilterMockup.alwaysTrue());
+		BetaNode beta = new BetaNode(Network.DEFAULTNETWORK, FilterMockup.alwaysTrue());
 		assertEquals(0, beta.numChildren());
 	}
 
@@ -135,14 +132,14 @@ public class BetaNodeTest {
 		Path p2 = new Path(Template.STRING);
 		FactAddress fa1 = new FactAddressMockup();
 		FactAddress fa2 = new FactAddressMockup();
-		ObjectTypeNode otn = new ObjectTypeNode(memoryFactory, Template.STRING);
+		ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, Template.STRING);
 		Set<Path> joinedWith = new HashSet<>();
 		joinedWith.add(p1);
 		PathTransformation.setPathInfo(p1, new PathInfo(otn, fa1, joinedWith));
 		joinedWith = new HashSet<>();
 		joinedWith.add(p2);
 		PathTransformation.setPathInfo(p2, new PathInfo(otn, fa2, joinedWith));
-		BetaNode beta = new BetaNode(memoryFactory, new FilterMockup(true, p1,
+		BetaNode beta = new BetaNode(Network.DEFAULTNETWORK, new FilterMockup(true, p1,
 				p2));
 		assertEquals(fa1, beta.delocalizeAddress(PathTransformation
 				.getFactAddressInCurrentlyLowestNode(p1)));
@@ -157,14 +154,14 @@ public class BetaNodeTest {
 	public void testGetIncomingEdges() {
 		Path p1 = new Path(Template.STRING);
 		Path p2 = new Path(Template.STRING);
-		ObjectTypeNode otn = new ObjectTypeNode(memoryFactory, Template.STRING);
+		ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, Template.STRING);
 		Set<Path> joinedWith = new HashSet<>();
 		joinedWith.add(p1);
 		PathTransformation.setPathInfo(p1, new PathInfo(otn, null, joinedWith));
 		joinedWith = new HashSet<>();
 		joinedWith.add(p2);
 		PathTransformation.setPathInfo(p2, new PathInfo(otn, null, joinedWith));
-		BetaNode beta = new BetaNode(memoryFactory, new FilterMockup(true, p1,
+		BetaNode beta = new BetaNode(Network.DEFAULTNETWORK, new FilterMockup(true, p1,
 				p2));
 		final Edge[] incomingEdges = beta.getIncomingEdges();
 		assertEquals(2, incomingEdges.length);
