@@ -21,7 +21,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Map;
 
@@ -59,8 +58,7 @@ import test.jamocha.engine.filter.FilterMockup;
 public class MemoryHandlerTempTest {
 
 	private static MemoryFactory factory;
-	private static MemoryHandlerMain memoryHandlerMain, memoryHandlerMainLeft,
-			memoryHandlerMainRight;
+	private static MemoryHandlerMain memoryHandlerMain;
 	private static NodeMockup node, nodeLeft, nodeRight;
 	private static org.jamocha.engine.memory.javaimpl.FactAddress factAddress;
 	private static SlotAddress slotAddress;
@@ -115,17 +113,19 @@ public class MemoryHandlerTempTest {
 		int numChildern;
 		int currentOffset = 0;
 
-		public NodeMockup(int numChildren,
-				org.jamocha.engine.memory.MemoryHandlerMain memoryHandlerMain) {
-			super(memoryHandlerMain);
+		public NodeMockup(MemoryFactory factory, int numChildren, Node... parents) {
+			super(factory, parents);
 			this.numChildern = numChildren;
-			this.incomingEdges = new Edge[0];
 		}
 
-		public NodeMockup(int numChildren) {
-			super(null);
+		public NodeMockup(MemoryFactory factory, int numChildren) {
+			super(factory);
 			this.numChildern = numChildren;
-			this.incomingEdges = new Edge[0];
+		}
+		
+		public NodeMockup(MemoryFactory factory, int numChildren, Template template) {
+			super(factory, template);
+			this.numChildern = numChildren;
 		}
 
 		@Override
@@ -137,15 +137,6 @@ public class MemoryHandlerTempTest {
 		protected EdgeImpl newEdge(Node source) {
 			EdgeImpl edge = new EdgeMockup(source, this, currentOffset);
 			currentOffset += source.getMemory().getTemplate().length;
-			return edge;
-		}
-
-		@Override
-		public Edge connectParent(final Node parent) {
-			Edge edge = super.connectParent(parent);
-			incomingEdges = Arrays.copyOf(incomingEdges,
-					incomingEdges.length + 1);
-			incomingEdges[incomingEdges.length - 1] = edge;
 			return edge;
 		}
 
@@ -195,17 +186,11 @@ public class MemoryHandlerTempTest {
 	 */
 	@Before
 	public void setUp() throws Exception {
-		memoryHandlerMainRight = new MemoryHandlerMain(new Template(
-				SlotType.STRING));
-		memoryHandlerMainLeft = new MemoryHandlerMain(new Template(
-				SlotType.STRING));
-		memoryHandlerMain = new MemoryHandlerMain(
-				new Template(SlotType.STRING), new Template(SlotType.STRING));
-		node = new NodeMockup(1, memoryHandlerMain);
-		nodeLeft = new NodeMockup(1, memoryHandlerMainLeft);
-		nodeRight = new NodeMockup(1, memoryHandlerMainRight);
-		originInput = node.connectParent(nodeLeft);
-		node.connectParent(nodeRight);
+		nodeLeft = new NodeMockup(factory, 1, new Template(SlotType.STRING));
+		nodeRight = new NodeMockup(factory, 1, new Template(SlotType.STRING));
+		node = new NodeMockup(factory, 1, nodeLeft, nodeRight);
+		originInput = node.getIncomingEdges()[0];
+		memoryHandlerMain = new MemoryHandlerMain(new Template(SlotType.STRING));
 		assert node.getIncomingEdges().length == 2;
 	}
 
@@ -214,7 +199,6 @@ public class MemoryHandlerTempTest {
 	 */
 	@After
 	public void tearDown() throws Exception {
-		memoryHandlerMain = null;
 	}
 
 	/**
@@ -226,11 +210,11 @@ public class MemoryHandlerTempTest {
 	 */
 	@Test
 	public void testNewBetaTempFullJoin() throws InterruptedException {
-		MemoryHandlerTemp token = factory.newToken(memoryHandlerMainRight,
+		MemoryHandlerTemp token = factory.newToken((MemoryHandlerMain)nodeLeft.getMemory(),
 				nodeLeft, new Fact(new Template(SlotType.STRING), "Fakt1"),
 				new Fact(new Template(SlotType.STRING), "Fakt2"));
 		token.releaseLock();
-		token = factory.newToken(memoryHandlerMainLeft, nodeRight, new Fact(
+		token = factory.newToken((MemoryHandlerMain)nodeRight.getMemory(), nodeRight, new Fact(
 				new Template(SlotType.STRING), "Fakt3"), new Fact(new Template(
 				SlotType.STRING), "Fakt4"));
 		MemoryHandlerTemp token1 = factory.processTokenInBeta(
@@ -263,6 +247,7 @@ public class MemoryHandlerTempTest {
 	 * 
 	 * @throws InterruptedException
 	 */
+	@SuppressWarnings("deprecation")
 	@Test
 	public void testNewBetaTempSelectiveJoin() throws InterruptedException {
 		TODODatenkrakeFunktionen.load();
@@ -277,11 +262,11 @@ public class MemoryHandlerTempTest {
 				new org.jamocha.engine.memory.javaimpl.FactAddress(1),
 				new SlotAddress(0)));
 		Filter filter = new Filter(new FilterElement[] { fe });
-		MemoryHandlerTemp token = factory.newToken(memoryHandlerMainRight,
+		MemoryHandlerTemp token = factory.newToken((MemoryHandlerMain)nodeLeft.getMemory(),
 				nodeLeft, new Fact(new Template(SlotType.STRING), "Fakt1"),
 				new Fact(new Template(SlotType.STRING), "Fakt2"));
 		token.releaseLock();
-		token = factory.newToken(memoryHandlerMainLeft, nodeRight, new Fact(
+		token = factory.newToken((MemoryHandlerMain)nodeRight.getMemory(), nodeRight, new Fact(
 				new Template(SlotType.STRING), "Fakt1"), new Fact(new Template(
 				SlotType.STRING), "Fakt3"));
 		MemoryHandlerTemp token1 = factory.processTokenInBeta(
@@ -358,7 +343,7 @@ public class MemoryHandlerTempTest {
 		assertEquals(1, memoryHandlerMain.size());
 		memoryHandlerTemp.releaseLock();
 		assertEquals(1, memoryHandlerMain.size());
-		Node node5 = new NodeMockup(5);
+		Node node5 = new NodeMockup(factory, 5);
 		memoryHandlerTemp = factory.newToken(memoryHandlerMain, node5,
 				new Fact(new Template(SlotType.STRING), "Test"));
 		assertEquals(1, memoryHandlerMain.size());
@@ -372,7 +357,6 @@ public class MemoryHandlerTempTest {
 		assertEquals(1, memoryHandlerMain.size());
 		memoryHandlerTemp.releaseLock();
 		assertEquals(2, memoryHandlerMain.size());
-		memoryHandlerMain = new MemoryHandlerMain(new Template[0]);
 	}
 
 	/**
