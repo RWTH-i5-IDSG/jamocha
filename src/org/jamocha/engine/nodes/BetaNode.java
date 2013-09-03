@@ -41,19 +41,19 @@ public abstract class BetaNode extends Node {
 
 		private Map<? extends FactAddress, ? extends FactAddress> addressMap;
 
-		public BetaEdgeImpl(Node sourceNode, Node targetNode) {
+		public BetaEdgeImpl(final Node sourceNode, final Node targetNode) {
 			super(sourceNode, targetNode);
 			// TODO Auto-generated constructor stub
 		}
 
 		@Override
-		public void processPlusToken(MemoryHandler memory) {
+		public void processPlusToken(final MemoryHandler memory) {
 			// TODO Auto-generated method stub
 
 		}
 
 		@Override
-		public void processMinusToken(MemoryHandler memory) {
+		public void processMinusToken(final MemoryHandler memory) {
 			// TODO Auto-generated method stub
 
 		}
@@ -66,7 +66,7 @@ public abstract class BetaNode extends Node {
 
 		@Override
 		public void setAddressMap(
-				Map<? extends FactAddress, ? extends FactAddress> map) {
+				final Map<? extends FactAddress, ? extends FactAddress> map) {
 			assert map != null;
 			addressMap = map;
 			for (final Entry<? extends FactAddress, ? extends FactAddress> entry : map
