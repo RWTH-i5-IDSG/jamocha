@@ -88,7 +88,7 @@ public class AlphaNode extends Node {
 
 	}
 
-	public AlphaNode(final Network network, final Template template,
+	protected AlphaNode(final Network network, final Template template,
 			final Path... paths) {
 		super(network, template, paths);
 	}

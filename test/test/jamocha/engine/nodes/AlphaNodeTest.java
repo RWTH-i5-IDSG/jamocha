@@ -17,13 +17,23 @@
  */
 package test.jamocha.engine.nodes;
 
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
+import java.util.Set;
+
+import org.jamocha.dn.Network;
+import org.jamocha.dn.memory.Template;
+import org.jamocha.dn.nodes.AlphaNode;
+import org.jamocha.dn.nodes.Node.Edge;
+import org.jamocha.dn.nodes.ObjectTypeNode;
+import org.jamocha.filter.Path;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import test.jamocha.engine.filter.FilterMockup;
 
 /**
  * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
@@ -61,22 +71,12 @@ public class AlphaNodeTest {
 
 	/**
 	 * Test method for
-	 * {@link org.jamocha.dn.nodes.AlphaNode#AlphaNode(org.jamocha.dn.memory.MemoryFactory, org.jamocha.dn.memory.Template, org.jamocha.filter.Path[])}
-	 * .
-	 */
-	@Test
-	public void testAlphaNodeMemoryFactoryTemplatePathArray() {
-		fail("Not yet implemented"); // TODO Test
-	}
-
-	/**
-	 * Test method for
 	 * {@link org.jamocha.dn.nodes.AlphaNode#AlphaNode(org.jamocha.dn.memory.MemoryFactory, org.jamocha.filter.Filter)}
 	 * .
 	 */
 	@Test
-	public void testAlphaNodeMemoryFactoryFilter() {
-		fail("Not yet implemented"); // TODO Test
+	public void testAlphaNode() {
+		new AlphaNode(Network.DEFAULTNETWORK, FilterMockup.alwaysFalse());
 	}
 
 	/**
@@ -84,7 +84,24 @@ public class AlphaNodeTest {
 	 */
 	@Test
 	public void testGetChildren() {
-		fail("Not yet implemented"); // TODO Test
+		Path p1 = new Path(Template.BOOLEAN);
+		Path p2 = new Path(Template.BOOLEAN);
+		ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, Template.BOOLEAN, p1, p2);
+		AlphaNode alpha = new AlphaNode(Network.DEFAULTNETWORK, new FilterMockup(true, p1, p2));
+		Set<Edge> children = alpha.getChildren();
+		assertNotNull(children);
+		assertEquals(0, children.size());
+		AlphaNode alphaB1 = new AlphaNode(Network.DEFAULTNETWORK, new FilterMockup(true, p1));
+		children = alpha.getChildren();
+		assertNotNull(children);
+		assertEquals(1, children.size());
+		assertTrue(children.contains(alphaB1));
+		AlphaNode alphaB2 = new AlphaNode(Network.DEFAULTNETWORK, new FilterMockup(true, p2));
+		children = alpha.getChildren();
+		assertNotNull(children);
+		assertEquals(2, children.size());
+		assertTrue(children.contains(alphaB1));
+		assertTrue(children.contains(alphaB2));
 	}
 
 	/**
