@@ -37,7 +37,7 @@ public class ObjectTypeNode extends AlphaNode {
 	protected final Template template;
 
 	public ObjectTypeNode(final Network network, final Template template,
-			final Path... paths) {
+			final Path... paths) { // FIXME remove Template parameter
 		super(network, template, paths);
 		this.template = template;
 		for (final Path path : paths) {
