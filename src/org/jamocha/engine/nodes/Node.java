@@ -69,6 +69,11 @@ public abstract class Node {
 		public FactAddress localizeAddress(final FactAddress addressInParent);
 
 		/**
+		 * Sets the map used for {@link Edge#localizeAddress(FactAddress)}
+		 * 
+		 * @param map
+		 *            Map used for {@link Edge#localizeAddress(FactAddress)}
+		 */
 		public void setAddressMap(
 				final Map<? extends FactAddress, ? extends FactAddress> map);
 
