@@ -128,6 +128,7 @@ public class BetaNode extends Node {
 					PathTransformation.setCurrentlyLowestNode(join, this);
 					PathTransformation.setFactAddressInCurrentlyLowestNode(
 							join, localizedAddress);
+					PathTransformation.setJoinedWith(paths);
 					pathSet.remove(join);
 				}
 				used[i] = true;
