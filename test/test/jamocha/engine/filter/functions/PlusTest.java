@@ -35,7 +35,7 @@ import org.junit.runners.Parameterized;
 
 /**
  * @author Kai Schwarz <kai.schwarz@rwth-aachen.de>
- *
+ * 
  */
 @RunWith(value = Parameterized.class)
 @RequiredArgsConstructor
@@ -52,27 +52,27 @@ public class PlusTest {
 	private final Long expectedL, leftL, rightL;
 	private final Double expectedD, leftD, rightD;
 	private Function plusL, plusD;
-	
+
 	@Parameterized.Parameters
-	public static Collection testCases() {
-		return Arrays
-				.asList(new Number[][] { 
-						{0L, -20L, 20L, 0., -0.001, 0.001 },
-						{15L, 10L, 5L, 17.003, 17., 0.003},
-						{217L, -3L, 220L, 3520.3, -.7, 3521.}
-				});
+	public static Collection<Number[]> testCases() {
+		return Arrays.asList(new Number[][] {
+				{ 0L, -20L, 20L, 0., -0.001, 0.001 },
+				{ 15L, 10L, 5L, 17.003, 17., 0.003 },
+				{ 217L, -3L, 220L, 3520.3, -.7, 3521. } });
 	}
-	
+
 	@Before
 	public void setUp() {
-		plusL = TODODatenkrakeFunktionen.lookup("+", SlotType.LONG, SlotType.LONG);
-		plusD = TODODatenkrakeFunktionen.lookup("+", SlotType.DOUBLE, SlotType.DOUBLE);
+		plusL = TODODatenkrakeFunktionen.lookup("+", SlotType.LONG,
+				SlotType.LONG);
+		plusD = TODODatenkrakeFunktionen.lookup("+", SlotType.DOUBLE,
+				SlotType.DOUBLE);
 	}
-	
+
 	@Test
 	public void test() {
-		assertEquals(expectedL, (Long)(plusL.evaluate(leftL, rightL)));
-		assertEquals(expectedD, (Double)(plusD.evaluate(leftD, rightD)));
+		assertEquals(expectedL, (Long) (plusL.evaluate(leftL, rightL)));
+		assertEquals(expectedD, (Double) (plusD.evaluate(leftD, rightD)));
 	}
 
 }

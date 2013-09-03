@@ -62,7 +62,7 @@ public class EqualsTest {
 	private Function eqL, eqD, eqB, eqS;
 
 	@Parameterized.Parameters
-	public static Collection testCases() {
+	public static Collection<Object[]> testCases() {
 		Double i = 5.;
 		return Arrays.asList(new Object[][] {
 				{ 1L, 1L, 0.3535, 0.3535, true, true, "asdf", "asdf" },

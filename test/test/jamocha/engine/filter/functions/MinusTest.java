@@ -35,7 +35,7 @@ import org.junit.runners.Parameterized;
 
 /**
  * @author Kai Schwarz <kai.schwarz@rwth-aachen.de>
- *
+ * 
  */
 @RunWith(value = Parameterized.class)
 @RequiredArgsConstructor
@@ -52,27 +52,30 @@ public class MinusTest {
 	private final Long expectedL, leftL, rightL;
 	private final Double expectedD, leftD, rightD;
 	private Function plusL, plusD;
-	
+
 	@Parameterized.Parameters
-	public static Collection testCases() {
-		return Arrays
-				.asList(new Object[][] { 
-						{(Long)0L, (Long)20L, (Long)20L, (Double)0., (Double)0.001, (Double)0.001 },
-						{(Long)15L, (Long)10L, (Long)(-5L), (Double)17.003, (Double)17., (Double)(-0.003)},
-						{(Long)(-217L), (Long)(3L), (Long)220L, (Double)(-3520.3), (Double)(.7), (Double)3521.}
-				});
+	public static Collection<Object[]> testCases() {
+		return Arrays.asList(new Object[][] {
+				{ (Long) 0L, (Long) 20L, (Long) 20L, (Double) 0.,
+						(Double) 0.001, (Double) 0.001 },
+				{ (Long) 15L, (Long) 10L, (Long) (-5L), (Double) 17.003,
+						(Double) 17., (Double) (-0.003) },
+				{ (Long) (-217L), (Long) (3L), (Long) 220L, (Double) (-3520.3),
+						(Double) (.7), (Double) 3521. } });
 	}
-	
+
 	@Before
 	public void setUp() {
-		plusL = TODODatenkrakeFunktionen.lookup("-", SlotType.LONG, SlotType.LONG);
-		plusD = TODODatenkrakeFunktionen.lookup("-", SlotType.DOUBLE, SlotType.DOUBLE);
+		plusL = TODODatenkrakeFunktionen.lookup("-", SlotType.LONG,
+				SlotType.LONG);
+		plusD = TODODatenkrakeFunktionen.lookup("-", SlotType.DOUBLE,
+				SlotType.DOUBLE);
 	}
-	
+
 	@Test
 	public void test() {
-		assertEquals(expectedL, (Long)(plusL.evaluate(leftL, rightL)));
-		assertEquals(expectedD, (Double)(plusD.evaluate(leftD, rightD)));
+		assertEquals(expectedL, (Long) (plusL.evaluate(leftL, rightL)));
+		assertEquals(expectedD, (Double) (plusD.evaluate(leftD, rightD)));
 	}
 
 }
