@@ -53,7 +53,7 @@ import test.jamocha.engine.filter.FilterMockup;
 
 /**
  * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
- * 
+ * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
 public class MemoryHandlerTempTest {
 

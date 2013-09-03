@@ -18,6 +18,7 @@
 
 package org.jamocha.engine.memory;
 
+import org.jamocha.engine.nodes.CouldNotAcquireLockException;
 import org.jamocha.engine.nodes.Node;
 import org.jamocha.engine.nodes.Node.Edge;
 import org.jamocha.filter.Filter;
@@ -47,12 +48,13 @@ public interface MemoryFactory {
 
 	public MemoryHandlerTemp processTokenInBeta(
 			MemoryHandlerMain originatingMainHandler, MemoryHandlerTemp token,
-			Edge originInput, Filter filter) throws InterruptedException;
+			Edge originInput, Filter filter)
+			throws CouldNotAcquireLockException;
 
 	public MemoryHandlerTemp processTokenInAlpha(
 			MemoryHandlerMain originatingMainHandler, MemoryHandlerTemp token,
-			Node alphaNode, Filter filter) throws InterruptedException;
+			Node alphaNode, Filter filter) throws CouldNotAcquireLockException;
 
 	public MemoryHandlerTemp newToken(MemoryHandlerMain originatingMainHandler,
-			Node otn, Fact... facts) throws InterruptedException;
+			Node otn, Fact... facts);
 }

@@ -55,8 +55,9 @@ public abstract class AlphaNode extends Node {
 		}
 
 	}
-	
-	public AlphaNode(final MemoryFactory memory, final Template template, final Path... paths) {
+
+	public AlphaNode(final MemoryFactory memory, final Template template,
+			final Path... paths) {
 		super(memory, template, paths);
 	}
 

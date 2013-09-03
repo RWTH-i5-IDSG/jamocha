@@ -62,10 +62,16 @@ public class LessTest {
 
 	@Parameterized.Parameters
 	public static Collection<Object[]> testCases() {
-		return Arrays.asList(new Object[][] { { true, (Long)5L, (Long)6L, false, (Double)4.1, (Double)4. },
-				{ true, (Long)(-20L), (Long)500L, true, (Double)(-20.), (Double)20. },
-				{ false, (Long)1L, (Long)0L, true, (Double)4.0001, (Double)4.001 },
-				{ false, (Long)5L, (Long)5L, false, (Double)217., (Double)217. } });
+		return Arrays
+				.asList(new Object[][] {
+						{ true, (Long) 5L, (Long) 6L, false, (Double) 4.1,
+								(Double) 4. },
+						{ true, (Long) (-20L), (Long) 500L, true,
+								(Double) (-20.), (Double) 20. },
+						{ false, (Long) 1L, (Long) 0L, true, (Double) 4.0001,
+								(Double) 4.001 },
+						{ false, (Long) 5L, (Long) 5L, false, (Double) 217.,
+								(Double) 217. } });
 	}
 
 	@Before
