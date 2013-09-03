@@ -194,7 +194,8 @@ public class MemoryHandlerTemp implements
 		}
 
 		boolean checkRowBounds() {
-			return getTable().size() > rowIndex && rowIndex >= 0;
+			return checkMemBounds() && getTable().size() > rowIndex
+					&& rowIndex >= 0;
 		}
 
 		void resetIndices() {
