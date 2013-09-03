@@ -16,15 +16,15 @@
  * 
  */
 
-package org.jamocha.engine.nodes;
+package org.jamocha.dn.nodes;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.jamocha.engine.memory.Fact;
-import org.jamocha.engine.memory.Template;
+import org.jamocha.dn.memory.Fact;
+import org.jamocha.dn.memory.Template;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>

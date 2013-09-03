@@ -21,7 +21,7 @@ import java.util.HashMap;
 
 import lombok.EqualsAndHashCode;
 
-import org.jamocha.engine.memory.SlotType;
+import org.jamocha.dn.memory.SlotType;
 import org.jamocha.filter.impls.Functions;
 import org.jamocha.filter.impls.Predicates;
 

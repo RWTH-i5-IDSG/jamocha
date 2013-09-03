@@ -15,7 +15,7 @@
  * limitations under the License.
  * 
  */
-package org.jamocha.engine.memory.javaimpl;
+package org.jamocha.dn.memory.javaimpl;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,15 +30,15 @@ import java.util.Set;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
-import org.jamocha.engine.memory.FactAddress;
-import org.jamocha.engine.memory.MemoryHandler;
-import org.jamocha.engine.memory.SlotAddress;
-import org.jamocha.engine.memory.Template;
-import org.jamocha.engine.nodes.AddressPredecessor;
-import org.jamocha.engine.nodes.CouldNotAcquireLockException;
-import org.jamocha.engine.nodes.Node;
-import org.jamocha.engine.nodes.Node.Edge;
-import org.jamocha.engine.nodes.SlotInFactAddress;
+import org.jamocha.dn.memory.FactAddress;
+import org.jamocha.dn.memory.MemoryHandler;
+import org.jamocha.dn.memory.SlotAddress;
+import org.jamocha.dn.memory.Template;
+import org.jamocha.dn.nodes.AddressPredecessor;
+import org.jamocha.dn.nodes.CouldNotAcquireLockException;
+import org.jamocha.dn.nodes.Node;
+import org.jamocha.dn.nodes.SlotInFactAddress;
+import org.jamocha.dn.nodes.Node.Edge;
 import org.jamocha.filter.Filter;
 import org.jamocha.filter.Filter.FilterElement;
 import org.jamocha.filter.FunctionWithArguments;
@@ -50,7 +50,7 @@ import org.jamocha.filter.FunctionWithArguments;
  */
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class MemoryHandlerTemp implements
-		org.jamocha.engine.memory.MemoryHandlerTemp {
+		org.jamocha.dn.memory.MemoryHandlerTemp {
 
 	static class Semaphore {
 		int count;
@@ -110,9 +110,9 @@ public class MemoryHandlerTemp implements
 
 	static MemoryHandlerTemp newRootTemp(
 			final MemoryHandlerMain originatingMainHandler, final Node otn,
-			final org.jamocha.engine.memory.Fact... facts) {
+			final org.jamocha.dn.memory.Fact... facts) {
 		final ArrayList<Fact[]> factList = new ArrayList<>();
-		for (org.jamocha.engine.memory.Fact fact : facts) {
+		for (org.jamocha.dn.memory.Fact fact : facts) {
 			factList.add(new Fact[] { new Fact(fact.getSlotValues()) });
 		}
 		return new MemoryHandlerTemp(originatingMainHandler, factList,
@@ -137,7 +137,7 @@ public class MemoryHandlerTemp implements
 					.getTempMemories();
 			final ArrayList<ArrayList<Fact[]>> memStack = new ArrayList<ArrayList<Fact[]>>(
 					temps.size() + 1);
-			memStack.add(((org.jamocha.engine.memory.javaimpl.MemoryHandlerMain) edge
+			memStack.add(((org.jamocha.dn.memory.javaimpl.MemoryHandlerMain) edge
 					.getSourceNode().getMemory()).facts);
 			for (Iterator<? extends MemoryHandler> iter = temps.iterator(); iter
 					.hasNext();) {
@@ -146,15 +146,15 @@ public class MemoryHandlerTemp implements
 					iter.remove();
 					continue;
 				}
-				memStack.add(((org.jamocha.engine.memory.javaimpl.MemoryHandlerTemp) temp).facts);
+				memStack.add(((org.jamocha.dn.memory.javaimpl.MemoryHandlerTemp) temp).facts);
 			}
 			return new StackElement(memStack, offset) {
 				@Override
 				Object getValue(final AddressPredecessor addr,
 						final SlotAddress slot) {
-					return this.getRow()[((org.jamocha.engine.memory.javaimpl.FactAddress) addr
+					return this.getRow()[((org.jamocha.dn.memory.javaimpl.FactAddress) addr
 							.getAddress()).index]
-							.getValue(((org.jamocha.engine.memory.javaimpl.SlotAddress) slot));
+							.getValue(((org.jamocha.dn.memory.javaimpl.SlotAddress) slot));
 				}
 			};
 		}
@@ -162,7 +162,7 @@ public class MemoryHandlerTemp implements
 		public static StackElement originInput(int columns,
 				final Edge originEdge, final MemoryHandlerTemp token,
 				final int offset) {
-			final org.jamocha.engine.memory.javaimpl.MemoryHandlerTemp temp = (org.jamocha.engine.memory.javaimpl.MemoryHandlerTemp) token;
+			final org.jamocha.dn.memory.javaimpl.MemoryHandlerTemp temp = (org.jamocha.dn.memory.javaimpl.MemoryHandlerTemp) token;
 			final ArrayList<Fact[]> listWithHoles = new ArrayList<>(
 					temp.facts.size());
 			for (final Fact[] facts : temp.facts) {
@@ -177,9 +177,9 @@ public class MemoryHandlerTemp implements
 				@Override
 				Object getValue(final AddressPredecessor addr,
 						final SlotAddress slot) {
-					return this.getRow()[((org.jamocha.engine.memory.javaimpl.FactAddress) addr
+					return this.getRow()[((org.jamocha.dn.memory.javaimpl.FactAddress) addr
 							.getEdge().localizeAddress(addr.getAddress())).index]
-							.getValue(((org.jamocha.engine.memory.javaimpl.SlotAddress) slot));
+							.getValue(((org.jamocha.dn.memory.javaimpl.SlotAddress) slot));
 				}
 			};
 		}
@@ -416,7 +416,7 @@ public class MemoryHandlerTemp implements
 	}
 
 	/**
-	 * @see org.jamocha.engine.memory.MemoryHandler#size()
+	 * @see org.jamocha.dn.memory.MemoryHandler#size()
 	 */
 	@Override
 	public int size() {
@@ -424,7 +424,7 @@ public class MemoryHandlerTemp implements
 	}
 
 	/**
-	 * @see org.jamocha.engine.memory.MemoryHandlerTemp#releaseLock()
+	 * @see org.jamocha.dn.memory.MemoryHandlerTemp#releaseLock()
 	 */
 	@Override
 	public void releaseLock() {
@@ -437,7 +437,7 @@ public class MemoryHandlerTemp implements
 	}
 
 	/**
-	 * @see org.jamocha.engine.memory.MemoryHandlerMain#getTemplate()
+	 * @see org.jamocha.dn.memory.MemoryHandlerMain#getTemplate()
 	 */
 	@Override
 	public Template[] getTemplate() {
@@ -445,14 +445,14 @@ public class MemoryHandlerTemp implements
 	}
 
 	/**
-	 * @see org.jamocha.engine.memory.MemoryHandler#getValue(FactAddress,
+	 * @see org.jamocha.dn.memory.MemoryHandler#getValue(FactAddress,
 	 *      SlotAddress, int)
 	 */
 	@Override
 	public Object getValue(final FactAddress address, final SlotAddress slot,
 			final int row) {
-		return this.facts.get(row)[((org.jamocha.engine.memory.javaimpl.FactAddress) address)
+		return this.facts.get(row)[((org.jamocha.dn.memory.javaimpl.FactAddress) address)
 				.getIndex()]
-				.getValue((org.jamocha.engine.memory.javaimpl.SlotAddress) slot);
+				.getValue((org.jamocha.dn.memory.javaimpl.SlotAddress) slot);
 	}
 }

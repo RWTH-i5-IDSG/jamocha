@@ -26,8 +26,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
-import org.jamocha.engine.memory.FactAddress;
-import org.jamocha.engine.nodes.Node;
+import org.jamocha.dn.memory.FactAddress;
+import org.jamocha.dn.nodes.Node;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>

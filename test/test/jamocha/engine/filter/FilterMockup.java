@@ -23,8 +23,8 @@ import static org.junit.Assert.assertTrue;
 import java.util.ArrayList;
 import java.util.Set;
 
-import org.jamocha.engine.memory.SlotType;
-import org.jamocha.engine.nodes.SlotInFactAddress;
+import org.jamocha.dn.memory.SlotType;
+import org.jamocha.dn.nodes.SlotInFactAddress;
 import org.jamocha.filter.Filter;
 import org.jamocha.filter.FunctionWithArguments;
 import org.jamocha.filter.Path;

@@ -16,21 +16,8 @@
  * 
  */
 
-package org.jamocha.engine.nodes;
+package org.jamocha.dn.memory;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+public interface FactAddress {
 
-import org.jamocha.engine.memory.FactAddress;
-import org.jamocha.engine.nodes.Node.Edge;
-
-/**
- * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
- */
-
-@Getter
-@RequiredArgsConstructor
-public class AddressPredecessor {
-	final Edge edge;
-	final FactAddress address;
 }

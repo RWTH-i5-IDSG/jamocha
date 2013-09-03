@@ -16,13 +16,13 @@
  * 
  */
 
-package org.jamocha.engine.nodes;
+package org.jamocha.dn.nodes;
 
-import org.jamocha.engine.memory.Fact;
-import org.jamocha.engine.memory.FactAddress;
-import org.jamocha.engine.memory.MemoryFactory;
-import org.jamocha.engine.memory.MemoryHandlerTemp;
-import org.jamocha.engine.memory.Template;
+import org.jamocha.dn.memory.Fact;
+import org.jamocha.dn.memory.FactAddress;
+import org.jamocha.dn.memory.MemoryFactory;
+import org.jamocha.dn.memory.MemoryHandlerTemp;
+import org.jamocha.dn.memory.Template;
 import org.jamocha.filter.Path;
 
 /**

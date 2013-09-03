@@ -60,7 +60,7 @@ public class AlphaNodeTest {
 	}
 
 	/**
-	 * Test method for {@link org.jamocha.engine.nodes.AlphaNode#AlphaNode(org.jamocha.engine.memory.MemoryFactory, org.jamocha.engine.memory.Template, org.jamocha.filter.Path[])}.
+	 * Test method for {@link org.jamocha.dn.nodes.AlphaNode#AlphaNode(org.jamocha.dn.memory.MemoryFactory, org.jamocha.dn.memory.Template, org.jamocha.filter.Path[])}.
 	 */
 	@Test
 	public void testAlphaNodeMemoryFactoryTemplatePathArray() {
@@ -68,7 +68,7 @@ public class AlphaNodeTest {
 	}
 
 	/**
-	 * Test method for {@link org.jamocha.engine.nodes.AlphaNode#AlphaNode(org.jamocha.engine.memory.MemoryFactory, org.jamocha.filter.Filter)}.
+	 * Test method for {@link org.jamocha.dn.nodes.AlphaNode#AlphaNode(org.jamocha.dn.memory.MemoryFactory, org.jamocha.filter.Filter)}.
 	 */
 	@Test
 	public void testAlphaNodeMemoryFactoryFilter() {
@@ -76,7 +76,7 @@ public class AlphaNodeTest {
 	}
 
 	/**
-	 * Test method for {@link org.jamocha.engine.nodes.Node#getChildren()}.
+	 * Test method for {@link org.jamocha.dn.nodes.Node#getChildren()}.
 	 */
 	@Test
 	public void testGetChildren() {
@@ -84,7 +84,7 @@ public class AlphaNodeTest {
 	}
 
 	/**
-	 * Test method for {@link org.jamocha.engine.nodes.Node#getMemory()}.
+	 * Test method for {@link org.jamocha.dn.nodes.Node#getMemory()}.
 	 */
 	@Test
 	public void testGetMemory() {
@@ -92,7 +92,7 @@ public class AlphaNodeTest {
 	}
 
 	/**
-	 * Test method for {@link org.jamocha.engine.nodes.Node#numChildren()}.
+	 * Test method for {@link org.jamocha.dn.nodes.Node#numChildren()}.
 	 */
 	@Test
 	public void testNumChildren() {
@@ -100,7 +100,7 @@ public class AlphaNodeTest {
 	}
 
 	/**
-	 * Test method for {@link org.jamocha.engine.nodes.Node#delocalizeAddress(org.jamocha.engine.memory.FactAddress)}.
+	 * Test method for {@link org.jamocha.dn.nodes.Node#delocalizeAddress(org.jamocha.dn.memory.FactAddress)}.
 	 */
 	@Test
 	public void testDelocalizeAddress() {
@@ -108,7 +108,7 @@ public class AlphaNodeTest {
 	}
 
 	/**
-	 * Test method for {@link org.jamocha.engine.nodes.Node#getIncomingEdges()}.
+	 * Test method for {@link org.jamocha.dn.nodes.Node#getIncomingEdges()}.
 	 */
 	@Test
 	public void testGetIncomingEdges() {

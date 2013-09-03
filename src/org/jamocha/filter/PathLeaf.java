@@ -20,10 +20,10 @@ package org.jamocha.filter;
 import java.util.ArrayList;
 import java.util.Set;
 
-import org.jamocha.engine.memory.FactAddress;
-import org.jamocha.engine.memory.SlotAddress;
-import org.jamocha.engine.memory.SlotType;
-import org.jamocha.engine.nodes.SlotInFactAddress;
+import org.jamocha.dn.memory.FactAddress;
+import org.jamocha.dn.memory.SlotAddress;
+import org.jamocha.dn.memory.SlotType;
+import org.jamocha.dn.nodes.SlotInFactAddress;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>

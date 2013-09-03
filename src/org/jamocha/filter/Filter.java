@@ -24,8 +24,8 @@ import java.util.Set;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
-import org.jamocha.engine.memory.SlotType;
-import org.jamocha.engine.nodes.SlotInFactAddress;
+import org.jamocha.dn.memory.SlotType;
+import org.jamocha.dn.nodes.SlotInFactAddress;
 import org.jamocha.filter.PathLeaf.ParameterLeaf;
 
 /**

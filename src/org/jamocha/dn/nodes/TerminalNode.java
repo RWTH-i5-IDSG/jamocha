@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2013 The Jamocha Team
+ * Copyright 2002-2008 The Jamocha Team
  * 
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,22 +15,27 @@
  * limitations under the License.
  * 
  */
-package org.jamocha.engine.memory;
 
-import org.jamocha.engine.memory.javaimpl.MemoryHandlerTemp;
+package org.jamocha.dn.nodes;
+
+import org.jamocha.dn.memory.MemoryFactory;
 
 /**
+ * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  * 
  */
-public interface MemoryHandlerMain extends MemoryHandler {
-	public boolean tryReadLock() throws InterruptedException;
+public class TerminalNode extends BetaNode {
 
-	public void releaseReadLock();
+	public TerminalNode(final MemoryFactory memory) {
+		super();
+		// TODO Auto-generated constructor stub
+	}
 
-	public void acquireWriteLock();
+	@Override
+	protected EdgeImpl newEdge(Node source) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
-	public void releaseWriteLock();
-
-	public void add(final MemoryHandlerTemp toAdd);
 }

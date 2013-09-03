@@ -15,21 +15,12 @@
  * limitations under the License.
  * 
  */
-package org.jamocha.engine.nodes;
-
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-
-import org.jamocha.engine.memory.FactAddress;
-import org.jamocha.engine.memory.SlotAddress;
+package org.jamocha.dn.memory;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  * 
  */
-@Getter
-@RequiredArgsConstructor
-public class SlotInFactAddress {
-	final FactAddress factAddress;
-	final SlotAddress slotAddress;
+public interface SlotAddress {
+	public SlotType getSlotType(final Template template);
 }

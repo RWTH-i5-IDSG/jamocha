@@ -21,8 +21,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Set;
 
-import org.jamocha.engine.memory.SlotType;
-import org.jamocha.engine.nodes.SlotInFactAddress;
+import org.jamocha.dn.memory.SlotType;
+import org.jamocha.dn.nodes.SlotInFactAddress;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>

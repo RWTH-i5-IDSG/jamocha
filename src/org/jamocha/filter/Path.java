@@ -17,9 +17,9 @@
  */
 package org.jamocha.filter;
 
-import org.jamocha.engine.memory.SlotAddress;
-import org.jamocha.engine.memory.SlotType;
-import org.jamocha.engine.memory.Template;
+import org.jamocha.dn.memory.SlotAddress;
+import org.jamocha.dn.memory.SlotType;
+import org.jamocha.dn.memory.Template;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>

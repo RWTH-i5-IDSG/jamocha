@@ -17,7 +17,7 @@
  */
 package org.jamocha.filter.impls.functions;
 
-import org.jamocha.engine.memory.SlotType;
+import org.jamocha.dn.memory.SlotType;
 import org.jamocha.filter.Function;
 import org.jamocha.filter.TODODatenkrakeFunktionen;
 

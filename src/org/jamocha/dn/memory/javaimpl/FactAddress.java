@@ -15,12 +15,20 @@
  * limitations under the License.
  * 
  */
-package org.jamocha.engine.memory;
+package org.jamocha.dn.memory.javaimpl;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  * 
  */
-public interface SlotAddress {
-	public SlotType getSlotType(final Template template);
+public class FactAddress implements org.jamocha.dn.memory.FactAddress {
+	int index;
+
+	public FactAddress(int index) {
+		this.index = index;
+	}
+
+	public int getIndex() {
+		return index;
+	}
 }

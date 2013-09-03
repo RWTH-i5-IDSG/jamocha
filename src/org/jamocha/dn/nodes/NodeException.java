@@ -16,26 +16,35 @@
  * 
  */
 
-package org.jamocha.engine.nodes;
+package org.jamocha.dn.nodes;
 
-import org.jamocha.engine.memory.MemoryFactory;
+public class NodeException extends Exception {
 
-/**
- * 
- * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
- * 
- */
-public class TerminalNode extends BetaNode {
+	private static final long serialVersionUID = -4977631238178038291L;
 
-	public TerminalNode(final MemoryFactory memory) {
-		super();
-		// TODO Auto-generated constructor stub
+	private Node node;
+
+	public NodeException() {
 	}
 
-	@Override
-	protected EdgeImpl newEdge(Node source) {
-		// TODO Auto-generated method stub
-		return null;
+	public Node getNode() {
+		return node;
+	}
+
+	public NodeException(final String message, final Node n) {
+		super(n + ": " + message);
+		node = n;
+	}
+
+	public NodeException(final Throwable cause, final Node n) {
+		super(cause);
+		node = n;
+	}
+
+	public NodeException(final String message, final Throwable cause,
+			final Node n) {
+		super(n + ": " + message, cause);
+		node = n;
 	}
 
 }

@@ -1,4 +1,4 @@
-package org.jamocha.engine.memory;
+package org.jamocha.dn.memory;
 
 public interface MemoryHandler {
 	public int size();

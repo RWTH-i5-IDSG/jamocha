@@ -15,17 +15,17 @@
  * limitations under the License.
  * 
  */
-package org.jamocha.engine.nodes;
+package org.jamocha.dn.nodes;
 
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.jamocha.engine.memory.FactAddress;
-import org.jamocha.engine.memory.MemoryFactory;
-import org.jamocha.engine.memory.MemoryHandler;
-import org.jamocha.engine.memory.MemoryHandlerTemp;
-import org.jamocha.engine.memory.Template;
+import org.jamocha.dn.memory.FactAddress;
+import org.jamocha.dn.memory.MemoryFactory;
+import org.jamocha.dn.memory.MemoryHandler;
+import org.jamocha.dn.memory.MemoryHandlerTemp;
+import org.jamocha.dn.memory.Template;
 import org.jamocha.filter.Filter;
 import org.jamocha.filter.Path;
 

@@ -20,7 +20,7 @@ package org.jamocha.filter;
 import java.util.ArrayList;
 import java.util.Set;
 
-import org.jamocha.engine.nodes.SlotInFactAddress;
+import org.jamocha.dn.nodes.SlotInFactAddress;
 import org.jamocha.filter.Filter.FilterElement;
 import org.jamocha.filter.PathLeaf.ParameterLeaf;
 

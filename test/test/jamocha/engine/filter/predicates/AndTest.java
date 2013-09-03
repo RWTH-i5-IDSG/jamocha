@@ -19,7 +19,7 @@ package test.jamocha.engine.filter.predicates;
 
 import static org.junit.Assert.assertEquals;
 
-import org.jamocha.engine.memory.SlotType;
+import org.jamocha.dn.memory.SlotType;
 import org.jamocha.filter.Function;
 import org.jamocha.filter.TODODatenkrakeFunktionen;
 import org.junit.BeforeClass;

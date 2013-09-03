@@ -15,20 +15,35 @@
  * limitations under the License.
  * 
  */
-package org.jamocha.engine.memory.javaimpl;
+package org.jamocha.dn.nodes;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  * 
  */
-public class FactAddress implements org.jamocha.engine.memory.FactAddress {
-	int index;
+public class CouldNotAcquireLockException extends Exception {
 
-	public FactAddress(int index) {
-		this.index = index;
+	private static final long serialVersionUID = 39352962945658122L;
+
+	public CouldNotAcquireLockException() {
+		super();
 	}
 
-	public int getIndex() {
-		return index;
+	public CouldNotAcquireLockException(String message, Throwable cause,
+			boolean enableSuppression, boolean writableStackTrace) {
+		super(message, cause, enableSuppression, writableStackTrace);
 	}
+
+	public CouldNotAcquireLockException(String message, Throwable cause) {
+		super(message, cause);
+	}
+
+	public CouldNotAcquireLockException(String message) {
+		super(message);
+	}
+
+	public CouldNotAcquireLockException(Throwable cause) {
+		super(cause);
+	}
+
 }

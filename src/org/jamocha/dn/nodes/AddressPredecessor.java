@@ -15,25 +15,22 @@
  * limitations under the License.
  * 
  */
-package org.jamocha.engine.memory.javaimpl;
 
-import org.jamocha.engine.memory.SlotType;
-import org.jamocha.engine.memory.Template;
+package org.jamocha.dn.nodes;
 
-public class SlotAddress implements org.jamocha.engine.memory.SlotAddress {
-	int index;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
-	public SlotAddress(int index) {
-		this.index = index;
-	}
+import org.jamocha.dn.memory.FactAddress;
+import org.jamocha.dn.nodes.Node.Edge;
 
-	public int getIndex() {
-		return index;
-	}
+/**
+ * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+ */
 
-	@Override
-	public SlotType getSlotType(final Template template) {
-		return template.getSlotsType(this.index);
-	}
-
+@Getter
+@RequiredArgsConstructor
+public class AddressPredecessor {
+	final Edge edge;
+	final FactAddress address;
 }

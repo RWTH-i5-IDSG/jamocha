@@ -15,27 +15,22 @@
  * limitations under the License.
  * 
  */
-package org.jamocha.engine.memory;
+package org.jamocha.dn.memory;
+
+import org.jamocha.dn.memory.javaimpl.MemoryHandlerTemp;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  * 
  */
+public interface MemoryHandlerMain extends MemoryHandler {
+	public boolean tryReadLock() throws InterruptedException;
 
-public class Template {
-	final SlotType slots[];
-	
-	final public static Template STRING = new Template(SlotType.STRING); 
-	final public static Template BOOLEAN = new Template(SlotType.BOOLEAN);
-	final public static Template DOUBLE = new Template(SlotType.DOUBLE);
-	final public static Template LONG = new Template(SlotType.LONG);
+	public void releaseReadLock();
 
-	public Template(final SlotType... slots) {
-		this.slots = slots;
-	}
+	public void acquireWriteLock();
 
-	public SlotType getSlotsType(int index) {
-		return slots[index];
-	}
+	public void releaseWriteLock();
 
+	public void add(final MemoryHandlerTemp toAdd);
 }

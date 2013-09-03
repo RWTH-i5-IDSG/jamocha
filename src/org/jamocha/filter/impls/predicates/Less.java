@@ -17,7 +17,7 @@
  */
 package org.jamocha.filter.impls.predicates;
 
-import org.jamocha.engine.memory.SlotType;
+import org.jamocha.dn.memory.SlotType;
 import org.jamocha.filter.Predicate;
 import org.jamocha.filter.TODODatenkrakeFunktionen;
 

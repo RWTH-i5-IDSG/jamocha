@@ -15,12 +15,11 @@
  * limitations under the License.
  * 
  */
-package org.jamocha.engine.memory;
+package org.jamocha.dn.memory;
 
-/**
- * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
- * 
- */
-public interface MemoryHandlerTemp extends MemoryHandler {
-	public void releaseLock();
+//TODO Slot enum umbenennen?
+public enum SlotType {
+	LONG, DOUBLE, STRING, BOOLEAN;
+
+	public static SlotType[] empty = new SlotType[] {};
 }

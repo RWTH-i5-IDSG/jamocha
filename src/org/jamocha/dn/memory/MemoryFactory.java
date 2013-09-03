@@ -16,11 +16,11 @@
  * 
  */
 
-package org.jamocha.engine.memory;
+package org.jamocha.dn.memory;
 
-import org.jamocha.engine.nodes.CouldNotAcquireLockException;
-import org.jamocha.engine.nodes.Node;
-import org.jamocha.engine.nodes.Node.Edge;
+import org.jamocha.dn.nodes.CouldNotAcquireLockException;
+import org.jamocha.dn.nodes.Node;
+import org.jamocha.dn.nodes.Node.Edge;
 import org.jamocha.filter.Filter;
 import org.jamocha.filter.Path;
 

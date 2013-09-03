@@ -16,7 +16,7 @@
  * 
  */
 
-package org.jamocha.engine.nodes;
+package org.jamocha.dn.nodes;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -29,12 +29,12 @@ import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-import org.jamocha.engine.memory.FactAddress;
-import org.jamocha.engine.memory.MemoryFactory;
-import org.jamocha.engine.memory.MemoryHandler;
-import org.jamocha.engine.memory.MemoryHandlerMain;
-import org.jamocha.engine.memory.MemoryHandlerTemp;
-import org.jamocha.engine.memory.Template;
+import org.jamocha.dn.memory.FactAddress;
+import org.jamocha.dn.memory.MemoryFactory;
+import org.jamocha.dn.memory.MemoryHandler;
+import org.jamocha.dn.memory.MemoryHandlerMain;
+import org.jamocha.dn.memory.MemoryHandlerTemp;
+import org.jamocha.dn.memory.Template;
 import org.jamocha.filter.Filter;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.PathTransformation;

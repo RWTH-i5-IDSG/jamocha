@@ -21,11 +21,11 @@ import static org.junit.Assert.*;
 
 import java.util.Set;
 
-import org.jamocha.engine.memory.Fact;
-import org.jamocha.engine.memory.Template;
-import org.jamocha.engine.memory.javaimpl.MemoryFactory;
-import org.jamocha.engine.nodes.Node.Edge;
-import org.jamocha.engine.nodes.ObjectTypeNode;
+import org.jamocha.dn.memory.Fact;
+import org.jamocha.dn.memory.Template;
+import org.jamocha.dn.memory.javaimpl.MemoryFactory;
+import org.jamocha.dn.nodes.ObjectTypeNode;
+import org.jamocha.dn.nodes.Node.Edge;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.PathTransformation;
 import org.junit.After;
@@ -72,7 +72,7 @@ public class ObjectTypeNodeTest {
 	}
 
 	/**
-	 * Test method for {@link org.jamocha.engine.nodes.ObjectTypeNode#ObjectTypeNode(org.jamocha.engine.memory.MemoryFactory, org.jamocha.engine.memory.Template, org.jamocha.filter.Path[])}.
+	 * Test method for {@link org.jamocha.dn.nodes.ObjectTypeNode#ObjectTypeNode(org.jamocha.dn.memory.MemoryFactory, org.jamocha.dn.memory.Template, org.jamocha.filter.Path[])}.
 	 */
 	@Test
 	public void testObjectTypeNode() {
@@ -80,7 +80,7 @@ public class ObjectTypeNodeTest {
 	}
 
 	/**
-	 * Test method for {@link org.jamocha.engine.nodes.ObjectTypeNode#getTemplate()}.
+	 * Test method for {@link org.jamocha.dn.nodes.ObjectTypeNode#getTemplate()}.
 	 */
 	@Test
 	public void testGetTemplate() {
@@ -92,7 +92,7 @@ public class ObjectTypeNodeTest {
 	}
 
 	/**
-	 * Test method for {@link org.jamocha.engine.nodes.ObjectTypeNode#assertFact(org.jamocha.engine.memory.Fact)}.
+	 * Test method for {@link org.jamocha.dn.nodes.ObjectTypeNode#assertFact(org.jamocha.dn.memory.Fact)}.
 	 */
 	@Test
 	public void testAssertFact() {
@@ -102,7 +102,7 @@ public class ObjectTypeNodeTest {
 	}
 
 	/**
-	 * Test method for {@link org.jamocha.engine.nodes.ObjectTypeNode#retractFact(org.jamocha.engine.memory.Fact)}.
+	 * Test method for {@link org.jamocha.dn.nodes.ObjectTypeNode#retractFact(org.jamocha.dn.memory.Fact)}.
 	 */
 	@Test
 	public void testRetractFact() {
@@ -112,7 +112,7 @@ public class ObjectTypeNodeTest {
 	}
 
 	/**
-	 * Test method for {@link org.jamocha.engine.nodes.Node#getChildren()}.
+	 * Test method for {@link org.jamocha.dn.nodes.Node#getChildren()}.
 	 */
 	@Test
 	public void testGetChildren() {
@@ -124,7 +124,7 @@ public class ObjectTypeNodeTest {
 	}
 
 	/**
-	 * Test method for {@link org.jamocha.engine.nodes.Node#getMemory()}.
+	 * Test method for {@link org.jamocha.dn.nodes.Node#getMemory()}.
 	 */
 	@Test
 	public void testGetMemory() {
@@ -134,7 +134,7 @@ public class ObjectTypeNodeTest {
 	}
 
 	/**
-	 * Test method for {@link org.jamocha.engine.nodes.Node#numChildren()}.
+	 * Test method for {@link org.jamocha.dn.nodes.Node#numChildren()}.
 	 */
 	@Test
 	public void testNumChildren() {
@@ -144,7 +144,7 @@ public class ObjectTypeNodeTest {
 	}
 
 	/**
-	 * Test method for {@link org.jamocha.engine.nodes.Node#delocalizeAddress(org.jamocha.engine.memory.FactAddress)}.
+	 * Test method for {@link org.jamocha.dn.nodes.Node#delocalizeAddress(org.jamocha.dn.memory.FactAddress)}.
 	 */
 	@Test(expected=UnsupportedOperationException.class)
 	public void testDelocalizeAddress() {
@@ -154,7 +154,7 @@ public class ObjectTypeNodeTest {
 	}
 
 	/**
-	 * Test method for {@link org.jamocha.engine.nodes.Node#getIncomingEdges()}.
+	 * Test method for {@link org.jamocha.dn.nodes.Node#getIncomingEdges()}.
 	 */
 	@Test(expected=UnsupportedOperationException.class)
 	public void testGetIncomingEdges() {

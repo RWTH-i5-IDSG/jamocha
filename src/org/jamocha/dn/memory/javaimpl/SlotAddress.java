@@ -15,9 +15,25 @@
  * limitations under the License.
  * 
  */
+package org.jamocha.dn.memory.javaimpl;
 
-package org.jamocha.engine.memory;
+import org.jamocha.dn.memory.SlotType;
+import org.jamocha.dn.memory.Template;
 
-public interface FactAddress {
+public class SlotAddress implements org.jamocha.dn.memory.SlotAddress {
+	int index;
+
+	public SlotAddress(int index) {
+		this.index = index;
+	}
+
+	public int getIndex() {
+		return index;
+	}
+
+	@Override
+	public SlotType getSlotType(final Template template) {
+		return template.getSlotsType(this.index);
+	}
 
 }

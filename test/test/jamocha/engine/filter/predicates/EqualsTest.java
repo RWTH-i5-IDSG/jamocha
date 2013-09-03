@@ -25,7 +25,7 @@ import java.util.Collection;
 
 import lombok.RequiredArgsConstructor;
 
-import org.jamocha.engine.memory.SlotType;
+import org.jamocha.dn.memory.SlotType;
 import org.jamocha.filter.Function;
 import org.jamocha.filter.TODODatenkrakeFunktionen;
 import org.junit.Before;

@@ -15,38 +15,21 @@
  * limitations under the License.
  * 
  */
-package org.jamocha.filter;
+package org.jamocha.dn.nodes;
 
-import org.jamocha.dn.memory.SlotType;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
+import org.jamocha.dn.memory.FactAddress;
+import org.jamocha.dn.memory.SlotAddress;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+ * 
  */
-public interface Function {
-
-	/**
-	 * @return list of the corresponding parameter types for the function
-	 */
-	public SlotType[] getParamTypes();
-
-	/**
-	 * @return return type of the function
-	 */
-	public SlotType getReturnType();
-
-	/**
-	 * @return name of the corresponding function in CLIPS
-	 */
-	@Override
-	public String toString();
-
-	/**
-	 * Evaluates the function for the given parameters and returns the result
-	 * 
-	 * @param params
-	 *            parameters for the function call
-	 * @return result of the function call
-	 */
-	public Object evaluate(final Object... params);
-
+@Getter
+@RequiredArgsConstructor
+public class SlotInFactAddress {
+	final FactAddress factAddress;
+	final SlotAddress slotAddress;
 }

@@ -15,35 +15,25 @@
  * limitations under the License.
  * 
  */
-package org.jamocha.engine.nodes;
+package org.jamocha.dn.memory;
+
+import lombok.Getter;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  * 
  */
-public class CouldNotAcquireLockException extends Exception {
+@Getter
+public class Fact {
+	final Template template;
+	final Object slotValues[];
 
-	private static final long serialVersionUID = 39352962945658122L;
-
-	public CouldNotAcquireLockException() {
-		super();
+	public Fact(final Template template, final Object... slotValues) {
+		this.template = template;
+		this.slotValues = slotValues;
 	}
 
-	public CouldNotAcquireLockException(String message, Throwable cause,
-			boolean enableSuppression, boolean writableStackTrace) {
-		super(message, cause, enableSuppression, writableStackTrace);
+	public Object getValue(int index) {
+		return this.slotValues[index];
 	}
-
-	public CouldNotAcquireLockException(String message, Throwable cause) {
-		super(message, cause);
-	}
-
-	public CouldNotAcquireLockException(String message) {
-		super(message);
-	}
-
-	public CouldNotAcquireLockException(Throwable cause) {
-		super(cause);
-	}
-
 }

@@ -24,13 +24,13 @@ import static org.junit.Assert.fail;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.jamocha.engine.memory.FactAddress;
-import org.jamocha.engine.memory.MemoryFactory;
-import org.jamocha.engine.memory.MemoryHandlerMain;
-import org.jamocha.engine.memory.Template;
-import org.jamocha.engine.nodes.BetaNode;
-import org.jamocha.engine.nodes.Node.Edge;
-import org.jamocha.engine.nodes.ObjectTypeNode;
+import org.jamocha.dn.memory.FactAddress;
+import org.jamocha.dn.memory.MemoryFactory;
+import org.jamocha.dn.memory.MemoryHandlerMain;
+import org.jamocha.dn.memory.Template;
+import org.jamocha.dn.nodes.BetaNode;
+import org.jamocha.dn.nodes.ObjectTypeNode;
+import org.jamocha.dn.nodes.Node.Edge;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.PathTransformation;
 import org.jamocha.filter.PathTransformation.PathInfo;
@@ -58,7 +58,7 @@ public class BetaNodeTest {
 	 */
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		memoryFactory = org.jamocha.engine.memory.javaimpl.MemoryFactory
+		memoryFactory = org.jamocha.dn.memory.javaimpl.MemoryFactory
 				.getMemoryFactory();
 	}
 
@@ -85,7 +85,7 @@ public class BetaNodeTest {
 
 	/**
 	 * Test method for
-	 * {@link org.jamocha.engine.nodes.BetaNode#BetaNode(org.jamocha.engine.memory.MemoryFactory, org.jamocha.filter.Filter)}
+	 * {@link org.jamocha.dn.nodes.BetaNode#BetaNode(org.jamocha.dn.memory.MemoryFactory, org.jamocha.filter.Filter)}
 	 * .
 	 */
 	@Test
@@ -94,7 +94,7 @@ public class BetaNodeTest {
 	}
 
 	/**
-	 * Test method for {@link org.jamocha.engine.nodes.Node#getChildren()}.
+	 * Test method for {@link org.jamocha.dn.nodes.Node#getChildren()}.
 	 */
 	@Test
 	public void testGetChildren() {
@@ -105,7 +105,7 @@ public class BetaNodeTest {
 	}
 
 	/**
-	 * Test method for {@link org.jamocha.engine.nodes.Node#getMemory()}.
+	 * Test method for {@link org.jamocha.dn.nodes.Node#getMemory()}.
 	 */
 	@Test
 	public void testGetMemory() {
@@ -116,7 +116,7 @@ public class BetaNodeTest {
 	}
 
 	/**
-	 * Test method for {@link org.jamocha.engine.nodes.Node#numChildren()}.
+	 * Test method for {@link org.jamocha.dn.nodes.Node#numChildren()}.
 	 */
 	@Test
 	public void testNumChildren() {
@@ -126,7 +126,7 @@ public class BetaNodeTest {
 
 	/**
 	 * Test method for
-	 * {@link org.jamocha.engine.nodes.Node#delocalizeAddress(org.jamocha.engine.memory.FactAddress)}
+	 * {@link org.jamocha.dn.nodes.Node#delocalizeAddress(org.jamocha.dn.memory.FactAddress)}
 	 * .
 	 */
 	@Test
@@ -151,7 +151,7 @@ public class BetaNodeTest {
 	}
 
 	/**
-	 * Test method for {@link org.jamocha.engine.nodes.Node#getIncomingEdges()}.
+	 * Test method for {@link org.jamocha.dn.nodes.Node#getIncomingEdges()}.
 	 */
 	@Test
 	public void testGetIncomingEdges() {

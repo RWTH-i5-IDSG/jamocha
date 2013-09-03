@@ -15,7 +15,7 @@
  * limitations under the License.
  * 
  */
-package org.jamocha.engine.memory.javaimpl;
+package org.jamocha.dn.memory.javaimpl;
 
 import lombok.RequiredArgsConstructor;
 
@@ -28,11 +28,11 @@ import lombok.RequiredArgsConstructor;
 class Fact {
 	final Object slotValues[];
 
-	public Object getValue(final org.jamocha.engine.memory.SlotAddress slot) {
+	public Object getValue(final org.jamocha.dn.memory.SlotAddress slot) {
 		return slotValues[((SlotAddress) slot).getIndex()];
 	}
 
-	public void setValue(final org.jamocha.engine.memory.SlotAddress slot,
+	public void setValue(final org.jamocha.dn.memory.SlotAddress slot,
 			final Object value) {
 		slotValues[((SlotAddress) slot).getIndex()] = value;
 	}

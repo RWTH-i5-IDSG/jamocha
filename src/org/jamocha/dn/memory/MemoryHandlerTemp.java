@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2008 The Jamocha Team
+ * Copyright 2002-2013 The Jamocha Team
  * 
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,27 +15,12 @@
  * limitations under the License.
  * 
  */
+package org.jamocha.dn.memory;
 
-package org.jamocha.engine.nodes;
-
-public class InvalidOperationException extends Exception {
-
-	private static final long serialVersionUID = 1L;
-
-	public InvalidOperationException() {
-		super();
-	}
-
-	public InvalidOperationException(final String message, final Throwable cause) {
-		super(message, cause);
-	}
-
-	public InvalidOperationException(final String message) {
-		super(message);
-	}
-
-	public InvalidOperationException(final Throwable cause) {
-		super(cause);
-	}
-
+/**
+ * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+ * 
+ */
+public interface MemoryHandlerTemp extends MemoryHandler {
+	public void releaseLock();
 }

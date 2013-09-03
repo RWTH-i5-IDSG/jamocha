@@ -15,7 +15,7 @@
  * limitations under the License.
  * 
  */
-package org.jamocha.engine.memory.javaimpl;
+package org.jamocha.dn.memory.javaimpl;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -23,8 +23,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import org.jamocha.engine.memory.Template;
-import org.jamocha.engine.nodes.Node.Edge;
+import org.jamocha.dn.memory.Template;
+import org.jamocha.dn.nodes.Node.Edge;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.PathTransformation;
 
@@ -34,7 +34,7 @@ import org.jamocha.filter.PathTransformation;
  * 
  */
 public class MemoryHandlerMain implements
-		org.jamocha.engine.memory.MemoryHandlerMain {
+		org.jamocha.dn.memory.MemoryHandlerMain {
 	static final long tryLockTimeout = 1L;
 	static final TimeUnit tu = TimeUnit.SECONDS;
 
@@ -76,7 +76,7 @@ public class MemoryHandlerMain implements
 	}
 
 	/**
-	 * @see org.jamocha.engine.memory.MemoryHandler#size()
+	 * @see org.jamocha.dn.memory.MemoryHandler#size()
 	 */
 	@Override
 	public int size() {
@@ -84,7 +84,7 @@ public class MemoryHandlerMain implements
 	}
 
 	/**
-	 * @see org.jamocha.engine.memory.MemoryHandler#getTemplate()
+	 * @see org.jamocha.dn.memory.MemoryHandler#getTemplate()
 	 */
 	@Override
 	public Template[] getTemplate() {
@@ -92,7 +92,7 @@ public class MemoryHandlerMain implements
 	}
 
 	/**
-	 * @see org.jamocha.engine.memory.MemoryHandlerMain#tryReadLock()
+	 * @see org.jamocha.dn.memory.MemoryHandlerMain#tryReadLock()
 	 */
 	@Override
 	public boolean tryReadLock() throws InterruptedException {
@@ -100,7 +100,7 @@ public class MemoryHandlerMain implements
 	}
 
 	/**
-	 * @see org.jamocha.engine.memory.MemoryHandlerMain#releaseReadLock()
+	 * @see org.jamocha.dn.memory.MemoryHandlerMain#releaseReadLock()
 	 */
 	@Override
 	public void releaseReadLock() {
@@ -108,7 +108,7 @@ public class MemoryHandlerMain implements
 	}
 
 	/**
-	 * @see org.jamocha.engine.memory.MemoryHandlerMain#acquireWriteLock()
+	 * @see org.jamocha.dn.memory.MemoryHandlerMain#acquireWriteLock()
 	 */
 	@Override
 	public void acquireWriteLock() {
@@ -116,7 +116,7 @@ public class MemoryHandlerMain implements
 	}
 
 	/**
-	 * @see org.jamocha.engine.memory.MemoryHandlerMain#releaseWriteLock()
+	 * @see org.jamocha.dn.memory.MemoryHandlerMain#releaseWriteLock()
 	 */
 	@Override
 	public void releaseWriteLock() {
@@ -124,7 +124,7 @@ public class MemoryHandlerMain implements
 	}
 
 	/**
-	 * @see org.jamocha.engine.memory.MemoryHandlerMain#add(MemoryHandlerTemp)
+	 * @see org.jamocha.dn.memory.MemoryHandlerMain#add(MemoryHandlerTemp)
 	 */
 	@Override
 	public void add(final MemoryHandlerTemp toAdd) {
@@ -134,14 +134,14 @@ public class MemoryHandlerMain implements
 	}
 
 	/**
-	 * @see org.jamocha.engine.memory.MemoryHandler#getValue(FactAddress,
+	 * @see org.jamocha.dn.memory.MemoryHandler#getValue(FactAddress,
 	 *      SlotAddress, int)
 	 */
 	@Override
-	public Object getValue(final org.jamocha.engine.memory.FactAddress address,
-			final org.jamocha.engine.memory.SlotAddress slot, final int row) {
-		return this.facts.get(row)[((org.jamocha.engine.memory.javaimpl.FactAddress) address)
+	public Object getValue(final org.jamocha.dn.memory.FactAddress address,
+			final org.jamocha.dn.memory.SlotAddress slot, final int row) {
+		return this.facts.get(row)[((org.jamocha.dn.memory.javaimpl.FactAddress) address)
 				.getIndex()]
-				.getValue((org.jamocha.engine.memory.javaimpl.SlotAddress) slot);
+				.getValue((org.jamocha.dn.memory.javaimpl.SlotAddress) slot);
 	}
 }
