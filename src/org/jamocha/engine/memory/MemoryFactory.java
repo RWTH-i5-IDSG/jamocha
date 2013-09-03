@@ -18,8 +18,6 @@
 
 package org.jamocha.engine.memory;
 
-import org.jamocha.engine.memory.javaimpl.MemoryHandlerMain;
-import org.jamocha.engine.memory.javaimpl.MemoryHandlerTemp;
 import org.jamocha.engine.nodes.Node;
 import org.jamocha.engine.nodes.Node.Edge;
 import org.jamocha.filter.Filter;
