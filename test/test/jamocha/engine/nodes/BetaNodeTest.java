@@ -17,9 +17,9 @@
  */
 package test.jamocha.engine.nodes;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -29,6 +29,7 @@ import org.jamocha.dn.memory.FactAddress;
 import org.jamocha.dn.memory.MemoryHandlerMain;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.dn.nodes.BetaNode;
+import org.jamocha.dn.nodes.Node;
 import org.jamocha.dn.nodes.Node.Edge;
 import org.jamocha.dn.nodes.ObjectTypeNode;
 import org.jamocha.filter.Path;
@@ -91,6 +92,37 @@ public class BetaNodeTest {
 		@SuppressWarnings("unused")
 		BetaNode beta = new BetaNode(Network.DEFAULTNETWORK,
 				FilterMockup.alwaysTrue());
+	}
+
+	/**
+	 * 
+	 */
+	@Test
+	public void testSelfJoin() {
+		Path p1 = new Path(Template.STRING);
+		Path p2 = new Path(Template.STRING);
+		Path p3 = new Path(Template.STRING);
+		ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK,
+				Template.STRING, p1, p2, p3);
+		BetaNode beta = new BetaNode(Network.DEFAULTNETWORK, new FilterMockup(
+				true, p1, p2));
+		Edge[] incomingEdges = beta.getIncomingEdges();
+		assertEquals(2, incomingEdges.length);
+		assertEquals(otn, incomingEdges[0].getSourceNode());
+		assertEquals(otn, incomingEdges[1].getSourceNode());
+		assertNotSame(incomingEdges[0], incomingEdges[1]);
+		assertSame(beta, PathTransformation.getCurrentlyLowestNode(p1));
+		assertSame(beta, PathTransformation.getCurrentlyLowestNode(p2));
+		assertSame(otn, PathTransformation.getCurrentlyLowestNode(p3));
+		BetaNode beta2 = new BetaNode(Network.DEFAULTNETWORK, new FilterMockup(
+				true, p1, p3));
+		incomingEdges = beta2.getIncomingEdges();
+		assertEquals(2, incomingEdges.length);
+		assertEquals(beta, incomingEdges[0].getSourceNode());
+		assertEquals(otn, incomingEdges[1].getSourceNode());
+		assertSame(beta2, PathTransformation.getCurrentlyLowestNode(p1));
+		assertSame(beta2, PathTransformation.getCurrentlyLowestNode(p2));
+		assertSame(beta2, PathTransformation.getCurrentlyLowestNode(p3));
 	}
 
 	/**
