@@ -337,8 +337,7 @@ public class MemoryHandlerTempTest {
 
 	/**
 	 * Test method for
-	 * {@link org.jamocha.dn.memory.javaimpl.MemoryHandlerTemp#releaseLock()}
-	 * .
+	 * {@link org.jamocha.dn.memory.javaimpl.MemoryHandlerTemp#releaseLock()} .
 	 * 
 	 * @throws InterruptedException
 	 */

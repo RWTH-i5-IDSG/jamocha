@@ -17,7 +17,7 @@
  */
 package test.jamocha.engine.nodes;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.fail;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -27,7 +27,7 @@ import org.junit.Test;
 
 /**
  * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
- *
+ * 
  */
 public class AlphaNodeTest {
 
@@ -60,7 +60,9 @@ public class AlphaNodeTest {
 	}
 
 	/**
-	 * Test method for {@link org.jamocha.dn.nodes.AlphaNode#AlphaNode(org.jamocha.dn.memory.MemoryFactory, org.jamocha.dn.memory.Template, org.jamocha.filter.Path[])}.
+	 * Test method for
+	 * {@link org.jamocha.dn.nodes.AlphaNode#AlphaNode(org.jamocha.dn.memory.MemoryFactory, org.jamocha.dn.memory.Template, org.jamocha.filter.Path[])}
+	 * .
 	 */
 	@Test
 	public void testAlphaNodeMemoryFactoryTemplatePathArray() {
@@ -68,7 +70,9 @@ public class AlphaNodeTest {
 	}
 
 	/**
-	 * Test method for {@link org.jamocha.dn.nodes.AlphaNode#AlphaNode(org.jamocha.dn.memory.MemoryFactory, org.jamocha.filter.Filter)}.
+	 * Test method for
+	 * {@link org.jamocha.dn.nodes.AlphaNode#AlphaNode(org.jamocha.dn.memory.MemoryFactory, org.jamocha.filter.Filter)}
+	 * .
 	 */
 	@Test
 	public void testAlphaNodeMemoryFactoryFilter() {
@@ -100,7 +104,9 @@ public class AlphaNodeTest {
 	}
 
 	/**
-	 * Test method for {@link org.jamocha.dn.nodes.Node#delocalizeAddress(org.jamocha.dn.memory.FactAddress)}.
+	 * Test method for
+	 * {@link org.jamocha.dn.nodes.Node#delocalizeAddress(org.jamocha.dn.memory.FactAddress)}
+	 * .
 	 */
 	@Test
 	public void testDelocalizeAddress() {

@@ -22,12 +22,11 @@ import static org.junit.Assert.assertNotNull;
 
 import java.util.Set;
 
-import org.jamocha.dn.Network;
 import org.jamocha.dn.memory.Fact;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.dn.memory.javaimpl.MemoryFactory;
-import org.jamocha.dn.nodes.ObjectTypeNode;
 import org.jamocha.dn.nodes.Node.Edge;
+import org.jamocha.dn.nodes.ObjectTypeNode;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.PathTransformation;
 import org.junit.After;
@@ -38,15 +37,18 @@ import org.junit.Test;
 
 /**
  * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
- *
+ * 
  */
 public class ObjectTypeNodeTest {
-	
+
+	private static MemoryFactory memoryFactory;
+
 	/**
 	 * @throws java.lang.Exception
 	 */
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
+		memoryFactory = (MemoryFactory) MemoryFactory.getMemoryFactory();
 	}
 
 	/**
@@ -71,42 +73,52 @@ public class ObjectTypeNodeTest {
 	}
 
 	/**
-	 * Test method for {@link org.jamocha.dn.nodes.ObjectTypeNode#ObjectTypeNode(org.jamocha.dn.memory.MemoryFactory, org.jamocha.dn.memory.Template, org.jamocha.filter.Path[])}.
+	 * Test method for
+	 * {@link org.jamocha.dn.nodes.ObjectTypeNode#ObjectTypeNode(org.jamocha.dn.memory.MemoryFactory, org.jamocha.dn.memory.Template, org.jamocha.filter.Path[])}
+	 * .
 	 */
 	@Test
 	public void testObjectTypeNode() {
-		new ObjectTypeNode(Network.DEFAULTNETWORK, Template.STRING);
+		new ObjectTypeNode(memoryFactory, Template.STRING);
 	}
 
 	/**
-	 * Test method for {@link org.jamocha.dn.nodes.ObjectTypeNode#getTemplate()}.
+	 * Test method for {@link org.jamocha.dn.nodes.ObjectTypeNode#getTemplate()}
+	 * .
 	 */
 	@Test
 	public void testGetTemplate() {
 		Path p1 = new Path(Template.STRING);
-		ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, Template.STRING, p1);
+		ObjectTypeNode otn = new ObjectTypeNode(memoryFactory, Template.STRING,
+				p1);
 		assertEquals(Template.STRING, otn.getTemplate());
-		otn = new ObjectTypeNode(Network.DEFAULTNETWORK, Template.DOUBLE, p1);
+		otn = new ObjectTypeNode(memoryFactory, Template.DOUBLE, p1);
 		assertEquals(Template.DOUBLE, otn.getTemplate());
 	}
 
 	/**
-	 * Test method for {@link org.jamocha.dn.nodes.ObjectTypeNode#assertFact(org.jamocha.dn.memory.Fact)}.
+	 * Test method for
+	 * {@link org.jamocha.dn.nodes.ObjectTypeNode#assertFact(org.jamocha.dn.memory.Fact)}
+	 * .
 	 */
 	@Test
 	public void testAssertFact() {
 		Path p1 = new Path(Template.STRING);
-		ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, Template.STRING, p1);
+		ObjectTypeNode otn = new ObjectTypeNode(memoryFactory, Template.STRING,
+				p1);
 		otn.assertFact(new Fact(Template.STRING, "TestValue 1"));
 	}
 
 	/**
-	 * Test method for {@link org.jamocha.dn.nodes.ObjectTypeNode#retractFact(org.jamocha.dn.memory.Fact)}.
+	 * Test method for
+	 * {@link org.jamocha.dn.nodes.ObjectTypeNode#retractFact(org.jamocha.dn.memory.Fact)}
+	 * .
 	 */
 	@Test
 	public void testRetractFact() {
 		Path p1 = new Path(Template.STRING);
-		ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, Template.STRING, p1);
+		ObjectTypeNode otn = new ObjectTypeNode(memoryFactory, Template.STRING,
+				p1);
 		// TODO implement when retractfact is done
 	}
 
@@ -116,7 +128,8 @@ public class ObjectTypeNodeTest {
 	@Test
 	public void testGetChildren() {
 		Path p1 = new Path(Template.STRING);
-		ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, Template.STRING, p1);
+		ObjectTypeNode otn = new ObjectTypeNode(memoryFactory, Template.STRING,
+				p1);
 		final Set<Edge> children = otn.getChildren();
 		assertNotNull(children);
 		assertEquals(0, children.size());
@@ -128,7 +141,8 @@ public class ObjectTypeNodeTest {
 	@Test
 	public void testGetMemory() {
 		Path p1 = new Path(Template.STRING);
-		ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, Template.STRING, p1);
+		ObjectTypeNode otn = new ObjectTypeNode(memoryFactory, Template.STRING,
+				p1);
 		assertEquals(0, otn.getMemory().size());
 	}
 
@@ -138,27 +152,33 @@ public class ObjectTypeNodeTest {
 	@Test
 	public void testNumChildren() {
 		Path p1 = new Path(Template.STRING);
-		ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, Template.STRING, p1);
+		ObjectTypeNode otn = new ObjectTypeNode(memoryFactory, Template.STRING,
+				p1);
 		assertEquals(0, otn.numChildren());
 	}
 
 	/**
-	 * Test method for {@link org.jamocha.dn.nodes.Node#delocalizeAddress(org.jamocha.dn.memory.FactAddress)}.
+	 * Test method for
+	 * {@link org.jamocha.dn.nodes.Node#delocalizeAddress(org.jamocha.dn.memory.FactAddress)}
+	 * .
 	 */
-	@Test(expected=UnsupportedOperationException.class)
+	@Test(expected = UnsupportedOperationException.class)
 	public void testDelocalizeAddress() {
 		Path p1 = new Path(Template.STRING);
-		ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, Template.STRING, p1);
-		otn.delocalizeAddress(PathTransformation.getFactAddressInCurrentlyLowestNode(p1));
+		ObjectTypeNode otn = new ObjectTypeNode(memoryFactory, Template.STRING,
+				p1);
+		otn.delocalizeAddress(PathTransformation
+				.getFactAddressInCurrentlyLowestNode(p1));
 	}
 
 	/**
 	 * Test method for {@link org.jamocha.dn.nodes.Node#getIncomingEdges()}.
 	 */
-	@Test(expected=UnsupportedOperationException.class)
+	@Test(expected = UnsupportedOperationException.class)
 	public void testGetIncomingEdges() {
 		Path p1 = new Path(Template.STRING);
-		ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, Template.STRING, p1);
+		ObjectTypeNode otn = new ObjectTypeNode(memoryFactory, Template.STRING,
+				p1);
 		otn.getIncomingEdges();
 	}
 

@@ -19,7 +19,6 @@ package test.jamocha.engine.nodes;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -30,8 +29,8 @@ import org.jamocha.dn.memory.MemoryFactory;
 import org.jamocha.dn.memory.MemoryHandlerMain;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.dn.nodes.BetaNode;
-import org.jamocha.dn.nodes.ObjectTypeNode;
 import org.jamocha.dn.nodes.Node.Edge;
+import org.jamocha.dn.nodes.ObjectTypeNode;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.PathTransformation;
 import org.jamocha.filter.PathTransformation.PathInfo;
