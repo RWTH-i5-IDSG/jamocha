@@ -48,8 +48,8 @@ public class MemoryHandlerMain implements
 		this.addresses = new FactAddress[] { address };
 		this.template = new Template[] { template };
 		for (final Path path : paths) {
-			PathTransformation.getAddressMapping().get(path)
-					.setFactAddressInCurrentlyLowestNode(address);
+			PathTransformation.setFactAddressInCurrentlyLowestNode(path,
+					address);
 		}
 	}
 

@@ -166,13 +166,11 @@ public abstract class Node {
 		while (!paths.isEmpty()) {
 			// get next path
 			final Path path = paths.iterator().next();
-			final PathInfo pathInfo = PathTransformation.getAddressMapping()
-					.get(path);
 			// mark all paths as done
-			final Set<Path> joinedWith = pathInfo.getJoinedWith();
+			final Set<Path> joinedWith = PathTransformation.getJoinedWith(path);
 			joinedPaths.addAll(joinedWith);
 			paths.removeAll(joinedWith);
-			final Node clNode = pathInfo.getCurrentlyLowestNode();
+			final Node clNode = PathTransformation.getCurrentlyLowestNode(path);
 			// create new edge from clNode to this
 			final Edge edge = connectParent(clNode);
 			edges.add(edge);
@@ -184,11 +182,15 @@ public abstract class Node {
 		for (final Edge edge : edges) {
 			final Set<Path> joinedWith = edgesAndPaths.get(edge);
 			for (final Path path : joinedWith) {
-				PathInfo pi = PathTransformation.getAddressMapping().get(path);
-				pi.setCurrentlyLowestNode(this);
-				pi.setFactAddressInCurrentlyLowestNode(edge.localizeAddress(pi
-						.getFactAddressInCurrentlyLowestNode()));
-				pi.setJoinedWith(joinedPaths);
+				final FactAddress factAddressInCurrentlyLowestNode = PathTransformation
+						.getFactAddressInCurrentlyLowestNode(path);
+				PathTransformation
+						.setPathInfo(
+								path,
+								new PathInfo(
+										this,
+										edge.localizeAddress(factAddressInCurrentlyLowestNode),
+										joinedPaths));
 			}
 		}
 		filter.translatePath();

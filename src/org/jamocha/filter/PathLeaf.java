@@ -24,7 +24,6 @@ import org.jamocha.engine.memory.FactAddress;
 import org.jamocha.engine.memory.SlotAddress;
 import org.jamocha.engine.memory.SlotType;
 import org.jamocha.engine.nodes.SlotInFactAddress;
-import org.jamocha.filter.PathTransformation.PathInfo;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -113,10 +112,8 @@ public class PathLeaf implements FunctionWithArguments {
 	@Override
 	public ParameterLeaf translatePath(
 			final ArrayList<SlotInFactAddress> addressesInTarget) {
-		final PathInfo pathInfo = PathTransformation.getAddressMapping().get(
-				this.path);
-		final FactAddress factAddressInCurrentlyLowestNode = pathInfo
-				.getFactAddressInCurrentlyLowestNode();
+		final FactAddress factAddressInCurrentlyLowestNode = PathTransformation
+				.getFactAddressInCurrentlyLowestNode(this.path);
 		addressesInTarget.add(new SlotInFactAddress(
 				factAddressInCurrentlyLowestNode, this.slot));
 		return new ParameterLeaf(getReturnType());

@@ -17,6 +17,8 @@
  */
 package org.jamocha.filter;
 
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -51,23 +53,51 @@ public class PathTransformation {
 	}
 
 	/**
-	 * Set of paths that are currently joined. Initially this contains sets of
-	 * one-element-sets (the paths). These sets are then merged step by step.
-	 */
-	private static Set<Set<Path>> joinedPaths;
-
-	/**
 	 * Maps paths to their addresses, the corresponding node of the addresses,
 	 * and the set of other paths they have been joined with.
 	 */
-	private static Map<Path, PathInfo> addressMapping;
+	private static Map<Path, PathInfo> addressMapping = new HashMap<>();
 
-	public static Set<Set<Path>> getJoinedPaths() {
-		return joinedPaths;
+	private static PathInfo getPathInfo(final Path path) {
+		PathInfo pathInfo = addressMapping.get(path);
+		if (pathInfo == null) {
+			pathInfo = new PathInfo(null, null, new HashSet<Path>());
+			addressMapping.put(path, pathInfo);
+		}
+		return pathInfo;
 	}
 
-	public static Map<Path, PathInfo> getAddressMapping() {
-		return addressMapping;
+	public static Node getCurrentlyLowestNode(final Path path) {
+		return getPathInfo(path).currentlyLowestNode;
+	}
+
+	public static FactAddress getFactAddressInCurrentlyLowestNode(
+			final Path path) {
+		return getPathInfo(path).factAddressInCurrentlyLowestNode;
+	}
+
+	public static Set<Path> getJoinedWith(final Path path) {
+		return getPathInfo(path).joinedWith;
+	}
+
+	public static void setCurrentlyLowestNode(final Path path,
+			final Node currentlyLowestNode) {
+		getPathInfo(path).setCurrentlyLowestNode(currentlyLowestNode);
+	}
+
+	public static void setFactAddressInCurrentlyLowestNode(final Path path,
+			final FactAddress factAddressInCurrentlyLowestNode) {
+		getPathInfo(path).setFactAddressInCurrentlyLowestNode(
+				factAddressInCurrentlyLowestNode);
+	}
+
+	public static void setJoinedWith(final Path path, final Set<Path> joinedWith) {
+		getPathInfo(path).setJoinedWith(joinedWith);
+	}
+
+	public static void setPathInfo(final Path path, final PathInfo pathInfo) {
+		if (pathInfo != null)
+			addressMapping.put(path, pathInfo);
 	}
 
 }
