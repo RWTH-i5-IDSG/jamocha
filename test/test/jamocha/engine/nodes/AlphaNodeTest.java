@@ -84,14 +84,6 @@ public class AlphaNodeTest {
 	}
 
 	/**
-	 * Test method for {@link org.jamocha.engine.nodes.Node#distributeTempFacts()}.
-	 */
-	@Test
-	public void testDistributeTempFacts() {
-		fail("Not yet implemented"); // TODO
-	}
-
-	/**
 	 * Test method for {@link org.jamocha.engine.nodes.Node#getMemory()}.
 	 */
 	@Test

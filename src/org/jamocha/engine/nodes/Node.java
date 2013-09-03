@@ -256,10 +256,6 @@ public abstract class Node {
 		return Collections.unmodifiableSet(this.children);
 	}
 
-	public void distributeTempFacts() {
-		// TODO ??
-	}
-
 	public MemoryHandlerMain getMemory() {
 		return this.memory;
 	}

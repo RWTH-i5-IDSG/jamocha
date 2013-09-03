@@ -19,6 +19,7 @@
 package org.jamocha.engine.nodes;
 
 import org.jamocha.engine.memory.Fact;
+import org.jamocha.engine.memory.FactAddress;
 import org.jamocha.engine.memory.MemoryFactory;
 import org.jamocha.engine.memory.MemoryHandlerTemp;
 import org.jamocha.engine.memory.Template;
@@ -64,6 +65,16 @@ public class ObjectTypeNode extends AlphaNode {
 		throw new UnsupportedOperationException(
 				"retraction of facts not implemented yet");
 		// TODO
+	}
+	
+	@Override
+	public Edge[] getIncomingEdges() {
+		throw new UnsupportedOperationException("No incoming edges in an OTN.");
+	}
+	
+	@Override
+	public AddressPredecessor delocalizeAddress(FactAddress localFactAddress) {
+		throw new UnsupportedOperationException("No previouse addresses for addresses in an OTN.");
 	}
 
 }
