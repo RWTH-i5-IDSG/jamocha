@@ -19,16 +19,20 @@ package org.jamocha.filter;
 
 import org.jamocha.engine.memory.SlotType;
 
+/**
+ * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+ */
 public interface Function {
+
 	/**
 	 * @return list of the corresponding parameter types for the function
 	 */
-	public SlotType[] paramTypes();
+	public SlotType[] getParamTypes();
 
 	/**
 	 * @return return type of the function
 	 */
-	public SlotType returnType();
+	public SlotType getReturnType();
 
 	/**
 	 * @return name of the corresponding function in CLIPS

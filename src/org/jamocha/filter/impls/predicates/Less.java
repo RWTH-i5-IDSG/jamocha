@@ -29,7 +29,7 @@ public class Less {
 	static {
 		TODODatenkrakeFunktionen.addImpl(new Predicate() {
 			@Override
-			public SlotType[] paramTypes() {
+			public SlotType[] getParamTypes() {
 				return new SlotType[] { SlotType.LONG, SlotType.LONG };
 			}
 
@@ -45,7 +45,7 @@ public class Less {
 		});
 		TODODatenkrakeFunktionen.addImpl(new Predicate() {
 			@Override
-			public SlotType[] paramTypes() {
+			public SlotType[] getParamTypes() {
 				return new SlotType[] { SlotType.DOUBLE, SlotType.DOUBLE };
 			}
 

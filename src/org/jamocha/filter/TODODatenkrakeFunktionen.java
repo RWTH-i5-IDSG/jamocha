@@ -67,7 +67,7 @@ public class TODODatenkrakeFunktionen {
 
 	public static void addImpl(final Function impl) {
 		clipsFunctions.put(
-				new CombinedClipsAndParams(impl.toString(), impl.paramTypes()),
+				new CombinedClipsAndParams(impl.toString(), impl.getParamTypes()),
 				impl);
 	}
 

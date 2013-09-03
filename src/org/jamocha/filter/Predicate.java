@@ -21,15 +21,14 @@ import org.jamocha.engine.memory.SlotType;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
- * 
  */
 public abstract class Predicate implements Function {
 
 	/**
-	 * @see org.jamocha.filter.Function#returnType()
+	 * @see org.jamocha.filter.Function#getReturnType()
 	 */
 	@Override
-	public final SlotType returnType() {
+	public final SlotType getReturnType() {
 		return SlotType.BOOLEAN;
 	}
 

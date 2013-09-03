@@ -38,12 +38,12 @@ public class FilterMockup extends Filter {
 	public FilterMockup(final boolean returnValue) {
 		super(new FunctionWithArguments[] { new FunctionWithArguments() {
 			@Override
-			public SlotType returnType() {
+			public SlotType getReturnType() {
 				return SlotType.BOOLEAN;
 			}
 
 			@Override
-			public SlotType[] paramTypes() {
+			public SlotType[] getParamTypes() {
 				return SlotType.empty;
 			}
 

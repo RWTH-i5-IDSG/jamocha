@@ -30,7 +30,7 @@ public class Equals {
 	static {
 		TODODatenkrakeFunktionen.addImpl(new Predicate() {
 			@Override
-			public SlotType[] paramTypes() {
+			public SlotType[] getParamTypes() {
 				return new SlotType[] { SlotType.LONG, SlotType.LONG };
 			}
 
@@ -46,7 +46,7 @@ public class Equals {
 		});
 		TODODatenkrakeFunktionen.addImpl(new Predicate() {
 			@Override
-			public SlotType[] paramTypes() {
+			public SlotType[] getParamTypes() {
 				return new SlotType[] { SlotType.DOUBLE, SlotType.DOUBLE };
 			}
 
@@ -62,7 +62,7 @@ public class Equals {
 		});
 		TODODatenkrakeFunktionen.addImpl(new Predicate() {
 			@Override
-			public SlotType[] paramTypes() {
+			public SlotType[] getParamTypes() {
 				return new SlotType[] { SlotType.STRING, SlotType.STRING };
 			}
 

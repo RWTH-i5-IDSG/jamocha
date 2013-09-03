@@ -25,9 +25,7 @@ import org.jamocha.engine.memory.SlotType;
 import org.jamocha.engine.nodes.SlotInFactAddress;
 
 /**
- * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
- * 
  */
 public class FunctionWithArgumentsComposite implements FunctionWithArguments {
 
@@ -42,10 +40,10 @@ public class FunctionWithArgumentsComposite implements FunctionWithArguments {
 	}
 
 	@Override
-	public SlotType[] paramTypes() {
+	public SlotType[] getParamTypes() {
 		final ArrayList<SlotType> types = new ArrayList<>();
 		for (FunctionWithArguments fwa : args) {
-			for (SlotType type : fwa.paramTypes()) {
+			for (SlotType type : fwa.getParamTypes()) {
 				types.add(type);
 			}
 		}
@@ -53,8 +51,8 @@ public class FunctionWithArgumentsComposite implements FunctionWithArguments {
 	}
 
 	@Override
-	public SlotType returnType() {
-		return function.returnType();
+	public SlotType getReturnType() {
+		return function.getReturnType();
 	}
 
 	@Override
@@ -79,22 +77,12 @@ public class FunctionWithArgumentsComposite implements FunctionWithArguments {
 		int k = 0;
 		for (int i = 0; i < args.length; i++) {
 			final FunctionWithArguments fwa = args[i];
-			final SlotType[] types = fwa.paramTypes();
+			final SlotType[] types = fwa.getParamTypes();
 			evaluatedArgs[i] = fwa.evaluate(Arrays.copyOfRange(params, k, k
 					+ types.length));
 			k += types.length;
 		}
 		return function.evaluate(evaluatedArgs);
-	}
-
-	public void replace(final FunctionWithArguments oldFwa,
-			final FunctionWithArguments newFwa) {
-		for (int i = 0; i < this.args.length; ++i) {
-			if (this.args[i] == oldFwa) {
-				this.args[i] = newFwa;
-				return;
-			}
-		}
 	}
 
 	@Override

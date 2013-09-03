@@ -29,10 +29,8 @@ import org.jamocha.engine.nodes.Node;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
- * 
  */
 public class PathTransformation {
-	// the following sets should be replaced with cheaper containers if possible
 	@Getter
 	@Setter
 	@AllArgsConstructor
@@ -63,9 +61,4 @@ public class PathTransformation {
 	 */
 	public static Map<Path, PathInfo> addressMapping;
 
-	/*
-	 * The Node ctor gets a Filter with PathLeafs. It uses the information
-	 * stored here to transform the PathLeafs to ParameterLeafs. It will create
-	 * NodeInputs as needed.
-	 */
 }

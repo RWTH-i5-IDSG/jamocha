@@ -24,9 +24,7 @@ import org.jamocha.engine.memory.SlotType;
 import org.jamocha.engine.nodes.SlotInFactAddress;
 
 /**
- * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
- * 
  */
 public class ConstantLeaf implements FunctionWithArguments {
 	final Object value;
@@ -39,12 +37,12 @@ public class ConstantLeaf implements FunctionWithArguments {
 	}
 
 	@Override
-	public SlotType[] paramTypes() {
+	public SlotType[] getParamTypes() {
 		return SlotType.empty;
 	}
 
 	@Override
-	public SlotType returnType() {
+	public SlotType getReturnType() {
 		return type;
 	}
 

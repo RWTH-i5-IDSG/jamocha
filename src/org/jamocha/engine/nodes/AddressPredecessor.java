@@ -24,6 +24,10 @@ import lombok.RequiredArgsConstructor;
 import org.jamocha.engine.memory.FactAddress;
 import org.jamocha.engine.nodes.Node.Edge;
 
+/**
+ * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+ */
+
 @Getter
 @RequiredArgsConstructor
 public class AddressPredecessor {

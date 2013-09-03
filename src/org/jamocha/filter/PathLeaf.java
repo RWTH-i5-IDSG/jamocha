@@ -28,7 +28,6 @@ import org.jamocha.filter.PathTransformation.PathInfo;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
- * 
  */
 public class PathLeaf implements FunctionWithArguments {
 
@@ -52,12 +51,12 @@ public class PathLeaf implements FunctionWithArguments {
 	}
 
 	@Override
-	public SlotType[] paramTypes() {
+	public SlotType[] getParamTypes() {
 		return new SlotType[] { slot.getSlotType(path.template) };
 	}
 
 	@Override
-	public SlotType returnType() {
+	public SlotType getReturnType() {
 		return slot.getSlotType(path.template);
 	}
 
@@ -85,12 +84,12 @@ public class PathLeaf implements FunctionWithArguments {
 		}
 
 		@Override
-		public SlotType[] paramTypes() {
+		public SlotType[] getParamTypes() {
 			return new SlotType[] { this.type };
 		}
 
 		@Override
-		public SlotType returnType() {
+		public SlotType getReturnType() {
 			return this.type;
 		}
 
@@ -120,7 +119,7 @@ public class PathLeaf implements FunctionWithArguments {
 				.getFactAddressInCurrentlyLowestNode();
 		addressesInTarget.add(new SlotInFactAddress(
 				factAddressInCurrentlyLowestNode, this.slot));
-		return new ParameterLeaf(returnType());
+		return new ParameterLeaf(getReturnType());
 	}
 
 	@Override

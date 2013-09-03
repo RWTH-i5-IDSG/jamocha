@@ -22,9 +22,7 @@ import org.jamocha.engine.memory.SlotType;
 import org.jamocha.engine.memory.Template;
 
 /**
- * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
- * 
  */
 public class Path {
 	final Template template;

@@ -26,11 +26,13 @@ import lombok.RequiredArgsConstructor;
 
 import org.jamocha.engine.memory.SlotType;
 import org.jamocha.engine.nodes.SlotInFactAddress;
+import org.jamocha.filter.PathLeaf.ParameterLeaf;
 
 /**
+ * For a documentation of the classes used here and their interaction refer to
+ * {@link FunctionWithArguments}
  * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
- * 
  */
 @Getter
 public class Filter {
@@ -66,19 +68,27 @@ public class Filter {
 		this.filterElements = filterElements;
 		for (final FilterElement filterElement : filterElements) {
 			final FunctionWithArguments predicate = filterElement.getFunction();
-			if (predicate.returnType() != SlotType.BOOLEAN) {
+			if (predicate.getReturnType() != SlotType.BOOLEAN) {
 				throw new IllegalArgumentException(
 						"The top-level FunctionWithArguments of a Filter have to be predicates!");
 			}
 		}
 	}
 
+	/**
+	 * Constructs the filter. Checks that the given
+	 * {@link FunctionWithArguments} contain {@link Predicate}s on the
+	 * top-level.
+	 * 
+	 * @param predicates
+	 *            Predicates to be used in the filter.
+	 */
 	public Filter(final FunctionWithArguments[] predicates) {
 		final int length = predicates.length;
 		this.filterElements = new FilterElement[length];
 		for (int i = 0; i < length; ++i) {
 			final FunctionWithArguments predicate = predicates[i];
-			if (predicate.returnType() != SlotType.BOOLEAN) {
+			if (predicate.getReturnType() != SlotType.BOOLEAN) {
 				throw new IllegalArgumentException(
 						"The top-level FunctionWithArguments of a Filter have to be predicates!");
 			}
@@ -86,6 +96,11 @@ public class Filter {
 		}
 	}
 
+	/**
+	 * Translates any {@link PathLeaf}s into {@link ParameterLeaf}s and adds
+	 * their {@link SlotInFactAddress}es to the corresponding
+	 * {@link FilterElement}.
+	 */
 	public void translatePath() {
 		for (final FilterElement filterElement : this.filterElements) {
 			final ArrayList<SlotInFactAddress> addressesInTarget = new ArrayList<>();
@@ -95,6 +110,11 @@ public class Filter {
 		}
 	}
 
+	/**
+	 * Gathers the {@link Path}s used in any {@link PathLeaf}s.
+	 * 
+	 * @return {@link Path}s used in any {@link PathLeaf}s
+	 */
 	public Set<Path> gatherPaths() {
 		final Set<Path> paths = new HashSet<>();
 		for (final FilterElement step : filterElements) {
