@@ -114,6 +114,7 @@ public class ObjectTypeNodeTest {
 	@Test
 	public void testRetractFact() {
 		Path p1 = new Path(Template.STRING);
+		@SuppressWarnings("unused")
 		ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK,
 				Template.STRING, p1);
 		// TODO implement when retractfact is done

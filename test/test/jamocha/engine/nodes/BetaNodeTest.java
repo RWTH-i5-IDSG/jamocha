@@ -43,10 +43,12 @@ import test.jamocha.engine.filter.FilterMockup;
 
 /**
  * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
+ * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  * 
  */
 public class BetaNodeTest {
 
+	@SuppressWarnings("unused")
 	private static class FactAddressMockup implements FactAddress {
 	}
 
@@ -85,6 +87,7 @@ public class BetaNodeTest {
 	 */
 	@Test
 	public void testBetaNode() {
+		@SuppressWarnings("unused")
 		BetaNode beta = new BetaNode(Network.DEFAULTNETWORK,
 				FilterMockup.alwaysTrue());
 	}
@@ -132,14 +135,15 @@ public class BetaNodeTest {
 	public void testDelocalizeAddress() {
 		final Path p1 = new Path(Template.STRING);
 		final Path p2 = new Path(Template.STRING);
-		ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK,
+		@SuppressWarnings("unused")
+		final ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK,
 				Template.STRING, p1, p2);
 		final FactAddress fa1 = PathTransformation
 				.getFactAddressInCurrentlyLowestNode(p1);
 		final FactAddress fa2 = PathTransformation
 				.getFactAddressInCurrentlyLowestNode(p2);
-		BetaNode beta = new BetaNode(Network.DEFAULTNETWORK, new FilterMockup(
-				true, p1, p2));
+		final BetaNode beta = new BetaNode(Network.DEFAULTNETWORK,
+				new FilterMockup(true, p1, p2));
 		assertEquals(
 				fa1,
 				beta.delocalizeAddress(
