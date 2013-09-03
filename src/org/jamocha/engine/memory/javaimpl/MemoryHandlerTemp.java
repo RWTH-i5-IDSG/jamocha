@@ -139,7 +139,13 @@ public class MemoryHandlerTemp implements
 					temps.size() + 1);
 			memStack.add(((org.jamocha.engine.memory.javaimpl.MemoryHandlerMain) edge
 					.getSourceNode().getMemory()).facts);
-			for (final MemoryHandler temp : temps) {
+			for (Iterator<? extends MemoryHandler> iter = temps.iterator(); iter
+					.hasNext();) {
+				final MemoryHandlerTemp temp = (MemoryHandlerTemp) iter.next();
+				if (!temp.valid) {
+					iter.remove();
+					continue;
+				}
 				memStack.add(((org.jamocha.engine.memory.javaimpl.MemoryHandlerTemp) temp).facts);
 			}
 			return new StackElement(memStack, offset) {
@@ -427,7 +433,7 @@ public class MemoryHandlerTemp implements
 		// all children have processed the temp memory, now we have to write its
 		// content to main memory
 		originatingMainHandler.add(this);
-		// TODO invalidate and use the invalidation info at corresponding points
+		this.valid = false;
 	}
 
 	/**
