@@ -27,7 +27,7 @@ import org.junit.Test;
 
 /**
  * @author Kai Schwarz <kai.schwarz@rwth-aachen.de>
- *
+ * 
  */
 public class AndTest {
 
@@ -41,11 +41,12 @@ public class AndTest {
 
 	@Test
 	public void testAnd() {
-		Function and = TODODatenkrakeFunktionen.lookup("AND", SlotType.BOOLEAN, SlotType.BOOLEAN);
-		assertEquals(true,and.evaluate(true,true));
-		assertEquals(false,and.evaluate(true,false));
-		assertEquals(false,and.evaluate(false,true));
-		assertEquals(false,and.evaluate(false,false));
+		Function and = TODODatenkrakeFunktionen.lookup("AND", SlotType.BOOLEAN,
+				SlotType.BOOLEAN);
+		assertEquals(true, and.evaluate(true, true));
+		assertEquals(false, and.evaluate(true, false));
+		assertEquals(false, and.evaluate(false, true));
+		assertEquals(false, and.evaluate(false, false));
 	}
 
 }

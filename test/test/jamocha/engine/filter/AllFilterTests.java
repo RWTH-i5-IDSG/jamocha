@@ -26,10 +26,11 @@ import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
-@SuiteClasses({
-	test.jamocha.engine.filter.predicates.AndTest.class,
-	test.jamocha.engine.filter.predicates.EqualsTest.class
-	})
+@SuiteClasses({ test.jamocha.engine.filter.predicates.AndTest.class,
+		test.jamocha.engine.filter.predicates.EqualsTest.class,
+		test.jamocha.engine.filter.predicates.LessTest.class,
+		test.jamocha.engine.filter.functions.PlusTest.class,
+		test.jamocha.engine.filter.functions.MinusTest.class })
 public class AllFilterTests {
 
 }

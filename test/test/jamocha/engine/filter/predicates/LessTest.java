@@ -40,7 +40,7 @@ import org.junit.runners.Parameterized;
  */
 @RunWith(value = Parameterized.class)
 @RequiredArgsConstructor
-public class EqualsTest {
+public class LessTest {
 
 	/**
 	 * @throws java.lang.Exception
@@ -50,50 +50,44 @@ public class EqualsTest {
 		TODODatenkrakeFunktionen.load();
 	}
 
-	private final Long testLong;
-	private final Long expectedLong;
-	private final Double testDouble;
-	private final Double expectedDouble;
-	private final Boolean testBool;
-	private final Boolean expectedBool;
-	private final String testString;
-	private final String expectedString;
+	private final Boolean longEq;
+	private final Long leftLong;
+	private final Long rightLong;
 
-	private Function eqL, eqD, eqB, eqS;
+	private final Boolean doubleEq;
+	private final Double leftDouble;
+	private final Double rightDouble;
+
+	private Function lessL, lessD;
 
 	@Parameterized.Parameters
 	public static Collection testCases() {
-		Double i = 5.;
-		return Arrays.asList(new Object[][] {
-				{ 1L, 1L, 0.3535, 0.3535, true, true, "asdf", "asdf" },
-				{ 192853692L, 192853692L, 17.3, 17.3, false, 5. != i, "OMG",
-						"OMG" },
-				{ 9223372036854775807L, 9223372036854775807L, Double.MAX_VALUE,
-						new Double(Double.MAX_VALUE), true, 5. == i, "foobar",
-						"foobar" } });
+		return Arrays.asList(new Object[][] { { true, (Long)5L, (Long)6L, false, (Double)4.1, (Double)4. },
+				{ true, (Long)(-20L), (Long)500L, true, (Double)(-20.), (Double)20. },
+				{ false, (Long)1L, (Long)0L, true, (Double)4.0001, (Double)4.001 },
+				{ false, (Long)5L, (Long)5L, false, (Double)217., (Double)217. } });
 	}
 
 	@Before
 	public void setup() {
-		eqL = TODODatenkrakeFunktionen
-				.lookup("=", SlotType.LONG, SlotType.LONG);
-		eqD = TODODatenkrakeFunktionen.lookup("=", SlotType.DOUBLE,
+		lessL = TODODatenkrakeFunktionen.lookup("<", SlotType.LONG,
+				SlotType.LONG);
+		lessD = TODODatenkrakeFunktionen.lookup("<", SlotType.DOUBLE,
 				SlotType.DOUBLE);
-		eqB = TODODatenkrakeFunktionen.lookup("=", SlotType.BOOLEAN,
-				SlotType.BOOLEAN);
-		eqS = TODODatenkrakeFunktionen.lookup("=", SlotType.STRING,
-				SlotType.STRING);
 	}
 
 	@Test
 	public void test() {
-		assertTrue((Boolean) eqL.evaluate(expectedLong, testLong));
-		assertTrue((Boolean) eqD.evaluate(expectedDouble, testDouble));
-		assertTrue((Boolean) eqB.evaluate(expectedBool, testBool));
-		assertTrue((Boolean) eqS.evaluate(expectedString, testString));
-		assertFalse((Boolean) eqL.evaluate(5162013L, testLong));
-		assertFalse((Boolean) eqD.evaluate(21732.1409325, testDouble));
-		assertFalse((Boolean) eqS.evaluate("OMGWTFBBQ!", testString));
+		if (longEq) {
+			assertTrue((Boolean) lessL.evaluate(leftLong, rightLong));
+		} else {
+			assertFalse((Boolean) lessL.evaluate(leftLong, rightLong));
+		}
+		if (doubleEq) {
+			assertTrue((Boolean) lessD.evaluate(leftDouble, rightDouble));
+		} else {
+			assertFalse((Boolean) lessD.evaluate(leftDouble, rightDouble));
+		}
 	}
 
 }

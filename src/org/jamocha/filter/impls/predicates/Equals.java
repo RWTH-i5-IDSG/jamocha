@@ -62,7 +62,7 @@ public class Equals {
 		});
 		TODODatenkrakeFunktionen.addImpl(new Predicate() {
 			@Override
-			public SlotType[] paramTypes() {
+			public SlotType[] getParamTypes() {
 				return new SlotType[] { SlotType.BOOLEAN, SlotType.BOOLEAN };
 			}
 
