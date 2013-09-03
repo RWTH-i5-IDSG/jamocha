@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
@@ -209,7 +210,7 @@ public abstract class Node {
 	public Node(final Network network, final Filter filter) {
 		this.network = network;
 		this.tokenQueue = new TokenQueue(network);
-		final Set<Path> paths = filter.gatherPaths();
+		final LinkedHashSet<Path> paths = filter.gatherPaths();
 		final Map<Edge, Set<Path>> edgesAndPaths = new HashMap<>();
 		final ArrayList<Edge> edges = new ArrayList<>();
 		final Set<Path> joinedPaths = new HashSet<>();

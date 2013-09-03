@@ -18,8 +18,7 @@
 package org.jamocha.filter;
 
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.LinkedHashSet;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -115,8 +114,8 @@ public class Filter {
 	 * 
 	 * @return {@link Path}s used in any {@link PathLeaf}s
 	 */
-	public Set<Path> gatherPaths() {
-		final Set<Path> paths = new HashSet<>();
+	public LinkedHashSet<Path> gatherPaths() {
+		final LinkedHashSet<Path> paths = new LinkedHashSet<>();
 		for (final FilterElement step : filterElements) {
 			step.function.gatherPaths(paths);
 		}
