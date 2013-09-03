@@ -36,13 +36,24 @@ public class ObjectTypeNode extends AlphaNode {
 
 	protected final Template template;
 
-	public ObjectTypeNode(final Network network, final Template template,
-			final Path... paths) { // FIXME remove Template parameter
-		super(network, template, paths);
+	public ObjectTypeNode(final Network network, final Template template) {
+		super(network, template);
 		this.template = template;
+	}
+
+	public ObjectTypeNode(final Network network, final Path... paths) {
+		super(network, getTemplateFromPaths(paths));
+		this.template = this.memory.getTemplate()[0];
 		for (final Path path : paths) {
 			PathTransformation.setCurrentlyLowestNode(path, this);
 		}
+	}
+
+	private static Template getTemplateFromPaths(final Path[] paths) {
+		if (paths.length < 1)
+			throw new Error(
+					"ObjectTypeNode constructor must be called with Template or at least one Path");
+		return paths[0].getTemplate();
 	}
 
 	/**

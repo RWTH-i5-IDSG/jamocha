@@ -17,13 +17,17 @@
  */
 package org.jamocha.filter;
 
+import lombok.Getter;
+
 import org.jamocha.dn.memory.SlotAddress;
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.dn.memory.Template;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+ * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
  */
+@Getter
 public class Path {
 	final Template template;
 
