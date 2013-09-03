@@ -210,34 +210,34 @@ public class MemoryHandlerTempTest {
 	 */
 	@Test
 	public void testNewBetaTempFullJoin() throws InterruptedException {
-		MemoryHandlerTemp token = factory.newToken((MemoryHandlerMain)nodeLeft.getMemory(),
-				nodeLeft, new Fact(new Template(SlotType.STRING), "Fakt1"),
-				new Fact(new Template(SlotType.STRING), "Fakt2"));
-		token.releaseLock();
-		token = factory.newToken((MemoryHandlerMain)nodeRight.getMemory(), nodeRight, new Fact(
+		MemoryHandlerTemp token = factory.newToken((MemoryHandlerMain)nodeRight.getMemory(), nodeRight, new Fact(
 				new Template(SlotType.STRING), "Fakt3"), new Fact(new Template(
 				SlotType.STRING), "Fakt4"));
+		token.releaseLock();
+		token = factory.newToken((MemoryHandlerMain)nodeLeft.getMemory(),
+				nodeLeft, new Fact(new Template(SlotType.STRING), "Fakt1"),
+				new Fact(new Template(SlotType.STRING), "Fakt2"));
 		MemoryHandlerTemp token1 = factory.processTokenInBeta(
-				memoryHandlerMain, token, originInput,
+				(MemoryHandlerMain)node.getMemory(), token, originInput,
 				FilterMockup.alwaysTrue());
 		assertEquals(4, token1.size());
 		assertEquals(2, token1.getTemplate().length);
 		String s = (String) token1.getValue(fa[0], slotAddress, 0);
-		assertTrue(s.equals("Fakt3") || s.equals("Fakt4"));
+		assertTrue(s.equals("Fakt1") || s.equals("Fakt2"));
 		s = (String) token1.getValue(fa[0], slotAddress, 1);
-		assertTrue(s.equals("Fakt3") || s.equals("Fakt4"));
+		assertTrue(s.equals("Fakt1") || s.equals("Fakt2"));
 		s = (String) token1.getValue(fa[0], slotAddress, 2);
-		assertTrue(s.equals("Fakt3") || s.equals("Fakt4"));
+		assertTrue(s.equals("Fakt1") || s.equals("Fakt2"));
 		s = (String) token1.getValue(fa[0], slotAddress, 3);
-		assertTrue(s.equals("Fakt3") || s.equals("Fakt4"));
+		assertTrue(s.equals("Fakt1") || s.equals("Fakt2"));
 		s = (String) token1.getValue(fa[1], slotAddress, 0);
-		assertTrue(s.equals("Fakt1") || s.equals("Fakt2"));
+		assertTrue(s.equals("Fakt3") || s.equals("Fakt4"));
 		s = (String) token1.getValue(fa[1], slotAddress, 1);
-		assertTrue(s.equals("Fakt1") || s.equals("Fakt2"));
+		assertTrue(s.equals("Fakt3") || s.equals("Fakt4"));
 		s = (String) token1.getValue(fa[1], slotAddress, 2);
-		assertTrue(s.equals("Fakt1") || s.equals("Fakt2"));
+		assertTrue(s.equals("Fakt3") || s.equals("Fakt4"));
 		s = (String) token1.getValue(fa[1], slotAddress, 3);
-		assertTrue(s.equals("Fakt1") || s.equals("Fakt2"));
+		assertTrue(s.equals("Fakt3") || s.equals("Fakt4"));
 	}
 
 	/**
@@ -262,15 +262,15 @@ public class MemoryHandlerTempTest {
 				new org.jamocha.engine.memory.javaimpl.FactAddress(1),
 				new SlotAddress(0)));
 		Filter filter = new Filter(new FilterElement[] { fe });
-		MemoryHandlerTemp token = factory.newToken((MemoryHandlerMain)nodeLeft.getMemory(),
-				nodeLeft, new Fact(new Template(SlotType.STRING), "Fakt1"),
-				new Fact(new Template(SlotType.STRING), "Fakt2"));
-		token.releaseLock();
-		token = factory.newToken((MemoryHandlerMain)nodeRight.getMemory(), nodeRight, new Fact(
+		MemoryHandlerTemp token = factory.newToken((MemoryHandlerMain)nodeRight.getMemory(), nodeRight, new Fact(
 				new Template(SlotType.STRING), "Fakt1"), new Fact(new Template(
 				SlotType.STRING), "Fakt3"));
+		token.releaseLock();
+		token = factory.newToken((MemoryHandlerMain)nodeLeft.getMemory(),
+				nodeLeft, new Fact(new Template(SlotType.STRING), "Fakt1"),
+				new Fact(new Template(SlotType.STRING), "Fakt2"));
 		MemoryHandlerTemp token1 = factory.processTokenInBeta(
-				memoryHandlerMain, token, originInput, filter);
+				(MemoryHandlerMain)node.getMemory(), token, originInput, filter);
 		assertEquals(1, token1.size());
 		assertEquals(2, token1.getTemplate().length);
 		assertEquals("Fakt1", (String) token1.getValue(fa[0], slotAddress, 0));
