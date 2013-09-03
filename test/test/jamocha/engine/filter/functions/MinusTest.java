@@ -19,27 +19,41 @@ package test.jamocha.engine.filter.functions;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.Arrays;
-import java.util.Collection;
-
-import lombok.RequiredArgsConstructor;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 
 import org.jamocha.engine.memory.SlotType;
 import org.jamocha.filter.Function;
 import org.jamocha.filter.TODODatenkrakeFunktionen;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.experimental.theories.ParameterSignature;
+import org.junit.experimental.theories.ParameterSupplier;
+import org.junit.experimental.theories.ParametersSuppliedBy;
+import org.junit.experimental.theories.PotentialAssignment;
+import org.junit.experimental.theories.Theories;
+import org.junit.experimental.theories.Theory;
 import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
 
 /**
  * @author Kai Schwarz <kai.schwarz@rwth-aachen.de>
  * 
  */
-@RunWith(value = Parameterized.class)
-@RequiredArgsConstructor
+@RunWith(Theories.class)
 public class MinusTest {
+
+	@Retention(RetentionPolicy.RUNTIME)
+	@ParametersSuppliedBy(RandomLongsSupplier.class)
+	public @interface RandomLong {
+	}
+
+	@Retention(RetentionPolicy.RUNTIME)
+	@ParametersSuppliedBy(RandomDoublesSupplier.class)
+	public @interface RandomDouble {
+	}
 
 	/**
 	 * @throws java.lang.Exception
@@ -49,19 +63,33 @@ public class MinusTest {
 		TODODatenkrakeFunktionen.load();
 	}
 
-	private final Long expectedL, leftL, rightL;
-	private final Double expectedD, leftD, rightD;
 	private Function plusL, plusD;
 
-	@Parameterized.Parameters
-	public static Collection<Object[]> testCases() {
-		return Arrays.asList(new Object[][] {
-				{ (Long) 0L, (Long) 20L, (Long) 20L, (Double) 0.,
-						(Double) 0.001, (Double) 0.001 },
-				{ (Long) 15L, (Long) 10L, (Long) (-5L), (Double) 17.003,
-						(Double) 17., (Double) (-0.003) },
-				{ (Long) (-217L), (Long) (3L), (Long) 220L, (Double) (-3520.3),
-						(Double) (.7), (Double) 3521. } });
+	public static class RandomLongsSupplier extends ParameterSupplier {
+		@Override
+		public List<PotentialAssignment> getValueSources(
+				ParameterSignature signature) {
+			ArrayList<PotentialAssignment> list = new ArrayList<>();
+			Random randomGen = new Random();
+			for (int i = 0; i < 100; ++i) {
+				list.add(PotentialAssignment.forValue("", randomGen.nextLong()));
+			}
+			return list;
+		}
+	}
+
+	public static class RandomDoublesSupplier extends ParameterSupplier {
+		@Override
+		public List<PotentialAssignment> getValueSources(
+				ParameterSignature signature) {
+			ArrayList<PotentialAssignment> list = new ArrayList<>();
+			Random randomGen = new Random();
+			for (int i = 0; i < 100; ++i) {
+				list.add(PotentialAssignment.forValue("",
+						randomGen.nextGaussian()));
+			}
+			return list;
+		}
 	}
 
 	@Before
@@ -72,10 +100,16 @@ public class MinusTest {
 				SlotType.DOUBLE);
 	}
 
-	@Test
-	public void test() {
-		assertEquals(expectedL, (Long) (plusL.evaluate(leftL, rightL)));
-		assertEquals(expectedD, (Double) (plusD.evaluate(leftD, rightD)));
+	@Theory
+	public void testLong(@RandomLong
+	Long left, @RandomLong
+	Long right) {
+		assertEquals((Long) (left + right),
+				(Long) (plusL.evaluate(left, right)));
 	}
-
+	
+	@Theory
+	public void testDouble (@RandomDouble Double left, @RandomDouble Double right) {
+		assertEquals((Double) (left+right), (Double)(plusD.evaluate(left,right)));
+	}
 }
