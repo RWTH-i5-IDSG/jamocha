@@ -23,6 +23,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
 import java.util.LinkedList;
+import java.util.Map;
 
 import org.jamocha.engine.memory.Fact;
 import org.jamocha.engine.memory.FactAddress;
@@ -103,6 +104,10 @@ public class MemoryHandlerTempTest {
 			public LinkedList<org.jamocha.engine.memory.MemoryHandlerTemp> getTempMemories() {
 				return new LinkedList<>();
 			}
+
+			@Override
+			public void setAddressMap(
+					Map<? extends FactAddress, ? extends FactAddress> map) {}
 
 		}
 
@@ -199,6 +204,7 @@ public class MemoryHandlerTempTest {
 		nodeRight = new NodeMockup(1, memoryHandlerMainRight);
 		originInput = node.connectParent(nodeLeft);
 		node.connectParent(nodeRight);
+		assert node.getInputs().length == 2;
 	}
 
 	/**
