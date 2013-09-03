@@ -17,28 +17,30 @@
  */
 package org.jamocha.dn;
 
-import lombok.Getter;
-
-import org.jamocha.dn.memory.MemoryFactory;
+import java.util.LinkedList;
+import java.util.Queue;
 
 /**
  * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
  *
  */
-@Getter
-public class Network {
+public class SchedulerPlain implements Scheduler, Runnable {
 	
-	private final MemoryFactory memoryFactory;
-	private final int tokenQueueCapacity;
-	private final Scheduler scheduler;
-	
-	public Network(final MemoryFactory memoryFactory, final int tokenQueueCapacity, final Scheduler scheduler) {
-		this.memoryFactory = memoryFactory;
-		this.tokenQueueCapacity = tokenQueueCapacity;
-		this.scheduler = scheduler;
+	Queue<Runnable> workQueue = new LinkedList<>();
+
+	/* (non-Javadoc)
+	 * @see org.jamocha.dn.Scheduler#enqueue(java.lang.Runnable)
+	 */
+	@Override
+	public void enqueue(Runnable runnable) {
+		workQueue.add(runnable);
 	}
-	
-	public final static Network DEFAULTNETWORK = new Network(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(),
-			Integer.MAX_VALUE, new SchedulerThreadPool(10));
+
+	@Override
+	public void run() {
+		while (!workQueue.isEmpty()) {
+			workQueue.poll().run();
+		}
+	}
 
 }

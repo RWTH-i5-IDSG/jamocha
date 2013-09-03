@@ -17,28 +17,28 @@
  */
 package org.jamocha.dn;
 
-import lombok.Getter;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
-import org.jamocha.dn.memory.MemoryFactory;
 
 /**
  * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
  *
  */
-@Getter
-public class Network {
+public class SchedulerThreadPool implements Scheduler {
 	
-	private final MemoryFactory memoryFactory;
-	private final int tokenQueueCapacity;
-	private final Scheduler scheduler;
+	final Executor executor;
 	
-	public Network(final MemoryFactory memoryFactory, final int tokenQueueCapacity, final Scheduler scheduler) {
-		this.memoryFactory = memoryFactory;
-		this.tokenQueueCapacity = tokenQueueCapacity;
-		this.scheduler = scheduler;
+	public SchedulerThreadPool(int nThreads) {
+		executor = Executors.newFixedThreadPool(nThreads);
 	}
 	
-	public final static Network DEFAULTNETWORK = new Network(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(),
-			Integer.MAX_VALUE, new SchedulerThreadPool(10));
+	/* (non-Javadoc)
+	 * @see org.jamocha.dn.Scheduler#enqueue(java.lang.Runnable)
+	 */
+	@Override
+	public void enqueue(Runnable runnable) {
+		executor.execute(runnable);
+	}
 
 }
