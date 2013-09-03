@@ -258,7 +258,7 @@ public class TestData {
 
 	@Retention(RetentionPolicy.RUNTIME)
 	@ParametersSuppliedBy(SomeBooleanSupplier.class)
-	public @interface ListOfBoolean {
+	public @interface ListOfBooleans {
 	}
 
 	/*

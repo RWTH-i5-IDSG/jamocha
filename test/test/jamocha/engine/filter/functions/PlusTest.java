@@ -19,24 +19,17 @@ package test.jamocha.engine.filter.functions;
 
 import static org.junit.Assert.assertEquals;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.filter.Function;
 import org.jamocha.filter.TODODatenkrakeFunktionen;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.experimental.theories.ParameterSignature;
-import org.junit.experimental.theories.ParameterSupplier;
-import org.junit.experimental.theories.ParametersSuppliedBy;
-import org.junit.experimental.theories.PotentialAssignment;
 import org.junit.experimental.theories.Theories;
 import org.junit.experimental.theories.Theory;
 import org.junit.runner.RunWith;
+
+import test.jamocha.util.TestData.LotsOfRandomDoubles;
+import test.jamocha.util.TestData.LotsOfRandomLongs;
 
 /**
  * @author Kai Schwarz <kai.schwarz@rwth-aachen.de>
@@ -44,16 +37,6 @@ import org.junit.runner.RunWith;
  */
 @RunWith(Theories.class)
 public class PlusTest {
-
-	@Retention(RetentionPolicy.RUNTIME)
-	@ParametersSuppliedBy(RandomLongsSupplier.class)
-	public @interface RandomLong {
-	}
-
-	@Retention(RetentionPolicy.RUNTIME)
-	@ParametersSuppliedBy(RandomDoublesSupplier.class)
-	public @interface RandomDouble {
-	}
 
 	/**
 	 * @throws java.lang.Exception
@@ -63,35 +46,8 @@ public class PlusTest {
 		TODODatenkrakeFunktionen.load();
 	}
 
-	public static class RandomLongsSupplier extends ParameterSupplier {
-		@Override
-		public List<PotentialAssignment> getValueSources(
-				ParameterSignature signature) {
-			ArrayList<PotentialAssignment> list = new ArrayList<>();
-			Random randomGen = new Random();
-			for (int i = 0; i < 100; ++i) {
-				list.add(PotentialAssignment.forValue("", randomGen.nextLong()));
-			}
-			return list;
-		}
-	}
-
-	public static class RandomDoublesSupplier extends ParameterSupplier {
-		@Override
-		public List<PotentialAssignment> getValueSources(
-				ParameterSignature signature) {
-			ArrayList<PotentialAssignment> list = new ArrayList<>();
-			Random randomGen = new Random();
-			for (int i = 0; i < 100; ++i) {
-				list.add(PotentialAssignment.forValue("",
-						randomGen.nextGaussian()));
-			}
-			return list;
-		}
-	}
-
 	private Function plusL, plusD;
-	
+
 	@Before
 	public void setUp() {
 		plusL = TODODatenkrakeFunktionen.lookup("+", SlotType.LONG,
@@ -101,13 +57,19 @@ public class PlusTest {
 	}
 
 	@Theory
-	public void testLong(Long left,Long right) {
-		assertEquals((Long)(left + right), (Long) (plusL.evaluate(left, right)));
+	public void testLong(@LotsOfRandomLongs
+	Long left, @LotsOfRandomLongs
+	Long right) {
+		assertEquals((Long) (left + right),
+				(Long) (plusL.evaluate(left, right)));
 	}
-	
+
 	@Theory
-	public void testDouble(Double left, Double right) {
-		assertEquals((Double)(left + right), (Double) (plusD.evaluate(left, right)));
+	public void testDouble(@LotsOfRandomDoubles
+	Double left, @LotsOfRandomDoubles
+	Double right) {
+		assertEquals((Double) (left + right),
+				(Double) (plusD.evaluate(left, right)));
 	}
 
 }

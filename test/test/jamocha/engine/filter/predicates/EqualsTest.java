@@ -17,29 +17,31 @@
  */
 package test.jamocha.engine.filter.predicates;
 
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-
-import java.util.Arrays;
-import java.util.Collection;
-
-import lombok.RequiredArgsConstructor;
+import static org.junit.Assume.assumeThat;
 
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.filter.Function;
 import org.jamocha.filter.TODODatenkrakeFunktionen;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.experimental.theories.Theories;
+import org.junit.experimental.theories.Theory;
 import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+
+import test.jamocha.util.TestData.ListOfBooleans;
+import test.jamocha.util.TestData.ListOfDoubles;
+import test.jamocha.util.TestData.ListOfLongs;
+import test.jamocha.util.TestData.ListOfStrings;
 
 /**
  * @author Kai Schwarz <kai.schwarz@rwth-aachen.de>
  * 
  */
-@RunWith(value = Parameterized.class)
-@RequiredArgsConstructor
+@RunWith(Theories.class)
 public class EqualsTest {
 
 	/**
@@ -50,28 +52,7 @@ public class EqualsTest {
 		TODODatenkrakeFunktionen.load();
 	}
 
-	private final Long testLong;
-	private final Long expectedLong;
-	private final Double testDouble;
-	private final Double expectedDouble;
-	private final Boolean testBool;
-	private final Boolean expectedBool;
-	private final String testString;
-	private final String expectedString;
-
 	private Function eqL, eqD, eqB, eqS;
-
-	@Parameterized.Parameters
-	public static Collection<Object[]> testCases() {
-		Double i = 5.;
-		return Arrays.asList(new Object[][] {
-				{ 1L, 1L, 0.3535, 0.3535, true, true, "asdf", "asdf" },
-				{ 192853692L, 192853692L, 17.3, 17.3, false, 5. != i, "OMG",
-						"OMG" },
-				{ 9223372036854775807L, 9223372036854775807L, Double.MAX_VALUE,
-						new Double(Double.MAX_VALUE), true, 5. == i, "foobar",
-						"foobar" } });
-	}
 
 	@Before
 	public void setup() {
@@ -85,15 +66,67 @@ public class EqualsTest {
 				SlotType.STRING);
 	}
 
-	@Test
-	public void test() {
-		assertTrue((Boolean) eqL.evaluate(expectedLong, testLong));
-		assertTrue((Boolean) eqD.evaluate(expectedDouble, testDouble));
-		assertTrue((Boolean) eqB.evaluate(expectedBool, testBool));
-		assertTrue((Boolean) eqS.evaluate(expectedString, testString));
-		assertFalse((Boolean) eqL.evaluate(5162013L, testLong));
-		assertFalse((Boolean) eqD.evaluate(21732.1409325, testDouble));
-		assertFalse((Boolean) eqS.evaluate("OMGWTFBBQ!", testString));
+	@Theory
+	public void testLongPos(@ListOfLongs
+	Long left, @ListOfLongs
+	Long right) {
+		assumeThat(left, equalTo(right));
+		assertTrue((Boolean) (eqL.evaluate(left, right)));
 	}
 
+	@Theory
+	public void testLongNeg(@ListOfLongs
+	Long left, @ListOfLongs
+	Long right) {
+		assumeThat(left, not(equalTo(right)));
+		assertFalse((Boolean) (eqL.evaluate(left, right)));
+	}
+
+	@Theory
+	public void testDoublePos(@ListOfDoubles
+	Double left, @ListOfDoubles
+	Double right) {
+		assumeThat(left, (equalTo(right)));
+		assertTrue((Boolean) (eqD.evaluate(left, right)));
+	}
+
+	@Theory
+	public void testDoubleNeg(@ListOfDoubles
+	Double left, @ListOfDoubles
+	Double right) {
+		assumeThat(left, not(equalTo(right)));
+		assertFalse((Boolean) (eqD.evaluate(left, right)));
+	}
+
+	@Theory
+	public void testStringPos(@ListOfStrings
+	String left, @ListOfStrings
+	String right) {
+		assumeThat(left, (equalTo(right)));
+		assertTrue((Boolean) (eqS.evaluate(left, right)));
+	}
+
+	@Theory
+	public void testStringNeg(@ListOfStrings
+	String left, @ListOfStrings
+	String right) {
+		assumeThat(left, not(equalTo(right)));
+		assertFalse((Boolean) (eqS.evaluate(left, right)));
+	}
+
+	@Theory
+	public void testBooleanPos(@ListOfBooleans
+	Boolean left, @ListOfBooleans
+	Boolean right) {
+		assumeThat(left, (equalTo(right)));
+		assertTrue((Boolean) (eqB.evaluate(left, right)));
+	}
+
+	@Theory
+	public void testBooleanNeg(@ListOfBooleans
+	Boolean left, @ListOfBooleans
+	Boolean right) {
+		assumeThat(left, not(equalTo(right)));
+		assertFalse((Boolean) (eqB.evaluate(left, right)));
+	}
 }
