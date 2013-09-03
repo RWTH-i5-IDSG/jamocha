@@ -17,9 +17,11 @@
  */
 package org.jamocha.engine.memory.javaimpl;
 
+import org.jamocha.engine.memory.Template;
 import org.jamocha.engine.nodes.Node;
 import org.jamocha.engine.nodes.Node.Edge;
 import org.jamocha.filter.Filter;
+import org.jamocha.filter.Path;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -34,12 +36,28 @@ public class MemoryFactory implements org.jamocha.engine.memory.MemoryFactory {
 		return singleton;
 	}
 
+	/**
+	 * @see MemoryFactory#newMemoryHandlerMain(Template, Path...)
+	 */
+	@Override
+	public MemoryHandlerMain newMemoryHandlerMain(final Template template,
+			final Path... paths) {
+		return new MemoryHandlerMain(template, paths);
+	}
+
+	/**
+	 * @see MemoryFactory#newMemoryHandlerMain(Edge...)
+	 */
 	@Override
 	public MemoryHandlerMain newMemoryHandlerMain(
 			final Edge... inputsToBeJoined) {
 		return new MemoryHandlerMain(inputsToBeJoined);
 	}
 
+	/**
+	 * @see MemoryFactory#processTokenInBeta(MemoryHandlerMain,
+	 *      MemoryHandlerTemp, Edge, Filter)
+	 */
 	@Override
 	public MemoryHandlerTemp processTokenInBeta(
 			final MemoryHandlerMain originatingMainHandler,
@@ -49,6 +67,10 @@ public class MemoryFactory implements org.jamocha.engine.memory.MemoryFactory {
 				originInput, filter);
 	}
 
+	/**
+	 * @see MemoryFactory#processTokenInAlpha(MemoryHandlerMain,
+	 *      MemoryHandlerTemp, Node, Filter)
+	 */
 	@Override
 	public MemoryHandlerTemp processTokenInAlpha(
 			final MemoryHandlerMain originatingMainHandler,
@@ -58,6 +80,10 @@ public class MemoryFactory implements org.jamocha.engine.memory.MemoryFactory {
 				alphaNode, filter);
 	}
 
+	/**
+	 * @see MemoryFactory#newToken(MemoryHandlerMain, Node,
+	 *      org.jamocha.engine.memory.Fact...)
+	 */
 	@Override
 	public MemoryHandlerTemp newToken(
 			final MemoryHandlerMain originatingMainHandler, final Node otn,

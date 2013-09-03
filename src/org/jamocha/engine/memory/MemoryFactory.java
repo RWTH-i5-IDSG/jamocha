@@ -23,6 +23,7 @@ import org.jamocha.engine.memory.javaimpl.MemoryHandlerTemp;
 import org.jamocha.engine.nodes.Node;
 import org.jamocha.engine.nodes.Node.Edge;
 import org.jamocha.filter.Filter;
+import org.jamocha.filter.Path;
 
 /**
  * 
@@ -31,6 +32,18 @@ import org.jamocha.filter.Filter;
  * 
  */
 public interface MemoryFactory {
+
+	/**
+	 * Note: PathTransformation should contain entries for all paths given as
+	 * their addresses are set here.
+	 * 
+	 * @param template
+	 * @param paths
+	 * @return
+	 */
+	public MemoryHandlerMain newMemoryHandlerMain(final Template template,
+			final Path... paths);
+
 	public MemoryHandlerMain newMemoryHandlerMain(
 			final Edge... inputsToBeJoined);
 

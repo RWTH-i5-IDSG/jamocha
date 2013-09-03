@@ -25,6 +25,8 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.jamocha.engine.memory.Template;
 import org.jamocha.engine.nodes.Node.Edge;
+import org.jamocha.filter.Path;
+import org.jamocha.filter.PathTransformation;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -41,11 +43,13 @@ public class MemoryHandlerMain implements
 	final Template[] template;
 	final FactAddress[] addresses;
 
-	public MemoryHandlerMain(final Template... templates) {
-		this.addresses = new FactAddress[templates.length];
-		this.template = templates;
-		for (int i = 0; i < this.addresses.length; i++) {
-			this.addresses[i] = null; // TODO
+	public MemoryHandlerMain(final Template template, final Path... paths) {
+		final FactAddress address = new FactAddress(0);
+		this.addresses = new FactAddress[] { address };
+		this.template = new Template[] { template };
+		for (final Path path : paths) {
+			PathTransformation.addressMapping.get(path)
+					.setFactAddressInCurrentlyLowestNode(address);
 		}
 	}
 
