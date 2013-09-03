@@ -93,7 +93,8 @@ public class AlphaNodeTest {
 		ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK,
 				Template.BOOLEAN, p1, p2);
 		AlphaNode alpha = new AlphaNode(Network.DEFAULTNETWORK,
-				new FilterMockup(true, p1, p2));
+				new FilterMockup(true, p1));
+		alpha.shareNode(p2);
 		Collection<Edge> children = alpha.getOutgoingEdges();
 		assertNotNull(children);
 		assertEquals(0, children.size());
