@@ -32,7 +32,6 @@ import org.junit.Test;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
- * 
  */
 public class FilterMockup extends Filter {
 
