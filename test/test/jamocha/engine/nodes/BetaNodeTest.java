@@ -17,9 +17,11 @@
  */
 package test.jamocha.engine.nodes;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertSame;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -29,7 +31,6 @@ import org.jamocha.dn.memory.FactAddress;
 import org.jamocha.dn.memory.MemoryHandlerMain;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.dn.nodes.BetaNode;
-import org.jamocha.dn.nodes.Node;
 import org.jamocha.dn.nodes.Node.Edge;
 import org.jamocha.dn.nodes.ObjectTypeNode;
 import org.jamocha.filter.Path;
