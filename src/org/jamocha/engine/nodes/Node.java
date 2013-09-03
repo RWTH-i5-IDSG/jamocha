@@ -34,6 +34,7 @@ import org.jamocha.engine.memory.MemoryFactory;
 import org.jamocha.engine.memory.MemoryHandler;
 import org.jamocha.engine.memory.MemoryHandlerMain;
 import org.jamocha.engine.memory.MemoryHandlerTemp;
+import org.jamocha.engine.memory.Template;
 import org.jamocha.filter.Filter;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.PathTransformation;
@@ -122,7 +123,7 @@ public abstract class Node {
 	}
 
 	@Getter
-	protected Edge[] incomingEdges;
+	final protected Edge[] incomingEdges;
 	final protected Set<Edge> children = new HashSet<>();
 	// TODO is filled in BetaNode#BetaEdgeImpl#setAddressMap, has to be filled
 	// in other children!
@@ -132,8 +133,17 @@ public abstract class Node {
 	/**
 	 * Only for testing purposes.
 	 */
-	protected Node(MemoryHandlerMain memory) {
-		this.memory = memory;
+	protected Node(final MemoryFactory memoryFactory, final Node... parents) {
+		this.incomingEdges = new Edge[parents.length];
+		for (int i = 0; i < parents.length; i++) {
+			this.incomingEdges[i] = this.connectParent(parents[i]);
+		}
+		this.memory = memoryFactory.newMemoryHandlerMain(incomingEdges);
+	}
+	
+	protected Node(final MemoryFactory memoryFactory, final Template template, final Path...paths) {
+		this.incomingEdges = new Edge[0];
+		this.memory = memoryFactory.newMemoryHandlerMain(template, paths);
 	}
 
 	public Node(final MemoryFactory memoryFactory, final Filter filter) {
@@ -156,6 +166,7 @@ public abstract class Node {
 			edges.add(edge);
 			edgesAndPaths.put(edge, joinedWith);
 		}
+		incomingEdges = (Edge[]) edges.toArray();
 		this.memory = memoryFactory.newMemoryHandlerMain(incomingEdges);
 		// update all Paths from joinedWith to new addresses
 		for (final Edge edge : edges) {
@@ -168,7 +179,6 @@ public abstract class Node {
 				pi.setJoinedWith(joinedPaths);
 			}
 		}
-		incomingEdges = (Edge[]) edges.toArray();
 		filter.translatePath();
 	}
 
