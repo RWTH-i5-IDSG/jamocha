@@ -63,8 +63,6 @@ public class MinusTest {
 		TODODatenkrakeFunktionen.load();
 	}
 
-	private Function minusL, minusD;
-
 	public static class RandomLongsSupplier extends ParameterSupplier {
 		@Override
 		public List<PotentialAssignment> getValueSources(
@@ -91,6 +89,8 @@ public class MinusTest {
 			return list;
 		}
 	}
+
+	private Function minusL, minusD;
 
 	@Before
 	public void setUp() {
