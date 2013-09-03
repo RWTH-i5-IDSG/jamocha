@@ -41,6 +41,7 @@ import org.jamocha.filter.Filter;
 import org.jamocha.filter.Filter.FilterElement;
 import org.jamocha.filter.FunctionWithArguments;
 import org.jamocha.filter.FunctionWithArgumentsComposite;
+import org.jamocha.filter.Path;
 import org.jamocha.filter.PathLeaf;
 import org.jamocha.filter.TODODatenkrakeFunktionen;
 import org.junit.After;
@@ -164,6 +165,10 @@ public class MemoryHandlerTempTest {
 			assert originEdge != null;
 			return new AddressPredecessor(originEdge, fa[factAddress.getIndex()
 					- pos]);
+		}
+
+		@Override
+		public void shareNode(Path... paths) {
 		}
 
 	}
