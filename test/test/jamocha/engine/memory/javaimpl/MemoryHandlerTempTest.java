@@ -34,6 +34,7 @@ import org.jamocha.engine.memory.javaimpl.MemoryHandlerMain;
 import org.jamocha.engine.memory.javaimpl.MemoryHandlerTemp;
 import org.jamocha.engine.memory.javaimpl.SlotAddress;
 import org.jamocha.engine.nodes.AddressPredecessor;
+import org.jamocha.engine.nodes.CouldNotAcquireLockException;
 import org.jamocha.engine.nodes.Node;
 import org.jamocha.engine.nodes.Node.Edge;
 import org.jamocha.engine.nodes.SlotInFactAddress;
@@ -113,12 +114,14 @@ public class MemoryHandlerTempTest {
 		int numChildern;
 		int currentOffset = 0;
 
+		@SuppressWarnings("deprecation")
 		public NodeMockup(MemoryFactory factory, int numChildren,
 				Node... parents) {
 			super(factory, parents);
 			this.numChildern = numChildren;
 		}
 
+		@SuppressWarnings("deprecation")
 		public NodeMockup(MemoryFactory factory, int numChildren) {
 			super(factory);
 			this.numChildern = numChildren;
@@ -211,7 +214,7 @@ public class MemoryHandlerTempTest {
 	 * @throws InterruptedException
 	 */
 	@Test
-	public void testNewBetaTempFullJoin() throws InterruptedException {
+	public void testNewBetaTempFullJoin() throws CouldNotAcquireLockException {
 		MemoryHandlerTemp token = (MemoryHandlerTemp) factory.newToken(
 				nodeRight.getMemory(), nodeRight, new Fact(new Template(
 						SlotType.STRING), "Fakt3"), new Fact(new Template(
@@ -252,7 +255,8 @@ public class MemoryHandlerTempTest {
 	 */
 	@SuppressWarnings("deprecation")
 	@Test
-	public void testNewBetaTempSelectiveJoin() throws InterruptedException {
+	public void testNewBetaTempSelectiveJoin()
+			throws CouldNotAcquireLockException {
 		TODODatenkrakeFunktionen.load();
 		FunctionWithArguments pl1 = new PathLeaf.ParameterLeaf(SlotType.STRING);
 		FunctionWithArguments pl2 = new PathLeaf.ParameterLeaf(SlotType.STRING);
@@ -290,7 +294,7 @@ public class MemoryHandlerTempTest {
 	 * @throws InterruptedException
 	 */
 	@Test
-	public void testNewAlphaTemp() throws InterruptedException {
+	public void testNewAlphaTemp() throws CouldNotAcquireLockException {
 		MemoryHandlerTemp token = (MemoryHandlerTemp) factory.newToken(
 				memoryHandlerMain, node, new Fact(
 						new Template(SlotType.STRING), "Test"));
