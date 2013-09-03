@@ -54,11 +54,20 @@ public class PathTransformation {
 	 * Set of paths that are currently joined. Initially this contains sets of
 	 * one-element-sets (the paths). These sets are then merged step by step.
 	 */
-	public static Set<Set<Path>> joinedPaths;
+	private static Set<Set<Path>> joinedPaths;
+
 	/**
 	 * Maps paths to their addresses, the corresponding node of the addresses,
 	 * and the set of other paths they have been joined with.
 	 */
-	public static Map<Path, PathInfo> addressMapping;
+	private static Map<Path, PathInfo> addressMapping;
+
+	public static Set<Set<Path>> getJoinedPaths() {
+		return joinedPaths;
+	}
+
+	public static Map<Path, PathInfo> getAddressMapping() {
+		return addressMapping;
+	}
 
 }

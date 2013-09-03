@@ -160,7 +160,7 @@ public abstract class Node {
 		while (!paths.isEmpty()) {
 			// get next path
 			final Path path = paths.iterator().next();
-			final PathInfo pathInfo = PathTransformation.addressMapping
+			final PathInfo pathInfo = PathTransformation.getAddressMapping()
 					.get(path);
 			// mark all paths as done
 			final Set<Path> joinedWith = pathInfo.getJoinedWith();
@@ -178,7 +178,7 @@ public abstract class Node {
 		for (final Edge edge : edges) {
 			final Set<Path> joinedWith = edgesAndPaths.get(edge);
 			for (final Path path : joinedWith) {
-				PathInfo pi = PathTransformation.addressMapping.get(path);
+				PathInfo pi = PathTransformation.getAddressMapping().get(path);
 				pi.setCurrentlyLowestNode(this);
 				pi.setFactAddressInCurrentlyLowestNode(edge.localizeAddress(pi
 						.getFactAddressInCurrentlyLowestNode()));

@@ -113,8 +113,8 @@ public class PathLeaf implements FunctionWithArguments {
 	@Override
 	public ParameterLeaf translatePath(
 			final ArrayList<SlotInFactAddress> addressesInTarget) {
-		final PathInfo pathInfo = PathTransformation.addressMapping
-				.get(this.path);
+		final PathInfo pathInfo = PathTransformation.getAddressMapping().get(
+				this.path);
 		final FactAddress factAddressInCurrentlyLowestNode = pathInfo
 				.getFactAddressInCurrentlyLowestNode();
 		addressesInTarget.add(new SlotInFactAddress(
