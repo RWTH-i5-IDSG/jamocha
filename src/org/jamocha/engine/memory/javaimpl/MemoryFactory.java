@@ -60,11 +60,13 @@ public class MemoryFactory implements org.jamocha.engine.memory.MemoryFactory {
 	 */
 	@Override
 	public MemoryHandlerTemp processTokenInBeta(
-			final MemoryHandlerMain originatingMainHandler,
-			final MemoryHandlerTemp token, final Edge originInput,
-			final Filter filter) throws InterruptedException {
-		return MemoryHandlerTemp.newBetaTemp(originatingMainHandler, token,
-				originInput, filter);
+			final org.jamocha.engine.memory.MemoryHandlerMain originatingMainHandler,
+			final org.jamocha.engine.memory.MemoryHandlerTemp token,
+			final Edge originInput, final Filter filter)
+			throws InterruptedException {
+		return MemoryHandlerTemp.newBetaTemp(
+				(MemoryHandlerMain) originatingMainHandler,
+				(MemoryHandlerTemp) token, originInput, filter);
 	}
 
 	/**
@@ -73,11 +75,13 @@ public class MemoryFactory implements org.jamocha.engine.memory.MemoryFactory {
 	 */
 	@Override
 	public MemoryHandlerTemp processTokenInAlpha(
-			final MemoryHandlerMain originatingMainHandler,
-			final MemoryHandlerTemp token, final Node alphaNode,
-			final Filter filter) throws InterruptedException {
-		return MemoryHandlerTemp.newAlphaTemp(originatingMainHandler, token,
-				alphaNode, filter);
+			final org.jamocha.engine.memory.MemoryHandlerMain originatingMainHandler,
+			final org.jamocha.engine.memory.MemoryHandlerTemp token,
+			final Node alphaNode, final Filter filter)
+			throws InterruptedException {
+		return MemoryHandlerTemp.newAlphaTemp(
+				(MemoryHandlerMain) originatingMainHandler,
+				(MemoryHandlerTemp) token, alphaNode, filter);
 	}
 
 	/**
@@ -86,11 +90,11 @@ public class MemoryFactory implements org.jamocha.engine.memory.MemoryFactory {
 	 */
 	@Override
 	public MemoryHandlerTemp newToken(
-			final MemoryHandlerMain originatingMainHandler, final Node otn,
-			final org.jamocha.engine.memory.Fact... facts)
+			final org.jamocha.engine.memory.MemoryHandlerMain originatingMainHandler,
+			final Node otn, final org.jamocha.engine.memory.Fact... facts)
 			throws InterruptedException {
-		return MemoryHandlerTemp
-				.newRootTemp(originatingMainHandler, otn, facts);
+		return MemoryHandlerTemp.newRootTemp(
+				(MemoryHandlerMain) originatingMainHandler, otn, facts);
 	}
 
 }

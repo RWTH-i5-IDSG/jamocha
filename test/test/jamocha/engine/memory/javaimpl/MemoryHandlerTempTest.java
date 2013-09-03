@@ -113,7 +113,8 @@ public class MemoryHandlerTempTest {
 		int numChildern;
 		int currentOffset = 0;
 
-		public NodeMockup(MemoryFactory factory, int numChildren, Node... parents) {
+		public NodeMockup(MemoryFactory factory, int numChildren,
+				Node... parents) {
 			super(factory, parents);
 			this.numChildern = numChildren;
 		}
@@ -122,8 +123,9 @@ public class MemoryHandlerTempTest {
 			super(factory);
 			this.numChildern = numChildren;
 		}
-		
-		public NodeMockup(MemoryFactory factory, int numChildren, Template template) {
+
+		public NodeMockup(MemoryFactory factory, int numChildren,
+				Template template) {
 			super(factory, template);
 			this.numChildern = numChildren;
 		}
@@ -210,16 +212,17 @@ public class MemoryHandlerTempTest {
 	 */
 	@Test
 	public void testNewBetaTempFullJoin() throws InterruptedException {
-		MemoryHandlerTemp token = factory.newToken((MemoryHandlerMain)nodeRight.getMemory(), nodeRight, new Fact(
-				new Template(SlotType.STRING), "Fakt3"), new Fact(new Template(
-				SlotType.STRING), "Fakt4"));
+		MemoryHandlerTemp token = (MemoryHandlerTemp) factory.newToken(
+				nodeRight.getMemory(), nodeRight, new Fact(new Template(
+						SlotType.STRING), "Fakt3"), new Fact(new Template(
+						SlotType.STRING), "Fakt4"));
 		token.releaseLock();
-		token = factory.newToken((MemoryHandlerMain)nodeLeft.getMemory(),
+		token = (MemoryHandlerTemp) factory.newToken(nodeLeft.getMemory(),
 				nodeLeft, new Fact(new Template(SlotType.STRING), "Fakt1"),
 				new Fact(new Template(SlotType.STRING), "Fakt2"));
-		MemoryHandlerTemp token1 = factory.processTokenInBeta(
-				(MemoryHandlerMain)node.getMemory(), token, originInput,
-				FilterMockup.alwaysTrue());
+		MemoryHandlerTemp token1 = (MemoryHandlerTemp) factory
+				.processTokenInBeta(node.getMemory(), token, originInput,
+						FilterMockup.alwaysTrue());
 		assertEquals(4, token1.size());
 		assertEquals(2, token1.getTemplate().length);
 		String s = (String) token1.getValue(fa[0], slotAddress, 0);
@@ -262,15 +265,17 @@ public class MemoryHandlerTempTest {
 				new org.jamocha.engine.memory.javaimpl.FactAddress(1),
 				new SlotAddress(0)));
 		Filter filter = new Filter(new FilterElement[] { fe });
-		MemoryHandlerTemp token = factory.newToken((MemoryHandlerMain)nodeRight.getMemory(), nodeRight, new Fact(
-				new Template(SlotType.STRING), "Fakt1"), new Fact(new Template(
-				SlotType.STRING), "Fakt3"));
+		MemoryHandlerTemp token = (MemoryHandlerTemp) factory.newToken(
+				nodeRight.getMemory(), nodeRight, new Fact(new Template(
+						SlotType.STRING), "Fakt1"), new Fact(new Template(
+						SlotType.STRING), "Fakt3"));
 		token.releaseLock();
-		token = factory.newToken((MemoryHandlerMain)nodeLeft.getMemory(),
+		token = (MemoryHandlerTemp) factory.newToken(nodeLeft.getMemory(),
 				nodeLeft, new Fact(new Template(SlotType.STRING), "Fakt1"),
 				new Fact(new Template(SlotType.STRING), "Fakt2"));
-		MemoryHandlerTemp token1 = factory.processTokenInBeta(
-				(MemoryHandlerMain)node.getMemory(), token, originInput, filter);
+		MemoryHandlerTemp token1 = (MemoryHandlerTemp) factory
+				.processTokenInBeta(node.getMemory(), token, originInput,
+						filter);
 		assertEquals(1, token1.size());
 		assertEquals(2, token1.getTemplate().length);
 		assertEquals("Fakt1", (String) token1.getValue(fa[0], slotAddress, 0));
@@ -286,13 +291,15 @@ public class MemoryHandlerTempTest {
 	 */
 	@Test
 	public void testNewAlphaTemp() throws InterruptedException {
-		MemoryHandlerTemp token = factory.newToken(memoryHandlerMain, node,
-				new Fact(new Template(SlotType.STRING), "Test"));
-		MemoryHandlerTemp memoryTempHandler = factory.processTokenInAlpha(
-				memoryHandlerMain, token, node, FilterMockup.alwaysTrue());
+		MemoryHandlerTemp token = (MemoryHandlerTemp) factory.newToken(
+				memoryHandlerMain, node, new Fact(
+						new Template(SlotType.STRING), "Test"));
+		MemoryHandlerTemp memoryTempHandler = (MemoryHandlerTemp) factory
+				.processTokenInAlpha(memoryHandlerMain, token, node,
+						FilterMockup.alwaysTrue());
 		assertEquals(1, memoryTempHandler.size());
-		memoryTempHandler = factory.processTokenInAlpha(memoryHandlerMain,
-				token, node, FilterMockup.alwaysFalse());
+		memoryTempHandler = (MemoryHandlerTemp) factory.processTokenInAlpha(
+				memoryHandlerMain, token, node, FilterMockup.alwaysFalse());
 		assertEquals(0, memoryTempHandler.size());
 	}
 
@@ -305,9 +312,9 @@ public class MemoryHandlerTempTest {
 	 */
 	@Test
 	public void testNewToken() throws InterruptedException {
-		MemoryHandlerTemp memoryHandlerTemp = factory.newToken(
-				memoryHandlerMain, node, new Fact(
-						new Template(SlotType.STRING), "Test"));
+		MemoryHandlerTemp memoryHandlerTemp = (MemoryHandlerTemp) factory
+				.newToken(memoryHandlerMain, node, new Fact(new Template(
+						SlotType.STRING), "Test"));
 		assertNotNull(memoryHandlerTemp);
 	}
 
@@ -319,9 +326,9 @@ public class MemoryHandlerTempTest {
 	 */
 	@Test
 	public void testSize() throws InterruptedException {
-		MemoryHandlerTemp memoryHandlerTemp = factory.newToken(
-				memoryHandlerMain, node, new Fact(
-						new Template(SlotType.STRING), "Test"));
+		MemoryHandlerTemp memoryHandlerTemp = (MemoryHandlerTemp) factory
+				.newToken(memoryHandlerMain, node, new Fact(new Template(
+						SlotType.STRING), "Test"));
 		assertNotNull(memoryHandlerTemp);
 		assertEquals(1, memoryHandlerTemp.size());
 	}
@@ -335,17 +342,18 @@ public class MemoryHandlerTempTest {
 	 */
 	@Test
 	public void testReleaseLock() throws InterruptedException {
-		MemoryHandlerTemp memoryHandlerTemp = factory.newToken(
-				memoryHandlerMain, node, new Fact(
-						new Template(SlotType.STRING), "Test"));
+		MemoryHandlerTemp memoryHandlerTemp = (MemoryHandlerTemp) factory
+				.newToken(memoryHandlerMain, node, new Fact(new Template(
+						SlotType.STRING), "Test"));
 		assertEquals(0, memoryHandlerMain.size());
 		memoryHandlerTemp.releaseLock();
 		assertEquals(1, memoryHandlerMain.size());
 		memoryHandlerTemp.releaseLock();
 		assertEquals(1, memoryHandlerMain.size());
 		Node node5 = new NodeMockup(factory, 5);
-		memoryHandlerTemp = factory.newToken(memoryHandlerMain, node5,
-				new Fact(new Template(SlotType.STRING), "Test"));
+		memoryHandlerTemp = (MemoryHandlerTemp) factory.newToken(
+				memoryHandlerMain, node5, new Fact(
+						new Template(SlotType.STRING), "Test"));
 		assertEquals(1, memoryHandlerMain.size());
 		memoryHandlerTemp.releaseLock();
 		assertEquals(1, memoryHandlerMain.size());
@@ -368,9 +376,9 @@ public class MemoryHandlerTempTest {
 	 */
 	@Test
 	public void testGetValue() throws InterruptedException {
-		MemoryHandlerTemp memoryHandlerTemp = factory.newToken(
-				memoryHandlerMain, node, new Fact(
-						new Template(SlotType.STRING), "Test"));
+		MemoryHandlerTemp memoryHandlerTemp = (MemoryHandlerTemp) factory
+				.newToken(memoryHandlerMain, node, new Fact(new Template(
+						SlotType.STRING), "Test"));
 		assertNotNull(memoryHandlerTemp);
 		assertEquals("Test",
 				memoryHandlerTemp.getValue(factAddress, slotAddress, 0));
@@ -385,9 +393,9 @@ public class MemoryHandlerTempTest {
 	 */
 	@Test(expected = IndexOutOfBoundsException.class)
 	public void testGetValueRowOutOfBounds() throws InterruptedException {
-		MemoryHandlerTemp memoryHandlerTemp = factory.newToken(
-				memoryHandlerMain, node, new Fact(
-						new Template(SlotType.STRING), "Test"));
+		MemoryHandlerTemp memoryHandlerTemp = (MemoryHandlerTemp) factory
+				.newToken(memoryHandlerMain, node, new Fact(new Template(
+						SlotType.STRING), "Test"));
 		assertNotNull(memoryHandlerTemp);
 		memoryHandlerTemp.getValue(factAddress, slotAddress, 1);
 	}
@@ -401,9 +409,9 @@ public class MemoryHandlerTempTest {
 	 */
 	@Test(expected = IndexOutOfBoundsException.class)
 	public void testGetValueSlotOutOfBounds() throws InterruptedException {
-		MemoryHandlerTemp memoryHandlerTemp = factory.newToken(
-				memoryHandlerMain, node, new Fact(
-						new Template(SlotType.STRING), "Test"));
+		MemoryHandlerTemp memoryHandlerTemp = (MemoryHandlerTemp) factory
+				.newToken(memoryHandlerMain, node, new Fact(new Template(
+						SlotType.STRING), "Test"));
 		assertNotNull(memoryHandlerTemp);
 		FactAddress factAddress1 = new org.jamocha.engine.memory.javaimpl.FactAddress(
 				1);
@@ -419,9 +427,9 @@ public class MemoryHandlerTempTest {
 	 */
 	@Test(expected = IndexOutOfBoundsException.class)
 	public void testGetValueFactOutOfBounds() throws InterruptedException {
-		MemoryHandlerTemp memoryHandlerTemp = factory.newToken(
-				memoryHandlerMain, node, new Fact(
-						new Template(SlotType.STRING), "Test"));
+		MemoryHandlerTemp memoryHandlerTemp = (MemoryHandlerTemp) factory
+				.newToken(memoryHandlerMain, node, new Fact(new Template(
+						SlotType.STRING), "Test"));
 		assertNotNull(memoryHandlerTemp);
 		SlotAddress slotAddress1 = new SlotAddress(1);
 		memoryHandlerTemp.getValue(factAddress, slotAddress1, 0);
