@@ -331,4 +331,9 @@ public abstract class Node {
 		this.tokenQueue.enqueue(token);
 	}
 
+	/**
+	 * Shared node with the paths given.
+	 */
+	public abstract void shareNode(final Path... paths);
+
 }

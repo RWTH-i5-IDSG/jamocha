@@ -28,6 +28,7 @@ import org.jamocha.dn.memory.MemoryHandlerTemp;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.filter.Filter;
 import org.jamocha.filter.Path;
+import org.jamocha.filter.PathTransformation;
 
 /**
  * 
@@ -100,6 +101,21 @@ public class AlphaNode extends Node {
 	@Override
 	protected EdgeImpl newEdge(final Node source) {
 		return new AlphaEdgeImpl(this.network, source, this);
+	}
+
+	@Override
+	public void shareNode(final Path... paths) {
+		assert null != paths;
+		assert 1 == paths.length;
+		final Path path = paths[0];
+		assert 1 == this.delocalizeMap.size();
+		final Entry<FactAddress, AddressPredecessor> entry = this.delocalizeMap
+				.entrySet().iterator().next();
+		assert PathTransformation.getFactAddressInCurrentlyLowestNode(path) == entry
+				.getValue().getAddress();
+		PathTransformation.setCurrentlyLowestNode(path, this);
+		PathTransformation.setFactAddressInCurrentlyLowestNode(path,
+				entry.getKey());
 	}
 
 }

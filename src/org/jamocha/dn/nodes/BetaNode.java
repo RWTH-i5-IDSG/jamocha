@@ -27,6 +27,7 @@ import org.jamocha.dn.Token;
 import org.jamocha.dn.memory.FactAddress;
 import org.jamocha.dn.memory.MemoryHandlerTemp;
 import org.jamocha.filter.Filter;
+import org.jamocha.filter.Path;
 
 /**
  * 
@@ -95,6 +96,11 @@ public class BetaNode extends Node {
 	@Override
 	protected EdgeImpl newEdge(Node source) {
 		return new BetaEdgeImpl(this.network, source, this);
+	}
+
+	@Override
+	public void shareNode(final Path... paths) {
+		// TODO implement
 	}
 
 }
