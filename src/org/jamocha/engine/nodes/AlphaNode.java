@@ -17,9 +17,14 @@
  */
 package org.jamocha.engine.nodes;
 
+import java.util.LinkedList;
+import java.util.Map;
+import java.util.Map.Entry;
+
 import org.jamocha.engine.memory.FactAddress;
 import org.jamocha.engine.memory.MemoryFactory;
 import org.jamocha.engine.memory.MemoryHandler;
+import org.jamocha.engine.memory.MemoryHandlerTemp;
 import org.jamocha.engine.memory.Template;
 import org.jamocha.filter.Filter;
 import org.jamocha.filter.Path;
@@ -29,13 +34,13 @@ import org.jamocha.filter.Path;
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  * @author Kai Schwarz <kai.schwarz@rwth-aachen.de>
  */
-public abstract class AlphaNode extends Node {
+public class AlphaNode extends Node {
 
-	protected abstract class AlphaEdgeImpl extends EdgeImpl {
+	protected class AlphaEdgeImpl extends EdgeImpl {
+		FactAddress addressInSource = null;
 
 		public AlphaEdgeImpl(final Node sourceNode, final Node targetNode) {
 			super(sourceNode, targetNode);
-			// TODO Auto-generated constructor stub
 		}
 
 		@Override
@@ -50,20 +55,43 @@ public abstract class AlphaNode extends Node {
 
 		@Override
 		public FactAddress localizeAddress(final FactAddress addressInParent) {
-			throw new UnsupportedOperationException(
-					"The Input of an AlphaNode is not supposed to be used as an address");
+			if (null != this.addressInSource)
+				return this.addressInSource;
+			return addressInParent;
+		}
+
+		@Override
+		public void setAddressMap(
+				final Map<? extends FactAddress, ? extends FactAddress> map) {
+			assert map != null;
+			assert map.size() == 1;
+			final Entry<? extends FactAddress, ? extends FactAddress> entry = map
+					.entrySet().iterator().next();
+			this.addressInSource = entry.getValue();
+			this.targetNode.delocalizeMap.put(this.addressInSource,
+					new AddressPredecessor(this, entry.getKey()));
+		}
+
+		@Override
+		public LinkedList<MemoryHandlerTemp> getTempMemories() {
+			// TODO Auto-generated method stub
+			return null;
 		}
 
 	}
 
-	public AlphaNode(final MemoryFactory memory, final Template template,
-			final Path... paths) {
-		super(memory, template, paths);
+	public AlphaNode(final MemoryFactory memoryFactory,
+			final Template template, final Path... paths) {
+		super(memoryFactory, template, paths);
 	}
 
 	public AlphaNode(final MemoryFactory memoryFactory, final Filter filter) {
 		super(memoryFactory, filter);
-		// TODO Auto-generated constructor stub
+	}
+
+	@Override
+	protected EdgeImpl newEdge(final Node source) {
+		return new AlphaEdgeImpl(source, this);
 	}
 
 }

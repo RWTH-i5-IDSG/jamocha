@@ -40,6 +40,7 @@ public abstract class BetaNode extends Node {
 	protected class BetaEdgeImpl extends EdgeImpl {
 
 		private Map<? extends FactAddress, ? extends FactAddress> addressMap;
+		private final LinkedList<MemoryHandlerTemp> tempMemories = new LinkedList<>();
 
 		public BetaEdgeImpl(final Node sourceNode, final Node targetNode) {
 			super(sourceNode, targetNode);
@@ -78,8 +79,7 @@ public abstract class BetaNode extends Node {
 
 		@Override
 		public LinkedList<MemoryHandlerTemp> getTempMemories() {
-			// TODO Auto-generated method stub
-			return null;
+			return this.tempMemories;
 		}
 
 	}

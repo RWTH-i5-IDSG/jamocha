@@ -69,6 +69,10 @@ public abstract class Node {
 		public FactAddress localizeAddress(final FactAddress addressInParent);
 
 		/**
+		public void setAddressMap(
+				final Map<? extends FactAddress, ? extends FactAddress> map);
+
+		/**
 		 * Disconnects the nodeInput from the formerly connected nodes. This
 		 * will remove the input from the target node inputs as well as from the
 		 * source node children.
@@ -79,9 +83,6 @@ public abstract class Node {
 		public void setFilter(final Filter filter);
 
 		public Filter getFilter();
-
-		public void setAddressMap(
-				final Map<? extends FactAddress, ? extends FactAddress> map);
 
 		public LinkedList<MemoryHandlerTemp> getTempMemories();
 	}
