@@ -130,24 +130,28 @@ public class BetaNodeTest {
 	 */
 	@Test
 	public void testDelocalizeAddress() {
-		Path p1 = new Path(Template.STRING);
-		Path p2 = new Path(Template.STRING);
-		FactAddress fa1 = new FactAddressMockup();
-		FactAddress fa2 = new FactAddressMockup();
+		final Path p1 = new Path(Template.STRING);
+		final Path p2 = new Path(Template.STRING);
 		ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK,
-				Template.STRING);
-		Set<Path> joinedWith = new HashSet<>();
-		joinedWith.add(p1);
-		PathTransformation.setPathInfo(p1, new PathInfo(otn, fa1, joinedWith));
-		joinedWith = new HashSet<>();
-		joinedWith.add(p2);
-		PathTransformation.setPathInfo(p2, new PathInfo(otn, fa2, joinedWith));
+				Template.STRING, p1, p2);
+		final FactAddress fa1 = PathTransformation
+				.getFactAddressInCurrentlyLowestNode(p1);
+		final FactAddress fa2 = PathTransformation
+				.getFactAddressInCurrentlyLowestNode(p2);
 		BetaNode beta = new BetaNode(Network.DEFAULTNETWORK, new FilterMockup(
 				true, p1, p2));
-		assertEquals(fa1, beta.delocalizeAddress(PathTransformation
-				.getFactAddressInCurrentlyLowestNode(p1)));
-		assertEquals(fa2, beta.delocalizeAddress(PathTransformation
-				.getFactAddressInCurrentlyLowestNode(p2)));
+		assertEquals(
+				fa1,
+				beta.delocalizeAddress(
+						PathTransformation
+								.getFactAddressInCurrentlyLowestNode(p1))
+						.getAddress());
+		assertEquals(
+				fa2,
+				beta.delocalizeAddress(
+						PathTransformation
+								.getFactAddressInCurrentlyLowestNode(p2))
+						.getAddress());
 	}
 
 	/**
