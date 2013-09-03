@@ -17,7 +17,7 @@
  */
 package test.jamocha.engine.nodes;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.fail;
 
 import org.junit.After;
 import org.junit.Before;
@@ -25,7 +25,7 @@ import org.junit.Test;
 
 /**
  * @author Kai Schwarz <kai.schwarz@rwth-aachen.de>
- *
+ * 
  */
 public class NodeTest {
 

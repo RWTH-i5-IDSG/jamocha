@@ -23,8 +23,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import lombok.experimental.Value;
-
 import org.jamocha.engine.memory.Template;
 import org.jamocha.engine.nodes.Node.Edge;
 
@@ -56,11 +54,13 @@ public class MemoryHandlerMain implements
 		final ArrayList<FactAddress> addresses = new ArrayList<>();
 		for (final Edge input : inputsToBeJoined) {
 			final HashMap<FactAddress, FactAddress> fMap = new HashMap<>();
-			final MemoryHandlerMain memoryHandlerMain = (MemoryHandlerMain)input.getSourceNode().getMemory();
+			final MemoryHandlerMain memoryHandlerMain = (MemoryHandlerMain) input
+					.getSourceNode().getMemory();
 			for (int i = 0; i < memoryHandlerMain.template.length; i++) {
 				final Template t = memoryHandlerMain.template[i];
 				final FactAddress oldFactAddress = memoryHandlerMain.addresses[i];
-				final FactAddress newFactAddress = new FactAddress(addresses.size());
+				final FactAddress newFactAddress = new FactAddress(
+						addresses.size());
 				fMap.put(oldFactAddress, newFactAddress);
 				template.add(t);
 				addresses.add(newFactAddress);
@@ -134,8 +134,8 @@ public class MemoryHandlerMain implements
 	 *      SlotAddress, int)
 	 */
 	@Override
-	public Object getValue(final org.jamocha.engine.memory.FactAddress address, final org.jamocha.engine.memory.SlotAddress slot,
-			final int row) {
+	public Object getValue(final org.jamocha.engine.memory.FactAddress address,
+			final org.jamocha.engine.memory.SlotAddress slot, final int row) {
 		return this.facts.get(row)[((org.jamocha.engine.memory.javaimpl.FactAddress) address)
 				.getIndex()]
 				.getValue((org.jamocha.engine.memory.javaimpl.SlotAddress) slot);

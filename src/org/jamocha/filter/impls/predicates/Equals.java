@@ -73,7 +73,7 @@ public class Equals {
 
 			@Override
 			public Boolean evaluate(final Object... params) {
-				return ((String)params[0]).equals((String)params[1]);
+				return ((String) params[0]).equals((String) params[1]);
 			}
 		});
 

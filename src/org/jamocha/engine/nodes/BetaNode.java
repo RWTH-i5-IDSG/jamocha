@@ -36,9 +36,9 @@ import org.jamocha.filter.Filter;
  */
 
 public abstract class BetaNode extends Node {
-	
+
 	protected class BetaEdgeImpl extends EdgeImpl {
-		
+
 		private Map<? extends FactAddress, ? extends FactAddress> addressMap;
 
 		public BetaEdgeImpl(Node sourceNode, Node targetNode) {
@@ -49,13 +49,13 @@ public abstract class BetaNode extends Node {
 		@Override
 		public void processPlusToken(MemoryHandler memory) {
 			// TODO Auto-generated method stub
-			
+
 		}
 
 		@Override
 		public void processMinusToken(MemoryHandler memory) {
 			// TODO Auto-generated method stub
-			
+
 		}
 
 		@Override
@@ -65,11 +65,14 @@ public abstract class BetaNode extends Node {
 		}
 
 		@Override
-		public void setAddressMap(Map<? extends FactAddress, ? extends FactAddress> map) {
+		public void setAddressMap(
+				Map<? extends FactAddress, ? extends FactAddress> map) {
 			assert map != null;
 			addressMap = map;
-			for(final Entry<? extends FactAddress, ? extends FactAddress> entry : map.entrySet()) {
-				targetNode.delocalizeMap.put(entry.getValue(), new AddressPredecessor(this, entry.getKey()));
+			for (final Entry<? extends FactAddress, ? extends FactAddress> entry : map
+					.entrySet()) {
+				targetNode.delocalizeMap.put(entry.getValue(),
+						new AddressPredecessor(this, entry.getKey()));
 			}
 		}
 
@@ -78,7 +81,7 @@ public abstract class BetaNode extends Node {
 			// TODO Auto-generated method stub
 			return null;
 		}
-		
+
 	}
 
 	public BetaNode(final MemoryFactory memoryFactory, final Filter filter) {
