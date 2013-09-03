@@ -20,20 +20,21 @@ package org.jamocha.dn;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
-
 /**
  * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
- *
+ * 
  */
 public class SchedulerThreadPool implements Scheduler {
-	
+
 	final Executor executor;
-	
+
 	public SchedulerThreadPool(int nThreads) {
 		executor = Executors.newFixedThreadPool(nThreads);
 	}
-	
-	/* (non-Javadoc)
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.jamocha.dn.Scheduler#enqueue(java.lang.Runnable)
 	 */
 	@Override

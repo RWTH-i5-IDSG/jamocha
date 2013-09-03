@@ -22,13 +22,15 @@ import java.util.Queue;
 
 /**
  * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
- *
+ * 
  */
 public class SchedulerPlain implements Scheduler, Runnable {
-	
+
 	Queue<Runnable> workQueue = new LinkedList<>();
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.jamocha.dn.Scheduler#enqueue(java.lang.Runnable)
 	 */
 	@Override

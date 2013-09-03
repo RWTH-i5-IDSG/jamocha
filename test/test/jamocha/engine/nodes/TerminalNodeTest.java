@@ -17,7 +17,7 @@
  */
 package test.jamocha.engine.nodes;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.fail;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -27,7 +27,7 @@ import org.junit.Test;
 
 /**
  * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
- *
+ * 
  */
 public class TerminalNodeTest {
 
@@ -60,7 +60,9 @@ public class TerminalNodeTest {
 	}
 
 	/**
-	 * Test method for {@link org.jamocha.dn.nodes.TerminalNode#newEdge(org.jamocha.dn.nodes.Node)}.
+	 * Test method for
+	 * {@link org.jamocha.dn.nodes.TerminalNode#newEdge(org.jamocha.dn.nodes.Node)}
+	 * .
 	 */
 	@Test
 	public void testNewEdge() {
@@ -68,7 +70,9 @@ public class TerminalNodeTest {
 	}
 
 	/**
-	 * Test method for {@link org.jamocha.dn.nodes.TerminalNode#TerminalNode(org.jamocha.dn.Network)}.
+	 * Test method for
+	 * {@link org.jamocha.dn.nodes.TerminalNode#TerminalNode(org.jamocha.dn.Network)}
+	 * .
 	 */
 	@Test
 	public void testTerminalNode() {
@@ -100,7 +104,9 @@ public class TerminalNodeTest {
 	}
 
 	/**
-	 * Test method for {@link org.jamocha.dn.nodes.Node#delocalizeAddress(org.jamocha.dn.memory.FactAddress)}.
+	 * Test method for
+	 * {@link org.jamocha.dn.nodes.Node#delocalizeAddress(org.jamocha.dn.memory.FactAddress)}
+	 * .
 	 */
 	@Test
 	public void testDelocalizeAddress() {
@@ -108,7 +114,8 @@ public class TerminalNodeTest {
 	}
 
 	/**
-	 * Test method for {@link org.jamocha.dn.nodes.Node#enqueue(org.jamocha.dn.Token)}.
+	 * Test method for
+	 * {@link org.jamocha.dn.nodes.Node#enqueue(org.jamocha.dn.Token)}.
 	 */
 	@Test
 	public void testEnqueue() {

@@ -24,8 +24,8 @@ package org.jamocha.dn.memory;
 
 public class Template {
 	final SlotType slots[];
-	
-	final public static Template STRING = new Template(SlotType.STRING); 
+
+	final public static Template STRING = new Template(SlotType.STRING);
 	final public static Template BOOLEAN = new Template(SlotType.BOOLEAN);
 	final public static Template DOUBLE = new Template(SlotType.DOUBLE);
 	final public static Template LONG = new Template(SlotType.LONG);

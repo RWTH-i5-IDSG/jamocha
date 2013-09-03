@@ -28,7 +28,7 @@ import org.jamocha.dn.Network;
 public class TerminalNode extends BetaNode {
 
 	public TerminalNode(final Network network) {
-		super(network);
+		super(network, null);
 		// TODO Auto-generated constructor stub
 	}
 

@@ -23,22 +23,24 @@ import org.jamocha.dn.memory.MemoryFactory;
 
 /**
  * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
- *
+ * 
  */
 @Getter
 public class Network {
-	
+
 	private final MemoryFactory memoryFactory;
 	private final int tokenQueueCapacity;
 	private final Scheduler scheduler;
-	
-	public Network(final MemoryFactory memoryFactory, final int tokenQueueCapacity, final Scheduler scheduler) {
+
+	public Network(final MemoryFactory memoryFactory,
+			final int tokenQueueCapacity, final Scheduler scheduler) {
 		this.memoryFactory = memoryFactory;
 		this.tokenQueueCapacity = tokenQueueCapacity;
 		this.scheduler = scheduler;
 	}
-	
-	public final static Network DEFAULTNETWORK = new Network(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(),
+
+	public final static Network DEFAULTNETWORK = new Network(
+			org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(),
 			Integer.MAX_VALUE, new SchedulerThreadPool(10));
 
 }
