@@ -19,8 +19,10 @@ package test.jamocha.engine.nodes;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Collection;
+import java.util.Set;
 
 import org.jamocha.dn.Network;
 import org.jamocha.dn.memory.Fact;
@@ -76,7 +78,16 @@ public class ObjectTypeNodeTest {
 	 */
 	@Test
 	public void testObjectTypeNode() {
-		new ObjectTypeNode(Network.DEFAULTNETWORK, Template.STRING);
+		Path p1 = new Path(Template.STRING);
+		Path p2 = new Path(Template.STRING);
+		ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, Template.STRING, p1, p2);
+		assertEquals(otn, PathTransformation.getCurrentlyLowestNode(p1));
+		Set<Path> joinedWith = PathTransformation.getJoinedWith(p1);
+		assertEquals(1, joinedWith.size());
+		assertTrue(joinedWith.contains(p1));
+		joinedWith = PathTransformation.getJoinedWith(p2);
+		assertEquals(1, joinedWith.size());
+		assertTrue(joinedWith.contains(p2));
 	}
 
 	/**
