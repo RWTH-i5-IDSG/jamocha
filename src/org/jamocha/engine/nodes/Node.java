@@ -176,7 +176,7 @@ public abstract class Node {
 			edges.add(edge);
 			edgesAndPaths.put(edge, joinedWith);
 		}
-		incomingEdges = (Edge[]) edges.toArray();
+		incomingEdges = edges.toArray(new Edge[edges.size()]);
 		this.memory = memoryFactory.newMemoryHandlerMain(incomingEdges);
 		// update all Paths from joinedWith to new addresses
 		for (final Edge edge : edges) {

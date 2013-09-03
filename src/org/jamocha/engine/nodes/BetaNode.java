@@ -35,7 +35,7 @@ import org.jamocha.filter.Filter;
  * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
  */
 
-public abstract class BetaNode extends Node {
+public class BetaNode extends Node {
 
 	protected class BetaEdgeImpl extends EdgeImpl {
 
@@ -87,6 +87,11 @@ public abstract class BetaNode extends Node {
 	public BetaNode(final MemoryFactory memoryFactory, final Filter filter) {
 		super(memoryFactory, filter);
 		// TODO Auto-generated constructor stub
+	}
+
+	@Override
+	protected EdgeImpl newEdge(Node source) {
+		return new BetaEdgeImpl(source, this);
 	}
 
 }
