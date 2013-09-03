@@ -110,4 +110,8 @@ public class PathTransformation {
 			addressMapping.put(path, pathInfo);
 	}
 
+	public static void clear() {
+		addressMapping.clear();
+	}
+
 }
