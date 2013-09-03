@@ -18,7 +18,6 @@
 package org.jamocha.dn;
 
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
 import org.jamocha.dn.memory.MemoryFactory;
 
@@ -27,12 +26,21 @@ import org.jamocha.dn.memory.MemoryFactory;
  *
  */
 @Getter
-@RequiredArgsConstructor
 public class Network {
 	
 	private final MemoryFactory memoryFactory;
-	private final Scheduler scheduler = new Scheduler(10);
+	private final int tokenQueueCapacity;
+	private final int schedulerThreads;
+	private final Scheduler scheduler;
 	
-	public final static Network DEFAULTNETWORK = new Network(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory());
+	public Network(final MemoryFactory memoryFactory, final int tokenQueueCapacity, final int schedulerThreads) {
+		this.memoryFactory = memoryFactory;
+		this.tokenQueueCapacity = tokenQueueCapacity;
+		this.schedulerThreads = schedulerThreads;
+		this.scheduler = new Scheduler(schedulerThreads);
+	}
+	
+	public final static Network DEFAULTNETWORK = new Network(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(),
+			Integer.MAX_VALUE, 10);
 
 }
