@@ -266,7 +266,7 @@ public class MemoryHandlerTemp implements
 		// increment to lower indices when input-size is reached
 
 		// set locks and create stack
-		final Edge[] nodeInputs = originInput.getTargetNode().getInputs();
+		final Edge[] nodeInputs = originInput.getTargetNode().getIncomingEdges();
 		final LinkedHashMap<Edge, StackElement> inputToStack = new LinkedHashMap<>();
 		final int columns = originInput.getTargetNode().getMemory()
 				.getTemplate().length;

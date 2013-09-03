@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Set;
 
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 import org.jamocha.engine.memory.FactAddress;
 import org.jamocha.engine.memory.MemoryFactory;
@@ -119,6 +120,7 @@ public abstract class Node {
 		}
 	}
 
+	@Getter
 	protected Edge[] incomingEdges;
 	final protected Set<Edge> children = new HashSet<>();
 	// FIXME delocalizeMap needs to be filled!
@@ -167,9 +169,9 @@ public abstract class Node {
 	}
 
 	protected Edge connectParent(final Node parent) {
-		final Edge input = newEdge(parent);
-		parent.acceptChild(input);
-		return input;
+		final Edge edge = newEdge(parent);
+		parent.acceptChild(edge);
+		return edge;
 	}
 
 	// FIXME re-think, rewrite
@@ -226,14 +228,6 @@ public abstract class Node {
 		return Collections.unmodifiableSet(this.children);
 	}
 
-	/**
-	 * Returns the list of the children.
-	 * 
-	 * @return the list of the children
-	 */
-	public Edge[] getInputs() {
-		return this.incomingEdges;
-	}
 
 	public void distributeTempFacts() {
 
