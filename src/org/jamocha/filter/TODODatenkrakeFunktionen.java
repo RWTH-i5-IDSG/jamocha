@@ -22,9 +22,8 @@ import java.util.HashMap;
 import lombok.EqualsAndHashCode;
 
 import org.jamocha.engine.memory.SlotType;
+import org.jamocha.filter.impls.Functions;
 import org.jamocha.filter.impls.Predicates;
-
-import sun.security.pkcs11.wrapper.Functions;
 
 public class TODODatenkrakeFunktionen {
 
@@ -67,8 +66,8 @@ public class TODODatenkrakeFunktionen {
 
 	public static void addImpl(final Function impl) {
 		clipsFunctions.put(
-				new CombinedClipsAndParams(impl.toString(), impl.getParamTypes()),
-				impl);
+				new CombinedClipsAndParams(impl.toString(), impl
+						.getParamTypes()), impl);
 	}
 
 	public static Function lookup(final String inClips,
