@@ -124,7 +124,8 @@ public abstract class Node {
 	@Getter
 	protected Edge[] incomingEdges;
 	final protected Set<Edge> children = new HashSet<>();
-	// FIXME delocalizeMap needs to be filled!
+	// TODO is filled in BetaNode#BetaEdgeImpl#setAddressMap, has to be filled
+	// in other children!
 	final protected Map<FactAddress, AddressPredecessor> delocalizeMap = new HashMap<>();
 	final protected MemoryHandlerMain memory;
 
@@ -232,7 +233,7 @@ public abstract class Node {
 	}
 
 	public void distributeTempFacts() {
-
+		// TODO ??
 	}
 
 	public MemoryHandlerMain getMemory() {
@@ -251,7 +252,6 @@ public abstract class Node {
 	 *            an address valid in the current node
 	 * @return an address valid in the parent node
 	 */
-	// TODO add the map: address-here -> address in parent
 	public AddressPredecessor delocalizeAddress(FactAddress localFactAddress) {
 		return delocalizeMap.get(localFactAddress);
 	}
