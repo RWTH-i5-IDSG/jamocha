@@ -17,29 +17,30 @@
  */
 package test.jamocha.engine.filter.predicates;
 
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.lessThan;
+import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-
-import java.util.Arrays;
-import java.util.Collection;
-
-import lombok.RequiredArgsConstructor;
+import static org.junit.Assume.assumeThat;
 
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.filter.Function;
 import org.jamocha.filter.TODODatenkrakeFunktionen;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.experimental.theories.Theories;
+import org.junit.experimental.theories.Theory;
 import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+
+import test.jamocha.util.TestData.LotsOfRandomDoubles;
+import test.jamocha.util.TestData.LotsOfRandomLongs;
 
 /**
  * @author Kai Schwarz <kai.schwarz@rwth-aachen.de>
  * 
  */
-@RunWith(value = Parameterized.class)
-@RequiredArgsConstructor
+@RunWith(Theories.class)
 public class LessTest {
 
 	/**
@@ -50,29 +51,7 @@ public class LessTest {
 		TODODatenkrakeFunktionen.load();
 	}
 
-	private final Boolean longEq;
-	private final Long leftLong;
-	private final Long rightLong;
-
-	private final Boolean doubleEq;
-	private final Double leftDouble;
-	private final Double rightDouble;
-
 	private Function lessL, lessD;
-
-	@Parameterized.Parameters
-	public static Collection<Object[]> testCases() {
-		return Arrays
-				.asList(new Object[][] {
-						{ true, (Long) 5L, (Long) 6L, false, (Double) 4.1,
-								(Double) 4. },
-						{ true, (Long) (-20L), (Long) 500L, true,
-								(Double) (-20.), (Double) 20. },
-						{ false, (Long) 1L, (Long) 0L, true, (Double) 4.0001,
-								(Double) 4.001 },
-						{ false, (Long) 5L, (Long) 5L, false, (Double) 217.,
-								(Double) 217. } });
-	}
 
 	@Before
 	public void setup() {
@@ -82,18 +61,36 @@ public class LessTest {
 				SlotType.DOUBLE);
 	}
 
-	@Test
-	public void test() {
-		if (longEq) {
-			assertTrue((Boolean) lessL.evaluate(leftLong, rightLong));
-		} else {
-			assertFalse((Boolean) lessL.evaluate(leftLong, rightLong));
-		}
-		if (doubleEq) {
-			assertTrue((Boolean) lessD.evaluate(leftDouble, rightDouble));
-		} else {
-			assertFalse((Boolean) lessD.evaluate(leftDouble, rightDouble));
-		}
+	@Theory
+	public void testLongPos(@LotsOfRandomLongs
+	Long left, @LotsOfRandomLongs
+	Long right) {
+		assumeThat(left, is(lessThan(right)));
+		assertTrue((Boolean) lessL.evaluate(left, right));
+	}
+
+	@Theory
+	public void testLongNeg(@LotsOfRandomLongs
+	Long left, @LotsOfRandomLongs
+	Long right) {
+		assumeThat(left, is(not(lessThan(right))));
+		assertFalse((Boolean) lessL.evaluate(left, right));
+	}
+
+	@Theory
+	public void testDoublePos(@LotsOfRandomDoubles
+	Double left, @LotsOfRandomDoubles
+	Double right) {
+		assumeThat(left, is(lessThan(right)));
+		assertTrue((Boolean) lessD.evaluate(left, right));
+	}
+
+	@Theory
+	public void testDoubleNeg(@LotsOfRandomDoubles
+	Double left, @LotsOfRandomDoubles
+	Double right) {
+		assumeThat(left, is(not(lessThan(right))));
+		assertFalse((Boolean) lessD.evaluate(left, right));
 	}
 
 }
