@@ -63,7 +63,7 @@ public class MinusTest {
 		TODODatenkrakeFunktionen.load();
 	}
 
-	private Function plusL, plusD;
+	private Function minusL, minusD;
 
 	public static class RandomLongsSupplier extends ParameterSupplier {
 		@Override
@@ -94,9 +94,9 @@ public class MinusTest {
 
 	@Before
 	public void setUp() {
-		plusL = TODODatenkrakeFunktionen.lookup("-", SlotType.LONG,
+		minusL = TODODatenkrakeFunktionen.lookup("-", SlotType.LONG,
 				SlotType.LONG);
-		plusD = TODODatenkrakeFunktionen.lookup("-", SlotType.DOUBLE,
+		minusD = TODODatenkrakeFunktionen.lookup("-", SlotType.DOUBLE,
 				SlotType.DOUBLE);
 	}
 
@@ -104,12 +104,15 @@ public class MinusTest {
 	public void testLong(@RandomLong
 	Long left, @RandomLong
 	Long right) {
-		assertEquals((Long) (left + right),
-				(Long) (plusL.evaluate(left, right)));
+		assertEquals((Long) (left - right),
+				(Long) (minusL.evaluate(left, right)));
 	}
-	
+
 	@Theory
-	public void testDouble (@RandomDouble Double left, @RandomDouble Double right) {
-		assertEquals((Double) (left+right), (Double)(plusD.evaluate(left,right)));
+	public void testDouble(@RandomDouble
+	Double left, @RandomDouble
+	Double right) {
+		assertEquals((Double) (left - right),
+				(Double) (minusD.evaluate(left, right)));
 	}
 }
