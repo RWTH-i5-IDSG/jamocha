@@ -305,7 +305,7 @@ public abstract class Node {
 	 * Transforms an address valid for the target node of its inputs into the corresponding address
 	 * valid for the source node of its input.
 	 * 
-	 * @param localMemoryFactAddress
+	 * @param localFactAddress
 	 *            an address valid in the current node
 	 * @return an address valid in the parent node
 	 */
