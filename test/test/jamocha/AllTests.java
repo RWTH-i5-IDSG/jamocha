@@ -6,7 +6,7 @@ import org.junit.runners.Suite.SuiteClasses;
 
 /**
  * Test suite for the whole Jamocha project.
- * 
+ * <p>
  * Please add new package test suites or single tests to the SuiteClasses
  * annotation.
  * 

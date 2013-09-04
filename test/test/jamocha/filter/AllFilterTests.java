@@ -19,7 +19,7 @@ package test.jamocha.filter;
 
 /**
  * Test Suite for the filter package.
- * 
+ * <p>
  * Please add new package test suites or single tests to the SuiteClasses
  * annotation.
  * 

@@ -39,6 +39,7 @@ import org.junit.Test;
 
 /**
  * Test class for {@link org.jamocha.dn.nodes.ObjectTypeNode ObjectTypeNode}.
+ * 
  * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
  * 
  */

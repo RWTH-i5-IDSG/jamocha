@@ -6,7 +6,7 @@ import org.junit.runners.Suite.SuiteClasses;
 
 /**
  * Test Suite for the node package.
- * 
+ * <p>
  * Please add new package test suites or single tests to the SuiteClasses
  * annotation.
  * 

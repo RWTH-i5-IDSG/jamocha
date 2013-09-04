@@ -22,6 +22,11 @@ import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
 /**
+ * Test Suite for the memory.javaimpl package.
+ * <p>
+ * Please add new package test suites or single tests to the SuiteClasses
+ * annotation.
+ * 
  * @author Kai Schwarz <kai.schwarz@rwth-aachen.de>
  *
  */

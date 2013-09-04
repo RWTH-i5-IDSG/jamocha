@@ -23,7 +23,7 @@ import org.junit.runners.Suite.SuiteClasses;
 
 /**
  * Test suite for the dn package.
- * 
+ * <p>
  * Please add new package test suites or single tests to the SuiteClasses
  * annotation.
  * 
