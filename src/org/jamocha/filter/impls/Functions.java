@@ -22,8 +22,8 @@ import org.jamocha.filter.impls.functions.Plus;
 /**
  * Loads implementations of the {@link Function} interface.
  * 
- * @author Kai Schwarz <kai.schwarz@rwth-aachen.de>
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+ * @author Kai Schwarz <kai.schwarz@rwth-aachen.de>
  * @see Function
  * @see TODODatenkrakeFunktionen
  */

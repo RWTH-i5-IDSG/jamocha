@@ -44,8 +44,8 @@ import test.jamocha.filter.FilterMockup;
 /**
  * Test class for {@link BetaNode}.
  * 
- * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+ * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
  * 
  */
 public class BetaNodeTest {

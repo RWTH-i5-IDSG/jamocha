@@ -61,8 +61,8 @@ public abstract class Token {
 	/**
 	 * {@link Token} containing a {@link MemoryHandlerTemp} which should be removed from the {@link Node node}.
 	 * 
-	 * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
 	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+	 * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
 	 */
 	public static class MinusToken extends Token {
 		public MinusToken(final MemoryHandlerTemp temp, final Edge edge) {
