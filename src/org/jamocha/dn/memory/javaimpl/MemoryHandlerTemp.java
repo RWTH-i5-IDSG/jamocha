@@ -67,15 +67,15 @@ public class MemoryHandlerTemp implements org.jamocha.dn.memory.MemoryHandlerTem
 	boolean valid = true;
 
 	static MemoryHandlerTemp newBetaTemp(final MemoryHandlerMain originatingMainHandler,
-			final MemoryHandlerTemp token, final Edge originInput, final Filter filter)
+			final MemoryHandlerTemp token, final Edge originIncomingEdge, final Filter filter)
 			throws CouldNotAcquireLockException {
 		return new MemoryHandlerTemp(originatingMainHandler, performJoin(originatingMainHandler,
-				filter, token, originInput), new Semaphore(originInput.getTargetNode()
+				filter, token, originIncomingEdge), new Semaphore(originIncomingEdge.getTargetNode()
 				.getNumberOfOutgoingEdges()));
 	}
 
 	static MemoryHandlerTemp newAlphaTemp(final MemoryHandlerMain originatingMainHandler,
-			final MemoryHandlerTemp token, final Edge originInput, final Filter filter)
+			final MemoryHandlerTemp token, final Edge originIncomingEdge, final Filter filter)
 			throws CouldNotAcquireLockException {
 		final ArrayList<Fact[]> factList = new ArrayList<>(1);
 		factLoop: for (final Fact[] fact : token.facts) {
@@ -96,7 +96,7 @@ public class MemoryHandlerTemp implements org.jamocha.dn.memory.MemoryHandlerTem
 			}
 			factList.add(fact);
 		}
-		return new MemoryHandlerTemp(originatingMainHandler, factList, new Semaphore(originInput
+		return new MemoryHandlerTemp(originatingMainHandler, factList, new Semaphore(originIncomingEdge
 				.getTargetNode().getNumberOfOutgoingEdges()));
 	}
 
@@ -248,7 +248,7 @@ public class MemoryHandlerTemp implements org.jamocha.dn.memory.MemoryHandlerTem
 	}
 
 	private static ArrayList<Fact[]> performJoin(final MemoryHandlerMain originatingMainHandler,
-			final Filter filter, final MemoryHandlerTemp token, final Edge originInput)
+			final Filter filter, final MemoryHandlerTemp token, final Edge originIncomingEdge)
 			throws CouldNotAcquireLockException {
 		// get a fixed-size array of indices (size: #inputs of the node),
 		// determine number of inputs for the current join as maxIndex
@@ -257,36 +257,36 @@ public class MemoryHandlerTemp implements org.jamocha.dn.memory.MemoryHandlerTem
 		// increment to lower indices when input-size is reached
 
 		// set locks and create stack
-		final Node targetNode = originInput.getTargetNode();
-		final Edge[] nodeInputs = targetNode.getIncomingEdges();
-		final LinkedHashMap<Edge, StackElement> inputToStack = new LinkedHashMap<>();
+		final Node targetNode = originIncomingEdge.getTargetNode();
+		final Edge[] nodeIncomingEdges = targetNode.getIncomingEdges();
+		final LinkedHashMap<Edge, StackElement> edgeToStack = new LinkedHashMap<>();
 		final int columns = targetNode.getMemory().getTemplate().length;
 		final StackElement originElement;
 		{
 			StackElement tempOriginElement = null;
 			int offset = 0;
-			for (final Edge input : nodeInputs) {
-				if (input == originInput) {
+			for (final Edge incomingEdge : nodeIncomingEdges) {
+				if (incomingEdge == originIncomingEdge) {
 					tempOriginElement =
-							StackElement.originInput(columns, originInput, token, offset);
-					offset += input.getSourceNode().getMemory().getTemplate().length;
+							StackElement.originInput(columns, originIncomingEdge, token, offset);
+					offset += incomingEdge.getSourceNode().getMemory().getTemplate().length;
 					// don't lock the originInput
 					continue;
 				}
 				try {
-					if (!input.getSourceNode().getMemory().tryReadLock()) {
+					if (!incomingEdge.getSourceNode().getMemory().tryReadLock()) {
 						throw new CouldNotAcquireLockException();
 					}
 				} catch (final InterruptedException ex) {
 					throw new Error(
 							"Should not happen, interruption of this method is not supported!", ex);
 				}
-				inputToStack.put(input, StackElement.ordinaryInput(input, offset));
-				offset += input.getSourceNode().getMemory().getTemplate().length;
+				edgeToStack.put(incomingEdge, StackElement.ordinaryInput(incomingEdge, offset));
+				offset += incomingEdge.getSourceNode().getMemory().getTemplate().length;
 			}
 			originElement = tempOriginElement;
 		}
-		inputToStack.put(originInput, originElement);
+		edgeToStack.put(originIncomingEdge, originElement);
 
 		// get filter steps
 		final FilterElement filterSteps[] = filter.getFilterElements();
@@ -300,7 +300,7 @@ public class MemoryHandlerTemp implements org.jamocha.dn.memory.MemoryHandlerTem
 			final Set<Edge> newEdges = new HashSet<>();
 			for (final SlotInFactAddress address : addresses) {
 				final Edge edge = targetNode.delocalizeAddress(address.getFactAddress()).getEdge();
-				final StackElement element = inputToStack.get(edge);
+				final StackElement element = edgeToStack.get(edge);
 				if (element != originElement) {
 					if (newEdges.add(edge)) {
 						stack.add(element);
@@ -319,7 +319,7 @@ public class MemoryHandlerTemp implements org.jamocha.dn.memory.MemoryHandlerTem
 						final SlotInFactAddress address = addresses[i];
 						final AddressPredecessor fact =
 								targetNode.delocalizeAddress(address.getFactAddress());
-						final StackElement se = inputToStack.get(fact.getEdge());
+						final StackElement se = edgeToStack.get(fact.getEdge());
 						params[i] = se.getValue(fact, address.getSlotAddress());
 					}
 					// copy result to new TR if facts match predicate
@@ -329,7 +329,7 @@ public class MemoryHandlerTemp implements org.jamocha.dn.memory.MemoryHandlerTem
 						// insert information from new inputs
 						for (final Edge edge : newEdges) {
 							// source is some temp, destination new TR
-							final StackElement se = inputToStack.get(edge);
+							final StackElement se = edgeToStack.get(edge);
 							final Fact[] newRowPart = se.getRow();
 							System.arraycopy(newRowPart, 0, row, se.getOffset(), newRowPart.length);
 						}
@@ -340,13 +340,13 @@ public class MemoryHandlerTemp implements org.jamocha.dn.memory.MemoryHandlerTem
 			}, stack, originElement);
 			// point all inputs that were joint during this turn to the TR
 			// StackElement
-			for (final Edge input : newEdges) {
-				inputToStack.put(input, originElement);
+			for (final Edge incomingEdge : newEdges) {
+				edgeToStack.put(incomingEdge, originElement);
 			}
 		}
 
 		// full join with all inputs not pointing to TR now
-		for (final Map.Entry<Edge, StackElement> entry : inputToStack.entrySet()) {
+		for (final Map.Entry<Edge, StackElement> entry : edgeToStack.entrySet()) {
 			if (entry.getValue() == originElement)
 				continue;
 			final Edge nodeInput = entry.getKey();
@@ -369,13 +369,13 @@ public class MemoryHandlerTemp implements org.jamocha.dn.memory.MemoryHandlerTem
 			}, stack, originElement);
 			// point all inputs that were joint during this turn to the TR
 			// StackElement
-			inputToStack.put(nodeInput, originElement);
+			edgeToStack.put(nodeInput, originElement);
 		}
 		// release lock
-		for (final Edge input : nodeInputs) {
-			if (input == originInput)
+		for (final Edge incomingEdge : nodeIncomingEdges) {
+			if (incomingEdge == originIncomingEdge)
 				continue;
-			input.getSourceNode().getMemory().releaseReadLock();
+			incomingEdge.getSourceNode().getMemory().releaseReadLock();
 		}
 		return originElement.getTable();
 	}

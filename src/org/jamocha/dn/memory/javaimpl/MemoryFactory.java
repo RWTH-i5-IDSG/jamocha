@@ -50,19 +50,19 @@ public class MemoryFactory implements org.jamocha.dn.memory.MemoryFactory {
 	@Override
 	public MemoryHandlerTemp processTokenInBeta(
 			final org.jamocha.dn.memory.MemoryHandlerMain originatingMainHandler,
-			final org.jamocha.dn.memory.MemoryHandlerTemp token, final Edge originInput,
+			final org.jamocha.dn.memory.MemoryHandlerTemp token, final Edge originIncomingEdge,
 			final Filter filter) throws CouldNotAcquireLockException {
 		return MemoryHandlerTemp.newBetaTemp((MemoryHandlerMain) originatingMainHandler,
-				(MemoryHandlerTemp) token, originInput, filter);
+				(MemoryHandlerTemp) token, originIncomingEdge, filter);
 	}
 
 	@Override
 	public MemoryHandlerTemp processTokenInAlpha(
 			final org.jamocha.dn.memory.MemoryHandlerMain originatingMainHandler,
-			final org.jamocha.dn.memory.MemoryHandlerTemp token, final Edge originInput,
+			final org.jamocha.dn.memory.MemoryHandlerTemp token, final Edge originIncomingEdge,
 			final Filter filter) throws CouldNotAcquireLockException {
 		return MemoryHandlerTemp.newAlphaTemp((MemoryHandlerMain) originatingMainHandler,
-				(MemoryHandlerTemp) token, originInput, filter);
+				(MemoryHandlerTemp) token, originIncomingEdge, filter);
 	}
 
 	@Override
