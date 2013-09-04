@@ -18,6 +18,7 @@
 package test.jamocha.filter.predicates;
 
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -38,15 +39,14 @@ import test.jamocha.util.TestData.ListOfLongs;
 import test.jamocha.util.TestData.ListOfStrings;
 
 /**
+ * TestCase for the {@Link Equals} class using Theories.
+ * 
  * @author Kai Schwarz <kai.schwarz@rwth-aachen.de>
  * 
  */
 @RunWith(Theories.class)
 public class EqualsTest {
 
-	/**
-	 * @throws java.lang.Exception
-	 */
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		TODODatenkrakeFunktionen.load();
@@ -70,7 +70,7 @@ public class EqualsTest {
 	public void testLongPos(@ListOfLongs
 	Long left, @ListOfLongs
 	Long right) {
-		assumeThat(left, equalTo(right));
+		assumeThat(left, is(equalTo(right)));
 		assertTrue((Boolean) (eqL.evaluate(left, right)));
 	}
 
@@ -78,7 +78,7 @@ public class EqualsTest {
 	public void testLongNeg(@ListOfLongs
 	Long left, @ListOfLongs
 	Long right) {
-		assumeThat(left, not(equalTo(right)));
+		assumeThat(left, is(not(equalTo(right))));
 		assertFalse((Boolean) (eqL.evaluate(left, right)));
 	}
 
@@ -86,7 +86,7 @@ public class EqualsTest {
 	public void testDoublePos(@ListOfDoubles
 	Double left, @ListOfDoubles
 	Double right) {
-		assumeThat(left, (equalTo(right)));
+		assumeThat(left, is(equalTo(right)));
 		assertTrue((Boolean) (eqD.evaluate(left, right)));
 	}
 
@@ -94,7 +94,7 @@ public class EqualsTest {
 	public void testDoubleNeg(@ListOfDoubles
 	Double left, @ListOfDoubles
 	Double right) {
-		assumeThat(left, not(equalTo(right)));
+		assumeThat(left, is(not(equalTo(right))));
 		assertFalse((Boolean) (eqD.evaluate(left, right)));
 	}
 
@@ -102,7 +102,7 @@ public class EqualsTest {
 	public void testStringPos(@ListOfStrings
 	String left, @ListOfStrings
 	String right) {
-		assumeThat(left, (equalTo(right)));
+		assumeThat(left, is(equalTo(right)));
 		assertTrue((Boolean) (eqS.evaluate(left, right)));
 	}
 
@@ -110,7 +110,7 @@ public class EqualsTest {
 	public void testStringNeg(@ListOfStrings
 	String left, @ListOfStrings
 	String right) {
-		assumeThat(left, not(equalTo(right)));
+		assumeThat(left, is(not(equalTo(right))));
 		assertFalse((Boolean) (eqS.evaluate(left, right)));
 	}
 
@@ -118,7 +118,7 @@ public class EqualsTest {
 	public void testBooleanPos(@ListOfBooleans
 	Boolean left, @ListOfBooleans
 	Boolean right) {
-		assumeThat(left, (equalTo(right)));
+		assumeThat(left, is(equalTo(right)));
 		assertTrue((Boolean) (eqB.evaluate(left, right)));
 	}
 
@@ -126,7 +126,7 @@ public class EqualsTest {
 	public void testBooleanNeg(@ListOfBooleans
 	Boolean left, @ListOfBooleans
 	Boolean right) {
-		assumeThat(left, not(equalTo(right)));
+		assumeThat(left, is(not(equalTo(right))));
 		assertFalse((Boolean) (eqB.evaluate(left, right)));
 	}
 }

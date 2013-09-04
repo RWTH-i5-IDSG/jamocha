@@ -37,15 +37,14 @@ import test.jamocha.util.TestData.LotsOfRandomDoubles;
 import test.jamocha.util.TestData.LotsOfRandomLongs;
 
 /**
+ * TestCase for the {@Link Less} class using Theories.
+ * 
  * @author Kai Schwarz <kai.schwarz@rwth-aachen.de>
  * 
  */
 @RunWith(Theories.class)
 public class LessTest {
 
-	/**
-	 * @throws java.lang.Exception
-	 */
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		TODODatenkrakeFunktionen.load();

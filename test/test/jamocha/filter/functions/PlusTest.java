@@ -17,7 +17,8 @@
  */
 package test.jamocha.filter.functions;
 
-import static org.junit.Assert.assertEquals;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.filter.Function;
@@ -32,15 +33,14 @@ import test.jamocha.util.TestData.LotsOfRandomDoubles;
 import test.jamocha.util.TestData.LotsOfRandomLongs;
 
 /**
+ * TestCase for the {@Link Plus} class using Theories.
+ * 
  * @author Kai Schwarz <kai.schwarz@rwth-aachen.de>
  * 
  */
 @RunWith(Theories.class)
 public class PlusTest {
 
-	/**
-	 * @throws java.lang.Exception
-	 */
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		TODODatenkrakeFunktionen.load();
@@ -60,16 +60,16 @@ public class PlusTest {
 	public void testLong(@LotsOfRandomLongs
 	Long left, @LotsOfRandomLongs
 	Long right) {
-		assertEquals((Long) (left + right),
-				(Long) (plusL.evaluate(left, right)));
+		assertThat((Long) (left + right),
+				is((Long) (plusL.evaluate(left, right))));
 	}
 
 	@Theory
 	public void testDouble(@LotsOfRandomDoubles
 	Double left, @LotsOfRandomDoubles
 	Double right) {
-		assertEquals((Double) (left + right),
-				(Double) (plusD.evaluate(left, right)));
+		assertThat((Double) (left + right),
+				is((Double) (plusD.evaluate(left, right))));
 	}
 
 }

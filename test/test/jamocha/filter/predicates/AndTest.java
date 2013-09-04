@@ -17,7 +17,8 @@
  */
 package test.jamocha.filter.predicates;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.filter.Function;
@@ -26,14 +27,13 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
+ * TestCase for the {@Link And} class using Theories.
+ * 
  * @author Kai Schwarz <kai.schwarz@rwth-aachen.de>
  * 
  */
 public class AndTest {
 
-	/**
-	 * @throws java.lang.Exception
-	 */
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		TODODatenkrakeFunktionen.load();
@@ -43,10 +43,10 @@ public class AndTest {
 	public void testAnd() {
 		Function and = TODODatenkrakeFunktionen.lookup("AND", SlotType.BOOLEAN,
 				SlotType.BOOLEAN);
-		assertEquals(true, and.evaluate(true, true));
-		assertEquals(false, and.evaluate(true, false));
-		assertEquals(false, and.evaluate(false, true));
-		assertEquals(false, and.evaluate(false, false));
+		assertTrue((Boolean) (and.evaluate(true, true)));
+		assertFalse((Boolean) (and.evaluate(true, false)));
+		assertFalse((Boolean) (and.evaluate(false, true)));
+		assertFalse((Boolean) (and.evaluate(false, false)));
 	}
 
 }
