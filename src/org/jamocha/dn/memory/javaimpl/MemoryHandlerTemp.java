@@ -397,7 +397,9 @@ public class MemoryHandlerTemp implements org.jamocha.dn.memory.MemoryHandlerTem
 			return;
 		// all children have processed the temp memory, now we have to write its
 		// content to main memory
+		originatingMainHandler.acquireWriteLock();
 		originatingMainHandler.add(this);
+		originatingMainHandler.releaseWriteLock();
 		this.valid = false;
 	}
 
