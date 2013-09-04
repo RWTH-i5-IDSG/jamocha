@@ -31,13 +31,13 @@ import org.junit.experimental.theories.PotentialAssignment;
 /**
  * Class that has multiple ParameterSupplier to supply test data for Theory
  * tests.
- * 
+ * <p>
  * The Interfaces have \@RetentionPolicy.RUNTIME and \@ParametersSuppliedBy()
  * annotations and define a new annotation which can be used in the Theory
  * parameter definition to get the data from the \@ParameterSuppliedBy class
  * into the Theory. The classes implementing ParameterSupplier implement the
  * interface and return test data in a list.
- * 
+ * <p>
  * All combinations of input are tested on a Theory.
  * 
  * @author Kai Schwarz <kai.schwarz@rwth-aachen.de>

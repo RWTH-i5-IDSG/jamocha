@@ -20,7 +20,8 @@ package test.jamocha.filter;
 /**
  * Test Suite for the filter package.
  * 
- * Please add all new tests for the filter package in the SuitClasses annotation.
+ * Please add new package test suites or single tests to the SuiteClasses
+ * annotation.
  * 
  * @author Kai Schwarz <kai.schwarz@rwth-aachen.de>
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
