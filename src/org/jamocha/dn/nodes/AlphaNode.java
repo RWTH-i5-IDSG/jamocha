@@ -34,6 +34,7 @@ import org.jamocha.filter.PathTransformation;
  * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  * @author Kai Schwarz <kai.schwarz@rwth-aachen.de>
+ * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
  */
 public class AlphaNode extends Node {
 
