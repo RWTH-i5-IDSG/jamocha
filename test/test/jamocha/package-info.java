@@ -19,9 +19,9 @@
 /**
  * Test package which includes all unit tests.
  * <p>
- * {@link AllTests AllTests.java} is the test suite which should include all test suites for the packages.
+ * {@link test.jamocha.AllTests} is the test suite which should include all test suites for the packages.
  * <br>
- * The {@link util} package supplies utility functions for testing, e.g. parameter suppliers in {@link TestData}.
+ * The {@link test.jamocha.util} package supplies utility functions for testing, e.g. parameter suppliers in {@link test.jamocha.util.TestData}.
  * 
  * @author Kai Schwarz <kai.schwarz@rwth-aachen.de>
  */

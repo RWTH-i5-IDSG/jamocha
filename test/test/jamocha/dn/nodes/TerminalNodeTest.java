@@ -26,7 +26,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
- * Test class for {@link org.jamocha.dn.nodes.TerminalNode TerminalNode}.
+ * Test class for {@link org.jamocha.dn.nodes.TerminalNode}.
  * 
  * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
  * 

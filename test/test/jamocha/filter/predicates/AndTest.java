@@ -27,7 +27,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
- * TestCase for the {@link And} class using Theories.
+ * TestCase for the {@link org.jamocha.filter.impls.predicates.And} class using Theories.
  * 
  * @author Kai Schwarz <kai.schwarz@rwth-aachen.de>
  * 

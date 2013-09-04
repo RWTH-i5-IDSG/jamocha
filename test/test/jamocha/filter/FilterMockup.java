@@ -86,7 +86,7 @@ public class FilterMockup extends Filter {
 	}
 
 	/**
-	 * Test class for {@link test.jamocha.filter.FilterMockup FilterMockup}
+	 * Test class for {@link test.jamocha.filter.FilterMockup}
 	 * using Theories.
 	 * 
 	 * @author Kai Schwarz <kai.schwarz@rwth-aachen.de>
@@ -95,8 +95,7 @@ public class FilterMockup extends Filter {
 	@RunWith(Theories.class)
 	public static class FilterMockupTest {
 		/**
-		 * Test method for {@link test.jamocha.filter.FilterMockup#alwaysTrue()
-		 * alwaysTrue()} .
+		 * Test method for {@link test.jamocha.filter.FilterMockup#alwaysTrue()}.
 		 */
 		@Theory
 		public void testAlwaysTrue(@SomeStuff
@@ -110,7 +109,7 @@ public class FilterMockup extends Filter {
 
 		/**
 		 * Test method for
-		 * {@link test.jamocha.filter.FilterMockup#alwaysFalse() alwaysFalse()}
+		 * {@link test.jamocha.filter.FilterMockup#alwaysFalse()}
 		 * .
 		 */
 		@Theory

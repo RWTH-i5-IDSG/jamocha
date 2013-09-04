@@ -39,7 +39,7 @@ import test.jamocha.util.TestData.ListOfLongs;
 import test.jamocha.util.TestData.ListOfStrings;
 
 /**
- * TestCase for the {@link Equals} class using Theories.
+ * TestCase for the {@link org.jamocha.filter.impls.predicates.Equals} class using Theories.
  * 
  * @author Kai Schwarz <kai.schwarz@rwth-aachen.de>
  * 

@@ -33,7 +33,7 @@ import test.jamocha.util.TestData.LotsOfRandomDoubles;
 import test.jamocha.util.TestData.LotsOfRandomLongs;
 
 /**
- * TestCase for the {@link Minus} class using Theories.
+ * TestCase for the {@link org.jamocha.filter.impls.predicates.Minus} class using Theories.
  * 
  * @author Kai Schwarz <kai.schwarz@rwth-aachen.de>
  * 
