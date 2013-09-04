@@ -23,12 +23,12 @@
 	</natures>
 	<filteredResources>
 		<filter>
-			<id>1378283274747</id>
+			<id>1378284782250</id>
 			<name></name>
 			<type>26</type>
 			<matcher>
 				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-true-false-src-delomboked</arguments>
+				<arguments>1.0-name-matches-true-false-delomboked</arguments>
 			</matcher>
 		</filter>
 	</filteredResources>
