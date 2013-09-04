@@ -40,22 +40,29 @@ import org.jamocha.dn.nodes.Node;
 public class Network {
 
 	/**
-	 * The memoryFactory to generate the nodes {@link MemoryHandlerMain} and
+	 * -- GETTER --
+	 * Gets the memoryFactory to generate the nodes {@link MemoryHandlerMain} and
 	 * {@link MemoryHandlerTemp}.
 	 * 
-	 * @return The networks memory Factory.
+	 * @return the networks memory Factory
 	 */
 	private final MemoryFactory memoryFactory;
 
 	/**
-	 * The capacity of the token queues in all token processing {@link Node
+	 * -- GETTER --
+	 * Gets the capacity of the token queues in all token processing {@link Node
 	 * nodes}.
+	 * 
+	 * @return the capacity for token queues
 	 */
 	private final int tokenQueueCapacity;
 
 	/**
-	 * The scheduler handling the dispatching of token processing to different
+	 * -- GETTER --
+	 * Gets the scheduler handling the dispatching of token processing to different
 	 * threads.
+	 * 
+	 * @return the networks scheduler
 	 */
 	private final Scheduler scheduler;
 
@@ -63,13 +70,13 @@ public class Network {
 	 * Creates an new network object.
 	 * 
 	 * @param memoryFactory
-	 *            the {@link MemoryFactory} to use in the created network.
+	 *            the {@link MemoryFactory} to use in the created network
 	 * @param tokenQueueCapacity
 	 *            the capacity of the token queues in all token processing
-	 *            {@link Node nodes}.
+	 *            {@link Node nodes}
 	 * @param scheduler
 	 *            the {@link Scheduler} to handle the dispatching of token
-	 *            processing.
+	 *            processing
 	 */
 	public Network(final MemoryFactory memoryFactory, int tokenQueueCapacity,
 			final Scheduler scheduler) {
@@ -84,6 +91,6 @@ public class Network {
 	 */
 	public final static Network DEFAULTNETWORK = new Network(
 			org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(),
-			Integer.MAX_VALUE, new SchedulerThreadPool(10));
+			Integer.MAX_VALUE, new ThreadPoolScheduler(10));
 
 }

@@ -17,32 +17,32 @@
  */
 package org.jamocha.dn;
 
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 /**
+ * {@link Scheduler} to process {@link Runnable Runnables} using a thread pool of fixed size.
+ * 
  * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
  * 
+ * @see Executors#newFixedThreadPool(int)
  */
-public class SchedulerPlain implements Scheduler, Runnable {
+public class ThreadPoolScheduler implements Scheduler {
 
-	Queue<Runnable> workQueue = new LinkedList<>();
+	final Executor executor;
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * Creates a scheduler with a thread pool with the given size.
 	 * 
-	 * @see org.jamocha.dn.Scheduler#enqueue(java.lang.Runnable)
+	 * @param nThreads the size of the thread pool
 	 */
-	@Override
-	public void enqueue(Runnable runnable) {
-		workQueue.add(runnable);
+	public ThreadPoolScheduler(int nThreads) {
+		executor = Executors.newFixedThreadPool(nThreads);
 	}
 
 	@Override
-	public void run() {
-		while (!workQueue.isEmpty()) {
-			workQueue.poll().run();
-		}
+	public void enqueue(Runnable runnable) {
+		executor.execute(runnable);
 	}
 
 }

@@ -1,7 +1,7 @@
 Javadoc:
- - All comments (everything but @param) start with a capital letter
- - only @param comments start with a lower case letter.
- - All comments (not @author) end with a ".".
+ - Only free text comments start with capital letters
+ - Only free text comments end with "." (e.g. not @params, @return, etc.)
  - @author tags should look like "Christoph Terwelp <christoph.terwelp@rwth-aachen.de>".
  - Links should start with a lower case letter iff the word has the same meaning without the class context.
  - class comments should contain @see tags for all related classes. 
+ 

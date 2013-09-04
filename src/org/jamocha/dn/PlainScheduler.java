@@ -17,29 +17,32 @@
  */
 package org.jamocha.dn;
 
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
+import java.util.LinkedList;
+import java.util.Queue;
 
 /**
+ * {@link Scheduler} to process runnables in order of arrival in only one {@link Thread thread}. The Scheduler has to be started by calling {@link run()}.
+ * 
  * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
  * 
  */
-public class SchedulerThreadPool implements Scheduler {
+public class PlainScheduler implements Scheduler, Runnable {
 
-	final Executor executor;
+	final Queue<Runnable> workQueue = new LinkedList<>();
 
-	public SchedulerThreadPool(int nThreads) {
-		executor = Executors.newFixedThreadPool(nThreads);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.jamocha.dn.Scheduler#enqueue(java.lang.Runnable)
-	 */
 	@Override
 	public void enqueue(Runnable runnable) {
-		executor.execute(runnable);
+		workQueue.add(runnable);
+	}
+
+	/**
+	 * Processes all enqueued {@link Runnable Runnables} in order of arrival and return when queue is empty. 
+	 */
+	@Override
+	public void run() {
+		while (!workQueue.isEmpty()) {
+			workQueue.poll().run();
+		}
 	}
 
 }

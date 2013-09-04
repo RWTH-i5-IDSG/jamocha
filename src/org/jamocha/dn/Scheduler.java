@@ -14,7 +14,7 @@ public interface Scheduler {
 	/**
 	 * Add a {@link Runnable} to be processed by the scheduler.
 	 * 
-	 * @param runnable the {@link Runnable} to add to the schedulers queue.
+	 * @param runnable the {@link Runnable} to add to the schedulers queue
 	 */
 	public abstract void enqueue(Runnable runnable);
 
