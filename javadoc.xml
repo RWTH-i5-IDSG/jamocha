@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <project default="javadoc">
     <target name="javadoc">
-        <javadoc access="public" author="true" classpath="lib/junit-4.11.jar:lib/hamcrest-all-1.3.jar:lib/lombok-0.12.0.jar" destdir="javadoc" nodeprecated="false" nodeprecatedlist="false" noindex="false" nonavbar="false" notree="false" packagenames="org.jamocha, org.jamocha.*" source="1.7" sourcepath="src:test" splitindex="true" use="true" version="true"/>
+    	<taskdef classname="lombok.delombok.ant.DelombokTask" classpath="lib/lombok-0.12.0.jar" name="delombok" />
+    	<mkdir dir="src-delomboked" />
+    	<delombok verbose="true" encoding="UTF-8" to="src-delomboked" from="src" />
+        <javadoc access="public" author="true" classpath="lib/junit-4.11.jar:lib/hamcrest-all-1.3.jar:lib/lombok-0.12.0.jar" destdir="javadoc" nodeprecated="false" nodeprecatedlist="false" noindex="false" nonavbar="false" notree="false" packagenames="org.jamocha, org.jamocha.*" source="1.7" sourcepath="src-delomboked" splitindex="true" use="true" version="true"/>
     </target>
 </project>
