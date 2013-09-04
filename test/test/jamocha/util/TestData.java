@@ -32,9 +32,9 @@ import org.junit.experimental.theories.PotentialAssignment;
  * new annotation which can be used in the Theory parameter definition to get the data from the
  * \@ParameterSuppliedBy class into the Theory. The classes implementing ParameterSupplier implement
  * the interface and return test data in a list.
- * <p>
+ * </p><p>
  * All combinations of input are tested on a Theory.
- * 
+ * </p>
  * @author Kai Schwarz <kai.schwarz@rwth-aachen.de>
  * 
  */

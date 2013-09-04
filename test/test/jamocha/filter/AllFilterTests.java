@@ -18,7 +18,7 @@ package test.jamocha.filter;
  * Test Suite for the filter package.
  * <p>
  * Please add new package test suites or single tests to the SuiteClasses annotation.
- * 
+ * </p>
  * @author Kai Schwarz <kai.schwarz@rwth-aachen.de>
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */

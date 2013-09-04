@@ -20,11 +20,12 @@ import static org.junit.Assert.assertTrue;
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.filter.Function;
 import org.jamocha.filter.TODODatenkrakeFunktionen;
+import org.jamocha.filter.impls.predicates.And;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
- * TestCase for the {@link org.jamocha.filter.impls.predicates.And} class using Theories.
+ * TestCase for the {@link And} class using Theories.
  * 
  * @author Kai Schwarz <kai.schwarz@rwth-aachen.de>
  * 

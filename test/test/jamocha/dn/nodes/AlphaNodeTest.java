@@ -42,7 +42,7 @@ import org.junit.Test;
 import test.jamocha.filter.FilterMockup;
 
 /**
- * Test class for {@link org.jamocha.dn.nodes.AlphaNode}.
+ * Test class for {@link AlphaNode}.
  * 
  * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
  * 

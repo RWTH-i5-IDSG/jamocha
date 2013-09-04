@@ -24,6 +24,7 @@ import static org.junit.Assume.assumeThat;
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.filter.Function;
 import org.jamocha.filter.TODODatenkrakeFunktionen;
+import org.jamocha.filter.impls.predicates.Less;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.experimental.theories.Theories;
@@ -34,7 +35,7 @@ import test.jamocha.util.TestData.LotsOfRandomDoubles;
 import test.jamocha.util.TestData.LotsOfRandomLongs;
 
 /**
- * TestCase for the {@link org.jamocha.filter.impls.predicates.Less} class using Theories.
+ * TestCase for the {@link Less} class using Theories.
  * 
  * @author Kai Schwarz <kai.schwarz@rwth-aachen.de>
  * 

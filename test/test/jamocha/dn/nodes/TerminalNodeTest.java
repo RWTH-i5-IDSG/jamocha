@@ -16,6 +16,7 @@ package test.jamocha.dn.nodes;
 
 import static org.junit.Assert.fail;
 
+import org.jamocha.dn.nodes.TerminalNode;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -23,7 +24,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
- * Test class for {@link org.jamocha.dn.nodes.TerminalNode}.
+ * Test class for {@link TerminalNode}.
  * 
  * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
  * 

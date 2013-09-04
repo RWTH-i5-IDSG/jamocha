@@ -35,7 +35,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
- * Test class for {@link org.jamocha.dn.nodes.ObjectTypeNode}.
+ * Test class for {@link ObjectTypeNode}.
  * 
  * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
  * 

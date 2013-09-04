@@ -20,6 +20,7 @@ import static org.junit.Assert.assertThat;
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.filter.Function;
 import org.jamocha.filter.TODODatenkrakeFunktionen;
+import org.jamocha.filter.impls.functions.Plus;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.experimental.theories.Theories;
@@ -30,7 +31,7 @@ import test.jamocha.util.TestData.LotsOfRandomDoubles;
 import test.jamocha.util.TestData.LotsOfRandomLongs;
 
 /**
- * TestCase for the {@link org.jamocha.filter.impls.predicates.Plus} class using Theories.
+ * TestCase for the {@link Plus} class using Theories.
  * 
  * @author Kai Schwarz <kai.schwarz@rwth-aachen.de>
  * 

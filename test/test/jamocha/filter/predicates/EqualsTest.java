@@ -24,6 +24,7 @@ import static org.junit.Assume.assumeThat;
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.filter.Function;
 import org.jamocha.filter.TODODatenkrakeFunktionen;
+import org.jamocha.filter.impls.predicates.Equals;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.experimental.theories.Theories;
@@ -36,7 +37,7 @@ import test.jamocha.util.TestData.ListOfLongs;
 import test.jamocha.util.TestData.ListOfStrings;
 
 /**
- * TestCase for the {@link org.jamocha.filter.impls.predicates.Equals} class using Theories.
+ * TestCase for the {@link Equals} class using Theories.
  * 
  * @author Kai Schwarz <kai.schwarz@rwth-aachen.de>
  * 
