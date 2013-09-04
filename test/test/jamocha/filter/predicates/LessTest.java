@@ -37,7 +37,7 @@ import test.jamocha.util.TestData.LotsOfRandomDoubles;
 import test.jamocha.util.TestData.LotsOfRandomLongs;
 
 /**
- * TestCase for the {@Link Less} class using Theories.
+ * TestCase for the {@link Less} class using Theories.
  * 
  * @author Kai Schwarz <kai.schwarz@rwth-aachen.de>
  * 

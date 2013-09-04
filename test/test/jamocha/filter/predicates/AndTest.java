@@ -27,7 +27,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
- * TestCase for the {@Link And} class using Theories.
+ * TestCase for the {@link And} class using Theories.
  * 
  * @author Kai Schwarz <kai.schwarz@rwth-aachen.de>
  * 
