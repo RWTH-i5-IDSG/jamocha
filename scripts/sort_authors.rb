@@ -20,13 +20,16 @@ Dir["**/*.java"].each do |filename|
 					end
 					"#{s[(j-1)]}, #{s[(j-2)]}"
 				end
-				lines[blockstart..(i-1)] = ll
-				changed = true
+				if lines[blockstart..(i-1)] != ll then
+					lines[blockstart..(i-1)] = ll
+					changed = true
+				end
 			end
 			blockstart = -1
 		end
 	end
 	if changed then
+		puts "Updating \"#{filename}\""
 		File.open(filename, "w") do |file|
 			file.write(lines.join(""))
 		end
