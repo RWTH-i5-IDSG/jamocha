@@ -5,17 +5,16 @@ import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
 /**
- * Test suite for the whole jamocha project.
+ * Test suite for the whole Jamocha project.
  * 
- * Add new package test suites or single tests to the SuiteClasses annotation.
+ * Please add new package test suites or single tests to the SuiteClasses
+ * annotation.
  * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
 @RunWith(Suite.class)
-@SuiteClasses({
-		test.jamocha.dn.memory.javaimpl.MemoryHandlerTempTest.class,
-		test.jamocha.filter.AllFilterTests.class,
-		test.jamocha.dn.nodes.AllNodeTests.class })
+@SuiteClasses({ test.jamocha.dn.AllDnTests.class,
+		test.jamocha.filter.AllFilterTests.class })
 public class AllTests {
 
 }

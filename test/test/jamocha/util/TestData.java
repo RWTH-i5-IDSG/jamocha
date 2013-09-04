@@ -69,11 +69,11 @@ public class TestData {
 			public List<PotentialAssignment> getValueSources(
 					ParameterSignature signature) {
 				ArrayList<PotentialAssignment> list = new ArrayList<>();
-				list.add(PotentialAssignment.forValue("", new Long[]{-100L, 50L, 1L, 11L}));
+				list.add(PotentialAssignment.forValue("", new Object[]{-100L, 50L, 1L, 11L}));
 				list.add(PotentialAssignment.forValue("", null));
-				list.add(PotentialAssignment.forValue("", new String[]{"OMGWTFBBQ", "TEST test!!!"}));
-				list.add(PotentialAssignment.forValue("", -100L));
-				list.add(PotentialAssignment.forValue("", 0.3562));
+				list.add(PotentialAssignment.forValue("", new Object[]{"OMGWTFBBQ", "TEST test!!!"}));
+				list.add(PotentialAssignment.forValue("", (Object)(-100L)));
+				list.add(PotentialAssignment.forValue("", (Object)(0.3562)));
 				list.add(PotentialAssignment.forValue("", new Object[]{}));
 				return list;
 			}
