@@ -25,7 +25,17 @@ import org.jamocha.dn.memory.SlotType;
 import org.jamocha.dn.nodes.SlotInFactAddress;
 
 /**
+ * This class is the composite of the {@link FunctionWithArguments} hierarchy.
+ * It stores a {@link Function function} and its parameters as an array of
+ * {@link FunctionWithArguments}. This way it can recursively represent any
+ * combination of {@link Function functions} and their arguments. On evaluation,
+ * the given parameters are split into chunks and passed to the corresponding
+ * arguments. The returning values are passed to the stored function evaluating
+ * the result.
+ * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+ * @see Function
+ * @see FunctionWithArguments
  */
 public class FunctionWithArgumentsComposite implements FunctionWithArguments {
 

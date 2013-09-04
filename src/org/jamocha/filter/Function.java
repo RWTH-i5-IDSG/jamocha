@@ -20,21 +20,34 @@ package org.jamocha.filter;
 import org.jamocha.dn.memory.SlotType;
 
 /**
+ * Interface for a function representing a part of a rule condition that
+ * performs an operation on data.
+ * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+ * @see SlotType
+ * @see Predicate
+ * @see FunctionWithArguments
  */
 public interface Function {
 
 	/**
+	 * Getter for the list of the corresponding parameter types for the
+	 * function.
+	 * 
 	 * @return list of the corresponding parameter types for the function
 	 */
 	public SlotType[] getParamTypes();
 
 	/**
+	 * Getter for the return type of the Function.
+	 * 
 	 * @return return type of the function
 	 */
 	public SlotType getReturnType();
 
 	/**
+	 * Returns the string representation of the corresponding function in CLIPS.
+	 * 
 	 * @return name of the corresponding function in CLIPS
 	 */
 	@Override

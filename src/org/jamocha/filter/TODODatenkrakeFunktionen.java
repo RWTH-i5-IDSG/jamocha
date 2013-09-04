@@ -19,25 +19,36 @@ package org.jamocha.filter;
 
 import java.util.HashMap;
 
-import lombok.EqualsAndHashCode;
+import lombok.Value;
 
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.filter.impls.Functions;
 import org.jamocha.filter.impls.Predicates;
 
+/**
+ * This class gathers the implemented {@link Function Functions} and provides a
+ * {@link TODODatenkrakeFunktionen#lookup(String, SlotType...) lookup}
+ * functionality to find them identified by their string representation in CLIPS
+ * and their parameter types.
+ * 
+ * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+ * @see Function
+ * @see Predicate
+ * @see SlotType
+ */
 public class TODODatenkrakeFunktionen {
 
-	@EqualsAndHashCode
-	public static class CombinedClipsAndParams {
-		final String inClips;
-		final SlotType[] params;
-
-		public CombinedClipsAndParams(String inClips, SlotType[] params) {
-			super();
-			this.inClips = inClips;
-			this.params = params;
-		}
-
+	/**
+	 * This class combines the CLIPS string representation (e.g. the name) of a
+	 * {@link Function} and their parameter {@link SlotType types}. It is used
+	 * as the key in the lookup map to find corresponding implementations.
+	 * 
+	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+	 */
+	@Value
+	private static class CombinedClipsAndParams {
+		String inClips;
+		SlotType[] params;
 	}
 
 	public static HashMap<CombinedClipsAndParams, Function> clipsFunctions = new HashMap<>();
@@ -48,15 +59,21 @@ public class TODODatenkrakeFunktionen {
 		// hier weitere funktionspakete angeben
 	}
 
+	/**
+	 * Loads the {@link TODODatenkrakeFunktionen} class to have the java vm
+	 * execute its static initializer.
+	 */
 	public static void load() {
-		try {
-			Class.forName(TODODatenkrakeFunktionen.class.getName());
-		} catch (ClassNotFoundException e) {
-			// will never ever happen!
-		}
+		addImpl(TODODatenkrakeFunktionen.class);
 	}
 
-	public static void addImpl(Class<?> clazz) {
+	/**
+	 * Loads the class given to have the java vm execute its static initializer.
+	 * 
+	 * @param clazz
+	 *            class to load
+	 */
+	public static void addImpl(final Class<?> clazz) {
 		try {
 			Class.forName(clazz.getName());
 		} catch (ClassNotFoundException e) {
@@ -64,12 +81,32 @@ public class TODODatenkrakeFunktionen {
 		}
 	}
 
+	/**
+	 * Adds a {@link Function} implementation to the lookup-map (will overwrite
+	 * existing implementations with the same name and argument types).
+	 * 
+	 * @param impl
+	 *            implementation to add
+	 */
 	public static void addImpl(final Function impl) {
 		clipsFunctions.put(
 				new CombinedClipsAndParams(impl.toString(), impl
 						.getParamTypes()), impl);
 	}
 
+	/**
+	 * Looks up an implementation for the {@link Function} identified by its
+	 * string representation in CLIPS and its parameter types.
+	 * 
+	 * @param inClips
+	 *            string representation of the function in CLIPS
+	 * @param params
+	 *            parameter types
+	 * @return a matching @{link Function} implementation
+	 * @throws UnsupportedOperationException
+	 *             iff no {@link Function} implementation was found for the
+	 *             given string representation and parameter types
+	 */
 	public static Function lookup(final String inClips,
 			final SlotType... params) {
 		final Function function = clipsFunctions

@@ -27,21 +27,29 @@ import lombok.RequiredArgsConstructor;
 
 import org.jamocha.dn.memory.FactAddress;
 import org.jamocha.dn.memory.SlotType;
+import org.jamocha.dn.nodes.Node;
 import org.jamocha.dn.nodes.SlotInFactAddress;
 import org.jamocha.filter.PathLeaf.ParameterLeaf;
 
 /**
- * For a documentation of the classes used here and their interaction refer to
- * {@link FunctionWithArguments}
+ * A Filter contains {@link FilterElement filter elements} representing atomic
+ * {@link Predicate predicates} specifying the tests to be performed on data
+ * according to the condition part of a rule. The order of the
+ * {@link FilterElement filter elements} stored dictates the order in which the
+ * affected {@link Node nodes} are joined.
  * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+ * @see FilterElement
+ * @see FunctionWithArguments
+ * @see Predicate
+ * @see Node
  */
 @Getter
 public class Filter {
 	/**
 	 * Contains Predicates in an ordered list, which is processed from front to
 	 * back. Note: Hierarchy doesn't enforce the filterSteps to be Predicates,
-	 * ctor needs to do this
+	 * ctor needs to do this.
 	 */
 	final FilterElement filterElements[];
 
@@ -79,11 +87,11 @@ public class Filter {
 
 	/**
 	 * Constructs the filter. Checks that the given
-	 * {@link FunctionWithArguments} contain {@link Predicate}s on the
-	 * top-level.
+	 * {@link FunctionWithArguments functions with arguments} contain
+	 * {@link Predicate predicates} on the top-level.
 	 * 
 	 * @param predicates
-	 *            Predicates to be used in the filter.
+	 *            predicates to be used in the filter
 	 */
 	public Filter(final FunctionWithArguments[] predicates) {
 		final int length = predicates.length;
@@ -99,9 +107,10 @@ public class Filter {
 	}
 
 	/**
-	 * Translates any {@link PathLeaf}s into {@link ParameterLeaf}s and adds
-	 * their {@link SlotInFactAddress}es to the corresponding
-	 * {@link FilterElement}.
+	 * Translates any {@link PathLeaf path leafs} into {@link ParameterLeaf
+	 * parameter leafs} and adds their {@link SlotInFactAddress
+	 * SlotInFactAddresses} to the corresponding {@link FilterElement filter
+	 * element}.
 	 */
 	public void translatePath() {
 		for (final FilterElement filterElement : this.filterElements) {
@@ -113,9 +122,9 @@ public class Filter {
 	}
 
 	/**
-	 * Gathers the {@link Path}s used in any {@link PathLeaf}s.
+	 * Gathers the {@link Path paths} used in any {@link PathLeaf path leafs}.
 	 * 
-	 * @return {@link Path}s used in any {@link PathLeaf}s
+	 * @return {@link Path paths} used in any {@link PathLeaf path leafs}
 	 */
 	public LinkedHashSet<Path> gatherPaths() {
 		final LinkedHashSet<Path> paths = new LinkedHashSet<>();
@@ -128,6 +137,8 @@ public class Filter {
 	/**
 	 * Counts the number of paths that originally went into this Filter for
 	 * assertion purposes.
+	 * 
+	 * @return the number of paths that originally went into this Filter
 	 */
 	public int countParameters() {
 		final Set<FactAddress> parameters = new HashSet<>();

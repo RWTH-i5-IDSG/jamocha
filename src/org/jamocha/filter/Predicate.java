@@ -20,21 +20,23 @@ package org.jamocha.filter;
 import org.jamocha.dn.memory.SlotType;
 
 /**
+ * This abstract class is the base class for all {@link Function functions} that
+ * are predicates. The class therefore specializes the return type of
+ * {@link Function#evaluate(Object...)} to {@link Boolean} and implements the
+ * {@link Function#getReturnType()}, as all {@link Predicate predicates} return
+ * a boolean.
+ * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+ * @see Function
+ * @see SlotType
  */
 public abstract class Predicate implements Function {
 
-	/**
-	 * @see org.jamocha.filter.Function#getReturnType()
-	 */
 	@Override
 	public final SlotType getReturnType() {
 		return SlotType.BOOLEAN;
 	}
 
-	/**
-	 * @see org.jamocha.filter.Function#evaluate(java.lang.Object[])
-	 */
 	@Override
 	public abstract Boolean evaluate(final Object... params);
 

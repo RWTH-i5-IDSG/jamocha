@@ -20,39 +20,39 @@ package org.jamocha.filter;
 import java.util.ArrayList;
 import java.util.Set;
 
+import org.jamocha.dn.memory.Fact;
+import org.jamocha.dn.nodes.Node;
 import org.jamocha.dn.nodes.SlotInFactAddress;
-import org.jamocha.filter.Filter.FilterElement;
 import org.jamocha.filter.PathLeaf.ParameterLeaf;
 
 /**
- * Interface for a Function bundled with its Arguments. The Idea is to store
- * these in Filters. A Filter is constructed using the following classes
- * implementing this interface: {@link FunctionWithArgumentsComposite},
- * {@link ConstantLeaf}, {@link PathLeaf}. In doing so, we combine Functions,
- * Constants and Paths. After all Paths used have been mapped to their
- * corresponding addresses (see {@link PathTransformation}), we can transform (
- * {@link Filter#translatePath()} ) the filter to contain only
- * {@link FunctionWithArgumentsComposite}, {@link ConstantLeaf},
- * {@link ParameterLeaf}. During this step, the {@link FilterElement}s get their
- * {@link FilterElement#addressesInTarget}.
+ * This class bundles a {@link Function} and its arguments. The Composite
+ * Pattern has been used. An argument of a function can be either a constant or
+ * a path i.e. a slot of a {@link Fact}.
  * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
 public interface FunctionWithArguments extends Function {
 
 	/**
-	 * Gathers the {@link Path}s used in any {@link PathLeaf}s.
+	 * Gathers the {@link Path paths} used in any {@link PathLeaf path leafs}.
 	 * 
 	 * @param paths
-	 *            {@link Path}s used in any {@link PathLeaf}s
+	 *            {@link Path paths} used in any {@link PathLeaf path leafs}
 	 */
 	public void gatherPaths(final Set<Path> paths);
 
 	/**
 	 * Translates any {@link PathLeaf}s into {@link ParameterLeaf}s.
 	 * 
-	 * @return {@link FunctionWithArguments} containing {@link ParameterLeaf}s
-	 *         instead of any {@link PathLeaf}s
+	 * @param addressesInTarget
+	 *            {@link ArrayList list} of {@link SlotInFactAddress addresses}
+	 *            valid for the target {@link Node node} of the {@link Filter
+	 *            filter} used to replace {@link PathLeaf path leafs} with
+	 *            {@link ParameterLeaf parameter leafs}
+	 * @return {@link FunctionWithArguments function with arguments} containing
+	 *         {@link ParameterLeaf parameter leafs} instead of any
+	 *         {@link PathLeaf path leafs}
 	 */
 	public FunctionWithArguments translatePath(
 			final ArrayList<SlotInFactAddress> addressesInTarget);

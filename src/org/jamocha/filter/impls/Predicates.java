@@ -17,14 +17,18 @@
  */
 package org.jamocha.filter.impls;
 
+import org.jamocha.filter.Predicate;
 import org.jamocha.filter.TODODatenkrakeFunktionen;
 import org.jamocha.filter.impls.predicates.And;
 import org.jamocha.filter.impls.predicates.Equals;
 import org.jamocha.filter.impls.predicates.Less;
 
 /**
- * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+ * Loads implementations of the more specific {@link Predicate} interface.
  * 
+ * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+ * @see Predicate
+ * @see TODODatenkrakeFunktionen
  */
 public class Predicates {
 

@@ -24,6 +24,10 @@ import org.jamocha.dn.memory.SlotType;
 import org.jamocha.dn.nodes.SlotInFactAddress;
 
 /**
+ * A parameter of a {@link Function} may be a constant value specified in the
+ * parsed representation of the rule. This constant value is then stored in this
+ * class together with its type.
+ * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
 public class ConstantLeaf implements FunctionWithArguments {

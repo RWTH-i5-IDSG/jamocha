@@ -112,6 +112,7 @@ public class BetaNode extends Node {
 			pathSet.add(path);
 		}
 		final boolean used[] = new boolean[this.incomingEdges.length];
+		PathTransformation.setJoinedWith(paths);
 		while (!pathSet.isEmpty()) {
 			final Path path = pathSet.iterator().next();
 			final Node currentlyLowestNode = PathTransformation
@@ -129,7 +130,6 @@ public class BetaNode extends Node {
 					PathTransformation.setCurrentlyLowestNode(join, this);
 					PathTransformation.setFactAddressInCurrentlyLowestNode(
 							join, localizedAddress);
-					PathTransformation.setJoinedWith(paths);
 					pathSet.remove(join);
 				}
 				used[i] = true;

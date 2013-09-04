@@ -17,13 +17,18 @@
  */
 package org.jamocha.filter.impls;
 
+import org.jamocha.filter.Function;
 import org.jamocha.filter.TODODatenkrakeFunktionen;
 import org.jamocha.filter.impls.functions.Minus;
 import org.jamocha.filter.impls.functions.Plus;
 
 /**
- * @author Kai Schwarz
+ * Loads implementations of the {@link Function} interface.
  * 
+ * @author Kai Schwarz <kai.schwarz@rwth-aachen.de>
+ * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+ * @see Function
+ * @see TODODatenkrakeFunktionen
  */
 public class Functions {
 
