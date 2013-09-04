@@ -1,0 +1,5 @@
+Javadoc:
+ - All comments (everything but @param) start with a capital letter
+ - only @param comments start with a lower case letter.
+ - All comments (not @author) end with a ".".
+ - @author tags should look like "Christoph Terwelp <christoph.terwelp@rwth-aachen.de>"
