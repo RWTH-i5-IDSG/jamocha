@@ -41,7 +41,7 @@ public abstract class Token {
 	public abstract void run() throws CouldNotAcquireLockException;
 
 	/**
-	 * 
+	 * {@link Token} containing a {@link MemoryHandlerTemp} which should be added to the {@link Node node}. 
 	 * 
 	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
 	 * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
@@ -58,6 +58,7 @@ public abstract class Token {
 	}
 
 	/**
+	 * {@link Token} containing a {@link MemoryHandlerTemp} which should be removed from the {@link Node node}.
 	 * 
 	 * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
 	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
