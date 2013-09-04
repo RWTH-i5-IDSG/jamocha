@@ -37,25 +37,16 @@ public class MemoryFactory implements org.jamocha.dn.memory.MemoryFactory {
 	private MemoryFactory() {
 	}
 
-	/**
-	 * @see MemoryFactory#newMemoryHandlerMain(Template, Path...)
-	 */
 	@Override
 	public MemoryHandlerMain newMemoryHandlerMain(final Template template, final Path... paths) {
 		return new MemoryHandlerMain(template, paths);
 	}
 
-	/**
-	 * @see MemoryFactory#newMemoryHandlerMain(Edge...)
-	 */
 	@Override
-	public MemoryHandlerMain newMemoryHandlerMain(final Edge... inputsToBeJoined) {
-		return new MemoryHandlerMain(inputsToBeJoined);
+	public MemoryHandlerMain newMemoryHandlerMain(final Edge... edgesToBeJoined) {
+		return new MemoryHandlerMain(edgesToBeJoined);
 	}
 
-	/**
-	 * @see MemoryFactory#processTokenInBeta(MemoryHandlerMain, MemoryHandlerTemp, Edge, Filter)
-	 */
 	@Override
 	public MemoryHandlerTemp processTokenInBeta(
 			final org.jamocha.dn.memory.MemoryHandlerMain originatingMainHandler,
@@ -65,9 +56,6 @@ public class MemoryFactory implements org.jamocha.dn.memory.MemoryFactory {
 				(MemoryHandlerTemp) token, originInput, filter);
 	}
 
-	/**
-	 * @see MemoryFactory#processTokenInAlpha(MemoryHandlerMain, MemoryHandlerTemp, Node, Filter)
-	 */
 	@Override
 	public MemoryHandlerTemp processTokenInAlpha(
 			final org.jamocha.dn.memory.MemoryHandlerMain originatingMainHandler,
@@ -77,9 +65,6 @@ public class MemoryFactory implements org.jamocha.dn.memory.MemoryFactory {
 				(MemoryHandlerTemp) token, originInput, filter);
 	}
 
-	/**
-	 * @see MemoryFactory#newToken(MemoryHandlerMain, Node, org.jamocha.dn.memory.Fact...)
-	 */
 	@Override
 	public MemoryHandlerTemp newToken(
 			final org.jamocha.dn.memory.MemoryHandlerMain originatingMainHandler, final Node otn,

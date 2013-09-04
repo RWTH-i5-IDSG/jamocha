@@ -20,26 +20,52 @@ import org.jamocha.dn.nodes.Node;
 import org.jamocha.dn.nodes.Node.Edge;
 import org.jamocha.filter.Filter;
 import org.jamocha.filter.Path;
+import org.jamocha.filter.PathTransformation;
 
 /**
+ * Interface for the different implementations of the memory component. The network uses this
+ * interface to acquire new instances of MemoryHandlers.
  * 
- * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
- * 
+ * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
+ * @see MemoryHandlerMain
+ * @see MemoryHandlerTemp
  */
 public interface MemoryFactory {
 
 	/**
-	 * Note: PathTransformation should contain entries for all paths given as their addresses are
-	 * set here.
+	 * Creates a new {@link MemoryHandlerMain} capable of storing facts meeting the restrictions of
+	 * the template given. For the {@link Path paths} given, all but the {@link Node node}
+	 * information are stored in {@link PathTransformation}.
 	 * 
 	 * @param template
+	 *            the template of facts in {@link MemoryHandlerMain}
 	 * @param paths
-	 * @return
+	 *            the paths that need the address in the {@link MemoryHandlerMain}
+	 * @return a new {@link MemoryHandlerMain} capable of storing facts of the given
+	 *         {@link Template template}
+	 * @see MemoryHandlerMain
+	 * @see Template
+	 * @see Path
+	 * @see PathTransformation
 	 */
 	public MemoryHandlerMain newMemoryHandlerMain(final Template template, final Path... paths);
 
-	public MemoryHandlerMain newMemoryHandlerMain(final Edge... inputsToBeJoined);
+	/**
+	 * Creates a new {@link MemoryHandlerMain} capable of storing facts merged from the {@link Edge
+	 * edges} given. The {@link Edge edges} given have their
+	 * {@link Edge#setAddressMap(java.util.Map)} called with a map able to localize addresses from
+	 * their parent into addresses in the {@link Node node} the {@link MemoryHandlerMain} is for.
+	 * 
+	 * @param edgesToBeJoined
+	 *            {@link Edge edges} producing the facts that will be joined and have to be stored
+	 *            in the {@link MemoryHandlerMain} created here
+	 * @return a {@link MemoryHandlerMain} capable of storing facts merged from the {@link Edge
+	 *         edges} given
+	 * @see MemoryHandlerMain
+	 * @see Edge
+	 */
+	public MemoryHandlerMain newMemoryHandlerMain(final Edge... edgesToBeJoined);
 
 	public MemoryHandlerTemp processTokenInBeta(MemoryHandlerMain originatingMainHandler,
 			MemoryHandlerTemp token, Edge originInput, Filter filter)

@@ -49,13 +49,13 @@ public class MemoryHandlerMain implements org.jamocha.dn.memory.MemoryHandlerMai
 		}
 	}
 
-	MemoryHandlerMain(final Edge... inputsToBeJoined) {
+	MemoryHandlerMain(final Edge... edgesToBeJoined) {
 		final ArrayList<Template> template = new ArrayList<>();
 		final ArrayList<FactAddress> addresses = new ArrayList<>();
-		for (final Edge input : inputsToBeJoined) {
+		for (final Edge edge : edgesToBeJoined) {
 			final HashMap<FactAddress, FactAddress> fMap = new HashMap<>();
 			final MemoryHandlerMain memoryHandlerMain =
-					(MemoryHandlerMain) input.getSourceNode().getMemory();
+					(MemoryHandlerMain) edge.getSourceNode().getMemory();
 			for (int i = 0; i < memoryHandlerMain.template.length; i++) {
 				final Template t = memoryHandlerMain.template[i];
 				final FactAddress oldFactAddress = memoryHandlerMain.addresses[i];
@@ -64,7 +64,7 @@ public class MemoryHandlerMain implements org.jamocha.dn.memory.MemoryHandlerMai
 				template.add(t);
 				addresses.add(newFactAddress);
 			}
-			input.setAddressMap(fMap);
+			edge.setAddressMap(fMap);
 		}
 		this.template = template.toArray(new Template[template.size()]);
 		this.addresses = addresses.toArray(new FactAddress[addresses.size()]);
