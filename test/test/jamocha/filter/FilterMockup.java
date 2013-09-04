@@ -28,9 +28,15 @@ import org.jamocha.dn.nodes.SlotInFactAddress;
 import org.jamocha.filter.Filter;
 import org.jamocha.filter.FunctionWithArguments;
 import org.jamocha.filter.Path;
-import org.junit.Test;
+import org.junit.experimental.theories.Theories;
+import org.junit.experimental.theories.Theory;
+import org.junit.runner.RunWith;
+
+import test.jamocha.util.TestData.SomeStuff;
 
 /**
+ * A mockup filter implementation for testing purposes.
+ * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
 public class FilterMockup extends Filter {
@@ -79,44 +85,41 @@ public class FilterMockup extends Filter {
 		return filterMockup;
 	}
 
+	/**
+	 * Test class for {@link test.jamocha.filter.FilterMockup FilterMockup}
+	 * using Theories.
+	 * 
+	 * @author Kai Schwarz <kai.schwarz@rwth-aachen.de>
+	 * 
+	 */
+	@RunWith(Theories.class)
 	public static class FilterMockupTest {
 		/**
-		 * Test method for
-		 * {@link test.jamocha.filter.FilterMockup#alwaysTrue()} .
+		 * Test method for {@link test.jamocha.filter.FilterMockup#alwaysTrue()
+		 * alwaysTrue()} .
 		 */
-		@Test
-		public void testAlwaysTrue() {
+		@Theory
+		public void testAlwaysTrue(@SomeStuff
+		Object... obj) {
 			final Filter alwaysTrue = FilterMockup.alwaysTrue();
 			for (final FilterElement filterElement : alwaysTrue
 					.getFilterElements()) {
-				assertTrue((Boolean) filterElement.getFunction().evaluate(1, 2,
-						3));
-				assertTrue((Boolean) filterElement.getFunction().evaluate(
-						(Object) null));
-				assertTrue((Boolean) filterElement.getFunction().evaluate(
-						new Object[] {}));
-				assertTrue((Boolean) filterElement.getFunction().evaluate(
-						"Hello World", "!"));
+				assertTrue((Boolean) filterElement.getFunction().evaluate(obj));
 			}
 		}
 
 		/**
 		 * Test method for
-		 * {@link test.jamocha.filter.FilterMockup#alwaysFalse()} .
+		 * {@link test.jamocha.filter.FilterMockup#alwaysFalse() alwaysFalse()}
+		 * .
 		 */
-		@Test
-		public void testAlwaysFalse() {
+		@Theory
+		public void testAlwaysFalse(@SomeStuff
+		Object... obj) {
 			final Filter alwaysFalse = FilterMockup.alwaysFalse();
 			for (final FilterElement filterElement : alwaysFalse
 					.getFilterElements()) {
-				assertFalse((Boolean) filterElement.getFunction().evaluate(1,
-						2, 3));
-				assertFalse((Boolean) filterElement.getFunction().evaluate(
-						(Object) null));
-				assertFalse((Boolean) filterElement.getFunction().evaluate(
-						new Object[] {}));
-				assertFalse((Boolean) filterElement.getFunction().evaluate(
-						"Hello World", "!"));
+				assertFalse((Boolean) filterElement.getFunction().evaluate(obj));
 			}
 		}
 	}

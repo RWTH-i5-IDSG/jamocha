@@ -29,11 +29,58 @@ import org.junit.experimental.theories.ParametersSuppliedBy;
 import org.junit.experimental.theories.PotentialAssignment;
 
 /**
+ * Class that has multiple ParameterSupplier to supply test data for Theory
+ * tests.
+ * 
+ * The Interfaces have \@RetentionPolicy.RUNTIME and \@ParametersSuppliedBy()
+ * annotations and define a new annotation which can be used in the Theory
+ * parameter definition to get the data from the \@ParameterSuppliedBy class
+ * into the Theory. The classes implementing ParameterSupplier implement the
+ * interface and return test data in a list.
+ * 
+ * All combinations of input are tested on a Theory.
+ * 
  * @author Kai Schwarz <kai.schwarz@rwth-aachen.de>
  * 
  */
 public class TestData {
 
+	/*
+	 * **************OBJECTS**************
+	 */
+
+	/*
+	 * Interfaces
+	 */
+	
+	@Retention(RetentionPolicy.RUNTIME)
+	@ParametersSuppliedBy(RandomStuffSupplier.class)
+	public @interface SomeStuff {
+	}
+	
+	/*
+	 * Supplier
+	 */
+	
+	// List of random stuff 
+		public static class RandomStuffSupplier extends ParameterSupplier {
+
+			@Override
+			public List<PotentialAssignment> getValueSources(
+					ParameterSignature signature) {
+				ArrayList<PotentialAssignment> list = new ArrayList<>();
+				list.add(PotentialAssignment.forValue("", new Long[]{-100L, 50L, 1L, 11L}));
+				list.add(PotentialAssignment.forValue("", null));
+				list.add(PotentialAssignment.forValue("", new String[]{"OMGWTFBBQ", "TEST test!!!"}));
+				list.add(PotentialAssignment.forValue("", -100L));
+				list.add(PotentialAssignment.forValue("", 0.3562));
+				list.add(PotentialAssignment.forValue("", new Object[]{}));
+				return list;
+			}
+
+		}
+
+	
 	/*
 	 * **************LONGS**************
 	 */
