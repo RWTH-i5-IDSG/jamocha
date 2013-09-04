@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <project default="javadoc">
     <target name="javadoc">
-        <javadoc access="public" author="true" classpath="lib/junit-4.11.jar:lib/hamcrest-all-1.3.jar:lib/lombok-0.12.0.jar" destdir="doc" nodeprecated="false" nodeprecatedlist="false" noindex="false" nonavbar="false" notree="false" packagenames="org.jamocha.dn,org.jamocha.filter.impls,org.jamocha.dn.memory.javaimpl,org.jamocha.filter.impls.functions,org.jamocha.dn.nodes,org.jamocha.filter.impls.predicates,org.jamocha.filter,org.jamocha.dn.memory" source="1.7" sourcepath="src:test" splitindex="true" use="true" version="true"/>
+        <javadoc access="public" author="true" classpath="lib/junit-4.11.jar:lib/hamcrest-all-1.3.jar:lib/lombok-0.12.0.jar" destdir="javadoc" nodeprecated="false" nodeprecatedlist="false" noindex="false" nonavbar="false" notree="false" packagenames="org.jamocha.dn,org.jamocha.filter.impls,org.jamocha.dn.memory.javaimpl,org.jamocha.filter.impls.functions,org.jamocha.dn.nodes,org.jamocha.filter.impls.predicates,org.jamocha.filter,org.jamocha.dn.memory" source="1.7" sourcepath="src:test" splitindex="true" use="true" version="true"/>
     </target>
 </project>
