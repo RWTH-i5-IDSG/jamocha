@@ -48,6 +48,8 @@ import org.jamocha.filter.PathTransformation.PathInfo;
  * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
  */
 public abstract class Node {
+	
+	// FIXME Nodes should not forget their filters. At the moment the filter is passed to the constructor but not saved or used for joins.
 
 	public static interface Edge {
 		public void processPlusToken(final MemoryHandlerTemp memory)

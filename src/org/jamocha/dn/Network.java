@@ -123,15 +123,22 @@ public class Network {
 		for (Path path : paths) {
 			nodes.add(PathTransformation.getCurrentlyLowestNode(path));
 		}
-		LinkedHashSet<Node> candidates = new LinkedHashSet<>();
+		final LinkedHashSet<Node> candidates = new LinkedHashSet<>();
 		assert nodes.size() > 0;
 		Iterator<Node> i = nodes.iterator();
 		Node node = i.next();
 		for (Edge edge : node.getOutgoingEdges()) {
-			
+			candidates.add(edge.getTargetNode());
 		}
 		for (;i.hasNext(); node = i.next()) {
-			node.getOutgoingEdges();
+			final LinkedHashSet<Node> cutSet = new LinkedHashSet<>();
+			for (Edge edge : node.getOutgoingEdges()) {
+				cutSet.add(edge.getTargetNode());
+			}
+			candidates.retainAll(cutSet);
+		}
+		for (Node candidate : candidates) {
+			candidate.getFilter() // FIXME as soon as filters are used and saved by Nodes 
 		}
 		return false;
 	}
