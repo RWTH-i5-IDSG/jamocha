@@ -134,7 +134,7 @@ public class AlphaNodeTest {
 	 * Test method for {@link org.jamocha.dn.nodes.Node#getNumberOfOutgoingEdges()}.
 	 */
 	@Test
-	public void testNumChildren() {
+	public void testNumberOfOutgoingEdges() {
 		Path p1 = new Path(Template.BOOLEAN);
 		Path p2 = new Path(Template.BOOLEAN);
 		@SuppressWarnings("unused")

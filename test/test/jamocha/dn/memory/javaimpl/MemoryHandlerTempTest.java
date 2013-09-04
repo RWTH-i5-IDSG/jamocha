@@ -26,6 +26,7 @@ import org.jamocha.dn.memory.Fact;
 import org.jamocha.dn.memory.FactAddress;
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.dn.memory.Template;
+import org.jamocha.dn.memory.javaimpl.MemoryFactory;
 import org.jamocha.dn.memory.javaimpl.MemoryHandlerMain;
 import org.jamocha.dn.memory.javaimpl.MemoryHandlerTemp;
 import org.jamocha.dn.memory.javaimpl.SlotAddress;
@@ -289,10 +290,10 @@ public class MemoryHandlerTempTest {
 
 	/**
 	 * Test method for
-	 * {@link org.jamocha.dn.memory.javaimpl.MemoryHandlerTemp#newAlphaTemp(org.jamocha.dn.memory.javaimpl.MemoryHandlerMain, org.jamocha.dn.memory.javaimpl.MemoryHandlerTemp, org.jamocha.dn.nodes.Node, org.jamocha.filter.Filter)}
+	 * {@link MemoryFactory#processTokenInAlpha(org.jamocha.dn.memory.MemoryHandlerMain, org.jamocha.dn.memory.MemoryHandlerTemp, Edge, Filter)}
 	 * .
 	 * 
-	 * @throws InterruptedException
+	 * @throws CouldNotAcquireLockException
 	 */
 	@Test
 	public void testNewAlphaTemp() throws CouldNotAcquireLockException {
@@ -313,13 +314,11 @@ public class MemoryHandlerTempTest {
 
 	/**
 	 * Test method for
-	 * {@link org.jamocha.dn.memory.javaimpl.MemoryHandlerTemp#newRootTemp(org.jamocha.dn.memory.javaimpl.MemoryHandlerMain, org.jamocha.dn.memory.Fact, org.jamocha.dn.nodes.Node)}
+	 * {@link MemoryFactory#newToken(org.jamocha.dn.memory.MemoryHandlerMain, Node, Fact...)}
 	 * .
-	 * 
-	 * @throws InterruptedException
 	 */
 	@Test
-	public void testNewToken() throws InterruptedException {
+	public void testNewToken() {
 		MemoryHandlerTemp memoryHandlerTemp =
 				(MemoryHandlerTemp) Network.DEFAULTNETWORK.getMemoryFactory().newToken(
 						memoryHandlerMain, node, new Fact(new Template(SlotType.STRING), "Test"));

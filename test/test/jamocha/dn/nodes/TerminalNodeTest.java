@@ -88,7 +88,7 @@ public class TerminalNodeTest {
 	 * Test method for {@link org.jamocha.dn.nodes.Node#getNumberOfOutgoingEdges()}.
 	 */
 	@Test
-	public void testNumChildren() {
+	public void testGetNumberOfOutgoingEdges() {
 		fail("Not yet implemented"); // TODO Test
 	}
 
