@@ -97,7 +97,6 @@ public class BetaNode extends Node {
 
 	@Override
 	public void shareNode(final Path... paths) {
-		assert 0 < this.delocalizeMap.size();
 		assert 0 < this.incomingEdges.length;
 		assert this.incomingEdges[0].getFilter().countParameters() == paths.length;
 		final LinkedHashSet<Path> pathSet = new LinkedHashSet<>();
@@ -109,7 +108,8 @@ public class BetaNode extends Node {
 			final Path path = pathSet.iterator().next();
 			final Node currentlyLowestNode = PathTransformation.getCurrentlyLowestNode(path);
 			final Set<Path> joinedWith = PathTransformation.getJoinedWith(path);
-			for (int i = 0; i < this.incomingEdges.length; ++i) {
+			int i;
+			for (i = 0; i < this.incomingEdges.length; ++i) {
 				final Edge edge = this.incomingEdges[i];
 				if (edge.getSourceNode() != currentlyLowestNode || used[i] == true)
 					continue;
@@ -123,6 +123,9 @@ public class BetaNode extends Node {
 				}
 				used[i] = true;
 				break;
+			}
+			if (this.incomingEdges.length == i) {
+				throw new Error("Tried to share a node with paths that do not match!");
 			}
 		}
 		PathTransformation.setJoinedWith(paths);
