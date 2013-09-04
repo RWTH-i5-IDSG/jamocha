@@ -15,7 +15,7 @@
  * limitations under the License.
  * 
  */
-package test.jamocha.engine.nodes;
+package test.jamocha.dn.nodes;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -42,7 +42,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import test.jamocha.engine.filter.FilterMockup;
+import test.jamocha.filter.FilterMockup;
 
 /**
  * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>

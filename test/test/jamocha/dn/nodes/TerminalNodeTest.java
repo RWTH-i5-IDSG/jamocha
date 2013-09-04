@@ -15,7 +15,7 @@
  * limitations under the License.
  * 
  */
-package test.jamocha.engine.nodes;
+package test.jamocha.dn.nodes;
 
 import static org.junit.Assert.fail;
 

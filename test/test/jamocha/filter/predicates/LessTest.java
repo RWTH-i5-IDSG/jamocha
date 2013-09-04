@@ -15,9 +15,14 @@
  * limitations under the License.
  * 
  */
-package test.jamocha.engine.filter.functions;
+package test.jamocha.filter.predicates;
 
-import static org.junit.Assert.assertEquals;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.lessThan;
+import static org.hamcrest.Matchers.not;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assume.assumeThat;
 
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.filter.Function;
@@ -36,7 +41,7 @@ import test.jamocha.util.TestData.LotsOfRandomLongs;
  * 
  */
 @RunWith(Theories.class)
-public class PlusTest {
+public class LessTest {
 
 	/**
 	 * @throws java.lang.Exception
@@ -46,30 +51,46 @@ public class PlusTest {
 		TODODatenkrakeFunktionen.load();
 	}
 
-	private Function plusL, plusD;
+	private Function lessL, lessD;
 
 	@Before
-	public void setUp() {
-		plusL = TODODatenkrakeFunktionen.lookup("+", SlotType.LONG,
+	public void setup() {
+		lessL = TODODatenkrakeFunktionen.lookup("<", SlotType.LONG,
 				SlotType.LONG);
-		plusD = TODODatenkrakeFunktionen.lookup("+", SlotType.DOUBLE,
+		lessD = TODODatenkrakeFunktionen.lookup("<", SlotType.DOUBLE,
 				SlotType.DOUBLE);
 	}
 
 	@Theory
-	public void testLong(@LotsOfRandomLongs
+	public void testLongPos(@LotsOfRandomLongs
 	Long left, @LotsOfRandomLongs
 	Long right) {
-		assertEquals((Long) (left + right),
-				(Long) (plusL.evaluate(left, right)));
+		assumeThat(left, is(lessThan(right)));
+		assertTrue((Boolean) lessL.evaluate(left, right));
 	}
 
 	@Theory
-	public void testDouble(@LotsOfRandomDoubles
+	public void testLongNeg(@LotsOfRandomLongs
+	Long left, @LotsOfRandomLongs
+	Long right) {
+		assumeThat(left, is(not(lessThan(right))));
+		assertFalse((Boolean) lessL.evaluate(left, right));
+	}
+
+	@Theory
+	public void testDoublePos(@LotsOfRandomDoubles
 	Double left, @LotsOfRandomDoubles
 	Double right) {
-		assertEquals((Double) (left + right),
-				(Double) (plusD.evaluate(left, right)));
+		assumeThat(left, is(lessThan(right)));
+		assertTrue((Boolean) lessD.evaluate(left, right));
+	}
+
+	@Theory
+	public void testDoubleNeg(@LotsOfRandomDoubles
+	Double left, @LotsOfRandomDoubles
+	Double right) {
+		assumeThat(left, is(not(lessThan(right))));
+		assertFalse((Boolean) lessD.evaluate(left, right));
 	}
 
 }

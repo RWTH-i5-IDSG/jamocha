@@ -15,7 +15,7 @@
  * limitations under the License.
  * 
  */
-package test.jamocha.engine.filter;
+package test.jamocha.filter;
 
 /**
  * @author Kai Schwarz <kai.schwarz@rwth-aachen.de>
@@ -26,12 +26,12 @@ import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
-@SuiteClasses({ test.jamocha.engine.filter.FilterMockup.FilterMockupTest.class,
-		test.jamocha.engine.filter.predicates.AndTest.class,
-		test.jamocha.engine.filter.predicates.EqualsTest.class,
-		test.jamocha.engine.filter.predicates.LessTest.class,
-		test.jamocha.engine.filter.functions.PlusTest.class,
-		test.jamocha.engine.filter.functions.MinusTest.class })
+@SuiteClasses({ test.jamocha.filter.FilterMockup.FilterMockupTest.class,
+		test.jamocha.filter.predicates.AndTest.class,
+		test.jamocha.filter.predicates.EqualsTest.class,
+		test.jamocha.filter.predicates.LessTest.class,
+		test.jamocha.filter.functions.PlusTest.class,
+		test.jamocha.filter.functions.MinusTest.class })
 public class AllFilterTests {
 
 }

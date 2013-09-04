@@ -15,7 +15,7 @@
  * limitations under the License.
  * 
  */
-package test.jamocha.engine.filter.functions;
+package test.jamocha.filter.functions;
 
 import static org.junit.Assert.assertEquals;
 

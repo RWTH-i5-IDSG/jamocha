@@ -15,7 +15,7 @@
  * limitations under the License.
  * 
  */
-package test.jamocha.engine.filter.predicates;
+package test.jamocha.filter.predicates;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.not;

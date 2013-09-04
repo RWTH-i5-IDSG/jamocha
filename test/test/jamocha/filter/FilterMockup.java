@@ -15,7 +15,7 @@
  * limitations under the License.
  * 
  */
-package test.jamocha.engine.filter;
+package test.jamocha.filter;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -82,7 +82,7 @@ public class FilterMockup extends Filter {
 	public static class FilterMockupTest {
 		/**
 		 * Test method for
-		 * {@link test.jamocha.engine.filter.FilterMockup#alwaysTrue()} .
+		 * {@link test.jamocha.filter.FilterMockup#alwaysTrue()} .
 		 */
 		@Test
 		public void testAlwaysTrue() {
@@ -102,7 +102,7 @@ public class FilterMockup extends Filter {
 
 		/**
 		 * Test method for
-		 * {@link test.jamocha.engine.filter.FilterMockup#alwaysFalse()} .
+		 * {@link test.jamocha.filter.FilterMockup#alwaysFalse()} .
 		 */
 		@Test
 		public void testAlwaysFalse() {

@@ -1,4 +1,4 @@
-package test.jamocha.engine.nodes;
+package test.jamocha.dn.nodes;
 
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
