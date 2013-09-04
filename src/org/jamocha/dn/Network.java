@@ -31,6 +31,9 @@ import org.jamocha.dn.nodes.Node;
  * 
  * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
  * 
+ * @see MemoryFactory
+ * @see Scheduler
+ * @see Node
  */
 
 @Getter
