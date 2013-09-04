@@ -15,22 +15,50 @@
 package org.jamocha.dn.memory;
 
 /**
- * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+ * A Template is an array of {@link SlotType slot types}. Facts always comply with some Template.
  * 
+ * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+ * @see SlotType
+ * @see Fact
  */
 
 public class Template {
 	final SlotType slots[];
 
+	/**
+	 * Template holding exactly one {@link SlotType#STRING} type.
+	 */
 	final public static Template STRING = new Template(SlotType.STRING);
+	/**
+	 * Template holding exactly one {@link SlotType#BOOLEAN} type.
+	 */
 	final public static Template BOOLEAN = new Template(SlotType.BOOLEAN);
+	/**
+	 * Template holding exactly one {@link SlotType#DOUBLE} type.
+	 */
 	final public static Template DOUBLE = new Template(SlotType.DOUBLE);
+	/**
+	 * Template holding exactly one {@link SlotType#LONG} type.
+	 */
 	final public static Template LONG = new Template(SlotType.LONG);
 
+	/**
+	 * Constructs a template holding the given {@link SlotType slot types}.
+	 * 
+	 * @param slots
+	 *            {@link SlotType slot types} to hold
+	 */
 	public Template(final SlotType... slots) {
 		this.slots = slots;
 	}
 
+	/**
+	 * Gets the {@link SlotType} corresponding to the position specified by the given index.
+	 * 
+	 * @param index
+	 *            position in the template
+	 * @return {@link SlotType} corresponding to the position specified by the given index
+	 */
 	public SlotType getSlotsType(int index) {
 		return slots[index];
 	}

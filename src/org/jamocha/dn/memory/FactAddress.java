@@ -15,6 +15,11 @@
 
 package org.jamocha.dn.memory;
 
+/**
+ * Marker interface for an address pointing to a Fact in the memory.
+ * 
+ * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+ */
 public interface FactAddress {
 
 }

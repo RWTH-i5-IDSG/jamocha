@@ -14,8 +14,32 @@
  */
 package org.jamocha.dn.memory;
 
+/**
+ * Enum holding all types this system supports.
+ * 
+ * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+ */
 public enum SlotType {
-	LONG, DOUBLE, STRING, BOOLEAN;
+	/**
+	 * Enum value for integer types.
+	 */
+	LONG,
+	/**
+	 * Enum value for floating point types.
+	 */
+	DOUBLE,
+	/**
+	 * Enum value for string types.
+	 */
+	STRING,
+	/**
+	 * Enum value for boolean types.
+	 */
+	BOOLEAN;
 
-	public static SlotType[] empty = new SlotType[] {};
+	/**
+	 * Static instance of an empty array of types. Can e.g. be used by functions without parameters
+	 * to specify the parameter types.
+	 */
+	final public static SlotType[] empty = new SlotType[] {};
 }

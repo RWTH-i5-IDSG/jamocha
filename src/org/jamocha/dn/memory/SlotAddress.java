@@ -15,9 +15,19 @@
 package org.jamocha.dn.memory;
 
 /**
- * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+ * Interface for addresses identifying a slot in a fact.
  * 
+ * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+ * @see Template
+ * @see SlotType
  */
 public interface SlotAddress {
+	/**
+	 * Gets the {@link SlotType} of the slot this address identifies.
+	 * 
+	 * @param template
+	 *            the {@link Template} this {@link SlotAddress} is valid for
+	 * @return the {@link SlotType} of the slot this address identifies
+	 */
 	public SlotType getSlotType(final Template template);
 }

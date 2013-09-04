@@ -17,8 +17,10 @@ package org.jamocha.dn.memory;
 import lombok.Getter;
 
 /**
- * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+ * Storage class for facts entering the network.
  * 
+ * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+ * @see Template
  */
 @Getter
 public class Fact {
