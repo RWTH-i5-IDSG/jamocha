@@ -22,6 +22,7 @@ import java.util.Map.Entry;
 import org.jamocha.dn.Network;
 import org.jamocha.dn.memory.FactAddress;
 import org.jamocha.dn.memory.MemoryHandlerTemp;
+import org.jamocha.filter.Path;
 
 /**
  * 
@@ -75,7 +76,7 @@ public class TerminalNode extends BetaNode {
 
 	}
 
-	public TerminalNode(final Network network) {
+	public TerminalNode(final Network network, Path... paths) {
 		super(network, null);
 		// FIXME TerminalNode constructor
 	}
@@ -84,5 +85,9 @@ public class TerminalNode extends BetaNode {
 	protected EdgeImpl newEdge(Node source) {
 		return new TerminalEdgeImpl(network, source, this);
 	}
-
+	
+	protected void acceptEdgeToChild(final Edge edgeToChild) {
+		throw new Error("Terminal nodes are supposed to be the end of a network, so no nodes can be connected to them.");
+	}
+	
 }

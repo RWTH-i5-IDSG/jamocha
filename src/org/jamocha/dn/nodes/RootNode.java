@@ -20,13 +20,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.jamocha.dn.Network;
 import org.jamocha.dn.memory.Fact;
 import org.jamocha.dn.memory.Template;
+import org.jamocha.filter.Path;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+ * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
  */
-public class RootNode {
+public class RootNode { // TODO fix RootNode to only support one OTN per Template
 
 	private class TemplateToInput {
 
@@ -95,5 +98,15 @@ public class RootNode {
 
 	public void removeOTN(final ObjectTypeNode otn) {
 		this.templateToInput.remove(otn.template, otn);
+	}
+	
+	public void addPaths(Network network, Path... paths) {
+		for (Path path : paths) {
+			final List<ObjectTypeNode> otns = templateToInput.get(path.getTemplate());
+			if (otns != null && otns.size() > 0)
+				otns.get(0).shareNode(path);
+			else
+				this.addOTN(new ObjectTypeNode(network, path));
+		}
 	}
 }

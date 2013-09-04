@@ -14,12 +14,23 @@
  */
 package org.jamocha.dn;
 
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+
 import lombok.Getter;
 
 import org.jamocha.dn.memory.MemoryFactory;
 import org.jamocha.dn.memory.MemoryHandlerMain;
 import org.jamocha.dn.memory.MemoryHandlerTemp;
+import org.jamocha.dn.nodes.AlphaNode;
+import org.jamocha.dn.nodes.BetaNode;
 import org.jamocha.dn.nodes.Node;
+import org.jamocha.dn.nodes.Node.Edge;
+import org.jamocha.dn.nodes.RootNode;
+import org.jamocha.dn.nodes.TerminalNode;
+import org.jamocha.filter.Filter;
+import org.jamocha.filter.Path;
+import org.jamocha.filter.PathTransformation;
 
 /**
  * The Network class encapsulates the central objects for {@link MemoryFactory} and
@@ -62,6 +73,8 @@ public class Network {
 	 * @return the networks scheduler
 	 */
 	private final Scheduler scheduler;
+	
+	private final RootNode rootNode;
 
 	/**
 	 * Creates an new network object.
@@ -78,6 +91,7 @@ public class Network {
 		this.memoryFactory = memoryFactory;
 		this.tokenQueueCapacity = tokenQueueCapacity;
 		this.scheduler = scheduler;
+		this.rootNode = new RootNode();
 	}
 
 	/**
@@ -101,6 +115,42 @@ public class Network {
 	public Network() {
 		this(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(), Integer.MAX_VALUE,
 				new ThreadPoolScheduler(10));
+	}
+	
+	private boolean tryToShareNode(Filter filter, Path... paths) {
+		// TODO check if node for sharing is available
+		LinkedHashSet<Node> nodes = new LinkedHashSet<>();
+		for (Path path : paths) {
+			nodes.add(PathTransformation.getCurrentlyLowestNode(path));
+		}
+		LinkedHashSet<Node> candidates = new LinkedHashSet<>();
+		assert nodes.size() > 0;
+		Iterator<Node> i = nodes.iterator();
+		Node node = i.next();
+		for (Edge edge : node.getOutgoingEdges()) {
+			
+		}
+		for (;i.hasNext(); node = i.next()) {
+			node.getOutgoingEdges();
+		}
+		return false;
+	}
+	
+	public TerminalNode buildRule(Filter... filters) {
+		final LinkedHashSet<Path> allPaths = new LinkedHashSet<>();
+		for (Filter filter : filters) {
+			final LinkedHashSet<Path> paths = filter.gatherPaths();
+			allPaths.addAll(paths);
+			final Path[] pathArray = paths.toArray(new Path[paths.size()]);
+			this.rootNode.addPaths(this, pathArray);
+			if (!tryToShareNode(filter, pathArray))
+				if (paths.size() == 1) {
+					new AlphaNode(this, filter);
+				} else {
+					new BetaNode(this, filter);
+				}
+		}
+		return new TerminalNode(this, allPaths.toArray(new Path[allPaths.size()]));
 	}
 
 	/**
