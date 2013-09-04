@@ -22,7 +22,10 @@ import org.jamocha.dn.nodes.CouldNotAcquireLockException;
 import org.jamocha.dn.nodes.Node.Edge;
 
 /**
+ * This class contains a {@link MemoryHandlerTemp} and the {@linkplain Edge edge} it has to be processed by. The processing is triggered by a {@link #run()} call.
+ * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+ * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
  */
 @Getter
 @AllArgsConstructor
@@ -30,8 +33,19 @@ public abstract class Token {
 	final MemoryHandlerTemp temp;
 	final Edge edge;
 
+	/**
+	 * Triggers the {@linkplain Edge edge} to process the contained {@link MemoryHandlerTemp}.
+	 * 
+	 * @throws CouldNotAcquireLockException iff a required lock could not be acquired
+	 */
 	public abstract void run() throws CouldNotAcquireLockException;
 
+	/**
+	 * 
+	 * 
+	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+	 * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
+	 */
 	public static class PlusToken extends Token {
 		public PlusToken(final MemoryHandlerTemp temp, final Edge edge) {
 			super(temp, edge);
@@ -43,6 +57,11 @@ public abstract class Token {
 		}
 	}
 
+	/**
+	 * 
+	 * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
+	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+	 */
 	public static class MinusToken extends Token {
 		public MinusToken(final MemoryHandlerTemp temp, final Edge edge) {
 			super(temp, edge);
