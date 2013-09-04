@@ -290,7 +290,7 @@ public class MemoryHandlerTempTest {
 
 	/**
 	 * Test method for
-	 * {@link MemoryFactory#processTokenInAlpha(org.jamocha.dn.memory.MemoryHandlerMain, org.jamocha.dn.memory.MemoryHandlerTemp, Edge, Filter)}
+	 * {@link MemoryFactory#processTokenInAlpha(MemoryHandlerMain, MemoryHandlerTemp, Node.Edge, Filter)}
 	 * .
 	 * 
 	 * @throws CouldNotAcquireLockException
@@ -314,8 +314,7 @@ public class MemoryHandlerTempTest {
 
 	/**
 	 * Test method for
-	 * {@link MemoryFactory#newToken(org.jamocha.dn.memory.MemoryHandlerMain, Node, Fact...)}
-	 * .
+	 * {@link MemoryFactory#newToken(org.jamocha.dn.memory.MemoryHandlerMain, Node, Fact...)} .
 	 */
 	@Test
 	public void testNewToken() {
