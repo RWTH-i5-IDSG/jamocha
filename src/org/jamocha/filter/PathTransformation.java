@@ -76,7 +76,7 @@ public class PathTransformation {
 	 * 
 	 * @param path
 	 *            {@link Path path} to get the {@link Node node} for
-	 * @return {@link node} the given {@link Path path} is currently produced by
+	 * @return {@link Node node} the given {@link Path path} is currently produced by
 	 */
 	public static Node getCurrentlyLowestNode(final Path path) {
 		return getPathInfo(path).currentlyLowestNode;
@@ -112,7 +112,7 @@ public class PathTransformation {
 	 * @param path
 	 *            {@link Path path} to set the {@link Node node} for
 	 * @param currentlyLowestNode
-	 *            {@link node} the given {@link Path path} is currently produced by
+	 *            {@link Node node} the given {@link Path path} is currently produced by
 	 */
 	public static void setCurrentlyLowestNode(final Path path, final Node currentlyLowestNode) {
 		getPathInfo(path).setCurrentlyLowestNode(currentlyLowestNode);
