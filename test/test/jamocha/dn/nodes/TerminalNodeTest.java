@@ -60,15 +60,6 @@ public class TerminalNodeTest {
 	}
 
 	/**
-	 * Test method for {@link org.jamocha.dn.nodes.TerminalNode#newEdge(org.jamocha.dn.nodes.Node)}
-	 * .
-	 */
-	@Test
-	public void testNewEdge() {
-		fail("Not yet implemented"); // TODO Test
-	}
-
-	/**
 	 * Test method for
 	 * {@link org.jamocha.dn.nodes.TerminalNode#TerminalNode(org.jamocha.dn.Network)} .
 	 */
@@ -78,10 +69,10 @@ public class TerminalNodeTest {
 	}
 
 	/**
-	 * Test method for {@link org.jamocha.dn.nodes.Node#getChildren()}.
+	 * Test method for {@link org.jamocha.dn.nodes.Node#getOutgoingEdges()}.
 	 */
 	@Test
-	public void testGetChildren() {
+	public void testGetOutgoingEdges() {
 		fail("Not yet implemented"); // TODO Test
 	}
 
@@ -115,14 +106,6 @@ public class TerminalNodeTest {
 	 */
 	@Test
 	public void testEnqueue() {
-		fail("Not yet implemented"); // TODO Test
-	}
-
-	/**
-	 * Test method for {@link org.jamocha.dn.nodes.Node#getTokenQueue()}.
-	 */
-	@Test
-	public void testGetTokenQueue() {
 		fail("Not yet implemented"); // TODO Test
 	}
 

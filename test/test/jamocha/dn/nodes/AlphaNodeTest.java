@@ -79,7 +79,7 @@ public class AlphaNodeTest {
 
 	/**
 	 * Test method for
-	 * {@link org.jamocha.dn.nodes.AlphaNode#AlphaNode(org.jamocha.dn.memory.MemoryFactory, org.jamocha.filter.Filter)}
+	 * {@link org.jamocha.dn.nodes.AlphaNode#AlphaNode(Network, org.jamocha.filter.Filter)}
 	 * .
 	 */
 	@Test
@@ -88,10 +88,10 @@ public class AlphaNodeTest {
 	}
 
 	/**
-	 * Test method for {@link org.jamocha.dn.nodes.Node#getChildren()}.
+	 * Test method for {@link org.jamocha.dn.nodes.Node#getOutgoingEdges()}.
 	 */
 	@Test
-	public void testGetChildren() {
+	public void testGetOutgoingEdges() {
 		Path p1 = new Path(Template.BOOLEAN);
 		Path p2 = new Path(Template.BOOLEAN);
 		@SuppressWarnings("unused")

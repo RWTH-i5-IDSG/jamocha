@@ -71,8 +71,7 @@ public class ObjectTypeNodeTest {
 	}
 
 	/**
-	 * Test method for
-	 * {@link org.jamocha.dn.nodes.ObjectTypeNode#ObjectTypeNode(org.jamocha.dn.memory.MemoryFactory, org.jamocha.dn.memory.Template, org.jamocha.filter.Path[])}
+	 * Test method for {@link org.jamocha.dn.nodes.ObjectTypeNode#ObjectTypeNode(Network, Path...)}
 	 * .
 	 */
 	@Test
@@ -126,10 +125,10 @@ public class ObjectTypeNodeTest {
 	}
 
 	/**
-	 * Test method for {@link org.jamocha.dn.nodes.Node#getChildren()}.
+	 * Test method for {@link org.jamocha.dn.nodes.Node#getOutgoingEdges()}.
 	 */
 	@Test
-	public void testGetChildren() {
+	public void testGetOutgoingEdges() {
 		final Path p1 = new Path(Template.STRING);
 		ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, p1);
 		final Collection<Edge> outgoingEdges = otn.getOutgoingEdges();

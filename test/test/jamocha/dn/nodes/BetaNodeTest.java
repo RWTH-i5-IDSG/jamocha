@@ -84,8 +84,7 @@ public class BetaNodeTest {
 
 	/**
 	 * Test method for
-	 * {@link org.jamocha.dn.nodes.BetaNode#BetaNode(org.jamocha.dn.memory.MemoryFactory, org.jamocha.filter.Filter)}
-	 * .
+	 * {@link org.jamocha.dn.nodes.BetaNode#BetaNode(Network, org.jamocha.filter.Filter))} .
 	 */
 	@Test
 	public void testBetaNode() {
@@ -179,10 +178,10 @@ public class BetaNodeTest {
 	}
 
 	/**
-	 * Test method for {@link org.jamocha.dn.nodes.Node#getChildren()}.
+	 * Test method for {@link org.jamocha.dn.nodes.Node#getOutgoingEdges()}.
 	 */
 	@Test
-	public void testGetChildren() {
+	public void testGetOutgoingEdges() {
 		BetaNode beta = new BetaNode(Network.DEFAULTNETWORK, FilterMockup.alwaysTrue());
 		final Collection<Edge> outgoingEdges = beta.getOutgoingEdges();
 		assertNotNull(outgoingEdges);
