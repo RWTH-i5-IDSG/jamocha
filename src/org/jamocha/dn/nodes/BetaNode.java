@@ -106,7 +106,6 @@ public class BetaNode extends Node {
 			pathSet.add(path);
 		}
 		final boolean used[] = new boolean[this.incomingEdges.length];
-		PathTransformation.setJoinedWith(paths);
 		while (!pathSet.isEmpty()) {
 			final Path path = pathSet.iterator().next();
 			final Node currentlyLowestNode = PathTransformation.getCurrentlyLowestNode(path);
@@ -127,5 +126,6 @@ public class BetaNode extends Node {
 				break;
 			}
 		}
+		PathTransformation.setJoinedWith(paths);
 	}
 }
