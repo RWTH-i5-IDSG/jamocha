@@ -19,7 +19,11 @@ import org.jamocha.filter.Predicate;
 import org.jamocha.filter.TODODatenkrakeFunktionen;
 
 /**
+ * Implements the functionality of the logical binary {@code and} operator.
+ * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+ * @see Predicate
+ * @see TODODatenkrakeFunktionen
  */
 public class And {
 	static {

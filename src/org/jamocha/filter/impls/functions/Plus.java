@@ -19,8 +19,12 @@ import org.jamocha.filter.Function;
 import org.jamocha.filter.TODODatenkrakeFunktionen;
 
 /**
- * @author Kai Schwarz
+ * Implements the functionality of the binary plus ({@code +}) operator.
  * 
+ * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+ * @author Kai Schwarz <kai.schwarz@rwth-aachen.de>
+ * @see Function
+ * @see TODODatenkrakeFunktionen
  */
 public class Plus {
 	static {
