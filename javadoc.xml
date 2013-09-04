@@ -7,5 +7,7 @@
     	<delombok verbose="true" encoding="UTF-8" to="delomboked/src" from="src" />
     	<delombok verbose="true" encoding="UTF-8" to="delomboked/test" from="test" classpath="lib/junit-4.11.jar:lib/hamcrest-all-1.3.jar" sourcepath="delomboked/src" />
         <javadoc access="public" author="true" classpath="lib/junit-4.11.jar:lib/hamcrest-all-1.3.jar:lib/lombok-0.12.0.jar" destdir="javadoc" nodeprecated="false" nodeprecatedlist="false" noindex="false" nonavbar="false" notree="false" packagenames="org.jamocha, org.jamocha.*, test.jamocha, test.jamocha.*" source="1.7" sourcepath="delomboked/src:delomboked/test" splitindex="true" use="true" version="true"/>
+    	<delete dir="delomboked/src" />
+    	<delete dir="delomboked/test" />
     </target>
 </project>
