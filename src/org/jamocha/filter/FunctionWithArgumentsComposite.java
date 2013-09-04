@@ -1,19 +1,16 @@
 /*
  * Copyright 2002-2013 The Jamocha Team
  * 
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *   http://www.jamocha.org/
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
  * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
+ * 
+ * http://www.jamocha.org/
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 package org.jamocha.filter;
 
@@ -25,13 +22,12 @@ import org.jamocha.dn.memory.SlotType;
 import org.jamocha.dn.nodes.SlotInFactAddress;
 
 /**
- * This class is the composite of the {@link FunctionWithArguments} hierarchy.
- * It stores a {@link Function function} and its parameters as an array of
- * {@link FunctionWithArguments}. This way it can recursively represent any
- * combination of {@link Function functions} and their arguments. On evaluation,
- * the given parameters are split into chunks and passed to the corresponding
- * arguments. The returning values are passed to the stored function evaluating
- * the result.
+ * This class is the composite of the {@link FunctionWithArguments} hierarchy. It stores a
+ * {@link Function function} and its parameters as an array of {@link FunctionWithArguments}. This
+ * way it can recursively represent any combination of {@link Function functions} and their
+ * arguments. On evaluation, the given parameters are split into chunks and passed to the
+ * corresponding arguments. The returning values are passed to the stored function evaluating the
+ * result.
  * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  * @see Function
@@ -88,16 +84,14 @@ public class FunctionWithArgumentsComposite implements FunctionWithArguments {
 		for (int i = 0; i < args.length; i++) {
 			final FunctionWithArguments fwa = args[i];
 			final SlotType[] types = fwa.getParamTypes();
-			evaluatedArgs[i] = fwa.evaluate(Arrays.copyOfRange(params, k, k
-					+ types.length));
+			evaluatedArgs[i] = fwa.evaluate(Arrays.copyOfRange(params, k, k + types.length));
 			k += types.length;
 		}
 		return function.evaluate(evaluatedArgs);
 	}
 
 	@Override
-	public FunctionWithArguments translatePath(
-			final ArrayList<SlotInFactAddress> addressesInTarget) {
+	public FunctionWithArguments translatePath(final ArrayList<SlotInFactAddress> addressesInTarget) {
 		for (int i = 0; i < this.args.length; ++i) {
 			args[i] = args[i].translatePath(addressesInTarget);
 		}

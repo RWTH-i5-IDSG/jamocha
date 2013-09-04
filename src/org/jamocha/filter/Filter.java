@@ -1,19 +1,16 @@
 /*
  * Copyright 2002-2013 The Jamocha Team
  * 
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *   http://www.jamocha.org/
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
  * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
+ * 
+ * http://www.jamocha.org/
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 package org.jamocha.filter;
 
@@ -32,11 +29,10 @@ import org.jamocha.dn.nodes.SlotInFactAddress;
 import org.jamocha.filter.PathLeaf.ParameterLeaf;
 
 /**
- * A Filter contains {@link FilterElement filter elements} representing atomic
- * {@link Predicate predicates} specifying the tests to be performed on data
- * according to the condition part of a rule. The order of the
- * {@link FilterElement filter elements} stored dictates the order in which the
- * affected {@link Node nodes} are joined.
+ * A Filter contains {@link FilterElement filter elements} representing atomic {@link Predicate
+ * predicates} specifying the tests to be performed on data according to the condition part of a
+ * rule. The order of the {@link FilterElement filter elements} stored dictates the order in which
+ * the affected {@link Node nodes} are joined.
  * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  * @see FilterElement
@@ -47,9 +43,8 @@ import org.jamocha.filter.PathLeaf.ParameterLeaf;
 @Getter
 public class Filter {
 	/**
-	 * Contains Predicates in an ordered list, which is processed from front to
-	 * back. Note: Hierarchy doesn't enforce the filterSteps to be Predicates,
-	 * ctor needs to do this.
+	 * Contains Predicates in an ordered list, which is processed from front to back. Note:
+	 * Hierarchy doesn't enforce the filterSteps to be Predicates, ctor needs to do this.
 	 */
 	final FilterElement filterElements[];
 
@@ -86,9 +81,8 @@ public class Filter {
 	}
 
 	/**
-	 * Constructs the filter. Checks that the given
-	 * {@link FunctionWithArguments functions with arguments} contain
-	 * {@link Predicate predicates} on the top-level.
+	 * Constructs the filter. Checks that the given {@link FunctionWithArguments functions with
+	 * arguments} contain {@link Predicate predicates} on the top-level.
 	 * 
 	 * @param predicates
 	 *            predicates to be used in the filter
@@ -107,17 +101,16 @@ public class Filter {
 	}
 
 	/**
-	 * Translates any {@link PathLeaf path leafs} into {@link ParameterLeaf
-	 * parameter leafs} and adds their {@link SlotInFactAddress
-	 * SlotInFactAddresses} to the corresponding {@link FilterElement filter
-	 * element}.
+	 * Translates any {@link PathLeaf path leafs} into {@link ParameterLeaf parameter leafs} and
+	 * adds their {@link SlotInFactAddress SlotInFactAddresses} to the corresponding
+	 * {@link FilterElement filter element}.
 	 */
 	public void translatePath() {
 		for (final FilterElement filterElement : this.filterElements) {
 			final ArrayList<SlotInFactAddress> addressesInTarget = new ArrayList<>();
 			filterElement.function.translatePath(addressesInTarget);
-			filterElement.addressesInTarget = addressesInTarget
-					.toArray(new SlotInFactAddress[addressesInTarget.size()]);
+			filterElement.addressesInTarget =
+					addressesInTarget.toArray(new SlotInFactAddress[addressesInTarget.size()]);
 		}
 	}
 
@@ -135,8 +128,7 @@ public class Filter {
 	}
 
 	/**
-	 * Counts the number of paths that originally went into this Filter for
-	 * assertion purposes.
+	 * Counts the number of paths that originally went into this Filter for assertion purposes.
 	 * 
 	 * @return the number of paths that originally went into this Filter
 	 */

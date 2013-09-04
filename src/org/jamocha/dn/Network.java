@@ -2,16 +2,14 @@
  * Copyright 2002-2013 The Jamocha Team
  * 
  * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  * 
  * http://www.jamocha.org/
  * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
 package org.jamocha.dn;
@@ -24,9 +22,8 @@ import org.jamocha.dn.memory.MemoryHandlerTemp;
 import org.jamocha.dn.nodes.Node;
 
 /**
- * The Network class encapsulates the central objects for {@link MemoryFactory}
- * and {@link Scheduler} which are required all over the whole discrimination
- * network.
+ * The Network class encapsulates the central objects for {@link MemoryFactory} and
+ * {@link Scheduler} which are required all over the whole discrimination network.
  * 
  * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
  * 
@@ -41,8 +38,8 @@ public class Network {
 	/**
 	 * -- GETTER --
 	 * 
-	 * Gets the memoryFactory to generate the nodes {@link MemoryHandlerMain}
-	 * and {@link MemoryHandlerTemp}.
+	 * Gets the memoryFactory to generate the nodes {@link MemoryHandlerMain} and
+	 * {@link MemoryHandlerTemp}.
 	 * 
 	 * @return the networks memory Factory
 	 */
@@ -51,8 +48,7 @@ public class Network {
 	/**
 	 * -- GETTER --
 	 * 
-	 * Gets the capacity of the token queues in all token processing
-	 * {@link Node nodes}.
+	 * Gets the capacity of the token queues in all token processing {@link Node nodes}.
 	 * 
 	 * @return the capacity for token queues
 	 */
@@ -61,8 +57,7 @@ public class Network {
 	/**
 	 * -- GETTER --
 	 * 
-	 * Gets the scheduler handling the dispatching of token processing to
-	 * different threads.
+	 * Gets the scheduler handling the dispatching of token processing to different threads.
 	 * 
 	 * @return the networks scheduler
 	 */
@@ -74,11 +69,9 @@ public class Network {
 	 * @param memoryFactory
 	 *            the {@link MemoryFactory} to use in the created network
 	 * @param tokenQueueCapacity
-	 *            the capacity of the token queues in all token processing
-	 *            {@link Node nodes}
+	 *            the capacity of the token queues in all token processing {@link Node nodes}
 	 * @param scheduler
-	 *            the {@link Scheduler} to handle the dispatching of token
-	 *            processing
+	 *            the {@link Scheduler} to handle the dispatching of token processing
 	 */
 	public Network(final MemoryFactory memoryFactory, int tokenQueueCapacity,
 			final Scheduler scheduler) {
@@ -88,37 +81,34 @@ public class Network {
 	}
 
 	/**
-	 * Creates an new network object with the
-	 * {@link org.jamocha.dn.memory.javaimpl default memory implementation}.
+	 * Creates an new network object with the {@link org.jamocha.dn.memory.javaimpl default memory
+	 * implementation}.
 	 * 
 	 * @param tokenQueueCapacity
-	 *            the capacity of the token queues in all token processing
-	 *            {@link Node nodes}
+	 *            the capacity of the token queues in all token processing {@link Node nodes}
 	 * @param scheduler
-	 *            the {@link Scheduler} to handle the dispatching of token
-	 *            processing
+	 *            the {@link Scheduler} to handle the dispatching of token processing
 	 */
 	public Network(int tokenQueueCapacity, final Scheduler scheduler) {
-		this(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(),
-				tokenQueueCapacity, scheduler);
+		this(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(), tokenQueueCapacity,
+				scheduler);
 	}
 
 	/**
-	 * Creates an new network object with the
-	 * {@link org.jamocha.dn.memory.javaimpl default memory implementation} and
-	 * {@link ThreadPoolScheduler scheduler}.
+	 * Creates an new network object with the {@link org.jamocha.dn.memory.javaimpl default memory
+	 * implementation} and {@link ThreadPoolScheduler scheduler}.
 	 */
 	public Network() {
-		this(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(),
-				Integer.MAX_VALUE, new ThreadPoolScheduler(10));
+		this(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(), Integer.MAX_VALUE,
+				new ThreadPoolScheduler(10));
 	}
 
 	/**
-	 * A default network object with a basic setup, used for testing and other
-	 * quick and dirty networks.
+	 * A default network object with a basic setup, used for testing and other quick and dirty
+	 * networks.
 	 */
 	public final static Network DEFAULTNETWORK = new Network(
-			org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(),
-			Integer.MAX_VALUE, new ThreadPoolScheduler(10));
+			org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(), Integer.MAX_VALUE,
+			new ThreadPoolScheduler(10));
 
 }

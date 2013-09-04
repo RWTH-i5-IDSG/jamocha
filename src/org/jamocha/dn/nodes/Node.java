@@ -1,19 +1,16 @@
 /*
  * Copyright 2002-2012 The Jamocha Team
  * 
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *   http://www.jamocha.org/
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
  * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
+ * 
+ * http://www.jamocha.org/
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 
 package org.jamocha.dn.nodes;
@@ -64,8 +61,8 @@ public abstract class Node {
 		public Node getTargetNode();
 
 		/**
-		 * Transforms an address valid for the source node of the input into the
-		 * corresponding address valid for the target node of the input.
+		 * Transforms an address valid for the source node of the input into the corresponding
+		 * address valid for the target node of the input.
 		 * 
 		 * @param addressInParent
 		 *            an address valid in the source node of the input
@@ -79,13 +76,11 @@ public abstract class Node {
 		 * @param map
 		 *            Map used for {@link Edge#localizeAddress(FactAddress)}
 		 */
-		public void setAddressMap(
-				final Map<? extends FactAddress, ? extends FactAddress> map);
+		public void setAddressMap(final Map<? extends FactAddress, ? extends FactAddress> map);
 
 		/**
-		 * Disconnects the nodeInput from the formerly connected nodes. This
-		 * will remove the input from the target node inputs as well as from the
-		 * source node children.
+		 * Disconnects the nodeInput from the formerly connected nodes. This will remove the input
+		 * from the target node inputs as well as from the source node children.
 		 * 
 		 */
 		public void disconnect();
@@ -104,8 +99,7 @@ public abstract class Node {
 		protected final Node targetNode;
 		protected Filter filter;
 
-		public EdgeImpl(final Network network, final Node sourceNode,
-				final Node targetNode) {
+		public EdgeImpl(final Network network, final Node sourceNode, final Node targetNode) {
 			this(network, sourceNode, targetNode, null);
 		}
 
@@ -194,17 +188,14 @@ public abstract class Node {
 		for (int i = 0; i < parents.length; i++) {
 			this.incomingEdges[i] = this.connectParent(parents[i]);
 		}
-		this.memory = network.getMemoryFactory().newMemoryHandlerMain(
-				incomingEdges);
+		this.memory = network.getMemoryFactory().newMemoryHandlerMain(incomingEdges);
 	}
 
-	protected Node(final Network network, final Template template,
-			final Path... paths) {
+	protected Node(final Network network, final Template template, final Path... paths) {
 		this.network = network;
 		this.tokenQueue = new TokenQueue(network);
 		this.incomingEdges = new Edge[0];
-		this.memory = network.getMemoryFactory().newMemoryHandlerMain(template,
-				paths);
+		this.memory = network.getMemoryFactory().newMemoryHandlerMain(template, paths);
 	}
 
 	public Node(final Network network, final Filter filter) {
@@ -228,21 +219,16 @@ public abstract class Node {
 			edgesAndPaths.put(edge, joinedWith);
 		}
 		incomingEdges = edges.toArray(new Edge[edges.size()]);
-		this.memory = network.getMemoryFactory().newMemoryHandlerMain(
-				incomingEdges);
+		this.memory = network.getMemoryFactory().newMemoryHandlerMain(incomingEdges);
 		// update all Paths from joinedWith to new addresses
 		for (final Edge edge : edges) {
 			final Set<Path> joinedWith = edgesAndPaths.get(edge);
 			for (final Path path : joinedWith) {
-				final FactAddress factAddressInCurrentlyLowestNode = PathTransformation
-						.getFactAddressInCurrentlyLowestNode(path);
-				PathTransformation
-						.setPathInfo(
-								path,
-								new PathInfo(
-										this,
-										edge.localizeAddress(factAddressInCurrentlyLowestNode),
-										joinedPaths));
+				final FactAddress factAddressInCurrentlyLowestNode =
+						PathTransformation.getFactAddressInCurrentlyLowestNode(path);
+				PathTransformation.setPathInfo(path,
+						new PathInfo(this, edge.localizeAddress(factAddressInCurrentlyLowestNode),
+								joinedPaths));
 			}
 		}
 		filter.translatePath();
@@ -267,8 +253,8 @@ public abstract class Node {
 	// }
 
 	/**
-	 * Called when a child is added. Defaults to adding the edge to the child to
-	 * the list of outgoing edges.
+	 * Called when a child is added. Defaults to adding the edge to the child to the list of
+	 * outgoing edges.
 	 * 
 	 * @param edgeToChild
 	 *            the edge to the child to be added
@@ -278,8 +264,8 @@ public abstract class Node {
 	}
 
 	/**
-	 * Called when a child is removed. Defaults to removing the edge to the
-	 * child from the list of outgoing edges.
+	 * Called when a child is removed. Defaults to removing the edge to the child from the list of
+	 * outgoing edges.
 	 * 
 	 * @param edgeToChild
 	 *            the edge to the child to be removed
@@ -289,12 +275,11 @@ public abstract class Node {
 	}
 
 	/**
-	 * Creates a new NodeInput which will connect this node (as the input's
-	 * target node) and the given source node (as its parent).
+	 * Creates a new NodeInput which will connect this node (as the input's target node) and the
+	 * given source node (as its parent).
 	 * 
 	 * @param source
-	 *            source node to connect to this node via a nodeInput to be
-	 *            constructed
+	 *            source node to connect to this node via a nodeInput to be constructed
 	 * @return NodeInput connecting the given source node with this node
 	 */
 	abstract protected EdgeImpl newEdge(final Node source);
@@ -317,8 +302,8 @@ public abstract class Node {
 	}
 
 	/**
-	 * Transforms an address valid for the target node of its inputs into the
-	 * corresponding address valid for the source node of its input.
+	 * Transforms an address valid for the target node of its inputs into the corresponding address
+	 * valid for the source node of its input.
 	 * 
 	 * @param localMemoryFactAddress
 	 *            an address valid in the current node

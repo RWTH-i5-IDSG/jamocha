@@ -1,19 +1,16 @@
 /*
  * Copyright 2002-2013 The Jamocha Team
  * 
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *   http://www.jamocha.org/
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
  * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
+ * 
+ * http://www.jamocha.org/
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 package test.jamocha.dn.memory.javaimpl;
 
@@ -79,26 +76,23 @@ public class MemoryHandlerTempTest {
 
 			final int offset;
 
-			public EdgeMockup(Network network, Node sourceNode,
-					Node targetNode, int offset) {
+			public EdgeMockup(Network network, Node sourceNode, Node targetNode, int offset) {
 				super(network, sourceNode, targetNode);
 				this.offset = offset;
 			}
 
 			@Override
-			public void processPlusToken(
-					org.jamocha.dn.memory.MemoryHandlerTemp memory) {
+			public void processPlusToken(org.jamocha.dn.memory.MemoryHandlerTemp memory) {
 			}
 
 			@Override
-			public void processMinusToken(
-					org.jamocha.dn.memory.MemoryHandlerTemp memory) {
+			public void processMinusToken(org.jamocha.dn.memory.MemoryHandlerTemp memory) {
 			}
 
 			@Override
 			public FactAddress localizeAddress(FactAddress addressInParent) {
-				return fa[((org.jamocha.dn.memory.javaimpl.FactAddress) addressInParent)
-						.getIndex() + offset];
+				return fa[((org.jamocha.dn.memory.javaimpl.FactAddress) addressInParent).getIndex()
+						+ offset];
 			}
 
 			@Override
@@ -107,8 +101,7 @@ public class MemoryHandlerTempTest {
 			}
 
 			@Override
-			public void setAddressMap(
-					Map<? extends FactAddress, ? extends FactAddress> map) {
+			public void setAddressMap(Map<? extends FactAddress, ? extends FactAddress> map) {
 			}
 
 		}
@@ -140,16 +133,15 @@ public class MemoryHandlerTempTest {
 
 		@Override
 		protected EdgeImpl newEdge(Node source) {
-			EdgeImpl edge = new EdgeMockup(Network.DEFAULTNETWORK, source,
-					this, currentOffset);
+			EdgeImpl edge = new EdgeMockup(Network.DEFAULTNETWORK, source, this, currentOffset);
 			currentOffset += source.getMemory().getTemplate().length;
 			return edge;
 		}
 
 		@Override
-		public AddressPredecessor delocalizeAddress(
-				FactAddress localNetworkFactAddress) {
-			org.jamocha.dn.memory.javaimpl.FactAddress factAddress = (org.jamocha.dn.memory.javaimpl.FactAddress) localNetworkFactAddress;
+		public AddressPredecessor delocalizeAddress(FactAddress localNetworkFactAddress) {
+			org.jamocha.dn.memory.javaimpl.FactAddress factAddress =
+					(org.jamocha.dn.memory.javaimpl.FactAddress) localNetworkFactAddress;
 			int pos = 0;
 			Edge originEdge = null;
 			for (Edge edge : incomingEdges) {
@@ -163,8 +155,7 @@ public class MemoryHandlerTempTest {
 				pos += edge.getSourceNode().getMemory().getTemplate().length;
 			}
 			assert originEdge != null;
-			return new AddressPredecessor(originEdge, fa[factAddress.getIndex()
-					- pos]);
+			return new AddressPredecessor(originEdge, fa[factAddress.getIndex() - pos]);
 		}
 
 		@Override
@@ -194,14 +185,12 @@ public class MemoryHandlerTempTest {
 	 */
 	@Before
 	public void setUp() throws Exception {
-		nodeLeft = new NodeMockup(Network.DEFAULTNETWORK, 1, new Template(
-				SlotType.STRING));
-		nodeRight = new NodeMockup(Network.DEFAULTNETWORK, 1, new Template(
-				SlotType.STRING));
+		nodeLeft = new NodeMockup(Network.DEFAULTNETWORK, 1, new Template(SlotType.STRING));
+		nodeRight = new NodeMockup(Network.DEFAULTNETWORK, 1, new Template(SlotType.STRING));
 		node = new NodeMockup(Network.DEFAULTNETWORK, 1, nodeLeft, nodeRight);
 		originInput = node.getIncomingEdges()[0];
-		memoryHandlerMain = (MemoryHandlerMain) Network.DEFAULTNETWORK
-				.getMemoryFactory().newMemoryHandlerMain(
+		memoryHandlerMain =
+				(MemoryHandlerMain) Network.DEFAULTNETWORK.getMemoryFactory().newMemoryHandlerMain(
 						new Template(SlotType.STRING));
 		assert node.getIncomingEdges().length == 2;
 	}
@@ -222,18 +211,20 @@ public class MemoryHandlerTempTest {
 	 */
 	@Test
 	public void testNewBetaTempFullJoin() throws CouldNotAcquireLockException {
-		MemoryHandlerTemp token = (MemoryHandlerTemp) Network.DEFAULTNETWORK
-				.getMemoryFactory().newToken(nodeRight.getMemory(), nodeRight,
+		MemoryHandlerTemp token =
+				(MemoryHandlerTemp) Network.DEFAULTNETWORK.getMemoryFactory().newToken(
+						nodeRight.getMemory(), nodeRight,
 						new Fact(new Template(SlotType.STRING), "Fakt3"),
 						new Fact(new Template(SlotType.STRING), "Fakt4"));
 		token.releaseLock();
-		token = (MemoryHandlerTemp) Network.DEFAULTNETWORK.getMemoryFactory()
-				.newToken(nodeLeft.getMemory(), nodeLeft,
+		token =
+				(MemoryHandlerTemp) Network.DEFAULTNETWORK.getMemoryFactory().newToken(
+						nodeLeft.getMemory(), nodeLeft,
 						new Fact(new Template(SlotType.STRING), "Fakt1"),
 						new Fact(new Template(SlotType.STRING), "Fakt2"));
-		MemoryHandlerTemp token1 = (MemoryHandlerTemp) Network.DEFAULTNETWORK
-				.getMemoryFactory().processTokenInBeta(node.getMemory(), token,
-						originInput, FilterMockup.alwaysTrue());
+		MemoryHandlerTemp token1 =
+				(MemoryHandlerTemp) Network.DEFAULTNETWORK.getMemoryFactory().processTokenInBeta(
+						node.getMemory(), token, originInput, FilterMockup.alwaysTrue());
 		assertEquals(4, token1.size());
 		assertEquals(2, token1.getTemplate().length);
 		String s = (String) token1.getValue(fa[0], slotAddress, 0);
@@ -263,32 +254,33 @@ public class MemoryHandlerTempTest {
 	 */
 	@SuppressWarnings("deprecation")
 	@Test
-	public void testNewBetaTempSelectiveJoin()
-			throws CouldNotAcquireLockException {
+	public void testNewBetaTempSelectiveJoin() throws CouldNotAcquireLockException {
 		TODODatenkrakeFunktionen.load();
 		FunctionWithArguments pl1 = new PathLeaf.ParameterLeaf(SlotType.STRING);
 		FunctionWithArguments pl2 = new PathLeaf.ParameterLeaf(SlotType.STRING);
-		FunctionWithArguments faw = new FunctionWithArgumentsComposite(
-				TODODatenkrakeFunktionen.lookup("=", SlotType.STRING,
-						SlotType.STRING), pl1, pl2);
-		FilterElement fe = new FilterElement(faw, new SlotInFactAddress(
-				new org.jamocha.dn.memory.javaimpl.FactAddress(0),
-				new SlotAddress(0)), new SlotInFactAddress(
-				new org.jamocha.dn.memory.javaimpl.FactAddress(1),
-				new SlotAddress(0)));
+		FunctionWithArguments faw =
+				new FunctionWithArgumentsComposite(TODODatenkrakeFunktionen.lookup("=",
+						SlotType.STRING, SlotType.STRING), pl1, pl2);
+		FilterElement fe =
+				new FilterElement(faw, new SlotInFactAddress(
+						new org.jamocha.dn.memory.javaimpl.FactAddress(0), new SlotAddress(0)),
+						new SlotInFactAddress(new org.jamocha.dn.memory.javaimpl.FactAddress(1),
+								new SlotAddress(0)));
 		Filter filter = new Filter(new FilterElement[] { fe });
-		MemoryHandlerTemp token = (MemoryHandlerTemp) Network.DEFAULTNETWORK
-				.getMemoryFactory().newToken(nodeRight.getMemory(), nodeRight,
+		MemoryHandlerTemp token =
+				(MemoryHandlerTemp) Network.DEFAULTNETWORK.getMemoryFactory().newToken(
+						nodeRight.getMemory(), nodeRight,
 						new Fact(new Template(SlotType.STRING), "Fakt1"),
 						new Fact(new Template(SlotType.STRING), "Fakt3"));
 		token.releaseLock();
-		token = (MemoryHandlerTemp) Network.DEFAULTNETWORK.getMemoryFactory()
-				.newToken(nodeLeft.getMemory(), nodeLeft,
+		token =
+				(MemoryHandlerTemp) Network.DEFAULTNETWORK.getMemoryFactory().newToken(
+						nodeLeft.getMemory(), nodeLeft,
 						new Fact(new Template(SlotType.STRING), "Fakt1"),
 						new Fact(new Template(SlotType.STRING), "Fakt2"));
-		MemoryHandlerTemp token1 = (MemoryHandlerTemp) Network.DEFAULTNETWORK
-				.getMemoryFactory().processTokenInBeta(node.getMemory(), token,
-						originInput, filter);
+		MemoryHandlerTemp token1 =
+				(MemoryHandlerTemp) Network.DEFAULTNETWORK.getMemoryFactory().processTokenInBeta(
+						node.getMemory(), token, originInput, filter);
 		assertEquals(1, token1.size());
 		assertEquals(2, token1.getTemplate().length);
 		assertEquals("Fakt1", (String) token1.getValue(fa[0], slotAddress, 0));
@@ -304,17 +296,17 @@ public class MemoryHandlerTempTest {
 	 */
 	@Test
 	public void testNewAlphaTemp() throws CouldNotAcquireLockException {
-		MemoryHandlerTemp token = (MemoryHandlerTemp) Network.DEFAULTNETWORK
-				.getMemoryFactory().newToken(memoryHandlerMain, node,
-						new Fact(new Template(SlotType.STRING), "Test"));
-		MemoryHandlerTemp memoryTempHandler = (MemoryHandlerTemp) Network.DEFAULTNETWORK
-				.getMemoryFactory().processTokenInAlpha(memoryHandlerMain,
-						token, node.getIncomingEdges()[0],
+		MemoryHandlerTemp token =
+				(MemoryHandlerTemp) Network.DEFAULTNETWORK.getMemoryFactory().newToken(
+						memoryHandlerMain, node, new Fact(new Template(SlotType.STRING), "Test"));
+		MemoryHandlerTemp memoryTempHandler =
+				(MemoryHandlerTemp) Network.DEFAULTNETWORK.getMemoryFactory().processTokenInAlpha(
+						memoryHandlerMain, token, node.getIncomingEdges()[0],
 						FilterMockup.alwaysTrue());
 		assertEquals(1, memoryTempHandler.size());
-		memoryTempHandler = (MemoryHandlerTemp) Network.DEFAULTNETWORK
-				.getMemoryFactory().processTokenInAlpha(memoryHandlerMain,
-						token, node.getIncomingEdges()[0],
+		memoryTempHandler =
+				(MemoryHandlerTemp) Network.DEFAULTNETWORK.getMemoryFactory().processTokenInAlpha(
+						memoryHandlerMain, token, node.getIncomingEdges()[0],
 						FilterMockup.alwaysFalse());
 		assertEquals(0, memoryTempHandler.size());
 	}
@@ -328,47 +320,45 @@ public class MemoryHandlerTempTest {
 	 */
 	@Test
 	public void testNewToken() throws InterruptedException {
-		MemoryHandlerTemp memoryHandlerTemp = (MemoryHandlerTemp) Network.DEFAULTNETWORK
-				.getMemoryFactory().newToken(memoryHandlerMain, node,
-						new Fact(new Template(SlotType.STRING), "Test"));
+		MemoryHandlerTemp memoryHandlerTemp =
+				(MemoryHandlerTemp) Network.DEFAULTNETWORK.getMemoryFactory().newToken(
+						memoryHandlerMain, node, new Fact(new Template(SlotType.STRING), "Test"));
 		assertNotNull(memoryHandlerTemp);
 	}
 
 	/**
-	 * Test method for
-	 * {@link org.jamocha.dn.memory.javaimpl.MemoryHandlerTemp#size()}.
+	 * Test method for {@link org.jamocha.dn.memory.javaimpl.MemoryHandlerTemp#size()}.
 	 * 
 	 * @throws InterruptedException
 	 */
 	@Test
 	public void testSize() throws InterruptedException {
-		MemoryHandlerTemp memoryHandlerTemp = (MemoryHandlerTemp) Network.DEFAULTNETWORK
-				.getMemoryFactory().newToken(memoryHandlerMain, node,
-						new Fact(new Template(SlotType.STRING), "Test"));
+		MemoryHandlerTemp memoryHandlerTemp =
+				(MemoryHandlerTemp) Network.DEFAULTNETWORK.getMemoryFactory().newToken(
+						memoryHandlerMain, node, new Fact(new Template(SlotType.STRING), "Test"));
 		assertNotNull(memoryHandlerTemp);
 		assertEquals(1, memoryHandlerTemp.size());
 	}
 
 	/**
-	 * Test method for
-	 * {@link org.jamocha.dn.memory.javaimpl.MemoryHandlerTemp#releaseLock()} .
+	 * Test method for {@link org.jamocha.dn.memory.javaimpl.MemoryHandlerTemp#releaseLock()} .
 	 * 
 	 * @throws InterruptedException
 	 */
 	@Test
 	public void testReleaseLock() throws InterruptedException {
-		MemoryHandlerTemp memoryHandlerTemp = (MemoryHandlerTemp) Network.DEFAULTNETWORK
-				.getMemoryFactory().newToken(memoryHandlerMain, node,
-						new Fact(new Template(SlotType.STRING), "Test"));
+		MemoryHandlerTemp memoryHandlerTemp =
+				(MemoryHandlerTemp) Network.DEFAULTNETWORK.getMemoryFactory().newToken(
+						memoryHandlerMain, node, new Fact(new Template(SlotType.STRING), "Test"));
 		assertEquals(0, memoryHandlerMain.size());
 		memoryHandlerTemp.releaseLock();
 		assertEquals(1, memoryHandlerMain.size());
 		memoryHandlerTemp.releaseLock();
 		assertEquals(1, memoryHandlerMain.size());
 		Node node5 = new NodeMockup(Network.DEFAULTNETWORK, 5);
-		memoryHandlerTemp = (MemoryHandlerTemp) Network.DEFAULTNETWORK
-				.getMemoryFactory().newToken(memoryHandlerMain, node5,
-						new Fact(new Template(SlotType.STRING), "Test"));
+		memoryHandlerTemp =
+				(MemoryHandlerTemp) Network.DEFAULTNETWORK.getMemoryFactory().newToken(
+						memoryHandlerMain, node5, new Fact(new Template(SlotType.STRING), "Test"));
 		assertEquals(1, memoryHandlerMain.size());
 		memoryHandlerTemp.releaseLock();
 		assertEquals(1, memoryHandlerMain.size());
@@ -391,12 +381,11 @@ public class MemoryHandlerTempTest {
 	 */
 	@Test
 	public void testGetValue() throws InterruptedException {
-		MemoryHandlerTemp memoryHandlerTemp = (MemoryHandlerTemp) Network.DEFAULTNETWORK
-				.getMemoryFactory().newToken(memoryHandlerMain, node,
-						new Fact(new Template(SlotType.STRING), "Test"));
+		MemoryHandlerTemp memoryHandlerTemp =
+				(MemoryHandlerTemp) Network.DEFAULTNETWORK.getMemoryFactory().newToken(
+						memoryHandlerMain, node, new Fact(new Template(SlotType.STRING), "Test"));
 		assertNotNull(memoryHandlerTemp);
-		assertEquals("Test",
-				memoryHandlerTemp.getValue(factAddress, slotAddress, 0));
+		assertEquals("Test", memoryHandlerTemp.getValue(factAddress, slotAddress, 0));
 	}
 
 	/**
@@ -408,9 +397,9 @@ public class MemoryHandlerTempTest {
 	 */
 	@Test(expected = IndexOutOfBoundsException.class)
 	public void testGetValueRowOutOfBounds() throws InterruptedException {
-		MemoryHandlerTemp memoryHandlerTemp = (MemoryHandlerTemp) Network.DEFAULTNETWORK
-				.getMemoryFactory().newToken(memoryHandlerMain, node,
-						new Fact(new Template(SlotType.STRING), "Test"));
+		MemoryHandlerTemp memoryHandlerTemp =
+				(MemoryHandlerTemp) Network.DEFAULTNETWORK.getMemoryFactory().newToken(
+						memoryHandlerMain, node, new Fact(new Template(SlotType.STRING), "Test"));
 		assertNotNull(memoryHandlerTemp);
 		memoryHandlerTemp.getValue(factAddress, slotAddress, 1);
 	}
@@ -424,12 +413,11 @@ public class MemoryHandlerTempTest {
 	 */
 	@Test(expected = IndexOutOfBoundsException.class)
 	public void testGetValueSlotOutOfBounds() throws InterruptedException {
-		MemoryHandlerTemp memoryHandlerTemp = (MemoryHandlerTemp) Network.DEFAULTNETWORK
-				.getMemoryFactory().newToken(memoryHandlerMain, node,
-						new Fact(new Template(SlotType.STRING), "Test"));
+		MemoryHandlerTemp memoryHandlerTemp =
+				(MemoryHandlerTemp) Network.DEFAULTNETWORK.getMemoryFactory().newToken(
+						memoryHandlerMain, node, new Fact(new Template(SlotType.STRING), "Test"));
 		assertNotNull(memoryHandlerTemp);
-		FactAddress factAddress1 = new org.jamocha.dn.memory.javaimpl.FactAddress(
-				1);
+		FactAddress factAddress1 = new org.jamocha.dn.memory.javaimpl.FactAddress(1);
 		memoryHandlerTemp.getValue(factAddress1, slotAddress, 0);
 	}
 
@@ -442,9 +430,9 @@ public class MemoryHandlerTempTest {
 	 */
 	@Test(expected = IndexOutOfBoundsException.class)
 	public void testGetValueFactOutOfBounds() throws InterruptedException {
-		MemoryHandlerTemp memoryHandlerTemp = (MemoryHandlerTemp) Network.DEFAULTNETWORK
-				.getMemoryFactory().newToken(memoryHandlerMain, node,
-						new Fact(new Template(SlotType.STRING), "Test"));
+		MemoryHandlerTemp memoryHandlerTemp =
+				(MemoryHandlerTemp) Network.DEFAULTNETWORK.getMemoryFactory().newToken(
+						memoryHandlerMain, node, new Fact(new Template(SlotType.STRING), "Test"));
 		assertNotNull(memoryHandlerTemp);
 		SlotAddress slotAddress1 = new SlotAddress(1);
 		memoryHandlerTemp.getValue(factAddress, slotAddress1, 0);

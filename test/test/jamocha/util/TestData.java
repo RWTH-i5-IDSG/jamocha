@@ -1,19 +1,16 @@
 /*
  * Copyright 2002-2013 The Jamocha Team
  * 
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *   http://www.jamocha.org/
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
  * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
+ * 
+ * http://www.jamocha.org/
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 package test.jamocha.util;
 
@@ -29,14 +26,12 @@ import org.junit.experimental.theories.ParametersSuppliedBy;
 import org.junit.experimental.theories.PotentialAssignment;
 
 /**
- * Class that has multiple ParameterSupplier to supply test data for Theory
- * tests.
+ * Class that has multiple ParameterSupplier to supply test data for Theory tests.
  * <p>
- * The Interfaces have @RetentionPolicy.RUNTIME and @ParametersSuppliedBy()
- * annotations and define a new annotation which can be used in the Theory
- * parameter definition to get the data from the \@ParameterSuppliedBy class
- * into the Theory. The classes implementing ParameterSupplier implement the
- * interface and return test data in a list.
+ * The Interfaces have @RetentionPolicy.RUNTIME and @ParametersSuppliedBy() annotations and define a
+ * new annotation which can be used in the Theory parameter definition to get the data from the
+ * \@ParameterSuppliedBy class into the Theory. The classes implementing ParameterSupplier implement
+ * the interface and return test data in a list.
  * <p>
  * All combinations of input are tested on a Theory.
  * 
@@ -52,35 +47,33 @@ public class TestData {
 	/*
 	 * Interfaces
 	 */
-	
+
 	@Retention(RetentionPolicy.RUNTIME)
 	@ParametersSuppliedBy(RandomStuffSupplier.class)
 	public @interface SomeStuff {
 	}
-	
+
 	/*
 	 * Supplier
 	 */
-	
-	// List of random stuff 
-		public static class RandomStuffSupplier extends ParameterSupplier {
 
-			@Override
-			public List<PotentialAssignment> getValueSources(
-					ParameterSignature signature) {
-				ArrayList<PotentialAssignment> list = new ArrayList<>();
-				list.add(PotentialAssignment.forValue("", new Object[]{-100L, 50L, 1L, 11L}));
-				list.add(PotentialAssignment.forValue("", new Object[]{null}));
-				list.add(PotentialAssignment.forValue("", new Object[]{"OMGWTFBBQ", "TEST test!!!"}));
-				list.add(PotentialAssignment.forValue("", new Object[]{-100L}));
-				list.add(PotentialAssignment.forValue("", new Object[]{0.3562}));
-				list.add(PotentialAssignment.forValue("", new Object[]{}));
-				return list;
-			}
+	// List of random stuff
+	public static class RandomStuffSupplier extends ParameterSupplier {
 
+		@Override
+		public List<PotentialAssignment> getValueSources(ParameterSignature signature) {
+			ArrayList<PotentialAssignment> list = new ArrayList<>();
+			list.add(PotentialAssignment.forValue("", new Object[] { -100L, 50L, 1L, 11L }));
+			list.add(PotentialAssignment.forValue("", new Object[] { null }));
+			list.add(PotentialAssignment.forValue("", new Object[] { "OMGWTFBBQ", "TEST test!!!" }));
+			list.add(PotentialAssignment.forValue("", new Object[] { -100L }));
+			list.add(PotentialAssignment.forValue("", new Object[] { 0.3562 }));
+			list.add(PotentialAssignment.forValue("", new Object[] {}));
+			return list;
 		}
 
-	
+	}
+
 	/*
 	 * **************LONGS**************
 	 */
@@ -107,8 +100,7 @@ public class TestData {
 	public static class RandomLongsSupplier extends ParameterSupplier {
 
 		@Override
-		public List<PotentialAssignment> getValueSources(
-				ParameterSignature signature) {
+		public List<PotentialAssignment> getValueSources(ParameterSignature signature) {
 			ArrayList<PotentialAssignment> list = new ArrayList<>();
 			Random randomGen = new Random();
 			for (int i = 0; i < 20; ++i) {
@@ -123,8 +115,7 @@ public class TestData {
 	public static class SomeLongsSupplier extends ParameterSupplier {
 
 		@Override
-		public List<PotentialAssignment> getValueSources(
-				ParameterSignature param) {
+		public List<PotentialAssignment> getValueSources(ParameterSignature param) {
 			ArrayList<PotentialAssignment> list = new ArrayList<>();
 			list.add(PotentialAssignment.forValue("", -100L));
 			list.add(PotentialAssignment.forValue("", -71L));
@@ -192,13 +183,11 @@ public class TestData {
 	public static class RandomDoublesSupplier extends ParameterSupplier {
 
 		@Override
-		public List<PotentialAssignment> getValueSources(
-				ParameterSignature signature) {
+		public List<PotentialAssignment> getValueSources(ParameterSignature signature) {
 			ArrayList<PotentialAssignment> list = new ArrayList<>();
 			Random randomGen = new Random();
 			for (int i = 0; i < 20; ++i) {
-				list.add(PotentialAssignment.forValue("",
-						randomGen.nextGaussian()));
+				list.add(PotentialAssignment.forValue("", randomGen.nextGaussian()));
 			}
 			return list;
 		}
@@ -209,8 +198,7 @@ public class TestData {
 	public static class SomeDoublesSupplier extends ParameterSupplier {
 
 		@Override
-		public List<PotentialAssignment> getValueSources(
-				ParameterSignature param) {
+		public List<PotentialAssignment> getValueSources(ParameterSignature param) {
 			ArrayList<PotentialAssignment> list = new ArrayList<>();
 			list.add(PotentialAssignment.forValue("", -100.394903490283610835));
 			list.add(PotentialAssignment.forValue("", -71.));
@@ -273,8 +261,7 @@ public class TestData {
 	public static class SomeStringsSupplier extends ParameterSupplier {
 
 		@Override
-		public List<PotentialAssignment> getValueSources(
-				ParameterSignature param) {
+		public List<PotentialAssignment> getValueSources(ParameterSignature param) {
 			ArrayList<PotentialAssignment> list = new ArrayList<>();
 			list.add(PotentialAssignment.forValue("", "foo"));
 			list.add(PotentialAssignment.forValue("", "bar"));
@@ -286,10 +273,8 @@ public class TestData {
 			list.add(PotentialAssignment.forValue("", "whut?"));
 			list.add(PotentialAssignment.forValue("", "OMGWTFBBQ"));
 			list.add(PotentialAssignment.forValue("", "muahhahahahahahahaha"));
-			list.add(PotentialAssignment.forValue("",
-					"ijrobbeoubgt3t9hboebalnpajtih39"));
-			list.add(PotentialAssignment.forValue("",
-					"ijrobbeoubgt3t9hboebalnpajtih39"));
+			list.add(PotentialAssignment.forValue("", "ijrobbeoubgt3t9hboebalnpajtih39"));
+			list.add(PotentialAssignment.forValue("", "ijrobbeoubgt3t9hboebalnpajtih39"));
 			return list;
 		}
 

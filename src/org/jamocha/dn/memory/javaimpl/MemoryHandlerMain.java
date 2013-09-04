@@ -1,19 +1,16 @@
 /*
  * Copyright 2002-2013 The Jamocha Team
  * 
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *   http://www.jamocha.org/
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
  * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
+ * 
+ * http://www.jamocha.org/
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 package org.jamocha.dn.memory.javaimpl;
 
@@ -33,8 +30,7 @@ import org.jamocha.filter.PathTransformation;
  * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
  * 
  */
-public class MemoryHandlerMain implements
-		org.jamocha.dn.memory.MemoryHandlerMain {
+public class MemoryHandlerMain implements org.jamocha.dn.memory.MemoryHandlerMain {
 	static final long tryLockTimeout = 1L;
 	static final TimeUnit tu = TimeUnit.SECONDS;
 
@@ -48,8 +44,7 @@ public class MemoryHandlerMain implements
 		this.addresses = new FactAddress[] { address };
 		this.template = new Template[] { template };
 		for (final Path path : paths) {
-			PathTransformation.setFactAddressInCurrentlyLowestNode(path,
-					address);
+			PathTransformation.setFactAddressInCurrentlyLowestNode(path, address);
 			PathTransformation.setJoinedWith(path);
 		}
 	}
@@ -59,13 +54,12 @@ public class MemoryHandlerMain implements
 		final ArrayList<FactAddress> addresses = new ArrayList<>();
 		for (final Edge input : inputsToBeJoined) {
 			final HashMap<FactAddress, FactAddress> fMap = new HashMap<>();
-			final MemoryHandlerMain memoryHandlerMain = (MemoryHandlerMain) input
-					.getSourceNode().getMemory();
+			final MemoryHandlerMain memoryHandlerMain =
+					(MemoryHandlerMain) input.getSourceNode().getMemory();
 			for (int i = 0; i < memoryHandlerMain.template.length; i++) {
 				final Template t = memoryHandlerMain.template[i];
 				final FactAddress oldFactAddress = memoryHandlerMain.addresses[i];
-				final FactAddress newFactAddress = new FactAddress(
-						addresses.size());
+				final FactAddress newFactAddress = new FactAddress(addresses.size());
 				fMap.put(oldFactAddress, newFactAddress);
 				template.add(t);
 				addresses.add(newFactAddress);
@@ -135,14 +129,12 @@ public class MemoryHandlerMain implements
 	}
 
 	/**
-	 * @see org.jamocha.dn.memory.MemoryHandler#getValue(FactAddress,
-	 *      SlotAddress, int)
+	 * @see org.jamocha.dn.memory.MemoryHandler#getValue(FactAddress, SlotAddress, int)
 	 */
 	@Override
 	public Object getValue(final org.jamocha.dn.memory.FactAddress address,
 			final org.jamocha.dn.memory.SlotAddress slot, final int row) {
 		return this.facts.get(row)[((org.jamocha.dn.memory.javaimpl.FactAddress) address)
-				.getIndex()]
-				.getValue((org.jamocha.dn.memory.javaimpl.SlotAddress) slot);
+				.getIndex()].getValue((org.jamocha.dn.memory.javaimpl.SlotAddress) slot);
 	}
 }

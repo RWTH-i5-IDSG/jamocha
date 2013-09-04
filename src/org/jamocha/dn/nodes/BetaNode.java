@@ -1,19 +1,16 @@
 /*
  * Copyright 2002-2012 The Jamocha Team
  * 
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *   http://www.jamocha.org/
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
  * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
+ * 
+ * http://www.jamocha.org/
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 
 package org.jamocha.dn.nodes;
@@ -46,17 +43,16 @@ public class BetaNode extends Node {
 		private Map<? extends FactAddress, ? extends FactAddress> addressMap;
 		private final LinkedList<MemoryHandlerTemp> tempMemories = new LinkedList<>();
 
-		public BetaEdgeImpl(final Network network, final Node sourceNode,
-				final Node targetNode) {
+		public BetaEdgeImpl(final Network network, final Node sourceNode, final Node targetNode) {
 			super(network, sourceNode, targetNode);
 		}
 
 		@Override
 		public void processPlusToken(final MemoryHandlerTemp memory)
 				throws CouldNotAcquireLockException {
-			final MemoryHandlerTemp mem = this.network.getMemoryFactory()
-					.processTokenInBeta(targetNode.memory, memory, this,
-							this.filter);
+			final MemoryHandlerTemp mem =
+					this.network.getMemoryFactory().processTokenInBeta(targetNode.memory, memory,
+							this, this.filter);
 			for (final Edge edge : targetNode.outgoingEdges) {
 				edge.getTargetNode().enqueue(new Token.PlusToken(mem, edge));
 			}
@@ -75,12 +71,10 @@ public class BetaNode extends Node {
 		}
 
 		@Override
-		public void setAddressMap(
-				final Map<? extends FactAddress, ? extends FactAddress> map) {
+		public void setAddressMap(final Map<? extends FactAddress, ? extends FactAddress> map) {
 			assert map != null;
 			addressMap = map;
-			for (final Entry<? extends FactAddress, ? extends FactAddress> entry : map
-					.entrySet()) {
+			for (final Entry<? extends FactAddress, ? extends FactAddress> entry : map.entrySet()) {
 				targetNode.delocalizeMap.put(entry.getValue(),
 						new AddressPredecessor(this, entry.getKey()));
 			}
@@ -115,21 +109,18 @@ public class BetaNode extends Node {
 		PathTransformation.setJoinedWith(paths);
 		while (!pathSet.isEmpty()) {
 			final Path path = pathSet.iterator().next();
-			final Node currentlyLowestNode = PathTransformation
-					.getCurrentlyLowestNode(path);
+			final Node currentlyLowestNode = PathTransformation.getCurrentlyLowestNode(path);
 			final Set<Path> joinedWith = PathTransformation.getJoinedWith(path);
 			for (int i = 0; i < this.incomingEdges.length; ++i) {
 				final Edge edge = this.incomingEdges[i];
-				if (edge.getSourceNode() != currentlyLowestNode
-						|| used[i] == true)
+				if (edge.getSourceNode() != currentlyLowestNode || used[i] == true)
 					continue;
 				for (final Path join : joinedWith) {
-					final FactAddress localizedAddress = edge
-							.localizeAddress(PathTransformation
+					final FactAddress localizedAddress =
+							edge.localizeAddress(PathTransformation
 									.getFactAddressInCurrentlyLowestNode(join));
 					PathTransformation.setCurrentlyLowestNode(join, this);
-					PathTransformation.setFactAddressInCurrentlyLowestNode(
-							join, localizedAddress);
+					PathTransformation.setFactAddressInCurrentlyLowestNode(join, localizedAddress);
 					pathSet.remove(join);
 				}
 				used[i] = true;

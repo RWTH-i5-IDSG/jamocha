@@ -5,6 +5,5 @@ public interface MemoryHandler {
 
 	public Template[] getTemplate();
 
-	public Object getValue(final FactAddress address, final SlotAddress slot,
-			final int row);
+	public Object getValue(final FactAddress address, final SlotAddress slot, final int row);
 }

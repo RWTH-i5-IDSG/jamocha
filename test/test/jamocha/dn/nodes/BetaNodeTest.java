@@ -1,19 +1,16 @@
 /*
  * Copyright 2002-2013 The Jamocha Team
  * 
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *   http://www.jamocha.org/
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
  * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
+ * 
+ * http://www.jamocha.org/
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 package test.jamocha.dn.nodes;
 
@@ -93,8 +90,7 @@ public class BetaNodeTest {
 	@Test
 	public void testBetaNode() {
 		@SuppressWarnings("unused")
-		BetaNode beta = new BetaNode(Network.DEFAULTNETWORK,
-				FilterMockup.alwaysTrue());
+		BetaNode beta = new BetaNode(Network.DEFAULTNETWORK, FilterMockup.alwaysTrue());
 	}
 
 	/**
@@ -105,10 +101,8 @@ public class BetaNodeTest {
 		Path p1 = new Path(Template.STRING);
 		Path p2 = new Path(Template.STRING);
 		Path p3 = new Path(Template.STRING);
-		ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, p1, p2,
-				p3);
-		BetaNode beta = new BetaNode(Network.DEFAULTNETWORK, new FilterMockup(
-				true, p1, p2));
+		ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, p1, p2, p3);
+		BetaNode beta = new BetaNode(Network.DEFAULTNETWORK, new FilterMockup(true, p1, p2));
 		Edge[] incomingEdges = beta.getIncomingEdges();
 		assertEquals(2, incomingEdges.length);
 		assertEquals(otn, incomingEdges[0].getSourceNode());
@@ -117,8 +111,7 @@ public class BetaNodeTest {
 		assertSame(beta, PathTransformation.getCurrentlyLowestNode(p1));
 		assertSame(beta, PathTransformation.getCurrentlyLowestNode(p2));
 		assertSame(otn, PathTransformation.getCurrentlyLowestNode(p3));
-		BetaNode beta2 = new BetaNode(Network.DEFAULTNETWORK, new FilterMockup(
-				true, p1, p3));
+		BetaNode beta2 = new BetaNode(Network.DEFAULTNETWORK, new FilterMockup(true, p1, p3));
 		incomingEdges = beta2.getIncomingEdges();
 		assertEquals(2, incomingEdges.length);
 		assertEquals(beta, incomingEdges[0].getSourceNode());
@@ -141,10 +134,9 @@ public class BetaNodeTest {
 		Path p6 = new Path(Template.STRING);
 		Path p7 = new Path(Template.STRING);
 		Path p8 = new Path(Template.STRING);
-		ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, p1, p2,
-				p3, p4, p5, p6, p7, p8);
-		BetaNode beta = new BetaNode(Network.DEFAULTNETWORK, new FilterMockup(
-				true, p1, p2));
+		ObjectTypeNode otn =
+				new ObjectTypeNode(Network.DEFAULTNETWORK, p1, p2, p3, p4, p5, p6, p7, p8);
+		BetaNode beta = new BetaNode(Network.DEFAULTNETWORK, new FilterMockup(true, p1, p2));
 		assertSame(otn, PathTransformation.getCurrentlyLowestNode(p3));
 		assertSame(otn, PathTransformation.getCurrentlyLowestNode(p4));
 		beta.shareNode(p3, p4);
@@ -156,17 +148,14 @@ public class BetaNodeTest {
 				PathTransformation.getFactAddressInCurrentlyLowestNode(p3));
 		assertSame(PathTransformation.getFactAddressInCurrentlyLowestNode(p2),
 				PathTransformation.getFactAddressInCurrentlyLowestNode(p4));
-		BetaNode betaB = new BetaNode(Network.DEFAULTNETWORK, new FilterMockup(
-				true, p1, p3));
+		BetaNode betaB = new BetaNode(Network.DEFAULTNETWORK, new FilterMockup(true, p1, p3));
 		assertSame(betaB, PathTransformation.getCurrentlyLowestNode(p1));
 		assertSame(betaB, PathTransformation.getCurrentlyLowestNode(p2));
 		assertSame(betaB, PathTransformation.getCurrentlyLowestNode(p3));
 		assertSame(betaB, PathTransformation.getCurrentlyLowestNode(p4));
-		assertNotSame(
-				PathTransformation.getFactAddressInCurrentlyLowestNode(p1),
+		assertNotSame(PathTransformation.getFactAddressInCurrentlyLowestNode(p1),
 				PathTransformation.getFactAddressInCurrentlyLowestNode(p3));
-		assertNotSame(
-				PathTransformation.getFactAddressInCurrentlyLowestNode(p2),
+		assertNotSame(PathTransformation.getFactAddressInCurrentlyLowestNode(p2),
 				PathTransformation.getFactAddressInCurrentlyLowestNode(p4));
 		beta.shareNode(p5, p6);
 		beta.shareNode(p7, p8);
@@ -175,11 +164,9 @@ public class BetaNodeTest {
 		assertSame(betaB, PathTransformation.getCurrentlyLowestNode(p6));
 		assertSame(betaB, PathTransformation.getCurrentlyLowestNode(p7));
 		assertSame(betaB, PathTransformation.getCurrentlyLowestNode(p8));
-		assertNotSame(
-				PathTransformation.getFactAddressInCurrentlyLowestNode(p5),
+		assertNotSame(PathTransformation.getFactAddressInCurrentlyLowestNode(p5),
 				PathTransformation.getFactAddressInCurrentlyLowestNode(p7));
-		assertNotSame(
-				PathTransformation.getFactAddressInCurrentlyLowestNode(p6),
+		assertNotSame(PathTransformation.getFactAddressInCurrentlyLowestNode(p6),
 				PathTransformation.getFactAddressInCurrentlyLowestNode(p8));
 		assertSame(PathTransformation.getFactAddressInCurrentlyLowestNode(p1),
 				PathTransformation.getFactAddressInCurrentlyLowestNode(p5));
@@ -196,8 +183,7 @@ public class BetaNodeTest {
 	 */
 	@Test
 	public void testGetChildren() {
-		BetaNode beta = new BetaNode(Network.DEFAULTNETWORK,
-				FilterMockup.alwaysTrue());
+		BetaNode beta = new BetaNode(Network.DEFAULTNETWORK, FilterMockup.alwaysTrue());
 		final Collection<Edge> outgoingEdges = beta.getOutgoingEdges();
 		assertNotNull(outgoingEdges);
 		assertEquals(0, outgoingEdges.size());
@@ -208,8 +194,7 @@ public class BetaNodeTest {
 	 */
 	@Test
 	public void testGetMemory() {
-		BetaNode beta = new BetaNode(Network.DEFAULTNETWORK,
-				FilterMockup.alwaysTrue());
+		BetaNode beta = new BetaNode(Network.DEFAULTNETWORK, FilterMockup.alwaysTrue());
 		final MemoryHandlerMain memory = beta.getMemory();
 		assertNotNull(memory);
 		assertEquals(0, memory.size());
@@ -220,40 +205,28 @@ public class BetaNodeTest {
 	 */
 	@Test
 	public void testNumChildren() {
-		BetaNode beta = new BetaNode(Network.DEFAULTNETWORK,
-				FilterMockup.alwaysTrue());
+		BetaNode beta = new BetaNode(Network.DEFAULTNETWORK, FilterMockup.alwaysTrue());
 		assertEquals(0, beta.numChildren());
 	}
 
 	/**
 	 * Test method for
-	 * {@link org.jamocha.dn.nodes.Node#delocalizeAddress(org.jamocha.dn.memory.FactAddress)}
-	 * .
+	 * {@link org.jamocha.dn.nodes.Node#delocalizeAddress(org.jamocha.dn.memory.FactAddress)} .
 	 */
 	@Test
 	public void testDelocalizeAddress() {
 		final Path p1 = new Path(Template.STRING);
 		final Path p2 = new Path(Template.STRING);
 		@SuppressWarnings("unused")
-		final ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK,
-				p1, p2);
-		final FactAddress fa1 = PathTransformation
-				.getFactAddressInCurrentlyLowestNode(p1);
-		final FactAddress fa2 = PathTransformation
-				.getFactAddressInCurrentlyLowestNode(p2);
-		final BetaNode beta = new BetaNode(Network.DEFAULTNETWORK,
-				new FilterMockup(true, p1, p2));
-		assertEquals(
-				fa1,
-				beta.delocalizeAddress(
-						PathTransformation
-								.getFactAddressInCurrentlyLowestNode(p1))
+		final ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, p1, p2);
+		final FactAddress fa1 = PathTransformation.getFactAddressInCurrentlyLowestNode(p1);
+		final FactAddress fa2 = PathTransformation.getFactAddressInCurrentlyLowestNode(p2);
+		final BetaNode beta = new BetaNode(Network.DEFAULTNETWORK, new FilterMockup(true, p1, p2));
+		assertEquals(fa1,
+				beta.delocalizeAddress(PathTransformation.getFactAddressInCurrentlyLowestNode(p1))
 						.getAddress());
-		assertEquals(
-				fa2,
-				beta.delocalizeAddress(
-						PathTransformation
-								.getFactAddressInCurrentlyLowestNode(p2))
+		assertEquals(fa2,
+				beta.delocalizeAddress(PathTransformation.getFactAddressInCurrentlyLowestNode(p2))
 						.getAddress());
 	}
 
@@ -264,16 +237,14 @@ public class BetaNodeTest {
 	public void testGetIncomingEdges() {
 		Path p1 = new Path(Template.STRING);
 		Path p2 = new Path(Template.STRING);
-		ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK,
-				Template.STRING);
+		ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, Template.STRING);
 		Set<Path> joinedWith = new HashSet<>();
 		joinedWith.add(p1);
 		PathTransformation.setPathInfo(p1, new PathInfo(otn, null, joinedWith));
 		joinedWith = new HashSet<>();
 		joinedWith.add(p2);
 		PathTransformation.setPathInfo(p2, new PathInfo(otn, null, joinedWith));
-		BetaNode beta = new BetaNode(Network.DEFAULTNETWORK, new FilterMockup(
-				true, p1, p2));
+		BetaNode beta = new BetaNode(Network.DEFAULTNETWORK, new FilterMockup(true, p1, p2));
 		final Edge[] incomingEdges = beta.getIncomingEdges();
 		assertEquals(2, incomingEdges.length);
 		assertEquals(beta, incomingEdges[0].getTargetNode());

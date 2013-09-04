@@ -1,19 +1,16 @@
 /*
  * Copyright 2002-2013 The Jamocha Team
  * 
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *   http://www.jamocha.org/
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
  * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
+ * 
+ * http://www.jamocha.org/
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 package org.jamocha.filter;
 
@@ -29,12 +26,11 @@ import org.jamocha.dn.nodes.SlotInFactAddress;
 import org.jamocha.filter.Filter.FilterElement;
 
 /**
- * A parameter of a {@link Function} may be a slot of a {@link Fact}. The
- * corresponding {@link SlotAddress} and {@link Path} are stored in this class.
- * As soon as the {@link Node} representing the surrounding {@link Filter} has
- * been created, the {@link Filter} is {@link Filter#translatePath() translated}
- * and all {@link PathLeaf PathLeafs} are replaced with {@link ParameterLeaf
- * ParameterLeafs}. The class {@link PathTransformation} is used in this
+ * A parameter of a {@link Function} may be a slot of a {@link Fact}. The corresponding
+ * {@link SlotAddress} and {@link Path} are stored in this class. As soon as the {@link Node}
+ * representing the surrounding {@link Filter} has been created, the {@link Filter} is
+ * {@link Filter#translatePath() translated} and all {@link PathLeaf PathLeafs} are replaced with
+ * {@link ParameterLeaf ParameterLeafs}. The class {@link PathTransformation} is used in this
  * process.
  * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -76,18 +72,16 @@ public class PathLeaf implements FunctionWithArguments {
 
 	@Override
 	public Object evaluate(Object... params) {
-		throw new UnsupportedOperationException(
-				"Evaluate not allowed for PathLeafs!");
+		throw new UnsupportedOperationException("Evaluate not allowed for PathLeafs!");
 	}
 
 	/**
-	 * This class stores the {@link SlotType} of the represented Slot only. All
-	 * other relevant information are stored in the containing
-	 * {@link FilterElement}. A {@link PathLeaf} is translated into a
-	 * {@link ParameterLeaf} as soon as the {@link Node} representing the
+	 * This class stores the {@link SlotType} of the represented Slot only. All other relevant
+	 * information are stored in the containing {@link FilterElement}. A {@link PathLeaf} is
+	 * translated into a {@link ParameterLeaf} as soon as the {@link Node} representing the
 	 * surrounding {@link Filter} has been created. In doing so, the containing
-	 * {@link FilterElement} stores the corresponding {@link SlotInFactAddress}
-	 * in {@link FilterElement#addressesInTarget}.
+	 * {@link FilterElement} stores the corresponding {@link SlotInFactAddress} in
+	 * {@link FilterElement#addressesInTarget}.
 	 * 
 	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
 	 * @see FilterElement
@@ -138,12 +132,10 @@ public class PathLeaf implements FunctionWithArguments {
 	}
 
 	@Override
-	public ParameterLeaf translatePath(
-			final ArrayList<SlotInFactAddress> addressesInTarget) {
-		final FactAddress factAddressInCurrentlyLowestNode = PathTransformation
-				.getFactAddressInCurrentlyLowestNode(this.path);
-		addressesInTarget.add(new SlotInFactAddress(
-				factAddressInCurrentlyLowestNode, this.slot));
+	public ParameterLeaf translatePath(final ArrayList<SlotInFactAddress> addressesInTarget) {
+		final FactAddress factAddressInCurrentlyLowestNode =
+				PathTransformation.getFactAddressInCurrentlyLowestNode(this.path);
+		addressesInTarget.add(new SlotInFactAddress(factAddressInCurrentlyLowestNode, this.slot));
 		return new ParameterLeaf(getReturnType());
 	}
 
