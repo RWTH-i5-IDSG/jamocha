@@ -201,12 +201,12 @@ public class BetaNodeTest {
 	}
 
 	/**
-	 * Test method for {@link org.jamocha.dn.nodes.Node#numChildren()}.
+	 * Test method for {@link org.jamocha.dn.nodes.Node#getNumberOfOutgoingEdges()}.
 	 */
 	@Test
 	public void testNumChildren() {
 		BetaNode beta = new BetaNode(Network.DEFAULTNETWORK, FilterMockup.alwaysTrue());
-		assertEquals(0, beta.numChildren());
+		assertEquals(0, beta.getNumberOfOutgoingEdges());
 	}
 
 	/**

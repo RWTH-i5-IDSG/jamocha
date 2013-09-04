@@ -127,7 +127,7 @@ public class MemoryHandlerTempTest {
 		}
 
 		@Override
-		public int numChildren() {
+		public int getNumberOfOutgoingEdges() {
 			return numChildern;
 		};
 

@@ -71,7 +71,7 @@ public class MemoryHandlerTemp implements org.jamocha.dn.memory.MemoryHandlerTem
 			throws CouldNotAcquireLockException {
 		return new MemoryHandlerTemp(originatingMainHandler, performJoin(originatingMainHandler,
 				filter, token, originInput), new Semaphore(originInput.getTargetNode()
-				.numChildren()));
+				.getNumberOfOutgoingEdges()));
 	}
 
 	static MemoryHandlerTemp newAlphaTemp(final MemoryHandlerMain originatingMainHandler,
@@ -97,7 +97,7 @@ public class MemoryHandlerTemp implements org.jamocha.dn.memory.MemoryHandlerTem
 			factList.add(fact);
 		}
 		return new MemoryHandlerTemp(originatingMainHandler, factList, new Semaphore(originInput
-				.getTargetNode().numChildren()));
+				.getTargetNode().getNumberOfOutgoingEdges()));
 	}
 
 	static MemoryHandlerTemp newRootTemp(final MemoryHandlerMain originatingMainHandler,
@@ -107,7 +107,7 @@ public class MemoryHandlerTemp implements org.jamocha.dn.memory.MemoryHandlerTem
 			factList.add(new Fact[] { new Fact(fact.getSlotValues()) });
 		}
 		return new MemoryHandlerTemp(originatingMainHandler, factList, new Semaphore(
-				otn.numChildren()));
+				otn.getNumberOfOutgoingEdges()));
 	}
 
 	static abstract class StackElement {

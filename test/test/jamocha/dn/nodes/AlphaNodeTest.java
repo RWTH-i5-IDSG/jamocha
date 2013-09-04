@@ -131,7 +131,7 @@ public class AlphaNodeTest {
 	}
 
 	/**
-	 * Test method for {@link org.jamocha.dn.nodes.Node#numChildren()}.
+	 * Test method for {@link org.jamocha.dn.nodes.Node#getNumberOfOutgoingEdges()}.
 	 */
 	@Test
 	public void testNumChildren() {
@@ -140,15 +140,15 @@ public class AlphaNodeTest {
 		@SuppressWarnings("unused")
 		ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, p1, p2);
 		AlphaNode alpha = new AlphaNode(Network.DEFAULTNETWORK, new FilterMockup(true, p1));
-		assertEquals(0, alpha.numChildren());
+		assertEquals(0, alpha.getNumberOfOutgoingEdges());
 		alpha.shareNode(p2);
-		assertEquals(0, alpha.numChildren());
+		assertEquals(0, alpha.getNumberOfOutgoingEdges());
 		@SuppressWarnings("unused")
 		AlphaNode alphaB1 = new AlphaNode(Network.DEFAULTNETWORK, new FilterMockup(true, p1));
-		assertEquals(1, alpha.numChildren());
+		assertEquals(1, alpha.getNumberOfOutgoingEdges());
 		@SuppressWarnings("unused")
 		AlphaNode alphaB2 = new AlphaNode(Network.DEFAULTNETWORK, new FilterMockup(true, p2));
-		assertEquals(2, alpha.numChildren());
+		assertEquals(2, alpha.getNumberOfOutgoingEdges());
 	}
 
 	/**

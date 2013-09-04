@@ -94,7 +94,7 @@ public class TerminalNodeTest {
 	}
 
 	/**
-	 * Test method for {@link org.jamocha.dn.nodes.Node#numChildren()}.
+	 * Test method for {@link org.jamocha.dn.nodes.Node#getNumberOfOutgoingEdges()}.
 	 */
 	@Test
 	public void testNumChildren() {

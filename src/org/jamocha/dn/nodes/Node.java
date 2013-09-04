@@ -297,7 +297,7 @@ public abstract class Node {
 		return this.memory;
 	}
 
-	public int numChildren() {
+	public int getNumberOfOutgoingEdges() {
 		return this.outgoingEdges.size();
 	}
 

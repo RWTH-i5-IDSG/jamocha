@@ -148,13 +148,13 @@ public class ObjectTypeNodeTest {
 	}
 
 	/**
-	 * Test method for {@link org.jamocha.dn.nodes.Node#numChildren()}.
+	 * Test method for {@link org.jamocha.dn.nodes.Node#getNumberOfOutgoingEdges()}.
 	 */
 	@Test
 	public void testNumChildren() {
 		Path p1 = new Path(Template.STRING);
 		ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, p1);
-		assertEquals(0, otn.numChildren());
+		assertEquals(0, otn.getNumberOfOutgoingEdges());
 	}
 
 	/**
