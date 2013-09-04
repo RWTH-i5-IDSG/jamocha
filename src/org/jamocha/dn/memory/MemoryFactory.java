@@ -15,10 +15,8 @@
 
 package org.jamocha.dn.memory;
 
-import org.jamocha.dn.nodes.CouldNotAcquireLockException;
 import org.jamocha.dn.nodes.Node;
 import org.jamocha.dn.nodes.Node.Edge;
-import org.jamocha.filter.Filter;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.PathTransformation;
 
@@ -66,15 +64,4 @@ public interface MemoryFactory {
 	 * @see Edge
 	 */
 	public MemoryHandlerMain newMemoryHandlerMain(final Edge... edgesToBeJoined);
-
-	public MemoryHandlerTemp processTokenInBeta(MemoryHandlerMain originatingMainHandler,
-			MemoryHandlerTemp token, Edge originInput, Filter filter)
-			throws CouldNotAcquireLockException;
-
-	public MemoryHandlerTemp processTokenInAlpha(MemoryHandlerMain originatingMainHandler,
-			MemoryHandlerTemp token, Edge originInput, Filter filter)
-			throws CouldNotAcquireLockException;
-
-	public MemoryHandlerTemp newToken(MemoryHandlerMain originatingMainHandler, Node otn,
-			Fact... facts);
 }

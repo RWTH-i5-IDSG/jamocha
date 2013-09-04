@@ -21,7 +21,10 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.jamocha.dn.memory.Template;
+import org.jamocha.dn.nodes.CouldNotAcquireLockException;
+import org.jamocha.dn.nodes.Node;
 import org.jamocha.dn.nodes.Node.Edge;
+import org.jamocha.filter.Filter;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.PathTransformation;
 
@@ -70,71 +73,70 @@ public class MemoryHandlerMain implements org.jamocha.dn.memory.MemoryHandlerMai
 		this.addresses = addresses.toArray(new FactAddress[addresses.size()]);
 	}
 
-	/**
-	 * @see org.jamocha.dn.memory.MemoryHandler#size()
-	 */
 	@Override
 	public int size() {
 		return this.facts.size();
 	}
 
-	/**
-	 * @see org.jamocha.dn.memory.MemoryHandler#getTemplate()
-	 */
 	@Override
 	public Template[] getTemplate() {
 		return template;
 	}
 
-	/**
-	 * @see org.jamocha.dn.memory.MemoryHandlerMain#tryReadLock()
-	 */
 	@Override
 	public boolean tryReadLock() throws InterruptedException {
 		return this.lock.readLock().tryLock(tryLockTimeout, tu);
 	}
 
-	/**
-	 * @see org.jamocha.dn.memory.MemoryHandlerMain#releaseReadLock()
-	 */
 	@Override
 	public void releaseReadLock() {
 		this.lock.readLock().unlock();
 	}
 
-	/**
-	 * @see org.jamocha.dn.memory.MemoryHandlerMain#acquireWriteLock()
-	 */
 	@Override
 	public void acquireWriteLock() {
 		this.lock.writeLock().lock();
 	}
 
-	/**
-	 * @see org.jamocha.dn.memory.MemoryHandlerMain#releaseWriteLock()
-	 */
 	@Override
 	public void releaseWriteLock() {
 		this.lock.writeLock().unlock();
 	}
 
-	/**
-	 * @see org.jamocha.dn.memory.MemoryHandlerMain#add(MemoryHandlerTemp)
-	 */
 	@Override
-	public void add(final MemoryHandlerTemp toAdd) {
-		for (final Fact[] row : toAdd.facts) {
+	public void add(final org.jamocha.dn.memory.MemoryHandlerTemp toAdd) {
+		final MemoryHandlerTemp temp = (MemoryHandlerTemp) toAdd;
+		for (final Fact[] row : temp.facts) {
 			this.facts.add(row);
 		}
 	}
 
-	/**
-	 * @see org.jamocha.dn.memory.MemoryHandler#getValue(FactAddress, SlotAddress, int)
-	 */
 	@Override
 	public Object getValue(final org.jamocha.dn.memory.FactAddress address,
 			final org.jamocha.dn.memory.SlotAddress slot, final int row) {
 		return this.facts.get(row)[((org.jamocha.dn.memory.javaimpl.FactAddress) address)
 				.getIndex()].getValue((org.jamocha.dn.memory.javaimpl.SlotAddress) slot);
 	}
+
+	@Override
+	public MemoryHandlerTemp processTokenInBeta(
+			final org.jamocha.dn.memory.MemoryHandlerTemp token, final Edge originIncomingEdge,
+			final Filter filter) throws CouldNotAcquireLockException {
+		return MemoryHandlerTemp.newBetaTemp(this, (MemoryHandlerTemp) token, originIncomingEdge,
+				filter);
+	}
+
+	@Override
+	public MemoryHandlerTemp processTokenInAlpha(
+			final org.jamocha.dn.memory.MemoryHandlerTemp token, final Edge originIncomingEdge,
+			final Filter filter) throws CouldNotAcquireLockException {
+		return MemoryHandlerTemp.newAlphaTemp(this, (MemoryHandlerTemp) token, originIncomingEdge,
+				filter);
+	}
+
+	@Override
+	public MemoryHandlerTemp newToken(final Node otn, final org.jamocha.dn.memory.Fact... facts) {
+		return MemoryHandlerTemp.newRootTemp(this, otn, facts);
+	}
+
 }

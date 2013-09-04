@@ -46,8 +46,7 @@ public class AlphaNode extends Node {
 		public void processPlusToken(final MemoryHandlerTemp memory)
 				throws CouldNotAcquireLockException {
 			final MemoryHandlerTemp mem =
-					this.network.getMemoryFactory().processTokenInAlpha(targetNode.memory, memory,
-							this, this.filter);
+					targetNode.memory.processTokenInAlpha(memory, this, this.filter);
 			for (final Edge edge : targetNode.outgoingEdges) {
 				edge.getTargetNode().enqueue(new Token.PlusToken(mem, edge));
 			}

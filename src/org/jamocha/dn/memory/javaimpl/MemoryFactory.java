@@ -15,10 +15,7 @@
 package org.jamocha.dn.memory.javaimpl;
 
 import org.jamocha.dn.memory.Template;
-import org.jamocha.dn.nodes.CouldNotAcquireLockException;
-import org.jamocha.dn.nodes.Node;
 import org.jamocha.dn.nodes.Node.Edge;
-import org.jamocha.filter.Filter;
 import org.jamocha.filter.Path;
 
 /**
@@ -45,32 +42,6 @@ public class MemoryFactory implements org.jamocha.dn.memory.MemoryFactory {
 	@Override
 	public MemoryHandlerMain newMemoryHandlerMain(final Edge... edgesToBeJoined) {
 		return new MemoryHandlerMain(edgesToBeJoined);
-	}
-
-	@Override
-	public MemoryHandlerTemp processTokenInBeta(
-			final org.jamocha.dn.memory.MemoryHandlerMain originatingMainHandler,
-			final org.jamocha.dn.memory.MemoryHandlerTemp token, final Edge originIncomingEdge,
-			final Filter filter) throws CouldNotAcquireLockException {
-		return MemoryHandlerTemp.newBetaTemp((MemoryHandlerMain) originatingMainHandler,
-				(MemoryHandlerTemp) token, originIncomingEdge, filter);
-	}
-
-	@Override
-	public MemoryHandlerTemp processTokenInAlpha(
-			final org.jamocha.dn.memory.MemoryHandlerMain originatingMainHandler,
-			final org.jamocha.dn.memory.MemoryHandlerTemp token, final Edge originIncomingEdge,
-			final Filter filter) throws CouldNotAcquireLockException {
-		return MemoryHandlerTemp.newAlphaTemp((MemoryHandlerMain) originatingMainHandler,
-				(MemoryHandlerTemp) token, originIncomingEdge, filter);
-	}
-
-	@Override
-	public MemoryHandlerTemp newToken(
-			final org.jamocha.dn.memory.MemoryHandlerMain originatingMainHandler, final Node otn,
-			final org.jamocha.dn.memory.Fact... facts) {
-		return MemoryHandlerTemp
-				.newRootTemp((MemoryHandlerMain) originatingMainHandler, otn, facts);
 	}
 
 }

@@ -14,7 +14,10 @@
  */
 package org.jamocha.dn.memory;
 
-import org.jamocha.dn.memory.javaimpl.MemoryHandlerTemp;
+import org.jamocha.dn.nodes.CouldNotAcquireLockException;
+import org.jamocha.dn.nodes.Node;
+import org.jamocha.dn.nodes.Node.Edge;
+import org.jamocha.filter.Filter;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -30,4 +33,13 @@ public interface MemoryHandlerMain extends MemoryHandler {
 	public void releaseWriteLock();
 
 	public void add(final MemoryHandlerTemp toAdd);
+
+	public MemoryHandlerTemp processTokenInBeta(final MemoryHandlerTemp token,
+			final Edge originIncomingEdge, final Filter filter) throws CouldNotAcquireLockException;
+
+	public MemoryHandlerTemp processTokenInAlpha(final MemoryHandlerTemp token,
+			final Edge originIncomingEdge, final Filter filter) throws CouldNotAcquireLockException;
+
+	public MemoryHandlerTemp newToken(final Node otn, final Fact... facts);
+
 }
