@@ -20,26 +20,92 @@ import org.jamocha.dn.nodes.Node.Edge;
 import org.jamocha.filter.Filter;
 
 /**
- * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+ * Interface for main memory implementations. A main memory contains the facts for one {@link Node
+ * node}. It is complemented by {@link MemoryHandlerTemp}, which stores join results until they have
+ * been adopted by all follow-up nodes.
  * 
+ * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+ * @see MemoryHandlerTemp
+ * @see Node
  */
 public interface MemoryHandlerMain extends MemoryHandler {
+
+	/**
+	 * Try to acquire a read lock on the {@link MemoryHandlerMain}.
+	 * 
+	 * @return true iff the read lock was successfully acquired
+	 * @throws InterruptedException
+	 *             iff an {@link InterruptedException} was thrown while trying to acquire a read
+	 *             lock from the underlying lock
+	 */
 	public boolean tryReadLock() throws InterruptedException;
 
+	/**
+	 * Release the read lock.
+	 */
 	public void releaseReadLock();
 
+	/**
+	 * Acquires a write lock. The underlying lock will stall further read lock requests until the
+	 * write lock has been granted.
+	 */
 	public void acquireWriteLock();
 
+	/**
+	 * Release the write lock.
+	 */
 	public void releaseWriteLock();
 
+	/**
+	 * Adds the {@link MemoryHandlerTemp} given to the internal memory.
+	 * 
+	 * @param toAdd
+	 */
 	public void add(final MemoryHandlerTemp toAdd);
 
+	/**
+	 * Creates a new {@link MemoryHandlerTemp} that joins the given {@code token} with all other
+	 * incoming edges of the target beta {@link Node node} applying the given {@link Filter filter}.
+	 * 
+	 * @param token
+	 *            {@link MemoryHandlerTemp token} to join with all other inputs
+	 * @param originIncomingEdge
+	 *            {@link Edge edge} the token arrived on
+	 * @param filter
+	 *            {@link Filter filter} to apply
+	 * @return {@link MemoryHandlerTemp token} containing the result of the join
+	 * @throws CouldNotAcquireLockException
+	 *             iff one of the read locks could not be acquired
+	 */
 	public MemoryHandlerTemp processTokenInBeta(final MemoryHandlerTemp token,
 			final Edge originIncomingEdge, final Filter filter) throws CouldNotAcquireLockException;
 
+	/**
+	 * Creates a new {@link MemoryHandlerTemp} that contains the part of the facts in the given
+	 * token that match the given filter.
+	 * 
+	 * @param token
+	 *            {@link MemoryHandlerTemp token} to process
+	 * @param originIncomingEdge
+	 *            {@link Edge edge} the token arrived on
+	 * @param filter
+	 *            {@link Filter filter} filter to apply
+	 * @return {@link MemoryHandlerTemp token} containing the result of the filter operation
+	 * @throws CouldNotAcquireLockException
+	 *             iff one of the read locks could not be acquired
+	 */
 	public MemoryHandlerTemp processTokenInAlpha(final MemoryHandlerTemp token,
 			final Edge originIncomingEdge, final Filter filter) throws CouldNotAcquireLockException;
 
+	/**
+	 * Creates a new {@link MemoryHandlerTemp} that contains the facts given.
+	 * 
+	 * @param otn
+	 *            {@link Node node} the facts are for
+	 * @param facts
+	 *            {@link Fact facts} to store in the {@link MemoryHandlerTemp token}
+	 * @return {@link MemoryHandlerTemp token} containing the facts given
+	 */
 	public MemoryHandlerTemp newToken(final Node otn, final Fact... facts);
 
 }
