@@ -234,9 +234,10 @@ public class BetaNodeTest {
 	 */
 	@Test
 	public void testGetIncomingEdges() {
+		Path p = new Path(Template.STRING);
 		Path p1 = new Path(Template.STRING);
 		Path p2 = new Path(Template.STRING);
-		ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, Template.STRING);
+		ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, p);
 		Set<Path> joinedWith = new HashSet<>();
 		joinedWith.add(p1);
 		PathTransformation.setPathInfo(p1, new PathInfo(otn, null, joinedWith));

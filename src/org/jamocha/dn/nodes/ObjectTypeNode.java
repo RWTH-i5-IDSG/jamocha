@@ -15,6 +15,8 @@
 
 package org.jamocha.dn.nodes;
 
+import java.util.Map.Entry;
+
 import org.jamocha.dn.Network;
 import org.jamocha.dn.Token;
 import org.jamocha.dn.memory.Fact;
@@ -32,15 +34,12 @@ import org.jamocha.filter.PathTransformation;
 public class ObjectTypeNode extends AlphaNode {
 
 	protected final Template template;
-
-	public ObjectTypeNode(final Network network, final Template template) {
-		super(network, template);
-		this.template = template;
-	}
+	protected final FactAddress factAddress;
 
 	public ObjectTypeNode(final Network network, final Path... paths) {
 		super(network, getTemplateFromPaths(paths), paths);
 		this.template = this.memory.getTemplate()[0];
+		this.factAddress = PathTransformation.getFactAddressInCurrentlyLowestNode(paths[0]);
 		for (final Path path : paths) {
 			PathTransformation.setCurrentlyLowestNode(path, this);
 		}
@@ -85,6 +84,15 @@ public class ObjectTypeNode extends AlphaNode {
 	@Override
 	public AddressPredecessor delocalizeAddress(FactAddress localFactAddress) {
 		throw new UnsupportedOperationException("No previous addresses for addresses in an OTN.");
+	}
+	
+	@Override
+	public void shareNode(final Path... paths) {
+		assert null != paths;
+		for (Path path : paths) {
+			PathTransformation.setCurrentlyLowestNode(path, this);
+			PathTransformation.setFactAddressInCurrentlyLowestNode(path, this.factAddress);
+		}
 	}
 
 }
