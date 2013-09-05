@@ -15,9 +15,8 @@
  * {@link org.jamocha.filter.FunctionWithArgumentsComposite},
  * {@link org.jamocha.filter.ConstantLeaf}, {@link org.jamocha.filter.PathLeaf}. In doing so, we
  * combine Functions, Constants and Paths. After all Paths used have been mapped to their
- * corresponding addresses (see {@link org.jamocha.filter.PathTransformation}), we can transform (
- * {@link org.jamocha.filter.Filter#translatePath()}) the filter to contain only
- * {@link org.jamocha.filter.FunctionWithArgumentsComposite},
+ * corresponding addresses, we can transform ( {@link org.jamocha.filter.Filter#translatePath()})
+ * the filter to contain only {@link org.jamocha.filter.FunctionWithArgumentsComposite},
  * {@link org.jamocha.filter.ConstantLeaf}, {@link org.jamocha.filter.PathLeaf.ParameterLeaf}.
  * During this step, the {@link org.jamocha.filter.Filter.FilterElement FilterElements} get their
  * {@link org.jamocha.filter.Filter.FilterElement#addressesInTarget}.
@@ -28,7 +27,6 @@
  * @see org.jamocha.filter.Function
  * @see org.jamocha.filter.FunctionWithArguments
  * @see org.jamocha.filter.Path
- * @see org.jamocha.filter.PathTransformation
  * @see org.jamocha.filter.impls
  */
 package org.jamocha.filter;

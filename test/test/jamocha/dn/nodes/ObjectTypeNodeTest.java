@@ -27,7 +27,6 @@ import org.jamocha.dn.memory.Template;
 import org.jamocha.dn.nodes.Node.Edge;
 import org.jamocha.dn.nodes.ObjectTypeNode;
 import org.jamocha.filter.Path;
-import org.jamocha.filter.PathTransformation;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -79,11 +78,11 @@ public class ObjectTypeNodeTest {
 		Path p1 = new Path(Template.STRING);
 		Path p2 = new Path(Template.STRING);
 		ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, p1, p2);
-		assertEquals(otn, PathTransformation.getCurrentlyLowestNode(p1));
-		Set<Path> joinedWith = PathTransformation.getJoinedWith(p1);
+		assertEquals(otn, p1.getCurrentlyLowestNode());
+		Set<Path> joinedWith = p1.getJoinedWith();
 		assertEquals(1, joinedWith.size());
 		assertTrue(joinedWith.contains(p1));
-		joinedWith = PathTransformation.getJoinedWith(p2);
+		joinedWith = p2.getJoinedWith();
 		assertEquals(1, joinedWith.size());
 		assertTrue(joinedWith.contains(p2));
 	}
@@ -164,7 +163,7 @@ public class ObjectTypeNodeTest {
 	public void testDelocalizeAddress() {
 		Path p1 = new Path(Template.STRING);
 		ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, p1);
-		otn.delocalizeAddress(PathTransformation.getFactAddressInCurrentlyLowestNode(p1));
+		otn.delocalizeAddress(p1.getFactAddressInCurrentlyLowestNode());
 	}
 
 	/**

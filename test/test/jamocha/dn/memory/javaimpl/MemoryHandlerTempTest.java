@@ -26,7 +26,6 @@ import org.jamocha.dn.memory.Fact;
 import org.jamocha.dn.memory.FactAddress;
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.dn.memory.Template;
-import org.jamocha.dn.memory.javaimpl.MemoryFactory;
 import org.jamocha.dn.memory.javaimpl.MemoryHandlerMain;
 import org.jamocha.dn.memory.javaimpl.MemoryHandlerTemp;
 import org.jamocha.dn.memory.javaimpl.SlotAddress;
@@ -285,8 +284,7 @@ public class MemoryHandlerTempTest {
 
 	/**
 	 * Test method for
-	 * {@link MemoryFactory#processTokenInAlpha(MemoryHandlerMain, MemoryHandlerTemp, Node.Edge, Filter)}
-	 * .
+	 * {@link MemoryHandlerMain#processTokenInAlpha(MemoryHandlerTemp, Node.Edge, Filter)} .
 	 * 
 	 * @throws CouldNotAcquireLockException
 	 */
@@ -306,8 +304,7 @@ public class MemoryHandlerTempTest {
 	}
 
 	/**
-	 * Test method for
-	 * {@link MemoryFactory#newToken(org.jamocha.dn.memory.MemoryHandlerMain, Node, Fact...)} .
+	 * Test method for {@link MemoryHandlerMain#newToken(Node, Fact...)}.
 	 */
 	@Test
 	public void testNewToken() {

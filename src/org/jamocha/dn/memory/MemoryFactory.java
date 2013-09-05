@@ -18,7 +18,6 @@ package org.jamocha.dn.memory;
 import org.jamocha.dn.nodes.Node;
 import org.jamocha.dn.nodes.Node.Edge;
 import org.jamocha.filter.Path;
-import org.jamocha.filter.PathTransformation;
 
 /**
  * Interface for the different implementations of the memory component. The network uses this
@@ -34,7 +33,7 @@ public interface MemoryFactory {
 	/**
 	 * Creates a new {@link MemoryHandlerMain} capable of storing facts meeting the restrictions of
 	 * the template given. For the {@link Path paths} given, all but the {@link Node node}
-	 * information are stored in {@link PathTransformation}.
+	 * information are set.
 	 * 
 	 * @param template
 	 *            the template of facts in {@link MemoryHandlerMain}
@@ -45,7 +44,6 @@ public interface MemoryFactory {
 	 * @see MemoryHandlerMain
 	 * @see Template
 	 * @see Path
-	 * @see PathTransformation
 	 */
 	public MemoryHandlerMain newMemoryHandlerMain(final Template template, final Path... paths);
 

@@ -31,8 +31,6 @@ import org.jamocha.dn.nodes.BetaNode;
 import org.jamocha.dn.nodes.Node.Edge;
 import org.jamocha.dn.nodes.ObjectTypeNode;
 import org.jamocha.filter.Path;
-import org.jamocha.filter.PathTransformation;
-import org.jamocha.filter.PathTransformation.PathInfo;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -107,17 +105,17 @@ public class BetaNodeTest {
 		assertEquals(otn, incomingEdges[0].getSourceNode());
 		assertEquals(otn, incomingEdges[1].getSourceNode());
 		assertNotSame(incomingEdges[0], incomingEdges[1]);
-		assertSame(beta, PathTransformation.getCurrentlyLowestNode(p1));
-		assertSame(beta, PathTransformation.getCurrentlyLowestNode(p2));
-		assertSame(otn, PathTransformation.getCurrentlyLowestNode(p3));
+		assertSame(beta, p1.getCurrentlyLowestNode());
+		assertSame(beta, p2.getCurrentlyLowestNode());
+		assertSame(otn, p3.getCurrentlyLowestNode());
 		BetaNode beta2 = new BetaNode(Network.DEFAULTNETWORK, new FilterMockup(true, p1, p3));
 		incomingEdges = beta2.getIncomingEdges();
 		assertEquals(2, incomingEdges.length);
 		assertEquals(beta, incomingEdges[0].getSourceNode());
 		assertEquals(otn, incomingEdges[1].getSourceNode());
-		assertSame(beta2, PathTransformation.getCurrentlyLowestNode(p1));
-		assertSame(beta2, PathTransformation.getCurrentlyLowestNode(p2));
-		assertSame(beta2, PathTransformation.getCurrentlyLowestNode(p3));
+		assertSame(beta2, p1.getCurrentlyLowestNode());
+		assertSame(beta2, p2.getCurrentlyLowestNode());
+		assertSame(beta2, p3.getCurrentlyLowestNode());
 	}
 
 	/**
@@ -136,45 +134,45 @@ public class BetaNodeTest {
 		ObjectTypeNode otn =
 				new ObjectTypeNode(Network.DEFAULTNETWORK, p1, p2, p3, p4, p5, p6, p7, p8);
 		BetaNode beta = new BetaNode(Network.DEFAULTNETWORK, new FilterMockup(true, p1, p2));
-		assertSame(otn, PathTransformation.getCurrentlyLowestNode(p3));
-		assertSame(otn, PathTransformation.getCurrentlyLowestNode(p4));
+		assertSame(otn, p3.getCurrentlyLowestNode());
+		assertSame(otn, p4.getCurrentlyLowestNode());
 		beta.shareNode(p3, p4);
-		assertSame(beta, PathTransformation.getCurrentlyLowestNode(p1));
-		assertSame(beta, PathTransformation.getCurrentlyLowestNode(p2));
-		assertSame(beta, PathTransformation.getCurrentlyLowestNode(p3));
-		assertSame(beta, PathTransformation.getCurrentlyLowestNode(p4));
-		assertSame(PathTransformation.getFactAddressInCurrentlyLowestNode(p1),
-				PathTransformation.getFactAddressInCurrentlyLowestNode(p3));
-		assertSame(PathTransformation.getFactAddressInCurrentlyLowestNode(p2),
-				PathTransformation.getFactAddressInCurrentlyLowestNode(p4));
+		assertSame(beta, p1.getCurrentlyLowestNode());
+		assertSame(beta, p2.getCurrentlyLowestNode());
+		assertSame(beta, p3.getCurrentlyLowestNode());
+		assertSame(beta, p4.getCurrentlyLowestNode());
+		assertSame(p1.getFactAddressInCurrentlyLowestNode(),
+				p3.getFactAddressInCurrentlyLowestNode());
+		assertSame(p2.getFactAddressInCurrentlyLowestNode(),
+				p4.getFactAddressInCurrentlyLowestNode());
 		BetaNode betaB = new BetaNode(Network.DEFAULTNETWORK, new FilterMockup(true, p1, p3));
-		assertSame(betaB, PathTransformation.getCurrentlyLowestNode(p1));
-		assertSame(betaB, PathTransformation.getCurrentlyLowestNode(p2));
-		assertSame(betaB, PathTransformation.getCurrentlyLowestNode(p3));
-		assertSame(betaB, PathTransformation.getCurrentlyLowestNode(p4));
-		assertNotSame(PathTransformation.getFactAddressInCurrentlyLowestNode(p1),
-				PathTransformation.getFactAddressInCurrentlyLowestNode(p3));
-		assertNotSame(PathTransformation.getFactAddressInCurrentlyLowestNode(p2),
-				PathTransformation.getFactAddressInCurrentlyLowestNode(p4));
+		assertSame(betaB, p1.getCurrentlyLowestNode());
+		assertSame(betaB, p2.getCurrentlyLowestNode());
+		assertSame(betaB, p3.getCurrentlyLowestNode());
+		assertSame(betaB, p4.getCurrentlyLowestNode());
+		assertNotSame(p1.getFactAddressInCurrentlyLowestNode(),
+				p3.getFactAddressInCurrentlyLowestNode());
+		assertNotSame(p2.getFactAddressInCurrentlyLowestNode(),
+				p4.getFactAddressInCurrentlyLowestNode());
 		beta.shareNode(p5, p6);
 		beta.shareNode(p7, p8);
 		betaB.shareNode(p5, p7);
-		assertSame(betaB, PathTransformation.getCurrentlyLowestNode(p5));
-		assertSame(betaB, PathTransformation.getCurrentlyLowestNode(p6));
-		assertSame(betaB, PathTransformation.getCurrentlyLowestNode(p7));
-		assertSame(betaB, PathTransformation.getCurrentlyLowestNode(p8));
-		assertNotSame(PathTransformation.getFactAddressInCurrentlyLowestNode(p5),
-				PathTransformation.getFactAddressInCurrentlyLowestNode(p7));
-		assertNotSame(PathTransformation.getFactAddressInCurrentlyLowestNode(p6),
-				PathTransformation.getFactAddressInCurrentlyLowestNode(p8));
-		assertSame(PathTransformation.getFactAddressInCurrentlyLowestNode(p1),
-				PathTransformation.getFactAddressInCurrentlyLowestNode(p5));
-		assertSame(PathTransformation.getFactAddressInCurrentlyLowestNode(p2),
-				PathTransformation.getFactAddressInCurrentlyLowestNode(p6));
-		assertSame(PathTransformation.getFactAddressInCurrentlyLowestNode(p3),
-				PathTransformation.getFactAddressInCurrentlyLowestNode(p7));
-		assertSame(PathTransformation.getFactAddressInCurrentlyLowestNode(p4),
-				PathTransformation.getFactAddressInCurrentlyLowestNode(p8));
+		assertSame(betaB, p5.getCurrentlyLowestNode());
+		assertSame(betaB, p6.getCurrentlyLowestNode());
+		assertSame(betaB, p7.getCurrentlyLowestNode());
+		assertSame(betaB, p8.getCurrentlyLowestNode());
+		assertNotSame(p5.getFactAddressInCurrentlyLowestNode(),
+				p7.getFactAddressInCurrentlyLowestNode());
+		assertNotSame(p6.getFactAddressInCurrentlyLowestNode(),
+				p8.getFactAddressInCurrentlyLowestNode());
+		assertSame(p1.getFactAddressInCurrentlyLowestNode(),
+				p5.getFactAddressInCurrentlyLowestNode());
+		assertSame(p2.getFactAddressInCurrentlyLowestNode(),
+				p6.getFactAddressInCurrentlyLowestNode());
+		assertSame(p3.getFactAddressInCurrentlyLowestNode(),
+				p7.getFactAddressInCurrentlyLowestNode());
+		assertSame(p4.getFactAddressInCurrentlyLowestNode(),
+				p8.getFactAddressInCurrentlyLowestNode());
 	}
 
 	/**
@@ -218,15 +216,13 @@ public class BetaNodeTest {
 		final Path p2 = new Path(Template.STRING);
 		@SuppressWarnings("unused")
 		final ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, p1, p2);
-		final FactAddress fa1 = PathTransformation.getFactAddressInCurrentlyLowestNode(p1);
-		final FactAddress fa2 = PathTransformation.getFactAddressInCurrentlyLowestNode(p2);
+		final FactAddress fa1 = p1.getFactAddressInCurrentlyLowestNode();
+		final FactAddress fa2 = p2.getFactAddressInCurrentlyLowestNode();
 		final BetaNode beta = new BetaNode(Network.DEFAULTNETWORK, new FilterMockup(true, p1, p2));
-		assertEquals(fa1,
-				beta.delocalizeAddress(PathTransformation.getFactAddressInCurrentlyLowestNode(p1))
-						.getAddress());
-		assertEquals(fa2,
-				beta.delocalizeAddress(PathTransformation.getFactAddressInCurrentlyLowestNode(p2))
-						.getAddress());
+		assertEquals(fa1, beta.delocalizeAddress(p1.getFactAddressInCurrentlyLowestNode())
+				.getAddress());
+		assertEquals(fa2, beta.delocalizeAddress(p2.getFactAddressInCurrentlyLowestNode())
+				.getAddress());
 	}
 
 	/**
@@ -240,10 +236,14 @@ public class BetaNodeTest {
 		ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, p);
 		Set<Path> joinedWith = new HashSet<>();
 		joinedWith.add(p1);
-		PathTransformation.setPathInfo(p1, new PathInfo(otn, null, joinedWith));
+		p1.setCurrentlyLowestNode(otn);
+		p1.setFactAddressInCurrentlyLowestNode(null);
+		p1.setJoinedWith(joinedWith);
 		joinedWith = new HashSet<>();
 		joinedWith.add(p2);
-		PathTransformation.setPathInfo(p2, new PathInfo(otn, null, joinedWith));
+		p2.setCurrentlyLowestNode(otn);
+		p2.setFactAddressInCurrentlyLowestNode(null);
+		p2.setJoinedWith(joinedWith);
 		BetaNode beta = new BetaNode(Network.DEFAULTNETWORK, new FilterMockup(true, p1, p2));
 		final Edge[] incomingEdges = beta.getIncomingEdges();
 		assertEquals(2, incomingEdges.length);

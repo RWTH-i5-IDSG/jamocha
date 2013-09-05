@@ -31,7 +31,6 @@ import org.jamocha.dn.nodes.Node.Edge;
  * @see MemoryHandlerMain
  * @see Node
  * @see Edge
- * @see
  */
 public interface MemoryHandlerTemp extends MemoryHandler {
 	public void releaseLock();

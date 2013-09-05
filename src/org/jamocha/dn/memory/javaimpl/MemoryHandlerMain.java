@@ -26,7 +26,6 @@ import org.jamocha.dn.nodes.Node;
 import org.jamocha.dn.nodes.Node.Edge;
 import org.jamocha.filter.Filter;
 import org.jamocha.filter.Path;
-import org.jamocha.filter.PathTransformation;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -47,8 +46,8 @@ public class MemoryHandlerMain implements org.jamocha.dn.memory.MemoryHandlerMai
 		this.addresses = new FactAddress[] { address };
 		this.template = new Template[] { template };
 		for (final Path path : paths) {
-			PathTransformation.setFactAddressInCurrentlyLowestNode(path, address);
-			PathTransformation.setJoinedWith(path);
+			path.setFactAddressInCurrentlyLowestNode(address);
+			Path.setJoinedWithForAll(path);
 		}
 	}
 

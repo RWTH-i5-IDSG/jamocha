@@ -27,7 +27,6 @@ import org.jamocha.dn.memory.FactAddress;
 import org.jamocha.dn.memory.MemoryHandlerTemp;
 import org.jamocha.filter.Filter;
 import org.jamocha.filter.Path;
-import org.jamocha.filter.PathTransformation;
 
 /**
  * 
@@ -106,8 +105,8 @@ public class BetaNode extends Node {
 		final boolean used[] = new boolean[this.incomingEdges.length];
 		while (!pathSet.isEmpty()) {
 			final Path path = pathSet.iterator().next();
-			final Node currentlyLowestNode = PathTransformation.getCurrentlyLowestNode(path);
-			final Set<Path> joinedWith = PathTransformation.getJoinedWith(path);
+			final Node currentlyLowestNode = path.getCurrentlyLowestNode();
+			final Set<Path> joinedWith = path.getJoinedWith();
 			int i;
 			for (i = 0; i < this.incomingEdges.length; ++i) {
 				final Edge edge = this.incomingEdges[i];
@@ -115,10 +114,9 @@ public class BetaNode extends Node {
 					continue;
 				for (final Path join : joinedWith) {
 					final FactAddress localizedAddress =
-							edge.localizeAddress(PathTransformation
-									.getFactAddressInCurrentlyLowestNode(join));
-					PathTransformation.setCurrentlyLowestNode(join, this);
-					PathTransformation.setFactAddressInCurrentlyLowestNode(join, localizedAddress);
+							edge.localizeAddress(join.getFactAddressInCurrentlyLowestNode());
+					join.setCurrentlyLowestNode(this);
+					join.setFactAddressInCurrentlyLowestNode(localizedAddress);
 					pathSet.remove(join);
 				}
 				used[i] = true;
@@ -128,6 +126,7 @@ public class BetaNode extends Node {
 				throw new Error("Tried to share a node with paths that do not match!");
 			}
 		}
-		PathTransformation.setJoinedWith(paths);
+		if (paths.length > 0)
+			Path.setJoinedWithForAll(paths);
 	}
 }

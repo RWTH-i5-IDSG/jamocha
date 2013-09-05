@@ -25,7 +25,6 @@ import org.jamocha.dn.memory.MemoryHandlerTemp;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.filter.Filter;
 import org.jamocha.filter.Path;
-import org.jamocha.filter.PathTransformation;
 
 /**
  * 
@@ -105,10 +104,9 @@ public class AlphaNode extends Node {
 		assert 1 == this.delocalizeMap.size();
 		final Entry<FactAddress, AddressPredecessor> entry =
 				this.delocalizeMap.entrySet().iterator().next();
-		assert PathTransformation.getFactAddressInCurrentlyLowestNode(path) == entry.getValue()
-				.getAddress();
-		PathTransformation.setCurrentlyLowestNode(path, this);
-		PathTransformation.setFactAddressInCurrentlyLowestNode(path, entry.getKey());
+		assert path.getFactAddressInCurrentlyLowestNode() == entry.getValue().getAddress();
+		path.setCurrentlyLowestNode(this);
+		path.setFactAddressInCurrentlyLowestNode(entry.getKey());
 	}
 
 }

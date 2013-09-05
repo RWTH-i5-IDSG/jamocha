@@ -32,7 +32,6 @@ import org.jamocha.dn.nodes.AlphaNode;
 import org.jamocha.dn.nodes.Node.Edge;
 import org.jamocha.dn.nodes.ObjectTypeNode;
 import org.jamocha.filter.Path;
-import org.jamocha.filter.PathTransformation;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -79,8 +78,7 @@ public class AlphaNodeTest {
 
 	/**
 	 * Test method for
-	 * {@link org.jamocha.dn.nodes.AlphaNode#AlphaNode(Network, org.jamocha.filter.Filter)}
-	 * .
+	 * {@link org.jamocha.dn.nodes.AlphaNode#AlphaNode(Network, org.jamocha.filter.Filter)} .
 	 */
 	@Test
 	public void testAlphaNode() {
@@ -161,14 +159,14 @@ public class AlphaNodeTest {
 		Path p2 = new Path(Template.BOOLEAN);
 		@SuppressWarnings("unused")
 		ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, p1, p2);
-		FactAddress fa1 = PathTransformation.getFactAddressInCurrentlyLowestNode(p1);
+		FactAddress fa1 = p1.getFactAddressInCurrentlyLowestNode();
 		AlphaNode alpha = new AlphaNode(Network.DEFAULTNETWORK, new FilterMockup(true, p1));
-		assertNotSame(fa1, PathTransformation.getFactAddressInCurrentlyLowestNode(p1));
-		alpha.delocalizeAddress(PathTransformation.getFactAddressInCurrentlyLowestNode(p1));
+		assertNotSame(fa1, p1.getFactAddressInCurrentlyLowestNode());
+		alpha.delocalizeAddress(p1.getFactAddressInCurrentlyLowestNode());
 		alpha.shareNode(p2);
-		assertNotSame(fa1, PathTransformation.getFactAddressInCurrentlyLowestNode(p2));
-		assertSame(PathTransformation.getFactAddressInCurrentlyLowestNode(p1),
-				PathTransformation.getFactAddressInCurrentlyLowestNode(p2));
+		assertNotSame(fa1, p2.getFactAddressInCurrentlyLowestNode());
+		assertSame(p1.getFactAddressInCurrentlyLowestNode(),
+				p2.getFactAddressInCurrentlyLowestNode());
 	}
 
 	/**

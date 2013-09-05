@@ -37,8 +37,6 @@ import org.jamocha.dn.memory.MemoryHandlerTemp;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.filter.Filter;
 import org.jamocha.filter.Path;
-import org.jamocha.filter.PathTransformation;
-import org.jamocha.filter.PathTransformation.PathInfo;
 
 /**
  * Base class for all node types
@@ -212,10 +210,10 @@ public abstract class Node {
 			// get next path
 			final Path path = paths.iterator().next();
 			// mark all paths as done
-			final Set<Path> joinedWith = PathTransformation.getJoinedWith(path);
+			final Set<Path> joinedWith = path.getJoinedWith();
 			joinedPaths.addAll(joinedWith);
 			paths.removeAll(joinedWith);
-			final Node clNode = PathTransformation.getCurrentlyLowestNode(path);
+			final Node clNode = path.getCurrentlyLowestNode();
 			// create new edge from clNode to this
 			final Edge edge = connectParent(clNode);
 			edges.add(edge);
@@ -228,10 +226,11 @@ public abstract class Node {
 			final Set<Path> joinedWith = edgesAndPaths.get(edge);
 			for (final Path path : joinedWith) {
 				final FactAddress factAddressInCurrentlyLowestNode =
-						PathTransformation.getFactAddressInCurrentlyLowestNode(path);
-				PathTransformation.setPathInfo(path,
-						new PathInfo(this, edge.localizeAddress(factAddressInCurrentlyLowestNode),
-								joinedPaths));
+						path.getFactAddressInCurrentlyLowestNode();
+				path.setCurrentlyLowestNode(this);
+				path.setFactAddressInCurrentlyLowestNode(edge
+						.localizeAddress(factAddressInCurrentlyLowestNode));
+				path.setJoinedWith(joinedPaths);
 			}
 		}
 		filter.translatePath();

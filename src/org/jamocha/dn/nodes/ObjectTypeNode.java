@@ -24,7 +24,6 @@ import org.jamocha.dn.memory.FactAddress;
 import org.jamocha.dn.memory.MemoryHandlerTemp;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.filter.Path;
-import org.jamocha.filter.PathTransformation;
 
 /**
  * 
@@ -41,7 +40,7 @@ public class ObjectTypeNode extends AlphaNode {
 		this.template = this.memory.getTemplate()[0];
 		this.factAddress = PathTransformation.getFactAddressInCurrentlyLowestNode(paths[0]);
 		for (final Path path : paths) {
-			PathTransformation.setCurrentlyLowestNode(path, this);
+			path.setCurrentlyLowestNode(this);
 		}
 	}
 

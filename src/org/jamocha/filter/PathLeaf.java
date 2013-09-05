@@ -30,12 +30,10 @@ import org.jamocha.filter.Filter.FilterElement;
  * {@link SlotAddress} and {@link Path} are stored in this class. As soon as the {@link Node}
  * representing the surrounding {@link Filter} has been created, the {@link Filter} is
  * {@link Filter#translatePath() translated} and all {@link PathLeaf PathLeafs} are replaced with
- * {@link ParameterLeaf ParameterLeafs}. The class {@link PathTransformation} is used in this
- * process.
+ * {@link ParameterLeaf ParameterLeafs}.
  * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  * @see Path
- * @see PathTransformation
  * @see SlotAddress
  * @see Node
  */
@@ -140,7 +138,7 @@ public class PathLeaf implements FunctionWithArguments {
 	@Override
 	public ParameterLeaf translatePath(final ArrayList<SlotInFactAddress> addressesInTarget) {
 		final FactAddress factAddressInCurrentlyLowestNode =
-				PathTransformation.getFactAddressInCurrentlyLowestNode(this.path);
+				this.path.getFactAddressInCurrentlyLowestNode();
 		addressesInTarget.add(new SlotInFactAddress(factAddressInCurrentlyLowestNode, this.slot));
 		return new ParameterLeaf(getReturnType());
 	}
