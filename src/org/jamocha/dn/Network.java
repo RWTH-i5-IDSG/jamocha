@@ -33,7 +33,6 @@ import org.jamocha.dn.nodes.TerminalNode;
 import org.jamocha.filter.Filter;
 import org.jamocha.filter.Filter.FilterElement;
 import org.jamocha.filter.Path;
-import org.jamocha.filter.PathTransformation;
 
 /**
  * The Network class encapsulates the central objects for {@link MemoryFactory} and
@@ -125,7 +124,7 @@ public class Network {
 		// collect the nodes of the paths
 		LinkedHashSet<Node> nodes = new LinkedHashSet<>();
 		for (Path path : paths) {
-			nodes.add(PathTransformation.getCurrentlyLowestNode(path));
+			nodes.add(path.getCurrentlyLowestNode());
 		}
 
 		// collect all nodes which have edges to all of the paths nodes as candidates
@@ -166,8 +165,8 @@ public class Network {
 					final FactAddress addressInSource =
 							candidate.delocalizeAddress(addressesInTarget[k].getFactAddress())
 									.getAddress();
-					if (!addressInSource.equals(PathTransformation
-							.getFactAddressInCurrentlyLowestNode(elementPaths[k])))
+					if (!addressInSource.equals(elementPaths[k]
+							.getFactAddressInCurrentlyLowestNode()))
 						continue candidateLoop;
 				}
 			}
