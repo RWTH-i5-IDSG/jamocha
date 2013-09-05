@@ -22,7 +22,11 @@ import org.jamocha.filter.Filter;
 /**
  * Interface for main memory implementations. A main memory contains the facts for one {@link Node
  * node}. It is complemented by {@link MemoryHandlerTemp}, which stores join results until they have
- * been adopted by all follow-up nodes.
+ * been adopted by all follow-up nodes. <br />
+ * To prevent data inconsistencies on the one hand and deadlocks on the other, a fair
+ * read-write-lock is needed to handle read- and write-operations on the main memory. We consider a
+ * read-write-lock as fair, if it stalls further readers as soon as a writer tries to acquire the
+ * write-lock.
  * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  * @see MemoryHandlerTemp
