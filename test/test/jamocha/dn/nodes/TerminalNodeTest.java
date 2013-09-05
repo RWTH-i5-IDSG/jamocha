@@ -61,7 +61,8 @@ public class TerminalNodeTest {
 
 	/**
 	 * Test method for
-	 * {@link org.jamocha.dn.nodes.TerminalNode#TerminalNode(org.jamocha.dn.Network)} .
+	 * {@link org.jamocha.dn.nodes.TerminalNode#TerminalNode(org.jamocha.dn.Network, org.jamocha.filter.Path...)}
+	 * .
 	 */
 	@Test
 	public void testTerminalNode() {
