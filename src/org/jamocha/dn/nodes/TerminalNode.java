@@ -38,7 +38,7 @@ public class TerminalNode extends BetaNode {
 		private final LinkedList<MemoryHandlerTemp> tempMemories = new LinkedList<>();
 
 		public TerminalEdgeImpl(final Network network, final Node sourceNode, final Node targetNode) {
-			super(network, sourceNode, targetNode);
+			super(network, sourceNode, targetNode, null);
 		}
 
 		@Override

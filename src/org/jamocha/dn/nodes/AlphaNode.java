@@ -38,8 +38,8 @@ public class AlphaNode extends Node {
 	protected class AlphaEdgeImpl extends EdgeImpl {
 		FactAddress addressInSource = null;
 
-		public AlphaEdgeImpl(final Network network, final Node sourceNode, final Node targetNode) {
-			super(network, sourceNode, targetNode);
+		public AlphaEdgeImpl(final Network network, final Node sourceNode, final Node targetNode, final Filter filter) {
+			super(network, sourceNode, targetNode, filter);
 		}
 
 		@Override
@@ -94,7 +94,7 @@ public class AlphaNode extends Node {
 
 	@Override
 	protected EdgeImpl newEdge(final Node source) {
-		return new AlphaEdgeImpl(this.network, source, this);
+		return new AlphaEdgeImpl(this.network, source, this, this.filter);
 	}
 
 	@Override

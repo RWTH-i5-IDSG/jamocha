@@ -43,8 +43,8 @@ public class BetaNode extends Node {
 		private Map<? extends FactAddress, ? extends FactAddress> addressMap;
 		private final LinkedList<MemoryHandlerTemp> tempMemories = new LinkedList<>();
 
-		public BetaEdgeImpl(final Network network, final Node sourceNode, final Node targetNode) {
-			super(network, sourceNode, targetNode);
+		public BetaEdgeImpl(final Network network, final Node sourceNode, final Node targetNode, final Filter filter) {
+			super(network, sourceNode, targetNode, filter);
 		}
 
 		@Override
@@ -92,7 +92,7 @@ public class BetaNode extends Node {
 
 	@Override
 	protected EdgeImpl newEdge(Node source) {
-		return new BetaEdgeImpl(this.network, source, this);
+		return new BetaEdgeImpl(this.network, source, this, this.filter);
 	}
 
 	@Override

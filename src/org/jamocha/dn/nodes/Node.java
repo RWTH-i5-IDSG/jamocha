@@ -49,8 +49,6 @@ import org.jamocha.filter.PathTransformation.PathInfo;
  */
 public abstract class Node {
 	
-	// FIXME Nodes should not forget their filters. At the moment the filter is passed to the constructor but not saved or used for joins.
-
 	public static interface Edge {
 		public void processPlusToken(final MemoryHandlerTemp memory)
 				throws CouldNotAcquireLockException;
@@ -101,10 +99,6 @@ public abstract class Node {
 		protected final Node targetNode;
 		protected Filter filter;
 
-		public EdgeImpl(final Network network, final Node sourceNode, final Node targetNode) {
-			this(network, sourceNode, targetNode, null);
-		}
-
 		@Override
 		public Node getSourceNode() {
 			return this.sourceNode;
@@ -131,15 +125,19 @@ public abstract class Node {
 		}
 	}
 
-	@Getter
-	final protected Edge[] incomingEdges;
-	final protected Collection<Edge> outgoingEdges = new LinkedList<>();
-	// TODO is filled in BetaNode#BetaEdgeImpl#setAddressMap, has to be filled
-	// in other children!
+	@Getter final protected Edge[] incomingEdges;
+	
+	/**
+	 * Returns an unmodifiable set of the outgoing edges.
+	 * 
+	 * @return an unmodifiable set of the outgoing edges
+	 */
+	@Getter final protected Collection<Edge> outgoingEdges = new LinkedList<>();
 	final protected Map<FactAddress, AddressPredecessor> delocalizeMap = new HashMap<>();
-	final protected MemoryHandlerMain memory;
+	@Getter final protected MemoryHandlerMain memory;
 	final protected Network network;
 	final protected TokenQueue tokenQueue;
+	@Getter final protected Filter filter; // TODO comment
 
 	@RequiredArgsConstructor
 	public class TokenQueue implements Runnable {
@@ -191,6 +189,7 @@ public abstract class Node {
 			this.incomingEdges[i] = this.connectParent(parents[i]);
 		}
 		this.memory = network.getMemoryFactory().newMemoryHandlerMain(incomingEdges);
+		this.filter = null;
 	}
 
 	protected Node(final Network network, final Template template, final Path... paths) {
@@ -198,11 +197,13 @@ public abstract class Node {
 		this.tokenQueue = new TokenQueue(network);
 		this.incomingEdges = new Edge[0];
 		this.memory = network.getMemoryFactory().newMemoryHandlerMain(template, paths);
+		this.filter = null;
 	}
 
 	public Node(final Network network, final Filter filter) {
 		this.network = network;
 		this.tokenQueue = new TokenQueue(network);
+		this.filter = filter;
 		final LinkedHashSet<Path> paths = filter.gatherPaths();
 		final Map<Edge, Set<Path>> edgesAndPaths = new HashMap<>();
 		final ArrayList<Edge> edges = new ArrayList<>();
@@ -285,19 +286,6 @@ public abstract class Node {
 	 * @return NodeInput connecting the given source node with this node
 	 */
 	abstract protected EdgeImpl newEdge(final Node source);
-
-	/**
-	 * Returns an unmodifiable set of the outgoing edges.
-	 * 
-	 * @return an unmodifiable set of the outgoing edges
-	 */
-	public Collection<Edge> getOutgoingEdges() {
-		return this.outgoingEdges;
-	}
-
-	public MemoryHandlerMain getMemory() {
-		return this.memory;
-	}
 
 	public int getNumberOfOutgoingEdges() {
 		return this.outgoingEdges.size();
