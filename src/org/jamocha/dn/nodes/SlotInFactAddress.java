@@ -29,4 +29,11 @@ import org.jamocha.dn.memory.SlotAddress;
 public class SlotInFactAddress {
 	final FactAddress factAddress;
 	final SlotAddress slotAddress;
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (!(obj instanceof SlotInFactAddress)) return false;
+		final SlotInFactAddress address = (SlotInFactAddress) obj;
+		return (this.factAddress.equals(address.factAddress) && this.slotAddress.equals(address.slotAddress));
+	}
 }

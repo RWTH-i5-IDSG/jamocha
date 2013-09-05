@@ -32,5 +32,12 @@ public class SlotAddress implements org.jamocha.dn.memory.SlotAddress {
 	public SlotType getSlotType(final Template template) {
 		return template.getSlotsType(this.index);
 	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (!(obj instanceof SlotAddress)) return false;
+		final SlotAddress address = (SlotAddress) obj;
+		return this.index == address.index;
+	}
 
 }
