@@ -41,9 +41,11 @@ import org.jamocha.filter.Filter.FilterElement;
 import org.jamocha.filter.FunctionWithArguments;
 
 /**
+ * Java-implementation of the {@link org.jamocha.dn.memory.MemoryHandlerTemp} interface.
+ * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
- * 
+ * @see org.jamocha.dn.memory.MemoryHandlerTemp
  */
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class MemoryHandlerTemp implements org.jamocha.dn.memory.MemoryHandlerTemp {
@@ -70,8 +72,8 @@ public class MemoryHandlerTemp implements org.jamocha.dn.memory.MemoryHandlerTem
 			final MemoryHandlerTemp token, final Edge originIncomingEdge, final Filter filter)
 			throws CouldNotAcquireLockException {
 		return new MemoryHandlerTemp(originatingMainHandler, performJoin(originatingMainHandler,
-				filter, token, originIncomingEdge), new Semaphore(originIncomingEdge.getTargetNode()
-				.getNumberOfOutgoingEdges()));
+				filter, token, originIncomingEdge), new Semaphore(originIncomingEdge
+				.getTargetNode().getNumberOfOutgoingEdges()));
 	}
 
 	static MemoryHandlerTemp newAlphaTemp(final MemoryHandlerMain originatingMainHandler,
@@ -96,8 +98,8 @@ public class MemoryHandlerTemp implements org.jamocha.dn.memory.MemoryHandlerTem
 			}
 			factList.add(fact);
 		}
-		return new MemoryHandlerTemp(originatingMainHandler, factList, new Semaphore(originIncomingEdge
-				.getTargetNode().getNumberOfOutgoingEdges()));
+		return new MemoryHandlerTemp(originatingMainHandler, factList, new Semaphore(
+				originIncomingEdge.getTargetNode().getNumberOfOutgoingEdges()));
 	}
 
 	static MemoryHandlerTemp newRootTemp(final MemoryHandlerMain originatingMainHandler,

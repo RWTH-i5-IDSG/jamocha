@@ -17,18 +17,34 @@ package org.jamocha.dn.memory.javaimpl;
 import lombok.RequiredArgsConstructor;
 
 /**
+ * Implementation of a Fact. Stores values as Objects.
+ * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
- * 
  */
 @RequiredArgsConstructor
 class Fact {
 	final Object slotValues[];
 
+	/**
+	 * Retrieves the value stored in the slot identified by {@link SlotAddress slot}.
+	 * 
+	 * @param slot
+	 *            {@link SlotAddress slot address} identifying the slot the value is stored in
+	 * @return the value stored in the slot identified by {@link SlotAddress slot}
+	 */
 	public Object getValue(final org.jamocha.dn.memory.SlotAddress slot) {
 		return slotValues[((SlotAddress) slot).getIndex()];
 	}
 
+	/**
+	 * Sets the {@link Object value} in the slot identified by {@link SlotAddress slot}.
+	 * 
+	 * @param slot
+	 *            {@link SlotAddress slot address} identifying the slot the value is to be stored in
+	 * @param value
+	 *            the value to store in the slot identified by {@link SlotAddress slot}
+	 */
 	public void setValue(final org.jamocha.dn.memory.SlotAddress slot, final Object value) {
 		slotValues[((SlotAddress) slot).getIndex()] = value;
 	}

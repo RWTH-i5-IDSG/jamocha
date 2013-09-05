@@ -19,14 +19,24 @@ import org.jamocha.dn.nodes.Node.Edge;
 import org.jamocha.filter.Path;
 
 /**
+ * Implementation of the {@link org.jamocha.dn.memory.MemoryFactory} interface. Supplies a singleton
+ * instance via {@link MemoryFactory#getMemoryFactory()}.
+ * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
- * 
+ * @see org.jamocha.dn.memory.MemoryFactory
  */
 public class MemoryFactory implements org.jamocha.dn.memory.MemoryFactory {
 
 	private final static MemoryFactory singleton = new MemoryFactory();
 
+	/**
+	 * Retrieves a singleton instance of the {@link org.jamocha.dn.memory.MemoryFactory}
+	 * implementation.
+	 * 
+	 * @return a singleton instance of the {@link org.jamocha.dn.memory.MemoryFactory}
+	 *         implementation
+	 */
 	public static org.jamocha.dn.memory.MemoryFactory getMemoryFactory() {
 		return singleton;
 	}

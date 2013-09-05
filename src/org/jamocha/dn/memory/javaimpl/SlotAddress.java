@@ -14,19 +14,25 @@
  */
 package org.jamocha.dn.memory.javaimpl;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.dn.memory.Template;
 
+/**
+ * Implementation of the {@link org.jamocha.dn.memory.SlotAddress} interface.
+ * 
+ * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+ * @see org.jamocha.dn.memory.SlotAddress
+ */
+@Getter
+@RequiredArgsConstructor
 public class SlotAddress implements org.jamocha.dn.memory.SlotAddress {
-	int index;
-
-	public SlotAddress(int index) {
-		this.index = index;
-	}
-
-	public int getIndex() {
-		return index;
-	}
+	/**
+	 * Index of the slot in the storing {@link Fact fact}.
+	 */
+	final int index;
 
 	@Override
 	public SlotType getSlotType(final Template template) {

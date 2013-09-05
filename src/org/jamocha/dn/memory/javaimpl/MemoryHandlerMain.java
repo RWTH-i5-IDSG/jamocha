@@ -28,9 +28,11 @@ import org.jamocha.filter.Filter;
 import org.jamocha.filter.Path;
 
 /**
+ * Java-implementation of the {@link org.jamocha.dn.memory.MemoryHandlerMain} interface.
+ * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
- * 
+ * @see org.jamocha.dn.memory.MemoryHandlerMain
  */
 public class MemoryHandlerMain implements org.jamocha.dn.memory.MemoryHandlerMain {
 	static final long tryLockTimeout = 1L;

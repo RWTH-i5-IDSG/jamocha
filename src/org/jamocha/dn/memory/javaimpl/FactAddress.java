@@ -14,18 +14,22 @@
  */
 package org.jamocha.dn.memory.javaimpl;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
+import org.jamocha.dn.memory.MemoryHandler;
+
 /**
- * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+ * Implementation of the {@link org.jamocha.dn.memory.FactAddress} interface.
  * 
+ * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+ * @see org.jamocha.dn.memory.FactAddress
  */
+@Getter
+@RequiredArgsConstructor
 public class FactAddress implements org.jamocha.dn.memory.FactAddress {
-	int index;
-
-	public FactAddress(int index) {
-		this.index = index;
-	}
-
-	public int getIndex() {
-		return index;
-	}
+	/**
+	 * Index of the {@link Fact} in the storing {@link MemoryHandler}.
+	 */
+	final int index;
 }
