@@ -19,6 +19,7 @@ import java.util.LinkedHashSet;
 
 import lombok.Getter;
 
+import org.jamocha.dn.memory.FactAddress;
 import org.jamocha.dn.memory.MemoryFactory;
 import org.jamocha.dn.memory.MemoryHandlerMain;
 import org.jamocha.dn.memory.MemoryHandlerTemp;
@@ -27,8 +28,10 @@ import org.jamocha.dn.nodes.BetaNode;
 import org.jamocha.dn.nodes.Node;
 import org.jamocha.dn.nodes.Node.Edge;
 import org.jamocha.dn.nodes.RootNode;
+import org.jamocha.dn.nodes.SlotInFactAddress;
 import org.jamocha.dn.nodes.TerminalNode;
 import org.jamocha.filter.Filter;
+import org.jamocha.filter.Filter.FilterElement;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.PathTransformation;
 
@@ -73,7 +76,7 @@ public class Network {
 	 * @return the networks scheduler
 	 */
 	private final Scheduler scheduler;
-	
+
 	private final RootNode rootNode;
 
 	/**
@@ -116,33 +119,64 @@ public class Network {
 		this(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(), Integer.MAX_VALUE,
 				new ThreadPoolScheduler(10));
 	}
-	
-	private boolean tryToShareNode(Filter filter, Path... paths) {
-		// TODO check if node for sharing is available
+
+	private boolean tryToShareNode(Filter filter, Path... paths) { // TODO remove order dependencies
+
+		// collect the nodes of the paths
 		LinkedHashSet<Node> nodes = new LinkedHashSet<>();
 		for (Path path : paths) {
 			nodes.add(PathTransformation.getCurrentlyLowestNode(path));
 		}
+
+		// collect all nodes which have edges to all of the paths nodes as candidates
 		final LinkedHashSet<Node> candidates = new LinkedHashSet<>();
 		assert nodes.size() > 0;
-		Iterator<Node> i = nodes.iterator();
+		final Iterator<Node> i = nodes.iterator();
 		Node node = i.next();
-		for (Edge edge : node.getOutgoingEdges()) {
+
+		for (Edge edge : node.getOutgoingEdges()) { // add all children of the first node
 			candidates.add(edge.getTargetNode());
 		}
-		for (;i.hasNext(); node = i.next()) {
+
+		for (; i.hasNext(); node = i.next()) { // remove all nodes which aren't children of all
+												// other nodes
 			final LinkedHashSet<Node> cutSet = new LinkedHashSet<>();
 			for (Edge edge : node.getOutgoingEdges()) {
 				cutSet.add(edge.getTargetNode());
 			}
 			candidates.retainAll(cutSet);
 		}
-		for (Node candidate : candidates) {
-			candidate.getFilter() // FIXME as soon as filters are used and saved by Nodes 
+
+		// check candidates for possible node sharing
+		candidateLoop: for (Node candidate : candidates) {
+			final Filter candidateFilter = candidate.getFilter();
+
+			if (!candidateFilter.equals(filter)) // check if filter matches
+				continue candidateLoop;
+
+			final FilterElement[] candidateFilterElements = candidateFilter.getFilterElements();
+			final FilterElement[] filterElements = filter.getFilterElements();
+			for (int j = 0; j < filterElements.length; j++) {
+				final SlotInFactAddress[] addressesInTarget =
+						candidateFilterElements[j].getAddressesInTarget();
+				final LinkedHashSet<Path> elementPathSet = new LinkedHashSet<>();
+				filterElements[j].getFunction().gatherPaths(elementPathSet);
+				final Path[] elementPaths = elementPathSet.toArray(new Path[elementPathSet.size()]);
+				for (int k = 0; k < addressesInTarget.length; k++) {
+					final FactAddress addressInSource =
+							candidate.delocalizeAddress(addressesInTarget[k].getFactAddress())
+									.getAddress();
+					if (!addressInSource.equals(PathTransformation
+							.getFactAddressInCurrentlyLowestNode(elementPaths[k])))
+						continue candidateLoop;
+				}
+			}
+			candidate.shareNode(paths);
+			return true;
 		}
 		return false;
 	}
-	
+
 	public TerminalNode buildRule(Filter... filters) {
 		final LinkedHashSet<Path> allPaths = new LinkedHashSet<>();
 		for (Filter filter : filters) {
