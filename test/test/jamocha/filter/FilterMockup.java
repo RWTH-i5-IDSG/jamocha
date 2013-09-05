@@ -20,9 +20,12 @@ import static org.junit.Assert.assertTrue;
 import java.util.ArrayList;
 import java.util.Set;
 
+import lombok.RequiredArgsConstructor;
+
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.dn.nodes.SlotInFactAddress;
 import org.jamocha.filter.Filter;
+import org.jamocha.filter.Function;
 import org.jamocha.filter.FunctionWithArguments;
 import org.jamocha.filter.Path;
 import org.junit.experimental.theories.Theories;
@@ -38,36 +41,51 @@ import test.jamocha.util.TestData.SomeStuff;
  */
 public class FilterMockup extends Filter {
 
+	@RequiredArgsConstructor
+	public static class FunctionWithArgumentsMockup implements FunctionWithArguments {
+		
+		final private boolean returnValue;
+		final private Path[] paths;
+		
+		@Override
+		public SlotType getReturnType() {
+			return SlotType.BOOLEAN;
+		}
+
+		@Override
+		public SlotType[] getParamTypes() {
+			return SlotType.empty;
+		}
+
+		@Override
+		public Object evaluate(final Object... params) {
+			return returnValue;
+		}
+
+		@Override
+		public FunctionWithArguments translatePath(
+				final ArrayList<SlotInFactAddress> addressesInTarget) {
+			return this;
+		}
+
+		@Override
+		public void gatherPaths(final Set<Path> p) {
+			for (Path path : paths) {
+				p.add(path);
+			}
+		}
+
+		@Override
+		public boolean equalsInFunction(Function function) {
+			if (! (function instanceof FunctionWithArgumentsMockup))
+				return false;
+			FunctionWithArgumentsMockup fwam = (FunctionWithArgumentsMockup) function;
+			return (fwam.returnValue == this.returnValue && fwam.paths.length == this.paths.length);
+		}
+	}
+
 	public FilterMockup(final boolean returnValue, final Path... paths) {
-		super(new FunctionWithArguments[] { new FunctionWithArguments() {
-			@Override
-			public SlotType getReturnType() {
-				return SlotType.BOOLEAN;
-			}
-
-			@Override
-			public SlotType[] getParamTypes() {
-				return SlotType.empty;
-			}
-
-			@Override
-			public Object evaluate(final Object... params) {
-				return returnValue;
-			}
-
-			@Override
-			public FunctionWithArguments translatePath(
-					final ArrayList<SlotInFactAddress> addressesInTarget) {
-				return this;
-			}
-
-			@Override
-			public void gatherPaths(final Set<Path> p) {
-				for (Path path : paths) {
-					p.add(path);
-				}
-			}
-		} });
+		super(new FunctionWithArguments[] { new FunctionWithArgumentsMockup(returnValue, paths) });
 	}
 
 	public static FilterMockup alwaysTrue() {

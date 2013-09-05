@@ -65,4 +65,12 @@ public class ConstantLeaf implements FunctionWithArguments {
 	public void gatherPaths(final Set<Path> paths) {
 	}
 
+	@Override
+	public boolean equalsInFunction(Function function) {
+		if (!(function instanceof ConstantLeaf))
+			return false;
+		final ConstantLeaf constantLeaf = (ConstantLeaf) function;
+		return (this.type.equals(constantLeaf.type) && this.value.equals(constantLeaf.value));
+	}
+
 }

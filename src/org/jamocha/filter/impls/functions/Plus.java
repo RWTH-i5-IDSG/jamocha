@@ -44,6 +44,12 @@ public class Plus {
 			public Long evaluate(final Object... params) {
 				return (Long) params[0] + (Long) params[1];
 			}
+
+			@Override
+			public boolean equalsInFunction(Function function) {
+				// FIXME implement equalsInFunction
+				return false;
+			}
 		});
 		TODODatenkrakeFunktionen.addImpl(new Function() {
 			public SlotType[] getParamTypes() {
@@ -60,6 +66,12 @@ public class Plus {
 
 			public Double evaluate(final Object... params) {
 				return (Double) params[0] + (Double) params[1];
+			}
+
+			@Override
+			public boolean equalsInFunction(Function function) {
+				// FIXME implement equalsInFunction
+				return false;
 			}
 		});
 	}

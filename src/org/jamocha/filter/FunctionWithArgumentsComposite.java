@@ -105,4 +105,10 @@ public class FunctionWithArgumentsComposite implements FunctionWithArguments {
 		}
 	}
 
+	@Override
+	public boolean equalsInFunction(Function function) {
+		// FIXME implement equalsInFunction
+		return false;
+	}
+
 }

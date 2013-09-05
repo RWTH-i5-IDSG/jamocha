@@ -129,6 +129,12 @@ public class PathLeaf implements FunctionWithArguments {
 		public void gatherPaths(final Set<Path> paths) {
 		}
 
+		@Override
+		public boolean equalsInFunction(Function function) {
+			// FIXME implement equalsInFunction
+			return false;
+		}
+
 	}
 
 	@Override
@@ -142,6 +148,12 @@ public class PathLeaf implements FunctionWithArguments {
 	@Override
 	public void gatherPaths(final Set<Path> paths) {
 		paths.add(this.path);
+	}
+
+	@Override
+	public boolean equalsInFunction(Function function) {
+		// FIXME implement equalsInFunction
+		return false;
 	}
 
 }

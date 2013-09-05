@@ -63,6 +63,10 @@ public class Filter {
 			this.function = function;
 			this.addressesInTarget = addressesInTarget;
 		}
+		
+		public boolean equalsInFunction(FilterElement filterElement) {
+			return function.equalsInFunction(filterElement.function);
+		}
 	}
 
 	/**
@@ -140,6 +144,15 @@ public class Filter {
 			}
 		}
 		return parameters.size();
+	}
+
+	public boolean equalsInFunction(Filter filter) { //TODO make this filter order and structure independent
+		if (this.filterElements.length != filter.filterElements.length)
+			return false;
+		for (int i = 0; i < this.filterElements.length; i++) {
+			if (!this.filterElements[i].equalsInFunction(filter.filterElements[i])) return false;
+		}
+		return true;
 	}
 
 }
