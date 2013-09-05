@@ -78,7 +78,7 @@ public class MemoryHandlerTempTest {
 			final int offset;
 
 			public EdgeMockup(Network network, Node sourceNode, Node targetNode, int offset) {
-				super(network, sourceNode, targetNode);
+				super(network, sourceNode, targetNode, null);
 				this.offset = offset;
 			}
 
