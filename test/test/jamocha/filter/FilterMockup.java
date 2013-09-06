@@ -18,7 +18,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
-import java.util.Set;
+import java.util.Collection;
 
 import lombok.RequiredArgsConstructor;
 
@@ -69,10 +69,11 @@ public class FilterMockup extends Filter {
 		}
 
 		@Override
-		public void gatherPaths(final Set<Path> p) {
-			for (Path path : paths) {
-				p.add(path);
+		public <T extends Collection<Path>> T gatherPaths(final T paths) {
+			for (Path path : this.paths) {
+				paths.add(path);
 			}
+			return paths;
 		}
 
 		@Override

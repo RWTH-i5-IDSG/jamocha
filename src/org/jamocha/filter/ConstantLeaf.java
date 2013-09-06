@@ -15,7 +15,7 @@
 package org.jamocha.filter;
 
 import java.util.ArrayList;
-import java.util.Set;
+import java.util.Collection;
 
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.dn.nodes.SlotInFactAddress;
@@ -62,7 +62,8 @@ public class ConstantLeaf implements FunctionWithArguments {
 	}
 
 	@Override
-	public void gatherPaths(final Set<Path> paths) {
+	public <T extends Collection<Path>> T gatherPaths(final T paths) {
+		return paths;
 	}
 
 	@Override

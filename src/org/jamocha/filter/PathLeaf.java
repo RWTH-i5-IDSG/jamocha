@@ -15,7 +15,7 @@
 package org.jamocha.filter;
 
 import java.util.ArrayList;
-import java.util.Set;
+import java.util.Collection;
 
 import org.jamocha.dn.memory.Fact;
 import org.jamocha.dn.memory.FactAddress;
@@ -124,7 +124,8 @@ public class PathLeaf implements FunctionWithArguments {
 		}
 
 		@Override
-		public void gatherPaths(final Set<Path> paths) {
+		public <T extends Collection<Path>> T gatherPaths(final T paths) {
+			return paths;
 		}
 
 		@Override
@@ -144,8 +145,9 @@ public class PathLeaf implements FunctionWithArguments {
 	}
 
 	@Override
-	public void gatherPaths(final Set<Path> paths) {
+	public <T extends Collection<Path>> T gatherPaths(final T paths) {
 		paths.add(this.path);
+		return paths;
 	}
 
 	@Override

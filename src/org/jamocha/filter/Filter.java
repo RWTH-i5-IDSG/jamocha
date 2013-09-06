@@ -15,6 +15,7 @@
 package org.jamocha.filter;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -124,7 +125,15 @@ public class Filter {
 	 * @return {@link Path paths} used in any {@link PathLeaf path leafs}
 	 */
 	public LinkedHashSet<Path> gatherPaths() {
-		final LinkedHashSet<Path> paths = new LinkedHashSet<>();
+		return gatherPaths(new LinkedHashSet<Path>());
+	}
+	
+	/**
+	 * Gathers the {@link Path paths} used in any {@link PathLeaf path leafs}.
+	 * 
+	 * @return {@link Path paths} used in any {@link PathLeaf path leafs}
+	 */
+	public <T extends Collection<Path>> T gatherPaths(final T paths) {
 		for (final FilterElement step : filterElements) {
 			step.function.gatherPaths(paths);
 		}
@@ -146,7 +155,7 @@ public class Filter {
 		return parameters.size();
 	}
 
-	public boolean equalsInFunction(Filter filter) { //TODO make this filter order and structure independent
+	public boolean equalsInFunction(final Filter filter) { //TODO make this filter order and structure independent
 		if (this.filterElements.length != filter.filterElements.length)
 			return false;
 		for (int i = 0; i < this.filterElements.length; i++) {

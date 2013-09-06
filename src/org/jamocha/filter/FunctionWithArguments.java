@@ -15,7 +15,7 @@
 package org.jamocha.filter;
 
 import java.util.ArrayList;
-import java.util.Set;
+import java.util.Collection;
 
 import org.jamocha.dn.memory.Fact;
 import org.jamocha.dn.nodes.Node;
@@ -36,7 +36,7 @@ public interface FunctionWithArguments extends Function {
 	 * @param paths
 	 *            {@link Path paths} used in any {@link PathLeaf path leafs}
 	 */
-	public void gatherPaths(final Set<Path> paths);
+	public <T extends Collection<Path>> T gatherPaths(final T paths);
 
 	/**
 	 * Translates any {@link PathLeaf}s into {@link ParameterLeaf}s.

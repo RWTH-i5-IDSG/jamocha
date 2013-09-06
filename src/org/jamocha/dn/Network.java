@@ -14,8 +14,10 @@
  */
 package org.jamocha.dn;
 
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 
 import lombok.Getter;
 
@@ -139,7 +141,7 @@ public class Network {
 
 		for (; i.hasNext(); node = i.next()) { // remove all nodes which aren't children of all
 												// other nodes
-			final LinkedHashSet<Node> cutSet = new LinkedHashSet<>();
+			final HashSet<Node> cutSet = new HashSet<>();
 			for (Edge edge : node.getOutgoingEdges()) {
 				cutSet.add(edge.getTargetNode());
 			}
@@ -147,10 +149,10 @@ public class Network {
 		}
 
 		// check candidates for possible node sharing
-		candidateLoop: for (Node candidate : candidates) {
+		candidateLoop: for (final Node candidate : candidates) {
 			final Filter candidateFilter = candidate.getFilter();
 
-			if (!candidateFilter.equals(filter)) // check if filter matches
+			if (!candidateFilter.equalsInFunction(filter)) // check if filter matches
 				continue candidateLoop;
 
 			final FilterElement[] candidateFilterElements = candidateFilter.getFilterElements();
@@ -158,8 +160,7 @@ public class Network {
 			for (int j = 0; j < filterElements.length; j++) {
 				final SlotInFactAddress[] addressesInTarget =
 						candidateFilterElements[j].getAddressesInTarget();
-				final LinkedHashSet<Path> elementPathSet = new LinkedHashSet<>();
-				filterElements[j].getFunction().gatherPaths(elementPathSet);
+				final LinkedList<Path> elementPathSet = filterElements[j].getFunction().gatherPaths(new LinkedList<Path>());
 				final Path[] elementPaths = elementPathSet.toArray(new Path[elementPathSet.size()]);
 				for (int k = 0; k < addressesInTarget.length; k++) {
 					final FactAddress addressInSource =
