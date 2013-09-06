@@ -15,8 +15,10 @@
 package org.jamocha.dn.nodes;
 
 /**
- * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+ * Exception thrown when a lock could not be acquired, e.g. if a read-lock could not be acquired in
+ * time because a write-lock stalled further read-lock-requests.
  * 
+ * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
 public class CouldNotAcquireLockException extends Exception {
 
@@ -26,20 +28,20 @@ public class CouldNotAcquireLockException extends Exception {
 		super();
 	}
 
-	public CouldNotAcquireLockException(String message, Throwable cause, boolean enableSuppression,
-			boolean writableStackTrace) {
+	public CouldNotAcquireLockException(final String message, final Throwable cause,
+			final boolean enableSuppression, final boolean writableStackTrace) {
 		super(message, cause, enableSuppression, writableStackTrace);
 	}
 
-	public CouldNotAcquireLockException(String message, Throwable cause) {
+	public CouldNotAcquireLockException(final String message, final Throwable cause) {
 		super(message, cause);
 	}
 
-	public CouldNotAcquireLockException(String message) {
+	public CouldNotAcquireLockException(final String message) {
 		super(message);
 	}
 
-	public CouldNotAcquireLockException(Throwable cause) {
+	public CouldNotAcquireLockException(final Throwable cause) {
 		super(cause);
 	}
 
