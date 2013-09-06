@@ -1,4 +1,4 @@
 /**
- * TODO documentation org.jamocha.dn.nodes
+ * Contains node classes.
  */
 package org.jamocha.dn.nodes;

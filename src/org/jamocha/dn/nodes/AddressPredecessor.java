@@ -22,12 +22,24 @@ import org.jamocha.dn.memory.FactAddress;
 import org.jamocha.dn.nodes.Node.Edge;
 
 /**
+ * Combines a {@link FactAddress fact address} with an {@link Edge edge}. Identifies a
+ * {@link FactAddress fact address} in the target {@link Node node} of the {@link Edge edge}.
+ * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+ * @see FactAddress
+ * @see Edge
  */
-
 @Getter
 @RequiredArgsConstructor
 public class AddressPredecessor {
+	/**
+	 * {@link Edge} connecting the {@link Node node} the {@link FactAddress address} is valid for as
+	 * source {@link Node node} and a target {@link Node node}, for which the {@link Edge edge} can
+	 * localize the {@link FactAddress address}.
+	 */
 	final Edge edge;
+	/**
+	 * {@link FactAddress Address} valid in the source {@link Node node} of {@link Edge edge}.
+	 */
 	final FactAddress address;
 }
