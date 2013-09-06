@@ -14,6 +14,7 @@
  */
 package org.jamocha.dn.memory.javaimpl;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -27,6 +28,7 @@ import org.jamocha.dn.memory.Template;
  * @see org.jamocha.dn.memory.SlotAddress
  */
 @Getter
+@EqualsAndHashCode
 @RequiredArgsConstructor
 public class SlotAddress implements org.jamocha.dn.memory.SlotAddress {
 	/**
@@ -37,13 +39,6 @@ public class SlotAddress implements org.jamocha.dn.memory.SlotAddress {
 	@Override
 	public SlotType getSlotType(final Template template) {
 		return template.getSlotsType(this.index);
-	}
-	
-	@Override
-	public boolean equals(Object obj) {
-		if (!(obj instanceof SlotAddress)) return false;
-		final SlotAddress address = (SlotAddress) obj;
-		return this.index == address.index;
 	}
 
 }

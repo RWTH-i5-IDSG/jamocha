@@ -14,6 +14,7 @@
  */
 package org.jamocha.dn.nodes;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -21,19 +22,26 @@ import org.jamocha.dn.memory.FactAddress;
 import org.jamocha.dn.memory.SlotAddress;
 
 /**
- * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+ * Combines a {@link FactAddress fact address} with a {@link SlotAddress slot address}.
  * 
+ * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+ * @see FactAddress
+ * @see SlotAddress
  */
 @Getter
+@EqualsAndHashCode
 @RequiredArgsConstructor
 public class SlotInFactAddress {
+	/**
+	 * -- GETTER --
+	 * 
+	 * Getter for the {@link FactAddress} identifying a fact in a row in a MemoryHandler;
+	 */
 	final FactAddress factAddress;
+	/**
+	 * -- GETTER --
+	 * 
+	 * Getter for the {@link SlotAddress} identifying a slot in a fact.
+	 */
 	final SlotAddress slotAddress;
-	
-	@Override
-	public boolean equals(Object obj) {
-		if (!(obj instanceof SlotInFactAddress)) return false;
-		final SlotInFactAddress address = (SlotInFactAddress) obj;
-		return (this.factAddress.equals(address.factAddress) && this.slotAddress.equals(address.slotAddress));
-	}
 }
