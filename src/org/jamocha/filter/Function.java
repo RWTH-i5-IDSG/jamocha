@@ -59,12 +59,14 @@ public interface Function {
 	public Object evaluate(final Object... params);
 
 	/**
-	 * Compares to {@link Function Functions}. Returns false if the functions do not return the same value for a call
-	 * of {@link #evaluate(Object...)} with the same parameters for at least one set of parameters.
+	 * Compares to {@link Function Functions}. Returns false if the functions do not return the same
+	 * value for a call of {@link #evaluate(Object...)} with the same parameters for at least one
+	 * set of parameters.
 	 * 
 	 * May produce false negatives.
 	 * 
-	 * @param function the {@link Function} to compare with
+	 * @param function
+	 *            the {@link Function} to compare with
 	 * @return the result of the comparison (possibly false negatives)
 	 */
 	public boolean equalsInFunction(Function function);
