@@ -17,6 +17,8 @@ package org.jamocha.filter;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import lombok.EqualsAndHashCode;
+
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.dn.nodes.SlotInFactAddress;
 
@@ -26,6 +28,7 @@ import org.jamocha.dn.nodes.SlotInFactAddress;
  * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
+@EqualsAndHashCode
 public class ConstantLeaf implements FunctionWithArguments {
 	final Object value;
 	final SlotType type;
@@ -70,8 +73,14 @@ public class ConstantLeaf implements FunctionWithArguments {
 	public boolean equalsInFunction(final FunctionWithArguments function) {
 		if (!(function instanceof ConstantLeaf))
 			return false;
-		final ConstantLeaf constantLeaf = (ConstantLeaf) function;
-		return (this.type.equals(constantLeaf.type) && this.value.equals(constantLeaf.value));
+		final ConstantLeaf other = (ConstantLeaf) function;
+		if (!other.canEqual(this))
+			return false;
+		if (this.type == null ? other.type != null : !this.type.equals(other.type))
+			return false;
+		if (this.value == null ? other.value != null : !this.value.equals(other.value))
+			return false;
+		return true;
 	}
 
 }

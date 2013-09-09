@@ -18,6 +18,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 
+import lombok.EqualsAndHashCode;
+
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.dn.nodes.SlotInFactAddress;
 
@@ -33,6 +35,7 @@ import org.jamocha.dn.nodes.SlotInFactAddress;
  * @see Function
  * @see FunctionWithArguments
  */
+@EqualsAndHashCode
 public class FunctionWithArgumentsComposite implements FunctionWithArguments {
 
 	final Function function;
@@ -108,8 +111,22 @@ public class FunctionWithArgumentsComposite implements FunctionWithArguments {
 
 	@Override
 	public boolean equalsInFunction(final FunctionWithArguments function) {
-		// FIXME implement equalsInFunction
-		return false;
+		if (function == this)
+			return true;
+		if (!(function instanceof FunctionWithArgumentsComposite))
+			return false;
+		final FunctionWithArgumentsComposite other = (FunctionWithArgumentsComposite) function;
+		if (!other.canEqual(this))
+			return false;
+		if (this.args.length != other.args.length)
+			return false;
+		for (int i = 0; i < this.args.length; ++i) {
+			final FunctionWithArguments arg1 = this.args[i];
+			final FunctionWithArguments arg2 = other.args[i];
+			if (arg1 == null ? arg2 != null : !arg1.equalsInFunction(arg2))
+				return false;
+		}
+		return true;
 	}
 
 }

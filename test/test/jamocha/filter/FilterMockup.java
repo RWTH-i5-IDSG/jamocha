@@ -76,6 +76,11 @@ public class FilterMockup extends Filter {
 		}
 
 		@Override
+		public boolean canEqual(final Object other) {
+			return other instanceof FunctionWithArgumentsMockup;
+		}
+
+		@Override
 		public boolean equalsInFunction(final FunctionWithArguments function) {
 			if (!(function instanceof FunctionWithArgumentsMockup))
 				return false;

@@ -83,6 +83,17 @@ public interface FunctionWithArguments {
 	public FunctionWithArguments translatePath(final ArrayList<SlotInFactAddress> addressesInTarget);
 
 	/**
+	 * The method should return true if the other object is an instance of the class in which
+	 * {@code canEqual} is (re)defined, false otherwise. It is called from {@code equals} to make
+	 * sure that the objects are comparable both ways.
+	 * 
+	 * @param other
+	 *            object, possibly instance of {@link FunctionWithArguments}
+	 * @return true iff the other object is an instance of the {@link FunctionWithArguments}
+	 */
+	public boolean canEqual(final Object other);
+
+	/**
 	 * Compares to {@link FunctionWithArguments Functions}. Returns false if the functions do not
 	 * return the same value for a call of {@link #evaluate(Object...)} with the same parameters for
 	 * at least one set of parameters.

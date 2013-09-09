@@ -17,6 +17,8 @@ package org.jamocha.filter;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import lombok.EqualsAndHashCode;
+
 import org.jamocha.dn.memory.Fact;
 import org.jamocha.dn.memory.FactAddress;
 import org.jamocha.dn.memory.SlotAddress;
@@ -37,6 +39,7 @@ import org.jamocha.filter.Filter.FilterElement;
  * @see SlotAddress
  * @see Node
  */
+@EqualsAndHashCode
 public class PathLeaf implements FunctionWithArguments {
 
 	final Path path;
@@ -85,6 +88,7 @@ public class PathLeaf implements FunctionWithArguments {
 	 * @see FilterElement
 	 * @see SlotInFactAddress
 	 */
+	@EqualsAndHashCode
 	public static class ParameterLeaf implements FunctionWithArguments {
 		final SlotType type;
 
@@ -130,8 +134,7 @@ public class PathLeaf implements FunctionWithArguments {
 
 		@Override
 		public boolean equalsInFunction(final FunctionWithArguments function) {
-			// FIXME implement equalsInFunction
-			return false;
+			return this.equals(function);
 		}
 
 	}
@@ -152,8 +155,19 @@ public class PathLeaf implements FunctionWithArguments {
 
 	@Override
 	public boolean equalsInFunction(final FunctionWithArguments function) {
-		// FIXME implement equalsInFunction
-		return false;
+		if (function == this)
+			return true;
+		if (!(function instanceof PathLeaf))
+			return false;
+		final PathLeaf other = (PathLeaf) function;
+		if (!other.canEqual(this))
+			return false;
+		if (this.path.template == null ? other.path.template != null : !this.path.template
+				.equals(other.path.template))
+			return false;
+		if (this.slot == null ? other.slot != null : !this.slot.equals(other.slot))
+			return false;
+		return true;
 	}
 
 }
