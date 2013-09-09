@@ -67,7 +67,7 @@ public class ConstantLeaf implements FunctionWithArguments {
 	}
 
 	@Override
-	public boolean equalsInFunction(Function function) {
+	public boolean equalsInFunction(final FunctionWithArguments function) {
 		if (!(function instanceof ConstantLeaf))
 			return false;
 		final ConstantLeaf constantLeaf = (ConstantLeaf) function;

@@ -129,7 +129,7 @@ public class PathLeaf implements FunctionWithArguments {
 		}
 
 		@Override
-		public boolean equalsInFunction(Function function) {
+		public boolean equalsInFunction(final FunctionWithArguments function) {
 			// FIXME implement equalsInFunction
 			return false;
 		}
@@ -151,7 +151,7 @@ public class PathLeaf implements FunctionWithArguments {
 	}
 
 	@Override
-	public boolean equalsInFunction(Function function) {
+	public boolean equalsInFunction(final FunctionWithArguments function) {
 		// FIXME implement equalsInFunction
 		return false;
 	}

@@ -15,7 +15,6 @@
 package org.jamocha.filter.impls.predicates;
 
 import org.jamocha.dn.memory.SlotType;
-import org.jamocha.filter.Function;
 import org.jamocha.filter.Predicate;
 import org.jamocha.filter.TODODatenkrakeFunktionen;
 
@@ -42,12 +41,6 @@ public class And {
 			@Override
 			public Boolean evaluate(final Object... params) {
 				return (Boolean) params[0] && (Boolean) params[1];
-			}
-
-			@Override
-			public boolean equalsInFunction(Function function) {
-				// FIXME implement equalsInFunction
-				return false;
 			}
 		});
 	}

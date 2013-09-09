@@ -25,7 +25,6 @@ import lombok.RequiredArgsConstructor;
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.dn.nodes.SlotInFactAddress;
 import org.jamocha.filter.Filter;
-import org.jamocha.filter.Function;
 import org.jamocha.filter.FunctionWithArguments;
 import org.jamocha.filter.Path;
 import org.junit.experimental.theories.Theories;
@@ -43,10 +42,10 @@ public class FilterMockup extends Filter {
 
 	@RequiredArgsConstructor
 	public static class FunctionWithArgumentsMockup implements FunctionWithArguments {
-		
+
 		final private boolean returnValue;
 		final private Path[] paths;
-		
+
 		@Override
 		public SlotType getReturnType() {
 			return SlotType.BOOLEAN;
@@ -77,8 +76,8 @@ public class FilterMockup extends Filter {
 		}
 
 		@Override
-		public boolean equalsInFunction(Function function) {
-			if (! (function instanceof FunctionWithArgumentsMockup))
+		public boolean equalsInFunction(final FunctionWithArguments function) {
+			if (!(function instanceof FunctionWithArgumentsMockup))
 				return false;
 			FunctionWithArgumentsMockup fwam = (FunctionWithArgumentsMockup) function;
 			return (fwam.returnValue == this.returnValue && fwam.paths.length == this.paths.length);

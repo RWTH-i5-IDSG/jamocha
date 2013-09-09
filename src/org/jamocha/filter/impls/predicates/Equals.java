@@ -16,7 +16,6 @@
 package org.jamocha.filter.impls.predicates;
 
 import org.jamocha.dn.memory.SlotType;
-import org.jamocha.filter.Function;
 import org.jamocha.filter.Predicate;
 import org.jamocha.filter.TODODatenkrakeFunktionen;
 
@@ -45,12 +44,6 @@ public class Equals {
 			public Boolean evaluate(final Object... params) {
 				return ((Long) params[0]).equals((Long) params[1]);
 			}
-
-			@Override
-			public boolean equalsInFunction(Function function) {
-				// FIXME implement equalsInFunction
-				return false;
-			}
 		});
 		TODODatenkrakeFunktionen.addImpl(new Predicate() {
 			@Override
@@ -66,12 +59,6 @@ public class Equals {
 			@Override
 			public Boolean evaluate(final Object... params) {
 				return ((Double) params[0]).equals((Double) params[1]);
-			}
-
-			@Override
-			public boolean equalsInFunction(Function function) {
-				// FIXME implement equalsInFunction
-				return false;
 			}
 		});
 		TODODatenkrakeFunktionen.addImpl(new Predicate() {
@@ -89,12 +76,6 @@ public class Equals {
 			public Boolean evaluate(final Object... params) {
 				return ((Boolean) params[0]).equals((Boolean) params[1]);
 			}
-
-			@Override
-			public boolean equalsInFunction(Function function) {
-				// FIXME implement equalsInFunction
-				return false;
-			}
 		});
 		TODODatenkrakeFunktionen.addImpl(new Predicate() {
 			@Override
@@ -110,12 +91,6 @@ public class Equals {
 			@Override
 			public Boolean evaluate(final Object... params) {
 				return ((String) params[0]).equals((String) params[1]);
-			}
-
-			@Override
-			public boolean equalsInFunction(Function function) {
-				// FIXME implement equalsInFunction
-				return false;
 			}
 		});
 

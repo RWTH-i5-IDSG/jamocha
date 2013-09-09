@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import org.jamocha.dn.memory.Fact;
+import org.jamocha.dn.memory.SlotType;
 import org.jamocha.dn.nodes.Node;
 import org.jamocha.dn.nodes.SlotInFactAddress;
 import org.jamocha.filter.PathLeaf.ParameterLeaf;
@@ -28,7 +29,38 @@ import org.jamocha.filter.PathLeaf.ParameterLeaf;
  * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
-public interface FunctionWithArguments extends Function {
+public interface FunctionWithArguments {
+
+	/**
+	 * Getter for the list of the corresponding parameter types for the function.
+	 * 
+	 * @return list of the corresponding parameter types for the function
+	 */
+	public SlotType[] getParamTypes();
+
+	/**
+	 * Getter for the return type of the Function.
+	 * 
+	 * @return return type of the function
+	 */
+	public SlotType getReturnType();
+
+	/**
+	 * Returns the string representation of the corresponding function in CLIPS.
+	 * 
+	 * @return name of the corresponding function in CLIPS
+	 */
+	@Override
+	public String toString();
+
+	/**
+	 * Evaluates the function for the given parameters and returns the result
+	 * 
+	 * @param params
+	 *            parameters for the function call
+	 * @return result of the function call
+	 */
+	public Object evaluate(final Object... params);
 
 	/**
 	 * Gathers the {@link Path paths} used in any {@link PathLeaf path leafs}.
@@ -49,5 +81,18 @@ public interface FunctionWithArguments extends Function {
 	 *         {@link ParameterLeaf parameter leafs} instead of any {@link PathLeaf path leafs}
 	 */
 	public FunctionWithArguments translatePath(final ArrayList<SlotInFactAddress> addressesInTarget);
+
+	/**
+	 * Compares to {@link FunctionWithArguments Functions}. Returns false if the functions do not
+	 * return the same value for a call of {@link #evaluate(Object...)} with the same parameters for
+	 * at least one set of parameters.
+	 * 
+	 * May produce false negatives.
+	 * 
+	 * @param function
+	 *            the {@link FunctionWithArguments} to compare with
+	 * @return the result of the comparison (possibly false negatives)
+	 */
+	public boolean equalsInFunction(final FunctionWithArguments function);
 
 }
