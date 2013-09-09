@@ -15,7 +15,7 @@
 package org.jamocha.dn.nodes;
 
 /**
- * Exception thrown when a lock could not be acquired, e.g. if a read-lock could not be acquired in
+ * Exception thrown when a lock could not be acquired, eg if a read-lock could not be acquired in
  * time because a write-lock stalled further read-lock-requests.
  * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
