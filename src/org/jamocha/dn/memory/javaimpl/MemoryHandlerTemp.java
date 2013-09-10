@@ -24,9 +24,6 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
 
-import lombok.AccessLevel;
-import lombok.RequiredArgsConstructor;
-
 import org.jamocha.dn.memory.FactAddress;
 import org.jamocha.dn.memory.MemoryHandler;
 import org.jamocha.dn.memory.SlotAddress;
@@ -47,7 +44,6 @@ import org.jamocha.filter.FunctionWithArguments;
  * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
  * @see org.jamocha.dn.memory.MemoryHandlerTemp
  */
-@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class MemoryHandlerTemp implements org.jamocha.dn.memory.MemoryHandlerTemp {
 
 	static class Semaphore {
@@ -67,6 +63,18 @@ public class MemoryHandlerTemp implements org.jamocha.dn.memory.MemoryHandlerTem
 	final ArrayList<Fact[]> facts;
 	final Semaphore lock;
 	boolean valid = true;
+
+	private MemoryHandlerTemp(final MemoryHandlerMain originatingMainHandler,
+			final ArrayList<Fact[]> facts, final Semaphore lock) {
+		this.originatingMainHandler = originatingMainHandler;
+		this.facts = facts;
+		this.lock = lock;
+		if (facts.size() == 0) {
+			this.valid = false;
+		} else if (lock.count == 0) {
+			commitAndInvalidate();
+		}
+	}
 
 	static MemoryHandlerTemp newBetaTemp(final MemoryHandlerMain originatingMainHandler,
 			final MemoryHandlerTemp token, final Edge originIncomingEdge, final Filter filter)
@@ -205,14 +213,20 @@ public class MemoryHandlerTemp implements org.jamocha.dn.memory.MemoryHandlerTem
 
 	private static void loop(final FunctionPointer functionPointer,
 			final Collection<StackElement> stack, final StackElement originElement) {
-		if (stack.isEmpty())
+		if (stack.isEmpty() || stack.size() == 1) {
 			return;
-		for (final Iterator<StackElement> iter = stack.iterator(); iter.hasNext();) {
-			final StackElement element = iter.next();
-			while (!element.checkRowBounds()) {
-				if (!element.checkMemBounds())
-					return;
-				element.memIndex++;
+		}
+		{
+			final Iterator<StackElement> iter = stack.iterator();
+			// skip originElement
+			iter.next();
+			for (; iter.hasNext();) {
+				final StackElement element = iter.next();
+				while (!element.checkRowBounds()) {
+					if (!element.checkMemBounds())
+						return;
+					element.memIndex++;
+				}
 			}
 		}
 		final ArrayList<Fact[]> TR = new ArrayList<Fact[]>();
@@ -300,6 +314,7 @@ public class MemoryHandlerTemp implements org.jamocha.dn.memory.MemoryHandlerTem
 
 			// determine new edges
 			final Set<Edge> newEdges = new HashSet<>();
+			stack.add(originElement);
 			for (final SlotInFactAddress address : addresses) {
 				final Edge edge = targetNode.delocalizeAddress(address.getFactAddress()).getEdge();
 				final StackElement element = edgeToStack.get(edge);
@@ -327,7 +342,8 @@ public class MemoryHandlerTemp implements org.jamocha.dn.memory.MemoryHandlerTem
 					// copy result to new TR if facts match predicate
 					if ((boolean) function.evaluate(params)) {
 						// copy current row from old TR
-						final Fact[] row = originElement.getRow();
+						final Fact[] row =
+								Arrays.copyOf(originElement.getRow(), originElement.getRow().length);
 						// insert information from new inputs
 						for (final Edge edge : newEdges) {
 							// source is some temp, destination new TR
@@ -344,6 +360,9 @@ public class MemoryHandlerTemp implements org.jamocha.dn.memory.MemoryHandlerTem
 			// StackElement
 			for (final Edge incomingEdge : newEdges) {
 				edgeToStack.put(incomingEdge, originElement);
+			}
+			if (!originElement.checkRowBounds()) {
+				return originElement.getTable();
 			}
 		}
 
@@ -399,6 +418,10 @@ public class MemoryHandlerTemp implements org.jamocha.dn.memory.MemoryHandlerTem
 			return;
 		// all children have processed the temp memory, now we have to write its
 		// content to main memory
+		commitAndInvalidate();
+	}
+
+	private void commitAndInvalidate() {
 		originatingMainHandler.acquireWriteLock();
 		originatingMainHandler.add(this);
 		originatingMainHandler.releaseWriteLock();

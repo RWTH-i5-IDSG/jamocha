@@ -94,7 +94,7 @@ public class Filter {
 	 * @param predicates
 	 *            predicates to be used in the filter
 	 */
-	public Filter(final PredicateWithArguments[] predicates) {
+	public Filter(final PredicateWithArguments... predicates) {
 		final int length = predicates.length;
 		this.filterElements = new FilterElement[length];
 		for (int i = 0; i < length; ++i) {

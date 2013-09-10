@@ -51,6 +51,9 @@ public class BetaNode extends Node {
 				throws CouldNotAcquireLockException {
 			final MemoryHandlerTemp mem =
 					targetNode.memory.processTokenInBeta(memory, this, this.filter);
+			if (mem.size() == 0) {
+				return;
+			}
 			for (final Edge edge : targetNode.outgoingEdges) {
 				edge.getTargetNode().enqueue(new Token.PlusToken(mem, edge));
 			}

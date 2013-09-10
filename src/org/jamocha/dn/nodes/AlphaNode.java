@@ -37,7 +37,8 @@ public class AlphaNode extends Node {
 	protected class AlphaEdgeImpl extends EdgeImpl {
 		FactAddress addressInSource = null;
 
-		public AlphaEdgeImpl(final Network network, final Node sourceNode, final Node targetNode, final Filter filter) {
+		public AlphaEdgeImpl(final Network network, final Node sourceNode, final Node targetNode,
+				final Filter filter) {
 			super(network, sourceNode, targetNode, filter);
 		}
 
@@ -46,6 +47,9 @@ public class AlphaNode extends Node {
 				throws CouldNotAcquireLockException {
 			final MemoryHandlerTemp mem =
 					targetNode.memory.processTokenInAlpha(memory, this, this.filter);
+			if (mem.size() == 0) {
+				return;
+			}
 			for (final Edge edge : targetNode.outgoingEdges) {
 				edge.getTargetNode().enqueue(new Token.PlusToken(mem, edge));
 			}
