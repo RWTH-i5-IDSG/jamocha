@@ -15,9 +15,7 @@
 
 package org.jamocha.dn.nodes;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.jamocha.dn.Network;
@@ -29,31 +27,9 @@ import org.jamocha.filter.Path;
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
  */
-public class RootNode { // TODO fix RootNode to only support one OTN per Template
+public class RootNode {
 
-	private class TemplateToInput {
-
-		private final Map<Template, List<ObjectTypeNode>> map = new HashMap<>();
-
-		public void add(final Template template, final ObjectTypeNode nodeInput) {
-			List<ObjectTypeNode> inputs = this.map.get(template);
-			if (null == inputs) {
-				inputs = new ArrayList<>();
-				this.map.put(template, inputs);
-			}
-			inputs.add(nodeInput);
-		}
-
-		public void remove(final Template template, final ObjectTypeNode nodeInput) {
-			this.map.get(template).remove(nodeInput);
-		}
-
-		public List<ObjectTypeNode> get(final Template template) {
-			return this.map.get(template);
-		}
-	}
-
-	final TemplateToInput templateToInput = new TemplateToInput();
+	private final Map<Template, ObjectTypeNode> templateToInput = new HashMap<>();
 
 	private interface AssertOrRetractInterface {
 		public void call(final ObjectTypeNode otn, final Fact fact);
@@ -75,13 +51,9 @@ public class RootNode { // TODO fix RootNode to only support one OTN per Templat
 
 	private void processFact(final Fact fact, final AssertOrRetractInterface methodPointer)
 			throws InterruptedException {
-		Template template = fact.getTemplate();
-		do {
-			final List<ObjectTypeNode> matchingOTNs = this.templateToInput.get(template);
-			for (final ObjectTypeNode matchingOTN : matchingOTNs) {
-				methodPointer.call(matchingOTN, fact);
-			}
-		} while (null != template);
+		final Template template = fact.getTemplate();
+		final ObjectTypeNode matchingOTN = this.templateToInput.get(template);
+		methodPointer.call(matchingOTN, fact);
 	}
 
 	public void assertFact(final Fact fact) throws InterruptedException {
@@ -92,21 +64,21 @@ public class RootNode { // TODO fix RootNode to only support one OTN per Templat
 		processFact(fact, AssertOrRetractInterface.retractCall);
 	}
 
-	public void addOTN(final ObjectTypeNode otn) {
-		this.templateToInput.add(otn.template, otn);
+	public void putOTN(final ObjectTypeNode otn) {
+		this.templateToInput.put(otn.template, otn);
 	}
 
 	public void removeOTN(final ObjectTypeNode otn) {
-		this.templateToInput.remove(otn.template, otn);
+		this.templateToInput.remove(otn.template);
 	}
-	
+
 	public void addPaths(Network network, Path... paths) {
 		for (Path path : paths) {
-			final List<ObjectTypeNode> otns = templateToInput.get(path.getTemplate());
-			if (otns != null && otns.size() > 0)
-				otns.get(0).shareNode(path);
+			final ObjectTypeNode otn = templateToInput.get(path.getTemplate());
+			if (otn != null)
+				otn.shareNode(path);
 			else
-				this.addOTN(new ObjectTypeNode(network, path));
+				this.putOTN(new ObjectTypeNode(network, path));
 		}
 	}
 }
