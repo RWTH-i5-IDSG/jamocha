@@ -24,7 +24,6 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import org.jamocha.dn.memory.FactAddress;
-import org.jamocha.dn.memory.SlotType;
 import org.jamocha.dn.nodes.Node;
 import org.jamocha.dn.nodes.SlotInFactAddress;
 import org.jamocha.filter.PathLeaf.ParameterLeaf;
@@ -44,27 +43,26 @@ import org.jamocha.filter.PathLeaf.ParameterLeaf;
 @Getter
 public class Filter {
 	/**
-	 * Contains Predicates in an ordered list, which is processed from front to back. Note:
-	 * Hierarchy doesn't enforce the filterSteps to be Predicates, ctor needs to do this.
+	 * Contains Predicates in an ordered list, which is processed from front to back.
 	 */
 	final FilterElement filterElements[];
 
 	@Getter
 	@RequiredArgsConstructor
 	public static class FilterElement {
-		final FunctionWithArguments function;
+		final PredicateWithArguments function;
 		SlotInFactAddress addressesInTarget[];
 
 		/**
 		 * For Unit-Tests only!
 		 */
 		@Deprecated
-		public FilterElement(final FunctionWithArguments function,
+		public FilterElement(final PredicateWithArguments function,
 				final SlotInFactAddress... addressesInTarget) {
 			this.function = function;
 			this.addressesInTarget = addressesInTarget;
 		}
-		
+
 		public boolean equalsInFunction(FilterElement filterElement) {
 			return function.equalsInFunction(filterElement.function);
 		}
@@ -76,13 +74,6 @@ public class Filter {
 	@Deprecated
 	public Filter(final FilterElement filterElements[]) {
 		this.filterElements = filterElements;
-		for (final FilterElement filterElement : filterElements) {
-			final FunctionWithArguments predicate = filterElement.getFunction();
-			if (predicate.getReturnType() != SlotType.BOOLEAN) {
-				throw new IllegalArgumentException(
-						"The top-level FunctionWithArguments of a Filter have to be predicates!");
-			}
-		}
 	}
 
 	/**
@@ -92,16 +83,11 @@ public class Filter {
 	 * @param predicates
 	 *            predicates to be used in the filter
 	 */
-	public Filter(final FunctionWithArguments[] predicates) {
+	public Filter(final PredicateWithArguments[] predicates) {
 		final int length = predicates.length;
 		this.filterElements = new FilterElement[length];
 		for (int i = 0; i < length; ++i) {
-			final FunctionWithArguments predicate = predicates[i];
-			if (predicate.getReturnType() != SlotType.BOOLEAN) {
-				throw new IllegalArgumentException(
-						"The top-level FunctionWithArguments of a Filter have to be predicates!");
-			}
-			this.filterElements[i] = new FilterElement(predicate);
+			this.filterElements[i] = new FilterElement(predicates[i]);
 		}
 	}
 
@@ -127,7 +113,7 @@ public class Filter {
 	public LinkedHashSet<Path> gatherPaths() {
 		return gatherPaths(new LinkedHashSet<Path>());
 	}
-	
+
 	/**
 	 * Gathers the {@link Path paths} used in any {@link PathLeaf path leafs}.
 	 * 
@@ -155,11 +141,13 @@ public class Filter {
 		return parameters.size();
 	}
 
-	public boolean equalsInFunction(final Filter filter) { //TODO make this filter order and structure independent
+	public boolean equalsInFunction(final Filter filter) { // TODO make this filter order and
+															// structure independent
 		if (this.filterElements.length != filter.filterElements.length)
 			return false;
 		for (int i = 0; i < this.filterElements.length; i++) {
-			if (!this.filterElements[i].equalsInFunction(filter.filterElements[i])) return false;
+			if (!this.filterElements[i].equalsInFunction(filter.filterElements[i]))
+				return false;
 		}
 		return true;
 	}

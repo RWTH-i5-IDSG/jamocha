@@ -14,15 +14,22 @@
  */
 package org.jamocha.filter;
 
+import org.jamocha.dn.memory.SlotType;
+
 /**
- * Instantiation of {@link GenericWithArgumentsComposite} holding a Function.
+ * Instantiation of {@link GenericWithArgumentsComposite} holding a Predicate.
  * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
-public class FunctionWithArgumentsComposite extends
-		GenericWithArgumentsComposite<Object, Function<?>> {
-	public FunctionWithArgumentsComposite(final Function<?> function,
+public class PredicateWithArgumentsComposite extends
+		GenericWithArgumentsComposite<Boolean, Predicate> implements PredicateWithArguments {
+	public PredicateWithArgumentsComposite(final Predicate predicate,
 			final FunctionWithArguments... args) {
-		super(function, args);
+		super(predicate, args);
+	}
+
+	@Override
+	public SlotType getReturnType() {
+		return SlotType.BOOLEAN;
 	}
 }

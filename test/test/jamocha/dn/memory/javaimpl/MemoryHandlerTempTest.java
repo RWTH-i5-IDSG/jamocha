@@ -37,9 +37,11 @@ import org.jamocha.dn.nodes.SlotInFactAddress;
 import org.jamocha.filter.Filter;
 import org.jamocha.filter.Filter.FilterElement;
 import org.jamocha.filter.FunctionWithArguments;
-import org.jamocha.filter.FunctionWithArgumentsComposite;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.PathLeaf;
+import org.jamocha.filter.Predicate;
+import org.jamocha.filter.PredicateWithArguments;
+import org.jamocha.filter.PredicateWithArgumentsComposite;
 import org.jamocha.filter.TODODatenkrakeFunktionen;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -256,9 +258,9 @@ public class MemoryHandlerTempTest {
 		TODODatenkrakeFunktionen.load();
 		FunctionWithArguments pl1 = new PathLeaf.ParameterLeaf(SlotType.STRING);
 		FunctionWithArguments pl2 = new PathLeaf.ParameterLeaf(SlotType.STRING);
-		FunctionWithArguments faw =
-				new FunctionWithArgumentsComposite(TODODatenkrakeFunktionen.lookup("=",
-						SlotType.STRING, SlotType.STRING), pl1, pl2);
+		Predicate eq =
+				(Predicate) TODODatenkrakeFunktionen.lookup("=", SlotType.STRING, SlotType.STRING);
+		PredicateWithArguments faw = new PredicateWithArgumentsComposite(eq, pl1, pl2);
 		FilterElement fe =
 				new FilterElement(faw, new SlotInFactAddress(
 						new org.jamocha.dn.memory.javaimpl.FactAddress(0), new SlotAddress(0)),

@@ -27,6 +27,7 @@ import org.jamocha.dn.nodes.SlotInFactAddress;
 import org.jamocha.filter.Filter;
 import org.jamocha.filter.FunctionWithArguments;
 import org.jamocha.filter.Path;
+import org.jamocha.filter.PredicateWithArguments;
 import org.junit.experimental.theories.Theories;
 import org.junit.experimental.theories.Theory;
 import org.junit.runner.RunWith;
@@ -41,7 +42,7 @@ import test.jamocha.util.TestData.SomeStuff;
 public class FilterMockup extends Filter {
 
 	@RequiredArgsConstructor
-	public static class FunctionWithArgumentsMockup implements FunctionWithArguments {
+	public static class PredicateWithArgumentsMockup implements PredicateWithArguments {
 
 		final private boolean returnValue;
 		final private Path[] paths;
@@ -57,7 +58,7 @@ public class FilterMockup extends Filter {
 		}
 
 		@Override
-		public Object evaluate(final Object... params) {
+		public Boolean evaluate(final Object... params) {
 			return returnValue;
 		}
 
@@ -77,20 +78,20 @@ public class FilterMockup extends Filter {
 
 		@Override
 		public boolean canEqual(final Object other) {
-			return other instanceof FunctionWithArgumentsMockup;
+			return other instanceof PredicateWithArgumentsMockup;
 		}
 
 		@Override
 		public boolean equalsInFunction(final FunctionWithArguments function) {
-			if (!(function instanceof FunctionWithArgumentsMockup))
+			if (!(function instanceof PredicateWithArgumentsMockup))
 				return false;
-			FunctionWithArgumentsMockup fwam = (FunctionWithArgumentsMockup) function;
+			PredicateWithArgumentsMockup fwam = (PredicateWithArgumentsMockup) function;
 			return (fwam.returnValue == this.returnValue && fwam.paths.length == this.paths.length);
 		}
 	}
 
 	public FilterMockup(final boolean returnValue, final Path... paths) {
-		super(new FunctionWithArguments[] { new FunctionWithArgumentsMockup(returnValue, paths) });
+		super(new PredicateWithArguments[] { new PredicateWithArgumentsMockup(returnValue, paths) });
 	}
 
 	public static FilterMockup alwaysTrue() {
@@ -120,7 +121,7 @@ public class FilterMockup extends Filter {
 		public void testAlwaysTrue(@SomeStuff Object... obj) {
 			final Filter alwaysTrue = FilterMockup.alwaysTrue();
 			for (final FilterElement filterElement : alwaysTrue.getFilterElements()) {
-				assertTrue((Boolean) filterElement.getFunction().evaluate(obj));
+				assertTrue(filterElement.getFunction().evaluate(obj));
 			}
 		}
 
@@ -131,7 +132,7 @@ public class FilterMockup extends Filter {
 		public void testAlwaysFalse(@SomeStuff Object... obj) {
 			final Filter alwaysFalse = FilterMockup.alwaysFalse();
 			for (final FilterElement filterElement : alwaysFalse.getFilterElements()) {
-				assertFalse((Boolean) filterElement.getFunction().evaluate(obj));
+				assertFalse(filterElement.getFunction().evaluate(obj));
 			}
 		}
 	}

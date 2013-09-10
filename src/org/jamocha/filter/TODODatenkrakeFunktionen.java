@@ -47,7 +47,7 @@ public class TODODatenkrakeFunktionen {
 		SlotType[] params;
 	}
 
-	public static HashMap<CombinedClipsAndParams, Function> clipsFunctions = new HashMap<>();
+	public static HashMap<CombinedClipsAndParams, Function<?>> clipsFunctions = new HashMap<>();
 
 	static {
 		addImpl(Predicates.class);
@@ -84,7 +84,7 @@ public class TODODatenkrakeFunktionen {
 	 * @param impl
 	 *            implementation to add
 	 */
-	public static void addImpl(final Function impl) {
+	public static void addImpl(final Function<?> impl) {
 		clipsFunctions.put(new CombinedClipsAndParams(impl.toString(), impl.getParamTypes()), impl);
 	}
 
@@ -101,8 +101,9 @@ public class TODODatenkrakeFunktionen {
 	 *             iff no {@link Function} implementation was found for the given string
 	 *             representation and parameter types
 	 */
-	public static Function lookup(final String inClips, final SlotType... params) {
-		final Function function = clipsFunctions.get(new CombinedClipsAndParams(inClips, params));
+	public static Function<?> lookup(final String inClips, final SlotType... params) {
+		final Function<?> function =
+				clipsFunctions.get(new CombinedClipsAndParams(inClips, params));
 		if (function == null)
 			throw new UnsupportedOperationException("Function \"" + inClips
 					+ "\" not loaded or implemented.");

@@ -34,7 +34,7 @@ import test.jamocha.util.TestData.LotsOfRandomLongs;
  * TestCase for the {@link Plus} class using Theories.
  * 
  * @author Kai Schwarz <kai.schwarz@rwth-aachen.de>
- * 
+ * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
 @RunWith(Theories.class)
 public class PlusTest {
@@ -44,12 +44,17 @@ public class PlusTest {
 		TODODatenkrakeFunktionen.load();
 	}
 
-	private Function plusL, plusD;
+	private Function<? extends Number> plusL, plusD;
 
+	@SuppressWarnings("unchecked")
 	@Before
 	public void setUp() {
-		plusL = TODODatenkrakeFunktionen.lookup("+", SlotType.LONG, SlotType.LONG);
-		plusD = TODODatenkrakeFunktionen.lookup("+", SlotType.DOUBLE, SlotType.DOUBLE);
+		plusL =
+				(Function<? extends Number>) TODODatenkrakeFunktionen.lookup("+", SlotType.LONG,
+						SlotType.LONG);
+		plusD =
+				(Function<? extends Number>) TODODatenkrakeFunktionen.lookup("+", SlotType.DOUBLE,
+						SlotType.DOUBLE);
 	}
 
 	@Theory

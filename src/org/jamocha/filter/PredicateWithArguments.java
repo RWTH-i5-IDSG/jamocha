@@ -15,14 +15,11 @@
 package org.jamocha.filter;
 
 /**
- * Instantiation of {@link GenericWithArgumentsComposite} holding a Function.
+ * Specialization of {@link FunctionWithArguments}.
  * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
-public class FunctionWithArgumentsComposite extends
-		GenericWithArgumentsComposite<Object, Function<?>> {
-	public FunctionWithArgumentsComposite(final Function<?> function,
-			final FunctionWithArguments... args) {
-		super(function, args);
-	}
+public interface PredicateWithArguments extends FunctionWithArguments {
+	@Override
+	public Boolean evaluate(final Object... params);
 }

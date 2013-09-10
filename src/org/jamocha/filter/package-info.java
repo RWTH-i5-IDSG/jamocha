@@ -12,11 +12,11 @@
  * {@link org.jamocha.filter.FunctionWithArguments} is an interface for a
  * {@link org.jamocha.filter.Function} bundled with its Arguments. A Filter is constructed using the
  * following classes implementing this interface:
- * {@link org.jamocha.filter.FunctionWithArgumentsComposite},
+ * {@link org.jamocha.filter.GenericWithArgumentsComposite},
  * {@link org.jamocha.filter.ConstantLeaf}, {@link org.jamocha.filter.PathLeaf}. In doing so, we
  * combine Functions, Constants and Paths. After all Paths used have been mapped to their
  * corresponding addresses, we can transform ( {@link org.jamocha.filter.Filter#translatePath()})
- * the filter to contain only {@link org.jamocha.filter.FunctionWithArgumentsComposite},
+ * the filter to contain only {@link org.jamocha.filter.GenericWithArgumentsComposite},
  * {@link org.jamocha.filter.ConstantLeaf}, {@link org.jamocha.filter.PathLeaf.ParameterLeaf}.
  * During this step, the {@link org.jamocha.filter.Filter.FilterElement FilterElements} get their
  * {@link org.jamocha.filter.Filter.FilterElement#addressesInTarget}.

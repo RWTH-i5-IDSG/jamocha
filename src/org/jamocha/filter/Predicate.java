@@ -26,7 +26,7 @@ import org.jamocha.dn.memory.SlotType;
  * @see Function
  * @see SlotType
  */
-public abstract class Predicate implements Function {
+public abstract class Predicate implements Function<Boolean> {
 
 	@Override
 	public final SlotType getReturnType() {

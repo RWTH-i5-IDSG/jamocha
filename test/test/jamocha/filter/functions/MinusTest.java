@@ -34,7 +34,7 @@ import test.jamocha.util.TestData.LotsOfRandomLongs;
  * TestCase for the {@link Minus} class using Theories.
  * 
  * @author Kai Schwarz <kai.schwarz@rwth-aachen.de>
- * 
+ * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
 @RunWith(Theories.class)
 public class MinusTest {
@@ -44,12 +44,17 @@ public class MinusTest {
 		TODODatenkrakeFunktionen.load();
 	}
 
-	private Function minusL, minusD;
+	private Function<? extends Number> minusL, minusD;
 
+	@SuppressWarnings("unchecked")
 	@Before
 	public void setUp() {
-		minusL = TODODatenkrakeFunktionen.lookup("-", SlotType.LONG, SlotType.LONG);
-		minusD = TODODatenkrakeFunktionen.lookup("-", SlotType.DOUBLE, SlotType.DOUBLE);
+		minusL =
+				(Function<? extends Number>) TODODatenkrakeFunktionen.lookup("-", SlotType.LONG,
+						SlotType.LONG);
+		minusD =
+				(Function<? extends Number>) TODODatenkrakeFunktionen.lookup("-", SlotType.DOUBLE,
+						SlotType.DOUBLE);
 	}
 
 	@Theory

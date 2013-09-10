@@ -92,7 +92,7 @@ public class MemoryHandlerTemp implements org.jamocha.dn.memory.MemoryHandlerTem
 					params[i] = fact[0].getValue(address.getSlotAddress());
 				}
 				// check filter
-				if (false == (Boolean) filterElement.getFunction().evaluate(params)) {
+				if (false == filterElement.getFunction().evaluate(params)) {
 					continue factLoop;
 				}
 			}

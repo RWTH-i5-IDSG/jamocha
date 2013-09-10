@@ -25,7 +25,7 @@ import org.jamocha.dn.memory.SlotType;
  * @see Predicate
  * @see FunctionWithArguments
  */
-public interface Function {
+public interface Function<R> {
 
 	/**
 	 * Getter for the list of the corresponding parameter types for the function.
@@ -56,6 +56,6 @@ public interface Function {
 	 *            parameters for the function call
 	 * @return result of the function call
 	 */
-	public Object evaluate(final Object... params);
+	public R evaluate(final Object... params);
 
 }

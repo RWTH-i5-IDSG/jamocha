@@ -22,7 +22,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeThat;
 
 import org.jamocha.dn.memory.SlotType;
-import org.jamocha.filter.Function;
+import org.jamocha.filter.Predicate;
 import org.jamocha.filter.TODODatenkrakeFunktionen;
 import org.jamocha.filter.impls.predicates.Equals;
 import org.junit.Before;
@@ -40,7 +40,7 @@ import test.jamocha.util.TestData.ListOfStrings;
  * TestCase for the {@link Equals} class using Theories.
  * 
  * @author Kai Schwarz <kai.schwarz@rwth-aachen.de>
- * 
+ * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
 @RunWith(Theories.class)
 public class EqualsTest {
@@ -50,14 +50,14 @@ public class EqualsTest {
 		TODODatenkrakeFunktionen.load();
 	}
 
-	private Function eqL, eqD, eqB, eqS;
+	private Predicate eqL, eqD, eqB, eqS;
 
 	@Before
 	public void setup() {
-		eqL = TODODatenkrakeFunktionen.lookup("=", SlotType.LONG, SlotType.LONG);
-		eqD = TODODatenkrakeFunktionen.lookup("=", SlotType.DOUBLE, SlotType.DOUBLE);
-		eqB = TODODatenkrakeFunktionen.lookup("=", SlotType.BOOLEAN, SlotType.BOOLEAN);
-		eqS = TODODatenkrakeFunktionen.lookup("=", SlotType.STRING, SlotType.STRING);
+		eqL = (Predicate) TODODatenkrakeFunktionen.lookup("=", SlotType.LONG, SlotType.LONG);
+		eqD = (Predicate) TODODatenkrakeFunktionen.lookup("=", SlotType.DOUBLE, SlotType.DOUBLE);
+		eqB = (Predicate) TODODatenkrakeFunktionen.lookup("=", SlotType.BOOLEAN, SlotType.BOOLEAN);
+		eqS = (Predicate) TODODatenkrakeFunktionen.lookup("=", SlotType.STRING, SlotType.STRING);
 	}
 
 	@Theory

@@ -22,7 +22,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeThat;
 
 import org.jamocha.dn.memory.SlotType;
-import org.jamocha.filter.Function;
+import org.jamocha.filter.Predicate;
 import org.jamocha.filter.TODODatenkrakeFunktionen;
 import org.jamocha.filter.impls.predicates.Less;
 import org.junit.Before;
@@ -38,7 +38,7 @@ import test.jamocha.util.TestData.LotsOfRandomLongs;
  * TestCase for the {@link Less} class using Theories.
  * 
  * @author Kai Schwarz <kai.schwarz@rwth-aachen.de>
- * 
+ * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
 @RunWith(Theories.class)
 public class LessTest {
@@ -48,12 +48,12 @@ public class LessTest {
 		TODODatenkrakeFunktionen.load();
 	}
 
-	private Function lessL, lessD;
+	private Predicate lessL, lessD;
 
 	@Before
 	public void setup() {
-		lessL = TODODatenkrakeFunktionen.lookup("<", SlotType.LONG, SlotType.LONG);
-		lessD = TODODatenkrakeFunktionen.lookup("<", SlotType.DOUBLE, SlotType.DOUBLE);
+		lessL = (Predicate) TODODatenkrakeFunktionen.lookup("<", SlotType.LONG, SlotType.LONG);
+		lessD = (Predicate) TODODatenkrakeFunktionen.lookup("<", SlotType.DOUBLE, SlotType.DOUBLE);
 	}
 
 	@Theory

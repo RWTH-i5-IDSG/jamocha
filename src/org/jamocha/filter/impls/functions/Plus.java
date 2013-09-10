@@ -28,7 +28,7 @@ import org.jamocha.filter.TODODatenkrakeFunktionen;
  */
 public class Plus {
 	static {
-		TODODatenkrakeFunktionen.addImpl(new Function() {
+		TODODatenkrakeFunktionen.addImpl(new Function<Long>() {
 			public SlotType[] getParamTypes() {
 				return new SlotType[] { SlotType.LONG, SlotType.LONG };
 			}
@@ -45,7 +45,7 @@ public class Plus {
 				return (Long) params[0] + (Long) params[1];
 			}
 		});
-		TODODatenkrakeFunktionen.addImpl(new Function() {
+		TODODatenkrakeFunktionen.addImpl(new Function<Double>() {
 			public SlotType[] getParamTypes() {
 				return new SlotType[] { SlotType.DOUBLE, SlotType.DOUBLE };
 			}
