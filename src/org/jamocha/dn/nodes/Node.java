@@ -46,7 +46,7 @@ import org.jamocha.filter.Path;
  * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
  */
 public abstract class Node {
-	
+
 	public static interface Edge {
 		public void processPlusToken(final MemoryHandlerTemp memory)
 				throws CouldNotAcquireLockException;
@@ -123,19 +123,33 @@ public abstract class Node {
 		}
 	}
 
-	@Getter final protected Edge[] incomingEdges;
-	
+	@Getter
+	final protected Edge[] incomingEdges;
+
 	/**
-	 * Returns an unmodifiable set of the outgoing edges.
+	 * Returns a collection of the outgoing edges.
 	 * 
-	 * @return an unmodifiable set of the outgoing edges
+	 * @return a collection of the outgoing edges
 	 */
-	@Getter final protected Collection<Edge> outgoingEdges = new LinkedList<>();
+	@Getter
+	final protected Collection<Edge> outgoingEdges = new LinkedList<>();
 	final protected Map<FactAddress, AddressPredecessor> delocalizeMap = new HashMap<>();
-	@Getter final protected MemoryHandlerMain memory;
+	/**
+	 * Returns the {@link MemoryHandlerMain main memory handler} of the node.
+	 * 
+	 * @return the {@link MemoryHandlerMain main memory handler} of the node
+	 */
+	@Getter
+	final protected MemoryHandlerMain memory;
 	final protected Network network;
 	final protected TokenQueue tokenQueue;
-	@Getter final protected Filter filter; // TODO comment
+	/**
+	 * Returns the filter that has originally been set to all inputs.
+	 * 
+	 * @return the filter that has originally been set to all inputs
+	 */
+	@Getter
+	final protected Filter filter;
 
 	@RequiredArgsConstructor
 	public class TokenQueue implements Runnable {

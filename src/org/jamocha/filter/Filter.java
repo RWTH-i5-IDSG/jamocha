@@ -15,6 +15,7 @@
 package org.jamocha.filter;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -74,6 +75,16 @@ public class Filter {
 	@Deprecated
 	public Filter(final FilterElement filterElements[]) {
 		this.filterElements = filterElements;
+	}
+
+	/**
+	 * Creates a shallow copy.
+	 * 
+	 * @param filter
+	 *            filter to copy
+	 */
+	private Filter(final Filter filter) {
+		this.filterElements = Arrays.copyOf(filter.filterElements, filter.filterElements.length);
 	}
 
 	/**
@@ -150,6 +161,15 @@ public class Filter {
 				return false;
 		}
 		return true;
+	}
+
+	/**
+	 * Creates a shallow copy.
+	 * 
+	 * @return a shallow copy
+	 */
+	public Filter shallowCopy() {
+		return new Filter(this);
 	}
 
 }
