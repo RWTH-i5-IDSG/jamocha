@@ -59,7 +59,7 @@ public class BetaNode extends Node {
 		@Override
 		public void processMinusToken(final MemoryHandlerTemp memory)
 				throws CouldNotAcquireLockException {
-			// TODO process Minus Token in TerminalNodeEdge
+			// TODO process Minus Token in BetaNodeEdge
 		}
 
 		@Override
