@@ -85,9 +85,11 @@ public class TerminalNode extends BetaNode {
 	protected EdgeImpl newEdge(Node source) {
 		return new TerminalEdgeImpl(network, source, this);
 	}
-	
+
+	@Override
 	protected void acceptEdgeToChild(final Edge edgeToChild) {
-		throw new Error("Terminal nodes are supposed to be the end of a network, so no nodes can be connected to them.");
+		throw new Error(
+				"Terminal nodes are supposed to be the end of a network, so no nodes can be connected to them.");
 	}
-	
+
 }
