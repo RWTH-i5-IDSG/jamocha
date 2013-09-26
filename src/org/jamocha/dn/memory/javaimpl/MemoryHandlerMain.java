@@ -140,4 +140,9 @@ public class MemoryHandlerMain implements org.jamocha.dn.memory.MemoryHandlerMai
 		return MemoryHandlerTemp.newRootTemp(this, otn, facts);
 	}
 
+	@Override
+	public MemoryHandlerTerminal newMemoryHandlerTerminal() {
+		return new MemoryHandlerTerminal(this);
+	}
+
 }

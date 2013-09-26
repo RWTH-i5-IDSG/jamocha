@@ -88,6 +88,10 @@ public abstract class Node {
 		public Filter getFilter();
 
 		public LinkedList<MemoryHandlerTemp> getTempMemories();
+
+		public void enqueuePlusMemory(final MemoryHandlerTemp mem);
+
+		public void enqueueMinusMemory(final MemoryHandlerTemp mem);
 	}
 
 	@AllArgsConstructor
@@ -120,6 +124,16 @@ public abstract class Node {
 		@Override
 		public Filter getFilter() {
 			return this.filter;
+		}
+
+		@Override
+		public void enqueuePlusMemory(final MemoryHandlerTemp mem) {
+			this.targetNode.enqueue(new Token.PlusToken(mem, this));
+		}
+
+		@Override
+		public void enqueueMinusMemory(final MemoryHandlerTemp mem) {
+			this.targetNode.enqueue(new Token.MinusToken(mem, this));
 		}
 	}
 
@@ -316,7 +330,7 @@ public abstract class Node {
 		return delocalizeMap.get(localFactAddress);
 	}
 
-	public void enqueue(final Token token) {
+	private void enqueue(final Token token) {
 		this.tokenQueue.enqueue(token);
 	}
 

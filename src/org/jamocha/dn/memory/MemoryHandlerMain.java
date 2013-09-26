@@ -112,4 +112,12 @@ public interface MemoryHandlerMain extends MemoryHandler {
 	 */
 	public MemoryHandlerTemp newToken(final Node otn, final Fact... facts);
 
+	/**
+	 * FIXME description
+	 * 
+	 * @param paths
+	 * @return
+	 */
+	public MemoryHandlerTerminal newMemoryHandlerTerminal();
+
 }

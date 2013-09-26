@@ -19,7 +19,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.jamocha.dn.Network;
-import org.jamocha.dn.Token;
 import org.jamocha.dn.memory.FactAddress;
 import org.jamocha.dn.memory.MemoryHandlerTemp;
 import org.jamocha.dn.memory.Template;
@@ -51,7 +50,7 @@ public class AlphaNode extends Node {
 				return;
 			}
 			for (final Edge edge : targetNode.outgoingEdges) {
-				edge.getTargetNode().enqueue(new Token.PlusToken(mem, edge));
+				edge.enqueuePlusMemory(mem);
 			}
 		}
 

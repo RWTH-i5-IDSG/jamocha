@@ -62,4 +62,5 @@ public interface MemoryFactory {
 	 * @see Edge
 	 */
 	public MemoryHandlerMain newMemoryHandlerMain(final Edge... edgesToBeJoined);
+
 }

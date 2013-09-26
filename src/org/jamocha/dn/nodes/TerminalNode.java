@@ -15,14 +15,19 @@
 
 package org.jamocha.dn.nodes;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import lombok.Getter;
+
 import org.jamocha.dn.Network;
 import org.jamocha.dn.memory.FactAddress;
 import org.jamocha.dn.memory.MemoryHandlerTemp;
-import org.jamocha.filter.Path;
+import org.jamocha.dn.memory.MemoryHandlerTerminal;
+import org.jamocha.dn.nodes.Node.Edge;
+import org.jamocha.filter.Filter;
 
 /**
  * 
@@ -30,15 +35,22 @@ import org.jamocha.filter.Path;
  * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
  * 
  */
-public class TerminalNode extends BetaNode {
+public class TerminalNode {
 
-	protected class TerminalEdgeImpl extends EdgeImpl {
+	protected class TerminalEdgeImpl implements Edge {
+		protected final Network network;
+		protected final Node sourceNode;
+		protected final TerminalNode targetNode;
+		protected Filter filter;
 
 		private Map<? extends FactAddress, ? extends FactAddress> addressMap;
 		private final LinkedList<MemoryHandlerTemp> tempMemories = new LinkedList<>();
 
-		public TerminalEdgeImpl(final Network network, final Node sourceNode, final Node targetNode) {
-			super(network, sourceNode, targetNode, null);
+		public TerminalEdgeImpl(final Network network, final Node sourceNode,
+				final TerminalNode targetNode) {
+			this.network = network;
+			this.sourceNode = sourceNode;
+			this.targetNode = targetNode;
 		}
 
 		@Override
@@ -74,22 +86,65 @@ public class TerminalNode extends BetaNode {
 			return this.tempMemories;
 		}
 
+		@Override
+		public Node getSourceNode() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public Node getTargetNode() {
+			throw new UnsupportedOperationException(
+					"Edges to terminal nodes don't have target nodes.");
+		}
+
+		@Override
+		public void disconnect() {
+			this.sourceNode.removeChild(this);
+		}
+
+		@Override
+		public void setFilter(final Filter filter) {
+			this.filter = filter;
+		}
+
+		@Override
+		public Filter getFilter() {
+			return this.filter;
+		}
+
+		@Override
+		public void enqueuePlusMemory(MemoryHandlerTemp mem) {
+			// TODO Auto-generated method stub
+		}
+
+		@Override
+		public void enqueueMinusMemory(MemoryHandlerTemp mem) {
+			// TODO Auto-generated method stub
+		}
+
 	}
 
-	public TerminalNode(final Network network, Path... paths) {
-		super(network, null);
-		// FIXME TerminalNode constructor
+	/**
+	 * Returns the {@link MemoryHandlerTerminal terminal memory handler} of the node.
+	 * 
+	 * @return the {@link MemoryHandlerTerminal terminal memory handler} of the node
+	 */
+	@Getter
+	protected MemoryHandlerTerminal memory;
+	final protected Network network;
+	final protected Node parent;
+	final protected Map<FactAddress, AddressPredecessor> delocalizeMap = new HashMap<>();
+
+	public TerminalNode(final Network network, final Node parent) {
+		this.network = network;
+		this.parent = parent;
+		this.memory = parent.getMemory().newMemoryHandlerTerminal();
 	}
 
-	@Override
-	protected EdgeImpl newEdge(Node source) {
-		return new TerminalEdgeImpl(network, source, this);
+	public MemoryHandlerTerminal flush() {
+		final MemoryHandlerTerminal old = this.getMemory();
+		this.memory = this.parent.getMemory().newMemoryHandlerTerminal();
+		return old;
 	}
-
-	@Override
-	protected void acceptEdgeToChild(final Edge edgeToChild) {
-		throw new Error(
-				"Terminal nodes are supposed to be the end of a network, so no nodes can be connected to them.");
-	}
-
 }

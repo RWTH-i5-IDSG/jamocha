@@ -160,7 +160,8 @@ public class Network {
 			for (int j = 0; j < filterElements.length; j++) {
 				final SlotInFactAddress[] addressesInTarget =
 						candidateFilterElements[j].getAddressesInTarget();
-				final LinkedList<Path> elementPathSet = filterElements[j].getFunction().gatherPaths(new LinkedList<Path>());
+				final LinkedList<Path> elementPathSet =
+						filterElements[j].getFunction().gatherPaths(new LinkedList<Path>());
 				final Path[] elementPaths = elementPathSet.toArray(new Path[elementPathSet.size()]);
 				for (int k = 0; k < addressesInTarget.length; k++) {
 					final FactAddress addressInSource =
@@ -177,7 +178,8 @@ public class Network {
 		return false;
 	}
 
-	public TerminalNode buildRule(Filter... filters) {
+	// TODO what is the semantic of the Filter[] passed?
+	public TerminalNode buildRule(final Filter... filters) {
 		final LinkedHashSet<Path> allPaths = new LinkedHashSet<>();
 		for (Filter filter : filters) {
 			final LinkedHashSet<Path> paths = filter.gatherPaths();
@@ -191,7 +193,9 @@ public class Network {
 					new BetaNode(this, filter);
 				}
 		}
-		return new TerminalNode(this, allPaths.toArray(new Path[allPaths.size()]));
+		// FIXME is this correct?
+		final Node lowestNode = allPaths.iterator().next().getCurrentlyLowestNode();
+		return new TerminalNode(this, lowestNode);
 	}
 
 	/**

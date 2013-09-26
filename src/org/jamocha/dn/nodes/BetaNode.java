@@ -22,7 +22,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.jamocha.dn.Network;
-import org.jamocha.dn.Token;
 import org.jamocha.dn.memory.FactAddress;
 import org.jamocha.dn.memory.MemoryHandlerTemp;
 import org.jamocha.filter.Filter;
@@ -42,7 +41,8 @@ public class BetaNode extends Node {
 		private Map<? extends FactAddress, ? extends FactAddress> addressMap;
 		private final LinkedList<MemoryHandlerTemp> tempMemories = new LinkedList<>();
 
-		public BetaEdgeImpl(final Network network, final Node sourceNode, final Node targetNode, final Filter filter) {
+		public BetaEdgeImpl(final Network network, final Node sourceNode, final Node targetNode,
+				final Filter filter) {
 			super(network, sourceNode, targetNode, filter);
 		}
 
@@ -55,7 +55,7 @@ public class BetaNode extends Node {
 				return;
 			}
 			for (final Edge edge : targetNode.outgoingEdges) {
-				edge.getTargetNode().enqueue(new Token.PlusToken(mem, edge));
+				edge.enqueuePlusMemory(mem);
 			}
 		}
 
