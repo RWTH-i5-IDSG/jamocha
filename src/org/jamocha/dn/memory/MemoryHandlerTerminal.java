@@ -41,9 +41,13 @@ public interface MemoryHandlerTerminal extends MemoryHandler {
 		protected final MemoryHandlerTemp mem;
 		protected T dual = null;
 
-		abstract public boolean setDual(final Assert dual);
+		public boolean setDual(final Assert dual) {
+			return false;
+		}
 
-		abstract public boolean setDual(final Retract dual);
+		public boolean setDual(final Retract dual) {
+			return false;
+		}
 
 		abstract public void accept(final AssertOrRetractVisitor visitor);
 	}
@@ -54,11 +58,6 @@ public interface MemoryHandlerTerminal extends MemoryHandler {
 	public class Assert extends AssertOrRetract<Retract> {
 		public Assert(final MemoryHandlerTemp mem) {
 			super(mem);
-		}
-
-		@Override
-		public boolean setDual(final Assert dual) {
-			return false;
 		}
 
 		@Override
@@ -89,11 +88,6 @@ public interface MemoryHandlerTerminal extends MemoryHandler {
 				return false;
 			this.dual = dual;
 			return true;
-		}
-
-		@Override
-		public boolean setDual(final Retract dual) {
-			return false;
 		}
 
 		@Override
