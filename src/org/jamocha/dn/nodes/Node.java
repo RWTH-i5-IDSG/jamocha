@@ -194,9 +194,8 @@ public abstract class Node {
 				this.tokenQueue.remove();
 				if (!success) {
 					enqueue(token);
-					return;
 				}
-				if (!moreThanOne) {
+				if (!success || moreThanOne) {
 					network.getScheduler().enqueue(this);
 				}
 			}
