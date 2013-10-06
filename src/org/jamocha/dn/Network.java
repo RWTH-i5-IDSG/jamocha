@@ -21,6 +21,7 @@ import java.util.LinkedList;
 
 import lombok.Getter;
 
+import org.jamocha.ConflictSet;
 import org.jamocha.dn.memory.FactAddress;
 import org.jamocha.dn.memory.MemoryFactory;
 import org.jamocha.dn.memory.MemoryHandlerMain;
@@ -79,6 +80,15 @@ public class Network {
 	private final Scheduler scheduler;
 
 	private final RootNode rootNode;
+
+	/**
+	 * -- GETTER --
+	 * 
+	 * Gets the {@link ConflictSet conflict set}.
+	 * 
+	 * @return conflict set
+	 */
+	private final ConflictSet conflictSet = null; // TODO implement and add to Ctor etc
 
 	/**
 	 * Creates an new network object.

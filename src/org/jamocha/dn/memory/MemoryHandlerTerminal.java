@@ -17,19 +17,22 @@ package org.jamocha.dn.memory;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+import org.jamocha.dn.memory.MemoryHandlerTerminal.AssertOrRetract;
+import org.jamocha.dn.nodes.TerminalNode;
+
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  * 
  */
-public interface MemoryHandlerTerminal extends MemoryHandler {
+public interface MemoryHandlerTerminal extends MemoryHandler, Iterable<AssertOrRetract<?>> {
 
 	/**
 	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
 	 */
 	public interface AssertOrRetractVisitor {
-		void visit(final Assert mem);
+		void visit(final TerminalNode node, final Assert mem);
 
-		void visit(final Retract mem);
+		void visit(final TerminalNode node, final Retract mem);
 	}
 
 	/**
@@ -37,7 +40,7 @@ public interface MemoryHandlerTerminal extends MemoryHandler {
 	 */
 	@Getter
 	@RequiredArgsConstructor
-	abstract class AssertOrRetract<T extends AssertOrRetract<?>> {
+	public abstract class AssertOrRetract<T extends AssertOrRetract<?>> {
 		protected final MemoryHandlerTemp mem;
 		protected T dual = null;
 
@@ -49,7 +52,7 @@ public interface MemoryHandlerTerminal extends MemoryHandler {
 			return false;
 		}
 
-		abstract public void accept(final AssertOrRetractVisitor visitor);
+		abstract public void accept(final TerminalNode node, final AssertOrRetractVisitor visitor);
 	}
 
 	/**
@@ -69,8 +72,8 @@ public interface MemoryHandlerTerminal extends MemoryHandler {
 		}
 
 		@Override
-		public void accept(final AssertOrRetractVisitor visitor) {
-			visitor.visit(this);
+		public void accept(final TerminalNode node, final AssertOrRetractVisitor visitor) {
+			visitor.visit(node, this);
 		}
 	}
 
@@ -91,14 +94,15 @@ public interface MemoryHandlerTerminal extends MemoryHandler {
 		}
 
 		@Override
-		public void accept(final AssertOrRetractVisitor visitor) {
-			visitor.visit(this);
+		public void accept(final TerminalNode node, final AssertOrRetractVisitor visitor) {
+			visitor.visit(node, this);
 		}
 	}
 
-	public void addPlusMemory(final MemoryHandlerTemp mem);
+	public Assert addPlusMemory(final MemoryHandlerTemp mem);
 
-	public void addMinusMemory(final MemoryHandlerTemp mem);
+	public Retract addMinusMemory(final MemoryHandlerTemp mem);
 
-	public void accept(final AssertOrRetractVisitor visitor);
+	public boolean containsUnrevokedTokens();
+
 }

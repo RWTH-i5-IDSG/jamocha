@@ -26,6 +26,8 @@ import org.jamocha.dn.Network;
 import org.jamocha.dn.memory.FactAddress;
 import org.jamocha.dn.memory.MemoryHandlerTemp;
 import org.jamocha.dn.memory.MemoryHandlerTerminal;
+import org.jamocha.dn.memory.MemoryHandlerTerminal.Assert;
+import org.jamocha.dn.memory.MemoryHandlerTerminal.Retract;
 import org.jamocha.dn.nodes.Node.Edge;
 import org.jamocha.filter.Filter;
 
@@ -56,13 +58,11 @@ public class TerminalNode {
 		@Override
 		public void processPlusToken(final MemoryHandlerTemp memory)
 				throws CouldNotAcquireLockException {
-			// TODO process Plus Token in TerminalNodeEdge
 		}
 
 		@Override
 		public void processMinusToken(final MemoryHandlerTemp memory)
 				throws CouldNotAcquireLockException {
-			// TODO process Minus Token in TerminalNodeEdge
 		}
 
 		@Override
@@ -88,14 +88,13 @@ public class TerminalNode {
 
 		@Override
 		public Node getSourceNode() {
-			// TODO Auto-generated method stub
-			return null;
+			return this.sourceNode;
 		}
 
 		@Override
 		public Node getTargetNode() {
 			throw new UnsupportedOperationException(
-					"Edges to terminal nodes don't have target nodes.");
+					"Edges to terminal nodes don't have target 'nodes', as TerminalNode is not part of the Node hierarchy.");
 		}
 
 		@Override
@@ -114,13 +113,13 @@ public class TerminalNode {
 		}
 
 		@Override
-		public void enqueuePlusMemory(MemoryHandlerTemp mem) {
-			// TODO Auto-generated method stub
+		public void enqueuePlusMemory(final MemoryHandlerTemp mem) {
+			this.targetNode.enqueueAssert(this.targetNode.getMemory().addPlusMemory(mem));
 		}
 
 		@Override
-		public void enqueueMinusMemory(MemoryHandlerTemp mem) {
-			// TODO Auto-generated method stub
+		public void enqueueMinusMemory(final MemoryHandlerTemp mem) {
+			this.targetNode.enqueueRetract(this.targetNode.getMemory().addMinusMemory(mem));
 		}
 
 	}
@@ -142,9 +141,18 @@ public class TerminalNode {
 		this.memory = parent.getMemory().newMemoryHandlerTerminal();
 	}
 
+	public void enqueueAssert(final Assert plus) {
+		this.network.getConflictSet().addAssert(this, plus);
+	}
+
+	public void enqueueRetract(final Retract minus) {
+		this.network.getConflictSet().addRetract(this, minus);
+	}
+
 	public MemoryHandlerTerminal flush() {
 		final MemoryHandlerTerminal old = this.getMemory();
 		this.memory = this.parent.getMemory().newMemoryHandlerTerminal();
 		return old;
 	}
+
 }

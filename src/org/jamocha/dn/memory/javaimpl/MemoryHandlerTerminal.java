@@ -14,6 +14,7 @@
  */
 package org.jamocha.dn.memory.javaimpl;
 
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -37,7 +38,7 @@ public class MemoryHandlerTerminal implements org.jamocha.dn.memory.MemoryHandle
 	}
 
 	@Override
-	public void addPlusMemory(final org.jamocha.dn.memory.MemoryHandlerTemp mem) {
+	public Assert addPlusMemory(final org.jamocha.dn.memory.MemoryHandlerTemp mem) {
 		final Assert plus = new Assert(mem);
 		for (final AssertOrRetract<?> token : this.tokens) {
 			if (token.getMem().equals(mem) && token.setDual(plus)) {
@@ -46,10 +47,11 @@ public class MemoryHandlerTerminal implements org.jamocha.dn.memory.MemoryHandle
 			}
 		}
 		this.tokens.add(plus);
+		return plus;
 	}
 
 	@Override
-	public void addMinusMemory(final org.jamocha.dn.memory.MemoryHandlerTemp mem) {
+	public Retract addMinusMemory(final org.jamocha.dn.memory.MemoryHandlerTemp mem) {
 		final Retract minus = new Retract(mem);
 		for (final AssertOrRetract<?> token : this.tokens) {
 			if (token.getMem().equals(mem) && token.setDual(minus)) {
@@ -58,13 +60,7 @@ public class MemoryHandlerTerminal implements org.jamocha.dn.memory.MemoryHandle
 			}
 		}
 		this.tokens.add(minus);
-	}
-
-	@Override
-	public void accept(AssertOrRetractVisitor visitor) {
-		for (final AssertOrRetract<?> token : this.tokens) {
-			token.accept(visitor);
-		}
+		return minus;
 	}
 
 	@Override
@@ -93,6 +89,21 @@ public class MemoryHandlerTerminal implements org.jamocha.dn.memory.MemoryHandle
 			return token.getMem().getValue(address, slot, index);
 		}
 		throw new IndexOutOfBoundsException();
+	}
+
+	@Override
+	public Iterator<AssertOrRetract<?>> iterator() {
+		return this.tokens.iterator();
+	}
+
+	@Override
+	public boolean containsUnrevokedTokens() {
+		for (final AssertOrRetract<?> token : this.tokens) {
+			if (null == token.getDual()) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 }
