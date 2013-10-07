@@ -40,12 +40,6 @@ public class MemoryHandlerTerminal implements org.jamocha.dn.memory.MemoryHandle
 	@Override
 	public Assert addPlusMemory(final org.jamocha.dn.memory.MemoryHandlerTemp mem) {
 		final Assert plus = new Assert(mem);
-		for (final AssertOrRetract<?> token : this.tokens) {
-			if (token.getMem().equals(mem) && token.setDual(plus)) {
-				plus.setDual((Retract) token);
-				break;
-			}
-		}
 		this.tokens.add(plus);
 		return plus;
 	}
@@ -54,8 +48,8 @@ public class MemoryHandlerTerminal implements org.jamocha.dn.memory.MemoryHandle
 	public Retract addMinusMemory(final org.jamocha.dn.memory.MemoryHandlerTemp mem) {
 		final Retract minus = new Retract(mem);
 		for (final AssertOrRetract<?> token : this.tokens) {
-			if (token.getMem().equals(mem) && token.setDual(minus)) {
-				minus.setDual((Assert) token);
+			if (token.getMem().equals(mem) && token.setFollowingRetract(minus)) {
+				minus.setPrecedingAssert((Assert) token);
 				break;
 			}
 		}

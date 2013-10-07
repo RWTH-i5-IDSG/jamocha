@@ -44,11 +44,11 @@ public interface MemoryHandlerTerminal extends MemoryHandler, Iterable<AssertOrR
 		protected final MemoryHandlerTemp mem;
 		protected T dual = null;
 
-		public boolean setDual(final Assert dual) {
+		public boolean setPrecedingAssert(final Assert plus) {
 			return false;
 		}
 
-		public boolean setDual(final Retract dual) {
+		public boolean setFollowingRetract(final Retract minus) {
 			return false;
 		}
 
@@ -64,10 +64,10 @@ public interface MemoryHandlerTerminal extends MemoryHandler, Iterable<AssertOrR
 		}
 
 		@Override
-		public boolean setDual(final Retract dual) {
+		public boolean setFollowingRetract(final Retract minus) {
 			if (null != this.dual)
 				return false;
-			this.dual = dual;
+			this.dual = minus;
 			return true;
 		}
 
@@ -86,10 +86,10 @@ public interface MemoryHandlerTerminal extends MemoryHandler, Iterable<AssertOrR
 		}
 
 		@Override
-		public boolean setDual(final Assert dual) {
+		public boolean setPrecedingAssert(final Assert plus) {
 			if (null != this.dual)
 				return false;
-			this.dual = dual;
+			this.dual = plus;
 			return true;
 		}
 
