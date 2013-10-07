@@ -109,4 +109,23 @@ public class TODODatenkrakeFunktionen {
 					+ "\" not loaded or implemented.");
 		return function;
 	}
+
+	/**
+	 * Looks up an implementation for the {@link Predicate} identified by its string representation
+	 * in CLIPS and its parameter types.
+	 * 
+	 * @param inClips
+	 *            string representation of the predicate in CLIPS
+	 * @param params
+	 *            parameter types
+	 * @return a matching @{link Predicate} implementation
+	 * @throws UnsupportedOperationException
+	 *             iff no {@link Predicate} implementation was found for the given string
+	 *             representation and parameter types
+	 */
+	public static Predicate lookupPredicate(final String inClips, final SlotType... params) {
+		final Function<?> function = lookup(inClips, params);
+		assert function.getReturnType() == SlotType.BOOLEAN;
+		return (Predicate) function;
+	}
 }
