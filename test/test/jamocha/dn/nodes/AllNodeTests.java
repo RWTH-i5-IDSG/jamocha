@@ -9,6 +9,7 @@ import org.junit.runners.Suite.SuiteClasses;
  * <p>
  * Please add new package test suites or single tests to the SuiteClasses annotation.
  * </p>
+ * 
  * @author Kai Schwarz <kai.schwarz@rwth-aachen.de>
  */
 @RunWith(Suite.class)
