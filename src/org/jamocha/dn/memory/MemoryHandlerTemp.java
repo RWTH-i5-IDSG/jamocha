@@ -14,6 +14,8 @@
  */
 package org.jamocha.dn.memory;
 
+import java.util.List;
+
 import org.jamocha.dn.nodes.Node;
 import org.jamocha.dn.nodes.Node.Edge;
 
@@ -34,4 +36,6 @@ import org.jamocha.dn.nodes.Node.Edge;
  */
 public interface MemoryHandlerTemp extends MemoryHandler {
 	public void releaseLock();
+
+	public List<MemoryHandler> splitIntoChunksOfSize(final int size);
 }

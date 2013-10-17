@@ -21,10 +21,10 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.jamocha.dn.memory.FactAddress;
 import org.jamocha.dn.memory.MemoryHandler;
 import org.jamocha.dn.memory.SlotAddress;
 import org.jamocha.dn.memory.Template;
@@ -44,7 +44,8 @@ import org.jamocha.filter.FunctionWithArguments;
  * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
  * @see org.jamocha.dn.memory.MemoryHandlerTemp
  */
-public class MemoryHandlerTemp implements org.jamocha.dn.memory.MemoryHandlerTemp {
+public class MemoryHandlerTemp extends MemoryHandlerBase implements
+		org.jamocha.dn.memory.MemoryHandlerTemp {
 
 	static class Semaphore {
 		int count;
@@ -60,14 +61,13 @@ public class MemoryHandlerTemp implements org.jamocha.dn.memory.MemoryHandlerTem
 	}
 
 	final MemoryHandlerMain originatingMainHandler;
-	final ArrayList<Fact[]> facts;
 	final Semaphore lock;
 	boolean valid = true;
 
 	private MemoryHandlerTemp(final MemoryHandlerMain originatingMainHandler,
-			final ArrayList<Fact[]> facts, final Semaphore lock) {
+			final List<Fact[]> facts, final Semaphore lock) {
+		super(originatingMainHandler.getTemplate(), facts);
 		this.originatingMainHandler = originatingMainHandler;
-		this.facts = facts;
 		this.lock = lock;
 		if (facts.size() == 0) {
 			this.valid = false;
@@ -123,18 +123,17 @@ public class MemoryHandlerTemp implements org.jamocha.dn.memory.MemoryHandlerTem
 	static abstract class StackElement {
 		int rowIndex;
 		int memIndex;
-		final ArrayList<ArrayList<Fact[]>> memStack;
+		final List<List<Fact[]>> memStack;
 		final int offset;
 
-		private StackElement(final ArrayList<ArrayList<Fact[]>> memStack, final int offset) {
+		private StackElement(final List<List<Fact[]>> memStack, final int offset) {
 			this.memStack = memStack;
 			this.offset = offset;
 		}
 
 		public static StackElement ordinaryInput(final Edge edge, final int offset) {
 			final LinkedList<? extends MemoryHandler> temps = edge.getTempMemories();
-			final ArrayList<ArrayList<Fact[]>> memStack =
-					new ArrayList<ArrayList<Fact[]>>(temps.size() + 1);
+			final List<List<Fact[]>> memStack = new ArrayList<List<Fact[]>>(temps.size() + 1);
 			memStack.add(((org.jamocha.dn.memory.javaimpl.MemoryHandlerMain) edge.getSourceNode()
 					.getMemory()).facts);
 			for (Iterator<? extends MemoryHandler> iter = temps.iterator(); iter.hasNext();) {
@@ -165,7 +164,7 @@ public class MemoryHandlerTemp implements org.jamocha.dn.memory.MemoryHandlerTem
 				System.arraycopy(facts, 0, row, offset, facts.length);
 				listWithHoles.add(row);
 			}
-			final ArrayList<ArrayList<Fact[]>> memStack = new ArrayList<ArrayList<Fact[]>>(1);
+			final List<List<Fact[]>> memStack = new ArrayList<List<Fact[]>>(1);
 			memStack.add(listWithHoles);
 			return new StackElement(memStack, offset) {
 				@Override
@@ -177,7 +176,7 @@ public class MemoryHandlerTemp implements org.jamocha.dn.memory.MemoryHandlerTem
 			};
 		}
 
-		ArrayList<Fact[]> getTable() {
+		List<Fact[]> getTable() {
 			return this.memStack.get(this.memIndex);
 		}
 
@@ -263,7 +262,7 @@ public class MemoryHandlerTemp implements org.jamocha.dn.memory.MemoryHandlerTem
 		originElement.memStack.set(0, TR);
 	}
 
-	private static ArrayList<Fact[]> performJoin(final MemoryHandlerMain originatingMainHandler,
+	private static List<Fact[]> performJoin(final MemoryHandlerMain originatingMainHandler,
 			final Filter filter, final MemoryHandlerTemp token, final Edge originIncomingEdge)
 			throws CouldNotAcquireLockException {
 		// get a fixed-size array of indices (size: #inputs of the node),
@@ -402,14 +401,6 @@ public class MemoryHandlerTemp implements org.jamocha.dn.memory.MemoryHandlerTem
 	}
 
 	/**
-	 * @see org.jamocha.dn.memory.MemoryHandler#size()
-	 */
-	@Override
-	public int size() {
-		return this.facts.size();
-	}
-
-	/**
 	 * @see org.jamocha.dn.memory.MemoryHandlerTemp#releaseLock()
 	 */
 	@Override
@@ -428,20 +419,20 @@ public class MemoryHandlerTemp implements org.jamocha.dn.memory.MemoryHandlerTem
 		this.valid = false;
 	}
 
-	/**
-	 * @see org.jamocha.dn.memory.MemoryHandlerMain#getTemplate()
-	 */
 	@Override
-	public Template[] getTemplate() {
-		return this.originatingMainHandler.getTemplate();
-	}
-
-	/**
-	 * @see org.jamocha.dn.memory.MemoryHandler#getValue(FactAddress, SlotAddress, int)
-	 */
-	@Override
-	public Object getValue(final FactAddress address, final SlotAddress slot, final int row) {
-		return this.facts.get(row)[((org.jamocha.dn.memory.javaimpl.FactAddress) address)
-				.getIndex()].getValue((org.jamocha.dn.memory.javaimpl.SlotAddress) slot);
+	public List<MemoryHandler> splitIntoChunksOfSize(final int size) {
+		final List<MemoryHandler> memoryHandlers = new ArrayList<>();
+		final Template[] template = this.getTemplate();
+		final int max = this.size();
+		int current = 0;
+		while (current < max) {
+			final List<Fact[]> facts = new ArrayList<>();
+			for (int i = 0; i < size && current + i < max; ++i) {
+				facts.add(this.facts.get(current + i));
+			}
+			memoryHandlers.add(new MemoryHandlerBase(template, facts));
+			current += size;
+		}
+		return memoryHandlers;
 	}
 }

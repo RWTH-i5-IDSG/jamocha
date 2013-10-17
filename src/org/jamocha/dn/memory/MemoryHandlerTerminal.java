@@ -40,8 +40,9 @@ public interface MemoryHandlerTerminal extends MemoryHandler, Iterable<AssertOrR
 	 */
 	@Getter
 	@RequiredArgsConstructor
+	// TODO soll Ctor assert MemoryHandler.size() == 1 aufrufen?
 	public abstract class AssertOrRetract<T extends AssertOrRetract<?>> {
-		protected final MemoryHandlerTemp mem;
+		protected final MemoryHandler mem;
 		protected T dual = null;
 
 		public boolean setPrecedingAssert(final Assert plus) {
@@ -59,7 +60,7 @@ public interface MemoryHandlerTerminal extends MemoryHandler, Iterable<AssertOrR
 	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
 	 */
 	public class Assert extends AssertOrRetract<Retract> {
-		public Assert(final MemoryHandlerTemp mem) {
+		public Assert(final MemoryHandler mem) {
 			super(mem);
 		}
 
@@ -81,7 +82,7 @@ public interface MemoryHandlerTerminal extends MemoryHandler, Iterable<AssertOrR
 	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
 	 */
 	public class Retract extends AssertOrRetract<Assert> {
-		public Retract(final MemoryHandlerTemp mem) {
+		public Retract(final MemoryHandler mem) {
 			super(mem);
 		}
 
@@ -99,9 +100,9 @@ public interface MemoryHandlerTerminal extends MemoryHandler, Iterable<AssertOrR
 		}
 	}
 
-	public Assert addPlusMemory(final MemoryHandlerTemp mem);
+	public Assert addPlusMemory(final MemoryHandler mem);
 
-	public Retract addMinusMemory(final MemoryHandlerTemp mem);
+	public Retract addMinusMemory(final MemoryHandler mem);
 
 	public boolean containsUnrevokedTokens();
 

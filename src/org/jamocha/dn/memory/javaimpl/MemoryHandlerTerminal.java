@@ -19,6 +19,7 @@ import java.util.LinkedList;
 import java.util.Queue;
 
 import org.jamocha.dn.memory.FactAddress;
+import org.jamocha.dn.memory.MemoryHandler;
 import org.jamocha.dn.memory.SlotAddress;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.filter.Path;
@@ -38,14 +39,14 @@ public class MemoryHandlerTerminal implements org.jamocha.dn.memory.MemoryHandle
 	}
 
 	@Override
-	public Assert addPlusMemory(final org.jamocha.dn.memory.MemoryHandlerTemp mem) {
+	public Assert addPlusMemory(final MemoryHandler mem) {
 		final Assert plus = new Assert(mem);
 		this.tokens.add(plus);
 		return plus;
 	}
 
 	@Override
-	public Retract addMinusMemory(final org.jamocha.dn.memory.MemoryHandlerTemp mem) {
+	public Retract addMinusMemory(final MemoryHandler mem) {
 		final Retract minus = new Retract(mem);
 		for (final AssertOrRetract<?> token : this.tokens) {
 			if (token.getMem().equals(mem) && token.setFollowingRetract(minus)) {

@@ -34,19 +34,18 @@ import org.jamocha.filter.Path;
  * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
  * @see org.jamocha.dn.memory.MemoryHandlerMain
  */
-public class MemoryHandlerMain implements org.jamocha.dn.memory.MemoryHandlerMain {
+public class MemoryHandlerMain extends MemoryHandlerBase implements
+		org.jamocha.dn.memory.MemoryHandlerMain {
 	static final long tryLockTimeout = 1L;
 	static final TimeUnit tu = TimeUnit.SECONDS;
 
 	final ReadWriteLock lock = new ReentrantReadWriteLock(true);
-	final ArrayList<Fact[]> facts = new ArrayList<>();
-	final Template[] template;
 	final FactAddress[] addresses;
 
 	MemoryHandlerMain(final Template template, final Path... paths) {
+		super(new Template[] { template }, new ArrayList<Fact[]>());
 		final FactAddress address = new FactAddress(0);
 		this.addresses = new FactAddress[] { address };
-		this.template = new Template[] { template };
 		for (final Path path : paths) {
 			path.setFactAddressInCurrentlyLowestNode(address);
 			Path.setJoinedWithForAll(path);
@@ -54,34 +53,32 @@ public class MemoryHandlerMain implements org.jamocha.dn.memory.MemoryHandlerMai
 	}
 
 	MemoryHandlerMain(final Edge... edgesToBeJoined) {
-		final ArrayList<Template> template = new ArrayList<>();
+		super(calculateAddressesAndTemplates(), new ArrayList<Fact[]>());
 		final ArrayList<FactAddress> addresses = new ArrayList<>();
 		for (final Edge edge : edgesToBeJoined) {
 			final HashMap<FactAddress, FactAddress> fMap = new HashMap<>();
 			final MemoryHandlerMain memoryHandlerMain =
 					(MemoryHandlerMain) edge.getSourceNode().getMemory();
-			for (int i = 0; i < memoryHandlerMain.template.length; i++) {
-				final Template t = memoryHandlerMain.template[i];
-				final FactAddress oldFactAddress = memoryHandlerMain.addresses[i];
+			for (final FactAddress oldFactAddress : memoryHandlerMain.addresses) {
 				final FactAddress newFactAddress = new FactAddress(addresses.size());
 				fMap.put(oldFactAddress, newFactAddress);
-				template.add(t);
 				addresses.add(newFactAddress);
 			}
 			edge.setAddressMap(fMap);
 		}
-		this.template = template.toArray(new Template[template.size()]);
 		this.addresses = addresses.toArray(new FactAddress[addresses.size()]);
 	}
 
-	@Override
-	public int size() {
-		return this.facts.size();
-	}
-
-	@Override
-	public Template[] getTemplate() {
-		return template;
+	private static Template[] calculateAddressesAndTemplates(final Edge... edgesToBeJoined) {
+		final ArrayList<Template> template = new ArrayList<>();
+		for (final Edge edge : edgesToBeJoined) {
+			final MemoryHandlerMain memoryHandlerMain =
+					(MemoryHandlerMain) edge.getSourceNode().getMemory();
+			for (final Template t : memoryHandlerMain.template) {
+				template.add(t);
+			}
+		}
+		return template.toArray(new Template[template.size()]);
 	}
 
 	@Override
@@ -110,13 +107,6 @@ public class MemoryHandlerMain implements org.jamocha.dn.memory.MemoryHandlerMai
 		for (final Fact[] row : temp.facts) {
 			this.facts.add(row);
 		}
-	}
-
-	@Override
-	public Object getValue(final org.jamocha.dn.memory.FactAddress address,
-			final org.jamocha.dn.memory.SlotAddress slot, final int row) {
-		return this.facts.get(row)[((org.jamocha.dn.memory.javaimpl.FactAddress) address)
-				.getIndex()].getValue((org.jamocha.dn.memory.javaimpl.SlotAddress) slot);
 	}
 
 	@Override

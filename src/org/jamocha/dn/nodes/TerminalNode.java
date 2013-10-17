@@ -24,6 +24,7 @@ import lombok.Getter;
 
 import org.jamocha.dn.Network;
 import org.jamocha.dn.memory.FactAddress;
+import org.jamocha.dn.memory.MemoryHandler;
 import org.jamocha.dn.memory.MemoryHandlerTemp;
 import org.jamocha.dn.memory.MemoryHandlerTerminal;
 import org.jamocha.dn.memory.MemoryHandlerTerminal.Assert;
@@ -114,12 +115,16 @@ public class TerminalNode {
 
 		@Override
 		public void enqueuePlusMemory(final MemoryHandlerTemp mem) {
-			this.targetNode.enqueueAssert(this.targetNode.getMemory().addPlusMemory(mem));
+			for (final MemoryHandler handler : mem.splitIntoChunksOfSize(1)) {
+				this.targetNode.enqueueAssert(this.targetNode.getMemory().addPlusMemory(handler));
+			}
 		}
 
 		@Override
 		public void enqueueMinusMemory(final MemoryHandlerTemp mem) {
-			this.targetNode.enqueueRetract(this.targetNode.getMemory().addMinusMemory(mem));
+			for (final MemoryHandler handler : mem.splitIntoChunksOfSize(1)) {
+				this.targetNode.enqueueRetract(this.targetNode.getMemory().addMinusMemory(handler));
+			}
 		}
 
 	}
