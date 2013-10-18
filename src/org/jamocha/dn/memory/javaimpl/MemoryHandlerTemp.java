@@ -161,6 +161,7 @@ public class MemoryHandlerTemp extends MemoryHandlerBase implements
 			final ArrayList<Fact[]> listWithHoles = new ArrayList<>(temp.facts.size());
 			for (final Fact[] facts : temp.facts) {
 				final Fact[] row = new Fact[columns];
+				assert columns >= offset + facts.length;
 				System.arraycopy(facts, 0, row, offset, facts.length);
 				listWithHoles.add(row);
 			}
