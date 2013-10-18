@@ -14,6 +14,7 @@
  */
 package org.jamocha.dn.memory.javaimpl;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.jamocha.dn.memory.FactAddress;
@@ -72,8 +73,8 @@ public class MemoryHandlerBase implements MemoryHandler {
 		final MemoryHandlerBase other = (MemoryHandlerBase) obj;
 		if (!other.canEqual((Object) this))
 			return false;
-		if (this.getTemplate() == null ? other.getTemplate() != null : !this.getTemplate().equals(
-				other.getTemplate()))
+		if (this.getTemplate() == null ? other.getTemplate() != null : !Arrays.deepEquals(
+				this.getTemplate(), other.getTemplate()))
 			return false;
 		if (this.facts == null ? other.facts != null : !this.facts.equals(other.facts))
 			return false;
