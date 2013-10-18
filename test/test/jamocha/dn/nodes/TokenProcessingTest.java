@@ -14,10 +14,22 @@
  */
 package test.jamocha.dn.nodes;
 
+import static org.junit.Assert.assertEquals;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.jamocha.dn.ConflictSet.NodeAndToken;
 import org.jamocha.dn.Network;
+import org.jamocha.dn.memory.Fact;
+import org.jamocha.dn.memory.MemoryHandlerTerminal.Assert;
+import org.jamocha.dn.memory.MemoryHandlerTerminal.AssertOrRetract;
+import org.jamocha.dn.memory.MemoryHandlerTerminal.AssertOrRetractVisitor;
+import org.jamocha.dn.memory.MemoryHandlerTerminal.Retract;
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.dn.memory.javaimpl.SlotAddress;
+import org.jamocha.dn.nodes.TerminalNode;
 import org.jamocha.filter.Filter;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.Predicate;
@@ -73,9 +85,8 @@ public class TokenProcessingTest {
 	/**
 	 * 
 	 */
-	@SuppressWarnings("unused")
 	@Test
-	public void testTokenProcessing() {
+	public void testTokenProcessing() throws Exception {
 		final Network network = Network.DEFAULTNETWORK;
 		final Template t1 = new Template(SlotType.LONG, SlotType.STRING, SlotType.BOOLEAN);
 		final Path p1 = new Path(t1);
@@ -92,6 +103,45 @@ public class TokenProcessingTest {
 						.addFunction(
 								new FunctionBuilder(lessLongLong).addPath(p1, slotLong)
 										.addConstant(3L, SlotType.LONG).build()).build());
+
+		network.buildRule(filter);
+
+		// true != 5 < 3
+		network.getRootNode().assertFact(new Fact(t1, 5L, "5L&TRUE", true));
+		// false == 5 < 3
+		network.getRootNode().assertFact(new Fact(t1, 5L, "5L&FALSE", false));
+		// true == 2 < 3
+		network.getRootNode().assertFact(new Fact(t1, 2L, "2L&TRUE", true));
+		// false != 2 < 3
+		network.getRootNode().assertFact(new Fact(t1, 2L, "2L&FALSE", false));
+		// true == -80 < 3
+		network.getRootNode().assertFact(new Fact(t1, -80L, "-80L&TRUE", true));
+		// false != -80 < 3
+		network.getRootNode().assertFact(new Fact(t1, -80L, "-80L&FALSE", false));
+		// false != 0 < 3
+		network.getRootNode().assertFact(new Fact(t1, 0L, "0L&FALSE", false));
+
+		final List<Assert> asserts = new ArrayList<>();
+		final List<Retract> retracts = new ArrayList<>();
+
+		for (final NodeAndToken nat : network.getConflictSet()) {
+			final AssertOrRetract<?> assertOrRetract = nat.getToken();
+			final TerminalNode terminalNode = nat.getTerminal();
+			assertOrRetract.accept(terminalNode, new AssertOrRetractVisitor() {
+
+				@Override
+				public void visit(TerminalNode node, Retract mem) {
+					retracts.add(mem);
+				}
+
+				@Override
+				public void visit(TerminalNode node, Assert mem) {
+					asserts.add(mem);
+				}
+			});
+		}
+		assertEquals("Amount of asserts does not match expected count!", 3, asserts.size());
+		assertEquals("Amount of retracts does not match expected count!", 0, retracts.size());
 
 	}
 }
