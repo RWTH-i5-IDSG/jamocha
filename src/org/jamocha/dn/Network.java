@@ -21,7 +21,6 @@ import java.util.LinkedList;
 
 import lombok.Getter;
 
-import org.jamocha.ConflictSet;
 import org.jamocha.dn.memory.FactAddress;
 import org.jamocha.dn.memory.MemoryFactory;
 import org.jamocha.dn.memory.MemoryHandlerMain;
@@ -88,7 +87,7 @@ public class Network {
 	 * 
 	 * @return conflict set
 	 */
-	private final ConflictSet conflictSet = null; // TODO implement and add to Ctor etc
+	private final ConflictSet conflictSet = new ConflictSet();
 
 	/**
 	 * Creates an new network object.
