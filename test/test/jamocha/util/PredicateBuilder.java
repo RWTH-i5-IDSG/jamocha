@@ -23,10 +23,10 @@ public class PredicateBuilder {
 
 	public PredicateBuilder addPath(final Path path, final SlotAddress slot) {
 		final SlotType[] paramTypes = this.predicate.getParamTypes();
-		if (paramTypes.length != this.args.size()) {
+		if (paramTypes.length == this.args.size()) {
 			throw new IllegalArgumentException("All arguments already set!");
 		}
-		if (paramTypes[this.args.size() + 1] != path.getTemplateSlotType(slot)) {
+		if (paramTypes[this.args.size()] != path.getTemplateSlotType(slot)) {
 			throw new IllegalArgumentException("Wrong argument type!");
 		}
 		this.args.add(new PathLeaf(path, slot));
@@ -35,10 +35,10 @@ public class PredicateBuilder {
 
 	public PredicateBuilder addConstant(final Object value, final SlotType type) {
 		final SlotType[] paramTypes = this.predicate.getParamTypes();
-		if (paramTypes.length != this.args.size()) {
+		if (paramTypes.length == this.args.size()) {
 			throw new IllegalArgumentException("All arguments already set!");
 		}
-		if (paramTypes[this.args.size() + 1] != type) {
+		if (paramTypes[this.args.size()] != type) {
 			throw new IllegalArgumentException("Wrong argument type!");
 		}
 		this.args.add(new ConstantLeaf(value, type));
@@ -47,10 +47,10 @@ public class PredicateBuilder {
 
 	public PredicateBuilder addFunction(final FunctionWithArguments function) {
 		final SlotType[] paramTypes = this.predicate.getParamTypes();
-		if (paramTypes.length != this.args.size()) {
+		if (paramTypes.length == this.args.size()) {
 			throw new IllegalArgumentException("All arguments already set!");
 		}
-		if (paramTypes[this.args.size() + 1] != function.getReturnType()) {
+		if (paramTypes[this.args.size()] != function.getReturnType()) {
 			throw new IllegalArgumentException("Wrong argument type!");
 		}
 		this.args.add(function);
