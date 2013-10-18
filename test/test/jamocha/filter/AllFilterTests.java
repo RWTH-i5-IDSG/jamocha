@@ -32,7 +32,9 @@ import org.junit.runners.Suite.SuiteClasses;
 		test.jamocha.filter.predicates.AndTest.class,
 		test.jamocha.filter.predicates.EqualsTest.class,
 		test.jamocha.filter.predicates.LessTest.class,
-		test.jamocha.filter.functions.PlusTest.class, test.jamocha.filter.functions.MinusTest.class })
+		test.jamocha.filter.functions.PlusTest.class,
+		test.jamocha.filter.functions.MinusTest.class,
+		test.jamocha.filter.FilterEqualsInFunctionTest.class })
 public class AllFilterTests {
 
 }
