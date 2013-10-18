@@ -53,7 +53,7 @@ public class MemoryHandlerMain extends MemoryHandlerBase implements
 	}
 
 	MemoryHandlerMain(final Edge... edgesToBeJoined) {
-		super(calculateAddressesAndTemplates(), new ArrayList<Fact[]>());
+		super(calculateAddressesAndTemplates(edgesToBeJoined), new ArrayList<Fact[]>());
 		final ArrayList<FactAddress> addresses = new ArrayList<>();
 		for (final Edge edge : edgesToBeJoined) {
 			final HashMap<FactAddress, FactAddress> fMap = new HashMap<>();
@@ -69,12 +69,12 @@ public class MemoryHandlerMain extends MemoryHandlerBase implements
 		this.addresses = addresses.toArray(new FactAddress[addresses.size()]);
 	}
 
-	private static Template[] calculateAddressesAndTemplates(final Edge... edgesToBeJoined) {
+	private static Template[] calculateAddressesAndTemplates(final Edge[] edgesToBeJoined) {
 		final ArrayList<Template> template = new ArrayList<>();
 		for (final Edge edge : edgesToBeJoined) {
-			final MemoryHandlerMain memoryHandlerMain =
-					(MemoryHandlerMain) edge.getSourceNode().getMemory();
-			for (final Template t : memoryHandlerMain.template) {
+			final org.jamocha.dn.memory.MemoryHandlerMain memoryHandlerMain =
+					edge.getSourceNode().getMemory();
+			for (final Template t : memoryHandlerMain.getTemplate()) {
 				template.add(t);
 			}
 		}
