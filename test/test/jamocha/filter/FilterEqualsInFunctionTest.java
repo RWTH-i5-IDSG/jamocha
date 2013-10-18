@@ -175,10 +175,10 @@ public class FilterEqualsInFunctionTest {
 
 	@Test
 	public void testFilterEqualsInFunction() {
-		Path p1 = new Path(new Template(SlotType.DOUBLE));
-		Path p2 = new Path(new Template(SlotType.DOUBLE));
-		Path p3 = new Path(new Template(SlotType.DOUBLE));
-		Path p4 = new Path(new Template(SlotType.DOUBLE));
+		Path p1 = new Path(new Template(SlotType.STRING, SlotType.LONG));
+		Path p2 = new Path(new Template(SlotType.LONG));
+		Path p3 = new Path(new Template(SlotType.LONG));
+		Path p4 = new Path(new Template(SlotType.LONG));
 		Path p5 = new Path(new Template(SlotType.STRING));
 		SlotAddress a1 = new SlotAddress(0);
 		SlotAddress a2 = new SlotAddress(0);
@@ -195,11 +195,11 @@ public class FilterEqualsInFunctionTest {
 		Function<?> eqL = TODODatenkrakeFunktionen.lookup("=", SlotType.LONG, SlotType.LONG);
 		Function<?> eqS = TODODatenkrakeFunktionen.lookup("=", SlotType.STRING, SlotType.STRING);
 		f =	new PredicateBuilder((Predicate)eqS).addConstant("Max Mustermann", SlotType.STRING).addPath(p1, a1).build();
-		g = new PredicateBuilder((Predicate)lessL).addConstant(18L, SlotType.STRING).addPath(p1, a5).build();
+		g = new PredicateBuilder((Predicate)lessL).addConstant(18L, SlotType.LONG).addPath(p1, a5).build();
 		h = new PredicateBuilder((Predicate)lessL).addConstant(50000, SlotType.LONG).addFunction(new FunctionBuilder(plusL).addPath(p2,a3).addPath(p3, a4).build()).build();
 		i =	new PredicateBuilder((Predicate)eqS).addConstant("Max Mustermann", SlotType.STRING).addPath(p1, a1).build();
-		j = new PredicateBuilder((Predicate)lessL).addConstant(18L, SlotType.STRING).addPath(p1, a5).build();
-		k = new PredicateBuilder((Predicate)lessL).addConstant(50000, SlotType.LONG).addFunction(new FunctionBuilder(plusL).addPath(p2,a3).addPath(p3, a4).build()).addConstant(50000, SlotType.LONG).build();
+		j = new PredicateBuilder((Predicate)lessL).addConstant(18L, SlotType.LONG).addPath(p1, a5).build();
+		k = new PredicateBuilder((Predicate)lessL).addConstant(50000, SlotType.LONG).addFunction(new FunctionBuilder(plusL).addPath(p2,a3).addPath(p3, a4).build()).build();
 		Filter a,b;
 		a = new Filter(f,g,h);
 		b = new Filter (f,g,h);
@@ -212,7 +212,7 @@ public class FilterEqualsInFunctionTest {
 		assertTrue(a.equalsInFunction(b));
 		assertTrue(b.equalsInFunction(a));
 		
-		l = new PredicateBuilder((Predicate)lessL).addConstant(17L, SlotType.STRING).addPath(p1, a5).build();
+		l = new PredicateBuilder((Predicate)lessL).addConstant(17L, SlotType.LONG).addPath(p1, a5).build();
 		b = new Filter(f,l,h);
 		assertFalse(a.equalsInFunction(b));
 		assertFalse(b.equalsInFunction(a));
