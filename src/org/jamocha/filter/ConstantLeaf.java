@@ -29,7 +29,7 @@ import org.jamocha.dn.nodes.SlotInFactAddress;
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
 @EqualsAndHashCode
-public class ConstantLeaf implements FunctionWithArguments {
+public class ConstantLeaf implements FunctionWithArguments, Function<Object> {
 	final Object value;
 	final SlotType type;
 
@@ -52,6 +52,16 @@ public class ConstantLeaf implements FunctionWithArguments {
 	@Override
 	public String toString() {
 		return value.toString();
+	}
+
+	@Override
+	public Object evaluate(final Function<?>... params) {
+		return value;
+	}
+
+	@Override
+	public Function<?> lazyEvaluate(final Object... params) {
+		return this;
 	}
 
 	@Override

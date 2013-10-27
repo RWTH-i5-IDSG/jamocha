@@ -26,6 +26,7 @@ import org.jamocha.dn.memory.SlotType;
 import org.jamocha.dn.nodes.Node;
 import org.jamocha.dn.nodes.SlotInFactAddress;
 import org.jamocha.filter.Filter.FilterElement;
+import org.jamocha.filter.GenericWithArgumentsComposite.LazyObject;
 
 /**
  * A parameter of a {@link Function} may be a slot of a {@link Fact}. The corresponding
@@ -72,7 +73,12 @@ public class PathLeaf implements FunctionWithArguments {
 	}
 
 	@Override
-	public Object evaluate(Object... params) {
+	public Function<?> lazyEvaluate(final Object... params) {
+		throw new UnsupportedOperationException("Evaluate not allowed for PathLeafs!");
+	}
+
+	@Override
+	public Object evaluate(final Object... params) {
 		throw new UnsupportedOperationException("Evaluate not allowed for PathLeafs!");
 	}
 
@@ -114,6 +120,11 @@ public class PathLeaf implements FunctionWithArguments {
 		@Override
 		public SlotType getReturnType() {
 			return this.type;
+		}
+
+		@Override
+		public Function<?> lazyEvaluate(final Object... params) {
+			return new LazyObject(params[0]);
 		}
 
 		@Override

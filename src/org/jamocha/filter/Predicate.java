@@ -34,6 +34,6 @@ public abstract class Predicate implements Function<Boolean> {
 	}
 
 	@Override
-	public abstract Boolean evaluate(final Object... params);
+	public abstract Boolean evaluate(final Function<?>... params);
 
 }

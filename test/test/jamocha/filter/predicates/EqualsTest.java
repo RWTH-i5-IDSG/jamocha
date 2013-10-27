@@ -24,6 +24,7 @@ import static org.junit.Assume.assumeThat;
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.filter.Predicate;
 import org.jamocha.filter.TODODatenkrakeFunktionen;
+import org.jamocha.filter.GenericWithArgumentsComposite.LazyObject;
 import org.jamocha.filter.impls.predicates.Equals;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -63,48 +64,48 @@ public class EqualsTest {
 	@Theory
 	public void testLongPos(@ListOfLongs Long left, @ListOfLongs Long right) {
 		assumeThat(left, is(equalTo(right)));
-		assertTrue((Boolean) (eqL.evaluate(left, right)));
+		assertTrue((Boolean) (eqL.evaluate(new LazyObject(left), new LazyObject(right))));
 	}
 
 	@Theory
 	public void testLongNeg(@ListOfLongs Long left, @ListOfLongs Long right) {
 		assumeThat(left, is(not(equalTo(right))));
-		assertFalse((Boolean) (eqL.evaluate(left, right)));
+		assertFalse((Boolean) (eqL.evaluate(new LazyObject(left), new LazyObject(right))));
 	}
 
 	@Theory
 	public void testDoublePos(@ListOfDoubles Double left, @ListOfDoubles Double right) {
 		assumeThat(left, is(equalTo(right)));
-		assertTrue((Boolean) (eqD.evaluate(left, right)));
+		assertTrue((Boolean) (eqD.evaluate(new LazyObject(left), new LazyObject(right))));
 	}
 
 	@Theory
 	public void testDoubleNeg(@ListOfDoubles Double left, @ListOfDoubles Double right) {
 		assumeThat(left, is(not(equalTo(right))));
-		assertFalse((Boolean) (eqD.evaluate(left, right)));
+		assertFalse((Boolean) (eqD.evaluate(new LazyObject(left), new LazyObject(right))));
 	}
 
 	@Theory
 	public void testStringPos(@ListOfStrings String left, @ListOfStrings String right) {
 		assumeThat(left, is(equalTo(right)));
-		assertTrue((Boolean) (eqS.evaluate(left, right)));
+		assertTrue((Boolean) (eqS.evaluate(new LazyObject(left), new LazyObject(right))));
 	}
 
 	@Theory
 	public void testStringNeg(@ListOfStrings String left, @ListOfStrings String right) {
 		assumeThat(left, is(not(equalTo(right))));
-		assertFalse((Boolean) (eqS.evaluate(left, right)));
+		assertFalse((Boolean) (eqS.evaluate(new LazyObject(left), new LazyObject(right))));
 	}
 
 	@Theory
 	public void testBooleanPos(@ListOfBooleans Boolean left, @ListOfBooleans Boolean right) {
 		assumeThat(left, is(equalTo(right)));
-		assertTrue((Boolean) (eqB.evaluate(left, right)));
+		assertTrue((Boolean) (eqB.evaluate(new LazyObject(left), new LazyObject(right))));
 	}
 
 	@Theory
 	public void testBooleanNeg(@ListOfBooleans Boolean left, @ListOfBooleans Boolean right) {
 		assumeThat(left, is(not(equalTo(right))));
-		assertFalse((Boolean) (eqB.evaluate(left, right)));
+		assertFalse((Boolean) (eqB.evaluate(new LazyObject(left), new LazyObject(right))));
 	}
 }

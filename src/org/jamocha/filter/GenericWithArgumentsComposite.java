@@ -19,6 +19,7 @@ import java.util.Arrays;
 import java.util.Collection;
 
 import lombok.EqualsAndHashCode;
+import lombok.RequiredArgsConstructor;
 
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.dn.nodes.SlotInFactAddress;
@@ -80,17 +81,66 @@ public class GenericWithArgumentsComposite<R, F extends Function<? extends R>> i
 		return sb.toString();
 	}
 
+	@RequiredArgsConstructor
+	public static class LazyObject implements Function<Object> {
+		final Object value;
+
+		@Override
+		public SlotType[] getParamTypes() {
+			return SlotType.empty;
+		}
+
+		@Override
+		public SlotType getReturnType() {
+			throw new UnsupportedOperationException(
+					"Type checking can not be done during lazy evaluation!");
+		}
+
+		@Override
+		public Object evaluate(final Function<?>... params) {
+			return this.value;
+		}
+
+	}
+
+	@Override
+	public Function<R> lazyEvaluate(final Object... params) {
+		final F function = this.function;
+		return new Function<R>() {
+			@Override
+			public SlotType[] getParamTypes() {
+				return SlotType.empty;
+			}
+
+			@Override
+			public SlotType getReturnType() {
+				throw new UnsupportedOperationException(
+						"Type checking can not be done during lazy evaluation!");
+			}
+
+			@Override
+			public R evaluate(final Function<?>... innerParams) {
+				final int len = params.length;
+				final LazyObject[] lazyParams = new LazyObject[len];
+				for (int i = 0; i < len; ++i) {
+					lazyParams[i] = new LazyObject(params[i]);
+				}
+				return function.evaluate(lazyParams);
+			}
+		};
+	}
+
 	@Override
 	public R evaluate(final Object... params) {
-		final Object evaluatedArgs[] = new Object[args.length];
+		final Function<?> evaluatableArgs[] = new Function<?>[args.length];
 		int k = 0;
 		for (int i = 0; i < args.length; i++) {
 			final FunctionWithArguments fwa = args[i];
 			final SlotType[] types = fwa.getParamTypes();
-			evaluatedArgs[i] = fwa.evaluate(Arrays.copyOfRange(params, k, k + types.length));
+			evaluatableArgs[i] = fwa.lazyEvaluate(Arrays.copyOfRange(params, k, k + types.length));
 			k += types.length;
 		}
-		return function.evaluate(evaluatedArgs);
+		return function.evaluate(evaluatableArgs);
 	}
 
 	@Override

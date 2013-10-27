@@ -56,6 +56,6 @@ public interface Function<R> {
 	 *            parameters for the function call
 	 * @return result of the function call
 	 */
-	public R evaluate(final Object... params);
+	public R evaluate(final Function<?>... params);
 
 }

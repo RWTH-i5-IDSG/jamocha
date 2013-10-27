@@ -25,7 +25,9 @@ import lombok.RequiredArgsConstructor;
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.dn.nodes.SlotInFactAddress;
 import org.jamocha.filter.Filter;
+import org.jamocha.filter.Function;
 import org.jamocha.filter.FunctionWithArguments;
+import org.jamocha.filter.GenericWithArgumentsComposite.LazyObject;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.PredicateWithArguments;
 import org.junit.experimental.theories.Theories;
@@ -55,6 +57,11 @@ public class FilterMockup extends Filter {
 		@Override
 		public SlotType[] getParamTypes() {
 			return SlotType.empty;
+		}
+
+		@Override
+		public Function<?> lazyEvaluate(final Object... params) {
+			return new LazyObject(returnValue);
 		}
 
 		@Override

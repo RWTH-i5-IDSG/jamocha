@@ -16,6 +16,7 @@
 package org.jamocha.filter.impls.predicates;
 
 import org.jamocha.dn.memory.SlotType;
+import org.jamocha.filter.Function;
 import org.jamocha.filter.Predicate;
 import org.jamocha.filter.TODODatenkrakeFunktionen;
 
@@ -41,8 +42,8 @@ public class Equals {
 			}
 
 			@Override
-			public Boolean evaluate(final Object... params) {
-				return ((Long) params[0]).equals((Long) params[1]);
+			public Boolean evaluate(final Function<?>... params) {
+				return ((Long) params[0].evaluate()).equals((Long) params[1].evaluate());
 			}
 		});
 		TODODatenkrakeFunktionen.addImpl(new Predicate() {
@@ -57,8 +58,8 @@ public class Equals {
 			}
 
 			@Override
-			public Boolean evaluate(final Object... params) {
-				return ((Double) params[0]).equals((Double) params[1]);
+			public Boolean evaluate(final Function<?>... params) {
+				return ((Double) params[0].evaluate()).equals((Double) params[1].evaluate());
 			}
 		});
 		TODODatenkrakeFunktionen.addImpl(new Predicate() {
@@ -73,8 +74,8 @@ public class Equals {
 			}
 
 			@Override
-			public Boolean evaluate(final Object... params) {
-				return ((Boolean) params[0]).equals((Boolean) params[1]);
+			public Boolean evaluate(final Function<?>... params) {
+				return ((Boolean) params[0].evaluate()).equals((Boolean) params[1].evaluate());
 			}
 		});
 		TODODatenkrakeFunktionen.addImpl(new Predicate() {
@@ -89,8 +90,8 @@ public class Equals {
 			}
 
 			@Override
-			public Boolean evaluate(final Object... params) {
-				return ((String) params[0]).equals((String) params[1]);
+			public Boolean evaluate(final Function<?>... params) {
+				return ((String) params[0].evaluate()).equals((String) params[1].evaluate());
 			}
 		});
 

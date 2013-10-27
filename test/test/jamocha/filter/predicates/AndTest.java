@@ -18,6 +18,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import org.jamocha.dn.memory.SlotType;
+import org.jamocha.filter.GenericWithArgumentsComposite.LazyObject;
 import org.jamocha.filter.Predicate;
 import org.jamocha.filter.TODODatenkrakeFunktionen;
 import org.jamocha.filter.impls.predicates.And;
@@ -42,10 +43,10 @@ public class AndTest {
 		Predicate and =
 				(Predicate) TODODatenkrakeFunktionen.lookup("AND", SlotType.BOOLEAN,
 						SlotType.BOOLEAN);
-		assertTrue((Boolean) (and.evaluate(true, true)));
-		assertFalse((Boolean) (and.evaluate(true, false)));
-		assertFalse((Boolean) (and.evaluate(false, true)));
-		assertFalse((Boolean) (and.evaluate(false, false)));
+		assertTrue((Boolean) (and.evaluate(new LazyObject(true), new LazyObject(true))));
+		assertFalse((Boolean) (and.evaluate(new LazyObject(true), new LazyObject(false))));
+		assertFalse((Boolean) (and.evaluate(new LazyObject(false), new LazyObject(true))));
+		assertFalse((Boolean) (and.evaluate(new LazyObject(false), new LazyObject(false))));
 	}
 
 }

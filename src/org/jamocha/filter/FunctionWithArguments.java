@@ -54,6 +54,15 @@ public interface FunctionWithArguments {
 	public String toString();
 
 	/**
+	 * Stores the parameters and returns a function that can be evaluated without further parameters
+	 * 
+	 * @param params
+	 *            parameters for the function call
+	 * @return function to call to get the actual result
+	 */
+	public Function<?> lazyEvaluate(final Object... params);
+
+	/**
 	 * Evaluates the function for the given parameters and returns the result
 	 * 
 	 * @param params

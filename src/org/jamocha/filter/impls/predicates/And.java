@@ -15,6 +15,7 @@
 package org.jamocha.filter.impls.predicates;
 
 import org.jamocha.dn.memory.SlotType;
+import org.jamocha.filter.Function;
 import org.jamocha.filter.Predicate;
 import org.jamocha.filter.TODODatenkrakeFunktionen;
 
@@ -39,8 +40,8 @@ public class And {
 			}
 
 			@Override
-			public Boolean evaluate(final Object... params) {
-				return (Boolean) params[0] && (Boolean) params[1];
+			public Boolean evaluate(final Function<?>... params) {
+				return (Boolean) params[0].evaluate() && (Boolean) params[1].evaluate();
 			}
 		});
 	}

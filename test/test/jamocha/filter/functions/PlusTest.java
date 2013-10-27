@@ -20,6 +20,7 @@ import static org.junit.Assert.assertThat;
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.filter.Function;
 import org.jamocha.filter.TODODatenkrakeFunktionen;
+import org.jamocha.filter.GenericWithArgumentsComposite.LazyObject;
 import org.jamocha.filter.impls.functions.Plus;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -59,12 +60,14 @@ public class PlusTest {
 
 	@Theory
 	public void testLong(@LotsOfRandomLongs Long left, @LotsOfRandomLongs Long right) {
-		assertThat((Long) (left + right), is((Long) (plusL.evaluate(left, right))));
+		assertThat((Long) (left + right),
+				is((Long) (plusL.evaluate(new LazyObject(left), new LazyObject(right)))));
 	}
 
 	@Theory
 	public void testDouble(@LotsOfRandomDoubles Double left, @LotsOfRandomDoubles Double right) {
-		assertThat((Double) (left + right), is((Double) (plusD.evaluate(left, right))));
+		assertThat((Double) (left + right),
+				is((Double) (plusD.evaluate(new LazyObject(left), new LazyObject(right)))));
 	}
 
 }

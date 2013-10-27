@@ -42,8 +42,8 @@ public class Minus {
 				return SlotType.LONG;
 			}
 
-			public Long evaluate(final Object... params) {
-				return (Long) params[0] - (Long) params[1];
+			public Long evaluate(final Function<?>... params) {
+				return (Long) params[0].evaluate() - (Long) params[1].evaluate();
 			}
 		});
 		TODODatenkrakeFunktionen.addImpl(new Function<Double>() {
@@ -59,8 +59,8 @@ public class Minus {
 				return SlotType.DOUBLE;
 			}
 
-			public Double evaluate(final Object... params) {
-				return (Double) params[0] - (Double) params[1];
+			public Double evaluate(final Function<?>... params) {
+				return (Double) params[0].evaluate() - (Double) params[1].evaluate();
 			}
 		});
 	}
