@@ -15,7 +15,6 @@
 package org.jamocha.filter;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 
 import lombok.EqualsAndHashCode;
@@ -42,15 +41,16 @@ public class GenericWithArgumentsComposite<R, F extends Function<? extends R>> i
 
 	final F function;
 	final FunctionWithArguments args[];
+	final SlotType[] paramTypes;
 
 	public GenericWithArgumentsComposite(final F function, final FunctionWithArguments... args) {
 		super();
 		this.function = function;
 		this.args = args;
+		this.paramTypes = calculateParamTypes(args);
 	}
 
-	@Override
-	public SlotType[] getParamTypes() {
+	private static SlotType[] calculateParamTypes(final FunctionWithArguments args[]) {
 		final ArrayList<SlotType> types = new ArrayList<>();
 		for (FunctionWithArguments fwa : args) {
 			for (SlotType type : fwa.getParamTypes()) {
@@ -58,6 +58,11 @@ public class GenericWithArgumentsComposite<R, F extends Function<? extends R>> i
 			}
 		}
 		return types.toArray(new SlotType[types.size()]);
+	}
+
+	@Override
+	public SlotType[] getParamTypes() {
+		return this.paramTypes;
 	}
 
 	@Override
@@ -126,22 +131,6 @@ public class GenericWithArgumentsComposite<R, F extends Function<? extends R>> i
 					lazyParams[i] = new LazyObject(params[i]);
 				}
 				return function.evaluate(lazyParams);
-			}
-		};
-	}
-
-	@Override
-	public R evaluate(final Object... params) {
-				final Function<?> evaluatableArgs[] = new Function<?>[args.length];
-				int k = 0;
-				for (int i = 0; i < args.length; i++) {
-					final FunctionWithArguments fwa = args[i];
-					final SlotType[] types = fwa.getParamTypes();
-					evaluatableArgs[i] =
-							fwa.lazyEvaluate(Arrays.copyOfRange(params, k, k + types.length));
-					k += types.length;
-				}
-				return function.evaluate(evaluatableArgs);
 			}
 		};
 	}
