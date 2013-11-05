@@ -1,0 +1,9 @@
+Knoten hält alle validen ausgehenden Tokens vor
+wenn +temp commited wird, wird Liste ab diesem temp durchlaufen und alle gefundenen -temps werden auf aktuellen +temp angewendet, +temp wird in main geschrieben und aus der liste gelöscht
+beim suchen von sich selbst werden alle -temps bis zum ersten +temp gelöscht
+
+bei -temp wird vor dem weiterreichen schon aus main-memory gelöscht, d.h. write-lock erforderlich
+(write-lock erst anfordern, wenn klar ist, dass etwas gelöscht werden muss, dann bis ende behalten)
+auf der anderen seite ist keine semaphore auf dem -temp nötig
+
+conflict set: suche wie bei beta-knoten, speichere zu allen passenden asserts das retract als dual, füge retract in liste ein, falls passendes assert gefunden
