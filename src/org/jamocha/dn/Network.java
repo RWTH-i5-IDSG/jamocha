@@ -190,11 +190,17 @@ public class Network {
 	// TODO what is the semantic of the Filter[] passed?
 	public TerminalNode buildRule(final Filter... filters) {
 		final LinkedHashSet<Path> allPaths = new LinkedHashSet<>();
+		{
+			for (Filter filter : filters) {
+				final LinkedHashSet<Path> paths = filter.gatherPaths();
+				allPaths.addAll(paths);
+			}
+			final Path[] pathArray = allPaths.toArray(new Path[allPaths.size()]);
+			this.rootNode.addPaths(this, pathArray);
+		}
 		for (Filter filter : filters) {
 			final LinkedHashSet<Path> paths = filter.gatherPaths();
-			allPaths.addAll(paths);
 			final Path[] pathArray = paths.toArray(new Path[paths.size()]);
-			this.rootNode.addPaths(this, pathArray);
 			if (!tryToShareNode(filter, pathArray))
 				if (paths.size() == 1) {
 					new AlphaNode(this, filter);
@@ -202,7 +208,6 @@ public class Network {
 					new BetaNode(this, filter);
 				}
 		}
-		// FIXME is this correct?
 		final Node lowestNode = allPaths.iterator().next().getCurrentlyLowestNode();
 		return new TerminalNode(this, lowestNode);
 	}
