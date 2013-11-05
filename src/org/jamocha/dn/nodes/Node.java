@@ -186,6 +186,7 @@ public abstract class Node {
 			boolean success = true;
 			try {
 				token.run();
+				token.getTemp().releaseLock();
 			} catch (final CouldNotAcquireLockException ex) {
 				success = false;
 			}
