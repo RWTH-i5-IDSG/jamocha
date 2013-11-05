@@ -15,10 +15,12 @@
 package org.jamocha.filter;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.dn.nodes.SlotInFactAddress;
@@ -87,6 +89,7 @@ public class GenericWithArgumentsComposite<R, F extends Function<? extends R>> i
 	}
 
 	@RequiredArgsConstructor
+	@ToString
 	public static class LazyObject implements Function<Object> {
 		final Object value;
 
@@ -125,12 +128,16 @@ public class GenericWithArgumentsComposite<R, F extends Function<? extends R>> i
 
 			@Override
 			public R evaluate(final Function<?>... innerParams) {
-				final int len = params.length;
-				final LazyObject[] lazyParams = new LazyObject[len];
-				for (int i = 0; i < len; ++i) {
-					lazyParams[i] = new LazyObject(params[i]);
+				final Function<?> evaluatableArgs[] = new Function<?>[args.length];
+				int k = 0;
+				for (int i = 0; i < args.length; i++) {
+					final FunctionWithArguments fwa = args[i];
+					final SlotType[] types = fwa.getParamTypes();
+					evaluatableArgs[i] =
+							fwa.lazyEvaluate(Arrays.copyOfRange(params, k, k + types.length));
+					k += types.length;
 				}
-				return function.evaluate(lazyParams);
+				return function.evaluate(evaluatableArgs);
 			}
 		};
 	}
