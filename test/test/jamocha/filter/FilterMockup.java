@@ -60,7 +60,7 @@ public class FilterMockup extends Filter {
 		}
 
 		@Override
-		public Function<?> lazyEvaluate(final Object... params) {
+		public Function<?> lazyEvaluate(final Function<?>... params) {
 			return new LazyObject(returnValue);
 		}
 

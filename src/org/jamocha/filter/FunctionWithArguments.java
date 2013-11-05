@@ -60,7 +60,7 @@ public interface FunctionWithArguments {
 	 *            parameters for the function call
 	 * @return function to call to get the actual result
 	 */
-	public Function<?> lazyEvaluate(final Object... params);
+	public Function<?> lazyEvaluate(final Function<?>... params);
 
 	/**
 	 * Evaluates the function for the given parameters and returns the result

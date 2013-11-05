@@ -104,7 +104,7 @@ public class GenericWithArgumentsComposite<R, F extends Function<? extends R>> i
 	}
 
 	@Override
-	public Function<R> lazyEvaluate(final Object... params) {
+	public Function<R> lazyEvaluate(final Function<?>... params) {
 		final F function = this.function;
 		return new Function<R>() {
 			@Override
@@ -132,15 +132,28 @@ public class GenericWithArgumentsComposite<R, F extends Function<? extends R>> i
 
 	@Override
 	public R evaluate(final Object... params) {
-		final Function<?> evaluatableArgs[] = new Function<?>[args.length];
-		int k = 0;
-		for (int i = 0; i < args.length; i++) {
-			final FunctionWithArguments fwa = args[i];
-			final SlotType[] types = fwa.getParamTypes();
-			evaluatableArgs[i] = fwa.lazyEvaluate(Arrays.copyOfRange(params, k, k + types.length));
-			k += types.length;
+				final Function<?> evaluatableArgs[] = new Function<?>[args.length];
+				int k = 0;
+				for (int i = 0; i < args.length; i++) {
+					final FunctionWithArguments fwa = args[i];
+					final SlotType[] types = fwa.getParamTypes();
+					evaluatableArgs[i] =
+							fwa.lazyEvaluate(Arrays.copyOfRange(params, k, k + types.length));
+					k += types.length;
+				}
+				return function.evaluate(evaluatableArgs);
+			}
+		};
+	}
+
+	@Override
+	public R evaluate(final Object... params) {
+		final int len = params.length;
+		final LazyObject[] lazyParams = new LazyObject[len];
+		for (int i = 0; i < len; ++i) {
+			lazyParams[i] = new LazyObject(params[i]);
 		}
-		return function.evaluate(evaluatableArgs);
+		return lazyEvaluate(lazyParams).evaluate();
 	}
 
 	@Override
