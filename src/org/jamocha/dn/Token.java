@@ -17,55 +17,62 @@ package org.jamocha.dn;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+import org.jamocha.dn.memory.MemoryHandlerMinusTemp;
+import org.jamocha.dn.memory.MemoryHandlerPlusTemp;
 import org.jamocha.dn.memory.MemoryHandlerTemp;
 import org.jamocha.dn.nodes.CouldNotAcquireLockException;
 import org.jamocha.dn.nodes.Node;
 import org.jamocha.dn.nodes.Node.Edge;
 
 /**
- * This class contains a {@link MemoryHandlerTemp} and the {@linkplain Edge edge} it has to be processed by. The processing is triggered by a {@link #run()} call.
+ * This class contains a {@link MemoryHandlerPlusTemp} and the {@linkplain Edge edge} it has to be
+ * processed by. The processing is triggered by a {@link #run()} call.
  * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
  */
 @Getter
 @AllArgsConstructor
-public abstract class Token {
-	final MemoryHandlerTemp temp;
+public abstract class Token<T extends MemoryHandlerTemp> {
+	final T temp;
 	final Edge edge;
 
 	/**
-	 * Triggers the {@linkplain Edge edge} to process the contained {@link MemoryHandlerTemp}.
+	 * Triggers the {@linkplain Edge edge} to process the contained {@link MemoryHandlerPlusTemp}.
 	 * 
-	 * @throws CouldNotAcquireLockException iff a required lock could not be acquired
+	 * @throws CouldNotAcquireLockException
+	 *             iff a required lock could not be acquired
 	 */
 	public abstract void run() throws CouldNotAcquireLockException;
 
 	/**
-	 * {@link Token} containing a {@link MemoryHandlerTemp} which should be added to the {@link Node node}. 
+	 * {@link Token} containing a {@link MemoryHandlerPlusTemp} which should be added to the
+	 * {@link Node node}.
 	 * 
 	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
 	 * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
 	 */
-	public static class PlusToken extends Token {
-		public PlusToken(final MemoryHandlerTemp temp, final Edge edge) {
+	public static class PlusToken extends Token<MemoryHandlerPlusTemp> {
+		public PlusToken(final MemoryHandlerPlusTemp temp, final Edge edge) {
 			super(temp, edge);
 		}
 
 		@Override
 		public void run() throws CouldNotAcquireLockException {
 			this.edge.processPlusToken(temp);
+			this.temp.releaseLock();
 		}
 	}
 
 	/**
-	 * {@link Token} containing a {@link MemoryHandlerTemp} which should be removed from the {@link Node node}.
+	 * {@link Token} containing a {@link MemoryHandlerPlusTemp} which should be removed from the
+	 * {@link Node node}.
 	 * 
 	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
 	 * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
 	 */
-	public static class MinusToken extends Token {
-		public MinusToken(final MemoryHandlerTemp temp, final Edge edge) {
+	public static class MinusToken extends Token<MemoryHandlerMinusTemp> {
+		public MinusToken(final MemoryHandlerMinusTemp temp, final Edge edge) {
 			super(temp, edge);
 		}
 

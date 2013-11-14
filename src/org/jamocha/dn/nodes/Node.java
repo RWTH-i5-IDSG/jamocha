@@ -33,7 +33,8 @@ import org.jamocha.dn.Network;
 import org.jamocha.dn.Token;
 import org.jamocha.dn.memory.FactAddress;
 import org.jamocha.dn.memory.MemoryHandlerMain;
-import org.jamocha.dn.memory.MemoryHandlerTemp;
+import org.jamocha.dn.memory.MemoryHandlerMinusTemp;
+import org.jamocha.dn.memory.MemoryHandlerPlusTemp;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.filter.Filter;
 import org.jamocha.filter.Path;
@@ -48,10 +49,10 @@ import org.jamocha.filter.Path;
 public abstract class Node {
 
 	public static interface Edge {
-		public void processPlusToken(final MemoryHandlerTemp memory)
+		public void processPlusToken(final MemoryHandlerPlusTemp memory)
 				throws CouldNotAcquireLockException;
 
-		public void processMinusToken(final MemoryHandlerTemp memory)
+		public void processMinusToken(final MemoryHandlerMinusTemp memory)
 				throws CouldNotAcquireLockException;
 
 		public Node getSourceNode();
@@ -87,11 +88,11 @@ public abstract class Node {
 
 		public Filter getFilter();
 
-		public LinkedList<MemoryHandlerTemp> getTempMemories();
+		public LinkedList<MemoryHandlerPlusTemp> getTempMemories();
 
-		public void enqueuePlusMemory(final MemoryHandlerTemp mem);
+		public void enqueuePlusMemory(final MemoryHandlerPlusTemp mem);
 
-		public void enqueueMinusMemory(final MemoryHandlerTemp mem);
+		public void enqueueMinusMemory(final MemoryHandlerMinusTemp mem);
 	}
 
 	@AllArgsConstructor
@@ -127,27 +128,38 @@ public abstract class Node {
 		}
 
 		@Override
-		public void enqueuePlusMemory(final MemoryHandlerTemp mem) {
+		public void enqueuePlusMemory(final MemoryHandlerPlusTemp mem) {
 			this.targetNode.enqueue(new Token.PlusToken(mem, this));
 		}
 
 		@Override
-		public void enqueueMinusMemory(final MemoryHandlerTemp mem) {
+		public void enqueueMinusMemory(final MemoryHandlerMinusTemp mem) {
 			this.targetNode.enqueue(new Token.MinusToken(mem, this));
 		}
+
 	}
 
 	@Getter
 	final protected Edge[] incomingEdges;
 
 	/**
-	 * Returns a collection of the outgoing edges.
+	 * Returns a collection of the outgoing positive edges.
 	 * 
-	 * @return a collection of the outgoing edges
+	 * @return a collection of the outgoing positive edges
 	 */
 	@Getter
-	final protected Collection<Edge> outgoingEdges = new LinkedList<>();
+	final protected Collection<PositiveEdge> outgoingPositiveEdges = new LinkedList<>();
+
+	/**
+	 * Returns a collection of the outgoing negative edges.
+	 * 
+	 * @return a collection of the outgoing negative edges
+	 */
+	@Getter
+	final protected Collection<NegativeEdge> outgoingNegativeEdges = new LinkedList<>();
+
 	final protected Map<FactAddress, AddressPredecessor> delocalizeMap = new HashMap<>();
+
 	/**
 	 * Returns the {@link MemoryHandlerMain main memory handler} of the node.
 	 * 
@@ -157,6 +169,7 @@ public abstract class Node {
 	final protected MemoryHandlerMain memory;
 	final protected Network network;
 	final protected TokenQueue tokenQueue;
+
 	/**
 	 * Returns the filter that has originally been set to all inputs.
 	 * 
@@ -165,13 +178,15 @@ public abstract class Node {
 	@Getter
 	final protected Filter filter;
 
+	final protected Queue<Token<?>> validOutgoingTokens = new LinkedList<>();
+
 	@RequiredArgsConstructor
 	public class TokenQueue implements Runnable {
 		final static int tokenQueueCapacity = Integer.MAX_VALUE;
-		final Queue<Token> tokenQueue = new LinkedList<>();
+		final Queue<Token<?>> tokenQueue = new LinkedList<>();
 		final Network network;
 
-		synchronized public void enqueue(final Token token) {
+		synchronized public void enqueue(final Token<?> token) {
 			final boolean empty = this.tokenQueue.isEmpty();
 			this.tokenQueue.add(token);
 			if (empty) {
@@ -181,24 +196,18 @@ public abstract class Node {
 
 		@Override
 		public void run() {
-			final Token token = this.tokenQueue.peek();
+			final Token<?> token = this.tokenQueue.peek();
 			assert null != token; // queue shouldn't have been in the work queue
-			boolean success = true;
 			try {
 				token.run();
-				token.getTemp().releaseLock();
+				synchronized (this) {
+					this.tokenQueue.remove();
+					if (!this.tokenQueue.isEmpty()) {
+						network.getScheduler().enqueue(this);
+					}
+				}
 			} catch (final CouldNotAcquireLockException ex) {
-				success = false;
-			}
-			synchronized (this) {
-				boolean moreThanOne = this.tokenQueue.size() > 1;
-				this.tokenQueue.remove();
-				if (!success) {
-					enqueue(token);
-				}
-				if (!success || moreThanOne) {
-					network.getScheduler().enqueue(this);
-				}
+				network.getScheduler().enqueue(this);
 			}
 		}
 	}
@@ -265,7 +274,7 @@ public abstract class Node {
 	}
 
 	protected Edge connectParent(final Node parent) {
-		final Edge edge = newEdge(parent);
+		final PositiveEdge edge = newPositiveEdge(parent);
 		parent.acceptEdgeToChild(edge);
 		return edge;
 	}
@@ -289,8 +298,8 @@ public abstract class Node {
 	 * @param edgeToChild
 	 *            the edge to the child to be added
 	 */
-	protected void acceptEdgeToChild(final Edge edgeToChild) {
-		this.outgoingEdges.add(edgeToChild);
+	protected void acceptEdgeToChild(final PositiveEdge edgeToChild) {
+		this.outgoingPositiveEdges.add(edgeToChild);
 	}
 
 	/**
@@ -301,7 +310,7 @@ public abstract class Node {
 	 *            the edge to the child to be removed
 	 */
 	protected void removeChild(final Edge edgeToChild) {
-		this.outgoingEdges.remove(edgeToChild);
+		this.outgoingPositiveEdges.remove(edgeToChild);
 	}
 
 	/**
@@ -312,10 +321,10 @@ public abstract class Node {
 	 *            source node to connect to this node via a nodeInput to be constructed
 	 * @return NodeInput connecting the given source node with this node
 	 */
-	abstract protected EdgeImpl newEdge(final Node source);
+	abstract protected PositiveEdge newPositiveEdge(final Node source);
 
 	public int getNumberOfOutgoingEdges() {
-		return this.outgoingEdges.size();
+		return this.outgoingPositiveEdges.size() + this.outgoingNegativeEdges.size();
 	}
 
 	/**
@@ -330,7 +339,7 @@ public abstract class Node {
 		return delocalizeMap.get(localFactAddress);
 	}
 
-	private void enqueue(final Token token) {
+	private void enqueue(final Token<?> token) {
 		this.tokenQueue.enqueue(token);
 	}
 

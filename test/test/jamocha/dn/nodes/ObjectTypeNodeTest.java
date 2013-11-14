@@ -130,7 +130,7 @@ public class ObjectTypeNodeTest {
 	public void testGetOutgoingEdges() {
 		final Path p1 = new Path(Template.STRING);
 		ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, p1);
-		final Collection<Edge> outgoingEdges = otn.getOutgoingEdges();
+		final Collection<? extends Edge> outgoingEdges = otn.getOutgoingPositiveEdges();
 		assertNotNull(outgoingEdges);
 		assertEquals(0, outgoingEdges.size());
 	}

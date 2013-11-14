@@ -18,7 +18,8 @@ package org.jamocha.dn.nodes;
 import org.jamocha.dn.Network;
 import org.jamocha.dn.memory.Fact;
 import org.jamocha.dn.memory.FactAddress;
-import org.jamocha.dn.memory.MemoryHandlerTemp;
+import org.jamocha.dn.memory.MemoryHandlerMinusTemp;
+import org.jamocha.dn.memory.MemoryHandlerPlusTemp;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.filter.Path;
 
@@ -54,20 +55,22 @@ public class ObjectTypeNode extends AlphaNode {
 	}
 
 	@Override
-	protected EdgeImpl newEdge(final Node source) {
+	protected PositiveEdge newPositiveEdge(final Node source) {
 		throw new UnsupportedOperationException("ObjectTypeNodes can not have inputs!");
 	}
 
 	public void assertFact(final Fact fact) {
-		final MemoryHandlerTemp mem = this.memory.newToken(this, fact);
-		for (final Edge edge : this.outgoingEdges) {
+		final MemoryHandlerPlusTemp mem = this.memory.newPlusToken(this, fact);
+		for (final Edge edge : this.outgoingPositiveEdges) {
 			edge.enqueuePlusMemory(mem);
 		}
 	}
 
 	public void retractFact(final Fact fact) {
-		throw new UnsupportedOperationException("retraction of facts not implemented yet");
-		// TODO retract Fact
+		final MemoryHandlerMinusTemp mem = this.memory.newMinusToken(fact);
+		for (final Edge edge : this.outgoingPositiveEdges) {
+			edge.enqueueMinusMemory(mem);
+		}
 	}
 
 	@Override

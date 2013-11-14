@@ -22,9 +22,9 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeThat;
 
 import org.jamocha.dn.memory.SlotType;
+import org.jamocha.filter.GenericWithArgumentsComposite.LazyObject;
 import org.jamocha.filter.Predicate;
 import org.jamocha.filter.TODODatenkrakeFunktionen;
-import org.jamocha.filter.GenericWithArgumentsComposite.LazyObject;
 import org.jamocha.filter.impls.predicates.Equals;
 import org.junit.Before;
 import org.junit.BeforeClass;

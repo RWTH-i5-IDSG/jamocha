@@ -14,6 +14,7 @@
  */
 package org.jamocha.dn.memory.javaimpl;
 
+import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 
 /**
@@ -23,6 +24,7 @@ import lombok.RequiredArgsConstructor;
  * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
  */
 @RequiredArgsConstructor
+@EqualsAndHashCode
 class Fact {
 	final Object slotValues[];
 

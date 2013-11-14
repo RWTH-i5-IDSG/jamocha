@@ -25,11 +25,11 @@ import lombok.Getter;
 import org.jamocha.dn.Network;
 import org.jamocha.dn.memory.FactAddress;
 import org.jamocha.dn.memory.MemoryHandler;
-import org.jamocha.dn.memory.MemoryHandlerTemp;
+import org.jamocha.dn.memory.MemoryHandlerMinusTemp;
+import org.jamocha.dn.memory.MemoryHandlerPlusTemp;
 import org.jamocha.dn.memory.MemoryHandlerTerminal;
 import org.jamocha.dn.memory.MemoryHandlerTerminal.Assert;
 import org.jamocha.dn.memory.MemoryHandlerTerminal.Retract;
-import org.jamocha.dn.nodes.Node.Edge;
 import org.jamocha.filter.Filter;
 
 /**
@@ -40,14 +40,14 @@ import org.jamocha.filter.Filter;
  */
 public class TerminalNode {
 
-	protected class TerminalEdgeImpl implements Edge {
+	protected class TerminalEdgeImpl implements PositiveEdge {
 		protected final Network network;
 		protected final Node sourceNode;
 		protected final TerminalNode targetNode;
 		protected Filter filter;
 
 		private Map<? extends FactAddress, ? extends FactAddress> addressMap;
-		private final LinkedList<MemoryHandlerTemp> tempMemories = new LinkedList<>();
+		private final LinkedList<MemoryHandlerPlusTemp> tempMemories = new LinkedList<>();
 
 		public TerminalEdgeImpl(final Network network, final Node sourceNode,
 				final TerminalNode targetNode) {
@@ -57,12 +57,12 @@ public class TerminalNode {
 		}
 
 		@Override
-		public void processPlusToken(final MemoryHandlerTemp memory)
+		public void processPlusToken(final MemoryHandlerPlusTemp memory)
 				throws CouldNotAcquireLockException {
 		}
 
 		@Override
-		public void processMinusToken(final MemoryHandlerTemp memory)
+		public void processMinusToken(final MemoryHandlerMinusTemp memory)
 				throws CouldNotAcquireLockException {
 		}
 
@@ -83,7 +83,7 @@ public class TerminalNode {
 		}
 
 		@Override
-		public LinkedList<MemoryHandlerTemp> getTempMemories() {
+		public LinkedList<MemoryHandlerPlusTemp> getTempMemories() {
 			return this.tempMemories;
 		}
 
@@ -114,14 +114,14 @@ public class TerminalNode {
 		}
 
 		@Override
-		public void enqueuePlusMemory(final MemoryHandlerTemp mem) {
+		public void enqueuePlusMemory(final MemoryHandlerPlusTemp mem) {
 			for (final MemoryHandler handler : mem.splitIntoChunksOfSize(1)) {
 				this.targetNode.enqueueAssert(this.targetNode.getMemory().addPlusMemory(handler));
 			}
 		}
 
 		@Override
-		public void enqueueMinusMemory(final MemoryHandlerTemp mem) {
+		public void enqueueMinusMemory(final MemoryHandlerMinusTemp mem) {
 			for (final MemoryHandler handler : mem.splitIntoChunksOfSize(1)) {
 				this.targetNode.enqueueRetract(this.targetNode.getMemory().addMinusMemory(handler));
 			}

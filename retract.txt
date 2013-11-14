@@ -7,3 +7,9 @@ bei -temp wird vor dem weiterreichen schon aus main-memory gelöscht, d.h. write
 auf der anderen seite ist keine semaphore auf dem -temp nötig
 
 conflict set: suche wie bei beta-knoten, speichere zu allen passenden asserts das retract als dual, füge retract in liste ein, falls passendes assert gefunden
+
+
+Auch für MinusTemps das Interface wie folgt lassen
+	Temp temp = main.processInX(temp, ...)
+damit alpha filter -- falls mehrere fakten im temp sind -- die relevanten rausfiltern können
+(erstelle statische leere instanz)

@@ -20,6 +20,8 @@ import java.util.Map.Entry;
 
 import org.jamocha.dn.Network;
 import org.jamocha.dn.memory.FactAddress;
+import org.jamocha.dn.memory.MemoryHandlerMinusTemp;
+import org.jamocha.dn.memory.MemoryHandlerPlusTemp;
 import org.jamocha.dn.memory.MemoryHandlerTemp;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.filter.Filter;
@@ -33,7 +35,7 @@ import org.jamocha.filter.Path;
  */
 public class AlphaNode extends Node {
 
-	protected class AlphaEdgeImpl extends EdgeImpl {
+	protected class AlphaEdgeImpl extends EdgeImpl implements PositiveEdge {
 		FactAddress addressInSource = null;
 
 		public AlphaEdgeImpl(final Network network, final Node sourceNode, final Node targetNode,
@@ -42,22 +44,25 @@ public class AlphaNode extends Node {
 		}
 
 		@Override
-		public void processPlusToken(final MemoryHandlerTemp memory)
+		public void processPlusToken(final MemoryHandlerPlusTemp memory)
 				throws CouldNotAcquireLockException {
 			final MemoryHandlerTemp mem =
 					targetNode.memory.processTokenInAlpha(memory, this, this.filter);
 			if (mem.size() == 0) {
 				return;
 			}
-			for (final Edge edge : targetNode.outgoingEdges) {
-				edge.enqueuePlusMemory(mem);
-			}
+			mem.enqueueInEdges(targetNode.outgoingPositiveEdges);
 		}
 
 		@Override
-		public void processMinusToken(final MemoryHandlerTemp memory)
+		public void processMinusToken(final MemoryHandlerMinusTemp memory)
 				throws CouldNotAcquireLockException {
-			// TODO Auto-generated method stub
+			final MemoryHandlerTemp mem =
+					targetNode.memory.processTokenInAlpha(memory, this, this.filter);
+			if (mem.size() == 0) {
+				return;
+			}
+			mem.enqueueInEdges(targetNode.outgoingPositiveEdges);
 		}
 
 		@Override
@@ -79,7 +84,7 @@ public class AlphaNode extends Node {
 		}
 
 		@Override
-		public LinkedList<MemoryHandlerTemp> getTempMemories() {
+		public LinkedList<MemoryHandlerPlusTemp> getTempMemories() {
 			// TODO Auto-generated method stub
 			return null;
 		}
@@ -95,7 +100,7 @@ public class AlphaNode extends Node {
 	}
 
 	@Override
-	protected EdgeImpl newEdge(final Node source) {
+	protected PositiveEdge newPositiveEdge(final Node source) {
 		return new AlphaEdgeImpl(this.network, source, this, this.filter);
 	}
 

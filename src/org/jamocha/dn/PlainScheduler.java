@@ -18,8 +18,8 @@ import java.util.LinkedList;
 import java.util.Queue;
 
 /**
- * {@link Scheduler} to process {@linkplain Runnable runnables} in order of arrival in only one {@link Thread thread}. The
- * Scheduler has to be started by calling {@link #run()}.
+ * {@link Scheduler} to process {@linkplain Runnable runnables} in order of arrival in only one
+ * {@link Thread thread}. The Scheduler has to be started by calling {@link #run()}.
  * 
  * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
  * 

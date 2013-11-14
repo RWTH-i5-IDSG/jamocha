@@ -26,7 +26,7 @@ import org.jamocha.filter.Path;
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
  * @see MemoryHandlerMain
- * @see MemoryHandlerTemp
+ * @see MemoryHandlerPlusTemp
  */
 public interface MemoryFactory {
 

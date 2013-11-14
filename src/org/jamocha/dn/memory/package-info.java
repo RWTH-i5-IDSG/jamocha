@@ -5,7 +5,7 @@
  * via the {@link org.jamocha.dn.memory.MemoryFactory}. It returns instances of the
  * {@link org.jamocha.dn.memory.MemoryHandlerMain} interface, representing the main memory of a
  * {@link org.jamocha.dn.nodes.Node node}. Via the {@link org.jamocha.dn.memory.MemoryHandlerMain},
- * nodes can create instances of {@link org.jamocha.dn.memory.MemoryHandlerTemp} and pass them
+ * nodes can create instances of {@link org.jamocha.dn.memory.MemoryHandlerPlusTemp} and pass them
  * around in the network as tokens. <br />
  * This package also provides the {@link org.jamocha.dn.memory.SlotAddress},
  * {@link org.jamocha.dn.memory.FactAddress}, {@link org.jamocha.dn.memory.SlotType} and
@@ -16,7 +16,7 @@
  * @see org.jamocha.dn.memory.MemoryFactory
  * @see org.jamocha.dn.memory.MemoryHandler
  * @see org.jamocha.dn.memory.MemoryHandlerMain
- * @see org.jamocha.dn.memory.MemoryHandlerTemp
+ * @see org.jamocha.dn.memory.MemoryHandlerPlusTemp
  * @see org.jamocha.dn.memory.Template
  * @see org.jamocha.dn.memory.SlotType
  * @see org.jamocha.dn.memory.FactAddress

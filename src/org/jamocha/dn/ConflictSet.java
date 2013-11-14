@@ -57,12 +57,12 @@ public class ConflictSet implements Iterable<ConflictSet.NodeAndToken> {
 	/**
 	 * deletes all asserts and retracts with duals
 	 */
-	public void deleteDualEntries() {
+	public void deleteRevokedEntries() {
 		final Iterator<NodeAndToken> iterator = this.nodesAndTokens.iterator();
 		while (iterator.hasNext()) {
 			final NodeAndToken nodeAndToken = iterator.next();
 			final AssertOrRetract<?> token = nodeAndToken.getToken();
-			if (null != token.getDual()) {
+			if (token.isRevoked()) {
 				iterator.remove();
 			}
 		}

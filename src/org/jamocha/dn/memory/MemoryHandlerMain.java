@@ -21,15 +21,15 @@ import org.jamocha.filter.Filter;
 
 /**
  * Interface for main memory implementations. A main memory contains the facts for one {@link Node
- * node}. It is complemented by {@link MemoryHandlerTemp}, which stores join results until they have
- * been adopted by all follow-up nodes. <br />
+ * node}. It is complemented by {@link MemoryHandlerPlusTemp}, which stores join results until they
+ * have been adopted by all follow-up nodes. <br />
  * To prevent data inconsistencies on the one hand and deadlocks on the other, a fair
  * read-write-lock is needed to handle read- and write-operations on the main memory. We consider a
  * read-write-lock as fair, if it stalls further readers as soon as a writer tries to acquire the
  * write-lock.
  * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
- * @see MemoryHandlerTemp
+ * @see MemoryHandlerPlusTemp
  * @see Node
  */
 public interface MemoryHandlerMain extends MemoryHandler {
@@ -61,23 +61,30 @@ public interface MemoryHandlerMain extends MemoryHandler {
 	public void releaseWriteLock();
 
 	/**
-	 * Adds the {@link MemoryHandlerTemp} given to the internal memory.
+	 * Adds the {@link MemoryHandlerPlusTemp} given to the internal memory.
 	 * 
 	 * @param toAdd
 	 */
-	public void add(final MemoryHandlerTemp toAdd);
+	public void add(final MemoryHandlerPlusTemp toAdd);
 
 	/**
-	 * Creates a new {@link MemoryHandlerTemp} that joins the given {@code token} with all other
+	 * Adds the {@link MemoryHandlerPlusTemp} given to the internal memory.
+	 * 
+	 * @param toAdd
+	 */
+	public void remove(final MemoryHandlerMinusTemp toRemove);
+
+	/**
+	 * Creates a new {@link MemoryHandlerPlusTemp} that joins the given {@code token} with all other
 	 * incoming edges of the target beta {@link Node node} applying the given {@link Filter filter}.
 	 * 
 	 * @param token
-	 *            {@link MemoryHandlerTemp token} to join with all other inputs
+	 *            {@link MemoryHandlerPlusTemp token} to join with all other inputs
 	 * @param originIncomingEdge
 	 *            {@link Edge edge} the token arrived on
 	 * @param filter
 	 *            {@link Filter filter} to apply
-	 * @return {@link MemoryHandlerTemp token} containing the result of the join
+	 * @return {@link MemoryHandlerPlusTemp token} containing the result of the join
 	 * @throws CouldNotAcquireLockException
 	 *             iff one of the read locks could not be acquired
 	 */
@@ -85,16 +92,16 @@ public interface MemoryHandlerMain extends MemoryHandler {
 			final Edge originIncomingEdge, final Filter filter) throws CouldNotAcquireLockException;
 
 	/**
-	 * Creates a new {@link MemoryHandlerTemp} that contains the part of the facts in the given
+	 * Creates a new {@link MemoryHandlerPlusTemp} that contains the part of the facts in the given
 	 * token that match the given filter.
 	 * 
 	 * @param token
-	 *            {@link MemoryHandlerTemp token} to process
+	 *            {@link MemoryHandlerPlusTemp token} to process
 	 * @param originIncomingEdge
 	 *            {@link Edge edge} the token arrived on
 	 * @param filter
 	 *            {@link Filter filter} filter to apply
-	 * @return {@link MemoryHandlerTemp token} containing the result of the filter operation
+	 * @return {@link MemoryHandlerPlusTemp token} containing the result of the filter operation
 	 * @throws CouldNotAcquireLockException
 	 *             iff one of the read locks could not be acquired
 	 */
@@ -102,15 +109,26 @@ public interface MemoryHandlerMain extends MemoryHandler {
 			final Edge originIncomingEdge, final Filter filter) throws CouldNotAcquireLockException;
 
 	/**
-	 * Creates a new {@link MemoryHandlerTemp} that contains the facts given.
+	 * Creates a new {@link MemoryHandlerPlusTemp} that contains the facts given.
 	 * 
 	 * @param otn
 	 *            {@link Node node} the facts are for
 	 * @param facts
-	 *            {@link Fact facts} to store in the {@link MemoryHandlerTemp token}
-	 * @return {@link MemoryHandlerTemp token} containing the facts given
+	 *            {@link Fact facts} to store in the {@link MemoryHandlerPlusTemp token}
+	 * @return {@link MemoryHandlerPlusTemp token} containing the facts given
 	 */
-	public MemoryHandlerTemp newToken(final Node otn, final Fact... facts);
+	public MemoryHandlerPlusTemp newPlusToken(final Node otn, final Fact... facts);
+
+	/**
+	 * Creates a new {@link MemoryHandlerPlusTemp} that contains the facts given.
+	 * 
+	 * @param otn
+	 *            {@link Node node} the facts are for
+	 * @param facts
+	 *            {@link Fact facts} to store in the {@link MemoryHandlerPlusTemp token}
+	 * @return {@link MemoryHandlerPlusTemp token} containing the facts given
+	 */
+	public MemoryHandlerMinusTemp newMinusToken(final Fact... facts);
 
 	/**
 	 * FIXME description

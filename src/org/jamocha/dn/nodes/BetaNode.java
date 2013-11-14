@@ -23,6 +23,8 @@ import java.util.Set;
 
 import org.jamocha.dn.Network;
 import org.jamocha.dn.memory.FactAddress;
+import org.jamocha.dn.memory.MemoryHandlerMinusTemp;
+import org.jamocha.dn.memory.MemoryHandlerPlusTemp;
 import org.jamocha.dn.memory.MemoryHandlerTemp;
 import org.jamocha.filter.Filter;
 import org.jamocha.filter.Path;
@@ -36,10 +38,10 @@ import org.jamocha.filter.Path;
 
 public class BetaNode extends Node {
 
-	protected class BetaEdgeImpl extends EdgeImpl {
+	protected class BetaEdgeImpl extends EdgeImpl implements PositiveEdge {
 
 		private Map<? extends FactAddress, ? extends FactAddress> addressMap;
-		private final LinkedList<MemoryHandlerTemp> tempMemories = new LinkedList<>();
+		private final LinkedList<MemoryHandlerPlusTemp> tempMemories = new LinkedList<>();
 
 		public BetaEdgeImpl(final Network network, final Node sourceNode, final Node targetNode,
 				final Filter filter) {
@@ -47,22 +49,25 @@ public class BetaNode extends Node {
 		}
 
 		@Override
-		public void processPlusToken(final MemoryHandlerTemp memory)
+		public void processPlusToken(final MemoryHandlerPlusTemp memory)
 				throws CouldNotAcquireLockException {
 			final MemoryHandlerTemp mem =
 					targetNode.memory.processTokenInBeta(memory, this, this.filter);
 			if (mem.size() == 0) {
 				return;
 			}
-			for (final Edge edge : targetNode.outgoingEdges) {
-				edge.enqueuePlusMemory(mem);
-			}
+			mem.enqueueInEdges(targetNode.outgoingPositiveEdges);
 		}
 
 		@Override
-		public void processMinusToken(final MemoryHandlerTemp memory)
+		public void processMinusToken(final MemoryHandlerMinusTemp memory)
 				throws CouldNotAcquireLockException {
-			// TODO process Minus Token in BetaNodeEdge
+			final MemoryHandlerTemp mem =
+					targetNode.memory.processTokenInBeta(memory, this, this.filter);
+			if (mem.size() == 0) {
+				return;
+			}
+			mem.enqueueInEdges(targetNode.outgoingPositiveEdges);
 		}
 
 		@Override
@@ -82,7 +87,7 @@ public class BetaNode extends Node {
 		}
 
 		@Override
-		public LinkedList<MemoryHandlerTemp> getTempMemories() {
+		public LinkedList<MemoryHandlerPlusTemp> getTempMemories() {
 			return this.tempMemories;
 		}
 
@@ -93,7 +98,7 @@ public class BetaNode extends Node {
 	}
 
 	@Override
-	protected EdgeImpl newEdge(Node source) {
+	protected PositiveEdge newPositiveEdge(Node source) {
 		return new BetaEdgeImpl(this.network, source, this, this.filter);
 	}
 

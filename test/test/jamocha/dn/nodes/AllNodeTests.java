@@ -14,7 +14,7 @@ import org.junit.runners.Suite.SuiteClasses;
  */
 @RunWith(Suite.class)
 @SuiteClasses({ AlphaNodeTest.class, BetaNodeTest.class, ObjectTypeNodeTest.class,
-		TerminalNodeTest.class })
+		TerminalNodeTest.class, TokenProcessingTest.class })
 public class AllNodeTests {
 
 }

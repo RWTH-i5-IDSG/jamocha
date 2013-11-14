@@ -31,6 +31,7 @@ import org.jamocha.dn.memory.Template;
 import org.jamocha.dn.nodes.AlphaNode;
 import org.jamocha.dn.nodes.Node.Edge;
 import org.jamocha.dn.nodes.ObjectTypeNode;
+import org.jamocha.dn.nodes.PositiveEdge;
 import org.jamocha.filter.Path;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -86,7 +87,7 @@ public class AlphaNodeTest {
 	}
 
 	/**
-	 * Test method for {@link org.jamocha.dn.nodes.Node#getOutgoingEdges()}.
+	 * Test method for {@link org.jamocha.dn.nodes.Node#getOutgoingPositiveEdges()}.
 	 */
 	@Test
 	public void testGetOutgoingEdges() {
@@ -96,16 +97,16 @@ public class AlphaNodeTest {
 		ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, p1, p2);
 		AlphaNode alpha = new AlphaNode(Network.DEFAULTNETWORK, new FilterMockup(true, p1));
 		alpha.shareNode(p2);
-		Collection<Edge> children = alpha.getOutgoingEdges();
+		Collection<? extends Edge> children = alpha.getOutgoingPositiveEdges();
 		assertNotNull(children);
 		assertEquals(0, children.size());
 		AlphaNode alphaB1 = new AlphaNode(Network.DEFAULTNETWORK, new FilterMockup(true, p1));
-		children = alpha.getOutgoingEdges();
+		children = alpha.getOutgoingPositiveEdges();
 		assertNotNull(children);
 		assertEquals(1, children.size());
 		assertTrue(children.contains(alphaB1.getIncomingEdges()[0]));
 		AlphaNode alphaB2 = new AlphaNode(Network.DEFAULTNETWORK, new FilterMockup(true, p2));
-		children = alpha.getOutgoingEdges();
+		children = alpha.getOutgoingPositiveEdges();
 		assertNotNull(children);
 		assertEquals(2, children.size());
 		assertTrue(children.contains(alphaB1.getIncomingEdges()[0]));
@@ -172,6 +173,7 @@ public class AlphaNodeTest {
 	/**
 	 * Test method for {@link org.jamocha.dn.nodes.Node#getIncomingEdges()}.
 	 */
+	@SuppressWarnings("unchecked")
 	@Test
 	public void testGetIncomingEdges() {
 		Path p1 = new Path(Template.BOOLEAN);
@@ -180,26 +182,26 @@ public class AlphaNodeTest {
 		AlphaNode alpha = new AlphaNode(Network.DEFAULTNETWORK, new FilterMockup(true, p1));
 		Edge[] incomingEdges = alpha.getIncomingEdges();
 		assertEquals(1, incomingEdges.length);
-		assertEquals(otn.getOutgoingEdges().iterator().next(), incomingEdges[0]);
+		assertEquals(otn.getOutgoingPositiveEdges().iterator().next(), incomingEdges[0]);
 		alpha.shareNode(p2);
 		incomingEdges = alpha.getIncomingEdges();
 		assertEquals(1, incomingEdges.length);
-		assertEquals(otn.getOutgoingEdges().iterator().next(), incomingEdges[0]);
+		assertEquals(otn.getOutgoingPositiveEdges().iterator().next(), incomingEdges[0]);
 		AlphaNode alphaB1 = new AlphaNode(Network.DEFAULTNETWORK, new FilterMockup(true, p1));
 		incomingEdges = alpha.getIncomingEdges();
 		assertEquals(1, incomingEdges.length);
-		assertEquals(otn.getOutgoingEdges().iterator().next(), incomingEdges[0]);
+		assertEquals(otn.getOutgoingPositiveEdges().iterator().next(), incomingEdges[0]);
 		incomingEdges = alphaB1.getIncomingEdges();
 		assertEquals(1, incomingEdges.length);
-		assertEquals(alpha.getOutgoingEdges().iterator().next(), incomingEdges[0]);
+		assertEquals(alpha.getOutgoingPositiveEdges().iterator().next(), incomingEdges[0]);
 		@SuppressWarnings("unused")
 		AlphaNode alphaB2 = new AlphaNode(Network.DEFAULTNETWORK, new FilterMockup(true, p2));
 		incomingEdges = alphaB1.getIncomingEdges();
 		assertEquals(1, incomingEdges.length);
-		assertEquals(alpha.getOutgoingEdges().iterator().next(), incomingEdges[0]);
+		assertEquals(alpha.getOutgoingPositiveEdges().iterator().next(), incomingEdges[0]);
 		incomingEdges = alphaB1.getIncomingEdges();
 		assertEquals(1, incomingEdges.length);
-		assertThat(alpha.getOutgoingEdges(), Matchers.hasItem(incomingEdges[0]));
+		assertThat((Collection<Edge>)(Collection<?>)alpha.getOutgoingPositiveEdges(), Matchers.hasItem(incomingEdges[0]));
 	}
 
 }

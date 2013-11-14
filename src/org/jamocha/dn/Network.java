@@ -24,7 +24,7 @@ import lombok.Getter;
 import org.jamocha.dn.memory.FactAddress;
 import org.jamocha.dn.memory.MemoryFactory;
 import org.jamocha.dn.memory.MemoryHandlerMain;
-import org.jamocha.dn.memory.MemoryHandlerTemp;
+import org.jamocha.dn.memory.MemoryHandlerPlusTemp;
 import org.jamocha.dn.nodes.AlphaNode;
 import org.jamocha.dn.nodes.BetaNode;
 import org.jamocha.dn.nodes.Node;
@@ -54,7 +54,7 @@ public class Network {
 	 * -- GETTER --
 	 * 
 	 * Gets the memoryFactory to generate the nodes {@link MemoryHandlerMain} and
-	 * {@link MemoryHandlerTemp}.
+	 * {@link MemoryHandlerPlusTemp}.
 	 * 
 	 * @return the networks memory Factory
 	 */
@@ -144,14 +144,14 @@ public class Network {
 		final Iterator<Node> i = nodes.iterator();
 		Node node = i.next();
 
-		for (Edge edge : node.getOutgoingEdges()) { // add all children of the first node
+		for (Edge edge : node.getOutgoingPositiveEdges()) { // add all children of the first node
 			candidates.add(edge.getTargetNode());
 		}
 
 		for (; i.hasNext(); node = i.next()) { // remove all nodes which aren't children of all
 												// other nodes
 			final HashSet<Node> cutSet = new HashSet<>();
-			for (Edge edge : node.getOutgoingEdges()) {
+			for (Edge edge : node.getOutgoingPositiveEdges()) {
 				cutSet.add(edge.getTargetNode());
 			}
 			candidates.retainAll(cutSet);
@@ -218,6 +218,7 @@ public class Network {
 	 */
 	public final static Network DEFAULTNETWORK = new Network(
 			org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(), Integer.MAX_VALUE,
-			new ThreadPoolScheduler(10));
+			// new ThreadPoolScheduler(10)
+			new PlainScheduler());
 
 }

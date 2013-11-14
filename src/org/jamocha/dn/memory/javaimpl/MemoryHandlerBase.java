@@ -23,8 +23,10 @@ import org.jamocha.dn.memory.SlotAddress;
 import org.jamocha.dn.memory.Template;
 
 /**
- * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+ * Base class for java implementations of most handlers. Contains the template of the facts and a
+ * list storing the facts handled. Provides the methods required by the MemoryHandler interface.
  * 
+ * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
 public class MemoryHandlerBase implements MemoryHandler {
 	final Template[] template;

@@ -50,7 +50,6 @@ public class MemoryHandlerTerminal implements org.jamocha.dn.memory.MemoryHandle
 		final Retract minus = new Retract(mem);
 		for (final AssertOrRetract<?> token : this.tokens) {
 			if (token.getMem().equals(mem) && token.setFollowingRetract(minus)) {
-				minus.setPrecedingAssert((Assert) token);
 				break;
 			}
 		}
@@ -94,7 +93,7 @@ public class MemoryHandlerTerminal implements org.jamocha.dn.memory.MemoryHandle
 	@Override
 	public boolean containsUnrevokedTokens() {
 		for (final AssertOrRetract<?> token : this.tokens) {
-			if (null == token.getDual()) {
+			if (!token.isRevoked()) {
 				return true;
 			}
 		}

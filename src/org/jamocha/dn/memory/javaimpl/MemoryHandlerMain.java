@@ -20,6 +20,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import org.jamocha.dn.memory.MemoryHandlerTemp;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.dn.nodes.CouldNotAcquireLockException;
 import org.jamocha.dn.nodes.Node;
@@ -102,32 +103,46 @@ public class MemoryHandlerMain extends MemoryHandlerBase implements
 	}
 
 	@Override
-	public void add(final org.jamocha.dn.memory.MemoryHandlerTemp toAdd) {
-		final MemoryHandlerTemp temp = (MemoryHandlerTemp) toAdd;
+	public void add(final org.jamocha.dn.memory.MemoryHandlerPlusTemp toAdd) {
+		final MemoryHandlerPlusTemp temp = (MemoryHandlerPlusTemp) toAdd;
 		for (final Fact[] row : temp.facts) {
 			this.facts.add(row);
 		}
 	}
 
 	@Override
-	public MemoryHandlerTemp processTokenInBeta(
-			final org.jamocha.dn.memory.MemoryHandlerTemp token, final Edge originIncomingEdge,
-			final Filter filter) throws CouldNotAcquireLockException {
-		return MemoryHandlerTemp.newBetaTemp(this, (MemoryHandlerTemp) token, originIncomingEdge,
-				filter);
+	public void remove(final org.jamocha.dn.memory.MemoryHandlerMinusTemp toRemove) {
+		// TODO Auto-generated method stub
+		// FIXME TODO
+		final org.jamocha.dn.memory.javaimpl.MemoryHandlerTemp temp =
+				(org.jamocha.dn.memory.javaimpl.MemoryHandlerTemp) toRemove;
+		for (final Fact[] row : temp.facts) {
+			this.facts.add(row);
+		}
 	}
 
 	@Override
-	public MemoryHandlerTemp processTokenInAlpha(
-			final org.jamocha.dn.memory.MemoryHandlerTemp token, final Edge originIncomingEdge,
-			final Filter filter) throws CouldNotAcquireLockException {
-		return MemoryHandlerTemp.newAlphaTemp(this, (MemoryHandlerTemp) token, originIncomingEdge,
-				filter);
+	public MemoryHandlerTemp processTokenInBeta(final MemoryHandlerTemp token,
+			final Edge originIncomingEdge, final Filter filter) throws CouldNotAcquireLockException {
+		return token.newBetaTemp(this, originIncomingEdge, filter);
 	}
 
 	@Override
-	public MemoryHandlerTemp newToken(final Node otn, final org.jamocha.dn.memory.Fact... facts) {
-		return MemoryHandlerTemp.newRootTemp(this, otn, facts);
+	public MemoryHandlerTemp processTokenInAlpha(final MemoryHandlerTemp token,
+			final Edge originIncomingEdge, final Filter filter) throws CouldNotAcquireLockException {
+		return MemoryHandlerPlusTemp.newAlphaTemp(this, (MemoryHandlerPlusTemp) token,
+				originIncomingEdge, filter);
+	}
+
+	@Override
+	public MemoryHandlerPlusTemp newPlusToken(final Node otn,
+			final org.jamocha.dn.memory.Fact... facts) {
+		return MemoryHandlerPlusTemp.newRootTemp(this, otn, facts);
+	}
+
+	@Override
+	public MemoryHandlerMinusTemp newMinusToken(final org.jamocha.dn.memory.Fact... facts) {
+		return MemoryHandlerMinusTemp.newRootTemp(this, facts);
 	}
 
 	@Override

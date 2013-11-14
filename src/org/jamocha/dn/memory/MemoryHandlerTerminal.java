@@ -43,13 +43,12 @@ public interface MemoryHandlerTerminal extends MemoryHandler, Iterable<AssertOrR
 	// TODO soll Ctor assert MemoryHandler.size() == 1 aufrufen?
 	public abstract class AssertOrRetract<T extends AssertOrRetract<?>> {
 		protected final MemoryHandler mem;
-		protected T dual = null;
 
-		public boolean setPrecedingAssert(final Assert plus) {
+		public boolean setFollowingRetract(final Retract minus) {
 			return false;
 		}
 
-		public boolean setFollowingRetract(final Retract minus) {
+		public boolean isRevoked() {
 			return false;
 		}
 
@@ -60,6 +59,8 @@ public interface MemoryHandlerTerminal extends MemoryHandler, Iterable<AssertOrR
 	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
 	 */
 	public class Assert extends AssertOrRetract<Retract> {
+		protected Retract dual = null;
+
 		public Assert(final MemoryHandler mem) {
 			super(mem);
 		}
@@ -70,6 +71,11 @@ public interface MemoryHandlerTerminal extends MemoryHandler, Iterable<AssertOrR
 				return false;
 			this.dual = minus;
 			return true;
+		}
+
+		@Override
+		public boolean isRevoked() {
+			return null != this.dual;
 		}
 
 		@Override
@@ -84,14 +90,6 @@ public interface MemoryHandlerTerminal extends MemoryHandler, Iterable<AssertOrR
 	public class Retract extends AssertOrRetract<Assert> {
 		public Retract(final MemoryHandler mem) {
 			super(mem);
-		}
-
-		@Override
-		public boolean setPrecedingAssert(final Assert plus) {
-			if (null != this.dual)
-				return false;
-			this.dual = plus;
-			return true;
 		}
 
 		@Override
