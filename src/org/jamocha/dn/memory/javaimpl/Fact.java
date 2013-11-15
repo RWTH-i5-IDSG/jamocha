@@ -14,6 +14,8 @@
  */
 package org.jamocha.dn.memory.javaimpl;
 
+import java.util.Arrays;
+
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 
@@ -61,6 +63,18 @@ class Fact {
 			sb.append(", " + slotValues[i].toString());
 		}
 		return sb.toString();
+	}
+
+	public static boolean equalContent(final Fact a, final Fact b) {
+		if (a == b)
+			return true;
+		if (!Arrays.deepEquals(a.slotValues, b.slotValues))
+			return false;
+		return true;
+	}
+
+	public static boolean equalReference(final Fact a, final Fact b) {
+		return a == b;
 	}
 
 }
