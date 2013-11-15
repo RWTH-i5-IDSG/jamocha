@@ -111,17 +111,6 @@ public class MemoryHandlerMain extends MemoryHandlerBase implements
 	}
 
 	@Override
-	public void remove(final org.jamocha.dn.memory.MemoryHandlerMinusTemp toRemove) {
-		// TODO Auto-generated method stub
-		// FIXME TODO
-		final org.jamocha.dn.memory.javaimpl.MemoryHandlerTemp temp =
-				(org.jamocha.dn.memory.javaimpl.MemoryHandlerTemp) toRemove;
-		for (final Fact[] row : temp.facts) {
-			this.facts.add(row);
-		}
-	}
-
-	@Override
 	public MemoryHandlerTemp processTokenInBeta(final MemoryHandlerTemp token,
 			final Edge originIncomingEdge, final Filter filter) throws CouldNotAcquireLockException {
 		return token.newBetaTemp(this, originIncomingEdge, filter);

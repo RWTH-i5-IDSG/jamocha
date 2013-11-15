@@ -16,9 +16,12 @@ package org.jamocha.dn.memory.javaimpl;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
-import org.jamocha.dn.memory.FactAddress;
 import org.jamocha.dn.memory.SlotAddress;
 import org.jamocha.dn.nodes.CouldNotAcquireLockException;
 import org.jamocha.dn.nodes.Node.Edge;
@@ -26,6 +29,7 @@ import org.jamocha.filter.Filter;
 import org.jamocha.filter.Filter.FilterElement;
 
 /**
+ * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  * 
  */
@@ -33,7 +37,12 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 		org.jamocha.dn.memory.MemoryHandlerMinusTemp {
 
 	private static MemoryHandlerTemp empty = new MemoryHandlerMinusTemp(null,
-			new ArrayList<Fact[]>(0));
+			new ArrayList<Fact[]>(0), null);
+
+	/**
+	 * Maps from FactAddress valid in the current scope of the token
+	 */
+	final Map<FactAddress, FactAddress> factAddresses;
 
 	static MemoryHandlerMinusTemp newRootTemp(final MemoryHandlerMain memoryHandlerMain,
 			final org.jamocha.dn.memory.Fact[] facts) {
@@ -41,17 +50,102 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 		for (org.jamocha.dn.memory.Fact fact : facts) {
 			factList.add(new Fact[] { new Fact(fact.getSlotValues()) });
 		}
-		return new MemoryHandlerMinusTemp(memoryHandlerMain, factList);
+
+		final Map<FactAddress, FactAddress> factAddresses = chooseMapType();
+		final FactAddress factAddress = memoryHandlerMain.addresses[0];
+		factAddresses.put(factAddress, factAddress);
+
+		return new MemoryHandlerMinusTemp(memoryHandlerMain, factList, factAddresses);
+	}
+
+	/**
+	 * State-pattern interface to provide easy locking/unlocking
+	 * 
+	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+	 */
+	private interface LazyLocker {
+		LazyLocker getLock(final MemoryHandlerMain targetMain);
+
+		LazyLocker releaseLock(final MemoryHandlerMain targetMain);
+
+		static final LazyLocker locked = new LazyLocker() {
+			@Override
+			public LazyLocker getLock(final MemoryHandlerMain targetMain) {
+				return this;
+			}
+
+			@Override
+			public LazyLocker releaseLock(final MemoryHandlerMain targetMain) {
+				targetMain.releaseWriteLock();
+				return unlocked;
+			}
+		};
+
+		static final LazyLocker unlocked = new LazyLocker() {
+			@Override
+			public LazyLocker getLock(final MemoryHandlerMain targetMain) {
+				targetMain.acquireWriteLock();
+				return locked;
+			}
+
+			@Override
+			public LazyLocker releaseLock(final MemoryHandlerMain targetMain) {
+				return this;
+			}
+		};
 	}
 
 	@Override
 	public MemoryHandlerTemp newBetaTemp(
 			final org.jamocha.dn.memory.MemoryHandlerMain originatingMainHandler,
 			final Edge originIncomingEdge, final Filter filter) throws CouldNotAcquireLockException {
-		// TODO filter main memory using this.facts
-		// first, we have to determine into which column originIncomingEdge has been joined
+		final MemoryHandlerMain targetMain =
+				(MemoryHandlerMain) originIncomingEdge.getTargetNode().getMemory();
+		final List<Fact[]> targetFacts = targetMain.facts;
+		LazyLocker lazyLocker = LazyLocker.unlocked;
 
-		return this;
+		try {
+			for (final Iterator<Fact[]> targetFactsIterator = targetFacts.iterator(); targetFactsIterator
+					.hasNext();) {
+				final Fact[] targetFactTuple = targetFactsIterator.next();
+				minusLoop: for (final Fact[] minusFactTuple : this.facts) {
+					for (final Entry<FactAddress, FactAddress> addressEntry : this.factAddresses
+							.entrySet()) {
+						final FactAddress targetAddress = addressEntry.getKey();
+						final FactAddress minusAddress = addressEntry.getValue();
+						final Fact targetFact = targetFactTuple[targetAddress.index];
+						final Fact minusFact = minusFactTuple[minusAddress.index];
+						if (minusFact != targetFact) {
+							continue minusLoop;
+						}
+					}
+					// we spotted a match for a complete row in the minus token, so we delete the
+					// corresponding row in the main memory
+					lazyLocker.getLock(targetMain);
+					targetFactsIterator.remove();
+					// don't reconsider the same line again
+					continue;
+				}
+			}
+		} finally {
+			lazyLocker.releaseLock(targetMain);
+		}
+		return new MemoryHandlerMinusTemp(originatingMainHandler, facts, localizeAddressMap(
+				factAddresses, originIncomingEdge));
+	}
+
+	private static Map<FactAddress, FactAddress> chooseMapType() {
+		return new HashMap<>();
+	}
+
+	private static Map<FactAddress, FactAddress> localizeAddressMap(
+			final Map<FactAddress, FactAddress> old, final Edge localizingEdge) {
+		final Map<FactAddress, FactAddress> factAddresses = chooseMapType();
+		for (final Entry<FactAddress, FactAddress> entry : old.entrySet()) {
+			factAddresses.put((FactAddress) localizingEdge.localizeAddress(entry.getKey()),
+					entry.getValue());
+		}
+		return factAddresses;
 	}
 
 	@Override
@@ -67,7 +161,8 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 					return MemoryHandlerMinusTemp.empty;
 				}
 			}
-			return this;
+			return new MemoryHandlerMinusTemp(originatingMainHandler, facts, localizeAddressMap(
+					factAddresses, originIncomingEdge));
 		}
 		final List<Fact[]> elementsPassed = new ArrayList<Fact[]>();
 		factLoop: for (final Fact[] fact : this.facts) {
@@ -83,21 +178,15 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 		if (0 == elementsPassedSize) {
 			return MemoryHandlerMinusTemp.empty;
 		}
-		if (elementsPassedSize == factsSize) {
-			return this;
-		}
-		return new MemoryHandlerMinusTemp(originatingMainHandler, elementsPassed);
+		return new MemoryHandlerMinusTemp(originatingMainHandler, elementsPassed,
+				localizeAddressMap(factAddresses, originIncomingEdge));
 	}
 
-	public MemoryHandlerMinusTemp(
+	private MemoryHandlerMinusTemp(
 			final org.jamocha.dn.memory.MemoryHandlerMain originatingMainHandler,
-			final List<Fact[]> facts) {
+			final List<Fact[]> facts, final Map<FactAddress, FactAddress> factAddresses) {
 		super(originatingMainHandler, facts);
-	}
-
-	@Override
-	public void processInMemory(final org.jamocha.dn.memory.MemoryHandlerMain main) {
-		main.remove(this);
+		this.factAddresses = factAddresses;
 	}
 
 	@Override
@@ -108,7 +197,8 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 	}
 
 	@Override
-	public Object getValue(final FactAddress address, final SlotAddress slot, final int row) {
+	public Object getValue(final org.jamocha.dn.memory.FactAddress address, final SlotAddress slot,
+			final int row) {
 		return this.facts.get(row)[0].getValue(slot);
 	}
 

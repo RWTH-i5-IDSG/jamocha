@@ -427,11 +427,6 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 	}
 
 	@Override
-	public void processInMemory(final org.jamocha.dn.memory.MemoryHandlerMain main) {
-		main.add(this);
-	}
-
-	@Override
 	public void enqueueInEdges(final Collection<? extends Edge> edges) {
 		for (final Edge edge : edges) {
 			edge.enqueuePlusMemory(this);

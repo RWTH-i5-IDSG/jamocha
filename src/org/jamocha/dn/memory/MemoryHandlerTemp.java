@@ -18,12 +18,6 @@ public interface MemoryHandlerTemp extends MemoryHandler {
 	 */
 	public List<MemoryHandler> splitIntoChunksOfSize(final int size);
 
-	/**
-	 * 
-	 * @param main
-	 */
-	void processInMemory(final MemoryHandlerMain main);
-
 	MemoryHandlerTemp newBetaTemp(final MemoryHandlerMain originatingMainHandler,
 			final Edge originIncomingEdge, final Filter filter) throws CouldNotAcquireLockException;
 
