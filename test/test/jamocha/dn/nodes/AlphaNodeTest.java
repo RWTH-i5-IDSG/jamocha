@@ -31,7 +31,6 @@ import org.jamocha.dn.memory.Template;
 import org.jamocha.dn.nodes.AlphaNode;
 import org.jamocha.dn.nodes.Node.Edge;
 import org.jamocha.dn.nodes.ObjectTypeNode;
-import org.jamocha.dn.nodes.PositiveEdge;
 import org.jamocha.filter.Path;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -201,7 +200,8 @@ public class AlphaNodeTest {
 		assertEquals(alpha.getOutgoingPositiveEdges().iterator().next(), incomingEdges[0]);
 		incomingEdges = alphaB1.getIncomingEdges();
 		assertEquals(1, incomingEdges.length);
-		assertThat((Collection<Edge>)(Collection<?>)alpha.getOutgoingPositiveEdges(), Matchers.hasItem(incomingEdges[0]));
+		assertThat((Collection<Edge>) (Collection<?>) alpha.getOutgoingPositiveEdges(),
+				Matchers.hasItem(incomingEdges[0]));
 	}
 
 }
