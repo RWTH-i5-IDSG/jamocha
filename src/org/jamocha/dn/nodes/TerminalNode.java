@@ -118,6 +118,7 @@ public class TerminalNode {
 			for (final MemoryHandler handler : mem.splitIntoChunksOfSize(1)) {
 				this.targetNode.enqueueAssert(this.targetNode.getMemory().addPlusMemory(handler));
 			}
+			mem.releaseLock();
 		}
 
 		@Override
@@ -144,6 +145,7 @@ public class TerminalNode {
 		this.network = network;
 		this.parent = parent;
 		this.memory = parent.getMemory().newMemoryHandlerTerminal();
+		parent.acceptEdgeToChild(new TerminalEdgeImpl(network, parent, this));
 	}
 
 	public void enqueueAssert(final Assert plus) {
