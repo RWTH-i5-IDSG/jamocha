@@ -113,14 +113,14 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 					}
 					// we spotted a match for a complete row in the minus token, so we delete the
 					// corresponding row in the main memory
-					lazyLocker.getLock(targetMain);
+					lazyLocker = lazyLocker.getLock(targetMain);
 					targetFactsIterator.remove();
 					// don't reconsider the same line again
 					break;
 				}
 			}
 		} finally {
-			lazyLocker.releaseLock(targetMain);
+			lazyLocker = lazyLocker.releaseLock(targetMain);
 		}
 		return new MemoryHandlerMinusTemp(originatingMainHandler, facts, localizeAddressMap(
 				factAddresses, originIncomingEdge));
