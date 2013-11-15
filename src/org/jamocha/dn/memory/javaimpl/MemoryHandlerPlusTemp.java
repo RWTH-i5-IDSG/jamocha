@@ -96,7 +96,7 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 		factLoop: for (final Fact[] fact : token.facts) {
 			assert fact.length == 1;
 			for (final FilterElement filterElement : filter.getFilterElements()) {
-				if (!applyFilterElement(fact, filterElement)) {
+				if (!applyFilterElement(fact[0], filterElement)) {
 					continue factLoop;
 				}
 			}

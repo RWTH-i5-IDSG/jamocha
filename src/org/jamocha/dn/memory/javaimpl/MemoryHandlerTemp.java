@@ -37,14 +37,14 @@ public abstract class MemoryHandlerTemp extends MemoryHandlerBase implements
 		return memoryHandlers;
 	}
 
-	protected static boolean applyFilterElement(final Fact[] fact, final FilterElement element) {
+	protected static boolean applyFilterElement(final Fact fact, final FilterElement element) {
 		// determine parameters
 		final SlotInFactAddress addresses[] = element.getAddressesInTarget();
 		final int paramLength = addresses.length;
 		final Object params[] = new Object[paramLength];
 		for (int i = 0; i < paramLength; ++i) {
 			final SlotInFactAddress address = addresses[i];
-			params[i] = fact[0].getValue(address.getSlotAddress());
+			params[i] = fact.getValue(address.getSlotAddress());
 		}
 		// check filter
 		return element.getFunction().evaluate(params);

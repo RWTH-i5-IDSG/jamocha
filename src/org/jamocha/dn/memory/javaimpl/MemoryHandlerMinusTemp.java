@@ -63,7 +63,7 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 			final Fact[] fact = this.facts.get(0);
 			assert 1 == fact.length;
 			for (final FilterElement element : filter.getFilterElements()) {
-				if (!applyFilterElement(fact, element)) {
+				if (!applyFilterElement(fact[0], element)) {
 					return MemoryHandlerMinusTemp.empty;
 				}
 			}
@@ -73,7 +73,7 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 		factLoop: for (final Fact[] fact : this.facts) {
 			assert 1 == fact.length;
 			for (final FilterElement element : filter.getFilterElements()) {
-				if (!applyFilterElement(fact, element)) {
+				if (!applyFilterElement(fact[0], element)) {
 					continue factLoop;
 				}
 			}
