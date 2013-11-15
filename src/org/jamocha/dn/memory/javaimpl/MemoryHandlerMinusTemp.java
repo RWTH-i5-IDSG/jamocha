@@ -16,11 +16,8 @@ package org.jamocha.dn.memory.javaimpl;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 
 import org.jamocha.dn.memory.SlotAddress;
 import org.jamocha.dn.nodes.CouldNotAcquireLockException;
@@ -37,12 +34,12 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 		org.jamocha.dn.memory.MemoryHandlerMinusTemp {
 
 	private static MemoryHandlerTemp empty = new MemoryHandlerMinusTemp(null,
-			new ArrayList<Fact[]>(0), null);
+			new ArrayList<Fact[]>(0), new FactAddress[] {});
 
 	/**
 	 * Maps from FactAddress valid in the current scope of the token
 	 */
-	final Map<FactAddress, FactAddress> factAddresses;
+	final FactAddress[] factAddresses;
 
 	static MemoryHandlerMinusTemp newRootTemp(final MemoryHandlerMain memoryHandlerMain,
 			final org.jamocha.dn.memory.Fact[] facts) {
@@ -50,12 +47,8 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 		for (org.jamocha.dn.memory.Fact fact : facts) {
 			factList.add(new Fact[] { new Fact(fact.getSlotValues()) });
 		}
-
-		final Map<FactAddress, FactAddress> factAddresses = chooseMapType();
-		final FactAddress factAddress = memoryHandlerMain.addresses[0];
-		factAddresses.put(factAddress, factAddress);
-
-		return new MemoryHandlerMinusTemp(memoryHandlerMain, factList, factAddresses);
+		assert memoryHandlerMain.addresses.length == 1;
+		return new MemoryHandlerMinusTemp(memoryHandlerMain, factList, memoryHandlerMain.addresses);
 	}
 
 	/**
@@ -109,12 +102,11 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 					.hasNext();) {
 				final Fact[] targetFactTuple = targetFactsIterator.next();
 				minusLoop: for (final Fact[] minusFactTuple : this.facts) {
-					for (final Entry<FactAddress, FactAddress> addressEntry : this.factAddresses
-							.entrySet()) {
-						final FactAddress targetAddress = addressEntry.getKey();
-						final FactAddress minusAddress = addressEntry.getValue();
-						final Fact targetFact = targetFactTuple[targetAddress.index];
-						final Fact minusFact = minusFactTuple[minusAddress.index];
+					for (int i = 0; i < this.factAddresses.length; ++i) {
+						final int targetAddress = this.factAddresses[i].index;
+						final int minusAddress = i;
+						final Fact targetFact = targetFactTuple[targetAddress];
+						final Fact minusFact = minusFactTuple[minusAddress];
 						if (minusFact != targetFact) {
 							continue minusLoop;
 						}
@@ -134,16 +126,12 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 				factAddresses, originIncomingEdge));
 	}
 
-	private static Map<FactAddress, FactAddress> chooseMapType() {
-		return new HashMap<>();
-	}
-
-	private static Map<FactAddress, FactAddress> localizeAddressMap(
-			final Map<FactAddress, FactAddress> old, final Edge localizingEdge) {
-		final Map<FactAddress, FactAddress> factAddresses = chooseMapType();
-		for (final Entry<FactAddress, FactAddress> entry : old.entrySet()) {
-			factAddresses.put((FactAddress) localizingEdge.localizeAddress(entry.getKey()),
-					entry.getValue());
+	private static FactAddress[] localizeAddressMap(final FactAddress[] old,
+			final Edge localizingEdge) {
+		final int length = old.length;
+		final FactAddress[] factAddresses = new FactAddress[length];
+		for (int i = 0; i < length; ++i) {
+			factAddresses[i] = (FactAddress) localizingEdge.localizeAddress(old[i]);
 		}
 		return factAddresses;
 	}
@@ -184,7 +172,7 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 
 	private MemoryHandlerMinusTemp(
 			final org.jamocha.dn.memory.MemoryHandlerMain originatingMainHandler,
-			final List<Fact[]> facts, final Map<FactAddress, FactAddress> factAddresses) {
+			final List<Fact[]> facts, final FactAddress[] factAddresses) {
 		super(originatingMainHandler, facts);
 		this.factAddresses = factAddresses;
 	}
