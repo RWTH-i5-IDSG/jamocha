@@ -119,8 +119,7 @@ public class MemoryHandlerMain extends MemoryHandlerBase implements
 	@Override
 	public MemoryHandlerTemp processTokenInAlpha(final MemoryHandlerTemp token,
 			final Edge originIncomingEdge, final Filter filter) throws CouldNotAcquireLockException {
-		return MemoryHandlerPlusTemp.newAlphaTemp(this, (MemoryHandlerPlusTemp) token,
-				originIncomingEdge, filter);
+		return token.newAlphaTemp(this, originIncomingEdge, filter);
 	}
 
 	@Override
