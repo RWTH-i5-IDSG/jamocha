@@ -15,18 +15,11 @@
 package test.jamocha.dn.nodes;
 
 import static org.junit.Assert.assertEquals;
+import static test.jamocha.util.AssertsAndRetracts.countAssertsAndRetractsInConflictSet;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.jamocha.dn.ConflictSet.NodeAndToken;
 import org.jamocha.dn.Network;
 import org.jamocha.dn.PlainScheduler;
 import org.jamocha.dn.memory.Fact;
-import org.jamocha.dn.memory.MemoryHandlerTerminal.Assert;
-import org.jamocha.dn.memory.MemoryHandlerTerminal.AssertOrRetract;
-import org.jamocha.dn.memory.MemoryHandlerTerminal.AssertOrRetractVisitor;
-import org.jamocha.dn.memory.MemoryHandlerTerminal.Retract;
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.dn.memory.javaimpl.SlotAddress;
@@ -37,7 +30,6 @@ import org.jamocha.dn.nodes.TerminalNode;
 import org.jamocha.filter.Filter;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.Predicate;
-import org.jamocha.filter.PredicateWithArguments;
 import org.jamocha.filter.TODODatenkrakeFunktionen;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -46,6 +38,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import test.jamocha.filter.FilterMockup;
+import test.jamocha.util.AssertsAndRetracts;
 import test.jamocha.util.FunctionBuilder;
 import test.jamocha.util.PredicateBuilder;
 
@@ -81,10 +74,6 @@ public class TokenProcessingTest {
 	 */
 	@After
 	public void tearDown() throws Exception {
-	}
-
-	public static PredicateWithArguments combine() {
-		return null;
 	}
 
 	/**
@@ -131,27 +120,12 @@ public class TokenProcessingTest {
 
 		scheduler.run();
 
-		final List<Assert> asserts = new ArrayList<>();
-		final List<Retract> retracts = new ArrayList<>();
-
-		for (final NodeAndToken nat : network.getConflictSet()) {
-			final AssertOrRetract<?> assertOrRetract = nat.getToken();
-			final TerminalNode terminalNode = nat.getTerminal();
-			assertOrRetract.accept(terminalNode, new AssertOrRetractVisitor() {
-
-				@Override
-				public void visit(TerminalNode node, Retract mem) {
-					retracts.add(mem);
-				}
-
-				@Override
-				public void visit(TerminalNode node, Assert mem) {
-					asserts.add(mem);
-				}
-			});
-		}
-		assertEquals("Amount of asserts does not match expected count!", 3, asserts.size());
-		assertEquals("Amount of retracts does not match expected count!", 0, retracts.size());
+		final AssertsAndRetracts assertsAndRetracts =
+				countAssertsAndRetractsInConflictSet(network.getConflictSet());
+		assertEquals("Amount of asserts does not match expected count!", 3,
+				assertsAndRetracts.getAsserts());
+		assertEquals("Amount of retracts does not match expected count!", 0,
+				assertsAndRetracts.getRetracts());
 
 	}
 
@@ -198,26 +172,12 @@ public class TokenProcessingTest {
 		assertEquals("Amount of facts in terminal does not match expected count!", 7, terminalNode
 				.getMemory().size());
 
-		final List<Assert> asserts = new ArrayList<>();
-		final List<Retract> retracts = new ArrayList<>();
-
-		for (final NodeAndToken nat : network.getConflictSet()) {
-			final AssertOrRetract<?> assertOrRetract = nat.getToken();
-			final TerminalNode terminal = nat.getTerminal();
-			assertOrRetract.accept(terminal, new AssertOrRetractVisitor() {
-				@Override
-				public void visit(TerminalNode node, Retract mem) {
-					retracts.add(mem);
-				}
-
-				@Override
-				public void visit(TerminalNode node, Assert mem) {
-					asserts.add(mem);
-				}
-			});
-		}
-		assertEquals("Amount of asserts does not match expected count!", 7, asserts.size());
-		assertEquals("Amount of retracts does not match expected count!", 0, retracts.size());
+		final AssertsAndRetracts assertsAndRetracts =
+				countAssertsAndRetractsInConflictSet(network.getConflictSet());
+		assertEquals("Amount of asserts does not match expected count!", 7,
+				assertsAndRetracts.getAsserts());
+		assertEquals("Amount of retracts does not match expected count!", 0,
+				assertsAndRetracts.getRetracts());
 
 	}
 }
