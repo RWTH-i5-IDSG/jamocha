@@ -115,6 +115,8 @@ public class TerminalNode {
 
 		@Override
 		public void enqueuePlusMemory(final MemoryHandlerPlusTemp mem) {
+			if (0 == mem.size())
+				return;
 			for (final MemoryHandler handler : mem.splitIntoChunksOfSize(1)) {
 				this.targetNode.enqueueAssert(this.targetNode.getMemory().addPlusMemory(handler));
 			}
@@ -123,6 +125,8 @@ public class TerminalNode {
 
 		@Override
 		public void enqueueMinusMemory(final MemoryHandlerMinusTemp mem) {
+			if (0 == mem.size())
+				return;
 			for (final MemoryHandler handler : mem.splitIntoChunksOfSize(1)) {
 				this.targetNode.enqueueRetract(this.targetNode.getMemory().addMinusMemory(handler));
 			}
