@@ -101,14 +101,14 @@ public class FilterMockup extends Filter {
 		super(new PredicateWithArguments[] { new PredicateWithArgumentsMockup(returnValue, paths) });
 	}
 
-	public static FilterMockup alwaysTrue() {
-		final FilterMockup filterMockup = new FilterMockup(true);
+	public static FilterMockup alwaysTrue(final Path... paths) {
+		final FilterMockup filterMockup = new FilterMockup(true, paths);
 		filterMockup.translatePath();
 		return filterMockup;
 	}
 
-	public static FilterMockup alwaysFalse() {
-		final FilterMockup filterMockup = new FilterMockup(false);
+	public static FilterMockup alwaysFalse(final Path... paths) {
+		final FilterMockup filterMockup = new FilterMockup(false, paths);
 		filterMockup.translatePath();
 		return filterMockup;
 	}
