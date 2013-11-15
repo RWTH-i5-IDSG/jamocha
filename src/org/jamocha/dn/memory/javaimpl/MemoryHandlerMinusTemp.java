@@ -124,7 +124,7 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 					lazyLocker.getLock(targetMain);
 					targetFactsIterator.remove();
 					// don't reconsider the same line again
-					continue;
+					break;
 				}
 			}
 		} finally {
