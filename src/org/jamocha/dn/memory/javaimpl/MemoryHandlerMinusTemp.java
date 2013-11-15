@@ -24,7 +24,6 @@ import org.jamocha.dn.memory.Template;
 import org.jamocha.dn.nodes.CouldNotAcquireLockException;
 import org.jamocha.dn.nodes.Node.Edge;
 import org.jamocha.filter.Filter;
-import org.jamocha.filter.Filter.FilterElement;
 
 /**
  * 
@@ -34,7 +33,7 @@ import org.jamocha.filter.Filter.FilterElement;
 public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 		org.jamocha.dn.memory.MemoryHandlerMinusTemp {
 
-	private static MemoryHandlerTemp empty = new MemoryHandlerMinusTemp(null, null,
+	private static MemoryHandlerMinusTemp empty = new MemoryHandlerMinusTemp(null, null,
 			new ArrayList<Fact[]>(0), new FactAddress[] {});
 
 	/**
@@ -44,12 +43,17 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 
 	static MemoryHandlerMinusTemp newRootTemp(final MemoryHandlerMain memoryHandlerMain,
 			final org.jamocha.dn.memory.Fact[] facts) {
-		final ArrayList<Fact[]> factList = new ArrayList<>();
+		final List<Fact[]> factList = new ArrayList<>();
 		for (org.jamocha.dn.memory.Fact fact : facts) {
 			factList.add(new Fact[] { new Fact(fact.getSlotValues()) });
 		}
+		final List<Fact[]> filteredFactList =
+				deleteAndFilterFacts(factList, memoryHandlerMain, FactCompare.equalContent);
 		assert memoryHandlerMain.addresses.length == 1;
-		return new MemoryHandlerMinusTemp(memoryHandlerMain, factList, memoryHandlerMain.addresses);
+		if (0 == filteredFactList.size()) {
+			return MemoryHandlerMinusTemp.empty;
+		}
+		return new MemoryHandlerMinusTemp(memoryHandlerMain, filteredFactList, memoryHandlerMain.addresses);
 	}
 
 	/**
@@ -141,34 +145,68 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 	public MemoryHandlerTemp newAlphaTemp(
 			final org.jamocha.dn.memory.MemoryHandlerMain originatingMainHandler,
 			final Edge originIncomingEdge, final Filter filter) throws CouldNotAcquireLockException {
-		final int factsSize = this.facts.size();
-		if (1 == factsSize) {
-			final Fact[] fact = this.facts.get(0);
-			assert 1 == fact.length;
-			for (final FilterElement element : filter.getFilterElements()) {
-				if (!applyFilterElement(fact[0], element)) {
-					return MemoryHandlerMinusTemp.empty;
-				}
-			}
-			return new MemoryHandlerMinusTemp(originatingMainHandler, facts, localizeAddressMap(
-					factAddresses, originIncomingEdge));
+		final List<Fact[]> relevantFacts =
+				deleteAndFilterFacts(this.facts, (MemoryHandlerMain) originIncomingEdge
+						.getTargetNode().getMemory(), FactCompare.equalReference);
+		if (0 == relevantFacts.size()) {
+			return MemoryHandlerMinusTemp.empty;
 		}
-		final List<Fact[]> elementsPassed = new ArrayList<Fact[]>();
-		factLoop: for (final Fact[] fact : this.facts) {
-			assert 1 == fact.length;
-			for (final FilterElement element : filter.getFilterElements()) {
-				if (!applyFilterElement(fact[0], element)) {
+		return new MemoryHandlerMinusTemp(originatingMainHandler, relevantFacts,
+				localizeAddressMap(factAddresses, originIncomingEdge));
+	}
+
+	private interface FactCompare {
+		boolean equal(final Fact a, final Fact b);
+
+		static FactCompare equalReference = new FactCompare() {
+			@Override
+			public boolean equal(final Fact a, final Fact b) {
+				return Fact.equalReference(a, b);
+			}
+		};
+		static FactCompare equalContent = new FactCompare() {
+			@Override
+			public boolean equal(final Fact a, final Fact b) {
+				return Fact.equalContent(a, b);
+			}
+		};
+	}
+
+	/**
+	 * Don't use for fact tuples as the full fact tuple will be copied
+	 * 
+	 * @param minusFacts
+	 * @param targetMemory
+	 * @param factCompare
+	 * @return
+	 */
+	protected static List<Fact[]> deleteAndFilterFacts(final List<Fact[]> minusFacts,
+			final MemoryHandlerMain targetMemory, final FactCompare factCompare) {
+		LazyLocker lazyLocker = LazyLocker.unlocked;
+		final List<Fact[]> targetFacts = targetMemory.facts;
+		final List<Fact[]> minusFactsCopy = new ArrayList<>(minusFacts);
+		final List<Fact[]> relevantFacts = new ArrayList<Fact[]>();
+		factLoop: for (final Iterator<Fact[]> minusFactsIterator = minusFactsCopy.iterator(); minusFactsIterator
+				.hasNext();) {
+			final Fact[] minusFactTuple = minusFactsIterator.next();
+			for (final Iterator<Fact[]> targetFactsIterator = targetFacts.iterator(); targetFactsIterator
+					.hasNext();) {
+				final Fact[] targetFactTuple = targetFactsIterator.next();
+				assert 1 == targetFactTuple.length;
+				if (factCompare.equal(targetFactTuple[0], minusFactTuple[0])) {
+					lazyLocker = lazyLocker.getLock(targetMemory);
+					relevantFacts.add(targetFactTuple);
+					targetFactsIterator.remove();
+					minusFactsIterator.remove();
+					if (minusFacts.isEmpty()) {
+						break factLoop;
+					}
 					continue factLoop;
 				}
 			}
-			elementsPassed.add(fact);
 		}
-		final int elementsPassedSize = elementsPassed.size();
-		if (0 == elementsPassedSize) {
-			return MemoryHandlerMinusTemp.empty;
-		}
-		return new MemoryHandlerMinusTemp(originatingMainHandler, elementsPassed,
-				localizeAddressMap(factAddresses, originIncomingEdge));
+		lazyLocker = lazyLocker.releaseLock(targetMemory);
+		return relevantFacts;
 	}
 
 	private MemoryHandlerMinusTemp(
