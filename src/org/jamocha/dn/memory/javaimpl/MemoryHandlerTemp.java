@@ -14,10 +14,15 @@ public abstract class MemoryHandlerTemp extends MemoryHandlerBase implements
 
 	final MemoryHandlerMain originatingMainHandler;
 
+	protected MemoryHandlerTemp(final Template[] template,
+			final MemoryHandlerMain originatingMainHandler, final List<Fact[]> facts) {
+		super(template, facts);
+		this.originatingMainHandler = originatingMainHandler;
+	}
+
 	protected MemoryHandlerTemp(final MemoryHandlerMain originatingMainHandler,
 			final List<Fact[]> facts) {
-		super(originatingMainHandler.getTemplate(), facts);
-		this.originatingMainHandler = originatingMainHandler;
+		this(originatingMainHandler.getTemplate(), originatingMainHandler, facts);
 	}
 
 	@Override

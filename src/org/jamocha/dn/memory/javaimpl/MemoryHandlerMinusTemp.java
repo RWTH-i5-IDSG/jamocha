@@ -20,6 +20,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.jamocha.dn.memory.SlotAddress;
+import org.jamocha.dn.memory.Template;
 import org.jamocha.dn.nodes.CouldNotAcquireLockException;
 import org.jamocha.dn.nodes.Node.Edge;
 import org.jamocha.filter.Filter;
@@ -33,7 +34,7 @@ import org.jamocha.filter.Filter.FilterElement;
 public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 		org.jamocha.dn.memory.MemoryHandlerMinusTemp {
 
-	private static MemoryHandlerTemp empty = new MemoryHandlerMinusTemp(null,
+	private static MemoryHandlerTemp empty = new MemoryHandlerMinusTemp(null, null,
 			new ArrayList<Fact[]>(0), new FactAddress[] {});
 
 	/**
@@ -174,6 +175,13 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 			final org.jamocha.dn.memory.MemoryHandlerMain originatingMainHandler,
 			final List<Fact[]> facts, final FactAddress[] factAddresses) {
 		super(originatingMainHandler, facts);
+		this.factAddresses = factAddresses;
+	}
+
+	private MemoryHandlerMinusTemp(final Template[] template,
+			final org.jamocha.dn.memory.MemoryHandlerMain originatingMainHandler,
+			final List<Fact[]> facts, final FactAddress[] factAddresses) {
+		super(template, originatingMainHandler, facts);
 		this.factAddresses = factAddresses;
 	}
 
