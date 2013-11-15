@@ -1,0 +1,32 @@
++ Token in + Kante:
+	durch FilterElemente laufen
+	falls negiert:
+		passende Fakten zählen, Zählspalte anfügen
+	sonst:
+		regulär joinen
+	main & temp sollen bei Zugriff auf Elemente nur die nicht durch Negation gefilterten zurückgeben
+	temp: beim hinzufügen der fakten zum main müssen natürlich alle enthaltenen Fakten ins main geschrieben werden
++ Token in - Kante:
+	aggregierender "Join" direkt mit Mainmemory vom Zielknoten
+	negiertes Filterelement identifizieren und pro main-Zeile alle Zeilen im Token ablaufen, zählen, Zählspalte aktualisieren, ...
+- Token in + Kante:
+	Teilmenge der eigentlich vorhandenen Daten im Temp
+	Temp enthält Faktadressen der Teilmenge im aktuellen Kontext
+	Kann diese in interene Adressen übersetzen (auf Adressen, die galten, als die Menge zur Teilmenge wurde)
+	|Faktadressen| = |Teilmenge|
+	Suche in main memory nac passenden Zeilen (alle Fakten der Teilmenge müssen wieder zu finden sein)
+	[ Token-Inhalt wird direkt committed, Token hat kein Lock/Semaphore]
+- Token in - Kante:
+	Vaterknoten muss -Token mit vollständigen Tupeln (wie bei +Token) füllen
+	sonst alles wie im + Fall, nur beim Summe verarbeiten Zählspalte dekrementieren
+
+Negation im Alpha-Netzwerk:
+	Beta-Knoten als negierte Eingänge erlaubt
+	möglicherweise gleiche Funktionalität wie bei Beta-Join, daher im Memory gleiche Funktionen verwenden !?
+
+Jeder Knoten hält Liste seiner negierten ausgehenden Kanten vor (diese zu implementieren könnte anstrengend werden)
+Dadurch ist für den Knoten selbst und für seine Nachfolger einfach feststellbar, ob negierte Kanten im Spiel sind
+
+Beim Erzeugen von - Tokens beachten:
+	Für positive Kanten: ein - Token ohne Semaphore
+	Für negative Kanten: ein - Token mit Semaphore
