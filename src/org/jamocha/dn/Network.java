@@ -130,12 +130,16 @@ public class Network {
 				new ThreadPoolScheduler(10));
 	}
 
-	private boolean tryToShareNode(Filter filter, Path... paths) { // TODO remove order dependencies
+	private boolean tryToShareNode(Filter filter, Path... paths) throws IllegalArgumentException{ // TODO remove order dependencies
 
 		// collect the nodes of the paths
 		LinkedHashSet<Node> nodes = new LinkedHashSet<>();
 		for (Path path : paths) {
-			nodes.add(path.getCurrentlyLowestNode());
+			Node node = path.getCurrentlyLowestNode();
+			if (null == node) {
+				throw new IllegalArgumentException("Paths did not point to any nodes.");
+			}
+			nodes.add(node);
 		}
 
 		// collect all nodes which have edges to all of the paths nodes as candidates
