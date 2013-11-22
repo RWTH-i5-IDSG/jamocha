@@ -13,3 +13,10 @@ Auch für MinusTemps das Interface wie folgt lassen
 	Temp temp = main.processInX(temp, ...)
 damit alpha filter -- falls mehrere fakten im temp sind -- die relevanten rausfiltern können
 (erstelle statische leere instanz)
+
+
++token: beim commit die optional befüllte, gefilterte Faktliste zum main hinzufügen, sonst ursprüngliche List
+-token: lösche aus main memory passende fakten und markiere relevante Zeilen im -temp
+	für alle +temps des main memory:
+		prüfe, ob etwas zu löschen wäre, falls ja, erstelle durch -temp gefilterte liste als optionale Faktliste (s.o.) und markiere im -temp relevante Zeilen
+	reiche markierte Zeilen an Folgenknoten weiter
