@@ -16,11 +16,15 @@ package org.jamocha.dn.memory.javaimpl;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Queue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import org.jamocha.dn.memory.MemoryHandlerTemp;
+import lombok.Getter;
+
 import org.jamocha.dn.memory.Template;
 import org.jamocha.dn.nodes.CouldNotAcquireLockException;
 import org.jamocha.dn.nodes.Node;
@@ -42,6 +46,8 @@ public class MemoryHandlerMain extends MemoryHandlerBase implements
 
 	final ReadWriteLock lock = new ReentrantReadWriteLock(true);
 	final FactAddress[] addresses;
+	@Getter
+	final protected Queue<MemoryHandlerPlusTemp> validOutgoingPlusTokens = new LinkedList<>();
 
 	MemoryHandlerMain(final Template template, final Path... paths) {
 		super(new Template[] { template }, new ArrayList<Fact[]>());

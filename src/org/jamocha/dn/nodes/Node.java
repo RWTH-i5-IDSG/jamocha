@@ -178,8 +178,6 @@ public abstract class Node {
 	@Getter
 	final protected Filter filter;
 
-	final protected Queue<Token<?>> validOutgoingTokens = new LinkedList<>();
-
 	@RequiredArgsConstructor
 	public class TokenQueue implements Runnable {
 		final static int tokenQueueCapacity = Integer.MAX_VALUE;
