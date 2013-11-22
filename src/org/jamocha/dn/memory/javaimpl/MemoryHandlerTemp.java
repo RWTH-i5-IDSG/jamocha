@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.jamocha.dn.memory.MemoryHandler;
-import org.jamocha.dn.memory.MemoryHandlerMain;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.dn.nodes.SlotInFactAddress;
 import org.jamocha.filter.Filter.FilterElement;

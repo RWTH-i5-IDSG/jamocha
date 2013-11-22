@@ -111,7 +111,8 @@ public class MemoryHandlerMain extends MemoryHandlerBase implements
 	@Override
 	public void add(final org.jamocha.dn.memory.MemoryHandlerPlusTemp toAdd) {
 		final MemoryHandlerPlusTemp temp = (MemoryHandlerPlusTemp) toAdd;
-		for (final Fact[] row : temp.facts) {
+		final List<Fact[]> facts = (null == temp.filtered ? temp.facts : temp.filtered);
+		for (final Fact[] row : facts) {
 			this.facts.add(row);
 		}
 	}
