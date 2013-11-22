@@ -199,7 +199,7 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 					relevantFacts.add(targetFactTuple);
 					targetFactsIterator.remove();
 					minusFactsIterator.remove();
-					if (minusFacts.isEmpty()) {
+					if (minusFactsCopy.isEmpty()) {
 						break factLoop;
 					}
 					continue factLoop;
