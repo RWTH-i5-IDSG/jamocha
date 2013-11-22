@@ -53,7 +53,8 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 		if (0 == filteredFactList.size()) {
 			return MemoryHandlerMinusTemp.empty;
 		}
-		return new MemoryHandlerMinusTemp(memoryHandlerMain, filteredFactList, memoryHandlerMain.addresses);
+		return new MemoryHandlerMinusTemp(memoryHandlerMain, filteredFactList,
+				memoryHandlerMain.addresses);
 	}
 
 	/**
