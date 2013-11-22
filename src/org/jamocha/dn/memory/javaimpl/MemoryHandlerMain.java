@@ -118,14 +118,16 @@ public class MemoryHandlerMain extends MemoryHandlerBase implements
 	}
 
 	@Override
-	public MemoryHandlerTemp processTokenInBeta(final MemoryHandlerTemp token,
-			final Edge originIncomingEdge, final Filter filter) throws CouldNotAcquireLockException {
+	public org.jamocha.dn.memory.MemoryHandlerTemp processTokenInBeta(
+			final org.jamocha.dn.memory.MemoryHandlerTemp token, final Edge originIncomingEdge,
+			final Filter filter) throws CouldNotAcquireLockException {
 		return token.newBetaTemp(this, originIncomingEdge, filter);
 	}
 
 	@Override
-	public MemoryHandlerTemp processTokenInAlpha(final MemoryHandlerTemp token,
-			final Edge originIncomingEdge, final Filter filter) throws CouldNotAcquireLockException {
+	public org.jamocha.dn.memory.MemoryHandlerTemp processTokenInAlpha(
+			final org.jamocha.dn.memory.MemoryHandlerTemp token, final Edge originIncomingEdge,
+			final Filter filter) throws CouldNotAcquireLockException {
 		return token.newAlphaTemp(this, originIncomingEdge, filter);
 	}
 

@@ -61,7 +61,7 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 
 	final Semaphore lock;
 	boolean valid = true;
-	ArrayList<Fact[]> filtered = null;
+	List<Fact[]> filtered = null;
 
 	private MemoryHandlerPlusTemp(final MemoryHandlerMain originatingMainHandler,
 			final List<Fact[]> facts, final Semaphore lock) {
@@ -425,6 +425,7 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 	private void commitAndInvalidate() {
 		originatingMainHandler.acquireWriteLock();
 		assert this == originatingMainHandler.getValidOutgoingPlusTokens().peek();
+		originatingMainHandler.getValidOutgoingPlusTokens().remove();
 		originatingMainHandler.add(this);
 		originatingMainHandler.releaseWriteLock();
 		this.valid = false;
