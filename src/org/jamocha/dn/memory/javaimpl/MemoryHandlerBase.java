@@ -14,8 +14,13 @@
  */
 package org.jamocha.dn.memory.javaimpl;
 
-import java.util.Arrays;
 import java.util.List;
+
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NonNull;
+import lombok.experimental.NonFinal;
 
 import org.jamocha.dn.memory.FactAddress;
 import org.jamocha.dn.memory.MemoryHandler;
@@ -28,22 +33,14 @@ import org.jamocha.dn.memory.Template;
  * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
+@AllArgsConstructor
+@EqualsAndHashCode
 public class MemoryHandlerBase implements MemoryHandler {
+	@Getter
 	final Template[] template;
-	final List<Fact[]> facts;
-
-	public MemoryHandlerBase(final Template[] template, final List<Fact[]> facts) {
-		this.template = template;
-		this.facts = facts;
-	}
-
-	/**
-	 * @see org.jamocha.dn.memory.MemoryHandler#getTemplate()
-	 */
-	@Override
-	public Template[] getTemplate() {
-		return this.template;
-	}
+	@NonNull
+	@NonFinal
+	List<Fact[]> facts;
 
 	/**
 	 * @see org.jamocha.dn.memory.MemoryHandler#getValue(FactAddress, SlotAddress, int)
@@ -60,26 +57,5 @@ public class MemoryHandlerBase implements MemoryHandler {
 	@Override
 	public int size() {
 		return this.facts.size();
-	}
-
-	public boolean canEqual(final Object other) {
-		return other instanceof MemoryHandlerBase;
-	}
-
-	@Override
-	public boolean equals(final Object obj) {
-		if (obj == this)
-			return true;
-		if (!(obj instanceof MemoryHandlerBase))
-			return false;
-		final MemoryHandlerBase other = (MemoryHandlerBase) obj;
-		if (!other.canEqual((Object) this))
-			return false;
-		if (this.getTemplate() == null ? other.getTemplate() != null : !Arrays.deepEquals(
-				this.getTemplate(), other.getTemplate()))
-			return false;
-		if (this.facts == null ? other.facts != null : !this.facts.equals(other.facts))
-			return false;
-		return true;
 	}
 }
