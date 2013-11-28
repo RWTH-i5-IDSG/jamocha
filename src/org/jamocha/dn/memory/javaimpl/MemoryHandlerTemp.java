@@ -3,11 +3,14 @@ package org.jamocha.dn.memory.javaimpl;
 import java.util.ArrayList;
 import java.util.List;
 
+import lombok.ToString;
+
 import org.jamocha.dn.memory.MemoryHandler;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.dn.nodes.SlotInFactAddress;
 import org.jamocha.filter.Filter.FilterElement;
 
+@ToString(callSuper=true)
 public abstract class MemoryHandlerTemp extends MemoryHandlerBase implements
 		org.jamocha.dn.memory.MemoryHandlerTemp {
 

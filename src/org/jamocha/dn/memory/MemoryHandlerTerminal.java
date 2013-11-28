@@ -16,6 +16,7 @@ package org.jamocha.dn.memory;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 
 import org.jamocha.dn.memory.MemoryHandlerTerminal.AssertOrRetract;
 import org.jamocha.dn.nodes.TerminalNode;
@@ -40,6 +41,7 @@ public interface MemoryHandlerTerminal extends MemoryHandler, Iterable<AssertOrR
 	 */
 	@Getter
 	@RequiredArgsConstructor
+	@ToString
 	// TODO soll Ctor assert MemoryHandler.size() == 1 aufrufen?
 	public abstract class AssertOrRetract<T extends AssertOrRetract<?>> {
 		protected final MemoryHandler mem;
@@ -58,6 +60,7 @@ public interface MemoryHandlerTerminal extends MemoryHandler, Iterable<AssertOrR
 	/**
 	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
 	 */
+	@ToString
 	public class Assert extends AssertOrRetract<Retract> {
 		protected Retract dual = null;
 
@@ -87,6 +90,7 @@ public interface MemoryHandlerTerminal extends MemoryHandler, Iterable<AssertOrR
 	/**
 	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
 	 */
+	@ToString
 	public class Retract extends AssertOrRetract<Assert> {
 		public Retract(final MemoryHandler mem) {
 			super(mem);

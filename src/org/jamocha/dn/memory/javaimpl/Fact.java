@@ -55,13 +55,14 @@ class Fact {
 
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		sb.append("Fact: ");
+		sb.append("Fact(");
 		if (slotValues.length > 0) {
 			sb.append(slotValues[0].toString());
 		}
 		for (int i = 1; i < slotValues.length; i++) {
 			sb.append(", " + slotValues[i].toString());
 		}
+		sb.append(')');
 		return sb.toString();
 	}
 

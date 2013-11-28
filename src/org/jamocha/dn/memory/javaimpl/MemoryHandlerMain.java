@@ -24,6 +24,7 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import lombok.Getter;
+import lombok.ToString;
 
 import org.jamocha.dn.memory.Template;
 import org.jamocha.dn.nodes.CouldNotAcquireLockException;
@@ -39,6 +40,7 @@ import org.jamocha.filter.Path;
  * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
  * @see org.jamocha.dn.memory.MemoryHandlerMain
  */
+@ToString(callSuper = true)
 public class MemoryHandlerMain extends MemoryHandlerBase implements
 		org.jamocha.dn.memory.MemoryHandlerMain {
 	static final long tryLockTimeout = 1L;

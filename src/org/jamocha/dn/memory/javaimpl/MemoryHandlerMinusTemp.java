@@ -21,6 +21,7 @@ import java.util.Queue;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.ToString;
 
 import org.jamocha.dn.memory.SlotAddress;
 import org.jamocha.dn.memory.Template;
@@ -33,6 +34,7 @@ import org.jamocha.filter.Filter;
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  * 
  */
+@ToString(callSuper=true)
 public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 		org.jamocha.dn.memory.MemoryHandlerMinusTemp {
 

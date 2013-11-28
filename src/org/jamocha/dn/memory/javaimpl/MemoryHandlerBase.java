@@ -14,6 +14,7 @@
  */
 package org.jamocha.dn.memory.javaimpl;
 
+import java.util.Arrays;
 import java.util.List;
 
 import lombok.AllArgsConstructor;
@@ -57,5 +58,11 @@ public class MemoryHandlerBase implements MemoryHandler {
 	@Override
 	public int size() {
 		return this.facts.size();
+	}
+
+	@Override
+	public String toString() {
+		return "MemoryHandlerBase(template=" + Arrays.deepToString(this.template) + ", facts="
+				+ Arrays.deepToString(this.facts.toArray()) + ")";
 	}
 }
