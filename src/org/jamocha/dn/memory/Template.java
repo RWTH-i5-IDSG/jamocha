@@ -66,4 +66,8 @@ public class Template {
 		return slots[index];
 	}
 
+	public Fact newFact(final Object... values) {
+		return new Fact(this, values);
+	}
+
 }
