@@ -67,14 +67,17 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 	List<Fact[]> filtered = null;
 
 	private MemoryHandlerPlusTemp(final MemoryHandlerMain originatingMainHandler,
-			final List<Fact[]> facts, final Semaphore lock) {
+			final List<Fact[]> facts, final int numChildren) {
 		super(originatingMainHandler, facts);
 		this.lock = lock;
 		if (facts.size() == 0) {
+			this.lock = null;
 			this.valid = false;
-		} else if (lock.count == 0) {
+		} else if (numChildren == 0) {
+			this.lock = null;
 			commitAndInvalidate();
 		} else {
+			this.lock = new Semaphore(numChildren);
 			originatingMainHandler.getValidOutgoingPlusTokens().add(this);
 		}
 	}
@@ -83,8 +86,8 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 			final MemoryHandlerPlusTemp token, final Edge originIncomingEdge, final Filter filter)
 			throws CouldNotAcquireLockException {
 		return new MemoryHandlerPlusTemp(originatingMainHandler, performJoin(
-				originatingMainHandler, filter, token, originIncomingEdge), new Semaphore(
-				originIncomingEdge.getTargetNode().getNumberOfOutgoingEdges()));
+				originatingMainHandler, filter, token, originIncomingEdge), originIncomingEdge
+				.getTargetNode().getNumberOfOutgoingEdges());
 	}
 
 	@Override
@@ -109,8 +112,8 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 			factList.add(fact);
 		}
 		// FIXME only use Semaphores if one of the outgoing edges is connected to the beta network
-		return new MemoryHandlerPlusTemp(originatingMainHandler, factList, new Semaphore(
-				originIncomingEdge.getTargetNode().getNumberOfOutgoingEdges()));
+		return new MemoryHandlerPlusTemp(originatingMainHandler, factList, originIncomingEdge
+				.getTargetNode().getNumberOfOutgoingEdges());
 	}
 
 	@Override
@@ -127,8 +130,8 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 		for (org.jamocha.dn.memory.Fact fact : facts) {
 			factList.add(new Fact[] { new Fact(fact.getSlotValues()) });
 		}
-		return new MemoryHandlerPlusTemp(originatingMainHandler, factList, new Semaphore(
-				otn.getNumberOfOutgoingEdges()));
+		return new MemoryHandlerPlusTemp(originatingMainHandler, factList,
+				otn.getNumberOfOutgoingEdges());
 	}
 
 	static abstract class StackElement {
