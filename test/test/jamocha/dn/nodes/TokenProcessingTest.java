@@ -17,6 +17,7 @@ package test.jamocha.dn.nodes;
 import static org.junit.Assert.assertEquals;
 import static test.jamocha.util.AssertsAndRetracts.countAssertsAndRetractsInConflictSet;
 
+import org.jamocha.dn.ConflictSet;
 import org.jamocha.dn.Network;
 import org.jamocha.dn.PlainScheduler;
 import org.jamocha.dn.memory.Fact;
@@ -284,5 +285,87 @@ public class TokenProcessingTest {
 		assertEquals("Amount of retracts does not match expected count!", 2,
 				assertsAndRetracts.getRetracts());
 
+	}
+
+	@Test
+	public void testTokenProcessingOneRun() throws Exception {
+		final PlainScheduler scheduler = new PlainScheduler();
+		final Network network =
+				new Network(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(),
+						Integer.MAX_VALUE, scheduler);
+		final Template t1 = new Template(SlotType.LONG, SlotType.STRING, SlotType.BOOLEAN);
+		final Path p1 = new Path(t1);
+		final SlotAddress slotLong = new SlotAddress(0), slotBool = new SlotAddress(2);
+
+		final Predicate lessLongLong =
+				TODODatenkrakeFunktionen.lookupPredicate("<", SlotType.LONG, SlotType.LONG);
+		final Predicate eqBoolBool =
+				TODODatenkrakeFunktionen.lookupPredicate("=", SlotType.BOOLEAN, SlotType.BOOLEAN);
+
+		final Filter filter =
+				new Filter(new PredicateBuilder(eqBoolBool)
+						.addPath(p1, slotBool)
+						.addFunction(
+								new FunctionBuilder(lessLongLong).addPath(p1, slotLong)
+										.addConstant(3L, SlotType.LONG).build()).build());
+		network.buildRule(filter);
+		final RootNode rootNode = network.getRootNode();
+
+		// false == 5 < 3
+		rootNode.assertFact(new Fact(t1, 5L, "5L&FALSE", false));
+		// true != 5 < 3
+		rootNode.assertFact(new Fact(t1, 5L, "5L&TRUE", true));
+		// true == 2 < 3
+		rootNode.assertFact(new Fact(t1, 2L, "2L&TRUE", true));
+		// false != 2 < 3
+		rootNode.assertFact(new Fact(t1, 2L, "2L&FALSE", false));
+		// true == -80 < 3
+		rootNode.assertFact(new Fact(t1, -80L, "-80L&TRUE", true));
+		// false != -80 < 3
+		rootNode.assertFact(new Fact(t1, -80L, "-80L&FALSE", false));
+		// false != 0 < 3
+		rootNode.assertFact(new Fact(t1, 0L, "0L&FALSE", false));
+
+		// remove and re-add valid fact
+		// false == 5 < 3
+		rootNode.assertFact(new Fact(t1, 5L, "5L&FALSE", false));
+		// false == 5 < 3
+		rootNode.retractFact(new Fact(t1, 5L, "5L&FALSE", false));
+
+		// remove valid fact
+		// true == 2 < 3
+		rootNode.retractFact(new Fact(t1, 2L, "2L&TRUE", true));
+
+		// remove, re-add and remove valid fact
+		// true == -80 < 3
+		rootNode.retractFact(new Fact(t1, -80L, "-80L&TRUE", true));
+		// true == -80 < 3
+		rootNode.assertFact(new Fact(t1, -80L, "-80L&TRUE", true));
+		// true == -80 < 3
+		rootNode.retractFact(new Fact(t1, -80L, "-80L&TRUE", true));
+
+		// remove invalid fact
+		// false != -80 < 3
+		rootNode.retractFact(new Fact(t1, -80L, "-80L&FALSE", false));
+
+		scheduler.run();
+		final ConflictSet conflictSet = network.getConflictSet();
+		{
+			final AssertsAndRetracts assertsAndRetracts =
+					countAssertsAndRetractsInConflictSet(conflictSet);
+			assertEquals("Amount of asserts does not match expected count!", 5,
+					assertsAndRetracts.getAsserts());
+			assertEquals("Amount of retracts does not match expected count!", 4,
+					assertsAndRetracts.getRetracts());
+		}
+		conflictSet.deleteRevokedEntries();
+		{
+			final AssertsAndRetracts assertsAndRetracts =
+					countAssertsAndRetractsInConflictSet(conflictSet);
+			assertEquals("Amount of asserts does not match expected count!", 1,
+					assertsAndRetracts.getAsserts());
+			assertEquals("Amount of retracts does not match expected count!", 4,
+					assertsAndRetracts.getRetracts());
+		}
 	}
 }
