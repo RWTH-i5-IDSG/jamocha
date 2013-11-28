@@ -16,6 +16,7 @@ package org.jamocha.dn.memory.javaimpl;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 
 import org.jamocha.dn.memory.MemoryHandler;
 
@@ -27,6 +28,7 @@ import org.jamocha.dn.memory.MemoryHandler;
  */
 @Getter
 @RequiredArgsConstructor
+@ToString
 public class FactAddress implements org.jamocha.dn.memory.FactAddress {
 	/**
 	 * Index of the {@link Fact} in the storing {@link MemoryHandler}.

@@ -14,6 +14,8 @@
  */
 package org.jamocha.dn.memory;
 
+import lombok.ToString;
+
 /**
  * A Template is an array of {@link SlotType slot types}. Facts always comply with some Template.
  * 
@@ -22,6 +24,7 @@ package org.jamocha.dn.memory;
  * @see Fact
  */
 
+@ToString
 public class Template {
 	final SlotType slots[];
 
