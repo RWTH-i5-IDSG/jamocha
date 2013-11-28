@@ -27,6 +27,10 @@ public abstract class MemoryHandlerTemp extends MemoryHandlerBase implements
 	@Override
 	public List<MemoryHandler> splitIntoChunksOfSize(final int size) {
 		final List<MemoryHandler> memoryHandlers = new ArrayList<>();
+		if (size >= this.size()) {
+			memoryHandlers.add(this);
+			return memoryHandlers;
+		}
 		final Template[] template = this.getTemplate();
 		final int max = this.size();
 		int current = 0;
