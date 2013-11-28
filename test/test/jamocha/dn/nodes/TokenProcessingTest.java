@@ -236,4 +236,53 @@ public class TokenProcessingTest {
 				assertsAndRetracts.getRetracts());
 
 	}
+
+	@Test
+	public void testTokenProcessingDummyFilterOneRun() throws Exception {
+		final PlainScheduler scheduler = new PlainScheduler();
+		final Network network =
+				new Network(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(),
+						Integer.MAX_VALUE, scheduler);
+		final Template t1 = new Template(SlotType.LONG, SlotType.STRING, SlotType.BOOLEAN);
+		final Path p1 = new Path(t1);
+
+		final Filter filter = FilterMockup.alwaysTrue(p1);
+
+		final RootNode rootNode = network.getRootNode();
+		// create OTN
+		final ObjectTypeNode otn = new ObjectTypeNode(network, p1);
+		// append to root node
+		rootNode.putOTN(otn);
+		// create & append alpha
+		final AlphaNode alphaNode = new AlphaNode(network, filter);
+		// create & append terminal
+		final TerminalNode terminalNode = new TerminalNode(network, alphaNode);
+
+		rootNode.assertFact(new Fact(t1, 5L, "5L&FALSE", false));
+		rootNode.assertFact(new Fact(t1, 5L, "5L&TRUE", true));
+		rootNode.assertFact(new Fact(t1, 2L, "2L&TRUE", true));
+		rootNode.assertFact(new Fact(t1, 2L, "2L&FALSE", false));
+		rootNode.assertFact(new Fact(t1, -80L, "-80L&TRUE", true));
+		rootNode.assertFact(new Fact(t1, -80L, "-80L&FALSE", false));
+		rootNode.assertFact(new Fact(t1, 0L, "0L&FALSE", false));
+		rootNode.retractFact(new Fact(t1, 0L, "0L&FALSE", false));
+		rootNode.assertFact(new Fact(t1, 0L, "0L&FALSE", false));
+		rootNode.retractFact(new Fact(t1, 0L, "0L&FALSE", false));
+		rootNode.retractFact(new Fact(t1, 7L, "7L&TRUE", true));
+		scheduler.run();
+
+		assertEquals("Amount of facts in otn does not match expected count!", 6, otn.getMemory()
+				.size());
+		assertEquals("Amount of facts in alpha does not match expected count!", 6, alphaNode
+				.getMemory().size());
+		assertEquals("Amount of facts in terminal does not match expected count!", 10, terminalNode
+				.getMemory().size());
+		final AssertsAndRetracts assertsAndRetracts =
+				countAssertsAndRetractsInConflictSet(network.getConflictSet());
+		assertEquals("Amount of asserts does not match expected count!", 8,
+				assertsAndRetracts.getAsserts());
+		assertEquals("Amount of retracts does not match expected count!", 2,
+				assertsAndRetracts.getRetracts());
+
+	}
 }
