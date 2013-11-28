@@ -77,6 +77,57 @@ public class TokenProcessingTest {
 	public void tearDown() throws Exception {
 	}
 
+	@Test
+	public void testTokenProcessingSimpleBeta() throws Exception {
+		final PlainScheduler scheduler = new PlainScheduler();
+		final Network network =
+				new Network(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(),
+						Integer.MAX_VALUE, scheduler);
+		final Template t1 = new Template(SlotType.LONG, SlotType.STRING);
+		final Template t2 = new Template(SlotType.DOUBLE, SlotType.STRING);
+		final Path p1 = new Path(t1);
+		final Path p2 = new Path(t2);
+		final SlotAddress slotStr = new SlotAddress(1);
+
+		final Predicate eqStrStr =
+				TODODatenkrakeFunktionen.lookupPredicate("=", SlotType.STRING, SlotType.STRING);
+
+		final Filter filter =
+				new Filter(new PredicateBuilder(eqStrStr).addPath(p1, slotStr).addPath(p2, slotStr)
+						.build());
+		network.buildRule(filter);
+		final RootNode rootNode = network.getRootNode();
+
+		rootNode.assertFact(t1.newFact(12L, "Micky"));
+		rootNode.assertFact(t1.newFact(-2L, "Micky"));
+		rootNode.assertFact(t2.newFact(2.1, "Micky"));
+		rootNode.assertFact(t2.newFact(-3., "Micky"));
+		rootNode.assertFact(t1.newFact(12L, "Sunny"));
+		rootNode.assertFact(t1.newFact(-2L, "Becky"));
+		rootNode.assertFact(t2.newFact(2.1, "Nelly"));
+		rootNode.assertFact(t2.newFact(-3., "Harry"));
+
+		scheduler.run();
+		final ConflictSet conflictSet = network.getConflictSet();
+		{
+			final AssertsAndRetracts assertsAndRetracts =
+					countAssertsAndRetractsInConflictSet(conflictSet);
+			assertEquals("Amount of asserts does not match expected count!", 4,
+					assertsAndRetracts.getAsserts());
+			assertEquals("Amount of retracts does not match expected count!", 0,
+					assertsAndRetracts.getRetracts());
+		}
+		conflictSet.deleteRevokedEntries();
+		{
+			final AssertsAndRetracts assertsAndRetracts =
+					countAssertsAndRetractsInConflictSet(conflictSet);
+			assertEquals("Amount of asserts does not match expected count!", 4,
+					assertsAndRetracts.getAsserts());
+			assertEquals("Amount of retracts does not match expected count!", 0,
+					assertsAndRetracts.getRetracts());
+		}
+	}
+
 	/**
 	 * 
 	 */
