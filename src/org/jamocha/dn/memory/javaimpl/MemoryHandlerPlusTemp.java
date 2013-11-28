@@ -25,6 +25,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import lombok.ToString;
+
 import org.jamocha.dn.memory.MemoryHandler;
 import org.jamocha.dn.memory.SlotAddress;
 import org.jamocha.dn.nodes.AddressPredecessor;
@@ -43,6 +45,7 @@ import org.jamocha.filter.FunctionWithArguments;
  * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
  * @see org.jamocha.dn.memory.MemoryHandlerPlusTemp
  */
+@ToString(callSuper = true)
 public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 		org.jamocha.dn.memory.MemoryHandlerPlusTemp {
 
