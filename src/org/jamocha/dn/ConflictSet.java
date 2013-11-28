@@ -62,7 +62,7 @@ public class ConflictSet implements Iterable<ConflictSet.NodeAndToken> {
 		while (iterator.hasNext()) {
 			final NodeAndToken nodeAndToken = iterator.next();
 			final AssertOrRetract<?> token = nodeAndToken.getToken();
-			if (token.isRevoked()) {
+			if (token.isRevokedOrMinus()) {
 				iterator.remove();
 			}
 		}

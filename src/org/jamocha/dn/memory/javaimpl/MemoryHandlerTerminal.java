@@ -93,7 +93,7 @@ public class MemoryHandlerTerminal implements org.jamocha.dn.memory.MemoryHandle
 	@Override
 	public boolean containsUnrevokedTokens() {
 		for (final AssertOrRetract<?> token : this.tokens) {
-			if (!token.isRevoked()) {
+			if (!token.isRevokedOrMinus()) {
 				return true;
 			}
 		}

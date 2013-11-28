@@ -364,7 +364,7 @@ public class TokenProcessingTest {
 					countAssertsAndRetractsInConflictSet(conflictSet);
 			assertEquals("Amount of asserts does not match expected count!", 1,
 					assertsAndRetracts.getAsserts());
-			assertEquals("Amount of retracts does not match expected count!", 4,
+			assertEquals("Amount of retracts does not match expected count!", 0,
 					assertsAndRetracts.getRetracts());
 		}
 	}

@@ -48,8 +48,8 @@ public interface MemoryHandlerTerminal extends MemoryHandler, Iterable<AssertOrR
 			return false;
 		}
 
-		public boolean isRevoked() {
-			return false;
+		public boolean isRevokedOrMinus() {
+			return true;
 		}
 
 		abstract public void accept(final TerminalNode node, final AssertOrRetractVisitor visitor);
@@ -74,7 +74,7 @@ public interface MemoryHandlerTerminal extends MemoryHandler, Iterable<AssertOrR
 		}
 
 		@Override
-		public boolean isRevoked() {
+		public boolean isRevokedOrMinus() {
 			return null != this.dual;
 		}
 
