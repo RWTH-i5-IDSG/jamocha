@@ -50,15 +50,15 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 		for (org.jamocha.dn.memory.Fact fact : facts) {
 			minusFacts.add(new Fact[] { new Fact(fact.getSlotValues()) });
 		}
-		final boolean[] marked = new boolean[facts.length];
 		final FactAddress[] factAddresses = memoryHandlerMain.addresses;
-		filterTargetMain(memoryHandlerMain, minusFacts, factAddresses, marked, EqualityChecker.root);
-		final List<Fact[]> markedFactTuples = getMarkedFactTuples(minusFacts, marked);
 		assert factAddresses.length == 1;
-		if (0 == markedFactTuples.size()) {
+		final List<Fact[]> relevantFactTuples =
+				getRelevantFactTuples(memoryHandlerMain, minusFacts, factAddresses,
+						EqualityChecker.root);
+		if (0 == relevantFactTuples.size()) {
 			return MemoryHandlerMinusTemp.empty;
 		}
-		return new MemoryHandlerMinusTemp(memoryHandlerMain, markedFactTuples, factAddresses);
+		return new MemoryHandlerMinusTemp(memoryHandlerMain, relevantFactTuples, factAddresses);
 	}
 
 	static interface LazyListCopy {
@@ -201,24 +201,23 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 		final MemoryHandlerMain targetMain =
 				(MemoryHandlerMain) originIncomingEdge.getTargetNode().getMemory();
 		final List<Fact[]> minusFacts = this.facts;
-		final int minusFactsSize = minusFacts.size();
-		final boolean[] marked = new boolean[minusFactsSize];
-		filterTargetMain(targetMain, minusFacts, factAddresses, marked, EqualityChecker.beta);
-		{
-			final Queue<MemoryHandlerPlusTemp> validOutgoingPlusTokens =
-					targetMain.getValidOutgoingPlusTokens();
-			for (final MemoryHandlerPlusTemp temp : validOutgoingPlusTokens) {
-				final List<Fact[]> originalFacts =
-						(null == temp.filtered ? temp.facts : temp.filtered);
-				final List<Fact[]> remainingFacts =
-						getRemainingFactTuples(originalFacts, minusFacts, factAddresses, marked,
-								EqualityChecker.beta);
-				temp.filtered = remainingFacts;
-			}
-		}
-		final List<Fact[]> relevantMinusFacts = getMarkedFactTuples(minusFacts, marked);
+		final List<Fact[]> relevantMinusFacts =
+				getRelevantFactTuples(targetMain, minusFacts, factAddresses, EqualityChecker.beta);
 		return new MemoryHandlerMinusTemp((MemoryHandlerMain) originatingMainHandler,
 				relevantMinusFacts, localizeAddressMap(factAddresses, originIncomingEdge));
+	}
+
+	private static void filterOutgoingTemps(
+			final Queue<MemoryHandlerPlusTemp> validOutgoingPlusTokens,
+			final List<Fact[]> minusFacts, final FactAddress[] factAddresses,
+			final boolean[] marked, final EqualityChecker equalityChecker) {
+		for (final MemoryHandlerPlusTemp temp : validOutgoingPlusTokens) {
+			final List<Fact[]> originalFacts = (null == temp.filtered ? temp.facts : temp.filtered);
+			final List<Fact[]> remainingFacts =
+					getRemainingFactTuples(originalFacts, minusFacts, factAddresses, marked,
+							equalityChecker);
+			temp.filtered = remainingFacts;
+		}
 	}
 
 	private static void filterTargetMain(final MemoryHandlerMain targetMain,
@@ -275,15 +274,23 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 		final MemoryHandlerMain targetMain =
 				(MemoryHandlerMain) originIncomingEdge.getTargetNode().getMemory();
 		final List<Fact[]> minusFacts = this.facts;
-		final int minusFactsSize = minusFacts.size();
-		final boolean[] marked = new boolean[minusFactsSize];
-		filterTargetMain(targetMain, minusFacts, factAddresses, marked, EqualityChecker.alpha);
-		final List<Fact[]> markedFactTuples = getMarkedFactTuples(minusFacts, marked);
+		final List<Fact[]> markedFactTuples =
+				getRelevantFactTuples(targetMain, minusFacts, factAddresses, EqualityChecker.alpha);
 		if (0 == markedFactTuples.size()) {
 			return MemoryHandlerMinusTemp.empty;
 		}
 		return new MemoryHandlerMinusTemp((MemoryHandlerMain) originatingMainHandler,
 				markedFactTuples, localizeAddressMap(factAddresses, originIncomingEdge));
+	}
+
+	private static List<Fact[]> getRelevantFactTuples(final MemoryHandlerMain targetMain,
+			final List<Fact[]> minusFacts, final FactAddress[] factAddresses,
+			final EqualityChecker equalityChecker) {
+		final boolean[] marked = new boolean[minusFacts.size()];
+		filterTargetMain(targetMain, minusFacts, factAddresses, marked, equalityChecker);
+		filterOutgoingTemps(targetMain.getValidOutgoingPlusTokens(), minusFacts, factAddresses,
+				marked, equalityChecker);
+		return getMarkedFactTuples(minusFacts, marked);
 	}
 
 	private MemoryHandlerMinusTemp(final MemoryHandlerMain originatingMainHandler,
