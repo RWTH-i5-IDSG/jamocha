@@ -69,7 +69,6 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 	private MemoryHandlerPlusTemp(final MemoryHandlerMain originatingMainHandler,
 			final List<Fact[]> facts, final int numChildren) {
 		super(originatingMainHandler, facts);
-		this.lock = lock;
 		if (facts.size() == 0) {
 			this.lock = null;
 			this.valid = false;
@@ -85,7 +84,7 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 	static MemoryHandlerPlusTemp newBetaTemp(final MemoryHandlerMain originatingMainHandler,
 			final MemoryHandlerPlusTemp token, final Edge originIncomingEdge, final Filter filter)
 			throws CouldNotAcquireLockException {
-		return new MemoryHandlerPlusTemp(originatingMainHandler, performJoin(
+		return new MemoryHandlerPlusTemp(originatingMainHandler, getLocksAndPerformJoin(
 				originatingMainHandler, filter, token, originIncomingEdge), originIncomingEdge
 				.getTargetNode().getNumberOfOutgoingEdges());
 	}
@@ -234,11 +233,16 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 			final Iterator<StackElement> iter = stack.iterator();
 			// skip originElement
 			iter.next();
-			for (; iter.hasNext();) {
+			// initialize all memory indices to valid values
+			while (iter.hasNext()) {
 				final StackElement element = iter.next();
 				while (!element.checkRowBounds()) {
-					if (!element.checkMemBounds())
+					if (!element.checkMemBounds()) {
+						// one of the elements doesn't hold any facts, the join will be empty
+						// delete all partial fact tuples in the TR
+						originElement.memStack.set(0, new ArrayList<Fact[]>(0));
 						return;
+					}
 					element.memIndex++;
 				}
 			}
@@ -277,7 +281,7 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 		originElement.memStack.set(0, TR);
 	}
 
-	private static List<Fact[]> performJoin(final MemoryHandlerMain originatingMainHandler,
+	private static List<Fact[]> getLocksAndPerformJoin(final MemoryHandlerMain originatingMainHandler,
 			final Filter filter, final MemoryHandlerPlusTemp token, final Edge originIncomingEdge)
 			throws CouldNotAcquireLockException {
 		// get a fixed-size array of indices (size: #inputs of the node),
@@ -305,6 +309,9 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 				}
 				try {
 					if (!incomingEdge.getSourceNode().getMemory().tryReadLock()) {
+						for (final Edge edge : edgeToStack.keySet()) {
+							edge.getSourceNode().getMemory().releaseReadLock();
+						}
 						throw new CouldNotAcquireLockException();
 					}
 				} catch (final InterruptedException ex) {
@@ -318,6 +325,18 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 		}
 		edgeToStack.put(originIncomingEdge, originElement);
 
+		performJoin(filter, targetNode, edgeToStack, originElement);
+		// release lock
+		for (final Edge incomingEdge : nodeIncomingEdges) {
+			if (incomingEdge == originIncomingEdge)
+				continue;
+			incomingEdge.getSourceNode().getMemory().releaseReadLock();
+		}
+		return originElement.getTable();
+	}
+
+	private static void performJoin(final Filter filter, final Node targetNode,
+			final LinkedHashMap<Edge, StackElement> edgeToStack, final StackElement originElement) {
 		// get filter steps
 		final FilterElement filterSteps[] = filter.getFilterElements();
 
@@ -376,7 +395,7 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 				edgeToStack.put(incomingEdge, originElement);
 			}
 			if (!originElement.checkRowBounds()) {
-				return originElement.getTable();
+				return;
 			}
 		}
 
@@ -406,13 +425,6 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 			// StackElement
 			edgeToStack.put(nodeInput, originElement);
 		}
-		// release lock
-		for (final Edge incomingEdge : nodeIncomingEdges) {
-			if (incomingEdge == originIncomingEdge)
-				continue;
-			incomingEdge.getSourceNode().getMemory().releaseReadLock();
-		}
-		return originElement.getTable();
 	}
 
 	/**
