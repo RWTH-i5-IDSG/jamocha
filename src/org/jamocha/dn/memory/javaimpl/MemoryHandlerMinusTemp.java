@@ -34,7 +34,7 @@ import org.jamocha.filter.Filter;
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  * 
  */
-@ToString(callSuper=true)
+@ToString(callSuper = true)
 public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 		org.jamocha.dn.memory.MemoryHandlerMinusTemp {
 
@@ -203,10 +203,13 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 		final MemoryHandlerMain targetMain =
 				(MemoryHandlerMain) originIncomingEdge.getTargetNode().getMemory();
 		final List<Fact[]> minusFacts = this.facts;
+		final FactAddress[] localizedAddressMap =
+				localizeAddressMap(factAddresses, originIncomingEdge);
 		final List<Fact[]> relevantMinusFacts =
-				getRelevantFactTuples(targetMain, minusFacts, factAddresses, EqualityChecker.beta);
+				getRelevantFactTuples(targetMain, minusFacts, localizedAddressMap,
+						EqualityChecker.beta);
 		return new MemoryHandlerMinusTemp((MemoryHandlerMain) originatingMainHandler,
-				relevantMinusFacts, localizeAddressMap(factAddresses, originIncomingEdge));
+				relevantMinusFacts, localizedAddressMap);
 	}
 
 	private static void filterOutgoingTemps(
