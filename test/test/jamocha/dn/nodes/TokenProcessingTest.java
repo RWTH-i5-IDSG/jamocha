@@ -78,6 +78,70 @@ public class TokenProcessingTest {
 	}
 
 	@Test
+	public void testTokenProcessingBeta() throws Exception {
+		final PlainScheduler scheduler = new PlainScheduler();
+		final Network network =
+				new Network(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(),
+						Integer.MAX_VALUE, scheduler);
+		final Template student =
+				new Template(SlotType.STRING /* Name */, SlotType.LONG /* Semester */,
+						SlotType.STRING /* Studiengang */, SlotType.STRING /* Hobby */);
+		final Template prof =
+				new Template(SlotType.STRING /* Name */, SlotType.STRING /* Studiengang */);
+		final Path oldStudent = new Path(student), youngStudent = new Path(student), matchingProf =
+				new Path(prof);
+		final SlotAddress studentSem = new SlotAddress(1), studentSG = new SlotAddress(2), studentHobby =
+				new SlotAddress(3), profSG = new SlotAddress(1);
+
+		final Predicate lessLongLong =
+				TODODatenkrakeFunktionen.lookupPredicate("<", SlotType.LONG, SlotType.LONG);
+		final Predicate eqStrStr =
+				TODODatenkrakeFunktionen.lookupPredicate("=", SlotType.STRING, SlotType.STRING);
+
+		final Filter filter =
+				new Filter(new PredicateBuilder(eqStrStr).addPath(oldStudent, studentHobby)
+						.addConstant("Coding", SlotType.STRING).build(), new PredicateBuilder(
+						lessLongLong).addPath(youngStudent, studentSem)
+						.addPath(oldStudent, studentSem).build(), new PredicateBuilder(eqStrStr)
+						.addPath(youngStudent, studentSG).addPath(oldStudent, studentSG).build(),
+						new PredicateBuilder(eqStrStr).addPath(youngStudent, studentSG)
+								.addPath(matchingProf, profSG).build());
+		network.buildRule(filter);
+		final RootNode rootNode = network.getRootNode();
+
+		rootNode.assertFact(student.newFact("Simon", 3L, "Informatik", "Schach"));
+		rootNode.assertFact(student.newFact("Rachel", 4L, "Informatik", "Coding"));
+		rootNode.assertFact(student.newFact("Mike", 5L, "Informatik", "Coding"));
+		rootNode.assertFact(student.newFact("Samuel", 7L, "Informatik", "Schwimmen"));
+		rootNode.assertFact(student.newFact("Lydia", 4L, "Anglizistik", "Musik"));
+		rootNode.assertFact(student.newFact("Erik", 2L, "Informatik", "Rätsel"));
+		rootNode.assertFact(prof.newFact("Prof. Dr. Ashcroft", "Geschichte"));
+		rootNode.assertFact(prof.newFact("Prof. Dr. Timmes", "Informatik"));
+		rootNode.assertFact(prof.newFact("Prof. Dr. Santana", "Biologie"));
+		rootNode.assertFact(prof.newFact("Prof. Dr. Kappa", "Informatik"));
+
+		scheduler.run();
+		final ConflictSet conflictSet = network.getConflictSet();
+		{
+			final AssertsAndRetracts assertsAndRetracts =
+					countAssertsAndRetractsInConflictSet(conflictSet);
+			assertEquals("Amount of asserts does not match expected count!", 10,
+					assertsAndRetracts.getAsserts());
+			assertEquals("Amount of retracts does not match expected count!", 0,
+					assertsAndRetracts.getRetracts());
+		}
+		conflictSet.deleteRevokedEntries();
+		{
+			final AssertsAndRetracts assertsAndRetracts =
+					countAssertsAndRetractsInConflictSet(conflictSet);
+			assertEquals("Amount of asserts does not match expected count!", 10,
+					assertsAndRetracts.getAsserts());
+			assertEquals("Amount of retracts does not match expected count!", 0,
+					assertsAndRetracts.getRetracts());
+		}
+	}
+
+	@Test
 	public void testTokenProcessingSimpleBeta() throws Exception {
 		final PlainScheduler scheduler = new PlainScheduler();
 		final Network network =
