@@ -74,6 +74,7 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 			this.valid = false;
 		} else if (numChildren == 0) {
 			this.lock = null;
+			originatingMainHandler.getValidOutgoingPlusTokens().add(this);
 			commitAndInvalidate();
 		} else {
 			this.lock = new Semaphore(numChildren);
