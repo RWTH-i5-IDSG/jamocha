@@ -10,7 +10,7 @@ import org.jamocha.dn.memory.Template;
 import org.jamocha.dn.nodes.SlotInFactAddress;
 import org.jamocha.filter.Filter.FilterElement;
 
-@ToString(callSuper=true)
+@ToString(callSuper = true, exclude = "originatingMainHandler")
 public abstract class MemoryHandlerTemp extends MemoryHandlerBase implements
 		org.jamocha.dn.memory.MemoryHandlerTemp {
 
