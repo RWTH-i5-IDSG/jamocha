@@ -227,7 +227,7 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 
 	private static void loop(final FunctionPointer functionPointer,
 			final Collection<StackElement> stack, final StackElement originElement) {
-		if (stack.isEmpty() || stack.size() == 1) {
+		if (stack.isEmpty()) {
 			return;
 		}
 		{
@@ -282,8 +282,9 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 		originElement.memStack.set(0, TR);
 	}
 
-	private static List<Fact[]> getLocksAndPerformJoin(final MemoryHandlerMain originatingMainHandler,
-			final Filter filter, final MemoryHandlerPlusTemp token, final Edge originIncomingEdge)
+	private static List<Fact[]> getLocksAndPerformJoin(
+			final MemoryHandlerMain originatingMainHandler, final Filter filter,
+			final MemoryHandlerPlusTemp token, final Edge originIncomingEdge)
 			throws CouldNotAcquireLockException {
 		// get a fixed-size array of indices (size: #inputs of the node),
 		// determine number of inputs for the current join as maxIndex
