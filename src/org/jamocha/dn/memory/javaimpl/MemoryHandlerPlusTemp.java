@@ -45,7 +45,7 @@ import org.jamocha.filter.FunctionWithArguments;
  * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
  * @see org.jamocha.dn.memory.MemoryHandlerPlusTemp
  */
-@ToString(callSuper = true)
+@ToString(callSuper = true, of = "valid")
 public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 		org.jamocha.dn.memory.MemoryHandlerPlusTemp {
 
