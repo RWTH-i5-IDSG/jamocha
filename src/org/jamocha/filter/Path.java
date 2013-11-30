@@ -17,9 +17,7 @@ package org.jamocha.filter;
 import java.util.HashSet;
 import java.util.Set;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 import org.jamocha.dn.memory.FactAddress;
@@ -37,8 +35,6 @@ import org.jamocha.dn.nodes.Node;
  */
 @Getter
 @Setter
-@RequiredArgsConstructor
-@AllArgsConstructor
 public class Path {
 
 	/**
@@ -104,6 +100,23 @@ public class Path {
 		for (final Path path : joined) {
 			path.setJoinedWith(paths);
 		}
+	}
+
+	public Path(final Template template, final Node currentlyLowestNode,
+			final FactAddress factAddressInCurrentlyLowestNode, final Path... joinedWith) {
+		super();
+		this.template = template;
+		this.currentlyLowestNode = currentlyLowestNode;
+		this.factAddressInCurrentlyLowestNode = factAddressInCurrentlyLowestNode;
+		this.joinedWith = new HashSet<>(joinedWith.length);
+		this.joinedWith.add(this);
+		for (final Path path : joinedWith) {
+			this.joinedWith.add(path);
+		}
+	}
+
+	public Path(final Template template, final Path... joinedWith) {
+		this(template, null, null, joinedWith);
 	}
 
 }
