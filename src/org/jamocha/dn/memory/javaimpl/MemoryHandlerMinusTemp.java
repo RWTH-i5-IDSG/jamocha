@@ -60,7 +60,8 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 		if (0 == relevantFactTuples.size()) {
 			return MemoryHandlerMinusTemp.empty;
 		}
-		return new MemoryHandlerMinusTemp(memoryHandlerMain, relevantFactTuples, factAddresses);
+		return new MemoryHandlerMinusTemp(memoryHandlerMain.getTemplate(), memoryHandlerMain,
+				relevantFactTuples, factAddresses);
 	}
 
 	static interface LazyListCopy {
@@ -208,8 +209,8 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 		final List<Fact[]> relevantMinusFacts =
 				getRelevantFactTuples(targetMain, minusFacts, localizedAddressMap,
 						EqualityChecker.beta);
-		return new MemoryHandlerMinusTemp((MemoryHandlerMain) originatingMainHandler,
-				relevantMinusFacts, localizedAddressMap);
+		return new MemoryHandlerMinusTemp(getTemplate(),
+				(MemoryHandlerMain) originatingMainHandler, relevantMinusFacts, localizedAddressMap);
 	}
 
 	private static void filterOutgoingTemps(
@@ -284,8 +285,9 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 		if (0 == markedFactTuples.size()) {
 			return MemoryHandlerMinusTemp.empty;
 		}
-		return new MemoryHandlerMinusTemp((MemoryHandlerMain) originatingMainHandler,
-				markedFactTuples, localizeAddressMap(factAddresses, originIncomingEdge));
+		return new MemoryHandlerMinusTemp(getTemplate(),
+				(MemoryHandlerMain) originatingMainHandler, markedFactTuples, localizeAddressMap(
+						factAddresses, originIncomingEdge));
 	}
 
 	private static List<Fact[]> getRelevantFactTuples(final MemoryHandlerMain targetMain,
@@ -296,11 +298,6 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 		filterOutgoingTemps(targetMain.getValidOutgoingPlusTokens(), minusFacts, factAddresses,
 				marked, equalityChecker);
 		return getMarkedFactTuples(minusFacts, marked);
-	}
-
-	private MemoryHandlerMinusTemp(final MemoryHandlerMain originatingMainHandler,
-			final List<Fact[]> facts, final FactAddress[] factAddresses) {
-		this(originatingMainHandler.getTemplate(), originatingMainHandler, facts, factAddresses);
 	}
 
 	private MemoryHandlerMinusTemp(final Template[] template,

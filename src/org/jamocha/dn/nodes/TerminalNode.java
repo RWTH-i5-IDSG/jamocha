@@ -127,8 +127,15 @@ public class TerminalNode {
 		public void enqueueMinusMemory(final MemoryHandlerMinusTemp mem) {
 			if (0 == mem.size())
 				return;
-			for (final MemoryHandler handler : mem.splitIntoChunksOfSize(1)) {
-				this.targetNode.enqueueRetract(this.targetNode.getMemory().addMinusMemory(handler));
+			if (mem.getTemplate() == this.targetNode.getMemory().getTemplate()) {
+				// mem contains complete fact tuples
+				for (final MemoryHandler handler : mem.splitIntoChunksOfSize(1)) {
+					this.targetNode.enqueueRetract(this.targetNode.getMemory().addMinusMemory(
+							handler));
+				}
+			} else {
+				// mem contains partial fact tuples as in the optimized retract way
+				this.targetNode.getMemory().addPartialMinusMemory(this.targetNode, mem);
 			}
 		}
 

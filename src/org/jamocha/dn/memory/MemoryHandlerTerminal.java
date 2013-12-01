@@ -108,4 +108,7 @@ public interface MemoryHandlerTerminal extends MemoryHandler, Iterable<AssertOrR
 
 	public boolean containsUnrevokedTokens();
 
+	public void addPartialMinusMemory(final TerminalNode terminalNode,
+			final MemoryHandlerMinusTemp mem);
+
 }

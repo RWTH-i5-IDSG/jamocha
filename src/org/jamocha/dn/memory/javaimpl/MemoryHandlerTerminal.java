@@ -18,10 +18,11 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Queue;
 
-import org.jamocha.dn.memory.FactAddress;
 import org.jamocha.dn.memory.MemoryHandler;
 import org.jamocha.dn.memory.SlotAddress;
 import org.jamocha.dn.memory.Template;
+import org.jamocha.dn.memory.javaimpl.MemoryHandlerMinusTemp.EqualityChecker;
+import org.jamocha.dn.nodes.TerminalNode;
 import org.jamocha.filter.Path;
 
 /**
@@ -58,6 +59,28 @@ public class MemoryHandlerTerminal implements org.jamocha.dn.memory.MemoryHandle
 	}
 
 	@Override
+	public void addPartialMinusMemory(final TerminalNode terminalNode,
+			final org.jamocha.dn.memory.MemoryHandlerMinusTemp mem) {
+		final MemoryHandlerMinusTemp minusTemp = (MemoryHandlerMinusTemp) mem;
+		final FactAddress[] factAddresses = minusTemp.factAddresses;
+		final Queue<Retract> retracts = new LinkedList<>();
+		for (final Fact[] minusFactTuple : minusTemp.facts) {
+			for (final AssertOrRetract<?> token : this.tokens) {
+				final MemoryHandlerBase tokenMem = (MemoryHandlerBase) token.getMem();
+				final Fact[] tokenFactTuple = tokenMem.facts.get(0);
+				if (EqualityChecker.beta.equals(tokenFactTuple, minusFactTuple, null, 0,
+						factAddresses) && !token.isRevokedOrMinus()) {
+					final Retract minus = new Retract(token.getMem());
+					token.setFollowingRetract(minus);
+					retracts.add(minus);
+					terminalNode.enqueueRetract(minus);
+				}
+			}
+		}
+		this.tokens.addAll(retracts);
+	}
+
+	@Override
 	public int size() {
 		int size = 0;
 		for (final AssertOrRetract<?> token : this.tokens) {
@@ -72,7 +95,8 @@ public class MemoryHandlerTerminal implements org.jamocha.dn.memory.MemoryHandle
 	}
 
 	@Override
-	public Object getValue(final FactAddress address, final SlotAddress slot, final int row) {
+	public Object getValue(final org.jamocha.dn.memory.FactAddress address, final SlotAddress slot,
+			final int row) {
 		int index = row;
 		for (final AssertOrRetract<?> token : this.tokens) {
 			final int memSize = token.getMem().size();
