@@ -113,7 +113,7 @@ public class NetworkTest {
 			net.getRootNode().addPaths(net,p1,p6);
 			assertFalse((boolean)tryToShareNode.invoke(net, a, new Path[]{p1}));
 			new AlphaNode(net, a);
-			assertTrue((boolean)tryToShareNode.invoke(net, i, new Path[]{p6}));	
+			assertTrue((boolean)tryToShareNode.invoke(net, new Filter(i), new Path[]{p6}));	
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail("Failed due to Exception: " + e.getMessage());
