@@ -130,8 +130,10 @@ public class Network {
 				new ThreadPoolScheduler(10));
 	}
 
-	private boolean tryToShareNode(Filter filter) throws IllegalArgumentException{ // TODO remove order dependencies
-		
+	private boolean tryToShareNode(Filter filter) throws IllegalArgumentException { // TODO remove
+																					// order
+																					// dependencies
+
 		final LinkedHashSet<Path> pathList = filter.gatherPaths();
 		final Path[] paths = pathList.toArray(new Path[pathList.size()]);
 
@@ -195,9 +197,11 @@ public class Network {
 	}
 
 	/**
-	 * Creates network nodes for one rule, consisting of the passed filters. 
+	 * Creates network nodes for one rule, consisting of the passed filters.
 	 * 
-	 * @param filters list of filters in order of implementation in the network. Each filter is implemented in a separate node. Node-Sharing is used if possible
+	 * @param filters
+	 *            list of filters in order of implementation in the network. Each filter is
+	 *            implemented in a separate node. Node-Sharing is used if possible
 	 * @return created TerminalNode for the constructed rule
 	 */
 	public TerminalNode buildRule(final Filter... filters) {
@@ -210,7 +214,7 @@ public class Network {
 			final Path[] pathArray = allPaths.toArray(new Path[allPaths.size()]);
 			this.rootNode.addPaths(this, pathArray);
 		}
-		for (Filter filter : filters) {	
+		for (Filter filter : filters) {
 			if (!tryToShareNode(filter))
 				if (filter.gatherPaths().size() == 1) {
 					new AlphaNode(this, filter);
