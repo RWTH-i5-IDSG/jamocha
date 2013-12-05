@@ -67,6 +67,9 @@ public class Template {
 	}
 
 	public Fact newFact(final Object... values) {
+		for (int i = 0; i < slots.length; ++i) {
+			assert getSlotsType(i).getJavaClass().isInstance(values[i]);
+		}
 		return new Fact(this, values);
 	}
 
