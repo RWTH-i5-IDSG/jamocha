@@ -17,6 +17,7 @@ package org.jamocha.dn.memory.javaimpl;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.dn.memory.Template;
@@ -30,6 +31,7 @@ import org.jamocha.dn.memory.Template;
 @Getter
 @EqualsAndHashCode
 @RequiredArgsConstructor
+@ToString
 public class SlotAddress implements org.jamocha.dn.memory.SlotAddress {
 	/**
 	 * Index of the slot in the storing {@link Fact fact}.

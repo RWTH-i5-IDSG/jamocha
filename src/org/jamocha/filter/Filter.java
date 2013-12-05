@@ -64,7 +64,7 @@ public class Filter {
 			this.addressesInTarget = addressesInTarget;
 		}
 
-		public boolean equalsInFunction(FilterElement filterElement) {
+		public boolean equalsInFunction(final FilterElement filterElement) {
 			return function.equalsInFunction(filterElement.function);
 		}
 	}

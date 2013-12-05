@@ -72,7 +72,7 @@ public class FunctionDictionary {
 	public static void addImpl(final Class<?> clazz) {
 		try {
 			Class.forName(clazz.getName());
-		} catch (ClassNotFoundException e) {
+		} catch (final ClassNotFoundException e) {
 			System.err.println(e);
 		}
 	}

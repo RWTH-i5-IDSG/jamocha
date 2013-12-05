@@ -42,4 +42,9 @@ public enum SlotType {
 	 * to specify the parameter types.
 	 */
 	final public static SlotType[] empty = new SlotType[] {};
+
+	@Override
+	public String toString() {
+		return this.name();
+	}
 }

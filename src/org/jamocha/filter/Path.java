@@ -119,4 +119,9 @@ public class Path {
 		this(template, null, null, joinedWith);
 	}
 
+	@Override
+	public String toString() {
+		return "Path";
+	}
+
 }

@@ -55,7 +55,7 @@ public class PathLeaf implements FunctionWithArguments {
 	public String toString() {
 		final StringBuilder sb = new StringBuilder();
 		sb.append(path.toString());
-		sb.append(" [);");
+		sb.append(" [");
 		sb.append(slot.toString());
 		sb.append("]");
 		return sb.toString();

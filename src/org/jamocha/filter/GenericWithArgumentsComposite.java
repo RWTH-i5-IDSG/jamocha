@@ -54,8 +54,8 @@ public class GenericWithArgumentsComposite<R, F extends Function<? extends R>> i
 
 	private static SlotType[] calculateParamTypes(final FunctionWithArguments args[]) {
 		final ArrayList<SlotType> types = new ArrayList<>();
-		for (FunctionWithArguments fwa : args) {
-			for (SlotType type : fwa.getParamTypes()) {
+		for (final FunctionWithArguments fwa : args) {
+			for (final SlotType type : fwa.getParamTypes()) {
 				types.add(type);
 			}
 		}
@@ -162,7 +162,7 @@ public class GenericWithArgumentsComposite<R, F extends Function<? extends R>> i
 
 	@Override
 	public <T extends Collection<Path>> T gatherPaths(final T paths) {
-		for (FunctionWithArguments fwa : args) {
+		for (final FunctionWithArguments fwa : args) {
 			fwa.gatherPaths(paths);
 		}
 		return paths;
