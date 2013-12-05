@@ -149,7 +149,11 @@ public class PathLeaf implements FunctionWithArguments {
 
 		@Override
 		public boolean equalsInFunction(final FunctionWithArguments function) {
-			return this.equals(function);
+			if (function == this)
+				return true;
+			if (!(function instanceof PathLeaf || function instanceof ParameterLeaf))
+				return false;
+			return true;
 		}
 
 	}
@@ -178,15 +182,7 @@ public class PathLeaf implements FunctionWithArguments {
 	public boolean equalsInFunction(final FunctionWithArguments function) {
 		if (function == this)
 			return true;
-		if (!(function instanceof PathLeaf))
-			return false;
-		final PathLeaf other = (PathLeaf) function;
-		if (!other.canEqual(this))
-			return false;
-		if (this.path.template == null ? other.path.template != null : !this.path.template
-				.equals(other.path.template))
-			return false;
-		if (this.slot == null ? other.slot != null : !this.slot.equals(other.slot))
+		if (!(function instanceof PathLeaf || function instanceof ParameterLeaf))
 			return false;
 		return true;
 	}
