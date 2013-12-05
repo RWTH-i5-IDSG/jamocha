@@ -24,7 +24,7 @@ import org.jamocha.filter.impls.Predicates;
 
 /**
  * This class gathers the implemented {@link Function Functions} and provides a
- * {@link TODODatenkrakeFunktionen#lookup(String, SlotType...) lookup} functionality to find them
+ * {@link FunctionDictionary#lookup(String, SlotType...) lookup} functionality to find them
  * identified by their string representation in CLIPS and their parameter types.
  * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -32,7 +32,7 @@ import org.jamocha.filter.impls.Predicates;
  * @see Predicate
  * @see SlotType
  */
-public class TODODatenkrakeFunktionen {
+public class FunctionDictionary {
 
 	/**
 	 * This class combines the CLIPS string representation (e.g. the name) of a {@link Function} and
@@ -56,11 +56,11 @@ public class TODODatenkrakeFunktionen {
 	}
 
 	/**
-	 * Loads the {@link TODODatenkrakeFunktionen} class to have the java vm execute its static
+	 * Loads the {@link FunctionDictionary} class to have the java vm execute its static
 	 * initializer.
 	 */
 	public static void load() {
-		addImpl(TODODatenkrakeFunktionen.class);
+		addImpl(FunctionDictionary.class);
 	}
 
 	/**
@@ -101,13 +101,14 @@ public class TODODatenkrakeFunktionen {
 	 *             iff no {@link Function} implementation was found for the given string
 	 *             representation and parameter types
 	 */
-	public static Function<?> lookup(final String inClips, final SlotType... params) {
+	@SuppressWarnings("unchecked")
+	public static <T> Function<T> lookup(final String inClips, final SlotType... params) {
 		final Function<?> function =
 				clipsFunctions.get(new CombinedClipsAndParams(inClips, params));
 		if (function == null)
 			throw new UnsupportedOperationException("Function \"" + inClips
 					+ "\" not loaded or implemented.");
-		return function;
+		return (Function<T>) function;
 	}
 
 	/**

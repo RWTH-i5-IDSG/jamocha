@@ -20,7 +20,7 @@ import static org.junit.Assert.assertThat;
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.filter.Function;
 import org.jamocha.filter.GenericWithArgumentsComposite.LazyObject;
-import org.jamocha.filter.TODODatenkrakeFunktionen;
+import org.jamocha.filter.FunctionDictionary;
 import org.jamocha.filter.impls.functions.Plus;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -42,20 +42,15 @@ public class PlusTest {
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		TODODatenkrakeFunktionen.load();
+		FunctionDictionary.load();
 	}
 
 	private Function<? extends Number> plusL, plusD;
 
-	@SuppressWarnings("unchecked")
 	@Before
 	public void setUp() {
-		plusL =
-				(Function<? extends Number>) TODODatenkrakeFunktionen.lookup("+", SlotType.LONG,
-						SlotType.LONG);
-		plusD =
-				(Function<? extends Number>) TODODatenkrakeFunktionen.lookup("+", SlotType.DOUBLE,
-						SlotType.DOUBLE);
+		plusL = FunctionDictionary.<Long> lookup("+", SlotType.LONG, SlotType.LONG);
+		plusD = FunctionDictionary.<Double> lookup("+", SlotType.DOUBLE, SlotType.DOUBLE);
 	}
 
 	@Theory

@@ -22,9 +22,9 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeThat;
 
 import org.jamocha.dn.memory.SlotType;
+import org.jamocha.filter.FunctionDictionary;
 import org.jamocha.filter.GenericWithArgumentsComposite.LazyObject;
 import org.jamocha.filter.Predicate;
-import org.jamocha.filter.TODODatenkrakeFunktionen;
 import org.jamocha.filter.impls.predicates.Equals;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -48,64 +48,64 @@ public class EqualsTest {
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		TODODatenkrakeFunktionen.load();
+		FunctionDictionary.load();
 	}
 
 	private Predicate eqL, eqD, eqB, eqS;
 
 	@Before
 	public void setup() {
-		eqL = (Predicate) TODODatenkrakeFunktionen.lookup("=", SlotType.LONG, SlotType.LONG);
-		eqD = (Predicate) TODODatenkrakeFunktionen.lookup("=", SlotType.DOUBLE, SlotType.DOUBLE);
-		eqB = (Predicate) TODODatenkrakeFunktionen.lookup("=", SlotType.BOOLEAN, SlotType.BOOLEAN);
-		eqS = (Predicate) TODODatenkrakeFunktionen.lookup("=", SlotType.STRING, SlotType.STRING);
+		eqL = FunctionDictionary.lookupPredicate("=", SlotType.LONG, SlotType.LONG);
+		eqD = FunctionDictionary.lookupPredicate("=", SlotType.DOUBLE, SlotType.DOUBLE);
+		eqB = FunctionDictionary.lookupPredicate("=", SlotType.BOOLEAN, SlotType.BOOLEAN);
+		eqS = FunctionDictionary.lookupPredicate("=", SlotType.STRING, SlotType.STRING);
 	}
 
 	@Theory
 	public void testLongPos(@ListOfLongs Long left, @ListOfLongs Long right) {
 		assumeThat(left, is(equalTo(right)));
-		assertTrue((Boolean) (eqL.evaluate(new LazyObject(left), new LazyObject(right))));
+		assertTrue(eqL.evaluate(new LazyObject(left), new LazyObject(right)));
 	}
 
 	@Theory
 	public void testLongNeg(@ListOfLongs Long left, @ListOfLongs Long right) {
 		assumeThat(left, is(not(equalTo(right))));
-		assertFalse((Boolean) (eqL.evaluate(new LazyObject(left), new LazyObject(right))));
+		assertFalse(eqL.evaluate(new LazyObject(left), new LazyObject(right)));
 	}
 
 	@Theory
 	public void testDoublePos(@ListOfDoubles Double left, @ListOfDoubles Double right) {
 		assumeThat(left, is(equalTo(right)));
-		assertTrue((Boolean) (eqD.evaluate(new LazyObject(left), new LazyObject(right))));
+		assertTrue(eqD.evaluate(new LazyObject(left), new LazyObject(right)));
 	}
 
 	@Theory
 	public void testDoubleNeg(@ListOfDoubles Double left, @ListOfDoubles Double right) {
 		assumeThat(left, is(not(equalTo(right))));
-		assertFalse((Boolean) (eqD.evaluate(new LazyObject(left), new LazyObject(right))));
+		assertFalse(eqD.evaluate(new LazyObject(left), new LazyObject(right)));
 	}
 
 	@Theory
 	public void testStringPos(@ListOfStrings String left, @ListOfStrings String right) {
 		assumeThat(left, is(equalTo(right)));
-		assertTrue((Boolean) (eqS.evaluate(new LazyObject(left), new LazyObject(right))));
+		assertTrue(eqS.evaluate(new LazyObject(left), new LazyObject(right)));
 	}
 
 	@Theory
 	public void testStringNeg(@ListOfStrings String left, @ListOfStrings String right) {
 		assumeThat(left, is(not(equalTo(right))));
-		assertFalse((Boolean) (eqS.evaluate(new LazyObject(left), new LazyObject(right))));
+		assertFalse(eqS.evaluate(new LazyObject(left), new LazyObject(right)));
 	}
 
 	@Theory
 	public void testBooleanPos(@ListOfBooleans Boolean left, @ListOfBooleans Boolean right) {
 		assumeThat(left, is(equalTo(right)));
-		assertTrue((Boolean) (eqB.evaluate(new LazyObject(left), new LazyObject(right))));
+		assertTrue(eqB.evaluate(new LazyObject(left), new LazyObject(right)));
 	}
 
 	@Theory
 	public void testBooleanNeg(@ListOfBooleans Boolean left, @ListOfBooleans Boolean right) {
 		assumeThat(left, is(not(equalTo(right))));
-		assertFalse((Boolean) (eqB.evaluate(new LazyObject(left), new LazyObject(right))));
+		assertFalse(eqB.evaluate(new LazyObject(left), new LazyObject(right)));
 	}
 }

@@ -16,7 +16,7 @@ package org.jamocha.filter.impls.functions;
 
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.filter.Function;
-import org.jamocha.filter.TODODatenkrakeFunktionen;
+import org.jamocha.filter.FunctionDictionary;
 
 /**
  * Implements the functionality of the binary minus ({@code -}) operator.
@@ -24,12 +24,12 @@ import org.jamocha.filter.TODODatenkrakeFunktionen;
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  * @author Kai Schwarz <kai.schwarz@rwth-aachen.de>
  * @see Function
- * @see TODODatenkrakeFunktionen
+ * @see FunctionDictionary
  */
 public class Minus {
 
 	static {
-		TODODatenkrakeFunktionen.addImpl(new Function<Long>() {
+		FunctionDictionary.addImpl(new Function<Long>() {
 			public SlotType[] getParamTypes() {
 				return new SlotType[] { SlotType.LONG, SlotType.LONG };
 			}
@@ -46,7 +46,7 @@ public class Minus {
 				return (Long) params[0].evaluate() - (Long) params[1].evaluate();
 			}
 		});
-		TODODatenkrakeFunktionen.addImpl(new Function<Double>() {
+		FunctionDictionary.addImpl(new Function<Double>() {
 			public SlotType[] getParamTypes() {
 				return new SlotType[] { SlotType.DOUBLE, SlotType.DOUBLE };
 			}

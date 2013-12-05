@@ -15,7 +15,7 @@
 package org.jamocha.filter.impls;
 
 import org.jamocha.filter.Predicate;
-import org.jamocha.filter.TODODatenkrakeFunktionen;
+import org.jamocha.filter.FunctionDictionary;
 import org.jamocha.filter.impls.predicates.And;
 import org.jamocha.filter.impls.predicates.Equals;
 import org.jamocha.filter.impls.predicates.Less;
@@ -25,14 +25,14 @@ import org.jamocha.filter.impls.predicates.Less;
  * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  * @see Predicate
- * @see TODODatenkrakeFunktionen
+ * @see FunctionDictionary
  */
 public class Predicates {
 
 	static {
-		TODODatenkrakeFunktionen.addImpl(Less.class);
-		TODODatenkrakeFunktionen.addImpl(Equals.class);
-		TODODatenkrakeFunktionen.addImpl(And.class);
+		FunctionDictionary.addImpl(Less.class);
+		FunctionDictionary.addImpl(Equals.class);
+		FunctionDictionary.addImpl(And.class);
 	}
 
 }

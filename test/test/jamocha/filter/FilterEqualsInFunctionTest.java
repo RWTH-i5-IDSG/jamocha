@@ -12,7 +12,7 @@ import org.jamocha.filter.FunctionWithArguments;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.Predicate;
 import org.jamocha.filter.PredicateWithArguments;
-import org.jamocha.filter.TODODatenkrakeFunktionen;
+import org.jamocha.filter.FunctionDictionary;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -23,7 +23,7 @@ public class FilterEqualsInFunctionTest {
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		TODODatenkrakeFunktionen.load();
+		FunctionDictionary.load();
 	}
 
 	@Test
@@ -34,21 +34,21 @@ public class FilterEqualsInFunctionTest {
 		SlotAddress a1 = new SlotAddress(0);
 		SlotAddress a2 = new SlotAddress(0);
 		SlotAddress a3 = new SlotAddress(0);
-		Function<?> plus = TODODatenkrakeFunktionen.lookup("+", SlotType.DOUBLE, SlotType.DOUBLE);
-		Function<?> minus = TODODatenkrakeFunktionen.lookup("-", SlotType.DOUBLE, SlotType.DOUBLE);
+		Function<?> plus = FunctionDictionary.lookup("+", SlotType.DOUBLE, SlotType.DOUBLE);
+		Function<?> minus = FunctionDictionary.lookup("-", SlotType.DOUBLE, SlotType.DOUBLE);
 		FunctionWithArguments f, g;
-		
+
 		f =
-				new FunctionBuilder(TODODatenkrakeFunktionen.lookup("=", SlotType.DOUBLE,
-						SlotType.DOUBLE))
+				new FunctionBuilder(
+						FunctionDictionary.lookup("=", SlotType.DOUBLE, SlotType.DOUBLE))
 						.addFunction(
 								new FunctionBuilder(plus).addPath(p1, a1).addPath(p2, a2).build())
 						.addFunction(
 								new FunctionBuilder(minus).addConstant(1337l, SlotType.DOUBLE)
 										.addPath(p3, a3).build()).build();
 		g =
-				new FunctionBuilder(TODODatenkrakeFunktionen.lookup("=", SlotType.DOUBLE,
-						SlotType.DOUBLE))
+				new FunctionBuilder(
+						FunctionDictionary.lookup("=", SlotType.DOUBLE, SlotType.DOUBLE))
 						.addFunction(
 								new FunctionBuilder(plus).addPath(p1, a1).addPath(p2, a2).build())
 						.addFunction(
@@ -58,30 +58,30 @@ public class FilterEqualsInFunctionTest {
 		assertTrue(g.equalsInFunction(g));
 		assertTrue(f.equalsInFunction(g));
 	}
-	
+
 	@Test
-	public void testFunctionWithArgumentsCompositeEqualsInFunctionTrueNormalize(){
+	public void testFunctionWithArgumentsCompositeEqualsInFunctionTrueNormalize() {
 		Path p1 = new Path(new Template(SlotType.DOUBLE));
 		Path p2 = new Path(new Template(SlotType.DOUBLE));
 		Path p3 = new Path(new Template(SlotType.DOUBLE));
 		SlotAddress a1 = new SlotAddress(0);
 		SlotAddress a2 = new SlotAddress(0);
 		SlotAddress a3 = new SlotAddress(0);
-		Function<?> plus = TODODatenkrakeFunktionen.lookup("+", SlotType.DOUBLE, SlotType.DOUBLE);
-		Function<?> minus = TODODatenkrakeFunktionen.lookup("-", SlotType.DOUBLE, SlotType.DOUBLE);
+		Function<?> plus = FunctionDictionary.lookup("+", SlotType.DOUBLE, SlotType.DOUBLE);
+		Function<?> minus = FunctionDictionary.lookup("-", SlotType.DOUBLE, SlotType.DOUBLE);
 		FunctionWithArguments f, g;
-		
+
 		f =
-				new FunctionBuilder(TODODatenkrakeFunktionen.lookup("=", SlotType.DOUBLE,
-						SlotType.DOUBLE))
+				new FunctionBuilder(
+						FunctionDictionary.lookup("=", SlotType.DOUBLE, SlotType.DOUBLE))
 						.addFunction(
 								new FunctionBuilder(plus).addPath(p1, a1).addPath(p2, a2).build())
 						.addFunction(
 								new FunctionBuilder(minus).addConstant(1337l, SlotType.DOUBLE)
 										.addPath(p3, a3).build()).build();
 		g =
-				new FunctionBuilder(TODODatenkrakeFunktionen.lookup("=", SlotType.DOUBLE,
-						SlotType.DOUBLE))
+				new FunctionBuilder(
+						FunctionDictionary.lookup("=", SlotType.DOUBLE, SlotType.DOUBLE))
 						.addFunction(
 								new FunctionBuilder(minus).addConstant(1337.0, SlotType.DOUBLE)
 										.addPath(p3, a3).build())
@@ -91,8 +91,8 @@ public class FilterEqualsInFunctionTest {
 		assertTrue(f.equalsInFunction(g));
 		assertTrue(g.equalsInFunction(f));
 		g =
-				new FunctionBuilder(TODODatenkrakeFunktionen.lookup("=", SlotType.DOUBLE,
-						SlotType.DOUBLE))
+				new FunctionBuilder(
+						FunctionDictionary.lookup("=", SlotType.DOUBLE, SlotType.DOUBLE))
 						.addFunction(
 								new FunctionBuilder(minus).addConstant(1337.0, SlotType.DOUBLE)
 										.addPath(p3, a3).build())
@@ -102,7 +102,7 @@ public class FilterEqualsInFunctionTest {
 		assertTrue(f.equalsInFunction(g));
 		assertTrue(g.equalsInFunction(f));
 	}
-	
+
 	@Test
 	public void testFunctionWithArgumentsCompositeEqualsInFunctionFalseDifferentSlotAddress() {
 		Path p1 = new Path(new Template(SlotType.DOUBLE));
@@ -112,21 +112,21 @@ public class FilterEqualsInFunctionTest {
 		SlotAddress a2 = new SlotAddress(0);
 		SlotAddress a3 = new SlotAddress(0);
 		SlotAddress a4 = new SlotAddress(0);
-		Function<?> plus = TODODatenkrakeFunktionen.lookup("+", SlotType.DOUBLE, SlotType.DOUBLE);
-		Function<?> minus = TODODatenkrakeFunktionen.lookup("-", SlotType.DOUBLE, SlotType.DOUBLE);
+		Function<?> plus = FunctionDictionary.lookup("+", SlotType.DOUBLE, SlotType.DOUBLE);
+		Function<?> minus = FunctionDictionary.lookup("-", SlotType.DOUBLE, SlotType.DOUBLE);
 		FunctionWithArguments f, g;
-		
+
 		f =
-				new FunctionBuilder(TODODatenkrakeFunktionen.lookup("=", SlotType.DOUBLE,
-						SlotType.DOUBLE))
+				new FunctionBuilder(
+						FunctionDictionary.lookup("=", SlotType.DOUBLE, SlotType.DOUBLE))
 						.addFunction(
 								new FunctionBuilder(plus).addPath(p1, a1).addPath(p2, a2).build())
 						.addFunction(
 								new FunctionBuilder(minus).addConstant(1337l, SlotType.DOUBLE)
 										.addPath(p3, a3).build()).build();
 		g =
-				new FunctionBuilder(TODODatenkrakeFunktionen.lookup("=", SlotType.DOUBLE,
-						SlotType.DOUBLE))
+				new FunctionBuilder(
+						FunctionDictionary.lookup("=", SlotType.DOUBLE, SlotType.DOUBLE))
 						.addFunction(
 								new FunctionBuilder(plus).addPath(p1, a4).addPath(p2, a2).build())
 						.addFunction(
@@ -135,8 +135,7 @@ public class FilterEqualsInFunctionTest {
 		assertFalse(f.equalsInFunction(g));
 		assertFalse(g.equalsInFunction(f));
 	}
-	
-	
+
 	@Test
 	public void testFunctionWithArgumentsCompositeEqualsInFunctionFalseDifferentPath() {
 		Path p1 = new Path(new Template(SlotType.DOUBLE));
@@ -146,21 +145,21 @@ public class FilterEqualsInFunctionTest {
 		SlotAddress a1 = new SlotAddress(0);
 		SlotAddress a2 = new SlotAddress(0);
 		SlotAddress a3 = new SlotAddress(0);
-		Function<?> plus = TODODatenkrakeFunktionen.lookup("+", SlotType.DOUBLE, SlotType.DOUBLE);
-		Function<?> minus = TODODatenkrakeFunktionen.lookup("-", SlotType.DOUBLE, SlotType.DOUBLE);
+		Function<?> plus = FunctionDictionary.lookup("+", SlotType.DOUBLE, SlotType.DOUBLE);
+		Function<?> minus = FunctionDictionary.lookup("-", SlotType.DOUBLE, SlotType.DOUBLE);
 		FunctionWithArguments f, g;
-		
+
 		f =
-				new FunctionBuilder(TODODatenkrakeFunktionen.lookup("=", SlotType.DOUBLE,
-						SlotType.DOUBLE))
+				new FunctionBuilder(
+						FunctionDictionary.lookup("=", SlotType.DOUBLE, SlotType.DOUBLE))
 						.addFunction(
 								new FunctionBuilder(plus).addPath(p1, a1).addPath(p2, a2).build())
 						.addFunction(
 								new FunctionBuilder(minus).addConstant(1337l, SlotType.DOUBLE)
 										.addPath(p3, a3).build()).build();
 		g =
-				new FunctionBuilder(TODODatenkrakeFunktionen.lookup("=", SlotType.DOUBLE,
-						SlotType.DOUBLE))
+				new FunctionBuilder(
+						FunctionDictionary.lookup("=", SlotType.DOUBLE, SlotType.DOUBLE))
 						.addFunction(
 								new FunctionBuilder(plus).addPath(p4, a1).addPath(p2, a2).build())
 						.addFunction(
@@ -168,9 +167,9 @@ public class FilterEqualsInFunctionTest {
 										.addPath(p3, a3).build()).build();
 		assertFalse(f.equalsInFunction(g));
 		assertFalse(g.equalsInFunction(f));
-		
+
 	}
-	
+
 	@Test
 	public void testFunctionWithArgumentsCompositeEqualsInFunctionFalseDifferentSlotType() {
 		Path p1 = new Path(new Template(SlotType.DOUBLE));
@@ -179,21 +178,21 @@ public class FilterEqualsInFunctionTest {
 		SlotAddress a1 = new SlotAddress(0);
 		SlotAddress a2 = new SlotAddress(0);
 		SlotAddress a3 = new SlotAddress(0);
-		Function<?> plus = TODODatenkrakeFunktionen.lookup("+", SlotType.DOUBLE, SlotType.DOUBLE);
-		Function<?> minus = TODODatenkrakeFunktionen.lookup("-", SlotType.DOUBLE, SlotType.DOUBLE);
+		Function<?> plus = FunctionDictionary.lookup("+", SlotType.DOUBLE, SlotType.DOUBLE);
+		Function<?> minus = FunctionDictionary.lookup("-", SlotType.DOUBLE, SlotType.DOUBLE);
 		FunctionWithArguments f, g;
-		
+
 		f =
-				new FunctionBuilder(TODODatenkrakeFunktionen.lookup("=", SlotType.DOUBLE,
-						SlotType.DOUBLE))
+				new FunctionBuilder(
+						FunctionDictionary.lookup("=", SlotType.DOUBLE, SlotType.DOUBLE))
 						.addFunction(
 								new FunctionBuilder(plus).addPath(p1, a1).addPath(p2, a2).build())
 						.addFunction(
 								new FunctionBuilder(minus).addConstant(1337l, SlotType.DOUBLE)
 										.addPath(p3, a3).build()).build();
 		g =
-				new FunctionBuilder(TODODatenkrakeFunktionen.lookup("=", SlotType.DOUBLE,
-						SlotType.DOUBLE))
+				new FunctionBuilder(
+						FunctionDictionary.lookup("=", SlotType.DOUBLE, SlotType.DOUBLE))
 						.addFunction(
 								new FunctionBuilder(plus).addPath(p1, a1).addPath(p2, a2).build())
 						.addFunction(
@@ -202,7 +201,7 @@ public class FilterEqualsInFunctionTest {
 		assertFalse(f.equalsInFunction(g));
 		assertFalse(g.equalsInFunction(f));
 	}
-	
+
 	@Test
 	public void testFunctionWithArgumentsCompositeEqualsInFunctionFalseCombinations() {
 		Path p1 = new Path(new Template(SlotType.DOUBLE));
@@ -213,21 +212,21 @@ public class FilterEqualsInFunctionTest {
 		SlotAddress a2 = new SlotAddress(0);
 		SlotAddress a3 = new SlotAddress(0);
 		SlotAddress a5 = new SlotAddress(0);
-		Function<?> plus = TODODatenkrakeFunktionen.lookup("+", SlotType.DOUBLE, SlotType.DOUBLE);
-		Function<?> minus = TODODatenkrakeFunktionen.lookup("-", SlotType.DOUBLE, SlotType.DOUBLE);
+		Function<?> plus = FunctionDictionary.lookup("+", SlotType.DOUBLE, SlotType.DOUBLE);
+		Function<?> minus = FunctionDictionary.lookup("-", SlotType.DOUBLE, SlotType.DOUBLE);
 		FunctionWithArguments f, g;
-		
+
 		f =
-				new FunctionBuilder(TODODatenkrakeFunktionen.lookup("=", SlotType.DOUBLE,
-						SlotType.DOUBLE))
+				new FunctionBuilder(
+						FunctionDictionary.lookup("=", SlotType.DOUBLE, SlotType.DOUBLE))
 						.addFunction(
 								new FunctionBuilder(plus).addPath(p1, a1).addPath(p2, a2).build())
 						.addFunction(
 								new FunctionBuilder(minus).addConstant(1337l, SlotType.DOUBLE)
 										.addPath(p3, a3).build()).build();
 		g =
-				new FunctionBuilder(TODODatenkrakeFunktionen.lookup("=", SlotType.DOUBLE,
-						SlotType.DOUBLE))
+				new FunctionBuilder(
+						FunctionDictionary.lookup("=", SlotType.DOUBLE, SlotType.DOUBLE))
 						.addFunction(
 								new FunctionBuilder(plus).addPath(p1, a1).addPath(p2, a2).build())
 						.addFunction(
@@ -236,8 +235,8 @@ public class FilterEqualsInFunctionTest {
 		assertFalse(f.equalsInFunction(g));
 		assertFalse(g.equalsInFunction(f));
 		g =
-				new FunctionBuilder(TODODatenkrakeFunktionen.lookup("=", SlotType.DOUBLE,
-						SlotType.DOUBLE))
+				new FunctionBuilder(
+						FunctionDictionary.lookup("=", SlotType.DOUBLE, SlotType.DOUBLE))
 						.addFunction(
 								new FunctionBuilder(plus).addPath(p1, a1).addPath(p5, a2).build())
 						.addFunction(
@@ -246,8 +245,8 @@ public class FilterEqualsInFunctionTest {
 		assertFalse(f.equalsInFunction(g));
 		assertFalse(g.equalsInFunction(f));
 		g =
-				new FunctionBuilder(TODODatenkrakeFunktionen.lookup("=", SlotType.DOUBLE,
-						SlotType.DOUBLE))
+				new FunctionBuilder(
+						FunctionDictionary.lookup("=", SlotType.DOUBLE, SlotType.DOUBLE))
 						.addFunction(
 								new FunctionBuilder(plus).addPath(p1, a1).addPath(p2, a5).build())
 						.addFunction(
@@ -271,14 +270,14 @@ public class FilterEqualsInFunctionTest {
 		SlotAddress a4 = new SlotAddress(0);
 		SlotAddress a5 = new SlotAddress(1);
 		PredicateWithArguments f, g, h, i, j, k, l;
-		Function<?> plusD = TODODatenkrakeFunktionen.lookup("+", SlotType.DOUBLE, SlotType.DOUBLE);
-		Function<?> minusD = TODODatenkrakeFunktionen.lookup("-", SlotType.DOUBLE, SlotType.DOUBLE);
-		Function<?> eqD = TODODatenkrakeFunktionen.lookup("=", SlotType.DOUBLE, SlotType.DOUBLE);
-		Function<?> plusL = TODODatenkrakeFunktionen.lookup("+", SlotType.LONG, SlotType.LONG);
-		Function<?> minusL = TODODatenkrakeFunktionen.lookup("-", SlotType.LONG, SlotType.LONG);
-		Function<?> lessL = TODODatenkrakeFunktionen.lookup("<", SlotType.LONG, SlotType.LONG);
-		Function<?> eqL = TODODatenkrakeFunktionen.lookup("=", SlotType.LONG, SlotType.LONG);
-		Function<?> eqS = TODODatenkrakeFunktionen.lookup("=", SlotType.STRING, SlotType.STRING);
+		Function<?> plusD = FunctionDictionary.lookup("+", SlotType.DOUBLE, SlotType.DOUBLE);
+		Function<?> minusD = FunctionDictionary.lookup("-", SlotType.DOUBLE, SlotType.DOUBLE);
+		Function<?> eqD = FunctionDictionary.lookup("=", SlotType.DOUBLE, SlotType.DOUBLE);
+		Function<?> plusL = FunctionDictionary.lookup("+", SlotType.LONG, SlotType.LONG);
+		Function<?> minusL = FunctionDictionary.lookup("-", SlotType.LONG, SlotType.LONG);
+		Function<?> lessL = FunctionDictionary.lookup("<", SlotType.LONG, SlotType.LONG);
+		Function<?> eqL = FunctionDictionary.lookup("=", SlotType.LONG, SlotType.LONG);
+		Function<?> eqS = FunctionDictionary.lookup("=", SlotType.STRING, SlotType.STRING);
 		f =
 				new PredicateBuilder((Predicate) eqS)
 						.addConstant("Max Mustermann", SlotType.STRING).addPath(p1, a1).build();

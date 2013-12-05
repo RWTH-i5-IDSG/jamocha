@@ -18,19 +18,19 @@ package org.jamocha.filter.impls.predicates;
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.filter.Function;
 import org.jamocha.filter.Predicate;
-import org.jamocha.filter.TODODatenkrakeFunktionen;
+import org.jamocha.filter.FunctionDictionary;
 
 /**
  * Implements the functionality of the binary equality {@code =} operator.
  * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  * @see Predicate
- * @see TODODatenkrakeFunktionen
+ * @see FunctionDictionary
  * 
  */
 public class Equals {
 	static {
-		TODODatenkrakeFunktionen.addImpl(new Predicate() {
+		FunctionDictionary.addImpl(new Predicate() {
 			@Override
 			public SlotType[] getParamTypes() {
 				return new SlotType[] { SlotType.LONG, SlotType.LONG };
@@ -46,7 +46,7 @@ public class Equals {
 				return ((Long) params[0].evaluate()).equals((Long) params[1].evaluate());
 			}
 		});
-		TODODatenkrakeFunktionen.addImpl(new Predicate() {
+		FunctionDictionary.addImpl(new Predicate() {
 			@Override
 			public SlotType[] getParamTypes() {
 				return new SlotType[] { SlotType.DOUBLE, SlotType.DOUBLE };
@@ -62,7 +62,7 @@ public class Equals {
 				return ((Double) params[0].evaluate()).equals((Double) params[1].evaluate());
 			}
 		});
-		TODODatenkrakeFunktionen.addImpl(new Predicate() {
+		FunctionDictionary.addImpl(new Predicate() {
 			@Override
 			public SlotType[] getParamTypes() {
 				return new SlotType[] { SlotType.BOOLEAN, SlotType.BOOLEAN };
@@ -78,7 +78,7 @@ public class Equals {
 				return ((Boolean) params[0].evaluate()).equals((Boolean) params[1].evaluate());
 			}
 		});
-		TODODatenkrakeFunktionen.addImpl(new Predicate() {
+		FunctionDictionary.addImpl(new Predicate() {
 			@Override
 			public SlotType[] getParamTypes() {
 				return new SlotType[] { SlotType.STRING, SlotType.STRING };

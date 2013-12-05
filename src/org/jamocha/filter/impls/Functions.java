@@ -15,7 +15,7 @@
 package org.jamocha.filter.impls;
 
 import org.jamocha.filter.Function;
-import org.jamocha.filter.TODODatenkrakeFunktionen;
+import org.jamocha.filter.FunctionDictionary;
 import org.jamocha.filter.impls.functions.Minus;
 import org.jamocha.filter.impls.functions.Plus;
 
@@ -25,12 +25,12 @@ import org.jamocha.filter.impls.functions.Plus;
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  * @author Kai Schwarz <kai.schwarz@rwth-aachen.de>
  * @see Function
- * @see TODODatenkrakeFunktionen
+ * @see FunctionDictionary
  */
 public class Functions {
 
 	static {
-		TODODatenkrakeFunktionen.addImpl(Plus.class);
-		TODODatenkrakeFunktionen.addImpl(Minus.class);
+		FunctionDictionary.addImpl(Plus.class);
+		FunctionDictionary.addImpl(Minus.class);
 	}
 }

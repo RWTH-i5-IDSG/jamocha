@@ -17,18 +17,18 @@ package org.jamocha.filter.impls.predicates;
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.filter.Function;
 import org.jamocha.filter.Predicate;
-import org.jamocha.filter.TODODatenkrakeFunktionen;
+import org.jamocha.filter.FunctionDictionary;
 
 /**
  * Implements the functionality of the logical binary {@code and} operator.
  * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  * @see Predicate
- * @see TODODatenkrakeFunktionen
+ * @see FunctionDictionary
  */
 public class And {
 	static {
-		TODODatenkrakeFunktionen.addImpl(new Predicate() {
+		FunctionDictionary.addImpl(new Predicate() {
 			@Override
 			public SlotType[] getParamTypes() {
 				return new SlotType[] { SlotType.BOOLEAN, SlotType.BOOLEAN };

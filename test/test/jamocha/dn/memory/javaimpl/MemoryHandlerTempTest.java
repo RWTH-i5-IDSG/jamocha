@@ -43,7 +43,7 @@ import org.jamocha.filter.PathLeaf;
 import org.jamocha.filter.Predicate;
 import org.jamocha.filter.PredicateWithArguments;
 import org.jamocha.filter.PredicateWithArgumentsComposite;
-import org.jamocha.filter.TODODatenkrakeFunktionen;
+import org.jamocha.filter.FunctionDictionary;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -256,11 +256,10 @@ public class MemoryHandlerTempTest {
 	@SuppressWarnings("deprecation")
 	@Test
 	public void testNewBetaTempSelectiveJoin() throws CouldNotAcquireLockException {
-		TODODatenkrakeFunktionen.load();
+		FunctionDictionary.load();
 		FunctionWithArguments pl1 = new PathLeaf.ParameterLeaf(SlotType.STRING);
 		FunctionWithArguments pl2 = new PathLeaf.ParameterLeaf(SlotType.STRING);
-		Predicate eq =
-				(Predicate) TODODatenkrakeFunktionen.lookup("=", SlotType.STRING, SlotType.STRING);
+		Predicate eq = FunctionDictionary.lookupPredicate("=", SlotType.STRING, SlotType.STRING);
 		PredicateWithArguments faw = new PredicateWithArgumentsComposite(eq, pl1, pl2);
 		FilterElement fe =
 				new FilterElement(faw, new SlotInFactAddress(

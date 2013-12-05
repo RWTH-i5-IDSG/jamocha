@@ -31,7 +31,7 @@ import org.jamocha.dn.nodes.TerminalNode;
 import org.jamocha.filter.Filter;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.Predicate;
-import org.jamocha.filter.TODODatenkrakeFunktionen;
+import org.jamocha.filter.FunctionDictionary;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -53,7 +53,7 @@ public class TokenProcessingTest {
 	 */
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		TODODatenkrakeFunktionen.load();
+		FunctionDictionary.load();
 	}
 
 	/**
@@ -94,9 +94,9 @@ public class TokenProcessingTest {
 				new SlotAddress(3), profSG = new SlotAddress(1);
 
 		final Predicate lessLongLong =
-				TODODatenkrakeFunktionen.lookupPredicate("<", SlotType.LONG, SlotType.LONG);
+				FunctionDictionary.lookupPredicate("<", SlotType.LONG, SlotType.LONG);
 		final Predicate eqStrStr =
-				TODODatenkrakeFunktionen.lookupPredicate("=", SlotType.STRING, SlotType.STRING);
+				FunctionDictionary.lookupPredicate("=", SlotType.STRING, SlotType.STRING);
 
 		final Filter filter =
 				new Filter(new PredicateBuilder(eqStrStr).addPath(oldStudent, studentHobby)
@@ -180,9 +180,9 @@ public class TokenProcessingTest {
 				new SlotAddress(3), profSG = new SlotAddress(1);
 
 		final Predicate lessLongLong =
-				TODODatenkrakeFunktionen.lookupPredicate("<", SlotType.LONG, SlotType.LONG);
+				FunctionDictionary.lookupPredicate("<", SlotType.LONG, SlotType.LONG);
 		final Predicate eqStrStr =
-				TODODatenkrakeFunktionen.lookupPredicate("=", SlotType.STRING, SlotType.STRING);
+				FunctionDictionary.lookupPredicate("=", SlotType.STRING, SlotType.STRING);
 
 		final Filter filter =
 				new Filter(new PredicateBuilder(eqStrStr).addPath(oldStudent, studentHobby)
@@ -245,7 +245,7 @@ public class TokenProcessingTest {
 		final SlotAddress slotStr = new SlotAddress(1);
 
 		final Predicate eqStrStr =
-				TODODatenkrakeFunktionen.lookupPredicate("=", SlotType.STRING, SlotType.STRING);
+				FunctionDictionary.lookupPredicate("=", SlotType.STRING, SlotType.STRING);
 
 		final Filter filter =
 				new Filter(new PredicateBuilder(eqStrStr).addPath(p1, slotStr).addPath(p2, slotStr)
@@ -297,9 +297,9 @@ public class TokenProcessingTest {
 		final SlotAddress slotLong = new SlotAddress(0), slotBool = new SlotAddress(2);
 
 		final Predicate lessLongLong =
-				TODODatenkrakeFunktionen.lookupPredicate("<", SlotType.LONG, SlotType.LONG);
+				FunctionDictionary.lookupPredicate("<", SlotType.LONG, SlotType.LONG);
 		final Predicate eqBoolBool =
-				TODODatenkrakeFunktionen.lookupPredicate("=", SlotType.BOOLEAN, SlotType.BOOLEAN);
+				FunctionDictionary.lookupPredicate("=", SlotType.BOOLEAN, SlotType.BOOLEAN);
 
 		final Filter filter =
 				new Filter(new PredicateBuilder(eqBoolBool)
@@ -504,9 +504,9 @@ public class TokenProcessingTest {
 		final SlotAddress slotLong = new SlotAddress(0), slotBool = new SlotAddress(2);
 
 		final Predicate lessLongLong =
-				TODODatenkrakeFunktionen.lookupPredicate("<", SlotType.LONG, SlotType.LONG);
+				FunctionDictionary.lookupPredicate("<", SlotType.LONG, SlotType.LONG);
 		final Predicate eqBoolBool =
-				TODODatenkrakeFunktionen.lookupPredicate("=", SlotType.BOOLEAN, SlotType.BOOLEAN);
+				FunctionDictionary.lookupPredicate("=", SlotType.BOOLEAN, SlotType.BOOLEAN);
 
 		final Filter filter =
 				new Filter(new PredicateBuilder(eqBoolBool)
