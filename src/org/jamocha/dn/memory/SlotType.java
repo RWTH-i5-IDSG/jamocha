@@ -23,19 +23,29 @@ public enum SlotType {
 	/**
 	 * Enum value for integer types.
 	 */
-	LONG,
+	LONG(Long.class),
 	/**
 	 * Enum value for floating point types.
 	 */
-	DOUBLE,
+	DOUBLE(Double.class),
 	/**
 	 * Enum value for string types.
 	 */
-	STRING,
+	STRING(String.class),
 	/**
 	 * Enum value for boolean types.
 	 */
-	BOOLEAN;
+	BOOLEAN(Boolean.class);
+
+	final private Class<?> javaClass;
+
+	private SlotType(Class<?> javaClazz) {
+		this.javaClass = javaClazz;
+	}
+
+	public Class<?> getJavaClass() {
+		return javaClass;
+	}
 
 	/**
 	 * Static instance of an empty array of types. Can e.g. be used by functions without parameters
