@@ -98,14 +98,17 @@ public class TokenProcessingTest {
 		final Predicate eqStrStr =
 				FunctionDictionary.lookupPredicate("=", SlotType.STRING, SlotType.STRING);
 
-		final Filter filter =
-				new Filter(new PredicateBuilder(eqStrStr).addPath(oldStudent, studentHobby)
-						.addConstant("Coding", SlotType.STRING).build(), new PredicateBuilder(
-						lessLongLong).addPath(youngStudent, studentSem)
-						.addPath(oldStudent, studentSem).build(), new PredicateBuilder(eqStrStr)
-						.addPath(youngStudent, studentSG).addPath(oldStudent, studentSG).build(),
-						new PredicateBuilder(eqStrStr).addPath(youngStudent, studentSG)
-								.addPath(matchingProf, profSG).build());
+		final Filter[] filter =
+				new Filter[] {
+						new Filter(new PredicateBuilder(eqStrStr).addPath(oldStudent, studentHobby)
+								.addConstant("Coding", SlotType.STRING).build()),
+						new Filter(new PredicateBuilder(lessLongLong)
+								.addPath(youngStudent, studentSem).addPath(oldStudent, studentSem)
+								.build(), new PredicateBuilder(eqStrStr)
+								.addPath(youngStudent, studentSG).addPath(oldStudent, studentSG)
+								.build()),
+						new Filter(new PredicateBuilder(eqStrStr).addPath(youngStudent, studentSG)
+								.addPath(matchingProf, profSG).build()) };
 		network.buildRule(filter);
 		final RootNode rootNode = network.getRootNode();
 		final ConflictSet conflictSet = network.getConflictSet();
@@ -184,14 +187,17 @@ public class TokenProcessingTest {
 		final Predicate eqStrStr =
 				FunctionDictionary.lookupPredicate("=", SlotType.STRING, SlotType.STRING);
 
-		final Filter filter =
-				new Filter(new PredicateBuilder(eqStrStr).addPath(oldStudent, studentHobby)
-						.addConstant("Coding", SlotType.STRING).build(), new PredicateBuilder(
-						lessLongLong).addPath(youngStudent, studentSem)
-						.addPath(oldStudent, studentSem).build(), new PredicateBuilder(eqStrStr)
-						.addPath(youngStudent, studentSG).addPath(oldStudent, studentSG).build(),
-						new PredicateBuilder(eqStrStr).addPath(youngStudent, studentSG)
-								.addPath(matchingProf, profSG).build());
+		final Filter[] filter =
+				new Filter[] {
+						new Filter(new PredicateBuilder(eqStrStr).addPath(oldStudent, studentHobby)
+								.addConstant("Coding", SlotType.STRING).build()),
+						new Filter(new PredicateBuilder(lessLongLong)
+								.addPath(youngStudent, studentSem).addPath(oldStudent, studentSem)
+								.build(), new PredicateBuilder(eqStrStr)
+								.addPath(youngStudent, studentSG).addPath(oldStudent, studentSG)
+								.build()),
+						new Filter(new PredicateBuilder(eqStrStr).addPath(youngStudent, studentSG)
+								.addPath(matchingProf, profSG).build()) };
 		network.buildRule(filter);
 		final RootNode rootNode = network.getRootNode();
 		final ConflictSet conflictSet = network.getConflictSet();
@@ -216,8 +222,6 @@ public class TokenProcessingTest {
 					countAssertsAndRetractsInConflictSet(conflictSet);
 			assertEquals("Amount of asserts does not match expected count!", 10,
 					assertsAndRetracts.getAsserts());
-			// facts are not joined yet in front of terminal nodes => partial - token reaches
-			// terminal => only 1 line instead of 5
 			assertEquals("Amount of retracts does not match expected count!", 5,
 					assertsAndRetracts.getRetracts());
 		}
