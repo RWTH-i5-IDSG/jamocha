@@ -182,15 +182,25 @@ public class Network {
 			for (int j = 0; j < filterElements.length; j++) {
 				final SlotInFactAddress[] addressesInTarget =
 						candidateFilterElements[j].getAddressesInTarget();
+
 				final LinkedList<Path> elementPathSet =
 						filterElements[j].getFunction().gatherPaths(new LinkedList<Path>());
 				final Path[] elementPaths = elementPathSet.toArray(new Path[elementPathSet.size()]);
+
+				final LinkedList<SlotInFactAddress> currentAddressesList =
+						filterElements[j].getFunction().gatherCurrentAddresses(
+								new LinkedList<SlotInFactAddress>());
+				final SlotInFactAddress[] currentAddresses =
+						currentAddressesList.toArray(new SlotInFactAddress[currentAddressesList
+								.size()]);
+
 				for (int k = 0; k < addressesInTarget.length; k++) {
 					final FactAddress addressInSource =
 							candidate.delocalizeAddress(addressesInTarget[k].getFactAddress())
 									.getAddress();
-					if (!addressInSource.equals(elementPaths[k]
-							.getFactAddressInCurrentlyLowestNode()))
+					if (!(addressInSource.equals(elementPaths[k]
+							.getFactAddressInCurrentlyLowestNode()) && addressesInTarget[k]
+							.getSlotAddress().equals(currentAddresses[k].getSlotAddress())))
 						continue candidateLoop;
 				}
 			}
