@@ -80,6 +80,14 @@ public interface FunctionWithArguments {
 	public <T extends Collection<Path>> T gatherPaths(final T paths);
 
 	/**
+	 * Gathers the {@link SlotInFactAddress SlotInFactAddresses} used in any {@link PathLeaf path
+	 * leafs}.
+	 * 
+	 * @return {@link SlotInFactAddress SlotInFactAddresses} used in any {@link PathLeaf path leafs}
+	 */
+	public <T extends Collection<SlotInFactAddress>> T gatherCurrentAddresses(final T paths);
+
+	/**
 	 * Translates any {@link PathLeaf}s into {@link ParameterLeaf}s.
 	 * 
 	 * @param addressesInTarget

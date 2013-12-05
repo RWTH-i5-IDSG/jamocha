@@ -169,6 +169,14 @@ public class GenericWithArgumentsComposite<R, F extends Function<? extends R>> i
 	}
 
 	@Override
+	public <T extends Collection<SlotInFactAddress>> T gatherCurrentAddresses(final T paths) {
+		for (final FunctionWithArguments fwa : args) {
+			fwa.gatherCurrentAddresses(paths);
+		}
+		return paths;
+	}
+
+	@Override
 	public boolean equalsInFunction(final FunctionWithArguments function) {
 		if (function == this)
 			return true;

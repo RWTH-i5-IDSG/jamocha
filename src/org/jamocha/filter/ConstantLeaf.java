@@ -80,6 +80,11 @@ public class ConstantLeaf implements FunctionWithArguments, Function<Object> {
 	}
 
 	@Override
+	public <T extends Collection<SlotInFactAddress>> T gatherCurrentAddresses(final T paths) {
+		return paths;
+	}
+
+	@Override
 	public boolean equalsInFunction(final FunctionWithArguments function) {
 		if (!(function instanceof ConstantLeaf))
 			return false;

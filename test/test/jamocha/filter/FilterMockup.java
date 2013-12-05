@@ -84,6 +84,11 @@ public class FilterMockup extends Filter {
 		}
 
 		@Override
+		public <T extends Collection<SlotInFactAddress>> T gatherCurrentAddresses(final T paths) {
+			return paths;
+		}
+
+		@Override
 		public boolean canEqual(final Object other) {
 			return other instanceof PredicateWithArgumentsMockup;
 		}

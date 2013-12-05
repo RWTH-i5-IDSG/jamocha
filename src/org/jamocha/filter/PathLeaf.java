@@ -143,6 +143,11 @@ public class PathLeaf implements FunctionWithArguments {
 		}
 
 		@Override
+		public <T extends Collection<SlotInFactAddress>> T gatherCurrentAddresses(final T paths) {
+			return paths;
+		}
+
+		@Override
 		public boolean equalsInFunction(final FunctionWithArguments function) {
 			return this.equals(function);
 		}
@@ -160,6 +165,12 @@ public class PathLeaf implements FunctionWithArguments {
 	@Override
 	public <T extends Collection<Path>> T gatherPaths(final T paths) {
 		paths.add(this.path);
+		return paths;
+	}
+
+	@Override
+	public <T extends Collection<SlotInFactAddress>> T gatherCurrentAddresses(final T paths) {
+		paths.add(new SlotInFactAddress(this.path.getFactAddressInCurrentlyLowestNode(), this.slot));
 		return paths;
 	}
 

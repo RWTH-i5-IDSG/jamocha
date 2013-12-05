@@ -19,6 +19,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.Set;
 
 import lombok.Getter;
@@ -133,6 +134,30 @@ public class Filter {
 	public <T extends Collection<Path>> T gatherPaths(final T paths) {
 		for (final FilterElement step : filterElements) {
 			step.function.gatherPaths(paths);
+		}
+		return paths;
+	}
+
+	/**
+	 * Gathers the {@link Path paths} used in any {@link PathLeaf path leafs}.
+	 * 
+	 * @return {@link Path paths} used in any {@link PathLeaf path leafs}
+	 */
+	public SlotInFactAddress[] gatherCurrentAddreses() {
+		final Collection<SlotInFactAddress> gatherPaths =
+				gatherCurrentAddresses(new LinkedList<SlotInFactAddress>());
+		return gatherPaths.toArray(new SlotInFactAddress[gatherPaths.size()]);
+	}
+
+	/**
+	 * Gathers the {@link SlotInFactAddress SlotInFactAddresses} used in any {@link PathLeaf path
+	 * leafs}.
+	 * 
+	 * @return {@link SlotInFactAddress SlotInFactAddresses} used in any {@link PathLeaf path leafs}
+	 */
+	public <T extends Collection<SlotInFactAddress>> T gatherCurrentAddresses(final T paths) {
+		for (final FilterElement step : filterElements) {
+			step.function.gatherCurrentAddresses(paths);
 		}
 		return paths;
 	}
