@@ -154,7 +154,11 @@ public class Network {
 		Node node = i.next();
 
 		for (Edge edge : node.getOutgoingPositiveEdges()) { // add all children of the first node
-			candidates.add(edge.getTargetNode());
+			try {
+				candidates.add(edge.getTargetNode());
+			} catch (UnsupportedOperationException e) {
+				// triggered by terminal node, just don't add it
+			}
 		}
 
 		for (; i.hasNext(); node = i.next()) { // remove all nodes which aren't children of all
