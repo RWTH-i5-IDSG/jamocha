@@ -16,8 +16,8 @@ package test.jamocha.dn;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -151,6 +151,10 @@ public class NetworkTest {
 		assertFalse(tryToShareNode(network, filterThree[0]));
 		assertFalse(tryToShareNode(network, filterThree[1]));
 		assertFalse(tryToShareNode(network, filterThree[2]));
+
+		assertNotEquals(pathOne.getCurrentlyLowestNode(), pathThree.getCurrentlyLowestNode());
+		assertNotEquals(pathOne.getFactAddressInCurrentlyLowestNode(),
+				pathThree.getFactAddressInCurrentlyLowestNode());
 	}
 
 	@Test
@@ -266,10 +270,297 @@ public class NetworkTest {
 	}
 
 	@Test
-	public void testBuildRule() {
-		// build some filters with the given predicates and build them with buildRule
-		// Afterwards iterate the network and check if everything is in order.
-		fail("Not yet implemented");
+	public void testTryToShareNodeBetaCase2() throws NoSuchMethodException, SecurityException,
+			IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+		final PlainScheduler scheduler = new PlainScheduler();
+		final Network network =
+				new Network(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(),
+						Integer.MAX_VALUE, scheduler);
+		final RootNode rootNode = network.getRootNode();
+
+		final Template student =
+				new Template(SlotType.STRING /* Name */, SlotType.LONG /* Semester */,
+						SlotType.STRING /* Studiengang */, SlotType.STRING /* Hobby */);
+		final Template prof =
+				new Template(SlotType.STRING /* Name */, SlotType.STRING /* Studiengang */);
+		final Path oldStudent1 = new Path(student), youngStudent1 = new Path(student), matchingProf1 =
+				new Path(prof), oldStudent2 = new Path(student), youngStudent2 = new Path(student), matchingProf2 =
+				new Path(prof);
+		final SlotAddress studentSem = new SlotAddress(1), studentSG = new SlotAddress(2), studentHobby =
+				new SlotAddress(3), profSG = new SlotAddress(1);
+
+		final Predicate lessLongLong =
+				FunctionDictionary.lookupPredicate("<", SlotType.LONG, SlotType.LONG);
+		final Predicate eqStrStr =
+				FunctionDictionary.lookupPredicate("=", SlotType.STRING, SlotType.STRING);
+
+		final Filter[] filterOne =
+				new Filter[] {
+						new Filter(new PredicateBuilder(eqStrStr)
+								.addPath(oldStudent1, studentHobby)
+								.addConstant("Coding", SlotType.STRING).build()),
+						new Filter(new PredicateBuilder(lessLongLong)
+								.addPath(youngStudent1, studentSem)
+								.addPath(oldStudent1, studentSem).build(), new PredicateBuilder(
+								eqStrStr).addPath(youngStudent1, studentSG)
+								.addPath(oldStudent1, studentSG).build()),
+						new Filter(new PredicateBuilder(eqStrStr).addPath(youngStudent1, studentSG)
+								.addPath(matchingProf1, profSG).build()) }, filterTwo =
+				new Filter[] {
+						new Filter(new PredicateBuilder(eqStrStr)
+								.addPath(oldStudent2, studentHobby)
+								.addConstant("Coding", SlotType.STRING).build()),
+						new Filter(new PredicateBuilder(lessLongLong)
+								.addPath(youngStudent2, studentSem)
+								.addPath(oldStudent2, studentSem).build(), new PredicateBuilder(
+								eqStrStr).addPath(youngStudent2, studentSG)
+								.addPath(oldStudent2, studentSG).build()),
+						new Filter(new PredicateBuilder(eqStrStr).addPath(youngStudent2, studentSG)
+								.addPath(matchingProf2, profSG).build()) };
+		network.buildRule(filterOne);
+
+		{
+			final LinkedHashSet<Path> allPaths = new LinkedHashSet<>();
+			for (Filter filter : filterTwo) {
+				final LinkedHashSet<Path> paths = filter.gatherPaths();
+				allPaths.addAll(paths);
+			}
+			final Path[] pathArray = allPaths.toArray(new Path[allPaths.size()]);
+			rootNode.addPaths(network, pathArray);
+		}
+
+		assertTrue(tryToShareNode(network, filterTwo[0]));
+		assertTrue(tryToShareNode(network, filterTwo[1]));
+		assertTrue(tryToShareNode(network, filterTwo[2]));
+
+		assertEquals(oldStudent1.getCurrentlyLowestNode(), oldStudent2.getCurrentlyLowestNode());
+		assertEquals(oldStudent1.getFactAddressInCurrentlyLowestNode(),
+				oldStudent2.getFactAddressInCurrentlyLowestNode());
+
+		assertEquals(youngStudent1.getCurrentlyLowestNode(), youngStudent2.getCurrentlyLowestNode());
+		assertEquals(youngStudent1.getFactAddressInCurrentlyLowestNode(),
+				youngStudent2.getFactAddressInCurrentlyLowestNode());
+
+		assertEquals(matchingProf1.getCurrentlyLowestNode(), matchingProf2.getCurrentlyLowestNode());
+		assertEquals(matchingProf1.getFactAddressInCurrentlyLowestNode(),
+				matchingProf2.getFactAddressInCurrentlyLowestNode());
+	}
+
+	@Test
+	public void testBuildRuleSimpleAlphaCase() {
+		final PlainScheduler scheduler = new PlainScheduler();
+		final Network network =
+				new Network(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(),
+						Integer.MAX_VALUE, scheduler);
+
+		final Template template =
+				new Template(SlotType.STRING, SlotType.LONG, SlotType.LONG, SlotType.STRING);
+		final Path pathOne = new Path(template), pathTwo = new Path(template), pathThree =
+				new Path(template);
+
+		final SlotAddress slotStringOne = new SlotAddress(0), slotStringTwo = new SlotAddress(3), slotLongOne =
+				new SlotAddress(1), slotLongTwo = new SlotAddress(2);
+
+		final Filter[] filterOne =
+				new Filter[] {
+						new Filter(new PredicateBuilder(lessL).addConstant(3L, SlotType.LONG)
+								.addPath(pathOne, slotLongOne).build()),
+						new Filter(new PredicateBuilder(lessL).addPath(pathOne, slotLongOne)
+								.addPath(pathOne, slotLongTwo).build()) }, filterTwo =
+				new Filter[] {
+						new Filter(new PredicateBuilder(lessL).addConstant(3L, SlotType.LONG)
+								.addPath(pathTwo, slotLongOne).build()),
+						new Filter(new PredicateBuilder(lessL).addPath(pathTwo, slotLongOne)
+								.addPath(pathTwo, slotLongTwo).build()),
+						new Filter(new PredicateBuilder(eqS).addPath(pathTwo, slotStringOne)
+								.addPath(pathTwo, slotStringTwo).build()) }, filterThree =
+				new Filter[] {
+						new Filter(new PredicateBuilder(lessL).addConstant(3L, SlotType.LONG)
+								.addPath(pathThree, slotLongTwo).build()),
+						new Filter(new PredicateBuilder(lessL).addPath(pathThree, slotLongTwo)
+								.addPath(pathThree, slotLongOne).build()),
+						new Filter(new PredicateBuilder(eqS).addPath(pathThree, slotStringTwo)
+								.addPath(pathThree, slotStringOne).build()) };
+
+		network.buildRule(filterOne);
+		network.buildRule(filterTwo);
+		network.buildRule(filterThree);
+
+		assertEquals(pathOne.getCurrentlyLowestNode(), pathTwo.getCurrentlyLowestNode()
+				.getIncomingEdges()[0].getSourceNode());
+		assertEquals(
+				pathOne.getFactAddressInCurrentlyLowestNode(),
+				pathTwo.getCurrentlyLowestNode()
+						.delocalizeAddress(pathTwo.getFactAddressInCurrentlyLowestNode())
+						.getAddress());
+
+		assertNotEquals(pathOne.getCurrentlyLowestNode(), pathThree.getCurrentlyLowestNode()
+				.getIncomingEdges()[0].getSourceNode());
+		assertNotEquals(
+				pathOne.getFactAddressInCurrentlyLowestNode(),
+				pathThree.getCurrentlyLowestNode()
+						.delocalizeAddress(pathThree.getFactAddressInCurrentlyLowestNode())
+						.getAddress());
+	}
+
+	@Test
+	public void testBuildRuleSimpleBetaCase() {
+		final PlainScheduler scheduler = new PlainScheduler();
+		final Network network =
+				new Network(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(),
+						Integer.MAX_VALUE, scheduler);
+
+		final Template template =
+				new Template(SlotType.STRING, SlotType.LONG, SlotType.LONG, SlotType.STRING);
+		final Path pathOneA = new Path(template), pathOneB = new Path(template), pathTwoA =
+				new Path(template), pathTwoB = new Path(template);
+
+		final SlotAddress slotStringOne = new SlotAddress(0), slotStringTwo = new SlotAddress(3), slotLongOne =
+				new SlotAddress(1), slotLongTwo = new SlotAddress(2);
+
+		final Filter[] filterOne =
+				new Filter[] {
+						new Filter(new PredicateBuilder(lessL).addConstant(3L, SlotType.LONG)
+								.addPath(pathOneA, slotLongOne).build()),
+						new Filter(new PredicateBuilder(lessL).addPath(pathOneA, slotLongOne)
+								.addPath(pathOneB, slotLongTwo).build()) }, filterTwo =
+				new Filter[] {
+						new Filter(new PredicateBuilder(lessL).addConstant(3L, SlotType.LONG)
+								.addPath(pathTwoA, slotLongOne).build()),
+						new Filter(new PredicateBuilder(lessL).addPath(pathTwoA, slotLongOne)
+								.addPath(pathTwoB, slotLongTwo).build()),
+						new Filter(new PredicateBuilder(eqS).addPath(pathTwoA, slotStringOne)
+								.addPath(pathTwoB, slotStringTwo).build()) };
+
+		network.buildRule(filterOne);
+		network.buildRule(filterTwo);
+
+		assertEquals(pathOneA.getCurrentlyLowestNode(), pathTwoA.getCurrentlyLowestNode()
+				.getIncomingEdges()[0].getSourceNode());
+		assertEquals(
+				pathOneA.getFactAddressInCurrentlyLowestNode(),
+				pathTwoA.getCurrentlyLowestNode()
+						.delocalizeAddress(pathTwoA.getFactAddressInCurrentlyLowestNode())
+						.getAddress());
+
+		assertEquals(pathOneB.getCurrentlyLowestNode(), pathTwoB.getCurrentlyLowestNode()
+				.getIncomingEdges()[0].getSourceNode());
+		assertEquals(
+				pathOneB.getFactAddressInCurrentlyLowestNode(),
+				pathTwoB.getCurrentlyLowestNode()
+						.delocalizeAddress(pathTwoB.getFactAddressInCurrentlyLowestNode())
+						.getAddress());
+	}
+
+	@Test
+	public void testBuildRuleBetaCase() {
+		final PlainScheduler scheduler = new PlainScheduler();
+		final Network network =
+				new Network(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(),
+						Integer.MAX_VALUE, scheduler);
+
+		final Template template =
+				new Template(SlotType.STRING, SlotType.LONG, SlotType.LONG, SlotType.STRING);
+		final Path pathOneA = new Path(template), pathOneB = new Path(template), pathTwoA =
+				new Path(template), pathTwoB = new Path(template);
+
+		final SlotAddress slotStringOne = new SlotAddress(0), slotStringTwo = new SlotAddress(3), slotLongOne =
+				new SlotAddress(1), slotLongTwo = new SlotAddress(2);
+
+		final Filter[] filterOne =
+				new Filter[] {
+						new Filter(new PredicateBuilder(lessL).addConstant(3L, SlotType.LONG)
+								.addPath(pathOneA, slotLongOne).build()),
+						new Filter(new PredicateBuilder(lessL).addPath(pathOneA, slotLongOne)
+								.addPath(pathOneB, slotLongTwo).build()) }, filterTwo =
+				new Filter[] {
+						new Filter(new PredicateBuilder(lessL).addConstant(3L, SlotType.LONG)
+								.addPath(pathTwoA, slotLongOne).build()),
+						new Filter(new PredicateBuilder(lessL).addPath(pathTwoA, slotLongOne)
+								.addPath(pathTwoB, slotLongTwo).build()),
+						new Filter(new PredicateBuilder(eqS).addPath(pathTwoA, slotStringOne)
+								.addPath(pathTwoB, slotStringTwo).build()) };
+
+		network.buildRule(filterOne);
+		network.buildRule(filterTwo);
+
+		assertEquals(pathOneA.getCurrentlyLowestNode(), pathTwoA.getCurrentlyLowestNode()
+				.getIncomingEdges()[0].getSourceNode());
+		assertEquals(
+				pathOneA.getFactAddressInCurrentlyLowestNode(),
+				pathTwoA.getCurrentlyLowestNode()
+						.delocalizeAddress(pathTwoA.getFactAddressInCurrentlyLowestNode())
+						.getAddress());
+
+		assertEquals(pathOneB.getCurrentlyLowestNode(), pathTwoB.getCurrentlyLowestNode()
+				.getIncomingEdges()[0].getSourceNode());
+		assertEquals(
+				pathOneB.getFactAddressInCurrentlyLowestNode(),
+				pathTwoB.getCurrentlyLowestNode()
+						.delocalizeAddress(pathTwoB.getFactAddressInCurrentlyLowestNode())
+						.getAddress());
+	}
+
+	@Test
+	public void testBuildRuleBetaCase2() {
+		final PlainScheduler scheduler = new PlainScheduler();
+		final Network network =
+				new Network(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(),
+						Integer.MAX_VALUE, scheduler);
+
+		final Template student =
+				new Template(SlotType.STRING /* Name */, SlotType.LONG /* Semester */,
+						SlotType.STRING /* Studiengang */, SlotType.STRING /* Hobby */);
+		final Template prof =
+				new Template(SlotType.STRING /* Name */, SlotType.STRING /* Studiengang */);
+		final Path oldStudent1 = new Path(student), youngStudent1 = new Path(student), matchingProf1 =
+				new Path(prof), oldStudent2 = new Path(student), youngStudent2 = new Path(student), matchingProf2 =
+				new Path(prof);
+		final SlotAddress studentSem = new SlotAddress(1), studentSG = new SlotAddress(2), studentHobby =
+				new SlotAddress(3), profSG = new SlotAddress(1);
+
+		final Predicate lessLongLong =
+				FunctionDictionary.lookupPredicate("<", SlotType.LONG, SlotType.LONG);
+		final Predicate eqStrStr =
+				FunctionDictionary.lookupPredicate("=", SlotType.STRING, SlotType.STRING);
+
+		final Filter[] filterOne =
+				new Filter[] {
+						new Filter(new PredicateBuilder(eqStrStr)
+								.addPath(oldStudent1, studentHobby)
+								.addConstant("Coding", SlotType.STRING).build()),
+						new Filter(new PredicateBuilder(lessLongLong)
+								.addPath(youngStudent1, studentSem)
+								.addPath(oldStudent1, studentSem).build(), new PredicateBuilder(
+								eqStrStr).addPath(youngStudent1, studentSG)
+								.addPath(oldStudent1, studentSG).build()),
+						new Filter(new PredicateBuilder(eqStrStr).addPath(youngStudent1, studentSG)
+								.addPath(matchingProf1, profSG).build()) }, filterTwo =
+				new Filter[] {
+						new Filter(new PredicateBuilder(eqStrStr)
+								.addPath(oldStudent2, studentHobby)
+								.addConstant("Coding", SlotType.STRING).build()),
+						new Filter(new PredicateBuilder(lessLongLong)
+								.addPath(youngStudent2, studentSem)
+								.addPath(oldStudent2, studentSem).build(), new PredicateBuilder(
+								eqStrStr).addPath(youngStudent2, studentSG)
+								.addPath(oldStudent2, studentSG).build()),
+						new Filter(new PredicateBuilder(eqStrStr).addPath(youngStudent2, studentSG)
+								.addPath(matchingProf2, profSG).build()) };
+		network.buildRule(filterOne);
+		network.buildRule(filterTwo);
+
+		assertEquals(oldStudent1.getCurrentlyLowestNode(), oldStudent2.getCurrentlyLowestNode());
+		assertEquals(oldStudent1.getFactAddressInCurrentlyLowestNode(),
+				oldStudent2.getFactAddressInCurrentlyLowestNode());
+
+		assertEquals(youngStudent1.getCurrentlyLowestNode(), youngStudent2.getCurrentlyLowestNode());
+		assertEquals(youngStudent1.getFactAddressInCurrentlyLowestNode(),
+				youngStudent2.getFactAddressInCurrentlyLowestNode());
+
+		assertEquals(matchingProf1.getCurrentlyLowestNode(), matchingProf2.getCurrentlyLowestNode());
+		assertEquals(matchingProf1.getFactAddressInCurrentlyLowestNode(),
+				matchingProf2.getFactAddressInCurrentlyLowestNode());
 	}
 
 }
