@@ -14,11 +14,8 @@
  */
 package org.jamocha.filter.impls;
 
-import org.jamocha.filter.Predicate;
 import org.jamocha.filter.FunctionDictionary;
-import org.jamocha.filter.impls.predicates.And;
-import org.jamocha.filter.impls.predicates.Equals;
-import org.jamocha.filter.impls.predicates.Less;
+import org.jamocha.filter.Predicate;
 
 /**
  * Loads implementations of the more specific {@link Predicate} interface.
@@ -30,9 +27,12 @@ import org.jamocha.filter.impls.predicates.Less;
 public class Predicates {
 
 	static {
-		FunctionDictionary.addImpl(Less.class);
-		FunctionDictionary.addImpl(Equals.class);
-		FunctionDictionary.addImpl(And.class);
+		FunctionDictionary.addImpl(org.jamocha.filter.impls.predicates.And.class);
+		FunctionDictionary.addImpl(org.jamocha.filter.impls.predicates.Equals.class);
+		FunctionDictionary.addImpl(org.jamocha.filter.impls.predicates.Greater.class);
+		FunctionDictionary.addImpl(org.jamocha.filter.impls.predicates.GreaterOrEqual.class);
+		FunctionDictionary.addImpl(org.jamocha.filter.impls.predicates.Less.class);
+		FunctionDictionary.addImpl(org.jamocha.filter.impls.predicates.LessOrEqual.class);
 	}
 
 }

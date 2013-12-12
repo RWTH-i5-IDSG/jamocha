@@ -16,8 +16,6 @@ package org.jamocha.filter.impls;
 
 import org.jamocha.filter.Function;
 import org.jamocha.filter.FunctionDictionary;
-import org.jamocha.filter.impls.functions.Minus;
-import org.jamocha.filter.impls.functions.Plus;
 
 /**
  * Loads implementations of the {@link Function} interface.
@@ -30,7 +28,10 @@ import org.jamocha.filter.impls.functions.Plus;
 public class Functions {
 
 	static {
-		FunctionDictionary.addImpl(Plus.class);
-		FunctionDictionary.addImpl(Minus.class);
+		FunctionDictionary.addImpl(org.jamocha.filter.impls.functions.DividedBy.class);
+		FunctionDictionary.addImpl(org.jamocha.filter.impls.functions.Minus.class);
+		FunctionDictionary.addImpl(org.jamocha.filter.impls.functions.Plus.class);
+		FunctionDictionary.addImpl(org.jamocha.filter.impls.functions.Times.class);
+		FunctionDictionary.addImpl(org.jamocha.filter.impls.functions.UnaryMinus.class);
 	}
 }
