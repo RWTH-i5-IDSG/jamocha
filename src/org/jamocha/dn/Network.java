@@ -130,10 +130,8 @@ public class Network {
 				new ThreadPoolScheduler(10));
 	}
 
-	private boolean tryToShareNode(Filter filter) throws IllegalArgumentException { // TODO remove
-																					// order
-																					// dependencies
-
+	// TODO remove order dependencies
+	private boolean tryToShareNode(Filter filter) throws IllegalArgumentException {
 		final LinkedHashSet<Path> pathList = filter.gatherPaths();
 		final Path[] paths = pathList.toArray(new Path[pathList.size()]);
 
