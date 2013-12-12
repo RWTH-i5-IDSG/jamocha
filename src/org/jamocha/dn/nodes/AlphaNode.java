@@ -34,6 +34,7 @@ import org.jamocha.filter.Path;
  * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
  */
 public class AlphaNode extends Node {
+	static final LinkedList<MemoryHandlerPlusTemp> empty = new LinkedList<>();
 
 	protected class AlphaEdgeImpl extends EdgeImpl implements PositiveEdge {
 		FactAddress addressInSource = null;
@@ -85,8 +86,7 @@ public class AlphaNode extends Node {
 
 		@Override
 		public LinkedList<MemoryHandlerPlusTemp> getTempMemories() {
-			// TODO Auto-generated method stub
-			return null;
+			return empty;
 		}
 
 	}
