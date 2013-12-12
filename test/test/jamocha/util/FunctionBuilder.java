@@ -22,12 +22,9 @@ import org.jamocha.filter.FunctionWithArgumentsComposite;
  * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  * 
- * @param <R>
- * @param <F>
  */
-public class FunctionBuilder<R, F extends Function<? extends R>> extends
-		GenericBuilder<R, F, FunctionBuilder<R, F>> {
-	public FunctionBuilder(final F function) {
+public class FunctionBuilder extends GenericBuilder<Object, Function<?>, FunctionBuilder> {
+	public <F extends Function<?>> FunctionBuilder(final F function) {
 		super(function);
 	}
 
@@ -36,7 +33,7 @@ public class FunctionBuilder<R, F extends Function<? extends R>> extends
 		if (this.function.getParamTypes().length != this.args.size()) {
 			throw new IllegalArgumentException("Wrong number of arguments!");
 		}
-		return new FunctionWithArgumentsComposite<R, F>(this.function,
+		return new FunctionWithArgumentsComposite(this.function,
 				this.args.toArray(new FunctionWithArguments[this.args.size()]));
 	}
 }
