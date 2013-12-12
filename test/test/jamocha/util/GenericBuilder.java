@@ -72,6 +72,22 @@ public abstract class GenericBuilder<R, F extends Function<? extends R>, T exten
 		return (T) this;
 	}
 
+	public T addLong(final long value) {
+		return addConstant(value, SlotType.LONG);
+	}
+
+	public T addDouble(final double value) {
+		return addConstant(value, SlotType.DOUBLE);
+	}
+
+	public T addString(final String value) {
+		return addConstant(value, SlotType.STRING);
+	}
+
+	public T addBoolean(final boolean value) {
+		return addConstant(value, SlotType.BOOLEAN);
+	}
+
 	@SuppressWarnings("unchecked")
 	public T addFunction(final FunctionWithArguments function) {
 		final SlotType[] paramTypes = this.function.getParamTypes();
