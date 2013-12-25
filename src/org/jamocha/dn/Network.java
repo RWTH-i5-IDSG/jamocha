@@ -177,6 +177,8 @@ public class Network {
 
 			final FilterElement[] candidateFilterElements = candidateFilter.getFilterElements();
 			final FilterElement[] filterElements = filter.getFilterElements();
+			// TODO use addresses in lower node instead of upper node as otherwise self joins will
+			// fool the comparison
 			for (int j = 0; j < filterElements.length; j++) {
 				final SlotInFactAddress[] addressesInTarget =
 						candidateFilterElements[j].getAddressesInTarget();
