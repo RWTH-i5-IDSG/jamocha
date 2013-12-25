@@ -197,4 +197,20 @@ public class GenericWithArgumentsComposite<R, F extends Function<? extends R>> i
 		return true;
 	}
 
+	public GenericWithArgumentsComposite<R, F> withFunction(final F function) {
+		return new GenericWithArgumentsComposite<R, F>(function, args);
+	}
+
+	public FunctionWithArguments[] reverseArguments() {
+		final int length = this.args.length;
+		final FunctionWithArguments[] rev = new FunctionWithArguments[length];
+		for (int i = 0; i < length; ++i) {
+			rev[length - i - 1] = this.args[i];
+		}
+		return rev;
+	}
+
+	public GenericWithArgumentsComposite<R, F> withInverseArgs() {
+		return new GenericWithArgumentsComposite<R, F>(this.function, reverseArguments());
+	}
 }
