@@ -14,7 +14,10 @@
  */
 package org.jamocha.filter;
 
+import java.util.ArrayList;
+
 import org.jamocha.dn.memory.SlotType;
+import org.jamocha.dn.nodes.SlotInFactAddress;
 
 /**
  * Instantiation of {@link GenericWithArgumentsComposite} holding a Predicate.
@@ -31,5 +34,11 @@ public class PredicateWithArgumentsComposite extends
 	@Override
 	public SlotType getReturnType() {
 		return SlotType.BOOLEAN;
+	}
+
+	@Override
+	public PredicateWithArguments translatePath(ArrayList<SlotInFactAddress> addressesInTarget) {
+		return new PredicateWithArgumentsComposite(this.function,
+				translatePathHelper(addressesInTarget));
 	}
 }

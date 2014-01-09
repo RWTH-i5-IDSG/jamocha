@@ -30,7 +30,7 @@ import org.jamocha.dn.memory.Template;
 import org.jamocha.dn.nodes.CouldNotAcquireLockException;
 import org.jamocha.dn.nodes.Node;
 import org.jamocha.dn.nodes.Node.Edge;
-import org.jamocha.filter.Filter;
+import org.jamocha.filter.AddressFilter;
 import org.jamocha.filter.Path;
 
 /**
@@ -122,14 +122,14 @@ public class MemoryHandlerMain extends MemoryHandlerBase implements
 	@Override
 	public org.jamocha.dn.memory.MemoryHandlerTemp processTokenInBeta(
 			final org.jamocha.dn.memory.MemoryHandlerTemp token, final Edge originIncomingEdge,
-			final Filter filter) throws CouldNotAcquireLockException {
+			final AddressFilter filter) throws CouldNotAcquireLockException {
 		return token.newBetaTemp(this, originIncomingEdge, filter);
 	}
 
 	@Override
 	public org.jamocha.dn.memory.MemoryHandlerTemp processTokenInAlpha(
 			final org.jamocha.dn.memory.MemoryHandlerTemp token, final Edge originIncomingEdge,
-			final Filter filter) throws CouldNotAcquireLockException {
+			final AddressFilter filter) throws CouldNotAcquireLockException {
 		return token.newAlphaTemp(this, originIncomingEdge, filter);
 	}
 

@@ -34,8 +34,8 @@ import org.jamocha.dn.nodes.CouldNotAcquireLockException;
 import org.jamocha.dn.nodes.Node;
 import org.jamocha.dn.nodes.Node.Edge;
 import org.jamocha.dn.nodes.SlotInFactAddress;
-import org.jamocha.filter.Filter;
-import org.jamocha.filter.Filter.FilterElement;
+import org.jamocha.filter.AddressFilter;
+import org.jamocha.filter.AddressFilter.AddressFilterElement;
 import org.jamocha.filter.FunctionWithArguments;
 
 /**
@@ -83,8 +83,8 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 	}
 
 	static MemoryHandlerPlusTemp newBetaTemp(final MemoryHandlerMain originatingMainHandler,
-			final MemoryHandlerPlusTemp token, final Edge originIncomingEdge, final Filter filter)
-			throws CouldNotAcquireLockException {
+			final MemoryHandlerPlusTemp token, final Edge originIncomingEdge,
+			final AddressFilter filter) throws CouldNotAcquireLockException {
 		return new MemoryHandlerPlusTemp(originatingMainHandler, getLocksAndPerformJoin(
 				originatingMainHandler, filter, token, originIncomingEdge), originIncomingEdge
 				.getTargetNode().getNumberOfOutgoingEdges());
@@ -93,18 +93,18 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 	@Override
 	public MemoryHandlerPlusTemp newBetaTemp(
 			org.jamocha.dn.memory.MemoryHandlerMain originatingMainHandler,
-			Edge originIncomingEdge, Filter filter) throws CouldNotAcquireLockException {
+			Edge originIncomingEdge, AddressFilter filter) throws CouldNotAcquireLockException {
 		return newBetaTemp((MemoryHandlerMain) originatingMainHandler, this, originIncomingEdge,
 				filter);
 	}
 
 	static MemoryHandlerPlusTemp newAlphaTemp(final MemoryHandlerMain originatingMainHandler,
-			final MemoryHandlerPlusTemp token, final Edge originIncomingEdge, final Filter filter)
-			throws CouldNotAcquireLockException {
+			final MemoryHandlerPlusTemp token, final Edge originIncomingEdge,
+			final AddressFilter filter) throws CouldNotAcquireLockException {
 		final ArrayList<Fact[]> factList = new ArrayList<>(1);
 		factLoop: for (final Fact[] fact : token.facts) {
 			assert fact.length == 1;
-			for (final FilterElement filterElement : filter.getFilterElements()) {
+			for (final AddressFilterElement filterElement : filter.getFilterElements()) {
 				if (!applyFilterElement(fact[0], filterElement)) {
 					continue factLoop;
 				}
@@ -119,7 +119,8 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 	@Override
 	public MemoryHandlerPlusTemp newAlphaTemp(
 			final org.jamocha.dn.memory.MemoryHandlerMain originatingMainHandler,
-			final Edge originIncomingEdge, final Filter filter) throws CouldNotAcquireLockException {
+			final Edge originIncomingEdge, final AddressFilter filter)
+			throws CouldNotAcquireLockException {
 		return newAlphaTemp((MemoryHandlerMain) originatingMainHandler, this, originIncomingEdge,
 				filter);
 	}
@@ -283,7 +284,7 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 	}
 
 	private static List<Fact[]> getLocksAndPerformJoin(
-			final MemoryHandlerMain originatingMainHandler, final Filter filter,
+			final MemoryHandlerMain originatingMainHandler, final AddressFilter filter,
 			final MemoryHandlerPlusTemp token, final Edge originIncomingEdge)
 			throws CouldNotAcquireLockException {
 		// get a fixed-size array of indices (size: #inputs of the node),
@@ -337,12 +338,12 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 		return originElement.getTable();
 	}
 
-	private static void performJoin(final Filter filter, final Node targetNode,
+	private static void performJoin(final AddressFilter filter, final Node targetNode,
 			final LinkedHashMap<Edge, StackElement> edgeToStack, final StackElement originElement) {
 		// get filter steps
-		final FilterElement filterSteps[] = filter.getFilterElements();
+		final AddressFilterElement filterSteps[] = filter.getFilterElements();
 
-		for (final FilterElement filterElement : filterSteps) {
+		for (final AddressFilterElement filterElement : filterSteps) {
 			final Collection<StackElement> stack = new ArrayList<>(filterSteps.length);
 			final FunctionWithArguments function = filterElement.getFunction();
 			final SlotInFactAddress addresses[] = filterElement.getAddressesInTarget();

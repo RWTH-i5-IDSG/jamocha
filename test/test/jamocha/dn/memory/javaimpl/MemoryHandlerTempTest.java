@@ -35,15 +35,16 @@ import org.jamocha.dn.nodes.Node;
 import org.jamocha.dn.nodes.Node.Edge;
 import org.jamocha.dn.nodes.PositiveEdge;
 import org.jamocha.dn.nodes.SlotInFactAddress;
+import org.jamocha.filter.AddressFilter;
+import org.jamocha.filter.AddressFilter.AddressFilterElement;
 import org.jamocha.filter.Filter;
-import org.jamocha.filter.Filter.FilterElement;
+import org.jamocha.filter.FunctionDictionary;
 import org.jamocha.filter.FunctionWithArguments;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.PathLeaf;
 import org.jamocha.filter.Predicate;
 import org.jamocha.filter.PredicateWithArguments;
 import org.jamocha.filter.PredicateWithArgumentsComposite;
-import org.jamocha.filter.FunctionDictionary;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -80,7 +81,7 @@ public class MemoryHandlerTempTest {
 			final int offset;
 
 			public EdgeMockup(Network network, Node sourceNode, Node targetNode, int offset) {
-				super(network, sourceNode, targetNode, null);
+				super(network, sourceNode, targetNode, AddressFilter.empty);
 				this.offset = offset;
 			}
 
@@ -225,7 +226,7 @@ public class MemoryHandlerTempTest {
 						new Fact(new Template(SlotType.STRING), "Fakt2"));
 		MemoryHandlerPlusTemp token1 =
 				(MemoryHandlerPlusTemp) node.getMemory().processTokenInBeta(token, originInput,
-						FilterMockup.alwaysTrue());
+						FilterMockup.alwaysTrue().translatePath());
 		assertEquals(4, token1.size());
 		assertEquals(2, token1.getTemplate().length);
 		String s = (String) token1.getValue(fa[0], slotAddress, 0);
@@ -253,7 +254,6 @@ public class MemoryHandlerTempTest {
 	 * 
 	 * @throws InterruptedException
 	 */
-	@SuppressWarnings("deprecation")
 	@Test
 	public void testNewBetaTempSelectiveJoin() throws CouldNotAcquireLockException {
 		FunctionDictionary.load();
@@ -261,12 +261,12 @@ public class MemoryHandlerTempTest {
 		FunctionWithArguments pl2 = new PathLeaf.ParameterLeaf(SlotType.STRING);
 		Predicate eq = FunctionDictionary.lookupPredicate("=", SlotType.STRING, SlotType.STRING);
 		PredicateWithArguments faw = new PredicateWithArgumentsComposite(eq, pl1, pl2);
-		FilterElement fe =
-				new FilterElement(faw, new SlotInFactAddress(
+		AddressFilterElement fe =
+				new AddressFilterElement(faw, new SlotInFactAddress(
 						new org.jamocha.dn.memory.javaimpl.FactAddress(0), new SlotAddress(0)),
 						new SlotInFactAddress(new org.jamocha.dn.memory.javaimpl.FactAddress(1),
 								new SlotAddress(0)));
-		Filter filter = new Filter(new FilterElement[] { fe });
+		AddressFilter filter = new AddressFilter(new AddressFilterElement[] { fe });
 		MemoryHandlerPlusTemp token =
 				(MemoryHandlerPlusTemp) nodeRight.getMemory().newPlusToken(nodeRight,
 						new Fact(new Template(SlotType.STRING), "Fakt1"),
@@ -298,11 +298,11 @@ public class MemoryHandlerTempTest {
 						SlotType.STRING), "Test"));
 		MemoryHandlerPlusTemp memoryTempHandler =
 				(MemoryHandlerPlusTemp) memoryHandlerMain.processTokenInAlpha(token,
-						node.getIncomingEdges()[0], FilterMockup.alwaysTrue());
+						node.getIncomingEdges()[0], FilterMockup.alwaysTrue().translatePath());
 		assertEquals(1, memoryTempHandler.size());
 		memoryTempHandler =
 				(MemoryHandlerPlusTemp) memoryHandlerMain.processTokenInAlpha(token,
-						node.getIncomingEdges()[0], FilterMockup.alwaysFalse());
+						node.getIncomingEdges()[0], FilterMockup.alwaysFalse().translatePath());
 		assertEquals(0, memoryTempHandler.size());
 	}
 

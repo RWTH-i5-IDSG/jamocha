@@ -14,6 +14,10 @@
  */
 package org.jamocha.filter;
 
+import java.util.ArrayList;
+
+import org.jamocha.dn.nodes.SlotInFactAddress;
+
 /**
  * Specialization of {@link FunctionWithArguments}.
  * 
@@ -22,4 +26,7 @@ package org.jamocha.filter;
 public interface PredicateWithArguments extends FunctionWithArguments {
 	@Override
 	public Boolean evaluate(final Object... params);
+
+	@Override
+	public PredicateWithArguments translatePath(final ArrayList<SlotInFactAddress> addressesInTarget);
 }

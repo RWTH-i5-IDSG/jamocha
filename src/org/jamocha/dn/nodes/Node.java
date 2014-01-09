@@ -27,6 +27,7 @@ import java.util.Set;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
 import org.jamocha.dn.Network;
@@ -36,8 +37,9 @@ import org.jamocha.dn.memory.MemoryHandlerMain;
 import org.jamocha.dn.memory.MemoryHandlerMinusTemp;
 import org.jamocha.dn.memory.MemoryHandlerPlusTemp;
 import org.jamocha.dn.memory.Template;
-import org.jamocha.filter.Filter;
+import org.jamocha.filter.AddressFilter;
 import org.jamocha.filter.Path;
+import org.jamocha.filter.PathFilter;
 
 /**
  * Base class for all node types
@@ -84,9 +86,9 @@ public abstract class Node {
 		 */
 		public void disconnect();
 
-		public void setFilter(final Filter filter);
+		public void setFilter(final AddressFilter filter);
 
-		public Filter getFilter();
+		public AddressFilter getFilter();
 
 		public LinkedList<MemoryHandlerPlusTemp> getTempMemories();
 
@@ -100,7 +102,8 @@ public abstract class Node {
 		protected final Network network;
 		protected final Node sourceNode;
 		protected final Node targetNode;
-		protected Filter filter;
+		@NonNull
+		protected AddressFilter filter;
 
 		@Override
 		public Node getSourceNode() {
@@ -118,12 +121,12 @@ public abstract class Node {
 		}
 
 		@Override
-		public void setFilter(final Filter filter) {
+		public void setFilter(final AddressFilter filter) {
 			this.filter = filter;
 		}
 
 		@Override
-		public Filter getFilter() {
+		public AddressFilter getFilter() {
 			return this.filter;
 		}
 
@@ -176,7 +179,7 @@ public abstract class Node {
 	 * @return the filter that has originally been set to all inputs
 	 */
 	@Getter
-	final protected Filter filter;
+	final protected AddressFilter filter;
 
 	@RequiredArgsConstructor
 	public class TokenQueue implements Runnable {
@@ -222,7 +225,7 @@ public abstract class Node {
 			this.incomingEdges[i] = this.connectParent(parents[i]);
 		}
 		this.memory = network.getMemoryFactory().newMemoryHandlerMain(incomingEdges);
-		this.filter = null;
+		this.filter = AddressFilter.empty;
 	}
 
 	protected Node(final Network network, final Template template, final Path... paths) {
@@ -230,13 +233,13 @@ public abstract class Node {
 		this.tokenQueue = new TokenQueue(network);
 		this.incomingEdges = new Edge[0];
 		this.memory = network.getMemoryFactory().newMemoryHandlerMain(template, paths);
-		this.filter = null;
+		this.filter = AddressFilter.empty;
 	}
 
-	public Node(final Network network, final Filter filter) {
+	public Node(final Network network, final PathFilter filter) {
 		this.network = network;
 		this.tokenQueue = new TokenQueue(network);
-		this.filter = filter;
+		this.filter = filter.translatePath();
 		final LinkedHashSet<Path> paths = filter.gatherPaths();
 		final Map<Edge, Set<Path>> edgesAndPaths = new HashMap<>();
 		final ArrayList<Edge> edges = new ArrayList<>();
@@ -268,7 +271,6 @@ public abstract class Node {
 				path.setJoinedWith(joinedPaths);
 			}
 		}
-		filter.translatePath();
 	}
 
 	protected Edge connectParent(final Node parent) {
@@ -334,6 +336,7 @@ public abstract class Node {
 	 * @return an address valid in the parent node
 	 */
 	public AddressPredecessor delocalizeAddress(FactAddress localFactAddress) {
+		assert null != delocalizeMap.get(localFactAddress);
 		return delocalizeMap.get(localFactAddress);
 	}
 

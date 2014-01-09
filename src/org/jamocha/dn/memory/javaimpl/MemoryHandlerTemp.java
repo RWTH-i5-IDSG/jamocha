@@ -8,7 +8,7 @@ import lombok.ToString;
 import org.jamocha.dn.memory.MemoryHandler;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.dn.nodes.SlotInFactAddress;
-import org.jamocha.filter.Filter.FilterElement;
+import org.jamocha.filter.AddressFilter.AddressFilterElement;
 
 @ToString(callSuper = true, exclude = "originatingMainHandler")
 public abstract class MemoryHandlerTemp extends MemoryHandlerBase implements
@@ -48,7 +48,7 @@ public abstract class MemoryHandlerTemp extends MemoryHandlerBase implements
 		return memoryHandlers;
 	}
 
-	protected static boolean applyFilterElement(final Fact fact, final FilterElement element) {
+	protected static boolean applyFilterElement(final Fact fact, final AddressFilterElement element) {
 		// determine parameters
 		final SlotInFactAddress addresses[] = element.getAddressesInTarget();
 		final int paramLength = addresses.length;

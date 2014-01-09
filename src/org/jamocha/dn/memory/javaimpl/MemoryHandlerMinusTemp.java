@@ -27,7 +27,7 @@ import org.jamocha.dn.memory.SlotAddress;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.dn.nodes.CouldNotAcquireLockException;
 import org.jamocha.dn.nodes.Node.Edge;
-import org.jamocha.filter.Filter;
+import org.jamocha.filter.AddressFilter;
 
 /**
  * 
@@ -200,7 +200,8 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 	@Override
 	public MemoryHandlerTemp newBetaTemp(
 			final org.jamocha.dn.memory.MemoryHandlerMain originatingMainHandler,
-			final Edge originIncomingEdge, final Filter filter) throws CouldNotAcquireLockException {
+			final Edge originIncomingEdge, final AddressFilter filter)
+			throws CouldNotAcquireLockException {
 		final MemoryHandlerMain targetMain =
 				(MemoryHandlerMain) originIncomingEdge.getTargetNode().getMemory();
 		final List<Fact[]> minusFacts = this.facts;
@@ -276,7 +277,8 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 	@Override
 	public MemoryHandlerTemp newAlphaTemp(
 			final org.jamocha.dn.memory.MemoryHandlerMain originatingMainHandler,
-			final Edge originIncomingEdge, final Filter filter) throws CouldNotAcquireLockException {
+			final Edge originIncomingEdge, final AddressFilter filter)
+			throws CouldNotAcquireLockException {
 		final MemoryHandlerMain targetMain =
 				(MemoryHandlerMain) originIncomingEdge.getTargetNode().getMemory();
 		final List<Fact[]> minusFacts = this.facts;

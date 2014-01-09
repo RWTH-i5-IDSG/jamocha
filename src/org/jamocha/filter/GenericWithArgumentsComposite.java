@@ -154,10 +154,17 @@ public class GenericWithArgumentsComposite<R, F extends Function<? extends R>> i
 
 	@Override
 	public FunctionWithArguments translatePath(final ArrayList<SlotInFactAddress> addressesInTarget) {
+		return new GenericWithArgumentsComposite<R, F>(this.function,
+				translatePathHelper(addressesInTarget));
+	}
+
+	protected FunctionWithArguments[] translatePathHelper(
+			final ArrayList<SlotInFactAddress> addressesInTarget) {
+		final FunctionWithArguments[] args = new FunctionWithArguments[this.args.length];
 		for (int i = 0; i < this.args.length; ++i) {
-			args[i] = args[i].translatePath(addressesInTarget);
+			args[i] = this.args[i].translatePath(addressesInTarget);
 		}
-		return this;
+		return args;
 	}
 
 	@Override

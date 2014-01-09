@@ -30,7 +30,7 @@ import org.jamocha.dn.memory.MemoryHandlerPlusTemp;
 import org.jamocha.dn.memory.MemoryHandlerTerminal;
 import org.jamocha.dn.memory.MemoryHandlerTerminal.Assert;
 import org.jamocha.dn.memory.MemoryHandlerTerminal.Retract;
-import org.jamocha.filter.Filter;
+import org.jamocha.filter.AddressFilter;
 
 /**
  * 
@@ -44,7 +44,7 @@ public class TerminalNode {
 		protected final Network network;
 		protected final Node sourceNode;
 		protected final TerminalNode targetNode;
-		protected Filter filter;
+		protected AddressFilter filter;
 
 		private Map<? extends FactAddress, ? extends FactAddress> addressMap;
 		private final LinkedList<MemoryHandlerPlusTemp> tempMemories = new LinkedList<>();
@@ -104,12 +104,12 @@ public class TerminalNode {
 		}
 
 		@Override
-		public void setFilter(final Filter filter) {
+		public void setFilter(final AddressFilter filter) {
 			this.filter = filter;
 		}
 
 		@Override
-		public Filter getFilter() {
+		public AddressFilter getFilter() {
 			return this.filter;
 		}
 

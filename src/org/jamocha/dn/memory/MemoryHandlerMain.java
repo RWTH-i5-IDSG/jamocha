@@ -17,6 +17,7 @@ package org.jamocha.dn.memory;
 import org.jamocha.dn.nodes.CouldNotAcquireLockException;
 import org.jamocha.dn.nodes.Node;
 import org.jamocha.dn.nodes.Node.Edge;
+import org.jamocha.filter.AddressFilter;
 import org.jamocha.filter.Filter;
 
 /**
@@ -82,7 +83,8 @@ public interface MemoryHandlerMain extends MemoryHandler {
 	 *             iff one of the read locks could not be acquired
 	 */
 	public MemoryHandlerTemp processTokenInBeta(final MemoryHandlerTemp token,
-			final Edge originIncomingEdge, final Filter filter) throws CouldNotAcquireLockException;
+			final Edge originIncomingEdge, final AddressFilter filter)
+			throws CouldNotAcquireLockException;
 
 	/**
 	 * Creates a new {@link MemoryHandlerPlusTemp} that contains the part of the facts in the given
@@ -99,7 +101,8 @@ public interface MemoryHandlerMain extends MemoryHandler {
 	 *             iff one of the read locks could not be acquired
 	 */
 	public MemoryHandlerTemp processTokenInAlpha(final MemoryHandlerTemp token,
-			final Edge originIncomingEdge, final Filter filter) throws CouldNotAcquireLockException;
+			final Edge originIncomingEdge, final AddressFilter filter)
+			throws CouldNotAcquireLockException;
 
 	/**
 	 * Creates a new {@link MemoryHandlerPlusTemp} that contains the facts given.

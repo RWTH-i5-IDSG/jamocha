@@ -17,18 +17,9 @@ package test.jamocha.filter;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import java.util.ArrayList;
-import java.util.Collection;
-
-import lombok.RequiredArgsConstructor;
-
-import org.jamocha.dn.memory.SlotType;
-import org.jamocha.dn.nodes.SlotInFactAddress;
-import org.jamocha.filter.Filter;
-import org.jamocha.filter.Function;
-import org.jamocha.filter.FunctionWithArguments;
-import org.jamocha.filter.GenericWithArgumentsComposite.LazyObject;
+import org.jamocha.filter.AddressFilter;
 import org.jamocha.filter.Path;
+import org.jamocha.filter.PathFilter;
 import org.jamocha.filter.PredicateWithArguments;
 import org.junit.experimental.theories.Theories;
 import org.junit.experimental.theories.Theory;
@@ -41,81 +32,18 @@ import test.jamocha.util.TestData.SomeStuff;
  * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
-public class FilterMockup extends Filter {
-
-	@RequiredArgsConstructor
-	public static class PredicateWithArgumentsMockup implements PredicateWithArguments {
-
-		final private boolean returnValue;
-		final private Path[] paths;
-
-		@Override
-		public SlotType getReturnType() {
-			return SlotType.BOOLEAN;
-		}
-
-		@Override
-		public SlotType[] getParamTypes() {
-			return SlotType.empty;
-		}
-
-		@Override
-		public Function<?> lazyEvaluate(final Function<?>... params) {
-			return new LazyObject(returnValue);
-		}
-
-		@Override
-		public Boolean evaluate(final Object... params) {
-			return returnValue;
-		}
-
-		@Override
-		public FunctionWithArguments translatePath(
-				final ArrayList<SlotInFactAddress> addressesInTarget) {
-			return this;
-		}
-
-		@Override
-		public <T extends Collection<Path>> T gatherPaths(final T paths) {
-			for (Path path : this.paths) {
-				paths.add(path);
-			}
-			return paths;
-		}
-
-		@Override
-		public <T extends Collection<SlotInFactAddress>> T gatherCurrentAddresses(final T paths) {
-			return paths;
-		}
-
-		@Override
-		public boolean canEqual(final Object other) {
-			return other instanceof PredicateWithArgumentsMockup;
-		}
-
-		@Override
-		public boolean equalsInFunction(final FunctionWithArguments function) {
-			if (!(function instanceof PredicateWithArgumentsMockup))
-				return false;
-			PredicateWithArgumentsMockup fwam = (PredicateWithArgumentsMockup) function;
-			return (fwam.returnValue == this.returnValue && fwam.paths.length == this.paths.length);
-		}
-	}
+public class FilterMockup extends PathFilter {
 
 	public FilterMockup(final boolean returnValue, final Path... paths) {
 		super(new PredicateWithArguments[] { new PredicateWithArgumentsMockup(returnValue, paths) });
 	}
 
 	public static FilterMockup alwaysTrue(final Path... paths) {
-		final FilterMockup filterMockup = new FilterMockup(true, paths);
-		filterMockup.translatePath();
-		return filterMockup;
+		return new FilterMockup(true, paths);
 	}
 
 	public static FilterMockup alwaysFalse(final Path... paths) {
-		final FilterMockup filterMockup = new FilterMockup(false, paths);
-		filterMockup.translatePath();
-		return filterMockup;
+		return new FilterMockup(false, paths);
 	}
 
 	/**
@@ -131,7 +59,7 @@ public class FilterMockup extends Filter {
 		 */
 		@Theory
 		public void testAlwaysTrue(@SomeStuff Object... obj) {
-			final Filter alwaysTrue = FilterMockup.alwaysTrue();
+			final AddressFilter alwaysTrue = FilterMockup.alwaysTrue().translatePath();
 			for (final FilterElement filterElement : alwaysTrue.getFilterElements()) {
 				assertTrue(filterElement.getFunction().evaluate(obj));
 			}
@@ -142,7 +70,7 @@ public class FilterMockup extends Filter {
 		 */
 		@Theory
 		public void testAlwaysFalse(@SomeStuff Object... obj) {
-			final Filter alwaysFalse = FilterMockup.alwaysFalse();
+			final AddressFilter alwaysFalse = FilterMockup.alwaysFalse().translatePath();
 			for (final FilterElement filterElement : alwaysFalse.getFilterElements()) {
 				assertFalse(filterElement.getFunction().evaluate(obj));
 			}

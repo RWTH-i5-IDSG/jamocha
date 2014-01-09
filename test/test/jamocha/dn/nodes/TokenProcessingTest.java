@@ -28,10 +28,10 @@ import org.jamocha.dn.nodes.AlphaNode;
 import org.jamocha.dn.nodes.ObjectTypeNode;
 import org.jamocha.dn.nodes.RootNode;
 import org.jamocha.dn.nodes.TerminalNode;
-import org.jamocha.filter.Filter;
-import org.jamocha.filter.Path;
-import org.jamocha.filter.Predicate;
 import org.jamocha.filter.FunctionDictionary;
+import org.jamocha.filter.Path;
+import org.jamocha.filter.PathFilter;
+import org.jamocha.filter.Predicate;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -98,17 +98,19 @@ public class TokenProcessingTest {
 		final Predicate eqStrStr =
 				FunctionDictionary.lookupPredicate("=", SlotType.STRING, SlotType.STRING);
 
-		final Filter[] filter =
-				new Filter[] {
-						new Filter(new PredicateBuilder(eqStrStr).addPath(oldStudent, studentHobby)
+		final PathFilter[] filter =
+				new PathFilter[] {
+						new PathFilter(new PredicateBuilder(eqStrStr)
+								.addPath(oldStudent, studentHobby)
 								.addConstant("Coding", SlotType.STRING).build()),
-						new Filter(new PredicateBuilder(lessLongLong)
+						new PathFilter(new PredicateBuilder(lessLongLong)
 								.addPath(youngStudent, studentSem).addPath(oldStudent, studentSem)
 								.build(), new PredicateBuilder(eqStrStr)
 								.addPath(youngStudent, studentSG).addPath(oldStudent, studentSG)
 								.build()),
-						new Filter(new PredicateBuilder(eqStrStr).addPath(youngStudent, studentSG)
-								.addPath(matchingProf, profSG).build()) };
+						new PathFilter(new PredicateBuilder(eqStrStr)
+								.addPath(youngStudent, studentSG).addPath(matchingProf, profSG)
+								.build()) };
 		network.buildRule(filter);
 		final RootNode rootNode = network.getRootNode();
 		final ConflictSet conflictSet = network.getConflictSet();
@@ -187,17 +189,19 @@ public class TokenProcessingTest {
 		final Predicate eqStrStr =
 				FunctionDictionary.lookupPredicate("=", SlotType.STRING, SlotType.STRING);
 
-		final Filter[] filter =
-				new Filter[] {
-						new Filter(new PredicateBuilder(eqStrStr).addPath(oldStudent, studentHobby)
+		final PathFilter[] filter =
+				new PathFilter[] {
+						new PathFilter(new PredicateBuilder(eqStrStr)
+								.addPath(oldStudent, studentHobby)
 								.addConstant("Coding", SlotType.STRING).build()),
-						new Filter(new PredicateBuilder(lessLongLong)
+						new PathFilter(new PredicateBuilder(lessLongLong)
 								.addPath(youngStudent, studentSem).addPath(oldStudent, studentSem)
 								.build(), new PredicateBuilder(eqStrStr)
 								.addPath(youngStudent, studentSG).addPath(oldStudent, studentSG)
 								.build()),
-						new Filter(new PredicateBuilder(eqStrStr).addPath(youngStudent, studentSG)
-								.addPath(matchingProf, profSG).build()) };
+						new PathFilter(new PredicateBuilder(eqStrStr)
+								.addPath(youngStudent, studentSG).addPath(matchingProf, profSG)
+								.build()) };
 		network.buildRule(filter);
 		final RootNode rootNode = network.getRootNode();
 		final ConflictSet conflictSet = network.getConflictSet();
@@ -251,9 +255,9 @@ public class TokenProcessingTest {
 		final Predicate eqStrStr =
 				FunctionDictionary.lookupPredicate("=", SlotType.STRING, SlotType.STRING);
 
-		final Filter filter =
-				new Filter(new PredicateBuilder(eqStrStr).addPath(p1, slotStr).addPath(p2, slotStr)
-						.build());
+		final PathFilter filter =
+				new PathFilter(new PredicateBuilder(eqStrStr).addPath(p1, slotStr)
+						.addPath(p2, slotStr).build());
 		network.buildRule(filter);
 		final RootNode rootNode = network.getRootNode();
 
@@ -305,8 +309,8 @@ public class TokenProcessingTest {
 		final Predicate eqBoolBool =
 				FunctionDictionary.lookupPredicate("=", SlotType.BOOLEAN, SlotType.BOOLEAN);
 
-		final Filter filter =
-				new Filter(new PredicateBuilder(eqBoolBool)
+		final PathFilter filter =
+				new PathFilter(new PredicateBuilder(eqBoolBool)
 						.addPath(p1, slotBool)
 						.addFunction(
 								new FunctionBuilder(lessLongLong).addPath(p1, slotLong)
@@ -352,7 +356,7 @@ public class TokenProcessingTest {
 		final Template t1 = new Template(SlotType.LONG, SlotType.STRING, SlotType.BOOLEAN);
 		final Path p1 = new Path(t1);
 
-		final Filter filter = FilterMockup.alwaysTrue(p1);
+		final FilterMockup filter = FilterMockup.alwaysTrue(p1);
 
 		final RootNode rootNode = network.getRootNode();
 		// create OTN
@@ -457,7 +461,7 @@ public class TokenProcessingTest {
 		final Template t1 = new Template(SlotType.LONG, SlotType.STRING, SlotType.BOOLEAN);
 		final Path p1 = new Path(t1);
 
-		final Filter filter = FilterMockup.alwaysTrue(p1);
+		final FilterMockup filter = FilterMockup.alwaysTrue(p1);
 
 		final RootNode rootNode = network.getRootNode();
 		// create OTN
@@ -512,8 +516,8 @@ public class TokenProcessingTest {
 		final Predicate eqBoolBool =
 				FunctionDictionary.lookupPredicate("=", SlotType.BOOLEAN, SlotType.BOOLEAN);
 
-		final Filter filter =
-				new Filter(new PredicateBuilder(eqBoolBool)
+		final PathFilter filter =
+				new PathFilter(new PredicateBuilder(eqBoolBool)
 						.addPath(p1, slotBool)
 						.addFunction(
 								new FunctionBuilder(lessLongLong).addPath(p1, slotLong)

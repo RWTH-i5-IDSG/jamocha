@@ -32,9 +32,11 @@ import org.jamocha.dn.nodes.Node.Edge;
 import org.jamocha.dn.nodes.RootNode;
 import org.jamocha.dn.nodes.SlotInFactAddress;
 import org.jamocha.dn.nodes.TerminalNode;
-import org.jamocha.filter.Filter;
-import org.jamocha.filter.Filter.FilterElement;
+import org.jamocha.filter.AddressFilter;
+import org.jamocha.filter.AddressFilter.AddressFilterElement;
 import org.jamocha.filter.Path;
+import org.jamocha.filter.PathFilter;
+import org.jamocha.filter.PathFilter.PathFilterElement;
 
 /**
  * The Network class encapsulates the central objects for {@link MemoryFactory} and
@@ -131,7 +133,7 @@ public class Network {
 	}
 
 	// TODO remove order dependencies
-	private boolean tryToShareNode(Filter filter) throws IllegalArgumentException {
+	public boolean tryToShareNode(PathFilter filter) throws IllegalArgumentException {
 		final LinkedHashSet<Path> pathList = filter.gatherPaths();
 		final Path[] paths = pathList.toArray(new Path[pathList.size()]);
 
@@ -170,13 +172,14 @@ public class Network {
 
 		// check candidates for possible node sharing
 		candidateLoop: for (final Node candidate : candidates) {
-			final Filter candidateFilter = candidate.getFilter();
+			final AddressFilter candidateFilter = candidate.getFilter();
 
 			if (!candidateFilter.equalsInFunction(filter)) // check if filter matches
 				continue candidateLoop;
 
-			final FilterElement[] candidateFilterElements = candidateFilter.getFilterElements();
-			final FilterElement[] filterElements = filter.getFilterElements();
+			final AddressFilterElement[] candidateFilterElements =
+					candidateFilter.getFilterElements();
+			final PathFilterElement[] filterElements = filter.getFilterElements();
 			// TODO use addresses in lower node instead of upper node as otherwise self joins will
 			// fool the comparison
 			for (int j = 0; j < filterElements.length; j++) {
@@ -218,17 +221,17 @@ public class Network {
 	 *            implemented in a separate node. Node-Sharing is used if possible
 	 * @return created TerminalNode for the constructed rule
 	 */
-	public TerminalNode buildRule(final Filter... filters) {
+	public TerminalNode buildRule(final PathFilter... filters) {
 		final LinkedHashSet<Path> allPaths = new LinkedHashSet<>();
 		{
-			for (Filter filter : filters) {
+			for (PathFilter filter : filters) {
 				final LinkedHashSet<Path> paths = filter.gatherPaths();
 				allPaths.addAll(paths);
 			}
 			final Path[] pathArray = allPaths.toArray(new Path[allPaths.size()]);
 			this.rootNode.addPaths(this, pathArray);
 		}
-		for (Filter filter : filters) {
+		for (PathFilter filter : filters) {
 			if (!tryToShareNode(filter))
 				if (filter.gatherPaths().size() == 1) {
 					new AlphaNode(this, filter);
