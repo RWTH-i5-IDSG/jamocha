@@ -27,7 +27,6 @@ import java.util.Set;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
 import org.jamocha.dn.Network;
@@ -65,11 +64,11 @@ public abstract class Node {
 		 * Transforms an address valid for the source node of the input into the corresponding
 		 * address valid for the target node of the input.
 		 * 
-		 * @param addressInParent
+		 * @param addressInSource
 		 *            an address valid in the source node of the input
 		 * @return an address valid in the target node of the input
 		 */
-		public FactAddress localizeAddress(final FactAddress addressInParent);
+		public FactAddress localizeAddress(final FactAddress addressInSource);
 
 		/**
 		 * Sets the map used for {@link Edge#localizeAddress(FactAddress)}
@@ -102,7 +101,6 @@ public abstract class Node {
 		protected final Network network;
 		protected final Node sourceNode;
 		protected final Node targetNode;
-		@NonNull
 		protected AddressFilter filter;
 
 		@Override
@@ -239,7 +237,6 @@ public abstract class Node {
 	public Node(final Network network, final PathFilter filter) {
 		this.network = network;
 		this.tokenQueue = new TokenQueue(network);
-		this.filter = filter.translatePath();
 		final LinkedHashSet<Path> paths = filter.gatherPaths();
 		final Map<Edge, Set<Path>> edgesAndPaths = new HashMap<>();
 		final ArrayList<Edge> edges = new ArrayList<>();
@@ -257,8 +254,8 @@ public abstract class Node {
 			edges.add(edge);
 			edgesAndPaths.put(edge, joinedWith);
 		}
-		incomingEdges = edges.toArray(new Edge[edges.size()]);
-		this.memory = network.getMemoryFactory().newMemoryHandlerMain(incomingEdges);
+		this.incomingEdges = edges.toArray(new Edge[edges.size()]);
+		this.memory = network.getMemoryFactory().newMemoryHandlerMain(this.incomingEdges);
 		// update all Paths from joinedWith to new addresses
 		for (final Edge edge : edges) {
 			final Set<Path> joinedWith = edgesAndPaths.get(edge);
@@ -270,6 +267,10 @@ public abstract class Node {
 						.localizeAddress(factAddressInCurrentlyLowestNode));
 				path.setJoinedWith(joinedPaths);
 			}
+		}
+		this.filter = filter.translatePath();
+		for (final Edge edge : this.incomingEdges) {
+			edge.setFilter(this.filter);
 		}
 	}
 

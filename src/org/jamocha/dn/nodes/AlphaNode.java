@@ -38,7 +38,7 @@ public class AlphaNode extends Node {
 	static final LinkedList<MemoryHandlerPlusTemp> empty = new LinkedList<>();
 
 	protected class AlphaEdgeImpl extends EdgeImpl implements PositiveEdge {
-		FactAddress addressInSource = null;
+		FactAddress addressInTarget = null;
 
 		public AlphaEdgeImpl(final Network network, final Node sourceNode, final Node targetNode,
 				final AddressFilter filter) {
@@ -68,10 +68,9 @@ public class AlphaNode extends Node {
 		}
 
 		@Override
-		public FactAddress localizeAddress(final FactAddress addressInParent) {
-			if (null != this.addressInSource)
-				return this.addressInSource;
-			return addressInParent;
+		public FactAddress localizeAddress(final FactAddress addressInSource) {
+			assert null != this.addressInTarget;
+			return this.addressInTarget;
 		}
 
 		@Override
@@ -80,8 +79,8 @@ public class AlphaNode extends Node {
 			assert map.size() == 1;
 			final Entry<? extends FactAddress, ? extends FactAddress> entry =
 					map.entrySet().iterator().next();
-			this.addressInSource = entry.getValue();
-			this.targetNode.delocalizeMap.put(this.addressInSource, new AddressPredecessor(this,
+			this.addressInTarget = entry.getValue();
+			this.targetNode.delocalizeMap.put(this.addressInTarget, new AddressPredecessor(this,
 					entry.getKey()));
 		}
 

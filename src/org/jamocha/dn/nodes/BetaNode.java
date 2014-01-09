@@ -72,9 +72,9 @@ public class BetaNode extends Node {
 		}
 
 		@Override
-		public FactAddress localizeAddress(FactAddress addressInParent) {
-			assert addressMap.containsKey(addressInParent);
-			return addressMap.get(addressInParent);
+		public FactAddress localizeAddress(FactAddress addressInSource) {
+			assert addressMap.containsKey(addressInSource);
+			return addressMap.get(addressInSource);
 		}
 
 		@Override
