@@ -6,13 +6,13 @@ import static org.junit.Assert.assertTrue;
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.dn.memory.javaimpl.SlotAddress;
-import org.jamocha.filter.Filter;
 import org.jamocha.filter.Function;
+import org.jamocha.filter.FunctionDictionary;
 import org.jamocha.filter.FunctionWithArguments;
 import org.jamocha.filter.Path;
+import org.jamocha.filter.PathFilter;
 import org.jamocha.filter.Predicate;
 import org.jamocha.filter.PredicateWithArguments;
-import org.jamocha.filter.FunctionDictionary;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -137,7 +137,7 @@ public class FilterEqualsInFunctionTest {
 	}
 
 	@Test
-	public void testFunctionWithArgumentsCompositeEqualsInFunctionFalseDifferentPath() {
+	public void testFunctionWithArgumentsCompositeEqualsInFunctionTrueDifferentPath() {
 		Path p1 = new Path(new Template(SlotType.DOUBLE));
 		Path p2 = new Path(new Template(SlotType.DOUBLE));
 		Path p3 = new Path(new Template(SlotType.DOUBLE));
@@ -165,8 +165,8 @@ public class FilterEqualsInFunctionTest {
 						.addFunction(
 								new FunctionBuilder(minus).addConstant(1337l, SlotType.DOUBLE)
 										.addPath(p3, a3).build()).build();
-		assertFalse(f.equalsInFunction(g));
-		assertFalse(g.equalsInFunction(f));
+		assertTrue(f.equalsInFunction(g));
+		assertTrue(g.equalsInFunction(f));
 
 	}
 
@@ -302,25 +302,25 @@ public class FilterEqualsInFunctionTest {
 						.addFunction(
 								new FunctionBuilder(plusL).addPath(p2, a3).addPath(p3, a4).build())
 						.build();
-		Filter a, b;
-		a = new Filter(f, g, h);
-		b = new Filter(f, g, h);
+		PathFilter a, b;
+		a = new PathFilter(f, g, h);
+		b = new PathFilter(f, g, h);
 		assertTrue(a.equalsInFunction(b));
 		assertTrue(b.equalsInFunction(a));
-		b = new Filter(i, j, k);
+		b = new PathFilter(i, j, k);
 		assertTrue(a.equalsInFunction(b));
 		assertTrue(b.equalsInFunction(a));
-		b = new Filter(f, j, h);
+		b = new PathFilter(f, j, h);
 		assertTrue(a.equalsInFunction(b));
 		assertTrue(b.equalsInFunction(a));
 
 		l =
 				new PredicateBuilder((Predicate) lessL).addConstant(17L, SlotType.LONG)
 						.addPath(p1, a5).build();
-		b = new Filter(f, l, h);
+		b = new PathFilter(f, l, h);
 		assertFalse(a.equalsInFunction(b));
 		assertFalse(b.equalsInFunction(a));
-		b = new Filter(f, l, h);
+		b = new PathFilter(f, l, h);
 		assertFalse(a.equalsInFunction(b));
 		assertFalse(b.equalsInFunction(a));
 	}
