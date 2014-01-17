@@ -337,6 +337,7 @@ public abstract class Node {
 	 * @return an address valid in the parent node
 	 */
 	public AddressPredecessor delocalizeAddress(FactAddress localFactAddress) {
+		assert null != localFactAddress;
 		assert null != delocalizeMap.get(localFactAddress);
 		return delocalizeMap.get(localFactAddress);
 	}
