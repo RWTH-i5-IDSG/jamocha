@@ -14,12 +14,8 @@
  */
 package org.jamocha.filter;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import lombok.Getter;
 
-import org.jamocha.dn.memory.FactAddress;
 import org.jamocha.dn.nodes.SlotInFactAddress;
 
 /**
@@ -44,20 +40,4 @@ public class AddressFilter extends Filter<AddressFilter.AddressFilterElement> {
 			this.addressesInTarget = addressesInTarget;
 		}
 	}
-
-	/**
-	 * Counts the number of paths that originally went into this Filter for assertion purposes.
-	 * 
-	 * @return the number of paths that originally went into this Filter
-	 */
-	public int countParameters() {
-		final Set<FactAddress> parameters = new HashSet<>();
-		for (final AddressFilterElement filterElement : this.filterElements) {
-			for (final SlotInFactAddress slotInFactAddress : filterElement.addressesInTarget) {
-				parameters.add(slotInFactAddress.getFactAddress());
-			}
-		}
-		return parameters.size();
-	}
-
 }
