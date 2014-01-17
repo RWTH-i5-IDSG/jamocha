@@ -20,7 +20,6 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.LinkedHashSet;
 
 import org.jamocha.dn.Network;
@@ -32,6 +31,7 @@ import org.jamocha.dn.nodes.RootNode;
 import org.jamocha.filter.Function;
 import org.jamocha.filter.FunctionDictionary;
 import org.jamocha.filter.Path;
+import org.jamocha.filter.PathCollector;
 import org.jamocha.filter.PathFilter;
 import org.jamocha.filter.Predicate;
 import org.junit.Before;
@@ -73,10 +73,11 @@ public class NetworkTest {
 	private static boolean tryToShareNode(final Network network, final PathFilter filter)
 			throws NoSuchMethodException, SecurityException, IllegalAccessException,
 			IllegalArgumentException, InvocationTargetException {
-		final Method tryToShareNode =
-				Network.class.getDeclaredMethod("tryToShareNode", PathFilter.class);
-		tryToShareNode.setAccessible(true);
-		return (Boolean) tryToShareNode.invoke((Object) network, (Object) filter);
+		return network.tryToShareNode(filter);
+		// final Method tryToShareNode =
+		// Network.class.getDeclaredMethod("tryToShareNode", PathFilter.class);
+		// tryToShareNode.setAccessible(true);
+		// return (Boolean) tryToShareNode.invoke((Object) network, (Object) filter);
 	}
 
 	@Test
@@ -123,7 +124,8 @@ public class NetworkTest {
 		{
 			final LinkedHashSet<Path> allPaths = new LinkedHashSet<>();
 			for (PathFilter filter : filterTwo) {
-				final LinkedHashSet<Path> paths = filter.gatherPaths();
+				final LinkedHashSet<Path> paths =
+						PathCollector.newLinkedHashSet().collect(filter).getPaths();
 				allPaths.addAll(paths);
 			}
 			final Path[] pathArray = allPaths.toArray(new Path[allPaths.size()]);
@@ -141,7 +143,8 @@ public class NetworkTest {
 		{
 			final LinkedHashSet<Path> allPaths = new LinkedHashSet<>();
 			for (PathFilter filter : filterThree) {
-				final LinkedHashSet<Path> paths = filter.gatherPaths();
+				final LinkedHashSet<Path> paths =
+						PathCollector.newLinkedHashSet().collect(filter).getPaths();
 				allPaths.addAll(paths);
 			}
 			final Path[] pathArray = allPaths.toArray(new Path[allPaths.size()]);
@@ -193,7 +196,8 @@ public class NetworkTest {
 		{
 			final LinkedHashSet<Path> allPaths = new LinkedHashSet<>();
 			for (PathFilter filter : filterTwo) {
-				final LinkedHashSet<Path> paths = filter.gatherPaths();
+				final LinkedHashSet<Path> paths =
+						PathCollector.newLinkedHashSet().collect(filter).getPaths();
 				allPaths.addAll(paths);
 			}
 			final Path[] pathArray = allPaths.toArray(new Path[allPaths.size()]);
@@ -249,7 +253,8 @@ public class NetworkTest {
 		{
 			final LinkedHashSet<Path> allPaths = new LinkedHashSet<>();
 			for (PathFilter filter : filterTwo) {
-				final LinkedHashSet<Path> paths = filter.gatherPaths();
+				final LinkedHashSet<Path> paths =
+						PathCollector.newLinkedHashSet().collect(filter).getPaths();
 				allPaths.addAll(paths);
 			}
 			final Path[] pathArray = allPaths.toArray(new Path[allPaths.size()]);
@@ -324,7 +329,8 @@ public class NetworkTest {
 		{
 			final LinkedHashSet<Path> allPaths = new LinkedHashSet<>();
 			for (PathFilter filter : filterTwo) {
-				final LinkedHashSet<Path> paths = filter.gatherPaths();
+				final LinkedHashSet<Path> paths =
+						PathCollector.newLinkedHashSet().collect(filter).getPaths();
 				allPaths.addAll(paths);
 			}
 			final Path[] pathArray = allPaths.toArray(new Path[allPaths.size()]);

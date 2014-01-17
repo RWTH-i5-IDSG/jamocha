@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2013 The Jamocha Team
+ * Copyright 2002-2014 The Jamocha Team
  * 
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
@@ -14,28 +14,10 @@
  */
 package org.jamocha.filter;
 
-import org.jamocha.dn.memory.SlotType;
-
 /**
- * Instantiation of {@link GenericWithArgumentsComposite} holding a Predicate.
- * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+ * 
  */
-public class PredicateWithArgumentsComposite extends
-		GenericWithArgumentsComposite<Boolean, Predicate> implements PredicateWithArguments {
-	public PredicateWithArgumentsComposite(final Predicate predicate,
-			final FunctionWithArguments... args) {
-		super(predicate, args);
-	}
-
-	@Override
-	public SlotType getReturnType() {
-		return SlotType.BOOLEAN;
-	}
-
-	@Override
-	public <T extends Visitor> T accept(final T visitor) {
-		visitor.visit(this);
-		return visitor;
-	}
+public interface Visitable {
+	<T extends Visitor> T accept(final T visitor);
 }

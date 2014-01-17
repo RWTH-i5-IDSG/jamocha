@@ -14,13 +14,9 @@
  */
 package org.jamocha.filter;
 
-import java.util.ArrayList;
-import java.util.Collection;
-
 import lombok.EqualsAndHashCode;
 
 import org.jamocha.dn.memory.Fact;
-import org.jamocha.dn.memory.FactAddress;
 import org.jamocha.dn.memory.SlotAddress;
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.dn.nodes.Node;
@@ -42,8 +38,8 @@ import org.jamocha.filter.Filter.FilterElement;
 @EqualsAndHashCode
 public class PathLeaf implements FunctionWithArguments {
 
-	final Path path;
-	final SlotAddress slot;
+	private final Path path;
+	private final SlotAddress slot;
 
 	public PathLeaf(final Path path, final SlotAddress slot) {
 		super();
@@ -54,21 +50,21 @@ public class PathLeaf implements FunctionWithArguments {
 	@Override
 	public String toString() {
 		final StringBuilder sb = new StringBuilder();
-		sb.append(path.toString());
+		sb.append(getPath().toString());
 		sb.append(" [");
-		sb.append(slot.toString());
+		sb.append(getSlot().toString());
 		sb.append("]");
 		return sb.toString();
 	}
 
 	@Override
 	public SlotType[] getParamTypes() {
-		return new SlotType[] { slot.getSlotType(path.template) };
+		return new SlotType[] { getSlot().getSlotType(getPath().template) };
 	}
 
 	@Override
 	public SlotType getReturnType() {
-		return slot.getSlotType(path.template);
+		return getSlot().getSlotType(getPath().template);
 	}
 
 	@Override
@@ -95,7 +91,7 @@ public class PathLeaf implements FunctionWithArguments {
 	 */
 	@EqualsAndHashCode
 	public static class ParameterLeaf implements FunctionWithArguments {
-		final SlotType type;
+		private final SlotType type;
 
 		public ParameterLeaf(final SlotType type) {
 			super();
@@ -106,19 +102,19 @@ public class PathLeaf implements FunctionWithArguments {
 		public String toString() {
 			final StringBuilder sb = new StringBuilder();
 			sb.append("[");
-			sb.append(type);
+			sb.append(getType());
 			sb.append("]");
 			return sb.toString();
 		}
 
 		@Override
 		public SlotType[] getParamTypes() {
-			return new SlotType[] { this.type };
+			return new SlotType[] { this.getType() };
 		}
 
 		@Override
 		public SlotType getReturnType() {
-			return this.type;
+			return this.getType();
 		}
 
 		@Override
@@ -132,59 +128,38 @@ public class PathLeaf implements FunctionWithArguments {
 		}
 
 		@Override
-		public FunctionWithArguments translatePath(
-				final ArrayList<SlotInFactAddress> addressesInTarget) {
-			return this;
+		public <T extends Visitor> T accept(final T visitor) {
+			visitor.visit(this);
+			return visitor;
 		}
 
-		@Override
-		public <T extends Collection<Path>> T gatherPaths(final T paths) {
-			return paths;
-		}
-
-		@Override
-		public <T extends Collection<SlotInFactAddress>> T gatherCurrentAddresses(final T paths) {
-			return paths;
-		}
-
-		@Override
-		public boolean equalsInFunction(final FunctionWithArguments function) {
-			if (function == this)
-				return true;
-			if (!(function instanceof PathLeaf || function instanceof ParameterLeaf))
-				return false;
-			return true;
+		/**
+		 * @return the type
+		 */
+		public SlotType getType() {
+			return type;
 		}
 
 	}
 
 	@Override
-	public ParameterLeaf translatePath(final ArrayList<SlotInFactAddress> addressesInTarget) {
-		final FactAddress factAddressInCurrentlyLowestNode =
-				this.path.getFactAddressInCurrentlyLowestNode();
-		addressesInTarget.add(new SlotInFactAddress(factAddressInCurrentlyLowestNode, this.slot));
-		return new ParameterLeaf(getReturnType());
+	public <T extends Visitor> T accept(final T visitor) {
+		visitor.visit(this);
+		return visitor;
 	}
 
-	@Override
-	public <T extends Collection<Path>> T gatherPaths(final T paths) {
-		paths.add(this.path);
-		return paths;
+	/**
+	 * @return the path
+	 */
+	public Path getPath() {
+		return path;
 	}
 
-	@Override
-	public <T extends Collection<SlotInFactAddress>> T gatherCurrentAddresses(final T paths) {
-		paths.add(new SlotInFactAddress(this.path.getFactAddressInCurrentlyLowestNode(), this.slot));
-		return paths;
-	}
-
-	@Override
-	public boolean equalsInFunction(final FunctionWithArguments function) {
-		if (function == this)
-			return true;
-		if (!(function instanceof PathLeaf || function instanceof ParameterLeaf))
-			return false;
-		return true;
+	/**
+	 * @return the slot
+	 */
+	public SlotAddress getSlot() {
+		return slot;
 	}
 
 }

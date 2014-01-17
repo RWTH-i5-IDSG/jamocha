@@ -40,27 +40,11 @@ public abstract class Filter<FE extends Filter.FilterElement> {
 	 * Contains Predicates in an ordered list, which is processed from front to back.
 	 */
 	@NonNull
-	final FE filterElements[];
+	protected final FE filterElements[];
 
 	@Getter
 	@RequiredArgsConstructor
 	public static abstract class FilterElement {
-		final PredicateWithArguments function;
-
-		public boolean equalsInFunction(final FilterElement filterElement) {
-			return function.equalsInFunction(filterElement.function);
-		}
+		protected final PredicateWithArguments function;
 	}
-
-	// TODO make this filter order and structure independent
-	public boolean equalsInFunction(final Filter<? extends Filter.FilterElement> filter) {
-		if (this.filterElements.length != filter.filterElements.length)
-			return false;
-		for (int i = 0; i < this.filterElements.length; i++) {
-			if (!this.filterElements[i].equalsInFunction(filter.filterElements[i]))
-				return false;
-		}
-		return true;
-	}
-
 }

@@ -107,7 +107,10 @@ public class BetaNode extends Node {
 	@Override
 	public void shareNode(final Path... paths) {
 		assert 0 < this.incomingEdges.length;
-		assert this.incomingEdges[0].getFilter().countParameters() == paths.length;
+		// assertion below does not work as the address filter in the node does not contain paths
+		// any more
+		// assert PathCollector.newHashSet().collect(this.getFilter()).getPaths().size() ==
+		// paths.length;
 		final LinkedHashSet<Path> pathSet = new LinkedHashSet<>();
 		for (final Path path : paths) {
 			pathSet.add(path);

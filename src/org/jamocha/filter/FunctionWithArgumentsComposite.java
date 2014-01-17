@@ -25,4 +25,10 @@ public class FunctionWithArgumentsComposite extends
 			final FunctionWithArguments... args) {
 		super(function, args);
 	}
+
+	@Override
+	public <T extends Visitor> T accept(final T visitor) {
+		visitor.visit(this);
+		return visitor;
+	}
 }

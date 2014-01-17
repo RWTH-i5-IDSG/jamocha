@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2013 The Jamocha Team
+ * Copyright 2002-2014 The Jamocha Team
  * 
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
@@ -14,12 +14,20 @@
  */
 package org.jamocha.filter;
 
-/**
- * Specialization of {@link FunctionWithArguments}.
- * 
- * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
- */
-public interface PredicateWithArguments extends FunctionWithArguments {
-	@Override
-	public Boolean evaluate(final Object... params);
+import org.jamocha.filter.PathLeaf.ParameterLeaf;
+
+import test.jamocha.filter.PredicateWithArgumentsMockup;
+
+public interface Visitor {
+	void visit(final ConstantLeaf constantLeaf);
+
+	void visit(final FunctionWithArgumentsComposite functionWithArgumentsComposite);
+
+	void visit(final PredicateWithArgumentsComposite predicateWithArgumentsComposite);
+
+	void visit(final ParameterLeaf parameterLeaf);
+
+	void visit(final PathLeaf pathLeaf);
+
+	void visit(final PredicateWithArgumentsMockup predicateWithArgumentsMockup);
 }

@@ -37,7 +37,9 @@ import org.jamocha.dn.memory.MemoryHandlerMinusTemp;
 import org.jamocha.dn.memory.MemoryHandlerPlusTemp;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.filter.AddressFilter;
+import org.jamocha.filter.FilterTranslator;
 import org.jamocha.filter.Path;
+import org.jamocha.filter.PathCollector;
 import org.jamocha.filter.PathFilter;
 
 /**
@@ -237,7 +239,8 @@ public abstract class Node {
 	public Node(final Network network, final PathFilter filter) {
 		this.network = network;
 		this.tokenQueue = new TokenQueue(network);
-		final LinkedHashSet<Path> paths = filter.gatherPaths();
+		final LinkedHashSet<Path> paths =
+				PathCollector.newLinkedHashSet().collect(filter).getPaths();
 		final Map<Edge, Set<Path>> edgesAndPaths = new HashMap<>();
 		final ArrayList<Edge> edges = new ArrayList<>();
 		final Set<Path> joinedPaths = new HashSet<>();
@@ -268,7 +271,7 @@ public abstract class Node {
 				path.setJoinedWith(joinedPaths);
 			}
 		}
-		this.filter = filter.translatePath();
+		this.filter = FilterTranslator.translate(filter);
 		for (final Edge edge : this.incomingEdges) {
 			edge.setFilter(this.filter);
 		}

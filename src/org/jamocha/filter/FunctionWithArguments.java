@@ -14,14 +14,8 @@
  */
 package org.jamocha.filter;
 
-import java.util.ArrayList;
-import java.util.Collection;
-
 import org.jamocha.dn.memory.Fact;
 import org.jamocha.dn.memory.SlotType;
-import org.jamocha.dn.nodes.Node;
-import org.jamocha.dn.nodes.SlotInFactAddress;
-import org.jamocha.filter.PathLeaf.ParameterLeaf;
 
 /**
  * This class bundles a {@link Function} and its arguments. The Composite Pattern has been used. An
@@ -29,7 +23,7 @@ import org.jamocha.filter.PathLeaf.ParameterLeaf;
  * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
-public interface FunctionWithArguments {
+public interface FunctionWithArguments extends Visitable {
 
 	/**
 	 * Getter for the list of the corresponding parameter types for the function.
@@ -70,57 +64,4 @@ public interface FunctionWithArguments {
 	 * @return result of the function call
 	 */
 	public Object evaluate(final Object... params);
-
-	/**
-	 * Gathers the {@link Path paths} used in any {@link PathLeaf path leafs}.
-	 * 
-	 * @param paths
-	 *            {@link Path paths} used in any {@link PathLeaf path leafs}
-	 */
-	public <T extends Collection<Path>> T gatherPaths(final T paths);
-
-	/**
-	 * Gathers the {@link SlotInFactAddress SlotInFactAddresses} used in any {@link PathLeaf path
-	 * leafs}.
-	 * 
-	 * @return {@link SlotInFactAddress SlotInFactAddresses} used in any {@link PathLeaf path leafs}
-	 */
-	public <T extends Collection<SlotInFactAddress>> T gatherCurrentAddresses(final T paths);
-
-	/**
-	 * Translates any {@link PathLeaf}s into {@link ParameterLeaf}s.
-	 * 
-	 * @param addressesInTarget
-	 *            {@link ArrayList list} of {@link SlotInFactAddress addresses} valid for the target
-	 *            {@link Node node} of the {@link Filter filter} used to replace {@link PathLeaf
-	 *            path leafs} with {@link ParameterLeaf parameter leafs}
-	 * @return {@link FunctionWithArguments function with arguments} containing
-	 *         {@link ParameterLeaf parameter leafs} instead of any {@link PathLeaf path leafs}
-	 */
-	public FunctionWithArguments translatePath(final ArrayList<SlotInFactAddress> addressesInTarget);
-
-	/**
-	 * The method should return true if the other object is an instance of the class in which
-	 * {@code canEqual} is (re)defined, false otherwise. It is called from {@code equals} to make
-	 * sure that the objects are comparable both ways.
-	 * 
-	 * @param other
-	 *            object, possibly instance of {@link FunctionWithArguments}
-	 * @return true iff the other object is an instance of the {@link FunctionWithArguments}
-	 */
-	public boolean canEqual(final Object other);
-
-	/**
-	 * Compares to {@link FunctionWithArguments Functions}. Returns false if the functions do not
-	 * return the same value for a call of {@link #evaluate(Object...)} with the same parameters for
-	 * at least one set of parameters.
-	 * 
-	 * May produce false negatives.
-	 * 
-	 * @param function
-	 *            the {@link FunctionWithArguments} to compare with
-	 * @return the result of the comparison (possibly false negatives)
-	 */
-	public boolean equalsInFunction(final FunctionWithArguments function);
-
 }

@@ -14,13 +14,10 @@
  */
 package org.jamocha.filter;
 
-import java.util.ArrayList;
-import java.util.Collection;
-
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 
 import org.jamocha.dn.memory.SlotType;
-import org.jamocha.dn.nodes.SlotInFactAddress;
 
 /**
  * A parameter of a {@link Function} may be a constant value specified in the parsed representation
@@ -28,6 +25,7 @@ import org.jamocha.dn.nodes.SlotInFactAddress;
  * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
+@Getter
 @EqualsAndHashCode
 public class ConstantLeaf implements FunctionWithArguments, Function<Object> {
 	final Object value;
@@ -70,32 +68,9 @@ public class ConstantLeaf implements FunctionWithArguments, Function<Object> {
 	}
 
 	@Override
-	public FunctionWithArguments translatePath(final ArrayList<SlotInFactAddress> addressesInTarget) {
-		return this;
-	}
-
-	@Override
-	public <T extends Collection<Path>> T gatherPaths(final T paths) {
-		return paths;
-	}
-
-	@Override
-	public <T extends Collection<SlotInFactAddress>> T gatherCurrentAddresses(final T paths) {
-		return paths;
-	}
-
-	@Override
-	public boolean equalsInFunction(final FunctionWithArguments function) {
-		if (!(function instanceof ConstantLeaf))
-			return false;
-		final ConstantLeaf other = (ConstantLeaf) function;
-		if (!other.canEqual(this))
-			return false;
-		if (this.type == null ? other.type != null : !this.type.equals(other.type))
-			return false;
-		if (this.value == null ? other.value != null : !this.value.equals(other.value))
-			return false;
-		return true;
+	public <T extends Visitor> T accept(final T visitor) {
+		visitor.visit(this);
+		return visitor;
 	}
 
 }

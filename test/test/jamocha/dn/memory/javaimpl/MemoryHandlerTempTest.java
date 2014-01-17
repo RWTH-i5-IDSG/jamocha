@@ -38,6 +38,7 @@ import org.jamocha.dn.nodes.SlotInFactAddress;
 import org.jamocha.filter.AddressFilter;
 import org.jamocha.filter.AddressFilter.AddressFilterElement;
 import org.jamocha.filter.Filter;
+import org.jamocha.filter.FilterTranslator;
 import org.jamocha.filter.FunctionDictionary;
 import org.jamocha.filter.FunctionWithArguments;
 import org.jamocha.filter.Path;
@@ -226,7 +227,7 @@ public class MemoryHandlerTempTest {
 						new Fact(new Template(SlotType.STRING), "Fakt2"));
 		MemoryHandlerPlusTemp token1 =
 				(MemoryHandlerPlusTemp) node.getMemory().processTokenInBeta(token, originInput,
-						FilterMockup.alwaysTrue().translatePath());
+						FilterTranslator.translate(FilterMockup.alwaysTrue()));
 		assertEquals(4, token1.size());
 		assertEquals(2, token1.getTemplate().length);
 		String s = (String) token1.getValue(fa[0], slotAddress, 0);
@@ -298,11 +299,13 @@ public class MemoryHandlerTempTest {
 						SlotType.STRING), "Test"));
 		MemoryHandlerPlusTemp memoryTempHandler =
 				(MemoryHandlerPlusTemp) memoryHandlerMain.processTokenInAlpha(token,
-						node.getIncomingEdges()[0], FilterMockup.alwaysTrue().translatePath());
+						node.getIncomingEdges()[0],
+						FilterTranslator.translate(FilterMockup.alwaysTrue()));
 		assertEquals(1, memoryTempHandler.size());
 		memoryTempHandler =
 				(MemoryHandlerPlusTemp) memoryHandlerMain.processTokenInAlpha(token,
-						node.getIncomingEdges()[0], FilterMockup.alwaysFalse().translatePath());
+						node.getIncomingEdges()[0],
+						FilterTranslator.translate(FilterMockup.alwaysFalse()));
 		assertEquals(0, memoryTempHandler.size());
 	}
 

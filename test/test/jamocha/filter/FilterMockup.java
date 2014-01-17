@@ -18,6 +18,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import org.jamocha.filter.AddressFilter;
+import org.jamocha.filter.FilterTranslator;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.PathFilter;
 import org.jamocha.filter.PredicateWithArguments;
@@ -59,7 +60,7 @@ public class FilterMockup extends PathFilter {
 		 */
 		@Theory
 		public void testAlwaysTrue(@SomeStuff Object... obj) {
-			final AddressFilter alwaysTrue = FilterMockup.alwaysTrue().translatePath();
+			final AddressFilter alwaysTrue = FilterTranslator.translate(FilterMockup.alwaysTrue());
 			for (final FilterElement filterElement : alwaysTrue.getFilterElements()) {
 				assertTrue(filterElement.getFunction().evaluate(obj));
 			}
@@ -70,7 +71,8 @@ public class FilterMockup extends PathFilter {
 		 */
 		@Theory
 		public void testAlwaysFalse(@SomeStuff Object... obj) {
-			final AddressFilter alwaysFalse = FilterMockup.alwaysFalse().translatePath();
+			final AddressFilter alwaysFalse =
+					FilterTranslator.translate(FilterMockup.alwaysFalse());
 			for (final FilterElement filterElement : alwaysFalse.getFilterElements()) {
 				assertFalse(filterElement.getFunction().evaluate(obj));
 			}

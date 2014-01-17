@@ -48,10 +48,6 @@ import test.jamocha.filter.FilterMockup;
  */
 public class BetaNodeTest {
 
-	@SuppressWarnings("unused")
-	private static class FactAddressMockup implements FactAddress {
-	}
-
 	/**
 	 * @throws java.lang.Exception
 	 */
@@ -244,6 +240,8 @@ public class BetaNodeTest {
 		p2.setCurrentlyLowestNode(otn);
 		p2.setFactAddressInCurrentlyLowestNode(null);
 		p2.setJoinedWith(joinedWith);
+		// next line will cause assertion failure when trying to localize
+		// FactAddressInCurrentlyLowestNode downwards for p1 and p2
 		BetaNode beta = new BetaNode(Network.DEFAULTNETWORK, new FilterMockup(true, p1, p2));
 		final Edge[] incomingEdges = beta.getIncomingEdges();
 		assertEquals(2, incomingEdges.length);

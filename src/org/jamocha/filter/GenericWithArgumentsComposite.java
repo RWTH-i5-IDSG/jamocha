@@ -16,14 +16,12 @@ package org.jamocha.filter;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
 import org.jamocha.dn.memory.SlotType;
-import org.jamocha.dn.nodes.SlotInFactAddress;
 
 /**
  * This class is the composite of the {@link FunctionWithArguments} hierarchy. It stores a
@@ -38,7 +36,7 @@ import org.jamocha.dn.nodes.SlotInFactAddress;
  * @see FunctionWithArguments
  */
 @EqualsAndHashCode
-public class GenericWithArgumentsComposite<R, F extends Function<? extends R>> implements
+public abstract class GenericWithArgumentsComposite<R, F extends Function<? extends R>> implements
 		FunctionWithArguments {
 
 	final F function;
@@ -152,72 +150,4 @@ public class GenericWithArgumentsComposite<R, F extends Function<? extends R>> i
 		return lazyEvaluate(lazyParams).evaluate();
 	}
 
-	@Override
-	public FunctionWithArguments translatePath(final ArrayList<SlotInFactAddress> addressesInTarget) {
-		return new GenericWithArgumentsComposite<R, F>(this.function,
-				translatePathHelper(addressesInTarget));
-	}
-
-	protected FunctionWithArguments[] translatePathHelper(
-			final ArrayList<SlotInFactAddress> addressesInTarget) {
-		final FunctionWithArguments[] args = new FunctionWithArguments[this.args.length];
-		for (int i = 0; i < this.args.length; ++i) {
-			args[i] = this.args[i].translatePath(addressesInTarget);
-		}
-		return args;
-	}
-
-	@Override
-	public <T extends Collection<Path>> T gatherPaths(final T paths) {
-		for (final FunctionWithArguments fwa : args) {
-			fwa.gatherPaths(paths);
-		}
-		return paths;
-	}
-
-	@Override
-	public <T extends Collection<SlotInFactAddress>> T gatherCurrentAddresses(final T paths) {
-		for (final FunctionWithArguments fwa : args) {
-			fwa.gatherCurrentAddresses(paths);
-		}
-		return paths;
-	}
-
-	@Override
-	public boolean equalsInFunction(final FunctionWithArguments function) {
-		if (function == this)
-			return true;
-		if (!(function instanceof GenericWithArgumentsComposite))
-			return false;
-		final GenericWithArgumentsComposite<?, ?> other =
-				(GenericWithArgumentsComposite<?, ?>) function;
-		if (!other.canEqual(this))
-			return false;
-		if (this.args.length != other.args.length)
-			return false;
-		for (int i = 0; i < this.args.length; ++i) {
-			final FunctionWithArguments arg1 = this.args[i];
-			final FunctionWithArguments arg2 = other.args[i];
-			if (arg1 == null ? arg2 != null : !arg1.equalsInFunction(arg2))
-				return false;
-		}
-		return true;
-	}
-
-	public GenericWithArgumentsComposite<R, F> withFunction(final F function) {
-		return new GenericWithArgumentsComposite<R, F>(function, args);
-	}
-
-	public FunctionWithArguments[] reverseArguments() {
-		final int length = this.args.length;
-		final FunctionWithArguments[] rev = new FunctionWithArguments[length];
-		for (int i = 0; i < length; ++i) {
-			rev[length - i - 1] = this.args[i];
-		}
-		return rev;
-	}
-
-	public GenericWithArgumentsComposite<R, F> withInverseArgs() {
-		return new GenericWithArgumentsComposite<R, F>(this.function, reverseArguments());
-	}
 }
