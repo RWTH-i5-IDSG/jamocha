@@ -17,8 +17,8 @@ package test.jamocha.util;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.jamocha.dn.memory.SlotAddress;
 import org.jamocha.dn.memory.SlotType;
-import org.jamocha.dn.memory.javaimpl.SlotAddress;
 import org.jamocha.filter.ConstantLeaf;
 import org.jamocha.filter.Function;
 import org.jamocha.filter.FunctionWithArguments;
