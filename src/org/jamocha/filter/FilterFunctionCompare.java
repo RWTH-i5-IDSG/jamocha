@@ -209,25 +209,19 @@ public class FilterFunctionCompare {
 		}
 	};
 
-	private static boolean filterFunctionCompare(final PathFilter pathFilter,
-			final AddressFilter addressFilter) {
-		for (int i = 0; i < addressFilter.filterElements.length; i++) {
-			final AddressFilterElement addressFilterElement = addressFilter.filterElements[i];
-			final PathFilterElement pathFilterElement = pathFilter.filterElements[i];
-			if (!filterElementFunctionCompare(addressFilterElement, pathFilterElement)) {
-				return false;
-			}
-		}
-		return true;
-	}
-
-	private static boolean filterElementFunctionCompare(
-			final AddressFilterElement addressFilterElement,
-			final PathFilterElement pathFilterElement) {
+	public static boolean equals(final PathFilterElement pathFilterElement,
+			final AddressFilterElement addressFilterElement) {
 		return new FilterFunctionCompare(pathFilterElement, addressFilterElement).equal;
 	}
 
 	public static boolean equals(final PathFilter pathFilter, final AddressFilter addressFilter) {
-		return filterFunctionCompare(pathFilter, addressFilter);
+		for (int i = 0; i < addressFilter.filterElements.length; i++) {
+			final PathFilterElement pathFilterElement = pathFilter.filterElements[i];
+			final AddressFilterElement addressFilterElement = addressFilter.filterElements[i];
+			if (!equals(pathFilterElement, addressFilterElement)) {
+				return false;
+			}
+		}
+		return true;
 	}
 }
