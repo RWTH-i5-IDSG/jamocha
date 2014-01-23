@@ -67,20 +67,20 @@ public abstract class GenericWithArgumentsComposite<R, F extends Function<? exte
 
 	@Override
 	public SlotType getReturnType() {
-		return function.getReturnType();
+		return this.function.getReturnType();
 	}
 
 	@Override
 	public String toString() {
 		final StringBuilder sb = new StringBuilder();
-		sb.append(function.toString());
+		sb.append(this.function.toString());
 		sb.append("(");
-		if (args.length > 0) {
-			sb.append(args[0].toString());
+		if (this.args.length > 0) {
+			sb.append(this.args[0].toString());
 		}
-		for (int i = 1; i < args.length; ++i) {
+		for (int i = 1; i < this.args.length; ++i) {
 			sb.append(", ");
-			sb.append(args[i].toString());
+			sb.append(this.args[i].toString());
 		}
 		sb.append(")");
 		return sb.toString();
@@ -126,10 +126,11 @@ public abstract class GenericWithArgumentsComposite<R, F extends Function<? exte
 
 			@Override
 			public R evaluate(final Function<?>... innerParams) {
-				final Function<?> evaluatableArgs[] = new Function<?>[args.length];
+				final Function<?> evaluatableArgs[] =
+						new Function<?>[GenericWithArgumentsComposite.this.args.length];
 				int k = 0;
-				for (int i = 0; i < args.length; i++) {
-					final FunctionWithArguments fwa = args[i];
+				for (int i = 0; i < GenericWithArgumentsComposite.this.args.length; i++) {
+					final FunctionWithArguments fwa = GenericWithArgumentsComposite.this.args[i];
 					final SlotType[] types = fwa.getParamTypes();
 					evaluatableArgs[i] =
 							fwa.lazyEvaluate(Arrays.copyOfRange(params, k, k + types.length));

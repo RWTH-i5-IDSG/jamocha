@@ -47,7 +47,7 @@ public class MemoryHandlerBase implements MemoryHandler {
 	 * @see org.jamocha.dn.memory.MemoryHandler#getValue(FactAddress, SlotAddress, int)
 	 */
 	@Override
-	public Object getValue(final FactAddress address, final SlotAddress slot, int row) {
+	public Object getValue(final FactAddress address, final SlotAddress slot, final int row) {
 		return this.facts.get(row)[((org.jamocha.dn.memory.javaimpl.FactAddress) address)
 				.getIndex()].getValue(slot);
 	}

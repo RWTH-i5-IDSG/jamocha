@@ -29,35 +29,43 @@ import org.jamocha.filter.FunctionDictionary;
 public class Plus {
 	static {
 		FunctionDictionary.addImpl(new Function<Long>() {
+			@Override
 			public SlotType[] getParamTypes() {
 				return new SlotType[] { SlotType.LONG, SlotType.LONG };
 			}
 
+			@Override
 			public String toString() {
 				return "+";
 			}
 
+			@Override
 			public SlotType getReturnType() {
 				return SlotType.LONG;
 			}
 
+			@Override
 			public Long evaluate(final Function<?>... params) {
 				return (Long) params[0].evaluate() + (Long) params[1].evaluate();
 			}
 		});
 		FunctionDictionary.addImpl(new Function<Double>() {
+			@Override
 			public SlotType[] getParamTypes() {
 				return new SlotType[] { SlotType.DOUBLE, SlotType.DOUBLE };
 			}
 
+			@Override
 			public String toString() {
 				return "+";
 			}
 
+			@Override
 			public SlotType getReturnType() {
 				return SlotType.DOUBLE;
 			}
 
+			@Override
 			public Double evaluate(final Function<?>... params) {
 				return (Double) params[0].evaluate() + (Double) params[1].evaluate();
 			}

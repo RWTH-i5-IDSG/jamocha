@@ -53,38 +53,38 @@ public class BetaNode extends Node {
 		public void processPlusToken(final MemoryHandlerPlusTemp memory)
 				throws CouldNotAcquireLockException {
 			final MemoryHandlerTemp mem =
-					targetNode.memory.processTokenInBeta(memory, this, this.filter);
+					this.targetNode.memory.processTokenInBeta(memory, this, this.filter);
 			if (mem.size() == 0) {
 				return;
 			}
-			mem.enqueueInEdges(targetNode.outgoingPositiveEdges);
+			mem.enqueueInEdges(this.targetNode.outgoingPositiveEdges);
 		}
 
 		@Override
 		public void processMinusToken(final MemoryHandlerMinusTemp memory)
 				throws CouldNotAcquireLockException {
 			final MemoryHandlerTemp mem =
-					targetNode.memory.processTokenInBeta(memory, this, this.filter);
+					this.targetNode.memory.processTokenInBeta(memory, this, this.filter);
 			if (mem.size() == 0) {
 				return;
 			}
-			mem.enqueueInEdges(targetNode.outgoingPositiveEdges);
+			mem.enqueueInEdges(this.targetNode.outgoingPositiveEdges);
 		}
 
 		@Override
-		public FactAddress localizeAddress(FactAddress addressInSource) {
+		public FactAddress localizeAddress(final FactAddress addressInSource) {
 			assert null != addressInSource;
-			assert addressMap.containsKey(addressInSource);
-			return addressMap.get(addressInSource);
+			assert this.addressMap.containsKey(addressInSource);
+			return this.addressMap.get(addressInSource);
 		}
 
 		@Override
 		public void setAddressMap(final Map<? extends FactAddress, ? extends FactAddress> map) {
 			assert map != null;
-			addressMap = map;
+			this.addressMap = map;
 			for (final Entry<? extends FactAddress, ? extends FactAddress> entry : map.entrySet()) {
-				targetNode.delocalizeMap.put(entry.getValue(),
-						new AddressPredecessor(this, entry.getKey()));
+				this.targetNode.delocalizeMap.put(entry.getValue(), new AddressPredecessor(this,
+						entry.getKey()));
 			}
 		}
 
@@ -100,7 +100,7 @@ public class BetaNode extends Node {
 	}
 
 	@Override
-	protected PositiveEdge newPositiveEdge(Node source) {
+	protected PositiveEdge newPositiveEdge(final Node source) {
 		return new BetaEdgeImpl(this.network, source, this, this.filter);
 	}
 

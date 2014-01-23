@@ -34,13 +34,13 @@ public class ThreadPoolScheduler implements Scheduler {
 	 * @param nThreads
 	 *            the size of the thread pool
 	 */
-	public ThreadPoolScheduler(int nThreads) {
-		executor = Executors.newFixedThreadPool(nThreads);
+	public ThreadPoolScheduler(final int nThreads) {
+		this.executor = Executors.newFixedThreadPool(nThreads);
 	}
 
 	@Override
-	public void enqueue(Runnable runnable) {
-		executor.execute(runnable);
+	public void enqueue(final Runnable runnable) {
+		this.executor.execute(runnable);
 	}
 
 }

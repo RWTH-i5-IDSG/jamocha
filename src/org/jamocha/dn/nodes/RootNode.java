@@ -74,7 +74,7 @@ public class RootNode {
 
 	public void addPaths(final Network network, final Path... paths) {
 		for (final Path path : paths) {
-			final ObjectTypeNode otn = templateToInput.get(path.getTemplate());
+			final ObjectTypeNode otn = this.templateToInput.get(path.getTemplate());
 			if (otn != null)
 				otn.shareNode(path);
 			else

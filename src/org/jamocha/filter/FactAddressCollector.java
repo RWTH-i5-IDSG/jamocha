@@ -71,7 +71,7 @@ public class FactAddressCollector<T extends Collection<FactAddress>> {
 	 * @return the addresses
 	 */
 	public T getAddresses() {
-		return addresses;
+		return this.addresses;
 	}
 
 	/**

@@ -44,17 +44,17 @@ public class ConstantLeaf implements FunctionWithArguments, Function<Object> {
 
 	@Override
 	public SlotType getReturnType() {
-		return type;
+		return this.type;
 	}
 
 	@Override
 	public String toString() {
-		return value.toString();
+		return this.value.toString();
 	}
 
 	@Override
 	public Object evaluate(final Function<?>... params) {
-		return value;
+		return this.value;
 	}
 
 	@Override
@@ -64,7 +64,7 @@ public class ConstantLeaf implements FunctionWithArguments, Function<Object> {
 
 	@Override
 	public Object evaluate(final Object... params) {
-		return value;
+		return this.value;
 	}
 
 	@Override

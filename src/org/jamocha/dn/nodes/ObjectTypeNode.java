@@ -51,7 +51,7 @@ public class ObjectTypeNode extends AlphaNode {
 	 * returns the template belonging to this node
 	 */
 	public Template getTemplate() {
-		return template;
+		return this.template;
 	}
 
 	@Override
@@ -79,14 +79,14 @@ public class ObjectTypeNode extends AlphaNode {
 	}
 
 	@Override
-	public AddressPredecessor delocalizeAddress(FactAddress localFactAddress) {
+	public AddressPredecessor delocalizeAddress(final FactAddress localFactAddress) {
 		throw new UnsupportedOperationException("No previous addresses for addresses in an OTN.");
 	}
 
 	@Override
 	public void shareNode(final Path... paths) {
 		assert null != paths;
-		for (Path path : paths) {
+		for (final Path path : paths) {
 			path.setCurrentlyLowestNode(this);
 			path.setFactAddressInCurrentlyLowestNode(this.factAddress);
 		}

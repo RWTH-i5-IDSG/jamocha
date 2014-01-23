@@ -16,8 +16,8 @@ package org.jamocha.filter.impls.predicates;
 
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.filter.Function;
-import org.jamocha.filter.Predicate;
 import org.jamocha.filter.FunctionDictionary;
+import org.jamocha.filter.Predicate;
 
 /**
  * Implements the functionality of the binary greater or equal ({@code >=}) operator.

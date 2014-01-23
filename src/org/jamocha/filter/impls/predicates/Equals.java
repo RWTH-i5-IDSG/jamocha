@@ -17,8 +17,8 @@ package org.jamocha.filter.impls.predicates;
 
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.filter.Function;
-import org.jamocha.filter.Predicate;
 import org.jamocha.filter.FunctionDictionary;
+import org.jamocha.filter.Predicate;
 
 /**
  * Implements the functionality of the binary equality {@code =} operator.
@@ -43,7 +43,7 @@ public class Equals {
 
 			@Override
 			public Boolean evaluate(final Function<?>... params) {
-				return ((Long) params[0].evaluate()).equals((Long) params[1].evaluate());
+				return ((Long) params[0].evaluate()).equals(params[1].evaluate());
 			}
 		});
 		FunctionDictionary.addImpl(new Predicate() {
@@ -59,7 +59,7 @@ public class Equals {
 
 			@Override
 			public Boolean evaluate(final Function<?>... params) {
-				return ((Double) params[0].evaluate()).equals((Double) params[1].evaluate());
+				return ((Double) params[0].evaluate()).equals(params[1].evaluate());
 			}
 		});
 		FunctionDictionary.addImpl(new Predicate() {
@@ -75,7 +75,7 @@ public class Equals {
 
 			@Override
 			public Boolean evaluate(final Function<?>... params) {
-				return ((Boolean) params[0].evaluate()).equals((Boolean) params[1].evaluate());
+				return ((Boolean) params[0].evaluate()).equals(params[1].evaluate());
 			}
 		});
 		FunctionDictionary.addImpl(new Predicate() {
@@ -91,7 +91,7 @@ public class Equals {
 
 			@Override
 			public Boolean evaluate(final Function<?>... params) {
-				return ((String) params[0].evaluate()).equals((String) params[1].evaluate());
+				return ((String) params[0].evaluate()).equals(params[1].evaluate());
 			}
 		});
 

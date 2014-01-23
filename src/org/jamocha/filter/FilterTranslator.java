@@ -61,7 +61,7 @@ public class FilterTranslator {
 		 * @return the functionWithArguments
 		 */
 		public PredicateWithArguments getFunctionWithArguments() {
-			return functionWithArguments;
+			return this.functionWithArguments;
 		}
 
 		@Override
@@ -72,7 +72,7 @@ public class FilterTranslator {
 			for (int i = 0; i < numArgs; ++i) {
 				final FunctionWithArguments originalArg = originalArgs[i];
 				translatedArgs[i] =
-						originalArg.accept(new FunctionWithArgumentsTranslator(addresses))
+						originalArg.accept(new FunctionWithArgumentsTranslator(this.addresses))
 								.getFunctionWithArguments();
 			}
 			this.functionWithArguments =
@@ -81,32 +81,32 @@ public class FilterTranslator {
 		}
 
 		@Override
-		public void visit(PredicateWithArgumentsMockup predicateWithArgumentsMockup) {
+		public void visit(final PredicateWithArgumentsMockup predicateWithArgumentsMockup) {
 			this.functionWithArguments =
 					new PredicateWithArgumentsMockup(predicateWithArgumentsMockup.isReturnValue(),
 							predicateWithArgumentsMockup.getPaths());
 		}
 
 		@Override
-		public void visit(FunctionWithArgumentsComposite functionWithArgumentsComposite) {
+		public void visit(final FunctionWithArgumentsComposite functionWithArgumentsComposite) {
 			throw new UnsupportedOperationException(
 					"PredicateWithArgumentsTranslator is only to be used with PredicateWithArguments!");
 		}
 
 		@Override
-		public void visit(ConstantLeaf constantLeaf) {
+		public void visit(final ConstantLeaf constantLeaf) {
 			throw new UnsupportedOperationException(
 					"PredicateWithArgumentsTranslator is only to be used with PredicateWithArguments!");
 		}
 
 		@Override
-		public void visit(ParameterLeaf parameterLeaf) {
+		public void visit(final ParameterLeaf parameterLeaf) {
 			throw new UnsupportedOperationException(
 					"PredicateWithArgumentsTranslator is only to be used with PredicateWithArguments!");
 		}
 
 		@Override
-		public void visit(PathLeaf pathLeaf) {
+		public void visit(final PathLeaf pathLeaf) {
 			throw new UnsupportedOperationException(
 					"PredicateWithArgumentsTranslator is only to be used with PredicateWithArguments!");
 		}
@@ -129,14 +129,14 @@ public class FilterTranslator {
 		}
 
 		@Override
-		public void visit(FunctionWithArgumentsComposite functionWithArgumentsComposite) {
+		public void visit(final FunctionWithArgumentsComposite functionWithArgumentsComposite) {
 			this.functionWithArguments =
 					new FunctionWithArgumentsComposite(functionWithArgumentsComposite.function,
 							translateArgs(functionWithArgumentsComposite.args));
 		}
 
 		@Override
-		public void visit(PredicateWithArgumentsComposite predicateWithArgumentsComposite) {
+		public void visit(final PredicateWithArgumentsComposite predicateWithArgumentsComposite) {
 			this.functionWithArguments =
 					new PredicateWithArgumentsComposite(predicateWithArgumentsComposite.function,
 							translateArgs(predicateWithArgumentsComposite.args));
@@ -149,7 +149,7 @@ public class FilterTranslator {
 			for (int i = 0; i < numArgs; ++i) {
 				final FunctionWithArguments originalArg = originalArgs[i];
 				translatedArgs[i] =
-						originalArg.accept(new FunctionWithArgumentsTranslator(addresses))
+						originalArg.accept(new FunctionWithArgumentsTranslator(this.addresses))
 								.getFunctionWithArguments();
 			}
 			return translatedArgs;

@@ -39,12 +39,12 @@ public enum SlotType {
 
 	final private Class<?> javaClass;
 
-	private SlotType(Class<?> javaClazz) {
+	private SlotType(final Class<?> javaClazz) {
 		this.javaClass = javaClazz;
 	}
 
 	public Class<?> getJavaClass() {
-		return javaClass;
+		return this.javaClass;
 	}
 
 	/**

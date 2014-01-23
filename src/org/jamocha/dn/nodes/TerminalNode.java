@@ -67,18 +67,18 @@ public class TerminalNode {
 		}
 
 		@Override
-		public FactAddress localizeAddress(FactAddress addressInParent) {
-			assert addressMap.containsKey(addressInParent);
-			return addressMap.get(addressInParent);
+		public FactAddress localizeAddress(final FactAddress addressInParent) {
+			assert this.addressMap.containsKey(addressInParent);
+			return this.addressMap.get(addressInParent);
 		}
 
 		@Override
 		public void setAddressMap(final Map<? extends FactAddress, ? extends FactAddress> map) {
 			assert map != null;
-			addressMap = map;
+			this.addressMap = map;
 			for (final Entry<? extends FactAddress, ? extends FactAddress> entry : map.entrySet()) {
-				targetNode.delocalizeMap.put(entry.getValue(),
-						new AddressPredecessor(this, entry.getKey()));
+				this.targetNode.delocalizeMap.put(entry.getValue(), new AddressPredecessor(this,
+						entry.getKey()));
 			}
 		}
 

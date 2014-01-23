@@ -103,7 +103,7 @@ public class Network {
 	 * @param scheduler
 	 *            the {@link Scheduler} to handle the dispatching of token processing
 	 */
-	public Network(final MemoryFactory memoryFactory, int tokenQueueCapacity,
+	public Network(final MemoryFactory memoryFactory, final int tokenQueueCapacity,
 			final Scheduler scheduler) {
 		this.memoryFactory = memoryFactory;
 		this.tokenQueueCapacity = tokenQueueCapacity;
@@ -120,7 +120,7 @@ public class Network {
 	 * @param scheduler
 	 *            the {@link Scheduler} to handle the dispatching of token processing
 	 */
-	public Network(int tokenQueueCapacity, final Scheduler scheduler) {
+	public Network(final int tokenQueueCapacity, final Scheduler scheduler) {
 		this(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(), tokenQueueCapacity,
 				scheduler);
 	}
@@ -188,7 +188,7 @@ public class Network {
 		for (final Edge edge : firstNodesOutgoingPositiveEdges) {
 			try {
 				candidates.add(edge.getTargetNode());
-			} catch (UnsupportedOperationException e) {
+			} catch (final UnsupportedOperationException e) {
 				// triggered by terminal node, just don't add it
 			}
 		}
@@ -200,7 +200,7 @@ public class Network {
 			for (final Edge edge : node.getOutgoingPositiveEdges()) {
 				try {
 					cutSet.add(edge.getTargetNode());
-				} catch (UnsupportedOperationException e) {
+				} catch (final UnsupportedOperationException e) {
 					// triggered by terminal node, just don't add it
 				}
 			}
@@ -220,7 +220,7 @@ public class Network {
 	public TerminalNode buildRule(final PathFilter... filters) {
 		final LinkedHashSet<Path> allPaths = new LinkedHashSet<>();
 		{
-			for (PathFilter filter : filters) {
+			for (final PathFilter filter : filters) {
 				final LinkedHashSet<Path> paths =
 						PathCollector.newLinkedHashSet().collect(filter).getPaths();
 				allPaths.addAll(paths);
@@ -228,7 +228,7 @@ public class Network {
 			final Path[] pathArray = allPaths.toArray(new Path[allPaths.size()]);
 			this.rootNode.addPaths(this, pathArray);
 		}
-		for (PathFilter filter : filters) {
+		for (final PathFilter filter : filters) {
 			if (!tryToShareNode(filter))
 				if (PathCollector.newLinkedHashSet().collect(filter).getPaths().size() == 1) {
 					new AlphaNode(this, filter);

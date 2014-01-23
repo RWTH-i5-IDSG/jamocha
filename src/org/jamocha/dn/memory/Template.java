@@ -62,12 +62,12 @@ public class Template {
 	 *            position in the template
 	 * @return {@link SlotType} corresponding to the position specified by the given index
 	 */
-	public SlotType getSlotsType(int index) {
-		return slots[index];
+	public SlotType getSlotsType(final int index) {
+		return this.slots[index];
 	}
 
 	public Fact newFact(final Object... values) {
-		for (int i = 0; i < slots.length; ++i) {
+		for (int i = 0; i < this.slots.length; ++i) {
 			assert getSlotsType(i).getJavaClass().isInstance(values[i]);
 		}
 		return new Fact(this, values);

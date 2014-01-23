@@ -65,7 +65,7 @@ public class PathCollector<T extends Collection<Path>> implements Visitor {
 	 * @return the paths
 	 */
 	public T getPaths() {
-		return paths;
+		return this.paths;
 	}
 
 	/**
@@ -80,14 +80,14 @@ public class PathCollector<T extends Collection<Path>> implements Visitor {
 	}
 
 	@Override
-	public void visit(FunctionWithArgumentsComposite functionWithArgumentsComposite) {
+	public void visit(final FunctionWithArgumentsComposite functionWithArgumentsComposite) {
 		for (final FunctionWithArguments fwa : functionWithArgumentsComposite.args) {
 			fwa.accept(this);
 		}
 	}
 
 	@Override
-	public void visit(PredicateWithArgumentsComposite predicateWithArgumentsComposite) {
+	public void visit(final PredicateWithArgumentsComposite predicateWithArgumentsComposite) {
 		for (final FunctionWithArguments fwa : predicateWithArgumentsComposite.args) {
 			fwa.accept(this);
 		}
@@ -102,8 +102,9 @@ public class PathCollector<T extends Collection<Path>> implements Visitor {
 		this.getPaths().add(pathLeaf.getPath());
 	}
 
+	@Override
 	public void visit(final PredicateWithArgumentsMockup predicateWithArgumentsMockup) {
-		for (Path path : predicateWithArgumentsMockup.getPaths()) {
+		for (final Path path : predicateWithArgumentsMockup.getPaths()) {
 			this.getPaths().add(path);
 		}
 	}

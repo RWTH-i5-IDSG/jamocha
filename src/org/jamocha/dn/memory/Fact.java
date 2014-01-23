@@ -34,7 +34,7 @@ public class Fact {
 		this.slotValues = slotValues;
 	}
 
-	public Object getValue(int index) {
+	public Object getValue(final int index) {
 		return this.slotValues[index];
 	}
 }

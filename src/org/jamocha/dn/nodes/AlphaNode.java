@@ -49,22 +49,22 @@ public class AlphaNode extends Node {
 		public void processPlusToken(final MemoryHandlerPlusTemp memory)
 				throws CouldNotAcquireLockException {
 			final MemoryHandlerTemp mem =
-					targetNode.memory.processTokenInAlpha(memory, this, this.filter);
+					this.targetNode.memory.processTokenInAlpha(memory, this, this.filter);
 			if (mem.size() == 0) {
 				return;
 			}
-			mem.enqueueInEdges(targetNode.outgoingPositiveEdges);
+			mem.enqueueInEdges(this.targetNode.outgoingPositiveEdges);
 		}
 
 		@Override
 		public void processMinusToken(final MemoryHandlerMinusTemp memory)
 				throws CouldNotAcquireLockException {
 			final MemoryHandlerTemp mem =
-					targetNode.memory.processTokenInAlpha(memory, this, this.filter);
+					this.targetNode.memory.processTokenInAlpha(memory, this, this.filter);
 			if (mem.size() == 0) {
 				return;
 			}
-			mem.enqueueInEdges(targetNode.outgoingPositiveEdges);
+			mem.enqueueInEdges(this.targetNode.outgoingPositiveEdges);
 		}
 
 		@Override

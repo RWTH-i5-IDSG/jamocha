@@ -137,7 +137,7 @@ public class PathLeaf implements FunctionWithArguments {
 		 * @return the type
 		 */
 		public SlotType getType() {
-			return type;
+			return this.type;
 		}
 
 	}
@@ -152,14 +152,14 @@ public class PathLeaf implements FunctionWithArguments {
 	 * @return the path
 	 */
 	public Path getPath() {
-		return path;
+		return this.path;
 	}
 
 	/**
 	 * @return the slot
 	 */
 	public SlotAddress getSlot() {
-		return slot;
+		return this.slot;
 	}
 
 }

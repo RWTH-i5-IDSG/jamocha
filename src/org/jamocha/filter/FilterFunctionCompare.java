@@ -179,7 +179,7 @@ public class FilterFunctionCompare {
 
 		private void generic(final GenericWithArgumentsComposite<?, ?> genericWithArgumentsComposite) {
 			if (!genericWithArgumentsComposite.function.toString().equals(
-					composite.function.toString())) {
+					this.composite.function.toString())) {
 				this.context.invalidate();
 				return;
 			}

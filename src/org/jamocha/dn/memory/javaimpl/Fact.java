@@ -38,7 +38,7 @@ class Fact {
 	 * @return the value stored in the slot identified by {@link SlotAddress slot}
 	 */
 	public Object getValue(final org.jamocha.dn.memory.SlotAddress slot) {
-		return slotValues[((SlotAddress) slot).getIndex()];
+		return this.slotValues[((SlotAddress) slot).getIndex()];
 	}
 
 	/**
@@ -50,17 +50,18 @@ class Fact {
 	 *            the value to store in the slot identified by {@link SlotAddress slot}
 	 */
 	public void setValue(final org.jamocha.dn.memory.SlotAddress slot, final Object value) {
-		slotValues[((SlotAddress) slot).getIndex()] = value;
+		this.slotValues[((SlotAddress) slot).getIndex()] = value;
 	}
 
+	@Override
 	public String toString() {
-		StringBuilder sb = new StringBuilder();
+		final StringBuilder sb = new StringBuilder();
 		sb.append("Fact(");
-		if (slotValues.length > 0) {
-			sb.append(slotValues[0].toString());
+		if (this.slotValues.length > 0) {
+			sb.append(this.slotValues[0].toString());
 		}
-		for (int i = 1; i < slotValues.length; i++) {
-			sb.append(", " + slotValues[i].toString());
+		for (int i = 1; i < this.slotValues.length; i++) {
+			sb.append(", " + this.slotValues[i].toString());
 		}
 		sb.append(')');
 		return sb.toString();

@@ -69,7 +69,7 @@ public class SlotInFactAddressCollector<T extends Collection<SlotInFactAddress>>
 	 * @return the addresses
 	 */
 	public T getAddresses() {
-		return addresses;
+		return this.addresses;
 	}
 
 	/**

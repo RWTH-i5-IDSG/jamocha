@@ -191,7 +191,7 @@ public abstract class Node {
 			final boolean empty = this.tokenQueue.isEmpty();
 			this.tokenQueue.add(token);
 			if (empty) {
-				network.getScheduler().enqueue(this);
+				this.network.getScheduler().enqueue(this);
 			}
 		}
 
@@ -204,11 +204,11 @@ public abstract class Node {
 				synchronized (this) {
 					this.tokenQueue.remove();
 					if (!this.tokenQueue.isEmpty()) {
-						network.getScheduler().enqueue(this);
+						this.network.getScheduler().enqueue(this);
 					}
 				}
 			} catch (final CouldNotAcquireLockException ex) {
-				network.getScheduler().enqueue(this);
+				this.network.getScheduler().enqueue(this);
 			}
 		}
 	}
@@ -224,7 +224,7 @@ public abstract class Node {
 		for (int i = 0; i < parents.length; i++) {
 			this.incomingEdges[i] = this.connectParent(parents[i]);
 		}
-		this.memory = network.getMemoryFactory().newMemoryHandlerMain(incomingEdges);
+		this.memory = network.getMemoryFactory().newMemoryHandlerMain(this.incomingEdges);
 		this.filter = AddressFilter.empty;
 	}
 
@@ -339,10 +339,10 @@ public abstract class Node {
 	 *            an address valid in the current node
 	 * @return an address valid in the parent node
 	 */
-	public AddressPredecessor delocalizeAddress(FactAddress localFactAddress) {
+	public AddressPredecessor delocalizeAddress(final FactAddress localFactAddress) {
 		assert null != localFactAddress;
-		assert null != delocalizeMap.get(localFactAddress);
-		return delocalizeMap.get(localFactAddress);
+		assert null != this.delocalizeMap.get(localFactAddress);
+		return this.delocalizeMap.get(localFactAddress);
 	}
 
 	private void enqueue(final Token<?> token) {

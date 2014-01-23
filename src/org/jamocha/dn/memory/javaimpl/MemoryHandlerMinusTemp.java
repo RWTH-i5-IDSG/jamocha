@@ -49,7 +49,7 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 	static MemoryHandlerMinusTemp newRootTemp(final MemoryHandlerMain memoryHandlerMain,
 			final org.jamocha.dn.memory.Fact[] facts) {
 		final List<Fact[]> minusFacts = new ArrayList<>(facts.length);
-		for (org.jamocha.dn.memory.Fact fact : facts) {
+		for (final org.jamocha.dn.memory.Fact fact : facts) {
 			minusFacts.add(new Fact[] { new Fact(fact.getSlotValues()) });
 		}
 		final FactAddress[] factAddresses = memoryHandlerMain.addresses;
@@ -95,11 +95,11 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 
 		@Override
 		public LazyListCopy matched(final int index) {
-			final List<Fact[]> copy = new ArrayList<>(list.size());
+			final List<Fact[]> copy = new ArrayList<>(this.list.size());
 			for (int i = 0; i < index; i++) {
-				copy.add(list.get(i));
+				copy.add(this.list.get(i));
 			}
-			return new CopiedList(list, copy);
+			return new CopiedList(this.list, copy);
 		}
 	}
 
@@ -119,7 +119,7 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 
 		@Override
 		public List<Fact[]> getList() {
-			return copy;
+			return this.copy;
 		}
 	}
 
@@ -206,7 +206,7 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 				(MemoryHandlerMain) originIncomingEdge.getTargetNode().getMemory();
 		final List<Fact[]> minusFacts = this.facts;
 		final FactAddress[] localizedAddressMap =
-				localizeAddressMap(factAddresses, originIncomingEdge);
+				localizeAddressMap(this.factAddresses, originIncomingEdge);
 		final List<Fact[]> relevantMinusFacts =
 				getRelevantFactTuples(targetMain, minusFacts, localizedAddressMap,
 						EqualityChecker.beta);
@@ -246,7 +246,7 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 			final boolean[] marked) {
 		final int minusFactsSize = minusFacts.size();
 		int relevantMinusFactsSize = 0;
-		for (boolean mark : marked) {
+		for (final boolean mark : marked) {
 			if (mark) {
 				++relevantMinusFactsSize;
 			}
@@ -283,13 +283,14 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 				(MemoryHandlerMain) originIncomingEdge.getTargetNode().getMemory();
 		final List<Fact[]> minusFacts = this.facts;
 		final List<Fact[]> markedFactTuples =
-				getRelevantFactTuples(targetMain, minusFacts, factAddresses, EqualityChecker.alpha);
+				getRelevantFactTuples(targetMain, minusFacts, this.factAddresses,
+						EqualityChecker.alpha);
 		if (0 == markedFactTuples.size()) {
 			return MemoryHandlerMinusTemp.empty;
 		}
 		return new MemoryHandlerMinusTemp(getTemplate(),
 				(MemoryHandlerMain) originatingMainHandler, markedFactTuples, localizeAddressMap(
-						factAddresses, originIncomingEdge));
+						this.factAddresses, originIncomingEdge));
 	}
 
 	private static List<Fact[]> getRelevantFactTuples(final MemoryHandlerMain targetMain,

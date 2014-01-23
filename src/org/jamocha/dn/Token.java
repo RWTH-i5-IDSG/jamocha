@@ -59,7 +59,7 @@ public abstract class Token<T extends MemoryHandlerTemp> {
 
 		@Override
 		public void run() throws CouldNotAcquireLockException {
-			this.edge.processPlusToken(temp);
+			this.edge.processPlusToken(this.temp);
 			this.temp.releaseLock();
 		}
 	}
@@ -78,7 +78,7 @@ public abstract class Token<T extends MemoryHandlerTemp> {
 
 		@Override
 		public void run() throws CouldNotAcquireLockException {
-			this.edge.processMinusToken(temp);
+			this.edge.processMinusToken(this.temp);
 		}
 	}
 }

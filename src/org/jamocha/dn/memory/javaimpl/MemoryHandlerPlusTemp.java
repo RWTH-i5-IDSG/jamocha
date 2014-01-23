@@ -52,13 +52,13 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 	static class Semaphore {
 		int count;
 
-		public Semaphore(int count) {
+		public Semaphore(final int count) {
 			super();
 			this.count = count;
 		}
 
 		public synchronized boolean release() {
-			return --count != 0;
+			return --this.count != 0;
 		}
 	}
 
@@ -92,8 +92,9 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 
 	@Override
 	public MemoryHandlerPlusTemp newBetaTemp(
-			org.jamocha.dn.memory.MemoryHandlerMain originatingMainHandler,
-			Edge originIncomingEdge, AddressFilter filter) throws CouldNotAcquireLockException {
+			final org.jamocha.dn.memory.MemoryHandlerMain originatingMainHandler,
+			final Edge originIncomingEdge, final AddressFilter filter)
+			throws CouldNotAcquireLockException {
 		return newBetaTemp((MemoryHandlerMain) originatingMainHandler, this, originIncomingEdge,
 				filter);
 	}
@@ -128,7 +129,7 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 	static MemoryHandlerPlusTemp newRootTemp(final MemoryHandlerMain originatingMainHandler,
 			final Node otn, final org.jamocha.dn.memory.Fact... facts) {
 		final ArrayList<Fact[]> factList = new ArrayList<>();
-		for (org.jamocha.dn.memory.Fact fact : facts) {
+		for (final org.jamocha.dn.memory.Fact fact : facts) {
 			factList.add(new Fact[] { new Fact(fact.getSlotValues()) });
 		}
 		return new MemoryHandlerPlusTemp(originatingMainHandler, factList,
@@ -151,28 +152,26 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 			final List<List<Fact[]>> memStack = new ArrayList<List<Fact[]>>(temps.size() + 1);
 			memStack.add(((org.jamocha.dn.memory.javaimpl.MemoryHandlerMain) edge.getSourceNode()
 					.getMemory()).facts);
-			for (Iterator<? extends MemoryHandler> iter = temps.iterator(); iter.hasNext();) {
+			for (final Iterator<? extends MemoryHandler> iter = temps.iterator(); iter.hasNext();) {
 				final MemoryHandlerPlusTemp temp = (MemoryHandlerPlusTemp) iter.next();
 				if (!temp.valid) {
 					iter.remove();
 					continue;
 				}
-				memStack.add(((org.jamocha.dn.memory.javaimpl.MemoryHandlerPlusTemp) temp).facts);
+				memStack.add(temp.facts);
 			}
 			return new StackElement(memStack, offset) {
 				@Override
 				Object getValue(final AddressPredecessor addr, final SlotAddress slot) {
 					return this.getRow()[((org.jamocha.dn.memory.javaimpl.FactAddress) addr
-							.getAddress()).index]
-							.getValue(((org.jamocha.dn.memory.javaimpl.SlotAddress) slot));
+							.getAddress()).index].getValue((slot));
 				}
 			};
 		}
 
-		public static StackElement originInput(int columns, final Edge originEdge,
+		public static StackElement originInput(final int columns, final Edge originEdge,
 				final MemoryHandlerPlusTemp token, final int offset) {
-			final org.jamocha.dn.memory.javaimpl.MemoryHandlerPlusTemp temp =
-					(org.jamocha.dn.memory.javaimpl.MemoryHandlerPlusTemp) token;
+			final org.jamocha.dn.memory.javaimpl.MemoryHandlerPlusTemp temp = token;
 			final ArrayList<Fact[]> listWithHoles = new ArrayList<>(temp.facts.size());
 			for (final Fact[] facts : temp.facts) {
 				final Fact[] row = new Fact[columns];
@@ -186,8 +185,7 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 				@Override
 				Object getValue(final AddressPredecessor addr, final SlotAddress slot) {
 					return this.getRow()[((org.jamocha.dn.memory.javaimpl.FactAddress) addr
-							.getEdge().localizeAddress(addr.getAddress())).index]
-							.getValue(((org.jamocha.dn.memory.javaimpl.SlotAddress) slot));
+							.getEdge().localizeAddress(addr.getAddress())).index].getValue((slot));
 				}
 			};
 		}
@@ -203,11 +201,11 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 		abstract Object getValue(final AddressPredecessor addr, final SlotAddress slot);
 
 		boolean checkMemBounds() {
-			return memStack.size() > memIndex && memIndex >= 0;
+			return this.memStack.size() > this.memIndex && this.memIndex >= 0;
 		}
 
 		boolean checkRowBounds() {
-			return checkMemBounds() && getTable().size() > rowIndex && rowIndex >= 0;
+			return checkMemBounds() && getTable().size() > this.rowIndex && this.rowIndex >= 0;
 		}
 
 		void resetIndices() {
@@ -444,11 +442,11 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 	}
 
 	private void commitAndInvalidate() {
-		originatingMainHandler.acquireWriteLock();
-		assert this == originatingMainHandler.getValidOutgoingPlusTokens().peek();
-		originatingMainHandler.getValidOutgoingPlusTokens().remove();
-		originatingMainHandler.add(this);
-		originatingMainHandler.releaseWriteLock();
+		this.originatingMainHandler.acquireWriteLock();
+		assert this == this.originatingMainHandler.getValidOutgoingPlusTokens().peek();
+		this.originatingMainHandler.getValidOutgoingPlusTokens().remove();
+		this.originatingMainHandler.add(this);
+		this.originatingMainHandler.releaseWriteLock();
 		this.valid = false;
 	}
 

@@ -29,8 +29,8 @@ public class PlainScheduler implements Scheduler, Runnable {
 	final Queue<Runnable> workQueue = new LinkedList<>();
 
 	@Override
-	public void enqueue(Runnable runnable) {
-		workQueue.add(runnable);
+	public void enqueue(final Runnable runnable) {
+		this.workQueue.add(runnable);
 	}
 
 	/**
@@ -39,8 +39,8 @@ public class PlainScheduler implements Scheduler, Runnable {
 	 */
 	@Override
 	public void run() {
-		while (!workQueue.isEmpty()) {
-			workQueue.poll().run();
+		while (!this.workQueue.isEmpty()) {
+			this.workQueue.poll().run();
 		}
 	}
 
