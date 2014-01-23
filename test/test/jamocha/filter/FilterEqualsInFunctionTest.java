@@ -10,7 +10,6 @@ import org.jamocha.filter.FilterFunctionCompare;
 import org.jamocha.filter.FilterTranslator;
 import org.jamocha.filter.Function;
 import org.jamocha.filter.FunctionDictionary;
-import org.jamocha.filter.FunctionWithArguments;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.PathFilter;
 import org.jamocha.filter.Predicate;
@@ -38,27 +37,29 @@ public class FilterEqualsInFunctionTest {
 		SlotAddress a3 = new SlotAddress(0);
 		Function<?> plus = FunctionDictionary.lookup("+", SlotType.DOUBLE, SlotType.DOUBLE);
 		Function<?> minus = FunctionDictionary.lookup("-", SlotType.DOUBLE, SlotType.DOUBLE);
-		FunctionWithArguments f, g;
+		PredicateWithArguments f, g;
 
 		f =
-				new FunctionBuilder(
-						FunctionDictionary.lookup("=", SlotType.DOUBLE, SlotType.DOUBLE))
+				new PredicateBuilder(FunctionDictionary.lookupPredicate("=", SlotType.DOUBLE,
+						SlotType.DOUBLE))
 						.addFunction(
 								new FunctionBuilder(plus).addPath(p1, a1).addPath(p2, a2).build())
 						.addFunction(
 								new FunctionBuilder(minus).addConstant(1337l, SlotType.DOUBLE)
 										.addPath(p3, a3).build()).build();
 		g =
-				new FunctionBuilder(
-						FunctionDictionary.lookup("=", SlotType.DOUBLE, SlotType.DOUBLE))
+				new PredicateBuilder(FunctionDictionary.lookupPredicate("=", SlotType.DOUBLE,
+						SlotType.DOUBLE))
 						.addFunction(
 								new FunctionBuilder(plus).addPath(p1, a1).addPath(p2, a2).build())
 						.addFunction(
 								new FunctionBuilder(minus).addConstant(1337l, SlotType.DOUBLE)
 										.addPath(p3, a3).build()).build();
-		assertTrue(f.equalsInFunction(f));
-		assertTrue(g.equalsInFunction(g));
-		assertTrue(f.equalsInFunction(g));
+		PathFilter pf = new PathFilter(f), pg = new PathFilter(g);
+
+		assertTrue(FilterFunctionCompare.equals(pf, FilterTranslator.translate(pf)));
+		assertTrue(FilterFunctionCompare.equals(pg, FilterTranslator.translate(pg)));
+		assertTrue(FilterFunctionCompare.equals(pf, FilterTranslator.translate(pg)));
 	}
 
 	@Test
@@ -71,38 +72,42 @@ public class FilterEqualsInFunctionTest {
 		SlotAddress a3 = new SlotAddress(0);
 		Function<?> plus = FunctionDictionary.lookup("+", SlotType.DOUBLE, SlotType.DOUBLE);
 		Function<?> minus = FunctionDictionary.lookup("-", SlotType.DOUBLE, SlotType.DOUBLE);
-		FunctionWithArguments f, g;
+		PredicateWithArguments f, g;
+		PathFilter pf, pg;
 
 		f =
-				new FunctionBuilder(
-						FunctionDictionary.lookup("=", SlotType.DOUBLE, SlotType.DOUBLE))
+				new PredicateBuilder(FunctionDictionary.lookupPredicate("=", SlotType.DOUBLE,
+						SlotType.DOUBLE))
 						.addFunction(
 								new FunctionBuilder(plus).addPath(p1, a1).addPath(p2, a2).build())
 						.addFunction(
-								new FunctionBuilder(minus).addConstant(1337l, SlotType.DOUBLE)
+								new FunctionBuilder(minus).addConstant(1337.0, SlotType.DOUBLE)
 										.addPath(p3, a3).build()).build();
 		g =
-				new FunctionBuilder(
-						FunctionDictionary.lookup("=", SlotType.DOUBLE, SlotType.DOUBLE))
+				new PredicateBuilder(FunctionDictionary.lookupPredicate("=", SlotType.DOUBLE,
+						SlotType.DOUBLE))
 						.addFunction(
 								new FunctionBuilder(minus).addConstant(1337.0, SlotType.DOUBLE)
 										.addPath(p3, a3).build())
 						.addFunction(
 								new FunctionBuilder(plus).addPath(p1, a1).addPath(p2, a2).build())
 						.build();
-		assertTrue(f.equalsInFunction(g));
-		assertTrue(g.equalsInFunction(f));
+		pf = new PathFilter(f);
+		pg = new PathFilter(g);
+		assertTrue(FilterFunctionCompare.equals(pf, FilterTranslator.translate(pg)));
+		assertTrue(FilterFunctionCompare.equals(pg, FilterTranslator.translate(pf)));
 		g =
-				new FunctionBuilder(
-						FunctionDictionary.lookup("=", SlotType.DOUBLE, SlotType.DOUBLE))
+				new PredicateBuilder(FunctionDictionary.lookupPredicate("=", SlotType.DOUBLE,
+						SlotType.DOUBLE))
 						.addFunction(
 								new FunctionBuilder(minus).addConstant(1337.0, SlotType.DOUBLE)
 										.addPath(p3, a3).build())
 						.addFunction(
 								new FunctionBuilder(plus).addPath(p2, a2).addPath(p1, a1).build())
 						.build();
-		assertTrue(f.equalsInFunction(g));
-		assertTrue(g.equalsInFunction(f));
+		pg = new PathFilter(g);
+		assertTrue(FilterFunctionCompare.equals(pf, FilterTranslator.translate(pg)));
+		assertTrue(FilterFunctionCompare.equals(pg, FilterTranslator.translate(pf)));
 	}
 
 	@Test
@@ -116,26 +121,29 @@ public class FilterEqualsInFunctionTest {
 		SlotAddress a4 = new SlotAddress(0);
 		Function<?> plus = FunctionDictionary.lookup("+", SlotType.DOUBLE, SlotType.DOUBLE);
 		Function<?> minus = FunctionDictionary.lookup("-", SlotType.DOUBLE, SlotType.DOUBLE);
-		FunctionWithArguments f, g;
+		PredicateWithArguments f, g;
+		PathFilter pf, pg;
 
 		f =
-				new FunctionBuilder(
-						FunctionDictionary.lookup("=", SlotType.DOUBLE, SlotType.DOUBLE))
+				new PredicateBuilder(FunctionDictionary.lookupPredicate("=", SlotType.DOUBLE,
+						SlotType.DOUBLE))
 						.addFunction(
 								new FunctionBuilder(plus).addPath(p1, a1).addPath(p2, a2).build())
 						.addFunction(
 								new FunctionBuilder(minus).addConstant(1337l, SlotType.DOUBLE)
 										.addPath(p3, a3).build()).build();
 		g =
-				new FunctionBuilder(
-						FunctionDictionary.lookup("=", SlotType.DOUBLE, SlotType.DOUBLE))
+				new PredicateBuilder(FunctionDictionary.lookupPredicate("=", SlotType.DOUBLE,
+						SlotType.DOUBLE))
 						.addFunction(
 								new FunctionBuilder(plus).addPath(p1, a4).addPath(p2, a2).build())
 						.addFunction(
 								new FunctionBuilder(minus).addConstant(1337.0, SlotType.DOUBLE)
 										.addPath(p3, a3).build()).build();
-		assertFalse(f.equalsInFunction(g));
-		assertFalse(g.equalsInFunction(f));
+		pf = new PathFilter(f);
+		pg = new PathFilter(g);
+		assertFalse(FilterFunctionCompare.equals(pf, FilterTranslator.translate(pg)));
+		assertFalse(FilterFunctionCompare.equals(pg, FilterTranslator.translate(pf)));
 	}
 
 	@Test
@@ -149,27 +157,29 @@ public class FilterEqualsInFunctionTest {
 		SlotAddress a3 = new SlotAddress(0);
 		Function<?> plus = FunctionDictionary.lookup("+", SlotType.DOUBLE, SlotType.DOUBLE);
 		Function<?> minus = FunctionDictionary.lookup("-", SlotType.DOUBLE, SlotType.DOUBLE);
-		FunctionWithArguments f, g;
+		PredicateWithArguments f, g;
+		PathFilter pf, pg;
 
 		f =
-				new FunctionBuilder(
-						FunctionDictionary.lookup("=", SlotType.DOUBLE, SlotType.DOUBLE))
+				new PredicateBuilder(FunctionDictionary.lookupPredicate("=", SlotType.DOUBLE,
+						SlotType.DOUBLE))
 						.addFunction(
 								new FunctionBuilder(plus).addPath(p1, a1).addPath(p2, a2).build())
 						.addFunction(
 								new FunctionBuilder(minus).addConstant(1337l, SlotType.DOUBLE)
 										.addPath(p3, a3).build()).build();
 		g =
-				new FunctionBuilder(
-						FunctionDictionary.lookup("=", SlotType.DOUBLE, SlotType.DOUBLE))
+				new PredicateBuilder(FunctionDictionary.lookupPredicate("=", SlotType.DOUBLE,
+						SlotType.DOUBLE))
 						.addFunction(
 								new FunctionBuilder(plus).addPath(p4, a1).addPath(p2, a2).build())
 						.addFunction(
 								new FunctionBuilder(minus).addConstant(1337l, SlotType.DOUBLE)
 										.addPath(p3, a3).build()).build();
-		assertTrue(f.equalsInFunction(g));
-		assertTrue(g.equalsInFunction(f));
-
+		pf = new PathFilter(f);
+		pg = new PathFilter(g);
+		assertTrue(FilterFunctionCompare.equals(pf, FilterTranslator.translate(pg)));
+		assertTrue(FilterFunctionCompare.equals(pg, FilterTranslator.translate(pf)));
 	}
 
 	@Test
@@ -182,26 +192,30 @@ public class FilterEqualsInFunctionTest {
 		SlotAddress a3 = new SlotAddress(0);
 		Function<?> plus = FunctionDictionary.lookup("+", SlotType.DOUBLE, SlotType.DOUBLE);
 		Function<?> minus = FunctionDictionary.lookup("-", SlotType.DOUBLE, SlotType.DOUBLE);
-		FunctionWithArguments f, g;
+		PredicateWithArguments f, g;
+		PathFilter pf, pg;
 
 		f =
-				new FunctionBuilder(
-						FunctionDictionary.lookup("=", SlotType.DOUBLE, SlotType.DOUBLE))
+				new PredicateBuilder(FunctionDictionary.lookupPredicate("=", SlotType.DOUBLE,
+						SlotType.DOUBLE))
 						.addFunction(
 								new FunctionBuilder(plus).addPath(p1, a1).addPath(p2, a2).build())
 						.addFunction(
 								new FunctionBuilder(minus).addConstant(1337l, SlotType.DOUBLE)
 										.addPath(p3, a3).build()).build();
 		g =
-				new FunctionBuilder(
-						FunctionDictionary.lookup("=", SlotType.DOUBLE, SlotType.DOUBLE))
+				new PredicateBuilder(FunctionDictionary.lookupPredicate("=", SlotType.DOUBLE,
+						SlotType.DOUBLE))
 						.addFunction(
 								new FunctionBuilder(plus).addPath(p1, a1).addPath(p2, a2).build())
 						.addFunction(
 								new FunctionBuilder(minus).addConstant(1337.0, SlotType.DOUBLE)
 										.addPath(p3, a3).build()).build();
-		assertFalse(f.equalsInFunction(g));
-		assertFalse(g.equalsInFunction(f));
+		pf = new PathFilter(f);
+		pg = new PathFilter(g);
+		assertFalse(FilterFunctionCompare.equals(pf, FilterTranslator.translate(pg)));
+		assertFalse(FilterFunctionCompare.equals(pg, FilterTranslator.translate(pf)));
+
 	}
 
 	@Test
@@ -216,46 +230,51 @@ public class FilterEqualsInFunctionTest {
 		SlotAddress a5 = new SlotAddress(0);
 		Function<?> plus = FunctionDictionary.lookup("+", SlotType.DOUBLE, SlotType.DOUBLE);
 		Function<?> minus = FunctionDictionary.lookup("-", SlotType.DOUBLE, SlotType.DOUBLE);
-		FunctionWithArguments f, g;
+		PredicateWithArguments f, g;
+		PathFilter pf, pg;
 
 		f =
-				new FunctionBuilder(
-						FunctionDictionary.lookup("=", SlotType.DOUBLE, SlotType.DOUBLE))
+				new PredicateBuilder(FunctionDictionary.lookupPredicate("=", SlotType.DOUBLE,
+						SlotType.DOUBLE))
 						.addFunction(
 								new FunctionBuilder(plus).addPath(p1, a1).addPath(p2, a2).build())
 						.addFunction(
 								new FunctionBuilder(minus).addConstant(1337l, SlotType.DOUBLE)
 										.addPath(p3, a3).build()).build();
 		g =
-				new FunctionBuilder(
-						FunctionDictionary.lookup("=", SlotType.DOUBLE, SlotType.DOUBLE))
+				new PredicateBuilder(FunctionDictionary.lookupPredicate("=", SlotType.DOUBLE,
+						SlotType.DOUBLE))
 						.addFunction(
 								new FunctionBuilder(plus).addPath(p1, a1).addPath(p2, a2).build())
 						.addFunction(
 								new FunctionBuilder(plus).addConstant(1337.0, SlotType.DOUBLE)
 										.addPath(p3, a3).build()).build();
-		assertFalse(f.equalsInFunction(g));
-		assertFalse(g.equalsInFunction(f));
+		pf = new PathFilter(f);
+		pg = new PathFilter(g);
+		assertFalse(FilterFunctionCompare.equals(pf, FilterTranslator.translate(pg)));
+		assertFalse(FilterFunctionCompare.equals(pg, FilterTranslator.translate(pf)));
 		g =
-				new FunctionBuilder(
-						FunctionDictionary.lookup("=", SlotType.DOUBLE, SlotType.DOUBLE))
+				new PredicateBuilder(FunctionDictionary.lookupPredicate("=", SlotType.DOUBLE,
+						SlotType.DOUBLE))
 						.addFunction(
 								new FunctionBuilder(plus).addPath(p1, a1).addPath(p5, a2).build())
 						.addFunction(
 								new FunctionBuilder(minus).addConstant(1337.0, SlotType.DOUBLE)
 										.addPath(p3, a3).build()).build();
-		assertFalse(f.equalsInFunction(g));
-		assertFalse(g.equalsInFunction(f));
+		pg = new PathFilter(g);
+		assertFalse(FilterFunctionCompare.equals(pf, FilterTranslator.translate(pg)));
+		assertFalse(FilterFunctionCompare.equals(pg, FilterTranslator.translate(pf)));
 		g =
-				new FunctionBuilder(
-						FunctionDictionary.lookup("=", SlotType.DOUBLE, SlotType.DOUBLE))
+				new PredicateBuilder(FunctionDictionary.lookupPredicate("=", SlotType.DOUBLE,
+						SlotType.DOUBLE))
 						.addFunction(
 								new FunctionBuilder(plus).addPath(p1, a1).addPath(p2, a5).build())
 						.addFunction(
 								new FunctionBuilder(minus).addConstant(1337.0, SlotType.DOUBLE)
 										.addPath(p3, a3).build()).build();
-		assertFalse(f.equalsInFunction(g));
-		assertFalse(g.equalsInFunction(f));
+		pg = new PathFilter(g);
+		assertFalse(FilterFunctionCompare.equals(pf, FilterTranslator.translate(pg)));
+		assertFalse(FilterFunctionCompare.equals(pg, FilterTranslator.translate(pf)));
 	}
 
 	@SuppressWarnings("unused")
@@ -274,12 +293,12 @@ public class FilterEqualsInFunctionTest {
 		PredicateWithArguments f, g, h, i, j, k, l;
 		Function<?> plusD = FunctionDictionary.lookup("+", SlotType.DOUBLE, SlotType.DOUBLE);
 		Function<?> minusD = FunctionDictionary.lookup("-", SlotType.DOUBLE, SlotType.DOUBLE);
-		Function<?> eqD = FunctionDictionary.lookup("=", SlotType.DOUBLE, SlotType.DOUBLE);
+		Predicate eqD = FunctionDictionary.lookupPredicate("=", SlotType.DOUBLE, SlotType.DOUBLE);
 		Function<?> plusL = FunctionDictionary.lookup("+", SlotType.LONG, SlotType.LONG);
 		Function<?> minusL = FunctionDictionary.lookup("-", SlotType.LONG, SlotType.LONG);
-		Function<?> lessL = FunctionDictionary.lookup("<", SlotType.LONG, SlotType.LONG);
-		Function<?> eqL = FunctionDictionary.lookup("=", SlotType.LONG, SlotType.LONG);
-		Function<?> eqS = FunctionDictionary.lookup("=", SlotType.STRING, SlotType.STRING);
+		Predicate lessL = FunctionDictionary.lookupPredicate("<", SlotType.LONG, SlotType.LONG);
+		Predicate eqL = FunctionDictionary.lookupPredicate("=", SlotType.LONG, SlotType.LONG);
+		Predicate eqS = FunctionDictionary.lookupPredicate("=", SlotType.STRING, SlotType.STRING);
 		f =
 				new PredicateBuilder((Predicate) eqS)
 						.addConstant("Max Mustermann", SlotType.STRING).addPath(p1, a1).build();
