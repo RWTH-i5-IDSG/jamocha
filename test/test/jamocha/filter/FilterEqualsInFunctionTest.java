@@ -6,6 +6,8 @@ import static org.junit.Assert.assertTrue;
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.dn.memory.javaimpl.SlotAddress;
+import org.jamocha.filter.FilterFunctionCompare;
+import org.jamocha.filter.FilterTranslator;
 import org.jamocha.filter.Function;
 import org.jamocha.filter.FunctionDictionary;
 import org.jamocha.filter.FunctionWithArguments;
@@ -305,23 +307,23 @@ public class FilterEqualsInFunctionTest {
 		PathFilter a, b;
 		a = new PathFilter(f, g, h);
 		b = new PathFilter(f, g, h);
-		assertTrue(a.equalsInFunction(b));
-		assertTrue(b.equalsInFunction(a));
+		assertTrue(FilterFunctionCompare.equals(a, FilterTranslator.translate(b)));
+		assertTrue(FilterFunctionCompare.equals(b, FilterTranslator.translate(a)));
 		b = new PathFilter(i, j, k);
-		assertTrue(a.equalsInFunction(b));
-		assertTrue(b.equalsInFunction(a));
+		assertTrue(FilterFunctionCompare.equals(a, FilterTranslator.translate(b)));
+		assertTrue(FilterFunctionCompare.equals(b, FilterTranslator.translate(a)));
 		b = new PathFilter(f, j, h);
-		assertTrue(a.equalsInFunction(b));
-		assertTrue(b.equalsInFunction(a));
+		assertTrue(FilterFunctionCompare.equals(a, FilterTranslator.translate(b)));
+		assertTrue(FilterFunctionCompare.equals(b, FilterTranslator.translate(a)));
 
 		l =
 				new PredicateBuilder((Predicate) lessL).addConstant(17L, SlotType.LONG)
 						.addPath(p1, a5).build();
 		b = new PathFilter(f, l, h);
-		assertFalse(a.equalsInFunction(b));
-		assertFalse(b.equalsInFunction(a));
+		assertFalse(FilterFunctionCompare.equals(a, FilterTranslator.translate(b)));
+		assertFalse(FilterFunctionCompare.equals(b, FilterTranslator.translate(a)));
 		b = new PathFilter(f, l, h);
-		assertFalse(a.equalsInFunction(b));
-		assertFalse(b.equalsInFunction(a));
+		assertFalse(FilterFunctionCompare.equals(a, FilterTranslator.translate(b)));
+		assertFalse(FilterFunctionCompare.equals(b, FilterTranslator.translate(a)));
 	}
 }
