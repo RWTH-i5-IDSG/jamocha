@@ -64,7 +64,7 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 
 	final Semaphore lock;
 	boolean valid = true;
-	List<Fact[]> filtered = null;
+	List<Fact[]> filtered;
 
 	private MemoryHandlerPlusTemp(final MemoryHandlerMain originatingMainHandler,
 			final List<Fact[]> facts, final int numChildren) {
@@ -128,7 +128,7 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 
 	static MemoryHandlerPlusTemp newRootTemp(final MemoryHandlerMain originatingMainHandler,
 			final Node otn, final org.jamocha.dn.memory.Fact... facts) {
-		final ArrayList<Fact[]> factList = new ArrayList<>();
+		final ArrayList<Fact[]> factList = new ArrayList<>(facts.length);
 		for (final org.jamocha.dn.memory.Fact fact : facts) {
 			factList.add(new Fact[] { new Fact(fact.getSlotValues()) });
 		}
