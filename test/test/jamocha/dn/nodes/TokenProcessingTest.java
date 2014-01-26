@@ -220,13 +220,16 @@ public class TokenProcessingTest {
 		rootNode.retractFact(prof.newFact("Prof. Dr. Timmes", "Informatik"));
 		rootNode.retractFact(prof.newFact("Prof. Dr. Santana", "Biologie"));
 
+		// as the retractions kill Dr. Timmes before he leaves the OTN, we don't even get retracts
+		// in our conflict set
+
 		scheduler.run();
 		{
 			final AssertsAndRetracts assertsAndRetracts =
 					countAssertsAndRetractsInConflictSet(conflictSet);
-			assertEquals("Amount of asserts does not match expected count!", 10,
+			assertEquals("Amount of asserts does not match expected count!", 5,
 					assertsAndRetracts.getAsserts());
-			assertEquals("Amount of retracts does not match expected count!", 5,
+			assertEquals("Amount of retracts does not match expected count!", 0,
 					assertsAndRetracts.getRetracts());
 		}
 		conflictSet.deleteRevokedEntries();
