@@ -12,13 +12,21 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package org.jamocha.filter;
+package org.jamocha.filter.visitor;
 
 import lombok.RequiredArgsConstructor;
 
+import org.jamocha.filter.AddressFilter;
 import org.jamocha.filter.AddressFilter.AddressFilterElement;
+import org.jamocha.filter.PathFilter;
 import org.jamocha.filter.PathFilter.PathFilterElement;
-import org.jamocha.filter.PathLeaf.ParameterLeaf;
+import org.jamocha.filter.fwa.ConstantLeaf;
+import org.jamocha.filter.fwa.FunctionWithArguments;
+import org.jamocha.filter.fwa.FunctionWithArgumentsComposite;
+import org.jamocha.filter.fwa.GenericWithArgumentsComposite;
+import org.jamocha.filter.fwa.PathLeaf;
+import org.jamocha.filter.fwa.PathLeaf.ParameterLeaf;
+import org.jamocha.filter.fwa.PredicateWithArgumentsComposite;
 
 import test.jamocha.filter.PredicateWithArgumentsMockup;
 
@@ -37,8 +45,8 @@ public class FilterFunctionCompare {
 		super();
 		this.pathFilterElement = pathFilterElement;
 		this.addressFilterElement = addressFilterElement;
-		this.pathFilterElement.function.accept(new PathVisitor(this,
-				this.addressFilterElement.function));
+		this.pathFilterElement.getFunction().accept(
+				new PathVisitor(this, this.addressFilterElement.getFunction()));
 	}
 
 	private void invalidate() {
@@ -50,7 +58,7 @@ public class FilterFunctionCompare {
 	}
 
 	@RequiredArgsConstructor
-	private static abstract class ContextAware implements Visitor {
+	private static abstract class ContextAware implements FunctionWithArgumentsVisitor {
 		final FilterFunctionCompare context;
 	}
 
@@ -141,7 +149,7 @@ public class FilterFunctionCompare {
 		@Override
 		public void visit(final ParameterLeaf parameterLeaf) {
 			try {
-				if (!this.context.addressFilterElement.addressesInTarget[this.context.indexInAddresses++]
+				if (!this.context.addressFilterElement.getAddressesInTarget()[this.context.indexInAddresses++]
 						.getSlotAddress().equals(this.pathLeaf.getSlot())) {
 					this.context.invalidate();
 				}
@@ -178,13 +186,13 @@ public class FilterFunctionCompare {
 		}
 
 		private void generic(final GenericWithArgumentsComposite<?, ?> genericWithArgumentsComposite) {
-			if (!genericWithArgumentsComposite.function.toString().equals(
-					this.composite.function.toString())) {
+			if (!genericWithArgumentsComposite.getFunction().toString()
+					.equals(this.composite.getFunction().toString())) {
 				this.context.invalidate();
 				return;
 			}
-			final FunctionWithArguments[] addressArgs = genericWithArgumentsComposite.args;
-			final FunctionWithArguments[] pathArgs = this.composite.args;
+			final FunctionWithArguments[] addressArgs = genericWithArgumentsComposite.getArgs();
+			final FunctionWithArguments[] pathArgs = this.composite.getArgs();
 			if (addressArgs.length != pathArgs.length) {
 				this.context.invalidate();
 				return;
@@ -215,9 +223,11 @@ public class FilterFunctionCompare {
 	}
 
 	public static boolean equals(final PathFilter pathFilter, final AddressFilter addressFilter) {
-		for (int i = 0; i < addressFilter.filterElements.length; i++) {
-			final PathFilterElement pathFilterElement = pathFilter.filterElements[i];
-			final AddressFilterElement addressFilterElement = addressFilter.filterElements[i];
+		final PathFilterElement[] pathFilterElements = pathFilter.getFilterElements();
+		final AddressFilterElement[] addressFilterElements = addressFilter.getFilterElements();
+		for (int i = 0; i < addressFilterElements.length; i++) {
+			final PathFilterElement pathFilterElement = pathFilterElements[i];
+			final AddressFilterElement addressFilterElement = addressFilterElements[i];
 			if (!equals(pathFilterElement, addressFilterElement)) {
 				return false;
 			}

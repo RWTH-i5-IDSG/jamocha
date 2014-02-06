@@ -19,8 +19,8 @@ import static org.junit.Assert.assertTrue;
 
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.filter.FunctionDictionary;
-import org.jamocha.filter.GenericWithArgumentsComposite.LazyObject;
 import org.jamocha.filter.Predicate;
+import org.jamocha.filter.fwa.GenericWithArgumentsComposite.LazyObject;
 import org.jamocha.filter.impls.predicates.And;
 import org.junit.BeforeClass;
 import org.junit.Test;

@@ -34,12 +34,4 @@ import org.jamocha.dn.nodes.Node.Edge;
  * @see Edge
  */
 public interface MemoryHandlerPlusTemp extends MemoryHandlerTemp {
-	/**
-	 * Releases the lock for the calling edge.
-	 * 
-	 * @return true iff this call was the last awaited call, thus ending the validity of the temp
-	 *         handler
-	 */
-	public boolean releaseLock();
-
 }

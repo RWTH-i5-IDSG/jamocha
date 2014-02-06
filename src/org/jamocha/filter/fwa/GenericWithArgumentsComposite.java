@@ -12,16 +12,18 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package org.jamocha.filter;
+package org.jamocha.filter.fwa;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
 import org.jamocha.dn.memory.SlotType;
+import org.jamocha.filter.Function;
 
 /**
  * This class is the composite of the {@link FunctionWithArguments} hierarchy. It stores a
@@ -36,6 +38,7 @@ import org.jamocha.dn.memory.SlotType;
  * @see FunctionWithArguments
  */
 @EqualsAndHashCode
+@Getter
 public abstract class GenericWithArgumentsComposite<R, F extends Function<? extends R>> implements
 		FunctionWithArguments {
 

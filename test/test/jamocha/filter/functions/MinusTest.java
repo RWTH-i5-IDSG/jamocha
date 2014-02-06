@@ -19,8 +19,8 @@ import static org.junit.Assert.assertThat;
 
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.filter.Function;
-import org.jamocha.filter.GenericWithArgumentsComposite.LazyObject;
 import org.jamocha.filter.FunctionDictionary;
+import org.jamocha.filter.fwa.GenericWithArgumentsComposite.LazyObject;
 import org.jamocha.filter.impls.functions.Minus;
 import org.junit.Before;
 import org.junit.BeforeClass;

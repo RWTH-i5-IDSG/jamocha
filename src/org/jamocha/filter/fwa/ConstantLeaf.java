@@ -12,12 +12,14 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package org.jamocha.filter;
+package org.jamocha.filter.fwa;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
 import org.jamocha.dn.memory.SlotType;
+import org.jamocha.filter.Function;
+import org.jamocha.filter.visitor.FunctionWithArgumentsVisitor;
 
 /**
  * A parameter of a {@link Function} may be a constant value specified in the parsed representation
@@ -68,7 +70,7 @@ public class ConstantLeaf implements FunctionWithArguments, Function<Object> {
 	}
 
 	@Override
-	public <T extends Visitor> T accept(final T visitor) {
+	public <T extends FunctionWithArgumentsVisitor> T accept(final T visitor) {
 		visitor.visit(this);
 		return visitor;
 	}

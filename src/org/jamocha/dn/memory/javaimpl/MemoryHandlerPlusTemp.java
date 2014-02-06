@@ -36,7 +36,7 @@ import org.jamocha.dn.nodes.Node.Edge;
 import org.jamocha.dn.nodes.SlotInFactAddress;
 import org.jamocha.filter.AddressFilter;
 import org.jamocha.filter.AddressFilter.AddressFilterElement;
-import org.jamocha.filter.FunctionWithArguments;
+import org.jamocha.filter.fwa.FunctionWithArguments;
 
 /**
  * Java-implementation of the {@link org.jamocha.dn.memory.MemoryHandlerPlusTemp} interface.

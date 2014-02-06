@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2013 The Jamocha Team
+ * Copyright 2002-2014 The Jamocha Team
  * 
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
@@ -12,14 +12,11 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package org.jamocha.filter;
+package org.jamocha.filter.visitor;
 
 /**
- * Specialization of {@link FunctionWithArguments}.
- * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
-public interface PredicateWithArguments extends FunctionWithArguments {
-	@Override
-	public Boolean evaluate(final Object... params);
+public interface Visitable<T extends Visitor> {
+	<V extends T> V accept(final V visitor);
 }

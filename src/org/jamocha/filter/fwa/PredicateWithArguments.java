@@ -12,23 +12,16 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package org.jamocha.filter;
+package org.jamocha.filter.fwa;
 
 /**
- * Instantiation of {@link GenericWithArgumentsComposite} holding a Function.
+ * Specialization of {@link FunctionWithArguments}.
  * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
-public class FunctionWithArgumentsComposite extends
-		GenericWithArgumentsComposite<Object, Function<?>> {
-	public FunctionWithArgumentsComposite(final Function<?> function,
-			final FunctionWithArguments... args) {
-		super(function, args);
-	}
-
+public interface PredicateWithArguments extends FunctionWithArguments {
 	@Override
-	public <T extends Visitor> T accept(final T visitor) {
-		visitor.visit(this);
-		return visitor;
-	}
+	public Boolean evaluate(final Object... params);
+
+	public boolean isNegated();
 }

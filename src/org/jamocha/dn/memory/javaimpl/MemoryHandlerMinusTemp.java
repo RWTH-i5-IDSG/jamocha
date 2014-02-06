@@ -323,4 +323,10 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 		return this.facts.get(row)[0].getValue(slot);
 	}
 
+	@Override
+	public boolean releaseLock() {
+		// TODO does nothing, do we need it in minus temps?
+		return false;
+	}
+
 }

@@ -15,6 +15,7 @@
 package org.jamocha.filter;
 
 import org.jamocha.dn.memory.SlotType;
+import org.jamocha.filter.fwa.FunctionWithArguments;
 
 /**
  * Interface for a function representing a part of a rule condition that performs an operation on

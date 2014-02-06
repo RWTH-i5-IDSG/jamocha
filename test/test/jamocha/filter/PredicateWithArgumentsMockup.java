@@ -4,16 +4,21 @@ import lombok.RequiredArgsConstructor;
 
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.filter.Function;
-import org.jamocha.filter.GenericWithArgumentsComposite.LazyObject;
+import org.jamocha.filter.fwa.PredicateWithArguments;
+import org.jamocha.filter.fwa.GenericWithArgumentsComposite.LazyObject;
+import org.jamocha.filter.visitor.FunctionWithArgumentsVisitor;
 import org.jamocha.filter.Path;
-import org.jamocha.filter.PredicateWithArguments;
-import org.jamocha.filter.Visitor;
 
 @RequiredArgsConstructor
 public class PredicateWithArgumentsMockup implements PredicateWithArguments {
 
 	final private boolean returnValue;
+	final private boolean negated;
 	final private Path[] paths;
+
+	public PredicateWithArgumentsMockup(final boolean returnValue, final Path... paths) {
+		this(returnValue, false, paths);
+	}
 
 	@Override
 	public SlotType getReturnType() {
@@ -36,7 +41,7 @@ public class PredicateWithArgumentsMockup implements PredicateWithArguments {
 	}
 
 	@Override
-	public <T extends Visitor> T accept(final T visitor) {
+	public <T extends FunctionWithArgumentsVisitor> T accept(final T visitor) {
 		visitor.visit(this);
 		return visitor;
 	}
@@ -55,4 +60,8 @@ public class PredicateWithArgumentsMockup implements PredicateWithArguments {
 		return returnValue;
 	}
 
+	@Override
+	public boolean isNegated() {
+		return this.negated;
+	}
 }

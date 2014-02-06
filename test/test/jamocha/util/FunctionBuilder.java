@@ -15,8 +15,8 @@
 package test.jamocha.util;
 
 import org.jamocha.filter.Function;
-import org.jamocha.filter.FunctionWithArguments;
-import org.jamocha.filter.FunctionWithArgumentsComposite;
+import org.jamocha.filter.fwa.FunctionWithArguments;
+import org.jamocha.filter.fwa.FunctionWithArgumentsComposite;
 
 /**
  * 

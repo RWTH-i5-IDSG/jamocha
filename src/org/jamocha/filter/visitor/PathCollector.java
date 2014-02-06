@@ -12,7 +12,7 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package org.jamocha.filter;
+package org.jamocha.filter.visitor;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -20,12 +20,19 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 
+import org.jamocha.filter.Path;
+import org.jamocha.filter.PathFilter;
 import org.jamocha.filter.PathFilter.PathFilterElement;
-import org.jamocha.filter.PathLeaf.ParameterLeaf;
+import org.jamocha.filter.fwa.ConstantLeaf;
+import org.jamocha.filter.fwa.FunctionWithArguments;
+import org.jamocha.filter.fwa.FunctionWithArgumentsComposite;
+import org.jamocha.filter.fwa.PathLeaf;
+import org.jamocha.filter.fwa.PredicateWithArgumentsComposite;
+import org.jamocha.filter.fwa.PathLeaf.ParameterLeaf;
 
 import test.jamocha.filter.PredicateWithArgumentsMockup;
 
-public class PathCollector<T extends Collection<Path>> implements Visitor {
+public class PathCollector<T extends Collection<Path>> implements FunctionWithArgumentsVisitor { //, FilterElementVisitor {
 
 	private final T paths;
 
@@ -81,14 +88,14 @@ public class PathCollector<T extends Collection<Path>> implements Visitor {
 
 	@Override
 	public void visit(final FunctionWithArgumentsComposite functionWithArgumentsComposite) {
-		for (final FunctionWithArguments fwa : functionWithArgumentsComposite.args) {
+		for (final FunctionWithArguments fwa : functionWithArgumentsComposite.getArgs()) {
 			fwa.accept(this);
 		}
 	}
 
 	@Override
 	public void visit(final PredicateWithArgumentsComposite predicateWithArgumentsComposite) {
-		for (final FunctionWithArguments fwa : predicateWithArgumentsComposite.args) {
+		for (final FunctionWithArguments fwa : predicateWithArgumentsComposite.getArgs()) {
 			fwa.accept(this);
 		}
 	}

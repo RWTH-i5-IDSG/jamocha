@@ -12,10 +12,13 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package org.jamocha.filter;
+package org.jamocha.filter.fwa;
 
 import org.jamocha.dn.memory.Fact;
 import org.jamocha.dn.memory.SlotType;
+import org.jamocha.filter.Function;
+import org.jamocha.filter.visitor.FunctionWithArgumentsVisitor;
+import org.jamocha.filter.visitor.Visitable;
 
 /**
  * This class bundles a {@link Function} and its arguments. The Composite Pattern has been used. An
@@ -23,7 +26,7 @@ import org.jamocha.dn.memory.SlotType;
  * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
-public interface FunctionWithArguments extends Visitable {
+public interface FunctionWithArguments extends Visitable<FunctionWithArgumentsVisitor> {
 
 	/**
 	 * Getter for the list of the corresponding parameter types for the function.

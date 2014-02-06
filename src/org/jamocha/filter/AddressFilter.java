@@ -17,6 +17,8 @@ package org.jamocha.filter;
 import lombok.Getter;
 
 import org.jamocha.dn.nodes.SlotInFactAddress;
+import org.jamocha.filter.fwa.PredicateWithArguments;
+import org.jamocha.filter.visitor.FilterElementVisitor;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -35,9 +37,58 @@ public class AddressFilter extends Filter<AddressFilter.AddressFilterElement> {
 		final SlotInFactAddress addressesInTarget[];
 
 		public AddressFilterElement(final PredicateWithArguments function,
-				final SlotInFactAddress... addressesInTarget) {
+				final SlotInFactAddress[] addressesInTarget) {
 			super(function);
 			this.addressesInTarget = addressesInTarget;
+		}
+
+		@Override
+		public <V extends FilterElementVisitor> V accept(final V visitor) {
+			visitor.visit(this);
+			return visitor;
+		}
+	}
+
+	@Getter
+	private static abstract class AbstractExistentialAddressFilterElement extends
+			AddressFilterElement {
+		final SlotInFactAddress existentialAddressesInTarget[];
+
+		public AbstractExistentialAddressFilterElement(PredicateWithArguments function,
+				SlotInFactAddress[] addressesInTarget,
+				SlotInFactAddress[] existentialAddressesInTarget) {
+			super(function, addressesInTarget);
+			this.existentialAddressesInTarget = existentialAddressesInTarget;
+		}
+	}
+
+	public static class ExistentialAddressFilterElement extends
+			AbstractExistentialAddressFilterElement {
+		public ExistentialAddressFilterElement(PredicateWithArguments function,
+				SlotInFactAddress[] addressesInTarget,
+				SlotInFactAddress[] existentialAddressesInTarget) {
+			super(function, addressesInTarget, existentialAddressesInTarget);
+		}
+
+		@Override
+		public <V extends FilterElementVisitor> V accept(final V visitor) {
+			visitor.visit(this);
+			return visitor;
+		}
+	}
+
+	public static class NonExistentialAddressFilterElement extends
+			AbstractExistentialAddressFilterElement {
+		public NonExistentialAddressFilterElement(PredicateWithArguments function,
+				SlotInFactAddress[] addressesInTarget,
+				SlotInFactAddress[] existentialAddressesInTarget) {
+			super(function, addressesInTarget, existentialAddressesInTarget);
+		}
+
+		@Override
+		public <V extends FilterElementVisitor> V accept(final V visitor) {
+			visitor.visit(this);
+			return visitor;
 		}
 	}
 }

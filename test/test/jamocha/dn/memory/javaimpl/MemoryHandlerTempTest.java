@@ -24,6 +24,7 @@ import java.util.Map;
 import org.jamocha.dn.Network;
 import org.jamocha.dn.memory.Fact;
 import org.jamocha.dn.memory.FactAddress;
+import org.jamocha.dn.memory.MemoryHandlerMinusTemp;
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.dn.memory.javaimpl.MemoryHandlerMain;
@@ -31,21 +32,22 @@ import org.jamocha.dn.memory.javaimpl.MemoryHandlerPlusTemp;
 import org.jamocha.dn.memory.javaimpl.SlotAddress;
 import org.jamocha.dn.nodes.AddressPredecessor;
 import org.jamocha.dn.nodes.CouldNotAcquireLockException;
+import org.jamocha.dn.nodes.NegativeEdge;
 import org.jamocha.dn.nodes.Node;
 import org.jamocha.dn.nodes.Node.Edge;
 import org.jamocha.dn.nodes.PositiveEdge;
 import org.jamocha.dn.nodes.SlotInFactAddress;
 import org.jamocha.filter.AddressFilter;
 import org.jamocha.filter.AddressFilter.AddressFilterElement;
+import org.jamocha.filter.fwa.FunctionWithArguments;
+import org.jamocha.filter.fwa.PathLeaf;
+import org.jamocha.filter.fwa.PredicateWithArguments;
+import org.jamocha.filter.fwa.PredicateWithArgumentsComposite;
+import org.jamocha.filter.visitor.FilterTranslator;
 import org.jamocha.filter.Filter;
-import org.jamocha.filter.FilterTranslator;
 import org.jamocha.filter.FunctionDictionary;
-import org.jamocha.filter.FunctionWithArguments;
 import org.jamocha.filter.Path;
-import org.jamocha.filter.PathLeaf;
 import org.jamocha.filter.Predicate;
-import org.jamocha.filter.PredicateWithArguments;
-import org.jamocha.filter.PredicateWithArgumentsComposite;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -77,7 +79,7 @@ public class MemoryHandlerTempTest {
 
 	private static class NodeMockup extends Node {
 
-		private class EdgeMockup extends EdgeImpl implements PositiveEdge {
+		private class EdgeMockup extends EdgeImpl implements PositiveEdge, NegativeEdge {
 
 			final int offset;
 
@@ -87,11 +89,11 @@ public class MemoryHandlerTempTest {
 			}
 
 			@Override
-			public void processPlusToken(org.jamocha.dn.memory.MemoryHandlerPlusTemp memory) {
+			public void processPlusToken(org.jamocha.dn.memory.MemoryHandlerTemp memory) {
 			}
 
 			@Override
-			public void processMinusToken(org.jamocha.dn.memory.MemoryHandlerMinusTemp memory) {
+			public void processMinusToken(org.jamocha.dn.memory.MemoryHandlerTemp memory) {
 			}
 
 			@Override
@@ -109,6 +111,14 @@ public class MemoryHandlerTempTest {
 			public void setAddressMap(Map<? extends FactAddress, ? extends FactAddress> map) {
 			}
 
+			@Override
+			public void enqueueMinusMemory(MemoryHandlerMinusTemp mem) {
+			}
+
+			@Override
+			public void enqueuePlusMemory(org.jamocha.dn.memory.MemoryHandlerPlusTemp mem) {
+			}
+
 		}
 
 		int numChildern;
@@ -117,12 +127,6 @@ public class MemoryHandlerTempTest {
 		@SuppressWarnings("deprecation")
 		public NodeMockup(Network network, int numChildren, Node... parents) {
 			super(network, parents);
-			this.numChildern = numChildren;
-		}
-
-		@SuppressWarnings("deprecation")
-		public NodeMockup(Network network, int numChildren) {
-			super(network);
 			this.numChildern = numChildren;
 		}
 
@@ -139,6 +143,13 @@ public class MemoryHandlerTempTest {
 		@Override
 		protected PositiveEdge newPositiveEdge(Node source) {
 			PositiveEdge edge = new EdgeMockup(Network.DEFAULTNETWORK, source, this, currentOffset);
+			currentOffset += source.getMemory().getTemplate().length;
+			return edge;
+		}
+
+		@Override
+		protected NegativeEdge newNegativeEdge(Node source) {
+			NegativeEdge edge = new EdgeMockup(Network.DEFAULTNETWORK, source, this, currentOffset);
 			currentOffset += source.getMemory().getTemplate().length;
 			return edge;
 		}
@@ -263,10 +274,11 @@ public class MemoryHandlerTempTest {
 		Predicate eq = FunctionDictionary.lookupPredicate("=", SlotType.STRING, SlotType.STRING);
 		PredicateWithArguments faw = new PredicateWithArgumentsComposite(eq, pl1, pl2);
 		AddressFilterElement fe =
-				new AddressFilterElement(faw, new SlotInFactAddress(
-						new org.jamocha.dn.memory.javaimpl.FactAddress(0), new SlotAddress(0)),
+				new AddressFilterElement(faw, new SlotInFactAddress[] {
+						new SlotInFactAddress(new org.jamocha.dn.memory.javaimpl.FactAddress(0),
+								new SlotAddress(0)),
 						new SlotInFactAddress(new org.jamocha.dn.memory.javaimpl.FactAddress(1),
-								new SlotAddress(0)));
+								new SlotAddress(0)) });
 		AddressFilter filter = new AddressFilter(new AddressFilterElement[] { fe });
 		MemoryHandlerPlusTemp token =
 				(MemoryHandlerPlusTemp) nodeRight.getMemory().newPlusToken(nodeRight,

@@ -51,7 +51,7 @@ public class MemoryFactory implements org.jamocha.dn.memory.MemoryFactory {
 
 	@Override
 	public MemoryHandlerMain newMemoryHandlerMain(final Edge... edgesToBeJoined) {
-		return new MemoryHandlerMain(edgesToBeJoined);
+		return MemoryHandlerMain.newMemoryHandlerMain(edgesToBeJoined);
 	}
 
 }

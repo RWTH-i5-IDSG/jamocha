@@ -27,6 +27,7 @@ import org.jamocha.dn.memory.FactAddress;
 import org.jamocha.dn.memory.MemoryHandler;
 import org.jamocha.dn.memory.MemoryHandlerMinusTemp;
 import org.jamocha.dn.memory.MemoryHandlerPlusTemp;
+import org.jamocha.dn.memory.MemoryHandlerTemp;
 import org.jamocha.dn.memory.MemoryHandlerTerminal;
 import org.jamocha.dn.memory.MemoryHandlerTerminal.Assert;
 import org.jamocha.dn.memory.MemoryHandlerTerminal.Retract;
@@ -57,12 +58,12 @@ public class TerminalNode {
 		}
 
 		@Override
-		public void processPlusToken(final MemoryHandlerPlusTemp memory)
+		public void processPlusToken(final MemoryHandlerTemp memory)
 				throws CouldNotAcquireLockException {
 		}
 
 		@Override
-		public void processMinusToken(final MemoryHandlerMinusTemp memory)
+		public void processMinusToken(final MemoryHandlerTemp memory)
 				throws CouldNotAcquireLockException {
 		}
 

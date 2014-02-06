@@ -18,10 +18,9 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import org.jamocha.filter.AddressFilter;
-import org.jamocha.filter.FilterTranslator;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.PathFilter;
-import org.jamocha.filter.PredicateWithArguments;
+import org.jamocha.filter.visitor.FilterTranslator;
 import org.junit.experimental.theories.Theories;
 import org.junit.experimental.theories.Theory;
 import org.junit.runner.RunWith;
@@ -36,7 +35,7 @@ import test.jamocha.util.TestData.SomeStuff;
 public class FilterMockup extends PathFilter {
 
 	public FilterMockup(final boolean returnValue, final Path... paths) {
-		super(new PredicateWithArguments[] { new PredicateWithArgumentsMockup(returnValue, paths) });
+		super(new PathFilterElement(new PredicateWithArgumentsMockup(returnValue, paths)));
 	}
 
 	public static FilterMockup alwaysTrue(final Path... paths) {

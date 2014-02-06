@@ -19,11 +19,11 @@ import java.util.List;
 
 import org.jamocha.dn.memory.SlotAddress;
 import org.jamocha.dn.memory.SlotType;
-import org.jamocha.filter.ConstantLeaf;
 import org.jamocha.filter.Function;
-import org.jamocha.filter.FunctionWithArguments;
 import org.jamocha.filter.Path;
-import org.jamocha.filter.PathLeaf;
+import org.jamocha.filter.fwa.ConstantLeaf;
+import org.jamocha.filter.fwa.FunctionWithArguments;
+import org.jamocha.filter.fwa.PathLeaf;
 
 /**
  * Derived classes have to use themselves or one of their super classes as T.

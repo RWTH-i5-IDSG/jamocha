@@ -12,16 +12,24 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package org.jamocha.filter;
+package org.jamocha.filter.visitor;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
 import org.jamocha.dn.memory.FactAddress;
 import org.jamocha.dn.nodes.SlotInFactAddress;
+import org.jamocha.filter.AddressFilter;
+import org.jamocha.filter.PathFilter;
 import org.jamocha.filter.AddressFilter.AddressFilterElement;
 import org.jamocha.filter.PathFilter.PathFilterElement;
-import org.jamocha.filter.PathLeaf.ParameterLeaf;
+import org.jamocha.filter.fwa.ConstantLeaf;
+import org.jamocha.filter.fwa.FunctionWithArguments;
+import org.jamocha.filter.fwa.FunctionWithArgumentsComposite;
+import org.jamocha.filter.fwa.PathLeaf;
+import org.jamocha.filter.fwa.PathLeaf.ParameterLeaf;
+import org.jamocha.filter.fwa.PredicateWithArguments;
+import org.jamocha.filter.fwa.PredicateWithArgumentsComposite;
 
 import test.jamocha.filter.PredicateWithArgumentsMockup;
 
@@ -49,7 +57,7 @@ public class FilterTranslator {
 				addresses.toArray(new SlotInFactAddress[addresses.size()]));
 	}
 
-	private static class PredicateWithArgumentsTranslator implements Visitor {
+	private static class PredicateWithArgumentsTranslator implements FunctionWithArgumentsVisitor {
 		private final Collection<SlotInFactAddress> addresses;
 		private PredicateWithArguments functionWithArguments;
 
@@ -64,9 +72,7 @@ public class FilterTranslator {
 			return this.functionWithArguments;
 		}
 
-		@Override
-		public void visit(final PredicateWithArgumentsComposite predicateWithArgumentsComposite) {
-			final FunctionWithArguments[] originalArgs = predicateWithArgumentsComposite.args;
+		private FunctionWithArguments[] translateArgs(final FunctionWithArguments[] originalArgs) {
 			final int numArgs = originalArgs.length;
 			final FunctionWithArguments[] translatedArgs = new FunctionWithArguments[numArgs];
 			for (int i = 0; i < numArgs; ++i) {
@@ -75,9 +81,15 @@ public class FilterTranslator {
 						originalArg.accept(new FunctionWithArgumentsTranslator(this.addresses))
 								.getFunctionWithArguments();
 			}
+			return translatedArgs;
+		}
+
+		@Override
+		public void visit(final PredicateWithArgumentsComposite predicateWithArgumentsComposite) {
 			this.functionWithArguments =
-					new PredicateWithArgumentsComposite(predicateWithArgumentsComposite.function,
-							translatedArgs);
+					new PredicateWithArgumentsComposite(
+							predicateWithArgumentsComposite.getFunction(),
+							translateArgs(predicateWithArgumentsComposite.getArgs()));
 		}
 
 		@Override
@@ -116,7 +128,7 @@ public class FilterTranslator {
 	/**
 	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
 	 */
-	private static class FunctionWithArgumentsTranslator implements Visitor {
+	private static class FunctionWithArgumentsTranslator implements FunctionWithArgumentsVisitor {
 		private final Collection<SlotInFactAddress> addresses;
 		private FunctionWithArguments functionWithArguments;
 
@@ -131,15 +143,16 @@ public class FilterTranslator {
 		@Override
 		public void visit(final FunctionWithArgumentsComposite functionWithArgumentsComposite) {
 			this.functionWithArguments =
-					new FunctionWithArgumentsComposite(functionWithArgumentsComposite.function,
-							translateArgs(functionWithArgumentsComposite.args));
+					new FunctionWithArgumentsComposite(
+							functionWithArgumentsComposite.getFunction(),
+							translateArgs(functionWithArgumentsComposite.getArgs()));
 		}
 
 		@Override
 		public void visit(final PredicateWithArgumentsComposite predicateWithArgumentsComposite) {
 			this.functionWithArguments =
-					new PredicateWithArgumentsComposite(predicateWithArgumentsComposite.function,
-							translateArgs(predicateWithArgumentsComposite.args));
+					new PredicateWithArgumentsComposite(predicateWithArgumentsComposite.getFunction(),
+							translateArgs(predicateWithArgumentsComposite.getArgs()));
 
 		}
 

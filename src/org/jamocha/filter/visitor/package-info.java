@@ -12,12 +12,8 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package org.jamocha.filter;
-
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  * 
  */
-public interface Visitable {
-	<T extends Visitor> T accept(final T visitor);
-}
+package org.jamocha.filter.visitor;

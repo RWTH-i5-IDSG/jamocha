@@ -12,7 +12,7 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package org.jamocha.filter;
+package org.jamocha.filter.fwa;
 
 import lombok.EqualsAndHashCode;
 
@@ -21,7 +21,11 @@ import org.jamocha.dn.memory.SlotAddress;
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.dn.nodes.Node;
 import org.jamocha.dn.nodes.SlotInFactAddress;
+import org.jamocha.filter.Filter;
 import org.jamocha.filter.Filter.FilterElement;
+import org.jamocha.filter.visitor.FunctionWithArgumentsVisitor;
+import org.jamocha.filter.Function;
+import org.jamocha.filter.Path;
 
 /**
  * A parameter of a {@link Function} may be a slot of a {@link Fact}. The corresponding
@@ -37,7 +41,6 @@ import org.jamocha.filter.Filter.FilterElement;
  */
 @EqualsAndHashCode
 public class PathLeaf implements FunctionWithArguments {
-
 	private final Path path;
 	private final SlotAddress slot;
 
@@ -59,12 +62,12 @@ public class PathLeaf implements FunctionWithArguments {
 
 	@Override
 	public SlotType[] getParamTypes() {
-		return new SlotType[] { getSlot().getSlotType(getPath().template) };
+		return new SlotType[] { getSlot().getSlotType(getPath().getTemplate()) };
 	}
 
 	@Override
 	public SlotType getReturnType() {
-		return getSlot().getSlotType(getPath().template);
+		return getSlot().getSlotType(getPath().getTemplate());
 	}
 
 	@Override
@@ -91,30 +94,28 @@ public class PathLeaf implements FunctionWithArguments {
 	 */
 	@EqualsAndHashCode
 	public static class ParameterLeaf implements FunctionWithArguments {
-		private final SlotType type;
+		private final SlotType slotType;
+		private final SlotType[] slotTypes;
 
 		public ParameterLeaf(final SlotType type) {
 			super();
-			this.type = type;
+			this.slotType = type;
+			this.slotTypes = new SlotType[] { type };
 		}
 
 		@Override
 		public String toString() {
-			final StringBuilder sb = new StringBuilder();
-			sb.append("[");
-			sb.append(getType());
-			sb.append("]");
-			return sb.toString();
+			return "[" + slotType + "]";
 		}
 
 		@Override
 		public SlotType[] getParamTypes() {
-			return new SlotType[] { this.getType() };
+			return slotTypes;
 		}
 
 		@Override
 		public SlotType getReturnType() {
-			return this.getType();
+			return slotType;
 		}
 
 		@Override
@@ -128,22 +129,18 @@ public class PathLeaf implements FunctionWithArguments {
 		}
 
 		@Override
-		public <T extends Visitor> T accept(final T visitor) {
+		public <T extends FunctionWithArgumentsVisitor> T accept(final T visitor) {
 			visitor.visit(this);
 			return visitor;
 		}
 
-		/**
-		 * @return the type
-		 */
 		public SlotType getType() {
-			return this.type;
+			return slotType;
 		}
-
 	}
 
 	@Override
-	public <T extends Visitor> T accept(final T visitor) {
+	public <T extends FunctionWithArgumentsVisitor> T accept(final T visitor) {
 		visitor.visit(this);
 		return visitor;
 	}

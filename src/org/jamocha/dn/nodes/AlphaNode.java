@@ -37,34 +37,12 @@ import org.jamocha.filter.PathFilter;
 public class AlphaNode extends Node {
 	static final LinkedList<MemoryHandlerPlusTemp> empty = new LinkedList<>();
 
-	protected class AlphaEdgeImpl extends EdgeImpl implements PositiveEdge {
+	protected abstract class AlphaEdgeImpl extends EdgeImpl {
 		FactAddress addressInTarget = null;
 
 		public AlphaEdgeImpl(final Network network, final Node sourceNode, final Node targetNode,
 				final AddressFilter filter) {
 			super(network, sourceNode, targetNode, filter);
-		}
-
-		@Override
-		public void processPlusToken(final MemoryHandlerPlusTemp memory)
-				throws CouldNotAcquireLockException {
-			final MemoryHandlerTemp mem =
-					this.targetNode.memory.processTokenInAlpha(memory, this, this.filter);
-			if (mem.size() == 0) {
-				return;
-			}
-			mem.enqueueInEdges(this.targetNode.outgoingPositiveEdges);
-		}
-
-		@Override
-		public void processMinusToken(final MemoryHandlerMinusTemp memory)
-				throws CouldNotAcquireLockException {
-			final MemoryHandlerTemp mem =
-					this.targetNode.memory.processTokenInAlpha(memory, this, this.filter);
-			if (mem.size() == 0) {
-				return;
-			}
-			mem.enqueueInEdges(this.targetNode.outgoingPositiveEdges);
 		}
 
 		@Override
@@ -88,6 +66,88 @@ public class AlphaNode extends Node {
 		public LinkedList<MemoryHandlerPlusTemp> getTempMemories() {
 			return empty;
 		}
+	}
+
+	protected class PositiveAlphaEdgeImpl extends AlphaEdgeImpl implements PositiveEdge {
+
+		public PositiveAlphaEdgeImpl(final Network network, final Node sourceNode,
+				final Node targetNode, final AddressFilter filter) {
+			super(network, sourceNode, targetNode, filter);
+		}
+
+		@Override
+		public void processPlusToken(final MemoryHandlerTemp memory)
+				throws CouldNotAcquireLockException {
+			final MemoryHandlerTemp mem =
+					this.targetNode.memory.processTokenInAlpha(memory, this, this.filter);
+			if (mem.size() == 0) {
+				return;
+			}
+			mem.enqueueInEdges(this.targetNode.outgoingPositiveEdges);
+		}
+
+		@Override
+		public void processMinusToken(final MemoryHandlerTemp memory)
+				throws CouldNotAcquireLockException {
+			final MemoryHandlerTemp mem =
+					this.targetNode.memory.processTokenInAlpha(memory, this, this.filter);
+			if (mem.size() == 0) {
+				return;
+			}
+			mem.enqueueInEdges(this.targetNode.outgoingPositiveEdges);
+		}
+
+		@Override
+		public void enqueuePlusMemory(final MemoryHandlerPlusTemp mem) {
+			newPlusToken(mem);
+		}
+
+		@Override
+		public void enqueueMinusMemory(final MemoryHandlerMinusTemp mem) {
+			newMinusToken(mem);
+		}
+
+	}
+
+	protected class NegativeAlphaEdgeImpl extends AlphaEdgeImpl implements NegativeEdge {
+		public NegativeAlphaEdgeImpl(final Network network, final Node sourceNode,
+				final Node targetNode, final AddressFilter filter) {
+			super(network, sourceNode, targetNode, filter);
+		}
+
+		@Override
+		public void processPlusToken(final MemoryHandlerTemp memory)
+				throws CouldNotAcquireLockException {
+			// FIXME negative
+			final MemoryHandlerTemp mem =
+					this.targetNode.memory.processTokenInAlpha(memory, this, this.filter);
+			if (mem.size() == 0) {
+				return;
+			}
+			mem.enqueueInEdges(this.targetNode.outgoingPositiveEdges);
+		}
+
+		@Override
+		public void processMinusToken(final MemoryHandlerTemp memory)
+				throws CouldNotAcquireLockException {
+			// FIXME negative
+			final MemoryHandlerTemp mem =
+					this.targetNode.memory.processTokenInAlpha(memory, this, this.filter);
+			if (mem.size() == 0) {
+				return;
+			}
+			mem.enqueueInEdges(this.targetNode.outgoingPositiveEdges);
+		}
+
+		@Override
+		public void enqueuePlusMemory(final MemoryHandlerPlusTemp mem) {
+			newMinusToken(mem);
+		}
+
+		@Override
+		public void enqueueMinusMemory(final MemoryHandlerMinusTemp mem) {
+			newPlusToken(mem);
+		}
 
 	}
 
@@ -101,7 +161,12 @@ public class AlphaNode extends Node {
 
 	@Override
 	protected PositiveEdge newPositiveEdge(final Node source) {
-		return new AlphaEdgeImpl(this.network, source, this, this.filter);
+		return new PositiveAlphaEdgeImpl(this.network, source, this, this.filter);
+	}
+
+	@Override
+	protected NegativeEdge newNegativeEdge(final Node source) {
+		return new NegativeAlphaEdgeImpl(this.network, source, this, this.filter);
 	}
 
 	@Override

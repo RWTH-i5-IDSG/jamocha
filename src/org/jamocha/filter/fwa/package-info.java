@@ -12,22 +12,8 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package org.jamocha.filter;
-
-import org.jamocha.filter.PathLeaf.ParameterLeaf;
-
-import test.jamocha.filter.PredicateWithArgumentsMockup;
-
-public interface Visitor {
-	void visit(final ConstantLeaf constantLeaf);
-
-	void visit(final FunctionWithArgumentsComposite functionWithArgumentsComposite);
-
-	void visit(final PredicateWithArgumentsComposite predicateWithArgumentsComposite);
-
-	void visit(final ParameterLeaf parameterLeaf);
-
-	void visit(final PathLeaf pathLeaf);
-
-	void visit(final PredicateWithArgumentsMockup predicateWithArgumentsMockup);
-}
+/**
+ * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+ * 
+ */
+package org.jamocha.filter.fwa;

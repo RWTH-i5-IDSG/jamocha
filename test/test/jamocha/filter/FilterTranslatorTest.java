@@ -20,12 +20,12 @@ import static org.junit.Assert.assertArrayEquals;
 
 import org.jamocha.dn.memory.Template;
 import org.jamocha.dn.nodes.SlotInFactAddress;
-import org.jamocha.filter.FilterTranslator;
 import org.jamocha.filter.FunctionDictionary;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.PathFilter;
 import org.jamocha.filter.Predicate;
-import org.jamocha.filter.SlotInFactAddressCollector;
+import org.jamocha.filter.visitor.FilterTranslator;
+import org.jamocha.filter.visitor.SlotInFactAddressCollector;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -71,48 +71,47 @@ public class FilterTranslatorTest {
 	@Before
 	public void setUp() throws Exception {
 		// 11 12
-		a = new PathFilter(new PredicateBuilder(equals).addPath(p1, s1).addPath(p1, s2).build());
+		a = new PathFilter(new PredicateBuilder(equals).addPath(p1, s1).addPath(p1, s2).buildPFE());
 		// 21 22 11 22
 		b =
-				new PathFilter(
-						new PredicateBuilder(equals).addPath(p2, s1).addPath(p2, s2).build(),
-						new PredicateBuilder(equals).addPath(p1, s1).addPath(p2, s2).build());
+				new PathFilter(new PredicateBuilder(equals).addPath(p2, s1).addPath(p2, s2)
+						.buildPFE(), new PredicateBuilder(equals).addPath(p1, s1).addPath(p2, s2)
+						.buildPFE());
 		// 11 22 21 32
 		c =
-				new PathFilter(
-						new PredicateBuilder(equals).addPath(p1, s1).addPath(p2, s2).build(),
-						new PredicateBuilder(equals).addPath(p2, s1).addPath(p3, s2).build());
+				new PathFilter(new PredicateBuilder(equals).addPath(p1, s1).addPath(p2, s2)
+						.buildPFE(), new PredicateBuilder(equals).addPath(p2, s1).addPath(p3, s2)
+						.buildPFE());
 		// 11 32 31 12
 		d =
-				new PathFilter(
-						new PredicateBuilder(equals).addPath(p1, s1).addPath(p3, s2).build(),
-						new PredicateBuilder(equals).addPath(p3, s1).addPath(p1, s2).build());
+				new PathFilter(new PredicateBuilder(equals).addPath(p1, s1).addPath(p3, s2)
+						.buildPFE(), new PredicateBuilder(equals).addPath(p3, s1).addPath(p1, s2)
+						.buildPFE());
 		// 11 12 21 22 31 32 41 42
 		e =
-				new PathFilter(
-						new PredicateBuilder(equals).addPath(p1, s1).addPath(p1, s2).build(),
-						new PredicateBuilder(equals).addPath(p2, s1).addPath(p2, s2).build(),
-						new PredicateBuilder(equals).addPath(p3, s1).addPath(p3, s2).build(),
-						new PredicateBuilder(equals).addPath(p4, s1).addPath(p4, s2).build());
+				new PathFilter(new PredicateBuilder(equals).addPath(p1, s1).addPath(p1, s2)
+						.buildPFE(), new PredicateBuilder(equals).addPath(p2, s1).addPath(p2, s2)
+						.buildPFE(), new PredicateBuilder(equals).addPath(p3, s1).addPath(p3, s2)
+						.buildPFE(), new PredicateBuilder(equals).addPath(p4, s1).addPath(p4, s2)
+						.buildPFE());
 		// 11 32 31 22 41 22 21 12
 		f =
-				new PathFilter(
-						new PredicateBuilder(equals).addPath(p1, s1).addPath(p3, s2).build(),
-						new PredicateBuilder(equals).addPath(p3, s1).addPath(p2, s2).build(),
-						new PredicateBuilder(equals).addPath(p4, s1).addPath(p2, s2).build(),
-						new PredicateBuilder(equals).addPath(p2, s1).addPath(p1, s2).build());
+				new PathFilter(new PredicateBuilder(equals).addPath(p1, s1).addPath(p3, s2)
+						.buildPFE(), new PredicateBuilder(equals).addPath(p3, s1).addPath(p2, s2)
+						.buildPFE(), new PredicateBuilder(equals).addPath(p4, s1).addPath(p2, s2)
+						.buildPFE(), new PredicateBuilder(equals).addPath(p2, s1).addPath(p1, s2)
+						.buildPFE());
 		// 11 32 32 41 41 22 21 12
 		g =
-				new PathFilter(
-						new PredicateBuilder(equals).addPath(p1, s1).addPath(p3, s2).build(),
-						new PredicateBuilder(boolEq)
-								.addFunction(
-										new PredicateBuilder(equals).addPath(p3, s2)
-												.addPath(p4, s1).build())
-								.addFunction(
-										new PredicateBuilder(equals).addPath(p4, s1)
-												.addPath(p2, s2).build()).build(),
-						new PredicateBuilder(equals).addPath(p2, s1).addPath(p1, s2).build());
+				new PathFilter(new PredicateBuilder(equals).addPath(p1, s1).addPath(p3, s2)
+						.buildPFE(), new PredicateBuilder(boolEq)
+						.addFunction(
+								new PredicateBuilder(equals).addPath(p3, s2).addPath(p4, s1)
+										.build())
+						.addFunction(
+								new PredicateBuilder(equals).addPath(p4, s1).addPath(p2, s2)
+										.build()).buildPFE(), new PredicateBuilder(equals)
+						.addPath(p2, s1).addPath(p1, s2).buildPFE());
 	}
 
 	/**
@@ -124,7 +123,7 @@ public class FilterTranslatorTest {
 
 	/**
 	 * Test method for
-	 * {@link org.jamocha.filter.FilterTranslator#translate(org.jamocha.filter.PathFilter)}.
+	 * {@link org.jamocha.filter.visitor.FilterTranslator#translate(org.jamocha.filter.PathFilter)}.
 	 */
 	@Test
 	public void testTranslate() {

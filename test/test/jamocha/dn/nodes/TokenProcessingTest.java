@@ -102,15 +102,15 @@ public class TokenProcessingTest {
 				new PathFilter[] {
 						new PathFilter(new PredicateBuilder(eqStrStr)
 								.addPath(oldStudent, studentHobby)
-								.addConstant("Coding", SlotType.STRING).build()),
+								.addConstant("Coding", SlotType.STRING).buildPFE()),
 						new PathFilter(new PredicateBuilder(lessLongLong)
 								.addPath(youngStudent, studentSem).addPath(oldStudent, studentSem)
-								.build(), new PredicateBuilder(eqStrStr)
+								.buildPFE(), new PredicateBuilder(eqStrStr)
 								.addPath(youngStudent, studentSG).addPath(oldStudent, studentSG)
-								.build()),
+								.buildPFE()),
 						new PathFilter(new PredicateBuilder(eqStrStr)
 								.addPath(youngStudent, studentSG).addPath(matchingProf, profSG)
-								.build()) };
+								.buildPFE()) };
 		network.buildRule(filter);
 		final RootNode rootNode = network.getRootNode();
 		final ConflictSet conflictSet = network.getConflictSet();
@@ -193,15 +193,15 @@ public class TokenProcessingTest {
 				new PathFilter[] {
 						new PathFilter(new PredicateBuilder(eqStrStr)
 								.addPath(oldStudent, studentHobby)
-								.addConstant("Coding", SlotType.STRING).build()),
+								.addConstant("Coding", SlotType.STRING).buildPFE()),
 						new PathFilter(new PredicateBuilder(lessLongLong)
 								.addPath(youngStudent, studentSem).addPath(oldStudent, studentSem)
-								.build(), new PredicateBuilder(eqStrStr)
+								.buildPFE(), new PredicateBuilder(eqStrStr)
 								.addPath(youngStudent, studentSG).addPath(oldStudent, studentSG)
-								.build()),
+								.buildPFE()),
 						new PathFilter(new PredicateBuilder(eqStrStr)
 								.addPath(youngStudent, studentSG).addPath(matchingProf, profSG)
-								.build()) };
+								.buildPFE()) };
 		network.buildRule(filter);
 		final RootNode rootNode = network.getRootNode();
 		final ConflictSet conflictSet = network.getConflictSet();
@@ -260,7 +260,7 @@ public class TokenProcessingTest {
 
 		final PathFilter filter =
 				new PathFilter(new PredicateBuilder(eqStrStr).addPath(p1, slotStr)
-						.addPath(p2, slotStr).build());
+						.addPath(p2, slotStr).buildPFE());
 		network.buildRule(filter);
 		final RootNode rootNode = network.getRootNode();
 
@@ -317,7 +317,7 @@ public class TokenProcessingTest {
 						.addPath(p1, slotBool)
 						.addFunction(
 								new FunctionBuilder(lessLongLong).addPath(p1, slotLong)
-										.addConstant(3L, SlotType.LONG).build()).build());
+										.addConstant(3L, SlotType.LONG).build()).buildPFE());
 
 		network.buildRule(filter);
 
@@ -524,7 +524,7 @@ public class TokenProcessingTest {
 						.addPath(p1, slotBool)
 						.addFunction(
 								new FunctionBuilder(lessLongLong).addPath(p1, slotLong)
-										.addConstant(3L, SlotType.LONG).build()).build());
+										.addConstant(3L, SlotType.LONG).build()).buildPFE());
 		network.buildRule(filter);
 		final RootNode rootNode = network.getRootNode();
 

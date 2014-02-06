@@ -22,6 +22,7 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Queue;
 import java.util.Set;
 
@@ -35,12 +36,13 @@ import org.jamocha.dn.memory.FactAddress;
 import org.jamocha.dn.memory.MemoryHandlerMain;
 import org.jamocha.dn.memory.MemoryHandlerMinusTemp;
 import org.jamocha.dn.memory.MemoryHandlerPlusTemp;
+import org.jamocha.dn.memory.MemoryHandlerTemp;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.filter.AddressFilter;
-import org.jamocha.filter.FilterTranslator;
 import org.jamocha.filter.Path;
-import org.jamocha.filter.PathCollector;
 import org.jamocha.filter.PathFilter;
+import org.jamocha.filter.visitor.FilterTranslator;
+import org.jamocha.filter.visitor.PathCollector;
 
 /**
  * Base class for all node types
@@ -52,10 +54,10 @@ import org.jamocha.filter.PathFilter;
 public abstract class Node {
 
 	public static interface Edge {
-		public void processPlusToken(final MemoryHandlerPlusTemp memory)
+		public void processPlusToken(final MemoryHandlerTemp memory)
 				throws CouldNotAcquireLockException;
 
-		public void processMinusToken(final MemoryHandlerMinusTemp memory)
+		public void processMinusToken(final MemoryHandlerTemp memory)
 				throws CouldNotAcquireLockException;
 
 		public Node getSourceNode();
@@ -130,6 +132,22 @@ public abstract class Node {
 			return this.filter;
 		}
 
+		protected void newPlusToken(final MemoryHandlerTemp mem) {
+			this.targetNode.enqueue(new Token.PlusToken(mem, this));
+		}
+
+		protected void newMinusToken(final MemoryHandlerTemp mem) {
+			this.targetNode.enqueue(new Token.MinusToken(mem, this));
+		}
+
+	}
+
+	abstract protected class PositiveEdgeImpl extends EdgeImpl implements PositiveEdge {
+		public PositiveEdgeImpl(final Network network, final Node sourceNode,
+				final Node targetNode, final AddressFilter filter) {
+			super(network, sourceNode, targetNode, filter);
+		}
+
 		@Override
 		public void enqueuePlusMemory(final MemoryHandlerPlusTemp mem) {
 			this.targetNode.enqueue(new Token.PlusToken(mem, this));
@@ -139,7 +157,23 @@ public abstract class Node {
 		public void enqueueMinusMemory(final MemoryHandlerMinusTemp mem) {
 			this.targetNode.enqueue(new Token.MinusToken(mem, this));
 		}
+	}
 
+	abstract protected class NegativeEdgeImpl extends EdgeImpl implements NegativeEdge {
+		public NegativeEdgeImpl(final Network network, final Node sourceNode,
+				final Node targetNode, final AddressFilter filter) {
+			super(network, sourceNode, targetNode, filter);
+		}
+
+		@Override
+		public void enqueuePlusMemory(final MemoryHandlerPlusTemp mem) {
+			this.targetNode.enqueue(new Token.MinusToken(mem, this));
+		}
+
+		@Override
+		public void enqueueMinusMemory(final MemoryHandlerMinusTemp mem) {
+			this.targetNode.enqueue(new Token.PlusToken(mem, this));
+		}
 	}
 
 	@Getter
@@ -184,10 +218,10 @@ public abstract class Node {
 	@RequiredArgsConstructor
 	public class TokenQueue implements Runnable {
 		final static int tokenQueueCapacity = Integer.MAX_VALUE;
-		final Queue<Token<?>> tokenQueue = new LinkedList<>();
+		final Queue<Token> tokenQueue = new LinkedList<>();
 		final Network network;
 
-		synchronized public void enqueue(final Token<?> token) {
+		synchronized public void enqueue(final Token token) {
 			final boolean empty = this.tokenQueue.isEmpty();
 			this.tokenQueue.add(token);
 			if (empty) {
@@ -197,7 +231,7 @@ public abstract class Node {
 
 		@Override
 		public void run() {
-			final Token<?> token = this.tokenQueue.peek();
+			final Token token = this.tokenQueue.peek();
 			assert null != token; // queue shouldn't have been in the work queue
 			try {
 				token.run();
@@ -222,7 +256,7 @@ public abstract class Node {
 		this.tokenQueue = new TokenQueue(network);
 		this.incomingEdges = new Edge[parents.length];
 		for (int i = 0; i < parents.length; i++) {
-			this.incomingEdges[i] = this.connectParent(parents[i]);
+			this.incomingEdges[i] = this.connectPositiveParent(parents[i]);
 		}
 		this.memory = network.getMemoryFactory().newMemoryHandlerMain(this.incomingEdges);
 		this.filter = AddressFilter.empty;
@@ -247,21 +281,29 @@ public abstract class Node {
 		while (!paths.isEmpty()) {
 			// get next path
 			final Path path = paths.iterator().next();
-			// mark all paths as done
-			final Set<Path> joinedWith = path.getJoinedWith();
-			joinedPaths.addAll(joinedWith);
-			paths.removeAll(joinedWith);
+			// FIXME find out whether positive or negative edge is needed
+			final boolean negated = path.equals(null);
 			final Node clNode = path.getCurrentlyLowestNode();
 			// create new edge from clNode to this
-			final Edge edge = connectParent(clNode);
+			final Edge edge;
+			if (!negated) {
+				// mark all paths as done
+				final Set<Path> joinedWith = path.getJoinedWith();
+				joinedPaths.addAll(joinedWith);
+				paths.removeAll(joinedWith);
+				edge = connectPositiveParent(clNode);
+				edgesAndPaths.put(edge, joinedWith);
+			} else {
+				edge = connectNegativeParent(clNode);
+			}
 			edges.add(edge);
-			edgesAndPaths.put(edge, joinedWith);
 		}
 		this.incomingEdges = edges.toArray(new Edge[edges.size()]);
 		this.memory = network.getMemoryFactory().newMemoryHandlerMain(this.incomingEdges);
 		// update all Paths from joinedWith to new addresses
-		for (final Edge edge : edges) {
-			final Set<Path> joinedWith = edgesAndPaths.get(edge);
+		for (final Entry<Edge, Set<Path>> entry : edgesAndPaths.entrySet()) {
+			final Edge edge = entry.getKey();
+			final Set<Path> joinedWith = entry.getValue();
 			for (final Path path : joinedWith) {
 				final FactAddress factAddressInCurrentlyLowestNode =
 						path.getFactAddressInCurrentlyLowestNode();
@@ -277,8 +319,14 @@ public abstract class Node {
 		}
 	}
 
-	protected Edge connectParent(final Node parent) {
+	protected Edge connectPositiveParent(final Node parent) {
 		final PositiveEdge edge = newPositiveEdge(parent);
+		parent.acceptEdgeToChild(edge);
+		return edge;
+	}
+
+	protected Edge connectNegativeParent(final Node parent) {
+		final NegativeEdge edge = newNegativeEdge(parent);
 		parent.acceptEdgeToChild(edge);
 		return edge;
 	}
@@ -307,6 +355,17 @@ public abstract class Node {
 	}
 
 	/**
+	 * Called when a child is added. Defaults to adding the edge to the child to the list of
+	 * outgoing edges.
+	 * 
+	 * @param edgeToChild
+	 *            the edge to the child to be added
+	 */
+	protected void acceptEdgeToChild(final NegativeEdge edgeToChild) {
+		this.outgoingNegativeEdges.add(edgeToChild);
+	}
+
+	/**
 	 * Called when a child is removed. Defaults to removing the edge to the child from the list of
 	 * outgoing edges.
 	 * 
@@ -315,6 +374,7 @@ public abstract class Node {
 	 */
 	protected void removeChild(final Edge edgeToChild) {
 		this.outgoingPositiveEdges.remove(edgeToChild);
+		this.outgoingNegativeEdges.remove(edgeToChild);
 	}
 
 	/**
@@ -326,6 +386,16 @@ public abstract class Node {
 	 * @return NodeInput connecting the given source node with this node
 	 */
 	abstract protected PositiveEdge newPositiveEdge(final Node source);
+
+	/**
+	 * Creates a new NodeInput which will connect this node (as the input's target node) and the
+	 * given source node (as its parent).
+	 * 
+	 * @param source
+	 *            source node to connect to this node via a nodeInput to be constructed
+	 * @return NodeInput connecting the given source node with this node
+	 */
+	abstract protected NegativeEdge newNegativeEdge(final Node source);
 
 	public int getNumberOfOutgoingEdges() {
 		return this.outgoingPositiveEdges.size() + this.outgoingNegativeEdges.size();
@@ -345,7 +415,7 @@ public abstract class Node {
 		return this.delocalizeMap.get(localFactAddress);
 	}
 
-	private void enqueue(final Token<?> token) {
+	private void enqueue(final Token token) {
 		this.tokenQueue.enqueue(token);
 	}
 

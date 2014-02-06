@@ -17,7 +17,6 @@ package org.jamocha.dn;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-import org.jamocha.dn.memory.MemoryHandlerMinusTemp;
 import org.jamocha.dn.memory.MemoryHandlerPlusTemp;
 import org.jamocha.dn.memory.MemoryHandlerTemp;
 import org.jamocha.dn.nodes.CouldNotAcquireLockException;
@@ -33,8 +32,8 @@ import org.jamocha.dn.nodes.Node.Edge;
  */
 @Getter
 @AllArgsConstructor
-public abstract class Token<T extends MemoryHandlerTemp> {
-	final T temp;
+public abstract class Token {
+	final MemoryHandlerTemp temp;
 	final Edge edge;
 
 	/**
@@ -52,8 +51,8 @@ public abstract class Token<T extends MemoryHandlerTemp> {
 	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
 	 * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
 	 */
-	public static class PlusToken extends Token<MemoryHandlerPlusTemp> {
-		public PlusToken(final MemoryHandlerPlusTemp temp, final Edge edge) {
+	public static class PlusToken extends Token {
+		public PlusToken(final MemoryHandlerTemp temp, final Edge edge) {
 			super(temp, edge);
 		}
 
@@ -71,14 +70,15 @@ public abstract class Token<T extends MemoryHandlerTemp> {
 	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
 	 * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
 	 */
-	public static class MinusToken extends Token<MemoryHandlerMinusTemp> {
-		public MinusToken(final MemoryHandlerMinusTemp temp, final Edge edge) {
+	public static class MinusToken extends Token {
+		public MinusToken(final MemoryHandlerTemp temp, final Edge edge) {
 			super(temp, edge);
 		}
 
 		@Override
 		public void run() throws CouldNotAcquireLockException {
 			this.edge.processMinusToken(this.temp);
+			this.temp.releaseLock();
 		}
 	}
 }

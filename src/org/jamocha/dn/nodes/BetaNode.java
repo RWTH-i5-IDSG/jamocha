@@ -36,39 +36,15 @@ import org.jamocha.filter.PathFilter;
  * @author Kai Schwarz <kai.schwarz@rwth-aachen.de>
  * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
  */
-
 public class BetaNode extends Node {
 
-	protected class BetaEdgeImpl extends EdgeImpl implements PositiveEdge {
-
+	protected abstract class BetaEdgeImpl extends EdgeImpl {
 		private Map<? extends FactAddress, ? extends FactAddress> addressMap;
 		private final LinkedList<MemoryHandlerPlusTemp> tempMemories = new LinkedList<>();
 
 		public BetaEdgeImpl(final Network network, final Node sourceNode, final Node targetNode,
 				final AddressFilter filter) {
 			super(network, sourceNode, targetNode, filter);
-		}
-
-		@Override
-		public void processPlusToken(final MemoryHandlerPlusTemp memory)
-				throws CouldNotAcquireLockException {
-			final MemoryHandlerTemp mem =
-					this.targetNode.memory.processTokenInBeta(memory, this, this.filter);
-			if (mem.size() == 0) {
-				return;
-			}
-			mem.enqueueInEdges(this.targetNode.outgoingPositiveEdges);
-		}
-
-		@Override
-		public void processMinusToken(final MemoryHandlerMinusTemp memory)
-				throws CouldNotAcquireLockException {
-			final MemoryHandlerTemp mem =
-					this.targetNode.memory.processTokenInBeta(memory, this, this.filter);
-			if (mem.size() == 0) {
-				return;
-			}
-			mem.enqueueInEdges(this.targetNode.outgoingPositiveEdges);
 		}
 
 		@Override
@@ -92,7 +68,86 @@ public class BetaNode extends Node {
 		public LinkedList<MemoryHandlerPlusTemp> getTempMemories() {
 			return this.tempMemories;
 		}
+	}
 
+	protected class PositiveBetaEdgeImpl extends BetaEdgeImpl implements PositiveEdge {
+		public PositiveBetaEdgeImpl(final Network network, final Node sourceNode,
+				final Node targetNode, final AddressFilter filter) {
+			super(network, sourceNode, targetNode, filter);
+		}
+
+		@Override
+		public void processPlusToken(final MemoryHandlerTemp memory)
+				throws CouldNotAcquireLockException {
+			final MemoryHandlerTemp mem =
+					this.targetNode.memory.processTokenInBeta(memory, this, this.filter);
+			if (mem.size() == 0) {
+				return;
+			}
+			mem.enqueueInEdges(this.targetNode.outgoingPositiveEdges);
+		}
+
+		@Override
+		public void processMinusToken(final MemoryHandlerTemp memory)
+				throws CouldNotAcquireLockException {
+			final MemoryHandlerTemp mem =
+					this.targetNode.memory.processTokenInBeta(memory, this, this.filter);
+			if (mem.size() == 0) {
+				return;
+			}
+			mem.enqueueInEdges(this.targetNode.outgoingPositiveEdges);
+		}
+
+		@Override
+		public void enqueuePlusMemory(final MemoryHandlerPlusTemp mem) {
+			newPlusToken(mem);
+		}
+
+		@Override
+		public void enqueueMinusMemory(final MemoryHandlerMinusTemp mem) {
+			newMinusToken(mem);
+		}
+	}
+
+	protected class NegativeBetaEdgeImpl extends BetaEdgeImpl implements NegativeEdge {
+		public NegativeBetaEdgeImpl(final Network network, final Node sourceNode,
+				final Node targetNode, final AddressFilter filter) {
+			super(network, sourceNode, targetNode, filter);
+		}
+
+		@Override
+		public void processPlusToken(final MemoryHandlerTemp memory)
+				throws CouldNotAcquireLockException {
+			// FIXME negative
+			final MemoryHandlerTemp mem =
+					this.targetNode.memory.processTokenInBeta(memory, this, this.filter);
+			if (mem.size() == 0) {
+				return;
+			}
+			mem.enqueueInEdges(this.targetNode.outgoingPositiveEdges);
+		}
+
+		@Override
+		public void processMinusToken(final MemoryHandlerTemp memory)
+				throws CouldNotAcquireLockException {
+			// FIXME negative
+			final MemoryHandlerTemp mem =
+					this.targetNode.memory.processTokenInBeta(memory, this, this.filter);
+			if (mem.size() == 0) {
+				return;
+			}
+			mem.enqueueInEdges(this.targetNode.outgoingPositiveEdges);
+		}
+
+		@Override
+		public void enqueuePlusMemory(final MemoryHandlerPlusTemp mem) {
+			newMinusToken(mem);
+		}
+
+		@Override
+		public void enqueueMinusMemory(final MemoryHandlerMinusTemp mem) {
+			newPlusToken(mem);
+		}
 	}
 
 	public BetaNode(final Network network, final PathFilter filter) {
@@ -101,7 +156,12 @@ public class BetaNode extends Node {
 
 	@Override
 	protected PositiveEdge newPositiveEdge(final Node source) {
-		return new BetaEdgeImpl(this.network, source, this, this.filter);
+		return new PositiveBetaEdgeImpl(this.network, source, this, this.filter);
+	}
+
+	@Override
+	protected NegativeEdge newNegativeEdge(final Node source) {
+		return new NegativeBetaEdgeImpl(this.network, source, this, this.filter);
 	}
 
 	@Override

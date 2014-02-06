@@ -20,6 +20,10 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
 import org.jamocha.dn.nodes.Node;
+import org.jamocha.filter.fwa.FunctionWithArguments;
+import org.jamocha.filter.fwa.PredicateWithArguments;
+import org.jamocha.filter.visitor.FilterElementVisitor;
+import org.jamocha.filter.visitor.Visitable;
 
 /**
  * A Filter contains {@link FilterElement filter elements} representing atomic {@link Predicate
@@ -44,7 +48,7 @@ public abstract class Filter<FE extends Filter.FilterElement> {
 
 	@Getter
 	@RequiredArgsConstructor
-	public static abstract class FilterElement {
+	public static abstract class FilterElement implements Visitable<FilterElementVisitor> {
 		protected final PredicateWithArguments function;
 	}
 }

@@ -6,14 +6,14 @@ import static org.junit.Assert.assertTrue;
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.dn.memory.javaimpl.SlotAddress;
-import org.jamocha.filter.FilterFunctionCompare;
-import org.jamocha.filter.FilterTranslator;
 import org.jamocha.filter.Function;
 import org.jamocha.filter.FunctionDictionary;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.PathFilter;
+import org.jamocha.filter.PathFilter.PathFilterElement;
+import org.jamocha.filter.visitor.FilterFunctionCompare;
+import org.jamocha.filter.visitor.FilterTranslator;
 import org.jamocha.filter.Predicate;
-import org.jamocha.filter.PredicateWithArguments;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -37,7 +37,7 @@ public class FilterEqualsInFunctionTest {
 		SlotAddress a3 = new SlotAddress(0);
 		Function<?> plus = FunctionDictionary.lookup("+", SlotType.DOUBLE, SlotType.DOUBLE);
 		Function<?> minus = FunctionDictionary.lookup("-", SlotType.DOUBLE, SlotType.DOUBLE);
-		PredicateWithArguments f, g;
+		PathFilterElement f, g;
 
 		f =
 				new PredicateBuilder(FunctionDictionary.lookupPredicate("=", SlotType.DOUBLE,
@@ -46,7 +46,7 @@ public class FilterEqualsInFunctionTest {
 								new FunctionBuilder(plus).addPath(p1, a1).addPath(p2, a2).build())
 						.addFunction(
 								new FunctionBuilder(minus).addConstant(1337l, SlotType.DOUBLE)
-										.addPath(p3, a3).build()).build();
+										.addPath(p3, a3).build()).buildPFE();
 		g =
 				new PredicateBuilder(FunctionDictionary.lookupPredicate("=", SlotType.DOUBLE,
 						SlotType.DOUBLE))
@@ -54,7 +54,7 @@ public class FilterEqualsInFunctionTest {
 								new FunctionBuilder(plus).addPath(p1, a1).addPath(p2, a2).build())
 						.addFunction(
 								new FunctionBuilder(minus).addConstant(1337l, SlotType.DOUBLE)
-										.addPath(p3, a3).build()).build();
+										.addPath(p3, a3).build()).buildPFE();
 		PathFilter pf = new PathFilter(f), pg = new PathFilter(g);
 
 		assertTrue(FilterFunctionCompare.equals(pf, FilterTranslator.translate(pf)));
@@ -72,7 +72,7 @@ public class FilterEqualsInFunctionTest {
 		SlotAddress a3 = new SlotAddress(0);
 		Function<?> plus = FunctionDictionary.lookup("+", SlotType.DOUBLE, SlotType.DOUBLE);
 		Function<?> minus = FunctionDictionary.lookup("-", SlotType.DOUBLE, SlotType.DOUBLE);
-		PredicateWithArguments f, g;
+		PathFilterElement f, g;
 		PathFilter pf, pg;
 
 		f =
@@ -82,7 +82,7 @@ public class FilterEqualsInFunctionTest {
 								new FunctionBuilder(plus).addPath(p1, a1).addPath(p2, a2).build())
 						.addFunction(
 								new FunctionBuilder(minus).addConstant(1337.0, SlotType.DOUBLE)
-										.addPath(p3, a3).build()).build();
+										.addPath(p3, a3).build()).buildPFE();
 		g =
 				new PredicateBuilder(FunctionDictionary.lookupPredicate("=", SlotType.DOUBLE,
 						SlotType.DOUBLE))
@@ -91,7 +91,7 @@ public class FilterEqualsInFunctionTest {
 										.addPath(p3, a3).build())
 						.addFunction(
 								new FunctionBuilder(plus).addPath(p1, a1).addPath(p2, a2).build())
-						.build();
+						.buildPFE();
 		pf = new PathFilter(f);
 		pg = new PathFilter(g);
 		assertTrue(FilterFunctionCompare.equals(pf, FilterTranslator.translate(pg)));
@@ -104,7 +104,7 @@ public class FilterEqualsInFunctionTest {
 										.addPath(p3, a3).build())
 						.addFunction(
 								new FunctionBuilder(plus).addPath(p2, a2).addPath(p1, a1).build())
-						.build();
+						.buildPFE();
 		pg = new PathFilter(g);
 		assertTrue(FilterFunctionCompare.equals(pf, FilterTranslator.translate(pg)));
 		assertTrue(FilterFunctionCompare.equals(pg, FilterTranslator.translate(pf)));
@@ -121,7 +121,7 @@ public class FilterEqualsInFunctionTest {
 		SlotAddress a4 = new SlotAddress(0);
 		Function<?> plus = FunctionDictionary.lookup("+", SlotType.DOUBLE, SlotType.DOUBLE);
 		Function<?> minus = FunctionDictionary.lookup("-", SlotType.DOUBLE, SlotType.DOUBLE);
-		PredicateWithArguments f, g;
+		PathFilterElement f, g;
 		PathFilter pf, pg;
 
 		f =
@@ -131,7 +131,7 @@ public class FilterEqualsInFunctionTest {
 								new FunctionBuilder(plus).addPath(p1, a1).addPath(p2, a2).build())
 						.addFunction(
 								new FunctionBuilder(minus).addConstant(1337l, SlotType.DOUBLE)
-										.addPath(p3, a3).build()).build();
+										.addPath(p3, a3).build()).buildPFE();
 		g =
 				new PredicateBuilder(FunctionDictionary.lookupPredicate("=", SlotType.DOUBLE,
 						SlotType.DOUBLE))
@@ -139,7 +139,7 @@ public class FilterEqualsInFunctionTest {
 								new FunctionBuilder(plus).addPath(p1, a4).addPath(p2, a2).build())
 						.addFunction(
 								new FunctionBuilder(minus).addConstant(1337.0, SlotType.DOUBLE)
-										.addPath(p3, a3).build()).build();
+										.addPath(p3, a3).build()).buildPFE();
 		pf = new PathFilter(f);
 		pg = new PathFilter(g);
 		assertFalse(FilterFunctionCompare.equals(pf, FilterTranslator.translate(pg)));
@@ -157,7 +157,7 @@ public class FilterEqualsInFunctionTest {
 		SlotAddress a3 = new SlotAddress(0);
 		Function<?> plus = FunctionDictionary.lookup("+", SlotType.DOUBLE, SlotType.DOUBLE);
 		Function<?> minus = FunctionDictionary.lookup("-", SlotType.DOUBLE, SlotType.DOUBLE);
-		PredicateWithArguments f, g;
+		PathFilterElement f, g;
 		PathFilter pf, pg;
 
 		f =
@@ -167,7 +167,7 @@ public class FilterEqualsInFunctionTest {
 								new FunctionBuilder(plus).addPath(p1, a1).addPath(p2, a2).build())
 						.addFunction(
 								new FunctionBuilder(minus).addConstant(1337l, SlotType.DOUBLE)
-										.addPath(p3, a3).build()).build();
+										.addPath(p3, a3).build()).buildPFE();
 		g =
 				new PredicateBuilder(FunctionDictionary.lookupPredicate("=", SlotType.DOUBLE,
 						SlotType.DOUBLE))
@@ -175,7 +175,7 @@ public class FilterEqualsInFunctionTest {
 								new FunctionBuilder(plus).addPath(p4, a1).addPath(p2, a2).build())
 						.addFunction(
 								new FunctionBuilder(minus).addConstant(1337l, SlotType.DOUBLE)
-										.addPath(p3, a3).build()).build();
+										.addPath(p3, a3).build()).buildPFE();
 		pf = new PathFilter(f);
 		pg = new PathFilter(g);
 		assertTrue(FilterFunctionCompare.equals(pf, FilterTranslator.translate(pg)));
@@ -192,7 +192,7 @@ public class FilterEqualsInFunctionTest {
 		SlotAddress a3 = new SlotAddress(0);
 		Function<?> plus = FunctionDictionary.lookup("+", SlotType.DOUBLE, SlotType.DOUBLE);
 		Function<?> minus = FunctionDictionary.lookup("-", SlotType.DOUBLE, SlotType.DOUBLE);
-		PredicateWithArguments f, g;
+		PathFilterElement f, g;
 		PathFilter pf, pg;
 
 		f =
@@ -202,7 +202,7 @@ public class FilterEqualsInFunctionTest {
 								new FunctionBuilder(plus).addPath(p1, a1).addPath(p2, a2).build())
 						.addFunction(
 								new FunctionBuilder(minus).addConstant(1337l, SlotType.DOUBLE)
-										.addPath(p3, a3).build()).build();
+										.addPath(p3, a3).build()).buildPFE();
 		g =
 				new PredicateBuilder(FunctionDictionary.lookupPredicate("=", SlotType.DOUBLE,
 						SlotType.DOUBLE))
@@ -210,7 +210,7 @@ public class FilterEqualsInFunctionTest {
 								new FunctionBuilder(plus).addPath(p1, a1).addPath(p2, a2).build())
 						.addFunction(
 								new FunctionBuilder(minus).addConstant(1337.0, SlotType.DOUBLE)
-										.addPath(p3, a3).build()).build();
+										.addPath(p3, a3).build()).buildPFE();
 		pf = new PathFilter(f);
 		pg = new PathFilter(g);
 		assertFalse(FilterFunctionCompare.equals(pf, FilterTranslator.translate(pg)));
@@ -230,7 +230,7 @@ public class FilterEqualsInFunctionTest {
 		SlotAddress a5 = new SlotAddress(0);
 		Function<?> plus = FunctionDictionary.lookup("+", SlotType.DOUBLE, SlotType.DOUBLE);
 		Function<?> minus = FunctionDictionary.lookup("-", SlotType.DOUBLE, SlotType.DOUBLE);
-		PredicateWithArguments f, g;
+		PathFilterElement f, g;
 		PathFilter pf, pg;
 
 		f =
@@ -240,7 +240,7 @@ public class FilterEqualsInFunctionTest {
 								new FunctionBuilder(plus).addPath(p1, a1).addPath(p2, a2).build())
 						.addFunction(
 								new FunctionBuilder(minus).addConstant(1337l, SlotType.DOUBLE)
-										.addPath(p3, a3).build()).build();
+										.addPath(p3, a3).build()).buildPFE();
 		g =
 				new PredicateBuilder(FunctionDictionary.lookupPredicate("=", SlotType.DOUBLE,
 						SlotType.DOUBLE))
@@ -248,7 +248,7 @@ public class FilterEqualsInFunctionTest {
 								new FunctionBuilder(plus).addPath(p1, a1).addPath(p2, a2).build())
 						.addFunction(
 								new FunctionBuilder(plus).addConstant(1337.0, SlotType.DOUBLE)
-										.addPath(p3, a3).build()).build();
+										.addPath(p3, a3).build()).buildPFE();
 		pf = new PathFilter(f);
 		pg = new PathFilter(g);
 		assertFalse(FilterFunctionCompare.equals(pf, FilterTranslator.translate(pg)));
@@ -260,7 +260,7 @@ public class FilterEqualsInFunctionTest {
 								new FunctionBuilder(plus).addPath(p1, a1).addPath(p5, a2).build())
 						.addFunction(
 								new FunctionBuilder(minus).addConstant(1337.0, SlotType.DOUBLE)
-										.addPath(p3, a3).build()).build();
+										.addPath(p3, a3).build()).buildPFE();
 		pg = new PathFilter(g);
 		assertFalse(FilterFunctionCompare.equals(pf, FilterTranslator.translate(pg)));
 		assertFalse(FilterFunctionCompare.equals(pg, FilterTranslator.translate(pf)));
@@ -271,7 +271,7 @@ public class FilterEqualsInFunctionTest {
 								new FunctionBuilder(plus).addPath(p1, a1).addPath(p2, a5).build())
 						.addFunction(
 								new FunctionBuilder(minus).addConstant(1337.0, SlotType.DOUBLE)
-										.addPath(p3, a3).build()).build();
+										.addPath(p3, a3).build()).buildPFE();
 		pg = new PathFilter(g);
 		assertFalse(FilterFunctionCompare.equals(pf, FilterTranslator.translate(pg)));
 		assertFalse(FilterFunctionCompare.equals(pg, FilterTranslator.translate(pf)));
@@ -290,7 +290,7 @@ public class FilterEqualsInFunctionTest {
 		SlotAddress a3 = new SlotAddress(0);
 		SlotAddress a4 = new SlotAddress(0);
 		SlotAddress a5 = new SlotAddress(1);
-		PredicateWithArguments f, g, h, i, j, k, l;
+		PathFilterElement f, g, h, i, j, k, l;
 		Function<?> plusD = FunctionDictionary.lookup("+", SlotType.DOUBLE, SlotType.DOUBLE);
 		Function<?> minusD = FunctionDictionary.lookup("-", SlotType.DOUBLE, SlotType.DOUBLE);
 		Predicate eqD = FunctionDictionary.lookupPredicate("=", SlotType.DOUBLE, SlotType.DOUBLE);
@@ -301,28 +301,28 @@ public class FilterEqualsInFunctionTest {
 		Predicate eqS = FunctionDictionary.lookupPredicate("=", SlotType.STRING, SlotType.STRING);
 		f =
 				new PredicateBuilder((Predicate) eqS)
-						.addConstant("Max Mustermann", SlotType.STRING).addPath(p1, a1).build();
+						.addConstant("Max Mustermann", SlotType.STRING).addPath(p1, a1).buildPFE();
 		g =
 				new PredicateBuilder((Predicate) lessL).addConstant(18L, SlotType.LONG)
-						.addPath(p1, a5).build();
+						.addPath(p1, a5).buildPFE();
 		h =
 				new PredicateBuilder((Predicate) lessL)
 						.addConstant(50000, SlotType.LONG)
 						.addFunction(
 								new FunctionBuilder(plusL).addPath(p2, a3).addPath(p3, a4).build())
-						.build();
+						.buildPFE();
 		i =
 				new PredicateBuilder((Predicate) eqS)
-						.addConstant("Max Mustermann", SlotType.STRING).addPath(p1, a1).build();
+						.addConstant("Max Mustermann", SlotType.STRING).addPath(p1, a1).buildPFE();
 		j =
 				new PredicateBuilder((Predicate) lessL).addConstant(18L, SlotType.LONG)
-						.addPath(p1, a5).build();
+						.addPath(p1, a5).buildPFE();
 		k =
 				new PredicateBuilder((Predicate) lessL)
 						.addConstant(50000, SlotType.LONG)
 						.addFunction(
 								new FunctionBuilder(plusL).addPath(p2, a3).addPath(p3, a4).build())
-						.build();
+						.buildPFE();
 		PathFilter a, b;
 		a = new PathFilter(f, g, h);
 		b = new PathFilter(f, g, h);
@@ -337,7 +337,7 @@ public class FilterEqualsInFunctionTest {
 
 		l =
 				new PredicateBuilder((Predicate) lessL).addConstant(17L, SlotType.LONG)
-						.addPath(p1, a5).build();
+						.addPath(p1, a5).buildPFE();
 		b = new PathFilter(f, l, h);
 		assertFalse(FilterFunctionCompare.equals(a, FilterTranslator.translate(b)));
 		assertFalse(FilterFunctionCompare.equals(b, FilterTranslator.translate(a)));

@@ -50,6 +50,7 @@ public class MemoryHandlerMain extends MemoryHandlerBase implements
 	final FactAddress[] addresses;
 	@Getter
 	final protected Queue<MemoryHandlerPlusTemp> validOutgoingPlusTokens = new LinkedList<>();
+	final Counter counter;
 
 	MemoryHandlerMain(final Template template, final Path... paths) {
 		super(new Template[] { template }, new ArrayList<Fact[]>());
@@ -59,35 +60,38 @@ public class MemoryHandlerMain extends MemoryHandlerBase implements
 			path.setFactAddressInCurrentlyLowestNode(address);
 			Path.setJoinedWithForAll(path);
 		}
+		this.counter = new Counter(0);
 	}
 
-	MemoryHandlerMain(final Edge... edgesToBeJoined) {
-		super(calculateAddressesAndTemplates(edgesToBeJoined), new ArrayList<Fact[]>());
+	MemoryHandlerMain(final Template[] template, final List<Fact[]> facts,
+			final int counterColumns, final FactAddress[] addresses) {
+		super(template, facts);
+		this.addresses = addresses;
+		this.counter = new Counter(counterColumns);
+	}
+
+	public static MemoryHandlerMain newMemoryHandlerMain(final Edge... edgesToBeJoined) {
+		final ArrayList<Template> template = new ArrayList<>();
 		final ArrayList<FactAddress> addresses = new ArrayList<>();
 		for (final Edge edge : edgesToBeJoined) {
-			final HashMap<FactAddress, FactAddress> fMap = new HashMap<>();
 			final MemoryHandlerMain memoryHandlerMain =
 					(MemoryHandlerMain) edge.getSourceNode().getMemory();
-			for (final FactAddress oldFactAddress : memoryHandlerMain.addresses) {
-				final FactAddress newFactAddress = new FactAddress(addresses.size());
-				fMap.put(oldFactAddress, newFactAddress);
-				addresses.add(newFactAddress);
-			}
-			edge.setAddressMap(fMap);
-		}
-		this.addresses = addresses.toArray(new FactAddress[addresses.size()]);
-	}
-
-	private static Template[] calculateAddressesAndTemplates(final Edge[] edgesToBeJoined) {
-		final ArrayList<Template> template = new ArrayList<>();
-		for (final Edge edge : edgesToBeJoined) {
-			final org.jamocha.dn.memory.MemoryHandlerMain memoryHandlerMain =
-					edge.getSourceNode().getMemory();
 			for (final Template t : memoryHandlerMain.getTemplate()) {
 				template.add(t);
 			}
+			final HashMap<FactAddress, FactAddress> addressMap = new HashMap<>();
+			for (final FactAddress oldFactAddress : memoryHandlerMain.addresses) {
+				final FactAddress newFactAddress = new FactAddress(addresses.size());
+				addressMap.put(oldFactAddress, newFactAddress);
+				addresses.add(newFactAddress);
+			}
+			edge.setAddressMap(addressMap);
 		}
-		return template.toArray(new Template[template.size()]);
+		// TODO determine amount of negative edges aka counterColumns
+		final int counterColumns = 1;
+		final Template[] templArray = template.toArray(new Template[template.size()]);
+		final FactAddress[] addrArray = addresses.toArray(new FactAddress[addresses.size()]);
+		return new MemoryHandlerMain(templArray, new ArrayList<Fact[]>(), counterColumns, addrArray);
 	}
 
 	@Override

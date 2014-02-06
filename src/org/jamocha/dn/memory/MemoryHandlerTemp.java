@@ -18,13 +18,22 @@ public interface MemoryHandlerTemp extends MemoryHandler {
 	 */
 	public List<MemoryHandler> splitIntoChunksOfSize(final int size);
 
-	MemoryHandlerTemp newBetaTemp(final MemoryHandlerMain originatingMainHandler,
+	public MemoryHandlerTemp newBetaTemp(final MemoryHandlerMain originatingMainHandler,
 			final Edge originIncomingEdge, final AddressFilter filter)
 			throws CouldNotAcquireLockException;
 
-	MemoryHandlerTemp newAlphaTemp(final MemoryHandlerMain originatingMainHandler,
+	public MemoryHandlerTemp newAlphaTemp(final MemoryHandlerMain originatingMainHandler,
 			final Edge originIncomingEdge, final AddressFilter filter)
 			throws CouldNotAcquireLockException;
 
 	public void enqueueInEdges(final Collection<? extends Edge> edges);
+
+	/**
+	 * Releases the lock for the calling edge.
+	 * 
+	 * @return true iff this call was the last awaited call, thus ending the validity of the temp
+	 *         handler
+	 */
+	public boolean releaseLock();
+
 }
