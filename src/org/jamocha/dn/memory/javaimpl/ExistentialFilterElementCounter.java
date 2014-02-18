@@ -20,6 +20,8 @@ import java.util.List;
 import org.jamocha.filter.AddressFilter.AddressFilterElement;
 import org.jamocha.filter.AddressFilter.ExistentialAddressFilterElement;
 import org.jamocha.filter.AddressFilter.NegatedExistentialAddressFilterElement;
+import org.jamocha.filter.Filter;
+import org.jamocha.filter.Filter.FilterElement;
 import org.jamocha.filter.PathFilter.ExistentialPathFilterElement;
 import org.jamocha.filter.PathFilter.NegatedExistentialPathFilterElement;
 import org.jamocha.filter.PathFilter.PathFilterElement;
@@ -34,6 +36,14 @@ import org.jamocha.filter.visitor.FilterElementVisitor;
 public class ExistentialFilterElementCounter implements FilterElementVisitor {
 
 	final List<Boolean> negated = new LinkedList<>();
+
+	public static boolean[] getNegatedArrayFromFilter(final Filter<? extends FilterElement> filter) {
+		final ExistentialFilterElementCounter fevisitor = new ExistentialFilterElementCounter();
+		for (final FilterElement fe : filter.getFilterElements()) {
+			fe.accept(fevisitor);
+		}
+		return fevisitor.getNegated();
+	}
 
 	public boolean[] getNegated() {
 		final int size = this.negated.size();

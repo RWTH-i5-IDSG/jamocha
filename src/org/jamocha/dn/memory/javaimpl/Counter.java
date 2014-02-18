@@ -61,15 +61,7 @@ public class Counter {
 	}
 
 	public Counter(final Filter<? extends FilterElement> filter) {
-		this(getNegatedArrayFromFilter(filter));
-	}
-
-	private static boolean[] getNegatedArrayFromFilter(final Filter<? extends FilterElement> filter) {
-		final ExistentialFilterElementCounter fevisitor = new ExistentialFilterElementCounter();
-		for (final FilterElement fe : filter.getFilterElements()) {
-			fe.accept(fevisitor);
-		}
-		return fevisitor.getNegated();
+		this(ExistentialFilterElementCounter.getNegatedArrayFromFilter(filter));
 	}
 
 	public int getCounter(final int row, final int column) {
