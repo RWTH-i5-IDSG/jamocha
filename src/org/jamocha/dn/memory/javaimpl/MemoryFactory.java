@@ -16,6 +16,8 @@ package org.jamocha.dn.memory.javaimpl;
 
 import org.jamocha.dn.memory.Template;
 import org.jamocha.dn.nodes.Node.Edge;
+import org.jamocha.filter.Filter;
+import org.jamocha.filter.Filter.FilterElement;
 import org.jamocha.filter.Path;
 
 /**
@@ -50,8 +52,9 @@ public class MemoryFactory implements org.jamocha.dn.memory.MemoryFactory {
 	}
 
 	@Override
-	public MemoryHandlerMain newMemoryHandlerMain(final Edge... edgesToBeJoined) {
-		return MemoryHandlerMain.newMemoryHandlerMain(edgesToBeJoined);
+	public MemoryHandlerMain newMemoryHandlerMain(final Filter<? extends FilterElement> filter,
+			final Edge... edgesToBeJoined) {
+		return MemoryHandlerMain.newMemoryHandlerMain(filter, edgesToBeJoined);
 	}
 
 }

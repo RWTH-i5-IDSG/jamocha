@@ -16,7 +16,7 @@ package test.jamocha.util;
 
 import org.jamocha.filter.Path;
 import org.jamocha.filter.PathFilter.ExistentialPathFilterElement;
-import org.jamocha.filter.PathFilter.NonExistentialPathFilterElement;
+import org.jamocha.filter.PathFilter.NegatedExistentialPathFilterElement;
 import org.jamocha.filter.PathFilter.PathFilterElement;
 import org.jamocha.filter.fwa.FunctionWithArguments;
 import org.jamocha.filter.fwa.PredicateWithArguments;
@@ -50,7 +50,7 @@ public class PredicateBuilder extends GenericBuilder<Boolean, Predicate, Predica
 		return new ExistentialPathFilterElement(build(), paths);
 	}
 
-	public NonExistentialPathFilterElement buildNonExPFE(final Path... paths) {
-		return new NonExistentialPathFilterElement(build(), paths);
+	public NegatedExistentialPathFilterElement buildNonExPFE(final Path... paths) {
+		return new NegatedExistentialPathFilterElement(build(), paths);
 	}
 }

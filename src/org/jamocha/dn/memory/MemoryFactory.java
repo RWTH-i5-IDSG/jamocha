@@ -17,6 +17,8 @@ package org.jamocha.dn.memory;
 
 import org.jamocha.dn.nodes.Node;
 import org.jamocha.dn.nodes.Node.Edge;
+import org.jamocha.filter.Filter;
+import org.jamocha.filter.Filter.FilterElement;
 import org.jamocha.filter.Path;
 
 /**
@@ -53,6 +55,8 @@ public interface MemoryFactory {
 	 * {@link Edge#setAddressMap(java.util.Map)} called with a map able to localize addresses from
 	 * their parent into addresses in the {@link Node node} the {@link MemoryHandlerMain} is for.
 	 * 
+	 * @param filter
+	 *            filter for the target node, used to spot existential filter elements
 	 * @param edgesToBeJoined
 	 *            {@link Edge edges} producing the facts that will be joined and have to be stored
 	 *            in the {@link MemoryHandlerMain} created here
@@ -61,6 +65,7 @@ public interface MemoryFactory {
 	 * @see MemoryHandlerMain
 	 * @see Edge
 	 */
-	public MemoryHandlerMain newMemoryHandlerMain(final Edge... edgesToBeJoined);
+	public MemoryHandlerMain newMemoryHandlerMain(final Filter<? extends FilterElement> filter,
+			final Edge... edgesToBeJoined);
 
 }

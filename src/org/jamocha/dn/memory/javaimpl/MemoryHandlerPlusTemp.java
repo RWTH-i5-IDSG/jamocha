@@ -36,7 +36,13 @@ import org.jamocha.dn.nodes.Node.Edge;
 import org.jamocha.dn.nodes.SlotInFactAddress;
 import org.jamocha.filter.AddressFilter;
 import org.jamocha.filter.AddressFilter.AddressFilterElement;
+import org.jamocha.filter.AddressFilter.ExistentialAddressFilterElement;
+import org.jamocha.filter.AddressFilter.NegatedExistentialAddressFilterElement;
+import org.jamocha.filter.PathFilter.ExistentialPathFilterElement;
+import org.jamocha.filter.PathFilter.NegatedExistentialPathFilterElement;
+import org.jamocha.filter.PathFilter.PathFilterElement;
 import org.jamocha.filter.fwa.FunctionWithArguments;
+import org.jamocha.filter.visitor.FilterElementVisitor;
 
 /**
  * Java-implementation of the {@link org.jamocha.dn.memory.MemoryHandlerPlusTemp} interface.
@@ -350,7 +356,8 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 			final Set<Edge> newEdges = new HashSet<>();
 			stack.add(originElement);
 			for (final SlotInFactAddress address : addresses) {
-				final Edge edge = targetNode.delocalizeAddress(address.getFactAddress()).getEdge();
+				final Edge edge =
+						targetNode.delocalizeAddress(address.getFactAddress()).getEdge();
 				final StackElement element = edgeToStack.get(edge);
 				if (element != originElement) {
 					if (newEdges.add(edge)) {
@@ -359,45 +366,80 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 				}
 			}
 
-			loop(new FunctionPointer() {
+			filterElement.accept(new FilterElementVisitor() {
 				@Override
-				public void apply(final ArrayList<Fact[]> TR, final Collection<StackElement> stack,
-						final StackElement originElement) {
-					final int paramLength = addresses.length;
-					final Object params[] = new Object[paramLength];
-					// determine parameters
-					for (int i = 0; i < paramLength; ++i) {
-						final SlotInFactAddress address = addresses[i];
-						final AddressPredecessor fact =
-								targetNode.delocalizeAddress(address.getFactAddress());
-						final StackElement se = edgeToStack.get(fact.getEdge());
-						params[i] = se.getValue(fact, address.getSlotAddress());
-					}
-					// copy result to new TR if facts match predicate
-					if ((boolean) function.evaluate(params)) {
-						// copy current row from old TR
-						final Fact[] row =
-								Arrays.copyOf(originElement.getRow(), originElement.getRow().length);
-						// insert information from new inputs
-						for (final Edge edge : newEdges) {
-							// source is some temp, destination new TR
-							final StackElement se = edgeToStack.get(edge);
-							final Fact[] newRowPart = se.getRow();
-							System.arraycopy(newRowPart, 0, row, se.getOffset(), newRowPart.length);
+				public void visit(final AddressFilterElement fe) {
+					loop(new FunctionPointer() {
+						@Override
+						public void apply(final ArrayList<Fact[]> TR,
+								final Collection<StackElement> stack,
+								final StackElement originElement) {
+							final int paramLength = addresses.length;
+							final Object params[] = new Object[paramLength];
+							// determine parameters
+							for (int i = 0; i < paramLength; ++i) {
+								final SlotInFactAddress address = addresses[i];
+								final AddressPredecessor fact =
+										targetNode.delocalizeAddress(address.getFactAddress());
+								final StackElement se = edgeToStack.get(fact.getEdge());
+								params[i] = se.getValue(fact, address.getSlotAddress());
+							}
+							// copy result to new TR if facts match predicate
+							if ((boolean) function.evaluate(params)) {
+								// copy current row from old TR
+								final Fact[] row =
+										Arrays.copyOf(originElement.getRow(),
+												originElement.getRow().length);
+								// insert information from new inputs
+								for (final Edge edge : newEdges) {
+									// source is some temp, destination new TR
+									final StackElement se = edgeToStack.get(edge);
+									final Fact[] newRowPart = se.getRow();
+									System.arraycopy(newRowPart, 0, row, se.getOffset(),
+											newRowPart.length);
+								}
+								// copy the result to new TR
+								TR.add(row);
+							}
 						}
-						// copy the result to new TR
-						TR.add(row);
+					}, stack, originElement);
+					// point all inputs that were joint during this turn to the TR
+					// StackElement
+					for (final Edge incomingEdge : newEdges) {
+						edgeToStack.put(incomingEdge, originElement);
 					}
 				}
-			}, stack, originElement);
-			// point all inputs that were joint during this turn to the TR
-			// StackElement
-			for (final Edge incomingEdge : newEdges) {
-				edgeToStack.put(incomingEdge, originElement);
-			}
-			if (!originElement.checkRowBounds()) {
-				return;
-			}
+
+				@Override
+				public void visit(final ExistentialAddressFilterElement fe) {
+					// TODO Auto-generated method stub
+
+				}
+
+				@Override
+				public void visit(final NegatedExistentialAddressFilterElement fe) {
+					// TODO Auto-generated method stub
+
+				}
+
+				@Override
+				public void visit(final PathFilterElement fe) {
+					throw new UnsupportedOperationException();
+				}
+
+				@Override
+				public void visit(final ExistentialPathFilterElement fe) {
+					throw new UnsupportedOperationException();
+				}
+
+				@Override
+				public void visit(final NegatedExistentialPathFilterElement fe) {
+					throw new UnsupportedOperationException();
+				}
+			});
+		}
+		if (!originElement.checkRowBounds()) {
+			return;
 		}
 
 		// full join with all inputs not pointing to TR now
@@ -456,4 +498,5 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 			edge.enqueuePlusMemory(this);
 		}
 	}
+
 }

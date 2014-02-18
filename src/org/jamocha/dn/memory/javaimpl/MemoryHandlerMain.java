@@ -31,6 +31,8 @@ import org.jamocha.dn.nodes.CouldNotAcquireLockException;
 import org.jamocha.dn.nodes.Node;
 import org.jamocha.dn.nodes.Node.Edge;
 import org.jamocha.filter.AddressFilter;
+import org.jamocha.filter.Filter;
+import org.jamocha.filter.Filter.FilterElement;
 import org.jamocha.filter.Path;
 
 /**
@@ -60,17 +62,18 @@ public class MemoryHandlerMain extends MemoryHandlerBase implements
 			path.setFactAddressInCurrentlyLowestNode(address);
 			Path.setJoinedWithForAll(path);
 		}
-		this.counter = new Counter(0);
+		this.counter = new Counter();
 	}
 
-	MemoryHandlerMain(final Template[] template, final List<Fact[]> facts,
-			final int counterColumns, final FactAddress[] addresses) {
+	MemoryHandlerMain(final Template[] template, final List<Fact[]> facts, final Counter counter,
+			final FactAddress[] addresses) {
 		super(template, facts);
 		this.addresses = addresses;
-		this.counter = new Counter(counterColumns);
+		this.counter = counter;
 	}
 
-	public static MemoryHandlerMain newMemoryHandlerMain(final Edge... edgesToBeJoined) {
+	public static MemoryHandlerMain newMemoryHandlerMain(
+			final Filter<? extends FilterElement> filter, final Edge... edgesToBeJoined) {
 		final ArrayList<Template> template = new ArrayList<>();
 		final ArrayList<FactAddress> addresses = new ArrayList<>();
 		for (final Edge edge : edgesToBeJoined) {
@@ -87,11 +90,14 @@ public class MemoryHandlerMain extends MemoryHandlerBase implements
 			}
 			edge.setAddressMap(addressMap);
 		}
-		// TODO determine amount of negative edges aka counterColumns
-		final int counterColumns = 1;
+		final ExistentialFilterElementCounter fevisitor = new ExistentialFilterElementCounter();
+		for (final FilterElement fe : filter.getFilterElements()) {
+			fe.accept(fevisitor);
+		}
 		final Template[] templArray = template.toArray(new Template[template.size()]);
 		final FactAddress[] addrArray = addresses.toArray(new FactAddress[addresses.size()]);
-		return new MemoryHandlerMain(templArray, new ArrayList<Fact[]>(), counterColumns, addrArray);
+		return new MemoryHandlerMain(templArray, new ArrayList<Fact[]>(), new Counter(
+				fevisitor.getNegated()), addrArray);
 	}
 
 	@Override

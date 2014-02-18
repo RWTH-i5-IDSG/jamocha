@@ -19,8 +19,16 @@ import org.jamocha.filter.fwa.PredicateWithArguments;
 import org.jamocha.filter.visitor.FilterElementVisitor;
 
 /**
- * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+ * This class provides three FilterElement types:
+ * <ul>
+ * <li><b>PathFilterElement:</b> class for regular filter elements</li>
+ * <li><b>ExistentialPathFilterElement:</b> class for existential filter elements, i.e. filter
+ * elements using the <code>exists</code> keyword</li>
+ * <li><b>NegatedExistentialPathFilterElement:</b> class for negated existential filter elements,
+ * i.e. filter elements using the <code>not</code> keyword</li>
+ * </ul>
  * 
+ * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
 public class PathFilter extends Filter<PathFilter.PathFilterElement> {
 	public static class PathFilterElement extends Filter.FilterElement {
@@ -38,7 +46,7 @@ public class PathFilter extends Filter<PathFilter.PathFilterElement> {
 	private static abstract class AbstractExistentialpathFilterElement extends PathFilterElement {
 		final Path[] paths;
 
-		public AbstractExistentialpathFilterElement(PredicateWithArguments function,
+		public AbstractExistentialpathFilterElement(final PredicateWithArguments function,
 				final Path... paths) {
 			super(function);
 			this.paths = paths;
@@ -46,7 +54,8 @@ public class PathFilter extends Filter<PathFilter.PathFilterElement> {
 	}
 
 	public static class ExistentialPathFilterElement extends AbstractExistentialpathFilterElement {
-		public ExistentialPathFilterElement(PredicateWithArguments function, Path[] paths) {
+		public ExistentialPathFilterElement(final PredicateWithArguments function,
+				final Path[] paths) {
 			super(function, paths);
 		}
 
@@ -57,9 +66,10 @@ public class PathFilter extends Filter<PathFilter.PathFilterElement> {
 		}
 	}
 
-	public static class NonExistentialPathFilterElement extends
+	public static class NegatedExistentialPathFilterElement extends
 			AbstractExistentialpathFilterElement {
-		public NonExistentialPathFilterElement(PredicateWithArguments function, Path[] paths) {
+		public NegatedExistentialPathFilterElement(final PredicateWithArguments function,
+				final Path[] paths) {
 			super(function, paths);
 		}
 

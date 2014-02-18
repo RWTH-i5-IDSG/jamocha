@@ -24,11 +24,13 @@ import org.junit.runners.Suite.SuiteClasses;
  * Please add new package test suites or single tests to the SuiteClasses annotation.
  * </p>
  * 
+ * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  * @author Kai Schwarz <kai.schwarz@rwth-aachen.de>
  */
 @RunWith(Suite.class)
 @SuiteClasses({ test.jamocha.dn.memory.javaimpl.AllMemoryImplTests.class,
-		test.jamocha.dn.nodes.AllNodeTests.class, test.jamocha.dn.NetworkTest.class })
+		test.jamocha.dn.nodes.AllNodeTests.class, test.jamocha.dn.NetworkTest.class,
+		test.jamocha.dn.memory.javaimpl.CounterTest.class })
 public class AllDnTests {
 
 }

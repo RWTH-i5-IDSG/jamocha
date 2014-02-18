@@ -21,8 +21,16 @@ import org.jamocha.filter.fwa.PredicateWithArguments;
 import org.jamocha.filter.visitor.FilterElementVisitor;
 
 /**
- * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+ * This class provides three FilterElement types:
+ * <ul>
+ * <li><b>AddressFilterElement:</b> class for regular filter elements</li>
+ * <li><b>ExistentialAddressFilterElement:</b> class for existential filter elements, i.e. filter
+ * elements using the <code>exists</code> keyword</li>
+ * <li><b>NegatedExistentialAddressFilterElement:</b> class for negated existential filter elements,
+ * i.e. filter elements using the <code>not</code> keyword</li>
+ * </ul>
  * 
+ * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
 public class AddressFilter extends Filter<AddressFilter.AddressFilterElement> {
 
@@ -54,9 +62,9 @@ public class AddressFilter extends Filter<AddressFilter.AddressFilterElement> {
 			AddressFilterElement {
 		final SlotInFactAddress existentialAddressesInTarget[];
 
-		public AbstractExistentialAddressFilterElement(PredicateWithArguments function,
-				SlotInFactAddress[] addressesInTarget,
-				SlotInFactAddress[] existentialAddressesInTarget) {
+		public AbstractExistentialAddressFilterElement(final PredicateWithArguments function,
+				final SlotInFactAddress[] addressesInTarget,
+				final SlotInFactAddress[] existentialAddressesInTarget) {
 			super(function, addressesInTarget);
 			this.existentialAddressesInTarget = existentialAddressesInTarget;
 		}
@@ -64,9 +72,9 @@ public class AddressFilter extends Filter<AddressFilter.AddressFilterElement> {
 
 	public static class ExistentialAddressFilterElement extends
 			AbstractExistentialAddressFilterElement {
-		public ExistentialAddressFilterElement(PredicateWithArguments function,
-				SlotInFactAddress[] addressesInTarget,
-				SlotInFactAddress[] existentialAddressesInTarget) {
+		public ExistentialAddressFilterElement(final PredicateWithArguments function,
+				final SlotInFactAddress[] addressesInTarget,
+				final SlotInFactAddress[] existentialAddressesInTarget) {
 			super(function, addressesInTarget, existentialAddressesInTarget);
 		}
 
@@ -77,11 +85,11 @@ public class AddressFilter extends Filter<AddressFilter.AddressFilterElement> {
 		}
 	}
 
-	public static class NonExistentialAddressFilterElement extends
+	public static class NegatedExistentialAddressFilterElement extends
 			AbstractExistentialAddressFilterElement {
-		public NonExistentialAddressFilterElement(PredicateWithArguments function,
-				SlotInFactAddress[] addressesInTarget,
-				SlotInFactAddress[] existentialAddressesInTarget) {
+		public NegatedExistentialAddressFilterElement(final PredicateWithArguments function,
+				final SlotInFactAddress[] addressesInTarget,
+				final SlotInFactAddress[] existentialAddressesInTarget) {
 			super(function, addressesInTarget, existentialAddressesInTarget);
 		}
 

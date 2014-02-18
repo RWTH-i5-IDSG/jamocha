@@ -14,8 +14,6 @@
  */
 package org.jamocha.dn.memory.javaimpl;
 
-import gnu.trove.list.array.TIntArrayList;
-
 import java.util.Arrays;
 import java.util.List;
 
@@ -37,67 +35,6 @@ import org.jamocha.dn.memory.Template;
  */
 @EqualsAndHashCode
 public class MemoryHandlerBase implements MemoryHandler {
-
-	public static class Counter {
-		final TIntArrayList counters = new TIntArrayList();
-		final int columns;
-		final int emptyRow[];
-
-		public Counter(final int columns) {
-			this.columns = columns;
-			this.emptyRow = new int[columns];
-		}
-
-		public int getCounter(final int row, final int column) {
-			assert column >= 0 && column < columns;
-			return counters.get(row * columns + column);
-		}
-
-		public void addEmptyRow() {
-			counters.add(emptyRow);
-		}
-
-		/**
-		 * Returns the number of rows in the Counter class
-		 * 
-		 * @return the number of rows in the Counter class
-		 */
-		public int size() {
-			return counters.size() / columns;
-		}
-
-		public boolean zeroRow(final int row) {
-			return xRow(row, 0);
-		}
-
-		public boolean xRow(final int row, final int x) {
-			final int start = row * columns;
-			for (int i = start; i < start + columns; ++i) {
-				if (counters.get(i) != x)
-					return false;
-			}
-			return true;
-		}
-
-		public int increment(final int row, final int column, final int increment) {
-			final int offset = row * columns + column;
-			final int value = counters.get(offset) + increment;
-			counters.set(offset, value);
-			return value;
-		}
-
-		public int increment(final int row, final int column) {
-			return increment(row, column, 1);
-		}
-
-		public int decrement(final int row, final int column) {
-			return increment(row, column, -1);
-		}
-
-		public int decrement(final int row, final int column, final int decrement) {
-			return increment(row, column, -decrement);
-		}
-	}
 
 	@Getter
 	final Template[] template;

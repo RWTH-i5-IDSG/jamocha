@@ -258,8 +258,9 @@ public abstract class Node {
 		for (int i = 0; i < parents.length; i++) {
 			this.incomingEdges[i] = this.connectPositiveParent(parents[i]);
 		}
-		this.memory = network.getMemoryFactory().newMemoryHandlerMain(this.incomingEdges);
 		this.filter = AddressFilter.empty;
+		this.memory =
+				network.getMemoryFactory().newMemoryHandlerMain(this.filter, this.incomingEdges);
 	}
 
 	protected Node(final Network network, final Template template, final Path... paths) {
@@ -299,7 +300,7 @@ public abstract class Node {
 			edges.add(edge);
 		}
 		this.incomingEdges = edges.toArray(new Edge[edges.size()]);
-		this.memory = network.getMemoryFactory().newMemoryHandlerMain(this.incomingEdges);
+		this.memory = network.getMemoryFactory().newMemoryHandlerMain(filter, this.incomingEdges);
 		// update all Paths from joinedWith to new addresses
 		for (final Entry<Edge, Set<Path>> entry : edgesAndPaths.entrySet()) {
 			final Edge edge = entry.getKey();

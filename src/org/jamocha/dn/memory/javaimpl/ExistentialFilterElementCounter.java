@@ -12,7 +12,10 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package org.jamocha.filter.visitor;
+package org.jamocha.dn.memory.javaimpl;
+
+import java.util.LinkedList;
+import java.util.List;
 
 import org.jamocha.filter.AddressFilter.AddressFilterElement;
 import org.jamocha.filter.AddressFilter.ExistentialAddressFilterElement;
@@ -20,20 +23,49 @@ import org.jamocha.filter.AddressFilter.NegatedExistentialAddressFilterElement;
 import org.jamocha.filter.PathFilter.ExistentialPathFilterElement;
 import org.jamocha.filter.PathFilter.NegatedExistentialPathFilterElement;
 import org.jamocha.filter.PathFilter.PathFilterElement;
+import org.jamocha.filter.visitor.FilterElementVisitor;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
-public interface FilterElementVisitor extends Visitor {
-	public void visit(final AddressFilterElement fe);
+public class ExistentialFilterElementCounter implements FilterElementVisitor {
 
-	public void visit(final ExistentialAddressFilterElement fe);
+	final List<Boolean> negated = new LinkedList<>();
 
-	public void visit(final NegatedExistentialAddressFilterElement fe);
+	public boolean[] getNegated() {
+		final int size = negated.size();
+		final boolean[] array = new boolean[size];
+		for (int i = 0; i < size; ++i) {
+			array[i] = negated.get(i);
+		}
+		return array;
+	}
 
-	public void visit(final PathFilterElement fe);
+	@Override
+	public void visit(final AddressFilterElement fe) {
+	}
 
-	public void visit(final ExistentialPathFilterElement fe);
+	@Override
+	public void visit(final ExistentialAddressFilterElement fe) {
+		negated.add(false);
+	}
 
-	public void visit(final NegatedExistentialPathFilterElement fe);
+	@Override
+	public void visit(final NegatedExistentialAddressFilterElement fe) {
+		negated.add(true);
+	}
+
+	@Override
+	public void visit(final PathFilterElement fe) {
+	}
+
+	@Override
+	public void visit(final ExistentialPathFilterElement fe) {
+		negated.add(false);
+	}
+
+	@Override
+	public void visit(final NegatedExistentialPathFilterElement fe) {
+		negated.add(true);
+	}
 }
