@@ -42,7 +42,8 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 			new ArrayList<Fact[]>(0), new FactAddress[] {});
 
 	/**
-	 * Maps from FactAddress valid in the current scope of the token
+	 * Maps FactAddresses valid in the current scope of the token by position of the facts in the
+	 * temp memory
 	 */
 	final FactAddress[] factAddresses;
 
@@ -64,6 +65,22 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 				relevantFactTuples, factAddresses);
 	}
 
+	/**
+	 * Tiny state-like interface for the following use case: <br />
+	 * A filter is applied to elements in a list and we want to get a list of the elements that did
+	 * not match the filter. Thus, if the filter matches no element, the original list may be
+	 * returned. Otherwise we need to copy parts of it. <br />
+	 * To achieve this, a reference to that list is stored in the start-state (SameList) and
+	 * unmatched is called as long as no entry matches the filter. As soon as the first element
+	 * matching the filter leads to a matched-call, the list is copied up to (but not including) the
+	 * current position and the state is changed to CopiedList. Now, all further matched calls are
+	 * ignored and all unmatched have the corresponding element copied into the new list. There is
+	 * no further state change. <br />
+	 * <b>Note:</b> The return value of matched and unmatched has to be stored in the instance used
+	 * to accept the state change!
+	 * 
+	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+	 */
 	static interface LazyListCopy {
 		LazyListCopy unmatched(final int index);
 
@@ -72,6 +89,10 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 		List<Fact[]> getList();
 	}
 
+	/**
+	 * @see LazyListCopy
+	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+	 */
 	@AllArgsConstructor
 	static abstract class LLC implements LazyListCopy {
 		@Getter
@@ -88,6 +109,10 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 		}
 	};
 
+	/**
+	 * @see LazyListCopy
+	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+	 */
 	static class SameList extends LLC {
 		public SameList(final List<Fact[]> list) {
 			super(list);
@@ -103,6 +128,10 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 		}
 	}
 
+	/**
+	 * @see LazyListCopy
+	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+	 */
 	static class CopiedList extends LLC {
 		final List<Fact[]> copy;
 
@@ -123,6 +152,21 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 		}
 	}
 
+	/**
+	 * Interface to easy code re-usage where the only difference was the comparison of fact tuples.
+	 * The parameters of equals can be seen as the union of the parameters needed for the three
+	 * implementations, thus some are only needed in special cases. <br />
+	 * Implementations
+	 * <ul>
+	 * <li><b>root:</b> checks for equal content in both facts (first element of fact tuple) and
+	 * replaces the negative fact with its corresponding original if matched to allow for
+	 * referential comparison in the rest of the network (for better performance)</li>
+	 * <li><b>alpha:</b> checks for referential equality of the first elements of the fact tuples</li>
+	 * <li><b>beta:</b></li>
+	 * </ul>
+	 * 
+	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+	 */
 	static interface EqualityChecker {
 		boolean equals(final Fact[] originalFactTuple, final Fact[] minusFactTuple,
 				final List<Fact[]> minusFacts, final int minusFactsIndex,

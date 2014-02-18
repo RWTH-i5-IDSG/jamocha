@@ -102,12 +102,40 @@ public interface MemoryHandlerTerminal extends MemoryHandler, Iterable<AssertOrR
 		}
 	}
 
+	/**
+	 * Adds a memory wrapped into an assert to the terminal memory.
+	 * 
+	 * @param mem
+	 *            memory to wrap and add
+	 * @return assert wrapped around the memory
+	 */
 	public Assert addPlusMemory(final MemoryHandler mem);
 
+	/**
+	 * Adds a memory wrapped into a retract to the terminal memory.
+	 * 
+	 * @param mem
+	 *            memory to wrap and add
+	 * @return retract wrapped around the memory
+	 */
 	public Retract addMinusMemory(final MemoryHandler mem);
 
+	/**
+	 * Returns true iff there are unrevoked tokens in the memory.
+	 * 
+	 * @return true iff there are unrevoked tokens in the memory.
+	 */
 	public boolean containsUnrevokedTokens();
 
+	/**
+	 * Handles partial minus memories. Searches for plus memories that would be deleted by the given
+	 * minus memory and creates new Retracts using the memory content of the plus memory.
+	 * 
+	 * @param terminalNode
+	 *            target terminal node
+	 * @param mem
+	 *            minus memory to process
+	 */
 	public void addPartialMinusMemory(final TerminalNode terminalNode,
 			final MemoryHandlerMinusTemp mem);
 
