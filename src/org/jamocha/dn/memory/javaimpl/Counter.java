@@ -16,7 +16,29 @@ package org.jamocha.dn.memory.javaimpl;
 
 import gnu.trove.list.array.TIntArrayList;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.jamocha.filter.Filter;
+import org.jamocha.filter.Filter.FilterElement;
+
+/**
+ * Class holding the counter columns for existential filter elements providing the typical methods
+ * performed on the counters.
+ * 
+ * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+ */
 public class Counter {
+	// static part (cache)
+	final static List<int[]> emptyRowCache = new ArrayList<>();
+	final static int numPrecreatedEmptyRows = 10;
+	static {
+		for (int i = 0; i < numPrecreatedEmptyRows; ++i) {
+			assert i == emptyRowCache.size();
+			emptyRowCache.add(new int[i]);
+		}
+	}
+	// actual attributes
 	final TIntArrayList counters = new TIntArrayList();
 	final int columns;
 	final boolean[] negated;
@@ -25,16 +47,38 @@ public class Counter {
 	public Counter(final boolean... negated) {
 		this.columns = negated.length;
 		this.negated = negated;
-		this.emptyRow = new int[columns];
+		int tempEmptyRow[];
+		try {
+			tempEmptyRow = emptyRowCache.get(this.columns);
+		} catch (final IndexOutOfBoundsException e) {
+			for (int i = emptyRowCache.size(); i <= this.columns; ++i) {
+				assert i == emptyRowCache.size();
+				emptyRowCache.add(new int[i]);
+			}
+			tempEmptyRow = emptyRowCache.get(this.columns);
+		}
+		this.emptyRow = tempEmptyRow;
+	}
+
+	public Counter(final Filter<? extends FilterElement> filter) {
+		this(getNegatedArrayFromFilter(filter));
+	}
+
+	private static boolean[] getNegatedArrayFromFilter(final Filter<? extends FilterElement> filter) {
+		final ExistentialFilterElementCounter fevisitor = new ExistentialFilterElementCounter();
+		for (final FilterElement fe : filter.getFilterElements()) {
+			fe.accept(fevisitor);
+		}
+		return fevisitor.getNegated();
 	}
 
 	public int getCounter(final int row, final int column) {
-		assert column >= 0 && column < columns;
-		return counters.get(row * columns + column);
+		assert column >= 0 && column < this.columns;
+		return this.counters.get(row * this.columns + column);
 	}
 
 	public void addEmptyRow() {
-		counters.add(emptyRow);
+		this.counters.add(this.emptyRow);
 	}
 
 	/**
@@ -43,7 +87,7 @@ public class Counter {
 	 * @return the number of rows in the Counter class
 	 */
 	public int size() {
-		return counters.size() / columns;
+		return this.counters.size() / this.columns;
 	}
 
 	/**
@@ -58,18 +102,18 @@ public class Counter {
 	 * @return true iff row fulfills the conditions given above
 	 */
 	public boolean validRow(final int row) {
-		final int start = row * columns;
-		for (int i = 0; i < columns; ++i) {
-			if (this.negated[i] == (counters.get(start + i) != 0))
+		final int start = row * this.columns;
+		for (int i = 0; i < this.columns; ++i) {
+			if (this.negated[i] == (this.counters.get(start + i) != 0))
 				return false;
 		}
 		return true;
 	}
 
 	public int increment(final int row, final int column, final int increment) {
-		final int offset = row * columns + column;
-		final int value = counters.get(offset) + increment;
-		counters.set(offset, value);
+		final int offset = row * this.columns + column;
+		final int value = this.counters.get(offset) + increment;
+		this.counters.set(offset, value);
 		return value;
 	}
 

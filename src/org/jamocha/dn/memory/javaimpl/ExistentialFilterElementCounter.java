@@ -26,6 +26,9 @@ import org.jamocha.filter.PathFilter.PathFilterElement;
 import org.jamocha.filter.visitor.FilterElementVisitor;
 
 /**
+ * Visitor for {@link org.jamocha.filter.Filter.FilterElement FilterElements} to determine how many
+ * of them are existential filter elements and whether they are negated.
+ * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
 public class ExistentialFilterElementCounter implements FilterElementVisitor {
@@ -33,10 +36,10 @@ public class ExistentialFilterElementCounter implements FilterElementVisitor {
 	final List<Boolean> negated = new LinkedList<>();
 
 	public boolean[] getNegated() {
-		final int size = negated.size();
+		final int size = this.negated.size();
 		final boolean[] array = new boolean[size];
 		for (int i = 0; i < size; ++i) {
-			array[i] = negated.get(i);
+			array[i] = this.negated.get(i);
 		}
 		return array;
 	}
@@ -47,12 +50,12 @@ public class ExistentialFilterElementCounter implements FilterElementVisitor {
 
 	@Override
 	public void visit(final ExistentialAddressFilterElement fe) {
-		negated.add(false);
+		this.negated.add(false);
 	}
 
 	@Override
 	public void visit(final NegatedExistentialAddressFilterElement fe) {
-		negated.add(true);
+		this.negated.add(true);
 	}
 
 	@Override
@@ -61,11 +64,11 @@ public class ExistentialFilterElementCounter implements FilterElementVisitor {
 
 	@Override
 	public void visit(final ExistentialPathFilterElement fe) {
-		negated.add(false);
+		this.negated.add(false);
 	}
 
 	@Override
 	public void visit(final NegatedExistentialPathFilterElement fe) {
-		negated.add(true);
+		this.negated.add(true);
 	}
 }

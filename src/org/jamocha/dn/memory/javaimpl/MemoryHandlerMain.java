@@ -90,14 +90,10 @@ public class MemoryHandlerMain extends MemoryHandlerBase implements
 			}
 			edge.setAddressMap(addressMap);
 		}
-		final ExistentialFilterElementCounter fevisitor = new ExistentialFilterElementCounter();
-		for (final FilterElement fe : filter.getFilterElements()) {
-			fe.accept(fevisitor);
-		}
 		final Template[] templArray = template.toArray(new Template[template.size()]);
 		final FactAddress[] addrArray = addresses.toArray(new FactAddress[addresses.size()]);
-		return new MemoryHandlerMain(templArray, new ArrayList<Fact[]>(), new Counter(
-				fevisitor.getNegated()), addrArray);
+		return new MemoryHandlerMain(templArray, new ArrayList<Fact[]>(), new Counter(filter),
+				addrArray);
 	}
 
 	@Override
