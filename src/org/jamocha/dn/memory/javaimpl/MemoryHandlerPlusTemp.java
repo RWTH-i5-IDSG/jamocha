@@ -349,7 +349,7 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 		}
 		edgeToStack.put(originIncomingEdge, originElement);
 
-		performJoin(filter, targetNode, edgeToStack, originElement, counter);
+		performJoin(filter, targetNode, edgeToStack, originIncomingEdge, counter);
 		// release lock
 		for (final Edge incomingEdge : nodeIncomingEdges) {
 			if (incomingEdge == originIncomingEdge)
@@ -364,11 +364,15 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 	}
 
 	private static void performJoin(final AddressFilter filter, final Node targetNode,
-			final LinkedHashMap<Edge, StackElement> edgeToStack, final StackElement originElement,
+			final LinkedHashMap<Edge, StackElement> edgeToStack, final Edge originEdge,
 			final Counter counter) {
+		final StackElement originElement = edgeToStack.get(originEdge);
 		// get filter steps
 		final AddressFilterElement filterSteps[] = filter.getFilterElements();
 
+		// order of counter columns depends on order of them in the filter passed to node ctor
+		final AddressFilter counterOrderFilter = originEdge.getTargetNode().getFilter();
+		
 		final IntegerHolder counterColumn = new IntegerHolder(), counterRow = new IntegerHolder();
 		// FIXME assumption: there are no more regular filter elements after the first existential
 		// or negated existential filter element in the filterSteps

@@ -26,6 +26,7 @@ import java.util.Map.Entry;
 import java.util.Queue;
 import java.util.Set;
 
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -219,7 +220,7 @@ public abstract class Node {
 	 * 
 	 * @return the filter that has originally been set to all inputs
 	 */
-	@Getter
+	@Getter(AccessLevel.PUBLIC)
 	final protected AddressFilter filter;
 
 	@RequiredArgsConstructor
