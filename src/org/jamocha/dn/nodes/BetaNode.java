@@ -118,7 +118,7 @@ public class BetaNode extends Node {
 		@Override
 		public void processPlusToken(final MemoryHandlerTemp memory)
 				throws CouldNotAcquireLockException {
-			// FIXME negative
+			// TODO negative
 			final MemoryHandlerTemp mem =
 					this.targetNode.memory.processTokenInBeta(memory, this, this.filter);
 			if (mem.size() == 0) {
@@ -130,7 +130,7 @@ public class BetaNode extends Node {
 		@Override
 		public void processMinusToken(final MemoryHandlerTemp memory)
 				throws CouldNotAcquireLockException {
-			// FIXME negative
+			// TODO negative
 			final MemoryHandlerTemp mem =
 					this.targetNode.memory.processTokenInBeta(memory, this, this.filter);
 			if (mem.size() == 0) {

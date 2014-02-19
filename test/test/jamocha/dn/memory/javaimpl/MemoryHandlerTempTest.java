@@ -34,20 +34,19 @@ import org.jamocha.dn.nodes.AddressPredecessor;
 import org.jamocha.dn.nodes.CouldNotAcquireLockException;
 import org.jamocha.dn.nodes.NegativeEdge;
 import org.jamocha.dn.nodes.Node;
-import org.jamocha.dn.nodes.Node.Edge;
 import org.jamocha.dn.nodes.PositiveEdge;
 import org.jamocha.dn.nodes.SlotInFactAddress;
 import org.jamocha.filter.AddressFilter;
 import org.jamocha.filter.AddressFilter.AddressFilterElement;
+import org.jamocha.filter.Filter;
+import org.jamocha.filter.FunctionDictionary;
+import org.jamocha.filter.Path;
+import org.jamocha.filter.Predicate;
 import org.jamocha.filter.fwa.FunctionWithArguments;
 import org.jamocha.filter.fwa.PathLeaf;
 import org.jamocha.filter.fwa.PredicateWithArguments;
 import org.jamocha.filter.fwa.PredicateWithArgumentsComposite;
 import org.jamocha.filter.visitor.FilterTranslator;
-import org.jamocha.filter.Filter;
-import org.jamocha.filter.FunctionDictionary;
-import org.jamocha.filter.Path;
-import org.jamocha.filter.Predicate;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -66,7 +65,7 @@ public class MemoryHandlerTempTest {
 	private static NodeMockup node, nodeLeft, nodeRight;
 	private static org.jamocha.dn.memory.javaimpl.FactAddress factAddress;
 	private static SlotAddress slotAddress;
-	private static Edge originInput;
+	private static PositiveEdge originInput;
 
 	static final int faSize = 10;
 	static final FactAddress[] fa = new FactAddress[faSize];
@@ -204,7 +203,7 @@ public class MemoryHandlerTempTest {
 		nodeLeft = new NodeMockup(Network.DEFAULTNETWORK, 1, new Template(SlotType.STRING));
 		nodeRight = new NodeMockup(Network.DEFAULTNETWORK, 1, new Template(SlotType.STRING));
 		node = new NodeMockup(Network.DEFAULTNETWORK, 1, nodeLeft, nodeRight);
-		originInput = node.getIncomingEdges()[0];
+		originInput = (PositiveEdge) node.getIncomingEdges()[0];
 		memoryHandlerMain =
 				(MemoryHandlerMain) Network.DEFAULTNETWORK.getMemoryFactory().newMemoryHandlerMain(
 						new Template(SlotType.STRING));
@@ -311,12 +310,12 @@ public class MemoryHandlerTempTest {
 						SlotType.STRING), "Test"));
 		MemoryHandlerPlusTemp memoryTempHandler =
 				(MemoryHandlerPlusTemp) memoryHandlerMain.processTokenInAlpha(token,
-						node.getIncomingEdges()[0],
+						(PositiveEdge) node.getIncomingEdges()[0],
 						FilterTranslator.translate(FilterMockup.alwaysTrue()));
 		assertEquals(1, memoryTempHandler.size());
 		memoryTempHandler =
 				(MemoryHandlerPlusTemp) memoryHandlerMain.processTokenInAlpha(token,
-						node.getIncomingEdges()[0],
+						(PositiveEdge) node.getIncomingEdges()[0],
 						FilterTranslator.translate(FilterMockup.alwaysFalse()));
 		assertEquals(0, memoryTempHandler.size());
 	}

@@ -31,8 +31,10 @@ import org.jamocha.dn.memory.MemoryHandler;
 import org.jamocha.dn.memory.SlotAddress;
 import org.jamocha.dn.nodes.AddressPredecessor;
 import org.jamocha.dn.nodes.CouldNotAcquireLockException;
+import org.jamocha.dn.nodes.NegativeEdge;
 import org.jamocha.dn.nodes.Node;
 import org.jamocha.dn.nodes.Node.Edge;
+import org.jamocha.dn.nodes.PositiveEdge;
 import org.jamocha.dn.nodes.SlotInFactAddress;
 import org.jamocha.filter.AddressFilter;
 import org.jamocha.filter.AddressFilter.AddressFilterElement;
@@ -91,18 +93,28 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 	static MemoryHandlerPlusTemp newBetaTemp(final MemoryHandlerMain originatingMainHandler,
 			final MemoryHandlerPlusTemp token, final Edge originIncomingEdge,
 			final AddressFilter filter) throws CouldNotAcquireLockException {
+		final Counter counter = new Counter();
 		return new MemoryHandlerPlusTemp(originatingMainHandler, getLocksAndPerformJoin(
-				originatingMainHandler, filter, token, originIncomingEdge), originIncomingEdge
-				.getTargetNode().getNumberOfOutgoingEdges());
+				originatingMainHandler, filter, token, originIncomingEdge, counter),
+				originIncomingEdge.getTargetNode().getNumberOfOutgoingEdges());
 	}
 
 	@Override
 	public MemoryHandlerPlusTemp newBetaTemp(
 			final org.jamocha.dn.memory.MemoryHandlerMain originatingMainHandler,
-			final Edge originIncomingEdge, final AddressFilter filter)
+			final PositiveEdge originIncomingEdge, final AddressFilter filter)
 			throws CouldNotAcquireLockException {
 		return newBetaTemp((MemoryHandlerMain) originatingMainHandler, this, originIncomingEdge,
 				filter);
+	}
+
+	@Override
+	public MemoryHandlerPlusTemp newBetaTemp(
+			final org.jamocha.dn.memory.MemoryHandlerMain originatingMainHandler,
+			final NegativeEdge originIncomingEdge, final AddressFilter filter)
+			throws CouldNotAcquireLockException {
+		// FIXME implement
+		return null;
 	}
 
 	static MemoryHandlerPlusTemp newAlphaTemp(final MemoryHandlerMain originatingMainHandler,
@@ -126,10 +138,19 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 	@Override
 	public MemoryHandlerPlusTemp newAlphaTemp(
 			final org.jamocha.dn.memory.MemoryHandlerMain originatingMainHandler,
-			final Edge originIncomingEdge, final AddressFilter filter)
+			final PositiveEdge originIncomingEdge, final AddressFilter filter)
 			throws CouldNotAcquireLockException {
 		return newAlphaTemp((MemoryHandlerMain) originatingMainHandler, this, originIncomingEdge,
 				filter);
+	}
+
+	@Override
+	public MemoryHandlerPlusTemp newAlphaTemp(
+			final org.jamocha.dn.memory.MemoryHandlerMain originatingMainHandler,
+			final NegativeEdge originIncomingEdge, final AddressFilter filter)
+			throws CouldNotAcquireLockException {
+		// FIXME implement
+		return null;
 	}
 
 	static MemoryHandlerPlusTemp newRootTemp(final MemoryHandlerMain originatingMainHandler,
@@ -226,11 +247,10 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 	}
 
 	static interface FunctionPointer {
-		public void apply(final ArrayList<Fact[]> TR, final Collection<StackElement> stack,
-				final StackElement originElement);
+		public void apply(final ArrayList<Fact[]> TR, final StackElement originElement);
 	}
 
-	private static void loop(final FunctionPointer functionPointer,
+	private static void loop(final FunctionPointer functionPointer, final ArrayList<Fact[]> TR,
 			final Collection<StackElement> stack, final StackElement originElement) {
 		if (stack.isEmpty()) {
 			return;
@@ -253,10 +273,9 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 				}
 			}
 		}
-		final ArrayList<Fact[]> TR = new ArrayList<Fact[]>();
 		outerloop: while (true) {
 			innerloop: while (true) {
-				functionPointer.apply(TR, stack, originElement);
+				functionPointer.apply(TR, originElement);
 				// increment row indices
 				for (final Iterator<StackElement> iter = stack.iterator(); iter.hasNext();) {
 					final StackElement element = iter.next();
@@ -283,13 +302,11 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 		for (final StackElement elem : stack) {
 			elem.resetIndices();
 		}
-		// replace TR in originElement with new temporary result
-		originElement.memStack.set(0, TR);
 	}
 
 	private static List<Fact[]> getLocksAndPerformJoin(
 			final MemoryHandlerMain originatingMainHandler, final AddressFilter filter,
-			final MemoryHandlerPlusTemp token, final Edge originIncomingEdge)
+			final MemoryHandlerPlusTemp token, final Edge originIncomingEdge, final Counter counter)
 			throws CouldNotAcquireLockException {
 		// get a fixed-size array of indices (size: #inputs of the node),
 		// determine number of inputs for the current join as maxIndex
@@ -332,7 +349,7 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 		}
 		edgeToStack.put(originIncomingEdge, originElement);
 
-		performJoin(filter, targetNode, edgeToStack, originElement);
+		performJoin(filter, targetNode, edgeToStack, originElement, counter);
 		// release lock
 		for (final Edge incomingEdge : nodeIncomingEdges) {
 			if (incomingEdge == originIncomingEdge)
@@ -342,11 +359,21 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 		return originElement.getTable();
 	}
 
+	private static class IntegerHolder {
+		int value;
+	}
+
 	private static void performJoin(final AddressFilter filter, final Node targetNode,
-			final LinkedHashMap<Edge, StackElement> edgeToStack, final StackElement originElement) {
+			final LinkedHashMap<Edge, StackElement> edgeToStack, final StackElement originElement,
+			final Counter counter) {
 		// get filter steps
 		final AddressFilterElement filterSteps[] = filter.getFilterElements();
 
+		final IntegerHolder counterColumn = new IntegerHolder(), counterRow = new IntegerHolder();
+		// FIXME assumption: there are no more regular filter elements after the first existential
+		// or negated existential filter element in the filterSteps
+		// otherwise: copy&paste this loop and first only look at regular filter elements, then look
+		// at existential and negated existential filter elements
 		for (final AddressFilterElement filterElement : filterSteps) {
 			final Collection<StackElement> stack = new ArrayList<>(filterSteps.length);
 			final FunctionWithArguments function = filterElement.getFunction();
@@ -356,8 +383,7 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 			final Set<Edge> newEdges = new HashSet<>();
 			stack.add(originElement);
 			for (final SlotInFactAddress address : addresses) {
-				final Edge edge =
-						targetNode.delocalizeAddress(address.getFactAddress()).getEdge();
+				final Edge edge = targetNode.delocalizeAddress(address.getFactAddress()).getEdge();
 				final StackElement element = edgeToStack.get(edge);
 				if (element != originElement) {
 					if (newEdges.add(edge)) {
@@ -369,10 +395,10 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 			filterElement.accept(new FilterElementVisitor() {
 				@Override
 				public void visit(final AddressFilterElement fe) {
+					final ArrayList<Fact[]> TR = new ArrayList<>();
 					loop(new FunctionPointer() {
 						@Override
 						public void apply(final ArrayList<Fact[]> TR,
-								final Collection<StackElement> stack,
 								final StackElement originElement) {
 							final int paramLength = addresses.length;
 							final Object params[] = new Object[paramLength];
@@ -402,7 +428,9 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 								TR.add(row);
 							}
 						}
-					}, stack, originElement);
+					}, TR, stack, originElement);
+					// replace TR in originElement with new temporary result
+					originElement.memStack.set(0, TR);
 					// point all inputs that were joint during this turn to the TR
 					// StackElement
 					for (final Edge incomingEdge : newEdges) {
@@ -418,8 +446,37 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 
 				@Override
 				public void visit(final NegatedExistentialAddressFilterElement fe) {
-					// TODO Auto-generated method stub
-
+					if (counter.size() == 0) {
+						counter.addEmptyRows(originElement.memStack.get(0).size());
+					}
+					final ArrayList<Fact[]> TR = new ArrayList<>();
+					loop(new FunctionPointer() {
+						@Override
+						public void apply(final ArrayList<Fact[]> TR,
+								final StackElement originElement) {
+							final int paramLength = addresses.length;
+							final Object params[] = new Object[paramLength];
+							// determine parameters
+							for (int i = 0; i < paramLength; ++i) {
+								final SlotInFactAddress address = addresses[i];
+								final AddressPredecessor fact =
+										targetNode.delocalizeAddress(address.getFactAddress());
+								final StackElement se = edgeToStack.get(fact.getEdge());
+								params[i] = se.getValue(fact, address.getSlotAddress());
+							}
+							// increment corresponding counter if facts match predicate
+							if ((boolean) function.evaluate(params)) {
+								counter.increment(counterRow.value, counterColumn.value);
+							}
+							++counterRow.value;
+						}
+					}, TR, stack, originElement);
+					// point all inputs that were joint during this turn to the TR
+					// StackElement
+					for (final Edge incomingEdge : newEdges) {
+						edgeToStack.put(incomingEdge, originElement);
+					}
+					++counterColumn.value;
 				}
 
 				@Override
@@ -449,10 +506,10 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 			final Edge nodeInput = entry.getKey();
 			final StackElement se = entry.getValue();
 			final Collection<StackElement> stack = Arrays.asList(originElement, se);
+			final ArrayList<Fact[]> TR = new ArrayList<>();
 			loop(new FunctionPointer() {
 				@Override
-				public void apply(final ArrayList<Fact[]> TR, final Collection<StackElement> stack,
-						final StackElement originElement) {
+				public void apply(final ArrayList<Fact[]> TR, final StackElement originElement) {
 					// copy result to new TR
 					// copy current row from old TR
 					final Fact[] row = originElement.getRow();
@@ -463,16 +520,15 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 					// copy the result to new TR
 					TR.add(row);
 				}
-			}, stack, originElement);
+			}, TR, stack, originElement);
+			// replace TR in originElement with new temporary result
+			originElement.memStack.set(0, TR);
 			// point all inputs that were joint during this turn to the TR
 			// StackElement
 			edgeToStack.put(nodeInput, originElement);
 		}
 	}
 
-	/**
-	 * @see org.jamocha.dn.memory.MemoryHandlerPlusTemp#releaseLock()
-	 */
 	@Override
 	public boolean releaseLock() {
 		if (this.lock.release())

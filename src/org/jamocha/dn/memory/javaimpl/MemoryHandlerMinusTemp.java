@@ -26,7 +26,9 @@ import lombok.ToString;
 import org.jamocha.dn.memory.SlotAddress;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.dn.nodes.CouldNotAcquireLockException;
+import org.jamocha.dn.nodes.NegativeEdge;
 import org.jamocha.dn.nodes.Node.Edge;
+import org.jamocha.dn.nodes.PositiveEdge;
 import org.jamocha.filter.AddressFilter;
 
 /**
@@ -245,7 +247,7 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 	@Override
 	public MemoryHandlerTemp newBetaTemp(
 			final org.jamocha.dn.memory.MemoryHandlerMain originatingMainHandler,
-			final Edge originIncomingEdge, final AddressFilter filter)
+			final PositiveEdge originIncomingEdge, final AddressFilter filter)
 			throws CouldNotAcquireLockException {
 		final MemoryHandlerMain targetMain =
 				(MemoryHandlerMain) originIncomingEdge.getTargetNode().getMemory();
@@ -257,6 +259,15 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 						EqualityChecker.beta);
 		return new MemoryHandlerMinusTemp(getTemplate(),
 				(MemoryHandlerMain) originatingMainHandler, relevantMinusFacts, localizedAddressMap);
+	}
+
+	@Override
+	public MemoryHandlerTemp newBetaTemp(
+			final org.jamocha.dn.memory.MemoryHandlerMain originatingMainHandler,
+			final NegativeEdge originIncomingEdge, final AddressFilter filter)
+			throws CouldNotAcquireLockException {
+		// FIXME implement
+		return null;
 	}
 
 	private static void filterOutgoingTemps(
@@ -322,7 +333,7 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 	@Override
 	public MemoryHandlerTemp newAlphaTemp(
 			final org.jamocha.dn.memory.MemoryHandlerMain originatingMainHandler,
-			final Edge originIncomingEdge, final AddressFilter filter)
+			final PositiveEdge originIncomingEdge, final AddressFilter filter)
 			throws CouldNotAcquireLockException {
 		final MemoryHandlerMain targetMain =
 				(MemoryHandlerMain) originIncomingEdge.getTargetNode().getMemory();
@@ -336,6 +347,15 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 		return new MemoryHandlerMinusTemp(getTemplate(),
 				(MemoryHandlerMain) originatingMainHandler, markedFactTuples, localizeAddressMap(
 						this.factAddresses, originIncomingEdge));
+	}
+
+	@Override
+	public MemoryHandlerTemp newAlphaTemp(
+			final org.jamocha.dn.memory.MemoryHandlerMain originatingMainHandler,
+			final NegativeEdge originIncomingEdge, final AddressFilter filter)
+			throws CouldNotAcquireLockException {
+		// FIXME implement
+		return null;
 	}
 
 	private static List<Fact[]> getRelevantFactTuples(final MemoryHandlerMain targetMain,
