@@ -73,6 +73,14 @@ public class Counter {
 		this.counters.add(this.emptyRow);
 	}
 
+	public void addEmptyRows(final int rows) {
+		final int size = rows * columns;
+		if (size >= emptyRowCache.size())
+			this.counters.add(new int[size]);
+		else
+			this.counters.add(emptyRowCache.get(size));
+	}
+
 	/**
 	 * Returns the number of rows in the Counter class
 	 * 
