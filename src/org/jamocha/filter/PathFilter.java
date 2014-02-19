@@ -14,6 +14,8 @@
  */
 package org.jamocha.filter;
 
+import lombok.Getter;
+
 import org.jamocha.filter.fwa.FunctionWithArguments;
 import org.jamocha.filter.fwa.PredicateWithArguments;
 import org.jamocha.filter.visitor.FilterElementVisitor;
@@ -43,20 +45,20 @@ public class PathFilter extends Filter<PathFilter.PathFilterElement> {
 		}
 	}
 
+	@Getter
 	private static abstract class AbstractExistentialpathFilterElement extends PathFilterElement {
-		final Path[] paths;
+		final Path path;
 
 		public AbstractExistentialpathFilterElement(final PredicateWithArguments function,
-				final Path... paths) {
+				final Path path) {
 			super(function);
-			this.paths = paths;
+			this.path = path;
 		}
 	}
 
 	public static class ExistentialPathFilterElement extends AbstractExistentialpathFilterElement {
-		public ExistentialPathFilterElement(final PredicateWithArguments function,
-				final Path[] paths) {
-			super(function, paths);
+		public ExistentialPathFilterElement(final PredicateWithArguments function, final Path path) {
+			super(function, path);
 		}
 
 		@Override
@@ -69,8 +71,8 @@ public class PathFilter extends Filter<PathFilter.PathFilterElement> {
 	public static class NegatedExistentialPathFilterElement extends
 			AbstractExistentialpathFilterElement {
 		public NegatedExistentialPathFilterElement(final PredicateWithArguments function,
-				final Path[] paths) {
-			super(function, paths);
+				final Path path) {
+			super(function, path);
 		}
 
 		@Override

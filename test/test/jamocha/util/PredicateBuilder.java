@@ -46,11 +46,11 @@ public class PredicateBuilder extends GenericBuilder<Boolean, Predicate, Predica
 		return new PathFilterElement(build());
 	}
 
-	public ExistentialPathFilterElement buildExPFE(final Path... paths) {
-		return new ExistentialPathFilterElement(build(), paths);
+	public ExistentialPathFilterElement buildExPFE(final Path path) {
+		return new ExistentialPathFilterElement(build(), path);
 	}
 
-	public NegatedExistentialPathFilterElement buildNonExPFE(final Path... paths) {
-		return new NegatedExistentialPathFilterElement(build(), paths);
+	public NegatedExistentialPathFilterElement buildNonExPFE(final Path path) {
+		return new NegatedExistentialPathFilterElement(build(), path);
 	}
 }

@@ -16,6 +16,7 @@ package org.jamocha.filter;
 
 import lombok.Getter;
 
+import org.jamocha.dn.memory.FactAddress;
 import org.jamocha.dn.nodes.SlotInFactAddress;
 import org.jamocha.filter.fwa.PredicateWithArguments;
 import org.jamocha.filter.visitor.FilterElementVisitor;
@@ -60,13 +61,13 @@ public class AddressFilter extends Filter<AddressFilter.AddressFilterElement> {
 	@Getter
 	private static abstract class AbstractExistentialAddressFilterElement extends
 			AddressFilterElement {
-		final SlotInFactAddress existentialAddressesInTarget[];
+		final FactAddress existentialAddressInTarget;
 
 		public AbstractExistentialAddressFilterElement(final PredicateWithArguments function,
 				final SlotInFactAddress[] addressesInTarget,
-				final SlotInFactAddress[] existentialAddressesInTarget) {
+				final FactAddress existentialAddressInTarget) {
 			super(function, addressesInTarget);
-			this.existentialAddressesInTarget = existentialAddressesInTarget;
+			this.existentialAddressInTarget = existentialAddressInTarget;
 		}
 	}
 
@@ -74,8 +75,8 @@ public class AddressFilter extends Filter<AddressFilter.AddressFilterElement> {
 			AbstractExistentialAddressFilterElement {
 		public ExistentialAddressFilterElement(final PredicateWithArguments function,
 				final SlotInFactAddress[] addressesInTarget,
-				final SlotInFactAddress[] existentialAddressesInTarget) {
-			super(function, addressesInTarget, existentialAddressesInTarget);
+				final FactAddress existentialAddressInTarget) {
+			super(function, addressesInTarget, existentialAddressInTarget);
 		}
 
 		@Override
@@ -89,8 +90,8 @@ public class AddressFilter extends Filter<AddressFilter.AddressFilterElement> {
 			AbstractExistentialAddressFilterElement {
 		public NegatedExistentialAddressFilterElement(final PredicateWithArguments function,
 				final SlotInFactAddress[] addressesInTarget,
-				final SlotInFactAddress[] existentialAddressesInTarget) {
-			super(function, addressesInTarget, existentialAddressesInTarget);
+				final FactAddress existentialAddressInTarget) {
+			super(function, addressesInTarget, existentialAddressInTarget);
 		}
 
 		@Override

@@ -17,11 +17,17 @@ package org.jamocha.filter.visitor;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import lombok.Getter;
+
 import org.jamocha.dn.memory.FactAddress;
 import org.jamocha.dn.nodes.SlotInFactAddress;
 import org.jamocha.filter.AddressFilter;
-import org.jamocha.filter.PathFilter;
 import org.jamocha.filter.AddressFilter.AddressFilterElement;
+import org.jamocha.filter.AddressFilter.ExistentialAddressFilterElement;
+import org.jamocha.filter.AddressFilter.NegatedExistentialAddressFilterElement;
+import org.jamocha.filter.PathFilter;
+import org.jamocha.filter.PathFilter.ExistentialPathFilterElement;
+import org.jamocha.filter.PathFilter.NegatedExistentialPathFilterElement;
 import org.jamocha.filter.PathFilter.PathFilterElement;
 import org.jamocha.filter.fwa.ConstantLeaf;
 import org.jamocha.filter.fwa.FunctionWithArguments;
@@ -48,15 +54,74 @@ public class FilterTranslator {
 	}
 
 	private static AddressFilterElement translate(final PathFilterElement pathFilterElement) {
-		final ArrayList<SlotInFactAddress> addresses = new ArrayList<>();
-		final PredicateWithArguments predicateWithArguments =
-				pathFilterElement.getFunction()
-						.accept(new PredicateWithArgumentsTranslator(addresses))
-						.getFunctionWithArguments();
-		return new AddressFilterElement(predicateWithArguments,
-				addresses.toArray(new SlotInFactAddress[addresses.size()]));
+		return pathFilterElement.accept(new FilterElementTranslator()).getAddressFilterElement();
 	}
 
+	/**
+	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+	 */
+	private static class FilterElementTranslator implements FilterElementVisitor {
+		@Getter
+		private AddressFilterElement addressFilterElement;
+
+		@Override
+		public void visit(AddressFilterElement fe) {
+			throw new UnsupportedOperationException("FilterElement already translated?");
+		}
+
+		@Override
+		public void visit(ExistentialAddressFilterElement fe) {
+			throw new UnsupportedOperationException("FilterElement already translated?");
+		}
+
+		@Override
+		public void visit(NegatedExistentialAddressFilterElement fe) {
+			throw new UnsupportedOperationException("FilterElement already translated?");
+		}
+
+		@Override
+		public void visit(PathFilterElement fe) {
+			final ArrayList<SlotInFactAddress> addresses = new ArrayList<>();
+			final PredicateWithArguments predicateWithArguments =
+					fe.getFunction().accept(new PredicateWithArgumentsTranslator(addresses))
+							.getFunctionWithArguments();
+			this.addressFilterElement =
+					new AddressFilterElement(predicateWithArguments,
+							addresses.toArray(new SlotInFactAddress[addresses.size()]));
+		}
+
+		@Override
+		public void visit(ExistentialPathFilterElement fe) {
+			final ArrayList<SlotInFactAddress> addresses = new ArrayList<>();
+			final PredicateWithArguments predicateWithArguments =
+					fe.getFunction().accept(new PredicateWithArgumentsTranslator(addresses))
+							.getFunctionWithArguments();
+			final FactAddress factAddressInCurrentlyLowestNode =
+					fe.getPath().getFactAddressInCurrentlyLowestNode();
+			this.addressFilterElement =
+					new ExistentialAddressFilterElement(predicateWithArguments,
+							addresses.toArray(new SlotInFactAddress[addresses.size()]),
+							factAddressInCurrentlyLowestNode);
+		}
+
+		@Override
+		public void visit(NegatedExistentialPathFilterElement fe) {
+			final ArrayList<SlotInFactAddress> addresses = new ArrayList<>();
+			final PredicateWithArguments predicateWithArguments =
+					fe.getFunction().accept(new PredicateWithArgumentsTranslator(addresses))
+							.getFunctionWithArguments();
+			final FactAddress factAddressInCurrentlyLowestNode =
+					fe.getPath().getFactAddressInCurrentlyLowestNode();
+			this.addressFilterElement =
+					new NegatedExistentialAddressFilterElement(predicateWithArguments,
+							addresses.toArray(new SlotInFactAddress[addresses.size()]),
+							factAddressInCurrentlyLowestNode);
+		}
+	}
+
+	/**
+	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+	 */
 	private static class PredicateWithArgumentsTranslator implements FunctionWithArgumentsVisitor {
 		private final Collection<SlotInFactAddress> addresses;
 		private PredicateWithArguments functionWithArguments;
@@ -151,7 +216,8 @@ public class FilterTranslator {
 		@Override
 		public void visit(final PredicateWithArgumentsComposite predicateWithArgumentsComposite) {
 			this.functionWithArguments =
-					new PredicateWithArgumentsComposite(predicateWithArgumentsComposite.getFunction(),
+					new PredicateWithArgumentsComposite(
+							predicateWithArgumentsComposite.getFunction(),
 							translateArgs(predicateWithArgumentsComposite.getArgs()));
 
 		}
