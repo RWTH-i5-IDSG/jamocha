@@ -39,8 +39,15 @@ import org.jamocha.dn.memory.MemoryHandlerPlusTemp;
 import org.jamocha.dn.memory.MemoryHandlerTemp;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.filter.AddressFilter;
+import org.jamocha.filter.AddressFilter.AddressFilterElement;
+import org.jamocha.filter.AddressFilter.ExistentialAddressFilterElement;
+import org.jamocha.filter.AddressFilter.NegatedExistentialAddressFilterElement;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.PathFilter;
+import org.jamocha.filter.PathFilter.ExistentialPathFilterElement;
+import org.jamocha.filter.PathFilter.NegatedExistentialPathFilterElement;
+import org.jamocha.filter.PathFilter.PathFilterElement;
+import org.jamocha.filter.visitor.FilterElementVisitor;
 import org.jamocha.filter.visitor.FilterTranslator;
 import org.jamocha.filter.visitor.PathCollector;
 
@@ -282,22 +289,57 @@ public abstract class Node {
 		while (!paths.isEmpty()) {
 			// get next path
 			final Path path = paths.iterator().next();
-			// FIXME find out whether positive or negative edge is needed
-			final boolean negated = path.equals(null);
 			final Node clNode = path.getCurrentlyLowestNode();
 			// create new edge from clNode to this
-			final Edge edge;
-			if (!negated) {
-				// mark all paths as done
-				final Set<Path> joinedWith = path.getJoinedWith();
-				joinedPaths.addAll(joinedWith);
-				paths.removeAll(joinedWith);
-				edge = connectPositiveParent(clNode);
-				edgesAndPaths.put(edge, joinedWith);
-			} else {
-				edge = connectNegativeParent(clNode);
-			}
+			final Edge edge = connectPositiveParent(clNode);
+			// mark all paths as done
+			final Set<Path> joinedWith = path.getJoinedWith();
+			joinedPaths.addAll(joinedWith);
+			paths.removeAll(joinedWith);
+			edgesAndPaths.put(edge, joinedWith);
 			edges.add(edge);
+		}
+		// TODO does it work for every scenario to just go through the existentials after the common
+		// paths ?
+		for (final PathFilterElement filterElement : filter.getFilterElements()) {
+			filterElement.accept(new FilterElementVisitor() {
+				@Override
+				public void visit(final NegatedExistentialPathFilterElement fe) {
+					edges.add(connectNegativeParent(fe.getPath().getCurrentlyLowestNode()));
+				}
+
+				@Override
+				public void visit(final ExistentialPathFilterElement fe) {
+					final Path path = fe.getPath();
+					final Node clNode = path.getCurrentlyLowestNode();
+					final Edge edge = connectPositiveParent(clNode);
+					final Set<Path> joinedWith = path.getJoinedWith();
+					// TODO should we add existential paths to joinedWith ?
+					joinedPaths.addAll(joinedWith);
+					edgesAndPaths.put(edge, joinedWith);
+					edges.add(edge);
+				}
+
+				@Override
+				public void visit(final PathFilterElement fe) {
+					// skip
+				}
+
+				@Override
+				public void visit(final NegatedExistentialAddressFilterElement fe) {
+					throw new IllegalArgumentException("Can only be used for PathFilterElements!");
+				}
+
+				@Override
+				public void visit(final ExistentialAddressFilterElement fe) {
+					throw new IllegalArgumentException("Can only be used for PathFilterElements!");
+				}
+
+				@Override
+				public void visit(final AddressFilterElement fe) {
+					throw new IllegalArgumentException("Can only be used for PathFilterElements!");
+				}
+			});
 		}
 		this.incomingEdges = edges.toArray(new Edge[edges.size()]);
 		this.memory = network.getMemoryFactory().newMemoryHandlerMain(filter, this.incomingEdges);
@@ -331,18 +373,6 @@ public abstract class Node {
 		parent.acceptEdgeToChild(edge);
 		return edge;
 	}
-
-	// FIXME re-think, rewrite
-	// public void rebuild(final Filter filter) {
-	// TODO acquire read lock on main memory of every old parent
-	// for (final NodeInput input : this.inputs) {
-	// input.disconnect();
-	// }
-	// flush memory
-	// connectNewParents(parentsWithFilters);
-	// setFilters(parentsWithFilters);
-	// TODO release read lock on main memory of every old parent
-	// }
 
 	/**
 	 * Called when a child is added. Defaults to adding the edge to the child to the list of
