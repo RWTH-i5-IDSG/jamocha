@@ -162,7 +162,8 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 	 * replaces the negative fact with its corresponding original if matched to allow for
 	 * referential comparison in the rest of the network (for better performance)</li>
 	 * <li><b>alpha:</b> checks for referential equality of the first elements of the fact tuples</li>
-	 * <li><b>beta:</b></li>
+	 * <li><b>beta:</b> checks for referential equality of all elements of the fact tuples, uses
+	 * fact address translation to do so</li>
 	 * </ul>
 	 * 
 	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
