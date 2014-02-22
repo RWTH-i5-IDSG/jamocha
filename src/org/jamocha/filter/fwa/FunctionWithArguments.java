@@ -17,8 +17,7 @@ package org.jamocha.filter.fwa;
 import org.jamocha.dn.memory.Fact;
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.filter.Function;
-import org.jamocha.filter.visitor.FunctionWithArgumentsVisitor;
-import org.jamocha.filter.visitor.Visitable;
+import org.jamocha.visitor.Visitable;
 
 /**
  * This class bundles a {@link Function} and its arguments. The Composite Pattern has been used. An

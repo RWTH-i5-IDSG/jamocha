@@ -28,7 +28,7 @@ import org.jamocha.dn.memory.FactAddress;
 import org.jamocha.dn.memory.MemoryHandlerMain;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.dn.nodes.BetaNode;
-import org.jamocha.dn.nodes.Node.Edge;
+import org.jamocha.dn.nodes.Edge;
 import org.jamocha.dn.nodes.ObjectTypeNode;
 import org.jamocha.filter.Path;
 import org.junit.After;

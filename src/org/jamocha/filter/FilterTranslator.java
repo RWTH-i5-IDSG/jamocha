@@ -12,26 +12,19 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package org.jamocha.filter.visitor;
+package org.jamocha.filter;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
-import lombok.Getter;
-
 import org.jamocha.dn.memory.FactAddress;
 import org.jamocha.dn.nodes.SlotInFactAddress;
-import org.jamocha.filter.AddressFilter;
 import org.jamocha.filter.AddressFilter.AddressFilterElement;
-import org.jamocha.filter.AddressFilter.ExistentialAddressFilterElement;
-import org.jamocha.filter.AddressFilter.NegatedExistentialAddressFilterElement;
-import org.jamocha.filter.PathFilter;
-import org.jamocha.filter.PathFilter.ExistentialPathFilterElement;
-import org.jamocha.filter.PathFilter.NegatedExistentialPathFilterElement;
 import org.jamocha.filter.PathFilter.PathFilterElement;
 import org.jamocha.filter.fwa.ConstantLeaf;
 import org.jamocha.filter.fwa.FunctionWithArguments;
 import org.jamocha.filter.fwa.FunctionWithArgumentsComposite;
+import org.jamocha.filter.fwa.FunctionWithArgumentsVisitor;
 import org.jamocha.filter.fwa.PathLeaf;
 import org.jamocha.filter.fwa.PathLeaf.ParameterLeaf;
 import org.jamocha.filter.fwa.PredicateWithArguments;
@@ -44,79 +37,41 @@ import test.jamocha.filter.PredicateWithArgumentsMockup;
  */
 public class FilterTranslator {
 	public static AddressFilter translate(final PathFilter pathFilter) {
+		// TODO fake target-node-addresses for existential paths that can be mapped upwards
+		// TODO add counter column index to filter element
 		final PathFilterElement[] pathFilterElements = pathFilter.getFilterElements();
 		final AddressFilterElement[] addressFilterElements =
 				new AddressFilterElement[pathFilterElements.length];
 		for (int i = 0; i < pathFilterElements.length; i++) {
 			addressFilterElements[i] = translate(pathFilterElements[i]);
 		}
-		return new AddressFilter(addressFilterElements);
+		final Collection<Path> positiveExistentialPaths = pathFilter.getPositiveExistentialPaths();
+		final FactAddress pefa[] = new FactAddress[positiveExistentialPaths.size()];
+		{
+			int pos = 0;
+			for (Path path : positiveExistentialPaths) {
+				pefa[pos++] = path.getFactAddressInCurrentlyLowestNode();
+			}
+		}
+		final Collection<Path> negativeExistentialPaths = pathFilter.getNegativeExistentialPaths();
+		final FactAddress nefa[] = new FactAddress[negativeExistentialPaths.size()];
+		{
+			int pos = 0;
+			for (Path path : negativeExistentialPaths) {
+				nefa[pos++] = path.getFactAddressInCurrentlyLowestNode();
+			}
+		}
+		return new AddressFilter(pefa, nefa, addressFilterElements);
 	}
 
 	private static AddressFilterElement translate(final PathFilterElement pathFilterElement) {
-		return pathFilterElement.accept(new FilterElementTranslator()).getAddressFilterElement();
-	}
-
-	/**
-	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
-	 */
-	private static class FilterElementTranslator implements FilterElementVisitor {
-		@Getter
-		private AddressFilterElement addressFilterElement;
-
-		@Override
-		public void visit(AddressFilterElement fe) {
-			throw new UnsupportedOperationException("FilterElement already translated?");
-		}
-
-		@Override
-		public void visit(ExistentialAddressFilterElement fe) {
-			throw new UnsupportedOperationException("FilterElement already translated?");
-		}
-
-		@Override
-		public void visit(NegatedExistentialAddressFilterElement fe) {
-			throw new UnsupportedOperationException("FilterElement already translated?");
-		}
-
-		@Override
-		public void visit(PathFilterElement fe) {
-			final ArrayList<SlotInFactAddress> addresses = new ArrayList<>();
-			final PredicateWithArguments predicateWithArguments =
-					fe.getFunction().accept(new PredicateWithArgumentsTranslator(addresses))
-							.getFunctionWithArguments();
-			this.addressFilterElement =
-					new AddressFilterElement(predicateWithArguments,
-							addresses.toArray(new SlotInFactAddress[addresses.size()]));
-		}
-
-		@Override
-		public void visit(ExistentialPathFilterElement fe) {
-			final ArrayList<SlotInFactAddress> addresses = new ArrayList<>();
-			final PredicateWithArguments predicateWithArguments =
-					fe.getFunction().accept(new PredicateWithArgumentsTranslator(addresses))
-							.getFunctionWithArguments();
-			final FactAddress factAddressInCurrentlyLowestNode =
-					fe.getPath().getFactAddressInCurrentlyLowestNode();
-			this.addressFilterElement =
-					new ExistentialAddressFilterElement(predicateWithArguments,
-							addresses.toArray(new SlotInFactAddress[addresses.size()]),
-							factAddressInCurrentlyLowestNode);
-		}
-
-		@Override
-		public void visit(NegatedExistentialPathFilterElement fe) {
-			final ArrayList<SlotInFactAddress> addresses = new ArrayList<>();
-			final PredicateWithArguments predicateWithArguments =
-					fe.getFunction().accept(new PredicateWithArgumentsTranslator(addresses))
-							.getFunctionWithArguments();
-			final FactAddress factAddressInCurrentlyLowestNode =
-					fe.getPath().getFactAddressInCurrentlyLowestNode();
-			this.addressFilterElement =
-					new NegatedExistentialAddressFilterElement(predicateWithArguments,
-							addresses.toArray(new SlotInFactAddress[addresses.size()]),
-							factAddressInCurrentlyLowestNode);
-		}
+		final ArrayList<SlotInFactAddress> addresses = new ArrayList<>();
+		final PredicateWithArguments predicateWithArguments =
+				pathFilterElement.getFunction()
+						.accept(new PredicateWithArgumentsTranslator(addresses))
+						.getFunctionWithArguments();
+		return new AddressFilterElement(predicateWithArguments,
+				addresses.toArray(new SlotInFactAddress[addresses.size()]));
 	}
 
 	/**

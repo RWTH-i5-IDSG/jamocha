@@ -14,8 +14,8 @@
  */
 package org.jamocha.dn.memory;
 
+import org.jamocha.dn.nodes.Edge;
 import org.jamocha.dn.nodes.Node;
-import org.jamocha.dn.nodes.Node.Edge;
 
 /**
  * Interface for memories with short life time. {@link MemoryHandlerPlusTemp} instances are passed

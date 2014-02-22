@@ -32,13 +32,17 @@ import org.jamocha.dn.memory.javaimpl.MemoryHandlerPlusTemp;
 import org.jamocha.dn.memory.javaimpl.SlotAddress;
 import org.jamocha.dn.nodes.AddressPredecessor;
 import org.jamocha.dn.nodes.CouldNotAcquireLockException;
-import org.jamocha.dn.nodes.NegativeEdge;
+import org.jamocha.dn.nodes.Edge;
+import org.jamocha.dn.nodes.EdgeVisitor;
+import org.jamocha.dn.nodes.NegativeExistentialEdge;
 import org.jamocha.dn.nodes.Node;
 import org.jamocha.dn.nodes.PositiveEdge;
+import org.jamocha.dn.nodes.PositiveExistentialEdge;
 import org.jamocha.dn.nodes.SlotInFactAddress;
 import org.jamocha.filter.AddressFilter;
 import org.jamocha.filter.AddressFilter.AddressFilterElement;
 import org.jamocha.filter.Filter;
+import org.jamocha.filter.FilterTranslator;
 import org.jamocha.filter.FunctionDictionary;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.Predicate;
@@ -46,7 +50,6 @@ import org.jamocha.filter.fwa.FunctionWithArguments;
 import org.jamocha.filter.fwa.PathLeaf;
 import org.jamocha.filter.fwa.PredicateWithArguments;
 import org.jamocha.filter.fwa.PredicateWithArgumentsComposite;
-import org.jamocha.filter.visitor.FilterTranslator;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -78,7 +81,7 @@ public class MemoryHandlerTempTest {
 
 	private static class NodeMockup extends Node {
 
-		private class EdgeMockup extends EdgeImpl implements PositiveEdge, NegativeEdge {
+		private class EdgeMockup extends EdgeImpl implements PositiveEdge {
 
 			final int offset;
 
@@ -118,6 +121,11 @@ public class MemoryHandlerTempTest {
 			public void enqueuePlusMemory(org.jamocha.dn.memory.MemoryHandlerPlusTemp mem) {
 			}
 
+			@Override
+			public <V extends EdgeVisitor> V accept(final V visitor) {
+				visitor.visit(this);
+				return visitor;
+			}
 		}
 
 		int numChildern;
@@ -147,10 +155,23 @@ public class MemoryHandlerTempTest {
 		}
 
 		@Override
-		protected NegativeEdge newNegativeEdge(Node source) {
-			NegativeEdge edge = new EdgeMockup(Network.DEFAULTNETWORK, source, this, currentOffset);
-			currentOffset += source.getMemory().getTemplate().length;
-			return edge;
+		protected PositiveExistentialEdge newPositiveExistentialEdge(Node source) {
+			throw new UnsupportedOperationException(
+					"unsupported as there is only one mockup edge that and visitors identify it as positive edge");
+			// PositiveExistentialEdge edge =
+			// new EdgeMockup(Network.DEFAULTNETWORK, source, this, currentOffset);
+			// currentOffset += source.getMemory().getTemplate().length;
+			// return edge;
+		}
+
+		@Override
+		protected NegativeExistentialEdge newNegativeExistentialEdge(Node source) {
+			throw new UnsupportedOperationException(
+					"unsupported as there is only one mockup edge that and visitors identify it as positive edge");
+			// NegativeExistentialEdge edge =
+			// new EdgeMockup(Network.DEFAULTNETWORK, source, this, currentOffset);
+			// currentOffset += source.getMemory().getTemplate().length;
+			// return edge;
 		}
 
 		@Override
@@ -278,7 +299,9 @@ public class MemoryHandlerTempTest {
 								new SlotAddress(0)),
 						new SlotInFactAddress(new org.jamocha.dn.memory.javaimpl.FactAddress(1),
 								new SlotAddress(0)) });
-		AddressFilter filter = new AddressFilter(new AddressFilterElement[] { fe });
+		AddressFilter filter =
+				new AddressFilter(new FactAddress[] {}, new FactAddress[] {},
+						new AddressFilterElement[] { fe });
 		MemoryHandlerPlusTemp token =
 				(MemoryHandlerPlusTemp) nodeRight.getMemory().newPlusToken(nodeRight,
 						new Fact(new Template(SlotType.STRING), "Fakt1"),

@@ -15,11 +15,13 @@
 
 package org.jamocha.dn.memory;
 
+import java.util.Map;
+import java.util.Set;
+
+import org.jamocha.dn.nodes.Edge;
 import org.jamocha.dn.nodes.Node;
-import org.jamocha.dn.nodes.Node.Edge;
-import org.jamocha.filter.Filter;
-import org.jamocha.filter.Filter.FilterElement;
 import org.jamocha.filter.Path;
+import org.jamocha.filter.PathFilter;
 
 /**
  * Interface for the different implementations of the memory component. The network uses this
@@ -65,7 +67,7 @@ public interface MemoryFactory {
 	 * @see MemoryHandlerMain
 	 * @see Edge
 	 */
-	public MemoryHandlerMain newMemoryHandlerMain(final Filter<? extends FilterElement> filter,
-			final Edge... edgesToBeJoined);
+	public MemoryHandlerMain newMemoryHandlerMain(final PathFilter filter,
+			final Map<Edge, Set<Path>> edgesAndPaths);
 
 }

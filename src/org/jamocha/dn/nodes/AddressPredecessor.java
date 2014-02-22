@@ -19,7 +19,6 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import org.jamocha.dn.memory.FactAddress;
-import org.jamocha.dn.nodes.Node.Edge;
 
 /**
  * Combines a {@link FactAddress fact address} with an {@link Edge edge}. Identifies a

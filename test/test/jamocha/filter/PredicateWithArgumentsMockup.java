@@ -4,9 +4,9 @@ import lombok.RequiredArgsConstructor;
 
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.filter.Function;
+import org.jamocha.filter.fwa.FunctionWithArgumentsVisitor;
 import org.jamocha.filter.fwa.PredicateWithArguments;
 import org.jamocha.filter.fwa.GenericWithArgumentsComposite.LazyObject;
-import org.jamocha.filter.visitor.FunctionWithArgumentsVisitor;
 import org.jamocha.filter.Path;
 
 @RequiredArgsConstructor

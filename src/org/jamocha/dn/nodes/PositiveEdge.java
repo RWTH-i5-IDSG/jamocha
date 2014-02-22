@@ -14,7 +14,6 @@
  */
 package org.jamocha.dn.nodes;
 
-import org.jamocha.dn.nodes.Node.Edge;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>

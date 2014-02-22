@@ -26,8 +26,8 @@ import lombok.ToString;
 import org.jamocha.dn.memory.SlotAddress;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.dn.nodes.CouldNotAcquireLockException;
-import org.jamocha.dn.nodes.NegativeEdge;
-import org.jamocha.dn.nodes.Node.Edge;
+import org.jamocha.dn.nodes.Edge;
+import org.jamocha.dn.nodes.NegativeExistentialEdge;
 import org.jamocha.dn.nodes.PositiveEdge;
 import org.jamocha.filter.AddressFilter;
 
@@ -264,7 +264,7 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 	@Override
 	public MemoryHandlerTemp newBetaTemp(
 			final org.jamocha.dn.memory.MemoryHandlerMain originatingMainHandler,
-			final NegativeEdge originIncomingEdge, final AddressFilter filter)
+			final NegativeExistentialEdge originIncomingEdge, final AddressFilter filter)
 			throws CouldNotAcquireLockException {
 		// FIXME implement
 		return null;
@@ -352,7 +352,7 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 	@Override
 	public MemoryHandlerTemp newAlphaTemp(
 			final org.jamocha.dn.memory.MemoryHandlerMain originatingMainHandler,
-			final NegativeEdge originIncomingEdge, final AddressFilter filter)
+			final NegativeExistentialEdge originIncomingEdge, final AddressFilter filter)
 			throws CouldNotAcquireLockException {
 		// FIXME implement
 		return null;

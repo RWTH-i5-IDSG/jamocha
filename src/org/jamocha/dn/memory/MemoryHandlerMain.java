@@ -15,9 +15,10 @@
 package org.jamocha.dn.memory;
 
 import org.jamocha.dn.nodes.CouldNotAcquireLockException;
-import org.jamocha.dn.nodes.NegativeEdge;
+import org.jamocha.dn.nodes.NegativeExistentialEdge;
 import org.jamocha.dn.nodes.Node;
 import org.jamocha.dn.nodes.PositiveEdge;
+import org.jamocha.dn.nodes.PositiveExistentialEdge;
 import org.jamocha.filter.AddressFilter;
 import org.jamocha.filter.Filter;
 
@@ -94,7 +95,7 @@ public interface MemoryHandlerMain extends MemoryHandler {
 	 * @param token
 	 *            {@link MemoryHandlerPlusTemp token} to join with all other inputs
 	 * @param originIncomingEdge
-	 *            {@link NegativeEdge negative edge} the token arrived on
+	 *            {@link PositiveExistentialEdge positive existential edge} the token arrived on
 	 * @param filter
 	 *            {@link Filter filter} to apply
 	 * @return {@link MemoryHandlerPlusTemp token} containing the result of the join
@@ -102,7 +103,25 @@ public interface MemoryHandlerMain extends MemoryHandler {
 	 *             iff one of the read locks could not be acquired
 	 */
 	public MemoryHandlerTemp processTokenInBeta(final MemoryHandlerTemp token,
-			final NegativeEdge originIncomingEdge, final AddressFilter filter)
+			final PositiveExistentialEdge originIncomingEdge, final AddressFilter filter)
+			throws CouldNotAcquireLockException;
+
+	/**
+	 * Creates a new {@link MemoryHandlerPlusTemp} that joins the given {@code token} with all other
+	 * incoming edges of the target beta {@link Node node} applying the given {@link Filter filter}.
+	 * 
+	 * @param token
+	 *            {@link MemoryHandlerPlusTemp token} to join with all other inputs
+	 * @param originIncomingEdge
+	 *            {@link NegativeExistentialEdge negative existential edge} the token arrived on
+	 * @param filter
+	 *            {@link Filter filter} to apply
+	 * @return {@link MemoryHandlerPlusTemp token} containing the result of the join
+	 * @throws CouldNotAcquireLockException
+	 *             iff one of the read locks could not be acquired
+	 */
+	public MemoryHandlerTemp processTokenInBeta(final MemoryHandlerTemp token,
+			final NegativeExistentialEdge originIncomingEdge, final AddressFilter filter)
 			throws CouldNotAcquireLockException;
 
 	/**
@@ -130,7 +149,7 @@ public interface MemoryHandlerMain extends MemoryHandler {
 	 * @param token
 	 *            {@link MemoryHandlerPlusTemp token} to process
 	 * @param originIncomingEdge
-	 *            {@link NegativeEdge negative edge} the token arrived on
+	 *            {@link PositiveExistentialEdge positive existential edge} the token arrived on
 	 * @param filter
 	 *            {@link Filter filter} filter to apply
 	 * @return {@link MemoryHandlerPlusTemp token} containing the result of the filter operation
@@ -138,7 +157,25 @@ public interface MemoryHandlerMain extends MemoryHandler {
 	 *             iff one of the read locks could not be acquired
 	 */
 	public MemoryHandlerTemp processTokenInAlpha(final MemoryHandlerTemp token,
-			final NegativeEdge originIncomingEdge, final AddressFilter filter)
+			final PositiveExistentialEdge originIncomingEdge, final AddressFilter filter)
+			throws CouldNotAcquireLockException;
+
+	/**
+	 * Creates a new {@link MemoryHandlerPlusTemp} that contains the part of the facts in the given
+	 * token that match the given filter.
+	 * 
+	 * @param token
+	 *            {@link MemoryHandlerPlusTemp token} to process
+	 * @param originIncomingEdge
+	 *            {@link NegativeExistentialEdge negative existential edge} the token arrived on
+	 * @param filter
+	 *            {@link Filter filter} filter to apply
+	 * @return {@link MemoryHandlerPlusTemp token} containing the result of the filter operation
+	 * @throws CouldNotAcquireLockException
+	 *             iff one of the read locks could not be acquired
+	 */
+	public MemoryHandlerTemp processTokenInAlpha(final MemoryHandlerTemp token,
+			final NegativeExistentialEdge originIncomingEdge, final AddressFilter filter)
 			throws CouldNotAcquireLockException;
 
 	/**

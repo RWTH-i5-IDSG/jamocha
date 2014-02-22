@@ -15,8 +15,11 @@
 
 package org.jamocha.dn.nodes;
 
+import gnu.trove.list.array.TIntArrayList;
+
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -27,7 +30,6 @@ import java.util.Queue;
 import java.util.Set;
 
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -35,22 +37,14 @@ import org.jamocha.dn.Network;
 import org.jamocha.dn.Token;
 import org.jamocha.dn.memory.FactAddress;
 import org.jamocha.dn.memory.MemoryHandlerMain;
-import org.jamocha.dn.memory.MemoryHandlerMinusTemp;
-import org.jamocha.dn.memory.MemoryHandlerPlusTemp;
 import org.jamocha.dn.memory.MemoryHandlerTemp;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.filter.AddressFilter;
 import org.jamocha.filter.AddressFilter.AddressFilterElement;
-import org.jamocha.filter.AddressFilter.ExistentialAddressFilterElement;
-import org.jamocha.filter.AddressFilter.NegatedExistentialAddressFilterElement;
+import org.jamocha.filter.FilterTranslator;
 import org.jamocha.filter.Path;
+import org.jamocha.filter.PathCollector;
 import org.jamocha.filter.PathFilter;
-import org.jamocha.filter.PathFilter.ExistentialPathFilterElement;
-import org.jamocha.filter.PathFilter.NegatedExistentialPathFilterElement;
-import org.jamocha.filter.PathFilter.PathFilterElement;
-import org.jamocha.filter.visitor.FilterElementVisitor;
-import org.jamocha.filter.visitor.FilterTranslator;
-import org.jamocha.filter.visitor.PathCollector;
 
 /**
  * Base class for all node types
@@ -61,59 +55,23 @@ import org.jamocha.filter.visitor.PathCollector;
  */
 public abstract class Node {
 
-	public static interface Edge {
-		public void processPlusToken(final MemoryHandlerTemp memory)
-				throws CouldNotAcquireLockException;
-
-		public void processMinusToken(final MemoryHandlerTemp memory)
-				throws CouldNotAcquireLockException;
-
-		public Node getSourceNode();
-
-		public Node getTargetNode();
-
-		/**
-		 * Transforms an address valid for the source node of the input into the corresponding
-		 * address valid for the target node of the input.
-		 * 
-		 * @param addressInSource
-		 *            an address valid in the source node of the input
-		 * @return an address valid in the target node of the input
-		 */
-		public FactAddress localizeAddress(final FactAddress addressInSource);
-
-		/**
-		 * Sets the map used for {@link Edge#localizeAddress(FactAddress)}
-		 * 
-		 * @param map
-		 *            Map used for {@link Edge#localizeAddress(FactAddress)}
-		 */
-		public void setAddressMap(final Map<? extends FactAddress, ? extends FactAddress> map);
-
-		/**
-		 * Disconnects the nodeInput from the formerly connected nodes. This will remove the input
-		 * from the target node inputs as well as from the source node children.
-		 * 
-		 */
-		public void disconnect();
-
-		public void setFilter(final AddressFilter filter);
-
-		public AddressFilter getFilter();
-
-		public LinkedList<MemoryHandlerPlusTemp> getTempMemories();
-
-		public void enqueuePlusMemory(final MemoryHandlerPlusTemp mem);
-
-		public void enqueueMinusMemory(final MemoryHandlerMinusTemp mem);
-	}
-
-	@AllArgsConstructor
+	/**
+	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+	 */
 	abstract protected class EdgeImpl implements Edge {
 		protected final Network network;
 		protected final Node sourceNode;
 		protected final Node targetNode;
 		protected AddressFilter filter;
+		protected int[] counterColumnPermutation;
+
+		protected EdgeImpl(final Network network, final Node sourceNode, final Node targetNode,
+				final AddressFilter filter) {
+			this.network = network;
+			this.sourceNode = sourceNode;
+			this.targetNode = targetNode;
+			setFilter(filter);
+		}
 
 		@Override
 		public Node getSourceNode() {
@@ -132,6 +90,8 @@ public abstract class Node {
 
 		@Override
 		public void setFilter(final AddressFilter filter) {
+			this.counterColumnPermutation =
+					determineCounterColumnPermutation(this.targetNode.getFilter(), filter);
 			this.filter = filter;
 		}
 
@@ -148,40 +108,26 @@ public abstract class Node {
 			this.targetNode.enqueue(new Token.MinusToken(mem, this));
 		}
 
-	}
-
-	abstract protected class PositiveEdgeImpl extends EdgeImpl implements PositiveEdge {
-		public PositiveEdgeImpl(final Network network, final Node sourceNode,
-				final Node targetNode, final AddressFilter filter) {
-			super(network, sourceNode, targetNode, filter);
-		}
-
 		@Override
-		public void enqueuePlusMemory(final MemoryHandlerPlusTemp mem) {
-			this.targetNode.enqueue(new Token.PlusToken(mem, this));
-		}
-
-		@Override
-		public void enqueueMinusMemory(final MemoryHandlerMinusTemp mem) {
-			this.targetNode.enqueue(new Token.MinusToken(mem, this));
+		public int getCounterColumnPosition(final int positionInNodeFilter) {
+			return this.counterColumnPermutation[positionInNodeFilter];
 		}
 	}
 
-	abstract protected class NegativeEdgeImpl extends EdgeImpl implements NegativeEdge {
-		public NegativeEdgeImpl(final Network network, final Node sourceNode,
-				final Node targetNode, final AddressFilter filter) {
-			super(network, sourceNode, targetNode, filter);
+	public static int[] determineCounterColumnPermutation(final AddressFilter base,
+			final AddressFilter different) {
+		final TIntArrayList permutation = new TIntArrayList(base.getFilterElements().length);
+		outerloop: for (final AddressFilterElement baseElement : base.getFilterElements()) {
+			final AddressFilterElement[] differentFilterElements = different.getFilterElements();
+			for (int i = 0; i < differentFilterElements.length; i++) {
+				final AddressFilterElement differentElement = differentFilterElements[i];
+				if (baseElement == differentElement) {
+					permutation.add(i);
+					continue outerloop;
+				}
+			}
 		}
-
-		@Override
-		public void enqueuePlusMemory(final MemoryHandlerPlusTemp mem) {
-			this.targetNode.enqueue(new Token.MinusToken(mem, this));
-		}
-
-		@Override
-		public void enqueueMinusMemory(final MemoryHandlerMinusTemp mem) {
-			this.targetNode.enqueue(new Token.PlusToken(mem, this));
-		}
+		return permutation.toArray();
 	}
 
 	@Getter
@@ -196,12 +142,22 @@ public abstract class Node {
 	final protected Collection<PositiveEdge> outgoingPositiveEdges = new LinkedList<>();
 
 	/**
-	 * Returns a collection of the outgoing negative edges.
+	 * Returns a collection of the outgoing positive existential edges.
 	 * 
-	 * @return a collection of the outgoing negative edges
+	 * @return a collection of the outgoing positive existential edges
 	 */
 	@Getter
-	final protected Collection<NegativeEdge> outgoingNegativeEdges = new LinkedList<>();
+	final protected Collection<PositiveExistentialEdge> outgoingPositiveExistentialEdges =
+			new LinkedList<>();
+
+	/**
+	 * Returns a collection of the outgoing negative existential edges.
+	 * 
+	 * @return a collection of the outgoing negative existential edges
+	 */
+	@Getter
+	final protected Collection<NegativeExistentialEdge> outgoingNegativeExistentialEdges =
+			new LinkedList<>();
 
 	final protected Map<FactAddress, AddressPredecessor> delocalizeMap = new HashMap<>();
 
@@ -263,12 +219,15 @@ public abstract class Node {
 		this.network = network;
 		this.tokenQueue = new TokenQueue(network);
 		this.incomingEdges = new Edge[parents.length];
+		final Map<Edge, Set<Path>> edgesAndPaths = new HashMap<>();
 		for (int i = 0; i < parents.length; i++) {
-			this.incomingEdges[i] = this.connectPositiveParent(parents[i]);
+			final Edge edge = this.connectPositiveParent(parents[i]);
+			this.incomingEdges[i] = edge;
+			edgesAndPaths.put(edge, null);
 		}
 		this.filter = AddressFilter.empty;
 		this.memory =
-				network.getMemoryFactory().newMemoryHandlerMain(this.filter, this.incomingEdges);
+				network.getMemoryFactory().newMemoryHandlerMain(PathFilter.empty, edgesAndPaths);
 	}
 
 	protected Node(final Network network, final Template template, final Path... paths) {
@@ -287,63 +246,56 @@ public abstract class Node {
 		final Map<Edge, Set<Path>> edgesAndPaths = new HashMap<>();
 		final ArrayList<Edge> edges = new ArrayList<>();
 		final Set<Path> joinedPaths = new HashSet<>();
+
+		for (final Path path : filter.getNegativeExistentialPaths()) {
+			// assert that no negative existential path is already joined with any positive
+			// existential path
+			assert Collections.disjoint(path.getJoinedWith(), filter.getPositiveExistentialPaths());
+			// create new edge from clNode to this
+			final Edge edge = connectNegativeExistentialParent(path.getCurrentlyLowestNode());
+			// mark all joined paths as done
+			markPathsInEdge(paths, edgesAndPaths, edges, path, edge);
+			// set current node to null to provoke a NullpointerException in case this path is used
+			// any further
+			for (final Path jwPath : path.getJoinedWith()) {
+				jwPath.setCurrentlyLowestNode(null);
+			}
+		}
+
+		for (final Path path : filter.getPositiveExistentialPaths()) {
+			// assert that no positive existential path is already joined with any negative
+			// existential path
+			assert Collections.disjoint(path.getJoinedWith(), filter.getNegativeExistentialPaths());
+			// create new edge from clNode to this
+			final Edge edge = connectPositiveExistentialParent(path.getCurrentlyLowestNode());
+			// mark all joined paths as done
+			markPathsInEdge(paths, edgesAndPaths, edges, path, edge);
+			// set current node to null to provoke a NullpointerException in case this path is used
+			// any further
+			for (final Path jwPath : path.getJoinedWith()) {
+				jwPath.setCurrentlyLowestNode(null);
+			}
+		}
+
 		while (!paths.isEmpty()) {
 			// get next path
 			final Path path = paths.iterator().next();
-			final Node clNode = path.getCurrentlyLowestNode();
+			// assert that a path not contained in any existential list is not joined with any
+			// existential path
+			assert Collections.disjoint(path.getJoinedWith(), filter.getPositiveExistentialPaths());
+			assert Collections.disjoint(path.getJoinedWith(), filter.getNegativeExistentialPaths());
 			// create new edge from clNode to this
-			final Edge edge = connectPositiveParent(clNode);
-			// mark all paths as done
-			final Set<Path> joinedWith = path.getJoinedWith();
-			joinedPaths.addAll(joinedWith);
-			paths.removeAll(joinedWith);
-			edgesAndPaths.put(edge, joinedWith);
-			edges.add(edge);
+			final Edge edge = connectPositiveParent(path.getCurrentlyLowestNode());
+			// mark all joined paths as done
+			markPathsInEdge(paths, edgesAndPaths, edges, path, edge);
+			// add paths to joined paths
+			joinedPaths.addAll(path.getJoinedWith());
 		}
-		// TODO does it work for every scenario to just go through the existentials after the common
-		// paths ?
-		for (final PathFilterElement filterElement : filter.getFilterElements()) {
-			filterElement.accept(new FilterElementVisitor() {
-				@Override
-				public void visit(final NegatedExistentialPathFilterElement fe) {
-					edges.add(connectNegativeParent(fe.getPath().getCurrentlyLowestNode()));
-				}
 
-				@Override
-				public void visit(final ExistentialPathFilterElement fe) {
-					final Path path = fe.getPath();
-					final Node clNode = path.getCurrentlyLowestNode();
-					final Edge edge = connectPositiveParent(clNode);
-					final Set<Path> joinedWith = path.getJoinedWith();
-					// TODO should we add existential paths to joinedWith ?
-					joinedPaths.addAll(joinedWith);
-					edgesAndPaths.put(edge, joinedWith);
-					edges.add(edge);
-				}
-
-				@Override
-				public void visit(final PathFilterElement fe) {
-					// skip
-				}
-
-				@Override
-				public void visit(final NegatedExistentialAddressFilterElement fe) {
-					throw new IllegalArgumentException("Can only be used for PathFilterElements!");
-				}
-
-				@Override
-				public void visit(final ExistentialAddressFilterElement fe) {
-					throw new IllegalArgumentException("Can only be used for PathFilterElements!");
-				}
-
-				@Override
-				public void visit(final AddressFilterElement fe) {
-					throw new IllegalArgumentException("Can only be used for PathFilterElements!");
-				}
-			});
-		}
 		this.incomingEdges = edges.toArray(new Edge[edges.size()]);
-		this.memory = network.getMemoryFactory().newMemoryHandlerMain(filter, this.incomingEdges);
+		// create new main memory
+		// this also produces translation maps on all our edges
+		this.memory = network.getMemoryFactory().newMemoryHandlerMain(filter, edgesAndPaths);
 		// update all Paths from joinedWith to new addresses
 		for (final Entry<Edge, Set<Path>> entry : edgesAndPaths.entrySet()) {
 			final Edge edge = entry.getKey();
@@ -363,14 +315,34 @@ public abstract class Node {
 		}
 	}
 
+	private void markPathsInEdge(final LinkedHashSet<Path> paths,
+			final Map<Edge, Set<Path>> edgesAndPaths, final ArrayList<Edge> edges, final Path path,
+			final Edge edge) {
+		// mark all paths as done
+		final Set<Path> joinedWith = path.getJoinedWith();
+		{
+			int sizeBefore = paths.size();
+			paths.removeAll(joinedWith);
+			assert sizeBefore - joinedWith.size() == paths.size();
+		}
+		edgesAndPaths.put(edge, joinedWith);
+		edges.add(edge);
+	}
+
 	protected Edge connectPositiveParent(final Node parent) {
 		final PositiveEdge edge = newPositiveEdge(parent);
 		parent.acceptEdgeToChild(edge);
 		return edge;
 	}
 
-	protected Edge connectNegativeParent(final Node parent) {
-		final NegativeEdge edge = newNegativeEdge(parent);
+	protected Edge connectPositiveExistentialParent(final Node parent) {
+		final PositiveExistentialEdge edge = newPositiveExistentialEdge(parent);
+		parent.acceptEdgeToChild(edge);
+		return edge;
+	}
+
+	protected Edge connectNegativeExistentialParent(final Node parent) {
+		final NegativeExistentialEdge edge = newNegativeExistentialEdge(parent);
 		parent.acceptEdgeToChild(edge);
 		return edge;
 	}
@@ -393,8 +365,19 @@ public abstract class Node {
 	 * @param edgeToChild
 	 *            the edge to the child to be added
 	 */
-	protected void acceptEdgeToChild(final NegativeEdge edgeToChild) {
-		this.outgoingNegativeEdges.add(edgeToChild);
+	protected void acceptEdgeToChild(final PositiveExistentialEdge edgeToChild) {
+		this.outgoingPositiveExistentialEdges.add(edgeToChild);
+	}
+
+	/**
+	 * Called when a child is added. Defaults to adding the edge to the child to the list of
+	 * outgoing edges.
+	 * 
+	 * @param edgeToChild
+	 *            the edge to the child to be added
+	 */
+	protected void acceptEdgeToChild(final NegativeExistentialEdge edgeToChild) {
+		this.outgoingNegativeExistentialEdges.add(edgeToChild);
 	}
 
 	/**
@@ -406,7 +389,8 @@ public abstract class Node {
 	 */
 	protected void removeChild(final Edge edgeToChild) {
 		this.outgoingPositiveEdges.remove(edgeToChild);
-		this.outgoingNegativeEdges.remove(edgeToChild);
+		this.outgoingNegativeExistentialEdges.remove(edgeToChild);
+		this.outgoingNegativeExistentialEdges.remove(edgeToChild);
 	}
 
 	/**
@@ -427,10 +411,21 @@ public abstract class Node {
 	 *            source node to connect to this node via a nodeInput to be constructed
 	 * @return NodeInput connecting the given source node with this node
 	 */
-	abstract protected NegativeEdge newNegativeEdge(final Node source);
+	abstract protected PositiveExistentialEdge newPositiveExistentialEdge(final Node source);
+
+	/**
+	 * Creates a new NodeInput which will connect this node (as the input's target node) and the
+	 * given source node (as its parent).
+	 * 
+	 * @param source
+	 *            source node to connect to this node via a nodeInput to be constructed
+	 * @return NodeInput connecting the given source node with this node
+	 */
+	abstract protected NegativeExistentialEdge newNegativeExistentialEdge(final Node source);
 
 	public int getNumberOfOutgoingEdges() {
-		return this.outgoingPositiveEdges.size() + this.outgoingNegativeEdges.size();
+		return this.outgoingPositiveEdges.size() + this.outgoingNegativeExistentialEdges.size()
+				+ this.outgoingPositiveExistentialEdges.size();
 	}
 
 	/**

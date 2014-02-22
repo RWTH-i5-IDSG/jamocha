@@ -16,4 +16,4 @@
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  * 
  */
-package org.jamocha.filter.visitor;
+package org.jamocha.visitor;

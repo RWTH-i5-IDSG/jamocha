@@ -16,7 +16,6 @@ package org.jamocha.filter.fwa;
 
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.filter.Predicate;
-import org.jamocha.filter.visitor.FunctionWithArgumentsVisitor;
 
 /**
  * Instantiation of {@link GenericWithArgumentsComposite} holding a Predicate.

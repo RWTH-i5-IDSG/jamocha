@@ -14,82 +14,53 @@
  */
 package org.jamocha.filter;
 
+import java.util.LinkedHashSet;
+
 import lombok.Getter;
 
-import org.jamocha.filter.fwa.FunctionWithArguments;
 import org.jamocha.filter.fwa.PredicateWithArguments;
-import org.jamocha.filter.visitor.FilterElementVisitor;
 
 /**
- * This class provides three FilterElement types:
- * <ul>
- * <li><b>PathFilterElement:</b> class for regular filter elements</li>
- * <li><b>ExistentialPathFilterElement:</b> class for existential filter elements, i.e. filter
- * elements using the <code>exists</code> keyword</li>
- * <li><b>NegatedExistentialPathFilterElement:</b> class for negated existential filter elements,
- * i.e. filter elements using the <code>not</code> keyword</li>
- * </ul>
- * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
 public class PathFilter extends Filter<PathFilter.PathFilterElement> {
+	public static PathFilter empty = new PathFilter(new LinkedHashSet<Path>(),
+			new LinkedHashSet<Path>(), new PathFilterElement[] {});
+
+	@Getter
+	protected final LinkedHashSet<Path> positiveExistentialPaths, negativeExistentialPaths;
+
 	public static class PathFilterElement extends Filter.FilterElement {
 		public PathFilterElement(final PredicateWithArguments function) {
 			super(function);
 		}
-
-		@Override
-		public <V extends FilterElementVisitor> V accept(final V visitor) {
-			visitor.visit(this);
-			return visitor;
-		}
-	}
-
-	@Getter
-	private static abstract class AbstractExistentialpathFilterElement extends PathFilterElement {
-		final Path path;
-
-		public AbstractExistentialpathFilterElement(final PredicateWithArguments function,
-				final Path path) {
-			super(function);
-			this.path = path;
-		}
-	}
-
-	public static class ExistentialPathFilterElement extends AbstractExistentialpathFilterElement {
-		public ExistentialPathFilterElement(final PredicateWithArguments function, final Path path) {
-			super(function, path);
-		}
-
-		@Override
-		public <V extends FilterElementVisitor> V accept(final V visitor) {
-			visitor.visit(this);
-			return visitor;
-		}
-	}
-
-	public static class NegatedExistentialPathFilterElement extends
-			AbstractExistentialpathFilterElement {
-		public NegatedExistentialPathFilterElement(final PredicateWithArguments function,
-				final Path path) {
-			super(function, path);
-		}
-
-		@Override
-		public <V extends FilterElementVisitor> V accept(final V visitor) {
-			visitor.visit(this);
-			return visitor;
-		}
 	}
 
 	/**
-	 * Constructs the filter. Checks that the given {@link FunctionWithArguments functions with
-	 * arguments} contain {@link Predicate predicates} on the top-level.
+	 * Constructs the filter using the given existential paths and filter elements.
 	 * 
-	 * @param predicates
-	 *            predicates to be used in the filter
+	 * @param positiveExistentialPaths
+	 *            positive existential paths
+	 * @param negativeExistentialPaths
+	 *            negative existential paths
+	 * @param filterElements
+	 *            filter elements to be used in the filter
 	 */
-	public PathFilter(final PathFilterElement... predicates) {
-		super(predicates);
+	public PathFilter(final LinkedHashSet<Path> positiveExistentialPaths,
+			final LinkedHashSet<Path> negativeExistentialPaths,
+			final PathFilterElement... filterElements) {
+		super(filterElements);
+		this.positiveExistentialPaths = positiveExistentialPaths;
+		this.negativeExistentialPaths = negativeExistentialPaths;
+	}
+
+	/**
+	 * Constructs the filter using the given filter elements without any existential paths.
+	 * 
+	 * @param filterElements
+	 *            filter elements to be used in the filter
+	 */
+	public PathFilter(final PathFilterElement... filterElements) {
+		this(new LinkedHashSet<Path>(), new LinkedHashSet<Path>(), filterElements);
 	}
 }

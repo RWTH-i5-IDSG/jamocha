@@ -12,25 +12,12 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package org.jamocha.filter.fwa;
-
-import org.jamocha.filter.Function;
+package org.jamocha.dn.nodes;
 
 /**
- * Instantiation of {@link GenericWithArgumentsComposite} holding a Function.
- * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+ * 
  */
-public class FunctionWithArgumentsComposite extends
-		GenericWithArgumentsComposite<Object, Function<?>> {
-	public FunctionWithArgumentsComposite(final Function<?> function,
-			final FunctionWithArguments... args) {
-		super(function, args);
-	}
+public interface NegativeExistentialEdge extends ExistentialEdge {
 
-	@Override
-	public <T extends FunctionWithArgumentsVisitor> T accept(final T visitor) {
-		visitor.visit(this);
-		return visitor;
-	}
 }

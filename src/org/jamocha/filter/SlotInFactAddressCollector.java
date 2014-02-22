@@ -12,7 +12,7 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package org.jamocha.filter.visitor;
+package org.jamocha.filter;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -21,9 +21,14 @@ import java.util.LinkedHashSet;
 import java.util.LinkedList;
 
 import org.jamocha.dn.nodes.SlotInFactAddress;
-import org.jamocha.filter.AddressFilter;
 import org.jamocha.filter.AddressFilter.AddressFilterElement;
 
+/**
+ * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+ * 
+ * @param <T>
+ *            Collection type the addresses are collected in
+ */
 public class SlotInFactAddressCollector<T extends Collection<SlotInFactAddress>> {
 
 	private final T addresses;

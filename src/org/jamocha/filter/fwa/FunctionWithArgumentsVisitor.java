@@ -1,10 +1,7 @@
-package org.jamocha.filter.visitor;
+package org.jamocha.filter.fwa;
 
-import org.jamocha.filter.fwa.ConstantLeaf;
-import org.jamocha.filter.fwa.FunctionWithArgumentsComposite;
-import org.jamocha.filter.fwa.PathLeaf;
-import org.jamocha.filter.fwa.PredicateWithArgumentsComposite;
 import org.jamocha.filter.fwa.PathLeaf.ParameterLeaf;
+import org.jamocha.visitor.Visitor;
 
 import test.jamocha.filter.PredicateWithArgumentsMockup;
 

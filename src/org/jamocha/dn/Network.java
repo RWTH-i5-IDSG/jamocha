@@ -27,17 +27,17 @@ import org.jamocha.dn.memory.MemoryHandlerMain;
 import org.jamocha.dn.memory.MemoryHandlerPlusTemp;
 import org.jamocha.dn.nodes.AlphaNode;
 import org.jamocha.dn.nodes.BetaNode;
+import org.jamocha.dn.nodes.Edge;
 import org.jamocha.dn.nodes.Node;
-import org.jamocha.dn.nodes.Node.Edge;
 import org.jamocha.dn.nodes.PositiveEdge;
 import org.jamocha.dn.nodes.RootNode;
 import org.jamocha.dn.nodes.TerminalNode;
 import org.jamocha.filter.AddressFilter;
+import org.jamocha.filter.FactAddressCollector;
+import org.jamocha.filter.FilterFunctionCompare;
 import org.jamocha.filter.Path;
+import org.jamocha.filter.PathCollector;
 import org.jamocha.filter.PathFilter;
-import org.jamocha.filter.visitor.FactAddressCollector;
-import org.jamocha.filter.visitor.FilterFunctionCompare;
-import org.jamocha.filter.visitor.PathCollector;
 
 /**
  * The Network class encapsulates the central objects for {@link MemoryFactory} and

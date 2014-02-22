@@ -23,7 +23,6 @@ import org.jamocha.dn.nodes.Node;
 import org.jamocha.dn.nodes.SlotInFactAddress;
 import org.jamocha.filter.Filter;
 import org.jamocha.filter.Filter.FilterElement;
-import org.jamocha.filter.visitor.FunctionWithArgumentsVisitor;
 import org.jamocha.filter.Function;
 import org.jamocha.filter.Path;
 

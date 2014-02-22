@@ -48,7 +48,7 @@ public class CounterTest {
 
 	@Test
 	public void testCounter() {
-		final Counter counter = new Counter(true, false);
+		final Counter counter = Counter.newCounter(true, false);
 		assertEquals(0, counter.size());
 		counter.addEmptyRow();
 		assertEquals(1, counter.size());
@@ -69,7 +69,7 @@ public class CounterTest {
 	@Test
 	public void testValidRow() {
 		final boolean negated[] = new boolean[] { false, true, false, false, true };
-		final Counter counter = new Counter(negated);
+		final Counter counter = Counter.newCounter(negated);
 		assertEquals(0, counter.size());
 		counter.addEmptyRow();
 		assertEquals(1, counter.size());
@@ -98,7 +98,7 @@ public class CounterTest {
 
 	@Test
 	public void testIncrementIntIntInt() {
-		final Counter counter = new Counter(false, true);
+		final Counter counter = Counter.newCounter(false, true);
 		assertEquals(0, counter.size());
 		counter.addEmptyRow();
 		assertEquals(1, counter.size());
@@ -123,7 +123,7 @@ public class CounterTest {
 
 	@Test
 	public void testIncrementIntInt() {
-		final Counter counter = new Counter(false, true);
+		final Counter counter = Counter.newCounter(false, true);
 		assertEquals(0, counter.size());
 		counter.addEmptyRow();
 		assertEquals(1, counter.size());
@@ -147,7 +147,7 @@ public class CounterTest {
 
 	@Test
 	public void testDecrementIntInt() {
-		final Counter counter = new Counter(false, true);
+		final Counter counter = Counter.newCounter(false, true);
 		assertEquals(0, counter.size());
 		counter.addEmptyRow();
 		assertEquals(1, counter.size());
@@ -171,7 +171,7 @@ public class CounterTest {
 
 	@Test
 	public void testDecrementIntIntInt() {
-		final Counter counter = new Counter(true, false);
+		final Counter counter = Counter.newCounter(true, false);
 		assertEquals(0, counter.size());
 		counter.addEmptyRow();
 		assertEquals(1, counter.size());

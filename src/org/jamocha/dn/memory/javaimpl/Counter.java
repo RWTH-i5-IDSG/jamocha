@@ -38,30 +38,50 @@ public class Counter {
 			emptyRowCache.add(new int[i]);
 		}
 	}
+	final static Counter empty = new Counter(new boolean[] {});
 	// actual attributes
 	final TIntArrayList counters = new TIntArrayList();
 	final int columns;
 	final boolean[] negated;
 	final int emptyRow[];
 
-	public Counter(final boolean... negated) {
-		this.columns = negated.length;
-		this.negated = negated;
-		int tempEmptyRow[];
+	private static int[] getEmptyRow(final int columns) {
 		try {
-			tempEmptyRow = emptyRowCache.get(this.columns);
+			return emptyRowCache.get(columns);
 		} catch (final IndexOutOfBoundsException e) {
-			for (int i = emptyRowCache.size(); i <= this.columns; ++i) {
+			for (int i = emptyRowCache.size(); i <= columns; ++i) {
 				assert i == emptyRowCache.size();
 				emptyRowCache.add(new int[i]);
 			}
-			tempEmptyRow = emptyRowCache.get(this.columns);
+			return emptyRowCache.get(columns);
 		}
-		this.emptyRow = tempEmptyRow;
 	}
 
-	public Counter(final Filter<? extends FilterElement> filter) {
-		this(ExistentialFilterElementCounter.getNegatedArrayFromFilter(filter));
+	protected Counter(final boolean[] negated) {
+		this(getEmptyRow(negated.length), negated);
+	}
+
+	protected Counter(final int[] emptyRow, final boolean[] negated) {
+		this.columns = negated.length;
+		this.negated = negated;
+		this.emptyRow = emptyRow;
+	}
+
+	public static Counter newCounter(final Filter<? extends FilterElement> filter) {
+		final boolean[] negatedArrayFromFilter =
+				ExistentialPathCounter.getNegatedArrayFromFilter(filter);
+		if (negatedArrayFromFilter.length == 1) {
+			return new Counter(negatedArrayFromFilter);
+		}
+		return new Counter(negatedArrayFromFilter);
+	}
+
+	public static Counter newCounter(final boolean... negated) {
+		return new Counter(negated);
+	}
+
+	public static Counter newEmptyCounter() {
+		return empty;
 	}
 
 	public int getCounter(final int row, final int column) {
@@ -127,5 +147,14 @@ public class Counter {
 
 	public int decrement(final int row, final int column, final int decrement) {
 		return increment(row, column, -decrement);
+	}
+
+	private static class OneCounter extends Counter {
+
+		protected OneCounter(boolean[] negated) {
+			super(negated);
+			// TODO Auto-generated constructor stub
+		}
+
 	}
 }

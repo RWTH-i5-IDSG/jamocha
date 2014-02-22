@@ -31,20 +31,17 @@ import org.jamocha.dn.memory.MemoryHandler;
 import org.jamocha.dn.memory.SlotAddress;
 import org.jamocha.dn.nodes.AddressPredecessor;
 import org.jamocha.dn.nodes.CouldNotAcquireLockException;
-import org.jamocha.dn.nodes.NegativeEdge;
+import org.jamocha.dn.nodes.Edge;
+import org.jamocha.dn.nodes.NegativeExistentialEdge;
 import org.jamocha.dn.nodes.Node;
-import org.jamocha.dn.nodes.Node.Edge;
 import org.jamocha.dn.nodes.PositiveEdge;
+import org.jamocha.dn.nodes.PositiveExistentialEdge;
 import org.jamocha.dn.nodes.SlotInFactAddress;
 import org.jamocha.filter.AddressFilter;
 import org.jamocha.filter.AddressFilter.AddressFilterElement;
-import org.jamocha.filter.AddressFilter.ExistentialAddressFilterElement;
-import org.jamocha.filter.AddressFilter.NegatedExistentialAddressFilterElement;
-import org.jamocha.filter.PathFilter.ExistentialPathFilterElement;
-import org.jamocha.filter.PathFilter.NegatedExistentialPathFilterElement;
 import org.jamocha.filter.PathFilter.PathFilterElement;
 import org.jamocha.filter.fwa.FunctionWithArguments;
-import org.jamocha.filter.visitor.FilterElementVisitor;
+import org.jamocha.visitor.Visitor;
 
 /**
  * Java-implementation of the {@link org.jamocha.dn.memory.MemoryHandlerPlusTemp} interface.
@@ -93,7 +90,8 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 	static MemoryHandlerPlusTemp newBetaTemp(final MemoryHandlerMain originatingMainHandler,
 			final MemoryHandlerPlusTemp token, final Edge originIncomingEdge,
 			final AddressFilter filter) throws CouldNotAcquireLockException {
-		final Counter counter = new Counter();
+		// FIXME counter
+		final Counter counter = Counter.newCounter(filter);
 		return new MemoryHandlerPlusTemp(originatingMainHandler, getLocksAndPerformJoin(
 				originatingMainHandler, filter, token, originIncomingEdge, counter),
 				originIncomingEdge.getTargetNode().getNumberOfOutgoingEdges());
@@ -111,7 +109,16 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 	@Override
 	public MemoryHandlerPlusTemp newBetaTemp(
 			final org.jamocha.dn.memory.MemoryHandlerMain originatingMainHandler,
-			final NegativeEdge originIncomingEdge, final AddressFilter filter)
+			final PositiveExistentialEdge originIncomingEdge, final AddressFilter filter)
+			throws CouldNotAcquireLockException {
+		// FIXME implement
+		return null;
+	}
+
+	@Override
+	public MemoryHandlerPlusTemp newBetaTemp(
+			final org.jamocha.dn.memory.MemoryHandlerMain originatingMainHandler,
+			final NegativeExistentialEdge originIncomingEdge, final AddressFilter filter)
 			throws CouldNotAcquireLockException {
 		// FIXME implement
 		return null;
@@ -147,7 +154,16 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 	@Override
 	public MemoryHandlerPlusTemp newAlphaTemp(
 			final org.jamocha.dn.memory.MemoryHandlerMain originatingMainHandler,
-			final NegativeEdge originIncomingEdge, final AddressFilter filter)
+			final PositiveExistentialEdge originIncomingEdge, final AddressFilter filter)
+			throws CouldNotAcquireLockException {
+		// FIXME implement
+		return null;
+	}
+
+	@Override
+	public MemoryHandlerPlusTemp newAlphaTemp(
+			final org.jamocha.dn.memory.MemoryHandlerMain originatingMainHandler,
+			final NegativeExistentialEdge originIncomingEdge, final AddressFilter filter)
 			throws CouldNotAcquireLockException {
 		// FIXME implement
 		return null;
@@ -363,6 +379,10 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 		int value;
 	}
 
+	/*
+	 * Assumption: every existentially quantified path/address is only used in a single filter
+	 * element.
+	 */
 	private static void performJoin(final AddressFilter filter, final Node targetNode,
 			final LinkedHashMap<Edge, StackElement> edgeToStack, final Edge originEdge,
 			final Counter counter) {
@@ -372,7 +392,8 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 
 		// order of counter columns depends on order of them in the filter passed to node ctor
 		final AddressFilter counterOrderFilter = originEdge.getTargetNode().getFilter();
-		
+		originEdge.getCounterColumnPosition(1);
+
 		final IntegerHolder counterColumn = new IntegerHolder(), counterRow = new IntegerHolder();
 		// FIXME assumption: there are no more regular filter elements after the first existential
 		// or negated existential filter element in the filterSteps
@@ -396,8 +417,9 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 				}
 			}
 
-			filterElement.accept(new FilterElementVisitor() {
-				@Override
+			//filterElement.
+			
+			org.jamocha.visitor.Visitor visitor = new Visitor() {
 				public void visit(final AddressFilterElement fe) {
 					final ArrayList<Fact[]> TR = new ArrayList<>();
 					loop(new FunctionPointer() {
@@ -442,14 +464,7 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 					}
 				}
 
-				@Override
-				public void visit(final ExistentialAddressFilterElement fe) {
-					// TODO Auto-generated method stub
-
-				}
-
-				@Override
-				public void visit(final NegatedExistentialAddressFilterElement fe) {
+				public void visitNegatedExistential(final AddressFilterElement fe) {
 					if (counter.size() == 0) {
 						counter.addEmptyRows(originElement.memStack.get(0).size());
 					}
@@ -483,21 +498,7 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 					++counterColumn.value;
 				}
 
-				@Override
-				public void visit(final PathFilterElement fe) {
-					throw new UnsupportedOperationException();
-				}
-
-				@Override
-				public void visit(final ExistentialPathFilterElement fe) {
-					throw new UnsupportedOperationException();
-				}
-
-				@Override
-				public void visit(final NegatedExistentialPathFilterElement fe) {
-					throw new UnsupportedOperationException();
-				}
-			});
+			};
 		}
 		if (!originElement.checkRowBounds()) {
 			return;

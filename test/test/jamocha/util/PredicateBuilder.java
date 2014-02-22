@@ -14,14 +14,11 @@
  */
 package test.jamocha.util;
 
-import org.jamocha.filter.Path;
-import org.jamocha.filter.PathFilter.ExistentialPathFilterElement;
-import org.jamocha.filter.PathFilter.NegatedExistentialPathFilterElement;
 import org.jamocha.filter.PathFilter.PathFilterElement;
+import org.jamocha.filter.Predicate;
 import org.jamocha.filter.fwa.FunctionWithArguments;
 import org.jamocha.filter.fwa.PredicateWithArguments;
 import org.jamocha.filter.fwa.PredicateWithArgumentsComposite;
-import org.jamocha.filter.Predicate;
 
 /**
  * 
@@ -44,13 +41,5 @@ public class PredicateBuilder extends GenericBuilder<Boolean, Predicate, Predica
 
 	public PathFilterElement buildPFE() {
 		return new PathFilterElement(build());
-	}
-
-	public ExistentialPathFilterElement buildExPFE(final Path path) {
-		return new ExistentialPathFilterElement(build(), path);
-	}
-
-	public NegatedExistentialPathFilterElement buildNonExPFE(final Path path) {
-		return new NegatedExistentialPathFilterElement(build(), path);
 	}
 }

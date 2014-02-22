@@ -107,10 +107,65 @@ public class BetaNode extends Node {
 		public void enqueueMinusMemory(final MemoryHandlerMinusTemp mem) {
 			newMinusToken(mem);
 		}
+
+		@Override
+		public <V extends EdgeVisitor> V accept(final V visitor) {
+			visitor.visit(this);
+			return visitor;
+		}
 	}
 
-	protected class NegativeBetaEdgeImpl extends BetaEdgeImpl implements NegativeEdge {
-		public NegativeBetaEdgeImpl(final Network network, final Node sourceNode,
+	protected class PositiveExistentialBetaEdgeImpl extends BetaEdgeImpl implements
+			PositiveExistentialEdge {
+		public PositiveExistentialBetaEdgeImpl(final Network network, final Node sourceNode,
+				final Node targetNode, final AddressFilter filter) {
+			super(network, sourceNode, targetNode, filter);
+		}
+
+		@Override
+		public void processPlusToken(final MemoryHandlerTemp memory)
+				throws CouldNotAcquireLockException {
+			// TODO negative
+			final MemoryHandlerTemp mem =
+					this.targetNode.memory.processTokenInBeta(memory, this, this.filter);
+			if (mem.size() == 0) {
+				return;
+			}
+			mem.enqueueInEdges(this.targetNode.outgoingPositiveEdges);
+		}
+
+		@Override
+		public void processMinusToken(final MemoryHandlerTemp memory)
+				throws CouldNotAcquireLockException {
+			// TODO negative
+			final MemoryHandlerTemp mem =
+					this.targetNode.memory.processTokenInBeta(memory, this, this.filter);
+			if (mem.size() == 0) {
+				return;
+			}
+			mem.enqueueInEdges(this.targetNode.outgoingPositiveEdges);
+		}
+
+		@Override
+		public void enqueuePlusMemory(final MemoryHandlerPlusTemp mem) {
+			newPlusToken(mem);
+		}
+
+		@Override
+		public void enqueueMinusMemory(final MemoryHandlerMinusTemp mem) {
+			newMinusToken(mem);
+		}
+
+		@Override
+		public <V extends EdgeVisitor> V accept(final V visitor) {
+			visitor.visit(this);
+			return visitor;
+		}
+	}
+
+	protected class NegativeExistentialBetaEdgeImpl extends BetaEdgeImpl implements
+			NegativeExistentialEdge {
+		public NegativeExistentialBetaEdgeImpl(final Network network, final Node sourceNode,
 				final Node targetNode, final AddressFilter filter) {
 			super(network, sourceNode, targetNode, filter);
 		}
@@ -148,6 +203,12 @@ public class BetaNode extends Node {
 		public void enqueueMinusMemory(final MemoryHandlerMinusTemp mem) {
 			newPlusToken(mem);
 		}
+
+		@Override
+		public <V extends EdgeVisitor> V accept(final V visitor) {
+			visitor.visit(this);
+			return visitor;
+		}
 	}
 
 	public BetaNode(final Network network, final PathFilter filter) {
@@ -160,8 +221,13 @@ public class BetaNode extends Node {
 	}
 
 	@Override
-	protected NegativeEdge newNegativeEdge(final Node source) {
-		return new NegativeBetaEdgeImpl(this.network, source, this, this.filter);
+	protected PositiveExistentialEdge newPositiveExistentialEdge(final Node source) {
+		return new PositiveExistentialBetaEdgeImpl(this.network, source, this, this.filter);
+	}
+
+	@Override
+	protected NegativeExistentialEdge newNegativeExistentialEdge(final Node source) {
+		return new NegativeExistentialBetaEdgeImpl(this.network, source, this, this.filter);
 	}
 
 	@Override

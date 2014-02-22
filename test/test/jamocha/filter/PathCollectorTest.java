@@ -23,9 +23,9 @@ import static org.junit.Assert.assertThat;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.filter.FunctionDictionary;
 import org.jamocha.filter.Path;
+import org.jamocha.filter.PathCollector;
 import org.jamocha.filter.PathFilter;
 import org.jamocha.filter.Predicate;
-import org.jamocha.filter.visitor.PathCollector;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -120,7 +120,7 @@ public class PathCollectorTest {
 	}
 
 	/**
-	 * Test method for {@link org.jamocha.filter.visitor.PathCollector#newHashSet()}.
+	 * Test method for {@link org.jamocha.filter.PathCollector#newHashSet()}.
 	 */
 	@Test
 	public void testNewHashSet() {
@@ -134,7 +134,7 @@ public class PathCollectorTest {
 	}
 
 	/**
-	 * Test method for {@link org.jamocha.filter.visitor.PathCollector#newLinkedHashSet()}.
+	 * Test method for {@link org.jamocha.filter.PathCollector#newLinkedHashSet()}.
 	 */
 	@Test
 	public void testNewLinkedHashSet() {
@@ -155,7 +155,7 @@ public class PathCollectorTest {
 	}
 
 	/**
-	 * Test method for {@link org.jamocha.filter.visitor.PathCollector#newArrayList()}.
+	 * Test method for {@link org.jamocha.filter.PathCollector#newArrayList()}.
 	 */
 	@Test
 	public void testNewArrayList() {
@@ -176,7 +176,7 @@ public class PathCollectorTest {
 	}
 
 	/**
-	 * Test method for {@link org.jamocha.filter.visitor.PathCollector#newLinkedList()}.
+	 * Test method for {@link org.jamocha.filter.PathCollector#newLinkedList()}.
 	 */
 	@Test
 	public void testNewLinkedList() {

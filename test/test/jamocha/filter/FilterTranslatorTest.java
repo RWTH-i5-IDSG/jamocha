@@ -20,12 +20,12 @@ import static org.junit.Assert.assertArrayEquals;
 
 import org.jamocha.dn.memory.Template;
 import org.jamocha.dn.nodes.SlotInFactAddress;
+import org.jamocha.filter.FilterTranslator;
 import org.jamocha.filter.FunctionDictionary;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.PathFilter;
 import org.jamocha.filter.Predicate;
-import org.jamocha.filter.visitor.FilterTranslator;
-import org.jamocha.filter.visitor.SlotInFactAddressCollector;
+import org.jamocha.filter.SlotInFactAddressCollector;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -123,7 +123,7 @@ public class FilterTranslatorTest {
 
 	/**
 	 * Test method for
-	 * {@link org.jamocha.filter.visitor.FilterTranslator#translate(org.jamocha.filter.PathFilter)}.
+	 * {@link org.jamocha.filter.FilterTranslator#translate(org.jamocha.filter.PathFilter)}.
 	 */
 	@Test
 	public void testTranslate() {

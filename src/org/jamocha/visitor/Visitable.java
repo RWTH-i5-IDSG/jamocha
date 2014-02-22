@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2013 The Jamocha Team
+ * Copyright 2002-2014 The Jamocha Team
  * 
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
@@ -12,25 +12,11 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package org.jamocha.filter.fwa;
-
-import org.jamocha.filter.Function;
+package org.jamocha.visitor;
 
 /**
- * Instantiation of {@link GenericWithArgumentsComposite} holding a Function.
- * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
-public class FunctionWithArgumentsComposite extends
-		GenericWithArgumentsComposite<Object, Function<?>> {
-	public FunctionWithArgumentsComposite(final Function<?> function,
-			final FunctionWithArguments... args) {
-		super(function, args);
-	}
-
-	@Override
-	public <T extends FunctionWithArgumentsVisitor> T accept(final T visitor) {
-		visitor.visit(this);
-		return visitor;
-	}
+public interface Visitable<T extends Visitor> {
+	<V extends T> V accept(final V visitor);
 }

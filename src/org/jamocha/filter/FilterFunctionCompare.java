@@ -12,17 +12,16 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package org.jamocha.filter.visitor;
+package org.jamocha.filter;
 
 import lombok.RequiredArgsConstructor;
 
-import org.jamocha.filter.AddressFilter;
 import org.jamocha.filter.AddressFilter.AddressFilterElement;
-import org.jamocha.filter.PathFilter;
 import org.jamocha.filter.PathFilter.PathFilterElement;
 import org.jamocha.filter.fwa.ConstantLeaf;
 import org.jamocha.filter.fwa.FunctionWithArguments;
 import org.jamocha.filter.fwa.FunctionWithArgumentsComposite;
+import org.jamocha.filter.fwa.FunctionWithArgumentsVisitor;
 import org.jamocha.filter.fwa.GenericWithArgumentsComposite;
 import org.jamocha.filter.fwa.PathLeaf;
 import org.jamocha.filter.fwa.PathLeaf.ParameterLeaf;

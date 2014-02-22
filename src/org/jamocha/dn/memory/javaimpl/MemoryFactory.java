@@ -14,11 +14,13 @@
  */
 package org.jamocha.dn.memory.javaimpl;
 
+import java.util.Map;
+import java.util.Set;
+
 import org.jamocha.dn.memory.Template;
-import org.jamocha.dn.nodes.Node.Edge;
-import org.jamocha.filter.Filter;
-import org.jamocha.filter.Filter.FilterElement;
+import org.jamocha.dn.nodes.Edge;
 import org.jamocha.filter.Path;
+import org.jamocha.filter.PathFilter;
 
 /**
  * Implementation of the {@link org.jamocha.dn.memory.MemoryFactory} interface. Supplies a singleton
@@ -52,9 +54,9 @@ public class MemoryFactory implements org.jamocha.dn.memory.MemoryFactory {
 	}
 
 	@Override
-	public MemoryHandlerMain newMemoryHandlerMain(final Filter<? extends FilterElement> filter,
-			final Edge... edgesToBeJoined) {
-		return MemoryHandlerMain.newMemoryHandlerMain(filter, edgesToBeJoined);
+	public MemoryHandlerMain newMemoryHandlerMain(final PathFilter filter,
+			final Map<Edge, Set<Path>> edgesAndPaths) {
+		return MemoryHandlerMain.newMemoryHandlerMain(filter, edgesAndPaths);
 	}
 
 }

@@ -20,8 +20,8 @@ import lombok.Getter;
 import org.jamocha.dn.memory.MemoryHandlerPlusTemp;
 import org.jamocha.dn.memory.MemoryHandlerTemp;
 import org.jamocha.dn.nodes.CouldNotAcquireLockException;
+import org.jamocha.dn.nodes.Edge;
 import org.jamocha.dn.nodes.Node;
-import org.jamocha.dn.nodes.Node.Edge;
 
 /**
  * This class contains a {@link MemoryHandlerPlusTemp} and the {@linkplain Edge edge} it has to be

@@ -107,10 +107,64 @@ public class AlphaNode extends Node {
 			newMinusToken(mem);
 		}
 
+		@Override
+		public <V extends EdgeVisitor> V accept(final V visitor) {
+			visitor.visit(this);
+			return visitor;
+		}
 	}
 
-	protected class NegativeAlphaEdgeImpl extends AlphaEdgeImpl implements NegativeEdge {
-		public NegativeAlphaEdgeImpl(final Network network, final Node sourceNode,
+	protected class PositiveExistentialAlphaEdgeImpl extends AlphaEdgeImpl implements
+			PositiveExistentialEdge {
+		public PositiveExistentialAlphaEdgeImpl(final Network network, final Node sourceNode,
+				final Node targetNode, final AddressFilter filter) {
+			super(network, sourceNode, targetNode, filter);
+		}
+
+		@Override
+		public void processPlusToken(final MemoryHandlerTemp memory)
+				throws CouldNotAcquireLockException {
+			// TODO negative
+			final MemoryHandlerTemp mem =
+					this.targetNode.memory.processTokenInAlpha(memory, this, this.filter);
+			if (mem.size() == 0) {
+				return;
+			}
+			mem.enqueueInEdges(this.targetNode.outgoingPositiveEdges);
+		}
+
+		@Override
+		public void processMinusToken(final MemoryHandlerTemp memory)
+				throws CouldNotAcquireLockException {
+			// TODO negative
+			final MemoryHandlerTemp mem =
+					this.targetNode.memory.processTokenInAlpha(memory, this, this.filter);
+			if (mem.size() == 0) {
+				return;
+			}
+			mem.enqueueInEdges(this.targetNode.outgoingPositiveEdges);
+		}
+
+		@Override
+		public void enqueuePlusMemory(final MemoryHandlerPlusTemp mem) {
+			newPlusToken(mem);
+		}
+
+		@Override
+		public void enqueueMinusMemory(final MemoryHandlerMinusTemp mem) {
+			newMinusToken(mem);
+		}
+
+		@Override
+		public <V extends EdgeVisitor> V accept(final V visitor) {
+			visitor.visit(this);
+			return visitor;
+		}
+	}
+
+	protected class NegativeExistentialAlphaEdgeImpl extends AlphaEdgeImpl implements
+			NegativeExistentialEdge {
+		public NegativeExistentialAlphaEdgeImpl(final Network network, final Node sourceNode,
 				final Node targetNode, final AddressFilter filter) {
 			super(network, sourceNode, targetNode, filter);
 		}
@@ -149,6 +203,11 @@ public class AlphaNode extends Node {
 			newPlusToken(mem);
 		}
 
+		@Override
+		public <V extends EdgeVisitor> V accept(final V visitor) {
+			visitor.visit(this);
+			return visitor;
+		}
 	}
 
 	protected AlphaNode(final Network network, final Template template, final Path... paths) {
@@ -165,8 +224,13 @@ public class AlphaNode extends Node {
 	}
 
 	@Override
-	protected NegativeEdge newNegativeEdge(final Node source) {
-		return new NegativeAlphaEdgeImpl(this.network, source, this, this.filter);
+	protected PositiveExistentialEdge newPositiveExistentialEdge(final Node source) {
+		return new PositiveExistentialAlphaEdgeImpl(this.network, source, this, this.filter);
+	}
+
+	@Override
+	protected NegativeExistentialEdge newNegativeExistentialEdge(final Node source) {
+		return new NegativeExistentialAlphaEdgeImpl(this.network, source, this, this.filter);
 	}
 
 	@Override

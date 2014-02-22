@@ -115,6 +115,11 @@ public class TerminalNode {
 		}
 
 		@Override
+		public int getCounterColumnPosition(int positionInNodeFilter) {
+			return positionInNodeFilter;
+		}
+
+		@Override
 		public void enqueuePlusMemory(final MemoryHandlerPlusTemp mem) {
 			if (0 == mem.size())
 				return;
@@ -140,6 +145,11 @@ public class TerminalNode {
 			}
 		}
 
+		@Override
+		public <V extends EdgeVisitor> V accept(final V visitor) {
+			visitor.visit(this);
+			return visitor;
+		}
 	}
 
 	/**

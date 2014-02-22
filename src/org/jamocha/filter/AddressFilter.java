@@ -19,26 +19,24 @@ import lombok.Getter;
 import org.jamocha.dn.memory.FactAddress;
 import org.jamocha.dn.nodes.SlotInFactAddress;
 import org.jamocha.filter.fwa.PredicateWithArguments;
-import org.jamocha.filter.visitor.FilterElementVisitor;
 
 /**
- * This class provides three FilterElement types:
- * <ul>
- * <li><b>AddressFilterElement:</b> class for regular filter elements</li>
- * <li><b>ExistentialAddressFilterElement:</b> class for existential filter elements, i.e. filter
- * elements using the <code>exists</code> keyword</li>
- * <li><b>NegatedExistentialAddressFilterElement:</b> class for negated existential filter elements,
- * i.e. filter elements using the <code>not</code> keyword</li>
- * </ul>
- * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
 public class AddressFilter extends Filter<AddressFilter.AddressFilterElement> {
 
-	public static AddressFilter empty = new AddressFilter(new AddressFilterElement[] {});
+	public static AddressFilter empty = new AddressFilter(new FactAddress[] {},
+			new FactAddress[] {}, new AddressFilterElement[] {});
 
-	public AddressFilter(final AddressFilterElement[] filterElements) {
+	@Getter
+	protected final FactAddress positiveExistentialAddresses[], negativeExistentialAddresses[];
+
+	public AddressFilter(final FactAddress[] positiveExistentialAddresses,
+			final FactAddress[] negativeExistentialAddresses,
+			final AddressFilterElement[] filterElements) {
 		super(filterElements);
+		this.positiveExistentialAddresses = positiveExistentialAddresses;
+		this.negativeExistentialAddresses = negativeExistentialAddresses;
 	}
 
 	@Getter
@@ -51,53 +49,24 @@ public class AddressFilter extends Filter<AddressFilter.AddressFilterElement> {
 			this.addressesInTarget = addressesInTarget;
 		}
 
-		@Override
-		public <V extends FilterElementVisitor> V accept(final V visitor) {
-			visitor.visit(this);
-			return visitor;
+		public int getCounterColumnIndex() {
+			return -1;
 		}
 	}
 
-	@Getter
-	private static abstract class AbstractExistentialAddressFilterElement extends
-			AddressFilterElement {
-		final FactAddress existentialAddressInTarget;
+	public static class ExistentialAddressFilterElement extends AddressFilterElement {
+		final int counterColumnIndex;
 
-		public AbstractExistentialAddressFilterElement(final PredicateWithArguments function,
-				final SlotInFactAddress[] addressesInTarget,
-				final FactAddress existentialAddressInTarget) {
-			super(function, addressesInTarget);
-			this.existentialAddressInTarget = existentialAddressInTarget;
-		}
-	}
-
-	public static class ExistentialAddressFilterElement extends
-			AbstractExistentialAddressFilterElement {
 		public ExistentialAddressFilterElement(final PredicateWithArguments function,
-				final SlotInFactAddress[] addressesInTarget,
-				final FactAddress existentialAddressInTarget) {
-			super(function, addressesInTarget, existentialAddressInTarget);
+				final SlotInFactAddress[] addressesInTarget, final int counterColumnIndex) {
+			super(function, addressesInTarget);
+			this.counterColumnIndex = counterColumnIndex;
 		}
 
 		@Override
-		public <V extends FilterElementVisitor> V accept(final V visitor) {
-			visitor.visit(this);
-			return visitor;
+		public int getCounterColumnIndex() {
+			return this.counterColumnIndex;
 		}
 	}
 
-	public static class NegatedExistentialAddressFilterElement extends
-			AbstractExistentialAddressFilterElement {
-		public NegatedExistentialAddressFilterElement(final PredicateWithArguments function,
-				final SlotInFactAddress[] addressesInTarget,
-				final FactAddress existentialAddressInTarget) {
-			super(function, addressesInTarget, existentialAddressInTarget);
-		}
-
-		@Override
-		public <V extends FilterElementVisitor> V accept(final V visitor) {
-			visitor.visit(this);
-			return visitor;
-		}
-	}
 }

@@ -19,7 +19,6 @@ import lombok.Getter;
 
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.filter.Function;
-import org.jamocha.filter.visitor.FunctionWithArgumentsVisitor;
 
 /**
  * A parameter of a {@link Function} may be a constant value specified in the parsed representation

@@ -12,7 +12,7 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package org.jamocha.filter.visitor;
+package org.jamocha.filter;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -20,20 +20,26 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 
-import org.jamocha.filter.Path;
-import org.jamocha.filter.PathFilter;
 import org.jamocha.filter.PathFilter.PathFilterElement;
 import org.jamocha.filter.fwa.ConstantLeaf;
 import org.jamocha.filter.fwa.FunctionWithArguments;
 import org.jamocha.filter.fwa.FunctionWithArgumentsComposite;
+import org.jamocha.filter.fwa.FunctionWithArgumentsVisitor;
 import org.jamocha.filter.fwa.PathLeaf;
-import org.jamocha.filter.fwa.PredicateWithArgumentsComposite;
 import org.jamocha.filter.fwa.PathLeaf.ParameterLeaf;
+import org.jamocha.filter.fwa.PredicateWithArgumentsComposite;
 
 import test.jamocha.filter.PredicateWithArgumentsMockup;
 
-public class PathCollector<T extends Collection<Path>> implements FunctionWithArgumentsVisitor { //, FilterElementVisitor {
-
+/**
+ * Collects all paths used within the filter.
+ * 
+ * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+ * 
+ * @param <T>
+ *            collection type to use while collecting the paths
+ */
+public class PathCollector<T extends Collection<Path>> implements FunctionWithArgumentsVisitor {
 	private final T paths;
 
 	public PathCollector(final T paths) {
@@ -41,6 +47,8 @@ public class PathCollector<T extends Collection<Path>> implements FunctionWithAr
 	}
 
 	public PathCollector<T> collect(final PathFilter filter) {
+		this.paths.addAll(filter.getPositiveExistentialPaths());
+		this.paths.addAll(filter.getNegativeExistentialPaths());
 		for (final PathFilterElement filterElement : filter.getFilterElements()) {
 			collect(filterElement);
 		}

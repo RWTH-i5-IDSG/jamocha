@@ -16,9 +16,14 @@ package org.jamocha.dn.memory.javaimpl;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Queue;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -28,14 +33,15 @@ import lombok.ToString;
 
 import org.jamocha.dn.memory.Template;
 import org.jamocha.dn.nodes.CouldNotAcquireLockException;
-import org.jamocha.dn.nodes.NegativeEdge;
+import org.jamocha.dn.nodes.Edge;
+import org.jamocha.dn.nodes.NegativeExistentialEdge;
 import org.jamocha.dn.nodes.Node;
-import org.jamocha.dn.nodes.Node.Edge;
 import org.jamocha.dn.nodes.PositiveEdge;
+import org.jamocha.dn.nodes.PositiveExistentialEdge;
 import org.jamocha.filter.AddressFilter;
-import org.jamocha.filter.Filter;
-import org.jamocha.filter.Filter.FilterElement;
 import org.jamocha.filter.Path;
+import org.jamocha.filter.PathCollector;
+import org.jamocha.filter.PathFilter;
 
 /**
  * Java-implementation of the {@link org.jamocha.dn.memory.MemoryHandlerMain} interface.
@@ -51,6 +57,8 @@ public class MemoryHandlerMain extends MemoryHandlerBase implements
 	static final TimeUnit tu = TimeUnit.SECONDS;
 
 	final ReadWriteLock lock = new ReentrantReadWriteLock(true);
+	// each fact address corresponds to the template at the same index for 0<=i<template.length and
+	// to a counter column for template.length<=i<addresses.length
 	final FactAddress[] addresses;
 	@Getter
 	final protected Queue<MemoryHandlerPlusTemp> validOutgoingPlusTokens = new LinkedList<>();
@@ -64,7 +72,7 @@ public class MemoryHandlerMain extends MemoryHandlerBase implements
 			path.setFactAddressInCurrentlyLowestNode(address);
 			Path.setJoinedWithForAll(path);
 		}
-		this.counter = new Counter();
+		this.counter = Counter.newEmptyCounter();
 	}
 
 	MemoryHandlerMain(final Template[] template, final List<Fact[]> facts, final Counter counter,
@@ -74,28 +82,62 @@ public class MemoryHandlerMain extends MemoryHandlerBase implements
 		this.counter = counter;
 	}
 
-	public static MemoryHandlerMain newMemoryHandlerMain(
-			final Filter<? extends FilterElement> filter, final Edge... edgesToBeJoined) {
+	public static MemoryHandlerMain newMemoryHandlerMain(final PathFilter filter,
+			final Map<Edge, Set<Path>> edgesAndPaths) {
+		final HashSet<Path> existentialPaths = new HashSet<>();
+		existentialPaths.addAll(filter.getPositiveExistentialPaths());
+		existentialPaths.addAll(filter.getNegativeExistentialPaths());
 		final ArrayList<Template> template = new ArrayList<>();
 		final ArrayList<FactAddress> addresses = new ArrayList<>();
-		for (final Edge edge : edgesToBeJoined) {
+		final ArrayList<FactAddress> fakeAddresses = new ArrayList<>();
+
+		final LinkedHashSet<Path> regularPaths =
+				PathCollector.newLinkedHashSet().collect(filter).getPaths();
+		regularPaths.removeAll(existentialPaths);
+		for (final Path path : regularPaths) {
+			final Template pathTemplate = path.getTemplate();
+			final org.jamocha.dn.memory.FactAddress pathFactAddress =
+					path.getFactAddressInCurrentlyLowestNode();
+
+		}
+
+		// Zuordnung template zu Path über template position and
+
+		for (final Entry<Edge, Set<Path>> entry : edgesAndPaths.entrySet()) {
+			final Edge edge = entry.getKey();
+			final Set<Path> pathsInEdge = entry.getValue();
+			// for each edge look at regular paths and translate their addresses
 			final MemoryHandlerMain memoryHandlerMain =
 					(MemoryHandlerMain) edge.getSourceNode().getMemory();
-			for (final Template t : memoryHandlerMain.getTemplate()) {
-				template.add(t);
-			}
 			final HashMap<FactAddress, FactAddress> addressMap = new HashMap<>();
-			for (final FactAddress oldFactAddress : memoryHandlerMain.addresses) {
-				final FactAddress newFactAddress = new FactAddress(addresses.size());
-				addressMap.put(oldFactAddress, newFactAddress);
-				addresses.add(newFactAddress);
+			{
+				final Template[] currentHandlerTemplate = memoryHandlerMain.getTemplate();
+				outerloop: for (int i = 0; i < currentHandlerTemplate.length; i++) {
+					final Template t = currentHandlerTemplate[i];
+					// find a path that corresponds
+					for (final Path path : pathsInEdge) {
+						final Template pathTemplate = path.getTemplate();
+						final FactAddress pathFactAddress =
+								(FactAddress) path.getFactAddressInCurrentlyLowestNode();
+						if (pathFactAddress.index == i && t == pathTemplate) {
+							if (!existentialPaths.contains(path)) {
+								template.add(t);
+								final FactAddress oldFactAddress = memoryHandlerMain.addresses[i];
+								final FactAddress newFactAddress = new FactAddress(addresses.size());
+								addressMap.put(oldFactAddress, newFactAddress);
+								addresses.add(newFactAddress);
+							}
+							continue outerloop;
+						}
+					}
+				}
 			}
 			edge.setAddressMap(addressMap);
 		}
 		final Template[] templArray = template.toArray(new Template[template.size()]);
 		final FactAddress[] addrArray = addresses.toArray(new FactAddress[addresses.size()]);
-		return new MemoryHandlerMain(templArray, new ArrayList<Fact[]>(), new Counter(filter),
-				addrArray);
+		return new MemoryHandlerMain(templArray, new ArrayList<Fact[]>(),
+				Counter.newCounter(filter), addrArray);
 	}
 
 	@Override
@@ -138,7 +180,15 @@ public class MemoryHandlerMain extends MemoryHandlerBase implements
 	@Override
 	public org.jamocha.dn.memory.MemoryHandlerTemp processTokenInBeta(
 			final org.jamocha.dn.memory.MemoryHandlerTemp token,
-			final NegativeEdge originIncomingEdge, final AddressFilter filter)
+			final NegativeExistentialEdge originIncomingEdge, final AddressFilter filter)
+			throws CouldNotAcquireLockException {
+		return token.newBetaTemp(this, originIncomingEdge, filter);
+	}
+
+	@Override
+	public org.jamocha.dn.memory.MemoryHandlerTemp processTokenInBeta(
+			final org.jamocha.dn.memory.MemoryHandlerTemp token,
+			final PositiveExistentialEdge originIncomingEdge, final AddressFilter filter)
 			throws CouldNotAcquireLockException {
 		return token.newBetaTemp(this, originIncomingEdge, filter);
 	}
@@ -154,7 +204,15 @@ public class MemoryHandlerMain extends MemoryHandlerBase implements
 	@Override
 	public org.jamocha.dn.memory.MemoryHandlerTemp processTokenInAlpha(
 			final org.jamocha.dn.memory.MemoryHandlerTemp token,
-			final NegativeEdge originIncomingEdge, final AddressFilter filter)
+			final PositiveExistentialEdge originIncomingEdge, final AddressFilter filter)
+			throws CouldNotAcquireLockException {
+		return token.newAlphaTemp(this, originIncomingEdge, filter);
+	}
+
+	@Override
+	public org.jamocha.dn.memory.MemoryHandlerTemp processTokenInAlpha(
+			final org.jamocha.dn.memory.MemoryHandlerTemp token,
+			final NegativeExistentialEdge originIncomingEdge, final AddressFilter filter)
 			throws CouldNotAcquireLockException {
 		return token.newAlphaTemp(this, originIncomingEdge, filter);
 	}
