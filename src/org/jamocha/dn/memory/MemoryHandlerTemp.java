@@ -5,9 +5,6 @@ import java.util.List;
 
 import org.jamocha.dn.nodes.CouldNotAcquireLockException;
 import org.jamocha.dn.nodes.Edge;
-import org.jamocha.dn.nodes.NegativeExistentialEdge;
-import org.jamocha.dn.nodes.PositiveEdge;
-import org.jamocha.dn.nodes.PositiveExistentialEdge;
 import org.jamocha.filter.AddressFilter;
 
 public interface MemoryHandlerTemp extends MemoryHandler {
@@ -22,27 +19,11 @@ public interface MemoryHandlerTemp extends MemoryHandler {
 	public List<MemoryHandler> splitIntoChunksOfSize(final int size);
 
 	public MemoryHandlerTemp newBetaTemp(final MemoryHandlerMain originatingMainHandler,
-			final PositiveEdge originIncomingEdge, final AddressFilter filter)
-			throws CouldNotAcquireLockException;
-
-	public MemoryHandlerTemp newBetaTemp(final MemoryHandlerMain originatingMainHandler,
-			final PositiveExistentialEdge originIncomingEdge, final AddressFilter filter)
-			throws CouldNotAcquireLockException;
-
-	public MemoryHandlerTemp newBetaTemp(final MemoryHandlerMain originatingMainHandler,
-			final NegativeExistentialEdge originIncomingEdge, final AddressFilter filter)
+			final Edge originIncomingEdge, final AddressFilter filter)
 			throws CouldNotAcquireLockException;
 
 	public MemoryHandlerTemp newAlphaTemp(final MemoryHandlerMain originatingMainHandler,
-			final PositiveEdge originIncomingEdge, final AddressFilter filter)
-			throws CouldNotAcquireLockException;
-
-	public MemoryHandlerTemp newAlphaTemp(final MemoryHandlerMain originatingMainHandler,
-			final PositiveExistentialEdge originIncomingEdge, final AddressFilter filter)
-			throws CouldNotAcquireLockException;
-
-	public MemoryHandlerTemp newAlphaTemp(final MemoryHandlerMain originatingMainHandler,
-			final NegativeExistentialEdge originIncomingEdge, final AddressFilter filter)
+			final Edge originIncomingEdge, final AddressFilter filter)
 			throws CouldNotAcquireLockException;
 
 	public void enqueueInEdges(final Collection<? extends Edge> edges);

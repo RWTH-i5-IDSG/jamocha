@@ -19,8 +19,8 @@ import gnu.trove.list.array.TIntArrayList;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.jamocha.filter.Filter;
-import org.jamocha.filter.Filter.FilterElement;
+import org.jamocha.dn.memory.FilterElementToCounterColumn;
+import org.jamocha.filter.PathFilter;
 
 /**
  * Class holding the counter columns for existential filter elements providing the typical methods
@@ -67,9 +67,9 @@ public class Counter {
 		this.emptyRow = emptyRow;
 	}
 
-	public static Counter newCounter(final Filter<? extends FilterElement> filter) {
+	public static Counter newCounter(final PathFilter filter, final FilterElementToCounterColumn filterElementToCounterColumn) {
 		final boolean[] negatedArrayFromFilter =
-				ExistentialPathCounter.getNegatedArrayFromFilter(filter);
+				ExistentialPathCounter.getNegatedArrayFromFilter(filter, filterElementToCounterColumn);
 		if (negatedArrayFromFilter.length == 1) {
 			return new Counter(negatedArrayFromFilter);
 		}

@@ -17,9 +17,12 @@ package org.jamocha.filter;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import org.jamocha.dn.memory.CounterColumn;
 import org.jamocha.dn.memory.FactAddress;
+import org.jamocha.dn.memory.FilterElementToCounterColumn;
 import org.jamocha.dn.nodes.SlotInFactAddress;
 import org.jamocha.filter.AddressFilter.AddressFilterElement;
+import org.jamocha.filter.AddressFilter.ExistentialAddressFilterElement;
 import org.jamocha.filter.PathFilter.PathFilterElement;
 import org.jamocha.filter.fwa.ConstantLeaf;
 import org.jamocha.filter.fwa.FunctionWithArguments;
@@ -36,14 +39,18 @@ import test.jamocha.filter.PredicateWithArgumentsMockup;
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
 public class FilterTranslator {
-	public static AddressFilter translate(final PathFilter pathFilter) {
+	public static AddressFilter translate(final PathFilter pathFilter,
+			final FilterElementToCounterColumn filterElementToCounterColumn) {
+		// TODO put filterElementToCounterColumn parameter to good use
+
 		// TODO fake target-node-addresses for existential paths that can be mapped upwards
-		// TODO add counter column index to filter element
 		final PathFilterElement[] pathFilterElements = pathFilter.getFilterElements();
 		final AddressFilterElement[] addressFilterElements =
 				new AddressFilterElement[pathFilterElements.length];
 		for (int i = 0; i < pathFilterElements.length; i++) {
-			addressFilterElements[i] = translate(pathFilterElements[i]);
+			addressFilterElements[i] =
+					translate(pathFilterElements[i],
+							filterElementToCounterColumn.getCounterColumn(pathFilterElements[i]));
 		}
 		final Collection<Path> positiveExistentialPaths = pathFilter.getPositiveExistentialPaths();
 		final FactAddress pefa[] = new FactAddress[positiveExistentialPaths.size()];
@@ -64,14 +71,19 @@ public class FilterTranslator {
 		return new AddressFilter(pefa, nefa, addressFilterElements);
 	}
 
-	private static AddressFilterElement translate(final PathFilterElement pathFilterElement) {
+	private static AddressFilterElement translate(final PathFilterElement pathFilterElement,
+			final CounterColumn counterColumn) {
 		final ArrayList<SlotInFactAddress> addresses = new ArrayList<>();
 		final PredicateWithArguments predicateWithArguments =
 				pathFilterElement.getFunction()
 						.accept(new PredicateWithArgumentsTranslator(addresses))
 						.getFunctionWithArguments();
-		return new AddressFilterElement(predicateWithArguments,
-				addresses.toArray(new SlotInFactAddress[addresses.size()]));
+		final SlotInFactAddress[] addressArray =
+				addresses.toArray(new SlotInFactAddress[addresses.size()]);
+		if (null == counterColumn)
+			return new AddressFilterElement(predicateWithArguments, addressArray);
+		return new ExistentialAddressFilterElement(predicateWithArguments, addressArray,
+				counterColumn);
 	}
 
 	/**

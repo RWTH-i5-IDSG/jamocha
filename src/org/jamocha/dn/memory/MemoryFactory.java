@@ -67,7 +67,7 @@ public interface MemoryFactory {
 	 * @see MemoryHandlerMain
 	 * @see Edge
 	 */
-	public MemoryHandlerMain newMemoryHandlerMain(final PathFilter filter,
+	public MemoryHandlerMainAndCounterColumnMatcher newMemoryHandlerMain(final PathFilter filter,
 			final Map<Edge, Set<Path>> edgesAndPaths);
 
 }

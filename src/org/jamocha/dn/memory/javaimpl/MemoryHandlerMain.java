@@ -31,13 +31,12 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import lombok.Getter;
 import lombok.ToString;
 
+import org.jamocha.dn.memory.FilterElementToCounterColumn;
+import org.jamocha.dn.memory.MemoryHandlerMainAndCounterColumnMatcher;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.dn.nodes.CouldNotAcquireLockException;
 import org.jamocha.dn.nodes.Edge;
-import org.jamocha.dn.nodes.NegativeExistentialEdge;
 import org.jamocha.dn.nodes.Node;
-import org.jamocha.dn.nodes.PositiveEdge;
-import org.jamocha.dn.nodes.PositiveExistentialEdge;
 import org.jamocha.filter.AddressFilter;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.PathCollector;
@@ -82,8 +81,8 @@ public class MemoryHandlerMain extends MemoryHandlerBase implements
 		this.counter = counter;
 	}
 
-	public static MemoryHandlerMain newMemoryHandlerMain(final PathFilter filter,
-			final Map<Edge, Set<Path>> edgesAndPaths) {
+	public static MemoryHandlerMainAndCounterColumnMatcher newMemoryHandlerMain(
+			final PathFilter filter, final Map<Edge, Set<Path>> edgesAndPaths) {
 		final HashSet<Path> existentialPaths = new HashSet<>();
 		existentialPaths.addAll(filter.getPositiveExistentialPaths());
 		existentialPaths.addAll(filter.getNegativeExistentialPaths());
@@ -123,7 +122,8 @@ public class MemoryHandlerMain extends MemoryHandlerBase implements
 							if (!existentialPaths.contains(path)) {
 								template.add(t);
 								final FactAddress oldFactAddress = memoryHandlerMain.addresses[i];
-								final FactAddress newFactAddress = new FactAddress(addresses.size());
+								final FactAddress newFactAddress =
+										new FactAddress(addresses.size());
 								addressMap.put(oldFactAddress, newFactAddress);
 								addresses.add(newFactAddress);
 							}
@@ -136,8 +136,11 @@ public class MemoryHandlerMain extends MemoryHandlerBase implements
 		}
 		final Template[] templArray = template.toArray(new Template[template.size()]);
 		final FactAddress[] addrArray = addresses.toArray(new FactAddress[addresses.size()]);
-		return new MemoryHandlerMain(templArray, new ArrayList<Fact[]>(),
-				Counter.newCounter(filter), addrArray);
+		// TODO make it non-null ;)
+		final FilterElementToCounterColumn filterElementToCounterColumn = null;
+		return new MemoryHandlerMainAndFilterElementToCounterColumn(new MemoryHandlerMain(
+				templArray, new ArrayList<Fact[]>(), Counter.newCounter(filter,
+						filterElementToCounterColumn), addrArray), filterElementToCounterColumn);
 	}
 
 	@Override
@@ -171,49 +174,15 @@ public class MemoryHandlerMain extends MemoryHandlerBase implements
 
 	@Override
 	public org.jamocha.dn.memory.MemoryHandlerTemp processTokenInBeta(
-			final org.jamocha.dn.memory.MemoryHandlerTemp token,
-			final PositiveEdge originIncomingEdge, final AddressFilter filter)
-			throws CouldNotAcquireLockException {
-		return token.newBetaTemp(this, originIncomingEdge, filter);
-	}
-
-	@Override
-	public org.jamocha.dn.memory.MemoryHandlerTemp processTokenInBeta(
-			final org.jamocha.dn.memory.MemoryHandlerTemp token,
-			final NegativeExistentialEdge originIncomingEdge, final AddressFilter filter)
-			throws CouldNotAcquireLockException {
-		return token.newBetaTemp(this, originIncomingEdge, filter);
-	}
-
-	@Override
-	public org.jamocha.dn.memory.MemoryHandlerTemp processTokenInBeta(
-			final org.jamocha.dn.memory.MemoryHandlerTemp token,
-			final PositiveExistentialEdge originIncomingEdge, final AddressFilter filter)
-			throws CouldNotAcquireLockException {
+			final org.jamocha.dn.memory.MemoryHandlerTemp token, final Edge originIncomingEdge,
+			final AddressFilter filter) throws CouldNotAcquireLockException {
 		return token.newBetaTemp(this, originIncomingEdge, filter);
 	}
 
 	@Override
 	public org.jamocha.dn.memory.MemoryHandlerTemp processTokenInAlpha(
-			final org.jamocha.dn.memory.MemoryHandlerTemp token,
-			final PositiveEdge originIncomingEdge, final AddressFilter filter)
-			throws CouldNotAcquireLockException {
-		return token.newAlphaTemp(this, originIncomingEdge, filter);
-	}
-
-	@Override
-	public org.jamocha.dn.memory.MemoryHandlerTemp processTokenInAlpha(
-			final org.jamocha.dn.memory.MemoryHandlerTemp token,
-			final PositiveExistentialEdge originIncomingEdge, final AddressFilter filter)
-			throws CouldNotAcquireLockException {
-		return token.newAlphaTemp(this, originIncomingEdge, filter);
-	}
-
-	@Override
-	public org.jamocha.dn.memory.MemoryHandlerTemp processTokenInAlpha(
-			final org.jamocha.dn.memory.MemoryHandlerTemp token,
-			final NegativeExistentialEdge originIncomingEdge, final AddressFilter filter)
-			throws CouldNotAcquireLockException {
+			final org.jamocha.dn.memory.MemoryHandlerTemp token, final Edge originIncomingEdge,
+			final AddressFilter filter) throws CouldNotAcquireLockException {
 		return token.newAlphaTemp(this, originIncomingEdge, filter);
 	}
 

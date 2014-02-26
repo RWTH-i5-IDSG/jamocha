@@ -32,14 +32,10 @@ import org.jamocha.dn.memory.SlotAddress;
 import org.jamocha.dn.nodes.AddressPredecessor;
 import org.jamocha.dn.nodes.CouldNotAcquireLockException;
 import org.jamocha.dn.nodes.Edge;
-import org.jamocha.dn.nodes.NegativeExistentialEdge;
 import org.jamocha.dn.nodes.Node;
-import org.jamocha.dn.nodes.PositiveEdge;
-import org.jamocha.dn.nodes.PositiveExistentialEdge;
 import org.jamocha.dn.nodes.SlotInFactAddress;
 import org.jamocha.filter.AddressFilter;
 import org.jamocha.filter.AddressFilter.AddressFilterElement;
-import org.jamocha.filter.PathFilter.PathFilterElement;
 import org.jamocha.filter.fwa.FunctionWithArguments;
 import org.jamocha.visitor.Visitor;
 
@@ -100,28 +96,10 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 	@Override
 	public MemoryHandlerPlusTemp newBetaTemp(
 			final org.jamocha.dn.memory.MemoryHandlerMain originatingMainHandler,
-			final PositiveEdge originIncomingEdge, final AddressFilter filter)
+			final Edge originIncomingEdge, final AddressFilter filter)
 			throws CouldNotAcquireLockException {
 		return newBetaTemp((MemoryHandlerMain) originatingMainHandler, this, originIncomingEdge,
 				filter);
-	}
-
-	@Override
-	public MemoryHandlerPlusTemp newBetaTemp(
-			final org.jamocha.dn.memory.MemoryHandlerMain originatingMainHandler,
-			final PositiveExistentialEdge originIncomingEdge, final AddressFilter filter)
-			throws CouldNotAcquireLockException {
-		// FIXME implement
-		return null;
-	}
-
-	@Override
-	public MemoryHandlerPlusTemp newBetaTemp(
-			final org.jamocha.dn.memory.MemoryHandlerMain originatingMainHandler,
-			final NegativeExistentialEdge originIncomingEdge, final AddressFilter filter)
-			throws CouldNotAcquireLockException {
-		// FIXME implement
-		return null;
 	}
 
 	static MemoryHandlerPlusTemp newAlphaTemp(final MemoryHandlerMain originatingMainHandler,
@@ -145,28 +123,10 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 	@Override
 	public MemoryHandlerPlusTemp newAlphaTemp(
 			final org.jamocha.dn.memory.MemoryHandlerMain originatingMainHandler,
-			final PositiveEdge originIncomingEdge, final AddressFilter filter)
+			final Edge originIncomingEdge, final AddressFilter filter)
 			throws CouldNotAcquireLockException {
 		return newAlphaTemp((MemoryHandlerMain) originatingMainHandler, this, originIncomingEdge,
 				filter);
-	}
-
-	@Override
-	public MemoryHandlerPlusTemp newAlphaTemp(
-			final org.jamocha.dn.memory.MemoryHandlerMain originatingMainHandler,
-			final PositiveExistentialEdge originIncomingEdge, final AddressFilter filter)
-			throws CouldNotAcquireLockException {
-		// FIXME implement
-		return null;
-	}
-
-	@Override
-	public MemoryHandlerPlusTemp newAlphaTemp(
-			final org.jamocha.dn.memory.MemoryHandlerMain originatingMainHandler,
-			final NegativeExistentialEdge originIncomingEdge, final AddressFilter filter)
-			throws CouldNotAcquireLockException {
-		// FIXME implement
-		return null;
 	}
 
 	static MemoryHandlerPlusTemp newRootTemp(final MemoryHandlerMain originatingMainHandler,
@@ -417,8 +377,8 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 				}
 			}
 
-			//filterElement.
-			
+			// filterElement.
+
 			org.jamocha.visitor.Visitor visitor = new Visitor() {
 				public void visit(final AddressFilterElement fe) {
 					final ArrayList<Fact[]> TR = new ArrayList<>();

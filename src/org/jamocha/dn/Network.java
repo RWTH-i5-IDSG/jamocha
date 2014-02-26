@@ -29,7 +29,6 @@ import org.jamocha.dn.nodes.AlphaNode;
 import org.jamocha.dn.nodes.BetaNode;
 import org.jamocha.dn.nodes.Edge;
 import org.jamocha.dn.nodes.Node;
-import org.jamocha.dn.nodes.PositiveEdge;
 import org.jamocha.dn.nodes.RootNode;
 import org.jamocha.dn.nodes.TerminalNode;
 import org.jamocha.filter.AddressFilter;
@@ -183,8 +182,8 @@ public class Network {
 		final Iterator<Node> filterPathNodesIterator = filterPathNodes.iterator();
 
 		// add all children of the first node
-		final Collection<PositiveEdge> firstNodesOutgoingPositiveEdges =
-				filterPathNodesIterator.next().getOutgoingPositiveEdges();
+		final Collection<Edge> firstNodesOutgoingPositiveEdges =
+				filterPathNodesIterator.next().getOutgoingEdges();
 		for (final Edge edge : firstNodesOutgoingPositiveEdges) {
 			try {
 				candidates.add(edge.getTargetNode());
@@ -197,7 +196,7 @@ public class Network {
 		while (filterPathNodesIterator.hasNext()) {
 			final Node node = filterPathNodesIterator.next();
 			final HashSet<Node> cutSet = new HashSet<>();
-			for (final Edge edge : node.getOutgoingPositiveEdges()) {
+			for (final Edge edge : node.getOutgoingEdges()) {
 				try {
 					cutSet.add(edge.getTargetNode());
 				} catch (final UnsupportedOperationException e) {

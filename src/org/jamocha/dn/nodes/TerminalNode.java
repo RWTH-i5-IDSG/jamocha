@@ -41,7 +41,7 @@ import org.jamocha.filter.AddressFilter;
  */
 public class TerminalNode {
 
-	protected class TerminalEdgeImpl implements PositiveEdge {
+	protected class TerminalEdgeImpl implements Edge {
 		protected final Network network;
 		protected final Node sourceNode;
 		protected final TerminalNode targetNode;
@@ -143,12 +143,6 @@ public class TerminalNode {
 				// mem contains partial fact tuples as in the optimized retract way
 				this.targetNode.getMemory().addPartialMinusMemory(this.targetNode, mem);
 			}
-		}
-
-		@Override
-		public <V extends EdgeVisitor> V accept(final V visitor) {
-			visitor.visit(this);
-			return visitor;
 		}
 	}
 

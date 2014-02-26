@@ -16,6 +16,7 @@ package org.jamocha.filter;
 
 import lombok.Getter;
 
+import org.jamocha.dn.memory.CounterColumn;
 import org.jamocha.dn.memory.FactAddress;
 import org.jamocha.dn.nodes.SlotInFactAddress;
 import org.jamocha.filter.fwa.PredicateWithArguments;
@@ -49,23 +50,23 @@ public class AddressFilter extends Filter<AddressFilter.AddressFilterElement> {
 			this.addressesInTarget = addressesInTarget;
 		}
 
-		public int getCounterColumnIndex() {
-			return -1;
+		public CounterColumn getCounterColumn() {
+			return null;
 		}
 	}
 
 	public static class ExistentialAddressFilterElement extends AddressFilterElement {
-		final int counterColumnIndex;
+		protected final CounterColumn counterColumn;
 
 		public ExistentialAddressFilterElement(final PredicateWithArguments function,
-				final SlotInFactAddress[] addressesInTarget, final int counterColumnIndex) {
+				final SlotInFactAddress[] addressesInTarget, final CounterColumn counterColumn) {
 			super(function, addressesInTarget);
-			this.counterColumnIndex = counterColumnIndex;
+			this.counterColumn = counterColumn;
 		}
 
 		@Override
-		public int getCounterColumnIndex() {
-			return this.counterColumnIndex;
+		public CounterColumn getCounterColumn() {
+			return this.counterColumn;
 		}
 	}
 

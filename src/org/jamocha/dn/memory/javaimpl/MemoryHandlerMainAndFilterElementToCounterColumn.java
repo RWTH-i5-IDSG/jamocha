@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2013 The Jamocha Team
+ * Copyright 2002-2014 The Jamocha Team
  * 
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
@@ -12,13 +12,19 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package org.jamocha.dn.nodes;
+package org.jamocha.dn.memory.javaimpl;
 
+import lombok.Value;
+
+import org.jamocha.dn.memory.FilterElementToCounterColumn;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  * 
  */
-public interface PositiveEdge extends Edge {
-
+@Value
+public class MemoryHandlerMainAndFilterElementToCounterColumn implements
+		org.jamocha.dn.memory.MemoryHandlerMainAndCounterColumnMatcher {
+	MemoryHandlerMain memoryHandlerMain;
+	FilterElementToCounterColumn filterElementToCounterColumn;
 }

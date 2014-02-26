@@ -17,6 +17,7 @@ package org.jamocha.dn.memory.javaimpl;
 import java.util.Map;
 import java.util.Set;
 
+import org.jamocha.dn.memory.MemoryHandlerMainAndCounterColumnMatcher;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.dn.nodes.Edge;
 import org.jamocha.filter.Path;
@@ -54,7 +55,7 @@ public class MemoryFactory implements org.jamocha.dn.memory.MemoryFactory {
 	}
 
 	@Override
-	public MemoryHandlerMain newMemoryHandlerMain(final PathFilter filter,
+	public MemoryHandlerMainAndCounterColumnMatcher newMemoryHandlerMain(final PathFilter filter,
 			final Map<Edge, Set<Path>> edgesAndPaths) {
 		return MemoryHandlerMain.newMemoryHandlerMain(filter, edgesAndPaths);
 	}

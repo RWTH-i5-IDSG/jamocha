@@ -22,13 +22,12 @@ import org.jamocha.dn.memory.MemoryHandlerMinusTemp;
 import org.jamocha.dn.memory.MemoryHandlerPlusTemp;
 import org.jamocha.dn.memory.MemoryHandlerTemp;
 import org.jamocha.filter.AddressFilter;
-import org.jamocha.visitor.Visitable;
 
 /**
  * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
-public interface Edge extends Visitable<EdgeVisitor> {
+public interface Edge {
 
 	public void processPlusToken(final MemoryHandlerTemp memory)
 			throws CouldNotAcquireLockException;

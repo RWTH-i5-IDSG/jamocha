@@ -55,20 +55,20 @@ public class ObjectTypeNode extends AlphaNode {
 	}
 
 	@Override
-	protected PositiveEdge newPositiveEdge(final Node source) {
+	protected Edge newEdge(final Node source) {
 		throw new UnsupportedOperationException("ObjectTypeNodes can not have inputs!");
 	}
 
 	public void assertFact(final Fact fact) {
 		final MemoryHandlerPlusTemp mem = this.memory.newPlusToken(this, fact);
-		for (final Edge edge : this.outgoingPositiveEdges) {
+		for (final Edge edge : this.outgoingEdges) {
 			edge.enqueuePlusMemory(mem);
 		}
 	}
 
 	public void retractFact(final Fact fact) {
 		final MemoryHandlerMinusTemp mem = this.memory.newMinusToken(fact);
-		for (final Edge edge : this.outgoingPositiveEdges) {
+		for (final Edge edge : this.outgoingEdges) {
 			edge.enqueueMinusMemory(mem);
 		}
 	}
