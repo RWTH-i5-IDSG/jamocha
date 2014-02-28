@@ -230,48 +230,20 @@ public abstract class Node {
 		final Map<Edge, Set<Path>> edgesAndPaths = new HashMap<>();
 		final ArrayList<Edge> edges = new ArrayList<>();
 		final Set<Path> joinedPaths = new HashSet<>();
-
-		for (final Path path : filter.getNegativeExistentialPaths()) {
-			// assert that no negative existential path is already joined with any positive
-			// existential path
-			assert Collections.disjoint(path.getJoinedWith(), filter.getPositiveExistentialPaths());
-			// create new edge from clNode to this
-			final Edge edge = connectNegativeExistentialParent(path.getCurrentlyLowestNode());
-			// mark all joined paths as done
-			markPathsInEdge(paths, edgesAndPaths, edges, path, edge);
-			// set current node to null to provoke a NullpointerException in case this path is used
-			// any further
-			for (final Path jwPath : path.getJoinedWith()) {
-				jwPath.setCurrentlyLowestNode(null);
-			}
-		}
-
-		for (final Path path : filter.getPositiveExistentialPaths()) {
-			// assert that no positive existential path is already joined with any negative
-			// existential path
-			assert Collections.disjoint(path.getJoinedWith(), filter.getNegativeExistentialPaths());
-			// create new edge from clNode to this
-			final Edge edge = connectPositiveExistentialParent(path.getCurrentlyLowestNode());
-			// mark all joined paths as done
-			markPathsInEdge(paths, edgesAndPaths, edges, path, edge);
-			// set current node to null to provoke a NullpointerException in case this path is used
-			// any further
-			for (final Path jwPath : path.getJoinedWith()) {
-				jwPath.setCurrentlyLowestNode(null);
-			}
-		}
-
 		while (!paths.isEmpty()) {
 			// get next path
 			final Path path = paths.iterator().next();
-			// assert that a path not contained in any existential list is not joined with any
-			// existential path
-			assert Collections.disjoint(path.getJoinedWith(), filter.getPositiveExistentialPaths());
-			assert Collections.disjoint(path.getJoinedWith(), filter.getNegativeExistentialPaths());
 			// create new edge from clNode to this
 			final Edge edge = connectParent(path.getCurrentlyLowestNode());
 			// mark all joined paths as done
-			markPathsInEdge(paths, edgesAndPaths, edges, path, edge);
+			final Set<Path> joinedWith = path.getJoinedWith();
+			{
+				int sizeBefore = paths.size();
+				paths.removeAll(joinedWith);
+				assert sizeBefore - joinedWith.size() == paths.size();
+			}
+			edgesAndPaths.put(edge, joinedWith);
+			edges.add(edge);
 			// add paths to joined paths
 			joinedPaths.addAll(path.getJoinedWith());
 		}
@@ -301,20 +273,6 @@ public abstract class Node {
 		for (final Edge edge : this.incomingEdges) {
 			edge.setFilter(this.filter);
 		}
-	}
-
-	private void markPathsInEdge(final LinkedHashSet<Path> paths,
-			final Map<Edge, Set<Path>> edgesAndPaths, final ArrayList<Edge> edges, final Path path,
-			final Edge edge) {
-		// mark all paths as done
-		final Set<Path> joinedWith = path.getJoinedWith();
-		{
-			int sizeBefore = paths.size();
-			paths.removeAll(joinedWith);
-			assert sizeBefore - joinedWith.size() == paths.size();
-		}
-		edgesAndPaths.put(edge, joinedWith);
-		edges.add(edge);
 	}
 
 	protected Edge connectParent(final Node parent) {

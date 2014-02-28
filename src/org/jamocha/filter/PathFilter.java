@@ -14,6 +14,7 @@
  */
 package org.jamocha.filter;
 
+import java.util.Collections;
 import java.util.LinkedHashSet;
 
 import lombok.Getter;
@@ -50,6 +51,7 @@ public class PathFilter extends Filter<PathFilter.PathFilterElement> {
 			final LinkedHashSet<Path> negativeExistentialPaths,
 			final PathFilterElement... filterElements) {
 		super(filterElements);
+		assert Collections.disjoint(positiveExistentialPaths, negativeExistentialPaths);
 		this.positiveExistentialPaths = positiveExistentialPaths;
 		this.negativeExistentialPaths = negativeExistentialPaths;
 	}

@@ -12,19 +12,22 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package org.jamocha.dn.memory.javaimpl;
+package test.jamocha.util;
 
-import lombok.Value;
-
+import org.jamocha.dn.memory.CounterColumn;
 import org.jamocha.dn.memory.PathFilterElementToCounterColumn;
+import org.jamocha.filter.PathFilter.PathFilterElement;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
- * 
  */
-@Value
-public class MemoryHandlerMainAndFilterElementToCounterColumn implements
-		org.jamocha.dn.memory.MemoryHandlerMainAndCounterColumnMatcher {
-	MemoryHandlerMain memoryHandlerMain;
-	PathFilterElementToCounterColumn filterElementToCounterColumn;
+public class PathFilterElementToCounterColumnMockup implements PathFilterElementToCounterColumn {
+
+	public static final PathFilterElementToCounterColumnMockup fe2ccmockup =
+			new PathFilterElementToCounterColumnMockup();
+
+	@Override
+	public CounterColumn getCounterColumn(final PathFilterElement filterElement) {
+		return null;
+	}
 }

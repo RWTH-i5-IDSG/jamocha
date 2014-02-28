@@ -31,7 +31,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import lombok.Getter;
 import lombok.ToString;
 
-import org.jamocha.dn.memory.FilterElementToCounterColumn;
+import org.jamocha.dn.memory.PathFilterElementToCounterColumn;
 import org.jamocha.dn.memory.MemoryHandlerMainAndCounterColumnMatcher;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.dn.nodes.CouldNotAcquireLockException;
@@ -137,7 +137,7 @@ public class MemoryHandlerMain extends MemoryHandlerBase implements
 		final Template[] templArray = template.toArray(new Template[template.size()]);
 		final FactAddress[] addrArray = addresses.toArray(new FactAddress[addresses.size()]);
 		// TODO make it non-null ;)
-		final FilterElementToCounterColumn filterElementToCounterColumn = null;
+		final PathFilterElementToCounterColumn filterElementToCounterColumn = null;
 		return new MemoryHandlerMainAndFilterElementToCounterColumn(new MemoryHandlerMain(
 				templArray, new ArrayList<Fact[]>(), Counter.newCounter(filter,
 						filterElementToCounterColumn), addrArray), filterElementToCounterColumn);

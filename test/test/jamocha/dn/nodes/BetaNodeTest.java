@@ -177,7 +177,7 @@ public class BetaNodeTest {
 	@Test
 	public void testGetOutgoingEdges() {
 		BetaNode beta = new BetaNode(Network.DEFAULTNETWORK, FilterMockup.alwaysTrue());
-		final Collection<? extends Edge> outgoingEdges = beta.getOutgoingPositiveEdges();
+		final Collection<? extends Edge> outgoingEdges = beta.getOutgoingEdges();
 		assertNotNull(outgoingEdges);
 		assertEquals(0, outgoingEdges.size());
 	}

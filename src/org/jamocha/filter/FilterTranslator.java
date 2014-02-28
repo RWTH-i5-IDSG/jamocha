@@ -19,7 +19,7 @@ import java.util.Collection;
 
 import org.jamocha.dn.memory.CounterColumn;
 import org.jamocha.dn.memory.FactAddress;
-import org.jamocha.dn.memory.FilterElementToCounterColumn;
+import org.jamocha.dn.memory.PathFilterElementToCounterColumn;
 import org.jamocha.dn.nodes.SlotInFactAddress;
 import org.jamocha.filter.AddressFilter.AddressFilterElement;
 import org.jamocha.filter.AddressFilter.ExistentialAddressFilterElement;
@@ -40,7 +40,7 @@ import test.jamocha.filter.PredicateWithArgumentsMockup;
  */
 public class FilterTranslator {
 	public static AddressFilter translate(final PathFilter pathFilter,
-			final FilterElementToCounterColumn filterElementToCounterColumn) {
+			final PathFilterElementToCounterColumn filterElementToCounterColumn) {
 		// TODO put filterElementToCounterColumn parameter to good use
 
 		// TODO fake target-node-addresses for existential paths that can be mapped upwards

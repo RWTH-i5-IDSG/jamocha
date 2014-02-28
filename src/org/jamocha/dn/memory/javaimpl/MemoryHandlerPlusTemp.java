@@ -86,11 +86,10 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 	static MemoryHandlerPlusTemp newBetaTemp(final MemoryHandlerMain originatingMainHandler,
 			final MemoryHandlerPlusTemp token, final Edge originIncomingEdge,
 			final AddressFilter filter) throws CouldNotAcquireLockException {
-		// FIXME counter
-		final Counter counter = Counter.newCounter(filter);
 		return new MemoryHandlerPlusTemp(originatingMainHandler, getLocksAndPerformJoin(
-				originatingMainHandler, filter, token, originIncomingEdge, counter),
-				originIncomingEdge.getTargetNode().getNumberOfOutgoingEdges());
+				originatingMainHandler, filter, token, originIncomingEdge,
+				Counter.newCounter(originatingMainHandler)), originIncomingEdge.getTargetNode()
+				.getNumberOfOutgoingEdges());
 	}
 
 	@Override

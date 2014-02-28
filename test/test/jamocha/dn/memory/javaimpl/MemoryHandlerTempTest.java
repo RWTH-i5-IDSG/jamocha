@@ -17,6 +17,7 @@ package test.jamocha.dn.memory.javaimpl;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static test.jamocha.util.PathFilterElementToCounterColumnMockup.fe2ccmockup;
 
 import java.util.LinkedList;
 import java.util.Map;
@@ -33,11 +34,7 @@ import org.jamocha.dn.memory.javaimpl.SlotAddress;
 import org.jamocha.dn.nodes.AddressPredecessor;
 import org.jamocha.dn.nodes.CouldNotAcquireLockException;
 import org.jamocha.dn.nodes.Edge;
-import org.jamocha.dn.nodes.EdgeVisitor;
-import org.jamocha.dn.nodes.NegativeExistentialEdge;
 import org.jamocha.dn.nodes.Node;
-import org.jamocha.dn.nodes.PositiveEdge;
-import org.jamocha.dn.nodes.PositiveExistentialEdge;
 import org.jamocha.dn.nodes.SlotInFactAddress;
 import org.jamocha.filter.AddressFilter;
 import org.jamocha.filter.AddressFilter.AddressFilterElement;
@@ -68,11 +65,10 @@ public class MemoryHandlerTempTest {
 	private static NodeMockup node, nodeLeft, nodeRight;
 	private static org.jamocha.dn.memory.javaimpl.FactAddress factAddress;
 	private static SlotAddress slotAddress;
-	private static PositiveEdge originInput;
+	private static Edge originInput;
 
 	static final int faSize = 10;
 	static final FactAddress[] fa = new FactAddress[faSize];
-
 	static {
 		for (int i = 0; i < 10; i++) {
 			fa[i] = new org.jamocha.dn.memory.javaimpl.FactAddress(i);
@@ -81,7 +77,7 @@ public class MemoryHandlerTempTest {
 
 	private static class NodeMockup extends Node {
 
-		private class EdgeMockup extends EdgeImpl implements PositiveEdge {
+		private class EdgeMockup extends EdgeImpl implements Edge {
 
 			final int offset;
 
@@ -120,12 +116,6 @@ public class MemoryHandlerTempTest {
 			@Override
 			public void enqueuePlusMemory(org.jamocha.dn.memory.MemoryHandlerPlusTemp mem) {
 			}
-
-			@Override
-			public <V extends EdgeVisitor> V accept(final V visitor) {
-				visitor.visit(this);
-				return visitor;
-			}
 		}
 
 		int numChildern;
@@ -148,30 +138,10 @@ public class MemoryHandlerTempTest {
 		};
 
 		@Override
-		protected PositiveEdge newPositiveEdge(Node source) {
-			PositiveEdge edge = new EdgeMockup(Network.DEFAULTNETWORK, source, this, currentOffset);
+		protected Edge newEdge(Node source) {
+			Edge edge = new EdgeMockup(Network.DEFAULTNETWORK, source, this, currentOffset);
 			currentOffset += source.getMemory().getTemplate().length;
 			return edge;
-		}
-
-		@Override
-		protected PositiveExistentialEdge newPositiveExistentialEdge(Node source) {
-			throw new UnsupportedOperationException(
-					"unsupported as there is only one mockup edge that and visitors identify it as positive edge");
-			// PositiveExistentialEdge edge =
-			// new EdgeMockup(Network.DEFAULTNETWORK, source, this, currentOffset);
-			// currentOffset += source.getMemory().getTemplate().length;
-			// return edge;
-		}
-
-		@Override
-		protected NegativeExistentialEdge newNegativeExistentialEdge(Node source) {
-			throw new UnsupportedOperationException(
-					"unsupported as there is only one mockup edge that and visitors identify it as positive edge");
-			// NegativeExistentialEdge edge =
-			// new EdgeMockup(Network.DEFAULTNETWORK, source, this, currentOffset);
-			// currentOffset += source.getMemory().getTemplate().length;
-			// return edge;
 		}
 
 		@Override
@@ -224,7 +194,7 @@ public class MemoryHandlerTempTest {
 		nodeLeft = new NodeMockup(Network.DEFAULTNETWORK, 1, new Template(SlotType.STRING));
 		nodeRight = new NodeMockup(Network.DEFAULTNETWORK, 1, new Template(SlotType.STRING));
 		node = new NodeMockup(Network.DEFAULTNETWORK, 1, nodeLeft, nodeRight);
-		originInput = (PositiveEdge) node.getIncomingEdges()[0];
+		originInput = node.getIncomingEdges()[0];
 		memoryHandlerMain =
 				(MemoryHandlerMain) Network.DEFAULTNETWORK.getMemoryFactory().newMemoryHandlerMain(
 						new Template(SlotType.STRING));
@@ -258,7 +228,7 @@ public class MemoryHandlerTempTest {
 						new Fact(new Template(SlotType.STRING), "Fakt2"));
 		MemoryHandlerPlusTemp token1 =
 				(MemoryHandlerPlusTemp) node.getMemory().processTokenInBeta(token, originInput,
-						FilterTranslator.translate(FilterMockup.alwaysTrue()));
+						FilterTranslator.translate(FilterMockup.alwaysTrue(), fe2ccmockup));
 		assertEquals(4, token1.size());
 		assertEquals(2, token1.getTemplate().length);
 		String s = (String) token1.getValue(fa[0], slotAddress, 0);
@@ -333,13 +303,13 @@ public class MemoryHandlerTempTest {
 						SlotType.STRING), "Test"));
 		MemoryHandlerPlusTemp memoryTempHandler =
 				(MemoryHandlerPlusTemp) memoryHandlerMain.processTokenInAlpha(token,
-						(PositiveEdge) node.getIncomingEdges()[0],
-						FilterTranslator.translate(FilterMockup.alwaysTrue()));
+						node.getIncomingEdges()[0],
+						FilterTranslator.translate(FilterMockup.alwaysTrue(), fe2ccmockup));
 		assertEquals(1, memoryTempHandler.size());
 		memoryTempHandler =
 				(MemoryHandlerPlusTemp) memoryHandlerMain.processTokenInAlpha(token,
-						(PositiveEdge) node.getIncomingEdges()[0],
-						FilterTranslator.translate(FilterMockup.alwaysFalse()));
+						node.getIncomingEdges()[0],
+						FilterTranslator.translate(FilterMockup.alwaysFalse(), fe2ccmockup));
 		assertEquals(0, memoryTempHandler.size());
 	}
 

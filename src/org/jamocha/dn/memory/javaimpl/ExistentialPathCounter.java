@@ -20,7 +20,7 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 
 import org.jamocha.dn.memory.CounterColumn;
-import org.jamocha.dn.memory.FilterElementToCounterColumn;
+import org.jamocha.dn.memory.PathFilterElementToCounterColumn;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.PathCollector;
 import org.jamocha.filter.PathFilter;
@@ -36,9 +36,8 @@ import org.jamocha.filter.PathFilter.PathFilterElement;
  * Assumption: every existentially quantified path/address is only used in a single filter element.
  */
 public class ExistentialPathCounter {
-
 	public static boolean[] getNegatedArrayFromFilter(final PathFilter filter,
-			final FilterElementToCounterColumn filterElementToCounterColumn) {
+			final PathFilterElementToCounterColumn filterElementToCounterColumn) {
 		final LinkedHashSet<Path> negativeExistentialPaths = filter.getNegativeExistentialPaths();
 		final LinkedHashSet<Path> positiveExistentialPaths = filter.getPositiveExistentialPaths();
 		final PathFilterElement[] filterElements = filter.getFilterElements();

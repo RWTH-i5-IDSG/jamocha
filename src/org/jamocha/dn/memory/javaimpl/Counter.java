@@ -19,7 +19,8 @@ import gnu.trove.list.array.TIntArrayList;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.jamocha.dn.memory.FilterElementToCounterColumn;
+import org.jamocha.dn.memory.PathFilterElementToCounterColumn;
+import org.jamocha.filter.AddressFilter;
 import org.jamocha.filter.PathFilter;
 
 /**
@@ -67,13 +68,21 @@ public class Counter {
 		this.emptyRow = emptyRow;
 	}
 
-	public static Counter newCounter(final PathFilter filter, final FilterElementToCounterColumn filterElementToCounterColumn) {
+	public static Counter newCounter(final PathFilter filter,
+			final PathFilterElementToCounterColumn filterElementToCounterColumn) {
 		final boolean[] negatedArrayFromFilter =
-				ExistentialPathCounter.getNegatedArrayFromFilter(filter, filterElementToCounterColumn);
+				ExistentialPathCounter.getNegatedArrayFromFilter(filter,
+						filterElementToCounterColumn);
 		if (negatedArrayFromFilter.length == 1) {
 			return new Counter(negatedArrayFromFilter);
 		}
 		return new Counter(negatedArrayFromFilter);
+	}
+
+	public static Counter newCounter(final MemoryHandlerMain memoryHandlerMain) {
+		final Counter originCounter = memoryHandlerMain.counter;
+		// TODO impl
+		return null;
 	}
 
 	public static Counter newCounter(final boolean... negated) {
