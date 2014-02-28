@@ -80,8 +80,7 @@ public class Counter {
 
 	public static Counter newCounter(final MemoryHandlerMain memoryHandlerMain) {
 		final Counter originCounter = memoryHandlerMain.counter;
-		// TODO impl
-		return null;
+		return new Counter(originCounter.emptyRow, originCounter.negated);
 	}
 
 	public static Counter newCounter(final boolean... negated) {
