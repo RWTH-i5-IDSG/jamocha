@@ -41,34 +41,23 @@ import test.jamocha.filter.PredicateWithArgumentsMockup;
 public class FilterTranslator {
 	public static AddressFilter translate(final PathFilter pathFilter,
 			final PathFilterElementToCounterColumn filterElementToCounterColumn) {
-		// TODO put filterElementToCounterColumn parameter to good use
+		final PathFilterElement[] pathFEs = pathFilter.getFilterElements();
+		final AddressFilterElement[] addrFEs = new AddressFilterElement[pathFEs.length];
+		for (int i = 0; i < pathFEs.length; i++) {
+			final PathFilterElement pathFE = pathFEs[i];
+			addrFEs[i] = translate(pathFE, filterElementToCounterColumn.getCounterColumn(pathFE));
+		}
+		return new AddressFilter(toFactAddressArray(pathFilter.getPositiveExistentialPaths()),
+				toFactAddressArray(pathFilter.getNegativeExistentialPaths()), addrFEs);
+	}
 
-		// TODO fake target-node-addresses for existential paths that can be mapped upwards
-		final PathFilterElement[] pathFilterElements = pathFilter.getFilterElements();
-		final AddressFilterElement[] addressFilterElements =
-				new AddressFilterElement[pathFilterElements.length];
-		for (int i = 0; i < pathFilterElements.length; i++) {
-			addressFilterElements[i] =
-					translate(pathFilterElements[i],
-							filterElementToCounterColumn.getCounterColumn(pathFilterElements[i]));
+	private static FactAddress[] toFactAddressArray(final Collection<Path> existentialPaths) {
+		final FactAddress factAddresses[] = new FactAddress[existentialPaths.size()];
+		int pos = 0;
+		for (final Path path : existentialPaths) {
+			factAddresses[pos++] = path.getFactAddressInCurrentlyLowestNode();
 		}
-		final Collection<Path> positiveExistentialPaths = pathFilter.getPositiveExistentialPaths();
-		final FactAddress pefa[] = new FactAddress[positiveExistentialPaths.size()];
-		{
-			int pos = 0;
-			for (Path path : positiveExistentialPaths) {
-				pefa[pos++] = path.getFactAddressInCurrentlyLowestNode();
-			}
-		}
-		final Collection<Path> negativeExistentialPaths = pathFilter.getNegativeExistentialPaths();
-		final FactAddress nefa[] = new FactAddress[negativeExistentialPaths.size()];
-		{
-			int pos = 0;
-			for (Path path : negativeExistentialPaths) {
-				nefa[pos++] = path.getFactAddressInCurrentlyLowestNode();
-			}
-		}
-		return new AddressFilter(pefa, nefa, addressFilterElements);
+		return factAddresses;
 	}
 
 	private static AddressFilterElement translate(final PathFilterElement pathFilterElement,
