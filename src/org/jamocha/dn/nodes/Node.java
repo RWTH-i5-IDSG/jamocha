@@ -17,7 +17,6 @@ package org.jamocha.dn.nodes;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -140,7 +139,7 @@ public abstract class Node {
 	 * 
 	 * @return the filter that has originally been set to all inputs
 	 */
-	@Getter(AccessLevel.PUBLIC)
+	@Getter
 	final protected AddressFilter filter;
 
 	@RequiredArgsConstructor
