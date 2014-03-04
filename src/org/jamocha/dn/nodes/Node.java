@@ -15,8 +15,6 @@
 
 package org.jamocha.dn.nodes;
 
-import gnu.trove.list.array.TIntArrayList;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -40,7 +38,6 @@ import org.jamocha.dn.memory.MemoryHandlerMainAndCounterColumnMatcher;
 import org.jamocha.dn.memory.MemoryHandlerTemp;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.filter.AddressFilter;
-import org.jamocha.filter.AddressFilter.AddressFilterElement;
 import org.jamocha.filter.FilterTranslator;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.PathCollector;
@@ -104,22 +101,6 @@ public abstract class Node {
 		protected void newMinusToken(final MemoryHandlerTemp mem) {
 			this.targetNode.enqueue(new Token.MinusToken(mem, this));
 		}
-	}
-
-	public static int[] determineCounterColumnPermutation(final AddressFilter base,
-			final AddressFilter different) {
-		final TIntArrayList permutation = new TIntArrayList(base.getFilterElements().length);
-		outerloop: for (final AddressFilterElement baseElement : base.getFilterElements()) {
-			final AddressFilterElement[] differentFilterElements = different.getFilterElements();
-			for (int i = 0; i < differentFilterElements.length; i++) {
-				final AddressFilterElement differentElement = differentFilterElements[i];
-				if (baseElement == differentElement) {
-					permutation.add(i);
-					continue outerloop;
-				}
-			}
-		}
-		return permutation.toArray();
 	}
 
 	@Getter
