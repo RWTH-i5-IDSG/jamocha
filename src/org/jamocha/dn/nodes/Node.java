@@ -107,6 +107,11 @@ public abstract class Node {
 		protected void newMinusToken(final MemoryHandlerTemp mem) {
 			this.targetNode.enqueue(new Token.MinusToken(mem, this));
 		}
+
+		@Override
+		public int getCounterColumnPosition(final int positionInNodeFilter) {
+			return this.counterColumnPermutation[positionInNodeFilter];
+		}
 	}
 
 	public static int[] determineCounterColumnPermutation(final AddressFilter base,

@@ -115,6 +115,11 @@ public class TerminalNode {
 		}
 
 		@Override
+		public int getCounterColumnPosition(int positionInNodeFilter) {
+			return positionInNodeFilter;
+		}
+
+		@Override
 		public void enqueuePlusMemory(final MemoryHandlerPlusTemp mem) {
 			if (0 == mem.size())
 				return;
