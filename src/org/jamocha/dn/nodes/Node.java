@@ -17,6 +17,7 @@ package org.jamocha.dn.nodes;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -26,7 +27,6 @@ import java.util.Map.Entry;
 import java.util.Queue;
 import java.util.Set;
 
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
