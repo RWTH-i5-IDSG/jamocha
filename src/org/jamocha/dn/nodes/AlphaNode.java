@@ -75,7 +75,7 @@ public class AlphaNode extends Node {
 			if (mem.size() == 0) {
 				return;
 			}
-			for (final Edge edge : this.targetNode.outgoingEdges) {
+			for (final Edge edge : this.targetNode.outgoingRegularEdges) {
 				mem.enqueueInEdge(edge);
 			}
 		}
@@ -88,7 +88,7 @@ public class AlphaNode extends Node {
 			if (mem.size() == 0) {
 				return;
 			}
-			for (final Edge edge : this.targetNode.outgoingEdges) {
+			for (final Edge edge : this.targetNode.outgoingRegularEdges) {
 				mem.enqueueInEdge(edge);
 			}
 		}

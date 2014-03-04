@@ -17,6 +17,7 @@ package org.jamocha.dn.nodes;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -107,12 +108,20 @@ public abstract class Node {
 	final protected Edge[] incomingEdges;
 
 	/**
-	 * Returns a collection of the outgoing edges.
+	 * Returns a collection of the outgoing regular edges.
 	 * 
-	 * @return a collection of the outgoing edges
+	 * @return a collection of the outgoing regular edges
 	 */
 	@Getter
-	final protected Collection<Edge> outgoingEdges = new LinkedList<>();
+	final protected Collection<Edge> outgoingRegularEdges = new LinkedList<>();
+
+	/**
+	 * Returns a collection of the outgoing existential edges.
+	 * 
+	 * @return a collection of the outgoing existential edges
+	 */
+	@Getter
+	final protected Collection<Edge> outgoingExistentialEdges = new LinkedList<>();
 
 	final protected Map<FactAddress, AddressPredecessor> delocalizeMap = new HashMap<>();
 
@@ -176,7 +185,7 @@ public abstract class Node {
 		this.incomingEdges = new Edge[parents.length];
 		final Map<Edge, Set<Path>> edgesAndPaths = new HashMap<>();
 		for (int i = 0; i < parents.length; i++) {
-			final Edge edge = this.connectParent(parents[i]);
+			final Edge edge = this.connectRegularParent(parents[i]);
 			this.incomingEdges[i] = edge;
 			edgesAndPaths.put(edge, null);
 		}
@@ -205,10 +214,16 @@ public abstract class Node {
 		while (!paths.isEmpty()) {
 			// get next path
 			final Path path = paths.iterator().next();
-			// create new edge from clNode to this
-			final Edge edge = connectParent(path.getCurrentlyLowestNode());
-			// mark all joined paths as done
 			final Set<Path> joinedWith = path.getJoinedWith();
+			// create new edge from clNode to this
+			final Edge edge;
+			if (Collections.disjoint(joinedWith, filter.getNegativeExistentialPaths())
+					&& Collections.disjoint(joinedWith, filter.getNegativeExistentialPaths())) {
+				edge = connectRegularParent(path.getCurrentlyLowestNode());
+			} else {
+				edge = connectExistentialParent(path.getCurrentlyLowestNode());
+			}
+			// mark all joined paths as done
 			{
 				int sizeBefore = paths.size();
 				paths.removeAll(joinedWith);
@@ -217,7 +232,7 @@ public abstract class Node {
 			edgesAndPaths.put(edge, joinedWith);
 			edges.add(edge);
 			// add paths to joined paths
-			joinedPaths.addAll(path.getJoinedWith());
+			joinedPaths.addAll(joinedWith);
 		}
 
 		this.incomingEdges = edges.toArray(new Edge[edges.size()]);
@@ -247,9 +262,15 @@ public abstract class Node {
 		}
 	}
 
-	protected Edge connectParent(final Node parent) {
+	protected Edge connectRegularParent(final Node parent) {
 		final Edge edge = newEdge(parent);
-		parent.acceptEdgeToChild(edge);
+		parent.acceptRegularEdgeToChild(edge);
+		return edge;
+	}
+
+	protected Edge connectExistentialParent(final Node parent) {
+		final Edge edge = newEdge(parent);
+		parent.acceptExistentialEdgeToChild(edge);
 		return edge;
 	}
 
@@ -260,8 +281,19 @@ public abstract class Node {
 	 * @param edgeToChild
 	 *            the edge to the child to be added
 	 */
-	protected void acceptEdgeToChild(final Edge edgeToChild) {
-		this.outgoingEdges.add(edgeToChild);
+	protected void acceptRegularEdgeToChild(final Edge edgeToChild) {
+		this.outgoingRegularEdges.add(edgeToChild);
+	}
+
+	/**
+	 * Called when a child is added. Defaults to adding the edge to the child to the list of
+	 * outgoing edges.
+	 * 
+	 * @param edgeToChild
+	 *            the edge to the child to be added
+	 */
+	protected void acceptExistentialEdgeToChild(final Edge edgeToChild) {
+		this.outgoingExistentialEdges.add(edgeToChild);
 	}
 
 	/**
@@ -272,7 +304,8 @@ public abstract class Node {
 	 *            the edge to the child to be removed
 	 */
 	protected void removeChild(final Edge edgeToChild) {
-		this.outgoingEdges.remove(edgeToChild);
+		this.outgoingRegularEdges.remove(edgeToChild);
+		this.outgoingExistentialEdges.remove(edgeToChild);
 	}
 
 	/**
@@ -286,7 +319,7 @@ public abstract class Node {
 	abstract protected Edge newEdge(final Node source);
 
 	public int getNumberOfOutgoingEdges() {
-		return this.outgoingEdges.size();
+		return this.outgoingRegularEdges.size();
 	}
 
 	/**

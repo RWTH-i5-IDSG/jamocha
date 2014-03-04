@@ -124,13 +124,13 @@ public class ObjectTypeNodeTest {
 	}
 
 	/**
-	 * Test method for {@link org.jamocha.dn.nodes.Node#getOutgoingEdges()}.
+	 * Test method for {@link org.jamocha.dn.nodes.Node#getOutgoingRegularEdges()}.
 	 */
 	@Test
 	public void testGetOutgoingEdges() {
 		final Path p1 = new Path(Template.STRING);
 		ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, p1);
-		final Collection<? extends Edge> outgoingEdges = otn.getOutgoingEdges();
+		final Collection<? extends Edge> outgoingEdges = otn.getOutgoingRegularEdges();
 		assertNotNull(outgoingEdges);
 		assertEquals(0, outgoingEdges.size());
 	}

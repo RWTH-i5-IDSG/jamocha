@@ -183,7 +183,7 @@ public class Network {
 
 		// add all children of the first node
 		final Collection<Edge> firstNodesOutgoingPositiveEdges =
-				filterPathNodesIterator.next().getOutgoingEdges();
+				filterPathNodesIterator.next().getOutgoingRegularEdges();
 		for (final Edge edge : firstNodesOutgoingPositiveEdges) {
 			try {
 				candidates.add(edge.getTargetNode());
@@ -196,7 +196,7 @@ public class Network {
 		while (filterPathNodesIterator.hasNext()) {
 			final Node node = filterPathNodesIterator.next();
 			final HashSet<Node> cutSet = new HashSet<>();
-			for (final Edge edge : node.getOutgoingEdges()) {
+			for (final Edge edge : node.getOutgoingRegularEdges()) {
 				try {
 					cutSet.add(edge.getTargetNode());
 				} catch (final UnsupportedOperationException e) {
