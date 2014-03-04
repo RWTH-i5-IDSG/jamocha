@@ -351,7 +351,6 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 
 		// order of counter columns depends on order of them in the filter passed to node ctor
 		final AddressFilter counterOrderFilter = originEdge.getTargetNode().getFilter();
-		originEdge.getCounterColumnPosition(1);
 
 		final IntegerHolder counterColumn = new IntegerHolder(), counterRow = new IntegerHolder();
 		// FIXME assumption: there are no more regular filter elements after the first existential

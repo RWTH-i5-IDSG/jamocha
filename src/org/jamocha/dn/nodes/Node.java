@@ -63,7 +63,6 @@ public abstract class Node {
 		protected final Node sourceNode;
 		protected final Node targetNode;
 		protected AddressFilter filter;
-		protected int[] counterColumnPermutation;
 
 		protected EdgeImpl(final Network network, final Node sourceNode, final Node targetNode,
 				final AddressFilter filter) {
@@ -90,8 +89,6 @@ public abstract class Node {
 
 		@Override
 		public void setFilter(final AddressFilter filter) {
-			this.counterColumnPermutation =
-					determineCounterColumnPermutation(this.targetNode.getFilter(), filter);
 			this.filter = filter;
 		}
 
@@ -106,11 +103,6 @@ public abstract class Node {
 
 		protected void newMinusToken(final MemoryHandlerTemp mem) {
 			this.targetNode.enqueue(new Token.MinusToken(mem, this));
-		}
-
-		@Override
-		public int getCounterColumnPosition(final int positionInNodeFilter) {
-			return this.counterColumnPermutation[positionInNodeFilter];
 		}
 	}
 

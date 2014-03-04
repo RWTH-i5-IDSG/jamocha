@@ -58,20 +58,6 @@ public interface Edge {
 	public void setAddressMap(final Map<? extends FactAddress, ? extends FactAddress> map);
 
 	/**
-	 * As the filter in the edge may choose a join order different from that in the filter passed to
-	 * the ctor of the node, we have to to able to relate the counter columns and their
-	 * corresponding filter elements. Thus the edge saves the permutation of the existential filter
-	 * element positions with respect to the filter passed to the node ctor.
-	 * 
-	 * @param positionInNodeFilter
-	 *            position of the filter element in the filter passed to the node ctor (between 0
-	 *            and <code>#counter columns</code>-1)
-	 * @return position of the filter element identified via the position argument in the filter of
-	 *         the edge
-	 */
-	public int getCounterColumnPosition(final int positionInNodeFilter);
-
-	/**
 	 * Disconnects the nodeInput from the formerly connected nodes. This will remove the input from
 	 * the target node inputs as well as from the source node children.
 	 */
