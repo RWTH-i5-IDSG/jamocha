@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.jamocha.dn.memory.PathFilterElementToCounterColumn;
-import org.jamocha.filter.AddressFilter;
 import org.jamocha.filter.PathFilter;
 
 /**

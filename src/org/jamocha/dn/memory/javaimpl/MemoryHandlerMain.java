@@ -31,8 +31,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import lombok.Getter;
 import lombok.ToString;
 
-import org.jamocha.dn.memory.PathFilterElementToCounterColumn;
-import org.jamocha.dn.memory.MemoryHandlerMainAndCounterColumnMatcher;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.dn.nodes.CouldNotAcquireLockException;
 import org.jamocha.dn.nodes.Edge;
@@ -41,6 +39,7 @@ import org.jamocha.filter.AddressFilter;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.PathCollector;
 import org.jamocha.filter.PathFilter;
+import org.jamocha.filter.PathFilter.PathFilterElement;
 
 /**
  * Java-implementation of the {@link org.jamocha.dn.memory.MemoryHandlerMain} interface.
@@ -81,23 +80,31 @@ public class MemoryHandlerMain extends MemoryHandlerBase implements
 		this.counter = counter;
 	}
 
-	public static MemoryHandlerMainAndCounterColumnMatcher newMemoryHandlerMain(
+	public static org.jamocha.dn.memory.MemoryHandlerMainAndCounterColumnMatcher newMemoryHandlerMain(
 			final PathFilter filter, final Map<Edge, Set<Path>> edgesAndPaths) {
+		final ArrayList<Template> template = new ArrayList<>();
+		final ArrayList<FactAddress> addresses = new ArrayList<>();
+		final ArrayList<org.jamocha.dn.memory.CounterColumn> counterColumns = new ArrayList<>();
+
+		final PathFilterElementToCounterColumn pathFilterElementToCounterColumn =
+				new PathFilterElementToCounterColumn();
+
+		// gather existential paths
 		final HashSet<Path> existentialPaths = new HashSet<>();
 		existentialPaths.addAll(filter.getPositiveExistentialPaths());
 		existentialPaths.addAll(filter.getNegativeExistentialPaths());
-		final ArrayList<Template> template = new ArrayList<>();
-		final ArrayList<FactAddress> addresses = new ArrayList<>();
-		final ArrayList<FactAddress> fakeAddresses = new ArrayList<>();
 
-		final LinkedHashSet<Path> regularPaths =
-				PathCollector.newLinkedHashSet().collect(filter).getPaths();
-		regularPaths.removeAll(existentialPaths);
-		for (final Path path : regularPaths) {
-			final Template pathTemplate = path.getTemplate();
-			final org.jamocha.dn.memory.FactAddress pathFactAddress =
-					path.getFactAddressInCurrentlyLowestNode();
-
+		int index = 0;
+		for (final PathFilterElement pathFilterElement : filter.getFilterElements()) {
+			final LinkedHashSet<Path> paths =
+					PathCollector.newLinkedHashSet().collect(pathFilterElement).getPaths();
+			paths.retainAll(existentialPaths);
+			if (0 == paths.size())
+				continue;
+			final CounterColumn counterColumn = new CounterColumn(index++);
+			pathFilterElementToCounterColumn.putFilterElementToCounterColumn(pathFilterElement,
+					counterColumn);
+			counterColumns.add(counterColumn);
 		}
 
 		// Zuordnung template zu Path über template position and
@@ -136,11 +143,10 @@ public class MemoryHandlerMain extends MemoryHandlerBase implements
 		}
 		final Template[] templArray = template.toArray(new Template[template.size()]);
 		final FactAddress[] addrArray = addresses.toArray(new FactAddress[addresses.size()]);
-		// TODO make it non-null ;)
-		final PathFilterElementToCounterColumn filterElementToCounterColumn = null;
 		return new MemoryHandlerMainAndFilterElementToCounterColumn(new MemoryHandlerMain(
 				templArray, new ArrayList<Fact[]>(), Counter.newCounter(filter,
-						filterElementToCounterColumn), addrArray), filterElementToCounterColumn);
+						pathFilterElementToCounterColumn), addrArray),
+				pathFilterElementToCounterColumn);
 	}
 
 	@Override
