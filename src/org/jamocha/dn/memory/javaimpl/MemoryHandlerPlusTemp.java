@@ -512,10 +512,8 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 	}
 
 	@Override
-	public void enqueueInEdges(final Collection<? extends Edge> edges) {
-		for (final Edge edge : edges) {
-			edge.enqueuePlusMemory(this);
-		}
+	public void enqueueInEdge(final Edge edge) {
+		edge.enqueueMemory(this);
 	}
 
 }

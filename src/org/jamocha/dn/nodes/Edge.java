@@ -69,7 +69,7 @@ public interface Edge {
 
 	public LinkedList<MemoryHandlerPlusTemp> getTempMemories();
 
-	public void enqueuePlusMemory(final MemoryHandlerPlusTemp mem);
+	public void enqueueMemory(final MemoryHandlerPlusTemp mem);
 
-	public void enqueueMinusMemory(final MemoryHandlerMinusTemp mem);
+	public void enqueueMemory(final MemoryHandlerMinusTemp mem);
 }

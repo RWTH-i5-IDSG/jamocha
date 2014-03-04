@@ -1,12 +1,17 @@
 package org.jamocha.dn.memory;
 
-import java.util.Collection;
 import java.util.List;
 
 import org.jamocha.dn.nodes.CouldNotAcquireLockException;
 import org.jamocha.dn.nodes.Edge;
 import org.jamocha.filter.AddressFilter;
 
+/**
+ * Base interface for memories with short life time.
+ * 
+ * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+ * @see Edge
+ */
 public interface MemoryHandlerTemp extends MemoryHandler {
 	/**
 	 * Splits the temp memory into several memories each holding {@code size} entries (with the
@@ -26,7 +31,7 @@ public interface MemoryHandlerTemp extends MemoryHandler {
 			final Edge originIncomingEdge, final AddressFilter filter)
 			throws CouldNotAcquireLockException;
 
-	public void enqueueInEdges(final Collection<? extends Edge> edges);
+	public void enqueueInEdge(final Edge edge);
 
 	/**
 	 * Releases the lock for the calling edge.

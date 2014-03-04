@@ -15,7 +15,6 @@
 package org.jamocha.dn.memory.javaimpl;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Queue;
 
@@ -356,10 +355,8 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 	}
 
 	@Override
-	public void enqueueInEdges(final Collection<? extends Edge> edges) {
-		for (final Edge edge : edges) {
-			edge.enqueueMinusMemory(this);
-		}
+	public void enqueueInEdge(final Edge edge) {
+		edge.enqueueMemory(this);
 	}
 
 	@Override

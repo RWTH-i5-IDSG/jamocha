@@ -77,7 +77,9 @@ public class BetaNode extends Node {
 			if (mem.size() == 0) {
 				return;
 			}
-			mem.enqueueInEdges(this.targetNode.outgoingEdges);
+			for (final Edge edge : this.targetNode.outgoingEdges) {
+				mem.enqueueInEdge(edge);
+			}
 		}
 
 		@Override
@@ -88,16 +90,18 @@ public class BetaNode extends Node {
 			if (mem.size() == 0) {
 				return;
 			}
-			mem.enqueueInEdges(this.targetNode.outgoingEdges);
+			for (final Edge edge : this.targetNode.outgoingEdges) {
+				mem.enqueueInEdge(edge);
+			}
 		}
 
 		@Override
-		public void enqueuePlusMemory(final MemoryHandlerPlusTemp mem) {
+		public void enqueueMemory(final MemoryHandlerPlusTemp mem) {
 			newPlusToken(mem);
 		}
 
 		@Override
-		public void enqueueMinusMemory(final MemoryHandlerMinusTemp mem) {
+		public void enqueueMemory(final MemoryHandlerMinusTemp mem) {
 			newMinusToken(mem);
 		}
 	}

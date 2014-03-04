@@ -115,7 +115,7 @@ public class TerminalNode {
 		}
 
 		@Override
-		public void enqueuePlusMemory(final MemoryHandlerPlusTemp mem) {
+		public void enqueueMemory(final MemoryHandlerPlusTemp mem) {
 			if (0 == mem.size())
 				return;
 			for (final MemoryHandler handler : mem.splitIntoChunksOfSize(1)) {
@@ -125,7 +125,7 @@ public class TerminalNode {
 		}
 
 		@Override
-		public void enqueueMinusMemory(final MemoryHandlerMinusTemp mem) {
+		public void enqueueMemory(final MemoryHandlerMinusTemp mem) {
 			if (0 == mem.size())
 				return;
 			if (mem.getTemplate() == this.targetNode.getMemory().getTemplate()) {
