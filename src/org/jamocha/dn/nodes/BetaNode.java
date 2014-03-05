@@ -98,6 +98,7 @@ public class BetaNode extends Node {
 		@Override
 		public void enqueueMemory(final MemoryHandlerPlusTemp mem) {
 			newPlusToken(mem);
+			this.tempMemories.add(mem);
 		}
 
 		@Override
