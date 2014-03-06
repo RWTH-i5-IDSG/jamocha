@@ -30,6 +30,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import lombok.Getter;
 import lombok.ToString;
 
+import org.jamocha.dn.memory.MemoryHandlerTemp;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.dn.nodes.CouldNotAcquireLockException;
 import org.jamocha.dn.nodes.Edge;
@@ -160,6 +161,13 @@ public class MemoryHandlerMain extends MemoryHandlerBase implements
 		for (final Fact[] row : facts) {
 			this.facts.add(row);
 		}
+	}
+
+	public MemoryHandlerTemp add(final MemoryHandlerExistentialTemp temp) {
+		// ... apply counter in-/decrement
+		// create new temp if counter update changes validity and row is not yet in temp (mark when
+		// creating updates)
+		return null;
 	}
 
 	@Override

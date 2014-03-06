@@ -498,7 +498,12 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 	}
 
 	@Override
-	public boolean releaseLock() {
+	public MemoryHandlerTemp releaseLock() {
+		internalReleaseLock();
+		return null;
+	}
+
+	boolean internalReleaseLock() {
 		if (this.lock.release())
 			return false;
 		// all children have processed the temp memory, now we have to write its

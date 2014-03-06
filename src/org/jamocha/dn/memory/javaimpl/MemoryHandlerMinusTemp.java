@@ -370,9 +370,9 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 	}
 
 	@Override
-	public boolean releaseLock() {
+	public MemoryHandlerTemp releaseLock() {
 		// TODO does nothing, do we need it in minus temps?
-		return false;
+		return null;
 	}
 
 }
