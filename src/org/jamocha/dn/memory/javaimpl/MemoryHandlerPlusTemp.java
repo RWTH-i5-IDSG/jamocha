@@ -138,20 +138,17 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 
 	static abstract class StackElement {
 		int rowIndex;
-		int memIndex;
-		final List<List<Fact[]>> memStack;
+		List<Fact[]> facts;
 		final int offset;
 
-		private StackElement(final List<List<Fact[]>> memStack, final int offset) {
-			this.memStack = memStack;
+		private StackElement(final List<Fact[]> facts, final int offset) {
+			this.facts = facts;
 			this.offset = offset;
 		}
 
 		public static StackElement ordinaryInput(final Edge edge, final int offset) {
-			final List<List<Fact[]>> memStack = new ArrayList<List<Fact[]>>(1);
-			memStack.add(((org.jamocha.dn.memory.javaimpl.MemoryHandlerMain) edge.getSourceNode()
-					.getMemory()).facts);
-			return new StackElement(memStack, offset) {
+			return new StackElement(((org.jamocha.dn.memory.javaimpl.MemoryHandlerMain) edge
+					.getSourceNode().getMemory()).facts, offset) {
 				@Override
 				Object getValue(final AddressPredecessor addr, final SlotAddress slot) {
 					return this.getRow()[((org.jamocha.dn.memory.javaimpl.FactAddress) addr
@@ -170,9 +167,7 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 				System.arraycopy(facts, 0, row, offset, facts.length);
 				listWithHoles.add(row);
 			}
-			final List<List<Fact[]>> memStack = new ArrayList<List<Fact[]>>(1);
-			memStack.add(listWithHoles);
-			return new StackElement(memStack, offset) {
+			return new StackElement(listWithHoles, offset) {
 				@Override
 				Object getValue(final AddressPredecessor addr, final SlotAddress slot) {
 					return this.getRow()[((org.jamocha.dn.memory.javaimpl.FactAddress) addr
@@ -182,26 +177,21 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 		}
 
 		List<Fact[]> getTable() {
-			return this.memStack.get(this.memIndex);
+			return this.facts;
 		}
 
 		Fact[] getRow() {
-			return this.memStack.get(this.memIndex).get(this.rowIndex);
+			return this.facts.get(this.rowIndex);
 		}
 
 		abstract Object getValue(final AddressPredecessor addr, final SlotAddress slot);
 
-		boolean checkMemBounds() {
-			return this.memStack.size() > this.memIndex && this.memIndex >= 0;
-		}
-
 		boolean checkRowBounds() {
-			return checkMemBounds() && getTable().size() > this.rowIndex && this.rowIndex >= 0;
+			return getTable().size() > this.rowIndex && this.rowIndex >= 0;
 		}
 
-		void resetIndices() {
+		void resetIndex() {
 			this.rowIndex = 0;
-			this.memIndex = 0;
 		}
 
 		int getOffset() {
@@ -226,45 +216,30 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 			// initialize all memory indices to valid values
 			while (iter.hasNext()) {
 				final StackElement element = iter.next();
-				while (!element.checkRowBounds()) {
-					if (!element.checkMemBounds()) {
-						// one of the elements doesn't hold any facts, the join will be empty
-						// delete all partial fact tuples in the TR
-						originElement.memStack.set(0, new ArrayList<Fact[]>(0));
-						return;
-					}
-					element.memIndex++;
+				if (!element.checkRowBounds()) {
+					// one of the elements doesn't hold any facts, the join will be empty
+					// delete all partial fact tuples in the TR
+					TR.clear();
+					return;
 				}
 			}
 		}
-		outerloop: while (true) {
-			innerloop: while (true) {
-				functionPointer.apply(TR, originElement);
-				// increment row indices
-				for (final Iterator<StackElement> iter = stack.iterator(); iter.hasNext();) {
-					final StackElement element = iter.next();
-					element.rowIndex++;
-					if (element.checkRowBounds())
-						break;
-					element.rowIndex = 0;
-					if (!iter.hasNext())
-						break innerloop;
-				}
-			}
-			// increment memory indices
+		indexloop: while (true) {
+			functionPointer.apply(TR, originElement);
+			// increment row indices
 			for (final Iterator<StackElement> iter = stack.iterator(); iter.hasNext();) {
 				final StackElement element = iter.next();
-				element.memIndex++;
-				if (element.checkMemBounds())
+				element.rowIndex++;
+				if (element.checkRowBounds())
 					break;
-				element.memIndex = 0;
+				element.resetIndex();
 				if (!iter.hasNext())
-					break outerloop;
+					break indexloop;
 			}
 		}
 		// reset all indices in the StackElements
 		for (final StackElement elem : stack) {
-			elem.resetIndices();
+			elem.resetIndex();
 		}
 	}
 
@@ -400,7 +375,7 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 				}
 			}, TR, stack, originElement);
 			// replace TR in originElement with new temporary result
-			originElement.memStack.set(0, TR);
+			originElement.facts = TR;
 			// point all inputs that were joint during this turn to the TR
 			// StackElement
 			for (final Edge incomingEdge : newEdges) {
@@ -447,7 +422,7 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 						}
 					}, TR, stack, originElement);
 					// replace TR in originElement with new temporary result
-					originElement.memStack.set(0, TR);
+					originElement.facts = TR;
 					// point all inputs that were joint during this turn to the TR
 					// StackElement
 					for (final Edge incomingEdge : newEdges) {
@@ -457,7 +432,7 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 
 				public void visitNegatedExistential(final AddressFilterElement fe) {
 					if (counter.size() == 0) {
-						counter.addEmptyRows(originElement.memStack.get(0).size());
+						counter.addEmptyRows(originElement.facts.size());
 					}
 					final ArrayList<Fact[]> TR = new ArrayList<>();
 					loop(new FunctionPointer() {
@@ -515,7 +490,7 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 				}
 			}, TR, stack, originElement);
 			// replace TR in originElement with new temporary result
-			originElement.memStack.set(0, TR);
+			originElement.facts = TR;
 			// point all inputs that were joint during this turn to the TR
 			// StackElement
 			edgeToStack.put(nodeInput, originElement);
