@@ -223,11 +223,7 @@ public abstract class Node {
 				edge = connectExistentialParent(path.getCurrentlyLowestNode());
 			}
 			// mark all joined paths as done
-			{
-				int sizeBefore = paths.size();
-				paths.removeAll(joinedWith);
-				assert sizeBefore - joinedWith.size() == paths.size();
-			}
+			paths.removeAll(joinedWith);
 			edgesAndPaths.put(edge, joinedWith);
 			edges.add(edge);
 			// add paths to joined paths
