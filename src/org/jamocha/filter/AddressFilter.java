@@ -56,17 +56,13 @@ public class AddressFilter extends Filter<AddressFilter.AddressFilterElement> {
 	}
 
 	public static class ExistentialAddressFilterElement extends AddressFilterElement {
+		@Getter(onMethod = @_({ @Override }))
 		protected final CounterColumn counterColumn;
 
 		public ExistentialAddressFilterElement(final PredicateWithArguments function,
 				final SlotInFactAddress[] addressesInTarget, final CounterColumn counterColumn) {
 			super(function, addressesInTarget);
 			this.counterColumn = counterColumn;
-		}
-
-		@Override
-		public CounterColumn getCounterColumn() {
-			return this.counterColumn;
 		}
 	}
 
