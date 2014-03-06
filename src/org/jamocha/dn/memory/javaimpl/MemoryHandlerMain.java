@@ -21,7 +21,6 @@ import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -107,39 +106,24 @@ public class MemoryHandlerMain extends MemoryHandlerBase implements
 			counterColumns.add(counterColumn);
 		}
 
-		// Zuordnung template zu Path über template position and
-
-		for (final Entry<Edge, Set<Path>> entry : edgesAndPaths.entrySet()) {
-			final Edge edge = entry.getKey();
-			final Set<Path> pathsInEdge = entry.getValue();
-			// for each edge look at regular paths and translate their addresses
-			final MemoryHandlerMain memoryHandlerMain =
-					(MemoryHandlerMain) edge.getSourceNode().getMemory();
-			final HashMap<FactAddress, FactAddress> addressMap = new HashMap<>();
-			{
-				final Template[] currentHandlerTemplate = memoryHandlerMain.getTemplate();
-				outerloop: for (int i = 0; i < currentHandlerTemplate.length; i++) {
-					final Template t = currentHandlerTemplate[i];
-					// find a path that corresponds
-					for (final Path path : pathsInEdge) {
-						final Template pathTemplate = path.getTemplate();
-						final FactAddress pathFactAddress =
-								(FactAddress) path.getFactAddressInCurrentlyLowestNode();
-						if (pathFactAddress.index == i && t == pathTemplate) {
-							if (!existentialPaths.contains(path)) {
-								template.add(t);
-								final FactAddress oldFactAddress = memoryHandlerMain.addresses[i];
-								final FactAddress newFactAddress =
-										new FactAddress(addresses.size());
-								addressMap.put(oldFactAddress, newFactAddress);
-								addresses.add(newFactAddress);
-							}
-							continue outerloop;
-						}
-					}
+		if (!edgesAndPaths.isEmpty()) {
+			final Edge[] incomingEdges =
+					edgesAndPaths.entrySet().iterator().next().getKey().getTargetNode()
+							.getIncomingEdges();
+			for (final Edge edge : incomingEdges) {
+				final MemoryHandlerMain memoryHandlerMain =
+						(MemoryHandlerMain) edge.getSourceNode().getMemory();
+				for (final Template t : memoryHandlerMain.getTemplate()) {
+					template.add(t);
 				}
+				final HashMap<FactAddress, FactAddress> addressMap = new HashMap<>();
+				for (final FactAddress oldFactAddress : memoryHandlerMain.addresses) {
+					final FactAddress newFactAddress = new FactAddress(addresses.size());
+					addressMap.put(oldFactAddress, newFactAddress);
+					addresses.add(newFactAddress);
+				}
+				edge.setAddressMap(addressMap);
 			}
-			edge.setAddressMap(addressMap);
 		}
 		final Template[] templArray = template.toArray(new Template[template.size()]);
 		final FactAddress[] addrArray = addresses.toArray(new FactAddress[addresses.size()]);
