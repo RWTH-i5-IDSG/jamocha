@@ -41,9 +41,11 @@ public class PathFilter extends Filter<PathFilter.PathFilterElement> {
 	 * Constructs the filter using the given existential paths and filter elements.
 	 * 
 	 * @param positiveExistentialPaths
-	 *            positive existential paths
+	 *            set of all positive existential paths that are part of the filter or have been
+	 *            joined to such paths
 	 * @param negativeExistentialPaths
-	 *            negative existential paths
+	 *            set of all negative existential paths that are part of the filter or have been
+	 *            joined to such paths
 	 * @param filterElements
 	 *            filter elements to be used in the filter
 	 */
