@@ -19,7 +19,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
@@ -63,7 +62,7 @@ public class MemoryHandlerMain extends MemoryHandlerBase implements
 	final Counter counter;
 
 	MemoryHandlerMain(final Template template, final Path... paths) {
-		super(new Template[] { template }, new ArrayList<Fact[]>());
+		super(new Template[] { template }, new ArrayList<FactTuple>());
 		final FactAddress address = new FactAddress(0);
 		this.addresses = new FactAddress[] { address };
 		for (final Path path : paths) {
@@ -73,8 +72,8 @@ public class MemoryHandlerMain extends MemoryHandlerBase implements
 		this.counter = Counter.newEmptyCounter();
 	}
 
-	MemoryHandlerMain(final Template[] template, final List<Fact[]> facts, final Counter counter,
-			final FactAddress[] addresses) {
+	MemoryHandlerMain(final Template[] template, final ArrayList<FactTuple> facts,
+			final Counter counter, final FactAddress[] addresses) {
 		super(template, facts);
 		this.addresses = addresses;
 		this.counter = counter;
@@ -129,7 +128,7 @@ public class MemoryHandlerMain extends MemoryHandlerBase implements
 		final Template[] templArray = template.toArray(new Template[template.size()]);
 		final FactAddress[] addrArray = addresses.toArray(new FactAddress[addresses.size()]);
 		return new MemoryHandlerMainAndFilterElementToCounterColumn(new MemoryHandlerMain(
-				templArray, new ArrayList<Fact[]>(), Counter.newCounter(filter,
+				templArray, new ArrayList<FactTuple>(), Counter.newCounter(filter,
 						pathFilterElementToCounterColumn), addrArray),
 				pathFilterElementToCounterColumn);
 	}
@@ -157,9 +156,9 @@ public class MemoryHandlerMain extends MemoryHandlerBase implements
 	@Override
 	public void add(final org.jamocha.dn.memory.MemoryHandlerPlusTemp toAdd) {
 		final MemoryHandlerPlusTemp temp = (MemoryHandlerPlusTemp) toAdd;
-		final List<Fact[]> facts = (null == temp.filtered ? temp.facts : temp.filtered);
-		for (final Fact[] row : facts) {
-			this.facts.add(row);
+		final ArrayList<FactTuple> facts = (null == temp.filtered ? temp.rows : temp.filtered);
+		for (final FactTuple row : facts) {
+			this.rows.add(row);
 		}
 	}
 
@@ -198,6 +197,31 @@ public class MemoryHandlerMain extends MemoryHandlerBase implements
 	@Override
 	public MemoryHandlerTerminal newMemoryHandlerTerminal() {
 		return new MemoryHandlerTerminal(this);
+	}
+
+	/**
+	 * creates new row using the fact tuple given and default counter values.
+	 * 
+	 * @param factTuple
+	 *            fact tuple to use
+	 * @return row containing fact tuple and default counter values
+	 */
+	public FactTuple newRow(final Fact... factTuple) {
+		assert factTuple.length == template.length;
+		if (null == counter || counter.columns == 0)
+			return new FactTuple(factTuple);
+		return new FactTupleAndCounter(factTuple, new int[counter.columns]);
+	}
+
+	/**
+	 * creates new row of given width and default counter values.
+	 * 
+	 * @param factTuple
+	 *            fact tuple to use
+	 * @return row containing fact tuple and default counter values
+	 */
+	public FactTuple newRow(final int columns) {
+		return newRow(new Fact[columns]);
 	}
 
 }

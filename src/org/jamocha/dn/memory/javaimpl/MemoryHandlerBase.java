@@ -14,8 +14,8 @@
  */
 package org.jamocha.dn.memory.javaimpl;
 
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -40,11 +40,11 @@ public class MemoryHandlerBase implements MemoryHandler {
 	final Template[] template;
 	@NonNull
 	@NonFinal
-	List<Fact[]> facts;
+	ArrayList<FactTuple> rows;
 
-	public MemoryHandlerBase(final Template[] template, final List<Fact[]> facts) {
+	public MemoryHandlerBase(final Template[] template, final ArrayList<FactTuple> rows) {
 		this.template = template;
-		this.facts = facts;
+		this.rows = rows;
 	}
 
 	/**
@@ -52,7 +52,7 @@ public class MemoryHandlerBase implements MemoryHandler {
 	 */
 	@Override
 	public Object getValue(final FactAddress address, final SlotAddress slot, final int row) {
-		return this.facts.get(row)[((org.jamocha.dn.memory.javaimpl.FactAddress) address)
+		return this.rows.get(row).getFactTuple()[((org.jamocha.dn.memory.javaimpl.FactAddress) address)
 				.getIndex()].getValue(slot);
 	}
 
@@ -61,12 +61,12 @@ public class MemoryHandlerBase implements MemoryHandler {
 	 */
 	@Override
 	public int size() {
-		return this.facts.size();
+		return this.rows.size();
 	}
 
 	@Override
 	public String toString() {
 		return "MemoryHandlerBase(template=" + Arrays.deepToString(this.template) + ", facts="
-				+ Arrays.deepToString(this.facts.toArray()) + ")";
+				+ Arrays.deepToString(this.rows.toArray()) + ")";
 	}
 }

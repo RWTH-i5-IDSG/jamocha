@@ -64,12 +64,12 @@ public class MemoryHandlerTerminal implements org.jamocha.dn.memory.MemoryHandle
 		final MemoryHandlerMinusTemp minusTemp = (MemoryHandlerMinusTemp) mem;
 		final FactAddress[] factAddresses = minusTemp.factAddresses;
 		final Queue<Retract> retracts = new LinkedList<>();
-		for (final Fact[] minusFactTuple : minusTemp.facts) {
+		for (final FactTuple minusRow : minusTemp.rows) {
 			for (final AssertOrRetract<?> token : this.tokens) {
 				final MemoryHandlerBase tokenMem = (MemoryHandlerBase) token.getMem();
-				final Fact[] tokenFactTuple = tokenMem.facts.get(0);
-				if (EqualityChecker.beta.equals(tokenFactTuple, minusFactTuple, null, 0,
-						factAddresses) && !token.isRevokedOrMinus()) {
+				final FactTuple tokenRow = tokenMem.rows.get(0);
+				if (EqualityChecker.beta.equals(tokenRow, minusRow, null, 0, factAddresses)
+						&& !token.isRevokedOrMinus()) {
 					final Retract minus = new Retract(token.getMem());
 					token.setFollowingRetract(minus);
 					retracts.add(minus);

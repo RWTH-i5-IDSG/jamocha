@@ -20,7 +20,6 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -63,10 +62,10 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 
 	final Semaphore lock;
 	boolean valid = true;
-	List<Fact[]> filtered;
+	ArrayList<FactTuple> filtered;
 
 	private MemoryHandlerPlusTemp(final MemoryHandlerMain originatingMainHandler,
-			final List<Fact[]> facts, final int numChildren) {
+			final ArrayList<FactTuple> facts, final int numChildren) {
 		super(originatingMainHandler, facts);
 		if (facts.size() == 0) {
 			this.lock = null;
@@ -102,15 +101,15 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 	static MemoryHandlerPlusTemp newAlphaTemp(final MemoryHandlerMain originatingMainHandler,
 			final MemoryHandlerPlusTemp token, final Edge originIncomingEdge,
 			final AddressFilter filter) throws CouldNotAcquireLockException {
-		final ArrayList<Fact[]> factList = new ArrayList<>(1);
-		factLoop: for (final Fact[] fact : token.facts) {
-			assert fact.length == 1;
+		final ArrayList<FactTuple> factList = new ArrayList<>(1);
+		factLoop: for (final FactTuple row : token.rows) {
+			assert row.getFactTuple().length == 1;
 			for (final AddressFilterElement filterElement : filter.getFilterElements()) {
-				if (!applyFilterElement(fact[0], filterElement)) {
+				if (!applyFilterElement(row.getFactTuple()[0], filterElement)) {
 					continue factLoop;
 				}
 			}
-			factList.add(fact);
+			factList.add(row);
 		}
 		// FIXME only use Semaphores if one of the outgoing edges is connected to the beta network
 		return new MemoryHandlerPlusTemp(originatingMainHandler, factList, originIncomingEdge
@@ -128,9 +127,9 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 
 	static MemoryHandlerPlusTemp newRootTemp(final MemoryHandlerMain originatingMainHandler,
 			final Node otn, final org.jamocha.dn.memory.Fact... facts) {
-		final ArrayList<Fact[]> factList = new ArrayList<>(facts.length);
+		final ArrayList<FactTuple> factList = new ArrayList<>(facts.length);
 		for (final org.jamocha.dn.memory.Fact fact : facts) {
-			factList.add(new Fact[] { new Fact(fact.getSlotValues()) });
+			factList.add(originatingMainHandler.newRow(new Fact(fact.getSlotValues())));
 		}
 		return new MemoryHandlerPlusTemp(originatingMainHandler, factList,
 				otn.getNumberOfOutgoingEdges());
@@ -138,20 +137,20 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 
 	static abstract class StackElement {
 		int rowIndex;
-		List<Fact[]> facts;
+		ArrayList<FactTuple> rows;
 		final int offset;
 
-		private StackElement(final List<Fact[]> facts, final int offset) {
-			this.facts = facts;
+		private StackElement(final ArrayList<FactTuple> rows, final int offset) {
+			this.rows = rows;
 			this.offset = offset;
 		}
 
 		public static StackElement ordinaryInput(final Edge edge, final int offset) {
 			return new StackElement(((org.jamocha.dn.memory.javaimpl.MemoryHandlerMain) edge
-					.getSourceNode().getMemory()).facts, offset) {
+					.getSourceNode().getMemory()).rows, offset) {
 				@Override
 				Object getValue(final AddressPredecessor addr, final SlotAddress slot) {
-					return this.getRow()[((org.jamocha.dn.memory.javaimpl.FactAddress) addr
+					return this.getRow().getFactTuple()[((org.jamocha.dn.memory.javaimpl.FactAddress) addr
 							.getAddress()).index].getValue((slot));
 				}
 			};
@@ -160,28 +159,30 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 		public static StackElement originInput(final int columns, final Edge originEdge,
 				final MemoryHandlerPlusTemp token, final int offset) {
 			final org.jamocha.dn.memory.javaimpl.MemoryHandlerPlusTemp temp = token;
-			final ArrayList<Fact[]> listWithHoles = new ArrayList<>(temp.facts.size());
-			for (final Fact[] facts : temp.facts) {
-				final Fact[] row = new Fact[columns];
-				assert columns >= offset + facts.length;
-				System.arraycopy(facts, 0, row, offset, facts.length);
-				listWithHoles.add(row);
+			final ArrayList<FactTuple> listWithHoles = new ArrayList<>(temp.rows.size());
+			for (final FactTuple row : temp.rows) {
+				final FactTuple wideRow =
+						((MemoryHandlerMain) originEdge.getTargetNode().getMemory())
+								.newRow(columns);
+				assert columns >= offset + row.getFactTuple().length;
+				wideRow.copy(offset, row);
+				listWithHoles.add(wideRow);
 			}
 			return new StackElement(listWithHoles, offset) {
 				@Override
 				Object getValue(final AddressPredecessor addr, final SlotAddress slot) {
-					return this.getRow()[((org.jamocha.dn.memory.javaimpl.FactAddress) addr
+					return this.getRow().getFactTuple()[((org.jamocha.dn.memory.javaimpl.FactAddress) addr
 							.getEdge().localizeAddress(addr.getAddress())).index].getValue((slot));
 				}
 			};
 		}
 
-		List<Fact[]> getTable() {
-			return this.facts;
+		ArrayList<FactTuple> getTable() {
+			return this.rows;
 		}
 
-		Fact[] getRow() {
-			return this.facts.get(this.rowIndex);
+		FactTuple getRow() {
+			return this.rows.get(this.rowIndex);
 		}
 
 		abstract Object getValue(final AddressPredecessor addr, final SlotAddress slot);
@@ -201,10 +202,10 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 	}
 
 	static interface FunctionPointer {
-		public void apply(final ArrayList<Fact[]> TR, final StackElement originElement);
+		public void apply(final ArrayList<FactTuple> TR, final StackElement originElement);
 	}
 
-	private static void loop(final FunctionPointer functionPointer, final ArrayList<Fact[]> TR,
+	private static void loop(final FunctionPointer functionPointer, final ArrayList<FactTuple> TR,
 			final Collection<StackElement> stack, final StackElement originElement) {
 		if (stack.isEmpty()) {
 			return;
@@ -243,7 +244,7 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 		}
 	}
 
-	private static List<Fact[]> getLocksAndPerformJoin(
+	private static ArrayList<FactTuple> getLocksAndPerformJoin(
 			final MemoryHandlerMain originatingMainHandler, final AddressFilter filter,
 			final MemoryHandlerPlusTemp token, final Edge originIncomingEdge, final Counter counter)
 			throws CouldNotAcquireLockException {
@@ -341,10 +342,10 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 
 			// filterElement.
 
-			final ArrayList<Fact[]> TR = new ArrayList<>();
+			final ArrayList<FactTuple> TR = new ArrayList<>();
 			loop(new FunctionPointer() {
 				@Override
-				public void apply(final ArrayList<Fact[]> TR, final StackElement originElement) {
+				public void apply(final ArrayList<FactTuple> TR, final StackElement originElement) {
 					final int paramLength = addresses.length;
 					final Object params[] = new Object[paramLength];
 					// determine parameters
@@ -353,21 +354,17 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 						final AddressPredecessor fact =
 								targetNode.delocalizeAddress(address.getFactAddress());
 						final StackElement se = edgeToStack.get(fact.getEdge());
-						if (!stack.contains(se))
-							throw new Error("stack element not in stack?");
 						params[i] = se.getValue(fact, address.getSlotAddress());
 					}
 					// copy result to new TR if facts match predicate
 					if ((boolean) function.evaluate(params)) {
 						// copy current row from old TR
-						final Fact[] row =
-								Arrays.copyOf(originElement.getRow(), originElement.getRow().length);
+						final FactTuple row = originElement.getRow().copy();
 						// insert information from new inputs
 						for (final Edge edge : newEdges) {
 							// source is some temp, destination new TR
 							final StackElement se = edgeToStack.get(edge);
-							final Fact[] newRowPart = se.getRow();
-							System.arraycopy(newRowPart, 0, row, se.getOffset(), newRowPart.length);
+							row.copy(se.getOffset(), se.getRow());
 						}
 						// copy the result to new TR
 						TR.add(row);
@@ -375,7 +372,7 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 				}
 			}, TR, stack, originElement);
 			// replace TR in originElement with new temporary result
-			originElement.facts = TR;
+			originElement.rows = TR;
 			// point all inputs that were joint during this turn to the TR
 			// StackElement
 			for (final Edge incomingEdge : newEdges) {
@@ -387,10 +384,10 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 
 			org.jamocha.visitor.Visitor visitor = new Visitor() {
 				public void visit(final AddressFilterElement fe) {
-					final ArrayList<Fact[]> TR = new ArrayList<>();
+					final ArrayList<FactTuple> TR = new ArrayList<>();
 					loop(new FunctionPointer() {
 						@Override
-						public void apply(final ArrayList<Fact[]> TR,
+						public void apply(final ArrayList<FactTuple> TR,
 								final StackElement originElement) {
 							final int paramLength = addresses.length;
 							final Object params[] = new Object[paramLength];
@@ -405,16 +402,12 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 							// copy result to new TR if facts match predicate
 							if ((boolean) function.evaluate(params)) {
 								// copy current row from old TR
-								final Fact[] row =
-										Arrays.copyOf(originElement.getRow(),
-												originElement.getRow().length);
+								final FactTuple row = originElement.getRow().copy();
 								// insert information from new inputs
 								for (final Edge edge : newEdges) {
 									// source is some temp, destination new TR
 									final StackElement se = edgeToStack.get(edge);
-									final Fact[] newRowPart = se.getRow();
-									System.arraycopy(newRowPart, 0, row, se.getOffset(),
-											newRowPart.length);
+									row.copy(se.getOffset(), se.getRow());
 								}
 								// copy the result to new TR
 								TR.add(row);
@@ -422,7 +415,7 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 						}
 					}, TR, stack, originElement);
 					// replace TR in originElement with new temporary result
-					originElement.facts = TR;
+					originElement.rows = TR;
 					// point all inputs that were joint during this turn to the TR
 					// StackElement
 					for (final Edge incomingEdge : newEdges) {
@@ -432,12 +425,12 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 
 				public void visitNegatedExistential(final AddressFilterElement fe) {
 					if (counter.size() == 0) {
-						counter.addEmptyRows(originElement.facts.size());
+						counter.addEmptyRows(originElement.rows.size());
 					}
-					final ArrayList<Fact[]> TR = new ArrayList<>();
+					final ArrayList<FactTuple> TR = new ArrayList<>();
 					loop(new FunctionPointer() {
 						@Override
-						public void apply(final ArrayList<Fact[]> TR,
+						public void apply(final ArrayList<FactTuple> TR,
 								final StackElement originElement) {
 							final int paramLength = addresses.length;
 							final Object params[] = new Object[paramLength];
@@ -474,23 +467,20 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 			final Edge nodeInput = entry.getKey();
 			final StackElement se = entry.getValue();
 			final Collection<StackElement> stack = Arrays.asList(originElement, se);
-			final ArrayList<Fact[]> TR = new ArrayList<>();
+			final ArrayList<FactTuple> TR = new ArrayList<>();
 			loop(new FunctionPointer() {
 				@Override
-				public void apply(final ArrayList<Fact[]> TR, final StackElement originElement) {
+				public void apply(final ArrayList<FactTuple> TR, final StackElement originElement) {
 					// copy result to new TR
 					// copy current row from old TR
-					final Fact[] row = originElement.getRow();
 					// insert information from new input
 					// source is some temp, destination new TR
-					final Fact[] newRowPart = se.getRow();
-					System.arraycopy(newRowPart, 0, row, se.getOffset(), newRowPart.length);
 					// copy the result to new TR
-					TR.add(row);
+					TR.add(originElement.getRow().copy().copy(se.getOffset(), se.getRow()));
 				}
 			}, TR, stack, originElement);
 			// replace TR in originElement with new temporary result
-			originElement.facts = TR;
+			originElement.rows = TR;
 			// point all inputs that were joint during this turn to the TR
 			// StackElement
 			edgeToStack.put(nodeInput, originElement);

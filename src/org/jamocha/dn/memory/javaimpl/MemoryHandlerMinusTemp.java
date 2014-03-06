@@ -15,14 +15,12 @@
 package org.jamocha.dn.memory.javaimpl;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Queue;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.ToString;
 
-import org.jamocha.dn.memory.SlotAddress;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.dn.nodes.CouldNotAcquireLockException;
 import org.jamocha.dn.nodes.Edge;
@@ -38,7 +36,7 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 		org.jamocha.dn.memory.MemoryHandlerMinusTemp {
 
 	private static MemoryHandlerMinusTemp empty = new MemoryHandlerMinusTemp(null, null,
-			new ArrayList<Fact[]>(0), new FactAddress[] {});
+			new ArrayList<FactTuple>(0), new FactAddress[] {});
 
 	/**
 	 * Maps FactAddresses valid in the current scope of the token by position of the facts in the
@@ -48,13 +46,13 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 
 	static MemoryHandlerMinusTemp newRootTemp(final MemoryHandlerMain memoryHandlerMain,
 			final org.jamocha.dn.memory.Fact[] facts) {
-		final List<Fact[]> minusFacts = new ArrayList<>(facts.length);
+		final ArrayList<FactTuple> minusFacts = new ArrayList<>(facts.length);
 		for (final org.jamocha.dn.memory.Fact fact : facts) {
-			minusFacts.add(new Fact[] { new Fact(fact.getSlotValues()) });
+			minusFacts.add(new FactTuple(new Fact[] { new Fact(fact.getSlotValues()) }));
 		}
 		final FactAddress[] factAddresses = memoryHandlerMain.addresses;
 		assert factAddresses.length == 1;
-		final List<Fact[]> relevantFactTuples =
+		final ArrayList<FactTuple> relevantFactTuples =
 				getRelevantFactTuples(memoryHandlerMain, minusFacts, factAddresses,
 						EqualityChecker.root);
 		if (0 == relevantFactTuples.size()) {
@@ -85,7 +83,7 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 
 		LazyListCopy matched(final int index);
 
-		List<Fact[]> getList();
+		ArrayList<FactTuple> getList();
 	}
 
 	/**
@@ -95,7 +93,7 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 	@AllArgsConstructor
 	static abstract class LLC implements LazyListCopy {
 		@Getter
-		final List<Fact[]> list;
+		final ArrayList<FactTuple> list;
 
 		@Override
 		public LazyListCopy unmatched(final int index) {
@@ -113,17 +111,17 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
 	 */
 	static class SameList extends LLC {
-		public SameList(final List<Fact[]> list) {
+		public SameList(final ArrayList<FactTuple> list) {
 			super(list);
 		}
 
 		@Override
 		public LazyListCopy matched(final int index) {
 			final int size = this.list.size();
-			final List<Fact[]> copy = new ArrayList<>(this.list);
+			final ArrayList<FactTuple> copy = new ArrayList<>(this.list);
 			copy.subList(index, size).clear();
 			// TODO write your own arraylist to do new ArrayList<>(original, from, to);
-			// final List<Fact[]> copy = new ArrayList<>(this.list.size());
+			// final ArrayList<Fact[]> copy = new ArrayList<>(this.list.size());
 			// for (int i = 0; i < index; i++) {
 			// copy.add(this.list.get(i));
 			// }
@@ -136,9 +134,9 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
 	 */
 	static class CopiedList extends LLC {
-		final List<Fact[]> copy;
+		final ArrayList<FactTuple> copy;
 
-		public CopiedList(final List<Fact[]> list, final List<Fact[]> copy) {
+		public CopiedList(final ArrayList<FactTuple> list, final ArrayList<FactTuple> copy) {
 			super(list);
 			this.copy = copy;
 		}
@@ -150,7 +148,7 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 		}
 
 		@Override
-		public List<Fact[]> getList() {
+		public ArrayList<FactTuple> getList() {
 			return this.copy;
 		}
 	}
@@ -172,17 +170,17 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
 	 */
 	static interface EqualityChecker {
-		boolean equals(final Fact[] originalFactTuple, final Fact[] minusFactTuple,
-				final List<Fact[]> minusFacts, final int minusFactsIndex,
+		boolean equals(final FactTuple originalFactTuple, final FactTuple minusFactTuple,
+				final ArrayList<FactTuple> minusFacts, final int minusFactsIndex,
 				final FactAddress[] factAddresses);
 
 		static EqualityChecker root = new EqualityChecker() {
 			@Override
-			public boolean equals(final Fact[] originalFactTuple, final Fact[] minusFactTuple,
-					final List<Fact[]> minusFacts, final int minusFactsIndex,
-					final FactAddress[] factAddresses) {
-				final Fact originalFact = originalFactTuple[0];
-				final Fact minusFact = minusFactTuple[0];
+			public boolean equals(final FactTuple originalFactTuple,
+					final FactTuple minusFactTuple, final ArrayList<FactTuple> minusFacts,
+					final int minusFactsIndex, final FactAddress[] factAddresses) {
+				final Fact originalFact = originalFactTuple.getFactTuple()[0];
+				final Fact minusFact = minusFactTuple.getFactTuple()[0];
 				if (Fact.equalContent(originalFact, minusFact)) {
 					minusFacts.set(minusFactsIndex, originalFactTuple);
 					return true;
@@ -192,24 +190,24 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 		};
 		static EqualityChecker alpha = new EqualityChecker() {
 			@Override
-			public boolean equals(final Fact[] originalFactTuple, final Fact[] minusFactTuple,
-					final List<Fact[]> minusFacts, final int minusFactsIndex,
-					final FactAddress[] factAddresses) {
-				final Fact originalFact = originalFactTuple[0];
-				final Fact minusFact = minusFactTuple[0];
+			public boolean equals(final FactTuple originalFactTuple,
+					final FactTuple minusFactTuple, final ArrayList<FactTuple> minusFacts,
+					final int minusFactsIndex, final FactAddress[] factAddresses) {
+				final Fact originalFact = originalFactTuple.getFactTuple()[0];
+				final Fact minusFact = minusFactTuple.getFactTuple()[0];
 				return minusFact == originalFact;
 			}
 		};
 		static EqualityChecker beta = new EqualityChecker() {
 			@Override
-			public boolean equals(final Fact[] originalFactTuple, final Fact[] minusFactTuple,
-					final List<Fact[]> minusFacts, final int minusFactsIndex,
-					final FactAddress[] factAddresses) {
+			public boolean equals(final FactTuple originalFactTuple,
+					final FactTuple minusFactTuple, final ArrayList<FactTuple> minusFacts,
+					final int minusFactsIndex, final FactAddress[] factAddresses) {
 				for (int i = 0; i < factAddresses.length; ++i) {
 					final int originalAddress = factAddresses[i].index;
 					final int minusAddress = i;
-					final Fact originalFact = originalFactTuple[originalAddress];
-					final Fact minusFact = minusFactTuple[minusAddress];
+					final Fact originalFact = originalFactTuple.getFactTuple()[originalAddress];
+					final Fact minusFact = minusFactTuple.getFactTuple()[minusAddress];
 					if (minusFact != originalFact) {
 						return false;
 					}
@@ -219,16 +217,17 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 		};
 	}
 
-	private static List<Fact[]> getRemainingFactTuples(final List<Fact[]> originalFacts,
-			final List<Fact[]> minusFacts, final FactAddress[] factAddresses,
-			final boolean[] marked, final EqualityChecker equalityChecker) {
+	private static ArrayList<FactTuple> getRemainingFactTuples(
+			final ArrayList<FactTuple> originalFacts, final ArrayList<FactTuple> minusFacts,
+			final FactAddress[] factAddresses, final boolean[] marked,
+			final EqualityChecker equalityChecker) {
 		final int originalFactsSize = originalFacts.size();
 		final int minusFactsSize = minusFacts.size();
 		LazyListCopy remainingFacts = new SameList(originalFacts);
 		outerLoop: for (int originalFactsIndex = 0; originalFactsIndex < originalFactsSize; ++originalFactsIndex) {
-			final Fact[] originalFactTuple = originalFacts.get(originalFactsIndex);
+			final FactTuple originalFactTuple = originalFacts.get(originalFactsIndex);
 			for (int minusFactsIndex = 0; minusFactsIndex < minusFactsSize; ++minusFactsIndex) {
-				final Fact[] minusFactTuple = minusFacts.get(minusFactsIndex);
+				final FactTuple minusFactTuple = minusFacts.get(minusFactsIndex);
 				if (equalityChecker.equals(originalFactTuple, minusFactTuple, minusFacts,
 						minusFactsIndex, factAddresses)) {
 					// we spotted a match for a complete row in the minus token, mark the
@@ -246,16 +245,21 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 	}
 
 	@Override
-	public MemoryHandlerTemp newBetaTemp(
+	public org.jamocha.dn.memory.MemoryHandlerTemp newBetaTemp(
 			final org.jamocha.dn.memory.MemoryHandlerMain originatingMainHandler,
 			final Edge originIncomingEdge, final AddressFilter filter)
 			throws CouldNotAcquireLockException {
+		if (originIncomingEdge.getTargetNode().getOutgoingExistentialEdges().isEmpty()) {
+			// some of the target node's paths are existential, we need to pass a complete token,
+			// not only the partial version
+		}
+
 		final MemoryHandlerMain targetMain =
 				(MemoryHandlerMain) originIncomingEdge.getTargetNode().getMemory();
-		final List<Fact[]> minusFacts = this.facts;
+		final ArrayList<FactTuple> minusFacts = this.rows;
 		final FactAddress[] localizedAddressMap =
 				localizeAddressMap(this.factAddresses, originIncomingEdge);
-		final List<Fact[]> relevantMinusFacts =
+		final ArrayList<FactTuple> relevantMinusFacts =
 				getRelevantFactTuples(targetMain, minusFacts, localizedAddressMap,
 						EqualityChecker.beta);
 		return new MemoryHandlerMinusTemp(getTemplate(),
@@ -264,11 +268,12 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 
 	private static void filterOutgoingTemps(
 			final Queue<MemoryHandlerPlusTemp> validOutgoingPlusTokens,
-			final List<Fact[]> minusFacts, final FactAddress[] factAddresses,
+			final ArrayList<FactTuple> minusFacts, final FactAddress[] factAddresses,
 			final boolean[] marked, final EqualityChecker equalityChecker) {
 		for (final MemoryHandlerPlusTemp temp : validOutgoingPlusTokens) {
-			final List<Fact[]> originalFacts = (null == temp.filtered ? temp.facts : temp.filtered);
-			final List<Fact[]> remainingFacts =
+			final ArrayList<FactTuple> originalFacts =
+					(null == temp.filtered ? temp.rows : temp.filtered);
+			final ArrayList<FactTuple> remainingFacts =
 					getRemainingFactTuples(originalFacts, minusFacts, factAddresses, marked,
 							equalityChecker);
 			temp.filtered = remainingFacts;
@@ -276,21 +281,21 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 	}
 
 	private static void filterTargetMain(final MemoryHandlerMain targetMain,
-			final List<Fact[]> minusFacts, final FactAddress[] factAddresses,
+			final ArrayList<FactTuple> minusFacts, final FactAddress[] factAddresses,
 			final boolean[] marked, final EqualityChecker equalityChecker) {
-		final List<Fact[]> originalFacts = targetMain.facts;
+		final ArrayList<FactTuple> originalFacts = targetMain.rows;
 		final int originalFactsSize = originalFacts.size();
-		final List<Fact[]> remainingFacts =
+		final ArrayList<FactTuple> remainingFacts =
 				getRemainingFactTuples(originalFacts, minusFacts, factAddresses, marked,
 						equalityChecker);
 		if (remainingFacts.size() != originalFactsSize) {
 			targetMain.acquireWriteLock();
-			targetMain.facts = remainingFacts;
+			targetMain.rows = remainingFacts;
 			targetMain.releaseWriteLock();
 		}
 	}
 
-	private static List<Fact[]> getMarkedFactTuples(final List<Fact[]> minusFacts,
+	private static ArrayList<FactTuple> getMarkedFactTuples(final ArrayList<FactTuple> minusFacts,
 			final boolean[] marked) {
 		final int minusFactsSize = minusFacts.size();
 		int relevantMinusFactsSize = 0;
@@ -302,7 +307,8 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 		if (relevantMinusFactsSize == minusFactsSize) {
 			return minusFacts;
 		}
-		final List<Fact[]> relevantMinusFacts = new ArrayList<Fact[]>(relevantMinusFactsSize);
+		final ArrayList<FactTuple> relevantMinusFacts =
+				new ArrayList<FactTuple>(relevantMinusFactsSize);
 		for (int minusFactsIndex = 0; minusFactsIndex < minusFactsSize; ++minusFactsIndex) {
 			if (marked[minusFactsIndex]) {
 				relevantMinusFacts.add(minusFacts.get(minusFactsIndex));
@@ -329,8 +335,8 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 			throws CouldNotAcquireLockException {
 		final MemoryHandlerMain targetMain =
 				(MemoryHandlerMain) originIncomingEdge.getTargetNode().getMemory();
-		final List<Fact[]> minusFacts = this.facts;
-		final List<Fact[]> markedFactTuples =
+		final ArrayList<FactTuple> minusFacts = this.rows;
+		final ArrayList<FactTuple> markedFactTuples =
 				getRelevantFactTuples(targetMain, minusFacts, this.factAddresses,
 						EqualityChecker.alpha);
 		if (0 == markedFactTuples.size()) {
@@ -341,8 +347,8 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 						this.factAddresses, originIncomingEdge));
 	}
 
-	private static List<Fact[]> getRelevantFactTuples(final MemoryHandlerMain targetMain,
-			final List<Fact[]> minusFacts, final FactAddress[] factAddresses,
+	private static ArrayList<FactTuple> getRelevantFactTuples(final MemoryHandlerMain targetMain,
+			final ArrayList<FactTuple> minusFacts, final FactAddress[] factAddresses,
 			final EqualityChecker equalityChecker) {
 		final boolean[] marked = new boolean[minusFacts.size()];
 		filterTargetMain(targetMain, minusFacts, factAddresses, marked, equalityChecker);
@@ -352,7 +358,7 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 	}
 
 	private MemoryHandlerMinusTemp(final Template[] template,
-			final MemoryHandlerMain originatingMainHandler, final List<Fact[]> facts,
+			final MemoryHandlerMain originatingMainHandler, final ArrayList<FactTuple> facts,
 			final FactAddress[] factAddresses) {
 		super(template, originatingMainHandler, facts);
 		this.factAddresses = factAddresses;
@@ -361,12 +367,6 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 	@Override
 	public void enqueueInEdge(final Edge edge) {
 		edge.enqueueMemory(this);
-	}
-
-	@Override
-	public Object getValue(final org.jamocha.dn.memory.FactAddress address, final SlotAddress slot,
-			final int row) {
-		return this.facts.get(row)[0].getValue(slot);
 	}
 
 	@Override
