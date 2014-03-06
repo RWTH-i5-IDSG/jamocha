@@ -119,10 +119,14 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 
 		@Override
 		public LazyListCopy matched(final int index) {
-			final List<Fact[]> copy = new ArrayList<>(this.list.size());
-			for (int i = 0; i < index; i++) {
-				copy.add(this.list.get(i));
-			}
+			final int size = this.list.size();
+			final List<Fact[]> copy = new ArrayList<>(this.list);
+			copy.subList(index, size).clear();
+			// TODO write your own arraylist to do new ArrayList<>(original, from, to);
+			// final List<Fact[]> copy = new ArrayList<>(this.list.size());
+			// for (int i = 0; i < index; i++) {
+			// copy.add(this.list.get(i));
+			// }
 			return new CopiedList(this.list, copy);
 		}
 	}
