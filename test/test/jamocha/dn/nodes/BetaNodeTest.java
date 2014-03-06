@@ -172,12 +172,12 @@ public class BetaNodeTest {
 	}
 
 	/**
-	 * Test method for {@link org.jamocha.dn.nodes.Node#getOutgoingRegularEdges()}.
+	 * Test method for {@link org.jamocha.dn.nodes.Node#getOutgoingEdges()}.
 	 */
 	@Test
 	public void testGetOutgoingEdges() {
 		BetaNode beta = new BetaNode(Network.DEFAULTNETWORK, FilterMockup.alwaysTrue());
-		final Collection<? extends Edge> outgoingEdges = beta.getOutgoingRegularEdges();
+		final Collection<? extends Edge> outgoingEdges = beta.getOutgoingEdges();
 		assertNotNull(outgoingEdges);
 		assertEquals(0, outgoingEdges.size());
 	}

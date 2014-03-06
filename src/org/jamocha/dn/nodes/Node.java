@@ -107,12 +107,12 @@ public abstract class Node {
 	final protected Edge[] incomingEdges;
 
 	/**
-	 * Returns a collection of the outgoing regular edges.
+	 * Returns a collection of all outgoing edges.
 	 * 
-	 * @return a collection of the outgoing regular edges
+	 * @return a collection of all outgoing edges
 	 */
 	@Getter
-	final protected Collection<Edge> outgoingRegularEdges = new LinkedList<>();
+	final protected Collection<Edge> outgoingEdges = new LinkedList<>();
 
 	/**
 	 * Returns a collection of the outgoing existential edges.
@@ -120,7 +120,7 @@ public abstract class Node {
 	 * @return a collection of the outgoing existential edges
 	 */
 	@Getter
-	final protected Collection<Edge> outgoingExistentialEdges = new LinkedList<>();
+	final protected Set<Edge> outgoingExistentialEdges = new HashSet<>();
 
 	final protected Map<FactAddress, AddressPredecessor> delocalizeMap = new HashMap<>();
 
@@ -277,7 +277,7 @@ public abstract class Node {
 	 *            the edge to the child to be added
 	 */
 	protected void acceptRegularEdgeToChild(final Edge edgeToChild) {
-		this.outgoingRegularEdges.add(edgeToChild);
+		this.outgoingEdges.add(edgeToChild);
 	}
 
 	/**
@@ -288,6 +288,7 @@ public abstract class Node {
 	 *            the edge to the child to be added
 	 */
 	protected void acceptExistentialEdgeToChild(final Edge edgeToChild) {
+		this.outgoingEdges.add(edgeToChild);
 		this.outgoingExistentialEdges.add(edgeToChild);
 	}
 
@@ -299,7 +300,7 @@ public abstract class Node {
 	 *            the edge to the child to be removed
 	 */
 	protected void removeChild(final Edge edgeToChild) {
-		this.outgoingRegularEdges.remove(edgeToChild);
+		this.outgoingEdges.remove(edgeToChild);
 		this.outgoingExistentialEdges.remove(edgeToChild);
 	}
 
@@ -314,7 +315,7 @@ public abstract class Node {
 	abstract protected Edge newEdge(final Node source);
 
 	public int getNumberOfOutgoingEdges() {
-		return this.outgoingRegularEdges.size();
+		return this.outgoingEdges.size();
 	}
 
 	/**

@@ -61,14 +61,14 @@ public class ObjectTypeNode extends AlphaNode {
 
 	public void assertFact(final Fact fact) {
 		final MemoryHandlerPlusTemp mem = this.memory.newPlusToken(this, fact);
-		for (final Edge edge : this.outgoingRegularEdges) {
+		for (final Edge edge : this.outgoingEdges) {
 			edge.enqueueMemory(mem);
 		}
 	}
 
 	public void retractFact(final Fact fact) {
 		final MemoryHandlerMinusTemp mem = this.memory.newMinusToken(fact);
-		for (final Edge edge : this.outgoingRegularEdges) {
+		for (final Edge edge : this.outgoingEdges) {
 			edge.enqueueMemory(mem);
 		}
 	}
