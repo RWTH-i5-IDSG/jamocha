@@ -20,14 +20,12 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import lombok.ToString;
 
-import org.jamocha.dn.memory.MemoryHandler;
 import org.jamocha.dn.memory.SlotAddress;
 import org.jamocha.dn.nodes.AddressPredecessor;
 import org.jamocha.dn.nodes.CouldNotAcquireLockException;
@@ -150,18 +148,9 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 		}
 
 		public static StackElement ordinaryInput(final Edge edge, final int offset) {
-			final LinkedList<? extends MemoryHandler> temps = edge.getTempMemories();
-			final List<List<Fact[]>> memStack = new ArrayList<List<Fact[]>>(temps.size() + 1);
+			final List<List<Fact[]>> memStack = new ArrayList<List<Fact[]>>(1);
 			memStack.add(((org.jamocha.dn.memory.javaimpl.MemoryHandlerMain) edge.getSourceNode()
 					.getMemory()).facts);
-			for (final Iterator<? extends MemoryHandler> iter = temps.iterator(); iter.hasNext();) {
-				final MemoryHandlerPlusTemp temp = (MemoryHandlerPlusTemp) iter.next();
-				if (!temp.valid) {
-					iter.remove();
-					continue;
-				}
-				memStack.add(temp.facts);
-			}
 			return new StackElement(memStack, offset) {
 				@Override
 				Object getValue(final AddressPredecessor addr, final SlotAddress slot) {
@@ -377,6 +366,50 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 
 			// filterElement.
 
+			final ArrayList<Fact[]> TR = new ArrayList<>();
+			loop(new FunctionPointer() {
+				@Override
+				public void apply(final ArrayList<Fact[]> TR, final StackElement originElement) {
+					final int paramLength = addresses.length;
+					final Object params[] = new Object[paramLength];
+					// determine parameters
+					for (int i = 0; i < paramLength; ++i) {
+						final SlotInFactAddress address = addresses[i];
+						final AddressPredecessor fact =
+								targetNode.delocalizeAddress(address.getFactAddress());
+						final StackElement se = edgeToStack.get(fact.getEdge());
+						if (!stack.contains(se))
+							throw new Error("stack element not in stack?");
+						params[i] = se.getValue(fact, address.getSlotAddress());
+					}
+					// copy result to new TR if facts match predicate
+					if ((boolean) function.evaluate(params)) {
+						// copy current row from old TR
+						final Fact[] row =
+								Arrays.copyOf(originElement.getRow(), originElement.getRow().length);
+						// insert information from new inputs
+						for (final Edge edge : newEdges) {
+							// source is some temp, destination new TR
+							final StackElement se = edgeToStack.get(edge);
+							final Fact[] newRowPart = se.getRow();
+							System.arraycopy(newRowPart, 0, row, se.getOffset(), newRowPart.length);
+						}
+						// copy the result to new TR
+						TR.add(row);
+					}
+				}
+			}, TR, stack, originElement);
+			// replace TR in originElement with new temporary result
+			originElement.memStack.set(0, TR);
+			// point all inputs that were joint during this turn to the TR
+			// StackElement
+			for (final Edge incomingEdge : newEdges) {
+				edgeToStack.put(incomingEdge, originElement);
+			}
+			if (!originElement.checkRowBounds()) {
+				return;
+			}
+
 			org.jamocha.visitor.Visitor visitor = new Visitor() {
 				public void visit(final AddressFilterElement fe) {
 					final ArrayList<Fact[]> TR = new ArrayList<>();
@@ -457,9 +490,6 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 				}
 
 			};
-		}
-		if (!originElement.checkRowBounds()) {
-			return;
 		}
 
 		// full join with all inputs not pointing to TR now

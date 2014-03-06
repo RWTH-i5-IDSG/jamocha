@@ -14,7 +14,6 @@
  */
 package org.jamocha.dn.nodes;
 
-import java.util.LinkedList;
 import java.util.Map;
 
 import org.jamocha.dn.memory.FactAddress;
@@ -66,8 +65,6 @@ public interface Edge {
 	public void setFilter(final AddressFilter filter);
 
 	public AddressFilter getFilter();
-
-	public LinkedList<MemoryHandlerPlusTemp> getTempMemories();
 
 	public void enqueueMemory(final MemoryHandlerPlusTemp mem);
 

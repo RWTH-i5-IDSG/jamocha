@@ -16,7 +16,6 @@
 package org.jamocha.dn.nodes;
 
 import java.util.LinkedHashSet;
-import java.util.LinkedList;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -40,7 +39,6 @@ public class BetaNode extends Node {
 
 	protected class BetaEdgeImpl extends EdgeImpl {
 		private Map<? extends FactAddress, ? extends FactAddress> addressMap;
-		private final LinkedList<MemoryHandlerPlusTemp> tempMemories = new LinkedList<>();
 
 		public BetaEdgeImpl(final Network network, final Node sourceNode, final Node targetNode,
 				final AddressFilter filter) {
@@ -62,11 +60,6 @@ public class BetaNode extends Node {
 				this.targetNode.delocalizeMap.put(entry.getValue(), new AddressPredecessor(this,
 						entry.getKey()));
 			}
-		}
-
-		@Override
-		public LinkedList<MemoryHandlerPlusTemp> getTempMemories() {
-			return this.tempMemories;
 		}
 
 		@Override
@@ -98,7 +91,6 @@ public class BetaNode extends Node {
 		@Override
 		public void enqueueMemory(final MemoryHandlerPlusTemp mem) {
 			newPlusToken(mem);
-			this.tempMemories.add(mem);
 		}
 
 		@Override

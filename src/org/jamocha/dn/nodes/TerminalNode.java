@@ -16,7 +16,6 @@
 package org.jamocha.dn.nodes;
 
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -48,7 +47,6 @@ public class TerminalNode {
 		protected AddressFilter filter;
 
 		private Map<? extends FactAddress, ? extends FactAddress> addressMap;
-		private final LinkedList<MemoryHandlerPlusTemp> tempMemories = new LinkedList<>();
 
 		public TerminalEdgeImpl(final Network network, final Node sourceNode,
 				final TerminalNode targetNode) {
@@ -81,11 +79,6 @@ public class TerminalNode {
 				this.targetNode.delocalizeMap.put(entry.getValue(), new AddressPredecessor(this,
 						entry.getKey()));
 			}
-		}
-
-		@Override
-		public LinkedList<MemoryHandlerPlusTemp> getTempMemories() {
-			return this.tempMemories;
 		}
 
 		@Override

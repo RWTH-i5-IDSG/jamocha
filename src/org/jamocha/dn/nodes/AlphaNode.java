@@ -14,7 +14,6 @@
  */
 package org.jamocha.dn.nodes;
 
-import java.util.LinkedList;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -35,8 +34,6 @@ import org.jamocha.filter.PathFilter;
  * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
  */
 public class AlphaNode extends Node {
-	static final LinkedList<MemoryHandlerPlusTemp> empty = new LinkedList<>();
-
 	protected class AlphaEdgeImpl extends EdgeImpl {
 		FactAddress addressInTarget = null;
 
@@ -60,11 +57,6 @@ public class AlphaNode extends Node {
 			this.addressInTarget = entry.getValue();
 			this.targetNode.delocalizeMap.put(this.addressInTarget, new AddressPredecessor(this,
 					entry.getKey()));
-		}
-
-		@Override
-		public LinkedList<MemoryHandlerPlusTemp> getTempMemories() {
-			return empty;
 		}
 
 		@Override

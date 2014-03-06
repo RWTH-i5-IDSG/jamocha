@@ -101,11 +101,6 @@ public class MemoryHandlerTempTest {
 			}
 
 			@Override
-			public LinkedList<org.jamocha.dn.memory.MemoryHandlerPlusTemp> getTempMemories() {
-				return new LinkedList<>();
-			}
-
-			@Override
 			public void setAddressMap(final Map<? extends FactAddress, ? extends FactAddress> map) {
 			}
 
