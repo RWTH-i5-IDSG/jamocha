@@ -299,10 +299,6 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 		return originElement.getTable();
 	}
 
-	private static class IntegerHolder {
-		int value;
-	}
-
 	/*
 	 * Assumption: every existentially quantified path/address is only used in a single filter
 	 * element.
@@ -314,14 +310,6 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 		// get filter steps
 		final AddressFilterElement filterSteps[] = filter.getFilterElements();
 
-		// order of counter columns depends on order of them in the filter passed to node ctor
-		final AddressFilter counterOrderFilter = originEdge.getTargetNode().getFilter();
-
-		final IntegerHolder counterColumn = new IntegerHolder(), counterRow = new IntegerHolder();
-		// FIXME assumption: there are no more regular filter elements after the first existential
-		// or negated existential filter element in the filterSteps
-		// otherwise: copy&paste this loop and first only look at regular filter elements, then look
-		// at existential and negated existential filter elements
 		for (final AddressFilterElement filterElement : filterSteps) {
 			final Collection<StackElement> stack = new ArrayList<>(filterSteps.length);
 			final FunctionWithArguments function = filterElement.getFunction();

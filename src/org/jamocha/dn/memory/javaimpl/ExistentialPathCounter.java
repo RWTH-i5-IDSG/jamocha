@@ -17,7 +17,7 @@ package org.jamocha.dn.memory.javaimpl;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
+import java.util.Set;
 
 import org.jamocha.dn.memory.CounterColumn;
 import org.jamocha.dn.memory.PathFilterElementToCounterColumn;
@@ -38,8 +38,8 @@ import org.jamocha.filter.PathFilter.PathFilterElement;
 public class ExistentialPathCounter {
 	public static boolean[] getNegatedArrayFromFilter(final PathFilter filter,
 			final PathFilterElementToCounterColumn filterElementToCounterColumn) {
-		final LinkedHashSet<Path> negativeExistentialPaths = filter.getNegativeExistentialPaths();
-		final LinkedHashSet<Path> positiveExistentialPaths = filter.getPositiveExistentialPaths();
+		final Set<Path> negativeExistentialPaths = filter.getNegativeExistentialPaths();
+		final Set<Path> positiveExistentialPaths = filter.getPositiveExistentialPaths();
 		final PathFilterElement[] filterElements = filter.getFilterElements();
 		final int upperBound = filterElements.length;
 		final boolean[] negated = new boolean[upperBound];

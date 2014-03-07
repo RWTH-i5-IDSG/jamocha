@@ -19,6 +19,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static test.jamocha.util.PathFilterElementToCounterColumnMockup.fe2ccmockup;
 
+import java.util.HashSet;
 import java.util.Map;
 
 import org.jamocha.dn.Network;
@@ -266,7 +267,7 @@ public class MemoryHandlerTempTest {
 						new SlotInFactAddress(new org.jamocha.dn.memory.javaimpl.FactAddress(1),
 								new SlotAddress(0)) });
 		final AddressFilter filter =
-				new AddressFilter(new FactAddress[] {}, new FactAddress[] {},
+				new AddressFilter(new HashSet<FactAddress>(), new HashSet<FactAddress>(),
 						new AddressFilterElement[] { fe });
 		MemoryHandlerPlusTemp token =
 				(MemoryHandlerPlusTemp) nodeRight.getMemory().newPlusToken(nodeRight,

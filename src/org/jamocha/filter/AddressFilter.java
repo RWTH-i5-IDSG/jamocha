@@ -14,6 +14,9 @@
  */
 package org.jamocha.filter;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import lombok.Getter;
 
 import org.jamocha.dn.memory.CounterColumn;
@@ -26,14 +29,14 @@ import org.jamocha.filter.fwa.PredicateWithArguments;
  */
 public class AddressFilter extends Filter<AddressFilter.AddressFilterElement> {
 
-	public static AddressFilter empty = new AddressFilter(new FactAddress[] {},
-			new FactAddress[] {}, new AddressFilterElement[] {});
+	public static AddressFilter empty = new AddressFilter(new HashSet<FactAddress>(),
+			new HashSet<FactAddress>(), new AddressFilterElement[] {});
 
 	@Getter
-	protected final FactAddress positiveExistentialAddresses[], negativeExistentialAddresses[];
+	protected final Set<FactAddress> positiveExistentialAddresses, negativeExistentialAddresses;
 
-	public AddressFilter(final FactAddress[] positiveExistentialAddresses,
-			final FactAddress[] negativeExistentialAddresses,
+	public AddressFilter(final Set<FactAddress> positiveExistentialAddresses,
+			final Set<FactAddress> negativeExistentialAddresses,
 			final AddressFilterElement[] filterElements) {
 		super(filterElements);
 		this.positiveExistentialAddresses = positiveExistentialAddresses;

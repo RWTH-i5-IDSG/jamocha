@@ -15,7 +15,9 @@
 package org.jamocha.filter;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.Set;
 
 import lombok.Getter;
 
@@ -25,11 +27,11 @@ import org.jamocha.filter.fwa.PredicateWithArguments;
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
 public class PathFilter extends Filter<PathFilter.PathFilterElement> {
-	public static PathFilter empty = new PathFilter(new LinkedHashSet<Path>(),
-			new LinkedHashSet<Path>(), new PathFilterElement[] {});
+	public static PathFilter empty = new PathFilter(new HashSet<Path>(), new HashSet<Path>(),
+			new PathFilterElement[] {});
 
 	@Getter
-	protected final LinkedHashSet<Path> positiveExistentialPaths, negativeExistentialPaths;
+	protected final Set<Path> positiveExistentialPaths, negativeExistentialPaths;
 
 	public static class PathFilterElement extends Filter.FilterElement {
 		public PathFilterElement(final PredicateWithArguments function) {
@@ -49,9 +51,8 @@ public class PathFilter extends Filter<PathFilter.PathFilterElement> {
 	 * @param filterElements
 	 *            filter elements to be used in the filter
 	 */
-	public PathFilter(final LinkedHashSet<Path> positiveExistentialPaths,
-			final LinkedHashSet<Path> negativeExistentialPaths,
-			final PathFilterElement... filterElements) {
+	public PathFilter(final Set<Path> positiveExistentialPaths,
+			final Set<Path> negativeExistentialPaths, final PathFilterElement... filterElements) {
 		super(filterElements);
 		assert Collections.disjoint(positiveExistentialPaths, negativeExistentialPaths);
 		this.positiveExistentialPaths = positiveExistentialPaths;

@@ -16,6 +16,8 @@ package org.jamocha.filter;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.jamocha.dn.memory.CounterColumn;
 import org.jamocha.dn.memory.FactAddress;
@@ -47,15 +49,17 @@ public class FilterTranslator {
 			final PathFilterElement pathFE = pathFEs[i];
 			addrFEs[i] = translate(pathFE, filterElementToCounterColumn.getCounterColumn(pathFE));
 		}
-		return new AddressFilter(toFactAddressArray(pathFilter.getPositiveExistentialPaths()),
-				toFactAddressArray(pathFilter.getNegativeExistentialPaths()), addrFEs);
+		return new AddressFilter(toFactAddressSet(pathFilter.getPositiveExistentialPaths()),
+				toFactAddressSet(pathFilter.getNegativeExistentialPaths()), addrFEs);
 	}
 
-	private static FactAddress[] toFactAddressArray(final Collection<Path> existentialPaths) {
-		final FactAddress factAddresses[] = new FactAddress[existentialPaths.size()];
-		int pos = 0;
+	private static Set<FactAddress> toFactAddressSet(final Set<Path> existentialPaths) {
+		// return
+		// existentialPaths.stream().map(Path::getFactAddressInCurrentlyLowestNode).collect(Collectors.<FactAddress>
+		// toSet());
+		final Set<FactAddress> factAddresses = new HashSet<FactAddress>();
 		for (final Path path : existentialPaths) {
-			factAddresses[pos++] = path.getFactAddressInCurrentlyLowestNode();
+			factAddresses.add(path.getFactAddressInCurrentlyLowestNode());
 		}
 		return factAddresses;
 	}

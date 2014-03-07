@@ -155,6 +155,7 @@ public class MemoryHandlerMain extends MemoryHandlerBase implements
 
 	@Override
 	public void add(final org.jamocha.dn.memory.MemoryHandlerPlusTemp toAdd) {
+		// TODO identify fact-addresses that are existential, compare others
 		final MemoryHandlerPlusTemp temp = (MemoryHandlerPlusTemp) toAdd;
 		final ArrayList<FactTuple> facts = (null == temp.filtered ? temp.rows : temp.filtered);
 		for (final FactTuple row : facts) {
