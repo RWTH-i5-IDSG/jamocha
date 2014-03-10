@@ -29,6 +29,7 @@ public abstract class MemoryHandlerTemp extends MemoryHandlerBase implements
 		this.originatingMainHandler = originatingMainHandler;
 	}
 
+	@Override
 	public List<MemoryHandler> splitIntoChunksOfSize(final int size) {
 		final List<MemoryHandler> memoryHandlers = new ArrayList<>();
 		if (size >= this.size()) {
