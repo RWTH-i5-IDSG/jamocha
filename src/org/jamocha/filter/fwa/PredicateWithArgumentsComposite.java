@@ -24,24 +24,14 @@ import org.jamocha.filter.Predicate;
  */
 public class PredicateWithArgumentsComposite extends
 		GenericWithArgumentsComposite<Boolean, Predicate> implements PredicateWithArguments {
-	public PredicateWithArgumentsComposite(final Predicate predicate, final boolean negated,
-			final FunctionWithArguments... args) {
-		super(predicate, args);
-	}
-
 	public PredicateWithArgumentsComposite(final Predicate predicate,
 			final FunctionWithArguments... args) {
-		this(predicate, false, args);
+		super(predicate, args);
 	}
 
 	@Override
 	public SlotType getReturnType() {
 		return SlotType.BOOLEAN;
-	}
-
-	@Override
-	public boolean isNegated() {
-		return false;
 	}
 
 	@Override

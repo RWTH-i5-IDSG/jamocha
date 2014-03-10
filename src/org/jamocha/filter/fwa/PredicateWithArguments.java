@@ -22,6 +22,4 @@ package org.jamocha.filter.fwa;
 public interface PredicateWithArguments extends FunctionWithArguments {
 	@Override
 	public Boolean evaluate(final Object... params);
-
-	public boolean isNegated();
 }
