@@ -23,7 +23,6 @@ import org.jamocha.dn.memory.SlotAddress;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.dn.memory.javaimpl.MemoryHandlerMinusTemp.EqualityChecker;
 import org.jamocha.dn.nodes.TerminalNode;
-import org.jamocha.filter.Path;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -34,8 +33,7 @@ public class MemoryHandlerTerminal implements org.jamocha.dn.memory.MemoryHandle
 	final MemoryHandlerMain originatingMainHandler;
 	final Queue<AssertOrRetract<?>> tokens = new LinkedList<AssertOrRetract<?>>();
 
-	public MemoryHandlerTerminal(final MemoryHandlerMain originatingMainHandler,
-			final Path... paths) {
+	public MemoryHandlerTerminal(final MemoryHandlerMain originatingMainHandler) {
 		this.originatingMainHandler = originatingMainHandler;
 	}
 
