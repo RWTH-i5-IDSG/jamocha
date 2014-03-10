@@ -46,7 +46,7 @@ public interface MemoryHandlerTerminal extends MemoryHandler, Iterable<AssertOrR
 	public abstract class AssertOrRetract<T extends AssertOrRetract<?>> {
 		protected final MemoryHandler mem;
 
-		public boolean setFollowingRetract(final Retract minus) {
+		public boolean setFollowingRetract(@SuppressWarnings("unused") final Retract minus) {
 			return false;
 		}
 
