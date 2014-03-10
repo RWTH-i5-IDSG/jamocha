@@ -37,7 +37,7 @@ public class FactTuple {
 		return empty;
 	}
 
-	public void setCounters(final int[] counters) {
+	public void setCounters(@SuppressWarnings("unused") final int[] counters) {
 		throw new UnsupportedOperationException(
 				"setCounter not supported on counter-less fact-tuple!");
 	}

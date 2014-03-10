@@ -20,6 +20,7 @@ import static org.junit.Assert.assertTrue;
 import static test.jamocha.util.PathFilterElementToCounterColumnMockup.fe2ccmockup;
 
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.Map;
 
 import org.jamocha.dn.Network;
@@ -80,6 +81,8 @@ public class MemoryHandlerTempTest {
 		private class EdgeMockup extends EdgeImpl implements Edge {
 
 			final int offset;
+			final LinkedList<org.jamocha.dn.memory.MemoryHandlerPlusTemp> plusTemps =
+					new LinkedList<>();
 
 			public EdgeMockup(final Network network, final Node sourceNode, final Node targetNode,
 					final int offset) {
@@ -99,6 +102,11 @@ public class MemoryHandlerTempTest {
 			public FactAddress localizeAddress(final FactAddress addressInParent) {
 				return fa[((org.jamocha.dn.memory.javaimpl.FactAddress) addressInParent).getIndex()
 						+ offset];
+			}
+
+			@Override
+			public LinkedList<org.jamocha.dn.memory.MemoryHandlerPlusTemp> getTempMemories() {
+				return plusTemps;
 			}
 
 			@Override
