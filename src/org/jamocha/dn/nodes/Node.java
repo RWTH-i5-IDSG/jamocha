@@ -38,6 +38,7 @@ import org.jamocha.dn.memory.MemoryHandlerMainAndCounterColumnMatcher;
 import org.jamocha.dn.memory.MemoryHandlerTemp;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.filter.AddressFilter;
+import org.jamocha.filter.AddressFilter.AddressFilterElement;
 import org.jamocha.filter.FilterTranslator;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.PathCollector;
@@ -60,6 +61,7 @@ public abstract class Node {
 		protected final Node sourceNode;
 		protected final Node targetNode;
 		protected AddressFilter filter;
+		protected AddressFilterElement[] filterParts;
 
 		protected EdgeImpl(final Network network, final Node sourceNode, final Node targetNode,
 				final AddressFilter filter) {
@@ -87,11 +89,18 @@ public abstract class Node {
 		@Override
 		public void setFilter(final AddressFilter filter) {
 			this.filter = filter;
+			this.filterParts =
+					this.sourceNode.memory.getRelevantExistentialFilterParts(filter, this);
 		}
 
 		@Override
 		public AddressFilter getFilter() {
 			return this.filter;
+		}
+
+		@Override
+		public AddressFilterElement[] getFilterPartsForCounterColumns() {
+			return this.filterParts;
 		}
 
 		protected void newPlusToken(final MemoryHandlerTemp mem) {

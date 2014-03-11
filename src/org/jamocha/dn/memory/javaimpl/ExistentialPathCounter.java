@@ -19,7 +19,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.jamocha.dn.memory.CounterColumn;
 import org.jamocha.dn.memory.PathFilterElementToCounterColumn;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.PathCollector;
@@ -46,17 +45,18 @@ public class ExistentialPathCounter {
 		int size = 0;
 		for (final PathFilterElement filterElement : filterElements) {
 			final CounterColumn counterColumn =
-					filterElementToCounterColumn.getCounterColumn(filterElement);
+					(CounterColumn) filterElementToCounterColumn.getCounterColumn(filterElement);
 			if (null == counterColumn)
 				continue;
 			final HashSet<Path> paths =
 					PathCollector.newHashSet().collect(filterElement).getPaths();
 			if (!Collections.disjoint(negativeExistentialPaths, paths)) {
-				negated[size++] = false;
+				negated[counterColumn.index] = true;
 			} else {
 				assert !Collections.disjoint(positiveExistentialPaths, paths);
-				negated[size++] = true;
+				negated[counterColumn.index] = false;
 			}
+			size++;
 		}
 		return Arrays.copyOf(negated, size);
 	}

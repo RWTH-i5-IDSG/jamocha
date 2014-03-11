@@ -22,6 +22,7 @@ import org.jamocha.dn.memory.MemoryHandlerMinusTemp;
 import org.jamocha.dn.memory.MemoryHandlerPlusTemp;
 import org.jamocha.dn.memory.MemoryHandlerTemp;
 import org.jamocha.filter.AddressFilter;
+import org.jamocha.filter.AddressFilter.AddressFilterElement;
 
 /**
  * 
@@ -66,6 +67,8 @@ public interface Edge {
 	public void setFilter(final AddressFilter filter);
 
 	public AddressFilter getFilter();
+
+	public AddressFilterElement[] getFilterPartsForCounterColumns();
 
 	public LinkedList<MemoryHandlerPlusTemp> getTempMemories();
 

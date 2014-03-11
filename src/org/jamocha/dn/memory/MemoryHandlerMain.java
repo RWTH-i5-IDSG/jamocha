@@ -18,6 +18,7 @@ import org.jamocha.dn.nodes.CouldNotAcquireLockException;
 import org.jamocha.dn.nodes.Edge;
 import org.jamocha.dn.nodes.Node;
 import org.jamocha.filter.AddressFilter;
+import org.jamocha.filter.AddressFilter.AddressFilterElement;
 import org.jamocha.filter.Filter;
 
 /**
@@ -133,5 +134,19 @@ public interface MemoryHandlerMain extends MemoryHandler {
 	 * @return
 	 */
 	public MemoryHandlerTerminal newMemoryHandlerTerminal();
+
+	/**
+	 * Determines the filter elements that contain existential addresses passed over the given edge.
+	 * 
+	 * @param filter
+	 *            filter containing the filter elements to be inspected
+	 * @param edge
+	 *            edge used to localize the fact addresses of the memory to match the filter
+	 *            addresses. The memory of the source node of the edge is the memory used to call
+	 *            this method.
+	 * @return filter elements containing existential addresses passed over the given edge
+	 */
+	public AddressFilterElement[] getRelevantExistentialFilterParts(final AddressFilter filter,
+			final Edge edge);
 
 }

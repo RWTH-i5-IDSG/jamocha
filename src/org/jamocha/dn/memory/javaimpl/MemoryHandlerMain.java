@@ -34,7 +34,9 @@ import org.jamocha.dn.memory.Template;
 import org.jamocha.dn.nodes.CouldNotAcquireLockException;
 import org.jamocha.dn.nodes.Edge;
 import org.jamocha.dn.nodes.Node;
+import org.jamocha.dn.nodes.SlotInFactAddress;
 import org.jamocha.filter.AddressFilter;
+import org.jamocha.filter.AddressFilter.AddressFilterElement;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.PathCollector;
 import org.jamocha.filter.PathFilter;
@@ -69,7 +71,7 @@ public class MemoryHandlerMain extends MemoryHandlerBase implements
 			path.setFactAddressInCurrentlyLowestNode(address);
 			Path.setJoinedWithForAll(path);
 		}
-		this.counter = Counter.newEmptyCounter();
+		this.counter = Counter.newCounter();
 	}
 
 	MemoryHandlerMain(final Template[] template, final ArrayList<FactTuple> facts,
@@ -200,6 +202,45 @@ public class MemoryHandlerMain extends MemoryHandlerBase implements
 		return new MemoryHandlerTerminal(this);
 	}
 
+	private static AddressFilterElement[] emptyAddressFilterElementArray =
+			new AddressFilterElement[0];
+
+	@Override
+	public AddressFilterElement[] getRelevantExistentialFilterParts(final AddressFilter filter,
+			final Edge edge) {
+		assert this == edge.getSourceNode().getMemory();
+		final Set<org.jamocha.dn.memory.FactAddress> positiveExistentialAddresses =
+				filter.getPositiveExistentialAddresses();
+		final Set<org.jamocha.dn.memory.FactAddress> negativeExistentialAddresses =
+				filter.getNegativeExistentialAddresses();
+		if (positiveExistentialAddresses.isEmpty() && negativeExistentialAddresses.isEmpty()) {
+			return emptyAddressFilterElementArray;
+		}
+		final Set<org.jamocha.dn.memory.FactAddress> existentialAddresses = new HashSet<>();
+		for (final FactAddress originAddress : this.addresses) {
+			final org.jamocha.dn.memory.FactAddress localizedAddress =
+					edge.localizeAddress(originAddress);
+			if (positiveExistentialAddresses.contains(localizedAddress)
+					|| negativeExistentialAddresses.contains(localizedAddress)) {
+				existentialAddresses.add(localizedAddress);
+			}
+		}
+		final AddressFilterElement[] filterElements = filter.getFilterElements();
+		final ArrayList<AddressFilterElement> partList = new ArrayList<>(filterElements.length);
+		filterElementLoop: for (final AddressFilterElement filterElement : filterElements) {
+			final SlotInFactAddress[] addresses = filterElement.getAddressesInTarget();
+			for (final SlotInFactAddress slotInFactAddress : addresses) {
+				final org.jamocha.dn.memory.FactAddress factAddress =
+						slotInFactAddress.getFactAddress();
+				if (existentialAddresses.contains(factAddress)) {
+					partList.add(filterElement);
+					continue filterElementLoop;
+				}
+			}
+		}
+		return (AddressFilterElement[]) partList.toArray();
+	}
+
 	/**
 	 * creates new row using the fact tuple given and default counter values.
 	 * 
@@ -209,9 +250,9 @@ public class MemoryHandlerMain extends MemoryHandlerBase implements
 	 */
 	public FactTuple newRow(final Fact... factTuple) {
 		assert factTuple.length == template.length;
-		if (null == counter || counter.columns == 0)
+		if (null == counter || counter.columns.length == 0)
 			return new FactTuple(factTuple);
-		return new FactTupleAndCounter(factTuple, new int[counter.columns]);
+		return new FactTupleAndCounter(factTuple, new int[counter.columns.length]);
 	}
 
 	/**

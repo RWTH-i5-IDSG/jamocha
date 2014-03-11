@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Set;
 
 import lombok.ToString;
+import lombok.Value;
 
 import org.jamocha.dn.memory.MemoryHandler;
 import org.jamocha.dn.memory.SlotAddress;
@@ -35,7 +36,7 @@ import org.jamocha.dn.nodes.Node;
 import org.jamocha.dn.nodes.SlotInFactAddress;
 import org.jamocha.filter.AddressFilter;
 import org.jamocha.filter.AddressFilter.AddressFilterElement;
-import org.jamocha.filter.fwa.FunctionWithArguments;
+import org.jamocha.filter.fwa.PredicateWithArguments;
 import org.jamocha.visitor.Visitor;
 
 /**
@@ -65,10 +66,13 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 	final Semaphore lock;
 	boolean valid = true;
 	ArrayList<FactTuple> filtered;
+	final ArrayList<CounterUpdate> counterUpdates;
 
 	private MemoryHandlerPlusTemp(final MemoryHandlerMain originatingMainHandler,
-			final ArrayList<FactTuple> facts, final int numChildren) {
+			final ArrayList<FactTuple> facts, final int numChildren,
+			final ArrayList<CounterUpdate> counterUpdates) {
 		super(originatingMainHandler, facts);
+		this.counterUpdates = counterUpdates;
 		if (facts.size() == 0) {
 			this.lock = null;
 			this.valid = false;
@@ -87,10 +91,7 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 			final AddressFilter filter) throws CouldNotAcquireLockException {
 		// create follow-up-temp
 		final MemoryHandlerPlusTemp mem =
-				new MemoryHandlerPlusTemp(originatingMainHandler, getLocksAndPerformJoin(
-						originatingMainHandler, filter, token, originIncomingEdge,
-						Counter.newCounter(originatingMainHandler)), originIncomingEdge
-						.getTargetNode().getNumberOfOutgoingEdges());
+				getLocksAndPerformJoin(originatingMainHandler, filter, token, originIncomingEdge);
 		// push old temp into incoming edge to augment the memory seen by its target
 		originIncomingEdge.getTempMemories().add(token);
 		// return new temp
@@ -121,7 +122,7 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 		}
 		// FIXME only use Semaphores if one of the outgoing edges is connected to the beta network
 		return new MemoryHandlerPlusTemp(originatingMainHandler, factList, originIncomingEdge
-				.getTargetNode().getNumberOfOutgoingEdges());
+				.getTargetNode().getNumberOfOutgoingEdges(), new ArrayList<CounterUpdate>());
 	}
 
 	@Override
@@ -140,7 +141,7 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 			factList.add(originatingMainHandler.newRow(new Fact(fact.getSlotValues())));
 		}
 		return new MemoryHandlerPlusTemp(originatingMainHandler, factList,
-				otn.getNumberOfOutgoingEdges());
+				otn.getNumberOfOutgoingEdges(), new ArrayList<CounterUpdate>());
 	}
 
 	static abstract class StackElement {
@@ -287,9 +288,9 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 		}
 	}
 
-	private static ArrayList<FactTuple> getLocksAndPerformJoin(
+	private static MemoryHandlerPlusTemp getLocksAndPerformJoin(
 			final MemoryHandlerMain originatingMainHandler, final AddressFilter filter,
-			final MemoryHandlerPlusTemp token, final Edge originIncomingEdge, final Counter counter)
+			final MemoryHandlerPlusTemp token, final Edge originIncomingEdge)
 			throws CouldNotAcquireLockException {
 		// get a fixed-size array of indices (size: #inputs of the node),
 		// determine number of inputs for the current join as maxIndex
@@ -332,14 +333,41 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 		}
 		edgeToStack.put(originIncomingEdge, originElement);
 
-		performJoin(filter, targetNode, edgeToStack, originIncomingEdge, counter);
+		// lock target main if there are existentials in the token
+		final boolean containsExistentials =
+				(originIncomingEdge.getFilterPartsForCounterColumns().length != 0);
+		if (containsExistentials) {
+			try {
+				if (!originatingMainHandler.tryReadLock()) {
+					for (final Edge edge : edgeToStack.keySet()) {
+						edge.getSourceNode().getMemory().releaseReadLock();
+					}
+					throw new CouldNotAcquireLockException();
+				}
+			} catch (InterruptedException ex) {
+				throw new Error("Should not happen, interruption of this method is not supported!",
+						ex);
+			}
+		}
+
+		final ArrayList<CounterUpdate> counterUpdates = new ArrayList<>();
+		final ArrayList<FactTuple> rowsToAdd = new ArrayList<>();
+		final ArrayList<FactTuple> rowsToDel = new ArrayList<>();
+		performJoin(filter, targetNode, edgeToStack, originIncomingEdge, rowsToAdd, rowsToDel,
+				counterUpdates);
 		// release lock
 		for (final Edge incomingEdge : nodeIncomingEdges) {
 			if (incomingEdge == originIncomingEdge)
 				continue;
 			incomingEdge.getSourceNode().getMemory().releaseReadLock();
 		}
-		return originElement.getTable();
+		if (containsExistentials) {
+			originatingMainHandler.releaseReadLock();
+		}
+		final ArrayList<FactTuple> facts = originElement.getTable();
+		facts.addAll(rowsToAdd);
+		return new MemoryHandlerPlusTemp(originatingMainHandler, facts, originIncomingEdge
+				.getTargetNode().getNumberOfOutgoingEdges(), counterUpdates);
 	}
 
 	/*
@@ -348,14 +376,92 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 	 */
 	private static void performJoin(final AddressFilter filter, final Node targetNode,
 			final LinkedHashMap<Edge, StackElement> edgeToStack, final Edge originEdge,
-			final Counter counter) {
+			final ArrayList<FactTuple> rowsToAdd, final ArrayList<FactTuple> rowsToDel,
+			final ArrayList<CounterUpdate> counterUpdates) {
 		final StackElement originElement = edgeToStack.get(originEdge);
+
+		// if there are existential facts in the token, perform a join with the main memory
+		final AddressFilterElement[] filterPartsForCounterColumns =
+				originEdge.getFilterPartsForCounterColumns();
+		if (filterPartsForCounterColumns.length != 0) {
+			final FactAddressPartition partition = partitionFactAddresses(filter, originEdge);
+			final MemoryHandlerMain memoryHandlerMain =
+					(MemoryHandlerMain) originEdge.getTargetNode().getMemory();
+			final ArrayList<FactTuple> mainRows = memoryHandlerMain.rows;
+			final ArrayList<FactTuple> tokenRows = originElement.getTable();
+			final int mainSize = mainRows.size();
+			final int tokenSize = tokenRows.size();
+			for (int mainIndex = 0; mainIndex < mainSize; ++mainIndex) {
+				final FactTuple mainRow = mainRows.get(mainIndex);
+				final Fact[] mainFactTuple = mainRow.getFactTuple();
+				CounterUpdate currentCounterUpdate = null;
+				tokenloop: for (int tokenIndex = 0; tokenIndex < tokenSize; ++tokenIndex) {
+					final FactTuple tokenRow = tokenRows.get(tokenIndex);
+					final Fact[] tokenFactTuple = tokenRow.getFactTuple();
+					// check whether the rows are the same in the regular fact part
+					for (final FactAddress factAddress : partition.regular) {
+						if (tokenFactTuple[factAddress.index] != mainFactTuple[factAddress.index]) {
+							continue tokenloop;
+						}
+					}
+					// check whether the existential part fulfill the filter conditions
+					for (final AddressFilterElement filterElement : filterPartsForCounterColumns) {
+						final PredicateWithArguments predicate = filterElement.getFunction();
+						final SlotInFactAddress[] addresses = filterElement.getAddressesInTarget();
+						final CounterColumn counterColumn =
+								(CounterColumn) filterElement.getCounterColumn();
+						final int paramLength = addresses.length;
+						final Object params[] = new Object[paramLength];
+						// determine parameters using facts in the token where possible
+						for (int i = 0; i < paramLength; ++i) {
+							final SlotInFactAddress address = addresses[i];
+							final Fact[] factBase;
+							if (partition.existential.contains(address.getFactAddress())) {
+								factBase = tokenFactTuple;
+							} else {
+								factBase = mainFactTuple;
+							}
+							params[i] =
+									factBase[((FactAddress) address.getFactAddress()).index]
+											.getValue(address.getSlotAddress());
+						}
+						// if combined row doesn't match, try the next token row
+						if (!predicate.evaluate(params)) {
+							continue tokenloop;
+						}
+						// token row matches main row, we can increment the counter
+						if (null == currentCounterUpdate) {
+							currentCounterUpdate = new CounterUpdate(mainRow);
+							counterUpdates.add(currentCounterUpdate);
+						}
+						currentCounterUpdate.increment(counterColumn, 1);
+					}
+					if (currentCounterUpdate != null) {
+						final Counter.Change change =
+								memoryHandlerMain.counter.change(mainRow,
+										currentCounterUpdate.increment);
+						switch (change) {
+						case CHANGETOVALID:
+							rowsToAdd.add(mainRow);
+							currentCounterUpdate.setContainedInRowsToAddOrDel(true);
+							break;
+						case CHANGETOINVALID:
+							rowsToDel.add(mainRow);
+							currentCounterUpdate.setContainedInRowsToAddOrDel(true);
+							break;
+						case NOCHANGE:
+							break;
+						}
+					}
+				}
+			}
+		}
+
 		// get filter steps
 		final AddressFilterElement filterSteps[] = filter.getFilterElements();
-
 		for (final AddressFilterElement filterElement : filterSteps) {
 			final Collection<StackElement> stack = new ArrayList<>(filterSteps.length);
-			final FunctionWithArguments function = filterElement.getFunction();
+			final PredicateWithArguments predicate = filterElement.getFunction();
 			final SlotInFactAddress addresses[] = filterElement.getAddressesInTarget();
 
 			// determine new edges
@@ -388,7 +494,7 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 						params[i] = se.getValue(fact, address.getSlotAddress());
 					}
 					// copy result to new TR if facts match predicate
-					if ((boolean) function.evaluate(params)) {
+					if (predicate.evaluate(params)) {
 						// copy current row from old TR
 						final FactTuple row = originElement.getRow().copy();
 						// insert information from new inputs
@@ -431,7 +537,7 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 								params[i] = se.getValue(fact, address.getSlotAddress());
 							}
 							// copy result to new TR if facts match predicate
-							if ((boolean) function.evaluate(params)) {
+							if ((boolean) predicate.evaluate(params)) {
 								// copy current row from old TR
 								final FactTuple row = originElement.getRow().copy();
 								// insert information from new inputs
@@ -455,9 +561,9 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 				}
 
 				public void visitNegatedExistential(final AddressFilterElement fe) {
-					if (counter.size() == 0) {
-						counter.addEmptyRows(originElement.memStack.get(0).size());
-					}
+					// if (counter.size() == 0) {
+					// counter.addEmptyRows(originElement.memStack.get(0).size());
+					// }
 					final ArrayList<FactTuple> TR = new ArrayList<>();
 					loop(new FunctionPointer() {
 						@Override
@@ -474,10 +580,10 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 								params[i] = se.getValue(fact, address.getSlotAddress());
 							}
 							// increment corresponding counter if facts match predicate
-							if ((boolean) function.evaluate(params)) {
-								counter.increment(counterRow.value, counterColumn.value);
+							if ((boolean) predicate.evaluate(params)) {
+								// counter.increment(counterRow.value, counterColumn.value);
 							}
-							++counterRow.value;
+							// ++counterRow.value;
 						}
 					}, TR, stack, originElement);
 					// point all inputs that were joint during this turn to the TR
@@ -485,7 +591,7 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 					for (final Edge incomingEdge : newEdges) {
 						edgeToStack.put(incomingEdge, originElement);
 					}
-					++counterColumn.value;
+					// ++counterColumn.value;
 				}
 
 			};
@@ -516,6 +622,35 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 			// StackElement
 			edgeToStack.put(nodeInput, originElement);
 		}
+	}
+
+	@Value
+	static class FactAddressPartition {
+		FactAddress regular[];
+		Set<FactAddress> existential;
+	}
+
+	private static FactAddressPartition partitionFactAddresses(final AddressFilter filter,
+			final Edge originEdge) {
+		final FactAddress[] originAddresses =
+				((MemoryHandlerMain) originEdge.getSourceNode().getMemory()).addresses;
+		final Set<org.jamocha.dn.memory.FactAddress> filterNegativeExistentialAddresses =
+				filter.getNegativeExistentialAddresses();
+		final Set<org.jamocha.dn.memory.FactAddress> filterPositiveExistentialAddresses =
+				filter.getPositiveExistentialAddresses();
+		final ArrayList<FactAddress> regular = new ArrayList<>(originAddresses.length);
+		final Set<FactAddress> existential = new HashSet<>(originAddresses.length);
+		for (final FactAddress sourceFactAddress : originAddresses) {
+			final FactAddress targetFactAddress =
+					(FactAddress) originEdge.localizeAddress(sourceFactAddress);
+			if (!filterNegativeExistentialAddresses.contains(targetFactAddress)
+					&& !filterPositiveExistentialAddresses.contains(targetFactAddress)) {
+				regular.add(targetFactAddress);
+			} else {
+				existential.add(targetFactAddress);
+			}
+		}
+		return new FactAddressPartition((FactAddress[]) regular.toArray(), existential);
 	}
 
 	@Override

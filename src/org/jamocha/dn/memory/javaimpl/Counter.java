@@ -14,11 +14,6 @@
  */
 package org.jamocha.dn.memory.javaimpl;
 
-import gnu.trove.list.array.TIntArrayList;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import org.jamocha.dn.memory.PathFilterElementToCounterColumn;
 import org.jamocha.filter.PathFilter;
 
@@ -29,42 +24,83 @@ import org.jamocha.filter.PathFilter;
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
 public class Counter {
-	// static part (cache)
-	final static List<int[]> emptyRowCache = new ArrayList<>();
-	final static int numPrecreatedEmptyRows = 10;
-	static {
-		for (int i = 0; i < numPrecreatedEmptyRows; ++i) {
-			assert i == emptyRowCache.size();
-			emptyRowCache.add(new int[i]);
+	final Column[] columns;
+
+	protected Counter(boolean[] negated) {
+		columns = new Column[negated.length];
+		for (int i = 0; i < negated.length; ++i) {
+			columns[i] = negated[i] ? new NegativeColumn() : new PositiveColumn();
 		}
 	}
-	final static Counter empty = new Counter(new boolean[] {});
-	// actual attributes
-	final TIntArrayList counters = new TIntArrayList();
-	final int columns;
-	final boolean[] negated;
-	final int emptyRow[];
 
-	private static int[] getEmptyRow(final int columns) {
-		try {
-			return emptyRowCache.get(columns);
-		} catch (final IndexOutOfBoundsException e) {
-			for (int i = emptyRowCache.size(); i <= columns; ++i) {
-				assert i == emptyRowCache.size();
-				emptyRowCache.add(new int[i]);
+	protected Counter(final Column[] columns) {
+		this.columns = columns;
+	}
+
+	public static enum Change {
+		NOCHANGE, CHANGETOVALID, CHANGETOINVALID;
+	}
+
+	static abstract class Column {
+		abstract boolean isValid(final FactTuple row, final int counterColumn);
+
+		abstract Change change(final FactTuple row, final int counterColumn, final int increment);
+
+		void increment(final FactTuple row, final CounterColumn counterColumn, final int increment) {
+			row.getCounters()[counterColumn.index] += increment;
+		}
+	}
+
+	static class PositiveColumn extends Column {
+		@Override
+		boolean isValid(final FactTuple row, final int counterColumn) {
+			return row.getCounters()[counterColumn] > 0;
+		}
+
+		@Override
+		Change change(FactTuple row, int counterColumn, int increment) {
+			final int value = row.getCounters()[counterColumn];
+			if (value == 0) {
+				if (increment > 0) {
+					return Change.CHANGETOVALID;
+				}
+				// assert that the amount of matching rows does not fall below 0
+				assert increment == 0;
+				return Change.NOCHANGE;
 			}
-			return emptyRowCache.get(columns);
+			// value should not be zero now
+			assert value != 0;
+			if (value == -increment) {
+				return Change.CHANGETOINVALID;
+			}
+			return Change.NOCHANGE;
 		}
 	}
 
-	protected Counter(final boolean[] negated) {
-		this(getEmptyRow(negated.length), negated);
-	}
+	static class NegativeColumn extends Column {
+		@Override
+		boolean isValid(final FactTuple row, final int counterColumn) {
+			return row.getCounters()[counterColumn] <= 0;
+		}
 
-	protected Counter(final int[] emptyRow, final boolean[] negated) {
-		this.columns = negated.length;
-		this.negated = negated;
-		this.emptyRow = emptyRow;
+		@Override
+		Change change(FactTuple row, int counterColumn, int increment) {
+			final int value = row.getCounters()[counterColumn];
+			if (value == 0) {
+				if (increment > 0) {
+					return Change.CHANGETOINVALID;
+				}
+				// assert that the amount of matching rows does not fall below 0
+				assert increment == 0;
+				return Change.NOCHANGE;
+			}
+			// value should not be zero now
+			assert value != 0;
+			if (value == -increment) {
+				return Change.CHANGETOVALID;
+			}
+			return Change.NOCHANGE;
+		}
 	}
 
 	public static Counter newCounter(final PathFilter filter,
@@ -72,96 +108,55 @@ public class Counter {
 		final boolean[] negatedArrayFromFilter =
 				ExistentialPathCounter.getNegatedArrayFromFilter(filter,
 						filterElementToCounterColumn);
-		if (negatedArrayFromFilter.length == 1) {
-			return new Counter(negatedArrayFromFilter);
-		}
 		return new Counter(negatedArrayFromFilter);
 	}
 
 	public static Counter newCounter(final MemoryHandlerMain memoryHandlerMain) {
-		final Counter originCounter = memoryHandlerMain.counter;
-		return new Counter(originCounter.emptyRow, originCounter.negated);
+		return new Counter(memoryHandlerMain.counter.columns);
 	}
 
 	public static Counter newCounter(final boolean... negated) {
 		return new Counter(negated);
 	}
 
-	public static Counter newEmptyCounter() {
-		return empty;
+	public boolean isValid(final FactTuple row, final CounterColumn counterColumn) {
+		return this.columns[counterColumn.index].isValid(row, counterColumn.index);
 	}
 
-	public int getCounter(final int row, final int column) {
-		assert column >= 0 && column < this.columns;
-		return this.counters.get(row * this.columns + column);
-	}
-
-	public void addEmptyRow() {
-		this.counters.add(this.emptyRow);
-	}
-
-	public void addEmptyRows(final int rows) {
-		final int size = rows * columns;
-		if (size >= emptyRowCache.size())
-			this.counters.add(new int[size]);
-		else
-			this.counters.add(emptyRowCache.get(size));
-	}
-
-	/**
-	 * Returns the number of rows in the Counter class
-	 * 
-	 * @return the number of rows in the Counter class
-	 */
-	public int size() {
-		return this.counters.size() / this.columns;
-	}
-
-	/**
-	 * Checks if the corresponding row fulfills the following conditions:
-	 * <ul>
-	 * <li><b>negated:</b> counter is equal to 0</li>
-	 * <li><b>non-negated:</b> counter is not equal to 0</li>
-	 * </ul>
-	 * 
-	 * @param row
-	 *            row to check
-	 * @return true iff row fulfills the conditions given above
-	 */
-	public boolean validRow(final int row) {
-		final int start = row * this.columns;
-		for (int i = 0; i < this.columns; ++i) {
-			if (this.negated[i] == (this.counters.get(start + i) != 0))
+	public boolean isValid(final FactTuple row) {
+		for (int i = 0; i < columns.length; ++i) {
+			if (!this.columns[i].isValid(row, i))
 				return false;
 		}
 		return true;
 	}
 
-	public int increment(final int row, final int column, final int increment) {
-		final int offset = row * this.columns + column;
-		final int value = this.counters.get(offset) + increment;
-		this.counters.set(offset, value);
-		return value;
-	}
-
-	public int increment(final int row, final int column) {
-		return increment(row, column, 1);
-	}
-
-	public int decrement(final int row, final int column) {
-		return increment(row, column, -1);
-	}
-
-	public int decrement(final int row, final int column, final int decrement) {
-		return increment(row, column, -decrement);
-	}
-
-	private static class OneCounter extends Counter {
-
-		protected OneCounter(boolean[] negated) {
-			super(negated);
-			// TODO Auto-generated constructor stub
+	public Change change(final FactTuple row, final int[] increment) {
+		boolean changeToValid = false, changeToInvalid = false;
+		for (int i = 0; i < increment.length && !(changeToValid && changeToInvalid); ++i) {
+			final Column column = this.columns[i];
+			if (column.isValid(row, i)) {
+				switch (column.change(row, i, increment[i])) {
+				case CHANGETOVALID:
+					changeToValid = true;
+					break;
+				case CHANGETOINVALID:
+					changeToInvalid = true;
+					break;
+				case NOCHANGE:
+					break;
+				}
+			}
 		}
-
+		// if there is no change or the row stays invalid as some other condition will not be
+		// fulfilled return no change
+		if (changeToValid == changeToInvalid)
+			return Change.NOCHANGE;
+		if (changeToValid)
+			return Change.CHANGETOVALID;
+		if (changeToInvalid)
+			return Change.CHANGETOINVALID;
+		// why is this line necessary?
+		return Change.NOCHANGE;
 	}
 }
