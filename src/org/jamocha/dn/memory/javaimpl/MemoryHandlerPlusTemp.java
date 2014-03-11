@@ -37,7 +37,6 @@ import org.jamocha.dn.nodes.SlotInFactAddress;
 import org.jamocha.filter.AddressFilter;
 import org.jamocha.filter.AddressFilter.AddressFilterElement;
 import org.jamocha.filter.fwa.PredicateWithArguments;
-import org.jamocha.visitor.Visitor;
 
 /**
  * Java-implementation of the {@link org.jamocha.dn.memory.MemoryHandlerPlusTemp} interface.
@@ -477,8 +476,6 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 				}
 			}
 
-			// filterElement.
-
 			final ArrayList<FactTuple> TR = new ArrayList<>();
 			loop(new FunctionPointer() {
 				@Override
@@ -518,83 +515,6 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 			if (!originElement.checkRowBounds()) {
 				return;
 			}
-
-			org.jamocha.visitor.Visitor visitor = new Visitor() {
-				public void visit(final AddressFilterElement fe) {
-					final ArrayList<FactTuple> TR = new ArrayList<>();
-					loop(new FunctionPointer() {
-						@Override
-						public void apply(final ArrayList<FactTuple> TR,
-								final StackElement originElement) {
-							final int paramLength = addresses.length;
-							final Object params[] = new Object[paramLength];
-							// determine parameters
-							for (int i = 0; i < paramLength; ++i) {
-								final SlotInFactAddress address = addresses[i];
-								final AddressPredecessor fact =
-										targetNode.delocalizeAddress(address.getFactAddress());
-								final StackElement se = edgeToStack.get(fact.getEdge());
-								params[i] = se.getValue(fact, address.getSlotAddress());
-							}
-							// copy result to new TR if facts match predicate
-							if ((boolean) predicate.evaluate(params)) {
-								// copy current row from old TR
-								final FactTuple row = originElement.getRow().copy();
-								// insert information from new inputs
-								for (final Edge edge : newEdges) {
-									// source is some temp, destination new TR
-									final StackElement se = edgeToStack.get(edge);
-									row.copy(se.getOffset(), se.getRow());
-								}
-								// copy the result to new TR
-								TR.add(row);
-							}
-						}
-					}, TR, stack, originElement);
-					// replace TR in originElement with new temporary result
-					originElement.memStack.set(0, TR);
-					// point all inputs that were joint during this turn to the TR
-					// StackElement
-					for (final Edge incomingEdge : newEdges) {
-						edgeToStack.put(incomingEdge, originElement);
-					}
-				}
-
-				public void visitNegatedExistential(final AddressFilterElement fe) {
-					// if (counter.size() == 0) {
-					// counter.addEmptyRows(originElement.memStack.get(0).size());
-					// }
-					final ArrayList<FactTuple> TR = new ArrayList<>();
-					loop(new FunctionPointer() {
-						@Override
-						public void apply(final ArrayList<FactTuple> TR,
-								final StackElement originElement) {
-							final int paramLength = addresses.length;
-							final Object params[] = new Object[paramLength];
-							// determine parameters
-							for (int i = 0; i < paramLength; ++i) {
-								final SlotInFactAddress address = addresses[i];
-								final AddressPredecessor fact =
-										targetNode.delocalizeAddress(address.getFactAddress());
-								final StackElement se = edgeToStack.get(fact.getEdge());
-								params[i] = se.getValue(fact, address.getSlotAddress());
-							}
-							// increment corresponding counter if facts match predicate
-							if ((boolean) predicate.evaluate(params)) {
-								// counter.increment(counterRow.value, counterColumn.value);
-							}
-							// ++counterRow.value;
-						}
-					}, TR, stack, originElement);
-					// point all inputs that were joint during this turn to the TR
-					// StackElement
-					for (final Edge incomingEdge : newEdges) {
-						edgeToStack.put(incomingEdge, originElement);
-					}
-					// ++counterColumn.value;
-				}
-
-			};
 		}
 
 		// full join with all inputs not pointing to TR now
