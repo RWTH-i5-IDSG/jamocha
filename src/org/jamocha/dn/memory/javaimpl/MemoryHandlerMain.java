@@ -169,6 +169,28 @@ public class MemoryHandlerMain extends MemoryHandlerBase implements
 		// ... apply counter in-/decrement
 		// create new temp if counter update changes validity and row is not yet in temp (mark when
 		// creating updates)
+		final ArrayList<FactTuple> rowsToAdd = new ArrayList<>();
+		final ArrayList<FactTuple> rowsToDel = new ArrayList<>();
+		for (final CounterUpdate counterUpdate : temp.counterUpdates) {
+			final boolean wasValid = counter.isValid(counterUpdate.row);
+			counterUpdate.apply();
+			final boolean isValid = counter.isValid(counterUpdate.row);
+			if (!wasValid && isValid) {
+				// changed to valid
+				rowsToAdd.add(counterUpdate.row);
+			} else if (wasValid && !isValid) {
+				// changed to invalid
+				rowsToDel.add(counterUpdate.row);
+			}
+			// else: no change
+		}
+		if (rowsToAdd.isEmpty()) {
+			// return new MemoryHandlerMinusTemp(template, this, rowsToDel, addresses);
+		} else if (rowsToDel.isEmpty()) {
+			// return new MemoryHandlerPlusTemp(this, rowsToAdd, ...);
+		} else {
+			// return new MemoryHandlerExistentialTemp(this, null, pos, neg, counterUpdates);
+		}
 		return null;
 	}
 

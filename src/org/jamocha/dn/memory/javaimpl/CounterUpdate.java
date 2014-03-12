@@ -14,9 +14,6 @@
  */
 package org.jamocha.dn.memory.javaimpl;
 
-import lombok.Getter;
-import lombok.Setter;
-
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  * 
@@ -24,9 +21,6 @@ import lombok.Setter;
 public class CounterUpdate {
 	final FactTuple row;
 	final int increment[];
-	@Getter
-	@Setter
-	boolean containedInRowsToAddOrDel = false;
 
 	public CounterUpdate(final FactTuple row) {
 		this.row = row;
@@ -38,8 +32,9 @@ public class CounterUpdate {
 	}
 
 	public void apply() {
+		final int[] counters = row.getCounters();
 		for (int i = 0; i < increment.length; ++i) {
-			row.getCounters()[i] += increment[i];
+			counters[i] += increment[i];
 		}
 	}
 }

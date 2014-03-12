@@ -29,17 +29,21 @@ public class MemoryHandlerExistentialTemp extends MemoryHandlerTemp implements
 
 	final MemoryHandlerPlusTemp pos;
 	final MemoryHandlerMinusTemp neg;
+	final ArrayList<CounterUpdate> counterUpdates;
 
 	public MemoryHandlerExistentialTemp(final MemoryHandlerMain originatingMainHandler,
 			final ArrayList<FactTuple> rows, final MemoryHandlerPlusTemp pos,
-			final MemoryHandlerMinusTemp neg) {
+			final MemoryHandlerMinusTemp neg, final ArrayList<CounterUpdate> counterUpdates) {
 		super(originatingMainHandler, rows);
 		this.pos = pos;
 		this.neg = neg;
+		this.counterUpdates = counterUpdates;
 	}
 
 	@Override
 	public void enqueueInEdge(final Edge edge) {
+		// its not that easy ... if we do it this way, the existential temp is gone and releaseLock
+		// is never called
 		edge.enqueueMemory(this.neg);
 		edge.enqueueMemory(this.pos);
 	}

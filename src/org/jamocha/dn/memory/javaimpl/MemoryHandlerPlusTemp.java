@@ -435,23 +435,6 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 						}
 						currentCounterUpdate.increment(counterColumn, 1);
 					}
-					if (currentCounterUpdate != null) {
-						final Counter.Change change =
-								memoryHandlerMain.counter.change(mainRow,
-										currentCounterUpdate.increment);
-						switch (change) {
-						case CHANGETOVALID:
-							rowsToAdd.add(mainRow);
-							currentCounterUpdate.setContainedInRowsToAddOrDel(true);
-							break;
-						case CHANGETOINVALID:
-							rowsToDel.add(mainRow);
-							currentCounterUpdate.setContainedInRowsToAddOrDel(true);
-							break;
-						case NOCHANGE:
-							break;
-						}
-					}
 				}
 			}
 		}
