@@ -37,9 +37,21 @@ public class FactTuple {
 		return empty;
 	}
 
-	public void setCounters(@SuppressWarnings("unused") final int[] counters) {
+	public int getCounter(@SuppressWarnings("unused") final CounterColumn counterColumn) {
+		throw new UnsupportedOperationException(
+				"getCounter not supported on counter-less fact-tuple!");
+	}
+
+	public void setCounter(@SuppressWarnings("unused") final CounterColumn counterColumn,
+			@SuppressWarnings("unused") final int value) {
 		throw new UnsupportedOperationException(
 				"setCounter not supported on counter-less fact-tuple!");
+	}
+
+	public void incrementCounter(@SuppressWarnings("unused") final CounterColumn counterColumn,
+			@SuppressWarnings("unused") final int increment) {
+		throw new UnsupportedOperationException(
+				"incrementCounter not supported on counter-less fact-tuple!");
 	}
 
 	protected Fact[] copyFacts() {
