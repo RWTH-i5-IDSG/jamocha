@@ -89,6 +89,10 @@ public abstract class Node {
 		@Override
 		public void setFilter(final AddressFilter filter) {
 			this.filter = filter;
+			if (null == filter) {
+				this.filterParts = null;
+				return;
+			}
 			this.filterParts =
 					this.sourceNode.memory.getRelevantExistentialFilterParts(filter, this);
 		}
