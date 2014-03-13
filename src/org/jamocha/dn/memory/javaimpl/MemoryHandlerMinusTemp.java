@@ -17,8 +17,6 @@ package org.jamocha.dn.memory.javaimpl;
 import java.util.ArrayList;
 import java.util.Queue;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 import lombok.ToString;
 
 import org.jamocha.dn.memory.Template;
@@ -60,97 +58,6 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 		}
 		return new MemoryHandlerMinusTemp(memoryHandlerMain.getTemplate(), memoryHandlerMain,
 				relevantFactTuples, factAddresses);
-	}
-
-	/**
-	 * Tiny state-like interface for the following use case: <br />
-	 * A filter is applied to elements in a list and we want to get a list of the elements that did
-	 * not match the filter. Thus, if the filter matches no element, the original list may be
-	 * returned. Otherwise we need to copy parts of it. <br />
-	 * To achieve this, a reference to that list is stored in the start-state (SameList) and
-	 * unmatched is called as long as no entry matches the filter. As soon as the first element
-	 * matching the filter leads to a matched-call, the list is copied up to (but not including) the
-	 * current position and the state is changed to CopiedList. Now, all further matched calls are
-	 * ignored and all unmatched have the corresponding element copied into the new list. There is
-	 * no further state change. <br />
-	 * <b>Note:</b> The return value of matched and unmatched has to be stored in the instance used
-	 * to accept the state change!
-	 * 
-	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
-	 */
-	static interface LazyListCopy {
-		LazyListCopy unmatched(final int index);
-
-		LazyListCopy matched(final int index);
-
-		ArrayList<FactTuple> getList();
-	}
-
-	/**
-	 * @see LazyListCopy
-	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
-	 */
-	@AllArgsConstructor
-	static abstract class LLC implements LazyListCopy {
-		@Getter
-		final ArrayList<FactTuple> list;
-
-		@Override
-		public LazyListCopy unmatched(final int index) {
-			return this;
-		}
-
-		@Override
-		public LazyListCopy matched(final int index) {
-			return this;
-		}
-	};
-
-	/**
-	 * @see LazyListCopy
-	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
-	 */
-	static class SameList extends LLC {
-		public SameList(final ArrayList<FactTuple> list) {
-			super(list);
-		}
-
-		@Override
-		public LazyListCopy matched(final int index) {
-			final int size = this.list.size();
-			final ArrayList<FactTuple> copy = new ArrayList<>(this.list);
-			copy.subList(index, size).clear();
-			// TODO write your own arraylist to do new ArrayList<>(original, from, to);
-			// final ArrayList<Fact[]> copy = new ArrayList<>(this.list.size());
-			// for (int i = 0; i < index; i++) {
-			// copy.add(this.list.get(i));
-			// }
-			return new CopiedList(this.list, copy);
-		}
-	}
-
-	/**
-	 * @see LazyListCopy
-	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
-	 */
-	static class CopiedList extends LLC {
-		final ArrayList<FactTuple> copy;
-
-		public CopiedList(final ArrayList<FactTuple> list, final ArrayList<FactTuple> copy) {
-			super(list);
-			this.copy = copy;
-		}
-
-		@Override
-		public LazyListCopy unmatched(final int index) {
-			this.copy.add(this.list.get(index));
-			return this;
-		}
-
-		@Override
-		public ArrayList<FactTuple> getList() {
-			return this.copy;
-		}
 	}
 
 	/**
@@ -223,23 +130,24 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 			final EqualityChecker equalityChecker) {
 		final int originalFactsSize = originalFacts.size();
 		final int minusFactsSize = minusFacts.size();
-		LazyListCopy remainingFacts = new SameList(originalFacts);
+		final LazyListCopy remainingFacts = LazyListCopy.newLazyListCopy(originalFacts);
 		outerLoop: for (int originalFactsIndex = 0; originalFactsIndex < originalFactsSize; ++originalFactsIndex) {
 			final FactTuple originalFactTuple = originalFacts.get(originalFactsIndex);
 			for (int minusFactsIndex = 0; minusFactsIndex < minusFactsSize; ++minusFactsIndex) {
 				final FactTuple minusFactTuple = minusFacts.get(minusFactsIndex);
 				if (equalityChecker.equals(originalFactTuple, minusFactTuple, minusFacts,
 						minusFactsIndex, factAddresses)) {
-					// we spotted a match for a complete row in the minus token, mark the
-					// responsible row in the minus token as relevant for the successor network
-					remainingFacts = remainingFacts.matched(originalFactsIndex);
+					// we spotted a match for a complete row in the minus token
+					remainingFacts.drop(originalFactsIndex);
+					// mark the responsible row in the minus token as relevant for the successor
+					// network
 					marked[minusFactsIndex] = true;
 					// don't reconsider the same line in the original facts again
 					continue outerLoop;
 				}
 			}
 			// facts differ at some point, add to remaining facts
-			remainingFacts = remainingFacts.unmatched(originalFactsIndex);
+			remainingFacts.keep(originalFactsIndex);
 		}
 		return remainingFacts.getList();
 	}
