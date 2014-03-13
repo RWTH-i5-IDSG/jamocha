@@ -14,6 +14,8 @@
  */
 package org.jamocha.dn.memory.javaimpl;
 
+import lombok.Getter;
+
 import org.jamocha.dn.memory.PathFilterElementToCounterColumn;
 import org.jamocha.filter.PathFilter;
 
@@ -23,18 +25,71 @@ import org.jamocha.filter.PathFilter;
  * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
-public class Counter {
-	final Column[] columns;
+public abstract class Counter {
 
-	protected Counter(boolean[] negated) {
-		columns = new Column[negated.length];
-		for (int i = 0; i < negated.length; ++i) {
-			columns[i] = negated[i] ? new NegativeColumn() : new PositiveColumn();
+	abstract Column[] getColumns();
+
+	abstract int getCounter(final FactTuple row, final CounterColumn counterColumn);
+
+	abstract void setCounter(final FactTuple row, final CounterColumn counterColumn, final int value);
+
+	abstract void increment(final FactTuple row, final CounterColumn counterColumn,
+			final int increment);
+
+	public static class ActualCounter extends Counter {
+		@Getter
+		final Column[] columns;
+
+		protected ActualCounter(final boolean[] negated) {
+			this.columns = new Column[negated.length];
+			for (int i = 0; i < negated.length; ++i) {
+				this.columns[i] = negated[i] ? new NegativeColumn() : new PositiveColumn();
+			}
+		}
+
+		protected ActualCounter(final Column[] columns) {
+			this.columns = columns;
+		}
+
+		@Override
+		int getCounter(final FactTuple row, final CounterColumn counterColumn) {
+			return row.getCounter(counterColumn);
+		}
+
+		@Override
+		void setCounter(final FactTuple row, final CounterColumn counterColumn, final int value) {
+			row.setCounter(counterColumn, value);
+		}
+
+		@Override
+		void increment(final FactTuple row, final CounterColumn counterColumn, final int increment) {
+			row.incrementCounter(counterColumn, increment);
 		}
 	}
 
-	protected Counter(final Column[] columns) {
-		this.columns = columns;
+	public static class EmptyCounter extends Counter {
+		private static Column[] empty = new Column[0];
+
+		@Override
+		Column[] getColumns() {
+			return empty;
+		}
+
+		@Override
+		int getCounter(final FactTuple row, final CounterColumn counterColumn) {
+			assert null == counterColumn;
+			return 0;
+		}
+
+		@Override
+		void setCounter(final FactTuple row, final CounterColumn counterColumn, final int value) {
+			assert null == counterColumn;
+		}
+
+		@Override
+		void increment(final FactTuple row, final CounterColumn counterColumn, final int increment) {
+			assert null == counterColumn;
+		}
 	}
 
 	public static enum Change {
@@ -58,7 +113,7 @@ public class Counter {
 		}
 
 		@Override
-		Change change(FactTuple row, int counterColumn, int increment) {
+		Change change(final FactTuple row, final int counterColumn, final int increment) {
 			final int value = row.getCounters()[counterColumn];
 			if (value == 0) {
 				if (increment > 0) {
@@ -84,7 +139,7 @@ public class Counter {
 		}
 
 		@Override
-		Change change(FactTuple row, int counterColumn, int increment) {
+		Change change(final FactTuple row, final int counterColumn, final int increment) {
 			final int value = row.getCounters()[counterColumn];
 			if (value == 0) {
 				if (increment > 0) {
@@ -108,33 +163,40 @@ public class Counter {
 		final boolean[] negatedArrayFromFilter =
 				ExistentialPathCounter.getNegatedArrayFromFilter(filter,
 						filterElementToCounterColumn);
-		return new Counter(negatedArrayFromFilter);
+		return newCounter(negatedArrayFromFilter);
 	}
 
 	public static Counter newCounter(final MemoryHandlerMain memoryHandlerMain) {
-		return new Counter(memoryHandlerMain.counter.columns);
+		final Column[] columns = memoryHandlerMain.counter.getColumns();
+		if (columns.length == 0)
+			return new EmptyCounter();
+		return new ActualCounter(columns);
 	}
 
 	public static Counter newCounter(final boolean... negated) {
-		return new Counter(negated);
+		if (negated.length == 0)
+			return new EmptyCounter();
+		return new ActualCounter(negated);
 	}
 
 	public boolean isValid(final FactTuple row, final CounterColumn counterColumn) {
-		return this.columns[counterColumn.index].isValid(row, counterColumn.index);
+		return this.getColumns()[counterColumn.index].isValid(row, counterColumn.index);
 	}
 
 	public boolean isValid(final FactTuple row) {
+		final Column[] columns = getColumns();
 		for (int i = 0; i < columns.length; ++i) {
-			if (!this.columns[i].isValid(row, i))
+			if (!columns[i].isValid(row, i))
 				return false;
 		}
 		return true;
 	}
 
 	public Change change(final FactTuple row, final int[] increment) {
+		final Column[] columns = getColumns();
 		boolean changeToValid = false, changeToInvalid = false;
 		for (int i = 0; i < increment.length && !(changeToValid && changeToInvalid); ++i) {
-			final Column column = this.columns[i];
+			final Column column = columns[i];
 			if (column.isValid(row, i)) {
 				switch (column.change(row, i, increment[i])) {
 				case CHANGETOVALID:
