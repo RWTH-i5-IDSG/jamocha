@@ -35,6 +35,20 @@ public class AddressFilter extends Filter<AddressFilter.AddressFilterElement> {
 	@Getter
 	protected final Set<FactAddress> positiveExistentialAddresses, negativeExistentialAddresses;
 
+	/**
+	 * Checks whether the FactAddress is existential by calling the contains method on both sets
+	 * (positive and negative).
+	 * 
+	 * @param factAddress
+	 *            the fact address to check
+	 * @return true iff the fact address passed is contained in one of the existential fact address
+	 *         sets
+	 */
+	public boolean isExistential(final FactAddress factAddress) {
+		return positiveExistentialAddresses.contains(factAddress)
+				|| negativeExistentialAddresses.contains(factAddress);
+	}
+
 	public AddressFilter(final Set<FactAddress> positiveExistentialAddresses,
 			final Set<FactAddress> negativeExistentialAddresses,
 			final AddressFilterElement[] filterElements) {
