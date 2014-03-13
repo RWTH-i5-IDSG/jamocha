@@ -452,12 +452,17 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 			originElement.memStack.set(0, copy.getList());
 		}
 
+		final Counter counter =
+				((MemoryHandlerMain) originEdge.getTargetNode().getMemory()).counter;
+
 		// get filter steps
 		final AddressFilterElement filterSteps[] = filter.getFilterElements();
 		for (final AddressFilterElement filterElement : filterSteps) {
 			final Collection<StackElement> stack = new ArrayList<>(filterSteps.length);
 			final PredicateWithArguments predicate = filterElement.getFunction();
 			final SlotInFactAddress addresses[] = filterElement.getAddressesInTarget();
+			final CounterColumn counterColumn = (CounterColumn) filterElement.getCounterColumn();
+			final boolean existential = (counterColumn == null);
 
 			// determine new edges
 			final Set<Edge> newEdges = new HashSet<>();
@@ -480,14 +485,18 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 					final Object params[] = new Object[paramLength];
 					// determine parameters
 					for (int i = 0; i < paramLength; ++i) {
-						final SlotInFactAddress address = addresses[i];
-						final AddressPredecessor fact =
-								targetNode.delocalizeAddress(address.getFactAddress());
-						final StackElement se = edgeToStack.get(fact.getEdge());
-						params[i] = se.getValue(fact, address.getSlotAddress());
+						final SlotInFactAddress slotInTargetAddress = addresses[i];
+						final org.jamocha.dn.memory.FactAddress targetAddress =
+								slotInTargetAddress.getFactAddress();
+						final AddressPredecessor upwardsAddress =
+								targetNode.delocalizeAddress(targetAddress);
+						final StackElement se = edgeToStack.get(upwardsAddress.getEdge());
+						params[i] =
+								se.getValue(upwardsAddress, slotInTargetAddress.getSlotAddress());
 					}
 					// copy result to new TR if facts match predicate
-					if (predicate.evaluate(params)) {
+					final boolean match = predicate.evaluate(params);
+					if (match || existential) {
 						// copy current row from old TR
 						final FactTuple row = originElement.getRow().copy();
 						// insert information from new inputs
@@ -495,6 +504,10 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 							// source is some temp, destination new TR
 							final StackElement se = edgeToStack.get(edge);
 							row.copy(se.getOffset(), se.getRow());
+						}
+						if (match) {
+							// use counter to set counterColumn to 1 if counterColumn is not null
+							counter.increment(row, counterColumn, 1);
 						}
 						// copy the result to new TR
 						TR.add(row);
