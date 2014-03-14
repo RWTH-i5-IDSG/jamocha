@@ -24,6 +24,8 @@ public class LazyListCopy {
 	private static interface LazyListCopyState {
 		void keep(final int index);
 
+		void keepStartingAt(final int index);
+
 		void drop(final int index);
 
 		ArrayList<FactTuple> getList();
@@ -61,6 +63,10 @@ public class LazyListCopy {
 		@Override
 		public void keep(final int index) {
 		}
+
+		@Override
+		public void keepStartingAt(final int index) {
+		}
 	}
 
 	/**
@@ -75,6 +81,14 @@ public class LazyListCopy {
 		@Override
 		public void keep(final int index) {
 			this.copy.add(this.list.get(index));
+		}
+
+		@Override
+		public void keepStartingAt(final int index) {
+			final int size = this.list.size();
+			for (int i = index; i < size; ++i) {
+				this.copy.add(this.list.get(i));
+			}
 		}
 
 		@Override
