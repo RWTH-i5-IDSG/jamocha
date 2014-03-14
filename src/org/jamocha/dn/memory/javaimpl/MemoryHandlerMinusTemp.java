@@ -130,7 +130,7 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 			final EqualityChecker equalityChecker) {
 		final int originalFactsSize = originalFacts.size();
 		final int minusFactsSize = minusFacts.size();
-		final LazyListCopy remainingFacts = LazyListCopy.newLazyListCopy(originalFacts);
+		final LazyListCopy remainingFacts = new LazyListCopy(originalFacts);
 		outerLoop: for (int originalFactsIndex = 0; originalFactsIndex < originalFactsSize; ++originalFactsIndex) {
 			final FactTuple originalFactTuple = originalFacts.get(originalFactsIndex);
 			for (int minusFactsIndex = 0; minusFactsIndex < minusFactsSize; ++minusFactsIndex) {

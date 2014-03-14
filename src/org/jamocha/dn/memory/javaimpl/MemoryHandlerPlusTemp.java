@@ -442,7 +442,7 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 			}
 			// for the join with the other inputs, delete the rows that did not contain new regular,
 			// but only new existential facts
-			final LazyListCopy copy = LazyListCopy.newLazyListCopy(tokenRows);
+			final LazyListCopy copy = new LazyListCopy(tokenRows);
 			for (int i = 0; i < originElement.getTable().size(); ++i) {
 				if (tokenRowContainsOnlyOldFactsInRegularPart[i])
 					copy.drop(i);
