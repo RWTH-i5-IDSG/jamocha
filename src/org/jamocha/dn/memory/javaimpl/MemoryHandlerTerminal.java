@@ -21,7 +21,6 @@ import java.util.Queue;
 import org.jamocha.dn.memory.MemoryHandler;
 import org.jamocha.dn.memory.SlotAddress;
 import org.jamocha.dn.memory.Template;
-import org.jamocha.dn.memory.javaimpl.MemoryHandlerMinusTemp.EqualityChecker;
 import org.jamocha.dn.nodes.TerminalNode;
 
 /**
