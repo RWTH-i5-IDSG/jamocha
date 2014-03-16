@@ -29,11 +29,11 @@ public abstract class Counter {
 
 	abstract Column[] getColumns();
 
-	abstract int getCounter(final FactTuple row, final CounterColumn counterColumn);
+	abstract int getCounter(final Row row, final CounterColumn counterColumn);
 
-	abstract void setCounter(final FactTuple row, final CounterColumn counterColumn, final int value);
+	abstract void setCounter(final Row row, final CounterColumn counterColumn, final int value);
 
-	abstract void increment(final FactTuple row, final CounterColumn counterColumn,
+	abstract void increment(final Row row, final CounterColumn counterColumn,
 			final int increment);
 
 	public static class ActualCounter extends Counter {
@@ -52,17 +52,17 @@ public abstract class Counter {
 		}
 
 		@Override
-		int getCounter(final FactTuple row, final CounterColumn counterColumn) {
+		int getCounter(final Row row, final CounterColumn counterColumn) {
 			return row.getCounter(counterColumn);
 		}
 
 		@Override
-		void setCounter(final FactTuple row, final CounterColumn counterColumn, final int value) {
+		void setCounter(final Row row, final CounterColumn counterColumn, final int value) {
 			row.setCounter(counterColumn, value);
 		}
 
 		@Override
-		void increment(final FactTuple row, final CounterColumn counterColumn, final int increment) {
+		void increment(final Row row, final CounterColumn counterColumn, final int increment) {
 			row.incrementCounter(counterColumn, increment);
 		}
 	}
@@ -76,18 +76,18 @@ public abstract class Counter {
 		}
 
 		@Override
-		int getCounter(final FactTuple row, final CounterColumn counterColumn) {
+		int getCounter(final Row row, final CounterColumn counterColumn) {
 			assert null == counterColumn;
 			return 0;
 		}
 
 		@Override
-		void setCounter(final FactTuple row, final CounterColumn counterColumn, final int value) {
+		void setCounter(final Row row, final CounterColumn counterColumn, final int value) {
 			assert null == counterColumn;
 		}
 
 		@Override
-		void increment(final FactTuple row, final CounterColumn counterColumn, final int increment) {
+		void increment(final Row row, final CounterColumn counterColumn, final int increment) {
 			assert null == counterColumn;
 		}
 	}
@@ -97,23 +97,23 @@ public abstract class Counter {
 	}
 
 	static abstract class Column {
-		abstract boolean isValid(final FactTuple row, final int counterColumn);
+		abstract boolean isValid(final Row row, final int counterColumn);
 
-		abstract Change change(final FactTuple row, final int counterColumn, final int increment);
+		abstract Change change(final Row row, final int counterColumn, final int increment);
 
-		void increment(final FactTuple row, final CounterColumn counterColumn, final int increment) {
+		void increment(final Row row, final CounterColumn counterColumn, final int increment) {
 			row.getCounters()[counterColumn.index] += increment;
 		}
 	}
 
 	static class PositiveColumn extends Column {
 		@Override
-		boolean isValid(final FactTuple row, final int counterColumn) {
+		boolean isValid(final Row row, final int counterColumn) {
 			return row.getCounters()[counterColumn] > 0;
 		}
 
 		@Override
-		Change change(final FactTuple row, final int counterColumn, final int increment) {
+		Change change(final Row row, final int counterColumn, final int increment) {
 			final int value = row.getCounters()[counterColumn];
 			if (value == 0) {
 				if (increment > 0) {
@@ -134,12 +134,12 @@ public abstract class Counter {
 
 	static class NegativeColumn extends Column {
 		@Override
-		boolean isValid(final FactTuple row, final int counterColumn) {
+		boolean isValid(final Row row, final int counterColumn) {
 			return row.getCounters()[counterColumn] <= 0;
 		}
 
 		@Override
-		Change change(final FactTuple row, final int counterColumn, final int increment) {
+		Change change(final Row row, final int counterColumn, final int increment) {
 			final int value = row.getCounters()[counterColumn];
 			if (value == 0) {
 				if (increment > 0) {
@@ -179,11 +179,11 @@ public abstract class Counter {
 		return new ActualCounter(negated);
 	}
 
-	public boolean isValid(final FactTuple row, final CounterColumn counterColumn) {
+	public boolean isValid(final Row row, final CounterColumn counterColumn) {
 		return this.getColumns()[counterColumn.index].isValid(row, counterColumn.index);
 	}
 
-	public boolean isValid(final FactTuple row) {
+	public boolean isValid(final Row row) {
 		final Column[] columns = getColumns();
 		for (int i = 0; i < columns.length; ++i) {
 			if (!columns[i].isValid(row, i))
@@ -192,7 +192,7 @@ public abstract class Counter {
 		return true;
 	}
 
-	public Change change(final FactTuple row, final int[] increment) {
+	public Change change(final Row row, final int[] increment) {
 		final Column[] columns = getColumns();
 		boolean changeToValid = false, changeToInvalid = false;
 		for (int i = 0; i < increment.length && !(changeToValid && changeToInvalid); ++i) {

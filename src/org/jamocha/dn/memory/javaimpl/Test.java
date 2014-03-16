@@ -28,40 +28,40 @@ public class Test {
 	/* * * * * * * * * * MAIN MEMORIES * * * * * * * * * */
 
 	static class MainMemory {
-		private ArrayList<FactTuple> rows;
+		private ArrayList<Row> rows;
 
 		// joins use unfiltered rows when joining existential facts with main memory or doing
 		// deletes
-		public ArrayList<FactTuple> getRows() {
+		public ArrayList<Row> getRows() {
 			return rows;
 		}
 
 		// joins use filtered rows when accessing parent data via edges
-		public ArrayList<FactTuple> getValidRows() {
+		public ArrayList<Row> getValidRows() {
 			return rows;
 		}
 
-		public void deleteInFiltered(@SuppressWarnings("unused") final ArrayList<FactTuple> toDelete) {
+		public void deleteInFiltered(@SuppressWarnings("unused") final ArrayList<Row> toDelete) {
 		}
 	}
 
 	static class MainMemoryWithExistentials extends MainMemory {
-		ArrayList<FactTuple> validRows;
+		ArrayList<Row> validRows;
 
 		@Override
-		public ArrayList<FactTuple> getValidRows() {
+		public ArrayList<Row> getValidRows() {
 			return validRows;
 		}
 
 		@Override
-		public void deleteInFiltered(final ArrayList<FactTuple> toDelete) {
+		public void deleteInFiltered(final ArrayList<Row> toDelete) {
 			final int mainSize = validRows.size();
 			final int partSize = toDelete.size();
 			final LazyListCopy mainCopy = new LazyListCopy(validRows);
 			outerLoop: for (int mainIndex = 0; mainIndex < mainSize; ++mainIndex) {
-				final FactTuple mainTuple = validRows.get(mainIndex);
+				final Row mainTuple = validRows.get(mainIndex);
 				for (int partIndex = 0; partIndex < partSize; ++partIndex) {
-					final FactTuple partTuple = toDelete.get(partIndex);
+					final Row partTuple = toDelete.get(partIndex);
 					if (mainTuple == partTuple) {
 						mainCopy.drop(mainIndex);
 						continue outerLoop;
@@ -95,8 +95,8 @@ public class Test {
 	static class PlusTempNewRowsAndCounterUpdates {
 		static class Data {
 			ArrayList<CounterUpdate> counterUpdates;
-			ArrayList<FactTuple> newRows;
-			ArrayList<FactTuple> newValidRows; // subseteq newRows
+			ArrayList<Row> newRows;
+			ArrayList<Row> newValidRows; // subseteq newRows
 		}
 
 		Data original;
@@ -108,7 +108,7 @@ public class Test {
 		Optional<Data> filtered;
 
 		// newValidRows is the part of the token relevant for the follow-up network
-		public ArrayList<FactTuple> getRowsForSucessorNodes() {
+		public ArrayList<Row> getRowsForSucessorNodes() {
 			return original.newValidRows;
 		}
 
@@ -123,10 +123,10 @@ public class Test {
 	}
 
 	static class PlusTempValidRowsAdder {
-		ArrayList<FactTuple> newValidRows;
-		Optional<ArrayList<FactTuple>> filteredNewValidRows;
+		ArrayList<Row> newValidRows;
+		Optional<ArrayList<Row>> filteredNewValidRows;
 
-		public ArrayList<FactTuple> getRowsForSucessorNodes() {
+		public ArrayList<Row> getRowsForSucessorNodes() {
 			return newValidRows;
 		}
 
@@ -151,13 +151,13 @@ public class Test {
 
 	// usually used
 	static class MinusTempRegularPartial {
-		ArrayList<FactTuple> partial;
+		ArrayList<Row> partial;
 	}
 
 	// generated instead of MinusTempRegularPartial if one of the target edges contains existentials
 	// also produced by counter updates (the complete part equals the partial part in these cases)
 	static class MinusTempRegularComplete extends MinusTempRegularPartial {
-		ArrayList<FactTuple> complete;
+		ArrayList<Row> complete;
 	}
 
 	static class MinusTempExistential {

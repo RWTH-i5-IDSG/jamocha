@@ -42,13 +42,13 @@ public class LazyListCopy {
 
 		void drop(final int index);
 
-		ArrayList<FactTuple> getList();
+		ArrayList<Row> getList();
 	}
 
 	@Delegate
 	LazyListCopyState state;
 
-	public LazyListCopy(final ArrayList<FactTuple> list) {
+	public LazyListCopy(final ArrayList<Row> list) {
 		this.state = new SameList(list);
 	}
 
@@ -59,12 +59,12 @@ public class LazyListCopy {
 	@AllArgsConstructor
 	public class SameList implements LazyListCopyState {
 		@Getter(onMethod = @_(@Override))
-		final ArrayList<FactTuple> list;
+		final ArrayList<Row> list;
 
 		@Override
 		public void drop(final int index) {
 			final int size = this.list.size();
-			final ArrayList<FactTuple> copy = new ArrayList<>(this.list);
+			final ArrayList<Row> copy = new ArrayList<>(this.list);
 			copy.subList(index, size).clear();
 			// TODO write your own arraylist to do new ArrayList<>(original, from, to);
 			// final ArrayList<Fact[]> copy = new ArrayList<>(this.list.size());
@@ -89,8 +89,8 @@ public class LazyListCopy {
 	 */
 	@AllArgsConstructor
 	public class CopiedList implements LazyListCopyState {
-		final ArrayList<FactTuple> list;
-		final ArrayList<FactTuple> copy;
+		final ArrayList<Row> list;
+		final ArrayList<Row> copy;
 
 		@Override
 		public void keep(final int index) {
@@ -110,7 +110,7 @@ public class LazyListCopy {
 		}
 
 		@Override
-		public ArrayList<FactTuple> getList() {
+		public ArrayList<Row> getList() {
 			return this.copy;
 		}
 	}

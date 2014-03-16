@@ -2,7 +2,7 @@ package org.jamocha.dn.memory.javaimpl;
 
 import static java.util.Arrays.copyOf;
 
-class FactTupleAndCounter extends FactTuple {
+class FactTupleAndCounter extends Row {
 	private int[] counters;
 
 	public FactTupleAndCounter(final Fact[] factTuple, final int[] counters) {
@@ -25,8 +25,8 @@ class FactTupleAndCounter extends FactTuple {
 		this.counters[counterColumn.index] += increment;
 	}
 
-	public FactTuple stripCounters() {
-		return new FactTuple(getFactTuple());
+	public Row stripCounters() {
+		return new Row(getFactTuple());
 	}
 
 	protected int[] copyCounters() {

@@ -40,9 +40,9 @@ public class MemoryHandlerBase implements MemoryHandler {
 	final Template[] template;
 	@NonNull
 	@NonFinal
-	ArrayList<FactTuple> rows;
+	ArrayList<Row> rows;
 
-	public MemoryHandlerBase(final Template[] template, final ArrayList<FactTuple> rows) {
+	public MemoryHandlerBase(final Template[] template, final ArrayList<Row> rows) {
 		this.template = template;
 		this.rows = rows;
 	}

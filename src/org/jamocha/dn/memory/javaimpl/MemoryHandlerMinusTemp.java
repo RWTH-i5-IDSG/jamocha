@@ -34,7 +34,7 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 		org.jamocha.dn.memory.MemoryHandlerMinusTemp {
 
 	private static MemoryHandlerMinusTemp empty = new MemoryHandlerMinusTemp(null, null,
-			new ArrayList<FactTuple>(0), new FactAddress[] {});
+			new ArrayList<Row>(0), new FactAddress[] {});
 
 	/**
 	 * Maps FactAddresses valid in the current scope of the token by position of the facts in the
@@ -44,13 +44,13 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 
 	static MemoryHandlerMinusTemp newRootTemp(final MemoryHandlerMain memoryHandlerMain,
 			final org.jamocha.dn.memory.Fact[] facts) {
-		final ArrayList<FactTuple> minusFacts = new ArrayList<>(facts.length);
+		final ArrayList<Row> minusFacts = new ArrayList<>(facts.length);
 		for (final org.jamocha.dn.memory.Fact fact : facts) {
-			minusFacts.add(new FactTuple(new Fact[] { new Fact(fact.getSlotValues()) }));
+			minusFacts.add(new Row(new Fact[] { new Fact(fact.getSlotValues()) }));
 		}
 		final FactAddress[] factAddresses = memoryHandlerMain.addresses;
 		assert factAddresses.length == 1;
-		final ArrayList<FactTuple> relevantFactTuples =
+		final ArrayList<Row> relevantFactTuples =
 				getRelevantFactTuples(memoryHandlerMain, minusFacts, factAddresses,
 						EqualityChecker.root);
 		if (0 == relevantFactTuples.size()) {
@@ -60,17 +60,17 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 				relevantFactTuples, factAddresses);
 	}
 
-	private static ArrayList<FactTuple> getRemainingFactTuples(
-			final ArrayList<FactTuple> originalFacts, final ArrayList<FactTuple> minusFacts,
+	private static ArrayList<Row> getRemainingFactTuples(
+			final ArrayList<Row> originalFacts, final ArrayList<Row> minusFacts,
 			final FactAddress[] factAddresses, final boolean[] marked,
 			final EqualityChecker equalityChecker) {
 		final int originalFactsSize = originalFacts.size();
 		final int minusFactsSize = minusFacts.size();
 		final LazyListCopy remainingFacts = new LazyListCopy(originalFacts);
 		outerLoop: for (int originalFactsIndex = 0; originalFactsIndex < originalFactsSize; ++originalFactsIndex) {
-			final FactTuple originalFactTuple = originalFacts.get(originalFactsIndex);
+			final Row originalFactTuple = originalFacts.get(originalFactsIndex);
 			for (int minusFactsIndex = 0; minusFactsIndex < minusFactsSize; ++minusFactsIndex) {
-				final FactTuple minusFactTuple = minusFacts.get(minusFactsIndex);
+				final Row minusFactTuple = minusFacts.get(minusFactsIndex);
 				if (equalityChecker.equals(originalFactTuple, minusFactTuple, minusFacts,
 						minusFactsIndex, factAddresses)) {
 					// we spotted a match for a complete row in the minus token
@@ -100,10 +100,10 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 
 		final MemoryHandlerMain targetMain =
 				(MemoryHandlerMain) originIncomingEdge.getTargetNode().getMemory();
-		final ArrayList<FactTuple> minusFacts = this.rows;
+		final ArrayList<Row> minusFacts = this.rows;
 		final FactAddress[] localizedAddressMap =
 				localizeAddressMap(this.factAddresses, originIncomingEdge);
-		final ArrayList<FactTuple> relevantMinusFacts =
+		final ArrayList<Row> relevantMinusFacts =
 				getRelevantFactTuples(targetMain, minusFacts, localizedAddressMap,
 						EqualityChecker.beta);
 		return new MemoryHandlerMinusTemp(getTemplate(),
@@ -112,12 +112,12 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 
 	private static void filterOutgoingTemps(
 			final Queue<MemoryHandlerPlusTemp> validOutgoingPlusTokens,
-			final ArrayList<FactTuple> minusFacts, final FactAddress[] factAddresses,
+			final ArrayList<Row> minusFacts, final FactAddress[] factAddresses,
 			final boolean[] marked, final EqualityChecker equalityChecker) {
 		for (final MemoryHandlerPlusTemp temp : validOutgoingPlusTokens) {
-			final ArrayList<FactTuple> originalFacts =
+			final ArrayList<Row> originalFacts =
 					(null == temp.filtered ? temp.rows : temp.filtered);
-			final ArrayList<FactTuple> remainingFacts =
+			final ArrayList<Row> remainingFacts =
 					getRemainingFactTuples(originalFacts, minusFacts, factAddresses, marked,
 							equalityChecker);
 			temp.filtered = remainingFacts;
@@ -125,11 +125,11 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 	}
 
 	private static void filterTargetMain(final MemoryHandlerMain targetMain,
-			final ArrayList<FactTuple> minusFacts, final FactAddress[] factAddresses,
+			final ArrayList<Row> minusFacts, final FactAddress[] factAddresses,
 			final boolean[] marked, final EqualityChecker equalityChecker) {
-		final ArrayList<FactTuple> originalFacts = targetMain.rows;
+		final ArrayList<Row> originalFacts = targetMain.rows;
 		final int originalFactsSize = originalFacts.size();
-		final ArrayList<FactTuple> remainingFacts =
+		final ArrayList<Row> remainingFacts =
 				getRemainingFactTuples(originalFacts, minusFacts, factAddresses, marked,
 						equalityChecker);
 		if (remainingFacts.size() != originalFactsSize) {
@@ -139,7 +139,7 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 		}
 	}
 
-	private static ArrayList<FactTuple> getMarkedFactTuples(final ArrayList<FactTuple> minusFacts,
+	private static ArrayList<Row> getMarkedFactTuples(final ArrayList<Row> minusFacts,
 			final boolean[] marked) {
 		final int minusFactsSize = minusFacts.size();
 		int relevantMinusFactsSize = 0;
@@ -151,8 +151,8 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 		if (relevantMinusFactsSize == minusFactsSize) {
 			return minusFacts;
 		}
-		final ArrayList<FactTuple> relevantMinusFacts =
-				new ArrayList<FactTuple>(relevantMinusFactsSize);
+		final ArrayList<Row> relevantMinusFacts =
+				new ArrayList<Row>(relevantMinusFactsSize);
 		for (int minusFactsIndex = 0; minusFactsIndex < minusFactsSize; ++minusFactsIndex) {
 			if (marked[minusFactsIndex]) {
 				relevantMinusFacts.add(minusFacts.get(minusFactsIndex));
@@ -179,8 +179,8 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 			throws CouldNotAcquireLockException {
 		final MemoryHandlerMain targetMain =
 				(MemoryHandlerMain) originIncomingEdge.getTargetNode().getMemory();
-		final ArrayList<FactTuple> minusFacts = this.rows;
-		final ArrayList<FactTuple> markedFactTuples =
+		final ArrayList<Row> minusFacts = this.rows;
+		final ArrayList<Row> markedFactTuples =
 				getRelevantFactTuples(targetMain, minusFacts, this.factAddresses,
 						EqualityChecker.alpha);
 		if (0 == markedFactTuples.size()) {
@@ -191,8 +191,8 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 						this.factAddresses, originIncomingEdge));
 	}
 
-	private static ArrayList<FactTuple> getRelevantFactTuples(final MemoryHandlerMain targetMain,
-			final ArrayList<FactTuple> minusFacts, final FactAddress[] factAddresses,
+	private static ArrayList<Row> getRelevantFactTuples(final MemoryHandlerMain targetMain,
+			final ArrayList<Row> minusFacts, final FactAddress[] factAddresses,
 			final EqualityChecker equalityChecker) {
 		final boolean[] marked = new boolean[minusFacts.size()];
 		filterTargetMain(targetMain, minusFacts, factAddresses, marked, equalityChecker);
@@ -202,7 +202,7 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 	}
 
 	private MemoryHandlerMinusTemp(final Template[] template,
-			final MemoryHandlerMain originatingMainHandler, final ArrayList<FactTuple> facts,
+			final MemoryHandlerMain originatingMainHandler, final ArrayList<Row> facts,
 			final FactAddress[] factAddresses) {
 		super(template, originatingMainHandler, facts);
 		this.factAddresses = factAddresses;

@@ -28,7 +28,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Getter
 @Setter
-public class FactTuple {
+public class Row {
 	private static int[] empty = new int[0];
 
 	private Fact[] factTuple;
@@ -58,15 +58,15 @@ public class FactTuple {
 		return copyOf(factTuple, factTuple.length);
 	}
 
-	protected void copyFacts(final int offset, final FactTuple row) {
+	protected void copyFacts(final int offset, final Row row) {
 		System.arraycopy(row.factTuple, 0, this.factTuple, offset, row.factTuple.length);
 	}
 
-	public FactTuple copy() {
-		return new FactTuple(copyFacts());
+	public Row copy() {
+		return new Row(copyFacts());
 	}
 
-	public FactTuple copy(final int offset, final FactTuple row) {
+	public Row copy(final int offset, final Row row) {
 		copyFacts(offset, row);
 		return this;
 	}

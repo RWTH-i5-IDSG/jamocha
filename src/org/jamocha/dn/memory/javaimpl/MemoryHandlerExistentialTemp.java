@@ -32,7 +32,7 @@ public class MemoryHandlerExistentialTemp extends MemoryHandlerTemp implements
 	final ArrayList<CounterUpdate> counterUpdates;
 
 	public MemoryHandlerExistentialTemp(final MemoryHandlerMain originatingMainHandler,
-			final ArrayList<FactTuple> rows, final MemoryHandlerPlusTemp pos,
+			final ArrayList<Row> rows, final MemoryHandlerPlusTemp pos,
 			final MemoryHandlerMinusTemp neg, final ArrayList<CounterUpdate> counterUpdates) {
 		super(originatingMainHandler, rows);
 		this.pos = pos;

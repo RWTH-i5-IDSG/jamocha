@@ -64,7 +64,7 @@ public class MemoryHandlerMain extends MemoryHandlerBase implements
 	final Counter counter;
 
 	MemoryHandlerMain(final Template template, final Path... paths) {
-		super(new Template[] { template }, new ArrayList<FactTuple>());
+		super(new Template[] { template }, new ArrayList<Row>());
 		final FactAddress address = new FactAddress(0);
 		this.addresses = new FactAddress[] { address };
 		for (final Path path : paths) {
@@ -74,7 +74,7 @@ public class MemoryHandlerMain extends MemoryHandlerBase implements
 		this.counter = Counter.newCounter();
 	}
 
-	MemoryHandlerMain(final Template[] template, final ArrayList<FactTuple> facts,
+	MemoryHandlerMain(final Template[] template, final ArrayList<Row> facts,
 			final Counter counter, final FactAddress[] addresses) {
 		super(template, facts);
 		this.addresses = addresses;
@@ -130,7 +130,7 @@ public class MemoryHandlerMain extends MemoryHandlerBase implements
 		final Template[] templArray = template.toArray(new Template[template.size()]);
 		final FactAddress[] addrArray = addresses.toArray(new FactAddress[addresses.size()]);
 		return new MemoryHandlerMainAndFilterElementToCounterColumn(new MemoryHandlerMain(
-				templArray, new ArrayList<FactTuple>(), Counter.newCounter(filter,
+				templArray, new ArrayList<Row>(), Counter.newCounter(filter,
 						pathFilterElementToCounterColumn), addrArray),
 				pathFilterElementToCounterColumn);
 	}
@@ -159,8 +159,8 @@ public class MemoryHandlerMain extends MemoryHandlerBase implements
 	public void add(final org.jamocha.dn.memory.MemoryHandlerPlusTemp toAdd) {
 		// TODO identify fact-addresses that are existential, compare others
 		final MemoryHandlerPlusTemp temp = (MemoryHandlerPlusTemp) toAdd;
-		final ArrayList<FactTuple> facts = (null == temp.filtered ? temp.rows : temp.filtered);
-		for (final FactTuple row : facts) {
+		final ArrayList<Row> facts = (null == temp.filtered ? temp.rows : temp.filtered);
+		for (final Row row : facts) {
 			this.rows.add(row);
 		}
 	}
@@ -169,8 +169,8 @@ public class MemoryHandlerMain extends MemoryHandlerBase implements
 		// ... apply counter in-/decrement
 		// create new temp if counter update changes validity and row is not yet in temp (mark when
 		// creating updates)
-		final ArrayList<FactTuple> rowsToAdd = new ArrayList<>();
-		final ArrayList<FactTuple> rowsToDel = new ArrayList<>();
+		final ArrayList<Row> rowsToAdd = new ArrayList<>();
+		final ArrayList<Row> rowsToDel = new ArrayList<>();
 		for (final CounterUpdate counterUpdate : temp.counterUpdates) {
 			final boolean wasValid = counter.isValid(counterUpdate.row);
 			counterUpdate.apply();
@@ -270,10 +270,10 @@ public class MemoryHandlerMain extends MemoryHandlerBase implements
 	 *            fact tuple to use
 	 * @return row containing fact tuple and default counter values
 	 */
-	public FactTuple newRow(final Fact... factTuple) {
+	public Row newRow(final Fact... factTuple) {
 		assert factTuple.length == template.length;
 		if (null == counter || counter.getColumns().length == 0)
-			return new FactTuple(factTuple);
+			return new Row(factTuple);
 		return new FactTupleAndCounter(factTuple, new int[counter.getColumns().length]);
 	}
 
@@ -284,7 +284,7 @@ public class MemoryHandlerMain extends MemoryHandlerBase implements
 	 *            fact tuple to use
 	 * @return row containing fact tuple and default counter values
 	 */
-	public FactTuple newRow(final int columns) {
+	public Row newRow(final int columns) {
 		return newRow(new Fact[columns]);
 	}
 

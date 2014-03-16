@@ -28,7 +28,7 @@ import java.util.ArrayList;
  * <li><b>alpha:</b> checks for referential equality of the first elements of the fact tuples</li>
  * <li><b>beta:</b> checks for referential equality of all elements of the fact tuples, uses
  * fact address translation to do so</li>
- * <li><b>equalRow:</b> checks for referential equality of the FactTuple objects</li>
+ * <li><b>equalRow:</b> checks for referential equality of the Row objects</li>
  * <li><b>equalFactTuple:</b> checks for referential equality of the Fact[] object in the
  * FactTuples</li>
  * </ul>
@@ -36,14 +36,14 @@ import java.util.ArrayList;
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
 interface EqualityChecker {
-	boolean equals(final FactTuple originalFactTuple, final FactTuple minusFactTuple,
-			final ArrayList<FactTuple> minusFacts, final int minusFactsIndex,
+	boolean equals(final Row originalFactTuple, final Row minusFactTuple,
+			final ArrayList<Row> minusFacts, final int minusFactsIndex,
 			final FactAddress[] factAddresses);
 
 	static EqualityChecker root = new EqualityChecker() {
 		@Override
-		public boolean equals(final FactTuple originalFactTuple,
-				final FactTuple minusFactTuple, final ArrayList<FactTuple> minusFacts,
+		public boolean equals(final Row originalFactTuple,
+				final Row minusFactTuple, final ArrayList<Row> minusFacts,
 				final int minusFactsIndex, final FactAddress[] factAddresses) {
 			final Fact originalFact = originalFactTuple.getFactTuple()[0];
 			final Fact minusFact = minusFactTuple.getFactTuple()[0];
@@ -56,8 +56,8 @@ interface EqualityChecker {
 	};
 	static EqualityChecker alpha = new EqualityChecker() {
 		@Override
-		public boolean equals(final FactTuple originalFactTuple,
-				final FactTuple minusFactTuple, final ArrayList<FactTuple> minusFacts,
+		public boolean equals(final Row originalFactTuple,
+				final Row minusFactTuple, final ArrayList<Row> minusFacts,
 				final int minusFactsIndex, final FactAddress[] factAddresses) {
 			final Fact originalFact = originalFactTuple.getFactTuple()[0];
 			final Fact minusFact = minusFactTuple.getFactTuple()[0];
@@ -66,8 +66,8 @@ interface EqualityChecker {
 	};
 	static EqualityChecker beta = new EqualityChecker() {
 		@Override
-		public boolean equals(final FactTuple originalFactTuple,
-				final FactTuple minusFactTuple, final ArrayList<FactTuple> minusFacts,
+		public boolean equals(final Row originalFactTuple,
+				final Row minusFactTuple, final ArrayList<Row> minusFacts,
 				final int minusFactsIndex, final FactAddress[] factAddresses) {
 			for (int i = 0; i < factAddresses.length; ++i) {
 				final int originalAddress = factAddresses[i].index;
@@ -83,16 +83,16 @@ interface EqualityChecker {
 	};
 	static EqualityChecker equalRow = new EqualityChecker() {
 		@Override
-		public boolean equals(FactTuple originalFactTuple, FactTuple minusFactTuple,
-				ArrayList<FactTuple> minusFacts, int minusFactsIndex,
+		public boolean equals(Row originalFactTuple, Row minusFactTuple,
+				ArrayList<Row> minusFacts, int minusFactsIndex,
 				FactAddress[] factAddresses) {
 			return originalFactTuple == minusFactTuple;
 		}
 	};
 	static EqualityChecker equalFactTuple = new EqualityChecker() {
 		@Override
-		public boolean equals(FactTuple originalFactTuple, FactTuple minusFactTuple,
-				ArrayList<FactTuple> minusFacts, int minusFactsIndex,
+		public boolean equals(Row originalFactTuple, Row minusFactTuple,
+				ArrayList<Row> minusFacts, int minusFactsIndex,
 				FactAddress[] factAddresses) {
 			return originalFactTuple.getFactTuple() == minusFactTuple.getFactTuple();
 		}

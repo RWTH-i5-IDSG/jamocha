@@ -19,10 +19,10 @@ package org.jamocha.dn.memory.javaimpl;
  * 
  */
 public class CounterUpdate {
-	final FactTuple row;
+	final Row row;
 	final int increment[];
 
-	public CounterUpdate(final FactTuple row) {
+	public CounterUpdate(final Row row) {
 		this.row = row;
 		this.increment = new int[row.getCounters().length];
 	}

@@ -19,12 +19,12 @@ public abstract class MemoryHandlerTemp extends MemoryHandlerBase implements
 	final MemoryHandlerMain originatingMainHandler;
 
 	protected MemoryHandlerTemp(final MemoryHandlerMain originatingMainHandler,
-			final ArrayList<FactTuple> rows) {
+			final ArrayList<Row> rows) {
 		this(originatingMainHandler.template, originatingMainHandler, rows);
 	}
 
 	protected MemoryHandlerTemp(final Template[] template,
-			final MemoryHandlerMain originatingMainHandler, final ArrayList<FactTuple> rows) {
+			final MemoryHandlerMain originatingMainHandler, final ArrayList<Row> rows) {
 		super(template, rows);
 		this.originatingMainHandler = originatingMainHandler;
 	}
@@ -39,7 +39,7 @@ public abstract class MemoryHandlerTemp extends MemoryHandlerBase implements
 		final int max = this.size();
 		int current = 0;
 		while (current < max) {
-			final ArrayList<FactTuple> facts = new ArrayList<>();
+			final ArrayList<Row> facts = new ArrayList<>();
 			for (int i = 0; i < size && current + i < max; ++i) {
 				facts.add(this.rows.get(current + i));
 			}
