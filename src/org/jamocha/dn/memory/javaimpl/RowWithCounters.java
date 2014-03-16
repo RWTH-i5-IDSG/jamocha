@@ -2,10 +2,10 @@ package org.jamocha.dn.memory.javaimpl;
 
 import static java.util.Arrays.copyOf;
 
-class FactTupleAndCounter extends Row {
+class RowWithCounters extends Row {
 	private int[] counters;
 
-	public FactTupleAndCounter(final Fact[] factTuple, final int[] counters) {
+	public RowWithCounters(final Fact[] factTuple, final int[] counters) {
 		super(factTuple);
 		this.counters = counters;
 	}
@@ -34,8 +34,8 @@ class FactTupleAndCounter extends Row {
 	}
 
 	@Override
-	public FactTupleAndCounter copy() {
-		return new FactTupleAndCounter(copyFacts(), copyCounters());
+	public RowWithCounters copy() {
+		return new RowWithCounters(copyFacts(), copyCounters());
 	}
 
 }

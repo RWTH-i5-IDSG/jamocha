@@ -274,7 +274,7 @@ public class MemoryHandlerMain extends MemoryHandlerBase implements
 		assert factTuple.length == template.length;
 		if (null == counter || counter.getColumns().length == 0)
 			return new Row(factTuple);
-		return new FactTupleAndCounter(factTuple, new int[counter.getColumns().length]);
+		return new RowWithCounters(factTuple, new int[counter.getColumns().length]);
 	}
 
 	/**
