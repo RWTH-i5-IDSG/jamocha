@@ -56,15 +56,15 @@ public class MemoryHandlerMain extends MemoryHandlerBase implements
 	static final TimeUnit tu = TimeUnit.SECONDS;
 
 	final ReadWriteLock lock = new ReentrantReadWriteLock(true);
-	// each fact address corresponds to the template at the same index for 0<=i<template.length and
-	// to a counter column for template.length<=i<addresses.length
 	final FactAddress[] addresses;
 	@Getter
-	final protected Queue<MemoryHandlerPlusTemp> validOutgoingPlusTokens = new LinkedList<>();
+	final protected Queue<MemoryHandlerTemp> validOutgoingPlusTokens = new LinkedList<>();
 	final Counter counter;
+	private ArrayList<Row> validRows;
 
 	MemoryHandlerMain(final Template template, final Path... paths) {
-		super(new Template[] { template }, new ArrayList<Row>());
+		super(new Template[] { template });
+		this.validRows = new ArrayList<Row>();
 		final FactAddress address = new FactAddress(0);
 		this.addresses = new FactAddress[] { address };
 		for (final Path path : paths) {
@@ -74,40 +74,41 @@ public class MemoryHandlerMain extends MemoryHandlerBase implements
 		this.counter = Counter.newCounter();
 	}
 
-	MemoryHandlerMain(final Template[] template, final ArrayList<Row> facts,
-			final Counter counter, final FactAddress[] addresses) {
-		super(template, facts);
+	MemoryHandlerMain(final Template[] template, final Counter counter,
+			final FactAddress[] addresses) {
+		super(template);
+		this.validRows = new ArrayList<>();
 		this.addresses = addresses;
 		this.counter = counter;
 	}
 
 	public static org.jamocha.dn.memory.MemoryHandlerMainAndCounterColumnMatcher newMemoryHandlerMain(
 			final PathFilter filter, final Map<Edge, Set<Path>> edgesAndPaths) {
-		final ArrayList<Template> template = new ArrayList<>();
-		final ArrayList<FactAddress> addresses = new ArrayList<>();
-		final ArrayList<org.jamocha.dn.memory.CounterColumn> counterColumns = new ArrayList<>();
-
 		final PathFilterElementToCounterColumn pathFilterElementToCounterColumn =
 				new PathFilterElementToCounterColumn();
+		final boolean containsExistentials =
+				!filter.getPositiveExistentialPaths().isEmpty()
+						|| !filter.getNegativeExistentialPaths().isEmpty();
+		if (containsExistentials) {
+			// gather existential paths
+			final HashSet<Path> existentialPaths = new HashSet<>();
+			existentialPaths.addAll(filter.getPositiveExistentialPaths());
+			existentialPaths.addAll(filter.getNegativeExistentialPaths());
 
-		// gather existential paths
-		final HashSet<Path> existentialPaths = new HashSet<>();
-		existentialPaths.addAll(filter.getPositiveExistentialPaths());
-		existentialPaths.addAll(filter.getNegativeExistentialPaths());
-
-		int index = 0;
-		for (final PathFilterElement pathFilterElement : filter.getFilterElements()) {
-			final LinkedHashSet<Path> paths =
-					PathCollector.newLinkedHashSet().collect(pathFilterElement).getPaths();
-			paths.retainAll(existentialPaths);
-			if (0 == paths.size())
-				continue;
-			final CounterColumn counterColumn = new CounterColumn(index++);
-			pathFilterElementToCounterColumn.putFilterElementToCounterColumn(pathFilterElement,
-					counterColumn);
-			counterColumns.add(counterColumn);
+			int index = 0;
+			for (final PathFilterElement pathFilterElement : filter.getFilterElements()) {
+				final LinkedHashSet<Path> paths =
+						PathCollector.newLinkedHashSet().collect(pathFilterElement).getPaths();
+				paths.retainAll(existentialPaths);
+				if (0 == paths.size())
+					continue;
+				pathFilterElementToCounterColumn.putFilterElementToCounterColumn(pathFilterElement,
+						new CounterColumn(index++));
+			}
 		}
 
+		final ArrayList<Template> template = new ArrayList<>();
+		final ArrayList<FactAddress> addresses = new ArrayList<>();
 		if (!edgesAndPaths.isEmpty()) {
 			final Edge[] incomingEdges =
 					edgesAndPaths.entrySet().iterator().next().getKey().getTargetNode()
@@ -129,8 +130,14 @@ public class MemoryHandlerMain extends MemoryHandlerBase implements
 		}
 		final Template[] templArray = template.toArray(new Template[template.size()]);
 		final FactAddress[] addrArray = addresses.toArray(new FactAddress[addresses.size()]);
-		return new MemoryHandlerMainAndFilterElementToCounterColumn(new MemoryHandlerMain(
-				templArray, new ArrayList<Row>(), Counter.newCounter(filter,
+		if (containsExistentials) {
+			return new MemoryHandlerMainAndFilterElementToCounterColumn(
+					new MemoryHandlerMainWithExistentials(templArray, Counter.newCounter(filter,
+							pathFilterElementToCounterColumn), addrArray),
+					pathFilterElementToCounterColumn);
+		}
+		return new MemoryHandlerMainAndFilterElementToCounterColumn(
+				new MemoryHandlerMain(templArray, Counter.newCounter(filter,
 						pathFilterElementToCounterColumn), addrArray),
 				pathFilterElementToCounterColumn);
 	}
@@ -156,71 +163,44 @@ public class MemoryHandlerMain extends MemoryHandlerBase implements
 	}
 
 	@Override
-	public void add(final org.jamocha.dn.memory.MemoryHandlerPlusTemp toAdd) {
-		// TODO identify fact-addresses that are existential, compare others
-		final MemoryHandlerPlusTemp temp = (MemoryHandlerPlusTemp) toAdd;
-		final ArrayList<Row> facts = (null == temp.filtered ? temp.rows : temp.filtered);
-		for (final Row row : facts) {
-			this.rows.add(row);
-		}
+	public ArrayList<Row> getRowsForSucessorNodes() {
+		return this.validRows;
 	}
 
-	public MemoryHandlerTemp add(final MemoryHandlerExistentialTemp temp) {
-		// ... apply counter in-/decrement
-		// create new temp if counter update changes validity and row is not yet in temp (mark when
-		// creating updates)
-		final ArrayList<Row> rowsToAdd = new ArrayList<>();
-		final ArrayList<Row> rowsToDel = new ArrayList<>();
-		for (final CounterUpdate counterUpdate : temp.counterUpdates) {
-			final boolean wasValid = counter.isValid(counterUpdate.row);
-			counterUpdate.apply();
-			final boolean isValid = counter.isValid(counterUpdate.row);
-			if (!wasValid && isValid) {
-				// changed to valid
-				rowsToAdd.add(counterUpdate.row);
-			} else if (wasValid && !isValid) {
-				// changed to invalid
-				rowsToDel.add(counterUpdate.row);
-			}
-			// else: no change
-		}
-		if (rowsToAdd.isEmpty()) {
-			// return new MemoryHandlerMinusTemp(template, this, rowsToDel, addresses);
-		} else if (rowsToDel.isEmpty()) {
-			// return new MemoryHandlerPlusTemp(this, rowsToAdd, ...);
-		} else {
-			// return new MemoryHandlerExistentialTemp(this, null, pos, neg, counterUpdates);
-		}
-		return null;
+	public ArrayList<Row> getAllRows() {
+		return this.validRows;
 	}
 
 	@Override
 	public org.jamocha.dn.memory.MemoryHandlerTemp processTokenInBeta(
 			final org.jamocha.dn.memory.MemoryHandlerTemp token, final Edge originIncomingEdge,
 			final AddressFilter filter) throws CouldNotAcquireLockException {
-		return token.newBetaTemp(this, originIncomingEdge, filter);
+		return ((org.jamocha.dn.memory.javaimpl.MemoryHandlerTemp<?>) token).newBetaTemp(this,
+				originIncomingEdge, filter);
 	}
 
 	@Override
 	public org.jamocha.dn.memory.MemoryHandlerTemp processTokenInAlpha(
 			final org.jamocha.dn.memory.MemoryHandlerTemp token, final Edge originIncomingEdge,
 			final AddressFilter filter) throws CouldNotAcquireLockException {
-		return token.newAlphaTemp(this, originIncomingEdge, filter);
+		return ((org.jamocha.dn.memory.javaimpl.MemoryHandlerTemp<?>) token).newAlphaTemp(this,
+				originIncomingEdge, filter);
 	}
 
 	@Override
-	public MemoryHandlerPlusTemp newPlusToken(final Node otn,
+	public org.jamocha.dn.memory.MemoryHandlerPlusTemp newPlusToken(final Node otn,
 			final org.jamocha.dn.memory.Fact... facts) {
 		return MemoryHandlerPlusTemp.newRootTemp(this, otn, facts);
 	}
 
 	@Override
-	public MemoryHandlerMinusTemp newMinusToken(final org.jamocha.dn.memory.Fact... facts) {
+	public org.jamocha.dn.memory.MemoryHandlerMinusTemp newMinusToken(
+			final org.jamocha.dn.memory.Fact... facts) {
 		return MemoryHandlerMinusTemp.newRootTemp(this, facts);
 	}
 
 	@Override
-	public MemoryHandlerTerminal newMemoryHandlerTerminal() {
+	public org.jamocha.dn.memory.MemoryHandlerTerminal newMemoryHandlerTerminal() {
 		return new MemoryHandlerTerminal(this);
 	}
 
@@ -271,10 +251,8 @@ public class MemoryHandlerMain extends MemoryHandlerBase implements
 	 * @return row containing fact tuple and default counter values
 	 */
 	public Row newRow(final Fact... factTuple) {
-		assert factTuple.length == template.length;
-		if (null == counter || counter.getColumns().length == 0)
-			return new Row(factTuple);
-		return new RowWithCounters(factTuple, new int[counter.getColumns().length]);
+		assert factTuple.length == this.template.length;
+		return new Row(factTuple);
 	}
 
 	/**

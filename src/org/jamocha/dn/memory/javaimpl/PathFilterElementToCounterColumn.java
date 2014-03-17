@@ -39,4 +39,7 @@ public class PathFilterElementToCounterColumn implements
 		return map.get(filterElement);
 	}
 
+	boolean isEmpty() {
+		return this.map.isEmpty();
+	}
 }

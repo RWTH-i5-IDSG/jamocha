@@ -63,13 +63,6 @@ public interface MemoryHandlerMain extends MemoryHandler {
 	public void releaseWriteLock();
 
 	/**
-	 * Adds the {@link MemoryHandlerPlusTemp} given to the internal memory.
-	 * 
-	 * @param toAdd
-	 */
-	public void add(final MemoryHandlerPlusTemp toAdd);
-
-	/**
 	 * Creates a new {@link MemoryHandlerPlusTemp} that joins the given {@code token} with all other
 	 * incoming edges of the target beta {@link Node node} applying the given {@link Filter filter}.
 	 * 

@@ -111,10 +111,10 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 	}
 
 	private static void filterOutgoingTemps(
-			final Queue<MemoryHandlerPlusTemp> validOutgoingPlusTokens,
+			final Queue<MemoryHandlerTemp> validOutgoingPlusTokens,
 			final ArrayList<Row> minusFacts, final FactAddress[] factAddresses,
 			final boolean[] marked, final EqualityChecker equalityChecker) {
-		for (final MemoryHandlerPlusTemp temp : validOutgoingPlusTokens) {
+		for (final MemoryHandlerTemp temp : validOutgoingPlusTokens) {
 			final ArrayList<Row> originalFacts =
 					(null == temp.filtered ? temp.rows : temp.filtered);
 			final ArrayList<Row> remainingFacts =
@@ -127,14 +127,14 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 	private static void filterTargetMain(final MemoryHandlerMain targetMain,
 			final ArrayList<Row> minusFacts, final FactAddress[] factAddresses,
 			final boolean[] marked, final EqualityChecker equalityChecker) {
-		final ArrayList<Row> originalFacts = targetMain.rows;
+		final ArrayList<Row> originalFacts = targetMain.getAllRows();
 		final int originalFactsSize = originalFacts.size();
 		final ArrayList<Row> remainingFacts =
 				getRemainingFactTuples(originalFacts, minusFacts, factAddresses, marked,
 						equalityChecker);
 		if (remainingFacts.size() != originalFactsSize) {
 			targetMain.acquireWriteLock();
-			targetMain.rows = remainingFacts;
+			targetMain.allRows = remainingFacts;
 			targetMain.releaseWriteLock();
 		}
 	}

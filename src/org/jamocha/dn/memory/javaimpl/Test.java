@@ -113,7 +113,7 @@ public class Test {
 		}
 
 		void releaseLock() {
-			final Data source = filtered.isPresent() ? filtered.get() : original;
+			final Data source = filtered.orElse(original);
 			// add source.newRows to main.unfiltered
 			// add source.newValidRows to main.filtered
 			// apply counterUpdates

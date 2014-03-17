@@ -33,8 +33,7 @@ public abstract class Counter {
 
 	abstract void setCounter(final Row row, final CounterColumn counterColumn, final int value);
 
-	abstract void increment(final Row row, final CounterColumn counterColumn,
-			final int increment);
+	abstract void increment(final Row row, final CounterColumn counterColumn, final int increment);
 
 	public static class ActualCounter extends Counter {
 		@Getter
@@ -145,7 +144,7 @@ public abstract class Counter {
 				if (increment > 0) {
 					return Change.CHANGETOINVALID;
 				}
-				// assert that the amount of matching rows does not fall below 0
+				// assert that the amount of matching allRows does not fall below 0
 				assert increment == 0;
 				return Change.NOCHANGE;
 			}

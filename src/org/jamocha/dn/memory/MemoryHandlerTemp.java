@@ -2,9 +2,7 @@ package org.jamocha.dn.memory;
 
 import java.util.List;
 
-import org.jamocha.dn.nodes.CouldNotAcquireLockException;
 import org.jamocha.dn.nodes.Edge;
-import org.jamocha.filter.AddressFilter;
 
 /**
  * Base interface for memories with short life time.
@@ -22,14 +20,6 @@ public interface MemoryHandlerTemp extends MemoryHandler {
 	 * @return list of handlers holding {@code size} entries (the last one may contain less)
 	 */
 	public List<MemoryHandler> splitIntoChunksOfSize(final int size);
-
-	public MemoryHandlerTemp newBetaTemp(final MemoryHandlerMain originatingMainHandler,
-			final Edge originIncomingEdge, final AddressFilter filter)
-			throws CouldNotAcquireLockException;
-
-	public MemoryHandlerTemp newAlphaTemp(final MemoryHandlerMain originatingMainHandler,
-			final Edge originIncomingEdge, final AddressFilter filter)
-			throws CouldNotAcquireLockException;
 
 	public void enqueueInEdge(final Edge edge);
 

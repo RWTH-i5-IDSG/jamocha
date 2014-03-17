@@ -5,27 +5,26 @@ import java.util.List;
 
 import org.jamocha.dn.memory.MemoryHandler;
 import org.jamocha.dn.memory.Template;
+import org.jamocha.dn.nodes.CouldNotAcquireLockException;
+import org.jamocha.dn.nodes.Edge;
 import org.jamocha.dn.nodes.SlotInFactAddress;
+import org.jamocha.filter.AddressFilter;
 import org.jamocha.filter.AddressFilter.AddressFilterElement;
 
 /**
- * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
- * 
  */
-public abstract class MemoryHandlerTemp extends MemoryHandlerBase implements
-		org.jamocha.dn.memory.MemoryHandlerTemp {
+public abstract class MemoryHandlerTemp<T extends MemoryHandlerMain> extends MemoryHandlerBase
+		implements org.jamocha.dn.memory.MemoryHandlerTemp {
 
-	final MemoryHandlerMain originatingMainHandler;
+	final T originatingMainHandler;
 
-	protected MemoryHandlerTemp(final MemoryHandlerMain originatingMainHandler,
-			final ArrayList<Row> rows) {
-		this(originatingMainHandler.template, originatingMainHandler, rows);
+	protected MemoryHandlerTemp(final T originatingMainHandler) {
+		this(originatingMainHandler.template, originatingMainHandler);
 	}
 
-	protected MemoryHandlerTemp(final Template[] template,
-			final MemoryHandlerMain originatingMainHandler, final ArrayList<Row> rows) {
-		super(template, rows);
+	protected MemoryHandlerTemp(final Template[] template, final T originatingMainHandler) {
+		super(template);
 		this.originatingMainHandler = originatingMainHandler;
 	}
 
@@ -36,14 +35,15 @@ public abstract class MemoryHandlerTemp extends MemoryHandlerBase implements
 			memoryHandlers.add(this);
 			return memoryHandlers;
 		}
+		final ArrayList<Row> rows = getRowsForSucessorNodes();
 		final int max = this.size();
 		int current = 0;
 		while (current < max) {
 			final ArrayList<Row> facts = new ArrayList<>();
 			for (int i = 0; i < size && current + i < max; ++i) {
-				facts.add(this.rows.get(current + i));
+				facts.add(rows.get(current + i));
 			}
-			memoryHandlers.add(new MemoryHandlerBase(getTemplate(), facts));
+			memoryHandlers.add(new MemoryHandlerSimple(getTemplate(), facts));
 			current += size;
 		}
 		return memoryHandlers;
@@ -61,4 +61,17 @@ public abstract class MemoryHandlerTemp extends MemoryHandlerBase implements
 		// check filter
 		return element.getFunction().evaluate(params);
 	}
+
+	abstract public MemoryHandlerTemp<?> newAlphaTemp(
+			final MemoryHandlerMain originatingMainHandler, final Edge originIncomingEdge,
+			final AddressFilter filter) throws CouldNotAcquireLockException;
+
+	abstract public MemoryHandlerTemp<?> newBetaTemp(
+			final MemoryHandlerMain originatingMainHandler, final Edge originIncomingEdge,
+			final AddressFilter filter) throws CouldNotAcquireLockException;
+
+	abstract public MemoryHandlerTemp<?> newBetaTemp(
+			final MemoryHandlerMainWithExistentials originatingMainHandler,
+			final Edge originIncomingEdge, final AddressFilter filter)
+			throws CouldNotAcquireLockException;
 }
