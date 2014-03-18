@@ -37,6 +37,7 @@ import org.jamocha.dn.nodes.SlotInFactAddress;
 import org.jamocha.filter.AddressFilter;
 import org.jamocha.filter.AddressFilter.AddressFilterElement;
 import org.jamocha.filter.fwa.PredicateWithArguments;
+import org.jamocha.visitor.Visitable;
 
 /**
  * Java-implementation of the {@link org.jamocha.dn.memory.MemoryHandlerPlusTemp} interface.
@@ -47,7 +48,8 @@ import org.jamocha.filter.fwa.PredicateWithArguments;
  */
 @ToString(callSuper = true, of = "valid")
 public abstract class MemoryHandlerPlusTemp<T extends MemoryHandlerMain> extends
-		MemoryHandlerTemp<T> implements org.jamocha.dn.memory.MemoryHandlerPlusTemp {
+		MemoryHandlerTemp<T> implements org.jamocha.dn.memory.MemoryHandlerPlusTemp,
+		Visitable<MemoryHandlerPlusTempVisitor> {
 
 	static class Semaphore {
 		int count;
@@ -183,7 +185,7 @@ public abstract class MemoryHandlerPlusTemp<T extends MemoryHandlerMain> extends
 			}
 			factList.add(row);
 		}
-		return MemoryHandlerPlusTempValidRowsAdder.newInstance(originatingMainHandler, factList,
+		return new MemoryHandlerPlusTempValidRowsAdder(originatingMainHandler, factList,
 				originIncomingEdge.getTargetNode().getNumberOfOutgoingEdges(),
 				canOmitSemaphore(originIncomingEdge));
 		// FIXME only use Semaphores if one of the outgoing edges is connected to the beta network
@@ -208,7 +210,7 @@ public abstract class MemoryHandlerPlusTemp<T extends MemoryHandlerMain> extends
 			assert fact.getTemplate() == otn.getMemory().getTemplate()[0];
 			factList.add(originatingMainHandler.newRow(new Fact(fact.getSlotValues())));
 		}
-		return MemoryHandlerPlusTempValidRowsAdder.newInstance(originatingMainHandler, factList,
+		return new MemoryHandlerPlusTempValidRowsAdder(originatingMainHandler, factList,
 				otn.getNumberOfOutgoingEdges(), canOmitSemaphore(otn));
 		// new MemoryHandlerPlusTemp(originatingMainHandler, factList,
 		// otn.getNumberOfOutgoingEdges(), needsSemaphore(otn));
@@ -429,8 +431,8 @@ public abstract class MemoryHandlerPlusTemp<T extends MemoryHandlerMain> extends
 
 		final ArrayList<Row> facts = edgeToStack.get(originEdge).getTable();
 		final int numChildren = originEdge.getTargetNode().getNumberOfOutgoingEdges();
-		return MemoryHandlerPlusTempValidRowsAdder.newInstance(originatingMainHandler, facts,
-				numChildren, canOmitSemaphore(originEdge));
+		return new MemoryHandlerPlusTempValidRowsAdder(originatingMainHandler, facts, numChildren,
+				canOmitSemaphore(originEdge));
 	}
 
 	private static MemoryHandlerPlusTemp<?> newExistentialBetaTemp(
@@ -449,7 +451,7 @@ public abstract class MemoryHandlerPlusTemp<T extends MemoryHandlerMain> extends
 		final ArrayList<Row> facts = edgeToStack.get(originEdge).getTable();
 		final int numChildren = originEdge.getTargetNode().getNumberOfOutgoingEdges();
 		if (null == counterUpdates) {
-			return MemoryHandlerPlusTempValidRowsAdder.newInstance(originatingMainHandler, facts,
+			return new MemoryHandlerPlusTempValidRowsAdder(originatingMainHandler, facts,
 					numChildren, canOmitSemaphore(originEdge));
 		}
 		return MemoryHandlerPlusTempNewRowsAndCounterUpdates.newInstance(originatingMainHandler,
@@ -525,7 +527,7 @@ public abstract class MemoryHandlerPlusTemp<T extends MemoryHandlerMain> extends
 		}
 		// for the join with the other inputs, delete the allRows that did not contain new
 		// regular, but only new existential facts
-		final LazyListCopy copy = new LazyListCopy(tokenRows);
+		final LazyListCopy<Row> copy = new LazyListCopy<>(tokenRows);
 		for (int i = 0; i < originElement.getTable().size(); ++i) {
 			if (tokenRowContainsOnlyOldFactsInRegularPart[i])
 				copy.drop(i);

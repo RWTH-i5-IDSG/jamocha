@@ -15,6 +15,7 @@
 package org.jamocha.dn.memory.javaimpl;
 
 import java.util.ArrayList;
+import java.util.Optional;
 
 import lombok.EqualsAndHashCode;
 
@@ -25,7 +26,7 @@ import org.jamocha.dn.memory.MemoryHandlerTemp;
  */
 public class MemoryHandlerPlusTempNewRowsAndCounterUpdates
 		extends
-		MemoryHandlerPlusTempValidRowsAdder<MemoryHandlerMainWithExistentials, MemoryHandlerPlusTempNewRowsAndCounterUpdates.ExtendedData> {
+		MemoryHandlerPlusTempGenericValidRowsAdder<MemoryHandlerMainWithExistentials, MemoryHandlerPlusTempNewRowsAndCounterUpdates.ExtendedData> {
 
 	@lombok.Data
 	@EqualsAndHashCode(callSuper = true)
@@ -46,48 +47,20 @@ public class MemoryHandlerPlusTempNewRowsAndCounterUpdates
 	 */
 	final int numChildren;
 
-	protected MemoryHandlerPlusTempNewRowsAndCounterUpdates(
-			final MemoryHandlerMainWithExistentials originatingMainHandler,
-			final ExtendedData original, final int numChildren, final boolean empty,
-			final boolean omitSemaphore) {
-		super(originatingMainHandler, original, numChildren, empty, omitSemaphore);
-		this.numChildren = numChildren;
-	}
-
-	public static MemoryHandlerPlusTempNewRowsAndCounterUpdates newInstance(
-			final MemoryHandlerMainWithExistentials originatingMainHandler,
-			final ArrayList<CounterUpdate> counterUpdates, final ArrayList<Row> newRows,
-			final ArrayList<Row> newValidRows, final int numChildren, final boolean omitSemaphore) {
-		return new MemoryHandlerPlusTempNewRowsAndCounterUpdates(originatingMainHandler,
-				new ExtendedData(counterUpdates, newRows, newValidRows), numChildren,
-				newRows.isEmpty() && newValidRows.isEmpty() && counterUpdates.isEmpty(),
-				omitSemaphore);
-	}
-
-	public static MemoryHandlerPlusTempNewRowsAndCounterUpdates newInstance(
-			final MemoryHandlerMainWithExistentials originatingMainHandler,
-			final ArrayList<CounterUpdate> counterUpdates, final ArrayList<Row> newRows,
-			final int numChildren, final boolean omitSemaphore) {
-		return newInstance(originatingMainHandler, counterUpdates, newRows,
-				validPart(originatingMainHandler.counter, newRows), numChildren, omitSemaphore);
-	}
-
-	static ArrayList<Row> validPart(final Counter counter, final ArrayList<Row> allRows) {
-		final LazyListCopy copy = new LazyListCopy(allRows);
-		for (int index = 0; index < allRows.size(); index++) {
-			final Row row = allRows.get(index);
-			if (counter.isValid(row)) {
-				copy.keep(index);
-			} else {
-				copy.drop(index);
-			}
-		}
-		return copy.getList();
-	}
+	// @Override
+	// public ArrayList<Row> getAllRows() {
+	// return this.filtered.orElse(this.original).newRows;
+	// }
 
 	@Override
-	public ArrayList<Row> getAllRows() {
-		return this.filtered.orElse(this.original).newRows;
+	public <V extends MemoryHandlerPlusTempVisitor> V accept(final V visitor) {
+		visitor.visit(this);
+		return visitor;
+	}
+
+	void setFilteredData(final ArrayList<CounterUpdate> counterUpdates,
+			final ArrayList<Row> newRows, final ArrayList<Row> newValidRows) {
+		this.filtered = Optional.of(new ExtendedData(counterUpdates, newRows, newValidRows));
 	}
 
 	@Override
@@ -133,12 +106,50 @@ public class MemoryHandlerPlusTempNewRowsAndCounterUpdates
 		}
 		if (noLinesToDel) {
 			// TODO create +token for validated rows: MemoryHandlerPlusTempValidRowsAdder(rowsToAdd)
-			return MemoryHandlerPlusTempValidRowsAdder.newInstance(originatingMainHandler,
-					rowsToAdd, numChildren, false);
+			return new MemoryHandlerPlusTempValidRowsAdder(originatingMainHandler, rowsToAdd,
+					numChildren, false);
 		}
 		// TODO create both tokens as above and wrap them
-		return new MemoryHandlerTempPairDistributer(
-				MemoryHandlerPlusTempValidRowsAdder.newInstance(originatingMainHandler, rowsToAdd,
-						numChildren, false), null);
+		return new MemoryHandlerTempPairDistributer(new MemoryHandlerPlusTempValidRowsAdder(
+				originatingMainHandler, rowsToAdd, numChildren, false), null);
+	}
+
+	protected MemoryHandlerPlusTempNewRowsAndCounterUpdates(
+			final MemoryHandlerMainWithExistentials originatingMainHandler,
+			final ExtendedData original, final int numChildren, final boolean empty,
+			final boolean omitSemaphore) {
+		super(originatingMainHandler, original, numChildren, empty, omitSemaphore);
+		this.numChildren = numChildren;
+	}
+
+	public static MemoryHandlerPlusTempNewRowsAndCounterUpdates newInstance(
+			final MemoryHandlerMainWithExistentials originatingMainHandler,
+			final ArrayList<CounterUpdate> counterUpdates, final ArrayList<Row> newRows,
+			final ArrayList<Row> newValidRows, final int numChildren, final boolean omitSemaphore) {
+		return new MemoryHandlerPlusTempNewRowsAndCounterUpdates(originatingMainHandler,
+				new ExtendedData(counterUpdates, newRows, newValidRows), numChildren,
+				newRows.isEmpty() && newValidRows.isEmpty() && counterUpdates.isEmpty(),
+				omitSemaphore);
+	}
+
+	public static MemoryHandlerPlusTempNewRowsAndCounterUpdates newInstance(
+			final MemoryHandlerMainWithExistentials originatingMainHandler,
+			final ArrayList<CounterUpdate> counterUpdates, final ArrayList<Row> newRows,
+			final int numChildren, final boolean omitSemaphore) {
+		return newInstance(originatingMainHandler, counterUpdates, newRows,
+				validPart(originatingMainHandler.counter, newRows), numChildren, omitSemaphore);
+	}
+
+	static ArrayList<Row> validPart(final Counter counter, final ArrayList<Row> allRows) {
+		final LazyListCopy<Row> copy = new LazyListCopy<>(allRows);
+		for (int index = 0; index < allRows.size(); index++) {
+			final Row row = allRows.get(index);
+			if (counter.isValid(row)) {
+				copy.keep(index);
+			} else {
+				copy.drop(index);
+			}
+		}
+		return copy.getList();
 	}
 }

@@ -16,6 +16,7 @@ package org.jamocha.dn.memory.javaimpl;
 
 import java.util.ArrayList;
 import java.util.Queue;
+import java.util.function.Function;
 
 import lombok.ToString;
 
@@ -60,15 +61,22 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 				relevantFactTuples, factAddresses);
 	}
 
-	private static ArrayList<Row> getRemainingFactTuples(
-			final ArrayList<Row> originalFacts, final ArrayList<Row> minusFacts,
+	private static ArrayList<Row> getRemainingFactTuples(final ArrayList<Row> originalFacts,
+			final ArrayList<Row> minusFacts, final FactAddress[] factAddresses,
+			final boolean[] marked, final EqualityChecker equalityChecker) {
+		return getRemainingTs(originalFacts, Function.identity(), minusFacts, factAddresses,
+				marked, equalityChecker);
+	}
+
+	private static <T> ArrayList<T> getRemainingTs(final ArrayList<T> originalFacts,
+			final Function<T, Row> converter, final ArrayList<Row> minusFacts,
 			final FactAddress[] factAddresses, final boolean[] marked,
 			final EqualityChecker equalityChecker) {
 		final int originalFactsSize = originalFacts.size();
 		final int minusFactsSize = minusFacts.size();
-		final LazyListCopy remainingFacts = new LazyListCopy(originalFacts);
+		final LazyListCopy<T> remainingFacts = new LazyListCopy<>(originalFacts);
 		outerLoop: for (int originalFactsIndex = 0; originalFactsIndex < originalFactsSize; ++originalFactsIndex) {
-			final Row originalFactTuple = originalFacts.get(originalFactsIndex);
+			final Row originalFactTuple = converter.apply(originalFacts.get(originalFactsIndex));
 			for (int minusFactsIndex = 0; minusFactsIndex < minusFactsSize; ++minusFactsIndex) {
 				final Row minusFactTuple = minusFacts.get(minusFactsIndex);
 				if (equalityChecker.equals(originalFactTuple, minusFactTuple, minusFacts,
@@ -89,8 +97,7 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 	}
 
 	@Override
-	public org.jamocha.dn.memory.MemoryHandlerTemp newBetaTemp(
-			final org.jamocha.dn.memory.MemoryHandlerMain originatingMainHandler,
+	public MemoryHandlerTemp newBetaTemp(final MemoryHandlerMain originatingMainHandler,
 			final Edge originIncomingEdge, final AddressFilter filter)
 			throws CouldNotAcquireLockException {
 		if (originIncomingEdge.getTargetNode().getOutgoingExistentialEdges().isEmpty()) {
@@ -110,17 +117,48 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 				(MemoryHandlerMain) originatingMainHandler, relevantMinusFacts, localizedAddressMap);
 	}
 
+	@Override
+	public MemoryHandlerTemp newBetaTemp(
+			final MemoryHandlerMainWithExistentials originatingMainHandler,
+			final Edge originIncomingEdge, final AddressFilter filter)
+			throws CouldNotAcquireLockException {
+		// TODO implement the existential version
+		return null;
+	}
+
 	private static void filterOutgoingTemps(
-			final Queue<MemoryHandlerTemp> validOutgoingPlusTokens,
+			final Queue<MemoryHandlerPlusTemp<? extends MemoryHandlerMain>> validOutgoingPlusTokens,
 			final ArrayList<Row> minusFacts, final FactAddress[] factAddresses,
 			final boolean[] marked, final EqualityChecker equalityChecker) {
-		for (final MemoryHandlerTemp temp : validOutgoingPlusTokens) {
-			final ArrayList<Row> originalFacts =
-					(null == temp.filtered ? temp.rows : temp.filtered);
-			final ArrayList<Row> remainingFacts =
-					getRemainingFactTuples(originalFacts, minusFacts, factAddresses, marked,
-							equalityChecker);
-			temp.filtered = remainingFacts;
+		for (final MemoryHandlerPlusTemp<? extends MemoryHandlerMain> temp : validOutgoingPlusTokens) {
+			temp.accept(new MemoryHandlerPlusTempVisitor() {
+				@Override
+				public void visit(final MemoryHandlerPlusTempValidRowsAdder temp) {
+					final ArrayList<Row> originalFacts = temp.getFilteredData().newValidRows;
+					final ArrayList<Row> remainingFacts =
+							getRemainingFactTuples(originalFacts, minusFacts, factAddresses,
+									marked, equalityChecker);
+					temp.setFilteredData(remainingFacts);
+				}
+
+				@Override
+				public void visit(final MemoryHandlerPlusTempNewRowsAndCounterUpdates temp) {
+					assert equalityChecker == EqualityChecker.beta;
+					// TODO
+					final ArrayList<Row> remainingUnfilteredFacts =
+							getRemainingFactTuples(temp.getFilteredData().newRows, minusFacts,
+									factAddresses, marked, equalityChecker);
+					final ArrayList<Row> remainingFilteredFacts =
+							getRemainingFactTuples(temp.getFilteredData().newValidRows, minusFacts,
+									factAddresses, marked, equalityChecker);
+					final ArrayList<CounterUpdate> remainingCounterUpdates =
+							getRemainingTs(temp.getFilteredData().counterUpdates,
+									CounterUpdate::getRow, minusFacts, factAddresses, marked,
+									equalityChecker);
+					temp.setFilteredData(remainingCounterUpdates, remainingUnfilteredFacts,
+							remainingFilteredFacts);
+				}
+			});
 		}
 	}
 
@@ -151,8 +189,7 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 		if (relevantMinusFactsSize == minusFactsSize) {
 			return minusFacts;
 		}
-		final ArrayList<Row> relevantMinusFacts =
-				new ArrayList<Row>(relevantMinusFactsSize);
+		final ArrayList<Row> relevantMinusFacts = new ArrayList<Row>(relevantMinusFactsSize);
 		for (int minusFactsIndex = 0; minusFactsIndex < minusFactsSize; ++minusFactsIndex) {
 			if (marked[minusFactsIndex]) {
 				relevantMinusFacts.add(minusFacts.get(minusFactsIndex));
@@ -166,15 +203,19 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 			final Edge localizingEdge) {
 		final int length = old.length;
 		final FactAddress[] factAddresses = new FactAddress[length];
+		final AddressFilter filter = localizingEdge.getFilter();
 		for (int i = 0; i < length; ++i) {
-			factAddresses[i] = (FactAddress) localizingEdge.localizeAddress(old[i]);
+			final FactAddress oldAddress = old[i];
+			if (null == oldAddress)
+				continue;
+			final FactAddress newAddress = (FactAddress) localizingEdge.localizeAddress(oldAddress);
+			factAddresses[i] = filter.isExistential(newAddress) ? null : newAddress;
 		}
 		return factAddresses;
 	}
 
 	@Override
-	public MemoryHandlerTemp newAlphaTemp(
-			final org.jamocha.dn.memory.MemoryHandlerMain originatingMainHandler,
+	public MemoryHandlerTemp newAlphaTemp(final MemoryHandlerMain originatingMainHandler,
 			final Edge originIncomingEdge, final AddressFilter filter)
 			throws CouldNotAcquireLockException {
 		final MemoryHandlerMain targetMain =

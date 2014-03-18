@@ -29,7 +29,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import lombok.Getter;
 import lombok.ToString;
 
-import org.jamocha.dn.memory.MemoryHandlerTemp;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.dn.nodes.CouldNotAcquireLockException;
 import org.jamocha.dn.nodes.Edge;
@@ -58,7 +57,8 @@ public class MemoryHandlerMain extends MemoryHandlerBase implements
 	final ReadWriteLock lock = new ReentrantReadWriteLock(true);
 	final FactAddress[] addresses;
 	@Getter
-	final protected Queue<MemoryHandlerTemp> validOutgoingPlusTokens = new LinkedList<>();
+	final protected Queue<MemoryHandlerPlusTemp<? extends MemoryHandlerMain>> validOutgoingPlusTokens =
+			new LinkedList<>();
 	final Counter counter;
 	private ArrayList<Row> validRows;
 
@@ -180,7 +180,7 @@ public class MemoryHandlerMain extends MemoryHandlerBase implements
 	}
 
 	@Override
-	public org.jamocha.dn.memory.MemoryHandlerTemp processTokenInAlpha(
+	public MemoryHandlerTemp<?> processTokenInAlpha(
 			final org.jamocha.dn.memory.MemoryHandlerTemp token, final Edge originIncomingEdge,
 			final AddressFilter filter) throws CouldNotAcquireLockException {
 		return ((org.jamocha.dn.memory.javaimpl.MemoryHandlerTemp<?>) token).newAlphaTemp(this,
@@ -188,13 +188,13 @@ public class MemoryHandlerMain extends MemoryHandlerBase implements
 	}
 
 	@Override
-	public org.jamocha.dn.memory.MemoryHandlerPlusTemp newPlusToken(final Node otn,
+	public MemoryHandlerPlusTemp<?> newPlusToken(final Node otn,
 			final org.jamocha.dn.memory.Fact... facts) {
 		return MemoryHandlerPlusTemp.newRootTemp(this, otn, facts);
 	}
 
 	@Override
-	public org.jamocha.dn.memory.MemoryHandlerMinusTemp newMinusToken(
+	public MemoryHandlerMinusTemp newMinusToken(
 			final org.jamocha.dn.memory.Fact... facts) {
 		return MemoryHandlerMinusTemp.newRootTemp(this, facts);
 	}

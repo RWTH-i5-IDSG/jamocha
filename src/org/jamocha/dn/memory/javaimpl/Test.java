@@ -57,7 +57,7 @@ public class Test {
 		public void deleteInFiltered(final ArrayList<Row> toDelete) {
 			final int mainSize = validRows.size();
 			final int partSize = toDelete.size();
-			final LazyListCopy mainCopy = new LazyListCopy(validRows);
+			final LazyListCopy<Row> mainCopy = new LazyListCopy<>(validRows);
 			outerLoop: for (int mainIndex = 0; mainIndex < mainSize; ++mainIndex) {
 				final Row mainTuple = validRows.get(mainIndex);
 				for (int partIndex = 0; partIndex < partSize; ++partIndex) {
@@ -162,7 +162,7 @@ public class Test {
 
 	static class MinusTempExistential {
 		ArrayList<CounterUpdate> counterUpdates;
-		MinusTempRegularPartial partial; // w/ complete if needed
+		MinusTempRegularComplete partial; // w/ complete if needed
 
 		void releaseLock() {
 			// apply counterUpdates

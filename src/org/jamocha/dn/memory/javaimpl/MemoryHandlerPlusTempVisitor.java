@@ -14,30 +14,13 @@
  */
 package org.jamocha.dn.memory.javaimpl;
 
-import lombok.Getter;
+import org.jamocha.visitor.Visitor;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
- * 
  */
-public class CounterUpdate {
-	@Getter
-	final Row row;
-	final int increment[];
+public interface MemoryHandlerPlusTempVisitor extends Visitor {
+	public void visit(final MemoryHandlerPlusTempValidRowsAdder temp);
 
-	public CounterUpdate(final Row row) {
-		this.row = row;
-		this.increment = new int[row.getCounters().length];
-	}
-
-	public void increment(final CounterColumn counterColumn, final int increment) {
-		this.increment[counterColumn.index] += increment;
-	}
-
-	public void apply() {
-		final int[] counters = row.getCounters();
-		for (int i = 0; i < increment.length; ++i) {
-			counters[i] += increment[i];
-		}
-	}
+	public void visit(final MemoryHandlerPlusTempNewRowsAndCounterUpdates temp);
 }

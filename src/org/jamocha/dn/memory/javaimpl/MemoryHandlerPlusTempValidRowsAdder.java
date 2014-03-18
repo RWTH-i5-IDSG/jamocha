@@ -17,61 +17,32 @@ package org.jamocha.dn.memory.javaimpl;
 import java.util.ArrayList;
 import java.util.Optional;
 
-import org.jamocha.dn.nodes.Edge;
-
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
- * 
  */
-public class MemoryHandlerPlusTempValidRowsAdder<T extends MemoryHandlerMain, D extends MemoryHandlerPlusTempValidRowsAdder.Data>
-		extends MemoryHandlerPlusTemp<T> {
-	@lombok.Data
-	protected static class Data {
-		final ArrayList<Row> newValidRows;
+public class MemoryHandlerPlusTempValidRowsAdder
+		extends
+		MemoryHandlerPlusTempGenericValidRowsAdder<MemoryHandlerMain, MemoryHandlerPlusTempGenericValidRowsAdder.Data> {
+
+	protected MemoryHandlerPlusTempValidRowsAdder(final MemoryHandlerMain originatingMainHandler,
+			final MemoryHandlerPlusTempGenericValidRowsAdder.Data original, final int numChildren,
+			final boolean empty, final boolean omitSemaphore) {
+		super(originatingMainHandler, original, numChildren, empty, omitSemaphore);
 	}
 
-	final D original;
-	Optional<D> filtered = Optional.empty();
-
-	protected MemoryHandlerPlusTempValidRowsAdder(final T originatingMainHandler, final D original,
-			final int numChildren, final boolean empty, final boolean omitSemaphore) {
-		super(originatingMainHandler, numChildren, empty, omitSemaphore);
-		this.original = original;
-	}
-
-	public static MemoryHandlerPlusTempValidRowsAdder<MemoryHandlerMain, Data> newInstance(
-			final MemoryHandlerMain originatingMainHandler, final ArrayList<Row> newRows,
-			final int numChildren, final boolean omitSemaphore) {
-		return new MemoryHandlerPlusTempValidRowsAdder<MemoryHandlerMain, Data>(
-				originatingMainHandler, new Data(newRows), numChildren, newRows.isEmpty(),
+	protected MemoryHandlerPlusTempValidRowsAdder(final MemoryHandlerMain originatingMainHandler,
+			final ArrayList<Row> newValidRows, final int numChildren, final boolean omitSemaphore) {
+		this(originatingMainHandler, new Data(newValidRows), numChildren, newValidRows.isEmpty(),
 				omitSemaphore);
 	}
 
 	@Override
-	public ArrayList<Row> getRowsForSucessorNodes() {
-		return this.original.newValidRows;
+	public <V extends MemoryHandlerPlusTempVisitor> V accept(final V visitor) {
+		visitor.visit(this);
+		return visitor;
 	}
 
-	public ArrayList<Row> getValidRows() {
-		return filtered.orElse(original).newValidRows;
-	}
-
-	public ArrayList<Row> getAllRows() {
-		return this.filtered.orElse(this.original).newValidRows;
-	}
-
-	@Override
-	public void enqueueInEdge(final Edge edge) {
-		edge.enqueueMemory(this);
-	}
-
-	@Override
-	protected org.jamocha.dn.memory.MemoryHandlerTemp commitToMain() {
-		// add newValidRows to main.filtered
-		final ArrayList<Row> facts = this.getValidRows();
-		for (final Row row : facts) {
-			this.originatingMainHandler.getAllRows().add(row);
-		}
-		return null;
+	void setFilteredData(final ArrayList<Row> newValidRows) {
+		this.filtered = Optional.of(new Data(newValidRows));
 	}
 }

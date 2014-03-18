@@ -27,7 +27,7 @@ import java.util.ArrayList;
  * comparison in the rest of the network (for better performance)</li>
  * <li><b>alpha:</b> checks for referential equality of the first elements of the fact tuples</li>
  * <li><b>beta:</b> checks for referential equality of all elements of the fact tuples, uses fact
- * address translation to do so</li>
+ * address translation to do so, assumes equality for null entries in the fact address array</li>
  * <li><b>equalRow:</b> checks for referential equality of the Row objects</li>
  * <li><b>equalFactTuple:</b> checks for referential equality of the Fact[] object in the FactTuples
  * </li>
@@ -69,10 +69,13 @@ interface EqualityChecker {
 				final ArrayList<Row> minusRows, final int minusRowsIndex,
 				final FactAddress[] factAddresses) {
 			for (int i = 0; i < factAddresses.length; ++i) {
-				final int originalAddress = factAddresses[i].index;
-				final int minusAddress = i;
-				final Fact originalFact = originalRow.getFactTuple()[originalAddress];
-				final Fact minusFact = minusRow.getFactTuple()[minusAddress];
+				final FactAddress originalFactAddress = factAddresses[i];
+				if (null == originalFactAddress)
+					continue;
+				final int originalIndex = originalFactAddress.index;
+				final int minusIndex = i;
+				final Fact originalFact = originalRow.getFactTuple()[originalIndex];
+				final Fact minusFact = minusRow.getFactTuple()[minusIndex];
 				if (minusFact != originalFact) {
 					return false;
 				}
