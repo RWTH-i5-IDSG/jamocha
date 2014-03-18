@@ -34,21 +34,21 @@ import lombok.Getter;
  * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
-public class LazyListCopy {
-	private static interface LazyListCopyState {
+public class LazyListCopy<T> {
+	private static interface LazyListCopyState<T> {
 		void keep(final int index);
 
 		void keepStartingAt(final int index);
 
 		void drop(final int index);
 
-		ArrayList<Row> getList();
+		ArrayList<T> getList();
 	}
 
 	@Delegate
-	LazyListCopyState state;
+	LazyListCopyState<T> state;
 
-	public LazyListCopy(final ArrayList<Row> list) {
+	public LazyListCopy(final ArrayList<T> list) {
 		this.state = new SameList(list);
 	}
 
@@ -57,14 +57,14 @@ public class LazyListCopy {
 	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
 	 */
 	@AllArgsConstructor
-	public class SameList implements LazyListCopyState {
+	public class SameList implements LazyListCopyState<T> {
 		@Getter(onMethod = @_(@Override))
-		final ArrayList<Row> list;
+		final ArrayList<T> list;
 
 		@Override
 		public void drop(final int index) {
 			final int size = this.list.size();
-			final ArrayList<Row> copy = new ArrayList<>(this.list);
+			final ArrayList<T> copy = new ArrayList<>(this.list);
 			copy.subList(index, size).clear();
 			// TODO write your own arraylist to do new ArrayList<>(original, from, to);
 			// final ArrayList<Fact[]> copy = new ArrayList<>(this.list.size());
@@ -88,9 +88,9 @@ public class LazyListCopy {
 	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
 	 */
 	@AllArgsConstructor
-	public class CopiedList implements LazyListCopyState {
-		final ArrayList<Row> list;
-		final ArrayList<Row> copy;
+	public class CopiedList implements LazyListCopyState<T> {
+		final ArrayList<T> list;
+		final ArrayList<T> copy;
 
 		@Override
 		public void keep(final int index) {
@@ -110,7 +110,7 @@ public class LazyListCopy {
 		}
 
 		@Override
-		public ArrayList<Row> getList() {
+		public ArrayList<T> getList() {
 			return this.copy;
 		}
 	}
