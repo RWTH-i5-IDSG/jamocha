@@ -558,6 +558,10 @@ public abstract class MemoryHandlerPlusTemp<T extends MemoryHandlerMain> extends
 			final SlotInFactAddress addresses[] = filterElement.getAddressesInTarget();
 			final CounterColumn counterColumn = (CounterColumn) filterElement.getCounterColumn();
 			final boolean existential = (counterColumn == null);
+			/*
+			 * requirement: if filter element is existential, all edges on the stack except
+			 * originEdge are existential as well (meaning all regular parts have been join already)
+			 */
 
 			// determine new edges
 			final Set<Edge> newEdges = new HashSet<>();
@@ -566,11 +570,17 @@ public abstract class MemoryHandlerPlusTemp<T extends MemoryHandlerMain> extends
 				final Edge edge = targetNode.delocalizeAddress(address.getFactAddress()).getEdge();
 				final StackElement element = edgeToStack.get(edge);
 				if (element != originElement) {
+					assert !existential
+							|| originEdge.getSourceNode().getOutgoingExistentialEdges()
+									.contains(edge);
 					if (newEdges.add(edge)) {
 						stack.add(element);
 					}
 				}
 			}
+
+			// if existential, perform slightly different join not copying but only changing
+			// counters.
 
 			final ArrayList<Row> TR = new ArrayList<>();
 			loop(new FunctionPointer() {
