@@ -57,14 +57,11 @@ public class MemoryHandlerMain extends MemoryHandlerBase implements
 	final ReadWriteLock lock = new ReentrantReadWriteLock(true);
 	final FactAddress[] addresses;
 	@Getter
-	final protected Queue<MemoryHandlerPlusTemp<? extends MemoryHandlerMain>> validOutgoingPlusTokens =
-			new LinkedList<>();
+	final protected Queue<MemoryHandlerPlusTemp> validOutgoingPlusTokens = new LinkedList<>();
 	final Counter counter;
-	private ArrayList<Row> validRows;
 
 	MemoryHandlerMain(final Template template, final Path... paths) {
-		super(new Template[] { template });
-		this.validRows = new ArrayList<Row>();
+		super(new Template[] { template }, new ArrayList<Row>());
 		final FactAddress address = new FactAddress(0);
 		this.addresses = new FactAddress[] { address };
 		for (final Path path : paths) {
@@ -76,8 +73,7 @@ public class MemoryHandlerMain extends MemoryHandlerBase implements
 
 	MemoryHandlerMain(final Template[] template, final Counter counter,
 			final FactAddress[] addresses) {
-		super(template);
-		this.validRows = new ArrayList<>();
+		super(template, new ArrayList<>());
 		this.addresses = addresses;
 		this.counter = counter;
 	}
@@ -175,26 +171,26 @@ public class MemoryHandlerMain extends MemoryHandlerBase implements
 	public org.jamocha.dn.memory.MemoryHandlerTemp processTokenInBeta(
 			final org.jamocha.dn.memory.MemoryHandlerTemp token, final Edge originIncomingEdge,
 			final AddressFilter filter) throws CouldNotAcquireLockException {
-		return ((org.jamocha.dn.memory.javaimpl.MemoryHandlerTemp<?>) token).newBetaTemp(this,
+		return ((org.jamocha.dn.memory.javaimpl.MemoryHandlerTemp) token).newBetaTemp(this,
 				originIncomingEdge, filter);
 	}
 
 	@Override
-	public MemoryHandlerTemp<?> processTokenInAlpha(
+	public org.jamocha.dn.memory.MemoryHandlerTemp processTokenInAlpha(
 			final org.jamocha.dn.memory.MemoryHandlerTemp token, final Edge originIncomingEdge,
 			final AddressFilter filter) throws CouldNotAcquireLockException {
-		return ((org.jamocha.dn.memory.javaimpl.MemoryHandlerTemp<?>) token).newAlphaTemp(this,
+		return ((org.jamocha.dn.memory.javaimpl.MemoryHandlerTemp) token).newAlphaTemp(this,
 				originIncomingEdge, filter);
 	}
 
 	@Override
-	public MemoryHandlerPlusTemp<?> newPlusToken(final Node otn,
+	public org.jamocha.dn.memory.MemoryHandlerPlusTemp newPlusToken(final Node otn,
 			final org.jamocha.dn.memory.Fact... facts) {
 		return MemoryHandlerPlusTemp.newRootTemp(this, otn, facts);
 	}
 
 	@Override
-	public MemoryHandlerMinusTemp newMinusToken(
+	public org.jamocha.dn.memory.MemoryHandlerMinusTemp newMinusToken(
 			final org.jamocha.dn.memory.Fact... facts) {
 		return MemoryHandlerMinusTemp.newRootTemp(this, facts);
 	}

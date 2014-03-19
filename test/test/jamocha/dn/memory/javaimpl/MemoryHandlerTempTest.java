@@ -221,17 +221,17 @@ public class MemoryHandlerTempTest {
 	 */
 	@Test
 	public void testNewBetaTempFullJoin() throws CouldNotAcquireLockException {
-		MemoryHandlerPlusTemp<?> token =
-				(MemoryHandlerPlusTemp<?>) nodeRight.getMemory().newPlusToken(nodeRight,
+		MemoryHandlerPlusTemp token =
+				(MemoryHandlerPlusTemp) nodeRight.getMemory().newPlusToken(nodeRight,
 						new Fact(new Template(SlotType.STRING), "Fakt3"),
 						new Fact(new Template(SlotType.STRING), "Fakt4"));
 		token.releaseLock();
 		token =
-				(MemoryHandlerPlusTemp<?>) nodeLeft.getMemory().newPlusToken(nodeLeft,
+				(MemoryHandlerPlusTemp) nodeLeft.getMemory().newPlusToken(nodeLeft,
 						new Fact(new Template(SlotType.STRING), "Fakt1"),
 						new Fact(new Template(SlotType.STRING), "Fakt2"));
-		final MemoryHandlerPlusTemp<?> token1 =
-				(MemoryHandlerPlusTemp<?>) node.getMemory().processTokenInBeta(token, originInput,
+		final MemoryHandlerPlusTemp token1 =
+				(MemoryHandlerPlusTemp) node.getMemory().processTokenInBeta(token, originInput,
 						FilterTranslator.translate(FilterMockup.alwaysTrue(), fe2ccmockup));
 		assertEquals(4, token1.size());
 		assertEquals(2, token1.getTemplate().length);
@@ -277,17 +277,17 @@ public class MemoryHandlerTempTest {
 		final AddressFilter filter =
 				new AddressFilter(new HashSet<FactAddress>(), new HashSet<FactAddress>(),
 						new AddressFilterElement[] { fe });
-		MemoryHandlerPlusTemp<?> token =
-				(MemoryHandlerPlusTemp<?>) nodeRight.getMemory().newPlusToken(nodeRight,
+		MemoryHandlerPlusTemp token =
+				(MemoryHandlerPlusTemp) nodeRight.getMemory().newPlusToken(nodeRight,
 						new Fact(new Template(SlotType.STRING), "Fakt1"),
 						new Fact(new Template(SlotType.STRING), "Fakt3"));
 		token.releaseLock();
 		token =
-				(MemoryHandlerPlusTemp<?>) nodeLeft.getMemory().newPlusToken(nodeLeft,
+				(MemoryHandlerPlusTemp) nodeLeft.getMemory().newPlusToken(nodeLeft,
 						new Fact(new Template(SlotType.STRING), "Fakt1"),
 						new Fact(new Template(SlotType.STRING), "Fakt2"));
-		final MemoryHandlerPlusTemp<?> token1 =
-				(MemoryHandlerPlusTemp<?>) node.getMemory().processTokenInBeta(token, originInput,
+		final MemoryHandlerPlusTemp token1 =
+				(MemoryHandlerPlusTemp) node.getMemory().processTokenInBeta(token, originInput,
 						filter);
 		assertEquals(1, token1.size());
 		assertEquals(2, token1.getTemplate().length);
@@ -303,16 +303,16 @@ public class MemoryHandlerTempTest {
 	 */
 	@Test
 	public void testNewAlphaTemp() throws CouldNotAcquireLockException {
-		final MemoryHandlerPlusTemp<?> token =
-				memoryHandlerMain.newPlusToken(node,
-						new Fact(new Template(SlotType.STRING), "Test"));
-		MemoryHandlerPlusTemp<?> memoryTempHandler =
-				(MemoryHandlerPlusTemp<?>) memoryHandlerMain.processTokenInAlpha(token,
+		final MemoryHandlerPlusTemp token =
+				(MemoryHandlerPlusTemp) memoryHandlerMain.newPlusToken(node, new Fact(new Template(
+						SlotType.STRING), "Test"));
+		MemoryHandlerPlusTemp memoryTempHandler =
+				(MemoryHandlerPlusTemp) memoryHandlerMain.processTokenInAlpha(token,
 						node.getIncomingEdges()[0],
 						FilterTranslator.translate(FilterMockup.alwaysTrue(), fe2ccmockup));
 		assertEquals(1, memoryTempHandler.size());
 		memoryTempHandler =
-				(MemoryHandlerPlusTemp<?>) memoryHandlerMain.processTokenInAlpha(token,
+				(MemoryHandlerPlusTemp) memoryHandlerMain.processTokenInAlpha(token,
 						node.getIncomingEdges()[0],
 						FilterTranslator.translate(FilterMockup.alwaysFalse(), fe2ccmockup));
 		assertEquals(0, memoryTempHandler.size());
@@ -323,9 +323,9 @@ public class MemoryHandlerTempTest {
 	 */
 	@Test
 	public void testNewToken() {
-		final MemoryHandlerPlusTemp<?> memoryHandlerTemp =
-				memoryHandlerMain.newPlusToken(node,
-						new Fact(new Template(SlotType.STRING), "Test"));
+		final MemoryHandlerPlusTemp memoryHandlerTemp =
+				(MemoryHandlerPlusTemp) memoryHandlerMain.newPlusToken(node, new Fact(new Template(
+						SlotType.STRING), "Test"));
 		assertNotNull(memoryHandlerTemp);
 	}
 
@@ -336,9 +336,9 @@ public class MemoryHandlerTempTest {
 	 */
 	@Test
 	public void testSize() throws InterruptedException {
-		final MemoryHandlerPlusTemp<?> memoryHandlerTemp =
-				memoryHandlerMain.newPlusToken(node,
-						new Fact(new Template(SlotType.STRING), "Test"));
+		final MemoryHandlerPlusTemp memoryHandlerTemp =
+				(MemoryHandlerPlusTemp) memoryHandlerMain.newPlusToken(node, new Fact(new Template(
+						SlotType.STRING), "Test"));
 		assertNotNull(memoryHandlerTemp);
 		assertEquals(1, memoryHandlerTemp.size());
 	}
@@ -350,9 +350,9 @@ public class MemoryHandlerTempTest {
 	 */
 	@Test
 	public void testReleaseLock() throws InterruptedException {
-		MemoryHandlerPlusTemp<?> memoryHandlerTemp =
-				memoryHandlerMain.newPlusToken(node,
-						new Fact(new Template(SlotType.STRING), "Test"));
+		MemoryHandlerPlusTemp memoryHandlerTemp =
+				(MemoryHandlerPlusTemp) memoryHandlerMain.newPlusToken(node, new Fact(new Template(
+						SlotType.STRING), "Test"));
 		assertEquals(0, memoryHandlerMain.size());
 		memoryHandlerTemp.releaseLock();
 		assertEquals(1, memoryHandlerMain.size());
@@ -360,8 +360,8 @@ public class MemoryHandlerTempTest {
 		assertEquals(1, memoryHandlerMain.size());
 		final Node node5 = new NodeMockup(Network.DEFAULTNETWORK, 5);
 		memoryHandlerTemp =
-				memoryHandlerMain.newPlusToken(node5, new Fact(new Template(SlotType.STRING),
-						"Test"));
+				(MemoryHandlerPlusTemp) memoryHandlerMain.newPlusToken(node5, new Fact(
+						new Template(SlotType.STRING), "Test"));
 		assertEquals(1, memoryHandlerMain.size());
 		memoryHandlerTemp.releaseLock();
 		assertEquals(1, memoryHandlerMain.size());
@@ -384,9 +384,9 @@ public class MemoryHandlerTempTest {
 	 */
 	@Test
 	public void testGetValue() throws InterruptedException {
-		final MemoryHandlerPlusTemp<?> memoryHandlerTemp =
-				memoryHandlerMain.newPlusToken(node,
-						new Fact(new Template(SlotType.STRING), "Test"));
+		final MemoryHandlerPlusTemp memoryHandlerTemp =
+				(MemoryHandlerPlusTemp) memoryHandlerMain.newPlusToken(node,
+				new Fact(new Template(SlotType.STRING), "Test"));
 		assertNotNull(memoryHandlerTemp);
 		assertEquals("Test", memoryHandlerTemp.getValue(factAddress, slotAddress, 0));
 	}
@@ -400,9 +400,9 @@ public class MemoryHandlerTempTest {
 	 */
 	@Test(expected = IndexOutOfBoundsException.class)
 	public void testGetValueRowOutOfBounds() throws InterruptedException {
-		final MemoryHandlerPlusTemp<?> memoryHandlerTemp =
-				memoryHandlerMain.newPlusToken(node,
-						new Fact(new Template(SlotType.STRING), "Test"));
+		final MemoryHandlerPlusTemp memoryHandlerTemp =
+				(MemoryHandlerPlusTemp) memoryHandlerMain.newPlusToken(node,
+				new Fact(new Template(SlotType.STRING), "Test"));
 		assertNotNull(memoryHandlerTemp);
 		memoryHandlerTemp.getValue(factAddress, slotAddress, 1);
 	}
@@ -416,9 +416,9 @@ public class MemoryHandlerTempTest {
 	 */
 	@Test(expected = IndexOutOfBoundsException.class)
 	public void testGetValueSlotOutOfBounds() throws InterruptedException {
-		final MemoryHandlerPlusTemp<?> memoryHandlerTemp =
-				memoryHandlerMain.newPlusToken(node,
-						new Fact(new Template(SlotType.STRING), "Test"));
+		final MemoryHandlerPlusTemp memoryHandlerTemp =
+				(MemoryHandlerPlusTemp) memoryHandlerMain.newPlusToken(node, new Fact(new Template(
+						SlotType.STRING), "Test"));
 		assertNotNull(memoryHandlerTemp);
 		final FactAddress factAddress1 = new org.jamocha.dn.memory.javaimpl.FactAddress(1);
 		memoryHandlerTemp.getValue(factAddress1, slotAddress, 0);
@@ -433,9 +433,9 @@ public class MemoryHandlerTempTest {
 	 */
 	@Test(expected = IndexOutOfBoundsException.class)
 	public void testGetValueFactOutOfBounds() throws InterruptedException {
-		final MemoryHandlerPlusTemp<?> memoryHandlerTemp =
-				memoryHandlerMain.newPlusToken(node,
-						new Fact(new Template(SlotType.STRING), "Test"));
+		final MemoryHandlerPlusTemp memoryHandlerTemp =
+				(MemoryHandlerPlusTemp) memoryHandlerMain.newPlusToken(node, new Fact(new Template(
+						SlotType.STRING), "Test"));
 		assertNotNull(memoryHandlerTemp);
 		final SlotAddress slotAddress1 = new SlotAddress(1);
 		memoryHandlerTemp.getValue(factAddress, slotAddress1, 0);

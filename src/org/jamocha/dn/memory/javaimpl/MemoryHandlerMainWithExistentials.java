@@ -28,16 +28,11 @@ import org.jamocha.filter.AddressFilter;
  */
 public class MemoryHandlerMainWithExistentials extends MemoryHandlerMain {
 
-	private ArrayList<Row> allRows;
+	ArrayList<Row> allRows;
 
 	MemoryHandlerMainWithExistentials(final Template[] template, final Counter counter,
 			final FactAddress[] addresses) {
 		super(template, counter, addresses);
-	}
-
-	@Override
-	public ArrayList<Row> getAllRows() {
-		return this.allRows;
 	}
 
 	@Override
@@ -55,14 +50,14 @@ public class MemoryHandlerMainWithExistentials extends MemoryHandlerMain {
 	public org.jamocha.dn.memory.MemoryHandlerTemp processTokenInBeta(
 			final org.jamocha.dn.memory.MemoryHandlerTemp token, final Edge originIncomingEdge,
 			final AddressFilter filter) throws CouldNotAcquireLockException {
-		return ((MemoryHandlerTemp<?>) token).newBetaTemp(this, originIncomingEdge, filter);
+		return ((MemoryHandlerTemp) token).newBetaTemp(this, originIncomingEdge, filter);
 	}
 
 	@Override
 	public org.jamocha.dn.memory.MemoryHandlerTemp processTokenInAlpha(
 			final org.jamocha.dn.memory.MemoryHandlerTemp token, final Edge originIncomingEdge,
 			final AddressFilter filter) throws CouldNotAcquireLockException {
-		return ((MemoryHandlerTemp<?>) token).newAlphaTemp(this, originIncomingEdge, filter);
+		return ((MemoryHandlerTemp) token).newAlphaTemp(this, originIncomingEdge, filter);
 	}
 
 	@Override

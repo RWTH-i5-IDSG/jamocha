@@ -22,6 +22,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import lombok.ToString;
@@ -29,6 +30,7 @@ import lombok.Value;
 
 import org.jamocha.dn.memory.MemoryHandler;
 import org.jamocha.dn.memory.SlotAddress;
+import org.jamocha.dn.memory.Template;
 import org.jamocha.dn.nodes.AddressPredecessor;
 import org.jamocha.dn.nodes.CouldNotAcquireLockException;
 import org.jamocha.dn.nodes.Edge;
@@ -37,7 +39,6 @@ import org.jamocha.dn.nodes.SlotInFactAddress;
 import org.jamocha.filter.AddressFilter;
 import org.jamocha.filter.AddressFilter.AddressFilterElement;
 import org.jamocha.filter.fwa.PredicateWithArguments;
-import org.jamocha.visitor.Visitable;
 
 /**
  * Java-implementation of the {@link org.jamocha.dn.memory.MemoryHandlerPlusTemp} interface.
@@ -47,9 +48,11 @@ import org.jamocha.visitor.Visitable;
  * @see org.jamocha.dn.memory.MemoryHandlerPlusTemp
  */
 @ToString(callSuper = true, of = "valid")
-public abstract class MemoryHandlerPlusTemp<T extends MemoryHandlerMain> extends
-		MemoryHandlerTemp<T> implements org.jamocha.dn.memory.MemoryHandlerPlusTemp,
-		Visitable<MemoryHandlerPlusTempVisitor> {
+public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
+		org.jamocha.dn.memory.MemoryHandlerPlusTemp {
+
+	private static MemoryHandlerPlusTemp empty = new MemoryHandlerPlusTemp(new Template[0], null,
+			new ArrayList<Row>(), 0, true);
 
 	static class Semaphore {
 		int count;
@@ -69,60 +72,66 @@ public abstract class MemoryHandlerPlusTemp<T extends MemoryHandlerMain> extends
 	 * set to false as soon as the memory has been committed to its main memory
 	 */
 	boolean valid = true;
+	Optional<ArrayList<Row>> filtered = Optional.empty();
 
-	protected MemoryHandlerPlusTemp(final T originatingMainHandler, final int numChildren,
-			final boolean empty, final boolean omitSemaphore) {
-		super(originatingMainHandler);
-		if (empty) {
+	ArrayList<Row> getFiltered() {
+		return this.filtered.orElse(this.validRows);
+	}
+
+	void setFiltered(final ArrayList<Row> filteredRows) {
+		this.filtered = Optional.of(filteredRows);
+	}
+
+	protected MemoryHandlerPlusTemp(final Template[] template,
+			final MemoryHandlerMain originatingMainHandler, final ArrayList<Row> rows,
+			final int numChildren, final boolean omitSemaphore) {
+		super(template, originatingMainHandler, rows);
+		if (rows.isEmpty()) {
 			this.lock = null;
 			this.valid = false;
 		} else if (omitSemaphore || numChildren == 0) {
 			this.lock = null;
 			originatingMainHandler.getValidOutgoingPlusTokens().add(this);
 			// commit and invalidate the token
-			final org.jamocha.dn.memory.MemoryHandlerTemp pendingTemp = commitAndInvalidate();
-			/*
-			 * if this token was a MemoryHandlerPlusTempNewRowsAndCounterUpdates we may have
-			 * produced new temps by calling commitAndInvalidate, yet we cannot process them without
-			 * lots of ugly code at the worst location to think of, so this is unsupported for now
-			 * as it has no purpose in a production system where the only nodes without children are
-			 * terminal nodes
-			 */
-			if (null != pendingTemp) {
-				throw new IllegalArgumentException(
-						"Nodes using existentials without children are unsupported!");
-			}
+			commitAndInvalidate();
 		} else {
 			this.lock = new Semaphore(numChildren);
 			originatingMainHandler.getValidOutgoingPlusTokens().add(this);
 		}
 	}
 
+	protected MemoryHandlerPlusTemp(final MemoryHandlerMain originatingMainHandler,
+			final ArrayList<Row> rows, final int numChildren, final boolean omitSemaphore) {
+		this(originatingMainHandler.template, originatingMainHandler, rows, numChildren,
+				omitSemaphore);
+	}
+
 	@Override
-	final public org.jamocha.dn.memory.MemoryHandlerTemp releaseLock() {
+	final public void releaseLock() {
 		try {
 			if (this.lock.release())
-				return null;
+				return;
 		} catch (final NullPointerException e) {
 			// lock was null
-			return null;
+			return;
 		}
 		// all children have processed the temp memory, now we have to write its
 		// content to main memory
-		return commitAndInvalidate();
+		commitAndInvalidate();
 	}
 
-	final protected org.jamocha.dn.memory.MemoryHandlerTemp commitAndInvalidate() {
+	final protected void commitAndInvalidate() {
 		this.originatingMainHandler.acquireWriteLock();
 		assert this == this.originatingMainHandler.getValidOutgoingPlusTokens().peek();
 		this.originatingMainHandler.getValidOutgoingPlusTokens().remove();
-		final org.jamocha.dn.memory.MemoryHandlerTemp newTemp = commitToMain();
+		// add newValidRows to main.filtered
+		final ArrayList<Row> rows = this.getFiltered();
+		for (final Row row : rows) {
+			this.originatingMainHandler.getAllRows().add(row);
+		}
 		this.originatingMainHandler.releaseWriteLock();
 		this.valid = false;
-		return newTemp;
 	}
-
-	abstract protected org.jamocha.dn.memory.MemoryHandlerTemp commitToMain();
 
 	@Override
 	public void enqueueInEdge(final Edge edge) {
@@ -144,37 +153,35 @@ public abstract class MemoryHandlerPlusTemp<T extends MemoryHandlerMain> extends
 	}
 
 	@Override
-	public MemoryHandlerPlusTemp<?> newBetaTemp(final MemoryHandlerMain originatingMainHandler,
-			final Edge originIncomingEdge, final AddressFilter filter)
-			throws CouldNotAcquireLockException {
+	public org.jamocha.dn.memory.MemoryHandlerTemp newBetaTemp(
+			final MemoryHandlerMain originatingMainHandler, final Edge originIncomingEdge,
+			final AddressFilter filter) throws CouldNotAcquireLockException {
 		// create follow-up-temp
-		final MemoryHandlerPlusTemp<?> token =
+		final MemoryHandlerTemp token =
 				newRegularBetaTemp(originatingMainHandler, filter, this, originIncomingEdge);
 		// push old temp into incoming edge to augment the memory seen by its target
-		originIncomingEdge.getTempMemories().add(token);
+		originIncomingEdge.getTempMemories().add(this);
 		// return new temp
 		return token;
 	}
 
 	@Override
-	public MemoryHandlerPlusTemp<?> newBetaTemp(
+	public org.jamocha.dn.memory.MemoryHandlerTemp newBetaTemp(
 			final MemoryHandlerMainWithExistentials originatingMainHandler,
 			final Edge originIncomingEdge, final AddressFilter filter)
 			throws CouldNotAcquireLockException {
 		// create follow-up-temp
-		final MemoryHandlerPlusTemp<?> token =
+		final org.jamocha.dn.memory.MemoryHandlerTemp token =
 				newExistentialBetaTemp(originatingMainHandler, filter, this, originIncomingEdge);
 		// push old temp into incoming edge to augment the memory seen by its target
-		originIncomingEdge.getTempMemories().add(token);
+		originIncomingEdge.getTempMemories().add(this);
 		// return new temp
 		return token;
 	}
 
-	static MemoryHandlerPlusTemp<MemoryHandlerMain> newAlphaTemp(
-			final MemoryHandlerMain originatingMainHandler,
-			final MemoryHandlerPlusTemp<? extends MemoryHandlerMain> token,
-			final Edge originIncomingEdge, final AddressFilter filter)
-			throws CouldNotAcquireLockException {
+	static MemoryHandlerPlusTemp newAlphaTemp(final MemoryHandlerMain originatingMainHandler,
+			final MemoryHandlerPlusTemp token, final Edge originIncomingEdge,
+			final AddressFilter filter) throws CouldNotAcquireLockException {
 		final ArrayList<Row> factList = new ArrayList<>(1);
 		factLoop: for (final Row row : token.getRowsForSucessorNodes()) {
 			assert row.getFactTuple().length == 1;
@@ -185,35 +192,27 @@ public abstract class MemoryHandlerPlusTemp<T extends MemoryHandlerMain> extends
 			}
 			factList.add(row);
 		}
-		return new MemoryHandlerPlusTempValidRowsAdder(originatingMainHandler, factList,
-				originIncomingEdge.getTargetNode().getNumberOfOutgoingEdges(),
-				canOmitSemaphore(originIncomingEdge));
-		// FIXME only use Semaphores if one of the outgoing edges is connected to the beta network
-		// return new MemoryHandlerPlusTemp(originatingMainHandler,
-		// originIncomingEdge.getTargetNode().getNumberOfOutgoingEdges(),
-		// needsSemaphore(originIncomingEdge));
+		return new MemoryHandlerPlusTemp(originatingMainHandler, factList, originIncomingEdge
+				.getTargetNode().getNumberOfOutgoingEdges(), canOmitSemaphore(originIncomingEdge));
 	}
 
 	@Override
-	public MemoryHandlerPlusTemp<MemoryHandlerMain> newAlphaTemp(
-			final MemoryHandlerMain originatingMainHandler, final Edge originIncomingEdge,
-			final AddressFilter filter) throws CouldNotAcquireLockException {
+	public MemoryHandlerPlusTemp newAlphaTemp(final MemoryHandlerMain originatingMainHandler,
+			final Edge originIncomingEdge, final AddressFilter filter)
+			throws CouldNotAcquireLockException {
 		return newAlphaTemp((MemoryHandlerMain) originatingMainHandler, this, originIncomingEdge,
 				filter);
 	}
 
-	static MemoryHandlerPlusTemp<MemoryHandlerMain> newRootTemp(
-			final MemoryHandlerMain originatingMainHandler, final Node otn,
-			final org.jamocha.dn.memory.Fact... facts) {
+	static MemoryHandlerPlusTemp newRootTemp(final MemoryHandlerMain originatingMainHandler,
+			final Node otn, final org.jamocha.dn.memory.Fact... facts) {
 		final ArrayList<Row> factList = new ArrayList<>(facts.length);
 		for (final org.jamocha.dn.memory.Fact fact : facts) {
 			assert fact.getTemplate() == otn.getMemory().getTemplate()[0];
 			factList.add(originatingMainHandler.newRow(new Fact(fact.getSlotValues())));
 		}
-		return new MemoryHandlerPlusTempValidRowsAdder(originatingMainHandler, factList,
+		return new MemoryHandlerPlusTemp(originatingMainHandler, factList,
 				otn.getNumberOfOutgoingEdges(), canOmitSemaphore(otn));
-		// new MemoryHandlerPlusTemp(originatingMainHandler, factList,
-		// otn.getNumberOfOutgoingEdges(), needsSemaphore(otn));
 	}
 
 	static abstract class StackElement {
@@ -233,7 +232,7 @@ public abstract class MemoryHandlerPlusTemp<T extends MemoryHandlerMain> extends
 			memStack.add(((org.jamocha.dn.memory.javaimpl.MemoryHandlerMain) edge.getSourceNode()
 					.getMemory()).getRowsForSucessorNodes());
 			for (final Iterator<? extends MemoryHandler> iter = temps.iterator(); iter.hasNext();) {
-				final MemoryHandlerPlusTemp<?> temp = (MemoryHandlerPlusTemp<?>) iter.next();
+				final MemoryHandlerPlusTemp temp = (MemoryHandlerPlusTemp) iter.next();
 				if (!temp.valid) {
 					iter.remove();
 					continue;
@@ -250,7 +249,7 @@ public abstract class MemoryHandlerPlusTemp<T extends MemoryHandlerMain> extends
 		}
 
 		public static StackElement originInput(final int columns, final Edge originEdge,
-				final MemoryHandlerPlusTemp<?> token, final int offset) {
+				final MemoryHandlerPlusTemp token, final int offset) {
 			final ArrayList<Row> listWithHoles =
 					new ArrayList<>(token.getRowsForSucessorNodes().size());
 			for (final Row row : token.getRowsForSucessorNodes()) {
@@ -361,8 +360,8 @@ public abstract class MemoryHandlerPlusTemp<T extends MemoryHandlerMain> extends
 	}
 
 	private static final LinkedHashMap<Edge, StackElement> getLocksAndStack(
-			final MemoryHandlerPlusTemp<?> token, final Edge originIncomingEdge,
-			final boolean getOrigin) throws CouldNotAcquireLockException {
+			final MemoryHandlerPlusTemp token, final Edge originIncomingEdge)
+			throws CouldNotAcquireLockException {
 		// get a fixed-size array of indices (size: #inputs of the node),
 		// determine number of inputs for the current join as maxIndex
 		// loop through the inputs line-wise using array[0] .. array[maxIndex]
@@ -383,10 +382,8 @@ public abstract class MemoryHandlerPlusTemp<T extends MemoryHandlerMain> extends
 					tempOriginElement =
 							StackElement.originInput(columns, originIncomingEdge, token, offset);
 					offset += incomingEdge.getSourceNode().getMemory().getTemplate().length;
-					if (!getOrigin) {
-						// don't lock the originInput
-						continue;
-					}
+					// don't lock the originInput
+					continue;
 				}
 				try {
 					if (!incomingEdge.getSourceNode().getMemory().tryReadLock()) {
@@ -408,54 +405,136 @@ public abstract class MemoryHandlerPlusTemp<T extends MemoryHandlerMain> extends
 		return edgeToStack;
 	}
 
-	private static void releaseLocks(final Edge originEdge, final boolean releaseOrigin) {
+	private static void releaseLocks(final Edge originEdge) {
 		final Edge[] nodeIncomingEdges = originEdge.getTargetNode().getIncomingEdges();
 		// release lock
 		for (final Edge incomingEdge : nodeIncomingEdges) {
-			if (!releaseOrigin && incomingEdge == originEdge)
+			if (incomingEdge == originEdge)
 				continue;
 			incomingEdge.getSourceNode().getMemory().releaseReadLock();
 		}
 	}
 
-	private static MemoryHandlerPlusTemp<?> newRegularBetaTemp(
+	private static MemoryHandlerTemp newRegularBetaTemp(
 			final MemoryHandlerMain originatingMainHandler, final AddressFilter filter,
-			final MemoryHandlerPlusTemp<?> token, final Edge originEdge)
+			final MemoryHandlerPlusTemp token, final Edge originEdge)
 			throws CouldNotAcquireLockException {
-		final LinkedHashMap<Edge, StackElement> edgeToStack =
-				getLocksAndStack(token, originEdge, false);
-
-		performJoin(filter, edgeToStack, originEdge);
-
-		releaseLocks(originEdge, false);
-
-		final ArrayList<Row> facts = edgeToStack.get(originEdge).getTable();
+		final ArrayList<Row> facts = regularLockJoinAndUnlock(filter, token, originEdge);
 		final int numChildren = originEdge.getTargetNode().getNumberOfOutgoingEdges();
-		return new MemoryHandlerPlusTempValidRowsAdder(originatingMainHandler, facts, numChildren,
+		return new MemoryHandlerPlusTemp(originatingMainHandler, facts, numChildren,
 				canOmitSemaphore(originEdge));
 	}
 
-	private static MemoryHandlerPlusTemp<?> newExistentialBetaTemp(
-			final MemoryHandlerMainWithExistentials originatingMainHandler,
-			final AddressFilter filter, final MemoryHandlerPlusTemp<?> token, final Edge originEdge)
+	private static ArrayList<Row> regularLockJoinAndUnlock(final AddressFilter filter,
+			final MemoryHandlerPlusTemp token, final Edge originEdge)
 			throws CouldNotAcquireLockException {
-		final LinkedHashMap<Edge, StackElement> edgeToStack =
-				getLocksAndStack(token, originEdge, true);
+		final LinkedHashMap<Edge, StackElement> edgeToStack = getLocksAndStack(token, originEdge);
 
-		final ArrayList<CounterUpdate> counterUpdates =
-				performExistentialJoin(filter, edgeToStack, originEdge);
 		performJoin(filter, edgeToStack, originEdge);
 
-		releaseLocks(originEdge, true);
+		releaseLocks(originEdge);
 
 		final ArrayList<Row> facts = edgeToStack.get(originEdge).getTable();
-		final int numChildren = originEdge.getTargetNode().getNumberOfOutgoingEdges();
-		if (null == counterUpdates) {
-			return new MemoryHandlerPlusTempValidRowsAdder(originatingMainHandler, facts,
-					numChildren, canOmitSemaphore(originEdge));
+		return facts;
+	}
+
+	static ArrayList<Row> validPart(final Counter counter, final ArrayList<Row> allRows) {
+		final LazyListCopy<Row> copy = new LazyListCopy<>(allRows);
+		for (int index = 0; index < allRows.size(); index++) {
+			final Row row = allRows.get(index);
+			if (counter.isValid(row)) {
+				copy.keep(index);
+			} else {
+				copy.drop(index);
+			}
 		}
-		return MemoryHandlerPlusTempNewRowsAndCounterUpdates.newInstance(originatingMainHandler,
-				counterUpdates, facts, numChildren, canOmitSemaphore(originEdge));
+		return copy.getList();
+	}
+
+	private static org.jamocha.dn.memory.MemoryHandlerTemp newExistentialBetaTemp(
+			final MemoryHandlerMainWithExistentials originatingMainHandler,
+			final AddressFilter filter, final MemoryHandlerPlusTemp token, final Edge originEdge)
+			throws CouldNotAcquireLockException {
+		// existential join (counter updates) or regular join (new rows)?
+		final boolean existential = originEdge.getFilterPartsForCounterColumns().length != 0;
+
+		if (!existential) {
+			final ArrayList<Row> newUnfilteredRows =
+					regularLockJoinAndUnlock(filter, token, originEdge);
+			// push new rows into main.allRows
+			// no need for a lock as the current node is the only one reading/writing allRows
+			for (final Row newUnfilteredRow : newUnfilteredRows) {
+				originatingMainHandler.allRows.add(newUnfilteredRow);
+			}
+			// get valid part of the new rows
+			final ArrayList<Row> newValidRows =
+					validPart(originatingMainHandler.counter, newUnfilteredRows);
+			final int numChildren = originEdge.getTargetNode().getNumberOfOutgoingEdges();
+			return new MemoryHandlerPlusTemp(originatingMainHandler, newValidRows, numChildren,
+					canOmitSemaphore(originEdge));
+
+		}
+
+		// read-lock target main for existential join
+		final org.jamocha.dn.memory.MemoryHandlerMain targetMemoryMain =
+				originEdge.getTargetNode().getMemory();
+		try {
+			if (!targetMemoryMain.tryReadLock()) {
+				throw new CouldNotAcquireLockException();
+			}
+		} catch (final InterruptedException ex) {
+			throw new Error("Should not happen, interruption of this method is not supported!", ex);
+		}
+		// read-lock all other input-mains
+		final LinkedHashMap<Edge, StackElement> edgeToStack = getLocksAndStack(token, originEdge);
+
+		// perform the actual join to get the counter updates
+		final ArrayList<CounterUpdate> counterUpdates =
+				performExistentialJoin(filter, edgeToStack, originEdge);
+
+		// release the read locks
+		releaseLocks(originEdge);
+		targetMemoryMain.releaseReadLock();
+
+		// apply the counter updates and generate the actual temps
+
+		if (counterUpdates.isEmpty())
+			return empty;
+		final Counter counter = originatingMainHandler.counter;
+		final ArrayList<Row> rowsToAdd = new ArrayList<>();
+		final ArrayList<Row> rowsToDel = new ArrayList<>();
+		for (final CounterUpdate counterUpdate : counterUpdates) {
+			final Row row = counterUpdate.row;
+			final boolean wasValid = counter.isValid(row);
+			counterUpdate.apply();
+			final boolean isValid = counter.isValid(row);
+			if (!wasValid && isValid) {
+				// changed to valid
+				rowsToAdd.add(counterUpdate.row);
+			} else if (wasValid && !isValid) {
+				// changed to invalid
+				rowsToDel.add(counterUpdate.row);
+			}
+			// else: no change
+		}
+		final boolean noLinesToAdd = rowsToAdd.isEmpty();
+		final boolean noLinesToDel = rowsToDel.isEmpty();
+		if (noLinesToAdd && noLinesToDel) {
+			// no change
+			return empty;
+		}
+		if (noLinesToAdd) {
+			// TODO create -token for invalidated rows
+			return new MemoryHandlerMinusTemp(originatingMainHandler, rowsToDel);
+		}
+		final int numChildren = originEdge.getTargetNode().getNumberOfOutgoingEdges();
+		if (noLinesToDel) {
+			return new MemoryHandlerPlusTemp(originatingMainHandler, rowsToAdd, numChildren,
+					canOmitSemaphore(originEdge));
+		}
+		// TODO create both tokens as above and wrap them
+		return new MemoryHandlerTempPairDistributer(new MemoryHandlerPlusTemp(
+				originatingMainHandler, rowsToAdd, numChildren, canOmitSemaphore(originEdge)), null/* TODO */);
 	}
 
 	private static ArrayList<CounterUpdate> performExistentialJoin(final AddressFilter filter,
@@ -463,9 +542,6 @@ public abstract class MemoryHandlerPlusTemp<T extends MemoryHandlerMain> extends
 		final AddressFilterElement[] filterPartsForCounterColumns =
 				originEdge.getFilterPartsForCounterColumns();
 		// if there are existential facts in the token, perform a join with the main memory
-		if (filterPartsForCounterColumns.length == 0) {
-			return null;
-		}
 		final ArrayList<CounterUpdate> counterUpdates = new ArrayList<>();
 		final StackElement originElement = edgeToStack.get(originEdge);
 		final FactAddressPartition partition = partitionFactAddresses(filter, originEdge);
@@ -570,6 +646,7 @@ public abstract class MemoryHandlerPlusTemp<T extends MemoryHandlerMain> extends
 				final Edge edge = targetNode.delocalizeAddress(address.getFactAddress()).getEdge();
 				final StackElement element = edgeToStack.get(edge);
 				if (element != originElement) {
+					// (!a || b) <=> (a->b)
 					assert !existential
 							|| originEdge.getSourceNode().getOutgoingExistentialEdges()
 									.contains(edge);
@@ -582,43 +659,70 @@ public abstract class MemoryHandlerPlusTemp<T extends MemoryHandlerMain> extends
 			// if existential, perform slightly different join not copying but only changing
 			// counters.
 
-			final ArrayList<Row> TR = new ArrayList<>();
-			loop(new FunctionPointer() {
-				@Override
-				public void apply(final ArrayList<Row> TR, final StackElement originElement) {
-					final int paramLength = addresses.length;
-					final Object params[] = new Object[paramLength];
-					// determine parameters
-					for (int i = 0; i < paramLength; ++i) {
-						final SlotInFactAddress slotInTargetAddress = addresses[i];
-						final org.jamocha.dn.memory.FactAddress targetAddress =
-								slotInTargetAddress.getFactAddress();
-						final AddressPredecessor upwardsAddress =
-								targetNode.delocalizeAddress(targetAddress);
-						final StackElement se = edgeToStack.get(upwardsAddress.getEdge());
-						params[i] =
-								se.getValue(upwardsAddress, slotInTargetAddress.getSlotAddress());
-					}
-					// copy result to new TR if facts match predicate or existentials are present
-					final boolean match = predicate.evaluate(params);
-					if (match || existential) {
-						// copy current row from old TR
-						final Row row = originElement.getRow().copy();
-						// insert information from new inputs
-						for (final Edge edge : newEdges) {
-							// source is some temp, destination new TR
-							final StackElement se = edgeToStack.get(edge);
-							row.copy(se.getOffset(), se.getRow());
+			final ArrayList<Row> TR;
+			if (existential) {
+				TR = originElement.memStack.get(0);
+				loop(new FunctionPointer() {
+					@Override
+					public void apply(final ArrayList<Row> TR, final StackElement originElement) {
+						final int paramLength = addresses.length;
+						final Object params[] = new Object[paramLength];
+						// determine parameters
+						for (int i = 0; i < paramLength; ++i) {
+							final SlotInFactAddress slotInTargetAddress = addresses[i];
+							final org.jamocha.dn.memory.FactAddress targetAddress =
+									slotInTargetAddress.getFactAddress();
+							final AddressPredecessor upwardsAddress =
+									targetNode.delocalizeAddress(targetAddress);
+							final StackElement se = edgeToStack.get(upwardsAddress.getEdge());
+							params[i] =
+									se.getValue(upwardsAddress,
+											slotInTargetAddress.getSlotAddress());
 						}
-						if (match) {
-							// use counter to set counterColumn to 1 if counterColumn is not null
+						// increment counter if facts match predicate
+						if (predicate.evaluate(params)) {
+							final Row row = originElement.getRow();
+							// use counter to set counterColumn to 1 if counterColumn is not
+							// null
 							counter.increment(row, counterColumn, 1);
 						}
-						// copy the result to new TR
-						TR.add(row);
 					}
-				}
-			}, TR, stack, originElement);
+				}, TR, stack, originElement);
+			} else {
+				TR = new ArrayList<>();
+				loop(new FunctionPointer() {
+					@Override
+					public void apply(final ArrayList<Row> TR, final StackElement originElement) {
+						final int paramLength = addresses.length;
+						final Object params[] = new Object[paramLength];
+						// determine parameters
+						for (int i = 0; i < paramLength; ++i) {
+							final SlotInFactAddress slotInTargetAddress = addresses[i];
+							final org.jamocha.dn.memory.FactAddress targetAddress =
+									slotInTargetAddress.getFactAddress();
+							final AddressPredecessor upwardsAddress =
+									targetNode.delocalizeAddress(targetAddress);
+							final StackElement se = edgeToStack.get(upwardsAddress.getEdge());
+							params[i] =
+									se.getValue(upwardsAddress,
+											slotInTargetAddress.getSlotAddress());
+						}
+						// copy result to new TR if facts match predicate
+						if (predicate.evaluate(params)) {
+							// copy current row from old TR
+							final Row row = originElement.getRow().copy();
+							// insert information from new inputs
+							for (final Edge edge : newEdges) {
+								// source is some temp, destination new TR
+								final StackElement se = edgeToStack.get(edge);
+								row.copy(se.getOffset(), se.getRow());
+							}
+							// copy the result to new TR
+							TR.add(row);
+						}
+					}
+				}, TR, stack, originElement);
+			}
 			// replace TR in originElement with new temporary result
 			originElement.memStack.set(0, TR);
 			// point all inputs that were joint during this turn to the TR

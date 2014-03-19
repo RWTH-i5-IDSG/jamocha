@@ -107,7 +107,7 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 
 		final MemoryHandlerMain targetMain =
 				(MemoryHandlerMain) originIncomingEdge.getTargetNode().getMemory();
-		final ArrayList<Row> minusFacts = this.rows;
+		final ArrayList<Row> minusFacts = this.validRows;
 		final FactAddress[] localizedAddressMap =
 				localizeAddressMap(this.factAddresses, originIncomingEdge);
 		final ArrayList<Row> relevantMinusFacts =
@@ -127,38 +127,15 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 	}
 
 	private static void filterOutgoingTemps(
-			final Queue<MemoryHandlerPlusTemp<? extends MemoryHandlerMain>> validOutgoingPlusTokens,
+			final Queue<MemoryHandlerPlusTemp> validOutgoingPlusTokens,
 			final ArrayList<Row> minusFacts, final FactAddress[] factAddresses,
 			final boolean[] marked, final EqualityChecker equalityChecker) {
-		for (final MemoryHandlerPlusTemp<? extends MemoryHandlerMain> temp : validOutgoingPlusTokens) {
-			temp.accept(new MemoryHandlerPlusTempVisitor() {
-				@Override
-				public void visit(final MemoryHandlerPlusTempValidRowsAdder temp) {
-					final ArrayList<Row> originalFacts = temp.getFilteredData().newValidRows;
-					final ArrayList<Row> remainingFacts =
-							getRemainingFactTuples(originalFacts, minusFacts, factAddresses,
-									marked, equalityChecker);
-					temp.setFilteredData(remainingFacts);
-				}
-
-				@Override
-				public void visit(final MemoryHandlerPlusTempNewRowsAndCounterUpdates temp) {
-					assert equalityChecker == EqualityChecker.beta;
-					// TODO
-					final ArrayList<Row> remainingUnfilteredFacts =
-							getRemainingFactTuples(temp.getFilteredData().newRows, minusFacts,
-									factAddresses, marked, equalityChecker);
-					final ArrayList<Row> remainingFilteredFacts =
-							getRemainingFactTuples(temp.getFilteredData().newValidRows, minusFacts,
-									factAddresses, marked, equalityChecker);
-					final ArrayList<CounterUpdate> remainingCounterUpdates =
-							getRemainingTs(temp.getFilteredData().counterUpdates,
-									CounterUpdate::getRow, minusFacts, factAddresses, marked,
-									equalityChecker);
-					temp.setFilteredData(remainingCounterUpdates, remainingUnfilteredFacts,
-							remainingFilteredFacts);
-				}
-			});
+		for (final MemoryHandlerPlusTemp temp : validOutgoingPlusTokens) {
+			final ArrayList<Row> originalFacts = temp.getFiltered();
+			final ArrayList<Row> remainingFacts =
+					getRemainingFactTuples(originalFacts, minusFacts, factAddresses, marked,
+							equalityChecker);
+			temp.setFiltered(remainingFacts);
 		}
 	}
 
@@ -220,7 +197,7 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 			throws CouldNotAcquireLockException {
 		final MemoryHandlerMain targetMain =
 				(MemoryHandlerMain) originIncomingEdge.getTargetNode().getMemory();
-		final ArrayList<Row> minusFacts = this.rows;
+		final ArrayList<Row> minusFacts = this.validRows;
 		final ArrayList<Row> markedFactTuples =
 				getRelevantFactTuples(targetMain, minusFacts, this.factAddresses,
 						EqualityChecker.alpha);
@@ -255,9 +232,8 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 	}
 
 	@Override
-	public MemoryHandlerTemp releaseLock() {
+	public void releaseLock() {
 		// TODO does nothing, do we need it in minus temps?
-		return null;
 	}
 
 }

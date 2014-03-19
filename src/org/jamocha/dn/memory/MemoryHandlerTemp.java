@@ -24,11 +24,8 @@ public interface MemoryHandlerTemp extends MemoryHandler {
 	public void enqueueInEdge(final Edge edge);
 
 	/**
-	 * Releases the lock for the calling edge. Creates a new memory handler in case some lines are
-	 * now valid that could not have been found to be valid at the time this temp was created.
-	 * 
-	 * @return the new memory handler or null if it would be empty
+	 * Releases the lock for the calling edge.
 	 */
-	public MemoryHandlerTemp releaseLock();
+	public void releaseLock();
 
 }

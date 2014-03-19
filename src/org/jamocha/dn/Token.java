@@ -59,13 +59,7 @@ public abstract class Token {
 		@Override
 		public void run() throws CouldNotAcquireLockException {
 			this.edge.processPlusToken(this.temp);
-			final MemoryHandlerTemp mem = this.temp.releaseLock();
-			if (mem == null)
-				return;
-			final Node sourceNode = this.edge.getSourceNode();
-			for (Edge e : sourceNode.getOutgoingEdges()) {
-				mem.enqueueInEdge(e);
-			}
+			this.temp.releaseLock();
 		}
 	}
 

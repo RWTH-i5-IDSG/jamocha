@@ -14,17 +14,19 @@ import org.jamocha.filter.AddressFilter.AddressFilterElement;
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
-public abstract class MemoryHandlerTemp<T extends MemoryHandlerMain> extends MemoryHandlerBase
-		implements org.jamocha.dn.memory.MemoryHandlerTemp {
+public abstract class MemoryHandlerTemp extends MemoryHandlerBase implements
+		org.jamocha.dn.memory.MemoryHandlerTemp {
 
-	final T originatingMainHandler;
+	final MemoryHandlerMain originatingMainHandler;
 
-	protected MemoryHandlerTemp(final T originatingMainHandler) {
-		this(originatingMainHandler.template, originatingMainHandler);
+	protected MemoryHandlerTemp(final MemoryHandlerMain originatingMainHandler,
+			final ArrayList<Row> validRows) {
+		this(originatingMainHandler.template, originatingMainHandler, validRows);
 	}
 
-	protected MemoryHandlerTemp(final Template[] template, final T originatingMainHandler) {
-		super(template);
+	protected MemoryHandlerTemp(final Template[] template,
+			final MemoryHandlerMain originatingMainHandler, final ArrayList<Row> validRows) {
+		super(template, validRows);
 		this.originatingMainHandler = originatingMainHandler;
 	}
 
@@ -43,7 +45,7 @@ public abstract class MemoryHandlerTemp<T extends MemoryHandlerMain> extends Mem
 			for (int i = 0; i < size && current + i < max; ++i) {
 				facts.add(rows.get(current + i));
 			}
-			memoryHandlers.add(new MemoryHandlerSimple(getTemplate(), facts));
+			memoryHandlers.add(new MemoryHandlerBase(getTemplate(), facts));
 			current += size;
 		}
 		return memoryHandlers;
@@ -62,15 +64,15 @@ public abstract class MemoryHandlerTemp<T extends MemoryHandlerMain> extends Mem
 		return element.getFunction().evaluate(params);
 	}
 
-	abstract public MemoryHandlerTemp<?> newAlphaTemp(
-			final MemoryHandlerMain originatingMainHandler, final Edge originIncomingEdge,
-			final AddressFilter filter) throws CouldNotAcquireLockException;
+	abstract public org.jamocha.dn.memory.MemoryHandlerTemp newAlphaTemp(final MemoryHandlerMain originatingMainHandler,
+			final Edge originIncomingEdge, final AddressFilter filter)
+			throws CouldNotAcquireLockException;
 
-	abstract public MemoryHandlerTemp<?> newBetaTemp(
-			final MemoryHandlerMain originatingMainHandler, final Edge originIncomingEdge,
-			final AddressFilter filter) throws CouldNotAcquireLockException;
+	abstract public org.jamocha.dn.memory.MemoryHandlerTemp newBetaTemp(final MemoryHandlerMain originatingMainHandler,
+			final Edge originIncomingEdge, final AddressFilter filter)
+			throws CouldNotAcquireLockException;
 
-	abstract public MemoryHandlerTemp<?> newBetaTemp(
+	abstract public org.jamocha.dn.memory.MemoryHandlerTemp newBetaTemp(
 			final MemoryHandlerMainWithExistentials originatingMainHandler,
 			final Edge originIncomingEdge, final AddressFilter filter)
 			throws CouldNotAcquireLockException;

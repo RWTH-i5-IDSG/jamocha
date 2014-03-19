@@ -20,7 +20,6 @@ import lombok.RequiredArgsConstructor;
 
 import org.jamocha.dn.memory.FactAddress;
 import org.jamocha.dn.memory.MemoryHandler;
-import org.jamocha.dn.memory.MemoryHandlerTemp;
 import org.jamocha.dn.memory.SlotAddress;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.dn.nodes.Edge;
@@ -59,7 +58,7 @@ public class MemoryHandlerTempPairDistributer implements org.jamocha.dn.memory.M
 	}
 
 	@Override
-	public MemoryHandlerTemp releaseLock() {
+	public void releaseLock() {
 		throw new UnsupportedOperationException(unsupported);
 	}
 

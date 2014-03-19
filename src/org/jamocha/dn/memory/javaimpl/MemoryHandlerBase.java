@@ -34,10 +34,11 @@ import org.jamocha.dn.memory.Template;
  */
 @EqualsAndHashCode
 @RequiredArgsConstructor
-public abstract class MemoryHandlerBase implements MemoryHandler {
+public class MemoryHandlerBase implements MemoryHandler {
 
 	@Getter
 	final Template[] template;
+	final ArrayList<Row> validRows;
 
 	/**
 	 * @see org.jamocha.dn.memory.MemoryHandler#getValue(FactAddress, SlotAddress, int)
@@ -62,6 +63,7 @@ public abstract class MemoryHandlerBase implements MemoryHandler {
 				+ Arrays.deepToString(this.getRowsForSucessorNodes().toArray()) + ")";
 	}
 
-	public abstract ArrayList<Row> getRowsForSucessorNodes();
-	// public abstract void setRowsForSucessorNodes(final ArrayList<Row> rows);
+	public ArrayList<Row> getRowsForSucessorNodes() {
+		return this.validRows;
+	}
 }
