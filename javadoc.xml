@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <project default="javadoc">
 	<target name="javadoc">
-		<taskdef classname="lombok.delombok.ant.DelombokTask" classpath="lib/lombok-1.12.2.jar" name="delombok" />
+		<taskdef classname="lombok.delombok.ant.DelombokTask" classpath="lib/lombok-1.12.6.jar" name="delombok" />
 		<mkdir dir="delomboked/src" />
 		<mkdir dir="delomboked/test" />
 		<delombok verbose="true" encoding="UTF-8" to="delomboked/src" from="src" />
