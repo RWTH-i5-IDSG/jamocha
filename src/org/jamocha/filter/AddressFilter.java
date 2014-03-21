@@ -73,7 +73,7 @@ public class AddressFilter extends Filter<AddressFilter.AddressFilterElement> {
 	}
 
 	public static class ExistentialAddressFilterElement extends AddressFilterElement {
-		@Getter(onMethod = @_({ @Override }))
+		@Getter(onMethod = @__({ @Override }))
 		protected final CounterColumn counterColumn;
 
 		public ExistentialAddressFilterElement(final PredicateWithArguments function,

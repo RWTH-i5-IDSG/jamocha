@@ -58,7 +58,7 @@ public class LazyListCopy<T> {
 	 */
 	@AllArgsConstructor
 	public class SameList implements LazyListCopyState<T> {
-		@Getter(onMethod = @_(@Override))
+		@Getter(onMethod = @__(@Override))
 		final ArrayList<T> list;
 
 		@Override
