@@ -113,7 +113,7 @@ public class Test {
 		}
 
 		void releaseLock() {
-			final Data source = filtered.orElse(original);
+			// final Data source = filtered.orElse(original);
 			// add source.newRows to main.unfiltered
 			// add source.newValidRows to main.filtered
 			// apply counterUpdates
@@ -154,20 +154,7 @@ public class Test {
 		ArrayList<Row> partial;
 	}
 
-	// generated instead of MinusTempRegularPartial if one of the target edges contains existentials
-	// also produced by counter updates (the complete part equals the partial part in these cases)
 	static class MinusTempRegularComplete extends MinusTempRegularPartial {
 		ArrayList<Row> complete;
-	}
-
-	static class MinusTempExistential {
-		ArrayList<CounterUpdate> counterUpdates;
-		MinusTempRegularComplete partial; // w/ complete if needed
-
-		void releaseLock() {
-			// apply counterUpdates
-			// -> create -token for invalidated rows: MinusTempRegularComplete (-diff)
-			// -> create +token for validated rows: PlusTempValidRowsAdder(+diff)
-		}
 	}
 }

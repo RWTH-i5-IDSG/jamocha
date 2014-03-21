@@ -37,13 +37,12 @@ public abstract class MemoryHandlerTemp extends MemoryHandlerBase implements
 			memoryHandlers.add(this);
 			return memoryHandlers;
 		}
-		final ArrayList<Row> rows = getRowsForSucessorNodes();
 		final int max = this.size();
 		int current = 0;
 		while (current < max) {
 			final ArrayList<Row> facts = new ArrayList<>();
 			for (int i = 0; i < size && current + i < max; ++i) {
-				facts.add(rows.get(current + i));
+				facts.add(validRows.get(current + i));
 			}
 			memoryHandlers.add(new MemoryHandlerBase(getTemplate(), facts));
 			current += size;
@@ -64,16 +63,17 @@ public abstract class MemoryHandlerTemp extends MemoryHandlerBase implements
 		return element.getFunction().evaluate(params);
 	}
 
-	abstract public org.jamocha.dn.memory.MemoryHandlerTemp newAlphaTemp(final MemoryHandlerMain originatingMainHandler,
-			final Edge originIncomingEdge, final AddressFilter filter)
-			throws CouldNotAcquireLockException;
+	abstract public org.jamocha.dn.memory.MemoryHandlerTemp newAlphaTemp(
+			final MemoryHandlerMain originatingMainHandler, final Edge originIncomingEdge,
+			final AddressFilter filter) throws CouldNotAcquireLockException;
 
-	abstract public org.jamocha.dn.memory.MemoryHandlerTemp newBetaTemp(final MemoryHandlerMain originatingMainHandler,
-			final Edge originIncomingEdge, final AddressFilter filter)
-			throws CouldNotAcquireLockException;
+	abstract public org.jamocha.dn.memory.MemoryHandlerTemp newBetaTemp(
+			final MemoryHandlerMain originatingMainHandler, final Edge originIncomingEdge,
+			final AddressFilter filter) throws CouldNotAcquireLockException;
 
 	abstract public org.jamocha.dn.memory.MemoryHandlerTemp newBetaTemp(
 			final MemoryHandlerMainWithExistentials originatingMainHandler,
 			final Edge originIncomingEdge, final AddressFilter filter)
 			throws CouldNotAcquireLockException;
+
 }

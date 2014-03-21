@@ -17,9 +17,9 @@ package org.jamocha.dn.memory.javaimpl;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
 import org.jamocha.dn.memory.FactAddress;
 import org.jamocha.dn.memory.MemoryHandler;
@@ -33,19 +33,19 @@ import org.jamocha.dn.memory.Template;
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
 @EqualsAndHashCode
-@RequiredArgsConstructor
+@AllArgsConstructor
 public class MemoryHandlerBase implements MemoryHandler {
 
 	@Getter
 	final Template[] template;
-	final ArrayList<Row> validRows;
+	ArrayList<Row> validRows;
 
 	/**
 	 * @see org.jamocha.dn.memory.MemoryHandler#getValue(FactAddress, SlotAddress, int)
 	 */
 	@Override
 	public Object getValue(final FactAddress address, final SlotAddress slot, final int row) {
-		return getRowsForSucessorNodes().get(row).getFactTuple()[((org.jamocha.dn.memory.javaimpl.FactAddress) address)
+		return validRows.get(row).getFactTuple()[((org.jamocha.dn.memory.javaimpl.FactAddress) address)
 				.getIndex()].getValue(slot);
 	}
 
@@ -54,16 +54,12 @@ public class MemoryHandlerBase implements MemoryHandler {
 	 */
 	@Override
 	public int size() {
-		return getRowsForSucessorNodes().size();
+		return validRows.size();
 	}
 
 	@Override
 	public String toString() {
 		return "MemoryHandlerBase(template=" + Arrays.deepToString(this.template) + ", facts="
-				+ Arrays.deepToString(this.getRowsForSucessorNodes().toArray()) + ")";
-	}
-
-	public ArrayList<Row> getRowsForSucessorNodes() {
-		return this.validRows;
+				+ Arrays.deepToString(this.validRows.toArray()) + ")";
 	}
 }

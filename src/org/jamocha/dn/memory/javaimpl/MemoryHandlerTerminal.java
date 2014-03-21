@@ -64,7 +64,7 @@ public class MemoryHandlerTerminal implements org.jamocha.dn.memory.MemoryHandle
 		for (final Row minusRow : minusTemp.validRows) {
 			for (final AssertOrRetract<?> token : this.tokens) {
 				final MemoryHandlerBase tokenMem = (MemoryHandlerBase) token.getMem();
-				final Row tokenRow = tokenMem.getRowsForSucessorNodes().get(0);
+				final Row tokenRow = tokenMem.validRows.get(0);
 				if (EqualityChecker.beta.equals(tokenRow, minusRow, null, 0, factAddresses)
 						&& !token.isRevokedOrMinus()) {
 					final Retract minus = new Retract(token.getMem());

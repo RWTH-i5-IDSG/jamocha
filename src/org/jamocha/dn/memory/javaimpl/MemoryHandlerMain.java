@@ -159,15 +159,6 @@ public class MemoryHandlerMain extends MemoryHandlerBase implements
 	}
 
 	@Override
-	public ArrayList<Row> getRowsForSucessorNodes() {
-		return this.validRows;
-	}
-
-	public ArrayList<Row> getAllRows() {
-		return this.validRows;
-	}
-
-	@Override
 	public org.jamocha.dn.memory.MemoryHandlerTemp processTokenInBeta(
 			final org.jamocha.dn.memory.MemoryHandlerTemp token, final Edge originIncomingEdge,
 			final AddressFilter filter) throws CouldNotAcquireLockException {
@@ -261,5 +252,4 @@ public class MemoryHandlerMain extends MemoryHandlerBase implements
 	public Row newRow(final int columns) {
 		return newRow(new Fact[columns]);
 	}
-
 }

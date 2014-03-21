@@ -16,19 +16,18 @@ package org.jamocha.dn.memory.javaimpl;
 
 import java.util.ArrayList;
 import java.util.Queue;
-import java.util.function.Function;
+import java.util.function.Consumer;
 
 import lombok.ToString;
 
 import org.jamocha.dn.memory.Template;
+import org.jamocha.dn.memory.javaimpl.MemoryHandlerPlusTemp.CounterUpdater;
 import org.jamocha.dn.nodes.CouldNotAcquireLockException;
 import org.jamocha.dn.nodes.Edge;
 import org.jamocha.filter.AddressFilter;
 
 /**
- * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
- * 
  */
 @ToString(callSuper = true)
 public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
@@ -36,6 +35,9 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 
 	private static MemoryHandlerMinusTemp empty = new MemoryHandlerMinusTemp(null, null,
 			new ArrayList<Row>(0), new FactAddress[] {});
+
+	private static Consumer<Row> nullConsumer = (final Row row) -> {
+	};
 
 	/**
 	 * Maps FactAddresses valid in the current scope of the token by position of the facts in the
@@ -52,8 +54,8 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 		final FactAddress[] factAddresses = memoryHandlerMain.addresses;
 		assert factAddresses.length == 1;
 		final ArrayList<Row> relevantFactTuples =
-				getRelevantFactTuples(memoryHandlerMain, minusFacts, factAddresses,
-						EqualityChecker.root);
+				getRelevantFactTuples(memoryHandlerMain, MemoryHandlerMinusTemp::filterTargetMain,
+						minusFacts, factAddresses, EqualityChecker.root, nullConsumer);
 		if (0 == relevantFactTuples.size()) {
 			return MemoryHandlerMinusTemp.empty;
 		}
@@ -64,25 +66,27 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 	private static ArrayList<Row> getRemainingFactTuples(final ArrayList<Row> originalFacts,
 			final ArrayList<Row> minusFacts, final FactAddress[] factAddresses,
 			final boolean[] marked, final EqualityChecker equalityChecker) {
-		return getRemainingTs(originalFacts, Function.identity(), minusFacts, factAddresses,
+		return getRemainingFactTuples(originalFacts, nullConsumer, minusFacts, factAddresses,
 				marked, equalityChecker);
 	}
 
-	private static <T> ArrayList<T> getRemainingTs(final ArrayList<T> originalFacts,
-			final Function<T, Row> converter, final ArrayList<Row> minusFacts,
+	private static ArrayList<Row> getRemainingFactTuples(final ArrayList<Row> originalFacts,
+			final Consumer<Row> deletedRowConsumer, final ArrayList<Row> minusFacts,
 			final FactAddress[] factAddresses, final boolean[] marked,
 			final EqualityChecker equalityChecker) {
 		final int originalFactsSize = originalFacts.size();
 		final int minusFactsSize = minusFacts.size();
-		final LazyListCopy<T> remainingFacts = new LazyListCopy<>(originalFacts);
+		final LazyListCopy<Row> remainingFacts = new LazyListCopy<>(originalFacts);
 		outerLoop: for (int originalFactsIndex = 0; originalFactsIndex < originalFactsSize; ++originalFactsIndex) {
-			final Row originalFactTuple = converter.apply(originalFacts.get(originalFactsIndex));
+			final Row originalRow = originalFacts.get(originalFactsIndex);
 			for (int minusFactsIndex = 0; minusFactsIndex < minusFactsSize; ++minusFactsIndex) {
-				final Row minusFactTuple = minusFacts.get(minusFactsIndex);
-				if (equalityChecker.equals(originalFactTuple, minusFactTuple, minusFacts,
-						minusFactsIndex, factAddresses)) {
+				final Row minusRow = minusFacts.get(minusFactsIndex);
+				if (equalityChecker.equals(originalRow, minusRow, minusFacts, minusFactsIndex,
+						factAddresses)) {
 					// we spotted a match for a complete row in the minus token
 					remainingFacts.drop(originalFactsIndex);
+					// consume
+					deletedRowConsumer.accept(originalRow);
 					// mark the responsible row in the minus token as relevant for the successor
 					// network
 					marked[minusFactsIndex] = true;
@@ -96,34 +100,64 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 		return remainingFacts.getList();
 	}
 
-	@Override
-	public MemoryHandlerTemp newBetaTemp(final MemoryHandlerMain originatingMainHandler,
-			final Edge originIncomingEdge, final AddressFilter filter)
-			throws CouldNotAcquireLockException {
-		if (originIncomingEdge.getTargetNode().getOutgoingExistentialEdges().isEmpty()) {
-			// some of the target node's paths are existential, we need to pass a complete token,
-			// not only the partial version
+	private <T extends MemoryHandlerMain> MemoryHandlerMinusTemp newRegularBeta(
+			final T originatingMainHandler, final MainMemoryFilter<T> mainMemoryFilter,
+			final Edge originIncomingEdge) {
+		final boolean createComplete =
+				!originIncomingEdge.getTargetNode().getOutgoingExistentialEdges().isEmpty();
+		final ArrayList<Row> completeDeletedRows;
+		final Consumer<Row> completeDeletedRowsAdder;
+		if (createComplete) {
+			// some of the target node's paths are existential, we need to pass a complete
+			// token, not only the partial version
+			completeDeletedRows = new ArrayList<>();
+			completeDeletedRowsAdder = (final Row deletedRow) -> {
+				completeDeletedRows.add(deletedRow);
+			};
+		} else {
+			completeDeletedRows = null;
+			completeDeletedRowsAdder = nullConsumer;
 		}
-
-		final MemoryHandlerMain targetMain =
-				(MemoryHandlerMain) originIncomingEdge.getTargetNode().getMemory();
 		final ArrayList<Row> minusFacts = this.validRows;
 		final FactAddress[] localizedAddressMap =
 				localizeAddressMap(this.factAddresses, originIncomingEdge);
 		final ArrayList<Row> relevantMinusFacts =
-				getRelevantFactTuples(targetMain, minusFacts, localizedAddressMap,
-						EqualityChecker.beta);
-		return new MemoryHandlerMinusTemp(getTemplate(),
-				(MemoryHandlerMain) originatingMainHandler, relevantMinusFacts, localizedAddressMap);
+				getRelevantFactTuples(originatingMainHandler, mainMemoryFilter, minusFacts,
+						localizedAddressMap, EqualityChecker.beta, completeDeletedRowsAdder);
+		final Template[] template = getTemplate();
+		if (createComplete) {
+			return new MemoryHandlerMinusTempComplete(template, originatingMainHandler,
+					relevantMinusFacts, completeDeletedRows, localizedAddressMap);
+		}
+		return new MemoryHandlerMinusTemp(template, originatingMainHandler, relevantMinusFacts,
+				localizedAddressMap);
 	}
 
 	@Override
-	public MemoryHandlerTemp newBetaTemp(
+	public MemoryHandlerTemp newBetaTemp(final MemoryHandlerMain originatingMainHandler,
+			final Edge originIncomingEdge, final AddressFilter filter)
+			throws CouldNotAcquireLockException {
+		return newRegularBeta(originatingMainHandler, MemoryHandlerMinusTemp::filterTargetMain,
+				originIncomingEdge);
+	}
+
+	@Override
+	public org.jamocha.dn.memory.MemoryHandlerTemp newBetaTemp(
 			final MemoryHandlerMainWithExistentials originatingMainHandler,
 			final Edge originIncomingEdge, final AddressFilter filter)
 			throws CouldNotAcquireLockException {
-		// TODO implement the existential version
-		return null;
+		if (!originIncomingEdge.getSourceNode().getOutgoingExistentialEdges()
+				.contains(originIncomingEdge)) {
+			// if (originIncomingEdge.getFilterPartsForCounterColumns().length == 0) {
+			// regular edge
+			return newRegularBeta(originatingMainHandler,
+					MemoryHandlerMinusTemp::filterTargetExistentialMain, originIncomingEdge);
+		}
+		// existential edge
+		final ArrayList<Row> completeMinusRows =
+				((MemoryHandlerMinusTempComplete) this).completeRows;
+		return MemoryHandlerPlusTemp.handleExistentialEdge(originatingMainHandler, filter,
+				completeMinusRows, originIncomingEdge, CounterUpdater.decrementer);
 	}
 
 	private static void filterOutgoingTemps(
@@ -141,15 +175,37 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 
 	private static void filterTargetMain(final MemoryHandlerMain targetMain,
 			final ArrayList<Row> minusFacts, final FactAddress[] factAddresses,
-			final boolean[] marked, final EqualityChecker equalityChecker) {
-		final ArrayList<Row> originalFacts = targetMain.getAllRows();
+			final boolean[] marked, final EqualityChecker equalityChecker,
+			final Consumer<Row> deletedRowConsumer) {
+		final ArrayList<Row> originalFacts = targetMain.validRows;
 		final int originalFactsSize = originalFacts.size();
 		final ArrayList<Row> remainingFacts =
-				getRemainingFactTuples(originalFacts, minusFacts, factAddresses, marked,
-						equalityChecker);
+				getRemainingFactTuples(originalFacts, deletedRowConsumer, minusFacts,
+						factAddresses, marked, equalityChecker);
 		if (remainingFacts.size() != originalFactsSize) {
 			targetMain.acquireWriteLock();
-			targetMain.allRows = remainingFacts;
+			targetMain.validRows = remainingFacts;
+			targetMain.releaseWriteLock();
+		}
+	}
+
+	private static void filterTargetExistentialMain(
+			final MemoryHandlerMainWithExistentials targetMain, final ArrayList<Row> minusFacts,
+			final FactAddress[] factAddresses, final boolean[] marked,
+			final EqualityChecker equalityChecker, final Consumer<Row> deletedRowConsumer) {
+		final ArrayList<Row> validDeletedRows = new ArrayList<>();
+		targetMain.allRows = getRemainingFactTuples(targetMain.allRows, (final Row deletedRow) -> {
+			if (targetMain.counter.isValid(deletedRow))
+				validDeletedRows.add(deletedRow);
+		}, minusFacts, factAddresses, marked, equalityChecker);
+		final ArrayList<Row> originalFacts = targetMain.validRows;
+		final int originalFactsSize = originalFacts.size();
+		final ArrayList<Row> remainingFacts =
+				getRemainingFactTuples(originalFacts, deletedRowConsumer, validDeletedRows,
+						factAddresses, marked, EqualityChecker.equalRow);
+		if (remainingFacts.size() != originalFactsSize) {
+			targetMain.acquireWriteLock();
+			targetMain.validRows = remainingFacts;
 			targetMain.releaseWriteLock();
 		}
 	}
@@ -199,8 +255,8 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 				(MemoryHandlerMain) originIncomingEdge.getTargetNode().getMemory();
 		final ArrayList<Row> minusFacts = this.validRows;
 		final ArrayList<Row> markedFactTuples =
-				getRelevantFactTuples(targetMain, minusFacts, this.factAddresses,
-						EqualityChecker.alpha);
+				getRelevantFactTuples(targetMain, MemoryHandlerMinusTemp::filterTargetMain,
+						minusFacts, this.factAddresses, EqualityChecker.alpha, nullConsumer);
 		if (0 == markedFactTuples.size()) {
 			return MemoryHandlerMinusTemp.empty;
 		}
@@ -209,20 +265,29 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 						this.factAddresses, originIncomingEdge));
 	}
 
-	private static ArrayList<Row> getRelevantFactTuples(final MemoryHandlerMain targetMain,
+	@FunctionalInterface
+	private static interface MainMemoryFilter<T extends MemoryHandlerMain> {
+		void apply(final T targetMain, final ArrayList<Row> minusFacts,
+				final FactAddress[] factAddresses, final boolean[] marked,
+				final EqualityChecker equalityChecker, final Consumer<Row> deletedRowConsumer);
+	}
+
+	private static <T extends MemoryHandlerMain> ArrayList<Row> getRelevantFactTuples(
+			final T targetMain, final MainMemoryFilter<T> mainMemoryFilter,
 			final ArrayList<Row> minusFacts, final FactAddress[] factAddresses,
-			final EqualityChecker equalityChecker) {
+			final EqualityChecker equalityChecker, final Consumer<Row> deletedRowConsumer) {
 		final boolean[] marked = new boolean[minusFacts.size()];
-		filterTargetMain(targetMain, minusFacts, factAddresses, marked, equalityChecker);
+		mainMemoryFilter.apply(targetMain, minusFacts, factAddresses, marked, equalityChecker,
+				deletedRowConsumer);
 		filterOutgoingTemps(targetMain.getValidOutgoingPlusTokens(), minusFacts, factAddresses,
 				marked, equalityChecker);
 		return getMarkedFactTuples(minusFacts, marked);
 	}
 
 	private MemoryHandlerMinusTemp(final Template[] template,
-			final MemoryHandlerMain originatingMainHandler, final ArrayList<Row> facts,
+			final MemoryHandlerMain originatingMainHandler, final ArrayList<Row> rows,
 			final FactAddress[] factAddresses) {
-		super(template, originatingMainHandler, facts);
+		super(template, originatingMainHandler, rows);
 		this.factAddresses = factAddresses;
 	}
 
@@ -233,7 +298,18 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 
 	@Override
 	public void releaseLock() {
-		// TODO does nothing, do we need it in minus temps?
+		// not needed for minus temps
+	}
+
+	static class MemoryHandlerMinusTempComplete extends MemoryHandlerMinusTemp {
+		final ArrayList<Row> completeRows;
+
+		public MemoryHandlerMinusTempComplete(final Template[] template,
+				final MemoryHandlerMain originatingMainHandler, final ArrayList<Row> partialRows,
+				final ArrayList<Row> completeRows, final FactAddress[] factAddresses) {
+			super(template, originatingMainHandler, partialRows, factAddresses);
+			this.completeRows = completeRows;
+		}
 	}
 
 }
