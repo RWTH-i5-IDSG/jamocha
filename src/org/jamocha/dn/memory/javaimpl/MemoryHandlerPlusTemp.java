@@ -707,18 +707,21 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 			return empty;
 		}
 		if (noLinesToAdd) {
-			// TODO create -token for invalidated rows
-			// FIXME implement ctor or factory method
-			return new MemoryHandlerMinusTemp(originatingMainHandler, rowsToDel);
+			// create -token for invalidated rows (deleting them while at it)
+			return MemoryHandlerMinusTemp.newExistentialBetaFromRowsToDelete(
+					originatingMainHandler, rowsToDel, originEdge);
 		}
 		final int numChildren = originEdge.getTargetNode().getNumberOfOutgoingEdges();
 		if (noLinesToDel) {
+			// create + token for validated rows
 			return new MemoryHandlerPlusTemp(originatingMainHandler, rowsToAdd, numChildren,
 					canOmitSemaphore(originEdge));
 		}
-		// TODO create both tokens as above and wrap them
+		// create both tokens as above and wrap them
 		return new MemoryHandlerTempPairDistributer(new MemoryHandlerPlusTemp(
-				originatingMainHandler, rowsToAdd, numChildren, canOmitSemaphore(originEdge)), null/* TODO */);
+				originatingMainHandler, rowsToAdd, numChildren, canOmitSemaphore(originEdge)),
+				MemoryHandlerMinusTemp.newExistentialBetaFromRowsToDelete(originatingMainHandler,
+						rowsToDel, originEdge));
 	}
 
 	@FunctionalInterface

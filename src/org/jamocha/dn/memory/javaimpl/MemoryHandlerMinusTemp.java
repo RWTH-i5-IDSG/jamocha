@@ -16,6 +16,7 @@ package org.jamocha.dn.memory.javaimpl;
 
 import java.util.ArrayList;
 import java.util.Queue;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
 import lombok.ToString;
@@ -100,9 +101,22 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 		return remainingFacts.getList();
 	}
 
-	private <T extends MemoryHandlerMain> MemoryHandlerMinusTemp newRegularBeta(
+	static MemoryHandlerMinusTemp newExistentialBetaFromRowsToDelete(
+			final MemoryHandlerMainWithExistentials originatingMainHandler,
+			final ArrayList<Row> rowsToDelete, final Edge originIncomingEdge) {
+		return newRegularBeta(originatingMainHandler, MemoryHandlerMinusTemp::filterTargetMain,
+				originIncomingEdge, rowsToDelete, EqualityChecker.equalRow,
+				originatingMainHandler.addresses, (edge, address) -> {
+					return address;
+				}, originatingMainHandler.template);
+	}
+
+	private static <T extends MemoryHandlerMain> MemoryHandlerMinusTemp newRegularBeta(
 			final T originatingMainHandler, final MainMemoryFilter<T> mainMemoryFilter,
-			final Edge originIncomingEdge) {
+			final Edge originIncomingEdge, final ArrayList<Row> rowsToDelete,
+			final EqualityChecker equalityChecker, final FactAddress[] factAddresses,
+			final BiFunction<Edge, FactAddress, FactAddress> addressLocalizer,
+			final Template[] template) {
 		final boolean createComplete =
 				!originIncomingEdge.getTargetNode().getOutgoingExistentialEdges().isEmpty();
 		final ArrayList<Row> completeDeletedRows;
@@ -118,19 +132,25 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 			completeDeletedRows = null;
 			completeDeletedRowsAdder = nullConsumer;
 		}
-		final ArrayList<Row> minusFacts = this.validRows;
 		final FactAddress[] localizedAddressMap =
-				localizeAddressMap(this.factAddresses, originIncomingEdge);
+				localizeAddressMap(factAddresses, originIncomingEdge, addressLocalizer);
 		final ArrayList<Row> relevantMinusFacts =
-				getRelevantFactTuples(originatingMainHandler, mainMemoryFilter, minusFacts,
-						localizedAddressMap, EqualityChecker.beta, completeDeletedRowsAdder);
-		final Template[] template = getTemplate();
+				getRelevantFactTuples(originatingMainHandler, mainMemoryFilter, rowsToDelete,
+						localizedAddressMap, equalityChecker, completeDeletedRowsAdder);
 		if (createComplete) {
 			return new MemoryHandlerMinusTempComplete(template, originatingMainHandler,
 					relevantMinusFacts, completeDeletedRows, localizedAddressMap);
 		}
 		return new MemoryHandlerMinusTemp(template, originatingMainHandler, relevantMinusFacts,
 				localizedAddressMap);
+	}
+
+	private <T extends MemoryHandlerMain> MemoryHandlerMinusTemp newRegularBeta(
+			final T originatingMainHandler, final MainMemoryFilter<T> mainMemoryFilter,
+			final Edge originIncomingEdge) {
+		return newRegularBeta(originatingMainHandler, mainMemoryFilter, originIncomingEdge,
+				this.validRows, EqualityChecker.beta, this.factAddresses, translateDownwards,
+				this.template);
 	}
 
 	@Override
@@ -232,8 +252,19 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 
 	}
 
+	static BiFunction<Edge, FactAddress, FactAddress> translateDownwards = (
+			final Edge localizingEdge, final FactAddress factAddress) -> {
+		return (FactAddress) localizingEdge.localizeAddress(factAddress);
+	};
+
 	private static FactAddress[] localizeAddressMap(final FactAddress[] old,
 			final Edge localizingEdge) {
+		return localizeAddressMap(old, localizingEdge, translateDownwards);
+	}
+
+	private static FactAddress[] localizeAddressMap(final FactAddress[] old,
+			final Edge localizingEdge,
+			final BiFunction<Edge, FactAddress, FactAddress> addressLocalizer) {
 		final int length = old.length;
 		final FactAddress[] factAddresses = new FactAddress[length];
 		final AddressFilter filter = localizingEdge.getFilter();
@@ -241,7 +272,7 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 			final FactAddress oldAddress = old[i];
 			if (null == oldAddress)
 				continue;
-			final FactAddress newAddress = (FactAddress) localizingEdge.localizeAddress(oldAddress);
+			final FactAddress newAddress = addressLocalizer.apply(localizingEdge, oldAddress);
 			factAddresses[i] = filter.isExistential(newAddress) ? null : newAddress;
 		}
 		return factAddresses;
