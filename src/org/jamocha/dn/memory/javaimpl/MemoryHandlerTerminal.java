@@ -19,8 +19,6 @@ import java.util.LinkedList;
 import java.util.Queue;
 
 import org.jamocha.dn.memory.MemoryHandler;
-import org.jamocha.dn.memory.SlotAddress;
-import org.jamocha.dn.memory.Template;
 import org.jamocha.dn.nodes.TerminalNode;
 
 /**
@@ -30,90 +28,71 @@ import org.jamocha.dn.nodes.TerminalNode;
 public class MemoryHandlerTerminal implements org.jamocha.dn.memory.MemoryHandlerTerminal {
 
 	final MemoryHandlerMain originatingMainHandler;
-	final Queue<AssertOrRetract<?>> tokens = new LinkedList<AssertOrRetract<?>>();
+	final Queue<Assert> plusTokenCache = new LinkedList<Assert>();
 
 	public MemoryHandlerTerminal(final MemoryHandlerMain originatingMainHandler) {
 		this.originatingMainHandler = originatingMainHandler;
 	}
 
 	@Override
-	public Assert addPlusMemory(final MemoryHandler mem) {
-		final Assert plus = new Assert(mem);
-		this.tokens.add(plus);
-		return plus;
+	public void addPlusMemory(final TerminalNode terminalNode,
+			final org.jamocha.dn.memory.MemoryHandlerPlusTemp mem) {
+		for (final MemoryHandler handler : mem.splitIntoChunksOfSize(1)) {
+			final Assert plus = new Assert(handler);
+			this.plusTokenCache.add(plus);
+			terminalNode.enqueueAssert(plus);
+		}
 	}
 
 	@Override
-	public Retract addMinusMemory(final MemoryHandler mem) {
-		final Retract minus = new Retract(mem);
-		for (final AssertOrRetract<?> token : this.tokens) {
-			if (token.getMem().equals(mem) && token.setFollowingRetract(minus)) {
-				break;
+	public void addMinusMemory(final TerminalNode terminalNode,
+			final org.jamocha.dn.memory.MemoryHandlerMinusTemp mem) {
+		if (mem.getTemplate() != this.originatingMainHandler.getTemplate()) {
+			addPartialMinusMemory(terminalNode, mem);
+			return;
+		}
+		for (final MemoryHandler handler : mem.splitIntoChunksOfSize(1)) {
+			final Retract minus = new Retract(handler);
+			terminalNode.enqueueRetract(minus);
+			for (Iterator<Assert> iterator = this.plusTokenCache.iterator(); iterator.hasNext();) {
+				final AssertOrRetract<?> token = iterator.next();
+				if (token.getMem().equals(handler) && token.setFollowingRetract(minus)) {
+					iterator.remove();
+					break;
+				}
 			}
 		}
-		this.tokens.add(minus);
-		return minus;
 	}
 
-	@Override
-	public void addPartialMinusMemory(final TerminalNode terminalNode,
+	void addPartialMinusMemory(final TerminalNode terminalNode,
 			final org.jamocha.dn.memory.MemoryHandlerMinusTemp mem) {
 		final MemoryHandlerMinusTemp minusTemp = (MemoryHandlerMinusTemp) mem;
 		final FactAddress[] factAddresses = minusTemp.factAddresses;
-		final Queue<Retract> retracts = new LinkedList<>();
 		for (final Row minusRow : minusTemp.validRows) {
-			for (final AssertOrRetract<?> token : this.tokens) {
+			for (Iterator<Assert> tokenIterator = this.plusTokenCache.iterator(); tokenIterator
+					.hasNext();) {
+				final AssertOrRetract<?> token = tokenIterator.next();
 				final MemoryHandlerBase tokenMem = (MemoryHandlerBase) token.getMem();
 				final Row tokenRow = tokenMem.validRows.get(0);
 				if (EqualityChecker.beta.equals(tokenRow, minusRow, null, 0, factAddresses)
 						&& !token.isRevokedOrMinus()) {
 					final Retract minus = new Retract(token.getMem());
 					token.setFollowingRetract(minus);
-					retracts.add(minus);
 					terminalNode.enqueueRetract(minus);
+					tokenIterator.remove();
 				}
 			}
 		}
-		this.tokens.addAll(retracts);
 	}
 
 	@Override
-	public int size() {
-		int size = 0;
-		for (final AssertOrRetract<?> token : this.tokens) {
-			size += token.getMem().size();
-		}
-		return size;
-	}
-
-	@Override
-	public Template[] getTemplate() {
-		return this.originatingMainHandler.getTemplate();
-	}
-
-	@Override
-	public Object getValue(final org.jamocha.dn.memory.FactAddress address, final SlotAddress slot,
-			final int row) {
-		int index = row;
-		for (final AssertOrRetract<?> token : this.tokens) {
-			final int memSize = token.getMem().size();
-			if (index >= memSize) {
-				index -= memSize;
-				continue;
-			}
-			return token.getMem().getValue(address, slot, index);
-		}
-		throw new IndexOutOfBoundsException();
-	}
-
-	@Override
-	public Iterator<AssertOrRetract<?>> iterator() {
-		return this.tokens.iterator();
+	public Iterator<Assert> iterator() {
+		return this.plusTokenCache.iterator();
 	}
 
 	@Override
 	public boolean containsUnrevokedTokens() {
-		for (final AssertOrRetract<?> token : this.tokens) {
+		for (final AssertOrRetract<?> token : this.plusTokenCache) {
 			if (!token.isRevokedOrMinus()) {
 				return true;
 			}

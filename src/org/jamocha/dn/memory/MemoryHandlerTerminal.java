@@ -15,17 +15,16 @@
 package org.jamocha.dn.memory;
 
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
-import org.jamocha.dn.memory.MemoryHandlerTerminal.AssertOrRetract;
+import org.jamocha.dn.memory.MemoryHandlerTerminal.Assert;
 import org.jamocha.dn.nodes.TerminalNode;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  * 
  */
-public interface MemoryHandlerTerminal extends MemoryHandler, Iterable<AssertOrRetract<?>> {
+public interface MemoryHandlerTerminal extends Iterable<Assert> {
 
 	/**
 	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -40,11 +39,14 @@ public interface MemoryHandlerTerminal extends MemoryHandler, Iterable<AssertOrR
 	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
 	 */
 	@Getter
-	@RequiredArgsConstructor
 	@ToString
-	// TODO soll Ctor assert MemoryHandler.size() == 1 aufrufen?
 	public abstract class AssertOrRetract<T extends AssertOrRetract<?>> {
 		protected final MemoryHandler mem;
+
+		public AssertOrRetract(final MemoryHandler mem) {
+			assert mem.size() == 1;
+			this.mem = mem;
+		}
 
 		public boolean setFollowingRetract(@SuppressWarnings("unused") final Retract minus) {
 			return false;
@@ -55,6 +57,32 @@ public interface MemoryHandlerTerminal extends MemoryHandler, Iterable<AssertOrR
 		}
 
 		abstract public void accept(final TerminalNode node, final AssertOrRetractVisitor visitor);
+
+		/**
+		 * Gets the {@link Template} of the facts in the underlying memory.
+		 * 
+		 * @return the {@link Template} of the facts in the underlying memory.
+		 * @see Template
+		 */
+		public Template[] getTemplate() {
+			return this.mem.getTemplate();
+		}
+
+		/**
+		 * Fetches a value from the memory fully identified by a {@link FactAddress}, a
+		 * {@link SlotAddress}.
+		 * 
+		 * @param address
+		 *            a {@link FactAddress} identifying the fact the wanted value is in
+		 * @param slot
+		 *            a {@link SlotAddress} identifying the slot the wanted value is in
+		 * @return a value from the memory identified by the given parameters
+		 * @see FactAddress
+		 * @see SlotAddress
+		 */
+		public Object getValue(final FactAddress address, final SlotAddress slot) {
+			return this.mem.getValue(address, slot, 0);
+		}
 	}
 
 	/**
@@ -105,20 +133,24 @@ public interface MemoryHandlerTerminal extends MemoryHandler, Iterable<AssertOrR
 	/**
 	 * Adds a memory wrapped into an assert to the terminal memory.
 	 * 
+	 * @param terminalNode
+	 *            target terminal node
 	 * @param mem
 	 *            memory to wrap and add
 	 * @return assert wrapped around the memory
 	 */
-	public Assert addPlusMemory(final MemoryHandler mem);
+	public void addPlusMemory(final TerminalNode terminalNode, final MemoryHandlerPlusTemp mem);
 
 	/**
 	 * Adds a memory wrapped into a retract to the terminal memory.
 	 * 
+	 * @param terminalNode
+	 *            target terminal node
 	 * @param mem
 	 *            memory to wrap and add
 	 * @return retract wrapped around the memory
 	 */
-	public Retract addMinusMemory(final MemoryHandler mem);
+	public void addMinusMemory(final TerminalNode terminalNode, final MemoryHandlerMinusTemp mem);
 
 	/**
 	 * Returns true iff there are unrevoked tokens in the memory.
@@ -126,17 +158,5 @@ public interface MemoryHandlerTerminal extends MemoryHandler, Iterable<AssertOrR
 	 * @return true iff there are unrevoked tokens in the memory.
 	 */
 	public boolean containsUnrevokedTokens();
-
-	/**
-	 * Handles partial minus memories. Searches for plus memories that would be deleted by the given
-	 * minus memory and creates new Retracts using the memory content of the plus memory.
-	 * 
-	 * @param terminalNode
-	 *            target terminal node
-	 * @param mem
-	 *            minus memory to process
-	 */
-	public void addPartialMinusMemory(final TerminalNode terminalNode,
-			final MemoryHandlerMinusTemp mem);
 
 }

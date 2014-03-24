@@ -24,7 +24,6 @@ import lombok.Getter;
 
 import org.jamocha.dn.Network;
 import org.jamocha.dn.memory.FactAddress;
-import org.jamocha.dn.memory.MemoryHandler;
 import org.jamocha.dn.memory.MemoryHandlerMinusTemp;
 import org.jamocha.dn.memory.MemoryHandlerPlusTemp;
 import org.jamocha.dn.memory.MemoryHandlerTemp;
@@ -127,9 +126,7 @@ public class TerminalNode {
 		public void enqueueMemory(final MemoryHandlerPlusTemp mem) {
 			if (0 == mem.size())
 				return;
-			for (final MemoryHandler handler : mem.splitIntoChunksOfSize(1)) {
-				this.targetNode.enqueueAssert(this.targetNode.getMemory().addPlusMemory(handler));
-			}
+			this.targetNode.getMemory().addPlusMemory(this.targetNode, mem);
 			mem.releaseLock();
 		}
 
@@ -137,16 +134,8 @@ public class TerminalNode {
 		public void enqueueMemory(final MemoryHandlerMinusTemp mem) {
 			if (0 == mem.size())
 				return;
-			if (mem.getTemplate() == this.targetNode.getMemory().getTemplate()) {
-				// mem contains complete fact tuples
-				for (final MemoryHandler handler : mem.splitIntoChunksOfSize(1)) {
-					this.targetNode.enqueueRetract(this.targetNode.getMemory().addMinusMemory(
-							handler));
-				}
-			} else {
-				// mem contains partial fact tuples as in the optimized retract way
-				this.targetNode.getMemory().addPartialMinusMemory(this.targetNode, mem);
-			}
+			this.targetNode.getMemory().addMinusMemory(this.targetNode, mem);
+			mem.releaseLock();
 		}
 	}
 

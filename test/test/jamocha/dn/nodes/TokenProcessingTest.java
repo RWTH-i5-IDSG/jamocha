@@ -369,6 +369,7 @@ public class TokenProcessingTest {
 		// create & append alpha
 		final AlphaNode alphaNode = new AlphaNode(network, filter);
 		// create & append terminal
+		@SuppressWarnings("unused")
 		final TerminalNode terminalNode = new TerminalNode(network, alphaNode);
 		AssertsAndRetracts assertsAndRetracts;
 
@@ -385,8 +386,6 @@ public class TokenProcessingTest {
 				.size());
 		assertEquals("Amount of facts in alpha does not match expected count!", 7, alphaNode
 				.getMemory().size());
-		assertEquals("Amount of facts in terminal does not match expected count!", 7, terminalNode
-				.getMemory().size());
 		assertsAndRetracts = countAssertsAndRetractsInConflictSet(network.getConflictSet());
 		assertEquals("Amount of asserts does not match expected count!", 7,
 				assertsAndRetracts.getAsserts());
@@ -399,8 +398,6 @@ public class TokenProcessingTest {
 		assertEquals("Amount of facts in otn does not match expected count!", 6, otn.getMemory()
 				.size());
 		assertEquals("Amount of facts in alpha does not match expected count!", 6, alphaNode
-				.getMemory().size());
-		assertEquals("Amount of facts in terminal does not match expected count!", 8, terminalNode
 				.getMemory().size());
 		assertsAndRetracts = countAssertsAndRetractsInConflictSet(network.getConflictSet());
 		assertEquals("Amount of asserts does not match expected count!", 7,
@@ -415,8 +412,6 @@ public class TokenProcessingTest {
 				.size());
 		assertEquals("Amount of facts in alpha does not match expected count!", 7, alphaNode
 				.getMemory().size());
-		assertEquals("Amount of facts in terminal does not match expected count!", 9, terminalNode
-				.getMemory().size());
 		assertsAndRetracts = countAssertsAndRetractsInConflictSet(network.getConflictSet());
 		assertEquals("Amount of asserts does not match expected count!", 8,
 				assertsAndRetracts.getAsserts());
@@ -430,8 +425,6 @@ public class TokenProcessingTest {
 				.size());
 		assertEquals("Amount of facts in alpha does not match expected count!", 6, alphaNode
 				.getMemory().size());
-		assertEquals("Amount of facts in terminal does not match expected count!", 10, terminalNode
-				.getMemory().size());
 		assertsAndRetracts = countAssertsAndRetractsInConflictSet(network.getConflictSet());
 		assertEquals("Amount of asserts does not match expected count!", 8,
 				assertsAndRetracts.getAsserts());
@@ -444,8 +437,6 @@ public class TokenProcessingTest {
 		assertEquals("Amount of facts in otn does not match expected count!", 6, otn.getMemory()
 				.size());
 		assertEquals("Amount of facts in alpha does not match expected count!", 6, alphaNode
-				.getMemory().size());
-		assertEquals("Amount of facts in terminal does not match expected count!", 10, terminalNode
 				.getMemory().size());
 		assertsAndRetracts = countAssertsAndRetractsInConflictSet(network.getConflictSet());
 		assertEquals("Amount of asserts does not match expected count!", 8,
@@ -474,6 +465,7 @@ public class TokenProcessingTest {
 		// create & append alpha
 		final AlphaNode alphaNode = new AlphaNode(network, filter);
 		// create & append terminal
+		@SuppressWarnings("unused")
 		final TerminalNode terminalNode = new TerminalNode(network, alphaNode);
 
 		rootNode.assertFact(new Fact(t1, 5L, "5L&FALSE", false));
@@ -492,8 +484,6 @@ public class TokenProcessingTest {
 		assertEquals("Amount of facts in otn does not match expected count!", 6, otn.getMemory()
 				.size());
 		assertEquals("Amount of facts in alpha does not match expected count!", 6, alphaNode
-				.getMemory().size());
-		assertEquals("Amount of facts in terminal does not match expected count!", 10, terminalNode
 				.getMemory().size());
 		final AssertsAndRetracts assertsAndRetracts =
 				countAssertsAndRetractsInConflictSet(network.getConflictSet());
