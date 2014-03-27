@@ -108,13 +108,8 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 
 	@Override
 	final public void releaseLock() {
-		try {
-			if (this.lock.release())
-				return;
-		} catch (final NullPointerException e) {
-			// lock was null
+		if (null == lock || this.lock.release())
 			return;
-		}
 		// all children have processed the temp memory, now we have to write its
 		// content to main memory
 		commitAndInvalidate();
