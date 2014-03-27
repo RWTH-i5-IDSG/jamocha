@@ -17,6 +17,7 @@ package org.jamocha.dn.nodes;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.BiConsumer;
 
 import org.jamocha.dn.Network;
 import org.jamocha.dn.memory.Fact;
@@ -31,37 +32,23 @@ public class RootNode {
 
 	private final Map<Template, ObjectTypeNode> templateToInput = new HashMap<>();
 
-	private interface AssertOrRetractInterface {
-		public void call(final ObjectTypeNode otn, final Fact fact);
-
-		static AssertOrRetractInterface assertCall = new AssertOrRetractInterface() {
-			@Override
-			public void call(final ObjectTypeNode otn, final Fact fact) {
-				otn.assertFact(fact);
-			}
-		};
-
-		static AssertOrRetractInterface retractCall = new AssertOrRetractInterface() {
-			@Override
-			public void call(final ObjectTypeNode otn, final Fact fact) {
-				otn.retractFact(fact);
-			}
-		};
-	}
-
-	private void processFact(final Fact fact, final AssertOrRetractInterface methodPointer)
+	private void processFact(final Fact fact, final BiConsumer<ObjectTypeNode, Fact> assertOrRetract)
 			throws InterruptedException {
 		final Template template = fact.getTemplate();
 		final ObjectTypeNode matchingOTN = this.templateToInput.get(template);
-		methodPointer.call(matchingOTN, fact);
+		assertOrRetract.accept(matchingOTN, fact);
 	}
 
 	public void assertFact(final Fact fact) throws InterruptedException {
-		processFact(fact, AssertOrRetractInterface.assertCall);
+		processFact(fact, (final ObjectTypeNode otn, final Fact f) -> {
+			otn.assertFact(f);
+		});
 	}
 
 	public void retractFact(final Fact fact) throws InterruptedException {
-		processFact(fact, AssertOrRetractInterface.retractCall);
+		processFact(fact, (final ObjectTypeNode otn, final Fact f) -> {
+			otn.retractFact(f);
+		});
 	}
 
 	public void putOTN(final ObjectTypeNode otn) {
