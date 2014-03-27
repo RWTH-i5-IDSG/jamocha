@@ -497,7 +497,7 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 			final PredicateWithArguments predicate = filterElement.getFunction();
 			final SlotInFactAddress addresses[] = filterElement.getAddressesInTarget();
 			final CounterColumn counterColumn = (CounterColumn) filterElement.getCounterColumn();
-			final boolean existential = (counterColumn == null);
+			final boolean existential = (counterColumn != null);
 			/*
 			 * requirement: if filter element is existential, all edges on the stack except
 			 * originEdge are existential as well (meaning all regular parts have been join already)
