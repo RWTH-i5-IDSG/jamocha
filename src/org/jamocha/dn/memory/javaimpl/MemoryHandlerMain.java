@@ -227,7 +227,7 @@ public class MemoryHandlerMain extends MemoryHandlerBase implements
 				}
 			}
 		}
-		return (AddressFilterElement[]) partList.toArray();
+		return partList.toArray(new AddressFilterElement[partList.size()]);
 	}
 
 	/**
