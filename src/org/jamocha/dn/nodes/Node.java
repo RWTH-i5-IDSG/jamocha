@@ -230,7 +230,7 @@ public abstract class Node {
 			// create new edge from clNode to this
 			final Edge edge;
 			if (Collections.disjoint(joinedWith, filter.getNegativeExistentialPaths())
-					&& Collections.disjoint(joinedWith, filter.getNegativeExistentialPaths())) {
+					&& Collections.disjoint(joinedWith, filter.getPositiveExistentialPaths())) {
 				edge = connectRegularParent(path.getCurrentlyLowestNode());
 			} else {
 				edge = connectExistentialParent(path.getCurrentlyLowestNode());
