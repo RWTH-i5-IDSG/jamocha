@@ -16,7 +16,6 @@ package org.jamocha.filter;
 
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.Set;
 
 import lombok.Getter;
@@ -66,6 +65,6 @@ public class PathFilter extends Filter<PathFilter.PathFilterElement> {
 	 *            filter elements to be used in the filter
 	 */
 	public PathFilter(final PathFilterElement... filterElements) {
-		this(new LinkedHashSet<Path>(), new LinkedHashSet<Path>(), filterElements);
+		this(new HashSet<Path>(), new HashSet<Path>(), filterElements);
 	}
 }
