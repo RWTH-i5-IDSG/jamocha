@@ -28,7 +28,7 @@ import org.jamocha.filter.AddressFilter;
  */
 public class MemoryHandlerMainWithExistentials extends MemoryHandlerMain {
 
-	ArrayList<Row> allRows;
+	ArrayList<Row> allRows = new ArrayList<>();
 
 	MemoryHandlerMainWithExistentials(final Template[] template, final Counter counter,
 			final FactAddress[] addresses) {
