@@ -44,4 +44,11 @@ public class PlainScheduler implements Scheduler, Runnable {
 		}
 	}
 
+	public boolean runOneJob() {
+		if (this.workQueue.isEmpty())
+			return false;
+		this.workQueue.poll().run();
+		return true;
+	}
+
 }
