@@ -104,14 +104,14 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 	static MemoryHandlerMinusTemp newExistentialBetaFromRowsToDelete(
 			final MemoryHandlerMainWithExistentials originatingMainHandler,
 			final ArrayList<Row> rowsToDelete, final Edge originIncomingEdge) {
-		return newRegularBeta(originatingMainHandler, MemoryHandlerMinusTemp::filterTargetMain,
-				originIncomingEdge, rowsToDelete, EqualityChecker.equalRow,
-				originatingMainHandler.addresses, (edge, address) -> {
+		return newRegularMinusTemp(originatingMainHandler,
+				MemoryHandlerMinusTemp::filterTargetMain, originIncomingEdge, rowsToDelete,
+				EqualityChecker.equalRow, originatingMainHandler.addresses, (edge, address) -> {
 					return address;
 				}, originatingMainHandler.template);
 	}
 
-	private static <T extends MemoryHandlerMain> MemoryHandlerMinusTemp newRegularBeta(
+	private static <T extends MemoryHandlerMain> MemoryHandlerMinusTemp newRegularMinusTemp(
 			final T originatingMainHandler, final MainMemoryFilter<T> mainMemoryFilter,
 			final Edge originIncomingEdge, final ArrayList<Row> rowsToDelete,
 			final EqualityChecker equalityChecker, final FactAddress[] factAddresses,
@@ -151,7 +151,7 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 	private <T extends MemoryHandlerMain> MemoryHandlerMinusTemp newRegularBeta(
 			final T originatingMainHandler, final MainMemoryFilter<T> mainMemoryFilter,
 			final Edge originIncomingEdge) {
-		return newRegularBeta(originatingMainHandler, mainMemoryFilter, originIncomingEdge,
+		return newRegularMinusTemp(originatingMainHandler, mainMemoryFilter, originIncomingEdge,
 				this.validRows, EqualityChecker.beta, this.factAddresses, translateDownwards,
 				this.template);
 	}
@@ -261,11 +261,6 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 	};
 
 	private static FactAddress[] localizeAddressMap(final FactAddress[] old,
-			final Edge localizingEdge) {
-		return localizeAddressMap(old, localizingEdge, translateDownwards);
-	}
-
-	private static FactAddress[] localizeAddressMap(final FactAddress[] old,
 			final Edge localizingEdge,
 			final BiFunction<Edge, FactAddress, FactAddress> addressLocalizer) {
 		final int length = old.length;
@@ -285,18 +280,9 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 	public MemoryHandlerTemp newAlphaTemp(final MemoryHandlerMain originatingMainHandler,
 			final Edge originIncomingEdge, final AddressFilter filter)
 			throws CouldNotAcquireLockException {
-		final MemoryHandlerMain targetMain =
-				(MemoryHandlerMain) originIncomingEdge.getTargetNode().getMemory();
-		final ArrayList<Row> minusFacts = this.validRows;
-		final ArrayList<Row> markedFactTuples =
-				getRelevantFactTuples(targetMain, MemoryHandlerMinusTemp::filterTargetMain,
-						minusFacts, this.factAddresses, EqualityChecker.alpha, nullConsumer);
-		if (0 == markedFactTuples.size()) {
-			return MemoryHandlerMinusTemp.empty;
-		}
-		return new MemoryHandlerMinusTemp(getTemplate(),
-				(MemoryHandlerMain) originatingMainHandler, markedFactTuples, localizeAddressMap(
-						this.factAddresses, originIncomingEdge));
+		return newRegularMinusTemp(originatingMainHandler,
+				MemoryHandlerMinusTemp::filterTargetMain, originIncomingEdge, validRows,
+				EqualityChecker.alpha, factAddresses, translateDownwards, template);
 	}
 
 	@FunctionalInterface
