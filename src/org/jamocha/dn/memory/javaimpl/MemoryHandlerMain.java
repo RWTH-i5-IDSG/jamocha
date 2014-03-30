@@ -80,29 +80,6 @@ public class MemoryHandlerMain extends MemoryHandlerBase implements
 
 	public static org.jamocha.dn.memory.MemoryHandlerMainAndCounterColumnMatcher newMemoryHandlerMain(
 			final PathFilter filter, final Map<Edge, Set<Path>> edgesAndPaths) {
-		final PathFilterElementToCounterColumn pathFilterElementToCounterColumn =
-				new PathFilterElementToCounterColumn();
-		final boolean containsExistentials =
-				!filter.getPositiveExistentialPaths().isEmpty()
-						|| !filter.getNegativeExistentialPaths().isEmpty();
-		if (containsExistentials) {
-			// gather existential paths
-			final HashSet<Path> existentialPaths = new HashSet<>();
-			existentialPaths.addAll(filter.getPositiveExistentialPaths());
-			existentialPaths.addAll(filter.getNegativeExistentialPaths());
-
-			int index = 0;
-			for (final PathFilterElement pathFilterElement : filter.getFilterElements()) {
-				final LinkedHashSet<Path> paths =
-						PathCollector.newLinkedHashSet().collect(pathFilterElement).getPaths();
-				paths.retainAll(existentialPaths);
-				if (0 == paths.size())
-					continue;
-				pathFilterElementToCounterColumn.putFilterElementToCounterColumn(pathFilterElement,
-						new CounterColumn(index++));
-			}
-		}
-
 		final ArrayList<Template> template = new ArrayList<>();
 		final ArrayList<FactAddress> addresses = new ArrayList<>();
 		if (!edgesAndPaths.isEmpty()) {
@@ -126,7 +103,29 @@ public class MemoryHandlerMain extends MemoryHandlerBase implements
 		}
 		final Template[] templArray = template.toArray(new Template[template.size()]);
 		final FactAddress[] addrArray = addresses.toArray(new FactAddress[addresses.size()]);
+
+		final PathFilterElementToCounterColumn pathFilterElementToCounterColumn =
+				new PathFilterElementToCounterColumn();
+
+		final boolean containsExistentials =
+				!filter.getPositiveExistentialPaths().isEmpty()
+						|| !filter.getNegativeExistentialPaths().isEmpty();
 		if (containsExistentials) {
+			// gather existential paths
+			final HashSet<Path> existentialPaths = new HashSet<>();
+			existentialPaths.addAll(filter.getPositiveExistentialPaths());
+			existentialPaths.addAll(filter.getNegativeExistentialPaths());
+
+			int index = 0;
+			for (final PathFilterElement pathFilterElement : filter.getFilterElements()) {
+				final LinkedHashSet<Path> paths =
+						PathCollector.newLinkedHashSet().collect(pathFilterElement).getPaths();
+				paths.retainAll(existentialPaths);
+				if (0 == paths.size())
+					continue;
+				pathFilterElementToCounterColumn.putFilterElementToCounterColumn(pathFilterElement,
+						new CounterColumn(index++));
+			}
 			return new MemoryHandlerMainAndFilterElementToCounterColumn(
 					new MemoryHandlerMainWithExistentials(templArray, Counter.newCounter(filter,
 							pathFilterElementToCounterColumn), addrArray),
@@ -237,19 +236,17 @@ public class MemoryHandlerMain extends MemoryHandlerBase implements
 	 *            fact tuple to use
 	 * @return row containing fact tuple and default counter values
 	 */
-	public Row newRow(final Fact... factTuple) {
+	public Row newRow(final Fact[] factTuple) {
 		assert factTuple.length == this.template.length;
-		return new Row(factTuple);
+		return new RowWithoutCounters(factTuple);
 	}
 
 	/**
-	 * creates new row of given width and default counter values.
+	 * creates new row for current template and default counter values.
 	 * 
-	 * @param factTuple
-	 *            fact tuple to use
-	 * @return row containing fact tuple and default counter values
+	 * @return row containing empty fact tuple of current template and default counter values
 	 */
-	public Row newRow(final int columns) {
-		return newRow(new Fact[columns]);
+	public Row newRow() {
+		return newRow(new Fact[template.length]);
 	}
 }
