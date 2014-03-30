@@ -543,6 +543,12 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 							// use counter to set counterColumn to 1 if counterColumn is not
 							// null
 							counter.increment(row, counterColumn, 1);
+							// insert information from new inputs
+							for (final Edge edge : newEdges) {
+								// source is some temp, destination new TR
+								final StackElement se = edgeToStack.get(edge);
+								row.copy(se.getOffset(), se.getRow());
+							}
 						}
 					}
 				}, TR, stack, originElement);
