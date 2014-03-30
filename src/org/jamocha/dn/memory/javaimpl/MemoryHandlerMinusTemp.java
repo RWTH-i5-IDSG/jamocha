@@ -50,7 +50,7 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 			final org.jamocha.dn.memory.Fact[] facts) {
 		final ArrayList<Row> minusFacts = new ArrayList<>(facts.length);
 		for (final org.jamocha.dn.memory.Fact fact : facts) {
-			minusFacts.add(new Row(new Fact[] { new Fact(fact.getSlotValues()) }));
+			minusFacts.add(memoryHandlerMain.newRow(new Fact[] { new Fact(fact.getSlotValues()) }));
 		}
 		final FactAddress[] factAddresses = memoryHandlerMain.addresses;
 		assert factAddresses.length == 1;

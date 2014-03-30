@@ -204,7 +204,7 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 		final ArrayList<Row> factList = new ArrayList<>(facts.length);
 		for (final org.jamocha.dn.memory.Fact fact : facts) {
 			assert fact.getTemplate() == otn.getMemory().getTemplate()[0];
-			factList.add(originatingMainHandler.newRow(new Fact(fact.getSlotValues())));
+			factList.add(originatingMainHandler.newRow(new Fact[] { new Fact(fact.getSlotValues()) }));
 		}
 		return new MemoryHandlerPlusTemp(originatingMainHandler, factList,
 				otn.getNumberOfOutgoingEdges(), canOmitSemaphore(otn));
@@ -238,7 +238,7 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 				@Override
 				Object getValue(final AddressPredecessor addr, final SlotAddress slot) {
 					return this.getRow().getFactTuple()[((org.jamocha.dn.memory.javaimpl.FactAddress) addr
-							.getAddress()).index].getValue((slot));
+							.getAddress()).index].getValue(slot);
 				}
 			};
 		}
@@ -248,8 +248,7 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 			final ArrayList<Row> listWithHoles = new ArrayList<>(tokenRows.size());
 			for (final Row row : tokenRows) {
 				final Row wideRow =
-						((MemoryHandlerMain) originEdge.getTargetNode().getMemory())
-								.newRow(columns);
+						((MemoryHandlerMain) originEdge.getTargetNode().getMemory()).newRow();
 				assert columns >= offset + row.getFactTuple().length;
 				wideRow.copy(offset, row);
 				listWithHoles.add(wideRow);
@@ -260,7 +259,7 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 				@Override
 				Object getValue(final AddressPredecessor addr, final SlotAddress slot) {
 					return this.getRow().getFactTuple()[((org.jamocha.dn.memory.javaimpl.FactAddress) addr
-							.getEdge().localizeAddress(addr.getAddress())).index].getValue((slot));
+							.getEdge().localizeAddress(addr.getAddress())).index].getValue(slot);
 				}
 			};
 		}
@@ -291,9 +290,9 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 		int getOffset() {
 			return this.offset;
 		}
-
 	}
 
+	@FunctionalInterface
 	static interface FunctionPointer {
 		public void apply(final ArrayList<Row> TR, final StackElement originElement);
 	}

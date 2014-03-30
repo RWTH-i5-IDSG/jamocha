@@ -36,14 +36,14 @@ public class MemoryHandlerMainWithExistentials extends MemoryHandlerMain {
 	}
 
 	@Override
-	public Row newRow(final Fact... factTuple) {
+	public Row newRow(final Fact[] factTuple) {
 		assert factTuple.length == this.template.length;
 		return new RowWithCounters(factTuple, new int[this.counter.getColumns().length]);
 	}
 
 	@Override
-	public Row newRow(final int columns) {
-		return newRow(new Fact[columns]);
+	public Row newRow() {
+		return newRow(new Fact[template.length]);
 	}
 
 	@Override
