@@ -11,6 +11,11 @@ class RowWithCounters extends Row {
 	}
 
 	@Override
+	public int[] getCounters() {
+		return counters;
+	}
+
+	@Override
 	public int getCounter(final CounterColumn counterColumn) {
 		return this.counters[counterColumn.index];
 	}
