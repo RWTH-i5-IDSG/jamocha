@@ -34,8 +34,8 @@ import org.jamocha.filter.AddressFilter;
 public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 		org.jamocha.dn.memory.MemoryHandlerMinusTemp {
 
-	private static MemoryHandlerMinusTemp empty = new MemoryHandlerMinusTemp(null, null,
-			new ArrayList<Row>(0), new FactAddress[] {});
+	private static MemoryHandlerMinusTempComplete empty = new MemoryHandlerMinusTempComplete(null,
+			null, new ArrayList<Row>(0), new ArrayList<Row>(0), new FactAddress[] {});
 
 	private static Consumer<Row> nullConsumer = (final Row row) -> {
 	};
