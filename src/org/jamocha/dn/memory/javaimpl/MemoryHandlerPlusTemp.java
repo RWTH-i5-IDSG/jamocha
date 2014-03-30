@@ -506,8 +506,7 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 				if (element != originElement) {
 					// (!a || b) <=> (a->b)
 					assert !existential
-							|| originEdge.getSourceNode().getOutgoingExistentialEdges()
-									.contains(edge);
+							|| edge.getSourceNode().getOutgoingExistentialEdges().contains(edge);
 					if (newEdges.add(edge)) {
 						stack.add(element);
 					}
