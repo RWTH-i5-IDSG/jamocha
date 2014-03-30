@@ -60,8 +60,8 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 		if (0 == relevantFactTuples.size()) {
 			return MemoryHandlerMinusTemp.empty;
 		}
-		return new MemoryHandlerMinusTemp(memoryHandlerMain.getTemplate(), memoryHandlerMain,
-				relevantFactTuples, factAddresses);
+		return new MemoryHandlerMinusTempComplete(memoryHandlerMain.getTemplate(),
+				memoryHandlerMain, relevantFactTuples, relevantFactTuples, factAddresses);
 	}
 
 	private static ArrayList<Row> getRemainingFactTuples(final ArrayList<Row> originalFacts,
