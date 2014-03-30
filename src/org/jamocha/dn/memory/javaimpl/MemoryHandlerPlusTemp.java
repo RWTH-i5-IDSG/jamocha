@@ -187,6 +187,7 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 			}
 			factList.add(row);
 		}
+		// TODO if empty, return static instance
 		return new MemoryHandlerPlusTemp(originatingMainHandler, factList, originIncomingEdge
 				.getTargetNode().getNumberOfOutgoingEdges(), canOmitSemaphore(originIncomingEdge));
 	}
@@ -807,6 +808,7 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 				}
 			}
 		}
+		// FIXME can be removed together with tokenRowContainsOnlyOldFactsinRegularPart
 		// for the join with the other inputs, delete the allRows that did not contain new
 		// regular, but only new existential facts
 		final LazyListCopy<Row> copy = new LazyListCopy<>(tokenRows);
