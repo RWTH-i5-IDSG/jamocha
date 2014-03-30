@@ -14,10 +14,7 @@
  */
 package org.jamocha.dn.memory.javaimpl;
 
-import static java.util.Arrays.copyOf;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
+import java.util.Arrays;
 
 /**
  * Class holding a line of facts and counter columns. Enables identification of a specific line
@@ -25,49 +22,30 @@ import lombok.Setter;
  * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
-@AllArgsConstructor
-@Getter
-@Setter
-public class Row {
-	private static int[] empty = new int[0];
+public interface Row {
 
-	private Fact[] factTuple;
+	public Fact[] getFactTuple();
 
-	public int[] getCounters() {
-		return empty;
+	public int[] getCounters();
+
+	public int getCounter(final CounterColumn counterColumn);
+
+	public void setCounter(final CounterColumn counterColumn, final int value);
+
+	public void incrementCounter(final CounterColumn counterColumn, final int increment);
+
+	public Row copy();
+
+	public Row copy(final int offset, final Row row);
+
+	static void copyFacts(final int offset, final Row srcRow, final Row destRow) {
+		final Fact[] src = srcRow.getFactTuple();
+		final Fact[] dest = destRow.getFactTuple();
+		System.arraycopy(src, 0, dest, offset, src.length);
 	}
 
-	public int getCounter(@SuppressWarnings("unused") final CounterColumn counterColumn) {
-		throw new UnsupportedOperationException(
-				"getCounter not supported on counter-less fact-tuple!");
-	}
-
-	public void setCounter(@SuppressWarnings("unused") final CounterColumn counterColumn,
-			@SuppressWarnings("unused") final int value) {
-		throw new UnsupportedOperationException(
-				"setCounter not supported on counter-less fact-tuple!");
-	}
-
-	public void incrementCounter(@SuppressWarnings("unused") final CounterColumn counterColumn,
-			@SuppressWarnings("unused") final int increment) {
-		throw new UnsupportedOperationException(
-				"incrementCounter not supported on counter-less fact-tuple!");
-	}
-
-	protected Fact[] copyFacts() {
-		return copyOf(factTuple, factTuple.length);
-	}
-
-	protected void copyFacts(final int offset, final Row row) {
-		System.arraycopy(row.factTuple, 0, this.factTuple, offset, row.factTuple.length);
-	}
-
-	public Row copy() {
-		return new Row(copyFacts());
-	}
-
-	public Row copy(final int offset, final Row row) {
-		copyFacts(offset, row);
-		return this;
+	static Fact[] copyFacts(final Row row) {
+		final Fact[] factTuple = row.getFactTuple();
+		return Arrays.copyOf(factTuple, factTuple.length);
 	}
 }

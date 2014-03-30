@@ -1,18 +1,22 @@
 package org.jamocha.dn.memory.javaimpl;
 
-import static java.util.Arrays.copyOf;
+import java.util.Arrays;
 
-class RowWithCounters extends Row {
+import lombok.AllArgsConstructor;
+
+@AllArgsConstructor
+class RowWithCounters implements Row {
+	private Fact[] factTuple;
 	private int[] counters;
-
-	public RowWithCounters(final Fact[] factTuple, final int[] counters) {
-		super(factTuple);
-		this.counters = counters;
-	}
 
 	@Override
 	public int[] getCounters() {
 		return counters;
+	}
+
+	@Override
+	public Fact[] getFactTuple() {
+		return factTuple;
 	}
 
 	@Override
@@ -30,17 +34,18 @@ class RowWithCounters extends Row {
 		this.counters[counterColumn.index] += increment;
 	}
 
-	public Row stripCounters() {
-		return new Row(getFactTuple());
+	public RowWithoutCounters stripCounters() {
+		return new RowWithoutCounters(factTuple);
 	}
 
-	protected int[] copyCounters() {
-		return copyOf(counters, counters.length);
+	@Override
+	public RowWithCounters copy(final int offset, final Row src) {
+		Row.copyFacts(offset, src, this);
+		return this;
 	}
 
 	@Override
 	public RowWithCounters copy() {
-		return new RowWithCounters(copyFacts(), copyCounters());
+		return new RowWithCounters(Row.copyFacts(this), Arrays.copyOf(counters, counters.length));
 	}
-
 }
