@@ -137,6 +137,9 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 		final ArrayList<Row> relevantMinusFacts =
 				getRelevantFactTuples(originatingMainHandler, mainMemoryFilter, rowsToDelete,
 						localizedAddressMap, equalityChecker, completeDeletedRowsAdder);
+		if (0 == relevantMinusFacts.size()) {
+			return MemoryHandlerMinusTemp.empty;
+		}
 		if (createComplete) {
 			return new MemoryHandlerMinusTempComplete(template, originatingMainHandler,
 					relevantMinusFacts, completeDeletedRows, localizedAddressMap);
