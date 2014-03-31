@@ -301,11 +301,13 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 		public void apply(final ArrayList<Row> TR, final StackElement originElement);
 	}
 
-	private static void loop(final FunctionPointer functionPointer, final ArrayList<Row> TR,
-			final Collection<StackElement> stack, final StackElement originElement) {
+	private static ArrayList<Row> loop(final FunctionPointer functionPointer,
+			final Collection<StackElement> stack, final StackElement originElement,
+			final boolean existential) {
 		if (stack.isEmpty()) {
-			return;
+			return new ArrayList<>();
 		}
+		final ArrayList<Row> TR = (existential ? originElement.getTable() : new ArrayList<>());
 		{
 			final Iterator<StackElement> iter = stack.iterator();
 			// skip originElement
@@ -316,10 +318,12 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 				while (!element.checkRowBounds()) {
 					if (!element.checkMemBounds()) {
 						// one of the elements doesn't hold any facts, the join will be empty
-						// delete all partial fact tuples in the TR
-						originElement.memStack.set(0, new ArrayList<Row>(0));
-						TR.clear();
-						return;
+						if (!existential) {
+							// delete all partial fact tuples in the TR for regular joins
+							originElement.memStack.set(0, new ArrayList<Row>(0));
+							TR.clear();
+						}
+						return TR;
 					}
 					element.memIndex++;
 				}
@@ -354,6 +358,7 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 		for (final StackElement elem : stack) {
 			elem.resetIndices();
 		}
+		return TR;
 	}
 
 	private static final LinkedHashMap<Edge, StackElement> getLocksAndStack(
@@ -467,6 +472,9 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 			// get valid part of the new rows
 			final ArrayList<Row> newValidRows =
 					validPart(originatingMainHandler.counter, newUnfilteredRows);
+			if (newValidRows.isEmpty()) {
+				return empty;
+			}
 			final int numChildren = originEdge.getTargetNode().getNumberOfOutgoingEdges();
 			return new MemoryHandlerPlusTemp(originatingMainHandler, newValidRows, numChildren,
 					canOmitSemaphore(originEdge));
@@ -522,8 +530,7 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 
 			final ArrayList<Row> TR;
 			if (existential) {
-				TR = originElement.memStack.get(0);
-				loop(new FunctionPointer() {
+				TR = loop(new FunctionPointer() {
 					@Override
 					public void apply(final ArrayList<Row> TR, final StackElement originElement) {
 						final int paramLength = addresses.length;
@@ -554,10 +561,9 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 							}
 						}
 					}
-				}, TR, stack, originElement);
+				}, stack, originElement, existential);
 			} else {
-				TR = new ArrayList<>();
-				loop(new FunctionPointer() {
+				TR = loop(new FunctionPointer() {
 					@Override
 					public void apply(final ArrayList<Row> TR, final StackElement originElement) {
 						final int paramLength = addresses.length;
@@ -588,7 +594,7 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 							TR.add(row);
 						}
 					}
-				}, TR, stack, originElement);
+				}, stack, originElement, existential);
 			}
 			// replace TR in originElement with new temporary result
 			originElement.memStack.set(0, TR);
@@ -609,8 +615,7 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 			final Edge nodeInput = entry.getKey();
 			final StackElement se = entry.getValue();
 			final Collection<StackElement> stack = Arrays.asList(originElement, se);
-			final ArrayList<Row> TR = new ArrayList<>();
-			loop(new FunctionPointer() {
+			final ArrayList<Row> TR = loop(new FunctionPointer() {
 				@Override
 				public void apply(final ArrayList<Row> TR, final StackElement originElement) {
 					// copy result to new TR
@@ -620,7 +625,7 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 					// copy the result to new TR
 					TR.add(originElement.getRow().copy().copy(se.getOffset(), se.getRow()));
 				}
-			}, TR, stack, originElement);
+			}, stack, originElement, false);
 			// replace TR in originElement with new temporary result
 			originElement.memStack.set(0, TR);
 			// point all inputs that were joint during this turn to the TR
