@@ -15,8 +15,10 @@
 package test.jamocha.dn.nodes;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 import static test.jamocha.util.AssertsAndRetracts.countAssertsAndRetractsInConflictSet;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -28,6 +30,9 @@ import org.jamocha.dn.memory.SlotType;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.dn.memory.javaimpl.SlotAddress;
 import org.jamocha.dn.nodes.AlphaNode;
+import org.jamocha.dn.nodes.BetaNode;
+import org.jamocha.dn.nodes.Edge;
+import org.jamocha.dn.nodes.Node;
 import org.jamocha.dn.nodes.ObjectTypeNode;
 import org.jamocha.dn.nodes.RootNode;
 import org.jamocha.dn.nodes.TerminalNode;
@@ -128,7 +133,9 @@ public class TokenProcessingTest {
 						new PathFilter(new HashSet<>(), negatedExistentialMatchingProf,
 								new PredicateBuilder(eqStrStr).addPath(oldStudent, studentSG)
 										.addPath(matchingProf, profSG).buildPFE()) };
-		network.buildRule(filter);
+		@SuppressWarnings("unused")
+		final TerminalNode terminalNode = network.buildRule(filter);
+
 		final RootNode rootNode = network.getRootNode();
 
 		final ConflictSet conflictSet = network.getConflictSet();
@@ -177,6 +184,85 @@ public class TokenProcessingTest {
 					countAssertsAndRetractsInConflictSet(conflictSet);
 			assertEquals("Amount of asserts does not match expected count!", 0,
 					assertsAndRetracts.getAsserts());
+		}
+	}
+
+	@Test
+	public void testTokenProcessingSimpleExistential() throws Exception {
+		final PlainScheduler scheduler = new PlainScheduler();
+		final Network network =
+				new Network(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(),
+						Integer.MAX_VALUE, scheduler);
+		final Template t1 = new Template(SlotType.STRING, SlotType.LONG), t2 =
+				new Template(SlotType.STRING, SlotType.BOOLEAN);
+		final Path p1 = new Path(t1), p2 = new Path(t2);
+		final SlotAddress s1 = new SlotAddress(0), s2 = new SlotAddress(1);
+
+		final Predicate eqStrStr =
+				FunctionDictionary.lookupPredicate("=", SlotType.STRING, SlotType.STRING);
+		final Predicate eqBoolBool =
+				FunctionDictionary.lookupPredicate("=", SlotType.BOOLEAN, SlotType.BOOLEAN);
+		final Predicate and =
+				FunctionDictionary.lookupPredicate("AND", SlotType.BOOLEAN, SlotType.BOOLEAN);
+
+		final PathFilter[] filter =
+				new PathFilter[] { new PathFilter(new HashSet<Path>(Arrays.asList(p2)),
+						new HashSet<Path>(), new PredicateBuilder(and)
+								.addFunction(
+										new PredicateBuilder(eqStrStr).addPath(p1, s1)
+												.addPath(p2, s1).build())
+								.addFunction(
+										new PredicateBuilder(eqBoolBool).addBoolean(false)
+												.addPath(p2, s2).build()).buildPFE()) };
+		final TerminalNode terminalNode = network.buildRule(filter);
+		final RootNode rootNode = network.getRootNode();
+		final ConflictSet conflictSet = network.getConflictSet();
+
+		final Edge edgeToTerminal = terminalNode.getEdge();
+		final Node betaNode = edgeToTerminal.getSourceNode();
+		assertThat(betaNode, org.hamcrest.Matchers.instanceOf(BetaNode.class));
+		final Edge[] incomingEdges = betaNode.getIncomingEdges();
+		assertEquals(2, incomingEdges.length);
+		final Node otn1 = incomingEdges[0].getSourceNode();
+		final Node otn2 = incomingEdges[1].getSourceNode();
+		assertThat(otn1, org.hamcrest.Matchers.instanceOf(ObjectTypeNode.class));
+		assertThat(otn2, org.hamcrest.Matchers.instanceOf(ObjectTypeNode.class));
+		assertEquals(1, otn1.getOutgoingExistentialEdges().size()
+				+ otn2.getOutgoingExistentialEdges().size());
+
+		// \forall t1 \exists t2 : t1.1 == t2.1 \wedge t2.2 == false
+		rootNode.assertFact(t1.newFact("a", 1L));
+		rootNode.assertFact(t1.newFact("b", 2L));
+		rootNode.assertFact(t1.newFact("c", 3L));
+		rootNode.assertFact(t1.newFact("a", 4L));
+		rootNode.assertFact(t1.newFact("b", 5L));
+		rootNode.assertFact(t1.newFact("c", 6L));
+
+		rootNode.assertFact(t2.newFact("a", true));
+		rootNode.assertFact(t2.newFact("a", true));
+		rootNode.assertFact(t2.newFact("b", true));
+		rootNode.assertFact(t2.newFact("b", false));
+
+		// b 2 - b false
+		// b 4 - b false
+
+		scheduler.run();
+		{
+			final AssertsAndRetracts assertsAndRetracts =
+					countAssertsAndRetractsInConflictSet(conflictSet);
+			assertEquals("Amount of asserts does not match expected count!", 2,
+					assertsAndRetracts.getAsserts());
+			assertEquals("Amount of retracts does not match expected count!", 0,
+					assertsAndRetracts.getRetracts());
+		}
+		conflictSet.deleteRevokedEntries();
+		{
+			final AssertsAndRetracts assertsAndRetracts =
+					countAssertsAndRetractsInConflictSet(conflictSet);
+			assertEquals("Amount of asserts does not match expected count!", 2,
+					assertsAndRetracts.getAsserts());
+			assertEquals("Amount of retracts does not match expected count!", 0,
+					assertsAndRetracts.getRetracts());
 		}
 	}
 
