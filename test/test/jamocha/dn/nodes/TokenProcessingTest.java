@@ -23,6 +23,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.jamocha.dn.ConflictSet;
+import org.jamocha.dn.ConflictSet.NodeAndToken;
 import org.jamocha.dn.Network;
 import org.jamocha.dn.PlainScheduler;
 import org.jamocha.dn.memory.Fact;
@@ -260,6 +261,91 @@ public class TokenProcessingTest {
 			final AssertsAndRetracts assertsAndRetracts =
 					countAssertsAndRetractsInConflictSet(conflictSet);
 			assertEquals("Amount of asserts does not match expected count!", 2,
+					assertsAndRetracts.getAsserts());
+			assertEquals("Amount of retracts does not match expected count!", 0,
+					assertsAndRetracts.getRetracts());
+		}
+	}
+
+	@Test
+	public void testTokenProcessingSimpleNegatedExistential() throws Exception {
+		final PlainScheduler scheduler = new PlainScheduler();
+		final Network network =
+				new Network(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(),
+						Integer.MAX_VALUE, scheduler);
+		final Template t1 = new Template(SlotType.STRING, SlotType.LONG), t2 =
+				new Template(SlotType.STRING, SlotType.BOOLEAN);
+		final Path p1 = new Path(t1), p2 = new Path(t2);
+		final SlotAddress s1 = new SlotAddress(0), s2 = new SlotAddress(1);
+
+		final Predicate eqStrStr =
+				FunctionDictionary.lookupPredicate("=", SlotType.STRING, SlotType.STRING);
+		final Predicate eqBoolBool =
+				FunctionDictionary.lookupPredicate("=", SlotType.BOOLEAN, SlotType.BOOLEAN);
+		final Predicate and =
+				FunctionDictionary.lookupPredicate("AND", SlotType.BOOLEAN, SlotType.BOOLEAN);
+
+		final PathFilter[] filter =
+				new PathFilter[] { new PathFilter(new HashSet<Path>(), new HashSet<Path>(
+						Arrays.asList(p2)), new PredicateBuilder(and)
+						.addFunction(
+								new PredicateBuilder(eqStrStr).addPath(p1, s1).addPath(p2, s1)
+										.build())
+						.addFunction(
+								new PredicateBuilder(eqBoolBool).addBoolean(false).addPath(p2, s2)
+										.build()).buildPFE()) };
+		final TerminalNode terminalNode = network.buildRule(filter);
+		final RootNode rootNode = network.getRootNode();
+		final ConflictSet conflictSet = network.getConflictSet();
+
+		final Edge edgeToTerminal = terminalNode.getEdge();
+		final Node betaNode = edgeToTerminal.getSourceNode();
+		assertThat(betaNode, org.hamcrest.Matchers.instanceOf(BetaNode.class));
+		final Edge[] incomingEdges = betaNode.getIncomingEdges();
+		assertEquals(2, incomingEdges.length);
+		final Node otn1 = incomingEdges[0].getSourceNode();
+		final Node otn2 = incomingEdges[1].getSourceNode();
+		assertThat(otn1, org.hamcrest.Matchers.instanceOf(ObjectTypeNode.class));
+		assertThat(otn2, org.hamcrest.Matchers.instanceOf(ObjectTypeNode.class));
+		assertEquals(1, otn1.getOutgoingExistentialEdges().size()
+				+ otn2.getOutgoingExistentialEdges().size());
+
+		// \forall t1 \not\exists t2 : t1.1 == t2.1 \wedge t2.2 == false
+		rootNode.assertFact(t1.newFact("a", 1L));
+		rootNode.assertFact(t1.newFact("b", 2L));
+		rootNode.assertFact(t1.newFact("c", 3L));
+		rootNode.assertFact(t1.newFact("a", 4L));
+		rootNode.assertFact(t1.newFact("b", 5L));
+		rootNode.assertFact(t1.newFact("c", 6L));
+
+		rootNode.assertFact(t2.newFact("a", true));
+		rootNode.assertFact(t2.newFact("a", true));
+		rootNode.assertFact(t2.newFact("b", true));
+		rootNode.assertFact(t2.newFact("b", false));
+
+		// a 1
+		// c 3
+		// a 4
+		// c 6
+		
+		// b 2 - b false
+		// b 4 - b false
+
+		scheduler.run();
+		assertEquals(4, betaNode.getMemory().size());
+		{
+			final AssertsAndRetracts assertsAndRetracts =
+					countAssertsAndRetractsInConflictSet(conflictSet);
+			assertEquals("Amount of asserts does not match expected count!", 6,
+					assertsAndRetracts.getAsserts());
+			assertEquals("Amount of retracts does not match expected count!", 2,
+					assertsAndRetracts.getRetracts());
+		}
+		conflictSet.deleteRevokedEntries();
+		{
+			final AssertsAndRetracts assertsAndRetracts =
+					countAssertsAndRetractsInConflictSet(conflictSet);
+			assertEquals("Amount of asserts does not match expected count!", 4,
 					assertsAndRetracts.getAsserts());
 			assertEquals("Amount of retracts does not match expected count!", 0,
 					assertsAndRetracts.getRetracts());
