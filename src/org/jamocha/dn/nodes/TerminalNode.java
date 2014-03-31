@@ -147,14 +147,20 @@ public class TerminalNode {
 	@Getter
 	protected MemoryHandlerTerminal memory;
 	final protected Network network;
-	final protected Node parent;
+	/**
+	 * Returns the single incoming {@link Edge}.
+	 * 
+	 * @return the single incoming {@link Edge}
+	 */
+	@Getter
+	final protected Edge edge;
 	final protected Map<FactAddress, AddressPredecessor> delocalizeMap = new HashMap<>();
 
 	public TerminalNode(final Network network, final Node parent) {
 		this.network = network;
-		this.parent = parent;
 		this.memory = parent.getMemory().newMemoryHandlerTerminal();
-		parent.acceptRegularEdgeToChild(new TerminalEdgeImpl(network, parent, this));
+		this.edge = new TerminalEdgeImpl(network, parent, this);
+		parent.acceptRegularEdgeToChild(edge);
 	}
 
 	public void enqueueAssert(final Assert plus) {
@@ -167,8 +173,7 @@ public class TerminalNode {
 
 	public MemoryHandlerTerminal flush() {
 		final MemoryHandlerTerminal old = this.getMemory();
-		this.memory = this.parent.getMemory().newMemoryHandlerTerminal();
+		this.memory = this.edge.getSourceNode().getMemory().newMemoryHandlerTerminal();
 		return old;
 	}
-
 }
