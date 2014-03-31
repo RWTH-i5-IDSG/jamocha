@@ -127,23 +127,23 @@ public class MemoryHandlerTempTest {
 			}
 		}
 
-		int numChildern;
+		int numChildren;
 		int currentOffset = 0;
 
 		@SuppressWarnings("deprecation")
 		public NodeMockup(final Network network, final int numChildren, final Node... parents) {
 			super(network, parents);
-			this.numChildern = numChildren;
+			this.numChildren = numChildren;
 		}
 
 		public NodeMockup(final Network network, final int numChildren, final Template template) {
 			super(network, template);
-			this.numChildern = numChildren;
+			this.numChildren = numChildren;
 		}
 
 		@Override
 		public int getNumberOfOutgoingEdges() {
-			return numChildern;
+			return numChildren;
 		};
 
 		@Override
@@ -359,22 +359,22 @@ public class MemoryHandlerTempTest {
 		assertEquals(1, memoryHandlerMain.size());
 		memoryHandlerTemp.releaseLock();
 		assertEquals(1, memoryHandlerMain.size());
-		// TODO what is the meaning of the following code? why is no change expected?
-		// final Node node5 = new NodeMockup(Network.DEFAULTNETWORK, 5, Template.STRING);
-		// memoryHandlerTemp =
-		// (MemoryHandlerPlusTemp) memoryHandlerMain.newPlusToken(node5,
-		// Template.STRING.newFact("Test"));
-		// assertEquals(1, memoryHandlerMain.size());
-		// memoryHandlerTemp.releaseLock();
-		// assertEquals(1, memoryHandlerMain.size());
-		// memoryHandlerTemp.releaseLock();
-		// assertEquals(1, memoryHandlerMain.size());
-		// memoryHandlerTemp.releaseLock();
-		// assertEquals(1, memoryHandlerMain.size());
-		// memoryHandlerTemp.releaseLock();
-		// assertEquals(1, memoryHandlerMain.size());
-		// memoryHandlerTemp.releaseLock();
-		// assertEquals(2, memoryHandlerMain.size());
+		final Node node4 = new NodeMockup(Network.DEFAULTNETWORK, 4, Template.STRING);
+		new NodeMockup(Network.DEFAULTNETWORK, 999, node4);
+		memoryHandlerTemp =
+				(MemoryHandlerPlusTemp) memoryHandlerMain.newPlusToken(node4,
+						Template.STRING.newFact("Test"));
+		assertEquals(1, memoryHandlerMain.size());
+		memoryHandlerTemp.releaseLock();
+		assertEquals(1, memoryHandlerMain.size());
+		memoryHandlerTemp.releaseLock();
+		assertEquals(1, memoryHandlerMain.size());
+		memoryHandlerTemp.releaseLock();
+		assertEquals(1, memoryHandlerMain.size());
+		memoryHandlerTemp.releaseLock();
+		assertEquals(2, memoryHandlerMain.size());
+		memoryHandlerTemp.releaseLock();
+		assertEquals(2, memoryHandlerMain.size());
 	}
 
 	/**
