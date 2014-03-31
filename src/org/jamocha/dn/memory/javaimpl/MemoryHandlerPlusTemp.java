@@ -761,7 +761,6 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 		final ArrayList<Row> tokenRows = originElement.getTable();
 		final int mainSize = mainRows.size();
 		final int tokenSize = tokenRows.size();
-		final boolean[] tokenRowContainsOnlyOldFactsInRegularPart = new boolean[tokenSize];
 		for (int mainIndex = 0; mainIndex < mainSize; ++mainIndex) {
 			final Row mainRow = mainRows.get(mainIndex);
 			final Fact[] mainFactTuple = mainRow.getFactTuple();
@@ -775,8 +774,6 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 						continue tokenloop;
 					}
 				}
-				// mark row: does not contain new facts in the regular part
-				tokenRowContainsOnlyOldFactsInRegularPart[tokenIndex] = true;
 				// check whether the existential part fulfill the filter conditions
 				for (final AddressFilterElement filterElement : filterPartsForCounterColumns) {
 					final PredicateWithArguments predicate = filterElement.getFunction();
@@ -811,17 +808,7 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 				}
 			}
 		}
-		// FIXME can be removed together with tokenRowContainsOnlyOldFactsinRegularPart
-		// for the join with the other inputs, delete the allRows that did not contain new
-		// regular, but only new existential facts
-		final LazyListCopy<Row> copy = new LazyListCopy<>(tokenRows);
-		for (int i = 0; i < originElement.getTable().size(); ++i) {
-			if (tokenRowContainsOnlyOldFactsInRegularPart[i])
-				copy.drop(i);
-			else
-				copy.keep(i);
-		}
-		originElement.memStack.set(0, copy.getList());
+		originElement.memStack.set(0, tokenRows);
 		return counterUpdates;
 	}
 
