@@ -104,20 +104,29 @@ public class TokenProcessingTest {
 				FunctionDictionary.lookupPredicate("<", SlotType.LONG, SlotType.LONG);
 		final Predicate eqStrStr =
 				FunctionDictionary.lookupPredicate("=", SlotType.STRING, SlotType.STRING);
+		final Predicate and =
+				FunctionDictionary.lookupPredicate("AND", SlotType.BOOLEAN, SlotType.BOOLEAN);
 
+		// get the (old) students with hobby "Coding", for which there are younger (semester-wise)
+		// students in the same course of study, but who lack a professor for their course of study
 		final PathFilter[] filter =
 				new PathFilter[] {
 						new PathFilter(new PredicateBuilder(eqStrStr)
 								.addPath(oldStudent, studentHobby)
 								.addConstant("Coding", SlotType.STRING).buildPFE()),
 						new PathFilter(existentialYoungStudent, new HashSet<>(),
-								new PredicateBuilder(lessLongLong)
-										.addPath(youngStudent, studentSem)
-										.addPath(oldStudent, studentSem).buildPFE(),
-								new PredicateBuilder(eqStrStr).addPath(youngStudent, studentSG)
-										.addPath(oldStudent, studentSG).buildPFE()),
+								new PredicateBuilder(and)
+										.addFunction(
+												new PredicateBuilder(lessLongLong)
+														.addPath(youngStudent, studentSem)
+														.addPath(oldStudent, studentSem).build())
+										.addFunction(
+												new PredicateBuilder(eqStrStr)
+														.addPath(youngStudent, studentSG)
+														.addPath(oldStudent, studentSG).build())
+										.buildPFE()),
 						new PathFilter(new HashSet<>(), negatedExistentialMatchingProf,
-								new PredicateBuilder(eqStrStr).addPath(youngStudent, studentSG)
+								new PredicateBuilder(eqStrStr).addPath(oldStudent, studentSG)
 										.addPath(matchingProf, profSG).buildPFE()) };
 		network.buildRule(filter);
 		final RootNode rootNode = network.getRootNode();
@@ -142,8 +151,6 @@ public class TokenProcessingTest {
 					countAssertsAndRetractsInConflictSet(conflictSet);
 			assertEquals("Amount of asserts does not match expected count!", 0,
 					assertsAndRetracts.getAsserts());
-			assertEquals("Amount of retracts does not match expected count!", 0,
-					assertsAndRetracts.getRetracts());
 		}
 
 		rootNode.retractFact(prof.newFact("Prof. Dr. Timmes", "Informatik"));
@@ -155,10 +162,21 @@ public class TokenProcessingTest {
 		{
 			final AssertsAndRetracts assertsAndRetracts =
 					countAssertsAndRetractsInConflictSet(conflictSet);
-			assertEquals("Amount of asserts does not match expected count!", 5,
+			assertEquals("Amount of asserts does not match expected count!", 2,
 					assertsAndRetracts.getAsserts());
-			assertEquals("Amount of retracts does not match expected count!", 0,
-					assertsAndRetracts.getRetracts());
+		}
+
+		rootNode.retractFact(student.newFact("Simon", 3L, "Informatik", "Schach"));
+		rootNode.retractFact(student.newFact("Erik", 2L, "Informatik", "Rätsel"));
+		rootNode.retractFact(student.newFact("Rachel", 4L, "Informatik", "Coding"));
+
+		scheduler.run();
+		conflictSet.deleteRevokedEntries();
+		{
+			final AssertsAndRetracts assertsAndRetracts =
+					countAssertsAndRetractsInConflictSet(conflictSet);
+			assertEquals("Amount of asserts does not match expected count!", 0,
+					assertsAndRetracts.getAsserts());
 		}
 	}
 
