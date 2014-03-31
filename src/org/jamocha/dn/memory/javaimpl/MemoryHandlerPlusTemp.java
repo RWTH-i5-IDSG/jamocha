@@ -188,7 +188,9 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 			}
 			factList.add(row);
 		}
-		// TODO if empty, return static instance
+		if (factList.isEmpty()) {
+			return empty;
+		}
 		return new MemoryHandlerPlusTemp(originatingMainHandler, factList, originIncomingEdge
 				.getTargetNode().getNumberOfOutgoingEdges(), canOmitSemaphore(originIncomingEdge));
 	}
