@@ -3,8 +3,10 @@ package org.jamocha.dn.memory.javaimpl;
 import java.util.Arrays;
 
 import lombok.AllArgsConstructor;
+import lombok.ToString;
 
 @AllArgsConstructor
+@ToString
 class RowWithCounters implements Row {
 	private Fact[] factTuple;
 	private int[] counters;

@@ -15,12 +15,14 @@
 package org.jamocha.dn.memory.javaimpl;
 
 import lombok.AllArgsConstructor;
+import lombok.ToString;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  *
  */
 @AllArgsConstructor
+@ToString
 public class RowWithoutCounters implements Row {
 	private static int[] empty = new int[0];
 

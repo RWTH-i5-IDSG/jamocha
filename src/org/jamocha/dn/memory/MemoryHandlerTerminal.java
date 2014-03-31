@@ -88,7 +88,7 @@ public interface MemoryHandlerTerminal extends Iterable<Assert> {
 	/**
 	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
 	 */
-	@ToString
+	@ToString(callSuper = true)
 	public class Assert extends AssertOrRetract<Retract> {
 		protected Retract dual = null;
 
@@ -118,7 +118,7 @@ public interface MemoryHandlerTerminal extends Iterable<Assert> {
 	/**
 	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
 	 */
-	@ToString
+	@ToString(callSuper = true)
 	public class Retract extends AssertOrRetract<Assert> {
 		public Retract(final MemoryHandler mem) {
 			super(mem);
