@@ -190,8 +190,7 @@ public class TokenProcessingTest {
 				new Template(SlotType.STRING /* Name */, SlotType.LONG /* Semester */,
 						SlotType.STRING /* Studiengang */, SlotType.STRING /* Hobby */);
 		final Path oldStudent = new Path(student), youngStudent = new Path(student);
-		final SlotAddress studentSem = new SlotAddress(1), studentSG = new SlotAddress(2), studentHobby =
-				new SlotAddress(3), profSG = new SlotAddress(1);
+		final SlotAddress studentSem = new SlotAddress(1), studentSG = new SlotAddress(2);
 
 		final Predicate lessLongLong =
 				FunctionDictionary.lookupPredicate("<", SlotType.LONG, SlotType.LONG);
