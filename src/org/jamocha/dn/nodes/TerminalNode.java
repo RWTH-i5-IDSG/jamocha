@@ -137,6 +137,11 @@ public class TerminalNode {
 			this.targetNode.getMemory().addMinusMemory(this.targetNode, mem);
 			mem.releaseLock();
 		}
+
+		@Override
+		public boolean targetsBeta() {
+			return false;
+		}
 	}
 
 	/**

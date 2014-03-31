@@ -104,6 +104,11 @@ public class BetaNode extends Node {
 		public void enqueueMemory(final MemoryHandlerMinusTemp mem) {
 			newMinusToken(mem);
 		}
+
+		@Override
+		public boolean targetsBeta() {
+			return true;
+		}
 	}
 
 	public BetaNode(final Network network, final PathFilter filter) {

@@ -103,6 +103,11 @@ public class AlphaNode extends Node {
 		public void enqueueMemory(final MemoryHandlerMinusTemp mem) {
 			newMinusToken(mem);
 		}
+
+		@Override
+		public boolean targetsBeta() {
+			return false;
+		}
 	}
 
 	protected AlphaNode(final Network network, final Template template, final Path... paths) {

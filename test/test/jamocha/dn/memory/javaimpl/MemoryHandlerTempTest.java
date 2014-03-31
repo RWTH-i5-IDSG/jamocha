@@ -120,6 +120,11 @@ public class MemoryHandlerTempTest {
 			@Override
 			public void enqueueMemory(final org.jamocha.dn.memory.MemoryHandlerPlusTemp mem) {
 			}
+
+			@Override
+			public boolean targetsBeta() {
+				return true;
+			}
 		}
 
 		int numChildern;

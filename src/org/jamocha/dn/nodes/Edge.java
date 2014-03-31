@@ -40,6 +40,8 @@ public interface Edge {
 
 	public Node getTargetNode();
 
+	public boolean targetsBeta();
+
 	/**
 	 * Transforms an address valid for the source node of the input into the corresponding address
 	 * valid for the target node of the input.

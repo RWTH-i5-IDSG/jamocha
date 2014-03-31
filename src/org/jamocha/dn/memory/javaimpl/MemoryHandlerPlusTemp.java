@@ -136,13 +136,14 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 	/* * * * * * * * * STATIC FACTORY PART * * * * * * * * */
 
 	protected static boolean canOmitSemaphore(final Edge originEdge) {
-		return originEdge.getTargetNode().getIncomingEdges().length <= 1;
+		return canOmitSemaphore(originEdge.getTargetNode());
 	}
 
-	protected static boolean canOmitSemaphore(final Node sourceNode) {
-		for (final Edge edge : sourceNode.getOutgoingEdges()) {
-			if (!canOmitSemaphore(edge))
+	protected static boolean canOmitSemaphore(final Node targetNode) {
+		for (final Edge edge : targetNode.getOutgoingEdges()) {
+			if (edge.targetsBeta()) {
 				return false;
+			}
 		}
 		return true;
 	}
