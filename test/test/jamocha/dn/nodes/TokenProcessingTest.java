@@ -15,6 +15,7 @@
 package test.jamocha.dn.nodes;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertThat;
 import static test.jamocha.util.AssertsAndRetracts.countAssertsAndRetractsInConflictSet;
 
@@ -22,8 +23,8 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.hamcrest.Matchers;
 import org.jamocha.dn.ConflictSet;
-import org.jamocha.dn.ConflictSet.NodeAndToken;
 import org.jamocha.dn.Network;
 import org.jamocha.dn.PlainScheduler;
 import org.jamocha.dn.memory.Fact;
@@ -134,12 +135,33 @@ public class TokenProcessingTest {
 						new PathFilter(new HashSet<>(), negatedExistentialMatchingProf,
 								new PredicateBuilder(eqStrStr).addPath(oldStudent, studentSG)
 										.addPath(matchingProf, profSG).buildPFE()) };
-		@SuppressWarnings("unused")
 		final TerminalNode terminalNode = network.buildRule(filter);
 
 		final RootNode rootNode = network.getRootNode();
 
 		final ConflictSet conflictSet = network.getConflictSet();
+
+		final Edge edgeToTerminal = terminalNode.getEdge();
+		final Node betaNodeProf = edgeToTerminal.getSourceNode();
+		assertThat(betaNodeProf, Matchers.instanceOf(BetaNode.class));
+
+		final Edge[] profIncomingEdges = betaNodeProf.getIncomingEdges();
+		int exIndex =
+				profIncomingEdges[0].getSourceNode().getOutgoingExistentialEdges().isEmpty() ? 1
+						: 0;
+		final Node profOTN = profIncomingEdges[exIndex].getSourceNode();
+		assertThat(profOTN, Matchers.instanceOf(ObjectTypeNode.class));
+		final Node betaNodeStudent = profIncomingEdges[1 - exIndex].getSourceNode();
+		assertThat(betaNodeStudent, Matchers.instanceOf(BetaNode.class));
+		assertEquals(1, betaNodeStudent.getOutgoingEdges());
+		assertEquals(0, betaNodeStudent.getOutgoingExistentialEdges());
+		final Edge[] studentIncomingEdges = betaNodeStudent.getIncomingEdges();
+		assertEquals(2, studentIncomingEdges.length);
+		assertSame(studentIncomingEdges[0], studentIncomingEdges[1]);
+		final Node studentOTN = studentIncomingEdges[0].getSourceNode();
+		assertThat(studentOTN, Matchers.instanceOf(ObjectTypeNode.class));
+		assertEquals(1, studentOTN.getOutgoingExistentialEdges().size());
+		assertEquals(2, studentOTN.getOutgoingEdges().size());
 
 		rootNode.assertFact(student.newFact("Simon", 3L, "Informatik", "Schach"));
 		rootNode.assertFact(student.newFact("Rachel", 4L, "Informatik", "Coding"));
@@ -327,7 +349,7 @@ public class TokenProcessingTest {
 		// c 3
 		// a 4
 		// c 6
-		
+
 		// b 2 - b false
 		// b 4 - b false
 
