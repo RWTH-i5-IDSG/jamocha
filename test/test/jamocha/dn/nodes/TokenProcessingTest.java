@@ -146,18 +146,20 @@ public class TokenProcessingTest {
 		assertThat(betaNodeProf, Matchers.instanceOf(BetaNode.class));
 
 		final Edge[] profIncomingEdges = betaNodeProf.getIncomingEdges();
-		int exIndex =
+		final int exIndex =
 				profIncomingEdges[0].getSourceNode().getOutgoingExistentialEdges().isEmpty() ? 1
 						: 0;
 		final Node profOTN = profIncomingEdges[exIndex].getSourceNode();
 		assertThat(profOTN, Matchers.instanceOf(ObjectTypeNode.class));
 		final Node betaNodeStudent = profIncomingEdges[1 - exIndex].getSourceNode();
 		assertThat(betaNodeStudent, Matchers.instanceOf(BetaNode.class));
-		assertEquals(1, betaNodeStudent.getOutgoingEdges());
-		assertEquals(0, betaNodeStudent.getOutgoingExistentialEdges());
+		assertEquals(1, betaNodeStudent.getOutgoingEdges().size());
+		assertEquals(0, betaNodeStudent.getOutgoingExistentialEdges().size());
 		final Edge[] studentIncomingEdges = betaNodeStudent.getIncomingEdges();
 		assertEquals(2, studentIncomingEdges.length);
-		assertSame(studentIncomingEdges[0], studentIncomingEdges[1]);
+		final int alphaIndex = studentIncomingEdges[0].getSourceNode() instanceof AlphaNode ? 0 : 1;
+		final Node alphaNode = studentIncomingEdges[1 - alphaIndex].getSourceNode();
+		assertThat(alphaNode, Matchers.instanceOf(AlphaNode.class));
 		final Node studentOTN = studentIncomingEdges[0].getSourceNode();
 		assertThat(studentOTN, Matchers.instanceOf(ObjectTypeNode.class));
 		assertEquals(1, studentOTN.getOutgoingExistentialEdges().size());
