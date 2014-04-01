@@ -15,7 +15,6 @@
 package test.jamocha.dn.nodes;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertThat;
 import static test.jamocha.util.AssertsAndRetracts.countAssertsAndRetractsInConflictSet;
 
@@ -55,7 +54,7 @@ import test.jamocha.util.PredicateBuilder;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
- * 
+ *
  */
 public class TokenProcessingTest {
 	/**
@@ -658,7 +657,7 @@ public class TokenProcessingTest {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Test
 	public void testTokenProcessing() throws Exception {
@@ -711,7 +710,7 @@ public class TokenProcessingTest {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Test
 	public void testTokenProcessingDummyFilter() throws Exception {
