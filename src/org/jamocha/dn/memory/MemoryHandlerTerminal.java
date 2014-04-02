@@ -20,6 +20,8 @@ import lombok.ToString;
 import org.jamocha.dn.ConflictSet;
 import org.jamocha.dn.memory.MemoryHandlerTerminal.Assert;
 import org.jamocha.dn.nodes.TerminalNode;
+import org.jamocha.visitor.Visitable;
+import org.jamocha.visitor.Visitor;
 
 /**
  * {@link MemoryHandlerTerminal}s are used for {@link TerminalNode}s instead of a
@@ -40,20 +42,27 @@ import org.jamocha.dn.nodes.TerminalNode;
 public interface MemoryHandlerTerminal extends Iterable<Assert> {
 
 	/**
+	 * Extension of the visitor interface for Asserts and Retracts.
+	 * 
 	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
 	 */
-	public interface AssertOrRetractVisitor {
-		void visit(final TerminalNode node, final Assert mem);
+	public interface AssertOrRetractVisitor extends Visitor {
+		void visit(final Assert mem);
 
-		void visit(final TerminalNode node, final Retract mem);
+		void visit(final Retract mem);
 	}
 
 	/**
+	 * Base class for {@link Assert}s and {@link Retract}s. Provides access to the included memory
+	 * in a manner similar to {@link MemoryHandler}s (without the row index parameter as there is
+	 * only one row in every {@link Assert} or {@link Retract}).
+	 * 
 	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
 	 */
 	@Getter
 	@ToString
-	public abstract class AssertOrRetract<T extends AssertOrRetract<?>> {
+	public abstract class AssertOrRetract<T extends AssertOrRetract<?>> implements
+			Visitable<AssertOrRetractVisitor> {
 		protected final MemoryHandler mem;
 
 		public AssertOrRetract(final MemoryHandler mem) {
@@ -61,15 +70,28 @@ public interface MemoryHandlerTerminal extends Iterable<Assert> {
 			this.mem = mem;
 		}
 
-		public boolean setFollowingRetract(@SuppressWarnings("unused") final Retract minus) {
-			return false;
+		/**
+		 * Returns the negated boolean value of {@link #isRevokedOrMinus()}, but also sets the
+		 * revoking {@link Retract} to be the one passed if this instance of {@link AssertOrRetract}
+		 * is an {@link Assert} without a corresponding {@link Retract}.
+		 * 
+		 * @param minus
+		 *            {@link Retract} to be set as the revoking one for the current instance in case
+		 *            it is an {@link Assert}
+		 * @return !{@link #isRevokedOrMinus()}
+		 */
+		public boolean setFollowingRetract(final Retract minus) {
+			return !isRevokedOrMinus();
 		}
 
+		/**
+		 * Returns true iff this instance of {@link AssertOrRetract} is an {@link Assert} with a
+		 * {@link Retract} revoking the facts in the {@link Assert} or this instance is a
+		 * {@link Retract}.
+		 */
 		public boolean isRevokedOrMinus() {
 			return true;
 		}
-
-		abstract public void accept(final TerminalNode node, final AssertOrRetractVisitor visitor);
 
 		/**
 		 * Gets the {@link Template} of the facts in the underlying memory.
@@ -99,6 +121,9 @@ public interface MemoryHandlerTerminal extends Iterable<Assert> {
 	}
 
 	/**
+	 * A class containing a single fact tuple, that is valid iff there is no dual {@link Retract}
+	 * revoking the fact tuple contained.
+	 * 
 	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
 	 */
 	@ToString(callSuper = true)
@@ -111,7 +136,7 @@ public interface MemoryHandlerTerminal extends Iterable<Assert> {
 
 		@Override
 		public boolean setFollowingRetract(final Retract minus) {
-			if (null != this.dual)
+			if (isRevokedOrMinus())
 				return false;
 			this.dual = minus;
 			return true;
@@ -123,12 +148,15 @@ public interface MemoryHandlerTerminal extends Iterable<Assert> {
 		}
 
 		@Override
-		public void accept(final TerminalNode node, final AssertOrRetractVisitor visitor) {
-			visitor.visit(node, this);
+		public <V extends AssertOrRetractVisitor> V accept(final V visitor) {
+			visitor.visit(this);
+			return visitor;
 		}
 	}
 
 	/**
+	 * A class containing a single fact tuple meant to invalidate a corresponding {@link Assert}.
+	 * 
 	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
 	 */
 	@ToString(callSuper = true)
@@ -138,8 +166,9 @@ public interface MemoryHandlerTerminal extends Iterable<Assert> {
 		}
 
 		@Override
-		public void accept(final TerminalNode node, final AssertOrRetractVisitor visitor) {
-			visitor.visit(node, this);
+		public <V extends AssertOrRetractVisitor> V accept(final V visitor) {
+			visitor.visit(this);
+			return visitor;
 		}
 	}
 

@@ -1,3 +1,17 @@
+/*
+ * Copyright 2002-2013 The Jamocha Team
+ * 
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
+ * 
+ * http://www.jamocha.org/
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
+ */
 package test.jamocha.util;
 
 import java.util.ArrayList;
@@ -8,10 +22,8 @@ import lombok.Value;
 import org.jamocha.dn.ConflictSet;
 import org.jamocha.dn.ConflictSet.NodeAndToken;
 import org.jamocha.dn.memory.MemoryHandlerTerminal.Assert;
-import org.jamocha.dn.memory.MemoryHandlerTerminal.AssertOrRetract;
 import org.jamocha.dn.memory.MemoryHandlerTerminal.AssertOrRetractVisitor;
 import org.jamocha.dn.memory.MemoryHandlerTerminal.Retract;
-import org.jamocha.dn.nodes.TerminalNode;
 
 @Value
 public class AssertsAndRetracts {
@@ -21,17 +33,14 @@ public class AssertsAndRetracts {
 		final List<Assert> asserts = new ArrayList<>();
 		final List<Retract> retracts = new ArrayList<>();
 		for (final NodeAndToken nat : cs) {
-			final AssertOrRetract<?> assertOrRetract = nat.getToken();
-			final TerminalNode terminalNode = nat.getTerminal();
-			assertOrRetract.accept(terminalNode, new AssertOrRetractVisitor() {
-
+			nat.getToken().accept(new AssertOrRetractVisitor() {
 				@Override
-				public void visit(TerminalNode node, Retract mem) {
+				public void visit(final Retract mem) {
 					retracts.add(mem);
 				}
 
 				@Override
-				public void visit(TerminalNode node, Assert mem) {
+				public void visit(final Assert mem) {
 					asserts.add(mem);
 				}
 			});
