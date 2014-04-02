@@ -17,12 +17,25 @@ package org.jamocha.dn.memory;
 import lombok.Getter;
 import lombok.ToString;
 
+import org.jamocha.dn.ConflictSet;
 import org.jamocha.dn.memory.MemoryHandlerTerminal.Assert;
 import org.jamocha.dn.nodes.TerminalNode;
 
 /**
- * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+ * {@link MemoryHandlerTerminal}s are used for {@link TerminalNode}s instead of a
+ * {@link MemoryHandlerMain}. They wrap incoming {@link MemoryHandlerPlusTemp}s together with their
+ * target {@link TerminalNode} into {@link Assert}s. These are pushed back to the
+ * {@link TerminalNode}, which adds them to the {@link ConflictSet}. Furthermore the {@link Assert}s
+ * are cached in the {@link MemoryHandlerTerminal}. Incoming {@link MemoryHandlerMinusTemp}s are
+ * similarly wrapped into {@link Retract}s. The cached {@link Assert}s are searched and revoked if
+ * the Retract deleted the facts in an unprocessed {@link Assert}. Revoked {@link Assert}s are
+ * removed from the cache.
  * 
+ * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+ * @see TerminalNode
+ * @see Assert
+ * @see Retract
+ * @see ConflictSet
  */
 public interface MemoryHandlerTerminal extends Iterable<Assert> {
 
