@@ -18,6 +18,8 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Queue;
 
+import lombok.RequiredArgsConstructor;
+
 import org.jamocha.dn.memory.MemoryHandler;
 import org.jamocha.dn.nodes.TerminalNode;
 
@@ -25,14 +27,11 @@ import org.jamocha.dn.nodes.TerminalNode;
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  * 
  */
+@RequiredArgsConstructor
 public class MemoryHandlerTerminal implements org.jamocha.dn.memory.MemoryHandlerTerminal {
 
 	final MemoryHandlerMain originatingMainHandler;
 	final Queue<Assert> plusTokenCache = new LinkedList<Assert>();
-
-	public MemoryHandlerTerminal(final MemoryHandlerMain originatingMainHandler) {
-		this.originatingMainHandler = originatingMainHandler;
-	}
 
 	@Override
 	public void addPlusMemory(final TerminalNode terminalNode,
