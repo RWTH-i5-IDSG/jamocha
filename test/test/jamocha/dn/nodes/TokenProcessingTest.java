@@ -146,8 +146,7 @@ public class TokenProcessingTest {
 
 		final Edge[] profIncomingEdges = betaNodeProf.getIncomingEdges();
 		final int exIndex =
-				profIncomingEdges[0].getSourceNode().getOutgoingExistentialEdges().isEmpty() ? 1
-						: 0;
+				1 - profIncomingEdges[0].getSourceNode().getOutgoingExistentialEdges().size();
 		final Node profOTN = profIncomingEdges[exIndex].getSourceNode();
 		assertThat(profOTN, Matchers.instanceOf(ObjectTypeNode.class));
 		final Node betaNodeStudent = profIncomingEdges[1 - exIndex].getSourceNode();
