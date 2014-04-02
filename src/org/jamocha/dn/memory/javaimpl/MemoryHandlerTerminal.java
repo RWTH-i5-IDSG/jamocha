@@ -96,4 +96,8 @@ public class MemoryHandlerTerminal implements org.jamocha.dn.memory.MemoryHandle
 		return false;
 	}
 
+	@Override
+	public void flush() {
+		this.plusTokenCache.clear();
+	}
 }

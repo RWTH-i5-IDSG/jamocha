@@ -205,4 +205,9 @@ public interface MemoryHandlerTerminal extends Iterable<Assert> {
 	 */
 	public boolean containsUnrevokedTokens();
 
+	/**
+	 * Flushes the cache of {@link Assert}s in this {@link MemoryHandlerTerminal}.
+	 */
+	public void flush();
+
 }

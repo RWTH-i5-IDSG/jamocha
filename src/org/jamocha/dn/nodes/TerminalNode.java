@@ -22,6 +22,7 @@ import java.util.Map.Entry;
 
 import lombok.Getter;
 
+import org.jamocha.dn.ConflictSet;
 import org.jamocha.dn.Network;
 import org.jamocha.dn.memory.FactAddress;
 import org.jamocha.dn.memory.MemoryHandlerMinusTemp;
@@ -37,7 +38,6 @@ import org.jamocha.filter.AddressFilter.AddressFilterElement;
  * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
- * 
  */
 public class TerminalNode {
 
@@ -150,7 +150,7 @@ public class TerminalNode {
 	 * @return the {@link MemoryHandlerTerminal terminal memory handler} of the node
 	 */
 	@Getter
-	protected MemoryHandlerTerminal memory;
+	final protected MemoryHandlerTerminal memory;
 	final protected Network network;
 	/**
 	 * Returns the single incoming {@link Edge}.
@@ -168,17 +168,30 @@ public class TerminalNode {
 		parent.acceptRegularEdgeToChild(edge);
 	}
 
+	/**
+	 * Passes this {@link Assert} to the {@link ConflictSet}.
+	 * 
+	 * @param plus
+	 *            the {@link Assert} to be passed to the {@link ConflictSet}
+	 */
 	public void enqueueAssert(final Assert plus) {
 		this.network.getConflictSet().addAssert(this, plus);
 	}
 
+	/**
+	 * Passes this {@link Retract} to the {@link ConflictSet}.
+	 * 
+	 * @param minus
+	 *            the {@link Retract} to be passed to the {@link ConflictSet}
+	 */
 	public void enqueueRetract(final Retract minus) {
 		this.network.getConflictSet().addRetract(this, minus);
 	}
 
-	public MemoryHandlerTerminal flush() {
-		final MemoryHandlerTerminal old = this.getMemory();
-		this.memory = this.edge.getSourceNode().getMemory().newMemoryHandlerTerminal();
-		return old;
+	/**
+	 * Calls {@link MemoryHandlerTerminal#flush()} on the memory of this node.
+	 */
+	public void flush() {
+		this.memory.flush();
 	}
 }
