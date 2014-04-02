@@ -1,7 +1,5 @@
 package test.jamocha.filter;
 
-import lombok.RequiredArgsConstructor;
-
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.filter.Function;
 import org.jamocha.filter.Path;
@@ -9,11 +7,16 @@ import org.jamocha.filter.fwa.FunctionWithArgumentsVisitor;
 import org.jamocha.filter.fwa.GenericWithArgumentsComposite.LazyObject;
 import org.jamocha.filter.fwa.PredicateWithArguments;
 
-@RequiredArgsConstructor
 public class PredicateWithArgumentsMockup implements PredicateWithArguments {
 
 	final private boolean returnValue;
 	final private Path[] paths;
+
+	public PredicateWithArgumentsMockup(boolean returnValue, Path[] paths) {
+		super();
+		this.returnValue = returnValue;
+		this.paths = paths;
+	}
 
 	@Override
 	public SlotType getReturnType() {
