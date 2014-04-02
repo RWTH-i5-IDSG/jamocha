@@ -35,6 +35,12 @@ import org.jamocha.dn.memory.Template;
 public class SlotAddress implements org.jamocha.dn.memory.SlotAddress {
 	/**
 	 * Index of the slot in the storing {@link Fact fact}.
+	 * 
+	 * -- GETTER --
+	 * 
+	 * Returns the index of the slot in the storing {@link Fact fact}.
+	 * 
+	 * @return the index of the slot in the storing {@link Fact fact}
 	 */
 	final int index;
 
