@@ -88,6 +88,8 @@ public interface MemoryHandlerTerminal extends Iterable<Assert> {
 		 * Returns true iff this instance of {@link AssertOrRetract} is an {@link Assert} with a
 		 * {@link Retract} revoking the facts in the {@link Assert} or this instance is a
 		 * {@link Retract}.
+		 * 
+		 * @return true iff conditions named above hold
 		 */
 		public boolean isRevokedOrMinus() {
 			return true;
