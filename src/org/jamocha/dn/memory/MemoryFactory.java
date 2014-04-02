@@ -54,16 +54,17 @@ public interface MemoryFactory {
 	public MemoryHandlerMain newMemoryHandlerMain(final Template template, final Path... paths);
 
 	/**
-	 * Creates a new {@link MemoryHandlerMain} capable of storing facts merged from the {@link Edge
-	 * edges} given. The {@link Edge edges} given have their
+	 * Creates a new {@link MemoryHandlerMain} capable of storing facts merged from the {@link Path
+	 * paths} given. The {@link Edge edges} given have their
 	 * {@link Edge#setAddressMap(java.util.Map)} called with a map able to localize addresses from
 	 * their parent into addresses in the {@link Node node} the {@link MemoryHandlerMain} is for.
 	 * 
 	 * @param filter
 	 *            filter for the target node, used to spot existential filter elements
-	 * @param edgesToBeJoined
-	 *            {@link Edge edges} producing the facts that will be joined and have to be stored
-	 *            in the {@link MemoryHandlerMain} created here
+	 * @param edgesAndPaths
+	 *            map of {@link Edge edges} and corresponding {@link Path paths} producing the facts
+	 *            that will be joined and have to be stored in the {@link MemoryHandlerMain} created
+	 *            here
 	 * @return a {@link MemoryHandlerMain} capable of storing facts merged from the {@link Edge
 	 *         edges} given
 	 * @see MemoryHandlerMain
