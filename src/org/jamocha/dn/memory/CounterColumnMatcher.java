@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2014 The Jamocha Team
+ * Copyright 2002-2013 The Jamocha Team
  * 
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
@@ -12,22 +12,18 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package test.jamocha.util;
+package org.jamocha.dn.memory;
 
-import org.jamocha.dn.memory.CounterColumn;
-import org.jamocha.dn.memory.PathFilterElementToCounterColumn;
 import org.jamocha.filter.PathFilter.PathFilterElement;
 
 /**
+ * {@link CounterColumnMatcher}s map {@link PathFilterElement}s to their corresponding
+ * {@link CounterColumn}s.
+ * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+ * @see CounterColumn
+ * @see PathFilterElement
  */
-public class PathFilterElementToCounterColumnMockup implements PathFilterElementToCounterColumn {
-
-	public static final PathFilterElementToCounterColumnMockup fe2ccmockup =
-			new PathFilterElementToCounterColumnMockup();
-
-	@Override
-	public CounterColumn getCounterColumn(final PathFilterElement filterElement) {
-		return null;
-	}
+public interface CounterColumnMatcher {
+	public CounterColumn getCounterColumn(final PathFilterElement filterElement);
 }

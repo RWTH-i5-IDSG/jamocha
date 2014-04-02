@@ -16,7 +16,7 @@ package org.jamocha.dn.memory.javaimpl;
 
 import lombok.Value;
 
-import org.jamocha.dn.memory.PathFilterElementToCounterColumn;
+import org.jamocha.dn.memory.CounterColumnMatcher;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -26,5 +26,5 @@ import org.jamocha.dn.memory.PathFilterElementToCounterColumn;
 public class MemoryHandlerMainAndFilterElementToCounterColumn implements
 		org.jamocha.dn.memory.MemoryHandlerMainAndCounterColumnMatcher {
 	MemoryHandlerMain memoryHandlerMain;
-	PathFilterElementToCounterColumn filterElementToCounterColumn;
+	CounterColumnMatcher filterElementToCounterColumn;
 }

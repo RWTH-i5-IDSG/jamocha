@@ -21,12 +21,12 @@ import org.jamocha.dn.memory.CounterColumn;
 import org.jamocha.filter.PathFilter.PathFilterElement;
 
 /**
- * Implementation of {@link org.jamocha.dn.memory.PathFilterElementToCounterColumn}.
+ * Implementation of {@link org.jamocha.dn.memory.CounterColumnMatcher}.
  * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
 public class PathFilterElementToCounterColumn implements
-		org.jamocha.dn.memory.PathFilterElementToCounterColumn {
+		org.jamocha.dn.memory.CounterColumnMatcher {
 	private final Map<PathFilterElement, CounterColumn> map = new HashMap<>();
 
 	void putFilterElementToCounterColumn(final PathFilterElement pathFilterElement,

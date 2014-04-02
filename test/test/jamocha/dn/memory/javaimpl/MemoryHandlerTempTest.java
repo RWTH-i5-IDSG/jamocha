@@ -17,7 +17,7 @@ package test.jamocha.dn.memory.javaimpl;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static test.jamocha.util.PathFilterElementToCounterColumnMockup.fe2ccmockup;
+import static test.jamocha.util.CounterColumnMatcherMockup.counterColumnMatcherMockup;
 
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -235,7 +235,7 @@ public class MemoryHandlerTempTest {
 						Template.STRING.newFact("Fakt1"), Template.STRING.newFact("Fakt2"));
 		final MemoryHandlerPlusTemp token1 =
 				(MemoryHandlerPlusTemp) node.getMemory().processTokenInBeta(token, originInput,
-						FilterTranslator.translate(FilterMockup.alwaysTrue(), fe2ccmockup));
+						FilterTranslator.translate(FilterMockup.alwaysTrue(), counterColumnMatcherMockup));
 		assertEquals(4, token1.size());
 		assertEquals(2, token1.getTemplate().length);
 		String s = (String) token1.getValue(fa[0], slotAddress, 0);
@@ -310,12 +310,12 @@ public class MemoryHandlerTempTest {
 		MemoryHandlerPlusTemp memoryTempHandler =
 				(MemoryHandlerPlusTemp) memoryHandlerMain.processTokenInAlpha(token,
 						node.getIncomingEdges()[0],
-						FilterTranslator.translate(FilterMockup.alwaysTrue(), fe2ccmockup));
+						FilterTranslator.translate(FilterMockup.alwaysTrue(), counterColumnMatcherMockup));
 		assertEquals(1, memoryTempHandler.size());
 		memoryTempHandler =
 				(MemoryHandlerPlusTemp) memoryHandlerMain.processTokenInAlpha(token,
 						node.getIncomingEdges()[0],
-						FilterTranslator.translate(FilterMockup.alwaysFalse(), fe2ccmockup));
+						FilterTranslator.translate(FilterMockup.alwaysFalse(), counterColumnMatcherMockup));
 		assertEquals(0, memoryTempHandler.size());
 	}
 

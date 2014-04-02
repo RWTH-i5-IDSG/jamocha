@@ -12,22 +12,24 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package org.jamocha.dn.memory.javaimpl;
+package test.jamocha.util;
 
-import lombok.Value;
-
-import org.jamocha.dn.memory.MemoryHandlerMain;
+import org.jamocha.dn.memory.CounterColumn;
 import org.jamocha.dn.memory.CounterColumnMatcher;
+import org.jamocha.filter.PathFilter.PathFilterElement;
 
 /**
- * Implementation of the {@link org.jamocha.dn.memory.MemoryHandlerMainAndCounterColumnMatcher}
- * interface.
+ * Mockup implementation of {@link CounterColumnMatcher} matching every {@link PathFilterElement} to
+ * null.
  * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
-@Value
-public class MemoryHandlerMainAndCounterColumnMatcher implements
-		org.jamocha.dn.memory.MemoryHandlerMainAndCounterColumnMatcher {
-	MemoryHandlerMain memoryHandlerMain;
-	CounterColumnMatcher filterElementToCounterColumn;
+public class CounterColumnMatcherMockup implements CounterColumnMatcher {
+	public static final CounterColumnMatcherMockup counterColumnMatcherMockup =
+			new CounterColumnMatcherMockup();
+
+	@Override
+	public CounterColumn getCounterColumn(final PathFilterElement filterElement) {
+		return null;
+	}
 }

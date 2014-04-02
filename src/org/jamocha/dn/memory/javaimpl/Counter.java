@@ -16,7 +16,7 @@ package org.jamocha.dn.memory.javaimpl;
 
 import lombok.Getter;
 
-import org.jamocha.dn.memory.PathFilterElementToCounterColumn;
+import org.jamocha.dn.memory.CounterColumnMatcher;
 import org.jamocha.filter.PathFilter;
 
 /**
@@ -158,7 +158,7 @@ public abstract class Counter {
 	}
 
 	public static Counter newCounter(final PathFilter filter,
-			final PathFilterElementToCounterColumn filterElementToCounterColumn) {
+			final CounterColumnMatcher filterElementToCounterColumn) {
 		final boolean[] negatedArrayFromFilter =
 				ExistentialPathCounter.getNegatedArrayFromFilter(filter,
 						filterElementToCounterColumn);

@@ -2,7 +2,7 @@ package test.jamocha.filter;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static test.jamocha.util.PathFilterElementToCounterColumnMockup.fe2ccmockup;
+import static test.jamocha.util.CounterColumnMatcherMockup.counterColumnMatcherMockup;
 
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.dn.memory.Template;
@@ -58,9 +58,9 @@ public class FilterEqualsInFunctionTest {
 										.addPath(p3, a3).build()).buildPFE();
 		PathFilter pf = new PathFilter(f), pg = new PathFilter(g);
 
-		assertTrue(FilterFunctionCompare.equals(pf, FilterTranslator.translate(pf, fe2ccmockup)));
-		assertTrue(FilterFunctionCompare.equals(pg, FilterTranslator.translate(pg, fe2ccmockup)));
-		assertTrue(FilterFunctionCompare.equals(pf, FilterTranslator.translate(pg, fe2ccmockup)));
+		assertTrue(FilterFunctionCompare.equals(pf, FilterTranslator.translate(pf, counterColumnMatcherMockup)));
+		assertTrue(FilterFunctionCompare.equals(pg, FilterTranslator.translate(pg, counterColumnMatcherMockup)));
+		assertTrue(FilterFunctionCompare.equals(pf, FilterTranslator.translate(pg, counterColumnMatcherMockup)));
 	}
 
 	@Test
@@ -95,8 +95,8 @@ public class FilterEqualsInFunctionTest {
 						.buildPFE();
 		pf = new PathFilter(f);
 		pg = new PathFilter(g);
-		assertTrue(FilterFunctionCompare.equals(pf, FilterTranslator.translate(pg, fe2ccmockup)));
-		assertTrue(FilterFunctionCompare.equals(pg, FilterTranslator.translate(pf, fe2ccmockup)));
+		assertTrue(FilterFunctionCompare.equals(pf, FilterTranslator.translate(pg, counterColumnMatcherMockup)));
+		assertTrue(FilterFunctionCompare.equals(pg, FilterTranslator.translate(pf, counterColumnMatcherMockup)));
 		g =
 				new PredicateBuilder(FunctionDictionary.lookupPredicate("=", SlotType.DOUBLE,
 						SlotType.DOUBLE))
@@ -107,8 +107,8 @@ public class FilterEqualsInFunctionTest {
 								new FunctionBuilder(plus).addPath(p2, a2).addPath(p1, a1).build())
 						.buildPFE();
 		pg = new PathFilter(g);
-		assertTrue(FilterFunctionCompare.equals(pf, FilterTranslator.translate(pg, fe2ccmockup)));
-		assertTrue(FilterFunctionCompare.equals(pg, FilterTranslator.translate(pf, fe2ccmockup)));
+		assertTrue(FilterFunctionCompare.equals(pf, FilterTranslator.translate(pg, counterColumnMatcherMockup)));
+		assertTrue(FilterFunctionCompare.equals(pg, FilterTranslator.translate(pf, counterColumnMatcherMockup)));
 	}
 
 	@Test
@@ -143,8 +143,8 @@ public class FilterEqualsInFunctionTest {
 										.addPath(p3, a3).build()).buildPFE();
 		pf = new PathFilter(f);
 		pg = new PathFilter(g);
-		assertFalse(FilterFunctionCompare.equals(pf, FilterTranslator.translate(pg, fe2ccmockup)));
-		assertFalse(FilterFunctionCompare.equals(pg, FilterTranslator.translate(pf, fe2ccmockup)));
+		assertFalse(FilterFunctionCompare.equals(pf, FilterTranslator.translate(pg, counterColumnMatcherMockup)));
+		assertFalse(FilterFunctionCompare.equals(pg, FilterTranslator.translate(pf, counterColumnMatcherMockup)));
 	}
 
 	@Test
@@ -179,8 +179,8 @@ public class FilterEqualsInFunctionTest {
 										.addPath(p3, a3).build()).buildPFE();
 		pf = new PathFilter(f);
 		pg = new PathFilter(g);
-		assertTrue(FilterFunctionCompare.equals(pf, FilterTranslator.translate(pg, fe2ccmockup)));
-		assertTrue(FilterFunctionCompare.equals(pg, FilterTranslator.translate(pf, fe2ccmockup)));
+		assertTrue(FilterFunctionCompare.equals(pf, FilterTranslator.translate(pg, counterColumnMatcherMockup)));
+		assertTrue(FilterFunctionCompare.equals(pg, FilterTranslator.translate(pf, counterColumnMatcherMockup)));
 	}
 
 	@Test
@@ -214,8 +214,8 @@ public class FilterEqualsInFunctionTest {
 										.addPath(p3, a3).build()).buildPFE();
 		pf = new PathFilter(f);
 		pg = new PathFilter(g);
-		assertFalse(FilterFunctionCompare.equals(pf, FilterTranslator.translate(pg, fe2ccmockup)));
-		assertFalse(FilterFunctionCompare.equals(pg, FilterTranslator.translate(pf, fe2ccmockup)));
+		assertFalse(FilterFunctionCompare.equals(pf, FilterTranslator.translate(pg, counterColumnMatcherMockup)));
+		assertFalse(FilterFunctionCompare.equals(pg, FilterTranslator.translate(pf, counterColumnMatcherMockup)));
 
 	}
 
@@ -252,8 +252,8 @@ public class FilterEqualsInFunctionTest {
 										.addPath(p3, a3).build()).buildPFE();
 		pf = new PathFilter(f);
 		pg = new PathFilter(g);
-		assertFalse(FilterFunctionCompare.equals(pf, FilterTranslator.translate(pg, fe2ccmockup)));
-		assertFalse(FilterFunctionCompare.equals(pg, FilterTranslator.translate(pf, fe2ccmockup)));
+		assertFalse(FilterFunctionCompare.equals(pf, FilterTranslator.translate(pg, counterColumnMatcherMockup)));
+		assertFalse(FilterFunctionCompare.equals(pg, FilterTranslator.translate(pf, counterColumnMatcherMockup)));
 		g =
 				new PredicateBuilder(FunctionDictionary.lookupPredicate("=", SlotType.DOUBLE,
 						SlotType.DOUBLE))
@@ -263,8 +263,8 @@ public class FilterEqualsInFunctionTest {
 								new FunctionBuilder(minus).addConstant(1337.0, SlotType.DOUBLE)
 										.addPath(p3, a3).build()).buildPFE();
 		pg = new PathFilter(g);
-		assertFalse(FilterFunctionCompare.equals(pf, FilterTranslator.translate(pg, fe2ccmockup)));
-		assertFalse(FilterFunctionCompare.equals(pg, FilterTranslator.translate(pf, fe2ccmockup)));
+		assertFalse(FilterFunctionCompare.equals(pf, FilterTranslator.translate(pg, counterColumnMatcherMockup)));
+		assertFalse(FilterFunctionCompare.equals(pg, FilterTranslator.translate(pf, counterColumnMatcherMockup)));
 		g =
 				new PredicateBuilder(FunctionDictionary.lookupPredicate("=", SlotType.DOUBLE,
 						SlotType.DOUBLE))
@@ -274,8 +274,8 @@ public class FilterEqualsInFunctionTest {
 								new FunctionBuilder(minus).addConstant(1337.0, SlotType.DOUBLE)
 										.addPath(p3, a3).build()).buildPFE();
 		pg = new PathFilter(g);
-		assertFalse(FilterFunctionCompare.equals(pf, FilterTranslator.translate(pg, fe2ccmockup)));
-		assertFalse(FilterFunctionCompare.equals(pg, FilterTranslator.translate(pf, fe2ccmockup)));
+		assertFalse(FilterFunctionCompare.equals(pf, FilterTranslator.translate(pg, counterColumnMatcherMockup)));
+		assertFalse(FilterFunctionCompare.equals(pg, FilterTranslator.translate(pf, counterColumnMatcherMockup)));
 	}
 
 	@SuppressWarnings("unused")
@@ -327,23 +327,23 @@ public class FilterEqualsInFunctionTest {
 		PathFilter a, b;
 		a = new PathFilter(f, g, h);
 		b = new PathFilter(f, g, h);
-		assertTrue(FilterFunctionCompare.equals(a, FilterTranslator.translate(b, fe2ccmockup)));
-		assertTrue(FilterFunctionCompare.equals(b, FilterTranslator.translate(a, fe2ccmockup)));
+		assertTrue(FilterFunctionCompare.equals(a, FilterTranslator.translate(b, counterColumnMatcherMockup)));
+		assertTrue(FilterFunctionCompare.equals(b, FilterTranslator.translate(a, counterColumnMatcherMockup)));
 		b = new PathFilter(i, j, k);
-		assertTrue(FilterFunctionCompare.equals(a, FilterTranslator.translate(b, fe2ccmockup)));
-		assertTrue(FilterFunctionCompare.equals(b, FilterTranslator.translate(a, fe2ccmockup)));
+		assertTrue(FilterFunctionCompare.equals(a, FilterTranslator.translate(b, counterColumnMatcherMockup)));
+		assertTrue(FilterFunctionCompare.equals(b, FilterTranslator.translate(a, counterColumnMatcherMockup)));
 		b = new PathFilter(f, j, h);
-		assertTrue(FilterFunctionCompare.equals(a, FilterTranslator.translate(b, fe2ccmockup)));
-		assertTrue(FilterFunctionCompare.equals(b, FilterTranslator.translate(a, fe2ccmockup)));
+		assertTrue(FilterFunctionCompare.equals(a, FilterTranslator.translate(b, counterColumnMatcherMockup)));
+		assertTrue(FilterFunctionCompare.equals(b, FilterTranslator.translate(a, counterColumnMatcherMockup)));
 
 		l =
 				new PredicateBuilder((Predicate) lessL).addConstant(17L, SlotType.LONG)
 						.addPath(p1, a5).buildPFE();
 		b = new PathFilter(f, l, h);
-		assertFalse(FilterFunctionCompare.equals(a, FilterTranslator.translate(b, fe2ccmockup)));
-		assertFalse(FilterFunctionCompare.equals(b, FilterTranslator.translate(a, fe2ccmockup)));
+		assertFalse(FilterFunctionCompare.equals(a, FilterTranslator.translate(b, counterColumnMatcherMockup)));
+		assertFalse(FilterFunctionCompare.equals(b, FilterTranslator.translate(a, counterColumnMatcherMockup)));
 		b = new PathFilter(f, l, h);
-		assertFalse(FilterFunctionCompare.equals(a, FilterTranslator.translate(b, fe2ccmockup)));
-		assertFalse(FilterFunctionCompare.equals(b, FilterTranslator.translate(a, fe2ccmockup)));
+		assertFalse(FilterFunctionCompare.equals(a, FilterTranslator.translate(b, counterColumnMatcherMockup)));
+		assertFalse(FilterFunctionCompare.equals(b, FilterTranslator.translate(a, counterColumnMatcherMockup)));
 	}
 }

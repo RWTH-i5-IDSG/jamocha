@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 
 import org.jamocha.dn.memory.CounterColumn;
 import org.jamocha.dn.memory.FactAddress;
-import org.jamocha.dn.memory.PathFilterElementToCounterColumn;
+import org.jamocha.dn.memory.CounterColumnMatcher;
 import org.jamocha.dn.nodes.SlotInFactAddress;
 import org.jamocha.filter.AddressFilter.AddressFilterElement;
 import org.jamocha.filter.AddressFilter.ExistentialAddressFilterElement;
@@ -42,7 +42,7 @@ import test.jamocha.filter.PredicateWithArgumentsMockup;
  */
 public class FilterTranslator {
 	public static AddressFilter translate(final PathFilter pathFilter,
-			final PathFilterElementToCounterColumn filterElementToCounterColumn) {
+			final CounterColumnMatcher filterElementToCounterColumn) {
 		final PathFilterElement[] pathFEs = pathFilter.getFilterElements();
 		final AddressFilterElement[] addrFEs = new AddressFilterElement[pathFEs.length];
 		for (int i = 0; i < pathFEs.length; i++) {
