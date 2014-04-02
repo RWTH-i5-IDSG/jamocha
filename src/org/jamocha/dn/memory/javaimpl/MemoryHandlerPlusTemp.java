@@ -116,16 +116,19 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 	}
 
 	final protected void commitAndInvalidate() {
-		this.originatingMainHandler.acquireWriteLock();
 		assert this == this.originatingMainHandler.getValidOutgoingPlusTokens().peek();
 		this.originatingMainHandler.getValidOutgoingPlusTokens().remove();
-		// add newValidRows to main.filtered
+		this.valid = false;
 		final ArrayList<Row> rows = this.getFiltered();
+		// skip further code if no rows to add
+		if (rows.isEmpty())
+			return;
+		// add new filtered rows to main valid rows
+		this.originatingMainHandler.acquireWriteLock();
 		for (final Row row : rows) {
 			this.originatingMainHandler.validRows.add(row);
 		}
 		this.originatingMainHandler.releaseWriteLock();
-		this.valid = false;
 	}
 
 	@Override
