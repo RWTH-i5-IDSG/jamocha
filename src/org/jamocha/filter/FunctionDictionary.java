@@ -52,7 +52,7 @@ public class FunctionDictionary {
 	static {
 		addImpl(Predicates.class);
 		addImpl(Functions.class);
-		// hier weitere funktionspakete angeben
+		// specify further function packages here
 	}
 
 	/**
@@ -92,6 +92,8 @@ public class FunctionDictionary {
 	 * Looks up an implementation for the {@link Function} identified by its string representation
 	 * in CLIPS and its parameter types.
 	 * 
+	 * @param T
+	 *            return type of the function to look up
 	 * @param inClips
 	 *            string representation of the function in CLIPS
 	 * @param params
@@ -101,14 +103,14 @@ public class FunctionDictionary {
 	 *             iff no {@link Function} implementation was found for the given string
 	 *             representation and parameter types
 	 */
-	@SuppressWarnings("unchecked")
 	public static <T> Function<T> lookup(final String inClips, final SlotType... params) {
-		final Function<?> function =
-				clipsFunctions.get(new CombinedClipsAndParams(inClips, params));
+		@SuppressWarnings("unchecked")
+		final Function<T> function =
+				(Function<T>) clipsFunctions.get(new CombinedClipsAndParams(inClips, params));
 		if (function == null)
 			throw new UnsupportedOperationException("Function \"" + inClips
 					+ "\" not loaded or implemented.");
-		return (Function<T>) function;
+		return function;
 	}
 
 	/**
