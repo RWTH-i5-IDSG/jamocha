@@ -173,31 +173,35 @@ public interface MemoryHandlerTerminal extends Iterable<Assert> {
 	}
 
 	/**
-	 * Adds a memory wrapped into an assert to the terminal memory.
+	 * Adds the given {@link MemoryHandlerPlusTemp} to the {@link MemoryHandlerTerminal} as one or
+	 * several {@link Assert}s each containing one row of the plus token. The {@link Assert}s are
+	 * passed to {@link TerminalNode#enqueueAssert(Assert)}.
 	 * 
 	 * @param terminalNode
 	 *            target terminal node
 	 * @param mem
-	 *            memory to wrap and add
-	 * @return assert wrapped around the memory
+	 *            memory to wrap
 	 */
 	public void addPlusMemory(final TerminalNode terminalNode, final MemoryHandlerPlusTemp mem);
 
 	/**
-	 * Adds a memory wrapped into a retract to the terminal memory.
+	 * Adds the given {@link MemoryHandlerMinusTemp} to the {@link MemoryHandlerTerminal} as one or
+	 * several {@link Retract}s each containing one row of the plus token. Possible {@link Assert}s
+	 * retracted by the {@link Retract}s created are revoked. The {@link Retract}s are passed to
+	 * {@link TerminalNode#enqueueRetract(Retract)}.
 	 * 
 	 * @param terminalNode
 	 *            target terminal node
 	 * @param mem
-	 *            memory to wrap and add
-	 * @return retract wrapped around the memory
+	 *            memory to wrap
 	 */
 	public void addMinusMemory(final TerminalNode terminalNode, final MemoryHandlerMinusTemp mem);
 
 	/**
-	 * Returns true iff there are unrevoked tokens in the memory.
+	 * Returns true iff there are unrevoked tokens in the memory (i.e. instances of
+	 * {@link AssertOrRetract} that return false on {@link AssertOrRetract#isRevokedOrMinus()}).
 	 * 
-	 * @return true iff there are unrevoked tokens in the memory.
+	 * @return true iff there are unrevoked tokens in the memory
 	 */
 	public boolean containsUnrevokedTokens();
 
