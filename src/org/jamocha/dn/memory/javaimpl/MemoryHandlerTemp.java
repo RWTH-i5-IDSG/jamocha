@@ -33,21 +33,26 @@ public abstract class MemoryHandlerTemp extends MemoryHandlerBase implements
 	@Override
 	public List<MemoryHandler> splitIntoChunksOfSize(final int size) {
 		final List<MemoryHandler> memoryHandlers = new ArrayList<>();
-		if (size >= this.size()) {
+		final ArrayList<Row> rowsToSplit = getRowsToSplit();
+		final int max = rowsToSplit.size();
+		if (size >= max) {
 			memoryHandlers.add(this);
 			return memoryHandlers;
 		}
-		final int max = this.size();
 		int current = 0;
 		while (current < max) {
 			final ArrayList<Row> facts = new ArrayList<>();
 			for (int i = 0; i < size && current + i < max; ++i) {
-				facts.add(validRows.get(current + i));
+				facts.add(rowsToSplit.get(current + i));
 			}
 			memoryHandlers.add(new MemoryHandlerBase(getTemplate(), facts));
 			current += size;
 		}
 		return memoryHandlers;
+	}
+
+	protected ArrayList<Row> getRowsToSplit() {
+		return this.validRows;
 	}
 
 	protected static boolean applyFilterElement(final Fact fact, final AddressFilterElement element) {

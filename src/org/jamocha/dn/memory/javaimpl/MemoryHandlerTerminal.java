@@ -21,6 +21,7 @@ import java.util.Queue;
 import lombok.RequiredArgsConstructor;
 
 import org.jamocha.dn.memory.MemoryHandler;
+import org.jamocha.dn.memory.javaimpl.MemoryHandlerMinusTemp.MemoryHandlerMinusTempComplete;
 import org.jamocha.dn.nodes.TerminalNode;
 
 /**
@@ -46,8 +47,25 @@ public class MemoryHandlerTerminal implements org.jamocha.dn.memory.MemoryHandle
 	@Override
 	public void addMinusMemory(final TerminalNode terminalNode,
 			final org.jamocha.dn.memory.MemoryHandlerMinusTemp mem) {
-		if (mem.getTemplate() != this.originatingMainHandler.getTemplate()) {
-			addPartialMinusMemory(terminalNode, mem);
+		if (!(mem instanceof MemoryHandlerMinusTempComplete)) {
+			// handle partial minus token
+			final MemoryHandlerMinusTemp minusTemp = (MemoryHandlerMinusTemp) mem;
+			final FactAddress[] factAddresses = minusTemp.factAddresses;
+			for (final Row minusRow : minusTemp.validRows) {
+				for (Iterator<Assert> tokenIterator = this.plusTokenCache.iterator(); tokenIterator
+						.hasNext();) {
+					final AssertOrRetract<?> token = tokenIterator.next();
+					final MemoryHandlerBase tokenMem = (MemoryHandlerBase) token.getMem();
+					final Row tokenRow = tokenMem.validRows.get(0);
+					if (EqualityChecker.beta.equals(tokenRow, minusRow, null, 0, factAddresses)
+							&& !token.isRevokedOrMinus()) {
+						final Retract minus = new Retract(token.getMem());
+						token.setFollowingRetract(minus);
+						terminalNode.enqueueRetract(minus);
+						tokenIterator.remove();
+					}
+				}
+			}
 			return;
 		}
 		for (final MemoryHandler handler : mem.splitIntoChunksOfSize(1)) {
@@ -58,27 +76,6 @@ public class MemoryHandlerTerminal implements org.jamocha.dn.memory.MemoryHandle
 				if (token.getMem().equals(handler) && token.setFollowingRetract(minus)) {
 					iterator.remove();
 					break;
-				}
-			}
-		}
-	}
-
-	void addPartialMinusMemory(final TerminalNode terminalNode,
-			final org.jamocha.dn.memory.MemoryHandlerMinusTemp mem) {
-		final MemoryHandlerMinusTemp minusTemp = (MemoryHandlerMinusTemp) mem;
-		final FactAddress[] factAddresses = minusTemp.factAddresses;
-		for (final Row minusRow : minusTemp.validRows) {
-			for (Iterator<Assert> tokenIterator = this.plusTokenCache.iterator(); tokenIterator
-					.hasNext();) {
-				final AssertOrRetract<?> token = tokenIterator.next();
-				final MemoryHandlerBase tokenMem = (MemoryHandlerBase) token.getMem();
-				final Row tokenRow = tokenMem.validRows.get(0);
-				if (EqualityChecker.beta.equals(tokenRow, minusRow, null, 0, factAddresses)
-						&& !token.isRevokedOrMinus()) {
-					final Retract minus = new Retract(token.getMem());
-					token.setFollowingRetract(minus);
-					terminalNode.enqueueRetract(minus);
-					tokenIterator.remove();
 				}
 			}
 		}

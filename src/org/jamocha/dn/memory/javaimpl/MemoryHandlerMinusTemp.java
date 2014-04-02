@@ -321,6 +321,11 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 		// not needed for minus temps
 	}
 
+	@Override
+	protected ArrayList<Row> getRowsToSplit() {
+		throw new UnsupportedOperationException("Partial Minus Temps should not be split!");
+	}
+
 	static class MemoryHandlerMinusTempComplete extends MemoryHandlerMinusTemp {
 		final ArrayList<Row> completeRows;
 
@@ -329,6 +334,11 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 				final ArrayList<Row> completeRows, final FactAddress[] factAddresses) {
 			super(template, originatingMainHandler, partialRows, factAddresses);
 			this.completeRows = completeRows;
+		}
+
+		@Override
+		protected ArrayList<Row> getRowsToSplit() {
+			return this.completeRows;
 		}
 	}
 
