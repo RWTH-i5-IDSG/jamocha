@@ -1,12 +1,11 @@
 package org.jamocha.dn.memory;
 
 /**
- * Super interface of the memory handlers {@link MemoryHandlerMain} and
- * {@link MemoryHandlerPlusTemp}.
+ * Super interface of the memory handlers {@link MemoryHandlerMain} and {@link MemoryHandlerTemp}.
  * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  * @see MemoryHandlerMain
- * @see MemoryHandlerPlusTemp
+ * @see MemoryHandlerTemp
  */
 public interface MemoryHandler {
 	/**
