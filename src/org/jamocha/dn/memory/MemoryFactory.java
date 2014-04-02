@@ -31,6 +31,8 @@ import org.jamocha.filter.PathFilter;
  * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
  * @see MemoryHandlerMain
  * @see MemoryHandlerPlusTemp
+ * @see MemoryHandlerMinusTemp
+ * @see MemoryHandlerTerminal
  */
 public interface MemoryFactory {
 
