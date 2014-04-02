@@ -23,7 +23,6 @@ import lombok.ToString;
  * @see SlotType
  * @see Fact
  */
-
 @ToString
 public class Template {
 	final SlotType slots[];
@@ -66,6 +65,13 @@ public class Template {
 		return this.slots[index];
 	}
 
+	/**
+	 * Ease-of-use method to create facts with type-check for its arguments.
+	 * 
+	 * @param values
+	 *            values to store in the fact instance to create
+	 * @return newly created fact instance holding the values specified
+	 */
 	public Fact newFact(final Object... values) {
 		for (int i = 0; i < this.slots.length; ++i) {
 			assert getSlotsType(i).getJavaClass().isInstance(values[i]);
