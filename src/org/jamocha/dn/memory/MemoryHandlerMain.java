@@ -14,6 +14,8 @@
  */
 package org.jamocha.dn.memory;
 
+import org.jamocha.dn.memory.MemoryHandlerTerminal.Assert;
+import org.jamocha.dn.memory.MemoryHandlerTerminal.Retract;
 import org.jamocha.dn.nodes.CouldNotAcquireLockException;
 import org.jamocha.dn.nodes.Edge;
 import org.jamocha.dn.nodes.Node;
@@ -74,7 +76,7 @@ public interface MemoryHandlerMain extends MemoryHandler {
 	 *            {@link Filter filter} to apply
 	 * @return {@link MemoryHandlerPlusTemp token} containing the result of the join
 	 * @throws CouldNotAcquireLockException
-	 *             iff one of the read locks could not be acquired
+	 *             iff one of the locks could not be acquired
 	 */
 	public MemoryHandlerTemp processTokenInBeta(final MemoryHandlerTemp token,
 			final Edge originIncomingEdge, final AddressFilter filter)
@@ -89,10 +91,10 @@ public interface MemoryHandlerMain extends MemoryHandler {
 	 * @param originIncomingEdge
 	 *            {@link Edge edge} the token arrived on
 	 * @param filter
-	 *            {@link Filter filter} filter to apply
+	 *            {@link Filter filter} to apply
 	 * @return {@link MemoryHandlerPlusTemp token} containing the result of the filter operation
 	 * @throws CouldNotAcquireLockException
-	 *             iff one of the read locks could not be acquired
+	 *             iff one of the locks could not be acquired
 	 */
 	public MemoryHandlerTemp processTokenInAlpha(final MemoryHandlerTemp token,
 			final Edge originIncomingEdge, final AddressFilter filter)
@@ -110,21 +112,19 @@ public interface MemoryHandlerMain extends MemoryHandler {
 	public MemoryHandlerPlusTemp newPlusToken(final Node otn, final Fact... facts);
 
 	/**
-	 * Creates a new {@link MemoryHandlerPlusTemp} that contains the facts given.
+	 * Creates a new {@link MemoryHandlerMinusTemp} that contains the facts given.
 	 * 
-	 * @param otn
-	 *            {@link Node node} the facts are for
 	 * @param facts
-	 *            {@link Fact facts} to store in the {@link MemoryHandlerPlusTemp token}
-	 * @return {@link MemoryHandlerPlusTemp token} containing the facts given
+	 *            {@link Fact facts} to store in the {@link MemoryHandlerMinusTemp token}
+	 * @return {@link MemoryHandlerMinusTemp token} containing the facts given
 	 */
 	public MemoryHandlerMinusTemp newMinusToken(final Fact... facts);
 
 	/**
-	 * FIXME description
+	 * Creates a new {@link MemoryHandlerTerminal} that caches {@link Assert}s until the
+	 * corresponding {@link Retract} arrives.
 	 * 
-	 * @param paths
-	 * @return
+	 * @return the newly created {@link MemoryHandlerTerminal}
 	 */
 	public MemoryHandlerTerminal newMemoryHandlerTerminal();
 
