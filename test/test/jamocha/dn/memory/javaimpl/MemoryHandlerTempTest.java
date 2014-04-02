@@ -39,7 +39,6 @@ import org.jamocha.dn.nodes.Node;
 import org.jamocha.dn.nodes.SlotInFactAddress;
 import org.jamocha.filter.AddressFilter;
 import org.jamocha.filter.AddressFilter.AddressFilterElement;
-import org.jamocha.filter.Filter;
 import org.jamocha.filter.FilterTranslator;
 import org.jamocha.filter.FunctionDictionary;
 import org.jamocha.filter.Path;
@@ -219,10 +218,10 @@ public class MemoryHandlerTempTest {
 
 	/**
 	 * Test method for
-	 * {@link org.jamocha.dn.memory.javaimpl.MemoryHandlerPlusTemp#newBetaTemp(org.jamocha.dn.memory.javaimpl.MemoryHandlerMain, org.jamocha.dn.memory.javaimpl.MemoryHandlerPlusTemp, org.jamocha.dn.nodes.Node.Edge, org.jamocha.filter.Filter)}
+	 * {@link org.jamocha.dn.memory.javaimpl.MemoryHandlerPlusTemp#newBetaTemp(MemoryHandlerMain, Edge, AddressFilter)}
 	 * .
 	 * 
-	 * @throws InterruptedException
+	 * @throws CouldNotAcquireLockException
 	 */
 	@Test
 	public void testNewBetaTempFullJoin() throws CouldNotAcquireLockException {
@@ -234,8 +233,11 @@ public class MemoryHandlerTempTest {
 				(MemoryHandlerPlusTemp) nodeLeft.getMemory().newPlusToken(nodeLeft,
 						Template.STRING.newFact("Fakt1"), Template.STRING.newFact("Fakt2"));
 		final MemoryHandlerPlusTemp token1 =
-				(MemoryHandlerPlusTemp) node.getMemory().processTokenInBeta(token, originInput,
-						FilterTranslator.translate(FilterMockup.alwaysTrue(), counterColumnMatcherMockup));
+				(MemoryHandlerPlusTemp) node.getMemory().processTokenInBeta(
+						token,
+						originInput,
+						FilterTranslator.translate(FilterMockup.alwaysTrue(),
+								counterColumnMatcherMockup));
 		assertEquals(4, token1.size());
 		assertEquals(2, token1.getTemplate().length);
 		String s = (String) token1.getValue(fa[0], slotAddress, 0);
@@ -258,10 +260,10 @@ public class MemoryHandlerTempTest {
 
 	/**
 	 * Test method for
-	 * {@link org.jamocha.dn.memory.javaimpl.MemoryHandlerPlusTemp#newBetaTemp(org.jamocha.dn.memory.javaimpl.MemoryHandlerMain, org.jamocha.dn.memory.javaimpl.MemoryHandlerPlusTemp, org.jamocha.dn.nodes.Node.Edge, org.jamocha.filter.Filter)}
+	 * {@link org.jamocha.dn.memory.javaimpl.MemoryHandlerPlusTemp#newBetaTemp(MemoryHandlerMain, Edge, AddressFilter)}
 	 * .
 	 * 
-	 * @throws InterruptedException
+	 * @throws CouldNotAcquireLockException
 	 */
 	@Test
 	public void testNewBetaTempSelectiveJoin() throws CouldNotAcquireLockException {
@@ -298,7 +300,8 @@ public class MemoryHandlerTempTest {
 
 	/**
 	 * Test method for
-	 * {@link MemoryHandlerMain#processTokenInAlpha(MemoryHandlerPlusTemp, Node.Edge, Filter)} .
+	 * {@link MemoryHandlerMain#processTokenInAlpha(org.jamocha.dn.memory.MemoryHandlerTemp, Edge, AddressFilter)}
+	 * .
 	 * 
 	 * @throws CouldNotAcquireLockException
 	 */
@@ -308,19 +311,19 @@ public class MemoryHandlerTempTest {
 				(MemoryHandlerPlusTemp) memoryHandlerMain.newPlusToken(node,
 						Template.STRING.newFact("Test"));
 		MemoryHandlerPlusTemp memoryTempHandler =
-				(MemoryHandlerPlusTemp) memoryHandlerMain.processTokenInAlpha(token,
-						node.getIncomingEdges()[0],
-						FilterTranslator.translate(FilterMockup.alwaysTrue(), counterColumnMatcherMockup));
+				(MemoryHandlerPlusTemp) memoryHandlerMain.processTokenInAlpha(token, node
+						.getIncomingEdges()[0], FilterTranslator.translate(
+						FilterMockup.alwaysTrue(), counterColumnMatcherMockup));
 		assertEquals(1, memoryTempHandler.size());
 		memoryTempHandler =
-				(MemoryHandlerPlusTemp) memoryHandlerMain.processTokenInAlpha(token,
-						node.getIncomingEdges()[0],
-						FilterTranslator.translate(FilterMockup.alwaysFalse(), counterColumnMatcherMockup));
+				(MemoryHandlerPlusTemp) memoryHandlerMain.processTokenInAlpha(token, node
+						.getIncomingEdges()[0], FilterTranslator.translate(
+						FilterMockup.alwaysFalse(), counterColumnMatcherMockup));
 		assertEquals(0, memoryTempHandler.size());
 	}
 
 	/**
-	 * Test method for {@link MemoryHandlerMain#newToken(Node, Fact...)}.
+	 * Test method for {@link MemoryHandlerMain#newPlusToken(Node, Fact...)}.
 	 */
 	@Test
 	public void testNewToken() {
@@ -333,7 +336,7 @@ public class MemoryHandlerTempTest {
 	/**
 	 * Test method for {@link org.jamocha.dn.memory.javaimpl.MemoryHandlerPlusTemp#size()}.
 	 * 
-	 * @throws InterruptedException
+	 * @throws CouldNotAcquireLockException
 	 */
 	@Test
 	public void testSize() throws InterruptedException {
@@ -347,7 +350,7 @@ public class MemoryHandlerTempTest {
 	/**
 	 * Test method for {@link org.jamocha.dn.memory.javaimpl.MemoryHandlerPlusTemp#releaseLock()} .
 	 * 
-	 * @throws InterruptedException
+	 * @throws CouldNotAcquireLockException
 	 */
 	@Test
 	public void testReleaseLock() throws InterruptedException {
@@ -382,7 +385,7 @@ public class MemoryHandlerTempTest {
 	 * {@link org.jamocha.dn.memory.javaimpl.MemoryHandlerPlusTemp#getValue(org.jamocha.dn.memory.FactAddress, org.jamocha.dn.memory.SlotAddress, int)}
 	 * .
 	 * 
-	 * @throws InterruptedException
+	 * @throws CouldNotAcquireLockException
 	 */
 	@Test
 	public void testGetValue() throws InterruptedException {
@@ -398,7 +401,7 @@ public class MemoryHandlerTempTest {
 	 * {@link org.jamocha.dn.memory.javaimpl.MemoryHandlerPlusTemp#getValue(org.jamocha.dn.memory.FactAddress, org.jamocha.dn.memory.SlotAddress, int)}
 	 * .
 	 * 
-	 * @throws InterruptedException
+	 * @throws CouldNotAcquireLockException
 	 */
 	@Test(expected = IndexOutOfBoundsException.class)
 	public void testGetValueRowOutOfBounds() throws InterruptedException {
@@ -414,7 +417,7 @@ public class MemoryHandlerTempTest {
 	 * {@link org.jamocha.dn.memory.javaimpl.MemoryHandlerPlusTemp#getValue(org.jamocha.dn.memory.FactAddress, org.jamocha.dn.memory.SlotAddress, int)}
 	 * .
 	 * 
-	 * @throws InterruptedException
+	 * @throws CouldNotAcquireLockException
 	 */
 	@Test(expected = IndexOutOfBoundsException.class)
 	public void testGetValueSlotOutOfBounds() throws InterruptedException {
@@ -431,7 +434,7 @@ public class MemoryHandlerTempTest {
 	 * {@link org.jamocha.dn.memory.javaimpl.MemoryHandlerPlusTemp#getValue(org.jamocha.dn.memory.FactAddress, org.jamocha.dn.memory.SlotAddress, int)}
 	 * .
 	 * 
-	 * @throws InterruptedException
+	 * @throws CouldNotAcquireLockException
 	 */
 	@Test(expected = IndexOutOfBoundsException.class)
 	public void testGetValueFactOutOfBounds() throws InterruptedException {

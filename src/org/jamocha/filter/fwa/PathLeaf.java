@@ -21,8 +21,9 @@ import org.jamocha.dn.memory.SlotAddress;
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.dn.nodes.Node;
 import org.jamocha.dn.nodes.SlotInFactAddress;
+import org.jamocha.filter.AddressFilter.AddressFilterElement;
 import org.jamocha.filter.Filter;
-import org.jamocha.filter.Filter.FilterElement;
+import org.jamocha.filter.FilterTranslator;
 import org.jamocha.filter.Function;
 import org.jamocha.filter.Path;
 
@@ -30,8 +31,9 @@ import org.jamocha.filter.Path;
  * A parameter of a {@link Function} may be a slot of a {@link Fact}. The corresponding
  * {@link SlotAddress} and {@link Path} are stored in this class. As soon as the {@link Node}
  * representing the surrounding {@link Filter} has been created, the {@link Filter} is
- * {@link Filter#translatePath() translated} and all {@link PathLeaf PathLeafs} are replaced with
- * {@link ParameterLeaf ParameterLeafs}.
+ * {@link FilterTranslator#translate(org.jamocha.filter.PathFilter, org.jamocha.dn.memory.CounterColumnMatcher)
+ * translated} and all {@link PathLeaf PathLeafs} are replaced with {@link ParameterLeaf
+ * ParameterLeafs}.
  * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  * @see Path
@@ -81,14 +83,14 @@ public class PathLeaf implements FunctionWithArguments {
 
 	/**
 	 * This class stores the {@link SlotType} of the represented Slot only. All other relevant
-	 * information are stored in the containing {@link FilterElement}. A {@link PathLeaf} is
+	 * information are stored in the containing {@link AddressFilterElement}. A {@link PathLeaf} is
 	 * translated into a {@link ParameterLeaf} as soon as the {@link Node} representing the
 	 * surrounding {@link Filter} has been created. In doing so, the containing
-	 * {@link FilterElement} stores the corresponding {@link SlotInFactAddress} in
-	 * {@link FilterElement#addressesInTarget}.
+	 * {@link AddressFilterElement} stores the corresponding {@link SlotInFactAddress} in
+	 * {@link AddressFilterElement#getAddressesInTarget()}.
 	 * 
 	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
-	 * @see FilterElement
+	 * @see AddressFilterElement
 	 * @see SlotInFactAddress
 	 */
 	@EqualsAndHashCode
@@ -133,6 +135,9 @@ public class PathLeaf implements FunctionWithArguments {
 			return visitor;
 		}
 
+		/**
+		 * @return the slot type
+		 */
 		public SlotType getType() {
 			return slotType;
 		}

@@ -87,7 +87,7 @@ public class TokenProcessingTest {
 	}
 
 	@Test
-	public void testTokenProcessingBetaExistential() throws Exception {
+	public void testTokenProcessingBetaExistential() throws InterruptedException {
 		final PlainScheduler scheduler = new PlainScheduler();
 		final Network network =
 				new Network(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(),
@@ -211,7 +211,7 @@ public class TokenProcessingTest {
 	}
 
 	@Test
-	public void testTokenProcessingSimpleExistential() throws Exception {
+	public void testTokenProcessingSimpleExistential() throws InterruptedException {
 		final PlainScheduler scheduler = new PlainScheduler();
 		final Network network =
 				new Network(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(),
@@ -290,7 +290,7 @@ public class TokenProcessingTest {
 	}
 
 	@Test
-	public void testTokenProcessingSimpleNegatedExistential() throws Exception {
+	public void testTokenProcessingSimpleNegatedExistential() throws InterruptedException {
 		final PlainScheduler scheduler = new PlainScheduler();
 		final Network network =
 				new Network(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(),
@@ -375,7 +375,7 @@ public class TokenProcessingTest {
 	}
 
 	@Test
-	public void testTokenProcessingSimpleSelfJoin() throws Exception {
+	public void testTokenProcessingSimpleSelfJoin() throws InterruptedException {
 		final PlainScheduler scheduler = new PlainScheduler();
 		final Network network =
 				new Network(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(),
@@ -439,7 +439,7 @@ public class TokenProcessingTest {
 	}
 
 	@Test
-	public void testTokenProcessingBeta() throws Exception {
+	public void testTokenProcessingBeta() throws InterruptedException {
 		final PlainScheduler scheduler = new PlainScheduler();
 		final Network network =
 				new Network(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(),
@@ -530,7 +530,7 @@ public class TokenProcessingTest {
 	}
 
 	@Test
-	public void testTokenProcessingBetaOneRun() throws Exception {
+	public void testTokenProcessingBetaOneRun() throws InterruptedException {
 		final PlainScheduler scheduler = new PlainScheduler();
 		final Network network =
 				new Network(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(),
@@ -605,7 +605,7 @@ public class TokenProcessingTest {
 	}
 
 	@Test
-	public void testTokenProcessingSimpleBeta() throws Exception {
+	public void testTokenProcessingSimpleBeta() throws InterruptedException {
 		final PlainScheduler scheduler = new PlainScheduler();
 		final Network network =
 				new Network(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(),
@@ -655,11 +655,8 @@ public class TokenProcessingTest {
 		}
 	}
 
-	/**
-	 *
-	 */
 	@Test
-	public void testTokenProcessing() throws Exception {
+	public void testTokenProcessing() throws InterruptedException {
 		final PlainScheduler scheduler = new PlainScheduler();
 		final Network network =
 				new Network(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(),
@@ -708,11 +705,8 @@ public class TokenProcessingTest {
 
 	}
 
-	/**
-	 *
-	 */
 	@Test
-	public void testTokenProcessingDummyFilter() throws Exception {
+	public void testTokenProcessingDummyFilter() throws InterruptedException {
 		final PlainScheduler scheduler = new PlainScheduler();
 		final Network network =
 				new Network(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(),
@@ -808,7 +802,7 @@ public class TokenProcessingTest {
 	}
 
 	@Test
-	public void testTokenProcessingDummyFilterOneRun() throws Exception {
+	public void testTokenProcessingDummyFilterOneRun() throws InterruptedException {
 		final PlainScheduler scheduler = new PlainScheduler();
 		final Network network =
 				new Network(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(),
@@ -856,7 +850,7 @@ public class TokenProcessingTest {
 	}
 
 	@Test
-	public void testTokenProcessingOneRun() throws Exception {
+	public void testTokenProcessingOneRun() throws InterruptedException {
 		final PlainScheduler scheduler = new PlainScheduler();
 		final Network network =
 				new Network(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(),

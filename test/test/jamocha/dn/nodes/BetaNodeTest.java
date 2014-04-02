@@ -78,7 +78,7 @@ public class BetaNodeTest {
 
 	/**
 	 * Test method for
-	 * {@link org.jamocha.dn.nodes.BetaNode#BetaNode(Network, org.jamocha.filter.Filter)} .
+	 * {@link org.jamocha.dn.nodes.BetaNode#BetaNode(Network, org.jamocha.filter.PathFilter)} .
 	 */
 	@Test
 	public void testBetaNode() {

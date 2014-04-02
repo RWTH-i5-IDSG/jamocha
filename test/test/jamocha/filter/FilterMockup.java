@@ -39,10 +39,24 @@ public class FilterMockup extends PathFilter {
 		super(new PathFilterElement(new PredicateWithArgumentsMockup(returnValue, paths)));
 	}
 
+	/**
+	 * Create a Filter that always evaluates to true.
+	 * 
+	 * @param paths
+	 *            {@link Path paths} to store in the predicate
+	 * @return a filter that always evaluates to true
+	 */
 	public static FilterMockup alwaysTrue(final Path... paths) {
 		return new FilterMockup(true, paths);
 	}
 
+	/**
+	 * Create a Filter that always evaluates to false.
+	 * 
+	 * @param paths
+	 *            {@link Path paths} to store in the predicate
+	 * @return a filter that always evaluates to false
+	 */
 	public static FilterMockup alwaysFalse(final Path... paths) {
 		return new FilterMockup(false, paths);
 	}
@@ -56,24 +70,26 @@ public class FilterMockup extends PathFilter {
 	@RunWith(Theories.class)
 	public static class FilterMockupTest {
 		/**
-		 * Test method for {@link test.jamocha.filter.FilterMockup#alwaysTrue()}.
+		 * Test method for {@link test.jamocha.filter.FilterMockup#alwaysTrue(Path...)}.
 		 */
 		@Theory
 		public void testAlwaysTrue(@SomeStuff Object... obj) {
 			final AddressFilter alwaysTrue =
-					FilterTranslator.translate(FilterMockup.alwaysTrue(), counterColumnMatcherMockup);
+					FilterTranslator.translate(FilterMockup.alwaysTrue(),
+							counterColumnMatcherMockup);
 			for (final FilterElement filterElement : alwaysTrue.getFilterElements()) {
 				assertTrue(filterElement.getFunction().evaluate(obj));
 			}
 		}
 
 		/**
-		 * Test method for {@link test.jamocha.filter.FilterMockup#alwaysFalse()} .
+		 * Test method for {@link test.jamocha.filter.FilterMockup#alwaysFalse(Path...)} .
 		 */
 		@Theory
 		public void testAlwaysFalse(@SomeStuff Object... obj) {
 			final AddressFilter alwaysFalse =
-					FilterTranslator.translate(FilterMockup.alwaysFalse(), counterColumnMatcherMockup);
+					FilterTranslator.translate(FilterMockup.alwaysFalse(),
+							counterColumnMatcherMockup);
 			for (final FilterElement filterElement : alwaysFalse.getFilterElements()) {
 				assertFalse(filterElement.getFunction().evaluate(obj));
 			}

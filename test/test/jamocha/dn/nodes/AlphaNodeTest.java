@@ -78,7 +78,7 @@ public class AlphaNodeTest {
 
 	/**
 	 * Test method for
-	 * {@link org.jamocha.dn.nodes.AlphaNode#AlphaNode(Network, org.jamocha.filter.Filter)} .
+	 * {@link org.jamocha.dn.nodes.AlphaNode#AlphaNode(Network, org.jamocha.filter.PathFilter)} .
 	 */
 	@Test
 	public void testAlphaNode() {

@@ -124,7 +124,8 @@ public class FilterTranslatorTest {
 
 	/**
 	 * Test method for
-	 * {@link org.jamocha.filter.FilterTranslator#translate(org.jamocha.filter.PathFilter)}.
+	 * {@link org.jamocha.filter.FilterTranslator#translate(PathFilter, org.jamocha.dn.memory.CounterColumnMatcher)}
+	 * .
 	 */
 	@Test
 	public void testTranslate() {
@@ -132,25 +133,29 @@ public class FilterTranslatorTest {
 				new SlotInFactAddress[] { new SlotInFactAddress(f1, s1),
 						new SlotInFactAddress(f1, s2) },
 				SlotInFactAddressCollector.newArrayList()
-						.collect(FilterTranslator.translate(a, counterColumnMatcherMockup)).getAddressesArray());
+						.collect(FilterTranslator.translate(a, counterColumnMatcherMockup))
+						.getAddressesArray());
 		assertArrayEquals(
 				new SlotInFactAddress[] { new SlotInFactAddress(f2, s1),
 						new SlotInFactAddress(f2, s2), new SlotInFactAddress(f1, s1),
 						new SlotInFactAddress(f2, s2) },
 				SlotInFactAddressCollector.newArrayList()
-						.collect(FilterTranslator.translate(b, counterColumnMatcherMockup)).getAddressesArray());
+						.collect(FilterTranslator.translate(b, counterColumnMatcherMockup))
+						.getAddressesArray());
 		assertArrayEquals(
 				new SlotInFactAddress[] { new SlotInFactAddress(f1, s1),
 						new SlotInFactAddress(f2, s2), new SlotInFactAddress(f2, s1),
 						new SlotInFactAddress(f3, s2) },
 				SlotInFactAddressCollector.newArrayList()
-						.collect(FilterTranslator.translate(c, counterColumnMatcherMockup)).getAddressesArray());
+						.collect(FilterTranslator.translate(c, counterColumnMatcherMockup))
+						.getAddressesArray());
 		assertArrayEquals(
 				new SlotInFactAddress[] { new SlotInFactAddress(f1, s1),
 						new SlotInFactAddress(f3, s2), new SlotInFactAddress(f3, s1),
 						new SlotInFactAddress(f1, s2) },
 				SlotInFactAddressCollector.newArrayList()
-						.collect(FilterTranslator.translate(d, counterColumnMatcherMockup)).getAddressesArray());
+						.collect(FilterTranslator.translate(d, counterColumnMatcherMockup))
+						.getAddressesArray());
 		assertArrayEquals(
 				new SlotInFactAddress[] { new SlotInFactAddress(f1, s1),
 						new SlotInFactAddress(f1, s2), new SlotInFactAddress(f2, s1),
@@ -158,7 +163,8 @@ public class FilterTranslatorTest {
 						new SlotInFactAddress(f3, s2), new SlotInFactAddress(f4, s1),
 						new SlotInFactAddress(f4, s2) },
 				SlotInFactAddressCollector.newArrayList()
-						.collect(FilterTranslator.translate(e, counterColumnMatcherMockup)).getAddressesArray());
+						.collect(FilterTranslator.translate(e, counterColumnMatcherMockup))
+						.getAddressesArray());
 		assertArrayEquals(
 				new SlotInFactAddress[] { new SlotInFactAddress(f1, s1),
 						new SlotInFactAddress(f3, s2), new SlotInFactAddress(f3, s1),
@@ -166,7 +172,8 @@ public class FilterTranslatorTest {
 						new SlotInFactAddress(f2, s2), new SlotInFactAddress(f2, s1),
 						new SlotInFactAddress(f1, s2) },
 				SlotInFactAddressCollector.newArrayList()
-						.collect(FilterTranslator.translate(f, counterColumnMatcherMockup)).getAddressesArray());
+						.collect(FilterTranslator.translate(f, counterColumnMatcherMockup))
+						.getAddressesArray());
 		assertArrayEquals(
 				new SlotInFactAddress[] { new SlotInFactAddress(f1, s1),
 						new SlotInFactAddress(f3, s2), new SlotInFactAddress(f3, s2),
@@ -174,6 +181,7 @@ public class FilterTranslatorTest {
 						new SlotInFactAddress(f2, s2), new SlotInFactAddress(f2, s1),
 						new SlotInFactAddress(f1, s2) },
 				SlotInFactAddressCollector.newArrayList()
-						.collect(FilterTranslator.translate(g, counterColumnMatcherMockup)).getAddressesArray());
+						.collect(FilterTranslator.translate(g, counterColumnMatcherMockup))
+						.getAddressesArray());
 	}
 }
