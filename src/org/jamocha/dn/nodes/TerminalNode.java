@@ -42,7 +42,6 @@ import org.jamocha.filter.AddressFilter.AddressFilterElement;
 public class TerminalNode {
 
 	protected class TerminalEdgeImpl implements Edge {
-		protected final Network network;
 		protected final Node sourceNode;
 		protected final TerminalNode targetNode;
 		protected AddressFilter filter;
@@ -51,9 +50,7 @@ public class TerminalNode {
 		private Map<? extends FactAddress, ? extends FactAddress> addressMap;
 		private final LinkedList<MemoryHandlerPlusTemp> tempMemories = new LinkedList<>();
 
-		public TerminalEdgeImpl(final Network network, final Node sourceNode,
-				final TerminalNode targetNode) {
-			this.network = network;
+		public TerminalEdgeImpl(final Node sourceNode, final TerminalNode targetNode) {
 			this.sourceNode = sourceNode;
 			this.targetNode = targetNode;
 		}
@@ -164,7 +161,7 @@ public class TerminalNode {
 	public TerminalNode(final Network network, final Node parent) {
 		this.network = network;
 		this.memory = parent.getMemory().newMemoryHandlerTerminal();
-		this.edge = new TerminalEdgeImpl(network, parent, this);
+		this.edge = new TerminalEdgeImpl(parent, this);
 		parent.acceptRegularEdgeToChild(edge);
 	}
 

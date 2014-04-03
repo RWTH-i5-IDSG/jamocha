@@ -29,6 +29,7 @@ import org.jamocha.filter.Path;
 import org.jamocha.filter.PathFilter;
 
 /**
+ * Alpha node implementation.
  * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  * @author Kai Schwarz <kai.schwarz@rwth-aachen.de>
@@ -40,9 +41,9 @@ public class AlphaNode extends Node {
 	protected class AlphaEdgeImpl extends EdgeImpl {
 		FactAddress addressInTarget = null;
 
-		public AlphaEdgeImpl(final Network network, final Node sourceNode, final Node targetNode,
+		public AlphaEdgeImpl(final Node sourceNode, final Node targetNode,
 				final AddressFilter filter) {
-			super(network, sourceNode, targetNode, filter);
+			super(sourceNode, targetNode, filter);
 		}
 
 		@Override
@@ -120,7 +121,7 @@ public class AlphaNode extends Node {
 
 	@Override
 	protected Edge newEdge(final Node source) {
-		return new AlphaEdgeImpl(this.network, source, this, this.filter);
+		return new AlphaEdgeImpl(source, this, this.filter);
 	}
 
 	@Override

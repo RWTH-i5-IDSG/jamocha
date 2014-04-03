@@ -54,18 +54,19 @@ import org.jamocha.filter.PathFilter;
 public abstract class Node {
 
 	/**
+	 * Base implementation of the {@link Edge} interface taking care of the intersection of the
+	 * commonalities of all edges: source node, target node, filter.
+	 * 
 	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+	 * @see Edge
 	 */
 	abstract protected class EdgeImpl implements Edge {
-		protected final Network network;
 		protected final Node sourceNode;
 		protected final Node targetNode;
 		protected AddressFilter filter;
 		protected AddressFilterElement[] filterParts;
 
-		protected EdgeImpl(final Network network, final Node sourceNode, final Node targetNode,
-				final AddressFilter filter) {
-			this.network = network;
+		protected EdgeImpl(final Node sourceNode, final Node targetNode, final AddressFilter filter) {
 			this.sourceNode = sourceNode;
 			this.targetNode = targetNode;
 			setFilter(filter);
@@ -116,6 +117,11 @@ public abstract class Node {
 		}
 	}
 
+	/**
+	 * Returns a list of all incoming edges.
+	 * 
+	 * @return a list of all incoming edges
+	 */
 	@Getter
 	final protected Edge[] incomingEdges;
 
@@ -135,6 +141,11 @@ public abstract class Node {
 	@Getter
 	final protected Set<Edge> outgoingExistentialEdges = new HashSet<>();
 
+	/**
+	 * Map used to map {@link FactAddress}es valid in this node to {@link AddressPredecessor}s,
+	 * whose {@link FactAddress} is valid in a parent node identified by the source node of the
+	 * {@link Edge} in the {@link AddressPredecessor}.
+	 */
 	final protected Map<FactAddress, AddressPredecessor> delocalizeMap = new HashMap<>();
 
 	/**
@@ -144,7 +155,13 @@ public abstract class Node {
 	 */
 	@Getter
 	final protected MemoryHandlerMain memory;
+	/**
+	 * Network instance this node is used for.
+	 */
 	final protected Network network;
+	/**
+	 * {@link TokenQueue} of the node, populated by incoming edges.
+	 */
 	final protected TokenQueue tokenQueue;
 
 	/**

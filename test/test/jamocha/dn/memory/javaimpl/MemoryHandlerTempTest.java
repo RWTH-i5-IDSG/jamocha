@@ -83,9 +83,8 @@ public class MemoryHandlerTempTest {
 			final LinkedList<org.jamocha.dn.memory.MemoryHandlerPlusTemp> plusTemps =
 					new LinkedList<>();
 
-			public EdgeMockup(final Network network, final Node sourceNode, final Node targetNode,
-					final int offset) {
-				super(network, sourceNode, targetNode, AddressFilter.empty);
+			public EdgeMockup(final Node sourceNode, final Node targetNode, final int offset) {
+				super(sourceNode, targetNode, AddressFilter.empty);
 				this.offset = offset;
 			}
 
@@ -147,7 +146,7 @@ public class MemoryHandlerTempTest {
 
 		@Override
 		protected Edge newEdge(final Node source) {
-			final Edge edge = new EdgeMockup(Network.DEFAULTNETWORK, source, this, currentOffset);
+			final Edge edge = new EdgeMockup(source, this, currentOffset);
 			currentOffset += source.getMemory().getTemplate().length;
 			return edge;
 		}
