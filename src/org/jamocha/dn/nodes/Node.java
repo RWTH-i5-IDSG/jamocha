@@ -176,13 +176,12 @@ public abstract class Node {
 	public class TokenQueue implements Runnable {
 		final static int tokenQueueCapacity = Integer.MAX_VALUE;
 		final Queue<Token> tokenQueue = new LinkedList<>();
-		final Network network;
 
 		synchronized public void enqueue(final Token token) {
 			final boolean empty = this.tokenQueue.isEmpty();
 			this.tokenQueue.add(token);
 			if (empty) {
-				this.network.getScheduler().enqueue(this);
+				Node.this.network.getScheduler().enqueue(this);
 			}
 		}
 
@@ -195,11 +194,11 @@ public abstract class Node {
 				synchronized (this) {
 					this.tokenQueue.remove();
 					if (!this.tokenQueue.isEmpty()) {
-						this.network.getScheduler().enqueue(this);
+						Node.this.network.getScheduler().enqueue(this);
 					}
 				}
 			} catch (final CouldNotAcquireLockException ex) {
-				this.network.getScheduler().enqueue(this);
+				Node.this.network.getScheduler().enqueue(this);
 			}
 		}
 	}
@@ -210,7 +209,7 @@ public abstract class Node {
 	@Deprecated
 	protected Node(final Network network, final Node... parents) {
 		this.network = network;
-		this.tokenQueue = new TokenQueue(network);
+		this.tokenQueue = new TokenQueue();
 		this.incomingEdges = new Edge[parents.length];
 		final Map<Edge, Set<Path>> edgesAndPaths = new HashMap<>();
 		for (int i = 0; i < parents.length; i++) {
@@ -226,7 +225,7 @@ public abstract class Node {
 
 	protected Node(final Network network, final Template template, final Path... paths) {
 		this.network = network;
-		this.tokenQueue = new TokenQueue(network);
+		this.tokenQueue = new TokenQueue();
 		this.incomingEdges = new Edge[0];
 		this.memory = network.getMemoryFactory().newMemoryHandlerMain(template, paths);
 		this.filter = AddressFilter.empty;
@@ -234,7 +233,7 @@ public abstract class Node {
 
 	public Node(final Network network, final PathFilter filter) {
 		this.network = network;
-		this.tokenQueue = new TokenQueue(network);
+		this.tokenQueue = new TokenQueue();
 		final LinkedHashSet<Path> paths =
 				PathCollector.newLinkedHashSet().collect(filter).getPaths();
 		final Map<Edge, Set<Path>> edgesAndPaths = new HashMap<>();
