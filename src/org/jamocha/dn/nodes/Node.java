@@ -172,11 +172,22 @@ public abstract class Node {
 	@Getter
 	final protected AddressFilter filter;
 
+	/**
+	 * Queue of {@link Token}s belonging to this node.
+	 * 
+	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+	 */
 	@RequiredArgsConstructor
 	public class TokenQueue implements Runnable {
 		final static int tokenQueueCapacity = Integer.MAX_VALUE;
 		final Queue<Token> tokenQueue = new LinkedList<>();
 
+		/**
+		 * Adds a token to the queue, enqueues the queue in the scheduler if the queue was empty.
+		 * 
+		 * @param token
+		 *            {@link Token} to enqueue
+		 */
 		synchronized public void enqueue(final Token token) {
 			final boolean empty = this.tokenQueue.isEmpty();
 			this.tokenQueue.add(token);
@@ -185,6 +196,11 @@ public abstract class Node {
 			}
 		}
 
+		/**
+		 * Calls {@link Token#run()} for the first {@link Token} in the queue and removes it from
+		 * the queue if the call was successful. Re-queues itself if there are more tokens to be
+		 * run.
+		 */
 		@Override
 		public void run() {
 			final Token token = this.tokenQueue.peek();
@@ -286,12 +302,28 @@ public abstract class Node {
 		}
 	}
 
+	/**
+	 * Connects a parent via an edge (to be created by {@link #newEdge(Node)}), that does not
+	 * contain existential facts, by calling {@link #acceptRegularEdgeToChild(Edge)}.
+	 * 
+	 * @param parent
+	 *            parent {@link Node}
+	 * @return edge created
+	 */
 	protected Edge connectRegularParent(final Node parent) {
 		final Edge edge = newEdge(parent);
 		parent.acceptRegularEdgeToChild(edge);
 		return edge;
 	}
 
+	/**
+	 * Connects a parent via an edge (to be created by {@link #newEdge(Node)}), that contains
+	 * existential facts, by calling {@link #acceptExistentialEdgeToChild(Edge)}.
+	 * 
+	 * @param parent
+	 *            parent {@link Node}
+	 * @return edge created
+	 */
 	protected Edge connectExistentialParent(final Node parent) {
 		final Edge edge = newEdge(parent);
 		parent.acceptExistentialEdgeToChild(edge);
@@ -299,8 +331,8 @@ public abstract class Node {
 	}
 
 	/**
-	 * Called when a child is added. Defaults to adding the edge to the child to the list of
-	 * outgoing edges.
+	 * Called when a child is added via an edge not containing existential facts. Defaults to adding
+	 * the edge to the child to the list of outgoing edges.
 	 * 
 	 * @param edgeToChild
 	 *            the edge to the child to be added
@@ -310,8 +342,9 @@ public abstract class Node {
 	}
 
 	/**
-	 * Called when a child is added. Defaults to adding the edge to the child to the list of
-	 * outgoing edges.
+	 * Called when a child is added via an edge containing existential facts. Defaults to adding the
+	 * edge to the child to the list of outgoing edges and to the list of outgoing existential
+	 * edges.
 	 * 
 	 * @param edgeToChild
 	 *            the edge to the child to be added
@@ -322,7 +355,7 @@ public abstract class Node {
 	}
 
 	/**
-	 * Called when a child is removed. Defaults to removing the edge to the child from the list of
+	 * Called when a child is removed. Defaults to removing the edge to the child from the lists of
 	 * outgoing edges.
 	 * 
 	 * @param edgeToChild
@@ -334,26 +367,31 @@ public abstract class Node {
 	}
 
 	/**
-	 * Creates a new NodeInput which will connect this node (as the input's target node) and the
+	 * Creates a new {@link Edge} which will connect this node (as the edge's target node) and the
 	 * given source node (as its parent).
 	 * 
 	 * @param source
-	 *            source node to connect to this node via a nodeInput to be constructed
-	 * @return NodeInput connecting the given source node with this node
+	 *            source node to connect to this node via a {@link Edge} to be constructed
+	 * @return {@link Edge} connecting the given source node with this node
 	 */
 	abstract protected Edge newEdge(final Node source);
 
+	/**
+	 * Returns the number of outgoing edges.
+	 * 
+	 * @return the number of outgoing edges
+	 */
 	public int getNumberOfOutgoingEdges() {
 		return this.outgoingEdges.size();
 	}
 
 	/**
-	 * Transforms an address valid for the target node of its inputs into the corresponding address
-	 * valid for the source node of its input.
+	 * Transforms an address valid for this node into the corresponding address valid for the source
+	 * node of the edge specified in {@link AddressPredecessor}.
 	 * 
 	 * @param localFactAddress
 	 *            an address valid in the current node
-	 * @return an address valid in the parent node
+	 * @return an {@link AddressPredecessor} containing an address valid in the parent node
 	 */
 	public AddressPredecessor delocalizeAddress(final FactAddress localFactAddress) {
 		assert null != localFactAddress;
@@ -361,12 +399,21 @@ public abstract class Node {
 		return this.delocalizeMap.get(localFactAddress);
 	}
 
+	/**
+	 * Enqueues the {@link Token} given into the {@link TokenQueue} of the {@link Node}.
+	 * 
+	 * @param token
+	 *            {@link Token} to enqueue
+	 */
 	private void enqueue(final Token token) {
 		this.tokenQueue.enqueue(token);
 	}
 
 	/**
-	 * Shared node with the paths given.
+	 * Shares {@link Node} with the {@link Path}s given.
+	 * 
+	 * @param paths
+	 *            {@link Path}s to share the node with
 	 */
 	public abstract void shareNode(final Path... paths);
 
