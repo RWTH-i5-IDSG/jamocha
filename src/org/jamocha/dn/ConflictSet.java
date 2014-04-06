@@ -26,11 +26,17 @@ import org.jamocha.dn.memory.MemoryHandlerTerminal.Retract;
 import org.jamocha.dn.nodes.TerminalNode;
 
 /**
- * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+ * Simple conflict set implementation.
  * 
+ * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
 public class ConflictSet implements Iterable<ConflictSet.NodeAndToken> {
 
+	/**
+	 * Combination of {@link TerminalNode} and {@link AssertOrRetract}.
+	 * 
+	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+	 */
 	@Value
 	public static class NodeAndToken {
 		TerminalNode terminal;
@@ -39,23 +45,39 @@ public class ConflictSet implements Iterable<ConflictSet.NodeAndToken> {
 
 	final List<NodeAndToken> nodesAndTokens = new LinkedList<>();
 
+	/**
+	 * Adds an {@link Assert} belonging to {@link TerminalNode}.
+	 * 
+	 * @param terminal
+	 *            {@link TerminalNode} the {@link Assert} belongs to
+	 * @param plus
+	 *            {@link Assert} to add
+	 */
 	public void addAssert(final TerminalNode terminal, final Assert plus) {
 		this.nodesAndTokens.add(new NodeAndToken(terminal, plus));
 	}
 
+	/**
+	 * Adds a {@link Retract} belonging to {@link TerminalNode}.
+	 * 
+	 * @param terminal
+	 *            {@link TerminalNode} the {@link Retract} belongs to
+	 * @param minus
+	 *            {@link Retract} to add
+	 */
 	public void addRetract(final TerminalNode terminal, final Retract minus) {
 		this.nodesAndTokens.add(new NodeAndToken(terminal, minus));
 	}
 
 	/**
-	 * deletes all asserts and retracts
+	 * Deletes all asserts and retracts.
 	 */
 	public void flush() {
 		this.nodesAndTokens.clear();
 	}
 
 	/**
-	 * deletes all asserts and retracts with duals
+	 * Deletes all asserts and retracts with duals.
 	 */
 	public void deleteRevokedEntries() {
 		final Iterator<NodeAndToken> iterator = this.nodesAndTokens.iterator();
@@ -72,5 +94,4 @@ public class ConflictSet implements Iterable<ConflictSet.NodeAndToken> {
 	public Iterator<NodeAndToken> iterator() {
 		return this.nodesAndTokens.iterator();
 	}
-
 }

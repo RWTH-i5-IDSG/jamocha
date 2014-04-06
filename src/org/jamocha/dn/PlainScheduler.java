@@ -44,6 +44,12 @@ public class PlainScheduler implements Scheduler, Runnable {
 		}
 	}
 
+	/**
+	 * If there is a {@link Runnable} in the queue, process the first and return true, otherwise
+	 * return false.
+	 * 
+	 * @return true iff a {@link Runnable} was processed
+	 */
 	public boolean runOneJob() {
 		if (this.workQueue.isEmpty())
 			return false;

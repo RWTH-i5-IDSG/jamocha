@@ -81,6 +81,13 @@ public class Network {
 	 */
 	private final Scheduler scheduler;
 
+	/**
+	 * -- GETTER --
+	 * 
+	 * Gets the {@link RootNode} of the network.
+	 * 
+	 * @return the {@link RootNode} of the network
+	 */
 	private final RootNode rootNode;
 
 	/**
@@ -93,7 +100,7 @@ public class Network {
 	private final ConflictSet conflictSet = new ConflictSet();
 
 	/**
-	 * Creates an new network object.
+	 * Creates a new network object.
 	 * 
 	 * @param memoryFactory
 	 *            the {@link MemoryFactory} to use in the created network
@@ -111,7 +118,7 @@ public class Network {
 	}
 
 	/**
-	 * Creates an new network object with the {@link org.jamocha.dn.memory.javaimpl default memory
+	 * Creates a new network object with the {@link org.jamocha.dn.memory.javaimpl default memory
 	 * implementation}.
 	 * 
 	 * @param tokenQueueCapacity
@@ -125,7 +132,7 @@ public class Network {
 	}
 
 	/**
-	 * Creates an new network object with the {@link org.jamocha.dn.memory.javaimpl default memory
+	 * Creates a new network object with the {@link org.jamocha.dn.memory.javaimpl default memory
 	 * implementation} and {@link ThreadPoolScheduler scheduler}.
 	 */
 	public Network() {
@@ -133,6 +140,18 @@ public class Network {
 				new ThreadPoolScheduler(10));
 	}
 
+	/**
+	 * Tries to find a node performing the same filtering as the given filter and calls
+	 * {@link Node#shareNode(Path...)} or creates a new {@link Node} for the given
+	 * {@link PathFilter filter}. Returns true iff a {@link Node} to share was found.
+	 * 
+	 * @param filter
+	 *            {@link PathFilter} to find a corresponding {@link Node} for
+	 * @return true iff a {@link Node} to share was found
+	 * @throws IllegalArgumentException
+	 *             thrown if one of the {@link Path}s in the {@link PathFilter} was not mapped to a
+	 *             {@link Node}
+	 */
 	// TODO work on normalized version
 	public boolean tryToShareNode(final PathFilter filter) throws IllegalArgumentException {
 		final Path[] paths = PathCollector.newLinkedHashSet().collect(filter).getPathsArray();
