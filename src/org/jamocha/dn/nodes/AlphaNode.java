@@ -29,7 +29,7 @@ import org.jamocha.filter.Path;
 import org.jamocha.filter.PathFilter;
 
 /**
- * Alpha node implementation.
+ * Alpha {@link Node} implementation.
  * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  * @author Kai Schwarz <kai.schwarz@rwth-aachen.de>
@@ -38,6 +38,13 @@ import org.jamocha.filter.PathFilter;
 public class AlphaNode extends Node {
 	static final LinkedList<MemoryHandlerPlusTemp> empty = new LinkedList<>();
 
+	/**
+	 * {@link AlphaNode} {@link Edge} implementation.
+	 * 
+	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+	 * @see AlphaNode
+	 * @see Edge
+	 */
 	protected class AlphaEdgeImpl extends EdgeImpl {
 		FactAddress addressInTarget = null;
 

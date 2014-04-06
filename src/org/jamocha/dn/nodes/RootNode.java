@@ -24,41 +24,92 @@ import org.jamocha.dn.memory.Fact;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.filter.Path;
 
+import com.sun.org.apache.bcel.internal.generic.ObjectType;
+
 /**
+ * Root node implementation (not part of the {@link Node} type hierarchy).
+ * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
  */
 public class RootNode {
 
+	/**
+	 * Maps from {@link Template} to corresponding {@link ObjectTypeNode}
+	 */
 	private final Map<Template, ObjectTypeNode> templateToInput = new HashMap<>();
 
-	private void processFact(final Fact fact, final BiConsumer<ObjectTypeNode, Fact> assertOrRetract)
-			throws InterruptedException {
+	/**
+	 * Passes the {@link Fact} given to the {@link ObjectTypeNode} corresponding to its
+	 * {@link Template} the method passed with the {@link ObjectTypeNode} and the {@link Fact} as
+	 * parameters.
+	 * 
+	 * @param fact
+	 *            {@link Fact} to be retracted
+	 * @param assertOrRetract
+	 *            method to be called with the corresponding {@link ObjectTypeNode}
+	 */
+	private void processFact(final Fact fact, final BiConsumer<ObjectTypeNode, Fact> assertOrRetract) {
 		final Template template = fact.getTemplate();
 		final ObjectTypeNode matchingOTN = this.templateToInput.get(template);
 		assertOrRetract.accept(matchingOTN, fact);
 	}
 
-	public void assertFact(final Fact fact) throws InterruptedException {
+	/**
+	 * Passes the {@link Fact} given to the {@link ObjectTypeNode} corresponding to its
+	 * {@link Template} calling {@link ObjectTypeNode#assertFact(Fact)}.
+	 * 
+	 * @param fact
+	 *            {@link Fact} to be asserted
+	 */
+	public void assertFact(final Fact fact) {
 		processFact(fact, (final ObjectTypeNode otn, final Fact f) -> {
 			otn.assertFact(f);
 		});
 	}
 
-	public void retractFact(final Fact fact) throws InterruptedException {
+	/**
+	 * Passes the {@link Fact} given to the {@link ObjectTypeNode} corresponding to its
+	 * {@link Template} calling {@link ObjectTypeNode#retractFact(Fact)}.
+	 * 
+	 * @param fact
+	 *            {@link Fact} to be retracted
+	 */
+	public void retractFact(final Fact fact) {
 		processFact(fact, (final ObjectTypeNode otn, final Fact f) -> {
 			otn.retractFact(f);
 		});
 	}
 
+	/**
+	 * Adds the given {@link ObjectTypeNode} to correspond to its {@link Template}.
+	 * 
+	 * @param otn
+	 *            {@link ObjectType} to add
+	 */
 	public void putOTN(final ObjectTypeNode otn) {
 		this.templateToInput.put(otn.template, otn);
 	}
 
+	/**
+	 * Removes the given {@link ObjectTypeNode} from corresponding to its {@link Template}.
+	 * 
+	 * @param otn
+	 *            {@link ObjectType} to remove
+	 */
 	public void removeOTN(final ObjectTypeNode otn) {
 		this.templateToInput.remove(otn.template);
 	}
 
+	/**
+	 * Either calls {@link ObjectTypeNode#shareNode(Path...)} or creates a new
+	 * {@link ObjectTypeNode} if none existed for the template for all given paths.
+	 * 
+	 * @param network
+	 *            network to be passed to the {@link ObjectTypeNode}
+	 * @param paths
+	 *            paths to add to the {@link RootNode}
+	 */
 	public void addPaths(final Network network, final Path... paths) {
 		for (final Path path : paths) {
 			final ObjectTypeNode otn = this.templateToInput.get(path.getTemplate());

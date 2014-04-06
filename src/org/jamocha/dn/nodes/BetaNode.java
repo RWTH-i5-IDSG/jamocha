@@ -31,13 +31,22 @@ import org.jamocha.filter.Path;
 import org.jamocha.filter.PathFilter;
 
 /**
+ * Beta {@link Node} implementation.
  * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  * @author Kai Schwarz <kai.schwarz@rwth-aachen.de>
  * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
+ * @see Node
  */
 public class BetaNode extends Node {
 
+	/**
+	 * {@link BetaNode Beta node} {@link Edge} implementation.
+	 * 
+	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+	 * @see BetaNode
+	 * @see Edge
+	 */
 	protected class BetaEdgeImpl extends EdgeImpl {
 		private Map<? extends FactAddress, ? extends FactAddress> addressMap;
 		private final LinkedList<MemoryHandlerPlusTemp> tempMemories = new LinkedList<>();

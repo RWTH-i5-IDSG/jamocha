@@ -24,6 +24,8 @@ import org.jamocha.dn.memory.Template;
 import org.jamocha.filter.Path;
 
 /**
+ * Object-type {@link Node} implementation.
+ * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
 public class ObjectTypeNode extends AlphaNode {
@@ -59,14 +61,28 @@ public class ObjectTypeNode extends AlphaNode {
 		throw new UnsupportedOperationException("ObjectTypeNodes can not have inputs!");
 	}
 
+	/**
+	 * Creates a new plus token for the given fact and passes it to children.
+	 * 
+	 * @param fact
+	 *            {@link Fact} to be asserted
+	 */
 	public void assertFact(final Fact fact) {
+		assert fact.getTemplate() == this.template;
 		final MemoryHandlerPlusTemp mem = this.memory.newPlusToken(this, fact);
 		for (final Edge edge : this.outgoingEdges) {
 			edge.enqueueMemory(mem);
 		}
 	}
 
+	/**
+	 * Creates a new minus token for the given fact and passes it to children.
+	 * 
+	 * @param fact
+	 *            {@link Fact} to be retracted
+	 */
 	public void retractFact(final Fact fact) {
+		assert fact.getTemplate() == this.template;
 		final MemoryHandlerMinusTemp mem = this.memory.newMinusToken(fact);
 		for (final Edge edge : this.outgoingEdges) {
 			edge.enqueueMemory(mem);

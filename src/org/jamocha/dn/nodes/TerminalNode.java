@@ -35,12 +35,18 @@ import org.jamocha.filter.AddressFilter;
 import org.jamocha.filter.AddressFilter.AddressFilterElement;
 
 /**
+ * Terminal node implementation (not part of the {@link Node} type hierarchy).
  * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
  */
 public class TerminalNode {
 
+	/**
+	 * {@link TerminalNode} {@link Edge} implementation.
+	 * 
+	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+	 */
 	protected class TerminalEdgeImpl implements Edge {
 		protected final Node sourceNode;
 		protected final TerminalNode targetNode;
