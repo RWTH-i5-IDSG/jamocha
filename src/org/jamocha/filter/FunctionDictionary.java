@@ -86,8 +86,8 @@ public class FunctionDictionary {
 	 *            implementation to add
 	 * @return implementation to add
 	 */
-	public static <R> Function<R> addImpl(final Function<R> impl) {
-		clipsFunctions.put(new CombinedClipsAndParams(impl.toString(), impl.getParamTypes()), impl);
+	public static <R, F extends Function<R>> F addImpl(final F impl) {
+		clipsFunctions.put(new CombinedClipsAndParams(impl.inClips(), impl.getParamTypes()), impl);
 		return impl;
 	}
 
@@ -117,6 +117,10 @@ public class FunctionDictionary {
 		if (function != null)
 			return function;
 		// look for function with arbitrarily many params
+		if (params.length < 2) {
+			throw new UnsupportedOperationException("Function \"" + inClips
+					+ "\" not loaded or implemented.");
+		}
 		// assert that all param types are the same
 		for (final SlotType param : params) {
 			if (param != params[0])

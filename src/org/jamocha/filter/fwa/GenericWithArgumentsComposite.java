@@ -106,6 +106,11 @@ public abstract class GenericWithArgumentsComposite<R, F extends Function<? exte
 		}
 
 		@Override
+		public String inClips() {
+			return "LazyObject";
+		}
+
+		@Override
 		public Object evaluate(final Function<?>... params) {
 			return this.value;
 		}
@@ -125,6 +130,11 @@ public abstract class GenericWithArgumentsComposite<R, F extends Function<? exte
 			public SlotType getReturnType() {
 				throw new UnsupportedOperationException(
 						"Type checking can not be done during lazy evaluation!");
+			}
+
+			@Override
+			public String inClips() {
+				return "LazyFunction[" + function.inClips() + "]";
 			}
 
 			@Override

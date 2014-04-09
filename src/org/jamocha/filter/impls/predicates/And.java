@@ -15,6 +15,7 @@
 package org.jamocha.filter.impls.predicates;
 
 import org.jamocha.dn.memory.SlotType;
+import org.jamocha.filter.CommutativeFunction;
 import org.jamocha.filter.Function;
 import org.jamocha.filter.FunctionDictionary;
 import org.jamocha.filter.Predicate;
@@ -26,23 +27,45 @@ import org.jamocha.filter.Predicate;
  * @see Predicate
  * @see FunctionDictionary
  */
-public class And {
+public abstract class And extends Predicate implements CommutativeFunction<Boolean> {
+	static String inClips = "AND";
+
+	@Override
+	public String inClips() {
+		return inClips;
+	}
+
 	static {
-		FunctionDictionary.addImpl(new Predicate() {
+		FunctionDictionary.addImpl(new And() {
 			@Override
 			public SlotType[] getParamTypes() {
 				return new SlotType[] { SlotType.BOOLEAN, SlotType.BOOLEAN };
 			}
 
 			@Override
-			public String toString() {
-				return "AND";
-			}
-
-			@Override
 			public Boolean evaluate(final Function<?>... params) {
 				return (Boolean) params[0].evaluate() && (Boolean) params[1].evaluate();
 			}
+		});
+		FunctionDictionary.addGenerator(inClips, (final SlotType[] paramTypes) -> {
+			if (paramTypes[0] == SlotType.BOOLEAN)
+				return new And() {
+					@Override
+					public SlotType[] getParamTypes() {
+						return paramTypes;
+					}
+
+					@Override
+					public Boolean evaluate(final Function<?>... params) {
+						for (final Function<?> param : params) {
+							if (!(Boolean) param.evaluate()) {
+								return Boolean.FALSE;
+							}
+						}
+						return Boolean.TRUE;
+					}
+				};
+			return null;
 		});
 	}
 }

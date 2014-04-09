@@ -15,6 +15,7 @@
 package org.jamocha.filter.impls.functions;
 
 import org.jamocha.dn.memory.SlotType;
+import org.jamocha.filter.CommutativeFunction;
 import org.jamocha.filter.Function;
 import org.jamocha.filter.FunctionDictionary;
 
@@ -26,17 +27,19 @@ import org.jamocha.filter.FunctionDictionary;
  * @see Function
  * @see FunctionDictionary
  */
-public class Plus {
+public abstract class Plus<R> implements CommutativeFunction<R> {
+	static String inClips = "+";
+
+	@Override
+	public String inClips() {
+		return inClips;
+	}
+
 	static {
-		FunctionDictionary.addImpl(new Function<Long>() {
+		FunctionDictionary.addImpl(new Plus<Long>() {
 			@Override
 			public SlotType[] getParamTypes() {
 				return new SlotType[] { SlotType.LONG, SlotType.LONG };
-			}
-
-			@Override
-			public String toString() {
-				return "+";
 			}
 
 			@Override
@@ -49,15 +52,11 @@ public class Plus {
 				return (Long) params[0].evaluate() + (Long) params[1].evaluate();
 			}
 		});
-		FunctionDictionary.addImpl(new Function<Double>() {
+
+		FunctionDictionary.addImpl(new Plus<Double>() {
 			@Override
 			public SlotType[] getParamTypes() {
 				return new SlotType[] { SlotType.DOUBLE, SlotType.DOUBLE };
-			}
-
-			@Override
-			public String toString() {
-				return "+";
 			}
 
 			@Override
@@ -70,9 +69,10 @@ public class Plus {
 				return (Double) params[0].evaluate() + (Double) params[1].evaluate();
 			}
 		});
-		FunctionDictionary.addGenerator("+", (final SlotType[] paramTypes) -> {
+
+		FunctionDictionary.addGenerator(inClips, (final SlotType[] paramTypes) -> {
 			if (paramTypes[0] == SlotType.LONG)
-				return new Function<Long>() {
+				return new Plus<Long>() {
 					@Override
 					public SlotType[] getParamTypes() {
 						return paramTypes;
@@ -91,10 +91,9 @@ public class Plus {
 						}
 						return value;
 					}
-
 				};
 			if (paramTypes[0] == SlotType.DOUBLE)
-				return new Function<Double>() {
+				return new Plus<Double>() {
 					@Override
 					public SlotType[] getParamTypes() {
 						return paramTypes;
@@ -106,14 +105,13 @@ public class Plus {
 					}
 
 					@Override
-					public Double evaluate(Function<?>... params) {
+					public Double evaluate(final Function<?>... params) {
 						Double value = 0.0;
 						for (final Function<?> param : params) {
 							value += (Double) param.evaluate();
 						}
 						return value;
 					}
-
 				};
 			return null;
 		});

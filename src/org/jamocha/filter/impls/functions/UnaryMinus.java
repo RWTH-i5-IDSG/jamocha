@@ -25,18 +25,19 @@ import org.jamocha.filter.FunctionDictionary;
  * @see Function
  * @see FunctionDictionary
  */
-public class UnaryMinus {
+public abstract class UnaryMinus<R> implements Function<R> {
+	static String inClips = "-";
+
+	@Override
+	public String inClips() {
+		return inClips;
+	}
 
 	static {
-		FunctionDictionary.addImpl(new Function<Long>() {
+		FunctionDictionary.addImpl(new UnaryMinus<Long>() {
 			@Override
 			public SlotType[] getParamTypes() {
 				return new SlotType[] { SlotType.LONG };
-			}
-
-			@Override
-			public String toString() {
-				return "-";
 			}
 
 			@Override
@@ -49,15 +50,10 @@ public class UnaryMinus {
 				return -(Long) params[0].evaluate();
 			}
 		});
-		FunctionDictionary.addImpl(new Function<Double>() {
+		FunctionDictionary.addImpl(new UnaryMinus<Double>() {
 			@Override
 			public SlotType[] getParamTypes() {
 				return new SlotType[] { SlotType.DOUBLE };
-			}
-
-			@Override
-			public String toString() {
-				return "-";
 			}
 
 			@Override

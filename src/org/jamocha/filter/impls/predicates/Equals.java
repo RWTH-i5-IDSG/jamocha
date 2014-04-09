@@ -16,6 +16,7 @@
 package org.jamocha.filter.impls.predicates;
 
 import org.jamocha.dn.memory.SlotType;
+import org.jamocha.filter.CommutativeFunction;
 import org.jamocha.filter.Function;
 import org.jamocha.filter.FunctionDictionary;
 import org.jamocha.filter.Predicate;
@@ -28,17 +29,19 @@ import org.jamocha.filter.Predicate;
  * @see FunctionDictionary
  * 
  */
-public class Equals {
+public abstract class Equals extends Predicate implements CommutativeFunction<Boolean> {
+	static String inClips = "=";
+
+	@Override
+	public String inClips() {
+		return inClips;
+	}
+
 	static {
-		FunctionDictionary.addImpl(new Predicate() {
+		FunctionDictionary.addImpl(new Equals() {
 			@Override
 			public SlotType[] getParamTypes() {
 				return new SlotType[] { SlotType.LONG, SlotType.LONG };
-			}
-
-			@Override
-			public String toString() {
-				return "=";
 			}
 
 			@Override
@@ -46,15 +49,10 @@ public class Equals {
 				return ((Long) params[0].evaluate()).equals(params[1].evaluate());
 			}
 		});
-		FunctionDictionary.addImpl(new Predicate() {
+		FunctionDictionary.addImpl(new Equals() {
 			@Override
 			public SlotType[] getParamTypes() {
 				return new SlotType[] { SlotType.DOUBLE, SlotType.DOUBLE };
-			}
-
-			@Override
-			public String toString() {
-				return "=";
 			}
 
 			@Override
@@ -62,15 +60,10 @@ public class Equals {
 				return ((Double) params[0].evaluate()).equals(params[1].evaluate());
 			}
 		});
-		FunctionDictionary.addImpl(new Predicate() {
+		FunctionDictionary.addImpl(new Equals() {
 			@Override
 			public SlotType[] getParamTypes() {
 				return new SlotType[] { SlotType.BOOLEAN, SlotType.BOOLEAN };
-			}
-
-			@Override
-			public String toString() {
-				return "=";
 			}
 
 			@Override
@@ -78,15 +71,10 @@ public class Equals {
 				return ((Boolean) params[0].evaluate()).equals(params[1].evaluate());
 			}
 		});
-		FunctionDictionary.addImpl(new Predicate() {
+		FunctionDictionary.addImpl(new Equals() {
 			@Override
 			public SlotType[] getParamTypes() {
 				return new SlotType[] { SlotType.STRING, SlotType.STRING };
-			}
-
-			@Override
-			public String toString() {
-				return "=";
 			}
 
 			@Override
@@ -94,6 +82,27 @@ public class Equals {
 				return ((String) params[0].evaluate()).equals(params[1].evaluate());
 			}
 		});
+		FunctionDictionary.addGenerator(inClips, (final SlotType[] paramTypes) -> {
+			if (paramTypes[0] == SlotType.BOOLEAN)
+				return new Equals() {
+					@Override
+					public SlotType[] getParamTypes() {
+						return paramTypes;
+					}
 
+					@Override
+					public Boolean evaluate(final Function<?>... params) {
+						final boolean value = (Boolean) params[0].evaluate();
+						for (int i = 1; i < params.length; i++) {
+							final Function<?> param = params[i];
+							if (value != (Boolean) param.evaluate()) {
+								return Boolean.FALSE;
+							}
+						}
+						return Boolean.TRUE;
+					}
+				};
+			return null;
+		});
 	}
 }

@@ -49,8 +49,7 @@ public interface Function<R> {
 	 * 
 	 * @return name of the corresponding function in CLIPS
 	 */
-	@Override
-	public String toString();
+	public String inClips();
 
 	/**
 	 * Evaluates the function for the given parameters and returns the result
@@ -61,4 +60,7 @@ public interface Function<R> {
 	 */
 	public R evaluate(final Function<?>... params);
 
+	default int hash(final FunctionWithArguments fwa) {
+		return fwa.hashPositionIsRelevant();
+	}
 }

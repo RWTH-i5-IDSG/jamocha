@@ -26,18 +26,19 @@ import org.jamocha.filter.Predicate;
  * @see Predicate
  * @see FunctionDictionary
  */
-public class Greater {
+public abstract class Greater extends Predicate {
+	static String inClips = ">";
+
+	@Override
+	public String inClips() {
+		return inClips;
+	}
 
 	static {
-		FunctionDictionary.addImpl(new Predicate() {
+		FunctionDictionary.addImpl(new Greater() {
 			@Override
 			public SlotType[] getParamTypes() {
 				return new SlotType[] { SlotType.LONG, SlotType.LONG };
-			}
-
-			@Override
-			public String toString() {
-				return ">";
 			}
 
 			@Override
@@ -45,15 +46,10 @@ public class Greater {
 				return (Long) params[0].evaluate() > (Long) params[1].evaluate();
 			}
 		});
-		FunctionDictionary.addImpl(new Predicate() {
+		FunctionDictionary.addImpl(new Greater() {
 			@Override
 			public SlotType[] getParamTypes() {
 				return new SlotType[] { SlotType.DOUBLE, SlotType.DOUBLE };
-			}
-
-			@Override
-			public String toString() {
-				return ">";
 			}
 
 			@Override

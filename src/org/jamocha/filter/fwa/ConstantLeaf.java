@@ -49,6 +49,11 @@ public class ConstantLeaf implements FunctionWithArguments, Function<Object> {
 	}
 
 	@Override
+	public String inClips() {
+		return this.value.toString();
+	}
+
+	@Override
 	public String toString() {
 		return this.value.toString();
 	}

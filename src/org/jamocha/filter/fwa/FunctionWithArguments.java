@@ -66,4 +66,8 @@ public interface FunctionWithArguments extends Visitable<FunctionWithArgumentsVi
 	 * @return result of the function call
 	 */
 	public Object evaluate(final Object... params);
+
+	public int hashPositionIsRelevant();
+
+	public int hashPositionIsIrrelevant();
 }
