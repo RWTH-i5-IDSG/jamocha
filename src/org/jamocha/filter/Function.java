@@ -21,6 +21,8 @@ import org.jamocha.filter.fwa.FunctionWithArguments;
  * Interface for a function representing a part of a rule condition that performs an operation on
  * data.
  * 
+ * @param <R>
+ *            Return type of call to evaluate
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  * @see SlotType
  * @see Predicate

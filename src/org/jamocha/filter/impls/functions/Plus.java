@@ -70,5 +70,52 @@ public class Plus {
 				return (Double) params[0].evaluate() + (Double) params[1].evaluate();
 			}
 		});
+		FunctionDictionary.addGenerator("+", (final SlotType[] paramTypes) -> {
+			if (paramTypes[0] == SlotType.LONG)
+				return new Function<Long>() {
+					@Override
+					public SlotType[] getParamTypes() {
+						return paramTypes;
+					}
+
+					@Override
+					public SlotType getReturnType() {
+						return SlotType.LONG;
+					}
+
+					@Override
+					public Long evaluate(final Function<?>... params) {
+						Long value = 0L;
+						for (final Function<?> param : params) {
+							value += (Long) param.evaluate();
+						}
+						return value;
+					}
+
+				};
+			if (paramTypes[0] == SlotType.DOUBLE)
+				return new Function<Double>() {
+					@Override
+					public SlotType[] getParamTypes() {
+						return paramTypes;
+					}
+
+					@Override
+					public SlotType getReturnType() {
+						return SlotType.DOUBLE;
+					}
+
+					@Override
+					public Double evaluate(Function<?>... params) {
+						Double value = 0.0;
+						for (final Function<?> param : params) {
+							value += (Double) param.evaluate();
+						}
+						return value;
+					}
+
+				};
+			return null;
+		});
 	}
 }

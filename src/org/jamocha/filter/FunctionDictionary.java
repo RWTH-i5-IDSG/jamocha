@@ -48,6 +48,7 @@ public class FunctionDictionary {
 	}
 
 	public static HashMap<CombinedClipsAndParams, Function<?>> clipsFunctions = new HashMap<>();
+	private static HashMap<String, FunctionGenerator> generators = new HashMap<>();
 
 	static {
 		addImpl(Predicates.class);
@@ -83,9 +84,15 @@ public class FunctionDictionary {
 	 * 
 	 * @param impl
 	 *            implementation to add
+	 * @return implementation to add
 	 */
-	public static void addImpl(final Function<?> impl) {
+	public static <R> Function<R> addImpl(final Function<R> impl) {
 		clipsFunctions.put(new CombinedClipsAndParams(impl.toString(), impl.getParamTypes()), impl);
+		return impl;
+	}
+
+	public static void addGenerator(final String string, final FunctionGenerator functionGenerator) {
+		generators.put(string, functionGenerator);
 	}
 
 	/**
@@ -103,14 +110,28 @@ public class FunctionDictionary {
 	 *             iff no {@link Function} implementation was found for the given string
 	 *             representation and parameter types
 	 */
+	@SuppressWarnings("unchecked")
 	public static <T> Function<T> lookup(final String inClips, final SlotType... params) {
-		@SuppressWarnings("unchecked")
 		final Function<T> function =
 				(Function<T>) clipsFunctions.get(new CombinedClipsAndParams(inClips, params));
-		if (function == null)
-			throw new UnsupportedOperationException("Function \"" + inClips
-					+ "\" not loaded or implemented.");
-		return function;
+		if (function != null)
+			return function;
+		// look for function with arbitrarily many params
+		// assert that all param types are the same
+		for (final SlotType param : params) {
+			if (param != params[0])
+				throw new UnsupportedOperationException("Function \"" + inClips
+						+ "\" not loaded or implemented.");
+		}
+		final FunctionGenerator functionGenerator = generators.get(inClips);
+		if (null != functionGenerator) {
+			final Function<T> generated = (Function<T>) functionGenerator.generate(params);
+			if (null != generated) {
+				return addImpl(generated);
+			}
+		}
+		throw new UnsupportedOperationException("Function \"" + inClips
+				+ "\" not loaded or implemented.");
 	}
 
 	/**
