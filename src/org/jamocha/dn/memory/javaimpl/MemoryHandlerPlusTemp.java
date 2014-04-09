@@ -740,17 +740,14 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 	static interface CounterUpdater {
 		void apply(final CounterUpdate counterUpdate, final CounterColumn counterColumn);
 
-		static CounterUpdater incrementer = new CounterUpdater() {
-			@Override
-			public void apply(CounterUpdate counterUpdate, CounterColumn counterColumn) {
-				counterUpdate.increment(counterColumn, 1);
-			}
+		static CounterUpdater incrementer = (final CounterUpdate counterUpdate,
+				final CounterColumn counterColumn) -> {
+			counterUpdate.increment(counterColumn, 1);
 		};
-		static CounterUpdater decrementer = new CounterUpdater() {
-			@Override
-			public void apply(CounterUpdate counterUpdate, CounterColumn counterColumn) {
-				counterUpdate.increment(counterColumn, -1);
-			}
+
+		static CounterUpdater decrementer = (final CounterUpdate counterUpdate,
+				final CounterColumn counterColumn) -> {
+			counterUpdate.increment(counterColumn, -1);
 		};
 	}
 
