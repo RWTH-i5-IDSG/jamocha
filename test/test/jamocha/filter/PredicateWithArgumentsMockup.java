@@ -3,6 +3,7 @@ package test.jamocha.filter;
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.filter.Function;
 import org.jamocha.filter.Path;
+import org.jamocha.filter.fwa.FunctionWithArguments;
 import org.jamocha.filter.fwa.FunctionWithArgumentsVisitor;
 import org.jamocha.filter.fwa.GenericWithArgumentsComposite.LazyObject;
 import org.jamocha.filter.fwa.PredicateWithArguments;
@@ -60,15 +61,15 @@ public class PredicateWithArgumentsMockup implements PredicateWithArguments {
 
 	@Override
 	public int hashPositionIsIrrelevant() {
-		return hash(paths, (final Path path) -> {
+		return FunctionWithArguments.hash(paths, (final Path path) -> {
 			return path.getTemplate().hashCode();
-		}, positionIsIrrelevant);
+		}, FunctionWithArguments.positionIsIrrelevant);
 	}
 
 	@Override
 	public int hashPositionIsRelevant() {
-		return hash(paths, (final Path path) -> {
+		return FunctionWithArguments.hash(paths, (final Path path) -> {
 			return path.getTemplate().hashCode();
-		}, positionIsRelevant);
+		}, FunctionWithArguments.positionIsRelevant);
 	}
 }

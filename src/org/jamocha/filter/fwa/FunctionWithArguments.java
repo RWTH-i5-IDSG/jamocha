@@ -83,7 +83,7 @@ public interface FunctionWithArguments extends Visitable<FunctionWithArgumentsVi
 		return (i + 1) * hash;
 	};
 
-	public default <T> int hash(final T[] ts, final ToIntFunction<T> hasher,
+	static <T> int hash(final T[] ts, final ToIntFunction<T> hasher,
 			final IntBinaryOperator positioner) {
 		final int PRIME = 59;
 		int result = 1;
@@ -92,5 +92,9 @@ public interface FunctionWithArguments extends Visitable<FunctionWithArgumentsVi
 			result = (result * PRIME) + positioner.applyAsInt(i, hasher.applyAsInt(t));
 		}
 		return result;
+	}
+
+	public default int hash() {
+		return hashPositionIsRelevant();
 	}
 }
