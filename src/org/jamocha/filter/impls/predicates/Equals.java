@@ -82,27 +82,26 @@ public abstract class Equals extends Predicate implements CommutativeFunction<Bo
 				return ((String) params[0].evaluate()).equals(params[1].evaluate());
 			}
 		});
-		FunctionDictionary.addGenerator(inClips, (final SlotType[] paramTypes) -> {
-			if (paramTypes[0] == SlotType.BOOLEAN)
-				return new Equals() {
-					@Override
-					public SlotType[] getParamTypes() {
-						return paramTypes;
-					}
-
-					@Override
-					public Boolean evaluate(final Function<?>... params) {
-						final boolean value = (Boolean) params[0].evaluate();
-						for (int i = 1; i < params.length; i++) {
-							final Function<?> param = params[i];
-							if (value != (Boolean) param.evaluate()) {
-								return Boolean.FALSE;
-							}
+		FunctionDictionary.addGenerator(inClips, SlotType.BOOLEAN,
+				(final SlotType[] paramTypes) -> {
+					return new Equals() {
+						@Override
+						public SlotType[] getParamTypes() {
+							return paramTypes;
 						}
-						return Boolean.TRUE;
-					}
-				};
-			return null;
-		});
+
+						@Override
+						public Boolean evaluate(final Function<?>... params) {
+							final boolean value = (Boolean) params[0].evaluate();
+							for (int i = 1; i < params.length; i++) {
+								final Function<?> param = params[i];
+								if (value != (Boolean) param.evaluate()) {
+									return Boolean.FALSE;
+								}
+							}
+							return Boolean.TRUE;
+						}
+					};
+				});
 	}
 }

@@ -48,7 +48,7 @@ public class FunctionDictionary {
 	}
 
 	public static HashMap<CombinedClipsAndParams, Function<?>> clipsFunctions = new HashMap<>();
-	private static HashMap<String, FunctionGenerator> generators = new HashMap<>();
+	private static HashMap<CombinedClipsAndParams, FunctionGenerator> generators = new HashMap<>();
 
 	static {
 		addImpl(Predicates.class);
@@ -91,8 +91,10 @@ public class FunctionDictionary {
 		return impl;
 	}
 
-	public static void addGenerator(final String string, final FunctionGenerator functionGenerator) {
-		generators.put(string, functionGenerator);
+	public static void addGenerator(final String string, final SlotType types,
+			final FunctionGenerator functionGenerator) {
+		generators.put(new CombinedClipsAndParams(string, new SlotType[] { types }),
+				functionGenerator);
 	}
 
 	/**
@@ -127,7 +129,8 @@ public class FunctionDictionary {
 				throw new UnsupportedOperationException("Function \"" + inClips
 						+ "\" not loaded or implemented.");
 		}
-		final FunctionGenerator functionGenerator = generators.get(inClips);
+		final FunctionGenerator functionGenerator =
+				generators.get(new CombinedClipsAndParams(inClips, new SlotType[] { params[0] }));
 		if (null != functionGenerator) {
 			final Function<T> generated = (Function<T>) functionGenerator.generate(params);
 			if (null != generated) {

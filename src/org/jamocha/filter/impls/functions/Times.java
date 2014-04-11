@@ -67,51 +67,50 @@ public abstract class Times<R> implements CommutativeFunction<R> {
 				return (Double) params[0].evaluate() * (Double) params[1].evaluate();
 			}
 		});
-		FunctionDictionary.addGenerator(inClips, (final SlotType[] paramTypes) -> {
-			if (paramTypes[0] == SlotType.LONG)
-				return new Times<Long>() {
-					@Override
-					public SlotType[] getParamTypes() {
-						return paramTypes;
-					}
+		FunctionDictionary.addGenerator(inClips, SlotType.LONG, (final SlotType[] paramTypes) -> {
+			return new Times<Long>() {
+				@Override
+				public SlotType[] getParamTypes() {
+					return paramTypes;
+				}
 
-					@Override
-					public SlotType getReturnType() {
-						return SlotType.LONG;
-					}
+				@Override
+				public SlotType getReturnType() {
+					return SlotType.LONG;
+				}
 
-					@Override
-					public Long evaluate(final Function<?>... params) {
-						Long value = 0L;
-						for (final Function<?> param : params) {
-							value *= (Long) param.evaluate();
-						}
-						return value;
+				@Override
+				public Long evaluate(final Function<?>... params) {
+					Long value = 0L;
+					for (final Function<?> param : params) {
+						value *= (Long) param.evaluate();
 					}
-				};
-			if (paramTypes[0] == SlotType.DOUBLE) {
-				return new Times<Double>() {
-					@Override
-					public SlotType[] getParamTypes() {
-						return paramTypes;
-					}
-
-					@Override
-					public SlotType getReturnType() {
-						return SlotType.DOUBLE;
-					}
-
-					@Override
-					public Double evaluate(final Function<?>... params) {
-						Double value = 0.0;
-						for (final Function<?> param : params) {
-							value *= (Double) param.evaluate();
-						}
-						return value;
-					}
-				};
-			}
-			return null;
+					return value;
+				}
+			};
 		});
+		FunctionDictionary.addGenerator(inClips, SlotType.DOUBLE,
+				(final SlotType[] paramTypes) -> {
+					return new Times<Double>() {
+						@Override
+						public SlotType[] getParamTypes() {
+							return paramTypes;
+						}
+
+						@Override
+						public SlotType getReturnType() {
+							return SlotType.DOUBLE;
+						}
+
+						@Override
+						public Double evaluate(final Function<?>... params) {
+							Double value = 0.0;
+							for (final Function<?> param : params) {
+								value *= (Double) param.evaluate();
+							}
+							return value;
+						}
+					};
+				});
 	}
 }
