@@ -17,6 +17,9 @@ package org.jamocha.filter;
 import org.jamocha.filter.fwa.FunctionWithArguments;
 
 /**
+ * Implement this interface to have it override the default implementation of
+ * {@link Function#hash(FunctionWithArguments)} to make the hashing ignore the order of arguments.
+ * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
 public interface CommutativeFunction<R> extends Function<R> {
