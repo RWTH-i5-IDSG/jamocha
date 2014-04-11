@@ -24,6 +24,6 @@ import org.jamocha.dn.memory.SlotType;
  *
  */
 @FunctionalInterface
-public interface FunctionGenerator {
+public interface VarargsFunctionGenerator {
 	public Function<?> generate(final SlotType[] paramTypes);
 }
