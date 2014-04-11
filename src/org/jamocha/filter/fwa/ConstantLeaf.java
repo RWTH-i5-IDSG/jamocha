@@ -79,4 +79,8 @@ public class ConstantLeaf implements FunctionWithArguments, Function<Object> {
 		return visitor;
 	}
 
+	@Override
+	public int hashPositionIsIrrelevant() {
+		return value.hashCode();
+	}
 }

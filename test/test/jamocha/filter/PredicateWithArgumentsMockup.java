@@ -57,4 +57,18 @@ public class PredicateWithArgumentsMockup implements PredicateWithArguments {
 	public boolean isReturnValue() {
 		return returnValue;
 	}
+
+	@Override
+	public int hashPositionIsIrrelevant() {
+		return hash(paths, (final Path path) -> {
+			return path.getTemplate().hashCode();
+		}, positionIsIrrelevant);
+	}
+
+	@Override
+	public int hashPositionIsRelevant() {
+		return hash(paths, (final Path path) -> {
+			return path.getTemplate().hashCode();
+		}, positionIsRelevant);
+	}
 }

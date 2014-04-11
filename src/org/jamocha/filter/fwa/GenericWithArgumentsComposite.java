@@ -164,4 +164,17 @@ public abstract class GenericWithArgumentsComposite<R, F extends Function<? exte
 		return lazyEvaluate(lazyParams).evaluate();
 	}
 
+	@Override
+	public int hashPositionIsIrrelevant() {
+		return hash(args, (final FunctionWithArguments arg) -> {
+			return arg.hashPositionIsRelevant();
+		}, positionIsIrrelevant);
+	}
+
+	@Override
+	public int hashPositionIsRelevant() {
+		return hash(args, (final FunctionWithArguments arg) -> {
+			return arg.hashPositionIsRelevant();
+		}, positionIsRelevant);
+	}
 }

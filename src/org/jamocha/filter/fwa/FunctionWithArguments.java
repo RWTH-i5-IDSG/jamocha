@@ -14,6 +14,9 @@
  */
 package org.jamocha.filter.fwa;
 
+import java.util.function.IntBinaryOperator;
+import java.util.function.ToIntFunction;
+
 import org.jamocha.dn.memory.Fact;
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.filter.Function;
@@ -67,7 +70,27 @@ public interface FunctionWithArguments extends Visitable<FunctionWithArgumentsVi
 	 */
 	public Object evaluate(final Object... params);
 
-	public int hashPositionIsRelevant();
-
 	public int hashPositionIsIrrelevant();
+
+	public default int hashPositionIsRelevant() {
+		return hashPositionIsIrrelevant();
+	}
+
+	static IntBinaryOperator positionIsIrrelevant = (final int i, final int hash) -> {
+		return hash;
+	};
+	static IntBinaryOperator positionIsRelevant = (final int i, final int hash) -> {
+		return (i + 1) * hash;
+	};
+
+	public default <T> int hash(final T[] ts, final ToIntFunction<T> hasher,
+			final IntBinaryOperator positioner) {
+		final int PRIME = 59;
+		int result = 1;
+		for (int i = 0; i < ts.length; i++) {
+			final T t = ts[i];
+			result = (result * PRIME) + positioner.applyAsInt(i, hasher.applyAsInt(t));
+		}
+		return result;
+	}
 }

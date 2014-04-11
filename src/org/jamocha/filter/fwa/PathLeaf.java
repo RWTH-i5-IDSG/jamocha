@@ -141,6 +141,11 @@ public class PathLeaf implements FunctionWithArguments {
 		public SlotType getType() {
 			return slotType;
 		}
+
+		@Override
+		public int hashPositionIsIrrelevant() {
+			throw new UnsupportedOperationException("Do we need this?");
+		}
 	}
 
 	@Override
@@ -163,4 +168,12 @@ public class PathLeaf implements FunctionWithArguments {
 		return this.slot;
 	}
 
+	@Override
+	public int hashPositionIsIrrelevant() {
+		final int PRIME = 59;
+		int result = 1;
+		result = (result * PRIME) + this.path.getTemplate().hashCode();
+		result = (result * PRIME) + this.slot.hashCode();
+		return result;
+	}
 }
