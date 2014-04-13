@@ -32,6 +32,7 @@ public class Functions {
 		FunctionDictionary.addImpl(org.jamocha.filter.impls.functions.Minus.class);
 		FunctionDictionary.addImpl(org.jamocha.filter.impls.functions.Plus.class);
 		FunctionDictionary.addImpl(org.jamocha.filter.impls.functions.Times.class);
+		FunctionDictionary.addImpl(org.jamocha.filter.impls.functions.TypeConverter.class);
 		FunctionDictionary.addImpl(org.jamocha.filter.impls.functions.UnaryMinus.class);
 	}
 }
