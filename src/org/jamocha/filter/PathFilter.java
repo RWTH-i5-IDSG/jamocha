@@ -75,7 +75,12 @@ public class PathFilter extends Filter<PathFilter.PathFilterElement> {
 		for (int i = 0; i < numFEs; i++) {
 			final PathFilterElement pathFilterElement = filterElements[i];
 			// TODO add normalization
-			normalPFEs[i] = new PathFilterElement(pathFilterElement.function);
+			final PredicateWithArguments functionToNormalise = pathFilterElement.function;
+			// step one: transform to uniform function symbols
+			
+			// step two: sort arguments
+			
+			normalPFEs[i] = new PathFilterElement(functionToNormalise);
 		}
 		Arrays.sort(normalPFEs, (final PathFilterElement a, final PathFilterElement b) -> {
 			return Integer.compare(a.function.hash(), b.function.hash());
