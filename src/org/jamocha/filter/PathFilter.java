@@ -14,6 +14,7 @@
  */
 package org.jamocha.filter;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -69,7 +70,16 @@ public class PathFilter extends Filter<PathFilter.PathFilterElement> {
 	}
 
 	public PathFilter normalise() {
-		// TODO impl
-		return null;
+		final int numFEs = filterElements.length;
+		final PathFilterElement[] normalPFEs = new PathFilterElement[numFEs];
+		for (int i = 0; i < numFEs; i++) {
+			final PathFilterElement pathFilterElement = filterElements[i];
+			// TODO add normalization
+			normalPFEs[i] = new PathFilterElement(pathFilterElement.function);
+		}
+		Arrays.sort(normalPFEs, (final PathFilterElement a, final PathFilterElement b) -> {
+			return Integer.compare(a.function.hash(), b.function.hash());
+		});
+		return new PathFilter(positiveExistentialPaths, negativeExistentialPaths, normalPFEs);
 	}
 }
