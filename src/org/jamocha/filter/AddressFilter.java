@@ -29,11 +29,27 @@ import org.jamocha.filter.fwa.PredicateWithArguments;
  */
 public class AddressFilter extends Filter<AddressFilter.AddressFilterElement> {
 
-	public static AddressFilter empty = new AddressFilter(new HashSet<FactAddress>(),
+	public static AddressFilter empty = new NormalAddressFilter(new HashSet<FactAddress>(),
 			new HashSet<FactAddress>(), new AddressFilterElement[] {});
+
+	public static class NormalAddressFilter extends AddressFilter {
+		public NormalAddressFilter(final Set<FactAddress> positiveExistentialAddresses,
+				final Set<FactAddress> negativeExistentialAddresses,
+				final AddressFilterElement[] filterElements) {
+			super(positiveExistentialAddresses, negativeExistentialAddresses, filterElements,
+					(NormalAddressFilter) null);
+		}
+
+		@Override
+		public NormalAddressFilter getNormalisedVersion() {
+			return this;
+		}
+	}
 
 	@Getter
 	protected final Set<FactAddress> positiveExistentialAddresses, negativeExistentialAddresses;
+	@Getter
+	private final NormalAddressFilter normalisedVersion;
 
 	/**
 	 * Checks whether the FactAddress is existential by calling the contains method on both sets
@@ -51,10 +67,20 @@ public class AddressFilter extends Filter<AddressFilter.AddressFilterElement> {
 
 	public AddressFilter(final Set<FactAddress> positiveExistentialAddresses,
 			final Set<FactAddress> negativeExistentialAddresses,
-			final AddressFilterElement[] filterElements) {
+			final AddressFilterElement[] filterElements, final NormalAddressFilter normalisedVersion) {
 		super(filterElements);
 		this.positiveExistentialAddresses = positiveExistentialAddresses;
 		this.negativeExistentialAddresses = negativeExistentialAddresses;
+		this.normalisedVersion = normalisedVersion;
+	}
+
+	public AddressFilter(final Set<FactAddress> positiveExistentialAddresses,
+			final Set<FactAddress> negativeExistentialAddresses,
+			final AddressFilterElement[] filterElements,
+			final AddressFilterElement[] normalFilterElements) {
+		this(positiveExistentialAddresses, negativeExistentialAddresses, filterElements,
+				new NormalAddressFilter(positiveExistentialAddresses, negativeExistentialAddresses,
+						normalFilterElements));
 	}
 
 	@Getter
@@ -82,5 +108,4 @@ public class AddressFilter extends Filter<AddressFilter.AddressFilterElement> {
 			this.counterColumn = counterColumn;
 		}
 	}
-
 }

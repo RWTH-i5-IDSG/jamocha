@@ -39,6 +39,7 @@ import org.jamocha.dn.nodes.Node;
 import org.jamocha.dn.nodes.SlotInFactAddress;
 import org.jamocha.filter.AddressFilter;
 import org.jamocha.filter.AddressFilter.AddressFilterElement;
+import org.jamocha.filter.AddressFilter.NormalAddressFilter;
 import org.jamocha.filter.FilterTranslator;
 import org.jamocha.filter.FunctionDictionary;
 import org.jamocha.filter.Path;
@@ -280,7 +281,7 @@ public class MemoryHandlerTempTest {
 								new SlotAddress(0)) });
 		final AddressFilter filter =
 				new AddressFilter(new HashSet<FactAddress>(), new HashSet<FactAddress>(),
-						new AddressFilterElement[] { fe });
+						new AddressFilterElement[] { fe }, (NormalAddressFilter) null);
 		MemoryHandlerPlusTemp token =
 				(MemoryHandlerPlusTemp) nodeRight.getMemory().newPlusToken(nodeRight,
 						Template.STRING.newFact("Fakt1"), Template.STRING.newFact("Fakt3"));

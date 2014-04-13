@@ -20,8 +20,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.jamocha.dn.memory.CounterColumn;
-import org.jamocha.dn.memory.FactAddress;
 import org.jamocha.dn.memory.CounterColumnMatcher;
+import org.jamocha.dn.memory.FactAddress;
 import org.jamocha.dn.nodes.SlotInFactAddress;
 import org.jamocha.filter.AddressFilter.AddressFilterElement;
 import org.jamocha.filter.AddressFilter.ExistentialAddressFilterElement;
@@ -43,14 +43,27 @@ import test.jamocha.filter.PredicateWithArgumentsMockup;
 public class FilterTranslator {
 	public static AddressFilter translate(final PathFilter pathFilter,
 			final CounterColumnMatcher filterElementToCounterColumn) {
+		return translate(pathFilter, pathFilter.normalise(), filterElementToCounterColumn);
+	}
+
+	public static AddressFilter translate(final PathFilter pathFilter,
+			final PathFilter normalisedVersion,
+			final CounterColumnMatcher filterElementToCounterColumn) {
+		return new AddressFilter(toFactAddressSet(pathFilter.getPositiveExistentialPaths()),
+				toFactAddressSet(pathFilter.getNegativeExistentialPaths()), translateFEs(
+						pathFilter, filterElementToCounterColumn), translateFEs(normalisedVersion,
+						filterElementToCounterColumn));
+	}
+
+	private static AddressFilterElement[] translateFEs(final PathFilter pathFilter,
+			final CounterColumnMatcher filterElementToCounterColumn) {
 		final PathFilterElement[] pathFEs = pathFilter.getFilterElements();
 		final AddressFilterElement[] addrFEs = new AddressFilterElement[pathFEs.length];
 		for (int i = 0; i < pathFEs.length; i++) {
 			final PathFilterElement pathFE = pathFEs[i];
 			addrFEs[i] = translate(pathFE, filterElementToCounterColumn.getCounterColumn(pathFE));
 		}
-		return new AddressFilter(toFactAddressSet(pathFilter.getPositiveExistentialPaths()),
-				toFactAddressSet(pathFilter.getNegativeExistentialPaths()), addrFEs);
+		return addrFEs;
 	}
 
 	static Set<FactAddress> toFactAddressSet(final Set<Path> existentialPaths) {

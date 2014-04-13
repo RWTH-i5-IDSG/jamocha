@@ -67,4 +67,9 @@ public class PathFilter extends Filter<PathFilter.PathFilterElement> {
 	public PathFilter(final PathFilterElement... filterElements) {
 		this(new HashSet<Path>(), new HashSet<Path>(), filterElements);
 	}
+
+	public PathFilter normalise() {
+		// TODO impl
+		return null;
+	}
 }
