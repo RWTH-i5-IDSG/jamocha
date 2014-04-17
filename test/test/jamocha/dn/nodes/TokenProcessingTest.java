@@ -48,6 +48,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import test.jamocha.filter.FilterMockup;
+import test.jamocha.filter.FilterMockup.PathAndSlotAddress;
 import test.jamocha.util.AssertsAndRetracts;
 import test.jamocha.util.FunctionBuilder;
 import test.jamocha.util.PredicateBuilder;
@@ -714,7 +715,8 @@ public class TokenProcessingTest {
 		final Template t1 = new Template(SlotType.LONG, SlotType.STRING, SlotType.BOOLEAN);
 		final Path p1 = new Path(t1);
 
-		final FilterMockup filter = FilterMockup.alwaysTrue(p1);
+		final FilterMockup filter =
+				FilterMockup.alwaysTrue(new PathAndSlotAddress(p1, new SlotAddress(2)));
 
 		final RootNode rootNode = network.getRootNode();
 		// create OTN
@@ -810,7 +812,8 @@ public class TokenProcessingTest {
 		final Template t1 = new Template(SlotType.LONG, SlotType.STRING, SlotType.BOOLEAN);
 		final Path p1 = new Path(t1);
 
-		final FilterMockup filter = FilterMockup.alwaysTrue(p1);
+		final FilterMockup filter =
+				FilterMockup.alwaysTrue(new PathAndSlotAddress(p1, new SlotAddress(2)));
 
 		final RootNode rootNode = network.getRootNode();
 		// create OTN

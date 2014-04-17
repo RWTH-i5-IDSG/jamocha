@@ -18,14 +18,24 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static test.jamocha.util.CounterColumnMatcherMockup.counterColumnMatcherMockup;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.stream.Collectors;
+
+import lombok.Value;
+
+import org.jamocha.dn.memory.SlotAddress;
+import org.jamocha.dn.memory.SlotType;
 import org.jamocha.filter.AddressFilter;
 import org.jamocha.filter.FilterTranslator;
+import org.jamocha.filter.Function;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.PathFilter;
 import org.junit.experimental.theories.Theories;
 import org.junit.experimental.theories.Theory;
 import org.junit.runner.RunWith;
 
+import test.jamocha.util.PredicateBuilder;
 import test.jamocha.util.TestData.SomeStuff;
 
 /**
@@ -35,8 +45,44 @@ import test.jamocha.util.TestData.SomeStuff;
  */
 public class FilterMockup extends PathFilter {
 
-	public FilterMockup(final boolean returnValue, final Path... paths) {
-		super(new PathFilterElement(new PredicateWithArgumentsMockup(returnValue, paths)));
+	public FilterMockup(final boolean returnValue, final PathAndSlotAddress... pathAndSlotAddresses) {
+		super(createDummyPathFilterElement(returnValue, pathAndSlotAddresses));
+	}
+
+	@Value
+	public static class PathAndSlotAddress {
+		Path path;
+		SlotAddress slotAddress;
+	}
+
+	private static PathFilterElement createDummyPathFilterElement(final boolean returnValue,
+			final PathAndSlotAddress... pathAndSlotAddresses) {
+		final ArrayList<? extends SlotType> slotTypesC =
+				Arrays.stream(pathAndSlotAddresses).map((final PathAndSlotAddress pasa) -> {
+					return pasa.slotAddress.getSlotType(pasa.path.getTemplate());
+				}).collect(Collectors.toCollection(ArrayList::new));
+		final SlotType[] slotTypes = slotTypesC.toArray(new SlotType[slotTypesC.size()]);
+		final PredicateBuilder predicateBuilder =
+				new PredicateBuilder(new org.jamocha.filter.Predicate() {
+					@Override
+					public String inClips() {
+						return "DUMMY";
+					}
+
+					@Override
+					public SlotType[] getParamTypes() {
+						return slotTypes;
+					}
+
+					@Override
+					public Boolean evaluate(final Function<?>... params) {
+						return returnValue;
+					}
+				});
+		for (final PathAndSlotAddress pasa : pathAndSlotAddresses) {
+			predicateBuilder.addPath(pasa.path, pasa.slotAddress);
+		}
+		return predicateBuilder.buildPFE();
 	}
 
 	/**
@@ -46,8 +92,8 @@ public class FilterMockup extends PathFilter {
 	 *            {@link Path paths} to store in the predicate
 	 * @return a filter that always evaluates to true
 	 */
-	public static FilterMockup alwaysTrue(final Path... paths) {
-		return new FilterMockup(true, paths);
+	public static FilterMockup alwaysTrue(final PathAndSlotAddress... pathAndSlotAddresses) {
+		return new FilterMockup(true, pathAndSlotAddresses);
 	}
 
 	/**
@@ -57,8 +103,8 @@ public class FilterMockup extends PathFilter {
 	 *            {@link Path paths} to store in the predicate
 	 * @return a filter that always evaluates to false
 	 */
-	public static FilterMockup alwaysFalse(final Path... paths) {
-		return new FilterMockup(false, paths);
+	public static FilterMockup alwaysFalse(final PathAndSlotAddress... pathAndSlotAddresses) {
+		return new FilterMockup(false, pathAndSlotAddresses);
 	}
 
 	/**
