@@ -29,8 +29,6 @@ import org.jamocha.filter.fwa.PathLeaf;
 import org.jamocha.filter.fwa.PathLeaf.ParameterLeaf;
 import org.jamocha.filter.fwa.PredicateWithArgumentsComposite;
 
-import test.jamocha.filter.PredicateWithArgumentsMockup;
-
 /**
  * Collects all paths used within the filter.
  * 
@@ -116,12 +114,4 @@ public class PathCollector<T extends Collection<Path>> implements FunctionWithAr
 	public void visit(final PathLeaf pathLeaf) {
 		this.getPaths().add(pathLeaf.getPath());
 	}
-
-	@Override
-	public void visit(final PredicateWithArgumentsMockup predicateWithArgumentsMockup) {
-		for (final Path path : predicateWithArgumentsMockup.getPaths()) {
-			this.getPaths().add(path);
-		}
-	}
-
 }

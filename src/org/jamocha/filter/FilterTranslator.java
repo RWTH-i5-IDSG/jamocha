@@ -35,8 +35,6 @@ import org.jamocha.filter.fwa.PathLeaf.ParameterLeaf;
 import org.jamocha.filter.fwa.PredicateWithArguments;
 import org.jamocha.filter.fwa.PredicateWithArgumentsComposite;
 
-import test.jamocha.filter.PredicateWithArgumentsMockup;
-
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
@@ -125,13 +123,6 @@ public class FilterTranslator {
 		}
 
 		@Override
-		public void visit(final PredicateWithArgumentsMockup predicateWithArgumentsMockup) {
-			this.functionWithArguments =
-					new PredicateWithArgumentsMockup(predicateWithArgumentsMockup.isReturnValue(),
-							predicateWithArgumentsMockup.getPaths());
-		}
-
-		@Override
 		public void visit(final FunctionWithArgumentsComposite functionWithArgumentsComposite) {
 			throw new UnsupportedOperationException(
 					"PredicateWithArgumentsTranslator is only to be used with PredicateWithArguments!");
@@ -199,13 +190,6 @@ public class FilterTranslator {
 								.getFunctionWithArguments();
 			}
 			return translatedArgs;
-		}
-
-		@Override
-		public void visit(final PredicateWithArgumentsMockup predicateWithArgumentsMockup) {
-			this.functionWithArguments =
-					new PredicateWithArgumentsMockup(predicateWithArgumentsMockup.isReturnValue(),
-							predicateWithArgumentsMockup.getPaths());
 		}
 
 		@Override

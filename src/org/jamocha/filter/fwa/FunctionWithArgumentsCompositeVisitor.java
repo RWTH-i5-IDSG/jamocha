@@ -16,8 +16,6 @@ package org.jamocha.filter.fwa;
 
 import org.jamocha.visitor.Visitor;
 
-import test.jamocha.filter.PredicateWithArgumentsMockup;
-
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
@@ -25,6 +23,4 @@ public interface FunctionWithArgumentsCompositeVisitor extends Visitor {
 	public void visit(final FunctionWithArgumentsComposite functionWithArgumentsComposite);
 
 	public void visit(final PredicateWithArgumentsComposite predicateWithArgumentsComposite);
-
-	public void visit(final PredicateWithArgumentsMockup predicateWithArgumentsMockup);
 }

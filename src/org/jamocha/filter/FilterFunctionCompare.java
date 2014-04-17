@@ -27,8 +27,6 @@ import org.jamocha.filter.fwa.PathLeaf;
 import org.jamocha.filter.fwa.PathLeaf.ParameterLeaf;
 import org.jamocha.filter.fwa.PredicateWithArgumentsComposite;
 
-import test.jamocha.filter.PredicateWithArgumentsMockup;
-
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  * 
@@ -67,11 +65,6 @@ public class FilterFunctionCompare {
 		private PathVisitor(final FilterFunctionCompare context, final FunctionWithArguments address) {
 			super(context);
 			this.address = address;
-		}
-
-		@Override
-		public void visit(final PredicateWithArgumentsMockup predicateWithArgumentsMockup) {
-			this.context.invalidate();
 		}
 
 		@Override
@@ -128,11 +121,6 @@ public class FilterFunctionCompare {
 
 		@Override
 		public void visit(final PredicateWithArgumentsComposite predicateWithArgumentsComposite) {
-			this.context.invalidate();
-		}
-
-		@Override
-		public void visit(final PredicateWithArgumentsMockup predicateWithArgumentsMockup) {
 			this.context.invalidate();
 		}
 	}
