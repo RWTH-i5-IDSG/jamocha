@@ -84,6 +84,20 @@ public class FilterTranslator {
 				counterColumn);
 	}
 
+	private static FunctionWithArguments[] translateArgs(
+			final FunctionWithArguments[] originalArgs,
+			final Collection<SlotInFactAddress> addresses) {
+		final int numArgs = originalArgs.length;
+		final FunctionWithArguments[] translatedArgs = new FunctionWithArguments[numArgs];
+		for (int i = 0; i < numArgs; ++i) {
+			final FunctionWithArguments originalArg = originalArgs[i];
+			translatedArgs[i] =
+					originalArg.accept(new FunctionWithArgumentsTranslator(addresses))
+							.getFunctionWithArguments();
+		}
+		return translatedArgs;
+	}
+
 	/**
 	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
 	 */
@@ -95,31 +109,16 @@ public class FilterTranslator {
 			this.addresses = addresses;
 		}
 
-		/**
-		 * @return the functionWithArguments
-		 */
 		public PredicateWithArguments getFunctionWithArguments() {
 			return this.functionWithArguments;
-		}
-
-		private FunctionWithArguments[] translateArgs(final FunctionWithArguments[] originalArgs) {
-			final int numArgs = originalArgs.length;
-			final FunctionWithArguments[] translatedArgs = new FunctionWithArguments[numArgs];
-			for (int i = 0; i < numArgs; ++i) {
-				final FunctionWithArguments originalArg = originalArgs[i];
-				translatedArgs[i] =
-						originalArg.accept(new FunctionWithArgumentsTranslator(this.addresses))
-								.getFunctionWithArguments();
-			}
-			return translatedArgs;
 		}
 
 		@Override
 		public void visit(final PredicateWithArgumentsComposite predicateWithArgumentsComposite) {
 			this.functionWithArguments =
 					new PredicateWithArgumentsComposite(
-							predicateWithArgumentsComposite.getFunction(),
-							translateArgs(predicateWithArgumentsComposite.getArgs()));
+							predicateWithArgumentsComposite.getFunction(), translateArgs(
+									predicateWithArgumentsComposite.getArgs(), this.addresses));
 		}
 
 		@Override
@@ -167,29 +166,17 @@ public class FilterTranslator {
 		public void visit(final FunctionWithArgumentsComposite functionWithArgumentsComposite) {
 			this.functionWithArguments =
 					new FunctionWithArgumentsComposite(
-							functionWithArgumentsComposite.getFunction(),
-							translateArgs(functionWithArgumentsComposite.getArgs()));
+							functionWithArgumentsComposite.getFunction(), translateArgs(
+									functionWithArgumentsComposite.getArgs(), this.addresses));
 		}
 
 		@Override
 		public void visit(final PredicateWithArgumentsComposite predicateWithArgumentsComposite) {
 			this.functionWithArguments =
 					new PredicateWithArgumentsComposite(
-							predicateWithArgumentsComposite.getFunction(),
-							translateArgs(predicateWithArgumentsComposite.getArgs()));
+							predicateWithArgumentsComposite.getFunction(), translateArgs(
+									predicateWithArgumentsComposite.getArgs(), this.addresses));
 
-		}
-
-		private FunctionWithArguments[] translateArgs(final FunctionWithArguments[] originalArgs) {
-			final int numArgs = originalArgs.length;
-			final FunctionWithArguments[] translatedArgs = new FunctionWithArguments[numArgs];
-			for (int i = 0; i < numArgs; ++i) {
-				final FunctionWithArguments originalArg = originalArgs[i];
-				translatedArgs[i] =
-						originalArg.accept(new FunctionWithArgumentsTranslator(this.addresses))
-								.getFunctionWithArguments();
-			}
-			return translatedArgs;
 		}
 
 		@Override
@@ -210,6 +197,5 @@ public class FilterTranslator {
 					.getSlot()));
 			this.functionWithArguments = new ParameterLeaf(pathLeaf.getReturnType());
 		}
-
 	}
 }
