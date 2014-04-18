@@ -14,18 +14,6 @@
  */
 package org.jamocha.filter.impls;
 
-import org.jamocha.filter.impls.functions.DividedBy;
-import org.jamocha.filter.impls.functions.Minus;
-import org.jamocha.filter.impls.functions.Plus;
-import org.jamocha.filter.impls.functions.Times;
-import org.jamocha.filter.impls.functions.TypeConverter;
-import org.jamocha.filter.impls.functions.UnaryMinus;
-import org.jamocha.filter.impls.predicates.And;
-import org.jamocha.filter.impls.predicates.Equals;
-import org.jamocha.filter.impls.predicates.Greater;
-import org.jamocha.filter.impls.predicates.GreaterOrEqual;
-import org.jamocha.filter.impls.predicates.Less;
-import org.jamocha.filter.impls.predicates.LessOrEqual;
 import org.jamocha.visitor.Visitor;
 
 /**
@@ -34,28 +22,30 @@ import org.jamocha.visitor.Visitor;
 public interface FunctionVisitor extends Visitor {
 
 	// functions
-	void visit(final DividedBy<?> function);
+	void visit(final org.jamocha.filter.impls.functions.DividedBy<?> function);
 
-	void visit(final Minus<?> function);
+	void visit(final org.jamocha.filter.impls.functions.Minus<?> function);
 
-	void visit(final Plus<?> function);
+	void visit(final org.jamocha.filter.impls.functions.Plus<?> function);
 
-	void visit(final Times<?> function);
+	void visit(final org.jamocha.filter.impls.functions.Times<?> function);
 
-	void visit(final TypeConverter<?> function);
+	void visit(final org.jamocha.filter.impls.functions.TimesInverse<?> function);
 
-	void visit(final UnaryMinus<?> function);
+	void visit(final org.jamocha.filter.impls.functions.TypeConverter<?> function);
+
+	void visit(final org.jamocha.filter.impls.functions.UnaryMinus<?> function);
 
 	// predicates
-	void visit(final And predicate);
+	void visit(final org.jamocha.filter.impls.predicates.And predicate);
 
-	void visit(final Equals predicate);
+	void visit(final org.jamocha.filter.impls.predicates.Equals predicate);
 
-	void visit(final Greater predicate);
+	void visit(final org.jamocha.filter.impls.predicates.Greater predicate);
 
-	void visit(final GreaterOrEqual predicate);
+	void visit(final org.jamocha.filter.impls.predicates.GreaterOrEqual predicate);
 
-	void visit(final Less predicate);
+	void visit(final org.jamocha.filter.impls.predicates.Less predicate);
 
-	void visit(final LessOrEqual predicate);
+	void visit(final org.jamocha.filter.impls.predicates.LessOrEqual predicate);
 }
