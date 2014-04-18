@@ -68,7 +68,7 @@ public abstract class Minus<R> implements Function<R> {
 			}
 		});
 		FunctionDictionary.addGenerator(inClips, SlotType.LONG, (final SlotType[] paramTypes) -> {
-			return new Plus<Long>() {
+			return new Minus<Long>() {
 				@Override
 				public SlotType[] getParamTypes() {
 					return paramTypes;
@@ -91,7 +91,7 @@ public abstract class Minus<R> implements Function<R> {
 		});
 		FunctionDictionary.addGenerator(inClips, SlotType.DOUBLE,
 				(final SlotType[] paramTypes) -> {
-					return new Plus<Double>() {
+					return new Minus<Double>() {
 						@Override
 						public SlotType[] getParamTypes() {
 							return paramTypes;

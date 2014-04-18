@@ -67,7 +67,7 @@ public abstract class DividedBy<R> implements Function<R> {
 			}
 		});
 		FunctionDictionary.addGenerator(inClips, SlotType.LONG, (final SlotType[] paramTypes) -> {
-			return new Plus<Long>() {
+			return new DividedBy<Long>() {
 				@Override
 				public SlotType[] getParamTypes() {
 					return paramTypes;
@@ -90,7 +90,7 @@ public abstract class DividedBy<R> implements Function<R> {
 		});
 		FunctionDictionary.addGenerator(inClips, SlotType.DOUBLE,
 				(final SlotType[] paramTypes) -> {
-					return new Plus<Double>() {
+					return new DividedBy<Double>() {
 						@Override
 						public SlotType[] getParamTypes() {
 							return paramTypes;

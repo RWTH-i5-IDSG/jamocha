@@ -34,7 +34,7 @@ public abstract class TimesInverse<R> implements Function<R> {
 	}
 
 	static {
-		FunctionDictionary.addImpl(new DividedBy<Long>() {
+		FunctionDictionary.addImpl(new TimesInverse<Long>() {
 			@Override
 			public SlotType[] getParamTypes() {
 				return new SlotType[] { SlotType.LONG };
@@ -50,7 +50,7 @@ public abstract class TimesInverse<R> implements Function<R> {
 				return 1L / (Long) params[0].evaluate();
 			}
 		});
-		FunctionDictionary.addImpl(new DividedBy<Double>() {
+		FunctionDictionary.addImpl(new TimesInverse<Double>() {
 			@Override
 			public SlotType[] getParamTypes() {
 				return new SlotType[] { SlotType.DOUBLE };
