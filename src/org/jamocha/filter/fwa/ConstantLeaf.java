@@ -19,6 +19,7 @@ import lombok.Getter;
 
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.filter.Function;
+import org.jamocha.filter.fwa.GenericWithArgumentsComposite.LazyObject;
 
 /**
  * A parameter of a {@link Function} may be a constant value specified in the parsed representation
@@ -28,14 +29,16 @@ import org.jamocha.filter.Function;
  */
 @Getter
 @EqualsAndHashCode
-public class ConstantLeaf implements FunctionWithArguments, Function<Object> {
+public class ConstantLeaf implements FunctionWithArguments {
 	final Object value;
 	final SlotType type;
+	final LazyObject lazyObject;
 
 	public ConstantLeaf(final Object value, final SlotType type) {
 		super();
 		this.value = value;
 		this.type = type;
+		this.lazyObject = new LazyObject(value);
 	}
 
 	@Override
@@ -49,23 +52,13 @@ public class ConstantLeaf implements FunctionWithArguments, Function<Object> {
 	}
 
 	@Override
-	public String inClips() {
-		return this.value.toString();
-	}
-
-	@Override
 	public String toString() {
 		return this.value.toString();
 	}
 
 	@Override
-	public Object evaluate(final Function<?>... params) {
-		return this.value;
-	}
-
-	@Override
 	public Function<?> lazyEvaluate(final Function<?>... params) {
-		return this;
+		return this.lazyObject;
 	}
 
 	@Override

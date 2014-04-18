@@ -31,6 +31,7 @@ import org.jamocha.filter.FilterTranslator;
 import org.jamocha.filter.Function;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.PathFilter;
+import org.jamocha.filter.impls.FunctionVisitor;
 import org.junit.experimental.theories.Theories;
 import org.junit.experimental.theories.Theory;
 import org.junit.runner.RunWith;
@@ -77,6 +78,12 @@ public class FilterMockup extends PathFilter {
 					@Override
 					public Boolean evaluate(final Function<?>... params) {
 						return returnValue;
+					}
+
+					@Override
+					public <V extends FunctionVisitor> V accept(final V visitor) {
+						throw new UnsupportedOperationException(
+								"You can not visit the dummy predicate!");
 					}
 				});
 		for (final PathAndSlotAddress pasa : pathAndSlotAddresses) {
