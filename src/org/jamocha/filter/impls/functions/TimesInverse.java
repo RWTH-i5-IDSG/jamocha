@@ -17,9 +17,11 @@ package org.jamocha.filter.impls.functions;
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.filter.Function;
 import org.jamocha.filter.FunctionDictionary;
+import org.jamocha.filter.impls.FunctionVisitor;
 
 /**
- * Implements the multiplicative inverse (for all integers a holds <code>Equals(1, Times(a, TimesInverse(a)))</code>).
+ * Implements the multiplicative inverse (for all integers a holds
+ * <code>Equals(1, Times(a, TimesInverse(a)))</code>).
  * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  * @see Function
@@ -31,6 +33,12 @@ public abstract class TimesInverse<R> implements Function<R> {
 	@Override
 	public String inClips() {
 		return inClips;
+	}
+
+	@Override
+	public <V extends FunctionVisitor> V accept(final V visitor) {
+		visitor.visit(this);
+		return visitor;
 	}
 
 	static {

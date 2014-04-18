@@ -16,6 +16,8 @@ package org.jamocha.filter;
 
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.filter.fwa.FunctionWithArguments;
+import org.jamocha.filter.impls.FunctionVisitor;
+import org.jamocha.visitor.Visitable;
 
 /**
  * Interface for a function representing a part of a rule condition that performs an operation on
@@ -28,7 +30,7 @@ import org.jamocha.filter.fwa.FunctionWithArguments;
  * @see Predicate
  * @see FunctionWithArguments
  */
-public interface Function<R> {
+public interface Function<R> extends Visitable<FunctionVisitor> {
 
 	/**
 	 * Getter for the list of the corresponding parameter types for the function.

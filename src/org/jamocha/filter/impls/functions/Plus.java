@@ -18,6 +18,7 @@ import org.jamocha.dn.memory.SlotType;
 import org.jamocha.filter.CommutativeFunction;
 import org.jamocha.filter.Function;
 import org.jamocha.filter.FunctionDictionary;
+import org.jamocha.filter.impls.FunctionVisitor;
 
 /**
  * Implements the functionality of the binary plus ({@code +}) operator.
@@ -33,6 +34,12 @@ public abstract class Plus<R> implements CommutativeFunction<R> {
 	@Override
 	public String inClips() {
 		return inClips;
+	}
+
+	@Override
+	public <V extends FunctionVisitor> V accept(final V visitor) {
+		visitor.visit(this);
+		return visitor;
 	}
 
 	static {

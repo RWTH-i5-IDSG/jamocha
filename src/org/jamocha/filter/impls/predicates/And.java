@@ -19,6 +19,7 @@ import org.jamocha.filter.CommutativeFunction;
 import org.jamocha.filter.Function;
 import org.jamocha.filter.FunctionDictionary;
 import org.jamocha.filter.Predicate;
+import org.jamocha.filter.impls.FunctionVisitor;
 
 /**
  * Implements the functionality of the logical binary {@code and} operator.
@@ -33,6 +34,12 @@ public abstract class And extends Predicate implements CommutativeFunction<Boole
 	@Override
 	public String inClips() {
 		return inClips;
+	}
+
+	@Override
+	public <V extends FunctionVisitor> V accept(final V visitor) {
+		visitor.visit(this);
+		return visitor;
 	}
 
 	static {

@@ -17,6 +17,7 @@ package org.jamocha.filter.impls.functions;
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.filter.Function;
 import org.jamocha.filter.FunctionDictionary;
+import org.jamocha.filter.impls.FunctionVisitor;
 
 /**
  * Type conversion functions.
@@ -24,6 +25,12 @@ import org.jamocha.filter.FunctionDictionary;
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
 public abstract class TypeConverter<R> implements Function<R> {
+	@Override
+	public <V extends FunctionVisitor> V accept(final V visitor) {
+		visitor.visit(this);
+		return visitor;
+	}
+
 	static {
 		FunctionDictionary.addImpl(new TypeConverter<Double>() {
 			@Override
