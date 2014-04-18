@@ -48,4 +48,6 @@ public interface FunctionVisitor extends Visitor {
 	void visit(final org.jamocha.filter.impls.predicates.Less predicate);
 
 	void visit(final org.jamocha.filter.impls.predicates.LessOrEqual predicate);
+
+	void visit(final org.jamocha.filter.impls.predicates.Not predicate);
 }
