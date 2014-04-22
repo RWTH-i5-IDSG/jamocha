@@ -83,17 +83,31 @@ public class UniformFunctionTranslator {
 
 		@Override
 		public void visit(final PredicateWithArgumentsComposite predicateWithArgumentsComposite) {
-			final Predicate function = predicateWithArgumentsComposite.getFunction();
+			assert null == functionWithArguments;
+			final FunctionWithArguments[] args = predicateWithArgumentsComposite.getArgs();
+			// first look at the arguments
+			translateArgs(args);
 
+			final Predicate function = predicateWithArgumentsComposite.getFunction();
 			this.functionWithArguments =
-					new PredicateWithArgumentsComposite(
-							function, translateArgs(
-									predicateWithArgumentsComposite.getArgs(),
-									predicateWithArgumentsComposite));
+					new PredicateWithArgumentsComposite(function, translateArgs(args,
+							predicateWithArgumentsComposite));
+
+			translateArgs(args);
+		}
+
+		private static void translateArgs(final FunctionWithArguments[] args) {
+			for (int i = 0; i < args.length; i++) {
+				boolean changed = true;
+				do {
+					final FunctionWithArguments translated =
+							args[i].accept(new FunctionWithArgumentsTranslator(null/* TODO */)).functionWithArguments;
+					changed = args[i] != translated;
+					args[i] = translated;
+				} while (changed);
+			}
 		}
 	}
-	
-	
 
 	/**
 	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
