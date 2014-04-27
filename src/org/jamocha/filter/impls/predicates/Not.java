@@ -29,7 +29,7 @@ import org.jamocha.filter.impls.FunctionVisitor;
  * @see FunctionDictionary
  */
 public abstract class Not extends Predicate implements CommutativeFunction<Boolean> {
-	static String inClips = "!";
+	public static String inClips = "!";
 
 	@Override
 	public String inClips() {

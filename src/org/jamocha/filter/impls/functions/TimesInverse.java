@@ -28,7 +28,7 @@ import org.jamocha.filter.impls.FunctionVisitor;
  * @see FunctionDictionary
  */
 public abstract class TimesInverse<R> implements Function<R> {
-	static String inClips = "1/";
+	public static String inClips = "1/";
 
 	@Override
 	public String inClips() {

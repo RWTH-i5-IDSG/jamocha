@@ -28,7 +28,7 @@ import org.jamocha.filter.impls.FunctionVisitor;
  * @see FunctionDictionary
  */
 public abstract class LessOrEqual extends Predicate {
-	static String inClips = "<=";
+	public static String inClips = "<=";
 
 	@Override
 	public String inClips() {

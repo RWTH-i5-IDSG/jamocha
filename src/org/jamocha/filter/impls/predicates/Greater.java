@@ -28,7 +28,7 @@ import org.jamocha.filter.impls.FunctionVisitor;
  * @see FunctionDictionary
  */
 public abstract class Greater extends Predicate {
-	static String inClips = ">";
+	public static String inClips = ">";
 
 	@Override
 	public String inClips() {

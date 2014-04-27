@@ -27,7 +27,7 @@ import org.jamocha.filter.impls.FunctionVisitor;
  * @see FunctionDictionary
  */
 public abstract class DividedBy<R> implements Function<R> {
-	static String inClips = "/";
+	public static String inClips = "/";
 
 	@Override
 	public String inClips() {
