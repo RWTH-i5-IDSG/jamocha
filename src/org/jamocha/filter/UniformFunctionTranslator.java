@@ -241,7 +241,7 @@ public class UniformFunctionTranslator {
 				result = arg.accept(new LowerLevelFWATranslator((u, l) -> {
 					return new PlusTranslator(u, l, j);
 				}, upperGwac)).result;
-				if (null != result)
+				if (upperGwac != result)
 					return;
 			}
 		}
