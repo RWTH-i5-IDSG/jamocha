@@ -231,26 +231,32 @@ public class UniformFunctionTranslator {
 
 		}
 
-		// +(+(a,b),c) -> +(a,b,c)
-		// +(a,+(b,c)) -> +(a,b,c)
-		@Override
-		public void visit(final org.jamocha.filter.impls.functions.Plus<?> function) {
+		private void argumentChanginLoopWithIndex(
+				final LowerLevelFunctionWithPositionTranslatorCtor ctor) {
 			for (int i = 0; i < upperGwac.getArgs().length; i++) {
 				final FunctionWithArguments arg = upperGwac.getArgs()[i];
 				final int j = i;
 				result = arg.accept(new LowerLevelFWATranslator((u, l) -> {
-					return new PlusTranslator(u, l, j);
+					return ctor.create(u, l, j);
 				}, upperGwac)).result;
 				if (upperGwac != result)
 					return;
 			}
 		}
 
+		// +(+(a,b),c) -> +(a,b,c)
+		// +(a,+(b,c)) -> +(a,b,c)
+		@Override
+		public void visit(final org.jamocha.filter.impls.functions.Plus<?> function) {
+			argumentChanginLoopWithIndex(PlusTranslator::new);
+		}
+
+		// *(*(a,b),c) -> *(a,b,c)
 		// *(+(a,b),c) -> +(*(a,c),*(b,c))
 		// *(-(a),b) -> -(*(a,b))
 		@Override
 		public void visit(final org.jamocha.filter.impls.functions.Times<?> function) {
-
+			argumentChanginLoopWithIndex(TimesTranslator::new);
 		}
 	}
 
@@ -326,17 +332,26 @@ public class UniformFunctionTranslator {
 		}
 	}
 
-	private static class PlusTranslator extends LowerLevelFunctionTranslator {
+	@FunctionalInterface
+	private static interface LowerLevelFunctionWithPositionTranslatorCtor {
+		public LowerLevelFunctionTranslator create(
+				final GenericWithArgumentsComposite<?, ?> upperGWAC,
+				final GenericWithArgumentsComposite<?, ?> lowerGWAC, final int position);
+	}
+
+	private static class LowerLevelFunctionWithPositionTranslator extends
+			LowerLevelFunctionTranslator {
 		final int position;
 
-		public PlusTranslator(GenericWithArgumentsComposite<?, ?> upperGWAC,
+		public LowerLevelFunctionWithPositionTranslator(
+				GenericWithArgumentsComposite<?, ?> upperGWAC,
 				GenericWithArgumentsComposite<?, ?> lowerGWAC, final int position) {
 			super(upperGWAC, lowerGWAC);
 			this.position = position;
 		}
 
-		@Override
-		public void visit(final org.jamocha.filter.impls.functions.Plus<?> function) {
+		protected FunctionWithArguments combineSameFunction(
+				final org.jamocha.filter.Function<?> function) {
 			// `newArgs` are `upperArgs` with the `lowerArgs` embedded at `position` replacing one
 			// arg with two or more
 			final FunctionWithArguments[] upperArgs = upperGwac.getArgs();
@@ -349,9 +364,65 @@ public class UniformFunctionTranslator {
 						position + lowerArgs.length, lowerArgs.length - 1);
 			final SlotType paramTypes[] = new SlotType[length];
 			Arrays.fill(paramTypes, function.getParamTypes()[0]);
-			result =
-					new FunctionWithArgumentsComposite(FunctionDictionary.lookup(
-							org.jamocha.filter.impls.functions.Plus.inClips, paramTypes), newArgs);
+			return new FunctionWithArgumentsComposite(FunctionDictionary.lookup(function.inClips(),
+					paramTypes), newArgs);
+		}
+
+	}
+
+	private static class PlusTranslator extends LowerLevelFunctionWithPositionTranslator {
+		public PlusTranslator(GenericWithArgumentsComposite<?, ?> upperGWAC,
+				GenericWithArgumentsComposite<?, ?> lowerGWAC, final int position) {
+			super(upperGWAC, lowerGWAC, position);
+		}
+
+		@Override
+		public void visit(final org.jamocha.filter.impls.functions.Plus<?> function) {
+			this.result = combineSameFunction(function);
+		}
+	}
+
+	private static class TimesTranslator extends LowerLevelFunctionWithPositionTranslator {
+		public TimesTranslator(GenericWithArgumentsComposite<?, ?> upperGWAC,
+				GenericWithArgumentsComposite<?, ?> lowerGWAC, final int position) {
+			super(upperGWAC, lowerGWAC, position);
+		}
+
+		@Override
+		public void visit(final org.jamocha.filter.impls.functions.Plus<?> function) {
+			// *(+(a,b),c,d,...) -> +(*(a,c,d,...),*(b,c,d,...))
+			final FunctionWithArguments[] oldTimesArgs = upperGwac.getArgs();
+			final FunctionWithArguments[] oldPlusArgs = lowerGwac.getArgs();
+			final FunctionWithArguments[] newPlusArgs =
+					new FunctionWithArguments[oldPlusArgs.length];
+			for (int i = 0; i < oldPlusArgs.length; i++) {
+				// for each element in the plus, create a times with the element and cAndMore
+				final FunctionWithArguments[] newTimesArgs =
+						Arrays.copyOf(oldTimesArgs, oldTimesArgs.length);
+				newTimesArgs[position] = oldPlusArgs[i];
+				newPlusArgs[i] =
+						new FunctionWithArgumentsComposite(upperGwac.getFunction(), newTimesArgs);
+			}
+			this.result = new FunctionWithArgumentsComposite(function, newPlusArgs);
+		}
+
+		@Override
+		public void visit(final org.jamocha.filter.impls.functions.Times<?> function) {
+			// *(*(a,b),c) -> *(a,b,c)
+			this.result = combineSameFunction(function);
+		}
+
+		@Override
+		public void visit(final org.jamocha.filter.impls.functions.UnaryMinus<?> function) {
+			// *(-(a),b) -> -(*(a,b))
+			// upperGwac - times
+			// lowerGwac - unary minus
+			// unwrap parameter i from its unary minus and replace it inplace
+			final FunctionWithArguments[] newArgs = upperGwac.getArgs().clone();
+			newArgs[position] = lowerGwac.getArgs()[0];
+			this.result =
+					new FunctionWithArgumentsComposite(function,
+							new FunctionWithArgumentsComposite(upperGwac.getFunction(), newArgs));
 		}
 	}
 }
