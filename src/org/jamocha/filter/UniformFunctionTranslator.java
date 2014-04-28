@@ -170,7 +170,7 @@ public class UniformFunctionTranslator {
 			final FunctionWithArguments translated =
 					f.accept(new UpperLevelFunctionTranslator(newGwac)).result;
 			if (this.result != translated) {
-				this.result = new UpperLevelFWATranslator(translated).result;
+				this.result = translated.accept(new UpperLevelFWATranslator(translated)).result;
 			} else {
 				this.result = translated;
 			}
