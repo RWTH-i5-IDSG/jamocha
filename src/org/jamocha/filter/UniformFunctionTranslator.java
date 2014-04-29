@@ -208,9 +208,10 @@ public class UniformFunctionTranslator {
 		}
 
 		// /(a,b) -> *(a,1/b)
-		// FIXME does not work for longs: 7 / 5 = 1 != 0 = 7 * (1/5)
 		@Override
 		public void visit(final org.jamocha.filter.impls.functions.DividedBy<?> function) {
+			if (function.getReturnType() == SlotType.LONG)
+				return;
 			result =
 					new FunctionWithArgumentsComposite(FunctionDictionary.lookup(
 							org.jamocha.filter.impls.functions.Times.inClips,
@@ -222,9 +223,10 @@ public class UniformFunctionTranslator {
 		}
 
 		// 1/(1/a) -> a
-		// FIXME does not work for longs: 1 / (1 / 5) = DIV_BY_0_ERROR != 5
 		@Override
 		public void visit(final org.jamocha.filter.impls.functions.TimesInverse<?> function) {
+			if (function.getReturnType() == SlotType.LONG)
+				return;
 			result =
 					upperGwac.getArgs()[0].accept(new LowerLevelFWATranslator(
 							TimesInverseTranslator::new, upperGwac)).result;

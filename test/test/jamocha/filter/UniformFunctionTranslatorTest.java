@@ -14,6 +14,7 @@
  */
 package test.jamocha.filter;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import org.jamocha.dn.memory.SlotType;
@@ -248,7 +249,7 @@ public class UniformFunctionTranslatorTest {
 								new FunctionBuilder(timesLL).addLong(7)
 										.addFunction(new FunctionBuilder(divL).addLong(5).build())
 										.build()).buildPFE());
-		assertTrue(FilterFunctionCompare.equals(compare, FilterTranslator.translate(original,
+		assertFalse(FilterFunctionCompare.equals(compare, FilterTranslator.translate(original,
 				CounterColumnMatcherMockup.counterColumnMatcherMockup)));
 	}
 
@@ -320,7 +321,7 @@ public class UniformFunctionTranslatorTest {
 												.build()).build())));
 		final PathFilter compare =
 				new PathFilter(new PredicateBuilder(equalsLL).addLong(5L).addLong(5L).buildPFE());
-		assertTrue(FilterFunctionCompare.equals(compare, FilterTranslator.translate(original,
+		assertFalse(FilterFunctionCompare.equals(compare, FilterTranslator.translate(original,
 				CounterColumnMatcherMockup.counterColumnMatcherMockup)));
 	}
 
