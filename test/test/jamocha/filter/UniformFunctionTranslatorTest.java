@@ -486,7 +486,90 @@ public class UniformFunctionTranslatorTest {
 				CounterColumnMatcherMockup.counterColumnMatcherMockup)));
 	}
 
-	// >(a,b) -> <(b,a)
-	// <=(a,b) -> !(<(b,a))
-	// >=(a,b) -> !(<(a,b))
+	/**
+	 * Test method for
+	 * {@link org.jamocha.filter.UniformFunctionTranslator#translate(org.jamocha.filter.fwa.PredicateWithArguments)}
+	 * .
+	 */
+	@Test
+	public void testTranslateGreaterToLess() {
+		// >(a,b) -> <(b,a)
+		final Predicate greaterLL =
+				FunctionDictionary.lookupPredicate(
+						org.jamocha.filter.impls.predicates.Greater.inClips, SlotType.LONG,
+						SlotType.LONG);
+		final Predicate lessLL =
+				FunctionDictionary.lookupPredicate(
+						org.jamocha.filter.impls.predicates.Less.inClips, SlotType.LONG,
+						SlotType.LONG);
+		final PathFilter original =
+				new PathFilter(new PathFilterElement(
+						UniformFunctionTranslator.translate(new PredicateBuilder(greaterLL)
+								.addLong(20L).addLong(10L).build())));
+		final PathFilter compare =
+				new PathFilter(new PredicateBuilder(lessLL).addLong(10L).addLong(20L).buildPFE());
+		assertTrue(FilterFunctionCompare.equals(compare, FilterTranslator.translate(original,
+				CounterColumnMatcherMockup.counterColumnMatcherMockup)));
+	}
+
+	/**
+	 * Test method for
+	 * {@link org.jamocha.filter.UniformFunctionTranslator#translate(org.jamocha.filter.fwa.PredicateWithArguments)}
+	 * .
+	 */
+	@Test
+	public void testTranslateLeqToNLess() {
+		// <=(a,b) -> !(<(b,a))
+		final Predicate leqLL =
+				FunctionDictionary.lookupPredicate(
+						org.jamocha.filter.impls.predicates.LessOrEqual.inClips, SlotType.LONG,
+						SlotType.LONG);
+		final Predicate lessLL =
+				FunctionDictionary.lookupPredicate(
+						org.jamocha.filter.impls.predicates.Less.inClips, SlotType.LONG,
+						SlotType.LONG);
+		final Predicate notB =
+				FunctionDictionary.lookupPredicate(org.jamocha.filter.impls.predicates.Not.inClips,
+						SlotType.BOOLEAN);
+		final PathFilter original =
+				new PathFilter(new PathFilterElement(
+						UniformFunctionTranslator.translate(new PredicateBuilder(leqLL)
+								.addLong(10L).addLong(20L).build())));
+		final PathFilter compare =
+				new PathFilter(new PredicateBuilder(notB).addFunction(
+						new PredicateBuilder(lessLL).addLong(20L).addLong(10L).build()).buildPFE());
+		assertTrue(FilterFunctionCompare.equals(compare, FilterTranslator.translate(original,
+				CounterColumnMatcherMockup.counterColumnMatcherMockup)));
+	}
+
+	/**
+	 * Test method for
+	 * {@link org.jamocha.filter.UniformFunctionTranslator#translate(org.jamocha.filter.fwa.PredicateWithArguments)}
+	 * .
+	 */
+	@Test
+	public void testTranslateGeqToNLess() {
+		// >=(a,b) -> !(<(a,b))
+		final Predicate geqLL =
+				FunctionDictionary.lookupPredicate(
+						org.jamocha.filter.impls.predicates.GreaterOrEqual.inClips, SlotType.LONG,
+						SlotType.LONG);
+		final Predicate lessLL =
+				FunctionDictionary.lookupPredicate(
+						org.jamocha.filter.impls.predicates.Less.inClips, SlotType.LONG,
+						SlotType.LONG);
+		final Predicate notB =
+				FunctionDictionary.lookupPredicate(org.jamocha.filter.impls.predicates.Not.inClips,
+						SlotType.BOOLEAN);
+		final PathFilter original =
+				new PathFilter(new PathFilterElement(
+						UniformFunctionTranslator.translate(new PredicateBuilder(geqLL)
+								.addLong(20L).addLong(10L).build())));
+		final PathFilter compare =
+				new PathFilter(new PredicateBuilder(notB).addFunction(
+						new PredicateBuilder(lessLL).addLong(20L).addLong(10L).build()).buildPFE());
+		assertTrue(FilterFunctionCompare.equals(compare, FilterTranslator.translate(original,
+				CounterColumnMatcherMockup.counterColumnMatcherMockup)));
+	}
+
 }

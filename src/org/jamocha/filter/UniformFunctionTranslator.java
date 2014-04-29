@@ -258,6 +258,42 @@ public class UniformFunctionTranslator {
 		public void visit(final org.jamocha.filter.impls.functions.Times<?> function) {
 			argumentChanginLoopWithIndex(TimesTranslator::new);
 		}
+
+		private static FunctionWithArguments[] swapTwoArguments(final FunctionWithArguments[] args) {
+			return new FunctionWithArguments[] { args[1], args[0] };
+		}
+
+		// >(a,b) -> <(b,a)
+		@Override
+		public void visit(final org.jamocha.filter.impls.predicates.Greater predicate) {
+			result =
+					new PredicateWithArgumentsComposite(FunctionDictionary.lookupPredicate(
+							org.jamocha.filter.impls.predicates.Less.inClips,
+							predicate.getParamTypes()), swapTwoArguments(upperGwac.getArgs()));
+		}
+
+		// <=(a,b) -> !(<(b,a))
+		@Override
+		public void visit(final org.jamocha.filter.impls.predicates.LessOrEqual predicate) {
+			result =
+					new PredicateWithArgumentsComposite(FunctionDictionary.lookupPredicate(
+							org.jamocha.filter.impls.predicates.Not.inClips, SlotType.BOOLEAN),
+							new PredicateWithArgumentsComposite(FunctionDictionary.lookupPredicate(
+									org.jamocha.filter.impls.predicates.Less.inClips,
+									predicate.getParamTypes()), swapTwoArguments(upperGwac
+									.getArgs())));
+		}
+
+		// >=(a,b) -> !(<(a,b))
+		@Override
+		public void visit(final org.jamocha.filter.impls.predicates.GreaterOrEqual predicate) {
+			result =
+					new PredicateWithArgumentsComposite(FunctionDictionary.lookupPredicate(
+							org.jamocha.filter.impls.predicates.Not.inClips, SlotType.BOOLEAN),
+							new PredicateWithArgumentsComposite(FunctionDictionary.lookupPredicate(
+									org.jamocha.filter.impls.predicates.Less.inClips,
+									predicate.getParamTypes()), upperGwac.getArgs()));
+		}
 	}
 
 	@FunctionalInterface
