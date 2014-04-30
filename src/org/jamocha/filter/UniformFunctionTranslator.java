@@ -31,10 +31,58 @@ import org.jamocha.filter.impls.FunctionVisitor;
 public class UniformFunctionTranslator {
 	public static PredicateWithArguments translate(
 			final PredicateWithArguments predicateWithArguments) {
+		final PredicateWithArguments copy =
+				(PredicateWithArguments) predicateWithArguments.accept(new DeepCopy()).result;
 		final PredicateWithArguments transformed =
-				(PredicateWithArguments) predicateWithArguments.accept(new UpperLevelFWATranslator(
-						predicateWithArguments)).result;
+				(PredicateWithArguments) copy.accept(new UpperLevelFWATranslator(copy)).result;
 		return transformed;
+	}
+
+	private static class DeepCopy implements FunctionWithArgumentsVisitor {
+		FunctionWithArguments result;
+
+		private static FunctionWithArguments[] copyArgs(final FunctionWithArguments[] args) {
+			return Arrays.stream(args).map((final FunctionWithArguments fwa) -> {
+				return fwa.accept(new DeepCopy()).result;
+			}).toArray(FunctionWithArguments[]::new);
+		}
+
+		@Override
+		public void visit(
+				final org.jamocha.filter.fwa.PredicateWithArgumentsComposite predicateWithArgumentsComposite) {
+			this.result =
+					new org.jamocha.filter.fwa.PredicateWithArgumentsComposite(
+							predicateWithArgumentsComposite.getFunction(),
+							copyArgs(predicateWithArgumentsComposite.getArgs()));
+		}
+
+		@Override
+		public void visit(
+				final org.jamocha.filter.fwa.FunctionWithArgumentsComposite functionWithArgumentsComposite) {
+			this.result =
+					new org.jamocha.filter.fwa.FunctionWithArgumentsComposite(
+							functionWithArgumentsComposite.getFunction(),
+							copyArgs(functionWithArgumentsComposite.getArgs()));
+		}
+
+		@Override
+		public void visit(final org.jamocha.filter.fwa.ConstantLeaf constantLeaf) {
+			this.result =
+					new org.jamocha.filter.fwa.ConstantLeaf(constantLeaf.getValue(),
+							constantLeaf.getReturnType());
+		}
+
+		@Override
+		public void visit(final org.jamocha.filter.fwa.PathLeaf.ParameterLeaf parameterLeaf) {
+			this.result =
+					new org.jamocha.filter.fwa.PathLeaf.ParameterLeaf(parameterLeaf.getType());
+		}
+
+		@Override
+		public void visit(final org.jamocha.filter.fwa.PathLeaf pathLeaf) {
+			this.result =
+					new org.jamocha.filter.fwa.PathLeaf(pathLeaf.getPath(), pathLeaf.getSlot());
+		}
 	}
 
 	static interface SelectiveFunctionWithArgumentsVisitor extends FunctionWithArgumentsVisitor {
@@ -189,22 +237,22 @@ public class UniformFunctionTranslator {
 		// -(a,b) -> +(a,(-b))
 		@Override
 		public void visit(final org.jamocha.filter.impls.functions.Minus<?> function) {
-			result =
+			this.result =
 					new FunctionWithArgumentsComposite(FunctionDictionary.lookup(
 							org.jamocha.filter.impls.functions.Plus.inClips,
 							function.getParamTypes()), new FunctionWithArguments[] {
-							upperGwac.getArgs()[0],
+							this.upperGwac.getArgs()[0],
 							new FunctionWithArgumentsComposite(FunctionDictionary.lookup(
 									org.jamocha.filter.impls.functions.UnaryMinus.inClips,
-									function.getParamTypes()[1]), upperGwac.getArgs()[1]) });
+									function.getParamTypes()[1]), this.upperGwac.getArgs()[1]) });
 		}
 
 		// -(-(a)) -> a
 		@Override
 		public void visit(final org.jamocha.filter.impls.functions.UnaryMinus<?> function) {
-			result =
-					upperGwac.getArgs()[0].accept(new LowerLevelFWATranslator(
-							UnaryMinusTranslator::new, upperGwac)).result;
+			this.result =
+					this.upperGwac.getArgs()[0].accept(new LowerLevelFWATranslator(
+							UnaryMinusTranslator::new, this.upperGwac)).result;
 		}
 
 		// /(a,b) -> *(a,1/b)
@@ -212,14 +260,14 @@ public class UniformFunctionTranslator {
 		public void visit(final org.jamocha.filter.impls.functions.DividedBy<?> function) {
 			if (function.getReturnType() == SlotType.LONG)
 				return;
-			result =
+			this.result =
 					new FunctionWithArgumentsComposite(FunctionDictionary.lookup(
 							org.jamocha.filter.impls.functions.Times.inClips,
 							function.getParamTypes()), new FunctionWithArguments[] {
-							upperGwac.getArgs()[0],
+							this.upperGwac.getArgs()[0],
 							new FunctionWithArgumentsComposite(FunctionDictionary.lookup(
 									org.jamocha.filter.impls.functions.TimesInverse.inClips,
-									function.getParamTypes()[1]), upperGwac.getArgs()[1]) });
+									function.getParamTypes()[1]), this.upperGwac.getArgs()[1]) });
 		}
 
 		// 1/(1/a) -> a
@@ -227,21 +275,21 @@ public class UniformFunctionTranslator {
 		public void visit(final org.jamocha.filter.impls.functions.TimesInverse<?> function) {
 			if (function.getReturnType() == SlotType.LONG)
 				return;
-			result =
-					upperGwac.getArgs()[0].accept(new LowerLevelFWATranslator(
-							TimesInverseTranslator::new, upperGwac)).result;
+			this.result =
+					this.upperGwac.getArgs()[0].accept(new LowerLevelFWATranslator(
+							TimesInverseTranslator::new, this.upperGwac)).result;
 
 		}
 
 		private void argumentChanginLoopWithIndex(
 				final LowerLevelFunctionWithPositionTranslatorCtor ctor) {
-			for (int i = 0; i < upperGwac.getArgs().length; i++) {
-				final FunctionWithArguments arg = upperGwac.getArgs()[i];
+			for (int i = 0; i < this.upperGwac.getArgs().length; i++) {
+				final FunctionWithArguments arg = this.upperGwac.getArgs()[i];
 				final int j = i;
-				result = arg.accept(new LowerLevelFWATranslator((u, l) -> {
+				this.result = arg.accept(new LowerLevelFWATranslator((u, l) -> {
 					return ctor.create(u, l, j);
-				}, upperGwac)).result;
-				if (upperGwac != result)
+				}, this.upperGwac)).result;
+				if (this.upperGwac != this.result)
 					return;
 			}
 		}
@@ -268,33 +316,33 @@ public class UniformFunctionTranslator {
 		// >(a,b) -> <(b,a)
 		@Override
 		public void visit(final org.jamocha.filter.impls.predicates.Greater predicate) {
-			result =
+			this.result =
 					new PredicateWithArgumentsComposite(FunctionDictionary.lookupPredicate(
 							org.jamocha.filter.impls.predicates.Less.inClips,
-							predicate.getParamTypes()), swapTwoArguments(upperGwac.getArgs()));
+							predicate.getParamTypes()), swapTwoArguments(this.upperGwac.getArgs()));
 		}
 
 		// <=(a,b) -> !(<(b,a))
 		@Override
 		public void visit(final org.jamocha.filter.impls.predicates.LessOrEqual predicate) {
-			result =
+			this.result =
 					new PredicateWithArgumentsComposite(FunctionDictionary.lookupPredicate(
 							org.jamocha.filter.impls.predicates.Not.inClips, SlotType.BOOLEAN),
 							new PredicateWithArgumentsComposite(FunctionDictionary.lookupPredicate(
 									org.jamocha.filter.impls.predicates.Less.inClips,
-									predicate.getParamTypes()), swapTwoArguments(upperGwac
+									predicate.getParamTypes()), swapTwoArguments(this.upperGwac
 									.getArgs())));
 		}
 
 		// >=(a,b) -> !(<(a,b))
 		@Override
 		public void visit(final org.jamocha.filter.impls.predicates.GreaterOrEqual predicate) {
-			result =
+			this.result =
 					new PredicateWithArgumentsComposite(FunctionDictionary.lookupPredicate(
 							org.jamocha.filter.impls.predicates.Not.inClips, SlotType.BOOLEAN),
 							new PredicateWithArgumentsComposite(FunctionDictionary.lookupPredicate(
 									org.jamocha.filter.impls.predicates.Less.inClips,
-									predicate.getParamTypes()), upperGwac.getArgs()));
+									predicate.getParamTypes()), this.upperGwac.getArgs()));
 		}
 	}
 
@@ -328,7 +376,7 @@ public class UniformFunctionTranslator {
 		}
 
 		public void handle(final GenericWithArgumentsComposite<?, ?> gwac) {
-			this.result = gwac.getFunction().accept(ctor.create(upperGwac, gwac)).result;
+			this.result = gwac.getFunction().accept(this.ctor.create(this.upperGwac, gwac)).result;
 		}
 	}
 
@@ -347,26 +395,26 @@ public class UniformFunctionTranslator {
 	}
 
 	private static class UnaryMinusTranslator extends LowerLevelFunctionTranslator {
-		public UnaryMinusTranslator(GenericWithArgumentsComposite<?, ?> upperGWAC,
-				GenericWithArgumentsComposite<?, ?> lowerGWAC) {
+		public UnaryMinusTranslator(final GenericWithArgumentsComposite<?, ?> upperGWAC,
+				final GenericWithArgumentsComposite<?, ?> lowerGWAC) {
 			super(upperGWAC, lowerGWAC);
 		}
 
 		@Override
 		public void visit(final org.jamocha.filter.impls.functions.UnaryMinus<?> function) {
-			result = lowerGwac.getArgs()[0];
+			this.result = this.lowerGwac.getArgs()[0];
 		}
 	}
 
 	private static class TimesInverseTranslator extends LowerLevelFunctionTranslator {
-		public TimesInverseTranslator(GenericWithArgumentsComposite<?, ?> upperGWAC,
-				GenericWithArgumentsComposite<?, ?> lowerGWAC) {
+		public TimesInverseTranslator(final GenericWithArgumentsComposite<?, ?> upperGWAC,
+				final GenericWithArgumentsComposite<?, ?> lowerGWAC) {
 			super(upperGWAC, lowerGWAC);
 		}
 
 		@Override
 		public void visit(final org.jamocha.filter.impls.functions.TimesInverse<?> function) {
-			result = lowerGwac.getArgs()[0];
+			this.result = this.lowerGwac.getArgs()[0];
 		}
 	}
 
@@ -382,8 +430,8 @@ public class UniformFunctionTranslator {
 		final int position;
 
 		public LowerLevelFunctionWithPositionTranslator(
-				GenericWithArgumentsComposite<?, ?> upperGWAC,
-				GenericWithArgumentsComposite<?, ?> lowerGWAC, final int position) {
+				final GenericWithArgumentsComposite<?, ?> upperGWAC,
+				final GenericWithArgumentsComposite<?, ?> lowerGWAC, final int position) {
 			super(upperGWAC, lowerGWAC);
 			this.position = position;
 		}
@@ -392,14 +440,14 @@ public class UniformFunctionTranslator {
 				final org.jamocha.filter.Function<?> function) {
 			// `newArgs` are `upperArgs` with the `lowerArgs` embedded at `position` replacing one
 			// arg with two or more
-			final FunctionWithArguments[] upperArgs = upperGwac.getArgs();
-			final FunctionWithArguments[] lowerArgs = lowerGwac.getArgs();
+			final FunctionWithArguments[] upperArgs = this.upperGwac.getArgs();
+			final FunctionWithArguments[] lowerArgs = this.lowerGwac.getArgs();
 			final int length = upperArgs.length + lowerArgs.length - 1;
 			final FunctionWithArguments[] newArgs = Arrays.copyOf(upperArgs, length);
-			System.arraycopy(lowerArgs, 0, newArgs, position, lowerArgs.length);
-			if (position + lowerArgs.length < newArgs.length)
+			System.arraycopy(lowerArgs, 0, newArgs, this.position, lowerArgs.length);
+			if (this.position + lowerArgs.length < newArgs.length)
 				System.arraycopy(upperArgs, upperArgs.length - (lowerArgs.length - 1), newArgs,
-						position + lowerArgs.length, lowerArgs.length - 1);
+						this.position + lowerArgs.length, lowerArgs.length - 1);
 			final SlotType paramTypes[] = new SlotType[length];
 			Arrays.fill(paramTypes, function.getParamTypes()[0]);
 			return new FunctionWithArgumentsComposite(FunctionDictionary.lookup(function.inClips(),
@@ -409,8 +457,8 @@ public class UniformFunctionTranslator {
 	}
 
 	private static class PlusTranslator extends LowerLevelFunctionWithPositionTranslator {
-		public PlusTranslator(GenericWithArgumentsComposite<?, ?> upperGWAC,
-				GenericWithArgumentsComposite<?, ?> lowerGWAC, final int position) {
+		public PlusTranslator(final GenericWithArgumentsComposite<?, ?> upperGWAC,
+				final GenericWithArgumentsComposite<?, ?> lowerGWAC, final int position) {
 			super(upperGWAC, lowerGWAC, position);
 		}
 
@@ -421,25 +469,26 @@ public class UniformFunctionTranslator {
 	}
 
 	private static class TimesTranslator extends LowerLevelFunctionWithPositionTranslator {
-		public TimesTranslator(GenericWithArgumentsComposite<?, ?> upperGWAC,
-				GenericWithArgumentsComposite<?, ?> lowerGWAC, final int position) {
+		public TimesTranslator(final GenericWithArgumentsComposite<?, ?> upperGWAC,
+				final GenericWithArgumentsComposite<?, ?> lowerGWAC, final int position) {
 			super(upperGWAC, lowerGWAC, position);
 		}
 
 		@Override
 		public void visit(final org.jamocha.filter.impls.functions.Plus<?> function) {
 			// *(+(a,b),c,d,...) -> +(*(a,c,d,...),*(b,c,d,...))
-			final FunctionWithArguments[] oldTimesArgs = upperGwac.getArgs();
-			final FunctionWithArguments[] oldPlusArgs = lowerGwac.getArgs();
+			final FunctionWithArguments[] oldTimesArgs = this.upperGwac.getArgs();
+			final FunctionWithArguments[] oldPlusArgs = this.lowerGwac.getArgs();
 			final FunctionWithArguments[] newPlusArgs =
 					new FunctionWithArguments[oldPlusArgs.length];
 			for (int i = 0; i < oldPlusArgs.length; i++) {
 				// for each element in the plus, create a times with the element and cAndMore
 				final FunctionWithArguments[] newTimesArgs =
 						Arrays.copyOf(oldTimesArgs, oldTimesArgs.length);
-				newTimesArgs[position] = oldPlusArgs[i];
+				newTimesArgs[this.position] = oldPlusArgs[i];
 				newPlusArgs[i] =
-						new FunctionWithArgumentsComposite(upperGwac.getFunction(), newTimesArgs);
+						new FunctionWithArgumentsComposite(this.upperGwac.getFunction(),
+								newTimesArgs);
 			}
 			this.result = new FunctionWithArgumentsComposite(function, newPlusArgs);
 		}
@@ -456,11 +505,12 @@ public class UniformFunctionTranslator {
 			// upperGwac - times
 			// lowerGwac - unary minus
 			// unwrap parameter i from its unary minus and replace it inplace
-			final FunctionWithArguments[] newArgs = upperGwac.getArgs().clone();
-			newArgs[position] = lowerGwac.getArgs()[0];
+			final FunctionWithArguments[] newArgs = this.upperGwac.getArgs().clone();
+			newArgs[this.position] = this.lowerGwac.getArgs()[0];
 			this.result =
 					new FunctionWithArgumentsComposite(function,
-							new FunctionWithArgumentsComposite(upperGwac.getFunction(), newArgs));
+							new FunctionWithArgumentsComposite(this.upperGwac.getFunction(),
+									newArgs));
 		}
 	}
 }
