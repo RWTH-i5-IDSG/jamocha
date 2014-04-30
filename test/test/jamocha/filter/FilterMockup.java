@@ -82,8 +82,7 @@ public class FilterMockup extends PathFilter {
 
 					@Override
 					public <V extends FunctionVisitor> V accept(final V visitor) {
-						throw new UnsupportedOperationException(
-								"You can not visit the dummy predicate!");
+						return visitor;
 					}
 				});
 		for (final PathAndSlotAddress pasa : pathAndSlotAddresses) {
