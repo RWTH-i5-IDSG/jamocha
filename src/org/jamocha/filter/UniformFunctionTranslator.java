@@ -456,10 +456,10 @@ public class UniformFunctionTranslator {
 			final FunctionWithArguments[] lowerArgs = this.lowerGwac.getArgs();
 			final int length = upperArgs.length + lowerArgs.length - 1;
 			final FunctionWithArguments[] newArgs = Arrays.copyOf(upperArgs, length);
-			System.arraycopy(lowerArgs, 0, newArgs, this.position, lowerArgs.length);
-			if (this.position + lowerArgs.length < newArgs.length)
-				System.arraycopy(upperArgs, upperArgs.length - (lowerArgs.length - 1), newArgs,
-						this.position + lowerArgs.length, lowerArgs.length - 1);
+			System.arraycopy(lowerArgs, 0, newArgs, position, lowerArgs.length);
+			System.arraycopy(upperArgs, 0, newArgs, 0, position);
+			System.arraycopy(upperArgs, position + 1, newArgs, position + lowerArgs.length,
+					upperArgs.length - position - 1);
 			final SlotType paramTypes[] = new SlotType[length];
 			Arrays.fill(paramTypes, function.getParamTypes()[0]);
 			return new FunctionWithArgumentsComposite(FunctionDictionary.lookup(function.inClips(),
