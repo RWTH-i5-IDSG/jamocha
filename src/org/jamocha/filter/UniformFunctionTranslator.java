@@ -248,6 +248,7 @@ public class UniformFunctionTranslator {
 		}
 
 		// -(-(a)) -> a
+		// -(+(a,b,c,...)) -> +(-a,-b,-c,...)
 		@Override
 		public void visit(final org.jamocha.filter.impls.functions.UnaryMinus<?> function) {
 			this.result =
@@ -403,6 +404,17 @@ public class UniformFunctionTranslator {
 		@Override
 		public void visit(final org.jamocha.filter.impls.functions.UnaryMinus<?> function) {
 			this.result = this.lowerGwac.getArgs()[0];
+		}
+
+		@Override
+		public void visit(final org.jamocha.filter.impls.functions.Plus<?> function) {
+			result =
+					new FunctionWithArgumentsComposite(function, Arrays
+							.stream(lowerGwac.getArgs())
+							.map((final FunctionWithArguments fwa) -> {
+								return new FunctionWithArgumentsComposite(upperGwac.getFunction(),
+										fwa);
+							}).toArray(FunctionWithArguments[]::new));
 		}
 	}
 
