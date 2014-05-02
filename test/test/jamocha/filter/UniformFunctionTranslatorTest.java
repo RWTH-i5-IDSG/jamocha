@@ -18,10 +18,14 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import org.jamocha.dn.memory.SlotType;
+import org.jamocha.dn.memory.Template;
+import org.jamocha.dn.memory.javaimpl.SlotAddress;
+import org.jamocha.filter.AddressFilter;
 import org.jamocha.filter.FilterFunctionCompare;
 import org.jamocha.filter.FilterTranslator;
 import org.jamocha.filter.Function;
 import org.jamocha.filter.FunctionDictionary;
+import org.jamocha.filter.Path;
 import org.jamocha.filter.PathFilter;
 import org.jamocha.filter.PathFilter.PathFilterElement;
 import org.jamocha.filter.Predicate;
@@ -1069,8 +1073,8 @@ public class UniformFunctionTranslatorTest {
 		// >=(a,b) -> !(<(a,b))
 		final Predicate geqDD =
 				FunctionDictionary.lookupPredicate(
-						org.jamocha.filter.impls.predicates.GreaterOrEqual.inClips, SlotType.DOUBLE,
-						SlotType.DOUBLE);
+						org.jamocha.filter.impls.predicates.GreaterOrEqual.inClips,
+						SlotType.DOUBLE, SlotType.DOUBLE);
 		final Predicate lessDD =
 				FunctionDictionary.lookupPredicate(
 						org.jamocha.filter.impls.predicates.Less.inClips, SlotType.DOUBLE,
@@ -1084,8 +1088,336 @@ public class UniformFunctionTranslatorTest {
 								.addDouble(20.).addDouble(10.).build())));
 		final PathFilter compare =
 				new PathFilter(new PredicateBuilder(notB).addFunction(
-						new PredicateBuilder(lessDD).addDouble(20.).addDouble(10.).build()).buildPFE());
+						new PredicateBuilder(lessDD).addDouble(20.).addDouble(10.).build())
+						.buildPFE());
 		assertTrue(FilterFunctionCompare.equals(compare, FilterTranslator.translate(original,
 				CounterColumnMatcherMockup.counterColumnMatcherMockup)));
+	}
+
+	/**
+	 * Test method for
+	 * {@link org.jamocha.filter.UniformFunctionTranslator#translate(org.jamocha.filter.fwa.PredicateWithArguments)}
+	 * .
+	 */
+	@Test
+	public void testTranslateCombinationDouble() {
+		// *(+(-(a),b),-(c,d))
+		// -> +( *(-a,c), *(a,d), *(b,c), *(b,-d))
+		final Function<Double> plusDD =
+				FunctionDictionary.<Double> lookup(org.jamocha.filter.impls.functions.Plus.inClips,
+						SlotType.DOUBLE, SlotType.DOUBLE);
+		final Function<Double> plusDDDD =
+				FunctionDictionary.<Double> lookup(org.jamocha.filter.impls.functions.Plus.inClips,
+						SlotType.DOUBLE, SlotType.DOUBLE, SlotType.DOUBLE, SlotType.DOUBLE);
+		final Function<Double> minusDD =
+				FunctionDictionary.<Double> lookup(
+						org.jamocha.filter.impls.functions.Minus.inClips, SlotType.DOUBLE,
+						SlotType.DOUBLE);
+		final Function<Double> minusD =
+				FunctionDictionary.<Double> lookup(
+						org.jamocha.filter.impls.functions.UnaryMinus.inClips, SlotType.DOUBLE);
+		final Function<Double> timesDD =
+				FunctionDictionary.<Double> lookup(
+						org.jamocha.filter.impls.functions.Times.inClips, SlotType.DOUBLE,
+						SlotType.DOUBLE);
+		final Predicate equalsDD =
+				FunctionDictionary.lookupPredicate(
+						org.jamocha.filter.impls.predicates.Equals.inClips, SlotType.DOUBLE,
+						SlotType.DOUBLE);
+		final PathFilter original =
+				new PathFilter(new PathFilterElement(
+						UniformFunctionTranslator.translate(new PredicateBuilder(equalsDD)
+								.addDouble(12.)
+								.addFunction(
+										new FunctionBuilder(timesDD)
+												.addFunction(
+														new FunctionBuilder(plusDD)
+																.addFunction(
+																		new FunctionBuilder(minusD)
+																				.addDouble(5.)
+																				.build())
+																.addDouble(7.).build())
+												.addFunction(
+														new FunctionBuilder(minusDD).addDouble(9)
+																.addDouble(3).build()).build())
+								.build())));
+		final PathFilter compare =
+				new PathFilter(new PredicateBuilder(equalsDD)
+						.addDouble(12.)
+						.addFunction(
+								new FunctionBuilder(plusDDDD)
+										.addFunction(
+												new FunctionBuilder(minusD).addFunction(
+														new FunctionBuilder(timesDD).addDouble(5.)
+																.addDouble(9.).build()).build())
+										.addFunction(
+												new FunctionBuilder(timesDD).addDouble(5.)
+														.addDouble(3.).build())
+										.addFunction(
+												new FunctionBuilder(timesDD).addDouble(7.)
+														.addDouble(9.).build())
+										.addFunction(
+												new FunctionBuilder(minusD).addFunction(
+														new FunctionBuilder(timesDD).addDouble(7.)
+																.addDouble(3.).build()).build())
+										.build()).buildPFE());
+		final AddressFilter translate =
+				FilterTranslator.translate(original,
+						CounterColumnMatcherMockup.counterColumnMatcherMockup);
+		assertTrue(FilterFunctionCompare.equals(compare, translate));
+	}
+
+	/**
+	 * Test method for
+	 * {@link org.jamocha.filter.UniformFunctionTranslator#translate(org.jamocha.filter.fwa.PredicateWithArguments)}
+	 * .
+	 */
+	@Test
+	public void testTranslateCombinationPathsDouble() {
+		// *(+(-(a),b),-(c,d))
+		// -> +( *(-a,c), *(a,d), *(b,c), *(b,-d))
+		final Function<Double> plusDD =
+				FunctionDictionary.<Double> lookup(org.jamocha.filter.impls.functions.Plus.inClips,
+						SlotType.DOUBLE, SlotType.DOUBLE);
+		final Function<Double> plusDDDD =
+				FunctionDictionary.<Double> lookup(org.jamocha.filter.impls.functions.Plus.inClips,
+						SlotType.DOUBLE, SlotType.DOUBLE, SlotType.DOUBLE, SlotType.DOUBLE);
+		final Function<Double> minusDD =
+				FunctionDictionary.<Double> lookup(
+						org.jamocha.filter.impls.functions.Minus.inClips, SlotType.DOUBLE,
+						SlotType.DOUBLE);
+		final Function<Double> minusD =
+				FunctionDictionary.<Double> lookup(
+						org.jamocha.filter.impls.functions.UnaryMinus.inClips, SlotType.DOUBLE);
+		final Function<Double> timesDD =
+				FunctionDictionary.<Double> lookup(
+						org.jamocha.filter.impls.functions.Times.inClips, SlotType.DOUBLE,
+						SlotType.DOUBLE);
+		final Predicate equalsDD =
+				FunctionDictionary.lookupPredicate(
+						org.jamocha.filter.impls.predicates.Equals.inClips, SlotType.DOUBLE,
+						SlotType.DOUBLE);
+		final Template template = Template.DOUBLE;
+		final Path a = new Path(template), b = new Path(template), c = new Path(template), d =
+				new Path(template), l = new Path(template);
+		final SlotAddress s = new SlotAddress(0);
+		final PathFilter original =
+				new PathFilter(new PathFilterElement(
+						UniformFunctionTranslator.translate(new PredicateBuilder(equalsDD)
+								.addPath(l, s)
+								.addFunction(
+										new FunctionBuilder(timesDD)
+												.addFunction(
+														new FunctionBuilder(plusDD)
+																.addFunction(
+																		new FunctionBuilder(minusD)
+																				.addPath(a, s)
+																				.build())
+																.addPath(b, s).build())
+												.addFunction(
+														new FunctionBuilder(minusDD).addPath(c, s)
+																.addPath(d, s).build()).build())
+								.build())));
+		final PathFilter compare =
+				new PathFilter(new PredicateBuilder(equalsDD)
+						.addPath(l, s)
+						.addFunction(
+								new FunctionBuilder(plusDDDD)
+										.addFunction(
+												new FunctionBuilder(minusD).addFunction(
+														new FunctionBuilder(timesDD).addPath(a, s)
+																.addPath(c, s).build()).build())
+										.addFunction(
+												new FunctionBuilder(timesDD).addPath(a, s)
+														.addPath(d, s).build())
+										.addFunction(
+												new FunctionBuilder(timesDD).addPath(b, s)
+														.addPath(c, s).build())
+										.addFunction(
+												new FunctionBuilder(minusD).addFunction(
+														new FunctionBuilder(timesDD).addPath(b, s)
+																.addPath(d, s).build()).build())
+										.build()).buildPFE());
+		final AddressFilter translate =
+				FilterTranslator.translate(original,
+						CounterColumnMatcherMockup.counterColumnMatcherMockup);
+		assertTrue(FilterFunctionCompare.equals(compare, translate));
+	}
+
+	/**
+	 * Test method for
+	 * {@link org.jamocha.filter.UniformFunctionTranslator#translate(org.jamocha.filter.fwa.PredicateWithArguments)}
+	 * .
+	 */
+	@Test
+	public void testTranslateFancyDouble() {
+		// *(+(-(a),b),-(c,d),+(e,f,g,*(h,i,j)),k)
+		// -> +( *(e,-a,c,k),*(f,-a,c,k),*(g,-a,c,k),*(*(h,i,j),-a,c,k),
+		// *(e,a,d,k),*(f,a,d,k),*(g,a,d,k),*(*(h,i,j),a,d,k),
+		// *(e,b,c,k),*(f,b,c,k),*(g,b,c,k),*(*(h,i,j),b,c,k),
+		// *(e,b,-d,k),*(f,b,-d,k),*(g,b,-d,k),*(*(h,i,j),b,-d,k))
+		final Function<Double> plusDD =
+				FunctionDictionary.<Double> lookup(org.jamocha.filter.impls.functions.Plus.inClips,
+						SlotType.DOUBLE, SlotType.DOUBLE);
+		final Function<Double> plusDDDD =
+				FunctionDictionary.<Double> lookup(org.jamocha.filter.impls.functions.Plus.inClips,
+						SlotType.DOUBLE, SlotType.DOUBLE, SlotType.DOUBLE, SlotType.DOUBLE);
+		final Function<Double> plusD16 =
+				FunctionDictionary.<Double> lookup(org.jamocha.filter.impls.functions.Plus.inClips,
+						SlotType.DOUBLE, SlotType.DOUBLE, SlotType.DOUBLE, SlotType.DOUBLE,
+						SlotType.DOUBLE, SlotType.DOUBLE, SlotType.DOUBLE, SlotType.DOUBLE,
+						SlotType.DOUBLE, SlotType.DOUBLE, SlotType.DOUBLE, SlotType.DOUBLE,
+						SlotType.DOUBLE, SlotType.DOUBLE, SlotType.DOUBLE, SlotType.DOUBLE);
+		final Function<Double> minusDD =
+				FunctionDictionary.<Double> lookup(
+						org.jamocha.filter.impls.functions.Minus.inClips, SlotType.DOUBLE,
+						SlotType.DOUBLE);
+		final Function<Double> minusD =
+				FunctionDictionary.<Double> lookup(
+						org.jamocha.filter.impls.functions.UnaryMinus.inClips, SlotType.DOUBLE);
+		final Function<Double> timesDDD =
+				FunctionDictionary.<Double> lookup(
+						org.jamocha.filter.impls.functions.Times.inClips, SlotType.DOUBLE,
+						SlotType.DOUBLE, SlotType.DOUBLE);
+		final Function<Double> timesDDDD =
+				FunctionDictionary.<Double> lookup(
+						org.jamocha.filter.impls.functions.Times.inClips, SlotType.DOUBLE,
+						SlotType.DOUBLE, SlotType.DOUBLE, SlotType.DOUBLE);
+		final Function<Double> timesDDDDDD =
+				FunctionDictionary.<Double> lookup(
+						org.jamocha.filter.impls.functions.Times.inClips, SlotType.DOUBLE,
+						SlotType.DOUBLE, SlotType.DOUBLE, SlotType.DOUBLE, SlotType.DOUBLE,
+						SlotType.DOUBLE);
+		final Predicate equalsDD =
+				FunctionDictionary.lookupPredicate(
+						org.jamocha.filter.impls.predicates.Equals.inClips, SlotType.DOUBLE,
+						SlotType.DOUBLE);
+		final Template template = Template.DOUBLE;
+		final Path a = new Path(template), b = new Path(template), c = new Path(template), d =
+				new Path(template), e = new Path(template), f = new Path(template), g =
+				new Path(template), h = new Path(template), i = new Path(template), j =
+				new Path(template), k = new Path(template), l = new Path(template);
+		final SlotAddress s = new SlotAddress(0);
+		final PathFilter original =
+				new PathFilter(new PathFilterElement(
+						UniformFunctionTranslator.translate(new PredicateBuilder(equalsDD)
+								.addPath(l, s)
+								.addFunction(
+										new FunctionBuilder(timesDDDD)
+												.addFunction(
+														new FunctionBuilder(plusDD)
+																.addFunction(
+																		new FunctionBuilder(minusD)
+																				.addPath(a, s)
+																				.build())
+																.addPath(b, s).build())
+												.addFunction(
+														new FunctionBuilder(minusDD).addPath(c, s)
+																.addPath(d, s).build())
+												.addFunction(
+														new FunctionBuilder(plusDDDD)
+																.addPath(e, s)
+																.addPath(f, s)
+																.addPath(g, s)
+																.addFunction(
+																		new FunctionBuilder(
+																				timesDDD)
+																				.addPath(h, s)
+																				.addPath(i, s)
+																				.addPath(j, s)
+																				.build()).build())
+												.addPath(k, s).build()).build())));
+		final PathFilter compare =
+				new PathFilter(new PredicateBuilder(equalsDD)
+						.addPath(l, s)
+						.addFunction(
+								new FunctionBuilder(plusD16)
+										.addFunction(
+												new FunctionBuilder(minusD).addFunction(
+														new FunctionBuilder(timesDDDD)
+																.addPath(a, s).addPath(c, s)
+																.addPath(e, s).addPath(k, s)
+																.build()).build())
+										.addFunction(
+												new FunctionBuilder(minusD).addFunction(
+														new FunctionBuilder(timesDDDD)
+																.addPath(a, s).addPath(c, s)
+																.addPath(f, s).addPath(k, s)
+																.build()).build())
+										.addFunction(
+												new FunctionBuilder(minusD).addFunction(
+														new FunctionBuilder(timesDDDD)
+																.addPath(a, s).addPath(c, s)
+																.addPath(g, s).addPath(k, s)
+																.build()).build())
+										.addFunction(
+												new FunctionBuilder(minusD).addFunction(
+														new FunctionBuilder(timesDDDDDD)
+																.addPath(a, s).addPath(c, s)
+																.addPath(h, s).addPath(i, s)
+																.addPath(j, s).addPath(k, s)
+																.build()).build())
+										.addFunction(
+												new FunctionBuilder(timesDDDD).addPath(a, s)
+														.addPath(d, s).addPath(e, s).addPath(k, s)
+														.build())
+										.addFunction(
+												new FunctionBuilder(timesDDDD).addPath(a, s)
+														.addPath(d, s).addPath(f, s).addPath(k, s)
+														.build())
+										.addFunction(
+												new FunctionBuilder(timesDDDD).addPath(a, s)
+														.addPath(d, s).addPath(g, s).addPath(k, s)
+														.build())
+										.addFunction(
+												new FunctionBuilder(timesDDDDDD).addPath(a, s)
+														.addPath(d, s).addPath(h, s).addPath(i, s)
+														.addPath(j, s).addPath(k, s).build())
+										.addFunction(
+												new FunctionBuilder(timesDDDD).addPath(b, s)
+														.addPath(c, s).addPath(e, s).addPath(k, s)
+														.build())
+										.addFunction(
+												new FunctionBuilder(timesDDDD).addPath(b, s)
+														.addPath(c, s).addPath(f, s).addPath(k, s)
+														.build())
+										.addFunction(
+												new FunctionBuilder(timesDDDD).addPath(b, s)
+														.addPath(c, s).addPath(g, s).addPath(k, s)
+														.build())
+										.addFunction(
+												new FunctionBuilder(timesDDDDDD).addPath(b, s)
+														.addPath(c, s).addPath(h, s).addPath(i, s)
+														.addPath(j, s).addPath(k, s).build())
+										.addFunction(
+												new FunctionBuilder(minusD).addFunction(
+														new FunctionBuilder(timesDDDD)
+																.addPath(b, s).addPath(d, s)
+																.addPath(e, s).addPath(k, s)
+																.build()).build())
+										.addFunction(
+												new FunctionBuilder(minusD).addFunction(
+														new FunctionBuilder(timesDDDD)
+																.addPath(b, s).addPath(d, s)
+																.addPath(f, s).addPath(k, s)
+																.build()).build())
+										.addFunction(
+												new FunctionBuilder(minusD).addFunction(
+														new FunctionBuilder(timesDDDD)
+																.addPath(b, s).addPath(d, s)
+																.addPath(g, s).addPath(k, s)
+																.build()).build())
+										.addFunction(
+												new FunctionBuilder(minusD).addFunction(
+														new FunctionBuilder(timesDDDDDD)
+																.addPath(b, s).addPath(d, s)
+																.addPath(h, s).addPath(i, s)
+																.addPath(j, s).addPath(k, s)
+																.build()).build()).build())
+						.buildPFE());
+		final AddressFilter translate =
+				FilterTranslator.translate(original,
+						CounterColumnMatcherMockup.counterColumnMatcherMockup);
+		assertTrue(FilterFunctionCompare.equals(compare, translate));
 	}
 }
