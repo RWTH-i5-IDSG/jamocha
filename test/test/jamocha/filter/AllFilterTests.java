@@ -37,7 +37,8 @@ import org.junit.runners.Suite.SuiteClasses;
 		test.jamocha.filter.FilterEqualsInFunctionTest.class,
 		test.jamocha.filter.PathCollectorTest.class,
 		test.jamocha.filter.FilterTranslatorTest.class,
-		test.jamocha.filter.UniformFunctionTranslatorTest.class })
+		test.jamocha.filter.UniformFunctionTranslatorTest.class,
+		test.jamocha.filter.FunctionNormaliserTest.class })
 public class AllFilterTests {
 
 }
