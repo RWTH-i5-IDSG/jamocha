@@ -73,9 +73,7 @@ public class PathFilter extends Filter<PathFilter.PathFilterElement> {
 		final int numFEs = filterElements.length;
 		final PathFilterElement[] normalPFEs = new PathFilterElement[numFEs];
 		for (int i = 0; i < numFEs; i++) {
-			final PathFilterElement pathFilterElement = filterElements[i];
-			// TODO add normalization
-			final PredicateWithArguments functionToNormalise = pathFilterElement.function;
+			final PredicateWithArguments functionToNormalise = filterElements[i].function;
 			// step one: transform to uniform function symbols
 			final PredicateWithArguments uniformFunction =
 					UniformFunctionTranslator.translate(functionToNormalise);
