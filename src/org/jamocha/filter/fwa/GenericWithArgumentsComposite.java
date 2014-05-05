@@ -168,6 +168,9 @@ public abstract class GenericWithArgumentsComposite<R, F extends Function<? exte
 
 	@Override
 	public R evaluate(final Object... params) {
+		// return
+		// lazyEvaluate(Arrays.stream(params).map(LazyObject::new).toArray(LazyObject[]::new))
+		// .evaluate();
 		final int len = params.length;
 		final LazyObject[] lazyParams = new LazyObject[len];
 		for (int i = 0; i < len; ++i) {
