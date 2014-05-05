@@ -14,6 +14,14 @@
  */
 package org.jamocha.filter;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
+import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 
 import org.jamocha.filter.AddressFilter.AddressFilterElement;
@@ -172,9 +180,14 @@ public class FilterFunctionCompare {
 			this.composite = constantLeaf;
 		}
 
+		@AllArgsConstructor
+		static class Bool {
+			boolean equal;
+		}
+
 		private void generic(final GenericWithArgumentsComposite<?, ?> genericWithArgumentsComposite) {
-			if (!genericWithArgumentsComposite.getFunction().toString()
-					.equals(this.composite.getFunction().toString())) {
+			if (!genericWithArgumentsComposite.getFunction().inClips()
+					.equals(this.composite.getFunction().inClips())) {
 				this.context.invalidate();
 				return;
 			}
@@ -184,6 +197,77 @@ public class FilterFunctionCompare {
 				this.context.invalidate();
 				return;
 			}
+			// compare args normally
+			compareArguments(addressArgs, pathArgs);
+			// just matches
+			if (this.context.isValid())
+				return;
+			// doesn't match, only has a chance if function is commutative
+			if (!(genericWithArgumentsComposite.getFunction() instanceof CommutativeFunction<?>)) {
+				return;
+			}
+			// try permutations
+			final Map<Integer, List<FunctionWithArguments>> duplicates =
+					Arrays.stream(pathArgs).collect(
+							Collectors.groupingBy(FunctionWithArguments::hash));
+			if (!duplicates.values().stream().anyMatch((v) -> {
+				return v.size() > 1;
+			})) {
+				return;
+			}
+			final int lcm = duplicates.values().stream().mapToInt((a) -> {
+				return a.size();
+			}).reduce((a, b) -> {
+				return lcm(a, b);
+			}).getAsInt();
+			final HashMap<FunctionWithArguments, Integer> indices =
+					IntStream.range(0, pathArgs.length).collect(
+							HashMap::new,
+							(final HashMap<FunctionWithArguments, Integer> m, final int i) -> {
+								m.put(pathArgs[i], Integer.valueOf(i));
+							},
+							(final HashMap<FunctionWithArguments, Integer> m,
+									final HashMap<FunctionWithArguments, Integer> n) -> {
+								m.putAll(n);
+							});
+			final Bool bool = new Bool(false);
+			for (int i = 0; i < lcm; ++i) {
+				final int permutation = i;
+				duplicates
+						.values()
+						.stream()
+						.filter((v) -> {
+							return v.size() > 1;
+						})
+						.forEach(
+								(final List<FunctionWithArguments> v) -> {
+									final int size = v.size();
+									for (int j = 0; j < size; ++j) {
+										pathArgs[indices.get(v.get(j))] =
+												pathArgs[indices.get(v
+														.get((j + permutation) % size))];
+										if (!bool.equal) {
+											// equality not yet found to be true
+											compareArguments(addressArgs, pathArgs);
+										}
+										// else just permute back to original order
+										if (this.context.isValid()) {
+											// is actually equal
+											bool.equal = true;
+										} else {
+											// lets try again
+											this.context.equal = true;
+										}
+									}
+								});
+			}
+			if (!bool.equal) {
+				this.context.invalidate();
+			}
+		}
+
+		private void compareArguments(final FunctionWithArguments[] addressArgs,
+				final FunctionWithArguments[] pathArgs) {
 			for (int i = 0; i < addressArgs.length; i++) {
 				final FunctionWithArguments addressFWA = addressArgs[i];
 				final FunctionWithArguments pathFWA = pathArgs[i];
@@ -191,6 +275,19 @@ public class FilterFunctionCompare {
 				if (!this.context.isValid())
 					return;
 			}
+		}
+
+		private static int gcd(int a, int b) {
+			while (b > 0) {
+				int temp = b;
+				b = a % b; // % is remainder
+				a = temp;
+			}
+			return a;
+		}
+
+		private static int lcm(int a, int b) {
+			return a * (b / gcd(a, b));
 		}
 
 		@Override
