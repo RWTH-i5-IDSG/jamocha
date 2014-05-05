@@ -152,7 +152,6 @@ public class Network {
 	 *             thrown if one of the {@link Path}s in the {@link PathFilter} was not mapped to a
 	 *             {@link Node}
 	 */
-	// TODO work on normalized version
 	public boolean tryToShareNode(final PathFilter filter) throws IllegalArgumentException {
 		final Path[] paths = PathCollector.newLinkedHashSet().collect(filter).getPathsArray();
 
@@ -169,12 +168,16 @@ public class Network {
 		// collect all nodes which have edges to all of the paths nodes as candidates
 		final LinkedHashSet<Node> candidates = identifyShareCandidates(filterPathNodes);
 
+		// get normal version of filter to share
+		final PathFilter normalisedFilter = filter.normalise();
+
 		// check candidates for possible node sharing
 		candidateLoop: for (final Node candidate : candidates) {
 			final AddressFilter candidateFilter = candidate.getFilter();
 
 			// check if filter matches
-			if (!FilterFunctionCompare.equals(filter, candidateFilter))
+			if (!FilterFunctionCompare.equals(normalisedFilter,
+					candidateFilter.getNormalisedVersion()))
 				continue candidateLoop;
 
 			final FactAddress[] addressesInTarget =
