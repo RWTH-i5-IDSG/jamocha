@@ -170,10 +170,7 @@ public class PathLeaf implements FunctionWithArguments {
 
 	@Override
 	public int hashPositionIsIrrelevant() {
-		final int PRIME = 59;
-		int result = 1;
-		result = (result * PRIME) + this.path.getTemplate().hashCode();
-		result = (result * PRIME) + this.slot.hashCode();
-		return result;
+		return FunctionWithArguments.hash(new Object[] { this.path.getTemplate(), this.slot },
+				Object::hashCode, FunctionWithArguments.positionIsIrrelevant);
 	}
 }
