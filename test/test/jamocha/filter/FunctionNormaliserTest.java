@@ -14,12 +14,15 @@
  */
 package test.jamocha.filter;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
 
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.filter.AddressFilter;
 import org.jamocha.filter.Filter;
+import org.jamocha.filter.FilterFunctionCompare;
 import org.jamocha.filter.FilterTranslator;
 import org.jamocha.filter.Function;
 import org.jamocha.filter.FunctionDictionary;
@@ -27,6 +30,9 @@ import org.jamocha.filter.PathFilter;
 import org.jamocha.filter.PathFilter.PathFilterElement;
 import org.jamocha.filter.Predicate;
 import org.jamocha.filter.UniformFunctionTranslator;
+import org.jamocha.filter.fwa.ConstantLeaf;
+import org.jamocha.filter.fwa.FunctionWithArguments;
+import org.jamocha.filter.fwa.GenericWithArgumentsComposite;
 import org.jamocha.filter.fwa.PredicateWithArguments;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -1109,5 +1115,77 @@ public class FunctionNormaliserTest {
 
 	private static <T extends Filter.FilterElement> Boolean evalFirstFE(final Filter<T> filter) {
 		return filter.getFilterElements()[0].getFunction().evaluate().booleanValue();
+	}
+
+	@Test
+	public void testHashCode() {
+		final Function<Long> plusLL =
+				FunctionDictionary.<Long> lookup(org.jamocha.filter.impls.functions.Plus.inClips,
+						SlotType.LONG, SlotType.LONG);
+		final Predicate equalsLL =
+				FunctionDictionary.lookupPredicate(
+						org.jamocha.filter.impls.predicates.Equals.inClips, SlotType.LONG,
+						SlotType.LONG);
+		final PathFilter original =
+				new PathFilter(new PredicateBuilder(equalsLL).addLong(7L)
+						.addFunction(new FunctionBuilder(plusLL).addLong(6L).addLong(1L).build())
+						.buildPFE()).normalise();
+		final FunctionWithArguments[] args =
+				((GenericWithArgumentsComposite<?, ?>) original.getFilterElements()[0]
+						.getFunction()).getArgs();
+		assertEquals(2, args.length);
+		final int gwacIndex = args[0] instanceof GenericWithArgumentsComposite<?, ?> ? 0 : 1;
+		final GenericWithArgumentsComposite<?, ?> gwac =
+				(GenericWithArgumentsComposite<?, ?>) args[gwacIndex];
+		final FunctionWithArguments[] gwacArgs = gwac.getArgs();
+		assertEquals(2, gwacArgs.length);
+		assertEquals(1L, ((ConstantLeaf) gwacArgs[0]).getValue());
+		assertEquals(6L, ((ConstantLeaf) gwacArgs[1]).getValue());
+	}
+
+	@Test
+	public void testHashCodeCompare() {
+		final Function<Long> plusLLL =
+				FunctionDictionary.<Long> lookup(org.jamocha.filter.impls.functions.Plus.inClips,
+						SlotType.LONG, SlotType.LONG, SlotType.LONG);
+		final Function<Long> timesLL =
+				FunctionDictionary.<Long> lookup(org.jamocha.filter.impls.functions.Times.inClips,
+						SlotType.LONG, SlotType.LONG);
+		final Predicate equalsLL =
+				FunctionDictionary.lookupPredicate(
+						org.jamocha.filter.impls.predicates.Equals.inClips, SlotType.LONG,
+						SlotType.LONG);
+		final PathFilter original =
+				new PathFilter(new PredicateBuilder(equalsLL)
+						.addLong(44L)
+						.addFunction(
+								new FunctionBuilder(plusLLL)
+										.addFunction(
+												new FunctionBuilder(timesLL).addLong(3L)
+														.addLong(4L).build())
+										.addFunction(
+												new FunctionBuilder(timesLL).addLong(5L)
+														.addLong(6L).build())
+										.addFunction(
+												new FunctionBuilder(timesLL).addLong(1L)
+														.addLong(2L).build()).build()).buildPFE())
+						.normalise();
+		final PathFilter compare =
+				new PathFilter(new PredicateBuilder(equalsLL)
+						.addLong(44L)
+						.addFunction(
+								new FunctionBuilder(plusLLL)
+										.addFunction(
+												new FunctionBuilder(timesLL).addLong(1L)
+														.addLong(2L).build())
+										.addFunction(
+												new FunctionBuilder(timesLL).addLong(3L)
+														.addLong(4L).build())
+										.addFunction(
+												new FunctionBuilder(timesLL).addLong(5L)
+														.addLong(6L).build()).build()).buildPFE())
+						.normalise();
+		assertTrue(FilterFunctionCompare.equals(compare, FilterTranslator.translate(original,
+				CounterColumnMatcherMockup.counterColumnMatcherMockup)));
 	}
 }
