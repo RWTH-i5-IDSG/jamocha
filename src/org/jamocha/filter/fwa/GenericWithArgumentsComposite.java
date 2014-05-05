@@ -178,16 +178,14 @@ public abstract class GenericWithArgumentsComposite<R, F extends Function<? exte
 
 	@Override
 	public int hashPositionIsIrrelevant() {
-		return FunctionWithArguments.hash(args, (final FunctionWithArguments arg) -> {
-			return arg.hashPositionIsRelevant();
-		}, FunctionWithArguments.positionIsIrrelevant);
+		return FunctionWithArguments.hash(args, FunctionWithArguments::hashPositionIsIrrelevant,
+				FunctionWithArguments.positionIsIrrelevant);
 	}
 
 	@Override
 	public int hashPositionIsRelevant() {
-		return FunctionWithArguments.hash(args, (final FunctionWithArguments arg) -> {
-			return arg.hashPositionIsRelevant();
-		}, FunctionWithArguments.positionIsRelevant);
+		return FunctionWithArguments.hash(args, FunctionWithArguments::hashPositionIsRelevant,
+				FunctionWithArguments.positionIsRelevant);
 	}
 
 	@Override
