@@ -426,6 +426,9 @@ public class UniformFunctionTranslator {
 
 		@Override
 		public void visit(final org.jamocha.filter.impls.functions.TimesInverse<?> function) {
+			if (function.getReturnType() == SlotType.LONG) {
+				return;
+			}
 			this.result = this.lowerGwac.getArgs()[0];
 		}
 	}
