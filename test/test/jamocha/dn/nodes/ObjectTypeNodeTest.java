@@ -22,7 +22,6 @@ import java.util.Collection;
 import java.util.Set;
 
 import org.jamocha.dn.Network;
-import org.jamocha.dn.memory.Fact;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.dn.nodes.Edge;
 import org.jamocha.dn.nodes.ObjectTypeNode;
@@ -108,7 +107,7 @@ public class ObjectTypeNodeTest {
 	public void testAssertFact() {
 		Path p1 = new Path(Template.STRING);
 		ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, p1);
-		otn.assertFact(new Fact(Template.STRING, "TestValue 1"));
+		otn.assertFact(Template.STRING.newFact("TestValue 1"));
 	}
 
 	/**
@@ -118,9 +117,8 @@ public class ObjectTypeNodeTest {
 	@Test
 	public void testRetractFact() {
 		Path p1 = new Path(Template.STRING);
-		@SuppressWarnings("unused")
 		ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, p1);
-		// TODO implement when retractfact is done
+		otn.retractFact(Template.STRING.newFact("TestValue 1"));
 	}
 
 	/**
