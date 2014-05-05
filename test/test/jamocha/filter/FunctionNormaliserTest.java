@@ -925,6 +925,160 @@ public class FunctionNormaliserTest {
 		testEqualResult(originalPredicate, compare);
 	}
 
+	@Test
+	public void testTranslateFancyDouble() {
+		// *(+(-(a),b),-(c,d),+(e,f,g,*(h,i,j)),k)
+		// -> +( *(e,-a,c,k),*(f,-a,c,k),*(g,-a,c,k),*(*(h,i,j),-a,c,k),
+		// *(e,a,d,k),*(f,a,d,k),*(g,a,d,k),*(*(h,i,j),a,d,k),
+		// *(e,b,c,k),*(f,b,c,k),*(g,b,c,k),*(*(h,i,j),b,c,k),
+		// *(e,b,-d,k),*(f,b,-d,k),*(g,b,-d,k),*(*(h,i,j),b,-d,k))
+		final Function<Double> plusDD =
+				FunctionDictionary.<Double> lookup(org.jamocha.filter.impls.functions.Plus.inClips,
+						SlotType.DOUBLE, SlotType.DOUBLE);
+		final Function<Double> plusDDDD =
+				FunctionDictionary.<Double> lookup(org.jamocha.filter.impls.functions.Plus.inClips,
+						SlotType.DOUBLE, SlotType.DOUBLE, SlotType.DOUBLE, SlotType.DOUBLE);
+		final Function<Double> plusD16 =
+				FunctionDictionary.<Double> lookup(org.jamocha.filter.impls.functions.Plus.inClips,
+						SlotType.DOUBLE, SlotType.DOUBLE, SlotType.DOUBLE, SlotType.DOUBLE,
+						SlotType.DOUBLE, SlotType.DOUBLE, SlotType.DOUBLE, SlotType.DOUBLE,
+						SlotType.DOUBLE, SlotType.DOUBLE, SlotType.DOUBLE, SlotType.DOUBLE,
+						SlotType.DOUBLE, SlotType.DOUBLE, SlotType.DOUBLE, SlotType.DOUBLE);
+		final Function<Double> minusDD =
+				FunctionDictionary.<Double> lookup(
+						org.jamocha.filter.impls.functions.Minus.inClips, SlotType.DOUBLE,
+						SlotType.DOUBLE);
+		final Function<Double> minusD =
+				FunctionDictionary.<Double> lookup(
+						org.jamocha.filter.impls.functions.UnaryMinus.inClips, SlotType.DOUBLE);
+		final Function<Double> timesDDD =
+				FunctionDictionary.<Double> lookup(
+						org.jamocha.filter.impls.functions.Times.inClips, SlotType.DOUBLE,
+						SlotType.DOUBLE, SlotType.DOUBLE);
+		final Function<Double> timesDDDD =
+				FunctionDictionary.<Double> lookup(
+						org.jamocha.filter.impls.functions.Times.inClips, SlotType.DOUBLE,
+						SlotType.DOUBLE, SlotType.DOUBLE, SlotType.DOUBLE);
+		final Function<Double> timesDDDDDD =
+				FunctionDictionary.<Double> lookup(
+						org.jamocha.filter.impls.functions.Times.inClips, SlotType.DOUBLE,
+						SlotType.DOUBLE, SlotType.DOUBLE, SlotType.DOUBLE, SlotType.DOUBLE,
+						SlotType.DOUBLE);
+		final Predicate equalsDD =
+				FunctionDictionary.lookupPredicate(
+						org.jamocha.filter.impls.predicates.Equals.inClips, SlotType.DOUBLE,
+						SlotType.DOUBLE);
+		final Double a = 7., b = 4., c = 8., d = 3., e = 5., f = 5., g = 7., h = 2., i = 7., j = 1., k =
+				9.;
+		final Double l = (-a + b) * (c - d) * (e + f + g + h * i * j) * k;
+		final PredicateWithArguments originalPredicate =
+				new PredicateBuilder(equalsDD)
+						.addDouble(l)
+						.addFunction(
+								new FunctionBuilder(timesDDDD)
+										.addFunction(
+												new FunctionBuilder(plusDD)
+														.addFunction(
+																new FunctionBuilder(minusD)
+																		.addDouble(a).build())
+														.addDouble(b).build())
+										.addFunction(
+												new FunctionBuilder(minusDD).addDouble(c)
+														.addDouble(d).build())
+										.addFunction(
+												new FunctionBuilder(plusDDDD)
+														.addDouble(e)
+														.addDouble(f)
+														.addDouble(g)
+														.addFunction(
+																new FunctionBuilder(timesDDD)
+																		.addDouble(h).addDouble(i)
+																		.addDouble(j).build())
+														.build()).addDouble(k).build()).build();
+		final PathFilter compare =
+				new PathFilter(new PredicateBuilder(equalsDD)
+						.addDouble(l)
+						.addFunction(
+								new FunctionBuilder(plusD16)
+										.addFunction(
+												new FunctionBuilder(minusD).addFunction(
+														new FunctionBuilder(timesDDDD).addDouble(a)
+																.addDouble(c).addDouble(e)
+																.addDouble(k).build()).build())
+										.addFunction(
+												new FunctionBuilder(minusD).addFunction(
+														new FunctionBuilder(timesDDDD).addDouble(a)
+																.addDouble(c).addDouble(f)
+																.addDouble(k).build()).build())
+										.addFunction(
+												new FunctionBuilder(minusD).addFunction(
+														new FunctionBuilder(timesDDDD).addDouble(a)
+																.addDouble(c).addDouble(g)
+																.addDouble(k).build()).build())
+										.addFunction(
+												new FunctionBuilder(minusD).addFunction(
+														new FunctionBuilder(timesDDDDDD)
+																.addDouble(a).addDouble(c)
+																.addDouble(h).addDouble(i)
+																.addDouble(j).addDouble(k).build())
+														.build())
+										.addFunction(
+												new FunctionBuilder(timesDDDD).addDouble(a)
+														.addDouble(d).addDouble(e).addDouble(k)
+														.build())
+										.addFunction(
+												new FunctionBuilder(timesDDDD).addDouble(a)
+														.addDouble(d).addDouble(f).addDouble(k)
+														.build())
+										.addFunction(
+												new FunctionBuilder(timesDDDD).addDouble(a)
+														.addDouble(d).addDouble(g).addDouble(k)
+														.build())
+										.addFunction(
+												new FunctionBuilder(timesDDDDDD).addDouble(a)
+														.addDouble(d).addDouble(h).addDouble(i)
+														.addDouble(j).addDouble(k).build())
+										.addFunction(
+												new FunctionBuilder(timesDDDD).addDouble(b)
+														.addDouble(c).addDouble(e).addDouble(k)
+														.build())
+										.addFunction(
+												new FunctionBuilder(timesDDDD).addDouble(b)
+														.addDouble(c).addDouble(f).addDouble(k)
+														.build())
+										.addFunction(
+												new FunctionBuilder(timesDDDD).addDouble(b)
+														.addDouble(c).addDouble(g).addDouble(k)
+														.build())
+										.addFunction(
+												new FunctionBuilder(timesDDDDDD).addDouble(b)
+														.addDouble(c).addDouble(h).addDouble(i)
+														.addDouble(j).addDouble(k).build())
+										.addFunction(
+												new FunctionBuilder(minusD).addFunction(
+														new FunctionBuilder(timesDDDD).addDouble(b)
+																.addDouble(d).addDouble(e)
+																.addDouble(k).build()).build())
+										.addFunction(
+												new FunctionBuilder(minusD).addFunction(
+														new FunctionBuilder(timesDDDD).addDouble(b)
+																.addDouble(d).addDouble(f)
+																.addDouble(k).build()).build())
+										.addFunction(
+												new FunctionBuilder(minusD).addFunction(
+														new FunctionBuilder(timesDDDD).addDouble(b)
+																.addDouble(d).addDouble(g)
+																.addDouble(k).build()).build())
+										.addFunction(
+												new FunctionBuilder(minusD).addFunction(
+														new FunctionBuilder(timesDDDDDD)
+																.addDouble(b).addDouble(d)
+																.addDouble(h).addDouble(i)
+																.addDouble(j).addDouble(k).build())
+														.build()).build()).buildPFE());
+		testEqualResult(originalPredicate, compare);
+	}
+
 	private static void testEqualResult(final PredicateWithArguments originalPredicate,
 			final PathFilter compare) {
 		final PathFilter original = new PathFilter(new PathFilterElement(originalPredicate));
