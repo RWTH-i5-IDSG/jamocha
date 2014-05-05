@@ -39,6 +39,9 @@ public class FunctionNormaliser {
 
 	private static class FWANormaliser implements FunctionWithArgumentsVisitor {
 		private void handle(final GenericWithArgumentsComposite<?, ?> gwac) {
+			if (!(gwac.getFunction() instanceof CommutativeFunction<?>)) {
+				return;
+			}
 			final FunctionWithArguments[] args = gwac.getArgs();
 			Arrays.<FunctionWithArguments> sort(args, (final FunctionWithArguments a,
 					final FunctionWithArguments b) -> {
