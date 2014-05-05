@@ -30,9 +30,9 @@ public class FilterEqualsInFunctionTest {
 
 	@Test
 	public void testFunctionWithArgumentsCompositeEqualsInFunctionTrueEquality() {
-		Path p1 = new Path(new Template(SlotType.DOUBLE));
-		Path p2 = new Path(new Template(SlotType.DOUBLE));
-		Path p3 = new Path(new Template(SlotType.DOUBLE));
+		Path p1 = new Path(Template.DOUBLE);
+		Path p2 = new Path(Template.DOUBLE);
+		Path p3 = new Path(Template.DOUBLE);
 		SlotAddress a1 = new SlotAddress(0);
 		SlotAddress a2 = new SlotAddress(0);
 		SlotAddress a3 = new SlotAddress(0);
@@ -68,28 +68,28 @@ public class FilterEqualsInFunctionTest {
 
 	@Test
 	public void testFunctionWithArgumentsCompositeEqualsInFunctionTrueNormalize() {
-		Path p1 = new Path(new Template(SlotType.DOUBLE));
-		Path p2 = new Path(new Template(SlotType.DOUBLE));
-		Path p3 = new Path(new Template(SlotType.DOUBLE));
-		SlotAddress a1 = new SlotAddress(0);
-		SlotAddress a2 = new SlotAddress(0);
-		SlotAddress a3 = new SlotAddress(0);
-		Function<?> plus = FunctionDictionary.lookup("+", SlotType.DOUBLE, SlotType.DOUBLE);
-		Function<?> minus = FunctionDictionary.lookup("-", SlotType.DOUBLE, SlotType.DOUBLE);
+		final Path p1 = new Path(Template.DOUBLE);
+		final Path p2 = new Path(Template.DOUBLE);
+		final Path p3 = new Path(Template.DOUBLE);
+		final SlotAddress a1 = new SlotAddress(0);
+		final SlotAddress a2 = new SlotAddress(0);
+		final SlotAddress a3 = new SlotAddress(0);
+		final Function<?> plus = FunctionDictionary.lookup("+", SlotType.DOUBLE, SlotType.DOUBLE);
+		final Function<?> minus = FunctionDictionary.lookup("-", SlotType.DOUBLE, SlotType.DOUBLE);
+		final Predicate equals =
+				FunctionDictionary.lookupPredicate("=", SlotType.DOUBLE, SlotType.DOUBLE);
 		PathFilterElement f, g;
 		PathFilter pf, pg;
 
 		f =
-				new PredicateBuilder(FunctionDictionary.lookupPredicate("=", SlotType.DOUBLE,
-						SlotType.DOUBLE))
+				new PredicateBuilder(equals)
 						.addFunction(
 								new FunctionBuilder(plus).addPath(p1, a1).addPath(p2, a2).build())
 						.addFunction(
 								new FunctionBuilder(minus).addConstant(1337.0, SlotType.DOUBLE)
 										.addPath(p3, a3).build()).buildPFE();
 		g =
-				new PredicateBuilder(FunctionDictionary.lookupPredicate("=", SlotType.DOUBLE,
-						SlotType.DOUBLE))
+				new PredicateBuilder(equals)
 						.addFunction(
 								new FunctionBuilder(minus).addConstant(1337.0, SlotType.DOUBLE)
 										.addPath(p3, a3).build())
@@ -103,8 +103,7 @@ public class FilterEqualsInFunctionTest {
 		assertTrue(FilterFunctionCompare.equals(pg.normalise(),
 				FilterTranslator.translate(pf, counterColumnMatcherMockup).getNormalisedVersion()));
 		g =
-				new PredicateBuilder(FunctionDictionary.lookupPredicate("=", SlotType.DOUBLE,
-						SlotType.DOUBLE))
+				new PredicateBuilder(equals)
 						.addFunction(
 								new FunctionBuilder(minus).addConstant(1337.0, SlotType.DOUBLE)
 										.addPath(p3, a3).build())
@@ -120,9 +119,9 @@ public class FilterEqualsInFunctionTest {
 
 	@Test
 	public void testFunctionWithArgumentsCompositeEqualsInFunctionFalseDifferentSlotAddress() {
-		Path p1 = new Path(new Template(SlotType.DOUBLE));
-		Path p2 = new Path(new Template(SlotType.DOUBLE));
-		Path p3 = new Path(new Template(SlotType.DOUBLE));
+		Path p1 = new Path(Template.DOUBLE);
+		Path p2 = new Path(Template.DOUBLE);
+		Path p3 = new Path(Template.DOUBLE);
 		SlotAddress a1 = new SlotAddress(0);
 		SlotAddress a2 = new SlotAddress(0);
 		SlotAddress a3 = new SlotAddress(0);
@@ -158,10 +157,10 @@ public class FilterEqualsInFunctionTest {
 
 	@Test
 	public void testFunctionWithArgumentsCompositeEqualsInFunctionTrueDifferentPath() {
-		Path p1 = new Path(new Template(SlotType.DOUBLE));
-		Path p2 = new Path(new Template(SlotType.DOUBLE));
-		Path p3 = new Path(new Template(SlotType.DOUBLE));
-		Path p4 = new Path(new Template(SlotType.DOUBLE));
+		Path p1 = new Path(Template.DOUBLE);
+		Path p2 = new Path(Template.DOUBLE);
+		Path p3 = new Path(Template.DOUBLE);
+		Path p4 = new Path(Template.DOUBLE);
 		SlotAddress a1 = new SlotAddress(0);
 		SlotAddress a2 = new SlotAddress(0);
 		SlotAddress a3 = new SlotAddress(0);
@@ -196,9 +195,9 @@ public class FilterEqualsInFunctionTest {
 
 	@Test
 	public void testFunctionWithArgumentsCompositeEqualsInFunctionFalseDifferentSlotType() {
-		Path p1 = new Path(new Template(SlotType.DOUBLE));
-		Path p2 = new Path(new Template(SlotType.DOUBLE));
-		Path p3 = new Path(new Template(SlotType.DOUBLE));
+		Path p1 = new Path(Template.DOUBLE);
+		Path p2 = new Path(Template.DOUBLE);
+		Path p3 = new Path(Template.DOUBLE);
 		SlotAddress a1 = new SlotAddress(0);
 		SlotAddress a2 = new SlotAddress(0);
 		SlotAddress a3 = new SlotAddress(0);
@@ -234,10 +233,10 @@ public class FilterEqualsInFunctionTest {
 
 	@Test
 	public void testFunctionWithArgumentsCompositeEqualsInFunctionFalseCombinations() {
-		Path p1 = new Path(new Template(SlotType.DOUBLE));
-		Path p2 = new Path(new Template(SlotType.DOUBLE));
-		Path p3 = new Path(new Template(SlotType.DOUBLE));
-		Path p5 = new Path(new Template(SlotType.DOUBLE));
+		Path p1 = new Path(Template.DOUBLE);
+		Path p2 = new Path(Template.DOUBLE);
+		Path p3 = new Path(Template.DOUBLE);
+		Path p5 = new Path(Template.DOUBLE);
 		SlotAddress a1 = new SlotAddress(0);
 		SlotAddress a2 = new SlotAddress(0);
 		SlotAddress a3 = new SlotAddress(0);
@@ -301,10 +300,10 @@ public class FilterEqualsInFunctionTest {
 	@Test
 	public void testFilterEqualsInFunction() {
 		Path p1 = new Path(new Template(SlotType.STRING, SlotType.LONG));
-		Path p2 = new Path(new Template(SlotType.LONG));
-		Path p3 = new Path(new Template(SlotType.LONG));
-		Path p4 = new Path(new Template(SlotType.LONG));
-		Path p5 = new Path(new Template(SlotType.STRING));
+		Path p2 = new Path(Template.LONG);
+		Path p3 = new Path(Template.LONG);
+		Path p4 = new Path(Template.LONG);
+		Path p5 = new Path(Template.STRING);
 		SlotAddress a1 = new SlotAddress(0);
 		SlotAddress a2 = new SlotAddress(0);
 		SlotAddress a3 = new SlotAddress(0);
