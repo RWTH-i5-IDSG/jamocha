@@ -43,12 +43,12 @@ public class FunctionNormaliser {
 				return;
 			}
 			final FunctionWithArguments[] args = gwac.getArgs();
+			Arrays.stream(args).forEach((final FunctionWithArguments fwa) -> {
+				fwa.accept(new FWANormaliser());
+			});
 			Arrays.<FunctionWithArguments> sort(args, (final FunctionWithArguments a,
 					final FunctionWithArguments b) -> {
 				return Integer.compare(a.hash(), b.hash());
-			});
-			Arrays.stream(args).forEach((final FunctionWithArguments fwa) -> {
-				fwa.accept(new FWANormaliser());
 			});
 		}
 
