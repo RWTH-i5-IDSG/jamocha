@@ -17,6 +17,7 @@ package org.jamocha.filter.fwa;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -45,16 +46,38 @@ public abstract class GenericWithArgumentsComposite<R, F extends Function<? exte
 
 	final F function;
 	final FunctionWithArguments args[];
-	final SlotType[] paramTypes;
+	@Getter(lazy = true)
+	private final SlotType[] paramTypes = calculateParamTypes();
+	@Getter(lazy = true, value = AccessLevel.PRIVATE)
+	private final int hashPIR = initHashPIR(), hashPII = initHashPII();
 
 	public GenericWithArgumentsComposite(final F function, final FunctionWithArguments... args) {
 		super();
 		this.function = function;
 		this.args = args;
-		this.paramTypes = calculateParamTypes(args);
 	}
 
-	private static SlotType[] calculateParamTypes(final FunctionWithArguments args[]) {
+	private int initHashPII() {
+		final int[] hashPII = new int[args.length + 1];
+		hashPII[0] = function.hashCode();
+		for (int i = 0; i < args.length; i++) {
+			final FunctionWithArguments arg = args[i];
+			hashPII[i + 1] = arg.hashPositionIsIrrelevant();
+		}
+		return FunctionWithArguments.hash(hashPII, FunctionWithArguments.positionIsIrrelevant);
+	}
+
+	private int initHashPIR() {
+		final int[] hashPIR = new int[args.length + 1];
+		hashPIR[0] = function.hashCode();
+		for (int i = 0; i < args.length; i++) {
+			final FunctionWithArguments arg = args[i];
+			hashPIR[i + 1] = arg.hashPositionIsRelevant();
+		}
+		return FunctionWithArguments.hash(hashPIR, FunctionWithArguments.positionIsRelevant);
+	}
+
+	private SlotType[] calculateParamTypes() {
 		final ArrayList<SlotType> types = new ArrayList<>();
 		for (final FunctionWithArguments fwa : args) {
 			for (final SlotType type : fwa.getParamTypes()) {
@@ -62,11 +85,6 @@ public abstract class GenericWithArgumentsComposite<R, F extends Function<? exte
 			}
 		}
 		return types.toArray(new SlotType[types.size()]);
-	}
-
-	@Override
-	public SlotType[] getParamTypes() {
-		return this.paramTypes;
 	}
 
 	@Override
@@ -181,14 +199,12 @@ public abstract class GenericWithArgumentsComposite<R, F extends Function<? exte
 
 	@Override
 	public int hashPositionIsIrrelevant() {
-		return FunctionWithArguments.hash(args, FunctionWithArguments::hashPositionIsIrrelevant,
-				FunctionWithArguments.positionIsIrrelevant);
+		return getHashPII();
 	}
 
 	@Override
 	public int hashPositionIsRelevant() {
-		return FunctionWithArguments.hash(args, FunctionWithArguments::hashPositionIsRelevant,
-				FunctionWithArguments.positionIsRelevant);
+		return getHashPIR();
 	}
 
 	@Override

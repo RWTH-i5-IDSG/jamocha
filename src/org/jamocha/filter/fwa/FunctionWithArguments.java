@@ -15,7 +15,6 @@
 package org.jamocha.filter.fwa;
 
 import java.util.function.IntBinaryOperator;
-import java.util.function.ToIntFunction;
 
 import org.jamocha.dn.memory.Fact;
 import org.jamocha.dn.memory.SlotType;
@@ -83,13 +82,11 @@ public interface FunctionWithArguments extends Visitable<FunctionWithArgumentsVi
 		return (i + 1) * hash;
 	};
 
-	static <T> int hash(final T[] ts, final ToIntFunction<T> hasher,
-			final IntBinaryOperator positioner) {
+	static int hash(final int[] hashes, final IntBinaryOperator positioner) {
 		final int PRIME = 59;
 		int result = 1;
-		for (int i = 0; i < ts.length; i++) {
-			final T t = ts[i];
-			result = (result * PRIME) + positioner.applyAsInt(i, hasher.applyAsInt(t));
+		for (int i = 0; i < hashes.length; i++) {
+			result = (result * PRIME) + positioner.applyAsInt(i, hashes[i]);
 		}
 		return result;
 	}

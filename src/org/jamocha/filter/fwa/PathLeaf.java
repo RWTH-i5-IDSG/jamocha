@@ -14,7 +14,10 @@
  */
 package org.jamocha.filter.fwa;
 
+import java.util.Arrays;
+
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 
 import org.jamocha.dn.memory.Fact;
 import org.jamocha.dn.memory.SlotAddress;
@@ -44,11 +47,19 @@ import org.jamocha.filter.Path;
 public class PathLeaf implements FunctionWithArguments {
 	private final Path path;
 	private final SlotAddress slot;
+	@Getter(lazy = true)
+	private final int hashCode = initHashCode();
 
 	public PathLeaf(final Path path, final SlotAddress slot) {
 		super();
 		this.path = path;
 		this.slot = slot;
+	}
+
+	private int initHashCode() {
+		return FunctionWithArguments.hash(Arrays.asList(this.path.getTemplate(), this.slot)
+				.stream().mapToInt(Object::hashCode).toArray(),
+				FunctionWithArguments.positionIsIrrelevant);
 	}
 
 	@Override
@@ -170,7 +181,6 @@ public class PathLeaf implements FunctionWithArguments {
 
 	@Override
 	public int hashPositionIsIrrelevant() {
-		return FunctionWithArguments.hash(new Object[] { this.path.getTemplate(), this.slot },
-				Object::hashCode, FunctionWithArguments.positionIsIrrelevant);
+		return getHashCode();
 	}
 }
