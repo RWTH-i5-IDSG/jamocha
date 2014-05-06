@@ -15,10 +15,12 @@
 package org.jamocha.filter;
 
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.Value;
 
 import org.jamocha.dn.memory.FactAddress;
 import org.jamocha.dn.memory.SlotAddress;
@@ -33,8 +35,6 @@ import org.jamocha.dn.nodes.Node;
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
  */
-@Getter
-@Setter
 public class Path {
 
 	/**
@@ -42,6 +42,7 @@ public class Path {
 	 * 
 	 * @return {@link Template template} of the path
 	 */
+	@Getter
 	final Template template;
 
 	/**
@@ -51,7 +52,9 @@ public class Path {
 	 *            {@link Node node}, the path is currently produced by
 	 * @return {@link Node node}, the path is currently produced by
 	 */
-	Node currentlyLowestNode;
+	@Getter
+	@Setter
+	private Node currentlyLowestNode;
 
 	/**
 	 * {@link FactAddress} identifying the fact in the current {@link Node node}
@@ -62,7 +65,9 @@ public class Path {
 	 * @return {@link FactAddress fact address} identifying the fact in the current {@link Node
 	 *         node}
 	 */
-	FactAddress factAddressInCurrentlyLowestNode;
+	@Getter
+	@Setter
+	private FactAddress factAddressInCurrentlyLowestNode;
 
 	/**
 	 * Set of paths this path has been joined with (including itself)
@@ -71,7 +76,24 @@ public class Path {
 	 *            set of paths this path has been joined with (including itself)
 	 * @return set of paths this path has been joined with (including itself)
 	 */
-	Set<Path> joinedWith;
+	@Getter
+	@Setter
+	private Set<Path> joinedWith;
+
+	private Optional<Backup> backup;
+
+	@Value
+	private class Backup {
+		Node currentlyLowestNode;
+		FactAddress factAddressInCurrentlyLowestNode;
+		Set<Path> joinedWith;
+
+		Backup() {
+			this.currentlyLowestNode = Path.this.currentlyLowestNode;
+			this.factAddressInCurrentlyLowestNode = Path.this.factAddressInCurrentlyLowestNode;
+			this.joinedWith = Path.this.joinedWith;
+		}
+	}
 
 	/**
 	 * Extracts the {@link SlotType} of the Slot corresponding to {@link SlotAddress addr}.
@@ -124,4 +146,21 @@ public class Path {
 		return "Path";
 	}
 
+	public void cachedOverride(final Node currentlyLowestNode,
+			final FactAddress factAddressInCurrentlyLowestNode, final Set<Path> joinedWith) {
+		assert !this.backup.isPresent();
+		this.backup = Optional.of(new Backup());
+		this.currentlyLowestNode = currentlyLowestNode;
+		this.factAddressInCurrentlyLowestNode = factAddressInCurrentlyLowestNode;
+		this.joinedWith = joinedWith;
+	}
+
+	public void restoreCache() {
+		assert this.backup.isPresent();
+		final Backup backupInstance = this.backup.get();
+		this.currentlyLowestNode = backupInstance.currentlyLowestNode;
+		this.factAddressInCurrentlyLowestNode = backupInstance.factAddressInCurrentlyLowestNode;
+		this.joinedWith = backupInstance.joinedWith;
+		this.backup = Optional.empty();
+	}
 }
