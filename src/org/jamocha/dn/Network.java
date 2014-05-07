@@ -158,13 +158,11 @@ public class Network {
 		// collect the nodes of the paths
 		final LinkedHashSet<Node> filterPathNodes = new LinkedHashSet<>();
 		for (final Path path : paths) {
-			final Node node = path.getCurrentlyLowestNode();
-			if (null == node) {
-				throw new IllegalArgumentException("Paths did not point to any nodes.");
-			}
-			filterPathNodes.add(node);
+			filterPathNodes.add(path.getCurrentlyLowestNode());
 		}
-
+		if (filterPathNodes.contains(null)) {
+			throw new IllegalArgumentException("Paths did not point to any nodes.");
+		}
 		// collect all nodes which have edges to all of the paths nodes as candidates
 		final LinkedHashSet<Node> candidates = identifyShareCandidates(filterPathNodes);
 
