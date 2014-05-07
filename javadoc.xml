@@ -4,7 +4,7 @@
 		<taskdef classname="lombok.delombok.ant.DelombokTask" classpath="lib/lombok-1.12.6.jar" name="delombok" />
 		<mkdir dir="delomboked/src" />
 		<mkdir dir="delomboked/test" />
-		<delombok verbose="true" encoding="UTF-8" to="delomboked/src" from="src" classpath="lib/lombok-1.12.6.jar" sourcepath="test" />
+		<delombok verbose="true" encoding="UTF-8" to="delomboked/src" from="src" classpath="lib/lombok-1.12.6.jar" />
 		<delombok verbose="true" encoding="UTF-8" to="delomboked/test" from="test" classpath="lib/lombok-1.12.6.jar:lib/junit-4.11.jar:lib/hamcrest-all-1.3.jar" sourcepath="delomboked/src" />
 		<javadoc access="public" author="true" classpath="lib/junit-4.11.jar:lib/hamcrest-all-1.3.jar:lib/lombok-1.12.6.jar" destdir="javadoc" nodeprecated="false" nodeprecatedlist="false" noindex="false" nonavbar="false" notree="false" packagenames="org.jamocha, org.jamocha.*, test.jamocha, test.jamocha.*" source="1.8" sourcepath="delomboked/src:delomboked/test" splitindex="true" use="true" version="true" />
 		<delete dir="delomboked/src" />
