@@ -80,7 +80,7 @@ public class Path {
 	@Setter
 	private Set<Path> joinedWith;
 
-	private Optional<Backup> backup;
+	private Optional<Backup> backup = Optional.empty();
 
 	@Value
 	private class Backup {
