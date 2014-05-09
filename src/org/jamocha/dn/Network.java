@@ -174,8 +174,7 @@ public class Network {
 			final AddressFilter candidateFilter = candidate.getFilter();
 
 			// check if filter matches
-			if (!FilterFunctionCompare.equals(normalisedFilter,
-					candidateFilter.getNormalisedVersion()))
+			if (!FilterFunctionCompare.equals(candidate, normalisedFilter))
 				continue candidateLoop;
 
 			final FactAddress[] addressesInTarget =
