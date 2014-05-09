@@ -34,12 +34,12 @@ public abstract class MemoryHandlerTemp extends MemoryHandlerBase implements
 	final MemoryHandlerMain originatingMainHandler;
 
 	protected MemoryHandlerTemp(final MemoryHandlerMain originatingMainHandler,
-			final ArrayList<Row> validRows) {
+			final JamochaArray<Row> validRows) {
 		this(originatingMainHandler.template, originatingMainHandler, validRows);
 	}
 
 	protected MemoryHandlerTemp(final Template[] template,
-			final MemoryHandlerMain originatingMainHandler, final ArrayList<Row> validRows) {
+			final MemoryHandlerMain originatingMainHandler, final JamochaArray<Row> validRows) {
 		super(template, validRows);
 		this.originatingMainHandler = originatingMainHandler;
 	}
@@ -47,7 +47,7 @@ public abstract class MemoryHandlerTemp extends MemoryHandlerBase implements
 	@Override
 	public List<MemoryHandler> splitIntoChunksOfSize(final int size) {
 		final List<MemoryHandler> memoryHandlers = new ArrayList<>();
-		final ArrayList<Row> rowsToSplit = getRowsToSplit();
+		final JamochaArray<Row> rowsToSplit = getRowsToSplit();
 		final int max = rowsToSplit.size();
 		if (size >= max) {
 			memoryHandlers.add(this);
@@ -55,7 +55,7 @@ public abstract class MemoryHandlerTemp extends MemoryHandlerBase implements
 		}
 		int current = 0;
 		while (current < max) {
-			final ArrayList<Row> facts = new ArrayList<>();
+			final JamochaArray<Row> facts = new JamochaArray<>();
 			for (int i = 0; i < size && current + i < max; ++i) {
 				facts.add(rowsToSplit.get(current + i));
 			}
@@ -65,7 +65,7 @@ public abstract class MemoryHandlerTemp extends MemoryHandlerBase implements
 		return memoryHandlers;
 	}
 
-	protected ArrayList<Row> getRowsToSplit() {
+	protected JamochaArray<Row> getRowsToSplit() {
 		return this.validRows;
 	}
 

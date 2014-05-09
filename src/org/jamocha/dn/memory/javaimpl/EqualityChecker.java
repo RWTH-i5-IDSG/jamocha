@@ -14,8 +14,6 @@
  */
 package org.jamocha.dn.memory.javaimpl;
 
-import java.util.ArrayList;
-
 /**
  * Interface to easy code re-usage where the only difference was the comparison of fact tuples. The
  * parameters of equals can be seen as the union of the parameters needed for the three
@@ -36,13 +34,13 @@ import java.util.ArrayList;
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
 interface EqualityChecker {
-	boolean equals(final Row originalRow, final Row minusRow, final ArrayList<Row> minusRows,
+	boolean equals(final Row originalRow, final Row minusRow, final JamochaArray<Row> minusRows,
 			final int minusRowsIndex, final FactAddress[] factAddresses);
 
 	static EqualityChecker root = new EqualityChecker() {
 		@Override
 		public boolean equals(final Row originalRow, final Row minusRow,
-				final ArrayList<Row> minusRows, final int minusRowsIndex,
+				final JamochaArray<Row> minusRows, final int minusRowsIndex,
 				final FactAddress[] factAddresses) {
 			final Fact originalFact = originalRow.getFactTuple()[0];
 			final Fact minusFact = minusRow.getFactTuple()[0];
@@ -56,7 +54,7 @@ interface EqualityChecker {
 	static EqualityChecker alpha = new EqualityChecker() {
 		@Override
 		public boolean equals(final Row originalRow, final Row minusRow,
-				final ArrayList<Row> minusRows, final int minusRowsIndex,
+				final JamochaArray<Row> minusRows, final int minusRowsIndex,
 				final FactAddress[] factAddresses) {
 			final Fact originalFact = originalRow.getFactTuple()[0];
 			final Fact minusFact = minusRow.getFactTuple()[0];
@@ -66,7 +64,7 @@ interface EqualityChecker {
 	static EqualityChecker beta = new EqualityChecker() {
 		@Override
 		public boolean equals(final Row originalRow, final Row minusRow,
-				final ArrayList<Row> minusRows, final int minusRowsIndex,
+				final JamochaArray<Row> minusRows, final int minusRowsIndex,
 				final FactAddress[] factAddresses) {
 			for (int i = 0; i < factAddresses.length; ++i) {
 				final FactAddress originalFactAddress = factAddresses[i];
@@ -86,7 +84,7 @@ interface EqualityChecker {
 	static EqualityChecker equalRow = new EqualityChecker() {
 		@Override
 		public boolean equals(final Row originalRow, final Row minusRow,
-				final ArrayList<Row> minusRows, final int minusRowsIndex,
+				final JamochaArray<Row> minusRows, final int minusRowsIndex,
 				final FactAddress[] factAddresses) {
 			return originalRow == minusRow;
 		}
@@ -94,7 +92,7 @@ interface EqualityChecker {
 	static EqualityChecker equalFactTuple = new EqualityChecker() {
 		@Override
 		public boolean equals(final Row originalRow, final Row minusRow,
-				final ArrayList<Row> minusRows, final int minusRowsIndex,
+				final JamochaArray<Row> minusRows, final int minusRowsIndex,
 				final FactAddress[] factAddresses) {
 			return originalRow.getFactTuple() == minusRow.getFactTuple();
 		}

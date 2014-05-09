@@ -14,7 +14,6 @@
  */
 package org.jamocha.dn.memory.javaimpl;
 
-import java.util.ArrayList;
 import java.util.Queue;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
@@ -35,7 +34,7 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 		org.jamocha.dn.memory.MemoryHandlerMinusTemp {
 
 	private static MemoryHandlerMinusTempComplete empty = new MemoryHandlerMinusTempComplete(null,
-			null, new ArrayList<Row>(0), new ArrayList<Row>(0), new FactAddress[] {});
+			null, new JamochaArray<Row>(0), new JamochaArray<Row>(0), new FactAddress[] {});
 
 	private static Consumer<Row> nullConsumer = (final Row row) -> {
 	};
@@ -48,13 +47,13 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 
 	static MemoryHandlerMinusTemp newRootTemp(final MemoryHandlerMain memoryHandlerMain,
 			final org.jamocha.dn.memory.Fact[] facts) {
-		final ArrayList<Row> minusFacts = new ArrayList<>(facts.length);
+		final JamochaArray<Row> minusFacts = new JamochaArray<>(facts.length);
 		for (final org.jamocha.dn.memory.Fact fact : facts) {
 			minusFacts.add(memoryHandlerMain.newRow(new Fact[] { new Fact(fact.getSlotValues()) }));
 		}
 		final FactAddress[] factAddresses = memoryHandlerMain.addresses;
 		assert factAddresses.length == 1;
-		final ArrayList<Row> relevantFactTuples =
+		final JamochaArray<Row> relevantFactTuples =
 				getRelevantFactTuples(memoryHandlerMain, MemoryHandlerMinusTemp::filterTargetMain,
 						minusFacts, factAddresses, EqualityChecker.root, nullConsumer);
 		if (0 == relevantFactTuples.size()) {
@@ -64,15 +63,15 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 				memoryHandlerMain, relevantFactTuples, relevantFactTuples, factAddresses);
 	}
 
-	private static ArrayList<Row> getRemainingFactTuples(final ArrayList<Row> originalFacts,
-			final ArrayList<Row> minusFacts, final FactAddress[] factAddresses,
+	private static JamochaArray<Row> getRemainingFactTuples(final JamochaArray<Row> originalFacts,
+			final JamochaArray<Row> minusFacts, final FactAddress[] factAddresses,
 			final boolean[] marked, final EqualityChecker equalityChecker) {
 		return getRemainingFactTuples(originalFacts, nullConsumer, minusFacts, factAddresses,
 				marked, equalityChecker);
 	}
 
-	private static ArrayList<Row> getRemainingFactTuples(final ArrayList<Row> originalFacts,
-			final Consumer<Row> deletedRowConsumer, final ArrayList<Row> minusFacts,
+	private static JamochaArray<Row> getRemainingFactTuples(final JamochaArray<Row> originalFacts,
+			final Consumer<Row> deletedRowConsumer, final JamochaArray<Row> minusFacts,
 			final FactAddress[] factAddresses, final boolean[] marked,
 			final EqualityChecker equalityChecker) {
 		final int originalFactsSize = originalFacts.size();
@@ -102,7 +101,7 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 
 	static MemoryHandlerMinusTemp newExistentialBetaFromRowsToDelete(
 			final MemoryHandlerMainWithExistentials originatingMainHandler,
-			final ArrayList<Row> rowsToDelete, final Edge originIncomingEdge) {
+			final JamochaArray<Row> rowsToDelete, final Edge originIncomingEdge) {
 		return newRegularMinusTemp(originatingMainHandler,
 				MemoryHandlerMinusTemp::filterTargetMain, originIncomingEdge, rowsToDelete,
 				EqualityChecker.equalRow, originatingMainHandler.addresses, (edge, address) -> {
@@ -112,18 +111,18 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 
 	private static <T extends MemoryHandlerMain> MemoryHandlerMinusTemp newRegularMinusTemp(
 			final T originatingMainHandler, final MainMemoryFilter<T> mainMemoryFilter,
-			final Edge originIncomingEdge, final ArrayList<Row> rowsToDelete,
+			final Edge originIncomingEdge, final JamochaArray<Row> rowsToDelete,
 			final EqualityChecker equalityChecker, final FactAddress[] factAddresses,
 			final BiFunction<Edge, FactAddress, FactAddress> addressLocalizer,
 			final Template[] template) {
 		final boolean createComplete =
 				!originIncomingEdge.getTargetNode().getOutgoingExistentialEdges().isEmpty();
-		final ArrayList<Row> completeDeletedRows;
+		final JamochaArray<Row> completeDeletedRows;
 		final Consumer<Row> completeDeletedRowsAdder;
 		if (createComplete) {
 			// some of the target node's paths are existential, we need to pass a complete
 			// token, not only the partial version
-			completeDeletedRows = new ArrayList<>();
+			completeDeletedRows = new JamochaArray<>();
 			completeDeletedRowsAdder = (final Row deletedRow) -> {
 				completeDeletedRows.add(deletedRow);
 			};
@@ -133,7 +132,7 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 		}
 		final FactAddress[] localizedAddressMap =
 				localizeAddressMap(factAddresses, originIncomingEdge, addressLocalizer);
-		final ArrayList<Row> relevantMinusFacts =
+		final JamochaArray<Row> relevantMinusFacts =
 				getRelevantFactTuples(originatingMainHandler, mainMemoryFilter, rowsToDelete,
 						localizedAddressMap, equalityChecker, completeDeletedRowsAdder);
 		if (0 == relevantMinusFacts.size()) {
@@ -176,7 +175,7 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 					MemoryHandlerMinusTemp::filterTargetExistentialMain, originIncomingEdge);
 		}
 		// existential edge
-		final ArrayList<Row> completeMinusRows =
+		final JamochaArray<Row> completeMinusRows =
 				((MemoryHandlerMinusTempComplete) this).completeRows;
 		return MemoryHandlerPlusTemp.handleExistentialEdge(originatingMainHandler, filter,
 				completeMinusRows, originIncomingEdge, CounterUpdater.decrementer);
@@ -184,11 +183,11 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 
 	private static void filterOutgoingTemps(
 			final Queue<MemoryHandlerPlusTemp> validOutgoingPlusTokens,
-			final ArrayList<Row> minusFacts, final FactAddress[] factAddresses,
+			final JamochaArray<Row> minusFacts, final FactAddress[] factAddresses,
 			final boolean[] marked, final EqualityChecker equalityChecker) {
 		for (final MemoryHandlerPlusTemp temp : validOutgoingPlusTokens) {
-			final ArrayList<Row> originalFacts = temp.getFiltered();
-			final ArrayList<Row> remainingFacts =
+			final JamochaArray<Row> originalFacts = temp.getFiltered();
+			final JamochaArray<Row> remainingFacts =
 					getRemainingFactTuples(originalFacts, minusFacts, factAddresses, marked,
 							equalityChecker);
 			temp.setFiltered(remainingFacts);
@@ -196,12 +195,12 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 	}
 
 	private static void filterTargetMain(final MemoryHandlerMain targetMain,
-			final ArrayList<Row> minusFacts, final FactAddress[] factAddresses,
+			final JamochaArray<Row> minusFacts, final FactAddress[] factAddresses,
 			final boolean[] marked, final EqualityChecker equalityChecker,
 			final Consumer<Row> deletedRowConsumer) {
-		final ArrayList<Row> originalFacts = targetMain.validRows;
+		final JamochaArray<Row> originalFacts = targetMain.validRows;
 		final int originalFactsSize = originalFacts.size();
-		final ArrayList<Row> remainingFacts =
+		final JamochaArray<Row> remainingFacts =
 				getRemainingFactTuples(originalFacts, deletedRowConsumer, minusFacts,
 						factAddresses, marked, equalityChecker);
 		if (remainingFacts.size() != originalFactsSize) {
@@ -212,17 +211,17 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 	}
 
 	private static void filterTargetExistentialMain(
-			final MemoryHandlerMainWithExistentials targetMain, final ArrayList<Row> minusFacts,
+			final MemoryHandlerMainWithExistentials targetMain, final JamochaArray<Row> minusFacts,
 			final FactAddress[] factAddresses, final boolean[] marked,
 			final EqualityChecker equalityChecker, final Consumer<Row> deletedRowConsumer) {
-		final ArrayList<Row> validDeletedRows = new ArrayList<>();
+		final JamochaArray<Row> validDeletedRows = new JamochaArray<>();
 		targetMain.allRows = getRemainingFactTuples(targetMain.allRows, (final Row deletedRow) -> {
 			if (targetMain.counter.isValid(deletedRow))
 				validDeletedRows.add(deletedRow);
 		}, minusFacts, factAddresses, marked, equalityChecker);
-		final ArrayList<Row> originalFacts = targetMain.validRows;
+		final JamochaArray<Row> originalFacts = targetMain.validRows;
 		final int originalFactsSize = originalFacts.size();
-		final ArrayList<Row> remainingFacts =
+		final JamochaArray<Row> remainingFacts =
 				getRemainingFactTuples(originalFacts, deletedRowConsumer, validDeletedRows,
 						factAddresses, marked, EqualityChecker.equalRow);
 		if (remainingFacts.size() != originalFactsSize) {
@@ -232,7 +231,7 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 		}
 	}
 
-	private static ArrayList<Row> getMarkedFactTuples(final ArrayList<Row> minusFacts,
+	private static JamochaArray<Row> getMarkedFactTuples(final JamochaArray<Row> minusFacts,
 			final boolean[] marked) {
 		final int minusFactsSize = minusFacts.size();
 		int relevantMinusFactsSize = 0;
@@ -244,7 +243,7 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 		if (relevantMinusFactsSize == minusFactsSize) {
 			return minusFacts;
 		}
-		final ArrayList<Row> relevantMinusFacts = new ArrayList<Row>(relevantMinusFactsSize);
+		final JamochaArray<Row> relevantMinusFacts = new JamochaArray<Row>(relevantMinusFactsSize);
 		for (int minusFactsIndex = 0; minusFactsIndex < minusFactsSize; ++minusFactsIndex) {
 			if (marked[minusFactsIndex]) {
 				relevantMinusFacts.add(minusFacts.get(minusFactsIndex));
@@ -286,14 +285,14 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 
 	@FunctionalInterface
 	private static interface MainMemoryFilter<T extends MemoryHandlerMain> {
-		void apply(final T targetMain, final ArrayList<Row> minusFacts,
+		void apply(final T targetMain, final JamochaArray<Row> minusFacts,
 				final FactAddress[] factAddresses, final boolean[] marked,
 				final EqualityChecker equalityChecker, final Consumer<Row> deletedRowConsumer);
 	}
 
-	private static <T extends MemoryHandlerMain> ArrayList<Row> getRelevantFactTuples(
+	private static <T extends MemoryHandlerMain> JamochaArray<Row> getRelevantFactTuples(
 			final T targetMain, final MainMemoryFilter<T> mainMemoryFilter,
-			final ArrayList<Row> minusFacts, final FactAddress[] factAddresses,
+			final JamochaArray<Row> minusFacts, final FactAddress[] factAddresses,
 			final EqualityChecker equalityChecker, final Consumer<Row> deletedRowConsumer) {
 		final boolean[] marked = new boolean[minusFacts.size()];
 		mainMemoryFilter.apply(targetMain, minusFacts, factAddresses, marked, equalityChecker,
@@ -304,7 +303,7 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 	}
 
 	private MemoryHandlerMinusTemp(final Template[] template,
-			final MemoryHandlerMain originatingMainHandler, final ArrayList<Row> rows,
+			final MemoryHandlerMain originatingMainHandler, final JamochaArray<Row> rows,
 			final FactAddress[] factAddresses) {
 		super(template, originatingMainHandler, rows);
 		this.factAddresses = factAddresses;
@@ -321,22 +320,23 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 	}
 
 	@Override
-	protected ArrayList<Row> getRowsToSplit() {
+	protected JamochaArray<Row> getRowsToSplit() {
 		throw new UnsupportedOperationException("Partial Minus Temps should not be split!");
 	}
 
 	static class MemoryHandlerMinusTempComplete extends MemoryHandlerMinusTemp {
-		final ArrayList<Row> completeRows;
+		final JamochaArray<Row> completeRows;
 
 		public MemoryHandlerMinusTempComplete(final Template[] template,
-				final MemoryHandlerMain originatingMainHandler, final ArrayList<Row> partialRows,
-				final ArrayList<Row> completeRows, final FactAddress[] factAddresses) {
+				final MemoryHandlerMain originatingMainHandler,
+				final JamochaArray<Row> partialRows, final JamochaArray<Row> completeRows,
+				final FactAddress[] factAddresses) {
 			super(template, originatingMainHandler, partialRows, factAddresses);
 			this.completeRows = completeRows;
 		}
 
 		@Override
-		protected ArrayList<Row> getRowsToSplit() {
+		protected JamochaArray<Row> getRowsToSplit() {
 			return this.completeRows;
 		}
 	}

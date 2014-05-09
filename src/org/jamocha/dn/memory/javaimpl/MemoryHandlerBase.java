@@ -14,7 +14,6 @@
  */
 package org.jamocha.dn.memory.javaimpl;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 
 import lombok.AllArgsConstructor;
@@ -38,7 +37,7 @@ public class MemoryHandlerBase implements MemoryHandler {
 
 	@Getter
 	final Template[] template;
-	ArrayList<Row> validRows;
+	JamochaArray<Row> validRows;
 
 	/**
 	 * @see org.jamocha.dn.memory.MemoryHandler#getValue(FactAddress, SlotAddress, int)

@@ -61,7 +61,7 @@ public class MemoryHandlerMain extends MemoryHandlerBase implements
 	final Counter counter;
 
 	MemoryHandlerMain(final Template template, final Path... paths) {
-		super(new Template[] { template }, new ArrayList<Row>());
+		super(new Template[] { template }, new JamochaArray<Row>());
 		final FactAddress address = new FactAddress(0);
 		this.addresses = new FactAddress[] { address };
 		for (final Path path : paths) {
@@ -73,7 +73,7 @@ public class MemoryHandlerMain extends MemoryHandlerBase implements
 
 	MemoryHandlerMain(final Template[] template, final Counter counter,
 			final FactAddress[] addresses) {
-		super(template, new ArrayList<>());
+		super(template, new JamochaArray<>());
 		this.addresses = addresses;
 		this.counter = counter;
 	}

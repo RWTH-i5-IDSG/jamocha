@@ -14,8 +14,6 @@
  */
 package org.jamocha.dn.memory.javaimpl;
 
-import java.util.ArrayList;
-
 import org.jamocha.dn.memory.Template;
 import org.jamocha.dn.nodes.CouldNotAcquireLockException;
 import org.jamocha.dn.nodes.Edge;
@@ -28,7 +26,7 @@ import org.jamocha.filter.AddressFilter;
  */
 public class MemoryHandlerMainWithExistentials extends MemoryHandlerMain {
 
-	ArrayList<Row> allRows = new ArrayList<>();
+	JamochaArray<Row> allRows = new JamochaArray<>();
 
 	MemoryHandlerMainWithExistentials(final Template[] template, final Counter counter,
 			final FactAddress[] addresses) {

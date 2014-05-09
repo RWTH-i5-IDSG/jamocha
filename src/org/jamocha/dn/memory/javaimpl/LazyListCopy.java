@@ -14,8 +14,6 @@
  */
 package org.jamocha.dn.memory.javaimpl;
 
-import java.util.ArrayList;
-
 import lombok.AllArgsConstructor;
 import lombok.Delegate;
 import lombok.Getter;
@@ -42,13 +40,13 @@ public class LazyListCopy<T> {
 		default void drop(final int index) {
 		}
 
-		ArrayList<T> getList();
+		JamochaArray<T> getList();
 	}
 
 	@Delegate
 	LazyListCopyState<T> state;
 
-	public LazyListCopy(final ArrayList<T> list) {
+	public LazyListCopy(final JamochaArray<T> list) {
 		this.state = new SameList(list);
 	}
 
@@ -59,19 +57,12 @@ public class LazyListCopy<T> {
 	@AllArgsConstructor
 	public class SameList implements LazyListCopyState<T> {
 		@Getter(onMethod = @__(@Override))
-		final ArrayList<T> list;
+		final JamochaArray<T> list;
 
 		@Override
 		public void drop(final int index) {
 			final int size = this.list.size();
-			final ArrayList<T> copy = new ArrayList<>(this.list);
-			copy.subList(index, size).clear();
-			// TODO write your own arraylist to do new ArrayList<>(original, [from,] to,
-			// initialSize);
-			// final ArrayList<Fact[]> copy = new ArrayList<>(this.list.size());
-			// for (int i = 0; i < index; i++) {
-			// copy.add(this.list.get(i));
-			// }
+			final JamochaArray<T> copy = new JamochaArray<>(this.list, index, size);
 			LazyListCopy.this.state = new CopiedList(this.list, copy, index + 1);
 		}
 	}
@@ -82,34 +73,22 @@ public class LazyListCopy<T> {
 	 */
 	@AllArgsConstructor
 	public class CopiedList implements LazyListCopyState<T> {
-		final ArrayList<T> orig;
-		final ArrayList<T> copy;
+		final JamochaArray<T> orig;
+		final JamochaArray<T> copy;
 		int copyFrom;
 
 		@Override
 		public void drop(final int index) {
-			// System.arraycopy(orig, copyFrom, copy, copy.size(), index - copyFrom);
-			for (int i = copyFrom; i < index; ++i) {
-				this.copy.add(this.orig.get(i));
-			}
+			copy.add(orig, copyFrom, index - copyFrom);
 			copyFrom = index + 1;
 		}
 
 		@Override
-		public ArrayList<T> getList() {
+		public JamochaArray<T> getList() {
 			final int origSize = orig.size();
-			// System.arraycopy(orig, copyFrom, copy, copy.size(), origSize - copyFrom);
-			for (int i = copyFrom; i < origSize; ++i) {
-				this.copy.add(this.orig.get(i));
-			}
+			copy.add(orig, copyFrom, origSize - copyFrom);
 			copyFrom = origSize;
 			return this.copy;
-		}
-	}
-
-	public static void main(String[] args) {
-		for (int i = 1; i < 1; ++i) {
-			System.out.println(1);
 		}
 	}
 }
