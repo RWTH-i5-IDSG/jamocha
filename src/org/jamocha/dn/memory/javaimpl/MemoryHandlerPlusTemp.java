@@ -449,9 +449,7 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 		final LazyListCopy<Row> copy = new LazyListCopy<>(allRows);
 		for (int index = 0; index < allRows.size(); index++) {
 			final Row row = allRows.get(index);
-			if (counter.isValid(row)) {
-				copy.keep(index);
-			} else {
+			if (!counter.isValid(row)) {
 				copy.drop(index);
 			}
 		}

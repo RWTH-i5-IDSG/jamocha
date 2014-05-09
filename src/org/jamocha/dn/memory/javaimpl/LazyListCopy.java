@@ -36,11 +36,11 @@ import lombok.Getter;
  */
 public class LazyListCopy<T> {
 	private static interface LazyListCopyState<T> {
-		void keep(final int index);
-
-		void keepStartingAt(final int index);
-
-		void drop(final int index);
+		/**
+		 * @param index
+		 */
+		default void drop(final int index) {
+		}
 
 		ArrayList<T> getList();
 	}
@@ -66,20 +66,13 @@ public class LazyListCopy<T> {
 			final int size = this.list.size();
 			final ArrayList<T> copy = new ArrayList<>(this.list);
 			copy.subList(index, size).clear();
-			// TODO write your own arraylist to do new ArrayList<>(original, from, to);
+			// TODO write your own arraylist to do new ArrayList<>(original, [from,] to,
+			// initialSize);
 			// final ArrayList<Fact[]> copy = new ArrayList<>(this.list.size());
 			// for (int i = 0; i < index; i++) {
 			// copy.add(this.list.get(i));
 			// }
-			LazyListCopy.this.state = new CopiedList(this.list, copy);
-		}
-
-		@Override
-		public void keep(final int index) {
-		}
-
-		@Override
-		public void keepStartingAt(final int index) {
+			LazyListCopy.this.state = new CopiedList(this.list, copy, index + 1);
 		}
 	}
 
@@ -89,30 +82,34 @@ public class LazyListCopy<T> {
 	 */
 	@AllArgsConstructor
 	public class CopiedList implements LazyListCopyState<T> {
-		final ArrayList<T> list;
+		final ArrayList<T> orig;
 		final ArrayList<T> copy;
-
-		@Override
-		public void keep(final int index) {
-			this.copy.add(this.list.get(index));
-		}
-
-		@Override
-		public void keepStartingAt(final int index) {
-			final int size = this.list.size();
-			for (int i = index; i < size; ++i) {
-				this.copy.add(this.list.get(i));
-			}
-		}
+		int copyFrom;
 
 		@Override
 		public void drop(final int index) {
+			// System.arraycopy(orig, copyFrom, copy, copy.size(), index - copyFrom);
+			for (int i = copyFrom; i < index; ++i) {
+				this.copy.add(this.orig.get(i));
+			}
+			copyFrom = index + 1;
 		}
 
 		@Override
 		public ArrayList<T> getList() {
+			final int origSize = orig.size();
+			// System.arraycopy(orig, copyFrom, copy, copy.size(), origSize - copyFrom);
+			for (int i = copyFrom; i < origSize; ++i) {
+				this.copy.add(this.orig.get(i));
+			}
+			copyFrom = origSize;
 			return this.copy;
 		}
 	}
 
+	public static void main(String[] args) {
+		for (int i = 1; i < 1; ++i) {
+			System.out.println(1);
+		}
+	}
 }

@@ -95,8 +95,7 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 					continue outerLoop;
 				}
 			}
-			// facts differ at some point, add to remaining facts
-			remainingFacts.keep(originalFactsIndex);
+			// facts differ at some point, keep in remaining facts
 		}
 		return remainingFacts.getList();
 	}
