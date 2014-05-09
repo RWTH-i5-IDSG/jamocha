@@ -16,16 +16,23 @@ package org.jamocha.filter;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 
+import org.jamocha.dn.memory.FactAddress;
+import org.jamocha.dn.nodes.Edge;
+import org.jamocha.dn.nodes.Node;
+import org.jamocha.dn.nodes.SlotInFactAddress;
 import org.jamocha.filter.AddressFilter.AddressFilterElement;
-import org.jamocha.filter.PathFilter.PathFilterElement;
 import org.jamocha.filter.fwa.ConstantLeaf;
 import org.jamocha.filter.fwa.FunctionWithArguments;
 import org.jamocha.filter.fwa.FunctionWithArgumentsComposite;
@@ -40,18 +47,27 @@ import org.jamocha.filter.fwa.PredicateWithArgumentsComposite;
  * 
  */
 public class FilterFunctionCompare {
-	final PathFilterElement pathFilterElement;
-	final AddressFilterElement addressFilterElement;
-	int indexInAddresses = 0;
+	@RequiredArgsConstructor
+	static class AddressContainer {
+		final AddressFilterElement addressFilterElement;
+		int indexInAddresses = 0;
+
+		final SlotInFactAddress getNextAddress() {
+			return addressFilterElement.addressesInTarget[indexInAddresses++];
+		}
+	}
+
+	final AddressContainer targetAddressContainer;
+	final AddressContainer compareAddressContainer;
 	boolean equal = true;
 
-	private FilterFunctionCompare(final PathFilterElement pathFilterElement,
-			final AddressFilterElement addressFilterElement) {
+	private FilterFunctionCompare(final AddressFilterElement targetFilterElement,
+			final AddressFilterElement compareFilterElement) {
 		super();
-		this.pathFilterElement = pathFilterElement;
-		this.addressFilterElement = addressFilterElement;
-		this.pathFilterElement.getFunction().accept(
-				new PathVisitor(this, this.addressFilterElement.getFunction()));
+		this.targetAddressContainer = new AddressContainer(targetFilterElement);
+		this.compareAddressContainer = new AddressContainer(compareFilterElement);
+		targetFilterElement.getFunction().accept(
+				new FunctionTypeIdentificationVisitor(compareFilterElement.getFunction()));
 	}
 
 	private void invalidate() {
@@ -62,145 +78,134 @@ public class FilterFunctionCompare {
 		return this.equal;
 	}
 
-	@RequiredArgsConstructor
-	private static abstract class ContextAware implements FunctionWithArgumentsVisitor {
-		final FilterFunctionCompare context;
-	}
-
-	private static class PathVisitor extends ContextAware {
-		final FunctionWithArguments address;
-
-		private PathVisitor(final FilterFunctionCompare context, final FunctionWithArguments address) {
-			super(context);
-			this.address = address;
+	private abstract class SelectiveFWAVisitor implements FunctionWithArgumentsVisitor {
+		@Override
+		public void visit(ConstantLeaf constantLeaf) {
+			invalidate();
 		}
 
 		@Override
-		public void visit(final PathLeaf pathLeaf) {
-			this.address.accept(new ParameterLeafVisitor(this.context, pathLeaf));
+		public void visit(ParameterLeaf parameterLeaf) {
+			invalidate();
+		}
+
+		@Override
+		public void visit(PathLeaf pathLeaf) {
+			invalidate();
+		}
+
+		@Override
+		public void visit(PredicateWithArgumentsComposite predicateWithArgumentsComposite) {
+			invalidate();
+		}
+
+		@Override
+		public void visit(FunctionWithArgumentsComposite functionWithArgumentsComposite) {
+			invalidate();
+		}
+
+		public void invalidate() {
+			FilterFunctionCompare.this.invalidate();
+		}
+	}
+
+	private class FunctionTypeIdentificationVisitor extends SelectiveFWAVisitor {
+		final FunctionWithArguments fwa;
+
+		private FunctionTypeIdentificationVisitor(final FunctionWithArguments fwa) {
+			this.fwa = fwa;
 		}
 
 		@Override
 		public void visit(final ParameterLeaf parameterLeaf) {
-			this.context.invalidate();
+			this.fwa.accept(new ParameterLeafVisitor(parameterLeaf));
 		}
 
 		@Override
 		public void visit(final PredicateWithArgumentsComposite predicateWithArgumentsComposite) {
-			this.address
-					.accept(new CompositeVisitor(this.context, predicateWithArgumentsComposite));
+			this.fwa.accept(new CompositeVisitor(predicateWithArgumentsComposite));
 		}
 
 		@Override
 		public void visit(final FunctionWithArgumentsComposite functionWithArgumentsComposite) {
-			this.address.accept(new CompositeVisitor(this.context, functionWithArgumentsComposite));
+			this.fwa.accept(new CompositeVisitor(functionWithArgumentsComposite));
 		}
 
 		@Override
 		public void visit(final ConstantLeaf constantLeaf) {
-			this.address.accept(new ConstantLeafVisitor(this.context, constantLeaf));
+			this.fwa.accept(new ConstantLeafVisitor(constantLeaf));
 		}
 	};
 
-	static abstract class AddressPartVisitor extends ContextAware {
-		private AddressPartVisitor(final FilterFunctionCompare context) {
-			super(context);
-		}
+	private class ParameterLeafVisitor extends SelectiveFWAVisitor {
+		final ParameterLeaf parameterLeaf;
 
-		@Override
-		public void visit(final ConstantLeaf constantLeaf) {
-			this.context.invalidate();
-		}
-
-		@Override
-		public void visit(final FunctionWithArgumentsComposite functionWithArgumentsComposite) {
-			this.context.invalidate();
+		private ParameterLeafVisitor(final ParameterLeaf parameterLeaf) {
+			this.parameterLeaf = parameterLeaf;
 		}
 
 		@Override
 		public void visit(final ParameterLeaf parameterLeaf) {
-			this.context.invalidate();
-		}
-
-		@Override
-		public void visit(final PathLeaf pathLeaf) {
-			this.context.invalidate();
-		}
-
-		@Override
-		public void visit(final PredicateWithArgumentsComposite predicateWithArgumentsComposite) {
-			this.context.invalidate();
-		}
-	}
-
-	static class ParameterLeafVisitor extends AddressPartVisitor {
-		final PathLeaf pathLeaf;
-
-		private ParameterLeafVisitor(final FilterFunctionCompare context, final PathLeaf pathLeaf) {
-			super(context);
-			this.pathLeaf = pathLeaf;
-		}
-
-		@Override
-		public void visit(final ParameterLeaf parameterLeaf) {
+			if (this.parameterLeaf.getType() != parameterLeaf.getType()) {
+				invalidate();
+			}
 			try {
-				if (!this.context.addressFilterElement.getAddressesInTarget()[this.context.indexInAddresses++]
-						.getSlotAddress().equals(this.pathLeaf.getSlot())) {
-					this.context.invalidate();
+				final SlotInFactAddress compareAddress =
+						FilterFunctionCompare.this.compareAddressContainer.getNextAddress();
+				final SlotInFactAddress targetAddress =
+						FilterFunctionCompare.this.targetAddressContainer.getNextAddress();
+				if (!compareAddress.equals(targetAddress)) {
+					invalidate();
 				}
 			} catch (final IndexOutOfBoundsException e) {
-				this.context.invalidate();
+				invalidate();
 			}
 		}
 	};
 
-	static class ConstantLeafVisitor extends AddressPartVisitor {
+	private class ConstantLeafVisitor extends SelectiveFWAVisitor {
 		final ConstantLeaf constantLeaf;
 
-		private ConstantLeafVisitor(final FilterFunctionCompare context,
-				final ConstantLeaf constantLeaf) {
-			super(context);
+		private ConstantLeafVisitor(final ConstantLeaf constantLeaf) {
 			this.constantLeaf = constantLeaf;
 		}
 
 		@Override
 		public void visit(final ConstantLeaf constantLeaf) {
 			if (!constantLeaf.getValue().equals(this.constantLeaf.getValue())) {
-				this.context.invalidate();
+				invalidate();
 			}
 		}
 	};
 
-	static class CompositeVisitor extends AddressPartVisitor {
+	private class CompositeVisitor extends SelectiveFWAVisitor {
 		final GenericWithArgumentsComposite<?, ?> composite;
 
-		private CompositeVisitor(final FilterFunctionCompare context,
-				final GenericWithArgumentsComposite<?, ?> constantLeaf) {
-			super(context);
-			this.composite = constantLeaf;
+		private CompositeVisitor(final GenericWithArgumentsComposite<?, ?> composite) {
+			this.composite = composite;
 		}
 
 		@AllArgsConstructor
-		static class Bool {
+		class Bool {
 			boolean equal;
 		}
 
 		private void generic(final GenericWithArgumentsComposite<?, ?> genericWithArgumentsComposite) {
 			if (!genericWithArgumentsComposite.getFunction().inClips()
 					.equals(this.composite.getFunction().inClips())) {
-				this.context.invalidate();
+				invalidate();
 				return;
 			}
 			final FunctionWithArguments[] addressArgs = genericWithArgumentsComposite.getArgs();
 			final FunctionWithArguments[] pathArgs = this.composite.getArgs();
 			if (addressArgs.length != pathArgs.length) {
-				this.context.invalidate();
+				invalidate();
 				return;
 			}
 			// compare args normally
 			compareArguments(addressArgs, pathArgs);
 			// just matches
-			if (this.context.isValid())
+			if (FilterFunctionCompare.this.isValid())
 				return;
 			// doesn't match, only has a chance if function is commutative
 			if (!(genericWithArgumentsComposite.getFunction() instanceof CommutativeFunction<?>)) {
@@ -251,18 +256,18 @@ public class FilterFunctionCompare {
 											compareArguments(addressArgs, pathArgs);
 										}
 										// else just permute back to original order
-										if (this.context.isValid()) {
+										if (FilterFunctionCompare.this.isValid()) {
 											// is actually equal
 											bool.equal = true;
 										} else {
 											// lets try again
-											this.context.equal = true;
+											FilterFunctionCompare.this.equal = true;
 										}
 									}
 								});
 			}
 			if (!bool.equal) {
-				this.context.invalidate();
+				invalidate();
 			}
 		}
 
@@ -271,13 +276,13 @@ public class FilterFunctionCompare {
 			for (int i = 0; i < addressArgs.length; i++) {
 				final FunctionWithArguments addressFWA = addressArgs[i];
 				final FunctionWithArguments pathFWA = pathArgs[i];
-				pathFWA.accept(new PathVisitor(this.context, addressFWA));
-				if (!this.context.isValid())
+				pathFWA.accept(new FunctionTypeIdentificationVisitor(addressFWA));
+				if (!FilterFunctionCompare.this.isValid())
 					return;
 			}
 		}
 
-		private static int gcd(int a, int b) {
+		private int gcd(int a, int b) {
 			while (b > 0) {
 				int temp = b;
 				b = a % b; // % is remainder
@@ -286,7 +291,7 @@ public class FilterFunctionCompare {
 			return a;
 		}
 
-		private static int lcm(int a, int b) {
+		private int lcm(int a, int b) {
 			return a * (b / gcd(a, b));
 		}
 
@@ -301,18 +306,50 @@ public class FilterFunctionCompare {
 		}
 	};
 
-	public static boolean equals(final PathFilterElement pathFilterElement,
-			final AddressFilterElement addressFilterElement) {
-		return new FilterFunctionCompare(pathFilterElement, addressFilterElement).equal;
+	public static boolean equals(final AddressFilterElement targetFilterElement,
+			final AddressFilterElement compareFilterElement) {
+		return new FilterFunctionCompare(targetFilterElement, compareFilterElement).equal;
 	}
 
-	public static boolean equals(final PathFilter pathFilter, final AddressFilter addressFilter) {
-		final PathFilterElement[] pathFilterElements = pathFilter.getFilterElements();
-		final AddressFilterElement[] addressFilterElements = addressFilter.getFilterElements();
-		for (int i = 0; i < addressFilterElements.length; i++) {
-			final PathFilterElement pathFilterElement = pathFilterElements[i];
-			final AddressFilterElement addressFilterElement = addressFilterElements[i];
-			if (!equals(pathFilterElement, addressFilterElement)) {
+	public static boolean equals(final Node targetNode, final PathFilter pathFilter) {
+		final LinkedHashSet<Path> paths =
+				PathCollector.newLinkedHashSet().collect(pathFilter).getPaths();
+		final Edge[] edges = targetNode.getIncomingEdges();
+		final Set<Path> joinedPaths = new HashSet<>();
+		edgeloop: for (final Edge edge : edges) {
+			for (final Iterator<Path> iterator = paths.iterator(); iterator.hasNext();) {
+				final Path currentPath = iterator.next();
+				if (currentPath.getCurrentlyLowestNode() != edge.getSourceNode()) {
+					continue;
+				}
+				for (final Path path : currentPath.getJoinedWith()) {
+					final FactAddress localizedAddress =
+							edge.localizeAddress(path.getFactAddressInCurrentlyLowestNode());
+					path.cachedOverride(targetNode, localizedAddress, joinedPaths);
+					joinedPaths.add(path);
+					paths.remove(path);
+				}
+				continue edgeloop;
+			}
+		}
+		assert paths.isEmpty();
+		final AddressFilter translatedFilter = FilterTranslator.translate(pathFilter, a -> null);
+		final AddressFilter targetFilter = targetNode.getFilter().getNormalisedVersion();
+		final boolean equal = equals(translatedFilter, targetFilter);
+		for (final Path path : joinedPaths) {
+			path.restoreCache();
+		}
+		return equal;
+	}
+
+	public static boolean equals(final AddressFilter targetFilter,
+			final AddressFilter translatedFilter) {
+		final AddressFilterElement[] targetFEs =
+				targetFilter.getNormalisedVersion().getFilterElements();
+		final AddressFilterElement[] translatedFEs =
+				translatedFilter.getNormalisedVersion().getFilterElements();
+		for (int i = 0; i < targetFEs.length; i++) {
+			if (!equals(targetFEs[i], translatedFEs[i])) {
 				return false;
 			}
 		}
