@@ -108,11 +108,13 @@ public class PathLeaf implements FunctionWithArguments {
 	public static class ParameterLeaf implements FunctionWithArguments {
 		private final SlotType slotType;
 		private final SlotType[] slotTypes;
+		private final int hashCode;
 
-		public ParameterLeaf(final SlotType type) {
+		public ParameterLeaf(final SlotType type, final int hashCode) {
 			super();
 			this.slotType = type;
 			this.slotTypes = new SlotType[] { type };
+			this.hashCode = hashCode;
 		}
 
 		@Override
@@ -155,7 +157,7 @@ public class PathLeaf implements FunctionWithArguments {
 
 		@Override
 		public int hashPositionIsIrrelevant() {
-			throw new UnsupportedOperationException("Do we need this?");
+			return hashCode;
 		}
 	}
 
