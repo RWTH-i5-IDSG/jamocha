@@ -70,6 +70,51 @@ public class FilterEqualsInFunctionTest {
 	}
 
 	@Test
+	public void testEqualsInFunctionFalseDifferentSlotAddress() {
+		final Path p1 = new Path(new Template(SlotType.DOUBLE, SlotType.DOUBLE));
+		final Path p2 = new Path(Template.DOUBLE);
+		final Path p3 = new Path(Template.DOUBLE);
+		final SlotAddress a1 = new SlotAddress(0);
+		final SlotAddress a2 = new SlotAddress(0);
+		final SlotAddress a3 = new SlotAddress(0);
+		final SlotAddress a4 = new SlotAddress(1);
+		final Function<?> plus = FunctionDictionary.lookup("+", SlotType.DOUBLE, SlotType.DOUBLE);
+		final Function<?> minus = FunctionDictionary.lookup("-", SlotType.DOUBLE, SlotType.DOUBLE);
+		final Predicate equals =
+				FunctionDictionary.lookupPredicate("=", SlotType.DOUBLE, SlotType.DOUBLE);
+		PathFilterElement f, g;
+
+		f =
+				new PredicateBuilder(equals)
+						.addFunction(
+								new FunctionBuilder(plus).addPath(p1, a1).addPath(p2, a2).build())
+						.addFunction(
+								new FunctionBuilder(minus).addDouble(1337.).addPath(p3, a3).build())
+						.buildPFE();
+		g =
+				new PredicateBuilder(equals)
+						.addFunction(
+								new FunctionBuilder(plus).addPath(p1, a4).addPath(p2, a2).build())
+						.addFunction(
+								new FunctionBuilder(minus).addDouble(1337.).addPath(p3, a3).build())
+						.buildPFE();
+		final PathFilter pf = new PathFilter(f), pg = new PathFilter(g);
+
+		assertTrue(FilterFunctionCompare.equals(
+				FilterTranslator.translate(pf, counterColumnMatcherMockup),
+				FilterTranslator.translate(pf, counterColumnMatcherMockup)));
+		assertTrue(FilterFunctionCompare.equals(
+				FilterTranslator.translate(pg, counterColumnMatcherMockup),
+				FilterTranslator.translate(pg, counterColumnMatcherMockup)));
+		assertFalse(FilterFunctionCompare.equals(
+				FilterTranslator.translate(pf, counterColumnMatcherMockup),
+				FilterTranslator.translate(pg, counterColumnMatcherMockup)));
+		assertFalse(FilterFunctionCompare.equals(
+				FilterTranslator.translate(pg, counterColumnMatcherMockup),
+				FilterTranslator.translate(pf, counterColumnMatcherMockup)));
+	}
+
+	@Test
 	public void testFunctionWithArgumentsCompositeEqualsInFunctionTrueNormalize() {
 		final Path p1 = new Path(Template.DOUBLE);
 		final Path p2 = new Path(Template.DOUBLE);
