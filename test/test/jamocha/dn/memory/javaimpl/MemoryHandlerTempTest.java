@@ -268,8 +268,8 @@ public class MemoryHandlerTempTest {
 	@Test
 	public void testNewBetaTempSelectiveJoin() throws CouldNotAcquireLockException {
 		FunctionDictionary.load();
-		final FunctionWithArguments pl1 = new PathLeaf.ParameterLeaf(SlotType.STRING);
-		final FunctionWithArguments pl2 = new PathLeaf.ParameterLeaf(SlotType.STRING);
+		final FunctionWithArguments pl1 = new PathLeaf.ParameterLeaf(SlotType.STRING, 0);
+		final FunctionWithArguments pl2 = new PathLeaf.ParameterLeaf(SlotType.STRING, 1);
 		final Predicate eq =
 				FunctionDictionary.lookupPredicate("=", SlotType.STRING, SlotType.STRING);
 		final PredicateWithArguments faw = new PredicateWithArgumentsComposite(eq, pl1, pl2);

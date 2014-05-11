@@ -75,7 +75,8 @@ public class UniformFunctionTranslator {
 		@Override
 		public void visit(final org.jamocha.filter.fwa.PathLeaf.ParameterLeaf parameterLeaf) {
 			this.result =
-					new org.jamocha.filter.fwa.PathLeaf.ParameterLeaf(parameterLeaf.getType());
+					new org.jamocha.filter.fwa.PathLeaf.ParameterLeaf(parameterLeaf.getType(),
+							parameterLeaf.hash());
 		}
 
 		@Override

@@ -195,7 +195,8 @@ public class FilterTranslator {
 					pathLeaf.getPath().getFactAddressInCurrentlyLowestNode();
 			this.addresses.add(new SlotInFactAddress(factAddressInCurrentlyLowestNode, pathLeaf
 					.getSlot()));
-			this.functionWithArguments = new ParameterLeaf(pathLeaf.getReturnType());
+			this.functionWithArguments =
+					new ParameterLeaf(pathLeaf.getReturnType(), pathLeaf.hash());
 		}
 	}
 }
