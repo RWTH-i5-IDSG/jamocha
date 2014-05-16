@@ -32,9 +32,12 @@ options {
 	STATIC=false;
 	NODE_PREFIX="SFP";
 	NODE_USES_PARSER=true;
+	VISITOR_DATA_TYPE="Object";
+	VISITOR_RETURN_TYPE="Object";
+	OUTPUT_DIRECTORY="generated";
 	VISITOR = true;  // create Visitor interface
 	ERROR_REPORTING = true;
-	JDK_VERSION = "5.0";
+	JDK_VERSION = "8.0";
 }
 
 
@@ -57,55 +60,43 @@ PARSER_BEGIN(SFPParser)
  * limitations under the License.
  * 
  */
-package org.jamocha.languages.clips.parser;
+package org.jamocha.languages.clips.parser.generated;
 
-import org.jamocha.parser.Parser;
-import org.jamocha.parser.ParserUtils;
-import org.jamocha.parser.Expression;
-import org.jamocha.parser.JamochaValue;
+import org.jamocha.languages.clips.parser.SFPVisitorImpl;
+import org.jamocha.languages.common.ParserUtils;
 
-import org.jamocha.engine.Engine;
+@SuppressWarnings("all")
+public class SFPParser {
 
-public class SFPParser implements Parser{
-
-	public Expression nextExpression() throws ParseException {
+	public Object nextExpression() throws ParseException {
 		SFPStart n = Start();
 		if (n != null) {
-			Object result = n.jjtAccept(new SFPInterpreter(), null);
+			Object result = n.jjtAccept(new SFPVisitorImpl(), null);
 			if (result != null) {
-				return (org.jamocha.parser.Expression) result;
-			} 
+				return result;
+			}
 		}
 		return null;
 	}
 
-        public static void main(String args[])
-        {
-                boolean verbose = (args != null && args.length == 1 && "verbose".equals(args[0]));
-                if(!verbose)System.out.println("Note: For verbose output type \"java Main verbose\".\n");
-                System.out.print("SFP> ");
-                Engine engine = new Engine();
-                SFPParser p = new SFPParser(System.in);
-                try
-                {
-                while (true)
-                        {
-                                SFPStart n = p.Start();
-                                if (n==null) System.exit(0);
-                                n.dump(" ");
-                                org.jamocha.parser.Expression val = null;
-                                val = (org.jamocha.parser.Expression)n.jjtAccept(new SFPInterpreter(), null);
-                        }
-                }
-                catch (Exception e)
-                {
-                        System.err.println("ERROR: " + e.getMessage());
-                        if(verbose)e.printStackTrace();
-                }
-        }
-
-
-
+	public static void main(String args[]) {
+		boolean verbose = (args != null && args.length == 1 && "verbose".equals(args[0]));
+		if(!verbose)System.out.println("Note: For verbose output type \"java Main verbose\".\n");
+		System.out.print("SFP> ");
+		SFPParser p = new SFPParser(System.in);
+		try {
+			while (true) {
+				SFPStart n = p.Start();
+				if (n==null) System.exit(0);
+				n.dump(" ");
+				n.jjtAccept(new SFPVisitorImpl(), null);
+			}
+		}
+		catch (Exception e) {
+			System.err.println("ERROR: " + e.getMessage());
+			if(verbose)e.printStackTrace();
+		}
+	}
 }
 
 PARSER_END(SFPParser)
@@ -319,7 +310,7 @@ SimpleNode Float() :
 	)
 	
 	{
-		jjtThis.setName(t.image); 
+		jjtThis.jjtSetValue(t.image); 
 		return jjtThis;
 	}
 }
@@ -340,7 +331,7 @@ SimpleNode Integer() :
 	)
 	
 	{
-		jjtThis.setName(t.image); 
+		jjtThis.jjtSetValue(t.image); 
 		return jjtThis;
 	}
 }
@@ -356,7 +347,7 @@ SimpleNode DateTime() :
 {
 	t=<DATETIME>
 	{
-		jjtThis.setName(t.image);
+		jjtThis.jjtSetValue(t.image);
 		return jjtThis;
 	}
 }
@@ -386,7 +377,7 @@ SimpleNode Symbol() :
 {
 	t=<SYMBOL>
 	{
-		jjtThis.setName(t.image); 
+		jjtThis.jjtSetValue(t.image); 
 		return jjtThis;
 	}
 }
@@ -402,7 +393,7 @@ SimpleNode String() :
 {
 	t=<STRING>
 	{
-		jjtThis.setName(ParserUtils.getStringLiteral(t.image)); 
+		jjtThis.jjtSetValue(ParserUtils.getStringLiteral(t.image)); 
 		return jjtThis;
 	}
 }
@@ -417,7 +408,7 @@ SimpleNode True() :
 {
 	t=<TRUE>
 	{
-		jjtThis.setName(t.image); 
+		jjtThis.jjtSetValue(t.image); 
 		return jjtThis;
 	}
 }
@@ -427,7 +418,7 @@ SimpleNode Nil() :
 {
 	t=<NIL>
 	{
-		jjtThis.setName(t.image); 
+		jjtThis.jjtSetValue(t.image); 
 		return jjtThis;
 	}
 }
@@ -441,7 +432,7 @@ SimpleNode SymbolType() :
 {
 	t=<SYMBOL_TYPE>
 	{
-		jjtThis.setName(t.image); 
+		jjtThis.jjtSetValue(t.image); 
 		return jjtThis;
 	}
 }
@@ -455,7 +446,7 @@ SimpleNode StringType() :
 {
 	t=<STRING_TYPE>
 	{
-		jjtThis.setName(t.image); 
+		jjtThis.jjtSetValue(t.image); 
 		return jjtThis;
 	}
 }
@@ -469,7 +460,7 @@ SimpleNode DateTimeType() :
 {
 	t=<DATETIME_TYPE>
 	{
-		jjtThis.setName(t.image); 
+		jjtThis.jjtSetValue(t.image); 
 		return jjtThis;
 	}
 }
@@ -483,7 +474,7 @@ SimpleNode LexemeType() :
 {
 	t=<LEXEME_TYPE>
 	{
-		jjtThis.setName(t.image); 
+		jjtThis.jjtSetValue(t.image); 
 		return jjtThis;
 	}
 }
@@ -497,7 +488,7 @@ SimpleNode BooleanType() :
 {
 	t=<BOOLEAN_TYPE>
 	{
-		jjtThis.setName(t.image); 
+		jjtThis.jjtSetValue(t.image); 
 		return jjtThis;
 	}
 }
@@ -511,7 +502,7 @@ SimpleNode IntegerType() :
 {
 	t=<INTEGER_TYPE>
 	{
-		jjtThis.setName(t.image); 
+		jjtThis.jjtSetValue(t.image); 
 		return jjtThis;
 	}
 }
@@ -525,7 +516,7 @@ SimpleNode LongType() :
 {
 	t=<LONG_TYPE>
 	{
-		jjtThis.setName(t.image); 
+		jjtThis.jjtSetValue(t.image); 
 		return jjtThis;
 	}
 }
@@ -538,7 +529,7 @@ SimpleNode ShortType() :
 {
 	t=<SHORT_TYPE>
 	{
-		jjtThis.setName(t.image); 
+		jjtThis.jjtSetValue(t.image); 
 		return jjtThis;
 	}
 }
@@ -551,7 +542,7 @@ SimpleNode FloatType() :
 {
 	t=<FLOAT_TYPE>
 	{
-		jjtThis.setName(t.image); 
+		jjtThis.jjtSetValue(t.image); 
 		return jjtThis;
 	}
 }
@@ -565,7 +556,7 @@ SimpleNode DoubleType() :
 {
 	t=<DOUBLE_TYPE>
 	{
-		jjtThis.setName(t.image); 
+		jjtThis.jjtSetValue(t.image); 
 		return jjtThis;
 	}
 }
@@ -580,7 +571,7 @@ SimpleNode NumberType() :
 {
 	t=<NUMBER_TYPE>
 	{
-		jjtThis.setName(t.image); 
+		jjtThis.jjtSetValue(t.image); 
 		return jjtThis;
 	}
 }
@@ -596,7 +587,7 @@ SimpleNode False() :
 {
 	t=<FALSE>
 	{
-		jjtThis.setName(t.image); 
+		jjtThis.jjtSetValue(t.image); 
 		return jjtThis;
 	}
 }
@@ -661,7 +652,7 @@ SimpleNode SingleVariable() :
 {
 	t=<SINGLEVAR>
 	
-	{ jjtThis.setName(t.image); return jjtThis;}
+	{ jjtThis.jjtSetValue(t.image); return jjtThis;}
 }
 
 
@@ -675,7 +666,7 @@ SimpleNode GlobalVariable() :
 { Token t; } 
 {
 	t=<GLOBALVAR>
-	{ jjtThis.setName(t.image); return jjtThis;}
+	{ jjtThis.jjtSetValue(t.image); return jjtThis;}
 }
 
 
@@ -690,7 +681,7 @@ SimpleNode MultiVariable() :
 {
 	t=<MULTIVAR>
 	
-	{ jjtThis.setName(t.image); return jjtThis;}
+	{ jjtThis.jjtSetValue(t.image); return jjtThis;}
 }
 
 
@@ -722,7 +713,7 @@ SimpleNode VariableType() :
 {
 	t=<VARIABLE_TYPE>
 	{ 
-		jjtThis.setName(t.image); 
+		jjtThis.jjtSetValue(t.image); 
 		return jjtThis;
 	}
 }
@@ -1175,7 +1166,7 @@ SimpleNode DeriveAttribute() :
 {
 	t = <ATR_DERIVE>
 	{
-		jjtThis.setName(t.image); 
+		jjtThis.jjtSetValue(t.image); 
 		return jjtThis;
 	}
 }
@@ -1191,7 +1182,7 @@ SimpleNode NoneAttribute() :
 {
 	t = <ATR_NONE>
 	{
-		jjtThis.setName(t.image); 
+		jjtThis.jjtSetValue(t.image); 
 		return jjtThis;
 	}
 }
@@ -2350,7 +2341,7 @@ SimpleNode AllowedConstantAttribute() :
 	)
 	
 	{ 	
-		jjtThis.setName(t.image);
+		jjtThis.jjtSetValue(t.image);
 		return jjtThis; 
 	}
 }
