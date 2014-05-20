@@ -18,6 +18,8 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatterBuilder;
 import java.time.temporal.ChronoField;
 
+import org.jamocha.languages.common.ScopeStack.Symbol;
+
 /**
  * Enum holding all types this system supports.
  * 
@@ -43,7 +45,15 @@ public enum SlotType {
 	/**
 	 * Enum value for date time types.
 	 */
-	DATETIME(ZonedDateTime.class);
+	DATETIME(ZonedDateTime.class),
+	/**
+	 * Enum value for nil values of undetermined type.
+	 */
+	NIL(Object.class),
+	/**
+	 * Enum value for symbol types.
+	 */
+	SYMBOL(Symbol.class);
 
 	final private Class<?> javaClass;
 
