@@ -205,10 +205,7 @@ TOKEN :
 | < DATETIME_TYPE: "DATETIME" >
 | < LEXEME_TYPE: "LEXEME" >
 | < INTEGER_TYPE: "INTEGER" >
-| < SHORT_TYPE: "SHORT" >
-| < LONG_TYPE: "LONG" >
 | < FLOAT_TYPE: "FLOAT" >
-| < DOUBLE_TYPE: "DOUBLE" >
 | < NUMBER_TYPE: "NUMBER" >
 | < BOOLEAN_TYPE: "BOOLEAN" >
 | < EXTERNAL_ADDRESS_TYPE: "EXTERNAL-ADDRESS" >
@@ -217,10 +214,7 @@ TOKEN :
 | < ALLOWED_STRINGS: "allowed-strings" >
 | < ALLOWED_LEXEMES: "allowed-lexemes" >
 | < ALLOWED_INTEGERS: "allowed-integers" >
-| < ALLOWED_LONGS: "allowed-longs" >
-| < ALLOWED_SHORTS: "allowed-shorts" >
 | < ALLOWED_FLOATS: "allowed-floats" >
-| < ALLOWED_DOUBLES: "allowed-doubles" >
 | < ALLOWED_NUMBERS: "allowed-numbers" >
 | < ALLOWED_VALUES: "allowed-values" >
 | < RANGE: "range" >
@@ -508,32 +502,6 @@ SimpleNode IntegerType() :
 }
 
 /**
-*		longType
-**/
-
-SimpleNode LongType() : 
-{ Token t; }
-{
-	t=<LONG_TYPE>
-	{
-		jjtThis.jjtSetValue(t.image); 
-		return jjtThis;
-	}
-}
-/**
-*		ShortType
-**/
-
-SimpleNode ShortType() : 
-{ Token t; }
-{
-	t=<SHORT_TYPE>
-	{
-		jjtThis.jjtSetValue(t.image); 
-		return jjtThis;
-	}
-}
-/**
 *		FloatType
 **/
 
@@ -541,20 +509,6 @@ SimpleNode FloatType() :
 { Token t; }
 {
 	t=<FLOAT_TYPE>
-	{
-		jjtThis.jjtSetValue(t.image); 
-		return jjtThis;
-	}
-}
-
-/**
-*		DoubleType
-**/
-
-SimpleNode DoubleType() : 
-{ Token t; }
-{
-	t=<DOUBLE_TYPE>
 	{
 		jjtThis.jjtSetValue(t.image); 
 		return jjtThis;
@@ -2300,17 +2254,14 @@ SimpleNode TypeSpecification() :
 void AllowedType()  #void: 
 {}
 {
-	(		SymbolType()		
+	(		SymbolType()
 		|	StringType()
 		|	DateTimeType()
 		|	LexemeType()
-		| 	IntegerType()
-		|	LongType()
-		|	ShortType()
-		| 	FloatType()
-		| 	DoubleType()
+		|	IntegerType()
+		|	FloatType()
 		|	NumberType()
-		|   	BooleanType()
+		|	BooleanType()
 	)
 }
 
@@ -2332,10 +2283,7 @@ SimpleNode AllowedConstantAttribute() :
 		|	t = <ALLOWED_STRINGS> StringList()
 		|	t = <ALLOWED_LEXEMES> LexemeList()
 		|	t = <ALLOWED_INTEGERS> IntegerList()
-		|	t = <ALLOWED_LONGS> IntegerList() //Long->integer
-		|	t = <ALLOWED_SHORTS> IntegerList() //short ->integer
 		|	t = <ALLOWED_FLOATS> FloatList()
-		|	t = <ALLOWED_DOUBLES> FloatList() //Double->float
 		|	t = <ALLOWED_NUMBERS> NumberList()
 		|	t = <ALLOWED_VALUES> ValueList()
 	)
