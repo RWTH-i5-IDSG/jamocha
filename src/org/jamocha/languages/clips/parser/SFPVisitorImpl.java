@@ -43,7 +43,6 @@ import org.jamocha.languages.clips.parser.generated.SFPSymbolType;
 import org.jamocha.languages.clips.parser.generated.SFPTrue;
 import org.jamocha.languages.clips.parser.generated.SFPTypeAttribute;
 import org.jamocha.languages.clips.parser.generated.SFPTypeSpecification;
-import org.jamocha.languages.clips.parser.generated.SimpleNode;
 import org.jamocha.languages.common.ScopeStack;
 import org.jamocha.languages.common.ScopeStack.Symbol;
 

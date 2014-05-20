@@ -83,19 +83,7 @@ public interface SelectiveSFPVisitor extends SFPParserVisitor {
 		throw new UnsupportedOperationException(data.toString());
 	}
 
-	public default Object visit(SFPLongType node, Object data) {
-		throw new UnsupportedOperationException(data.toString());
-	}
-
-	public default Object visit(SFPShortType node, Object data) {
-		throw new UnsupportedOperationException(data.toString());
-	}
-
 	public default Object visit(SFPFloatType node, Object data) {
-		throw new UnsupportedOperationException(data.toString());
-	}
-
-	public default Object visit(SFPDoubleType node, Object data) {
 		throw new UnsupportedOperationException(data.toString());
 	}
 
