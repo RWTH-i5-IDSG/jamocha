@@ -14,7 +14,10 @@
  */
 package org.jamocha.dn.memory;
 
+import java.util.Arrays;
+
 import lombok.ToString;
+import lombok.Value;
 
 /**
  * A Template is an array of {@link SlotType slot types}. Facts always comply with some Template.
@@ -25,7 +28,13 @@ import lombok.ToString;
  */
 @ToString
 public class Template {
-	final SlotType slots[];
+	@Value
+	public static class Slot {
+		final SlotType slotType;
+		final String name;
+	}
+
+	final Slot slots[];
 
 	/**
 	 * Template holding exactly one {@link SlotType#STRING} type.
@@ -45,13 +54,23 @@ public class Template {
 	final public static Template LONG = new Template(SlotType.LONG);
 
 	/**
-	 * Constructs a template holding the given {@link SlotType slot types}.
+	 * Constructs a template holding the given {@link Slot slots}.
+	 * 
+	 * @param slots
+	 *            {@link Slot slots} to hold
+	 */
+	public Template(final Slot... slots) {
+		this.slots = slots;
+	}
+
+	/**
+	 * Constructs a template holding the given {@link SlotType slot types} and empty slot names.
 	 * 
 	 * @param slots
 	 *            {@link SlotType slot types} to hold
 	 */
-	public Template(final SlotType... slots) {
-		this.slots = slots;
+	public Template(final SlotType... slotTypes) {
+		this.slots = Arrays.stream(slotTypes).map(t -> new Slot(t, "")).toArray(Slot[]::new);
 	}
 
 	/**
@@ -62,7 +81,7 @@ public class Template {
 	 * @return {@link SlotType} corresponding to the position specified by the given index
 	 */
 	public SlotType getSlotsType(final int index) {
-		return this.slots[index];
+		return this.slots[index].slotType;
 	}
 
 	/**
