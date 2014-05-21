@@ -35,7 +35,7 @@ options {
 	                      
 	                           
 	                             
-	OUTPUT_DIRECTORY="generated";
+	OUTPUT_DIRECTORY="generated/org/jamocha/languages/clips/parser/generated";
 	                 // create Visitor interface
 	ERROR_REPORTING = true;
 	JDK_VERSION = "8.0";

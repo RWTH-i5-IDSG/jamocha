@@ -34,7 +34,7 @@ options {
 	NODE_USES_PARSER=true;
 	VISITOR_DATA_TYPE="Object";
 	VISITOR_RETURN_TYPE="Object";
-	OUTPUT_DIRECTORY="generated";
+	OUTPUT_DIRECTORY="generated/org/jamocha/languages/clips/parser/generated";
 	VISITOR = true;  // create Visitor interface
 	ERROR_REPORTING = true;
 	JDK_VERSION = "8.0";
