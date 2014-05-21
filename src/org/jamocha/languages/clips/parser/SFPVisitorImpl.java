@@ -75,6 +75,7 @@ public class SFPVisitorImpl implements SelectiveSFPVisitor {
 	class SFPSymbolVisitor implements SelectiveSFPVisitor {
 		Symbol symbol;
 
+		@Override
 		public Object visit(SFPSymbol node, Object data) {
 			this.symbol = scope.getOrCreate(node.jjtGetValue().toString());
 			return data;
@@ -84,6 +85,7 @@ public class SFPVisitorImpl implements SelectiveSFPVisitor {
 	class SFPStringVisitor implements SelectiveSFPVisitor {
 		String string;
 
+		@Override
 		public Object visit(SFPSymbol node, Object data) {
 			this.string = node.jjtGetValue().toString();
 			return data;
@@ -313,6 +315,7 @@ public class SFPVisitorImpl implements SelectiveSFPVisitor {
 		final LinkedList<Slot> slotDefinitions = new LinkedList<>();
 
 		// <comment> ::= <string>
+		@Override
 		public Object visit(SFPConstructDescription node, Object data) {
 			assert node.jjtGetNumChildren() == 1;
 			this.comment = sendVisitor(new SFPStringVisitor(), node.jjtGetChild(0), data).string;
@@ -320,6 +323,7 @@ public class SFPVisitorImpl implements SelectiveSFPVisitor {
 		};
 
 		// <slot-definition> ::= <single-slot-definition> | <multislot-definition>
+		@Override
 		public Object visit(SFPSlotDefinition node, Object data) {
 			assert node.jjtGetNumChildren() == 1;
 			// TBD add support for multislot-definition
@@ -334,6 +338,7 @@ public class SFPVisitorImpl implements SelectiveSFPVisitor {
 		// <conditional-element>* => <expression>*)
 		// <DEFRULE> Symbol() [ ConstructDescription() ] ( [ LOOKAHEAD(3) Declaration() ] (
 		// ConditionalElement() )* ) <ARROW> ActionList()
+		@Override
 		public Object visit(SFPDefruleConstruct node, Object data) {
 			assert node.jjtGetNumChildren() > 0;
 			final Symbol symbol =
@@ -364,6 +369,7 @@ public class SFPVisitorImpl implements SelectiveSFPVisitor {
 
 		// <comment> ::= <string>
 
+		@Override
 		public Object visit(SFPDeftemplateConstruct node, Object data) {
 			// <deftemplate-construct> ::= (deftemplate <deftemplate-name> [<comment>]
 			// <slot-definition>*)
@@ -385,10 +391,12 @@ public class SFPVisitorImpl implements SelectiveSFPVisitor {
 			return data;
 		};
 
+		@Override
 		public Object visit(SFPDefruleConstruct node, Object data) {
 			return data;
 		};
 
+		@Override
 		public Object visit(SFPExpression node, Object data) {
 			sendVisitor(new SFPExpressionVisitor(), node, data);
 			return data;
