@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2014 The Jamocha Team
+ * Copyright 2002-2013 The Jamocha Team
  * 
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
@@ -22,14 +22,14 @@ import org.jamocha.filter.Predicate;
 import org.jamocha.filter.impls.FunctionVisitor;
 
 /**
- * Implements the functionality of the logical unary {@code not} operator ({@code !}).
+ * Implements the functionality of the logical binary {@code or} operator.
  * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  * @see Predicate
  * @see FunctionDictionary
  */
-public abstract class Not extends Predicate implements CommutativeFunction<Boolean> {
-	public static String inClips = "not";
+public abstract class Or extends Predicate implements CommutativeFunction<Boolean> {
+	public static String inClips = "or";
 
 	@Override
 	public String inClips() {
@@ -43,16 +43,35 @@ public abstract class Not extends Predicate implements CommutativeFunction<Boole
 	}
 
 	static {
-		FunctionDictionary.addImpl(new Not() {
+		FunctionDictionary.addImpl(new Or() {
 			@Override
 			public SlotType[] getParamTypes() {
-				return new SlotType[] { SlotType.BOOLEAN };
+				return new SlotType[] { SlotType.BOOLEAN, SlotType.BOOLEAN };
 			}
 
 			@Override
 			public Boolean evaluate(final Function<?>... params) {
-				return !(Boolean) params[0].evaluate();
+				return (Boolean) params[0].evaluate() || (Boolean) params[1].evaluate();
 			}
 		});
+		FunctionDictionary.addGenerator(inClips, SlotType.BOOLEAN,
+				(final SlotType[] paramTypes) -> {
+					return new Or() {
+						@Override
+						public SlotType[] getParamTypes() {
+							return paramTypes;
+						}
+
+						@Override
+						public Boolean evaluate(final Function<?>... params) {
+							for (final Function<?> param : params) {
+								if ((Boolean) param.evaluate()) {
+									return Boolean.TRUE;
+								}
+							}
+							return Boolean.FALSE;
+						}
+					};
+				});
 	}
 }
