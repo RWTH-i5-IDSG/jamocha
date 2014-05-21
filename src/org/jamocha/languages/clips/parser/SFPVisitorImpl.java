@@ -23,10 +23,13 @@ import org.jamocha.dn.memory.Template;
 import org.jamocha.dn.memory.Template.Slot;
 import org.jamocha.filter.Function;
 import org.jamocha.languages.clips.parser.generated.Node;
+import org.jamocha.languages.clips.parser.generated.SFPActionList;
 import org.jamocha.languages.clips.parser.generated.SFPBooleanType;
 import org.jamocha.languages.clips.parser.generated.SFPConstructDescription;
 import org.jamocha.languages.clips.parser.generated.SFPDateTimeType;
+import org.jamocha.languages.clips.parser.generated.SFPDefruleConstruct;
 import org.jamocha.languages.clips.parser.generated.SFPDeftemplateConstruct;
+import org.jamocha.languages.clips.parser.generated.SFPExpression;
 import org.jamocha.languages.clips.parser.generated.SFPFalse;
 import org.jamocha.languages.clips.parser.generated.SFPFloat;
 import org.jamocha.languages.clips.parser.generated.SFPFloatType;
@@ -54,12 +57,9 @@ public class SFPVisitorImpl implements SelectiveSFPVisitor {
 
 	@Override
 	public Object visit(SFPStart node, Object data) {
-		return null;
-	}
-
-	@Override
-	public Object visit(SFPDeftemplateConstruct node, Object data) {
-		return sendVisitor(new SFPDeftemplateConstructVisitor(), node, data).template;
+		assert node.jjtGetNumChildren() == 1;
+		sendVisitor(new SFPStartVisitor(), node.jjtGetChild(0), data);
+		return data;
 	}
 
 	public <V extends SelectiveSFPVisitor, N extends Node> V sendVisitor(final V visitor,
@@ -308,7 +308,7 @@ public class SFPVisitorImpl implements SelectiveSFPVisitor {
 		}
 	}
 
-	class SFPConstructDescriptionAndSlotDefinitionVisitor implements SelectiveSFPVisitor {
+	class SFPDeftemplateConstructElementsVisitor implements SelectiveSFPVisitor {
 		String comment;
 		final LinkedList<Slot> slotDefinitions = new LinkedList<>();
 
@@ -329,30 +329,68 @@ public class SFPVisitorImpl implements SelectiveSFPVisitor {
 		};
 	}
 
-	class SFPDeftemplateConstructVisitor implements SelectiveSFPVisitor {
-		Template template;
-
-		// <comment> ::= <string>
-
-		// <deftemplate-construct> ::= (deftemplate <deftemplate-name> [<comment>]
-		// <slot-definition>*)
-
-		// <DEFTEMPLATE> Symbol() [ ConstructDescription() ] ( SlotDefinition() )*
-		public Object visit(SFPDeftemplateConstruct node, Object data) {
-			assert this.template == null;
+	class SFPDefruleConstructVisitor implements SelectiveSFPVisitor {
+		// <defrule-construct> ::= (defrule <rule-name> [<comment>] [<declaration>]
+		// <conditional-element>* => <expression>*)
+		// <DEFRULE> Symbol() [ ConstructDescription() ] ( [ LOOKAHEAD(3) Declaration() ] (
+		// ConditionalElement() )* ) <ARROW> ActionList()
+		public Object visit(SFPDefruleConstruct node, Object data) {
 			assert node.jjtGetNumChildren() > 0;
 			final Symbol symbol =
 					sendVisitor(new SFPSymbolVisitor(), node.jjtGetChild(0), data).symbol;
-			final SFPConstructDescriptionAndSlotDefinitionVisitor visitor =
-					new SFPConstructDescriptionAndSlotDefinitionVisitor();
+			final SFPConditionalElementVisitor visitor = new SFPConditionalElementVisitor();
 			for (int i = 1; i < node.jjtGetNumChildren(); ++i) {
 				node.jjtGetChild(i).jjtAccept(visitor, data);
 			}
 			final String comment = visitor.comment;
-			this.template =
+			// final Rule rule = new Rule(visitor.slotDefinitions.toArray(new
+			// Slot[visitor.slotDefinitions.size()]));
+			// SFPVisitorImpl.this.symbolTableRules.put(symbol, this.template);
+			return data;
+		};
+	}
+
+	class SFPExpressionVisitor implements SelectiveSFPVisitor {
+		@Override
+		public Object visit(SFPExpression node, Object data) {
+			return data;
+		}
+	}
+
+	class SFPStartVisitor implements SelectiveSFPVisitor {
+		// Start() : Construct() | Expression()
+		// void Construct() : <LBRACE> ( DeftemplateConstruct() | DefglobalConstruct()
+		// | DefruleConstruct() | DeffunctionConstruct() | DefmoduleConstruct() ) <RBRACE>
+
+		// <comment> ::= <string>
+
+		public Object visit(SFPDeftemplateConstruct node, Object data) {
+			// <deftemplate-construct> ::= (deftemplate <deftemplate-name> [<comment>]
+			// <slot-definition>*)
+
+			// <DEFTEMPLATE> Symbol() [ ConstructDescription() ] ( SlotDefinition() )*
+			assert node.jjtGetNumChildren() > 0;
+			final Symbol symbol =
+					sendVisitor(new SFPSymbolVisitor(), node.jjtGetChild(0), data).symbol;
+			final SFPDeftemplateConstructElementsVisitor visitor =
+					new SFPDeftemplateConstructElementsVisitor();
+			for (int i = 1; i < node.jjtGetNumChildren(); ++i) {
+				node.jjtGetChild(i).jjtAccept(visitor, data);
+			}
+			final String comment = visitor.comment;
+			final Template template =
 					new Template(visitor.slotDefinitions.toArray(new Slot[visitor.slotDefinitions
 							.size()]));
-			SFPVisitorImpl.this.symbolTableTemplates.put(symbol, this.template);
+			SFPVisitorImpl.this.symbolTableTemplates.put(symbol, template);
+			return data;
+		};
+
+		public Object visit(SFPDefruleConstruct node, Object data) {
+			return data;
+		};
+
+		public Object visit(SFPExpression node, Object data) {
+			sendVisitor(new SFPExpressionVisitor(), node, data);
 			return data;
 		};
 	}
@@ -375,8 +413,8 @@ public class SFPVisitorImpl implements SelectiveSFPVisitor {
 			}
 		} catch (Exception e) {
 			System.err.println("ERROR[" + e.getClass().getSimpleName() + "]: " + e.getMessage());
-			if (verbose)
-				e.printStackTrace();
+			// if (verbose)
+			e.printStackTrace();
 		}
 	}
 }
