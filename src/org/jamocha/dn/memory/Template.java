@@ -35,6 +35,7 @@ public class Template {
 	}
 
 	final Slot slots[];
+	final String comment;
 
 	/**
 	 * Template holding exactly one {@link SlotType#STRING} type.
@@ -54,23 +55,47 @@ public class Template {
 	final public static Template LONG = new Template(SlotType.LONG);
 
 	/**
+	 * Constructs a template holding the given comment and {@link SlotType slot}.
+	 * 
+	 * @param comment
+	 *            comment describing the template
+	 * @param slots
+	 *            {@link SlotType slot types} to hold
+	 */
+	public Template(final String comment, final Slot... slots) {
+		this.comment = comment;
+		this.slots = slots;
+	}
+
+	/**
+	 * Constructs a template holding the given comment and {@link SlotType slot types} with empty
+	 * slot names.
+	 * 
+	 * @param slots
+	 *            {@link Slot slots} to hold
+	 */
+	public Template(final String comment, final SlotType... slotTypes) {
+		this(comment, Arrays.stream(slotTypes).map(t -> new Slot(t, "")).toArray(Slot[]::new));
+	}
+
+	/**
 	 * Constructs a template holding the given {@link Slot slots}.
 	 * 
 	 * @param slots
 	 *            {@link Slot slots} to hold
 	 */
 	public Template(final Slot... slots) {
-		this.slots = slots;
+		this("", slots);
 	}
 
 	/**
-	 * Constructs a template holding the given {@link SlotType slot types} and empty slot names.
+	 * Constructs a template holding the given {@link SlotType slot types} with empty slot names.
 	 * 
 	 * @param slots
 	 *            {@link SlotType slot types} to hold
 	 */
 	public Template(final SlotType... slotTypes) {
-		this.slots = Arrays.stream(slotTypes).map(t -> new Slot(t, "")).toArray(Slot[]::new);
+		this("", slotTypes);
 	}
 
 	/**
