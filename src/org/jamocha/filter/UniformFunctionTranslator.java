@@ -168,6 +168,10 @@ public class UniformFunctionTranslator {
 		@Override
 		default void visit(final org.jamocha.filter.impls.predicates.Not predicate) {
 		}
+
+		@Override
+		default void visit(final org.jamocha.filter.impls.predicates.Or predicate) {
+		}
 	}
 
 	static boolean translateArgsClone(final FunctionWithArguments[] argsClone) {
