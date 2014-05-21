@@ -12,11 +12,11 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
+ *
  */
- 
- /** 
-		
+
+ /**
+
 	2007-04-04 : Reduced COOL to the Jamocha Slim Fast Parser (sfp) - Karl-Heinz Krempels, Sebastian Reinartz.
 	2006-11-08 : Implemented the COOL Parser - Ulrich Loup, Ory Chowow-Liebman
 
@@ -58,7 +58,7 @@ PARSER_BEGIN(SFPParser)
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
+ *
  */
 package org.jamocha.languages.clips.parser.generated;
 
@@ -131,12 +131,12 @@ TOKEN :
       | (["+","-"])? "." (<DIGIT>)+ (<EXPONENT>)?
       | (["+","-"])? (<DIGIT>)+ <EXPONENT>
   >
-  
+
 | < #EXPONENT: ["e","E"] (["+","-"])? (<DIGIT>)+ >
 | < #GMT_OFFSET: ("+"|"-") ( <DIGIT> )? <DIGIT> >
 | < #DATE: <DIGIT> <DIGIT> <DIGIT> <DIGIT> "-" <DIGIT> <DIGIT> "-" <DIGIT> <DIGIT> >
 | < #TIME: <DIGIT> <DIGIT> ":" <DIGIT> <DIGIT> ( ":" <DIGIT> <DIGIT>)? >
-| < DATETIME:  <DATE> ( " " <TIME> (<GMT_OFFSET>)? )? > 
+| < DATETIME:  <DATE> ( " " <TIME> (<GMT_OFFSET>)? )? >
 | < SILENT: "silent" >
 |
   < STRING:
@@ -237,23 +237,23 @@ TOKEN :
 | < CASE: "case" >
 //| < STAR: "*">
   // If you think this is ugly, you are right. See CLIPS Basic Progrmmers Guide:
-  // "Numbers are symbols, but treated different. Instances are symbols, but treated different." 
+  // "Numbers are symbols, but treated different. Instances are symbols, but treated different."
 | < #VARSYMBOL:  ["a"-"z","A"-"Z"] (~[" ","\r","\n","\t","\"","\'","(",")","&","|","<","~",";"])* >
 | < SINGLEVAR: ("?" <VARSYMBOL>) >
 | < MULTIVAR: ("$?" <VARSYMBOL>) >
-| < SYMBOL:  
+| < SYMBOL:
 	(~[" ","\r","\n","\t","\"","\'","(",")","&","|","$","?","~",";","0"-"9","="])
 	|(
 		(~[" ","\r","\n","\t","\"","\'","(",")","&","|","$","?","~",";","[","="])
 		(~[" ","\r","\n","\t","\"","\'","(",")","&","|","?","~",";","0"-"9"])*
 		(~[" ","\r","\n","\t","\"","\'","(",")","&","|","<","~",";" ])*
-		(~[" ","\r","\n","\t","\"","\'","(",")","&","|","$","?","~",";","]"])? 
+		(~[" ","\r","\n","\t","\"","\'","(",")","&","|","$","?","~",";","]"])?
 	)
 	|(
 		(~[" ","\r","\n","\t","\"","\'","(",")","&","|","$","?","~",";","="])
 		(~[" ","\r","\n","\t","\"","\'","(",")","&","|","?","~",";","0"-"9"])*
 		(~[" ","\r","\n","\t","\"","\'","(",")","&","|","<","~",";" ])*
-		(~[" ","\r","\n","\t","\"","\'","(",")","&","|","$","?","~",";","]"])+ 
+		(~[" ","\r","\n","\t","\"","\'","(",")","&","|","$","?","~",";","]"])+
 	)
   >
 
@@ -273,19 +273,19 @@ Data Types:
  */
 
 // Start rule is a construct at a time, the parser reads all the constructs into a list.
-SFPStart Start() : 
+SFPStart Start() :
 {}
 {
    ( LOOKAHEAD(2)
 	Construct() | Expression()
-	
+
 	) { return jjtThis; }
 	| <EOF> { return null; }
 }
 
 
 /*
-<number> ::= <float> | <integer> 
+<number> ::= <float> | <integer>
 <lexeme> ::= <symbol> | <string>
 <constant> ::= <datetime> | <symbol> | <string> | <integer> | <float>
 */
@@ -295,16 +295,16 @@ SFPStart Start() :
 *		Float
 **/
 
-SimpleNode Float() : 
+SimpleNode Float() :
 { Token t; }
 {
 	(
 		t=<FLOAT>
 	//|	t=<DOUBLE>
 	)
-	
+
 	{
-		jjtThis.jjtSetValue(t.image); 
+		jjtThis.jjtSetValue(t.image);
 		return jjtThis;
 	}
 }
@@ -315,7 +315,7 @@ SimpleNode Float() :
 *		Integer
 **/
 
-SimpleNode Integer() : 
+SimpleNode Integer() :
 { Token t; }
 {
 	(
@@ -323,9 +323,9 @@ SimpleNode Integer() :
 	//|	t=<LONG>
 	//|	t=<SHORT>
 	)
-	
+
 	{
-		jjtThis.jjtSetValue(t.image); 
+		jjtThis.jjtSetValue(t.image);
 		return jjtThis;
 	}
 }
@@ -336,7 +336,7 @@ SimpleNode Integer() :
 *		DateTime
 **/
 
-SimpleNode DateTime() : 
+SimpleNode DateTime() :
 { Token t; }
 {
 	t=<DATETIME>
@@ -352,11 +352,11 @@ SimpleNode DateTime() :
 *		Number
 **/
 
-void Number() #void : 
+void Number() #void :
 {}
-{	
+{
 	(	Float()
-	|	Integer() 
+	|	Integer()
 	)
 }
 
@@ -366,12 +366,12 @@ void Number() #void :
 *		Symbol
 **/
 
-SimpleNode Symbol() : 
+SimpleNode Symbol() :
 { Token t; }
 {
 	t=<SYMBOL>
 	{
-		jjtThis.jjtSetValue(t.image); 
+		jjtThis.jjtSetValue(t.image);
 		return jjtThis;
 	}
 }
@@ -382,12 +382,12 @@ SimpleNode Symbol() :
 *		String
 **/
 
-SimpleNode String() : 
+SimpleNode String() :
 { Token t; }
 {
 	t=<STRING>
 	{
-		jjtThis.jjtSetValue(ParserUtils.getStringLiteral(t.image)); 
+		jjtThis.jjtSetValue(ParserUtils.getStringLiteral(t.image));
 		return jjtThis;
 	}
 }
@@ -397,22 +397,22 @@ SimpleNode String() :
 *		True
 **/
 
-SimpleNode True() : 
+SimpleNode True() :
 { Token t; }
 {
 	t=<TRUE>
 	{
-		jjtThis.jjtSetValue(t.image); 
+		jjtThis.jjtSetValue(t.image);
 		return jjtThis;
 	}
 }
 
-SimpleNode Nil() : 
+SimpleNode Nil() :
 { Token t; }
 {
 	t=<NIL>
 	{
-		jjtThis.jjtSetValue(t.image); 
+		jjtThis.jjtSetValue(t.image);
 		return jjtThis;
 	}
 }
@@ -421,12 +421,12 @@ SimpleNode Nil() :
 *		SymbolType
 **/
 
-SimpleNode SymbolType() : 
+SimpleNode SymbolType() :
 { Token t; }
 {
 	t=<SYMBOL_TYPE>
 	{
-		jjtThis.jjtSetValue(t.image); 
+		jjtThis.jjtSetValue(t.image);
 		return jjtThis;
 	}
 }
@@ -435,12 +435,12 @@ SimpleNode SymbolType() :
 *		StringType
 **/
 
-SimpleNode StringType() : 
+SimpleNode StringType() :
 { Token t; }
 {
 	t=<STRING_TYPE>
 	{
-		jjtThis.jjtSetValue(t.image); 
+		jjtThis.jjtSetValue(t.image);
 		return jjtThis;
 	}
 }
@@ -449,12 +449,12 @@ SimpleNode StringType() :
 *		DateTimeType
 **/
 
-SimpleNode DateTimeType() : 
+SimpleNode DateTimeType() :
 { Token t; }
 {
 	t=<DATETIME_TYPE>
 	{
-		jjtThis.jjtSetValue(t.image); 
+		jjtThis.jjtSetValue(t.image);
 		return jjtThis;
 	}
 }
@@ -463,12 +463,12 @@ SimpleNode DateTimeType() :
 *		LexemeType
 **/
 
-SimpleNode LexemeType() : 
+SimpleNode LexemeType() :
 { Token t; }
 {
 	t=<LEXEME_TYPE>
 	{
-		jjtThis.jjtSetValue(t.image); 
+		jjtThis.jjtSetValue(t.image);
 		return jjtThis;
 	}
 }
@@ -477,12 +477,12 @@ SimpleNode LexemeType() :
 *		BooleanType
 **/
 
-SimpleNode BooleanType() : 
+SimpleNode BooleanType() :
 { Token t; }
 {
 	t=<BOOLEAN_TYPE>
 	{
-		jjtThis.jjtSetValue(t.image); 
+		jjtThis.jjtSetValue(t.image);
 		return jjtThis;
 	}
 }
@@ -491,12 +491,12 @@ SimpleNode BooleanType() :
 *		IntegerType
 **/
 
-SimpleNode IntegerType() : 
+SimpleNode IntegerType() :
 { Token t; }
 {
 	t=<INTEGER_TYPE>
 	{
-		jjtThis.jjtSetValue(t.image); 
+		jjtThis.jjtSetValue(t.image);
 		return jjtThis;
 	}
 }
@@ -505,12 +505,12 @@ SimpleNode IntegerType() :
 *		FloatType
 **/
 
-SimpleNode FloatType() : 
+SimpleNode FloatType() :
 { Token t; }
 {
 	t=<FLOAT_TYPE>
 	{
-		jjtThis.jjtSetValue(t.image); 
+		jjtThis.jjtSetValue(t.image);
 		return jjtThis;
 	}
 }
@@ -520,12 +520,12 @@ SimpleNode FloatType() :
 *		NumberType
 **/
 
-SimpleNode NumberType() : 
+SimpleNode NumberType() :
 { Token t; }
 {
 	t=<NUMBER_TYPE>
 	{
-		jjtThis.jjtSetValue(t.image); 
+		jjtThis.jjtSetValue(t.image);
 		return jjtThis;
 	}
 }
@@ -536,12 +536,12 @@ SimpleNode NumberType() :
 *		False
 **/
 
-SimpleNode False() : 
+SimpleNode False() :
 { Token t; }
 {
 	t=<FALSE>
 	{
-		jjtThis.jjtSetValue(t.image); 
+		jjtThis.jjtSetValue(t.image);
 		return jjtThis;
 	}
 }
@@ -551,11 +551,11 @@ SimpleNode False() :
 *		Lexeme
 **/
 
-void Lexeme() #void : 
+void Lexeme() #void :
 {}
-{	
+{
 	(	String()
-	|	Symbol() 
+	|	Symbol()
 	)
 }
 
@@ -567,9 +567,9 @@ void Lexeme() #void :
 
 SimpleNode Constant() :
 {}
-{ 	
+{
 	(
-		Nil()		
+		Nil()
 	|	DateTime()
 	|   Symbol()
 	|	String()
@@ -577,8 +577,8 @@ SimpleNode Constant() :
 	|	Float()
 	|	BooleanSymbol()
 	)
-	
-    { return jjtThis; }	
+
+    { return jjtThis; }
 }
 
 
@@ -587,11 +587,11 @@ SimpleNode Constant() :
 *		Construct Description
 **/
 
-SimpleNode ConstructDescription() : 
+SimpleNode ConstructDescription() :
 {}
-{	
+{
     String()
-    
+
     { return jjtThis; }
 }
 
@@ -601,11 +601,11 @@ SimpleNode ConstructDescription() :
 **/
 // This is used exactly then when only the variables value is needed
 
-SimpleNode SingleVariable() : 
-{ Token t; } 
+SimpleNode SingleVariable() :
+{ Token t; }
 {
 	t=<SINGLEVAR>
-	
+
 	{ jjtThis.jjtSetValue(t.image); return jjtThis;}
 }
 
@@ -616,8 +616,8 @@ SimpleNode SingleVariable() :
 **/
 // This is used exactly then when only the variables value is needed
 
-SimpleNode GlobalVariable() : 
-{ Token t; } 
+SimpleNode GlobalVariable() :
+{ Token t; }
 {
 	t=<GLOBALVAR>
 	{ jjtThis.jjtSetValue(t.image); return jjtThis;}
@@ -630,11 +630,11 @@ SimpleNode GlobalVariable() :
 **/
 // This is used exactly then when only the variables contents are needed
 
-SimpleNode MultiVariable() : 
-{ Token t; } 
+SimpleNode MultiVariable() :
+{ Token t; }
 {
 	t=<MULTIVAR>
-	
+
 	{ jjtThis.jjtSetValue(t.image); return jjtThis;}
 }
 
@@ -645,14 +645,14 @@ SimpleNode MultiVariable() :
 **/
 // This is used exactly then when only the variables value is needed
 
-void Variable() #void: 
+void Variable() #void:
 {}
-{	
-	(	
+{
+	(
 		SingleVariable()
 	|	MultiVariable()
-	|	GlobalVariable() 
-	) 
+	|	GlobalVariable()
+	)
 }
 
 
@@ -662,12 +662,12 @@ void Variable() #void:
 **/
 // This is used exactly then when only the variables contents are needed
 
-SimpleNode VariableType() : 
-{ Token t; } 
+SimpleNode VariableType() :
+{ Token t; }
 {
 	t=<VARIABLE_TYPE>
-	{ 
-		jjtThis.jjtSetValue(t.image); 
+	{
+		jjtThis.jjtSetValue(t.image);
 		return jjtThis;
 	}
 }
@@ -680,21 +680,21 @@ SimpleNode VariableType() :
 
 // <function-call> ::= (<function-name> <expression>*)
 
-void FunctionCall() #void: 
+void FunctionCall() #void:
 {}
 {
-	<LBRACE> 
+	<LBRACE>
 		(
 			AssertFunc()
 		|	Modify()
 		|	RetractFunc()
-		|   FindFactByFactFunc()	
+		|   FindFactByFactFunc()
 		|	IfElseFunc()
 		|	WhileFunc()
-		|	LoopForCountFunc() 
+		|	LoopForCountFunc()
 		|	AnyFunction()
 		|	SwitchCaseFunc()
-		) 
+		)
 	<RBRACE>
 }
 
@@ -704,7 +704,7 @@ void FunctionCall() #void:
 *		Any Function
 **/
 
-SimpleNode AnyFunction() : 
+SimpleNode AnyFunction() :
 {}
 {
  	(
@@ -713,7 +713,7 @@ SimpleNode AnyFunction() :
  			Expression()
  		)*
  	)
- 	
+
 	{ return jjtThis; }
 }
 
@@ -723,14 +723,14 @@ SimpleNode AnyFunction() :
 *		Expression
 **/
 
-SimpleNode Expression() : 
-{} 
-{	
+SimpleNode Expression() :
+{}
+{
 	(	LOOKAHEAD(2)
 		Constant()
 	|	Variable()
-	|	FunctionCall() 
-	) 
+	|	FunctionCall()
+	)
 	{ return jjtThis; }
 }
 
@@ -745,7 +745,7 @@ SimpleNode Expression() :
 *		Assert Function
 **/
 
-SimpleNode AssertFunc() : 
+SimpleNode AssertFunc() :
 {}
 {
 	<ASSERT>
@@ -759,7 +759,7 @@ SimpleNode AssertFunc() :
 /**
 *		Modify Function
 **/
-SimpleNode Modify() : 
+SimpleNode Modify() :
 {}
 {
 	<MODIFY>
@@ -772,11 +772,11 @@ SimpleNode Modify() :
 *		FindFactByFact Function
 **/
 
-SimpleNode FindFactByFactFunc() : 
+SimpleNode FindFactByFactFunc() :
 {}
 {
 	<FIND_FACT_BY_FACT>
-	( 
+	(
 		RHSPattern()
 	)
 	{ return jjtThis; }
@@ -788,7 +788,7 @@ SimpleNode FindFactByFactFunc() :
 *		Retract Function
 **/
 
-SimpleNode RetractFunc() : 
+SimpleNode RetractFunc() :
 {}
 {
 	<RETRACT>
@@ -808,7 +808,7 @@ SimpleNode RetractFunc() :
 *		If Else Function
 **/
 
-SimpleNode IfElseFunc() : 
+SimpleNode IfElseFunc() :
 {}
 {
 	(
@@ -821,7 +821,7 @@ SimpleNode IfElseFunc() :
 		 	ActionList()
 		 ]
 	)
-	
+
 	{ return jjtThis; }
 }
 
@@ -831,7 +831,7 @@ SimpleNode IfElseFunc() :
 *		While Function
 **/
 
-SimpleNode WhileFunc() : 
+SimpleNode WhileFunc() :
 {}
 {
 	(
@@ -842,7 +842,7 @@ SimpleNode WhileFunc() :
 		]
 		ActionList()
 	)
-	
+
 	{ return jjtThis; }
 }
 
@@ -852,7 +852,7 @@ SimpleNode WhileFunc() :
 *		Loop For Count Function
 **/
 
-SimpleNode LoopForCountFunc() : 
+SimpleNode LoopForCountFunc() :
 {}
 {
 	(
@@ -862,7 +862,7 @@ SimpleNode LoopForCountFunc() :
 			(
 				SingleVariable()
 			 	Expression()
-			 	[ 
+			 	[
 			 	 	Expression()
 			 	]
 			 )
@@ -873,7 +873,7 @@ SimpleNode LoopForCountFunc() :
 		 ]
 		 ActionList()
 	)
-	
+
 	{ return jjtThis; }
 }
 
@@ -883,7 +883,7 @@ SimpleNode LoopForCountFunc() :
 *		Case Switch Function
 **/
 
-SimpleNode SwitchCaseFunc() : 
+SimpleNode SwitchCaseFunc() :
 {}
 {
 	(
@@ -892,7 +892,7 @@ SimpleNode SwitchCaseFunc() :
 		(	LOOKAHEAD(2)
 			CaseStatement()
 		)*
-		[	
+		[
 		<LBRACE>
 			SwitchDefaults()
 		<RBRACE>
@@ -907,39 +907,39 @@ SimpleNode SwitchCaseFunc() :
 *		Case Statement Function
 **/
 
-SimpleNode CaseStatement() : 
+SimpleNode CaseStatement() :
 {}
 {
 	(
-		<LBRACE> 
-			<CASE> 
+		<LBRACE>
+			<CASE>
 			Expression()	// Comparison Expression
-			<THEN> 
+			<THEN>
 			ActionList()
 		<RBRACE>
 	)
-	
+
 	{ return jjtThis; }
 }
 
 /**
 *		Default Statements for SwitchCaseFunc
 **/
-SimpleNode SwitchDefaults() : 
+SimpleNode SwitchDefaults() :
 {}
 {
 	(
 		<LBRACE>
-			<DEFAULT_ATR> 
+			<DEFAULT_ATR>
 			ActionList()
 		<RBRACE>
 	)
-	
+
 	{ return jjtThis; }
 }
 
 /**
-*		Construct - Definition Main Handler 
+*		Construct - Definition Main Handler
 **/
 
 void Construct() #void : {}
@@ -959,7 +959,7 @@ void Construct() #void : {}
 
 /**
 *		Deftemplate Construct
-**/  
+**/
 // <deftemplate-construct> ::= (deftemplate <deftemplate-name> [<comment>] <slot-definition>*)
 
 SimpleNode DeftemplateConstruct() :
@@ -968,14 +968,14 @@ SimpleNode DeftemplateConstruct() :
         (
         	<DEFTEMPLATE>
 			Symbol()
-			[ 
+			[
 			 	ConstructDescription()
 			]
 			(
 				SlotDefinition()
 			)*
 	)
-	
+
         { return jjtThis; }
 }
 
@@ -989,20 +989,20 @@ SimpleNode Silent() :
 
 /**
 *		Slot Definition
-**/  
+**/
 //<slot-definition> ::= <single-slot-definition> | <multislot-definition>
 
-SimpleNode  SlotDefinition() : 
+SimpleNode  SlotDefinition() :
 {}
 {
-    ( 	
-		<LBRACE> 
+    (
+		<LBRACE>
 		(Silent())?
 		(
 					SingleSlotDefinition()
 				| 	MultiSlotDefinition()
 			)
-		<RBRACE> 
+		<RBRACE>
     )
     {return jjtThis;}
 }
@@ -1035,7 +1035,7 @@ SimpleNode SingleSlotDefinition() :
 //<multislot-definition> ::= ( multislot <slot-name> <template-attribute>*)
 
 SimpleNode MultiSlotDefinition() :
-{} 
+{}
 {
         <MULTISLOT>
 	(
@@ -1054,15 +1054,15 @@ SimpleNode MultiSlotDefinition() :
 **/
 //<template-attribute> ::= <default-attribute> | <constraint-attribute>
 
-void TemplateAttribute() #void: 
+void TemplateAttribute() #void:
 {}
 {
 	<LBRACE>
 	(	LOOKAHEAD(2)
-		DefaultAttribute() 
+		DefaultAttribute()
 	| 	DynamicAttribute()
 	|	ConstraintAttribute()
-	) 
+	)
 	<RBRACE>
 }
 
@@ -1074,8 +1074,8 @@ void TemplateAttribute() #void:
 // A dummy node to have a list of attributes
 
 SimpleNode Attributes() :
-{} 
-{ 
+{}
+{
 	(	LOOKAHEAD(2)
 		Expression()
 	)*
@@ -1089,14 +1089,14 @@ SimpleNode Attributes() :
 **/
 //<default-attribute> ::= (default ?DERIVE | ?NONE | <expression>*) | (default-dynamic <expression>*)
 
-SimpleNode DefaultAttribute() : 
+SimpleNode DefaultAttribute() :
 {}
 {
 		<DEFAULT_ATR>
-		(	
+		(
 			DeriveAttribute()
-		|	NoneAttribute() 
-		|	DefaultAttributes() 
+		|	NoneAttribute()
+		|	DefaultAttributes()
 		)
 		{ return jjtThis; }
 }
@@ -1105,7 +1105,7 @@ SimpleNode DefaultAttributes() :
 {}
 {
     Attributes()
-    
+
     { return jjtThis; }
 }
 
@@ -1115,12 +1115,12 @@ SimpleNode DefaultAttributes() :
 *		Derive Attribute
 **/
 
-SimpleNode DeriveAttribute() : 
+SimpleNode DeriveAttribute() :
 { Token t; }
 {
 	t = <ATR_DERIVE>
 	{
-		jjtThis.jjtSetValue(t.image); 
+		jjtThis.jjtSetValue(t.image);
 		return jjtThis;
 	}
 }
@@ -1131,12 +1131,12 @@ SimpleNode DeriveAttribute() :
 *		None Attribute
 **/
 
-SimpleNode NoneAttribute() : 
+SimpleNode NoneAttribute() :
 { Token t; }
 {
 	t = <ATR_NONE>
 	{
-		jjtThis.jjtSetValue(t.image); 
+		jjtThis.jjtSetValue(t.image);
 		return jjtThis;
 	}
 }
@@ -1149,38 +1149,38 @@ SimpleNode NoneAttribute() :
 
 //<default-attribute> ::= (default ?DERIVE | ?NONE | <expression>*) | (default-dynamic <expression>*)
 
-SimpleNode DynamicAttribute() : 
+SimpleNode DynamicAttribute() :
 {}
 {
-	<DYNAMIC_ATR> 
-	(	
+	<DYNAMIC_ATR>
+	(
 		Attributes()
 	)
 	{ return jjtThis; }
 }
 
 
-SimpleNode ModifyPattern() : 
+SimpleNode ModifyPattern() :
 {}
 {
 	Variable()
 	(
 		RHSSlot()
 	)+
-	
+
 	{ return jjtThis; }
 }
 
-SimpleNode RHSSlot() : 
+SimpleNode RHSSlot() :
 {}
-{ 
+{
 	<LBRACE>
 		Symbol() // slot name
 		(
 		    RHSField()
 		)*
-	<RBRACE> 
-	
+	<RBRACE>
+
 	{ return jjtThis; }
 }
 
@@ -1195,19 +1195,19 @@ SimpleNode RHSSlot() :
 // <RHS-pattern> ::= <ordered-RHS-pattern> | <template-RHS-pattern>
 // <ordered-RHS-pattern> ::= (<symbol> <RHS-field>+)
 // <template-RHS-pattern> ::= (<deftemplate-name> <RHS-slot>*)
-// <RHS-slot> ::= <single-field-RHS-slot> | <multifield-RHS-slot> 
+// <RHS-slot> ::= <single-field-RHS-slot> | <multifield-RHS-slot>
 // <single-field-RHS-slot> ::= (<slot-name> <RHS-field>)
 // <multifield-RHS-slot> ::= (<slot-name> <RHS-field>*)
 // <RHS-field> ::= <variable> | <constant> | <function-call>
-// <RHS-slot> ::= <single-field-RHS-slot> | <multifield-RHS-slot> 
+// <RHS-slot> ::= <single-field-RHS-slot> | <multifield-RHS-slot>
 // <single-field-RHS-slot> ::= (<slot-name> <RHS-field>)
 // <multifield-RHS-slot> ::= (<slot-name> <RHS-field>*)
 
-SimpleNode RHSPattern() : 
+SimpleNode RHSPattern() :
 {}
-{ 
+{
 	<LBRACE>
-		Symbol() //Template Name 
+		Symbol() //Template Name
 		[
 			LOOKAHEAD(2)
 			<LBRACE>
@@ -1217,8 +1217,8 @@ SimpleNode RHSPattern() :
 		(
 		    RHSSlot()
 		)*
-	<RBRACE> 
-	
+	<RBRACE>
+
 	{ return jjtThis; }
 }
 
@@ -1229,11 +1229,11 @@ SimpleNode RHSPattern() :
 
 //<RHS-field> ::= <variable> | <constant> | <function-call>
 
-void RHSField() #void: 
+void RHSField() #void:
 {}
 {
-    	Variable() 
-    |   Constant() 
+    	Variable()
+    |   Constant()
     |   FunctionCall()
 }
 
@@ -1244,7 +1244,7 @@ void RHSField() #void:
 **/
 
 /*
-<defrule-construct> ::= (defrule <rule-name> [<comment>] [<declaration>] <conditional-element>* => <expression>*) 
+<defrule-construct> ::= (defrule <rule-name> [<comment>] [<declaration>] <conditional-element>* => <expression>*)
 <rule-property> ::= (salience <integer-expression>) | (auto-focus <boolean-symbol>)
 <boolean-symbol> ::= TRUE | FALSE
 <conditional-element> ::= <pattern-CE> | <assigned-pattern-CE> | <not-CE> | <and-CE> | <or-CE> |
@@ -1269,7 +1269,7 @@ void RHSField() #void:
 <connected-constraint>::= <single-constraint> | <single-constraint> & <connected-constraint> |
 	<single-constraint> | <connected-constraint>
 <single-constraint> ::= <term> | ~<term>
-<term> ::= <constant> | <single-field-variable> | <multifield-variable> | 
+<term> ::= <constant> | <single-field-variable> | <multifield-variable> |
 	:<function-call> | =<function-call>
 */
 
@@ -1279,7 +1279,7 @@ void RHSField() #void:
 *		Define Rule Construct
 **/
 
-// <defrule-construct> ::= (defrule <rule-name> [<comment>] [<declaration>] <conditional-element>* => <expression>*) 
+// <defrule-construct> ::= (defrule <rule-name> [<comment>] [<declaration>] <conditional-element>* => <expression>*)
 
 SimpleNode DefruleConstruct() :
 {}
@@ -1288,21 +1288,21 @@ SimpleNode DefruleConstruct() :
     		<DEFRULE>
 
     		Symbol()	//name
-    		[ 
-    		  	ConstructDescription()	
+    		[
+    		  	ConstructDescription()
     		]
-    		( 
+    		(
     			[
     				LOOKAHEAD(3)
     				Declaration()
     			]
    				(
     					ConditionalElement()
-   				)* 
+   				)*
     		)
     			<ARROW>
         		ActionList()
-        )        
+        )
 	{ return jjtThis; }
 }
 
@@ -1314,8 +1314,8 @@ SimpleNode DefruleConstruct() :
 
 // Create Dummy node to have fixed number of children in Defrule
 
-SimpleNode ActionList():{} 
-{ 
+SimpleNode ActionList():{}
+{
     	(
         	(
         	LOOKAHEAD(2)
@@ -1333,7 +1333,7 @@ SimpleNode ActionList():{}
 
 //<declaration> ::= (declare <rule-property>+)
 
-SimpleNode Declaration(): 
+SimpleNode Declaration():
 {}
 {
     <LBRACE>
@@ -1353,12 +1353,12 @@ SimpleNode Declaration():
 
 // <rule-property> ::= (salience <integer-expression>) | (auto-focus <boolean-symbol>)
 
-void RuleProperty() #void: 
+void RuleProperty() #void:
 {}
 {
     <LBRACE>
      	(
-     		Salience()		
+     		Salience()
      	| 	AutoFocus()
      	|   SlowCompile()
      	|	RuleVersion()
@@ -1371,7 +1371,7 @@ SimpleNode TemporalValidityDeclaration() :
 {}
 {
 	TemporalValidity()
-	{ return jjtThis;}	
+	{ return jjtThis;}
 }
 
 
@@ -1394,13 +1394,13 @@ SimpleNode TemporalValidity() :
 *		Temporal Attribute
 **/
 
-void TemporalAttribute() #void: 
+void TemporalAttribute() #void:
 {}
 {
     <LBRACE>
      	(
      	    TAMillisecond()
-     	|	TASecond()		
+     	|	TASecond()
      	| 	TAMinute()
      	|	TAHour()
      	|   TADay()
@@ -1412,7 +1412,7 @@ void TemporalAttribute() #void:
 	<RBRACE>
 }
 
-SimpleNode TAMillisecond(): 
+SimpleNode TAMillisecond():
 {}
 {
     <MILLISECOND>
@@ -1420,7 +1420,7 @@ SimpleNode TAMillisecond():
     { return jjtThis; }
 }
 
-SimpleNode TASecond(): 
+SimpleNode TASecond():
 {}
 {
 	<SECOND>
@@ -1428,7 +1428,7 @@ SimpleNode TASecond():
 	{ return jjtThis; }
 }
 
-SimpleNode TAMinute(): 
+SimpleNode TAMinute():
 {}
 {
 	<MINUTE>
@@ -1436,7 +1436,7 @@ SimpleNode TAMinute():
 	{ return jjtThis; }
 }
 
-SimpleNode TAHour(): 
+SimpleNode TAHour():
 {}
 {
 	<HOUR>
@@ -1444,7 +1444,7 @@ SimpleNode TAHour():
 	{ return jjtThis; }
 }
 
-SimpleNode TADay(): 
+SimpleNode TADay():
 {}
 {
 	<DAY>
@@ -1452,7 +1452,7 @@ SimpleNode TADay():
 	{ return jjtThis; }
 }
 
-SimpleNode TAMonth(): 
+SimpleNode TAMonth():
 {}
 {
 	<MONTH>
@@ -1460,7 +1460,7 @@ SimpleNode TAMonth():
 	{ return jjtThis; }
 }
 
-SimpleNode TAYear(): 
+SimpleNode TAYear():
 {}
 {
 	<YEAR>
@@ -1468,7 +1468,7 @@ SimpleNode TAYear():
 	{ return jjtThis; }
 }
 
-SimpleNode TAWeekday(): 
+SimpleNode TAWeekday():
 {}
 {
 	<WEEKDAY>
@@ -1476,7 +1476,7 @@ SimpleNode TAWeekday():
 	{ return jjtThis; }
 }
 
-SimpleNode TADuration(): 
+SimpleNode TADuration():
 {}
 {
 	<DURATION>
@@ -1506,12 +1506,12 @@ SimpleNode Salience() :
 *		Auto Focus
 **/
 
-SimpleNode AutoFocus(): 
+SimpleNode AutoFocus():
 {}
 {
 	<AUTOFOCUS>
 	BooleanSymbol()
-	
+
 	{ return jjtThis; }
 }
 
@@ -1519,12 +1519,12 @@ SimpleNode AutoFocus():
 *       Slow Compile
 **/
 
-SimpleNode SlowCompile(): 
+SimpleNode SlowCompile():
 {}
 {
     <SLOWCOMPILE>
     BooleanSymbol()
-    
+
     { return jjtThis; }
 }
 
@@ -1534,12 +1534,12 @@ SimpleNode SlowCompile():
 *		Rule Version
 **/
 
-SimpleNode RuleVersion(): 
+SimpleNode RuleVersion():
 {}
 {
 	<RULEVERSION>
 	Expression()
-	
+
 	{ return jjtThis; }
 }
 
@@ -1551,7 +1551,7 @@ SimpleNode RuleVersion():
 
 //<boolean-symbol> ::= TRUE | FALSE
 
-void BooleanSymbol() #void: 
+void BooleanSymbol() #void:
 {}
 {
     (
@@ -1571,22 +1571,22 @@ void BooleanSymbol() #void:
 void ConditionalElement() #void:
 {}
 {
-	(	
+	(
 		(
-		   <LBRACE> 
-				(	
-						TemplatePatternCE() 
-					|	BooleanFunction() 
-					|	LogicalCE() 
+		   <LBRACE>
+				(
+						TemplatePatternCE()
+					|	BooleanFunction()
+					|	LogicalCE()
 					|	TestCE()
 					|	ExistsCE()
-					|	ForallCE()		
+					|	ForallCE()
 				)
 			<RBRACE>
 		)
 
 		|	AssignedPatternCE()
-	)	
+	)
 }
 
 
@@ -1595,13 +1595,13 @@ void ConditionalElement() #void:
 *		Boolean Function
 **/
 
-void BooleanFunction() #void: 
+void BooleanFunction() #void:
 {}
 {
 	(LOOKAHEAD(2)
 		NotFunction()
 	|	AndFunction()
-	|	OrFunction()	
+	|	OrFunction()
 	)
 }
 
@@ -1628,10 +1628,10 @@ SimpleNode NotFunction():
 
 SimpleNode AndFunction():
 {}
-{	
+{
 	<AND>
 		(ConditionalElement())+
-    	
+
 	{ return jjtThis; }
 }
 
@@ -1643,13 +1643,13 @@ SimpleNode AndFunction():
 
 SimpleNode OrFunction():
 {}
-{	
+{
 
 	<OR>
 		(ConditionalElement())+
-    	
+
 	{ return jjtThis; }
-}	
+}
 
 
 /**
@@ -1664,16 +1664,16 @@ SimpleNode AssignedPatternCE():
 {
 
 	(
-		SingleVariable() 
+		SingleVariable()
 		<ASSIGN>
-		
+
 		<LBRACE>
-		
+
 			TemplatePatternCE()
-		
+
 		<RBRACE>
-	) 
-	
+	)
+
 	{ return jjtThis; }
 }
 
@@ -1686,17 +1686,17 @@ SimpleNode AssignedPatternCE():
 //<logical-CE> ::= (logical <conditional-element>+)
 // Create and return conditions
 
-SimpleNode LogicalCE() : 
+SimpleNode LogicalCE() :
 {}
 {
-    <LOGICAL> 
-    
+    <LOGICAL>
+
     (
     	LOOKAHEAD(2)
-    	
+
 		ConditionalElement()
-    )+ 
-    
+    )+
+
     { return jjtThis; }
 }
 
@@ -1709,12 +1709,12 @@ SimpleNode LogicalCE() :
 //<test-CE> ::= (test <function-call>)
 // Create and return conditions (initialize the function before execution, to get a node
 
-SimpleNode TestCE() : 
+SimpleNode TestCE() :
 {}
 {
 	<TEST>
 	FunctionCall()
-	
+
 	{ return jjtThis; }
 }
 
@@ -1726,16 +1726,16 @@ SimpleNode TestCE() :
 
 //<exists-CE> ::= (exists <conditional-element>+)
 // Create and return conditions
-SimpleNode ExistsCE() : 
+SimpleNode ExistsCE() :
 {}
 {
-    <EXISTS> 
+    <EXISTS>
     (
 		LOOKAHEAD(2)
-		
+
 		ConditionalElement()
     )+
-    
+
     { return jjtThis; }
 }
 
@@ -1748,17 +1748,17 @@ SimpleNode ExistsCE() :
 //<forall-CE> ::= (forall <conditional-element> <conditional-element>+)
 // Create and return conditions
 
-SimpleNode ForallCE() : 
+SimpleNode ForallCE() :
 {}
 {
-	<FORALL> 
-	ConditionalElement() 
+	<FORALL>
+	ConditionalElement()
 	(
 		LOOKAHEAD(2)
-		
+
 		ConditionalElement()
-	)+	
-    	
+	)+
+
 	{return jjtThis; }
 }
 
@@ -1769,7 +1769,7 @@ SimpleNode ForallCE() :
 
 //<template-pattern-CE> ::= (<deftemplate-name> <LHS-slot>*)
 
-SimpleNode TemplatePatternCE(): 
+SimpleNode TemplatePatternCE():
 {}
 {
     (
@@ -1779,23 +1779,23 @@ SimpleNode TemplatePatternCE():
 	    	|	OrderedLHSFactBody()
 		)
     )
-    
+
    { return jjtThis; }
 }
 
 
 
-SimpleNode UnorderedLHSFactBody(): 
+SimpleNode UnorderedLHSFactBody():
 {}
 {
 	<LBRACE>
 	LHSSlot()
 	<RBRACE>
-	
+
 	{ return jjtThis; }
 }
 
-SimpleNode OrderedLHSFactBody(): 
+SimpleNode OrderedLHSFactBody():
 {}
 {
 	(
@@ -1811,14 +1811,14 @@ SimpleNode OrderedLHSFactBody():
 
 //<LHS-slot> ::= <single-field-LHS-slot> | <multifield-LHS-slot>
 
-SimpleNode LHSSlot(): 
+SimpleNode LHSSlot():
 {}
 {
     (
     	Symbol() //slot Name
 		Constraint()
-    )	
-    
+    )
+
     { return jjtThis; }
 }
 
@@ -1830,9 +1830,9 @@ SimpleNode LHSSlot():
 
 //<constraint> ::= ? | $? | <connected-constraint>
 
-void Constraint() #void : 
+void Constraint() #void :
 {}
-{		
+{
 		SingleFieldWildcard()
 	|	MultiFieldWildcard()
 	|	ConnectedConstraint()
@@ -1844,11 +1844,11 @@ void Constraint() #void :
 *		Singlefield Wildcard
 **/
 
-SimpleNode SingleFieldWildcard() : 
+SimpleNode SingleFieldWildcard() :
 {}
 {
 	<SFWILDCARD>
-	
+
     { return jjtThis; }
 }
 
@@ -1858,11 +1858,11 @@ SimpleNode SingleFieldWildcard() :
 *		Multifield Wildcard
 **/
 
-SimpleNode MultiFieldWildcard() : 
+SimpleNode MultiFieldWildcard() :
 {}
 {
 	<MFWILDCARD>
-	
+
     { return jjtThis; }
 }
 
@@ -1879,7 +1879,7 @@ SimpleNode ConnectedConstraint():
 {}
 {
     (
-    	Term() 
+    	Term()
     [
 		AmpersandConnectedConstraint()
 	|	LineConnectedConstraint()
@@ -1894,7 +1894,7 @@ SimpleNode ConnectedConstraint():
 *		Ampersand Connected Constraint
 **/
 
-SimpleNode AmpersandConnectedConstraint(): 
+SimpleNode AmpersandConnectedConstraint():
 {}
 {
     (
@@ -1904,7 +1904,7 @@ SimpleNode AmpersandConnectedConstraint():
 		LineConnectedConstraint() | AmpersandConnectedConstraint()
 	]
     )
-    
+
     { return jjtThis; }
 }
 
@@ -1914,7 +1914,7 @@ SimpleNode AmpersandConnectedConstraint():
 *		Line Connected Constraint
 **/
 
-SimpleNode LineConnectedConstraint(): 
+SimpleNode LineConnectedConstraint():
 {}
 {
     (
@@ -1924,8 +1924,8 @@ SimpleNode LineConnectedConstraint():
 		LineConnectedConstraint() | AmpersandConnectedConstraint()
 	]
     )
-    
-	{ return jjtThis; } 
+
+	{ return jjtThis; }
 }
 
 
@@ -1934,16 +1934,16 @@ SimpleNode LineConnectedConstraint():
 *		Term
 **/
 
-//<term> ::= <constant> | <single-field-variable> | <multifield-variable> | 
+//<term> ::= <constant> | <single-field-variable> | <multifield-variable> |
 //	:<function-call> | =<function-call>
 
-SimpleNode Term()  : 
+SimpleNode Term()  :
 {}
 {
     (
-    	[	
+    	[
 		Negation()
-	] 
+	]
     ( LOOKAHEAD(3)
     	Constant()
     |	SingleVariable()
@@ -1952,7 +1952,7 @@ SimpleNode Term()  :
     |	Equals()
     )
     )
-    
+
     {return jjtThis;}
 }
 
@@ -1962,11 +1962,11 @@ SimpleNode Term()  :
 *		Negation
 **/
 
-SimpleNode Negation() : 
+SimpleNode Negation() :
 {}
 {
 	<TILDE>
-	
+
 	{ return jjtThis; }
 }
 
@@ -1976,7 +1976,7 @@ SimpleNode Negation() :
 *		Colon
 **/
 
-SimpleNode Colon() : 
+SimpleNode Colon() :
 {}
 {
 	<COLON>
@@ -1990,7 +1990,7 @@ SimpleNode Colon() :
 *		Equals
 **/
 
-SimpleNode Equals() : 
+SimpleNode Equals() :
 {}
 {
 	<EQUALS>
@@ -2011,14 +2011,14 @@ SimpleNode DefglobalConstruct()  :
 {
     (
     	<DEFGLOBAL>
-        [ 
-         	Symbol()//defmodule-name 
+        [
+         	Symbol()//defmodule-name
         ]
         (
         	GlobalAssignment()
         )*
     )
-    
+
     { return jjtThis; }
 }
 
@@ -2030,7 +2030,7 @@ SimpleNode DefglobalConstruct()  :
 
 //<global-assignment> ::= <global-variable> = <expression>
 
-SimpleNode GlobalAssignment()  : 
+SimpleNode GlobalAssignment()  :
 {}
 {
     (
@@ -2038,7 +2038,7 @@ SimpleNode GlobalAssignment()  :
         <EQUALS>
         Expression()
     )
-    
+
     { return jjtThis; }
 }
 
@@ -2048,7 +2048,7 @@ SimpleNode GlobalAssignment()  :
 *		Deffunction Construct
 **/
 
-//<deffunction-construct> 
+//<deffunction-construct>
 //	::= (deffunction <name> [(functiongroup <groupname>)] [<comment>] (<regular-parameter>* [<wildcard-parameter>]) <expression>*)
 
 SimpleNode DeffunctionConstruct()  :
@@ -2057,11 +2057,11 @@ SimpleNode DeffunctionConstruct()  :
     (
     	<DEFFUNCTION>
         Symbol()	//name
-        [ 
+        [
          	ConstructDescription()
         ]
         (<LBRACE>
-        [ 
+        [
          	FunctionGroup()
          	<RBRACE>
          	<LBRACE>
@@ -2072,13 +2072,13 @@ SimpleNode DeffunctionConstruct()  :
         	)*
         	(
              	MultiVariable()
-            )* 
+            )*
         <RBRACE>
         )
         ActionList()
-        
-    ) 
-    
+
+    )
+
     { return jjtThis; }
 }
 
@@ -2088,16 +2088,16 @@ SimpleNode DeffunctionConstruct()  :
 **/
 
 SimpleNode FunctionGroup() :
-{}	
+{}
 {
 		<FUNCTIONGROUP>
 		Lexeme()
-	
+
 	 { return jjtThis; }
 }
 
 /**
-*		Defgeneric Construct 
+*		Defgeneric Construct
 **/
 
 //	<defgeneric-construct> ::= (defgeneric <name> [<comment>])
@@ -2108,18 +2108,18 @@ SimpleNode DefgenericConstruct() :
      (
     	<DEFGENERIC>
         Symbol()	//name
-        [ 
+        [
          	ConstructDescription()
         ]
      )
-     
+
      { return jjtThis; }
 }
 
 
 
 /**
-*		Parameter Restriction 
+*		Parameter Restriction
 **/
 
 //<parameter-restriction> ::= <single-field-variable> | (<single-field-variable> <type>* [<query>])
@@ -2130,24 +2130,24 @@ SimpleNode ParameterRestriction() : {}
 		SingleVariable()
 	|	(
 			<LBRACE>
-				SingleVariable() 
+				SingleVariable()
 				(
 					AllowedType()
-				)* 
+				)*
 				[
 				 	Query()
 				 ]
 			<RBRACE>
 		)
 	)
-	
+
 	{ return jjtThis; }
 }
 
 
 
 /**
-*		Wildcard Parameter Restriction 
+*		Wildcard Parameter Restriction
 **/
 
 //<wildcard-parameter-restriction> ::= <multifield-variable> | (<multifield-variable> <type>* [<query>])
@@ -2159,24 +2159,24 @@ SimpleNode WildcardParameterRestriction() : {}
 	|
 		(
 			<LBRACE>
-				MultiVariable() 
+				MultiVariable()
 				(
 					AllowedType()
-				)* 
+				)*
 				[
 				 	Query()
 				 ]
 			<RBRACE>
 		)
 	)
-	
+
 	{ return jjtThis; }
 }
 
 
 
 /**
-*		Query 
+*		Query
 **/
 
 //<query> ::= <global-variable> | <function-call>
@@ -2193,7 +2193,7 @@ void Query() : { Token t; }
 *		Constraint Attribute
 **/
 
-//<constraint-attribute> ::= <type-attribute> | <allowed-constant-attribute> | 
+//<constraint-attribute> ::= <type-attribute> | <allowed-constant-attribute> |
 //	<range-attribute> | <cardinality-attribute>
 
 void ConstraintAttribute() #void : { }
@@ -2217,9 +2217,9 @@ void ConstraintAttribute() #void : { }
 SimpleNode TypeAttribute() :
 { }
 {
-	<TYPE> 
+	<TYPE>
 	TypeSpecification()
-	
+
 	{ return jjtThis; }
 }
 
@@ -2231,12 +2231,12 @@ SimpleNode TypeAttribute() :
 
 //<type-specification> ::= <allowed-type>+ | ?VARIABLE
 
-SimpleNode TypeSpecification() : 
+SimpleNode TypeSpecification() :
 {}
 {	(
-		( 
-			AllowedType() 
-		)+ 
+		(
+			AllowedType()
+		)+
 		| 	VariableType()
 	)
 	{ return jjtThis; }
@@ -2251,7 +2251,7 @@ SimpleNode TypeSpecification() :
 //<allowed-type> ::= SYMBOL | STRING | LEXEME | INTEGER | FLOAT | NUMBER |
 // EXTERNAL-ADDRESS | FACT-ADDRESS | DATETIME
 
-void AllowedType()  #void: 
+void AllowedType()  #void:
 {}
 {
 	(		SymbolType()
@@ -2275,7 +2275,7 @@ void AllowedType()  #void:
 //	(allowed-lexemes <lexeme-list> | (allowed-integers <integer-list>) | (allowed-floats <float-list>) |
 //	(allowed-numbers <number-list>) | (allowed-values <value-list>)
 
-SimpleNode AllowedConstantAttribute() : 
+SimpleNode AllowedConstantAttribute() :
 { Token t; }
 {
 	(
@@ -2287,10 +2287,10 @@ SimpleNode AllowedConstantAttribute() :
 		|	t = <ALLOWED_NUMBERS> NumberList()
 		|	t = <ALLOWED_VALUES> ValueList()
 	)
-	
-	{ 	
+
+	{
 		jjtThis.jjtSetValue(t.image);
-		return jjtThis; 
+		return jjtThis;
 	}
 }
 
@@ -2305,10 +2305,10 @@ SimpleNode AllowedConstantAttribute() :
 SimpleNode SymbolList() : {}
 {
     (
-    		( <SYMBOL> )+ 
+    		( <SYMBOL> )+
 	|	VariableType()
     )
-    
+
     { return jjtThis; }
 }
 
@@ -2320,14 +2320,14 @@ SimpleNode SymbolList() : {}
 
 //<string-list> ::= <string>+ | ?VARIABLE
 
-SimpleNode StringList() : 
+SimpleNode StringList() :
 {}
 {
     (
-    		( <STRING> )+ 
+    		( <STRING> )+
 	|	VariableType()
     )
-    
+
     { return jjtThis; }
 }
 
@@ -2339,14 +2339,14 @@ SimpleNode StringList() :
 
 //<lexeme-list> ::= <lexeme>+ | ?VARIABLE
 
-SimpleNode LexemeList() : 
+SimpleNode LexemeList() :
 {}
 {
     (
-    		( Lexeme() )+ 
+    		( Lexeme() )+
 	|	VariableType()
     )
-    
+
     { return jjtThis; }
 }
 
@@ -2362,10 +2362,10 @@ SimpleNode IntegerList() :
 {}
 {
     (
-    		( <INTEGER> )+ 
+    		( <INTEGER> )+
 	| 	VariableType()
     )
-    
+
     { return jjtThis; }
 }
 
@@ -2375,14 +2375,14 @@ SimpleNode IntegerList() :
 
 //<float-list> ::= <float>+ | ?VARIABLE
 
-SimpleNode FloatList() : 
+SimpleNode FloatList() :
 {}
 {
     (
-    		( <FLOAT> )+ 
+    		( <FLOAT> )+
 	|	VariableType()
     )
-    
+
     { return jjtThis; }
 }
 
@@ -2394,14 +2394,14 @@ SimpleNode FloatList() :
 
 //<number-list> ::= <number>+ | ?VARIABLE
 
-SimpleNode NumberList() : 
+SimpleNode NumberList() :
 {}
 {
     (
-    		( Number() )+ 
+    		( Number() )+
 	| 	VariableType()
     )
-	
+
     { return jjtThis; }
 }
 
@@ -2413,14 +2413,14 @@ SimpleNode NumberList() :
 
 //<value-list> ::= <constant>+ | ?VARIABLE
 
-SimpleNode ValueList() : 
+SimpleNode ValueList() :
 {}
 {
     (
-    		( Constant() )+ 
+    		( Constant() )+
 	|	VariableType()
     )
-	
+
     { return jjtThis; }
 }
 
@@ -2435,14 +2435,14 @@ SimpleNode ValueList() :
 SimpleNode RangeAttribute() :
 {}
 {
-    (	
-    	<RANGE> 
-	
-	RangeSpecification() 
-	
+    (
+    	<RANGE>
+
+	RangeSpecification()
+
 	RangeSpecification()
    )
-	
+
    { return jjtThis; }
 }
 
@@ -2453,30 +2453,30 @@ SimpleNode RangeAttribute() :
 
 //<range-specification> ::= <number> | ?VARIABLE
 
-SimpleNode RangeSpecification()  : 
+SimpleNode RangeSpecification()  :
 {}
 {
     (
-    		Number() 
+    		Number()
 	| 	VariableType()
     )
-	
+
     { return jjtThis; }
 }
 
 
 //<cardinality-attribute> ::= (cardinality <cardinality-specification> <cardinality-specification>)
-SimpleNode CardinalityAttribute()  : 
+SimpleNode CardinalityAttribute()  :
 {}
 {
     (
-    	<CARDINALITY> 
+    	<CARDINALITY>
 
-	CardinalitySpecification() 
+	CardinalitySpecification()
 
 	CardinalitySpecification()
     )
-    
+
     { return jjtThis; }
 }
 
@@ -2488,14 +2488,14 @@ SimpleNode CardinalityAttribute()  :
 
 //<cardinality-specification> ::= <integer> | ?VARIABLE
 
-SimpleNode CardinalitySpecification() : 
+SimpleNode CardinalitySpecification() :
 {}
 {
-    (	
-    		Integer() 
+    (
+    		Integer()
 	| 	VariableType()
     )
-	
+
     { return jjtThis; }
 }
 
@@ -2507,17 +2507,17 @@ SimpleNode CardinalitySpecification() :
 
 //	<defmodule-construct> ::= (defmodule <module-name> [<comment>] )
 
-SimpleNode DefmoduleConstruct() : 
+SimpleNode DefmoduleConstruct() :
 {}
 {
     (
     	<DEFMODULE>
-	Symbol() 
+	Symbol()
 	[
 		ConstructDescription()
 	]
     )
-	
+
     { return jjtThis; }
 }
 
