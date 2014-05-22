@@ -151,7 +151,7 @@ TOKEN :
 | < DEFTEMPLATE_CONSTRUCT: "deftemplate_construct" >
 | < DEFRULE: "defrule" >
 | < DEFFUNCTION: "deffunction" >
-| <FUNCTIONGROUP: "functiongroup">
+| < FUNCTIONGROUP: "functiongroup">
 | < DEFGENERIC: "defgeneric" >
 | < DEFMODULE: "defmodule" >
 | < DEFGLOBAL: "defglobal" >
@@ -179,7 +179,7 @@ TOKEN :
 | < WEEKDAY: "weekday" >
 | < DURATION: "duration" >
 | < AUTOFOCUS: "auto-focus" >
-| <RULEVERSION: "rule-version">
+| < RULEVERSION: "rule-version">
 | <	TYPE: "type" >
 | < TRUE: "TRUE" | "true" | "True" >
 | < FALSE: "FALSE" | "false" | "False" >
