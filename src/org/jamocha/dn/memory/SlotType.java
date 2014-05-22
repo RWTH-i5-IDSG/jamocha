@@ -17,6 +17,7 @@ package org.jamocha.dn.memory;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatterBuilder;
 import java.time.temporal.ChronoField;
+import java.util.Arrays;
 
 import org.jamocha.languages.common.ScopeStack.Symbol;
 
@@ -70,6 +71,12 @@ public enum SlotType {
 	 * to specify the parameter types.
 	 */
 	final public static SlotType[] empty = new SlotType[] {};
+
+	final public static SlotType[] nCopies(final SlotType type, final int num) {
+		final SlotType[] types = new SlotType[num];
+		Arrays.fill(null, type);
+		return types;
+	}
 
 	@Override
 	public String toString() {

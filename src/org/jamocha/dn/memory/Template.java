@@ -110,6 +110,21 @@ public class Template {
 	}
 
 	/**
+	 * Returns the index of the first slot matching the name given or -1 if no slot name matched.
+	 * 
+	 * @param name
+	 *            string to match against the slot names
+	 * @return the index of the first slot matching the name given or -1 if no slot name matched
+	 */
+	public int getIndexByName(final String name) {
+		for (int i = 0; i < slots.length; i++) {
+			if (slots[i].name.equals(name))
+				return i;
+		}
+		return -1;
+	}
+
+	/**
 	 * Ease-of-use method to create facts with type-check for its arguments.
 	 * 
 	 * @param values
