@@ -17,8 +17,8 @@ package org.jamocha.languages.clips.parser;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.function.IntFunction;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.dn.memory.Template;
@@ -28,7 +28,6 @@ import org.jamocha.filter.FunctionDictionary;
 import org.jamocha.filter.Predicate;
 import org.jamocha.filter.fwa.PredicateWithArguments;
 import org.jamocha.filter.fwa.PredicateWithArgumentsComposite;
-import org.jamocha.languages.clips.parser.SFPVisitorImpl.SFPConditionalElementVisitor;
 import org.jamocha.languages.clips.parser.generated.Node;
 import org.jamocha.languages.clips.parser.generated.SFPAndFunction;
 import org.jamocha.languages.clips.parser.generated.SFPBooleanType;
