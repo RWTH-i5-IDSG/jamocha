@@ -14,7 +14,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
+ *
  */
 package org.jamocha.languages.clips.parser.generated;
 
@@ -144,4 +144,4 @@ public class Token implements java.io.Serializable {
   }
 
 }
-/* JavaCC - OriginalChecksum=1adbcf0e7361c83d9f543edb16314af4 (do not edit this line) */
+/* JavaCC - OriginalChecksum=eda06be621f9b9be1ea79b3af1ab6dde (do not edit this line) */

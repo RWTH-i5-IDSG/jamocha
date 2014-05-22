@@ -14,7 +14,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
+ *
  */
 package org.jamocha.languages.clips.parser.generated;
 
@@ -487,4 +487,4 @@ public class SimpleCharStream
   boolean getTrackLineColumn() { return trackLineColumn; }
   void setTrackLineColumn(boolean tlc) { trackLineColumn = tlc; }
 }
-/* JavaCC - OriginalChecksum=d7027faf13fd1bc39ee35676cc48f019 (do not edit this line) */
+/* JavaCC - OriginalChecksum=d451edc6c073f53c057d06162e837b33 (do not edit this line) */

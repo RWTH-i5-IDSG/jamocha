@@ -14,7 +14,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
+ *
  */
 package org.jamocha.languages.clips.parser.generated;
 
@@ -160,4 +160,4 @@ public class TokenMgrError extends Error
     this(LexicalError(EOFSeen, lexState, errorLine, errorColumn, errorAfter, curChar), reason);
   }
 }
-/* JavaCC - OriginalChecksum=76305da98096567c3f86f223e06c9d06 (do not edit this line) */
+/* JavaCC - OriginalChecksum=e3a639da3c1c6b2caa198b414fbbd459 (do not edit this line) */

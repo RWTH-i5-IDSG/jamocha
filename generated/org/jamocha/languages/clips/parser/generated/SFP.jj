@@ -13,11 +13,11 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
+ *
  */
- 
- /** 
-		
+
+ /**
+
 	2007-04-04 : Reduced COOL to the Jamocha Slim Fast Parser (sfp) - Karl-Heinz Krempels, Sebastian Reinartz.
 	2006-11-08 : Implemented the COOL Parser - Ulrich Loup, Ory Chowow-Liebman
 
@@ -59,7 +59,7 @@ PARSER_BEGIN(SFPParser)
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
+ *
  */
 package org.jamocha.languages.clips.parser.generated;
 
@@ -135,12 +135,12 @@ TOKEN :
       | (["+","-"])? "." (<DIGIT>)+ (<EXPONENT>)?
       | (["+","-"])? (<DIGIT>)+ <EXPONENT>
   >
-  
+
 | < #EXPONENT: ["e","E"] (["+","-"])? (<DIGIT>)+ >
 | < #GMT_OFFSET: ("+"|"-") ( <DIGIT> )? <DIGIT> >
 | < #DATE: <DIGIT> <DIGIT> <DIGIT> <DIGIT> "-" <DIGIT> <DIGIT> "-" <DIGIT> <DIGIT> >
 | < #TIME: <DIGIT> <DIGIT> ":" <DIGIT> <DIGIT> ( ":" <DIGIT> <DIGIT>)? >
-| < DATETIME:  <DATE> ( " " <TIME> (<GMT_OFFSET>)? )? > 
+| < DATETIME:  <DATE> ( " " <TIME> (<GMT_OFFSET>)? )? >
 | < SILENT: "silent" >
 |
   < STRING:
@@ -155,7 +155,7 @@ TOKEN :
 | < DEFTEMPLATE_CONSTRUCT: "deftemplate_construct" >
 | < DEFRULE: "defrule" >
 | < DEFFUNCTION: "deffunction" >
-| <FUNCTIONGROUP: "functiongroup">
+| < FUNCTIONGROUP: "functiongroup">
 | < DEFGENERIC: "defgeneric" >
 | < DEFMODULE: "defmodule" >
 | < DEFGLOBAL: "defglobal" >
@@ -183,7 +183,7 @@ TOKEN :
 | < WEEKDAY: "weekday" >
 | < DURATION: "duration" >
 | < AUTOFOCUS: "auto-focus" >
-| <RULEVERSION: "rule-version">
+| < RULEVERSION: "rule-version">
 | <	TYPE: "type" >
 | < TRUE: "TRUE" | "true" | "True" >
 | < FALSE: "FALSE" | "false" | "False" >
@@ -241,29 +241,29 @@ TOKEN :
 | < CASE: "case" >
 //| < STAR: "*">
   // If you think this is ugly, you are right. See CLIPS Basic Progrmmers Guide:
-  // "Numbers are symbols, but treated different. Instances are symbols, but treated different." 
+  // "Numbers are symbols, but treated different. Instances are symbols, but treated different."
 | < #VARSYMBOL:  ["a"-"z","A"-"Z"] (~[" ","\r","\n","\t","\"","\'","(",")","&","|","<","~",";"])* >
 | < SINGLEVAR: ("?" <VARSYMBOL>) >
 | < MULTIVAR: ("$?" <VARSYMBOL>) >
-| < SYMBOL:  
+| < SYMBOL:
 	(~[" ","\r","\n","\t","\"","\'","(",")","&","|","$","?","~",";","0"-"9","="])
 	|(
 		(~[" ","\r","\n","\t","\"","\'","(",")","&","|","$","?","~",";","[","="])
 		(~[" ","\r","\n","\t","\"","\'","(",")","&","|","?","~",";","0"-"9"])*
 		(~[" ","\r","\n","\t","\"","\'","(",")","&","|","<","~",";" ])*
-		(~[" ","\r","\n","\t","\"","\'","(",")","&","|","$","?","~",";","]"])? 
+		(~[" ","\r","\n","\t","\"","\'","(",")","&","|","$","?","~",";","]"])?
 	)
 	|(
 		(~[" ","\r","\n","\t","\"","\'","(",")","&","|","$","?","~",";","="])
 		(~[" ","\r","\n","\t","\"","\'","(",")","&","|","?","~",";","0"-"9"])*
 		(~[" ","\r","\n","\t","\"","\'","(",")","&","|","<","~",";" ])*
-		(~[" ","\r","\n","\t","\"","\'","(",")","&","|","$","?","~",";","]"])+ 
+		(~[" ","\r","\n","\t","\"","\'","(",")","&","|","$","?","~",";","]"])+
 	)
   >
 
 }
 
-/* TODO (From Clips Manual):
+/* (From Clips Manual):
 Data Types:
 <file-name> ::= A symbol or string which is a valid file name (including path information)
 	for the operating system under which CLIPS is running
@@ -277,7 +277,7 @@ Data Types:
  */
 
 // Start rule is a construct at a time, the parser reads all the constructs into a list.
-SFPStart Start() : 
+SFPStart Start() :
 {/*@bgen(jjtree) Start */
   SFPStart jjtn000 = new SFPStart(this, JJTSTART);
   boolean jjtc000 = true;
@@ -288,7 +288,7 @@ SFPStart Start() :
 /*@egen*/
    ( LOOKAHEAD(2)
 	Construct() | Expression()
-	
+
 	)/*@bgen(jjtree)*/
           {
             jjtree.closeNodeScope(jjtn000, true);
@@ -325,7 +325,7 @@ SFPStart Start() :
 
 
 /*
-<number> ::= <float> | <integer> 
+<number> ::= <float> | <integer>
 <lexeme> ::= <symbol> | <string>
 <constant> ::= <datetime> | <symbol> | <string> | <integer> | <float>
 */
@@ -335,7 +335,7 @@ SFPStart Start() :
 *		Float
 **/
 
-SimpleNode Float() : 
+SimpleNode Float() :
 {/*@bgen(jjtree) Float */
   SFPFloat jjtn000 = new SFPFloat(this, JJTFLOAT);
   boolean jjtc000 = true;
@@ -353,9 +353,9 @@ SimpleNode Float() :
           jjtc000 = false;
         }
 /*@egen*/
-	
+
 	{
-		jjtn000.jjtSetValue(t.image); 
+		jjtn000.jjtSetValue(t.image);
 		return jjtn000;
 	}/*@bgen(jjtree)*/
         } finally {
@@ -372,7 +372,7 @@ SimpleNode Float() :
 *		Integer
 **/
 
-SimpleNode Integer() : 
+SimpleNode Integer() :
 {/*@bgen(jjtree) Integer */
   SFPInteger jjtn000 = new SFPInteger(this, JJTINTEGER);
   boolean jjtc000 = true;
@@ -391,9 +391,9 @@ SimpleNode Integer() :
           jjtc000 = false;
         }
 /*@egen*/
-	
+
 	{
-		jjtn000.jjtSetValue(t.image); 
+		jjtn000.jjtSetValue(t.image);
 		return jjtn000;
 	}/*@bgen(jjtree)*/
         } finally {
@@ -410,7 +410,7 @@ SimpleNode Integer() :
 *		DateTime
 **/
 
-SimpleNode DateTime() : 
+SimpleNode DateTime() :
 {/*@bgen(jjtree) DateTime */
   SFPDateTime jjtn000 = new SFPDateTime(this, JJTDATETIME);
   boolean jjtc000 = true;
@@ -443,11 +443,11 @@ SimpleNode DateTime() :
 *		Number
 **/
 
-void Number()       : 
+void Number()       :
 {}
-{	
+{
 	(	Float()
-	|	Integer() 
+	|	Integer()
 	)
 }
 
@@ -457,7 +457,7 @@ void Number()       :
 *		Symbol
 **/
 
-SimpleNode Symbol() : 
+SimpleNode Symbol() :
 {/*@bgen(jjtree) Symbol */
   SFPSymbol jjtn000 = new SFPSymbol(this, JJTSYMBOL);
   boolean jjtc000 = true;
@@ -473,7 +473,7 @@ SimpleNode Symbol() :
         }
 /*@egen*/
 	{
-		jjtn000.jjtSetValue(t.image); 
+		jjtn000.jjtSetValue(t.image);
 		return jjtn000;
 	}/*@bgen(jjtree)*/
         } finally {
@@ -490,7 +490,7 @@ SimpleNode Symbol() :
 *		String
 **/
 
-SimpleNode String() : 
+SimpleNode String() :
 {/*@bgen(jjtree) String */
   SFPString jjtn000 = new SFPString(this, JJTSTRING);
   boolean jjtc000 = true;
@@ -506,7 +506,7 @@ SimpleNode String() :
         }
 /*@egen*/
 	{
-		jjtn000.jjtSetValue(ParserUtils.getStringLiteral(t.image)); 
+		jjtn000.jjtSetValue(ParserUtils.getStringLiteral(t.image));
 		return jjtn000;
 	}/*@bgen(jjtree)*/
         } finally {
@@ -522,7 +522,7 @@ SimpleNode String() :
 *		True
 **/
 
-SimpleNode True() : 
+SimpleNode True() :
 {/*@bgen(jjtree) True */
   SFPTrue jjtn000 = new SFPTrue(this, JJTTRUE);
   boolean jjtc000 = true;
@@ -538,7 +538,7 @@ SimpleNode True() :
         }
 /*@egen*/
 	{
-		jjtn000.jjtSetValue(t.image); 
+		jjtn000.jjtSetValue(t.image);
 		return jjtn000;
 	}/*@bgen(jjtree)*/
         } finally {
@@ -549,7 +549,7 @@ SimpleNode True() :
 /*@egen*/
 }
 
-SimpleNode Nil() : 
+SimpleNode Nil() :
 {/*@bgen(jjtree) Nil */
   SFPNil jjtn000 = new SFPNil(this, JJTNIL);
   boolean jjtc000 = true;
@@ -565,7 +565,7 @@ SimpleNode Nil() :
         }
 /*@egen*/
 	{
-		jjtn000.jjtSetValue(t.image); 
+		jjtn000.jjtSetValue(t.image);
 		return jjtn000;
 	}/*@bgen(jjtree)*/
         } finally {
@@ -580,7 +580,7 @@ SimpleNode Nil() :
 *		SymbolType
 **/
 
-SimpleNode SymbolType() : 
+SimpleNode SymbolType() :
 {/*@bgen(jjtree) SymbolType */
   SFPSymbolType jjtn000 = new SFPSymbolType(this, JJTSYMBOLTYPE);
   boolean jjtc000 = true;
@@ -596,7 +596,7 @@ SimpleNode SymbolType() :
         }
 /*@egen*/
 	{
-		jjtn000.jjtSetValue(t.image); 
+		jjtn000.jjtSetValue(t.image);
 		return jjtn000;
 	}/*@bgen(jjtree)*/
         } finally {
@@ -611,7 +611,7 @@ SimpleNode SymbolType() :
 *		StringType
 **/
 
-SimpleNode StringType() : 
+SimpleNode StringType() :
 {/*@bgen(jjtree) StringType */
   SFPStringType jjtn000 = new SFPStringType(this, JJTSTRINGTYPE);
   boolean jjtc000 = true;
@@ -627,7 +627,7 @@ SimpleNode StringType() :
         }
 /*@egen*/
 	{
-		jjtn000.jjtSetValue(t.image); 
+		jjtn000.jjtSetValue(t.image);
 		return jjtn000;
 	}/*@bgen(jjtree)*/
         } finally {
@@ -642,7 +642,7 @@ SimpleNode StringType() :
 *		DateTimeType
 **/
 
-SimpleNode DateTimeType() : 
+SimpleNode DateTimeType() :
 {/*@bgen(jjtree) DateTimeType */
   SFPDateTimeType jjtn000 = new SFPDateTimeType(this, JJTDATETIMETYPE);
   boolean jjtc000 = true;
@@ -658,7 +658,7 @@ SimpleNode DateTimeType() :
         }
 /*@egen*/
 	{
-		jjtn000.jjtSetValue(t.image); 
+		jjtn000.jjtSetValue(t.image);
 		return jjtn000;
 	}/*@bgen(jjtree)*/
         } finally {
@@ -673,7 +673,7 @@ SimpleNode DateTimeType() :
 *		LexemeType
 **/
 
-SimpleNode LexemeType() : 
+SimpleNode LexemeType() :
 {/*@bgen(jjtree) LexemeType */
   SFPLexemeType jjtn000 = new SFPLexemeType(this, JJTLEXEMETYPE);
   boolean jjtc000 = true;
@@ -689,7 +689,7 @@ SimpleNode LexemeType() :
         }
 /*@egen*/
 	{
-		jjtn000.jjtSetValue(t.image); 
+		jjtn000.jjtSetValue(t.image);
 		return jjtn000;
 	}/*@bgen(jjtree)*/
         } finally {
@@ -704,7 +704,7 @@ SimpleNode LexemeType() :
 *		BooleanType
 **/
 
-SimpleNode BooleanType() : 
+SimpleNode BooleanType() :
 {/*@bgen(jjtree) BooleanType */
   SFPBooleanType jjtn000 = new SFPBooleanType(this, JJTBOOLEANTYPE);
   boolean jjtc000 = true;
@@ -720,7 +720,7 @@ SimpleNode BooleanType() :
         }
 /*@egen*/
 	{
-		jjtn000.jjtSetValue(t.image); 
+		jjtn000.jjtSetValue(t.image);
 		return jjtn000;
 	}/*@bgen(jjtree)*/
         } finally {
@@ -735,7 +735,7 @@ SimpleNode BooleanType() :
 *		IntegerType
 **/
 
-SimpleNode IntegerType() : 
+SimpleNode IntegerType() :
 {/*@bgen(jjtree) IntegerType */
   SFPIntegerType jjtn000 = new SFPIntegerType(this, JJTINTEGERTYPE);
   boolean jjtc000 = true;
@@ -751,7 +751,7 @@ SimpleNode IntegerType() :
         }
 /*@egen*/
 	{
-		jjtn000.jjtSetValue(t.image); 
+		jjtn000.jjtSetValue(t.image);
 		return jjtn000;
 	}/*@bgen(jjtree)*/
         } finally {
@@ -766,7 +766,7 @@ SimpleNode IntegerType() :
 *		FloatType
 **/
 
-SimpleNode FloatType() : 
+SimpleNode FloatType() :
 {/*@bgen(jjtree) FloatType */
   SFPFloatType jjtn000 = new SFPFloatType(this, JJTFLOATTYPE);
   boolean jjtc000 = true;
@@ -782,7 +782,7 @@ SimpleNode FloatType() :
         }
 /*@egen*/
 	{
-		jjtn000.jjtSetValue(t.image); 
+		jjtn000.jjtSetValue(t.image);
 		return jjtn000;
 	}/*@bgen(jjtree)*/
         } finally {
@@ -798,7 +798,7 @@ SimpleNode FloatType() :
 *		NumberType
 **/
 
-SimpleNode NumberType() : 
+SimpleNode NumberType() :
 {/*@bgen(jjtree) NumberType */
   SFPNumberType jjtn000 = new SFPNumberType(this, JJTNUMBERTYPE);
   boolean jjtc000 = true;
@@ -814,7 +814,7 @@ SimpleNode NumberType() :
         }
 /*@egen*/
 	{
-		jjtn000.jjtSetValue(t.image); 
+		jjtn000.jjtSetValue(t.image);
 		return jjtn000;
 	}/*@bgen(jjtree)*/
         } finally {
@@ -831,7 +831,7 @@ SimpleNode NumberType() :
 *		False
 **/
 
-SimpleNode False() : 
+SimpleNode False() :
 {/*@bgen(jjtree) False */
   SFPFalse jjtn000 = new SFPFalse(this, JJTFALSE);
   boolean jjtc000 = true;
@@ -847,7 +847,7 @@ SimpleNode False() :
         }
 /*@egen*/
 	{
-		jjtn000.jjtSetValue(t.image); 
+		jjtn000.jjtSetValue(t.image);
 		return jjtn000;
 	}/*@bgen(jjtree)*/
         } finally {
@@ -863,11 +863,11 @@ SimpleNode False() :
 *		Lexeme
 **/
 
-void Lexeme()       : 
+void Lexeme()       :
 {}
-{	
+{
 	(	String()
-	|	Symbol() 
+	|	Symbol()
 	)
 }
 
@@ -885,9 +885,9 @@ SimpleNode Constant() :
 /*@egen*/}
 {/*@bgen(jjtree) Constant */
         try {
-/*@egen*/ 	
+/*@egen*/
 	(
-		Nil()		
+		Nil()
 	|	DateTime()
 	|   Symbol()
 	|	String()
@@ -900,7 +900,7 @@ SimpleNode Constant() :
       jjtc000 = false;
     }
 /*@egen*/
-	
+
     { return jjtn000; }/*@bgen(jjtree)*/
         } catch (Throwable jjte000) {
           if (jjtc000) {
@@ -921,7 +921,7 @@ SimpleNode Constant() :
             jjtree.closeNodeScope(jjtn000, true);
           }
         }
-/*@egen*/	
+/*@egen*/
 }
 
 
@@ -930,7 +930,7 @@ SimpleNode Constant() :
 *		Construct Description
 **/
 
-SimpleNode ConstructDescription() : 
+SimpleNode ConstructDescription() :
 {/*@bgen(jjtree) ConstructDescription */
   SFPConstructDescription jjtn000 = new SFPConstructDescription(this, JJTCONSTRUCTDESCRIPTION);
   boolean jjtc000 = true;
@@ -938,14 +938,14 @@ SimpleNode ConstructDescription() :
 /*@egen*/}
 {/*@bgen(jjtree) ConstructDescription */
     try {
-/*@egen*/	
+/*@egen*/
     String()/*@bgen(jjtree)*/
     {
       jjtree.closeNodeScope(jjtn000, true);
       jjtc000 = false;
     }
 /*@egen*/
-    
+
     { return jjtn000; }/*@bgen(jjtree)*/
     } catch (Throwable jjte000) {
       if (jjtc000) {
@@ -975,12 +975,12 @@ SimpleNode ConstructDescription() :
 **/
 // This is used exactly then when only the variables value is needed
 
-SimpleNode SingleVariable() : 
+SimpleNode SingleVariable() :
 {/*@bgen(jjtree) SingleVariable */
   SFPSingleVariable jjtn000 = new SFPSingleVariable(this, JJTSINGLEVARIABLE);
   boolean jjtc000 = true;
   jjtree.openNodeScope(jjtn000);
-/*@egen*/ Token t; } 
+/*@egen*/ Token t; }
 {/*@bgen(jjtree) SingleVariable */
         try {
 /*@egen*/
@@ -990,7 +990,7 @@ SimpleNode SingleVariable() :
           jjtc000 = false;
         }
 /*@egen*/
-	
+
 	{ jjtn000.jjtSetValue(t.image); return jjtn000;}/*@bgen(jjtree)*/
         } finally {
           if (jjtc000) {
@@ -1007,12 +1007,12 @@ SimpleNode SingleVariable() :
 **/
 // This is used exactly then when only the variables value is needed
 
-SimpleNode GlobalVariable() : 
+SimpleNode GlobalVariable() :
 {/*@bgen(jjtree) GlobalVariable */
   SFPGlobalVariable jjtn000 = new SFPGlobalVariable(this, JJTGLOBALVARIABLE);
   boolean jjtc000 = true;
   jjtree.openNodeScope(jjtn000);
-/*@egen*/ Token t; } 
+/*@egen*/ Token t; }
 {/*@bgen(jjtree) GlobalVariable */
         try {
 /*@egen*/
@@ -1038,12 +1038,12 @@ SimpleNode GlobalVariable() :
 **/
 // This is used exactly then when only the variables contents are needed
 
-SimpleNode MultiVariable() : 
+SimpleNode MultiVariable() :
 {/*@bgen(jjtree) MultiVariable */
   SFPMultiVariable jjtn000 = new SFPMultiVariable(this, JJTMULTIVARIABLE);
   boolean jjtc000 = true;
   jjtree.openNodeScope(jjtn000);
-/*@egen*/ Token t; } 
+/*@egen*/ Token t; }
 {/*@bgen(jjtree) MultiVariable */
         try {
 /*@egen*/
@@ -1053,7 +1053,7 @@ SimpleNode MultiVariable() :
           jjtc000 = false;
         }
 /*@egen*/
-	
+
 	{ jjtn000.jjtSetValue(t.image); return jjtn000;}/*@bgen(jjtree)*/
         } finally {
           if (jjtc000) {
@@ -1070,14 +1070,14 @@ SimpleNode MultiVariable() :
 **/
 // This is used exactly then when only the variables value is needed
 
-void Variable()      : 
+void Variable()      :
 {}
-{	
-	(	
+{
+	(
 		SingleVariable()
 	|	MultiVariable()
-	|	GlobalVariable() 
-	) 
+	|	GlobalVariable()
+	)
 }
 
 
@@ -1087,12 +1087,12 @@ void Variable()      :
 **/
 // This is used exactly then when only the variables contents are needed
 
-SimpleNode VariableType() : 
+SimpleNode VariableType() :
 {/*@bgen(jjtree) VariableType */
   SFPVariableType jjtn000 = new SFPVariableType(this, JJTVARIABLETYPE);
   boolean jjtc000 = true;
   jjtree.openNodeScope(jjtn000);
-/*@egen*/ Token t; } 
+/*@egen*/ Token t; }
 {/*@bgen(jjtree) VariableType */
         try {
 /*@egen*/
@@ -1102,8 +1102,8 @@ SimpleNode VariableType() :
           jjtc000 = false;
         }
 /*@egen*/
-	{ 
-		jjtn000.jjtSetValue(t.image); 
+	{
+		jjtn000.jjtSetValue(t.image);
 		return jjtn000;
 	}/*@bgen(jjtree)*/
         } finally {
@@ -1122,21 +1122,21 @@ SimpleNode VariableType() :
 
 // <function-call> ::= (<function-name> <expression>*)
 
-void FunctionCall()      : 
+void FunctionCall()      :
 {}
 {
-	<LBRACE> 
+	<LBRACE>
 		(
 			AssertFunc()
 		|	Modify()
 		|	RetractFunc()
-		|   FindFactByFactFunc()	
+		|   FindFactByFactFunc()
 		|	IfElseFunc()
 		|	WhileFunc()
-		|	LoopForCountFunc() 
+		|	LoopForCountFunc()
 		|	AnyFunction()
 		|	SwitchCaseFunc()
-		) 
+		)
 	<RBRACE>
 }
 
@@ -1146,7 +1146,7 @@ void FunctionCall()      :
 *		Any Function
 **/
 
-SimpleNode AnyFunction() : 
+SimpleNode AnyFunction() :
 {/*@bgen(jjtree) AnyFunction */
   SFPAnyFunction jjtn000 = new SFPAnyFunction(this, JJTANYFUNCTION);
   boolean jjtc000 = true;
@@ -1166,7 +1166,7 @@ SimpleNode AnyFunction() :
           jjtc000 = false;
         }
 /*@egen*/
- 	
+
 	{ return jjtn000; }/*@bgen(jjtree)*/
         } catch (Throwable jjte000) {
           if (jjtc000) {
@@ -1196,25 +1196,25 @@ SimpleNode AnyFunction() :
 *		Expression
 **/
 
-SimpleNode Expression() : 
+SimpleNode Expression() :
 {/*@bgen(jjtree) Expression */
   SFPExpression jjtn000 = new SFPExpression(this, JJTEXPRESSION);
   boolean jjtc000 = true;
   jjtree.openNodeScope(jjtn000);
-/*@egen*/} 
+/*@egen*/}
 {/*@bgen(jjtree) Expression */
         try {
-/*@egen*/	
+/*@egen*/
 	(	LOOKAHEAD(2)
 		Constant()
 	|	Variable()
-	|	FunctionCall() 
+	|	FunctionCall()
 	)/*@bgen(jjtree)*/
         {
           jjtree.closeNodeScope(jjtn000, true);
           jjtc000 = false;
         }
-/*@egen*/ 
+/*@egen*/
 	{ return jjtn000; }/*@bgen(jjtree)*/
         } catch (Throwable jjte000) {
           if (jjtc000) {
@@ -1249,7 +1249,7 @@ SimpleNode Expression() :
 *		Assert Function
 **/
 
-SimpleNode AssertFunc() : 
+SimpleNode AssertFunc() :
 {/*@bgen(jjtree) AssertFunc */
   SFPAssertFunc jjtn000 = new SFPAssertFunc(this, JJTASSERTFUNC);
   boolean jjtc000 = true;
@@ -1294,7 +1294,7 @@ SimpleNode AssertFunc() :
 /**
 *		Modify Function
 **/
-SimpleNode Modify() : 
+SimpleNode Modify() :
 {/*@bgen(jjtree) Modify */
   SFPModify jjtn000 = new SFPModify(this, JJTMODIFY);
   boolean jjtc000 = true;
@@ -1338,7 +1338,7 @@ SimpleNode Modify() :
 *		FindFactByFact Function
 **/
 
-SimpleNode FindFactByFactFunc() : 
+SimpleNode FindFactByFactFunc() :
 {/*@bgen(jjtree) FindFactByFactFunc */
   SFPFindFactByFactFunc jjtn000 = new SFPFindFactByFactFunc(this, JJTFINDFACTBYFACTFUNC);
   boolean jjtc000 = true;
@@ -1348,7 +1348,7 @@ SimpleNode FindFactByFactFunc() :
         try {
 /*@egen*/
 	<FIND_FACT_BY_FACT>
-	( 
+	(
 		RHSPattern()
 	)/*@bgen(jjtree)*/
         {
@@ -1385,7 +1385,7 @@ SimpleNode FindFactByFactFunc() :
 *		Retract Function
 **/
 
-SimpleNode RetractFunc() : 
+SimpleNode RetractFunc() :
 {/*@bgen(jjtree) RetractFunc */
   SFPRetractFunc jjtn000 = new SFPRetractFunc(this, JJTRETRACTFUNC);
   boolean jjtc000 = true;
@@ -1436,7 +1436,7 @@ SimpleNode RetractFunc() :
 *		If Else Function
 **/
 
-SimpleNode IfElseFunc() : 
+SimpleNode IfElseFunc() :
 {/*@bgen(jjtree) IfElseFunc */
   SFPIfElseFunc jjtn000 = new SFPIfElseFunc(this, JJTIFELSEFUNC);
   boolean jjtc000 = true;
@@ -1460,7 +1460,7 @@ SimpleNode IfElseFunc() :
           jjtc000 = false;
         }
 /*@egen*/
-	
+
 	{ return jjtn000; }/*@bgen(jjtree)*/
         } catch (Throwable jjte000) {
           if (jjtc000) {
@@ -1490,7 +1490,7 @@ SimpleNode IfElseFunc() :
 *		While Function
 **/
 
-SimpleNode WhileFunc() : 
+SimpleNode WhileFunc() :
 {/*@bgen(jjtree) WhileFunc */
   SFPWhileFunc jjtn000 = new SFPWhileFunc(this, JJTWHILEFUNC);
   boolean jjtc000 = true;
@@ -1512,7 +1512,7 @@ SimpleNode WhileFunc() :
           jjtc000 = false;
         }
 /*@egen*/
-	
+
 	{ return jjtn000; }/*@bgen(jjtree)*/
         } catch (Throwable jjte000) {
           if (jjtc000) {
@@ -1542,7 +1542,7 @@ SimpleNode WhileFunc() :
 *		Loop For Count Function
 **/
 
-SimpleNode LoopForCountFunc() : 
+SimpleNode LoopForCountFunc() :
 {/*@bgen(jjtree) LoopForCountFunc */
   SFPLoopForCountFunc jjtn000 = new SFPLoopForCountFunc(this, JJTLOOPFORCOUNTFUNC);
   boolean jjtc000 = true;
@@ -1558,7 +1558,7 @@ SimpleNode LoopForCountFunc() :
 			(
 				SingleVariable()
 			 	Expression()
-			 	[ 
+			 	[
 			 	 	Expression()
 			 	]
 			 )
@@ -1574,7 +1574,7 @@ SimpleNode LoopForCountFunc() :
           jjtc000 = false;
         }
 /*@egen*/
-	
+
 	{ return jjtn000; }/*@bgen(jjtree)*/
         } catch (Throwable jjte000) {
           if (jjtc000) {
@@ -1604,7 +1604,7 @@ SimpleNode LoopForCountFunc() :
 *		Case Switch Function
 **/
 
-SimpleNode SwitchCaseFunc() : 
+SimpleNode SwitchCaseFunc() :
 {/*@bgen(jjtree) SwitchCaseFunc */
   SFPSwitchCaseFunc jjtn000 = new SFPSwitchCaseFunc(this, JJTSWITCHCASEFUNC);
   boolean jjtc000 = true;
@@ -1619,7 +1619,7 @@ SimpleNode SwitchCaseFunc() :
 		(	LOOKAHEAD(2)
 			CaseStatement()
 		)*
-		[	
+		[
 		<LBRACE>
 			SwitchDefaults()
 		<RBRACE>
@@ -1659,7 +1659,7 @@ SimpleNode SwitchCaseFunc() :
 *		Case Statement Function
 **/
 
-SimpleNode CaseStatement() : 
+SimpleNode CaseStatement() :
 {/*@bgen(jjtree) CaseStatement */
   SFPCaseStatement jjtn000 = new SFPCaseStatement(this, JJTCASESTATEMENT);
   boolean jjtc000 = true;
@@ -1669,10 +1669,10 @@ SimpleNode CaseStatement() :
         try {
 /*@egen*/
 	(
-		<LBRACE> 
-			<CASE> 
+		<LBRACE>
+			<CASE>
 			Expression()	// Comparison Expression
-			<THEN> 
+			<THEN>
 			ActionList()
 		<RBRACE>
 	)/*@bgen(jjtree)*/
@@ -1681,7 +1681,7 @@ SimpleNode CaseStatement() :
           jjtc000 = false;
         }
 /*@egen*/
-	
+
 	{ return jjtn000; }/*@bgen(jjtree)*/
         } catch (Throwable jjte000) {
           if (jjtc000) {
@@ -1708,7 +1708,7 @@ SimpleNode CaseStatement() :
 /**
 *		Default Statements for SwitchCaseFunc
 **/
-SimpleNode SwitchDefaults() : 
+SimpleNode SwitchDefaults() :
 {/*@bgen(jjtree) SwitchDefaults */
   SFPSwitchDefaults jjtn000 = new SFPSwitchDefaults(this, JJTSWITCHDEFAULTS);
   boolean jjtc000 = true;
@@ -1719,7 +1719,7 @@ SimpleNode SwitchDefaults() :
 /*@egen*/
 	(
 		<LBRACE>
-			<DEFAULT_ATR> 
+			<DEFAULT_ATR>
 			ActionList()
 		<RBRACE>
 	)/*@bgen(jjtree)*/
@@ -1728,7 +1728,7 @@ SimpleNode SwitchDefaults() :
           jjtc000 = false;
         }
 /*@egen*/
-	
+
 	{ return jjtn000; }/*@bgen(jjtree)*/
         } catch (Throwable jjte000) {
           if (jjtc000) {
@@ -1753,7 +1753,7 @@ SimpleNode SwitchDefaults() :
 }
 
 /**
-*		Construct - Definition Main Handler 
+*		Construct - Definition Main Handler
 **/
 
 void Construct()       : {}
@@ -1773,7 +1773,7 @@ void Construct()       : {}
 
 /**
 *		Deftemplate Construct
-**/  
+**/
 // <deftemplate-construct> ::= (deftemplate <deftemplate-name> [<comment>] <slot-definition>*)
 
 SimpleNode DeftemplateConstruct() :
@@ -1788,7 +1788,7 @@ SimpleNode DeftemplateConstruct() :
         (
         	<DEFTEMPLATE>
 			Symbol()
-			[ 
+			[
 			 	ConstructDescription()
 			]
 			(
@@ -1800,7 +1800,7 @@ SimpleNode DeftemplateConstruct() :
           jjtc000 = false;
         }
 /*@egen*/
-	
+
         { return jjtn000; }/*@bgen(jjtree)*/
         } catch (Throwable jjte000) {
           if (jjtc000) {
@@ -1851,10 +1851,10 @@ SimpleNode Silent() :
 
 /**
 *		Slot Definition
-**/  
+**/
 //<slot-definition> ::= <single-slot-definition> | <multislot-definition>
 
-SimpleNode  SlotDefinition() : 
+SimpleNode  SlotDefinition() :
 {/*@bgen(jjtree) SlotDefinition */
   SFPSlotDefinition jjtn000 = new SFPSlotDefinition(this, JJTSLOTDEFINITION);
   boolean jjtc000 = true;
@@ -1863,14 +1863,14 @@ SimpleNode  SlotDefinition() :
 {/*@bgen(jjtree) SlotDefinition */
     try {
 /*@egen*/
-    ( 	
-		<LBRACE> 
+    (
+		<LBRACE>
 		(Silent())?
 		(
 					SingleSlotDefinition()
 				| 	MultiSlotDefinition()
 			)
-		<RBRACE> 
+		<RBRACE>
     )/*@bgen(jjtree)*/
     {
       jjtree.closeNodeScope(jjtn000, true);
@@ -1963,7 +1963,7 @@ SimpleNode MultiSlotDefinition() :
   SFPMultiSlotDefinition jjtn000 = new SFPMultiSlotDefinition(this, JJTMULTISLOTDEFINITION);
   boolean jjtc000 = true;
   jjtree.openNodeScope(jjtn000);
-/*@egen*/} 
+/*@egen*/}
 {/*@bgen(jjtree) MultiSlotDefinition */
         try {
 /*@egen*/
@@ -2009,15 +2009,15 @@ SimpleNode MultiSlotDefinition() :
 **/
 //<template-attribute> ::= <default-attribute> | <constraint-attribute>
 
-void TemplateAttribute()      : 
+void TemplateAttribute()      :
 {}
 {
 	<LBRACE>
 	(	LOOKAHEAD(2)
-		DefaultAttribute() 
+		DefaultAttribute()
 	| 	DynamicAttribute()
 	|	ConstraintAttribute()
-	) 
+	)
 	<RBRACE>
 }
 
@@ -2033,10 +2033,10 @@ SimpleNode Attributes() :
   SFPAttributes jjtn000 = new SFPAttributes(this, JJTATTRIBUTES);
   boolean jjtc000 = true;
   jjtree.openNodeScope(jjtn000);
-/*@egen*/} 
+/*@egen*/}
 {/*@bgen(jjtree) Attributes */
         try {
-/*@egen*/ 
+/*@egen*/
 	(	LOOKAHEAD(2)
 		Expression()
 	)*/*@bgen(jjtree)*/
@@ -2075,7 +2075,7 @@ SimpleNode Attributes() :
 **/
 //<default-attribute> ::= (default ?DERIVE | ?NONE | <expression>*) | (default-dynamic <expression>*)
 
-SimpleNode DefaultAttribute() : 
+SimpleNode DefaultAttribute() :
 {/*@bgen(jjtree) DefaultAttribute */
   SFPDefaultAttribute jjtn000 = new SFPDefaultAttribute(this, JJTDEFAULTATTRIBUTE);
   boolean jjtc000 = true;
@@ -2085,10 +2085,10 @@ SimpleNode DefaultAttribute() :
                 try {
 /*@egen*/
 		<DEFAULT_ATR>
-		(	
+		(
 			DeriveAttribute()
-		|	NoneAttribute() 
-		|	DefaultAttributes() 
+		|	NoneAttribute()
+		|	DefaultAttributes()
 		)/*@bgen(jjtree)*/
                 {
                   jjtree.closeNodeScope(jjtn000, true);
@@ -2133,7 +2133,7 @@ SimpleNode DefaultAttributes() :
       jjtc000 = false;
     }
 /*@egen*/
-    
+
     { return jjtn000; }/*@bgen(jjtree)*/
     } catch (Throwable jjte000) {
       if (jjtc000) {
@@ -2163,7 +2163,7 @@ SimpleNode DefaultAttributes() :
 *		Derive Attribute
 **/
 
-SimpleNode DeriveAttribute() : 
+SimpleNode DeriveAttribute() :
 {/*@bgen(jjtree) DeriveAttribute */
   SFPDeriveAttribute jjtn000 = new SFPDeriveAttribute(this, JJTDERIVEATTRIBUTE);
   boolean jjtc000 = true;
@@ -2179,7 +2179,7 @@ SimpleNode DeriveAttribute() :
         }
 /*@egen*/
 	{
-		jjtn000.jjtSetValue(t.image); 
+		jjtn000.jjtSetValue(t.image);
 		return jjtn000;
 	}/*@bgen(jjtree)*/
         } finally {
@@ -2196,7 +2196,7 @@ SimpleNode DeriveAttribute() :
 *		None Attribute
 **/
 
-SimpleNode NoneAttribute() : 
+SimpleNode NoneAttribute() :
 {/*@bgen(jjtree) NoneAttribute */
   SFPNoneAttribute jjtn000 = new SFPNoneAttribute(this, JJTNONEATTRIBUTE);
   boolean jjtc000 = true;
@@ -2212,7 +2212,7 @@ SimpleNode NoneAttribute() :
         }
 /*@egen*/
 	{
-		jjtn000.jjtSetValue(t.image); 
+		jjtn000.jjtSetValue(t.image);
 		return jjtn000;
 	}/*@bgen(jjtree)*/
         } finally {
@@ -2231,7 +2231,7 @@ SimpleNode NoneAttribute() :
 
 //<default-attribute> ::= (default ?DERIVE | ?NONE | <expression>*) | (default-dynamic <expression>*)
 
-SimpleNode DynamicAttribute() : 
+SimpleNode DynamicAttribute() :
 {/*@bgen(jjtree) DynamicAttribute */
   SFPDynamicAttribute jjtn000 = new SFPDynamicAttribute(this, JJTDYNAMICATTRIBUTE);
   boolean jjtc000 = true;
@@ -2240,8 +2240,8 @@ SimpleNode DynamicAttribute() :
 {/*@bgen(jjtree) DynamicAttribute */
         try {
 /*@egen*/
-	<DYNAMIC_ATR> 
-	(	
+	<DYNAMIC_ATR>
+	(
 		Attributes()
 	)/*@bgen(jjtree)*/
         {
@@ -2273,7 +2273,7 @@ SimpleNode DynamicAttribute() :
 }
 
 
-SimpleNode ModifyPattern() : 
+SimpleNode ModifyPattern() :
 {/*@bgen(jjtree) ModifyPattern */
   SFPModifyPattern jjtn000 = new SFPModifyPattern(this, JJTMODIFYPATTERN);
   boolean jjtc000 = true;
@@ -2291,7 +2291,7 @@ SimpleNode ModifyPattern() :
           jjtc000 = false;
         }
 /*@egen*/
-	
+
 	{ return jjtn000; }/*@bgen(jjtree)*/
         } catch (Throwable jjte000) {
           if (jjtc000) {
@@ -2315,7 +2315,7 @@ SimpleNode ModifyPattern() :
 /*@egen*/
 }
 
-SimpleNode RHSSlot() : 
+SimpleNode RHSSlot() :
 {/*@bgen(jjtree) RHSSlot */
   SFPRHSSlot jjtn000 = new SFPRHSSlot(this, JJTRHSSLOT);
   boolean jjtc000 = true;
@@ -2323,7 +2323,7 @@ SimpleNode RHSSlot() :
 /*@egen*/}
 {/*@bgen(jjtree) RHSSlot */
         try {
-/*@egen*/ 
+/*@egen*/
 	<LBRACE>
 		Symbol() // slot name
 		(
@@ -2334,8 +2334,8 @@ SimpleNode RHSSlot() :
           jjtree.closeNodeScope(jjtn000, true);
           jjtc000 = false;
         }
-/*@egen*/ 
-	
+/*@egen*/
+
 	{ return jjtn000; }/*@bgen(jjtree)*/
         } catch (Throwable jjte000) {
           if (jjtc000) {
@@ -2370,15 +2370,15 @@ SimpleNode RHSSlot() :
 // <RHS-pattern> ::= <ordered-RHS-pattern> | <template-RHS-pattern>
 // <ordered-RHS-pattern> ::= (<symbol> <RHS-field>+)
 // <template-RHS-pattern> ::= (<deftemplate-name> <RHS-slot>*)
-// <RHS-slot> ::= <single-field-RHS-slot> | <multifield-RHS-slot> 
+// <RHS-slot> ::= <single-field-RHS-slot> | <multifield-RHS-slot>
 // <single-field-RHS-slot> ::= (<slot-name> <RHS-field>)
 // <multifield-RHS-slot> ::= (<slot-name> <RHS-field>*)
 // <RHS-field> ::= <variable> | <constant> | <function-call>
-// <RHS-slot> ::= <single-field-RHS-slot> | <multifield-RHS-slot> 
+// <RHS-slot> ::= <single-field-RHS-slot> | <multifield-RHS-slot>
 // <single-field-RHS-slot> ::= (<slot-name> <RHS-field>)
 // <multifield-RHS-slot> ::= (<slot-name> <RHS-field>*)
 
-SimpleNode RHSPattern() : 
+SimpleNode RHSPattern() :
 {/*@bgen(jjtree) RHSPattern */
   SFPRHSPattern jjtn000 = new SFPRHSPattern(this, JJTRHSPATTERN);
   boolean jjtc000 = true;
@@ -2386,9 +2386,9 @@ SimpleNode RHSPattern() :
 /*@egen*/}
 {/*@bgen(jjtree) RHSPattern */
         try {
-/*@egen*/ 
+/*@egen*/
 	<LBRACE>
-		Symbol() //Template Name 
+		Symbol() //Template Name
 		[
 			LOOKAHEAD(2)
 			<LBRACE>
@@ -2403,8 +2403,8 @@ SimpleNode RHSPattern() :
           jjtree.closeNodeScope(jjtn000, true);
           jjtc000 = false;
         }
-/*@egen*/ 
-	
+/*@egen*/
+
 	{ return jjtn000; }/*@bgen(jjtree)*/
         } catch (Throwable jjte000) {
           if (jjtc000) {
@@ -2435,11 +2435,11 @@ SimpleNode RHSPattern() :
 
 //<RHS-field> ::= <variable> | <constant> | <function-call>
 
-void RHSField()      : 
+void RHSField()      :
 {}
 {
-    	Variable() 
-    |   Constant() 
+    	Variable()
+    |   Constant()
     |   FunctionCall()
 }
 
@@ -2450,7 +2450,7 @@ void RHSField()      :
 **/
 
 /*
-<defrule-construct> ::= (defrule <rule-name> [<comment>] [<declaration>] <conditional-element>* => <expression>*) 
+<defrule-construct> ::= (defrule <rule-name> [<comment>] [<declaration>] <conditional-element>* => <expression>*)
 <rule-property> ::= (salience <integer-expression>) | (auto-focus <boolean-symbol>)
 <boolean-symbol> ::= TRUE | FALSE
 <conditional-element> ::= <pattern-CE> | <assigned-pattern-CE> | <not-CE> | <and-CE> | <or-CE> |
@@ -2475,7 +2475,7 @@ void RHSField()      :
 <connected-constraint>::= <single-constraint> | <single-constraint> & <connected-constraint> |
 	<single-constraint> | <connected-constraint>
 <single-constraint> ::= <term> | ~<term>
-<term> ::= <constant> | <single-field-variable> | <multifield-variable> | 
+<term> ::= <constant> | <single-field-variable> | <multifield-variable> |
 	:<function-call> | =<function-call>
 */
 
@@ -2485,7 +2485,7 @@ void RHSField()      :
 *		Define Rule Construct
 **/
 
-// <defrule-construct> ::= (defrule <rule-name> [<comment>] [<declaration>] <conditional-element>* => <expression>*) 
+// <defrule-construct> ::= (defrule <rule-name> [<comment>] [<declaration>] <conditional-element>* => <expression>*)
 
 SimpleNode DefruleConstruct() :
 {/*@bgen(jjtree) DefruleConstruct */
@@ -2500,17 +2500,17 @@ SimpleNode DefruleConstruct() :
     		<DEFRULE>
 
     		Symbol()	//name
-    		[ 
-    		  	ConstructDescription()	
+    		[
+    		  	ConstructDescription()
     		]
-    		( 
+    		(
     			[
     				LOOKAHEAD(3)
     				Declaration()
     			]
    				(
     					ConditionalElement()
-   				)* 
+   				)*
     		)
     			<ARROW>
         		ActionList()
@@ -2519,7 +2519,7 @@ SimpleNode DefruleConstruct() :
           jjtree.closeNodeScope(jjtn000, true);
           jjtc000 = false;
         }
-/*@egen*/        
+/*@egen*/
 	{ return jjtn000; }/*@bgen(jjtree)*/
         } catch (Throwable jjte000) {
           if (jjtc000) {
@@ -2555,10 +2555,10 @@ SimpleNode ActionList():{/*@bgen(jjtree) ActionList */
   SFPActionList jjtn000 = new SFPActionList(this, JJTACTIONLIST);
   boolean jjtc000 = true;
   jjtree.openNodeScope(jjtn000);
-/*@egen*/} 
+/*@egen*/}
 {/*@bgen(jjtree) ActionList */
         try {
-/*@egen*/ 
+/*@egen*/
     	(
         	(
         	LOOKAHEAD(2)
@@ -2601,7 +2601,7 @@ SimpleNode ActionList():{/*@bgen(jjtree) ActionList */
 
 //<declaration> ::= (declare <rule-property>+)
 
-SimpleNode Declaration(): 
+SimpleNode Declaration():
 {/*@bgen(jjtree) Declaration */
   SFPDeclaration jjtn000 = new SFPDeclaration(this, JJTDECLARATION);
   boolean jjtc000 = true;
@@ -2652,12 +2652,12 @@ SimpleNode Declaration():
 
 // <rule-property> ::= (salience <integer-expression>) | (auto-focus <boolean-symbol>)
 
-void RuleProperty()      : 
+void RuleProperty()      :
 {}
 {
     <LBRACE>
      	(
-     		Salience()		
+     		Salience()
      	| 	AutoFocus()
      	|   SlowCompile()
      	|	RuleVersion()
@@ -2701,7 +2701,7 @@ SimpleNode TemporalValidityDeclaration() :
             jjtree.closeNodeScope(jjtn000, true);
           }
         }
-/*@egen*/	
+/*@egen*/
 }
 
 
@@ -2755,13 +2755,13 @@ SimpleNode TemporalValidity() :
 *		Temporal Attribute
 **/
 
-void TemporalAttribute()      : 
+void TemporalAttribute()      :
 {}
 {
     <LBRACE>
      	(
      	    TAMillisecond()
-     	|	TASecond()		
+     	|	TASecond()
      	| 	TAMinute()
      	|	TAHour()
      	|   TADay()
@@ -2773,7 +2773,7 @@ void TemporalAttribute()      :
 	<RBRACE>
 }
 
-SimpleNode TAMillisecond(): 
+SimpleNode TAMillisecond():
 {/*@bgen(jjtree) TAMillisecond */
   SFPTAMillisecond jjtn000 = new SFPTAMillisecond(this, JJTTAMILLISECOND);
   boolean jjtc000 = true;
@@ -2812,7 +2812,7 @@ SimpleNode TAMillisecond():
 /*@egen*/
 }
 
-SimpleNode TASecond(): 
+SimpleNode TASecond():
 {/*@bgen(jjtree) TASecond */
   SFPTASecond jjtn000 = new SFPTASecond(this, JJTTASECOND);
   boolean jjtc000 = true;
@@ -2851,7 +2851,7 @@ SimpleNode TASecond():
 /*@egen*/
 }
 
-SimpleNode TAMinute(): 
+SimpleNode TAMinute():
 {/*@bgen(jjtree) TAMinute */
   SFPTAMinute jjtn000 = new SFPTAMinute(this, JJTTAMINUTE);
   boolean jjtc000 = true;
@@ -2890,7 +2890,7 @@ SimpleNode TAMinute():
 /*@egen*/
 }
 
-SimpleNode TAHour(): 
+SimpleNode TAHour():
 {/*@bgen(jjtree) TAHour */
   SFPTAHour jjtn000 = new SFPTAHour(this, JJTTAHOUR);
   boolean jjtc000 = true;
@@ -2929,7 +2929,7 @@ SimpleNode TAHour():
 /*@egen*/
 }
 
-SimpleNode TADay(): 
+SimpleNode TADay():
 {/*@bgen(jjtree) TADay */
   SFPTADay jjtn000 = new SFPTADay(this, JJTTADAY);
   boolean jjtc000 = true;
@@ -2968,7 +2968,7 @@ SimpleNode TADay():
 /*@egen*/
 }
 
-SimpleNode TAMonth(): 
+SimpleNode TAMonth():
 {/*@bgen(jjtree) TAMonth */
   SFPTAMonth jjtn000 = new SFPTAMonth(this, JJTTAMONTH);
   boolean jjtc000 = true;
@@ -3007,7 +3007,7 @@ SimpleNode TAMonth():
 /*@egen*/
 }
 
-SimpleNode TAYear(): 
+SimpleNode TAYear():
 {/*@bgen(jjtree) TAYear */
   SFPTAYear jjtn000 = new SFPTAYear(this, JJTTAYEAR);
   boolean jjtc000 = true;
@@ -3046,7 +3046,7 @@ SimpleNode TAYear():
 /*@egen*/
 }
 
-SimpleNode TAWeekday(): 
+SimpleNode TAWeekday():
 {/*@bgen(jjtree) TAWeekday */
   SFPTAWeekday jjtn000 = new SFPTAWeekday(this, JJTTAWEEKDAY);
   boolean jjtc000 = true;
@@ -3085,7 +3085,7 @@ SimpleNode TAWeekday():
 /*@egen*/
 }
 
-SimpleNode TADuration(): 
+SimpleNode TADuration():
 {/*@bgen(jjtree) TADuration */
   SFPTADuration jjtn000 = new SFPTADuration(this, JJTTADURATION);
   boolean jjtc000 = true;
@@ -3177,7 +3177,7 @@ SimpleNode Salience() :
 *		Auto Focus
 **/
 
-SimpleNode AutoFocus(): 
+SimpleNode AutoFocus():
 {/*@bgen(jjtree) AutoFocus */
   SFPAutoFocus jjtn000 = new SFPAutoFocus(this, JJTAUTOFOCUS);
   boolean jjtc000 = true;
@@ -3193,7 +3193,7 @@ SimpleNode AutoFocus():
           jjtc000 = false;
         }
 /*@egen*/
-	
+
 	{ return jjtn000; }/*@bgen(jjtree)*/
         } catch (Throwable jjte000) {
           if (jjtc000) {
@@ -3221,7 +3221,7 @@ SimpleNode AutoFocus():
 *       Slow Compile
 **/
 
-SimpleNode SlowCompile(): 
+SimpleNode SlowCompile():
 {/*@bgen(jjtree) SlowCompile */
   SFPSlowCompile jjtn000 = new SFPSlowCompile(this, JJTSLOWCOMPILE);
   boolean jjtc000 = true;
@@ -3237,7 +3237,7 @@ SimpleNode SlowCompile():
       jjtc000 = false;
     }
 /*@egen*/
-    
+
     { return jjtn000; }/*@bgen(jjtree)*/
     } catch (Throwable jjte000) {
       if (jjtc000) {
@@ -3267,7 +3267,7 @@ SimpleNode SlowCompile():
 *		Rule Version
 **/
 
-SimpleNode RuleVersion(): 
+SimpleNode RuleVersion():
 {/*@bgen(jjtree) RuleVersion */
   SFPRuleVersion jjtn000 = new SFPRuleVersion(this, JJTRULEVERSION);
   boolean jjtc000 = true;
@@ -3283,7 +3283,7 @@ SimpleNode RuleVersion():
           jjtc000 = false;
         }
 /*@egen*/
-	
+
 	{ return jjtn000; }/*@bgen(jjtree)*/
         } catch (Throwable jjte000) {
           if (jjtc000) {
@@ -3315,7 +3315,7 @@ SimpleNode RuleVersion():
 
 //<boolean-symbol> ::= TRUE | FALSE
 
-void BooleanSymbol()      : 
+void BooleanSymbol()      :
 {}
 {
     (
@@ -3335,22 +3335,22 @@ void BooleanSymbol()      :
 void ConditionalElement()      :
 {}
 {
-	(	
+	(
 		(
-		   <LBRACE> 
-				(	
-						TemplatePatternCE() 
-					|	BooleanFunction() 
-					|	LogicalCE() 
+		   <LBRACE>
+				(
+						TemplatePatternCE()
+					|	BooleanFunction()
+					|	LogicalCE()
 					|	TestCE()
 					|	ExistsCE()
-					|	ForallCE()		
+					|	ForallCE()
 				)
 			<RBRACE>
 		)
 
 		|	AssignedPatternCE()
-	)	
+	)
 }
 
 
@@ -3359,13 +3359,13 @@ void ConditionalElement()      :
 *		Boolean Function
 **/
 
-void BooleanFunction()      : 
+void BooleanFunction()      :
 {}
 {
 	(LOOKAHEAD(2)
 		NotFunction()
 	|	AndFunction()
-	|	OrFunction()	
+	|	OrFunction()
 	)
 }
 
@@ -3429,7 +3429,7 @@ SimpleNode AndFunction():
 /*@egen*/}
 {/*@bgen(jjtree) AndFunction */
         try {
-/*@egen*/	
+/*@egen*/
 	<AND>
 		(ConditionalElement())+/*@bgen(jjtree)*/
         {
@@ -3437,7 +3437,7 @@ SimpleNode AndFunction():
           jjtc000 = false;
         }
 /*@egen*/
-    	
+
 	{ return jjtn000; }/*@bgen(jjtree)*/
         } catch (Throwable jjte000) {
           if (jjtc000) {
@@ -3475,7 +3475,7 @@ SimpleNode OrFunction():
 /*@egen*/}
 {/*@bgen(jjtree) OrFunction */
         try {
-/*@egen*/	
+/*@egen*/
 
 	<OR>
 		(ConditionalElement())+/*@bgen(jjtree)*/
@@ -3484,7 +3484,7 @@ SimpleNode OrFunction():
           jjtc000 = false;
         }
 /*@egen*/
-    	
+
 	{ return jjtn000; }/*@bgen(jjtree)*/
         } catch (Throwable jjte000) {
           if (jjtc000) {
@@ -3506,7 +3506,7 @@ SimpleNode OrFunction():
           }
         }
 /*@egen*/
-}	
+}
 
 
 /**
@@ -3527,21 +3527,21 @@ SimpleNode AssignedPatternCE():
 /*@egen*/
 
 	(
-		SingleVariable() 
+		SingleVariable()
 		<ASSIGN>
-		
+
 		<LBRACE>
-		
+
 			TemplatePatternCE()
-		
+
 		<RBRACE>
 	)/*@bgen(jjtree)*/
         {
           jjtree.closeNodeScope(jjtn000, true);
           jjtc000 = false;
         }
-/*@egen*/ 
-	
+/*@egen*/
+
 	{ return jjtn000; }/*@bgen(jjtree)*/
         } catch (Throwable jjte000) {
           if (jjtc000) {
@@ -3574,7 +3574,7 @@ SimpleNode AssignedPatternCE():
 //<logical-CE> ::= (logical <conditional-element>+)
 // Create and return conditions
 
-SimpleNode LogicalCE() : 
+SimpleNode LogicalCE() :
 {/*@bgen(jjtree) LogicalCE */
   SFPLogicalCE jjtn000 = new SFPLogicalCE(this, JJTLOGICALCE);
   boolean jjtc000 = true;
@@ -3583,19 +3583,19 @@ SimpleNode LogicalCE() :
 {/*@bgen(jjtree) LogicalCE */
     try {
 /*@egen*/
-    <LOGICAL> 
-    
+    <LOGICAL>
+
     (
     	LOOKAHEAD(2)
-    	
+
 		ConditionalElement()
     )+/*@bgen(jjtree)*/
     {
       jjtree.closeNodeScope(jjtn000, true);
       jjtc000 = false;
     }
-/*@egen*/ 
-    
+/*@egen*/
+
     { return jjtn000; }/*@bgen(jjtree)*/
     } catch (Throwable jjte000) {
       if (jjtc000) {
@@ -3628,7 +3628,7 @@ SimpleNode LogicalCE() :
 //<test-CE> ::= (test <function-call>)
 // Create and return conditions (initialize the function before execution, to get a node
 
-SimpleNode TestCE() : 
+SimpleNode TestCE() :
 {/*@bgen(jjtree) TestCE */
   SFPTestCE jjtn000 = new SFPTestCE(this, JJTTESTCE);
   boolean jjtc000 = true;
@@ -3644,7 +3644,7 @@ SimpleNode TestCE() :
           jjtc000 = false;
         }
 /*@egen*/
-	
+
 	{ return jjtn000; }/*@bgen(jjtree)*/
         } catch (Throwable jjte000) {
           if (jjtc000) {
@@ -3676,7 +3676,7 @@ SimpleNode TestCE() :
 
 //<exists-CE> ::= (exists <conditional-element>+)
 // Create and return conditions
-SimpleNode ExistsCE() : 
+SimpleNode ExistsCE() :
 {/*@bgen(jjtree) ExistsCE */
   SFPExistsCE jjtn000 = new SFPExistsCE(this, JJTEXISTSCE);
   boolean jjtc000 = true;
@@ -3685,10 +3685,10 @@ SimpleNode ExistsCE() :
 {/*@bgen(jjtree) ExistsCE */
     try {
 /*@egen*/
-    <EXISTS> 
+    <EXISTS>
     (
 		LOOKAHEAD(2)
-		
+
 		ConditionalElement()
     )+/*@bgen(jjtree)*/
     {
@@ -3696,7 +3696,7 @@ SimpleNode ExistsCE() :
       jjtc000 = false;
     }
 /*@egen*/
-    
+
     { return jjtn000; }/*@bgen(jjtree)*/
     } catch (Throwable jjte000) {
       if (jjtc000) {
@@ -3729,7 +3729,7 @@ SimpleNode ExistsCE() :
 //<forall-CE> ::= (forall <conditional-element> <conditional-element>+)
 // Create and return conditions
 
-SimpleNode ForallCE() : 
+SimpleNode ForallCE() :
 {/*@bgen(jjtree) ForallCE */
   SFPForallCE jjtn000 = new SFPForallCE(this, JJTFORALLCE);
   boolean jjtc000 = true;
@@ -3738,19 +3738,19 @@ SimpleNode ForallCE() :
 {/*@bgen(jjtree) ForallCE */
         try {
 /*@egen*/
-	<FORALL> 
-	ConditionalElement() 
+	<FORALL>
+	ConditionalElement()
 	(
 		LOOKAHEAD(2)
-		
+
 		ConditionalElement()
 	)+/*@bgen(jjtree)*/
         {
           jjtree.closeNodeScope(jjtn000, true);
           jjtc000 = false;
         }
-/*@egen*/	
-    	
+/*@egen*/
+
 	{return jjtn000; }/*@bgen(jjtree)*/
         } catch (Throwable jjte000) {
           if (jjtc000) {
@@ -3781,7 +3781,7 @@ SimpleNode ForallCE() :
 
 //<template-pattern-CE> ::= (<deftemplate-name> <LHS-slot>*)
 
-SimpleNode TemplatePatternCE(): 
+SimpleNode TemplatePatternCE():
 {/*@bgen(jjtree) TemplatePatternCE */
   SFPTemplatePatternCE jjtn000 = new SFPTemplatePatternCE(this, JJTTEMPLATEPATTERNCE);
   boolean jjtc000 = true;
@@ -3802,7 +3802,7 @@ SimpleNode TemplatePatternCE():
      jjtc000 = false;
    }
 /*@egen*/
-    
+
    { return jjtn000; }/*@bgen(jjtree)*/
     } catch (Throwable jjte000) {
       if (jjtc000) {
@@ -3828,7 +3828,7 @@ SimpleNode TemplatePatternCE():
 
 
 
-SimpleNode UnorderedLHSFactBody(): 
+SimpleNode UnorderedLHSFactBody():
 {/*@bgen(jjtree) UnorderedLHSFactBody */
   SFPUnorderedLHSFactBody jjtn000 = new SFPUnorderedLHSFactBody(this, JJTUNORDEREDLHSFACTBODY);
   boolean jjtc000 = true;
@@ -3845,7 +3845,7 @@ SimpleNode UnorderedLHSFactBody():
           jjtc000 = false;
         }
 /*@egen*/
-	
+
 	{ return jjtn000; }/*@bgen(jjtree)*/
         } catch (Throwable jjte000) {
           if (jjtc000) {
@@ -3869,7 +3869,7 @@ SimpleNode UnorderedLHSFactBody():
 /*@egen*/
 }
 
-SimpleNode OrderedLHSFactBody(): 
+SimpleNode OrderedLHSFactBody():
 {/*@bgen(jjtree) OrderedLHSFactBody */
   SFPOrderedLHSFactBody jjtn000 = new SFPOrderedLHSFactBody(this, JJTORDEREDLHSFACTBODY);
   boolean jjtc000 = true;
@@ -3916,7 +3916,7 @@ SimpleNode OrderedLHSFactBody():
 
 //<LHS-slot> ::= <single-field-LHS-slot> | <multifield-LHS-slot>
 
-SimpleNode LHSSlot(): 
+SimpleNode LHSSlot():
 {/*@bgen(jjtree) LHSSlot */
   SFPLHSSlot jjtn000 = new SFPLHSSlot(this, JJTLHSSLOT);
   boolean jjtc000 = true;
@@ -3933,8 +3933,8 @@ SimpleNode LHSSlot():
       jjtree.closeNodeScope(jjtn000, true);
       jjtc000 = false;
     }
-/*@egen*/	
-    
+/*@egen*/
+
     { return jjtn000; }/*@bgen(jjtree)*/
     } catch (Throwable jjte000) {
       if (jjtc000) {
@@ -3966,9 +3966,9 @@ SimpleNode LHSSlot():
 
 //<constraint> ::= ? | $? | <connected-constraint>
 
-void Constraint()       : 
+void Constraint()       :
 {}
-{		
+{
 		SingleFieldWildcard()
 	|	MultiFieldWildcard()
 	|	ConnectedConstraint()
@@ -3980,7 +3980,7 @@ void Constraint()       :
 *		Singlefield Wildcard
 **/
 
-SimpleNode SingleFieldWildcard() : 
+SimpleNode SingleFieldWildcard() :
 {/*@bgen(jjtree) SingleFieldWildcard */
   SFPSingleFieldWildcard jjtn000 = new SFPSingleFieldWildcard(this, JJTSINGLEFIELDWILDCARD);
   boolean jjtc000 = true;
@@ -3995,7 +3995,7 @@ SimpleNode SingleFieldWildcard() :
       jjtc000 = false;
     }
 /*@egen*/
-	
+
     { return jjtn000; }/*@bgen(jjtree)*/
         } finally {
           if (jjtc000) {
@@ -4011,7 +4011,7 @@ SimpleNode SingleFieldWildcard() :
 *		Multifield Wildcard
 **/
 
-SimpleNode MultiFieldWildcard() : 
+SimpleNode MultiFieldWildcard() :
 {/*@bgen(jjtree) MultiFieldWildcard */
   SFPMultiFieldWildcard jjtn000 = new SFPMultiFieldWildcard(this, JJTMULTIFIELDWILDCARD);
   boolean jjtc000 = true;
@@ -4026,7 +4026,7 @@ SimpleNode MultiFieldWildcard() :
       jjtc000 = false;
     }
 /*@egen*/
-	
+
     { return jjtn000; }/*@bgen(jjtree)*/
         } finally {
           if (jjtc000) {
@@ -4055,7 +4055,7 @@ SimpleNode ConnectedConstraint():
     try {
 /*@egen*/
     (
-    	Term() 
+    	Term()
     [
 		AmpersandConnectedConstraint()
 	|	LineConnectedConstraint()
@@ -4095,7 +4095,7 @@ SimpleNode ConnectedConstraint():
 *		Ampersand Connected Constraint
 **/
 
-SimpleNode AmpersandConnectedConstraint(): 
+SimpleNode AmpersandConnectedConstraint():
 {/*@bgen(jjtree) AmpersandConnectedConstraint */
   SFPAmpersandConnectedConstraint jjtn000 = new SFPAmpersandConnectedConstraint(this, JJTAMPERSANDCONNECTEDCONSTRAINT);
   boolean jjtc000 = true;
@@ -4116,7 +4116,7 @@ SimpleNode AmpersandConnectedConstraint():
       jjtc000 = false;
     }
 /*@egen*/
-    
+
     { return jjtn000; }/*@bgen(jjtree)*/
     } catch (Throwable jjte000) {
       if (jjtc000) {
@@ -4146,7 +4146,7 @@ SimpleNode AmpersandConnectedConstraint():
 *		Line Connected Constraint
 **/
 
-SimpleNode LineConnectedConstraint(): 
+SimpleNode LineConnectedConstraint():
 {/*@bgen(jjtree) LineConnectedConstraint */
   SFPLineConnectedConstraint jjtn000 = new SFPLineConnectedConstraint(this, JJTLINECONNECTEDCONSTRAINT);
   boolean jjtc000 = true;
@@ -4167,7 +4167,7 @@ SimpleNode LineConnectedConstraint():
           jjtc000 = false;
         }
 /*@egen*/
-    
+
 	{ return jjtn000; }/*@bgen(jjtree)*/
     } catch (Throwable jjte000) {
       if (jjtc000) {
@@ -4188,7 +4188,7 @@ SimpleNode LineConnectedConstraint():
         jjtree.closeNodeScope(jjtn000, true);
       }
     }
-/*@egen*/ 
+/*@egen*/
 }
 
 
@@ -4197,10 +4197,10 @@ SimpleNode LineConnectedConstraint():
 *		Term
 **/
 
-//<term> ::= <constant> | <single-field-variable> | <multifield-variable> | 
+//<term> ::= <constant> | <single-field-variable> | <multifield-variable> |
 //	:<function-call> | =<function-call>
 
-SimpleNode Term()  : 
+SimpleNode Term()  :
 {/*@bgen(jjtree) Term */
   SFPTerm jjtn000 = new SFPTerm(this, JJTTERM);
   boolean jjtc000 = true;
@@ -4210,9 +4210,9 @@ SimpleNode Term()  :
     try {
 /*@egen*/
     (
-    	[	
+    	[
 		Negation()
-	] 
+	]
     ( LOOKAHEAD(3)
     	Constant()
     |	SingleVariable()
@@ -4226,7 +4226,7 @@ SimpleNode Term()  :
       jjtc000 = false;
     }
 /*@egen*/
-    
+
     {return jjtn000;}/*@bgen(jjtree)*/
     } catch (Throwable jjte000) {
       if (jjtc000) {
@@ -4256,7 +4256,7 @@ SimpleNode Term()  :
 *		Negation
 **/
 
-SimpleNode Negation() : 
+SimpleNode Negation() :
 {/*@bgen(jjtree) Negation */
   SFPNegation jjtn000 = new SFPNegation(this, JJTNEGATION);
   boolean jjtc000 = true;
@@ -4271,7 +4271,7 @@ SimpleNode Negation() :
           jjtc000 = false;
         }
 /*@egen*/
-	
+
 	{ return jjtn000; }/*@bgen(jjtree)*/
         } finally {
           if (jjtc000) {
@@ -4287,7 +4287,7 @@ SimpleNode Negation() :
 *		Colon
 **/
 
-SimpleNode Colon() : 
+SimpleNode Colon() :
 {/*@bgen(jjtree) Colon */
   SFPColon jjtn000 = new SFPColon(this, JJTCOLON);
   boolean jjtc000 = true;
@@ -4332,7 +4332,7 @@ SimpleNode Colon() :
 *		Equals
 **/
 
-SimpleNode Equals() : 
+SimpleNode Equals() :
 {/*@bgen(jjtree) Equals */
   SFPEquals jjtn000 = new SFPEquals(this, JJTEQUALS);
   boolean jjtc000 = true;
@@ -4390,8 +4390,8 @@ SimpleNode DefglobalConstruct()  :
 /*@egen*/
     (
     	<DEFGLOBAL>
-        [ 
-         	Symbol()//defmodule-name 
+        [
+         	Symbol()//defmodule-name
         ]
         (
         	GlobalAssignment()
@@ -4402,7 +4402,7 @@ SimpleNode DefglobalConstruct()  :
       jjtc000 = false;
     }
 /*@egen*/
-    
+
     { return jjtn000; }/*@bgen(jjtree)*/
     } catch (Throwable jjte000) {
       if (jjtc000) {
@@ -4434,7 +4434,7 @@ SimpleNode DefglobalConstruct()  :
 
 //<global-assignment> ::= <global-variable> = <expression>
 
-SimpleNode GlobalAssignment()  : 
+SimpleNode GlobalAssignment()  :
 {/*@bgen(jjtree) GlobalAssignment */
   SFPGlobalAssignment jjtn000 = new SFPGlobalAssignment(this, JJTGLOBALASSIGNMENT);
   boolean jjtc000 = true;
@@ -4453,7 +4453,7 @@ SimpleNode GlobalAssignment()  :
       jjtc000 = false;
     }
 /*@egen*/
-    
+
     { return jjtn000; }/*@bgen(jjtree)*/
     } catch (Throwable jjte000) {
       if (jjtc000) {
@@ -4483,7 +4483,7 @@ SimpleNode GlobalAssignment()  :
 *		Deffunction Construct
 **/
 
-//<deffunction-construct> 
+//<deffunction-construct>
 //	::= (deffunction <name> [(functiongroup <groupname>)] [<comment>] (<regular-parameter>* [<wildcard-parameter>]) <expression>*)
 
 SimpleNode DeffunctionConstruct()  :
@@ -4498,11 +4498,11 @@ SimpleNode DeffunctionConstruct()  :
     (
     	<DEFFUNCTION>
         Symbol()	//name
-        [ 
+        [
          	ConstructDescription()
         ]
         (<LBRACE>
-        [ 
+        [
          	FunctionGroup()
          	<RBRACE>
          	<LBRACE>
@@ -4513,18 +4513,18 @@ SimpleNode DeffunctionConstruct()  :
         	)*
         	(
              	MultiVariable()
-            )* 
+            )*
         <RBRACE>
         )
         ActionList()
-        
+
     )/*@bgen(jjtree)*/
     {
       jjtree.closeNodeScope(jjtn000, true);
       jjtc000 = false;
     }
-/*@egen*/ 
-    
+/*@egen*/
+
     { return jjtn000; }/*@bgen(jjtree)*/
     } catch (Throwable jjte000) {
       if (jjtc000) {
@@ -4558,7 +4558,7 @@ SimpleNode FunctionGroup() :
   SFPFunctionGroup jjtn000 = new SFPFunctionGroup(this, JJTFUNCTIONGROUP);
   boolean jjtc000 = true;
   jjtree.openNodeScope(jjtn000);
-/*@egen*/}	
+/*@egen*/}
 {/*@bgen(jjtree) FunctionGroup */
                 try {
 /*@egen*/
@@ -4569,7 +4569,7 @@ SimpleNode FunctionGroup() :
            jjtc000 = false;
          }
 /*@egen*/
-	
+
 	 { return jjtn000; }/*@bgen(jjtree)*/
                 } catch (Throwable jjte000) {
                   if (jjtc000) {
@@ -4594,7 +4594,7 @@ SimpleNode FunctionGroup() :
 }
 
 /**
-*		Defgeneric Construct 
+*		Defgeneric Construct
 **/
 
 //	<defgeneric-construct> ::= (defgeneric <name> [<comment>])
@@ -4611,7 +4611,7 @@ SimpleNode DefgenericConstruct() :
      (
     	<DEFGENERIC>
         Symbol()	//name
-        [ 
+        [
          	ConstructDescription()
         ]
      )/*@bgen(jjtree)*/
@@ -4620,7 +4620,7 @@ SimpleNode DefgenericConstruct() :
        jjtc000 = false;
      }
 /*@egen*/
-     
+
      { return jjtn000; }/*@bgen(jjtree)*/
      } catch (Throwable jjte000) {
        if (jjtc000) {
@@ -4647,7 +4647,7 @@ SimpleNode DefgenericConstruct() :
 
 
 /**
-*		Parameter Restriction 
+*		Parameter Restriction
 **/
 
 //<parameter-restriction> ::= <single-field-variable> | (<single-field-variable> <type>* [<query>])
@@ -4664,10 +4664,10 @@ SimpleNode ParameterRestriction() : {/*@bgen(jjtree) ParameterRestriction */
 		SingleVariable()
 	|	(
 			<LBRACE>
-				SingleVariable() 
+				SingleVariable()
 				(
 					AllowedType()
-				)* 
+				)*
 				[
 				 	Query()
 				 ]
@@ -4679,7 +4679,7 @@ SimpleNode ParameterRestriction() : {/*@bgen(jjtree) ParameterRestriction */
           jjtc000 = false;
         }
 /*@egen*/
-	
+
 	{ return jjtn000; }/*@bgen(jjtree)*/
         } catch (Throwable jjte000) {
           if (jjtc000) {
@@ -4706,7 +4706,7 @@ SimpleNode ParameterRestriction() : {/*@bgen(jjtree) ParameterRestriction */
 
 
 /**
-*		Wildcard Parameter Restriction 
+*		Wildcard Parameter Restriction
 **/
 
 //<wildcard-parameter-restriction> ::= <multifield-variable> | (<multifield-variable> <type>* [<query>])
@@ -4724,10 +4724,10 @@ SimpleNode WildcardParameterRestriction() : {/*@bgen(jjtree) WildcardParameterRe
 	|
 		(
 			<LBRACE>
-				MultiVariable() 
+				MultiVariable()
 				(
 					AllowedType()
-				)* 
+				)*
 				[
 				 	Query()
 				 ]
@@ -4739,7 +4739,7 @@ SimpleNode WildcardParameterRestriction() : {/*@bgen(jjtree) WildcardParameterRe
           jjtc000 = false;
         }
 /*@egen*/
-	
+
 	{ return jjtn000; }/*@bgen(jjtree)*/
         } catch (Throwable jjte000) {
           if (jjtc000) {
@@ -4766,7 +4766,7 @@ SimpleNode WildcardParameterRestriction() : {/*@bgen(jjtree) WildcardParameterRe
 
 
 /**
-*		Query 
+*		Query
 **/
 
 //<query> ::= <global-variable> | <function-call>
@@ -4809,7 +4809,7 @@ void Query() : {/*@bgen(jjtree) Query */
 *		Constraint Attribute
 **/
 
-//<constraint-attribute> ::= <type-attribute> | <allowed-constant-attribute> | 
+//<constraint-attribute> ::= <type-attribute> | <allowed-constant-attribute> |
 //	<range-attribute> | <cardinality-attribute>
 
 void ConstraintAttribute()       : { }
@@ -4839,14 +4839,14 @@ SimpleNode TypeAttribute() :
 {/*@bgen(jjtree) TypeAttribute */
         try {
 /*@egen*/
-	<TYPE> 
+	<TYPE>
 	TypeSpecification()/*@bgen(jjtree)*/
         {
           jjtree.closeNodeScope(jjtn000, true);
           jjtc000 = false;
         }
 /*@egen*/
-	
+
 	{ return jjtn000; }/*@bgen(jjtree)*/
         } catch (Throwable jjte000) {
           if (jjtc000) {
@@ -4878,7 +4878,7 @@ SimpleNode TypeAttribute() :
 
 //<type-specification> ::= <allowed-type>+ | ?VARIABLE
 
-SimpleNode TypeSpecification() : 
+SimpleNode TypeSpecification() :
 {/*@bgen(jjtree) TypeSpecification */
   SFPTypeSpecification jjtn000 = new SFPTypeSpecification(this, JJTTYPESPECIFICATION);
   boolean jjtc000 = true;
@@ -4887,9 +4887,9 @@ SimpleNode TypeSpecification() :
 {/*@bgen(jjtree) TypeSpecification */
         try {
 /*@egen*/	(
-		( 
-			AllowedType() 
-		)+ 
+		(
+			AllowedType()
+		)+
 		| 	VariableType()
 	)/*@bgen(jjtree)*/
         {
@@ -4929,7 +4929,7 @@ SimpleNode TypeSpecification() :
 //<allowed-type> ::= SYMBOL | STRING | LEXEME | INTEGER | FLOAT | NUMBER |
 // EXTERNAL-ADDRESS | FACT-ADDRESS | DATETIME
 
-void AllowedType()       : 
+void AllowedType()       :
 {}
 {
 	(		SymbolType()
@@ -4953,7 +4953,7 @@ void AllowedType()       :
 //	(allowed-lexemes <lexeme-list> | (allowed-integers <integer-list>) | (allowed-floats <float-list>) |
 //	(allowed-numbers <number-list>) | (allowed-values <value-list>)
 
-SimpleNode AllowedConstantAttribute() : 
+SimpleNode AllowedConstantAttribute() :
 {/*@bgen(jjtree) AllowedConstantAttribute */
   SFPAllowedConstantAttribute jjtn000 = new SFPAllowedConstantAttribute(this, JJTALLOWEDCONSTANTATTRIBUTE);
   boolean jjtc000 = true;
@@ -4976,10 +4976,10 @@ SimpleNode AllowedConstantAttribute() :
           jjtc000 = false;
         }
 /*@egen*/
-	
-	{ 	
+
+	{
 		jjtn000.jjtSetValue(t.image);
-		return jjtn000; 
+		return jjtn000;
 	}/*@bgen(jjtree)*/
         } catch (Throwable jjte000) {
           if (jjtc000) {
@@ -5020,7 +5020,7 @@ SimpleNode SymbolList() : {/*@bgen(jjtree) SymbolList */
     try {
 /*@egen*/
     (
-    		( <SYMBOL> )+ 
+    		( <SYMBOL> )+
 	|	VariableType()
     )/*@bgen(jjtree)*/
     {
@@ -5028,7 +5028,7 @@ SimpleNode SymbolList() : {/*@bgen(jjtree) SymbolList */
       jjtc000 = false;
     }
 /*@egen*/
-    
+
     { return jjtn000; }/*@bgen(jjtree)*/
     } catch (Throwable jjte000) {
       if (jjtc000) {
@@ -5060,7 +5060,7 @@ SimpleNode SymbolList() : {/*@bgen(jjtree) SymbolList */
 
 //<string-list> ::= <string>+ | ?VARIABLE
 
-SimpleNode StringList() : 
+SimpleNode StringList() :
 {/*@bgen(jjtree) StringList */
   SFPStringList jjtn000 = new SFPStringList(this, JJTSTRINGLIST);
   boolean jjtc000 = true;
@@ -5070,7 +5070,7 @@ SimpleNode StringList() :
     try {
 /*@egen*/
     (
-    		( <STRING> )+ 
+    		( <STRING> )+
 	|	VariableType()
     )/*@bgen(jjtree)*/
     {
@@ -5078,7 +5078,7 @@ SimpleNode StringList() :
       jjtc000 = false;
     }
 /*@egen*/
-    
+
     { return jjtn000; }/*@bgen(jjtree)*/
     } catch (Throwable jjte000) {
       if (jjtc000) {
@@ -5110,7 +5110,7 @@ SimpleNode StringList() :
 
 //<lexeme-list> ::= <lexeme>+ | ?VARIABLE
 
-SimpleNode LexemeList() : 
+SimpleNode LexemeList() :
 {/*@bgen(jjtree) LexemeList */
   SFPLexemeList jjtn000 = new SFPLexemeList(this, JJTLEXEMELIST);
   boolean jjtc000 = true;
@@ -5120,7 +5120,7 @@ SimpleNode LexemeList() :
     try {
 /*@egen*/
     (
-    		( Lexeme() )+ 
+    		( Lexeme() )+
 	|	VariableType()
     )/*@bgen(jjtree)*/
     {
@@ -5128,7 +5128,7 @@ SimpleNode LexemeList() :
       jjtc000 = false;
     }
 /*@egen*/
-    
+
     { return jjtn000; }/*@bgen(jjtree)*/
     } catch (Throwable jjte000) {
       if (jjtc000) {
@@ -5170,7 +5170,7 @@ SimpleNode IntegerList() :
     try {
 /*@egen*/
     (
-    		( <INTEGER> )+ 
+    		( <INTEGER> )+
 	| 	VariableType()
     )/*@bgen(jjtree)*/
     {
@@ -5178,7 +5178,7 @@ SimpleNode IntegerList() :
       jjtc000 = false;
     }
 /*@egen*/
-    
+
     { return jjtn000; }/*@bgen(jjtree)*/
     } catch (Throwable jjte000) {
       if (jjtc000) {
@@ -5208,7 +5208,7 @@ SimpleNode IntegerList() :
 
 //<float-list> ::= <float>+ | ?VARIABLE
 
-SimpleNode FloatList() : 
+SimpleNode FloatList() :
 {/*@bgen(jjtree) FloatList */
   SFPFloatList jjtn000 = new SFPFloatList(this, JJTFLOATLIST);
   boolean jjtc000 = true;
@@ -5218,7 +5218,7 @@ SimpleNode FloatList() :
     try {
 /*@egen*/
     (
-    		( <FLOAT> )+ 
+    		( <FLOAT> )+
 	|	VariableType()
     )/*@bgen(jjtree)*/
     {
@@ -5226,7 +5226,7 @@ SimpleNode FloatList() :
       jjtc000 = false;
     }
 /*@egen*/
-    
+
     { return jjtn000; }/*@bgen(jjtree)*/
     } catch (Throwable jjte000) {
       if (jjtc000) {
@@ -5258,7 +5258,7 @@ SimpleNode FloatList() :
 
 //<number-list> ::= <number>+ | ?VARIABLE
 
-SimpleNode NumberList() : 
+SimpleNode NumberList() :
 {/*@bgen(jjtree) NumberList */
   SFPNumberList jjtn000 = new SFPNumberList(this, JJTNUMBERLIST);
   boolean jjtc000 = true;
@@ -5268,7 +5268,7 @@ SimpleNode NumberList() :
     try {
 /*@egen*/
     (
-    		( Number() )+ 
+    		( Number() )+
 	| 	VariableType()
     )/*@bgen(jjtree)*/
     {
@@ -5276,7 +5276,7 @@ SimpleNode NumberList() :
       jjtc000 = false;
     }
 /*@egen*/
-	
+
     { return jjtn000; }/*@bgen(jjtree)*/
     } catch (Throwable jjte000) {
       if (jjtc000) {
@@ -5308,7 +5308,7 @@ SimpleNode NumberList() :
 
 //<value-list> ::= <constant>+ | ?VARIABLE
 
-SimpleNode ValueList() : 
+SimpleNode ValueList() :
 {/*@bgen(jjtree) ValueList */
   SFPValueList jjtn000 = new SFPValueList(this, JJTVALUELIST);
   boolean jjtc000 = true;
@@ -5318,7 +5318,7 @@ SimpleNode ValueList() :
     try {
 /*@egen*/
     (
-    		( Constant() )+ 
+    		( Constant() )+
 	|	VariableType()
     )/*@bgen(jjtree)*/
     {
@@ -5326,7 +5326,7 @@ SimpleNode ValueList() :
       jjtc000 = false;
     }
 /*@egen*/
-	
+
     { return jjtn000; }/*@bgen(jjtree)*/
     } catch (Throwable jjte000) {
       if (jjtc000) {
@@ -5367,11 +5367,11 @@ SimpleNode RangeAttribute() :
 {/*@bgen(jjtree) RangeAttribute */
     try {
 /*@egen*/
-    (	
-    	<RANGE> 
-	
-	RangeSpecification() 
-	
+    (
+    	<RANGE>
+
+	RangeSpecification()
+
 	RangeSpecification()
    )/*@bgen(jjtree)*/
    {
@@ -5379,7 +5379,7 @@ SimpleNode RangeAttribute() :
      jjtc000 = false;
    }
 /*@egen*/
-	
+
    { return jjtn000; }/*@bgen(jjtree)*/
     } catch (Throwable jjte000) {
       if (jjtc000) {
@@ -5410,7 +5410,7 @@ SimpleNode RangeAttribute() :
 
 //<range-specification> ::= <number> | ?VARIABLE
 
-SimpleNode RangeSpecification()  : 
+SimpleNode RangeSpecification()  :
 {/*@bgen(jjtree) RangeSpecification */
   SFPRangeSpecification jjtn000 = new SFPRangeSpecification(this, JJTRANGESPECIFICATION);
   boolean jjtc000 = true;
@@ -5420,7 +5420,7 @@ SimpleNode RangeSpecification()  :
     try {
 /*@egen*/
     (
-    		Number() 
+    		Number()
 	| 	VariableType()
     )/*@bgen(jjtree)*/
     {
@@ -5428,7 +5428,7 @@ SimpleNode RangeSpecification()  :
       jjtc000 = false;
     }
 /*@egen*/
-	
+
     { return jjtn000; }/*@bgen(jjtree)*/
     } catch (Throwable jjte000) {
       if (jjtc000) {
@@ -5454,7 +5454,7 @@ SimpleNode RangeSpecification()  :
 
 
 //<cardinality-attribute> ::= (cardinality <cardinality-specification> <cardinality-specification>)
-SimpleNode CardinalityAttribute()  : 
+SimpleNode CardinalityAttribute()  :
 {/*@bgen(jjtree) CardinalityAttribute */
   SFPCardinalityAttribute jjtn000 = new SFPCardinalityAttribute(this, JJTCARDINALITYATTRIBUTE);
   boolean jjtc000 = true;
@@ -5464,9 +5464,9 @@ SimpleNode CardinalityAttribute()  :
     try {
 /*@egen*/
     (
-    	<CARDINALITY> 
+    	<CARDINALITY>
 
-	CardinalitySpecification() 
+	CardinalitySpecification()
 
 	CardinalitySpecification()
     )/*@bgen(jjtree)*/
@@ -5475,7 +5475,7 @@ SimpleNode CardinalityAttribute()  :
       jjtc000 = false;
     }
 /*@egen*/
-    
+
     { return jjtn000; }/*@bgen(jjtree)*/
     } catch (Throwable jjte000) {
       if (jjtc000) {
@@ -5507,7 +5507,7 @@ SimpleNode CardinalityAttribute()  :
 
 //<cardinality-specification> ::= <integer> | ?VARIABLE
 
-SimpleNode CardinalitySpecification() : 
+SimpleNode CardinalitySpecification() :
 {/*@bgen(jjtree) CardinalitySpecification */
   SFPCardinalitySpecification jjtn000 = new SFPCardinalitySpecification(this, JJTCARDINALITYSPECIFICATION);
   boolean jjtc000 = true;
@@ -5516,8 +5516,8 @@ SimpleNode CardinalitySpecification() :
 {/*@bgen(jjtree) CardinalitySpecification */
     try {
 /*@egen*/
-    (	
-    		Integer() 
+    (
+    		Integer()
 	| 	VariableType()
     )/*@bgen(jjtree)*/
     {
@@ -5525,7 +5525,7 @@ SimpleNode CardinalitySpecification() :
       jjtc000 = false;
     }
 /*@egen*/
-	
+
     { return jjtn000; }/*@bgen(jjtree)*/
     } catch (Throwable jjte000) {
       if (jjtc000) {
@@ -5557,7 +5557,7 @@ SimpleNode CardinalitySpecification() :
 
 //	<defmodule-construct> ::= (defmodule <module-name> [<comment>] )
 
-SimpleNode DefmoduleConstruct() : 
+SimpleNode DefmoduleConstruct() :
 {/*@bgen(jjtree) DefmoduleConstruct */
   SFPDefmoduleConstruct jjtn000 = new SFPDefmoduleConstruct(this, JJTDEFMODULECONSTRUCT);
   boolean jjtc000 = true;
@@ -5568,7 +5568,7 @@ SimpleNode DefmoduleConstruct() :
 /*@egen*/
     (
     	<DEFMODULE>
-	Symbol() 
+	Symbol()
 	[
 		ConstructDescription()
 	]
@@ -5578,7 +5578,7 @@ SimpleNode DefmoduleConstruct() :
       jjtc000 = false;
     }
 /*@egen*/
-	
+
     { return jjtn000; }/*@bgen(jjtree)*/
     } catch (Throwable jjte000) {
       if (jjtc000) {

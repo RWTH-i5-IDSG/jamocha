@@ -14,7 +14,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
+ *
  */
 package org.jamocha.languages.clips.parser.generated;
 
@@ -200,4 +200,4 @@ public class ParseException extends Exception {
    }
 
 }
-/* JavaCC - OriginalChecksum=27573b7033f259083f39df0679b0089a (do not edit this line) */
+/* JavaCC - OriginalChecksum=f6280fd0888be5e181cb34d72e17b528 (do not edit this line) */

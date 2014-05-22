@@ -259,7 +259,7 @@ TOKEN :
 
 }
 
-/* TODO (From Clips Manual):
+/* (From Clips Manual):
 Data Types:
 <file-name> ::= A symbol or string which is a valid file name (including path information)
 	for the operating system under which CLIPS is running

@@ -14,7 +14,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
+ *
  */
 package org.jamocha.languages.clips.parser.generated;
 
@@ -54,7 +54,7 @@ public class SFPParser/*@bgen(jjtree)*/implements SFPParserTreeConstants, SFPPar
                 }
         }
 
-/* TODO (From Clips Manual):
+/* (From Clips Manual):
 Data Types:
 <file-name> ::= A symbol or string which is a valid file name (including path information)
 	for the operating system under which CLIPS is running
@@ -151,7 +151,7 @@ if (jjtc000) {
   }
 
 /*
-<number> ::= <float> | <integer> 
+<number> ::= <float> | <integer>
 <lexeme> ::= <symbol> | <string>
 <constant> ::= <datetime> | <symbol> | <string> | <integer> | <float>
 */
@@ -1412,7 +1412,7 @@ if (jjtc000) {
   }
 
 /**
-*		Construct - Definition Main Handler 
+*		Construct - Definition Main Handler
 **/
   final public 
 void Construct() throws ParseException {
@@ -2037,11 +2037,11 @@ if (jjtc000) {
 // <RHS-pattern> ::= <ordered-RHS-pattern> | <template-RHS-pattern>
 // <ordered-RHS-pattern> ::= (<symbol> <RHS-field>+)
 // <template-RHS-pattern> ::= (<deftemplate-name> <RHS-slot>*)
-// <RHS-slot> ::= <single-field-RHS-slot> | <multifield-RHS-slot> 
+// <RHS-slot> ::= <single-field-RHS-slot> | <multifield-RHS-slot>
 // <single-field-RHS-slot> ::= (<slot-name> <RHS-field>)
 // <multifield-RHS-slot> ::= (<slot-name> <RHS-field>*)
 // <RHS-field> ::= <variable> | <constant> | <function-call>
-// <RHS-slot> ::= <single-field-RHS-slot> | <multifield-RHS-slot> 
+// <RHS-slot> ::= <single-field-RHS-slot> | <multifield-RHS-slot>
 // <single-field-RHS-slot> ::= (<slot-name> <RHS-field>)
 // <multifield-RHS-slot> ::= (<slot-name> <RHS-field>*)
   final public 
@@ -2139,7 +2139,7 @@ void RHSField() throws ParseException {
 **/
 
 /*
-<defrule-construct> ::= (defrule <rule-name> [<comment>] [<declaration>] <conditional-element>* => <expression>*) 
+<defrule-construct> ::= (defrule <rule-name> [<comment>] [<declaration>] <conditional-element>* => <expression>*)
 <rule-property> ::= (salience <integer-expression>) | (auto-focus <boolean-symbol>)
 <boolean-symbol> ::= TRUE | FALSE
 <conditional-element> ::= <pattern-CE> | <assigned-pattern-CE> | <not-CE> | <and-CE> | <or-CE> |
@@ -2164,7 +2164,7 @@ void RHSField() throws ParseException {
 <connected-constraint>::= <single-constraint> | <single-constraint> & <connected-constraint> |
 	<single-constraint> | <connected-constraint>
 <single-constraint> ::= <term> | ~<term>
-<term> ::= <constant> | <single-field-variable> | <multifield-variable> | 
+<term> ::= <constant> | <single-field-variable> | <multifield-variable> |
 	:<function-call> | =<function-call>
 */
 
@@ -2174,7 +2174,7 @@ void RHSField() throws ParseException {
 *		Define Rule Construct
 **/
 
-// <defrule-construct> ::= (defrule <rule-name> [<comment>] [<declaration>] <conditional-element>* => <expression>*) 
+// <defrule-construct> ::= (defrule <rule-name> [<comment>] [<declaration>] <conditional-element>* => <expression>*)
   final public 
 SimpleNode DefruleConstruct() throws ParseException {/*@bgen(jjtree) DefruleConstruct */
   SFPDefruleConstruct jjtn000 = new SFPDefruleConstruct(this, JJTDEFRULECONSTRUCT);
@@ -3837,7 +3837,7 @@ if (jjtc000) {
 *		Term
 **/
 
-//<term> ::= <constant> | <single-field-variable> | <multifield-variable> | 
+//<term> ::= <constant> | <single-field-variable> | <multifield-variable> |
 //	:<function-call> | =<function-call>
   final public 
 SimpleNode Term() throws ParseException {/*@bgen(jjtree) Term */
@@ -4100,7 +4100,7 @@ if (jjtc000) {
 *		Deffunction Construct
 **/
 
-//<deffunction-construct> 
+//<deffunction-construct>
 //	::= (deffunction <name> [(functiongroup <groupname>)] [<comment>] (<regular-parameter>* [<wildcard-parameter>]) <expression>*)
   final public 
 SimpleNode DeffunctionConstruct() throws ParseException {/*@bgen(jjtree) DeffunctionConstruct */
@@ -4221,7 +4221,7 @@ if (jjtc000) {
   }
 
 /**
-*		Defgeneric Construct 
+*		Defgeneric Construct
 **/
 
 //	<defgeneric-construct> ::= (defgeneric <name> [<comment>])
@@ -4268,7 +4268,7 @@ if (jjtc000) {
   }
 
 /**
-*		Parameter Restriction 
+*		Parameter Restriction
 **/
 
 //<parameter-restriction> ::= <single-field-variable> | (<single-field-variable> <type>* [<query>])
@@ -4350,7 +4350,7 @@ if (jjtc000) {
   }
 
 /**
-*		Wildcard Parameter Restriction 
+*		Wildcard Parameter Restriction
 **/
 
 //<wildcard-parameter-restriction> ::= <multifield-variable> | (<multifield-variable> <type>* [<query>])
@@ -4432,7 +4432,7 @@ if (jjtc000) {
   }
 
 /**
-*		Query 
+*		Query
 **/
 
 //<query> ::= <global-variable> | <function-call>
@@ -4481,7 +4481,7 @@ if (jjtc000) {
 *		Constraint Attribute
 **/
 
-//<constraint-attribute> ::= <type-attribute> | <allowed-constant-attribute> | 
+//<constraint-attribute> ::= <type-attribute> | <allowed-constant-attribute> |
 //	<range-attribute> | <cardinality-attribute>
   final public 
 void ConstraintAttribute() throws ParseException {
