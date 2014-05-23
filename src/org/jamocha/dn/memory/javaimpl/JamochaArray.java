@@ -17,6 +17,7 @@ package org.jamocha.dn.memory.javaimpl;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.RandomAccess;
+import java.util.function.IntFunction;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -98,6 +99,12 @@ public class JamochaArray<T> implements RandomAccess, Iterable<T> {
 		assert target.length >= size;
 		System.arraycopy(values, 0, target, 0, size);
 		return target;
+	}
+
+	public T[] toArray(final IntFunction<T[]> arrayCtor) {
+		final T[] array = arrayCtor.apply(size);
+		System.arraycopy(values, 0, array, 0, size);
+		return array;
 	}
 
 	public void clear() {

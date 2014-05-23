@@ -662,8 +662,7 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 				existential.add(targetFactAddress);
 			}
 		}
-		return new FactAddressPartition(regular.toArray(new FactAddress[regular.size()]),
-				existential);
+		return new FactAddressPartition(regular.toArray(FactAddress[]::new), existential);
 	}
 
 	static org.jamocha.dn.memory.MemoryHandlerTemp handleExistentialEdge(
