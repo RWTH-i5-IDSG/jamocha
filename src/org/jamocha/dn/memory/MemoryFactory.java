@@ -18,6 +18,7 @@ package org.jamocha.dn.memory;
 import java.util.Map;
 import java.util.Set;
 
+import org.jamocha.dn.memory.Template.Slot;
 import org.jamocha.dn.nodes.Edge;
 import org.jamocha.dn.nodes.Node;
 import org.jamocha.filter.Path;
@@ -35,6 +36,17 @@ import org.jamocha.filter.PathFilter;
  * @see MemoryHandlerTerminal
  */
 public interface MemoryFactory {
+
+	/**
+	 * Creates new template with given description string and slots.
+	 * 
+	 * @param description
+	 *            description string
+	 * @param slots
+	 *            slots for the template
+	 * @return new template with given description string and slots
+	 */
+	public Template newTemplate(final String description, final Slot... slots);
 
 	/**
 	 * Creates a new {@link MemoryHandlerMain} capable of storing facts meeting the restrictions of

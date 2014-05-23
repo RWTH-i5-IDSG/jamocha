@@ -19,6 +19,7 @@ import java.util.Set;
 
 import org.jamocha.dn.memory.MemoryHandlerMainAndCounterColumnMatcher;
 import org.jamocha.dn.memory.Template;
+import org.jamocha.dn.memory.Template.Slot;
 import org.jamocha.dn.nodes.Edge;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.PathFilter;
@@ -44,6 +45,11 @@ public class MemoryFactory implements org.jamocha.dn.memory.MemoryFactory {
 	 */
 	public static org.jamocha.dn.memory.MemoryFactory getMemoryFactory() {
 		return singleton;
+	}
+
+	@Override
+	public Template newTemplate(String description, Slot... slots) {
+		return new org.jamocha.dn.memory.javaimpl.Template(description, slots);
 	}
 
 	private MemoryFactory() {

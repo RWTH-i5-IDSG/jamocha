@@ -30,7 +30,7 @@ public class SlotAddressMockup implements SlotAddress {
 
 	@Override
 	public SlotType getSlotType(final Template template) {
-		return template.getSlotsType(getIndex());
+		return ((org.jamocha.dn.memory.javaimpl.Template) template).getSlotType(getIndex());
 	}
 
 }

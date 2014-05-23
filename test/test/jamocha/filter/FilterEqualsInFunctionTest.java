@@ -5,8 +5,9 @@ import static org.junit.Assert.assertTrue;
 import static test.jamocha.util.CounterColumnMatcherMockup.counterColumnMatcherMockup;
 
 import org.jamocha.dn.memory.SlotType;
-import org.jamocha.dn.memory.Template;
+import org.jamocha.dn.memory.Template.Slot;
 import org.jamocha.dn.memory.javaimpl.SlotAddress;
+import org.jamocha.dn.memory.javaimpl.Template;
 import org.jamocha.filter.FilterFunctionCompare;
 import org.jamocha.filter.FilterTranslator;
 import org.jamocha.filter.Function;
@@ -71,7 +72,9 @@ public class FilterEqualsInFunctionTest {
 
 	@Test
 	public void testEqualsInFunctionFalseDifferentSlotAddress() {
-		final Path p1 = new Path(new Template(SlotType.DOUBLE, SlotType.DOUBLE));
+		final Path p1 =
+				new Path(new Template("", new Slot(SlotType.DOUBLE, ""), new Slot(SlotType.DOUBLE,
+						"")));
 		final Path p2 = new Path(Template.DOUBLE);
 		final Path p3 = new Path(Template.DOUBLE);
 		final SlotAddress a1 = new SlotAddress(0);
@@ -209,7 +212,9 @@ public class FilterEqualsInFunctionTest {
 
 	@Test
 	public void testFilterEqualsInFunction() {
-		final Path p1 = new Path(new Template(SlotType.STRING, SlotType.LONG));
+		final Path p1 =
+				new Path(new Template("", new Slot(SlotType.STRING, ""),
+						new Slot(SlotType.LONG, "")));
 		final Path p2 = new Path(Template.LONG);
 		final Path p3 = new Path(Template.LONG);
 		final SlotAddress a1 = new SlotAddress(0);

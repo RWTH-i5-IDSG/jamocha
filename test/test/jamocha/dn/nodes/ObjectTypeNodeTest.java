@@ -22,7 +22,7 @@ import java.util.Collection;
 import java.util.Set;
 
 import org.jamocha.dn.Network;
-import org.jamocha.dn.memory.Template;
+import org.jamocha.dn.memory.javaimpl.Template;
 import org.jamocha.dn.nodes.Edge;
 import org.jamocha.dn.nodes.ObjectTypeNode;
 import org.jamocha.filter.Path;

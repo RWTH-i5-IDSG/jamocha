@@ -14,89 +14,29 @@
  */
 package org.jamocha.dn.memory;
 
-import java.util.Arrays;
-
-import lombok.ToString;
 import lombok.Value;
 
 /**
- * A Template is an array of {@link SlotType slot types}. Facts always comply with some Template.
+ * A Template consists of slots which in turn have a {@link SlotType slot type} and a name. Facts
+ * always comply with some Template.
  * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  * @see SlotType
  * @see Fact
  */
-@ToString
-public class Template {
+public interface Template {
 	@Value
 	public static class Slot {
 		final SlotType slotType;
 		final String name;
 	}
 
-	final Slot slots[];
-	final String comment;
-
 	/**
-	 * Template holding exactly one {@link SlotType#STRING} type.
-	 */
-	final public static Template STRING = new Template(SlotType.STRING);
-	/**
-	 * Template holding exactly one {@link SlotType#BOOLEAN} type.
-	 */
-	final public static Template BOOLEAN = new Template(SlotType.BOOLEAN);
-	/**
-	 * Template holding exactly one {@link SlotType#DOUBLE} type.
-	 */
-	final public static Template DOUBLE = new Template(SlotType.DOUBLE);
-	/**
-	 * Template holding exactly one {@link SlotType#LONG} type.
-	 */
-	final public static Template LONG = new Template(SlotType.LONG);
-
-	/**
-	 * Constructs a template holding the given comment and {@link SlotType slot}.
+	 * Returns the description of the template.
 	 * 
-	 * @param comment
-	 *            comment describing the template
-	 * @param slots
-	 *            {@link SlotType slot types} to hold
+	 * @return the description of the template
 	 */
-	public Template(final String comment, final Slot... slots) {
-		this.comment = comment;
-		this.slots = slots;
-	}
-
-	/**
-	 * Constructs a template holding the given comment and {@link SlotType slot types} with empty
-	 * slot names.
-	 * 
-	 * @param slots
-	 *            {@link Slot slots} to hold
-	 */
-	public Template(final String comment, final SlotType... slotTypes) {
-		this(comment, Arrays.stream(slotTypes).map(t -> new Slot(t, "")).toArray(Slot[]::new));
-	}
-
-	/**
-	 * Constructs a template holding the given {@link Slot slots}.
-	 * 
-	 * @param slots
-	 *            {@link Slot slots} to hold
-	 */
-	public Template(final Slot... slots) {
-		this("", slots);
-	}
-
-	/**
-	 * Constructs a template holding the given {@link SlotType slot types} with empty slot names.
-	 * 
-	 * @param slots
-	 *            {@link SlotType slot types} to hold
-	 */
-	public Template(final SlotType... slotTypes) {
-		this("", slotTypes);
-	}
+	public String getDescription();
 
 	/**
 	 * Gets the {@link SlotType} corresponding to the position specified by the given index.
@@ -105,24 +45,18 @@ public class Template {
 	 *            position in the template
 	 * @return {@link SlotType} corresponding to the position specified by the given index
 	 */
-	public SlotType getSlotsType(final int index) {
-		return this.slots[index].slotType;
-	}
+	public SlotType getSlotType(final SlotAddress slotAddress);
 
 	/**
-	 * Returns the index of the first slot matching the name given or -1 if no slot name matched.
+	 * Returns the {@link SlotAddress} of the first slot matching the name given or null if no slot
+	 * name matched.
 	 * 
 	 * @param name
 	 *            string to match against the slot names
-	 * @return the index of the first slot matching the name given or -1 if no slot name matched
+	 * @return the {@link SlotAddress} of the first slot matching the name given or null if no slot
+	 *         name matched.
 	 */
-	public int getIndexByName(final String name) {
-		for (int i = 0; i < slots.length; i++) {
-			if (slots[i].name.equals(name))
-				return i;
-		}
-		return -1;
-	}
+	public SlotAddress getSlotAddress(final String name);
 
 	/**
 	 * Ease-of-use method to create facts with type-check for its arguments.
@@ -131,11 +65,5 @@ public class Template {
 	 *            values to store in the fact instance to create
 	 * @return newly created fact instance holding the values specified
 	 */
-	public Fact newFact(final Object... values) {
-		for (int i = 0; i < this.slots.length; ++i) {
-			assert getSlotsType(i).getJavaClass().isInstance(values[i]);
-		}
-		return new Fact(this, values);
-	}
-
+	public Fact newFact(final Object... values);
 }

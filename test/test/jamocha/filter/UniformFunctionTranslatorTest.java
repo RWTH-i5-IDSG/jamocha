@@ -19,8 +19,8 @@ import static org.junit.Assert.assertTrue;
 import static test.jamocha.util.CounterColumnMatcherMockup.counterColumnMatcherMockup;
 
 import org.jamocha.dn.memory.SlotType;
-import org.jamocha.dn.memory.Template;
 import org.jamocha.dn.memory.javaimpl.SlotAddress;
+import org.jamocha.dn.memory.javaimpl.Template;
 import org.jamocha.filter.AddressFilter;
 import org.jamocha.filter.FilterFunctionCompare;
 import org.jamocha.filter.FilterTranslator;

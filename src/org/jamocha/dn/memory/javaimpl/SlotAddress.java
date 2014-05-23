@@ -46,7 +46,7 @@ public class SlotAddress implements org.jamocha.dn.memory.SlotAddress {
 
 	@Override
 	public SlotType getSlotType(final Template template) {
-		return template.getSlotsType(this.index);
+		return template.getSlotType(this);
 	}
 
 }
