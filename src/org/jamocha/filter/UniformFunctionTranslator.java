@@ -201,12 +201,14 @@ public class UniformFunctionTranslator {
 
 		@Override
 		public void visit(final FunctionWithArgumentsComposite functionWithArgumentsComposite) {
-			handle(functionWithArgumentsComposite, FunctionWithArgumentsComposite::new);
+			this.<Object, Function<?>, FunctionWithArgumentsComposite> handle(
+					functionWithArgumentsComposite, FunctionWithArgumentsComposite::new);
 		}
 
 		@Override
 		public void visit(final PredicateWithArgumentsComposite predicateWithArgumentsComposite) {
-			handle(predicateWithArgumentsComposite, PredicateWithArgumentsComposite::new);
+			this.<Boolean, Predicate, PredicateWithArgumentsComposite> handle(
+					predicateWithArgumentsComposite, PredicateWithArgumentsComposite::new);
 		}
 
 		public <R, F extends Function<? extends R>, G extends GenericWithArgumentsComposite<R, F>> void handle(
