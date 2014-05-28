@@ -18,9 +18,10 @@ import java.util.HashMap;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
-import lombok.Delegate;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.ToString;
+import lombok.experimental.Delegate;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -58,6 +59,7 @@ public class ScopeStack {
 	 */
 	@AllArgsConstructor(access = AccessLevel.PRIVATE)
 	@Getter
+	@ToString(includeFieldNames = false)
 	public class Symbol {
 		final String image;
 	}

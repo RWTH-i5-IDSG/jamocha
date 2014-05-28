@@ -15,8 +15,8 @@
 package org.jamocha.dn.memory.javaimpl;
 
 import lombok.AllArgsConstructor;
-import lombok.Delegate;
 import lombok.Getter;
+import lombok.experimental.Delegate;
 
 /**
  * Tiny state pattern implementation for the following use case: <br />
