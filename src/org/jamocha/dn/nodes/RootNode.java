@@ -24,8 +24,6 @@ import org.jamocha.dn.memory.Fact;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.filter.Path;
 
-import com.sun.org.apache.bcel.internal.generic.ObjectType;
-
 /**
  * Root node implementation (not part of the {@link Node} type hierarchy).
  * 
@@ -85,7 +83,7 @@ public class RootNode {
 	 * Adds the given {@link ObjectTypeNode} to correspond to its {@link Template}.
 	 * 
 	 * @param otn
-	 *            {@link ObjectType} to add
+	 *            {@link ObjectTypeNode} to add
 	 */
 	public void putOTN(final ObjectTypeNode otn) {
 		this.templateToInput.put(otn.template, otn);
@@ -95,7 +93,7 @@ public class RootNode {
 	 * Removes the given {@link ObjectTypeNode} from corresponding to its {@link Template}.
 	 * 
 	 * @param otn
-	 *            {@link ObjectType} to remove
+	 *            {@link ObjectTypeNode} to remove
 	 */
 	public void removeOTN(final ObjectTypeNode otn) {
 		this.templateToInput.remove(otn.template);
