@@ -126,14 +126,13 @@ public class MemoryHandlerMain extends MemoryHandlerBase implements
 				pathFilterElementToCounterColumn.putFilterElementToCounterColumn(pathFilterElement,
 						new CounterColumn(index++));
 			}
-			return new MemoryHandlerMainAndFilterElementToCounterColumn(
+			return new MemoryHandlerMainAndCounterColumnMatcher(
 					new MemoryHandlerMainWithExistentials(templArray, Counter.newCounter(filter,
 							pathFilterElementToCounterColumn), addrArray),
 					pathFilterElementToCounterColumn);
 		}
-		return new MemoryHandlerMainAndFilterElementToCounterColumn(
-				new MemoryHandlerMain(templArray, Counter.newCounter(filter,
-						pathFilterElementToCounterColumn), addrArray),
+		return new MemoryHandlerMainAndCounterColumnMatcher(new MemoryHandlerMain(templArray,
+				Counter.newCounter(filter, pathFilterElementToCounterColumn), addrArray),
 				pathFilterElementToCounterColumn);
 	}
 
