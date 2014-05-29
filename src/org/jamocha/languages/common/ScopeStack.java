@@ -14,14 +14,15 @@
  */
 package org.jamocha.languages.common;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.stream.IntStream;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
-import lombok.experimental.Delegate;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -29,53 +30,74 @@ import lombok.experimental.Delegate;
  */
 public class ScopeStack {
 
+	interface ScopeI {
+		public Symbol getOrCreate(final String image);
+
+		public Symbol createDummy();
+	}
+
 	/**
 	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
 	 */
 	@RequiredArgsConstructor
-	private class Scope {
+	private static class Scope implements ScopeI {
 		final HashMap<String, Symbol> symbolTable = new HashMap<>();
-		final Scope parent;
 
-		private Symbol getSymbol(final String image) {
-			return this.symbolTable.getOrDefault(image,
-					null == parent ? null : parent.getSymbol(image));
+		@Override
+		public Symbol getOrCreate(final String image) {
+			return this.symbolTable.computeIfAbsent(image, Symbol::new);
 		}
 
-		public Symbol getOrCreate(final String image) {
-			{
-				final Symbol symbolBean = this.getSymbol(image);
-				if (null != symbolBean)
-					return symbolBean;
-			}
-			final Symbol symbolBean = new Symbol(image);
-			this.symbolTable.put(image, symbolBean);
-			return symbolBean;
+		@Override
+		public Symbol createDummy() {
+			return new Symbol("Dummy");
+		}
+	}
+
+	private static class NoScope implements ScopeI {
+		@Override
+		public Symbol getOrCreate(String image) {
+			throw new UnsupportedOperationException("No Scope present!");
+		}
+
+		@Override
+		public Symbol createDummy() {
+			throw new UnsupportedOperationException("No Scope present!");
 		}
 	}
 
 	/**
+	 * Wrapper class for a string without the corresponding {@link Object#equals(Object)} and
+	 * {@link Object#hashCode()} functions.
+	 * 
 	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
 	 */
 	@AllArgsConstructor(access = AccessLevel.PRIVATE)
 	@Getter
 	@ToString(includeFieldNames = false)
-	public class Symbol {
+	public static class Symbol {
 		final String image;
 	}
 
-	@Delegate
-	private Scope currentScope;
+	private ScopeI currentScope;
 
 	public ScopeStack() {
-		this.currentScope = new Scope(null);
+		this.currentScope = new NoScope();
 	}
 
-	public void pushScope() {
-		this.currentScope = new Scope(currentScope);
+	public void openScope() {
+		this.currentScope = new Scope();
 	}
 
-	public void popScope() {
-		this.currentScope = currentScope.parent;
+	public void closeScope() {
+		this.currentScope = new NoScope();
+	}
+
+	public Symbol getOrCreate(final String image) {
+		return this.currentScope.getOrCreate(image);
+	}
+
+	public Symbol createDummy() {
+		return this.currentScope.createDummy();
 	}
 }
