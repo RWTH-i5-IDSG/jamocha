@@ -14,9 +14,7 @@
  */
 package org.jamocha.languages.common;
 
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.stream.IntStream;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
