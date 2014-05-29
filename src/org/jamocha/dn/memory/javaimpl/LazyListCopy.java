@@ -16,7 +16,6 @@ package org.jamocha.dn.memory.javaimpl;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.experimental.Delegate;
 
 /**
  * Tiny state pattern implementation for the following use case: <br />
@@ -43,11 +42,18 @@ public class LazyListCopy<T> {
 		JamochaArray<T> getList();
 	}
 
-	@Delegate
 	LazyListCopyState<T> state;
 
 	public LazyListCopy(final JamochaArray<T> list) {
 		this.state = new SameList(list);
+	}
+
+	void drop(final int index) {
+		state.drop(index);
+	}
+
+	JamochaArray<T> getList() {
+		return state.getList();
 	}
 
 	/**
