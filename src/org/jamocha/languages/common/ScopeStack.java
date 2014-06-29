@@ -24,43 +24,27 @@ import lombok.ToString;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
- *
  */
 public class ScopeStack {
-
-	interface ScopeI {
-		public Symbol getOrCreate(final String image);
-
-		public Symbol createDummy();
-	}
 
 	/**
 	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
 	 */
 	@RequiredArgsConstructor
-	private static class Scope implements ScopeI {
+	private static class Scope {
+		final Scope parentScope;
 		final HashMap<String, Symbol> symbolTable = new HashMap<>();
 
-		@Override
-		public Symbol getOrCreate(final String image) {
-			return this.symbolTable.computeIfAbsent(image, Symbol::new);
+		public Symbol getOrCreateSymbol(final String image) {
+			// if no entry present, try parent
+			// at the latest, the topmost scope will create a new symbol
+			// all children will copy the symbol, so further queries don't recurse
+			return this.symbolTable.computeIfAbsent(image, s -> null == parentScope ? new Symbol(s)
+					: parentScope.getOrCreateSymbol(s));
 		}
 
-		@Override
-		public Symbol createDummy() {
+		public Symbol createDummySymbol() {
 			return new Symbol("Dummy");
-		}
-	}
-
-	private static class NoScope implements ScopeI {
-		@Override
-		public Symbol getOrCreate(String image) {
-			throw new UnsupportedOperationException("No Scope present!");
-		}
-
-		@Override
-		public Symbol createDummy() {
-			throw new UnsupportedOperationException("No Scope present!");
 		}
 	}
 
@@ -77,25 +61,25 @@ public class ScopeStack {
 		final String image;
 	}
 
-	private ScopeI currentScope;
+	private Scope currentScope;
 
 	public ScopeStack() {
-		this.currentScope = new NoScope();
+		this.currentScope = new Scope(null);
 	}
 
 	public void openScope() {
-		this.currentScope = new Scope();
+		this.currentScope = new Scope(this.currentScope);
 	}
 
 	public void closeScope() {
-		this.currentScope = new NoScope();
+		this.currentScope = this.currentScope.parentScope;
 	}
 
 	public Symbol getOrCreate(final String image) {
-		return this.currentScope.getOrCreate(image);
+		return this.currentScope.getOrCreateSymbol(image);
 	}
 
 	public Symbol createDummy() {
-		return this.currentScope.createDummy();
+		return this.currentScope.createDummySymbol();
 	}
 }

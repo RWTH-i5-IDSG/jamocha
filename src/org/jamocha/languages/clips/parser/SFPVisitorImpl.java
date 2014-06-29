@@ -15,11 +15,12 @@
 package org.jamocha.languages.clips.parser;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
-import java.util.Set;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import lombok.RequiredArgsConstructor;
 import lombok.Value;
@@ -29,13 +30,8 @@ import org.jamocha.dn.memory.SlotType;
 import org.jamocha.dn.memory.Template.Slot;
 import org.jamocha.dn.memory.javaimpl.Template;
 import org.jamocha.filter.Function;
-import org.jamocha.filter.FunctionDictionary;
-import org.jamocha.filter.PathFilter;
-import org.jamocha.filter.PathFilter.PathFilterElement;
-import org.jamocha.filter.Predicate;
-import org.jamocha.filter.fwa.PredicateWithArguments;
-import org.jamocha.filter.fwa.PredicateWithArgumentsComposite;
 import org.jamocha.languages.clips.parser.generated.SFPAndFunction;
+import org.jamocha.languages.clips.parser.generated.SFPAssignedPatternCE;
 import org.jamocha.languages.clips.parser.generated.SFPBooleanType;
 import org.jamocha.languages.clips.parser.generated.SFPConnectedConstraint;
 import org.jamocha.languages.clips.parser.generated.SFPConstructDescription;
@@ -54,7 +50,6 @@ import org.jamocha.languages.clips.parser.generated.SFPLHSSlot;
 import org.jamocha.languages.clips.parser.generated.SFPNotFunction;
 import org.jamocha.languages.clips.parser.generated.SFPOrFunction;
 import org.jamocha.languages.clips.parser.generated.SFPParser;
-import org.jamocha.languages.clips.parser.generated.SFPParserTreeConstants;
 import org.jamocha.languages.clips.parser.generated.SFPSingleSlotDefinition;
 import org.jamocha.languages.clips.parser.generated.SFPSingleVariable;
 import org.jamocha.languages.clips.parser.generated.SFPSlotDefinition;
@@ -69,8 +64,17 @@ import org.jamocha.languages.clips.parser.generated.SFPTrue;
 import org.jamocha.languages.clips.parser.generated.SFPTypeAttribute;
 import org.jamocha.languages.clips.parser.generated.SFPTypeSpecification;
 import org.jamocha.languages.clips.parser.generated.SFPUnorderedLHSFactBody;
+import org.jamocha.languages.common.ConditionalElement;
+import org.jamocha.languages.common.ConditionalElement.AndFunctionConditionalElement;
+import org.jamocha.languages.common.ConditionalElement.ExistentialConditionalElement;
+import org.jamocha.languages.common.ConditionalElement.InitialFactConditionalElement;
+import org.jamocha.languages.common.ConditionalElement.NegatedExistentialConditionalElement;
+import org.jamocha.languages.common.ConditionalElement.NotFunctionConditionalElement;
+import org.jamocha.languages.common.ConditionalElement.OrFunctionConditionalElement;
+import org.jamocha.languages.common.RuleCondition;
 import org.jamocha.languages.common.ScopeStack;
 import org.jamocha.languages.common.ScopeStack.Symbol;
+import org.jamocha.languages.common.SingleVariable;
 
 /**
  * Needs consideration: how to treat
@@ -78,10 +82,15 @@ import org.jamocha.languages.common.ScopeStack.Symbol;
  * <li>rules without any LHS CEs</li>
  * <li></li>
  * </ul>
+ * TODO Think about the situation where a template-ce inside of {@code exists} or {@code not} does not bind a
+ * variable. The boolean value will not be set.
+ * 
+ * This class is final to prevent accidental derived classes. All inner classes shall share the same
+ * outer instance giving them access to its attributes.
  *
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
-public class SFPVisitorImpl implements SelectiveSFPVisitor {
+public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 
 	/**
 	 * About scopes
@@ -92,7 +101,6 @@ public class SFPVisitorImpl implements SelectiveSFPVisitor {
 	 * </ul>
 	 */
 	final ScopeStack scope = new ScopeStack();
-	HashMap<Symbol, SingleVariableProperties> symbolTableVariables;
 	final HashMap<Symbol, Template> symbolTableTemplates = new HashMap<>();
 	final HashMap<Symbol, Function<?>> symbolTableFunctions = new HashMap<>();
 	final HashMap<Symbol, RuleProperties> symbolTableRules = new HashMap<>();
@@ -104,21 +112,21 @@ public class SFPVisitorImpl implements SelectiveSFPVisitor {
 		return data;
 	}
 
+	static enum ExistentialState {
+		NORMAL, EXISENTIAL, NEGATED;
+	}
+
 	@Value
 	static class RuleProperties {
 		final String description;
-		final PathFilter condition;
-	}
-
-	static enum SingeVariableExistentialState {
-		NORMAL, EXISENTIAL, NEGATED;
+		final RuleCondition condition;
 	}
 
 	@RequiredArgsConstructor
 	static class SingleVariableProperties {
 		final Template template;
 		final SlotAddress slotAddress;
-		SingeVariableExistentialState state;
+		ExistentialState state;
 
 		SlotType getType() {
 			return slotAddress.getSlotType(template);
@@ -400,21 +408,26 @@ public class SFPVisitorImpl implements SelectiveSFPVisitor {
 		}
 	}
 
+	class SFPSingleVariableVisitor implements SelectiveSFPVisitor {
+		Symbol symbol;
+
+		@Override
+		public Object visit(final SFPSingleVariable node, final Object data) {
+			assert node.jjtGetNumChildren() == 0;
+			this.symbol = SFPVisitorImpl.this.scope.getOrCreate(node.jjtGetValue().toString());
+			return data;
+		}
+	}
+
 	@RequiredArgsConstructor
 	class SFPConditionalElementVisitor implements SelectiveSFPVisitor {
 
-		class SFPTermElementsVisitor implements SelectiveSFPVisitor {
-			Symbol symbol;
-
+		class SFPTermElementsVisitor extends SFPSingleVariableVisitor {
 			// currently:
 			// ConnectedConstraint(): Term()
 			// Term(): SingleVariable()
-			@Override
-			public Object visit(final SFPSingleVariable node, final Object data) {
-				assert node.jjtGetNumChildren() == 0;
-				this.symbol = SFPVisitorImpl.this.scope.getOrCreate(node.jjtGetValue().toString());
-				return data;
-			}
+
+			// functionality inherited
 		}
 
 		class SFPConnectedConstraintElementsVisitor implements SelectiveSFPVisitor {
@@ -453,8 +466,8 @@ public class SFPVisitorImpl implements SelectiveSFPVisitor {
 
 		@RequiredArgsConstructor
 		class SFPUnorderedLHSFactBodyElementsVisitor implements SelectiveSFPVisitor {
+			final SFPConditionalElementVisitor parent;
 			final Template template;
-			final Set<Symbol> variablesDefined = new HashSet<>();
 
 			// currently:
 			// UnorderedLHSFactBody(): <LBRACE> LHSSlot() <RBRACE>
@@ -471,22 +484,15 @@ public class SFPVisitorImpl implements SelectiveSFPVisitor {
 				final Symbol varName =
 						SelectiveSFPVisitor.sendVisitor(new SFPConstraintVisitor(),
 								node.jjtGetChild(1), data).varName;
-				if (!SFPVisitorImpl.this.symbolTableVariables.containsKey(varName)) {
-					// Variable name FIXME
-					SFPVisitorImpl.this.symbolTableVariables.put(
-							varName,
-							new SingleVariableProperties(template, template.getSlotAddress(slotName
-									.getImage())));
-					this.variablesDefined.add(varName);
-				} else {
-
-				}
+				parent.contextRule.addSingleVariable(new SingleVariable(varName, template, template
+						.getSlotAddress(slotName.getImage())));
 				return data;
 			}
 		}
 
 		@RequiredArgsConstructor
 		class SFPTemplatePatternCEElementsVisitor implements SelectiveSFPVisitor {
+			final SFPConditionalElementVisitor parent;
 			final Template template;
 
 			// currently:
@@ -495,15 +501,17 @@ public class SFPVisitorImpl implements SelectiveSFPVisitor {
 			@Override
 			public Object visit(final SFPUnorderedLHSFactBody node, final Object data) {
 				assert node.jjtGetNumChildren() == 1;
-				SelectiveSFPVisitor.sendVisitor(
-						new SFPUnorderedLHSFactBodyElementsVisitor(template), node.jjtGetChild(0),
-						data);
+				SelectiveSFPVisitor.sendVisitor(new SFPUnorderedLHSFactBodyElementsVisitor(parent,
+						template), node.jjtGetChild(0), data);
 				return data;
 			}
 		}
 
-		PredicateWithArguments predicateWithArguments;
-		final Set<Symbol> variablesDefined;
+		final ExistentialStack contextStack;
+		final RuleCondition contextRule;
+		final Symbol possibleFactVariable;
+		boolean containsTemplateCE;
+		ConditionalElement resultCE;
 
 		// <conditional-element> ::= <pattern-CE> | <assigned-pattern-CE> | <not-CE> | <and-CE> |
 		// <or-CE> | <logical-CE> | <test-CE> | <exists-CE> | <forall-CE>
@@ -569,13 +577,15 @@ public class SFPVisitorImpl implements SelectiveSFPVisitor {
 				throw SelectiveSFPVisitor.dumpAndThrowMe(node, IllegalArgumentException::new,
 						"No template with name " + templateName + " defined yet!");
 			}
-			final Set<Symbol> variablesDefinedInChildren =
-					SelectiveSFPVisitor
-							.stream(node, 1)
-							.map(n -> SelectiveSFPVisitor.sendVisitor(
-									new SFPUnorderedLHSFactBodyElementsVisitor(template), n, data).variablesDefined)
-							.collect(HashSet::new, HashSet::addAll, HashSet::addAll);
-			this.variablesDefined.addAll(variablesDefinedInChildren);
+			contextStack.mark();
+			// if we have the job to determine the type of a fact variable, create the instance now
+			if (null != this.possibleFactVariable) {
+				this.contextRule.addSingleVariable(new SingleVariable(possibleFactVariable,
+						template, null));
+			}
+			SelectiveSFPVisitor.stream(node, 1).map(
+					n -> SelectiveSFPVisitor.sendVisitor(
+							new SFPUnorderedLHSFactBodyElementsVisitor(this, template), n, data));
 			return data;
 		}
 
@@ -591,25 +601,17 @@ public class SFPVisitorImpl implements SelectiveSFPVisitor {
 			// `(not (not (and (TemplatePatternCE)+)))`, and needs to support TemplatePatternCE
 			// children, too. These will not be added to the Predicate <and>
 			assert node.jjtGetNumChildren() > 1;
-			final PredicateWithArguments[] predicatesWithArguments =
+			final List<ConditionalElement> elements =
 					SelectiveSFPVisitor
 							.stream(node, 0)
 							.map(n -> SelectiveSFPVisitor.sendVisitor(
-									new SFPConditionalElementVisitor(this.variablesDefined), n,
-									data).predicateWithArguments)
-							.toArray(PredicateWithArguments[]::new);
-			final int size = predicatesWithArguments.length;
-			if (size > 0) {
-				if (size == 1) {
-					this.predicateWithArguments = predicatesWithArguments[0];
-				} else {
-					final Predicate and =
-							FunctionDictionary.lookupPredicate(
-									org.jamocha.filter.impls.predicates.And.inClips,
-									SlotType.nCopies(SlotType.BOOLEAN, size));
-					this.predicateWithArguments =
-							new PredicateWithArgumentsComposite(and, predicatesWithArguments);
-				}
+									new SFPConditionalElementVisitor(contextStack, contextRule,
+											null), n, data).resultCE).collect(Collectors.toList());
+			final int size = elements.size();
+			if (size == 1) {
+				this.resultCE = elements.get(0);
+			} else if (size > 1) {
+				this.resultCE = new AndFunctionConditionalElement(elements);
 			}
 			return data;
 		}
@@ -619,29 +621,19 @@ public class SFPVisitorImpl implements SelectiveSFPVisitor {
 		@Override
 		public Object visit(final SFPOrFunction node, final Object data) {
 			assert node.jjtGetNumChildren() > 1;
-			final PredicateWithArguments[] predicatesWithArguments =
+			final List<ConditionalElement> elements =
 					SelectiveSFPVisitor
 							.stream(node, 0)
 							.map(n -> SelectiveSFPVisitor.sendVisitor(
-									new SFPConditionalElementVisitor(this.variablesDefined), n,
-									data))
-							.map(vis -> {
-								this.variablesDefined.addAll(vis.variablesDefined);
-								return vis.predicateWithArguments;
-							})
-							.map(pwa -> {
-								if (null == pwa)
-									throw SelectiveSFPVisitor
-											.dumpAndThrowMe(node, IllegalArgumentException::new,
-													"<or> only supports child nodes resulting in PredicateWithArgument!");
-								return pwa;
-							}).toArray(PredicateWithArguments[]::new);
-			final Predicate or =
-					FunctionDictionary.lookupPredicate(
-							org.jamocha.filter.impls.predicates.Or.inClips,
-							SlotType.nCopies(SlotType.BOOLEAN, predicatesWithArguments.length));
-			this.predicateWithArguments =
-					new PredicateWithArgumentsComposite(or, predicatesWithArguments);
+									new SFPConditionalElementVisitor(contextStack, contextRule,
+											(Symbol) null), n, data).resultCE)
+							.collect(Collectors.toList());
+			final int size = elements.size();
+			if (size == 1) {
+				this.resultCE = elements.get(0);
+			} else if (size > 1) {
+				this.resultCE = new OrFunctionConditionalElement(elements);
+			}
 			return data;
 		}
 
@@ -651,43 +643,17 @@ public class SFPVisitorImpl implements SelectiveSFPVisitor {
 		public Object visit(final SFPNotFunction node, final Object data) {
 			// not has multiple meanings: boolean operator, not exists operator
 			assert node.jjtGetNumChildren() == 1;
+			contextStack.push(this, ExistentialState.NEGATED);
 			final SFPConditionalElementVisitor visitor =
-					SelectiveSFPVisitor.sendVisitor(new SFPConditionalElementVisitor(
-							this.variablesDefined), node.jjtGetChild(0), data);
-			final int id = node.getId();
-			if (id == SFPParserTreeConstants.JJTNOTFUNCTION
-					|| id == SFPParserTreeConstants.JJTFORALLCE
-					|| id == SFPParserTreeConstants.JJTEXISTSCE
-					)
-				if (node.jjtGetParent().getId() == SFPParserTreeConstants.JJTDEFRULECONSTRUCT) {
-					// top-level not-CE meaning this is a not-exists CE
-					for (final Symbol var : this.variablesDefined) {
-						final SingleVariableProperties singleVariableProperties =
-								SFPVisitorImpl.this.symbolTableVariables.get(var);
-						switch (singleVariableProperties.state) {
-						case NORMAL:
-						case EXISENTIAL:
-							singleVariableProperties.state = SingeVariableExistentialState.NEGATED;
-							break;
-						case NEGATED:
-							singleVariableProperties.state =
-									SingeVariableExistentialState.EXISENTIAL;
-							break;
-						}
-					}
-				} else if (null != visitor.predicateWithArguments) {
-					// test-ce (not (boolean expression))
-					final Predicate not =
-							FunctionDictionary.lookupPredicate(
-									org.jamocha.filter.impls.predicates.Or.inClips,
-									SlotType.BOOLEAN);
-					this.predicateWithArguments =
-							new PredicateWithArgumentsComposite(not, visitor.predicateWithArguments);
-				} else {
-					throw SelectiveSFPVisitor.dumpAndThrowMe(node,
-							UnsupportedOperationException::new,
-							"<not> can only be followed by a test-ce or a template-ce");
-				}
+					SelectiveSFPVisitor.sendVisitor(new SFPConditionalElementVisitor(contextStack,
+							contextRule, (Symbol) null), node.jjtGetChild(0), data);
+			if (this.containsTemplateCE) {
+				this.resultCE =
+						new NegatedExistentialConditionalElement(Arrays.asList(visitor.resultCE));
+			} else {
+				this.resultCE = new NotFunctionConditionalElement(Arrays.asList(visitor.resultCE));
+			}
+			contextStack.pop();
 			return data;
 		}
 
@@ -700,9 +666,16 @@ public class SFPVisitorImpl implements SelectiveSFPVisitor {
 		@Override
 		public Object visit(final SFPExistsCE node, final Object data) {
 			assert node.jjtGetNumChildren() > 0;
-			SelectiveSFPVisitor.stream(node, 0).map(
-					n -> SelectiveSFPVisitor.sendVisitor(new SFPConditionalElementVisitor(
-							this.variablesDefined), n, data));
+			contextStack.push(this, ExistentialState.EXISENTIAL);
+			final List<ConditionalElement> elements =
+					SelectiveSFPVisitor
+							.stream(node, 0)
+							.map(n -> SelectiveSFPVisitor.sendVisitor(
+									new SFPConditionalElementVisitor(contextStack, contextRule,
+											null), n, data).resultCE).collect(Collectors.toList());
+			assert this.containsTemplateCE;
+			this.resultCE = new ExistentialConditionalElement(elements);
+			contextStack.pop();
 			return data;
 		}
 
@@ -713,13 +686,25 @@ public class SFPVisitorImpl implements SelectiveSFPVisitor {
 		// <assigned-pattern-CE> ::= <single-field-variable> <- <pattern-CE>
 		// AssignedPatternCE(): ( SingleVariable() <ASSIGN> <LBRACE> TemplatePatternCE() <RBRACE> )
 		// TODO AssignedPatternCE
+		@Override
+		public Object visit(final SFPAssignedPatternCE node, final Object data) {
+			assert node.jjtGetNumChildren() == 2;
+			final Symbol symbol =
+					SelectiveSFPVisitor.sendVisitor(new SFPSingleVariableVisitor(),
+							node.jjtGetChild(0), data).symbol;
+			this.resultCE =
+					SelectiveSFPVisitor.sendVisitor(new SFPConditionalElementVisitor(contextStack,
+							contextRule, symbol), node.jjtGetChild(1), data).resultCE;
+			return data;
+		}
 	}
 
 	class SFPDefruleConstructElementVisitor extends SFPConditionalElementVisitor {
 		String comment;
 
-		public SFPDefruleConstructElementVisitor() {
-			super(new HashSet<>());
+		public SFPDefruleConstructElementVisitor(final ExistentialStack contextStack,
+				final RuleCondition contextRule, final Symbol possibleFactVariable) {
+			super(contextStack, contextRule, possibleFactVariable);
 		}
 
 		// TBD ActionList, Declaration
@@ -783,28 +768,34 @@ public class SFPVisitorImpl implements SelectiveSFPVisitor {
 			// <DEFRULE> Symbol() [ ConstructDescription() ] ( [ LOOKAHEAD(3) Declaration() ] (
 			// ConditionalElement() )* ) <ARROW> ActionList()
 			assert node.jjtGetNumChildren() > 1;
-			SFPVisitorImpl.this.symbolTableVariables = new HashMap<>();
+			SFPVisitorImpl.this.scope.openScope();
 			final Symbol symbol =
 					SelectiveSFPVisitor.sendVisitor(new SFPSymbolVisitor(), node.jjtGetChild(0),
 							data).symbol;
+			final RuleCondition ruleCondition = new RuleCondition();
+			final ExistentialStack existentialStack = new ExistentialStack();
 			String comment = null;
-			final ArrayList<PathFilterElement> pfes = new ArrayList<>();
+			final ArrayList<ConditionalElement> ces = new ArrayList<>();
 			for (int i = 1; i < node.jjtGetNumChildren(); ++i) {
 				final SFPDefruleConstructElementVisitor visitor =
-						new SFPDefruleConstructElementVisitor();
-				node.jjtGetChild(i).jjtAccept(visitor, data);
+						SelectiveSFPVisitor.sendVisitor(new SFPDefruleConstructElementVisitor(
+								existentialStack, ruleCondition, (Symbol) null), node
+								.jjtGetChild(i), data);
 				if (null != visitor.comment) {
 					assert null == comment;
 					comment = visitor.comment;
-				} else if (null != visitor.predicateWithArguments) {
-					pfes.add(new PathFilterElement(visitor.predicateWithArguments));
+				} else if (null != visitor.resultCE) {
+					ces.add(visitor.resultCE);
 				} else {
 					// TBD action list
 				}
 			}
+			if (!existentialStack.templateCEContained) {
+				ces.add(0, new InitialFactConditionalElement());
+			}
 			SFPVisitorImpl.this.symbolTableRules.put(symbol, new RuleProperties(comment,
-					new PathFilter(pfes.toArray(new PathFilterElement[pfes.size()]))));
-			SFPVisitorImpl.this.symbolTableVariables = null;
+					ruleCondition));
+			SFPVisitorImpl.this.scope.openScope();
 			return data;
 		}
 
@@ -816,13 +807,11 @@ public class SFPVisitorImpl implements SelectiveSFPVisitor {
 			// [ FunctionGroup() <RBRACE> <LBRACE> ] ( SingleVariable() )* ( MultiVariable() )*
 			// <RBRACE> ) ActionList() )
 			assert node.jjtGetNumChildren() > 1;
-			SFPVisitorImpl.this.symbolTableVariables = new HashMap<>();
 			final Symbol symbol =
 					SelectiveSFPVisitor.sendVisitor(new SFPSymbolVisitor(), node.jjtGetChild(0),
 							data).symbol;
 			// handle comment, function group, variable list, action list
 			SFPVisitorImpl.this.symbolTableFunctions.put(symbol, null);
-			SFPVisitorImpl.this.symbolTableVariables = null;
 			// return data;
 			// for now: throw
 			return SFPVisitorImpl.this.visit(node, data);
