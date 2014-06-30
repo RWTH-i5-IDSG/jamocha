@@ -82,8 +82,6 @@ import org.jamocha.languages.common.SingleVariable;
  * <li>rules without any LHS CEs</li>
  * <li></li>
  * </ul>
- * TODO Think about the situation where a template-ce inside of {@code exists} or {@code not} does not bind a
- * variable. The boolean value will not be set.
  * 
  * This class is final to prevent accidental derived classes. All inner classes shall share the same
  * outer instance giving them access to its attributes.
@@ -484,6 +482,7 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 				final Symbol varName =
 						SelectiveSFPVisitor.sendVisitor(new SFPConstraintVisitor(),
 								node.jjtGetChild(1), data).varName;
+				// TODO introduce the possibility to have other types of constraints here
 				parent.contextRule.addSingleVariable(new SingleVariable(varName, template, template
 						.getSlotAddress(slotName.getImage())));
 				return data;
