@@ -14,6 +14,7 @@
  */
 package org.jamocha.languages.clips.parser;
 
+import java.util.List;
 import java.util.Stack;
 
 import lombok.RequiredArgsConstructor;
@@ -24,6 +25,7 @@ import org.jamocha.languages.clips.parser.SFPVisitorImpl.SFPConditionalElementVi
 import org.jamocha.languages.clips.parser.SFPVisitorImpl.SFPStartVisitor;
 import org.jamocha.languages.clips.parser.generated.SFPDefruleConstruct;
 import org.jamocha.languages.common.ConditionalElement.InitialFactConditionalElement;
+import org.jamocha.languages.common.SingleVariable;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -35,6 +37,7 @@ public class ExistentialStack {
 	class ExistentialMarkerElement {
 		final SFPConditionalElementVisitor target;
 		final ExistentialState state;
+		final List<SingleVariable> variables;
 	}
 
 	boolean templateCEContained = false;
@@ -42,9 +45,9 @@ public class ExistentialStack {
 
 	/**
 	 * To be called when a template conditional element is detected. This information is important
-	 * in two situations: If the calling visitor is in an assumed negated existential context (@{code not}
-	 * means "not exists" and "!" in CLIPS), the existence of a template CE inside confirms this
-	 * assumption. Otherwise, this information is used in
+	 * in two situations: If the calling visitor is in an assumed negated existential context
+	 * (@{code not} means "not exists" and "!" in CLIPS), the existence of a template CE inside
+	 * confirms this assumption. Otherwise, this information is used in
 	 * {@link SFPStartVisitor#visit(SFPDefruleConstruct, Object)} to determine the situations where
 	 * it needs to insert an {@link InitialFactConditionalElement}, because no non-existential
 	 * variable bindings are contained.
@@ -57,10 +60,16 @@ public class ExistentialStack {
 		stack.peek().target.containsTemplateCE = true;
 	}
 
+	void addSingleVariable(final SingleVariable singleVariable) {
+		if (stack.isEmpty())
+			return;
+		stack.peek().variables.add(singleVariable);
+	}
+
 	void push(final SFPConditionalElementVisitor conditionalElementVisitor,
-			final ExistentialState state) {
+			final ExistentialState state, final List<SingleVariable> variables) {
 		assert state != ExistentialState.NORMAL;
-		stack.push(new ExistentialMarkerElement(conditionalElementVisitor, state));
+		stack.push(new ExistentialMarkerElement(conditionalElementVisitor, state, variables));
 	}
 
 	void pop() {

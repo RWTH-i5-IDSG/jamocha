@@ -14,10 +14,14 @@
  */
 package org.jamocha.languages.common;
 
+import java.util.Optional;
+
 import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
 import org.jamocha.dn.memory.SlotAddress;
+import org.jamocha.dn.memory.SlotType;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.languages.common.ScopeStack.Symbol;
 
@@ -29,12 +33,18 @@ import org.jamocha.languages.common.ScopeStack.Symbol;
  */
 @Getter
 @AllArgsConstructor
-public class SingleVariable {
+@EqualsAndHashCode
+public class SingleVariable implements Expression {
 	final Symbol image;
 	final Template template;
 	final SlotAddress slot;
 
 	boolean isFactVariable() {
 		return null == slot;
+	}
+
+	@Override
+	public SlotType getType() {
+		return Optional.ofNullable(slot).map(template::getSlotType).get();
 	}
 }

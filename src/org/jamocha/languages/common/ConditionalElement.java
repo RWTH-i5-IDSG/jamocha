@@ -28,20 +28,31 @@ public class ConditionalElement {
 	final List<ConditionalElement> children;
 
 	public static class ExistentialConditionalElement extends ConditionalElement {
-		public ExistentialConditionalElement(final List<ConditionalElement> children) {
+		final List<SingleVariable> variables;
+
+		public ExistentialConditionalElement(final List<ConditionalElement> children,
+				final List<SingleVariable> variables) {
 			super(children);
+			this.variables = variables;
 		}
 	}
 
 	public static class NegatedExistentialConditionalElement extends ConditionalElement {
-		public NegatedExistentialConditionalElement(final List<ConditionalElement> children) {
+		final List<SingleVariable> variables;
+
+		public NegatedExistentialConditionalElement(final List<ConditionalElement> children,
+				final List<SingleVariable> variables) {
 			super(children);
+			this.variables = variables;
 		}
 	}
 
 	public static class TestConditionalElement extends ConditionalElement {
-		public TestConditionalElement(final List<ConditionalElement> children) {
-			super(children);
+		final FunctionCall functionCall;
+
+		public TestConditionalElement(final FunctionCall functionCall) {
+			super(new ArrayList<>());
+			this.functionCall = functionCall;
 		}
 	}
 

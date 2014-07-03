@@ -15,6 +15,8 @@
 package org.jamocha.languages.common;
 
 import java.util.HashMap;
+import java.util.Objects;
+import java.util.Optional;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -35,12 +37,16 @@ public class ScopeStack {
 		final Scope parentScope;
 		final HashMap<String, Symbol> symbolTable = new HashMap<>();
 
+		public Symbol getSymbol(final String image) {
+			return this.symbolTable.computeIfAbsent(image, s -> null == parentScope ? null
+					: parentScope.getSymbol(s));
+		}
+
 		public Symbol getOrCreateSymbol(final String image) {
 			// if no entry present, try parent
-			// at the latest, the topmost scope will create a new symbol
-			// all children will copy the symbol, so further queries don't recurse
-			return this.symbolTable.computeIfAbsent(image, s -> null == parentScope ? new Symbol(s)
-					: parentScope.getOrCreateSymbol(s));
+			// if no scope contains matching symbol, create it at lowest scope
+			return this.symbolTable.computeIfAbsent(image, s -> Optional.ofNullable(parentScope)
+					.map(c -> c.getSymbol(s)).orElseGet(() -> new Symbol(s)));
 		}
 
 		public Symbol createDummySymbol() {
@@ -64,7 +70,7 @@ public class ScopeStack {
 	private Scope currentScope;
 
 	public ScopeStack() {
-		this.currentScope = new Scope(null);
+		this.currentScope = new Scope((Scope) null);
 	}
 
 	public void openScope() {
@@ -75,11 +81,15 @@ public class ScopeStack {
 		this.currentScope = this.currentScope.parentScope;
 	}
 
+	private Scope getScope() {
+		return Objects.requireNonNull(this.currentScope, "No scope present!");
+	}
+
 	public Symbol getOrCreate(final String image) {
-		return this.currentScope.getOrCreateSymbol(image);
+		return getScope().getOrCreateSymbol(image);
 	}
 
 	public Symbol createDummy() {
-		return this.currentScope.createDummySymbol();
+		return getScope().createDummySymbol();
 	}
 }

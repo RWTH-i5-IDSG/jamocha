@@ -14,25 +14,23 @@
  */
 package org.jamocha.languages.common;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
-import org.jamocha.languages.common.ScopeStack.Symbol;
+import lombok.Value;
+
+import org.jamocha.dn.memory.SlotType;
+import org.jamocha.filter.Function;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
-public class RuleCondition {
-	final HashMap<Symbol, List<SingleVariable>> variables = new HashMap<>();
-	final List<ConditionalElement> conditionalElements = new ArrayList<>();
+@Value
+public class FunctionCall implements Expression {
+	final Function<?> function;
+	final List<Expression> arguments;
 
-	public void addSingleVariable(final SingleVariable singleVariable) {
-		this.variables.computeIfAbsent(singleVariable.image, s -> new ArrayList<>()).add(
-				singleVariable);
-	}
-
-	public List<SingleVariable> getVariablesForSymbol(final Symbol symbol) {
-		return this.variables.computeIfAbsent(symbol, s -> new ArrayList<>());
+	@Override
+	public SlotType getType() {
+		return function.getReturnType();
 	}
 }
