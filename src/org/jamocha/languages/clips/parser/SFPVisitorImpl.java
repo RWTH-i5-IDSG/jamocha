@@ -501,8 +501,8 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 						SelectiveSFPVisitor.sendVisitor(new SFPConstraintVisitor(),
 								node.jjtGetChild(1), data).varName;
 				// TODO introduce the possibility to have other types of constraints here
-				parent.addSingleVariable(new SingleVariable(varName, template, template
-						.getSlotAddress(slotName.getImage())));
+				parent.contextStack.addSingleVariable(new SingleVariable(varName, template,
+						template.getSlotAddress(slotName.getImage())));
 				return data;
 			}
 		}
@@ -525,7 +525,6 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 		}
 
 		final ExistentialStack contextStack;
-		final RuleCondition contextRule;
 		final Symbol possibleFactVariable;
 		boolean containsTemplateCE;
 		ConditionalElement resultCE;
@@ -582,11 +581,6 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 		// ConnectedConstraint(): Term()
 		// Term(): SingleVariable()
 
-		private void addSingleVariable(final SingleVariable singleVariable) {
-			this.contextRule.addSingleVariable(singleVariable);
-			this.contextStack.addSingleVariable(singleVariable);
-		}
-
 		@Override
 		public Object visit(final SFPTemplatePatternCE node, final Object data) {
 			assert node.jjtGetNumChildren() > 1;
@@ -602,8 +596,8 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 			contextStack.mark();
 			// if we have the job to determine the type of a fact variable, create the instance now
 			if (null != this.possibleFactVariable) {
-				addSingleVariable(new SingleVariable(possibleFactVariable, template,
-						(SlotAddress) null));
+				this.contextStack.addSingleVariable(new SingleVariable(possibleFactVariable,
+						template, (SlotAddress) null));
 			}
 			SelectiveSFPVisitor.stream(node, 1).forEach(
 					n -> SelectiveSFPVisitor.sendVisitor(new SFPTemplatePatternCEElementsVisitor(
@@ -627,8 +621,8 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 					SelectiveSFPVisitor
 							.stream(node, 0)
 							.map(n -> SelectiveSFPVisitor.sendVisitor(
-									new SFPConditionalElementVisitor(contextStack, contextRule,
-											null), n, data).resultCE).collect(Collectors.toList());
+									new SFPConditionalElementVisitor(contextStack, null), n, data).resultCE)
+							.collect(Collectors.toList());
 			final int size = elements.size();
 			if (size == 1) {
 				this.resultCE = elements.get(0);
@@ -647,9 +641,8 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 					SelectiveSFPVisitor
 							.stream(node, 0)
 							.map(n -> SelectiveSFPVisitor.sendVisitor(
-									new SFPConditionalElementVisitor(contextStack, contextRule,
-											(Symbol) null), n, data).resultCE)
-							.collect(Collectors.toList());
+									new SFPConditionalElementVisitor(contextStack, (Symbol) null),
+									n, data).resultCE).collect(Collectors.toList());
 			final int size = elements.size();
 			if (size == 1) {
 				this.resultCE = elements.get(0);
@@ -672,8 +665,7 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 									ExistentialState.NEGATED, variables)) {
 				final SFPConditionalElementVisitor visitor =
 						SelectiveSFPVisitor.sendVisitor(new SFPConditionalElementVisitor(
-								contextStack, contextRule, (Symbol) null), node.jjtGetChild(0),
-								data);
+								contextStack, (Symbol) null), node.jjtGetChild(0), data);
 				if (this.containsTemplateCE) {
 					this.resultCE =
 							new NegatedExistentialConditionalElement(
@@ -694,7 +686,7 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 			assert node.jjtGetNumChildren() == 1;
 			final FunctionCall functionCall =
 					(FunctionCall) SelectiveSFPVisitor.sendVisitor(
-							new SFPFunctionCallElementsVisitor(contextRule), node.jjtGetChild(0),
+							new SFPFunctionCallElementsVisitor(contextStack), node.jjtGetChild(0),
 							data).expression;
 			this.resultCE = new TestConditionalElement(functionCall);
 			return data;
@@ -713,9 +705,8 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 						SelectiveSFPVisitor
 								.stream(node, 0)
 								.map(n -> SelectiveSFPVisitor.sendVisitor(
-										new SFPConditionalElementVisitor(contextStack, contextRule,
-												null), n, data).resultCE)
-								.collect(Collectors.toList());
+										new SFPConditionalElementVisitor(contextStack, null), n,
+										data).resultCE).collect(Collectors.toList());
 				assert this.containsTemplateCE;
 				this.resultCE = new ExistentialConditionalElement(elements, variables);
 			}
@@ -737,7 +728,7 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 							node.jjtGetChild(0), data).symbol;
 			this.resultCE =
 					SelectiveSFPVisitor.sendVisitor(new SFPConditionalElementVisitor(contextStack,
-							contextRule, symbol), node.jjtGetChild(1), data).resultCE;
+							symbol), node.jjtGetChild(1), data).resultCE;
 			return data;
 		}
 	}
@@ -746,8 +737,8 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 		String comment;
 
 		public SFPDefruleConstructElementVisitor(final ExistentialStack contextStack,
-				final RuleCondition contextRule, final Symbol possibleFactVariable) {
-			super(contextStack, contextRule, possibleFactVariable);
+				final Symbol possibleFactVariable) {
+			super(contextStack, possibleFactVariable);
 		}
 
 		// TBD ActionList, Declaration
@@ -907,15 +898,13 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 				final Symbol symbol =
 						SelectiveSFPVisitor.sendVisitor(new SFPSymbolVisitor(),
 								node.jjtGetChild(0), data).symbol;
-				final RuleCondition ruleCondition = new RuleCondition();
 				final ExistentialStack existentialStack = new ExistentialStack();
 				String comment = null;
 				final ArrayList<ConditionalElement> ces = new ArrayList<>();
 				for (int i = 1; i < node.jjtGetNumChildren(); ++i) {
 					final SFPDefruleConstructElementVisitor visitor =
 							SelectiveSFPVisitor.sendVisitor(new SFPDefruleConstructElementVisitor(
-									existentialStack, ruleCondition, (Symbol) null), node
-									.jjtGetChild(i), data);
+									existentialStack, (Symbol) null), node.jjtGetChild(i), data);
 					if (null != visitor.comment) {
 						assert null == comment;
 						comment = visitor.comment;
@@ -929,7 +918,7 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 					ces.add(0, new InitialFactConditionalElement());
 				}
 				SFPVisitorImpl.this.symbolTableRules.put(symbol, new RuleProperties(comment,
-						ruleCondition));
+						existentialStack));
 			}
 			return data;
 		}

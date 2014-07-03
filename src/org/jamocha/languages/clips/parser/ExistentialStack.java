@@ -25,13 +25,14 @@ import org.jamocha.languages.clips.parser.SFPVisitorImpl.SFPConditionalElementVi
 import org.jamocha.languages.clips.parser.SFPVisitorImpl.SFPStartVisitor;
 import org.jamocha.languages.clips.parser.generated.SFPDefruleConstruct;
 import org.jamocha.languages.common.ConditionalElement.InitialFactConditionalElement;
+import org.jamocha.languages.common.RuleCondition;
 import org.jamocha.languages.common.SingleVariable;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
 @RequiredArgsConstructor
-public class ExistentialStack {
+public class ExistentialStack extends RuleCondition {
 
 	@Value
 	class ExistentialMarkerElement {
@@ -60,7 +61,9 @@ public class ExistentialStack {
 		stack.peek().target.containsTemplateCE = true;
 	}
 
-	void addSingleVariable(final SingleVariable singleVariable) {
+	@Override
+	public void addSingleVariable(final SingleVariable singleVariable) {
+		super.addSingleVariable(singleVariable);
 		if (stack.isEmpty())
 			return;
 		stack.peek().variables.add(singleVariable);
