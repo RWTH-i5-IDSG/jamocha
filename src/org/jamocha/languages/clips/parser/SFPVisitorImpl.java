@@ -33,6 +33,7 @@ import org.jamocha.dn.memory.Template.Slot;
 import org.jamocha.dn.memory.javaimpl.Template;
 import org.jamocha.filter.Function;
 import org.jamocha.filter.FunctionDictionary;
+import org.jamocha.languages.clips.parser.ExistentialStack.ScopedExistentialStack;
 import org.jamocha.languages.clips.parser.generated.SFPActionList;
 import org.jamocha.languages.clips.parser.generated.SFPAndFunction;
 import org.jamocha.languages.clips.parser.generated.SFPAnyFunction;
@@ -82,6 +83,7 @@ import org.jamocha.languages.common.ConditionalElement.TestConditionalElement;
 import org.jamocha.languages.common.Expression;
 import org.jamocha.languages.common.FunctionCall;
 import org.jamocha.languages.common.RuleCondition;
+import org.jamocha.languages.common.ScopeCloser;
 import org.jamocha.languages.common.ScopeStack;
 import org.jamocha.languages.common.ScopeStack.Symbol;
 import org.jamocha.languages.common.SingleVariable;
@@ -663,23 +665,25 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 		public Object visit(final SFPNotFunction node, final Object data) {
 			// not has multiple meanings: boolean operator, not exists operator
 			assert node.jjtGetNumChildren() == 1;
-			SFPVisitorImpl.this.scope.openScope();
 			final ArrayList<SingleVariable> variables = new ArrayList<SingleVariable>();
-			contextStack.push(this, ExistentialState.NEGATED, variables);
-			final SFPConditionalElementVisitor visitor =
-					SelectiveSFPVisitor.sendVisitor(new SFPConditionalElementVisitor(contextStack,
-							contextRule, (Symbol) null), node.jjtGetChild(0), data);
-			if (this.containsTemplateCE) {
-				this.resultCE =
-						new NegatedExistentialConditionalElement(Arrays.asList(visitor.resultCE),
-								variables);
-			} else {
-				assert variables.isEmpty();
-				this.resultCE = new NotFunctionConditionalElement(Arrays.asList(visitor.resultCE));
+			try (final ScopeCloser scopeCloser = new ScopeCloser(SFPVisitorImpl.this.scope);
+					final ScopedExistentialStack scopedExistentialStack =
+							new ScopedExistentialStack(contextStack, this,
+									ExistentialState.NEGATED, variables)) {
+				final SFPConditionalElementVisitor visitor =
+						SelectiveSFPVisitor.sendVisitor(new SFPConditionalElementVisitor(
+								contextStack, contextRule, (Symbol) null), node.jjtGetChild(0),
+								data);
+				if (this.containsTemplateCE) {
+					this.resultCE =
+							new NegatedExistentialConditionalElement(
+									Arrays.asList(visitor.resultCE), variables);
+				} else {
+					assert variables.isEmpty();
+					this.resultCE =
+							new NotFunctionConditionalElement(Arrays.asList(visitor.resultCE));
+				}
 			}
-			assert this == contextStack.stack.peek().getTarget();
-			contextStack.pop();
-			SFPVisitorImpl.this.scope.closeScope();
 			return data;
 		}
 
@@ -702,17 +706,19 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 		public Object visit(final SFPExistsCE node, final Object data) {
 			assert node.jjtGetNumChildren() > 0;
 			final ArrayList<SingleVariable> variables = new ArrayList<SingleVariable>();
-			contextStack.push(this, ExistentialState.EXISTENTIAL, variables);
-			final List<ConditionalElement> elements =
-					SelectiveSFPVisitor
-							.stream(node, 0)
-							.map(n -> SelectiveSFPVisitor.sendVisitor(
-									new SFPConditionalElementVisitor(contextStack, contextRule,
-											null), n, data).resultCE).collect(Collectors.toList());
-			assert this.containsTemplateCE;
-			this.resultCE = new ExistentialConditionalElement(elements, variables);
-			assert this == contextStack.stack.peek().getTarget();
-			contextStack.pop();
+			try (final ScopedExistentialStack scopedExistentialStack =
+					new ScopedExistentialStack(contextStack, this, ExistentialState.EXISTENTIAL,
+							variables)) {
+				final List<ConditionalElement> elements =
+						SelectiveSFPVisitor
+								.stream(node, 0)
+								.map(n -> SelectiveSFPVisitor.sendVisitor(
+										new SFPConditionalElementVisitor(contextStack, contextRule,
+												null), n, data).resultCE)
+								.collect(Collectors.toList());
+				assert this.containsTemplateCE;
+				this.resultCE = new ExistentialConditionalElement(elements, variables);
+			}
 			return data;
 		}
 
@@ -897,34 +903,34 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 			// <DEFRULE> Symbol() [ ConstructDescription() ] ( [ LOOKAHEAD(3) Declaration() ] (
 			// ConditionalElement() )* ) <ARROW> ActionList()
 			assert node.jjtGetNumChildren() > 1;
-			SFPVisitorImpl.this.scope.openScope();
-			final Symbol symbol =
-					SelectiveSFPVisitor.sendVisitor(new SFPSymbolVisitor(), node.jjtGetChild(0),
-							data).symbol;
-			final RuleCondition ruleCondition = new RuleCondition();
-			final ExistentialStack existentialStack = new ExistentialStack();
-			String comment = null;
-			final ArrayList<ConditionalElement> ces = new ArrayList<>();
-			for (int i = 1; i < node.jjtGetNumChildren(); ++i) {
-				final SFPDefruleConstructElementVisitor visitor =
-						SelectiveSFPVisitor.sendVisitor(new SFPDefruleConstructElementVisitor(
-								existentialStack, ruleCondition, (Symbol) null), node
-								.jjtGetChild(i), data);
-				if (null != visitor.comment) {
-					assert null == comment;
-					comment = visitor.comment;
-				} else if (null != visitor.resultCE) {
-					ces.add(visitor.resultCE);
-				} else {
-					// TBD action list
+			try (final ScopeCloser scopeCloser = new ScopeCloser(SFPVisitorImpl.this.scope)) {
+				final Symbol symbol =
+						SelectiveSFPVisitor.sendVisitor(new SFPSymbolVisitor(),
+								node.jjtGetChild(0), data).symbol;
+				final RuleCondition ruleCondition = new RuleCondition();
+				final ExistentialStack existentialStack = new ExistentialStack();
+				String comment = null;
+				final ArrayList<ConditionalElement> ces = new ArrayList<>();
+				for (int i = 1; i < node.jjtGetNumChildren(); ++i) {
+					final SFPDefruleConstructElementVisitor visitor =
+							SelectiveSFPVisitor.sendVisitor(new SFPDefruleConstructElementVisitor(
+									existentialStack, ruleCondition, (Symbol) null), node
+									.jjtGetChild(i), data);
+					if (null != visitor.comment) {
+						assert null == comment;
+						comment = visitor.comment;
+					} else if (null != visitor.resultCE) {
+						ces.add(visitor.resultCE);
+					} else {
+						// TBD action list
+					}
 				}
+				if (!existentialStack.templateCEContained) {
+					ces.add(0, new InitialFactConditionalElement());
+				}
+				SFPVisitorImpl.this.symbolTableRules.put(symbol, new RuleProperties(comment,
+						ruleCondition));
 			}
-			if (!existentialStack.templateCEContained) {
-				ces.add(0, new InitialFactConditionalElement());
-			}
-			SFPVisitorImpl.this.symbolTableRules.put(symbol, new RuleProperties(comment,
-					ruleCondition));
-			SFPVisitorImpl.this.scope.closeScope();
 			return data;
 		}
 

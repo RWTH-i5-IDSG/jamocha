@@ -75,4 +75,23 @@ public class ExistentialStack {
 	void pop() {
 		stack.pop();
 	}
+
+	public static class ScopedExistentialStack implements AutoCloseable {
+		final ExistentialStack existentialStack;
+		final SFPConditionalElementVisitor target;
+
+		public ScopedExistentialStack(final ExistentialStack existentialStack,
+				final SFPConditionalElementVisitor target, final ExistentialState state,
+				final List<SingleVariable> variables) {
+			this.existentialStack = existentialStack;
+			this.target = target;
+			this.existentialStack.push(target, state, variables);
+		}
+
+		@Override
+		public void close() {
+			assert this.target == this.existentialStack.stack.peek().target;
+			this.existentialStack.pop();
+		}
+	}
 }
