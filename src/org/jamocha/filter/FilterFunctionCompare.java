@@ -282,7 +282,8 @@ public class FilterFunctionCompare {
 			}
 		}
 
-		private int gcd(int a, int b) {
+		private int gcd(int x, int y) {
+			int a = x, b = y;
 			while (b > 0) {
 				int temp = b;
 				b = a % b; // % is remainder
