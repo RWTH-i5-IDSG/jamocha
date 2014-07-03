@@ -924,7 +924,7 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 			}
 			SFPVisitorImpl.this.symbolTableRules.put(symbol, new RuleProperties(comment,
 					ruleCondition));
-			SFPVisitorImpl.this.scope.openScope();
+			SFPVisitorImpl.this.scope.closeScope();
 			return data;
 		}
 
