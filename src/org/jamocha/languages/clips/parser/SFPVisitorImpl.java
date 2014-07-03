@@ -968,7 +968,7 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 				System.out.println(a);
 				System.out.print("SFP> ");
 			}
-		} catch (final Exception e) {
+		} catch (final Throwable e) {
 			System.err.println("ERROR[" + e.getClass().getSimpleName() + "]: " + e.getMessage());
 			if (verbose)
 				e.printStackTrace();
