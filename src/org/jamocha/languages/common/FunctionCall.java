@@ -27,7 +27,7 @@ import org.jamocha.filter.Function;
 @Value
 public class FunctionCall implements Expression {
 	final Function<?> function;
-	final List<Expression> arguments;
+	final List<? extends Expression> arguments;
 
 	@Override
 	public SlotType getType() {
