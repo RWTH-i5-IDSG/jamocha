@@ -15,6 +15,7 @@
 package org.jamocha.languages.common;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
@@ -34,5 +35,13 @@ public class RuleCondition {
 
 	public List<SingleVariable> getVariablesForSymbol(final Symbol symbol) {
 		return this.variables.computeIfAbsent(symbol, s -> new ArrayList<>());
+	}
+
+	public void addConditionalElement(final ConditionalElement conditionalElement) {
+		this.conditionalElements.add(conditionalElement);
+	}
+
+	public void addConditionalElements(final Collection<ConditionalElement> conditionalElement) {
+		this.conditionalElements.addAll(conditionalElement);
 	}
 }
