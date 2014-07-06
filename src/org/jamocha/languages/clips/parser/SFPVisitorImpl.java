@@ -793,8 +793,7 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 		public Object visit(final SFPConstant node, final Object data) {
 			final SFPValueVisitor visitor =
 					SelectiveSFPVisitor.sendVisitor(new SFPValueVisitor(), node, data);
-			this.expression =
-					new org.jamocha.languages.common.Constant(visitor.value, visitor.type);
+			this.expression = new Constant(visitor.type, visitor.value);
 			return data;
 		}
 

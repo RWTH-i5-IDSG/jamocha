@@ -23,8 +23,8 @@ import org.jamocha.dn.memory.SlotType;
  */
 @Value
 public class Constant implements Expression {
-	final Object value;
 	final SlotType type;
+	final Object value;
 
 	@Override
 	public SlotType getType() {
