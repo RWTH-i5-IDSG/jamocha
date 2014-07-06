@@ -74,7 +74,7 @@ public enum SlotType {
 
 	final public static SlotType[] nCopies(final SlotType type, final int num) {
 		final SlotType[] types = new SlotType[num];
-		Arrays.fill(null, type);
+		Arrays.fill(types, type);
 		return types;
 	}
 
