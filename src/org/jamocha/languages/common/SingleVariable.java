@@ -38,6 +38,8 @@ public class SingleVariable implements Expression {
 	final Symbol image;
 	final Template template;
 	final SlotAddress slot;
+	// occurrence of image was negated by ~
+	final boolean negated;
 
 	boolean isFactVariable() {
 		return null == slot;
