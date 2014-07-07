@@ -1126,6 +1126,7 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 					System.exit(0);
 				if (verbose)
 					SelectiveSFPVisitor.dumpToStdOut(n);
+				ForallTransformer.transform(n);
 				final Object a = n.jjtAccept(visitor, "Parsing successful!");
 				System.out.println(a);
 				System.out.print("SFP> ");
