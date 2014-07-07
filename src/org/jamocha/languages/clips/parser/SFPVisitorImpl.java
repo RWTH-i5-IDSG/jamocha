@@ -81,6 +81,7 @@ import org.jamocha.languages.clips.parser.generated.SFPTrue;
 import org.jamocha.languages.clips.parser.generated.SFPTypeAttribute;
 import org.jamocha.languages.clips.parser.generated.SFPTypeSpecification;
 import org.jamocha.languages.clips.parser.generated.SFPUnorderedLHSFactBody;
+import org.jamocha.languages.clips.parser.generated.SimpleNode;
 import org.jamocha.languages.common.ConditionalElement;
 import org.jamocha.languages.common.ConditionalElement.AndFunctionConditionalElement;
 import org.jamocha.languages.common.ConditionalElement.ExistentialConditionalElement;
@@ -441,8 +442,12 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 			return data;
 		}
 	};
-	static final Function<Object> not = FunctionDictionary.lookup(
+	static final Predicate not = FunctionDictionary.lookupPredicate(
 			org.jamocha.filter.impls.predicates.Not.inClips, SlotType.BOOLEAN);
+	static final Predicate and = FunctionDictionary.lookupPredicate(
+			org.jamocha.filter.impls.predicates.And.inClips, SlotType.BOOLEAN, SlotType.BOOLEAN);
+	static final Predicate or = FunctionDictionary.lookupPredicate(
+			org.jamocha.filter.impls.predicates.Or.inClips, SlotType.BOOLEAN, SlotType.BOOLEAN);
 
 	@RequiredArgsConstructor
 	class SFPConditionalElementVisitor implements SelectiveSFPVisitor {
@@ -544,10 +549,6 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 			// currently:
 			// ConnectedConstraint(): ( Term() [ AmpersandConnectedConstraint() |
 			// LineConnectedConstraint() ] )
-			// AmpersandConnectedConstraint(): ( <AMPERSAND> Term() [ LineConnectedConstraint() |
-			// AmpersandConnectedConstraint() ] )
-			// LineConnectedConstraint(): ( <LINE> Term() [ LineConnectedConstraint() |
-			// AmpersandConnectedConstraint() ] )
 			// Term(): ( [ Negation() ] (Constant() | SingleVariable() | MultiVariable() | Colon() |
 			// Equals() )
 			@Override
@@ -555,39 +556,48 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 				assert Arrays.asList(1, 2).contains(Integer.valueOf(node.jjtGetNumChildren()));
 				boolean negated = false;
 				if (node.jjtGetNumChildren() == 2) {
+					// visit to throw exception in case the child is not a negation
 					SelectiveSFPVisitor.sendVisitor(negationVisitor, node.jjtGetChild(0), data);
 					negated = true;
 				}
-				// TODO do we need to do more here?
 				SelectiveSFPVisitor.sendVisitor(new SFPTermElementsVisitor(parent, constraintAdder,
 						template, slot, negated), node.jjtGetChild(negated ? 1 : 0), data);
 				return data;
 			}
 
-			@Override
-			public Object visit(final SFPAmpersandConnectedConstraint node, final Object data) {
+			private Object handleConnectedConstraint(final SimpleNode node, final Object data,
+					final Predicate connector) {
 				assert Arrays.asList(1, 2).contains(Integer.valueOf(node.jjtGetNumChildren()));
-				// TODO impl
-				SelectiveSFPVisitor.sendVisitor(new SFPConnectedConstraintElementsVisitor(parent,
-						constraintAdder, template, slot), node.jjtGetChild(0), data);
-				if (2 == node.jjtGetNumChildren()) {
+				final boolean terminal = 1 == node.jjtGetNumChildren();
+				if (terminal) {
+					// visit the term-child
 					SelectiveSFPVisitor.sendVisitor(new SFPConnectedConstraintElementsVisitor(
-							parent, constraintAdder, template, slot), node.jjtGetChild(1), data);
+							parent, constraintAdder, template, slot), node.jjtGetChild(0), data);
+				} else {
+					final ArrayList<FunctionCall> constraints = new ArrayList<>();
+					// visit the term-child
+					SelectiveSFPVisitor.sendVisitor(new SFPConnectedConstraintElementsVisitor(
+							parent, constraints::add, template, slot), node.jjtGetChild(0), data);
+					// visit the rest
+					SelectiveSFPVisitor.sendVisitor(new SFPConnectedConstraintElementsVisitor(
+							parent, constraints::add, template, slot), node.jjtGetChild(1), data);
+					constraintAdder.accept(new FunctionCall(connector, constraints));
 				}
 				return data;
 			}
 
+			// AmpersandConnectedConstraint(): ( <AMPERSAND> Term() [ LineConnectedConstraint() |
+			// AmpersandConnectedConstraint() ] )
+			@Override
+			public Object visit(final SFPAmpersandConnectedConstraint node, final Object data) {
+				return handleConnectedConstraint(node, data, SFPVisitorImpl.and);
+			}
+
+			// LineConnectedConstraint(): ( <LINE> Term() [ LineConnectedConstraint() |
+			// AmpersandConnectedConstraint() ] )
 			@Override
 			public Object visit(final SFPLineConnectedConstraint node, final Object data) {
-				assert Arrays.asList(1, 2).contains(Integer.valueOf(node.jjtGetNumChildren()));
-				// TODO impl
-				SelectiveSFPVisitor.sendVisitor(new SFPConnectedConstraintElementsVisitor(parent,
-						constraintAdder, template, slot), node.jjtGetChild(0), data);
-				if (2 == node.jjtGetNumChildren()) {
-					SelectiveSFPVisitor.sendVisitor(new SFPConnectedConstraintElementsVisitor(
-							parent, constraintAdder, template, slot), node.jjtGetChild(1), data);
-				}
-				return data;
+				return handleConnectedConstraint(node, data, SFPVisitorImpl.or);
 			}
 		}
 
