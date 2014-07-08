@@ -28,6 +28,7 @@ import lombok.ToString;
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
 public class ScopeStack {
+	public static final String dummySymbolImage = "Dummy";
 
 	/**
 	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -50,7 +51,7 @@ public class ScopeStack {
 		}
 
 		public Symbol createDummySymbol() {
-			return new Symbol("Dummy");
+			return new Symbol(dummySymbolImage);
 		}
 	}
 
