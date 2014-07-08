@@ -968,7 +968,7 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 			try {
 				this.expression = ruleCondition.getVariablesForSymbol(symbol).get(0);
 			} catch (IndexOutOfBoundsException e) {
-				throw new IllegalAccessError("Variable " + symbol + " was not declared before use!");
+				throw new ClipsVariableNotDeclaredError(symbol, node);
 			}
 			return data;
 		}
