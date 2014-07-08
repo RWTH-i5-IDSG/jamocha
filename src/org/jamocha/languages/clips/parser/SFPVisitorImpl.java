@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Queue;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -98,11 +99,11 @@ import org.jamocha.languages.common.ScopeCloser;
 import org.jamocha.languages.common.ScopeStack;
 import org.jamocha.languages.common.ScopeStack.Symbol;
 import org.jamocha.languages.common.SingleVariable;
+import org.jamocha.languages.common.Warning;
 
 /**
  * Needs consideration: how to treat
  * <ul>
- * <li>rules without any LHS CEs</li>
  * <li></li>
  * </ul>
  * 
@@ -125,6 +126,7 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 	final HashMap<Symbol, Template> symbolTableTemplates = new HashMap<>();
 	final HashMap<Symbol, Function<?>> symbolTableFunctions = new HashMap<>();
 	final HashMap<Symbol, RuleProperties> symbolTableRules = new HashMap<>();
+	final Queue<Warning> warnings = new LinkedList<>();
 
 	@Override
 	public Object visit(final SFPStart node, final Object data) {
@@ -1076,6 +1078,20 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 						// TBD action list
 					}
 				}
+				existentialStack
+						.getVariables()
+						.keySet()
+						.stream()
+						.collect(Collectors.groupingBy(Symbol::getImage))
+						.entrySet()
+						.stream()
+						.filter(e -> e.getValue().size() > 1
+								&& !e.getKey().equals(ScopeStack.dummySymbolImage))
+						.forEach(
+								e -> SFPVisitorImpl.this.warnings
+										.add(new Warning(
+												"Two different symbols were created for the same variable name leading to different variables, namely "
+														+ e.getKey())));
 				if (!existentialStack.templateCEContained) {
 					ces.add(0, new InitialFactConditionalElement());
 				}
@@ -1130,6 +1146,8 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 				ForallTransformer.transform(n);
 				final Object a = n.jjtAccept(visitor, "Parsing successful!");
 				System.out.println(a);
+				visitor.warnings.forEach(w -> System.out.println("Warning: " + w.getMessage()));
+				visitor.warnings.clear();
 				System.out.print("SFP> ");
 			}
 		} catch (final Throwable e) {
