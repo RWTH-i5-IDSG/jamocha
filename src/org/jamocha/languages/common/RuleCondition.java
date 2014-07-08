@@ -18,6 +18,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import lombok.Getter;
 
 import org.jamocha.languages.common.ScopeStack.Symbol;
 
@@ -26,6 +29,7 @@ import org.jamocha.languages.common.ScopeStack.Symbol;
  */
 public class RuleCondition {
 	final HashMap<Symbol, List<SingleVariable>> variables = new HashMap<>();
+	@Getter
 	final List<ConditionalElement> conditionalElements = new ArrayList<>();
 
 	public void addSingleVariable(final SingleVariable singleVariable) {
@@ -35,6 +39,10 @@ public class RuleCondition {
 
 	public List<SingleVariable> getVariablesForSymbol(final Symbol symbol) {
 		return this.variables.computeIfAbsent(symbol, s -> new ArrayList<>());
+	}
+
+	public Map<Symbol, List<SingleVariable>> getVariables() {
+		return this.variables;
 	}
 
 	public void addConditionalElement(final ConditionalElement conditionalElement) {
