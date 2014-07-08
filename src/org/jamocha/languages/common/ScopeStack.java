@@ -86,7 +86,11 @@ public class ScopeStack {
 		return Objects.requireNonNull(this.currentScope, "No scope present!");
 	}
 
-	public Symbol getOrCreate(final String image) {
+	public Symbol getSymbol(final String image) {
+		return getScope().getSymbol(image);
+	}
+
+	public Symbol getOrCreateSymbol(final String image) {
 		return getScope().getOrCreateSymbol(image);
 	}
 

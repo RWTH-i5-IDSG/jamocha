@@ -28,6 +28,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Value;
 
@@ -114,6 +115,7 @@ import org.jamocha.languages.common.Warning;
  *
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
+@Getter
 public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 
 	/**
@@ -156,7 +158,7 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 
 		@Override
 		public Object visit(final SFPSymbol node, final Object data) {
-			this.symbol = SFPVisitorImpl.this.scope.getOrCreate(node.jjtGetValue().toString());
+			this.symbol = SFPVisitorImpl.this.scope.getOrCreateSymbol(node.jjtGetValue().toString());
 			return data;
 		}
 	}
@@ -434,7 +436,7 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 		@Override
 		public Object visit(final SFPSingleVariable node, final Object data) {
 			assert node.jjtGetNumChildren() == 0;
-			this.symbol = SFPVisitorImpl.this.scope.getOrCreate(node.jjtGetValue().toString());
+			this.symbol = SFPVisitorImpl.this.scope.getOrCreateSymbol(node.jjtGetValue().toString());
 			return data;
 		}
 	}
