@@ -619,9 +619,11 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 			// Equals() )
 			@Override
 			public Object visit(final SFPConnectedConstraint node, final Object data) {
-				assert node.jjtGetNumChildren() > 0;
-				SelectiveSFPVisitor.sendVisitor(new SFPConnectedConstraintElementsVisitor(parent,
-						constraintAdder, template, slot), node.jjtGetChild(0), data);
+				assert Arrays.asList(1, 2).contains(node.jjtGetNumChildren());
+				SelectiveSFPVisitor.stream(node, 0).forEach(
+						n -> SelectiveSFPVisitor.sendVisitor(
+								new SFPConnectedConstraintElementsVisitor(parent, constraintAdder,
+										template, slot), n, data));
 				return data;
 			}
 		}
@@ -881,7 +883,6 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 
 		// <assigned-pattern-CE> ::= <single-field-variable> <- <pattern-CE>
 		// AssignedPatternCE(): ( SingleVariable() <ASSIGN> <LBRACE> TemplatePatternCE() <RBRACE> )
-		// TODO AssignedPatternCE
 		@Override
 		public Object visit(final SFPAssignedPatternCE node, final Object data) {
 			assert node.jjtGetNumChildren() == 2;
