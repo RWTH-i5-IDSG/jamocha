@@ -59,6 +59,7 @@ import org.jamocha.languages.clips.parser.generated.SFPExpression;
 import org.jamocha.languages.clips.parser.generated.SFPFalse;
 import org.jamocha.languages.clips.parser.generated.SFPFloat;
 import org.jamocha.languages.clips.parser.generated.SFPFloatType;
+import org.jamocha.languages.clips.parser.generated.SFPForallCE;
 import org.jamocha.languages.clips.parser.generated.SFPInteger;
 import org.jamocha.languages.clips.parser.generated.SFPIntegerType;
 import org.jamocha.languages.clips.parser.generated.SFPLHSSlot;
@@ -67,6 +68,7 @@ import org.jamocha.languages.clips.parser.generated.SFPNegation;
 import org.jamocha.languages.clips.parser.generated.SFPNotFunction;
 import org.jamocha.languages.clips.parser.generated.SFPOrFunction;
 import org.jamocha.languages.clips.parser.generated.SFPParser;
+import org.jamocha.languages.clips.parser.generated.SFPParserTreeConstants;
 import org.jamocha.languages.clips.parser.generated.SFPSingleSlotDefinition;
 import org.jamocha.languages.clips.parser.generated.SFPSingleVariable;
 import org.jamocha.languages.clips.parser.generated.SFPSlotDefinition;
@@ -881,7 +883,36 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 
 		// <forall-CE> ::= (forall <conditional-element> <conditional-element>+)
 		// ForallCE() : <FORALL> ConditionalElement() ( LOOKAHEAD(2) ConditionalElement() )+
-		// TBD ForallCE
+		@Override
+		public Object visit(final SFPForallCE child, final Object data) {
+			final SimpleNode node = (SimpleNode) child.jjtGetParent();
+			int i = -1;
+			for (int j = 0; j < node.jjtGetNumChildren(); ++j) {
+				if (node.jjtGetChild(j) == child) {
+					i = j;
+					break;
+				}
+			}
+			assert -1 != i;
+			final SimpleNode outerNot = new SFPNotFunction(SFPParserTreeConstants.JJTNOTFUNCTION);
+			node.jjtAddChild(outerNot, i);
+			final SimpleNode outerAnd = new SFPAndFunction(SFPParserTreeConstants.JJTANDFUNCTION);
+			outerNot.jjtAddChild(outerAnd, 0);
+			outerAnd.jjtAddChild(child.jjtGetChild(0), 0);
+			final SimpleNode innerNot = new SFPNotFunction(SFPParserTreeConstants.JJTNOTFUNCTION);
+			outerAnd.jjtAddChild(innerNot, 1);
+			if (child.jjtGetNumChildren() > 2) {
+				final SimpleNode innerAnd =
+						new SFPAndFunction(SFPParserTreeConstants.JJTANDFUNCTION);
+				innerNot.jjtAddChild(innerAnd, 0);
+				for (int j = 1; j < child.jjtGetNumChildren(); ++j) {
+					innerAnd.jjtAddChild(child.jjtGetChild(j), j - 1);
+				}
+			} else {
+				innerNot.jjtAddChild(child.jjtGetChild(1), 0);
+			}
+			return outerNot.jjtAccept(this, data);
+		}
 
 		// <assigned-pattern-CE> ::= <single-field-variable> <- <pattern-CE>
 		// AssignedPatternCE(): ( SingleVariable() <ASSIGN> <LBRACE> TemplatePatternCE() <RBRACE> )
@@ -1143,7 +1174,6 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 					System.exit(0);
 				if (verbose)
 					SelectiveSFPVisitor.dumpToStdOut(n);
-				ForallTransformer.transform(n);
 				final Object a = n.jjtAccept(visitor, "Parsing successful!");
 				System.out.println(a);
 				visitor.warnings.forEach(w -> System.out.println("Warning: " + w.getMessage()));
