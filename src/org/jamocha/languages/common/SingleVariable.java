@@ -35,10 +35,10 @@ import org.jamocha.languages.common.ScopeStack.Symbol;
 @AllArgsConstructor
 @EqualsAndHashCode
 public class SingleVariable implements Expression {
-	final Symbol image;
+	final Symbol symbol;
 	final Template template;
 	final SlotAddress slot;
-	// occurrence of image was negated by ~
+	// occurrence of symbol was negated by ~
 	final boolean negated;
 
 	boolean isFactVariable() {

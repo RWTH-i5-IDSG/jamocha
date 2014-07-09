@@ -33,7 +33,7 @@ public class RuleCondition {
 	final List<ConditionalElement> conditionalElements = new ArrayList<>();
 
 	public void addSingleVariable(final SingleVariable singleVariable) {
-		this.variables.computeIfAbsent(singleVariable.image, s -> new ArrayList<>()).add(
+		this.variables.computeIfAbsent(singleVariable.symbol, s -> new ArrayList<>()).add(
 				singleVariable);
 	}
 
