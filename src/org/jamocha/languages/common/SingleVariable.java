@@ -47,6 +47,6 @@ public class SingleVariable implements Expression {
 
 	@Override
 	public SlotType getType() {
-		return Optional.ofNullable(slot).map(template::getSlotType).get();
+		return Optional.ofNullable(slot).map(template::getSlotType).orElse(null);
 	}
 }
