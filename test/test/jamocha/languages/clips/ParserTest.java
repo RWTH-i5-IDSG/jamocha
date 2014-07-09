@@ -45,6 +45,7 @@ import org.jamocha.languages.common.NameClashError;
 import org.jamocha.languages.common.RuleCondition;
 import org.jamocha.languages.common.ScopeStack.Symbol;
 import org.jamocha.languages.common.SingleVariable;
+import org.jamocha.languages.common.VariableNotDeclaredError;
 import org.jamocha.languages.common.Warning;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -129,6 +130,46 @@ public class ParserTest {
 		final Reader parserInput =
 				new StringReader("(deftemplate f1 (slot s1 (type INTEGER)))\n"
 						+ "(defrule r1 (f1 (s1 ?x))=>)\n" + "(defrule r1 (f1 (s1 ?x))=>)\n");
+		final SFPParser parser = new SFPParser(parserInput);
+		final SFPVisitorImpl visitor = new SFPVisitorImpl();
+		run(parser, visitor);
+	}
+
+	@Test(expected = VariableNotDeclaredError.class)
+	public void testDefruleUndeclaredVariable() throws ParseException {
+		final Reader parserInput =
+				new StringReader("(deftemplate f1 (slot s1 (type INTEGER)))\n"
+						+ "(defrule r1 (test (> 2 ?x))=>)\n");
+		final SFPParser parser = new SFPParser(parserInput);
+		final SFPVisitorImpl visitor = new SFPVisitorImpl();
+		run(parser, visitor);
+	}
+
+	@Test(expected = VariableNotDeclaredError.class)
+	public void testDefruleVariableInExScope() throws ParseException {
+		final Reader parserInput =
+				new StringReader("(deftemplate f1 (slot s1 (type INTEGER)))\n"
+						+ "(defrule r1 (exists (f1 (s1 ?x))) (test (> 2 ?x))=>)\n");
+		final SFPParser parser = new SFPParser(parserInput);
+		final SFPVisitorImpl visitor = new SFPVisitorImpl();
+		run(parser, visitor);
+	}
+
+	@Test(expected = VariableNotDeclaredError.class)
+	public void testDefruleVariableInNegExScope() throws ParseException {
+		final Reader parserInput =
+				new StringReader("(deftemplate f1 (slot s1 (type INTEGER)))\n"
+						+ "(defrule r1 (not (f1 (s1 ?x))) (test (> 2 ?x))=>)\n");
+		final SFPParser parser = new SFPParser(parserInput);
+		final SFPVisitorImpl visitor = new SFPVisitorImpl();
+		run(parser, visitor);
+	}
+
+	@Test(expected = VariableNotDeclaredError.class)
+	public void testDefruleVariableInForallScope() throws ParseException {
+		final Reader parserInput =
+				new StringReader("(deftemplate f1 (slot s1 (type INTEGER)))\n"
+						+ "(defrule r1 (forall (f1 (s1 ?x))(f1 (s1 2))) (test (> 2 ?x))=>)\n");
 		final SFPParser parser = new SFPParser(parserInput);
 		final SFPVisitorImpl visitor = new SFPVisitorImpl();
 		run(parser, visitor);
