@@ -17,6 +17,7 @@ package org.jamocha.languages.common;
 import java.util.ArrayList;
 import java.util.List;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 /**
@@ -28,6 +29,7 @@ public class ConditionalElement {
 	final List<ConditionalElement> children;
 
 	public static class ExistentialConditionalElement extends ConditionalElement {
+		@Getter
 		final List<SingleVariable> variables;
 
 		public ExistentialConditionalElement(final List<ConditionalElement> children,
@@ -38,6 +40,7 @@ public class ConditionalElement {
 	}
 
 	public static class NegatedExistentialConditionalElement extends ConditionalElement {
+		@Getter
 		final List<SingleVariable> variables;
 
 		public NegatedExistentialConditionalElement(final List<ConditionalElement> children,
@@ -48,6 +51,7 @@ public class ConditionalElement {
 	}
 
 	public static class TestConditionalElement extends ConditionalElement {
+		@Getter
 		final FunctionCall functionCall;
 
 		public TestConditionalElement(final FunctionCall functionCall) {
