@@ -97,6 +97,7 @@ import org.jamocha.languages.common.ConditionalElement.TestConditionalElement;
 import org.jamocha.languages.common.Constant;
 import org.jamocha.languages.common.Expression;
 import org.jamocha.languages.common.FunctionCall;
+import org.jamocha.languages.common.NameClashError;
 import org.jamocha.languages.common.RuleCondition;
 import org.jamocha.languages.common.ScopeCloser;
 import org.jamocha.languages.common.ScopeStack;
@@ -144,7 +145,7 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 	}
 
 	@Value
-	static class RuleProperties {
+	public static class RuleProperties {
 		final String description;
 		final RuleCondition condition;
 	}
@@ -158,7 +159,8 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 
 		@Override
 		public Object visit(final SFPSymbol node, final Object data) {
-			this.symbol = SFPVisitorImpl.this.scope.getOrCreateSymbol(node.jjtGetValue().toString());
+			this.symbol =
+					SFPVisitorImpl.this.scope.getOrCreateSymbol(node.jjtGetValue().toString());
 			return data;
 		}
 	}
@@ -349,8 +351,8 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 					SelectiveSFPVisitor.sendVisitor(
 							new SFPTypeVisitor(EnumSet.of(/* SlotType.LEXEME, */SlotType.SYMBOL,
 									SlotType.STRING, SlotType.DATETIME, SlotType.LONG,
-									SlotType.DOUBLE/* , SlotType.NUMBER */)), node.jjtGetChild(0),
-							data).type;
+									SlotType.DOUBLE, SlotType.BOOLEAN
+							/* , SlotType.NUMBER */)), node.jjtGetChild(0), data).type;
 			return data;
 		}
 		// TBD VariableType
@@ -436,7 +438,8 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 		@Override
 		public Object visit(final SFPSingleVariable node, final Object data) {
 			assert node.jjtGetNumChildren() == 0;
-			this.symbol = SFPVisitorImpl.this.scope.getOrCreateSymbol(node.jjtGetValue().toString());
+			this.symbol =
+					SFPVisitorImpl.this.scope.getOrCreateSymbol(node.jjtGetValue().toString());
 			return data;
 		}
 	}
@@ -1072,6 +1075,9 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 			final Symbol symbol =
 					SelectiveSFPVisitor.sendVisitor(new SFPSymbolVisitor(), node.jjtGetChild(0),
 							data).symbol;
+			if (SFPVisitorImpl.this.symbolTableTemplates.containsKey(symbol)) {
+				throw new NameClashError("Template " + symbol + " already defined!");
+			}
 			final SFPDeftemplateConstructElementsVisitor visitor =
 					new SFPDeftemplateConstructElementsVisitor();
 			for (int i = 1; i < node.jjtGetNumChildren(); ++i) {
@@ -1091,10 +1097,13 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 			// <DEFRULE> Symbol() [ ConstructDescription() ] ( [ LOOKAHEAD(3) Declaration() ] (
 			// ConditionalElement() )* ) <ARROW> ActionList()
 			assert node.jjtGetNumChildren() > 1;
+			final Symbol symbol =
+					SelectiveSFPVisitor.sendVisitor(new SFPSymbolVisitor(), node.jjtGetChild(0),
+							data).symbol;
+			if (SFPVisitorImpl.this.symbolTableRules.containsKey(symbol)) {
+				throw new NameClashError("Rule " + symbol + " already defined!");
+			}
 			try (final ScopeCloser scopeCloser = new ScopeCloser(SFPVisitorImpl.this.scope)) {
-				final Symbol symbol =
-						SelectiveSFPVisitor.sendVisitor(new SFPSymbolVisitor(),
-								node.jjtGetChild(0), data).symbol;
 				final ExistentialStack existentialStack = new ExistentialStack();
 				String comment = null;
 				final ArrayList<ConditionalElement> ces = new ArrayList<>();
