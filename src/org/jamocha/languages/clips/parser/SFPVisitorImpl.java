@@ -871,9 +871,10 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 		public Object visit(final SFPExistsCE node, final Object data) {
 			assert node.jjtGetNumChildren() > 0;
 			final ArrayList<SingleVariable> variables = new ArrayList<SingleVariable>();
-			try (final ScopedExistentialStack scopedExistentialStack =
-					new ScopedExistentialStack(contextStack, this, ExistentialState.EXISTENTIAL,
-							variables)) {
+			try (final ScopeCloser scopeCloser = new ScopeCloser(SFPVisitorImpl.this.scope);
+					final ScopedExistentialStack scopedExistentialStack =
+							new ScopedExistentialStack(contextStack, this,
+									ExistentialState.EXISTENTIAL, variables)) {
 				final List<ConditionalElement> elements =
 						SelectiveSFPVisitor
 								.stream(node, 0)
