@@ -166,10 +166,20 @@ public class ParserTest {
 	}
 
 	@Test(expected = VariableNotDeclaredError.class)
-	public void testDefruleVariableInForallScope() throws ParseException {
+	public void testDefruleVariableInForallScope1() throws ParseException {
 		final Reader parserInput =
 				new StringReader("(deftemplate f1 (slot s1 (type INTEGER)))\n"
 						+ "(defrule r1 (forall (f1 (s1 ?x))(f1 (s1 2))) (test (> 2 ?x))=>)\n");
+		final SFPParser parser = new SFPParser(parserInput);
+		final SFPVisitorImpl visitor = new SFPVisitorImpl();
+		run(parser, visitor);
+	}
+
+	@Test(expected = VariableNotDeclaredError.class)
+	public void testDefruleVariableInForallScope2() throws ParseException {
+		final Reader parserInput =
+				new StringReader("(deftemplate f1 (slot s1 (type INTEGER)))\n"
+						+ "(defrule r1 (forall (f1 (s1 2))(f1 (s1 ?x))) (test (> 2 ?x))=>)\n");
 		final SFPParser parser = new SFPParser(parserInput);
 		final SFPVisitorImpl visitor = new SFPVisitorImpl();
 		run(parser, visitor);
@@ -181,7 +191,8 @@ public class ParserTest {
 				new StringReader(
 						"(deftemplate f1 (slot s1 (type INTEGER))(slot s2 (type FLOAT)))\n"
 								+ "(deftemplate f2 (slot s1 (type INTEGER))(slot s2 (type FLOAT)))\n"
-								+ "(defrule r1 (f1 (s1 ?x)) (f2 (s2 ?y)) (test (> ?x 2)) (test (< ?y 0.0)) =>)\n");
+								+ "(defrule r1 (f1 (s1 ?x)) ?z <- (f2 (s2 ?y))"
+								+ "(test (> ?x 2)) (test (< ?y 0.0)) =>)\n");
 		final SFPParser parser = new SFPParser(parserInput);
 		final SFPVisitorImpl visitor = new SFPVisitorImpl();
 		run(parser, visitor);
@@ -204,26 +215,40 @@ public class ParserTest {
 			final List<SingleVariable> list = variables.get(getSymbol(variables.keySet(), "?x"));
 			assertNotNull(list);
 			assertEquals(1, list.size());
-			x = list.get(0);
-			assertEquals("?x", x.getSymbol().getImage());
-			assertFalse(x.isNegated());
-			assertEquals(SlotType.LONG, x.getType());
+			final SingleVariable var = list.get(0);
+			assertEquals("?x", var.getSymbol().getImage());
+			assertFalse(var.isNegated());
+			assertEquals(SlotType.LONG, var.getType());
 			final Template template = symbolTableTemplates.get(getSymbol(visitor, "f1"));
-			assertEquals(template, x.getTemplate());
-			assertEquals(template.getSlotAddress("s1"), x.getSlot());
+			assertEquals(template, var.getTemplate());
+			assertEquals(template.getSlotAddress("s1"), var.getSlot());
+			x = var;
 		}
 		final SingleVariable y;
 		{
 			final List<SingleVariable> list = variables.get(getSymbol(variables.keySet(), "?y"));
 			assertNotNull(list);
 			assertEquals(1, list.size());
-			y = list.get(0);
-			assertEquals("?y", y.getSymbol().getImage());
-			assertFalse(y.isNegated());
-			assertEquals(SlotType.DOUBLE, y.getType());
+			final SingleVariable var = list.get(0);
+			assertEquals("?y", var.getSymbol().getImage());
+			assertFalse(var.isNegated());
+			assertEquals(SlotType.DOUBLE, var.getType());
 			final Template template = symbolTableTemplates.get(getSymbol(visitor, "f2"));
-			assertEquals(template, y.getTemplate());
-			assertEquals(template.getSlotAddress("s2"), y.getSlot());
+			assertEquals(template, var.getTemplate());
+			assertEquals(template.getSlotAddress("s2"), var.getSlot());
+			y = var;
+		}
+		{
+			final List<SingleVariable> list = variables.get(getSymbol(variables.keySet(), "?z"));
+			assertNotNull(list);
+			assertEquals(1, list.size());
+			final SingleVariable var = list.get(0);
+			assertEquals("?z", var.getSymbol().getImage());
+			assertFalse(var.isNegated());
+			assertEquals(null, var.getType());
+			assertEquals(null, var.getSlot());
+			final Template template = symbolTableTemplates.get(getSymbol(visitor, "f2"));
+			assertEquals(template, var.getTemplate());
 		}
 		final List<ConditionalElement> conditionalElements = condition.getConditionalElements();
 		assertEquals(2, conditionalElements.size());
