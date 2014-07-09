@@ -14,11 +14,12 @@
  */
 package test.jamocha.languages.clips;
 
-import static java.util.stream.Collectors.toList;
+import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.jamocha.util.ToArray.toArray;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
 
 import java.io.Reader;
 import java.io.StringReader;
@@ -30,11 +31,16 @@ import java.util.Set;
 
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.dn.memory.javaimpl.Template;
+import org.jamocha.filter.Function;
 import org.jamocha.languages.clips.parser.SFPVisitorImpl;
 import org.jamocha.languages.clips.parser.generated.ParseException;
 import org.jamocha.languages.clips.parser.generated.SFPParser;
 import org.jamocha.languages.clips.parser.generated.SFPStart;
 import org.jamocha.languages.common.ConditionalElement;
+import org.jamocha.languages.common.ConditionalElement.TestConditionalElement;
+import org.jamocha.languages.common.Constant;
+import org.jamocha.languages.common.Expression;
+import org.jamocha.languages.common.FunctionCall;
 import org.jamocha.languages.common.NameClashError;
 import org.jamocha.languages.common.RuleCondition;
 import org.jamocha.languages.common.ScopeStack.Symbol;
@@ -77,9 +83,10 @@ public class ParserTest {
 	private static Symbol getSymbol(final SFPVisitorImpl visitor, final String image) {
 		return visitor.getScope().getSymbol(image);
 	}
-	
+
 	private static Symbol getSymbol(final Set<Symbol> symbols, final String image) {
-		final Symbol[] array = toArray( symbols.stream().filter(s -> s.getImage().equals(image)),(Symbol[]::new));
+		final Symbol[] array =
+				toArray(symbols.stream().filter(s -> s.getImage().equals(image)), Symbol[]::new);
 		assertEquals(1, array.length);
 		return array[0];
 	}
@@ -133,7 +140,7 @@ public class ParserTest {
 				new StringReader(
 						"(deftemplate f1 (slot s1 (type INTEGER))(slot s2 (type FLOAT)))\n"
 								+ "(deftemplate f2 (slot s1 (type INTEGER))(slot s2 (type FLOAT)))\n"
-								+ "(defrule r1 (f1 (s1 ?x)) (f2 (s2 ?y)) (test (> ?x 2)) (test (< ?y 0.0)) =>)\n\n");
+								+ "(defrule r1 (f1 (s1 ?x)) (f2 (s2 ?y)) (test (> ?x 2)) (test (< ?y 0.0)) =>)\n");
 		final SFPParser parser = new SFPParser(parserInput);
 		final SFPVisitorImpl visitor = new SFPVisitorImpl();
 		run(parser, visitor);
@@ -151,11 +158,12 @@ public class ParserTest {
 		final RuleCondition condition =
 				visitor.getSymbolTableRules().get(getSymbol(visitor, "r1")).getCondition();
 		final Map<Symbol, List<SingleVariable>> variables = condition.getVariables();
+		final SingleVariable x;
 		{
 			final List<SingleVariable> list = variables.get(getSymbol(variables.keySet(), "?x"));
 			assertNotNull(list);
 			assertEquals(1, list.size());
-			final SingleVariable x = list.get(0);
+			x = list.get(0);
 			assertEquals("?x", x.getSymbol().getImage());
 			assertFalse(x.isNegated());
 			assertEquals(SlotType.LONG, x.getType());
@@ -163,11 +171,12 @@ public class ParserTest {
 			assertEquals(template, x.getTemplate());
 			assertEquals(template.getSlotAddress("s1"), x.getSlot());
 		}
+		final SingleVariable y;
 		{
 			final List<SingleVariable> list = variables.get(getSymbol(variables.keySet(), "?y"));
 			assertNotNull(list);
 			assertEquals(1, list.size());
-			final SingleVariable y = list.get(0);
+			y = list.get(0);
 			assertEquals("?y", y.getSymbol().getImage());
 			assertFalse(y.isNegated());
 			assertEquals(SlotType.DOUBLE, y.getType());
@@ -176,7 +185,38 @@ public class ParserTest {
 			assertEquals(template.getSlotAddress("s2"), y.getSlot());
 		}
 		final List<ConditionalElement> conditionalElements = condition.getConditionalElements();
-
+		assertEquals(2, conditionalElements.size());
+		{
+			final ConditionalElement conditionalElement = conditionalElements.get(0);
+			assertThat(conditionalElement, instanceOf(TestConditionalElement.class));
+			final FunctionCall functionCall =
+					((TestConditionalElement) conditionalElement).getFunctionCall();
+			final Function<?> function = functionCall.getFunction();
+			assertEquals(org.jamocha.filter.impls.predicates.Greater.inClips, function.inClips());
+			final List<? extends Expression> arguments = functionCall.getArguments();
+			assertEquals(2, arguments.size());
+			final Expression firstArg = arguments.get(0);
+			assertThat(firstArg, instanceOf(SingleVariable.class));
+			assertEquals(x, (SingleVariable) firstArg);
+			final Expression secondArg = arguments.get(1);
+			assertThat(secondArg, instanceOf(Constant.class));
+			assertEquals(2L, ((Constant) secondArg).getValue());
+		}
+		{
+			final ConditionalElement conditionalElement = conditionalElements.get(1);
+			assertThat(conditionalElement, instanceOf(TestConditionalElement.class));
+			final FunctionCall functionCall =
+					((TestConditionalElement) conditionalElement).getFunctionCall();
+			final Function<?> function = functionCall.getFunction();
+			assertEquals(org.jamocha.filter.impls.predicates.Less.inClips, function.inClips());
+			final List<? extends Expression> arguments = functionCall.getArguments();
+			assertEquals(2, arguments.size());
+			final Expression firstArg = arguments.get(0);
+			assertThat(firstArg, instanceOf(SingleVariable.class));
+			assertEquals(y, (SingleVariable) firstArg);
+			final Expression secondArg = arguments.get(1);
+			assertThat(secondArg, instanceOf(Constant.class));
+			assertEquals(0.0, ((Constant) secondArg).getValue());
+		}
 	}
-
 }
