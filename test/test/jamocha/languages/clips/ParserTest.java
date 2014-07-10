@@ -32,11 +32,14 @@ import java.util.Set;
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.dn.memory.javaimpl.Template;
 import org.jamocha.filter.Function;
+import org.jamocha.filter.FunctionDictionary;
 import org.jamocha.languages.clips.parser.SFPVisitorImpl;
 import org.jamocha.languages.clips.parser.generated.ParseException;
 import org.jamocha.languages.clips.parser.generated.SFPParser;
 import org.jamocha.languages.clips.parser.generated.SFPStart;
 import org.jamocha.languages.common.ConditionalElement;
+import org.jamocha.languages.common.ConditionalElement.AndFunctionConditionalElement;
+import org.jamocha.languages.common.ConditionalElement.OrFunctionConditionalElement;
 import org.jamocha.languages.common.ConditionalElement.TestConditionalElement;
 import org.jamocha.languages.common.Constant;
 import org.jamocha.languages.common.Expression;
@@ -326,6 +329,135 @@ public class ParserTest {
 			final Expression secondArg = arguments.get(1);
 			assertThat(secondArg, instanceOf(Constant.class));
 			assertEquals(0.0, ((Constant) secondArg).getValue());
+		}
+	}
+
+	@Test
+	public void testConnectedConstraints() throws ParseException {
+		final Reader parserInput =
+				new StringReader(
+						"(deftemplate f1 (slot s1 (type INTEGER))(slot s2 (type FLOAT)))\n"
+								+ "(deftemplate f2 (slot s1 (type INTEGER))(slot s2 (type FLOAT)))\n"
+								+ "(defrule r1 (f1 (s1 ?x&2|3&4|5)) =>)\n");
+		// => ?x & (2 | (3 & 4) | 5)
+		final SFPParser parser = new SFPParser(parserInput);
+		final SFPVisitorImpl visitor = new SFPVisitorImpl();
+		run(parser, visitor);
+		final HashMap<Symbol, Template> symbolTableTemplates = visitor.getSymbolTableTemplates();
+		{
+			final Template template = symbolTableTemplates.get(getSymbol(visitor, "f1"));
+			assertEquals(SlotType.LONG, template.getSlotType(template.getSlotAddress("s1")));
+			assertEquals(SlotType.DOUBLE, template.getSlotType(template.getSlotAddress("s2")));
+		}
+		{
+			final Template template = symbolTableTemplates.get(getSymbol(visitor, "f2"));
+			assertEquals(SlotType.LONG, template.getSlotType(template.getSlotAddress("s1")));
+			assertEquals(SlotType.DOUBLE, template.getSlotType(template.getSlotAddress("s2")));
+		}
+		final RuleCondition condition =
+				visitor.getSymbolTableRules().get(getSymbol(visitor, "r1")).getCondition();
+		final Map<Symbol, List<SingleVariable>> variables = condition.getVariables();
+		final SingleVariable x;
+		{
+			final List<SingleVariable> list = variables.get(getSymbol(variables.keySet(), "?x"));
+			assertNotNull(list);
+			assertEquals(1, list.size());
+			final SingleVariable var = list.get(0);
+			assertEquals("?x", var.getSymbol().getImage());
+			assertFalse(var.isNegated());
+			assertEquals(SlotType.LONG, var.getType());
+			final Template template = symbolTableTemplates.get(getSymbol(visitor, "f1"));
+			assertEquals(template, var.getTemplate());
+			assertEquals(template.getSlotAddress("s1"), var.getSlot());
+			x = var;
+		}
+		final List<ConditionalElement> conditionalElements = condition.getConditionalElements();
+		assertEquals(1, conditionalElements.size());
+		{
+			final ConditionalElement conditionalElement = conditionalElements.get(0);
+			assertThat(conditionalElement, instanceOf(OrFunctionConditionalElement.class));
+			final List<ConditionalElement> children =
+					((OrFunctionConditionalElement) conditionalElement).getChildren();
+			assertEquals(3, children.size());
+			{
+				final ConditionalElement child = children.get(0);
+				assertThat(child, instanceOf(TestConditionalElement.class));
+				final FunctionCall functionCall =
+						((TestConditionalElement) child).getFunctionCall();
+				final Function<?> function = functionCall.getFunction();
+				assertEquals(FunctionDictionary.lookup(
+						org.jamocha.filter.impls.predicates.Equals.inClips, SlotType.LONG,
+						SlotType.LONG), function);
+				final List<? extends Expression> arguments = functionCall.getArguments();
+				assertEquals(2, arguments.size());
+				final Expression firstArg = arguments.get(0);
+				assertThat(firstArg, instanceOf(SingleVariable.class));
+				assertEquals(x, (SingleVariable) firstArg);
+				final Expression secondArg = arguments.get(1);
+				assertThat(secondArg, instanceOf(Constant.class));
+				assertEquals(2L, ((Constant) secondArg).getValue());
+			}
+			{
+				final ConditionalElement child = children.get(1);
+				assertThat(child, instanceOf(AndFunctionConditionalElement.class));
+				final List<ConditionalElement> andChildren =
+						((AndFunctionConditionalElement) child).getChildren();
+				assertEquals(2, andChildren.size());
+				{
+					final ConditionalElement andChild = andChildren.get(0);
+					assertThat(andChild, instanceOf(TestConditionalElement.class));
+					final FunctionCall functionCall =
+							((TestConditionalElement) andChild).getFunctionCall();
+					final Function<?> function = functionCall.getFunction();
+					assertEquals(FunctionDictionary.lookup(
+							org.jamocha.filter.impls.predicates.Equals.inClips, SlotType.LONG,
+							SlotType.LONG), function);
+					final List<? extends Expression> arguments = functionCall.getArguments();
+					assertEquals(2, arguments.size());
+					final Expression firstArg = arguments.get(0);
+					assertThat(firstArg, instanceOf(SingleVariable.class));
+					assertEquals(x, (SingleVariable) firstArg);
+					final Expression secondArg = arguments.get(1);
+					assertThat(secondArg, instanceOf(Constant.class));
+					assertEquals(3L, ((Constant) secondArg).getValue());
+				}
+				{
+					final ConditionalElement andChild = andChildren.get(1);
+					assertThat(andChild, instanceOf(TestConditionalElement.class));
+					final FunctionCall functionCall =
+							((TestConditionalElement) andChild).getFunctionCall();
+					final Function<?> function = functionCall.getFunction();
+					assertEquals(FunctionDictionary.lookup(
+							org.jamocha.filter.impls.predicates.Equals.inClips, SlotType.LONG,
+							SlotType.LONG), function);
+					final List<? extends Expression> arguments = functionCall.getArguments();
+					assertEquals(2, arguments.size());
+					final Expression firstArg = arguments.get(0);
+					assertThat(firstArg, instanceOf(SingleVariable.class));
+					assertEquals(x, (SingleVariable) firstArg);
+					final Expression secondArg = arguments.get(1);
+					assertThat(secondArg, instanceOf(Constant.class));
+					assertEquals(4L, ((Constant) secondArg).getValue());
+				}
+			}
+			{
+				final ConditionalElement child = children.get(2);
+				assertThat(child, instanceOf(TestConditionalElement.class));
+				final FunctionCall functionCall =
+						((TestConditionalElement) child).getFunctionCall();
+				final Function<?> function = functionCall.getFunction();
+				assertEquals(FunctionDictionary.lookup(
+						org.jamocha.filter.impls.predicates.Equals.inClips, SlotType.LONG,
+						SlotType.LONG), function);
+				final List<? extends Expression> arguments = functionCall.getArguments();
+				assertEquals(2, arguments.size());
+				final Expression firstArg = arguments.get(0);
+				assertThat(firstArg, instanceOf(SingleVariable.class));
+				assertEquals(x, (SingleVariable) firstArg);
+				final Expression secondArg = arguments.get(1);
+				assertThat(secondArg, instanceOf(Constant.class));
+				assertEquals(5L, ((Constant) secondArg).getValue());
+			}
 		}
 	}
 }
