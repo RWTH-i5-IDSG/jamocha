@@ -23,11 +23,13 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Queue;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Value;
@@ -458,34 +460,55 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 	static final Predicate or = FunctionDictionary.lookupPredicate(
 			org.jamocha.filter.impls.predicates.Or.inClips, SlotType.BOOLEAN, SlotType.BOOLEAN);
 
+	@FunctionalInterface
+	static interface SFPConstraintVisitorSupplier<T extends SelectiveSFPVisitor> {
+		T create(final SFPConditionalElementVisitor parent,
+				final Consumer<ConditionalElement> constraintAdder, final Template template,
+				final SlotAddress slot, final Optional<SingleVariable> constraintVariable);
+	}
+
 	@RequiredArgsConstructor
 	class SFPConditionalElementVisitor implements SelectiveSFPVisitor {
 
-		@RequiredArgsConstructor
+		@AllArgsConstructor
 		class SFPTermElementsVisitor implements SelectiveSFPVisitor {
 			final SFPConditionalElementVisitor parent;
-			final Consumer<FunctionCall> constraintAdder;
+			final Consumer<ConditionalElement> constraintAdder;
 			final Template template;
 			final SlotAddress slot;
 			final boolean negated;
+			Optional<SingleVariable> constraintVariable;
 
-			// currently:
-			// Term(): ( [ Negation() ] (Constant() | SingleVariable() | MultiVariable() | Colon() |
-			// Equals() )
+			// Term(): ( [ Negation() ] ( Constant() | SingleVariable() | MultiVariable() | Colon()
+			// | Equals() )
 
-			// functionality for SingleVariable inherited
 			@Override
 			public Object visit(final SFPSingleVariable node, final Object data) {
 				final Symbol symbol =
 						SelectiveSFPVisitor.sendVisitor(new SFPSingleVariableVisitor(), node, data).symbol;
-				parent.contextStack.addSingleVariable(new SingleVariable(symbol, template, slot,
-						negated));
+				final List<SingleVariable> variablesForSymbol =
+						parent.contextStack.getVariablesForSymbol(symbol);
+				if (variablesForSymbol.isEmpty()) {
+					throw new ClipsVariableNotDeclaredError(symbol, node);
+				}
+				final SingleVariable singleVariable =
+						new SingleVariable(symbol, template, slot, false);
+				final SingleVariable boundVariable = variablesForSymbol.get(0);
+				// create equals test
+				final Predicate equals =
+						FunctionDictionary.lookupPredicate(
+								org.jamocha.filter.impls.predicates.Equals.inClips,
+								template.getSlotType(slot), boundVariable.getType());
+				final TestConditionalElement eq =
+						new TestConditionalElement(new FunctionCall(equals, Arrays.asList(
+								boundVariable, singleVariable)));
+				constraintAdder.accept(negate(eq));
+				parent.contextStack.addSingleVariable(singleVariable);
 				return data;
 			}
 
-			private FunctionCall negate(final FunctionCall child) {
-				return (negated ? new FunctionCall(SFPVisitorImpl.not, Arrays.asList(child))
-						: child);
+			private ConditionalElement negate(final ConditionalElement child) {
+				return (negated ? new NotFunctionConditionalElement(Arrays.asList(child)) : child);
 			}
 
 			@Override
@@ -494,18 +517,23 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 				final SFPValueVisitor constantVisitor =
 						SelectiveSFPVisitor.sendVisitor(new SFPValueVisitor(), node.jjtGetChild(0),
 								data);
-				// create dummy variable
-				final Symbol dummy = SFPVisitorImpl.this.scope.createDummy();
-				final SingleVariable dummyVar = new SingleVariable(dummy, template, slot, false);
-				parent.contextStack.addSingleVariable(dummyVar);
+				if (!constraintVariable.isPresent()) {
+					// create dummy variable
+					final Symbol dummy = SFPVisitorImpl.this.scope.createDummy();
+					final SingleVariable dummyVar =
+							new SingleVariable(dummy, template, slot, false);
+					parent.contextStack.addSingleVariable(dummyVar);
+					constraintVariable = Optional.of(dummyVar);
+				}
 				// create equals test
 				final Predicate equals =
 						FunctionDictionary.lookupPredicate(
 								org.jamocha.filter.impls.predicates.Equals.inClips,
 								template.getSlotType(slot), constantVisitor.type);
-				final FunctionCall eq =
-						new FunctionCall(equals, Arrays.asList(dummyVar, new Constant(
-								constantVisitor.type, constantVisitor.value)));
+				final TestConditionalElement eq =
+						new TestConditionalElement(new FunctionCall(equals, Arrays.asList(
+								constraintVariable.get(), new Constant(constantVisitor.type,
+										constantVisitor.value))));
 				constraintAdder.accept(negate(eq));
 				return data;
 			}
@@ -519,7 +547,7 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 								new SFPFunctionCallElementsVisitor(parent.contextStack),
 								node.jjtGetChild(0), data).expression;
 				assert SlotType.BOOLEAN == functionCall.getType();
-				constraintAdder.accept(negate(functionCall));
+				constraintAdder.accept(negate(new TestConditionalElement(functionCall)));
 				return data;
 			}
 
@@ -527,10 +555,14 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 			public Object visit(final SFPEquals node, final Object data) {
 				// return-value constraint
 				assert 1 == node.jjtGetNumChildren();
-				// create dummy variable
-				final Symbol dummy = SFPVisitorImpl.this.scope.createDummy();
-				final SingleVariable dummyVar = new SingleVariable(dummy, template, slot, false);
-				parent.contextStack.addSingleVariable(dummyVar);
+				if (!constraintVariable.isPresent()) {
+					// create dummy variable
+					final Symbol dummy = SFPVisitorImpl.this.scope.createDummy();
+					final SingleVariable dummyVar =
+							new SingleVariable(dummy, template, slot, false);
+					parent.contextStack.addSingleVariable(dummyVar);
+					constraintVariable = Optional.of(dummyVar);
+				}
 				// get function call following the = sign
 				final FunctionCall functionCall =
 						(FunctionCall) SelectiveSFPVisitor.sendVisitor(
@@ -541,25 +573,23 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 						FunctionDictionary.lookupPredicate(
 								org.jamocha.filter.impls.predicates.Equals.inClips,
 								template.getSlotType(slot), functionCall.getType());
-				final FunctionCall eq =
-						new FunctionCall(equals, Arrays.asList(dummyVar, functionCall));
+				final TestConditionalElement eq =
+						new TestConditionalElement(new FunctionCall(equals, Arrays.asList(
+								constraintVariable.get(), functionCall)));
 				constraintAdder.accept(negate(eq));
 				return data;
 			}
 		}
 
-		@RequiredArgsConstructor
-		class SFPConnectedConstraintElementsVisitor implements SelectiveSFPVisitor {
-			final SFPConditionalElementVisitor parent;
-			final Consumer<FunctionCall> constraintAdder;
-			final Template template;
-			final SlotAddress slot;
+		class SFPTermVisitor extends SFPConstraintBase {
+			public SFPTermVisitor(final SFPConditionalElementVisitor parent,
+					final Consumer<ConditionalElement> constraintAdder, final Template template,
+					final SlotAddress slot, final Optional<SingleVariable> constraintVariable) {
+				super(parent, constraintAdder, template, slot, constraintVariable);
+			}
 
-			// currently:
-			// ConnectedConstraint(): ( Term() [ AmpersandConnectedConstraint() |
-			// LineConnectedConstraint() ] )
-			// Term(): ( [ Negation() ] (Constant() | SingleVariable() | MultiVariable() | Colon() |
-			// Equals() )
+			// Term(): ( [ Negation() ] ( Constant() | SingleVariable() | MultiVariable() | Colon()
+			// | Equals() )
 			@Override
 			public Object visit(final SFPTerm node, final Object data) {
 				assert Arrays.asList(1, 2).contains(Integer.valueOf(node.jjtGetNumChildren()));
@@ -569,70 +599,118 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 					SelectiveSFPVisitor.sendVisitor(negationVisitor, node.jjtGetChild(0), data);
 					negated = true;
 				}
-				SelectiveSFPVisitor.sendVisitor(new SFPTermElementsVisitor(parent, constraintAdder,
-						template, slot, negated), node.jjtGetChild(negated ? 1 : 0), data);
+				this.constraintVariable =
+						SelectiveSFPVisitor.sendVisitor(new SFPTermElementsVisitor(parent,
+								constraintAdder, template, slot, negated, constraintVariable), node
+								.jjtGetChild(negated ? 1 : 0), data).constraintVariable;
 				return data;
-			}
-
-			private Object handleConnectedConstraint(final SimpleNode node, final Object data,
-					final Predicate connector) {
-				assert Arrays.asList(1, 2).contains(Integer.valueOf(node.jjtGetNumChildren()));
-				final boolean terminal = 1 == node.jjtGetNumChildren();
-				if (terminal) {
-					// visit the term-child
-					SelectiveSFPVisitor.sendVisitor(new SFPConnectedConstraintElementsVisitor(
-							parent, constraintAdder, template, slot), node.jjtGetChild(0), data);
-				} else {
-					final ArrayList<FunctionCall> constraints = new ArrayList<>();
-					// visit the term-child
-					SelectiveSFPVisitor.sendVisitor(new SFPConnectedConstraintElementsVisitor(
-							parent, constraints::add, template, slot), node.jjtGetChild(0), data);
-					// visit the rest
-					SelectiveSFPVisitor.sendVisitor(new SFPConnectedConstraintElementsVisitor(
-							parent, constraints::add, template, slot), node.jjtGetChild(1), data);
-					constraintAdder.accept(new FunctionCall(connector, constraints));
-				}
-				return data;
-			}
-
-			// AmpersandConnectedConstraint(): ( <AMPERSAND> Term() [ LineConnectedConstraint() |
-			// AmpersandConnectedConstraint() ] )
-			@Override
-			public Object visit(final SFPAmpersandConnectedConstraint node, final Object data) {
-				return handleConnectedConstraint(node, data, SFPVisitorImpl.and);
-			}
-
-			// LineConnectedConstraint(): ( <LINE> Term() [ LineConnectedConstraint() |
-			// AmpersandConnectedConstraint() ] )
-			@Override
-			public Object visit(final SFPLineConnectedConstraint node, final Object data) {
-				return handleConnectedConstraint(node, data, SFPVisitorImpl.or);
 			}
 		}
 
-		@RequiredArgsConstructor
-		class SFPConstraintVisitor implements SelectiveSFPVisitor {
-			final SFPConditionalElementVisitor parent;
-			final Consumer<FunctionCall> constraintAdder;
-			final Template template;
-			final SlotAddress slot;
+		class SFPAmpersandConnectedConstraintVisitor extends SFPConstraintBase {
+			public SFPAmpersandConnectedConstraintVisitor(
+					final SFPConditionalElementVisitor parent,
+					final Consumer<ConditionalElement> constraintAdder, final Template template,
+					final SlotAddress slot, final Optional<SingleVariable> constraintVariable) {
+				super(parent, constraintAdder, template, slot, constraintVariable);
+			}
 
-			// currently:
-			// ConnectedConstraint(): ( Term() [ AmpersandConnectedConstraint() |
-			// LineConnectedConstraint() ] )
-			// AmpersandConnectedConstraint(): ( <AMPERSAND> Term() [ LineConnectedConstraint() |
-			// AmpersandConnectedConstraint() ] )
-			// LineConnectedConstraint(): ( <LINE> Term() [ LineConnectedConstraint() |
-			// AmpersandConnectedConstraint() ] )
-			// Term(): ( [ Negation() ] (Constant() | SingleVariable() | MultiVariable() | Colon() |
-			// Equals() )
+			// LineConnectedConstraint(): ( AmpersandConnectedConstraint() ( <LINE>
+			// AmpersandConnectedConstraint() )* )
+
+			// AmpersandConnectedConstraint(): ( Term() ( <AMPERSAND> Term() )* )
+			@Override
+			public Object visit(final SFPAmpersandConnectedConstraint node, final Object data) {
+				return handleConnectedConstraint(node, data, SFPTermVisitor::new,
+						AndFunctionConditionalElement::new);
+			}
+		}
+
+		class SFPConnectedConstraintElementsVisitor extends SFPConstraintBase {
+			public SFPConnectedConstraintElementsVisitor(final SFPConditionalElementVisitor parent,
+					final Consumer<ConditionalElement> constraintAdder, final Template template,
+					final SlotAddress slot, final Optional<SingleVariable> constraintVariable) {
+				super(parent, constraintAdder, template, slot, constraintVariable);
+			}
+
+			// ConnectedConstraint(): ( ( SingleVariable() <AMPERSAND> LineConnectedConstraint() ) |
+			// SingleVariable() | LineConnectedConstraint() )
+
+			// LineConnectedConstraint(): ( AmpersandConnectedConstraint() ( <LINE>
+			// AmpersandConnectedConstraint() )* )
+
+			@Override
+			public Object visit(final SFPLineConnectedConstraint node, final Object data) {
+				return handleConnectedConstraint(node, data,
+						SFPAmpersandConnectedConstraintVisitor::new,
+						OrFunctionConditionalElement::new);
+			}
+
+			@Override
+			public Object visit(final SFPSingleVariable node, final Object data) {
+				final Symbol symbol =
+						SelectiveSFPVisitor.sendVisitor(new SFPSingleVariableVisitor(), node, data).symbol;
+				final SingleVariable singleVariable =
+						new SingleVariable(symbol, template, slot, false);
+				parent.contextStack.addSingleVariable(singleVariable);
+				this.constraintVariable = Optional.of(singleVariable);
+				return data;
+			}
+		}
+
+		class SFPConnectedConstraintVisitor extends SFPConstraintBase {
+			public SFPConnectedConstraintVisitor(final SFPConditionalElementVisitor parent,
+					final Consumer<ConditionalElement> constraintAdder, final Template template,
+					final SlotAddress slot) {
+				super(parent, constraintAdder, template, slot, Optional.empty());
+			}
+
+			// ConnectedConstraint(): ( ( SingleVariable() <AMPERSAND> LineConnectedConstraint() ) |
+			// SingleVariable() | LineConnectedConstraint() )
 			@Override
 			public Object visit(final SFPConnectedConstraint node, final Object data) {
-				assert Arrays.asList(1, 2).contains(node.jjtGetNumChildren());
+				final int numChildren = node.jjtGetNumChildren();
+				assert Arrays.asList(1, 2).contains(numChildren);
 				SelectiveSFPVisitor.stream(node, 0).forEach(
-						n -> SelectiveSFPVisitor.sendVisitor(
-								new SFPConnectedConstraintElementsVisitor(parent, constraintAdder,
-										template, slot), n, data));
+						n -> this.constraintVariable =
+								SelectiveSFPVisitor
+										.sendVisitor(new SFPConnectedConstraintElementsVisitor(
+												parent, constraintAdder, template, slot,
+												constraintVariable), n, data).constraintVariable);
+				return data;
+			}
+		}
+
+		@AllArgsConstructor
+		class SFPConstraintBase implements SelectiveSFPVisitor {
+			final SFPConditionalElementVisitor parent;
+			final Consumer<ConditionalElement> constraintAdder;
+			final Template template;
+			final SlotAddress slot;
+			Optional<SingleVariable> constraintVariable;
+
+			Object handleConnectedConstraint(
+					final SimpleNode node,
+					final Object data,
+					final SFPConstraintVisitorSupplier<? extends SFPConstraintBase> visitorSupplier,
+					final java.util.function.Function<List<ConditionalElement>, ConditionalElement> connector) {
+				assert node.jjtGetNumChildren() > 0;
+				final boolean terminal = 1 == node.jjtGetNumChildren();
+				if (terminal) {
+					this.constraintVariable =
+							SelectiveSFPVisitor.sendVisitor(visitorSupplier.create(parent,
+									constraintAdder, template, slot, constraintVariable), node
+									.jjtGetChild(0), data).constraintVariable;
+				} else {
+					final ArrayList<ConditionalElement> constraints = new ArrayList<>();
+					final SFPConstraintBase visitor =
+							visitorSupplier.create(parent, constraints::add, template, slot,
+									constraintVariable);
+					SelectiveSFPVisitor.stream(node, 0).forEach(
+							n -> SelectiveSFPVisitor.sendVisitor(visitor, n, data));
+					constraintAdder.accept(connector.apply(constraints));
+					this.constraintVariable = visitor.constraintVariable;
+				}
 				return data;
 			}
 		}
@@ -640,30 +718,22 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 		@RequiredArgsConstructor
 		class SFPUnorderedLHSFactBodyElementsVisitor implements SelectiveSFPVisitor {
 			final SFPConditionalElementVisitor parent;
-			final Consumer<FunctionCall> constraintAdder;
+			final Consumer<ConditionalElement> constraintAdder;
 			final Template template;
 
 			// currently:
 			// UnorderedLHSFactBody(): <LBRACE> LHSSlot() <RBRACE>
 			// LHSSlot(): ( Symbol() Constraint )
 			// void Constraint(): ConnectedConstraint()
-			// ConnectedConstraint(): ( Term() [ AmpersandConnectedConstraint() |
-			// LineConnectedConstraint() ] )
-			// AmpersandConnectedConstraint(): ( <AMPERSAND> Term() [ LineConnectedConstraint() |
-			// AmpersandConnectedConstraint() ] )
-			// LineConnectedConstraint(): ( <LINE> Term() [ LineConnectedConstraint() |
-			// AmpersandConnectedConstraint() ] )
-			// Term(): ( [ Negation() ] (Constant() | SingleVariable() | MultiVariable() | Colon() |
-			// Equals() )
 			@Override
 			public Object visit(final SFPLHSSlot node, final Object data) {
 				assert node.jjtGetNumChildren() == 2;
 				final Symbol slotName =
 						SelectiveSFPVisitor.sendVisitor(new SFPSymbolVisitor(),
 								node.jjtGetChild(0), data).symbol;
-				SelectiveSFPVisitor.sendVisitor(new SFPConstraintVisitor(parent, constraintAdder,
-						template, template.getSlotAddress(slotName.getImage())), node
-						.jjtGetChild(1), data);
+				SelectiveSFPVisitor.sendVisitor(new SFPConnectedConstraintVisitor(parent,
+						constraintAdder, template, template.getSlotAddress(slotName.getImage())),
+						node.jjtGetChild(1), data);
 				return data;
 			}
 		}
@@ -671,7 +741,7 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 		@RequiredArgsConstructor
 		class SFPTemplatePatternCEElementsVisitor implements SelectiveSFPVisitor {
 			final SFPConditionalElementVisitor parent;
-			final Consumer<FunctionCall> constraintAdder;
+			final Consumer<ConditionalElement> constraintAdder;
 			final Template template;
 
 			// currently:
@@ -719,12 +789,11 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 		// void Constraint(): SingleFieldWildcard() | MultiFieldWildcard() | ConnectedConstraint()
 		// SingleFieldWildcard() : <SFWILDCARD>
 		// < SFWILDCARD: "?" >
-		// ConnectedConstraint(): ( Term() [ AmpersandConnectedConstraint() |
-		// LineConnectedConstraint() ] )
-		// AmpersandConnectedConstraint(): ( <AMPERSAND> Term() [ LineConnectedConstraint() |
-		// AmpersandConnectedConstraint() ] )
-		// LineConnectedConstraint(): ( <LINE> Term() [ LineConnectedConstraint() |
-		// AmpersandConnectedConstraint() ] )
+		// ConnectedConstraint(): ( ( SingleVariable() <AMPERSAND> LineConnectedConstraint() ) |
+		// SingleVariable() | LineConnectedConstraint() )
+		// AmpersandConnectedConstraint(): ( Term() ( <AMPERSAND> Term() )* )
+		// LineConnectedConstraint(): ( AmpersandConnectedConstraint() ( <LINE>
+		// AmpersandConnectedConstraint() )* )
 		// < AMPERSAND: "&" >
 		// < LINE: "|" >
 		// Term(): ( [ Negation() ] ( LOOKAHEAD(3) Constant() | SingleVariable() | MultiVariable() |
@@ -734,14 +803,6 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 		// Equals(): <EQUALS> FunctionCall()
 		// SingleVariable(): <SINGLEVAR>
 		// < SINGLEVAR: ("?" <VARSYMBOL>) >
-
-		// we currently allow:
-		// TemplatePatternCE ( Symbol() (UnorderedLHSFactBody())+ )
-		// UnorderedLHSFactBody(): <LBRACE> LHSSlot() <RBRACE>
-		// LHSSlot(): ( Symbol() Constraint )
-		// void Constraint(): ConnectedConstraint()
-		// ConnectedConstraint(): Term()
-		// Term(): SingleVariable()
 
 		@Override
 		public Object visit(final SFPTemplatePatternCE node, final Object data) {
@@ -761,18 +822,15 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 				this.contextStack.addSingleVariable(new SingleVariable(possibleFactVariable,
 						template, (SlotAddress) null, false));
 			}
-			final ArrayList<FunctionCall> constraints = new ArrayList<>();
+			final ArrayList<ConditionalElement> constraints = new ArrayList<>();
 			SelectiveSFPVisitor.stream(node, 1).forEach(
 					n -> SelectiveSFPVisitor.sendVisitor(new SFPTemplatePatternCEElementsVisitor(
 							this, constraints::add, template), n, data));
 			final int size = constraints.size();
 			if (size == 1) {
-				this.resultCE = new TestConditionalElement(constraints.get(0));
+				this.resultCE = constraints.get(0);
 			} else if (size > 1) {
-				this.resultCE =
-						new TestConditionalElement(new FunctionCall(FunctionDictionary.lookup(
-								org.jamocha.filter.impls.predicates.And.inClips,
-								SlotType.nCopies(SlotType.BOOLEAN, size)), constraints));
+				this.resultCE = new AndFunctionConditionalElement(constraints);
 			}
 			return data;
 		}
