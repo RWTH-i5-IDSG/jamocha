@@ -1879,12 +1879,19 @@ SimpleNode ConnectedConstraint():
 {}
 {
     (
-    	Term()
-    [
-		AmpersandConnectedConstraint()
-	|	LineConnectedConstraint()
-	]
+		LOOKAHEAD(3)
+   		(
+	    	SingleVariable()
+			<AMPERSAND>
+			LineConnectedConstraint()
+		)
+		|
+		LOOKAHEAD( SingleVariable() <RBRACE> )
+   		SingleVariable()
+   		|
+   		LineConnectedConstraint()
     )
+
     {return jjtThis;}
 }
 
@@ -1898,11 +1905,11 @@ SimpleNode AmpersandConnectedConstraint():
 {}
 {
     (
-		<AMPERSAND>
-		Term()
-	[
-		LineConnectedConstraint() | AmpersandConnectedConstraint()
-	]
+    	Term()
+    	(
+			<AMPERSAND>
+			Term()
+		)*
     )
 
     { return jjtThis; }
@@ -1918,11 +1925,11 @@ SimpleNode LineConnectedConstraint():
 {}
 {
     (
-		<LINE>
-		Term()
-	[
-		LineConnectedConstraint() | AmpersandConnectedConstraint()
-	]
+    	AmpersandConnectedConstraint()
+		(
+			<LINE>
+			AmpersandConnectedConstraint()
+		)*
     )
 
 	{ return jjtThis; }

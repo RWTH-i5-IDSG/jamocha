@@ -4055,17 +4055,24 @@ SimpleNode ConnectedConstraint():
     try {
 /*@egen*/
     (
-    	Term()
-    [
-		AmpersandConnectedConstraint()
-	|	LineConnectedConstraint()
-	]
+		LOOKAHEAD(3)
+   		(
+	    	SingleVariable()
+			<AMPERSAND>
+			LineConnectedConstraint()
+		)
+		|
+		LOOKAHEAD( SingleVariable() <RBRACE> )
+   		SingleVariable()
+   		|
+   		LineConnectedConstraint()
     )/*@bgen(jjtree)*/
     {
       jjtree.closeNodeScope(jjtn000, true);
       jjtc000 = false;
     }
 /*@egen*/
+
     {return jjtn000;}/*@bgen(jjtree)*/
     } catch (Throwable jjte000) {
       if (jjtc000) {
@@ -4105,11 +4112,11 @@ SimpleNode AmpersandConnectedConstraint():
     try {
 /*@egen*/
     (
-		<AMPERSAND>
-		Term()
-	[
-		LineConnectedConstraint() | AmpersandConnectedConstraint()
-	]
+    	Term()
+    	(
+			<AMPERSAND>
+			Term()
+		)*
     )/*@bgen(jjtree)*/
     {
       jjtree.closeNodeScope(jjtn000, true);
@@ -4156,11 +4163,11 @@ SimpleNode LineConnectedConstraint():
     try {
 /*@egen*/
     (
-		<LINE>
-		Term()
-	[
-		LineConnectedConstraint() | AmpersandConnectedConstraint()
-	]
+    	AmpersandConnectedConstraint()
+		(
+			<LINE>
+			AmpersandConnectedConstraint()
+		)*
     )/*@bgen(jjtree)*/
         {
           jjtree.closeNodeScope(jjtn000, true);
