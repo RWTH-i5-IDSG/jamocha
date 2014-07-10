@@ -962,6 +962,7 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 		public Object visit(final SFPActionList node, final Object data) {
 			// assert node.jjtGetNumChildren() == 1;
 			// TODO ActionList
+			SFPVisitorImpl.this.warnings.add(new Warning("ActionList ignored!"));
 			return data;
 		}
 	}
