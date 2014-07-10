@@ -146,6 +146,16 @@ public class ParserTest {
 	}
 
 	@Test(expected = VariableNotDeclaredError.class)
+	public void testDefruleVariableFirstNegated() throws ParseException {
+		final Reader parserInput =
+				new StringReader("(deftemplate f1 (slot s1 (type INTEGER)))\n"
+						+ "(defrule r1 (f1 (s1 ~?x)) (f1 (s1 ?x)) =>)\n");
+		final SFPParser parser = new SFPParser(parserInput);
+		final SFPVisitorImpl visitor = new SFPVisitorImpl();
+		run(parser, visitor);
+	}
+
+	@Test(expected = VariableNotDeclaredError.class)
 	public void testDefruleVariableInExScope() throws ParseException {
 		final Reader parserInput =
 				new StringReader("(deftemplate f1 (slot s1 (type INTEGER)))\n"
@@ -165,6 +175,19 @@ public class ParserTest {
 		run(parser, visitor);
 	}
 
+	@Test
+	public void testDefruleVariableInNegExScopePseudoReuse() throws ParseException {
+		final Reader parserInput =
+				new StringReader("(deftemplate f1 (slot s1 (type INTEGER)))\n"
+						+ "(defrule r1 (not (f1 (s1 ?x))) (f1 (s1 ?x)) (test (> 2 ?x))=>)\n");
+		final SFPParser parser = new SFPParser(parserInput);
+		final SFPVisitorImpl visitor = new SFPVisitorImpl();
+		run(parser, visitor);
+		// change the assertion to =1,size() as soon as ActionList is implemented
+		// the only warning should be the one about ?x being redeclared
+		assertEquals(2, visitor.getWarnings().size());
+	}
+
 	@Test(expected = VariableNotDeclaredError.class)
 	public void testDefruleVariableInForallScope1() throws ParseException {
 		final Reader parserInput =
@@ -180,6 +203,26 @@ public class ParserTest {
 		final Reader parserInput =
 				new StringReader("(deftemplate f1 (slot s1 (type INTEGER)))\n"
 						+ "(defrule r1 (forall (f1 (s1 2))(f1 (s1 ?x))) (test (> 2 ?x))=>)\n");
+		final SFPParser parser = new SFPParser(parserInput);
+		final SFPVisitorImpl visitor = new SFPVisitorImpl();
+		run(parser, visitor);
+	}
+
+	@Test(expected = VariableNotDeclaredError.class)
+	public void testDefruleVariableInAmpersandConnectedConstraint() throws ParseException {
+		final Reader parserInput =
+				new StringReader("(deftemplate f1 (slot s1 (type INTEGER)))\n"
+						+ "(defrule r1 (f1 (s1 ?x&?y))=>)\n");
+		final SFPParser parser = new SFPParser(parserInput);
+		final SFPVisitorImpl visitor = new SFPVisitorImpl();
+		run(parser, visitor);
+	}
+
+	@Test(expected = VariableNotDeclaredError.class)
+	public void testDefruleVariableInLineConnectedConstraint() throws ParseException {
+		final Reader parserInput =
+				new StringReader("(deftemplate f1 (slot s1 (type INTEGER)))\n"
+						+ "(defrule r1 (f1 (s1 ?x|?y))=>)\n");
 		final SFPParser parser = new SFPParser(parserInput);
 		final SFPVisitorImpl visitor = new SFPVisitorImpl();
 		run(parser, visitor);
