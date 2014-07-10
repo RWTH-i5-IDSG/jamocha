@@ -26,6 +26,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ConditionalElement {
 
+	@Getter
 	final List<ConditionalElement> children;
 
 	public static class ExistentialConditionalElement extends ConditionalElement {
