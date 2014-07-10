@@ -14,6 +14,7 @@
  */
 package org.jamocha.filter;
 
+import java.util.Arrays;
 import java.util.HashMap;
 
 import lombok.Value;
@@ -48,7 +49,8 @@ public class FunctionDictionary {
 	}
 
 	public static HashMap<CombinedClipsAndParams, Function<?>> clipsFunctions = new HashMap<>();
-	private static HashMap<CombinedClipsAndParams, VarargsFunctionGenerator> generators = new HashMap<>();
+	private static HashMap<CombinedClipsAndParams, VarargsFunctionGenerator> generators =
+			new HashMap<>();
 
 	static {
 		addImpl(Predicates.class);
@@ -120,14 +122,12 @@ public class FunctionDictionary {
 			return function;
 		// look for function with arbitrarily many params
 		if (params.length < 2) {
-			throw new UnsupportedOperationException("Function \"" + inClips
-					+ "\" not loaded or implemented.");
+			throw new UnsupportedOperationException(unsupportedMsg(inClips, params));
 		}
 		// assert that all param types are the same
 		for (final SlotType param : params) {
 			if (param != params[0])
-				throw new UnsupportedOperationException("Function \"" + inClips
-						+ "\" not loaded or implemented.");
+				throw new UnsupportedOperationException(unsupportedMsg(inClips, params));
 		}
 		final VarargsFunctionGenerator varargsFunctionGenerator =
 				generators.get(new CombinedClipsAndParams(inClips, new SlotType[] { params[0] }));
@@ -137,8 +137,12 @@ public class FunctionDictionary {
 				return addImpl(generated);
 			}
 		}
-		throw new UnsupportedOperationException("Function \"" + inClips
-				+ "\" not loaded or implemented.");
+		throw new UnsupportedOperationException(unsupportedMsg(inClips, params));
+	}
+
+	private static String unsupportedMsg(final String inClips, final SlotType[] params) {
+		return "Function \"" + inClips + "\" not loaded or implemented for argument types "
+				+ Arrays.toString(params);
 	}
 
 	/**
