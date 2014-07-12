@@ -26,7 +26,6 @@ import org.hamcrest.Matchers;
 import org.jamocha.dn.ConflictSet;
 import org.jamocha.dn.Network;
 import org.jamocha.dn.PlainScheduler;
-import org.jamocha.dn.memory.Fact;
 import org.jamocha.dn.memory.FactIdentifier;
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.dn.memory.Template;
@@ -721,19 +720,19 @@ public class TokenProcessingTest {
 		network.buildRule(filter);
 
 		// false == 5 < 3
-		network.getRootNode().assertFact(new Fact(t1, 5L, "5L&FALSE", false));
+		network.getRootNode().assertFact(t1.newFact(5L, "5L&FALSE", false));
 		// true != 5 < 3
-		network.getRootNode().assertFact(new Fact(t1, 5L, "5L&TRUE", true));
+		network.getRootNode().assertFact(t1.newFact(5L, "5L&TRUE", true));
 		// true == 2 < 3
-		network.getRootNode().assertFact(new Fact(t1, 2L, "2L&TRUE", true));
+		network.getRootNode().assertFact(t1.newFact(2L, "2L&TRUE", true));
 		// false != 2 < 3
-		network.getRootNode().assertFact(new Fact(t1, 2L, "2L&FALSE", false));
+		network.getRootNode().assertFact(t1.newFact(2L, "2L&FALSE", false));
 		// true == -80 < 3
-		network.getRootNode().assertFact(new Fact(t1, -80L, "-80L&TRUE", true));
+		network.getRootNode().assertFact(t1.newFact(-80L, "-80L&TRUE", true));
 		// false != -80 < 3
-		network.getRootNode().assertFact(new Fact(t1, -80L, "-80L&FALSE", false));
+		network.getRootNode().assertFact(t1.newFact(-80L, "-80L&FALSE", false));
 		// false != 0 < 3
-		network.getRootNode().assertFact(new Fact(t1, 0L, "0L&FALSE", false));
+		network.getRootNode().assertFact(t1.newFact(0L, "0L&FALSE", false));
 
 		scheduler.run();
 
@@ -772,13 +771,13 @@ public class TokenProcessingTest {
 		final TerminalNode terminalNode = new TerminalNode(network, alphaNode);
 		AssertsAndRetracts assertsAndRetracts;
 
-		rootNode.assertFact(new Fact(t1, 5L, "5L&FALSE", false));
-		rootNode.assertFact(new Fact(t1, 5L, "5L&TRUE", true));
-		rootNode.assertFact(new Fact(t1, 2L, "2L&TRUE", true));
-		rootNode.assertFact(new Fact(t1, 2L, "2L&FALSE", false));
-		rootNode.assertFact(new Fact(t1, -80L, "-80L&TRUE", true));
-		rootNode.assertFact(new Fact(t1, -80L, "-80L&FALSE", false));
-		final FactIdentifier[] t10lfalse = rootNode.assertFact(new Fact(t1, 0L, "0L&FALSE", false));
+		rootNode.assertFact(t1.newFact(5L, "5L&FALSE", false));
+		rootNode.assertFact(t1.newFact(5L, "5L&TRUE", true));
+		rootNode.assertFact(t1.newFact(2L, "2L&TRUE", true));
+		rootNode.assertFact(t1.newFact(2L, "2L&FALSE", false));
+		rootNode.assertFact(t1.newFact(-80L, "-80L&TRUE", true));
+		rootNode.assertFact(t1.newFact(-80L, "-80L&FALSE", false));
+		final FactIdentifier[] t10lfalse = rootNode.assertFact(t1.newFact(0L, "0L&FALSE", false));
 		scheduler.run();
 
 		assertEquals("Amount of facts in otn does not match expected count!", 7, otn.getMemory()
@@ -804,8 +803,7 @@ public class TokenProcessingTest {
 		assertEquals("Amount of retracts does not match expected count!", 1,
 				assertsAndRetracts.getRetracts());
 
-		final FactIdentifier[] t10lfalse_2 =
-				rootNode.assertFact(new Fact(t1, 0L, "0L&FALSE", false));
+		final FactIdentifier[] t10lfalse_2 = rootNode.assertFact(t1.newFact(0L, "0L&FALSE", false));
 		scheduler.run();
 
 		assertEquals("Amount of facts in otn does not match expected count!", 7, otn.getMemory()
@@ -857,15 +855,15 @@ public class TokenProcessingTest {
 		@SuppressWarnings("unused")
 		final TerminalNode terminalNode = new TerminalNode(network, alphaNode);
 
-		rootNode.assertFact(new Fact(t1, 5L, "5L&FALSE", false));
-		rootNode.assertFact(new Fact(t1, 5L, "5L&TRUE", true));
-		rootNode.assertFact(new Fact(t1, 2L, "2L&TRUE", true));
-		rootNode.assertFact(new Fact(t1, 2L, "2L&FALSE", false));
-		rootNode.assertFact(new Fact(t1, -80L, "-80L&TRUE", true));
-		rootNode.assertFact(new Fact(t1, -80L, "-80L&FALSE", false));
-		final FactIdentifier[] f1 = rootNode.assertFact(new Fact(t1, 0L, "0L&FALSE", false));
+		rootNode.assertFact(t1.newFact(5L, "5L&FALSE", false));
+		rootNode.assertFact(t1.newFact(5L, "5L&TRUE", true));
+		rootNode.assertFact(t1.newFact(2L, "2L&TRUE", true));
+		rootNode.assertFact(t1.newFact(2L, "2L&FALSE", false));
+		rootNode.assertFact(t1.newFact(-80L, "-80L&TRUE", true));
+		rootNode.assertFact(t1.newFact(-80L, "-80L&FALSE", false));
+		final FactIdentifier[] f1 = rootNode.assertFact(t1.newFact(0L, "0L&FALSE", false));
 		rootNode.retractFact(f1);
-		final FactIdentifier[] f2 = rootNode.assertFact(new Fact(t1, 0L, "0L&FALSE", false));
+		final FactIdentifier[] f2 = rootNode.assertFact(t1.newFact(0L, "0L&FALSE", false));
 		rootNode.retractFact(f2);
 		scheduler.run();
 
@@ -909,23 +907,23 @@ public class TokenProcessingTest {
 		final RootNode rootNode = network.getRootNode();
 
 		// false == 5 < 3
-		rootNode.assertFact(new Fact(t1, 5L, "5L&FALSE", false));
+		rootNode.assertFact(t1.newFact(5L, "5L&FALSE", false));
 		// true != 5 < 3
-		rootNode.assertFact(new Fact(t1, 5L, "5L&TRUE", true));
+		rootNode.assertFact(t1.newFact(5L, "5L&TRUE", true));
 		// true == 2 < 3
-		final FactIdentifier[] f2 = rootNode.assertFact(new Fact(t1, 2L, "2L&TRUE", true));
+		final FactIdentifier[] f2 = rootNode.assertFact(t1.newFact(2L, "2L&TRUE", true));
 		// false != 2 < 3
-		rootNode.assertFact(new Fact(t1, 2L, "2L&FALSE", false));
+		rootNode.assertFact(t1.newFact(2L, "2L&FALSE", false));
 		// true == -80 < 3
-		final FactIdentifier[] f3 = rootNode.assertFact(new Fact(t1, -80L, "-80L&TRUE", true));
+		final FactIdentifier[] f3 = rootNode.assertFact(t1.newFact(-80L, "-80L&TRUE", true));
 		// false != -80 < 3
-		rootNode.assertFact(new Fact(t1, -80L, "-80L&FALSE", false));
+		rootNode.assertFact(t1.newFact(-80L, "-80L&FALSE", false));
 		// false != 0 < 3
-		rootNode.assertFact(new Fact(t1, 0L, "0L&FALSE", false));
+		rootNode.assertFact(t1.newFact(0L, "0L&FALSE", false));
 
 		// remove and re-add valid fact
 		// false == 5 < 3
-		final FactIdentifier[] f1 = rootNode.assertFact(new Fact(t1, 5L, "5L&FALSE", false));
+		final FactIdentifier[] f1 = rootNode.assertFact(t1.newFact(5L, "5L&FALSE", false));
 		// false == 5 < 3
 		rootNode.retractFact(f1);
 
@@ -937,7 +935,7 @@ public class TokenProcessingTest {
 		// true == -80 < 3
 		rootNode.retractFact(f3);
 		// true == -80 < 3
-		final FactIdentifier[] f4 = rootNode.assertFact(new Fact(t1, -80L, "-80L&TRUE", true));
+		final FactIdentifier[] f4 = rootNode.assertFact(t1.newFact(-80L, "-80L&TRUE", true));
 		// true == -80 < 3
 		rootNode.retractFact(f4);
 
