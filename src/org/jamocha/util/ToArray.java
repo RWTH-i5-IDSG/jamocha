@@ -22,11 +22,11 @@ import java.util.stream.Stream;
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
 public class ToArray {
-	public static <T> T[] toArray(Collection<T> list, IntFunction<T[]> gen) {
+	public static <T> T[] toArray(final Collection<T> list, final IntFunction<T[]> gen) {
 		return toArray(list.stream(), gen);
 	}
 
-	public static <T> T[] toArray(Stream<T> stream, IntFunction<T[]> gen) {
+	public static <T> T[] toArray(final Stream<T> stream, final IntFunction<T[]> gen) {
 		return stream.toArray(gen);
 	}
 }
