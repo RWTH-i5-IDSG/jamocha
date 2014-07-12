@@ -15,9 +15,13 @@
 
 package org.jamocha.dn.nodes;
 
+import java.util.Arrays;
+
+import org.apache.commons.lang3.tuple.Pair;
 import org.jamocha.dn.Network;
 import org.jamocha.dn.memory.Fact;
 import org.jamocha.dn.memory.FactAddress;
+import org.jamocha.dn.memory.MemoryFact;
 import org.jamocha.dn.memory.MemoryHandlerMinusTemp;
 import org.jamocha.dn.memory.MemoryHandlerPlusTemp;
 import org.jamocha.dn.memory.Template;
@@ -67,12 +71,15 @@ public class ObjectTypeNode extends AlphaNode {
 	 * @param fact
 	 *            {@link Fact} to be asserted
 	 */
-	public void assertFact(final Fact fact) {
-		assert fact.getTemplate() == this.template;
-		final MemoryHandlerPlusTemp mem = this.memory.newPlusToken(this, fact);
+	public MemoryFact[] assertFact(final Fact... facts) {
+		assert !Arrays.stream(facts).filter(fact -> fact.getTemplate() != this.template).findAny()
+				.isPresent();
+		final Pair<? extends MemoryHandlerPlusTemp, MemoryFact[]> pair =
+				this.memory.newPlusToken(this, facts);
 		for (final Edge edge : this.outgoingEdges) {
-			edge.enqueueMemory(mem);
+			edge.enqueueMemory(pair.getLeft());
 		}
+		return pair.getRight();
 	}
 
 	/**
@@ -81,9 +88,10 @@ public class ObjectTypeNode extends AlphaNode {
 	 * @param fact
 	 *            {@link Fact} to be retracted
 	 */
-	public void retractFact(final Fact fact) {
-		assert fact.getTemplate() == this.template;
-		final MemoryHandlerMinusTemp mem = this.memory.newMinusToken(fact);
+	public void retractFact(final MemoryFact... facts) {
+		assert !Arrays.stream(facts).filter(fact -> fact.getTemplate() != this.template).findAny()
+				.isPresent();
+		final MemoryHandlerMinusTemp mem = this.memory.newMinusToken(facts);
 		for (final Edge edge : this.outgoingEdges) {
 			edge.enqueueMemory(mem);
 		}

@@ -34,10 +34,11 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Value;
 
+import org.jamocha.dn.Network;
 import org.jamocha.dn.memory.SlotAddress;
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.dn.memory.Template.Slot;
-import org.jamocha.dn.memory.javaimpl.Template;
+import org.jamocha.dn.memory.Template;
 import org.jamocha.filter.Function;
 import org.jamocha.filter.FunctionDictionary;
 import org.jamocha.filter.Predicate;
@@ -119,6 +120,7 @@ import org.jamocha.languages.common.Warning;
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
 @Getter
+@RequiredArgsConstructor
 public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 
 	/**
@@ -134,6 +136,8 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 	final HashMap<Symbol, Function<?>> symbolTableFunctions = new HashMap<>();
 	final HashMap<Symbol, RuleProperties> symbolTableRules = new HashMap<>();
 	final Queue<Warning> warnings = new LinkedList<>();
+
+	final Network network;
 
 	@Override
 	public Object visit(final SFPStart node, final Object data) {
@@ -1145,7 +1149,8 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 			}
 			final String comment = visitor.comment;
 			final Template template =
-					new Template(comment, toArray(visitor.slotDefinitions, Slot[]::new));
+					SFPVisitorImpl.this.network.getMemoryFactory().newTemplate(comment,
+							toArray(visitor.slotDefinitions, Slot[]::new));
 			SFPVisitorImpl.this.symbolTableTemplates.put(symbol, template);
 			return data;
 		}
@@ -1237,7 +1242,8 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 					.println("Note: For verbose output type \u005c"java Main verbose\u005c".\u005cn");
 		System.out.print("SFP> ");
 		final SFPParser p = new SFPParser(System.in);
-		final SFPVisitorImpl visitor = new SFPVisitorImpl();
+		final Network network = new Network();
+		final SFPVisitorImpl visitor = new SFPVisitorImpl(network);
 		try {
 			while (true) {
 				final SFPStart n = p.Start();

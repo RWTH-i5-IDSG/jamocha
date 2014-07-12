@@ -14,6 +14,7 @@
  */
 package org.jamocha.dn.memory;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.jamocha.dn.memory.MemoryHandlerTerminal.Assert;
 import org.jamocha.dn.memory.MemoryHandlerTerminal.Retract;
 import org.jamocha.dn.nodes.CouldNotAcquireLockException;
@@ -111,7 +112,8 @@ public interface MemoryHandlerMain extends MemoryHandler {
 	 *            {@link Fact facts} to store in the {@link MemoryHandlerPlusTemp token}
 	 * @return {@link MemoryHandlerPlusTemp token} containing the facts given
 	 */
-	public MemoryHandlerPlusTemp newPlusToken(final Node otn, final Fact... facts);
+	public Pair<? extends MemoryHandlerPlusTemp, MemoryFact[]> newPlusToken(
+			final Node otn, final Fact... facts);
 
 	/**
 	 * Creates a new {@link MemoryHandlerMinusTemp} that contains the facts given.
@@ -120,7 +122,7 @@ public interface MemoryHandlerMain extends MemoryHandler {
 	 *            {@link Fact facts} to store in the {@link MemoryHandlerMinusTemp token}
 	 * @return {@link MemoryHandlerMinusTemp token} containing the facts given
 	 */
-	public MemoryHandlerMinusTemp newMinusToken(final Fact... facts);
+	public MemoryHandlerMinusTemp newMinusToken(final MemoryFact... facts);
 
 	/**
 	 * Creates a new {@link MemoryHandlerTerminal} that caches {@link Assert}s until the

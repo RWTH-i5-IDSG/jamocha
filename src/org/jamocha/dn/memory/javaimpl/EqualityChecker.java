@@ -37,20 +37,6 @@ interface EqualityChecker {
 	boolean equals(final Row originalRow, final Row minusRow, final JamochaArray<Row> minusRows,
 			final int minusRowsIndex, final FactAddress[] factAddresses);
 
-	static EqualityChecker root = new EqualityChecker() {
-		@Override
-		public boolean equals(final Row originalRow, final Row minusRow,
-				final JamochaArray<Row> minusRows, final int minusRowsIndex,
-				final FactAddress[] factAddresses) {
-			final Fact originalFact = originalRow.getFactTuple()[0];
-			final Fact minusFact = minusRow.getFactTuple()[0];
-			if (Fact.equalContent(originalFact, minusFact)) {
-				minusRows.set(minusRowsIndex, originalRow);
-				return true;
-			}
-			return false;
-		}
-	};
 	static EqualityChecker alpha = new EqualityChecker() {
 		@Override
 		public boolean equals(final Row originalRow, final Row minusRow,

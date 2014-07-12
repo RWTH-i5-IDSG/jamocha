@@ -28,6 +28,8 @@ import java.util.Set;
 import lombok.ToString;
 import lombok.Value;
 
+import org.apache.commons.lang3.tuple.Pair;
+import org.jamocha.dn.memory.MemoryFact;
 import org.jamocha.dn.memory.MemoryHandler;
 import org.jamocha.dn.memory.SlotAddress;
 import org.jamocha.dn.memory.Template;
@@ -206,15 +208,21 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 				filter);
 	}
 
-	static MemoryHandlerPlusTemp newRootTemp(final MemoryHandlerMain originatingMainHandler,
-			final Node otn, final org.jamocha.dn.memory.Fact... facts) {
+	static Pair<MemoryHandlerPlusTemp, MemoryFact[]> newRootTemp(
+			final MemoryHandlerMain originatingMainHandler, final Node otn,
+			final org.jamocha.dn.memory.Fact... facts) {
 		final JamochaArray<Row> factList = new JamochaArray<>(facts.length);
-		for (final org.jamocha.dn.memory.Fact fact : facts) {
+		final MemoryFact[] memoryFacts = new MemoryFact[facts.length];
+		for (int i = 0; i < facts.length; i++) {
+			final org.jamocha.dn.memory.Fact fact = facts[i];
 			assert fact.getTemplate() == otn.getMemory().getTemplate()[0];
-			factList.add(originatingMainHandler.newRow(new Fact[] { new Fact(fact.getSlotValues()) }));
+			final Fact memoryFact = new Fact(fact.getTemplate(), fact.getSlotValues());
+			memoryFacts[i] = memoryFact;
+			factList.add(originatingMainHandler.newRow(new Fact[] { memoryFact }));
 		}
-		return new MemoryHandlerPlusTemp(originatingMainHandler, factList,
-				otn.getNumberOfOutgoingEdges(), canOmitSemaphore(otn));
+		return Pair.of(
+				new MemoryHandlerPlusTemp(originatingMainHandler, factList, otn
+						.getNumberOfOutgoingEdges(), canOmitSemaphore(otn)), memoryFacts);
 	}
 
 	static abstract class StackElement {

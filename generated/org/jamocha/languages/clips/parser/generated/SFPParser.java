@@ -20,6 +20,7 @@ package org.jamocha.languages.clips.parser.generated;
 
 import org.jamocha.languages.clips.parser.SFPVisitorImpl;
 import org.jamocha.languages.common.ParserUtils;
+import org.jamocha.dn.Network;
 
 @SuppressWarnings("all")
 public class SFPParser/*@bgen(jjtree)*/implements SFPParserTreeConstants, SFPParserConstants {/*@bgen(jjtree)*/
@@ -27,7 +28,7 @@ public class SFPParser/*@bgen(jjtree)*/implements SFPParserTreeConstants, SFPPar
         public Object nextExpression() throws ParseException {
                 SFPStart n = Start();
                 if (n != null) {
-                        Object result = n.jjtAccept(new SFPVisitorImpl(), null);
+                        Object result = n.jjtAccept(new SFPVisitorImpl(new Network()), null);
                         if (result != null) {
                                 return result;
                         }
@@ -45,7 +46,7 @@ public class SFPParser/*@bgen(jjtree)*/implements SFPParserTreeConstants, SFPPar
                                 SFPStart n = p.Start();
                                 if (n==null) System.exit(0);
                                 n.dump(" ");
-                                n.jjtAccept(new SFPVisitorImpl(), null);
+                                n.jjtAccept(new SFPVisitorImpl(new Network()), null);
                         }
                 }
                 catch (Exception e) {

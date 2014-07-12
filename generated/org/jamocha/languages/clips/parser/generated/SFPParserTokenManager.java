@@ -19,6 +19,7 @@
 package org.jamocha.languages.clips.parser.generated;
 import org.jamocha.languages.clips.parser.SFPVisitorImpl;
 import org.jamocha.languages.common.ParserUtils;
+import org.jamocha.dn.Network;
 
 /** Token Manager. */
 @SuppressWarnings("unused")public class SFPParserTokenManager implements SFPParserConstants {

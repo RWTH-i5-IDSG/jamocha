@@ -15,12 +15,20 @@
 
 package org.jamocha.dn.nodes;
 
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toList;
+import static org.jamocha.util.ToArray.toArray;
+
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.function.BiConsumer;
+import java.util.stream.IntStream;
 
 import org.jamocha.dn.Network;
 import org.jamocha.dn.memory.Fact;
+import org.jamocha.dn.memory.FactIdentifier;
+import org.jamocha.dn.memory.MemoryFact;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.filter.Path;
 
@@ -35,23 +43,10 @@ public class RootNode {
 	/**
 	 * Maps from {@link Template} to corresponding {@link ObjectTypeNode}
 	 */
-	private final Map<Template, ObjectTypeNode> templateToInput = new HashMap<>();
+	private final Map<Template, ObjectTypeNode> templateToOTN = new HashMap<>();
 
-	/**
-	 * Passes the {@link Fact} given to the {@link ObjectTypeNode} corresponding to its
-	 * {@link Template} the method passed with the {@link ObjectTypeNode} and the {@link Fact} as
-	 * parameters.
-	 * 
-	 * @param fact
-	 *            {@link Fact} to be retracted
-	 * @param assertOrRetract
-	 *            method to be called with the corresponding {@link ObjectTypeNode}
-	 */
-	private void processFact(final Fact fact, final BiConsumer<ObjectTypeNode, Fact> assertOrRetract) {
-		final Template template = fact.getTemplate();
-		final ObjectTypeNode matchingOTN = this.templateToInput.get(template);
-		assertOrRetract.accept(matchingOTN, fact);
-	}
+	private final Map<Integer, MemoryFact> facts = new HashMap<>();
+	private int factIdentifierCounter = 0;
 
 	/**
 	 * Passes the {@link Fact} given to the {@link ObjectTypeNode} corresponding to its
@@ -60,10 +55,25 @@ public class RootNode {
 	 * @param fact
 	 *            {@link Fact} to be asserted
 	 */
-	public void assertFact(final Fact fact) {
-		processFact(fact, (final ObjectTypeNode otn, final Fact f) -> {
-			otn.assertFact(f);
+	public FactIdentifier[] assertFact(final Fact... facts) {
+		final int length = facts.length;
+		final FactIdentifier[] factIdentifiers = new FactIdentifier[length];
+		final Map<Fact, Integer> orderCache = new HashMap<>();
+		for (int i = 0; i < length; ++i) {
+			final int id = ++factIdentifierCounter;
+			factIdentifiers[i] = new FactIdentifier(id);
+			orderCache.put(facts[i], id);
+		}
+		Arrays.stream(facts).collect(groupingBy(Fact::getTemplate)).forEach((t, fl) -> {
+			final Fact[] fs = toArray(fl, Fact[]::new);
+			final MemoryFact[] mfs = this.templateToOTN.get(t).assertFact(fs);
+			IntStream.range(0, mfs.length).forEach(i -> {
+				final MemoryFact mf = mfs[i];
+				final Fact f = fs[i];
+				this.facts.put(orderCache.get(f), mf);
+			});
 		});
+		return factIdentifiers;
 	}
 
 	/**
@@ -73,10 +83,16 @@ public class RootNode {
 	 * @param fact
 	 *            {@link Fact} to be retracted
 	 */
-	public void retractFact(final Fact fact) {
-		processFact(fact, (final ObjectTypeNode otn, final Fact f) -> {
-			otn.retractFact(f);
-		});
+	private void retractFact(final List<MemoryFact> facts) {
+		facts.stream()
+				.collect(groupingBy(f -> f.getTemplate()))
+				.forEach(
+						(t, f) -> this.templateToOTN.get(t).retractFact(
+								toArray(f, MemoryFact[]::new)));
+	}
+
+	public void retractFact(FactIdentifier... factIdentifiers) {
+		retractFact(Arrays.stream(factIdentifiers).map(i -> facts.get(i.getId())).collect(toList()));
 	}
 
 	/**
@@ -86,7 +102,7 @@ public class RootNode {
 	 *            {@link ObjectTypeNode} to add
 	 */
 	public void putOTN(final ObjectTypeNode otn) {
-		this.templateToInput.put(otn.template, otn);
+		this.templateToOTN.put(otn.template, otn);
 	}
 
 	/**
@@ -96,7 +112,7 @@ public class RootNode {
 	 *            {@link ObjectTypeNode} to remove
 	 */
 	public void removeOTN(final ObjectTypeNode otn) {
-		this.templateToInput.remove(otn.template);
+		this.templateToOTN.remove(otn.template);
 	}
 
 	/**
@@ -110,7 +126,7 @@ public class RootNode {
 	 */
 	public void addPaths(final Network network, final Path... paths) {
 		for (final Path path : paths) {
-			final ObjectTypeNode otn = this.templateToInput.get(path.getTemplate());
+			final ObjectTypeNode otn = this.templateToOTN.get(path.getTemplate());
 			if (otn != null)
 				otn.shareNode(path);
 			else

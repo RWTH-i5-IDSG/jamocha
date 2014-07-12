@@ -20,6 +20,7 @@ import java.util.function.Consumer;
 
 import lombok.ToString;
 
+import org.jamocha.dn.memory.MemoryFact;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.dn.memory.javaimpl.MemoryHandlerPlusTemp.CounterUpdater;
 import org.jamocha.dn.nodes.CouldNotAcquireLockException;
@@ -46,16 +47,16 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 	final FactAddress[] factAddresses;
 
 	static MemoryHandlerMinusTemp newRootTemp(final MemoryHandlerMain memoryHandlerMain,
-			final org.jamocha.dn.memory.Fact[] facts) {
+			final MemoryFact[] facts) {
 		final JamochaArray<Row> minusFacts = new JamochaArray<>(facts.length);
-		for (final org.jamocha.dn.memory.Fact fact : facts) {
-			minusFacts.add(memoryHandlerMain.newRow(new Fact[] { new Fact(fact.getSlotValues()) }));
+		for (final MemoryFact fact : facts) {
+			minusFacts.add(memoryHandlerMain.newRow(new Fact[] { (Fact) fact }));
 		}
 		final FactAddress[] factAddresses = memoryHandlerMain.addresses;
 		assert factAddresses.length == 1;
 		final JamochaArray<Row> relevantFactTuples =
 				getRelevantFactTuples(memoryHandlerMain, MemoryHandlerMinusTemp::filterTargetMain,
-						minusFacts, factAddresses, EqualityChecker.root, nullConsumer);
+						minusFacts, factAddresses, EqualityChecker.alpha, nullConsumer);
 		if (0 == relevantFactTuples.size()) {
 			return MemoryHandlerMinusTemp.empty;
 		}

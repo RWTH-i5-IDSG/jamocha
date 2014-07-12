@@ -14,6 +14,8 @@
  */
 package org.jamocha.dn.memory.javaimpl;
 
+import org.apache.commons.lang3.tuple.Pair;
+import org.jamocha.dn.memory.MemoryFact;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.dn.nodes.CouldNotAcquireLockException;
 import org.jamocha.dn.nodes.Edge;
@@ -59,15 +61,13 @@ public class MemoryHandlerMainWithExistentials extends MemoryHandlerMain {
 	}
 
 	@Override
-	public org.jamocha.dn.memory.MemoryHandlerPlusTemp newPlusToken(final Node otn,
-			final org.jamocha.dn.memory.Fact... facts) {
+	public Pair<? extends org.jamocha.dn.memory.MemoryHandlerPlusTemp, MemoryFact[]> newPlusToken(
+			final Node otn, final org.jamocha.dn.memory.Fact... facts) {
 		return MemoryHandlerPlusTemp.newRootTemp(this, otn, facts);
 	}
 
 	@Override
-	public org.jamocha.dn.memory.MemoryHandlerMinusTemp newMinusToken(
-			final org.jamocha.dn.memory.Fact... facts) {
+	public org.jamocha.dn.memory.MemoryHandlerMinusTemp newMinusToken(final MemoryFact... facts) {
 		return MemoryHandlerMinusTemp.newRootTemp(this, facts);
 	}
-
 }
