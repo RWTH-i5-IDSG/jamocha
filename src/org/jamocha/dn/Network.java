@@ -259,11 +259,11 @@ public class Network {
 		final Node lowestNode = allPaths.iterator().next().getCurrentlyLowestNode();
 		return new TerminalNode(this, lowestNode);
 	}
-	
-	public void assertFact(final Fact fact) {
-		rootNode.assertFact(fact);
+
+	public FactIdentifier[] assertFact(final Fact fact) {
+		return rootNode.assertFact(fact);
 	}
-	
+
 	public void retractFact(final FactIdentifier factIdentifier) {
 		rootNode.retractFact(factIdentifier);
 	}
