@@ -16,7 +16,11 @@ package org.jamocha.dn.memory.javaimpl;
 
 import java.util.Arrays;
 
+import org.jamocha.dn.memory.MemoryFact;
+import org.jamocha.dn.memory.Template;
+
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 /**
@@ -27,7 +31,10 @@ import lombok.RequiredArgsConstructor;
  */
 @RequiredArgsConstructor
 @EqualsAndHashCode
-class Fact {
+class Fact implements MemoryFact {
+	@Getter(onMethod = @__({ @Override }))
+	final Template template;
+	
 	final Object slotValues[];
 
 	/**
@@ -78,5 +85,4 @@ class Fact {
 	public static boolean equalReference(final Fact a, final Fact b) {
 		return a == b;
 	}
-
 }
