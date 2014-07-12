@@ -13,7 +13,8 @@ import org.junit.runners.Suite.SuiteClasses;
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
 @RunWith(Suite.class)
-@SuiteClasses({ test.jamocha.dn.AllDnTests.class, test.jamocha.filter.AllFilterTests.class })
+@SuiteClasses({ test.jamocha.dn.AllDnTests.class, test.jamocha.filter.AllFilterTests.class,
+		test.jamocha.languages.AllLanguageTests.class })
 public class AllTests {
 
 }

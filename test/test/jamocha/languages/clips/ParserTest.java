@@ -29,8 +29,9 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
+import org.jamocha.dn.Network;
 import org.jamocha.dn.memory.SlotType;
-import org.jamocha.dn.memory.javaimpl.Template;
+import org.jamocha.dn.memory.Template;
 import org.jamocha.filter.Function;
 import org.jamocha.filter.FunctionDictionary;
 import org.jamocha.languages.clips.parser.SFPVisitorImpl;
@@ -104,7 +105,7 @@ public class ParserTest {
 						+ "(slot s6 (type STRING))" + "(slot s7 (type STRING))"
 						+ "(slot s8 (type DATETIME))" + ")\n");
 		final SFPParser parser = new SFPParser(parserInput);
-		final SFPVisitorImpl visitor = new SFPVisitorImpl();
+		final SFPVisitorImpl visitor = new SFPVisitorImpl(new Network());
 		run(parser, visitor);
 		final HashMap<Symbol, Template> symbolTableTemplates = visitor.getSymbolTableTemplates();
 		final Template template = symbolTableTemplates.get(getSymbol(visitor, "f1"));
@@ -124,7 +125,7 @@ public class ParserTest {
 				new StringReader("(deftemplate f1 (slot s1 (type INTEGER)))\n"
 						+ "(deftemplate f1 (slot s1 (type FLOAT)))\n");
 		final SFPParser parser = new SFPParser(parserInput);
-		final SFPVisitorImpl visitor = new SFPVisitorImpl();
+		final SFPVisitorImpl visitor = new SFPVisitorImpl(new Network());
 		run(parser, visitor);
 	}
 
@@ -134,7 +135,7 @@ public class ParserTest {
 				new StringReader("(deftemplate f1 (slot s1 (type INTEGER)))\n"
 						+ "(defrule r1 (f1 (s1 ?x))=>)\n" + "(defrule r1 (f1 (s1 ?x))=>)\n");
 		final SFPParser parser = new SFPParser(parserInput);
-		final SFPVisitorImpl visitor = new SFPVisitorImpl();
+		final SFPVisitorImpl visitor = new SFPVisitorImpl(new Network());
 		run(parser, visitor);
 	}
 
@@ -144,7 +145,7 @@ public class ParserTest {
 				new StringReader("(deftemplate f1 (slot s1 (type INTEGER)))\n"
 						+ "(defrule r1 (test (> 2 ?x))=>)\n");
 		final SFPParser parser = new SFPParser(parserInput);
-		final SFPVisitorImpl visitor = new SFPVisitorImpl();
+		final SFPVisitorImpl visitor = new SFPVisitorImpl(new Network());
 		run(parser, visitor);
 	}
 
@@ -154,7 +155,7 @@ public class ParserTest {
 				new StringReader("(deftemplate f1 (slot s1 (type INTEGER)))\n"
 						+ "(defrule r1 (f1 (s1 ~?x)) (f1 (s1 ?x)) =>)\n");
 		final SFPParser parser = new SFPParser(parserInput);
-		final SFPVisitorImpl visitor = new SFPVisitorImpl();
+		final SFPVisitorImpl visitor = new SFPVisitorImpl(new Network());
 		run(parser, visitor);
 	}
 
@@ -164,7 +165,7 @@ public class ParserTest {
 				new StringReader("(deftemplate f1 (slot s1 (type INTEGER)))\n"
 						+ "(defrule r1 (exists (f1 (s1 ?x))) (test (> 2 ?x))=>)\n");
 		final SFPParser parser = new SFPParser(parserInput);
-		final SFPVisitorImpl visitor = new SFPVisitorImpl();
+		final SFPVisitorImpl visitor = new SFPVisitorImpl(new Network());
 		run(parser, visitor);
 	}
 
@@ -174,7 +175,7 @@ public class ParserTest {
 				new StringReader("(deftemplate f1 (slot s1 (type INTEGER)))\n"
 						+ "(defrule r1 (not (f1 (s1 ?x))) (test (> 2 ?x))=>)\n");
 		final SFPParser parser = new SFPParser(parserInput);
-		final SFPVisitorImpl visitor = new SFPVisitorImpl();
+		final SFPVisitorImpl visitor = new SFPVisitorImpl(new Network());
 		run(parser, visitor);
 	}
 
@@ -184,7 +185,7 @@ public class ParserTest {
 				new StringReader("(deftemplate f1 (slot s1 (type INTEGER)))\n"
 						+ "(defrule r1 (not (f1 (s1 ?x))) (f1 (s1 ?x)) (test (> 2 ?x))=>)\n");
 		final SFPParser parser = new SFPParser(parserInput);
-		final SFPVisitorImpl visitor = new SFPVisitorImpl();
+		final SFPVisitorImpl visitor = new SFPVisitorImpl(new Network());
 		run(parser, visitor);
 		// change the assertion to =1,size() as soon as ActionList is implemented
 		// the only warning should be the one about ?x being redeclared
@@ -197,7 +198,7 @@ public class ParserTest {
 				new StringReader("(deftemplate f1 (slot s1 (type INTEGER)))\n"
 						+ "(defrule r1 (forall (f1 (s1 ?x))(f1 (s1 2))) (test (> 2 ?x))=>)\n");
 		final SFPParser parser = new SFPParser(parserInput);
-		final SFPVisitorImpl visitor = new SFPVisitorImpl();
+		final SFPVisitorImpl visitor = new SFPVisitorImpl(new Network());
 		run(parser, visitor);
 	}
 
@@ -207,7 +208,7 @@ public class ParserTest {
 				new StringReader("(deftemplate f1 (slot s1 (type INTEGER)))\n"
 						+ "(defrule r1 (forall (f1 (s1 2))(f1 (s1 ?x))) (test (> 2 ?x))=>)\n");
 		final SFPParser parser = new SFPParser(parserInput);
-		final SFPVisitorImpl visitor = new SFPVisitorImpl();
+		final SFPVisitorImpl visitor = new SFPVisitorImpl(new Network());
 		run(parser, visitor);
 	}
 
@@ -217,7 +218,7 @@ public class ParserTest {
 				new StringReader("(deftemplate f1 (slot s1 (type INTEGER)))\n"
 						+ "(defrule r1 (f1 (s1 ?x&?y))=>)\n");
 		final SFPParser parser = new SFPParser(parserInput);
-		final SFPVisitorImpl visitor = new SFPVisitorImpl();
+		final SFPVisitorImpl visitor = new SFPVisitorImpl(new Network());
 		run(parser, visitor);
 	}
 
@@ -227,7 +228,7 @@ public class ParserTest {
 				new StringReader("(deftemplate f1 (slot s1 (type INTEGER)))\n"
 						+ "(defrule r1 (f1 (s1 ?x|?y))=>)\n");
 		final SFPParser parser = new SFPParser(parserInput);
-		final SFPVisitorImpl visitor = new SFPVisitorImpl();
+		final SFPVisitorImpl visitor = new SFPVisitorImpl(new Network());
 		run(parser, visitor);
 	}
 
@@ -240,7 +241,7 @@ public class ParserTest {
 								+ "(defrule r1 (f1 (s1 ?x)) ?z <- (f2 (s2 ?y))"
 								+ "(test (> ?x 2)) (test (< ?y 0.0)) =>)\n");
 		final SFPParser parser = new SFPParser(parserInput);
-		final SFPVisitorImpl visitor = new SFPVisitorImpl();
+		final SFPVisitorImpl visitor = new SFPVisitorImpl(new Network());
 		run(parser, visitor);
 		final HashMap<Symbol, Template> symbolTableTemplates = visitor.getSymbolTableTemplates();
 		{
@@ -341,7 +342,7 @@ public class ParserTest {
 								+ "(defrule r1 (f1 (s1 ?x&2|3&4|5)) =>)\n");
 		// => ?x & (2 | (3 & 4) | 5)
 		final SFPParser parser = new SFPParser(parserInput);
-		final SFPVisitorImpl visitor = new SFPVisitorImpl();
+		final SFPVisitorImpl visitor = new SFPVisitorImpl(new Network());
 		run(parser, visitor);
 		final HashMap<Symbol, Template> symbolTableTemplates = visitor.getSymbolTableTemplates();
 		{
