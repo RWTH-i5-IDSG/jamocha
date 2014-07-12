@@ -12,49 +12,46 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package org.jamocha.languages.clips.parser;
+package org.jamocha.languages.clips.parser.errors;
 
 import lombok.Getter;
 
 import org.jamocha.languages.clips.parser.generated.SimpleNode;
 import org.jamocha.languages.common.ScopeStack.Symbol;
-import org.jamocha.languages.common.VariableNotDeclaredError;
+import org.jamocha.languages.common.errors.TypeMismatchError;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
-public class ClipsVariableNotDeclaredError extends VariableNotDeclaredError {
-	private static final long serialVersionUID = 6847823814357112043L;
+public class ClipsTypeMismatchError extends TypeMismatchError {
+	private static final long serialVersionUID = -236929147590833282L;
 
 	@Getter
 	final SimpleNode context;
 
-	public ClipsVariableNotDeclaredError(final Symbol var, final SimpleNode context) {
+	public ClipsTypeMismatchError(final Symbol var, final SimpleNode context) {
 		super(var);
 		this.context = context;
 	}
 
-	public ClipsVariableNotDeclaredError(final Symbol var, final SimpleNode context,
-			final String message, final Throwable cause, final boolean enableSuppression,
-			final boolean writableStackTrace) {
+	public ClipsTypeMismatchError(final Symbol var, final SimpleNode context, final String message,
+			final Throwable cause, final boolean enableSuppression, final boolean writableStackTrace) {
 		super(var, message, cause, enableSuppression, writableStackTrace);
 		this.context = context;
 	}
 
-	public ClipsVariableNotDeclaredError(final Symbol var, final SimpleNode context,
-			final String message, final Throwable cause) {
+	public ClipsTypeMismatchError(final Symbol var, final SimpleNode context, final String message,
+			final Throwable cause) {
 		super(var, message, cause);
 		this.context = context;
 	}
 
-	public ClipsVariableNotDeclaredError(final Symbol var, final SimpleNode context,
-			final String message) {
+	public ClipsTypeMismatchError(final Symbol var, final SimpleNode context, final String message) {
 		super(var, message);
 		this.context = context;
 	}
 
-	public ClipsVariableNotDeclaredError(final Symbol var, final SimpleNode context,
-			final Throwable cause) {
+	public ClipsTypeMismatchError(final Symbol var, final SimpleNode context, final Throwable cause) {
 		super(var, cause);
 		this.context = context;
 	}
