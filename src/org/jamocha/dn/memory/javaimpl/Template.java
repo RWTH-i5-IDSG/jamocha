@@ -55,7 +55,7 @@ public class Template implements org.jamocha.dn.memory.Template {
 	final HashMap<String, SlotAddress> slotNames = new HashMap<>();
 	final SlotType[] slotTypes;
 
-	public Template(final String description, final Slot... slots) {
+	Template(final String description, final Slot... slots) {
 		this.description = description;
 		this.slotTypes = Arrays.stream(slots).map(s -> s.getSlotType()).toArray(SlotType[]::new);
 		IntStream.range(0, slots.length).forEach(
