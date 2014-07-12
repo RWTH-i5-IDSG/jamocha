@@ -48,7 +48,7 @@ public class MemoryFactory implements org.jamocha.dn.memory.MemoryFactory {
 	}
 
 	@Override
-	public Template newTemplate(String description, Slot... slots) {
+	public Template newTemplate(final String description, final Slot... slots) {
 		return new org.jamocha.dn.memory.javaimpl.Template(description, slots);
 	}
 
@@ -65,5 +65,4 @@ public class MemoryFactory implements org.jamocha.dn.memory.MemoryFactory {
 			final Map<Edge, Set<Path>> edgesAndPaths) {
 		return MemoryHandlerMain.newMemoryHandlerMain(filter, edgesAndPaths);
 	}
-
 }
