@@ -7,3 +7,4 @@ tests/reports/*
 *.log
 *.toc
 *.pdf
+/target/
