@@ -21,7 +21,9 @@ import java.util.LinkedHashSet;
 
 import lombok.Getter;
 
+import org.jamocha.dn.memory.Fact;
 import org.jamocha.dn.memory.FactAddress;
+import org.jamocha.dn.memory.FactIdentifier;
 import org.jamocha.dn.memory.MemoryFactory;
 import org.jamocha.dn.memory.MemoryHandlerMain;
 import org.jamocha.dn.memory.MemoryHandlerPlusTemp;
@@ -256,6 +258,14 @@ public class Network {
 		}
 		final Node lowestNode = allPaths.iterator().next().getCurrentlyLowestNode();
 		return new TerminalNode(this, lowestNode);
+	}
+	
+	public void assertFact(final Fact fact) {
+		rootNode.assertFact(fact);
+	}
+	
+	public void retractFact(final FactIdentifier factIdentifier) {
+		rootNode.retractFact(factIdentifier);
 	}
 
 	/**
