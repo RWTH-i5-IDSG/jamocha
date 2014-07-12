@@ -27,10 +27,12 @@ import org.jamocha.dn.ConflictSet;
 import org.jamocha.dn.Network;
 import org.jamocha.dn.PlainScheduler;
 import org.jamocha.dn.memory.Fact;
+import org.jamocha.dn.memory.FactIdentifier;
 import org.jamocha.dn.memory.SlotType;
+import org.jamocha.dn.memory.Template;
 import org.jamocha.dn.memory.Template.Slot;
+import org.jamocha.dn.memory.javaimpl.MemoryFactory;
 import org.jamocha.dn.memory.javaimpl.SlotAddress;
-import org.jamocha.dn.memory.javaimpl.Template;
 import org.jamocha.dn.nodes.AlphaNode;
 import org.jamocha.dn.nodes.BetaNode;
 import org.jamocha.dn.nodes.Edge;
@@ -96,12 +98,14 @@ public class TokenProcessingTest {
 				new Network(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(),
 						Integer.MAX_VALUE, scheduler);
 		final Template student =
-				new Template("Student", new Slot(SlotType.STRING, "Name"), new Slot(SlotType.LONG,
-						"Semester"), new Slot(SlotType.STRING, "Studiengang"), new Slot(
-						SlotType.STRING, "Hobby"));
+				MemoryFactory.getMemoryFactory().newTemplate("Student",
+						new Slot(SlotType.STRING, "Name"), new Slot(SlotType.LONG, "Semester"),
+						new Slot(SlotType.STRING, "Studiengang"),
+						new Slot(SlotType.STRING, "Hobby"));
 		final Template prof =
-				new Template("Prof", new Slot(SlotType.STRING, "Name"), new Slot(SlotType.STRING,
-						"Studiengang"));
+				MemoryFactory.getMemoryFactory()
+						.newTemplate("Prof", new Slot(SlotType.STRING, "Name"),
+								new Slot(SlotType.STRING, "Studiengang"));
 		final Set<Path> existentialYoungStudent = new HashSet<>();
 		final Set<Path> negatedExistentialMatchingProf = new HashSet<>();
 		final Path oldStudent = new Path(student), youngStudent = new Path(student), matchingProf =
@@ -168,16 +172,22 @@ public class TokenProcessingTest {
 		assertEquals(1, studentOTN.getOutgoingExistentialEdges().size());
 		assertEquals(2, studentOTN.getOutgoingEdges().size());
 
-		rootNode.assertFact(student.newFact("Simon", 3L, "Informatik", "Schach"));
-		rootNode.assertFact(student.newFact("Rachel", 4L, "Informatik", "Coding"));
+		final FactIdentifier[] simon =
+				rootNode.assertFact(student.newFact("Simon", 3L, "Informatik", "Schach"));
+		final FactIdentifier[] rachel =
+				rootNode.assertFact(student.newFact("Rachel", 4L, "Informatik", "Coding"));
 		rootNode.assertFact(student.newFact("Mike", 5L, "Informatik", "Coding"));
 		rootNode.assertFact(student.newFact("Samuel", 7L, "Informatik", "Schwimmen"));
 		rootNode.assertFact(student.newFact("Lydia", 4L, "Anglizistik", "Musik"));
-		rootNode.assertFact(student.newFact("Erik", 2L, "Informatik", "Rätsel"));
+		final FactIdentifier[] erik =
+				rootNode.assertFact(student.newFact("Erik", 2L, "Informatik", "Rätsel"));
 		rootNode.assertFact(prof.newFact("Prof. Dr. Ashcroft", "Geschichte"));
-		rootNode.assertFact(prof.newFact("Prof. Dr. Timmes", "Informatik"));
-		rootNode.assertFact(prof.newFact("Prof. Dr. Santana", "Biologie"));
-		rootNode.assertFact(prof.newFact("Prof. Dr. Kappa", "Informatik"));
+		final FactIdentifier[] timmes =
+				rootNode.assertFact(prof.newFact("Prof. Dr. Timmes", "Informatik"));
+		final FactIdentifier[] santana =
+				rootNode.assertFact(prof.newFact("Prof. Dr. Santana", "Biologie"));
+		final FactIdentifier[] kappa =
+				rootNode.assertFact(prof.newFact("Prof. Dr. Kappa", "Informatik"));
 
 		scheduler.run();
 		conflictSet.deleteRevokedEntries();
@@ -188,9 +198,9 @@ public class TokenProcessingTest {
 					assertsAndRetracts.getAsserts());
 		}
 
-		rootNode.retractFact(prof.newFact("Prof. Dr. Timmes", "Informatik"));
-		rootNode.retractFact(prof.newFact("Prof. Dr. Santana", "Biologie"));
-		rootNode.retractFact(prof.newFact("Prof. Dr. Kappa", "Informatik"));
+		rootNode.retractFact(timmes);
+		rootNode.retractFact(santana);
+		rootNode.retractFact(kappa);
 
 		scheduler.run();
 		conflictSet.deleteRevokedEntries();
@@ -201,9 +211,9 @@ public class TokenProcessingTest {
 					assertsAndRetracts.getAsserts());
 		}
 
-		rootNode.retractFact(student.newFact("Simon", 3L, "Informatik", "Schach"));
-		rootNode.retractFact(student.newFact("Erik", 2L, "Informatik", "Rätsel"));
-		rootNode.retractFact(student.newFact("Rachel", 4L, "Informatik", "Coding"));
+		rootNode.retractFact(simon);
+		rootNode.retractFact(erik);
+		rootNode.retractFact(rachel);
 
 		scheduler.run();
 		conflictSet.deleteRevokedEntries();
@@ -222,8 +232,10 @@ public class TokenProcessingTest {
 				new Network(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(),
 						Integer.MAX_VALUE, scheduler);
 		final Template t1 =
-				new Template("", new Slot(SlotType.STRING, ""), new Slot(SlotType.LONG, "")), t2 =
-				new Template("", new Slot(SlotType.STRING, ""), new Slot(SlotType.BOOLEAN, ""));
+				MemoryFactory.getMemoryFactory().newTemplate("", new Slot(SlotType.STRING, ""),
+						new Slot(SlotType.LONG, "")), t2 =
+				MemoryFactory.getMemoryFactory().newTemplate("", new Slot(SlotType.STRING, ""),
+						new Slot(SlotType.BOOLEAN, ""));
 		final Path p1 = new Path(t1), p2 = new Path(t2);
 		final SlotAddress s1 = new SlotAddress(0), s2 = new SlotAddress(1);
 
@@ -302,8 +314,10 @@ public class TokenProcessingTest {
 				new Network(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(),
 						Integer.MAX_VALUE, scheduler);
 		final Template t1 =
-				new Template("", new Slot(SlotType.STRING, ""), new Slot(SlotType.LONG, "")), t2 =
-				new Template("", new Slot(SlotType.STRING, ""), new Slot(SlotType.BOOLEAN, ""));
+				MemoryFactory.getMemoryFactory().newTemplate("", new Slot(SlotType.STRING, ""),
+						new Slot(SlotType.LONG, "")), t2 =
+				MemoryFactory.getMemoryFactory().newTemplate("", new Slot(SlotType.STRING, ""),
+						new Slot(SlotType.BOOLEAN, ""));
 		final Path p1 = new Path(t1), p2 = new Path(t2);
 		final SlotAddress s1 = new SlotAddress(0), s2 = new SlotAddress(1);
 
@@ -388,9 +402,10 @@ public class TokenProcessingTest {
 				new Network(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(),
 						Integer.MAX_VALUE, scheduler);
 		final Template student =
-				new Template("Student", new Slot(SlotType.STRING, "Name"), new Slot(SlotType.LONG,
-						"Semester"), new Slot(SlotType.STRING, "Studiengang"), new Slot(
-						SlotType.STRING, "Hobby"));
+				MemoryFactory.getMemoryFactory().newTemplate("Student",
+						new Slot(SlotType.STRING, "Name"), new Slot(SlotType.LONG, "Semester"),
+						new Slot(SlotType.STRING, "Studiengang"),
+						new Slot(SlotType.STRING, "Hobby"));
 		final Path oldStudent = new Path(student), youngStudent = new Path(student);
 		final SlotAddress studentSem = new SlotAddress(1), studentSG = new SlotAddress(2);
 
@@ -453,12 +468,14 @@ public class TokenProcessingTest {
 				new Network(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(),
 						Integer.MAX_VALUE, scheduler);
 		final Template student =
-				new Template("Student", new Slot(SlotType.STRING, "Name"), new Slot(SlotType.LONG,
-						"Semester"), new Slot(SlotType.STRING, "Studiengang"), new Slot(
-						SlotType.STRING, "Hobby"));
+				MemoryFactory.getMemoryFactory().newTemplate("Student",
+						new Slot(SlotType.STRING, "Name"), new Slot(SlotType.LONG, "Semester"),
+						new Slot(SlotType.STRING, "Studiengang"),
+						new Slot(SlotType.STRING, "Hobby"));
 		final Template prof =
-				new Template("Prof", new Slot(SlotType.STRING, "Name"), new Slot(SlotType.STRING,
-						"Studiengang"));
+				MemoryFactory.getMemoryFactory()
+						.newTemplate("Prof", new Slot(SlotType.STRING, "Name"),
+								new Slot(SlotType.STRING, "Studiengang"));
 		final Path oldStudent = new Path(student), youngStudent = new Path(student), matchingProf =
 				new Path(prof);
 		final SlotAddress studentSem = new SlotAddress(1), studentSG = new SlotAddress(2), studentHobby =
@@ -493,8 +510,10 @@ public class TokenProcessingTest {
 		rootNode.assertFact(student.newFact("Lydia", 4L, "Anglizistik", "Musik"));
 		rootNode.assertFact(student.newFact("Erik", 2L, "Informatik", "Rätsel"));
 		rootNode.assertFact(prof.newFact("Prof. Dr. Ashcroft", "Geschichte"));
-		rootNode.assertFact(prof.newFact("Prof. Dr. Timmes", "Informatik"));
-		rootNode.assertFact(prof.newFact("Prof. Dr. Santana", "Biologie"));
+		final FactIdentifier[] timmes =
+				rootNode.assertFact(prof.newFact("Prof. Dr. Timmes", "Informatik"));
+		final FactIdentifier[] santana =
+				rootNode.assertFact(prof.newFact("Prof. Dr. Santana", "Biologie"));
 		rootNode.assertFact(prof.newFact("Prof. Dr. Kappa", "Informatik"));
 
 		scheduler.run();
@@ -516,8 +535,8 @@ public class TokenProcessingTest {
 					assertsAndRetracts.getRetracts());
 		}
 
-		rootNode.retractFact(prof.newFact("Prof. Dr. Timmes", "Informatik"));
-		rootNode.retractFact(prof.newFact("Prof. Dr. Santana", "Biologie"));
+		rootNode.retractFact(timmes);
+		rootNode.retractFact(santana);
 
 		scheduler.run();
 		{
@@ -546,12 +565,14 @@ public class TokenProcessingTest {
 				new Network(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(),
 						Integer.MAX_VALUE, scheduler);
 		final Template student =
-				new Template("Student", new Slot(SlotType.STRING, "Name"), new Slot(SlotType.LONG,
-						"Semester"), new Slot(SlotType.STRING, "Studiengang"), new Slot(
-						SlotType.STRING, "Hobby"));
+				MemoryFactory.getMemoryFactory().newTemplate("Student",
+						new Slot(SlotType.STRING, "Name"), new Slot(SlotType.LONG, "Semester"),
+						new Slot(SlotType.STRING, "Studiengang"),
+						new Slot(SlotType.STRING, "Hobby"));
 		final Template prof =
-				new Template("Prof", new Slot(SlotType.STRING, "Name"), new Slot(SlotType.STRING,
-						"Studiengang"));
+				MemoryFactory.getMemoryFactory()
+						.newTemplate("Prof", new Slot(SlotType.STRING, "Name"),
+								new Slot(SlotType.STRING, "Studiengang"));
 		final Path oldStudent = new Path(student), youngStudent = new Path(student), matchingProf =
 				new Path(prof);
 		final SlotAddress studentSem = new SlotAddress(1), studentSG = new SlotAddress(2), studentHobby =
@@ -586,12 +607,14 @@ public class TokenProcessingTest {
 		rootNode.assertFact(student.newFact("Lydia", 4L, "Anglizistik", "Musik"));
 		rootNode.assertFact(student.newFact("Erik", 2L, "Informatik", "Rätsel"));
 		rootNode.assertFact(prof.newFact("Prof. Dr. Ashcroft", "Geschichte"));
-		rootNode.assertFact(prof.newFact("Prof. Dr. Timmes", "Informatik"));
-		rootNode.assertFact(prof.newFact("Prof. Dr. Santana", "Biologie"));
+		final FactIdentifier[] timmes =
+				rootNode.assertFact(prof.newFact("Prof. Dr. Timmes", "Informatik"));
+		final FactIdentifier[] santana =
+				rootNode.assertFact(prof.newFact("Prof. Dr. Santana", "Biologie"));
 		rootNode.assertFact(prof.newFact("Prof. Dr. Kappa", "Informatik"));
 
-		rootNode.retractFact(prof.newFact("Prof. Dr. Timmes", "Informatik"));
-		rootNode.retractFact(prof.newFact("Prof. Dr. Santana", "Biologie"));
+		rootNode.retractFact(timmes);
+		rootNode.retractFact(santana);
 
 		// as the retractions kill Dr. Timmes before he leaves the OTN, we don't even get retracts
 		// in our conflict set
@@ -623,9 +646,11 @@ public class TokenProcessingTest {
 				new Network(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(),
 						Integer.MAX_VALUE, scheduler);
 		final Template t1 =
-				new Template("", new Slot(SlotType.LONG, ""), new Slot(SlotType.STRING, ""));
+				MemoryFactory.getMemoryFactory().newTemplate("", new Slot(SlotType.LONG, ""),
+						new Slot(SlotType.STRING, ""));
 		final Template t2 =
-				new Template("", new Slot(SlotType.DOUBLE, ""), new Slot(SlotType.STRING, ""));
+				MemoryFactory.getMemoryFactory().newTemplate("", new Slot(SlotType.DOUBLE, ""),
+						new Slot(SlotType.STRING, ""));
 		final Path p1 = new Path(t1);
 		final Path p2 = new Path(t2);
 		final SlotAddress slotStr = new SlotAddress(1);
@@ -676,8 +701,8 @@ public class TokenProcessingTest {
 				new Network(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(),
 						Integer.MAX_VALUE, scheduler);
 		final Template t1 =
-				new Template("", new Slot(SlotType.LONG, ""), new Slot(SlotType.STRING, ""),
-						new Slot(SlotType.BOOLEAN, ""));
+				MemoryFactory.getMemoryFactory().newTemplate("", new Slot(SlotType.LONG, ""),
+						new Slot(SlotType.STRING, ""), new Slot(SlotType.BOOLEAN, ""));
 		final Path p1 = new Path(t1);
 		final SlotAddress slotLong = new SlotAddress(0), slotBool = new SlotAddress(2);
 
@@ -728,8 +753,8 @@ public class TokenProcessingTest {
 				new Network(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(),
 						Integer.MAX_VALUE, scheduler);
 		final Template t1 =
-				new Template("", new Slot(SlotType.LONG, ""), new Slot(SlotType.STRING, ""),
-						new Slot(SlotType.BOOLEAN, ""));
+				MemoryFactory.getMemoryFactory().newTemplate("", new Slot(SlotType.LONG, ""),
+						new Slot(SlotType.STRING, ""), new Slot(SlotType.BOOLEAN, ""));
 		final Path p1 = new Path(t1);
 
 		final FilterMockup filter =
@@ -753,7 +778,7 @@ public class TokenProcessingTest {
 		rootNode.assertFact(new Fact(t1, 2L, "2L&FALSE", false));
 		rootNode.assertFact(new Fact(t1, -80L, "-80L&TRUE", true));
 		rootNode.assertFact(new Fact(t1, -80L, "-80L&FALSE", false));
-		rootNode.assertFact(new Fact(t1, 0L, "0L&FALSE", false));
+		final FactIdentifier[] t10lfalse = rootNode.assertFact(new Fact(t1, 0L, "0L&FALSE", false));
 		scheduler.run();
 
 		assertEquals("Amount of facts in otn does not match expected count!", 7, otn.getMemory()
@@ -766,7 +791,7 @@ public class TokenProcessingTest {
 		assertEquals("Amount of retracts does not match expected count!", 0,
 				assertsAndRetracts.getRetracts());
 
-		rootNode.retractFact(new Fact(t1, 0L, "0L&FALSE", false));
+		rootNode.retractFact(t10lfalse);
 		scheduler.run();
 
 		assertEquals("Amount of facts in otn does not match expected count!", 6, otn.getMemory()
@@ -779,7 +804,8 @@ public class TokenProcessingTest {
 		assertEquals("Amount of retracts does not match expected count!", 1,
 				assertsAndRetracts.getRetracts());
 
-		rootNode.assertFact(new Fact(t1, 0L, "0L&FALSE", false));
+		final FactIdentifier[] t10lfalse_2 =
+				rootNode.assertFact(new Fact(t1, 0L, "0L&FALSE", false));
 		scheduler.run();
 
 		assertEquals("Amount of facts in otn does not match expected count!", 7, otn.getMemory()
@@ -792,7 +818,7 @@ public class TokenProcessingTest {
 		assertEquals("Amount of retracts does not match expected count!", 1,
 				assertsAndRetracts.getRetracts());
 
-		rootNode.retractFact(new Fact(t1, 0L, "0L&FALSE", false));
+		rootNode.retractFact(t10lfalse_2);
 		scheduler.run();
 
 		assertEquals("Amount of facts in otn does not match expected count!", 6, otn.getMemory()
@@ -804,20 +830,6 @@ public class TokenProcessingTest {
 				assertsAndRetracts.getAsserts());
 		assertEquals("Amount of retracts does not match expected count!", 2,
 				assertsAndRetracts.getRetracts());
-
-		rootNode.retractFact(new Fact(t1, 7L, "7L&TRUE", true));
-		scheduler.run();
-
-		assertEquals("Amount of facts in otn does not match expected count!", 6, otn.getMemory()
-				.size());
-		assertEquals("Amount of facts in alpha does not match expected count!", 6, alphaNode
-				.getMemory().size());
-		assertsAndRetracts = countAssertsAndRetractsInConflictSet(network.getConflictSet());
-		assertEquals("Amount of asserts does not match expected count!", 8,
-				assertsAndRetracts.getAsserts());
-		assertEquals("Amount of retracts does not match expected count!", 2,
-				assertsAndRetracts.getRetracts());
-
 	}
 
 	@Test
@@ -827,8 +839,8 @@ public class TokenProcessingTest {
 				new Network(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(),
 						Integer.MAX_VALUE, scheduler);
 		final Template t1 =
-				new Template("", new Slot(SlotType.LONG, ""), new Slot(SlotType.STRING, ""),
-						new Slot(SlotType.BOOLEAN, ""));
+				MemoryFactory.getMemoryFactory().newTemplate("", new Slot(SlotType.LONG, ""),
+						new Slot(SlotType.STRING, ""), new Slot(SlotType.BOOLEAN, ""));
 		final Path p1 = new Path(t1);
 
 		final FilterMockup filter =
@@ -851,11 +863,10 @@ public class TokenProcessingTest {
 		rootNode.assertFact(new Fact(t1, 2L, "2L&FALSE", false));
 		rootNode.assertFact(new Fact(t1, -80L, "-80L&TRUE", true));
 		rootNode.assertFact(new Fact(t1, -80L, "-80L&FALSE", false));
-		rootNode.assertFact(new Fact(t1, 0L, "0L&FALSE", false));
-		rootNode.retractFact(new Fact(t1, 0L, "0L&FALSE", false));
-		rootNode.assertFact(new Fact(t1, 0L, "0L&FALSE", false));
-		rootNode.retractFact(new Fact(t1, 0L, "0L&FALSE", false));
-		rootNode.retractFact(new Fact(t1, 7L, "7L&TRUE", true));
+		final FactIdentifier[] f1 = rootNode.assertFact(new Fact(t1, 0L, "0L&FALSE", false));
+		rootNode.retractFact(f1);
+		final FactIdentifier[] f2 = rootNode.assertFact(new Fact(t1, 0L, "0L&FALSE", false));
+		rootNode.retractFact(f2);
 		scheduler.run();
 
 		assertEquals("Amount of facts in otn does not match expected count!", 6, otn.getMemory()
@@ -878,8 +889,8 @@ public class TokenProcessingTest {
 				new Network(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(),
 						Integer.MAX_VALUE, scheduler);
 		final Template t1 =
-				new Template("", new Slot(SlotType.LONG, ""), new Slot(SlotType.STRING, ""),
-						new Slot(SlotType.BOOLEAN, ""));
+				MemoryFactory.getMemoryFactory().newTemplate("", new Slot(SlotType.LONG, ""),
+						new Slot(SlotType.STRING, ""), new Slot(SlotType.BOOLEAN, ""));
 		final Path p1 = new Path(t1);
 		final SlotAddress slotLong = new SlotAddress(0), slotBool = new SlotAddress(2);
 
@@ -902,11 +913,11 @@ public class TokenProcessingTest {
 		// true != 5 < 3
 		rootNode.assertFact(new Fact(t1, 5L, "5L&TRUE", true));
 		// true == 2 < 3
-		rootNode.assertFact(new Fact(t1, 2L, "2L&TRUE", true));
+		final FactIdentifier[] f2 = rootNode.assertFact(new Fact(t1, 2L, "2L&TRUE", true));
 		// false != 2 < 3
 		rootNode.assertFact(new Fact(t1, 2L, "2L&FALSE", false));
 		// true == -80 < 3
-		rootNode.assertFact(new Fact(t1, -80L, "-80L&TRUE", true));
+		final FactIdentifier[] f3 = rootNode.assertFact(new Fact(t1, -80L, "-80L&TRUE", true));
 		// false != -80 < 3
 		rootNode.assertFact(new Fact(t1, -80L, "-80L&FALSE", false));
 		// false != 0 < 3
@@ -914,25 +925,25 @@ public class TokenProcessingTest {
 
 		// remove and re-add valid fact
 		// false == 5 < 3
-		rootNode.assertFact(new Fact(t1, 5L, "5L&FALSE", false));
+		final FactIdentifier[] f1 = rootNode.assertFact(new Fact(t1, 5L, "5L&FALSE", false));
 		// false == 5 < 3
-		rootNode.retractFact(new Fact(t1, 5L, "5L&FALSE", false));
+		rootNode.retractFact(f1);
 
 		// remove valid fact
 		// true == 2 < 3
-		rootNode.retractFact(new Fact(t1, 2L, "2L&TRUE", true));
+		rootNode.retractFact(f2);
 
 		// remove, re-add and remove valid fact
 		// true == -80 < 3
-		rootNode.retractFact(new Fact(t1, -80L, "-80L&TRUE", true));
+		rootNode.retractFact(f3);
 		// true == -80 < 3
-		rootNode.assertFact(new Fact(t1, -80L, "-80L&TRUE", true));
+		final FactIdentifier[] f4 = rootNode.assertFact(new Fact(t1, -80L, "-80L&TRUE", true));
 		// true == -80 < 3
-		rootNode.retractFact(new Fact(t1, -80L, "-80L&TRUE", true));
+		rootNode.retractFact(f4);
 
 		// remove invalid fact
 		// false != -80 < 3
-		rootNode.retractFact(new Fact(t1, -80L, "-80L&FALSE", false));
+		rootNode.retractFact(f4);
 
 		scheduler.run();
 		final ConflictSet conflictSet = network.getConflictSet();

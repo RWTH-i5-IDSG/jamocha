@@ -19,8 +19,9 @@ import static org.jamocha.dn.memory.SlotType.DOUBLE;
 import static org.junit.Assert.assertArrayEquals;
 import static test.jamocha.util.CounterColumnMatcherMockup.counterColumnMatcherMockup;
 
+import org.jamocha.dn.memory.Template;
 import org.jamocha.dn.memory.Template.Slot;
-import org.jamocha.dn.memory.javaimpl.Template;
+import org.jamocha.dn.memory.javaimpl.MemoryFactory;
 import org.jamocha.dn.nodes.SlotInFactAddress;
 import org.jamocha.filter.FilterTranslator;
 import org.jamocha.filter.FunctionDictionary;
@@ -45,7 +46,8 @@ import test.jamocha.util.SlotAddressMockup;
 public class FilterTranslatorTest {
 	final Predicate equals = FunctionDictionary.lookupPredicate("=", DOUBLE, DOUBLE);
 	final Predicate boolEq = FunctionDictionary.lookupPredicate("=", BOOLEAN, BOOLEAN);
-	final Template template = new Template("", new Slot(DOUBLE, ""), new Slot(DOUBLE, ""));
+	final Template template = MemoryFactory.getMemoryFactory().newTemplate("",
+			new Slot(DOUBLE, ""), new Slot(DOUBLE, ""));
 	final SlotAddressMockup s1 = new SlotAddressMockup(0), s2 = new SlotAddressMockup(1);
 	final FactAddressMockup f1 = new FactAddressMockup(0), f2 = new FactAddressMockup(1),
 			f3 = new FactAddressMockup(2), f4 = new FactAddressMockup(3);

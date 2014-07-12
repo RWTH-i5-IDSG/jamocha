@@ -6,6 +6,7 @@ import static test.jamocha.util.CounterColumnMatcherMockup.counterColumnMatcherM
 
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.dn.memory.Template.Slot;
+import org.jamocha.dn.memory.javaimpl.MemoryFactory;
 import org.jamocha.dn.memory.javaimpl.SlotAddress;
 import org.jamocha.dn.memory.javaimpl.Template;
 import org.jamocha.filter.FilterFunctionCompare;
@@ -73,8 +74,8 @@ public class FilterEqualsInFunctionTest {
 	@Test
 	public void testEqualsInFunctionFalseDifferentSlotAddress() {
 		final Path p1 =
-				new Path(new Template("", new Slot(SlotType.DOUBLE, ""), new Slot(SlotType.DOUBLE,
-						"")));
+				new Path(MemoryFactory.getMemoryFactory().newTemplate("",
+						new Slot(SlotType.DOUBLE, ""), new Slot(SlotType.DOUBLE, "")));
 		final Path p2 = new Path(Template.DOUBLE);
 		final Path p3 = new Path(Template.DOUBLE);
 		final SlotAddress a1 = new SlotAddress(0);
@@ -213,8 +214,8 @@ public class FilterEqualsInFunctionTest {
 	@Test
 	public void testFilterEqualsInFunction() {
 		final Path p1 =
-				new Path(new Template("", new Slot(SlotType.STRING, ""),
-						new Slot(SlotType.LONG, "")));
+				new Path(MemoryFactory.getMemoryFactory().newTemplate("",
+						new Slot(SlotType.STRING, ""), new Slot(SlotType.LONG, "")));
 		final Path p2 = new Path(Template.LONG);
 		final Path p3 = new Path(Template.LONG);
 		final SlotAddress a1 = new SlotAddress(0);

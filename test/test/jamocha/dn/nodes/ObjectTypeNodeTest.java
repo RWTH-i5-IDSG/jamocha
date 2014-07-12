@@ -118,7 +118,7 @@ public class ObjectTypeNodeTest {
 	public void testRetractFact() {
 		Path p1 = new Path(Template.STRING);
 		ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, p1);
-		otn.retractFact(Template.STRING.newFact("TestValue 1"));
+		otn.retractFact(otn.assertFact(Template.STRING.newFact("TestValue 1")));
 	}
 
 	/**
