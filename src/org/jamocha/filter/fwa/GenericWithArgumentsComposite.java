@@ -46,7 +46,7 @@ public abstract class GenericWithArgumentsComposite<R, F extends Function<? exte
 
 	final F function;
 	final FunctionWithArguments args[];
-	@Getter(lazy = true)
+	@Getter(lazy = true, onMethod = @__(@Override))
 	private final SlotType[] paramTypes = calculateParamTypes();
 	@Getter(lazy = true, value = AccessLevel.PRIVATE)
 	private final int hashPIR = initHashPIR(), hashPII = initHashPII();
@@ -163,11 +163,11 @@ public abstract class GenericWithArgumentsComposite<R, F extends Function<? exte
 
 			@Override
 			public R evaluate(final Function<?>... innerParams) {
-				final Function<?> evaluatableArgs[] =
-						new Function<?>[GenericWithArgumentsComposite.this.args.length];
+				final FunctionWithArguments[] savedArgs = GenericWithArgumentsComposite.this.args;
+				final Function<?> evaluatableArgs[] = new Function<?>[savedArgs.length];
 				int k = 0;
-				for (int i = 0; i < GenericWithArgumentsComposite.this.args.length; i++) {
-					final FunctionWithArguments fwa = GenericWithArgumentsComposite.this.args[i];
+				for (int i = 0; i < savedArgs.length; i++) {
+					final FunctionWithArguments fwa = savedArgs[i];
 					final SlotType[] types = fwa.getParamTypes();
 					evaluatableArgs[i] =
 							fwa.lazyEvaluate(Arrays.copyOfRange(params, k, k + types.length));
