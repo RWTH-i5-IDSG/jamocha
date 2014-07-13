@@ -14,7 +14,11 @@
  */
 package org.jamocha.dn.memory;
 
+import java.util.Map;
+
 import lombok.Value;
+
+import org.jamocha.filter.fwa.FunctionWithArguments;
 
 /**
  * A Template consists of slots which in turn have a {@link SlotType slot type} and a name. Facts
@@ -66,4 +70,25 @@ public interface Template {
 	 * @return newly created fact instance holding the values specified
 	 */
 	public Fact newFact(final Object... values);
+
+	/**
+	 * Ease-of-use method to create facts with type-check for its arguments.
+	 * 
+	 * @param values
+	 *            values to store in the fact instance to create
+	 * @return newly created fact instance holding the values specified
+	 */
+	public Fact newFact(final Map<SlotAddress, Object> valuesMap);
+
+	/**
+	 * Return a list of FunctionWithArguments which - after evaluation - can be used to construct an
+	 * instance of this template. This includes inserting default values where appropriate and
+	 * giving the return list the correct order.
+	 * 
+	 * @param values
+	 *            given values for the corresponding slots
+	 * @return list that can be used to construct a template after evaluation
+	 */
+	public FunctionWithArguments[] applyDefaultsAndOrder(
+			final Map<SlotAddress, FunctionWithArguments> values);
 }

@@ -16,10 +16,15 @@ package org.jamocha.dn.memory.javaimpl;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.OptionalInt;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import org.jamocha.dn.memory.Fact;
 import org.jamocha.dn.memory.SlotType;
+import org.jamocha.filter.fwa.FunctionWithArguments;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -87,5 +92,34 @@ public class Template implements org.jamocha.dn.memory.Template {
 			assert this.slotTypes[i].getJavaClass().isInstance(values[i]);
 		}
 		return new Fact(this, values);
+	}
+
+	@Override
+	public Fact newFact(final Map<org.jamocha.dn.memory.SlotAddress, Object> values) {
+		values.forEach((s, o) -> {
+			assert this.slotTypes[((SlotAddress) s).index].getJavaClass().isInstance(o);
+		});
+		final Stream<Entry<org.jamocha.dn.memory.SlotAddress, Object>> stream =
+				values.entrySet().stream();
+		assert !stream
+				.filter(e -> !this.slotTypes[((SlotAddress) e.getKey()).index].getJavaClass()
+						.isInstance(e.getValue())).findAny().isPresent();
+		final OptionalInt max = stream.mapToInt(e -> ((SlotAddress) e.getKey()).index).max();
+		assert max.isPresent();
+		final Object[] args = new Object[max.getAsInt()];
+		stream.forEach(e -> args[((SlotAddress) e.getKey()).index] = e.getValue());
+		return new Fact(this, args);
+	}
+
+	@Override
+	public FunctionWithArguments[] applyDefaultsAndOrder(
+			final Map<org.jamocha.dn.memory.SlotAddress, FunctionWithArguments> values) {
+		// TBD defaults
+		final FunctionWithArguments[] ret = new FunctionWithArguments[slotTypes.length];
+		// as long as no default are implemented, check for complete specification of the values
+		assert values.keySet().containsAll(this.slotNames.values());
+		assert this.slotNames.values().containsAll(values.keySet());
+		values.forEach((s, f) -> ret[((SlotAddress) s).index] = f);
+		return ret;
 	}
 }
