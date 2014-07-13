@@ -48,6 +48,10 @@ public enum SlotType {
 	 */
 	FACTADDRESS(FactIdentifier.class),
 	/**
+	 * Enum value for fact address types.
+	 */
+	FACTADDRESSES(FactIdentifier[].class),
+	/**
 	 * Enum value for date time types.
 	 */
 	DATETIME(ZonedDateTime.class),
