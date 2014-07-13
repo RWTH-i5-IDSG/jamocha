@@ -111,6 +111,11 @@ public class UniformFunctionTranslator {
 	}
 
 	static interface SelectiveFunctionVisitor extends FunctionVisitor {
+		// specials
+		@Override
+		default void visit(final org.jamocha.filter.impls.specials.Assert function) {
+		}
+
 		// functions
 		@Override
 		default void visit(final org.jamocha.filter.impls.functions.DividedBy<?> function) {

@@ -14,6 +14,7 @@
  */
 package org.jamocha.languages.clips.parser;
 
+import static java.util.stream.Collectors.toList;
 import static org.jamocha.util.ToArray.toArray;
 
 import java.util.ArrayList;
@@ -37,16 +38,25 @@ import lombok.Value;
 import org.jamocha.dn.Network;
 import org.jamocha.dn.memory.SlotAddress;
 import org.jamocha.dn.memory.SlotType;
-import org.jamocha.dn.memory.Template.Slot;
 import org.jamocha.dn.memory.Template;
+import org.jamocha.dn.memory.Template.Slot;
 import org.jamocha.filter.Function;
 import org.jamocha.filter.FunctionDictionary;
+import org.jamocha.filter.Path;
 import org.jamocha.filter.Predicate;
+import org.jamocha.filter.fwa.ConstantLeaf;
+import org.jamocha.filter.fwa.PathLeaf;
+import org.jamocha.filter.impls.specials.Assert;
+import org.jamocha.filter.impls.specials.Assert.TemplateContainer;
 import org.jamocha.languages.clips.parser.ExistentialStack.ScopedExistentialStack;
+import org.jamocha.languages.clips.parser.errors.ClipsNoSlotForThatNameError;
+import org.jamocha.languages.clips.parser.errors.ClipsTemplateNotDefinedError;
+import org.jamocha.languages.clips.parser.errors.ClipsVariableNotDeclaredError;
 import org.jamocha.languages.clips.parser.generated.SFPActionList;
 import org.jamocha.languages.clips.parser.generated.SFPAmpersandConnectedConstraint;
 import org.jamocha.languages.clips.parser.generated.SFPAndFunction;
 import org.jamocha.languages.clips.parser.generated.SFPAnyFunction;
+import org.jamocha.languages.clips.parser.generated.SFPAssertFunc;
 import org.jamocha.languages.clips.parser.generated.SFPAssignedPatternCE;
 import org.jamocha.languages.clips.parser.generated.SFPBooleanType;
 import org.jamocha.languages.clips.parser.generated.SFPColon;
@@ -73,6 +83,9 @@ import org.jamocha.languages.clips.parser.generated.SFPNotFunction;
 import org.jamocha.languages.clips.parser.generated.SFPOrFunction;
 import org.jamocha.languages.clips.parser.generated.SFPParser;
 import org.jamocha.languages.clips.parser.generated.SFPParserTreeConstants;
+import org.jamocha.languages.clips.parser.generated.SFPRHSPattern;
+import org.jamocha.languages.clips.parser.generated.SFPRHSSlot;
+import org.jamocha.languages.clips.parser.generated.SFPRetractFunc;
 import org.jamocha.languages.clips.parser.generated.SFPSingleSlotDefinition;
 import org.jamocha.languages.clips.parser.generated.SFPSingleVariable;
 import org.jamocha.languages.clips.parser.generated.SFPSlotDefinition;
@@ -89,6 +102,7 @@ import org.jamocha.languages.clips.parser.generated.SFPTypeAttribute;
 import org.jamocha.languages.clips.parser.generated.SFPTypeSpecification;
 import org.jamocha.languages.clips.parser.generated.SFPUnorderedLHSFactBody;
 import org.jamocha.languages.clips.parser.generated.SimpleNode;
+import org.jamocha.languages.common.AssertTemplateContainerBuilder;
 import org.jamocha.languages.common.ConditionalElement;
 import org.jamocha.languages.common.ConditionalElement.AndFunctionConditionalElement;
 import org.jamocha.languages.common.ConditionalElement.ExistentialConditionalElement;
@@ -1081,6 +1095,78 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 		Expression expression;
 		final RuleCondition ruleCondition;
 
+		@RequiredArgsConstructor
+		class SFPRHSSlotElementsVisitor implements SelectiveSFPVisitor {
+			final AssertTemplateContainerBuilder builder;
+			final SlotAddress slotAddress;
+
+			@Override
+			public Object visit(final SFPSingleVariable node, final Object data) {
+				// TODO think about how to connect variables to paths, where to create the paths,
+				// and how that relates to the symbols and single variables here
+				final Symbol symbol =
+						SelectiveSFPVisitor.sendVisitor(new SFPSingleVariableVisitor(), node, data).symbol;
+				builder.addValue(slotAddress, new PathLeaf(new Path(builder.getTemplate()),
+						slotAddress));
+				return data;
+			}
+
+			@Override
+			public Object visit(final SFPConstant node, final Object data) {
+				final SFPValueVisitor visitor =
+						SelectiveSFPVisitor.sendVisitor(new SFPValueVisitor(), node, data);
+				builder.addValue(slotAddress, new ConstantLeaf(visitor.value, visitor.type));
+				return data;
+			}
+
+			// TBD FunctionCall
+		}
+
+		@RequiredArgsConstructor
+		class SFPRHSPatternElementsVisitor implements SelectiveSFPVisitor {
+			final AssertTemplateContainerBuilder builder;
+
+			@Override
+			public Object visit(final SFPRHSSlot node, final Object data) {
+				assert node.jjtGetNumChildren() == 2;
+				final Symbol symbol =
+						SelectiveSFPVisitor.sendVisitor(new SFPSymbolVisitor(),
+								node.jjtGetChild(0), data).symbol;
+				final Template template = builder.getTemplate();
+				final SlotAddress slotAddress = template.getSlotAddress(symbol.getImage());
+				if (null == slotAddress) {
+					throw new ClipsNoSlotForThatNameError(symbol, node);
+				}
+				SelectiveSFPVisitor.sendVisitor(
+						new SFPRHSSlotElementsVisitor(builder, slotAddress), node.jjtGetChild(1),
+						data);
+				return data;
+			}
+		}
+
+		class SFPAssertFuncElementsVisitor implements SelectiveSFPVisitor {
+			TemplateContainer templateContainer;
+
+			@Override
+			public Object visit(final SFPRHSPattern node, final Object data) {
+				assert node.jjtGetNumChildren() > 1;
+				final Symbol symbol =
+						SelectiveSFPVisitor.sendVisitor(new SFPSymbolVisitor(),
+								node.jjtGetChild(0), data).symbol;
+				final Template template = SFPVisitorImpl.this.symbolTableTemplates.get(symbol);
+				if (null == template) {
+					throw new ClipsTemplateNotDefinedError(symbol, node);
+				}
+				final AssertTemplateContainerBuilder builder =
+						new AssertTemplateContainerBuilder(template);
+				SelectiveSFPVisitor.stream(node, 1).forEach(
+						n -> SelectiveSFPVisitor.sendVisitor(new SFPRHSPatternElementsVisitor(
+								builder), n, data));
+				this.templateContainer = builder.build();
+				return data;
+			}
+		}
+
 		// <function-call> ::= (<function-name> <expression>*)
 		// void FunctionCall() : <LBRACE> ( AssertFunc() | Modify() | RetractFunc() |
 		// FindFactByFactFunc() | IfElseFunc() | WhileFunc() | LoopForCountFunc() |
@@ -1118,6 +1204,28 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 					toArray(arguments.stream().map(e -> e.getType()), SlotType[]::new);
 			final Function<?> function = FunctionDictionary.lookup(symbol.getImage(), argTypes);
 			this.expression = new FunctionCall(function, arguments);
+			return data;
+		}
+
+		@Override
+		public Object visit(final SFPAssertFunc node, final Object data) {
+			assert node.jjtGetNumChildren() > 2;
+			// each child corresponds to one fact assertion
+			final List<TemplateContainer> templateContainers =
+					SelectiveSFPVisitor
+							.stream(node, 0)
+							.map(n -> SelectiveSFPVisitor.sendVisitor(
+									new SFPAssertFuncElementsVisitor(), n, data).templateContainer)
+							.collect(toList());
+			this.expression =
+					new FunctionCall(new Assert(network, templateContainers), Arrays.asList());
+			return data;
+		}
+
+		@Override
+		public Object visit(final SFPRetractFunc node, final Object data) {
+			// TODO Auto-generated method stub
+
 			return data;
 		}
 	}
