@@ -55,7 +55,7 @@ public class RootNode {
 	 * @param fact
 	 *            {@link Fact} to be asserted
 	 */
-	public FactIdentifier[] assertFact(final Fact... facts) {
+	public FactIdentifier[] assertFacts(final Fact... facts) {
 		final int length = facts.length;
 		final FactIdentifier[] factIdentifiers = new FactIdentifier[length];
 		final Map<Fact, Integer> orderCache = new HashMap<>();
@@ -83,7 +83,7 @@ public class RootNode {
 	 * @param fact
 	 *            {@link Fact} to be retracted
 	 */
-	private void retractFact(final List<MemoryFact> facts) {
+	private void retractFacts(final List<MemoryFact> facts) {
 		facts.stream()
 				.collect(groupingBy(f -> f.getTemplate()))
 				.forEach(
@@ -91,8 +91,9 @@ public class RootNode {
 								toArray(f, MemoryFact[]::new)));
 	}
 
-	public void retractFact(FactIdentifier... factIdentifiers) {
-		retractFact(Arrays.stream(factIdentifiers).map(i -> facts.get(i.getId())).collect(toList()));
+	public void retractFacts(final FactIdentifier... factIdentifiers) {
+		retractFacts(Arrays.stream(factIdentifiers).map(i -> facts.get(i.getId()))
+				.collect(toList()));
 	}
 
 	/**

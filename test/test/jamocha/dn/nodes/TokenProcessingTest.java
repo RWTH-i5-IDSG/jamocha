@@ -172,21 +172,21 @@ public class TokenProcessingTest {
 		assertEquals(2, studentOTN.getOutgoingEdges().size());
 
 		final FactIdentifier[] simon =
-				rootNode.assertFact(student.newFact("Simon", 3L, "Informatik", "Schach"));
+				rootNode.assertFacts(student.newFact("Simon", 3L, "Informatik", "Schach"));
 		final FactIdentifier[] rachel =
-				rootNode.assertFact(student.newFact("Rachel", 4L, "Informatik", "Coding"));
-		rootNode.assertFact(student.newFact("Mike", 5L, "Informatik", "Coding"));
-		rootNode.assertFact(student.newFact("Samuel", 7L, "Informatik", "Schwimmen"));
-		rootNode.assertFact(student.newFact("Lydia", 4L, "Anglizistik", "Musik"));
+				rootNode.assertFacts(student.newFact("Rachel", 4L, "Informatik", "Coding"));
+		rootNode.assertFacts(student.newFact("Mike", 5L, "Informatik", "Coding"));
+		rootNode.assertFacts(student.newFact("Samuel", 7L, "Informatik", "Schwimmen"));
+		rootNode.assertFacts(student.newFact("Lydia", 4L, "Anglizistik", "Musik"));
 		final FactIdentifier[] erik =
-				rootNode.assertFact(student.newFact("Erik", 2L, "Informatik", "Rätsel"));
-		rootNode.assertFact(prof.newFact("Prof. Dr. Ashcroft", "Geschichte"));
+				rootNode.assertFacts(student.newFact("Erik", 2L, "Informatik", "Rätsel"));
+		rootNode.assertFacts(prof.newFact("Prof. Dr. Ashcroft", "Geschichte"));
 		final FactIdentifier[] timmes =
-				rootNode.assertFact(prof.newFact("Prof. Dr. Timmes", "Informatik"));
+				rootNode.assertFacts(prof.newFact("Prof. Dr. Timmes", "Informatik"));
 		final FactIdentifier[] santana =
-				rootNode.assertFact(prof.newFact("Prof. Dr. Santana", "Biologie"));
+				rootNode.assertFacts(prof.newFact("Prof. Dr. Santana", "Biologie"));
 		final FactIdentifier[] kappa =
-				rootNode.assertFact(prof.newFact("Prof. Dr. Kappa", "Informatik"));
+				rootNode.assertFacts(prof.newFact("Prof. Dr. Kappa", "Informatik"));
 
 		scheduler.run();
 		conflictSet.deleteRevokedEntries();
@@ -197,9 +197,9 @@ public class TokenProcessingTest {
 					assertsAndRetracts.getAsserts());
 		}
 
-		rootNode.retractFact(timmes);
-		rootNode.retractFact(santana);
-		rootNode.retractFact(kappa);
+		rootNode.retractFacts(timmes);
+		rootNode.retractFacts(santana);
+		rootNode.retractFacts(kappa);
 
 		scheduler.run();
 		conflictSet.deleteRevokedEntries();
@@ -210,9 +210,9 @@ public class TokenProcessingTest {
 					assertsAndRetracts.getAsserts());
 		}
 
-		rootNode.retractFact(simon);
-		rootNode.retractFact(erik);
-		rootNode.retractFact(rachel);
+		rootNode.retractFacts(simon);
+		rootNode.retractFacts(erik);
+		rootNode.retractFacts(rachel);
 
 		scheduler.run();
 		conflictSet.deleteRevokedEntries();
@@ -271,17 +271,17 @@ public class TokenProcessingTest {
 				+ otn2.getOutgoingExistentialEdges().size());
 
 		// \forall t1 \exists t2 : t1.1 == t2.1 \wedge t2.2 == false
-		rootNode.assertFact(t1.newFact("a", 1L));
-		rootNode.assertFact(t1.newFact("b", 2L));
-		rootNode.assertFact(t1.newFact("c", 3L));
-		rootNode.assertFact(t1.newFact("a", 4L));
-		rootNode.assertFact(t1.newFact("b", 5L));
-		rootNode.assertFact(t1.newFact("c", 6L));
+		rootNode.assertFacts(t1.newFact("a", 1L));
+		rootNode.assertFacts(t1.newFact("b", 2L));
+		rootNode.assertFacts(t1.newFact("c", 3L));
+		rootNode.assertFacts(t1.newFact("a", 4L));
+		rootNode.assertFacts(t1.newFact("b", 5L));
+		rootNode.assertFacts(t1.newFact("c", 6L));
 
-		rootNode.assertFact(t2.newFact("a", true));
-		rootNode.assertFact(t2.newFact("a", true));
-		rootNode.assertFact(t2.newFact("b", true));
-		rootNode.assertFact(t2.newFact("b", false));
+		rootNode.assertFacts(t2.newFact("a", true));
+		rootNode.assertFacts(t2.newFact("a", true));
+		rootNode.assertFacts(t2.newFact("b", true));
+		rootNode.assertFacts(t2.newFact("b", false));
 
 		// b 2 - b false
 		// b 4 - b false
@@ -353,17 +353,17 @@ public class TokenProcessingTest {
 				+ otn2.getOutgoingExistentialEdges().size());
 
 		// \forall t1 \not\exists t2 : t1.1 == t2.1 \wedge t2.2 == false
-		rootNode.assertFact(t1.newFact("a", 1L));
-		rootNode.assertFact(t1.newFact("b", 2L));
-		rootNode.assertFact(t1.newFact("c", 3L));
-		rootNode.assertFact(t1.newFact("a", 4L));
-		rootNode.assertFact(t1.newFact("b", 5L));
-		rootNode.assertFact(t1.newFact("c", 6L));
+		rootNode.assertFacts(t1.newFact("a", 1L));
+		rootNode.assertFacts(t1.newFact("b", 2L));
+		rootNode.assertFacts(t1.newFact("c", 3L));
+		rootNode.assertFacts(t1.newFact("a", 4L));
+		rootNode.assertFacts(t1.newFact("b", 5L));
+		rootNode.assertFacts(t1.newFact("c", 6L));
 
-		rootNode.assertFact(t2.newFact("a", true));
-		rootNode.assertFact(t2.newFact("a", true));
-		rootNode.assertFact(t2.newFact("b", true));
-		rootNode.assertFact(t2.newFact("b", false));
+		rootNode.assertFacts(t2.newFact("a", true));
+		rootNode.assertFacts(t2.newFact("a", true));
+		rootNode.assertFacts(t2.newFact("b", true));
+		rootNode.assertFacts(t2.newFact("b", false));
 
 		// a 1
 		// c 3
@@ -422,12 +422,12 @@ public class TokenProcessingTest {
 		final RootNode rootNode = network.getRootNode();
 		final ConflictSet conflictSet = network.getConflictSet();
 
-		rootNode.assertFact(student.newFact("Simon", 3L, "Informatik", "Schach"));
-		rootNode.assertFact(student.newFact("Rachel", 4L, "Informatik", "Coding"));
-		rootNode.assertFact(student.newFact("Mike", 5L, "Informatik", "Coding"));
-		rootNode.assertFact(student.newFact("Samuel", 7L, "Informatik", "Schwimmen"));
-		rootNode.assertFact(student.newFact("Lydia", 4L, "Anglizistik", "Musik"));
-		rootNode.assertFact(student.newFact("Erik", 2L, "Informatik", "Rätsel"));
+		rootNode.assertFacts(student.newFact("Simon", 3L, "Informatik", "Schach"));
+		rootNode.assertFacts(student.newFact("Rachel", 4L, "Informatik", "Coding"));
+		rootNode.assertFacts(student.newFact("Mike", 5L, "Informatik", "Coding"));
+		rootNode.assertFacts(student.newFact("Samuel", 7L, "Informatik", "Schwimmen"));
+		rootNode.assertFacts(student.newFact("Lydia", 4L, "Anglizistik", "Musik"));
+		rootNode.assertFacts(student.newFact("Erik", 2L, "Informatik", "Rätsel"));
 
 		// Erik - Simon
 		// Erik - Rachel
@@ -502,18 +502,18 @@ public class TokenProcessingTest {
 		final RootNode rootNode = network.getRootNode();
 		final ConflictSet conflictSet = network.getConflictSet();
 
-		rootNode.assertFact(student.newFact("Simon", 3L, "Informatik", "Schach"));
-		rootNode.assertFact(student.newFact("Rachel", 4L, "Informatik", "Coding"));
-		rootNode.assertFact(student.newFact("Mike", 5L, "Informatik", "Coding"));
-		rootNode.assertFact(student.newFact("Samuel", 7L, "Informatik", "Schwimmen"));
-		rootNode.assertFact(student.newFact("Lydia", 4L, "Anglizistik", "Musik"));
-		rootNode.assertFact(student.newFact("Erik", 2L, "Informatik", "Rätsel"));
-		rootNode.assertFact(prof.newFact("Prof. Dr. Ashcroft", "Geschichte"));
+		rootNode.assertFacts(student.newFact("Simon", 3L, "Informatik", "Schach"));
+		rootNode.assertFacts(student.newFact("Rachel", 4L, "Informatik", "Coding"));
+		rootNode.assertFacts(student.newFact("Mike", 5L, "Informatik", "Coding"));
+		rootNode.assertFacts(student.newFact("Samuel", 7L, "Informatik", "Schwimmen"));
+		rootNode.assertFacts(student.newFact("Lydia", 4L, "Anglizistik", "Musik"));
+		rootNode.assertFacts(student.newFact("Erik", 2L, "Informatik", "Rätsel"));
+		rootNode.assertFacts(prof.newFact("Prof. Dr. Ashcroft", "Geschichte"));
 		final FactIdentifier[] timmes =
-				rootNode.assertFact(prof.newFact("Prof. Dr. Timmes", "Informatik"));
+				rootNode.assertFacts(prof.newFact("Prof. Dr. Timmes", "Informatik"));
 		final FactIdentifier[] santana =
-				rootNode.assertFact(prof.newFact("Prof. Dr. Santana", "Biologie"));
-		rootNode.assertFact(prof.newFact("Prof. Dr. Kappa", "Informatik"));
+				rootNode.assertFacts(prof.newFact("Prof. Dr. Santana", "Biologie"));
+		rootNode.assertFacts(prof.newFact("Prof. Dr. Kappa", "Informatik"));
 
 		scheduler.run();
 		{
@@ -534,8 +534,8 @@ public class TokenProcessingTest {
 					assertsAndRetracts.getRetracts());
 		}
 
-		rootNode.retractFact(timmes);
-		rootNode.retractFact(santana);
+		rootNode.retractFacts(timmes);
+		rootNode.retractFacts(santana);
 
 		scheduler.run();
 		{
@@ -599,21 +599,21 @@ public class TokenProcessingTest {
 		final RootNode rootNode = network.getRootNode();
 		final ConflictSet conflictSet = network.getConflictSet();
 
-		rootNode.assertFact(student.newFact("Simon", 3L, "Informatik", "Schach"));
-		rootNode.assertFact(student.newFact("Rachel", 4L, "Informatik", "Coding"));
-		rootNode.assertFact(student.newFact("Mike", 5L, "Informatik", "Coding"));
-		rootNode.assertFact(student.newFact("Samuel", 7L, "Informatik", "Schwimmen"));
-		rootNode.assertFact(student.newFact("Lydia", 4L, "Anglizistik", "Musik"));
-		rootNode.assertFact(student.newFact("Erik", 2L, "Informatik", "Rätsel"));
-		rootNode.assertFact(prof.newFact("Prof. Dr. Ashcroft", "Geschichte"));
+		rootNode.assertFacts(student.newFact("Simon", 3L, "Informatik", "Schach"));
+		rootNode.assertFacts(student.newFact("Rachel", 4L, "Informatik", "Coding"));
+		rootNode.assertFacts(student.newFact("Mike", 5L, "Informatik", "Coding"));
+		rootNode.assertFacts(student.newFact("Samuel", 7L, "Informatik", "Schwimmen"));
+		rootNode.assertFacts(student.newFact("Lydia", 4L, "Anglizistik", "Musik"));
+		rootNode.assertFacts(student.newFact("Erik", 2L, "Informatik", "Rätsel"));
+		rootNode.assertFacts(prof.newFact("Prof. Dr. Ashcroft", "Geschichte"));
 		final FactIdentifier[] timmes =
-				rootNode.assertFact(prof.newFact("Prof. Dr. Timmes", "Informatik"));
+				rootNode.assertFacts(prof.newFact("Prof. Dr. Timmes", "Informatik"));
 		final FactIdentifier[] santana =
-				rootNode.assertFact(prof.newFact("Prof. Dr. Santana", "Biologie"));
-		rootNode.assertFact(prof.newFact("Prof. Dr. Kappa", "Informatik"));
+				rootNode.assertFacts(prof.newFact("Prof. Dr. Santana", "Biologie"));
+		rootNode.assertFacts(prof.newFact("Prof. Dr. Kappa", "Informatik"));
 
-		rootNode.retractFact(timmes);
-		rootNode.retractFact(santana);
+		rootNode.retractFacts(timmes);
+		rootNode.retractFacts(santana);
 
 		// as the retractions kill Dr. Timmes before he leaves the OTN, we don't even get retracts
 		// in our conflict set
@@ -663,14 +663,14 @@ public class TokenProcessingTest {
 		network.buildRule(filter);
 		final RootNode rootNode = network.getRootNode();
 
-		rootNode.assertFact(t1.newFact(12L, "Micky"));
-		rootNode.assertFact(t1.newFact(-2L, "Micky"));
-		rootNode.assertFact(t2.newFact(2.1, "Micky"));
-		rootNode.assertFact(t2.newFact(-3., "Micky"));
-		rootNode.assertFact(t1.newFact(12L, "Sunny"));
-		rootNode.assertFact(t1.newFact(-2L, "Becky"));
-		rootNode.assertFact(t2.newFact(2.1, "Nelly"));
-		rootNode.assertFact(t2.newFact(-3., "Harry"));
+		rootNode.assertFacts(t1.newFact(12L, "Micky"));
+		rootNode.assertFacts(t1.newFact(-2L, "Micky"));
+		rootNode.assertFacts(t2.newFact(2.1, "Micky"));
+		rootNode.assertFacts(t2.newFact(-3., "Micky"));
+		rootNode.assertFacts(t1.newFact(12L, "Sunny"));
+		rootNode.assertFacts(t1.newFact(-2L, "Becky"));
+		rootNode.assertFacts(t2.newFact(2.1, "Nelly"));
+		rootNode.assertFacts(t2.newFact(-3., "Harry"));
 
 		scheduler.run();
 		final ConflictSet conflictSet = network.getConflictSet();
@@ -720,19 +720,19 @@ public class TokenProcessingTest {
 		network.buildRule(filter);
 
 		// false == 5 < 3
-		network.getRootNode().assertFact(t1.newFact(5L, "5L&FALSE", false));
+		network.getRootNode().assertFacts(t1.newFact(5L, "5L&FALSE", false));
 		// true != 5 < 3
-		network.getRootNode().assertFact(t1.newFact(5L, "5L&TRUE", true));
+		network.getRootNode().assertFacts(t1.newFact(5L, "5L&TRUE", true));
 		// true == 2 < 3
-		network.getRootNode().assertFact(t1.newFact(2L, "2L&TRUE", true));
+		network.getRootNode().assertFacts(t1.newFact(2L, "2L&TRUE", true));
 		// false != 2 < 3
-		network.getRootNode().assertFact(t1.newFact(2L, "2L&FALSE", false));
+		network.getRootNode().assertFacts(t1.newFact(2L, "2L&FALSE", false));
 		// true == -80 < 3
-		network.getRootNode().assertFact(t1.newFact(-80L, "-80L&TRUE", true));
+		network.getRootNode().assertFacts(t1.newFact(-80L, "-80L&TRUE", true));
 		// false != -80 < 3
-		network.getRootNode().assertFact(t1.newFact(-80L, "-80L&FALSE", false));
+		network.getRootNode().assertFacts(t1.newFact(-80L, "-80L&FALSE", false));
 		// false != 0 < 3
-		network.getRootNode().assertFact(t1.newFact(0L, "0L&FALSE", false));
+		network.getRootNode().assertFacts(t1.newFact(0L, "0L&FALSE", false));
 
 		scheduler.run();
 
@@ -771,13 +771,13 @@ public class TokenProcessingTest {
 		final TerminalNode terminalNode = new TerminalNode(network, alphaNode);
 		AssertsAndRetracts assertsAndRetracts;
 
-		rootNode.assertFact(t1.newFact(5L, "5L&FALSE", false));
-		rootNode.assertFact(t1.newFact(5L, "5L&TRUE", true));
-		rootNode.assertFact(t1.newFact(2L, "2L&TRUE", true));
-		rootNode.assertFact(t1.newFact(2L, "2L&FALSE", false));
-		rootNode.assertFact(t1.newFact(-80L, "-80L&TRUE", true));
-		rootNode.assertFact(t1.newFact(-80L, "-80L&FALSE", false));
-		final FactIdentifier[] t10lfalse = rootNode.assertFact(t1.newFact(0L, "0L&FALSE", false));
+		rootNode.assertFacts(t1.newFact(5L, "5L&FALSE", false));
+		rootNode.assertFacts(t1.newFact(5L, "5L&TRUE", true));
+		rootNode.assertFacts(t1.newFact(2L, "2L&TRUE", true));
+		rootNode.assertFacts(t1.newFact(2L, "2L&FALSE", false));
+		rootNode.assertFacts(t1.newFact(-80L, "-80L&TRUE", true));
+		rootNode.assertFacts(t1.newFact(-80L, "-80L&FALSE", false));
+		final FactIdentifier[] t10lfalse = rootNode.assertFacts(t1.newFact(0L, "0L&FALSE", false));
 		scheduler.run();
 
 		assertEquals("Amount of facts in otn does not match expected count!", 7, otn.getMemory()
@@ -790,7 +790,7 @@ public class TokenProcessingTest {
 		assertEquals("Amount of retracts does not match expected count!", 0,
 				assertsAndRetracts.getRetracts());
 
-		rootNode.retractFact(t10lfalse);
+		rootNode.retractFacts(t10lfalse);
 		scheduler.run();
 
 		assertEquals("Amount of facts in otn does not match expected count!", 6, otn.getMemory()
@@ -803,7 +803,8 @@ public class TokenProcessingTest {
 		assertEquals("Amount of retracts does not match expected count!", 1,
 				assertsAndRetracts.getRetracts());
 
-		final FactIdentifier[] t10lfalse_2 = rootNode.assertFact(t1.newFact(0L, "0L&FALSE", false));
+		final FactIdentifier[] t10lfalse_2 =
+				rootNode.assertFacts(t1.newFact(0L, "0L&FALSE", false));
 		scheduler.run();
 
 		assertEquals("Amount of facts in otn does not match expected count!", 7, otn.getMemory()
@@ -816,7 +817,7 @@ public class TokenProcessingTest {
 		assertEquals("Amount of retracts does not match expected count!", 1,
 				assertsAndRetracts.getRetracts());
 
-		rootNode.retractFact(t10lfalse_2);
+		rootNode.retractFacts(t10lfalse_2);
 		scheduler.run();
 
 		assertEquals("Amount of facts in otn does not match expected count!", 6, otn.getMemory()
@@ -855,16 +856,16 @@ public class TokenProcessingTest {
 		@SuppressWarnings("unused")
 		final TerminalNode terminalNode = new TerminalNode(network, alphaNode);
 
-		rootNode.assertFact(t1.newFact(5L, "5L&FALSE", false));
-		rootNode.assertFact(t1.newFact(5L, "5L&TRUE", true));
-		rootNode.assertFact(t1.newFact(2L, "2L&TRUE", true));
-		rootNode.assertFact(t1.newFact(2L, "2L&FALSE", false));
-		rootNode.assertFact(t1.newFact(-80L, "-80L&TRUE", true));
-		rootNode.assertFact(t1.newFact(-80L, "-80L&FALSE", false));
-		final FactIdentifier[] f1 = rootNode.assertFact(t1.newFact(0L, "0L&FALSE", false));
-		rootNode.retractFact(f1);
-		final FactIdentifier[] f2 = rootNode.assertFact(t1.newFact(0L, "0L&FALSE", false));
-		rootNode.retractFact(f2);
+		rootNode.assertFacts(t1.newFact(5L, "5L&FALSE", false));
+		rootNode.assertFacts(t1.newFact(5L, "5L&TRUE", true));
+		rootNode.assertFacts(t1.newFact(2L, "2L&TRUE", true));
+		rootNode.assertFacts(t1.newFact(2L, "2L&FALSE", false));
+		rootNode.assertFacts(t1.newFact(-80L, "-80L&TRUE", true));
+		rootNode.assertFacts(t1.newFact(-80L, "-80L&FALSE", false));
+		final FactIdentifier[] f1 = rootNode.assertFacts(t1.newFact(0L, "0L&FALSE", false));
+		rootNode.retractFacts(f1);
+		final FactIdentifier[] f2 = rootNode.assertFacts(t1.newFact(0L, "0L&FALSE", false));
+		rootNode.retractFacts(f2);
 		scheduler.run();
 
 		assertEquals("Amount of facts in otn does not match expected count!", 6, otn.getMemory()
@@ -907,41 +908,41 @@ public class TokenProcessingTest {
 		final RootNode rootNode = network.getRootNode();
 
 		// false == 5 < 3
-		rootNode.assertFact(t1.newFact(5L, "5L&FALSE", false));
+		rootNode.assertFacts(t1.newFact(5L, "5L&FALSE", false));
 		// true != 5 < 3
-		rootNode.assertFact(t1.newFact(5L, "5L&TRUE", true));
+		rootNode.assertFacts(t1.newFact(5L, "5L&TRUE", true));
 		// true == 2 < 3
-		final FactIdentifier[] f2 = rootNode.assertFact(t1.newFact(2L, "2L&TRUE", true));
+		final FactIdentifier[] f2 = rootNode.assertFacts(t1.newFact(2L, "2L&TRUE", true));
 		// false != 2 < 3
-		rootNode.assertFact(t1.newFact(2L, "2L&FALSE", false));
+		rootNode.assertFacts(t1.newFact(2L, "2L&FALSE", false));
 		// true == -80 < 3
-		final FactIdentifier[] f3 = rootNode.assertFact(t1.newFact(-80L, "-80L&TRUE", true));
+		final FactIdentifier[] f3 = rootNode.assertFacts(t1.newFact(-80L, "-80L&TRUE", true));
 		// false != -80 < 3
-		rootNode.assertFact(t1.newFact(-80L, "-80L&FALSE", false));
+		rootNode.assertFacts(t1.newFact(-80L, "-80L&FALSE", false));
 		// false != 0 < 3
-		rootNode.assertFact(t1.newFact(0L, "0L&FALSE", false));
+		rootNode.assertFacts(t1.newFact(0L, "0L&FALSE", false));
 
 		// remove and re-add valid fact
 		// false == 5 < 3
-		final FactIdentifier[] f1 = rootNode.assertFact(t1.newFact(5L, "5L&FALSE", false));
+		final FactIdentifier[] f1 = rootNode.assertFacts(t1.newFact(5L, "5L&FALSE", false));
 		// false == 5 < 3
-		rootNode.retractFact(f1);
+		rootNode.retractFacts(f1);
 
 		// remove valid fact
 		// true == 2 < 3
-		rootNode.retractFact(f2);
+		rootNode.retractFacts(f2);
 
 		// remove, re-add and remove valid fact
 		// true == -80 < 3
-		rootNode.retractFact(f3);
+		rootNode.retractFacts(f3);
 		// true == -80 < 3
-		final FactIdentifier[] f4 = rootNode.assertFact(t1.newFact(-80L, "-80L&TRUE", true));
+		final FactIdentifier[] f4 = rootNode.assertFacts(t1.newFact(-80L, "-80L&TRUE", true));
 		// true == -80 < 3
-		rootNode.retractFact(f4);
+		rootNode.retractFacts(f4);
 
 		// remove invalid fact
 		// false != -80 < 3
-		rootNode.retractFact(f4);
+		rootNode.retractFacts(f4);
 
 		scheduler.run();
 		final ConflictSet conflictSet = network.getConflictSet();

@@ -260,12 +260,12 @@ public class Network {
 		return new TerminalNode(this, lowestNode);
 	}
 
-	public FactIdentifier[] assertFact(final Fact fact) {
-		return rootNode.assertFact(fact);
+	public FactIdentifier[] assertFacts(final Fact... facts) {
+		return rootNode.assertFacts(facts);
 	}
 
-	public void retractFact(final FactIdentifier factIdentifier) {
-		rootNode.retractFact(factIdentifier);
+	public void retractFacts(final FactIdentifier... factIdentifiers) {
+		rootNode.retractFacts(factIdentifiers);
 	}
 
 	/**
