@@ -870,7 +870,7 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 							.stream(node, 0)
 							.map(n -> SelectiveSFPVisitor.sendVisitor(
 									new SFPConditionalElementVisitor(contextStack, null), n, data).resultCE)
-							.collect(Collectors.toList());
+							.filter(Objects::nonNull).collect(Collectors.toList());
 			final int size = elements.size();
 			if (size == 1) {
 				this.resultCE = elements.get(0);
@@ -890,7 +890,8 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 							.stream(node, 0)
 							.map(n -> SelectiveSFPVisitor.sendVisitor(
 									new SFPConditionalElementVisitor(contextStack, (Symbol) null),
-									n, data).resultCE).collect(Collectors.toList());
+									n, data).resultCE).filter(Objects::nonNull)
+							.collect(Collectors.toList());
 			final int size = elements.size();
 			if (size == 1) {
 				this.resultCE = elements.get(0);
@@ -956,7 +957,8 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 								.stream(node, 0)
 								.map(n -> SelectiveSFPVisitor.sendVisitor(
 										new SFPConditionalElementVisitor(contextStack, null), n,
-										data).resultCE).collect(Collectors.toList());
+										data).resultCE).filter(Objects::nonNull)
+								.collect(Collectors.toList());
 				assert this.containsTemplateCE;
 				this.resultCE = new ExistentialConditionalElement(elements, variables);
 			}
