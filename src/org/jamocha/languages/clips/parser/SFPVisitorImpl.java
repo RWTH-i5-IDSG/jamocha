@@ -970,6 +970,8 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 		@Override
 		public Object visit(final SFPForallCE child, final Object data) {
 			final SimpleNode node = (SimpleNode) child.jjtGetParent();
+			// find index of child in parent
+			// initialize with invalid value
 			int i = -1;
 			for (int j = 0; j < node.jjtGetNumChildren(); ++j) {
 				if (node.jjtGetChild(j) == child) {
@@ -977,6 +979,7 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 					break;
 				}
 			}
+			// verify that child is a child of its parent, thus we found its position
 			assert -1 != i;
 			final SimpleNode outerNot = new SFPNotFunction(SFPParserTreeConstants.JJTNOTFUNCTION);
 			node.jjtAddChild(outerNot, i);
