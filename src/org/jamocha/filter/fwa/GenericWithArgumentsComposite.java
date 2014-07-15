@@ -14,6 +14,8 @@
  */
 package org.jamocha.filter.fwa;
 
+import static java.util.stream.Collectors.joining;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -96,15 +98,10 @@ public abstract class GenericWithArgumentsComposite<R, F extends Function<? exte
 	public String toString() {
 		final StringBuilder sb = new StringBuilder();
 		sb.append(this.function.toString());
-		sb.append("(");
-		if (this.args.length > 0) {
-			sb.append(this.args[0].toString());
-		}
-		for (int i = 1; i < this.args.length; ++i) {
-			sb.append(", ");
-			sb.append(this.args[i].toString());
-		}
-		sb.append(")");
+		sb.append('(');
+		sb.append(Arrays.stream(this.args).map(FunctionWithArguments::toString)
+				.collect(joining(", ")));
+		sb.append(')');
 		return sb.toString();
 	}
 
@@ -186,15 +183,8 @@ public abstract class GenericWithArgumentsComposite<R, F extends Function<? exte
 
 	@Override
 	public R evaluate(final Object... params) {
-		// return
-		// lazyEvaluate(Arrays.stream(params).map(LazyObject::new).toArray(LazyObject[]::new))
-		// .evaluate();
-		final int len = params.length;
-		final LazyObject[] lazyParams = new LazyObject[len];
-		for (int i = 0; i < len; ++i) {
-			lazyParams[i] = new LazyObject(params[i]);
-		}
-		return lazyEvaluate(lazyParams).evaluate();
+		return lazyEvaluate(Arrays.stream(params).map(LazyObject::new).toArray(LazyObject[]::new))
+				.evaluate();
 	}
 
 	@Override
