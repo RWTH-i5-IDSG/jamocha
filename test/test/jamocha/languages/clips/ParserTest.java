@@ -297,7 +297,7 @@ public class ParserTest {
 			final SingleVariable var = list.get(0);
 			assertEquals("?z", var.getSymbol().getImage());
 			assertFalse(var.isNegated());
-			assertEquals(null, var.getType());
+			assertEquals(SlotType.FACTADDRESS, var.getType());
 			assertEquals(null, var.getSlot());
 			final Template template = symbolTableTemplates.get(getSymbol(visitor, "f2"));
 			assertEquals(template, var.getTemplate());
