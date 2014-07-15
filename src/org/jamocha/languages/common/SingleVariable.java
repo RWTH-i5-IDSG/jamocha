@@ -19,6 +19,7 @@ import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NonNull;
 
 import org.jamocha.dn.memory.SlotAddress;
 import org.jamocha.dn.memory.SlotType;
@@ -35,7 +36,9 @@ import org.jamocha.languages.common.ScopeStack.Symbol;
 @AllArgsConstructor
 @EqualsAndHashCode
 public class SingleVariable implements Expression {
+	@NonNull
 	final Symbol symbol;
+	@NonNull
 	final Template template;
 	final SlotAddress slot;
 	// occurrence of symbol was negated by ~
@@ -47,6 +50,6 @@ public class SingleVariable implements Expression {
 
 	@Override
 	public SlotType getType() {
-		return Optional.ofNullable(slot).map(template::getSlotType).orElse(null);
+		return Optional.ofNullable(slot).map(template::getSlotType).orElse(SlotType.FACTADDRESS);
 	}
 }
