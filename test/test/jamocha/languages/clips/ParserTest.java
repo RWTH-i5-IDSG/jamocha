@@ -15,6 +15,9 @@
 package test.jamocha.languages.clips;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.hasSize;
 import static org.jamocha.util.ToArray.toArray;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -40,6 +43,8 @@ import org.jamocha.languages.clips.parser.generated.SFPParser;
 import org.jamocha.languages.clips.parser.generated.SFPStart;
 import org.jamocha.languages.common.ConditionalElement;
 import org.jamocha.languages.common.ConditionalElement.AndFunctionConditionalElement;
+import org.jamocha.languages.common.ConditionalElement.InitialFactConditionalElement;
+import org.jamocha.languages.common.ConditionalElement.NegatedExistentialConditionalElement;
 import org.jamocha.languages.common.ConditionalElement.OrFunctionConditionalElement;
 import org.jamocha.languages.common.ConditionalElement.TestConditionalElement;
 import org.jamocha.languages.common.Constant;
@@ -48,9 +53,9 @@ import org.jamocha.languages.common.FunctionCall;
 import org.jamocha.languages.common.NameClashError;
 import org.jamocha.languages.common.RuleCondition;
 import org.jamocha.languages.common.ScopeStack.Symbol;
-import org.jamocha.languages.common.errors.VariableNotDeclaredError;
 import org.jamocha.languages.common.SingleVariable;
 import org.jamocha.languages.common.Warning;
+import org.jamocha.languages.common.errors.VariableNotDeclaredError;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -458,6 +463,120 @@ public class ParserTest {
 				final Expression secondArg = arguments.get(1);
 				assertThat(secondArg, instanceOf(Constant.class));
 				assertEquals(5L, ((Constant) secondArg).getValue());
+			}
+		}
+	}
+
+	@Test
+	public void testComplexRule() throws ParseException {
+		final Reader parserInput =
+				new StringReader(
+						"(deftemplate f1 (slot s1 (type INTEGER))(slot s2 (type FLOAT)))\n"
+								+ "(deftemplate f2 (slot s1 (type INTEGER))(slot s2 (type FLOAT)))\n"
+								+ "(defrule r1 (not (and (f1 (s1 ?x) (s2 ?y)) (not (f2 (s1 ?x))) (test (>= ?y 0.5)) )) =>)\n");
+		final SFPParser parser = new SFPParser(parserInput);
+		final SFPVisitorImpl visitor = new SFPVisitorImpl(new Network());
+		run(parser, visitor);
+		final HashMap<Symbol, Template> symbolTableTemplates = visitor.getSymbolTableTemplates();
+		{
+			final Template template = symbolTableTemplates.get(getSymbol(visitor, "f1"));
+			assertEquals(SlotType.LONG, template.getSlotType(template.getSlotAddress("s1")));
+			assertEquals(SlotType.DOUBLE, template.getSlotType(template.getSlotAddress("s2")));
+		}
+		{
+			final Template template = symbolTableTemplates.get(getSymbol(visitor, "f2"));
+			assertEquals(SlotType.LONG, template.getSlotType(template.getSlotAddress("s1")));
+			assertEquals(SlotType.DOUBLE, template.getSlotType(template.getSlotAddress("s2")));
+		}
+		final RuleCondition condition =
+				visitor.getSymbolTableRules().get(getSymbol(visitor, "r1")).getCondition();
+		final Map<Symbol, List<SingleVariable>> variables = condition.getVariables();
+		final SingleVariable x1, x2, y;
+		{
+			final List<SingleVariable> list = variables.get(getSymbol(variables.keySet(), "?x"));
+			assertNotNull(list);
+			assertThat(list, hasSize(2));
+			{
+				final SingleVariable var = list.get(0);
+				assertEquals("?x", var.getSymbol().getImage());
+				assertFalse(var.isNegated());
+				assertEquals(SlotType.LONG, var.getType());
+				final Template template = symbolTableTemplates.get(getSymbol(visitor, "f1"));
+				assertEquals(template, var.getTemplate());
+				assertEquals(template.getSlotAddress("s1"), var.getSlot());
+				x1 = var;
+			}
+			{
+				final SingleVariable var = list.get(1);
+				assertEquals("?x", var.getSymbol().getImage());
+				assertFalse(var.isNegated());
+				assertEquals(SlotType.LONG, var.getType());
+				final Template template = symbolTableTemplates.get(getSymbol(visitor, "f2"));
+				assertEquals(template, var.getTemplate());
+				assertEquals(template.getSlotAddress("s1"), var.getSlot());
+				x2 = var;
+			}
+		}
+		{
+			final List<SingleVariable> list = variables.get(getSymbol(variables.keySet(), "?y"));
+			assertNotNull(list);
+			assertThat(list, hasSize(1));
+			final SingleVariable var = list.get(0);
+			assertEquals("?y", var.getSymbol().getImage());
+			assertFalse(var.isNegated());
+			assertEquals(SlotType.DOUBLE, var.getType());
+			final Template template = symbolTableTemplates.get(getSymbol(visitor, "f1"));
+			assertEquals(template, var.getTemplate());
+			assertEquals(template.getSlotAddress("s2"), var.getSlot());
+			y = var;
+		}
+		final List<ConditionalElement> conditionalElements = condition.getConditionalElements();
+		assertThat(conditionalElements, hasSize(2));
+		{
+			final ConditionalElement conditionalElement = conditionalElements.get(0);
+			assertThat(conditionalElement, instanceOf(InitialFactConditionalElement.class));
+		}
+		{
+			final ConditionalElement conditionalElement = conditionalElements.get(1);
+			assertThat(conditionalElement, instanceOf(NegatedExistentialConditionalElement.class));
+			final NegatedExistentialConditionalElement negatedExistentialConditionalElement =
+					(NegatedExistentialConditionalElement) conditionalElement;
+			assertThat(negatedExistentialConditionalElement.getVariables(),
+					containsInAnyOrder(x1, y));
+			final List<ConditionalElement> negChildren =
+					negatedExistentialConditionalElement.getChildren();
+			assertThat(negChildren, hasSize(1));
+			final ConditionalElement negChild = negChildren.get(0);
+			assertThat(negChild, instanceOf(AndFunctionConditionalElement.class));
+			final List<ConditionalElement> andChildren =
+					((AndFunctionConditionalElement) negChild).getChildren();
+			assertThat(andChildren, hasSize(2));
+			{
+				final ConditionalElement child = andChildren.get(0);
+				assertThat(child, instanceOf(NegatedExistentialConditionalElement.class));
+				final NegatedExistentialConditionalElement innerNegExCE =
+						(NegatedExistentialConditionalElement) child;
+				assertThat(innerNegExCE.getChildren(), hasSize(0));
+				assertThat(innerNegExCE.getVariables(), contains(x2));
+			}
+			{
+				final ConditionalElement child = andChildren.get(1);
+				assertThat(child, instanceOf(TestConditionalElement.class));
+				final TestConditionalElement testCE = (TestConditionalElement) child;
+				assertThat(testCE.getChildren(), hasSize(0));
+				final FunctionCall functionCall = testCE.getFunctionCall();
+				final Function<?> function = functionCall.getFunction();
+				assertEquals(FunctionDictionary.lookup(
+						org.jamocha.filter.impls.predicates.GreaterOrEqual.inClips,
+						SlotType.DOUBLE, SlotType.DOUBLE), function);
+				final List<? extends Expression> arguments = functionCall.getArguments();
+				assertThat(arguments, hasSize(2));
+				final Expression firstArg = arguments.get(0);
+				assertThat(firstArg, instanceOf(SingleVariable.class));
+				assertEquals(y, (SingleVariable) firstArg);
+				final Expression secondArg = arguments.get(1);
+				assertThat(secondArg, instanceOf(Constant.class));
+				assertEquals(0.5, ((Constant) secondArg).getValue());
 			}
 		}
 	}
