@@ -23,7 +23,7 @@ import java.util.stream.Stream;
  */
 public class ToArray {
 	public static <T> T[] toArray(final Collection<T> list, final IntFunction<T[]> gen) {
-		return toArray(list.stream(), gen);
+		return list.toArray(gen.apply(list.size()));
 	}
 
 	public static <T> T[] toArray(final Stream<T> stream, final IntFunction<T[]> gen) {
