@@ -364,7 +364,7 @@ public class MemoryHandlerTempTest {
 		assertEquals(1, memoryHandlerMain.size());
 		final Node node4 = new NodeMockup(Network.DEFAULTNETWORK, 4, Template.STRING);
 		new NodeMockup(Network.DEFAULTNETWORK, 999, node4);
-		memoryHandlerTemp = memoryHandlerMain.newPlusToken(node4, Template.STRING.newFact("Test"));
+		memoryHandlerTemp = memoryHandlerMain.newPlusToken(node4, Template.STRING.newFact("Test2"));
 		assertEquals(1, memoryHandlerMain.size());
 		memoryHandlerTemp.getLeft().releaseLock();
 		assertEquals(1, memoryHandlerMain.size());
