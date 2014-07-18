@@ -64,7 +64,7 @@ public class MemoryHandlerMinusTemp extends MemoryHandlerTemp implements
 				memoryHandlerMain, relevantFactTuples, relevantFactTuples, factAddresses);
 	}
 
-	private static JamochaArray<Row> getRemainingFactTuples(final JamochaArray<Row> originalFacts,
+	static JamochaArray<Row> getRemainingFactTuples(final JamochaArray<Row> originalFacts,
 			final JamochaArray<Row> minusFacts, final FactAddress[] factAddresses,
 			final boolean[] marked, final EqualityChecker equalityChecker) {
 		return getRemainingFactTuples(originalFacts, nullConsumer, minusFacts, factAddresses,

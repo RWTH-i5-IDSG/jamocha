@@ -220,9 +220,37 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 			memoryFacts[i] = memoryFact;
 			factList.add(originatingMainHandler.newRow(new Fact[] { memoryFact }));
 		}
+		final JamochaArray<Row> filterDuplicates =
+				filterDuplicates(originatingMainHandler, factList, memoryFacts);
 		return Pair.of(
-				new MemoryHandlerPlusTemp(originatingMainHandler, factList, otn
+				new MemoryHandlerPlusTemp(originatingMainHandler, filterDuplicates, otn
 						.getNumberOfOutgoingEdges(), canOmitSemaphore(otn)), memoryFacts);
+	}
+
+	static JamochaArray<Row> filterDuplicates(final MemoryHandlerMain targetMain,
+			final JamochaArray<Row> toFilter, final MemoryFact[] memoryFacts) {
+		final boolean marked[] = new boolean[toFilter.size()];
+		boolean filtered = false;
+		{
+			final JamochaArray<Row> remainingFactTuples =
+					MemoryHandlerMinusTemp.getRemainingFactTuples(targetMain.validRows, toFilter,
+							(FactAddress[]) null, marked, EqualityChecker.root);
+			filtered |= (remainingFactTuples.size() != targetMain.validRows.size());
+		}
+		for (final MemoryHandlerPlusTemp temp : targetMain.getValidOutgoingPlusTokens()) {
+			final JamochaArray<Row> remainingFactTuples =
+					MemoryHandlerMinusTemp.getRemainingFactTuples(temp.getFiltered(), toFilter,
+							(FactAddress[]) null, marked, EqualityChecker.root);
+			filtered |= (remainingFactTuples.size() != targetMain.validRows.size());
+		}
+		if (!filtered) {
+			return toFilter;
+		}
+		for (int i = 0; i < marked.length; ++i) {
+			if (marked[i])
+				memoryFacts[i] = null;
+		}
+		return toFilter;
 	}
 
 	static abstract class StackElement {
