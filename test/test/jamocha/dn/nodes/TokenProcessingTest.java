@@ -908,7 +908,7 @@ public class TokenProcessingTest {
 		final RootNode rootNode = network.getRootNode();
 
 		// false == 5 < 3
-		rootNode.assertFacts(t1.newFact(5L, "5L&FALSE", false));
+		final FactIdentifier[] f1 = rootNode.assertFacts(t1.newFact(5L, "5L&FALSE", false));
 		// true != 5 < 3
 		rootNode.assertFacts(t1.newFact(5L, "5L&TRUE", true));
 		// true == 2 < 3
@@ -924,9 +924,9 @@ public class TokenProcessingTest {
 
 		// remove and re-add valid fact
 		// false == 5 < 3
-		final FactIdentifier[] f1 = rootNode.assertFacts(t1.newFact(5L, "5L&FALSE", false));
-		// false == 5 < 3
 		rootNode.retractFacts(f1);
+		// false == 5 < 3
+		rootNode.assertFacts(t1.newFact(5L, "5L&FALSE", false));
 
 		// remove valid fact
 		// true == 2 < 3
