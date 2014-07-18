@@ -140,7 +140,12 @@ public abstract class GenericWithArgumentsComposite<R, F extends Function<? exte
 
 	@Override
 	public Function<R> lazyEvaluate(final Function<?>... params) {
-		final F function = this.function;
+		return staticLazyEvaluate(function::evaluate, function.inClips(), args, params);
+	}
+
+	static <R> Function<R> staticLazyEvaluate(
+			final java.util.function.Function<Function<?>[], R> function, final String inClips,
+			final FunctionWithArguments[] args, final Function<?>[] params) {
 		return new Function<R>() {
 			@Override
 			public SlotType[] getParamTypes() {
@@ -155,22 +160,21 @@ public abstract class GenericWithArgumentsComposite<R, F extends Function<? exte
 
 			@Override
 			public String inClips() {
-				return "LazyFunction[" + function.inClips() + "]";
+				return "LazyFunction[" + inClips + "]";
 			}
 
 			@Override
 			public R evaluate(final Function<?>... innerParams) {
-				final FunctionWithArguments[] savedArgs = GenericWithArgumentsComposite.this.args;
-				final Function<?> evaluatableArgs[] = new Function<?>[savedArgs.length];
+				final Function<?> evaluatableArgs[] = new Function<?>[args.length];
 				int k = 0;
-				for (int i = 0; i < savedArgs.length; i++) {
-					final FunctionWithArguments fwa = savedArgs[i];
+				for (int i = 0; i < args.length; i++) {
+					final FunctionWithArguments fwa = args[i];
 					final SlotType[] types = fwa.getParamTypes();
 					evaluatableArgs[i] =
 							fwa.lazyEvaluate(Arrays.copyOfRange(params, k, k + types.length));
 					k += types.length;
 				}
-				return function.evaluate(evaluatableArgs);
+				return function.apply(evaluatableArgs);
 			}
 
 			@Override
@@ -183,7 +187,13 @@ public abstract class GenericWithArgumentsComposite<R, F extends Function<? exte
 
 	@Override
 	public R evaluate(final Object... params) {
-		return lazyEvaluate(Arrays.stream(params).map(LazyObject::new).toArray(LazyObject[]::new))
+		return staticEvaluate(this::lazyEvaluate, params);
+	}
+
+	static <R, F extends Function<? extends R>> R staticEvaluate(
+			final java.util.function.Function<Function<?>[], F> function, final Object[] params) {
+		return function
+				.apply(Arrays.stream(params).map(LazyObject::new).toArray(LazyObject[]::new))
 				.evaluate();
 	}
 

@@ -33,18 +33,23 @@ import org.jamocha.dn.nodes.Edge;
 import org.jamocha.dn.nodes.Node;
 import org.jamocha.dn.nodes.SlotInFactAddress;
 import org.jamocha.filter.AddressFilter.AddressFilterElement;
+import org.jamocha.filter.fwa.Assert;
 import org.jamocha.filter.fwa.ConstantLeaf;
 import org.jamocha.filter.fwa.FunctionWithArguments;
 import org.jamocha.filter.fwa.FunctionWithArgumentsComposite;
 import org.jamocha.filter.fwa.FunctionWithArgumentsVisitor;
 import org.jamocha.filter.fwa.GenericWithArgumentsComposite;
+import org.jamocha.filter.fwa.Modify;
 import org.jamocha.filter.fwa.PathLeaf;
 import org.jamocha.filter.fwa.PathLeaf.ParameterLeaf;
 import org.jamocha.filter.fwa.PredicateWithArgumentsComposite;
+import org.jamocha.filter.fwa.Retract;
+import org.jamocha.filter.fwa.SymbolLeaf;
 
 /**
- * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+ * Compares the Filters.
  * 
+ * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
 public class FilterFunctionCompare {
 	@RequiredArgsConstructor
@@ -101,6 +106,31 @@ public class FilterFunctionCompare {
 
 		@Override
 		public void visit(FunctionWithArgumentsComposite functionWithArgumentsComposite) {
+			invalidate();
+		}
+
+		@Override
+		public void visit(Assert fwa) {
+			invalidate();
+		}
+
+		@Override
+		public void visit(Modify fwa) {
+			invalidate();
+		}
+
+		@Override
+		public void visit(Retract fwa) {
+			invalidate();
+		}
+
+		@Override
+		public void visit(Assert.TemplateContainer fwa) {
+			invalidate();
+		}
+
+		@Override
+		public void visit(SymbolLeaf fwa) {
 			invalidate();
 		}
 

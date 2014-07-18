@@ -24,6 +24,7 @@ import lombok.NonNull;
 import org.jamocha.dn.memory.SlotAddress;
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.dn.memory.Template;
+import org.jamocha.filter.fwa.SymbolLeaf;
 import org.jamocha.languages.common.ScopeStack.Symbol;
 
 /**
@@ -35,7 +36,7 @@ import org.jamocha.languages.common.ScopeStack.Symbol;
 @Getter
 @AllArgsConstructor
 @EqualsAndHashCode
-public class SingleVariable implements Expression {
+public class SingleVariable {
 	@NonNull
 	final Symbol symbol;
 	@NonNull
@@ -48,8 +49,11 @@ public class SingleVariable implements Expression {
 		return null == slot;
 	}
 
-	@Override
 	public SlotType getType() {
 		return Optional.ofNullable(slot).map(template::getSlotType).orElse(SlotType.FACTADDRESS);
+	}
+
+	public SymbolLeaf toSymbolLeaf() {
+		return new SymbolLeaf(getSymbol(), getType(), getSlot());
 	}
 }

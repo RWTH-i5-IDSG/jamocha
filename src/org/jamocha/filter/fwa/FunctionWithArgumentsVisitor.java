@@ -17,4 +17,13 @@ public interface FunctionWithArgumentsVisitor extends Visitor {
 
 	public void visit(final PathLeaf pathLeaf);
 
+	public void visit(final Assert fwa);
+
+	public void visit(final Assert.TemplateContainer fwa);
+
+	public void visit(final Retract fwa);
+
+	public void visit(final Modify fwa);
+
+	public void visit(final SymbolLeaf fwa);
 }

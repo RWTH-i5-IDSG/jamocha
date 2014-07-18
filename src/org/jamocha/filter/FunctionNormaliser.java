@@ -16,15 +16,19 @@ package org.jamocha.filter;
 
 import java.util.Arrays;
 
+import org.jamocha.filter.fwa.Assert;
 import org.jamocha.filter.fwa.ConstantLeaf;
 import org.jamocha.filter.fwa.FunctionWithArguments;
 import org.jamocha.filter.fwa.FunctionWithArgumentsComposite;
 import org.jamocha.filter.fwa.FunctionWithArgumentsVisitor;
 import org.jamocha.filter.fwa.GenericWithArgumentsComposite;
+import org.jamocha.filter.fwa.Modify;
 import org.jamocha.filter.fwa.PathLeaf;
 import org.jamocha.filter.fwa.PathLeaf.ParameterLeaf;
 import org.jamocha.filter.fwa.PredicateWithArguments;
 import org.jamocha.filter.fwa.PredicateWithArgumentsComposite;
+import org.jamocha.filter.fwa.Retract;
+import org.jamocha.filter.fwa.SymbolLeaf;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -38,18 +42,16 @@ public class FunctionNormaliser {
 	}
 
 	private static class FWANormaliser implements FunctionWithArgumentsVisitor {
-		private void handle(final GenericWithArgumentsComposite<?, ?> gwac) {
+		private static void handle(final GenericWithArgumentsComposite<?, ?> gwac) {
 			if (!(gwac.getFunction() instanceof CommutativeFunction<?>)) {
 				return;
 			}
-			final FunctionWithArguments[] args = gwac.getArgs();
-			Arrays.stream(args).forEach((final FunctionWithArguments fwa) -> {
-				fwa.accept(new FWANormaliser());
-			});
-			Arrays.<FunctionWithArguments> sort(args, (final FunctionWithArguments a,
-					final FunctionWithArguments b) -> {
-				return Integer.compare(a.hash(), b.hash());
-			});
+			handleArgs(gwac.getArgs());
+		}
+
+		private static void handleArgs(final FunctionWithArguments[] args) {
+			Arrays.stream(args).forEach(fwa -> fwa.accept(new FWANormaliser()));
+			Arrays.<FunctionWithArguments> sort(args, (a, b) -> Integer.compare(a.hash(), b.hash()));
 		}
 
 		@Override
@@ -73,6 +75,30 @@ public class FunctionNormaliser {
 		@Override
 		public void visit(final PathLeaf pathLeaf) {
 		}
-	}
 
+		@Override
+		public void visit(final Assert fwa) {
+			handleArgs(fwa.getArgs());
+		}
+
+		@Override
+		public void visit(final Assert.TemplateContainer fwa) {
+			// don't permute the order of the template container args, as they are the objects
+			// passed to the ctor of the fact
+		}
+
+		@Override
+		public void visit(final Modify fwa) {
+			// TODO Auto-generated method stub
+
+		}
+
+		@Override
+		public void visit(final Retract fwa) {
+		}
+
+		@Override
+		public void visit(final SymbolLeaf fwa) {
+		}
+	}
 }

@@ -20,12 +20,6 @@ import org.jamocha.visitor.Visitor;
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
 public interface FunctionVisitor extends Visitor {
-
-	// specials
-	void visit(final org.jamocha.filter.impls.specials.Assert function);
-
-	// void visit(final org.jamocha.filter.impls.specials.Retract function);
-
 	// functions
 	void visit(final org.jamocha.filter.impls.functions.DividedBy<?> function);
 

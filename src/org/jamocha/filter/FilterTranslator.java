@@ -17,6 +17,7 @@ package org.jamocha.filter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Set;
+import java.util.function.IntFunction;
 import java.util.stream.Collectors;
 
 import org.jamocha.dn.memory.CounterColumn;
@@ -26,14 +27,18 @@ import org.jamocha.dn.nodes.SlotInFactAddress;
 import org.jamocha.filter.AddressFilter.AddressFilterElement;
 import org.jamocha.filter.AddressFilter.ExistentialAddressFilterElement;
 import org.jamocha.filter.PathFilter.PathFilterElement;
+import org.jamocha.filter.fwa.Assert;
 import org.jamocha.filter.fwa.ConstantLeaf;
 import org.jamocha.filter.fwa.FunctionWithArguments;
 import org.jamocha.filter.fwa.FunctionWithArgumentsComposite;
 import org.jamocha.filter.fwa.FunctionWithArgumentsVisitor;
+import org.jamocha.filter.fwa.Modify;
 import org.jamocha.filter.fwa.PathLeaf;
 import org.jamocha.filter.fwa.PathLeaf.ParameterLeaf;
 import org.jamocha.filter.fwa.PredicateWithArguments;
 import org.jamocha.filter.fwa.PredicateWithArgumentsComposite;
+import org.jamocha.filter.fwa.Retract;
+import org.jamocha.filter.fwa.SymbolLeaf;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -84,18 +89,24 @@ public class FilterTranslator {
 				counterColumn);
 	}
 
-	private static FunctionWithArguments[] translateArgs(
-			final FunctionWithArguments[] originalArgs,
-			final Collection<SlotInFactAddress> addresses) {
+	@SuppressWarnings("unchecked")
+	private static <T extends FunctionWithArguments> T[] translateArgs(final T[] originalArgs,
+			final Collection<SlotInFactAddress> addresses, final IntFunction<T[]> array) {
 		final int numArgs = originalArgs.length;
-		final FunctionWithArguments[] translatedArgs = new FunctionWithArguments[numArgs];
+		final T[] translatedArgs = array.apply(numArgs);
 		for (int i = 0; i < numArgs; ++i) {
-			final FunctionWithArguments originalArg = originalArgs[i];
+			final T originalArg = originalArgs[i];
 			translatedArgs[i] =
-					originalArg.accept(new FunctionWithArgumentsTranslator(addresses))
+					(T) originalArg.accept(new FunctionWithArgumentsTranslator(addresses))
 							.getFunctionWithArguments();
 		}
 		return translatedArgs;
+	}
+
+	private static FunctionWithArguments[] translateArgs(
+			final FunctionWithArguments[] originalArgs,
+			final Collection<SlotInFactAddress> addresses) {
+		return translateArgs(originalArgs, addresses, FunctionWithArguments[]::new);
 	}
 
 	/**
@@ -145,6 +156,35 @@ public class FilterTranslator {
 					"PredicateWithArgumentsTranslator is only to be used with PredicateWithArguments!");
 		}
 
+		@Override
+		public void visit(final Assert fwa) {
+			throw new UnsupportedOperationException(
+					"PredicateWithArgumentsTranslator is only to be used with PredicateWithArguments!");
+		}
+
+		@Override
+		public void visit(final Assert.TemplateContainer fwa) {
+			throw new UnsupportedOperationException(
+					"PredicateWithArgumentsTranslator is only to be used with PredicateWithArguments!");
+		}
+
+		@Override
+		public void visit(final Retract fwa) {
+			throw new UnsupportedOperationException(
+					"PredicateWithArgumentsTranslator is only to be used with PredicateWithArguments!");
+		}
+
+		@Override
+		public void visit(final Modify fwa) {
+			throw new UnsupportedOperationException(
+					"PredicateWithArgumentsTranslator is only to be used with PredicateWithArguments!");
+		}
+
+		@Override
+		public void visit(final SymbolLeaf fwa) {
+			throw new UnsupportedOperationException(
+					"PredicateWithArgumentsTranslator is only to be used with PredicateWithArguments!");
+		}
 	}
 
 	/**
@@ -197,6 +237,37 @@ public class FilterTranslator {
 					.getSlot()));
 			this.functionWithArguments =
 					new ParameterLeaf(pathLeaf.getReturnType(), pathLeaf.hash());
+		}
+
+		@Override
+		public void visit(final SymbolLeaf fwa) {
+			throw new UnsupportedOperationException(
+					"At this point, the Filter should already have been translated to a PathFilter!");
+		}
+
+		@Override
+		public void visit(final Assert fwa) {
+			this.functionWithArguments =
+					new Assert(fwa.getNetwork(), translateArgs(fwa.getArgs(), this.addresses,
+							Assert.TemplateContainer[]::new));
+		}
+
+		@Override
+		public void visit(final Modify fwa) {
+			// TODO Auto-generated method stub
+
+		}
+
+		@Override
+		public void visit(final Retract fwa) {
+			this.functionWithArguments = new Retract(fwa.getNetwork(), fwa.getParamTypes());
+		}
+
+		@Override
+		public void visit(final Assert.TemplateContainer fwa) {
+			this.functionWithArguments =
+					new Assert.TemplateContainer(fwa.getTemplate(), translateArgs(fwa.getArgs(),
+							this.addresses));
 		}
 	}
 }

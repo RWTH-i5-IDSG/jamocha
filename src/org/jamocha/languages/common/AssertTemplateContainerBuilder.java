@@ -21,8 +21,8 @@ import lombok.Value;
 
 import org.jamocha.dn.memory.SlotAddress;
 import org.jamocha.dn.memory.Template;
+import org.jamocha.filter.fwa.Assert;
 import org.jamocha.filter.fwa.FunctionWithArguments;
-import org.jamocha.filter.impls.specials.Assert;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>

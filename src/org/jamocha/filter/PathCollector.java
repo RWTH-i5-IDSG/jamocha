@@ -21,13 +21,17 @@ import java.util.LinkedHashSet;
 import java.util.LinkedList;
 
 import org.jamocha.filter.PathFilter.PathFilterElement;
+import org.jamocha.filter.fwa.Assert;
 import org.jamocha.filter.fwa.ConstantLeaf;
 import org.jamocha.filter.fwa.FunctionWithArguments;
 import org.jamocha.filter.fwa.FunctionWithArgumentsComposite;
 import org.jamocha.filter.fwa.FunctionWithArgumentsVisitor;
+import org.jamocha.filter.fwa.Modify;
 import org.jamocha.filter.fwa.PathLeaf;
 import org.jamocha.filter.fwa.PathLeaf.ParameterLeaf;
 import org.jamocha.filter.fwa.PredicateWithArgumentsComposite;
+import org.jamocha.filter.fwa.Retract;
+import org.jamocha.filter.fwa.SymbolLeaf;
 
 /**
  * Collects all paths used within the filter.
@@ -113,5 +117,35 @@ public class PathCollector<T extends Collection<Path>> implements FunctionWithAr
 	@Override
 	public void visit(final PathLeaf pathLeaf) {
 		this.getPaths().add(pathLeaf.getPath());
+	}
+
+	@Override
+	public void visit(final Assert fwa) {
+		for (final FunctionWithArguments child : fwa.getArgs()) {
+			child.accept(this);
+		}
+	}
+
+	@Override
+	public void visit(final Modify fwa) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void visit(final Retract fwa) {
+	}
+
+	@Override
+	public void visit(final SymbolLeaf fwa) {
+		throw new IllegalArgumentException(
+				"There should not be SymbolLeafs in the argument to PathCollector!");
+	}
+
+	@Override
+	public void visit(final Assert.TemplateContainer fwa) {
+		for (final FunctionWithArguments child : fwa.getArgs()) {
+			child.accept(this);
+		}
 	}
 }

@@ -15,8 +15,10 @@
 package org.jamocha.filter;
 
 import java.util.Arrays;
+import java.util.function.IntFunction;
 
 import org.jamocha.dn.memory.SlotType;
+import org.jamocha.filter.fwa.Assert;
 import org.jamocha.filter.fwa.FunctionWithArguments;
 import org.jamocha.filter.fwa.FunctionWithArgumentsComposite;
 import org.jamocha.filter.fwa.FunctionWithArgumentsVisitor;
@@ -41,10 +43,13 @@ public class UniformFunctionTranslator {
 	private static class DeepCopy implements FunctionWithArgumentsVisitor {
 		FunctionWithArguments result;
 
+		private static <T extends FunctionWithArguments> T[] copyArgs(final T[] args,
+				final IntFunction<T[]> gen) {
+			return Arrays.stream(args).map(fwa -> fwa.accept(new DeepCopy()).result).toArray(gen);
+		}
+
 		private static FunctionWithArguments[] copyArgs(final FunctionWithArguments[] args) {
-			return Arrays.stream(args).map((final FunctionWithArguments fwa) -> {
-				return fwa.accept(new DeepCopy()).result;
-			}).toArray(FunctionWithArguments[]::new);
+			return copyArgs(args, FunctionWithArguments[]::new);
 		}
 
 		@Override
@@ -84,6 +89,37 @@ public class UniformFunctionTranslator {
 			this.result =
 					new org.jamocha.filter.fwa.PathLeaf(pathLeaf.getPath(), pathLeaf.getSlot());
 		}
+
+		@Override
+		public void visit(final org.jamocha.filter.fwa.Assert fwa) {
+			this.result =
+					new org.jamocha.filter.fwa.Assert(fwa.getNetwork(), copyArgs(fwa.getArgs(),
+							Assert.TemplateContainer[]::new));
+		}
+
+		@Override
+		public void visit(final org.jamocha.filter.fwa.Assert.TemplateContainer fwa) {
+			this.result =
+					new org.jamocha.filter.fwa.Assert.TemplateContainer(fwa.getTemplate(),
+							copyArgs(fwa.getArgs()));
+		}
+
+		@Override
+		public void visit(final org.jamocha.filter.fwa.Modify fwa) {
+			this.result = new org.jamocha.filter.fwa.Modify();
+		}
+
+		@Override
+		public void visit(final org.jamocha.filter.fwa.Retract fwa) {
+			this.result = new org.jamocha.filter.fwa.Retract(fwa.getNetwork(), fwa.getParamTypes());
+		}
+
+		@Override
+		public void visit(final org.jamocha.filter.fwa.SymbolLeaf fwa) {
+			this.result =
+					new org.jamocha.filter.fwa.SymbolLeaf(fwa.getSymbol(), fwa.getReturnType(),
+							fwa.getSlot());
+		}
 	}
 
 	static interface SelectiveFunctionWithArgumentsVisitor extends FunctionWithArgumentsVisitor {
@@ -108,14 +144,29 @@ public class UniformFunctionTranslator {
 		@Override
 		public default void visit(final org.jamocha.filter.fwa.PathLeaf pathLeaf) {
 		}
+
+		@Override
+		public default void visit(final org.jamocha.filter.fwa.Assert fwa) {
+		}
+
+		@Override
+		public default void visit(final org.jamocha.filter.fwa.Assert.TemplateContainer fwa) {
+		}
+
+		@Override
+		public default void visit(final org.jamocha.filter.fwa.Modify fwa) {
+		}
+
+		@Override
+		public default void visit(final org.jamocha.filter.fwa.Retract fwa) {
+		}
+
+		@Override
+		public default void visit(final org.jamocha.filter.fwa.SymbolLeaf fwa) {
+		}
 	}
 
 	static interface SelectiveFunctionVisitor extends FunctionVisitor {
-		// specials
-		@Override
-		default void visit(final org.jamocha.filter.impls.specials.Assert function) {
-		}
-
 		// functions
 		@Override
 		default void visit(final org.jamocha.filter.impls.functions.DividedBy<?> function) {

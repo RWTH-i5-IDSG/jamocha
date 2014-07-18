@@ -20,6 +20,8 @@ import java.util.List;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+import org.jamocha.filter.fwa.FunctionWithArguments;
+
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
@@ -53,11 +55,11 @@ public class ConditionalElement {
 
 	public static class TestConditionalElement extends ConditionalElement {
 		@Getter
-		final FunctionCall functionCall;
+		final FunctionWithArguments fwa;
 
-		public TestConditionalElement(final FunctionCall functionCall) {
+		public TestConditionalElement(final FunctionWithArguments fwa) {
 			super(new ArrayList<>());
-			this.functionCall = functionCall;
+			this.fwa = fwa;
 		}
 	}
 
