@@ -17,66 +17,77 @@ package org.jamocha.filter.fwa;
 import static org.jamocha.util.ToArray.toArray;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.NonNull;
 
 import org.jamocha.dn.Network;
 import org.jamocha.dn.memory.FactIdentifier;
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.filter.Function;
+import org.jamocha.filter.impls.FunctionVisitor;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
-@RequiredArgsConstructor
-public class Retract implements FunctionWithArguments {
+public class Retract extends GenericWithArgumentsComposite<Object, Function<?>> {
 	@Getter
+	@NonNull
 	final Network network;
-	@Getter(onMethod = @__(@Override))
-	final SlotType[] paramTypes;
 
-	@Override
-	public SlotType getReturnType() {
-		// TBD should we really use nil here for void?
-		// could use boolean - true for success
-		return SlotType.NIL;
+	public Retract(final Network network, final FunctionWithArguments... args) {
+		super(new Function<Object>() {
+			@Getter(lazy = true, onMethod = @__(@Override))
+			private final SlotType[] paramTypes = calculateParamTypes();
+
+			private SlotType[] calculateParamTypes() {
+				return GenericWithArgumentsComposite.calculateParamTypes(args);
+			}
+
+			@Override
+			public <V extends FunctionVisitor> V accept(V visitor) {
+				throw new UnsupportedOperationException(
+						"You can not visit the internal retract function!");
+			}
+
+			@Override
+			public SlotType getReturnType() {
+				return SlotType.NIL;
+			}
+
+			@Override
+			public String inClips() {
+				return "retract";
+			}
+
+			@Override
+			public Object evaluate(final Function<?>... params) {
+				network.retractFacts(toArray(Arrays.stream(params).map(Retract::toFactIdentifier),
+						FactIdentifier[]::new));
+				return null;
+			}
+
+		}, args);
+		this.network = Objects.requireNonNull(network);
 	}
 
-	private static FactIdentifier toFactIdentifier(final Function<?> param) {
+	static {
+		assert FactIdentifier.class == SlotType.FACTADDRESS.getJavaClass();
+	}
+
+	static FactIdentifier toFactIdentifier(final Function<?> param) {
 		if (SlotType.LONG == param.getReturnType()) {
 			final int id = ((Long) param.evaluate()).intValue();
 			return new FactIdentifier(id);
 		}
 		assert param.getReturnType() == SlotType.FACTADDRESS;
-		assert FactIdentifier.class == SlotType.FACTADDRESS.getJavaClass();
 		return ((FactIdentifier) param.evaluate());
-	}
-
-	private static final GenericWithArgumentsComposite.LazyObject nullLazyObject =
-			new GenericWithArgumentsComposite.LazyObject(null);
-
-	@Override
-	public Function<?> lazyEvaluate(final Function<?>... params) {
-		this.network.retractFacts(toArray(Arrays.stream(params).map(Retract::toFactIdentifier),
-				FactIdentifier[]::new));
-		return nullLazyObject;
-	}
-
-	@Override
-	public Object evaluate(final Object... params) {
-		return GenericWithArgumentsComposite.staticEvaluate(this::lazyEvaluate, params);
 	}
 
 	@Override
 	public <T extends FunctionWithArgumentsVisitor> T accept(final T visitor) {
 		visitor.visit(this);
 		return visitor;
-	}
-
-	@Override
-	public int hashPositionIsIrrelevant() {
-		// TODO Auto-generated method stub
-		return 0;
 	}
 }
