@@ -247,15 +247,14 @@ public class BetaNodeTest {
 		Set<Path> joinedWith = new HashSet<>();
 		joinedWith.add(p1);
 		p1.setCurrentlyLowestNode(otn);
-		p1.setFactAddressInCurrentlyLowestNode(null);
+		p1.setFactAddressInCurrentlyLowestNode(new org.jamocha.dn.memory.javaimpl.FactAddress(0));
 		p1.setJoinedWith(joinedWith);
 		joinedWith = new HashSet<>();
 		joinedWith.add(p2);
 		p2.setCurrentlyLowestNode(otn);
-		p2.setFactAddressInCurrentlyLowestNode(null);
+		p2.setFactAddressInCurrentlyLowestNode(new org.jamocha.dn.memory.javaimpl.FactAddress(0));
 		p2.setJoinedWith(joinedWith);
-		// next line will cause assertion failure when trying to localize
-		// FactAddressInCurrentlyLowestNode downwards for p1 and p2
+		otn.shareNode(p1, p2);
 		BetaNode beta =
 				new BetaNode(Network.DEFAULTNETWORK, new FilterMockup(true, new PathAndSlotAddress(
 						p1, s1), new PathAndSlotAddress(p2, s1)));
