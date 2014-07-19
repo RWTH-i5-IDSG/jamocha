@@ -14,6 +14,8 @@
  */
 package org.jamocha.filter;
 
+import static org.jamocha.util.ToArray.toArray;
+
 import java.util.Arrays;
 import java.util.function.IntFunction;
 
@@ -23,6 +25,7 @@ import org.jamocha.filter.fwa.FunctionWithArguments;
 import org.jamocha.filter.fwa.FunctionWithArgumentsComposite;
 import org.jamocha.filter.fwa.FunctionWithArgumentsVisitor;
 import org.jamocha.filter.fwa.GenericWithArgumentsComposite;
+import org.jamocha.filter.fwa.Modify.SlotAndValue;
 import org.jamocha.filter.fwa.PredicateWithArguments;
 import org.jamocha.filter.fwa.PredicateWithArgumentsComposite;
 import org.jamocha.filter.impls.FunctionVisitor;
@@ -106,12 +109,18 @@ public class UniformFunctionTranslator {
 
 		@Override
 		public void visit(final org.jamocha.filter.fwa.Modify fwa) {
-			this.result = new org.jamocha.filter.fwa.Modify();
+			this.result =
+					new org.jamocha.filter.fwa.Modify(fwa.getNetwork(), fwa.getTargetFact().accept(
+							new DeepCopy()).result, toArray(
+							Arrays.stream(fwa.getArgs()).map(
+									sav -> new SlotAndValue(sav.getSlotName(), sav.getValue()
+											.accept(new DeepCopy()).result)), SlotAndValue[]::new));
 		}
 
 		@Override
 		public void visit(final org.jamocha.filter.fwa.Retract fwa) {
-			this.result = new org.jamocha.filter.fwa.Retract(fwa.getNetwork(), fwa.getParamTypes());
+			this.result =
+					new org.jamocha.filter.fwa.Retract(fwa.getNetwork(), copyArgs(fwa.getArgs()));
 		}
 
 		@Override
