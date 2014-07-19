@@ -81,6 +81,30 @@ public interface Template {
 	public Fact newFact(final Map<SlotAddress, Object> valuesMap);
 
 	/**
+	 * 
+	 * @param fact
+	 * @param slot
+	 * @param value
+	 */
+	public void setValue(final Fact fact, final SlotAddress slot, final Object value);
+
+	/**
+	 * 
+	 * @param fact
+	 * @param slot
+	 * @return
+	 */
+	public Object getValue(final Fact fact, final SlotAddress slot);
+
+	/**
+	 * 
+	 * @param fact
+	 * @param slot
+	 * @return
+	 */
+	public Object getValue(final MemoryFact fact, final SlotAddress slot);
+
+	/**
 	 * Return a list of FunctionWithArguments which - after evaluation - can be used to construct an
 	 * instance of this template. This includes inserting default values where appropriate and
 	 * giving the return list the correct order.

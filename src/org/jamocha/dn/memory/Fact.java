@@ -37,4 +37,8 @@ public class Fact {
 	public Object getValue(final int index) {
 		return this.slotValues[index];
 	}
+
+	public void setValue(final int index, final Object value) {
+		this.slotValues[index] = value;
+	}
 }

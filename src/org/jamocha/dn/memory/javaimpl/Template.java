@@ -23,6 +23,7 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import org.jamocha.dn.memory.Fact;
+import org.jamocha.dn.memory.MemoryFact;
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.filter.fwa.FunctionWithArguments;
 
@@ -69,7 +70,7 @@ public class Template implements org.jamocha.dn.memory.Template {
 
 	@Override
 	public String getDescription() {
-		return description;
+		return this.description;
 	}
 
 	@Override
@@ -95,6 +96,24 @@ public class Template implements org.jamocha.dn.memory.Template {
 	}
 
 	@Override
+	public Object getValue(final MemoryFact fact, final org.jamocha.dn.memory.SlotAddress slot) {
+		return ((org.jamocha.dn.memory.javaimpl.Fact) fact).getValue(slot);
+	}
+
+	@Override
+	public Object getValue(final org.jamocha.dn.memory.Fact fact,
+			final org.jamocha.dn.memory.SlotAddress slot) {
+		return fact.getValue(((SlotAddress) slot).index);
+	}
+
+	@Override
+	public void setValue(final org.jamocha.dn.memory.Fact fact,
+			final org.jamocha.dn.memory.SlotAddress slot, final Object value) {
+		assert getSlotType(slot).getJavaClass().isInstance(value);
+		fact.setValue(((SlotAddress) slot).index, value);
+	}
+
+	@Override
 	public Fact newFact(final Map<org.jamocha.dn.memory.SlotAddress, Object> values) {
 		values.forEach((s, o) -> {
 			assert this.slotTypes[((SlotAddress) s).index].getJavaClass().isInstance(o);
@@ -115,7 +134,7 @@ public class Template implements org.jamocha.dn.memory.Template {
 	public FunctionWithArguments[] applyDefaultsAndOrder(
 			final Map<org.jamocha.dn.memory.SlotAddress, FunctionWithArguments> values) {
 		// TBD defaults
-		final FunctionWithArguments[] ret = new FunctionWithArguments[slotTypes.length];
+		final FunctionWithArguments[] ret = new FunctionWithArguments[this.slotTypes.length];
 		// as long as no default are implemented, check for complete specification of the values
 		assert values.keySet().containsAll(this.slotNames.values());
 		assert this.slotNames.values().containsAll(values.keySet());
