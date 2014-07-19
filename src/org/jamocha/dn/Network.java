@@ -24,6 +24,7 @@ import lombok.Getter;
 import org.jamocha.dn.memory.Fact;
 import org.jamocha.dn.memory.FactAddress;
 import org.jamocha.dn.memory.FactIdentifier;
+import org.jamocha.dn.memory.MemoryFact;
 import org.jamocha.dn.memory.MemoryFactory;
 import org.jamocha.dn.memory.MemoryHandlerMain;
 import org.jamocha.dn.memory.MemoryHandlerPlusTemp;
@@ -266,6 +267,10 @@ public class Network {
 
 	public void retractFacts(final FactIdentifier... factIdentifiers) {
 		rootNode.retractFacts(factIdentifiers);
+	}
+
+	public MemoryFact getMemoryFact(final int factIdentifier) {
+		return rootNode.getMemoryFact(factIdentifier);
 	}
 
 	/**

@@ -96,6 +96,10 @@ public class RootNode {
 				.collect(toList()));
 	}
 
+	public MemoryFact getMemoryFact(final int factIdentifier) {
+		return this.facts.get(Integer.valueOf(factIdentifier));
+	}
+
 	/**
 	 * Adds the given {@link ObjectTypeNode} to correspond to its {@link Template}.
 	 * 
