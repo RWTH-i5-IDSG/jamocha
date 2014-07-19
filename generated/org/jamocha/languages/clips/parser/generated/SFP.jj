@@ -2283,7 +2283,7 @@ SimpleNode ModifyPattern() :
 {/*@bgen(jjtree) ModifyPattern */
         try {
 /*@egen*/
-	Variable()
+	Expression()
 	(
 		RHSSlot()
 	)+/*@bgen(jjtree)*/

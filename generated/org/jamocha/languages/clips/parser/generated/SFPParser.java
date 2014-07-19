@@ -1931,7 +1931,7 @@ if (jjtc000) {
   boolean jjtc000 = true;
   jjtree.openNodeScope(jjtn000);
     try {
-      Variable();
+      Expression();
       label_9:
       while (true) {
         RHSSlot();
