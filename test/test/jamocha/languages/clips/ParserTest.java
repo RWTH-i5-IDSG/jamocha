@@ -193,9 +193,7 @@ public class ParserTest {
 		final SFPParser parser = new SFPParser(parserInput);
 		final SFPVisitorImpl visitor = new SFPVisitorImpl(new Network());
 		run(parser, visitor);
-		// change the assertion to =1,size() as soon as ActionList is implemented
-		// the only warning should be the one about ?x being redeclared
-		assertEquals(2, visitor.getWarnings().size());
+		assertEquals(1, visitor.getWarnings().size());
 	}
 
 	@Test(expected = VariableNotDeclaredError.class)
