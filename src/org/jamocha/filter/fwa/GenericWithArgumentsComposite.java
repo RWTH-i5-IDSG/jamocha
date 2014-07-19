@@ -79,7 +79,7 @@ public abstract class GenericWithArgumentsComposite<R, F extends Function<? exte
 		return FunctionWithArguments.hash(hashPIR, FunctionWithArguments.positionIsRelevant);
 	}
 
-	private SlotType[] calculateParamTypes() {
+	static SlotType[] calculateParamTypes(final FunctionWithArguments[] args) {
 		final ArrayList<SlotType> types = new ArrayList<>();
 		for (final FunctionWithArguments fwa : args) {
 			for (final SlotType type : fwa.getParamTypes()) {
@@ -87,6 +87,10 @@ public abstract class GenericWithArgumentsComposite<R, F extends Function<? exte
 			}
 		}
 		return types.toArray(new SlotType[types.size()]);
+	}
+
+	private SlotType[] calculateParamTypes() {
+		return calculateParamTypes(args);
 	}
 
 	@Override
