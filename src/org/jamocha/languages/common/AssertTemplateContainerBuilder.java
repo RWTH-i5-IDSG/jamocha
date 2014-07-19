@@ -23,6 +23,8 @@ import org.jamocha.dn.memory.SlotAddress;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.filter.fwa.Assert;
 import org.jamocha.filter.fwa.FunctionWithArguments;
+import org.jamocha.languages.common.errors.NoSlotForThatNameError;
+import org.jamocha.languages.common.errors.TypeMismatchError;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -35,7 +37,7 @@ public class AssertTemplateContainerBuilder {
 	public AssertTemplateContainerBuilder addValue(final SlotAddress slotAddress,
 			final FunctionWithArguments value) {
 		if (template.getSlotType(slotAddress) != value.getReturnType()) {
-			throw new IllegalArgumentException("Type mismatch!");
+			throw new TypeMismatchError(null);
 		}
 		this.values.put(slotAddress, value);
 		return this;
@@ -45,7 +47,7 @@ public class AssertTemplateContainerBuilder {
 			final FunctionWithArguments value) {
 		final SlotAddress slotAddress = template.getSlotAddress(slotName);
 		if (null == slotAddress) {
-			throw new IllegalArgumentException("No Slot with name " + slotName + "!");
+			throw new NoSlotForThatNameError("No Slot with name " + slotName + "!");
 		}
 		return addValue(slotAddress, value);
 	}
