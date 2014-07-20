@@ -92,7 +92,7 @@ public class RootNode {
 	}
 
 	public void retractFacts(final FactIdentifier... factIdentifiers) {
-		retractFacts(Arrays.stream(factIdentifiers).map(i -> facts.get(i.getId()))
+		retractFacts(Arrays.stream(factIdentifiers).map(i -> facts.remove(i.getId()))
 				.collect(toList()));
 	}
 
