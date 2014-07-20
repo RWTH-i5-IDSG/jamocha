@@ -18,6 +18,7 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatterBuilder;
 import java.time.temporal.ChronoField;
 import java.util.Arrays;
+import java.util.Objects;
 
 import org.jamocha.languages.common.ScopeStack.Symbol;
 
@@ -89,6 +90,13 @@ public enum SlotType {
 	@Override
 	public String toString() {
 		return this.name();
+	}
+
+	public String toString(final Object value) {
+		if (this == STRING) {
+			return "\"" + Objects.toString(value) + "\"";
+		}
+		return Objects.toString(value);
 	}
 
 	public static ZonedDateTime convert(final String image) {

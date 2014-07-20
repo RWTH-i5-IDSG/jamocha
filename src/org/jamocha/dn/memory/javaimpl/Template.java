@@ -140,8 +140,12 @@ public class Template implements org.jamocha.dn.memory.Template {
 				.stream()
 				.sorted((a, b) -> Integer.compare(a.getValue().index, b.getValue().index))
 				.forEach(
-						e -> builder.append(" (").append(e.getKey()).append(' ')
-								.append(slotValues[e.getValue().index]).append(')'));
+						e -> builder
+								.append(" (")
+								.append(e.getKey())
+								.append(' ')
+								.append(this.slotTypes[e.getValue().index].toString(slotValues[e
+										.getValue().index])).append(')'));
 		return builder.append(')').toString();
 
 	}
