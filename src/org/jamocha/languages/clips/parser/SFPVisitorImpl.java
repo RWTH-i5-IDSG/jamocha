@@ -1347,7 +1347,7 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 			final SlotType[] argTypes =
 					toArray(arguments.stream().map(e -> e.getReturnType()), SlotType[]::new);
 			final Function<?> function =
-					sideEffectsAllowed ? FunctionDictionary.lookupWithSideEffects(
+					sideEffectsAllowed ? FunctionDictionary.lookupWithSideEffects(network,
 							symbol.getImage(), argTypes) : FunctionDictionary.lookup(
 							symbol.getImage(), argTypes);
 			this.expression =
@@ -1553,6 +1553,9 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 		final SFPParser p = new SFPParser(System.in);
 		final Network network = new Network();
 		final SFPVisitorImpl visitor = new SFPVisitorImpl(network);
+		final Template initialFact = network.getMemoryFactory().newTemplate("initial-fact", "");
+		network.getRootNode().putOTN(new ObjectTypeNode(network, new Path(initialFact)));
+		network.assertFacts(initialFact.newFact());
 		try {
 			while (true) {
 				final SFPStart n = p.Start();

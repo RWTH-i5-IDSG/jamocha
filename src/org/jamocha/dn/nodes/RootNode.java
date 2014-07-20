@@ -20,9 +20,12 @@ import static java.util.stream.Collectors.toList;
 import static org.jamocha.util.ToArray.toArray;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -62,7 +65,7 @@ public class RootNode {
 		final FactIdentifier[] factIdentifiers = new FactIdentifier[length];
 		final Map<Fact, Integer> orderCache = new HashMap<>();
 		for (int i = 0; i < length; ++i) {
-			final int id = ++factIdentifierCounter;
+			final int id = factIdentifierCounter++;
 			factIdentifiers[i] = new FactIdentifier(id);
 			orderCache.put(facts[i], id);
 		}
@@ -124,6 +127,10 @@ public class RootNode {
 
 	public MemoryFact getMemoryFact(final int factIdentifier) {
 		return this.facts.get(Integer.valueOf(factIdentifier));
+	}
+
+	public Set<Entry<Integer, MemoryFact>> getMemoryFacts() {
+		return Collections.unmodifiableSet(this.facts.entrySet());
 	}
 
 	/**

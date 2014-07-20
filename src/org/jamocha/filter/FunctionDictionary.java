@@ -19,9 +19,11 @@ import java.util.HashMap;
 
 import lombok.Value;
 
+import org.jamocha.dn.Network;
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.filter.impls.Functions;
 import org.jamocha.filter.impls.Predicates;
+import org.jamocha.filter.impls.SideEffects;
 
 /**
  * This class gathers the implemented {@link Function Functions} and provides a
@@ -52,14 +54,13 @@ public class FunctionDictionary {
 			new HashMap<>();
 	private static final HashMap<CombinedClipsAndParams, VarargsFunctionGenerator> generators =
 			new HashMap<>();
-	private static final HashMap<CombinedClipsAndParams, Function<?>> clipsFunctionsWithSideEffects =
-			new HashMap<>();
-	private static final HashMap<CombinedClipsAndParams, VarargsFunctionGenerator> generatorsWithSideEffects =
+	private static final HashMap<CombinedClipsAndParams, FunctionWithSideEffectsGenerator> generatorsWithSideEffects =
 			new HashMap<>();
 
 	static {
 		addImpl(Predicates.class);
 		addImpl(Functions.class);
+		addImpl(SideEffects.class);
 		// specify further function packages here
 	}
 
@@ -85,15 +86,6 @@ public class FunctionDictionary {
 		}
 	}
 
-	private static <R, F extends Function<R>> F addImpl(
-			final HashMap<CombinedClipsAndParams, Function<?>> clipsFunctions, final F impl) {
-		if (null != clipsFunctions.put(
-				new CombinedClipsAndParams(impl.inClips(), impl.getParamTypes()), impl)) {
-			throw new IllegalArgumentException("Function " + impl.inClips() + " already defined!");
-		}
-		return impl;
-	}
-
 	/**
 	 * Adds a {@link Function} implementation to the lookup-map (will overwrite existing
 	 * implementations with the same name and argument types).
@@ -103,24 +95,14 @@ public class FunctionDictionary {
 	 * @return implementation to add
 	 */
 	public static <R, F extends Function<R>> F addImpl(final F impl) {
-		return addImpl(clipsFunctions, impl);
+		if (null != clipsFunctions.put(
+				new CombinedClipsAndParams(impl.inClips(), impl.getParamTypes()), impl)) {
+			throw new IllegalArgumentException("Function " + impl.inClips() + " already defined!");
+		}
+		return impl;
 	}
 
-	/**
-	 * Adds a {@link Function} implementation to the lookup-map (will overwrite existing
-	 * implementations with the same name and argument types).
-	 * 
-	 * @param impl
-	 *            implementation to add
-	 * @return implementation to add
-	 */
-	public static <R, F extends Function<R>> F addImplWithSideEffects(final F impl) {
-		return addImpl(clipsFunctionsWithSideEffects, impl);
-	}
-
-	private static void addGenerator(
-			final HashMap<CombinedClipsAndParams, VarargsFunctionGenerator> generators,
-			final String string, final SlotType types,
+	public static void addGenerator(final String string, final SlotType types,
 			final VarargsFunctionGenerator varargsFunctionGenerator) {
 		if (null != generators.put(new CombinedClipsAndParams(string, new SlotType[] { types }),
 				varargsFunctionGenerator)) {
@@ -128,21 +110,31 @@ public class FunctionDictionary {
 		}
 	}
 
-	public static void addGenerator(final String string, final SlotType types,
-			final VarargsFunctionGenerator varargsFunctionGenerator) {
-		addGenerator(generators, string, types, varargsFunctionGenerator);
+	public static void addGeneratorWithSideEffects(final String string, final SlotType[] types,
+			final FunctionWithSideEffectsGenerator varargsFunctionGenerator) {
+		if (null != generatorsWithSideEffects.put(new CombinedClipsAndParams(string, types),
+				varargsFunctionGenerator)) {
+			throw new IllegalArgumentException("Function " + string + " already defined!");
+		}
 	}
 
-	public static void addGeneratorWithSideEffects(final String string, final SlotType types,
-			final VarargsFunctionGenerator varargsFunctionGenerator) {
-		addGenerator(generatorsWithSideEffects, string, types, varargsFunctionGenerator);
-	}
-
+	/**
+	 * Looks up an implementation for the {@link Function} identified by its string representation
+	 * in CLIPS and its parameter types.
+	 * 
+	 * @param T
+	 *            return type of the function to look up
+	 * @param inClips
+	 *            string representation of the function in CLIPS
+	 * @param params
+	 *            parameter types
+	 * @return a matching @{link Function} implementation
+	 * @throws UnsupportedOperationException
+	 *             iff no {@link Function} implementation was found for the given string
+	 *             representation and parameter types
+	 */
 	@SuppressWarnings("unchecked")
-	private static <T> Function<T> lookup(
-			final HashMap<CombinedClipsAndParams, Function<?>> clipsFunctions,
-			final HashMap<CombinedClipsAndParams, VarargsFunctionGenerator> generators,
-			final String inClips, final SlotType... params) {
+	public static <T> Function<T> lookup(final String inClips, final SlotType... params) {
 		final Function<T> function =
 				(Function<T>) clipsFunctions.get(new CombinedClipsAndParams(inClips, params));
 		if (function != null)
@@ -165,25 +157,6 @@ public class FunctionDictionary {
 			}
 		}
 		throw new UnsupportedOperationException(unsupportedMsg(inClips, params));
-	}
-
-	/**
-	 * Looks up an implementation for the {@link Function} identified by its string representation
-	 * in CLIPS and its parameter types.
-	 * 
-	 * @param T
-	 *            return type of the function to look up
-	 * @param inClips
-	 *            string representation of the function in CLIPS
-	 * @param params
-	 *            parameter types
-	 * @return a matching @{link Function} implementation
-	 * @throws UnsupportedOperationException
-	 *             iff no {@link Function} implementation was found for the given string
-	 *             representation and parameter types
-	 */
-	public static <T> Function<T> lookup(final String inClips, final SlotType... params) {
-		return lookup(clipsFunctions, generators, inClips, params);
 	}
 
 	private static String unsupportedMsg(final String inClips, final SlotType[] params) {
@@ -210,12 +183,28 @@ public class FunctionDictionary {
 		return (Predicate) function;
 	}
 
-	public static <T> Function<T> lookupWithSideEffects(final String inClips,
-			final SlotType... params) {
+	@SuppressWarnings("unchecked")
+	public static <T> Function<T> lookupWithSideEffects(final Network network,
+			final String inClips, final SlotType... params) {
 		try {
-			return lookup(clipsFunctionsWithSideEffects, generatorsWithSideEffects, inClips, params);
-		} catch (UnsupportedOperationException e) {
-			return lookup(clipsFunctions, generators, inClips, params);
+			return lookup(inClips, params);
+		} catch (final UnsupportedOperationException e) {
+			// assert that all param types are the same
+			for (final SlotType param : params) {
+				if (param != params[0])
+					throw new UnsupportedOperationException(unsupportedMsg(inClips, params));
+			}
+			final FunctionWithSideEffectsGenerator varargsFunctionGenerator =
+					generatorsWithSideEffects.get(new CombinedClipsAndParams(inClips,
+							0 == params.length ? SlotType.empty : new SlotType[] { params[0] }));
+			if (null != varargsFunctionGenerator) {
+				final Function<T> generated =
+						(Function<T>) varargsFunctionGenerator.generate(network, params);
+				if (null != generated) {
+					return generated;
+				}
+			}
+			throw new UnsupportedOperationException(unsupportedMsg(inClips, params));
 		}
 	}
 }
