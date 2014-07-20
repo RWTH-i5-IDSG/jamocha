@@ -69,8 +69,12 @@ public class RootNode {
 			final MemoryFact[] mfs = this.templateToOTN.get(t).assertFact(fs);
 			IntStream.range(0, mfs.length).forEach(i -> {
 				final MemoryFact mf = mfs[i];
-				final Fact f = fs[i];
-				this.facts.put(orderCache.get(f), mf);
+				if (null == mf) {
+					factIdentifiers[i] = null;
+				} else {
+					final Fact f = fs[i];
+					this.facts.put(orderCache.get(f), mf);
+				}
 			});
 		});
 		return factIdentifiers;
