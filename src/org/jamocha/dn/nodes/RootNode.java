@@ -23,8 +23,10 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.jamocha.dn.Network;
 import org.jamocha.dn.memory.Fact;
 import org.jamocha.dn.memory.FactIdentifier;
@@ -77,6 +79,13 @@ public class RootNode {
 				}
 			});
 		});
+		for (final FactIdentifier id : factIdentifiers) {
+			if (null == id) {
+				System.out.println("FALSE");
+				continue;
+			}
+			System.out.println("==> f-" + id.getId() + "\t" + getMemoryFact(id.getId()).toString());
+		}
 		return factIdentifiers;
 	}
 
@@ -87,17 +96,30 @@ public class RootNode {
 	 * @param fact
 	 *            {@link Fact} to be retracted
 	 */
-	private void retractFacts(final List<MemoryFact> facts) {
-		facts.stream()
-				.collect(groupingBy(f -> f.getTemplate()))
+	private void retractFacts(final List<Pair<Integer, MemoryFact>> facts) {
+		final Map<Boolean, List<Pair<Integer, MemoryFact>>> partition =
+				facts.stream().collect(Collectors.partitioningBy(p -> null == p.getRight()));
+		partition.get(true).forEach(p -> {
+			System.err.println("Unable to find fact f-" + p.getLeft());
+		});
+		partition
+				.get(false)
+				.stream()
+				.collect(groupingBy(f -> f.getRight().getTemplate()))
 				.forEach(
-						(t, f) -> this.templateToOTN.get(t).retractFact(
-								toArray(f, MemoryFact[]::new)));
+						(t, f) -> {
+							this.templateToOTN.get(t).retractFact(
+									toArray(f.stream().map(Pair::getRight), MemoryFact[]::new));
+							for (final Pair<Integer, MemoryFact> p : f) {
+								System.out.println("<== f-" + p.getLeft() + "\t"
+										+ p.getRight().toString());
+							}
+						});
 	}
 
 	public void retractFacts(final FactIdentifier... factIdentifiers) {
-		retractFacts(Arrays.stream(factIdentifiers).map(i -> facts.remove(i.getId()))
-				.collect(toList()));
+		retractFacts(Arrays.stream(factIdentifiers)
+				.map(i -> Pair.of(i.getId(), facts.remove(i.getId()))).collect(toList()));
 	}
 
 	public MemoryFact getMemoryFact(final int factIdentifier) {
