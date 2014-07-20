@@ -77,12 +77,12 @@ public class Retract extends GenericWithArgumentsComposite<Object, Function<?>> 
 	}
 
 	static FactIdentifier toFactIdentifier(final Function<?> param) {
-		if (SlotType.LONG == param.getReturnType()) {
-			final int id = ((Long) param.evaluate()).intValue();
-			return new FactIdentifier(id);
+		final Object value = param.evaluate();
+		if (value instanceof Long) {
+			return new FactIdentifier(((Long) value).intValue());
 		}
 		assert param.getReturnType() == SlotType.FACTADDRESS;
-		return ((FactIdentifier) param.evaluate());
+		return ((FactIdentifier) value);
 	}
 
 	@Override
