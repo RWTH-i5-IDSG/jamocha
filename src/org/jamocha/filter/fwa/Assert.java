@@ -22,6 +22,7 @@ import java.util.Arrays;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 import lombok.Value;
 
 import org.jamocha.dn.Network;
@@ -37,6 +38,7 @@ import org.jamocha.filter.Function;
 public class Assert implements FunctionWithArguments {
 
 	@Value
+	@ToString(exclude = { "hashPIR", "hashPII" })
 	public static class TemplateContainer implements FunctionWithArguments {
 		final Template template;
 		final FunctionWithArguments[] args;
@@ -93,11 +95,9 @@ public class Assert implements FunctionWithArguments {
 
 		@Override
 		public Function<?> lazyEvaluate(final Function<?>... params) {
-			return new GenericWithArgumentsComposite.LazyObject(
-					GenericWithArgumentsComposite.staticLazyEvaluate(
-							fwas -> new GenericWithArgumentsComposite.LazyObject(template
-									.newFact(Arrays.stream(fwas).map(f -> f.evaluate()).toArray())),
-							"assert::templateContainer", args, params));
+			return GenericWithArgumentsComposite.staticLazyEvaluate(
+					fwas -> template.newFact(Arrays.stream(fwas).map(f -> f.evaluate()).toArray()),
+					"assert::templateContainer", args, params);
 		}
 
 		@Override
@@ -159,8 +159,9 @@ public class Assert implements FunctionWithArguments {
 	public Function<Object> lazyEvaluate(final Function<?>... params) {
 		return new GenericWithArgumentsComposite.LazyObject(GenericWithArgumentsComposite
 				.staticLazyEvaluate(
-						fs -> network.assertFacts(Arrays.stream(fs).map(f -> f.evaluate())
-								.toArray(Fact[]::new)), "assert", args, params).evaluate());
+						fs -> network.assertFacts(toArray(
+								Arrays.stream(fs).map(f -> (Fact) f.evaluate()), Fact[]::new)),
+						"assert", args, params).evaluate());
 	}
 
 	@Override
