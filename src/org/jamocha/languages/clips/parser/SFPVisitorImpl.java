@@ -1125,7 +1125,6 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 		public Object visit(final SFPSingleVariable node, final Object data) {
 			final Symbol symbol =
 					SelectiveSFPVisitor.sendVisitor(new SFPSingleVariableVisitor(), node, data).symbol;
-			// TBD this works for rules, do we need to adjust it for the other cases?
 			this.expression = this.mapper.apply(symbol, node);
 			return data;
 		}
