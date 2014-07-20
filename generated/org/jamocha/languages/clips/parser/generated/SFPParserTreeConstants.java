@@ -51,71 +51,70 @@ public interface SFPParserTreeConstants
   public int JJTDERIVEATTRIBUTE = 45;
   public int JJTNONEATTRIBUTE = 46;
   public int JJTDYNAMICATTRIBUTE = 47;
-  public int JJTMODIFYPATTERN = 48;
-  public int JJTRHSSLOT = 49;
-  public int JJTRHSPATTERN = 50;
-  public int JJTDEFRULECONSTRUCT = 51;
-  public int JJTACTIONLIST = 52;
-  public int JJTDECLARATION = 53;
-  public int JJTTEMPORALVALIDITYDECLARATION = 54;
-  public int JJTTEMPORALVALIDITY = 55;
-  public int JJTTAMILLISECOND = 56;
-  public int JJTTASECOND = 57;
-  public int JJTTAMINUTE = 58;
-  public int JJTTAHOUR = 59;
-  public int JJTTADAY = 60;
-  public int JJTTAMONTH = 61;
-  public int JJTTAYEAR = 62;
-  public int JJTTAWEEKDAY = 63;
-  public int JJTTADURATION = 64;
-  public int JJTSALIENCE = 65;
-  public int JJTAUTOFOCUS = 66;
-  public int JJTSLOWCOMPILE = 67;
-  public int JJTRULEVERSION = 68;
-  public int JJTNOTFUNCTION = 69;
-  public int JJTANDFUNCTION = 70;
-  public int JJTORFUNCTION = 71;
-  public int JJTASSIGNEDPATTERNCE = 72;
-  public int JJTLOGICALCE = 73;
-  public int JJTTESTCE = 74;
-  public int JJTEXISTSCE = 75;
-  public int JJTFORALLCE = 76;
-  public int JJTTEMPLATEPATTERNCE = 77;
-  public int JJTUNORDEREDLHSFACTBODY = 78;
-  public int JJTORDEREDLHSFACTBODY = 79;
-  public int JJTLHSSLOT = 80;
-  public int JJTSINGLEFIELDWILDCARD = 81;
-  public int JJTMULTIFIELDWILDCARD = 82;
-  public int JJTCONNECTEDCONSTRAINT = 83;
-  public int JJTAMPERSANDCONNECTEDCONSTRAINT = 84;
-  public int JJTLINECONNECTEDCONSTRAINT = 85;
-  public int JJTTERM = 86;
-  public int JJTNEGATION = 87;
-  public int JJTCOLON = 88;
-  public int JJTEQUALS = 89;
-  public int JJTDEFGLOBALCONSTRUCT = 90;
-  public int JJTGLOBALASSIGNMENT = 91;
-  public int JJTDEFFUNCTIONCONSTRUCT = 92;
-  public int JJTFUNCTIONGROUP = 93;
-  public int JJTDEFGENERICCONSTRUCT = 94;
-  public int JJTPARAMETERRESTRICTION = 95;
-  public int JJTWILDCARDPARAMETERRESTRICTION = 96;
-  public int JJTQUERY = 97;
-  public int JJTTYPEATTRIBUTE = 98;
-  public int JJTTYPESPECIFICATION = 99;
-  public int JJTALLOWEDCONSTANTATTRIBUTE = 100;
-  public int JJTSYMBOLLIST = 101;
-  public int JJTSTRINGLIST = 102;
-  public int JJTLEXEMELIST = 103;
-  public int JJTINTEGERLIST = 104;
-  public int JJTFLOATLIST = 105;
-  public int JJTNUMBERLIST = 106;
-  public int JJTVALUELIST = 107;
-  public int JJTRANGEATTRIBUTE = 108;
-  public int JJTRANGESPECIFICATION = 109;
-  public int JJTCARDINALITYATTRIBUTE = 110;
-  public int JJTCARDINALITYSPECIFICATION = 111;
-  public int JJTDEFMODULECONSTRUCT = 112;
+  public int JJTRHSSLOT = 48;
+  public int JJTRHSPATTERN = 49;
+  public int JJTDEFRULECONSTRUCT = 50;
+  public int JJTACTIONLIST = 51;
+  public int JJTDECLARATION = 52;
+  public int JJTTEMPORALVALIDITYDECLARATION = 53;
+  public int JJTTEMPORALVALIDITY = 54;
+  public int JJTTAMILLISECOND = 55;
+  public int JJTTASECOND = 56;
+  public int JJTTAMINUTE = 57;
+  public int JJTTAHOUR = 58;
+  public int JJTTADAY = 59;
+  public int JJTTAMONTH = 60;
+  public int JJTTAYEAR = 61;
+  public int JJTTAWEEKDAY = 62;
+  public int JJTTADURATION = 63;
+  public int JJTSALIENCE = 64;
+  public int JJTAUTOFOCUS = 65;
+  public int JJTSLOWCOMPILE = 66;
+  public int JJTRULEVERSION = 67;
+  public int JJTNOTFUNCTION = 68;
+  public int JJTANDFUNCTION = 69;
+  public int JJTORFUNCTION = 70;
+  public int JJTASSIGNEDPATTERNCE = 71;
+  public int JJTLOGICALCE = 72;
+  public int JJTTESTCE = 73;
+  public int JJTEXISTSCE = 74;
+  public int JJTFORALLCE = 75;
+  public int JJTTEMPLATEPATTERNCE = 76;
+  public int JJTUNORDEREDLHSFACTBODY = 77;
+  public int JJTORDEREDLHSFACTBODY = 78;
+  public int JJTLHSSLOT = 79;
+  public int JJTSINGLEFIELDWILDCARD = 80;
+  public int JJTMULTIFIELDWILDCARD = 81;
+  public int JJTCONNECTEDCONSTRAINT = 82;
+  public int JJTAMPERSANDCONNECTEDCONSTRAINT = 83;
+  public int JJTLINECONNECTEDCONSTRAINT = 84;
+  public int JJTTERM = 85;
+  public int JJTNEGATION = 86;
+  public int JJTCOLON = 87;
+  public int JJTEQUALS = 88;
+  public int JJTDEFGLOBALCONSTRUCT = 89;
+  public int JJTGLOBALASSIGNMENT = 90;
+  public int JJTDEFFUNCTIONCONSTRUCT = 91;
+  public int JJTFUNCTIONGROUP = 92;
+  public int JJTDEFGENERICCONSTRUCT = 93;
+  public int JJTPARAMETERRESTRICTION = 94;
+  public int JJTWILDCARDPARAMETERRESTRICTION = 95;
+  public int JJTQUERY = 96;
+  public int JJTTYPEATTRIBUTE = 97;
+  public int JJTTYPESPECIFICATION = 98;
+  public int JJTALLOWEDCONSTANTATTRIBUTE = 99;
+  public int JJTSYMBOLLIST = 100;
+  public int JJTSTRINGLIST = 101;
+  public int JJTLEXEMELIST = 102;
+  public int JJTINTEGERLIST = 103;
+  public int JJTFLOATLIST = 104;
+  public int JJTNUMBERLIST = 105;
+  public int JJTVALUELIST = 106;
+  public int JJTRANGEATTRIBUTE = 107;
+  public int JJTRANGESPECIFICATION = 108;
+  public int JJTCARDINALITYATTRIBUTE = 109;
+  public int JJTCARDINALITYSPECIFICATION = 110;
+  public int JJTDEFMODULECONSTRUCT = 111;
 
 
   public String[] jjtNodeName = {
@@ -167,7 +166,6 @@ public interface SFPParserTreeConstants
     "DeriveAttribute",
     "NoneAttribute",
     "DynamicAttribute",
-    "ModifyPattern",
     "RHSSlot",
     "RHSPattern",
     "DefruleConstruct",
@@ -234,4 +232,4 @@ public interface SFPParserTreeConstants
     "DefmoduleConstruct",
   };
 }
-/* JavaCC - OriginalChecksum=b3af7ed0699405321e23403a57328606 (do not edit this line) */
+/* JavaCC - OriginalChecksum=79fbe8bbb34fe218b7a68d56008adcb1 (do not edit this line) */

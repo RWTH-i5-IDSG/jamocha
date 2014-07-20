@@ -354,12 +354,6 @@ public interface SelectiveSFPVisitor extends SFPParserVisitor {
 	}
 
 	@Override
-	public default Object visit(SFPModifyPattern node, Object data) {
-		dumpToStdOut(node);
-		throw new UnsupportedOperationException(String.valueOf(data));
-	}
-
-	@Override
 	public default Object visit(SFPRHSSlot node, Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));

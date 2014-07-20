@@ -150,9 +150,6 @@ public class SFPParserDefaultVisitor implements SFPParserVisitor{
   public Object visit(SFPDynamicAttribute node, Object data){
     return defaultVisit(node, data);
   }
-  public Object visit(SFPModifyPattern node, Object data){
-    return defaultVisit(node, data);
-  }
   public Object visit(SFPRHSSlot node, Object data){
     return defaultVisit(node, data);
   }
@@ -346,4 +343,4 @@ public class SFPParserDefaultVisitor implements SFPParserVisitor{
     return defaultVisit(node, data);
   }
 }
-/* JavaCC - OriginalChecksum=f01f8b17318eff7e98015a6fcfaf5d27 (do not edit this line) */
+/* JavaCC - OriginalChecksum=80d7569453d3e65f42370144bcef4e03 (do not edit this line) */

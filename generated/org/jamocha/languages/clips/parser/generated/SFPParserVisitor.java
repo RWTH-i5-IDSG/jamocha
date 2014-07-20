@@ -51,7 +51,6 @@ public interface SFPParserVisitor
   public Object visit(SFPDeriveAttribute node, Object data);
   public Object visit(SFPNoneAttribute node, Object data);
   public Object visit(SFPDynamicAttribute node, Object data);
-  public Object visit(SFPModifyPattern node, Object data);
   public Object visit(SFPRHSSlot node, Object data);
   public Object visit(SFPRHSPattern node, Object data);
   public Object visit(SFPDefruleConstruct node, Object data);
@@ -117,4 +116,4 @@ public interface SFPParserVisitor
   public Object visit(SFPCardinalitySpecification node, Object data);
   public Object visit(SFPDefmoduleConstruct node, Object data);
 }
-/* JavaCC - OriginalChecksum=e70d7604568757d2e447c7fe472341f9 (do not edit this line) */
+/* JavaCC - OriginalChecksum=b06a54e6e140ce380ada802d6d84f274 (do not edit this line) */

@@ -1175,15 +1175,13 @@ SimpleNode DynamicAttribute() :
 }
 
 
-SimpleNode ModifyPattern() :
+void ModifyPattern() #void:
 {}
 {
 	Expression()
 	(
 		RHSSlot()
 	)+
-
-	{ return jjtThis; }
 }
 
 SimpleNode RHSSlot() :
