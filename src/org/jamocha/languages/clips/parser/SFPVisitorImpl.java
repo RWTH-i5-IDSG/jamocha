@@ -40,8 +40,10 @@ import org.jamocha.dn.memory.SlotAddress;
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.dn.memory.Template.Slot;
+import org.jamocha.dn.nodes.ObjectTypeNode;
 import org.jamocha.filter.Function;
 import org.jamocha.filter.FunctionDictionary;
+import org.jamocha.filter.Path;
 import org.jamocha.filter.Predicate;
 import org.jamocha.filter.fwa.Assert;
 import org.jamocha.filter.fwa.Assert.TemplateContainer;
@@ -1454,6 +1456,7 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 					SFPVisitorImpl.this.network.getMemoryFactory().newTemplate(symbol.getImage(),
 							comment, toArray(visitor.slotDefinitions, Slot[]::new));
 			SFPVisitorImpl.this.symbolTableTemplates.put(symbol, template);
+			network.getRootNode().putOTN(new ObjectTypeNode(network, new Path(template)));
 			return data;
 		}
 
@@ -1557,8 +1560,8 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 					System.exit(0);
 				if (verbose)
 					SelectiveSFPVisitor.dumpToStdOut(n);
-				final Object a = n.jjtAccept(visitor, "Parsing successful!");
-				System.out.println(a);
+				n.jjtAccept(visitor, "Parsing successful!");
+				Thread.sleep(200);
 				visitor.warnings.forEach(w -> System.out.println("Warning: " + w.getMessage()));
 				visitor.warnings.clear();
 				System.out.print("SFP> ");
