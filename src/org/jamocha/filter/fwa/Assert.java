@@ -19,6 +19,7 @@ import static org.jamocha.util.ToArray.toArray;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Value;
@@ -41,9 +42,31 @@ public class Assert implements FunctionWithArguments {
 		final FunctionWithArguments[] args;
 		@Getter(lazy = true, onMethod = @__(@Override))
 		private final SlotType[] paramTypes = calculateParamTypes();
+		@Getter(lazy = true, value = AccessLevel.PRIVATE)
+		private final int hashPIR = initHashPIR(), hashPII = initHashPII();
 
 		private SlotType[] calculateParamTypes() {
 			return Assert.calculateParamTypes(args);
+		}
+
+		private int initHashPII() {
+			final int[] hashPII = new int[args.length + 1];
+			hashPII[0] = template.hashCode();
+			for (int i = 0; i < args.length; i++) {
+				final FunctionWithArguments arg = args[i];
+				hashPII[i + 1] = arg.hashPositionIsIrrelevant();
+			}
+			return FunctionWithArguments.hash(hashPII, FunctionWithArguments.positionIsIrrelevant);
+		}
+
+		private int initHashPIR() {
+			final int[] hashPIR = new int[args.length + 1];
+			hashPIR[0] = template.hashCode();
+			for (int i = 0; i < args.length; i++) {
+				final FunctionWithArguments arg = args[i];
+				hashPIR[i + 1] = arg.hashPositionIsRelevant();
+			}
+			return FunctionWithArguments.hash(hashPIR, FunctionWithArguments.positionIsRelevant);
 		}
 
 		@Override
@@ -60,8 +83,12 @@ public class Assert implements FunctionWithArguments {
 
 		@Override
 		public int hashPositionIsIrrelevant() {
-			// TODO Auto-generated method stub
-			return 0;
+			return getHashPII();
+		}
+
+		@Override
+		public int hashPositionIsRelevant() {
+			return getHashPIR();
 		}
 
 		@Override
@@ -85,6 +112,8 @@ public class Assert implements FunctionWithArguments {
 	final TemplateContainer[] args;
 	@Getter(lazy = true, onMethod = @__(@Override))
 	private final SlotType[] paramTypes = calculateParamTypes();
+	@Getter(lazy = true, value = AccessLevel.PRIVATE)
+	private final int hashPIR = initHashPIR(), hashPII = initHashPII();
 
 	private SlotType[] calculateParamTypes() {
 		return calculateParamTypes(args);
@@ -95,6 +124,24 @@ public class Assert implements FunctionWithArguments {
 				Arrays.stream(args).map(FunctionWithArguments::getParamTypes).map(Arrays::asList)
 						.collect(ArrayList::new, ArrayList::addAll, ArrayList::addAll);
 		return toArray(types, SlotType[]::new);
+	}
+
+	private int initHashPII() {
+		final int[] hashPII = new int[args.length];
+		for (int i = 0; i < args.length; i++) {
+			final FunctionWithArguments arg = args[i];
+			hashPII[i] = arg.hashPositionIsIrrelevant();
+		}
+		return FunctionWithArguments.hash(hashPII, FunctionWithArguments.positionIsIrrelevant);
+	}
+
+	private int initHashPIR() {
+		final int[] hashPIR = new int[args.length];
+		for (int i = 0; i < args.length; i++) {
+			final FunctionWithArguments arg = args[i];
+			hashPIR[i] = arg.hashPositionIsRelevant();
+		}
+		return FunctionWithArguments.hash(hashPIR, FunctionWithArguments.positionIsRelevant);
 	}
 
 	@Override
@@ -123,8 +170,11 @@ public class Assert implements FunctionWithArguments {
 
 	@Override
 	public int hashPositionIsIrrelevant() {
-		// TODO Auto-generated method stub
-		return 0;
+		return getHashPII();
 	}
 
+	@Override
+	public int hashPositionIsRelevant() {
+		return getHashPIR();
+	}
 }

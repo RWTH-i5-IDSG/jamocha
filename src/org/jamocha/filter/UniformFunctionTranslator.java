@@ -14,8 +14,6 @@
  */
 package org.jamocha.filter;
 
-import static org.jamocha.util.ToArray.toArray;
-
 import java.util.Arrays;
 import java.util.function.IntFunction;
 
@@ -25,6 +23,7 @@ import org.jamocha.filter.fwa.FunctionWithArguments;
 import org.jamocha.filter.fwa.FunctionWithArgumentsComposite;
 import org.jamocha.filter.fwa.FunctionWithArgumentsVisitor;
 import org.jamocha.filter.fwa.GenericWithArgumentsComposite;
+import org.jamocha.filter.fwa.Modify;
 import org.jamocha.filter.fwa.Modify.SlotAndValue;
 import org.jamocha.filter.fwa.PredicateWithArguments;
 import org.jamocha.filter.fwa.PredicateWithArgumentsComposite;
@@ -111,10 +110,8 @@ public class UniformFunctionTranslator {
 		public void visit(final org.jamocha.filter.fwa.Modify fwa) {
 			this.result =
 					new org.jamocha.filter.fwa.Modify(fwa.getNetwork(), fwa.getTargetFact().accept(
-							new DeepCopy()).result, toArray(
-							Arrays.stream(fwa.getArgs()).map(
-									sav -> new SlotAndValue(sav.getSlotName(), sav.getValue()
-											.accept(new DeepCopy()).result)), SlotAndValue[]::new));
+							new DeepCopy()).result, copyArgs(fwa.getArgs(),
+							Modify.SlotAndValue[]::new));
 		}
 
 		@Override
@@ -128,6 +125,13 @@ public class UniformFunctionTranslator {
 			this.result =
 					new org.jamocha.filter.fwa.SymbolLeaf(fwa.getSymbol(), fwa.getReturnType(),
 							fwa.getSlot());
+		}
+
+		@Override
+		public void visit(SlotAndValue fwa) {
+			this.result =
+					new SlotAndValue(fwa.getSlotName(),
+							fwa.getValue().accept(new DeepCopy()).result);
 		}
 	}
 
@@ -164,6 +168,10 @@ public class UniformFunctionTranslator {
 
 		@Override
 		public default void visit(final org.jamocha.filter.fwa.Modify fwa) {
+		}
+
+		@Override
+		public default void visit(final org.jamocha.filter.fwa.Modify.SlotAndValue fwa) {
 		}
 
 		@Override

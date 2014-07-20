@@ -27,6 +27,7 @@ import org.jamocha.filter.fwa.FunctionWithArguments;
 import org.jamocha.filter.fwa.FunctionWithArgumentsComposite;
 import org.jamocha.filter.fwa.FunctionWithArgumentsVisitor;
 import org.jamocha.filter.fwa.Modify;
+import org.jamocha.filter.fwa.Modify.SlotAndValue;
 import org.jamocha.filter.fwa.PathLeaf;
 import org.jamocha.filter.fwa.PathLeaf.ParameterLeaf;
 import org.jamocha.filter.fwa.PredicateWithArgumentsComposite;
@@ -128,12 +129,22 @@ public class PathCollector<T extends Collection<Path>> implements FunctionWithAr
 
 	@Override
 	public void visit(final Modify fwa) {
-		// TODO Auto-generated method stub
+		fwa.getTargetFact().accept(this);
+		for (final SlotAndValue child : fwa.getArgs()) {
+			child.getValue().accept(this);
+		}
+	}
 
+	@Override
+	public void visit(final Modify.SlotAndValue fwa) {
+		fwa.getValue().accept(this);
 	}
 
 	@Override
 	public void visit(final Retract fwa) {
+		for (final FunctionWithArguments child : fwa.getArgs()) {
+			child.accept(this);
+		}
 	}
 
 	@Override

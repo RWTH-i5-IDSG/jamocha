@@ -17,6 +17,7 @@ package org.jamocha.filter;
 import java.util.Arrays;
 
 import org.jamocha.filter.fwa.Assert;
+import org.jamocha.filter.fwa.Assert.TemplateContainer;
 import org.jamocha.filter.fwa.ConstantLeaf;
 import org.jamocha.filter.fwa.FunctionWithArguments;
 import org.jamocha.filter.fwa.FunctionWithArgumentsComposite;
@@ -33,7 +34,7 @@ import org.jamocha.filter.fwa.SymbolLeaf;
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
-public class FunctionNormaliser {
+public abstract class FunctionNormaliser {
 
 	public static PredicateWithArguments normalise(
 			final PredicateWithArguments predicateWithArguments) {
@@ -43,14 +44,19 @@ public class FunctionNormaliser {
 
 	private static class FWANormaliser implements FunctionWithArgumentsVisitor {
 		private static void handle(final GenericWithArgumentsComposite<?, ?> gwac) {
+			final FunctionWithArguments[] args = gwac.getArgs();
+			recurseOverArgs(args);
 			if (!(gwac.getFunction() instanceof CommutativeFunction<?>)) {
 				return;
 			}
-			handleArgs(gwac.getArgs());
+			sortArgs(args);
 		}
 
-		private static void handleArgs(final FunctionWithArguments[] args) {
+		private static void recurseOverArgs(final FunctionWithArguments[] args) {
 			Arrays.stream(args).forEach(fwa -> fwa.accept(new FWANormaliser()));
+		}
+
+		private static void sortArgs(final FunctionWithArguments[] args) {
 			Arrays.<FunctionWithArguments> sort(args, (a, b) -> Integer.compare(a.hash(), b.hash()));
 		}
 
@@ -78,23 +84,36 @@ public class FunctionNormaliser {
 
 		@Override
 		public void visit(final Assert fwa) {
-			handleArgs(fwa.getArgs());
+			final TemplateContainer[] args = fwa.getArgs();
+			recurseOverArgs(args);
+			sortArgs(args);
 		}
 
 		@Override
 		public void visit(final Assert.TemplateContainer fwa) {
 			// don't permute the order of the template container args, as they are the objects
 			// passed to the ctor of the fact
+			recurseOverArgs(fwa.getArgs());
 		}
 
 		@Override
 		public void visit(final Modify fwa) {
-			// TODO Auto-generated method stub
+			fwa.getTargetFact().accept(new FWANormaliser());
+			final FunctionWithArguments[] args = fwa.getArgs();
+			recurseOverArgs(args);
+			sortArgs(args);
+		}
 
+		@Override
+		public void visit(final Modify.SlotAndValue fwa) {
+			fwa.getValue().accept(new FWANormaliser());
 		}
 
 		@Override
 		public void visit(final Retract fwa) {
+			final FunctionWithArguments[] args = fwa.getArgs();
+			recurseOverArgs(args);
+			sortArgs(args);
 		}
 
 		@Override

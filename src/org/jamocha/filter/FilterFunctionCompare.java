@@ -130,6 +130,11 @@ public class FilterFunctionCompare {
 		}
 
 		@Override
+		public void visit(Modify.SlotAndValue fwa) {
+			invalidate();
+		}
+
+		@Override
 		public void visit(SymbolLeaf fwa) {
 			invalidate();
 		}

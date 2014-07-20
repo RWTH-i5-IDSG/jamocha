@@ -25,5 +25,7 @@ public interface FunctionWithArgumentsVisitor extends Visitor {
 
 	public void visit(final Modify fwa);
 
+	public void visit(final Modify.SlotAndValue fwa);
+
 	public void visit(final SymbolLeaf fwa);
 }

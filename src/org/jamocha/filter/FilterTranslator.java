@@ -14,10 +14,7 @@
  */
 package org.jamocha.filter;
 
-import static org.jamocha.util.ToArray.toArray;
-
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Set;
 import java.util.function.IntFunction;
@@ -36,7 +33,6 @@ import org.jamocha.filter.fwa.FunctionWithArguments;
 import org.jamocha.filter.fwa.FunctionWithArgumentsComposite;
 import org.jamocha.filter.fwa.FunctionWithArgumentsVisitor;
 import org.jamocha.filter.fwa.Modify;
-import org.jamocha.filter.fwa.Modify.SlotAndValue;
 import org.jamocha.filter.fwa.PathLeaf;
 import org.jamocha.filter.fwa.PathLeaf.ParameterLeaf;
 import org.jamocha.filter.fwa.PredicateWithArguments;
@@ -189,6 +185,12 @@ public class FilterTranslator {
 		}
 
 		@Override
+		public void visit(final Modify.SlotAndValue fwa) {
+			throw new UnsupportedOperationException(
+					"PredicateWithArgumentsTranslator is only to be used with PredicateWithArguments!");
+		}
+
+		@Override
 		public void visit(final SymbolLeaf fwa) {
 			throw new UnsupportedOperationException(
 					"PredicateWithArgumentsTranslator is only to be used with PredicateWithArguments!");
@@ -263,10 +265,10 @@ public class FilterTranslator {
 		@Override
 		public void visit(final Modify fwa) {
 			this.functionWithArguments =
-					new Modify(fwa.getNetwork(), translateArg(fwa.getTargetFact(), this.addresses),
-							toArray(Arrays.stream(fwa.getArgs()).map(
-									sav -> new SlotAndValue(sav.getSlotName(), translateArg(
-											sav.getValue(), this.addresses))), SlotAndValue[]::new));
+					new Modify(
+							fwa.getNetwork(),
+							translateArg(fwa.getTargetFact(), this.addresses),
+							translateArgs(fwa.getArgs(), this.addresses, Modify.SlotAndValue[]::new));
 		}
 
 		@Override
@@ -279,6 +281,13 @@ public class FilterTranslator {
 		public void visit(final Assert.TemplateContainer fwa) {
 			this.functionWithArguments =
 					new Assert.TemplateContainer(fwa.getTemplate(), translateArgs(fwa.getArgs(),
+							this.addresses));
+		}
+
+		@Override
+		public void visit(final Modify.SlotAndValue fwa) {
+			this.functionWithArguments =
+					new Modify.SlotAndValue(fwa.getSlotName(), translateArg(fwa.getValue(),
 							this.addresses));
 		}
 	}
