@@ -20,6 +20,7 @@ public interface SFPParserVisitor
   public Object visit(SFPIntegerType node, Object data);
   public Object visit(SFPFloatType node, Object data);
   public Object visit(SFPNumberType node, Object data);
+  public Object visit(SFPFactAddressType node, Object data);
   public Object visit(SFPFalse node, Object data);
   public Object visit(SFPConstant node, Object data);
   public Object visit(SFPConstructDescription node, Object data);
@@ -116,4 +117,4 @@ public interface SFPParserVisitor
   public Object visit(SFPCardinalitySpecification node, Object data);
   public Object visit(SFPDefmoduleConstruct node, Object data);
 }
-/* JavaCC - OriginalChecksum=f2a73604a2d0c63e009b41854d6fb6cf (do not edit this line) */
+/* JavaCC - OriginalChecksum=e70d7604568757d2e447c7fe472341f9 (do not edit this line) */

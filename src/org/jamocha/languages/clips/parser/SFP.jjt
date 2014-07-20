@@ -532,6 +532,20 @@ SimpleNode NumberType() :
 }
 
 
+/**
+*		FactAddressType
+**/
+
+SimpleNode FactAddressType() :
+{ Token t; }
+{
+	t=<FACT_ADDRESS_TYPE>
+	{
+		jjtThis.jjtSetValue(t.image);
+		return jjtThis;
+	}
+}
+
 
 /**
 *		False
@@ -2270,6 +2284,7 @@ void AllowedType()  #void:
 		|	FloatType()
 		|	NumberType()
 		|	BooleanType()
+		|	FactAddressType()
 	)
 }
 

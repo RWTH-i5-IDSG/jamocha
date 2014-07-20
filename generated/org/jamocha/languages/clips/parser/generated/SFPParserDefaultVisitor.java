@@ -57,6 +57,9 @@ public class SFPParserDefaultVisitor implements SFPParserVisitor{
   public Object visit(SFPNumberType node, Object data){
     return defaultVisit(node, data);
   }
+  public Object visit(SFPFactAddressType node, Object data){
+    return defaultVisit(node, data);
+  }
   public Object visit(SFPFalse node, Object data){
     return defaultVisit(node, data);
   }
@@ -343,4 +346,4 @@ public class SFPParserDefaultVisitor implements SFPParserVisitor{
     return defaultVisit(node, data);
   }
 }
-/* JavaCC - OriginalChecksum=1d8d194df43da60d9e8c9ca8106ec251 (do not edit this line) */
+/* JavaCC - OriginalChecksum=f01f8b17318eff7e98015a6fcfaf5d27 (do not edit this line) */

@@ -827,6 +827,37 @@ SimpleNode NumberType() :
 }
 
 
+/**
+*		FactAddressType
+**/
+
+SimpleNode FactAddressType() :
+{/*@bgen(jjtree) FactAddressType */
+  SFPFactAddressType jjtn000 = new SFPFactAddressType(this, JJTFACTADDRESSTYPE);
+  boolean jjtc000 = true;
+  jjtree.openNodeScope(jjtn000);
+/*@egen*/ Token t; }
+{/*@bgen(jjtree) FactAddressType */
+        try {
+/*@egen*/
+	t=<FACT_ADDRESS_TYPE>/*@bgen(jjtree)*/
+        {
+          jjtree.closeNodeScope(jjtn000, true);
+          jjtc000 = false;
+        }
+/*@egen*/
+	{
+		jjtn000.jjtSetValue(t.image);
+		return jjtn000;
+	}/*@bgen(jjtree)*/
+        } finally {
+          if (jjtc000) {
+            jjtree.closeNodeScope(jjtn000, true);
+          }
+        }
+/*@egen*/
+}
+
 
 /**
 *		False
@@ -4948,6 +4979,7 @@ void AllowedType()       :
 		|	FloatType()
 		|	NumberType()
 		|	BooleanType()
+		|	FactAddressType()
 	)
 }
 

@@ -168,6 +168,12 @@ public interface SelectiveSFPVisitor extends SFPParserVisitor {
 	}
 
 	@Override
+	public default Object visit(SFPFactAddressType node, Object data) {
+		dumpToStdOut(node);
+		throw new UnsupportedOperationException(String.valueOf(data));
+	}
+
+	@Override
 	public default Object visit(SFPFalse node, Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));

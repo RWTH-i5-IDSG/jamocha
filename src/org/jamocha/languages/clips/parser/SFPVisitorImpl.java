@@ -74,6 +74,7 @@ import org.jamocha.languages.clips.parser.generated.SFPDeftemplateConstruct;
 import org.jamocha.languages.clips.parser.generated.SFPEquals;
 import org.jamocha.languages.clips.parser.generated.SFPExistsCE;
 import org.jamocha.languages.clips.parser.generated.SFPExpression;
+import org.jamocha.languages.clips.parser.generated.SFPFactAddressType;
 import org.jamocha.languages.clips.parser.generated.SFPFalse;
 import org.jamocha.languages.clips.parser.generated.SFPFindFactByFactFunc;
 import org.jamocha.languages.clips.parser.generated.SFPFloat;
@@ -355,7 +356,17 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 			this.type = SlotType.DATETIME;
 			return data;
 		}
-		// TBD LEXEME = STRING | SYMBOL, NUMBER = INTEGER | FLOAT
+
+		@Override
+		public Object visit(final SFPFactAddressType node, final Object data) {
+			if (!this.allowed.contains(SlotType.FACTADDRESS)) {
+				return SFPVisitorImpl.this.visit(node, data);
+			}
+			this.type = SlotType.FACTADDRESS;
+			return data;
+		}
+
+		// unsupported: LEXEME = STRING | SYMBOL, NUMBER = INTEGER | FLOAT
 	}
 
 	class SFPTypeSpecificationVisitor implements SelectiveSFPVisitor {
@@ -376,12 +387,12 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 						.dumpAndThrowMe(node, IllegalArgumentException::new,
 								"Restriction of template fields to multiple types is not supported at the moment!");
 			}
-			// TBD LEXEME = STRING | SYMBOL, NUMBER = INTEGER | FLOAT
+			// unsupported: LEXEME = STRING | SYMBOL, NUMBER = INTEGER | FLOAT
 			this.type =
 					SelectiveSFPVisitor.sendVisitor(
 							new SFPTypeVisitor(EnumSet.of(/* SlotType.LEXEME, */SlotType.SYMBOL,
 									SlotType.STRING, SlotType.DATETIME, SlotType.LONG,
-									SlotType.DOUBLE, SlotType.BOOLEAN
+									SlotType.DOUBLE, SlotType.BOOLEAN, SlotType.FACTADDRESS
 							/* , SlotType.NUMBER */)), node.jjtGetChild(0), data).type;
 			return data;
 		}
