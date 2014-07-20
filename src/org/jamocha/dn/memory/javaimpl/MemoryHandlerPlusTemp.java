@@ -212,11 +212,16 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 			final MemoryHandlerMain originatingMainHandler, final Node otn,
 			final org.jamocha.dn.memory.Fact... facts) {
 		final JamochaArray<Row> factList = new JamochaArray<>(facts.length);
-		final MemoryFact[] memoryFacts = new MemoryFact[facts.length];
-		for (int i = 0; i < facts.length; i++) {
+		final Fact[] memoryFacts = new Fact[facts.length];
+		factLoop: for (int i = 0; i < facts.length; i++) {
 			final org.jamocha.dn.memory.Fact fact = facts[i];
 			assert fact.getTemplate() == otn.getMemory().getTemplate()[0];
 			final Fact memoryFact = new Fact(fact.getTemplate(), fact.getSlotValues());
+			for (int j = 0; j < i; ++j) {
+				if (Fact.equalContent(memoryFact, memoryFacts[j])) {
+					continue factLoop;
+				}
+			}
 			memoryFacts[i] = memoryFact;
 			factList.add(originatingMainHandler.newRow(new Fact[] { memoryFact }));
 		}
@@ -233,13 +238,13 @@ public class MemoryHandlerPlusTemp extends MemoryHandlerTemp implements
 		boolean filtered = false;
 		{
 			final JamochaArray<Row> remainingFactTuples =
-					MemoryHandlerMinusTemp.getRemainingFactTuples(targetMain.validRows, toFilter,
+					MemoryHandlerMinusTemp.getRemainingFactTuples(toFilter, targetMain.validRows,
 							(FactAddress[]) null, marked, EqualityChecker.root);
 			filtered |= (remainingFactTuples.size() != targetMain.validRows.size());
 		}
 		for (final MemoryHandlerPlusTemp temp : targetMain.getValidOutgoingPlusTokens()) {
 			final JamochaArray<Row> remainingFactTuples =
-					MemoryHandlerMinusTemp.getRemainingFactTuples(temp.getFiltered(), toFilter,
+					MemoryHandlerMinusTemp.getRemainingFactTuples(toFilter, temp.getFiltered(),
 							(FactAddress[]) null, marked, EqualityChecker.root);
 			filtered |= (remainingFactTuples.size() != targetMain.validRows.size());
 		}
