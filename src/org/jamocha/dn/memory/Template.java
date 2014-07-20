@@ -36,6 +36,13 @@ public interface Template {
 	}
 
 	/**
+	 * Returns the name of the template.
+	 * 
+	 * @return the name of the template
+	 */
+	public String getName();
+
+	/**
 	 * Returns the description of the template.
 	 * 
 	 * @return the description of the template
@@ -115,4 +122,6 @@ public interface Template {
 	 */
 	public FunctionWithArguments[] applyDefaultsAndOrder(
 			final Map<SlotAddress, FunctionWithArguments> values);
+
+	public String toString(final Object[] slotValues);
 }

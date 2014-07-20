@@ -62,16 +62,7 @@ class Fact implements MemoryFact {
 
 	@Override
 	public String toString() {
-		final StringBuilder sb = new StringBuilder();
-		sb.append("Fact(");
-		if (this.slotValues.length > 0) {
-			sb.append(this.slotValues[0].toString());
-		}
-		for (int i = 1; i < this.slotValues.length; i++) {
-			sb.append(", " + this.slotValues[i].toString());
-		}
-		sb.append(')');
-		return sb.toString();
+		return template.toString(this.slotValues);
 	}
 
 	public static boolean equalContent(final Fact a, final Fact b) {

@@ -93,7 +93,7 @@ public class NetworkTest {
 		final RootNode rootNode = network.getRootNode();
 
 		final Template template =
-				MemoryFactory.getMemoryFactory().newTemplate("", new Slot(SlotType.STRING, ""),
+				MemoryFactory.getMemoryFactory().newTemplate("", "", new Slot(SlotType.STRING, ""),
 						new Slot(SlotType.LONG, ""), new Slot(SlotType.LONG, ""),
 						new Slot(SlotType.STRING, ""));
 		final Path pathOne = new Path(template), pathTwo = new Path(template), pathThree =
@@ -174,7 +174,7 @@ public class NetworkTest {
 		final RootNode rootNode = network.getRootNode();
 
 		final Template template =
-				MemoryFactory.getMemoryFactory().newTemplate("", new Slot(SlotType.STRING, ""),
+				MemoryFactory.getMemoryFactory().newTemplate("", "", new Slot(SlotType.STRING, ""),
 						new Slot(SlotType.LONG, ""), new Slot(SlotType.LONG, ""),
 						new Slot(SlotType.STRING, ""));
 		final Path pathOneA = new Path(template), pathOneB = new Path(template), pathTwoA =
@@ -233,7 +233,7 @@ public class NetworkTest {
 		final RootNode rootNode = network.getRootNode();
 
 		final Template template =
-				MemoryFactory.getMemoryFactory().newTemplate("", new Slot(SlotType.STRING, ""),
+				MemoryFactory.getMemoryFactory().newTemplate("", "", new Slot(SlotType.STRING, ""),
 						new Slot(SlotType.LONG, ""), new Slot(SlotType.LONG, ""),
 						new Slot(SlotType.STRING, ""));
 		final Path pathOneA = new Path(template), pathOneB = new Path(template), pathTwoA =
@@ -292,13 +292,13 @@ public class NetworkTest {
 		final RootNode rootNode = network.getRootNode();
 
 		final Template student =
-				MemoryFactory.getMemoryFactory().newTemplate("Student",
+				MemoryFactory.getMemoryFactory().newTemplate("Student", "Student",
 						new Slot(SlotType.STRING, "Name"), new Slot(SlotType.LONG, "Semester"),
 						new Slot(SlotType.STRING, "Studiengang"),
 						new Slot(SlotType.STRING, "Hobby "));
 		final Template prof =
 				MemoryFactory.getMemoryFactory()
-						.newTemplate("Prof", new Slot(SlotType.STRING, "Name"),
+						.newTemplate("Prof", "Prof", new Slot(SlotType.STRING, "Name"),
 								new Slot(SlotType.STRING, "Studiengang"));
 		final Path oldStudent1 = new Path(student), youngStudent1 = new Path(student), matchingProf1 =
 				new Path(prof), oldStudent2 = new Path(student), youngStudent2 = new Path(student), matchingProf2 =
@@ -374,7 +374,7 @@ public class NetworkTest {
 						Integer.MAX_VALUE, scheduler);
 
 		final Template template =
-				MemoryFactory.getMemoryFactory().newTemplate("", new Slot(SlotType.STRING, ""),
+				MemoryFactory.getMemoryFactory().newTemplate("", "", new Slot(SlotType.STRING, ""),
 						new Slot(SlotType.LONG, ""), new Slot(SlotType.LONG, ""),
 						new Slot(SlotType.STRING, ""));
 		final Path pathOne = new Path(template), pathTwo = new Path(template), pathThree =
@@ -433,7 +433,7 @@ public class NetworkTest {
 						Integer.MAX_VALUE, scheduler);
 
 		final Template template =
-				MemoryFactory.getMemoryFactory().newTemplate("", new Slot(SlotType.STRING, ""),
+				MemoryFactory.getMemoryFactory().newTemplate("", "", new Slot(SlotType.STRING, ""),
 						new Slot(SlotType.LONG, ""), new Slot(SlotType.LONG, ""),
 						new Slot(SlotType.STRING, ""));
 		;
@@ -485,7 +485,7 @@ public class NetworkTest {
 						Integer.MAX_VALUE, scheduler);
 
 		final Template template =
-				MemoryFactory.getMemoryFactory().newTemplate("", new Slot(SlotType.STRING, ""),
+				MemoryFactory.getMemoryFactory().newTemplate("", "", new Slot(SlotType.STRING, ""),
 						new Slot(SlotType.LONG, ""), new Slot(SlotType.LONG, ""),
 						new Slot(SlotType.STRING, ""));
 		;
@@ -537,13 +537,13 @@ public class NetworkTest {
 						Integer.MAX_VALUE, scheduler);
 
 		final Template student =
-				MemoryFactory.getMemoryFactory().newTemplate("Student",
+				MemoryFactory.getMemoryFactory().newTemplate("Student", "Student",
 						new Slot(SlotType.STRING, "Name"), new Slot(SlotType.LONG, "Semester"),
 						new Slot(SlotType.STRING, "Studiengang"),
 						new Slot(SlotType.STRING, "Hobby"));
 		final Template prof =
 				MemoryFactory.getMemoryFactory()
-						.newTemplate("Prof", new Slot(SlotType.STRING, "Name"),
+						.newTemplate("Prof", "Prof", new Slot(SlotType.STRING, "Name"),
 								new Slot(SlotType.STRING, "Studiengang"));
 		final Path oldStudent1 = new Path(student), youngStudent1 = new Path(student), matchingProf1 =
 				new Path(prof), oldStudent2 = new Path(student), youngStudent2 = new Path(student), matchingProf2 =

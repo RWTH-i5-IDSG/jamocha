@@ -22,6 +22,8 @@ import java.util.OptionalInt;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import lombok.Getter;
+
 import org.jamocha.dn.memory.Fact;
 import org.jamocha.dn.memory.MemoryFact;
 import org.jamocha.dn.memory.SlotType;
@@ -36,41 +38,40 @@ public class Template implements org.jamocha.dn.memory.Template {
 	/**
 	 * Template holding exactly one {@link SlotType#STRING} type.
 	 */
-	final public static Template STRING = new Template(
+	final public static Template STRING = new Template("STRING",
 			"Simple template holding exactly one string type.", new Slot(SlotType.STRING,
 					"String slot"));
 	/**
 	 * Template holding exactly one {@link SlotType#BOOLEAN} type.
 	 */
-	final public static Template BOOLEAN = new Template(
+	final public static Template BOOLEAN = new Template("BOOLEAN",
 			"Simple template holding exactly one boolean type.", new Slot(SlotType.BOOLEAN,
 					"Boolean slot"));
 	/**
 	 * Template holding exactly one {@link SlotType#DOUBLE} type.
 	 */
-	final public static Template DOUBLE = new Template(
+	final public static Template DOUBLE = new Template("DOUBLE",
 			"Simple template holding exactly one double type.", new Slot(SlotType.DOUBLE,
 					"Double slot"));
 	/**
 	 * Template holding exactly one {@link SlotType#LONG} type.
 	 */
-	final public static Template LONG = new Template(
+	final public static Template LONG = new Template("LONG",
 			"Simple template holding exactly one long type.", new Slot(SlotType.LONG, "Long slot"));
 
+	@Getter(onMethod = @__(@Override))
+	final String name;
+	@Getter(onMethod = @__(@Override))
 	final String description;
 	final HashMap<String, SlotAddress> slotNames = new HashMap<>();
 	final SlotType[] slotTypes;
 
-	Template(final String description, final Slot... slots) {
+	Template(final String name, final String description, final Slot... slots) {
+		this.name = name;
 		this.description = description;
 		this.slotTypes = Arrays.stream(slots).map(s -> s.getSlotType()).toArray(SlotType[]::new);
 		IntStream.range(0, slots.length).forEach(
 				i -> this.slotNames.put(slots[i].getName(), new SlotAddress(i)));
-	}
-
-	@Override
-	public String getDescription() {
-		return this.description;
 	}
 
 	@Override
@@ -128,6 +129,21 @@ public class Template implements org.jamocha.dn.memory.Template {
 		final Object[] args = new Object[max.getAsInt()];
 		stream.forEach(e -> args[((SlotAddress) e.getKey()).index] = e.getValue());
 		return new Fact(this, args);
+	}
+
+	@Override
+	public String toString(final Object[] slotValues) {
+		final StringBuilder builder = new StringBuilder();
+		builder.append('(').append(name);
+		this.slotNames
+				.entrySet()
+				.stream()
+				.sorted((a, b) -> Integer.compare(a.getValue().index, b.getValue().index))
+				.forEach(
+						e -> builder.append(" (").append(e.getKey()).append(' ')
+								.append(slotValues[e.getValue().index]).append(')'));
+		return builder.append(')').toString();
+
 	}
 
 	@Override

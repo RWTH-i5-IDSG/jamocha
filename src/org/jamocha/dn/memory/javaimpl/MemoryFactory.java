@@ -48,8 +48,8 @@ public class MemoryFactory implements org.jamocha.dn.memory.MemoryFactory {
 	}
 
 	@Override
-	public Template newTemplate(final String description, final Slot... slots) {
-		return new org.jamocha.dn.memory.javaimpl.Template(description, slots);
+	public Template newTemplate(final String name, final String description, final Slot... slots) {
+		return new org.jamocha.dn.memory.javaimpl.Template(name, description, slots);
 	}
 
 	private MemoryFactory() {

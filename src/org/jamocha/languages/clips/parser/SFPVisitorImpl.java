@@ -1451,8 +1451,8 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 			}
 			final String comment = visitor.comment;
 			final Template template =
-					SFPVisitorImpl.this.network.getMemoryFactory().newTemplate(comment,
-							toArray(visitor.slotDefinitions, Slot[]::new));
+					SFPVisitorImpl.this.network.getMemoryFactory().newTemplate(symbol.getImage(),
+							comment, toArray(visitor.slotDefinitions, Slot[]::new));
 			SFPVisitorImpl.this.symbolTableTemplates.put(symbol, template);
 			return data;
 		}

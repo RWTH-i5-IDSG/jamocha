@@ -38,15 +38,17 @@ import org.jamocha.filter.PathFilter;
 public interface MemoryFactory {
 
 	/**
-	 * Creates new template with given description string and slots.
+	 * Creates new template with given name, description string and slots.
 	 * 
+	 * @param name
+	 *            name of the template
 	 * @param description
 	 *            description string
 	 * @param slots
 	 *            slots for the template
 	 * @return new template with given description string and slots
 	 */
-	public Template newTemplate(final String description, final Slot... slots);
+	public Template newTemplate(final String name, final String description, final Slot... slots);
 
 	/**
 	 * Creates a new {@link MemoryHandlerMain} capable of storing facts meeting the restrictions of
