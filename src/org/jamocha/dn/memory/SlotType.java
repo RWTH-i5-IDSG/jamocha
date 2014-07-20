@@ -92,12 +92,21 @@ public enum SlotType {
 	}
 
 	public static ZonedDateTime convert(final String image) {
-		// < #GMT_OFFSET: ("+"|"-") <DIGIT> <DIGIT> >
+		// < #GMT_OFFSET: ("+"|"-") ( <DIGIT> )? <DIGIT> >
 		// < #DATE: <DIGIT> <DIGIT> <DIGIT> <DIGIT> "-" <DIGIT> <DIGIT> "-" <DIGIT> <DIGIT> >
 		// < #TIME: <DIGIT> <DIGIT> ":" <DIGIT> <DIGIT> ( ":" <DIGIT> <DIGIT>)? >
 		// < DATETIME: <DATE> ( " " <TIME> (<GMT_OFFSET>)? )? >
+		final char pm = image.charAt(image.length() - 2);
+		final String parse;
+		if ('+' == pm || '-' == pm) {
+			parse =
+					image.substring(0, image.length() - 1).concat("0")
+							.concat(image.substring(image.length() - 1));
+		} else {
+			parse = image;
+		}
 		return ZonedDateTime.parse(
-				image,
+				parse,
 				new DateTimeFormatterBuilder()
 						// date
 						.appendValue(ChronoField.YEAR, 4)

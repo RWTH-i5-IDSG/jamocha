@@ -67,6 +67,7 @@ import org.jamocha.languages.clips.parser.generated.SFPColon;
 import org.jamocha.languages.clips.parser.generated.SFPConnectedConstraint;
 import org.jamocha.languages.clips.parser.generated.SFPConstant;
 import org.jamocha.languages.clips.parser.generated.SFPConstructDescription;
+import org.jamocha.languages.clips.parser.generated.SFPDateTime;
 import org.jamocha.languages.clips.parser.generated.SFPDateTimeType;
 import org.jamocha.languages.clips.parser.generated.SFPDeffunctionConstruct;
 import org.jamocha.languages.clips.parser.generated.SFPDefruleConstruct;
@@ -286,7 +287,17 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 			this.value = SelectiveSFPVisitor.sendVisitor(new SFPStringVisitor(), node, data).string;
 			return data;
 		}
-		// TBD Nil, DateTime
+
+		@Override
+		public Object visit(final SFPDateTime node, final Object data) {
+			if (!this.allowed.contains(SlotType.DATETIME))
+				return SFPVisitorImpl.this.visit(node, data);
+			this.type = SlotType.DATETIME;
+			this.value = SlotType.convert(node.jjtGetValue().toString());
+			return data;
+		}
+
+		// unsupported Nil
 	}
 
 	class SFPTypeVisitor implements SelectiveSFPVisitor {
@@ -396,7 +407,7 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 							/* , SlotType.NUMBER */)), node.jjtGetChild(0), data).type;
 			return data;
 		}
-		// TBD VariableType
+		// unsupported VariableType
 	}
 
 	class SFPTemplateAttributeVisitor implements SelectiveSFPVisitor {
@@ -466,7 +477,7 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 		@Override
 		public Object visit(final SFPSlotDefinition node, final Object data) {
 			assert node.jjtGetNumChildren() == 1;
-			// TBD add support for multislot-definition
+			// unsupported: multislot-definition
 			this.slotDefinitions.add(SelectiveSFPVisitor.sendVisitor(
 					new SFPSingleSlotDefinitionVisitor(), node.jjtGetChild(0), data).slot);
 			return data;
