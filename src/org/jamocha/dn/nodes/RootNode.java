@@ -61,33 +61,24 @@ public class RootNode {
 	 *            {@link Fact} to be asserted
 	 */
 	public FactIdentifier[] assertFacts(final Fact... facts) {
+		final Map<Fact, MemoryFact> factToMemoryFact = new HashMap<>();
+		Arrays.stream(facts).collect(groupingBy(Fact::getTemplate)).forEach((t, factlist) -> {
+			final Fact[] fs = toArray(factlist, Fact[]::new);
+			final MemoryFact[] mfs = this.templateToOTN.get(t).assertFact(fs);
+			IntStream.range(0, mfs.length).forEach(i -> factToMemoryFact.put(fs[i], mfs[i]));
+		});
 		final int length = facts.length;
 		final FactIdentifier[] factIdentifiers = new FactIdentifier[length];
-		final Map<Fact, Integer> orderCache = new HashMap<>();
 		for (int i = 0; i < length; ++i) {
-			final int id = factIdentifierCounter++;
-			factIdentifiers[i] = new FactIdentifier(id);
-			orderCache.put(facts[i], id);
-		}
-		Arrays.stream(facts).collect(groupingBy(Fact::getTemplate)).forEach((t, fl) -> {
-			final Fact[] fs = toArray(fl, Fact[]::new);
-			final MemoryFact[] mfs = this.templateToOTN.get(t).assertFact(fs);
-			IntStream.range(0, mfs.length).forEach(i -> {
-				final MemoryFact mf = mfs[i];
-				if (null == mf) {
-					factIdentifiers[i] = null;
-				} else {
-					final Fact f = fs[i];
-					this.facts.put(orderCache.get(f), mf);
-				}
-			});
-		});
-		for (final FactIdentifier id : factIdentifiers) {
-			if (null == id) {
+			final MemoryFact memoryFact = factToMemoryFact.get(facts[i]);
+			if (null == memoryFact) {
 				System.out.println("FALSE");
 				continue;
 			}
-			System.out.println("==> f-" + id.getId() + "\t" + getMemoryFact(id.getId()).toString());
+			final int id = factIdentifierCounter++;
+			factIdentifiers[i] = new FactIdentifier(id);
+			this.facts.put(id, memoryFact);
+			System.out.println("==> f-" + id + "\t" + memoryFact.toString());
 		}
 		return factIdentifiers;
 	}
