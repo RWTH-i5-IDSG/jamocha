@@ -23,6 +23,7 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Queue;
 import java.util.function.Consumer;
@@ -167,8 +168,7 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 	@Override
 	public Object visit(final SFPStart node, final Object data) {
 		assert node.jjtGetNumChildren() == 1;
-		SelectiveSFPVisitor.sendVisitor(new SFPStartVisitor(), node.jjtGetChild(0), data);
-		return data;
+		return SelectiveSFPVisitor.sendVisitor(new SFPStartVisitor(), node.jjtGetChild(0), data).value;
 	}
 
 	public static enum ExistentialState {
@@ -1427,6 +1427,8 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 	}
 
 	class SFPStartVisitor implements SelectiveSFPVisitor {
+		String value;
+
 		// Start() : Construct() | Expression()
 		// void Construct() : <LBRACE> ( DeftemplateConstruct() | DefglobalConstruct()
 		// | DefruleConstruct() | DeffunctionConstruct() | DefmoduleConstruct() ) <RBRACE>
@@ -1517,7 +1519,7 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 		}
 
 		@Override
-		public Object visit(SFPDeffunctionConstruct node, Object data) {
+		public Object visit(final SFPDeffunctionConstruct node, final Object data) {
 			// <deffunction-construct> ::= (deffunction <name> [(functiongroup <groupname>)]
 			// [<comment>] (<regular-parameter>* [<wildcard-parameter>]) <expression>*)
 			// DeffunctionConstruct(): ( <DEFFUNCTION> Symbol() [ ConstructDescription() ] (<LBRACE>
@@ -1537,9 +1539,11 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 		@Override
 		public Object visit(final SFPExpression node, final Object data) {
 			// interactive mode
-			SelectiveSFPVisitor.sendVisitor(new SFPExpressionVisitor((s, n) -> {
-				throw new ClipsVariableNotDeclaredError(s, n);
-			}, true), node, data).expression.evaluate();
+			this.value =
+					Objects.toString(SelectiveSFPVisitor.sendVisitor(new SFPExpressionVisitor(
+							(s, n) -> {
+								throw new ClipsVariableNotDeclaredError(s, n);
+							}, true), node, data).expression.evaluate());
 			return data;
 		}
 	}
@@ -1563,8 +1567,8 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 					System.exit(0);
 				if (verbose)
 					SelectiveSFPVisitor.dumpToStdOut(n);
-				n.jjtAccept(visitor, "Parsing successful!");
-				Thread.sleep(200);
+				final String expression = Objects.toString(n.jjtAccept(visitor, ""));
+				System.out.println(expression);
 				visitor.warnings.forEach(w -> System.out.println("Warning: " + w.getMessage()));
 				visitor.warnings.clear();
 				System.out.print("SFP> ");
