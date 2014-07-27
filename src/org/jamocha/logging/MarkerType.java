@@ -12,26 +12,25 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package org.jamocha.dn.memory;
+package org.jamocha.logging;
 
-import lombok.Value;
+import lombok.RequiredArgsConstructor;
+
+import org.jamocha.dn.memory.Template;
+import org.slf4j.Marker;
+import org.slf4j.MarkerFactory;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
-@Value
-public class FactIdentifier implements Comparable<FactIdentifier> {
-	int id;
+@RequiredArgsConstructor
+public enum MarkerType {
+	FACTS(Template.templateMarker);
+	final Marker commonMarker;
 
-	@Override
-	public String toString() {
-		return "<Fact-" + id + ">";
-	}
-
-	@Override
-	public int compareTo(final FactIdentifier o) {
-		if (this == o)
-			return 0;
-		return Integer.compare(id, o.id);
+	public static Marker createChild(final Marker parent, final String name) {
+		final Marker marker = MarkerFactory.getMarker(name);
+		marker.add(parent);
+		return marker;
 	}
 }

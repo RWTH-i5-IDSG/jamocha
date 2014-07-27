@@ -27,6 +27,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.lang3.tuple.Pair;
 import org.jamocha.dn.Network;
 import org.jamocha.dn.memory.Fact;
@@ -41,6 +43,7 @@ import org.jamocha.filter.Path;
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
  */
+@Slf4j
 public class RootNode {
 
 	/**
@@ -77,7 +80,7 @@ public class RootNode {
 			final FactIdentifier factIdentifier = new FactIdentifier(id);
 			factIdentifiers[i] = factIdentifier;
 			this.facts.put(factIdentifier, memoryFact);
-			System.out.println("==> f-" + id + "\t" + memoryFact.toString());
+			log.info(memoryFact.getTemplate().getInstanceMarker(), "==> f-{}\t{}", id, memoryFact);
 		}
 		return factIdentifiers;
 	}
@@ -92,9 +95,7 @@ public class RootNode {
 	private void retractFacts(final List<Pair<Integer, MemoryFact>> facts) {
 		final Map<Boolean, List<Pair<Integer, MemoryFact>>> partition =
 				facts.stream().collect(Collectors.partitioningBy(p -> null == p.getRight()));
-		partition.get(true).forEach(p -> {
-			System.err.println("Unable to find fact f-" + p.getLeft());
-		});
+		partition.get(true).forEach(p -> log.error("Unable to find fact f-{}", p.getLeft()));
 		partition
 				.get(false)
 				.stream()
@@ -104,8 +105,8 @@ public class RootNode {
 							this.templateToOTN.get(t).retractFact(
 									toArray(f.stream().map(Pair::getRight), MemoryFact[]::new));
 							for (final Pair<Integer, MemoryFact> p : f) {
-								System.out.println("<== f-" + p.getLeft() + "\t"
-										+ p.getRight().toString());
+								log.info(p.getRight().getTemplate().getInstanceMarker(),
+										"<== f-{}\t{}", p.getLeft(), p.getRight());
 							}
 						});
 	}

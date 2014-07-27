@@ -35,6 +35,7 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.Value;
+import lombok.extern.slf4j.Slf4j;
 
 import org.jamocha.dn.Network;
 import org.jamocha.dn.ParserToNetwork;
@@ -133,6 +134,13 @@ import org.jamocha.languages.common.ScopeStack;
 import org.jamocha.languages.common.ScopeStack.Symbol;
 import org.jamocha.languages.common.SingleVariable;
 import org.jamocha.languages.common.Warning;
+import org.jamocha.logging.TypedFilter;
+import org.slf4j.LoggerFactory;
+
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.Appender;
 
 /**
  * Needs consideration: how to treat
@@ -145,6 +153,7 @@ import org.jamocha.languages.common.Warning;
  *
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
+@Slf4j
 @Getter
 @RequiredArgsConstructor
 public final class SFPVisitorImpl implements SelectiveSFPVisitor {
@@ -1554,9 +1563,17 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 			System.out
 					.println("Note: For verbose output type \u005c"java Main verbose\u005c".\u005cn");
 		System.out.print("SFP> ");
+
+		final LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
+		final TypedFilter filter = new TypedFilter(true);
+		final Logger rootLogger = lc.getLogger(Logger.ROOT_LOGGER_NAME);
+		final Appender<ILoggingEvent> appender = rootLogger.getAppender("console");
+		appender.addFilter(filter);
+
 		final SFPParser p = new SFPParser(System.in);
 		final Network network = new Network();
 		final SFPVisitorImpl visitor = new SFPVisitorImpl(network, network);
+
 		try {
 			while (true) {
 				final SFPStart n = p.Start();
@@ -1565,8 +1582,10 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 				if (verbose)
 					SelectiveSFPVisitor.dumpToStdOut(n);
 				final String expression = Objects.toString(n.jjtAccept(visitor, ""));
-				System.out.println(expression);
-				visitor.warnings.forEach(w -> System.out.println("Warning: " + w.getMessage()));
+				if (!(null == expression || "null".equals(expression))) {
+					log.info(expression);
+				}
+				visitor.warnings.forEach(w -> log.warn("Warning: " + w.getMessage()));
 				visitor.warnings.clear();
 				System.out.print("SFP> ");
 			}

@@ -14,6 +14,8 @@
  */
 package org.jamocha.filter.impls.sideeffects;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.jamocha.dn.SideEffectFunctionToNetwork;
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.filter.Function;
@@ -24,6 +26,7 @@ import org.jamocha.filter.impls.FunctionVisitor;
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
+@Slf4j
 public abstract class Facts implements Function<Object> {
 	static {
 		FunctionDictionary.addGeneratorWithSideEffects("facts", SlotType.empty,
@@ -55,8 +58,13 @@ public abstract class Facts implements Function<Object> {
 
 							@Override
 							public Object evaluate(final Function<?>... params) {
-								network.getMemoryFacts().forEach(
-										(k, v) -> System.out.println("f-" + k + "\t" + v));
+								network.getMemoryFacts()
+										.entrySet()
+										.stream()
+										.sorted((a, b) -> a.getKey().compareTo(b.getKey()))
+										.forEachOrdered(
+												e -> log.info("f-{}\t{}", e.getKey().getId(),
+														e.getValue()));
 								return null;
 							}
 						};

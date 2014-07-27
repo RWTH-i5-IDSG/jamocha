@@ -28,6 +28,8 @@ import org.jamocha.dn.memory.Fact;
 import org.jamocha.dn.memory.MemoryFact;
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.filter.fwa.FunctionWithArguments;
+import org.jamocha.logging.MarkerType;
+import org.slf4j.Marker;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -65,6 +67,8 @@ public class Template implements org.jamocha.dn.memory.Template {
 	final String description;
 	final HashMap<String, SlotAddress> slotNames = new HashMap<>();
 	final SlotType[] slotTypes;
+	@Getter(onMethod = @__(@Override))
+	final Marker instanceMarker;
 
 	Template(final String name, final String description, final Slot... slots) {
 		this.name = name;
@@ -72,6 +76,7 @@ public class Template implements org.jamocha.dn.memory.Template {
 		this.slotTypes = Arrays.stream(slots).map(s -> s.getSlotType()).toArray(SlotType[]::new);
 		IntStream.range(0, slots.length).forEach(
 				i -> this.slotNames.put(slots[i].getName(), new SlotAddress(i)));
+		instanceMarker = MarkerType.createChild(Template.templateMarker, name);
 	}
 
 	@Override

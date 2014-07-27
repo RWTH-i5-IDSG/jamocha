@@ -19,6 +19,8 @@ import java.util.Map;
 import lombok.Value;
 
 import org.jamocha.filter.fwa.FunctionWithArguments;
+import org.slf4j.Marker;
+import org.slf4j.MarkerFactory;
 
 /**
  * A Template consists of slots which in turn have a {@link SlotType slot type} and a name. Facts
@@ -29,6 +31,9 @@ import org.jamocha.filter.fwa.FunctionWithArguments;
  * @see Fact
  */
 public interface Template {
+
+	public final static Marker templateMarker = MarkerFactory.getMarker("TEMPLATE");
+
 	@Value
 	public static class Slot {
 		final SlotType slotType;
@@ -124,4 +129,6 @@ public interface Template {
 			final Map<SlotAddress, FunctionWithArguments> values);
 
 	public String toString(final Object[] slotValues);
+
+	public Marker getInstanceMarker();
 }
