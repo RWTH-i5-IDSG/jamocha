@@ -51,4 +51,7 @@ public interface FunctionVisitor extends Visitor {
 	void visit(final org.jamocha.filter.impls.predicates.Not predicate);
 
 	void visit(final org.jamocha.filter.impls.predicates.Or predicate);
+
+	// side effects
+	void visit(final org.jamocha.filter.impls.sideeffects.Facts function);
 }

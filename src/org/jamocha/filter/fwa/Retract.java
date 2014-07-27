@@ -22,7 +22,7 @@ import java.util.Objects;
 import lombok.Getter;
 import lombok.NonNull;
 
-import org.jamocha.dn.Network;
+import org.jamocha.dn.SideEffectFunctionToNetwork;
 import org.jamocha.dn.memory.FactIdentifier;
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.filter.Function;
@@ -34,9 +34,10 @@ import org.jamocha.filter.impls.FunctionVisitor;
 public class Retract extends GenericWithArgumentsComposite<Object, Function<?>> {
 	@Getter
 	@NonNull
-	final Network network;
+	final SideEffectFunctionToNetwork network;
 
-	public Retract(final Network network, final FunctionWithArguments... args) {
+	public Retract(final SideEffectFunctionToNetwork network,
+			final FunctionWithArguments... args) {
 		super(new Function<Object>() {
 			@Getter(lazy = true, onMethod = @__(@Override))
 			private final SlotType[] paramTypes = calculateParamTypes();

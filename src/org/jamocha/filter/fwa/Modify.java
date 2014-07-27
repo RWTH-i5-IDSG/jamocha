@@ -25,7 +25,7 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.Value;
 
-import org.jamocha.dn.Network;
+import org.jamocha.dn.SideEffectFunctionToNetwork;
 import org.jamocha.dn.memory.Fact;
 import org.jamocha.dn.memory.FactIdentifier;
 import org.jamocha.dn.memory.SlotAddress;
@@ -99,7 +99,7 @@ public class Modify implements FunctionWithArguments {
 
 	@Getter
 	@NonNull
-	final Network network;
+	final SideEffectFunctionToNetwork network;
 	@Getter
 	@NonNull
 	final FunctionWithArguments targetFact;
@@ -162,7 +162,7 @@ public class Modify implements FunctionWithArguments {
 						fs -> {
 							final FactIdentifier factIdentifier = Retract.toFactIdentifier(fs[0]);
 							final Fact fact =
-									network.getMemoryFact(factIdentifier.getId()).toMutableFact();
+									network.getMemoryFact(factIdentifier).toMutableFact();
 							network.retractFacts(factIdentifier);
 							final Template template = fact.getTemplate();
 							for (int i = 0; i < args.length; ++i) {

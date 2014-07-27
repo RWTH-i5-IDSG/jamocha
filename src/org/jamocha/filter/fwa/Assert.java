@@ -25,7 +25,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import lombok.Value;
 
-import org.jamocha.dn.Network;
+import org.jamocha.dn.SideEffectFunctionToNetwork;
 import org.jamocha.dn.memory.Fact;
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.dn.memory.Template;
@@ -46,6 +46,11 @@ public class Assert implements FunctionWithArguments {
 		private final SlotType[] paramTypes = calculateParamTypes();
 		@Getter(lazy = true, value = AccessLevel.PRIVATE)
 		private final int hashPIR = initHashPIR(), hashPII = initHashPII();
+
+		public TemplateContainer(final Template template, final FunctionWithArguments... args) {
+			this.template = template;
+			this.args = args;
+		}
 
 		private SlotType[] calculateParamTypes() {
 			return Assert.calculateParamTypes(args);
@@ -104,10 +109,14 @@ public class Assert implements FunctionWithArguments {
 		public Object evaluate(final Object... params) {
 			return GenericWithArgumentsComposite.staticEvaluate(this::lazyEvaluate, params);
 		}
+
+		public Fact toFact() {
+			return (Fact) evaluate();
+		}
 	}
 
 	@Getter
-	final Network network;
+	final SideEffectFunctionToNetwork network;
 	@Getter
 	final TemplateContainer[] args;
 	@Getter(lazy = true, onMethod = @__(@Override))

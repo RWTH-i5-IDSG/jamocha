@@ -37,14 +37,14 @@ import lombok.RequiredArgsConstructor;
 import lombok.Value;
 
 import org.jamocha.dn.Network;
+import org.jamocha.dn.ParserToNetwork;
+import org.jamocha.dn.SideEffectFunctionToNetwork;
 import org.jamocha.dn.memory.SlotAddress;
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.dn.memory.Template.Slot;
-import org.jamocha.dn.nodes.ObjectTypeNode;
 import org.jamocha.filter.Function;
 import org.jamocha.filter.FunctionDictionary;
-import org.jamocha.filter.Path;
 import org.jamocha.filter.Predicate;
 import org.jamocha.filter.fwa.Assert;
 import org.jamocha.filter.fwa.Assert.TemplateContainer;
@@ -163,7 +163,8 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 	final HashMap<Symbol, RuleProperties> symbolTableRules = new HashMap<>();
 	final Queue<Warning> warnings = new LinkedList<>();
 
-	final Network network;
+	final ParserToNetwork parserToNetwork;
+	final SideEffectFunctionToNetwork sideEffectFunctionToNetwork;
 
 	@Override
 	public Object visit(final SFPStart node, final Object data) {
@@ -1347,9 +1348,9 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 			final SlotType[] argTypes =
 					toArray(arguments.stream().map(e -> e.getReturnType()), SlotType[]::new);
 			final Function<?> function =
-					sideEffectsAllowed ? FunctionDictionary.lookupWithSideEffects(network,
-							symbol.getImage(), argTypes) : FunctionDictionary.lookup(
-							symbol.getImage(), argTypes);
+					sideEffectsAllowed ? FunctionDictionary.lookupWithSideEffects(
+							sideEffectFunctionToNetwork, symbol.getImage(), argTypes)
+							: FunctionDictionary.lookup(symbol.getImage(), argTypes);
 			this.expression =
 					new FunctionWithArgumentsComposite(function, toArray(arguments,
 							FunctionWithArguments[]::new));
@@ -1370,7 +1371,7 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 									new SFPAssertFuncElementsVisitor(this.mapper,
 											this.sideEffectsAllowed), n, data).templateContainer),
 							TemplateContainer[]::new);
-			this.expression = new Assert(network, templateContainers);
+			this.expression = new Assert(sideEffectFunctionToNetwork, templateContainers);
 			return data;
 		}
 
@@ -1391,7 +1392,7 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 					throw new ClipsTypeMismatchError(null, node);
 				}
 			});
-			this.expression = new Retract(network, array);
+			this.expression = new Retract(sideEffectFunctionToNetwork, array);
 			return data;
 		}
 
@@ -1421,7 +1422,7 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 					throw new ClipsTypeMismatchError(null, node);
 				}
 			});
-			this.expression = new Modify(network, target, array);
+			this.expression = new Modify(sideEffectFunctionToNetwork, target, array);
 			return data;
 		}
 	}
@@ -1455,10 +1456,9 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 			}
 			final String comment = visitor.comment;
 			final Template template =
-					SFPVisitorImpl.this.network.getMemoryFactory().newTemplate(symbol.getImage(),
-							comment, toArray(visitor.slotDefinitions, Slot[]::new));
+					parserToNetwork.defTemplate(symbol.getImage(), comment,
+							toArray(visitor.slotDefinitions, Slot[]::new));
 			SFPVisitorImpl.this.symbolTableTemplates.put(symbol, template);
-			network.getRootNode().putOTN(new ObjectTypeNode(network, new Path(template)));
 			return data;
 		}
 
@@ -1539,11 +1539,11 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 		@Override
 		public Object visit(final SFPExpression node, final Object data) {
 			// interactive mode
-			this.value =
-					Objects.toString(SelectiveSFPVisitor.sendVisitor(new SFPExpressionVisitor(
-							(s, n) -> {
-								throw new ClipsVariableNotDeclaredError(s, n);
-							}, true), node, data).expression.evaluate());
+			final FunctionWithArguments expression =
+					SelectiveSFPVisitor.sendVisitor(new SFPExpressionVisitor((s, n) -> {
+						throw new ClipsVariableNotDeclaredError(s, n);
+					}, true), node, data).expression;
+			this.value = expression.getReturnType().toString(expression.evaluate());
 			return data;
 		}
 	}
@@ -1556,10 +1556,7 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 		System.out.print("SFP> ");
 		final SFPParser p = new SFPParser(System.in);
 		final Network network = new Network();
-		final SFPVisitorImpl visitor = new SFPVisitorImpl(network);
-		final Template initialFact = network.getMemoryFactory().newTemplate("initial-fact", "");
-		network.getRootNode().putOTN(new ObjectTypeNode(network, new Path(initialFact)));
-		network.assertFacts(initialFact.newFact());
+		final SFPVisitorImpl visitor = new SFPVisitorImpl(network, network);
 		try {
 			while (true) {
 				final SFPStart n = p.Start();

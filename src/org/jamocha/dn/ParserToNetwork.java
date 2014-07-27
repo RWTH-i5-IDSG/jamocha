@@ -12,19 +12,22 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package org.jamocha.filter;
+package org.jamocha.dn;
 
-import org.jamocha.dn.SideEffectFunctionToNetwork;
-import org.jamocha.dn.memory.SlotType;
+import org.jamocha.dn.memory.Template;
+import org.jamocha.dn.memory.Template.Slot;
+import org.jamocha.filter.fwa.Assert;
 
 /**
- * Instances of this interface can generate a Function given a list of parameter types of arbitrary
- * length.
- * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
-@FunctionalInterface
-public interface FunctionWithSideEffectsGenerator {
-	public Function<?> generate(final SideEffectFunctionToNetwork network,
-			final SlotType[] paramTypes);
+public interface ParserToNetwork {
+
+	Template defTemplate(final String name, final String description, final Slot... slots);
+
+	void defFacts(final String name, final String description,
+			final Assert.TemplateContainer... containers);
+
+	void reset();
+
 }

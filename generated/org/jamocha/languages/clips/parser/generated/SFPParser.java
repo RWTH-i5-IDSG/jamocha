@@ -28,7 +28,8 @@ public class SFPParser/*@bgen(jjtree)*/implements SFPParserTreeConstants, SFPPar
         public Object nextExpression() throws ParseException {
                 SFPStart n = Start();
                 if (n != null) {
-                        Object result = n.jjtAccept(new SFPVisitorImpl(new Network()), null);
+                        final Network network = new Network();
+						Object result = n.jjtAccept(new SFPVisitorImpl(network, network), null);
                         if (result != null) {
                                 return result;
                         }
@@ -46,7 +47,8 @@ public class SFPParser/*@bgen(jjtree)*/implements SFPParserTreeConstants, SFPPar
                                 SFPStart n = p.Start();
                                 if (n==null) System.exit(0);
                                 n.dump(" ");
-                                n.jjtAccept(new SFPVisitorImpl(new Network()), null);
+                                final Network network = new Network();
+                                n.jjtAccept(new SFPVisitorImpl(network, network), null);
                         }
                 }
                 catch (Exception e) {

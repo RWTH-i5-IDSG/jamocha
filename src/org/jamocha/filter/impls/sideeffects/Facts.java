@@ -14,7 +14,7 @@
  */
 package org.jamocha.filter.impls.sideeffects;
 
-import org.jamocha.dn.Network;
+import org.jamocha.dn.SideEffectFunctionToNetwork;
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.filter.Function;
 import org.jamocha.filter.FunctionDictionary;
@@ -24,17 +24,18 @@ import org.jamocha.filter.impls.FunctionVisitor;
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
-public abstract class Facts {
+public abstract class Facts implements Function<Object> {
 	static {
 		FunctionDictionary.addGeneratorWithSideEffects("facts", SlotType.empty,
 				new FunctionWithSideEffectsGenerator() {
 					@Override
-					public Function<?> generate(Network network, SlotType[] paramTypes) {
-						return new Function<Object>() {
+					public Function<?> generate(final SideEffectFunctionToNetwork network,
+							final SlotType[] paramTypes) {
+						return new Facts() {
 							@Override
 							public <V extends FunctionVisitor> V accept(final V visitor) {
-								// TODO Auto-generated method stub
-								return null;
+								visitor.visit(this);
+								return visitor;
 							}
 
 							@Override
@@ -54,11 +55,8 @@ public abstract class Facts {
 
 							@Override
 							public Object evaluate(final Function<?>... params) {
-								network.getRootNode()
-										.getMemoryFacts()
-										.forEach(
-												e -> System.out.println("f-" + e.getKey() + "\t"
-														+ e.getValue()));
+								network.getMemoryFacts().forEach(
+										(k, v) -> System.out.println("f-" + k + "\t" + v));
 								return null;
 							}
 						};

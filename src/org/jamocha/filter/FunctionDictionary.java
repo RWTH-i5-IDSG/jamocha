@@ -19,7 +19,7 @@ import java.util.HashMap;
 
 import lombok.Value;
 
-import org.jamocha.dn.Network;
+import org.jamocha.dn.SideEffectFunctionToNetwork;
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.filter.impls.Functions;
 import org.jamocha.filter.impls.Predicates;
@@ -184,8 +184,9 @@ public class FunctionDictionary {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <T> Function<T> lookupWithSideEffects(final Network network,
-			final String inClips, final SlotType... params) {
+	public static <T> Function<T> lookupWithSideEffects(
+			final SideEffectFunctionToNetwork network, final String inClips,
+			final SlotType... params) {
 		try {
 			return lookup(inClips, params);
 		} catch (final UnsupportedOperationException e) {

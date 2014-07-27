@@ -22,4 +22,9 @@ import lombok.Value;
 @Value
 public class FactIdentifier {
 	int id;
+
+	@Override
+	public String toString() {
+		return "<Fact-" + id + ">";
+	}
 }

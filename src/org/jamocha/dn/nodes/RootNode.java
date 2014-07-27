@@ -24,8 +24,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -50,7 +48,7 @@ public class RootNode {
 	 */
 	private final Map<Template, ObjectTypeNode> templateToOTN = new HashMap<>();
 
-	private final Map<Integer, MemoryFact> facts = new HashMap<>();
+	private final Map<FactIdentifier, MemoryFact> facts = new HashMap<>();
 	private int factIdentifierCounter = 0;
 
 	/**
@@ -76,8 +74,9 @@ public class RootNode {
 				continue;
 			}
 			final int id = factIdentifierCounter++;
-			factIdentifiers[i] = new FactIdentifier(id);
-			this.facts.put(id, memoryFact);
+			final FactIdentifier factIdentifier = new FactIdentifier(id);
+			factIdentifiers[i] = factIdentifier;
+			this.facts.put(factIdentifier, memoryFact);
 			System.out.println("==> f-" + id + "\t" + memoryFact.toString());
 		}
 		return factIdentifiers;
@@ -112,16 +111,24 @@ public class RootNode {
 	}
 
 	public void retractFacts(final FactIdentifier... factIdentifiers) {
-		retractFacts(Arrays.stream(factIdentifiers)
-				.map(i -> Pair.of(i.getId(), facts.remove(i.getId()))).collect(toList()));
+		retractFacts(Arrays.stream(factIdentifiers).map(i -> Pair.of(i.getId(), facts.remove(i)))
+				.collect(toList()));
 	}
 
-	public MemoryFact getMemoryFact(final int factIdentifier) {
-		return this.facts.get(Integer.valueOf(factIdentifier));
+	/**
+	 * Deletes all facts in the system and resets the fact index counter
+	 */
+	public void reset() {
+		retractFacts(toArray(getMemoryFacts().keySet(), FactIdentifier[]::new));
+		this.factIdentifierCounter = 0;
 	}
 
-	public Set<Entry<Integer, MemoryFact>> getMemoryFacts() {
-		return Collections.unmodifiableSet(this.facts.entrySet());
+	public MemoryFact getMemoryFact(final FactIdentifier factIdentifier) {
+		return this.facts.get(factIdentifier);
+	}
+
+	public Map<FactIdentifier, MemoryFact> getMemoryFacts() {
+		return Collections.unmodifiableMap(this.facts);
 	}
 
 	/**

@@ -27,7 +27,7 @@ import org.jamocha.filter.fwa.Modify;
 import org.jamocha.filter.fwa.Modify.SlotAndValue;
 import org.jamocha.filter.fwa.PredicateWithArguments;
 import org.jamocha.filter.fwa.PredicateWithArgumentsComposite;
-import org.jamocha.filter.impls.FunctionVisitor;
+import org.jamocha.filter.impls.DefaultFunctionVisitor;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -183,67 +183,9 @@ public class UniformFunctionTranslator {
 		}
 	}
 
-	static interface SelectiveFunctionVisitor extends FunctionVisitor {
-		// functions
+	static interface SelectiveFunctionVisitor extends DefaultFunctionVisitor {
 		@Override
-		default void visit(final org.jamocha.filter.impls.functions.DividedBy<?> function) {
-		}
-
-		@Override
-		default void visit(final org.jamocha.filter.impls.functions.Minus<?> function) {
-		}
-
-		@Override
-		default void visit(final org.jamocha.filter.impls.functions.Plus<?> function) {
-		}
-
-		@Override
-		default void visit(final org.jamocha.filter.impls.functions.Times<?> function) {
-		}
-
-		@Override
-		default void visit(final org.jamocha.filter.impls.functions.TimesInverse<?> function) {
-		}
-
-		@Override
-		default void visit(final org.jamocha.filter.impls.functions.TypeConverter<?> function) {
-		}
-
-		@Override
-		default void visit(final org.jamocha.filter.impls.functions.UnaryMinus<?> function) {
-		}
-
-		// predicates
-		@Override
-		default void visit(final org.jamocha.filter.impls.predicates.And predicate) {
-		}
-
-		@Override
-		default void visit(final org.jamocha.filter.impls.predicates.Equals predicate) {
-		}
-
-		@Override
-		default void visit(final org.jamocha.filter.impls.predicates.Greater predicate) {
-		}
-
-		@Override
-		default void visit(final org.jamocha.filter.impls.predicates.GreaterOrEqual predicate) {
-		}
-
-		@Override
-		default void visit(final org.jamocha.filter.impls.predicates.Less predicate) {
-		}
-
-		@Override
-		default void visit(final org.jamocha.filter.impls.predicates.LessOrEqual predicate) {
-		}
-
-		@Override
-		default void visit(final org.jamocha.filter.impls.predicates.Not predicate) {
-		}
-
-		@Override
-		default void visit(final org.jamocha.filter.impls.predicates.Or predicate) {
+		default <R> void defaultAction(final Function<R> function) {
 		}
 	}
 

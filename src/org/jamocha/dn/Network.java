@@ -14,12 +14,19 @@
  */
 package org.jamocha.dn;
 
+import static org.jamocha.util.ToArray.toArray;
+
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
 
 import lombok.Getter;
+import lombok.Value;
 
 import org.jamocha.dn.memory.Fact;
 import org.jamocha.dn.memory.FactAddress;
@@ -28,10 +35,13 @@ import org.jamocha.dn.memory.MemoryFact;
 import org.jamocha.dn.memory.MemoryFactory;
 import org.jamocha.dn.memory.MemoryHandlerMain;
 import org.jamocha.dn.memory.MemoryHandlerPlusTemp;
+import org.jamocha.dn.memory.Template;
+import org.jamocha.dn.memory.Template.Slot;
 import org.jamocha.dn.nodes.AlphaNode;
 import org.jamocha.dn.nodes.BetaNode;
 import org.jamocha.dn.nodes.Edge;
 import org.jamocha.dn.nodes.Node;
+import org.jamocha.dn.nodes.ObjectTypeNode;
 import org.jamocha.dn.nodes.RootNode;
 import org.jamocha.dn.nodes.TerminalNode;
 import org.jamocha.filter.AddressFilter;
@@ -40,6 +50,8 @@ import org.jamocha.filter.FilterFunctionCompare;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.PathCollector;
 import org.jamocha.filter.PathFilter;
+import org.jamocha.filter.fwa.Assert;
+import org.jamocha.filter.fwa.Assert.TemplateContainer;
 
 /**
  * The Network class encapsulates the central objects for {@link MemoryFactory} and
@@ -54,7 +66,7 @@ import org.jamocha.filter.PathFilter;
  */
 
 @Getter
-public class Network {
+public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 
 	/**
 	 * -- GETTER --
@@ -102,6 +114,15 @@ public class Network {
 	 */
 	private final ConflictSet conflictSet = new ConflictSet();
 
+	@Value
+	private static class Deffacts {
+		String name;
+		String description;
+		List<Assert.TemplateContainer> containers;
+	}
+
+	private final List<Deffacts> deffacts = new ArrayList<>();
+
 	/**
 	 * Creates a new network object.
 	 * 
@@ -118,6 +139,7 @@ public class Network {
 		this.tokenQueueCapacity = tokenQueueCapacity;
 		this.scheduler = scheduler;
 		this.rootNode = new RootNode();
+		defFacts("initial-fact", "", new TemplateContainer(defTemplate("initial-fact", "")));
 	}
 
 	/**
@@ -261,16 +283,49 @@ public class Network {
 		return new TerminalNode(this, lowestNode);
 	}
 
+	@Override
 	public FactIdentifier[] assertFacts(final Fact... facts) {
-		return rootNode.assertFacts(facts);
+		return getRootNode().assertFacts(facts);
 	}
 
+	@Override
 	public void retractFacts(final FactIdentifier... factIdentifiers) {
-		rootNode.retractFacts(factIdentifiers);
+		getRootNode().retractFacts(factIdentifiers);
 	}
 
-	public MemoryFact getMemoryFact(final int factIdentifier) {
-		return rootNode.getMemoryFact(factIdentifier);
+	@Override
+	public MemoryFact getMemoryFact(final FactIdentifier factIdentifier) {
+		return getRootNode().getMemoryFact(factIdentifier);
+	}
+
+	@Override
+	public Map<FactIdentifier, MemoryFact> getMemoryFacts() {
+		return getRootNode().getMemoryFacts();
+	}
+
+	@Override
+	public Template defTemplate(final String name, final String description, final Slot... slots) {
+		final Template template = getMemoryFactory().newTemplate(name, description, slots);
+		getRootNode().putOTN(new ObjectTypeNode(this, new Path(template)));
+		return template;
+	}
+
+	@Override
+	public void defFacts(final String name, final String description,
+			final TemplateContainer... containers) {
+		this.deffacts.removeIf(def -> def.name.equals(name));
+		final List<TemplateContainer> conList = Arrays.asList(containers);
+		this.deffacts.add(new Deffacts(name, description, conList));
+		assertFacts(toArray(conList.stream().map(TemplateContainer::toFact), Fact[]::new));
+	}
+
+	@Override
+	public void reset() {
+		getRootNode().reset();
+		// assert all deffacts
+		assertFacts(toArray(
+				this.deffacts.stream().flatMap(def -> def.containers.stream())
+						.map(TemplateContainer::toFact), Fact[]::new));
 	}
 
 	/**
