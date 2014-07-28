@@ -27,5 +27,7 @@ import org.jamocha.filter.FunctionDictionary;
 public class SideEffects {
 	static {
 		FunctionDictionary.addImpl(org.jamocha.filter.impls.sideeffects.Facts.class);
+		FunctionDictionary.addImpl(org.jamocha.filter.impls.sideeffects.Watch.class);
+		FunctionDictionary.addImpl(org.jamocha.filter.impls.sideeffects.Unwatch.class);
 	}
 }

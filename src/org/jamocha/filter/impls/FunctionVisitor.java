@@ -54,4 +54,8 @@ public interface FunctionVisitor extends Visitor {
 
 	// side effects
 	void visit(final org.jamocha.filter.impls.sideeffects.Facts function);
+
+	void visit(final org.jamocha.filter.impls.sideeffects.Watch function);
+
+	void visit(final org.jamocha.filter.impls.sideeffects.Unwatch function);
 }
