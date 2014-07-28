@@ -15,6 +15,7 @@
 package org.jamocha.dn.memory.javaimpl;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -65,6 +66,8 @@ public class Template implements org.jamocha.dn.memory.Template {
 	final String name;
 	@Getter(onMethod = @__(@Override))
 	final String description;
+	@Getter(onMethod = @__(@Override))
+	final Collection<Slot> slots;
 	final HashMap<String, SlotAddress> slotNames = new HashMap<>();
 	final SlotType[] slotTypes;
 	@Getter(onMethod = @__(@Override))
@@ -73,6 +76,7 @@ public class Template implements org.jamocha.dn.memory.Template {
 	Template(final String name, final String description, final Slot... slots) {
 		this.name = name;
 		this.description = description;
+		this.slots = Arrays.asList(slots);
 		this.slotTypes = Arrays.stream(slots).map(s -> s.getSlotType()).toArray(SlotType[]::new);
 		IntStream.range(0, slots.length).forEach(
 				i -> this.slotNames.put(slots[i].getName(), new SlotAddress(i)));

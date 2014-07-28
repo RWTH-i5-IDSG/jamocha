@@ -14,6 +14,7 @@
  */
 package org.jamocha.dn.memory;
 
+import java.util.Collection;
 import java.util.Map;
 
 import lombok.Value;
@@ -53,6 +54,15 @@ public interface Template {
 	 * @return the description of the template
 	 */
 	public String getDescription();
+
+	/**
+	 * Returns the slots in the order given at construction time, possibly deviating from the
+	 * internal ordering.
+	 * 
+	 * @return the slots in the order given at construction time, possibly deviating from the
+	 *         internal ordering
+	 */
+	public Collection<Slot> getSlots();
 
 	/**
 	 * Gets the {@link SlotType} corresponding to the position specified by the given index.

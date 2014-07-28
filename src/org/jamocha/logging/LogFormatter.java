@@ -17,6 +17,7 @@ package org.jamocha.logging;
 import org.jamocha.dn.SideEffectFunctionToNetwork;
 import org.jamocha.dn.memory.FactIdentifier;
 import org.jamocha.dn.memory.MemoryFact;
+import org.jamocha.dn.memory.Template;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -26,6 +27,8 @@ public interface LogFormatter {
 	void messageFactDetails(final SideEffectFunctionToNetwork network, final int id,
 			final MemoryFact value);
 
+	void messageTemplateDetails(final SideEffectFunctionToNetwork network, final Template template);
+
 	void messageFactAssertions(final SideEffectFunctionToNetwork network,
 			final FactIdentifier[] assertedFacts);
 
@@ -34,4 +37,7 @@ public interface LogFormatter {
 
 	void messageArgumentTypeMismatch(final SideEffectFunctionToNetwork network,
 			final String function, final int paramIndex, final String expected);
+
+	void messageUnknownSymbol(final SideEffectFunctionToNetwork network, final String expectedType,
+			final String name);
 }

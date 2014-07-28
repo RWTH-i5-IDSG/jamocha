@@ -93,6 +93,14 @@ public enum SlotType {
 
 	@Override
 	public String toString() {
+		switch (this) {
+		case LONG:
+			return "INTEGER";
+		case DOUBLE:
+			return "FLOAT";
+		default:
+			break;
+		}
 		return this.name();
 	}
 

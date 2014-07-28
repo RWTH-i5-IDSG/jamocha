@@ -113,4 +113,9 @@ public interface DefaultFunctionVisitor extends FunctionVisitor {
 	default void visit(final org.jamocha.filter.impls.sideeffects.Unwatch function) {
 		defaultAction(function);
 	}
+
+	@Override
+	default void visit(final org.jamocha.filter.impls.sideeffects.Ppdeftemplate function) {
+		defaultAction(function);
+	}
 }

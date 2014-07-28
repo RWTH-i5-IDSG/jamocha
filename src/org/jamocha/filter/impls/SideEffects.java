@@ -29,5 +29,6 @@ public class SideEffects {
 		FunctionDictionary.addImpl(org.jamocha.filter.impls.sideeffects.Facts.class);
 		FunctionDictionary.addImpl(org.jamocha.filter.impls.sideeffects.Watch.class);
 		FunctionDictionary.addImpl(org.jamocha.filter.impls.sideeffects.Unwatch.class);
+		FunctionDictionary.addImpl(org.jamocha.filter.impls.sideeffects.Ppdeftemplate.class);
 	}
 }

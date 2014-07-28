@@ -47,57 +47,57 @@ public abstract class Unwatch implements Function<Object> {
 	}
 
 	static {
-		FunctionDictionary.addGeneratorWithSideEffects(inClips, new SlotType[] { SlotType.SYMBOL },
-				(final SideEffectFunctionToNetwork network, final SlotType[] paramTypes) -> {
-					return new Watch() {
-						@Override
-						public SlotType[] getParamTypes() {
-							return paramTypes;
-						}
+		FunctionDictionary.addVarArgsGeneratorWithSideEffects(inClips, SlotType.SYMBOL, (
+				final SideEffectFunctionToNetwork network, final SlotType[] paramTypes) -> {
+			return new Watch() {
+				@Override
+				public SlotType[] getParamTypes() {
+					return paramTypes;
+				}
 
-						@Override
-						public Object evaluate(final Function<?>... params) {
-							final Symbol type = (Symbol) params[0].evaluate();
-							switch (type.getImage()) {
-							case "all":
-								network.getTypedFilter().unwatchAll();
-								break;
-							case "facts":
-								final Marker[] markers = new Marker[params.length - 1];
-								for (int i = 1; i < params.length; ++i) {
-									final String string = (String) params[i].evaluate();
-									final Template template = network.getTemplate(string);
-									if (null == template) {
-										network.getLogFormatter().messageArgumentTypeMismatch(
-												network, inClips(), i - 1, "deftemplate");
-										return null;
-									}
-									markers[i - 1] = template.getInstanceMarker();
-								}
-								network.getTypedFilter().unwatch(MarkerType.FACTS, markers);
-								break;
-							case "compilations":
-							case "statistics":
-							case "focus":
-							case "messages":
-							case "deffunctions":
-							case "globals":
-							case "rules":
-							case "activations":
-							case "instances":
-							case "slots":
-							case "message-handlers":
-							case "generic-functions":
-							case "methods":
-								throw new UnsupportedOperationException("Unsupported yet: "
-										+ type.getImage());
-							default:
+				@Override
+				public Object evaluate(final Function<?>... params) {
+					final Symbol type = (Symbol) params[0].evaluate();
+					switch (type.getImage()) {
+					case "all":
+						network.getTypedFilter().unwatchAll();
+						break;
+					case "facts":
+						final Marker[] markers = new Marker[params.length - 1];
+						for (int i = 1; i < params.length; ++i) {
+							final String string = (String) params[i].evaluate();
+							final Template template = network.getTemplate(string);
+							if (null == template) {
 								network.getLogFormatter().messageArgumentTypeMismatch(network,
-										inClips(), 1, "watchable symbol");
+										inClips(), i - 1, "deftemplate");
+								return null;
 							}
-							return null;
+							markers[i - 1] = template.getInstanceMarker();
 						}
-					};
-				});
+						network.getTypedFilter().unwatch(MarkerType.FACTS, markers);
+						break;
+					case "compilations":
+					case "statistics":
+					case "focus":
+					case "messages":
+					case "deffunctions":
+					case "globals":
+					case "rules":
+					case "activations":
+					case "instances":
+					case "slots":
+					case "message-handlers":
+					case "generic-functions":
+					case "methods":
+						throw new UnsupportedOperationException("Unsupported yet: "
+								+ type.getImage());
+					default:
+						network.getLogFormatter().messageArgumentTypeMismatch(network, inClips(),
+								1, "watchable symbol");
+					}
+					return null;
+				}
+			};
+		});
 	}
 }

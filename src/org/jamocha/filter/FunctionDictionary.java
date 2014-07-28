@@ -54,7 +54,9 @@ public class FunctionDictionary {
 			new HashMap<>();
 	private static final HashMap<CombinedClipsAndParams, VarargsFunctionGenerator> generators =
 			new HashMap<>();
-	private static final HashMap<CombinedClipsAndParams, FunctionWithSideEffectsGenerator> generatorsWithSideEffects =
+	private static final HashMap<CombinedClipsAndParams, FunctionWithSideEffectsGenerator> fixedArgsGeneratorsWithSideEffects =
+			new HashMap<>();
+	private static final HashMap<CombinedClipsAndParams, FunctionWithSideEffectsGenerator> varArgsGeneratorsWithSideEffects =
 			new HashMap<>();
 
 	static {
@@ -110,10 +112,18 @@ public class FunctionDictionary {
 		}
 	}
 
-	public static void addGeneratorWithSideEffects(final String string, final SlotType[] types,
-			final FunctionWithSideEffectsGenerator varargsFunctionGenerator) {
-		if (null != generatorsWithSideEffects.put(new CombinedClipsAndParams(string, types),
-				varargsFunctionGenerator)) {
+	public static void addFixedArgsGeneratorWithSideEffects(final String string,
+			final SlotType[] types, final FunctionWithSideEffectsGenerator varargsFunctionGenerator) {
+		if (null != fixedArgsGeneratorsWithSideEffects.put(
+				new CombinedClipsAndParams(string, types), varargsFunctionGenerator)) {
+			throw new IllegalArgumentException("Function " + string + " already defined!");
+		}
+	}
+
+	public static void addVarArgsGeneratorWithSideEffects(final String string,
+			final SlotType types, final FunctionWithSideEffectsGenerator varargsFunctionGenerator) {
+		if (null != varArgsGeneratorsWithSideEffects.put(new CombinedClipsAndParams(string,
+				new SlotType[] { types }), varargsFunctionGenerator)) {
 			throw new IllegalArgumentException("Function " + string + " already defined!");
 		}
 	}
@@ -184,25 +194,43 @@ public class FunctionDictionary {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <T> Function<T> lookupWithSideEffects(
-			final SideEffectFunctionToNetwork network, final String inClips,
-			final SlotType... params) {
+	public static <T> Function<T> lookupWithSideEffects(final SideEffectFunctionToNetwork network,
+			final String inClips, final SlotType... params) {
 		try {
+			// try without side effects
 			return lookup(inClips, params);
 		} catch (final UnsupportedOperationException e) {
+			// try fixed argument number with side effects
+			{
+				final FunctionWithSideEffectsGenerator fixedArgsFunctionGenerator =
+						fixedArgsGeneratorsWithSideEffects.get(new CombinedClipsAndParams(inClips,
+								params));
+				if (null != fixedArgsFunctionGenerator) {
+					final Function<T> generated =
+							(Function<T>) fixedArgsFunctionGenerator.generate(network, params);
+					if (null != generated) {
+						return generated;
+					}
+				}
+			}
 			// assert that all param types are the same
 			for (final SlotType param : params) {
 				if (param != params[0])
 					throw new UnsupportedOperationException(unsupportedMsg(inClips, params));
 			}
-			final FunctionWithSideEffectsGenerator varargsFunctionGenerator =
-					generatorsWithSideEffects.get(new CombinedClipsAndParams(inClips,
-							0 == params.length ? SlotType.empty : new SlotType[] { params[0] }));
-			if (null != varargsFunctionGenerator) {
-				final Function<T> generated =
-						(Function<T>) varargsFunctionGenerator.generate(network, params);
-				if (null != generated) {
-					return generated;
+			// try variable argument number with side effects
+			{
+				final FunctionWithSideEffectsGenerator varargsFunctionGenerator =
+						varArgsGeneratorsWithSideEffects
+								.get(new CombinedClipsAndParams(inClips,
+										0 == params.length ? SlotType.empty
+												: new SlotType[] { params[0] }));
+				if (null != varargsFunctionGenerator) {
+					final Function<T> generated =
+							(Function<T>) varargsFunctionGenerator.generate(network, params);
+					if (null != generated) {
+						return generated;
+					}
 				}
 			}
 			throw new UnsupportedOperationException(unsupportedMsg(inClips, params));

@@ -16,20 +16,17 @@ package org.jamocha.filter.impls.sideeffects;
 
 import org.jamocha.dn.SideEffectFunctionToNetwork;
 import org.jamocha.dn.memory.SlotType;
+import org.jamocha.dn.memory.Template;
 import org.jamocha.filter.Function;
 import org.jamocha.filter.FunctionDictionary;
 import org.jamocha.filter.impls.FunctionVisitor;
+import org.jamocha.languages.common.ScopeStack.Symbol;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
-public abstract class Facts implements Function<Object> {
-	public static String inClips = "facts";
-
-	@Override
-	public String inClips() {
-		return inClips;
-	}
+public abstract class Ppdeftemplate implements Function<Object> {
+	public static String inClips = "ppdeftemplate";
 
 	@Override
 	public SlotType getReturnType() {
@@ -43,26 +40,33 @@ public abstract class Facts implements Function<Object> {
 	}
 
 	@Override
+	public String inClips() {
+		return inClips;
+	}
+
+	@Override
 	public SlotType[] getParamTypes() {
-		return SlotType.empty;
+		return new SlotType[] { SlotType.SYMBOL };
 	}
 
 	static {
-		FunctionDictionary.addFixedArgsGeneratorWithSideEffects(inClips, SlotType.empty, (
-				final SideEffectFunctionToNetwork network, final SlotType[] paramTypes) -> {
-			return new Facts() {
-				@Override
-				public Object evaluate(final Function<?>... params) {
-					network.getMemoryFacts()
-							.entrySet()
-							.stream()
-							.sorted((a, b) -> a.getKey().compareTo(b.getKey()))
-							.forEachOrdered(
-									e -> network.getLogFormatter().messageFactDetails(network,
-											e.getKey().getId(), e.getValue()));
-					return null;
-				}
-			};
-		});
+		FunctionDictionary.addFixedArgsGeneratorWithSideEffects(inClips,
+				new SlotType[] { SlotType.SYMBOL }, (final SideEffectFunctionToNetwork network,
+						final SlotType[] paramTypes) -> {
+					return new Ppdeftemplate() {
+						@Override
+						public Object evaluate(final Function<?>... params) {
+							final Symbol type = (Symbol) params[0].evaluate();
+							final Template template = network.getTemplate(type.getImage());
+							if (null == template) {
+								network.getLogFormatter().messageUnknownSymbol(network,
+										"deftemplate", type.getImage());
+							} else {
+								network.getLogFormatter().messageTemplateDetails(network, template);
+							}
+							return null;
+						}
+					};
+				});
 	}
 }

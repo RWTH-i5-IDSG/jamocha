@@ -18,6 +18,9 @@ import org.apache.logging.log4j.Logger;
 import org.jamocha.dn.SideEffectFunctionToNetwork;
 import org.jamocha.dn.memory.FactIdentifier;
 import org.jamocha.dn.memory.MemoryFact;
+import org.jamocha.dn.memory.SlotType;
+import org.jamocha.dn.memory.Template;
+import org.jamocha.dn.memory.Template.Slot;
 import org.jamocha.logging.LogFormatter;
 import org.jamocha.logging.MarkerType;
 
@@ -46,6 +49,23 @@ public class ClipsLogFormatter implements LogFormatter {
 	public void messageFactDetails(final SideEffectFunctionToNetwork network, int id,
 			MemoryFact value) {
 		network.getInteractiveEventsLogger().info("f-{}\t{}", id, value);
+	}
+
+	@Override
+	public void messageTemplateDetails(final SideEffectFunctionToNetwork network,
+			final Template template) {
+		final StringBuilder sb = new StringBuilder();
+		sb.append("(deftemplate ").append(template.getName());
+		final String description = template.getDescription();
+		if (null != description && !description.isEmpty()) {
+			sb.append(" ").append(SlotType.STRING.toString(description));
+		}
+		for (final Slot slot : template.getSlots()) {
+			sb.append("\n\t(slot ").append(slot.getName()).append(" (type ")
+					.append(slot.getSlotType().toString()).append("))");
+		}
+		sb.append(")\n");
+		network.getInteractiveEventsLogger().info(sb.toString());
 	}
 
 	@Override
@@ -86,5 +106,12 @@ public class ClipsLogFormatter implements LogFormatter {
 		network.getInteractiveEventsLogger().error(
 				"[ARGACCES5] Function {} expected argument #{} to be of type {}", function,
 				paramIndex, expected);
+	}
+
+	@Override
+	public void messageUnknownSymbol(final SideEffectFunctionToNetwork network,
+			final String expectedType, final String name) {
+		network.getInteractiveEventsLogger().error("[PRNTUTIL1] Unable to find {} {}",
+				expectedType, name);
 	}
 }
