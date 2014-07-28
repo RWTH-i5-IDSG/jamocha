@@ -87,9 +87,7 @@ public class NetworkTest {
 			SecurityException, IllegalAccessException, IllegalArgumentException,
 			InvocationTargetException {
 		final PlainScheduler scheduler = new PlainScheduler();
-		final Network network =
-				new Network(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(),
-						Integer.MAX_VALUE, scheduler);
+		final Network network = new Network(Integer.MAX_VALUE, scheduler);
 		final RootNode rootNode = network.getRootNode();
 
 		final Template template =
@@ -168,9 +166,7 @@ public class NetworkTest {
 	public void testTryToShareNodeSimpleBetaCase() throws NoSuchMethodException, SecurityException,
 			IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 		final PlainScheduler scheduler = new PlainScheduler();
-		final Network network =
-				new Network(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(),
-						Integer.MAX_VALUE, scheduler);
+		final Network network = new Network(Integer.MAX_VALUE, scheduler);
 		final RootNode rootNode = network.getRootNode();
 
 		final Template template =
@@ -227,9 +223,7 @@ public class NetworkTest {
 	public void testTryToShareNodeBetaCase() throws NoSuchMethodException, SecurityException,
 			IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 		final PlainScheduler scheduler = new PlainScheduler();
-		final Network network =
-				new Network(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(),
-						Integer.MAX_VALUE, scheduler);
+		final Network network = new Network(Integer.MAX_VALUE, scheduler);
 		final RootNode rootNode = network.getRootNode();
 
 		final Template template =
@@ -286,9 +280,7 @@ public class NetworkTest {
 	public void testTryToShareNodeBetaCase2() throws NoSuchMethodException, SecurityException,
 			IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 		final PlainScheduler scheduler = new PlainScheduler();
-		final Network network =
-				new Network(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(),
-						Integer.MAX_VALUE, scheduler);
+		final Network network = new Network(Integer.MAX_VALUE, scheduler);
 		final RootNode rootNode = network.getRootNode();
 
 		final Template student =
@@ -369,9 +361,7 @@ public class NetworkTest {
 	@Test
 	public void testBuildRuleSimpleAlphaCase() {
 		final PlainScheduler scheduler = new PlainScheduler();
-		final Network network =
-				new Network(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(),
-						Integer.MAX_VALUE, scheduler);
+		final Network network = new Network(Integer.MAX_VALUE, scheduler);
 
 		final Template template =
 				MemoryFactory.getMemoryFactory().newTemplate("", "", new Slot(SlotType.STRING, ""),
@@ -428,9 +418,7 @@ public class NetworkTest {
 	@Test
 	public void testBuildRuleSimpleBetaCase() {
 		final PlainScheduler scheduler = new PlainScheduler();
-		final Network network =
-				new Network(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(),
-						Integer.MAX_VALUE, scheduler);
+		final Network network = new Network(Integer.MAX_VALUE, scheduler);
 
 		final Template template =
 				MemoryFactory.getMemoryFactory().newTemplate("", "", new Slot(SlotType.STRING, ""),
@@ -480,9 +468,7 @@ public class NetworkTest {
 	@Test
 	public void testBuildRuleBetaCase() {
 		final PlainScheduler scheduler = new PlainScheduler();
-		final Network network =
-				new Network(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(),
-						Integer.MAX_VALUE, scheduler);
+		final Network network = new Network(Integer.MAX_VALUE, scheduler);
 
 		final Template template =
 				MemoryFactory.getMemoryFactory().newTemplate("", "", new Slot(SlotType.STRING, ""),
@@ -532,9 +518,7 @@ public class NetworkTest {
 	@Test
 	public void testBuildRuleBetaCase2() {
 		final PlainScheduler scheduler = new PlainScheduler();
-		final Network network =
-				new Network(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(),
-						Integer.MAX_VALUE, scheduler);
+		final Network network = new Network(Integer.MAX_VALUE, scheduler);
 
 		final Template student =
 				MemoryFactory.getMemoryFactory().newTemplate("Student", "Student",
