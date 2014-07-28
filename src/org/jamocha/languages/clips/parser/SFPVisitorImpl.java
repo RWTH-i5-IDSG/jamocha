@@ -35,8 +35,18 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.Value;
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.log4j.Log4j2;
 
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.core.Appender;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.appender.ConsoleAppender;
+import org.apache.logging.log4j.core.appender.ConsoleAppender.Target;
+import org.apache.logging.log4j.core.config.Configuration;
+import org.apache.logging.log4j.core.config.LoggerConfig;
+import org.apache.logging.log4j.core.layout.PatternLayout;
+import org.apache.logging.log4j.core.util.Charsets;
 import org.jamocha.dn.Network;
 import org.jamocha.dn.ParserToNetwork;
 import org.jamocha.dn.SideEffectFunctionToNetwork;
@@ -135,12 +145,6 @@ import org.jamocha.languages.common.ScopeStack.Symbol;
 import org.jamocha.languages.common.SingleVariable;
 import org.jamocha.languages.common.Warning;
 import org.jamocha.logging.TypedFilter;
-import org.slf4j.LoggerFactory;
-
-import ch.qos.logback.classic.Logger;
-import ch.qos.logback.classic.LoggerContext;
-import ch.qos.logback.classic.spi.ILoggingEvent;
-import ch.qos.logback.core.Appender;
 
 /**
  * Needs consideration: how to treat
@@ -153,7 +157,7 @@ import ch.qos.logback.core.Appender;
  *
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
-@Slf4j
+@Log4j2
 @Getter
 @RequiredArgsConstructor
 public final class SFPVisitorImpl implements SelectiveSFPVisitor {
@@ -1564,11 +1568,22 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 					.println("Note: For verbose output type \u005c"java Main verbose\u005c".\u005cn");
 		System.out.print("SFP> ");
 
-		final LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
 		final TypedFilter filter = new TypedFilter(true);
-		final Logger rootLogger = lc.getLogger(Logger.ROOT_LOGGER_NAME);
-		final Appender<ILoggingEvent> appender = rootLogger.getAppender("console");
-		appender.addFilter(filter);
+		{
+			final LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
+			final Configuration config = ctx.getConfiguration();
+			final LoggerConfig loggerConfig = config.getLoggerConfig(LogManager.ROOT_LOGGER_NAME);
+			final Appender appender =
+					ConsoleAppender.createAppender(PatternLayout.createLayout(
+							PatternLayout.SIMPLE_CONVERSION_PATTERN, config, null, Charsets.UTF_8,
+							true, true, "", ""), filter, Target.SYSTEM_OUT.name(),
+							"consoleAppender", "true", "true");
+			loggerConfig.getAppenders().forEach((n, a) -> loggerConfig.removeAppender(n));
+			loggerConfig.addAppender(appender, Level.ALL, filter);
+			loggerConfig.setLevel(Level.ALL);
+			// This causes all Loggers to re-fetch information from their LoggerConfig
+			ctx.updateLoggers();
+		}
 
 		final SFPParser p = new SFPParser(System.in);
 		final Network network = new Network();

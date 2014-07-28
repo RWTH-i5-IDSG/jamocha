@@ -14,7 +14,7 @@
  */
 package org.jamocha.filter.impls.sideeffects;
 
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.log4j.Log4j2;
 
 import org.jamocha.dn.SideEffectFunctionToNetwork;
 import org.jamocha.dn.memory.SlotType;
@@ -26,7 +26,7 @@ import org.jamocha.filter.impls.FunctionVisitor;
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
-@Slf4j
+@Log4j2
 public abstract class Facts implements Function<Object> {
 	static {
 		FunctionDictionary.addGeneratorWithSideEffects("facts", SlotType.empty,

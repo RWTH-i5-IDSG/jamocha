@@ -24,12 +24,12 @@ import java.util.stream.Stream;
 
 import lombok.Getter;
 
+import org.apache.logging.log4j.Marker;
 import org.jamocha.dn.memory.Fact;
 import org.jamocha.dn.memory.MemoryFact;
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.filter.fwa.FunctionWithArguments;
 import org.jamocha.logging.MarkerType;
-import org.slf4j.Marker;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>

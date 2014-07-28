@@ -22,17 +22,18 @@ import java.util.EnumSet;
 import java.util.Map.Entry;
 
 import org.apache.commons.lang3.tuple.Pair;
-import org.slf4j.Marker;
-import org.slf4j.MarkerFactory;
-
-import ch.qos.logback.classic.spi.ILoggingEvent;
-import ch.qos.logback.core.filter.Filter;
-import ch.qos.logback.core.spi.FilterReply;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.Marker;
+import org.apache.logging.log4j.MarkerManager;
+import org.apache.logging.log4j.core.LogEvent;
+import org.apache.logging.log4j.core.Logger;
+import org.apache.logging.log4j.core.filter.AbstractFilter;
+import org.apache.logging.log4j.message.Message;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
-public class TypedFilter extends Filter<ILoggingEvent> {
+public class TypedFilter extends AbstractFilter {
 	// boolean in pair: true if watched => collection is exclusion list
 	// false if not watched => collection is inclusion list
 	final EnumMap<MarkerType, Pair<Boolean, Collection<Marker>>> markerToInExClusionList =
@@ -52,7 +53,7 @@ public class TypedFilter extends Filter<ILoggingEvent> {
 
 	public void watch(final MarkerType markerType, final String... markerNames) {
 		watch(markerType,
-				Arrays.stream(markerNames).map(MarkerFactory::getMarker).toArray(Marker[]::new));
+				Arrays.stream(markerNames).map(MarkerManager::getMarker).toArray(Marker[]::new));
 	}
 
 	public void watch(final MarkerType markerType, final Marker... markers) {
@@ -69,7 +70,7 @@ public class TypedFilter extends Filter<ILoggingEvent> {
 
 	public void unwatch(final MarkerType markerType, final String... markerNames) {
 		unwatch(markerType,
-				Arrays.stream(markerNames).map(MarkerFactory::getMarker).toArray(Marker[]::new));
+				Arrays.stream(markerNames).map(MarkerManager::getMarker).toArray(Marker[]::new));
 	}
 
 	public void unwatch(final MarkerType markerType, final Marker... markers) {
@@ -80,15 +81,12 @@ public class TypedFilter extends Filter<ILoggingEvent> {
 		}
 	}
 
-	private boolean check(final ILoggingEvent event) {
-		if (null == event)
-			return false;
-		final Marker marker = event.getMarker();
+	private boolean check(final Marker marker) {
 		if (null == marker)
 			return this.keepItemsWithoutMarkers;
 		for (final Entry<MarkerType, Pair<Boolean, Collection<Marker>>> e : this.markerToInExClusionList
 				.entrySet()) {
-			if (!marker.contains(e.getKey().commonMarker)) {
+			if (!marker.isInstanceOf(e.getKey().commonMarker)) {
 				continue;
 			}
 			// type matched
@@ -96,7 +94,7 @@ public class TypedFilter extends Filter<ILoggingEvent> {
 			if (pair.getLeft()) {
 				// type watched, check for exclusion
 				for (final Marker ex : pair.getRight()) {
-					if (marker.contains(ex)) {
+					if (marker.isInstanceOf(ex)) {
 						return false;
 					}
 				}
@@ -105,16 +103,37 @@ public class TypedFilter extends Filter<ILoggingEvent> {
 			}
 			// type not watched, marker included?
 			for (final Marker in : pair.getRight()) {
-				if (marker.contains(in)) {
+				if (marker.isInstanceOf(in)) {
 					return true;
 				}
 			}
 		}
 		return false;
 	}
+	public Result decide(final Marker marker) {
+		return check(marker) ? Result.NEUTRAL : Result.DENY;
+	}
 
 	@Override
-	public FilterReply decide(final ILoggingEvent event) {
-		return check(event) ? FilterReply.NEUTRAL : FilterReply.DENY;
+	public Result filter(LogEvent event) {
+		return decide(event.getMarker());
+	}
+
+	@Override
+	public Result filter(Logger logger, Level level, Marker marker,
+			Message msg, Throwable t) {
+		return decide(marker);
+	}
+
+	@Override
+	public Result filter(Logger logger, Level level, Marker marker,
+			Object msg, Throwable t) {
+		return decide(marker);
+	}
+
+	@Override
+	public Result filter(Logger logger, Level level, Marker marker,
+			String msg, Object... params) {
+		return decide(marker);
 	}
 }

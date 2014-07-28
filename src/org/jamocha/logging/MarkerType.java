@@ -16,9 +16,9 @@ package org.jamocha.logging;
 
 import lombok.RequiredArgsConstructor;
 
+import org.apache.logging.log4j.Marker;
+import org.apache.logging.log4j.MarkerManager;
 import org.jamocha.dn.memory.Template;
-import org.slf4j.Marker;
-import org.slf4j.MarkerFactory;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -29,8 +29,6 @@ public enum MarkerType {
 	final Marker commonMarker;
 
 	public static Marker createChild(final Marker parent, final String name) {
-		final Marker marker = MarkerFactory.getMarker(name);
-		marker.add(parent);
-		return marker;
+		return MarkerManager.getMarker(name).setParents(parent);
 	}
 }
