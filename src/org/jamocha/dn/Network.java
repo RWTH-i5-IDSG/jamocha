@@ -25,9 +25,23 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
+import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.Value;
 
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.Appender;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.appender.ConsoleAppender;
+import org.apache.logging.log4j.core.appender.ConsoleAppender.Target;
+import org.apache.logging.log4j.core.config.Configuration;
+import org.apache.logging.log4j.core.config.LoggerConfig;
+import org.apache.logging.log4j.core.config.LoggerConfig.RootLogger;
+import org.apache.logging.log4j.core.layout.PatternLayout;
+import org.apache.logging.log4j.core.util.Charsets;
+import org.jamocha.dn.ConstructCache.Deffacts;
+import org.jamocha.dn.ConstructCache.Defrule;
 import org.jamocha.dn.memory.Fact;
 import org.jamocha.dn.memory.FactAddress;
 import org.jamocha.dn.memory.FactIdentifier;
@@ -50,8 +64,12 @@ import org.jamocha.filter.FilterFunctionCompare;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.PathCollector;
 import org.jamocha.filter.PathFilter;
-import org.jamocha.filter.fwa.Assert;
 import org.jamocha.filter.fwa.Assert.TemplateContainer;
+import org.jamocha.filter.fwa.FunctionWithArguments;
+import org.jamocha.languages.clips.ClipsLogFormatter;
+import org.jamocha.languages.common.RuleCondition;
+import org.jamocha.logging.LogFormatter;
+import org.jamocha.logging.TypedFilter;
 
 /**
  * The Network class encapsulates the central objects for {@link MemoryFactory} and
@@ -64,7 +82,6 @@ import org.jamocha.filter.fwa.Assert.TemplateContainer;
  * @see Scheduler
  * @see Node
  */
-
 @Getter
 public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 
@@ -114,14 +131,20 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 	 */
 	private final ConflictSet conflictSet = new ConflictSet();
 
-	@Value
-	private static class Deffacts {
-		String name;
-		String description;
-		List<Assert.TemplateContainer> containers;
-	}
+	@Getter
+	private final ConstructCache constructCache = new ConstructCache();
 
-	private final List<Deffacts> deffacts = new ArrayList<>();
+	@Getter(AccessLevel.PRIVATE)
+	private static int loggerDiscriminator = 0;
+	@Getter(onMethod = @__(@Override))
+	private final Logger interactiveEventsLogger = LogManager.getLogger(this.getClass()
+			.getCanonicalName() + Integer.valueOf(loggerDiscriminator++).toString());
+
+	@Getter(onMethod = @__(@Override))
+	private final TypedFilter typedFilter = new TypedFilter(true);
+
+	@Getter(onMethod = @__(@Override))
+	private final LogFormatter logFormatter;
 
 	/**
 	 * Creates a new network object.
@@ -133,13 +156,56 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 	 * @param scheduler
 	 *            the {@link Scheduler} to handle the dispatching of token processing
 	 */
-	public Network(final MemoryFactory memoryFactory, final int tokenQueueCapacity,
-			final Scheduler scheduler) {
+	public Network(final MemoryFactory memoryFactory, final LogFormatter logFormatter,
+			final int tokenQueueCapacity, final Scheduler scheduler) {
 		this.memoryFactory = memoryFactory;
 		this.tokenQueueCapacity = tokenQueueCapacity;
 		this.scheduler = scheduler;
 		this.rootNode = new RootNode();
-		defFacts("initial-fact", "", new TemplateContainer(defTemplate("initial-fact", "")));
+		this.logFormatter = logFormatter;
+		{
+			// there seem to be two different log levels: one in the logger (aka in the
+			// PrivateConfig of the logger) and one in the LoggerConfig (which may be shared); the
+			// two values can be synchronized via LoggerContext::updateLoggers (shared -> private)
+
+			// making a change (additive, appender, filter) to the logger leads to the creation of
+			// an own logger config for our logger
+			((org.apache.logging.log4j.core.Logger) this.interactiveEventsLogger)
+					.setAdditive(false);
+			final LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
+			final Configuration config = ctx.getConfiguration();
+			final LoggerConfig loggerConfig =
+					config.getLoggerConfig(this.getInteractiveEventsLogger().getName());
+			// the normal constructor is private, thus we have to use the plugin-level access
+			final Appender appender =
+					ConsoleAppender.createAppender(PatternLayout.createLayout(
+							// PatternLayout.SIMPLE_CONVERSION_PATTERN
+							PatternLayout.DEFAULT_CONVERSION_PATTERN, config, null, Charsets.UTF_8,
+							true, true, "", ""), null, Target.SYSTEM_OUT.name(), "consoleAppender",
+							"true", "true");
+			// loggerConfig.getAppenders().forEach((n, a) -> loggerConfig.removeAppender(n));
+			// loggerConfig.setAdditive(false);
+			loggerConfig.setLevel(Level.ALL);
+			loggerConfig.addFilter(typedFilter);
+			loggerConfig.addAppender(appender, Level.ALL, null);
+			config.getLoggerConfig(LogManager.ROOT_LOGGER_NAME).setLevel(Level.INFO);
+			// This causes all loggers to re-fetch information from their LoggerConfig
+			ctx.updateLoggers();
+		}
+	}
+
+	/**
+	 * Creates a new network object using the {@link ClipsLogFormatter}.
+	 * 
+	 * @param tokenQueueCapacity
+	 *            the capacity of the token queues in all token processing {@link Node nodes}
+	 * @param scheduler
+	 *            the {@link Scheduler} to handle the dispatching of token processing
+	 */
+	public Network(final MemoryFactory memoryFactory, final int tokenQueueCapacity,
+			final Scheduler scheduler) {
+		this(memoryFactory, ClipsLogFormatter.getMessageFormatterFactory(), tokenQueueCapacity,
+				scheduler);
 	}
 
 	/**
@@ -152,8 +218,8 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 	 *            the {@link Scheduler} to handle the dispatching of token processing
 	 */
 	public Network(final int tokenQueueCapacity, final Scheduler scheduler) {
-		this(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(), tokenQueueCapacity,
-				scheduler);
+		this(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(), ClipsLogFormatter
+				.getMessageFormatterFactory(), tokenQueueCapacity, scheduler);
 	}
 
 	/**
@@ -161,8 +227,7 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 	 * implementation} and {@link ThreadPoolScheduler scheduler}.
 	 */
 	public Network() {
-		this(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(), Integer.MAX_VALUE,
-				new ThreadPoolScheduler(10));
+		this(Integer.MAX_VALUE, new ThreadPoolScheduler(10));
 	}
 
 	/**
@@ -285,11 +350,14 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 
 	@Override
 	public FactIdentifier[] assertFacts(final Fact... facts) {
-		return getRootNode().assertFacts(facts);
+		final FactIdentifier[] assertedFacts = getRootNode().assertFacts(facts);
+		getLogFormatter().messageFactAssertions(this, assertedFacts);
+		return assertedFacts;
 	}
 
 	@Override
 	public void retractFacts(final FactIdentifier... factIdentifiers) {
+		getLogFormatter().messageFactRetractions(this, factIdentifiers);
 		getRootNode().retractFacts(factIdentifiers);
 	}
 
@@ -307,16 +375,56 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 	public Template defTemplate(final String name, final String description, final Slot... slots) {
 		final Template template = getMemoryFactory().newTemplate(name, description, slots);
 		getRootNode().putOTN(new ObjectTypeNode(this, new Path(template)));
+		this.constructCache.addTemplate(template);
 		return template;
 	}
 
 	@Override
-	public void defFacts(final String name, final String description,
+	public Template getTemplate(final String name) {
+		return this.constructCache.getTemplate(name);
+	}
+
+	@Override
+	public Collection<Template> getTemplates() {
+		return this.constructCache.getTemplates();
+	}
+
+	@Override
+	public Deffacts defFacts(final String name, final String description,
 			final TemplateContainer... containers) {
-		this.deffacts.removeIf(def -> def.name.equals(name));
 		final List<TemplateContainer> conList = Arrays.asList(containers);
-		this.deffacts.add(new Deffacts(name, description, conList));
+		final Deffacts deffacts = new Deffacts(name, description, conList);
+		this.constructCache.addDeffacts(deffacts);
 		assertFacts(toArray(conList.stream().map(TemplateContainer::toFact), Fact[]::new));
+		return deffacts;
+	}
+
+	@Override
+	public Deffacts getDeffacts(final String name) {
+		return this.constructCache.getDeffacts(name);
+	}
+
+	@Override
+	public Collection<Deffacts> getDeffacts() {
+		return this.constructCache.getDeffacts();
+	}
+
+	@Override
+	public Defrule defRule(final String name, final String description,
+			final RuleCondition ruleCondition, final ArrayList<FunctionWithArguments> actionList) {
+		final Defrule defrule = new Defrule(name, description, ruleCondition, actionList);
+		this.constructCache.addRule(defrule);
+		return defrule;
+	}
+
+	@Override
+	public Defrule getRule(final String name) {
+		return this.constructCache.getRule(name);
+	}
+
+	@Override
+	public Collection<Defrule> getRules() {
+		return this.constructCache.getRules();
 	}
 
 	@Override
@@ -324,7 +432,8 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 		getRootNode().reset();
 		// assert all deffacts
 		assertFacts(toArray(
-				this.deffacts.stream().flatMap(def -> def.containers.stream())
+				this.constructCache.getDeffacts().stream()
+						.flatMap(def -> def.getContainers().stream())
 						.map(TemplateContainer::toFact), Fact[]::new));
 	}
 
@@ -333,8 +442,8 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 	 * networks.
 	 */
 	public final static Network DEFAULTNETWORK = new Network(
-			org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(), Integer.MAX_VALUE,
+			org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(),
+			ClipsLogFormatter.getMessageFormatterFactory(), Integer.MAX_VALUE,
 			// new ThreadPoolScheduler(10)
 			new PlainScheduler());
-
 }

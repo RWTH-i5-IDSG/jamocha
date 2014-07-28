@@ -27,6 +27,7 @@ import lombok.Value;
 
 import org.jamocha.dn.SideEffectFunctionToNetwork;
 import org.jamocha.dn.memory.Fact;
+import org.jamocha.dn.memory.FactIdentifier;
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.filter.Function;
@@ -161,16 +162,20 @@ public class Assert implements FunctionWithArguments {
 
 	@Override
 	public SlotType getReturnType() {
-		return SlotType.FACTADDRESSES;
+		return SlotType.FACTADDRESS;
 	}
 
 	@Override
 	public Function<Object> lazyEvaluate(final Function<?>... params) {
 		return new GenericWithArgumentsComposite.LazyObject(GenericWithArgumentsComposite
 				.staticLazyEvaluate(
-						fs -> network.assertFacts(toArray(
-								Arrays.stream(fs).map(f -> (Fact) f.evaluate()), Fact[]::new)),
-						"assert", args, params).evaluate());
+						fs -> {
+							final FactIdentifier[] assertFacts =
+									network.assertFacts(toArray(
+											Arrays.stream(fs).map(f -> (Fact) f.evaluate()),
+											Fact[]::new));
+							return assertFacts[assertFacts.length - 1];
+						}, "assert", args, params).evaluate());
 	}
 
 	@Override

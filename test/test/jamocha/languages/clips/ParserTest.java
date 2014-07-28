@@ -26,12 +26,12 @@ import static org.junit.Assert.assertThat;
 
 import java.io.Reader;
 import java.io.StringReader;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
+import org.jamocha.dn.ConstructCache.Defrule;
 import org.jamocha.dn.Network;
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.dn.memory.Template;
@@ -91,10 +91,6 @@ public class ParserTest {
 		}
 	}
 
-	private static Symbol getSymbol(final SFPVisitorImpl visitor, final String image) {
-		return visitor.getScope().getSymbol(image);
-	}
-
 	private static Symbol getSymbol(final Set<Symbol> symbols, final String image) {
 		final Symbol[] array =
 				toArray(symbols.stream().filter(s -> s.getImage().equals(image)), Symbol[]::new);
@@ -114,8 +110,7 @@ public class ParserTest {
 		final Network network = new Network();
 		final SFPVisitorImpl visitor = new SFPVisitorImpl(network, network);
 		run(parser, visitor);
-		final HashMap<Symbol, Template> symbolTableTemplates = visitor.getSymbolTableTemplates();
-		final Template template = symbolTableTemplates.get(getSymbol(visitor, "f1"));
+		final Template template = network.getTemplate("f1");
 		assertEquals(SlotType.LONG, template.getSlotType(template.getSlotAddress("s1")));
 		assertEquals(SlotType.DOUBLE, template.getSlotType(template.getSlotAddress("s2")));
 		assertEquals(SlotType.LONG, template.getSlotType(template.getSlotAddress("s3")));
@@ -260,19 +255,20 @@ public class ParserTest {
 		final Network network = new Network();
 		final SFPVisitorImpl visitor = new SFPVisitorImpl(network, network);
 		run(parser, visitor);
-		final HashMap<Symbol, Template> symbolTableTemplates = visitor.getSymbolTableTemplates();
 		{
-			final Template template = symbolTableTemplates.get(getSymbol(visitor, "f1"));
+			final Template template = network.getTemplate("f1");
 			assertEquals(SlotType.LONG, template.getSlotType(template.getSlotAddress("s1")));
 			assertEquals(SlotType.DOUBLE, template.getSlotType(template.getSlotAddress("s2")));
 		}
 		{
-			final Template template = symbolTableTemplates.get(getSymbol(visitor, "f2"));
+			final Template template = network.getTemplate("f2");
 			assertEquals(SlotType.LONG, template.getSlotType(template.getSlotAddress("s1")));
 			assertEquals(SlotType.DOUBLE, template.getSlotType(template.getSlotAddress("s2")));
 		}
-		final RuleCondition condition =
-				visitor.getSymbolTableRules().get(getSymbol(visitor, "r1")).getCondition();
+		final Defrule rule = network.getRule("r1");
+		assertNotNull(rule);
+		final RuleCondition condition = rule.getCondition();
+		assertNotNull(condition);
 		final Map<Symbol, List<SingleVariable>> variables = condition.getVariables();
 		final SingleVariable x;
 		{
@@ -283,7 +279,7 @@ public class ParserTest {
 			assertEquals("?x", var.getSymbol().getImage());
 			assertFalse(var.isNegated());
 			assertEquals(SlotType.LONG, var.getType());
-			final Template template = symbolTableTemplates.get(getSymbol(visitor, "f1"));
+			final Template template = network.getTemplate("f1");
 			assertEquals(template, var.getTemplate());
 			assertEquals(template.getSlotAddress("s1"), var.getSlot());
 			x = var;
@@ -297,7 +293,7 @@ public class ParserTest {
 			assertEquals("?y", var.getSymbol().getImage());
 			assertFalse(var.isNegated());
 			assertEquals(SlotType.DOUBLE, var.getType());
-			final Template template = symbolTableTemplates.get(getSymbol(visitor, "f2"));
+			final Template template = network.getTemplate("f2");
 			assertEquals(template, var.getTemplate());
 			assertEquals(template.getSlotAddress("s2"), var.getSlot());
 			y = var;
@@ -311,7 +307,7 @@ public class ParserTest {
 			assertFalse(var.isNegated());
 			assertEquals(SlotType.FACTADDRESS, var.getType());
 			assertEquals(null, var.getSlot());
-			final Template template = symbolTableTemplates.get(getSymbol(visitor, "f2"));
+			final Template template = network.getTemplate("f2");
 			assertEquals(template, var.getTemplate());
 		}
 		final List<ConditionalElement> conditionalElements = condition.getConditionalElements();
@@ -368,19 +364,20 @@ public class ParserTest {
 		final Network network = new Network();
 		final SFPVisitorImpl visitor = new SFPVisitorImpl(network, network);
 		run(parser, visitor);
-		final HashMap<Symbol, Template> symbolTableTemplates = visitor.getSymbolTableTemplates();
 		{
-			final Template template = symbolTableTemplates.get(getSymbol(visitor, "f1"));
+			final Template template = network.getTemplate("f1");
 			assertEquals(SlotType.LONG, template.getSlotType(template.getSlotAddress("s1")));
 			assertEquals(SlotType.DOUBLE, template.getSlotType(template.getSlotAddress("s2")));
 		}
 		{
-			final Template template = symbolTableTemplates.get(getSymbol(visitor, "f2"));
+			final Template template = network.getTemplate("f2");
 			assertEquals(SlotType.LONG, template.getSlotType(template.getSlotAddress("s1")));
 			assertEquals(SlotType.DOUBLE, template.getSlotType(template.getSlotAddress("s2")));
 		}
-		final RuleCondition condition =
-				visitor.getSymbolTableRules().get(getSymbol(visitor, "r1")).getCondition();
+		final Defrule rule = network.getRule("r1");
+		assertNotNull(rule);
+		final RuleCondition condition = rule.getCondition();
+		assertNotNull(condition);
 		final Map<Symbol, List<SingleVariable>> variables = condition.getVariables();
 		final SingleVariable x;
 		{
@@ -391,7 +388,7 @@ public class ParserTest {
 			assertEquals("?x", var.getSymbol().getImage());
 			assertFalse(var.isNegated());
 			assertEquals(SlotType.LONG, var.getType());
-			final Template template = symbolTableTemplates.get(getSymbol(visitor, "f1"));
+			final Template template = network.getTemplate("f1");
 			assertEquals(template, var.getTemplate());
 			assertEquals(template.getSlotAddress("s1"), var.getSlot());
 			x = var;
@@ -509,19 +506,20 @@ public class ParserTest {
 		final Network network = new Network();
 		final SFPVisitorImpl visitor = new SFPVisitorImpl(network, network);
 		run(parser, visitor);
-		final HashMap<Symbol, Template> symbolTableTemplates = visitor.getSymbolTableTemplates();
 		{
-			final Template template = symbolTableTemplates.get(getSymbol(visitor, "f1"));
+			final Template template = network.getTemplate("f1");
 			assertEquals(SlotType.LONG, template.getSlotType(template.getSlotAddress("s1")));
 			assertEquals(SlotType.DOUBLE, template.getSlotType(template.getSlotAddress("s2")));
 		}
 		{
-			final Template template = symbolTableTemplates.get(getSymbol(visitor, "f2"));
+			final Template template = network.getTemplate("f2");
 			assertEquals(SlotType.LONG, template.getSlotType(template.getSlotAddress("s1")));
 			assertEquals(SlotType.DOUBLE, template.getSlotType(template.getSlotAddress("s2")));
 		}
-		final RuleCondition condition =
-				visitor.getSymbolTableRules().get(getSymbol(visitor, "r1")).getCondition();
+		final Defrule rule = network.getRule("r1");
+		assertNotNull(rule);
+		final RuleCondition condition = rule.getCondition();
+		assertNotNull(condition);
 		final Map<Symbol, List<SingleVariable>> variables = condition.getVariables();
 		final SingleVariable x1, x2, y;
 		{
@@ -533,7 +531,7 @@ public class ParserTest {
 				assertEquals("?x", var.getSymbol().getImage());
 				assertFalse(var.isNegated());
 				assertEquals(SlotType.LONG, var.getType());
-				final Template template = symbolTableTemplates.get(getSymbol(visitor, "f1"));
+				final Template template = network.getTemplate("f1");
 				assertEquals(template, var.getTemplate());
 				assertEquals(template.getSlotAddress("s1"), var.getSlot());
 				x1 = var;
@@ -543,7 +541,7 @@ public class ParserTest {
 				assertEquals("?x", var.getSymbol().getImage());
 				assertFalse(var.isNegated());
 				assertEquals(SlotType.LONG, var.getType());
-				final Template template = symbolTableTemplates.get(getSymbol(visitor, "f2"));
+				final Template template = network.getTemplate("f2");
 				assertEquals(template, var.getTemplate());
 				assertEquals(template.getSlotAddress("s1"), var.getSlot());
 				x2 = var;
@@ -557,7 +555,7 @@ public class ParserTest {
 			assertEquals("?y", var.getSymbol().getImage());
 			assertFalse(var.isNegated());
 			assertEquals(SlotType.DOUBLE, var.getType());
-			final Template template = symbolTableTemplates.get(getSymbol(visitor, "f1"));
+			final Template template = network.getTemplate("f1");
 			assertEquals(template, var.getTemplate());
 			assertEquals(template.getSlotAddress("s2"), var.getSlot());
 			y = var;

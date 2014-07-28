@@ -20,7 +20,6 @@ import static org.jamocha.util.ToArray.toArray;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
@@ -34,19 +33,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import lombok.Value;
 import lombok.extern.log4j.Log4j2;
 
-import org.apache.logging.log4j.Level;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.core.Appender;
-import org.apache.logging.log4j.core.LoggerContext;
-import org.apache.logging.log4j.core.appender.ConsoleAppender;
-import org.apache.logging.log4j.core.appender.ConsoleAppender.Target;
-import org.apache.logging.log4j.core.config.Configuration;
-import org.apache.logging.log4j.core.config.LoggerConfig;
-import org.apache.logging.log4j.core.layout.PatternLayout;
-import org.apache.logging.log4j.core.util.Charsets;
 import org.jamocha.dn.Network;
 import org.jamocha.dn.ParserToNetwork;
 import org.jamocha.dn.SideEffectFunctionToNetwork;
@@ -70,6 +58,7 @@ import org.jamocha.languages.clips.parser.errors.ClipsSideEffectsDisallowedHereE
 import org.jamocha.languages.clips.parser.errors.ClipsTemplateNotDefinedError;
 import org.jamocha.languages.clips.parser.errors.ClipsTypeMismatchError;
 import org.jamocha.languages.clips.parser.errors.ClipsVariableNotDeclaredError;
+import org.jamocha.languages.clips.parser.generated.ParseException;
 import org.jamocha.languages.clips.parser.generated.SFPActionList;
 import org.jamocha.languages.clips.parser.generated.SFPAmpersandConnectedConstraint;
 import org.jamocha.languages.clips.parser.generated.SFPAndFunction;
@@ -144,7 +133,6 @@ import org.jamocha.languages.common.ScopeStack;
 import org.jamocha.languages.common.ScopeStack.Symbol;
 import org.jamocha.languages.common.SingleVariable;
 import org.jamocha.languages.common.Warning;
-import org.jamocha.logging.TypedFilter;
 
 /**
  * Needs consideration: how to treat
@@ -159,7 +147,6 @@ import org.jamocha.logging.TypedFilter;
  */
 @Log4j2
 @Getter
-@RequiredArgsConstructor
 public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 
 	/**
@@ -171,13 +158,18 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 	 * </ul>
 	 */
 	final ScopeStack scope = new ScopeStack();
-	final HashMap<Symbol, Template> symbolTableTemplates = new HashMap<>();
-	final HashMap<Symbol, Function<?>> symbolTableFunctions = new HashMap<>();
-	final HashMap<Symbol, RuleProperties> symbolTableRules = new HashMap<>();
 	final Queue<Warning> warnings = new LinkedList<>();
 
 	final ParserToNetwork parserToNetwork;
 	final SideEffectFunctionToNetwork sideEffectFunctionToNetwork;
+
+	public SFPVisitorImpl(final ParserToNetwork parserToNetwork,
+			final SideEffectFunctionToNetwork sideEffectFunctionToNetwork) {
+		this.parserToNetwork = parserToNetwork;
+		this.sideEffectFunctionToNetwork = sideEffectFunctionToNetwork;
+		parserToNetwork.defFacts("initial-fact", "",
+				new TemplateContainer(parserToNetwork.defTemplate("initial-fact", "")));
+	}
 
 	@Override
 	public Object visit(final SFPStart node, final Object data) {
@@ -187,13 +179,6 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 
 	public static enum ExistentialState {
 		NORMAL, EXISTENTIAL, NEGATED;
-	}
-
-	@Value
-	public static class RuleProperties {
-		final String description;
-		final RuleCondition condition;
-		final ArrayList<FunctionWithArguments> actionList;
 	}
 
 	final static EnumSet<SlotType> Number = EnumSet.of(SlotType.LONG, SlotType.DOUBLE);
@@ -881,7 +866,7 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 					SelectiveSFPVisitor.sendVisitor(new SFPSymbolVisitor(), node.jjtGetChild(0),
 							data).symbol;
 			// the effect of this node should be the creation of one or more slot variables
-			final Template template = SFPVisitorImpl.this.symbolTableTemplates.get(templateName);
+			final Template template = parserToNetwork.getTemplate(templateName.getImage());
 			if (null == template) {
 				throw SelectiveSFPVisitor.dumpAndThrowMe(node, IllegalArgumentException::new,
 						"No template with name " + templateName + " defined yet!");
@@ -1300,7 +1285,7 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 				final Symbol symbol =
 						SelectiveSFPVisitor.sendVisitor(new SFPSymbolVisitor(),
 								node.jjtGetChild(0), data).symbol;
-				final Template template = SFPVisitorImpl.this.symbolTableTemplates.get(symbol);
+				final Template template = parserToNetwork.getTemplate(symbol.getImage());
 				if (null == template) {
 					throw new ClipsTemplateNotDefinedError(symbol, node);
 				}
@@ -1459,7 +1444,7 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 			final Symbol symbol =
 					SelectiveSFPVisitor.sendVisitor(new SFPSymbolVisitor(), node.jjtGetChild(0),
 							data).symbol;
-			if (SFPVisitorImpl.this.symbolTableTemplates.containsKey(symbol)) {
+			if (null != parserToNetwork.getTemplate(symbol.getImage())) {
 				throw new NameClashError("Template " + symbol + " already defined!");
 			}
 			final SFPDeftemplateConstructElementsVisitor visitor =
@@ -1468,10 +1453,8 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 				node.jjtGetChild(i).jjtAccept(visitor, data);
 			}
 			final String comment = visitor.comment;
-			final Template template =
-					parserToNetwork.defTemplate(symbol.getImage(), comment,
-							toArray(visitor.slotDefinitions, Slot[]::new));
-			SFPVisitorImpl.this.symbolTableTemplates.put(symbol, template);
+			parserToNetwork.defTemplate(symbol.getImage(), comment,
+					toArray(visitor.slotDefinitions, Slot[]::new));
 			return data;
 		}
 
@@ -1485,7 +1468,7 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 			final Symbol symbol =
 					SelectiveSFPVisitor.sendVisitor(new SFPSymbolVisitor(), node.jjtGetChild(0),
 							data).symbol;
-			if (SFPVisitorImpl.this.symbolTableRules.containsKey(symbol)) {
+			if (null != parserToNetwork.getRule(symbol.getImage())) {
 				throw new NameClashError("Rule " + symbol + " already defined!");
 			}
 			try (final ScopeCloser scopeCloser = new ScopeCloser(SFPVisitorImpl.this.scope)) {
@@ -1525,8 +1508,7 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 					ces.add(0, new InitialFactConditionalElement());
 				}
 				existentialStack.addConditionalElements(ces);
-				SFPVisitorImpl.this.symbolTableRules.put(symbol, new RuleProperties(comment,
-						existentialStack, actionList));
+				parserToNetwork.defRule(symbol.getImage(), comment, existentialStack, actionList);
 			}
 			return data;
 		}
@@ -1543,7 +1525,8 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 					SelectiveSFPVisitor.sendVisitor(new SFPSymbolVisitor(), node.jjtGetChild(0),
 							data).symbol;
 			// handle comment, function group, variable list, action list
-			SFPVisitorImpl.this.symbolTableFunctions.put(symbol, null);
+			symbol.getImage();
+			// SFPVisitorImpl.this.symbolTableFunctions.put(symbol, null);
 			// return data;
 			// for now: throw
 			return SFPVisitorImpl.this.visit(node, data);
@@ -1566,31 +1549,14 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 		if (!verbose)
 			System.out
 					.println("Note: For verbose output type \u005c"java Main verbose\u005c".\u005cn");
-		System.out.print("SFP> ");
-
-		final TypedFilter filter = new TypedFilter(true);
-		{
-			final LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
-			final Configuration config = ctx.getConfiguration();
-			final LoggerConfig loggerConfig = config.getLoggerConfig(LogManager.ROOT_LOGGER_NAME);
-			final Appender appender =
-					ConsoleAppender.createAppender(PatternLayout.createLayout(
-							PatternLayout.SIMPLE_CONVERSION_PATTERN, config, null, Charsets.UTF_8,
-							true, true, "", ""), filter, Target.SYSTEM_OUT.name(),
-							"consoleAppender", "true", "true");
-			loggerConfig.getAppenders().forEach((n, a) -> loggerConfig.removeAppender(n));
-			loggerConfig.addAppender(appender, Level.ALL, filter);
-			loggerConfig.setLevel(Level.ALL);
-			// This causes all Loggers to re-fetch information from their LoggerConfig
-			ctx.updateLoggers();
-		}
 
 		final SFPParser p = new SFPParser(System.in);
 		final Network network = new Network();
 		final SFPVisitorImpl visitor = new SFPVisitorImpl(network, network);
 
-		try {
-			while (true) {
+		while (true) {
+			try {
+				System.out.print("SFP> ");
 				final SFPStart n = p.Start();
 				if (n == null)
 					System.exit(0);
@@ -1602,12 +1568,16 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 				}
 				visitor.warnings.forEach(w -> log.warn("Warning: " + w.getMessage()));
 				visitor.warnings.clear();
-				System.out.print("SFP> ");
+			} catch (final ParseException e) {
+				log.catching(e);
+				System.exit(-1);
+			} catch (final Throwable e) {
+				log.catching(e);
+				// System.err
+				// .println("ERROR[" + e.getClass().getSimpleName() + "]: " + e.getMessage());
+				// if (verbose)
+				// e.printStackTrace();
 			}
-		} catch (final Throwable e) {
-			System.err.println("ERROR[" + e.getClass().getSimpleName() + "]: " + e.getMessage());
-			if (verbose)
-				e.printStackTrace();
 		}
 	}
 }

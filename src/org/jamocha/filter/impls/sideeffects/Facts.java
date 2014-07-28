@@ -14,61 +14,55 @@
  */
 package org.jamocha.filter.impls.sideeffects;
 
-import lombok.extern.log4j.Log4j2;
-
 import org.jamocha.dn.SideEffectFunctionToNetwork;
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.filter.Function;
 import org.jamocha.filter.FunctionDictionary;
-import org.jamocha.filter.FunctionWithSideEffectsGenerator;
 import org.jamocha.filter.impls.FunctionVisitor;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
-@Log4j2
 public abstract class Facts implements Function<Object> {
+	public static String inClips = "facts";
+
+	@Override
+	public String inClips() {
+		return inClips;
+	}
+
+	@Override
+	public SlotType getReturnType() {
+		return SlotType.NIL;
+	}
+
+	@Override
+	public <V extends FunctionVisitor> V accept(final V visitor) {
+		visitor.visit(this);
+		return visitor;
+	}
+
 	static {
-		FunctionDictionary.addGeneratorWithSideEffects("facts", SlotType.empty,
-				new FunctionWithSideEffectsGenerator() {
-					@Override
-					public Function<?> generate(final SideEffectFunctionToNetwork network,
-							final SlotType[] paramTypes) {
-						return new Facts() {
-							@Override
-							public <V extends FunctionVisitor> V accept(final V visitor) {
-								visitor.visit(this);
-								return visitor;
-							}
+		FunctionDictionary.addGeneratorWithSideEffects(inClips, SlotType.empty, (
+				final SideEffectFunctionToNetwork network, final SlotType[] paramTypes) -> {
+			return new Facts() {
+				@Override
+				public SlotType[] getParamTypes() {
+					return SlotType.empty;
+				}
 
-							@Override
-							public SlotType[] getParamTypes() {
-								return SlotType.empty;
-							}
-
-							@Override
-							public SlotType getReturnType() {
-								return SlotType.NIL;
-							}
-
-							@Override
-							public String inClips() {
-								return "facts";
-							}
-
-							@Override
-							public Object evaluate(final Function<?>... params) {
-								network.getMemoryFacts()
-										.entrySet()
-										.stream()
-										.sorted((a, b) -> a.getKey().compareTo(b.getKey()))
-										.forEachOrdered(
-												e -> log.info("f-{}\t{}", e.getKey().getId(),
-														e.getValue()));
-								return null;
-							}
-						};
-					}
-				});
+				@Override
+				public Object evaluate(final Function<?>... params) {
+					network.getMemoryFacts()
+							.entrySet()
+							.stream()
+							.sorted((a, b) -> a.getKey().compareTo(b.getKey()))
+							.forEachOrdered(
+									e -> network.getLogFormatter().messageFactDetails(network,
+											e.getKey().getId(), e.getValue()));
+					return null;
+				}
+			};
+		});
 	}
 }

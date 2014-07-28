@@ -21,10 +21,12 @@ import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.Map.Entry;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Marker;
-import org.apache.logging.log4j.MarkerManager;
 import org.apache.logging.log4j.core.LogEvent;
 import org.apache.logging.log4j.core.Logger;
 import org.apache.logging.log4j.core.filter.AbstractFilter;
@@ -38,25 +40,27 @@ public class TypedFilter extends AbstractFilter {
 	// false if not watched => collection is inclusion list
 	final EnumMap<MarkerType, Pair<Boolean, Collection<Marker>>> markerToInExClusionList =
 			new EnumMap<>(MarkerType.class);
-	final boolean keepItemsWithoutMarkers;
+	@Getter
+	@Setter
+	boolean keepItemsWithoutMarkers;
 
 	public TypedFilter(final boolean keepItemsWithoutMarkers) {
 		this.keepItemsWithoutMarkers = keepItemsWithoutMarkers;
-		EnumSet.allOf(MarkerType.class).forEach(
-				mt -> this.markerToInExClusionList.put(mt,
-						Pair.of(Boolean.FALSE, new ArrayList<>())));
+		unwatchAll();
 	}
 
-	public void watch(final MarkerType markerType) {
-		this.markerToInExClusionList.put(markerType, Pair.of(Boolean.TRUE, new ArrayList<>()));
-	}
-
-	public void watch(final MarkerType markerType, final String... markerNames) {
-		watch(markerType,
-				Arrays.stream(markerNames).map(MarkerManager::getMarker).toArray(Marker[]::new));
+	public void watchAll() {
+		EnumSet.allOf(MarkerType.class)
+				.forEach(
+						mt -> this.markerToInExClusionList.put(mt,
+								Pair.of(Boolean.TRUE, new ArrayList<>())));
 	}
 
 	public void watch(final MarkerType markerType, final Marker... markers) {
+		if (0 == markers.length) {
+			this.markerToInExClusionList.put(markerType, Pair.of(Boolean.TRUE, new ArrayList<>()));
+			return;
+		}
 		final Pair<Boolean, Collection<Marker>> pair = this.markerToInExClusionList.get(markerType);
 		// if not already generally watched then add else ignore
 		if (!pair.getLeft()) {
@@ -64,21 +68,22 @@ public class TypedFilter extends AbstractFilter {
 		}
 	}
 
-	public void unwatch(final MarkerType markerType) {
-		this.markerToInExClusionList.put(markerType, Pair.of(Boolean.FALSE, new ArrayList<>()));
-	}
-
-	public void unwatch(final MarkerType markerType, final String... markerNames) {
-		unwatch(markerType,
-				Arrays.stream(markerNames).map(MarkerManager::getMarker).toArray(Marker[]::new));
-	}
-
 	public void unwatch(final MarkerType markerType, final Marker... markers) {
+		if (0 == markers.length) {
+			this.markerToInExClusionList.put(markerType, Pair.of(Boolean.FALSE, new ArrayList<>()));
+			return;
+		}
 		final Pair<Boolean, Collection<Marker>> pair = this.markerToInExClusionList.get(markerType);
 		// if generally watched then add else ignore
 		if (pair.getLeft()) {
 			pair.getRight().addAll(Arrays.asList(markers));
 		}
+	}
+
+	public void unwatchAll() {
+		EnumSet.allOf(MarkerType.class).forEach(
+				mt -> this.markerToInExClusionList.put(mt,
+						Pair.of(Boolean.FALSE, new ArrayList<>())));
 	}
 
 	private boolean check(final Marker marker) {
@@ -110,6 +115,7 @@ public class TypedFilter extends AbstractFilter {
 		}
 		return false;
 	}
+
 	public Result decide(final Marker marker) {
 		return check(marker) ? Result.NEUTRAL : Result.DENY;
 	}
@@ -120,20 +126,24 @@ public class TypedFilter extends AbstractFilter {
 	}
 
 	@Override
-	public Result filter(Logger logger, Level level, Marker marker,
-			Message msg, Throwable t) {
+	public Result filter(Logger logger, Level level, Marker marker, Message msg, Throwable t) {
 		return decide(marker);
 	}
 
 	@Override
-	public Result filter(Logger logger, Level level, Marker marker,
-			Object msg, Throwable t) {
+	public Result filter(Logger logger, Level level, Marker marker, Object msg, Throwable t) {
 		return decide(marker);
 	}
 
 	@Override
-	public Result filter(Logger logger, Level level, Marker marker,
-			String msg, Object... params) {
+	public Result filter(Logger logger, Level level, Marker marker, String msg, Object... params) {
 		return decide(marker);
+	}
+
+	public boolean isRelevant(final MarkerType markerType) {
+		final Pair<Boolean, Collection<Marker>> pair = this.markerToInExClusionList.get(markerType);
+		if (pair.getLeft() || !pair.getRight().isEmpty())
+			return true;
+		return false;
 	}
 }

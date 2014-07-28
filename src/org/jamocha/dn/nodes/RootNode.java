@@ -16,20 +16,15 @@
 package org.jamocha.dn.nodes;
 
 import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.toList;
 import static org.jamocha.util.ToArray.toArray;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.Objects;
 import java.util.stream.IntStream;
 
-import lombok.extern.log4j.Log4j2;
-
-import org.apache.commons.lang3.tuple.Pair;
 import org.jamocha.dn.Network;
 import org.jamocha.dn.memory.Fact;
 import org.jamocha.dn.memory.FactIdentifier;
@@ -43,7 +38,6 @@ import org.jamocha.filter.Path;
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
  */
-@Log4j2
 public class RootNode {
 
 	/**
@@ -73,14 +67,12 @@ public class RootNode {
 		for (int i = 0; i < length; ++i) {
 			final MemoryFact memoryFact = factToMemoryFact.get(facts[i]);
 			if (null == memoryFact) {
-				System.out.println("FALSE");
 				continue;
 			}
 			final int id = factIdentifierCounter++;
 			final FactIdentifier factIdentifier = new FactIdentifier(id);
 			factIdentifiers[i] = factIdentifier;
 			this.facts.put(factIdentifier, memoryFact);
-			log.info(memoryFact.getTemplate().getInstanceMarker(), "==> f-{}\t{}", id, memoryFact);
 		}
 		return factIdentifiers;
 	}
@@ -92,28 +84,14 @@ public class RootNode {
 	 * @param fact
 	 *            {@link Fact} to be retracted
 	 */
-	private void retractFacts(final List<Pair<Integer, MemoryFact>> facts) {
-		final Map<Boolean, List<Pair<Integer, MemoryFact>>> partition =
-				facts.stream().collect(Collectors.partitioningBy(p -> null == p.getRight()));
-		partition.get(true).forEach(p -> log.error("Unable to find fact f-{}", p.getLeft()));
-		partition
-				.get(false)
-				.stream()
-				.collect(groupingBy(f -> f.getRight().getTemplate()))
-				.forEach(
-						(t, f) -> {
-							this.templateToOTN.get(t).retractFact(
-									toArray(f.stream().map(Pair::getRight), MemoryFact[]::new));
-							for (final Pair<Integer, MemoryFact> p : f) {
-								log.info(p.getRight().getTemplate().getInstanceMarker(),
-										"<== f-{}\t{}", p.getLeft(), p.getRight());
-							}
-						});
-	}
-
 	public void retractFacts(final FactIdentifier... factIdentifiers) {
-		retractFacts(Arrays.stream(factIdentifiers).map(i -> Pair.of(i.getId(), facts.remove(i)))
-				.collect(toList()));
+		Arrays.stream(factIdentifiers)
+				.map(facts::remove)
+				.filter(Objects::nonNull)
+				.collect(groupingBy(f -> f.getTemplate()))
+				.forEach(
+						(t, f) -> this.templateToOTN.get(t).retractFact(
+								toArray(f, MemoryFact[]::new)));
 	}
 
 	/**

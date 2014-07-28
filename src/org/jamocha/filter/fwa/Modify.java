@@ -158,23 +158,21 @@ public class Modify implements FunctionWithArguments {
 		array[0] = this.targetFact;
 		System.arraycopy(args, 0, array, 1, args.length);
 		return new GenericWithArgumentsComposite.LazyObject(GenericWithArgumentsComposite
-				.staticLazyEvaluate(
-						fs -> {
-							final FactIdentifier factIdentifier = Retract.toFactIdentifier(fs[0]);
-							final Fact fact =
-									network.getMemoryFact(factIdentifier).toMutableFact();
-							network.retractFacts(factIdentifier);
-							final Template template = fact.getTemplate();
-							for (int i = 0; i < args.length; ++i) {
-								final String slotName = args[i].getSlotName();
-								final SlotAddress slotAddress = template.getSlotAddress(slotName);
-								if (null == slotAddress) {
-									throw new NoSlotForThatNameError(slotName);
-								}
-								template.setValue(fact, slotAddress, fs[i + 1].evaluate());
-							}
-							return network.assertFacts(fact)[0];
-						}, "assert", array, params).evaluate());
+				.staticLazyEvaluate(fs -> {
+					final FactIdentifier factIdentifier = Retract.toFactIdentifier(fs[0]);
+					final Fact fact = network.getMemoryFact(factIdentifier).toMutableFact();
+					network.retractFacts(factIdentifier);
+					final Template template = fact.getTemplate();
+					for (int i = 0; i < args.length; ++i) {
+						final String slotName = args[i].getSlotName();
+						final SlotAddress slotAddress = template.getSlotAddress(slotName);
+						if (null == slotAddress) {
+							throw new NoSlotForThatNameError(slotName);
+						}
+						template.setValue(fact, slotAddress, fs[i + 1].evaluate());
+					}
+					return network.assertFacts(fact)[0];
+				}, "assert", array, params).evaluate());
 	}
 
 	@Override
