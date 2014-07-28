@@ -36,8 +36,7 @@ public class Retract extends GenericWithArgumentsComposite<Object, Function<?>> 
 	@NonNull
 	final SideEffectFunctionToNetwork network;
 
-	public Retract(final SideEffectFunctionToNetwork network,
-			final FunctionWithArguments... args) {
+	public Retract(final SideEffectFunctionToNetwork network, final FunctionWithArguments... args) {
 		super(new Function<Object>() {
 			@Getter(lazy = true, onMethod = @__(@Override))
 			private final SlotType[] paramTypes = calculateParamTypes();
