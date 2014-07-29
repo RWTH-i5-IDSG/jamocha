@@ -141,11 +141,8 @@ public class RootNode {
 	 */
 	public void addPaths(final Network network, final Path... paths) {
 		for (final Path path : paths) {
-			final ObjectTypeNode otn = this.templateToOTN.get(path.getTemplate());
-			if (otn != null)
-				otn.shareNode(path);
-			else
-				this.putOTN(new ObjectTypeNode(network, path));
+			this.templateToOTN.computeIfAbsent(path.getTemplate(),
+					t -> new ObjectTypeNode(network, t)).shareNode(path);
 		}
 	}
 }

@@ -98,7 +98,8 @@ public class BetaNodeTest {
 		Path p1 = new Path(Template.STRING);
 		Path p2 = new Path(Template.STRING);
 		Path p3 = new Path(Template.STRING);
-		ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, p1, p2, p3);
+		ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, Template.STRING);
+		otn.shareNode(p1, p2, p3);
 		BetaNode beta =
 				new BetaNode(Network.DEFAULTNETWORK, new FilterMockup(true, new PathAndSlotAddress(
 						p1, s1), new PathAndSlotAddress(p2, s1)));
@@ -135,8 +136,8 @@ public class BetaNodeTest {
 		Path p6 = new Path(Template.STRING);
 		Path p7 = new Path(Template.STRING);
 		Path p8 = new Path(Template.STRING);
-		ObjectTypeNode otn =
-				new ObjectTypeNode(Network.DEFAULTNETWORK, p1, p2, p3, p4, p5, p6, p7, p8);
+		ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, Template.STRING);
+		otn.shareNode(p1, p2, p3, p4, p5, p6, p7, p8);
 		BetaNode beta =
 				new BetaNode(Network.DEFAULTNETWORK, new FilterMockup(true, new PathAndSlotAddress(
 						p1, s1), new PathAndSlotAddress(p2, s1)));
@@ -222,8 +223,8 @@ public class BetaNodeTest {
 	public void testDelocalizeAddress() {
 		final Path p1 = new Path(Template.STRING);
 		final Path p2 = new Path(Template.STRING);
-		@SuppressWarnings("unused")
-		final ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, p1, p2);
+		final ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, Template.STRING);
+		otn.shareNode(p1, p2);
 		final FactAddress fa1 = p1.getFactAddressInCurrentlyLowestNode();
 		final FactAddress fa2 = p2.getFactAddressInCurrentlyLowestNode();
 		final BetaNode beta =
@@ -243,7 +244,8 @@ public class BetaNodeTest {
 		Path p = new Path(Template.STRING);
 		Path p1 = new Path(Template.STRING);
 		Path p2 = new Path(Template.STRING);
-		ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, p);
+		ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, Template.STRING);
+		otn.shareNode(p);
 		Set<Path> joinedWith = new HashSet<>();
 		joinedWith.add(p1);
 		p1.setCurrentlyLowestNode(otn);

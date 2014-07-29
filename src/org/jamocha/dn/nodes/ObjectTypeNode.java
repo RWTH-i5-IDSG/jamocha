@@ -37,20 +37,14 @@ public class ObjectTypeNode extends AlphaNode {
 	protected final Template template;
 	protected final FactAddress factAddress;
 
-	public ObjectTypeNode(final Network network, final Path... paths) {
-		super(network, getTemplateFromPaths(paths), paths);
-		this.template = this.memory.getTemplate()[0];
-		this.factAddress = paths[0].getFactAddressInCurrentlyLowestNode();
-		for (final Path path : paths) {
-			path.setCurrentlyLowestNode(this);
-		}
+	private ObjectTypeNode(final Network network, final Template template, final Path path) {
+		super(network, template, path);
+		this.template = template;
+		this.factAddress = path.getFactAddressInCurrentlyLowestNode();
 	}
 
-	private static Template getTemplateFromPaths(final Path[] paths) {
-		if (paths.length < 1)
-			throw new Error(
-					"ObjectTypeNode constructor must be called with Template or at least one Path");
-		return paths[0].getTemplate();
+	public ObjectTypeNode(final Network network, final Template template) {
+		this(network, template, new Path(template));
 	}
 
 	/**
@@ -109,7 +103,6 @@ public class ObjectTypeNode extends AlphaNode {
 
 	@Override
 	public void shareNode(final Path... paths) {
-		assert null != paths;
 		for (final Path path : paths) {
 			path.setCurrentlyLowestNode(this);
 			path.setFactAddressInCurrentlyLowestNode(this.factAddress);

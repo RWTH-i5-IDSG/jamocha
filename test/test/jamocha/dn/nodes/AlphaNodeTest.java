@@ -96,8 +96,8 @@ public class AlphaNodeTest {
 	public void testGetOutgoingEdges() {
 		Path p1 = new Path(Template.BOOLEAN);
 		Path p2 = new Path(Template.BOOLEAN);
-		@SuppressWarnings("unused")
-		ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, p1, p2);
+		ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, Template.BOOLEAN);
+		otn.shareNode(p1, p2);
 		AlphaNode alpha =
 				new AlphaNode(Network.DEFAULTNETWORK, new FilterMockup(true,
 						new PathAndSlotAddress(p1, s1)));
@@ -128,8 +128,8 @@ public class AlphaNodeTest {
 	@Test
 	public void testGetMemory() {
 		Path p1 = new Path(Template.BOOLEAN);
-		@SuppressWarnings("unused")
-		ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, p1);
+		ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, Template.BOOLEAN);
+		otn.shareNode(p1);
 		AlphaNode alpha =
 				new AlphaNode(Network.DEFAULTNETWORK, new FilterMockup(true,
 						new PathAndSlotAddress(p1, s1)));
@@ -147,8 +147,8 @@ public class AlphaNodeTest {
 	public void testNumberOfOutgoingEdges() {
 		Path p1 = new Path(Template.BOOLEAN);
 		Path p2 = new Path(Template.BOOLEAN);
-		@SuppressWarnings("unused")
-		ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, p1, p2);
+		ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, Template.BOOLEAN);
+		otn.shareNode(p1, p2);
 		AlphaNode alpha =
 				new AlphaNode(Network.DEFAULTNETWORK, new FilterMockup(true,
 						new PathAndSlotAddress(p1, s1)));
@@ -175,8 +175,8 @@ public class AlphaNodeTest {
 	public void testDelocalizeAddress() {
 		Path p1 = new Path(Template.BOOLEAN);
 		Path p2 = new Path(Template.BOOLEAN);
-		@SuppressWarnings("unused")
-		ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, p1, p2);
+		ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, Template.BOOLEAN);
+		otn.shareNode(p1, p2);
 		FactAddress fa1 = p1.getFactAddressInCurrentlyLowestNode();
 		AlphaNode alpha =
 				new AlphaNode(Network.DEFAULTNETWORK, new FilterMockup(true,
@@ -197,7 +197,8 @@ public class AlphaNodeTest {
 	public void testGetIncomingEdges() {
 		Path p1 = new Path(Template.BOOLEAN);
 		Path p2 = new Path(Template.BOOLEAN);
-		ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, p1, p2);
+		ObjectTypeNode otn = new ObjectTypeNode(Network.DEFAULTNETWORK, Template.BOOLEAN);
+		otn.shareNode(p1, p2);
 		AlphaNode alpha =
 				new AlphaNode(Network.DEFAULTNETWORK, new FilterMockup(true,
 						new PathAndSlotAddress(p1, s1)));

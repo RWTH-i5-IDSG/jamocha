@@ -761,7 +761,8 @@ public class TokenProcessingTest {
 
 		final RootNode rootNode = network.getRootNode();
 		// create OTN
-		final ObjectTypeNode otn = new ObjectTypeNode(network, p1);
+		final ObjectTypeNode otn = new ObjectTypeNode(network, t1);
+		otn.shareNode(p1);
 		// append to root node
 		rootNode.putOTN(otn);
 		// create & append alpha
@@ -847,7 +848,8 @@ public class TokenProcessingTest {
 
 		final RootNode rootNode = network.getRootNode();
 		// create OTN
-		final ObjectTypeNode otn = new ObjectTypeNode(network, p1);
+		final ObjectTypeNode otn = new ObjectTypeNode(network, t1);
+		otn.shareNode(p1);
 		// append to root node
 		rootNode.putOTN(otn);
 		// create & append alpha
