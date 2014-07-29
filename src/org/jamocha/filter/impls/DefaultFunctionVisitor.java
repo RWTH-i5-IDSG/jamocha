@@ -118,4 +118,9 @@ public interface DefaultFunctionVisitor extends FunctionVisitor {
 	default void visit(final org.jamocha.filter.impls.sideeffects.Ppdeftemplate function) {
 		defaultAction(function);
 	}
+
+	@Override
+	default void visit(final org.jamocha.filter.impls.sideeffects.ListDeftemplates function) {
+		defaultAction(function);
+	}
 }
