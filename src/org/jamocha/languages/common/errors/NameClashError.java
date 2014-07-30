@@ -12,32 +12,38 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package org.jamocha.languages.common;
+package org.jamocha.languages.common.errors;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
 public class NameClashError extends Error {
-
 	private static final long serialVersionUID = 3831427371248825377L;
 
-	public NameClashError() {
+	final String name;
+
+	public NameClashError(final String name) {
+		this.name = name;
 	}
 
-	public NameClashError(final String message) {
+	public NameClashError(final String name, final String message) {
 		super(message);
+		this.name = name;
 	}
 
-	public NameClashError(final Throwable cause) {
+	public NameClashError(final String name, final Throwable cause) {
 		super(cause);
+		this.name = name;
 	}
 
-	public NameClashError(final String message, final Throwable cause) {
+	public NameClashError(final String name, final String message, final Throwable cause) {
 		super(message, cause);
+		this.name = name;
 	}
 
-	public NameClashError(final String message, final Throwable cause,
+	public NameClashError(final String name, final String message, final Throwable cause,
 			final boolean enableSuppression, final boolean writableStackTrace) {
 		super(message, cause, enableSuppression, writableStackTrace);
+		this.name = name;
 	}
 }

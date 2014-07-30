@@ -55,6 +55,7 @@ import org.jamocha.filter.fwa.FunctionWithArgumentsComposite;
 import org.jamocha.filter.fwa.Modify;
 import org.jamocha.filter.fwa.Retract;
 import org.jamocha.languages.clips.parser.ExistentialStack.ScopedExistentialStack;
+import org.jamocha.languages.clips.parser.errors.ClipsNameClashError;
 import org.jamocha.languages.clips.parser.errors.ClipsNoSlotForThatNameError;
 import org.jamocha.languages.clips.parser.errors.ClipsSideEffectsDisallowedHereError;
 import org.jamocha.languages.clips.parser.errors.ClipsTemplateNotDefinedError;
@@ -131,7 +132,6 @@ import org.jamocha.languages.common.ConditionalElement.NegatedExistentialConditi
 import org.jamocha.languages.common.ConditionalElement.NotFunctionConditionalElement;
 import org.jamocha.languages.common.ConditionalElement.OrFunctionConditionalElement;
 import org.jamocha.languages.common.ConditionalElement.TestConditionalElement;
-import org.jamocha.languages.common.NameClashError;
 import org.jamocha.languages.common.RuleCondition;
 import org.jamocha.languages.common.ScopeCloser;
 import org.jamocha.languages.common.ScopeStack;
@@ -1452,7 +1452,8 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 								node.jjtGetChild(0), data).symbol;
 				if (null != parserToNetwork.getRule(symbol.getImage())
 						|| previousRuleNames.contains(symbol.getImage())) {
-					throw new NameClashError("Rule " + symbol + " already defined!");
+					throw new ClipsNameClashError(symbol.getImage(), node, "Rule "
+							+ symbol.getImage() + " already defined!");
 				}
 				try (final ScopeCloser scopeCloser = new ScopeCloser(SFPVisitorImpl.this.scope)) {
 					final ExistentialStack existentialStack = new ExistentialStack();
@@ -1516,7 +1517,8 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 					SelectiveSFPVisitor.sendVisitor(new SFPSymbolVisitor(), node.jjtGetChild(0),
 							data).symbol;
 			if (null != parserToNetwork.getTemplate(symbol.getImage())) {
-				throw new NameClashError("Template " + symbol + " already defined!");
+				throw new ClipsNameClashError(symbol.getImage(), node, "Template " + symbol
+						+ " already defined!");
 			}
 			final SFPDeftemplateConstructElementsVisitor visitor =
 					new SFPDeftemplateConstructElementsVisitor();

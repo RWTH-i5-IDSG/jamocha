@@ -51,11 +51,11 @@ import org.jamocha.languages.common.ConditionalElement.InitialFactConditionalEle
 import org.jamocha.languages.common.ConditionalElement.NegatedExistentialConditionalElement;
 import org.jamocha.languages.common.ConditionalElement.OrFunctionConditionalElement;
 import org.jamocha.languages.common.ConditionalElement.TestConditionalElement;
-import org.jamocha.languages.common.NameClashError;
 import org.jamocha.languages.common.RuleCondition;
 import org.jamocha.languages.common.ScopeStack.Symbol;
 import org.jamocha.languages.common.SingleVariable;
 import org.jamocha.languages.common.Warning;
+import org.jamocha.languages.common.errors.NameClashError;
 import org.jamocha.languages.common.errors.VariableNotDeclaredError;
 import org.junit.After;
 import org.junit.AfterClass;
