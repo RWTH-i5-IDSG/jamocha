@@ -372,6 +372,18 @@ public interface SelectiveSFPVisitor extends SFPParserVisitor {
 	}
 
 	@Override
+	public default Object visit(SFPDefrulesConstruct node, Object data) {
+		dumpToStdOut(node);
+		throw new UnsupportedOperationException(String.valueOf(data));
+	}
+
+	@Override
+	public default Object visit(SFPDefruleBody node, Object data) {
+		dumpToStdOut(node);
+		throw new UnsupportedOperationException(String.valueOf(data));
+	}
+
+	@Override
 	public default Object visit(SFPActionList node, Object data) {
 		dumpToStdOut(node);
 		throw new UnsupportedOperationException(String.valueOf(data));

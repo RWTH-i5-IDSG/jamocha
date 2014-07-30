@@ -16,7 +16,6 @@ package org.jamocha.dn;
 
 import static org.jamocha.util.ToArray.toArray;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
@@ -64,9 +63,7 @@ import org.jamocha.filter.Path;
 import org.jamocha.filter.PathCollector;
 import org.jamocha.filter.PathFilter;
 import org.jamocha.filter.fwa.Assert.TemplateContainer;
-import org.jamocha.filter.fwa.FunctionWithArguments;
 import org.jamocha.languages.clips.ClipsLogFormatter;
-import org.jamocha.languages.common.RuleCondition;
 import org.jamocha.logging.LogFormatter;
 import org.jamocha.logging.TypedFilter;
 
@@ -409,11 +406,11 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 	}
 
 	@Override
-	public Defrule defRule(final String name, final String description,
-			final RuleCondition ruleCondition, final ArrayList<FunctionWithArguments> actionList) {
-		final Defrule defrule = new Defrule(name, description, ruleCondition, actionList);
-		this.constructCache.addRule(defrule);
-		return defrule;
+	public void defRules(final Defrule... defrules) {
+		for (final Defrule defrule : defrules) {
+			// TODO compile
+			this.constructCache.addRule(defrule);
+		}
 	}
 
 	@Override

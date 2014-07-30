@@ -76,7 +76,8 @@ public class SFPParser/*@bgen(jjtree)*/implements SFPParserTreeConstants/*@egen*
 	public Object nextExpression() throws ParseException {
 		SFPStart n = Start();
 		if (n != null) {
-			Object result = n.jjtAccept(new SFPVisitorImpl(new Network()), null);
+			final Network network = new Network();
+			Object result = n.jjtAccept(new SFPVisitorImpl(network, network), null);
 			if (result != null) {
 				return result;
 			}
@@ -94,7 +95,8 @@ public class SFPParser/*@bgen(jjtree)*/implements SFPParserTreeConstants/*@egen*
 				SFPStart n = p.Start();
 				if (n==null) System.exit(0);
 				n.dump(" ");
-				n.jjtAccept(new SFPVisitorImpl(new Network()), null);
+				final Network network = new Network();
+				n.jjtAccept(new SFPVisitorImpl(network, network), null);
 			}
 		}
 		catch (Exception e) {
@@ -155,6 +157,7 @@ TOKEN :
 | < DEFTEMPLATE: "deftemplate" >
 | < DEFTEMPLATE_CONSTRUCT: "deftemplate_construct" >
 | < DEFRULE: "defrule" >
+| < DEFRULES: "defrules" >
 | < DEFFUNCTION: "deffunction" >
 | < FUNCTIONGROUP: "functiongroup">
 | < DEFGENERIC: "defgeneric" >
@@ -1795,6 +1798,7 @@ void Construct()       : {}
 			DeftemplateConstruct()
 		|	DefglobalConstruct()
 		|	DefruleConstruct()
+		|	DefrulesConstruct()
 		|	DeffunctionConstruct()
 		|	DefmoduleConstruct()
 		)
@@ -2495,25 +2499,114 @@ SimpleNode DefruleConstruct() :
 {/*@bgen(jjtree) DefruleConstruct */
         try {
 /*@egen*/
-    	(
-    		<DEFRULE>
+	(
+		<DEFRULE>
+		DefruleBody()
+	)/*@bgen(jjtree)*/
+        {
+          jjtree.closeNodeScope(jjtn000, true);
+          jjtc000 = false;
+        }
+/*@egen*/
+	{ return jjtn000; }/*@bgen(jjtree)*/
+        } catch (Throwable jjte000) {
+          if (jjtc000) {
+            jjtree.clearNodeScope(jjtn000);
+            jjtc000 = false;
+          } else {
+            jjtree.popNode();
+          }
+          if (jjte000 instanceof RuntimeException) {
+            throw (RuntimeException)jjte000;
+          }
+          if (jjte000 instanceof ParseException) {
+            throw (ParseException)jjte000;
+          }
+          throw (Error)jjte000;
+        } finally {
+          if (jjtc000) {
+            jjtree.closeNodeScope(jjtn000, true);
+          }
+        }
+/*@egen*/
+}
 
-    		Symbol()	//name
-    		[
-    		  	ConstructDescription()
-    		]
-    		(
-    			[
-    				LOOKAHEAD(3)
-    				Declaration()
-    			]
-   				(
-    					ConditionalElement()
-   				)*
-    		)
-    			<ARROW>
-        		ActionList()
-        )/*@bgen(jjtree)*/
+
+
+// <defrules-construct> ::= (defrules (<rule-name> [<comment>] [<declaration>] <conditional-element>* => <expression>*)+)
+
+SimpleNode DefrulesConstruct() :
+{/*@bgen(jjtree) DefrulesConstruct */
+  SFPDefrulesConstruct jjtn000 = new SFPDefrulesConstruct(this, JJTDEFRULESCONSTRUCT);
+  boolean jjtc000 = true;
+  jjtree.openNodeScope(jjtn000);
+/*@egen*/}
+{/*@bgen(jjtree) DefrulesConstruct */
+        try {
+/*@egen*/
+	(
+		<DEFRULES>
+		(
+			<LBRACE>
+			DefruleBody()
+			<RBRACE>
+		)+
+	)/*@bgen(jjtree)*/
+        {
+          jjtree.closeNodeScope(jjtn000, true);
+          jjtc000 = false;
+        }
+/*@egen*/
+	{ return jjtn000; }/*@bgen(jjtree)*/
+        } catch (Throwable jjte000) {
+          if (jjtc000) {
+            jjtree.clearNodeScope(jjtn000);
+            jjtc000 = false;
+          } else {
+            jjtree.popNode();
+          }
+          if (jjte000 instanceof RuntimeException) {
+            throw (RuntimeException)jjte000;
+          }
+          if (jjte000 instanceof ParseException) {
+            throw (ParseException)jjte000;
+          }
+          throw (Error)jjte000;
+        } finally {
+          if (jjtc000) {
+            jjtree.closeNodeScope(jjtn000, true);
+          }
+        }
+/*@egen*/
+}
+
+
+SimpleNode DefruleBody() :
+{/*@bgen(jjtree) DefruleBody */
+  SFPDefruleBody jjtn000 = new SFPDefruleBody(this, JJTDEFRULEBODY);
+  boolean jjtc000 = true;
+  jjtree.openNodeScope(jjtn000);
+/*@egen*/}
+{/*@bgen(jjtree) DefruleBody */
+        try {
+/*@egen*/
+	(
+		Symbol()	//name
+		[
+			ConstructDescription()
+		]
+		(
+			[
+				LOOKAHEAD(3)
+				Declaration()
+			]
+				(
+					ConditionalElement()
+				)*
+		)
+		<ARROW>
+		ActionList()
+	)/*@bgen(jjtree)*/
         {
           jjtree.closeNodeScope(jjtn000, true);
           jjtc000 = false;

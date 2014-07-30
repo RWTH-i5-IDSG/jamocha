@@ -67,181 +67,183 @@ public interface SFPParserConstants {
   /** RegularExpression Id. */
   int DEFRULE = 24;
   /** RegularExpression Id. */
-  int DEFFUNCTION = 25;
+  int DEFRULES = 25;
   /** RegularExpression Id. */
-  int FUNCTIONGROUP = 26;
+  int DEFFUNCTION = 26;
   /** RegularExpression Id. */
-  int DEFGENERIC = 27;
+  int FUNCTIONGROUP = 27;
   /** RegularExpression Id. */
-  int DEFMODULE = 28;
+  int DEFGENERIC = 28;
   /** RegularExpression Id. */
-  int DEFGLOBAL = 29;
+  int DEFMODULE = 29;
   /** RegularExpression Id. */
-  int DEFAULT_ATR = 30;
+  int DEFGLOBAL = 30;
   /** RegularExpression Id. */
-  int DYNAMIC_ATR = 31;
+  int DEFAULT_ATR = 31;
   /** RegularExpression Id. */
-  int ATR_DEFAULT = 32;
+  int DYNAMIC_ATR = 32;
   /** RegularExpression Id. */
-  int ATR_DERIVE = 33;
+  int ATR_DEFAULT = 33;
   /** RegularExpression Id. */
-  int ATR_NONE = 34;
+  int ATR_DERIVE = 34;
   /** RegularExpression Id. */
-  int ATR_ALL = 35;
+  int ATR_NONE = 35;
   /** RegularExpression Id. */
-  int SLOT = 36;
+  int ATR_ALL = 36;
   /** RegularExpression Id. */
-  int SINGLE_SLOT = 37;
+  int SLOT = 37;
   /** RegularExpression Id. */
-  int MULTISLOT = 38;
+  int SINGLE_SLOT = 38;
   /** RegularExpression Id. */
-  int ARROW = 39;
+  int MULTISLOT = 39;
   /** RegularExpression Id. */
-  int SLOWCOMPILE = 40;
+  int ARROW = 40;
   /** RegularExpression Id. */
-  int DECLARE = 41;
+  int SLOWCOMPILE = 41;
   /** RegularExpression Id. */
-  int SALIENCE = 42;
+  int DECLARE = 42;
   /** RegularExpression Id. */
-  int TEMPORALVALIDITY = 43;
+  int SALIENCE = 43;
   /** RegularExpression Id. */
-  int MILLISECOND = 44;
+  int TEMPORALVALIDITY = 44;
   /** RegularExpression Id. */
-  int SECOND = 45;
+  int MILLISECOND = 45;
   /** RegularExpression Id. */
-  int MINUTE = 46;
+  int SECOND = 46;
   /** RegularExpression Id. */
-  int HOUR = 47;
+  int MINUTE = 47;
   /** RegularExpression Id. */
-  int DAY = 48;
+  int HOUR = 48;
   /** RegularExpression Id. */
-  int MONTH = 49;
+  int DAY = 49;
   /** RegularExpression Id. */
-  int YEAR = 50;
+  int MONTH = 50;
   /** RegularExpression Id. */
-  int WEEKDAY = 51;
+  int YEAR = 51;
   /** RegularExpression Id. */
-  int DURATION = 52;
+  int WEEKDAY = 52;
   /** RegularExpression Id. */
-  int AUTOFOCUS = 53;
+  int DURATION = 53;
   /** RegularExpression Id. */
-  int RULEVERSION = 54;
+  int AUTOFOCUS = 54;
   /** RegularExpression Id. */
-  int TYPE = 55;
+  int RULEVERSION = 55;
   /** RegularExpression Id. */
-  int TRUE = 56;
+  int TYPE = 56;
   /** RegularExpression Id. */
-  int FALSE = 57;
+  int TRUE = 57;
   /** RegularExpression Id. */
-  int NIL = 58;
+  int FALSE = 58;
   /** RegularExpression Id. */
-  int NOT = 59;
+  int NIL = 59;
   /** RegularExpression Id. */
-  int AND = 60;
+  int NOT = 60;
   /** RegularExpression Id. */
-  int OR = 61;
+  int AND = 61;
   /** RegularExpression Id. */
-  int OF = 62;
+  int OR = 62;
   /** RegularExpression Id. */
-  int LOGICAL = 63;
+  int OF = 63;
   /** RegularExpression Id. */
-  int TEST = 64;
+  int LOGICAL = 64;
   /** RegularExpression Id. */
-  int EXISTS = 65;
+  int TEST = 65;
   /** RegularExpression Id. */
-  int FORALL = 66;
+  int EXISTS = 66;
   /** RegularExpression Id. */
-  int OBJECT = 67;
+  int FORALL = 67;
   /** RegularExpression Id. */
-  int ASSIGN = 68;
+  int OBJECT = 68;
   /** RegularExpression Id. */
-  int TILDE = 69;
+  int ASSIGN = 69;
   /** RegularExpression Id. */
-  int AMPERSAND = 70;
+  int TILDE = 70;
   /** RegularExpression Id. */
-  int LINE = 71;
+  int AMPERSAND = 71;
   /** RegularExpression Id. */
-  int COLON = 72;
+  int LINE = 72;
   /** RegularExpression Id. */
-  int EQUALS = 73;
+  int COLON = 73;
   /** RegularExpression Id. */
-  int VARIABLE_TYPE = 74;
+  int EQUALS = 74;
   /** RegularExpression Id. */
-  int SYMBOL_TYPE = 75;
+  int VARIABLE_TYPE = 75;
   /** RegularExpression Id. */
-  int STRING_TYPE = 76;
+  int SYMBOL_TYPE = 76;
   /** RegularExpression Id. */
-  int DATETIME_TYPE = 77;
+  int STRING_TYPE = 77;
   /** RegularExpression Id. */
-  int LEXEME_TYPE = 78;
+  int DATETIME_TYPE = 78;
   /** RegularExpression Id. */
-  int INTEGER_TYPE = 79;
+  int LEXEME_TYPE = 79;
   /** RegularExpression Id. */
-  int FLOAT_TYPE = 80;
+  int INTEGER_TYPE = 80;
   /** RegularExpression Id. */
-  int NUMBER_TYPE = 81;
+  int FLOAT_TYPE = 81;
   /** RegularExpression Id. */
-  int BOOLEAN_TYPE = 82;
+  int NUMBER_TYPE = 82;
   /** RegularExpression Id. */
-  int EXTERNAL_ADDRESS_TYPE = 83;
+  int BOOLEAN_TYPE = 83;
   /** RegularExpression Id. */
-  int FACT_ADDRESS_TYPE = 84;
+  int EXTERNAL_ADDRESS_TYPE = 84;
   /** RegularExpression Id. */
-  int ALLOWED_SYMBOLS = 85;
+  int FACT_ADDRESS_TYPE = 85;
   /** RegularExpression Id. */
-  int ALLOWED_STRINGS = 86;
+  int ALLOWED_SYMBOLS = 86;
   /** RegularExpression Id. */
-  int ALLOWED_LEXEMES = 87;
+  int ALLOWED_STRINGS = 87;
   /** RegularExpression Id. */
-  int ALLOWED_INTEGERS = 88;
+  int ALLOWED_LEXEMES = 88;
   /** RegularExpression Id. */
-  int ALLOWED_FLOATS = 89;
+  int ALLOWED_INTEGERS = 89;
   /** RegularExpression Id. */
-  int ALLOWED_NUMBERS = 90;
+  int ALLOWED_FLOATS = 90;
   /** RegularExpression Id. */
-  int ALLOWED_VALUES = 91;
+  int ALLOWED_NUMBERS = 91;
   /** RegularExpression Id. */
-  int RANGE = 92;
+  int ALLOWED_VALUES = 92;
   /** RegularExpression Id. */
-  int CARDINALITY = 93;
+  int RANGE = 93;
   /** RegularExpression Id. */
-  int ACTIVE = 94;
+  int CARDINALITY = 94;
   /** RegularExpression Id. */
-  int ASSERT = 95;
+  int ACTIVE = 95;
   /** RegularExpression Id. */
-  int RETRACT = 96;
+  int ASSERT = 96;
   /** RegularExpression Id. */
-  int FIND_FACT_BY_FACT = 97;
+  int RETRACT = 97;
   /** RegularExpression Id. */
-  int MODIFY = 98;
+  int FIND_FACT_BY_FACT = 98;
   /** RegularExpression Id. */
-  int DUPLICATE = 99;
+  int MODIFY = 99;
   /** RegularExpression Id. */
-  int FACT_RELATION = 100;
+  int DUPLICATE = 100;
   /** RegularExpression Id. */
-  int IF = 101;
+  int FACT_RELATION = 101;
   /** RegularExpression Id. */
-  int THEN = 102;
+  int IF = 102;
   /** RegularExpression Id. */
-  int ELSE = 103;
+  int THEN = 103;
   /** RegularExpression Id. */
-  int WHILE = 104;
+  int ELSE = 104;
   /** RegularExpression Id. */
-  int DO = 105;
+  int WHILE = 105;
   /** RegularExpression Id. */
-  int LOOP_FOR_COUNT = 106;
+  int DO = 106;
   /** RegularExpression Id. */
-  int SWITCH = 107;
+  int LOOP_FOR_COUNT = 107;
   /** RegularExpression Id. */
-  int CASE = 108;
+  int SWITCH = 108;
   /** RegularExpression Id. */
-  int VARSYMBOL = 109;
+  int CASE = 109;
   /** RegularExpression Id. */
-  int SINGLEVAR = 110;
+  int VARSYMBOL = 110;
   /** RegularExpression Id. */
-  int MULTIVAR = 111;
+  int SINGLEVAR = 111;
   /** RegularExpression Id. */
-  int SYMBOL = 112;
+  int MULTIVAR = 112;
+  /** RegularExpression Id. */
+  int SYMBOL = 113;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -273,6 +275,7 @@ public interface SFPParserConstants {
     "\"deftemplate\"",
     "\"deftemplate_construct\"",
     "\"defrule\"",
+    "\"defrules\"",
     "\"deffunction\"",
     "\"functiongroup\"",
     "\"defgeneric\"",

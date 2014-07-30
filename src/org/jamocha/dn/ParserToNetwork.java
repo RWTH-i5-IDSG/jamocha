@@ -14,7 +14,6 @@
  */
 package org.jamocha.dn;
 
-import java.util.ArrayList;
 import java.util.Collection;
 
 import org.jamocha.dn.ConstructCache.Deffacts;
@@ -22,8 +21,6 @@ import org.jamocha.dn.ConstructCache.Defrule;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.dn.memory.Template.Slot;
 import org.jamocha.filter.fwa.Assert;
-import org.jamocha.filter.fwa.FunctionWithArguments;
-import org.jamocha.languages.common.RuleCondition;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -35,8 +32,7 @@ public interface ParserToNetwork {
 
 	Collection<Template> getTemplates();
 
-	Defrule defRule(final String name, final String description, final RuleCondition ruleCondition,
-			final ArrayList<FunctionWithArguments> actionList);
+	void defRules(final Defrule... defrules);
 
 	Defrule getRule(final String name);
 

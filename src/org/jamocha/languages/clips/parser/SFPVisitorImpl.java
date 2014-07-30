@@ -19,6 +19,7 @@ import static org.jamocha.util.ToArray.toArray;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -35,6 +36,7 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 
+import org.jamocha.dn.ConstructCache.Defrule;
 import org.jamocha.dn.Network;
 import org.jamocha.dn.ParserToNetwork;
 import org.jamocha.dn.SideEffectFunctionToNetwork;
@@ -58,6 +60,7 @@ import org.jamocha.languages.clips.parser.errors.ClipsSideEffectsDisallowedHereE
 import org.jamocha.languages.clips.parser.errors.ClipsTemplateNotDefinedError;
 import org.jamocha.languages.clips.parser.errors.ClipsTypeMismatchError;
 import org.jamocha.languages.clips.parser.errors.ClipsVariableNotDeclaredError;
+import org.jamocha.languages.clips.parser.generated.Node;
 import org.jamocha.languages.clips.parser.generated.ParseException;
 import org.jamocha.languages.clips.parser.generated.SFPActionList;
 import org.jamocha.languages.clips.parser.generated.SFPAmpersandConnectedConstraint;
@@ -73,7 +76,9 @@ import org.jamocha.languages.clips.parser.generated.SFPConstructDescription;
 import org.jamocha.languages.clips.parser.generated.SFPDateTime;
 import org.jamocha.languages.clips.parser.generated.SFPDateTimeType;
 import org.jamocha.languages.clips.parser.generated.SFPDeffunctionConstruct;
+import org.jamocha.languages.clips.parser.generated.SFPDefruleBody;
 import org.jamocha.languages.clips.parser.generated.SFPDefruleConstruct;
+import org.jamocha.languages.clips.parser.generated.SFPDefrulesConstruct;
 import org.jamocha.languages.clips.parser.generated.SFPDeftemplateConstruct;
 import org.jamocha.languages.clips.parser.generated.SFPEquals;
 import org.jamocha.languages.clips.parser.generated.SFPExistsCE;
@@ -1428,6 +1433,72 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 	class SFPStartVisitor implements SelectiveSFPVisitor {
 		String value;
 
+		@RequiredArgsConstructor
+		class SFPDefruleBodyVisitor implements SelectiveSFPVisitor {
+			final List<String> previousRuleNames;
+			Defrule defrule;
+
+			@Override
+			public Object visit(final SFPDefruleBody node, final Object data) {
+				// <defrules-construct> ::= (defrules (<rule-name> [<comment>] [<declaration>]
+				// <conditional-element>* => <expression>*)+)
+				// DefrulesConstruct() : {(<DEFRULES> (<LBRACE> Symbol() //name
+				// [ConstructDescription()
+				// ] ([LOOKAHEAD(3) Declaration() ] (ConditionalElement() )* ) <ARROW> ActionList()
+				// <RBRACE> )+ )
+				assert node.jjtGetNumChildren() > 1;
+				final Symbol symbol =
+						SelectiveSFPVisitor.sendVisitor(new SFPSymbolVisitor(),
+								node.jjtGetChild(0), data).symbol;
+				if (null != parserToNetwork.getRule(symbol.getImage())
+						|| previousRuleNames.contains(symbol.getImage())) {
+					throw new NameClashError("Rule " + symbol + " already defined!");
+				}
+				try (final ScopeCloser scopeCloser = new ScopeCloser(SFPVisitorImpl.this.scope)) {
+					final ExistentialStack existentialStack = new ExistentialStack();
+					String comment = null;
+					final ArrayList<ConditionalElement> ces = new ArrayList<>();
+					ArrayList<FunctionWithArguments> actionList = null;
+					for (int i = 1; i < node.jjtGetNumChildren(); ++i) {
+						final SFPDefruleConstructElementVisitor visitor =
+								SelectiveSFPVisitor.sendVisitor(
+										new SFPDefruleConstructElementVisitor(existentialStack,
+												(Symbol) null), node.jjtGetChild(i), data);
+						if (visitor.comment.isPresent()) {
+							assert null == comment;
+							comment = visitor.comment.get();
+						} else if (visitor.resultCE.isPresent()) {
+							ces.add(visitor.resultCE.get());
+						} else if (visitor.actionList.isPresent()) {
+							assert null == actionList;
+							actionList = visitor.actionList.get();
+						}
+					}
+					existentialStack
+							.getVariables()
+							.keySet()
+							.stream()
+							.collect(Collectors.groupingBy(Symbol::getImage))
+							.entrySet()
+							.stream()
+							.filter(e -> e.getValue().size() > 1
+									&& !e.getKey().equals(ScopeStack.dummySymbolImage))
+							.forEach(
+									e -> SFPVisitorImpl.this.warnings
+											.add(new Warning(
+													"Two different symbols were created for the same variable name leading to different variables, namely "
+															+ e.getKey())));
+					if (!existentialStack.templateCEContained) {
+						ces.add(0, new InitialFactConditionalElement());
+					}
+					existentialStack.addConditionalElements(ces);
+					this.defrule =
+							new Defrule(symbol.getImage(), comment, existentialStack, actionList);
+				}
+				return data;
+			}
+		}
+
 		// Start() : Construct() | Expression()
 		// void Construct() : <LBRACE> ( DeftemplateConstruct() | DefglobalConstruct()
 		// | DefruleConstruct() | DeffunctionConstruct() | DefmoduleConstruct() ) <RBRACE>
@@ -1459,57 +1530,37 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 		}
 
 		@Override
+		public Object visit(final SFPDefrulesConstruct node, final Object data) {
+			// <defrules-construct> ::= (defrules (<rule-name> [<comment>] [<declaration>]
+			// <conditional-element>* => <expression>*)+)
+			// DefrulesConstruct() : {(<DEFRULES> (<LBRACE> Symbol() //name [ConstructDescription()
+			// ] ([LOOKAHEAD(3) Declaration() ] (ConditionalElement() )* ) <ARROW> ActionList()
+			// <RBRACE> )+ )
+			final int numChildren = node.jjtGetNumChildren();
+			assert numChildren >= 1;
+			final Defrule[] defrules = new Defrule[numChildren];
+			final List<String> previousRuleNames = new ArrayList<>();
+			for (int i = 0; i < numChildren; ++i) {
+				final Node child = node.jjtGetChild(i);
+				final Defrule defrule =
+						SelectiveSFPVisitor.sendVisitor(
+								new SFPDefruleBodyVisitor(previousRuleNames), child, data).defrule;
+				defrules[i] = defrule;
+				previousRuleNames.add(defrule.getName());
+			}
+			parserToNetwork.defRules(defrules);
+			return data;
+		}
+
+		@Override
 		public Object visit(final SFPDefruleConstruct node, final Object data) {
 			// <defrule-construct> ::= (defrule <rule-name> [<comment>] [<declaration>]
 			// <conditional-element>* => <expression>*)
 			// <DEFRULE> Symbol() [ ConstructDescription() ] ( [ LOOKAHEAD(3) Declaration() ] (
 			// ConditionalElement() )* ) <ARROW> ActionList()
-			assert node.jjtGetNumChildren() > 1;
-			final Symbol symbol =
-					SelectiveSFPVisitor.sendVisitor(new SFPSymbolVisitor(), node.jjtGetChild(0),
-							data).symbol;
-			if (null != parserToNetwork.getRule(symbol.getImage())) {
-				throw new NameClashError("Rule " + symbol + " already defined!");
-			}
-			try (final ScopeCloser scopeCloser = new ScopeCloser(SFPVisitorImpl.this.scope)) {
-				final ExistentialStack existentialStack = new ExistentialStack();
-				String comment = null;
-				final ArrayList<ConditionalElement> ces = new ArrayList<>();
-				ArrayList<FunctionWithArguments> actionList = null;
-				for (int i = 1; i < node.jjtGetNumChildren(); ++i) {
-					final SFPDefruleConstructElementVisitor visitor =
-							SelectiveSFPVisitor.sendVisitor(new SFPDefruleConstructElementVisitor(
-									existentialStack, (Symbol) null), node.jjtGetChild(i), data);
-					if (visitor.comment.isPresent()) {
-						assert null == comment;
-						comment = visitor.comment.get();
-					} else if (visitor.resultCE.isPresent()) {
-						ces.add(visitor.resultCE.get());
-					} else if (visitor.actionList.isPresent()) {
-						assert null == actionList;
-						actionList = visitor.actionList.get();
-					}
-				}
-				existentialStack
-						.getVariables()
-						.keySet()
-						.stream()
-						.collect(Collectors.groupingBy(Symbol::getImage))
-						.entrySet()
-						.stream()
-						.filter(e -> e.getValue().size() > 1
-								&& !e.getKey().equals(ScopeStack.dummySymbolImage))
-						.forEach(
-								e -> SFPVisitorImpl.this.warnings
-										.add(new Warning(
-												"Two different symbols were created for the same variable name leading to different variables, namely "
-														+ e.getKey())));
-				if (!existentialStack.templateCEContained) {
-					ces.add(0, new InitialFactConditionalElement());
-				}
-				existentialStack.addConditionalElements(ces);
-				parserToNetwork.defRule(symbol.getImage(), comment, existentialStack, actionList);
-			}
+			assert node.jjtGetNumChildren() == 1;
+			parserToNetwork.defRules(SelectiveSFPVisitor.sendVisitor(new SFPDefruleBodyVisitor(
+					Collections.emptyList()), node.jjtGetChild(0), data).defrule);
 			return data;
 		}
 
@@ -1539,7 +1590,9 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 					SelectiveSFPVisitor.sendVisitor(new SFPExpressionVisitor((s, n) -> {
 						throw new ClipsVariableNotDeclaredError(s, n);
 					}, true), node, data).expression;
-			this.value = expression.getReturnType().toString(expression.evaluate());
+			this.value =
+					sideEffectFunctionToNetwork.getLogFormatter().formatSlotValue(
+							expression.getReturnType(), expression.evaluate());
 			return data;
 		}
 	}

@@ -153,6 +153,7 @@ TOKEN :
 | < DEFTEMPLATE: "deftemplate" >
 | < DEFTEMPLATE_CONSTRUCT: "deftemplate_construct" >
 | < DEFRULE: "defrule" >
+| < DEFRULES: "defrules" >
 | < DEFFUNCTION: "deffunction" >
 | < FUNCTIONGROUP: "functiongroup">
 | < DEFGENERIC: "defgeneric" >
@@ -966,6 +967,7 @@ void Construct() #void : {}
 			DeftemplateConstruct()
 		|	DefglobalConstruct()
 		|	DefruleConstruct()
+		|	DefrulesConstruct()
 		|	DeffunctionConstruct()
 		|	DefmoduleConstruct()
 		)
@@ -1299,25 +1301,52 @@ void RHSField() #void:
 SimpleNode DefruleConstruct() :
 {}
 {
-    	(
-    		<DEFRULE>
+	(
+		<DEFRULE>
+		DefruleBody()
+	)
+	{ return jjtThis; }
+}
 
-    		Symbol()	//name
-    		[
-    		  	ConstructDescription()
-    		]
-    		(
-    			[
-    				LOOKAHEAD(3)
-    				Declaration()
-    			]
-   				(
-    					ConditionalElement()
-   				)*
-    		)
-    			<ARROW>
-        		ActionList()
-        )
+
+
+// <defrules-construct> ::= (defrules (<rule-name> [<comment>] [<declaration>] <conditional-element>* => <expression>*)+)
+
+SimpleNode DefrulesConstruct() :
+{}
+{
+	(
+		<DEFRULES>
+		(
+			<LBRACE>
+			DefruleBody()
+			<RBRACE>
+		)+
+	)
+	{ return jjtThis; }
+}
+
+
+SimpleNode DefruleBody() :
+{}
+{
+	(
+		Symbol()	//name
+		[
+			ConstructDescription()
+		]
+		(
+			[
+				LOOKAHEAD(3)
+				Declaration()
+			]
+				(
+					ConditionalElement()
+				)*
+		)
+		<ARROW>
+		ActionList()
+	)
 	{ return jjtThis; }
 }
 
