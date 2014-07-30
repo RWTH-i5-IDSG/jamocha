@@ -14,6 +14,7 @@
  */
 package org.jamocha.languages.clips;
 
+import java.util.Collection;
 import java.util.Objects;
 
 import org.apache.logging.log4j.Logger;
@@ -25,8 +26,10 @@ import org.jamocha.dn.memory.MemoryFact;
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.dn.memory.Template.Slot;
+import org.jamocha.languages.common.ScopeStack.Symbol;
 import org.jamocha.logging.LogFormatter;
 import org.jamocha.logging.MarkerType;
+import org.jamocha.logging.Type;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -59,9 +62,30 @@ public class ClipsLogFormatter implements LogFormatter {
 	}
 
 	@Override
+	public void messageFactList(SideEffectFunctionToNetwork network) {
+		network.getMemoryFacts()
+				.entrySet()
+				.stream()
+				.sorted((a, b) -> a.getKey().compareTo(b.getKey()))
+				.forEachOrdered(
+						e -> network.getLogFormatter().messageFactDetails(network,
+								e.getKey().getId(), e.getValue()));
+	}
+
+	@Override
 	public void messageTemplateDetails(final SideEffectFunctionToNetwork network,
 			final Template template) {
 		network.getInteractiveEventsLogger().info(formatTemplate(template));
+	}
+
+	@Override
+	public void messageTemplateList(final SideEffectFunctionToNetwork network) {
+		final Collection<Template> templates = network.getTemplates();
+		for (final Template template : templates) {
+			network.getInteractiveEventsLogger().info(template.getName());
+		}
+		network.getInteractiveEventsLogger().info("For a total of {} deftemplates.",
+				templates.size());
 	}
 
 	@Override
@@ -88,7 +112,7 @@ public class ClipsLogFormatter implements LogFormatter {
 		for (final FactIdentifier fi : factsToRetract) {
 			final MemoryFact memoryFact = network.getMemoryFact(fi);
 			if (null == memoryFact) {
-				interactiveEventsLogger.error("[PRNTUTIL1] Unable to find fact f-{}", fi.getId());
+				messageUnknownSymbol(network, Type.FACT, formatTypeValue(Type.FACT, fi));
 				continue;
 			}
 			final Marker instanceMarker = memoryFact.getTemplate().getInstanceMarker();
@@ -101,23 +125,17 @@ public class ClipsLogFormatter implements LogFormatter {
 
 	@Override
 	public void messageArgumentTypeMismatch(final SideEffectFunctionToNetwork network,
-			final String function, final int paramIndex, final String expected) {
+			final String function, final int paramIndex, final Type expectedType) {
 		network.getInteractiveEventsLogger().error(
 				"[ARGACCES5] Function {} expected argument #{} to be of type {}", function,
-				paramIndex, expected);
-	}
-
-	@Override
-	public void messageArgumentTypeMismatch(final SideEffectFunctionToNetwork network,
-			final String function, final int paramIndex, final SlotType expected) {
-		messageArgumentTypeMismatch(network, function, paramIndex, formatSlotType(expected));
+				paramIndex, formatType(expectedType));
 	}
 
 	@Override
 	public void messageUnknownSymbol(final SideEffectFunctionToNetwork network,
-			final String expectedType, final String name) {
+			final Type expectedType, final String name) {
 		network.getInteractiveEventsLogger().error("[PRNTUTIL1] Unable to find {} {}",
-				expectedType, name);
+				formatType(expectedType), name);
 	}
 
 	@Override
@@ -188,5 +206,49 @@ public class ClipsLogFormatter implements LogFormatter {
 		default:
 			return Objects.toString(value);
 		}
+	}
+
+	@Override
+	public String formatType(final Type type) {
+		switch (type) {
+		case LONG:
+		case DOUBLE:
+		case FACTADDRESS:
+		case BOOLEAN:
+		case DATETIME:
+		case NIL:
+		case STRING:
+		case SYMBOL:
+			return formatSlotType(Enum.valueOf(SlotType.class, type.name()));
+		case TEMPLATE:
+			return "deftemplate";
+		case WATCHABLE_SYMBOL:
+			return "watchable symbol";
+		case FACT:
+			return "fact";
+		}
+		return null;
+	}
+
+	@Override
+	public String formatTypeValue(Type type, Object value) {
+		switch (type) {
+		case LONG:
+		case DOUBLE:
+		case FACTADDRESS:
+		case BOOLEAN:
+		case DATETIME:
+		case NIL:
+		case STRING:
+		case SYMBOL:
+			return formatSlotValue(Enum.valueOf(SlotType.class, type.name()), value);
+		case TEMPLATE:
+			return ((Template) value).getName();
+		case WATCHABLE_SYMBOL:
+			return ((Symbol) value).getImage();
+		case FACT:
+			return "f-" + ((FactIdentifier) value).getId();
+		}
+		return null;
 	}
 }

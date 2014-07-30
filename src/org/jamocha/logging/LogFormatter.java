@@ -29,7 +29,11 @@ public interface LogFormatter {
 	void messageFactDetails(final SideEffectFunctionToNetwork network, final int id,
 			final MemoryFact value);
 
+	void messageFactList(final SideEffectFunctionToNetwork network);
+
 	void messageTemplateDetails(final SideEffectFunctionToNetwork network, final Template template);
+
+	void messageTemplateList(final SideEffectFunctionToNetwork network);
 
 	void messageFactAssertions(final SideEffectFunctionToNetwork network,
 			final FactIdentifier[] assertedFacts);
@@ -38,12 +42,9 @@ public interface LogFormatter {
 			final FactIdentifier[] factsToRetract);
 
 	void messageArgumentTypeMismatch(final SideEffectFunctionToNetwork network,
-			final String function, final int paramIndex, final String expected);
+			final String function, final int paramIndex, final Type expected);
 
-	void messageArgumentTypeMismatch(final SideEffectFunctionToNetwork network,
-			final String function, final int paramIndex, final SlotType expected);
-
-	void messageUnknownSymbol(final SideEffectFunctionToNetwork network, final String expectedType,
+	void messageUnknownSymbol(final SideEffectFunctionToNetwork network, final Type expectedType,
 			final String name);
 
 	String formatTemplate(final Template template);
@@ -53,4 +54,8 @@ public interface LogFormatter {
 	String formatSlotType(final SlotType type);
 
 	String formatSlotValue(final SlotType type, final Object value);
+
+	String formatType(final Type type);
+
+	String formatTypeValue(final Type type, final Object value);
 }

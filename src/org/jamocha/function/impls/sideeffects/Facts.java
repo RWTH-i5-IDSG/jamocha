@@ -53,13 +53,7 @@ public abstract class Facts implements Function<Object> {
 			return new Facts() {
 				@Override
 				public Object evaluate(final Function<?>... params) {
-					network.getMemoryFacts()
-							.entrySet()
-							.stream()
-							.sorted((a, b) -> a.getKey().compareTo(b.getKey()))
-							.forEachOrdered(
-									e -> network.getLogFormatter().messageFactDetails(network,
-											e.getKey().getId(), e.getValue()));
+					network.getLogFormatter().messageFactList(network);
 					return null;
 				}
 			};

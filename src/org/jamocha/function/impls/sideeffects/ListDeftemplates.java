@@ -14,11 +14,8 @@
  */
 package org.jamocha.function.impls.sideeffects;
 
-import java.util.Collection;
-
 import org.jamocha.dn.SideEffectFunctionToNetwork;
 import org.jamocha.dn.memory.SlotType;
-import org.jamocha.dn.memory.Template;
 import org.jamocha.function.Function;
 import org.jamocha.function.FunctionDictionary;
 import org.jamocha.function.impls.FunctionVisitor;
@@ -56,12 +53,7 @@ public abstract class ListDeftemplates implements Function<Object> {
 			return new ListDeftemplates() {
 				@Override
 				public Object evaluate(final Function<?>... params) {
-					final Collection<Template> templates = network.getTemplates();
-					for (final Template template : templates) {
-						network.getInteractiveEventsLogger().info(template.getName());
-					}
-					network.getInteractiveEventsLogger().info("For a total of {} deftemplates.",
-							templates.size());
+					network.getLogFormatter().messageTemplateList(network);
 					return null;
 				}
 			};

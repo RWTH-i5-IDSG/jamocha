@@ -21,6 +21,7 @@ import org.jamocha.function.Function;
 import org.jamocha.function.FunctionDictionary;
 import org.jamocha.function.impls.FunctionVisitor;
 import org.jamocha.languages.common.ScopeStack.Symbol;
+import org.jamocha.logging.Type;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -60,7 +61,7 @@ public abstract class Ppdeftemplate implements Function<Object> {
 							final Template template = network.getTemplate(type.getImage());
 							if (null == template) {
 								network.getLogFormatter().messageUnknownSymbol(network,
-										"deftemplate", type.getImage());
+										Type.TEMPLATE, type.getImage());
 							} else {
 								network.getLogFormatter().messageTemplateDetails(network, template);
 							}

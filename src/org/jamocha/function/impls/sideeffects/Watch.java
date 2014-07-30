@@ -23,6 +23,7 @@ import org.jamocha.function.FunctionDictionary;
 import org.jamocha.function.impls.FunctionVisitor;
 import org.jamocha.languages.common.ScopeStack.Symbol;
 import org.jamocha.logging.MarkerType;
+import org.jamocha.logging.Type;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -65,11 +66,11 @@ public abstract class Watch implements Function<Object> {
 					case "facts":
 						final Marker[] markers = new Marker[params.length - 1];
 						for (int i = 1; i < params.length; ++i) {
-							final String string = (String) params[i].evaluate();
+							final String string = ((Symbol) params[i].evaluate()).getImage();
 							final Template template = network.getTemplate(string);
 							if (null == template) {
 								network.getLogFormatter().messageArgumentTypeMismatch(network,
-										inClips(), i - 1, "deftemplate");
+										inClips(), i, Type.TEMPLATE);
 								return null;
 							}
 							markers[i - 1] = template.getInstanceMarker();
@@ -93,7 +94,7 @@ public abstract class Watch implements Function<Object> {
 								+ type.getImage());
 					default:
 						network.getLogFormatter().messageArgumentTypeMismatch(network, inClips(),
-								1, "watchable symbol");
+								1, Type.WATCHABLE_SYMBOL);
 					}
 					return null;
 				}
