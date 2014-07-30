@@ -20,7 +20,7 @@ import java.util.List;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
-import org.jamocha.filter.fwa.FunctionWithArguments;
+import org.jamocha.function.fwa.FunctionWithArguments;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>

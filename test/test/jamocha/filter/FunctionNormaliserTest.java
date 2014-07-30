@@ -24,16 +24,16 @@ import org.jamocha.filter.AddressFilter;
 import org.jamocha.filter.Filter;
 import org.jamocha.filter.FilterFunctionCompare;
 import org.jamocha.filter.FilterTranslator;
-import org.jamocha.filter.Function;
-import org.jamocha.filter.FunctionDictionary;
 import org.jamocha.filter.PathFilter;
 import org.jamocha.filter.PathFilter.PathFilterElement;
-import org.jamocha.filter.Predicate;
 import org.jamocha.filter.UniformFunctionTranslator;
-import org.jamocha.filter.fwa.ConstantLeaf;
-import org.jamocha.filter.fwa.FunctionWithArguments;
-import org.jamocha.filter.fwa.GenericWithArgumentsComposite;
-import org.jamocha.filter.fwa.PredicateWithArguments;
+import org.jamocha.function.Function;
+import org.jamocha.function.FunctionDictionary;
+import org.jamocha.function.Predicate;
+import org.jamocha.function.fwa.ConstantLeaf;
+import org.jamocha.function.fwa.FunctionWithArguments;
+import org.jamocha.function.fwa.GenericWithArgumentsComposite;
+import org.jamocha.function.fwa.PredicateWithArguments;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -70,16 +70,17 @@ public class FunctionNormaliserTest {
 		// -(a,b) -> +(a,(-b))
 		final Function<Long> minusL =
 				FunctionDictionary.<Long> lookup(
-						org.jamocha.filter.impls.functions.UnaryMinus.inClips, SlotType.LONG);
+						org.jamocha.function.impls.functions.UnaryMinus.inClips, SlotType.LONG);
 		final Function<Long> minusLL =
-				FunctionDictionary.<Long> lookup(org.jamocha.filter.impls.functions.Minus.inClips,
-						SlotType.LONG, SlotType.LONG);
+				FunctionDictionary.<Long> lookup(
+						org.jamocha.function.impls.functions.Minus.inClips, SlotType.LONG,
+						SlotType.LONG);
 		final Function<Long> plusLL =
-				FunctionDictionary.<Long> lookup(org.jamocha.filter.impls.functions.Plus.inClips,
+				FunctionDictionary.<Long> lookup(org.jamocha.function.impls.functions.Plus.inClips,
 						SlotType.LONG, SlotType.LONG);
 		final Predicate equalsLL =
 				FunctionDictionary.lookupPredicate(
-						org.jamocha.filter.impls.predicates.Equals.inClips, SlotType.LONG,
+						org.jamocha.function.impls.predicates.Equals.inClips, SlotType.LONG,
 						SlotType.LONG);
 		final PredicateWithArguments originalPredicate =
 				new PredicateBuilder(equalsLL).addLong(5L)
@@ -103,17 +104,18 @@ public class FunctionNormaliserTest {
 		// -(a,b) -> +(a,(-b))
 		final Function<Double> minusD =
 				FunctionDictionary.<Double> lookup(
-						org.jamocha.filter.impls.functions.UnaryMinus.inClips, SlotType.DOUBLE);
+						org.jamocha.function.impls.functions.UnaryMinus.inClips, SlotType.DOUBLE);
 		final Function<Double> minusDD =
 				FunctionDictionary.<Double> lookup(
-						org.jamocha.filter.impls.functions.Minus.inClips, SlotType.DOUBLE,
+						org.jamocha.function.impls.functions.Minus.inClips, SlotType.DOUBLE,
 						SlotType.DOUBLE);
 		final Function<Double> plusDD =
-				FunctionDictionary.<Double> lookup(org.jamocha.filter.impls.functions.Plus.inClips,
-						SlotType.DOUBLE, SlotType.DOUBLE);
+				FunctionDictionary.<Double> lookup(
+						org.jamocha.function.impls.functions.Plus.inClips, SlotType.DOUBLE,
+						SlotType.DOUBLE);
 		final Predicate equalsDD =
 				FunctionDictionary.lookupPredicate(
-						org.jamocha.filter.impls.predicates.Equals.inClips, SlotType.DOUBLE,
+						org.jamocha.function.impls.predicates.Equals.inClips, SlotType.DOUBLE,
 						SlotType.DOUBLE);
 		final PredicateWithArguments originalPredicate =
 				new PredicateBuilder(equalsDD)
@@ -138,10 +140,10 @@ public class FunctionNormaliserTest {
 		// -(-(a)) -> a
 		final Function<Long> minusL =
 				FunctionDictionary.<Long> lookup(
-						org.jamocha.filter.impls.functions.UnaryMinus.inClips, SlotType.LONG);
+						org.jamocha.function.impls.functions.UnaryMinus.inClips, SlotType.LONG);
 		final Predicate equalsLL =
 				FunctionDictionary.lookupPredicate(
-						org.jamocha.filter.impls.predicates.Equals.inClips, SlotType.LONG,
+						org.jamocha.function.impls.predicates.Equals.inClips, SlotType.LONG,
 						SlotType.LONG);
 		final PredicateWithArguments originalPredicate =
 				new PredicateBuilder(equalsLL)
@@ -160,10 +162,10 @@ public class FunctionNormaliserTest {
 		// -(-(a)) -> a
 		final Function<Double> minusD =
 				FunctionDictionary.<Double> lookup(
-						org.jamocha.filter.impls.functions.UnaryMinus.inClips, SlotType.DOUBLE);
+						org.jamocha.function.impls.functions.UnaryMinus.inClips, SlotType.DOUBLE);
 		final Predicate equalsDD =
 				FunctionDictionary.lookupPredicate(
-						org.jamocha.filter.impls.predicates.Equals.inClips, SlotType.DOUBLE,
+						org.jamocha.function.impls.predicates.Equals.inClips, SlotType.DOUBLE,
 						SlotType.DOUBLE);
 		final PredicateWithArguments originalPredicate =
 				new PredicateBuilder(equalsDD)
@@ -183,17 +185,18 @@ public class FunctionNormaliserTest {
 		// /(a,b) -> *(a,1/b)
 		final Function<Long> divLL =
 				FunctionDictionary.<Long> lookup(
-						org.jamocha.filter.impls.functions.DividedBy.inClips, SlotType.LONG,
+						org.jamocha.function.impls.functions.DividedBy.inClips, SlotType.LONG,
 						SlotType.LONG);
 		final Function<Long> divL =
 				FunctionDictionary.<Long> lookup(
-						org.jamocha.filter.impls.functions.TimesInverse.inClips, SlotType.LONG);
+						org.jamocha.function.impls.functions.TimesInverse.inClips, SlotType.LONG);
 		final Function<Long> timesLL =
-				FunctionDictionary.<Long> lookup(org.jamocha.filter.impls.functions.Times.inClips,
-						SlotType.LONG, SlotType.LONG);
+				FunctionDictionary.<Long> lookup(
+						org.jamocha.function.impls.functions.Times.inClips, SlotType.LONG,
+						SlotType.LONG);
 		final Predicate equalsLL =
 				FunctionDictionary.lookupPredicate(
-						org.jamocha.filter.impls.predicates.Equals.inClips, SlotType.LONG,
+						org.jamocha.function.impls.predicates.Equals.inClips, SlotType.LONG,
 						SlotType.LONG);
 		final PredicateWithArguments originalPredicate =
 				new PredicateBuilder(equalsLL).addLong(5L)
@@ -214,18 +217,18 @@ public class FunctionNormaliserTest {
 		// /(a,b) -> *(a,1/b)
 		final Function<Double> divDD =
 				FunctionDictionary.<Double> lookup(
-						org.jamocha.filter.impls.functions.DividedBy.inClips, SlotType.DOUBLE,
+						org.jamocha.function.impls.functions.DividedBy.inClips, SlotType.DOUBLE,
 						SlotType.DOUBLE);
 		final Function<Double> divD =
 				FunctionDictionary.<Double> lookup(
-						org.jamocha.filter.impls.functions.TimesInverse.inClips, SlotType.DOUBLE);
+						org.jamocha.function.impls.functions.TimesInverse.inClips, SlotType.DOUBLE);
 		final Function<Double> timesDD =
 				FunctionDictionary.<Double> lookup(
-						org.jamocha.filter.impls.functions.Times.inClips, SlotType.DOUBLE,
+						org.jamocha.function.impls.functions.Times.inClips, SlotType.DOUBLE,
 						SlotType.DOUBLE);
 		final Predicate equalsDD =
 				FunctionDictionary.lookupPredicate(
-						org.jamocha.filter.impls.predicates.Equals.inClips, SlotType.DOUBLE,
+						org.jamocha.function.impls.predicates.Equals.inClips, SlotType.DOUBLE,
 						SlotType.DOUBLE);
 		final PredicateWithArguments originalPredicate =
 				new PredicateBuilder(equalsDD)
@@ -249,10 +252,10 @@ public class FunctionNormaliserTest {
 		// 1/(1/a) -> a
 		final Function<Long> divL =
 				FunctionDictionary.<Long> lookup(
-						org.jamocha.filter.impls.functions.TimesInverse.inClips, SlotType.LONG);
+						org.jamocha.function.impls.functions.TimesInverse.inClips, SlotType.LONG);
 		final Predicate equalsLL =
 				FunctionDictionary.lookupPredicate(
-						org.jamocha.filter.impls.predicates.Equals.inClips, SlotType.LONG,
+						org.jamocha.function.impls.predicates.Equals.inClips, SlotType.LONG,
 						SlotType.LONG);
 		final PathFilter original =
 				new PathFilter(new PathFilterElement(new PredicateBuilder(equalsLL)
@@ -272,10 +275,10 @@ public class FunctionNormaliserTest {
 		// 1/(1/a) -> a
 		final Function<Double> divD =
 				FunctionDictionary.<Double> lookup(
-						org.jamocha.filter.impls.functions.TimesInverse.inClips, SlotType.DOUBLE);
+						org.jamocha.function.impls.functions.TimesInverse.inClips, SlotType.DOUBLE);
 		final Predicate equalsDD =
 				FunctionDictionary.lookupPredicate(
-						org.jamocha.filter.impls.predicates.Equals.inClips, SlotType.DOUBLE,
+						org.jamocha.function.impls.predicates.Equals.inClips, SlotType.DOUBLE,
 						SlotType.DOUBLE);
 		final PredicateWithArguments originalPredicate =
 				new PredicateBuilder(equalsDD)
@@ -294,14 +297,14 @@ public class FunctionNormaliserTest {
 	public void testTranslateBinaryPlusLeftExpandLong() {
 		// +(+(a,b),c) -> +(a,b,c)
 		final Function<Long> plusLL =
-				FunctionDictionary.<Long> lookup(org.jamocha.filter.impls.functions.Plus.inClips,
+				FunctionDictionary.<Long> lookup(org.jamocha.function.impls.functions.Plus.inClips,
 						SlotType.LONG, SlotType.LONG);
 		final Function<Long> plusLLL =
-				FunctionDictionary.<Long> lookup(org.jamocha.filter.impls.functions.Plus.inClips,
+				FunctionDictionary.<Long> lookup(org.jamocha.function.impls.functions.Plus.inClips,
 						SlotType.LONG, SlotType.LONG, SlotType.LONG);
 		final Predicate equalsLL =
 				FunctionDictionary.lookupPredicate(
-						org.jamocha.filter.impls.predicates.Equals.inClips, SlotType.LONG,
+						org.jamocha.function.impls.predicates.Equals.inClips, SlotType.LONG,
 						SlotType.LONG);
 		final PredicateWithArguments originalPredicate =
 				new PredicateBuilder(equalsLL)
@@ -324,14 +327,16 @@ public class FunctionNormaliserTest {
 	public void testTranslateBinaryPlusLeftExpandDouble() {
 		// +(+(a,b),c) -> +(a,b,c)
 		final Function<Double> plusDD =
-				FunctionDictionary.<Double> lookup(org.jamocha.filter.impls.functions.Plus.inClips,
-						SlotType.DOUBLE, SlotType.DOUBLE);
+				FunctionDictionary.<Double> lookup(
+						org.jamocha.function.impls.functions.Plus.inClips, SlotType.DOUBLE,
+						SlotType.DOUBLE);
 		final Function<Double> plusDDD =
-				FunctionDictionary.<Double> lookup(org.jamocha.filter.impls.functions.Plus.inClips,
-						SlotType.DOUBLE, SlotType.DOUBLE, SlotType.DOUBLE);
+				FunctionDictionary.<Double> lookup(
+						org.jamocha.function.impls.functions.Plus.inClips, SlotType.DOUBLE,
+						SlotType.DOUBLE, SlotType.DOUBLE);
 		final Predicate equalsDD =
 				FunctionDictionary.lookupPredicate(
-						org.jamocha.filter.impls.predicates.Equals.inClips, SlotType.DOUBLE,
+						org.jamocha.function.impls.predicates.Equals.inClips, SlotType.DOUBLE,
 						SlotType.DOUBLE);
 		final PredicateWithArguments originalPredicate =
 				new PredicateBuilder(equalsDD)
@@ -355,14 +360,14 @@ public class FunctionNormaliserTest {
 	public void testTranslateBinaryPlusRightExpandLong() {
 		// +(a,+(b,c)) -> +(a,b,c)
 		final Function<Long> plusLL =
-				FunctionDictionary.<Long> lookup(org.jamocha.filter.impls.functions.Plus.inClips,
+				FunctionDictionary.<Long> lookup(org.jamocha.function.impls.functions.Plus.inClips,
 						SlotType.LONG, SlotType.LONG);
 		final Function<Long> plusLLL =
-				FunctionDictionary.<Long> lookup(org.jamocha.filter.impls.functions.Plus.inClips,
+				FunctionDictionary.<Long> lookup(org.jamocha.function.impls.functions.Plus.inClips,
 						SlotType.LONG, SlotType.LONG, SlotType.LONG);
 		final Predicate equalsLL =
 				FunctionDictionary.lookupPredicate(
-						org.jamocha.filter.impls.predicates.Equals.inClips, SlotType.LONG,
+						org.jamocha.function.impls.predicates.Equals.inClips, SlotType.LONG,
 						SlotType.LONG);
 		final PredicateWithArguments originalPredicate =
 				new PredicateBuilder(equalsLL)
@@ -386,14 +391,16 @@ public class FunctionNormaliserTest {
 	public void testTranslateBinaryPlusRightExpandDouble() {
 		// +(a,+(b,c)) -> +(a,b,c)
 		final Function<Double> plusDD =
-				FunctionDictionary.<Double> lookup(org.jamocha.filter.impls.functions.Plus.inClips,
-						SlotType.DOUBLE, SlotType.DOUBLE);
+				FunctionDictionary.<Double> lookup(
+						org.jamocha.function.impls.functions.Plus.inClips, SlotType.DOUBLE,
+						SlotType.DOUBLE);
 		final Function<Double> plusDDD =
-				FunctionDictionary.<Double> lookup(org.jamocha.filter.impls.functions.Plus.inClips,
-						SlotType.DOUBLE, SlotType.DOUBLE, SlotType.DOUBLE);
+				FunctionDictionary.<Double> lookup(
+						org.jamocha.function.impls.functions.Plus.inClips, SlotType.DOUBLE,
+						SlotType.DOUBLE, SlotType.DOUBLE);
 		final Predicate equalsDD =
 				FunctionDictionary.lookupPredicate(
-						org.jamocha.filter.impls.predicates.Equals.inClips, SlotType.DOUBLE,
+						org.jamocha.function.impls.predicates.Equals.inClips, SlotType.DOUBLE,
 						SlotType.DOUBLE);
 		final PredicateWithArguments originalPredicate =
 				new PredicateBuilder(equalsDD)
@@ -417,14 +424,14 @@ public class FunctionNormaliserTest {
 	public void testTranslateBinaryPlusDoubleExpandLong() {
 		// +(+(a,b),+(c,d)) -> +(a,b,c,d)
 		final Function<Long> plusLL =
-				FunctionDictionary.<Long> lookup(org.jamocha.filter.impls.functions.Plus.inClips,
+				FunctionDictionary.<Long> lookup(org.jamocha.function.impls.functions.Plus.inClips,
 						SlotType.LONG, SlotType.LONG);
 		final Function<Long> plusLLL =
-				FunctionDictionary.<Long> lookup(org.jamocha.filter.impls.functions.Plus.inClips,
+				FunctionDictionary.<Long> lookup(org.jamocha.function.impls.functions.Plus.inClips,
 						SlotType.LONG, SlotType.LONG, SlotType.LONG, SlotType.LONG);
 		final Predicate equalsLL =
 				FunctionDictionary.lookupPredicate(
-						org.jamocha.filter.impls.predicates.Equals.inClips, SlotType.LONG,
+						org.jamocha.function.impls.predicates.Equals.inClips, SlotType.LONG,
 						SlotType.LONG);
 		final PredicateWithArguments originalPredicate =
 				new PredicateBuilder(equalsLL)
@@ -450,14 +457,16 @@ public class FunctionNormaliserTest {
 	public void testTranslateBinaryPlusDoubleExpandDouble() {
 		// +(+(a,b),+(c,d)) -> +(a,b,c,d)
 		final Function<Double> plusDD =
-				FunctionDictionary.<Double> lookup(org.jamocha.filter.impls.functions.Plus.inClips,
-						SlotType.DOUBLE, SlotType.DOUBLE);
+				FunctionDictionary.<Double> lookup(
+						org.jamocha.function.impls.functions.Plus.inClips, SlotType.DOUBLE,
+						SlotType.DOUBLE);
 		final Function<Double> plusDDD =
-				FunctionDictionary.<Double> lookup(org.jamocha.filter.impls.functions.Plus.inClips,
-						SlotType.DOUBLE, SlotType.DOUBLE, SlotType.DOUBLE, SlotType.DOUBLE);
+				FunctionDictionary.<Double> lookup(
+						org.jamocha.function.impls.functions.Plus.inClips, SlotType.DOUBLE,
+						SlotType.DOUBLE, SlotType.DOUBLE, SlotType.DOUBLE);
 		final Predicate equalsDD =
 				FunctionDictionary.lookupPredicate(
-						org.jamocha.filter.impls.predicates.Equals.inClips, SlotType.DOUBLE,
+						org.jamocha.function.impls.predicates.Equals.inClips, SlotType.DOUBLE,
 						SlotType.DOUBLE);
 		final PredicateWithArguments originalPredicate =
 				new PredicateBuilder(equalsDD)
@@ -483,14 +492,15 @@ public class FunctionNormaliserTest {
 	public void testTranslateBinaryTimesDistributePlusLong() {
 		// *(+(a,b),c) -> +(*(a,c),*(b,c))
 		final Function<Long> plusLL =
-				FunctionDictionary.<Long> lookup(org.jamocha.filter.impls.functions.Plus.inClips,
+				FunctionDictionary.<Long> lookup(org.jamocha.function.impls.functions.Plus.inClips,
 						SlotType.LONG, SlotType.LONG);
 		final Function<Long> timesLL =
-				FunctionDictionary.<Long> lookup(org.jamocha.filter.impls.functions.Times.inClips,
-						SlotType.LONG, SlotType.LONG);
+				FunctionDictionary.<Long> lookup(
+						org.jamocha.function.impls.functions.Times.inClips, SlotType.LONG,
+						SlotType.LONG);
 		final Predicate equalsLL =
 				FunctionDictionary.lookupPredicate(
-						org.jamocha.filter.impls.predicates.Equals.inClips, SlotType.LONG,
+						org.jamocha.function.impls.predicates.Equals.inClips, SlotType.LONG,
 						SlotType.LONG);
 		final PredicateWithArguments originalPredicate =
 				new PredicateBuilder(equalsLL)
@@ -518,15 +528,16 @@ public class FunctionNormaliserTest {
 	public void testTranslateBinaryTimesDistributePlusDouble() {
 		// *(+(a,b),c) -> +(*(a,c),*(b,c))
 		final Function<Double> plusDD =
-				FunctionDictionary.<Double> lookup(org.jamocha.filter.impls.functions.Plus.inClips,
-						SlotType.DOUBLE, SlotType.DOUBLE);
+				FunctionDictionary.<Double> lookup(
+						org.jamocha.function.impls.functions.Plus.inClips, SlotType.DOUBLE,
+						SlotType.DOUBLE);
 		final Function<Double> timesDD =
 				FunctionDictionary.<Double> lookup(
-						org.jamocha.filter.impls.functions.Times.inClips, SlotType.DOUBLE,
+						org.jamocha.function.impls.functions.Times.inClips, SlotType.DOUBLE,
 						SlotType.DOUBLE);
 		final Predicate equalsDD =
 				FunctionDictionary.lookupPredicate(
-						org.jamocha.filter.impls.predicates.Equals.inClips, SlotType.DOUBLE,
+						org.jamocha.function.impls.predicates.Equals.inClips, SlotType.DOUBLE,
 						SlotType.DOUBLE);
 		final PredicateWithArguments originalPredicate =
 				new PredicateBuilder(equalsDD)
@@ -555,14 +566,15 @@ public class FunctionNormaliserTest {
 	public void testTranslateBinaryTimesShiftUnaryMinusLeftArgLong() {
 		// *(-(a),b) -> -(*(a,b))
 		final Function<Long> timesLL =
-				FunctionDictionary.<Long> lookup(org.jamocha.filter.impls.functions.Times.inClips,
-						SlotType.LONG, SlotType.LONG);
+				FunctionDictionary.<Long> lookup(
+						org.jamocha.function.impls.functions.Times.inClips, SlotType.LONG,
+						SlotType.LONG);
 		final Function<Long> minusL =
 				FunctionDictionary.<Long> lookup(
-						org.jamocha.filter.impls.functions.UnaryMinus.inClips, SlotType.LONG);
+						org.jamocha.function.impls.functions.UnaryMinus.inClips, SlotType.LONG);
 		final Predicate equalsLL =
 				FunctionDictionary.lookupPredicate(
-						org.jamocha.filter.impls.predicates.Equals.inClips, SlotType.LONG,
+						org.jamocha.function.impls.predicates.Equals.inClips, SlotType.LONG,
 						SlotType.LONG);
 		final PredicateWithArguments originalPredicate =
 				new PredicateBuilder(equalsLL)
@@ -587,14 +599,14 @@ public class FunctionNormaliserTest {
 		// *(-(a),b) -> -(*(a,b))
 		final Function<Double> timesDD =
 				FunctionDictionary.<Double> lookup(
-						org.jamocha.filter.impls.functions.Times.inClips, SlotType.DOUBLE,
+						org.jamocha.function.impls.functions.Times.inClips, SlotType.DOUBLE,
 						SlotType.DOUBLE);
 		final Function<Double> minusD =
 				FunctionDictionary.<Double> lookup(
-						org.jamocha.filter.impls.functions.UnaryMinus.inClips, SlotType.DOUBLE);
+						org.jamocha.function.impls.functions.UnaryMinus.inClips, SlotType.DOUBLE);
 		final Predicate equalsDD =
 				FunctionDictionary.lookupPredicate(
-						org.jamocha.filter.impls.predicates.Equals.inClips, SlotType.DOUBLE,
+						org.jamocha.function.impls.predicates.Equals.inClips, SlotType.DOUBLE,
 						SlotType.DOUBLE);
 		final PredicateWithArguments originalPredicate =
 				new PredicateBuilder(equalsDD)
@@ -618,14 +630,15 @@ public class FunctionNormaliserTest {
 	public void testTranslateBinaryTimesShiftUnaryMinusRightArgLong() {
 		// *(a,-(b)) -> -(*(a,b))
 		final Function<Long> timesLL =
-				FunctionDictionary.<Long> lookup(org.jamocha.filter.impls.functions.Times.inClips,
-						SlotType.LONG, SlotType.LONG);
+				FunctionDictionary.<Long> lookup(
+						org.jamocha.function.impls.functions.Times.inClips, SlotType.LONG,
+						SlotType.LONG);
 		final Function<Long> minusL =
 				FunctionDictionary.<Long> lookup(
-						org.jamocha.filter.impls.functions.UnaryMinus.inClips, SlotType.LONG);
+						org.jamocha.function.impls.functions.UnaryMinus.inClips, SlotType.LONG);
 		final Predicate equalsLL =
 				FunctionDictionary.lookupPredicate(
-						org.jamocha.filter.impls.predicates.Equals.inClips, SlotType.LONG,
+						org.jamocha.function.impls.predicates.Equals.inClips, SlotType.LONG,
 						SlotType.LONG);
 		final PredicateWithArguments originalPredicate =
 				new PredicateBuilder(equalsLL)
@@ -651,14 +664,14 @@ public class FunctionNormaliserTest {
 		// *(a,-(b)) -> -(*(a,b))
 		final Function<Double> timesDD =
 				FunctionDictionary.<Double> lookup(
-						org.jamocha.filter.impls.functions.Times.inClips, SlotType.DOUBLE,
+						org.jamocha.function.impls.functions.Times.inClips, SlotType.DOUBLE,
 						SlotType.DOUBLE);
 		final Function<Double> minusD =
 				FunctionDictionary.<Double> lookup(
-						org.jamocha.filter.impls.functions.UnaryMinus.inClips, SlotType.DOUBLE);
+						org.jamocha.function.impls.functions.UnaryMinus.inClips, SlotType.DOUBLE);
 		final Predicate equalsDD =
 				FunctionDictionary.lookupPredicate(
-						org.jamocha.filter.impls.predicates.Equals.inClips, SlotType.DOUBLE,
+						org.jamocha.function.impls.predicates.Equals.inClips, SlotType.DOUBLE,
 						SlotType.DOUBLE);
 		final PredicateWithArguments originalPredicate =
 				new PredicateBuilder(equalsDD)
@@ -683,14 +696,15 @@ public class FunctionNormaliserTest {
 	public void testTranslateBinaryTimesShiftUnaryMinusBothArgsLong() {
 		// *(-(a),(-b)) -> *(a,b)
 		final Function<Long> timesLL =
-				FunctionDictionary.<Long> lookup(org.jamocha.filter.impls.functions.Times.inClips,
-						SlotType.LONG, SlotType.LONG);
+				FunctionDictionary.<Long> lookup(
+						org.jamocha.function.impls.functions.Times.inClips, SlotType.LONG,
+						SlotType.LONG);
 		final Function<Long> minusL =
 				FunctionDictionary.<Long> lookup(
-						org.jamocha.filter.impls.functions.UnaryMinus.inClips, SlotType.LONG);
+						org.jamocha.function.impls.functions.UnaryMinus.inClips, SlotType.LONG);
 		final Predicate equalsLL =
 				FunctionDictionary.lookupPredicate(
-						org.jamocha.filter.impls.predicates.Equals.inClips, SlotType.LONG,
+						org.jamocha.function.impls.predicates.Equals.inClips, SlotType.LONG,
 						SlotType.LONG);
 		final PredicateWithArguments originalPredicate =
 				new PredicateBuilder(equalsLL)
@@ -714,14 +728,14 @@ public class FunctionNormaliserTest {
 		// *(-(a),(-b)) -> *(a,b)
 		final Function<Double> timesDD =
 				FunctionDictionary.<Double> lookup(
-						org.jamocha.filter.impls.functions.Times.inClips, SlotType.DOUBLE,
+						org.jamocha.function.impls.functions.Times.inClips, SlotType.DOUBLE,
 						SlotType.DOUBLE);
 		final Function<Double> minusD =
 				FunctionDictionary.<Double> lookup(
-						org.jamocha.filter.impls.functions.UnaryMinus.inClips, SlotType.DOUBLE);
+						org.jamocha.function.impls.functions.UnaryMinus.inClips, SlotType.DOUBLE);
 		final Predicate equalsDD =
 				FunctionDictionary.lookupPredicate(
-						org.jamocha.filter.impls.predicates.Equals.inClips, SlotType.DOUBLE,
+						org.jamocha.function.impls.predicates.Equals.inClips, SlotType.DOUBLE,
 						SlotType.DOUBLE);
 		final PredicateWithArguments originalPredicate =
 				new PredicateBuilder(equalsDD)
@@ -747,11 +761,11 @@ public class FunctionNormaliserTest {
 		// >(a,b) -> <(b,a)
 		final Predicate greaterLL =
 				FunctionDictionary.lookupPredicate(
-						org.jamocha.filter.impls.predicates.Greater.inClips, SlotType.LONG,
+						org.jamocha.function.impls.predicates.Greater.inClips, SlotType.LONG,
 						SlotType.LONG);
 		final Predicate lessLL =
 				FunctionDictionary.lookupPredicate(
-						org.jamocha.filter.impls.predicates.Less.inClips, SlotType.LONG,
+						org.jamocha.function.impls.predicates.Less.inClips, SlotType.LONG,
 						SlotType.LONG);
 		final PredicateWithArguments originalPredicate =
 				new PredicateBuilder(greaterLL).addLong(20L).addLong(10L).build();
@@ -765,11 +779,11 @@ public class FunctionNormaliserTest {
 		// >(a,b) -> <(b,a)
 		final Predicate greaterDD =
 				FunctionDictionary.lookupPredicate(
-						org.jamocha.filter.impls.predicates.Greater.inClips, SlotType.DOUBLE,
+						org.jamocha.function.impls.predicates.Greater.inClips, SlotType.DOUBLE,
 						SlotType.DOUBLE);
 		final Predicate lessDD =
 				FunctionDictionary.lookupPredicate(
-						org.jamocha.filter.impls.predicates.Less.inClips, SlotType.DOUBLE,
+						org.jamocha.function.impls.predicates.Less.inClips, SlotType.DOUBLE,
 						SlotType.DOUBLE);
 		final PredicateWithArguments originalPredicate =
 				new PredicateBuilder(greaterDD).addDouble(20.).addDouble(10.).build();
@@ -784,15 +798,15 @@ public class FunctionNormaliserTest {
 		// <=(a,b) -> !(<(b,a))
 		final Predicate leqLL =
 				FunctionDictionary.lookupPredicate(
-						org.jamocha.filter.impls.predicates.LessOrEqual.inClips, SlotType.LONG,
+						org.jamocha.function.impls.predicates.LessOrEqual.inClips, SlotType.LONG,
 						SlotType.LONG);
 		final Predicate lessLL =
 				FunctionDictionary.lookupPredicate(
-						org.jamocha.filter.impls.predicates.Less.inClips, SlotType.LONG,
+						org.jamocha.function.impls.predicates.Less.inClips, SlotType.LONG,
 						SlotType.LONG);
 		final Predicate notB =
-				FunctionDictionary.lookupPredicate(org.jamocha.filter.impls.predicates.Not.inClips,
-						SlotType.BOOLEAN);
+				FunctionDictionary.lookupPredicate(
+						org.jamocha.function.impls.predicates.Not.inClips, SlotType.BOOLEAN);
 		final PredicateWithArguments originalPredicate =
 				new PredicateBuilder(leqLL).addLong(10L).addLong(20L).build();
 		final PathFilter compare =
@@ -806,15 +820,15 @@ public class FunctionNormaliserTest {
 		// <=(a,b) -> !(<(b,a))
 		final Predicate leqDD =
 				FunctionDictionary.lookupPredicate(
-						org.jamocha.filter.impls.predicates.LessOrEqual.inClips, SlotType.DOUBLE,
+						org.jamocha.function.impls.predicates.LessOrEqual.inClips, SlotType.DOUBLE,
 						SlotType.DOUBLE);
 		final Predicate lessDD =
 				FunctionDictionary.lookupPredicate(
-						org.jamocha.filter.impls.predicates.Less.inClips, SlotType.DOUBLE,
+						org.jamocha.function.impls.predicates.Less.inClips, SlotType.DOUBLE,
 						SlotType.DOUBLE);
 		final Predicate notB =
-				FunctionDictionary.lookupPredicate(org.jamocha.filter.impls.predicates.Not.inClips,
-						SlotType.BOOLEAN);
+				FunctionDictionary.lookupPredicate(
+						org.jamocha.function.impls.predicates.Not.inClips, SlotType.BOOLEAN);
 		final PredicateWithArguments originalPredicate =
 				new PredicateBuilder(leqDD).addDouble(10.).addDouble(20.).build();
 		final PathFilter compare =
@@ -829,15 +843,15 @@ public class FunctionNormaliserTest {
 		// >=(a,b) -> !(<(a,b))
 		final Predicate geqLL =
 				FunctionDictionary.lookupPredicate(
-						org.jamocha.filter.impls.predicates.GreaterOrEqual.inClips, SlotType.LONG,
-						SlotType.LONG);
+						org.jamocha.function.impls.predicates.GreaterOrEqual.inClips,
+						SlotType.LONG, SlotType.LONG);
 		final Predicate lessLL =
 				FunctionDictionary.lookupPredicate(
-						org.jamocha.filter.impls.predicates.Less.inClips, SlotType.LONG,
+						org.jamocha.function.impls.predicates.Less.inClips, SlotType.LONG,
 						SlotType.LONG);
 		final Predicate notB =
-				FunctionDictionary.lookupPredicate(org.jamocha.filter.impls.predicates.Not.inClips,
-						SlotType.BOOLEAN);
+				FunctionDictionary.lookupPredicate(
+						org.jamocha.function.impls.predicates.Not.inClips, SlotType.BOOLEAN);
 		final PredicateWithArguments originalPredicate =
 				new PredicateBuilder(geqLL).addLong(20L).addLong(10L).build();
 		final PathFilter compare =
@@ -851,15 +865,15 @@ public class FunctionNormaliserTest {
 		// >=(a,b) -> !(<(a,b))
 		final Predicate geqDD =
 				FunctionDictionary.lookupPredicate(
-						org.jamocha.filter.impls.predicates.GreaterOrEqual.inClips,
+						org.jamocha.function.impls.predicates.GreaterOrEqual.inClips,
 						SlotType.DOUBLE, SlotType.DOUBLE);
 		final Predicate lessDD =
 				FunctionDictionary.lookupPredicate(
-						org.jamocha.filter.impls.predicates.Less.inClips, SlotType.DOUBLE,
+						org.jamocha.function.impls.predicates.Less.inClips, SlotType.DOUBLE,
 						SlotType.DOUBLE);
 		final Predicate notB =
-				FunctionDictionary.lookupPredicate(org.jamocha.filter.impls.predicates.Not.inClips,
-						SlotType.BOOLEAN);
+				FunctionDictionary.lookupPredicate(
+						org.jamocha.function.impls.predicates.Not.inClips, SlotType.BOOLEAN);
 		final PredicateWithArguments originalPredicate =
 				new PredicateBuilder(geqDD).addDouble(20.).addDouble(10.).build();
 		final PathFilter compare =
@@ -874,25 +888,27 @@ public class FunctionNormaliserTest {
 		// *(+(-(a),b),-(c,d))
 		// -> +( *(-a,c), *(a,d), *(b,c), *(b,-d))
 		final Function<Double> plusDD =
-				FunctionDictionary.<Double> lookup(org.jamocha.filter.impls.functions.Plus.inClips,
-						SlotType.DOUBLE, SlotType.DOUBLE);
+				FunctionDictionary.<Double> lookup(
+						org.jamocha.function.impls.functions.Plus.inClips, SlotType.DOUBLE,
+						SlotType.DOUBLE);
 		final Function<Double> plusDDDD =
-				FunctionDictionary.<Double> lookup(org.jamocha.filter.impls.functions.Plus.inClips,
-						SlotType.DOUBLE, SlotType.DOUBLE, SlotType.DOUBLE, SlotType.DOUBLE);
+				FunctionDictionary.<Double> lookup(
+						org.jamocha.function.impls.functions.Plus.inClips, SlotType.DOUBLE,
+						SlotType.DOUBLE, SlotType.DOUBLE, SlotType.DOUBLE);
 		final Function<Double> minusDD =
 				FunctionDictionary.<Double> lookup(
-						org.jamocha.filter.impls.functions.Minus.inClips, SlotType.DOUBLE,
+						org.jamocha.function.impls.functions.Minus.inClips, SlotType.DOUBLE,
 						SlotType.DOUBLE);
 		final Function<Double> minusD =
 				FunctionDictionary.<Double> lookup(
-						org.jamocha.filter.impls.functions.UnaryMinus.inClips, SlotType.DOUBLE);
+						org.jamocha.function.impls.functions.UnaryMinus.inClips, SlotType.DOUBLE);
 		final Function<Double> timesDD =
 				FunctionDictionary.<Double> lookup(
-						org.jamocha.filter.impls.functions.Times.inClips, SlotType.DOUBLE,
+						org.jamocha.function.impls.functions.Times.inClips, SlotType.DOUBLE,
 						SlotType.DOUBLE);
 		final Predicate equalsDD =
 				FunctionDictionary.lookupPredicate(
-						org.jamocha.filter.impls.predicates.Equals.inClips, SlotType.DOUBLE,
+						org.jamocha.function.impls.predicates.Equals.inClips, SlotType.DOUBLE,
 						SlotType.DOUBLE);
 		final PredicateWithArguments originalPredicate =
 				new PredicateBuilder(equalsDD)
@@ -939,40 +955,43 @@ public class FunctionNormaliserTest {
 		// *(e,b,c,k),*(f,b,c,k),*(g,b,c,k),*(*(h,i,j),b,c,k),
 		// *(e,b,-d,k),*(f,b,-d,k),*(g,b,-d,k),*(*(h,i,j),b,-d,k))
 		final Function<Double> plusDD =
-				FunctionDictionary.<Double> lookup(org.jamocha.filter.impls.functions.Plus.inClips,
-						SlotType.DOUBLE, SlotType.DOUBLE);
+				FunctionDictionary.<Double> lookup(
+						org.jamocha.function.impls.functions.Plus.inClips, SlotType.DOUBLE,
+						SlotType.DOUBLE);
 		final Function<Double> plusDDDD =
-				FunctionDictionary.<Double> lookup(org.jamocha.filter.impls.functions.Plus.inClips,
-						SlotType.DOUBLE, SlotType.DOUBLE, SlotType.DOUBLE, SlotType.DOUBLE);
+				FunctionDictionary.<Double> lookup(
+						org.jamocha.function.impls.functions.Plus.inClips, SlotType.DOUBLE,
+						SlotType.DOUBLE, SlotType.DOUBLE, SlotType.DOUBLE);
 		final Function<Double> plusD16 =
-				FunctionDictionary.<Double> lookup(org.jamocha.filter.impls.functions.Plus.inClips,
+				FunctionDictionary.<Double> lookup(
+						org.jamocha.function.impls.functions.Plus.inClips, SlotType.DOUBLE,
 						SlotType.DOUBLE, SlotType.DOUBLE, SlotType.DOUBLE, SlotType.DOUBLE,
 						SlotType.DOUBLE, SlotType.DOUBLE, SlotType.DOUBLE, SlotType.DOUBLE,
 						SlotType.DOUBLE, SlotType.DOUBLE, SlotType.DOUBLE, SlotType.DOUBLE,
-						SlotType.DOUBLE, SlotType.DOUBLE, SlotType.DOUBLE, SlotType.DOUBLE);
+						SlotType.DOUBLE, SlotType.DOUBLE, SlotType.DOUBLE);
 		final Function<Double> minusDD =
 				FunctionDictionary.<Double> lookup(
-						org.jamocha.filter.impls.functions.Minus.inClips, SlotType.DOUBLE,
+						org.jamocha.function.impls.functions.Minus.inClips, SlotType.DOUBLE,
 						SlotType.DOUBLE);
 		final Function<Double> minusD =
 				FunctionDictionary.<Double> lookup(
-						org.jamocha.filter.impls.functions.UnaryMinus.inClips, SlotType.DOUBLE);
+						org.jamocha.function.impls.functions.UnaryMinus.inClips, SlotType.DOUBLE);
 		final Function<Double> timesDDD =
 				FunctionDictionary.<Double> lookup(
-						org.jamocha.filter.impls.functions.Times.inClips, SlotType.DOUBLE,
+						org.jamocha.function.impls.functions.Times.inClips, SlotType.DOUBLE,
 						SlotType.DOUBLE, SlotType.DOUBLE);
 		final Function<Double> timesDDDD =
 				FunctionDictionary.<Double> lookup(
-						org.jamocha.filter.impls.functions.Times.inClips, SlotType.DOUBLE,
+						org.jamocha.function.impls.functions.Times.inClips, SlotType.DOUBLE,
 						SlotType.DOUBLE, SlotType.DOUBLE, SlotType.DOUBLE);
 		final Function<Double> timesDDDDDD =
 				FunctionDictionary.<Double> lookup(
-						org.jamocha.filter.impls.functions.Times.inClips, SlotType.DOUBLE,
+						org.jamocha.function.impls.functions.Times.inClips, SlotType.DOUBLE,
 						SlotType.DOUBLE, SlotType.DOUBLE, SlotType.DOUBLE, SlotType.DOUBLE,
 						SlotType.DOUBLE);
 		final Predicate equalsDD =
 				FunctionDictionary.lookupPredicate(
-						org.jamocha.filter.impls.predicates.Equals.inClips, SlotType.DOUBLE,
+						org.jamocha.function.impls.predicates.Equals.inClips, SlotType.DOUBLE,
 						SlotType.DOUBLE);
 		final Double a = 7., b = 4., c = 8., d = 3., e = 5., f = 5., g = 7., h = 2., i = 7., j = 1., k =
 				9.;
@@ -1120,11 +1139,11 @@ public class FunctionNormaliserTest {
 	@Test
 	public void testHashCode() {
 		final Function<Long> plusLL =
-				FunctionDictionary.<Long> lookup(org.jamocha.filter.impls.functions.Plus.inClips,
+				FunctionDictionary.<Long> lookup(org.jamocha.function.impls.functions.Plus.inClips,
 						SlotType.LONG, SlotType.LONG);
 		final Predicate equalsLL =
 				FunctionDictionary.lookupPredicate(
-						org.jamocha.filter.impls.predicates.Equals.inClips, SlotType.LONG,
+						org.jamocha.function.impls.predicates.Equals.inClips, SlotType.LONG,
 						SlotType.LONG);
 		final PathFilter original =
 				new PathFilter(new PredicateBuilder(equalsLL).addLong(7L)
@@ -1146,14 +1165,15 @@ public class FunctionNormaliserTest {
 	@Test
 	public void testHashCodeCompare() {
 		final Function<Long> plusLLL =
-				FunctionDictionary.<Long> lookup(org.jamocha.filter.impls.functions.Plus.inClips,
+				FunctionDictionary.<Long> lookup(org.jamocha.function.impls.functions.Plus.inClips,
 						SlotType.LONG, SlotType.LONG, SlotType.LONG);
 		final Function<Long> timesLL =
-				FunctionDictionary.<Long> lookup(org.jamocha.filter.impls.functions.Times.inClips,
-						SlotType.LONG, SlotType.LONG);
+				FunctionDictionary.<Long> lookup(
+						org.jamocha.function.impls.functions.Times.inClips, SlotType.LONG,
+						SlotType.LONG);
 		final Predicate equalsLL =
 				FunctionDictionary.lookupPredicate(
-						org.jamocha.filter.impls.predicates.Equals.inClips, SlotType.LONG,
+						org.jamocha.function.impls.predicates.Equals.inClips, SlotType.LONG,
 						SlotType.LONG);
 		final PathFilter original =
 				new PathFilter(new PredicateBuilder(equalsLL)

@@ -11,12 +11,12 @@ import org.jamocha.dn.memory.javaimpl.SlotAddress;
 import org.jamocha.dn.memory.javaimpl.Template;
 import org.jamocha.filter.FilterFunctionCompare;
 import org.jamocha.filter.FilterTranslator;
-import org.jamocha.filter.Function;
-import org.jamocha.filter.FunctionDictionary;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.PathFilter;
 import org.jamocha.filter.PathFilter.PathFilterElement;
-import org.jamocha.filter.Predicate;
+import org.jamocha.function.Function;
+import org.jamocha.function.FunctionDictionary;
+import org.jamocha.function.Predicate;
 import org.junit.BeforeClass;
 import org.junit.Test;
 

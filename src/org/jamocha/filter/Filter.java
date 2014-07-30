@@ -20,8 +20,9 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
 import org.jamocha.dn.nodes.Node;
-import org.jamocha.filter.fwa.FunctionWithArguments;
-import org.jamocha.filter.fwa.PredicateWithArguments;
+import org.jamocha.function.Predicate;
+import org.jamocha.function.fwa.FunctionWithArguments;
+import org.jamocha.function.fwa.PredicateWithArguments;
 
 /**
  * A Filter contains {@link FilterElement filter elements} representing atomic {@link Predicate

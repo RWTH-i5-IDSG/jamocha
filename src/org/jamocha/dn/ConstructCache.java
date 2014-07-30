@@ -22,9 +22,9 @@ import java.util.List;
 import lombok.Value;
 
 import org.jamocha.dn.memory.Template;
-import org.jamocha.filter.Function;
-import org.jamocha.filter.fwa.Assert;
-import org.jamocha.filter.fwa.FunctionWithArguments;
+import org.jamocha.function.Function;
+import org.jamocha.function.fwa.Assert;
+import org.jamocha.function.fwa.FunctionWithArguments;
 import org.jamocha.languages.common.RuleCondition;
 
 /**

@@ -21,7 +21,8 @@ import java.util.Set;
 
 import lombok.Getter;
 
-import org.jamocha.filter.fwa.PredicateWithArguments;
+import org.jamocha.function.FunctionNormaliser;
+import org.jamocha.function.fwa.PredicateWithArguments;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>

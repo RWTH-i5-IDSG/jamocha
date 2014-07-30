@@ -21,8 +21,8 @@ import lombok.Value;
 
 import org.jamocha.dn.memory.SlotAddress;
 import org.jamocha.dn.memory.Template;
-import org.jamocha.filter.fwa.Assert;
-import org.jamocha.filter.fwa.FunctionWithArguments;
+import org.jamocha.function.fwa.Assert;
+import org.jamocha.function.fwa.FunctionWithArguments;
 import org.jamocha.languages.common.errors.NoSlotForThatNameError;
 import org.jamocha.languages.common.errors.TypeMismatchError;
 

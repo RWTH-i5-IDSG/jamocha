@@ -29,7 +29,7 @@ import org.apache.logging.log4j.Marker;
 import org.jamocha.dn.memory.Fact;
 import org.jamocha.dn.memory.MemoryFact;
 import org.jamocha.dn.memory.SlotType;
-import org.jamocha.filter.fwa.FunctionWithArguments;
+import org.jamocha.function.fwa.FunctionWithArguments;
 import org.jamocha.logging.MarkerType;
 
 /**

@@ -18,16 +18,19 @@ import java.util.Arrays;
 import java.util.function.IntFunction;
 
 import org.jamocha.dn.memory.SlotType;
-import org.jamocha.filter.fwa.Assert;
-import org.jamocha.filter.fwa.FunctionWithArguments;
-import org.jamocha.filter.fwa.FunctionWithArgumentsComposite;
-import org.jamocha.filter.fwa.FunctionWithArgumentsVisitor;
-import org.jamocha.filter.fwa.GenericWithArgumentsComposite;
-import org.jamocha.filter.fwa.Modify;
-import org.jamocha.filter.fwa.Modify.SlotAndValue;
-import org.jamocha.filter.fwa.PredicateWithArguments;
-import org.jamocha.filter.fwa.PredicateWithArgumentsComposite;
-import org.jamocha.filter.impls.DefaultFunctionVisitor;
+import org.jamocha.function.Function;
+import org.jamocha.function.FunctionDictionary;
+import org.jamocha.function.Predicate;
+import org.jamocha.function.fwa.Assert;
+import org.jamocha.function.fwa.FunctionWithArguments;
+import org.jamocha.function.fwa.FunctionWithArgumentsComposite;
+import org.jamocha.function.fwa.FunctionWithArgumentsVisitor;
+import org.jamocha.function.fwa.GenericWithArgumentsComposite;
+import org.jamocha.function.fwa.Modify;
+import org.jamocha.function.fwa.PredicateWithArguments;
+import org.jamocha.function.fwa.PredicateWithArgumentsComposite;
+import org.jamocha.function.fwa.Modify.SlotAndValue;
+import org.jamocha.function.impls.DefaultFunctionVisitor;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -56,74 +59,74 @@ public class UniformFunctionTranslator {
 
 		@Override
 		public void visit(
-				final org.jamocha.filter.fwa.PredicateWithArgumentsComposite predicateWithArgumentsComposite) {
+				final org.jamocha.function.fwa.PredicateWithArgumentsComposite predicateWithArgumentsComposite) {
 			this.result =
-					new org.jamocha.filter.fwa.PredicateWithArgumentsComposite(
+					new org.jamocha.function.fwa.PredicateWithArgumentsComposite(
 							predicateWithArgumentsComposite.getFunction(),
 							copyArgs(predicateWithArgumentsComposite.getArgs()));
 		}
 
 		@Override
 		public void visit(
-				final org.jamocha.filter.fwa.FunctionWithArgumentsComposite functionWithArgumentsComposite) {
+				final org.jamocha.function.fwa.FunctionWithArgumentsComposite functionWithArgumentsComposite) {
 			this.result =
-					new org.jamocha.filter.fwa.FunctionWithArgumentsComposite(
+					new org.jamocha.function.fwa.FunctionWithArgumentsComposite(
 							functionWithArgumentsComposite.getFunction(),
 							copyArgs(functionWithArgumentsComposite.getArgs()));
 		}
 
 		@Override
-		public void visit(final org.jamocha.filter.fwa.ConstantLeaf constantLeaf) {
+		public void visit(final org.jamocha.function.fwa.ConstantLeaf constantLeaf) {
 			this.result =
-					new org.jamocha.filter.fwa.ConstantLeaf(constantLeaf.getValue(),
+					new org.jamocha.function.fwa.ConstantLeaf(constantLeaf.getValue(),
 							constantLeaf.getReturnType());
 		}
 
 		@Override
-		public void visit(final org.jamocha.filter.fwa.PathLeaf.ParameterLeaf parameterLeaf) {
+		public void visit(final org.jamocha.function.fwa.PathLeaf.ParameterLeaf parameterLeaf) {
 			this.result =
-					new org.jamocha.filter.fwa.PathLeaf.ParameterLeaf(parameterLeaf.getType(),
+					new org.jamocha.function.fwa.PathLeaf.ParameterLeaf(parameterLeaf.getType(),
 							parameterLeaf.hash());
 		}
 
 		@Override
-		public void visit(final org.jamocha.filter.fwa.PathLeaf pathLeaf) {
+		public void visit(final org.jamocha.function.fwa.PathLeaf pathLeaf) {
 			this.result =
-					new org.jamocha.filter.fwa.PathLeaf(pathLeaf.getPath(), pathLeaf.getSlot());
+					new org.jamocha.function.fwa.PathLeaf(pathLeaf.getPath(), pathLeaf.getSlot());
 		}
 
 		@Override
-		public void visit(final org.jamocha.filter.fwa.Assert fwa) {
+		public void visit(final org.jamocha.function.fwa.Assert fwa) {
 			this.result =
-					new org.jamocha.filter.fwa.Assert(fwa.getNetwork(), copyArgs(fwa.getArgs(),
+					new org.jamocha.function.fwa.Assert(fwa.getNetwork(), copyArgs(fwa.getArgs(),
 							Assert.TemplateContainer[]::new));
 		}
 
 		@Override
-		public void visit(final org.jamocha.filter.fwa.Assert.TemplateContainer fwa) {
+		public void visit(final org.jamocha.function.fwa.Assert.TemplateContainer fwa) {
 			this.result =
-					new org.jamocha.filter.fwa.Assert.TemplateContainer(fwa.getTemplate(),
+					new org.jamocha.function.fwa.Assert.TemplateContainer(fwa.getTemplate(),
 							copyArgs(fwa.getArgs()));
 		}
 
 		@Override
-		public void visit(final org.jamocha.filter.fwa.Modify fwa) {
+		public void visit(final org.jamocha.function.fwa.Modify fwa) {
 			this.result =
-					new org.jamocha.filter.fwa.Modify(fwa.getNetwork(), fwa.getTargetFact().accept(
+					new org.jamocha.function.fwa.Modify(fwa.getNetwork(), fwa.getTargetFact().accept(
 							new DeepCopy()).result, copyArgs(fwa.getArgs(),
 							Modify.SlotAndValue[]::new));
 		}
 
 		@Override
-		public void visit(final org.jamocha.filter.fwa.Retract fwa) {
+		public void visit(final org.jamocha.function.fwa.Retract fwa) {
 			this.result =
-					new org.jamocha.filter.fwa.Retract(fwa.getNetwork(), copyArgs(fwa.getArgs()));
+					new org.jamocha.function.fwa.Retract(fwa.getNetwork(), copyArgs(fwa.getArgs()));
 		}
 
 		@Override
-		public void visit(final org.jamocha.filter.fwa.SymbolLeaf fwa) {
+		public void visit(final org.jamocha.function.fwa.SymbolLeaf fwa) {
 			this.result =
-					new org.jamocha.filter.fwa.SymbolLeaf(fwa.getSymbol(), fwa.getReturnType(),
+					new org.jamocha.function.fwa.SymbolLeaf(fwa.getSymbol(), fwa.getReturnType(),
 							fwa.getSlot());
 		}
 
@@ -138,48 +141,48 @@ public class UniformFunctionTranslator {
 	static interface SelectiveFunctionWithArgumentsVisitor extends FunctionWithArgumentsVisitor {
 		@Override
 		public default void visit(
-				final org.jamocha.filter.fwa.FunctionWithArgumentsComposite functionWithArgumentsComposite) {
+				final org.jamocha.function.fwa.FunctionWithArgumentsComposite functionWithArgumentsComposite) {
 		}
 
 		@Override
 		public default void visit(
-				final org.jamocha.filter.fwa.PredicateWithArgumentsComposite predicateWithArgumentsComposite) {
+				final org.jamocha.function.fwa.PredicateWithArgumentsComposite predicateWithArgumentsComposite) {
 		}
 
 		@Override
-		public default void visit(final org.jamocha.filter.fwa.ConstantLeaf constantLeaf) {
+		public default void visit(final org.jamocha.function.fwa.ConstantLeaf constantLeaf) {
 		}
 
 		@Override
-		public default void visit(final org.jamocha.filter.fwa.PathLeaf.ParameterLeaf parameterLeaf) {
+		public default void visit(final org.jamocha.function.fwa.PathLeaf.ParameterLeaf parameterLeaf) {
 		}
 
 		@Override
-		public default void visit(final org.jamocha.filter.fwa.PathLeaf pathLeaf) {
+		public default void visit(final org.jamocha.function.fwa.PathLeaf pathLeaf) {
 		}
 
 		@Override
-		public default void visit(final org.jamocha.filter.fwa.Assert fwa) {
+		public default void visit(final org.jamocha.function.fwa.Assert fwa) {
 		}
 
 		@Override
-		public default void visit(final org.jamocha.filter.fwa.Assert.TemplateContainer fwa) {
+		public default void visit(final org.jamocha.function.fwa.Assert.TemplateContainer fwa) {
 		}
 
 		@Override
-		public default void visit(final org.jamocha.filter.fwa.Modify fwa) {
+		public default void visit(final org.jamocha.function.fwa.Modify fwa) {
 		}
 
 		@Override
-		public default void visit(final org.jamocha.filter.fwa.Modify.SlotAndValue fwa) {
+		public default void visit(final org.jamocha.function.fwa.Modify.SlotAndValue fwa) {
 		}
 
 		@Override
-		public default void visit(final org.jamocha.filter.fwa.Retract fwa) {
+		public default void visit(final org.jamocha.function.fwa.Retract fwa) {
 		}
 
 		@Override
-		public default void visit(final org.jamocha.filter.fwa.SymbolLeaf fwa) {
+		public default void visit(final org.jamocha.function.fwa.SymbolLeaf fwa) {
 		}
 	}
 
@@ -258,21 +261,21 @@ public class UniformFunctionTranslator {
 
 		// -(a,b) -> +(a,(-b))
 		@Override
-		public void visit(final org.jamocha.filter.impls.functions.Minus<?> function) {
+		public void visit(final org.jamocha.function.impls.functions.Minus<?> function) {
 			this.result =
 					new FunctionWithArgumentsComposite(FunctionDictionary.lookup(
-							org.jamocha.filter.impls.functions.Plus.inClips,
+							org.jamocha.function.impls.functions.Plus.inClips,
 							function.getParamTypes()), new FunctionWithArguments[] {
 							this.upperGwac.getArgs()[0],
 							new FunctionWithArgumentsComposite(FunctionDictionary.lookup(
-									org.jamocha.filter.impls.functions.UnaryMinus.inClips,
+									org.jamocha.function.impls.functions.UnaryMinus.inClips,
 									function.getParamTypes()[1]), this.upperGwac.getArgs()[1]) });
 		}
 
 		// -(-(a)) -> a
 		// -(+(a,b,c,...)) -> +(-a,-b,-c,...)
 		@Override
-		public void visit(final org.jamocha.filter.impls.functions.UnaryMinus<?> function) {
+		public void visit(final org.jamocha.function.impls.functions.UnaryMinus<?> function) {
 			this.result =
 					this.upperGwac.getArgs()[0].accept(new LowerLevelFWATranslator(
 							UnaryMinusTranslator::new, this.upperGwac)).result;
@@ -280,22 +283,22 @@ public class UniformFunctionTranslator {
 
 		// /(a,b) -> *(a,1/b)
 		@Override
-		public void visit(final org.jamocha.filter.impls.functions.DividedBy<?> function) {
+		public void visit(final org.jamocha.function.impls.functions.DividedBy<?> function) {
 			if (function.getReturnType() == SlotType.LONG)
 				return;
 			this.result =
 					new FunctionWithArgumentsComposite(FunctionDictionary.lookup(
-							org.jamocha.filter.impls.functions.Times.inClips,
+							org.jamocha.function.impls.functions.Times.inClips,
 							function.getParamTypes()), new FunctionWithArguments[] {
 							this.upperGwac.getArgs()[0],
 							new FunctionWithArgumentsComposite(FunctionDictionary.lookup(
-									org.jamocha.filter.impls.functions.TimesInverse.inClips,
+									org.jamocha.function.impls.functions.TimesInverse.inClips,
 									function.getParamTypes()[1]), this.upperGwac.getArgs()[1]) });
 		}
 
 		// 1/(1/a) -> a
 		@Override
-		public void visit(final org.jamocha.filter.impls.functions.TimesInverse<?> function) {
+		public void visit(final org.jamocha.function.impls.functions.TimesInverse<?> function) {
 			if (function.getReturnType() == SlotType.LONG)
 				return;
 			this.result =
@@ -320,7 +323,7 @@ public class UniformFunctionTranslator {
 		// +(+(a,b),c) -> +(a,b,c)
 		// +(a,+(b,c)) -> +(a,b,c)
 		@Override
-		public void visit(final org.jamocha.filter.impls.functions.Plus<?> function) {
+		public void visit(final org.jamocha.function.impls.functions.Plus<?> function) {
 			argumentChanginLoopWithIndex(PlusTranslator::new);
 		}
 
@@ -328,7 +331,7 @@ public class UniformFunctionTranslator {
 		// *(+(a,b),c) -> +(*(a,c),*(b,c))
 		// *(-(a),b) -> -(*(a,b))
 		@Override
-		public void visit(final org.jamocha.filter.impls.functions.Times<?> function) {
+		public void visit(final org.jamocha.function.impls.functions.Times<?> function) {
 			argumentChanginLoopWithIndex(TimesTranslator::new);
 		}
 
@@ -338,33 +341,33 @@ public class UniformFunctionTranslator {
 
 		// >(a,b) -> <(b,a)
 		@Override
-		public void visit(final org.jamocha.filter.impls.predicates.Greater predicate) {
+		public void visit(final org.jamocha.function.impls.predicates.Greater predicate) {
 			this.result =
 					new PredicateWithArgumentsComposite(FunctionDictionary.lookupPredicate(
-							org.jamocha.filter.impls.predicates.Less.inClips,
+							org.jamocha.function.impls.predicates.Less.inClips,
 							predicate.getParamTypes()), swapTwoArguments(this.upperGwac.getArgs()));
 		}
 
 		// <=(a,b) -> !(<(b,a))
 		@Override
-		public void visit(final org.jamocha.filter.impls.predicates.LessOrEqual predicate) {
+		public void visit(final org.jamocha.function.impls.predicates.LessOrEqual predicate) {
 			this.result =
 					new PredicateWithArgumentsComposite(FunctionDictionary.lookupPredicate(
-							org.jamocha.filter.impls.predicates.Not.inClips, SlotType.BOOLEAN),
+							org.jamocha.function.impls.predicates.Not.inClips, SlotType.BOOLEAN),
 							new PredicateWithArgumentsComposite(FunctionDictionary.lookupPredicate(
-									org.jamocha.filter.impls.predicates.Less.inClips,
+									org.jamocha.function.impls.predicates.Less.inClips,
 									predicate.getParamTypes()), swapTwoArguments(this.upperGwac
 									.getArgs())));
 		}
 
 		// >=(a,b) -> !(<(a,b))
 		@Override
-		public void visit(final org.jamocha.filter.impls.predicates.GreaterOrEqual predicate) {
+		public void visit(final org.jamocha.function.impls.predicates.GreaterOrEqual predicate) {
 			this.result =
 					new PredicateWithArgumentsComposite(FunctionDictionary.lookupPredicate(
-							org.jamocha.filter.impls.predicates.Not.inClips, SlotType.BOOLEAN),
+							org.jamocha.function.impls.predicates.Not.inClips, SlotType.BOOLEAN),
 							new PredicateWithArgumentsComposite(FunctionDictionary.lookupPredicate(
-									org.jamocha.filter.impls.predicates.Less.inClips,
+									org.jamocha.function.impls.predicates.Less.inClips,
 									predicate.getParamTypes()), this.upperGwac.getArgs()));
 		}
 	}
@@ -424,12 +427,12 @@ public class UniformFunctionTranslator {
 		}
 
 		@Override
-		public void visit(final org.jamocha.filter.impls.functions.UnaryMinus<?> function) {
+		public void visit(final org.jamocha.function.impls.functions.UnaryMinus<?> function) {
 			this.result = this.lowerGwac.getArgs()[0];
 		}
 
 		@Override
-		public void visit(final org.jamocha.filter.impls.functions.Plus<?> function) {
+		public void visit(final org.jamocha.function.impls.functions.Plus<?> function) {
 			result =
 					new FunctionWithArgumentsComposite(function, Arrays
 							.stream(lowerGwac.getArgs())
@@ -447,7 +450,7 @@ public class UniformFunctionTranslator {
 		}
 
 		@Override
-		public void visit(final org.jamocha.filter.impls.functions.TimesInverse<?> function) {
+		public void visit(final org.jamocha.function.impls.functions.TimesInverse<?> function) {
 			if (function.getReturnType() == SlotType.LONG) {
 				return;
 			}
@@ -474,7 +477,7 @@ public class UniformFunctionTranslator {
 		}
 
 		protected FunctionWithArguments combineSameFunction(
-				final org.jamocha.filter.Function<?> function) {
+				final org.jamocha.function.Function<?> function) {
 			// `newArgs` are `upperArgs` with the `lowerArgs` embedded at `position` replacing one
 			// arg with two or more
 			final FunctionWithArguments[] upperArgs = this.upperGwac.getArgs();
@@ -500,7 +503,7 @@ public class UniformFunctionTranslator {
 		}
 
 		@Override
-		public void visit(final org.jamocha.filter.impls.functions.Plus<?> function) {
+		public void visit(final org.jamocha.function.impls.functions.Plus<?> function) {
 			this.result = combineSameFunction(function);
 		}
 	}
@@ -512,7 +515,7 @@ public class UniformFunctionTranslator {
 		}
 
 		@Override
-		public void visit(final org.jamocha.filter.impls.functions.Plus<?> function) {
+		public void visit(final org.jamocha.function.impls.functions.Plus<?> function) {
 			// *(+(a,b),c,d,...) -> +(*(a,c,d,...),*(b,c,d,...))
 			final FunctionWithArguments[] oldTimesArgs = this.upperGwac.getArgs();
 			final FunctionWithArguments[] oldPlusArgs = this.lowerGwac.getArgs();
@@ -531,13 +534,13 @@ public class UniformFunctionTranslator {
 		}
 
 		@Override
-		public void visit(final org.jamocha.filter.impls.functions.Times<?> function) {
+		public void visit(final org.jamocha.function.impls.functions.Times<?> function) {
 			// *(*(a,b),c) -> *(a,b,c)
 			this.result = combineSameFunction(function);
 		}
 
 		@Override
-		public void visit(final org.jamocha.filter.impls.functions.UnaryMinus<?> function) {
+		public void visit(final org.jamocha.function.impls.functions.UnaryMinus<?> function) {
 			// *(-(a),b) -> -(*(a,b))
 			// upperGwac - times
 			// lowerGwac - unary minus

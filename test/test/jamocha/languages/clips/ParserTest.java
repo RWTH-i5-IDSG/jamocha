@@ -35,12 +35,12 @@ import org.jamocha.dn.ConstructCache.Defrule;
 import org.jamocha.dn.Network;
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.dn.memory.Template;
-import org.jamocha.filter.Function;
-import org.jamocha.filter.FunctionDictionary;
-import org.jamocha.filter.fwa.ConstantLeaf;
-import org.jamocha.filter.fwa.FunctionWithArguments;
-import org.jamocha.filter.fwa.GenericWithArgumentsComposite;
-import org.jamocha.filter.fwa.SymbolLeaf;
+import org.jamocha.function.Function;
+import org.jamocha.function.FunctionDictionary;
+import org.jamocha.function.fwa.ConstantLeaf;
+import org.jamocha.function.fwa.FunctionWithArguments;
+import org.jamocha.function.fwa.GenericWithArgumentsComposite;
+import org.jamocha.function.fwa.SymbolLeaf;
 import org.jamocha.languages.clips.parser.SFPVisitorImpl;
 import org.jamocha.languages.clips.parser.generated.ParseException;
 import org.jamocha.languages.clips.parser.generated.SFPParser;
@@ -320,7 +320,7 @@ public class ParserTest {
 			assertThat(functionCall, instanceOf(GenericWithArgumentsComposite.class));
 			final Function<?> function =
 					((GenericWithArgumentsComposite<?, ?>) functionCall).getFunction();
-			assertEquals(org.jamocha.filter.impls.predicates.Greater.inClips, function.inClips());
+			assertEquals(org.jamocha.function.impls.predicates.Greater.inClips, function.inClips());
 			final FunctionWithArguments[] arguments =
 					((GenericWithArgumentsComposite<?, ?>) functionCall).getArgs();
 			assertEquals(2, arguments.length);
@@ -339,7 +339,7 @@ public class ParserTest {
 			assertThat(functionCall, instanceOf(GenericWithArgumentsComposite.class));
 			final Function<?> function =
 					((GenericWithArgumentsComposite<?, ?>) functionCall).getFunction();
-			assertEquals(org.jamocha.filter.impls.predicates.Less.inClips, function.inClips());
+			assertEquals(org.jamocha.function.impls.predicates.Less.inClips, function.inClips());
 			final FunctionWithArguments[] arguments =
 					((GenericWithArgumentsComposite<?, ?>) functionCall).getArgs();
 			assertEquals(2, arguments.length);
@@ -410,7 +410,7 @@ public class ParserTest {
 				final Function<?> function =
 						((GenericWithArgumentsComposite<?, ?>) functionCall).getFunction();
 				assertEquals(FunctionDictionary.lookup(
-						org.jamocha.filter.impls.predicates.Equals.inClips, SlotType.LONG,
+						org.jamocha.function.impls.predicates.Equals.inClips, SlotType.LONG,
 						SlotType.LONG), function);
 				final FunctionWithArguments[] arguments =
 						((GenericWithArgumentsComposite<?, ?>) functionCall).getArgs();
@@ -437,7 +437,7 @@ public class ParserTest {
 					final Function<?> function =
 							((GenericWithArgumentsComposite<?, ?>) functionCall).getFunction();
 					assertEquals(FunctionDictionary.lookup(
-							org.jamocha.filter.impls.predicates.Equals.inClips, SlotType.LONG,
+							org.jamocha.function.impls.predicates.Equals.inClips, SlotType.LONG,
 							SlotType.LONG), function);
 					final FunctionWithArguments[] arguments =
 							((GenericWithArgumentsComposite<?, ?>) functionCall).getArgs();
@@ -458,7 +458,7 @@ public class ParserTest {
 					final Function<?> function =
 							((GenericWithArgumentsComposite<?, ?>) functionCall).getFunction();
 					assertEquals(FunctionDictionary.lookup(
-							org.jamocha.filter.impls.predicates.Equals.inClips, SlotType.LONG,
+							org.jamocha.function.impls.predicates.Equals.inClips, SlotType.LONG,
 							SlotType.LONG), function);
 					final FunctionWithArguments[] arguments =
 							((GenericWithArgumentsComposite<?, ?>) functionCall).getArgs();
@@ -480,7 +480,7 @@ public class ParserTest {
 				final Function<?> function =
 						((GenericWithArgumentsComposite<?, ?>) functionCall).getFunction();
 				assertEquals(FunctionDictionary.lookup(
-						org.jamocha.filter.impls.predicates.Equals.inClips, SlotType.LONG,
+						org.jamocha.function.impls.predicates.Equals.inClips, SlotType.LONG,
 						SlotType.LONG), function);
 				final FunctionWithArguments[] arguments =
 						((GenericWithArgumentsComposite<?, ?>) functionCall).getArgs();
@@ -599,7 +599,7 @@ public class ParserTest {
 				final Function<?> function =
 						((GenericWithArgumentsComposite<?, ?>) functionCall).getFunction();
 				assertEquals(FunctionDictionary.lookup(
-						org.jamocha.filter.impls.predicates.GreaterOrEqual.inClips,
+						org.jamocha.function.impls.predicates.GreaterOrEqual.inClips,
 						SlotType.DOUBLE, SlotType.DOUBLE), function);
 				final FunctionWithArguments[] arguments =
 						((GenericWithArgumentsComposite<?, ?>) functionCall).getArgs();

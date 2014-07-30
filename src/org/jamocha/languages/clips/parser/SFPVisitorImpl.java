@@ -44,16 +44,16 @@ import org.jamocha.dn.memory.SlotAddress;
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.dn.memory.Template.Slot;
-import org.jamocha.filter.Function;
-import org.jamocha.filter.FunctionDictionary;
-import org.jamocha.filter.Predicate;
-import org.jamocha.filter.fwa.Assert;
-import org.jamocha.filter.fwa.Assert.TemplateContainer;
-import org.jamocha.filter.fwa.ConstantLeaf;
-import org.jamocha.filter.fwa.FunctionWithArguments;
-import org.jamocha.filter.fwa.FunctionWithArgumentsComposite;
-import org.jamocha.filter.fwa.Modify;
-import org.jamocha.filter.fwa.Retract;
+import org.jamocha.function.Function;
+import org.jamocha.function.FunctionDictionary;
+import org.jamocha.function.Predicate;
+import org.jamocha.function.fwa.Assert;
+import org.jamocha.function.fwa.ConstantLeaf;
+import org.jamocha.function.fwa.FunctionWithArguments;
+import org.jamocha.function.fwa.FunctionWithArgumentsComposite;
+import org.jamocha.function.fwa.Modify;
+import org.jamocha.function.fwa.Retract;
+import org.jamocha.function.fwa.Assert.TemplateContainer;
 import org.jamocha.languages.clips.parser.ExistentialStack.ScopedExistentialStack;
 import org.jamocha.languages.clips.parser.errors.ClipsNameClashError;
 import org.jamocha.languages.clips.parser.errors.ClipsNoSlotForThatNameError;
@@ -510,11 +510,11 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 		}
 	};
 	static final Predicate not = FunctionDictionary.lookupPredicate(
-			org.jamocha.filter.impls.predicates.Not.inClips, SlotType.BOOLEAN);
+			org.jamocha.function.impls.predicates.Not.inClips, SlotType.BOOLEAN);
 	static final Predicate and = FunctionDictionary.lookupPredicate(
-			org.jamocha.filter.impls.predicates.And.inClips, SlotType.BOOLEAN, SlotType.BOOLEAN);
+			org.jamocha.function.impls.predicates.And.inClips, SlotType.BOOLEAN, SlotType.BOOLEAN);
 	static final Predicate or = FunctionDictionary.lookupPredicate(
-			org.jamocha.filter.impls.predicates.Or.inClips, SlotType.BOOLEAN, SlotType.BOOLEAN);
+			org.jamocha.function.impls.predicates.Or.inClips, SlotType.BOOLEAN, SlotType.BOOLEAN);
 
 	@FunctionalInterface
 	static interface SFPConstraintVisitorSupplier<T extends SelectiveSFPVisitor> {
@@ -553,7 +553,7 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 				// create equals test
 				final Predicate equals =
 						FunctionDictionary.lookupPredicate(
-								org.jamocha.filter.impls.predicates.Equals.inClips,
+								org.jamocha.function.impls.predicates.Equals.inClips,
 								template.getSlotType(slot), boundVariable.getType());
 				final TestConditionalElement eq =
 						new TestConditionalElement(new FunctionWithArgumentsComposite(equals,
@@ -584,7 +584,7 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 				// create equals test
 				final Predicate equals =
 						FunctionDictionary.lookupPredicate(
-								org.jamocha.filter.impls.predicates.Equals.inClips,
+								org.jamocha.function.impls.predicates.Equals.inClips,
 								template.getSlotType(slot), constantVisitor.type);
 				final TestConditionalElement eq =
 						new TestConditionalElement(new FunctionWithArgumentsComposite(equals,
@@ -629,7 +629,7 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 				// create equals test
 				final Predicate equals =
 						FunctionDictionary.lookupPredicate(
-								org.jamocha.filter.impls.predicates.Equals.inClips,
+								org.jamocha.function.impls.predicates.Equals.inClips,
 								template.getSlotType(slot), functionCall.getReturnType());
 				final SingleVariable variable = constraintVariable.get();
 				final TestConditionalElement eq =

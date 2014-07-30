@@ -22,10 +22,10 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeThat;
 
 import org.jamocha.dn.memory.SlotType;
-import org.jamocha.filter.FunctionDictionary;
-import org.jamocha.filter.Predicate;
-import org.jamocha.filter.fwa.GenericWithArgumentsComposite.LazyObject;
-import org.jamocha.filter.impls.predicates.Equals;
+import org.jamocha.function.FunctionDictionary;
+import org.jamocha.function.Predicate;
+import org.jamocha.function.fwa.GenericWithArgumentsComposite.LazyObject;
+import org.jamocha.function.impls.predicates.Equals;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.experimental.theories.Theories;

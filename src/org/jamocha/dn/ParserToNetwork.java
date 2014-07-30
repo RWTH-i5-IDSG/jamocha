@@ -20,7 +20,7 @@ import org.jamocha.dn.ConstructCache.Deffacts;
 import org.jamocha.dn.ConstructCache.Defrule;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.dn.memory.Template.Slot;
-import org.jamocha.filter.fwa.Assert;
+import org.jamocha.function.fwa.Assert;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>

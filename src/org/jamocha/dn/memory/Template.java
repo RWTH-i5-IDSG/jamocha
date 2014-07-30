@@ -21,7 +21,7 @@ import lombok.Value;
 
 import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.MarkerManager;
-import org.jamocha.filter.fwa.FunctionWithArguments;
+import org.jamocha.function.fwa.FunctionWithArguments;
 
 /**
  * A Template consists of slots which in turn have a {@link SlotType slot type} and a name. Facts

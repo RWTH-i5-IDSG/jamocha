@@ -40,7 +40,7 @@ import org.jamocha.dn.nodes.Node;
 import org.jamocha.dn.nodes.SlotInFactAddress;
 import org.jamocha.filter.AddressFilter;
 import org.jamocha.filter.AddressFilter.AddressFilterElement;
-import org.jamocha.filter.fwa.PredicateWithArguments;
+import org.jamocha.function.fwa.PredicateWithArguments;
 
 /**
  * Java-implementation of the {@link org.jamocha.dn.memory.MemoryHandlerPlusTemp} interface.

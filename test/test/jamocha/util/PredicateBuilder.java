@@ -15,10 +15,10 @@
 package test.jamocha.util;
 
 import org.jamocha.filter.PathFilter.PathFilterElement;
-import org.jamocha.filter.Predicate;
-import org.jamocha.filter.fwa.FunctionWithArguments;
-import org.jamocha.filter.fwa.PredicateWithArguments;
-import org.jamocha.filter.fwa.PredicateWithArgumentsComposite;
+import org.jamocha.function.Predicate;
+import org.jamocha.function.fwa.FunctionWithArguments;
+import org.jamocha.function.fwa.PredicateWithArguments;
+import org.jamocha.function.fwa.PredicateWithArgumentsComposite;
 
 /**
  * 

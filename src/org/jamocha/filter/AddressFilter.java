@@ -22,7 +22,7 @@ import lombok.Getter;
 import org.jamocha.dn.memory.CounterColumn;
 import org.jamocha.dn.memory.FactAddress;
 import org.jamocha.dn.nodes.SlotInFactAddress;
-import org.jamocha.filter.fwa.PredicateWithArguments;
+import org.jamocha.function.fwa.PredicateWithArguments;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>

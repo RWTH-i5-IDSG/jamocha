@@ -24,7 +24,7 @@ import lombok.NonNull;
 import org.jamocha.dn.memory.SlotAddress;
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.dn.memory.Template;
-import org.jamocha.filter.fwa.SymbolLeaf;
+import org.jamocha.function.fwa.SymbolLeaf;
 import org.jamocha.languages.common.ScopeStack.Symbol;
 
 /**

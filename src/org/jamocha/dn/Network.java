@@ -62,7 +62,7 @@ import org.jamocha.filter.FilterFunctionCompare;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.PathCollector;
 import org.jamocha.filter.PathFilter;
-import org.jamocha.filter.fwa.Assert.TemplateContainer;
+import org.jamocha.function.fwa.Assert.TemplateContainer;
 import org.jamocha.languages.clips.ClipsLogFormatter;
 import org.jamocha.logging.LogFormatter;
 import org.jamocha.logging.TypedFilter;
