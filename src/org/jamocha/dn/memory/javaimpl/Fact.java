@@ -60,11 +60,6 @@ class Fact implements MemoryFact {
 		this.slotValues[((SlotAddress) slot).getIndex()] = value;
 	}
 
-	@Override
-	public String toString() {
-		return template.toString(this.slotValues);
-	}
-
 	public static boolean equalContent(final Fact a, final Fact b) {
 		if (a == b)
 			return true;

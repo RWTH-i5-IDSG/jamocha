@@ -24,11 +24,6 @@ public class FactIdentifier implements Comparable<FactIdentifier> {
 	int id;
 
 	@Override
-	public String toString() {
-		return "<Fact-" + id + ">";
-	}
-
-	@Override
 	public int compareTo(final FactIdentifier o) {
 		if (this == o)
 			return 0;

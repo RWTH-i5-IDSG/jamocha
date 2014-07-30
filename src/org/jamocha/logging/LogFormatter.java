@@ -15,8 +15,10 @@
 package org.jamocha.logging;
 
 import org.jamocha.dn.SideEffectFunctionToNetwork;
+import org.jamocha.dn.memory.Fact;
 import org.jamocha.dn.memory.FactIdentifier;
 import org.jamocha.dn.memory.MemoryFact;
+import org.jamocha.dn.memory.SlotType;
 import org.jamocha.dn.memory.Template;
 
 /**
@@ -38,6 +40,17 @@ public interface LogFormatter {
 	void messageArgumentTypeMismatch(final SideEffectFunctionToNetwork network,
 			final String function, final int paramIndex, final String expected);
 
+	void messageArgumentTypeMismatch(final SideEffectFunctionToNetwork network,
+			final String function, final int paramIndex, final SlotType expected);
+
 	void messageUnknownSymbol(final SideEffectFunctionToNetwork network, final String expectedType,
 			final String name);
+
+	String formatTemplate(final Template template);
+
+	String formatFact(final Fact fact);
+
+	String formatSlotType(final SlotType type);
+
+	String formatSlotValue(final SlotType type, final Object value);
 }

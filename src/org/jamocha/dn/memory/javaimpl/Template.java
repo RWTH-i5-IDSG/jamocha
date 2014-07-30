@@ -141,25 +141,6 @@ public class Template implements org.jamocha.dn.memory.Template {
 	}
 
 	@Override
-	public String toString(final Object[] slotValues) {
-		final StringBuilder builder = new StringBuilder();
-		builder.append('(').append(name);
-		this.slotNames
-				.entrySet()
-				.stream()
-				.sorted((a, b) -> Integer.compare(a.getValue().index, b.getValue().index))
-				.forEach(
-						e -> builder
-								.append(" (")
-								.append(e.getKey())
-								.append(' ')
-								.append(this.slotTypes[e.getValue().index].toString(slotValues[e
-										.getValue().index])).append(')'));
-		return builder.append(')').toString();
-
-	}
-
-	@Override
 	public FunctionWithArguments[] applyDefaultsAndOrder(
 			final Map<org.jamocha.dn.memory.SlotAddress, FunctionWithArguments> values) {
 		// TBD defaults

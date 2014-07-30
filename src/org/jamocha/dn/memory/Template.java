@@ -138,7 +138,12 @@ public interface Template {
 	public FunctionWithArguments[] applyDefaultsAndOrder(
 			final Map<SlotAddress, FunctionWithArguments> values);
 
-	public String toString(final Object[] slotValues);
-
+	/**
+	 * Returns a marker uniquely identifying the template instance as a child of
+	 * {@link Template#templateMarker}.
+	 * 
+	 * @return a marker uniquely identifying the template instance as a child of
+	 *         {@link Template#templateMarker}
+	 */
 	public Marker getInstanceMarker();
 }

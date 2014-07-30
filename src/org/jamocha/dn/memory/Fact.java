@@ -39,9 +39,4 @@ public class Fact {
 	public void setValue(final int index, final Object value) {
 		this.slotValues[index] = value;
 	}
-
-	@Override
-	public String toString() {
-		return template.toString(this.slotValues);
-	}
 }

@@ -14,15 +14,10 @@
  */
 package org.jamocha.dn.memory;
 
-import static java.util.stream.Collectors.toCollection;
-
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatterBuilder;
 import java.time.temporal.ChronoField;
 import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.Objects;
-import java.util.Optional;
 
 import org.jamocha.languages.common.ScopeStack.Symbol;
 
@@ -52,10 +47,6 @@ public enum SlotType {
 	 * Enum value for fact address types.
 	 */
 	FACTADDRESS(FactIdentifier.class),
-	/**
-	 * Enum value for fact address types.
-	 */
-	FACTADDRESSES(FactIdentifier[].class),
 	/**
 	 * Enum value for date time types.
 	 */
@@ -89,34 +80,6 @@ public enum SlotType {
 		final SlotType[] types = new SlotType[num];
 		Arrays.fill(types, type);
 		return types;
-	}
-
-	@Override
-	public String toString() {
-		switch (this) {
-		case LONG:
-			return "INTEGER";
-		case DOUBLE:
-			return "FLOAT";
-		default:
-			break;
-		}
-		return this.name();
-	}
-
-	public String toString(final Object value) {
-		switch (this) {
-		case STRING:
-			return "\"" + Objects.toString(value) + "\"";
-		case FACTADDRESSES:
-			return Optional
-					.ofNullable(
-							Arrays.stream((FactIdentifier[]) value).filter(Objects::nonNull)
-									.collect(toCollection(LinkedList::new)).pollLast())
-					.map(Object::toString).orElse("FALSE");
-		default:
-			return Objects.toString(value);
-		}
 	}
 
 	public static ZonedDateTime convert(final String image) {

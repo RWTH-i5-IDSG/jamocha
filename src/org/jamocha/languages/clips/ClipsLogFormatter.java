@@ -14,8 +14,12 @@
  */
 package org.jamocha.languages.clips;
 
+import java.util.Objects;
+
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.Marker;
 import org.jamocha.dn.SideEffectFunctionToNetwork;
+import org.jamocha.dn.memory.Fact;
 import org.jamocha.dn.memory.FactIdentifier;
 import org.jamocha.dn.memory.MemoryFact;
 import org.jamocha.dn.memory.SlotType;
@@ -46,26 +50,18 @@ public class ClipsLogFormatter implements LogFormatter {
 	}
 
 	@Override
-	public void messageFactDetails(final SideEffectFunctionToNetwork network, int id,
-			MemoryFact value) {
-		network.getInteractiveEventsLogger().info("f-{}\t{}", id, value);
+	public void messageFactDetails(final SideEffectFunctionToNetwork network, final int id,
+			final MemoryFact value) {
+		final Logger interactiveEventsLogger = network.getInteractiveEventsLogger();
+		if (interactiveEventsLogger.isInfoEnabled()) {
+			interactiveEventsLogger.info("f-{}\t{}", id, formatFact(value.toMutableFact()));
+		}
 	}
 
 	@Override
 	public void messageTemplateDetails(final SideEffectFunctionToNetwork network,
 			final Template template) {
-		final StringBuilder sb = new StringBuilder();
-		sb.append("(deftemplate ").append(template.getName());
-		final String description = template.getDescription();
-		if (null != description && !description.isEmpty()) {
-			sb.append(" ").append(SlotType.STRING.toString(description));
-		}
-		for (final Slot slot : template.getSlots()) {
-			sb.append("\n\t(slot ").append(slot.getName()).append(" (type ")
-					.append(slot.getSlotType().toString()).append("))");
-		}
-		sb.append(")\n");
-		network.getInteractiveEventsLogger().info(sb.toString());
+		network.getInteractiveEventsLogger().info(formatTemplate(template));
 	}
 
 	@Override
@@ -92,20 +88,29 @@ public class ClipsLogFormatter implements LogFormatter {
 		for (final FactIdentifier fi : factsToRetract) {
 			final MemoryFact memoryFact = network.getMemoryFact(fi);
 			if (null == memoryFact) {
-				interactiveEventsLogger.error("[PRNTUTIL1] Unable to find fact f-{}", fi);
+				interactiveEventsLogger.error("[PRNTUTIL1] Unable to find fact f-{}", fi.getId());
 				continue;
 			}
-			interactiveEventsLogger.info(memoryFact.getTemplate().getInstanceMarker(),
-					"<== f-{}\t{}", fi, memoryFact);
+			final Marker instanceMarker = memoryFact.getTemplate().getInstanceMarker();
+			if (interactiveEventsLogger.isInfoEnabled(instanceMarker)) {
+				interactiveEventsLogger
+						.info(instanceMarker, "<== f-{}\t{}", fi.getId(), memoryFact);
+			}
 		}
 	}
 
 	@Override
-	public void messageArgumentTypeMismatch(SideEffectFunctionToNetwork network, String function,
-			int paramIndex, String expected) {
+	public void messageArgumentTypeMismatch(final SideEffectFunctionToNetwork network,
+			final String function, final int paramIndex, final String expected) {
 		network.getInteractiveEventsLogger().error(
 				"[ARGACCES5] Function {} expected argument #{} to be of type {}", function,
 				paramIndex, expected);
+	}
+
+	@Override
+	public void messageArgumentTypeMismatch(final SideEffectFunctionToNetwork network,
+			final String function, final int paramIndex, final SlotType expected) {
+		messageArgumentTypeMismatch(network, function, paramIndex, formatSlotType(expected));
 	}
 
 	@Override
@@ -113,5 +118,75 @@ public class ClipsLogFormatter implements LogFormatter {
 			final String expectedType, final String name) {
 		network.getInteractiveEventsLogger().error("[PRNTUTIL1] Unable to find {} {}",
 				expectedType, name);
+	}
+
+	@Override
+	public String formatTemplate(final Template template) {
+		final StringBuilder sb = new StringBuilder();
+		sb.append("(deftemplate ").append(template.getName());
+		final String description = template.getDescription();
+		if (null != description && !description.isEmpty()) {
+			sb.append(' ').append(formatSlotValue(SlotType.STRING, description));
+		}
+		for (final Slot slot : template.getSlots()) {
+			sb.append("\n\t(slot ").append(slot.getName()).append(" (type ")
+					.append(slot.getSlotType().toString()).append("))");
+		}
+		sb.append(")\n");
+		return sb.toString();
+	}
+
+	@Override
+	public String formatFact(final Fact fact) {
+		final Template template = fact.getTemplate();
+		final StringBuilder builder = new StringBuilder();
+		builder.append('(').append(template.getName());
+		template.getSlots()
+				.stream()
+				.forEach(
+						s -> builder
+								.append(" (")
+								.append(s.getName())
+								.append(' ')
+								.append(formatSlotValue(
+										s.getSlotType(),
+										template.getValue(fact,
+												template.getSlotAddress(s.getName())))).append(')'));
+		return builder.append(')').toString();
+	}
+
+	@Override
+	public String formatSlotType(final SlotType type) {
+		switch (type) {
+		case LONG:
+			return "INTEGER";
+		case DOUBLE:
+			return "FLOAT";
+		case FACTADDRESS:
+			return "FACT-ADDRESS";
+		case BOOLEAN:
+			return "BOOLEAN";
+		case DATETIME:
+			return "DATETIME";
+		case NIL:
+			return "";
+		case STRING:
+			return "STRING";
+		case SYMBOL:
+			return "SYMBOL";
+		}
+		return type.name();
+	}
+
+	@Override
+	public String formatSlotValue(final SlotType type, final Object value) {
+		switch (type) {
+		case STRING:
+			return "\"" + Objects.toString(value) + "\"";
+		case FACTADDRESS:
+			return (null == value) ? "FALSE" : "<Fact-" + ((FactIdentifier) value).getId() + ">";
+		default:
+			return Objects.toString(value);
+		}
 	}
 }
