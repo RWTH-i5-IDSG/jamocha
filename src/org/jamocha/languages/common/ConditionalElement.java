@@ -21,35 +21,48 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import org.jamocha.function.fwa.FunctionWithArguments;
+import org.jamocha.visitor.Visitable;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
 @RequiredArgsConstructor
-public class ConditionalElement {
+public abstract class ConditionalElement implements Visitable<ConditionalElementsVisitor> {
 
 	@Getter
 	final List<ConditionalElement> children;
 
 	public static class ExistentialConditionalElement extends ConditionalElement {
 		@Getter
-		final List<SingleVariable> variables;
+		final List<SingleFactVariable> variables;
 
 		public ExistentialConditionalElement(final List<ConditionalElement> children,
-				final List<SingleVariable> variables) {
+				final List<SingleFactVariable> variables) {
 			super(children);
 			this.variables = variables;
+		}
+
+		@Override
+		public <V extends ConditionalElementsVisitor> V accept(final V visitor) {
+			visitor.visit(this);
+			return visitor;
 		}
 	}
 
 	public static class NegatedExistentialConditionalElement extends ConditionalElement {
 		@Getter
-		final List<SingleVariable> variables;
+		final List<SingleFactVariable> variables;
 
 		public NegatedExistentialConditionalElement(final List<ConditionalElement> children,
-				final List<SingleVariable> variables) {
+				final List<SingleFactVariable> variables) {
 			super(children);
 			this.variables = variables;
+		}
+
+		@Override
+		public <V extends ConditionalElementsVisitor> V accept(final V visitor) {
+			visitor.visit(this);
+			return visitor;
 		}
 	}
 
@@ -61,11 +74,23 @@ public class ConditionalElement {
 			super(new ArrayList<>());
 			this.fwa = fwa;
 		}
+
+		@Override
+		public <V extends ConditionalElementsVisitor> V accept(final V visitor) {
+			visitor.visit(this);
+			return visitor;
+		}
 	}
 
 	public static class OrFunctionConditionalElement extends ConditionalElement {
 		public OrFunctionConditionalElement(final List<ConditionalElement> children) {
 			super(children);
+		}
+
+		@Override
+		public <V extends ConditionalElementsVisitor> V accept(final V visitor) {
+			visitor.visit(this);
+			return visitor;
 		}
 	}
 
@@ -73,11 +98,23 @@ public class ConditionalElement {
 		public AndFunctionConditionalElement(final List<ConditionalElement> children) {
 			super(children);
 		}
+
+		@Override
+		public <V extends ConditionalElementsVisitor> V accept(final V visitor) {
+			visitor.visit(this);
+			return visitor;
+		}
 	}
 
 	public static class NotFunctionConditionalElement extends ConditionalElement {
 		public NotFunctionConditionalElement(final List<ConditionalElement> children) {
 			super(children);
+		}
+
+		@Override
+		public <V extends ConditionalElementsVisitor> V accept(final V visitor) {
+			visitor.visit(this);
+			return visitor;
 		}
 	}
 
@@ -90,6 +127,12 @@ public class ConditionalElement {
 	public static class InitialFactConditionalElement extends ConditionalElement {
 		public InitialFactConditionalElement() {
 			super(new ArrayList<>(0));
+		}
+
+		@Override
+		public <V extends ConditionalElementsVisitor> V accept(final V visitor) {
+			visitor.visit(this);
+			return visitor;
 		}
 	}
 }

@@ -14,8 +14,7 @@
  */
 package org.jamocha.languages.common;
 
-import java.util.Optional;
-
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -28,32 +27,47 @@ import org.jamocha.function.fwa.SymbolLeaf;
 import org.jamocha.languages.common.ScopeStack.Symbol;
 
 /**
- * Gathers relevant information about a variable. A null SlotAddress indicates this SingleVariable
- * is a Fact-Variable e.g. originating from an AssignedPatternCE.
+ * Gathers relevant information about a variable.
  * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  */
 @Getter
 @AllArgsConstructor
 @EqualsAndHashCode
-public class SingleVariable {
+public class SingleFactVariable {
 	@NonNull
 	final Symbol symbol;
 	@NonNull
 	final Template template;
-	final SlotAddress slot;
-	// occurrence of symbol was negated by ~
-	final boolean negated;
 
-	boolean isFactVariable() {
-		return null == slot;
+	public SingleSlotVariable newSingleSlotVariable(final Symbol symbol, final SlotAddress slot,
+			final boolean negated) {
+		final SingleSlotVariable instance = new SingleSlotVariable(symbol, slot, negated);
+		symbol.addSlotVariable(instance);
+		return instance;
 	}
 
-	public SlotType getType() {
-		return Optional.ofNullable(slot).map(template::getSlotType).orElse(SlotType.FACTADDRESS);
-	}
+	@Getter
+	@AllArgsConstructor(access = AccessLevel.PRIVATE)
+	@EqualsAndHashCode
+	public class SingleSlotVariable {
+		@NonNull
+		final Symbol symbol;
+		@NonNull
+		final SlotAddress slot;
+		// occurrence of symbol was negated by ~
+		final boolean negated;
 
-	public SymbolLeaf toSymbolLeaf() {
-		return new SymbolLeaf(getSymbol(), getType(), getSlot());
+		public SlotType getType() {
+			return template.getSlotType(slot);
+		}
+
+		public SingleFactVariable getFactVariable() {
+			return SingleFactVariable.this;
+		}
+
+		public SymbolLeaf toSymbolLeaf() {
+			return new SymbolLeaf(getSymbol());
+		}
 	}
 }

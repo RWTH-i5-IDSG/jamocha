@@ -27,9 +27,9 @@ import org.jamocha.function.fwa.FunctionWithArgumentsComposite;
 import org.jamocha.function.fwa.FunctionWithArgumentsVisitor;
 import org.jamocha.function.fwa.GenericWithArgumentsComposite;
 import org.jamocha.function.fwa.Modify;
+import org.jamocha.function.fwa.Modify.SlotAndValue;
 import org.jamocha.function.fwa.PredicateWithArguments;
 import org.jamocha.function.fwa.PredicateWithArgumentsComposite;
-import org.jamocha.function.fwa.Modify.SlotAndValue;
 import org.jamocha.function.impls.DefaultFunctionVisitor;
 
 /**
@@ -112,8 +112,8 @@ public class UniformFunctionTranslator {
 		@Override
 		public void visit(final org.jamocha.function.fwa.Modify fwa) {
 			this.result =
-					new org.jamocha.function.fwa.Modify(fwa.getNetwork(), fwa.getTargetFact().accept(
-							new DeepCopy()).result, copyArgs(fwa.getArgs(),
+					new org.jamocha.function.fwa.Modify(fwa.getNetwork(), fwa.getTargetFact()
+							.accept(new DeepCopy()).result, copyArgs(fwa.getArgs(),
 							Modify.SlotAndValue[]::new));
 		}
 
@@ -125,9 +125,7 @@ public class UniformFunctionTranslator {
 
 		@Override
 		public void visit(final org.jamocha.function.fwa.SymbolLeaf fwa) {
-			this.result =
-					new org.jamocha.function.fwa.SymbolLeaf(fwa.getSymbol(), fwa.getReturnType(),
-							fwa.getSlot());
+			this.result = new org.jamocha.function.fwa.SymbolLeaf(fwa.getSymbol());
 		}
 
 		@Override
@@ -154,7 +152,8 @@ public class UniformFunctionTranslator {
 		}
 
 		@Override
-		public default void visit(final org.jamocha.function.fwa.PathLeaf.ParameterLeaf parameterLeaf) {
+		public default void visit(
+				final org.jamocha.function.fwa.PathLeaf.ParameterLeaf parameterLeaf) {
 		}
 
 		@Override

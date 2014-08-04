@@ -14,14 +14,11 @@
  */
 package org.jamocha.function.fwa;
 
-import java.util.Arrays;
-
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
-import org.jamocha.dn.memory.SlotAddress;
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.function.Function;
 import org.jamocha.languages.common.ScopeStack.Symbol;
@@ -32,28 +29,26 @@ import org.jamocha.languages.common.ScopeStack.Symbol;
 @EqualsAndHashCode
 @RequiredArgsConstructor
 @Getter
-@ToString(of = { "symbol", "slot" })
+@ToString(of = { "symbol" })
 public class SymbolLeaf implements FunctionWithArguments {
 	private final Symbol symbol;
-	private final SlotType slotType;
-	private final SlotAddress slot;
+
 	@Getter(lazy = true)
 	private final int hashCode = initHashCode();
 
 	private int initHashCode() {
-		return FunctionWithArguments.hash(Arrays.asList(this.symbol, this.slotType, this.slot)
-				.stream().mapToInt(Object::hashCode).toArray(),
+		return FunctionWithArguments.hash(new int[] { this.symbol.hashCode() },
 				FunctionWithArguments.positionIsIrrelevant);
 	}
 
 	@Override
 	public SlotType[] getParamTypes() {
-		return new SlotType[] { getSlotType() };
+		return new SlotType[] { symbol.getType() };
 	}
 
 	@Override
 	public SlotType getReturnType() {
-		return getSlotType();
+		return symbol.getType();
 	}
 
 	@Override

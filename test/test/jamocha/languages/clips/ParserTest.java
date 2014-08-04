@@ -16,7 +16,6 @@ package test.jamocha.languages.clips;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.hasSize;
 import static org.jamocha.util.ToArray.toArray;
 import static org.junit.Assert.assertEquals;
@@ -27,9 +26,8 @@ import static org.junit.Assert.assertThat;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.List;
-import java.util.Map;
+import java.util.Optional;
 import java.util.Queue;
-import java.util.Set;
 
 import org.jamocha.dn.ConstructCache.Defrule;
 import org.jamocha.dn.Network;
@@ -53,7 +51,8 @@ import org.jamocha.languages.common.ConditionalElement.OrFunctionConditionalElem
 import org.jamocha.languages.common.ConditionalElement.TestConditionalElement;
 import org.jamocha.languages.common.RuleCondition;
 import org.jamocha.languages.common.ScopeStack.Symbol;
-import org.jamocha.languages.common.SingleVariable;
+import org.jamocha.languages.common.SingleFactVariable;
+import org.jamocha.languages.common.SingleFactVariable.SingleSlotVariable;
 import org.jamocha.languages.common.Warning;
 import org.jamocha.languages.common.errors.NameClashError;
 import org.jamocha.languages.common.errors.VariableNotDeclaredError;
@@ -91,9 +90,15 @@ public class ParserTest {
 		}
 	}
 
-	private static Symbol getSymbol(final Set<Symbol> symbols, final String image) {
+	private static Symbol getSymbol(final RuleCondition condition, final String image) {
+		// final SymbolCollector<ArrayList<Symbol>> symbolCollector =
+		// SymbolCollector.newArrayList();
+		// condition.getConditionalElements().forEach(ce -> ce.accept(symbolCollector));
+		// Stream.concat(symbolCollector.getSymbols().stream(),
+		// condition.getSingleFactVariables().stream().map(SingleFactVariable::getSymbol))
 		final Symbol[] array =
-				toArray(symbols.stream().filter(s -> s.getImage().equals(image)), Symbol[]::new);
+				toArray(condition.getSymbols().distinct().filter(s -> s.getImage().equals(image)),
+						Symbol[]::new);
 		assertEquals(1, array.length);
 		return array[0];
 	}
@@ -269,44 +274,43 @@ public class ParserTest {
 		assertNotNull(rule);
 		final RuleCondition condition = rule.getCondition();
 		assertNotNull(condition);
-		final Map<Symbol, List<SingleVariable>> variables = condition.getVariables();
-		final SingleVariable x;
+		final SingleSlotVariable x;
 		{
-			final List<SingleVariable> list = variables.get(getSymbol(variables.keySet(), "?x"));
+			final List<SingleSlotVariable> list =
+					getSymbol(condition, "?x").getPositiveSlotVariables();
 			assertNotNull(list);
 			assertEquals(1, list.size());
-			final SingleVariable var = list.get(0);
+			final SingleSlotVariable var = list.get(0);
 			assertEquals("?x", var.getSymbol().getImage());
 			assertFalse(var.isNegated());
 			assertEquals(SlotType.LONG, var.getType());
 			final Template template = network.getTemplate("f1");
-			assertEquals(template, var.getTemplate());
+			assertEquals(template, var.getFactVariable().getTemplate());
 			assertEquals(template.getSlotAddress("s1"), var.getSlot());
 			x = var;
 		}
-		final SingleVariable y;
+		final SingleSlotVariable y;
 		{
-			final List<SingleVariable> list = variables.get(getSymbol(variables.keySet(), "?y"));
+			final List<SingleSlotVariable> list =
+					getSymbol(condition, "?y").getPositiveSlotVariables();
 			assertNotNull(list);
 			assertEquals(1, list.size());
-			final SingleVariable var = list.get(0);
+			final SingleSlotVariable var = list.get(0);
 			assertEquals("?y", var.getSymbol().getImage());
 			assertFalse(var.isNegated());
 			assertEquals(SlotType.DOUBLE, var.getType());
 			final Template template = network.getTemplate("f2");
-			assertEquals(template, var.getTemplate());
+			assertEquals(template, var.getFactVariable().getTemplate());
 			assertEquals(template.getSlotAddress("s2"), var.getSlot());
 			y = var;
 		}
 		{
-			final List<SingleVariable> list = variables.get(getSymbol(variables.keySet(), "?z"));
-			assertNotNull(list);
-			assertEquals(1, list.size());
-			final SingleVariable var = list.get(0);
+			final Optional<SingleFactVariable> optVar =
+					getSymbol(condition, "?z").getFactVariable();
+			assertNotNull(optVar);
+			assertEquals(true, optVar.isPresent());
+			final SingleFactVariable var = optVar.get();
 			assertEquals("?z", var.getSymbol().getImage());
-			assertFalse(var.isNegated());
-			assertEquals(SlotType.FACTADDRESS, var.getType());
-			assertEquals(null, var.getSlot());
 			final Template template = network.getTemplate("f2");
 			assertEquals(template, var.getTemplate());
 		}
@@ -378,18 +382,18 @@ public class ParserTest {
 		assertNotNull(rule);
 		final RuleCondition condition = rule.getCondition();
 		assertNotNull(condition);
-		final Map<Symbol, List<SingleVariable>> variables = condition.getVariables();
-		final SingleVariable x;
+		final SingleSlotVariable x;
 		{
-			final List<SingleVariable> list = variables.get(getSymbol(variables.keySet(), "?x"));
+			final List<SingleSlotVariable> list =
+					getSymbol(condition, "?x").getPositiveSlotVariables();
 			assertNotNull(list);
 			assertEquals(1, list.size());
-			final SingleVariable var = list.get(0);
+			final SingleSlotVariable var = list.get(0);
 			assertEquals("?x", var.getSymbol().getImage());
 			assertFalse(var.isNegated());
 			assertEquals(SlotType.LONG, var.getType());
 			final Template template = network.getTemplate("f1");
-			assertEquals(template, var.getTemplate());
+			assertEquals(template, var.getFactVariable().getTemplate());
 			assertEquals(template.getSlotAddress("s1"), var.getSlot());
 			x = var;
 		}
@@ -520,43 +524,44 @@ public class ParserTest {
 		assertNotNull(rule);
 		final RuleCondition condition = rule.getCondition();
 		assertNotNull(condition);
-		final Map<Symbol, List<SingleVariable>> variables = condition.getVariables();
-		final SingleVariable x1, x2, y;
+		final SingleSlotVariable x1, x2, y;
 		{
-			final List<SingleVariable> list = variables.get(getSymbol(variables.keySet(), "?x"));
+			final List<SingleSlotVariable> list =
+					getSymbol(condition, "?x").getPositiveSlotVariables();
 			assertNotNull(list);
 			assertThat(list, hasSize(2));
 			{
-				final SingleVariable var = list.get(0);
+				final SingleSlotVariable var = list.get(0);
 				assertEquals("?x", var.getSymbol().getImage());
 				assertFalse(var.isNegated());
 				assertEquals(SlotType.LONG, var.getType());
 				final Template template = network.getTemplate("f1");
-				assertEquals(template, var.getTemplate());
+				assertEquals(template, var.getFactVariable().getTemplate());
 				assertEquals(template.getSlotAddress("s1"), var.getSlot());
 				x1 = var;
 			}
 			{
-				final SingleVariable var = list.get(1);
+				final SingleSlotVariable var = list.get(1);
 				assertEquals("?x", var.getSymbol().getImage());
 				assertFalse(var.isNegated());
 				assertEquals(SlotType.LONG, var.getType());
 				final Template template = network.getTemplate("f2");
-				assertEquals(template, var.getTemplate());
+				assertEquals(template, var.getFactVariable().getTemplate());
 				assertEquals(template.getSlotAddress("s1"), var.getSlot());
 				x2 = var;
 			}
 		}
 		{
-			final List<SingleVariable> list = variables.get(getSymbol(variables.keySet(), "?y"));
+			final List<SingleSlotVariable> list =
+					getSymbol(condition, "?y").getPositiveSlotVariables();
 			assertNotNull(list);
 			assertThat(list, hasSize(1));
-			final SingleVariable var = list.get(0);
+			final SingleSlotVariable var = list.get(0);
 			assertEquals("?y", var.getSymbol().getImage());
 			assertFalse(var.isNegated());
 			assertEquals(SlotType.DOUBLE, var.getType());
 			final Template template = network.getTemplate("f1");
-			assertEquals(template, var.getTemplate());
+			assertEquals(template, var.getFactVariable().getTemplate());
 			assertEquals(template.getSlotAddress("s2"), var.getSlot());
 			y = var;
 		}
@@ -571,8 +576,9 @@ public class ParserTest {
 			assertThat(conditionalElement, instanceOf(NegatedExistentialConditionalElement.class));
 			final NegatedExistentialConditionalElement negatedExistentialConditionalElement =
 					(NegatedExistentialConditionalElement) conditionalElement;
+			assertEquals(x1.getFactVariable(), y.getFactVariable());
 			assertThat(negatedExistentialConditionalElement.getVariables(),
-					containsInAnyOrder(x1, y));
+					contains(x1.getFactVariable()));
 			final List<ConditionalElement> negChildren =
 					negatedExistentialConditionalElement.getChildren();
 			assertThat(negChildren, hasSize(1));
@@ -587,7 +593,7 @@ public class ParserTest {
 				final NegatedExistentialConditionalElement innerNegExCE =
 						(NegatedExistentialConditionalElement) child;
 				assertThat(innerNegExCE.getChildren(), hasSize(0));
-				assertThat(innerNegExCE.getVariables(), contains(x2));
+				assertThat(innerNegExCE.getVariables(), contains(x2.getFactVariable()));
 			}
 			{
 				final ConditionalElement child = andChildren.get(1);

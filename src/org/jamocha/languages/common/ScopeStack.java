@@ -14,15 +14,19 @@
  */
 package org.jamocha.languages.common;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Objects;
 import java.util.Optional;
 
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
+
+import org.jamocha.dn.memory.SlotType;
+import org.jamocha.languages.common.SingleFactVariable.SingleSlotVariable;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -61,11 +65,33 @@ public class ScopeStack {
 	 * 
 	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
 	 */
-	@AllArgsConstructor(access = AccessLevel.PRIVATE)
+	@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 	@Getter
-	@ToString(includeFieldNames = false)
+	@ToString(includeFieldNames = false, of = "image")
 	public static class Symbol {
+		@NonNull
 		final String image;
+		@NonNull
+		Optional<SingleFactVariable> factVariable = Optional.empty();
+		final ArrayList<SingleSlotVariable> positiveSlotVariables = new ArrayList<>();
+		final ArrayList<SingleSlotVariable> negativeSlotVariables = new ArrayList<>();
+		SlotType type = null;
+
+		public void setFactVariable(final SingleFactVariable factVariable) {
+			this.factVariable = Optional.of(factVariable);
+		}
+
+		public void addSlotVariable(final SingleSlotVariable slotVariable) {
+			if (slotVariable.isNegated()) {
+				this.negativeSlotVariables.add(slotVariable);
+				return;
+			}
+			this.positiveSlotVariables.add(slotVariable);
+			if (null != this.type) {
+				return;
+			}
+			this.type = slotVariable.getType();
+		}
 	}
 
 	private Scope currentScope;
@@ -84,10 +110,6 @@ public class ScopeStack {
 
 	private Scope getScope() {
 		return Objects.requireNonNull(this.currentScope, "No scope present!");
-	}
-
-	public Symbol getSymbol(final String image) {
-		return getScope().getSymbol(image);
 	}
 
 	public Symbol getOrCreateSymbol(final String image) {
