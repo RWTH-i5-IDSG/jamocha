@@ -39,13 +39,13 @@ public class ClipsLogFormatter implements LogFormatter {
 	private final static ClipsLogFormatter singleton = new ClipsLogFormatter();
 
 	/**
-	 * Retrieves a singleton instance of the {@link org.jamocha.dn.memory.MemoryFactory}
+	 * Retrieves a singleton instance of the {@link org.jamocha.languages.clips.ClipsLogFormatter}
 	 * implementation.
 	 * 
-	 * @return a singleton instance of the {@link org.jamocha.dn.memory.MemoryFactory}
+	 * @return a singleton instance of the {@link org.jamocha.languages.clips.ClipsLogFormatter}
 	 *         implementation
 	 */
-	public static LogFormatter getMessageFormatterFactory() {
+	public static LogFormatter getMessageFormatter() {
 		return singleton;
 	}
 

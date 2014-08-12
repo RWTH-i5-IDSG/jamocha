@@ -200,7 +200,7 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 	 */
 	public Network(final MemoryFactory memoryFactory, final int tokenQueueCapacity,
 			final Scheduler scheduler) {
-		this(memoryFactory, ClipsLogFormatter.getMessageFormatterFactory(), tokenQueueCapacity,
+		this(memoryFactory, ClipsLogFormatter.getMessageFormatter(), tokenQueueCapacity,
 				scheduler);
 	}
 
@@ -215,7 +215,7 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 	 */
 	public Network(final int tokenQueueCapacity, final Scheduler scheduler) {
 		this(org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(), ClipsLogFormatter
-				.getMessageFormatterFactory(), tokenQueueCapacity, scheduler);
+				.getMessageFormatter(), tokenQueueCapacity, scheduler);
 	}
 
 	/**
@@ -439,7 +439,7 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 	 */
 	public final static Network DEFAULTNETWORK = new Network(
 			org.jamocha.dn.memory.javaimpl.MemoryFactory.getMemoryFactory(),
-			ClipsLogFormatter.getMessageFormatterFactory(), Integer.MAX_VALUE,
+			ClipsLogFormatter.getMessageFormatter(), Integer.MAX_VALUE,
 			// new ThreadPoolScheduler(10)
 			new PlainScheduler());
 }
