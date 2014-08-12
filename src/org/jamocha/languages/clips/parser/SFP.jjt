@@ -69,37 +69,6 @@ import org.jamocha.dn.Network;
 @SuppressWarnings("all")
 public class SFPParser {
 
-	public Object nextExpression() throws ParseException {
-		SFPStart n = Start();
-		if (n != null) {
-			final Network network = new Network();
-			Object result = n.jjtAccept(new SFPVisitorImpl(network, network), null);
-			if (result != null) {
-				return result;
-			}
-		}
-		return null;
-	}
-
-	public static void main(String args[]) {
-		boolean verbose = (args != null && args.length == 1 && "verbose".equals(args[0]));
-		if(!verbose)System.out.println("Note: For verbose output type \"java Main verbose\".\n");
-		System.out.print("SFP> ");
-		SFPParser p = new SFPParser(System.in);
-		try {
-			while (true) {
-				SFPStart n = p.Start();
-				if (n==null) System.exit(0);
-				n.dump(" ");
-				final Network network = new Network();
-				n.jjtAccept(new SFPVisitorImpl(network, network), null);
-			}
-		}
-		catch (Exception e) {
-			System.err.println("ERROR: " + e.getMessage());
-			if(verbose)e.printStackTrace();
-		}
-	}
 }
 
 PARSER_END(SFPParser)
