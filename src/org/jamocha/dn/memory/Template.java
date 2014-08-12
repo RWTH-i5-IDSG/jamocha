@@ -72,6 +72,15 @@ public interface Template {
 	 * @return {@link SlotType} corresponding to the position specified by the given index
 	 */
 	public SlotType getSlotType(final SlotAddress slotAddress);
+	
+	/**
+	 * Gets the name corresponding to the position specified by the given index.
+	 * 
+	 * @param index
+	 *            position in the template
+	 * @return name corresponding to the position specified by the given index
+	 */
+	public String getSlotName(final SlotAddress slotAddress);
 
 	/**
 	 * Returns the {@link SlotAddress} of the first slot matching the name given or null if no slot

@@ -91,7 +91,27 @@ public class Template implements org.jamocha.dn.memory.Template {
 	public SlotType getSlotType(final int index) {
 		return this.slotTypes[index];
 	}
+	
 
+	@Override
+	public String getSlotName(org.jamocha.dn.memory.SlotAddress slotAddress) {
+		for (Entry<String, SlotAddress> entry : this.slotNames.entrySet()) {
+			if (entry.getValue().getIndex() == ((SlotAddress) slotAddress).getIndex()) {
+				return entry.getKey();
+			}
+		}
+		return null;
+	}
+	
+	public String getSlotName(final int index) {
+		for (Entry<String, SlotAddress> entry : this.slotNames.entrySet()) {
+			if (entry.getValue().getIndex() == index) {
+				return entry.getKey();
+			}
+		}
+		return null;
+	}
+	
 	@Override
 	public SlotAddress getSlotAddress(final String name) {
 		return this.slotNames.get(name);
