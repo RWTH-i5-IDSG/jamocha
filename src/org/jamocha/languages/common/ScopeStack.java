@@ -67,7 +67,6 @@ public class ScopeStack {
 	 */
 	@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 	@Getter
-	@ToString(includeFieldNames = false, of = "image")
 	public static class Symbol {
 		@NonNull
 		final String image;
@@ -91,6 +90,13 @@ public class ScopeStack {
 				return;
 			}
 			this.type = slotVariable.getType();
+		}
+		
+		public String toString() {
+			if (image.equals("Dummy")) {
+				return "ScopeStack.Symbol(Dummy:" + this.hashCode() + ")";
+			}
+			return "ScopeStack.Symbol(" + image + ")";
 		}
 	}
 
