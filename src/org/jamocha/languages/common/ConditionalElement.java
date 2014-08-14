@@ -135,4 +135,38 @@ public abstract class ConditionalElement implements Visitable<ConditionalElement
 			return visitor;
 		}
 	}
+	
+	/**
+	 * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
+	 *
+	 */
+	public static class SharedConditionalElementWrapper extends ConditionalElement {
+		
+		@Getter
+		private ConditionalElement ce;
+		
+		@Getter
+		private List<ConditionalElement> children;
+				
+		public SharedConditionalElementWrapper(ConditionalElement ce) {
+			super(ce.children);
+			this.ce = ce;
+		}
+		
+		public void replaceConditionalElement(ConditionalElement ce) {
+			this.children = ce.children;
+			this.ce = ce;
+		}
+
+		@Override
+		public <V extends ConditionalElementsVisitor> V accept(V visitor) {
+			return ce.accept(visitor);
+		}
+		
+		public <V extends SharedConditionalElementsVisitor> V accept(V visitor) {
+			visitor.visit(this);
+			return visitor;
+		}
+				
+	}
 }

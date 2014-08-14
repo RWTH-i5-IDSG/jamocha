@@ -25,9 +25,10 @@ import org.junit.runners.Suite.SuiteClasses;
  * </p>
  * 
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+ * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
  */
 @RunWith(Suite.class)
-@SuiteClasses({ test.jamocha.languages.clips.AllClipsTests.class })
+@SuiteClasses({ test.jamocha.languages.clips.AllClipsTests.class, test.jamocha.languages.common.AllCommonTests.class })
 public class AllLanguageTests {
 
 }
