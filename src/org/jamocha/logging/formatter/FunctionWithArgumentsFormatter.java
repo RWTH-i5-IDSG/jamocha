@@ -51,6 +51,7 @@ public class FunctionWithArgumentsFormatter implements Formatter<FunctionWithArg
 	private FunctionWithArgumentsFormatter() {
 	}
 
+	@Override
 	public String format(FunctionWithArguments fwa) {
 		FunctionWithArgumentsFormatterVisitor fwaf = new FunctionWithArgumentsFormatterVisitor();
 		fwa.accept(fwaf);

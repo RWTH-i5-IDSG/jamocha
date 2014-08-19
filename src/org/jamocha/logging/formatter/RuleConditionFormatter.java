@@ -98,6 +98,7 @@ public class RuleConditionFormatter implements Formatter<RuleCondition> {
 		return sb.toString();
 	}
 
+	@Override
 	public String format(RuleCondition re) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("(");
