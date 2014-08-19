@@ -14,7 +14,7 @@
  */
 package test.jamocha.languages.common;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import org.jamocha.languages.common.ConditionalElement;
 import org.jamocha.languages.common.ConditionalElement.AndFunctionConditionalElement;
@@ -26,7 +26,6 @@ import org.jamocha.languages.common.ConditionalElement.OrFunctionConditionalElem
 import org.jamocha.languages.common.ConditionalElement.SharedConditionalElementWrapper;
 import org.jamocha.languages.common.ConditionalElement.TestConditionalElement;
 import org.jamocha.languages.common.ConditionalElementsVisitor;
-import org.jamocha.languages.common.SharedConditionalElementsVisitor;
 import org.junit.Test;
 
 /**
@@ -37,9 +36,9 @@ public class ConditionalElementTest {
 
 	@Test
 	public void SharedConditionalElementsVisitorTest() {
-		ConditionalElement.InitialFactConditionalElement initCe =
+		ConditionalElement initCe =
 				new ConditionalElement.InitialFactConditionalElement();
-		ConditionalElement.SharedConditionalElementWrapper sharedCe =
+		ConditionalElement sharedCe =
 				new ConditionalElement.SharedConditionalElementWrapper(initCe);
 		TestSharedConditionalElementsVisitor sharedVisitor =
 				new TestSharedConditionalElementsVisitor();
@@ -53,7 +52,7 @@ public class ConditionalElementTest {
 		assertEquals(1, sharedVisitor.sharedCounter);
 	}
 
-	private class TestSharedConditionalElementsVisitor implements SharedConditionalElementsVisitor {
+	private class TestSharedConditionalElementsVisitor implements ConditionalElementsVisitor {
 
 		public String toString() {
 			return "and: " + andCounter + ", ex: " + exCounter + ", ini: " + initialCounter
