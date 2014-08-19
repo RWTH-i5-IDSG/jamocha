@@ -34,7 +34,7 @@ public interface ConditionalElementsVisitor extends Visitor {
 	public void visit(final ConditionalElement.OrFunctionConditionalElement ce);
 
 	public void visit(final ConditionalElement.TestConditionalElement ce);
-	
+
 	default public void visit(final ConditionalElement.SharedConditionalElementWrapper ce) {
 		ce.getCe().accept(this);
 	}
