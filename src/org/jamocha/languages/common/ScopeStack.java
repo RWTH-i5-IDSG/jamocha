@@ -23,7 +23,6 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import lombok.ToString;
 
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.languages.common.SingleFactVariable.SingleSlotVariable;
@@ -94,9 +93,9 @@ public class ScopeStack {
 		
 		public String toString() {
 			if (image.equals("Dummy")) {
-				return "ScopeStack.Symbol(Dummy:" + this.hashCode() + ")";
+				return "Dummy:" + this.hashCode();
 			}
-			return "ScopeStack.Symbol(" + image + ")";
+			return image;
 		}
 	}
 
