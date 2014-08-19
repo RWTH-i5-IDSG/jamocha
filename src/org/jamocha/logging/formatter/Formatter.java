@@ -21,12 +21,8 @@ package org.jamocha.logging.formatter;
  * @author "Christoph Terwelp <christoph.terwelp@rwth-aachen.de>"
  *
  */
-public class Formatter {
+public interface Formatter<A> {
 	
-	protected void indent(StringBuilder sb, int level) {
-		for (int i = 0; i < level; i++) {
-			sb.append("   ");
-		}
-	}
+	public String format(A in);
 
 }

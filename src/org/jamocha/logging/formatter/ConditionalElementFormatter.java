@@ -15,38 +15,37 @@
 package org.jamocha.logging.formatter;
 
 import org.jamocha.languages.common.ConditionalElement;
-import org.jamocha.languages.common.ConditionalElementsVisitor;
 import org.jamocha.languages.common.ConditionalElement.AndFunctionConditionalElement;
 import org.jamocha.languages.common.ConditionalElement.ExistentialConditionalElement;
 import org.jamocha.languages.common.ConditionalElement.InitialFactConditionalElement;
 import org.jamocha.languages.common.ConditionalElement.NegatedExistentialConditionalElement;
 import org.jamocha.languages.common.ConditionalElement.NotFunctionConditionalElement;
 import org.jamocha.languages.common.ConditionalElement.OrFunctionConditionalElement;
+import org.jamocha.languages.common.ConditionalElement.SharedConditionalElementWrapper;
 import org.jamocha.languages.common.ConditionalElement.TestConditionalElement;
+import org.jamocha.languages.common.ConditionalElementsVisitor;
 
 /**
  * @author "Christoph Terwelp <christoph.terwelp@rwth-aachen.de>"
  *
  */
-public class ConditionalElementFormatter extends Formatter {
+public class ConditionalElementFormatter implements Formatter<ConditionalElement> {
 
 	private static final ConditionalElementFormatter singleton = new ConditionalElementFormatter();
 
 	static public ConditionalElementFormatter getConditionalElementFormatter() {
 		return singleton;
 	}
+	
+	public static String formatCE(ConditionalElement ce) {
+		return getConditionalElementFormatter().format(ce);
+	}
 
 	private ConditionalElementFormatter() {
 	}
-
+	
 	public String format(ConditionalElement ce) {
 		ConditionalElementFormatterVisitor cef = new ConditionalElementFormatterVisitor();
-		ce.accept(cef);
-		return cef.getString();
-	}
-
-	public String format(ConditionalElement ce, int level) {
-		ConditionalElementFormatterVisitor cef = new ConditionalElementFormatterVisitor(level);
 		ce.accept(cef);
 		return cef.getString();
 	}
@@ -54,35 +53,18 @@ public class ConditionalElementFormatter extends Formatter {
 	private class ConditionalElementFormatterVisitor implements ConditionalElementsVisitor {
 
 		final private StringBuilder sb = new StringBuilder();
-		int level = 0;
-
-		public ConditionalElementFormatterVisitor() {
-		}
-
-		public ConditionalElementFormatterVisitor(int level) {
-			this.level = level;
-		}
 
 		public String getString() {
 			return sb.toString();
 		}
 
-		private void indent() {
-			for (int i = 0; i < level; i++) {
-				sb.append("   ");
-			}
-		}
-
 		private void prettyPrint(String name, ConditionalElement ce) {
-			indent();
-			level++;
-			sb.append("(" + name + "\n");
+			sb.append("(" + name);
 			ce.getChildren().forEach((x) -> {
+				sb.append(" ");
 				x.accept(this);
 			});
-			level--;
-			indent();
-			sb.append(")\n");
+			sb.append(")");
 		}
 
 		@Override
@@ -97,8 +79,7 @@ public class ConditionalElementFormatter extends Formatter {
 
 		@Override
 		public void visit(InitialFactConditionalElement ce) {
-			indent();
-			sb.append("(initialFact)\n");
+			sb.append("(initialFact)");
 		}
 
 		@Override
@@ -118,15 +99,16 @@ public class ConditionalElementFormatter extends Formatter {
 
 		@Override
 		public void visit(TestConditionalElement ce) {
-			indent();
-			sb.append("(test\n");
-			level++;
-			indent();
-			sb.append(ce.getFwa().toString());
-			level--;
-			sb.append("\n");
-			indent();
-			sb.append(")\n");
+			sb.append("(test ");
+			sb.append(FunctionWithArgumentsFormatter.formatFwa(ce.getFwa()));
+			sb.append(")");
+		}
+
+		@Override
+		public void visit(SharedConditionalElementWrapper ce) {
+			sb.append("(shared ");
+			ce.getCe().accept(this);
+			sb.append(")");
 		}
 
 	}
