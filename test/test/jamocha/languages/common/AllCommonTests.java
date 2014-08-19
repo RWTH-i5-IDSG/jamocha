@@ -14,7 +14,7 @@ import org.junit.runners.Suite.SuiteClasses;
  */
 
 @RunWith(Suite.class)
-@SuiteClasses({ ConditionalElementTest.class })
+@SuiteClasses({ RuleConditionProcessorTest.class })
 public class AllCommonTests {
 
 }
