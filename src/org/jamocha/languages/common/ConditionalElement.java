@@ -144,29 +144,24 @@ public abstract class ConditionalElement implements Visitable<ConditionalElement
 		
 		@Getter
 		private ConditionalElement ce;
-		
-		@Getter
-		private List<ConditionalElement> children;
 				
 		public SharedConditionalElementWrapper(ConditionalElement ce) {
-			super(ce.children);
+			super(null);
 			this.ce = ce;
 		}
 		
 		public void replaceConditionalElement(ConditionalElement ce) {
-			this.children = ce.children;
 			this.ce = ce;
+		}
+		
+		public List<ConditionalElement> getChildren() {
+			return this.ce.getChildren();
 		}
 
 		@Override
 		public <V extends ConditionalElementsVisitor> V accept(V visitor) {
-			return ce.accept(visitor);
-		}
-		
-		public <V extends SharedConditionalElementsVisitor> V accept(V visitor) {
 			visitor.visit(this);
 			return visitor;
-		}
-				
+		}				
 	}
 }
