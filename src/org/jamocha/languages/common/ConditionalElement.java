@@ -154,6 +154,7 @@ public abstract class ConditionalElement implements Visitable<ConditionalElement
 			this.ce = ce;
 		}
 		
+		@Override
 		public List<ConditionalElement> getChildren() {
 			return this.ce.getChildren();
 		}

@@ -91,6 +91,7 @@ public class ScopeStack {
 			this.type = slotVariable.getType();
 		}
 		
+		@Override
 		public String toString() {
 			if (image.equals("Dummy")) {
 				return "Dummy:" + this.hashCode();
