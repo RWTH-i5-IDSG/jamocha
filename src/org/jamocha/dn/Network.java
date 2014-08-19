@@ -16,8 +16,10 @@ package org.jamocha.dn;
 
 import static org.jamocha.util.ToArray.toArray;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -62,8 +64,33 @@ import org.jamocha.filter.FilterFunctionCompare;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.PathCollector;
 import org.jamocha.filter.PathFilter;
+import org.jamocha.function.fwa.Assert;
 import org.jamocha.function.fwa.Assert.TemplateContainer;
+import org.jamocha.function.fwa.ConstantLeaf;
+import org.jamocha.function.fwa.FunctionWithArguments;
+import org.jamocha.function.fwa.FunctionWithArgumentsComposite;
+import org.jamocha.function.fwa.FunctionWithArgumentsVisitor;
+import org.jamocha.function.fwa.Modify;
+import org.jamocha.function.fwa.Modify.SlotAndValue;
+import org.jamocha.function.fwa.PathLeaf;
+import org.jamocha.function.fwa.PathLeaf.ParameterLeaf;
+import org.jamocha.function.fwa.PredicateWithArguments;
+import org.jamocha.function.fwa.PredicateWithArgumentsComposite;
+import org.jamocha.function.fwa.Retract;
+import org.jamocha.function.fwa.SymbolLeaf;
 import org.jamocha.languages.clips.ClipsLogFormatter;
+import org.jamocha.languages.common.ConditionalElement;
+import org.jamocha.languages.common.ConditionalElement.AndFunctionConditionalElement;
+import org.jamocha.languages.common.ConditionalElement.ExistentialConditionalElement;
+import org.jamocha.languages.common.ConditionalElement.InitialFactConditionalElement;
+import org.jamocha.languages.common.ConditionalElement.NegatedExistentialConditionalElement;
+import org.jamocha.languages.common.ConditionalElement.NotFunctionConditionalElement;
+import org.jamocha.languages.common.ConditionalElement.OrFunctionConditionalElement;
+import org.jamocha.languages.common.ConditionalElement.TestConditionalElement;
+import org.jamocha.languages.common.ConditionalElementsVisitor;
+import org.jamocha.languages.common.RuleCondition;
+import org.jamocha.languages.common.SingleFactVariable;
+import org.jamocha.languages.common.SingleFactVariable.SingleSlotVariable;
 import org.jamocha.logging.LogFormatter;
 import org.jamocha.logging.TypedFilter;
 
@@ -200,8 +227,7 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 	 */
 	public Network(final MemoryFactory memoryFactory, final int tokenQueueCapacity,
 			final Scheduler scheduler) {
-		this(memoryFactory, ClipsLogFormatter.getMessageFormatter(), tokenQueueCapacity,
-				scheduler);
+		this(memoryFactory, ClipsLogFormatter.getMessageFormatter(), tokenQueueCapacity, scheduler);
 	}
 
 	/**
@@ -410,6 +436,10 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 		for (final Defrule defrule : defrules) {
 			// TODO compile
 			this.constructCache.addRule(defrule);
+			defrule.getCondition().flatten();
+			for (List<PathFilter> filters : this.compileRule(defrule.getCondition())) {
+				this.buildRule(filters.toArray(new PathFilter[filters.size()]));
+			}
 		}
 	}
 
@@ -431,6 +461,167 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 				this.constructCache.getDeffacts().stream()
 						.flatMap(def -> def.getContainers().stream())
 						.map(TemplateContainer::toFact), Fact[]::new));
+	}
+
+	private List<List<PathFilter>> compileRule(RuleCondition condition) {
+		condition.flatten();
+		final Map<SingleFactVariable, Path> paths = new HashMap<SingleFactVariable, Path>();
+		for (SingleFactVariable singleFactVariable : condition.getSingleFactVariables()) {
+			paths.put(singleFactVariable, new Path(singleFactVariable.getTemplate()));
+		}
+		final PathFilterCollector pfc = new PathFilterCollector();
+		condition.getConditionalElements().get(0).accept(pfc);
+		return pfc.getFilters();
+	}
+
+	private class PathFilterCollector implements ConditionalElementsVisitor {
+
+		@Getter
+		private final List<List<PathFilter>> filters = new ArrayList<>();
+		private final Map<SingleFactVariable, Path> paths;
+		
+		public PathFilterCollector() {
+			this.paths = new HashMap<>();
+		}
+
+		private PathFilterCollector(Map<SingleFactVariable, Path> paths) {
+			this.paths = paths;
+		}
+
+		@Override
+		public void visit(AndFunctionConditionalElement ce) {
+			final List<PathFilter> f = new ArrayList<>();
+			for (ConditionalElement conditionalElement : ce.getChildren()) {
+				PathFilterCollector pfc = new PathFilterCollector(paths);
+				conditionalElement.accept(pfc);
+				assert (pfc.getFilters().size() == 1);
+				f.addAll(pfc.getFilters().get(0));
+			}
+			this.filters.add(f);
+		}
+
+		@Override
+		public void visit(ExistentialConditionalElement ce) {
+			// TODO Auto-generated method stub
+		}
+
+		@Override
+		public void visit(InitialFactConditionalElement ce) {
+			// TODO Auto-generated method stub
+		}
+
+		@Override
+		public void visit(NegatedExistentialConditionalElement ce) {
+			// TODO Auto-generated method stub
+		}
+
+		@Override
+		public void visit(NotFunctionConditionalElement ce) {
+			// TODO Auto-generated method stub
+		}
+
+		@Override
+		public void visit(OrFunctionConditionalElement ce) {
+			for (ConditionalElement conditionalElement : ce.getChildren()) {
+				PathFilterCollector pfc = new PathFilterCollector(paths);
+				conditionalElement.accept(pfc);
+				assert (pfc.getFilters().size() == 1);
+				this.filters.add(pfc.getFilters().get(0));
+			}
+		}
+
+		@Override
+		public void visit(TestConditionalElement ce) {
+			assert (ce.getFwa() instanceof PredicateWithArguments);
+			// FIXME remove cast
+			PredicateWithArguments pwa = (PredicateWithArguments) ce.getFwa();
+			SymbolToPathTranslator translator = new SymbolToPathTranslator(paths);
+			pwa.accept(translator);
+			this.filters.add(Arrays.asList(new PathFilter(new PathFilter.PathFilterElement(pwa))));
+		}
+	}
+
+	private static class SymbolToPathTranslator implements FunctionWithArgumentsVisitor {
+
+		@Getter
+		private FunctionWithArguments result;
+		private final Map<SingleFactVariable, Path> paths;
+
+		public SymbolToPathTranslator(Map<SingleFactVariable, Path> paths) {
+			this.paths = paths;
+		}
+
+		@Override
+		public void visit(FunctionWithArgumentsComposite functionWithArgumentsComposite) {
+			FunctionWithArguments[] args = functionWithArgumentsComposite.getArgs();
+			for (int i = 0; i < args.length; i++) {
+				SymbolToPathTranslator trans = new SymbolToPathTranslator(paths);
+				args[i].accept(trans);
+				args[i] = trans.getResult();
+			}
+			result = functionWithArgumentsComposite;
+		}
+
+		@Override
+		public void visit(PredicateWithArgumentsComposite predicateWithArgumentsComposite) {
+			FunctionWithArguments[] args = predicateWithArgumentsComposite.getArgs();
+			for (int i = 0; i < args.length; i++) {
+				SymbolToPathTranslator trans = new SymbolToPathTranslator(paths);
+				args[i].accept(trans);
+				args[i] = trans.getResult();
+			}
+			result = predicateWithArgumentsComposite;
+		}
+
+		@Override
+		public void visit(ConstantLeaf constantLeaf) {
+			result = constantLeaf;
+		}
+
+		@Override
+		public void visit(ParameterLeaf parameterLeaf) {
+			// TODO Auto-generated method stub
+
+		}
+
+		@Override
+		public void visit(PathLeaf pathLeaf) {
+			throw new Error("PathLeaf should not exists at this stage");
+		}
+
+		@Override
+		public void visit(Assert fwa) {
+			throw new Error("Assert in predicate");
+		}
+
+		@Override
+		public void visit(TemplateContainer fwa) {
+			throw new Error("TemplateContainer should not exists at this stage");
+		}
+
+		@Override
+		public void visit(Retract fwa) {
+			throw new Error("Retract in predicate");
+		}
+
+		@Override
+		public void visit(Modify fwa) {
+			throw new Error("Modify in predicate");
+		}
+
+		@Override
+		public void visit(SlotAndValue fwa) {
+			throw new Error("SlotAndValue in predicate");
+		}
+
+		@Override
+		public void visit(SymbolLeaf fwa) {
+			assert(fwa.getSymbol().getPositiveSlotVariables().size() > 0);
+			final SingleSlotVariable variable = fwa.getSymbol().getPositiveSlotVariables().get(0);
+			final Path path = this.paths.get(variable.getFactVariable());
+			result = new PathLeaf(path, variable.getSlot());
+		}
+
 	}
 
 	/**

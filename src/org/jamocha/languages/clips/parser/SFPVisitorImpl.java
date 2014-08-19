@@ -53,6 +53,7 @@ import org.jamocha.function.fwa.ConstantLeaf;
 import org.jamocha.function.fwa.FunctionWithArguments;
 import org.jamocha.function.fwa.FunctionWithArgumentsComposite;
 import org.jamocha.function.fwa.Modify;
+import org.jamocha.function.fwa.PredicateWithArgumentsComposite;
 import org.jamocha.function.fwa.Retract;
 import org.jamocha.languages.clips.parser.ExistentialStack.ScopedExistentialStack;
 import org.jamocha.languages.clips.parser.errors.ClipsNameClashError;
@@ -1342,8 +1343,10 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 							sideEffectFunctionToNetwork, symbol.getImage(), argTypes)
 							: FunctionDictionary.lookup(symbol.getImage(), argTypes);
 			this.expression =
-					new FunctionWithArgumentsComposite(function, toArray(arguments,
-							FunctionWithArguments[]::new));
+					function instanceof Predicate ? new PredicateWithArgumentsComposite(
+							(Predicate) function, toArray(arguments, FunctionWithArguments[]::new))
+							: new FunctionWithArgumentsComposite(function, toArray(arguments,
+									FunctionWithArguments[]::new));
 			return data;
 		}
 
