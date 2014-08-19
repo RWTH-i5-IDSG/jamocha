@@ -1,23 +1,21 @@
 /*
  * Copyright 2002-2014 The Jamocha Team
  * 
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *   http://www.jamocha.org/
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
  * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
+ * 
+ * http://www.jamocha.org/
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 package org.jamocha.languages.common;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -40,38 +38,32 @@ import org.jamocha.languages.common.ConditionalElement.TestConditionalElement;
 public class RuleConditionProcessor {
 
 	public static ConditionalElement moveNots(ConditionalElement ce) {
-		NotFunctionConditionalElementSeep seep = new NotFunctionConditionalElementSeep();
-		ce.accept(seep);
-		return seep.getCe();
+		return ce.accept(new NotFunctionConditionalElementSeep()).getCe();
 	}
 
 	public static void combineNested(ConditionalElement ce) {
-		final CombineNested cn = new CombineNested();
-		ce.accept(cn);
+		final CombineNested cn = ce.accept(new CombineNested());
 	}
 
 	public static ConditionalElement expandOrs(ConditionalElement ce) {
-		final ExpandOrs eo = new ExpandOrs();
-		ce.accept(eo);
-		if (eo.ces.size() == 1) {
-			return eo.ces.get(0);
+		final List<ConditionalElement> ces = ce.accept(new ExpandOrs()).ces;
+		if (ces.size() == 1) {
+			return ces.get(0);
 		} else {
-			return new OrFunctionConditionalElement(eo.ces);
+			return new OrFunctionConditionalElement(ces);
 		}
 	}
 
-	private static class ExpandOrs implements ConditionalElementsVisitor {
+	private static class ExpandOrs implements DefaultConditionalElementsVisitor {
 
 		@Getter
 		private List<ConditionalElement> ces = new ArrayList<ConditionalElement>();
 
 		@Override
 		public void visit(AndFunctionConditionalElement ce) {
-			List<List<ConditionalElement>> tmpList = ce.children.stream().map((el) -> {
-				ExpandOrs eo = new ExpandOrs();
-				el.accept(eo);
-				return eo.getCes();
-			}).collect(Collectors.toList());
+			List<List<ConditionalElement>> tmpList =
+					ce.children.stream().map((el) -> el.accept(new ExpandOrs()).getCes())
+							.collect(Collectors.toList());
 			int nez = (int) tmpList.stream().filter(el -> el.size() != 1).count();
 			switch (nez) {
 			case 0:
@@ -98,9 +90,7 @@ public class RuleConditionProcessor {
 								tmp = new SharedConditionalElementWrapper(subel);
 								andChildren.add(tmp);
 							} else {
-								StripAnds sa = new StripAnds();
-								subel.accept(sa);
-								andChildren.addAll(sa.getCes());
+								andChildren.addAll(subel.accept(new StripAnds()).getCes());
 							}
 						}));
 						ces = newCes;
@@ -112,37 +102,13 @@ public class RuleConditionProcessor {
 		}
 
 		@Override
-		public void visit(ExistentialConditionalElement ce) {
-			ces.add(ce);
-		}
-
-		@Override
-		public void visit(InitialFactConditionalElement ce) {
-			ces.add(ce);
-		}
-
-		@Override
-		public void visit(NegatedExistentialConditionalElement ce) {
-			ces.add(ce);
-		}
-
-		@Override
-		public void visit(NotFunctionConditionalElement ce) {
+		public void defaultAction(final ConditionalElement ce) {
 			ces.add(ce);
 		}
 
 		@Override
 		public void visit(OrFunctionConditionalElement ce) {
-			ce.children.forEach(el -> {
-				ExpandOrs eo = new ExpandOrs();
-				el.accept(eo);
-				ces.addAll(eo.getCes());
-			});
-		}
-
-		@Override
-		public void visit(TestConditionalElement ce) {
-			ces.add(ce);
+			ce.children.forEach(el -> ces.addAll(el.accept(new ExpandOrs()).getCes()));
 		}
 	}
 
@@ -153,15 +119,12 @@ public class RuleConditionProcessor {
 			ce.getChildren().forEach((child) -> {
 				child.accept(this);
 			});
-			List<ConditionalElement> oldChildrenList =
-					new ArrayList<ConditionalElement>(ce.getChildren());
-			List<ConditionalElement> childrenList = ce.getChildren();
-			childrenList.clear();
-			for (ConditionalElement conditionalElement : oldChildrenList) {
-				final StripAnds sa = new StripAnds();
-				conditionalElement.accept(sa);
-				childrenList.addAll(sa.getCes());
-			}
+			final ArrayList<ConditionalElement> children =
+					ce.getChildren()
+							.stream()
+							.map(conditionalElement -> conditionalElement.accept(new StripAnds())
+									.getCes())
+							.collect(ArrayList::new, ArrayList::addAll, ArrayList::addAll);
 		}
 
 		@Override
@@ -169,15 +132,12 @@ public class RuleConditionProcessor {
 			ce.getChildren().forEach((child) -> {
 				child.accept(this);
 			});
-			List<ConditionalElement> oldChildrenList =
-					new ArrayList<ConditionalElement>(ce.getChildren());
-			List<ConditionalElement> childrenList = ce.getChildren();
-			childrenList.clear();
-			for (ConditionalElement conditionalElement : oldChildrenList) {
-				final StripOrs so = new StripOrs();
-				conditionalElement.accept(so);
-				childrenList.addAll(so.getCes());
-			}
+			final ArrayList<ConditionalElement> children =
+					ce.getChildren()
+							.stream()
+							.map(conditionalElement -> conditionalElement.accept(new StripOrs())
+									.getCes())
+							.collect(ArrayList::new, ArrayList::addAll, ArrayList::addAll);
 		}
 
 		@Override
@@ -213,21 +173,15 @@ public class RuleConditionProcessor {
 			negated = false;
 		}
 
-		private void processChilds(ConditionalElement ce, boolean nextNegated) {
+		private void processChildren(ConditionalElement ce, boolean nextNegated) {
 			ce.getChildren().replaceAll(
-					(ConditionalElement x) -> {
-						NotFunctionConditionalElementSeep seep =
-								new NotFunctionConditionalElementSeep(nextNegated);
-						x.accept(seep);
-						return seep.ce;
-					});
+					(ConditionalElement x) -> x.accept(new NotFunctionConditionalElementSeep(
+							nextNegated)).ce);
 		}
 
 		private void visitLeaf(ConditionalElement ce) {
 			if (negated) {
-				List<ConditionalElement> list = new ArrayList<>();
-				list.add(ce);
-				this.ce = new NotFunctionConditionalElement(list);
+				this.ce = new NotFunctionConditionalElement(Arrays.asList(ce));
 			} else {
 				this.ce = ce;
 			}
@@ -240,7 +194,7 @@ public class RuleConditionProcessor {
 			} else {
 				this.ce = ce;
 			}
-			processChilds(this.ce, negated);
+			processChildren(this.ce, negated);
 		}
 
 		@Override
@@ -262,15 +216,13 @@ public class RuleConditionProcessor {
 
 		@Override
 		public void visit(final NotFunctionConditionalElement ce) {
+			final ConditionalElement conditionalElement;
 			if (ce.getChildren().size() > 1) {
-				this.ce = new AndFunctionConditionalElement(ce.getChildren());
+				conditionalElement = new AndFunctionConditionalElement(ce.getChildren());
 			} else {
-				this.ce = ce.getChildren().get(0);
+				conditionalElement = ce.getChildren().get(0);
 			}
-			NotFunctionConditionalElementSeep seep =
-					new NotFunctionConditionalElementSeep(!negated);
-			this.ce.accept(seep);
-			this.ce = seep.ce;
+			this.ce = conditionalElement.accept(new NotFunctionConditionalElementSeep(!negated)).ce;
 		}
 
 		@Override
@@ -280,7 +232,7 @@ public class RuleConditionProcessor {
 			} else {
 				this.ce = ce;
 			}
-			processChilds(this.ce, negated);
+			processChildren(this.ce, negated);
 		}
 
 		@Override
@@ -290,104 +242,33 @@ public class RuleConditionProcessor {
 
 	}
 
-	private static class StripAnds implements ConditionalElementsVisitor {
-
+	private static class StripAnds implements DefaultConditionalElementsVisitor {
 		@Getter
 		private List<ConditionalElement> ces;
 
-		private List<ConditionalElement> wrapInList(final ConditionalElement ce) {
-			final List<ConditionalElement> ceList = new ArrayList<ConditionalElement>(1);
-			ceList.add(ce);
-			return ceList;
+		@Override
+		public void defaultAction(final ConditionalElement ce) {
+			this.ces = Arrays.asList(ce);
 		}
 
 		@Override
-		public void visit(AndFunctionConditionalElement ce) {
-			ces = ce.getChildren();
-		}
-
-		@Override
-		public void visit(ExistentialConditionalElement ce) {
-			this.ces = wrapInList(ce);
-		}
-
-		@Override
-		public void visit(InitialFactConditionalElement ce) {
-			this.ces = wrapInList(ce);
-		}
-
-		@Override
-		public void visit(NegatedExistentialConditionalElement ce) {
-			this.ces = wrapInList(ce);
-		}
-
-		@Override
-		public void visit(NotFunctionConditionalElement ce) {
-			this.ces = wrapInList(ce);
-		}
-
-		@Override
-		public void visit(OrFunctionConditionalElement ce) {
-			this.ces = wrapInList(ce);
-		}
-
-		@Override
-		public void visit(TestConditionalElement ce) {
-			this.ces = wrapInList(ce);
-		}
-		
-		@Override
-		public void visit(SharedConditionalElementWrapper ce) {
-			this.ces = wrapInList(ce);
-		}
-
-	}
-
-	private static class StripOrs implements ConditionalElementsVisitor {
-
-		@Getter
-		private List<ConditionalElement> ces;
-
-		private List<ConditionalElement> wrapInList(final ConditionalElement ce) {
-			final List<ConditionalElement> ceList = new ArrayList<ConditionalElement>(1);
-			ceList.add(ce);
-			return ceList;
-		}
-
-		@Override
-		public void visit(AndFunctionConditionalElement ce) {
-			this.ces = wrapInList(ce);
-		}
-
-		@Override
-		public void visit(ExistentialConditionalElement ce) {
-			this.ces = wrapInList(ce);
-		}
-
-		@Override
-		public void visit(InitialFactConditionalElement ce) {
-			this.ces = wrapInList(ce);
-		}
-
-		@Override
-		public void visit(NegatedExistentialConditionalElement ce) {
-			this.ces = wrapInList(ce);
-		}
-
-		@Override
-		public void visit(NotFunctionConditionalElement ce) {
-			this.ces = wrapInList(ce);
-		}
-
-		@Override
-		public void visit(OrFunctionConditionalElement ce) {
+		public void visit(final AndFunctionConditionalElement ce) {
 			this.ces = ce.getChildren();
 		}
+	}
+
+	private static class StripOrs implements DefaultConditionalElementsVisitor {
+		@Getter
+		private List<ConditionalElement> ces;
 
 		@Override
-		public void visit(TestConditionalElement ce) {
-			this.ces = wrapInList(ce);
+		public void defaultAction(final ConditionalElement ce) {
+			this.ces = Arrays.asList(ce);
 		}
 
+		@Override
+		public void visit(final OrFunctionConditionalElement ce) {
+			this.ces = ce.getChildren();
+		}
 	}
 }
