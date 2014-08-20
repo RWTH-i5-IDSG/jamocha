@@ -44,6 +44,7 @@ import org.jamocha.dn.memory.SlotAddress;
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.dn.memory.Template.Slot;
+import org.jamocha.filter.SymbolCollector;
 import org.jamocha.function.Function;
 import org.jamocha.function.FunctionDictionary;
 import org.jamocha.function.Predicate;
@@ -547,9 +548,7 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 				if (symbol.getType() != parent.factVariable.getTemplate().getSlotType(slot)) {
 					throw new ClipsTypeMismatchError(symbol, node);
 				}
-				final SingleSlotVariable var =
-						parent.factVariable.newSingleSlotVariable(symbol, slot, negated);
-				parent.contextStack.addSingleVariable(var);
+				parent.factVariable.newSingleSlotVariable(symbol, slot, negated);
 				return data;
 			}
 
@@ -568,7 +567,6 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 					final Symbol dummy = SFPVisitorImpl.this.scope.createDummy();
 					final SingleSlotVariable dummyVar =
 							parent.factVariable.newSingleSlotVariable(dummy, slot, false);
-					parent.contextStack.addSingleVariable(dummyVar);
 					constraintVariable = Optional.of(dummyVar);
 				}
 				// create equals test
@@ -606,7 +604,6 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 					final Symbol dummy = SFPVisitorImpl.this.scope.createDummy();
 					final SingleSlotVariable dummyVar =
 							parent.factVariable.newSingleSlotVariable(dummy, slot, false);
-					parent.contextStack.addSingleVariable(dummyVar);
 					constraintVariable = Optional.of(dummyVar);
 				}
 				// get function call following the = sign
@@ -699,7 +696,6 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 						SelectiveSFPVisitor.sendVisitor(new SFPSingleVariableVisitor(), node, data).symbol;
 				final SingleSlotVariable singleVariable =
 						parent.factVariable.newSingleSlotVariable(symbol, slot, false);
-				parent.contextStack.addSingleVariable(singleVariable);
 				this.constraintVariable = Optional.of(singleVariable);
 				return data;
 			}
@@ -873,7 +869,6 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 			} else {
 				this.factVariable = new SingleFactVariable(scope.createDummy(), template);
 			}
-			contextStack.addSingleVariable(factVariable);
 			final TemplatePatternConditionalElement templCE =
 					new TemplatePatternConditionalElement(factVariable);
 			final ArrayList<ConditionalElement> constraints = new ArrayList<>();
@@ -944,11 +939,9 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 		public Object visit(final SFPNotFunction node, final Object data) {
 			// not has multiple meanings: boolean operator, not exists operator
 			assert node.jjtGetNumChildren() == 1;
-			final ArrayList<SingleFactVariable> variables = new ArrayList<SingleFactVariable>();
 			try (final ScopeCloser scopeCloser = new ScopeCloser(SFPVisitorImpl.this.scope);
 					final ScopedExistentialStack scopedExistentialStack =
-							new ScopedExistentialStack(contextStack, this,
-									ExistentialState.NEGATED, variables)) {
+							new ScopedExistentialStack(contextStack, this, ExistentialState.NEGATED)) {
 				final SFPConditionalElementVisitor visitor =
 						SelectiveSFPVisitor.sendVisitor(new SFPConditionalElementVisitor(
 								contextStack, (Symbol) null), node.jjtGetChild(0), data);
@@ -956,9 +949,8 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 					this.resultCE =
 							Optional.of(new NegatedExistentialConditionalElement(Stream
 									.of(visitor.resultCE).filter(Optional::isPresent)
-									.map(Optional::get).collect(Collectors.toList()), variables));
+									.map(Optional::get).collect(Collectors.toList())));
 				} else {
-					assert variables.isEmpty();
 					this.resultCE =
 							Optional.of(new NotFunctionConditionalElement(Arrays
 									.asList(visitor.resultCE.get())));
@@ -985,11 +977,10 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 		@Override
 		public Object visit(final SFPExistsCE node, final Object data) {
 			assert node.jjtGetNumChildren() > 0;
-			final ArrayList<SingleFactVariable> variables = new ArrayList<SingleFactVariable>();
 			try (final ScopeCloser scopeCloser = new ScopeCloser(SFPVisitorImpl.this.scope);
 					final ScopedExistentialStack scopedExistentialStack =
 							new ScopedExistentialStack(contextStack, this,
-									ExistentialState.EXISTENTIAL, variables)) {
+									ExistentialState.EXISTENTIAL)) {
 				final List<ConditionalElement> elements =
 						SelectiveSFPVisitor
 								.stream(node, 0)
@@ -998,7 +989,7 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 										data).resultCE).filter(Optional::isPresent)
 								.map(Optional::get).collect(Collectors.toList());
 				assert this.containsTemplateCE;
-				this.resultCE = Optional.of(new ExistentialConditionalElement(elements, variables));
+				this.resultCE = Optional.of(new ExistentialConditionalElement(elements));
 			}
 			return data;
 		}
@@ -1470,8 +1461,11 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 							actionList = visitor.actionList.get();
 						}
 					}
-					existentialStack
+					SymbolCollector
+							.newHashSet()
+							.collect(existentialStack)
 							.getSymbols()
+							.stream()
 							.collect(Collectors.groupingBy(Symbol::getImage))
 							.entrySet()
 							.stream()

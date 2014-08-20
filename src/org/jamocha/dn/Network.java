@@ -467,9 +467,10 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 	private List<List<PathFilter>> compileRule(RuleCondition condition) {
 		condition.flatten();
 		final Map<SingleFactVariable, Path> paths = new HashMap<SingleFactVariable, Path>();
-		for (SingleFactVariable singleFactVariable : condition.getSingleFactVariables()) {
-			paths.put(singleFactVariable, new Path(singleFactVariable.getTemplate()));
-		}
+		// condition no longer holds fact variables
+		// for (SingleFactVariable singleFactVariable : condition.getSingleFactVariables()) {
+		// paths.put(singleFactVariable, new Path(singleFactVariable.getTemplate()));
+		// }
 		final PathFilterCollector pfc = new PathFilterCollector(paths);
 		condition.getConditionalElements().get(0).accept(pfc);
 		return pfc.getFilters();

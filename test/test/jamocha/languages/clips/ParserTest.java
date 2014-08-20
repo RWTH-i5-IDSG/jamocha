@@ -14,6 +14,7 @@
  */
 package test.jamocha.languages.clips;
 
+import static java.util.stream.Collectors.toSet;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasSize;
@@ -28,11 +29,13 @@ import java.io.StringReader;
 import java.util.List;
 import java.util.Optional;
 import java.util.Queue;
+import java.util.Set;
 
 import org.jamocha.dn.ConstructCache.Defrule;
 import org.jamocha.dn.Network;
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.dn.memory.Template;
+import org.jamocha.filter.SymbolCollector;
 import org.jamocha.function.Function;
 import org.jamocha.function.FunctionDictionary;
 import org.jamocha.function.fwa.ConstantLeaf;
@@ -90,6 +93,12 @@ public class ParserTest {
 		}
 	}
 
+	private static Set<SingleFactVariable> getFactVariablesForCE(final ConditionalElement ce) {
+		return SymbolCollector.newHashSet().collect(ce).getSymbols().stream()
+				.map(s -> s.getFactVariable()).filter(Optional::isPresent).map(Optional::get)
+				.collect(toSet());
+	}
+
 	private static Symbol getSymbol(final RuleCondition condition, final String image) {
 		// final SymbolCollector<ArrayList<Symbol>> symbolCollector =
 		// SymbolCollector.newArrayList();
@@ -97,8 +106,8 @@ public class ParserTest {
 		// Stream.concat(symbolCollector.getSymbols().stream(),
 		// condition.getSingleFactVariables().stream().map(SingleFactVariable::getSymbol))
 		final Symbol[] array =
-				toArray(condition.getSymbols().distinct().filter(s -> s.getImage().equals(image)),
-						Symbol[]::new);
+				toArray(SymbolCollector.newHashSet().collect(condition).getSymbols().stream()
+						.distinct().filter(s -> s.getImage().equals(image)), Symbol[]::new);
 		assertEquals(1, array.length);
 		return array[0];
 	}
@@ -577,7 +586,8 @@ public class ParserTest {
 			final NegatedExistentialConditionalElement negatedExistentialConditionalElement =
 					(NegatedExistentialConditionalElement) conditionalElement;
 			assertEquals(x1.getFactVariable(), y.getFactVariable());
-			assertThat(negatedExistentialConditionalElement.getVariables(),
+
+			assertThat(getFactVariablesForCE(negatedExistentialConditionalElement),
 					contains(x1.getFactVariable()));
 			final List<ConditionalElement> negChildren =
 					negatedExistentialConditionalElement.getChildren();
@@ -593,7 +603,7 @@ public class ParserTest {
 				final NegatedExistentialConditionalElement innerNegExCE =
 						(NegatedExistentialConditionalElement) child;
 				assertThat(innerNegExCE.getChildren(), hasSize(0));
-				assertThat(innerNegExCE.getVariables(), contains(x2.getFactVariable()));
+				assertThat(getFactVariablesForCE(innerNegExCE), contains(x2.getFactVariable()));
 			}
 			{
 				final ConditionalElement child = andChildren.get(1);

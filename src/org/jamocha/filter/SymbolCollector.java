@@ -40,6 +40,7 @@ import org.jamocha.function.fwa.SymbolLeaf;
 import org.jamocha.languages.common.ConditionalElement;
 import org.jamocha.languages.common.ConditionalElement.TestConditionalElement;
 import org.jamocha.languages.common.DefaultConditionalElementsVisitor;
+import org.jamocha.languages.common.RuleCondition;
 import org.jamocha.languages.common.ScopeStack.Symbol;
 
 /**
@@ -61,6 +62,11 @@ public class SymbolCollector<T extends Collection<Symbol>> implements
 
 	public SymbolCollector<T> collect(final ConditionalElement ce) {
 		ce.accept(this);
+		return this;
+	}
+
+	public SymbolCollector<T> collect(final RuleCondition rc) {
+		rc.getConditionalElements().forEach(ce -> ce.accept(this));
 		return this;
 	}
 

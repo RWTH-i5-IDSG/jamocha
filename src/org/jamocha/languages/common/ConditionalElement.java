@@ -33,13 +33,8 @@ public abstract class ConditionalElement implements Visitable<ConditionalElement
 	final List<ConditionalElement> children;
 
 	public static class ExistentialConditionalElement extends ConditionalElement {
-		@Getter
-		final List<SingleFactVariable> variables;
-
-		public ExistentialConditionalElement(final List<ConditionalElement> children,
-				final List<SingleFactVariable> variables) {
+		public ExistentialConditionalElement(final List<ConditionalElement> children) {
 			super(children);
-			this.variables = variables;
 		}
 
 		@Override
@@ -50,13 +45,8 @@ public abstract class ConditionalElement implements Visitable<ConditionalElement
 	}
 
 	public static class NegatedExistentialConditionalElement extends ConditionalElement {
-		@Getter
-		final List<SingleFactVariable> variables;
-
-		public NegatedExistentialConditionalElement(final List<ConditionalElement> children,
-				final List<SingleFactVariable> variables) {
+		public NegatedExistentialConditionalElement(final List<ConditionalElement> children) {
 			super(children);
-			this.variables = variables;
 		}
 
 		@Override

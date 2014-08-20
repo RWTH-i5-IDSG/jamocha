@@ -14,7 +14,6 @@
  */
 package org.jamocha.languages.clips.parser;
 
-import java.util.List;
 import java.util.Stack;
 
 import lombok.RequiredArgsConstructor;
@@ -26,7 +25,6 @@ import org.jamocha.languages.clips.parser.SFPVisitorImpl.SFPStartVisitor;
 import org.jamocha.languages.clips.parser.generated.SFPDefruleConstruct;
 import org.jamocha.languages.common.ConditionalElement.InitialFactConditionalElement;
 import org.jamocha.languages.common.RuleCondition;
-import org.jamocha.languages.common.SingleFactVariable;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
@@ -38,7 +36,6 @@ public class ExistentialStack extends RuleCondition {
 	class ExistentialMarkerElement {
 		final SFPConditionalElementVisitor target;
 		final ExistentialState state;
-		final List<SingleFactVariable> variables;
 	}
 
 	boolean templateCEContained = false;
@@ -61,18 +58,10 @@ public class ExistentialStack extends RuleCondition {
 		stack.peek().target.containsTemplateCE = true;
 	}
 
-	@Override
-	public void addSingleVariable(final SingleFactVariable singleVariable) {
-		super.addSingleVariable(singleVariable);
-		if (stack.isEmpty())
-			return;
-		stack.peek().variables.add(singleVariable);
-	}
-
 	void push(final SFPConditionalElementVisitor conditionalElementVisitor,
-			final ExistentialState state, final List<SingleFactVariable> variables) {
+			final ExistentialState state) {
 		assert state != ExistentialState.NORMAL;
-		stack.push(new ExistentialMarkerElement(conditionalElementVisitor, state, variables));
+		stack.push(new ExistentialMarkerElement(conditionalElementVisitor, state));
 	}
 
 	void pop() {
@@ -84,11 +73,10 @@ public class ExistentialStack extends RuleCondition {
 		final SFPConditionalElementVisitor target;
 
 		public ScopedExistentialStack(final ExistentialStack existentialStack,
-				final SFPConditionalElementVisitor target, final ExistentialState state,
-				final List<SingleFactVariable> variables) {
+				final SFPConditionalElementVisitor target, final ExistentialState state) {
 			this.existentialStack = existentialStack;
 			this.target = target;
-			this.existentialStack.push(target, state, variables);
+			this.existentialStack.push(target, state);
 		}
 
 		@Override

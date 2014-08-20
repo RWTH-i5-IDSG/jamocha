@@ -102,8 +102,8 @@ public class RuleConditionFormatter implements Formatter<RuleCondition> {
 	public String format(RuleCondition re) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("(");
-		sb.append(this.formatSingleVariables(re.getSingleFactVariables(),
-				re.getSingleSlotVariables()));
+		// sb.append(this.formatSingleVariables(re.getSingleFactVariables(),
+		// re.getSingleSlotVariables()));
 		for (ConditionalElement ce : re.getConditionalElements()) {
 			sb.append(" ");
 			sb.append(cef.format(ce));
