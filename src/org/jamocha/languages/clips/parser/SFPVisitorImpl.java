@@ -132,6 +132,7 @@ import org.jamocha.languages.common.ConditionalElement.InitialFactConditionalEle
 import org.jamocha.languages.common.ConditionalElement.NegatedExistentialConditionalElement;
 import org.jamocha.languages.common.ConditionalElement.NotFunctionConditionalElement;
 import org.jamocha.languages.common.ConditionalElement.OrFunctionConditionalElement;
+import org.jamocha.languages.common.ConditionalElement.TemplatePatternConditionalElement;
 import org.jamocha.languages.common.ConditionalElement.TestConditionalElement;
 import org.jamocha.languages.common.ScopeCloser;
 import org.jamocha.languages.common.ScopeStack;
@@ -873,14 +874,16 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 				this.factVariable = new SingleFactVariable(scope.createDummy(), template);
 			}
 			contextStack.addSingleVariable(factVariable);
+			final TemplatePatternConditionalElement templCE =
+					new TemplatePatternConditionalElement(factVariable);
 			final ArrayList<ConditionalElement> constraints = new ArrayList<>();
+			constraints.add(templCE);
 			SelectiveSFPVisitor.stream(node, 1).forEach(
 					n -> SelectiveSFPVisitor.sendVisitor(new SFPTemplatePatternCEElementsVisitor(
 							this, constraints::add, template), n, data));
-			final int size = constraints.size();
-			if (size == 1) {
-				this.resultCE = Optional.of(constraints.get(0));
-			} else if (size > 1) {
+			if (constraints.size() == 1) {
+				this.resultCE = Optional.of(templCE);
+			} else {
 				this.resultCE = Optional.of(new AndFunctionConditionalElement(constraints));
 			}
 			return data;
@@ -1480,7 +1483,9 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 													"Two different symbols were created for the same variable name leading to different variables, namely "
 															+ e.getKey())));
 					if (!existentialStack.templateCEContained) {
-						ces.add(0, new InitialFactConditionalElement(new SingleFactVariable(scope.createDummy(), initialFact)));
+						ces.add(0,
+								new InitialFactConditionalElement(new SingleFactVariable(scope
+										.createDummy(), initialFact)));
 					}
 					existentialStack.addConditionalElements(ces);
 					this.defrule =

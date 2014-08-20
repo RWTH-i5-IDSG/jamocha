@@ -22,6 +22,7 @@ import org.jamocha.languages.common.ConditionalElement.NegatedExistentialConditi
 import org.jamocha.languages.common.ConditionalElement.NotFunctionConditionalElement;
 import org.jamocha.languages.common.ConditionalElement.OrFunctionConditionalElement;
 import org.jamocha.languages.common.ConditionalElement.SharedConditionalElementWrapper;
+import org.jamocha.languages.common.ConditionalElement.TemplatePatternConditionalElement;
 import org.jamocha.languages.common.ConditionalElement.TestConditionalElement;
 import org.jamocha.languages.common.ConditionalElementsVisitor;
 
@@ -36,14 +37,14 @@ public class ConditionalElementFormatter implements Formatter<ConditionalElement
 	static public ConditionalElementFormatter getConditionalElementFormatter() {
 		return singleton;
 	}
-	
+
 	public static String formatCE(ConditionalElement ce) {
 		return getConditionalElementFormatter().format(ce);
 	}
 
 	private ConditionalElementFormatter() {
 	}
-	
+
 	@Override
 	public String format(ConditionalElement ce) {
 		ConditionalElementFormatterVisitor cef = new ConditionalElementFormatterVisitor();
@@ -112,6 +113,12 @@ public class ConditionalElementFormatter implements Formatter<ConditionalElement
 			sb.append(")");
 		}
 
+		@Override
+		public void visit(TemplatePatternConditionalElement ce) {
+			sb.append("(template ");
+			sb.append(ce.getFactVariable().getTemplate().getName());
+			sb.append(")");
+		}
 	}
 
 }

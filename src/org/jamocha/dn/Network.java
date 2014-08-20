@@ -86,6 +86,7 @@ import org.jamocha.languages.common.ConditionalElement.InitialFactConditionalEle
 import org.jamocha.languages.common.ConditionalElement.NegatedExistentialConditionalElement;
 import org.jamocha.languages.common.ConditionalElement.NotFunctionConditionalElement;
 import org.jamocha.languages.common.ConditionalElement.OrFunctionConditionalElement;
+import org.jamocha.languages.common.ConditionalElement.TemplatePatternConditionalElement;
 import org.jamocha.languages.common.ConditionalElement.TestConditionalElement;
 import org.jamocha.languages.common.ConditionalElementsVisitor;
 import org.jamocha.languages.common.RuleCondition;
@@ -479,7 +480,7 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 		@Getter
 		private final List<List<PathFilter>> filters = new ArrayList<>();
 		private final Map<SingleFactVariable, Path> paths;
-		
+
 		public PathFilterCollector() {
 			this.paths = new HashMap<>();
 		}
@@ -517,6 +518,11 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 
 		@Override
 		public void visit(NotFunctionConditionalElement ce) {
+			// TODO Auto-generated method stub
+		}
+
+		@Override
+		public void visit(TemplatePatternConditionalElement ce) {
 			// TODO Auto-generated method stub
 		}
 
@@ -616,7 +622,7 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 
 		@Override
 		public void visit(SymbolLeaf fwa) {
-			assert(fwa.getSymbol().getPositiveSlotVariables().size() > 0);
+			assert (fwa.getSymbol().getPositiveSlotVariables().size() > 0);
 			final SingleSlotVariable variable = fwa.getSymbol().getPositiveSlotVariables().get(0);
 			final Path path = this.paths.get(variable.getFactVariable());
 			result = new PathLeaf(path, variable.getSlot());

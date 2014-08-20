@@ -29,6 +29,7 @@ import org.jamocha.languages.common.ConditionalElement.NegatedExistentialConditi
 import org.jamocha.languages.common.ConditionalElement.NotFunctionConditionalElement;
 import org.jamocha.languages.common.ConditionalElement.OrFunctionConditionalElement;
 import org.jamocha.languages.common.ConditionalElement.SharedConditionalElementWrapper;
+import org.jamocha.languages.common.ConditionalElement.TemplatePatternConditionalElement;
 import org.jamocha.languages.common.ConditionalElement.TestConditionalElement;
 
 /**
@@ -114,7 +115,7 @@ public class RuleConditionProcessor {
 		}
 	}
 
-	private static class CombineNested implements ConditionalElementsVisitor {
+	private static class CombineNested implements DefaultConditionalElementsVisitor {
 
 		@Override
 		public void visit(final AndFunctionConditionalElement ce) {
@@ -145,25 +146,8 @@ public class RuleConditionProcessor {
 		}
 
 		@Override
-		public void visit(final ExistentialConditionalElement ce) {
+		public void defaultAction(final ConditionalElement ce) {
 		}
-
-		@Override
-		public void visit(final InitialFactConditionalElement ce) {
-		}
-
-		@Override
-		public void visit(final NegatedExistentialConditionalElement ce) {
-		}
-
-		@Override
-		public void visit(final NotFunctionConditionalElement ce) {
-		}
-
-		@Override
-		public void visit(final TestConditionalElement ce) {
-		}
-
 	}
 
 	@RequiredArgsConstructor
@@ -244,6 +228,10 @@ public class RuleConditionProcessor {
 			visitLeaf(ce);
 		}
 
+		@Override
+		public void visit(final TemplatePatternConditionalElement ce) {
+			visitLeaf(ce);
+		}
 	}
 
 	private static class StripAnds implements DefaultConditionalElementsVisitor {

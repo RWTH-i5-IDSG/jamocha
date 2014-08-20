@@ -140,6 +140,26 @@ public abstract class ConditionalElement implements Visitable<ConditionalElement
 	}
 
 	/**
+	 * 
+	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
+	 */
+	public static class TemplatePatternConditionalElement extends ConditionalElement {
+		@Getter
+		final SingleFactVariable factVariable;
+
+		public TemplatePatternConditionalElement(final SingleFactVariable factVariable) {
+			super(new ArrayList<>(0));
+			this.factVariable = factVariable;
+		}
+
+		@Override
+		public <V extends ConditionalElementsVisitor> V accept(V visitor) {
+			visitor.visit(this);
+			return visitor;
+		}
+	}
+
+	/**
 	 * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
 	 *
 	 */

@@ -58,6 +58,11 @@ public interface DefaultConditionalElementsVisitor extends ConditionalElementsVi
 	}
 
 	@Override
+	public default void visit(final ConditionalElement.TemplatePatternConditionalElement ce) {
+		defaultAction(ce);
+	}
+
+	@Override
 	public default void visit(final ConditionalElement.SharedConditionalElementWrapper ce) {
 		defaultAction(ce);
 	}

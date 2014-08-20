@@ -38,14 +38,8 @@ import org.jamocha.function.fwa.PredicateWithArgumentsComposite;
 import org.jamocha.function.fwa.Retract;
 import org.jamocha.function.fwa.SymbolLeaf;
 import org.jamocha.languages.common.ConditionalElement;
-import org.jamocha.languages.common.ConditionalElement.AndFunctionConditionalElement;
-import org.jamocha.languages.common.ConditionalElement.ExistentialConditionalElement;
-import org.jamocha.languages.common.ConditionalElement.InitialFactConditionalElement;
-import org.jamocha.languages.common.ConditionalElement.NegatedExistentialConditionalElement;
-import org.jamocha.languages.common.ConditionalElement.NotFunctionConditionalElement;
-import org.jamocha.languages.common.ConditionalElement.OrFunctionConditionalElement;
 import org.jamocha.languages.common.ConditionalElement.TestConditionalElement;
-import org.jamocha.languages.common.ConditionalElementsVisitor;
+import org.jamocha.languages.common.DefaultConditionalElementsVisitor;
 import org.jamocha.languages.common.ScopeStack.Symbol;
 
 /**
@@ -57,7 +51,8 @@ import org.jamocha.languages.common.ScopeStack.Symbol;
  *            collection type to use while collecting the paths
  */
 @Getter
-public class SymbolCollector<T extends Collection<Symbol>> implements ConditionalElementsVisitor {
+public class SymbolCollector<T extends Collection<Symbol>> implements
+		DefaultConditionalElementsVisitor {
 	private final T symbols;
 
 	public SymbolCollector(final T symbols) {
@@ -90,32 +85,7 @@ public class SymbolCollector<T extends Collection<Symbol>> implements Conditiona
 	}
 
 	@Override
-	public void visit(final AndFunctionConditionalElement ce) {
-		ce.getChildren().forEach(c -> c.accept(this));
-	}
-
-	@Override
-	public void visit(final ExistentialConditionalElement ce) {
-		ce.getChildren().forEach(c -> c.accept(this));
-	}
-
-	@Override
-	public void visit(final InitialFactConditionalElement ce) {
-		ce.getChildren().forEach(c -> c.accept(this));
-	}
-
-	@Override
-	public void visit(final NegatedExistentialConditionalElement ce) {
-		ce.getChildren().forEach(c -> c.accept(this));
-	}
-
-	@Override
-	public void visit(final NotFunctionConditionalElement ce) {
-		ce.getChildren().forEach(c -> c.accept(this));
-	}
-
-	@Override
-	public void visit(final OrFunctionConditionalElement ce) {
+	public void defaultAction(final ConditionalElement ce) {
 		ce.getChildren().forEach(c -> c.accept(this));
 	}
 
