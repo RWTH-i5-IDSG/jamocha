@@ -469,7 +469,7 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 		for (SingleFactVariable singleFactVariable : condition.getSingleFactVariables()) {
 			paths.put(singleFactVariable, new Path(singleFactVariable.getTemplate()));
 		}
-		final PathFilterCollector pfc = new PathFilterCollector();
+		final PathFilterCollector pfc = new PathFilterCollector(paths);
 		condition.getConditionalElements().get(0).accept(pfc);
 		return pfc.getFilters();
 	}
