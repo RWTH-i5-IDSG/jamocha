@@ -14,12 +14,15 @@
  */
 package org.jamocha.languages.common;
 
+import static java.util.stream.Collectors.partitioningBy;
+import static java.util.stream.Collectors.toList;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -95,60 +98,71 @@ public class RuleConditionProcessor {
 	private static class ExpandOrs implements DefaultConditionalElementsVisitor {
 
 		@Getter
-		private List<ConditionalElement> ces = new ArrayList<ConditionalElement>();
+		private List<ConditionalElement> ces;
 
 		@Override
 		public void visit(final AndFunctionConditionalElement ce) {
-			final List<List<ConditionalElement>> tmpList =
-					ce.children.stream().map((el) -> el.accept(new ExpandOrs()).getCes())
-							.collect(Collectors.toList());
-			final int nez = (int) tmpList.stream().filter(el -> el.size() != 1).count();
-			switch (nez) {
-			case 0:
-				ces.add(ce);
-				break;
-			default:
-				final SharedConditionalElementWrapper sce =
-						new SharedConditionalElementWrapper(new AndFunctionConditionalElement(
-								new ArrayList<ConditionalElement>(ce.children.size() - nez)));
-				final List<ConditionalElement> children =
-						new ArrayList<ConditionalElement>(nez + 1);
-				children.add(sce);
-				ces.add(new AndFunctionConditionalElement(children));
-				tmpList.forEach(el -> {
-					if (el.size() == 1) {
-						sce.getChildren().add(el.get(0));
-					} else {
-						final List<ConditionalElement> newCes =
-								new ArrayList<>(el.size() * ces.size());
-						el.forEach(subel -> ces.forEach(l -> {
-							final List<ConditionalElement> andChildren = new ArrayList<>();
-							newCes.add(new AndFunctionConditionalElement(andChildren));
-							andChildren.addAll(l.getChildren());
-							ConditionalElement tmp = subel;
-							if (nez != 1) {
-								tmp = new SharedConditionalElementWrapper(subel);
-								andChildren.add(tmp);
-							} else {
-								andChildren.addAll(subel.accept(new StripAnds()).getCes());
-							}
-						}));
-						ces = newCes;
-					}
-				});
-				if (sce.getChildren().size() == 1)
-					sce.replaceConditionalElement(sce.getChildren().get(0));
+			// recurse on children, partition to find the children that had an (or ) on top level
+			// (will have more than one element)
+			final Map<Boolean, List<List<ConditionalElement>>> partition =
+					ce.getChildren().stream().map((el) -> el.accept(new ExpandOrs()).getCes())
+							.collect(partitioningBy(el -> el.size() == 1));
+			final List<List<ConditionalElement>> singletonLists = partition.get(Boolean.TRUE);
+			final List<List<ConditionalElement>> orLists = partition.get(Boolean.FALSE);
+			final int numOrs = orLists.size();
+			if (0 == numOrs) {
+				// no (or )s, nothing to do
+				ces = Arrays.asList(ce);
+				return;
 			}
+			// wrap the part without the (or )s into shared element wrapper
+			final SharedConditionalElementWrapper shared =
+					new SharedConditionalElementWrapper(combineViaAnd(singletonLists.stream()
+							.map(l -> l.get(0)).collect(toList())));
+			if (1 == numOrs) {
+				// only one (or ), no need to share the elements of the (or )
+				// combine shared part with each of the (or )-elements
+				this.ces =
+						orLists.get(0)
+								.stream()
+								.map(orPart -> new AndFunctionConditionalElement(Arrays.asList(
+										shared, orPart))).collect(toList());
+				return;
+			}
+			// gradually blow up the CEs
+			// the elements of CEs will always be AndFunctionConditionalElements acting as a list
+			// while the construction of CEs is incomplete, thus we start by adding the shared part
+			this.ces.add(new AndFunctionConditionalElement(Arrays.asList(shared)));
+			// for every (or ) occurrence we need to duplicate the list of CEs and combine them with
+			// the (or ) elements
+			orLists.forEach(orList -> {
+				final List<ConditionalElement> newCEs = new ArrayList<>(orList.size() * ces.size());
+				orList.forEach(orPart -> {
+					// wrap the next or part into a shared element wrapper
+					final SharedConditionalElementWrapper sharedOrPart =
+							new SharedConditionalElementWrapper(orPart);
+					// copy the old part and add the shared part, add combination of them to newCEs
+					this.ces.forEach(oldPart -> {
+						final ArrayList<ConditionalElement> children =
+								new ArrayList<>(oldPart.getChildren());
+						children.add(sharedOrPart);
+						newCEs.add(new AndFunctionConditionalElement(children));
+					});
+				});
+				this.ces = newCEs;
+			});
 		}
 
 		@Override
 		public void defaultAction(final ConditionalElement ce) {
-			ces.add(ce);
+			this.ces = Arrays.asList(ce);
 		}
 
 		@Override
 		public void visit(final OrFunctionConditionalElement ce) {
-			ce.children.forEach(el -> ces.addAll(el.accept(new ExpandOrs()).getCes()));
+			this.ces =
+					ce.getChildren().stream().map(el -> el.accept(new ExpandOrs()).getCes())
+							.collect(ArrayList::new, ArrayList::addAll, ArrayList::addAll);
 		}
 	}
 
