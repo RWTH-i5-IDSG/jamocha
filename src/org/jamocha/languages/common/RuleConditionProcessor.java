@@ -37,15 +37,15 @@ import org.jamocha.languages.common.ConditionalElement.TestConditionalElement;
  */
 public class RuleConditionProcessor {
 
-	public static ConditionalElement moveNots(ConditionalElement ce) {
+	public static ConditionalElement moveNots(final ConditionalElement ce) {
 		return ce.accept(new NotFunctionConditionalElementSeep()).getCe();
 	}
 
-	public static void combineNested(ConditionalElement ce) {
-		final CombineNested cn = ce.accept(new CombineNested());
+	public static void combineNested(final ConditionalElement ce) {
+		ce.accept(new CombineNested());
 	}
 
-	public static ConditionalElement expandOrs(ConditionalElement ce) {
+	public static ConditionalElement expandOrs(final ConditionalElement ce) {
 		final List<ConditionalElement> ces = ce.accept(new ExpandOrs()).ces;
 		if (ces.size() == 1) {
 			return ces.get(0);
@@ -60,11 +60,11 @@ public class RuleConditionProcessor {
 		private List<ConditionalElement> ces = new ArrayList<ConditionalElement>();
 
 		@Override
-		public void visit(AndFunctionConditionalElement ce) {
-			List<List<ConditionalElement>> tmpList =
+		public void visit(final AndFunctionConditionalElement ce) {
+			final List<List<ConditionalElement>> tmpList =
 					ce.children.stream().map((el) -> el.accept(new ExpandOrs()).getCes())
 							.collect(Collectors.toList());
-			int nez = (int) tmpList.stream().filter(el -> el.size() != 1).count();
+			final int nez = (int) tmpList.stream().filter(el -> el.size() != 1).count();
 			switch (nez) {
 			case 0:
 				ces.add(ce);
@@ -73,16 +73,18 @@ public class RuleConditionProcessor {
 				final SharedConditionalElementWrapper sce =
 						new SharedConditionalElementWrapper(new AndFunctionConditionalElement(
 								new ArrayList<ConditionalElement>(ce.children.size() - nez)));
-				List<ConditionalElement> children = new ArrayList<ConditionalElement>(nez + 1);
+				final List<ConditionalElement> children =
+						new ArrayList<ConditionalElement>(nez + 1);
 				children.add(sce);
 				ces.add(new AndFunctionConditionalElement(children));
 				tmpList.forEach(el -> {
 					if (el.size() == 1) {
 						sce.getChildren().add(el.get(0));
 					} else {
-						List<ConditionalElement> newCes = new ArrayList<>(el.size() * ces.size());
+						final List<ConditionalElement> newCes =
+								new ArrayList<>(el.size() * ces.size());
 						el.forEach(subel -> ces.forEach(l -> {
-							List<ConditionalElement> andChildren = new ArrayList<>();
+							final List<ConditionalElement> andChildren = new ArrayList<>();
 							newCes.add(new AndFunctionConditionalElement(andChildren));
 							andChildren.addAll(l.getChildren());
 							ConditionalElement tmp = subel;
@@ -107,7 +109,7 @@ public class RuleConditionProcessor {
 		}
 
 		@Override
-		public void visit(OrFunctionConditionalElement ce) {
+		public void visit(final OrFunctionConditionalElement ce) {
 			ce.children.forEach(el -> ces.addAll(el.accept(new ExpandOrs()).getCes()));
 		}
 	}
@@ -115,49 +117,51 @@ public class RuleConditionProcessor {
 	private static class CombineNested implements ConditionalElementsVisitor {
 
 		@Override
-		public void visit(AndFunctionConditionalElement ce) {
+		public void visit(final AndFunctionConditionalElement ce) {
 			ce.getChildren().forEach((child) -> {
 				child.accept(this);
 			});
-			final ArrayList<ConditionalElement> children =
-					ce.getChildren()
-							.stream()
-							.map(conditionalElement -> conditionalElement.accept(new StripAnds())
-									.getCes())
-							.collect(ArrayList::new, ArrayList::addAll, ArrayList::addAll);
+			final List<ConditionalElement> oldChildrenList =
+					new ArrayList<ConditionalElement>(ce.getChildren());
+			final List<ConditionalElement> childrenList = ce.getChildren();
+			childrenList.clear();
+			for (final ConditionalElement conditionalElement : oldChildrenList) {
+				childrenList.addAll(conditionalElement.accept(new StripAnds()).getCes());
+			}
 		}
 
 		@Override
-		public void visit(OrFunctionConditionalElement ce) {
+		public void visit(final OrFunctionConditionalElement ce) {
 			ce.getChildren().forEach((child) -> {
 				child.accept(this);
 			});
-			final ArrayList<ConditionalElement> children =
-					ce.getChildren()
-							.stream()
-							.map(conditionalElement -> conditionalElement.accept(new StripOrs())
-									.getCes())
-							.collect(ArrayList::new, ArrayList::addAll, ArrayList::addAll);
+			final List<ConditionalElement> oldChildrenList =
+					new ArrayList<ConditionalElement>(ce.getChildren());
+			final List<ConditionalElement> childrenList = ce.getChildren();
+			childrenList.clear();
+			for (final ConditionalElement conditionalElement : oldChildrenList) {
+				childrenList.addAll(conditionalElement.accept(new StripOrs()).getCes());
+			}
 		}
 
 		@Override
-		public void visit(ExistentialConditionalElement ce) {
+		public void visit(final ExistentialConditionalElement ce) {
 		}
 
 		@Override
-		public void visit(InitialFactConditionalElement ce) {
+		public void visit(final InitialFactConditionalElement ce) {
 		}
 
 		@Override
-		public void visit(NegatedExistentialConditionalElement ce) {
+		public void visit(final NegatedExistentialConditionalElement ce) {
 		}
 
 		@Override
-		public void visit(NotFunctionConditionalElement ce) {
+		public void visit(final NotFunctionConditionalElement ce) {
 		}
 
 		@Override
-		public void visit(TestConditionalElement ce) {
+		public void visit(final TestConditionalElement ce) {
 		}
 
 	}
@@ -173,13 +177,13 @@ public class RuleConditionProcessor {
 			negated = false;
 		}
 
-		private void processChildren(ConditionalElement ce, boolean nextNegated) {
+		private void processChildren(final ConditionalElement ce, final boolean nextNegated) {
 			ce.getChildren().replaceAll(
-					(ConditionalElement x) -> x.accept(new NotFunctionConditionalElementSeep(
+					(final ConditionalElement x) -> x.accept(new NotFunctionConditionalElementSeep(
 							nextNegated)).ce);
 		}
 
-		private void visitLeaf(ConditionalElement ce) {
+		private void visitLeaf(final ConditionalElement ce) {
 			if (negated) {
 				this.ce = new NotFunctionConditionalElement(Arrays.asList(ce));
 			} else {
