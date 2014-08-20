@@ -90,6 +90,7 @@ import org.jamocha.languages.common.ConditionalElement.TemplatePatternConditiona
 import org.jamocha.languages.common.ConditionalElement.TestConditionalElement;
 import org.jamocha.languages.common.ConditionalElementsVisitor;
 import org.jamocha.languages.common.RuleCondition;
+import org.jamocha.languages.common.RuleConditionProcessor;
 import org.jamocha.languages.common.SingleFactVariable;
 import org.jamocha.languages.common.SingleFactVariable.SingleSlotVariable;
 import org.jamocha.logging.LogFormatter;
@@ -356,7 +357,7 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 						PathCollector.newLinkedHashSet().collect(filter).getPaths();
 				allPaths.addAll(paths);
 			}
-			final Path[] pathArray = allPaths.toArray(new Path[allPaths.size()]);
+			final Path[] pathArray = toArray(allPaths, Path[]::new);
 			this.rootNode.addPaths(this, pathArray);
 		}
 		for (final PathFilter filter : filters) {
@@ -437,7 +438,6 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 		for (final Defrule defrule : defrules) {
 			// TODO compile
 			this.constructCache.addRule(defrule);
-			defrule.getCondition().flatten();
 			for (List<PathFilter> filters : this.compileRule(defrule.getCondition())) {
 				this.buildRule(filters.toArray(new PathFilter[filters.size()]));
 			}
@@ -465,14 +465,15 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 	}
 
 	private List<List<PathFilter>> compileRule(RuleCondition condition) {
-		condition.flatten();
+		final List<ConditionalElement> conditionalElements = condition.getConditionalElements();
+		RuleConditionProcessor.flatten(conditionalElements);
 		final Map<SingleFactVariable, Path> paths = new HashMap<SingleFactVariable, Path>();
 		// condition no longer holds fact variables
 		// for (SingleFactVariable singleFactVariable : condition.getSingleFactVariables()) {
 		// paths.put(singleFactVariable, new Path(singleFactVariable.getTemplate()));
 		// }
 		final PathFilterCollector pfc = new PathFilterCollector(paths);
-		condition.getConditionalElements().get(0).accept(pfc);
+		conditionalElements.get(0).accept(pfc);
 		return pfc.getFilters();
 	}
 

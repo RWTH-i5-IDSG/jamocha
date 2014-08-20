@@ -38,6 +38,35 @@ import org.jamocha.languages.common.ConditionalElement.TestConditionalElement;
  */
 public class RuleConditionProcessor {
 
+	public static void flatten(final List<ConditionalElement> conditionalElements) {
+		// add surrounding (and ), if more than one CE
+		final ConditionalElement ce;
+		if (conditionalElements.size() > 1) {
+			ce =
+					new AndFunctionConditionalElement(new ArrayList<ConditionalElement>(
+							conditionalElements));
+		} else {
+			ce = conditionalElements.get(0);
+		}
+		conditionalElements.clear();
+		conditionalElements.add(flatten(ce));
+	}
+
+	public static ConditionalElement flatten(final ConditionalElement conditionalElement) {
+		ConditionalElement ce = conditionalElement;
+
+		// move (not )s down to the lowest possible nodes
+		ce = RuleConditionProcessor.moveNots(ce);
+
+		// combine nested ands and ors
+		RuleConditionProcessor.combineNested(ce);
+
+		// expand ors
+		ce = RuleConditionProcessor.expandOrs(ce);
+
+		return ce;
+	}
+
 	public static ConditionalElement moveNots(final ConditionalElement ce) {
 		return ce.accept(new NotFunctionConditionalElementSeep()).getCe();
 	}

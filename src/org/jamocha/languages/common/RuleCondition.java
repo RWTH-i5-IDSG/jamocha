@@ -37,28 +37,4 @@ public class RuleCondition {
 	public void addConditionalElements(final Collection<ConditionalElement> conditionalElement) {
 		this.conditionalElements.addAll(conditionalElement);
 	}
-
-	public void flatten() {
-		// add surrounding (and ), if more than one CE
-		if (this.conditionalElements.size() > 1) {
-			final List<ConditionalElement> tmplist = new ArrayList<ConditionalElement>();
-			tmplist.addAll(this.conditionalElements);
-			ConditionalElement ce = new AndFunctionConditionalElement(tmplist);
-			this.conditionalElements.clear();
-			this.conditionalElements.add(ce);
-		}
-
-		// move (not )s down to the lowest possible nodes
-		ConditionalElement ce = this.conditionalElements.get(0);
-		this.conditionalElements.remove(0);
-		this.conditionalElements.add(RuleConditionProcessor.moveNots(ce));
-
-		// combine nested ands and ors
-		RuleConditionProcessor.combineNested(this.conditionalElements.get(0));
-
-		// expand ors
-		ce = this.conditionalElements.get(0);
-		this.conditionalElements.remove(0);
-		this.conditionalElements.add(RuleConditionProcessor.expandOrs(ce));
-	}
 }

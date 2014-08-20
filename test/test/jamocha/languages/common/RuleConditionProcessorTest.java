@@ -14,7 +14,7 @@
  */
 package test.jamocha.languages.common;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
 
 import java.io.StringReader;
 import java.util.Queue;
@@ -24,7 +24,7 @@ import org.jamocha.languages.clips.parser.SFPVisitorImpl;
 import org.jamocha.languages.clips.parser.generated.ParseException;
 import org.jamocha.languages.clips.parser.generated.SFPParser;
 import org.jamocha.languages.clips.parser.generated.SFPStart;
-import org.jamocha.languages.common.RuleCondition;
+import org.jamocha.languages.common.RuleConditionProcessor;
 import org.jamocha.languages.common.Warning;
 import org.jamocha.logging.formatter.RuleConditionFormatter;
 import org.junit.Test;
@@ -56,7 +56,7 @@ public class RuleConditionProcessorTest {
 		final SFPVisitorImpl visitor = new SFPVisitorImpl(ptn, ptn);
 		run(parser, visitor);
 		Defrule rule = ptn.getRule("rule1");
-		rule.getCondition().flatten();
+		RuleConditionProcessor.flatten(rule.getCondition().getConditionalElements());
 		return RuleConditionFormatter.formatRC(rule.getCondition());
 	}
 
