@@ -16,7 +16,9 @@ package org.jamocha.languages.common;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import lombok.Getter;
@@ -38,16 +40,27 @@ import org.jamocha.languages.common.ConditionalElement.TestConditionalElement;
  */
 public class RuleConditionProcessor {
 
+	private static ConditionalElement combine(final List<ConditionalElement> conditionalElements,
+			final Function<List<ConditionalElement>, ConditionalElement> combiner) {
+		if (conditionalElements.size() > 1) {
+			return combiner.apply(conditionalElements);
+		}
+		return conditionalElements.get(0);
+	}
+
+	public static ConditionalElement combineViaAnd(
+			final List<ConditionalElement> conditionalElements) {
+		return combine(conditionalElements, AndFunctionConditionalElement::new);
+	}
+
+	public static ConditionalElement combineViaOr(final List<ConditionalElement> conditionalElements) {
+		return combine(conditionalElements, OrFunctionConditionalElement::new);
+	}
+
 	public static void flatten(final List<ConditionalElement> conditionalElements) {
 		// add surrounding (and ), if more than one CE
-		final ConditionalElement ce;
-		if (conditionalElements.size() > 1) {
-			ce =
-					new AndFunctionConditionalElement(new ArrayList<ConditionalElement>(
-							conditionalElements));
-		} else {
-			ce = conditionalElements.get(0);
-		}
+		final ConditionalElement ce =
+				combineViaAnd(new ArrayList<ConditionalElement>(conditionalElements));
 		conditionalElements.clear();
 		conditionalElements.add(flatten(ce));
 	}
@@ -76,12 +89,7 @@ public class RuleConditionProcessor {
 	}
 
 	public static ConditionalElement expandOrs(final ConditionalElement ce) {
-		final List<ConditionalElement> ces = ce.accept(new ExpandOrs()).ces;
-		if (ces.size() == 1) {
-			return ces.get(0);
-		} else {
-			return new OrFunctionConditionalElement(ces);
-		}
+		return combineViaOr(ce.accept(new ExpandOrs()).ces);
 	}
 
 	private static class ExpandOrs implements DefaultConditionalElementsVisitor {
@@ -196,60 +204,52 @@ public class RuleConditionProcessor {
 							nextNegated)).ce);
 		}
 
-		private void visitLeaf(final ConditionalElement ce) {
-			if (negated) {
-				this.ce = new NotFunctionConditionalElement(Arrays.asList(ce));
-			} else {
-				this.ce = ce;
-			}
+		@Override
+		public void visit(final NotFunctionConditionalElement ce) {
+			this.ce =
+					combineViaAnd(ce.getChildren()).accept(
+							new NotFunctionConditionalElementSeep(!negated)).ce;
+		}
+
+		private static ConditionalElement applySkippingIfNegated(final ConditionalElement ce,
+				final boolean negated,
+				final Function<List<ConditionalElement>, ConditionalElement> ctor) {
+			return negated ? ctor.apply(ce.getChildren()) : ce;
+		}
+
+		@Override
+		public void visit(final OrFunctionConditionalElement ce) {
+			this.ce = applySkippingIfNegated(ce, negated, AndFunctionConditionalElement::new);
+			processChildren(this.ce, negated);
 		}
 
 		@Override
 		public void visit(final AndFunctionConditionalElement ce) {
-			if (negated) {
-				this.ce = new OrFunctionConditionalElement(ce.getChildren());
-			} else {
-				this.ce = ce;
-			}
+			this.ce = applySkippingIfNegated(ce, negated, OrFunctionConditionalElement::new);
 			processChildren(this.ce, negated);
 		}
 
 		@Override
 		public void visit(final ExistentialConditionalElement ce) {
-			throw new Error(
-					"Found existential conditional element inside not function conditional element.");
+			this.ce =
+					applySkippingIfNegated(ce, negated, NegatedExistentialConditionalElement::new);
+			processChildren(this.ce, !negated);
+		}
+
+		@Override
+		public void visit(final NegatedExistentialConditionalElement ce) {
+			this.ce = applySkippingIfNegated(ce, negated, ExistentialConditionalElement::new);
+			processChildren(this.ce, !negated);
+		}
+
+		private void visitLeaf(final ConditionalElement ce) {
+			this.ce =
+					negated ? new NotFunctionConditionalElement(Collections.singletonList(ce)) : ce;
 		}
 
 		@Override
 		public void visit(final InitialFactConditionalElement ce) {
 			visitLeaf(ce);
-		}
-
-		@Override
-		public void visit(final NegatedExistentialConditionalElement ce) {
-			throw new Error(
-					"Found negated existential conditional element inside not function conditional element.");
-		}
-
-		@Override
-		public void visit(final NotFunctionConditionalElement ce) {
-			final ConditionalElement conditionalElement;
-			if (ce.getChildren().size() > 1) {
-				conditionalElement = new AndFunctionConditionalElement(ce.getChildren());
-			} else {
-				conditionalElement = ce.getChildren().get(0);
-			}
-			this.ce = conditionalElement.accept(new NotFunctionConditionalElementSeep(!negated)).ce;
-		}
-
-		@Override
-		public void visit(final OrFunctionConditionalElement ce) {
-			if (negated) {
-				this.ce = new AndFunctionConditionalElement(ce.getChildren());
-			} else {
-				this.ce = ce;
-			}
-			processChildren(this.ce, negated);
 		}
 
 		@Override
