@@ -125,8 +125,11 @@ public abstract class ConditionalElement implements Visitable<ConditionalElement
 	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
 	 */
 	public static class InitialFactConditionalElement extends ConditionalElement {
-		public InitialFactConditionalElement() {
+		final SingleFactVariable initialFactVariable;
+
+		public InitialFactConditionalElement(final SingleFactVariable initialFactVariable) {
 			super(new ArrayList<>(0));
+			this.initialFactVariable = initialFactVariable;
 		}
 
 		@Override
@@ -135,25 +138,25 @@ public abstract class ConditionalElement implements Visitable<ConditionalElement
 			return visitor;
 		}
 	}
-	
+
 	/**
 	 * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
 	 *
 	 */
 	public static class SharedConditionalElementWrapper extends ConditionalElement {
-		
+
 		@Getter
 		private ConditionalElement ce;
-				
+
 		public SharedConditionalElementWrapper(ConditionalElement ce) {
 			super(null);
 			this.ce = ce;
 		}
-		
+
 		public void replaceConditionalElement(ConditionalElement ce) {
 			this.ce = ce;
 		}
-		
+
 		@Override
 		public List<ConditionalElement> getChildren() {
 			return this.ce.getChildren();
@@ -163,6 +166,6 @@ public abstract class ConditionalElement implements Visitable<ConditionalElement
 		public <V extends ConditionalElementsVisitor> V accept(V visitor) {
 			visitor.visit(this);
 			return visitor;
-		}				
+		}
 	}
 }

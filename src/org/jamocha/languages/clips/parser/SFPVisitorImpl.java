@@ -169,12 +169,14 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 	final ParserToNetwork parserToNetwork;
 	final SideEffectFunctionToNetwork sideEffectFunctionToNetwork;
 
+	final Template initialFact;
+
 	public SFPVisitorImpl(final ParserToNetwork parserToNetwork,
 			final SideEffectFunctionToNetwork sideEffectFunctionToNetwork) {
 		this.parserToNetwork = parserToNetwork;
 		this.sideEffectFunctionToNetwork = sideEffectFunctionToNetwork;
-		parserToNetwork.defFacts("initial-fact", "",
-				new TemplateContainer(parserToNetwork.defTemplate("initial-fact", "")));
+		this.initialFact = parserToNetwork.defTemplate("initial-fact", "");
+		parserToNetwork.defFacts("initial-fact", "", new TemplateContainer(initialFact));
 	}
 
 	@Override
@@ -1478,7 +1480,7 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 													"Two different symbols were created for the same variable name leading to different variables, namely "
 															+ e.getKey())));
 					if (!existentialStack.templateCEContained) {
-						ces.add(0, new InitialFactConditionalElement());
+						ces.add(0, new InitialFactConditionalElement(new SingleFactVariable(scope.createDummy(), initialFact)));
 					}
 					existentialStack.addConditionalElements(ces);
 					this.defrule =
