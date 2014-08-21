@@ -14,6 +14,8 @@
  */
 package org.jamocha.filter;
 
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toCollection;
 import static org.jamocha.util.ToArray.toArray;
 
 import java.util.ArrayList;
@@ -21,6 +23,10 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -38,10 +44,14 @@ import org.jamocha.function.fwa.PredicateWithArgumentsComposite;
 import org.jamocha.function.fwa.Retract;
 import org.jamocha.function.fwa.SymbolLeaf;
 import org.jamocha.languages.common.ConditionalElement;
+import org.jamocha.languages.common.ConditionalElement.TemplatePatternConditionalElement;
 import org.jamocha.languages.common.ConditionalElement.TestConditionalElement;
 import org.jamocha.languages.common.DefaultConditionalElementsVisitor;
 import org.jamocha.languages.common.RuleCondition;
+import org.jamocha.languages.common.ScopeStack;
 import org.jamocha.languages.common.ScopeStack.Symbol;
+import org.jamocha.languages.common.SingleFactVariable;
+import org.jamocha.languages.common.SingleFactVariable.SingleSlotVariable;
 
 /**
  * Collects all symbols used within the {@link FunctionWithArguments}.
@@ -51,43 +61,64 @@ import org.jamocha.languages.common.ScopeStack.Symbol;
  * @param <T>
  *            collection type to use while collecting the paths
  */
-@Getter
-public class SymbolCollector<T extends Collection<Symbol>> implements
-		DefaultConditionalElementsVisitor {
+public class SymbolCollector<T extends Collection<Symbol>, U extends Collection<SingleSlotVariable>>
+		implements DefaultConditionalElementsVisitor {
+	@Getter
 	private final T symbols;
+	private final Supplier<U> supplier;
 
-	public SymbolCollector(final T symbols) {
+	public SymbolCollector(final T symbols, final Supplier<U> supplier) {
 		this.symbols = symbols;
+		this.supplier = supplier;
 	}
 
-	public SymbolCollector<T> collect(final ConditionalElement ce) {
+	public SymbolCollector<T, U> collect(final ConditionalElement ce) {
 		ce.accept(this);
 		return this;
 	}
 
-	public SymbolCollector<T> collect(final RuleCondition rc) {
+	public SymbolCollector<T, U> collect(final RuleCondition rc) {
 		rc.getConditionalElements().forEach(ce -> ce.accept(this));
 		return this;
 	}
 
-	public static SymbolCollector<HashSet<Symbol>> newHashSet() {
-		return new SymbolCollector<>(new HashSet<Symbol>());
+	public static SymbolCollector<HashSet<Symbol>, HashSet<SingleSlotVariable>> newHashSet() {
+		return new SymbolCollector<>(new HashSet<Symbol>(), HashSet::new);
 	}
 
-	public static SymbolCollector<LinkedHashSet<Symbol>> newLinkedHashSet() {
-		return new SymbolCollector<>(new LinkedHashSet<Symbol>());
+	public static SymbolCollector<LinkedHashSet<Symbol>, LinkedHashSet<SingleSlotVariable>> newLinkedHashSet() {
+		return new SymbolCollector<>(new LinkedHashSet<Symbol>(), LinkedHashSet::new);
 	}
 
-	public static SymbolCollector<ArrayList<Symbol>> newArrayList() {
-		return new SymbolCollector<>(new ArrayList<Symbol>());
+	public static SymbolCollector<ArrayList<Symbol>, ArrayList<SingleSlotVariable>> newArrayList() {
+		return new SymbolCollector<>(new ArrayList<Symbol>(), ArrayList::new);
 	}
 
-	public static SymbolCollector<LinkedList<Symbol>> newLinkedList() {
-		return new SymbolCollector<>(new LinkedList<Symbol>());
+	public static SymbolCollector<LinkedList<Symbol>, LinkedList<SingleSlotVariable>> newLinkedList() {
+		return new SymbolCollector<>(new LinkedList<Symbol>(), LinkedList::new);
 	}
 
 	public Symbol[] getSymbolArray() {
 		return toArray(symbols, Symbol[]::new);
+	}
+
+	private Stream<SingleSlotVariable> getSlotVariableStream() {
+		return this.symbols.stream().flatMap(
+				symbol -> Stream.concat(symbol.getPositiveSlotVariables().stream(), symbol
+						.getNegativeSlotVariables().stream()));
+	}
+
+	public Map<SingleFactVariable, List<SingleSlotVariable>> toSlotVariablesByFactVariable() {
+		return getSlotVariableStream().collect(
+				groupingBy((final SingleSlotVariable ssv) -> ssv.getFactVariable()));
+	}
+
+	public U toSlotVariables() {
+		return getSlotVariableStream().collect(toCollection(supplier));
+	}
+
+	public SingleSlotVariable[] toSlotVariableArray() {
+		return toArray(toSlotVariables(), SingleSlotVariable[]::new);
 	}
 
 	@Override
@@ -99,6 +130,14 @@ public class SymbolCollector<T extends Collection<Symbol>> implements
 	public void visit(final TestConditionalElement ce) {
 		ce.getChildren().forEach(c -> c.accept(this));
 		ce.getPredicateWithArguments().accept(new FWASymbolCollector<Collection<Symbol>>(symbols));
+	}
+
+	@Override
+	public void visit(final TemplatePatternConditionalElement ce) {
+		final Symbol symbol = ce.getFactVariable().getSymbol();
+		if (ScopeStack.dummySymbolImage.equals(symbol.getImage()))
+			return;
+		symbols.add(symbol);
 	}
 
 	@AllArgsConstructor
