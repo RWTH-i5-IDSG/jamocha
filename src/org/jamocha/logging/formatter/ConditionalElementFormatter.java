@@ -127,7 +127,6 @@ public class ConditionalElementFormatter implements Formatter<ConditionalElement
 			singleSlotVariables.forEach(slotVariable -> sb.append(" (")
 					.append(slotVariable.getSlot().getSlotName(factVariable.getTemplate()))
 					.append(" ").append(slotVariable.getSymbol().toString()).append(")"));
-			sb.append(")");
 		}
 	}
 }
