@@ -1339,7 +1339,7 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 							sideEffectFunctionToNetwork, symbol.getImage(), argTypes)
 							: FunctionDictionary.lookup(symbol.getImage(), argTypes);
 			this.expression =
-					function instanceof Predicate ? new PredicateWithArgumentsComposite(
+					SlotType.BOOLEAN == function.getReturnType() ? new PredicateWithArgumentsComposite(
 							(Predicate) function, toArray(arguments, FunctionWithArguments[]::new))
 							: new FunctionWithArgumentsComposite(function, toArray(arguments,
 									FunctionWithArguments[]::new));
