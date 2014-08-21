@@ -1484,7 +1484,7 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 								new InitialFactConditionalElement(new SingleFactVariable(scope
 										.createDummy(), initialFact)));
 					}
-					existentialStack.addConditionalElements(ces);
+					existentialStack.getConditionalElements().addAll(ces);
 					this.defrule =
 							new Defrule(symbol.getImage(), comment, existentialStack, actionList);
 				}

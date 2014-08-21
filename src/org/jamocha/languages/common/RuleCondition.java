@@ -15,7 +15,6 @@
 package org.jamocha.languages.common;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import lombok.Getter;
@@ -27,12 +26,4 @@ import lombok.Getter;
 public class RuleCondition {
 	@Getter
 	final List<ConditionalElement> conditionalElements = new ArrayList<>();
-
-	public void addConditionalElement(final ConditionalElement conditionalElement) {
-		this.conditionalElements.add(conditionalElement);
-	}
-
-	public void addConditionalElements(final Collection<ConditionalElement> conditionalElement) {
-		this.conditionalElements.addAll(conditionalElement);
-	}
 }
