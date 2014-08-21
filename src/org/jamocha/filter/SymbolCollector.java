@@ -98,7 +98,7 @@ public class SymbolCollector<T extends Collection<Symbol>> implements
 	@Override
 	public void visit(final TestConditionalElement ce) {
 		ce.getChildren().forEach(c -> c.accept(this));
-		ce.getFwa().accept(new FWASymbolCollector<Collection<Symbol>>(symbols));
+		ce.getPredicateWithArguments().accept(new FWASymbolCollector<Collection<Symbol>>(symbols));
 	}
 
 	@AllArgsConstructor

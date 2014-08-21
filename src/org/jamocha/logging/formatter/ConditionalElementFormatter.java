@@ -102,7 +102,7 @@ public class ConditionalElementFormatter implements Formatter<ConditionalElement
 		@Override
 		public void visit(TestConditionalElement ce) {
 			sb.append("(test ");
-			sb.append(FunctionWithArgumentsFormatter.formatFwa(ce.getFwa()));
+			sb.append(FunctionWithArgumentsFormatter.formatFwa(ce.getPredicateWithArguments()));
 			sb.append(")");
 		}
 

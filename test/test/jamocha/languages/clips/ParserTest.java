@@ -329,7 +329,7 @@ public class ParserTest {
 			final ConditionalElement conditionalElement = conditionalElements.get(0);
 			assertThat(conditionalElement, instanceOf(TestConditionalElement.class));
 			final FunctionWithArguments functionCall =
-					((TestConditionalElement) conditionalElement).getFwa();
+					((TestConditionalElement) conditionalElement).getPredicateWithArguments();
 			assertThat(functionCall, instanceOf(GenericWithArgumentsComposite.class));
 			final Function<?> function =
 					((GenericWithArgumentsComposite<?, ?>) functionCall).getFunction();
@@ -348,7 +348,7 @@ public class ParserTest {
 			final ConditionalElement conditionalElement = conditionalElements.get(1);
 			assertThat(conditionalElement, instanceOf(TestConditionalElement.class));
 			final FunctionWithArguments functionCall =
-					((TestConditionalElement) conditionalElement).getFwa();
+					((TestConditionalElement) conditionalElement).getPredicateWithArguments();
 			assertThat(functionCall, instanceOf(GenericWithArgumentsComposite.class));
 			final Function<?> function =
 					((GenericWithArgumentsComposite<?, ?>) functionCall).getFunction();
@@ -418,7 +418,7 @@ public class ParserTest {
 				final ConditionalElement child = children.get(0);
 				assertThat(child, instanceOf(TestConditionalElement.class));
 				final FunctionWithArguments functionCall =
-						((TestConditionalElement) child).getFwa();
+						((TestConditionalElement) child).getPredicateWithArguments();
 				assertThat(functionCall, instanceOf(GenericWithArgumentsComposite.class));
 				final Function<?> function =
 						((GenericWithArgumentsComposite<?, ?>) functionCall).getFunction();
@@ -445,7 +445,7 @@ public class ParserTest {
 					final ConditionalElement andChild = andChildren.get(0);
 					assertThat(andChild, instanceOf(TestConditionalElement.class));
 					final FunctionWithArguments functionCall =
-							((TestConditionalElement) andChild).getFwa();
+							((TestConditionalElement) andChild).getPredicateWithArguments();
 					assertThat(functionCall, instanceOf(GenericWithArgumentsComposite.class));
 					final Function<?> function =
 							((GenericWithArgumentsComposite<?, ?>) functionCall).getFunction();
@@ -466,7 +466,7 @@ public class ParserTest {
 					final ConditionalElement andChild = andChildren.get(1);
 					assertThat(andChild, instanceOf(TestConditionalElement.class));
 					final FunctionWithArguments functionCall =
-							((TestConditionalElement) andChild).getFwa();
+							((TestConditionalElement) andChild).getPredicateWithArguments();
 					assertThat(functionCall, instanceOf(GenericWithArgumentsComposite.class));
 					final Function<?> function =
 							((GenericWithArgumentsComposite<?, ?>) functionCall).getFunction();
@@ -488,7 +488,7 @@ public class ParserTest {
 				final ConditionalElement child = children.get(2);
 				assertThat(child, instanceOf(TestConditionalElement.class));
 				final FunctionWithArguments functionCall =
-						((TestConditionalElement) child).getFwa();
+						((TestConditionalElement) child).getPredicateWithArguments();
 				assertThat(functionCall, instanceOf(GenericWithArgumentsComposite.class));
 				final Function<?> function =
 						((GenericWithArgumentsComposite<?, ?>) functionCall).getFunction();
@@ -610,7 +610,7 @@ public class ParserTest {
 				assertThat(child, instanceOf(TestConditionalElement.class));
 				final TestConditionalElement testCE = (TestConditionalElement) child;
 				assertThat(testCE.getChildren(), hasSize(0));
-				final FunctionWithArguments functionCall = testCE.getFwa();
+				final FunctionWithArguments functionCall = testCE.getPredicateWithArguments();
 				assertThat(functionCall, instanceOf(GenericWithArgumentsComposite.class));
 				final Function<?> function =
 						((GenericWithArgumentsComposite<?, ?>) functionCall).getFunction();

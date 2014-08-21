@@ -540,9 +540,7 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 
 		@Override
 		public void visit(TestConditionalElement ce) {
-			assert (ce.getFwa() instanceof PredicateWithArguments);
-			// FIXME remove cast
-			PredicateWithArguments pwa = (PredicateWithArguments) ce.getFwa();
+			PredicateWithArguments pwa = (PredicateWithArguments) ce.getPredicateWithArguments();
 			SymbolToPathTranslator translator = new SymbolToPathTranslator(paths);
 			pwa.accept(translator);
 			this.filters.add(Arrays.asList(new PathFilter(new PathFilter.PathFilterElement(pwa))));

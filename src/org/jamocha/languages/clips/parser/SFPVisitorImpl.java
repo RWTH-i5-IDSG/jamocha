@@ -54,6 +54,7 @@ import org.jamocha.function.fwa.ConstantLeaf;
 import org.jamocha.function.fwa.FunctionWithArguments;
 import org.jamocha.function.fwa.FunctionWithArgumentsComposite;
 import org.jamocha.function.fwa.Modify;
+import org.jamocha.function.fwa.PredicateWithArguments;
 import org.jamocha.function.fwa.PredicateWithArgumentsComposite;
 import org.jamocha.function.fwa.Retract;
 import org.jamocha.languages.clips.parser.ExistentialStack.ScopedExistentialStack;
@@ -591,7 +592,8 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 								SymbolToFunctionWithArguments.bySymbol(), false), node
 								.jjtGetChild(0), data).expression;
 				assert SlotType.BOOLEAN == functionCall.getReturnType();
-				constraintAdder.accept(negate(new TestConditionalElement(functionCall)));
+				constraintAdder.accept(negate(new TestConditionalElement(
+						(PredicateWithArguments) functionCall)));
 				return data;
 			}
 
@@ -968,7 +970,8 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 					SelectiveSFPVisitor.sendVisitor(new SFPFunctionCallElementsVisitor(
 							SymbolToFunctionWithArguments.bySymbol(), false), node.jjtGetChild(0),
 							data).expression;
-			this.resultCE = Optional.of(new TestConditionalElement(functionCall));
+			this.resultCE =
+					Optional.of(new TestConditionalElement((PredicateWithArguments) functionCall));
 			return data;
 		}
 
