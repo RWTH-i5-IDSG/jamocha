@@ -115,6 +115,7 @@ public abstract class ConditionalElement implements Visitable<ConditionalElement
 	 * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
 	 */
 	public static class InitialFactConditionalElement extends ConditionalElement {
+		@Getter
 		final SingleFactVariable initialFactVariable;
 
 		public InitialFactConditionalElement(final SingleFactVariable initialFactVariable) {

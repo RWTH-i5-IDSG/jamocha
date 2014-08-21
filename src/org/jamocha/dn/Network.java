@@ -19,15 +19,20 @@ import static org.jamocha.util.ToArray.toArray;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
@@ -64,6 +69,7 @@ import org.jamocha.filter.FilterFunctionCompare;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.PathCollector;
 import org.jamocha.filter.PathFilter;
+import org.jamocha.filter.PathFilter.PathFilterElement;
 import org.jamocha.function.fwa.Assert;
 import org.jamocha.function.fwa.Assert.TemplateContainer;
 import org.jamocha.function.fwa.ConstantLeaf;
@@ -86,9 +92,11 @@ import org.jamocha.languages.common.ConditionalElement.InitialFactConditionalEle
 import org.jamocha.languages.common.ConditionalElement.NegatedExistentialConditionalElement;
 import org.jamocha.languages.common.ConditionalElement.NotFunctionConditionalElement;
 import org.jamocha.languages.common.ConditionalElement.OrFunctionConditionalElement;
+import org.jamocha.languages.common.ConditionalElement.SharedConditionalElementWrapper;
 import org.jamocha.languages.common.ConditionalElement.TemplatePatternConditionalElement;
 import org.jamocha.languages.common.ConditionalElement.TestConditionalElement;
 import org.jamocha.languages.common.ConditionalElementsVisitor;
+import org.jamocha.languages.common.DefaultConditionalElementsVisitor;
 import org.jamocha.languages.common.RuleCondition;
 import org.jamocha.languages.common.RuleConditionProcessor;
 import org.jamocha.languages.common.SingleFactVariable;
@@ -466,86 +474,317 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 
 	private List<List<PathFilter>> compileRule(RuleCondition condition) {
 		final List<ConditionalElement> conditionalElements = condition.getConditionalElements();
+		// Preprocess CEs
 		RuleConditionProcessor.flatten(conditionalElements);
-		final Map<SingleFactVariable, Path> paths = new HashMap<SingleFactVariable, Path>();
-		// condition no longer holds fact variables
-		// for (SingleFactVariable singleFactVariable : condition.getSingleFactVariables()) {
-		// paths.put(singleFactVariable, new Path(singleFactVariable.getTemplate()));
-		// }
-		final PathFilterCollector pfc = new PathFilterCollector(paths);
-		conditionalElements.get(0).accept(pfc);
-		return pfc.getFilters();
+		assert conditionalElements.size() == 1;
+		// Transform TestCEs to PathFilters and collect them
+		return conditionalElements.get(0).accept(new OrPathFilterCollector()).getPathFilters();
 	}
 
-	private class PathFilterCollector implements ConditionalElementsVisitor {
+	/*
+	 * Collect all PathFilters inside all children of an OrFunctionConditionalElement, returning a
+	 * List of Lists. Each inner List contains the PathFilters of one child.
+	 */
+	private static class OrPathFilterCollector implements DefaultConditionalElementsVisitor {
 
 		@Getter
-		private final List<List<PathFilter>> filters = new ArrayList<>();
-		private final Map<SingleFactVariable, Path> paths;
-
-		public PathFilterCollector() {
-			this.paths = new HashMap<>();
-		}
-
-		private PathFilterCollector(Map<SingleFactVariable, Path> paths) {
-			this.paths = paths;
-		}
+		private List<List<PathFilter>> pathFilters = null;
 
 		@Override
-		public void visit(AndFunctionConditionalElement ce) {
-			final List<PathFilter> f = new ArrayList<>();
-			for (ConditionalElement conditionalElement : ce.getChildren()) {
-				PathFilterCollector pfc = new PathFilterCollector(paths);
-				conditionalElement.accept(pfc);
-				assert (pfc.getFilters().size() == 1);
-				f.addAll(pfc.getFilters().get(0));
-			}
-			this.filters.add(f);
-		}
-
-		@Override
-		public void visit(ExistentialConditionalElement ce) {
-			// TODO Auto-generated method stub
-		}
-
-		@Override
-		public void visit(InitialFactConditionalElement ce) {
-			// TODO Auto-generated method stub
-		}
-
-		@Override
-		public void visit(NegatedExistentialConditionalElement ce) {
-			// TODO Auto-generated method stub
-		}
-
-		@Override
-		public void visit(NotFunctionConditionalElement ce) {
-			// TODO Auto-generated method stub
-		}
-
-		@Override
-		public void visit(TemplatePatternConditionalElement ce) {
-			// TODO Auto-generated method stub
+		public void defaultAction(ConditionalElement ce) {
+			// If there is no OrFunctionConditionalElement just proceed with the CE as it were
+			// the only child of an OrFunctionConditionalElement.
+			pathFilters =
+					Arrays.asList(ce.accept(
+							new PathFilterCollector(FactVariableCollector.collectPaths(ce)))
+							.getPathFilters());
 		}
 
 		@Override
 		public void visit(OrFunctionConditionalElement ce) {
-			for (ConditionalElement conditionalElement : ce.getChildren()) {
-				PathFilterCollector pfc = new PathFilterCollector(paths);
-				conditionalElement.accept(pfc);
-				assert (pfc.getFilters().size() == 1);
-				this.filters.add(pfc.getFilters().get(0));
+			// For each child of the OrCE ...
+			pathFilters =
+					ce.getChildren()
+							.stream()
+							.map(child -> child.accept(
+							// ... collect all PathFilters in the child
+									new PathFilterCollector(FactVariableCollector
+											.collectPaths(child))).getPathFilters())
+							.collect(Collectors.toCollection(ArrayList::new));
+		}
+	}
+
+	@RequiredArgsConstructor
+	private static class PathFilterCollector implements DefaultConditionalElementsVisitor {
+
+		private final Map<SingleFactVariable, Path> paths;
+		private final boolean negated;
+
+		@Getter
+		private List<PathFilter> pathFilters = null;
+
+		public PathFilterCollector(Map<SingleFactVariable, Path> paths) {
+			this.paths = paths;
+			this.negated = false;
+		}
+
+		public static void processExistentialCondition(final ConditionalElement ce,
+				final Map<SingleFactVariable, Path> paths) {
+			// TODO
+			// Collect the existential FactVariables and corresponding paths from the existentialCE
+			final Map<SingleFactVariable, Path> existentialMap =
+					FactVariableCollector.collectPaths(ce);
+
+			// combine existential FactVariables and Paths with non existential ones for PathFilter
+			// generation
+			final Map<SingleFactVariable, Path> combinedPaths =
+					new HashMap<SingleFactVariable, Path>(paths);
+			combinedPaths.putAll(existentialMap);
+
+			// Only existential Paths without Variables
+			final Set<Path> existentialPaths = new HashSet<>(existentialMap.values());
+
+			// Generate PathFilters from CE
+			final List<PathFilter> pathFilters =
+					ce.accept(new PathFilterCollector(combinedPaths)).getPathFilters();
+
+			// Collect all used Paths for every PathFilter
+			final Map<PathFilter, Set<Path>> correspondingPaths =
+					pathFilters.stream().collect(
+							Collectors.toMap(filter -> filter, filter -> PathCollector.newHashSet()
+									.collect(filter).getPaths()));
+
+			// Split PathFilters into those only using existential Paths and those also using non
+			// existential Paths
+			final Map<Boolean, List<PathFilter>> tmp =
+					pathFilters.stream().collect(
+							Collectors.partitioningBy(filter -> existentialPaths
+									.containsAll(correspondingPaths.get(filter))));
+			final List<PathFilter> nonPureExistentialFilters = tmp.get(false);
+			final List<PathFilter> pureExistentialFilters = tmp.get(true);
+
+			// Find connected components of the existential Paths
+			final Map<PathFilter, Set<Path>> pureExistentialFilterPaths =
+					pureExistentialFilters.stream().collect(
+							Collectors.toMap((PathFilter filter) -> filter,
+									filter -> correspondingPaths.get(filter)));
+			// Construct Hashmaps from Paths to Filters and vice versa
+			final Map<Path, Set<PathFilter>> pureExistentialPathFilters = new HashMap<>();
+			for (Entry<PathFilter, Set<Path>> pureExistentialFilterPath : pureExistentialFilterPaths
+					.entrySet()) {
+				for (Path pureExistentialPath : pureExistentialFilterPath.getValue()) {
+					Set<PathFilter> value = pureExistentialPathFilters.get(pureExistentialPath);
+					if (value == null) {
+						value = new HashSet<>();
+						pureExistentialPathFilters.put(pureExistentialPath, value);
+					}
+					value.add(pureExistentialFilterPath.getKey());
+				}
 			}
+
+			final Set<Set<Path>> joinedExistentialPaths = new HashSet<>();
+			// While there are unjoined Filters continue
+			while (!pureExistentialFilters.isEmpty()) {
+				// Take one arbitrary filter
+				final Iterator<PathFilter> i = pureExistentialFilters.iterator();
+				final PathFilter pathFilter = i.next();
+				i.remove();
+
+				final Set<PathFilter> collectPathFilters = new HashSet<>();
+				collectPathFilters.add(pathFilter);
+				Set<PathFilter> newCollectPathFilters = new HashSet<>(collectPathFilters);
+				final Set<Path> collectPaths = new HashSet<>();
+				// While we found new PathFilters in the last round
+				while (!newCollectPathFilters.isEmpty()) {
+					// search for all Paths used by the new Filters
+					final Set<Path> newCollectPaths =
+							newCollectPathFilters
+									.stream()
+									.flatMap(
+											filter -> pureExistentialFilterPaths.get(filter)
+													.stream()).collect(Collectors.toSet());
+					// removed already known paths
+					newCollectPaths.removeAll(collectPaths);
+					// add the new ones to the collect set
+					collectPaths.addAll(newCollectPaths);
+					// search for all filters containing the new found paths
+					newCollectPathFilters =
+							newCollectPaths.stream()
+									.flatMap(path -> pureExistentialPathFilters.get(path).stream())
+									.collect(Collectors.toSet());
+					// remove already known filters
+					newCollectPathFilters.removeAll(collectPathFilters);
+					// add them all to the collect set
+					collectPathFilters.addAll(newCollectPathFilters);
+					// remove them from the set of unassigned filters
+					pureExistentialFilters.removeAll(newCollectPathFilters);
+				}
+				// added the join set to the result
+				joinedExistentialPaths.add(collectPaths);
+			}
+
+			while (!pureExistentialFilterPaths.isEmpty()) {
+				final Iterator<Set<Path>> i = pureExistentialFilterPaths.iterator();
+				final Set<Path> collectingSet = i.next();
+				Set<Path> lastRoundAdded = new HashSet<>(collectingSet);
+				Set<Path> newRoundAdded = new HashSet<>();
+				i.remove();
+				while (!lastRoundAdded.isEmpty()) {
+					final Iterator<Set<Path>> j = pureExistentialFilterPaths.iterator();
+					while (j.hasNext()) {
+						final Set<Path> pathsToTest = j.next();
+						if (!Collections.disjoint(lastRoundAdded, pathsToTest)) {
+							newRoundAdded.addAll(pathsToTest);
+						}
+					}
+					newRoundAdded.removeAll(collectingSet);
+					collectingSet.addAll(newRoundAdded);
+					lastRoundAdded = newRoundAdded;
+					newRoundAdded = new HashSet<>();
+				}
+			}
+
+			while (!nonExistentialFilters.isEmpty()) {
+				final PathFilter nonExistentialFilter = nonExistentialFilters.get(0);
+				final Set<Path> nonExistentialFilterPaths =
+						correspondingPaths.get(nonExistentialFilter);
+				// final List<PathFilter> filtersToJoin = Arrays.asList(nonExistentialFilter);
+				final Set<Path> newlyJoinedPaths = new HashSet<>(nonExistentialFilterPaths);
+				for (Iterator<Set<Path>> i = joinedExistentialPaths.iterator(); i.hasNext();) {
+					final Set<Path> p = i.next();
+					if (!Collections.disjoint(p, newlyJoinedPaths)) {
+						newlyJoinedPaths.addAll(p);
+						i.remove();
+					}
+				}
+
+				final List<PathFilter> filtersToJoin =
+						nonExistentialFilters
+								.stream()
+								.filter(filter -> Collections.disjoint(newlyJoinedPaths,
+										correspondingPaths.get(filter)))
+								.collect(Collectors.toCollection(ArrayList::new));
+
+			}
+			// nonExistentialFilters.stream().filter
+		}
+
+		@Override
+		public void defaultAction(ConditionalElement ce) {
+			// Just ignore. InittialFactCEs and TemplateCEs already did their job during
+			// FactVariable collection
+		}
+
+		@Override
+		public void visit(AndFunctionConditionalElement ce) {
+			pathFilters = new ArrayList<>();
+			pathFilters = ce.getChildren().stream()
+			// Process all children CEs
+					.map(child -> child.accept(new PathFilterCollector(paths)).getPathFilters())
+					// merge Lists
+					.flatMap(List::stream).collect(Collectors.toCollection(ArrayList::new));
+		}
+
+		@Override
+		public void visit(OrFunctionConditionalElement ce) {
+			throw new Error("There should not be any OrFunctionCEs at this level.");
+		}
+
+		@Override
+		public void visit(ExistentialConditionalElement ce) {
+			assert ce.getChildren().size() == 1;
+			processExistentialCondition(ce.getChildren().get(0),
+					paths);
+			// TODO Auto-generated method stub
+
+		@Override
+		}
+
+		public void visit(NegatedExistentialConditionalElement ce) {
+			// TODO Auto-generated method stub
+			assert ce.getChildren().size() == 1;
+			processExistentialCondition(ce.getChildren().get(0), paths);
+		}
+
+		@Override
+		public void visit(NotFunctionConditionalElement ce) {
+			assert ce.getChildren().size() == 1;
+			// Call a PathFilterCollector for the child of the NotFunctionCE with toggeled negated
+			// flag.
+			this.pathFilters =
+					ce.getChildren().get(0).accept(new PathFilterCollector(paths, !negated))
+							.getPathFilters();
+		}
+
+		@Override
+		public void visit(SharedConditionalElementWrapper ce) {
+			// Just ignore the SharedCEWrapper and continue with the inner CE.
+			// TODO maybe it will be required to mark the resulting PathFilters for later
+			// optimization
+			ce.getCe().accept(this);
 		}
 
 		@Override
 		public void visit(TestConditionalElement ce) {
+			// FIXME just copied from old version
 			assert (ce.getFwa() instanceof PredicateWithArguments);
-			// FIXME remove cast
+			// TODO remove cast
 			PredicateWithArguments pwa = (PredicateWithArguments) ce.getFwa();
-			SymbolToPathTranslator translator = new SymbolToPathTranslator(paths);
-			pwa.accept(translator);
-			this.filters.add(Arrays.asList(new PathFilter(new PathFilter.PathFilterElement(pwa))));
+			pwa.accept(new SymbolToPathTranslator(paths));
+			this.pathFilters = Arrays.asList(new PathFilter(new PathFilter.PathFilterElement(pwa)));
+		}
+	}
+
+	private static class FactVariableCollector implements DefaultConditionalElementsVisitor {
+
+		@Getter
+		private List<SingleFactVariable> factVariables = null;
+
+		private static Map<SingleFactVariable, Path> collectPaths(ConditionalElement ce) {
+			// Collect all FactVariables defined in the CEs TemplateCEs and InitialFactCEs
+			return ce
+					.accept(new FactVariableCollector())
+					.getFactVariables()
+					.stream()
+					// Create Paths with the corresponding Templates
+					// for all collected FactVariables
+					.collect(
+							Collectors.toMap(
+									variable -> variable,
+									(SingleFactVariable variable) -> new Path(variable
+											.getTemplate())));
+		}
+
+		@Override
+		public void defaultAction(ConditionalElement ce) {
+			// Just ignore all other ConditionalElements
+		}
+
+		@Override
+		public void visit(OrFunctionConditionalElement ce) {
+			throw new Error("There should not be any Or ConditionalElements at this level.");
+		}
+
+		@Override
+		public void visit(AndFunctionConditionalElement ce) {
+			ce.getChildren().stream()
+					.map(child -> child.accept(new FactVariableCollector()).getFactVariables())
+					.flatMap(List::stream).collect(Collectors.toCollection(ArrayList::new));
+		}
+
+		@Override
+		public void visit(SharedConditionalElementWrapper ce) {
+			ce.getCe().accept(this);
+		}
+
+		@Override
+		public void visit(TemplatePatternConditionalElement ce) {
+			factVariables = Arrays.asList(ce.getFactVariable());
+		}
+
+		@Override
+		public void visit(InitialFactConditionalElement ce) {
+			factVariables = Arrays.asList(ce.getInitialFactVariable());
 		}
 	}
 
@@ -588,8 +827,7 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 
 		@Override
 		public void visit(ParameterLeaf parameterLeaf) {
-			// TODO Auto-generated method stub
-
+			throw new Error("ParameterLeaf should not exists at this stage");
 		}
 
 		@Override
@@ -629,7 +867,6 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 			final Path path = this.paths.get(variable.getFactVariable());
 			result = new PathLeaf(path, variable.getSlot());
 		}
-
 	}
 
 	/**
