@@ -116,19 +116,16 @@ public class NetworkMockup implements ParserToNetwork, SideEffectFunctionToNetwo
 
 	@Override
 	public LogFormatter getLogFormatter() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public Logger getInteractiveEventsLogger() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public TypedFilter getTypedFilter() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 

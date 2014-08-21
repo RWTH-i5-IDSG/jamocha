@@ -152,7 +152,6 @@ public class TemplateMockup implements Template {
 	 */
 	@Override
 	public Object getValue(MemoryFact fact, SlotAddress slot) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -164,7 +163,6 @@ public class TemplateMockup implements Template {
 	@Override
 	public FunctionWithArguments[] applyDefaultsAndOrder(
 			Map<SlotAddress, FunctionWithArguments> values) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -175,7 +173,6 @@ public class TemplateMockup implements Template {
 	 */
 	@Override
 	public Marker getInstanceMarker() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
