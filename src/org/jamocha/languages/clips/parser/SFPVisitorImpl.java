@@ -575,7 +575,7 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 								org.jamocha.function.impls.predicates.Equals.inClips,
 								template.getSlotType(slot), constantVisitor.type);
 				final TestConditionalElement eq =
-						new TestConditionalElement(new FunctionWithArgumentsComposite(equals,
+						new TestConditionalElement(new PredicateWithArgumentsComposite(equals,
 								constraintVariable.get().toSymbolLeaf(), new ConstantLeaf(
 										constantVisitor.value, constantVisitor.type)));
 				constraintAdder.accept(negate(eq));
@@ -618,7 +618,7 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 								template.getSlotType(slot), functionCall.getReturnType());
 				final SingleSlotVariable variable = constraintVariable.get();
 				final TestConditionalElement eq =
-						new TestConditionalElement(new FunctionWithArgumentsComposite(equals,
+						new TestConditionalElement(new PredicateWithArgumentsComposite(equals,
 								variable.toSymbolLeaf(), functionCall));
 				constraintAdder.accept(negate(eq));
 				return data;
