@@ -1,22 +1,18 @@
 package org.jamocha.logging.formatter;
 
 import java.text.StringCharacterIterator;
-import java.util.List;
 
+import org.jamocha.filter.SymbolCollector;
 import org.jamocha.languages.common.ConditionalElement;
 import org.jamocha.languages.common.RuleCondition;
-import org.jamocha.languages.common.SingleFactVariable;
-import org.jamocha.languages.common.SingleFactVariable.SingleSlotVariable;
 
 /**
+ * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  * @author "Christoph Terwelp <christoph.terwelp@rwth-aachen.de>"
- *
  */
 public class RuleConditionFormatter implements Formatter<RuleCondition> {
 
 	private static final RuleConditionFormatter singleton = new RuleConditionFormatter();
-	private final ConditionalElementFormatter cef = ConditionalElementFormatter
-			.getConditionalElementFormatter();
 
 	static public RuleConditionFormatter getRuleConditionFormatter() {
 		return singleton;
@@ -72,44 +68,18 @@ public class RuleConditionFormatter implements Formatter<RuleCondition> {
 	private RuleConditionFormatter() {
 	}
 
-	private String formatSingleVariables(List<SingleFactVariable> singleFactVariables,
-			List<SingleSlotVariable> singleSlotVariables) {
-		StringBuilder sb = new StringBuilder();
-		boolean first = true;
-		for (SingleFactVariable factVariable : singleFactVariables) {
-			if (first)
-				first = false;
-			else
-				sb.append(" ");
-			sb.append("(");
-			sb.append(factVariable.getTemplate().getName() + " ");
-			sb.append(factVariable.getSymbol().toString());
-			singleSlotVariables
-					.forEach((slotVariable) -> {
-						if (slotVariable.getFactVariable() == factVariable) {
-							sb.append(" (");
-							sb.append(slotVariable.getSlot()
-									.getSlotName(factVariable.getTemplate()) + " ");
-							sb.append(slotVariable.getSymbol().toString() + ")");
-						}
-					});
-			sb.append(")");
-		}
-		return sb.toString();
-	}
-
 	@Override
 	public String format(RuleCondition re) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("(");
-		// sb.append(this.formatSingleVariables(re.getSingleFactVariables(),
-		// re.getSingleSlotVariables()));
+		final ConditionalElementFormatter cef =
+				new ConditionalElementFormatter(SymbolCollector.newHashSet().collect(re)
+						.toSlotVariablesByFactVariable());
 		for (ConditionalElement ce : re.getConditionalElements()) {
 			sb.append(" ");
 			sb.append(cef.format(ce));
 		}
 		sb.append(")");
 		return sb.toString();
-
 	}
 }
