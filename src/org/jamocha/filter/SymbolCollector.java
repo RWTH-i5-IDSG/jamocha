@@ -78,7 +78,11 @@ public class SymbolCollector<T extends Collection<Symbol>, U extends Collection<
 	}
 
 	public SymbolCollector<T, U> collect(final RuleCondition rc) {
-		rc.getConditionalElements().forEach(ce -> ce.accept(this));
+		return collect(rc.getConditionalElements());
+	}
+
+	public SymbolCollector<T, U> collect(final List<ConditionalElement> ces) {
+		ces.forEach(this::collect);
 		return this;
 	}
 
