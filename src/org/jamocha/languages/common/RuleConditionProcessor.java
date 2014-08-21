@@ -60,6 +60,10 @@ public class RuleConditionProcessor {
 		return combine(conditionalElements, OrFunctionConditionalElement::new);
 	}
 
+	public static void flatten(final RuleCondition condition) {
+		flatten(condition.getConditionalElements());
+	}
+
 	public static void flatten(final List<ConditionalElement> conditionalElements) {
 		// add surrounding (and ), if more than one CE
 		final ConditionalElement ce =
