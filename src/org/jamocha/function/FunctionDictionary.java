@@ -97,11 +97,20 @@ public class FunctionDictionary {
 	 * @return implementation to add
 	 */
 	public static <R, F extends Function<R>> F addImpl(final F impl) {
+		checkPredicate(impl);
 		if (null != clipsFunctions.put(
 				new CombinedClipsAndParams(impl.inClips(), impl.getParamTypes()), impl)) {
 			throw new IllegalArgumentException("Function " + impl.inClips() + " already defined!");
 		}
 		return impl;
+	}
+
+	private static <R, F extends Function<R>> void checkPredicate(final F impl)
+			throws IllegalArgumentException {
+		if (impl.getReturnType() == SlotType.BOOLEAN && !(impl instanceof Predicate)) {
+			throw new IllegalArgumentException(
+					"Functions with return type boolean have to be derived from Predicate!");
+		}
 	}
 
 	public static void addGenerator(final String string, final SlotType types,
@@ -209,6 +218,7 @@ public class FunctionDictionary {
 					final Function<T> generated =
 							(Function<T>) fixedArgsFunctionGenerator.generate(network, params);
 					if (null != generated) {
+						checkPredicate(generated);
 						return generated;
 					}
 				}
@@ -229,6 +239,7 @@ public class FunctionDictionary {
 					final Function<T> generated =
 							(Function<T>) varargsFunctionGenerator.generate(network, params);
 					if (null != generated) {
+						checkPredicate(generated);
 						return generated;
 					}
 				}
