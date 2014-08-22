@@ -20,7 +20,7 @@ import java.util.List;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
-import org.jamocha.function.fwa.FunctionWithArguments;
+import org.jamocha.function.fwa.PredicateWithArguments;
 import org.jamocha.visitor.Visitable;
 
 /**
@@ -58,11 +58,11 @@ public abstract class ConditionalElement implements Visitable<ConditionalElement
 
 	public static class TestConditionalElement extends ConditionalElement {
 		@Getter
-		final FunctionWithArguments fwa;
+		final PredicateWithArguments predicateWithArguments;
 
-		public TestConditionalElement(final FunctionWithArguments fwa) {
+		public TestConditionalElement(final PredicateWithArguments predicateWithArguments) {
 			super(new ArrayList<>());
-			this.fwa = fwa;
+			this.predicateWithArguments = predicateWithArguments;
 		}
 
 		@Override

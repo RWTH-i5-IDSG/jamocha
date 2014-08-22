@@ -14,6 +14,11 @@
  */
 package org.jamocha.logging.formatter;
 
+import java.util.List;
+import java.util.Map;
+
+import lombok.AllArgsConstructor;
+
 import org.jamocha.languages.common.ConditionalElement;
 import org.jamocha.languages.common.ConditionalElement.AndFunctionConditionalElement;
 import org.jamocha.languages.common.ConditionalElement.ExistentialConditionalElement;
@@ -25,31 +30,21 @@ import org.jamocha.languages.common.ConditionalElement.SharedConditionalElementW
 import org.jamocha.languages.common.ConditionalElement.TemplatePatternConditionalElement;
 import org.jamocha.languages.common.ConditionalElement.TestConditionalElement;
 import org.jamocha.languages.common.ConditionalElementsVisitor;
+import org.jamocha.languages.common.SingleFactVariable;
+import org.jamocha.languages.common.SingleFactVariable.SingleSlotVariable;
 
 /**
+ * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
  * @author "Christoph Terwelp <christoph.terwelp@rwth-aachen.de>"
- *
  */
+@AllArgsConstructor
 public class ConditionalElementFormatter implements Formatter<ConditionalElement> {
 
-	private static final ConditionalElementFormatter singleton = new ConditionalElementFormatter();
-
-	static public ConditionalElementFormatter getConditionalElementFormatter() {
-		return singleton;
-	}
-
-	public static String formatCE(ConditionalElement ce) {
-		return getConditionalElementFormatter().format(ce);
-	}
-
-	private ConditionalElementFormatter() {
-	}
+	final Map<SingleFactVariable, List<SingleSlotVariable>> slotVariablesByTemplate;
 
 	@Override
-	public String format(ConditionalElement ce) {
-		ConditionalElementFormatterVisitor cef = new ConditionalElementFormatterVisitor();
-		ce.accept(cef);
-		return cef.getString();
+	public String format(final ConditionalElement ce) {
+		return ce.accept(new ConditionalElementFormatterVisitor()).getString();
 	}
 
 	private class ConditionalElementFormatterVisitor implements ConditionalElementsVisitor {
@@ -102,7 +97,7 @@ public class ConditionalElementFormatter implements Formatter<ConditionalElement
 		@Override
 		public void visit(TestConditionalElement ce) {
 			sb.append("(test ");
-			sb.append(FunctionWithArgumentsFormatter.formatFwa(ce.getFwa()));
+			sb.append(FunctionWithArgumentsFormatter.formatFwa(ce.getPredicateWithArguments()));
 			sb.append(")");
 		}
 
@@ -116,9 +111,22 @@ public class ConditionalElementFormatter implements Formatter<ConditionalElement
 		@Override
 		public void visit(TemplatePatternConditionalElement ce) {
 			sb.append("(template ");
-			sb.append(ce.getFactVariable().getTemplate().getName());
+			final SingleFactVariable factVariable = ce.getFactVariable();
+			sb.append(factVariable.getTemplate().getName());
+			formatSingleVariables(factVariable);
 			sb.append(")");
 		}
-	}
 
+		private void formatSingleVariables(final SingleFactVariable factVariable) {
+			final List<SingleSlotVariable> singleSlotVariables =
+					slotVariablesByTemplate.get(factVariable);
+			if (null == singleSlotVariables || singleSlotVariables.isEmpty())
+				return;
+			sb.append(" ");
+			sb.append(factVariable.getSymbol().toString());
+			singleSlotVariables.forEach(slotVariable -> sb.append(" (")
+					.append(slotVariable.getSlot().getSlotName(factVariable.getTemplate()))
+					.append(" ").append(slotVariable.getSymbol().toString()).append(")"));
+		}
+	}
 }

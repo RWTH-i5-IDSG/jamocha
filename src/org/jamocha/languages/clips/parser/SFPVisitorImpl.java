@@ -54,6 +54,7 @@ import org.jamocha.function.fwa.ConstantLeaf;
 import org.jamocha.function.fwa.FunctionWithArguments;
 import org.jamocha.function.fwa.FunctionWithArgumentsComposite;
 import org.jamocha.function.fwa.Modify;
+import org.jamocha.function.fwa.PredicateWithArguments;
 import org.jamocha.function.fwa.PredicateWithArgumentsComposite;
 import org.jamocha.function.fwa.Retract;
 import org.jamocha.languages.clips.parser.ExistentialStack.ScopedExistentialStack;
@@ -575,7 +576,7 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 								org.jamocha.function.impls.predicates.Equals.inClips,
 								template.getSlotType(slot), constantVisitor.type);
 				final TestConditionalElement eq =
-						new TestConditionalElement(new FunctionWithArgumentsComposite(equals,
+						new TestConditionalElement(new PredicateWithArgumentsComposite(equals,
 								constraintVariable.get().toSymbolLeaf(), new ConstantLeaf(
 										constantVisitor.value, constantVisitor.type)));
 				constraintAdder.accept(negate(eq));
@@ -591,7 +592,8 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 								SymbolToFunctionWithArguments.bySymbol(), false), node
 								.jjtGetChild(0), data).expression;
 				assert SlotType.BOOLEAN == functionCall.getReturnType();
-				constraintAdder.accept(negate(new TestConditionalElement(functionCall)));
+				constraintAdder.accept(negate(new TestConditionalElement(
+						(PredicateWithArguments) functionCall)));
 				return data;
 			}
 
@@ -618,7 +620,7 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 								template.getSlotType(slot), functionCall.getReturnType());
 				final SingleSlotVariable variable = constraintVariable.get();
 				final TestConditionalElement eq =
-						new TestConditionalElement(new FunctionWithArgumentsComposite(equals,
+						new TestConditionalElement(new PredicateWithArgumentsComposite(equals,
 								variable.toSymbolLeaf(), functionCall));
 				constraintAdder.accept(negate(eq));
 				return data;
@@ -968,7 +970,8 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 					SelectiveSFPVisitor.sendVisitor(new SFPFunctionCallElementsVisitor(
 							SymbolToFunctionWithArguments.bySymbol(), false), node.jjtGetChild(0),
 							data).expression;
-			this.resultCE = Optional.of(new TestConditionalElement(functionCall));
+			this.resultCE =
+					Optional.of(new TestConditionalElement((PredicateWithArguments) functionCall));
 			return data;
 		}
 
@@ -1339,7 +1342,7 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 							sideEffectFunctionToNetwork, symbol.getImage(), argTypes)
 							: FunctionDictionary.lookup(symbol.getImage(), argTypes);
 			this.expression =
-					function instanceof Predicate ? new PredicateWithArgumentsComposite(
+					SlotType.BOOLEAN == function.getReturnType() ? new PredicateWithArgumentsComposite(
 							(Predicate) function, toArray(arguments, FunctionWithArguments[]::new))
 							: new FunctionWithArgumentsComposite(function, toArray(arguments,
 									FunctionWithArguments[]::new));
@@ -1481,7 +1484,7 @@ public final class SFPVisitorImpl implements SelectiveSFPVisitor {
 								new InitialFactConditionalElement(new SingleFactVariable(scope
 										.createDummy(), initialFact)));
 					}
-					existentialStack.addConditionalElements(ces);
+					existentialStack.getConditionalElements().addAll(ces);
 					this.defrule =
 							new Defrule(symbol.getImage(), comment, existentialStack, actionList);
 				}

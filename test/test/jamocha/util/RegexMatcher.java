@@ -12,18 +12,34 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package org.jamocha.languages.common;
+package test.jamocha.util;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import lombok.Getter;
+import org.hamcrest.BaseMatcher;
+import org.hamcrest.Description;
 
 /**
  * @author Fabian Ohler <fabian.ohler1@rwth-aachen.de>
- * @author Christoph Terwelp <christoph.terwelp@rwth-aachen.de>
  */
-public class RuleCondition {
-	@Getter
-	final List<ConditionalElement> conditionalElements = new ArrayList<>();
+public class RegexMatcher extends BaseMatcher<String> {
+	private final String regex;
+
+	public RegexMatcher(String regex) {
+		this.regex = regex;
+	}
+
+	@Override
+	public boolean matches(final Object o) {
+		if (!(o instanceof String))
+			return false;
+		return ((String) o).matches(regex);
+	}
+
+	@Override
+	public void describeTo(final Description description) {
+		description.appendText("matches regex=").appendText(regex);
+	}
+
+	public static RegexMatcher matches(final String regex) {
+		return new RegexMatcher(regex);
+	}
 }

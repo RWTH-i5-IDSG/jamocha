@@ -60,6 +60,10 @@ public class RuleConditionProcessor {
 		return combine(conditionalElements, OrFunctionConditionalElement::new);
 	}
 
+	public static void flatten(final RuleCondition condition) {
+		flatten(condition.getConditionalElements());
+	}
+
 	public static void flatten(final List<ConditionalElement> conditionalElements) {
 		// add surrounding (and ), if more than one CE
 		final ConditionalElement ce =
@@ -132,7 +136,9 @@ public class RuleConditionProcessor {
 			// gradually blow up the CEs
 			// the elements of CEs will always be AndFunctionConditionalElements acting as a list
 			// while the construction of CEs is incomplete, thus we start by adding the shared part
-			this.ces.add(new AndFunctionConditionalElement(Arrays.asList(shared)));
+			this.ces =
+					new ArrayList<>(Arrays.asList(new AndFunctionConditionalElement(Arrays
+							.asList(shared))));
 			// for every (or ) occurrence we need to duplicate the list of CEs and combine them with
 			// the (or ) elements
 			orLists.forEach(orList -> {

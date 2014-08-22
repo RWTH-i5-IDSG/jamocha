@@ -102,7 +102,8 @@ public class Assert implements FunctionWithArguments {
 		@Override
 		public Function<?> lazyEvaluate(final Function<?>... params) {
 			return GenericWithArgumentsComposite.staticLazyEvaluate(
-					fwas -> template.newFact(Arrays.stream(fwas).map(f -> f.evaluate()).toArray()),
+					(final Function<?>[] functions) -> template.newFact(Arrays.stream(functions)
+							.<Object> map(f -> f.evaluate()).toArray()),
 					"assert::templateContainer", args, params);
 		}
 

@@ -144,7 +144,8 @@ public abstract class GenericWithArgumentsComposite<R, F extends Function<? exte
 
 	@Override
 	public Function<R> lazyEvaluate(final Function<?>... params) {
-		return staticLazyEvaluate(function::evaluate, function.inClips(), args, params);
+		return staticLazyEvaluate(((final Function<?>[] args) -> function.evaluate(args)),
+				function.inClips(), args, params);
 	}
 
 	static <R> Function<R> staticLazyEvaluate(
