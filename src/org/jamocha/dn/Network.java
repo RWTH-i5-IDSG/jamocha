@@ -65,6 +65,7 @@ import org.jamocha.dn.nodes.RootNode;
 import org.jamocha.dn.nodes.TerminalNode;
 import org.jamocha.filter.AddressFilter;
 import org.jamocha.filter.FactAddressCollector;
+import org.jamocha.filter.Filter.FilterElement;
 import org.jamocha.filter.FilterFunctionCompare;
 import org.jamocha.filter.Path;
 import org.jamocha.filter.PathCollector;
@@ -528,145 +529,143 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 			this.negated = false;
 		}
 
-		public static void processExistentialCondition(final ConditionalElement ce,
-				final Map<SingleFactVariable, Path> paths) {
-			// TODO
+		public static List<PathFilter> processExistentialCondition(final ConditionalElement ce,
+				final Map<SingleFactVariable, Path> fact2Path, final boolean isPositive) {
+			// FIXME Fix to work if we only have existential Paths
+
 			// Collect the existential FactVariables and corresponding paths from the existentialCE
-			final Map<SingleFactVariable, Path> existentialMap =
+			final Map<SingleFactVariable, Path> existentialFact2Path =
 					FactVariableCollector.collectPaths(ce);
 
 			// combine existential FactVariables and Paths with non existential ones for PathFilter
 			// generation
-			final Map<SingleFactVariable, Path> combinedPaths =
-					new HashMap<SingleFactVariable, Path>(paths);
-			combinedPaths.putAll(existentialMap);
+			final Map<SingleFactVariable, Path> combinedFact2Path =
+					new HashMap<SingleFactVariable, Path>(fact2Path);
+			combinedFact2Path.putAll(existentialFact2Path);
 
 			// Only existential Paths without Variables
-			final Set<Path> existentialPaths = new HashSet<>(existentialMap.values());
+			final Set<Path> existentialPaths = new HashSet<>(existentialFact2Path.values());
 
 			// Generate PathFilters from CE
-			final List<PathFilter> pathFilters =
-					ce.accept(new PathFilterCollector(combinedPaths)).getPathFilters();
+			final List<PathFilter> filters =
+					ce.accept(new PathFilterCollector(combinedFact2Path)).getPathFilters();
 
 			// Collect all used Paths for every PathFilter
-			final Map<PathFilter, Set<Path>> correspondingPaths =
-					pathFilters.stream().collect(
+			final Map<PathFilter, Set<Path>> filter2Paths =
+					filters.stream().collect(
 							Collectors.toMap(filter -> filter, filter -> PathCollector.newHashSet()
 									.collect(filter).getPaths()));
 
 			// Split PathFilters into those only using existential Paths and those also using non
 			// existential Paths
 			final Map<Boolean, List<PathFilter>> tmp =
-					pathFilters.stream().collect(
+					filters.stream().collect(
 							Collectors.partitioningBy(filter -> existentialPaths
-									.containsAll(correspondingPaths.get(filter))));
+									.containsAll(filter2Paths.get(filter))));
 			final List<PathFilter> nonPureExistentialFilters = tmp.get(false);
 			final List<PathFilter> pureExistentialFilters = tmp.get(true);
 
-			// Find connected components of the existential Paths
-			final Map<PathFilter, Set<Path>> pureExistentialFilterPaths =
-					pureExistentialFilters.stream().collect(
-							Collectors.toMap((PathFilter filter) -> filter,
-									filter -> correspondingPaths.get(filter)));
-			// Construct Hashmaps from Paths to Filters and vice versa
-			final Map<Path, Set<PathFilter>> pureExistentialPathFilters = new HashMap<>();
-			for (Entry<PathFilter, Set<Path>> pureExistentialFilterPath : pureExistentialFilterPaths
-					.entrySet()) {
-				for (Path pureExistentialPath : pureExistentialFilterPath.getValue()) {
-					Set<PathFilter> value = pureExistentialPathFilters.get(pureExistentialPath);
+			// Add all pureExistentialFilters to result List because they don't have to be combined
+			// or ordered
+			final List<PathFilter> resultFilters = new ArrayList<>(pureExistentialFilters);
+
+			// Construct Hashmap from Paths to Filters
+			final Map<Path, Set<PathFilter>> path2Filters = new HashMap<>();
+			for (Entry<PathFilter, Set<Path>> filterAndPaths : filter2Paths.entrySet()) {
+				for (final Path path : filterAndPaths.getValue()) {
+					Set<PathFilter> value = path2Filters.get(path);
 					if (value == null) {
 						value = new HashSet<>();
-						pureExistentialPathFilters.put(pureExistentialPath, value);
+						path2Filters.put(path, value);
 					}
-					value.add(pureExistentialFilterPath.getKey());
+					value.add(filterAndPaths.getKey());
 				}
 			}
 
+			// Find connected components of the existential Paths
 			final Set<Set<Path>> joinedExistentialPaths = new HashSet<>();
 			// While there are unjoined Filters continue
-			while (!pureExistentialFilters.isEmpty()) {
+			final Set<PathFilter> reductionSet = new HashSet<>(pureExistentialFilters);
+			while (!reductionSet.isEmpty()) {
 				// Take one arbitrary filter
-				final Iterator<PathFilter> i = pureExistentialFilters.iterator();
-				final PathFilter pathFilter = i.next();
+				final Iterator<PathFilter> i = reductionSet.iterator();
+				final Set<PathFilter> collectFilters = new HashSet<>();
+				collectFilters.add(i.next());
 				i.remove();
-
-				final Set<PathFilter> collectPathFilters = new HashSet<>();
-				collectPathFilters.add(pathFilter);
-				Set<PathFilter> newCollectPathFilters = new HashSet<>(collectPathFilters);
+				Set<PathFilter> newCollectFilters = new HashSet<>(collectFilters);
 				final Set<Path> collectPaths = new HashSet<>();
 				// While we found new PathFilters in the last round
-				while (!newCollectPathFilters.isEmpty()) {
+				while (!newCollectFilters.isEmpty()) {
 					// search for all Paths used by the new Filters
 					final Set<Path> newCollectPaths =
-							newCollectPathFilters
-									.stream()
-									.flatMap(
-											filter -> pureExistentialFilterPaths.get(filter)
-													.stream()).collect(Collectors.toSet());
+							newCollectFilters.stream().flatMap(f -> filter2Paths.get(f).stream())
+									.collect(Collectors.toSet());
 					// removed already known paths
 					newCollectPaths.removeAll(collectPaths);
 					// add the new ones to the collect set
 					collectPaths.addAll(newCollectPaths);
 					// search for all filters containing the new found paths
-					newCollectPathFilters =
+					newCollectFilters =
 							newCollectPaths.stream()
-									.flatMap(path -> pureExistentialPathFilters.get(path).stream())
+									.flatMap(path -> path2Filters.get(path).stream())
 									.collect(Collectors.toSet());
 					// remove already known filters
-					newCollectPathFilters.removeAll(collectPathFilters);
+					newCollectFilters.removeAll(collectFilters);
 					// add them all to the collect set
-					collectPathFilters.addAll(newCollectPathFilters);
+					collectFilters.addAll(newCollectFilters);
 					// remove them from the set of unassigned filters
-					pureExistentialFilters.removeAll(newCollectPathFilters);
+					reductionSet.removeAll(newCollectFilters);
 				}
 				// added the join set to the result
 				joinedExistentialPaths.add(collectPaths);
 			}
 
-			while (!pureExistentialFilterPaths.isEmpty()) {
-				final Iterator<Set<Path>> i = pureExistentialFilterPaths.iterator();
-				final Set<Path> collectingSet = i.next();
-				Set<Path> lastRoundAdded = new HashSet<>(collectingSet);
-				Set<Path> newRoundAdded = new HashSet<>();
+			// Combine nonPureExistentialFilters if necessary and add them to result List
+			while (!nonPureExistentialFilters.isEmpty()) {
+				final Iterator<PathFilter> i = nonPureExistentialFilters.iterator();
+				final List<PathFilter> collectFilters = Arrays.asList(i.next());
 				i.remove();
-				while (!lastRoundAdded.isEmpty()) {
-					final Iterator<Set<Path>> j = pureExistentialFilterPaths.iterator();
-					while (j.hasNext()) {
-						final Set<Path> pathsToTest = j.next();
-						if (!Collections.disjoint(lastRoundAdded, pathsToTest)) {
-							newRoundAdded.addAll(pathsToTest);
-						}
-					}
-					newRoundAdded.removeAll(collectingSet);
-					collectingSet.addAll(newRoundAdded);
-					lastRoundAdded = newRoundAdded;
-					newRoundAdded = new HashSet<>();
+				List<PathFilter> newCollectFilters = new ArrayList<>(collectFilters);
+				final Set<Path> collectExistentialPaths = new HashSet<>();
+
+				while (!newCollectFilters.isEmpty()) {
+					// search for all existential Paths used by the new Filters
+					final Set<Path> newCollectExistentialPaths =
+							newCollectFilters.stream()
+									.flatMap((PathFilter f) -> filter2Paths.get(f).stream())
+									.collect(Collectors.toSet());
+					// removed already known paths
+					newCollectExistentialPaths.retainAll(existentialPaths);
+					newCollectExistentialPaths.removeAll(collectExistentialPaths);
+					// add the new ones to the collect set
+					collectExistentialPaths.addAll(newCollectExistentialPaths);
+					// search for all filters containing the new found paths
+					newCollectFilters =
+							newCollectExistentialPaths.stream()
+									.flatMap(path -> path2Filters.get(path).stream())
+									.collect(Collectors.toList());
+					// remove already known filters
+					newCollectFilters.retainAll(nonPureExistentialFilters);
+					newCollectFilters.removeAll(collectFilters);
+					// add them all to the collect set
+					collectFilters.addAll(newCollectFilters);
+					// remove them from the set of unassigned filters
+					reductionSet.removeAll(newCollectFilters);
 				}
+				List<PathFilterElement> filterElements = new ArrayList<>();
+				for (final PathFilter filter : collectFilters) {
+					filterElements.addAll(Arrays.asList(filter.getFilterElements()));
+				}
+
+				if (isPositive)
+					resultFilters.add(new PathFilter(collectExistentialPaths, new HashSet<>(),
+							toArray(filterElements, PathFilterElement[]::new)));
+				else
+					resultFilters.add(new PathFilter(new HashSet<>(), collectExistentialPaths,
+							toArray(filterElements, PathFilterElement[]::new)));
 			}
 
-			while (!nonExistentialFilters.isEmpty()) {
-				final PathFilter nonExistentialFilter = nonExistentialFilters.get(0);
-				final Set<Path> nonExistentialFilterPaths =
-						correspondingPaths.get(nonExistentialFilter);
-				// final List<PathFilter> filtersToJoin = Arrays.asList(nonExistentialFilter);
-				final Set<Path> newlyJoinedPaths = new HashSet<>(nonExistentialFilterPaths);
-				for (Iterator<Set<Path>> i = joinedExistentialPaths.iterator(); i.hasNext();) {
-					final Set<Path> p = i.next();
-					if (!Collections.disjoint(p, newlyJoinedPaths)) {
-						newlyJoinedPaths.addAll(p);
-						i.remove();
-					}
-				}
-
-				final List<PathFilter> filtersToJoin =
-						nonExistentialFilters
-								.stream()
-								.filter(filter -> Collections.disjoint(newlyJoinedPaths,
-										correspondingPaths.get(filter)))
-								.collect(Collectors.toCollection(ArrayList::new));
-
-			}
-			// nonExistentialFilters.stream().filter
+			return resultFilters;
 		}
 
 		@Override
@@ -693,17 +692,13 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 		@Override
 		public void visit(ExistentialConditionalElement ce) {
 			assert ce.getChildren().size() == 1;
-			processExistentialCondition(ce.getChildren().get(0),
-					paths);
-			// TODO Auto-generated method stub
-
-		@Override
+			this.pathFilters = processExistentialCondition(ce.getChildren().get(0), paths, true);
 		}
 
+		@Override
 		public void visit(NegatedExistentialConditionalElement ce) {
-			// TODO Auto-generated method stub
 			assert ce.getChildren().size() == 1;
-			processExistentialCondition(ce.getChildren().get(0), paths);
+			this.pathFilters = processExistentialCondition(ce.getChildren().get(0), paths, false);
 		}
 
 		@Override
@@ -729,7 +724,7 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 			// FIXME just copied from old version
 			assert (ce.getFwa() instanceof PredicateWithArguments);
 			// TODO remove cast
-			PredicateWithArguments pwa = (PredicateWithArguments) ce.getFwa();
+			PredicateWithArguments pwa = ce.getFwa();
 			pwa.accept(new SymbolToPathTranslator(paths));
 			this.pathFilters = Arrays.asList(new PathFilter(new PathFilter.PathFilterElement(pwa)));
 		}
