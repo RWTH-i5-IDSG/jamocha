@@ -32,7 +32,6 @@ import java.util.Queue;
 import java.util.Set;
 
 import org.jamocha.dn.ConstructCache.Defrule;
-import org.jamocha.dn.Network;
 import org.jamocha.dn.memory.SlotType;
 import org.jamocha.dn.memory.Template;
 import org.jamocha.filter.SymbolCollector;
@@ -64,6 +63,8 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import test.jamocha.util.NetworkMockup;
 
 public class ParserTest {
 
@@ -121,7 +122,7 @@ public class ParserTest {
 						+ "(slot s6 (type STRING))" + "(slot s7 (type STRING))"
 						+ "(slot s8 (type DATETIME))" + ")\n");
 		final SFPParser parser = new SFPParser(parserInput);
-		final Network network = new Network();
+		final NetworkMockup network = new NetworkMockup();
 		final SFPVisitorImpl visitor = new SFPVisitorImpl(network, network);
 		run(parser, visitor);
 		final Template template = network.getTemplate("f1");
@@ -141,7 +142,7 @@ public class ParserTest {
 				new StringReader("(deftemplate f1 (slot s1 (type INTEGER)))\n"
 						+ "(deftemplate f1 (slot s1 (type FLOAT)))\n");
 		final SFPParser parser = new SFPParser(parserInput);
-		final Network network = new Network();
+		final NetworkMockup network = new NetworkMockup();
 		final SFPVisitorImpl visitor = new SFPVisitorImpl(network, network);
 		run(parser, visitor);
 	}
@@ -152,7 +153,7 @@ public class ParserTest {
 				new StringReader("(deftemplate f1 (slot s1 (type INTEGER)))\n"
 						+ "(defrule r1 (f1 (s1 ?x))=>)\n" + "(defrule r1 (f1 (s1 ?x))=>)\n");
 		final SFPParser parser = new SFPParser(parserInput);
-		final Network network = new Network();
+		final NetworkMockup network = new NetworkMockup();
 		final SFPVisitorImpl visitor = new SFPVisitorImpl(network, network);
 		run(parser, visitor);
 	}
@@ -163,7 +164,7 @@ public class ParserTest {
 				new StringReader("(deftemplate f1 (slot s1 (type INTEGER)))\n"
 						+ "(defrule r1 (test (> 2 ?x))=>)\n");
 		final SFPParser parser = new SFPParser(parserInput);
-		final Network network = new Network();
+		final NetworkMockup network = new NetworkMockup();
 		final SFPVisitorImpl visitor = new SFPVisitorImpl(network, network);
 		run(parser, visitor);
 	}
@@ -174,7 +175,7 @@ public class ParserTest {
 				new StringReader("(deftemplate f1 (slot s1 (type INTEGER)))\n"
 						+ "(defrule r1 (f1 (s1 ~?x)) (f1 (s1 ?x)) =>)\n");
 		final SFPParser parser = new SFPParser(parserInput);
-		final Network network = new Network();
+		final NetworkMockup network = new NetworkMockup();
 		final SFPVisitorImpl visitor = new SFPVisitorImpl(network, network);
 		run(parser, visitor);
 	}
@@ -185,7 +186,7 @@ public class ParserTest {
 				new StringReader("(deftemplate f1 (slot s1 (type INTEGER)))\n"
 						+ "(defrule r1 (exists (f1 (s1 ?x))) (test (> 2 ?x))=>)\n");
 		final SFPParser parser = new SFPParser(parserInput);
-		final Network network = new Network();
+		final NetworkMockup network = new NetworkMockup();
 		final SFPVisitorImpl visitor = new SFPVisitorImpl(network, network);
 		run(parser, visitor);
 	}
@@ -196,7 +197,7 @@ public class ParserTest {
 				new StringReader("(deftemplate f1 (slot s1 (type INTEGER)))\n"
 						+ "(defrule r1 (not (f1 (s1 ?x))) (test (> 2 ?x))=>)\n");
 		final SFPParser parser = new SFPParser(parserInput);
-		final Network network = new Network();
+		final NetworkMockup network = new NetworkMockup();
 		final SFPVisitorImpl visitor = new SFPVisitorImpl(network, network);
 		run(parser, visitor);
 	}
@@ -207,7 +208,7 @@ public class ParserTest {
 				new StringReader("(deftemplate f1 (slot s1 (type INTEGER)))\n"
 						+ "(defrule r1 (not (f1 (s1 ?x))) (f1 (s1 ?x)) (test (> 2 ?x))=>)\n");
 		final SFPParser parser = new SFPParser(parserInput);
-		final Network network = new Network();
+		final NetworkMockup network = new NetworkMockup();
 		final SFPVisitorImpl visitor = new SFPVisitorImpl(network, network);
 		run(parser, visitor);
 		assertEquals(1, visitor.getWarnings().size());
@@ -219,7 +220,7 @@ public class ParserTest {
 				new StringReader("(deftemplate f1 (slot s1 (type INTEGER)))\n"
 						+ "(defrule r1 (forall (f1 (s1 ?x))(f1 (s1 2))) (test (> 2 ?x))=>)\n");
 		final SFPParser parser = new SFPParser(parserInput);
-		final Network network = new Network();
+		final NetworkMockup network = new NetworkMockup();
 		final SFPVisitorImpl visitor = new SFPVisitorImpl(network, network);
 		run(parser, visitor);
 	}
@@ -230,7 +231,7 @@ public class ParserTest {
 				new StringReader("(deftemplate f1 (slot s1 (type INTEGER)))\n"
 						+ "(defrule r1 (forall (f1 (s1 2))(f1 (s1 ?x))) (test (> 2 ?x))=>)\n");
 		final SFPParser parser = new SFPParser(parserInput);
-		final Network network = new Network();
+		final NetworkMockup network = new NetworkMockup();
 		final SFPVisitorImpl visitor = new SFPVisitorImpl(network, network);
 		run(parser, visitor);
 	}
@@ -241,7 +242,7 @@ public class ParserTest {
 				new StringReader("(deftemplate f1 (slot s1 (type INTEGER)))\n"
 						+ "(defrule r1 (f1 (s1 ?x&?y))=>)\n");
 		final SFPParser parser = new SFPParser(parserInput);
-		final Network network = new Network();
+		final NetworkMockup network = new NetworkMockup();
 		final SFPVisitorImpl visitor = new SFPVisitorImpl(network, network);
 		run(parser, visitor);
 	}
@@ -252,7 +253,7 @@ public class ParserTest {
 				new StringReader("(deftemplate f1 (slot s1 (type INTEGER)))\n"
 						+ "(defrule r1 (f1 (s1 ?x|?y))=>)\n");
 		final SFPParser parser = new SFPParser(parserInput);
-		final Network network = new Network();
+		final NetworkMockup network = new NetworkMockup();
 		final SFPVisitorImpl visitor = new SFPVisitorImpl(network, network);
 		run(parser, visitor);
 	}
@@ -266,7 +267,7 @@ public class ParserTest {
 								+ "(defrule r1 (f1 (s1 ?x)) ?z <- (f2 (s2 ?y))"
 								+ "(test (> ?x 2)) (test (< ?y 0.0)) =>)\n");
 		final SFPParser parser = new SFPParser(parserInput);
-		final Network network = new Network();
+		final NetworkMockup network = new NetworkMockup();
 		final SFPVisitorImpl visitor = new SFPVisitorImpl(network, network);
 		run(parser, visitor);
 		{
@@ -374,7 +375,7 @@ public class ParserTest {
 								+ "(defrule r1 (f1 (s1 ?x&2|3&4|5)) =>)\n");
 		// => ?x & (2 | (3 & 4) | 5)
 		final SFPParser parser = new SFPParser(parserInput);
-		final Network network = new Network();
+		final NetworkMockup network = new NetworkMockup();
 		final SFPVisitorImpl visitor = new SFPVisitorImpl(network, network);
 		run(parser, visitor);
 		{
@@ -516,7 +517,7 @@ public class ParserTest {
 								+ "(deftemplate f2 (slot s1 (type INTEGER))(slot s2 (type FLOAT)))\n"
 								+ "(defrule r1 (not (and (f1 (s1 ?x) (s2 ?y)) (not (f2 (s1 ?x))) (test (>= ?y 0.5)) )) =>)\n");
 		final SFPParser parser = new SFPParser(parserInput);
-		final Network network = new Network();
+		final NetworkMockup network = new NetworkMockup();
 		final SFPVisitorImpl visitor = new SFPVisitorImpl(network, network);
 		run(parser, visitor);
 		{
