@@ -325,7 +325,7 @@ public class ParserTest {
 			assertEquals(template, var.getTemplate());
 		}
 		final List<ConditionalElement> conditionalElements = condition.getConditionalElements();
-		assertEquals(2, conditionalElements.size());
+		assertEquals(4, conditionalElements.size());
 		{
 			final ConditionalElement conditionalElement = conditionalElements.get(0);
 			assertThat(conditionalElement, instanceOf(TestConditionalElement.class));
