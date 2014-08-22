@@ -16,7 +16,6 @@ package org.jamocha.dn;
 
 import static org.jamocha.util.ToArray.toArray;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
@@ -24,7 +23,6 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -42,7 +40,6 @@ import org.apache.logging.log4j.core.layout.PatternLayout;
 import org.apache.logging.log4j.core.util.Charsets;
 import org.jamocha.dn.ConstructCache.Deffacts;
 import org.jamocha.dn.ConstructCache.Defrule;
-import org.jamocha.dn.compiler.FactVariableCollector;
 import org.jamocha.dn.compiler.PathFilterCollector;
 import org.jamocha.dn.memory.Fact;
 import org.jamocha.dn.memory.FactAddress;
@@ -69,8 +66,6 @@ import org.jamocha.filter.PathFilter;
 import org.jamocha.function.fwa.Assert.TemplateContainer;
 import org.jamocha.languages.clips.ClipsLogFormatter;
 import org.jamocha.languages.common.ConditionalElement;
-import org.jamocha.languages.common.ConditionalElement.OrFunctionConditionalElement;
-import org.jamocha.languages.common.DefaultConditionalElementsVisitor;
 import org.jamocha.languages.common.RuleCondition;
 import org.jamocha.languages.common.RuleConditionProcessor;
 import org.jamocha.logging.LogFormatter;
@@ -450,40 +445,7 @@ public class Network implements ParserToNetwork, SideEffectFunctionToNetwork {
 		RuleConditionProcessor.flatten(conditionalElements);
 		assert conditionalElements.size() == 1;
 		// Transform TestCEs to PathFilters and collect them
-		return conditionalElements.get(0).accept(new OrPathFilterCollector()).getPathFilters();
-	}
-
-	/*
-	 * Collect all PathFilters inside all children of an OrFunctionConditionalElement, returning a
-	 * List of Lists. Each inner List contains the PathFilters of one child.
-	 */
-	private static class OrPathFilterCollector implements DefaultConditionalElementsVisitor {
-
-		@Getter
-		private List<List<PathFilter>> pathFilters = null;
-
-		@Override
-		public void defaultAction(ConditionalElement ce) {
-			// If there is no OrFunctionConditionalElement just proceed with the CE as it were
-			// the only child of an OrFunctionConditionalElement.
-			pathFilters =
-					Arrays.asList(ce.accept(
-							new PathFilterCollector(FactVariableCollector.collectPaths(ce)))
-							.getPathFilters());
-		}
-
-		@Override
-		public void visit(OrFunctionConditionalElement ce) {
-			// For each child of the OrCE ...
-			pathFilters =
-					ce.getChildren()
-							.stream()
-							.map(child -> child.accept(
-							// ... collect all PathFilters in the child
-									new PathFilterCollector(FactVariableCollector
-											.collectPaths(child))).getPathFilters())
-							.collect(Collectors.toCollection(ArrayList::new));
-		}
+		return conditionalElements.get(0).accept(new PathFilterCollector.OrPathFilterCollector()).getPathFilters();
 	}
 
 	/**

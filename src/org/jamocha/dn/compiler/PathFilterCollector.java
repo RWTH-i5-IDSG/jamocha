@@ -264,4 +264,37 @@ public class PathFilterCollector implements DefaultConditionalElementsVisitor {
 		pwa.accept(new SymbolToPathTranslator(paths));
 		this.pathFilters = Arrays.asList(new PathFilter(new PathFilter.PathFilterElement(pwa)));
 	}
+	
+	/*
+	 * Collect all PathFilters inside all children of an OrFunctionConditionalElement, returning a
+	 * List of Lists. Each inner List contains the PathFilters of one child.
+	 */
+	public static class OrPathFilterCollector implements DefaultConditionalElementsVisitor {
+
+		@Getter
+		private List<List<PathFilter>> pathFilters = null;
+
+		@Override
+		public void defaultAction(ConditionalElement ce) {
+			// If there is no OrFunctionConditionalElement just proceed with the CE as it were
+			// the only child of an OrFunctionConditionalElement.
+			pathFilters =
+					Arrays.asList(ce.accept(
+							new PathFilterCollector(FactVariableCollector.collectPaths(ce)))
+							.getPathFilters());
+		}
+
+		@Override
+		public void visit(OrFunctionConditionalElement ce) {
+			// For each child of the OrCE ...
+			pathFilters =
+					ce.getChildren()
+							.stream()
+							.map(child -> child.accept(
+							// ... collect all PathFilters in the child
+									new PathFilterCollector(FactVariableCollector
+											.collectPaths(child))).getPathFilters())
+							.collect(Collectors.toCollection(ArrayList::new));
+		}
+	}
 }
