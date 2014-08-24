@@ -17,9 +17,8 @@ package test.jamocha.languages.common;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import java.io.StringReader;
 import java.util.ArrayList;
@@ -44,6 +43,8 @@ import org.jamocha.languages.clips.parser.generated.SFPParser;
 import org.jamocha.languages.clips.parser.generated.SFPStart;
 import org.jamocha.languages.common.ConditionalElement;
 import org.jamocha.languages.common.ConditionalElement.AndFunctionConditionalElement;
+import org.jamocha.languages.common.ConditionalElement.OrFunctionConditionalElement;
+import org.jamocha.languages.common.ConditionalElement.SharedConditionalElementWrapper;
 import org.jamocha.languages.common.ConditionalElement.TemplatePatternConditionalElement;
 import org.jamocha.languages.common.ConditionalElement.TestConditionalElement;
 import org.jamocha.languages.common.RuleConditionProcessor;
@@ -161,18 +162,62 @@ public class RuleConditionProcessorTest {
 		assertThat(andCE, instanceOf(AndFunctionConditionalElement.class));
 		final List<ConditionalElement> andChildren = andCE.getChildren();
 		assertThat(andChildren, hasSize(3));
-		assertEquals(templ1, andChildren.get(0));
-		assertEquals(test10, andChildren.get(1));
-		assertEquals(test15, andChildren.get(2));
+		assertSame(templ1, andChildren.get(0));
+		assertSame(test10, andChildren.get(1));
+		assertSame(test15, andChildren.get(2));
 	}
 
 	@Test
 	public void simpleUnexandableOr() throws ParseException {
 		final String input = "(templ1 (slot1 ?x)) (or (test (> ?x 10)) (test (< ?x 15)))";
 		final List<ConditionalElement> conditionalElements = clipsToCondition(input);
+
+		assertThat(conditionalElements, hasSize(2));
+		final ConditionalElement templ1 = conditionalElements.get(0);
+		final ConditionalElement or = conditionalElements.get(1);
+		final List<ConditionalElement> orElements = or.getChildren();
+		assertThat(orElements, hasSize(2));
+		final ConditionalElement test10 = orElements.get(0);
+		final ConditionalElement test15 = orElements.get(1);
+
+		final ConditionalElementFormatter cef =
+				new ConditionalElementFormatter(SymbolCollector.newHashSet()
+						.collect(conditionalElements).toSlotVariablesByFactVariable());
+
+		assertThat(
+				cef.format(templ1),
+				RegexMatcher.matches("\\(template " + templateName + " Dummy:\\d* \\(" + slot1Name
+						+ " \\?x\\)\\)"));
+		assertThat(cef.format(test10), RegexMatcher.matches("\\(test \\(> \\?x 10\\)\\)"));
+		assertThat(cef.format(test15), RegexMatcher.matches("\\(test \\(< \\?x 15\\)\\)"));
+
 		RuleConditionProcessor.flatten(conditionalElements);
-		fail();
-		// (templ1 Dummy:d* (slot1 ?x)) (or (test (> ?x 10)) (test (< ?x 15)))
+
+		assertThat(conditionalElements, hasSize(1));
+		final ConditionalElement orCE = conditionalElements.get(0);
+		assertThat(orCE, instanceOf(OrFunctionConditionalElement.class));
+		final List<ConditionalElement> orChildren = orCE.getChildren();
+		assertThat(orChildren, hasSize(2));
+		final ConditionalElement sharedCE;
+		{
+			final ConditionalElement andCE = orChildren.get(0);
+			final List<ConditionalElement> andChildren = andCE.getChildren();
+			assertThat(andChildren, hasSize(2));
+			final ConditionalElement sharedTempl1 = andChildren.get(0);
+			assertThat(sharedTempl1, instanceOf(SharedConditionalElementWrapper.class));
+			sharedCE = sharedTempl1;
+			assertSame(templ1, ((SharedConditionalElementWrapper) sharedTempl1).getCe());
+			assertSame(test10, andChildren.get(1));
+		}
+		{
+			final ConditionalElement andCE = orChildren.get(1);
+			final List<ConditionalElement> andChildren = andCE.getChildren();
+			assertThat(andChildren, hasSize(2));
+			final ConditionalElement sharedTempl1 = andChildren.get(0);
+			assertThat(sharedTempl1, instanceOf(SharedConditionalElementWrapper.class));
+			assertSame(sharedCE, sharedTempl1);
+			assertSame(test15, andChildren.get(1));
+		}
 	}
 
 	@Test
@@ -180,10 +225,60 @@ public class RuleConditionProcessorTest {
 		final String input =
 				"(templ1 (slot1 ?x)) (or (test (> ?x 10)) (test (< ?x 15))) (test (< ?x 16))";
 		final List<ConditionalElement> conditionalElements = clipsToCondition(input);
+
+		assertThat(conditionalElements, hasSize(3));
+		final ConditionalElement templ1 = conditionalElements.get(0);
+		final ConditionalElement test16 = conditionalElements.get(2);
+		final ConditionalElement or = conditionalElements.get(1);
+		final List<ConditionalElement> orElements = or.getChildren();
+		assertThat(orElements, hasSize(2));
+		final ConditionalElement test10 = orElements.get(0);
+		final ConditionalElement test15 = orElements.get(1);
+
+		final ConditionalElementFormatter cef =
+				new ConditionalElementFormatter(SymbolCollector.newHashSet()
+						.collect(conditionalElements).toSlotVariablesByFactVariable());
+
+		assertThat(
+				cef.format(templ1),
+				RegexMatcher.matches("\\(template " + templateName + " Dummy:\\d* \\(" + slot1Name
+						+ " \\?x\\)\\)"));
+		assertThat(cef.format(test10), RegexMatcher.matches("\\(test \\(> \\?x 10\\)\\)"));
+		assertThat(cef.format(test15), RegexMatcher.matches("\\(test \\(< \\?x 15\\)\\)"));
+		assertThat(cef.format(test16), RegexMatcher.matches("\\(test \\(< \\?x 16\\)\\)"));
+
 		RuleConditionProcessor.flatten(conditionalElements);
-		fail();
-		// (templ1 Dummy:d* (slot1 ?x)) (or (and (shared (test (< ?x 16))) (test (> ?x 10))) (and
-		// (shared (test (< ?x 16))) (test (< ?x 15))))
+
+		assertThat(conditionalElements, hasSize(1));
+		final ConditionalElement orCE = conditionalElements.get(0);
+		assertThat(orCE, instanceOf(OrFunctionConditionalElement.class));
+		final List<ConditionalElement> orChildren = orCE.getChildren();
+		assertThat(orChildren, hasSize(2));
+		final ConditionalElement sharedCE;
+		{
+			final ConditionalElement andCE = orChildren.get(0);
+			final List<ConditionalElement> andChildren = andCE.getChildren();
+			assertThat(andChildren, hasSize(2));
+			final ConditionalElement shared = andChildren.get(0);
+			assertThat(shared, instanceOf(SharedConditionalElementWrapper.class));
+			sharedCE = shared;
+			final ConditionalElement sharedAnd = ((SharedConditionalElementWrapper) shared).getCe();
+			assertThat(sharedAnd, instanceOf(AndFunctionConditionalElement.class));
+			final List<ConditionalElement> sharedAndChildren = sharedAnd.getChildren();
+			assertThat(sharedAndChildren, hasSize(2));
+			assertSame(templ1, sharedAndChildren.get(0));
+			assertSame(test16, sharedAndChildren.get(1));
+			assertSame(test10, andChildren.get(1));
+		}
+		{
+			final ConditionalElement andCE = orChildren.get(1);
+			final List<ConditionalElement> andChildren = andCE.getChildren();
+			assertThat(andChildren, hasSize(2));
+			final ConditionalElement shared = andChildren.get(0);
+			assertThat(shared, instanceOf(SharedConditionalElementWrapper.class));
+			assertSame(sharedCE, shared);
+			assertSame(test15, andChildren.get(1));
+		}
 	}
 
 	@Test
@@ -191,8 +286,148 @@ public class RuleConditionProcessorTest {
 		final String input =
 				"(templ1 (slot1 ?x)) (or (test (< ?x 1)) (test (< ?x 2))) (or (test (< ?x 3)) (test (< ?x 4))) (test (< ?x 5)) (test (< ?x 6))";
 		final List<ConditionalElement> conditionalElements = clipsToCondition(input);
+
+		assertThat(conditionalElements, hasSize(5));
+		final ConditionalElement templ1 = conditionalElements.get(0);
+		final ConditionalElement test1, test2, test3, test4;
+		{
+			final ConditionalElement orCE = conditionalElements.get(1);
+			assertThat(orCE, instanceOf(OrFunctionConditionalElement.class));
+			final List<ConditionalElement> orChildren = orCE.getChildren();
+			assertThat(orChildren, hasSize(2));
+			test1 = orChildren.get(0);
+			test2 = orChildren.get(1);
+		}
+		{
+			final ConditionalElement orCE = conditionalElements.get(2);
+			assertThat(orCE, instanceOf(OrFunctionConditionalElement.class));
+			final List<ConditionalElement> orChildren = orCE.getChildren();
+			assertThat(orChildren, hasSize(2));
+			test3 = orChildren.get(0);
+			test4 = orChildren.get(1);
+		}
+		final ConditionalElement test5 = conditionalElements.get(3);
+		final ConditionalElement test6 = conditionalElements.get(4);
+
+		final ConditionalElementFormatter cef =
+				new ConditionalElementFormatter(SymbolCollector.newHashSet()
+						.collect(conditionalElements).toSlotVariablesByFactVariable());
+
+		assertThat(
+				cef.format(templ1),
+				RegexMatcher.matches("\\(template " + templateName + " Dummy:\\d* \\(" + slot1Name
+						+ " \\?x\\)\\)"));
+		assertThat(cef.format(test1), RegexMatcher.matches("\\(test \\(< \\?x 1\\)\\)"));
+		assertThat(cef.format(test2), RegexMatcher.matches("\\(test \\(< \\?x 2\\)\\)"));
+		assertThat(cef.format(test3), RegexMatcher.matches("\\(test \\(< \\?x 3\\)\\)"));
+		assertThat(cef.format(test4), RegexMatcher.matches("\\(test \\(< \\?x 4\\)\\)"));
+		assertThat(cef.format(test5), RegexMatcher.matches("\\(test \\(< \\?x 5\\)\\)"));
+		assertThat(cef.format(test6), RegexMatcher.matches("\\(test \\(< \\?x 6\\)\\)"));
+
 		RuleConditionProcessor.flatten(conditionalElements);
-		fail();
+
+		assertThat(conditionalElements, hasSize(1));
+		final ConditionalElement orCE = conditionalElements.get(0);
+		assertThat(orCE, instanceOf(OrFunctionConditionalElement.class));
+		final List<ConditionalElement> orChildren = orCE.getChildren();
+		assertThat(orChildren, hasSize(4));
+		final ConditionalElement sharedAnd, sharedTest1, sharedTest2, sharedTest3, sharedTest4;
+		{
+			// 1 3
+			final ConditionalElement andCE = orChildren.get(0);
+			final List<ConditionalElement> andChildren = andCE.getChildren();
+			assertThat(andChildren, hasSize(3));
+			{
+				final ConditionalElement shared = andChildren.get(0);
+				assertThat(shared, instanceOf(SharedConditionalElementWrapper.class));
+				sharedAnd = shared;
+				final ConditionalElement sharedLocalAnd =
+						((SharedConditionalElementWrapper) shared).getCe();
+				assertThat(sharedLocalAnd, instanceOf(AndFunctionConditionalElement.class));
+				final List<ConditionalElement> sharedAndChildren = sharedLocalAnd.getChildren();
+				assertThat(sharedAndChildren, hasSize(3));
+				assertSame(templ1, sharedAndChildren.get(0));
+				assertSame(test5, sharedAndChildren.get(1));
+				assertSame(test6, sharedAndChildren.get(2));
+			}
+			{
+				final ConditionalElement shared = andChildren.get(1);
+				assertThat(shared, instanceOf(SharedConditionalElementWrapper.class));
+				sharedTest1 = shared;
+				assertSame(test1, ((SharedConditionalElementWrapper) shared).getCe());
+			}
+			{
+				final ConditionalElement shared = andChildren.get(2);
+				assertThat(shared, instanceOf(SharedConditionalElementWrapper.class));
+				sharedTest3 = shared;
+				assertSame(test3, ((SharedConditionalElementWrapper) shared).getCe());
+			}
+		}
+		{
+			// 2 3
+			final ConditionalElement andCE = orChildren.get(1);
+			final List<ConditionalElement> andChildren = andCE.getChildren();
+			assertThat(andChildren, hasSize(3));
+			{
+				final ConditionalElement shared = andChildren.get(0);
+				assertThat(shared, instanceOf(SharedConditionalElementWrapper.class));
+				assertSame(sharedAnd, shared);
+			}
+			{
+				final ConditionalElement shared = andChildren.get(1);
+				assertThat(shared, instanceOf(SharedConditionalElementWrapper.class));
+				sharedTest2 = shared;
+				assertSame(test2, ((SharedConditionalElementWrapper) shared).getCe());
+			}
+			{
+				final ConditionalElement shared = andChildren.get(2);
+				assertThat(shared, instanceOf(SharedConditionalElementWrapper.class));
+				assertSame(sharedTest3, shared);
+			}
+		}
+		{
+			// 1 4
+			final ConditionalElement andCE = orChildren.get(2);
+			final List<ConditionalElement> andChildren = andCE.getChildren();
+			assertThat(andChildren, hasSize(3));
+			{
+				final ConditionalElement shared = andChildren.get(0);
+				assertThat(shared, instanceOf(SharedConditionalElementWrapper.class));
+				assertSame(sharedAnd, shared);
+			}
+			{
+				final ConditionalElement shared = andChildren.get(1);
+				assertThat(shared, instanceOf(SharedConditionalElementWrapper.class));
+				assertSame(sharedTest1, shared);
+			}
+			{
+				final ConditionalElement shared = andChildren.get(2);
+				assertThat(shared, instanceOf(SharedConditionalElementWrapper.class));
+				sharedTest4 = shared;
+				assertSame(test4, ((SharedConditionalElementWrapper) shared).getCe());
+			}
+		}
+		{
+			// 2 4
+			final ConditionalElement andCE = orChildren.get(3);
+			final List<ConditionalElement> andChildren = andCE.getChildren();
+			assertThat(andChildren, hasSize(3));
+			{
+				final ConditionalElement shared = andChildren.get(0);
+				assertThat(shared, instanceOf(SharedConditionalElementWrapper.class));
+				assertSame(sharedAnd, shared);
+			}
+			{
+				final ConditionalElement shared = andChildren.get(1);
+				assertThat(shared, instanceOf(SharedConditionalElementWrapper.class));
+				assertSame(sharedTest2, shared);
+			}
+			{
+				final ConditionalElement shared = andChildren.get(2);
+				assertThat(shared, instanceOf(SharedConditionalElementWrapper.class));
+				assertSame(sharedTest4, shared);
+			}
+		}
 		// (templ1 Dummy:d* (slot1 ?x)) (or
 		// (and (shared (and (test (< ?x 5)) (test (< ?x 6)))) (shared (test (< ?x (1|2)))) (shared
 		// (test (< ?x (3|4)))))
