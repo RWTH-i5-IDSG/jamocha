@@ -104,26 +104,31 @@ public class RuleConditionProcessor {
 		@Getter
 		private List<ConditionalElement> ces;
 
-		@Override
-		public void visit(final AndFunctionConditionalElement ce) {
+		private void expand(final ConditionalElement ce) {
 			// recurse on children, partition to find the children that had an (or ) on top level
 			// (will have more than one element)
 			final Map<Boolean, List<List<ConditionalElement>>> partition =
 					ce.getChildren().stream().map((el) -> el.accept(new ExpandOrs()).getCes())
 							.collect(partitioningBy(el -> el.size() == 1));
-			final List<List<ConditionalElement>> singletonLists = partition.get(Boolean.TRUE);
+			final List<ConditionalElement> singletonLists =
+					partition.get(Boolean.TRUE).stream().map(l -> l.get(0)).collect(toList());
 			final List<List<ConditionalElement>> orLists = partition.get(Boolean.FALSE);
 			final int numOrs = orLists.size();
 			if (0 == numOrs) {
 				// no (or )s, nothing to do
-				ces = Collections.singletonList(ce);
+				this.ces = Collections.singletonList(ce);
 				return;
 			}
-			// wrap the part without the (or )s into shared element wrapper
-			final SharedConditionalElementWrapper shared =
-					new SharedConditionalElementWrapper(combineViaAnd(singletonLists.stream()
-							.map(l -> l.get(0)).collect(toList())));
 			if (1 == numOrs) {
+				if (singletonLists.isEmpty()) {
+					// only one or, no other children
+					// pull up the list
+					this.ces = orLists.get(0);
+					return;
+				}
+				// wrap the part without the (or )s into shared element wrapper
+				final SharedConditionalElementWrapper shared =
+						new SharedConditionalElementWrapper(combineViaAnd(singletonLists));
 				// only one (or ), no need to share the elements of the (or )
 				// combine shared part with each of the (or )-elements
 				this.ces =
@@ -136,13 +141,25 @@ public class RuleConditionProcessor {
 			// gradually blow up the CEs
 			// the elements of CEs will always be AndFunctionConditionalElements acting as a list
 			// while the construction of CEs is incomplete, thus we start by adding the shared part
-			this.ces =
-					Collections.singletonList(new AndFunctionConditionalElement(Collections
-							.singletonList(shared)));
+			if (singletonLists.isEmpty()) {
+				// no (or )-free part available, wrap the first or-parts into shared wrappers
+				this.ces =
+						orLists.remove(0).stream()
+								.map(orPart -> new SharedConditionalElementWrapper(orPart))
+								.collect(toList());
+			} else {
+				// wrap the part without the (or )s into shared element wrapper
+				final SharedConditionalElementWrapper shared =
+						new SharedConditionalElementWrapper(combineViaAnd(singletonLists));
+				this.ces =
+						Collections.singletonList(new AndFunctionConditionalElement(Collections
+								.singletonList(shared)));
+			}
 			// for every (or ) occurrence we need to duplicate the list of CEs and combine them with
 			// the (or ) elements
 			orLists.forEach(orList -> {
-				final List<ConditionalElement> newCEs = new ArrayList<>(orList.size() * ces.size());
+				final List<ConditionalElement> newCEs =
+						new ArrayList<>(orList.size() * this.ces.size());
 				orList.forEach(orPart -> {
 					// wrap the next or part into a shared element wrapper
 					final SharedConditionalElementWrapper sharedOrPart =
@@ -160,8 +177,32 @@ public class RuleConditionProcessor {
 		}
 
 		@Override
+		public void visit(final AndFunctionConditionalElement ce) {
+			expand(ce);
+		}
+
+		@Override
+		public void visit(final ExistentialConditionalElement ce) {
+			expand(ce);
+			this.ces =
+					this.ces.stream()
+							.map(c -> new ExistentialConditionalElement(Collections
+									.singletonList(c))).collect(toList());
+		}
+
+		@Override
+		public void visit(final NegatedExistentialConditionalElement ce) {
+			expand(ce);
+			this.ces =
+					Collections.singletonList(new AndFunctionConditionalElement(this.ces
+							.stream()
+							.map(c -> new NegatedExistentialConditionalElement(Collections
+									.singletonList(c))).collect(toList())));
+		}
+
+		@Override
 		public void defaultAction(final ConditionalElement ce) {
-			this.ces = Arrays.asList(ce);
+			this.ces = Collections.singletonList(ce);
 		}
 
 		@Override
