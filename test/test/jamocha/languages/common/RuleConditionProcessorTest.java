@@ -527,9 +527,47 @@ public class RuleConditionProcessorTest {
 		assertThat(orCE, instanceOf(OrFunctionConditionalElement.class));
 		final List<ConditionalElement> orChildren = orCE.getChildren();
 		assertThat(orChildren, hasSize(2));
-		final ConditionalElement sharedAnd, sharedTest1, sharedTest2, sharedTest3, sharedTest4;
+		final ConditionalElement shared;
 		{
-
+			final ConditionalElement exAndInit = orChildren.get(0);
+			assertThat(exAndInit, instanceOf(AndFunctionConditionalElement.class));
+			final List<ConditionalElement> exAndInitChildren = exAndInit.getChildren();
+			assertThat(exAndInitChildren, hasSize(2));
+			final ConditionalElement sharedInit = exAndInitChildren.get(0);
+			assertThat(sharedInit, instanceOf(SharedConditionalElementWrapper.class));
+			assertThat(((SharedConditionalElementWrapper) sharedInit).getCe(),
+					instanceOf(InitialFactConditionalElement.class));
+			shared = sharedInit;
+			final ConditionalElement existsCE = exAndInitChildren.get(1);
+			assertThat(existsCE, instanceOf(ExistentialConditionalElement.class));
+			final List<ConditionalElement> existsChildren = existsCE.getChildren();
+			assertThat(existsChildren, hasSize(1));
+			final ConditionalElement andCE = existsChildren.get(0);
+			assertThat(andCE, instanceOf(AndFunctionConditionalElement.class));
+			final List<ConditionalElement> andChildren = andCE.getChildren();
+			assertThat(andChildren, hasSize(2));
+			assertSame(tpce1, andChildren.get(0));
+			assertSame(test1, andChildren.get(1));
+		}
+		{
+			final ConditionalElement exAndInit = orChildren.get(1);
+			assertThat(exAndInit, instanceOf(AndFunctionConditionalElement.class));
+			final List<ConditionalElement> exAndInitChildren = exAndInit.getChildren();
+			assertThat(exAndInitChildren, hasSize(2));
+			final ConditionalElement sharedInit = exAndInitChildren.get(0);
+			assertThat(sharedInit, instanceOf(SharedConditionalElementWrapper.class));
+			assertThat(((SharedConditionalElementWrapper) sharedInit).getCe(),
+					instanceOf(InitialFactConditionalElement.class));
+			assertSame(shared, sharedInit);
+			final ConditionalElement existsCE = exAndInitChildren.get(1);
+			assertThat(existsCE, instanceOf(ExistentialConditionalElement.class));
+			final List<ConditionalElement> existsChildren = existsCE.getChildren();
+			final ConditionalElement andCE = existsChildren.get(0);
+			assertThat(andCE, instanceOf(AndFunctionConditionalElement.class));
+			final List<ConditionalElement> andChildren = andCE.getChildren();
+			assertThat(andChildren, hasSize(2));
+			assertSame(tpce2, andChildren.get(0));
+			assertSame(test2, andChildren.get(1));
 		}
 	}
 }
