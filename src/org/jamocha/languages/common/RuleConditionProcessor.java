@@ -253,13 +253,13 @@ public class RuleConditionProcessor {
 		public void visit(final ExistentialConditionalElement ce) {
 			this.ce =
 					applySkippingIfNegated(ce, negated, NegatedExistentialConditionalElement::new);
-			processChildren(this.ce, !negated);
+			processChildren(this.ce, false);
 		}
 
 		@Override
 		public void visit(final NegatedExistentialConditionalElement ce) {
 			this.ce = applySkippingIfNegated(ce, negated, ExistentialConditionalElement::new);
-			processChildren(this.ce, !negated);
+			processChildren(this.ce, false);
 		}
 
 		private void visitLeaf(final ConditionalElement ce) {
